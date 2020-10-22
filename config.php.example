@@ -1,0 +1,7 @@
+<?php
+
+if ( ! defined( 'WPINC' ) ) {
+	die;
+}
+
+define( 'api_key', 'xxxxxxxxxxxxxxxxx' );

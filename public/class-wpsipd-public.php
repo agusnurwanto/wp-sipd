@@ -100,4 +100,13 @@ class Wpsipd_Public {
 
 	}
 
+	public function singkron_ssh($value='') {
+		global $wpdb;
+		$ret = array(
+			'status'	=> 'success',
+			'message'	=> ''
+		);
+		die(json_encode($ret));
+	}
+
 }
