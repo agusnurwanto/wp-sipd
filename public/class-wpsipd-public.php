@@ -104,8 +104,57 @@ class Wpsipd_Public {
 		global $wpdb;
 		$ret = array(
 			'status'	=> 'success',
-			'message'	=> ''
+			'message'	=> 'Berhasil export SSH!'
 		);
+		if(!empty($_POST)){
+			if(!empty($_POST['api_key']) && $_POST['api_key'] == APIKEY){
+				if(!empty($_POST['ssh'])){
+					$ssh = $_POST['ssh'];
+					foreach ($ssh as $k => $v) {
+						$cek = $wpdb->get_var("SELECT id_standar_harga from data_ssh where id_standar_harga=".$v['id_standar_harga']);
+						$kelompok = explode(' ', $v['nama_kel_standar_harga']);
+						if(!empty($cek)){
+							$wpdb->update('data_ssh', array(
+							    'id_standar_harga' => $v['id_standar_harga'],
+							    'kode_standar_harga' => $v['kode_standar_harga'],
+							    'nama_standar_harga' => $v['nama_standar_harga'],
+							    'satuan' => $v['satuan'],
+							    'spek' => $v['spek'],
+							    'is_deleted' => $v['is_deleted'],
+							    'is_locked' => $v['is_locked'],
+							    'kelompok' => $v['kelompok'],
+							    'harga' => $v['harga'],
+							    'kode_kel_standar_harga' => $v['kode_kel_standar_harga'],
+							    'nama_kel_standar_harga' => $kelompok[1],
+							), array(
+								'id_standar_harga' => $v['id_standar_harga']
+							));
+						}else{
+							$wpdb->insert('data_ssh', array(
+							    'id_standar_harga' => $v['id_standar_harga'],
+							    'kode_standar_harga' => $v['kode_standar_harga'],
+							    'nama_standar_harga' => $v['nama_standar_harga'],
+							    'satuan' => $v['satuan'],
+							    'spek' => $v['spek'],
+							    'is_deleted' => $v['is_deleted'],
+							    'is_locked' => $v['is_locked'],
+							    'kelompok' => $v['kelompok'],
+							    'harga' => $v['harga'],
+							    'kode_kel_standar_harga' => $v['kode_kel_standar_harga'],
+							    'nama_kel_standar_harga' => $kelompok[1],
+							));
+						}
+					}
+					// print_r($ssh); die();
+				}else{
+					$ret['status'] = 'error';
+					$ret['message'] = 'Format SSH Salah!';
+				}
+			}else{
+				$ret['status'] = 'error';
+				$ret['message'] = 'APIKEY tidak sesuai!';
+			}
+		}
 		die(json_encode($ret));
 	}
 

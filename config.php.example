@@ -4,4 +4,4 @@ if ( ! defined( 'WPINC' ) ) {
 	die;
 }
 
-define( 'api_key', 'xxxxxxxxxxxxxxxxx' );
+define( 'APIKEY', 'xxxxxxxxxxxxxxxxx' );

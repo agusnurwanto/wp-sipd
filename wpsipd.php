@@ -36,6 +36,7 @@ if ( ! defined( 'WPINC' ) ) {
  * Rename this for your plugin and update it as you release new versions.
  */
 define( 'WPSIPD_VERSION', '1.0.0' );
+require_once plugin_dir_path( __FILE__ ) . 'config.php';
 
 /**
  * The code that runs during plugin activation.
