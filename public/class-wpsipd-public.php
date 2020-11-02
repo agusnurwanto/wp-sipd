@@ -171,7 +171,7 @@ class Wpsipd_Public {
 		$data_ssh = $wpdb->get_results("SELECT * from data_ssh", ARRAY_A);
 		$tbody = '';
 		foreach ($data_ssh as $k => $v) {
-			if($k >= 10){ continue; }
+			// if($k >= 10){ continue; }
 			$data_rek = $wpdb->get_results("SELECT * from data_ssh_rek_belanja where id_standar_harga=".$v['id_standar_harga'], ARRAY_A);
 			$rek = array();
 			foreach ($data_rek as $key => $value) {
@@ -183,8 +183,8 @@ class Wpsipd_Public {
 			}
 			$tbody .= '
 				<tr>
-					<td class="text-center">'.($k+1).'</td>
-					<td class="text-center">ID: '.$v['id_standar_harga'].'<br>Update pada: '.$v['update_at'].'</td>
+					<td class="text-center">'.number_format(($k+1),0,",",".").'</td>
+					<td class="text-center">ID: '.$v['id_standar_harga'].'<br>Update pada:<br>'.$v['update_at'].'</td>
 					<td>'.$v['kode_standar_harga'].'</td>
 					<td>'.$v['nama_standar_harga'].'</td>
 					<td class="text-center">'.$v['satuan'].'</td>
@@ -211,18 +211,18 @@ class Wpsipd_Public {
 			</style>
 			<table>
 				<thead>
-					<tr class="text-center">
-						<th>No</th>
-						<th>ID Standar Harga</th>
-						<th>Kode</th>
-						<th>Nama</th>
-						<th>Satuan</th>
-						<th>Spek</th>
-						<th>Deleted</th>
-						<th>Locked</th>
-						<th>Kelompok</th>
-						<th>Harga</th>
-						<th>Rekening Belanja</th>
+					<tr>
+						<th class="text-center">No</th>
+						<th class="text-center">ID Standar Harga</th>
+						<th class="text-center">Kode</th>
+						<th class="text-center" style="width: 200px;">Nama</th>
+						<th class="text-center">Satuan</th>
+						<th class="text-center" style="width: 200px;">Spek</th>
+						<th class="text-center">Deleted</th>
+						<th class="text-center">Locked</th>
+						<th class="text-center">Kelompok</th>
+						<th class="text-center">Harga</th>
+						<th class="text-center">Rekening Belanja</th>
 					</tr>
 				</thead>
 				<tbody>'.$tbody.'</tbody>
