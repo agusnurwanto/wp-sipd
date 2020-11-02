@@ -173,9 +173,14 @@ class Wpsipd {
 		$this->loader->add_action( 'wp_enqueue_scripts', $plugin_public, 'enqueue_styles' );
 		$this->loader->add_action( 'wp_enqueue_scripts', $plugin_public, 'enqueue_scripts' );
 
+		$this->loader->add_action( 'wp_ajax_singkron_akun_belanja',  $plugin_public, 'singkron_akun_belanja' );
+		$this->loader->add_action( 'wp_ajax_nopriv_singkron_akun_belanja',  $plugin_public, 'singkron_akun_belanja' );
+
 		$this->loader->add_action( 'wp_ajax_singkron_ssh',  $plugin_public, 'singkron_ssh' );
 		$this->loader->add_action( 'wp_ajax_nopriv_singkron_ssh',  $plugin_public, 'singkron_ssh' );
+		
 		add_shortcode( 'datassh', array( $plugin_public, 'datassh' ) );
+		add_shortcode( 'rekbelanja', array( $plugin_public, 'rekbelanja' ) );
 
 	}
 

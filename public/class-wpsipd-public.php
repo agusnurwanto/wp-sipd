@@ -74,6 +74,7 @@ class Wpsipd_Public {
 		 */
 
 		wp_enqueue_style( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'css/wpsipd-public.css', array(), $this->version, 'all' );
+		wp_enqueue_style( $this->plugin_name.'bootstrap', plugin_dir_url( __FILE__ ) . 'css/bootstrap.min.css', array(), $this->version, 'all' );
 
 	}
 
@@ -97,6 +98,7 @@ class Wpsipd_Public {
 		 */
 
 		wp_enqueue_script( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'js/wpsipd-public.js', array( 'jquery' ), $this->version, false );
+		wp_enqueue_script( $this->plugin_name.'bootstrap', plugin_dir_url( __FILE__ ) . 'js/bootstrap.bundle.min.js', array( 'jquery' ), $this->version, false );
 
 	}
 
@@ -125,7 +127,8 @@ class Wpsipd_Public {
 						    'harga' => $v['harga'],
 						    'kode_kel_standar_harga' => $v['kode_kel_standar_harga'],
 						    'nama_kel_standar_harga' => $kelompok[1],
-						    'update_at'	=> date('Y-m-d H:i:s')
+						    'update_at'	=> date('Y-m-d H:i:s'),
+						    'tahun_anggaran'	=> $_POST['tahun_anggaran']
 						);
 						if(!empty($cek)){
 							$wpdb->update('data_ssh', $opsi, array(
@@ -166,10 +169,21 @@ class Wpsipd_Public {
 		die(json_encode($ret));
 	}
 
-	public function datassh($value=''){
+	public function datassh($atts){
+		$a = shortcode_atts( array(
+			'filter' => '',
+		), $atts );
 		global $wpdb;
-		$data_ssh = $wpdb->get_results("SELECT * from data_ssh", ARRAY_A);
+
+		$where = '';
+		if(!empty($a['filter'])){
+			if($a['filter'] == 'is_deleted'){
+				$where = 'where is_deleted=1';
+			}
+		}
+		$data_ssh = $wpdb->get_results("SELECT * from data_ssh ".$where, ARRAY_A);
 		$tbody = '';
+		$no = 1;
 		foreach ($data_ssh as $k => $v) {
 			// if($k >= 10){ continue; }
 			$data_rek = $wpdb->get_results("SELECT * from data_ssh_rek_belanja where id_standar_harga=".$v['id_standar_harga'], ARRAY_A);
@@ -177,13 +191,19 @@ class Wpsipd_Public {
 			foreach ($data_rek as $key => $value) {
 				$rek[] = $value['nama_akun'];
 			}
+			if(!empty($a['filter'])){
+				if($a['filter'] == 'rek_kosong' && !empty($rek)){
+					continue;
+				}
+			}
+
 			$kelompok = "";
 			if($v['kelompok'] == 1){
 				$kelompok = 'SSH';
 			}
 			$tbody .= '
 				<tr>
-					<td class="text-center">'.number_format(($k+1),0,",",".").'</td>
+					<td class="text-center">'.number_format($no,0,",",".").'</td>
 					<td class="text-center">ID: '.$v['id_standar_harga'].'<br>Update pada:<br>'.$v['update_at'].'</td>
 					<td>'.$v['kode_standar_harga'].'</td>
 					<td>'.$v['nama_standar_harga'].'</td>
@@ -196,9 +216,10 @@ class Wpsipd_Public {
 					<td>'.implode('<br>', $rek).'</td>
 				</tr>
 			';
+			$no++;
 		}
 		if(empty($tbody)){
-			$tbody = '<tr><td colspan="10" class="text-center">Data Kosong!</td></tr>';
+			$tbody = '<tr><td colspan="11" class="text-center">Data Kosong!</td></tr>';
 		}
 		$table = '
 			<style>
@@ -223,6 +244,189 @@ class Wpsipd_Public {
 						<th class="text-center">Kelompok</th>
 						<th class="text-center">Harga</th>
 						<th class="text-center">Rekening Belanja</th>
+					</tr>
+				</thead>
+				<tbody>'.$tbody.'</tbody>
+			</table>
+		';
+		echo $table;
+	}
+
+	public function singkron_akun_belanja(){
+		global $wpdb;
+		$ret = array(
+			'status'	=> 'success',
+			'message'	=> 'Berhasil export Akun Rekening Belanja!'
+		);
+		if(!empty($_POST)){
+			if(!empty($_POST['api_key']) && $_POST['api_key'] == APIKEY){
+				if(!empty($_POST['akun'])){
+					$akun = $_POST['akun'];
+					foreach ($akun as $k => $v) {
+						$cek = $wpdb->get_var("SELECT id_akun from data_akun where id_akun=".$v['id_akun']);
+						$opsi = array(
+						  	'belanja' => $v['belanja'],
+							'id_akun' => $v['id_akun'],
+							'is_bagi_hasil' => $v['is_bagi_hasil'],
+							'is_bankeu_khusus' => $v['is_bankeu_khusus'],
+							'is_bankeu_umum' => $v['is_bankeu_umum'],
+							'is_barjas' => $v['is_barjas'],
+							'is_bl' => $v['is_bl'],
+							'is_bos' => $v['is_bos'],
+							'is_btt' => $v['is_btt'],
+							'is_bunga' => $v['is_bunga'],
+							'is_gaji_asn' => $v['is_gaji_asn'],
+							'is_hibah_brg' => $v['is_hibah_brg'],
+							'is_hibah_uang' => $v['is_hibah_uang'],
+							'is_locked' => $v['is_locked'],
+							'is_modal_tanah' => $v['is_modal_tanah'],
+							'is_pembiayaan' => $v['is_pembiayaan'],
+							'is_pendapatan' => $v['is_pendapatan'],
+							'is_sosial_brg' => $v['is_sosial_brg'],
+							'is_sosial_uang' => $v['is_sosial_uang'],
+							'is_subsidi' => $v['is_subsidi'],
+							'kode_akun' => $v['kode_akun'],
+							'nama_akun' => $v['nama_akun'],
+							'set_input' => $v['set_input'],
+							'set_lokus' => $v['set_lokus'],
+							'status' => $v['status'],
+							'update_at' => date('Y-m-d H:i:s'),
+							'tahun_anggaran' => $_POST['tahun_anggaran']
+						);
+						if(!empty($cek)){
+							$wpdb->update('data_akun', $opsi, array(
+								'id_akun' => $v['id_akun']
+							));
+						}else{
+							$wpdb->insert('data_akun', $opsi);
+						}
+					}
+					// print_r($ssh); die();
+				}else{
+					$ret['status'] = 'error';
+					$ret['message'] = 'Format Akun Belanja Salah!';
+				}
+			}else{
+				$ret['status'] = 'error';
+				$ret['message'] = 'APIKEY tidak sesuai!';
+			}
+		}else{
+			$ret['status'] = 'error';
+			$ret['message'] = 'Format Salah!';
+		}
+		die(json_encode($ret));
+	}
+
+	public function getSSH(){
+		global $wpdb;
+		$ret = array(
+			'status'	=> 'success',
+			'message'	=> 'Berhasil export Akun Rekening Belanja!'
+		);
+		if(!empty($_POST)){
+			if(!empty($_POST['id_akun'])){
+				$data_ssh = $wpdb->get_results($wpdb->prepare("
+					SELECT 
+						s.id_standar_harga, 
+						s.nama_standar_harga, 
+						s.kode_standar_harga 
+					from data_ssh_rek_belanja r
+						join data_ssh s ON r.id_standar_harga=s.id_standar_harga
+					where r.id_akun=%d", $_POST['id_akun'])
+				, ARRAY_A);
+			}else{
+				$ret['status'] = 'error';
+				$ret['message'] = 'Format ID Salah!';
+			}
+		}else{
+			$ret['status'] = 'error';
+			$ret['message'] = 'Format Salah!';
+		}
+		die(json_encode($ret));
+	}
+
+	public function rekbelanja($atts){
+		$a = shortcode_atts( array(
+			'filter' => '',
+		), $atts );
+		global $wpdb;
+
+		$data_akun = $wpdb->get_results("
+			SELECT 
+				* 
+			from data_akun 
+			where belanja='Ya'
+				AND is_barjas=1
+				AND set_input=1"
+		, ARRAY_A);
+		$tbody = '';
+		$no = 1;
+		foreach ($data_akun as $k => $v) {
+			// if($k >= 100){ continue; }
+			$data_ssh = $wpdb->get_results("
+				SELECT 
+					s.id_standar_harga, 
+					s.nama_standar_harga, 
+					s.kode_standar_harga 
+				from data_ssh_rek_belanja r
+					join data_ssh s ON r.id_standar_harga=s.id_standar_harga
+				where r.id_akun=".$v['id_akun']
+			, ARRAY_A);
+
+			$ssh = array();
+			foreach ($data_ssh as $key => $value) {
+				$ssh[] = '('.$value['id_standar_harga'].') '.$value['kode_standar_harga'].' '.$value['nama_standar_harga'];
+			}
+			if(!empty($a['filter'])){
+				if($a['filter'] == 'ssh_kosong' && !empty($ssh)){
+					continue;
+				}
+			}
+
+			$html_ssh = '';
+			if(!empty($ssh)){
+				$html_ssh = '
+					<a class="btn btn-primary" data-toggle="collapse" href="#collapseSSH'.$k.'" role="button" aria-expanded="false" aria-controls="collapseSSH'.$k.'">
+				    	Lihat Item SSH Total ('.count($ssh).')
+				  	</a>
+				  	<div class="collapse" id="collapseSSH'.$k.'">
+					  	<div class="card card-body">
+				  			'.implode('<br>', $ssh).'
+					  	</div>
+					</div>
+				';
+			}
+			$tbody .= '
+				<tr>
+					<td class="text-center">'.number_format($no,0,",",".").'</td>
+					<td class="text-center">ID: '.$v['id_akun'].'<br>Update pada:<br>'.$v['update_at'].'</td>
+					<td>'.$v['kode_akun'].'</td>
+					<td>'.$v['nama_akun'].'</td>
+					<td>'.$html_ssh.'</td>
+				</tr>
+			';
+			$no++;
+		}
+		if(empty($tbody)){
+			$tbody = '<tr><td colspan="5" class="text-center">Data Kosong!</td></tr>';
+		}
+		$table = '
+			<style>
+				.text-center {
+					text-align: center;
+				}
+				.text-right {
+					text-align: right;
+				}
+			</style>
+			<table>
+				<thead>
+					<tr>
+						<th class="text-center" style="width: 30px;">No</th>
+						<th class="text-center" style="width: 200px;">ID Akun</th>
+						<th class="text-center" style="width: 100px;">Kode</th>
+						<th class="text-center" style="width: 400px;">Nama</th>
+						<th class="text-center">Item SSH</th>
 					</tr>
 				</thead>
 				<tbody>'.$tbody.'</tbody>
