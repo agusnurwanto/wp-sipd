@@ -127,7 +127,7 @@ class Wpsipd_Public {
 						    'harga' => $v['harga'],
 						    'kode_kel_standar_harga' => $v['kode_kel_standar_harga'],
 						    'nama_kel_standar_harga' => $kelompok[1],
-						    'update_at'	=> date('Y-m-d H:i:s'),
+						    'update_at'	=> current_time('mysql'),
 						    'tahun_anggaran'	=> $_POST['tahun_anggaran']
 						);
 						if(!empty($cek)){
@@ -290,7 +290,7 @@ class Wpsipd_Public {
 							'set_input' => $v['set_input'],
 							'set_lokus' => $v['set_lokus'],
 							'status' => $v['status'],
-							'update_at' => date('Y-m-d H:i:s'),
+							'update_at' => current_time('mysql'),
 							'tahun_anggaran' => $_POST['tahun_anggaran']
 						);
 						if(!empty($cek)){
@@ -305,6 +305,143 @@ class Wpsipd_Public {
 				}else{
 					$ret['status'] = 'error';
 					$ret['message'] = 'Format Akun Belanja Salah!';
+				}
+			}else{
+				$ret['status'] = 'error';
+				$ret['message'] = 'APIKEY tidak sesuai!';
+			}
+		}else{
+			$ret['status'] = 'error';
+			$ret['message'] = 'Format Salah!';
+		}
+		die(json_encode($ret));
+	}
+
+	public function singkron_rka(){
+		global $wpdb;
+		$ret = array(
+			'status'	=> 'success',
+			'message'	=> 'Berhasil export RKA!'
+		);
+		if(!empty($_POST)){
+			if(!empty($_POST['api_key']) && $_POST['api_key'] == APIKEY){
+				if(!empty($_POST['dataBl'])){
+					$dataBl = $_POST['dataBl'];
+					foreach ($dataBl as $k => $v) {
+						$cek = $wpdb->get_var("SELECT id_sub_bl from data_sub_keg_bl where id_sub_bl=".$v['id_sub_bl']);
+						$opsi = array(
+							'id_sub_skpd' => $v['id_sub_skpd'],
+				            'id_lokasi' => $v['id_lokasi'],
+				            'id_label_kokab' => $v['id_label_kokab'],
+				            'nama_dana' => $v['nama_dana'],
+				            'no_sub_giat' => $v['no_sub_giat'],
+				            'kode_giat' => $v['kode_giat'],
+				            'id_program' => $v['id_program'],
+				            'nama_lokasi' => $v['nama_lokasi'],
+				            'waktu_akhir' => $v['waktu_akhir'],
+				            'pagu_n_lalu' => $v['pagu_n_lalu'],
+				            'id_urusan' => $v['id_urusan'],
+				            'id_unik_sub_bl' => $v['id_unik_sub_bl'],
+				            'id_sub_giat' => $v['id_sub_giat'],
+				            'label_prov' => $v['label_prov'],
+				            'kode_program' => $v['kode_program'],
+				            'kode_sub_giat' => $v['kode_sub_giat'],
+				            'no_program' => $v['no_program'],
+				            'kode_urusan' => $v['kode_urusan'],
+				            'kode_bidang_urusan' => $v['kode_bidang_urusan'],
+				            'nama_program' => $v['nama_program'],
+				            'target_4' => $v['target_4'],
+				            'target_5' => $v['target_5'],
+				            'id_bidang_urusan' => $v['id_bidang_urusan'],
+				            'nama_bidang_urusan' => $v['nama_bidang_urusan'],
+				            'target_3' => $v['target_3'],
+				            'no_giat' => $v['no_giat'],
+				            'id_label_prov' => $v['id_label_prov'],
+				            'waktu_awal' => $v['waktu_awal'],
+				            'pagu' => $v['pagu'],
+				            'output_sub_giat' => $v['output_sub_giat'],
+				            'sasaran' => $v['sasaran'],
+				            'indikator' => $v['indikator'],
+				            'id_dana' => $v['id_dana'],
+				            'nama_sub_giat' => $v['nama_sub_giat'],
+				            'pagu_n_depan' => $v['pagu_n_depan'],
+				            'satuan' => $v['satuan'],
+				            'id_rpjmd' => $v['id_rpjmd'],
+				            'id_giat' => $v['id_giat'],
+				            'id_label_pusat' => $v['id_label_pusat'],
+				            'nama_giat' => $v['nama_giat'],
+				            'id_skpd' => $v['id_skpd'],
+				            'id_sub_bl' => $v['id_sub_bl'],
+				            'nama_sub_skpd' => $v['nama_sub_skpd'],
+				            'target_1' => $v['target_1'],
+				            'nama_urusan' => $v['nama_urusan'],
+				            'target_2' => $v['target_2'],
+				            'label_kokab' => $v['label_kokab'],
+				            'label_pusat' => $v['label_pusat'],
+				            'id_bl' => $v['id_bl'],
+							'update_at' => current_time('mysql'),
+							'tahun_anggaran' => $_POST['tahun_anggaran']
+						);
+						if(!empty($cek)){
+							$wpdb->update('data_sub_keg_bl', $opsi, array(
+								'id_sub_bl' => $v['id_sub_bl']
+							));
+						}else{
+							$wpdb->insert('data_sub_keg_bl', $opsi);
+						}
+					}
+				}else{
+					$ret['status'] = 'error';
+					$ret['message'] = 'Format data BL Salah!';
+				}
+				if(!empty($_POST['rka']) && $ret['status'] != 'error'){
+					$rka = $_POST['rka'];
+					foreach ($rka as $k => $v) {
+						$cek = $wpdb->get_var("SELECT id_rinci_sub_bl from data_rka where id_rinci_sub_bl=".$v['id_rinci_sub_bl']);
+						$opsi = array(
+							'created_user' => $v['created_user'],
+							'createddate' => $v['createddate'],
+							'createdtime' => $v['createdtime'],
+							'harga_satuan' => $v['harga_satuan'],
+							'id_daerah' => $v['id_daerah'],
+							'id_rinci_sub_bl' => $v['id_rinci_sub_bl'],
+							'id_standar_nfs' => $v['id_standar_nfs'],
+							'is_locked' => $v['is_locked'],
+							'jenis_bl' => $v['jenis_bl'],
+							'ket_bl_teks' => $v['ket_bl_teks'],
+							'kode_akun' => $v['kode_akun'],
+							'koefisien' => $v['koefisien'],
+							'lokus_akun_teks' => $v['lokus_akun_teks'],
+							'nama_akun' => $v['nama_akun'],
+							'nama_komponen' => $v['nama_komponen'],
+							'spek_komponen' => $v['spek_komponen'],
+							'satuan' => $v['satuan'],
+							'spek' => $v['spek'],
+							'subs_bl_teks' => $v['subs_bl_teks'],
+							'total_harga' => $v['total_harga'],
+							'totalpajak' => $v['totalpajak'],
+							'updated_user' => $v['updated_user'],
+							'updateddate' => $v['updateddate'],
+							'updatedtime' => $v['updatedtime'],
+							'user1' => $v['user1'],
+							'user2' => $v['user2'],
+							'idbl' => $_POST['idbl'],
+							'idsubbl' => $_POST['idsubbl'],
+							'update_at' => current_time('mysql'),
+							'tahun_anggaran' => $_POST['tahun_anggaran']
+						);
+						if(!empty($cek)){
+							$wpdb->update('data_rka', $opsi, array(
+								'id_rinci_sub_bl' => $v['id_rinci_sub_bl']
+							));
+						}else{
+							$wpdb->insert('data_rka', $opsi);
+						}
+					}
+					// print_r($ssh); die();
+				}else if($ret['status'] != 'error'){
+					$ret['status'] = 'error';
+					$ret['message'] = 'Format RKA Salah!';
 				}
 			}else{
 				$ret['status'] = 'error';
