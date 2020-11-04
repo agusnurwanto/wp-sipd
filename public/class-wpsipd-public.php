@@ -389,6 +389,33 @@ class Wpsipd_Public {
 						}else{
 							$wpdb->insert('data_sub_keg_bl', $opsi);
 						}
+
+						$nama_page = $_POST['tahun_anggaran'].' '.$v['nama_giat'];
+						$custom_post = get_page_by_title($nama_page, OBJECT, 'page');
+						// print_r($custom_post); die();
+						if(empty($custom_post) || empty($custom_post->ID)){
+							$id = wp_insert_post( array(
+								'post_title'	=> $nama_page, 
+								'post_content'	=> '[tampilrka idbl='.$v['id_bl'].']', 
+								'post_type'		=> 'page',
+								'post_status'	=> 'publish'
+							));
+							$custom_post = get_page_by_title($nama_page, OBJECT, 'page');
+						}else{
+							wp_update_post(array(
+							    'ID'    =>  $custom_post->ID,
+							    'post_status'   =>  'publish'
+						    ));
+						}
+						update_post_meta($custom_post->ID,'ast-breadcrumbs-content', 'disabled');
+						update_post_meta($custom_post->ID,'ast-featured-img', 'disabled');
+						update_post_meta($custom_post->ID,'ast-main-header-display', 'disabled');
+						update_post_meta($custom_post->ID,'footer-sml-layout', 'disabled');
+						update_post_meta($custom_post->ID,'site-content-layout', 'page-builder');
+						update_post_meta($custom_post->ID,'site-post-title', 'disabled');
+						update_post_meta($custom_post->ID,'site-sidebar-layout', 'no-sidebar');
+						update_post_meta($custom_post->ID,'theme-transparent-header-meta', 'disabled');
+						$ret['message'] .= ' URL '.$custom_post->guid;
 					}
 				}else{
 					$ret['status'] = 'error';
@@ -570,6 +597,10 @@ class Wpsipd_Public {
 			</table>
 		';
 		echo $table;
+	}
+
+	public function tampilrka($atts){
+		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'public/partials/wpsipd-public-rka.php';
 	}
 
 }
