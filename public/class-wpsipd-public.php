@@ -390,7 +390,7 @@ class Wpsipd_Public {
 							$wpdb->insert('data_sub_keg_bl', $opsi);
 						}
 
-						$nama_page = $_POST['tahun_anggaran'].' '.$v['nama_giat'];
+						$nama_page = $_POST['tahun_anggaran'].' '.$v['kode_giat'].' '.$v['nama_giat'];
 						$custom_post = get_page_by_title($nama_page, OBJECT, 'page');
 						// print_r($custom_post); die();
 						if(empty($custom_post) || empty($custom_post->ID)){
@@ -421,6 +421,35 @@ class Wpsipd_Public {
 					$ret['status'] = 'error';
 					$ret['message'] = 'Format data BL Salah!';
 				}
+
+				if(!empty($_POST['dataOutput']) && $ret['status'] != 'error'){
+					$dataOutput = $_POST['dataOutput'];
+					foreach ($dataOutput as $k => $v) {
+						$cek = $wpdb->get_var("SELECT idsubbl from data_sub_keg_indikator where idsubbl=".$_POST['idsubbl']);
+						$opsi = array(
+							'outputteks' => $v['outputteks'],
+				            'targetoutput' => $v['targetoutput'],
+				            'satuanoutput' => $v['satuanoutput'],
+				            'idoutputbl' => $v['idoutputbl'],
+				            'targetoutputteks' => $v['targetoutputteks'],
+							'idsubbl' => $_POST['idsubbl'],
+							'update_at' => current_time('mysql'),
+							'tahun_anggaran' => $_POST['tahun_anggaran']
+						);
+						if(!empty($cek)){
+							$wpdb->update('data_sub_keg_indikator', $opsi, array(
+								'idsubbl' => $_POST['idsubbl']
+							));
+						}else{
+							$wpdb->insert('data_sub_keg_indikator', $opsi);
+						}
+
+					}
+				}else if($ret['status'] != 'error'){
+					$ret['status'] = 'error';
+					$ret['message'] = 'Format data dataOutput Salah!';
+				}
+				
 				if(!empty($_POST['rka']) && $ret['status'] != 'error'){
 					$rka = $_POST['rka'];
 					foreach ($rka as $k => $v) {

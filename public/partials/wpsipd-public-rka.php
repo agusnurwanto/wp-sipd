@@ -26,6 +26,21 @@ foreach ($bl as $k => $sub_bl) {
 	$pagu += $sub_bl['pagu'];
 	$pagu_n_lalu += $sub_bl['pagu_n_lalu'];
 	$pagu_n_depan += $sub_bl['pagu_n_depan'];
+	$sql = "
+		SELECT 
+			* 
+		from data_sub_keg_indikator 
+		where idsubbl=".$sub_bl['id_sub_bl'];
+	$indikator_sub_keg = $wpdb->get_results($sql, ARRAY_A);
+	$indikator_sub = '';
+	foreach ($indikator_sub_keg as $key => $ind) {
+		$indikator_sub .= '
+			<tr>
+                <td width="495">'.$ind['outputteks'].'</td>
+                <td width="495">'.$ind['targetoutputteks'].'</td>
+            </tr>
+		';
+	}
 	$rin_sub .= '
 		<tr>
             <td class="kiri kanan bawah" colspan="13">
@@ -59,10 +74,7 @@ foreach ($bl as $k => $sub_bl) {
                                 	<td>Indikator</td>
                                 	<td>Target</td>
                                 </tr>
-                                <tr>
-                                    <td width="495">[nama indikator]</td>
-                                    <td width="495">[target dan satuan]</td>
-                                </tr>
+                                '.$indikator_sub.'
                             </table>
                          </td>
                     </tr>
@@ -87,11 +99,74 @@ foreach ($bl as $k => $sub_bl) {
 			* 
 		from data_rka 
 		where idbl=".$sub_bl['id_bl']."
-			AND idsubbl=".$sub_bl['id_sub_bl']
+			AND idsubbl=".$sub_bl['id_sub_bl']."
+		Order by kode_akun ASC"
 	, ARRAY_A);
 	$rin_sub_item = '';
 	$total_sub_rinc = 0;
+	$akun = array();
+	$total_subs_bl_teks = array();
 	foreach ($rinc as $key => $item) {
+		if(empty($akun[$item['nama_akun']])){
+			$nama_akun = str_replace($item['kode_akun'], '', $item['nama_akun']);
+			$akun[$item['nama_akun']] = array(
+				'total' => 0,
+				'status' => 0,
+				'kode_akun' => $item['kode_akun'],
+				'nama_akun' => $nama_akun
+			);
+		}
+		if(empty($akun[$item['nama_akun']][$item['subs_bl_teks']])){
+			$akun[$item['nama_akun']][$item['subs_bl_teks']] = array(
+				'total' => 0,
+				'status' => 0,
+				'kode_akun' => '&nbsp;',
+				'nama_akun' => '[#] '.$item['subs_bl_teks']
+			);
+		}
+		if(empty($akun[$item['nama_akun']][$item['subs_bl_teks']][$item['ket_bl_teks']])){
+			$akun[$item['nama_akun']][$item['subs_bl_teks']][$item['ket_bl_teks']] = array(
+				'total' => 0,
+				'status' => 0,
+				'kode_akun' => '&nbsp;',
+				'nama_akun' => '[-] '.$item['ket_bl_teks']
+			);
+		}
+		$akun[$item['nama_akun']]['total'] += $item['total_harga'];
+		$akun[$item['nama_akun']][$item['subs_bl_teks']]['total'] += $item['total_harga'];
+		$akun[$item['nama_akun']][$item['subs_bl_teks']][$item['ket_bl_teks']]['total'] += $item['total_harga'];
+	}
+	foreach ($rinc as $key => $item) {
+		if($akun[$item['nama_akun']]['status'] == 0){
+			$akun[$item['nama_akun']]['status'] = 1;
+			$rin_sub_item .= '
+				<tr>
+	                <td class="kiri kanan bawah text_blok">'.$akun[$item['nama_akun']]['kode_akun'].'</td>
+                    <td class="kanan bawah text_blok" colspan="5">'.$akun[$item['nama_akun']]['nama_akun'].'</td>
+                    <td class="kanan bawah text_kanan text_blok" style="white-space:nowrap">Rp. '.number_format($akun[$item['nama_akun']]['total'],2,",",".").'</td>
+                </tr>
+			';
+		}
+		if($akun[$item['nama_akun']][$item['subs_bl_teks']]['status'] == 0){
+			$akun[$item['nama_akun']][$item['subs_bl_teks']]['status'] = 1;
+			$rin_sub_item .= '
+				<tr>
+	                <td class="kiri kanan bawah text_blok">'.$akun[$item['nama_akun']][$item['subs_bl_teks']]['kode_akun'].'</td>
+                    <td class="kanan bawah text_blok" colspan="5">'.$akun[$item['nama_akun']][$item['subs_bl_teks']]['nama_akun'].'</td>
+                    <td class="kanan bawah text_kanan text_blok" style="white-space:nowrap">Rp. '.number_format($akun[$item['nama_akun']][$item['subs_bl_teks']]['total'],2,",",".").'</td>
+                </tr>
+			';
+		}
+		if($akun[$item['nama_akun']][$item['subs_bl_teks']][$item['ket_bl_teks']]['status'] == 0){
+			$akun[$item['nama_akun']][$item['subs_bl_teks']][$item['ket_bl_teks']]['status'] = 1;
+			$rin_sub_item .= '
+				<tr>
+	                <td class="kiri kanan bawah text_blok">'.$akun[$item['nama_akun']][$item['subs_bl_teks']][$item['ket_bl_teks']]['kode_akun'].'</td>
+                    <td class="kanan bawah text_blok" colspan="5">'.$akun[$item['nama_akun']][$item['subs_bl_teks']][$item['ket_bl_teks']]['nama_akun'].'</td>
+                    <td class="kanan bawah text_kanan text_blok" style="white-space:nowrap">Rp. '.number_format($akun[$item['nama_akun']][$item['subs_bl_teks']][$item['ket_bl_teks']]['total'],2,",",".").'</td>
+                </tr>
+			';
+		}
 		$rin_sub_item .= '
 			<tr>
 				<td class="kiri kanan bawah text_blok">&nbsp;</td>
