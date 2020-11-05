@@ -107,63 +107,208 @@ foreach ($bl as $k => $sub_bl) {
 	$akun = array();
 	$total_subs_bl_teks = array();
 	foreach ($rinc as $key => $item) {
-		if(empty($akun[$item['nama_akun']])){
+		$akun_all = explode('.', $item['kode_akun']);
+		$akun_1 = $akun_all[0].'.'.$akun_all[1];
+		$akun_2 = $akun_1.'.'.$akun_all[2];
+		$akun_3 = $akun_2.'.'.$akun_all[3];
+		$akun_4 = $akun_3.'.'.$akun_all[4];
+		$akun_1_db = $wpdb->get_results("
+			SELECT 
+				kode_akun,
+				nama_akun 
+			from data_akun 
+			where kode_akun='".$akun_1."'"
+		, ARRAY_A);
+		$akun_2_db = $wpdb->get_results("
+			SELECT 
+				kode_akun,
+				nama_akun 
+			from data_akun 
+			where kode_akun='".$akun_2."'"
+		, ARRAY_A);
+		$akun_3_db = $wpdb->get_results("
+			SELECT 
+				kode_akun,
+				nama_akun 
+			from data_akun 
+			where kode_akun='".$akun_3."'"
+		, ARRAY_A);
+		$akun_4_db = $wpdb->get_results("
+			SELECT 
+				kode_akun,
+				nama_akun 
+			from data_akun 
+			where kode_akun='".$akun_4."'"
+		, ARRAY_A);
+		if(empty($akun[$akun_1_db[0]['kode_akun']])){
+			$akun[$akun_1_db[0]['kode_akun']] = array(
+				'total' => 0,
+				'status' => 0,
+				'kode_akun' => $akun_1_db[0]['kode_akun'],
+				'nama_akun' => $akun_1_db[0]['nama_akun']
+			);
+		}
+		if(empty($akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']])){
+			$akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']] = array(
+				'total' => 0,
+				'status' => 0,
+				'kode_akun' => $akun_2_db[0]['kode_akun'],
+				'nama_akun' => $akun_2_db[0]['nama_akun']
+			);
+		}
+		if(empty($akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']])){
+			$akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']] = array(
+				'total' => 0,
+				'status' => 0,
+				'kode_akun' => $akun_3_db[0]['kode_akun'],
+				'nama_akun' => $akun_3_db[0]['nama_akun']
+			);
+		}
+		if(empty($akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']][$akun_4_db[0]['kode_akun']])){
+			$akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']][$akun_4_db[0]['kode_akun']] = array(
+				'total' => 0,
+				'status' => 0,
+				'kode_akun' => $akun_4_db[0]['kode_akun'],
+				'nama_akun' => $akun_4_db[0]['nama_akun']
+			);
+		}
+		if(empty($akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']][$akun_4_db[0]['kode_akun']][$item['nama_akun']])){
 			$nama_akun = str_replace($item['kode_akun'], '', $item['nama_akun']);
-			$akun[$item['nama_akun']] = array(
+			$akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']][$akun_4_db[0]['kode_akun']][$item['nama_akun']] = array(
 				'total' => 0,
 				'status' => 0,
 				'kode_akun' => $item['kode_akun'],
 				'nama_akun' => $nama_akun
 			);
 		}
-		if(empty($akun[$item['nama_akun']][$item['subs_bl_teks']])){
-			$akun[$item['nama_akun']][$item['subs_bl_teks']] = array(
+		if(empty($akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']][$akun_4_db[0]['kode_akun']][$item['nama_akun']][$item['subs_bl_teks']])){
+			$akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']][$akun_4_db[0]['kode_akun']][$item['nama_akun']][$item['subs_bl_teks']] = array(
 				'total' => 0,
 				'status' => 0,
 				'kode_akun' => '&nbsp;',
 				'nama_akun' => '[#] '.$item['subs_bl_teks']
 			);
 		}
-		if(empty($akun[$item['nama_akun']][$item['subs_bl_teks']][$item['ket_bl_teks']])){
-			$akun[$item['nama_akun']][$item['subs_bl_teks']][$item['ket_bl_teks']] = array(
+		if(empty($akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']][$akun_4_db[0]['kode_akun']][$item['nama_akun']][$item['subs_bl_teks']][$item['ket_bl_teks']])){
+			$akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']][$akun_4_db[0]['kode_akun']][$item['nama_akun']][$item['subs_bl_teks']][$item['ket_bl_teks']] = array(
 				'total' => 0,
 				'status' => 0,
 				'kode_akun' => '&nbsp;',
 				'nama_akun' => '[-] '.$item['ket_bl_teks']
 			);
 		}
-		$akun[$item['nama_akun']]['total'] += $item['total_harga'];
-		$akun[$item['nama_akun']][$item['subs_bl_teks']]['total'] += $item['total_harga'];
-		$akun[$item['nama_akun']][$item['subs_bl_teks']][$item['ket_bl_teks']]['total'] += $item['total_harga'];
+		$akun[$akun_1_db[0]['kode_akun']]['total'] += $item['total_harga'];
+		$akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']]['total'] += $item['total_harga'];
+		$akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']]['total'] += $item['total_harga'];
+		$akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']][$akun_4_db[0]['kode_akun']]['total'] += $item['total_harga'];
+		$akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']][$akun_4_db[0]['kode_akun']][$item['nama_akun']]['total'] += $item['total_harga'];
+		$akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']][$akun_4_db[0]['kode_akun']][$item['nama_akun']][$item['subs_bl_teks']]['total'] += $item['total_harga'];
+		$akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']][$akun_4_db[0]['kode_akun']][$item['nama_akun']][$item['subs_bl_teks']][$item['ket_bl_teks']]['total'] += $item['total_harga'];
 	}
+	// print_r($akun); die();
 	foreach ($rinc as $key => $item) {
-		if($akun[$item['nama_akun']]['status'] == 0){
-			$akun[$item['nama_akun']]['status'] = 1;
+		$akun_all = explode('.', $item['kode_akun']);
+		$akun_1 = $akun_all[0].'.'.$akun_all[1];
+		$akun_2 = $akun_1.'.'.$akun_all[2];
+		$akun_3 = $akun_2.'.'.$akun_all[3];
+		$akun_4 = $akun_3.'.'.$akun_all[4];
+		$akun_1_db = $wpdb->get_results("
+			SELECT 
+				kode_akun,
+				nama_akun 
+			from data_akun 
+			where kode_akun='".$akun_1."'"
+		, ARRAY_A);
+		$akun_2_db = $wpdb->get_results("
+			SELECT 
+				kode_akun,
+				nama_akun 
+			from data_akun 
+			where kode_akun='".$akun_2."'"
+		, ARRAY_A);
+		$akun_3_db = $wpdb->get_results("
+			SELECT 
+				kode_akun,
+				nama_akun 
+			from data_akun 
+			where kode_akun='".$akun_3."'"
+		, ARRAY_A);
+		$akun_4_db = $wpdb->get_results("
+			SELECT 
+				kode_akun,
+				nama_akun 
+			from data_akun 
+			where kode_akun='".$akun_4."'"
+		, ARRAY_A);
+		if($akun[$akun_1_db[0]['kode_akun']]['status'] == 0){
+			$akun[$akun_1_db[0]['kode_akun']]['status'] = 1;
 			$rin_sub_item .= '
 				<tr>
-	                <td class="kiri kanan bawah text_blok">'.$akun[$item['nama_akun']]['kode_akun'].'</td>
-                    <td class="kanan bawah text_blok" colspan="5">'.$akun[$item['nama_akun']]['nama_akun'].'</td>
-                    <td class="kanan bawah text_kanan text_blok" style="white-space:nowrap">Rp. '.number_format($akun[$item['nama_akun']]['total'],2,",",".").'</td>
+	                <td class="kiri kanan bawah text_blok">'.$akun[$akun_1_db[0]['kode_akun']]['kode_akun'].'</td>
+                    <td class="kanan bawah text_blok" colspan="5">'.$akun[$akun_1_db[0]['kode_akun']]['nama_akun'].'</td>
+                    <td class="kanan bawah text_kanan text_blok" style="white-space:nowrap">Rp. '.number_format($akun[$akun_1_db[0]['kode_akun']]['total'],2,",",".").'</td>
                 </tr>
 			';
 		}
-		if($akun[$item['nama_akun']][$item['subs_bl_teks']]['status'] == 0){
-			$akun[$item['nama_akun']][$item['subs_bl_teks']]['status'] = 1;
+		if($akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']]['status'] == 0){
+			$akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']]['status'] = 1;
 			$rin_sub_item .= '
 				<tr>
-	                <td class="kiri kanan bawah text_blok">'.$akun[$item['nama_akun']][$item['subs_bl_teks']]['kode_akun'].'</td>
-                    <td class="kanan bawah text_blok" colspan="5">'.$akun[$item['nama_akun']][$item['subs_bl_teks']]['nama_akun'].'</td>
-                    <td class="kanan bawah text_kanan text_blok" style="white-space:nowrap">Rp. '.number_format($akun[$item['nama_akun']][$item['subs_bl_teks']]['total'],2,",",".").'</td>
+	                <td class="kiri kanan bawah text_blok">'.$akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']]['kode_akun'].'</td>
+                    <td class="kanan bawah text_blok" colspan="5">'.$akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']]['nama_akun'].'</td>
+                    <td class="kanan bawah text_kanan text_blok" style="white-space:nowrap">Rp. '.number_format($akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']]['total'],2,",",".").'</td>
                 </tr>
 			';
 		}
-		if($akun[$item['nama_akun']][$item['subs_bl_teks']][$item['ket_bl_teks']]['status'] == 0){
-			$akun[$item['nama_akun']][$item['subs_bl_teks']][$item['ket_bl_teks']]['status'] = 1;
+		if($akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']]['status'] == 0){
+			$akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']]['status'] = 1;
 			$rin_sub_item .= '
 				<tr>
-	                <td class="kiri kanan bawah text_blok">'.$akun[$item['nama_akun']][$item['subs_bl_teks']][$item['ket_bl_teks']]['kode_akun'].'</td>
-                    <td class="kanan bawah text_blok" colspan="5">'.$akun[$item['nama_akun']][$item['subs_bl_teks']][$item['ket_bl_teks']]['nama_akun'].'</td>
-                    <td class="kanan bawah text_kanan text_blok" style="white-space:nowrap">Rp. '.number_format($akun[$item['nama_akun']][$item['subs_bl_teks']][$item['ket_bl_teks']]['total'],2,",",".").'</td>
+	                <td class="kiri kanan bawah text_blok">'.$akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']]['kode_akun'].'</td>
+                    <td class="kanan bawah text_blok" colspan="5">'.$akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']]['nama_akun'].'</td>
+                    <td class="kanan bawah text_kanan text_blok" style="white-space:nowrap">Rp. '.number_format($akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']]['total'],2,",",".").'</td>
+                </tr>
+			';
+		}
+		if($akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']][$akun_4_db[0]['kode_akun']]['status'] == 0){
+			$akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']][$akun_4_db[0]['kode_akun']]['status'] = 1;
+			$rin_sub_item .= '
+				<tr>
+	                <td class="kiri kanan bawah text_blok">'.$akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']][$akun_4_db[0]['kode_akun']]['kode_akun'].'</td>
+                    <td class="kanan bawah text_blok" colspan="5">'.$akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']][$akun_4_db[0]['kode_akun']]['nama_akun'].'</td>
+                    <td class="kanan bawah text_kanan text_blok" style="white-space:nowrap">Rp. '.number_format($akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']][$akun_4_db[0]['kode_akun']]['total'],2,",",".").'</td>
+                </tr>
+			';
+		}
+		// print_r($akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']][$akun_4_db[0]['kode_akun']]);
+		// print_r($item['nama_akun']);
+		if($akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']][$akun_4_db[0]['kode_akun']][$item['nama_akun']]['status'] == 0){
+			$akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']][$akun_4_db[0]['kode_akun']][$item['nama_akun']]['status'] = 1;
+			$rin_sub_item .= '
+				<tr>
+	                <td class="kiri kanan bawah text_blok">'.$akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']][$akun_4_db[0]['kode_akun']][$item['nama_akun']]['kode_akun'].'</td>
+                    <td class="kanan bawah text_blok" colspan="5">'.$akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']][$akun_4_db[0]['kode_akun']][$item['nama_akun']]['nama_akun'].'</td>
+                    <td class="kanan bawah text_kanan text_blok" style="white-space:nowrap">Rp. '.number_format($akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']][$akun_4_db[0]['kode_akun']][$item['nama_akun']]['total'],2,",",".").'</td>
+                </tr>
+			';
+		}
+		if($akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']][$akun_4_db[0]['kode_akun']][$item['nama_akun']][$item['subs_bl_teks']]['status'] == 0){
+			$akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']][$akun_4_db[0]['kode_akun']][$item['nama_akun']][$item['subs_bl_teks']]['status'] = 1;
+			$rin_sub_item .= '
+				<tr>
+	                <td class="kiri kanan bawah text_blok">'.$akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']][$akun_4_db[0]['kode_akun']][$item['nama_akun']][$item['subs_bl_teks']]['kode_akun'].'</td>
+                    <td class="kanan bawah text_blok" colspan="5">'.$akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']][$akun_4_db[0]['kode_akun']][$item['nama_akun']][$item['subs_bl_teks']]['nama_akun'].'</td>
+                    <td class="kanan bawah text_kanan text_blok" style="white-space:nowrap">Rp. '.number_format($akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']][$akun_4_db[0]['kode_akun']][$item['nama_akun']][$item['subs_bl_teks']]['total'],2,",",".").'</td>
+                </tr>
+			';
+		}
+		if($akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']][$akun_4_db[0]['kode_akun']][$item['nama_akun']][$item['subs_bl_teks']][$item['ket_bl_teks']]['status'] == 0){
+			$akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']][$akun_4_db[0]['kode_akun']][$item['nama_akun']][$item['subs_bl_teks']][$item['ket_bl_teks']]['status'] = 1;
+			$rin_sub_item .= '
+				<tr>
+	                <td class="kiri kanan bawah text_blok">'.$akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']][$akun_4_db[0]['kode_akun']][$item['nama_akun']][$item['subs_bl_teks']][$item['ket_bl_teks']]['kode_akun'].'</td>
+                    <td class="kanan bawah text_blok" colspan="5">'.$akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']][$akun_4_db[0]['kode_akun']][$item['nama_akun']][$item['subs_bl_teks']][$item['ket_bl_teks']]['nama_akun'].'</td>
+                    <td class="kanan bawah text_kanan text_blok" style="white-space:nowrap">Rp. '.number_format($akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']][$akun_4_db[0]['kode_akun']][$item['nama_akun']][$item['subs_bl_teks']][$item['ket_bl_teks']]['total'],2,",",".").'</td>
                 </tr>
 			';
 		}
