@@ -370,6 +370,9 @@ class Wpsipd_Public {
 				            'id_giat' => $v['id_giat'],
 				            'id_label_pusat' => $v['id_label_pusat'],
 				            'nama_giat' => $v['nama_giat'],
+				            'kode_skpd' => $_POST['kode_skpd'],
+				            'nama_skpd' => $_POST['nama_skpd'],
+				            'kode_sub_skpd' => $_POST['kode_sub_skpd'],
 				            'id_skpd' => $v['id_skpd'],
 				            'id_sub_bl' => $v['id_sub_bl'],
 				            'nama_sub_skpd' => $v['nama_sub_skpd'],
@@ -378,6 +381,7 @@ class Wpsipd_Public {
 				            'target_2' => $v['target_2'],
 				            'label_kokab' => $v['label_kokab'],
 				            'label_pusat' => $v['label_pusat'],
+				            'pagu_keg' => $_POST['pagu'],
 				            'id_bl' => $v['id_bl'],
 							'update_at' => current_time('mysql'),
 							'tahun_anggaran' => $_POST['tahun_anggaran']
@@ -391,21 +395,27 @@ class Wpsipd_Public {
 						}
 
 						$nama_page = $_POST['tahun_anggaran'].' '.$v['kode_giat'].' '.$v['nama_giat'];
-						$custom_post = get_page_by_title($nama_page, OBJECT, 'page');
+						$custom_post = get_page_by_title($nama_page, OBJECT, 'post');
 						// print_r($custom_post); die();
+
+						$cat_name = $_POST['kode_sub_skpd'].' '.$v['nama_sub_skpd'];
+						$taxonomy = 'category';
+						$cat  = get_term_by('name', $cat_name , $taxonomy);
+						if($cat == false){
+							$cat = wp_insert_term($cat_name, $taxonomy);
+						    $cat_id = $cat['term_id'];
+						}else{
+							$cat_id = $cat->term_id;
+						}
+
 						if(empty($custom_post) || empty($custom_post->ID)){
 							$id = wp_insert_post( array(
 								'post_title'	=> $nama_page, 
 								'post_content'	=> '[tampilrka idbl='.$v['id_bl'].']', 
-								'post_type'		=> 'page',
+								'post_type'		=> 'post',
 								'post_status'	=> 'publish'
 							));
-							$custom_post = get_page_by_title($nama_page, OBJECT, 'page');
-						}else{
-							wp_update_post(array(
-							    'ID'    =>  $custom_post->ID,
-							    'post_status'   =>  'publish'
-						    ));
+							$custom_post = get_page_by_title($nama_page, OBJECT, 'post');
 						}
 						update_post_meta($custom_post->ID,'ast-breadcrumbs-content', 'disabled');
 						update_post_meta($custom_post->ID,'ast-featured-img', 'disabled');
@@ -415,7 +425,14 @@ class Wpsipd_Public {
 						update_post_meta($custom_post->ID,'site-post-title', 'disabled');
 						update_post_meta($custom_post->ID,'site-sidebar-layout', 'no-sidebar');
 						update_post_meta($custom_post->ID,'theme-transparent-header-meta', 'disabled');
+
+						// https://stackoverflow.com/questions/3010124/wordpress-insert-category-tags-automatically-if-they-dont-exist
+						$append = true;
+						wp_set_post_terms($custom_post->ID, array($cat_id) ,$taxonomy ,$append);
+						$category_link = get_category_link( $cat_id );
+
 						$ret['message'] .= ' URL '.$custom_post->guid;
+						$ret['category'] = $category_link;
 					}
 				}else{
 					$ret['status'] = 'error';
@@ -630,6 +647,30 @@ class Wpsipd_Public {
 
 	public function tampilrka($atts){
 		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'public/partials/wpsipd-public-rka.php';
+	}
+
+	public function get_cat_url(){
+		global $wpdb;
+		$ret = array(
+			'status'	=> 'success',
+			'message'	=> 'URL ...'
+		);
+		if(!empty($_POST)){
+			$cat_name = $_POST['category'];
+			$taxonomy = 'category';
+			$cat  = get_term_by('name', $cat_name , $taxonomy);
+			if(!empty($cat)){
+				$category_link = get_category_link( $cat->term_id );
+				$ret['message'] = 'URL Category '.$category_link;
+			}else{
+				$ret['status'] = 'error';
+				$ret['message'] = 'Category tidak ditemukan!';
+			}
+		}else{
+			$ret['status'] = 'error';
+			$ret['message'] = 'Format Salah!';
+		}
+		die(json_encode($ret));
 	}
 
 }

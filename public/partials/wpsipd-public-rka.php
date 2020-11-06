@@ -22,7 +22,9 @@ $pagu = 0;
 $pagu_n_lalu = 0;
 $pagu_n_depan = 0;
 $rin_sub = '';
+$total_pagu = 0;
 foreach ($bl as $k => $sub_bl) {
+	$total_pagu += $sub_bl['pagu_keg'];
 	$pagu += $sub_bl['pagu'];
 	$pagu_n_lalu += $sub_bl['pagu_n_lalu'];
 	$pagu_n_depan += $sub_bl['pagu_n_depan'];
@@ -494,12 +496,12 @@ foreach ($bl as $k => $sub_bl) {
 	                <tr>
 	                    <td width="150">Organisasi</td>
 	                    <td width="10">:</td>
-	                    <td>[kode unit]&nbsp;nama unit</td>
+	                    <td><?php echo $bl[0]['kode_skpd']; ?>&nbsp;<?php echo $bl[0]['nama_skpd']; ?></td>
 	                </tr>
 	                <tr>
 	                    <td width="150">Unit</td>
 	                    <td width="10">:</td>
-	                    <td>[kode sub unit]&nbsp;<?php echo $bl[0]['nama_sub_skpd']; ?></td>
+	                    <td><?php echo $bl[0]['kode_sub_skpd']; ?>&nbsp;<?php echo $bl[0]['nama_sub_skpd']; ?></td>
 	                </tr>
 	                <tr>
 	                    <td width="150">Alokasi Tahun <?php echo $tahun_anggaran-1; ?></td>
@@ -618,7 +620,7 @@ foreach ($bl as $k => $sub_bl) {
 	                    <?php echo $rin_sub; ?>
 	                    <tr class="">
 	                        <td colspan="6" class="kiri kanan bawah text_kanan text_blok">Jumlah Total Anggaran Kegiatan :</td>
-	                    	<td class="kanan bawah text_blok text_kanan" style="white-space:nowrap">Rp. [pagu kegiatan tervalidasi]</td>
+	                    	<td class="kanan bawah text_blok text_kanan" style="white-space:nowrap">Rp. <?php echo number_format($total_pagu,2,",","."); ?></td>
 	                    </tr>
 	                
 	                </tbody>
