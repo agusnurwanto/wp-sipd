@@ -14,6 +14,13 @@ $bl = $wpdb->get_results("
 	from data_sub_keg_bl 
 	where id_bl=".$input['idbl']
 , ARRAY_A);
+
+$unit = $wpdb->get_results("
+	SELECT 
+		* 
+	from data_unit 
+	where idinduk=".$bl[0]['id_sub_skpd']
+, ARRAY_A);
 // print_r($bl); die();
 $bulan = array('Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember');
 
@@ -635,10 +642,10 @@ foreach ($bl as $k => $sub_bl) {
 	        <td class="kiri kanan atas bawah" width="250" valign="top">
 	            <table width="100%" class="cellpadding_2" style="border-spacing: 0px;">
 	                <tr><td colspan="3" class="text_tengah">Kabupaten Magetan , Tanggal </td></tr>
-	                                                    <tr><td colspan="3" class="text_tengah text_15">Kepala&nbsp;[nama unit]</td></tr>
+	                                                    <tr><td colspan="3" class="text_tengah text_15">Kepala&nbsp;<?php echo $unit[0]['namaunit']; ?></td></tr>
 	                <tr><td colspan="3" height="80">&nbsp;</td></tr>
-	                <tr><td colspan="3" class="text_tengah">[nama kepala unit]</td></tr>
-	                <tr><td colspan="3" class="text_tengah">NIP. [nip kepala unit]</td></tr>
+	                <tr><td colspan="3" class="text_tengah"><?php echo $unit[0]['namakepala']; ?></td></tr>
+	                <tr><td colspan="3" class="text_tengah"><?php echo $unit[0]['nipkepala']; ?></td></tr>
 	                                                </table>
 	        </td>
 	    </tr>

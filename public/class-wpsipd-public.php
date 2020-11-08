@@ -325,7 +325,44 @@ class Wpsipd_Public {
 		);
 		if(!empty($_POST)){
 			if(!empty($_POST['api_key']) && $_POST['api_key'] == APIKEY){
-				if(!empty($_POST['dataBl'])){
+				if(!empty($_POST['data_unit'])){
+					$data_unit = $_POST['data_unit'];
+					$cek = $wpdb->get_var("SELECT idinduk from data_unit where idinduk=".$data_unit['idinduk']);
+					$opsi = array(
+						'bidur_1' => $data_unit['bidur_1'],
+						'bidur_2' => $data_unit['bidur_2'],
+						'bidur_3' => $data_unit['bidur_3'],
+						'idinduk' => $data_unit['idinduk'],
+						'ispendapatan' => $data_unit['ispendapatan'],
+						'isskpd' => $data_unit['isskpd'],
+						'kode_skpd_1' => $data_unit['kode_skpd_1'],
+						'kode_skpd_2' => $data_unit['kode_skpd_2'],
+						'kodeunit' => $data_unit['kodeunit'],
+						'komisi' => $data_unit['komisi'],
+						'namabendahara' => $data_unit['namabendahara'],
+						'namakepala' => $data_unit['namakepala'],
+						'namaunit' => $data_unit['namaunit'],
+						'nipbendahara' => $data_unit['nipbendahara'],
+						'nipkepala' => $data_unit['nipkepala'],
+						'pangkatkepala' => $data_unit['pangkatkepala'],
+						'setupunit' => $data_unit['setupunit'],
+						'statuskepala' => $data_unit['statuskepala'],
+						'update_at' => current_time('mysql'),
+						'tahun_anggaran' => $_POST['tahun_anggaran']
+					);
+
+					if(!empty($cek)){
+						$wpdb->update('data_unit', $opsi, array(
+							'idinduk' => $v['idinduk']
+						));
+					}else{
+						$wpdb->insert('data_unit', $opsi);
+					}
+				}else if($ret['status'] != 'error'){
+					$ret['status'] = 'error';
+					$ret['message'] = 'Format data Unit Salah!';
+				}
+				if(!empty($_POST['dataBl']) && $ret['status'] != 'error'){
 					$dataBl = $_POST['dataBl'];
 					foreach ($dataBl as $k => $v) {
 						$cek = $wpdb->get_var("SELECT id_sub_bl from data_sub_keg_bl where id_sub_bl=".$v['id_sub_bl']);
@@ -434,7 +471,7 @@ class Wpsipd_Public {
 						$ret['message'] .= ' URL '.$custom_post->guid;
 						$ret['category'] = $category_link;
 					}
-				}else{
+				}else if($ret['status'] != 'error'){
 					$ret['status'] = 'error';
 					$ret['message'] = 'Format data BL Salah!';
 				}

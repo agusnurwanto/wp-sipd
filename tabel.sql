@@ -1,3 +1,31 @@
+--
+-- Table structure for table `data_unit`
+--
+
+CREATE TABLE `data_unit` (
+  `id` int(11) NOT NULL,
+  `bidur_1` smallint(6) NOT NULL,
+  `bidur_2` smallint(6) NOT NULL,
+  `bidur_3` smallint(6) NOT NULL,
+  `idinduk` int(11) NOT NULL,
+  `ispendapatan` tinyint(4) NOT NULL,
+  `isskpd` tinyint(4) NOT NULL,
+  `kode_skpd_1` varchar(10) NOT NULL,
+  `kode_skpd_2` varchar(10) NOT NULL,
+  `kodeunit` varchar(30) NOT NULL,
+  `komisi` int(11) DEFAULT NULL,
+  `namabendahara` text,
+  `namakepala` text NOT NULL,
+  `namaunit` text NOT NULL,
+  `nipbendahara` varchar(30) DEFAULT NULL,
+  `nipkepala` varchar(30) NOT NULL,
+  `pangkatkepala` varchar(50) NOT NULL,
+  `setupunit` int(11) NOT NULL,
+  `statuskepala` varchar(20) NOT NULL,
+  `update_at` datetime NOT NULL,
+  `tahun_anggaran` year(4) NOT NULL DEFAULT '2021'
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
 -- --------------------------------------------------------
 
 --
@@ -200,6 +228,12 @@ CREATE TABLE `data_sub_keg_indikator` (
 --
 
 --
+-- Indexes for table `data_unit`
+--
+ALTER TABLE `data_unit`
+  ADD PRIMARY KEY (`id`);
+
+--
 -- Indexes for table `data_akun`
 --
 ALTER TABLE `data_akun`
@@ -240,6 +274,12 @@ ALTER TABLE `data_sub_keg_indikator`
 --
 -- AUTO_INCREMENT for dumped tables
 --
+
+--
+-- AUTO_INCREMENT for table `data_unit`
+--
+ALTER TABLE `data_unit`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `data_akun`
