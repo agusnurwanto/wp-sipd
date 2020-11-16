@@ -182,6 +182,9 @@ class Wpsipd {
 		$this->loader->add_action( 'wp_ajax_singkron_rka',  $plugin_public, 'singkron_rka' );
 		$this->loader->add_action( 'wp_ajax_nopriv_singkron_rka',  $plugin_public, 'singkron_rka' );
 
+		$this->loader->add_action( 'wp_ajax_singkron_unit',  $plugin_public, 'singkron_unit' );
+		$this->loader->add_action( 'wp_ajax_nopriv_singkron_unit',  $plugin_public, 'singkron_unit' );
+
 		$this->loader->add_action( 'wp_ajax_get_cat_url',  $plugin_public, 'get_cat_url' );
 		$this->loader->add_action( 'wp_ajax_nopriv_get_cat_url',  $plugin_public, 'get_cat_url' );
 		

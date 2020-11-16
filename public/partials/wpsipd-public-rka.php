@@ -1,18 +1,18 @@
 <?php
 $input = shortcode_atts( array(
-	'idbl' => '',
+	'kode_bl' => '',
 ), $atts );
 global $wpdb;
 
-if(empty($input['idbl'])){
-	echo "<h1 style='text-align: center;'>idbl tidak boleh kosong!</h1>"; exit;
+if(empty($input['kode_bl'])){
+	echo "<h1 style='text-align: center;'>kode_bl tidak boleh kosong!</h1>"; exit;
 }
 
 $bl = $wpdb->get_results("
 	SELECT 
 		* 
 	from data_sub_keg_bl 
-	where id_bl=".$input['idbl']
+	where kode_bl='".$input['kode_bl']."'"
 , ARRAY_A);
 
 $unit = $wpdb->get_results("
@@ -39,7 +39,7 @@ foreach ($bl as $k => $sub_bl) {
 		SELECT 
 			* 
 		from data_sub_keg_indikator 
-		where idsubbl=".$sub_bl['id_sub_bl'];
+		where kode_sbl='".$sub_bl['kode_sbl']."'";
 	$indikator_sub_keg = $wpdb->get_results($sql, ARRAY_A);
 	$indikator_sub = '';
 	foreach ($indikator_sub_keg as $key => $ind) {
@@ -107,8 +107,7 @@ foreach ($bl as $k => $sub_bl) {
 		SELECT 
 			* 
 		from data_rka 
-		where idbl=".$sub_bl['id_bl']."
-			AND idsubbl=".$sub_bl['id_sub_bl']."
+		where kode_sbl='".$sub_bl['kode_sbl']."'
 		Order by kode_akun ASC"
 	, ARRAY_A);
 	$rin_sub_item = '';

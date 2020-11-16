@@ -317,6 +317,73 @@ class Wpsipd_Public {
 		die(json_encode($ret));
 	}
 
+	public function singkron_unit(){
+		global $wpdb;
+		$ret = array(
+			'status'	=> 'success',
+			'message'	=> 'Berhasil export Unit!'
+		);
+		if(!empty($_POST)){
+			if(!empty($_POST['api_key']) && $_POST['api_key'] == APIKEY){
+				if(!empty($_POST['data_unit'])){
+					$data_unit = $_POST['data_unit'];
+					foreach ($data_unit as $k => $v) {
+						$cek = $wpdb->get_var("SELECT idinduk from data_unit where idinduk=".$v['idinduk']);
+						$opsi = array(
+							'id_setup_unit' => $v['id_setup_unit'],
+							'id_skpd' => $v['id_skpd'],
+							'id_unit' => $v['id_unit'],
+							'is_skpd' => $v['is_skpd'],
+							'kode_skpd' => $v['kode_skpd'],
+							'kunci_skpd' => $v['kunci_skpd'],
+							'nama_skpd' => $v['nama_skpd'],
+							'posisi' => $v['posisi'],
+							'status' => $v['status'],
+							'bidur_1' => $v['bidur_1'],
+							'bidur_2' => $v['bidur_2'],
+							'bidur_3' => $v['bidur_3'],
+							'idinduk' => $v['idinduk'],
+							'ispendapatan' => $v['ispendapatan'],
+							'isskpd' => $v['isskpd'],
+							'kode_skpd_1' => $v['kode_skpd_1'],
+							'kode_skpd_2' => $v['kode_skpd_2'],
+							'kodeunit' => $v['kodeunit'],
+							'komisi' => $v['komisi'],
+							'namabendahara' => $v['namabendahara'],
+							'namakepala' => $v['namakepala'],
+							'namaunit' => $v['namaunit'],
+							'nipbendahara' => $v['nipbendahara'],
+							'nipkepala' => $v['nipkepala'],
+							'pangkatkepala' => $v['pangkatkepala'],
+							'setupunit' => $v['setupunit'],
+							'statuskepala' => $v['statuskepala'],
+							'update_at' => current_time('mysql'),
+							'tahun_anggaran' => $_POST['tahun_anggaran']
+						);
+
+						if(!empty($cek)){
+							$wpdb->update('data_unit', $opsi, array(
+								'idinduk' => $v['idinduk']
+							));
+						}else{
+							$wpdb->insert('data_unit', $opsi);
+						}
+					}
+				}else if($ret['status'] != 'error'){
+					$ret['status'] = 'error';
+					$ret['message'] = 'Format data Unit Salah!';
+				}
+			}else{
+				$ret['status'] = 'error';
+				$ret['message'] = 'APIKEY tidak sesuai!';
+			}
+		}else{
+			$ret['status'] = 'error';
+			$ret['message'] = 'Format Salah!';
+		}
+		die(json_encode($ret));
+	}
+
 	public function singkron_rka(){
 		global $wpdb;
 		$ret = array(
@@ -365,7 +432,7 @@ class Wpsipd_Public {
 				if(!empty($_POST['dataBl']) && $ret['status'] != 'error'){
 					$dataBl = $_POST['dataBl'];
 					foreach ($dataBl as $k => $v) {
-						$cek = $wpdb->get_var("SELECT id_sub_bl from data_sub_keg_bl where id_sub_bl=".$v['id_sub_bl']);
+						$cek = $wpdb->get_var("SELECT kode_sbl from data_sub_keg_bl where kode_sbl='".$_POST['kode_sbl']."'");
 						$opsi = array(
 							'id_sub_skpd' => $v['id_sub_skpd'],
 				            'id_lokasi' => $v['id_lokasi'],
@@ -420,12 +487,14 @@ class Wpsipd_Public {
 				            'label_pusat' => $v['label_pusat'],
 				            'pagu_keg' => $_POST['pagu'],
 				            'id_bl' => $v['id_bl'],
+				            'kode_bl' => $_POST['kode_bl'],
+				            'kode_sbl' => $_POST['kode_sbl'],
 							'update_at' => current_time('mysql'),
 							'tahun_anggaran' => $_POST['tahun_anggaran']
 						);
 						if(!empty($cek)){
 							$wpdb->update('data_sub_keg_bl', $opsi, array(
-								'id_sub_bl' => $v['id_sub_bl']
+								'kode_sbl' => $v['kode_sbl']
 							));
 						}else{
 							$wpdb->insert('data_sub_keg_bl', $opsi);
@@ -448,20 +517,20 @@ class Wpsipd_Public {
 						if(empty($custom_post) || empty($custom_post->ID)){
 							$id = wp_insert_post( array(
 								'post_title'	=> $nama_page, 
-								'post_content'	=> '[tampilrka idbl='.$v['id_bl'].']', 
+								'post_content'	=> '[tampilrka kode_bl='.$_POST['kode_bl'].']', 
 								'post_type'		=> 'post',
 								'post_status'	=> 'publish'
 							));
 							$custom_post = get_page_by_title($nama_page, OBJECT, 'post');
+							update_post_meta($custom_post->ID,'ast-breadcrumbs-content', 'disabled');
+							update_post_meta($custom_post->ID,'ast-featured-img', 'disabled');
+							update_post_meta($custom_post->ID,'ast-main-header-display', 'disabled');
+							update_post_meta($custom_post->ID,'footer-sml-layout', 'disabled');
+							update_post_meta($custom_post->ID,'site-content-layout', 'page-builder');
+							update_post_meta($custom_post->ID,'site-post-title', 'disabled');
+							update_post_meta($custom_post->ID,'site-sidebar-layout', 'no-sidebar');
+							update_post_meta($custom_post->ID,'theme-transparent-header-meta', 'disabled');
 						}
-						update_post_meta($custom_post->ID,'ast-breadcrumbs-content', 'disabled');
-						update_post_meta($custom_post->ID,'ast-featured-img', 'disabled');
-						update_post_meta($custom_post->ID,'ast-main-header-display', 'disabled');
-						update_post_meta($custom_post->ID,'footer-sml-layout', 'disabled');
-						update_post_meta($custom_post->ID,'site-content-layout', 'page-builder');
-						update_post_meta($custom_post->ID,'site-post-title', 'disabled');
-						update_post_meta($custom_post->ID,'site-sidebar-layout', 'no-sidebar');
-						update_post_meta($custom_post->ID,'theme-transparent-header-meta', 'disabled');
 
 						// https://stackoverflow.com/questions/3010124/wordpress-insert-category-tags-automatically-if-they-dont-exist
 						$append = true;
@@ -479,20 +548,21 @@ class Wpsipd_Public {
 				if(!empty($_POST['dataOutput']) && $ret['status'] != 'error'){
 					$dataOutput = $_POST['dataOutput'];
 					foreach ($dataOutput as $k => $v) {
-						$cek = $wpdb->get_var("SELECT idsubbl from data_sub_keg_indikator where idsubbl=".$_POST['idsubbl']);
+						$cek = $wpdb->get_var("SELECT kode_sbl from data_sub_keg_indikator where kode_sbl='".$_POST['kode_sbl']."'");
 						$opsi = array(
 							'outputteks' => $v['outputteks'],
 				            'targetoutput' => $v['targetoutput'],
 				            'satuanoutput' => $v['satuanoutput'],
 				            'idoutputbl' => $v['idoutputbl'],
 				            'targetoutputteks' => $v['targetoutputteks'],
+							'kode_sbl' => $_POST['kode_sbl'],
 							'idsubbl' => $_POST['idsubbl'],
 							'update_at' => current_time('mysql'),
 							'tahun_anggaran' => $_POST['tahun_anggaran']
 						);
 						if(!empty($cek)){
 							$wpdb->update('data_sub_keg_indikator', $opsi, array(
-								'idsubbl' => $_POST['idsubbl']
+								'kode_sbl' => $_POST['kode_sbl']
 							));
 						}else{
 							$wpdb->insert('data_sub_keg_indikator', $opsi);
@@ -507,7 +577,7 @@ class Wpsipd_Public {
 				if(!empty($_POST['rka']) && $ret['status'] != 'error'){
 					$rka = $_POST['rka'];
 					foreach ($rka as $k => $v) {
-						$cek = $wpdb->get_var("SELECT id_rinci_sub_bl from data_rka where id_rinci_sub_bl=".$v['id_rinci_sub_bl']);
+						$cek = $wpdb->get_var("SELECT id_rinci_sub_bl from data_rka where id_rinci_sub_bl='".$v['id_rinci_sub_bl']."'");
 						$opsi = array(
 							'created_user' => $v['created_user'],
 							'createddate' => $v['createddate'],
@@ -529,6 +599,7 @@ class Wpsipd_Public {
 							'spek' => $v['spek'],
 							'subs_bl_teks' => $v['subs_bl_teks'],
 							'total_harga' => $v['total_harga'],
+							'rincian' => $v['rincian'],
 							'totalpajak' => $v['totalpajak'],
 							'updated_user' => $v['updated_user'],
 							'updateddate' => $v['updateddate'],
@@ -537,6 +608,8 @@ class Wpsipd_Public {
 							'user2' => $v['user2'],
 							'idbl' => $_POST['idbl'],
 							'idsubbl' => $_POST['idsubbl'],
+							'kode_bl' => $_POST['kode_bl'],
+							'kode_sbl' => $_POST['kode_sbl'],
 							'update_at' => current_time('mysql'),
 							'tahun_anggaran' => $_POST['tahun_anggaran']
 						);

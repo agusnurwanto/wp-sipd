@@ -71,14 +71,14 @@ CREATE TABLE `data_akun` (
 
 CREATE TABLE `data_rka` (
   `id` int(11) NOT NULL,
-  `created_user` int(11) NOT NULL,
-  `createddate` varchar(10) NOT NULL,
-  `createdtime` varchar(10) NOT NULL,
+  `created_user` int(11) DEFAULT NULL,
+  `createddate` varchar(10) DEFAULT NULL,
+  `createdtime` varchar(10) DEFAULT NULL,
   `harga_satuan` int(11) NOT NULL,
   `id_daerah` int(11) NOT NULL,
   `id_rinci_sub_bl` int(11) NOT NULL,
-  `id_standar_nfs` tinyint(4) NOT NULL,
-  `is_locked` tinyint(4) NOT NULL,
+  `id_standar_nfs` tinyint(4) DEFAULT NULL,
+  `is_locked` tinyint(4) DEFAULT NULL,
   `jenis_bl` varchar(50) NOT NULL,
   `ket_bl_teks` text NOT NULL,
   `kode_akun` varchar(50) NOT NULL,
@@ -90,17 +90,19 @@ CREATE TABLE `data_rka` (
   `satuan` varchar(50) NOT NULL,
   `spek` text NOT NULL,
   `subs_bl_teks` text NOT NULL,
-  `total_harga` int(11) NOT NULL,
+  `total_harga` int(11) DEFAULT NULL,
   `totalpajak` int(11) NOT NULL,
-  `updated_user` int(11) NOT NULL,
+  `updated_user` int(11) DEFAULT NULL,
   `updateddate` varchar(20) DEFAULT NULL,
   `updatedtime` varchar(20) DEFAULT NULL,
   `user1` varchar(50) DEFAULT NULL,
   `user2` varchar(50) DEFAULT NULL,
   `update_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `tahun_anggaran` year(4) NOT NULL DEFAULT '2021',
-  `idbl` int(11) NOT NULL,
-  `idsubbl` int(11) NOT NULL
+  `idbl` int(11) DEFAULT NULL,
+  `idsubbl` int(11) DEFAULT NULL,
+  `kode_bl` varchar(50) NOT NULL,
+  `kode_sbl` varchar(50) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 -- --------------------------------------------------------
@@ -149,13 +151,13 @@ CREATE TABLE `data_ssh_rek_belanja` (
 CREATE TABLE `data_sub_keg_bl` (
   `id` int(11) NOT NULL,
   `id_sub_skpd` int(11) NOT NULL,
-  `id_lokasi` int(11) NOT NULL,
+  `id_lokasi` int(11) DEFAULT NULL,
   `id_label_kokab` int(11) NOT NULL,
   `nama_dana` text,
   `no_sub_giat` varchar(20) NOT NULL,
   `kode_giat` varchar(50) NOT NULL,
   `id_program` int(11) NOT NULL,
-  `nama_lokasi` text NOT NULL,
+  `nama_lokasi` text DEFAULT NULL,
   `waktu_akhir` int(11) NOT NULL,
   `pagu_n_lalu` int(11) DEFAULT NULL,
   `id_urusan` int(11) NOT NULL,
@@ -180,7 +182,7 @@ CREATE TABLE `data_sub_keg_bl` (
   `output_sub_giat` text,
   `sasaran` text,
   `indikator` text,
-  `id_dana` int(11) NOT NULL,
+  `id_dana` int(11) DEFAULT NULL,
   `nama_sub_giat` text NOT NULL,
   `pagu_n_depan` int(11) NOT NULL,
   `satuan` text,
@@ -192,7 +194,7 @@ CREATE TABLE `data_sub_keg_bl` (
   `nama_skpd` text NOT NULL,
   `kode_sub_skpd` varchar(50) NOT NULL,
   `id_skpd` int(11) NOT NULL,
-  `id_sub_bl` int(11) NOT NULL,
+  `id_sub_bl` int(11) DEFAULT NULL,
   `nama_sub_skpd` text NOT NULL,
   `target_1` text,
   `nama_urusan` text NOT NULL,
@@ -200,7 +202,9 @@ CREATE TABLE `data_sub_keg_bl` (
   `label_kokab` text,
   `label_pusat` text,
   `pagu_keg` int(11) NOT NULL,
-  `id_bl` int(11) NOT NULL,
+  `id_bl` int(11) DEFAULT NULL,
+  `kode_bl` varchar(50) NOT NULL,
+  `kode_sbl` varchar(50) NOT NULL,
   `update_at` datetime NOT NULL,
   `tahun_anggaran` year(4) NOT NULL DEFAULT '2021'
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
@@ -218,7 +222,8 @@ CREATE TABLE `data_sub_keg_indikator` (
   `satuanoutput` text NOT NULL,
   `idoutputbl` int(11) NOT NULL,
   `targetoutputteks` text NOT NULL,
-  `idsubbl` int(11) NOT NULL,
+  `kode_sbl` varchar(50) NOT NULL,
+  `idsubbl` int(11) DEFAULT NULL,
   `update_at` datetime NOT NULL,
   `tahun_anggaran` year(4) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
