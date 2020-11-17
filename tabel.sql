@@ -228,6 +228,45 @@ CREATE TABLE `data_sub_keg_indikator` (
   `tahun_anggaran` year(4) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `data_unit_pagu`
+--
+
+CREATE TABLE `data_unit_pagu` (
+  `id` int(11) NOT NULL,
+  `batasanpagu` int(11) NOT NULL,
+  `id_daerah` int(11) NOT NULL,
+  `id_level` int(11) NOT NULL,
+  `id_skpd` int(11) NOT NULL,
+  `id_unit` int(11) NOT NULL,
+  `id_user` int(11) NOT NULL,
+  `is_anggaran` tinyint(4) NOT NULL,
+  `is_deleted` tinyint(4) NOT NULL,
+  `is_komponen` tinyint(4) NOT NULL,
+  `is_locked` smallint(6) NOT NULL,
+  `is_skpd` tinyint(4) NOT NULL,
+  `kode_skpd` varchar(50) NOT NULL,
+  `kunci_bl` tinyint(4) NOT NULL,
+  `kunci_bl_rinci` tinyint(4) NOT NULL,
+  `kuncibl` tinyint(4) NOT NULL,
+  `kunciblrinci` tinyint(4) NOT NULL,
+  `nilaipagu` int(11) NOT NULL,
+  `nilaipagumurni` int(11) NOT NULL,
+  `nilairincian` int(11) NOT NULL,
+  `pagu_giat` int(11) NOT NULL,
+  `realisasi` int(11) NOT NULL,
+  `rinci_giat` int(11) NOT NULL,
+  `set_pagu_giat` int(11) NOT NULL,
+  `set_pagu_skpd` int(11) NOT NULL,
+  `tahun` int(11) NOT NULL,
+  `total_giat` int(11) NOT NULL,
+  `totalgiat` int(11) NOT NULL,
+  `update_at` datetime NOT NULL,
+  `tahun_anggaran` year(4) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
 --
 -- Indexes for dumped tables
 --
@@ -325,3 +364,15 @@ ALTER TABLE `data_sub_keg_indikator`
 --
 ALTER TABLE `data_ssh_rek_belanja`
   ADD CONSTRAINT `data_ssh_rek_belanja_ibfk_1` FOREIGN KEY (`id_standar_harga`) REFERENCES `data_ssh` (`id_standar_harga`);
+
+--
+-- Indexes for table `data_unit_pagu`
+--
+ALTER TABLE `data_unit_pagu`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- AUTO_INCREMENT for table `data_unit_pagu`
+--
+ALTER TABLE `data_unit_pagu`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;

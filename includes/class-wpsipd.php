@@ -187,6 +187,9 @@ class Wpsipd {
 
 		$this->loader->add_action( 'wp_ajax_get_cat_url',  $plugin_public, 'get_cat_url' );
 		$this->loader->add_action( 'wp_ajax_nopriv_get_cat_url',  $plugin_public, 'get_cat_url' );
+
+		$this->loader->add_action( 'wp_ajax_set_unit_pagu',  $plugin_public, 'set_unit_pagu' );
+		$this->loader->add_action( 'wp_ajax_nopriv_set_unit_pagu',  $plugin_public, 'set_unit_pagu' );
 		
 		add_shortcode( 'datassh', array( $plugin_public, 'datassh' ) );
 		add_shortcode( 'rekbelanja', array( $plugin_public, 'rekbelanja' ) );

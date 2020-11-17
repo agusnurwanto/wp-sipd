@@ -384,6 +384,71 @@ class Wpsipd_Public {
 		die(json_encode($ret));
 	}
 
+	public function set_unit_pagu(){
+		global $wpdb;
+		$ret = array(
+			'status'	=> 'success',
+			'message'	=> 'Berhasil set unit pagu!'
+		);
+		if(!empty($_POST)){
+			if(!empty($_POST['api_key']) && $_POST['api_key'] == APIKEY){
+				if(!empty($_POST['data'])){
+					$data_unit = $_POST['data'];
+					$cek = $wpdb->get_var("SELECT id_unit from data_unit_pagu where id_unit=".$data_unit['id_unit']);
+					$opsi = array(
+						'batasanpagu' => $data_unit['batasanpagu'],
+						'id_daerah' => $data_unit['id_daerah'],
+						'id_level' => $data_unit['id_level'],
+						'id_skpd' => $data_unit['id_skpd'],
+						'id_unit' => $data_unit['id_unit'],
+						'id_user' => $data_unit['id_user'],
+						'is_anggaran' => $data_unit['is_anggaran'],
+						'is_deleted' => $data_unit['is_deleted'],
+						'is_komponen' => $data_unit['is_komponen'],
+						'is_locked' => $data_unit['is_locked'],
+						'is_skpd' => $data_unit['is_skpd'],
+						'kode_skpd' => $data_unit['kode_skpd'],
+						'kunci_bl' => $data_unit['kunci_bl'],
+						'kunci_bl_rinci' => $data_unit['kunci_bl_rinci'],
+						'kuncibl' => $data_unit['kuncibl'],
+						'kunciblrinci' => $data_unit['kunciblrinci'],
+						'nilaipagu' => $data_unit['nilaipagu'],
+						'nilaipagumurni' => $data_unit['nilaipagumurni'],
+						'nilairincian' => $data_unit['nilairincian'],
+						'pagu_giat' => $data_unit['pagu_giat'],
+						'realisasi' => $data_unit['realisasi'],
+						'rinci_giat' => $data_unit['rinci_giat'],
+						'set_pagu_giat' => $data_unit['set_pagu_giat'],
+						'set_pagu_skpd' => $data_unit['set_pagu_skpd'],
+						'tahun' => $data_unit['tahun'],
+						'total_giat' => $data_unit['total_giat'],
+						'totalgiat' => $data_unit['totalgiat'],
+						'update_at' => current_time('mysql'),
+						'tahun_anggaran' => $_POST['tahun_anggaran']
+					);
+
+					if(!empty($cek)){
+						$wpdb->update('data_unit_pagu', $opsi, array(
+							'id_unit' => $v['id_unit']
+						));
+					}else{
+						$wpdb->insert('data_unit_pagu', $opsi);
+					}
+				}else if($ret['status'] != 'error'){
+					$ret['status'] = 'error';
+					$ret['message'] = 'Format data Salah!';
+				}
+			}else{
+				$ret['status'] = 'error';
+				$ret['message'] = 'APIKEY tidak sesuai!';
+			}
+		}else{
+			$ret['status'] = 'error';
+			$ret['message'] = 'Format Salah!';
+		}
+		die(json_encode($ret));
+	}
+
 	public function singkron_rka(){
 		global $wpdb;
 		$ret = array(
@@ -392,6 +457,16 @@ class Wpsipd_Public {
 		);
 		if(!empty($_POST)){
 			if(!empty($_POST['api_key']) && $_POST['api_key'] == APIKEY){
+				$parent_cat_name = 'Semua Perangkat Daerah Tahun Anggaran '.$_POST['tahun_anggaran'];
+				$taxonomy = 'category';
+				$parent_cat  = get_term_by('name', $parent_cat_name , $taxonomy);
+				if($parent_cat == false){
+					$parent_cat = wp_insert_term($parent_cat_name, $taxonomy);
+				    $parent_cat_id = $parent_cat['term_id'];
+				}else{
+					$parent_cat_id = $parent_cat->term_id;
+				}
+
 				if(!empty($_POST['data_unit'])){
 					$data_unit = $_POST['data_unit'];
 					$cek = $wpdb->get_var("SELECT idinduk from data_unit where idinduk=".$data_unit['idinduk']);
@@ -513,6 +588,9 @@ class Wpsipd_Public {
 						}else{
 							$cat_id = $cat->term_id;
 						}
+						wp_update_term($cat_id, $taxonomy, array(
+						    'parent' => $parent_cat_id
+						));
 
 						if(empty($custom_post) || empty($custom_post->ID)){
 							$id = wp_insert_post( array(
