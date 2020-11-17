@@ -267,9 +267,43 @@ CREATE TABLE `data_unit_pagu` (
   `tahun_anggaran` year(4) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `data_prog_keg`
+--
+
+CREATE TABLE `data_prog_keg` (
+  `id` int(11) NOT NULL,
+  `id_bidang_urusan` int(11) NOT NULL,
+  `id_program` int(11) NOT NULL,
+  `id_sub_giat` int(11) NOT NULL,
+  `id_urusan` int(11) NOT NULL,
+  `is_locked` int(11) NOT NULL,
+  `kode_bidang_urusan` varchar(50) NOT NULL,
+  `kode_giat` varchar(50) NOT NULL,
+  `kode_program` varchar(50) NOT NULL,
+  `kode_sub_giat` varchar(50) NOT NULL,
+  `kode_urusan` varchar(50) NOT NULL,
+  `nama_bidang_urusan` text NOT NULL,
+  `nama_giat` text NOT NULL,
+  `nama_program` text NOT NULL,
+  `nama_sub_giat` text NOT NULL,
+  `nama_urusan` text NOT NULL,
+  `status` varchar(20) DEFAULT NULL,
+  `update_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `tahun_anggaran` year(4) NOT NULL DEFAULT '2021'
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
 --
 -- Indexes for dumped tables
 --
+
+--
+-- Indexes for table `data_prog_keg`
+--
+ALTER TABLE `data_prog_keg`
+  ADD PRIMARY KEY (`id`);
 
 --
 -- Indexes for table `data_unit`
@@ -375,4 +409,10 @@ ALTER TABLE `data_unit_pagu`
 -- AUTO_INCREMENT for table `data_unit_pagu`
 --
 ALTER TABLE `data_unit_pagu`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `data_prog_keg`
+--
+ALTER TABLE `data_prog_keg`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;

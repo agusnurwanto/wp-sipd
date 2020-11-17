@@ -27,7 +27,8 @@
  * @subpackage Wpsipd/includes
  * @author     Agus Nurwanto <agusnurwantomuslim@gmail.com>
  */
-class Wpsipd {
+class Wpsipd
+{
 
 	/**
 	 * The loader that's responsible for maintaining and registering all hooks that power
@@ -66,8 +67,9 @@ class Wpsipd {
 	 *
 	 * @since    1.0.0
 	 */
-	public function __construct() {
-		if ( defined( 'WPSIPD_VERSION' ) ) {
+	public function __construct()
+	{
+		if (defined('WPSIPD_VERSION')) {
 			$this->version = WPSIPD_VERSION;
 		} else {
 			$this->version = '1.0.0';
@@ -78,7 +80,6 @@ class Wpsipd {
 		$this->set_locale();
 		$this->define_admin_hooks();
 		$this->define_public_hooks();
-
 	}
 
 	/**
@@ -97,33 +98,33 @@ class Wpsipd {
 	 * @since    1.0.0
 	 * @access   private
 	 */
-	private function load_dependencies() {
+	private function load_dependencies()
+	{
 
 		/**
 		 * The class responsible for orchestrating the actions and filters of the
 		 * core plugin.
 		 */
-		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/class-wpsipd-loader.php';
+		require_once plugin_dir_path(dirname(__FILE__)) . 'includes/class-wpsipd-loader.php';
 
 		/**
 		 * The class responsible for defining internationalization functionality
 		 * of the plugin.
 		 */
-		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/class-wpsipd-i18n.php';
+		require_once plugin_dir_path(dirname(__FILE__)) . 'includes/class-wpsipd-i18n.php';
 
 		/**
 		 * The class responsible for defining all actions that occur in the admin area.
 		 */
-		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'admin/class-wpsipd-admin.php';
+		require_once plugin_dir_path(dirname(__FILE__)) . 'admin/class-wpsipd-admin.php';
 
 		/**
 		 * The class responsible for defining all actions that occur in the public-facing
 		 * side of the site.
 		 */
-		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'public/class-wpsipd-public.php';
+		require_once plugin_dir_path(dirname(__FILE__)) . 'public/class-wpsipd-public.php';
 
 		$this->loader = new Wpsipd_Loader();
-
 	}
 
 	/**
@@ -135,12 +136,12 @@ class Wpsipd {
 	 * @since    1.0.0
 	 * @access   private
 	 */
-	private function set_locale() {
+	private function set_locale()
+	{
 
 		$plugin_i18n = new Wpsipd_i18n();
 
-		$this->loader->add_action( 'plugins_loaded', $plugin_i18n, 'load_plugin_textdomain' );
-
+		$this->loader->add_action('plugins_loaded', $plugin_i18n, 'load_plugin_textdomain');
 	}
 
 	/**
@@ -150,13 +151,13 @@ class Wpsipd {
 	 * @since    1.0.0
 	 * @access   private
 	 */
-	private function define_admin_hooks() {
+	private function define_admin_hooks()
+	{
 
-		$plugin_admin = new Wpsipd_Admin( $this->get_plugin_name(), $this->get_version() );
+		$plugin_admin = new Wpsipd_Admin($this->get_plugin_name(), $this->get_version());
 
-		$this->loader->add_action( 'admin_enqueue_scripts', $plugin_admin, 'enqueue_styles' );
-		$this->loader->add_action( 'admin_enqueue_scripts', $plugin_admin, 'enqueue_scripts' );
-
+		$this->loader->add_action('admin_enqueue_scripts', $plugin_admin, 'enqueue_styles');
+		$this->loader->add_action('admin_enqueue_scripts', $plugin_admin, 'enqueue_scripts');
 	}
 
 	/**
@@ -166,35 +167,38 @@ class Wpsipd {
 	 * @since    1.0.0
 	 * @access   private
 	 */
-	private function define_public_hooks() {
+	private function define_public_hooks()
+	{
 
-		$plugin_public = new Wpsipd_Public( $this->get_plugin_name(), $this->get_version() );
+		$plugin_public = new Wpsipd_Public($this->get_plugin_name(), $this->get_version());
 
-		$this->loader->add_action( 'wp_enqueue_scripts', $plugin_public, 'enqueue_styles' );
-		$this->loader->add_action( 'wp_enqueue_scripts', $plugin_public, 'enqueue_scripts' );
+		$this->loader->add_action('wp_enqueue_scripts', $plugin_public, 'enqueue_styles');
+		$this->loader->add_action('wp_enqueue_scripts', $plugin_public, 'enqueue_scripts');
 
-		$this->loader->add_action( 'wp_ajax_singkron_akun_belanja',  $plugin_public, 'singkron_akun_belanja' );
-		$this->loader->add_action( 'wp_ajax_nopriv_singkron_akun_belanja',  $plugin_public, 'singkron_akun_belanja' );
+		$this->loader->add_action('wp_ajax_singkron_akun_belanja',  $plugin_public, 'singkron_akun_belanja');
+		$this->loader->add_action('wp_ajax_nopriv_singkron_akun_belanja',  $plugin_public, 'singkron_akun_belanja');
 
-		$this->loader->add_action( 'wp_ajax_singkron_ssh',  $plugin_public, 'singkron_ssh' );
-		$this->loader->add_action( 'wp_ajax_nopriv_singkron_ssh',  $plugin_public, 'singkron_ssh' );
+		$this->loader->add_action('wp_ajax_singkron_ssh',  $plugin_public, 'singkron_ssh');
+		$this->loader->add_action('wp_ajax_nopriv_singkron_ssh',  $plugin_public, 'singkron_ssh');
 
-		$this->loader->add_action( 'wp_ajax_singkron_rka',  $plugin_public, 'singkron_rka' );
-		$this->loader->add_action( 'wp_ajax_nopriv_singkron_rka',  $plugin_public, 'singkron_rka' );
+		$this->loader->add_action('wp_ajax_singkron_rka',  $plugin_public, 'singkron_rka');
+		$this->loader->add_action('wp_ajax_nopriv_singkron_rka',  $plugin_public, 'singkron_rka');
 
-		$this->loader->add_action( 'wp_ajax_singkron_unit',  $plugin_public, 'singkron_unit' );
-		$this->loader->add_action( 'wp_ajax_nopriv_singkron_unit',  $plugin_public, 'singkron_unit' );
+		$this->loader->add_action('wp_ajax_singkron_unit',  $plugin_public, 'singkron_unit');
+		$this->loader->add_action('wp_ajax_nopriv_singkron_unit',  $plugin_public, 'singkron_unit');
 
-		$this->loader->add_action( 'wp_ajax_get_cat_url',  $plugin_public, 'get_cat_url' );
-		$this->loader->add_action( 'wp_ajax_nopriv_get_cat_url',  $plugin_public, 'get_cat_url' );
+		$this->loader->add_action('wp_ajax_get_cat_url',  $plugin_public, 'get_cat_url');
+		$this->loader->add_action('wp_ajax_nopriv_get_cat_url',  $plugin_public, 'get_cat_url');
 
-		$this->loader->add_action( 'wp_ajax_set_unit_pagu',  $plugin_public, 'set_unit_pagu' );
-		$this->loader->add_action( 'wp_ajax_nopriv_set_unit_pagu',  $plugin_public, 'set_unit_pagu' );
-		
-		add_shortcode( 'datassh', array( $plugin_public, 'datassh' ) );
-		add_shortcode( 'rekbelanja', array( $plugin_public, 'rekbelanja' ) );
-		add_shortcode( 'tampilrka', array( $plugin_public, 'tampilrka' ) );
+		$this->loader->add_action('wp_ajax_set_unit_pagu',  $plugin_public, 'set_unit_pagu');
+		$this->loader->add_action('wp_ajax_nopriv_set_unit_pagu',  $plugin_public, 'set_unit_pagu');
 
+		$this->loader->add_action('wp_ajax_singkron_data_giat',  $plugin_public, 'singkron_data_giat');
+		$this->loader->add_action('wp_ajax_nopriv_singkron_data_giat',  $plugin_public, 'singkron_data_giat');
+
+		add_shortcode('datassh', array($plugin_public, 'datassh'));
+		add_shortcode('rekbelanja', array($plugin_public, 'rekbelanja'));
+		add_shortcode('tampilrka', array($plugin_public, 'tampilrka'));
 	}
 
 	/**
@@ -202,7 +206,8 @@ class Wpsipd {
 	 *
 	 * @since    1.0.0
 	 */
-	public function run() {
+	public function run()
+	{
 		$this->loader->run();
 	}
 
@@ -213,7 +218,8 @@ class Wpsipd {
 	 * @since     1.0.0
 	 * @return    string    The name of the plugin.
 	 */
-	public function get_plugin_name() {
+	public function get_plugin_name()
+	{
 		return $this->plugin_name;
 	}
 
@@ -223,7 +229,8 @@ class Wpsipd {
 	 * @since     1.0.0
 	 * @return    Wpsipd_Loader    Orchestrates the hooks of the plugin.
 	 */
-	public function get_loader() {
+	public function get_loader()
+	{
 		return $this->loader;
 	}
 
@@ -233,8 +240,8 @@ class Wpsipd {
 	 * @since     1.0.0
 	 * @return    string    The version number of the plugin.
 	 */
-	public function get_version() {
+	public function get_version()
+	{
 		return $this->version;
 	}
-
 }
