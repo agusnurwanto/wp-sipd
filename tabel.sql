@@ -59,7 +59,7 @@ CREATE TABLE `data_akun` (
   `set_input` tinyint(4) NOT NULL,
   `set_lokus` tinyint(4) DEFAULT NULL,
   `status` varchar(20) DEFAULT NULL,
-  `update_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `update_at` datetime NOT NULL,
   `tahun_anggaran` year(4) NOT NULL DEFAULT '2021'
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
@@ -91,13 +91,14 @@ CREATE TABLE `data_rka` (
   `spek` text NOT NULL,
   `subs_bl_teks` text NOT NULL,
   `total_harga` int(11) DEFAULT NULL,
+  `rincian` int(11) NOT NULL,
   `totalpajak` int(11) NOT NULL,
   `updated_user` int(11) DEFAULT NULL,
   `updateddate` varchar(20) DEFAULT NULL,
   `updatedtime` varchar(20) DEFAULT NULL,
   `user1` varchar(50) DEFAULT NULL,
   `user2` varchar(50) DEFAULT NULL,
-  `update_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `update_at` datetime NOT NULL,
   `tahun_anggaran` year(4) NOT NULL DEFAULT '2021',
   `idbl` int(11) DEFAULT NULL,
   `idsubbl` int(11) DEFAULT NULL,
@@ -124,7 +125,7 @@ CREATE TABLE `data_ssh` (
   `harga` int(11) NOT NULL,
   `kode_kel_standar_harga` varchar(30) NOT NULL,
   `nama_kel_standar_harga` text NOT NULL,
-  `update_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `update_at` datetime NOT NULL,
   `tahun_anggaran` year(4) NOT NULL DEFAULT '2020'
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
@@ -252,12 +253,12 @@ CREATE TABLE `data_unit_pagu` (
   `kunci_bl_rinci` tinyint(4) NOT NULL,
   `kuncibl` tinyint(4) NOT NULL,
   `kunciblrinci` tinyint(4) NOT NULL,
-  `nilaipagu` int(11) NOT NULL,
-  `nilaipagumurni` int(11) NOT NULL,
-  `nilairincian` int(11) NOT NULL,
-  `pagu_giat` int(11) NOT NULL,
-  `realisasi` int(11) NOT NULL,
-  `rinci_giat` int(11) NOT NULL,
+  `nilaipagu` double(20,0) NOT NULL,
+  `nilaipagumurni` double(20,0) NOT NULL,
+  `nilairincian` double(20,0) NOT NULL,
+  `pagu_giat` double(20,0) NOT NULL,
+  `realisasi` double(20,0) NOT NULL,
+  `rinci_giat` double(20,0) NOT NULL,
   `set_pagu_giat` int(11) NOT NULL,
   `set_pagu_skpd` int(11) NOT NULL,
   `tahun` int(11) NOT NULL,
@@ -291,7 +292,7 @@ CREATE TABLE `data_prog_keg` (
   `nama_sub_giat` text NOT NULL,
   `nama_urusan` text NOT NULL,
   `status` varchar(20) DEFAULT NULL,
-  `update_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `update_at` datetime NOT NULL,
   `tahun_anggaran` year(4) NOT NULL DEFAULT '2021'
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 

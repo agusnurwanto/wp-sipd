@@ -645,6 +645,7 @@ class Wpsipd_Public
 						$cat_name = $_POST['kode_sub_skpd'] . ' ' . $v['nama_sub_skpd'];
 						$taxonomy = 'category';
 						$cat  = get_term_by('name', $cat_name, $taxonomy);
+						// print_r($cat); die($cat_name);
 						if ($cat == false) {
 							$cat = wp_insert_term($cat_name, $taxonomy);
 							$cat_id = $cat['term_id'];

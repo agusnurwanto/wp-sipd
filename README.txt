@@ -8,7 +8,7 @@ Cara pakai plugin:
 - Untuk menampilkan akun belanja menggunakan shortcode [rekbelanja]
 - Halaman RKA akan otomatis tergenerate dalam bentuk post yang dikelompokan dalam category perangkat daerah ketika melakukan singkronisasi data
 - Video: https://youtu.be/t84n2jZUfFo
-
+- Theme yang sudah dites astra theme
 
 Permintaan fitur:
 - User umum bisa request penambahan fitur dengan membuat issue
