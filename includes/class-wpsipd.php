@@ -196,6 +196,18 @@ class Wpsipd
 		$this->loader->add_action('wp_ajax_singkron_data_giat',  $plugin_public, 'singkron_data_giat');
 		$this->loader->add_action('wp_ajax_nopriv_singkron_data_giat',  $plugin_public, 'singkron_data_giat');
 
+		$this->loader->add_action('wp_ajax_singkron_sumber_dana',  $plugin_public, 'singkron_sumber_dana');
+		$this->loader->add_action('wp_ajax_nopriv_singkron_sumber_dana',  $plugin_public, 'singkron_sumber_dana');
+
+		$this->loader->add_action('wp_ajax_singkron_data_rpjmd',  $plugin_public, 'singkron_data_rpjmd');
+		$this->loader->add_action('wp_ajax_nopriv_singkron_data_rpjmd',  $plugin_public, 'singkron_data_rpjmd');
+
+		$this->loader->add_action('wp_ajax_singkron_penerima_bantuan',  $plugin_public, 'singkron_penerima_bantuan');
+		$this->loader->add_action('wp_ajax_nopriv_singkron_penerima_bantuan',  $plugin_public, 'singkron_penerima_bantuan');
+
+		$this->loader->add_action('wp_ajax_singkron_alamat',  $plugin_public, 'singkron_alamat');
+		$this->loader->add_action('wp_ajax_nopriv_singkron_alamat',  $plugin_public, 'singkron_alamat');
+
 		add_shortcode('datassh', array($plugin_public, 'datassh'));
 		add_shortcode('rekbelanja', array($plugin_public, 'rekbelanja'));
 		add_shortcode('tampilrka', array($plugin_public, 'tampilrka'));

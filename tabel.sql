@@ -1,7 +1,6 @@
 --
 -- Table structure for table `data_unit`
 --
-
 CREATE TABLE `data_unit` (
   `id` int(11) NOT NULL,
   `bidur_1` smallint(6) NOT NULL,
@@ -24,14 +23,11 @@ CREATE TABLE `data_unit` (
   `statuskepala` varchar(20) NOT NULL,
   `update_at` datetime NOT NULL,
   `tahun_anggaran` year(4) NOT NULL DEFAULT '2021'
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
-
+) ENGINE = InnoDB DEFAULT CHARSET = latin1;
 -- --------------------------------------------------------
-
 --
 -- Table structure for table `data_akun`
 --
-
 CREATE TABLE `data_akun` (
   `id` int(11) NOT NULL,
   `belanja` varchar(10) NOT NULL,
@@ -61,14 +57,11 @@ CREATE TABLE `data_akun` (
   `status` varchar(20) DEFAULT NULL,
   `update_at` datetime NOT NULL,
   `tahun_anggaran` year(4) NOT NULL DEFAULT '2021'
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
-
+) ENGINE = InnoDB DEFAULT CHARSET = latin1;
 -- --------------------------------------------------------
-
 --
 -- Table structure for table `data_rka`
 --
-
 CREATE TABLE `data_rka` (
   `id` int(11) NOT NULL,
   `created_user` int(11) DEFAULT NULL,
@@ -104,14 +97,11 @@ CREATE TABLE `data_rka` (
   `idsubbl` int(11) DEFAULT NULL,
   `kode_bl` varchar(50) NOT NULL,
   `kode_sbl` varchar(50) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
-
+) ENGINE = InnoDB DEFAULT CHARSET = latin1;
 -- --------------------------------------------------------
-
 --
 -- Table structure for table `data_ssh`
 --
-
 CREATE TABLE `data_ssh` (
   `id` int(11) NOT NULL,
   `id_standar_harga` int(11) NOT NULL,
@@ -127,28 +117,22 @@ CREATE TABLE `data_ssh` (
   `nama_kel_standar_harga` text NOT NULL,
   `update_at` datetime NOT NULL,
   `tahun_anggaran` year(4) NOT NULL DEFAULT '2020'
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
-
+) ENGINE = InnoDB DEFAULT CHARSET = latin1;
 -- --------------------------------------------------------
-
 --
 -- Table structure for table `data_ssh_rek_belanja`
 --
-
 CREATE TABLE `data_ssh_rek_belanja` (
   `id` int(11) NOT NULL,
   `id_akun` int(11) NOT NULL,
   `kode_akun` varchar(50) NOT NULL,
   `nama_akun` text NOT NULL,
   `id_standar_harga` int(11) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
-
+) ENGINE = InnoDB DEFAULT CHARSET = latin1;
 -- --------------------------------------------------------
-
 --
 -- Table structure for table `data_sub_keg_bl`
 --
-
 CREATE TABLE `data_sub_keg_bl` (
   `id` int(11) NOT NULL,
   `id_sub_skpd` int(11) NOT NULL,
@@ -208,14 +192,11 @@ CREATE TABLE `data_sub_keg_bl` (
   `kode_sbl` varchar(50) NOT NULL,
   `update_at` datetime NOT NULL,
   `tahun_anggaran` year(4) NOT NULL DEFAULT '2021'
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
-
+) ENGINE = InnoDB DEFAULT CHARSET = latin1;
 -- --------------------------------------------------------
-
 --
 -- Table structure for table `data_sub_keg_indikator`
 --
-
 CREATE TABLE `data_sub_keg_indikator` (
   `id` int(11) NOT NULL,
   `outputteks` text NOT NULL,
@@ -227,14 +208,11 @@ CREATE TABLE `data_sub_keg_indikator` (
   `idsubbl` int(11) DEFAULT NULL,
   `update_at` datetime NOT NULL,
   `tahun_anggaran` year(4) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
-
+) ENGINE = InnoDB DEFAULT CHARSET = latin1;
 -- --------------------------------------------------------
-
 --
 -- Table structure for table `data_unit_pagu`
 --
-
 CREATE TABLE `data_unit_pagu` (
   `id` int(11) NOT NULL,
   `batasanpagu` int(11) NOT NULL,
@@ -253,12 +231,12 @@ CREATE TABLE `data_unit_pagu` (
   `kunci_bl_rinci` tinyint(4) NOT NULL,
   `kuncibl` tinyint(4) NOT NULL,
   `kunciblrinci` tinyint(4) NOT NULL,
-  `nilaipagu` double(20,0) NOT NULL,
-  `nilaipagumurni` double(20,0) NOT NULL,
-  `nilairincian` double(20,0) NOT NULL,
-  `pagu_giat` double(20,0) NOT NULL,
-  `realisasi` double(20,0) NOT NULL,
-  `rinci_giat` double(20,0) NOT NULL,
+  `nilaipagu` double(20, 0) NOT NULL,
+  `nilaipagumurni` double(20, 0) NOT NULL,
+  `nilairincian` double(20, 0) NOT NULL,
+  `pagu_giat` double(20, 0) NOT NULL,
+  `realisasi` double(20, 0) NOT NULL,
+  `rinci_giat` double(20, 0) NOT NULL,
   `set_pagu_giat` int(11) NOT NULL,
   `set_pagu_skpd` int(11) NOT NULL,
   `tahun` int(11) NOT NULL,
@@ -266,14 +244,11 @@ CREATE TABLE `data_unit_pagu` (
   `totalgiat` int(11) NOT NULL,
   `update_at` datetime NOT NULL,
   `tahun_anggaran` year(4) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
-
+) ENGINE = InnoDB DEFAULT CHARSET = latin1;
 -- --------------------------------------------------------
-
 --
 -- Table structure for table `data_prog_keg`
 --
-
 CREATE TABLE `data_prog_keg` (
   `id` int(11) NOT NULL,
   `id_bidang_urusan` int(11) NOT NULL,
@@ -294,126 +269,177 @@ CREATE TABLE `data_prog_keg` (
   `status` varchar(20) DEFAULT NULL,
   `update_at` datetime NOT NULL,
   `tahun_anggaran` year(4) NOT NULL DEFAULT '2021'
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE = InnoDB DEFAULT CHARSET = latin1;
+-- --------------------------------------------------------
+--
+-- Table structure for table `data_rpjmd`
+--
+CREATE TABLE `data_rpjmd` (
+  `id` int(11) NOT NULL,
+  `id_bidang_urusan` int(11) NOT NULL,
+  `id_program` int(11) NOT NULL,
+  `id_rpjmd` int(11) NOT NULL,
+  `indikator` text NOT NULL,
+  `kebijakan_teks` text NOT NULL,
+  `kode_bidang_urusan` varchar(50) NOT NULL,
+  `kode_program` varchar(50) NOT NULL,
+  `kode_skpd` varchar(50),
+  `misi_teks` text NOT NULL,
+  `nama_bidang_urusan` varchar(100) NOT NULL,
+  `nama_program` text NOT NULL,
+  `nama_skpd` text NOT NULL,
+  `pagu_1` varchar(50) NOT NULL,
+  `pagu_2` varchar(50) NOT NULL,
+  `pagu_3` varchar(50) NOT NULL,
+  `pagu_4` varchar(50) NOT NULL,
+  `pagu_5` varchar(50) NOT NULL,
+  `sasaran_teks` text NOT NULL,
+  `satuan` varchar(50) NOT NULL,
+  `strategi_teks` text NOT NULL,
+  `target_1` varchar(50) NOT NULL,
+  `target_2` varchar(50) NOT NULL,
+  `target_3` varchar(50) NOT NULL,
+  `target_4` varchar(50) NOT NULL,
+  `target_5` varchar(50) NOT NULL,
+  `tujuan_teks` text NOT NULL,
+  `visi_teks` text NOT NULL,
+  `update_at` datetime NOT NULL,
+) ENGINE = InnoDB DEFAULT CHARSET = latin1;
+
+-- view untuk data bantuan hibah uang --
+
+CREATE VIEW vw_batuan_hibah_uang AS SELECT
+a.kode_akun,
+a.nama_akun,
+r.subs_bl_teks,
+r.ket_bl_teks,
+r.lokus_akun_teks,
+r.nama_komponen,
+r.koefisien,
+r.satuan,
+r.harga_satuan,
+r.rincian,
+r.kode_sbl,
+r.update_at,
+r.tahun_anggaran
+FROM data_akun a
+INNER JOIN data_rka r ON a.kode_akun=r.kode_akun
+WHERE a.is_hibah_uang=1;
+
 
 --
 -- Indexes for dumped tables
 --
-
+--
+-- Indexes for table `data_prog_keg`
+--
+ALTER TABLE `data_rpjmd`
+ADD PRIMARY KEY (`id`);
 --
 -- Indexes for table `data_prog_keg`
 --
 ALTER TABLE `data_prog_keg`
-  ADD PRIMARY KEY (`id`);
-
+ADD PRIMARY KEY (`id`);
 --
 -- Indexes for table `data_unit`
 --
 ALTER TABLE `data_unit`
-  ADD PRIMARY KEY (`id`);
-
+ADD PRIMARY KEY (`id`);
 --
 -- Indexes for table `data_akun`
 --
 ALTER TABLE `data_akun`
-  ADD PRIMARY KEY (`id`);
-
+ADD PRIMARY KEY (`id`);
 --
 -- Indexes for table `data_rka`
 --
 ALTER TABLE `data_rka`
-  ADD PRIMARY KEY (`id`);
-
+ADD PRIMARY KEY (`id`);
 --
 -- Indexes for table `data_ssh`
 --
 ALTER TABLE `data_ssh`
-  ADD PRIMARY KEY (`id`),
+ADD PRIMARY KEY (`id`),
   ADD UNIQUE KEY `id_standar_harga` (`id_standar_harga`);
-
 --
 -- Indexes for table `data_ssh_rek_belanja`
 --
 ALTER TABLE `data_ssh_rek_belanja`
-  ADD PRIMARY KEY (`id`),
+ADD PRIMARY KEY (`id`),
   ADD KEY `id_standar_harga` (`id_standar_harga`);
-
 --
 -- Indexes for table `data_sub_keg_bl`
 --
 ALTER TABLE `data_sub_keg_bl`
-  ADD PRIMARY KEY (`id`);
-
+ADD PRIMARY KEY (`id`);
 --
 -- Indexes for table `data_sub_keg_indikator`
 --
 ALTER TABLE `data_sub_keg_indikator`
-  ADD PRIMARY KEY (`id`);
-
+ADD PRIMARY KEY (`id`);
 --
 -- AUTO_INCREMENT for dumped tables
 --
-
 --
 -- AUTO_INCREMENT for table `data_unit`
 --
 ALTER TABLE `data_unit`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
-
+MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 --
 -- AUTO_INCREMENT for table `data_akun`
 --
 ALTER TABLE `data_akun`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 --
 -- AUTO_INCREMENT for table `data_rka`
 --
 ALTER TABLE `data_rka`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 --
 -- AUTO_INCREMENT for table `data_ssh`
 --
 ALTER TABLE `data_ssh`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 --
 -- AUTO_INCREMENT for table `data_ssh_rek_belanja`
 --
 ALTER TABLE `data_ssh_rek_belanja`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 --
 -- AUTO_INCREMENT for table `data_sub_keg_bl`
 --
 ALTER TABLE `data_sub_keg_bl`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 --
 -- AUTO_INCREMENT for table `data_sub_keg_indikator`
 --
 ALTER TABLE `data_sub_keg_indikator`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 --
 -- Constraints for dumped tables
 --
-
 --
 -- Constraints for table `data_ssh_rek_belanja`
 --
 ALTER TABLE `data_ssh_rek_belanja`
-  ADD CONSTRAINT `data_ssh_rek_belanja_ibfk_1` FOREIGN KEY (`id_standar_harga`) REFERENCES `data_ssh` (`id_standar_harga`);
-
+ADD CONSTRAINT `data_ssh_rek_belanja_ibfk_1` FOREIGN KEY (`id_standar_harga`) REFERENCES `data_ssh` (`id_standar_harga`);
 --
 -- Indexes for table `data_unit_pagu`
 --
 ALTER TABLE `data_unit_pagu`
-  ADD PRIMARY KEY (`id`);
-
+ADD PRIMARY KEY (`id`);
 --
 -- AUTO_INCREMENT for table `data_unit_pagu`
 --
 ALTER TABLE `data_unit_pagu`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
-
+MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 --
 -- AUTO_INCREMENT for table `data_prog_keg`
 --
 ALTER TABLE `data_prog_keg`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+--
+-- AUTO_INCREMENT for table `data_prog_keg`
+--
+ALTER TABLE `data_rpjmd`
+MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
