@@ -965,6 +965,14 @@ class Wpsipd_Public
 							'idsubbl' => $_POST['idsubbl'],
 							'kode_bl' => $_POST['kode_bl'],
 							'kode_sbl' => $_POST['kode_sbl'],
+							'id_prop_penerima' => $v['id_prop_penerima'],
+							'id_camat_penerima' => $v['id_camat_penerima'],
+							'id_kokab_penerima' => $v['id_kokab_penerima'],
+							'id_lurah_penerima' => $v['id_lurah_penerima'],
+							'id_penerima' => $v['id_penerima'],
+							'idkomponen' => $v['idkomponen'],
+							'idketerangan' => $v['idketerangan'],
+							'idsubtitle' => $v['idsubtitle'],
 							'update_at' => current_time('mysql'),
 							'tahun_anggaran' => $_POST['tahun_anggaran']
 						);

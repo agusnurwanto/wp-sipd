@@ -96,7 +96,15 @@ CREATE TABLE `data_rka` (
   `idbl` int(11) DEFAULT NULL,
   `idsubbl` int(11) DEFAULT NULL,
   `kode_bl` varchar(50) NOT NULL,
-  `kode_sbl` varchar(50) NOT NULL
+  `kode_sbl` varchar(50) NOT NULL,
+  `id_prop_penerima` int(11) NOT NULL,
+  `id_camat_penerima` int(11) NOT NULL,
+  `id_kokab_penerima` int(11) NOT NULL,
+  `id_lurah_penerima` int(11) NOT NULL,
+  `id_penerima` int(11) NOT NULL,
+  `idkomponen` double(20, 0) NOT NULL,
+  `idketerangan` int(11) NOT NULL,
+  `idsubtitle` int(11) NOT NULL
 ) ENGINE = InnoDB DEFAULT CHARSET = latin1;
 -- --------------------------------------------------------
 --
@@ -321,9 +329,18 @@ r.harga_satuan,
 r.rincian,
 r.kode_sbl,
 r.update_at,
-r.tahun_anggaran
+r.tahun_anggaran,
+al.nama AS deskel,
+(SELECT nama from data_alamat where id_alamat=al.id_kec) AS kecamatan,
+(SELECT nama from data_alamat where id_alamat=al.id_kab) AS kabupaten,
+(SELECT nama from data_alamat where id_alamat=al.id_prov) AS provinsi,
+p.nama_teks AS nama_penerima,
+p.alamat_teks AS alamat_penerima,
+p.jenis_penerima
 FROM data_akun a
 INNER JOIN data_rka r ON a.kode_akun=r.kode_akun
+LEFT JOIN data_alamat al ON r.id_lurah_penerima=al.id_alamat
+LEFT JOIN data_profile_penerima_bantuan p ON r.id_penerima=p.id_profil
 WHERE a.is_hibah_uang=1;
 
 
