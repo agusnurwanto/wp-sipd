@@ -311,7 +311,7 @@ CREATE TABLE `data_rpjmd` (
   `target_5` varchar(50) NOT NULL,
   `tujuan_teks` text NOT NULL,
   `visi_teks` text NOT NULL,
-  `update_at` datetime NOT NULL,
+  `update_at` datetime NOT NULL
 ) ENGINE = InnoDB DEFAULT CHARSET = latin1;
 
 -- view untuk data bantuan hibah uang --
