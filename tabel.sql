@@ -314,6 +314,36 @@ CREATE TABLE `data_rpjmd` (
   `update_at` datetime NOT NULL
 ) ENGINE = InnoDB DEFAULT CHARSET = latin1;
 
+-- Table structure for table `data_alamat` --
+
+CREATE TABLE `data_alamat` (
+  `id` int(11) NOT NULL,
+  `id_alamat` int(11) NOT NULL,
+  `nama` text NOT NULL,
+  `id_prov` int(11) NOT NULL,
+  `id_kab` int(11) NOT NULL,
+  `id_kec` int(11) NOT NULL,
+  `is_prov` tinyint(4) NOT NULL,
+  `is_kab` tinyint(4) NOT NULL,
+  `is_kec` tinyint(4) NOT NULL,
+  `is_kel` tinyint(4) NOT NULL,
+  `updated_at` datetime NOT NULL,
+  `tahun` year(4) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+-- Table structure for table `data_profile_penerima_bantuan`--
+
+CREATE TABLE `data_profile_penerima_bantuan` (
+  `id` int(11) NOT NULL,
+  `id_profil` int(11) NOT NULL,
+  `nama_teks` text NOT NULL,
+  `alamat_teks` text NOT NULL,
+  `jenis_penerima` text NOT NULL,
+  `updated_at` datetime NOT NULL,
+  `tahun` year(4) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1; 
+
+
 -- view untuk data bantuan hibah uang --
 
 CREATE VIEW vw_batuan_hibah_uang AS SELECT
@@ -347,6 +377,16 @@ WHERE a.is_hibah_uang=1;
 --
 -- Indexes for dumped tables
 --
+--
+-- Indexes for table `data_alamat`
+--
+ALTER TABLE `data_alamat`
+  ADD PRIMARY KEY (`id`);
+--
+-- Indexes for table `data_profile_penerima_bantuan`
+--
+ALTER TABLE `data_profile_penerima_bantuan`
+  ADD PRIMARY KEY (`id`);
 --
 -- Indexes for table `data_prog_keg`
 --
@@ -460,3 +500,13 @@ MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 --
 ALTER TABLE `data_rpjmd`
 MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+--
+-- AUTO_INCREMENT for table `data_profile_penerima_bantuan`
+--
+ALTER TABLE `data_profile_penerima_bantuan`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+--
+-- AUTO_INCREMENT for table `data_alamat`
+--
+ALTER TABLE `data_alamat`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
