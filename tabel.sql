@@ -97,14 +97,14 @@ CREATE TABLE `data_rka` (
   `idsubbl` int(11) DEFAULT NULL,
   `kode_bl` varchar(50) NOT NULL,
   `kode_sbl` varchar(50) NOT NULL,
-  `id_prop_penerima` int(11) NOT NULL,
-  `id_camat_penerima` int(11) NOT NULL,
-  `id_kokab_penerima` int(11) NOT NULL,
-  `id_lurah_penerima` int(11) NOT NULL,
-  `id_penerima` int(11) NOT NULL,
-  `idkomponen` double(20, 0) NOT NULL,
-  `idketerangan` int(11) NOT NULL,
-  `idsubtitle` int(11) NOT NULL
+  `id_prop_penerima` int(11) DEFAULT NULL,
+  `id_camat_penerima` int(11) DEFAULT NULL,
+  `id_kokab_penerima` int(11) DEFAULT NULL,
+  `id_lurah_penerima` int(11) DEFAULT NULL,
+  `id_penerima` int(11) DEFAULT NULL,
+  `idkomponen` double(20, 0) DEFAULT NULL,
+  `idketerangan` int(11) DEFAULT NULL,
+  `idsubtitle` int(11) DEFAULT NULL
 ) ENGINE = InnoDB DEFAULT CHARSET = latin1;
 -- --------------------------------------------------------
 --

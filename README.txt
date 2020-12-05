@@ -1,3 +1,11 @@
+# WP-SIPD
+Optimasi aplikasi SIPD dengan chrome extension dan plugin wordpress
+Semoga bermanfaat
+
+### GRUP telegram https://t.me/sipd_chrome_extension
+
+### Chrome extension https://github.com/agusnurwanto/sipd-chrome-extension
+
 Cara pakai plugin:
 - Install wordpress
 - Install plugin ini dan aktifkan
