@@ -208,6 +208,9 @@ class Wpsipd
 		$this->loader->add_action('wp_ajax_singkron_alamat',  $plugin_public, 'singkron_alamat');
 		$this->loader->add_action('wp_ajax_nopriv_singkron_alamat',  $plugin_public, 'singkron_alamat');
 
+		$this->loader->add_action('wp_ajax_singkron_user_deskel',  $plugin_public, 'singkron_user_deskel');
+		$this->loader->add_action('wp_ajax_nopriv_singkron_user_deskel',  $plugin_public, 'singkron_user_deskel');
+
 		add_shortcode('datassh', array($plugin_public, 'datassh'));
 		add_shortcode('rekbelanja', array($plugin_public, 'rekbelanja'));
 		add_shortcode('tampilrka', array($plugin_public, 'tampilrka'));

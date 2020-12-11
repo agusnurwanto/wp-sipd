@@ -255,6 +255,98 @@ class Wpsipd_Public
 		echo $table;
 	}
 
+	public function singkron_user_deskel()
+	{
+		global $wpdb;
+		$ret = array(
+			'status'	=> 'success',
+			'message'	=> 'Berhasil export data desa/kelurahan!'
+		);
+		if (!empty($_POST)) {
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == APIKEY) {
+				if (!empty($_POST['data'])) {
+					$data = $_POST['data'];
+					$cek = $wpdb->get_var("SELECT id_lurah from data_desa_kelurahan where id_lurah=" . $data['id_lurah']);
+					$opsi = array(
+						'camat_teks' => $data['camat_teks'],
+						'id_camat' => $data['id_camat'],
+						'id_daerah' => $data['id_daerah'],
+						'id_level' => $data['id_level'],
+						'id_lurah' => $data['id_lurah'],
+						'id_profil' => $data['id_profil'],
+						'id_user' => $data['id_user'],
+						'is_desa' => $data['is_desa'],
+						'is_locked' => $data['is_locked'],
+						'jenis' => $data['jenis'],
+						'kab_kota' => $data['kab_kota'],
+						'kode_lurah' => $data['kode_lurah'],
+						'login_name' => $data['login_name'],
+						'lurah_teks' => $data['lurah_teks'],
+						'nama_daerah' => $data['nama_daerah'],
+						'nama_user' => $data['nama_user'],
+						'accasmas' => $data['accasmas'],
+						'accbankeu' => $data['accbankeu'],
+						'accdisposisi' => $data['accdisposisi'],
+						'accgiat' => $data['accgiat'],
+						'acchibah' => $data['acchibah'],
+						'accinput' => $data['accinput'],
+						'accjadwal' => $data['accjadwal'],
+						'acckunci' => $data['acckunci'],
+						'accmaster' => $data['accmaster'],
+						'accspv' => $data['accspv'],
+						'accunit' => $data['accunit'],
+						'accusulan' => $data['accusulan'],
+						'alamatteks' => $data['alamatteks'],
+						'camatteks' => $data['camatteks'],
+						'daerahpengusul' => $data['daerahpengusul'],
+						'dapil' => $data['dapil'],
+						'emailteks' => $data['emailteks'],
+						'fraksi' => $data['fraksi'],
+						'idcamat' => $data['idcamat'],
+						'iddaerahpengusul' => $data['iddaerahpengusul'],
+						'idkabkota' => $data['idkabkota'],
+						'idlevel' => $data['idlevel'],
+						'idlokasidesa' => $data['idlokasidesa'],
+						'idlurah' => $data['idlurah'],
+						'idlurahpengusul' => $data['idlurahpengusul'],
+						'idprofil' => $data['idprofil'],
+						'iduser' => $data['iduser'],
+						'jabatan' => $data['jabatan'],
+						'loginname' => $data['loginname'],
+						'lokasidesateks' => $data['lokasidesateks'],
+						'lurahteks' => $data['lurahteks'],
+						'nama' => $data['nama'],
+						'namapengusul' => $data['namapengusul'],
+						'nik' => $data['nik'],
+						'nip' => $data['nip'],
+						'notelp' => $data['notelp'],
+						'npwp' => $data['npwp'],
+						'update_at' => current_time('mysql'),
+						'tahun_anggaran' => $_POST['tahun_anggaran']
+					);
+					if (!empty($cek)) {
+						$wpdb->update('data_desa_kelurahan', $opsi, array(
+							'id_lurah' => $v['id_lurah']
+						));
+					} else {
+						$wpdb->insert('data_desa_kelurahan', $opsi);
+					}
+					// print_r($ssh); die();
+				} else {
+					$ret['status'] = 'error';
+					$ret['message'] = 'Format Akun Belanja Salah!';
+				}
+			} else {
+				$ret['status'] = 'error';
+				$ret['message'] = 'APIKEY tidak sesuai!';
+			}
+		} else {
+			$ret['status'] = 'error';
+			$ret['message'] = 'Format Salah!';
+		}
+		die(json_encode($ret));
+	}
+
 	public function singkron_akun_belanja()
 	{
 		global $wpdb;
