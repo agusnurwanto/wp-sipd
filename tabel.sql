@@ -344,6 +344,70 @@ CREATE TABLE `data_profile_penerima_bantuan` (
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1; 
 
 
+--
+-- Table structure for table `data_desa_kelurahan`
+--
+
+CREATE TABLE `data_desa_kelurahan` (
+  `id` int(11) NOT NULL,
+  `camat_teks` varchar(50) DEFAULT NULL,
+  `id_camat` int(11) DEFAULT NULL,
+  `id_daerah` int(11) DEFAULT NULL,
+  `id_level` varchar(50) DEFAULT NULL,
+  `id_lurah` int(11) DEFAULT NULL,
+  `id_profil` int(11) DEFAULT NULL,
+  `id_user` int(11) DEFAULT NULL,
+  `is_desa` tinyint(4) DEFAULT NULL,
+  `is_locked` tinyint(4) DEFAULT NULL,
+  `jabatan` varchar(50) DEFAULT NULL,
+  `jenis` int(11) DEFAULT NULL,
+  `kab_kota` varchar(50) DEFAULT NULL,
+  `kode_lurah` varchar(50) DEFAULT NULL,
+  `login_name` varchar(50) DEFAULT NULL,
+  `lurah_teks` varchar(50) DEFAULT NULL,
+  `nama_daerah` varchar(50) DEFAULT NULL,
+  `nama_user` varchar(50) DEFAULT NULL,
+  `accasmas` tinyint(4) DEFAULT NULL,
+  `accbankeu` tinyint(4) DEFAULT NULL,
+  `accdisposisi` tinyint(4) DEFAULT NULL,
+  `accgiat` tinyint(4) DEFAULT NULL,
+  `acchibah` tinyint(4) DEFAULT NULL,
+  `accinput` tinyint(4) DEFAULT NULL,
+  `accjadwal` tinyint(4) DEFAULT NULL,
+  `acckunci` tinyint(4) DEFAULT NULL,
+  `accmaster` tinyint(4) DEFAULT NULL,
+  `accspv` tinyint(4) DEFAULT NULL,
+  `accunit` tinyint(4) DEFAULT NULL,
+  `accusulan` tinyint(4) DEFAULT NULL,
+  `alamatteks` text,
+  `camatteks` varchar(50) DEFAULT NULL,
+  `daerahpengusul` varchar(50) DEFAULT NULL,
+  `dapil` varchar(50) DEFAULT NULL,
+  `emailteks` varchar(50) DEFAULT NULL,
+  `fraksi` varchar(50) DEFAULT NULL,
+  `idcamat` int(11) DEFAULT NULL,
+  `iddaerahpengusul` int(11) DEFAULT NULL,
+  `idkabkota` int(11) DEFAULT NULL,
+  `idlevel` int(11) DEFAULT NULL,
+  `idlokasidesa` int(11) DEFAULT NULL,
+  `idlurah` int(11) DEFAULT NULL,
+  `idlurahpengusul` int(11) DEFAULT NULL,
+  `idprofil` int(11) DEFAULT NULL,
+  `iduser` int(11) DEFAULT NULL,
+  `loginname` varchar(50) DEFAULT NULL,
+  `lokasidesateks` varchar(50) DEFAULT NULL,
+  `lurahteks` varchar(50) DEFAULT NULL,
+  `nama` varchar(50) DEFAULT NULL,
+  `namapengusul` varchar(50) DEFAULT NULL,
+  `nik` varchar(50) DEFAULT NULL,
+  `nip` varchar(50) DEFAULT NULL,
+  `notelp` varchar(50) DEFAULT NULL,
+  `npwp` varchar(50) DEFAULT NULL,
+  `update_at` datetime NOT NULL,
+  `tahun_anggaran` year(4) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+
 -- view untuk data bantuan hibah uang --
 
 CREATE VIEW vw_batuan_hibah_uang AS SELECT
@@ -377,6 +441,11 @@ WHERE a.is_hibah_uang=1;
 --
 -- Indexes for dumped tables
 --
+--
+-- Indexes for table `data_desa_kelurahan`
+--
+ALTER TABLE `data_desa_kelurahan`
+  ADD PRIMARY KEY (`id`);
 --
 -- Indexes for table `data_alamat`
 --
@@ -436,7 +505,11 @@ ALTER TABLE `data_sub_keg_indikator`
 ADD PRIMARY KEY (`id`);
 --
 -- AUTO_INCREMENT for dumped tables
+----
+-- AUTO_INCREMENT for table `data_desa_kelurahan`
 --
+ALTER TABLE `data_desa_kelurahan`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 --
 -- AUTO_INCREMENT for table `data_unit`
 --
