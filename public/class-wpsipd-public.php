@@ -334,7 +334,83 @@ class Wpsipd_Public
 					// print_r($ssh); die();
 				} else {
 					$ret['status'] = 'error';
-					$ret['message'] = 'Format Akun Belanja Salah!';
+					$ret['message'] = 'Format Data Desa/Kelurahan Salah!';
+				}
+			} else {
+				$ret['status'] = 'error';
+				$ret['message'] = 'APIKEY tidak sesuai!';
+			}
+		} else {
+			$ret['status'] = 'error';
+			$ret['message'] = 'Format Salah!';
+		}
+		die(json_encode($ret));
+	}
+
+	public function singkron_user_dewan()
+	{
+		global $wpdb;
+		$ret = array(
+			'status'	=> 'success',
+			'message'	=> 'Berhasil export data anggota dewan!'
+		);
+		if (!empty($_POST)) {
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == APIKEY) {
+				if (!empty($_POST['data'])) {
+					$data = $_POST['data'];
+					$cek = $wpdb->get_var("SELECT iduser from data_dewan where iduser=" . $data['iduser']);
+					$opsi = array(
+						'accasmas' => $data['accasmas'],
+						'accbankeu' => $data['accbankeu'],
+						'accdisposisi' => $data['accdisposisi'],
+						'accgiat' => $data['accgiat'],
+						'acchibah' => $data['acchibah'],
+						'accinput' => $data['accinput'],
+						'accjadwal' => $data['accjadwal'],
+						'acckunci' => $data['acckunci'],
+						'accmaster' => $data['accmaster'],
+						'accspv' => $data['accspv'],
+						'accunit' => $data['accunit'],
+						'accusulan' => $data['accusulan'],
+						'alamatteks' => $data['alamatteks'],
+						'camatteks' => $data['camatteks'],
+						'daerahpengusul' => $data['daerahpengusul'],
+						'dapil' => $data['dapil'],
+						'emailteks' => $data['emailteks'],
+						'fraksi' => $data['fraksi'],
+						'idcamat' => $data['idcamat'],
+						'iddaerahpengusul' => $data['iddaerahpengusul'],
+						'idkabkota' => $data['idkabkota'],
+						'idlevel' => $data['idlevel'],
+						'idlokasidesa' => $data['idlokasidesa'],
+						'idlurah' => $data['idlurah'],
+						'idlurahpengusul' => $data['idlurahpengusul'],
+						'idprofil' => $data['idprofil'],
+						'iduser' => $data['iduser'],
+						'jabatan' => $data['jabatan'],
+						'loginname' => $data['loginname'],
+						'lokasidesateks' => $data['lokasidesateks'],
+						'lurahteks' => $data['lurahteks'],
+						'nama' => $data['nama'],
+						'namapengusul' => $data['namapengusul'],
+						'nik' => $data['nik'],
+						'nip' => $data['nip'],
+						'notelp' => $data['notelp'],
+						'npwp' => $data['npwp'],
+						'update_at' => current_time('mysql'),
+						'tahun_anggaran' => $_POST['tahun_anggaran']
+					);
+					if (!empty($cek)) {
+						$wpdb->update('data_dewan', $opsi, array(
+							'iduser' => $v['iduser']
+						));
+					} else {
+						$wpdb->insert('data_dewan', $opsi);
+					}
+					// print_r($ssh); die();
+				} else {
+					$ret['status'] = 'error';
+					$ret['message'] = 'Format Data Dewan Salah!';
 				}
 			} else {
 				$ret['status'] = 'error';
