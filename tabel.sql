@@ -311,7 +311,8 @@ CREATE TABLE `data_rpjmd` (
   `target_5` varchar(50) NOT NULL,
   `tujuan_teks` text NOT NULL,
   `visi_teks` text NOT NULL,
-  `update_at` datetime NOT NULL
+  `update_at` datetime NOT NULL,
+  `tahun_anggaran` year(4) NOT NULL DEFAULT '2021'
 ) ENGINE = InnoDB DEFAULT CHARSET = latin1;
 
 -- Table structure for table `data_alamat` --
@@ -464,6 +465,47 @@ CREATE TABLE `data_tag_sub_keg` (
   `tahun_anggaran` year(4) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
+--
+-- Table structure for table `data_tag_sub_keg`
+--
+
+CREATE TABLE `data_pengaturan_sipd` (
+  `id` int(11) NOT NULL,
+  `daerah` text DEFAULT NULL,
+  `kepala_daerah` text DEFAULT NULL,
+  `wakil_kepala_daerah` text DEFAULT NULL,
+  `awal_rpjmd` year(4) DEFAULT NULL,
+  `akhir_rpjmd` year(4) DEFAULT NULL,
+  `pelaksana_rkpd` tinyint(4) DEFAULT NULL,
+  `pelaksana_kua` tinyint(4) DEFAULT NULL,
+  `pelaksana_apbd` tinyint(4) DEFAULT NULL,
+  `set_kpa_sekda` tinyint(4) DEFAULT NULL,
+  `update_at` datetime NOT NULL,
+  `tahun_anggaran` year(4) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+--
+-- Table structure for table `data_sumber_dana`
+--
+
+CREATE TABLE `data_sumber_dana` (
+  `id` int(11) NOT NULL,
+  `created_at` datetime NOT NULL,
+  `created_user` int(11) NOT NULL,
+  `id_daerah` int(11) NOT NULL,
+  `id_dana` int(11) NOT NULL,
+  `id_unik` text NOT NULL,
+  `is_locked` int(11) NOT NULL,
+  `kode_dana` varchar(50) NOT NULL,
+  `nama_dana` text NOT NULL,
+  `set_input` varchar(50) NOT NULL,
+  `status` varchar(50) NOT NULL,
+  `tahun` year(4) NOT NULL DEFAULT '2021',
+  `updated_at` datetime DEFAULT CURRENT_TIMESTAMP,
+  `updated_user` int(11) NOT NULL DEFAULT '0',
+  `tahun_anggaran` year(4) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
 -- view untuk data bantuan hibah uang --
 
 CREATE VIEW vw_batuan_hibah_uang AS SELECT
@@ -498,9 +540,20 @@ WHERE a.is_hibah_uang=1;
 -- Indexes for dumped tables
 --
 --
+-- Indexes for table `data_sumber_dana`
+--
+ALTER TABLE `data_sumber_dana`
+  ADD PRIMARY KEY (`id`);
+--
 -- Indexes for table `data_tag_sub_keg`
 --
 ALTER TABLE `data_tag_sub_keg`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indexes for table `data_pengaturan_sipd`
+--
+ALTER TABLE `data_pengaturan_sipd`
   ADD PRIMARY KEY (`id`);
 
 --
@@ -665,4 +718,14 @@ ALTER TABLE `data_dewan`
 -- AUTO_INCREMENT for table `data_tag_sub_keg`
 --
 ALTER TABLE `data_tag_sub_keg`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+--
+-- AUTO_INCREMENT for table `data_pengaturan_sipd`
+--
+ALTER TABLE `data_pengaturan_sipd`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+--
+-- AUTO_INCREMENT for table `data_sumber_dana`
+--
+ALTER TABLE `data_sumber_dana`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;

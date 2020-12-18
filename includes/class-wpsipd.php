@@ -215,6 +215,9 @@ class Wpsipd
 		$this->loader->add_action('wp_ajax_singkron_user_dewan',  $plugin_public, 'singkron_user_dewan');
 		$this->loader->add_action('wp_ajax_nopriv_singkron_user_dewan',  $plugin_public, 'singkron_user_dewan');
 
+		$this->loader->add_action('wp_ajax_singkron_pengaturan_sipd',  $plugin_public, 'singkron_pengaturan_sipd');
+		$this->loader->add_action('wp_ajax_nopriv_singkron_pengaturan_sipd',  $plugin_public, 'singkron_pengaturan_sipd');
+
 		add_shortcode('datassh', array($plugin_public, 'datassh'));
 		add_shortcode('rekbelanja', array($plugin_public, 'rekbelanja'));
 		add_shortcode('tampilrka', array($plugin_public, 'tampilrka'));

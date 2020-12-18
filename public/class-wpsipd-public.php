@@ -266,7 +266,7 @@ class Wpsipd_Public
 			if (!empty($_POST['api_key']) && $_POST['api_key'] == APIKEY) {
 				if (!empty($_POST['data'])) {
 					$data = $_POST['data'];
-					$cek = $wpdb->get_var("SELECT id_lurah from data_desa_kelurahan where id_lurah=" . $data['id_lurah']);
+					$cek = $wpdb->get_var("SELECT id_lurah from data_desa_kelurahan where tahun_anggaran=".$_POST['tahun_anggaran']." AND id_lurah=" . $data['id_lurah']);
 					$opsi = array(
 						'camat_teks' => $data['camat_teks'],
 						'id_camat' => $data['id_camat'],
@@ -326,7 +326,8 @@ class Wpsipd_Public
 					);
 					if (!empty($cek)) {
 						$wpdb->update('data_desa_kelurahan', $opsi, array(
-							'id_lurah' => $v['id_lurah']
+							'id_lurah' => $v['id_lurah'],
+							'tahun_anggaran' => $_POST['tahun_anggaran']
 						));
 					} else {
 						$wpdb->insert('data_desa_kelurahan', $opsi);
@@ -358,7 +359,7 @@ class Wpsipd_Public
 			if (!empty($_POST['api_key']) && $_POST['api_key'] == APIKEY) {
 				if (!empty($_POST['data'])) {
 					$data = $_POST['data'];
-					$cek = $wpdb->get_var("SELECT iduser from data_dewan where iduser=" . $data['iduser']);
+					$cek = $wpdb->get_var("SELECT iduser from data_dewan where tahun_anggaran=".$_POST['tahun_anggaran']." AND iduser=" . $data['iduser']);
 					$opsi = array(
 						'accasmas' => $data['accasmas'],
 						'accbankeu' => $data['accbankeu'],
@@ -402,10 +403,60 @@ class Wpsipd_Public
 					);
 					if (!empty($cek)) {
 						$wpdb->update('data_dewan', $opsi, array(
-							'iduser' => $v['iduser']
+							'iduser' => $v['iduser'],
+							'tahun_anggaran' => $_POST['tahun_anggaran']
 						));
 					} else {
 						$wpdb->insert('data_dewan', $opsi);
+					}
+					// print_r($ssh); die();
+				} else {
+					$ret['status'] = 'error';
+					$ret['message'] = 'Format Data Dewan Salah!';
+				}
+			} else {
+				$ret['status'] = 'error';
+				$ret['message'] = 'APIKEY tidak sesuai!';
+			}
+		} else {
+			$ret['status'] = 'error';
+			$ret['message'] = 'Format Salah!';
+		}
+		die(json_encode($ret));
+	}
+
+	public function singkron_pengaturan_sipd()
+	{
+		global $wpdb;
+		$ret = array(
+			'status'	=> 'success',
+			'message'	=> 'Berhasil export data pengaturan SIPD!'
+		);
+		if (!empty($_POST)) {
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == APIKEY) {
+				if (!empty($_POST['data'])) {
+					$data = $_POST['data'];
+					$cek = $wpdb->get_var("SELECT kepala_daerah from data_pengaturan_sipd where tahun_anggaran=".$_POST['tahun_anggaran']." AND iduser=" . $data['kepala_daerah']);
+					$opsi = array(
+						'daerah' => $data['daerah'],
+						'kepala_daerah' => $data['kepala_daerah'],
+						'wakil_kepala_daerah' => $data['wakil_kepala_daerah'],
+						'awal_rpjmd' => $data['awal_rpjmd'],
+						'akhir_rpjmd' => $data['akhir_rpjmd'],
+						'pelaksana_rkpd' => $data['pelaksana_rkpd'],
+						'pelaksana_kua' => $data['pelaksana_kua'],
+						'pelaksana_apbd' => $data['pelaksana_apbd'],
+						'set_kpa_sekda' => $data['set_kpa_sekda'],
+						'update_at' => current_time('mysql'),
+						'tahun_anggaran' => $_POST['tahun_anggaran']
+					);
+					if (!empty($cek)) {
+						$wpdb->update('data_pengaturan_sipd', $opsi, array(
+							'kepala_daerah' => $v['kepala_daerah'],
+							'tahun_anggaran' => $_POST['tahun_anggaran']
+						));
+					} else {
+						$wpdb->insert('data_pengaturan_sipd', $opsi);
 					}
 					// print_r($ssh); die();
 				} else {
@@ -435,7 +486,7 @@ class Wpsipd_Public
 				if (!empty($_POST['akun'])) {
 					$akun = $_POST['akun'];
 					foreach ($akun as $k => $v) {
-						$cek = $wpdb->get_var("SELECT id_akun from data_akun where id_akun=" . $v['id_akun']);
+						$cek = $wpdb->get_var("SELECT id_akun from data_akun where tahun_anggaran=".$_POST['tahun_anggaran']." AND id_akun=" . $v['id_akun']);
 						$opsi = array(
 							'belanja' => $v['belanja'],
 							'id_akun' => $v['id_akun'],
@@ -467,7 +518,8 @@ class Wpsipd_Public
 						);
 						if (!empty($cek)) {
 							$wpdb->update('data_akun', $opsi, array(
-								'id_akun' => $v['id_akun']
+								'id_akun' => $v['id_akun'],
+								'tahun_anggaran' => $_POST['tahun_anggaran']
 							));
 						} else {
 							$wpdb->insert('data_akun', $opsi);
@@ -501,7 +553,7 @@ class Wpsipd_Public
 				if (!empty($_POST['data_unit'])) {
 					$data_unit = $_POST['data_unit'];
 					foreach ($data_unit as $k => $v) {
-						$cek = $wpdb->get_var("SELECT idinduk from data_unit where idinduk=" . $v['idinduk']);
+						$cek = $wpdb->get_var("SELECT idinduk from data_unit where tahun_anggaran=".$_POST['tahun_anggaran']." AND idinduk=" . $v['idinduk']);
 						$opsi = array(
 							'id_setup_unit' => $v['id_setup_unit'],
 							'id_skpd' => $v['id_skpd'],
@@ -536,7 +588,8 @@ class Wpsipd_Public
 
 						if (!empty($cek)) {
 							$wpdb->update('data_unit', $opsi, array(
-								'idinduk' => $v['idinduk']
+								'idinduk' => $v['idinduk'],
+								'tahun_anggaran' => $_POST['tahun_anggaran']
 							));
 						} else {
 							$wpdb->insert('data_unit', $opsi);
@@ -568,7 +621,7 @@ class Wpsipd_Public
 				if (!empty($_POST['subgiat'])) {
 					$sub_giat = $_POST['subgiat'];
 					foreach ($sub_giat as $k => $v) {
-						$cek = $wpdb->get_var("SELECT id_sub_giat from data_prog_keg where id_sub_giat=" . $v['id_sub_giat']);
+						$cek = $wpdb->get_var("SELECT id_sub_giat from data_prog_keg where tahun_anggaran=".$_POST['tahun_anggaran']." AND id_sub_giat=" . $v['id_sub_giat']);
 						$opsi = array(
 							'id_bidang_urusan' => $v['id_bidang_urusan'],
 							'id_program' => $v['id_program'],
@@ -592,7 +645,8 @@ class Wpsipd_Public
 
 						if (!empty($cek)) {
 							$wpdb->update('data_prog_keg', $opsi, array(
-								'id_sub_giat' => $v['id_sub_giat']
+								'id_sub_giat' => $v['id_sub_giat'],
+								'tahun_anggaran' => $_POST['tahun_anggaran']
 							));
 						} else {
 							$wpdb->insert('data_prog_keg', $opsi);
@@ -625,7 +679,7 @@ class Wpsipd_Public
 				if (!empty($_POST['rpjmd'])) {
 					$data_rpjmd = $_POST['rpjmd'];
 					foreach ($data_rpjmd as $k => $v) {
-						$cek = $wpdb->get_var("SELECT id_rpjmd from data_rpjmd where id_rpjmd=" . $v['id_rpjmd']);
+						$cek = $wpdb->get_var("SELECT id_rpjmd from data_rpjmd where tahun_anggaran=".$_POST['tahun_anggaran']." AND id_rpjmd=" . $v['id_rpjmd']);
 						$opsi = array(
 							'id_bidang_urusan' => $v['id_bidang_urusan'],
 							'id_program' => $v['id_program'],
@@ -654,12 +708,14 @@ class Wpsipd_Public
 							'target_5' => $v['target_5'],
 							'tujuan_teks' => $v['tujuan_teks'],
 							'visi_teks' => $v['visi_teks'],
-							'update_at' => $v['update_at']
+							'update_at' => current_time('mysql'),
+							'tahun_anggaran' => $_POST['tahun_anggaran']
 						);
 
 						if (!empty($cek)) {
 							$wpdb->update('data_rpjmd', $opsi, array(
-								'id_rpjmd' => $v['id_rpjmd']
+								'id_rpjmd' => $v['id_rpjmd'],
+								'tahun_anggaran' => $_POST['tahun_anggaran']
 							));
 						} else {
 							$wpdb->insert('data_rpjmd', $opsi);
@@ -692,7 +748,7 @@ class Wpsipd_Public
 				if (!empty($_POST['dana'])) {
 					$sumber_dana = $_POST['dana'];
 					foreach ($sumber_dana as $k => $v) {
-						$cek = $wpdb->get_var("SELECT id_dana from data_sumber_dana where id_dana=" . $v['id_dana']);
+						$cek = $wpdb->get_var("SELECT id_dana from data_sumber_dana where tahun_anggaran=".$_POST['tahun_anggaran']." AND id_dana=" . $v['id_dana']);
 						$opsi = array(
 							'created_at' => $v['created_at'],
 							'created_user' => $v['created_user'],
@@ -705,13 +761,15 @@ class Wpsipd_Public
 							'set_input' => $v['set_input'],
 							'status' => $v['status'],
 							'tahun' => $v['tahun'],
-							'updated_at' => $v['updated_at'],
-							'updated_user' => $v['updated_user']
+							'updated_user' => $v['updated_user'],
+							'updated_at' => current_time('mysql'),
+							'tahun_anggaran' => $_POST['tahun_anggaran']
 						);
 
 						if (!empty($cek)) {
 							$wpdb->update('data_sumber_dana', $opsi, array(
-								'id_dana' => $v['id_dana']
+								'id_dana' => $v['id_dana'],
+								'tahun_anggaran' => $_POST['tahun_anggaran']
 							));
 						} else {
 							$wpdb->insert('data_sumber_dana', $opsi);

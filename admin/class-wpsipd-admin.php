@@ -109,7 +109,12 @@ class Wpsipd_Admin {
 		$basic_options_container = Container::make( 'theme_options', __( 'SIPD Options' ) )
 			->set_page_menu_position( 4 )
 	        ->add_fields( array(
-	            Field::make( 'text', 'crb_pemda', 'Nama Pemda' ),
+	            Field::make( 'text', 'crb_pemda', 'Nama Pemda' )
+	            	->set_default_value('Kabupaten Magetan'),
+	            Field::make( 'html', 'crb_sirup' )
+	            	->set_html( 'SIRUP' ),
+	            Field::make( 'html', 'crb_sinergi' )
+	            	->set_html( 'SINERGI' ),
 	        ) );
 
 	    Container::make( 'theme_options', __( 'RPJM' ) )
@@ -120,6 +125,7 @@ class Wpsipd_Admin {
 				        '1' => __( 'Ya' ),
 				        '2' => __( 'Tidak Publik' )
 				    ) )
+	            	->set_default_value('1')
 		    ) );
 	}
 }
