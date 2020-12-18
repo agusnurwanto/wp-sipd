@@ -20,6 +20,10 @@
  * @subpackage Wpsipd/admin
  * @author     Agus Nurwanto <agusnurwantomuslim@gmail.com>
  */
+
+use Carbon_Fields\Container;
+use Carbon_Fields\Field;
+
 class Wpsipd_Admin {
 
 	/**
@@ -100,4 +104,22 @@ class Wpsipd_Admin {
 
 	}
 
+	// https://docs.carbonfields.net/#/containers/theme-options
+	public function crb_attach_sipd_options(){
+		$basic_options_container = Container::make( 'theme_options', __( 'SIPD Options' ) )
+			->set_page_menu_position( 4 )
+	        ->add_fields( array(
+	            Field::make( 'text', 'crb_pemda', 'Nama Pemda' ),
+	        ) );
+
+	    Container::make( 'theme_options', __( 'RPJM' ) )
+		    ->set_page_parent( $basic_options_container )
+		    ->add_fields( array(
+		        Field::make( 'radio', 'crb_publik_rpjm', __( 'Publikasikan RPJM' ) )
+				    ->add_options( array(
+				        '1' => __( 'Ya' ),
+				        '2' => __( 'Tidak Publik' )
+				    ) )
+		    ) );
+	}
 }
