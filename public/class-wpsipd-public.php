@@ -1092,9 +1092,101 @@ class Wpsipd_Public
 							$wpdb->insert('data_sub_keg_indikator', $opsi);
 						}
 					}
-				} else if ($ret['status'] != 'error') {
-					$ret['status'] = 'error';
-					$ret['message'] = 'Format data dataOutput Salah!';
+				}
+
+				if (!empty($_POST['dataTag']) && $ret['status'] != 'error') {
+					$dataTag = $_POST['dataTag'];
+					foreach ($dataTag as $k => $v) {
+						$cek = $wpdb->get_var("SELECT kode_sbl from data_tag_sub_keg where kode_sbl='" . $_POST['kode_sbl'] . "'");
+						$opsi = array(
+							'idlabelgiat' => $v['idlabelgiat'],
+							'namalabel' => $v['namalabel'],
+							'idtagbl' => $v['idtagbl'],
+							'kode_sbl' => $_POST['kode_sbl'],
+							'idsubbl' => $_POST['idsubbl'],
+							'update_at' => current_time('mysql'),
+							'tahun_anggaran' => $_POST['tahun_anggaran']
+						);
+						if (!empty($cek)) {
+							$wpdb->update('data_tag_sub_keg', $opsi, array(
+								'kode_sbl' => $_POST['kode_sbl']
+							));
+						} else {
+							$wpdb->insert('data_tag_sub_keg', $opsi);
+						}
+					}
+				}
+
+				if (!empty($_POST['dataCapaian']) && $ret['status'] != 'error') {
+					$dataCapaian = $_POST['dataCapaian'];
+					foreach ($dataCapaian as $k => $v) {
+						$cek = $wpdb->get_var("SELECT kode_sbl from data_capaian_prog_sub_keg where kode_sbl='" . $_POST['kode_sbl'] . "'");
+						$opsi = array(
+							'satuancapaian' => $v['satuancapaian'],
+							'targetcapaianteks' => $v['targetcapaianteks'],
+							'capaianteks' => $v['capaianteks'],
+							'targetcapaian' => $v['targetcapaian'],
+							'kode_sbl' => $_POST['kode_sbl'],
+							'idsubbl' => $_POST['idsubbl'],
+							'update_at' => current_time('mysql'),
+							'tahun_anggaran' => $_POST['tahun_anggaran']
+						);
+						if (!empty($cek)) {
+							$wpdb->update('data_capaian_prog_sub_keg', $opsi, array(
+								'kode_sbl' => $_POST['kode_sbl']
+							));
+						} else {
+							$wpdb->insert('data_capaian_prog_sub_keg', $opsi);
+						}
+					}
+				}
+
+				if (!empty($_POST['dataOutputGiat']) && $ret['status'] != 'error') {
+					$dataOutputGiat = $_POST['dataOutputGiat'];
+					foreach ($dataOutputGiat as $k => $v) {
+						$cek = $wpdb->get_var("SELECT kode_sbl from data_output_giat_sub_keg where kode_sbl='" . $_POST['kode_sbl'] . "'");
+						$opsi = array(
+							'outputteks' => $v['outputteks'],
+							'satuanoutput' => $v['satuanoutput'],
+							'targetoutput' => $v['targetoutput'],
+							'targetoutputteks' => $v['targetoutputteks'],
+							'kode_sbl' => $_POST['kode_sbl'],
+							'idsubbl' => $_POST['idsubbl'],
+							'update_at' => current_time('mysql'),
+							'tahun_anggaran' => $_POST['tahun_anggaran']
+						);
+						if (!empty($cek)) {
+							$wpdb->update('data_output_giat_sub_keg', $opsi, array(
+								'kode_sbl' => $_POST['kode_sbl']
+							));
+						} else {
+							$wpdb->insert('data_output_giat_sub_keg', $opsi);
+						}
+					}
+				}
+
+				if (!empty($_POST['dataDana']) && $ret['status'] != 'error') {
+					$dataDana = $_POST['dataDana'];
+					foreach ($dataDana as $k => $v) {
+						$cek = $wpdb->get_var("SELECT kode_sbl from data_dana_sub_keg where kode_sbl='" . $_POST['kode_sbl'] . "'");
+						$opsi = array(
+							'namadana' => $v['namadana'],
+							'kodedana' => $v['kodedana'],
+							'iddana' => $v['iddana'],
+							'iddanasubbl' => $v['iddanasubbl'],
+							'kode_sbl' => $_POST['kode_sbl'],
+							'idsubbl' => $_POST['idsubbl'],
+							'update_at' => current_time('mysql'),
+							'tahun_anggaran' => $_POST['tahun_anggaran']
+						);
+						if (!empty($cek)) {
+							$wpdb->update('data_dana_sub_keg', $opsi, array(
+								'kode_sbl' => $_POST['kode_sbl']
+							));
+						} else {
+							$wpdb->insert('data_dana_sub_keg', $opsi);
+						}
+					}
 				}
 
 				if (!empty($_POST['rka']) && $ret['status'] != 'error') {

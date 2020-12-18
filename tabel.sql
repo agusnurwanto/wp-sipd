@@ -24,7 +24,7 @@ CREATE TABLE `data_unit` (
   `update_at` datetime NOT NULL,
   `tahun_anggaran` year(4) NOT NULL DEFAULT '2021'
 ) ENGINE = InnoDB DEFAULT CHARSET = latin1;
--- --------------------------------------------------------
+-- 
 --
 -- Table structure for table `data_akun`
 --
@@ -58,7 +58,7 @@ CREATE TABLE `data_akun` (
   `update_at` datetime NOT NULL,
   `tahun_anggaran` year(4) NOT NULL DEFAULT '2021'
 ) ENGINE = InnoDB DEFAULT CHARSET = latin1;
--- --------------------------------------------------------
+-- 
 --
 -- Table structure for table `data_rka`
 --
@@ -106,7 +106,7 @@ CREATE TABLE `data_rka` (
   `idketerangan` int(11) DEFAULT NULL,
   `idsubtitle` int(11) DEFAULT NULL
 ) ENGINE = InnoDB DEFAULT CHARSET = latin1;
--- --------------------------------------------------------
+-- 
 --
 -- Table structure for table `data_ssh`
 --
@@ -126,7 +126,7 @@ CREATE TABLE `data_ssh` (
   `update_at` datetime NOT NULL,
   `tahun_anggaran` year(4) NOT NULL DEFAULT '2020'
 ) ENGINE = InnoDB DEFAULT CHARSET = latin1;
--- --------------------------------------------------------
+-- 
 --
 -- Table structure for table `data_ssh_rek_belanja`
 --
@@ -137,7 +137,7 @@ CREATE TABLE `data_ssh_rek_belanja` (
   `nama_akun` text NOT NULL,
   `id_standar_harga` int(11) NOT NULL
 ) ENGINE = InnoDB DEFAULT CHARSET = latin1;
--- --------------------------------------------------------
+-- 
 --
 -- Table structure for table `data_sub_keg_bl`
 --
@@ -152,7 +152,7 @@ CREATE TABLE `data_sub_keg_bl` (
   `id_program` int(11) NOT NULL,
   `nama_lokasi` text DEFAULT NULL,
   `waktu_akhir` int(11) NOT NULL,
-  `pagu_n_lalu` int(11) DEFAULT NULL,
+  `pagu_n_lalu` double(20, 0) DEFAULT NULL,
   `id_urusan` int(11) NOT NULL,
   `id_unik_sub_bl` text NOT NULL,
   `id_sub_giat` int(11) NOT NULL,
@@ -201,7 +201,7 @@ CREATE TABLE `data_sub_keg_bl` (
   `update_at` datetime NOT NULL,
   `tahun_anggaran` year(4) NOT NULL DEFAULT '2021'
 ) ENGINE = InnoDB DEFAULT CHARSET = latin1;
--- --------------------------------------------------------
+-- 
 --
 -- Table structure for table `data_sub_keg_indikator`
 --
@@ -217,7 +217,7 @@ CREATE TABLE `data_sub_keg_indikator` (
   `update_at` datetime NOT NULL,
   `tahun_anggaran` year(4) NOT NULL
 ) ENGINE = InnoDB DEFAULT CHARSET = latin1;
--- --------------------------------------------------------
+-- 
 --
 -- Table structure for table `data_unit_pagu`
 --
@@ -253,7 +253,7 @@ CREATE TABLE `data_unit_pagu` (
   `update_at` datetime NOT NULL,
   `tahun_anggaran` year(4) NOT NULL
 ) ENGINE = InnoDB DEFAULT CHARSET = latin1;
--- --------------------------------------------------------
+-- 
 --
 -- Table structure for table `data_prog_keg`
 --
@@ -278,7 +278,7 @@ CREATE TABLE `data_prog_keg` (
   `update_at` datetime NOT NULL,
   `tahun_anggaran` year(4) NOT NULL DEFAULT '2021'
 ) ENGINE = InnoDB DEFAULT CHARSET = latin1;
--- --------------------------------------------------------
+-- 
 --
 -- Table structure for table `data_rpjmd`
 --
@@ -343,9 +343,7 @@ CREATE TABLE `data_profile_penerima_bantuan` (
   `tahun` year(4) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1; 
 
---
--- Table structure for table `data_desa_kelurahan`
---
+-- Table structure for table `data_desa_kelurahan`--
 
 CREATE TABLE `data_desa_kelurahan` (
   `id` int(11) NOT NULL,
@@ -406,9 +404,7 @@ CREATE TABLE `data_desa_kelurahan` (
   `tahun_anggaran` year(4) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
---
--- Table structure for table `data_dewan`
---
+-- Table structure for table `data_dewan`--
 
 CREATE TABLE `data_dewan` (
   `id` int(11) NOT NULL,
@@ -453,6 +449,21 @@ CREATE TABLE `data_dewan` (
   `tahun_anggaran` year(4) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
+--
+-- Table structure for table `data_tag_sub_keg`
+--
+
+CREATE TABLE `data_tag_sub_keg` (
+  `id` int(11) NOT NULL,
+  `idlabelgiat` int(11) DEFAULT NULL,
+  `namalabel` varchar(50) DEFAULT NULL,
+  `idtagbl` int(11) DEFAULT NULL,
+  `kode_sbl` varchar(50) DEFAULT NULL,
+  `idsubbl` int(11) DEFAULT NULL,
+  `update_at` datetime NOT NULL,
+  `tahun_anggaran` year(4) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
 -- view untuk data bantuan hibah uang --
 
 CREATE VIEW vw_batuan_hibah_uang AS SELECT
@@ -486,6 +497,12 @@ WHERE a.is_hibah_uang=1;
 --
 -- Indexes for dumped tables
 --
+--
+-- Indexes for table `data_tag_sub_keg`
+--
+ALTER TABLE `data_tag_sub_keg`
+  ADD PRIMARY KEY (`id`);
+
 --
 -- Indexes for table `data_dewan`
 --
@@ -554,9 +571,12 @@ ADD PRIMARY KEY (`id`);
 --
 ALTER TABLE `data_sub_keg_indikator`
 ADD PRIMARY KEY (`id`);
+
 --
 -- AUTO_INCREMENT for dumped tables
-----
+--
+
+--
 -- AUTO_INCREMENT for table `data_desa_kelurahan`
 --
 ALTER TABLE `data_desa_kelurahan`
@@ -596,9 +616,11 @@ MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 --
 ALTER TABLE `data_sub_keg_indikator`
 MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
 --
 -- Constraints for dumped tables
 --
+
 --
 -- Constraints for table `data_ssh_rek_belanja`
 --
@@ -638,4 +660,9 @@ ALTER TABLE `data_alamat`
 -- AUTO_INCREMENT for table `data_dewan`
 --
 ALTER TABLE `data_dewan`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+--
+-- AUTO_INCREMENT for table `data_tag_sub_keg`
+--
+ALTER TABLE `data_tag_sub_keg`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
