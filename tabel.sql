@@ -135,7 +135,8 @@ CREATE TABLE `data_ssh_rek_belanja` (
   `id_akun` int(11) NOT NULL,
   `kode_akun` varchar(50) NOT NULL,
   `nama_akun` text NOT NULL,
-  `id_standar_harga` int(11) NOT NULL
+  `id_standar_harga` int(11) NOT NULL,
+  `tahun_anggaran` year(4) NOT NULL DEFAULT '2021'
 ) ENGINE = InnoDB DEFAULT CHARSET = latin1;
 -- 
 --

@@ -104,17 +104,46 @@ class Wpsipd_Admin {
 
 	}
 
+	public function generateRandomString($length = 10) {
+	    $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+	    $charactersLength = strlen($characters);
+	    $randomString = '';
+	    for ($i = 0; $i < $length; $i++) {
+	        $randomString .= $characters[rand(0, $charactersLength - 1)];
+	    }
+	    return $randomString;
+	}
+
 	// https://docs.carbonfields.net/#/containers/theme-options
 	public function crb_attach_sipd_options(){
+		$sinergi_link = $this->generate_sinergi_page();
+		$sirup_link = $this->generate_sirup_page();
+		$sibangda_link = $this->generate_sibangda_page();
+		$simda_link = $this->generate_simda_page();
 		$basic_options_container = Container::make( 'theme_options', __( 'SIPD Options' ) )
 			->set_page_menu_position( 4 )
 	        ->add_fields( array(
 	            Field::make( 'text', 'crb_pemda', 'Nama Pemda' )
-	            	->set_default_value('Kabupaten Magetan'),
+	            	->set_help_text('Data diambil dari halaman pengaturan SIPD menggunakan <a href="https://github.com/agusnurwanto/sipd-chrome-extension" target="_blank">SIPD chrome extension</a>.')
+	            	->set_default_value(carbon_get_theme_option( 'crb_pemda' ))
+	            	->set_attribute('readOnly', 'true'),
+	            Field::make( 'text', 'crb_kepala_daerah', 'Kepala Daerah' )
+	            	->set_default_value(carbon_get_theme_option( 'crb_kepala_daerah' ))
+	            	->set_attribute('readOnly', 'true'),
+	            Field::make( 'text', 'crb_wakil_daerah', 'Wakil Kepala Daerah' )
+	            	->set_default_value(carbon_get_theme_option( 'crb_wakil_daerah' ))
+	            	->set_attribute('readOnly', 'true'),
+	            Field::make( 'text', 'crb_api_key_extension', 'API KEY chrome extension' )
+	            	->set_default_value($this->generateRandomString())
+	            	->set_help_text('API KEY ini dipakai untuk <a href="https://github.com/agusnurwanto/sipd-chrome-extension" target="_blank">SIPD chrome extension</a>.'),
+	            Field::make( 'html', 'crb_simda' )
+	            	->set_html( '<a target="_blank" href="'.$simda_link.'">SIPD to SIMDA BPKP</a>' ),
+	            Field::make( 'html', 'crb_sibangda' )
+	            	->set_html( '<a target="_blank" href="'.$sibangda_link.'">SIPD to SIBANGDA Bina Pembangunan Kemendagri</a>' ),
 	            Field::make( 'html', 'crb_sirup' )
-	            	->set_html( 'SIRUP' ),
+	            	->set_html( '<a target="_blank" href="'.$sirup_link.'">SIPD to SIRUP LKPP</a>' ),
 	            Field::make( 'html', 'crb_sinergi' )
-	            	->set_html( 'SINERGI' ),
+	            	->set_html( '<a target="_blank" href="'.$sinergi_link.'">SIPD to SINERGI DJPK Kementrian Keuangan</a>' ),
 	        ) );
 
 	    Container::make( 'theme_options', __( 'RPJM' ) )
@@ -127,5 +156,105 @@ class Wpsipd_Admin {
 				    ) )
 	            	->set_default_value('1')
 		    ) );
+	}
+
+	public function generate_simda_page(){
+		$nama_page = 'SIPD to SIMDA BPKP';
+		$custom_post = get_page_by_title($nama_page, OBJECT, 'page');
+		// print_r($custom_post); die();
+
+		if (empty($custom_post) || empty($custom_post->ID)) {
+			$id = wp_insert_post(array(
+				'post_title'	=> $nama_page,
+				'post_content'	=> '[tampilsimda]',
+				'post_type'		=> 'page',
+				'post_status'	=> 'publish'
+			));
+			$custom_post = get_page_by_title($nama_page, OBJECT, 'page');
+			update_post_meta($custom_post->ID, 'ast-breadcrumbs-content', 'disabled');
+			update_post_meta($custom_post->ID, 'ast-featured-img', 'disabled');
+			update_post_meta($custom_post->ID, 'ast-main-header-display', 'disabled');
+			update_post_meta($custom_post->ID, 'footer-sml-layout', 'disabled');
+			update_post_meta($custom_post->ID, 'site-content-layout', 'page-builder');
+			update_post_meta($custom_post->ID, 'site-post-title', 'disabled');
+			update_post_meta($custom_post->ID, 'site-sidebar-layout', 'no-sidebar');
+			update_post_meta($custom_post->ID, 'theme-transparent-header-meta', 'disabled');
+		}
+		return get_permalink($custom_post->ID);
+	}
+
+	public function generate_sibangda_page(){
+		$nama_page = 'SIPD to SIBANGDA Bina Pembangunan Kemendagri';
+		$custom_post = get_page_by_title($nama_page, OBJECT, 'page');
+		// print_r($custom_post); die();
+
+		if (empty($custom_post) || empty($custom_post->ID)) {
+			$id = wp_insert_post(array(
+				'post_title'	=> $nama_page,
+				'post_content'	=> '[tampilsibangda]',
+				'post_type'		=> 'page',
+				'post_status'	=> 'publish'
+			));
+			$custom_post = get_page_by_title($nama_page, OBJECT, 'page');
+			update_post_meta($custom_post->ID, 'ast-breadcrumbs-content', 'disabled');
+			update_post_meta($custom_post->ID, 'ast-featured-img', 'disabled');
+			update_post_meta($custom_post->ID, 'ast-main-header-display', 'disabled');
+			update_post_meta($custom_post->ID, 'footer-sml-layout', 'disabled');
+			update_post_meta($custom_post->ID, 'site-content-layout', 'page-builder');
+			update_post_meta($custom_post->ID, 'site-post-title', 'disabled');
+			update_post_meta($custom_post->ID, 'site-sidebar-layout', 'no-sidebar');
+			update_post_meta($custom_post->ID, 'theme-transparent-header-meta', 'disabled');
+		}
+		return get_permalink($custom_post->ID);
+	}
+
+	public function generate_sinergi_page(){
+		$nama_page = 'SIPD to SINERGI DJPK Kementrian Keuangan';
+		$custom_post = get_page_by_title($nama_page, OBJECT, 'page');
+		// print_r($custom_post); die();
+
+		if (empty($custom_post) || empty($custom_post->ID)) {
+			$id = wp_insert_post(array(
+				'post_title'	=> $nama_page,
+				'post_content'	=> '[tampilsinergi]',
+				'post_type'		=> 'page',
+				'post_status'	=> 'publish'
+			));
+			$custom_post = get_page_by_title($nama_page, OBJECT, 'page');
+			update_post_meta($custom_post->ID, 'ast-breadcrumbs-content', 'disabled');
+			update_post_meta($custom_post->ID, 'ast-featured-img', 'disabled');
+			update_post_meta($custom_post->ID, 'ast-main-header-display', 'disabled');
+			update_post_meta($custom_post->ID, 'footer-sml-layout', 'disabled');
+			update_post_meta($custom_post->ID, 'site-content-layout', 'page-builder');
+			update_post_meta($custom_post->ID, 'site-post-title', 'disabled');
+			update_post_meta($custom_post->ID, 'site-sidebar-layout', 'no-sidebar');
+			update_post_meta($custom_post->ID, 'theme-transparent-header-meta', 'disabled');
+		}
+		return get_permalink($custom_post->ID);
+	}
+
+	public function generate_sirup_page(){
+		$nama_page = 'SIPD to SIRUP LKPP';
+		$custom_post = get_page_by_title($nama_page, OBJECT, 'page');
+		// print_r($custom_post); die();
+
+		if (empty($custom_post) || empty($custom_post->ID)) {
+			$id = wp_insert_post(array(
+				'post_title'	=> $nama_page,
+				'post_content'	=> '[tampilsirup]',
+				'post_type'		=> 'page',
+				'post_status'	=> 'publish'
+			));
+			$custom_post = get_page_by_title($nama_page, OBJECT, 'page');
+			update_post_meta($custom_post->ID, 'ast-breadcrumbs-content', 'disabled');
+			update_post_meta($custom_post->ID, 'ast-featured-img', 'disabled');
+			update_post_meta($custom_post->ID, 'ast-main-header-display', 'disabled');
+			update_post_meta($custom_post->ID, 'footer-sml-layout', 'disabled');
+			update_post_meta($custom_post->ID, 'site-content-layout', 'page-builder');
+			update_post_meta($custom_post->ID, 'site-post-title', 'disabled');
+			update_post_meta($custom_post->ID, 'site-sidebar-layout', 'no-sidebar');
+			update_post_meta($custom_post->ID, 'theme-transparent-header-meta', 'disabled');
+		}
+		return get_permalink($custom_post->ID);
 	}
 }
