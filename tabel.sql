@@ -3,6 +3,14 @@
 --
 CREATE TABLE `data_unit` (
   `id` int(11) NOT NULL,
+  `id_setup_unit` int(11) DEFAULT NULL,
+  `id_skpd` int(11) DEFAULT NULL,
+  `id_unit` int(11) DEFAULT NULL,
+  `is_skpd` smallint(6) DEFAULT NULL,
+  `kode_skpd` varchar(30) NOT NULL,
+  `kunci_skpd` smallint(6) DEFAULT NULL,
+  `nama_skpd` text NOT NULL,
+  `posisi` text NOT NULL,
   `bidur_1` smallint(6) NOT NULL,
   `bidur_2` smallint(6) NOT NULL,
   `bidur_3` smallint(6) NOT NULL,
