@@ -120,6 +120,7 @@ class Wpsipd_Admin {
 		$sirup_link = $this->generate_sirup_page();
 		$sibangda_link = $this->generate_sibangda_page();
 		$simda_link = $this->generate_simda_page();
+		$siencang_link = $this->generate_siencang_page();
 		$basic_options_container = Container::make( 'theme_options', __( 'SIPD Options' ) )
 			->set_page_menu_position( 4 )
 	        ->add_fields( array(
@@ -136,6 +137,8 @@ class Wpsipd_Admin {
 	            Field::make( 'text', 'crb_api_key_extension', 'API KEY chrome extension' )
 	            	->set_default_value($this->generateRandomString())
 	            	->set_help_text('API KEY ini dipakai untuk <a href="https://github.com/agusnurwanto/sipd-chrome-extension" target="_blank">SIPD chrome extension</a>.'),
+	            Field::make( 'html', 'crb_siencang' )
+	            	->set_html( '<a target="_blank" href="'.$siencang_link.'">SIPD to SIENCANG</a> | <a href="https://github.com/ganjarnugraha/perencanaan-penganggaran" target="_blank">https://github.com/ganjarnugraha/perencanaan-penganggaran</a>' ),
 	            Field::make( 'html', 'crb_simda' )
 	            	->set_html( '<a target="_blank" href="'.$simda_link.'">SIPD to SIMDA BPKP</a>' ),
 	            Field::make( 'html', 'crb_sibangda' )
@@ -156,6 +159,31 @@ class Wpsipd_Admin {
 				    ) )
 	            	->set_default_value('1')
 		    ) );
+	}
+
+	public function generate_siencang_page(){
+		$nama_page = 'SIPD to SIENCANG';
+		$custom_post = get_page_by_title($nama_page, OBJECT, 'page');
+		// print_r($custom_post); die();
+
+		if (empty($custom_post) || empty($custom_post->ID)) {
+			$id = wp_insert_post(array(
+				'post_title'	=> $nama_page,
+				'post_content'	=> '[tampilsiencang]',
+				'post_type'		=> 'page',
+				'post_status'	=> 'publish'
+			));
+			$custom_post = get_page_by_title($nama_page, OBJECT, 'page');
+			update_post_meta($custom_post->ID, 'ast-breadcrumbs-content', 'disabled');
+			update_post_meta($custom_post->ID, 'ast-featured-img', 'disabled');
+			update_post_meta($custom_post->ID, 'ast-main-header-display', 'disabled');
+			update_post_meta($custom_post->ID, 'footer-sml-layout', 'disabled');
+			update_post_meta($custom_post->ID, 'site-content-layout', 'page-builder');
+			update_post_meta($custom_post->ID, 'site-post-title', 'disabled');
+			update_post_meta($custom_post->ID, 'site-sidebar-layout', 'no-sidebar');
+			update_post_meta($custom_post->ID, 'theme-transparent-header-meta', 'disabled');
+		}
+		return get_permalink($custom_post->ID);
 	}
 
 	public function generate_simda_page(){
