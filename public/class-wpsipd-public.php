@@ -1008,6 +1008,7 @@ class Wpsipd_Public
 						'pangkatkepala' => $data_unit['pangkatkepala'],
 						'setupunit' => $data_unit['setupunit'],
 						'statuskepala' => $data_unit['statuskepala'],
+						'active' => 1,
 						'update_at' => current_time('mysql'),
 						'tahun_anggaran' => $_POST['tahun_anggaran']
 					);
@@ -1084,6 +1085,7 @@ class Wpsipd_Public
 							'id_bl' => $v['id_bl'],
 							'kode_bl' => $_POST['kode_bl'],
 							'kode_sbl' => $_POST['kode_sbl'],
+							'active' => 1,
 							'update_at' => current_time('mysql'),
 							'tahun_anggaran' => $_POST['tahun_anggaran']
 						);
@@ -1147,8 +1149,12 @@ class Wpsipd_Public
 
 				if (!empty($_POST['dataOutput']) && $ret['status'] != 'error') {
 					$dataOutput = $_POST['dataOutput'];
+					$wpdb->update('data_sub_keg_indikator', array( 'active' => 0 ), array(
+						'tahun_anggaran' => $_POST['tahun_anggaran'],
+						'kode_sbl' => $_POST['kode_sbl']
+					));
 					foreach ($dataOutput as $k => $v) {
-						$cek = $wpdb->get_var("SELECT kode_sbl from data_sub_keg_indikator where tahun_anggaran=".$_POST['tahun_anggaran']." AND kode_sbl='" . $_POST['kode_sbl'] . "'");
+						$cek = $wpdb->get_var("SELECT kode_sbl from data_sub_keg_indikator where tahun_anggaran=".$_POST['tahun_anggaran']." AND kode_sbl='" . $_POST['kode_sbl'] . "' AND idoutputbl='" . $v['idoutputbl'] . "'");
 						$opsi = array(
 							'outputteks' => $v['outputteks'],
 							'targetoutput' => $v['targetoutput'],
@@ -1157,12 +1163,14 @@ class Wpsipd_Public
 							'targetoutputteks' => $v['targetoutputteks'],
 							'kode_sbl' => $_POST['kode_sbl'],
 							'idsubbl' => $_POST['idsubbl'],
+							'active' => 1,
 							'update_at' => current_time('mysql'),
 							'tahun_anggaran' => $_POST['tahun_anggaran']
 						);
 						if (!empty($cek)) {
 							$wpdb->update('data_sub_keg_indikator', $opsi, array(
 								'kode_sbl' => $_POST['kode_sbl'],
+								'idoutputbl' => $_POST['idoutputbl'],
 								'tahun_anggaran' => $_POST['tahun_anggaran']
 							));
 						} else {
@@ -1173,20 +1181,26 @@ class Wpsipd_Public
 
 				if (!empty($_POST['dataTag']) && $ret['status'] != 'error') {
 					$dataTag = $_POST['dataTag'];
+					$wpdb->update('data_tag_sub_keg', array( 'active' => 0 ), array(
+						'tahun_anggaran' => $_POST['tahun_anggaran'],
+						'kode_sbl' => $_POST['kode_sbl']
+					));
 					foreach ($dataTag as $k => $v) {
-						$cek = $wpdb->get_var("SELECT kode_sbl from data_tag_sub_keg where tahun_anggaran=".$_POST['tahun_anggaran']." AND kode_sbl='" . $_POST['kode_sbl'] . "'");
+						$cek = $wpdb->get_var("SELECT kode_sbl from data_tag_sub_keg where tahun_anggaran=".$_POST['tahun_anggaran']." AND kode_sbl='" . $_POST['kode_sbl'] . "' AND idtagbl='" . $v['idtagbl'] . "'");
 						$opsi = array(
 							'idlabelgiat' => $v['idlabelgiat'],
 							'namalabel' => $v['namalabel'],
 							'idtagbl' => $v['idtagbl'],
 							'kode_sbl' => $_POST['kode_sbl'],
 							'idsubbl' => $_POST['idsubbl'],
+							'active' => 1,
 							'update_at' => current_time('mysql'),
 							'tahun_anggaran' => $_POST['tahun_anggaran']
 						);
 						if (!empty($cek)) {
 							$wpdb->update('data_tag_sub_keg', $opsi, array(
 								'kode_sbl' => $_POST['kode_sbl'],
+								'idtagbl' => $v['idtagbl'],
 								'tahun_anggaran' => $_POST['tahun_anggaran']
 							));
 						} else {
@@ -1197,8 +1211,12 @@ class Wpsipd_Public
 
 				if (!empty($_POST['dataCapaian']) && $ret['status'] != 'error') {
 					$dataCapaian = $_POST['dataCapaian'];
+					$wpdb->update('data_capaian_prog_sub_keg', array( 'active' => 0 ), array(
+						'tahun_anggaran' => $_POST['tahun_anggaran'],
+						'kode_sbl' => $_POST['kode_sbl']
+					));
 					foreach ($dataCapaian as $k => $v) {
-						$cek = $wpdb->get_var("SELECT kode_sbl from data_capaian_prog_sub_keg where tahun_anggaran=".$_POST['tahun_anggaran']." AND kode_sbl='" . $_POST['kode_sbl'] . "'");
+						$cek = $wpdb->get_var("SELECT kode_sbl from data_capaian_prog_sub_keg where tahun_anggaran=".$_POST['tahun_anggaran']." AND kode_sbl='" . $_POST['kode_sbl'] . "' AND capaianteks='" . $v['capaianteks'] . "'");
 						$opsi = array(
 							'satuancapaian' => $v['satuancapaian'],
 							'targetcapaianteks' => $v['targetcapaianteks'],
@@ -1206,12 +1224,15 @@ class Wpsipd_Public
 							'targetcapaian' => $v['targetcapaian'],
 							'kode_sbl' => $_POST['kode_sbl'],
 							'idsubbl' => $_POST['idsubbl'],
+							'active' => 1,
 							'update_at' => current_time('mysql'),
 							'tahun_anggaran' => $_POST['tahun_anggaran']
 						);
 						if (!empty($cek)) {
 							$wpdb->update('data_capaian_prog_sub_keg', $opsi, array(
-								'kode_sbl' => $_POST['kode_sbl']
+								'kode_sbl' => $_POST['kode_sbl'],
+								'capaianteks' => $v['capaianteks'],
+								'tahun_anggaran' => $_POST['tahun_anggaran']
 							));
 						} else {
 							$wpdb->insert('data_capaian_prog_sub_keg', $opsi);
@@ -1221,8 +1242,12 @@ class Wpsipd_Public
 
 				if (!empty($_POST['dataOutputGiat']) && $ret['status'] != 'error') {
 					$dataOutputGiat = $_POST['dataOutputGiat'];
+					$wpdb->update('data_output_giat_sub_keg', array( 'active' => 0 ), array(
+						'tahun_anggaran' => $_POST['tahun_anggaran'],
+						'kode_sbl' => $_POST['kode_sbl']
+					));
 					foreach ($dataOutputGiat as $k => $v) {
-						$cek = $wpdb->get_var("SELECT kode_sbl from data_output_giat_sub_keg where tahun_anggaran=".$_POST['tahun_anggaran']." AND kode_sbl='" . $_POST['kode_sbl'] . "'");
+						$cek = $wpdb->get_var("SELECT kode_sbl from data_output_giat_sub_keg where tahun_anggaran=".$_POST['tahun_anggaran']." AND kode_sbl='" . $_POST['kode_sbl'] . "' AND outputteks='" . $v['outputteks'] . "'");
 						$opsi = array(
 							'outputteks' => $v['outputteks'],
 							'satuanoutput' => $v['satuanoutput'],
@@ -1230,12 +1255,14 @@ class Wpsipd_Public
 							'targetoutputteks' => $v['targetoutputteks'],
 							'kode_sbl' => $_POST['kode_sbl'],
 							'idsubbl' => $_POST['idsubbl'],
+							'active' => 1,
 							'update_at' => current_time('mysql'),
 							'tahun_anggaran' => $_POST['tahun_anggaran']
 						);
 						if (!empty($cek)) {
 							$wpdb->update('data_output_giat_sub_keg', $opsi, array(
 								'kode_sbl' => $_POST['kode_sbl'],
+								'outputteks' => $v['outputteks'],
 								'tahun_anggaran' => $_POST['tahun_anggaran']
 							));
 						} else {
@@ -1246,8 +1273,12 @@ class Wpsipd_Public
 
 				if (!empty($_POST['dataDana']) && $ret['status'] != 'error') {
 					$dataDana = $_POST['dataDana'];
+					$wpdb->update('data_dana_sub_keg', array( 'active' => 0 ), array(
+						'tahun_anggaran' => $_POST['tahun_anggaran'],
+						'kode_sbl' => $_POST['kode_sbl']
+					));
 					foreach ($dataDana as $k => $v) {
-						$cek = $wpdb->get_var("SELECT kode_sbl from data_dana_sub_keg where tahun_anggaran=".$_POST['tahun_anggaran']." AND kode_sbl='" . $_POST['kode_sbl'] . "'");
+						$cek = $wpdb->get_var("SELECT kode_sbl from data_dana_sub_keg where tahun_anggaran=".$_POST['tahun_anggaran']." AND kode_sbl='" . $_POST['kode_sbl'] . "' AND iddanasubbl='" . $v['iddanasubbl'] . "'");
 						$opsi = array(
 							'namadana' => $v['namadana'],
 							'kodedana' => $v['kodedana'],
@@ -1255,12 +1286,14 @@ class Wpsipd_Public
 							'iddanasubbl' => $v['iddanasubbl'],
 							'kode_sbl' => $_POST['kode_sbl'],
 							'idsubbl' => $_POST['idsubbl'],
+							'active' => 1,
 							'update_at' => current_time('mysql'),
 							'tahun_anggaran' => $_POST['tahun_anggaran']
 						);
 						if (!empty($cek)) {
 							$wpdb->update('data_dana_sub_keg', $opsi, array(
 								'kode_sbl' => $_POST['kode_sbl'],
+								'iddanasubbl' => $v['iddanasubbl'],
 								'tahun_anggaran' => $_POST['tahun_anggaran']
 							));
 						} else {
@@ -1271,6 +1304,10 @@ class Wpsipd_Public
 
 				if (!empty($_POST['rka']) && $ret['status'] != 'error') {
 					$rka = $_POST['rka'];
+					$wpdb->update('data_rka', array( 'active' => 0 ), array(
+						'tahun_anggaran' => $_POST['tahun_anggaran'],
+						'kode_sbl' => $_POST['kode_sbl']
+					));
 					foreach ($rka as $k => $v) {
 						$cek = $wpdb->get_var("SELECT id_rinci_sub_bl from data_rka where tahun_anggaran=".$_POST['tahun_anggaran']." AND id_rinci_sub_bl='" . $v['id_rinci_sub_bl'] . "'");
 						$opsi = array(
@@ -1291,6 +1328,14 @@ class Wpsipd_Public
 							'nama_komponen' => $v['nama_komponen'],
 							'spek_komponen' => $v['spek_komponen'],
 							'satuan' => $v['satuan'],
+							'sat1' => $v['sat1'],
+							'sat2' => $v['sat2'],
+							'sat3' => $v['sat3'],
+							'sat4' => $v['sat4'],
+							'volum1' => $v['volum1'],
+							'volum2' => $v['volum2'],
+							'volum3' => $v['volum3'],
+							'volum4' => $v['volum4'],
 							'spek' => $v['spek'],
 							'subs_bl_teks' => $v['subs_bl_teks'],
 							'total_harga' => $v['total_harga'],
@@ -1313,6 +1358,7 @@ class Wpsipd_Public
 							'idkomponen' => $v['idkomponen'],
 							'idketerangan' => $v['idketerangan'],
 							'idsubtitle' => $v['idsubtitle'],
+							'active' => 1,
 							'update_at' => current_time('mysql'),
 							'tahun_anggaran' => $_POST['tahun_anggaran']
 						);

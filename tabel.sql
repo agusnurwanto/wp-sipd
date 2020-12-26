@@ -82,6 +82,14 @@ CREATE TABLE `data_rka` (
   `spek_komponen` text NOT NULL,
   `satuan` varchar(50) NOT NULL,
   `spek` text NOT NULL,
+  `sat1` text DEFAULT NULL,
+  `sat2` text DEFAULT NULL,
+  `sat3` text DEFAULT NULL,
+  `sat4` text DEFAULT NULL,
+  `volum1` text DEFAULT NULL,
+  `volum2` text DEFAULT NULL,
+  `volum3` text DEFAULT NULL,
+  `volum4` text DEFAULT NULL,
   `subs_bl_teks` text NOT NULL,
   `total_harga` double(20, 0) DEFAULT NULL,
   `rincian` double(20, 0) NOT NULL,
@@ -91,6 +99,7 @@ CREATE TABLE `data_rka` (
   `updatedtime` varchar(20) DEFAULT NULL,
   `user1` varchar(50) DEFAULT NULL,
   `user2` varchar(50) DEFAULT NULL,
+  `active` tinyint(4) DEFAULT 1,
   `update_at` datetime NOT NULL,
   `tahun_anggaran` year(4) NOT NULL DEFAULT '2021',
   `idbl` int(11) DEFAULT NULL,
@@ -106,6 +115,51 @@ CREATE TABLE `data_rka` (
   `idketerangan` int(11) DEFAULT NULL,
   `idsubtitle` int(11) DEFAULT NULL
 ) ENGINE = InnoDB DEFAULT CHARSET = latin1;
+--
+-- Table structure for table `data_capaian_prog_sub_keg`
+--
+CREATE TABLE `data_capaian_prog_sub_keg` (
+  `id` int(11) NOT NULL,
+  `satuancapaian` varchar(50) DEFAULT NULL,
+  `targetcapaianteks` varchar(50) DEFAULT NULL,
+  `capaianteks` text,
+  `targetcapaian` int(11) DEFAULT NULL,
+  `kode_sbl` varchar(50) DEFAULT NULL,
+  `idsubbl` int(11) DEFAULT NULL,
+  `active` tinyint(4) DEFAULT '1',
+  `update_at` datetime NOT NULL,
+  `tahun_anggaran` year(4) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+--
+-- Table structure for table `data_dana_sub_keg`
+--
+CREATE TABLE `data_dana_sub_keg` (
+  `id` int(11) NOT NULL,
+  `namadana` varchar(50) DEFAULT NULL,
+  `kodedana` varchar(50) DEFAULT NULL,
+  `iddana` int(11) DEFAULT NULL,
+  `iddanasubbl` int(11) DEFAULT NULL,
+  `kode_sbl` varchar(50) DEFAULT NULL,
+  `idsubbl` int(11) DEFAULT NULL,
+  `active` tinyint(4) DEFAULT 1,
+  `update_at` datetime NOT NULL,
+  `tahun_anggaran` year(4) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+--
+-- Table structure for table `data_output_giat_sub_keg`
+--
+CREATE TABLE `data_output_giat_sub_keg` (
+  `id` int(11) NOT NULL,
+  `outputteks` text,
+  `satuanoutput` varchar(50) DEFAULT NULL,
+  `targetoutput` int(11) DEFAULT NULL,
+  `targetoutputteks` varchar(50) DEFAULT NULL,
+  `kode_sbl` varchar(50) DEFAULT NULL,
+  `idsubbl` int(11) DEFAULT NULL,
+  `active` tinyint(4) DEFAULT '1',
+  `update_at` datetime NOT NULL,
+  `tahun_anggaran` year(4) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 -- 
 --
 -- Table structure for table `data_ssh`
@@ -199,6 +253,7 @@ CREATE TABLE `data_sub_keg_bl` (
   `id_bl` int(11) DEFAULT NULL,
   `kode_bl` varchar(50) NOT NULL,
   `kode_sbl` varchar(50) NOT NULL,
+  `active` tinyint(4) DEFAULT '1',
   `update_at` datetime NOT NULL,
   `tahun_anggaran` year(4) NOT NULL DEFAULT '2021'
 ) ENGINE = InnoDB DEFAULT CHARSET = latin1;
@@ -215,6 +270,7 @@ CREATE TABLE `data_sub_keg_indikator` (
   `targetoutputteks` text NOT NULL,
   `kode_sbl` varchar(50) NOT NULL,
   `idsubbl` int(11) DEFAULT NULL,
+  `active` tinyint(4) DEFAULT '1',
   `update_at` datetime NOT NULL,
   `tahun_anggaran` year(4) NOT NULL
 ) ENGINE = InnoDB DEFAULT CHARSET = latin1;
@@ -462,6 +518,8 @@ CREATE TABLE `data_tag_sub_keg` (
   `idtagbl` int(11) DEFAULT NULL,
   `kode_sbl` varchar(50) DEFAULT NULL,
   `idsubbl` int(11) DEFAULT NULL,
+  `idsubbl` int(11) DEFAULT NULL,
+  `active` tinyint(4) DEFAULT '1',
   `update_at` datetime NOT NULL,
   `tahun_anggaran` year(4) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
@@ -540,6 +598,21 @@ WHERE a.is_hibah_uang=1;
 --
 -- Indexes for dumped tables
 --
+--
+-- Indexes for table `data_capaian_prog_sub_keg`
+--
+ALTER TABLE `data_capaian_prog_sub_keg`
+  ADD PRIMARY KEY (`id`);
+--
+-- Indexes for table `data_output_giat_sub_keg`
+--
+ALTER TABLE `data_output_giat_sub_keg`
+  ADD PRIMARY KEY (`id`);
+--
+-- Indexes for table `data_dana_sub_keg`
+--
+ALTER TABLE `data_dana_sub_keg`
+  ADD PRIMARY KEY (`id`);
 --
 -- Indexes for table `data_sumber_dana`
 --
@@ -729,4 +802,19 @@ ALTER TABLE `data_pengaturan_sipd`
 -- AUTO_INCREMENT for table `data_sumber_dana`
 --
 ALTER TABLE `data_sumber_dana`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+--
+-- AUTO_INCREMENT for table `data_dana_sub_keg`
+--
+ALTER TABLE `data_dana_sub_keg`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+--
+-- AUTO_INCREMENT for table `data_output_giat_sub_keg`
+--
+ALTER TABLE `data_output_giat_sub_keg`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+--
+-- AUTO_INCREMENT for table `data_capaian_prog_sub_keg`
+--
+ALTER TABLE `data_capaian_prog_sub_keg`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
