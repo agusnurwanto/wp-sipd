@@ -566,7 +566,7 @@ class Wpsipd_Public
 				if (!empty($_POST['data_unit'])) {
 					$data_unit = $_POST['data_unit'];
 					foreach ($data_unit as $k => $v) {
-						$cek = $wpdb->get_var("SELECT idinduk from data_unit where tahun_anggaran=".$_POST['tahun_anggaran']." AND idinduk=" . $v['idinduk']);
+						$cek = $wpdb->get_var("SELECT idinduk from data_unit where tahun_anggaran=".$_POST['tahun_anggaran']." AND id_skpd=" . $v['id_skpd']);
 						$opsi = array(
 							'id_setup_unit' => $v['id_setup_unit'],
 							'id_skpd' => $v['id_skpd'],
@@ -601,7 +601,7 @@ class Wpsipd_Public
 
 						if (!empty($cek)) {
 							$wpdb->update('data_unit', $opsi, array(
-								'idinduk' => $v['idinduk'],
+								'idinduk' => $v['id_skpd'],
 								'tahun_anggaran' => $_POST['tahun_anggaran']
 							));
 						} else {
