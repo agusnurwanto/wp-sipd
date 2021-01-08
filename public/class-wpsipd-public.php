@@ -900,6 +900,65 @@ class Wpsipd_Public
 		die(json_encode($ret));
 	}
 
+	public function singkron_user_penatausahaan()
+	{
+		global $wpdb;
+		$ret = array(
+			'status'	=> 'success',
+			'message'	=> 'Berhasil singkron user penatausahaan!'
+		);
+		if (!empty($_POST)) {
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == APIKEY) {
+				if (!empty($_POST['data_user'])) {
+					$data_user = $_POST['data_user'];
+					$cek = $wpdb->get_var("SELECT userName from data_user_penatausahaan where tahun=".$_POST['tahun_anggaran']." AND userName='" . $data_user['userName']."'");
+					$opsi = array(
+						"idSkpd" => $data_user['skpd']['idSkpd'],
+						"namaSkpd" => $data_user['skpd']['namaSkpd'],
+						"kodeSkpd" => $data_user['skpd']['kodeSkpd'],
+						"idDaerah" => $data_user['skpd']['idDaerah'],
+						"userName" => $data_user['userName'],
+						"nip" => $data_user['nip'],
+						"fullName" => $data_user['fullName'],
+						"nomorHp" => $data_user['nomorHp'],
+						"rank" => $data_user['rank'],
+						"npwp" => $data_user['npwp'],
+						"idJabatan" => $data_user['jabatan']['idJabatan'],
+						"namaJabatan" => $data_user['jabatan']['namaJabatan'],
+						"idRole" => $data_user['jabatan']['idRole'],
+						"order" => $data_user['jabatan']['order'],
+						"kpa" => $data_user['kpa'],
+						"bank" => $data_user['bank'],
+						"group" => $data_user['group'],
+						"password" => $data_user['password'],
+						"konfirmasiPassword" => $data_user['konfirmasiPassword'],
+						'tahun' => $_POST['tahun_anggaran'],
+						'updated_at' => current_time('mysql')
+					);
+
+					if (!empty($cek)) {
+						$wpdb->update('data_user_penatausahaan', $opsi, array(
+							'tahun' => $_POST['tahun_anggaran'],
+							'userName' => $data_user['userName']
+						));
+					} else {
+						$wpdb->insert('data_user_penatausahaan', $opsi);
+					}
+				} else if ($ret['status'] != 'error') {
+					$ret['status'] = 'error';
+					$ret['message'] = 'Format data Salah!';
+				}
+			} else {
+				$ret['status'] = 'error';
+				$ret['message'] = 'APIKEY tidak sesuai!';
+			}
+		} else {
+			$ret['status'] = 'error';
+			$ret['message'] = 'Format Salah!';
+		}
+		die(json_encode($ret));
+	}
+
 	public function set_unit_pagu()
 	{
 		global $wpdb;
@@ -1535,6 +1594,38 @@ class Wpsipd_Public
 			} else {
 				$ret['status'] = 'error';
 				$ret['message'] = 'Category tidak ditemukan!';
+			}
+		} else {
+			$ret['status'] = 'error';
+			$ret['message'] = 'Format Salah!';
+		}
+		die(json_encode($ret));
+	}
+
+	public function get_unit(){
+		global $wpdb;
+		$ret = array(
+			'status'	=> 'success',
+			'action'	=> $_POST['action'],
+			'data'	=> array()
+		);
+		if (!empty($_POST)) {
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == APIKEY) {
+				if(!empty($_POST['id_skpd'])){
+					$ret['data'] = $wpdb->get_results(
+						$wpdb->prepare("
+						SELECT 
+							*
+						from data_unit
+						where id_skpd=%d", $_POST['id_skpd']),
+						ARRAY_A
+					);
+				}else{
+					$ret['data'] = $wpdb->get_results('select * from data_unit');
+				}
+			} else {
+				$ret['status'] = 'error';
+				$ret['message'] = 'APIKEY tidak sesuai!';
 			}
 		} else {
 			$ret['status'] = 'error';

@@ -565,6 +565,35 @@ CREATE TABLE `data_sumber_dana` (
   `tahun_anggaran` year(4) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
+--
+-- Table structure for table `data_user_penatausahaan`
+--
+
+CREATE TABLE `data_user_penatausahaan` (
+  `id` int(11) NOT NULL,
+  `idSkpd` int(11) DEFAULT NULL,
+  `namaSkpd` text NOT NULL,
+  `kodeSkpd` int(50) DEFAULT NULL,
+  `idDaerah` int(11) DEFAULT NULL,
+  `userName` text,
+  `nip` varchar(50) DEFAULT NULL,
+  `fullName` text,
+  `nomorHp` int(50) DEFAULT NULL,
+  `rank` varchar(50) DEFAULT NULL,
+  `npwp` varchar(50) DEFAULT NULL,
+  `idJabatan` int(11) DEFAULT NULL,
+  `namaJabatan` varchar(50) DEFAULT NULL,
+  `idRole` int(11) DEFAULT NULL,
+  `order` int(11) DEFAULT NULL,
+  `kpa` varchar(50) DEFAULT NULL,
+  `bank` text,
+  `group` varchar(50) DEFAULT NULL,
+  `password` varchar(50) DEFAULT NULL,
+  `konfirmasiPassword` varchar(50) DEFAULT NULL,
+  `tahun` year(4) NOT NULL,
+  `updated_at` datetime NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
 -- view untuk data bantuan hibah uang --
 
 CREATE VIEW vw_batuan_hibah_uang AS SELECT
@@ -598,6 +627,13 @@ WHERE a.is_hibah_uang=1;
 --
 -- Indexes for dumped tables
 --
+
+--
+-- Indexes for table `data_user_penatausahaan`
+--
+ALTER TABLE `data_user_penatausahaan`
+  ADD PRIMARY KEY (`id`);
+
 --
 -- Indexes for table `data_capaian_prog_sub_keg`
 --
@@ -817,4 +853,10 @@ ALTER TABLE `data_output_giat_sub_keg`
 -- AUTO_INCREMENT for table `data_capaian_prog_sub_keg`
 --
 ALTER TABLE `data_capaian_prog_sub_keg`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `data_user_penatausahaan`
+--
+ALTER TABLE `data_user_penatausahaan`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
