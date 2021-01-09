@@ -221,6 +221,9 @@ class Wpsipd
 		$this->loader->add_action('wp_ajax_singkron_user_penatausahaan',  $plugin_public, 'singkron_user_penatausahaan');
 		$this->loader->add_action('wp_ajax_nopriv_singkron_user_penatausahaan',  $plugin_public, 'singkron_user_penatausahaan');
 
+		$this->loader->add_action('wp_ajax_singkron_renstra',  $plugin_public, 'singkron_renstra');
+		$this->loader->add_action('wp_ajax_nopriv_singkron_renstra',  $plugin_public, 'singkron_renstra');
+
 		$this->loader->add_action('wp_ajax_get_unit',  $plugin_public, 'get_unit');
 		$this->loader->add_action('wp_ajax_nopriv_get_unit',  $plugin_public, 'get_unit');
 

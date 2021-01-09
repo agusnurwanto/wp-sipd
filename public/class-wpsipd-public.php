@@ -1026,6 +1026,108 @@ class Wpsipd_Public
 		die(json_encode($ret));
 	}
 
+	public function singkron_renstra()
+	{
+		global $wpdb;
+		$ret = array(
+			'status'	=> 'success',
+			'message'	=> 'Berhasil singkron RENSTRA!'
+		);
+		if (!empty($_POST)) {
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == APIKEY) {
+				if (!empty($_POST['data'])) {
+					$data = $_POST['data'];
+					$unit = array();
+					foreach ($data as $k => $v) {
+						$unit[$v['id_unit']] = $v['id_unit'];
+					}
+					foreach ($unit as $k => $v) {
+						$wpdb->update('data_renstra', array( 'active' => 0 ), array(
+							'tahun_anggaran' => $_POST['tahun_anggaran'],
+							'id_unit' => $k
+						));
+					}
+					foreach ($data as $k => $v) {
+						$cek = $wpdb->get_var("SELECT id_renstra from data_renstra where tahun_anggaran=".$_POST['tahun_anggaran']." AND id_renstra=" . $v['id_renstra']);
+						$opsi = array(
+							'id_bidang_urusan' => $v["id_bidang_urusan"],
+							'id_giat' => $v["id_giat"],
+							'id_program' => $v["id_program"],
+							'id_renstra' => $v["id_renstra"],
+							'id_rpjmd' => $v["id_rpjmd"],
+							'id_sub_giat' => $v["id_sub_giat"],
+							'id_unit' => $v["id_unit"],
+							'indikator' => $v["indikator"],
+							'indikator_sub' => $v["indikator_sub"],
+							'is_locked' => $v["is_locked"],
+							'kebijakan_teks' => $v["kebijakan_teks"],
+							'kode_bidang_urusan' => $v["kode_bidang_urusan"],
+							'kode_giat' => $v["kode_giat"],
+							'kode_program' => $v["kode_program"],
+							'kode_skpd' => $v["kode_skpd"],
+							'kode_sub_giat' => $v["kode_sub_giat"],
+							'misi_teks' => $v["misi_teks"],
+							'nama_bidang_urusan' => $v["nama_bidang_urusan"],
+							'nama_giat' => $v["nama_giat"],
+							'nama_program' => $v["nama_program"],
+							'nama_skpd' => $v["nama_skpd"],
+							'nama_sub_giat' => $v["nama_sub_giat"],
+							'outcome' => $v["outcome"],
+							'pagu_1' => $v["pagu_1"],
+							'pagu_2' => $v["pagu_2"],
+							'pagu_3' => $v["pagu_3"],
+							'pagu_4' => $v["pagu_4"],
+							'pagu_5' => $v["pagu_5"],
+							'pagu_sub_1' => $v["pagu_sub_1"],
+							'pagu_sub_2' => $v["pagu_sub_2"],
+							'pagu_sub_3' => $v["pagu_sub_3"],
+							'pagu_sub_4' => $v["pagu_sub_4"],
+							'pagu_sub_5' => $v["pagu_sub_5"],
+							'sasaran_teks' => $v["sasaran_teks"],
+							'satuan' => $v["satuan"],
+							'satuan_sub' => $v["satuan_sub"],
+							'strategi_teks' => $v["strategi_teks"],
+							'target_1' => $v["target_1"],
+							'target_2' => $v["target_2"],
+							'target_3' => $v["target_3"],
+							'target_4' => $v["target_4"],
+							'target_5' => $v["target_5"],
+							'target_sub_1' => $v["target_sub_1"],
+							'target_sub_2' => $v["target_sub_2"],
+							'target_sub_3' => $v["target_sub_3"],
+							'target_sub_4' => $v["target_sub_4"],
+							'target_sub_5' => $v["target_sub_5"],
+							'tujuan_teks' => $v["tujuan_teks"],
+							'visi_teks' => $v["visi_teks"],
+							'active' => 1,
+							'update_at' => current_time('mysql'),
+							'tahun_anggaran' => $_POST['tahun_anggaran']
+						);
+
+						if (!empty($cek)) {
+							$wpdb->update('data_renstra', $opsi, array(
+								'id_renstra' => $v['id_renstra'],
+								'tahun_anggaran' => $_POST['tahun_anggaran']
+							));
+						} else {
+							$wpdb->insert('data_renstra', $opsi);
+						}
+					}
+				} else if ($ret['status'] != 'error') {
+					$ret['status'] = 'error';
+					$ret['message'] = 'Format data Salah!';
+				}
+			} else {
+				$ret['status'] = 'error';
+				$ret['message'] = 'APIKEY tidak sesuai!';
+			}
+		} else {
+			$ret['status'] = 'error';
+			$ret['message'] = 'Format Salah!';
+		}
+		die(json_encode($ret));
+	}
+
 	public function singkron_rka()
 	{
 		global $wpdb;
@@ -1234,6 +1336,37 @@ class Wpsipd_Public
 							));
 						} else {
 							$wpdb->insert('data_sub_keg_indikator', $opsi);
+						}
+					}
+				}
+
+				if (!empty($_POST['dataHasil']) && $ret['status'] != 'error') {
+					$dataHasil = $_POST['dataHasil'];
+					$wpdb->update('data_keg_indikator_hasil', array( 'active' => 0 ), array(
+						'tahun_anggaran' => $_POST['tahun_anggaran'],
+						'kode_sbl' => $_POST['kode_sbl']
+					));
+					foreach ($dataHasil as $k => $v) {
+						$cek = $wpdb->get_var("SELECT kode_sbl from data_keg_indikator_hasil where tahun_anggaran=".$_POST['tahun_anggaran']." AND kode_sbl='" . $_POST['kode_sbl'] . "' AND hasilteks='" . $v['hasilteks'] . "'");
+						$opsi = array(
+							'hasilteks' => $v['hasilteks'],
+							'satuanhasil' => $v['satuanhasil'],
+							'targethasil' => $v['targethasil'],
+							'targethasilteks' => $v['targethasilteks'],
+							'kode_sbl' => $_POST['kode_sbl'],
+							'idsubbl' => $_POST['idsubbl'],
+							'active' => 1,
+							'update_at' => current_time('mysql'),
+							'tahun_anggaran' => $_POST['tahun_anggaran']
+						);
+						if (!empty($cek)) {
+							$wpdb->update('data_keg_indikator_hasil', $opsi, array(
+								'kode_sbl' => $_POST['kode_sbl'],
+								'hasilteks' => $v['hasilteks'],
+								'tahun_anggaran' => $_POST['tahun_anggaran']
+							));
+						} else {
+							$wpdb->insert('data_keg_indikator_hasil', $opsi);
 						}
 					}
 				}

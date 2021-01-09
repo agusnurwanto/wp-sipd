@@ -22,7 +22,8 @@ CREATE TABLE `data_unit` (
   `setupunit` int(11) NOT NULL,
   `statuskepala` varchar(20) NOT NULL,
   `update_at` datetime NOT NULL,
-  `tahun_anggaran` year(4) NOT NULL DEFAULT '2021'
+  `tahun_anggaran` year(4) NOT NULL DEFAULT '2021',
+  `active` tinyint(4) DEFAULT 1
 ) ENGINE = InnoDB DEFAULT CHARSET = latin1;
 -- 
 --
@@ -157,6 +158,23 @@ CREATE TABLE `data_output_giat_sub_keg` (
   `kode_sbl` varchar(50) DEFAULT NULL,
   `idsubbl` int(11) DEFAULT NULL,
   `active` tinyint(4) DEFAULT '1',
+  `update_at` datetime NOT NULL,
+  `tahun_anggaran` year(4) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+--
+-- Table structure for table `data_keg_indikator_hasil`
+--
+
+CREATE TABLE `data_keg_indikator_hasil` (
+  `id` int(11) NOT NULL,
+  `hasilteks` text,
+  `satuanhasil` varchar(50) DEFAULT NULL,
+  `targethasil` varchar(50) DEFAULT NULL,
+  `targethasilteks` varchar(50) DEFAULT NULL,
+  `kode_sbl` varchar(50) DEFAULT NULL,
+  `idsubbl` varchar(50) DEFAULT NULL,
+  `active` tinyint(4) DEFAULT 1,
   `update_at` datetime NOT NULL,
   `tahun_anggaran` year(4) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
@@ -594,6 +612,66 @@ CREATE TABLE `data_user_penatausahaan` (
   `updated_at` datetime NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
+--
+-- Table structure for table `data_renstra`
+--
+
+CREATE TABLE `data_renstra` (
+  `id` int(11) NOT NULL,
+  `id_bidang_urusan` int(11) DEFAULT NULL,
+  `id_giat` int(11) DEFAULT NULL,
+  `id_program` int(11) DEFAULT NULL,
+  `id_renstra` int(11) DEFAULT NULL,
+  `id_rpjmd` int(11) DEFAULT NULL,
+  `id_sub_giat` int(11) DEFAULT NULL,
+  `id_unit` int(11) DEFAULT NULL,
+  `indikator` text,
+  `indikator_sub` text,
+  `is_locked` tinyint(4) DEFAULT NULL,
+  `kebijakan_teks` text,
+  `kode_bidang_urusan` varchar(50) DEFAULT NULL,
+  `kode_giat` varchar(50) DEFAULT NULL,
+  `kode_program` varchar(50) DEFAULT NULL,
+  `kode_skpd` varchar(50) DEFAULT NULL,
+  `kode_sub_giat` varchar(50) DEFAULT NULL,
+  `misi_teks` text,
+  `nama_bidang_urusan` text,
+  `nama_giat` text,
+  `nama_program` text,
+  `nama_skpd` text,
+  `nama_sub_giat` text,
+  `outcome` text,
+  `pagu_1` double DEFAULT NULL,
+  `pagu_2` double DEFAULT NULL,
+  `pagu_3` double DEFAULT NULL,
+  `pagu_4` double DEFAULT NULL,
+  `pagu_5` double DEFAULT NULL,
+  `pagu_sub_1` double DEFAULT NULL,
+  `pagu_sub_2` double DEFAULT NULL,
+  `pagu_sub_3` double DEFAULT NULL,
+  `pagu_sub_4` double DEFAULT NULL,
+  `pagu_sub_5` double DEFAULT NULL,
+  `sasaran_teks` text,
+  `satuan` varchar(50) DEFAULT NULL,
+  `satuan_sub` varchar(50) DEFAULT NULL,
+  `strategi_teks` text,
+  `target_1` text,
+  `target_2` text,
+  `target_3` text,
+  `target_4` text,
+  `target_5` text,
+  `target_sub_1` text,
+  `target_sub_2` text,
+  `target_sub_3` text,
+  `target_sub_4` text,
+  `target_sub_5` text,
+  `tujuan_teks` text,
+  `visi_teks` text,
+  `active` tinyint(4) NOT NULL DEFAULT '1',
+  `update_at` datetime NOT NULL,
+  `tahun_anggaran` year(4) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
 -- view untuk data bantuan hibah uang --
 
 CREATE VIEW vw_batuan_hibah_uang AS SELECT
@@ -627,6 +705,18 @@ WHERE a.is_hibah_uang=1;
 --
 -- Indexes for dumped tables
 --
+
+--
+-- Indexes for table `data_renstra`
+--
+ALTER TABLE `data_renstra`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indexes for table `data_keg_indikator_hasil`
+--
+ALTER TABLE `data_keg_indikator_hasil`
+  ADD PRIMARY KEY (`id`);
 
 --
 -- Indexes for table `data_user_penatausahaan`
@@ -859,4 +949,16 @@ ALTER TABLE `data_capaian_prog_sub_keg`
 -- AUTO_INCREMENT for table `data_user_penatausahaan`
 --
 ALTER TABLE `data_user_penatausahaan`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `data_keg_indikator_hasil`
+--
+ALTER TABLE `data_keg_indikator_hasil`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `data_renstra`
+--
+ALTER TABLE `data_renstra`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
