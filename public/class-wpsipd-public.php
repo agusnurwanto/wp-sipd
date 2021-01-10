@@ -1147,6 +1147,7 @@ class Wpsipd_Public
 					$parent_cat_id = $parent_cat->term_id;
 				}
 
+				$kodeunit = '';
 				if (!empty($_POST['data_unit'])) {
 					$data_unit = $_POST['data_unit'];
 					$cek = $wpdb->get_var("SELECT idinduk from data_unit where tahun_anggaran=".$_POST['tahun_anggaran']." AND idinduk=" . $data_unit['idinduk']);
@@ -1173,6 +1174,7 @@ class Wpsipd_Public
 						'update_at' => current_time('mysql'),
 						'tahun_anggaran' => $_POST['tahun_anggaran']
 					);
+					$kodeunit = $data_unit['kodeunit'];
 
 					if (!empty($cek)) {
 						$wpdb->update('data_unit', $opsi, array(
@@ -1190,13 +1192,19 @@ class Wpsipd_Public
 					$dataBl = $_POST['dataBl'];
 					foreach ($dataBl as $k => $v) {
 						$cek = $wpdb->get_var("SELECT kode_sbl from data_sub_keg_bl where tahun_anggaran=".$_POST['tahun_anggaran']." AND kode_sbl='" . $_POST['kode_sbl'] . "'");
+
+						$kode_program = $v['kode_bidang_urusan'].substr($v['kode_program'], 4, strlen($v['kode_program']));
+						$kode_giat = $v['kode_bidang_urusan'].substr($v['kode_giat'], 4, strlen($v['kode_giat']));
+						$kode_sub_giat = $v['kode_bidang_urusan'].substr($v['kode_sub_giat'], 4, strlen($v['kode_sub_giat']));
+						// die($kode_giat);
+
 						$opsi = array(
 							'id_sub_skpd' => $v['id_sub_skpd'],
 							'id_lokasi' => $v['id_lokasi'],
 							'id_label_kokab' => $v['id_label_kokab'],
 							'nama_dana' => $v['nama_dana'],
 							'no_sub_giat' => $v['no_sub_giat'],
-							'kode_giat' => $v['kode_giat'],
+							'kode_giat' => $kode_giat,
 							'id_program' => $v['id_program'],
 							'nama_lokasi' => $v['nama_lokasi'],
 							'waktu_akhir' => $v['waktu_akhir'],
@@ -1205,8 +1213,8 @@ class Wpsipd_Public
 							'id_unik_sub_bl' => $v['id_unik_sub_bl'],
 							'id_sub_giat' => $v['id_sub_giat'],
 							'label_prov' => $v['label_prov'],
-							'kode_program' => $v['kode_program'],
-							'kode_sub_giat' => $v['kode_sub_giat'],
+							'kode_program' => $kode_program,
+							'kode_sub_giat' => $kode_sub_giat,
 							'no_program' => $v['no_program'],
 							'kode_urusan' => $v['kode_urusan'],
 							'kode_bidang_urusan' => $v['kode_bidang_urusan'],
@@ -1261,7 +1269,7 @@ class Wpsipd_Public
 							$wpdb->insert('data_sub_keg_bl', $opsi);
 						}
 
-						$nama_page = $_POST['tahun_anggaran'] . ' ' . $v['kode_giat'] . ' ' . $v['nama_giat'];
+						$nama_page = $_POST['tahun_anggaran'] . ' | ' . $kodeunit . ' | ' . $kode_giat . ' | ' . $v['nama_giat'];
 						$custom_post = get_page_by_title($nama_page, OBJECT, 'post');
 						// print_r($custom_post); die();
 
@@ -1281,17 +1289,21 @@ class Wpsipd_Public
 
 						$_post = array(
 							'post_title'	=> $nama_page,
-							'post_content'	=> '[tampilrka kode_bl='.$_POST['kode_bl'].' tahun_anggaran='.$_POST['tahun_anggaran'].']',
+							'post_content'	=> '[tampilrka kode_bl="'.$_POST['kode_bl'].'" tahun_anggaran="'.$_POST['tahun_anggaran'].'"]',
 							'post_type'		=> 'post',
 							'post_status'	=> 'publish',
 							'comment_status'	=> 'closed'
 						);
 						if (empty($custom_post) || empty($custom_post->ID)) {
 							$id = wp_insert_post($_post);
+							$_post['insert'] = 1;
+							$_post['ID'] = $id;
 						}else{
 							$_post['ID'] = $custom_post->ID;
 							wp_update_post( $_post );
+							$_post['update'] = 1;
 						}
+						$ret['post'] = $_post;
 						$custom_post = get_page_by_title($nama_page, OBJECT, 'post');
 						update_post_meta($custom_post->ID, 'ast-breadcrumbs-content', 'disabled');
 						update_post_meta($custom_post->ID, 'ast-featured-img', 'disabled');
@@ -1795,6 +1807,88 @@ class Wpsipd_Public
 						where id_skpd=%d", $_POST['id_skpd']),
 						ARRAY_A
 					);
+				}else{
+					$ret['data'] = $wpdb->get_results('select * from data_unit');
+				}
+			} else {
+				$ret['status'] = 'error';
+				$ret['message'] = 'APIKEY tidak sesuai!';
+			}
+		} else {
+			$ret['status'] = 'error';
+			$ret['message'] = 'Format Salah!';
+		}
+		die(json_encode($ret));
+	}
+
+	public function get_indikator(){
+		global $wpdb;
+		$ret = array(
+			'status'	=> 'success',
+			'action'	=> $_POST['action'],
+			'data'	=> array(
+				'bl' => array(),
+				'output' => array(),
+				'hasil' => array(),
+				'ind_prog' => array(),
+				'renstra' => array()
+			)
+		);
+		if (!empty($_POST)) {
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == APIKEY) {
+				if(!empty($_POST['kode_giat'])){
+					$ret['data']['bl'] = $wpdb->get_results(
+						$wpdb->prepare("
+						SELECT 
+							*
+						from data_sub_keg_bl
+						where kode_giat=%s
+							AND tahun_anggaran=%d
+							AND kode_sbl != ''
+							AND active=1", $_POST['kode_giat'], $_POST['tahun_anggaran']),
+						ARRAY_A
+					);
+					// print_r($ret['data']['output']); die($wpdb->last_query);
+					$bl = $ret['data']['bl'];
+					if(!empty($bl)){
+						$ret['data']['renstra'] = $wpdb->get_results("
+							SELECT 
+								*
+							from data_renstra
+							where id_unit=".$bl[0]['id_sub_skpd']."
+								AND id_sub_giat=".$bl[0]['id_sub_giat']."
+								AND tahun_anggaran=".$bl[0]['tahun_anggaran']."
+								AND active=1",
+							ARRAY_A
+						);
+						$ret['data']['output'] = $wpdb->get_results("
+							SELECT 
+								* 
+							from data_output_giat_sub_keg 
+							where kode_sbl='".$bl[0]['kode_sbl']."' 
+								AND tahun_anggaran=".$bl[0]['tahun_anggaran']."
+								AND active=1"
+							, ARRAY_A
+						);
+						$ret['data']['hasil'] = $wpdb->get_results("
+							SELECT 
+								* 
+							from data_keg_indikator_hasil 
+							where kode_sbl='".$bl[0]['kode_sbl']."' 
+								AND tahun_anggaran=".$bl[0]['tahun_anggaran']."
+								AND active=1"
+							, ARRAY_A
+						);
+						$ret['data']['ind_prog'] = $wpdb->get_results("
+							SELECT 
+								* 
+							from data_capaian_prog_sub_keg 
+							where kode_sbl='".$bl[0]['kode_sbl']."' 
+								AND tahun_anggaran=".$bl[0]['tahun_anggaran']."
+								AND active=1"
+							, ARRAY_A
+						);
+					}
 				}else{
 					$ret['data'] = $wpdb->get_results('select * from data_unit');
 				}
