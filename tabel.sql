@@ -140,6 +140,7 @@ CREATE TABLE `data_dana_sub_keg` (
   `kodedana` varchar(50) DEFAULT NULL,
   `iddana` int(11) DEFAULT NULL,
   `iddanasubbl` int(11) DEFAULT NULL,
+  `pagudana` double(20, 0) DEFAULT NULL,
   `kode_sbl` varchar(50) DEFAULT NULL,
   `idsubbl` int(11) DEFAULT NULL,
   `active` tinyint(4) DEFAULT 1,
@@ -672,6 +673,26 @@ CREATE TABLE `data_renstra` (
   `tahun_anggaran` year(4) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
+--
+-- Table structure for table `data_lokasi_sub_keg`
+--
+
+CREATE TABLE `data_lokasi_sub_keg` (
+  `id` int(11) NOT NULL,
+  `camatteks` text,
+  `daerahteks` text,
+  `idcamat` int(11) DEFAULT NULL,
+  `iddetillokasi` double DEFAULT NULL,
+  `idkabkota` int(11) DEFAULT NULL,
+  `idlurah` int(11) DEFAULT NULL,
+  `lurahteks` text,
+  `kode_sbl` varchar(50) DEFAULT NULL,
+  `idsubbl` int(11) DEFAULT NULL,
+  `active` tinyint(4) DEFAULT NULL,
+  `update_at` datetime NOT NULL,
+  `tahun_anggaran` year(4) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
 -- view untuk data bantuan hibah uang --
 
 CREATE VIEW vw_batuan_hibah_uang AS SELECT
@@ -705,6 +726,12 @@ WHERE a.is_hibah_uang=1;
 --
 -- Indexes for dumped tables
 --
+
+--
+-- Indexes for table `data_lokasi_sub_keg`
+--
+ALTER TABLE `data_lokasi_sub_keg`
+  ADD PRIMARY KEY (`id`);
 
 --
 -- Indexes for table `data_renstra`
@@ -961,4 +988,10 @@ ALTER TABLE `data_keg_indikator_hasil`
 -- AUTO_INCREMENT for table `data_renstra`
 --
 ALTER TABLE `data_renstra`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `data_lokasi_sub_keg`
+--
+ALTER TABLE `data_lokasi_sub_keg`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;

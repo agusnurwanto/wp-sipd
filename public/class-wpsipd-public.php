@@ -1250,9 +1250,11 @@ class Wpsipd_Public
 							'update_at' => current_time('mysql'),
 							'tahun_anggaran' => $_POST['tahun_anggaran']
 						);
+						// print_r($opsi); die($wpdb->last_query);
+
 						if (!empty($cek)) {
 							$wpdb->update('data_sub_keg_bl', $opsi, array(
-								'kode_sbl' => $v['kode_sbl'],
+								'kode_sbl' => $_POST['kode_sbl'],
 								'tahun_anggaran' => $_POST['tahun_anggaran']
 							));
 						} else {
@@ -1277,23 +1279,28 @@ class Wpsipd_Public
 							'parent' => $parent_cat_id
 						));
 
+						$_post = array(
+							'post_title'	=> $nama_page,
+							'post_content'	=> '[tampilrka kode_bl='.$_POST['kode_bl'].' tahun_anggaran='.$_POST['tahun_anggaran'].']',
+							'post_type'		=> 'post',
+							'post_status'	=> 'publish',
+							'comment_status'	=> 'closed'
+						);
 						if (empty($custom_post) || empty($custom_post->ID)) {
-							$id = wp_insert_post(array(
-								'post_title'	=> $nama_page,
-								'post_content'	=> '[tampilrka kode_bl=' . $_POST['kode_bl'] . ']',
-								'post_type'		=> 'post',
-								'post_status'	=> 'publish'
-							));
-							$custom_post = get_page_by_title($nama_page, OBJECT, 'post');
-							update_post_meta($custom_post->ID, 'ast-breadcrumbs-content', 'disabled');
-							update_post_meta($custom_post->ID, 'ast-featured-img', 'disabled');
-							update_post_meta($custom_post->ID, 'ast-main-header-display', 'disabled');
-							update_post_meta($custom_post->ID, 'footer-sml-layout', 'disabled');
-							update_post_meta($custom_post->ID, 'site-content-layout', 'page-builder');
-							update_post_meta($custom_post->ID, 'site-post-title', 'disabled');
-							update_post_meta($custom_post->ID, 'site-sidebar-layout', 'no-sidebar');
-							update_post_meta($custom_post->ID, 'theme-transparent-header-meta', 'disabled');
+							$id = wp_insert_post($_post);
+						}else{
+							$_post['ID'] = $custom_post->ID;
+							wp_update_post( $_post );
 						}
+						$custom_post = get_page_by_title($nama_page, OBJECT, 'post');
+						update_post_meta($custom_post->ID, 'ast-breadcrumbs-content', 'disabled');
+						update_post_meta($custom_post->ID, 'ast-featured-img', 'disabled');
+						update_post_meta($custom_post->ID, 'ast-main-header-display', 'disabled');
+						update_post_meta($custom_post->ID, 'footer-sml-layout', 'disabled');
+						update_post_meta($custom_post->ID, 'site-content-layout', 'page-builder');
+						update_post_meta($custom_post->ID, 'site-post-title', 'disabled');
+						update_post_meta($custom_post->ID, 'site-sidebar-layout', 'no-sidebar');
+						update_post_meta($custom_post->ID, 'theme-transparent-header-meta', 'disabled');
 
 						// https://stackoverflow.com/questions/3010124/wordpress-insert-category-tags-automatically-if-they-dont-exist
 						$append = true;
@@ -1331,7 +1338,7 @@ class Wpsipd_Public
 						if (!empty($cek)) {
 							$wpdb->update('data_sub_keg_indikator', $opsi, array(
 								'kode_sbl' => $_POST['kode_sbl'],
-								'idoutputbl' => $_POST['idoutputbl'],
+								'idoutputbl' => $v['idoutputbl'],
 								'tahun_anggaran' => $_POST['tahun_anggaran']
 							));
 						} else {
@@ -1476,6 +1483,7 @@ class Wpsipd_Public
 							'kodedana' => $v['kodedana'],
 							'iddana' => $v['iddana'],
 							'iddanasubbl' => $v['iddanasubbl'],
+							'pagudana' => $v['pagudana'],
 							'kode_sbl' => $_POST['kode_sbl'],
 							'idsubbl' => $_POST['idsubbl'],
 							'active' => 1,
@@ -1490,6 +1498,40 @@ class Wpsipd_Public
 							));
 						} else {
 							$wpdb->insert('data_dana_sub_keg', $opsi);
+						}
+					}
+				}
+
+				if (!empty($_POST['dataLokout']) && $ret['status'] != 'error') {
+					$dataLokout = $_POST['dataLokout'];
+					$wpdb->update('data_lokasi_sub_keg', array( 'active' => 0 ), array(
+						'tahun_anggaran' => $_POST['tahun_anggaran'],
+						'kode_sbl' => $_POST['kode_sbl']
+					));
+					foreach ($dataLokout as $k => $v) {
+						$cek = $wpdb->get_var("SELECT kode_sbl from data_lokasi_sub_keg where tahun_anggaran=".$_POST['tahun_anggaran']." AND kode_sbl='" . $_POST['kode_sbl'] . "' AND iddetillokasi='" . $v['iddetillokasi'] . "'");
+						$opsi = array(
+							'camatteks' => $v['camatteks'],
+							'daerahteks' => $v['daerahteks'],
+							'idcamat' => $v['idcamat'],
+							'iddetillokasi' => $v['iddetillokasi'],
+							'idkabkota' => $v['idkabkota'],
+							'idlurah' => $v['idlurah'],
+							'lurahteks' => $v['lurahteks'],
+							'kode_sbl' => $_POST['kode_sbl'],
+							'idsubbl' => $_POST['idsubbl'],
+							'active' => 1,
+							'update_at' => current_time('mysql'),
+							'tahun_anggaran' => $_POST['tahun_anggaran']
+						);
+						if (!empty($cek)) {
+							$wpdb->update('data_lokasi_sub_keg', $opsi, array(
+								'kode_sbl' => $_POST['kode_sbl'],
+								'iddetillokasi' => $v['iddetillokasi'],
+								'tahun_anggaran' => $_POST['tahun_anggaran']
+							));
+						} else {
+							$wpdb->insert('data_lokasi_sub_keg', $opsi);
 						}
 					}
 				}

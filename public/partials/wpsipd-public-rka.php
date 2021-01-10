@@ -1,6 +1,7 @@
 <?php
 $input = shortcode_atts( array(
 	'kode_bl' => '',
+	'tahun_anggaran' => '2021'
 ), $atts );
 global $wpdb;
 
@@ -12,15 +13,124 @@ $bl = $wpdb->get_results("
 	SELECT 
 		* 
 	from data_sub_keg_bl 
-	where kode_bl='".$input['kode_bl']."'"
+	where kode_bl='".$input['kode_bl']."'"."
+		AND tahun_anggaran=".$input['tahun_anggaran']."
+		AND active=1"
 , ARRAY_A);
 
 $unit = $wpdb->get_results("
 	SELECT 
 		* 
 	from data_unit 
-	where idinduk=".$bl[0]['id_sub_skpd']
+	where idinduk=".$bl[0]['id_sub_skpd']."
+		AND tahun_anggaran=".$bl[0]['tahun_anggaran']."
+		AND active=1"
 , ARRAY_A);
+
+$data_renstra = $wpdb->get_results("
+	SELECT 
+		* 
+	from data_renstra 
+	where id_unit=".$bl[0]['id_sub_skpd']."
+		AND id_sub_giat=".$bl[0]['id_sub_giat']."
+		AND tahun_anggaran=".$bl[0]['tahun_anggaran']."
+		AND active=1"
+, ARRAY_A);
+
+$sasaran = '';
+foreach ($data_renstra as $k => $v) {
+	$sasaran = str_replace('Sasaran : ', '', $v['sasaran_teks']);
+}
+
+// print_r($bl); die("
+// 	SELECT 
+// 		* 
+// 	from data_renstra 
+// 	where id_unit=".$bl[0]['id_sub_skpd']."
+// 		AND id_sub_giat=".$bl[0]['id_sub_giat']."
+// 		AND tahun_anggaran=".$bl[0]['tahun_anggaran']."
+// 		AND active=1");
+
+$ind_output_db = $wpdb->get_results("
+	SELECT 
+		* 
+	from data_output_giat_sub_keg 
+	where kode_sbl='".$bl[0]['kode_sbl']."' 
+		AND tahun_anggaran=".$bl[0]['tahun_anggaran']."
+		AND active=1"
+, ARRAY_A);
+
+$ind_output = [];
+$target_ind_output = [];
+foreach ($ind_output_db as $k => $v) {
+	$ind_output[] = '
+		<tr>
+            <td width="495">'.$v['outputteks'].'</td>
+        </tr>
+	';
+	$target_ind_output[] = '
+		<tr>
+            <td width="495">'.$v['targetoutputteks'].'</td>
+        </tr>
+	';
+}
+
+$ind_hasil_db = $wpdb->get_results("
+	SELECT 
+		* 
+	from data_keg_indikator_hasil 
+	where kode_sbl='".$bl[0]['kode_sbl']."' 
+		AND tahun_anggaran=".$bl[0]['tahun_anggaran']."
+		AND active=1"
+, ARRAY_A);
+
+$ind_hasil = [];
+$target_ind_hasil = [];
+foreach ($ind_hasil_db as $k => $v) {
+	$ind_hasil[] = '
+		<tr>
+            <td width="495">'.$v['hasilteks'].'</td>
+        </tr>
+	';
+	$target_ind_hasil[] = '
+		<tr>
+            <td width="495">'.$v['targethasilteks'].'</td>
+        </tr>
+	';
+}
+
+$ind_prog_db = $wpdb->get_results("
+	SELECT 
+		* 
+	from data_capaian_prog_sub_keg 
+	where kode_sbl='".$bl[0]['kode_sbl']."' 
+		AND tahun_anggaran=".$bl[0]['tahun_anggaran']."
+		AND active=1"
+, ARRAY_A);
+
+$ind_capaian_kegiatan = array();
+$target_ind_capaian_kegiatan = array();
+$ind_prog = array();
+foreach ($ind_prog_db as $k => $v) {
+	// print_r($v); die();
+	$ind_prog[] = '
+		<tr>
+            <td width="495">'.$v['capaianteks'].'</td>
+            <td width="495">'.$v['targetcapaianteks'].'</td>
+        </tr>
+	';
+	$ind_capaian_kegiatan[] = '
+		<tr>
+            <td width="495">'.$v['capaianteks'].'</td>
+        </tr>
+	';
+	$target_ind_capaian_kegiatan[] = '
+		<tr>
+            <td width="495">'.$v['targetcapaianteks'].'</td>
+        </tr>
+	';
+}
+
 // print_r($bl); die();
 $bulan = array('Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember');
 
@@ -35,12 +145,30 @@ foreach ($bl as $k => $sub_bl) {
 	$pagu += $sub_bl['pagu'];
 	$pagu_n_lalu += $sub_bl['pagu_n_lalu'];
 	$pagu_n_depan += $sub_bl['pagu_n_depan'];
+
+	$sql = "
+		SELECT 
+			* 
+		from data_dana_sub_keg 
+		where kode_sbl='".$sub_bl['kode_sbl']."'
+			AND tahun_anggaran=".$bl[0]['tahun_anggaran']."
+			AND active=1";
+	$sd_sub_keg = $wpdb->get_results($sql, ARRAY_A);
+	$sd_sub = array();
+	foreach ($sd_sub_keg as $key => $sd) {
+		$new_sd = explode(' - ', $sd['namadana']);
+		$sd_sub[] = $new_sd[1];
+	}
+
 	$sql = "
 		SELECT 
 			* 
 		from data_sub_keg_indikator 
-		where kode_sbl='".$sub_bl['kode_sbl']."'";
+		where kode_sbl='".$sub_bl['kode_sbl']."'
+			AND tahun_anggaran=".$bl[0]['tahun_anggaran']."
+			AND active=1";
 	$indikator_sub_keg = $wpdb->get_results($sql, ARRAY_A);
+	// print_r($indikator_sub_keg); die($wpdb->last_query);
 	$indikator_sub = '';
 	foreach ($indikator_sub_keg as $key => $ind) {
 		$indikator_sub .= '
@@ -50,6 +178,28 @@ foreach ($bl as $k => $sub_bl) {
             </tr>
 		';
 	}
+
+	$sql = "
+		SELECT 
+			* 
+		from data_lokasi_sub_keg 
+		where kode_sbl='".$sub_bl['kode_sbl']."'
+			AND tahun_anggaran=".$bl[0]['tahun_anggaran']."
+			AND active=1";
+	$lokasi_sub_keg = $wpdb->get_results($sql, ARRAY_A);
+	$lokasi_sub = array();
+	foreach ($lokasi_sub_keg as $key => $lok) {
+		if(!empty($lok['idkabkota'])){
+			$lokasi_sub[] = $lok['daerahteks'];
+		}
+		if(!empty($lok['idcamat'])){
+			$lokasi_sub[] = $lok['camatteks'];
+		}
+		if(!empty($lok['idlurah'])){
+			$lokasi_sub[] = $lok['lurahteks'];
+		}
+	}
+
 	$rin_sub .= '
 		<tr>
             <td class="kiri kanan bawah" colspan="13">
@@ -62,12 +212,12 @@ foreach ($bl as $k => $sub_bl) {
                     <tr>
                         <td width="130">Sumber Pendanaan</td>
                         <td width="10">:</td>
-                        <td>'.$sub_bl['nama_dana'].'</td>
+                        <td>'.implode(', ', $sd_sub).'</td>
                     </tr>
                     <tr>
                         <td width="130">Lokasi</td>
                         <td width="10">:</td>
-                        <td>'.$sub_bl['nama_lokasi'].'</td>
+                        <td>'.implode(', ', $lokasi_sub).'</td>
                     </tr>
                     <tr>
                         <td width="130">Waktu Pelaksanaan</td>
@@ -108,13 +258,19 @@ foreach ($bl as $k => $sub_bl) {
 			* 
 		from data_rka 
 		where kode_sbl='".$sub_bl['kode_sbl']."'
+			AND tahun_anggaran=".$bl[0]['tahun_anggaran']."
+			AND active=1
 		Order by kode_akun ASC"
 	, ARRAY_A);
+	// print_r($rinc); die();
 	$rin_sub_item = '';
 	$total_sub_rinc = 0;
 	$akun = array();
 	$total_subs_bl_teks = array();
 	foreach ($rinc as $key => $item) {
+		if(empty($item['kode_akun'])){
+			continue;
+		}
 		$akun_all = explode('.', $item['kode_akun']);
 		$akun_1 = $akun_all[0].'.'.$akun_all[1];
 		$akun_2 = $akun_1.'.'.$akun_all[2];
@@ -215,6 +371,9 @@ foreach ($bl as $k => $sub_bl) {
 	}
 	// print_r($akun); die();
 	foreach ($rinc as $key => $item) {
+		if(empty($item['kode_akun'])){
+			continue;
+		}
 		$akun_all = explode('.', $item['kode_akun']);
 		$akun_1 = $akun_all[0].'.'.$akun_all[1];
 		$akun_2 = $akun_1.'.'.$akun_all[2];
@@ -254,7 +413,7 @@ foreach ($bl as $k => $sub_bl) {
 				<tr>
 	                <td class="kiri kanan bawah text_blok">'.$akun[$akun_1_db[0]['kode_akun']]['kode_akun'].'</td>
                     <td class="kanan bawah text_blok" colspan="5">'.$akun[$akun_1_db[0]['kode_akun']]['nama_akun'].'</td>
-                    <td class="kanan bawah text_kanan text_blok" style="white-space:nowrap">Rp. '.number_format($akun[$akun_1_db[0]['kode_akun']]['total'],2,",",".").'</td>
+                    <td class="kanan bawah text_kanan text_blok" style="white-space:nowrap">Rp. '.number_format($akun[$akun_1_db[0]['kode_akun']]['total'],0,",",".").'</td>
                 </tr>
 			';
 		}
@@ -264,7 +423,7 @@ foreach ($bl as $k => $sub_bl) {
 				<tr>
 	                <td class="kiri kanan bawah text_blok">'.$akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']]['kode_akun'].'</td>
                     <td class="kanan bawah text_blok" colspan="5">'.$akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']]['nama_akun'].'</td>
-                    <td class="kanan bawah text_kanan text_blok" style="white-space:nowrap">Rp. '.number_format($akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']]['total'],2,",",".").'</td>
+                    <td class="kanan bawah text_kanan text_blok" style="white-space:nowrap">Rp. '.number_format($akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']]['total'],0,",",".").'</td>
                 </tr>
 			';
 		}
@@ -274,7 +433,7 @@ foreach ($bl as $k => $sub_bl) {
 				<tr>
 	                <td class="kiri kanan bawah text_blok">'.$akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']]['kode_akun'].'</td>
                     <td class="kanan bawah text_blok" colspan="5">'.$akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']]['nama_akun'].'</td>
-                    <td class="kanan bawah text_kanan text_blok" style="white-space:nowrap">Rp. '.number_format($akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']]['total'],2,",",".").'</td>
+                    <td class="kanan bawah text_kanan text_blok" style="white-space:nowrap">Rp. '.number_format($akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']]['total'],0,",",".").'</td>
                 </tr>
 			';
 		}
@@ -284,7 +443,7 @@ foreach ($bl as $k => $sub_bl) {
 				<tr>
 	                <td class="kiri kanan bawah text_blok">'.$akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']][$akun_4_db[0]['kode_akun']]['kode_akun'].'</td>
                     <td class="kanan bawah text_blok" colspan="5">'.$akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']][$akun_4_db[0]['kode_akun']]['nama_akun'].'</td>
-                    <td class="kanan bawah text_kanan text_blok" style="white-space:nowrap">Rp. '.number_format($akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']][$akun_4_db[0]['kode_akun']]['total'],2,",",".").'</td>
+                    <td class="kanan bawah text_kanan text_blok" style="white-space:nowrap">Rp. '.number_format($akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']][$akun_4_db[0]['kode_akun']]['total'],0,",",".").'</td>
                 </tr>
 			';
 		}
@@ -296,7 +455,7 @@ foreach ($bl as $k => $sub_bl) {
 				<tr>
 	                <td class="kiri kanan bawah text_blok">'.$akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']][$akun_4_db[0]['kode_akun']][$item['nama_akun']]['kode_akun'].'</td>
                     <td class="kanan bawah text_blok" colspan="5">'.$akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']][$akun_4_db[0]['kode_akun']][$item['nama_akun']]['nama_akun'].'</td>
-                    <td class="kanan bawah text_kanan text_blok" style="white-space:nowrap">Rp. '.number_format($akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']][$akun_4_db[0]['kode_akun']][$item['nama_akun']]['total'],2,",",".").'</td>
+                    <td class="kanan bawah text_kanan text_blok" style="white-space:nowrap">Rp. '.number_format($akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']][$akun_4_db[0]['kode_akun']][$item['nama_akun']]['total'],0,",",".").'</td>
                 </tr>
 			';
 		}
@@ -306,7 +465,7 @@ foreach ($bl as $k => $sub_bl) {
 				<tr>
 	                <td class="kiri kanan bawah text_blok">'.$akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']][$akun_4_db[0]['kode_akun']][$item['nama_akun']][$item['subs_bl_teks']]['kode_akun'].'</td>
                     <td class="kanan bawah text_blok" colspan="5">'.$akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']][$akun_4_db[0]['kode_akun']][$item['nama_akun']][$item['subs_bl_teks']]['nama_akun'].'</td>
-                    <td class="kanan bawah text_kanan text_blok" style="white-space:nowrap">Rp. '.number_format($akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']][$akun_4_db[0]['kode_akun']][$item['nama_akun']][$item['subs_bl_teks']]['total'],2,",",".").'</td>
+                    <td class="kanan bawah text_kanan text_blok" style="white-space:nowrap">Rp. '.number_format($akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']][$akun_4_db[0]['kode_akun']][$item['nama_akun']][$item['subs_bl_teks']]['total'],0,",",".").'</td>
                 </tr>
 			';
 		}
@@ -316,7 +475,7 @@ foreach ($bl as $k => $sub_bl) {
 				<tr>
 	                <td class="kiri kanan bawah text_blok">'.$akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']][$akun_4_db[0]['kode_akun']][$item['nama_akun']][$item['subs_bl_teks']][$item['ket_bl_teks']]['kode_akun'].'</td>
                     <td class="kanan bawah text_blok" colspan="5">'.$akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']][$akun_4_db[0]['kode_akun']][$item['nama_akun']][$item['subs_bl_teks']][$item['ket_bl_teks']]['nama_akun'].'</td>
-                    <td class="kanan bawah text_kanan text_blok" style="white-space:nowrap">Rp. '.number_format($akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']][$akun_4_db[0]['kode_akun']][$item['nama_akun']][$item['subs_bl_teks']][$item['ket_bl_teks']]['total'],2,",",".").'</td>
+                    <td class="kanan bawah text_kanan text_blok" style="white-space:nowrap">Rp. '.number_format($akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']][$akun_4_db[0]['kode_akun']][$item['nama_akun']][$item['subs_bl_teks']][$item['ket_bl_teks']]['total'],0,",",".").'</td>
                 </tr>
 			';
 		}
@@ -329,9 +488,9 @@ foreach ($bl as $k => $sub_bl) {
                 </td>
                 <td class="kanan bawah" style="vertical-align: middle;">'.$item['koefisien'].'</td>
                 <td class="kanan bawah" style="vertical-align: middle;">'.$item['satuan'].'</td>
-                <td class="kanan bawah text_kanan" style="vertical-align: middle;">'.number_format($item['harga_satuan'],2,",",".").'</td>
-                <td class="kanan bawah text_kanan" style="vertical-align: middle;">'.number_format($item['totalpajak'],2,",",".").'</td>
-                <td class="kanan bawah text_kanan" style="vertical-align: middle;white-space:nowrap">Rp. '.number_format($item['total_harga'],2,",",".").'</td>
+                <td class="kanan bawah text_kanan" style="vertical-align: middle;">'.number_format($item['harga_satuan'],0,",",".").'</td>
+                <td class="kanan bawah text_kanan" style="vertical-align: middle;">'.number_format($item['totalpajak'],0,",",".").'</td>
+                <td class="kanan bawah text_kanan" style="vertical-align: middle;white-space:nowrap">Rp. '.number_format($item['total_harga'],0,",",".").'</td>
             </tr>
 		';
 		$total_sub_rinc += $item['total_harga'];
@@ -339,7 +498,7 @@ foreach ($bl as $k => $sub_bl) {
 	$rin_sub_item .= '
 		<tr>
             <td colspan="6" class="kiri kanan bawah text_kanan text_blok">Jumlah Anggaran Sub Kegiatan :</td>
-            <td class="kanan bawah text_blok text_kanan" style="white-space:nowrap">Rp. '.number_format($total_sub_rinc,2,",",".").'</td>
+            <td class="kanan bawah text_blok text_kanan" style="white-space:nowrap">Rp. '.number_format($total_sub_rinc,0,",",".").'</td>
         </tr>
 	';
 	$rin_sub .= $rin_sub_item;
@@ -476,7 +635,7 @@ foreach ($bl as $k => $sub_bl) {
 	                <tr>
 	                    <td width="150">Sasaran Program</td>
 	                    <td width="10">:</td>
-	                    <td><?php echo $bl[0]['sasaran']; ?></td>
+	                    <td><?php echo $sasaran; ?></td>
 	                </tr>
 	                <tr valign="top" class="no_padding">
 	                    <td width="150">Capaian Program</td>
@@ -487,10 +646,7 @@ foreach ($bl as $k => $sub_bl) {
 	                            	<td>Indikator</td>
 	                            	<td>Target</td>
 	                            </tr>
-								<tr>
-	                                <td width="495"></td>
-	                                <td width="495"></td>
-	                            </tr>
+								<?php echo implode('', $ind_prog); ?>
 	                        </table>
 	                </td>
 	                </tr>
@@ -512,17 +668,17 @@ foreach ($bl as $k => $sub_bl) {
 	                <tr>
 	                    <td width="150">Alokasi Tahun <?php echo $tahun_anggaran-1; ?></td>
 	                    <td width="10">:</td>
-	                    <td>Rp. <?php echo number_format($pagu_n_lalu,2,",","."); ?></td>
+	                    <td>Rp. <?php echo number_format($pagu_n_lalu,0,",","."); ?></td>
 	                </tr>
 	                <tr>
 	                    <td width="150">Alokasi Tahun <?php echo $tahun_anggaran; ?></td>
 	                    <td width="10">:</td>
-	                    <td>Rp. <?php echo number_format($pagu,2,",","."); ?></td>
+	                    <td>Rp. <?php echo number_format($pagu,0,",","."); ?></td>
 	                </tr>
 	                <tr>
 	                    <td width="150">Alokasi Tahun <?php echo $tahun_anggaran+1; ?></td>
 	                    <td width="10">:</td>
-	                    <td>Rp. <?php echo number_format($pagu_n_depan,2,",","."); ?></td>
+	                    <td>Rp. <?php echo number_format($pagu_n_depan,0,",","."); ?></td>
 	                </tr>
 	            </table>
 	        </td>            
@@ -543,16 +699,12 @@ foreach ($bl as $k => $sub_bl) {
 	                    <td width="130" class="kiri kanan atas bawah">Capaian Kegiatan</td>
 	                    <td class="kiri kanan atas bawah">
 		                    <table width="100%" border="0" style="border-spacing: 0px;">
-		                        <tr>
-		                        	<td width="495"></td>
-		                        </tr>
+		                        <?php echo implode('', $ind_capaian_kegiatan); ?>
 		                    </table>
 		                </td>
 		                <td class="kiri kanan atas bawah">
 		                    <table width="100%" border="0" style="border-spacing: 0px;">
-		                        <tr>
-		                        	<td width="495"></td>
-		                        </tr>
+		                        <?php echo implode('', $target_ind_capaian_kegiatan); ?>
 		                    </table>
 		                </td>
 	                </tr>
@@ -568,7 +720,7 @@ foreach ($bl as $k => $sub_bl) {
 	                    <td class="kiri kanan atas bawah">
 	                        <table width="100%" border="0" style="border-spacing: 0px;">
 		                        <tr>
-		                          <td width="495">Rp. <?php echo number_format($pagu,2,",","."); ?></td>
+		                          <td width="495">Rp. <?php echo number_format($pagu,0,",","."); ?></td>
 		                        </tr>
 	                        </table>
 	                    </td>
@@ -577,16 +729,12 @@ foreach ($bl as $k => $sub_bl) {
 	                    <td width="130" class="kiri kanan atas bawah">Keluaran</td>
 	                    <td class="kiri kanan atas bawah">
 	                        <table width="100%" border="0" style="border-spacing: 0px;">
-	                            <tr>
-	                          		<td width="495"></td>
-                        		</tr>
+	                            <?php echo implode('', $ind_output); ?>
 	                    	</table>
 	                    </td>
 	                    <td class="kiri kanan atas bawah">
 	                        <table width="100%" border="0" style="border-spacing: 0px;">
-	                            <tr>
-	                          		<td width="495"></td>
-	                        	</tr>
+	                            <?php echo implode('', $target_ind_output); ?>
 	                        </table>
 	                    </td>
 	                </tr>
@@ -594,10 +742,12 @@ foreach ($bl as $k => $sub_bl) {
 	                    <td width="130" class="kiri kanan atas bawah">Hasil</td>
 	                    <td class="kiri kanan atas bawah">
 	                        <table width="100%" border="0" style="border-spacing: 0px;">
+	                        	<?php echo implode('', $ind_hasil); ?>
 	                        </table>
 	                    </td>
 	                    <td class="kiri kanan atas bawah">
 	                        <table width="100%" border="0" style="border-spacing: 0px;">
+	                        	<?php echo implode('', $target_ind_hasil); ?>
 	                        </table>
 	                    </td>
 	                </tr>
@@ -605,7 +755,7 @@ foreach ($bl as $k => $sub_bl) {
 	        </td>
 	    </tr>
 	    <tr>
-	        <td width="150" colspan="2">Kelompok Sasaran Kegiatan : [kelompok sasaran]</td>
+	        <td width="150" colspan="2">Kelompok Sasaran Kegiatan : <?php echo $bl[0]['sasaran'];?></td>
 	    </tr>
 	    <tr>
 	        <td width="150" colspan="2">&nbsp;</td>
@@ -626,7 +776,7 @@ foreach ($bl as $k => $sub_bl) {
 	                    <?php echo $rin_sub; ?>
 	                    <tr class="">
 	                        <td colspan="6" class="kiri kanan bawah text_kanan text_blok">Jumlah Total Anggaran Kegiatan :</td>
-	                    	<td class="kanan bawah text_blok text_kanan" style="white-space:nowrap">Rp. <?php echo number_format($total_pagu,2,",","."); ?></td>
+	                    	<td class="kanan bawah text_blok text_kanan" style="white-space:nowrap">Rp. <?php echo number_format($total_pagu,0,",","."); ?></td>
 	                    </tr>
 	                
 	                </tbody>
