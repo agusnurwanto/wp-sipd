@@ -230,6 +230,9 @@ class Wpsipd
 		$this->loader->add_action('wp_ajax_get_indikator',  $plugin_public, 'get_indikator');
 		$this->loader->add_action('wp_ajax_nopriv_get_indikator',  $plugin_public, 'get_indikator');
 
+		$this->loader->add_action('wp_ajax_get_all_sub_unit',  $plugin_public, 'get_all_sub_unit');
+		$this->loader->add_action('wp_ajax_nopriv_get_all_sub_unit',  $plugin_public, 'get_all_sub_unit');
+
 		add_shortcode('datassh', array($plugin_public, 'datassh'));
 		add_shortcode('rekbelanja', array($plugin_public, 'rekbelanja'));
 		add_shortcode('tampilrka', array($plugin_public, 'tampilrka'));
