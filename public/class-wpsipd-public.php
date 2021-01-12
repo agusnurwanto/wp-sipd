@@ -559,14 +559,18 @@ class Wpsipd_Public
 		global $wpdb;
 		$ret = array(
 			'status'	=> 'success',
-			'message'	=> 'Berhasil export Unit!'
+			'message'	=> 'Berhasil export Unit!',
+			'request_data'	=> array()
 		);
 		if (!empty($_POST)) {
 			if (!empty($_POST['api_key']) && $_POST['api_key'] == APIKEY) {
 				if (!empty($_POST['data_unit'])) {
 					$data_unit = $_POST['data_unit'];
+					// $wpdb->update('data_unit', array( 'active' => 0 ), array(
+					// 	'tahun_anggaran' => $_POST['tahun_anggaran']
+					// ));
 					foreach ($data_unit as $k => $v) {
-						$cek = $wpdb->get_var("SELECT idinduk from data_unit where tahun_anggaran=".$_POST['tahun_anggaran']." AND id_skpd=" . $v['id_skpd']);
+						$cek = $wpdb->get_var("SELECT id_skpd from data_unit where tahun_anggaran=".$_POST['tahun_anggaran']." AND id_skpd=" . $v['id_skpd']);
 						$opsi = array(
 							'id_setup_unit' => $v['id_setup_unit'],
 							'id_skpd' => $v['id_skpd'],
@@ -595,18 +599,22 @@ class Wpsipd_Public
 							'pangkatkepala' => $v['pangkatkepala'],
 							'setupunit' => $v['setupunit'],
 							'statuskepala' => $v['statuskepala'],
+							'active' => 1,
 							'update_at' => current_time('mysql'),
 							'tahun_anggaran' => $_POST['tahun_anggaran']
 						);
 
 						if (!empty($cek)) {
 							$wpdb->update('data_unit', $opsi, array(
-								'idinduk' => $v['id_skpd'],
+								'id_skpd' => $v['id_skpd'],
 								'tahun_anggaran' => $_POST['tahun_anggaran']
 							));
+							$opsi['update'] = 1;
 						} else {
 							$wpdb->insert('data_unit', $opsi);
+							$opsi['insert'] = 1;
 						}
+						$ret['request_data'][] = $opsi;
 					}
 				} else if ($ret['status'] != 'error') {
 					$ret['status'] = 'error';
@@ -1150,40 +1158,7 @@ class Wpsipd_Public
 				$kodeunit = '';
 				if (!empty($_POST['data_unit'])) {
 					$data_unit = $_POST['data_unit'];
-					$cek = $wpdb->get_var("SELECT idinduk from data_unit where tahun_anggaran=".$_POST['tahun_anggaran']." AND idinduk=" . $data_unit['idinduk']);
-					$opsi = array(
-						'bidur_1' => $data_unit['bidur_1'],
-						'bidur_2' => $data_unit['bidur_2'],
-						'bidur_3' => $data_unit['bidur_3'],
-						'idinduk' => $data_unit['idinduk'],
-						'ispendapatan' => $data_unit['ispendapatan'],
-						'isskpd' => $data_unit['isskpd'],
-						'kode_skpd_1' => $data_unit['kode_skpd_1'],
-						'kode_skpd_2' => $data_unit['kode_skpd_2'],
-						'kodeunit' => $data_unit['kodeunit'],
-						'komisi' => $data_unit['komisi'],
-						'namabendahara' => $data_unit['namabendahara'],
-						'namakepala' => $data_unit['namakepala'],
-						'namaunit' => $data_unit['namaunit'],
-						'nipbendahara' => $data_unit['nipbendahara'],
-						'nipkepala' => $data_unit['nipkepala'],
-						'pangkatkepala' => $data_unit['pangkatkepala'],
-						'setupunit' => $data_unit['setupunit'],
-						'statuskepala' => $data_unit['statuskepala'],
-						'active' => 1,
-						'update_at' => current_time('mysql'),
-						'tahun_anggaran' => $_POST['tahun_anggaran']
-					);
 					$kodeunit = $data_unit['kodeunit'];
-
-					if (!empty($cek)) {
-						$wpdb->update('data_unit', $opsi, array(
-							'idinduk' => $v['idinduk'],
-							'tahun_anggaran' => $_POST['tahun_anggaran']
-						));
-					} else {
-						$wpdb->insert('data_unit', $opsi);
-					}
 				} else if ($ret['status'] != 'error') {
 					$ret['status'] = 'error';
 					$ret['message'] = 'Format data Unit Salah!';
