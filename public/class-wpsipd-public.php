@@ -1964,7 +1964,7 @@ class Wpsipd_Public
 			if (!empty($_POST['api_key']) && $_POST['api_key'] == APIKEY) {
 				if(!empty($_POST['data']) && !empty($_POST['kode_sbl'])){
 					$data = $_POST['data'];
-					$wpdb->update('data_anngaran_kas', array( 'active' => 0 ), array(
+					$wpdb->update('data_anggaran_kas', array( 'active' => 0 ), array(
 						'tahun_anggaran' => $_POST['tahun_anggaran'],
 						'kode_sbl' => $_POST['kode_sbl']
 					));
@@ -1975,7 +1975,7 @@ class Wpsipd_Public
 						$cek = $wpdb->get_var("
 							SELECT 
 								id_akun 
-							from data_anngaran_kas 
+							from data_anggaran_kas 
 							where tahun_anggaran=".$_POST['tahun_anggaran']." 
 								AND kode_sbl='" . $_POST['kode_sbl']."' 
 								AND id_akun=".$v['id_akun']);
@@ -2014,18 +2014,93 @@ class Wpsipd_Public
 						);
 
 						if (!empty($cek)) {
-							$wpdb->update('data_anngaran_kas', $opsi, array(
+							$wpdb->update('data_anggaran_kas', $opsi, array(
 								'tahun_anggaran' => $_POST['tahun_anggaran'],
 								'kode_sbl' => $_POST['kode_sbl'],
 								'id_akun' => $v['id_akun']
 							));
 						} else {
-							$wpdb->insert('data_anngaran_kas', $opsi);
+							$wpdb->insert('data_anggaran_kas', $opsi);
 						}
 					}
 				} else if ($ret['status'] != 'error') {
 					$ret['status'] = 'error';
 					$ret['message'] = 'Format data Salah!';
+				}
+			} else {
+				$ret['status'] = 'error';
+				$ret['message'] = 'APIKEY tidak sesuai!';
+			}
+		} else {
+			$ret['status'] = 'error';
+			$ret['message'] = 'Format Salah!';
+		}
+		die(json_encode($ret));
+	}
+
+	function get_kas(){
+		global $wpdb;
+		$ret = array(
+			'status'	=> 'success',
+			'action'	=> $_POST['action'],
+			'data'	=> array(
+				'bl' => array(),
+				'kas' => array(),
+				'per_bulan' => array(),
+				'total' => 0
+			)
+		);
+		if (!empty($_POST)) {
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == APIKEY) {
+				if(
+					!empty($_POST['kode_giat']) 
+					&& !empty($_POST['kode_skpd'])
+				){
+					$ret['data']['bl'] = $wpdb->get_results(
+						$wpdb->prepare("
+						SELECT 
+							*
+						from data_sub_keg_bl
+						where kode_giat=%s
+							AND kode_sub_skpd=%s
+							AND tahun_anggaran=%d
+							AND kode_sbl != ''
+							AND active=1", $_POST['kode_giat'], $_POST['kode_skpd'], $_POST['tahun_anggaran']),
+						ARRAY_A
+					);
+					foreach ($ret['data']['bl'] as $k => $v) {
+						$kode_sbl = explode('.', $v['kode_sbl']);
+						$kode_sbl = $kode_sbl[0].'.'.$kode_sbl[1].'.'.$v['id_bidang_urusan'].'.'.$kode_sbl[2].'.'.$kode_sbl[3].'.'.$kode_sbl[4];
+						$kas = $wpdb->get_results("
+							SELECT 
+								* 
+							from data_anggaran_kas 
+							where kode_sbl='".$kode_sbl."' 
+								AND tahun_anggaran=".$v['tahun_anggaran']."
+								AND active=1"
+							, ARRAY_A
+						);
+						if(!empty($kas)){
+							$ret['data']['kas'][] = $kas;
+							foreach ($kas as $kk => $vv) {
+								$ret['data']['per_bulan'][0] += $vv['bulan_1'];
+								$ret['data']['per_bulan'][1] += $vv['bulan_2'];
+								$ret['data']['per_bulan'][2] += $vv['bulan_3'];
+								$ret['data']['per_bulan'][3] += $vv['bulan_4'];
+								$ret['data']['per_bulan'][4] += $vv['bulan_5'];
+								$ret['data']['per_bulan'][5] += $vv['bulan_6'];
+								$ret['data']['per_bulan'][6] += $vv['bulan_7'];
+								$ret['data']['per_bulan'][7] += $vv['bulan_8'];
+								$ret['data']['per_bulan'][8] += $vv['bulan_9'];
+								$ret['data']['per_bulan'][9] += $vv['bulan_10'];
+								$ret['data']['per_bulan'][10] += $vv['bulan_11'];
+								$ret['data']['per_bulan'][11] += $vv['bulan_12'];
+							}
+						}
+					}
+					foreach ($ret['data']['per_bulan'] as $key => $value) {
+						$ret['data']['total'] += $value;
+					}
 				}
 			} else {
 				$ret['status'] = 'error';

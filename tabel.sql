@@ -694,10 +694,10 @@ CREATE TABLE `data_lokasi_sub_keg` (
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 --
--- Table structure for table `data_anngaran_kas`
+-- Table structure for table `data_anggaran_kas`
 --
 
-CREATE TABLE `data_anngaran_kas` (
+CREATE TABLE `data_anggaran_kas` (
   `id` int(11) NOT NULL,
   `bulan_1` double DEFAULT NULL,
   `bulan_2` double DEFAULT NULL,
@@ -767,9 +767,9 @@ WHERE a.is_hibah_uang=1;
 --
 
 --
--- Indexes for table `data_anngaran_kas`
+-- Indexes for table `data_anggaran_kas`
 --
-ALTER TABLE `data_anngaran_kas`
+ALTER TABLE `data_anggaran_kas`
   ADD PRIMARY KEY (`id`);
 
 --
@@ -1042,7 +1042,7 @@ ALTER TABLE `data_lokasi_sub_keg`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
--- AUTO_INCREMENT for table `data_anngaran_kas`
+-- AUTO_INCREMENT for table `data_anggaran_kas`
 --
-ALTER TABLE `data_anngaran_kas`
+ALTER TABLE `data_anggaran_kas`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
