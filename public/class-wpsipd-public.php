@@ -1952,4 +1952,89 @@ class Wpsipd_Public
 		}
 		die(json_encode($ret));
 	}
+
+	function singkron_anggaran_kas(){
+		global $wpdb;
+		$ret = array(
+			'status'	=> 'success',
+			'message'	=> 'Berhasil Singkron Anggaran Kas',
+			'action'	=> $_POST['action']
+		);
+		if (!empty($_POST)) {
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == APIKEY) {
+				if(!empty($_POST['data']) && !empty($_POST['kode_sbl'])){
+					$data = $_POST['data'];
+					$wpdb->update('data_anngaran_kas', array( 'active' => 0 ), array(
+						'tahun_anggaran' => $_POST['tahun_anggaran'],
+						'kode_sbl' => $_POST['kode_sbl']
+					));
+					foreach ($data as $k => $v) {
+						if(empty($v['id_akun'])){
+							continue;
+						}
+						$cek = $wpdb->get_var("
+							SELECT 
+								id_akun 
+							from data_anngaran_kas 
+							where tahun_anggaran=".$_POST['tahun_anggaran']." 
+								AND kode_sbl='" . $_POST['kode_sbl']."' 
+								AND id_akun=".$v['id_akun']);
+						$opsi = array(
+							'bulan_1' => $v['bulan_1'],
+							'bulan_2' => $v['bulan_2'],
+							'bulan_3' => $v['bulan_3'],
+							'bulan_4' => $v['bulan_4'],
+							'bulan_5' => $v['bulan_5'],
+							'bulan_6' => $v['bulan_6'],
+							'bulan_7' => $v['bulan_7'],
+							'bulan_8' => $v['bulan_8'],
+							'bulan_9' => $v['bulan_9'],
+							'bulan_10' => $v['bulan_10'],
+							'bulan_11' => $v['bulan_11'],
+							'bulan_12' => $v['bulan_12'],
+							'id_akun' => $v['id_akun'],
+							'id_bidang_urusan' => $v['id_bidang_urusan'],
+							'id_daerah' => $v['id_daerah'],
+							'id_giat' => $v['id_giat'],
+							'id_program' => $v['id_program'],
+							'id_skpd' => $v['id_skpd'],
+							'id_sub_giat' => $v['id_sub_giat'],
+							'id_sub_skpd' => $v['id_sub_skpd'],
+							'id_unit' => $v['id_unit'],
+							'kode_akun' => $v['kode_akun'],
+							'nama_akun' => $v['nama_akun'],
+							'selisih' => $v['selisih'],
+							'tahun' => $v['tahun'],
+							'total_akb' => $v['total_akb'],
+							'total_rincian' => $v['total_rincian'],
+							'active' => 1,
+							'kode_sbl' => $_POST['kode_sbl'],
+							'tahun_anggaran' => $_POST['tahun_anggaran'],
+							'updated_at' => current_time('mysql')
+						);
+
+						if (!empty($cek)) {
+							$wpdb->update('data_anngaran_kas', $opsi, array(
+								'tahun_anggaran' => $_POST['tahun_anggaran'],
+								'kode_sbl' => $_POST['kode_sbl'],
+								'id_akun' => $v['id_akun']
+							));
+						} else {
+							$wpdb->insert('data_anngaran_kas', $opsi);
+						}
+					}
+				} else if ($ret['status'] != 'error') {
+					$ret['status'] = 'error';
+					$ret['message'] = 'Format data Salah!';
+				}
+			} else {
+				$ret['status'] = 'error';
+				$ret['message'] = 'APIKEY tidak sesuai!';
+			}
+		} else {
+			$ret['status'] = 'error';
+			$ret['message'] = 'Format Salah!';
+		}
+		die(json_encode($ret));
+	}
 }

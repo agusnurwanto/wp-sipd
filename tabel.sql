@@ -693,6 +693,45 @@ CREATE TABLE `data_lokasi_sub_keg` (
   `tahun_anggaran` year(4) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
+--
+-- Table structure for table `data_anngaran_kas`
+--
+
+CREATE TABLE `data_anngaran_kas` (
+  `id` int(11) NOT NULL,
+  `bulan_1` double DEFAULT NULL,
+  `bulan_2` double DEFAULT NULL,
+  `bulan_3` double DEFAULT NULL,
+  `bulan_4` double DEFAULT NULL,
+  `bulan_5` double DEFAULT NULL,
+  `bulan_6` double DEFAULT NULL,
+  `bulan_7` double DEFAULT NULL,
+  `bulan_8` double DEFAULT NULL,
+  `bulan_9` double DEFAULT NULL,
+  `bulan_10` double DEFAULT NULL,
+  `bulan_11` double DEFAULT NULL,
+  `bulan_12` double DEFAULT NULL,
+  `id_akun` int(11) DEFAULT NULL,
+  `id_bidang_urusan` int(11) DEFAULT NULL,
+  `id_daerah` int(11) DEFAULT NULL,
+  `id_giat` int(11) DEFAULT NULL,
+  `id_program` int(11) DEFAULT NULL,
+  `id_skpd` int(11) DEFAULT NULL,
+  `id_sub_giat` int(11) DEFAULT NULL,
+  `id_sub_skpd` int(11) DEFAULT NULL,
+  `id_unit` int(11) DEFAULT NULL,
+  `kode_akun` varchar(50) DEFAULT NULL,
+  `nama_akun` text,
+  `selisih` double DEFAULT NULL,
+  `tahun` year(4) DEFAULT NULL,
+  `total_akb` double DEFAULT NULL,
+  `total_rincian` double DEFAULT NULL,
+  `active` tinyint(4) DEFAULT NULL,
+  `kode_sbl` varchar(50) DEFAULT NULL,
+  `tahun_anggaran` year(4) NOT NULL,
+  `updated_at` datetime NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
 -- view untuk data bantuan hibah uang --
 
 CREATE VIEW vw_batuan_hibah_uang AS SELECT
@@ -726,6 +765,12 @@ WHERE a.is_hibah_uang=1;
 --
 -- Indexes for dumped tables
 --
+
+--
+-- Indexes for table `data_anngaran_kas`
+--
+ALTER TABLE `data_anngaran_kas`
+  ADD PRIMARY KEY (`id`);
 
 --
 -- Indexes for table `data_lokasi_sub_keg`
@@ -994,4 +1039,10 @@ ALTER TABLE `data_renstra`
 -- AUTO_INCREMENT for table `data_lokasi_sub_keg`
 --
 ALTER TABLE `data_lokasi_sub_keg`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `data_anngaran_kas`
+--
+ALTER TABLE `data_anngaran_kas`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
