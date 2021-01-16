@@ -1306,6 +1306,95 @@ class Wpsipd_Public
 
 						$ret['message'] .= ' URL ' . $custom_post->guid;
 						$ret['category'] = $category_link;
+
+
+						if(carbon_get_theme_option('crb_singkron_simda') == 1){
+							$kd_unit_simda = explode('.', carbon_get_theme_option('crb_unit_'.$v['id_skpd']));
+							$tahun_anggaran = $_POST['tahun_anggaran'];
+							if(!empty($kd_unit_simda) && !empty($kd_unit_simda[3])){
+								$kd = explode('.', $kode_sub_giat);
+								$kd_urusan90 = (int) $kd[0];
+								$kd_bidang90 = (int) $kd[1];
+								$kd_program90 = (int) $kd[2];
+								$kd_kegiatan90 = ((int) $kd[3]).'.'.$kd[4];
+								$kd_sub_kegiatan = (int) $kd[5];
+								$mapping = $this->CurlSimda(array(
+									'query' => "
+										SELECT 
+											* 
+										from ref_kegiatan_mapping
+										where kd_urusan90=".$kd_urusan90
+				                            .' and kd_bidang90='.$kd_bidang90
+				                            .' and kd_program90='.$kd_program90
+				                            .' and kd_kegiatan90='.$kd_kegiatan90
+				                            .' and kd_sub_kegiatan='.$kd_sub_kegiatan
+								));
+								if(!empty($mapping)){
+									$_kd_urusan = $kd_unit_simda[0];
+									$_kd_bidang = $kd_unit_simda[1];
+									$kd_unit = $kd_unit_simda[2];
+									$kd_sub_unit = $kd_unit_simda[3];
+									
+									$kd_urusan = $mapping[0]->kd_urusan;
+									$kd_bidang = $mapping[0]->kd_bidang;
+									$kd_prog = $mapping[0]->kd_prog;
+									$kd_keg = $mapping[0]->kd_keg;
+
+                                    $id_prog = $kd_urusan.$this->CekNull($kd_bidang);
+                                    $nama_prog = $v['nama_giat'];
+									$program_simda = $this->CurlSimda(array(
+										'query' => "
+											SELECT 
+												* 
+											from ta_program
+											where tahun=".$tahun_anggaran
+					                            .' and kd_urusan='.$_kd_urusan
+					                            .' and kd_bidang='.$_kd_bidang
+					                            .' and kd_unit='.$kd_unit
+					                            .' and kd_sub='.$kd_sub_unit
+					                            .' and kd_prog='.$kd_prog
+					                            .' and id_prog='.$id_prog
+									));
+									if(empty($program_simda)){
+		                                $options = array(
+											'query' => "
+												INSERT INTO Ta_Program (
+		                                            Tahun,
+		                                            Kd_Urusan,
+		                                            Kd_Bidang,
+		                                            Kd_Unit,
+		                                            Kd_Sub,
+		                                            Kd_Prog,
+		                                            ID_Prog,
+		                                            Ket_Program,
+		                                            Kd_Urusan1,
+		                                            Kd_Bidang1
+		                                        )
+		                                        VALUES (
+		                                            ".$tahun_anggaran.",
+		                                            ".$_kd_urusan.",
+		                                            ".$_kd_bidang.",
+		                                            ".$kd_unit.",
+		                                            ".$kd_sub_unit.",
+		                                            ".$kd_prog.",
+		                                            ".$id_prog.",
+		                                            '".$nama_prog."',
+		                                            ".$kd_urusan.",
+		                                            ".$kd_bidang."
+		                                        )"
+										);
+                						// print_r($options); die();
+										$this->CurlSimda($options);
+									}
+								}else{
+									$ret['simda_status'] = 0;
+									$ret['simda_msg'] = 'Kode kegiatan '.$kode_sub_giat.' tidak ditemukan di ref_kegiatan_mapping SIMDA';
+								}
+							}else{
+								$ret['simda_status'] = 0;
+								$ret['simda_msg'] = 'Kode Unit belum dimapping di wp-sipd untuk OPD '.$_POST['nama_skpd'];
+							}
+						}
 					}
 				} else if ($ret['status'] != 'error') {
 					$ret['status'] = 'error';
@@ -2170,5 +2259,17 @@ class Wpsipd_Public
                 return $ret->msg;
             }
         }
+    }
+
+    function CekNull($number, $length=2){
+        $l = strlen($number);
+        $ret = '';
+        for($i=0; $i<$length; $i++){
+            if($i+1 > $l){
+                $ret .= '0';
+            }
+        }
+        $ret .= $number;
+        return $ret;
     }
 }
