@@ -111,7 +111,7 @@ class Wpsipd_Public
 			'message'	=> 'Berhasil export SSH!'
 		);
 		if (!empty($_POST)) {
-			if (!empty($_POST['api_key']) && $_POST['api_key'] == APIKEY) {
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == carbon_get_theme_option( 'crb_api_key_extension' )) {
 				if (!empty($_POST['ssh'])) {
 					$ssh = $_POST['ssh'];
 					foreach ($ssh as $k => $v) {
@@ -273,7 +273,7 @@ class Wpsipd_Public
 			'message'	=> 'Berhasil export data desa/kelurahan!'
 		);
 		if (!empty($_POST)) {
-			if (!empty($_POST['api_key']) && $_POST['api_key'] == APIKEY) {
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == carbon_get_theme_option( 'crb_api_key_extension' )) {
 				if (!empty($_POST['data'])) {
 					$data = $_POST['data'];
 					$cek = $wpdb->get_var("SELECT id_lurah from data_desa_kelurahan where tahun_anggaran=".$_POST['tahun_anggaran']." AND id_lurah=" . $data['id_lurah']);
@@ -366,7 +366,7 @@ class Wpsipd_Public
 			'message'	=> 'Berhasil export data anggota dewan!'
 		);
 		if (!empty($_POST)) {
-			if (!empty($_POST['api_key']) && $_POST['api_key'] == APIKEY) {
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == carbon_get_theme_option( 'crb_api_key_extension' )) {
 				if (!empty($_POST['data'])) {
 					$data = $_POST['data'];
 					$cek = $wpdb->get_var("SELECT iduser from data_dewan where tahun_anggaran=".$_POST['tahun_anggaran']." AND iduser=" . $data['iduser']);
@@ -443,7 +443,7 @@ class Wpsipd_Public
 			'message'	=> 'Berhasil export data pengaturan SIPD!'
 		);
 		if (!empty($_POST)) {
-			if (!empty($_POST['api_key']) && $_POST['api_key'] == APIKEY) {
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == carbon_get_theme_option( 'crb_api_key_extension' )) {
 				if (!empty($_POST['data'])) {
 					$data = $_POST['data'];
 					$cek = $wpdb->get_var("SELECT kepala_daerah from data_pengaturan_sipd where tahun_anggaran=".$_POST['tahun_anggaran']." AND kepala_daerah='".$data['kepala_daerah']."'");
@@ -495,7 +495,7 @@ class Wpsipd_Public
 			'message'	=> 'Berhasil export Akun Rekening Belanja!'
 		);
 		if (!empty($_POST)) {
-			if (!empty($_POST['api_key']) && $_POST['api_key'] == APIKEY) {
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == carbon_get_theme_option( 'crb_api_key_extension' )) {
 				if (!empty($_POST['akun'])) {
 					$akun = $_POST['akun'];
 					foreach ($akun as $k => $v) {
@@ -563,7 +563,7 @@ class Wpsipd_Public
 			'request_data'	=> array()
 		);
 		if (!empty($_POST)) {
-			if (!empty($_POST['api_key']) && $_POST['api_key'] == APIKEY) {
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == carbon_get_theme_option( 'crb_api_key_extension' )) {
 				if (!empty($_POST['data_unit'])) {
 					$data_unit = $_POST['data_unit'];
 					// $wpdb->update('data_unit', array( 'active' => 0 ), array(
@@ -615,6 +615,14 @@ class Wpsipd_Public
 							$opsi['insert'] = 1;
 						}
 						$ret['request_data'][] = $opsi;
+						if(carbon_get_theme_option('crb_singkron_simda') == 1){
+							// $unit = $this->CurlSimda(array(
+							// 	'query' => "SELECT * from ref_unit"
+							// ));
+							// $sub_unit = $this->CurlSimda(array(
+							// 	'query' => "SELECT * from ref_sub_unit"
+							// ), 1);
+						}
 					}
 				} else if ($ret['status'] != 'error') {
 					$ret['status'] = 'error';
@@ -638,7 +646,7 @@ class Wpsipd_Public
 			'message'	=> 'Berhasil set program kegiatan!'
 		);
 		if (!empty($_POST)) {
-			if (!empty($_POST['api_key']) && $_POST['api_key'] == APIKEY) {
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == carbon_get_theme_option( 'crb_api_key_extension' )) {
 				if (!empty($_POST['subgiat'])) {
 					$sub_giat = $_POST['subgiat'];
 					foreach ($sub_giat as $k => $v) {
@@ -693,10 +701,10 @@ class Wpsipd_Public
 		global $wpdb;
 		$ret = array(
 			'status'	=> 'success',
-			'message'	=> 'Berhasil set program kegiatan!'
+			'message'	=> 'Berhasil singkron RPJMD!'
 		);
 		if (!empty($_POST)) {
-			if (!empty($_POST['api_key']) && $_POST['api_key'] == APIKEY) {
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == carbon_get_theme_option( 'crb_api_key_extension' )) {
 				if (!empty($_POST['rpjmd'])) {
 					$data_rpjmd = $_POST['rpjmd'];
 					foreach ($data_rpjmd as $k => $v) {
@@ -765,7 +773,7 @@ class Wpsipd_Public
 			'message'	=> 'Berhasil set program kegiatan!'
 		);
 		if (!empty($_POST)) {
-			if (!empty($_POST['api_key']) && $_POST['api_key'] == APIKEY) {
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == carbon_get_theme_option( 'crb_api_key_extension' )) {
 				if (!empty($_POST['dana'])) {
 					$sumber_dana = $_POST['dana'];
 					foreach ($sumber_dana as $k => $v) {
@@ -819,7 +827,7 @@ class Wpsipd_Public
 			'message'	=> 'Berhasil singkron alamat!'
 		);
 		if (!empty($_POST)) {
-			if (!empty($_POST['api_key']) && $_POST['api_key'] == APIKEY) {
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == carbon_get_theme_option( 'crb_api_key_extension' )) {
 				if (!empty($_POST['alamat'])) {
 					$alamat = $_POST['alamat'];
 					foreach ($alamat as $k => $v) {
@@ -870,7 +878,7 @@ class Wpsipd_Public
 			'message'	=> 'Berhasil set profile penerima bantuan!'
 		);
 		if (!empty($_POST)) {
-			if (!empty($_POST['api_key']) && $_POST['api_key'] == APIKEY) {
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == carbon_get_theme_option( 'crb_api_key_extension' )) {
 				if (!empty($_POST['profile'])) {
 					$profile = $_POST['profile'];
 					foreach ($profile as $k => $v) {
@@ -916,7 +924,7 @@ class Wpsipd_Public
 			'message'	=> 'Berhasil singkron user penatausahaan!'
 		);
 		if (!empty($_POST)) {
-			if (!empty($_POST['api_key']) && $_POST['api_key'] == APIKEY) {
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == carbon_get_theme_option( 'crb_api_key_extension' )) {
 				if (!empty($_POST['data_user'])) {
 					$data_user = $_POST['data_user'];
 					$cek = $wpdb->get_var("SELECT userName from data_user_penatausahaan where tahun=".$_POST['tahun_anggaran']." AND userName='" . $data_user['userName']."'");
@@ -975,7 +983,7 @@ class Wpsipd_Public
 			'message'	=> 'Berhasil set unit pagu!'
 		);
 		if (!empty($_POST)) {
-			if (!empty($_POST['api_key']) && $_POST['api_key'] == APIKEY) {
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == carbon_get_theme_option( 'crb_api_key_extension' )) {
 				if (!empty($_POST['data'])) {
 					$data_unit = $_POST['data'];
 					$cek = $wpdb->get_var("SELECT id_unit from data_unit_pagu where tahun_anggaran=".$_POST['tahun_anggaran']." AND id_unit=" . $data_unit['id_unit']);
@@ -1042,7 +1050,7 @@ class Wpsipd_Public
 			'message'	=> 'Berhasil singkron RENSTRA!'
 		);
 		if (!empty($_POST)) {
-			if (!empty($_POST['api_key']) && $_POST['api_key'] == APIKEY) {
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == carbon_get_theme_option( 'crb_api_key_extension' )) {
 				if (!empty($_POST['data'])) {
 					$data = $_POST['data'];
 					$unit = array();
@@ -1144,7 +1152,7 @@ class Wpsipd_Public
 			'message'	=> 'Berhasil export RKA!'
 		);
 		if (!empty($_POST)) {
-			if (!empty($_POST['api_key']) && $_POST['api_key'] == APIKEY) {
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == carbon_get_theme_option( 'crb_api_key_extension' )) {
 				$parent_cat_name = 'Semua Perangkat Daerah Tahun Anggaran ' . $_POST['tahun_anggaran'];
 				$taxonomy = 'category';
 				$parent_cat  = get_term_by('name', $parent_cat_name, $taxonomy);
@@ -1159,6 +1167,8 @@ class Wpsipd_Public
 				if (!empty($_POST['data_unit'])) {
 					$data_unit = $_POST['data_unit'];
 					$kodeunit = $data_unit['kodeunit'];
+					$_POST['nama_skpd'] = $data_unit['namaunit'];
+					$_POST['kode_sub_skpd'] = $data_unit['kodeunit'];
 				} else if ($ret['status'] != 'error') {
 					$ret['status'] = 'error';
 					$ret['message'] = 'Format data Unit Salah!';
@@ -1772,7 +1782,7 @@ class Wpsipd_Public
 			'data'	=> array()
 		);
 		if (!empty($_POST)) {
-			if (!empty($_POST['api_key']) && $_POST['api_key'] == APIKEY) {
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == carbon_get_theme_option( 'crb_api_key_extension' )) {
 				if(!empty($_POST['id_skpd'])){
 					$ret['data'] = $wpdb->get_results(
 						$wpdb->prepare("
@@ -1816,7 +1826,7 @@ class Wpsipd_Public
 			'data'	=> array()
 		);
 		if (!empty($_POST)) {
-			if (!empty($_POST['api_key']) && $_POST['api_key'] == APIKEY) {
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == carbon_get_theme_option( 'crb_api_key_extension' )) {
 				if(!empty($_POST['id_skpd'])){
 					$ret['data'] = $wpdb->get_results(
 						$wpdb->prepare("
@@ -1876,6 +1886,7 @@ class Wpsipd_Public
 			'status'	=> 'success',
 			'action'	=> $_POST['action'],
 			'data'	=> array(
+				'bl_query' => '',
 				'bl' => array(),
 				'output' => array(),
 				'hasil' => array(),
@@ -1884,7 +1895,7 @@ class Wpsipd_Public
 			)
 		);
 		if (!empty($_POST)) {
-			if (!empty($_POST['api_key']) && $_POST['api_key'] == APIKEY) {
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == carbon_get_theme_option( 'crb_api_key_extension' )) {
 				if(!empty($_POST['kode_giat']) && !empty($_POST['kode_skpd'])){
 					$ret['data']['bl'] = $wpdb->get_results(
 						$wpdb->prepare("
@@ -1898,6 +1909,7 @@ class Wpsipd_Public
 							AND active=1", $_POST['kode_giat'], $_POST['kode_skpd'], $_POST['tahun_anggaran']),
 						ARRAY_A
 					);
+					$ret['data']['bl_query'] = $wpdb->last_query;
 					// print_r($ret['data']['bl']); die($wpdb->last_query);
 					$bl = $ret['data']['bl'];
 					if(!empty($bl)){
@@ -1961,7 +1973,7 @@ class Wpsipd_Public
 			'action'	=> $_POST['action']
 		);
 		if (!empty($_POST)) {
-			if (!empty($_POST['api_key']) && $_POST['api_key'] == APIKEY) {
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == carbon_get_theme_option( 'crb_api_key_extension' )) {
 				if(!empty($_POST['data']) && !empty($_POST['kode_sbl'])){
 					$data = $_POST['data'];
 					$wpdb->update('data_anggaran_kas', array( 'active' => 0 ), array(
@@ -2051,7 +2063,7 @@ class Wpsipd_Public
 			)
 		);
 		if (!empty($_POST)) {
-			if (!empty($_POST['api_key']) && $_POST['api_key'] == APIKEY) {
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == carbon_get_theme_option( 'crb_api_key_extension' )) {
 				if(
 					!empty($_POST['kode_giat']) 
 					&& !empty($_POST['kode_skpd'])
@@ -2112,4 +2124,51 @@ class Wpsipd_Public
 		}
 		die(json_encode($ret));
 	}
+
+	function CurlSimda($options, $debug=false){
+        $query = $options['query'];
+        $curl = curl_init();
+        $req = array(
+            'api_key' => carbon_get_theme_option( 'crb_apikey_simda' ),
+            'query' => $query,
+            'db' => carbon_get_theme_option('crb_db_simda')
+        );
+        set_time_limit(0);
+        $req = http_build_query($req);
+        $url = carbon_get_theme_option( 'crb_url_api_simda' );
+        curl_setopt_array($curl, array(
+            CURLOPT_URL => $url,
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_ENCODING => "",
+            CURLOPT_MAXREDIRS => 10,
+            CURLOPT_TIMEOUT => 30,
+            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+            CURLOPT_CUSTOMREQUEST => "POST",
+            CURLOPT_POSTFIELDS => $req,
+            CURLOPT_SSL_VERIFYPEER => false,
+            CURLOPT_SSL_VERIFYHOST => false,
+            CURLOPT_CONNECTTIMEOUT => 0,
+            CURLOPT_TIMEOUT => 10000
+        ));
+
+        $response = curl_exec($curl);
+        // die($response);
+        $err = curl_error($curl);
+
+        curl_close($curl);
+
+        if ($err) {
+            echo "cURL Error #:" . $err; die();
+        } else {
+        	if($debug){
+            	print_r($response); die();
+        	}
+            $ret = json_decode($response);
+            if(!empty($ret->error)){
+                echo "<pre>".print_r($ret, 1)."</pre>"; die();
+            }else{
+                return $ret->msg;
+            }
+        }
+    }
 }

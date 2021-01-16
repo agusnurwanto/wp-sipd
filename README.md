@@ -10,8 +10,10 @@ Cara pakai plugin:
 - Install wordpress
 - Install plugin ini dan aktifkan
 - Import SQL file tabel.sql untuk membuat tabel tempat menyimpan data yang diambil dari sipd.kemendagri.go.id
-- Copy file config.php.example ke config.php
-- Edit nilai dari api key dengan random string untuk keamanan dan pastikan sama dengan nilai dari settingan api key sipd chrome extension
+- Masuk ke dashboard admin wordpress
+	- SIPD Options > API KEY chrome extension
+	- Secara default data apikey sudah terisi, bisa diedit sesuai keperluan
+	- Klik tombol Save Change / Simpan. Apikey ini harus sama dengan yang ada di configurasi SIPD chrome extension
 - Untuk menampilkan SSH menggunakan shortcode [datassh]
 - Untuk menampilkan akun belanja menggunakan shortcode [rekbelanja]
 - Halaman RKA akan otomatis tergenerate dalam bentuk post yang dikelompokan dalam category perangkat daerah ketika melakukan singkronisasi data

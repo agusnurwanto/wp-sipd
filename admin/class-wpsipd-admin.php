@@ -159,6 +159,23 @@ class Wpsipd_Admin {
 				    ) )
 	            	->set_default_value('1')
 		    ) );
+
+	    Container::make( 'theme_options', __( 'SIMDA Setting' ) )
+		    ->set_page_parent( $basic_options_container )
+		    ->add_fields( array(
+		        Field::make( 'radio', 'crb_singkron_simda', __( 'Auto Singkron ke DB SIMDA' ) )
+				    ->add_options( array(
+				        '1' => __( 'Ya' ),
+				        '2' => __( 'Tidak' )
+				    ) )
+	            	->set_default_value('1')
+	            	->set_help_text('Data SIMDA akan terupdate otomatis ketika melakukan singkron DB Lokal menggunakan chrome extension.'),
+	            Field::make( 'text', 'crb_url_api_simda', 'URL API SIMDA' )
+	            	->set_help_text('Scirpt PHP SIMDA API dibuat terpisah di <a href="https://github.com/agusnurwanto/SIMDA-API-PHP" target="_blank">SIMDA API PHP</a>.'),
+	            Field::make( 'text', 'crb_apikey_simda', 'APIKEY SIMDA' )
+	            	->set_default_value($this->generateRandomString()),
+	            Field::make( 'text', 'crb_db_simda', 'Database SIMDA' )
+		    ) );
 	}
 
 	public function generate_siencang_page(){
