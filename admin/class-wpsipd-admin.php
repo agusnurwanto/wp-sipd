@@ -116,6 +116,7 @@ class Wpsipd_Admin {
 
 	// https://docs.carbonfields.net/#/containers/theme-options
 	public function crb_attach_sipd_options(){
+		global $wpdb;
 		$sinergi_link = $this->generate_sinergi_page();
 		$sirup_link = $this->generate_sirup_page();
 		$sibangda_link = $this->generate_sibangda_page();
@@ -124,6 +125,8 @@ class Wpsipd_Admin {
 		$basic_options_container = Container::make( 'theme_options', __( 'SIPD Options' ) )
 			->set_page_menu_position( 4 )
 	        ->add_fields( array(
+	            Field::make( 'text', 'crb_tahun_anggaran_sipd', 'Tahun Anggaran SIPD' )
+	            	->set_default_value('2021'),
 	            Field::make( 'text', 'crb_pemda', 'Nama Pemda' )
 	            	->set_help_text('Data diambil dari halaman pengaturan SIPD menggunakan <a href="https://github.com/agusnurwanto/sipd-chrome-extension" target="_blank">SIPD chrome extension</a>.')
 	            	->set_default_value(carbon_get_theme_option( 'crb_pemda' ))
@@ -160,22 +163,39 @@ class Wpsipd_Admin {
 	            	->set_default_value('1')
 		    ) );
 
+		$unit = $wpdb->get_results("SELECT * from data_unit where active=1 and tahun_anggaran=".carbon_get_theme_option('crb_tahun_anggaran_sipd').' order by id_skpd ASC', ARRAY_A);
+		$mapping_unit = array(
+	        Field::make( 'radio', 'crb_singkron_simda', __( 'Auto Singkron ke DB SIMDA' ) )
+			    ->add_options( array(
+			        '1' => __( 'Ya' ),
+			        '2' => __( 'Tidak' )
+			    ) )
+            	->set_default_value('1')
+            	->set_help_text('Data SIMDA akan terupdate otomatis ketika melakukan singkron DB Lokal menggunakan chrome extension.'),
+            Field::make( 'text', 'crb_url_api_simda', 'URL API SIMDA' )
+            	->set_help_text('Scirpt PHP SIMDA API dibuat terpisah di <a href="https://github.com/agusnurwanto/SIMDA-API-PHP" target="_blank">SIMDA API PHP</a>.'),
+            Field::make( 'text', 'crb_apikey_simda', 'APIKEY SIMDA' )
+            	->set_default_value($this->generateRandomString()),
+            Field::make( 'text', 'crb_db_simda', 'Database SIMDA' ),
+            Field::make( 'html', 'crb_mapping_unit_simda' )
+	            	->set_html( 'Mapping kode sub unit SIPD ke SIMDA. Format kode (kd_urusan.kd_bidang.kd_unit.kd_sub) dipisah dengan titik. Contoh untuk Dinas Pendidikan (1.1.1.1)' )
+	    );
+		foreach ($unit as $k => $v) {
+			$unit_simda = get_option('_crb_unit_'.$v['id_skpd']);
+			if(empty($unit_simda)){
+				$kd = explode('.', $v['kode_skpd']);
+				$default_val = $this->CurlSimda(array(
+					'query' => 'select * from ref_bidang_mapping where kd_urusan90='.$kd[0].' and kd_bidang90='.((int)$kd[1])
+				));
+				$default = $default_val[0]->kd_urusan.'.'.$default_val[0]->kd_bidang;
+				update_option( '_crb_unit_'.$v['id_skpd'], $default );
+			}
+			$mapping_unit[] = Field::make( 'text', 'crb_unit_'.$v['id_skpd'], ($k+1).'. Kode Sub Unit SIMDA untuk '.$v['kode_skpd'].' '.$v['nama_skpd'] );
+		}
+
 	    Container::make( 'theme_options', __( 'SIMDA Setting' ) )
 		    ->set_page_parent( $basic_options_container )
-		    ->add_fields( array(
-		        Field::make( 'radio', 'crb_singkron_simda', __( 'Auto Singkron ke DB SIMDA' ) )
-				    ->add_options( array(
-				        '1' => __( 'Ya' ),
-				        '2' => __( 'Tidak' )
-				    ) )
-	            	->set_default_value('1')
-	            	->set_help_text('Data SIMDA akan terupdate otomatis ketika melakukan singkron DB Lokal menggunakan chrome extension.'),
-	            Field::make( 'text', 'crb_url_api_simda', 'URL API SIMDA' )
-	            	->set_help_text('Scirpt PHP SIMDA API dibuat terpisah di <a href="https://github.com/agusnurwanto/SIMDA-API-PHP" target="_blank">SIMDA API PHP</a>.'),
-	            Field::make( 'text', 'crb_apikey_simda', 'APIKEY SIMDA' )
-	            	->set_default_value($this->generateRandomString()),
-	            Field::make( 'text', 'crb_db_simda', 'Database SIMDA' )
-		    ) );
+		    ->add_fields( $mapping_unit );
 	}
 
 	public function generate_siencang_page(){
@@ -302,4 +322,51 @@ class Wpsipd_Admin {
 		}
 		return get_permalink($custom_post->ID);
 	}
+
+	function CurlSimda($options, $debug=false){
+        $query = $options['query'];
+        $curl = curl_init();
+        $req = array(
+            'api_key' => get_option( '_crb_apikey_simda' ),
+            'query' => $query,
+            'db' => get_option('_crb_db_simda')
+        );
+        set_time_limit(0);
+        $req = http_build_query($req);
+        $url = get_option( '_crb_url_api_simda' );
+        curl_setopt_array($curl, array(
+            CURLOPT_URL => $url,
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_ENCODING => "",
+            CURLOPT_MAXREDIRS => 10,
+            CURLOPT_TIMEOUT => 30,
+            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+            CURLOPT_CUSTOMREQUEST => "POST",
+            CURLOPT_POSTFIELDS => $req,
+            CURLOPT_SSL_VERIFYPEER => false,
+            CURLOPT_SSL_VERIFYHOST => false,
+            CURLOPT_CONNECTTIMEOUT => 0,
+            CURLOPT_TIMEOUT => 10000
+        ));
+
+        $response = curl_exec($curl);
+        // die($response);
+        $err = curl_error($curl);
+
+        curl_close($curl);
+
+        if ($err) {
+            echo "cURL Error #:" . $err; die();
+        } else {
+        	if($debug){
+            	print_r($response); die();
+        	}
+            $ret = json_decode($response);
+            if(!empty($ret->error)){
+                echo "<pre>".print_r($ret, 1)."</pre>"; die();
+            }else{
+                return $ret->msg;
+            }
+        }
+    }
 }
