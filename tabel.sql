@@ -755,6 +755,7 @@ CREATE TABLE `data_pembiayaan` (
   `updatedtime` varchar(50) DEFAULT NULL,
   `uraian` text,
   `urusan_koordinator` int(11) DEFAULT NULL,
+  `type` varchar(50) DEFAULT NULL,
   `user1` varchar(50) DEFAULT NULL,
   `user2` varchar(50) DEFAULT NULL,
   `active` tinyint(4) NOT NULL,

@@ -647,6 +647,7 @@ class Wpsipd_Public
 							'updatedtime' => $v['updatedtime'],
 							'uraian' => $v['uraian'],
 							'urusan_koordinator' => $v['urusan_koordinator'],
+							'type' => $v['type'],
 							'user1' => $v['user1'],
 							'user2' => $v['user2'],
 							'active' => 1,
