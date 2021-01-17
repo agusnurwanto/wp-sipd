@@ -1931,12 +1931,19 @@ class Wpsipd_Public
 											AND active=1";
 									$rka = $wpdb->get_results($sql, ARRAY_A);
 									$akun_all = array();
+									$rinc_all = array();
 									foreach ($rka as $kk => $rk) {
-										$akun_all[$rk['kode_akun']] = $rk;
+										if(empty($akun_all[$rk['kode_akun']])){
+											$akun_all[$rk['kode_akun']] = array();	
+										}
+										if(empty($akun_all[$rk['kode_akun']][$rk['subs_bl_teks'].' | '.$rk['ket_bl_teks']])){
+											$akun_all[$rk['kode_akun']][$rk['subs_bl_teks'].' | '.$rk['ket_bl_teks']] = array();	
+										}
+										$akun_all[$rk['kode_akun']][$rk['subs_bl_teks'].' | '.$rk['ket_bl_teks']][] = $rk;
 									}
 
 									foreach ($akun_all as $kk => $rk) {
-										$akun = explode('.', $rk['kode_akun']);
+										$akun = explode('.', $kk);
 
 					                    $mapping_rek = $this->CurlSimda(array(
 											'query' => "
@@ -1987,19 +1994,147 @@ class Wpsipd_Public
 								            );
 						                    // print_r($options); die();
 						                    $this->CurlSimda($options);
-											$akun_all[$kk] = $mapping_rek;
+											
+					                		$no_rinc = 0;
+											foreach ($rk as $kkk => $rkk) {
+												$no_rinc++;
+												$options = array(
+									                'query' => "
+											            INSERT INTO ta_belanja_rinc (
+											                tahun,
+											                kd_urusan,
+											                kd_bidang,
+											                kd_unit,
+											                kd_sub,
+											                kd_prog,
+											                id_prog,
+											                kd_keg,
+											                kd_rek_1,
+											                kd_rek_2,
+											                kd_rek_3,
+											                kd_rek_4,
+											                kd_rek_5,
+											                no_rinc,
+											                keterangan,
+											                kd_sumber
+											            ) VALUES (
+											            	".$tahun_anggaran.",
+							                                ".$kd_urusan.",
+							                                ".$kd_bidang.",
+							                                ".$kd_unit.",
+							                                ".$kd_sub_unit.",
+							                                ".$kd_prog.",
+							                                ".$id_prog.",
+							                                ".$kd_keg.",
+											                ".$mapping_rek[0]->kd_rek_1.",
+											                ".$mapping_rek[0]->kd_rek_2.",
+											                ".$mapping_rek[0]->kd_rek_3.",
+											                ".$mapping_rek[0]->kd_rek_4.",
+											                ".$mapping_rek[0]->kd_rek_5.",
+											                ".$no_rinc.",
+											                '".$kkk."',
+											                ".$sumber_dana."
+											            )"
+									            );
+							                    // print_r($options); die();
+							                    $this->CurlSimda($options);
+
+						                		$no_rinc_sub = 0;
+												foreach ($rkk as $kkkk => $rkkk) {
+													$no_rinc_sub++;
+													$jml_satuan = 1;
+													$jml_satuan_db = explode(' ', $rkkk['koefisien']);
+													if(!empty($jml_satuan_db)){
+														$jml_satuan = $jml_satuan_db[0];
+													}
+													$komponen = array($rkkk['nama_komponen'], $rkkk['spek_komponen']);
+													$nilai1 = 0;
+													if(!empty($rkkk['volum1'])){
+														$nilai1 = $rkkk['volum1'];
+													}else{
+														$nilai1 = $jml_satuan;
+													}
+													$sat1 = $rkkk['satuan'];
+													if(!empty($rkkk['sat1'])){
+														$sat1 = $rkkk['sat1'];
+													}
+													$nilai2 = 0;
+													if(!empty($rkkk['volum2'])){
+														$nilai2 = $rkkk['volum2'];
+													}
+													$nilai3 = 0;
+													if(!empty($rkkk['volum3'])){
+														$nilai3 = $rkkk['volum3'];
+													}
+													$options = array(
+										                'query' => "
+												            INSERT INTO ta_belanja_rinc_sub (
+												                tahun,
+												                kd_urusan,
+												                kd_bidang,
+												                kd_unit,
+												                kd_sub,
+												                kd_prog,
+												                id_prog,
+												                kd_keg,
+												                kd_rek_1,
+												                kd_rek_2,
+												                kd_rek_3,
+												                kd_rek_4,
+												                kd_rek_5,
+												                no_rinc,
+												                no_id,
+												                sat_1,
+										                        nilai_1,
+										                        sat_2,
+										                        nilai_2,
+										                        sat_3,
+										                        nilai_3,
+										                        satuan123,
+										                        jml_satuan,
+										                        nilai_rp,
+										                        total,
+										                        keterangan
+												            ) VALUES (
+												            	".$tahun_anggaran.",
+								                                ".$kd_urusan.",
+								                                ".$kd_bidang.",
+								                                ".$kd_unit.",
+								                                ".$kd_sub_unit.",
+								                                ".$kd_prog.",
+								                                ".$id_prog.",
+								                                ".$kd_keg.",
+												                ".$mapping_rek[0]->kd_rek_1.",
+												                ".$mapping_rek[0]->kd_rek_2.",
+												                ".$mapping_rek[0]->kd_rek_3.",
+												                ".$mapping_rek[0]->kd_rek_4.",
+												                ".$mapping_rek[0]->kd_rek_5.",
+												                ".$no_rinc.",
+												                ".$no_rinc_sub.",
+												                '".$sat1."',
+												                ".$nilai1.",
+												                '".$rkkk['sat2']."',
+												                ".$nilai2.",
+												                '".$rkkk['sat3']."',
+												                ".$nilai3.",
+												                '".$rkkk['satuan']."',
+												                ".$jml_satuan.",
+												                ".$rkkk['harga_satuan'].",
+												                ".$rkkk['total_harga'].",
+												                '".implode(' | ', $komponen)."'
+												            )"
+										            );
+								                    // print_r($options); die();
+								                    $this->CurlSimda($options);
+												}
+											}
+
 										}else{
 											$ret['status'] = 'error';
 											$ret['simda_status'] = 'error';
 											$ret['simda_msg'] = 'Kode akun '.$rk['kode_akun'].' tidak ditemukan di ref_rek_mapping SIMDA';
 										}
 					                }
-
-					                if($ret['simda_status'] != 'error'){
-										foreach ($rka as $kk => $rk) {
-											// input ta_belanja_rinc
-										}
-									}
 								}else{
 									$ret['status'] = 'error';
 									$ret['simda_status'] = 'error';
