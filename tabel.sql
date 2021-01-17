@@ -732,6 +732,66 @@ CREATE TABLE `data_anggaran_kas` (
   `updated_at` datetime NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
+--
+-- Table structure for table `data_pembiayaan`
+--
+
+CREATE TABLE `data_pembiayaan` (
+  `id` int(11) NOT NULL,
+  `created_user` int(11) DEFAULT NULL,
+  `createddate` varchar(50) DEFAULT NULL,
+  `createdtime` varchar(50) DEFAULT NULL,
+  `id_pembiayaan` int(11) DEFAULT NULL,
+  `keterangan` varchar(50) DEFAULT NULL,
+  `kode_akun` varchar(50) DEFAULT NULL,
+  `nama_akun` text,
+  `nilaimurni` int(11) DEFAULT NULL,
+  `program_koordinator` int(11) DEFAULT NULL,
+  `rekening` text,
+  `skpd_koordinator` int(11) DEFAULT NULL,
+  `total` double DEFAULT NULL,
+  `updated_user` int(11) DEFAULT NULL,
+  `updateddate` varchar(50) DEFAULT NULL,
+  `updatedtime` varchar(50) DEFAULT NULL,
+  `uraian` text,
+  `urusan_koordinator` int(11) DEFAULT NULL,
+  `user1` varchar(50) DEFAULT NULL,
+  `user2` varchar(50) DEFAULT NULL,
+  `active` tinyint(4) NOT NULL,
+  `update_at` datetime NOT NULL,
+  `tahun_anggaran` year(4) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+--
+-- Table structure for table `data_pendapatan`
+--
+
+CREATE TABLE `data_pendapatan` (
+  `id` int(11) NOT NULL,
+  `created_user` int(11) DEFAULT NULL,
+  `createddate` varchar(50) DEFAULT NULL,
+  `createdtime` varchar(50) DEFAULT NULL,
+  `id_pendapatan` int(11) DEFAULT NULL,
+  `keterangan` text,
+  `kode_akun` varchar(50) DEFAULT NULL,
+  `nama_akun` text,
+  `nilaimurni` int(11) DEFAULT NULL,
+  `program_koordinator` int(11) DEFAULT NULL,
+  `rekening` text,
+  `skpd_koordinator` int(11) DEFAULT NULL,
+  `total` double DEFAULT NULL,
+  `updated_user` int(11) DEFAULT NULL,
+  `updateddate` varchar(50) DEFAULT NULL,
+  `updatedtime` varchar(50) DEFAULT NULL,
+  `uraian` text,
+  `urusan_koordinator` int(11) DEFAULT NULL,
+  `user1` varchar(50) DEFAULT NULL,
+  `user2` varchar(50) DEFAULT NULL,
+  `active` tinyint(4) NOT NULL,
+  `update_at` datetime NOT NULL,
+  `tahun_anggaran` year(4) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
 -- view untuk data bantuan hibah uang --
 
 CREATE VIEW vw_batuan_hibah_uang AS SELECT
@@ -765,6 +825,18 @@ WHERE a.is_hibah_uang=1;
 --
 -- Indexes for dumped tables
 --
+
+--
+-- Indexes for table `data_pendapatan`
+--
+ALTER TABLE `data_pendapatan`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indexes for table `data_pembiayaan`
+--
+ALTER TABLE `data_pembiayaan`
+  ADD PRIMARY KEY (`id`);
 
 --
 -- Indexes for table `data_anggaran_kas`
@@ -1045,4 +1117,16 @@ ALTER TABLE `data_lokasi_sub_keg`
 -- AUTO_INCREMENT for table `data_anggaran_kas`
 --
 ALTER TABLE `data_anggaran_kas`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `data_pembiayaan`
+--
+ALTER TABLE `data_pembiayaan`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `data_pendapatan`
+--
+ALTER TABLE `data_pendapatan`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;

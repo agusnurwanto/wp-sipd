@@ -554,6 +554,130 @@ class Wpsipd_Public
 		die(json_encode($ret));
 	}
 
+	public function singkron_pendapatan()
+	{
+		global $wpdb;
+		$ret = array(
+			'status'	=> 'success',
+			'message'	=> 'Berhasil export Pendapatan!'
+		);
+		if (!empty($_POST)) {
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == carbon_get_theme_option( 'crb_api_key_extension' )) {
+				if (!empty($_POST['data'])) {
+					$data = $_POST['data'];
+					foreach ($data as $k => $v) {
+						$cek = $wpdb->get_var("SELECT id_pendapatan from data_pendapatan where tahun_anggaran=".$_POST['tahun_anggaran']." AND id_pendapatan=" . $v['id_pendapatan']);
+						$opsi = array(
+							'created_user' => $v['created_user'],
+							'createddate' => $v['createddate'],
+							'createdtime' => $v['createdtime'],
+							'id_pendapatan' => $v['id_pendapatan'],
+							'keterangan' => $v['keterangan'],
+							'kode_akun' => $v['kode_akun'],
+							'nama_akun' => $v['nama_akun'],
+							'nilaimurni' => $v['nilaimurni'],
+							'program_koordinator' => $v['program_koordinator'],
+							'rekening' => $v['rekening'],
+							'skpd_koordinator' => $v['skpd_koordinator'],
+							'total' => $v['total'],
+							'updated_user' => $v['updated_user'],
+							'updateddate' => $v['updateddate'],
+							'updatedtime' => $v['updatedtime'],
+							'uraian' => $v['uraian'],
+							'urusan_koordinator' => $v['urusan_koordinator'],
+							'user1' => $v['user1'],
+							'user2' => $v['user2'],
+							'active' => 1,
+							'update_at' => current_time('mysql'),
+							'tahun_anggaran' => $_POST['tahun_anggaran']
+						);
+						if (!empty($cek)) {
+							$wpdb->update('data_pendapatan', $opsi, array(
+								'id_pendapatan' => $v['id_pendapatan'],
+								'tahun_anggaran' => $_POST['tahun_anggaran']
+							));
+						} else {
+							$wpdb->insert('data_pendapatan', $opsi);
+						}
+					}
+					// print_r($ssh); die();
+				} else {
+					$ret['status'] = 'error';
+					$ret['message'] = 'Format Pendapatan Salah!';
+				}
+			} else {
+				$ret['status'] = 'error';
+				$ret['message'] = 'APIKEY tidak sesuai!';
+			}
+		} else {
+			$ret['status'] = 'error';
+			$ret['message'] = 'Format Salah!';
+		}
+		die(json_encode($ret));
+	}
+
+	public function singkron_pembiayaan()
+	{
+		global $wpdb;
+		$ret = array(
+			'status'	=> 'success',
+			'message'	=> 'Berhasil export Pembiayaan!'
+		);
+		if (!empty($_POST)) {
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == carbon_get_theme_option( 'crb_api_key_extension' )) {
+				if (!empty($_POST['data'])) {
+					$data = $_POST['data'];
+					foreach ($data as $k => $v) {
+						$cek = $wpdb->get_var("SELECT id_pembiayaan from data_pembiayaan where tahun_anggaran=".$_POST['tahun_anggaran']." AND id_pembiayaan=" . $v['id_pembiayaan']);
+						$opsi = array(
+							'created_user' => $v['created_user'],
+							'createddate' => $v['createddate'],
+							'createdtime' => $v['createdtime'],
+							'id_pembiayaan' => $v['id_pembiayaan'],
+							'keterangan' => $v['keterangan'],
+							'kode_akun' => $v['kode_akun'],
+							'nama_akun' => $v['nama_akun'],
+							'nilaimurni' => $v['nilaimurni'],
+							'program_koordinator' => $v['program_koordinator'],
+							'rekening' => $v['rekening'],
+							'skpd_koordinator' => $v['skpd_koordinator'],
+							'total' => $v['total'],
+							'updated_user' => $v['updated_user'],
+							'updateddate' => $v['updateddate'],
+							'updatedtime' => $v['updatedtime'],
+							'uraian' => $v['uraian'],
+							'urusan_koordinator' => $v['urusan_koordinator'],
+							'user1' => $v['user1'],
+							'user2' => $v['user2'],
+							'active' => 1,
+							'update_at' => current_time('mysql'),
+							'tahun_anggaran' => $_POST['tahun_anggaran']
+						);
+						if (!empty($cek)) {
+							$wpdb->update('data_pembiayaan', $opsi, array(
+								'id_pembiayaan' => $v['id_pembiayaan'],
+								'tahun_anggaran' => $_POST['tahun_anggaran']
+							));
+						} else {
+							$wpdb->insert('data_pembiayaan', $opsi);
+						}
+					}
+					// print_r($ssh); die();
+				} else {
+					$ret['status'] = 'error';
+					$ret['message'] = 'Format Pembiayaan Salah!';
+				}
+			} else {
+				$ret['status'] = 'error';
+				$ret['message'] = 'APIKEY tidak sesuai!';
+			}
+		} else {
+			$ret['status'] = 'error';
+			$ret['message'] = 'Format Salah!';
+		}
+		die(json_encode($ret));
+	}
+
 	public function singkron_unit()
 	{
 		global $wpdb;
