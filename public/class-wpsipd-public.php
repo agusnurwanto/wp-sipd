@@ -2223,17 +2223,17 @@ class Wpsipd_Public
 												                ".$mapping_rek[0]->kd_rek_5.",
 												                ".$no_rinc.",
 												                ".$no_rinc_sub.",
-												                '".$sat1."',
+												                '".substr($sat1, 0, 10)."',
 												                ".$nilai1.",
-												                '".$rkkk['sat2']."',
+												                '".substr($rkkk['sat2'], 0, 10)."',
 												                ".$nilai2.",
-												                '".$rkkk['sat3']."',
+												                '".substr($rkkk['sat3'], 0, 10)."',
 												                ".$nilai3.",
-												                '".$rkkk['satuan']."',
+												                '".substr($rkkk['satuan'], 0, 50)."',
 												                ".$jml_satuan.",
 												                ".$rkkk['harga_satuan'].",
 												                ".$rkkk['total_harga'].",
-												                '".implode(' | ', $komponen)."'
+												                '".substr(implode(' | ', $komponen), 0, 255)."'
 												            )"
 										            );
 								                    // print_r($options); die();
