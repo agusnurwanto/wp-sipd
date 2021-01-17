@@ -1876,6 +1876,22 @@ class Wpsipd_Public
 
 									$options = array(
 				                        'query' => "
+				                        DELETE from ta_indikator
+				                        where 
+				                            tahun=".$tahun_anggaran."
+				                            and kd_urusan=".$kd_urusan."
+				                            and kd_bidang=".$kd_bidang."
+				                            and kd_unit=".$kd_unit."
+				                            and kd_sub=".$kd_sub_unit."
+				                            and kd_prog=".$kd_prog."
+				                            and id_prog=".$id_prog."
+				                            and kd_keg=".$kd_keg
+				                    );
+				                    // print_r($options); die();
+				                    $this->CurlSimda($options);
+
+									$options = array(
+				                        'query' => "
 				                        DELETE from ta_belanja_rinc_sub
 				                        where 
 				                            tahun=".$tahun_anggaran."
@@ -1921,6 +1937,102 @@ class Wpsipd_Public
 				                    );
 				                    // print_r($options); die();
 				                    $this->CurlSimda($options);
+
+				                    $sql = "
+										SELECT 
+											* 
+										from data_sub_keg_indikator 
+										where kode_sbl='".$v['kode_sbl']."'
+											AND tahun_anggaran=".$v['tahun_anggaran']."
+											AND active=1";
+									$ind_keg = $wpdb->get_results($sql, ARRAY_A);
+									$no = 0;
+									foreach ($ind_keg as $kk => $ind) {
+										$no++;
+										$options = array(
+				                            'query' => "
+				                            INSERT INTO ta_indikator (
+				                                tahun,
+				                                kd_urusan,
+				                                kd_bidang,
+				                                kd_unit,
+				                                kd_sub,
+				                                kd_prog,
+				                                id_prog,
+				                                kd_keg,
+				                                kd_indikator,
+				                                no_id,
+				                                tolak_ukur,
+				                                target_angka,
+				                                target_uraian
+				                            )
+				                            VALUES (
+								            	".$tahun_anggaran.",
+				                                ".$kd_urusan.",
+				                                ".$kd_bidang.",
+				                                ".$kd_unit.",
+				                                ".$kd_sub_unit.",
+				                                ".$kd_prog.",
+				                                ".$id_prog.",
+				                                ".$kd_keg.",
+				                                3,
+				                                ".$no.",
+				                                '".substr($ind['outputteks'], 0, 255)."',
+				                                ".(!empty($ind['targetoutput'])? $ind['targetoutput']:0).",
+				                                '".$ind['satuanoutput']."'
+				                            )"
+				                        );
+				                        // print_r($options); die();
+				                        $this->CurlSimda($options);
+									}
+
+				                    $sql = "
+										SELECT 
+											* 
+										from data_keg_indikator_hasil 
+										where kode_sbl='".$v['kode_sbl']."'
+											AND tahun_anggaran=".$v['tahun_anggaran']."
+											AND active=1";
+									$ind_keg = $wpdb->get_results($sql, ARRAY_A);
+									$no = 0;
+									foreach ($ind_keg as $kk => $ind) {
+										$no++;
+										$options = array(
+				                            'query' => "
+				                            INSERT INTO ta_indikator (
+				                                tahun,
+				                                kd_urusan,
+				                                kd_bidang,
+				                                kd_unit,
+				                                kd_sub,
+				                                kd_prog,
+				                                id_prog,
+				                                kd_keg,
+				                                kd_indikator,
+				                                no_id,
+				                                tolak_ukur,
+				                                target_angka,
+				                                target_uraian
+				                            )
+				                            VALUES (
+								            	".$tahun_anggaran.",
+				                                ".$kd_urusan.",
+				                                ".$kd_bidang.",
+				                                ".$kd_unit.",
+				                                ".$kd_sub_unit.",
+				                                ".$kd_prog.",
+				                                ".$id_prog.",
+				                                ".$kd_keg.",
+				                                4,
+				                                ".$no.",
+				                                '".substr($ind['hasilteks'], 0, 255)."',
+				                                ".(!empty($ind['targethasil'])? $ind['targethasil']:0).",
+				                                '".$ind['satuanhasil']."'
+				                            )"
+				                        );
+				                        // print_r($options); die();
+				                        $this->CurlSimda($options);
+									}
 
 				                    $sql = "
 										SELECT 
