@@ -740,14 +740,9 @@ class Wpsipd_Public
 							$opsi['insert'] = 1;
 						}
 						$ret['request_data'][] = $opsi;
-						if(carbon_get_theme_option('crb_singkron_simda') == 1){
-							// $unit = $this->CurlSimda(array(
-							// 	'query' => "SELECT * from ref_unit"
-							// ));
-							// $sub_unit = $this->CurlSimda(array(
-							// 	'query' => "SELECT * from ref_sub_unit"
-							// ), 1);
-						}
+					}
+					if(carbon_get_theme_option('crb_singkron_simda') == 1){
+						$this->singkronSimdaUnit(array('return' => false));
 					}
 				} else if ($ret['status'] != 'error') {
 					$ret['status'] = 'error';
@@ -1749,11 +1744,111 @@ class Wpsipd_Public
 		die(json_encode($ret));
 	}
 
+	function singkronSimdaUnit($opsi=array()){
+		global $wpdb;
+		$ret = array(
+			'status'	=> 'success',
+			'message'	=> 'Berhasil export SIMDA!'
+		);
+		if (!empty($_POST)) {
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == carbon_get_theme_option( 'crb_api_key_extension' )) {
+				if(!empty($_POST['data_unit']) && !empty($_POST['tahun_anggaran'])){
+					foreach ($_POST['data_unit'] as $k => $v) {
+						$kd_unit_simda = explode('.', carbon_get_theme_option('crb_unit_'.$v['id_skpd']));
+						if(empty($kd_unit_simda) || empty($kd_unit_simda[3])){
+							continue;
+						}
+						$tahun_anggaran = $_POST['tahun_anggaran'];
+						$unit = $wpdb->get_results($wpdb->prepare("
+							SELECT 
+								* 
+							from data_unit 
+							where tahun_anggaran=%d
+								AND id_skpd=%d
+								AND active=1", $tahun_anggaran, $v['id_skpd'])
+						, ARRAY_A);
+						$_kd_urusan = $kd_unit_simda[0];
+						$_kd_bidang = $kd_unit_simda[1];
+						$kd_unit = $kd_unit_simda[2];
+						$kd_sub_unit = $kd_unit_simda[3];
+
+						$cek_ta_sub_unit = $this->CurlSimda(array(
+							'query' => "
+								SELECT 
+									* 
+								from ta_sub_unit 
+								where tahun=".$tahun_anggaran
+		                            .' and kd_urusan='.$_kd_urusan
+		                            .' and kd_bidang='.$_kd_bidang
+		                            .' and kd_unit='.$kd_unit
+		                            .' and kd_sub='.$kd_sub_unit
+						));
+						if(!empty($cek_ta_sub_unit)){
+							$options = array(
+	                            'query' => "
+	                            UPDATE ta_sub_unit set
+	                                nm_pimpinan = '".$unit[0]['namakepala']."',
+	                                nip_pimpinan = '".$unit[0]['nipkepala']."'
+	                            where 
+		                            tahun=".$tahun_anggaran
+		                            .' and kd_urusan='.$_kd_urusan
+		                            .' and kd_bidang='.$_kd_bidang
+		                            .' and kd_unit='.$kd_unit
+		                            .' and kd_sub='.$kd_sub_unit
+	                        );
+							$this->CurlSimda($options);
+							/*
+							*/
+	                    }else{
+	                        $options = array(
+	                            'query' => "
+	                            INSERT INTO ta_sub_unit (
+	                                tahun,
+	                                kd_urusan,
+	                                kd_bidang,
+	                                kd_unit,
+	                                kd_sub,
+	                                nm_pimpinan,
+	                                nip_pimpinan
+	                            )
+	                            VALUES (
+	                                ".$tahun_anggaran.",
+	                                ".$_kd_urusan.",
+	                                ".$_kd_bidang.",
+	                                ".$kd_unit.",
+	                                ".$kd_sub_unit.",
+	                                '".$unit[0]['namakepala']."',
+	                                '".$unit[0]['nipkepala']."'
+	                            )"
+	                        );
+							// print_r($options); die($v['id_skpd']);
+							$this->CurlSimda($options);
+						}
+						// print_r($options); die($v['id_skpd']);
+						// $this->CurlSimda($options);
+					}
+				} else {
+					$ret['status'] = 'error';
+					$ret['message'] = 'Format singkron simda salah!';
+				}
+			} else {
+				$ret['status'] = 'error';
+				$ret['message'] = 'APIKEY tidak sesuai!';
+			}
+		} else {
+			$ret['status'] = 'error';
+			$ret['message'] = 'Format Salah!';
+		}
+		if(!empty($opsi['return'])){
+			die(json_encode($ret));
+		}
+	}
+
 	function singkronSimda($opsi=array()){
 		global $wpdb;
 		$ret = array(
 			'status'	=> 'success',
-			'message'	=> 'Berhasil export RKA!'
+			'message'	=> 'Berhasil export SIMDA!'
 		);
 		if (!empty($_POST)) {
 			if (!empty($_POST['api_key']) && $_POST['api_key'] == carbon_get_theme_option( 'crb_api_key_extension' )) {
@@ -1927,8 +2022,8 @@ class Wpsipd_Public
 				                            ta_kegiatan 
 				                        where 
 				                            tahun=".$tahun_anggaran."
-				                            and kd_urusan=".$kd_urusan."
-				                            and kd_bidang=".$kd_bidang."
+				                            and kd_urusan=".$_kd_urusan."
+				                            and kd_bidang=".$_kd_bidang."
 				                            and kd_unit=".$kd_unit."
 				                            and kd_sub=".$kd_sub_unit."
 				                            and kd_prog=".$kd_prog."
@@ -1949,8 +2044,8 @@ class Wpsipd_Public
 				                                kelompok_sasaran = '".$v['sasaran']."'
 				                            where 
 					                            tahun=".$tahun_anggaran."
-					                            and kd_urusan=".$kd_urusan."
-					                            and kd_bidang=".$kd_bidang."
+					                            and kd_urusan=".$_kd_urusan."
+					                            and kd_bidang=".$_kd_bidang."
 					                            and kd_unit=".$kd_unit."
 					                            and kd_sub=".$kd_sub_unit."
 					                            and kd_prog=".$kd_prog."
@@ -1979,8 +2074,8 @@ class Wpsipd_Public
 				                            )
 				                            VALUES (
 				                                ".$tahun_anggaran.",
-				                                ".$kd_urusan.",
-				                                ".$kd_bidang.",
+				                                ".$_kd_urusan.",
+				                                ".$_kd_bidang.",
 				                                ".$kd_unit.",
 				                                ".$kd_sub_unit.",
 				                                ".$kd_prog.",
@@ -2004,8 +2099,8 @@ class Wpsipd_Public
 				                        DELETE from ta_indikator
 				                        where 
 				                            tahun=".$tahun_anggaran."
-				                            and kd_urusan=".$kd_urusan."
-				                            and kd_bidang=".$kd_bidang."
+				                            and kd_urusan=".$_kd_urusan."
+				                            and kd_bidang=".$_kd_bidang."
 				                            and kd_unit=".$kd_unit."
 				                            and kd_sub=".$kd_sub_unit."
 				                            and kd_prog=".$kd_prog."
@@ -2020,8 +2115,8 @@ class Wpsipd_Public
 				                        DELETE from ta_belanja_rinc_sub
 				                        where 
 				                            tahun=".$tahun_anggaran."
-				                            and kd_urusan=".$kd_urusan."
-				                            and kd_bidang=".$kd_bidang."
+				                            and kd_urusan=".$_kd_urusan."
+				                            and kd_bidang=".$_kd_bidang."
 				                            and kd_unit=".$kd_unit."
 				                            and kd_sub=".$kd_sub_unit."
 				                            and kd_prog=".$kd_prog."
@@ -2036,8 +2131,8 @@ class Wpsipd_Public
 				                        DELETE from ta_belanja_rinc
 				                        where 
 				                            tahun=".$tahun_anggaran."
-				                            and kd_urusan=".$kd_urusan."
-				                            and kd_bidang=".$kd_bidang."
+				                            and kd_urusan=".$_kd_urusan."
+				                            and kd_bidang=".$_kd_bidang."
 				                            and kd_unit=".$kd_unit."
 				                            and kd_sub=".$kd_sub_unit."
 				                            and kd_prog=".$kd_prog."
@@ -2052,8 +2147,8 @@ class Wpsipd_Public
 				                        DELETE from ta_belanja
 				                        where 
 				                            tahun=".$tahun_anggaran."
-				                            and kd_urusan=".$kd_urusan."
-				                            and kd_bidang=".$kd_bidang."
+				                            and kd_urusan=".$_kd_urusan."
+				                            and kd_bidang=".$_kd_bidang."
 				                            and kd_unit=".$kd_unit."
 				                            and kd_sub=".$kd_sub_unit."
 				                            and kd_prog=".$kd_prog."
@@ -2093,8 +2188,8 @@ class Wpsipd_Public
 				                            )
 				                            VALUES (
 								            	".$tahun_anggaran.",
-				                                ".$kd_urusan.",
-				                                ".$kd_bidang.",
+				                                ".$_kd_urusan.",
+				                                ".$_kd_bidang.",
 				                                ".$kd_unit.",
 				                                ".$kd_sub_unit.",
 				                                ".$kd_prog.",
@@ -2141,8 +2236,8 @@ class Wpsipd_Public
 				                            )
 				                            VALUES (
 								            	".$tahun_anggaran.",
-				                                ".$kd_urusan.",
-				                                ".$kd_bidang.",
+				                                ".$_kd_urusan.",
+				                                ".$_kd_bidang.",
 				                                ".$kd_unit.",
 				                                ".$kd_sub_unit.",
 				                                ".$kd_prog.",
@@ -2214,8 +2309,8 @@ class Wpsipd_Public
 										                kd_sumber
 										            ) VALUES (
 										            	".$tahun_anggaran.",
-						                                ".$kd_urusan.",
-						                                ".$kd_bidang.",
+						                                ".$_kd_urusan.",
+						                                ".$_kd_bidang.",
 						                                ".$kd_unit.",
 						                                ".$kd_sub_unit.",
 						                                ".$kd_prog.",
@@ -2256,8 +2351,8 @@ class Wpsipd_Public
 											                kd_sumber
 											            ) VALUES (
 											            	".$tahun_anggaran.",
-							                                ".$kd_urusan.",
-							                                ".$kd_bidang.",
+							                                ".$_kd_urusan.",
+							                                ".$_kd_bidang.",
 							                                ".$kd_unit.",
 							                                ".$kd_sub_unit.",
 							                                ".$kd_prog.",
@@ -2334,8 +2429,8 @@ class Wpsipd_Public
 										                        keterangan
 												            ) VALUES (
 												            	".$tahun_anggaran.",
-								                                ".$kd_urusan.",
-								                                ".$kd_bidang.",
+								                                ".$_kd_urusan.",
+								                                ".$_kd_bidang.",
 								                                ".$kd_unit.",
 								                                ".$kd_sub_unit.",
 								                                ".$kd_prog.",
