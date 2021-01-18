@@ -17,7 +17,6 @@ Cara pakai plugin:
 - Untuk menampilkan SSH menggunakan shortcode [datassh]
 - Untuk menampilkan akun belanja menggunakan shortcode [rekbelanja]
 - Halaman RKA akan otomatis tergenerate dalam bentuk post yang dikelompokan dalam category perangkat daerah ketika melakukan singkronisasi data
-- Video: https://youtu.be/t84n2jZUfFo
 - Theme yang sudah dites astra theme
 
 Optimasi server apache agar proses pengiriman data dari chrome extension ke server wordpress berjalan lancar (edit file php.ini):
@@ -29,3 +28,8 @@ Optimasi server apache agar proses pengiriman data dari chrome extension ke serv
 
 Permintaan fitur:
 - User umum bisa request penambahan fitur dengan membuat issue
+
+### Video Tutorial 
+
+- Progress Pengembangan Aplikasi SIPD Lokal, Export RKA Semua Kegiatan https://youtu.be/t84n2jZUfFo
+- Integrasi data SIPD ke SIMDA keuangan https://youtu.be/vFOsAlnxmTo
