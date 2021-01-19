@@ -346,6 +346,9 @@ class Wpsipd_Admin {
         set_time_limit(0);
         $req = http_build_query($req);
         $url = get_option( '_crb_url_api_simda' );
+        if(empty($url)){
+        	return false;
+        }
         curl_setopt_array($curl, array(
             CURLOPT_URL => $url,
             CURLOPT_RETURNTRANSFER => true,
