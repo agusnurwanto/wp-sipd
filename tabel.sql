@@ -788,6 +788,7 @@ CREATE TABLE `data_pendapatan` (
   `urusan_koordinator` int(11) DEFAULT NULL,
   `user1` varchar(50) DEFAULT NULL,
   `user2` varchar(50) DEFAULT NULL,
+  `id_skpd` int(11) DEFAULT NULL,
   `active` tinyint(4) NOT NULL,
   `update_at` datetime NOT NULL,
   `tahun_anggaran` year(4) NOT NULL

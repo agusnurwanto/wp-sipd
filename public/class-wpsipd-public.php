@@ -575,7 +575,7 @@ class Wpsipd_Public
 				if (!empty($_POST['data'])) {
 					$data = $_POST['data'];
 					foreach ($data as $k => $v) {
-						$cek = $wpdb->get_var("SELECT id_pendapatan from data_pendapatan where tahun_anggaran=".$_POST['tahun_anggaran']." AND id_pendapatan=" . $v['id_pendapatan']);
+						$cek = $wpdb->get_var("SELECT id_pendapatan from data_pendapatan where tahun_anggaran=".$_POST['tahun_anggaran']." AND id_pendapatan=" . $v['id_pendapatan'] ." AND id_skpd=".$_POST['id_skpd']);
 						$opsi = array(
 							'created_user' => $v['created_user'],
 							'createddate' => $v['createddate'],
@@ -596,6 +596,7 @@ class Wpsipd_Public
 							'urusan_koordinator' => $v['urusan_koordinator'],
 							'user1' => $v['user1'],
 							'user2' => $v['user2'],
+							'id_skpd' => $_POST['id_skpd'],
 							'active' => 1,
 							'update_at' => current_time('mysql'),
 							'tahun_anggaran' => $_POST['tahun_anggaran']
@@ -603,11 +604,16 @@ class Wpsipd_Public
 						if (!empty($cek)) {
 							$wpdb->update('data_pendapatan', $opsi, array(
 								'id_pendapatan' => $v['id_pendapatan'],
-								'tahun_anggaran' => $_POST['tahun_anggaran']
+								'tahun_anggaran' => $_POST['tahun_anggaran'],
+								'id_skpd' => $_POST['id_skpd']
 							));
 						} else {
 							$wpdb->insert('data_pendapatan', $opsi);
 						}
+					}
+
+					if(carbon_get_theme_option('crb_singkron_simda') == 1){
+						$this->simda->singkronSimdaPendapatan(array('return' => false));
 					}
 					// print_r($ssh); die();
 				} else {

@@ -34,6 +34,168 @@ class Wpsipd_Simda
 		$this->version = $version;
 	}
 
+	function singkronSimdaPendapatan($opsi=array()){
+		global $wpdb;
+		$ret = array(
+			'status'	=> 'success',
+			'message'	=> 'Berhasil export SIMDA!'
+		);
+		if (!empty($_POST)) {
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == carbon_get_theme_option( 'crb_api_key_extension' )) {
+				if(!empty($_POST['data']) && !empty($_POST['tahun_anggaran'])){
+					$tahun_anggaran = $_POST['tahun_anggaran'];
+					$pendapatan_all = array();
+					foreach ($_POST['data'] as $k => $v) {
+						$pendapatan = $wpdb->get_results($wpdb->prepare("
+							SELECT 
+								*
+							from data_pendapatan
+							where tahun_anggaran=%d
+								AND id_pendapatan=%d
+								AND active=1", $tahun_anggaran, $v['id_pendapatan'])
+						, ARRAY_A);
+						
+						$pendapatan_all[$pendapatan[0]['kode_akun']] = $pendapatan;
+					}
+					$no_pendapatan = 0;
+					foreach ($pendapatan_all as $kode_akun => $v) {
+						$no_pendapatan++;
+						$kd_unit_simda = explode('.', carbon_get_theme_option('crb_unit_'.$_POST['id_skpd']));
+						if(empty($kd_unit_simda) || empty($kd_unit_simda[3])){
+							continue;
+						}
+						$_kd_urusan = $kd_unit_simda[0];
+						$_kd_bidang = $kd_unit_simda[1];
+						$kd_unit = $kd_unit_simda[2];
+						$kd_sub_unit = $kd_unit_simda[3];
+						
+						$akun = explode('.', $kode_akun);
+	                    $mapping_rek = $this->CurlSimda(array(
+							'query' => "
+								SELECT 
+									* 
+								from ref_rek_mapping
+								where kd_rek90_1=".((int)$akun[0])
+		                            .' and kd_rek90_2='.((int)$akun[1])
+		                            .' and kd_rek90_3='.((int)$akun[2])
+		                            .' and kd_rek90_4='.((int)$akun[3])
+		                            .' and kd_rek90_5='.((int)$akun[4])
+		                            .' and kd_rek90_6='.((int)$akun[5])
+		                ));
+
+						$kd = explode('.', $kode_sub_giat[0]['kode_sub_giat']);
+						$kd_urusan90 = (int) $kd[0];
+						$kd_bidang90 = (int) $kd[1];
+						$kd_program90 = (int) $kd[2];
+						$kd_kegiatan90 = ((int) $kd[3]).'.'.$kd[4];
+						$kd_sub_kegiatan = (int) $kd[5];
+
+		                if(!empty($mapping_rek)){
+							$cek_ta_rencana = $this->CurlSimda(array(
+								'query' => "
+									SELECT 
+										* 
+									from ta_pendapatan 
+									where tahun=".$tahun_anggaran
+			                            .' and kd_urusan='.$_kd_urusan
+			                            .' and kd_bidang='.$_kd_bidang
+			                            .' and kd_unit='.$kd_unit
+			                            .' and kd_sub='.$kd_sub_unit
+			                            .' and kd_prog=0'
+			                            .' and id_prog=0'
+			                            .' and kd_keg=0'
+			                            .' and kd_rek_1='.$mapping_rek[0]->kd_rek_1
+			                            .' and kd_rek_2='.$mapping_rek[0]->kd_rek_2
+			                            .' and kd_rek_3='.$mapping_rek[0]->kd_rek_3
+			                            .' and kd_rek_4='.$mapping_rek[0]->kd_rek_4
+			                            .' and kd_rek_5='.$mapping_rek[0]->kd_rek_5
+			                            .' and kd_pendapatan='.$no_pendapatan
+							));
+							$sd = 'null';
+							if(!empty($cek_ta_rencana)){
+								$options = array(
+		                            'query' => "
+		                            UPDATE ta_pendapatan set
+		                                kd_sumber = ".$sd."
+		                            where 
+			                            tahun=".$tahun_anggaran
+			                            .' and kd_urusan='.$_kd_urusan
+			                            .' and kd_bidang='.$_kd_bidang
+			                            .' and kd_unit='.$kd_unit
+			                            .' and kd_sub='.$kd_sub_unit
+			                            .' and kd_prog=0'
+			                            .' and id_prog=0'
+			                            .' and kd_keg=0'
+			                            .' and kd_rek_1='.$mapping_rek[0]->kd_rek_1
+			                            .' and kd_rek_2='.$mapping_rek[0]->kd_rek_2
+			                            .' and kd_rek_3='.$mapping_rek[0]->kd_rek_3
+			                            .' and kd_rek_4='.$mapping_rek[0]->kd_rek_4
+			                            .' and kd_rek_5='.$mapping_rek[0]->kd_rek_5
+			                            .' and kd_pendapatan='.$no_pendapatan
+		                        );
+		                    }else{
+		                        $options = array(
+		                            'query' => "
+		                            INSERT INTO ta_pendapatan (
+		                                tahun,
+		                                kd_urusan,
+		                                kd_bidang,
+		                                kd_unit,
+		                                kd_sub,
+		                                kd_prog,
+		                                id_prog,
+		                                kd_keg,
+		                                kd_rek_1,
+			                            kd_rek_2,
+			                            kd_rek_3,
+			                            kd_rek_4,
+			                            kd_rek_5,
+			                            kd_pendapatan,
+		                                kd_sumber
+		                            )
+		                            VALUES (
+		                                ".$tahun_anggaran.",
+		                                ".$_kd_urusan.",
+		                                ".$_kd_bidang.",
+		                                ".$kd_unit.",
+		                                ".$kd_sub_unit.",
+		                                0,
+		                                0,
+		                                0,
+		                                ".$mapping_rek[0]->kd_rek_1.",
+			                            ".$mapping_rek[0]->kd_rek_2.",
+			                            ".$mapping_rek[0]->kd_rek_3.",
+			                            ".$mapping_rek[0]->kd_rek_4.",
+			                            ".$mapping_rek[0]->kd_rek_5.",
+		                                ".$no_pendapatan.",
+		                                ".$sd."
+		                            )"
+		                        );
+							}
+							// print_r($options); die($kode_akun);
+							$this->CurlSimda($options);
+							foreach ($v as $kk => $vv) {
+								// isert ta_belanja_rinc
+							}
+		                }
+					}
+				} else {
+					$ret['status'] = 'error';
+					$ret['message'] = 'Format singkron simda salah!';
+				}
+			} else {
+				$ret['status'] = 'error';
+				$ret['message'] = 'APIKEY tidak sesuai!';
+			}
+		} else {
+			$ret['status'] = 'error';
+			$ret['message'] = 'Format Salah!';
+		}
+		if(!empty($opsi['return'])){
+			die(json_encode($ret));
+		}
+	}
+
 	function singkronSimdaUnit($opsi=array()){
 		global $wpdb;
 		$ret = array(
@@ -155,7 +317,7 @@ class Wpsipd_Simda
 							AND k.active=1", $tahun_anggaran, implode('.', $kode_sbl))
 					, ARRAY_A);
 					// print_r($kode_sub_giat); die($wpdb->last_query);
-					
+
 					foreach ($_POST['data'] as $k => $v) {
 						$kd_unit_simda = explode('.', carbon_get_theme_option('crb_unit_'.$v['id_skpd']));
 						if(empty($kd_unit_simda) || empty($kd_unit_simda[3])){
@@ -432,7 +594,7 @@ class Wpsipd_Simda
 							$bulan = array('Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember');
 							$waktu_pelaksanaan = $bulan[$v['waktu_awal']-1].' s.d. '.$bulan[$v['waktu_akhir']-1];
 
-							$kd_unit_simda = explode('.', carbon_get_theme_option('crb_unit_'.$v['id_skpd']));
+							$kd_unit_simda = explode('.', carbon_get_theme_option('crb_unit_'.$v['id_sub_skpd']));
 							$tahun_anggaran = $v['tahun_anggaran'];
 							if(!empty($kd_unit_simda) && !empty($kd_unit_simda[3])){
 								$kd = explode('.', $v['kode_sub_giat']);
