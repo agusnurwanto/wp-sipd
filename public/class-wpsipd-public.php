@@ -1675,12 +1675,12 @@ class Wpsipd_Public
 
 				if (!empty($_POST['rka']) && $ret['status'] != 'error') {
 					$rka = $_POST['rka'];
-					$wpdb->update('data_rka', array( 'active' => 0 ), array(
+					$wpdb->delete('data_rka', array(
 						'tahun_anggaran' => $_POST['tahun_anggaran'],
 						'kode_sbl' => $_POST['kode_sbl']
-					));
+					), array('%d', '%s'));
 					foreach ($rka as $k => $v) {
-						$cek = $wpdb->get_var("SELECT id_rinci_sub_bl from data_rka where tahun_anggaran=".$_POST['tahun_anggaran']." AND id_rinci_sub_bl='" . $v['id_rinci_sub_bl'] . "'");
+						$cek = $wpdb->get_var("SELECT id_rinci_sub_bl from data_rka where tahun_anggaran=".$_POST['tahun_anggaran']." AND id_rinci_sub_bl='" . $v['id_rinci_sub_bl'] . "' AND kode_sbl='".$_POST['kode_sbl']."'");
 						$opsi = array(
 							'created_user' => $v['created_user'],
 							'createddate' => $v['createddate'],
@@ -1736,7 +1736,8 @@ class Wpsipd_Public
 						if (!empty($cek)) {
 							$wpdb->update('data_rka', $opsi, array(
 								'tahun_anggaran' => $_POST['tahun_anggaran'],
-								'id_rinci_sub_bl' => $v['id_rinci_sub_bl']
+								'id_rinci_sub_bl' => $v['id_rinci_sub_bl'],
+								'kode_sbl' => $_POST['kode_sbl']
 							));
 						} else {
 							$wpdb->insert('data_rka', $opsi);
