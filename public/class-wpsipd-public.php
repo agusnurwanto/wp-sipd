@@ -665,6 +665,7 @@ class Wpsipd_Public
 							'type' => $v['type'],
 							'user1' => $v['user1'],
 							'user2' => $v['user2'],
+							'id_skpd' => $_POST['id_skpd'],
 							'active' => 1,
 							'update_at' => current_time('mysql'),
 							'tahun_anggaran' => $_POST['tahun_anggaran']
@@ -677,6 +678,10 @@ class Wpsipd_Public
 						} else {
 							$wpdb->insert('data_pembiayaan', $opsi);
 						}
+					}
+
+					if(carbon_get_theme_option('crb_singkron_simda') == 1){
+						$this->simda->singkronSimdaPembiayaan(array('return' => false));
 					}
 					// print_r($ssh); die();
 				} else {
