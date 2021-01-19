@@ -176,10 +176,22 @@ class Wpsipd_Admin {
             	->set_help_text('Scirpt PHP SIMDA API dibuat terpisah di <a href="https://github.com/agusnurwanto/SIMDA-API-PHP" target="_blank">SIMDA API PHP</a>.'),
             Field::make( 'text', 'crb_apikey_simda', 'APIKEY SIMDA' )
             	->set_default_value($this->generateRandomString()),
-            Field::make( 'text', 'crb_db_simda', 'Database SIMDA' ),
-            Field::make( 'html', 'crb_mapping_unit_simda' )
-	            	->set_html( 'Mapping kode sub unit SIPD ke SIMDA. Format kode (kd_urusan.kd_bidang.kd_unit.kd_sub) dipisah dengan titik. Contoh untuk Dinas Pendidikan (1.1.1.1)' )
+            Field::make( 'text', 'crb_db_simda', 'Database SIMDA' )
 	    );
+
+	    $cek_status_koneksi_simda = $this->CurlSimda(array(
+			'query' => 'select * from ref_setting',
+			'no_debug' => true
+		));
+		$ket_simda = '<b style="color:red">Belum terkoneksi ke simda!</b>';
+		if(!empty($cek_status_koneksi_simda)){
+			$ket_simda = '<b style="color: green">Terkoneksi database SIMDA versi '.$cek_status_koneksi_simda[0]->lastdbaplver.'</b>';
+		}
+		$mapping_unit[] = Field::make( 'html', 'crb_status_simda' )
+	            	->set_html( 'Status koneksi SQL server SIMDA: '.$ket_simda );
+		
+		$mapping_unit[] = Field::make( 'html', 'crb_mapping_unit_simda' )
+	            	->set_html( 'Mapping kode sub unit SIPD ke SIMDA. Format kode (kd_urusan.kd_bidang.kd_unit.kd_sub) dipisah dengan titik. Contoh untuk Dinas Pendidikan (1.1.1.1)' );
 		foreach ($unit as $k => $v) {
 			$unit_simda = get_option('_crb_unit_'.$v['id_skpd']);
 			if(empty($unit_simda)){
@@ -363,9 +375,13 @@ class Wpsipd_Admin {
         	}
             $ret = json_decode($response);
             if(!empty($ret->error)){
-                echo "<pre>".print_r($ret, 1)."</pre>"; die();
+            	if(empty($options['no_debug'])){
+                	echo "<pre>".print_r($ret, 1)."</pre>"; die();
+                }
             }else{
-                return $ret->msg;
+            	if(!empty($ret->msg)){
+                	return $ret->msg;
+                }
             }
         }
     }
