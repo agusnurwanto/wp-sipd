@@ -2131,6 +2131,7 @@ class Wpsipd_Public
 					$data = $_POST['data'];
 					$wpdb->update('data_anggaran_kas', array( 'active' => 0 ), array(
 						'tahun_anggaran' => $_POST['tahun_anggaran'],
+						'type' => $_POST['type'],
 						'kode_sbl' => $_POST['kode_sbl']
 					));
 					foreach ($data as $k => $v) {
