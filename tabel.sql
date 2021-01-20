@@ -538,7 +538,6 @@ CREATE TABLE `data_tag_sub_keg` (
   `idtagbl` int(11) DEFAULT NULL,
   `kode_sbl` varchar(50) DEFAULT NULL,
   `idsubbl` int(11) DEFAULT NULL,
-  `idsubbl` int(11) DEFAULT NULL,
   `active` tinyint(4) DEFAULT '1',
   `update_at` datetime NOT NULL,
   `tahun_anggaran` year(4) NOT NULL
