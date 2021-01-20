@@ -14,6 +14,7 @@ CREATE TABLE `data_unit` (
   `kodeunit` varchar(30) NOT NULL,
   `komisi` int(11) DEFAULT NULL,
   `namabendahara` text,
+  `status` varchar(50) NOT NULL,
   `namakepala` text NOT NULL,
   `namaunit` text NOT NULL,
   `nipbendahara` varchar(30) DEFAULT NULL,
