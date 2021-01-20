@@ -2121,7 +2121,13 @@ class Wpsipd_Public
 		);
 		if (!empty($_POST)) {
 			if (!empty($_POST['api_key']) && $_POST['api_key'] == carbon_get_theme_option( 'crb_api_key_extension' )) {
-				if(!empty($_POST['data']) && !empty($_POST['kode_sbl'])){
+				if(
+					!empty($_POST['data']) 
+					&& !empty($_POST['type']) 
+					|| (
+						!empty($_POST['kode_sbl']) && $_POST['type']=='belanja'
+					)
+				){
 					$data = $_POST['data'];
 					$wpdb->update('data_anggaran_kas', array( 'active' => 0 ), array(
 						'tahun_anggaran' => $_POST['tahun_anggaran'],
@@ -2137,6 +2143,7 @@ class Wpsipd_Public
 							from data_anggaran_kas 
 							where tahun_anggaran=".$_POST['tahun_anggaran']." 
 								AND kode_sbl='" . $_POST['kode_sbl']."' 
+								AND type='" . $_POST['type']."' 
 								AND id_akun=".$v['id_akun']);
 						$opsi = array(
 							'bulan_1' => $v['bulan_1'],
@@ -2168,6 +2175,7 @@ class Wpsipd_Public
 							'total_rincian' => $v['total_rincian'],
 							'active' => 1,
 							'kode_sbl' => $_POST['kode_sbl'],
+							'type' => $_POST['type'],
 							'tahun_anggaran' => $_POST['tahun_anggaran'],
 							'updated_at' => current_time('mysql')
 						);
@@ -2176,6 +2184,7 @@ class Wpsipd_Public
 							$wpdb->update('data_anggaran_kas', $opsi, array(
 								'tahun_anggaran' => $_POST['tahun_anggaran'],
 								'kode_sbl' => $_POST['kode_sbl'],
+								'type' => $_POST['type'],
 								'id_akun' => $v['id_akun']
 							));
 						} else {
@@ -2183,7 +2192,9 @@ class Wpsipd_Public
 						}
 					}
 					if(carbon_get_theme_option('crb_singkron_simda') == 1){
-						$this->simda->singkronSimdaKas(array('return' => false));
+						$this->simda->singkronSimdaKas(array(
+							'return' => false
+						));
 					}
 				} else if ($ret['status'] != 'error') {
 					$ret['status'] = 'error';

@@ -579,20 +579,27 @@ class Wpsipd_Simda
 			if (!empty($_POST['api_key']) && $_POST['api_key'] == carbon_get_theme_option( 'crb_api_key_extension' )) {
 				if(!empty($_POST['data']) && !empty($_POST['tahun_anggaran'])){
 					$tahun_anggaran = $_POST['tahun_anggaran'];
-					$kode_sbl = explode('.', $_POST['kode_sbl']);
-					unset($kode_sbl[2]);
-					$kode_sub_giat = $wpdb->get_results($wpdb->prepare("
-						SELECT 
-							k.kode_sub_giat 
-						from data_sub_keg_bl k
-						where k.tahun_anggaran=%d
-							AND k.kode_sbl=%s
-							AND k.active=1", $tahun_anggaran, implode('.', $kode_sbl))
-					, ARRAY_A);
-					// print_r($kode_sub_giat); die($wpdb->last_query);
+					$type = $_POST['type'];
+					if($type == 'belanja'){
+						$kode_sbl = explode('.', $_POST['kode_sbl']);
+						unset($kode_sbl[2]);
+						$kode_sub_giat = $wpdb->get_results($wpdb->prepare("
+							SELECT 
+								k.kode_sub_giat 
+							from data_sub_keg_bl k
+							where k.tahun_anggaran=%d
+								AND k.kode_sbl=%s
+								AND k.active=1", $tahun_anggaran, implode('.', $kode_sbl))
+						, ARRAY_A);
+						// print_r($kode_sub_giat); die($wpdb->last_query);
+					}
 
 					foreach ($_POST['data'] as $k => $v) {
-						$kd_unit_simda = explode('.', carbon_get_theme_option('crb_unit_'.$v['id_skpd']));
+						if(!empty($v['id_skpd'])){
+							$kd_unit_simda = explode('.', carbon_get_theme_option('crb_unit_'.$v['id_skpd']));
+						}else{
+							$kd_unit_simda = explode('.', carbon_get_theme_option('crb_unit_'.$v['id_unit']));
+						}
 						if(empty($kd_unit_simda) || empty($kd_unit_simda[3])){
 							continue;
 						}
@@ -625,30 +632,42 @@ class Wpsipd_Simda
 		                            .' and kd_rek90_6='.((int)$akun[5])
 		                ));
 
-						$kd = explode('.', $kode_sub_giat[0]['kode_sub_giat']);
-						$kd_urusan90 = (int) $kd[0];
-						$kd_bidang90 = (int) $kd[1];
-						$kd_program90 = (int) $kd[2];
-						$kd_kegiatan90 = ((int) $kd[3]).'.'.$kd[4];
-						$kd_sub_kegiatan = (int) $kd[5];
-		                $mapping = $this->CurlSimda(array(
-							'query' => "
-								SELECT 
-									* 
-								from ref_kegiatan_mapping
-								where kd_urusan90=".$kd_urusan90
-		                            .' and kd_bidang90='.$kd_bidang90
-		                            .' and kd_program90='.$kd_program90
-		                            .' and kd_kegiatan90='.$kd_kegiatan90
-		                            .' and kd_sub_kegiatan='.$kd_sub_kegiatan
-						));
+						if($type == 'belanja'){
+							$kd = explode('.', $kode_sub_giat[0]['kode_sub_giat']);
+							$kd_urusan90 = (int) $kd[0];
+							$kd_bidang90 = (int) $kd[1];
+							$kd_program90 = (int) $kd[2];
+							$kd_kegiatan90 = ((int) $kd[3]).'.'.$kd[4];
+							$kd_sub_kegiatan = (int) $kd[5];
+			                $mapping = $this->CurlSimda(array(
+								'query' => "
+									SELECT 
+										* 
+									from ref_kegiatan_mapping
+									where kd_urusan90=".$kd_urusan90
+			                            .' and kd_bidang90='.$kd_bidang90
+			                            .' and kd_program90='.$kd_program90
+			                            .' and kd_kegiatan90='.$kd_kegiatan90
+			                            .' and kd_sub_kegiatan='.$kd_sub_kegiatan
+							));
+			            }else{
+			            	$mapping = true;
+			            }
 		                
 		                if(!empty($mapping) && !empty($mapping_rek)){
-							$kd_urusan = $mapping[0]->kd_urusan;
-							$kd_bidang = $mapping[0]->kd_bidang;
-							$kd_prog = $mapping[0]->kd_prog;
-							$kd_keg = $mapping[0]->kd_keg;
-							$id_prog = $kd_urusan.$this->CekNull($kd_bidang);
+		                	if($type == 'belanja'){
+								$kd_urusan = $mapping[0]->kd_urusan;
+								$kd_bidang = $mapping[0]->kd_bidang;
+								$kd_prog = $mapping[0]->kd_prog;
+								$kd_keg = $mapping[0]->kd_keg;
+								$id_prog = $kd_urusan.$this->CekNull($kd_bidang);
+							}else{
+								$kd_urusan = 0;
+								$kd_bidang = 0;
+								$kd_prog = 0;
+								$kd_keg = 0;
+								$id_prog = 0;
+							}
 							$cek_ta_rencana = $this->CurlSimda(array(
 								'query' => "
 									SELECT 
@@ -760,6 +779,9 @@ class Wpsipd_Simda
 							}
 							// print_r($options); die($v['id_akun']);
 							$this->CurlSimda($options);
+		                }else{
+		                	$ret['status'] = 'error';
+							$ret['message'] = 'ref_kegiatan_mapping atau ref_rek_mapping tidak ditemukan!';
 		                }
 					}
 				} else {
