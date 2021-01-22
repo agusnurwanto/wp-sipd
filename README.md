@@ -19,6 +19,8 @@ Cara pakai plugin:
 - Halaman RKA akan otomatis tergenerate dalam bentuk post yang dikelompokan dalam category perangkat daerah ketika melakukan singkronisasi data
 - Theme yang sudah dites astra theme
 
+### HARUS Update php.ini
+
 Optimasi server apache agar proses pengiriman data dari chrome extension ke server wordpress berjalan lancar (edit file php.ini):
 - max_input_vars = 300000
 - max_execution_time = 300
@@ -33,3 +35,4 @@ Permintaan fitur:
 
 - Progress Pengembangan Aplikasi SIPD Lokal, Export RKA Semua Kegiatan https://youtu.be/t84n2jZUfFo
 - Integrasi data SIPD ke SIMDA keuangan https://youtu.be/vFOsAlnxmTo
+- Setting Koneksi SIMDA API PHP menggunakan ODBC di Windows https://www.youtube.com/watch?v=ojc6Dr6fZ8I

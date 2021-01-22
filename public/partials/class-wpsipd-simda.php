@@ -1331,30 +1331,38 @@ class Wpsipd_Simda
 						                		$no_rinc_sub = 0;
 												foreach ($rkk as $kkkk => $rkkk) {
 													$no_rinc_sub++;
-													$jml_satuan = 1;
-													$jml_satuan_db = explode(' ', $rkkk['koefisien']);
-													if(!empty($jml_satuan_db)){
-														$jml_satuan = $jml_satuan_db[0];
-													}
-													$komponen = array($rkkk['nama_komponen'], $rkkk['spek_komponen']);
 													$nilai1 = 0;
+													$nilai1_t = 1;
 													if(!empty($rkkk['volum1'])){
 														$nilai1 = $rkkk['volum1'];
+														$nilai1_t = $rkkk['volum1'];
 													}else{
-														$nilai1 = $jml_satuan;
+														$jml_satuan_db = explode(' ', $rkkk['koefisien']);
+														if(!empty($jml_satuan_db) && $jml_satuan_db[0] >= 1){
+															$nilai1 = $jml_satuan_db[0];
+														}
 													}
 													$sat1 = $rkkk['satuan'];
 													if(!empty($rkkk['sat1'])){
 														$sat1 = $rkkk['sat1'];
 													}
 													$nilai2 = 0;
+													$nilai2_t = 1;
 													if(!empty($rkkk['volum2'])){
 														$nilai2 = $rkkk['volum2'];
+														$nilai2_t = $rkkk['volum2'];
 													}
 													$nilai3 = 0;
+													$nilai3_t = 1;
 													if(!empty($rkkk['volum3'])){
 														$nilai3 = $rkkk['volum3'];
+														$nilai3_t = $rkkk['volum3'];
 													}
+													$nilai4_t = 1;
+													if(!empty($rkkk['volum4'])){
+														$nilai4_t = $rkkk['volum4'];
+													}
+													$jml_satuan = $nilai1_t*$nilai2_t*$nilai3_t*$nilai4_t;
 													$options = array(
 										                'query' => "
 												            INSERT INTO ta_belanja_rinc_sub (
