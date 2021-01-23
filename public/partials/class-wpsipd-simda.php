@@ -1331,6 +1331,7 @@ class Wpsipd_Simda
 						                		$no_rinc_sub = 0;
 												foreach ($rkk as $kkkk => $rkkk) {
 													$no_rinc_sub++;
+													$komponen = array($rkkk['nama_komponen'], $rkkk['spek_komponen']);
 													$nilai1 = 0;
 													$nilai1_t = 1;
 													if(!empty($rkkk['volum1'])){
