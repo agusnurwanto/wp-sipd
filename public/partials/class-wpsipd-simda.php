@@ -854,9 +854,8 @@ class Wpsipd_Simda
 							foreach ($sd_sub_keg as $key => $sd) {
 								if(!empty($sd['iddana'])){
 									$new_sd = explode(' - ', $sd['namadana']);
-									$cek_sd = $this->CurlSimda(array('query' => "select * from ref_sumber_dana where nm_sumber='".trim($new_sd[1])."'"));
+									$cek_sd = $this->CurlSimda(array('query' => "select * from ref_sumber_dana where kd_sumber=".$sd['iddana'].""));
 									if(empty($cek_sd)){
-										$this->CurlSimda(array('query' => "DELETE from ref_sumber_dana where kd_sumber=".$sd['iddana'].""));
 										$options = array('query' => "
 											INSERT INTO ref_sumber_dana (
 				                                kd_sumber,
@@ -869,11 +868,11 @@ class Wpsipd_Simda
 										);
 										$this->CurlSimda($options);
 									}else{
-										if($cek_sd[0]->kd_sumber != $sd['iddana']){
+										if($cek_sd[0]->nm_sumber != trim($new_sd[1])){
 											$options = array('query' => "
 												UPDATE ref_sumber_dana 
-												set kd_sumber=".$sd['iddana']."
-												where nm_sumber='".trim($new_sd[1])."'"
+												set nm_sumber=".trim($new_sd[1])."
+												where kd_sumber=".$sd['iddana'].""
 											);
 											$this->CurlSimda($options);
 										}
