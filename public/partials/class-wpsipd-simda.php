@@ -856,30 +856,26 @@ class Wpsipd_Simda
 									$new_sd = explode(' - ', $sd['namadana']);
 									$cek_sd = $this->CurlSimda(array('query' => "select * from ref_sumber_dana where nm_sumber='".trim($new_sd[1])."'"));
 									if(empty($cek_sd)){
-										$cek_sd = $this->CurlSimda(array('query' => "select * from ref_sumber_dana where kd_sumber='".$sd['iddana']."'"));
-										if(empty($cek_sd)){
+										$options = array('query' => "
+											INSERT INTO ref_sumber_dana (
+				                                kd_sumber,
+				                                nm_sumber
+				                            )
+				                            VALUES (
+												".$sd['iddana'].",
+												'".trim($new_sd[1])."'
+											)"
+										);
+										$this->CurlSimda($options);
+									}else{
+										if($cek_sd[0]->kd_sumber != $sd['iddana']){
 											$options = array('query' => "
-												INSERT INTO ref_sumber_dana (
-					                                kd_sumber,
-					                                nm_sumber
-					                            )
-					                            VALUES (
-													".$sd['iddana'].",
-													'".trim($new_sd[1])."'
-												)"
+												UPDATE ref_sumber_dana 
+												set kd_sumber=".$sd['iddana']."
+												where nm_sumber='".trim($new_sd[1])."'"
 											);
 											$this->CurlSimda($options);
-										}else{
-											if($cek_sd[0]->kd_sumber != $sd['iddana']){
-												$options = array('query' => "
-													UPDATE ref_sumber_dana 
-													set kd_sumber=".$sd['iddana']."
-													where nm_sumber='".trim($new_sd[1])."'"
-												);
-												$this->CurlSimda($options);
-											}
 										}
-										$this->CurlSimda($options);
 									}
 									$id_sd[] = $sd['iddana'];
 								}
