@@ -856,6 +856,7 @@ class Wpsipd_Simda
 									$new_sd = explode(' - ', $sd['namadana']);
 									$cek_sd = $this->CurlSimda(array('query' => "select * from ref_sumber_dana where nm_sumber='".trim($new_sd[1])."'"));
 									if(empty($cek_sd)){
+										$this->CurlSimda(array('query' => "DELETE from ref_sumber_dana where kd_sumber=".$sd['iddana'].""));
 										$options = array('query' => "
 											INSERT INTO ref_sumber_dana (
 				                                kd_sumber,
