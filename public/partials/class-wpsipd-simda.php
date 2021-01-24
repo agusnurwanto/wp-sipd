@@ -600,6 +600,10 @@ class Wpsipd_Simda
 						}else{
 							$kd_unit_simda = explode('.', carbon_get_theme_option('crb_unit_'.$v['id_unit']));
 						}
+						if($type == 'belanja'){
+							$kd_unit_simda = explode('.', carbon_get_theme_option('crb_unit_'.$kode_sbl[1]));
+						}
+
 						if(empty($kd_unit_simda) || empty($kd_unit_simda[3])){
 							continue;
 						}
@@ -871,7 +875,7 @@ class Wpsipd_Simda
 										if($cek_sd[0]->nm_sumber != trim($new_sd[1])){
 											$options = array('query' => "
 												UPDATE ref_sumber_dana 
-												set nm_sumber=".trim($new_sd[1])."
+												set nm_sumber='".trim($new_sd[1])."'
 												where kd_sumber=".$sd['iddana'].""
 											);
 											$this->CurlSimda($options);
