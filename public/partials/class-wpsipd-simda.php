@@ -967,7 +967,7 @@ class Wpsipd_Simda
 				                                    ".$kd_sub_unit.",
 				                                    ".$kd_prog.",
 				                                    ".$id_prog.",
-				                                    '".$nama_prog."',
+				                                    '".substr($nama_prog, 0, 255)."',
 				                                    ".$kd_urusan.",
 				                                    ".$kd_bidang."
 				                                )"
@@ -996,13 +996,13 @@ class Wpsipd_Simda
 				                        $options = array(
 				                            'query' => "
 				                            UPDATE ta_kegiatan set
-				                                ket_kegiatan = '".$nama_keg."',
-				                                lokasi = '".implode(', ', $lokasi_sub)."',
+				                                ket_kegiatan = '".substr($nama_keg, 0, 255)."',
+				                                lokasi = '".substr(implode(', ', $lokasi_sub), 0, 800)."',
 				                                status_kegiatan = 1,
 				                                pagu_anggaran = ".$v['pagu'].",
 				                                kd_sumber = ".$sumber_dana.",
-				                                waktu_pelaksanaan = '".$waktu_pelaksanaan."',
-				                                kelompok_sasaran = '".$v['sasaran']."'
+				                                waktu_pelaksanaan = '".substr($waktu_pelaksanaan, 0, 100)."',
+				                                kelompok_sasaran = '".substr($v['sasaran'], 0, 255)."'
 				                            where 
 					                            tahun=".$tahun_anggaran."
 					                            and kd_urusan=".$_kd_urusan."
@@ -1042,12 +1042,12 @@ class Wpsipd_Simda
 				                                ".$kd_prog.",
 				                                ".$id_prog.",
 				                                ".$kd_keg.",
-				                                '".$nama_keg."',
-				                                '".implode(', ', $lokasi_sub)."',
-				                                '".$v['sasaran']."',
+				                                '".substr($nama_keg, 0, 255)."',
+				                                '".substr(implode(', ', $lokasi_sub), 0, 800)."',
+				                                '".substr($v['sasaran'], 0, 255)."',
 				                                1,
 				                                ".$v['pagu'].",
-				                                '".$waktu_pelaksanaan."',
+				                                '".substr($waktu_pelaksanaan, 0, 100)."',
 				                                ".$sumber_dana."
 				                            )"
 				                        );
@@ -1325,7 +1325,7 @@ class Wpsipd_Simda
 											                ".$mapping_rek[0]->kd_rek_4.",
 											                ".$mapping_rek[0]->kd_rek_5.",
 											                ".$no_rinc.",
-											                '".$kkk."',
+											                '".substr($kkk, 0, 255)."',
 											                ".$sumber_dana."
 											            )"
 									            );
