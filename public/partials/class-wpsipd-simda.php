@@ -885,7 +885,7 @@ class Wpsipd_Simda
 								}
 							}
 							if(empty($id_sd)){
-								$sumber_dana = 'null';
+								$sumber_dana = 1;
 							}else{
 								$sumber_dana = $id_sd[0];
 							}
