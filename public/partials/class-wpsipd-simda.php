@@ -222,9 +222,9 @@ class Wpsipd_Simda
 		                                0,
 		                                'Tahun',
 		                                1,
-		                                ".$vv['total'].",
-		                                ".$vv['total'].",
-		                                '".$vv['uraian']."'
+		                                ".str_replace(',', '.', $vv['total']).",
+		                                ".str_replace(',', '.', $vv['total']).",
+		                                '".str_replace("'", '`', $vv['uraian'])."'
 		                            )"
 		                        );
 								// print_r($options); die($kode_akun);
@@ -442,9 +442,9 @@ class Wpsipd_Simda
 		                                0,
 		                                'Tahun',
 		                                1,
-		                                ".$vv['total'].",
-		                                ".$vv['total'].",
-		                                '".$vv['uraian']."'
+		                                ".str_replace(',', '.', $vv['total']).",
+		                                ".str_replace(',', '.', $vv['total']).",
+		                                '".str_replace("'", '`', $vv['uraian'])."'
 		                            )"
 		                        );
 								// print_r($options); die($kode_akun);
@@ -542,7 +542,7 @@ class Wpsipd_Simda
 	                                ".$_kd_bidang.",
 	                                ".$kd_unit.",
 	                                ".$kd_sub_unit.",
-	                                '".$unit[0]['namakepala']."',
+	                                '".str_replace("'", '`', $unit[0]['namakepala'])."',
 	                                '".$unit[0]['nipkepala']."'
 	                            )"
 	                        );
@@ -766,18 +766,18 @@ class Wpsipd_Simda
 			                            ".$mapping_rek[0]->kd_rek_3.",
 			                            ".$mapping_rek[0]->kd_rek_4.",
 			                            ".$mapping_rek[0]->kd_rek_5.",
-		                                ".$rak[0]['bulan_1'].",
-		                                ".$rak[0]['bulan_2'].",
-		                                ".$rak[0]['bulan_3'].",
-		                                ".$rak[0]['bulan_4'].",
-		                                ".$rak[0]['bulan_5'].",
-		                                ".$rak[0]['bulan_6'].",
-		                                ".$rak[0]['bulan_7'].",
-		                                ".$rak[0]['bulan_8'].",
-		                                ".$rak[0]['bulan_9'].",
-		                                ".$rak[0]['bulan_10'].",
-		                                ".$rak[0]['bulan_11'].",
-		                                ".$rak[0]['bulan_12']."
+		                                ".str_replace(',', '.', $rak[0]['bulan_1']).",
+		                                ".str_replace(',', '.', $rak[0]['bulan_2']).",
+		                                ".str_replace(',', '.', $rak[0]['bulan_3']).",
+		                                ".str_replace(',', '.', $rak[0]['bulan_4']).",
+		                                ".str_replace(',', '.', $rak[0]['bulan_5']).",
+		                                ".str_replace(',', '.', $rak[0]['bulan_6']).",
+		                                ".str_replace(',', '.', $rak[0]['bulan_7']).",
+		                                ".str_replace(',', '.', $rak[0]['bulan_8']).",
+		                                ".str_replace(',', '.', $rak[0]['bulan_9']).",
+		                                ".str_replace(',', '.', $rak[0]['bulan_10']).",
+		                                ".str_replace(',', '.', $rak[0]['bulan_11']).",
+		                                ".str_replace(',', '.', $rak[0]['bulan_12'])."
 		                            )"
 		                        );
 							}
@@ -999,7 +999,7 @@ class Wpsipd_Simda
 				                                ket_kegiatan = '".str_replace("'", '`', substr($nama_keg, 0, 255))."',
 				                                lokasi = '".str_replace("'", '`', substr(implode(', ', $lokasi_sub), 0, 800))."',
 				                                status_kegiatan = 1,
-				                                pagu_anggaran = ".$v['pagu'].",
+				                                pagu_anggaran = ".str_replace(',', '.', $v['pagu']).",
 				                                kd_sumber = ".$sumber_dana.",
 				                                waktu_pelaksanaan = '".str_replace("'", '`', substr($waktu_pelaksanaan, 0, 100))."',
 				                                kelompok_sasaran = '".str_replace("'", '`', substr($v['sasaran'], 0, 255))."'
@@ -1046,7 +1046,7 @@ class Wpsipd_Simda
 				                                '".str_replace("'", '`', substr(implode(', ', $lokasi_sub), 0, 800))."',
 				                                '".str_replace("'", '`', substr($v['sasaran'], 0, 255))."',
 				                                1,
-				                                ".$v['pagu'].",
+				                                ".str_replace(',', '.', $v['pagu']).",
 				                                '".str_replace("'", '`', substr($waktu_pelaksanaan, 0, 100))."',
 				                                ".$sumber_dana."
 				                            )"
@@ -1159,7 +1159,7 @@ class Wpsipd_Simda
 				                                3,
 				                                ".$no.",
 				                                '".str_replace("'", '`', substr($ind['outputteks'], 0, 255))."',
-				                                ".(!empty($ind['targetoutput'])? $ind['targetoutput']:0).",
+				                                ".str_replace(',', '.', str_replace(',', '.', (!empty($ind['targetoutput'])? $ind['targetoutput']:0))).",
 				                                '".str_replace("'", '`', $ind['satuanoutput'])."'
 				                            )"
 				                        );
@@ -1207,7 +1207,7 @@ class Wpsipd_Simda
 				                                4,
 				                                ".$no.",
 				                                '".str_replace("'", '`', substr($ind['hasilteks'], 0, 255))."',
-				                                ".(!empty($ind['targethasil'])? $ind['targethasil']:0).",
+				                                ".str_replace(',', '.', (!empty($ind['targethasil'])? $ind['targethasil']:0)).",
 				                                '".str_replace("'", '`', $ind['satuanhasil'])."'
 				                            )"
 				                        );
@@ -1414,15 +1414,15 @@ class Wpsipd_Simda
 												                ".$no_rinc.",
 												                ".$no_rinc_sub.",
 												                '".str_replace("'", '`', substr($sat1, 0, 10))."',
-												                ".$nilai1.",
+												                ". str_replace(',', '.', $nilai1) .",
 												                '".str_replace("'", '`', substr($rkkk['sat2'], 0, 10))."',
-												                ".$nilai2.",
+												                ". str_replace(',', '.', $nilai2) .",
 												                '".str_replace("'", '`', substr($rkkk['sat3'], 0, 10))."',
-												                ".$nilai3.",
+												                ". str_replace(',', '.', $nilai3) .",
 												                '".str_replace("'", '`', substr($rkkk['satuan'], 0, 50))."',
-												                ".$jml_satuan.",
-												                ".$rkkk['harga_satuan'].",
-												                ".$rkkk['total_harga'].",
+												                ". str_replace(',', '.', $jml_satuan) .",
+												                ". str_replace(',', '.', $rkkk['harga_satuan']) .",
+												                ". str_replace(',', '.', $rkkk['total_harga']) .",
 												                '".str_replace("'", '`', substr(implode(' | ', $komponen), 0, 255))."'
 												            )"
 										            );

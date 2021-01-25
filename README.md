@@ -22,7 +22,7 @@ Cara pakai plugin:
 ### HARUS Update php.ini
 
 Optimasi server apache agar proses pengiriman data dari chrome extension ke server wordpress berjalan lancar (edit file php.ini):
-- max_input_vars = 300000
+- max_input_vars = 1000000
 - max_execution_time = 300
 - max_input_time = 600
 - memory_limit = 3556M
