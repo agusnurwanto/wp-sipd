@@ -967,7 +967,7 @@ class Wpsipd_Simda
 				                                    ".$kd_sub_unit.",
 				                                    ".$kd_prog.",
 				                                    ".$id_prog.",
-				                                    '".substr($nama_prog, 0, 255)."',
+				                                    '".str_replace("'", '`', substr($nama_prog, 0, 255))."',
 				                                    ".$kd_urusan.",
 				                                    ".$kd_bidang."
 				                                )"
@@ -996,13 +996,13 @@ class Wpsipd_Simda
 				                        $options = array(
 				                            'query' => "
 				                            UPDATE ta_kegiatan set
-				                                ket_kegiatan = '".substr($nama_keg, 0, 255)."',
-				                                lokasi = '".substr(implode(', ', $lokasi_sub), 0, 800)."',
+				                                ket_kegiatan = '".str_replace("'", '`', substr($nama_keg, 0, 255))."',
+				                                lokasi = '".str_replace("'", '`', substr(implode(', ', $lokasi_sub), 0, 800))."',
 				                                status_kegiatan = 1,
 				                                pagu_anggaran = ".$v['pagu'].",
 				                                kd_sumber = ".$sumber_dana.",
-				                                waktu_pelaksanaan = '".substr($waktu_pelaksanaan, 0, 100)."',
-				                                kelompok_sasaran = '".substr($v['sasaran'], 0, 255)."'
+				                                waktu_pelaksanaan = '".str_replace("'", '`', substr($waktu_pelaksanaan, 0, 100))."',
+				                                kelompok_sasaran = '".str_replace("'", '`', substr($v['sasaran'], 0, 255))."'
 				                            where 
 					                            tahun=".$tahun_anggaran."
 					                            and kd_urusan=".$_kd_urusan."
@@ -1042,12 +1042,12 @@ class Wpsipd_Simda
 				                                ".$kd_prog.",
 				                                ".$id_prog.",
 				                                ".$kd_keg.",
-				                                '".substr($nama_keg, 0, 255)."',
-				                                '".substr(implode(', ', $lokasi_sub), 0, 800)."',
-				                                '".substr($v['sasaran'], 0, 255)."',
+				                                '".str_replace("'", '`', substr($nama_keg, 0, 255))."',
+				                                '".str_replace("'", '`', substr(implode(', ', $lokasi_sub), 0, 800))."',
+				                                '".str_replace("'", '`', substr($v['sasaran'], 0, 255))."',
 				                                1,
 				                                ".$v['pagu'].",
-				                                '".substr($waktu_pelaksanaan, 0, 100)."',
+				                                '".str_replace("'", '`', substr($waktu_pelaksanaan, 0, 100))."',
 				                                ".$sumber_dana."
 				                            )"
 				                        );
@@ -1158,9 +1158,9 @@ class Wpsipd_Simda
 				                                ".$kd_keg.",
 				                                3,
 				                                ".$no.",
-				                                '".substr($ind['outputteks'], 0, 255)."',
+				                                '".str_replace("'", '`', substr($ind['outputteks'], 0, 255))."',
 				                                ".(!empty($ind['targetoutput'])? $ind['targetoutput']:0).",
-				                                '".$ind['satuanoutput']."'
+				                                '".str_replace("'", '`', $ind['satuanoutput'])."'
 				                            )"
 				                        );
 				                        // print_r($options); die();
@@ -1206,9 +1206,9 @@ class Wpsipd_Simda
 				                                ".$kd_keg.",
 				                                4,
 				                                ".$no.",
-				                                '".substr($ind['hasilteks'], 0, 255)."',
+				                                '".str_replace("'", '`', substr($ind['hasilteks'], 0, 255))."',
 				                                ".(!empty($ind['targethasil'])? $ind['targethasil']:0).",
-				                                '".$ind['satuanhasil']."'
+				                                '".str_replace("'", '`', $ind['satuanhasil'])."'
 				                            )"
 				                        );
 				                        // print_r($options); die();
@@ -1325,7 +1325,7 @@ class Wpsipd_Simda
 											                ".$mapping_rek[0]->kd_rek_4.",
 											                ".$mapping_rek[0]->kd_rek_5.",
 											                ".$no_rinc.",
-											                '".substr($kkk, 0, 255)."',
+											                '".str_replace("'", '`', substr($kkk, 0, 255))."',
 											                ".$sumber_dana."
 											            )"
 									            );
@@ -1413,17 +1413,17 @@ class Wpsipd_Simda
 												                ".$mapping_rek[0]->kd_rek_5.",
 												                ".$no_rinc.",
 												                ".$no_rinc_sub.",
-												                '".substr($sat1, 0, 10)."',
+												                '".str_replace("'", '`', substr($sat1, 0, 10))."',
 												                ".$nilai1.",
-												                '".substr($rkkk['sat2'], 0, 10)."',
+												                '".str_replace("'", '`', substr($rkkk['sat2'], 0, 10))."',
 												                ".$nilai2.",
-												                '".substr($rkkk['sat3'], 0, 10)."',
+												                '".str_replace("'", '`', substr($rkkk['sat3'], 0, 10))."',
 												                ".$nilai3.",
-												                '".substr($rkkk['satuan'], 0, 50)."',
+												                '".str_replace("'", '`', substr($rkkk['satuan'], 0, 50))."',
 												                ".$jml_satuan.",
 												                ".$rkkk['harga_satuan'].",
 												                ".$rkkk['total_harga'].",
-												                '".substr(implode(' | ', $komponen), 0, 255)."'
+												                '".str_replace("'", '`', substr(implode(' | ', $komponen), 0, 255))."'
 												            )"
 										            );
 								                    // print_r($options); die();
