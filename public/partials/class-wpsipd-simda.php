@@ -1414,15 +1414,15 @@ class Wpsipd_Simda
 												                ".$no_rinc.",
 												                ".$no_rinc_sub.",
 												                '".substr($sat1, 0, 10)."',
-												                ".$nilai1.",
+												                ". str_replace(',', '.', $nilai1) .",
 												                '".substr($rkkk['sat2'], 0, 10)."',
-												                ".$nilai2.",
+												                ". str_replace(',', '.', $nilai2) .",
 												                '".substr($rkkk['sat3'], 0, 10)."',
-												                ".$nilai3.",
+												                ". str_replace(',', '.', $nilai3) .",
 												                '".substr($rkkk['satuan'], 0, 50)."',
-												                ".$jml_satuan.",
-												                ".$rkkk['harga_satuan'].",
-												                ".$rkkk['total_harga'].",
+												                ". str_replace(',', '.', $jml_satuan) .",
+												                ". str_replace(',', '.', $rkkk['harga_satuan']) .",
+												                ". str_replace(',', '.', $rkkk['total_harga']) .",
 												                '".substr(implode(' | ', $komponen), 0, 255)."'
 												            )"
 										            );
