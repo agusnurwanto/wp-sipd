@@ -469,6 +469,83 @@ class Wpsipd_Simda
 		}
 	}
 
+	function singkronRefUnit($opsi){
+		$kd = explode('.', $opsi['kode_skpd']);
+		$default_val = $this->CurlSimda(array(
+			'query' => 'select * from ref_bidang_mapping where kd_urusan90='.$kd[0].' and kd_bidang90='.((int)$kd[1])
+		));
+		$cek_unit = $this->CurlSimda(array(
+			'query' => 'select * from ref_unit where kd_urusan='.$default_val[0]->kd_urusan.' and kd_bidang='.$default_val[0]->kd_bidang.' and nm_unit=\''.$opsi['nama_skpd'].'\''
+		));
+		if(empty($cek_unit)){
+			$no_unit = $this->CurlSimda(array(
+				'query' => 'select max(kd_unit) as max_unit from ref_unit where kd_urusan='.$default_val[0]->kd_urusan.' and kd_bidang='.$default_val[0]->kd_bidang
+			));
+			if(empty($no_unit) || $no_unit[0]->max_unit == 0){
+				$no_unit = 1;
+			}else{
+				$no_unit = $no_unit[0]->max_unit+1;
+			}
+			if($opsi['is_skpd'] == 1){
+				$kode_skpd = explode('.', $opsi['kode_skpd']);
+				$this->CurlSimda(array(
+					'query' => '
+					INSERT INTO ref_unit (
+						kd_urusan, 
+						kd_bidang, 
+						kd_unit, 
+						nm_unit, 
+						kd_unit90
+					) VALUES (
+						'.$default_val[0]->kd_urusan.', 
+						'.$default_val[0]->kd_bidang.', 
+						'.$no_unit.',
+						\''.$opsi['nama_skpd'].'\',
+						\''.$kode_skpd[0].'-'.$kode_skpd[1].'.'.$kode_skpd[2].'-'.$kode_skpd[3].'.'.$kode_skpd[4].'-'.$kode_skpd[5].'.'.$kode_skpd[6].'\'
+					)'
+				));
+			}
+		}else{
+			$no_unit = $default_val[0]->kd_unit+1;
+		}
+		$no_sub_unit = 1;
+
+		if(empty($opsi['only_unit'])){
+			$cek_sub_unit = $this->CurlSimda(array(
+			'query' => 'select * from ref_sub_unit where kd_urusan='.$default_val[0]->kd_urusan.' and kd_bidang='.$default_val[0]->kd_bidang.' and kd_unit='.$no_unit.' and nm_sub_unit=\''.$opsi['nama_skpd'].'\''
+			));
+			if(empty($cek_sub_unit)){
+				$no_sub_unit = $this->CurlSimda(array(
+					'query' => 'select max(kd_sub) as max_unit from ref_sub_unit where kd_urusan='.$default_val[0]->kd_urusan.' and kd_bidang='.$default_val[0]->kd_bidang.' and kd_unit='.$no_unit
+				));
+				if(empty($no_sub_unit) || $no_sub_unit[0]->max_unit == 0){
+					$no_sub_unit = 1;
+				}else{
+					$no_sub_unit = $no_sub_unit[0]->max_unit+1;
+				}
+				$this->CurlSimda(array(
+					'query' => '
+					INSERT INTO ref_sub_unit (
+						kd_urusan, 
+						kd_bidang, 
+						kd_unit, 
+						kd_sub, 
+						nm_sub_unit
+					) VALUES (
+						'.$default_val[0]->kd_urusan.', 
+						'.$default_val[0]->kd_bidang.', 
+						'.$no_unit.',
+						'.$no_sub_unit.',
+						\''.$opsi['nama_skpd'].'\'
+					)'
+				));
+			}
+		}
+		$kd_sub_unit_simda = $default_val[0]->kd_urusan.'.'.$default_val[0]->kd_bidang.'.'.$no_unit.'.'.$no_sub_unit;
+		update_option( '_crb_unit_'.$opsi['id_skpd'], $kd_sub_unit_simda );
+		return $kd_sub_unit_simda;
+	}
+
 	function singkronSimdaUnit($opsi=array()){
 		global $wpdb;
 		$ret = array(
@@ -478,6 +555,18 @@ class Wpsipd_Simda
 		if (!empty($_POST)) {
 			if (!empty($_POST['api_key']) && $_POST['api_key'] == carbon_get_theme_option( 'crb_api_key_extension' )) {
 				if(!empty($_POST['data_unit']) && !empty($_POST['tahun_anggaran'])){
+					$ref_unit_all = array();
+					if(carbon_get_theme_option('crb_singkron_simda_unit') == 1){
+						// singkron unit dulu
+						foreach ($_POST['data_unit'] as $k => $v) {
+							$v['only_unit'] = true;
+							$this->singkronRefUnit($v);
+						}
+						// singkron sub unit
+						foreach ($_POST['data_unit'] as $k => $v) {
+							$this->singkronRefUnit($v);
+						}
+					}
 					foreach ($_POST['data_unit'] as $k => $v) {
 						$kd_unit_simda = explode('.', carbon_get_theme_option('crb_unit_'.$v['id_skpd']));
 						if(empty($kd_unit_simda) || empty($kd_unit_simda[3])){

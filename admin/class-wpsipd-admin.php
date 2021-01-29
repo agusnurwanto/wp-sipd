@@ -170,13 +170,27 @@ class Wpsipd_Admin {
 			        '1' => __( 'Ya' ),
 			        '2' => __( 'Tidak' )
 			    ) )
-            	->set_default_value('1')
+            	->set_default_value('2')
             	->set_help_text('Data SIMDA akan terupdate otomatis ketika melakukan singkron DB Lokal menggunakan chrome extension.'),
             Field::make( 'text', 'crb_url_api_simda', 'URL API SIMDA' )
             	->set_help_text('Scirpt PHP SIMDA API dibuat terpisah di <a href="https://github.com/agusnurwanto/SIMDA-API-PHP" target="_blank">SIMDA API PHP</a>.'),
             Field::make( 'text', 'crb_apikey_simda', 'APIKEY SIMDA' )
             	->set_default_value($this->generateRandomString()),
-            Field::make( 'text', 'crb_db_simda', 'Database SIMDA' )
+            Field::make( 'text', 'crb_db_simda', 'Database SIMDA' ),
+	        Field::make( 'radio', 'crb_singkron_simda_debug', __( 'Debug API integrasi SIMDA' ) )
+			    ->add_options( array(
+			        '1' => __( 'Ya' ),
+			        '2' => __( 'Tidak' )
+			    ) )
+            	->set_default_value('2')
+            	->set_help_text('Debug API SIMDA agar notif error muncul di respon API wordpress. Untuk melakukan debug extension buka <b>halaman extension > background page > network</b>.'),
+	        Field::make( 'radio', 'crb_singkron_simda_unit', __( 'Integrasi Sub Unit SIMDA sesuai SIPD' ) )
+			    ->add_options( array(
+			        '1' => __( 'Ya' ),
+			        '2' => __( 'Tidak' )
+			    ) )
+            	->set_default_value('2')
+            	->set_help_text('Jika sub unit simda (ref_unit dan ref_sub_unit) belum dibuat maka data akan diisi otomatis ketika melakukan integrasi perangkat daerah. Dan tanpa merubah yang sudah diisi.')
 	    );
 
 	    $cek_status_koneksi_simda = $this->CurlSimda(array(
