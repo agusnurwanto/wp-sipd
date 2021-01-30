@@ -190,7 +190,14 @@ class Wpsipd_Admin {
 			        '2' => __( 'Tidak' )
 			    ) )
             	->set_default_value('2')
-            	->set_help_text('Jika sub unit simda (ref_unit dan ref_sub_unit) belum dibuat maka data akan diisi otomatis ketika melakukan integrasi perangkat daerah. Dan tanpa merubah yang sudah diisi.')
+            	->set_help_text('Jika sub unit simda (ref_unit dan ref_sub_unit) belum dibuat maka data akan diisi otomatis ketika melakukan integrasi perangkat daerah. Dan tanpa merubah yang sudah diisi.'),
+	        Field::make( 'radio', 'crb_auto_ref_kegiatan_mapping', __( 'Otomatis insert ke ref_kegiatan dan ref_kegiatan_mapping jika tidak ada di SIMDA' ) )
+			    ->add_options( array(
+			        '1' => __( 'Ya' ),
+			        '2' => __( 'Tidak' )
+			    ) )
+            	->set_default_value('2')
+            	->set_help_text('Jika data di ref_program belum ada, juga akan diinput otomatis dengan kode default <b>kd_prog >= 500 dan kd_keg >= 5000</b> sebagai tanda auto create by WP-SIPD.')
 	    );
 
 	    $cek_status_koneksi_simda = $this->CurlSimda(array(

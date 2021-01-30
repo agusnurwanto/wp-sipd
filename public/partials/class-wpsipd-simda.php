@@ -672,15 +672,17 @@ class Wpsipd_Simda
 					if($type == 'belanja'){
 						$kode_sbl = explode('.', $_POST['kode_sbl']);
 						unset($kode_sbl[2]);
-						$kode_sub_giat = $wpdb->get_results($wpdb->prepare("
+						$sub_giat = $wpdb->get_results($wpdb->prepare("
 							SELECT 
-								k.kode_sub_giat 
+								k.kode_sub_giat,
+								k.nama_giat, 
+								k.nama_sub_giat 
 							from data_sub_keg_bl k
 							where k.tahun_anggaran=%d
 								AND k.kode_sbl=%s
 								AND k.active=1", $tahun_anggaran, implode('.', $kode_sbl))
 						, ARRAY_A);
-						// print_r($kode_sub_giat); die($wpdb->last_query);
+						// print_r($sub_giat); die($wpdb->last_query);
 					}
 
 					foreach ($_POST['data'] as $k => $v) {
@@ -726,22 +728,23 @@ class Wpsipd_Simda
 		                ));
 
 						if($type == 'belanja'){
-							$kd = explode('.', $kode_sub_giat[0]['kode_sub_giat']);
+							$kd = explode('.', $sub_giat[0]['kode_sub_giat']);
 							$kd_urusan90 = (int) $kd[0];
 							$kd_bidang90 = (int) $kd[1];
 							$kd_program90 = (int) $kd[2];
 							$kd_kegiatan90 = ((int) $kd[3]).'.'.$kd[4];
 							$kd_sub_kegiatan = (int) $kd[5];
-			                $mapping = $this->CurlSimda(array(
-								'query' => "
-									SELECT 
-										* 
-									from ref_kegiatan_mapping
-									where kd_urusan90=".$kd_urusan90
-			                            .' and kd_bidang90='.$kd_bidang90
-			                            .' and kd_program90='.$kd_program90
-			                            .' and kd_kegiatan90='.$kd_kegiatan90
-			                            .' and kd_sub_kegiatan='.$kd_sub_kegiatan
+							$nama_keg = explode(' ', $sub_giat[0]['nama_sub_giat']);
+		                    unset($nama_keg[0]);
+		                    $nama_keg = implode(' ', $nama_keg);
+							$mapping = $this->cekKegiatanMapping(array(
+								'kd_urusan90' => $kd_urusan90,
+								'kd_bidang90' => $kd_bidang90,
+								'kd_program90' => $kd_program90,
+								'kd_kegiatan90' => $kd_kegiatan90,
+								'kd_sub_kegiatan' => $kd_sub_kegiatan,
+								'nama_program' => $sub_giat[0]['nama_giat'],
+								'nama_kegiatan' => $nama_keg,
 							));
 			            }else{
 			            	$mapping = true;
@@ -991,16 +994,17 @@ class Wpsipd_Simda
 								$kd_program90 = (int) $kd[2];
 								$kd_kegiatan90 = ((int) $kd[3]).'.'.$kd[4];
 								$kd_sub_kegiatan = (int) $kd[5];
-								$mapping = $this->CurlSimda(array(
-									'query' => "
-										SELECT 
-											* 
-										from ref_kegiatan_mapping
-										where kd_urusan90=".$kd_urusan90
-				                            .' and kd_bidang90='.$kd_bidang90
-				                            .' and kd_program90='.$kd_program90
-				                            .' and kd_kegiatan90='.$kd_kegiatan90
-				                            .' and kd_sub_kegiatan='.$kd_sub_kegiatan
+								$nama_keg = explode(' ', $v[0]['nama_sub_giat']);
+			                    unset($nama_keg[0]);
+			                    $nama_keg = implode(' ', $nama_keg);
+								$mapping = $this->cekKegiatanMapping(array(
+									'kd_urusan90' => $kd_urusan90,
+									'kd_bidang90' => $kd_bidang90,
+									'kd_program90' => $kd_program90,
+									'kd_kegiatan90' => $kd_kegiatan90,
+									'kd_sub_kegiatan' => $kd_sub_kegiatan,
+									'nama_program' => $v[0]['nama_giat'],
+									'nama_kegiatan' => $nama_keg,
 								));
 								if(!empty($mapping)){
 									$_kd_urusan = $kd_unit_simda[0];
@@ -1615,5 +1619,112 @@ class Wpsipd_Simda
         }
         $ret .= $number;
         return $ret;
+    }
+
+    function cekKegiatanMapping($options){
+		$mapping = $this->CurlSimda(array(
+			'query' => "
+				SELECT 
+					* 
+				from ref_kegiatan_mapping
+				where kd_urusan90=".$options['kd_urusan90']
+                    .' and kd_bidang90='.$options['kd_bidang90']
+                    .' and kd_program90='.$options['kd_program90']
+                    .' and kd_kegiatan90='.$options['kd_kegiatan90']
+                    .' and kd_sub_kegiatan='.$options['kd_sub_kegiatan']
+		));
+		if(
+			empty($mapping)
+			&& carbon_get_theme_option('crb_auto_ref_kegiatan_mapping') == 1
+		){
+			$mapping_prog = $this->CurlSimda(array(
+				'query' => "
+					SELECT 
+						* 
+					from ref_kegiatan_mapping
+					where kd_urusan90=".$options['kd_urusan90']
+	                    .' and kd_bidang90='.$options['kd_bidang90']
+	                    .' and kd_program90='.$options['kd_program90']
+	                    .' and kd_kegiatan90='.$options['kd_kegiatan90']
+			));
+			if(empty($mapping_prog)){
+				$max_prog = $this->CurlSimda(array(
+					'query' => "
+						SELECT 
+							max(kd_prog) as max
+						from ref_kegiatan_mapping
+						where kd_urusan=".$options['kd_urusan90']
+		                    .' and kd_bidang='.$options['kd_bidang90']
+				));
+				$kd_prog = 500;
+				if(
+					!empty($max_prog) 
+					&& !empty($max_prog[0]->max) 
+					&& $max_prog[0]->max >= $kd_prog
+				){
+					$kd_prog = $max_prog[0]->max+1;
+				}
+				$this->CurlSimda(array(
+					'query' => "
+						INSERT INTO ref_program (
+							kd_urusan,
+							kd_bidang,
+							kd_prog,
+							ket_program
+						) VALUES (
+							".$options['kd_urusan90'].",
+							".$options['kd_bidang90'].",
+							".$kd_prog.",
+							'".str_replace("'", '`', substr($options['nama_program'], 0, 255)).",'
+						)"
+				));
+			}else{
+				$kd_prog = $mapping_prog[0]->kd_prog;
+			}
+			$kd_keg = 5000+$options['kd_sub_kegiatan'];
+			$this->CurlSimda(array(
+				'query' => "
+					INSERT INTO ref_kegiatan (
+						kd_urusan,
+						kd_bidang,
+						kd_prog,
+						kd_keg,
+						ket_kegiatan
+					) VALUES (
+						".$options['kd_urusan90'].",
+						".$options['kd_bidang90'].",
+						".$kd_prog.",
+						".$kd_keg.",
+						'".str_replace("'", '`', substr($options['nama_kegiatan'], 0, 255)).",'
+					)"
+			));
+			$this->CurlSimda(array(
+				'query' => "
+					INSERT INTO ref_kegiatan_mapping (
+						kd_urusan,
+						kd_bidang,
+						kd_prog,
+						kd_keg,
+						kd_urusan90,
+						kd_bidang90,
+						kd_program90,
+						kd_kegiatan90,
+						kd_sub_kegiatan
+					) VALUES (
+						".$options['kd_urusan90'].",
+						".$options['kd_bidang90'].",
+						".$kd_prog.",
+						".$kd_keg.",
+						".$options['kd_urusan90'].",
+						".$options['kd_bidang90'].",
+						".$options['kd_program90'].",
+						".$options['kd_kegiatan90'].",
+						".$options['kd_sub_kegiatan'].",
+					)"
+			));
+			return $this->cekKegiatanMapping($options);
+		}else{
+			return $mapping;
+		}
     }
 }
