@@ -1656,7 +1656,7 @@ class Wpsipd_Simda
 						where kd_urusan=".$options['kd_urusan90']
 		                    .' and kd_bidang='.$options['kd_bidang90']
 				));
-				$kd_prog = 500;
+				$kd_prog = 150;
 				if(
 					!empty($max_prog) 
 					&& !empty($max_prog[0]->max) 
@@ -1675,13 +1675,13 @@ class Wpsipd_Simda
 							".$options['kd_urusan90'].",
 							".$options['kd_bidang90'].",
 							".$kd_prog.",
-							'".str_replace("'", '`', substr($options['nama_program'], 0, 255)).",'
+							'".str_replace("'", '`', substr($options['nama_program'], 0, 255))."'
 						)"
 				));
 			}else{
 				$kd_prog = $mapping_prog[0]->kd_prog;
 			}
-			$kd_keg = 5000+$options['kd_sub_kegiatan'];
+			$kd_keg = 150+$options['kd_sub_kegiatan'];
 			$this->CurlSimda(array(
 				'query' => "
 					INSERT INTO ref_kegiatan (
@@ -1695,7 +1695,7 @@ class Wpsipd_Simda
 						".$options['kd_bidang90'].",
 						".$kd_prog.",
 						".$kd_keg.",
-						'".str_replace("'", '`', substr($options['nama_kegiatan'], 0, 255)).",'
+						'".str_replace("'", '`', substr($options['nama_kegiatan'], 0, 255))."'
 					)"
 			));
 			$this->CurlSimda(array(
@@ -1719,7 +1719,7 @@ class Wpsipd_Simda
 						".$options['kd_bidang90'].",
 						".$options['kd_program90'].",
 						".$options['kd_kegiatan90'].",
-						".$options['kd_sub_kegiatan'].",
+						".$options['kd_sub_kegiatan']."
 					)"
 			));
 			return $this->cekKegiatanMapping($options);
