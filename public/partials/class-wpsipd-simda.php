@@ -1749,7 +1749,6 @@ class Wpsipd_Simda
 						kd_program,
 						kd_kegiatan,
 						nm_kegiatan,
-						kd_sub_kegiatan,
 						kd_fungsi,
 						kd_sub_fungsi
 					) VALUES (
