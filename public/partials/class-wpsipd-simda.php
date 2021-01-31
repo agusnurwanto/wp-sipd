@@ -1650,6 +1650,14 @@ class Wpsipd_Simda
                     .' and kd_kegiatan90='.$options['kd_kegiatan90']
                     .' and kd_sub_kegiatan='.$options['kd_sub_kegiatan']
 		));
+		$ref_bidang_mapping = $this->CurlSimda(array(
+			'query' => "
+				SELECT 
+					* 
+				from ref_bidang_mapping
+				where kd_urusan90=".$options['kd_urusan90']
+                    .' and kd_bidang90='.$options['kd_bidang90']
+		));
 		if(
 			empty($mapping)
 			&& carbon_get_theme_option('crb_auto_ref_kegiatan_mapping') == 1
@@ -1670,8 +1678,8 @@ class Wpsipd_Simda
 						SELECT 
 							max(kd_prog) as max
 						from ref_kegiatan_mapping
-						where kd_urusan=".$options['kd_urusan90']
-		                    .' and kd_bidang='.$options['kd_bidang90']
+						where kd_urusan=".$ref_bidang_mapping[0]->kd_urusan
+		                    .' and kd_bidang='.$ref_bidang_mapping[0]->kd_bidang
 				));
 				$kd_prog = 150;
 				if(
@@ -1689,8 +1697,8 @@ class Wpsipd_Simda
 							kd_prog,
 							ket_program
 						) VALUES (
-							".$options['kd_urusan90'].",
-							".$options['kd_bidang90'].",
+							".$ref_bidang_mapping[0]->kd_urusan.",
+							".$ref_bidang_mapping[0]->kd_bidang.",
 							".$kd_prog.",
 							'".str_replace("'", '`', substr($options['nama_program'], 0, 255))."'
 						)"
@@ -1708,15 +1716,31 @@ class Wpsipd_Simda
 						kd_keg,
 						ket_kegiatan
 					) VALUES (
-						".$options['kd_urusan90'].",
-						".$options['kd_bidang90'].",
+						".$ref_bidang_mapping[0]->kd_urusan.",
+						".$ref_bidang_mapping[0]->kd_bidang.",
 						".$kd_prog.",
 						".$kd_keg.",
 						'".str_replace("'", '`', substr($options['nama_kegiatan'], 0, 255))."'
 					)"
 			));
-			$kd_fungsi = 0;
-			$kd_sub_fungsi = 0;
+			$ref_bidang = $this->CurlSimda(array(
+				'query' => "
+					SELECT 
+						* 
+					from ref_bidang
+					where kd_urusan=".$ref_bidang_mapping[0]->kd_urusan
+	                    .' and kd_bidang='.$ref_bidang_mapping[0]->kd_bidang
+			));
+			$kd_fungsi = $ref_bidang[0]->kd_fungsi;
+			$ref_sub_fungsi90 = $this->CurlSimda(array(
+				'query' => "
+					SELECT 
+						* 
+					from ref_sub_fungsi90
+					where kd_fungsi=".$kd_fungsi[0]->kd_fungsi
+			));
+			$kd_sub_fungsi = $ref_sub_fungsi90[0]->kd_sub_fungsi;
+
 			$this->CurlSimda(array(
 				'query' => "
 					INSERT INTO ref_kegiatan90 (
@@ -1769,8 +1793,8 @@ class Wpsipd_Simda
 						kd_kegiatan90,
 						kd_sub_kegiatan
 					) VALUES (
-						".$options['kd_urusan90'].",
-						".$options['kd_bidang90'].",
+						".$ref_bidang_mapping[0]->kd_urusan.",
+						".$ref_bidang_mapping[0]->kd_bidang.",
 						".$kd_prog.",
 						".$kd_keg.",
 						".$options['kd_urusan90'].",
