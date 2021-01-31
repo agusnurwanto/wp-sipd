@@ -1650,18 +1650,18 @@ class Wpsipd_Simda
                     .' and kd_kegiatan90='.$options['kd_kegiatan90']
                     .' and kd_sub_kegiatan='.$options['kd_sub_kegiatan']
 		));
-		$ref_bidang_mapping = $this->CurlSimda(array(
-			'query' => "
-				SELECT 
-					* 
-				from ref_bidang_mapping
-				where kd_urusan90=".$options['kd_urusan90']
-                    .' and kd_bidang90='.$options['kd_bidang90']
-		));
 		if(
 			empty($mapping)
 			&& carbon_get_theme_option('crb_auto_ref_kegiatan_mapping') == 1
 		){
+			$ref_bidang_mapping = $this->CurlSimda(array(
+				'query' => "
+					SELECT 
+						* 
+					from ref_bidang_mapping
+					where kd_urusan90=".$options['kd_urusan90']
+	                    .' and kd_bidang90='.$options['kd_bidang90']
+			));
 			$mapping_prog = $this->CurlSimda(array(
 				'query' => "
 					SELECT 
@@ -1737,7 +1737,7 @@ class Wpsipd_Simda
 					SELECT 
 						* 
 					from ref_sub_fungsi90
-					where kd_fungsi=".$kd_fungsi[0]->kd_fungsi
+					where kd_fungsi=".$kd_fungsi
 			));
 			$kd_sub_fungsi = $ref_sub_fungsi90[0]->kd_sub_fungsi;
 
