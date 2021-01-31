@@ -269,8 +269,12 @@ class Wpsipd_Simda
 								AND id_pendapatan=%d
 								AND active=1", $tahun_anggaran, $v['id_pendapatan'])
 						, ARRAY_A);
-						
-						$pendapatan_all[$pendapatan[0]['kode_akun']] = $pendapatan;
+						if(empty($pendapatan_all[$pendapatan[0]['kode_akun']])){
+							$pendapatan_all[$pendapatan[0]['kode_akun']] = arra();
+						}
+						foreach ($pendapatan as $key => $value) {
+							$pendapatan_all[$pendapatan[0]['kode_akun']][] = $value;
+						}
 					}
 					$no_pendapatan = 0;
 					foreach ($pendapatan_all as $kode_akun => $v) {
