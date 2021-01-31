@@ -197,7 +197,7 @@ class Wpsipd_Admin {
 			        '2' => __( 'Tidak' )
 			    ) )
             	->set_default_value('2')
-            	->set_help_text('Jika data di ref_program belum ada, juga akan diinput otomatis dengan kode default <b>kd_prog >= 500 dan kd_keg >= 5000</b> sebagai tanda auto create by WP-SIPD.')
+            	->set_help_text('Jika data di ref_program belum ada, juga akan diinput otomatis dengan kode default <b>kd_prog >= 150 dan kd_keg >= 150</b> sebagai tanda auto create by WP-SIPD.')
 	    );
 
 	    $cek_status_koneksi_simda = $this->CurlSimda(array(
@@ -212,7 +212,7 @@ class Wpsipd_Admin {
 	            	->set_html( 'Status koneksi SQL server SIMDA: '.$ket_simda );
 		
 		$mapping_unit[] = Field::make( 'html', 'crb_mapping_unit_simda' )
-	            	->set_html( 'Mapping kode sub unit SIPD ke SIMDA. Format kode (kd_urusan.kd_bidang.kd_unit.kd_sub) dipisah dengan titik. Contoh untuk Dinas Pendidikan (1.1.1.1)' );
+	            	->set_html( 'Mapping kode sub unit SIPD ke SIMDA. Format kode (kd_urusan.kd_bidang.kd_unit.kd_sub) dipisah dengan titik. Contoh untuk Dinas Pendidikan (1.1.1.1). <b>Setelah melakukan mapping kode unit secara manual maka HARUS DILAKUKAN SINGKRON ULANG PERANGKAT DAERAH agar data di ta_sub_unit terisi semua!</b>.' );
 		foreach ($unit as $k => $v) {
 			$unit_simda = get_option('_crb_unit_'.$v['id_skpd']);
 			if(empty($unit_simda)){
