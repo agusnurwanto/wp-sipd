@@ -470,16 +470,31 @@ class Wpsipd_Simda
 	}
 
 	function singkronRefUnit($opsi){
+		global $wpdb;
 		$kd = explode('.', $opsi['kode_skpd']);
-		$default_val = $this->CurlSimda(array(
+		$bidang_mapping = $this->CurlSimda(array(
 			'query' => 'select * from ref_bidang_mapping where kd_urusan90='.$kd[0].' and kd_bidang90='.((int)$kd[1])
 		));
+		$kode_unit90 = $kd[0].'-'.$kd[1].'.'.$kd[2].'-'.$kd[3].'.'.$kd[4].'-'.$kd[5].'.'.$kd[6];
+		if($opsi['is_skpd'] == 0 && empty($opsi['only_unit'])){
+			$unit = $wpdb->get_results($wpdb->prepare("
+				SELECT 
+					nama_skpd 
+				from data_unit 
+				where tahun_anggaran=%d
+					AND id_skpd=%d
+					AND active=1", $opsi['tahun_anggaran'], $v['idinduk'])
+			, ARRAY_A);
+			$nama_unit = $unit[0]['nama_skpd'];
+		}else{
+			$nama_unit = $opsi['nama_skpd'];
+		}
 		$cek_unit = $this->CurlSimda(array(
-			'query' => 'select * from ref_unit where kd_urusan='.$default_val[0]->kd_urusan.' and kd_bidang='.$default_val[0]->kd_bidang.' and nm_unit=\''.$opsi['nama_skpd'].'\''
+			'query' => 'select * from ref_unit where kd_urusan='.$bidang_mapping[0]->kd_urusan.' and kd_bidang='.$bidang_mapping[0]->kd_bidang.' and nm_unit=\''.$nama_unit.'\''
 		));
 		if(empty($cek_unit)){
 			$no_unit = $this->CurlSimda(array(
-				'query' => 'select max(kd_unit) as max_unit from ref_unit where kd_urusan='.$default_val[0]->kd_urusan.' and kd_bidang='.$default_val[0]->kd_bidang
+				'query' => 'select max(kd_unit) as max_unit from ref_unit where kd_urusan='.$bidang_mapping[0]->kd_urusan.' and kd_bidang='.$bidang_mapping[0]->kd_bidang
 			));
 			if(empty($no_unit) || $no_unit[0]->max_unit == 0){
 				$no_unit = 1;
@@ -487,7 +502,6 @@ class Wpsipd_Simda
 				$no_unit = $no_unit[0]->max_unit+1;
 			}
 			if($opsi['is_skpd'] == 1){
-				$kode_skpd = explode('.', $opsi['kode_skpd']);
 				$this->CurlSimda(array(
 					'query' => '
 					INSERT INTO ref_unit (
@@ -497,11 +511,11 @@ class Wpsipd_Simda
 						nm_unit, 
 						kd_unit90
 					) VALUES (
-						'.$default_val[0]->kd_urusan.', 
-						'.$default_val[0]->kd_bidang.', 
+						'.$bidang_mapping[0]->kd_urusan.', 
+						'.$bidang_mapping[0]->kd_bidang.', 
 						'.$no_unit.',
 						\''.$opsi['nama_skpd'].'\',
-						\''.$kode_skpd[0].'-'.$kode_skpd[1].'.'.$kode_skpd[2].'-'.$kode_skpd[3].'.'.$kode_skpd[4].'-'.$kode_skpd[5].'.'.$kode_skpd[6].'\'
+						\''.$kode_unit90.'\'
 					)'
 				));
 			}
@@ -512,11 +526,11 @@ class Wpsipd_Simda
 
 		if(empty($opsi['only_unit'])){
 			$cek_sub_unit = $this->CurlSimda(array(
-			'query' => 'select * from ref_sub_unit where kd_urusan='.$default_val[0]->kd_urusan.' and kd_bidang='.$default_val[0]->kd_bidang.' and kd_unit='.$no_unit.' and nm_sub_unit=\''.$opsi['nama_skpd'].'\''
+			'query' => 'select * from ref_sub_unit where kd_urusan='.$bidang_mapping[0]->kd_urusan.' and kd_bidang='.$bidang_mapping[0]->kd_bidang.' and kd_unit='.$no_unit.' and nm_sub_unit=\''.$opsi['nama_skpd'].'\''
 			));
 			if(empty($cek_sub_unit)){
 				$no_sub_unit = $this->CurlSimda(array(
-					'query' => 'select max(kd_sub) as max_unit from ref_sub_unit where kd_urusan='.$default_val[0]->kd_urusan.' and kd_bidang='.$default_val[0]->kd_bidang.' and kd_unit='.$no_unit
+					'query' => 'select max(kd_sub) as max_unit from ref_sub_unit where kd_urusan='.$bidang_mapping[0]->kd_urusan.' and kd_bidang='.$bidang_mapping[0]->kd_bidang.' and kd_unit='.$no_unit
 				));
 				if(empty($no_sub_unit) || $no_sub_unit[0]->max_unit == 0){
 					$no_sub_unit = 1;
@@ -532,8 +546,8 @@ class Wpsipd_Simda
 						kd_sub, 
 						nm_sub_unit
 					) VALUES (
-						'.$default_val[0]->kd_urusan.', 
-						'.$default_val[0]->kd_bidang.', 
+						'.$bidang_mapping[0]->kd_urusan.', 
+						'.$bidang_mapping[0]->kd_bidang.', 
 						'.$no_unit.',
 						'.$no_sub_unit.',
 						\''.$opsi['nama_skpd'].'\'
@@ -543,7 +557,7 @@ class Wpsipd_Simda
 				$no_sub_unit = $cek_sub_unit[0]->kd_sub;
 			}
 		}
-		$kd_sub_unit_simda = $default_val[0]->kd_urusan.'.'.$default_val[0]->kd_bidang.'.'.$no_unit.'.'.$no_sub_unit;
+		$kd_sub_unit_simda = $bidang_mapping[0]->kd_urusan.'.'.$bidang_mapping[0]->kd_bidang.'.'.$no_unit.'.'.$no_sub_unit;
 		update_option( '_crb_unit_'.$opsi['id_skpd'], $kd_sub_unit_simda );
 		return $kd_sub_unit_simda;
 	}
@@ -566,6 +580,7 @@ class Wpsipd_Simda
 						}
 						// singkron sub unit
 						foreach ($_POST['data_unit'] as $k => $v) {
+							$v['tahun_anggaran'] = $_POST['tahun_anggaran'];
 							$this->singkronRefUnit($v);
 						}
 					}
