@@ -270,7 +270,7 @@ class Wpsipd_Simda
 								AND active=1", $tahun_anggaran, $v['id_pendapatan'])
 						, ARRAY_A);
 						if(empty($pendapatan_all[$pendapatan[0]['kode_akun']])){
-							$pendapatan_all[$pendapatan[0]['kode_akun']] = arra();
+							$pendapatan_all[$pendapatan[0]['kode_akun']] = array();
 						}
 						foreach ($pendapatan as $key => $value) {
 							$pendapatan_all[$pendapatan[0]['kode_akun']][] = $value;

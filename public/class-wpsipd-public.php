@@ -1693,10 +1693,12 @@ class Wpsipd_Public
 
 				if (!empty($_POST['rka']) && $ret['status'] != 'error') {
 					$rka = $_POST['rka'];
-					$wpdb->delete('data_rka', array(
-						'tahun_anggaran' => $_POST['tahun_anggaran'],
-						'kode_sbl' => $_POST['kode_sbl']
-					), array('%d', '%s'));
+					if(!empty($_POST['no_page']) && $_POST['no_page']==1){
+						$wpdb->delete('data_rka', array(
+							'tahun_anggaran' => $_POST['tahun_anggaran'],
+							'kode_sbl' => $_POST['kode_sbl']
+						), array('%d', '%s'));
+					}
 					foreach ($rka as $k => $v) {
 						$cek = $wpdb->get_var("SELECT id_rinci_sub_bl from data_rka where tahun_anggaran=".$_POST['tahun_anggaran']." AND id_rinci_sub_bl='" . $v['id_rinci_sub_bl'] . "' AND kode_sbl='".$_POST['kode_sbl']."'");
 						$opsi = array(
