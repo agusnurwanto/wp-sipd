@@ -127,9 +127,9 @@ class Wpsipd_Admin {
 	        ->add_fields( array(
 	            Field::make( 'text', 'crb_tahun_anggaran_sipd', 'Tahun Anggaran SIPD' )
 	            	->set_default_value('2021'),
-	            Field::make( 'text', 'crb_pemda', 'Nama Pemda' )
+	            Field::make( 'text', 'crb_daerah', 'Nama Pemda' )
 	            	->set_help_text('Data diambil dari halaman pengaturan SIPD menggunakan <a href="https://github.com/agusnurwanto/sipd-chrome-extension" target="_blank">SIPD chrome extension</a>.')
-	            	->set_default_value(carbon_get_theme_option( 'crb_pemda' ))
+	            	->set_default_value(carbon_get_theme_option( 'crb_daerah' ))
 	            	->set_attribute('readOnly', 'true'),
 	            Field::make( 'text', 'crb_kepala_daerah', 'Kepala Daerah' )
 	            	->set_default_value(carbon_get_theme_option( 'crb_kepala_daerah' ))

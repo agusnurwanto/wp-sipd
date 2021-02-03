@@ -487,7 +487,7 @@ class Wpsipd_Simda
 				from data_unit 
 				where tahun_anggaran=%d
 					AND id_skpd=%d
-					AND active=1", $opsi['tahun_anggaran'], $v['idinduk'])
+					AND active=1", $opsi['tahun_anggaran'], $opsi['idinduk'])
 			, ARRAY_A);
 			$nama_unit = $unit[0]['nama_skpd'];
 		}else{
