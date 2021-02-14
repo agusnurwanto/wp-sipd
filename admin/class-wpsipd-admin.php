@@ -127,9 +127,9 @@ class Wpsipd_Admin {
 	        ->add_fields( array(
 	            Field::make( 'text', 'crb_tahun_anggaran_sipd', 'Tahun Anggaran SIPD' )
 	            	->set_default_value('2021'),
-	            Field::make( 'text', 'crb_pemda', 'Nama Pemda' )
+	            Field::make( 'text', 'crb_daerah', 'Nama Pemda' )
 	            	->set_help_text('Data diambil dari halaman pengaturan SIPD menggunakan <a href="https://github.com/agusnurwanto/sipd-chrome-extension" target="_blank">SIPD chrome extension</a>.')
-	            	->set_default_value(carbon_get_theme_option( 'crb_pemda' ))
+	            	->set_default_value(carbon_get_theme_option( 'crb_daerah' ))
 	            	->set_attribute('readOnly', 'true'),
 	            Field::make( 'text', 'crb_kepala_daerah', 'Kepala Daerah' )
 	            	->set_default_value(carbon_get_theme_option( 'crb_kepala_daerah' ))
@@ -197,7 +197,14 @@ class Wpsipd_Admin {
 			        '2' => __( 'Tidak' )
 			    ) )
             	->set_default_value('2')
-            	->set_help_text('Jika data di ref_program belum ada, juga akan diinput otomatis dengan kode default <b>kd_prog >= 150 dan kd_keg >= 150</b> sebagai tanda auto create by WP-SIPD.')
+            	->set_help_text('Jika data di ref_program belum ada, juga akan diinput otomatis dengan kode default <b>kd_prog >= 150 dan kd_keg >= 150</b> sebagai tanda auto create by WP-SIPD.'),
+	        Field::make( 'radio', 'crb_auto_ref_rek_mapping', __( 'Otomatis insert ke ref_rek_1, ref_rek_2, ref_rek_3, ref_rek_4, ref_rek_5 dan ref_rek_mapping jika tidak ada di SIMDA' ) )
+			    ->add_options( array(
+			        '1' => __( 'Ya' ),
+			        '2' => __( 'Tidak' )
+			    ) )
+            	->set_default_value('2')
+            	->set_help_text('Kode default <b>kd_rek_3 += 100, kd_rek_4 += 100 dan kd_rek_5 += 100</b> sebagai tanda auto create by WP-SIPD.')
 	    );
 
 	    $cek_status_koneksi_simda = $this->CurlSimda(array(

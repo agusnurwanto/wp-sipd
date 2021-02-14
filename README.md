@@ -2,6 +2,9 @@
 Optimasi aplikasi SIPD dengan chrome extension dan plugin wordpress
 Semoga bermanfaat
 
+### DONASI
+- Donasi untuk pengembang aplikasi, klik di link ini https://smkasiyahhomeschooling.blogspot.com/p/donasi-pengembangan-smk-asiyah.html
+
 ### GRUP telegram https://t.me/sipd_chrome_extension
 
 ### Chrome extension https://github.com/agusnurwanto/sipd-chrome-extension

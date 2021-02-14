@@ -67,17 +67,15 @@ class Wpsipd_Simda
 						$kd_sub_unit = $kd_unit_simda[3];
 						
 						$akun = explode('.', $kode_akun);
-	                    $mapping_rek = $this->CurlSimda(array(
-							'query' => "
-								SELECT 
-									* 
-								from ref_rek_mapping
-								where kd_rek90_1=".((int)$akun[0])
-		                            .' and kd_rek90_2='.((int)$akun[1])
-		                            .' and kd_rek90_3='.((int)$akun[2])
-		                            .' and kd_rek90_4='.((int)$akun[3])
-		                            .' and kd_rek90_5='.((int)$akun[4])
-		                            .' and kd_rek90_6='.((int)$akun[5])
+		                $mapping_rek = $this->cekRekMapping(array(
+							'tahun_anggaran' => $tahun_anggaran,
+							'kode_akun' => $kode_akun,
+							'kd_rek_0' => $akun[0],
+							'kd_rek_1' => $akun[1],
+							'kd_rek_2' => $akun[2],
+							'kd_rek_3' => $akun[3],
+							'kd_rek_4' => $akun[4],
+							'kd_rek_5' => $akun[5],
 		                ));
 
 						$kd = explode('.', $kode_sub_giat[0]['kode_sub_giat']);
@@ -270,7 +268,7 @@ class Wpsipd_Simda
 								AND active=1", $tahun_anggaran, $v['id_pendapatan'])
 						, ARRAY_A);
 						if(empty($pendapatan_all[$pendapatan[0]['kode_akun']])){
-							$pendapatan_all[$pendapatan[0]['kode_akun']] = arra();
+							$pendapatan_all[$pendapatan[0]['kode_akun']] = array();
 						}
 						foreach ($pendapatan as $key => $value) {
 							$pendapatan_all[$pendapatan[0]['kode_akun']][] = $value;
@@ -289,17 +287,15 @@ class Wpsipd_Simda
 						$kd_sub_unit = $kd_unit_simda[3];
 						
 						$akun = explode('.', $kode_akun);
-	                    $mapping_rek = $this->CurlSimda(array(
-							'query' => "
-								SELECT 
-									* 
-								from ref_rek_mapping
-								where kd_rek90_1=".((int)$akun[0])
-		                            .' and kd_rek90_2='.((int)$akun[1])
-		                            .' and kd_rek90_3='.((int)$akun[2])
-		                            .' and kd_rek90_4='.((int)$akun[3])
-		                            .' and kd_rek90_5='.((int)$akun[4])
-		                            .' and kd_rek90_6='.((int)$akun[5])
+		                $mapping_rek = $this->cekRekMapping(array(
+							'tahun_anggaran' => $tahun_anggaran,
+							'kode_akun' => $kode_akun,
+							'kd_rek_0' => $akun[0],
+							'kd_rek_1' => $akun[1],
+							'kd_rek_2' => $akun[2],
+							'kd_rek_3' => $akun[3],
+							'kd_rek_4' => $akun[4],
+							'kd_rek_5' => $akun[5],
 		                ));
 
 						$kd = explode('.', $kode_sub_giat[0]['kode_sub_giat']);
@@ -487,7 +483,7 @@ class Wpsipd_Simda
 				from data_unit 
 				where tahun_anggaran=%d
 					AND id_skpd=%d
-					AND active=1", $opsi['tahun_anggaran'], $v['idinduk'])
+					AND active=1", $opsi['tahun_anggaran'], $opsi['idinduk'])
 			, ARRAY_A);
 			$nama_unit = $unit[0]['nama_skpd'];
 		}else{
@@ -735,17 +731,15 @@ class Wpsipd_Simda
 						, ARRAY_A);
 						
 						$akun = explode('.', $rak[0]['kode_akun']);
-	                    $mapping_rek = $this->CurlSimda(array(
-							'query' => "
-								SELECT 
-									* 
-								from ref_rek_mapping
-								where kd_rek90_1=".((int)$akun[0])
-		                            .' and kd_rek90_2='.((int)$akun[1])
-		                            .' and kd_rek90_3='.((int)$akun[2])
-		                            .' and kd_rek90_4='.((int)$akun[3])
-		                            .' and kd_rek90_5='.((int)$akun[4])
-		                            .' and kd_rek90_6='.((int)$akun[5])
+		                $mapping_rek = $this->cekRekMapping(array(
+							'tahun_anggaran' => $tahun_anggaran,
+							'kode_akun' => $rak[0]['kode_akun'],
+							'kd_rek_0' => $akun[0],
+							'kd_rek_1' => $akun[1],
+							'kd_rek_2' => $akun[2],
+							'kd_rek_3' => $akun[3],
+							'kd_rek_4' => $akun[4],
+							'kd_rek_5' => $akun[5],
 		                ));
 
 						if($type == 'belanja'){
@@ -1348,22 +1342,20 @@ class Wpsipd_Simda
 										}
 										$akun_all[$rk['kode_akun']][$rk['subs_bl_teks'].' | '.$rk['ket_bl_teks']][] = $rk;
 									}
-
+									
 									foreach ($akun_all as $kk => $rk) {
 										$akun = explode('.', $kk);
 
-					                    $mapping_rek = $this->CurlSimda(array(
-											'query' => "
-												SELECT 
-													* 
-												from ref_rek_mapping
-												where kd_rek90_1=".((int)$akun[0])
-						                            .' and kd_rek90_2='.((int)$akun[1])
-						                            .' and kd_rek90_3='.((int)$akun[2])
-						                            .' and kd_rek90_4='.((int)$akun[3])
-						                            .' and kd_rek90_5='.((int)$akun[4])
-						                            .' and kd_rek90_6='.((int)$akun[5])
-										));
+						                $mapping_rek = $this->cekRekMapping(array(
+											'tahun_anggaran' => $tahun_anggaran,
+											'kode_akun' => $kk,
+											'kd_rek_0' => $akun[0],
+											'kd_rek_1' => $akun[1],
+											'kd_rek_2' => $akun[2],
+											'kd_rek_3' => $akun[3],
+											'kd_rek_4' => $akun[4],
+											'kd_rek_5' => $akun[5],
+						                ));
 										if(!empty($mapping_rek)){
 								            $options = array(
 								                'query' => "
@@ -1548,7 +1540,7 @@ class Wpsipd_Simda
 										}else{
 											$ret['status'] = 'error';
 											$ret['simda_status'] = 'error';
-											$ret['simda_msg'] = 'Kode akun '.$rk['kode_akun'].' tidak ditemukan di ref_rek_mapping SIMDA';
+											$ret['simda_msg'] = 'Kode akun '.$kk.' tidak ditemukan di ref_rek_mapping SIMDA';
 										}
 					                }
 								}else{
@@ -1640,6 +1632,523 @@ class Wpsipd_Simda
         }
         $ret .= $number;
         return $ret;
+    }
+
+    function cekRekMapping($options){
+    	global $wpdb;
+    	$mapping_rek = $this->CurlSimda(array(
+			'query' => "
+				SELECT 
+					* 
+				from ref_rek_mapping
+				where kd_rek90_1=".((int)$options['kd_rek_0'])
+                    .' and kd_rek90_2='.((int)$options['kd_rek_1'])
+                    .' and kd_rek90_3='.((int)$options['kd_rek_2'])
+                    .' and kd_rek90_4='.((int)$options['kd_rek_3'])
+                    .' and kd_rek90_5='.((int)$options['kd_rek_4'])
+                    .' and kd_rek90_6='.((int)$options['kd_rek_5'])
+		));
+		$rek90_1 = $options['kd_rek_0'];
+		$rek90_2 = $rek90_1.'.'.$options['kd_rek_1'];
+		$rek90_3 = $rek90_2.'.'.$options['kd_rek_2'];
+		$rek90_4 = $rek90_3.'.'.$options['kd_rek_3'];
+		$rek90_5 = $rek90_4.'.'.$options['kd_rek_4'];
+		$rek90_6 = $rek90_5.'.'.$options['kd_rek_5'];
+
+		$no_tinny = 100;
+		$kd_rek_3 = ((int)$options['kd_rek_2'])+$no_tinny;
+		$kd_rek_4 = ((int)$options['kd_rek_4'])+$no_tinny;
+		$kd_rek_5 = ((int)$options['kd_rek_5'])+$no_tinny;
+
+		if(!empty($options['delete'])){
+			$this->CurlSimda(array(
+				'query' => "DELETE from ref_rek_mapping
+					where kd_rek90_1=".((int)$options['kd_rek_0'])."
+						AND kd_rek90_2=".((int)$options['kd_rek_1'])."
+						AND kd_rek90_3=".((int)$options['kd_rek_2'])."
+						AND kd_rek90_4=".((int)$options['kd_rek_3'])."
+						AND kd_rek90_5=".((int)$options['kd_rek_4'])."
+						AND kd_rek90_6=".((int)$options['kd_rek_5'])
+			));
+			$this->CurlSimda(array(
+				'query' => "DELETE from ref_rek_5 
+					where kd_rek_1=".((int)$options['kd_rek_0'])."
+						AND kd_rek_2=".((int)$options['kd_rek_1'])."
+						AND kd_rek_3=".$kd_rek_3."
+						AND kd_rek_4=".$kd_rek_4."
+						AND kd_rek_5=".$kd_rek_5
+			));
+			$this->CurlSimda(array(
+				'query' => "DELETE from ref_rek_4 
+					where kd_rek_1=".((int)$options['kd_rek_0'])."
+						AND kd_rek_2=".((int)$options['kd_rek_1'])."
+						AND kd_rek_3=".$kd_rek_3."
+						AND kd_rek_4=".$kd_rek_4
+			));
+			$this->CurlSimda(array(
+				'query' => "DELETE from ref_rek_3 
+					where kd_rek_1=".((int)$options['kd_rek_0'])."
+						AND kd_rek_2=".((int)$options['kd_rek_1'])."
+						AND kd_rek_3=".$kd_rek_3
+			));
+			$this->CurlSimda(array(
+				'query' => "DELETE from ref_rek_2 
+					where kd_rek_1=".((int)$options['kd_rek_0'])."
+						AND kd_rek_2=".((int)$options['kd_rek_1'])
+			));
+			$this->CurlSimda(array(
+				'query' => "DELETE from ref_rek_1 where kd_rek_1=".((int)$options['kd_rek_0']).""
+			));
+			$this->CurlSimda(array(
+				'query' => "DELETE from ref_rek90_6 
+					where kd_rek90_1=".((int)$options['kd_rek_0'])."
+						AND kd_rek90_2=".((int)$options['kd_rek_1'])."
+						AND kd_rek90_3=".((int)$options['kd_rek_2'])."
+						AND kd_rek90_4=".((int)$options['kd_rek_3'])."
+						AND kd_rek90_5=".((int)$options['kd_rek_4'])."
+						AND kd_rek90_6=".((int)$options['kd_rek_5'])
+			));
+			$this->CurlSimda(array(
+				'query' => "DELETE from ref_rek90_5 
+					where kd_rek90_1=".((int)$options['kd_rek_0'])."
+						AND kd_rek90_2=".((int)$options['kd_rek_1'])."
+						AND kd_rek90_3=".((int)$options['kd_rek_2'])."
+						AND kd_rek90_4=".((int)$options['kd_rek_3'])."
+						AND kd_rek90_5=".((int)$options['kd_rek_4'])
+			));
+			$this->CurlSimda(array(
+				'query' => "DELETE from ref_rek90_4 
+					where kd_rek90_1=".((int)$options['kd_rek_0'])."
+						AND kd_rek90_2=".((int)$options['kd_rek_1'])."
+						AND kd_rek90_3=".((int)$options['kd_rek_2'])."
+						AND kd_rek90_4=".((int)$options['kd_rek_3'])
+			));
+			$this->CurlSimda(array(
+				'query' => "DELETE from ref_rek90_3 
+					where kd_rek90_1=".((int)$options['kd_rek_0'])."
+						AND kd_rek90_2=".((int)$options['kd_rek_1'])."
+						AND kd_rek90_3=".((int)$options['kd_rek_2'])
+			));
+			$this->CurlSimda(array(
+				'query' => "DELETE from ref_rek90_2 
+					where kd_rek90_1=".((int)$options['kd_rek_0'])."
+						AND kd_rek90_2=".((int)$options['kd_rek_1'])
+			));
+			$this->CurlSimda(array(
+				'query' => "DELETE from ref_rek90_1 
+					where kd_rek90_1=".((int)$options['kd_rek_0'])
+			));
+		}
+
+		if(
+			empty($mapping_rek)
+			&& carbon_get_theme_option('crb_auto_ref_rek_mapping') == 1
+		){
+
+			$cek_rek_1 = $this->CurlSimda(array(
+				'query' => "
+					SELECT 
+						* 
+					from ref_rek_1
+					where kd_rek_1=".((int)$options['kd_rek_0'])
+			));
+			if(empty($cek_rek_1)){
+				$rek_name = $wpdb->get_results($wpdb->prepare("
+					SELECT 
+						nama_akun
+					from data_akun
+					where tahun_anggaran=%d
+						AND kode_akun=%s", $options['tahun_anggaran'], $rek90_1)
+				, ARRAY_A);
+				$this->CurlSimda(array(
+					'query' => "
+						INSERT INTO ref_rek_1 (
+							kd_rek_1,
+							nm_rek_1
+						) VALUES (
+							".((int)$options['kd_rek_0']).",
+							'".str_replace("'", '`', substr($rek_name[0]['nama_akun'], 0, 255))."'
+						)"
+				));
+			}
+
+			$cek_rek_2 = $this->CurlSimda(array(
+				'query' => "
+					SELECT 
+						* 
+					from ref_rek_2
+					where kd_rek_1=".((int)$options['kd_rek_0'])."
+						and kd_rek_2=".((int)$options['kd_rek_1'])
+			));
+			if(empty($cek_rek_2)){
+				$rek_name = $wpdb->get_results($wpdb->prepare("
+					SELECT 
+						nama_akun
+					from data_akun
+					where tahun_anggaran=%d
+						AND kode_akun=%s", $options['tahun_anggaran'], $rek90_2)
+				, ARRAY_A);
+				$this->CurlSimda(array(
+					'query' => "
+						INSERT INTO ref_rek_2 (
+							kd_rek_1,
+							kd_rek_2,
+							nm_rek_2
+						) VALUES (
+							".((int)$options['kd_rek_0']).",
+							".((int)$options['kd_rek_1']).",
+							'".str_replace("'", '`', substr($rek_name[0]['nama_akun'], 0, 255))."'
+						)"
+				));
+			}
+
+			$cek_rek_3 = $this->CurlSimda(array(
+				'query' => "
+					SELECT 
+						* 
+					from ref_rek_3
+					where kd_rek_1=".((int)$options['kd_rek_0'])."
+						and kd_rek_2=".((int)$options['kd_rek_1'])."
+						and kd_rek_3=".$kd_rek_3
+			));
+			if(empty($cek_rek_3)){
+				$rek_name = $wpdb->get_results($wpdb->prepare("
+					SELECT 
+						nama_akun
+					from data_akun
+					where tahun_anggaran=%d
+						AND kode_akun=%s", $options['tahun_anggaran'], $rek90_4)
+				, ARRAY_A);
+				$this->CurlSimda(array(
+					'query' => "
+						INSERT INTO ref_rek_3 (
+							kd_rek_1,
+							kd_rek_2,
+							kd_rek_3,
+							nm_rek_3
+						) VALUES (
+							".((int)$options['kd_rek_0']).",
+							".((int)$options['kd_rek_1']).",
+							".$kd_rek_3.",
+							'".str_replace("'", '`', substr($rek_name[0]['nama_akun'], 0, 255))."'
+						)"
+				));
+			}
+
+			$cek_rek_4 = $this->CurlSimda(array(
+				'query' => "
+					SELECT 
+						* 
+					from ref_rek_4
+					where kd_rek_1=".((int)$options['kd_rek_0'])."
+						and kd_rek_2=".((int)$options['kd_rek_1'])."
+						and kd_rek_3=".$kd_rek_3."
+						and kd_rek_4=".$kd_rek_4
+			));
+			if(empty($cek_rek_4)){
+				$rek_name = $wpdb->get_results($wpdb->prepare("
+					SELECT 
+						nama_akun
+					from data_akun
+					where tahun_anggaran=%d
+						AND kode_akun=%s", $options['tahun_anggaran'], $rek90_5)
+				, ARRAY_A);
+				$this->CurlSimda(array(
+					'query' => "
+						INSERT INTO ref_rek_4 (
+							kd_rek_1,
+							kd_rek_2,
+							kd_rek_3,
+							kd_rek_4,
+							nm_rek_4
+						) VALUES (
+							".((int)$options['kd_rek_0']).",
+							".((int)$options['kd_rek_1']).",
+							".$kd_rek_3.",
+							".$kd_rek_4.",
+							'".str_replace("'", '`', substr($rek_name[0]['nama_akun'], 0, 255))."'
+						)"
+				));
+			}
+
+			$cek_rek_5 = $this->CurlSimda(array(
+				'query' => "
+					SELECT 
+						* 
+					from ref_rek_5
+					where kd_rek_1=".((int)$options['kd_rek_0'])."
+						and kd_rek_2=".((int)$options['kd_rek_1'])."
+						and kd_rek_3=".$kd_rek_3."
+						and kd_rek_4=".$kd_rek_4."
+						and kd_rek_5=".$kd_rek_5
+			));
+			if(empty($cek_rek_5)){
+				$rek_name = $wpdb->get_results($wpdb->prepare("
+					SELECT 
+						nama_akun
+					from data_akun
+					where tahun_anggaran=%d
+						AND kode_akun=%s", $options['tahun_anggaran'], $rek90_6)
+				, ARRAY_A);
+				$this->CurlSimda(array(
+					'query' => "
+						INSERT INTO ref_rek_5 (
+							kd_rek_1,
+							kd_rek_2,
+							kd_rek_3,
+							kd_rek_4,
+							kd_rek_5,
+							nm_rek_5
+						) VALUES (
+							".((int)$options['kd_rek_0']).",
+							".((int)$options['kd_rek_1']).",
+							".$kd_rek_3.",
+							".$kd_rek_4.",
+							".$kd_rek_5.",
+							'".str_replace("'", '`', substr($rek_name[0]['nama_akun'], 0, 255))."'
+						)"
+				));
+			}
+
+			$cek_rek90_1 = $this->CurlSimda(array(
+				'query' => "
+					SELECT 
+						* 
+					from ref_rek90_1
+					where kd_rek90_1=".((int)$options['kd_rek_0'])
+			));
+			if(empty($cek_rek90_1)){
+				$rek_name = $wpdb->get_results($wpdb->prepare("
+					SELECT 
+						nama_akun
+					from data_akun
+					where tahun_anggaran=%d
+						AND kode_akun=%s", $options['tahun_anggaran'], $rek90_1)
+				, ARRAY_A);
+				$this->CurlSimda(array(
+					'query' => "
+						INSERT INTO ref_rek90_1 (
+							kd_rek90_1,
+							nm_rek90_1
+						) VALUES (
+							".((int)$options['kd_rek_0']).",
+							'".str_replace("'", '`', substr($rek_name[0]['nama_akun'], 0, 255))."'
+						)"
+				));
+			}
+
+			$cek_rek90_2 = $this->CurlSimda(array(
+				'query' => "
+					SELECT 
+						* 
+					from ref_rek90_2
+					where kd_rek90_1=".((int)$options['kd_rek_0'])."
+						and kd_rek90_2=".((int)$options['kd_rek_1'])
+			));
+			if(empty($cek_rek90_2)){
+				$rek_name = $wpdb->get_results($wpdb->prepare("
+					SELECT 
+						nama_akun
+					from data_akun
+					where tahun_anggaran=%d
+						AND kode_akun=%s", $options['tahun_anggaran'], $rek90_2)
+				, ARRAY_A);
+				$this->CurlSimda(array(
+					'query' => "
+						INSERT INTO ref_rek90_2 (
+							kd_rek90_1,
+							kd_rek90_2,
+							nm_rek90_2
+						) VALUES (
+							".((int)$options['kd_rek_0']).",
+							".((int)$options['kd_rek_1']).",
+							'".str_replace("'", '`', substr($rek_name[0]['nama_akun'], 0, 255))."'
+						)"
+				));
+			}
+
+			$cek_rek90_3 = $this->CurlSimda(array(
+				'query' => "
+					SELECT 
+						* 
+					from ref_rek90_3
+					where kd_rek90_1=".((int)$options['kd_rek_0'])."
+						and kd_rek90_2=".((int)$options['kd_rek_1'])."
+						and kd_rek90_3=".((int)$options['kd_rek_2'])
+			));
+			if(empty($cek_rek90_3)){
+				$rek_name = $wpdb->get_results($wpdb->prepare("
+					SELECT 
+						nama_akun
+					from data_akun
+					where tahun_anggaran=%d
+						AND kode_akun=%s", $options['tahun_anggaran'], $rek90_3)
+				, ARRAY_A);
+				$this->CurlSimda(array(
+					'query' => "
+						INSERT INTO ref_rek90_3 (
+							kd_rek90_1,
+							kd_rek90_2,
+							kd_rek90_3,
+							nm_rek90_3
+						) VALUES (
+							".((int)$options['kd_rek_0']).",
+							".((int)$options['kd_rek_1']).",
+							".((int)$options['kd_rek_2']).",
+							'".str_replace("'", '`', substr($rek_name[0]['nama_akun'], 0, 255))."'
+						)"
+				));
+			}
+
+			$cek_rek90_4 = $this->CurlSimda(array(
+				'query' => "
+					SELECT 
+						* 
+					from ref_rek90_4
+					where kd_rek90_1=".((int)$options['kd_rek_0'])."
+						and kd_rek90_2=".((int)$options['kd_rek_1'])."
+						and kd_rek90_3=".((int)$options['kd_rek_2'])."
+						and kd_rek90_4=".((int)$options['kd_rek_3'])
+			));
+			if(empty($cek_rek90_4)){
+				$rek_name = $wpdb->get_results($wpdb->prepare("
+					SELECT 
+						nama_akun
+					from data_akun
+					where tahun_anggaran=%d
+						AND kode_akun=%s", $options['tahun_anggaran'], $rek90_4)
+				, ARRAY_A);
+				$this->CurlSimda(array(
+					'query' => "
+						INSERT INTO ref_rek90_4 (
+							kd_rek90_1,
+							kd_rek90_2,
+							kd_rek90_3,
+							kd_rek90_4,
+							nm_rek90_4
+						) VALUES (
+							".((int)$options['kd_rek_0']).",
+							".((int)$options['kd_rek_1']).",
+							".((int)$options['kd_rek_2']).",
+							".((int)$options['kd_rek_3']).",
+							'".str_replace("'", '`', substr($rek_name[0]['nama_akun'], 0, 255))."'
+						)"
+				));
+			}
+
+			$cek_rek90_5 = $this->CurlSimda(array(
+				'query' => "
+					SELECT 
+						* 
+					from ref_rek90_5
+					where kd_rek90_1=".((int)$options['kd_rek_0'])."
+						and kd_rek90_2=".((int)$options['kd_rek_1'])."
+						and kd_rek90_3=".((int)$options['kd_rek_2'])."
+						and kd_rek90_4=".((int)$options['kd_rek_3'])."
+						and kd_rek90_5=".((int)$options['kd_rek_4'])
+			));
+			if(empty($cek_rek90_5)){
+				$rek_name = $wpdb->get_results($wpdb->prepare("
+					SELECT 
+						nama_akun
+					from data_akun
+					where tahun_anggaran=%d
+						AND kode_akun=%s", $options['tahun_anggaran'], $rek90_5)
+				, ARRAY_A);
+				$this->CurlSimda(array(
+					'query' => "
+						INSERT INTO ref_rek90_5 (
+							kd_rek90_1,
+							kd_rek90_2,
+							kd_rek90_3,
+							kd_rek90_4,
+							kd_rek90_5,
+							nm_rek90_5
+						) VALUES (
+							".((int)$options['kd_rek_0']).",
+							".((int)$options['kd_rek_1']).",
+							".((int)$options['kd_rek_2']).",
+							".((int)$options['kd_rek_3']).",
+							".((int)$options['kd_rek_4']).",
+							'".str_replace("'", '`', substr($rek_name[0]['nama_akun'], 0, 255))."'
+						)"
+				));
+			}
+
+			$cek_rek90_6 = $this->CurlSimda(array(
+				'query' => "
+					SELECT 
+						* 
+					from ref_rek90_6
+					where kd_rek90_1=".((int)$options['kd_rek_0'])."
+						and kd_rek90_2=".((int)$options['kd_rek_1'])."
+						and kd_rek90_3=".((int)$options['kd_rek_2'])."
+						and kd_rek90_4=".((int)$options['kd_rek_3'])."
+						and kd_rek90_5=".((int)$options['kd_rek_4'])."
+						and kd_rek90_6=".((int)$options['kd_rek_5'])
+			));
+			if(empty($cek_rek90_6)){
+				$rek_name = $wpdb->get_results($wpdb->prepare("
+					SELECT 
+						nama_akun
+					from data_akun
+					where tahun_anggaran=%d
+						AND kode_akun=%s", $options['tahun_anggaran'], $rek90_6)
+				, ARRAY_A);
+				$this->CurlSimda(array(
+					'query' => "
+						INSERT INTO ref_rek90_6 (
+							kd_rek90_1,
+							kd_rek90_2,
+							kd_rek90_3,
+							kd_rek90_4,
+							kd_rek90_5,
+							kd_rek90_6,
+							nm_rek90_6
+						) VALUES (
+							".((int)$options['kd_rek_0']).",
+							".((int)$options['kd_rek_1']).",
+							".((int)$options['kd_rek_2']).",
+							".((int)$options['kd_rek_3']).",
+							".((int)$options['kd_rek_4']).",
+							".((int)$options['kd_rek_5']).",
+							'".str_replace("'", '`', substr($rek_name[0]['nama_akun'], 0, 255))."'
+						)"
+				));
+			}
+
+			$this->CurlSimda(array(
+				'query' => "
+					INSERT INTO ref_rek_mapping (
+						kd_rek_1,
+						kd_rek_2,
+						kd_rek_3,
+						kd_rek_4,
+						kd_rek_5,
+						kd_rek90_1,
+						kd_rek90_2,
+						kd_rek90_3,
+						kd_rek90_4,
+						kd_rek90_5,
+						kd_rek90_6
+					) VALUES (
+						".((int)$options['kd_rek_0']).",
+						".((int)$options['kd_rek_1']).",
+						".$kd_rek_3.",
+						".$kd_rek_4.",
+						".$kd_rek_5.",
+						".((int)$options['kd_rek_0']).",
+						".((int)$options['kd_rek_1']).",
+						".((int)$options['kd_rek_2']).",
+						".((int)$options['kd_rek_3']).",
+						".((int)$options['kd_rek_4']).",
+						".((int)$options['kd_rek_5'])."
+					)"
+			));
+			return $this->cekRekMapping($options);
+		}else{
+			return $mapping_rek;
+		}
     }
 
     function cekKegiatanMapping($options){

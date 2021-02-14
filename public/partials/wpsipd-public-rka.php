@@ -794,7 +794,7 @@ foreach ($bl as $k => $sub_bl) {
 	        </td>
 	        <td class="kiri kanan atas bawah" width="250" valign="top">
 	            <table width="100%" class="cellpadding_2" style="border-spacing: 0px;">
-	                <tr><td colspan="3" class="text_tengah"><?php echo carbon_get_theme_option('crb_pemda'); ?> , Tanggal </td></tr>
+	                <tr><td colspan="3" class="text_tengah"><?php echo carbon_get_theme_option('crb_daerah'); ?> , Tanggal </td></tr>
 	                                                    <tr><td colspan="3" class="text_tengah text_15">Kepala&nbsp;<?php echo $unit[0]['namaunit']; ?></td></tr>
 	                <tr><td colspan="3" height="80">&nbsp;</td></tr>
 	                <tr><td colspan="3" class="text_tengah"><?php echo $unit[0]['namakepala']; ?></td></tr>
