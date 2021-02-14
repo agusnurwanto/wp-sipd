@@ -2321,4 +2321,62 @@ class Wpsipd_Simda
 			return $mapping;
 		}
     }
+
+    function get_up_simda(){
+    	global $wpdb;
+		$ret = array(
+			'status'	=> 'success',
+			'message'	=> 'Berhasil get data SIMDA!',
+			'action'	=> $_POST['action']
+		);
+		if (!empty($_POST)) {
+			if (!empty($_POST['api_key']) && $_POST['api_key']) {
+				if(!empty($_POST['tahun_anggaran'])){
+					$tahun_anggaran = $_POST['tahun_anggaran'];
+		    		$up = $this->CurlSimda(array(
+						'query' => "
+							SELECT * FROM ta_spp WHERE jn_spp=1 AND tahun=$tahun_anggaran
+							"
+					));
+					$unit = $wpdb->get_results($wpdb->prepare("
+						SELECT 
+							nama_skpd,
+							id_skpd 
+						from data_unit 
+						where tahun_anggaran=%d
+							AND active=1", $tahun_anggaran)
+					, ARRAY_A);
+					foreach ($unit as $k => $v) {
+						$unit[$k]['mapping'] = carbon_get_theme_option( 'crb_unit_'.$v['id_skpd'] );
+					}
+					foreach ($up as $k => $v) {
+						$rinc = $this->CurlSimda(array(
+							'query' => "
+								SELECT * FROM ta_spp_rinc WHERE no_spp='".$v->no_spp."' AND tahun=$tahun_anggaran
+								"
+						));
+						$mapping = $v->kd_urusan.'.'.$v->kd_bidang.'.'.$v->kd_unit.'.'.$v->kd_sub;
+						foreach ($unit as $key => $value) {
+							if($mapping == $value['mapping']){
+								$up[$k]->mapping = $value;
+							}
+						}
+						$up[$k]->rinc = $rinc;
+					}
+
+					$ret['data'] = $up;
+				} else {
+					$ret['status'] = 'error';
+					$ret['message'] = 'Format request salah!';
+				}
+			} else {
+				$ret['status'] = 'error';
+				$ret['message'] = 'APIKEY tidak sesuai!';
+			}
+		} else {
+			$ret['status'] = 'error';
+			$ret['message'] = 'Format Salah!';
+		}
+		die(json_encode($ret));
+    }
 }

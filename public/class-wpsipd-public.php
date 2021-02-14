@@ -2314,4 +2314,8 @@ class Wpsipd_Public
 		}
 		die(json_encode($ret));
 	}
+
+	function get_up(){
+		$this->simda->get_up_simda();
+	}
 }
