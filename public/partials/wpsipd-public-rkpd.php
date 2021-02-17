@@ -176,7 +176,7 @@ if(empty($units)){
 			}
 			if(empty($data_all['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']]['data'][$sub['kode_giat']]['data'][$sub['kode_sub_giat']])){
 				$nama = explode(' ', $sub['nama_sub_giat']);
-				unset($nama[1]);
+				unset($nama[0]);
 				$data_all['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']]['data'][$sub['kode_giat']]['data'][$sub['kode_sub_giat']] = array(
 					'nama'	=> implode(' ', $nama),
 					'total' => 0,
@@ -223,9 +223,9 @@ if(empty($units)){
 			            <td class="kanan bawah">&nbsp;</td>
 			            <td class="kanan bawah">&nbsp;</td>
 			            <td class="kanan bawah text_blok" colspan="8">'.$bidang['nama'].'</td>
-			            <td class="kanan bawah text_kanan text_blok">'.$bidang['total'].'</td>
+			            <td class="kanan bawah text_kanan text_blok">'.number_format($bidang['total'],0,",",".").'</td>
 			            <td class="kanan bawah" colspan="4">&nbsp;</td>
-			            <td class="kanan bawah text_kanan text_blok">'.$bidang['total_n_plus'].'</td>
+			            <td class="kanan bawah text_kanan text_blok">'.number_format($bidang['total_n_plus'],0,",",".").'</td>
 			        </tr>
 				';
 				foreach ($bidang['data'] as $kd_program => $program) {
@@ -239,9 +239,9 @@ if(empty($units)){
 				            <td class="kanan bawah">&nbsp;</td>
 				            <td class="kanan bawah">&nbsp;</td>
 				            <td class="kanan bawah text_blok" colspan="8">'.$program['nama'].'</td>
-				            <td class="kanan bawah text_kanan text_blok">'.$program['total'].'</td>
+				            <td class="kanan bawah text_kanan text_blok">'.number_format($program['total'],0,",",".").'</td>
 				            <td class="kanan bawah" colspan="4">&nbsp;</td>
-				            <td class="kanan bawah text_kanan text_blok">'.$program['total_n_plus'].'</td>
+				            <td class="kanan bawah text_kanan text_blok">'.number_format($program['total_n_plus'],0,",",".").'</td>
 				        </tr>
 					';
 					foreach ($program['data'] as $kd_giat => $giat) {
@@ -255,9 +255,9 @@ if(empty($units)){
 					            <td style="border:.5pt solid #000; vertical-align:middle; font-weight:bold;" width="5">'.$kd_giat.'</td>
 					            <td style="border:.5pt solid #000; vertical-align:middle;" width="5">&nbsp;</td>
 					            <td style="border:.5pt solid #000; vertical-align:middle; font-weight:bold;" colspan="8">'.$giat['nama'].'</td>
-					            <td style="border:.5pt solid #000; vertical-align:middle;  text-align:right; font-weight:bold;">'.$giat['total'].'</td>
+					            <td style="border:.5pt solid #000; vertical-align:middle;  text-align:right; font-weight:bold;">'.number_format($giat['total'],0,",",".").'</td>
 					            <td style="border:.5pt solid #000; vertical-align:middle; font-weight:bold;" colspan="4"></td>
-					            <td style="border:.5pt solid #000; vertical-align:middle;  text-align:right; font-weight:bold;">'.$giat['total_n_plus'].'</td>
+					            <td style="border:.5pt solid #000; vertical-align:middle;  text-align:right; font-weight:bold;">'.number_format($giat['total_n_plus'],0,",",".").'</td>
 					        </tr>
 						';
 						foreach ($giat['data'] as $kd_sub_giat => $sub_giat) {
@@ -278,12 +278,12 @@ if(empty($units)){
 						            <td class="kanan bawah">target program</td>
 						            <td class="kanan bawah">target sub giat</td>
 						            <td class="kanan bawah">target hasil giat</td>
-						            <td class="kanan bawah text_kanan">'.$sub_giat['total'].'</td>
+						            <td class="kanan bawah text_kanan">'.number_format($sub_giat['total'],0,",",".").'</td>
 						            <td class="kanan bawah"><br/></td>
 						            <td class="kanan bawah">&nbsp;</td>
 						            <td class="kanan bawah">tolak ukur n+1</td>
 						            <td class="kanan bawah">target n+1</td>
-						            <td class="kanan bawah text_kanan">'.$sub_giat['total_n_plus'].'</td>
+						            <td class="kanan bawah text_kanan">'.number_format($sub_giat['total_n_plus'],0,",",".").'</td>
 						        </tr>
 							';
 						}
@@ -352,9 +352,9 @@ if(empty($units)){
         <?php echo $body; ?>
 		<tr>
 	        <td class="kiri kanan bawah text_blok text_kanan" colspan="13">TOTAL</td>
-	        <td class="kanan bawah text_kanan text_blok"><?php echo $data_all['total']; ?></td>
+	        <td class="kanan bawah text_kanan text_blok"><?php echo number_format($data_all['total'],0,",","."); ?></td>
 	        <td class="kanan bawah" colspan="4">&nbsp;</td>
-	        <td class="kanan bawah text_kanan text_blok"><?php echo $data_all['total_n_plus']; ?></td>
+	        <td class="kanan bawah text_kanan text_blok"><?php echo number_format($data_all['total_n_plus'],0,",","."); ?></td>
 	    </tr>
     </tbody>
 </table>
