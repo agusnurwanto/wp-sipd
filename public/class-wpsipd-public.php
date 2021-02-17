@@ -1920,6 +1920,11 @@ class Wpsipd_Public
 		require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/wpsipd-public-rka.php';
 	}
 
+	public function tampilrkpd($atts)
+	{
+		require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/wpsipd-public-rkpd.php';
+	}
+
 	public function get_cat_url()
 	{
 		global $wpdb;

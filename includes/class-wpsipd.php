@@ -251,6 +251,7 @@ class Wpsipd
 		add_shortcode('datassh', array($plugin_public, 'datassh'));
 		add_shortcode('rekbelanja', array($plugin_public, 'rekbelanja'));
 		add_shortcode('tampilrka', array($plugin_public, 'tampilrka'));
+		add_shortcode('tampilrkpd', array($plugin_public, 'tampilrkpd'));
 	}
 
 	/**
