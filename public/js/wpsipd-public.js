@@ -80,6 +80,10 @@ function run_download_excel(){
 
 	jQuery('#excel').on('click', function(){
 		var name = "Laporan";
+		var title = jQuery('#cetak').attr('title');
+		if(title){
+			name = title;
+		}
 		tableHtmlToExcel('cetak', name);
 	});
 }

@@ -60,11 +60,12 @@ thead{
 .setbreakbefore{
     page-break-before: always;
 }
-td {
+td, th{
     page-break-inside: avoid;
+    vertical-align: top;
 }
-@page  {
-    size: A3 landscape;
+thead td{
+	vertical-align: middle;
 }
 @media  print {
     body {
@@ -75,3 +76,8 @@ td {
  	padding: 20px 0;
  	text-align: center;
 }
+table { page-break-inside:auto }
+div   { page-break-inside:avoid; }
+tr    { page-break-inside:avoid; page-break-after:auto }
+thead { display:table-header-group }
+tfoot { display:table-footer-group }

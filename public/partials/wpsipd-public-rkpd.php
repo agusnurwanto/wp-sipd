@@ -37,7 +37,7 @@ if(empty($units)){
 	", $input['tahun_anggaran']), ARRAY_A);
 }
 ?>
-<div id="cetak">
+<div id="cetak" title="Laporan RKPD <?php echo $input['tahun_anggaran']; ?>">
 	<h4 style="text-align: center; font-size: 11px; margin: 0; font-weight: bold;">Program dan Kegiatan Perangkat Daerah<br/>Kabupaten Magetan <br/>Tahun <?php echo $input['tahun_anggaran']; ?></h4>
 <?php 
 	foreach ($units as $k => $unit): 
@@ -386,8 +386,9 @@ if(empty($units)){
 		    </tr>
 	    </tbody>
 	</table>
-</div>
+	<div style="page-break-after:always;"></div>
 <?php endforeach; ?>
+</div>
 <script type="text/javascript">
 	run_download_excel();
 </script>
