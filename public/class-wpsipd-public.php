@@ -717,9 +717,11 @@ class Wpsipd_Public
 	{
 		global $wpdb;
 		$ret = array(
+			'action'	=> $_POST['action'],
 			'status'	=> 'success',
 			'message'	=> 'Berhasil export Unit!',
-			'request_data'	=> array()
+			'request_data'	=> array(),
+			'renja_link'	=> array()
 		);
 		if (!empty($_POST)) {
 			if (!empty($_POST['api_key']) && $_POST['api_key'] == carbon_get_theme_option( 'crb_api_key_extension' )) {
@@ -817,6 +819,7 @@ class Wpsipd_Public
 						// https://stackoverflow.com/questions/3010124/wordpress-insert-category-tags-automatically-if-they-dont-exist
 						$append = true;
 						wp_set_post_terms($custom_post->ID, array($cat_id), $taxonomy, $append);
+						$ret['renja_link'][$v['id_skpd']] = esc_url( get_permalink($custom_post));
 					}
 					if(carbon_get_theme_option('crb_singkron_simda') == 1){
 						$debug = false;

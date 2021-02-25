@@ -11,7 +11,10 @@ if(!empty($input['id_skpd'])){
 			* 
 		from data_unit 
 		where tahun_anggaran=%d
-			and id_skpd IN (".$input['id_skpd'].")
+			and (
+				id_skpd IN (".$input['id_skpd'].") 
+				or idinduk IN(".$input['id_skpd'].")
+			)
 			and active=1
 		order by id_skpd ASC
 	", $input['tahun_anggaran']);
@@ -43,6 +46,16 @@ if(empty($units)){
 	foreach ($units as $k => $unit): 
 		if($unit['is_skpd']==1){
 			$unit_induk = array($unit);
+			$subkeg = $wpdb->get_results($wpdb->prepare("
+				select 
+					* 
+				from data_sub_keg_bl 
+				where tahun_anggaran=%d
+					and active=1
+					and id_skpd=%d
+					and id_sub_skpd=%d
+				order by kode_sub_giat ASC
+			", $input['tahun_anggaran'], $unit['id_skpd'], $unit['id_skpd']), ARRAY_A);
 		}else{
 			$unit_induk = $wpdb->get_results($wpdb->prepare("
 				select 
@@ -53,16 +66,18 @@ if(empty($units)){
 					and id_skpd=%d
 				order by id_skpd ASC
 			", $input['tahun_anggaran'], $unit['idinduk']), ARRAY_A);
+
+			$subkeg = $wpdb->get_results($wpdb->prepare("
+				select 
+					* 
+				from data_sub_keg_bl 
+				where tahun_anggaran=%d
+					and active=1
+					and id_sub_skpd=%d
+				order by kode_sub_giat ASC
+			", $input['tahun_anggaran'], $unit['id_skpd']), ARRAY_A);
 		}
-		$subkeg = $wpdb->get_results($wpdb->prepare("
-			select 
-				* 
-			from data_sub_keg_bl 
-			where tahun_anggaran=%d
-				and active=1
-				and id_skpd=%d
-			order by kode_sub_giat ASC
-		", $input['tahun_anggaran'], $unit['id_skpd']), ARRAY_A);
+		// echo $wpdb->last_query.'<br>';
 
 		$data_all = array(
 			'total' => 0,
