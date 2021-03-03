@@ -1971,6 +1971,19 @@ class Wpsipd_Public
 		require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/wpsipd-public-rkpd.php';
 	}
 
+	public function apbdpenjabaran($atts)
+	{
+		$input = shortcode_atts( array(
+			'lampiran' => '1',
+			'tahun_anggaran' => '2021',
+		), $atts );
+
+		// RINGKASAN PENJABARAN APBD YANG DIKLASIFIKASI MENURUT KELOMPOK DAN JENIS PENDAPATAN, BELANJA, DAN PEMBIAYAAN
+		if($input['lampiran'] == 1){
+			require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/wpsipd-public-apbdpenjabaran.php';
+		}
+	}
+
 	public function get_cat_url()
 	{
 		global $wpdb;

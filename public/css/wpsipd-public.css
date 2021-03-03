@@ -81,3 +81,10 @@ div   { page-break-inside:avoid; }
 tr    { page-break-inside:avoid; page-break-after:auto }
 thead { display:table-header-group }
 tfoot { display:table-footer-group }
+.no-border {
+    border: 0;
+}
+.no-padding td, .no-padding th {
+    border: 0;
+    padding: 0;
+}

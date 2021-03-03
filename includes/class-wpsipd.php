@@ -253,6 +253,7 @@ class Wpsipd
 		add_shortcode('rekbelanja', array($plugin_public, 'rekbelanja'));
 		add_shortcode('tampilrka', array($plugin_public, 'tampilrka'));
 		add_shortcode('tampilrkpd', array($plugin_public, 'tampilrkpd'));
+		add_shortcode('apbdpenjabaran', array($plugin_public, 'apbdpenjabaran'));
 	}
 
 	/**
