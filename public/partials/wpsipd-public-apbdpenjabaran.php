@@ -80,14 +80,14 @@ function generate_body($rek_pendapatan, $baris_kosong=false){
         <tr>
             <td class='kiri kanan bawah text_blok'>".$k."</td>
             <td class='kanan bawah text_blok'>".$v['nama']."</td>
-            <td class='kanan bawah text_kanan'>".number_format($v['total'],0,",",".")."</td>
+            <td class='kanan bawah text_kanan text_blok'>".number_format($v['total'],0,",",".")."</td>
         </tr>";
         foreach ($v['data'] as $kk => $vv) {
             $body_pendapatan .= "
             <tr>
                 <td class='kiri kanan bawah text_blok'>".$kk."</td>
                 <td class='kanan bawah text_blok'>".$vv['nama']."</td>
-                <td class='kanan bawah text_kanan'>".number_format($vv['total'],0,",",".")."</td>
+                <td class='kanan bawah text_kanan text_blok'>".number_format($vv['total'],0,",",".")."</td>
             </tr>";
             foreach ($vv['data'] as $kkk => $vvv) {
                 $body_pendapatan .= "
@@ -211,7 +211,7 @@ $body_pembiayaan = generate_body($rek_pembiayaan);
         </tr>
     </table>
     <h4 style="text-align: center; font-size: 13px; margin: 10px auto; min-width: 450px; max-width: 550px; font-weight: bold;">KABUPATEN MAGETAN <br>RINGKASAN  PENJABARAN  APBD YANG DIKLASIFIKASI MENURUT KELOMPOK DAN JENIS PENDAPATAN, BELANJA, DAN PEMBIAYAAN<br>TAHUN ANGGARAN <?php echo $input['tahun_anggaran']; ?></h4>
-    <table cellpadding="3" cellspacing="0" class="" width="100%">
+    <table cellpadding="3" cellspacing="0" class="apbd-penjabaran" width="100%">
         <thead>
             <tr>
                 <td class="atas kanan bawah kiri text_tengah text_blok" rowspan="2">Kode</td>

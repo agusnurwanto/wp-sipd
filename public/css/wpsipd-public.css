@@ -88,3 +88,7 @@ tfoot { display:table-footer-group }
     border: 0;
     padding: 0;
 }
+.apbd-penjabaran td, .apbd-penjabaran th {
+    padding: 2px 5px;
+    font-size: 13px;
+}
