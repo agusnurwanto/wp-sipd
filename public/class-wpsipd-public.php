@@ -1975,12 +1975,18 @@ class Wpsipd_Public
 	{
 		$input = shortcode_atts( array(
 			'lampiran' => '1',
+			'id_skpd' => false,
 			'tahun_anggaran' => '2021',
 		), $atts );
 
 		// RINGKASAN PENJABARAN APBD YANG DIKLASIFIKASI MENURUT KELOMPOK DAN JENIS PENDAPATAN, BELANJA, DAN PEMBIAYAAN
 		if($input['lampiran'] == 1){
 			require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/wpsipd-public-apbdpenjabaran.php';
+		}
+
+		// RINCIAN APBD MENURUT URUSAN PEMERINTAHAN DAERAH, ORGANISASI, PENDAPATAN, BELANJA DAN PEMBIAYAAN
+		if($input['lampiran'] == 2){
+			require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/wpsipd-public-apbdpenjabaran-2.php';
 		}
 	}
 
@@ -2387,7 +2393,10 @@ class Wpsipd_Public
 		global $wpdb;
 		$ret = array(
 			'status'	=> 'success',
-			'action'	=> $_POST['action']
+			'action'	=> $_POST['action'],
+			'cetak'		=> $_POST['cetak'],
+			'model'		=> $_POST['model'],
+			'jenis'		=> $_POST['jenis'],
 		);
 		if (!empty($_POST)) {
 			if (!empty($_POST['api_key']) && $_POST['api_key'] == carbon_get_theme_option( 'crb_api_key_extension' )) {
@@ -2404,49 +2413,35 @@ class Wpsipd_Public
 					$cat_name = $_POST['tahun_anggaran'] . ' APBD';
 					$post_content = '[apbdpenjabaran tahun_anggaran="'.$_POST['tahun_anggaran'].'" lampiran="'.$_POST['jenis'].'"]';
 					$ret['text_link'] = 'Print APBD PENJABARAN Lampiran 1';
-				}
-
-				if(!empty($post_content)){
-					$custom_post = get_page_by_title($nama_page, OBJECT, 'page');
-					$taxonomy = 'category';
-					$cat  = get_term_by('name', $cat_name, $taxonomy);
-					if ($cat == false) {
-						$cat = wp_insert_term($cat_name, $taxonomy);
-						$cat_id = $cat['term_id'];
-					} else {
-						$cat_id = $cat->term_id;
+					$custom_post = $this->save_update_post($nama_page, $cat_name, $post_content);
+					$ret['link'] = esc_url( get_permalink($custom_post) );
+				}else if(
+					$_POST['jenis'] == '2'
+					&& $_POST['model'] == 'perkada'
+					&& $_POST['cetak'] == 'apbd'
+				){
+					$sql = $wpdb->prepare("
+					    select 
+					        id_skpd,
+					        kode_skpd,
+					        nama_skpd
+					    from data_unit
+					    where tahun_anggaran=%d
+					        and active=1
+					", $_POST['tahun_anggaran']);
+					$unit = $wpdb->get_results($sql, ARRAY_A);
+					$ret['link'] = array();
+					foreach ($unit as $k => $v) {
+						$nama_page = $_POST['tahun_anggaran'] .' | '.$v['kode_skpd'].' | '.$v['nama_skpd'].' | '. ' | APBD PENJABARAN Lampiran 2';
+						$cat_name = $_POST['tahun_anggaran'] . ' APBD';
+						$post_content = '[apbdpenjabaran tahun_anggaran="'.$_POST['tahun_anggaran'].'" lampiran="'.$_POST['jenis'].'" id_skpd="'.$v['id_skpd'].'"]';
+						$custom_post = $this->save_update_post($nama_page, $cat_name, $post_content);
+						$ret['link'][$v['id_skpd']] = array(
+							'id_skpd' => $v['id_skpd'],
+							'text_link' => 'Print APBD PENJABARAN Lampiran 2',
+							'link' => esc_url( get_permalink($custom_post) )
+						);
 					}
-
-					$_post = array(
-						'post_title'	=> $nama_page,
-						'post_content'	=> $post_content,
-						'post_type'		=> 'page',
-						'post_status'	=> 'private',
-						'comment_status'	=> 'closed'
-					);
-					if (empty($custom_post) || empty($custom_post->ID)) {
-						$id = wp_insert_post($_post);
-						$_post['insert'] = 1;
-						$_post['ID'] = $id;
-					}else{
-						$_post['ID'] = $custom_post->ID;
-						wp_update_post( $_post );
-						$_post['update'] = 1;
-					}
-					$custom_post = get_page_by_title($nama_page, OBJECT, 'page');
-					update_post_meta($custom_post->ID, 'ast-breadcrumbs-content', 'disabled');
-					update_post_meta($custom_post->ID, 'ast-featured-img', 'disabled');
-					update_post_meta($custom_post->ID, 'ast-main-header-display', 'disabled');
-					update_post_meta($custom_post->ID, 'footer-sml-layout', 'disabled');
-					update_post_meta($custom_post->ID, 'site-content-layout', 'page-builder');
-					update_post_meta($custom_post->ID, 'site-post-title', 'disabled');
-					update_post_meta($custom_post->ID, 'site-sidebar-layout', 'no-sidebar');
-					update_post_meta($custom_post->ID, 'theme-transparent-header-meta', 'disabled');
-
-					// https://stackoverflow.com/questions/3010124/wordpress-insert-category-tags-automatically-if-they-dont-exist
-					$append = true;
-					wp_set_post_terms($custom_post->ID, array($cat_id), $taxonomy, $append);
-					$ret['link'] = esc_url( get_permalink($custom_post));
 				}else{
 					$ret['status'] = 'error';
 					$ret['message'] = 'Page tidak ditemukan!';
@@ -2460,5 +2455,48 @@ class Wpsipd_Public
 			$ret['message'] = 'Format Salah!';
 		}
 		die(json_encode($ret));
+	}
+
+	function save_update_post($nama_page, $cat_name, $post_content){
+		$custom_post = get_page_by_title($nama_page, OBJECT, 'page');
+		$taxonomy = 'category';
+		$cat  = get_term_by('name', $cat_name, $taxonomy);
+		if ($cat == false) {
+			$cat = wp_insert_term($cat_name, $taxonomy);
+			$cat_id = $cat['term_id'];
+		} else {
+			$cat_id = $cat->term_id;
+		}
+
+		$_post = array(
+			'post_title'	=> $nama_page,
+			'post_content'	=> $post_content,
+			'post_type'		=> 'page',
+			'post_status'	=> 'private',
+			'comment_status'	=> 'closed'
+		);
+		if (empty($custom_post) || empty($custom_post->ID)) {
+			$id = wp_insert_post($_post);
+			$_post['insert'] = 1;
+			$_post['ID'] = $id;
+		}else{
+			$_post['ID'] = $custom_post->ID;
+			wp_update_post( $_post );
+			$_post['update'] = 1;
+		}
+		$custom_post = get_page_by_title($nama_page, OBJECT, 'page');
+		update_post_meta($custom_post->ID, 'ast-breadcrumbs-content', 'disabled');
+		update_post_meta($custom_post->ID, 'ast-featured-img', 'disabled');
+		update_post_meta($custom_post->ID, 'ast-main-header-display', 'disabled');
+		update_post_meta($custom_post->ID, 'footer-sml-layout', 'disabled');
+		update_post_meta($custom_post->ID, 'site-content-layout', 'page-builder');
+		update_post_meta($custom_post->ID, 'site-post-title', 'disabled');
+		update_post_meta($custom_post->ID, 'site-sidebar-layout', 'no-sidebar');
+		update_post_meta($custom_post->ID, 'theme-transparent-header-meta', 'disabled');
+
+		// https://stackoverflow.com/questions/3010124/wordpress-insert-category-tags-automatically-if-they-dont-exist
+		$append = true;
+		wp_set_post_terms($custom_post->ID, array($cat_id), $taxonomy, $append);
+		return $custom_post;
 	}
 }
