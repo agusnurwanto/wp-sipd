@@ -242,8 +242,8 @@ $sql = $wpdb->prepare("
     select 
         kode_akun,
         nama_akun,
-        sum(total_harga) as total,
-        0 as totalmurni
+        sum(rincian) as total,
+        sum(rincian_murni) as totalmurni
     from data_rka
     where tahun_anggaran=%d
         and active=1

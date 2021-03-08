@@ -1752,6 +1752,7 @@ class Wpsipd_Public
 							'createddate' => $v['createddate'],
 							'createdtime' => $v['createdtime'],
 							'harga_satuan' => $v['harga_satuan'],
+							'harga_satuan_murni' => $v['harga_satuan_murni'],
 							'id_daerah' => $v['id_daerah'],
 							'id_rinci_sub_bl' => $v['id_rinci_sub_bl'],
 							'id_standar_nfs' => $v['id_standar_nfs'],
@@ -1760,6 +1761,7 @@ class Wpsipd_Public
 							'ket_bl_teks' => $v['ket_bl_teks'],
 							'kode_akun' => $v['kode_akun'],
 							'koefisien' => $v['koefisien'],
+							'koefisien_murni' => $v['koefisien_murni'],
 							'lokus_akun_teks' => $v['lokus_akun_teks'],
 							'nama_akun' => $v['nama_akun'],
 							'nama_komponen' => $v['nama_komponen'],
@@ -1773,11 +1775,16 @@ class Wpsipd_Public
 							'volum2' => $v['volum2'],
 							'volum3' => $v['volum3'],
 							'volum4' => $v['volum4'],
+							'volume' => $v['volume'],
+							'volume_murni' => $v['volume_murni'],
 							'spek' => $v['spek'],
 							'subs_bl_teks' => $v['subs_bl_teks'],
 							'total_harga' => $v['total_harga'],
 							'rincian' => $v['rincian'],
+							'rincian_murni' => $v['rincian_murni'],
 							'totalpajak' => $v['totalpajak'],
+							'pajak' => $v['pajak'],
+							'pajak_murni' => $v['pajak_murni'],
 							'updated_user' => $v['updated_user'],
 							'updateddate' => $v['updateddate'],
 							'updatedtime' => $v['updatedtime'],
@@ -2034,6 +2041,18 @@ class Wpsipd_Public
 							AND tahun_anggaran=%d
 							AND active=1
 						order by id_skpd ASC", $_POST['id_skpd'], $_POST['tahun_anggaran']),
+						ARRAY_A
+					);
+				}else if(!empty($_POST['kode_skpd'])){
+					$ret['data'] = $wpdb->get_results(
+						$wpdb->prepare("
+						SELECT 
+							*
+						from data_unit
+						where kode_skpd=%s
+							AND tahun_anggaran=%d
+							AND active=1
+						order by id_skpd ASC", $_POST['kode_skpd'], $_POST['tahun_anggaran']),
 						ARRAY_A
 					);
 				}else{
