@@ -5,6 +5,11 @@ $input = shortcode_atts( array(
 	'tahun_anggaran' => '2022'
 ), $atts );
 
+$type = '';
+if(!empty($_GET) && !empty($_GET['type'])){
+    $type = $_GET['type'];
+}
+
 if(!empty($input['id_skpd'])){
 	$sql = $wpdb->prepare("
 		select 
@@ -38,6 +43,12 @@ if(empty($units)){
 		from data_pengaturan_sipd 
 		where tahun_anggaran=%d
 	", $input['tahun_anggaran']), ARRAY_A);
+
+	$start_rpjmd = 2018;
+	if(!empty($pengaturan)){
+		$start_rpjmd = $pengaturan[0]['awal_rpjmd'];
+	}
+	$urut = $input['tahun_anggaran']-$start_rpjmd;
 }
 ?>
 <div id="cetak" title="Laporan RKPD <?php echo $input['tahun_anggaran']; ?>">
@@ -85,6 +96,7 @@ if(empty($units)){
 			'data' => array()
 		);
 		foreach ($subkeg as $kk => $sub) {
+			$kode = explode('.', $sub['kode_sbl']);
 			$capaian_prog = $wpdb->get_results($wpdb->prepare("
 				select 
 					* 
@@ -92,8 +104,25 @@ if(empty($units)){
 				where tahun_anggaran=%d
 					and active=1
 					and kode_sbl=%s
+					and capaianteks != ''
 				order by id ASC
 			", $input['tahun_anggaran'], $sub['kode_sbl']), ARRAY_A);
+			if($type == 'detail' && empty($capaian_prog)){
+				$capaian_prog = $wpdb->get_results($wpdb->prepare("
+					select 
+						j.indikator as capaianteks,
+						j.target_".$urut." as targetcapaianteks 
+					from data_renstra as r
+						join data_rpjmd as j on r.id_rpjmd=j.id_rpjmd and r.tahun_anggaran=j.tahun_anggaran
+					where r.tahun_anggaran=%d
+						and r.id_program=%d
+						and r.id_giat=%d
+						and r.id_sub_giat=%d
+						and r.kode_skpd=%s
+					order by r.id ASC
+				", $input['tahun_anggaran'], $kode[2], $kode[3], $kode[4], $unit['kode_skpd']), ARRAY_A);
+				// die($wpdb->last_query);
+			}
 
 			$output_giat = $wpdb->get_results($wpdb->prepare("
 				select 
@@ -297,11 +326,6 @@ if(empty($units)){
 							$target_ind_n_plus = '';
 							if(!empty($sub_giat['data_renstra'])){
 								$ind_n_plus = $sub_giat['data_renstra'][0]['indikator_sub'];
-								$start_rpjmd = 2018;
-								if(!empty($pengaturan)){
-									$start_rpjmd = $pengaturan[0]['awal_rpjmd'];
-								}
-								$urut = $input['tahun_anggaran']-$start_rpjmd;
 								if($urut<=5){
 									$target_ind_n_plus = $sub_giat['data_renstra'][0]['target_sub_'.($urut+1)];
 								}
@@ -406,4 +430,14 @@ if(empty($units)){
 </div>
 <script type="text/javascript">
 	run_download_excel();
+    var _url = window.location.href;
+    var url = new URL(_url);
+    _url = url.origin+url.pathname+'?key='+url.searchParams.get('key');
+    var type = url.searchParams.get("type");
+    if(type && type=='detail'){
+        var extend_action = '<a class="button button-primary" target="_blank" href="'+_url+'" style="margin-left: 10px;">Sembunyikan capaian RENSTRA & RPJM</a>';
+    }else{
+        var extend_action = '<a class="button button-primary" target="_blank" href="'+_url+'&type=detail" style="margin-left: 10px;">Tampilkan capaian RENSTRA & RPJM</a>';
+    }
+    jQuery('#action-sipd').append(extend_action);
 </script>
