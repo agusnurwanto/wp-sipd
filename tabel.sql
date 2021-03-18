@@ -976,7 +976,7 @@ ADD PRIMARY KEY (`id`);
 --
 ALTER TABLE `data_ssh`
 ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `id_standar_harga` (`id_standar_harga`);
+  ADD KEY `id_standar_harga` (`id_standar_harga`);
 --
 -- Indexes for table `data_ssh_rek_belanja`
 --

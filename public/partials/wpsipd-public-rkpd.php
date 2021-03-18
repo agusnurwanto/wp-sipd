@@ -141,7 +141,7 @@ if(empty($units)){
 				where tahun_anggaran=%d
 					and active=1
 					and kode_sbl=%s
-				order by id ASC
+				order by id DESC
 			", $input['tahun_anggaran'], $sub['kode_sbl']), ARRAY_A);
 
 			$lokasi_sub_giat = $wpdb->get_results($wpdb->prepare("
@@ -166,6 +166,18 @@ if(empty($units)){
 					and kode_skpd=%s
 				order by id ASC
 			", $input['tahun_anggaran'], $kode_sub_giat, $unit['kode_skpd']), ARRAY_A);
+			$data_rpjmd = array();
+			if(!empty($data_renstra)){
+				$data_rpjmd = $wpdb->get_results($wpdb->prepare("
+					select 
+						* 
+					from data_rpjmd
+					where 
+						id_rpjmd=%d 
+						and tahun_anggaran=%d
+					order by id ASC
+				", $data_renstra[0]['id_rpjmd'], $input['tahun_anggaran']), ARRAY_A);
+			}
 			// die($wpdb->last_query);
 
 			if(empty($data_all['data'][$sub['kode_urusan']])){
@@ -212,6 +224,7 @@ if(empty($units)){
 					'output_sub_giat' => $output_sub_giat,
 					'lokasi_sub_giat' => $lokasi_sub_giat,
 					'data_renstra' => $data_renstra,
+					'data_rpjmd' => $data_rpjmd,
 					'data'	=> array()
 				);
 			}
@@ -311,12 +324,16 @@ if(empty($units)){
 								$target_output_giat = $sub_giat['output_giat'][0]['targetoutputteks'];
 							}
 							$output_sub_giat = '';
-							if(!empty($sub_giat['output_sub_giat'])){
-								$output_sub_giat = $sub_giat['output_sub_giat'][0]['outputteks'];
-							}
 							$target_output_sub_giat = '';
 							if(!empty($sub_giat['output_sub_giat'])){
-								$target_output_sub_giat = $sub_giat['output_sub_giat'][0]['targetoutputteks'];
+								$output_sub_giat = array();
+								$target_output_sub_giat = array();
+								foreach ($sub_giat['output_sub_giat'] as $k_sub => $v_sub) {
+									$output_sub_giat[] = $v_sub['outputteks'];
+									$target_output_sub_giat[] = $v_sub['targetoutputteks'];
+								}
+								$output_sub_giat = implode('<br>', $output_sub_giat);
+								$target_output_sub_giat = implode('<br>', $target_output_sub_giat);
 							}
 							$lokasi_sub_giat = '';
 							if(!empty($sub_giat['lokasi_sub_giat'])){
@@ -324,10 +341,18 @@ if(empty($units)){
 							}
 							$ind_n_plus = '';
 							$target_ind_n_plus = '';
+							/*
 							if(!empty($sub_giat['data_renstra'])){
 								$ind_n_plus = $sub_giat['data_renstra'][0]['indikator_sub'];
 								if($urut<=5){
 									$target_ind_n_plus = $sub_giat['data_renstra'][0]['target_sub_'.($urut+1)];
+								}
+							}
+							*/
+							if(!empty($sub_giat['data_rpjmd'])){
+								$ind_n_plus = $sub_giat['data_rpjmd'][0]['indikator'];
+								if($urut<=5){
+									$target_ind_n_plus = $sub_giat['data_rpjmd'][0]['target_'.($urut+1)];
 								}
 							}
 							$body .= '
