@@ -817,6 +817,108 @@ CREATE TABLE `data_pendapatan` (
   `tahun_anggaran` year(4) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
+--
+-- Table structure for table `data_asmas`
+--
+
+CREATE TABLE `data_asmas` (
+  `id` int(11) NOT NULL,
+  `alamat_teks` text DEFAULT NULL,
+  `anggaran` double DEFAULT NULL,
+  `batal_teks` text DEFAULT NULL,
+  `bidang_urusan` text DEFAULT NULL,
+  `created_date` varchar(50) DEFAULT NULL,
+  `created_user` int(11) DEFAULT NULL,
+  `file_foto` text DEFAULT NULL,
+  `file_pengantar` text DEFAULT NULL,
+  `file_proposal` text DEFAULT NULL,
+  `file_rab` text DEFAULT NULL,
+  `giat_teks` text DEFAULT NULL,
+  `id_bidang_urusan` int(11) DEFAULT NULL,
+  `id_daerah` int(11) DEFAULT NULL,
+  `id_jenis_profil` int(11) DEFAULT NULL,
+  `id_jenis_usul` int(11) DEFAULT NULL,
+  `id_kab_kota` int(11) DEFAULT NULL,
+  `id_kecamatan` int(11) DEFAULT NULL,
+  `id_kelurahan` int(11) DEFAULT NULL,
+  `id_pengusul` int(11) DEFAULT NULL,
+  `id_profil` int(11) DEFAULT NULL,
+  `id_unit` int(11) DEFAULT NULL,
+  `id_usulan` int(11) DEFAULT NULL,
+  `is_batal` int(11) DEFAULT NULL,
+  `is_tolak` int(11) DEFAULT NULL,
+  `jenis_belanja` varchar(50) DEFAULT NULL,
+  `jenis_profil` text DEFAULT NULL,
+  `jenis_usul_teks` text DEFAULT NULL,
+  `kelompok` text DEFAULT NULL,
+  `kode_skpd` text DEFAULT NULL,
+  `koefisien` text DEFAULT NULL,
+  `level_pengusul` int(11) DEFAULT NULL,
+  `lokus_usulan` text DEFAULT NULL,
+  `masalah` text DEFAULT NULL,
+  `nama_daerah` text DEFAULT NULL,
+  `nama_skpd` text DEFAULT NULL,
+  `nama_user` text DEFAULT NULL,
+  `nip` int(11) DEFAULT NULL,
+  `pengusul` text DEFAULT NULL,
+  `rekom_camat_anggaran` double DEFAULT NULL,
+  `rekom_camat_koefisien` text DEFAULT NULL,
+  `rekom_camat_rekomendasi` text DEFAULT NULL,
+  `rekom_lurah_anggaran` double DEFAULT NULL,
+  `rekom_lurah_koefisien` text DEFAULT NULL,
+  `rekom_lurah_rekomendasi` text DEFAULT NULL,
+  `rekom_mitra_anggaran` double DEFAULT NULL,
+  `rekom_mitra_koefisien` text DEFAULT NULL,
+  `rekom_mitra_rekomendasi` text DEFAULT NULL,
+  `rekom_skpd_anggaran` double DEFAULT NULL,
+  `rekom_skpd_koefisien` text DEFAULT NULL,
+  `rekom_skpd_rekomendasi` text DEFAULT NULL,
+  `rekom_tapd_anggaran` double DEFAULT NULL,
+  `rekom_tapd_koefisien` text DEFAULT NULL,
+  `rekom_tapd_rekomendasi` text DEFAULT NULL,
+  `rev_skpd` text DEFAULT NULL,
+  `satuan` text DEFAULT NULL,
+  `status_usul` int(11) DEFAULT NULL,
+  `status_usul_teks` text DEFAULT NULL,
+  `tolak_teks` int(11) DEFAULT NULL,
+  `tujuan_usul` text DEFAULT NULL,
+  `detail_alamatteks` text DEFAULT NULL,
+  `detail_anggaran` double DEFAULT NULL,
+  `detail_bidangurusan` text DEFAULT NULL,
+  `detail_camatteks` text DEFAULT NULL,
+  `detail_filefoto` text DEFAULT NULL,
+  `detail_filefoto2` text DEFAULT NULL,
+  `detail_filefoto3` text DEFAULT NULL,
+  `detail_filepengantar` text DEFAULT NULL,
+  `detail_fileproposal` text DEFAULT NULL,
+  `detail_filerab` text DEFAULT NULL,
+  `detail_gagasan` text DEFAULT NULL,
+  `detail_idcamat` int(11) DEFAULT NULL,
+  `detail_idkabkota` int(11) DEFAULT NULL,
+  `detail_idkamus` int(11) DEFAULT NULL,
+  `detail_idlurah` int(11) DEFAULT NULL,
+  `detail_idskpd` int(11) DEFAULT NULL,
+  `detail_jenisbelanja` text DEFAULT NULL,
+  `detail_kodeskpd` text DEFAULT NULL,
+  `detail_langpeta` text DEFAULT NULL,
+  `detail_latpeta` text DEFAULT NULL,
+  `detail_lurahteks` text DEFAULT NULL,
+  `detail_masalah` text DEFAULT NULL,
+  `detail_namakabkota` text DEFAULT NULL,
+  `detail_namaskpd` text DEFAULT NULL,
+  `detail_rekomteks` text DEFAULT NULL,
+  `detail_satuan` text DEFAULT NULL,
+  `detail_setStatusUsul` text DEFAULT NULL,
+  `detail_subgiat` int(11) DEFAULT NULL,
+  `detail_tujuanusul` text DEFAULT NULL,
+  `detail_usulanggaran` double DEFAULT NULL,
+  `detail_usulvolume` int(11) DEFAULT NULL,
+  `detail_volume` int(11) DEFAULT NULL,
+  `active` tinyint(4) NOT NULL,
+  `update_at` datetime NOT NULL,
+  `tahun_anggaran` year(4) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
 -- view untuk data bantuan hibah uang --
 
 CREATE VIEW vw_batuan_hibah_uang AS SELECT
@@ -855,6 +957,12 @@ WHERE a.is_hibah_uang=1;
 -- Indexes for table `data_pendapatan`
 --
 ALTER TABLE `data_pendapatan`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indexes for table `data_asmas`
+--
+ALTER TABLE `data_asmas`
   ADD PRIMARY KEY (`id`);
 
 --
@@ -1154,4 +1262,10 @@ ALTER TABLE `data_pembiayaan`
 -- AUTO_INCREMENT for table `data_pendapatan`
 --
 ALTER TABLE `data_pendapatan`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `data_asmas`
+--
+ALTER TABLE `data_asmas`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
