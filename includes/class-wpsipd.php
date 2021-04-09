@@ -249,6 +249,9 @@ class Wpsipd
 		$this->loader->add_action('wp_ajax_singkron_asmas',  $plugin_public, 'singkron_asmas');
 		$this->loader->add_action('wp_ajax_nopriv_singkron_asmas',  $plugin_public, 'singkron_asmas');
 
+		$this->loader->add_action('wp_ajax_singkron_pokir',  $plugin_public, 'singkron_pokir');
+		$this->loader->add_action('wp_ajax_nopriv_singkron_pokir',  $plugin_public, 'singkron_pokir');
+
 		$this->loader->add_action('wp_ajax_get_up',  $plugin_public, 'get_up');
 		$this->loader->add_action('wp_ajax_nopriv_get_up',  $plugin_public, 'get_up');
 

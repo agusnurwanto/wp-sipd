@@ -581,6 +581,127 @@ class Wpsipd_Public
 		die(json_encode($ret));
 	}
 
+	public function singkron_pokir()
+	{
+		global $wpdb;
+		$ret = array(
+			'status'	=> 'success',
+			'message'	=> 'Berhasil export data POKIR!'
+		);
+		if (!empty($_POST)) {
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == carbon_get_theme_option( 'crb_api_key_extension' )) {
+				if (!empty($_POST['data'])) {
+					$data = $_POST['data'];
+					$cek = $wpdb->get_var("SELECT id_usulan from data_pokir where tahun_anggaran=".$_POST['tahun_anggaran']." AND id_usulan=" . $data['id_usulan']);
+					$opsi = array(
+						'alamat_teks' => $data['alamat_teks'],
+						'anggaran' => $data['anggaran'],
+						'batal_teks' => $data['batal_teks'],
+						'bidang_urusan' => $data['bidang_urusan'],
+						'created_date' => $data['created_date'],
+						'created_user' => $data['created_user'],
+						'file_foto' => $data['file_foto'],
+						'file_pengantar' => $data['file_pengantar'],
+						'file_proposal' => $data['file_proposal'],
+						'file_rab' => $data['file_rab'],
+						'fraksi_dewan' => $data['fraksi_dewan'],
+						'giat_teks' => $data['giat_teks'],
+						'id_bidang_urusan' => $data['id_bidang_urusan'],
+						'id_jenis_usul' => $data['id_jenis_usul'],
+						'id_kab_kota' => $data['id_kab_kota'],
+						'id_kecamatan' => $data['id_kecamatan'],
+						'id_kelurahan' => $data['id_kelurahan'],
+						'id_pengusul' => $data['id_pengusul'],
+						'id_reses' => $data['id_reses'],
+						'id_unit' => $data['id_unit'],
+						'id_usulan' => $data['id_usulan'],
+						'is_batal' => $data['is_batal'],
+						'is_tolak' => $data['is_tolak'],
+						'jenis_belanja' => $data['jenis_belanja'],
+						'jenis_usul_teks' => $data['jenis_usul_teks'],
+						'kelompok' => $data['kelompok'],
+						'kode_skpd' => $data['kode_skpd'],
+						'koefisien' => $data['koefisien'],
+						'lokus_usulan' => $data['lokus_usulan'],
+						'masalah' => $data['masalah'],
+						'nama_daerah' => $data['nama_daerah'],
+						'nama_skpd' => $data['nama_skpd'],
+						'nama_user' => $data['nama_user'],
+						'pengusul' => $data['pengusul'],
+						'rekom_mitra_anggaran' => $data['rekom_mitra_anggaran'],
+						'rekom_mitra_koefisien' => $data['rekom_mitra_koefisien'],
+						'rekom_mitra_rekomendasi' => $data['rekom_mitra_rekomendasi'],
+						'rekom_setwan_anggaran' => $data['rekom_setwan_anggaran'],
+						'rekom_setwan_koefisien' => $data['rekom_setwan_koefisien'],
+						'rekom_setwan_rekomendasi' => $data['rekom_setwan_rekomendasi'],
+						'rekom_skpd_anggaran' => $data['rekom_skpd_anggaran'],
+						'rekom_skpd_koefisien' => $data['rekom_skpd_koefisien'],
+						'rekom_skpd_rekomendasi' => $data['rekom_skpd_rekomendasi'],
+						'rekom_tapd_anggaran' => $data['rekom_tapd_anggaran'],
+						'rekom_tapd_koefisien' => $data['rekom_tapd_koefisien'],
+						'rekom_tapd_rekomendasi' => $data['rekom_tapd_rekomendasi'],
+						'satuan' => $data['satuan'],
+						'status_usul' => $data['status_usul'],
+						'status_usul_teks' => $data['status_usul_teks'],
+						'tolak_teks' => $data['tolak_teks'],
+						'detail_alamatteks' => $data['detail_alamatteks'],
+						'detail_anggaran' => $data['detail_anggaran'],
+						'detail_bidangurusan' => $data['detail_bidangurusan'],
+						'detail_camatteks' => $data['detail_camatteks'],
+						'detail_filefoto' => $data['detail_filefoto'],
+						'detail_filefoto2' => $data['detail_filefoto2'],
+						'detail_filefoto3' => $data['detail_filefoto3'],
+						'detail_filepengantar' => $data['detail_filepengantar'],
+						'detail_fileproposal' => $data['detail_fileproposal'],
+						'detail_filerab' => $data['detail_filerab'],
+						'detail_gagasan' => $data['detail_gagasan'],
+						'detail_idcamat' => $data['detail_idcamat'],
+						'detail_idkabkota' => $data['detail_idkabkota'],
+						'detail_idkamus' => $data['detail_idkamus'],
+						'detail_idlurah' => $data['detail_idlurah'],
+						'detail_idskpd' => $data['detail_idskpd'],
+						'detail_jenisbelanja' => $data['detail_jenisbelanja'],
+						'detail_kodeskpd' => $data['detail_kodeskpd'],
+						'detail_langpeta' => $data['detail_langpeta'],
+						'detail_latpeta' => $data['detail_latpeta'],
+						'detail_lurahteks' => $data['detail_lurahteks'],
+						'detail_masalah' => $data['detail_masalah'],
+						'detail_namakabkota' => $data['detail_namakabkota'],
+						'detail_namaskpd' => $data['detail_namaskpd'],
+						'detail_rekomteks' => $data['detail_rekomteks'],
+						'detail_satuan' => $data['detail_satuan'],
+						'detail_setStatusUsul' => $data['detail_setStatusUsul'],
+						'detail_subgiat' => $data['detail_subgiat'],
+						'detail_usulanggaran' => $data['detail_usulanggaran'],
+						'detail_usulvolume' => $data['detail_usulvolume'],
+						'detail_volume' => $data['detail_volume'],
+						'active' => 1,
+						'update_at' => current_time('mysql'),
+						'tahun_anggaran' => $_POST['tahun_anggaran']
+					);
+					if (!empty($cek)) {
+						$wpdb->update('data_pokir', $opsi, array(
+							'id_usulan' => $data['id_usulan'],
+							'tahun_anggaran' => $_POST['tahun_anggaran']
+						));
+					} else {
+						$wpdb->insert('data_pokir', $opsi);
+					}
+				} else {
+					$ret['status'] = 'error';
+					$ret['message'] = 'Format Data ASMAS Salah!';
+				}
+			} else {
+				$ret['status'] = 'error';
+				$ret['message'] = 'APIKEY tidak sesuai!';
+			}
+		} else {
+			$ret['status'] = 'error';
+			$ret['message'] = 'Format Salah!';
+		}
+		die(json_encode($ret));
+	}
+
 	public function singkron_pengaturan_sipd()
 	{
 		global $wpdb;
