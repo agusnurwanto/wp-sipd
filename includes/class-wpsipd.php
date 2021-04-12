@@ -258,6 +258,9 @@ class Wpsipd
 		$this->loader->add_action('wp_ajax_get_link_laporan',  $plugin_public, 'get_link_laporan');
 		$this->loader->add_action('wp_ajax_nopriv_get_link_laporan',  $plugin_public, 'get_link_laporan');
 
+		$this->loader->add_action('wp_ajax_get_data_rka',  $plugin_public, 'get_data_rka');
+		$this->loader->add_action('wp_ajax_nopriv_get_data_rka',  $plugin_public, 'get_data_rka');
+
 		add_shortcode('datassh', array($plugin_public, 'datassh'));
 		add_shortcode('rekbelanja', array($plugin_public, 'rekbelanja'));
 		add_shortcode('tampilrka', array($plugin_public, 'tampilrka'));

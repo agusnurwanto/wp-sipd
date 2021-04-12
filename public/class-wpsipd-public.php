@@ -1287,7 +1287,32 @@ class Wpsipd_Public
 				if (!empty($_POST['alamat'])) {
 					$alamat = $_POST['alamat'];
 					foreach ($alamat as $k => $v) {
-						$cek = $wpdb->get_var("SELECT id_alamat from data_alamat where tahun=".$_POST['tahun_anggaran']." AND id_alamat=" . $v['id_alamat']);
+						$where = '';
+						$where_a = array(
+							'tahun' => $_POST['tahun_anggaran'],
+							'id_alamat' => $v['id_alamat']
+						);
+						if(!empty($v['is_prov'])){
+							$where = " AND is_prov=" . $v['is_prov'];
+							$where_a['is_prov'] = $v['is_prov'];
+						}else if(!empty($v['is_kab'])){
+							$where = " AND is_kab=" . $v['is_kab'];
+							$where_a['is_kab'] = $v['is_kab'];
+						}else if(!empty($v['is_kec'])){
+							$where = " AND is_kec=" . $v['is_kec'];
+							$where_a['is_kec'] = $v['is_kec'];
+						}else if(!empty($v['is_kel'])){
+							$where = " AND is_kel=" . $v['is_kel'];
+							$where_a['is_kel'] = $v['is_kel'];
+						}
+						$cek = $wpdb->get_var("
+							SELECT 
+								id_alamat 
+							from data_alamat 
+							where tahun=".$_POST['tahun_anggaran']
+								." AND id_alamat=" . $v['id_alamat']
+								.$where
+						);
 						$opsi = array(
 							'id_alamat' => $v['id_alamat'],
 							'nama' => $v['nama'],
@@ -1303,10 +1328,7 @@ class Wpsipd_Public
 						);
 
 						if (!empty($cek)) {
-							$wpdb->update('data_alamat', $opsi, array(
-								'tahun' => $_POST['tahun_anggaran'],
-								'id_alamat' => $v['id_alamat']
-							));
+							$wpdb->update('data_alamat', $opsi, $where_a);
 						} else {
 							$wpdb->insert('data_alamat', $opsi);
 						}
@@ -1331,7 +1353,7 @@ class Wpsipd_Public
 		global $wpdb;
 		$ret = array(
 			'status'	=> 'success',
-			'message'	=> 'Berhasil set profile penerima bantuan!'
+			'message'	=> 'Berhasil export data penerima bantuan!'
 		);
 		if (!empty($_POST)) {
 			if (!empty($_POST['api_key']) && $_POST['api_key'] == carbon_get_theme_option( 'crb_api_key_extension' )) {
@@ -2046,11 +2068,6 @@ class Wpsipd_Public
 							'idsubbl' => $_POST['idsubbl'],
 							'kode_bl' => $_POST['kode_bl'],
 							'kode_sbl' => $_POST['kode_sbl'],
-							'id_prop_penerima' => $v['id_prop_penerima'],
-							'id_camat_penerima' => $v['id_camat_penerima'],
-							'id_kokab_penerima' => $v['id_kokab_penerima'],
-							'id_lurah_penerima' => $v['id_lurah_penerima'],
-							'id_penerima' => $v['id_penerima'],
 							'idkomponen' => $v['idkomponen'],
 							'idketerangan' => $v['idketerangan'],
 							'idsubtitle' => $v['idsubtitle'],
@@ -2058,6 +2075,15 @@ class Wpsipd_Public
 							'update_at' => current_time('mysql'),
 							'tahun_anggaran' => $_POST['tahun_anggaran']
 						);
+
+						if(!empty($v['id_penerima']) || !empty($v['id_prop_penerima'])){
+							$opsi['id_prop_penerima'] = $v['id_prop_penerima'];
+							$opsi['id_camat_penerima'] = $v['id_camat_penerima'];
+							$opsi['id_kokab_penerima'] = $v['id_kokab_penerima'];
+							$opsi['id_lurah_penerima'] = $v['id_lurah_penerima'];
+							$opsi['id_penerima'] = $v['id_penerima'];
+						}
+
 						if (!empty($cek)) {
 							$wpdb->update('data_rka', $opsi, array(
 								'tahun_anggaran' => $_POST['tahun_anggaran'],
@@ -2644,6 +2670,50 @@ class Wpsipd_Public
 					foreach ($ret['data']['per_bulan'] as $key => $value) {
 						$ret['data']['total'] += $value;
 					}
+				}
+			} else {
+				$ret['status'] = 'error';
+				$ret['message'] = 'APIKEY tidak sesuai!';
+			}
+		} else {
+			$ret['status'] = 'error';
+			$ret['message'] = 'Format Salah!';
+		}
+		die(json_encode($ret));
+	}
+
+	function get_data_rka(){
+		global $wpdb;
+		$ret = array(
+			'status'	=> 'success',
+			'action'	=> $_POST['action'],
+			'post'	=> array('idrincisbl' => $_POST['idbelanjarinci']),
+			'data'	=> array()
+		);
+		if (!empty($_POST)) {
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == carbon_get_theme_option( 'crb_api_key_extension' )) {
+				if(!empty($_POST['kode_sbl'])){
+					$ret['data'] = $wpdb->get_row(
+						$wpdb->prepare("
+						SELECT 
+							*
+						from data_rka
+						where kode_sbl=%s
+							AND id_rinci_sub_bl=%d
+							AND tahun_anggaran=%d
+							AND active=1", $_POST['kode_sbl'], $_POST['idbelanjarinci'], $_POST['tahun_anggaran']),
+						ARRAY_A
+					);
+					// echo $wpdb->last_query;
+					if(!empty($ret['data'])){
+						$ret['data']['nama_prop'] = $wpdb->get_row("select nama from data_alamat where id_alamat=".$ret['data']['id_prop_penerima']." and is_prov=1", ARRAY_A);
+						$ret['data']['nama_kab'] = $wpdb->get_row("select nama from data_alamat where id_alamat=".$ret['data']['id_kokab_penerima']." and is_kab=1", ARRAY_A);
+						$ret['data']['nama_kec'] = $wpdb->get_row("select nama from data_alamat where id_alamat=".$ret['data']['id_camat_penerima']." and is_kec=1", ARRAY_A);
+						$ret['data']['nama_kel'] = $wpdb->get_row("select nama from data_alamat where id_alamat=".$ret['data']['id_lurah_penerima']." and is_kel=1", ARRAY_A);
+					}
+				}else{
+					$ret['status'] = 'error';
+					$ret['message'] = 'kode_sbl tidak boleh kosong!';
 				}
 			} else {
 				$ret['status'] = 'error';
