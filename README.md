@@ -21,6 +21,9 @@ Cara pakai plugin:
 - Untuk menampilkan akun belanja menggunakan shortcode [rekbelanja]
 - Halaman RKA akan otomatis tergenerate dalam bentuk post yang dikelompokan dalam category perangkat daerah ketika melakukan singkronisasi data
 - Theme yang sudah dites astra theme
+- `[apbdpenjabaran tahun_anggaran="2021" lampiran="3"]` short code untuk menampilkan APBD penjabaran lampiran 3
+- `[apbdpenjabaran tahun_anggaran="2021" lampiran="2" id_skpd="xxxx"]` short code untuk menampilkan APBD penjabaran lampiran 2
+- `[apbdpenjabaran tahun_anggaran="2021" lampiran="1"]` short code untuk menampilkan APBD penjabaran lampiran 1
 
 ### HARUS Update php.ini
 
