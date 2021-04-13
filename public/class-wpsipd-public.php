@@ -2273,6 +2273,11 @@ class Wpsipd_Public
 		if($input['lampiran'] == 2){
 			require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/wpsipd-public-apbdpenjabaran-2.php';
 		}
+
+		// DAFTAR NAMA CALON PENERIMA, ALAMAT DAN BESARAN ALOKASI HIBAH BERUPA UANG & BARANG YANG DITERIMA SERTA SKPD PEMBERI HIBAH
+		if($input['lampiran'] == 3){
+			require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/wpsipd-public-apbdpenjabaran-3.php';
+		}
 	}
 
 	public function get_cat_url()
