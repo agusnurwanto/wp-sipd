@@ -1,7 +1,7 @@
 <?php
 global $wpdb;
 
-$akun_hibah_uang = $wpdb->get_results('SELECT id_akun, kode_akun, nama_akun FROM `data_akun` where is_hibah_uang=1 order by kode_akun ASC', ARRAY_A);
+$akun_hibah_uang = $wpdb->get_results('SELECT id_akun, kode_akun, nama_akun FROM `data_akun` where is_sosial_uang=1 order by kode_akun ASC', ARRAY_A);
 $data_hibah_uang = array();
 foreach ($akun_hibah_uang as $k => $v) {
     $data = $wpdb->get_results("SELECT * FROM `data_rka` where kode_akun='".$v['kode_akun']."' and active=1 and tahun_anggaran=".$input['tahun_anggaran']." order by kode_sbl ASC", ARRAY_A);
@@ -173,7 +173,7 @@ $body_uang .= '
 ';
 
 
-$akun_hibah_brg = $wpdb->get_results('SELECT id_akun, kode_akun, nama_akun FROM `data_akun` where is_hibah_brg=1 order by kode_akun ASC', ARRAY_A);
+$akun_hibah_brg = $wpdb->get_results('SELECT id_akun, kode_akun, nama_akun FROM `data_akun` where is_sosial_brg=1 order by kode_akun ASC', ARRAY_A);
 $data_hibah_brg = array();
 foreach ($akun_hibah_brg as $k => $v) {
     $data = $wpdb->get_results("SELECT * FROM `data_rka` where kode_akun='".$v['kode_akun']."' and active=1 and tahun_anggaran=".$input['tahun_anggaran']." order by kode_sbl ASC", ARRAY_A);
@@ -350,9 +350,9 @@ $body_barang .= '
 <div id="cetak" title="Laporan APBD PENJABARAN Lampiran 3 Tahun Anggaran <?php echo $input['tahun_anggaran']; ?>" style="padding: 5px;">
     <table align="right" class="no-border no-padding" cellspacing="0" cellpadding="0" style="width:280px; font-size: 12px;">
         <tr>
-            <td width="80" valign="top">Lampiran III </td>
+            <td width="80" valign="top">Lampiran IV </td>
             <td width="10" valign="top">:</td>
-            <td colspan="3" valign="top">  Peraturan Bupati Magetan   </td>
+            <td colspan="3" valign="top" contenteditable="true">  Peraturan Bupati xxxx   </td>
         </tr>
         <tr>
             <td>&nbsp;</td>
@@ -370,7 +370,7 @@ $body_barang .= '
         </tr>
     </table>
     <h4 style="text-align: left; font-size: 13px; font-weight: bold;">1) UANG</h4>
-    <h4 style="text-align: center; font-size: 13px; margin: 10px auto; min-width: 450px; max-width: 570px; font-weight: bold;">DAFTAR NAMA CALON PENERIMA, ALAMAT DAN BESARAN<br>ALOKASI HIBAH BERUPA UANG YANG DITERIMA SERTA SKPD PEMBERI HIBAH</h4>
+    <h4 style="text-align: center; font-size: 13px; margin: 10px auto; min-width: 450px; max-width: 570px; font-weight: bold;">DAFTAR NAMA CALON PENERIMA, ALAMAT DAN BESARAN<br>ALOKASI BANTUAN SOSIAL BERUPA UANG YANG DITERIMA SERTA SKPD PEMBERI BANTUAN SOSIAL</h4>
     <table cellpadding="3" cellspacing="0" class="apbd-penjabaran" width="100%">
         <thead>
             <tr>
@@ -388,7 +388,7 @@ $body_barang .= '
     </table>
     <hr>
     <h4 style="text-align: left; font-size: 13px; font-weight: bold;">2) BARANG</h4>
-    <h4 style="text-align: center; font-size: 13px; margin: 10px auto; min-width: 450px; max-width: 570px; font-weight: bold;">DAFTAR NAMA CALON PENERIMA, ALAMAT DAN BESARAN<br>ALOKASI HIBAH BERUPA BARANG/JASA YANG DITERIMA SERTA SKPD PEMBERI HIBAH</h4>
+    <h4 style="text-align: center; font-size: 13px; margin: 10px auto; min-width: 450px; max-width: 570px; font-weight: bold;">DAFTAR NAMA CALON PENERIMA, ALAMAT, BENTUK DAN BESARAN<br>ALOKASI BANTUAN SOSIAL BERUPA BARANG YANG DITERIMA SERTA SKPD PEMBERI BANTUAN SOSIAL</h4>
     <table cellpadding="3" cellspacing="0" class="apbd-penjabaran" width="100%">
         <thead>
             <tr>

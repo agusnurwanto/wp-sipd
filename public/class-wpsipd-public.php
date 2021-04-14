@@ -2258,6 +2258,11 @@ class Wpsipd_Public
 
 	public function apbdpenjabaran($atts)
 	{
+		// untuk disable render shortcode di halaman edit page/post
+		if(!empty($_GET) && !empty($_GET['post'])){
+			return '';
+		}
+
 		$input = shortcode_atts( array(
 			'lampiran' => '1',
 			'id_skpd' => false,
@@ -2277,6 +2282,11 @@ class Wpsipd_Public
 		// DAFTAR NAMA CALON PENERIMA, ALAMAT DAN BESARAN ALOKASI HIBAH BERUPA UANG & BARANG YANG DITERIMA SERTA SKPD PEMBERI HIBAH
 		if($input['lampiran'] == 3){
 			require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/wpsipd-public-apbdpenjabaran-3.php';
+		}
+
+		// DAFTAR NAMA CALON PENERIMA, ALAMAT DAN BESARAN ALOKASI BANTUAN SOSIAL BERUPA UANG YANG DITERIMA SERTA SKPD PEMBERI BANTUAN SOSIAL
+		if($input['lampiran'] == 4){
+			require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/wpsipd-public-apbdpenjabaran-4.php';
 		}
 	}
 
