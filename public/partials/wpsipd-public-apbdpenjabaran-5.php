@@ -136,16 +136,20 @@ foreach ($data_hibah_uang_shorted['data'] as $k => $skpd) {
                         $no++;
                         $alamat = array();
                         if(!empty($rincian['id_lurah_penerima'])){
-                            $alamat[] = $wpdb->get_row("SELECT nama from data_alamat where id_alamat=".$rincian['id_lurah_penerima']." and is_kel=1", ARRAY_A);
+                            $db_alamat = $wpdb->get_row("SELECT nama from data_alamat where id_alamat=".$rincian['id_lurah_penerima']." and is_kel=1", ARRAY_A);
+                            $alamat[] = $db_alamat['nama'];
                         }
                         if(!empty($rincian['id_camat_penerima'])){
-                            $alamat[] = $wpdb->get_row("SELECT nama from data_alamat where id_alamat=".$rincian['id_camat_penerima']." and is_kec=1", ARRAY_A);
+                            $db_alamat = $wpdb->get_row("SELECT nama from data_alamat where id_alamat=".$rincian['id_camat_penerima']." and is_kec=1", ARRAY_A);
+                            $alamat[] = $db_alamat['nama'];
                         }
                         if(!empty($rincian['id_kokab_penerima'])){
-                            $alamat[] = $wpdb->get_row("SELECT nama from data_alamat where id_alamat=".$rincian['id_kokab_penerima']." and is_kab=1", ARRAY_A);
+                            $db_alamat = $wpdb->get_row("SELECT nama from data_alamat where id_alamat=".$rincian['id_kokab_penerima']." and is_kab=1", ARRAY_A);
+                            $alamat[] = $db_alamat['nama'];
                         }
                         if(!empty($rincian['id_prop_penerima'])){
-                            $alamat[] = $wpdb->get_row("SELECT nama from data_alamat where id_alamat=".$rincian['id_prop_penerima']." and is_prov=1", ARRAY_A);
+                            $db_alamat = $wpdb->get_row("SELECT nama from data_alamat where id_alamat=".$rincian['id_prop_penerima']." and is_prov=1", ARRAY_A);
+                            $alamat[] = $db_alamat['nama'];
                         }
                         $alamat = implode(', ', $alamat);
                         $body_umum .= '
@@ -309,16 +313,20 @@ foreach ($data_hibah_brg_shorted['data'] as $k => $skpd) {
                         $no++;
                         $alamat = array();
                         if(!empty($rincian['id_lurah_penerima'])){
-                            $alamat[] = $wpdb->get_row("SELECT nama from data_alamat where id_alamat=".$rincian['id_lurah_penerima']." and is_kel=1", ARRAY_A);
+                            $db_alamat = $wpdb->get_row("SELECT nama from data_alamat where id_alamat=".$rincian['id_lurah_penerima']." and is_kel=1", ARRAY_A);
+                            $alamat[] = $db_alamat['nama'];
                         }
                         if(!empty($rincian['id_camat_penerima'])){
-                            $alamat[] = $wpdb->get_row("SELECT nama from data_alamat where id_alamat=".$rincian['id_camat_penerima']." and is_kec=1", ARRAY_A);
+                            $db_alamat = $wpdb->get_row("SELECT nama from data_alamat where id_alamat=".$rincian['id_camat_penerima']." and is_kec=1", ARRAY_A);
+                            $alamat[] = $db_alamat['nama'];
                         }
                         if(!empty($rincian['id_kokab_penerima'])){
-                            $alamat[] = $wpdb->get_row("SELECT nama from data_alamat where id_alamat=".$rincian['id_kokab_penerima']." and is_kab=1", ARRAY_A);
+                            $db_alamat = $wpdb->get_row("SELECT nama from data_alamat where id_alamat=".$rincian['id_kokab_penerima']." and is_kab=1", ARRAY_A);
+                            $alamat[] = $db_alamat['nama'];
                         }
                         if(!empty($rincian['id_prop_penerima'])){
-                            $alamat[] = $wpdb->get_row("SELECT nama from data_alamat where id_alamat=".$rincian['id_prop_penerima']." and is_prov=1", ARRAY_A);
+                            $db_alamat = $wpdb->get_row("SELECT nama from data_alamat where id_alamat=".$rincian['id_prop_penerima']." and is_prov=1", ARRAY_A);
+                            $alamat[] = $db_alamat['nama'];
                         }
                         $alamat = implode(', ', $alamat);
                         $body_khusus .= '
@@ -326,7 +334,6 @@ foreach ($data_hibah_brg_shorted['data'] as $k => $skpd) {
                                 <td class="kanan bawah kiri text_tengah">'.$no.'</td>
                                 <td class="kanan bawah" style="padding-left: 100px;">'.$rincian['lokus_akun_teks'].'</td>
                                 <td class="kanan bawah">'.$alamat.'</td>
-                                <td class="kanan bawah">'.$rincian['nama_komponen'].'<br>'.$rincian['spek_komponen'].'</td>
                                 <td class="kanan bawah text_kanan">'.number_format($rincian['rincian_murni'],0,",",".").'</td>
                                 <td class="kanan bawah text_kanan">'.number_format($rincian['rincian'],0,",",".").'</td>
                                 <td class="kanan bawah text_kanan">'.number_format(($rincian['rincian']-$rincian['rincian_murni']),0,",",".").'</td>
