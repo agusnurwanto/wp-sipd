@@ -1,7 +1,7 @@
 <?php
 global $wpdb;
 
-$akun_hibah_uang = $wpdb->get_results('SELECT id_akun, kode_akun, nama_akun FROM `data_akun` where is_sosial_uang=1 order by kode_akun ASC', ARRAY_A);
+$akun_hibah_uang = $wpdb->get_results('SELECT id_akun, kode_akun, nama_akun FROM `data_akun` where is_bankeu_umum=1 order by kode_akun ASC', ARRAY_A);
 $data_hibah_uang = array();
 foreach ($akun_hibah_uang as $k => $v) {
     $data = $wpdb->get_results("SELECT * FROM `data_rka` where kode_akun='".$v['kode_akun']."' and active=1 and tahun_anggaran=".$input['tahun_anggaran']." order by kode_sbl ASC", ARRAY_A);
@@ -79,9 +79,9 @@ foreach ($data_hibah_uang as $k =>$v) {
 }
 ksort($data_hibah_uang_shorted['data']);
 
-$body_uang = '';
+$body_umum = '';
 foreach ($data_hibah_uang_shorted['data'] as $k => $skpd) {
-    $body_uang .= '
+    $body_umum .= '
         <tr>
             <td class="kanan bawah kiri text_tengah text_blok"></td>
             <td class="kanan bawah text_blok" colspan="2">'.$k.' '.$skpd['nama'].'</td>
@@ -91,7 +91,7 @@ foreach ($data_hibah_uang_shorted['data'] as $k => $skpd) {
         </tr>
     ';
     foreach ($skpd['data'] as $sub_keg) {
-        $body_uang .= '
+        $body_umum .= '
             <tr>
                 <td class="kanan bawah kiri text_tengah text_blok"></td>
                 <td class="kanan bawah text_blok" colspan="2" style="padding-left: 20px;">'.$sub_keg['nama'].'</td>
@@ -101,7 +101,7 @@ foreach ($data_hibah_uang_shorted['data'] as $k => $skpd) {
             </tr>
         ';
         foreach ($sub_keg['data'] as $kel) {
-            $body_uang .= '
+            $body_umum .= '
                 <tr>
                     <td class="kanan bawah kiri text_tengah text_blok"></td>
                     <td class="kanan bawah text_blok" colspan="2" style="padding-left: 40px;">'.$kel['nama'].'</td>
@@ -111,7 +111,7 @@ foreach ($data_hibah_uang_shorted['data'] as $k => $skpd) {
                 </tr>
             ';
             foreach ($kel['data'] as $ket) {
-                $body_uang .= '
+                $body_umum .= '
                     <tr>
                         <td class="kanan bawah kiri text_tengah text_blok"></td>
                         <td class="kanan bawah text_blok" colspan="2" style="padding-left: 60px;">'.$ket['nama'].'</td>
@@ -122,7 +122,7 @@ foreach ($data_hibah_uang_shorted['data'] as $k => $skpd) {
                 ';
                 ksort($ket['data']);
                 foreach ($ket['data'] as $akun) {
-                    $body_uang .= '
+                    $body_umum .= '
                         <tr>
                             <td class="kanan bawah kiri text_tengah text_blok"></td>
                             <td class="kanan bawah text_blok" colspan="2" style="padding-left: 80px;">'.$akun['nama'].'</td>
@@ -134,20 +134,21 @@ foreach ($data_hibah_uang_shorted['data'] as $k => $skpd) {
                     $no = 0;
                     foreach ($akun['data'] as $rincian) {
                         $no++;
-                        $profile = false;
-                        if(!empty($rincian['lokus_akun_teks'])){
-                            $profile = $wpdb->get_row("SELECT * from data_profile_penerima_bantuan where id_profil=".$rincian['id_penerima']." and tahun=".$input['tahun_anggaran'], ARRAY_A);
+                        $alamat = array();
+                        if(!empty($rincian['id_lurah_penerima'])){
+                            $alamat[] = $wpdb->get_row("SELECT nama from data_alamat where id_alamat=".$rincian['id_lurah_penerima']." and is_kel=1", ARRAY_A);
                         }
-                        $alamat = '';
-                        if(!empty($profile)){
-                            $alamat = $profile['alamat_teks'].' ('.$profile['jenis_penerima'].')';
-                        }else{
-                            $profile = $wpdb->get_row("SELECT * from data_profile_penerima_bantuan where nama_teks='".$rincian['lokus_akun_teks']."' and tahun=".$input['tahun_anggaran'], ARRAY_A);
-                            if(!empty($profile)){
-                                $alamat = $profile['alamat_teks'].' ('.$profile['jenis_penerima'].')';
-                            }
+                        if(!empty($rincian['id_camat_penerima'])){
+                            $alamat[] = $wpdb->get_row("SELECT nama from data_alamat where id_alamat=".$rincian['id_camat_penerima']." and is_kec=1", ARRAY_A);
                         }
-                        $body_uang .= '
+                        if(!empty($rincian['id_kokab_penerima'])){
+                            $alamat[] = $wpdb->get_row("SELECT nama from data_alamat where id_alamat=".$rincian['id_kokab_penerima']." and is_kab=1", ARRAY_A);
+                        }
+                        if(!empty($rincian['id_prop_penerima'])){
+                            $alamat[] = $wpdb->get_row("SELECT nama from data_alamat where id_alamat=".$rincian['id_prop_penerima']." and is_prov=1", ARRAY_A);
+                        }
+                        $alamat = implode(', ', $alamat);
+                        $body_umum .= '
                             <tr>
                                 <td class="kanan bawah kiri text_tengah">'.$no.'</td>
                                 <td class="kanan bawah" style="padding-left: 100px;">'.$rincian['lokus_akun_teks'].'</td>
@@ -163,7 +164,7 @@ foreach ($data_hibah_uang_shorted['data'] as $k => $skpd) {
         }
     }
 }
-$body_uang .= '
+$body_umum .= '
     <tr>
         <td class="kiri kanan bawah text_blok text_kanan" colspan="3">Jumlah Total</td>
         <td class="kanan bawah text_blok text_kanan">'.number_format($data_hibah_uang_shorted['total_murni'],0,",",".").'</td>
@@ -173,7 +174,7 @@ $body_uang .= '
 ';
 
 
-$akun_hibah_brg = $wpdb->get_results('SELECT id_akun, kode_akun, nama_akun FROM `data_akun` where is_sosial_brg=1 order by kode_akun ASC', ARRAY_A);
+$akun_hibah_brg = $wpdb->get_results('SELECT id_akun, kode_akun, nama_akun FROM `data_akun` where is_bankeu_khusus=1 order by kode_akun ASC', ARRAY_A);
 $data_hibah_brg = array();
 foreach ($akun_hibah_brg as $k => $v) {
     $data = $wpdb->get_results("SELECT * FROM `data_rka` where kode_akun='".$v['kode_akun']."' and active=1 and tahun_anggaran=".$input['tahun_anggaran']." order by kode_sbl ASC", ARRAY_A);
@@ -251,9 +252,9 @@ foreach ($data_hibah_brg as $k =>$v) {
 }
 ksort($data_hibah_brg_shorted['data']);
 
-$body_barang = '';
+$body_khusus = '';
 foreach ($data_hibah_brg_shorted['data'] as $k => $skpd) {
-    $body_barang .= '
+    $body_khusus .= '
         <tr>
             <td class="kanan bawah kiri text_tengah text_blok"></td>
             <td class="kanan bawah text_blok" colspan="3">'.$k.' '.$skpd['nama'].'</td>
@@ -263,7 +264,7 @@ foreach ($data_hibah_brg_shorted['data'] as $k => $skpd) {
         </tr>
     ';
     foreach ($skpd['data'] as $sub_keg) {
-        $body_barang .= '
+        $body_khusus .= '
             <tr>
                 <td class="kanan bawah kiri text_tengah text_blok"></td>
                 <td class="kanan bawah text_blok" colspan="3" style="padding-left: 20px;">'.$sub_keg['nama'].'</td>
@@ -273,7 +274,7 @@ foreach ($data_hibah_brg_shorted['data'] as $k => $skpd) {
             </tr>
         ';
         foreach ($sub_keg['data'] as $kel) {
-            $body_barang .= '
+            $body_khusus .= '
                 <tr>
                     <td class="kanan bawah kiri text_tengah text_blok"></td>
                     <td class="kanan bawah text_blok" colspan="3" style="padding-left: 40px;">'.$kel['nama'].'</td>
@@ -283,7 +284,7 @@ foreach ($data_hibah_brg_shorted['data'] as $k => $skpd) {
                 </tr>
             ';
             foreach ($kel['data'] as $ket) {
-                $body_barang .= '
+                $body_khusus .= '
                     <tr>
                         <td class="kanan bawah kiri text_tengah text_blok"></td>
                         <td class="kanan bawah text_blok" colspan="3" style="padding-left: 60px;">'.$ket['nama'].'</td>
@@ -294,7 +295,7 @@ foreach ($data_hibah_brg_shorted['data'] as $k => $skpd) {
                 ';
                 ksort($ket['data']);
                 foreach ($ket['data'] as $akun) {
-                    $body_barang .= '
+                    $body_khusus .= '
                         <tr>
                             <td class="kanan bawah kiri text_tengah text_blok"></td>
                             <td class="kanan bawah text_blok" colspan="3" style="padding-left: 80px;">'.$akun['nama'].'</td>
@@ -306,20 +307,21 @@ foreach ($data_hibah_brg_shorted['data'] as $k => $skpd) {
                     $no = 0;
                     foreach ($akun['data'] as $rincian) {
                         $no++;
-                        $profile = false;
-                        if(!empty($rincian['lokus_akun_teks'])){
-                            $profile = $wpdb->get_row("SELECT * from data_profile_penerima_bantuan where id_profil=".$rincian['id_penerima']." and tahun=".$input['tahun_anggaran'], ARRAY_A);
+                        $alamat = array();
+                        if(!empty($rincian['id_lurah_penerima'])){
+                            $alamat[] = $wpdb->get_row("SELECT nama from data_alamat where id_alamat=".$rincian['id_lurah_penerima']." and is_kel=1", ARRAY_A);
                         }
-                        $alamat = '';
-                        if(!empty($profile)){
-                            $alamat = $profile['alamat_teks'].' ('.$profile['jenis_penerima'].')';
-                        }else{
-                            $profile = $wpdb->get_row("SELECT * from data_profile_penerima_bantuan where nama_teks='".$rincian['lokus_akun_teks']."' and tahun=".$input['tahun_anggaran'], ARRAY_A);
-                            if(!empty($profile)){
-                                $alamat = $profile['alamat_teks'].' ('.$profile['jenis_penerima'].')';
-                            }
+                        if(!empty($rincian['id_camat_penerima'])){
+                            $alamat[] = $wpdb->get_row("SELECT nama from data_alamat where id_alamat=".$rincian['id_camat_penerima']." and is_kec=1", ARRAY_A);
                         }
-                        $body_barang .= '
+                        if(!empty($rincian['id_kokab_penerima'])){
+                            $alamat[] = $wpdb->get_row("SELECT nama from data_alamat where id_alamat=".$rincian['id_kokab_penerima']." and is_kab=1", ARRAY_A);
+                        }
+                        if(!empty($rincian['id_prop_penerima'])){
+                            $alamat[] = $wpdb->get_row("SELECT nama from data_alamat where id_alamat=".$rincian['id_prop_penerima']." and is_prov=1", ARRAY_A);
+                        }
+                        $alamat = implode(', ', $alamat);
+                        $body_khusus .= '
                             <tr>
                                 <td class="kanan bawah kiri text_tengah">'.$no.'</td>
                                 <td class="kanan bawah" style="padding-left: 100px;">'.$rincian['lokus_akun_teks'].'</td>
@@ -336,7 +338,7 @@ foreach ($data_hibah_brg_shorted['data'] as $k => $skpd) {
         }
     }
 }
-$body_barang .= '
+$body_khusus .= '
     <tr>
         <td class="kiri kanan bawah text_blok text_kanan" colspan="4">Jumlah Total</td>
         <td class="kanan bawah text_blok text_kanan">'.number_format($data_hibah_uang_shorted['total_murni'],0,",",".").'</td>
@@ -347,10 +349,10 @@ $body_barang .= '
 
 // print_r($data_hibah_uang_shorted);
 ?>
-<div id="cetak" title="Laporan APBD PENJABARAN Lampiran 4 Tahun Anggaran <?php echo $input['tahun_anggaran']; ?>" style="padding: 5px;">
+<div id="cetak" title="Laporan APBD PENJABARAN Lampiran 5 Tahun Anggaran <?php echo $input['tahun_anggaran']; ?>" style="padding: 5px;">
     <table align="right" class="no-border no-padding" cellspacing="0" cellpadding="0" style="width:280px; font-size: 12px;">
         <tr>
-            <td width="80" valign="top">Lampiran IV </td>
+            <td width="80" valign="top">Lampiran V </td>
             <td width="10" valign="top">:</td>
             <td colspan="3" valign="top" contenteditable="true">  Peraturan Bupati xxxx   </td>
         </tr>
@@ -369,8 +371,8 @@ $body_barang .= '
             <td class="text_kiri" contenteditable="true">&nbsp;xx Desember xxx</td>
         </tr>
     </table>
-    <h4 style="text-align: left; font-size: 13px; font-weight: bold;">1) UANG</h4>
-    <h4 style="text-align: center; font-size: 13px; margin: 10px auto; min-width: 450px; max-width: 570px; font-weight: bold;">DAFTAR NAMA CALON PENERIMA, ALAMAT DAN BESARAN<br>ALOKASI BANTUAN SOSIAL BERUPA UANG YANG DITERIMA SERTA SKPD PEMBERI BANTUAN SOSIAL</h4>
+    <h4 style="text-align: left; font-size: 13px; font-weight: bold;">1) UMUM</h4>
+    <h4 style="text-align: center; font-size: 13px; margin: 10px auto; min-width: 450px; max-width: 570px; font-weight: bold;">DAFTAR NAMA CALON PENERIMA, ALAMAT DAN BESARAN<br>ALOKASI BANTUAN KEUANGAN BERSIFAT UMUM YANG DITERIMA SERTA SKPD PEMBERI BANTUAN KEUANGAN</h4>
     <table cellpadding="3" cellspacing="0" class="apbd-penjabaran" width="100%">
         <thead>
             <tr>
@@ -383,26 +385,25 @@ $body_barang .= '
             </tr>
         </thead>
         <tbody>
-            <?php echo $body_uang; ?>
+            <?php echo $body_umum; ?>
         </tbody>
     </table>
     <hr>
-    <h4 style="text-align: left; font-size: 13px; font-weight: bold;">2) BARANG</h4>
-    <h4 style="text-align: center; font-size: 13px; margin: 10px auto; min-width: 450px; max-width: 570px; font-weight: bold;">DAFTAR NAMA CALON PENERIMA, ALAMAT, BENTUK DAN BESARAN<br>ALOKASI BANTUAN SOSIAL BERUPA BARANG YANG DITERIMA SERTA SKPD PEMBERI BANTUAN SOSIAL</h4>
+    <h4 style="text-align: left; font-size: 13px; font-weight: bold;">2) KHUSUS</h4>
+    <h4 style="text-align: center; font-size: 13px; margin: 10px auto; min-width: 450px; max-width: 570px; font-weight: bold;">DAFTAR NAMA CALON PENERIMA, ALAMAT DAN BESARAN<br>ALOKASI BANTUAN KEUANGAN BERSIFAT KHUSUS YANG DITERIMA SERTA SKPD PEMBERI BANTUAN KEUANGAN</h4>
     <table cellpadding="3" cellspacing="0" class="apbd-penjabaran" width="100%">
         <thead>
             <tr>
                 <td class="atas kanan bawah kiri text_tengah text_blok">No</td>
                 <td class="atas kanan bawah text_tengah text_blok">Nama Penerima</td>
                 <td class="atas kanan bawah text_tengah text_blok">Alamat Penerima</td>
-                <td class="atas kanan bawah text_tengah text_blok">Bentuk</td>
                 <td class="atas kanan bawah text_tengah text_blok">Sebelum Perubahan</td>
                 <td class="atas kanan bawah text_tengah text_blok">Sesudah Perubahan</td>
                 <td class="atas kanan bawah text_tengah text_blok">Bertambah/(Berkurang)</td>
             </tr>
         </thead>
         <tbody>
-            <?php echo $body_barang; ?>
+            <?php echo $body_khusus; ?>
         </tbody>
     </table>
     <table width="25%" class="no-border no-padding" align="right" cellpadding="2" cellspacing="0" style="width:280px; font-size: 12px;">

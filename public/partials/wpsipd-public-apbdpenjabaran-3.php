@@ -352,7 +352,7 @@ $body_barang .= '
         <tr>
             <td width="80" valign="top">Lampiran III </td>
             <td width="10" valign="top">:</td>
-            <td colspan="3" valign="top">  Peraturan Bupati Magetan   </td>
+            <td colspan="3" valign="top" contenteditable="true">  Peraturan Bupati xxxxx   </td>
         </tr>
         <tr>
             <td>&nbsp;</td>
