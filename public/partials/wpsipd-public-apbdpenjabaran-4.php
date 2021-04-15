@@ -149,7 +149,7 @@ foreach ($data_hibah_uang_shorted['data'] as $k => $skpd) {
                         }
                         $body_uang .= '
                             <tr class="rincian">
-                                <td class="kanan bawah kiri text_tengah">'.$no.'</td>
+                                <td class="kanan bawah kiri text_tengah" data-db="'.$rincian['id_rinci_sub_bl'].'|'.$rincian['kode_sbl'].'">'.$no.'</td>
                                 <td class="kanan bawah" style="padding-left: 100px;">'.$rincian['lokus_akun_teks'].'</td>
                                 <td class="kanan bawah">'.$alamat.'</td>
                                 <td class="kanan bawah text_kanan">'.number_format($rincian['rincian_murni'],0,",",".").'</td>
@@ -320,7 +320,7 @@ foreach ($data_hibah_brg_shorted['data'] as $k => $skpd) {
                             }
                         }
                         $body_barang .= '
-                            <tr class="rincian">
+                            <tr class="rincian" data-db="'.$rincian['id_rinci_sub_bl'].'|'.$rincian['kode_sbl'].'">
                                 <td class="kanan bawah kiri text_tengah">'.$no.'</td>
                                 <td class="kanan bawah" style="padding-left: 100px;">'.$rincian['lokus_akun_teks'].'</td>
                                 <td class="kanan bawah">'.$alamat.'</td>

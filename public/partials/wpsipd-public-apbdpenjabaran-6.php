@@ -153,7 +153,7 @@ foreach ($data_hibah_uang_shorted['data'] as $k => $skpd) {
                         }
                         $alamat = implode(', ', $alamat);
                         $body_kab .= '
-                            <tr class="rincian">
+                            <tr class="rincian" data-db="'.$rincian['id_rinci_sub_bl'].'|'.$rincian['kode_sbl'].'">
                                 <td class="kanan bawah kiri text_tengah">'.$no.'</td>
                                 <td class="kanan bawah" style="padding-left: 100px;">'.$rincian['lokus_akun_teks'].'</td>
                                 <td class="kanan bawah">'.$alamat.'</td>
@@ -330,7 +330,7 @@ foreach ($data_hibah_brg_shorted['data'] as $k => $skpd) {
                         }
                         $alamat = implode(', ', $alamat);
                         $body_kota .= '
-                            <tr class="rincian">
+                            <tr class="rincian" data-db="'.$rincian['id_rinci_sub_bl'].'|'.$rincian['kode_sbl'].'">
                                 <td class="kanan bawah kiri text_tengah">'.$no.'</td>
                                 <td class="kanan bawah" style="padding-left: 100px;">'.$rincian['lokus_akun_teks'].'</td>
                                 <td class="kanan bawah">'.$alamat.'</td>
@@ -507,7 +507,7 @@ foreach ($data_hibah_brg_shorted['data'] as $k => $skpd) {
                         }
                         $alamat = implode(', ', $alamat);
                         $body_desa .= '
-                            <tr class="rincian">
+                            <tr class="rincian" data-db="'.$rincian['id_rinci_sub_bl'].'|'.$rincian['kode_sbl'].'">
                                 <td class="kanan bawah kiri text_tengah">'.$no.'</td>
                                 <td class="kanan bawah" style="padding-left: 100px;">'.$rincian['lokus_akun_teks'].'</td>
                                 <td class="kanan bawah">'.$alamat.'</td>
