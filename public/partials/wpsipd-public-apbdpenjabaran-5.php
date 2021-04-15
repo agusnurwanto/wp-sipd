@@ -92,7 +92,7 @@ foreach ($data_hibah_uang_shorted['data'] as $k => $skpd) {
     ';
     foreach ($skpd['data'] as $sub_keg) {
         $body_umum .= '
-            <tr>
+            <tr class="sub_keg">
                 <td class="kanan bawah kiri text_tengah text_blok"></td>
                 <td class="kanan bawah text_blok" colspan="2" style="padding-left: 20px;">'.$sub_keg['nama'].'</td>
                 <td class="kanan bawah text_blok text_kanan">'.number_format($sub_keg['total_murni'],0,",",".").'</td>
@@ -102,7 +102,7 @@ foreach ($data_hibah_uang_shorted['data'] as $k => $skpd) {
         ';
         foreach ($sub_keg['data'] as $kel) {
             $body_umum .= '
-                <tr>
+                <tr class="kelompok">
                     <td class="kanan bawah kiri text_tengah text_blok"></td>
                     <td class="kanan bawah text_blok" colspan="2" style="padding-left: 40px;">'.$kel['nama'].'</td>
                     <td class="kanan bawah text_blok text_kanan">'.number_format($kel['total_murni'],0,",",".").'</td>
@@ -112,7 +112,7 @@ foreach ($data_hibah_uang_shorted['data'] as $k => $skpd) {
             ';
             foreach ($kel['data'] as $ket) {
                 $body_umum .= '
-                    <tr>
+                    <tr class="keterangan">
                         <td class="kanan bawah kiri text_tengah text_blok"></td>
                         <td class="kanan bawah text_blok" colspan="2" style="padding-left: 60px;">'.$ket['nama'].'</td>
                         <td class="kanan bawah text_blok text_kanan">'.number_format($ket['total_murni'],0,",",".").'</td>
@@ -123,7 +123,7 @@ foreach ($data_hibah_uang_shorted['data'] as $k => $skpd) {
                 ksort($ket['data']);
                 foreach ($ket['data'] as $akun) {
                     $body_umum .= '
-                        <tr>
+                        <tr class="rekening">
                             <td class="kanan bawah kiri text_tengah text_blok"></td>
                             <td class="kanan bawah text_blok" colspan="2" style="padding-left: 80px;">'.$akun['nama'].'</td>
                             <td class="kanan bawah text_blok text_kanan">'.number_format($akun['total_murni'],0,",",".").'</td>
@@ -153,7 +153,7 @@ foreach ($data_hibah_uang_shorted['data'] as $k => $skpd) {
                         }
                         $alamat = implode(', ', $alamat);
                         $body_umum .= '
-                            <tr>
+                            <tr class="rincian">
                                 <td class="kanan bawah kiri text_tengah">'.$no.'</td>
                                 <td class="kanan bawah" style="padding-left: 100px;">'.$rincian['lokus_akun_teks'].'</td>
                                 <td class="kanan bawah">'.$alamat.'</td>
@@ -269,7 +269,7 @@ foreach ($data_hibah_brg_shorted['data'] as $k => $skpd) {
     ';
     foreach ($skpd['data'] as $sub_keg) {
         $body_khusus .= '
-            <tr>
+            <tr class="sub_keg">
                 <td class="kanan bawah kiri text_tengah text_blok"></td>
                 <td class="kanan bawah text_blok" colspan="2" style="padding-left: 20px;">'.$sub_keg['nama'].'</td>
                 <td class="kanan bawah text_blok text_kanan">'.number_format($sub_keg['total_murni'],0,",",".").'</td>
@@ -279,7 +279,7 @@ foreach ($data_hibah_brg_shorted['data'] as $k => $skpd) {
         ';
         foreach ($sub_keg['data'] as $kel) {
             $body_khusus .= '
-                <tr>
+                <tr class="kelompok">
                     <td class="kanan bawah kiri text_tengah text_blok"></td>
                     <td class="kanan bawah text_blok" colspan="2" style="padding-left: 40px;">'.$kel['nama'].'</td>
                     <td class="kanan bawah text_blok text_kanan">'.number_format($kel['total_murni'],0,",",".").'</td>
@@ -289,7 +289,7 @@ foreach ($data_hibah_brg_shorted['data'] as $k => $skpd) {
             ';
             foreach ($kel['data'] as $ket) {
                 $body_khusus .= '
-                    <tr>
+                    <tr class="keterangan">
                         <td class="kanan bawah kiri text_tengah text_blok"></td>
                         <td class="kanan bawah text_blok" colspan="2" style="padding-left: 60px;">'.$ket['nama'].'</td>
                         <td class="kanan bawah text_blok text_kanan">'.number_format($ket['total_murni'],0,",",".").'</td>
@@ -300,7 +300,7 @@ foreach ($data_hibah_brg_shorted['data'] as $k => $skpd) {
                 ksort($ket['data']);
                 foreach ($ket['data'] as $akun) {
                     $body_khusus .= '
-                        <tr>
+                        <tr class="rekening">
                             <td class="kanan bawah kiri text_tengah text_blok"></td>
                             <td class="kanan bawah text_blok" colspan="2" style="padding-left: 80px;">'.$akun['nama'].'</td>
                             <td class="kanan bawah text_blok text_kanan">'.number_format($akun['total_murni'],0,",",".").'</td>
@@ -330,7 +330,7 @@ foreach ($data_hibah_brg_shorted['data'] as $k => $skpd) {
                         }
                         $alamat = implode(', ', $alamat);
                         $body_khusus .= '
-                            <tr>
+                            <tr class="rincian">
                                 <td class="kanan bawah kiri text_tengah">'.$no.'</td>
                                 <td class="kanan bawah" style="padding-left: 100px;">'.$rincian['lokus_akun_teks'].'</td>
                                 <td class="kanan bawah">'.$alamat.'</td>
@@ -423,5 +423,5 @@ $body_khusus .= '
 </div>
 
 <script type="text/javascript">
-    run_download_excel();
+    run_download_excel('apbd');
 </script>

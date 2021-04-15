@@ -276,21 +276,21 @@ $body_pembiayaan = generate_body($rek_pembiayaan, false, $type);
         <tr>
             <td width="80" valign="top">Lampiran I </td>
             <td width="10" valign="top">:</td>
-            <td colspan="3" valign="top">  Peraturan Bupati Magetan   </td>
+            <td colspan="3" valign="top" contenteditable="true">  Peraturan Bupati xxxxx   </td>
         </tr>
         <tr>
             <td>&nbsp;</td>
             <td width="10">&nbsp;</td>
             <td width="60" class="text_kiri" style="padding-left: 0px;">Nomor</td>
             <td width="10">:</td>
-            <td class="text_kiri">&nbsp;79 Tahun 2020</td>
+            <td class="text_kiri" contenteditable="true">&nbsp;xx Desember xxxx</td>
         </tr>
         <tr>
             <td>&nbsp;</td>
             <td width="10">&nbsp;</td>
             <td width="60" class="text_kiri" style="padding-left: 0px;">Tanggal</td>
             <td width="10">:</td>
-            <td class="text_kiri">&nbsp;28 Desember 2020</td>
+            <td class="text_kiri" contenteditable="true">&nbsp;xx Desember xxx</td>
         </tr>
     </table>
     <h4 style="text-align: center; font-size: 13px; margin: 10px auto; min-width: 450px; max-width: 550px; font-weight: bold;">KABUPATEN MAGETAN <br>RINGKASAN  PENJABARAN  APBD YANG DIKLASIFIKASI MENURUT KELOMPOK DAN JENIS PENDAPATAN, BELANJA, DAN PEMBIAYAAN<br>TAHUN ANGGARAN <?php echo $input['tahun_anggaran']; ?></h4>
@@ -318,9 +318,9 @@ $body_pembiayaan = generate_body($rek_pembiayaan, false, $type);
     </table>
     <table width="25%" class="no-border no-padding" align="right" cellpadding="2" cellspacing="0" style="width:280px; font-size: 12px;">
         <tr><td colspan="3" class="text_tengah" height="20px"></td></tr>
-        <tr><td colspan="3" class="text_tengah text_15">Bupati Magetan  </td></tr>
+        <tr><td colspan="3" class="text_tengah text_15" contenteditable="true">Bupati XXXX  </td></tr>
         <tr><td colspan="3" height="80">&nbsp;</td></tr>
-        <tr><td colspan="3" class="text_tengah">SUPRAWOTO</td></tr>
+        <tr><td colspan="3" class="text_tengah" contenteditable="true">XXXXXXXXXXX</td></tr>
         <tr><td colspan="3" class="text_tengah"></td></tr>
     </table>
 </div>
