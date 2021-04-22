@@ -313,33 +313,37 @@ function generate_body($rek_pendapatan, $nama_table, $type='murni', $skpd){
                             </tr>";
                         }
                         foreach ($mmmmm['data'] as $kk => $vv) {
+                            $text_blok = '';
+                            if(empty($mmmmm['nama'])){
+                                $text_blok = 'text_blok';
+                            }
                             $kode = explode('.', $kk);
                             $murni = '';
                             $selisih = '';
                             if($type == 'pergeseran'){
-                                $murni = "<td class='kanan bawah text_kanan'>".number_format($vv['totalmurni'],0,",",".")."</td>";
-                                $selisih = "<td class='kanan bawah text_kanan'>".number_format(($vv['total']-$vv['totalmurni']),0,",",".")."</td>";
+                                $murni = "<td class='kanan bawah ".$text_blok." text_kanan'>".number_format($vv['totalmurni'],0,",",".")."</td>";
+                                $selisih = "<td class='kanan bawah ".$text_blok." text_kanan'>".number_format(($vv['total']-$vv['totalmurni']),0,",",".")."</td>";
                             }
                             $body_pendapatan .= "
                             <tr data-akun='".$kk."'>
-                                <td class='kiri kanan bawah'>".$v['kode_urusan']."</td>
-                                <td class='kiri kanan bawah'>".$v['kode_bidang']."</td>
-                                <td class='kiri kanan bawah'>".$v['kode_skpd']."</td>
-                                <td class='kiri kanan bawah'>".$nnn."</td>
-                                <td class='kiri kanan bawah'>".$nnnn."</td>
-                                <td class='kiri kanan bawah'>".$nnnnn."</td>
-                                <td class='kiri kanan bawah'>".$kode[0]."</td>
-                                <td class='kiri kanan bawah'>".$kode[1]."</td>
-                                <td class='kiri kanan bawah'></td>
-                                <td class='kiri kanan bawah'></td>
-                                <td class='kiri kanan bawah'></td>
-                                <td class='kiri kanan bawah'></td>
-                                <td class='kanan bawah'  style='padding-left:".($padding*5)."px;'>".$vv['nama']."</td>
+                                <td class='kiri kanan bawah ".$text_blok."'>".$v['kode_urusan']."</td>
+                                <td class='kiri kanan bawah ".$text_blok."'>".$v['kode_bidang']."</td>
+                                <td class='kiri kanan bawah ".$text_blok."'>".$v['kode_skpd']."</td>
+                                <td class='kiri kanan bawah ".$text_blok."'>".$nnn."</td>
+                                <td class='kiri kanan bawah ".$text_blok."'>".$nnnn."</td>
+                                <td class='kiri kanan bawah ".$text_blok."'>".$nnnnn."</td>
+                                <td class='kiri kanan bawah ".$text_blok."'>".$kode[0]."</td>
+                                <td class='kiri kanan bawah ".$text_blok."'>".$kode[1]."</td>
+                                <td class='kiri kanan bawah ".$text_blok."'></td>
+                                <td class='kiri kanan bawah ".$text_blok."'></td>
+                                <td class='kiri kanan bawah ".$text_blok."'></td>
+                                <td class='kiri kanan bawah ".$text_blok."'></td>
+                                <td class='kanan bawah ".$text_blok."'  style='padding-left:".($padding*5)."px;'>".$vv['nama']."</td>
                                 ".$murni."
-                                <td class='kanan bawah text_kanan'>".number_format($vv['total'],0,",",".")."</td>
+                                <td class='kanan bawah ".$text_blok." text_kanan'>".number_format($vv['total'],0,",",".")."</td>
                                 ".$selisih."
-                                <td class='kanan bawah'></td>
-                                <td class='kanan bawah'></td>
+                                <td class='kanan bawah ".$text_blok."'></td>
+                                <td class='kanan bawah ".$text_blok."'></td>
                             </tr>";
                             foreach ($vv['data'] as $kkk => $vvv) {
                                 $kode = explode('.', $kkk);
@@ -630,9 +634,13 @@ $urusan = $wpdb->get_row('SELECT nama_bidang_urusan FROM `data_prog_keg` where k
             <tr>
                 <td class="atas kanan bawah kiri text_tengah text_blok" colspan="12">Kode Rekening</td>
                 <td class="atas kanan bawah text_tengah text_blok">Uraian</td>
-                <td class="atas kanan bawah text_tengah text_blok" width="150px">Sebelum Perubahan</td>
-                <td class="atas kanan bawah text_tengah text_blok" width="150px">Sesudah Perubahan</td>
-                <td class="atas kanan bawah text_tengah text_blok" width="150px">Bertambah/(Berkurang)</td>
+                <?php if($type == 'murni'): ?>
+                    <td class="atas kanan bawah text_tengah text_blok" width="150px">Jumlah</td>
+                <?php else: ?>
+                    <td class="atas kanan bawah text_tengah text_blok" width="150px">Sebelum Perubahan</td>
+                    <td class="atas kanan bawah text_tengah text_blok" width="150px">Sesudah Perubahan</td>
+                    <td class="atas kanan bawah text_tengah text_blok" width="150px">Bertambah/(Berkurang)</td>
+                <?php endif; ?>
                 <td class="atas kanan bawah text_tengah text_blok" width="180px">Penjelasan</td>
                 <td class="atas kanan bawah text_tengah text_blok" width="180px">Keterangan</td>
             </tr>

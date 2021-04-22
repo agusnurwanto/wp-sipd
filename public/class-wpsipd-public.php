@@ -868,6 +868,9 @@ class Wpsipd_Public
 						} else {
 							$wpdb->insert('data_pendapatan', $opsi);
 						}
+						// if($v['id_pendapatan'] == '14384'){
+						// 	print_r($opsi); die();
+						// }
 					}
 
 					if(carbon_get_theme_option('crb_singkron_simda') == 1){
