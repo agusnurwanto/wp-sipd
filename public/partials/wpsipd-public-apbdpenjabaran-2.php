@@ -32,8 +32,8 @@ function generate_body($rek_pendapatan, $nama_table, $type='murni', $skpd){
         }
         if(empty($data_pendapatan['data'][$kode_akun]['data'][$v['kode_bidang_urusan']])){
             $data_pendapatan['data'][$kode_akun]['data'][$v['kode_bidang_urusan']] = array(
-                'data' => array(),
                 'nama' => $v['nama_bidang_urusan'],
+                'data' => array(),
                 'total' => 0,
                 'totalmurni' => 0
             );
@@ -55,8 +55,12 @@ function generate_body($rek_pendapatan, $nama_table, $type='murni', $skpd){
             );
         }
         if(empty($data_pendapatan['data'][$kode_akun]['data'][$v['kode_bidang_urusan']]['data'][$v['no_program']]['data'][$v['no_giat']]['data'][$v['no_sub_giat']])){
+            $skpd_sub = $wpdb->get_row('SELECT kode_skpd, nama_skpd FROM `data_unit` where id_skpd='.$v['id_skpd'].' and tahun_anggaran='.$v['tahun_anggaran'].' and active=1', ARRAY_A);
+            // echo $skpd_sub['nama_skpd'].' - '.$skpd_sub['kode_skpd'].' - '.$v['id_skpd'].'<br>';
             $data_pendapatan['data'][$kode_akun]['data'][$v['kode_bidang_urusan']]['data'][$v['no_program']]['data'][$v['no_giat']]['data'][$v['no_sub_giat']] = array(
                 'data' => array(),
+                'kode_skpd' => $skpd_sub['kode_skpd'],
+                'nama_skpd' => $skpd_sub['nama_skpd'],
                 'nama' => $v['nama_sub_giat'],
                 'total' => 0,
                 'totalmurni' => 0
@@ -112,6 +116,8 @@ function generate_body($rek_pendapatan, $nama_table, $type='murni', $skpd){
                 'totalmurni' => 0
             );
         }
+        $data_pendapatan['data'][$kode_akun]['data'][$v['kode_bidang_urusan']]['data'][$v['no_program']]['data'][$v['no_giat']]['data'][$v['no_sub_giat']]['data'][$kode_akun1]['data'][$kode_akun2]['data'][$kode_akun3]['data'][$kode_akun4]['data'][$kode_akun5]['data'][] = $v;
+
         $data_pendapatan['total'] += $v['total'];
         $data_pendapatan['data'][$kode_akun]['total'] += $v['total'];
         $data_pendapatan['data'][$kode_akun]['data'][$v['kode_bidang_urusan']]['total'] += $v['total'];
@@ -137,8 +143,8 @@ function generate_body($rek_pendapatan, $nama_table, $type='murni', $skpd){
             $data_pendapatan['data'][$kode_akun]['data'][$v['kode_bidang_urusan']]['data'][$v['no_program']]['data'][$v['no_giat']]['data'][$v['no_sub_giat']]['data'][$kode_akun1]['data'][$kode_akun2]['data'][$kode_akun3]['data'][$kode_akun4]['totalmurni'] += $v['totalmurni'];
             $data_pendapatan['data'][$kode_akun]['data'][$v['kode_bidang_urusan']]['data'][$v['no_program']]['data'][$v['no_giat']]['data'][$v['no_sub_giat']]['data'][$kode_akun1]['data'][$kode_akun2]['data'][$kode_akun3]['data'][$kode_akun4]['data'][$kode_akun5]['totalmurni'] += $v['totalmurni'];
         // }
-        // print_r($data_pendapatan); die();
     }
+    // print_r($data_pendapatan); die();
 
     $kode_skpd = explode('.', $skpd['kode_skpd']);
     $body_pendapatan = '';
@@ -267,6 +273,7 @@ function generate_body($rek_pendapatan, $nama_table, $type='murni', $skpd){
                     }
                     // sub kegiatan
                     foreach ($mmmm['data'] as $nnnnn => $mmmmm) {
+                        $v['kode_skpd'] = $mmmmm['kode_skpd'];
                         if(!empty($mmmmm['nama'])){
                             $murni = '';
                             $selisih = '';
@@ -278,8 +285,13 @@ function generate_body($rek_pendapatan, $nama_table, $type='murni', $skpd){
                             $kd_sub_giat = $sub_giat[0];
                             unset($sub_giat[0]);
                             $sub_giat = implode(' ', $sub_giat);
+
+                            // if($kd_sub_giat == '1.02.02.2.01.01'){
+                            //     print_r($mmmmm); die();
+                            // }
+
                             $body_pendapatan .= "
-                            <tr data-akun='".$kd_sub_giat."'>
+                            <tr data-akun='".$kd_sub_giat."' data-skpd='".$mmmmm['kode_skpd']."' data-nama-skpd='".$mmmmm['nama_skpd']."'>
                                 <td class='kiri kanan bawah'>".$v['kode_urusan']."</td>
                                 <td class='kiri kanan bawah'>".$v['kode_bidang']."</td>
                                 <td class='kiri kanan bawah'>".$v['kode_skpd']."</td>
@@ -417,6 +429,10 @@ function generate_body($rek_pendapatan, $nama_table, $type='murni', $skpd){
                                             <td class='kanan bawah'></td>
                                         </tr>";
                                         foreach ($vvvvv['data'] as $kkkkkk => $vvvvvv) {
+                                            $all_skpd = array();
+                                            foreach ($vvvvvv['data'] as $kkkkkkk => $vvvvvvv) {
+                                                $all_skpd[] = array($vvvvvvv['id_skpd'], $vvvvvvv['totalmurni'], $vvvvvvv['total']);
+                                            }
                                             $kode = explode('.', $kkkkkk);
                                             $murni = '';
                                             $selisih = '';
@@ -425,7 +441,7 @@ function generate_body($rek_pendapatan, $nama_table, $type='murni', $skpd){
                                                 $selisih = "<td class='kanan bawah text_kanan'>".number_format(($vvvvvv['total']-$vvvvvv['totalmurni']),0,",",".")."</td>";
                                             }
                                             $body_pendapatan .= "
-                                            <tr data-akun='".$kkkkkk."'>
+                                            <tr data-akun='".$kkkkkk."' data-skpd='".json_encode($all_skpd)."'>
                                                 <td class='kiri kanan bawah'>".$v['kode_urusan']."</td>
                                                 <td class='kiri kanan bawah'>".$v['kode_bidang']."</td>
                                                 <td class='kiri kanan bawah'>".$v['kode_skpd']."</td>
@@ -481,9 +497,16 @@ $type = 'murni';
 if(!empty($_GET) && !empty($_GET['type'])){
     $type = $_GET['type'];
 }
+$skpd_induk = $wpdb->get_results('SELECT id_skpd FROM `data_unit` where idinduk='.$input['id_skpd'].' and tahun_anggaran='.$input['tahun_anggaran'].' and active=1', ARRAY_A);
+$id_skpd_all = array();
+foreach ($skpd_induk as $k => $v) {
+    $id_skpd_all[] = $v['id_skpd'];
+}
 
 $sql = $wpdb->prepare("
     select 
+        tahun_anggaran,
+        id_skpd,
         '' as nama_bidang_urusan,
         '' as nama_program,
         '' as nama_giat,
@@ -498,17 +521,20 @@ $sql = $wpdb->prepare("
         sum(nilaimurni) as totalmurni
     from data_pendapatan
     where tahun_anggaran=%d
-        and id_skpd=%d
+        and id_skpd IN (".implode(',', $id_skpd_all).")
         and active=1
-    group by kode_akun
-    order by kode_akun ASC
-", $input['tahun_anggaran'], $input['id_skpd']);
+    group by id_skpd, kode_akun
+    order by id_skpd ASC, kode_akun ASC
+", $input['tahun_anggaran']);
 $rek_pendapatan = $wpdb->get_results($sql, ARRAY_A);
+// print_r($rek_pendapatan); die($sql);
 
 $body_pendapatan = generate_body($rek_pendapatan, 'Pendapatan', $type, $skpd);
 
 $sql = $wpdb->prepare("
     select 
+        r.tahun_anggaran,
+        s.id_sub_skpd as id_skpd,
         s.kode_bidang_urusan,
         s.nama_bidang_urusan,
         s.nama_program,
@@ -522,19 +548,22 @@ $sql = $wpdb->prepare("
         sum(r.rincian) as total,
         sum(r.rincian_murni) as totalmurni
     from data_rka r
-        left join data_sub_keg_bl s ON r.kode_sbl=s.kode_sbl
+        left join data_sub_keg_bl s ON r.kode_sbl=s.kode_sbl AND s.tahun_anggaran=r.tahun_anggaran
     where r.tahun_anggaran=%d
-        and s.id_sub_skpd=%d
+        and s.id_sub_skpd IN (".implode(',', $id_skpd_all).")
         and r.active=1
-    group by r.kode_akun
-    order by r.kode_akun ASC
-", $input['tahun_anggaran'], $input['id_skpd']);
+        and s.active=1
+    group by s.kode_sbl, r.kode_akun
+    order by s.kode_sub_giat ASC, r.kode_akun ASC
+", $input['tahun_anggaran']);
 $rek_belanja = $wpdb->get_results($sql, ARRAY_A);
 
 $body_belanja = generate_body($rek_belanja, 'Belanja', $type, $skpd);
 
 $sql = $wpdb->prepare("
     select 
+        tahun_anggaran,
+        id_skpd,
         '' as nama_bidang_urusan,
         '' as nama_program,
         '' as nama_giat,
@@ -549,11 +578,11 @@ $sql = $wpdb->prepare("
         sum(nilaimurni) as totalmurni
     from data_pembiayaan
     where tahun_anggaran=%d
-        and id_skpd=%d
+        and id_skpd IN (".implode(',', $id_skpd_all).")
         and active=1
-    group by kode_akun
-    order by kode_akun ASC
-", $input['tahun_anggaran'], $input['id_skpd']);
+    group by id_skpd, kode_akun
+    order by id_skpd ASC, kode_akun ASC
+", $input['tahun_anggaran']);
 $rek_pembiayaan = $wpdb->get_results($sql, ARRAY_A);
 
 $body_pembiayaan = generate_body($rek_pembiayaan, 'Pembiayaan', $type, $skpd);
@@ -582,7 +611,7 @@ $urusan = $wpdb->get_row('SELECT nama_bidang_urusan FROM `data_prog_keg` where k
         </tr>
     </table>
     <h4 style="text-align: center; font-size: 13px; margin: 10px auto; font-weight: bold;">KABUPATEN MAGETAN <br>PENJABARAN PERUBAHAN APBD MENURUT URUSAN PEMERINTAHAN DAERAH, ORGANISASI, PROGRAM, KEGIATAN, SUB KEGIATAN, KELOMPOK, JENIS, OBJEK, RINCIAN OBJEK, SUB RINCIAN OBJEK PENDAPATAN, BELANJA, DAN PEMBIAYAAN<br>TAHUN ANGGARAN <?php echo $input['tahun_anggaran']; ?></h4>
-    <table cellspacing="2" cellpadding="0" class="apbd-penjabaran">
+    <table cellspacing="2" cellpadding="0" class="apbd-penjabaran no-border no-padding">
         <tbody>
             <tr>
                 <td width="150">Urusan Pemerintahan</td>
