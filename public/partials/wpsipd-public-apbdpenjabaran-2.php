@@ -1,6 +1,21 @@
 <?php
+
+global $total_belanja_murni;
+global $total_belanja;
+global $total_pendapatan_murni;
+global $total_pendapatan;
+
+$total_belanja_murni = 0;
+$total_belanja = 0;
+$total_pendapatan_murni = 0;
+$total_pendapatan = 0;
+
 function generate_body($rek_pendapatan, $nama_table, $type='murni', $skpd){
     global $wpdb;
+    global $total_belanja_murni;
+    global $total_belanja;
+    global $total_pendapatan_murni;
+    global $total_pendapatan;
     $data_pendapatan = array(
         'data' => array(),
         'total' => 0,
@@ -491,6 +506,14 @@ function generate_body($rek_pendapatan, $nama_table, $type='murni', $skpd){
         <td class='kanan bawah'></td>
         <td class='kanan bawah'></td>
     </tr>";
+
+    if($nama_table == 'Pendapatan'){
+        $total_pendapatan = $data_pendapatan['total'];
+        $total_pendapatan_murni = $data_pendapatan['totalmurni'];
+    }else if($nama_table == 'Belanja'){
+        $total_belanja = $data_pendapatan['total'];
+        $total_belanja_murni = $data_pendapatan['totalmurni'];
+    }
     return $body_pendapatan;
 }
 
@@ -648,7 +671,42 @@ $urusan = $wpdb->get_row('SELECT nama_bidang_urusan FROM `data_prog_keg` where k
         <tbody>
             <?php 
                 echo $body_pendapatan; 
-                echo $body_belanja; 
+                echo $body_belanja;
+                $selisih_belanja = $total_pendapatan-$total_belanja;
+                $selisih_belanja_murni = $total_pendapatan_murni-$total_belanja_murni;
+                if($type == 'murni'){
+                    $kolom_jml = '
+                        <td class="kanan bawah text_blok text_kanan">'.number_format($selisih_belanja,0,",",".").'</td>
+                    ';
+                    $kolom_batas = '
+                        <td class="kanan bawah text_blok text_kanan" style="height: 2em;padding:0em;margin:0em;"></td>
+                    ';
+                }else{
+                    $kolom_jml = '
+                        <td class="kanan bawah text_blok text_kanan">'.number_format($selisih_belanja,0,",",".").'</td>
+                        <td class="kanan bawah text_blok text_kanan">'.number_format($selisih_belanja_murni,0,",",".").'</td>
+                        <td class="kanan bawah text_blok text_kanan">'.number_format(($selisih_belanja-$selisih_belanja_murni),0,",",".").'</td>
+                    ';
+                    $kolom_batas = '
+                        <td class="kanan bawah text_blok text_kanan" style="height: 2em;padding:0em;margin:0em;"></td>
+                        <td class="kanan bawah text_blok text_kanan" style="height: 2em;padding:0em;margin:0em;"></td>
+                        <td class="kanan bawah text_blok text_kanan" style="height: 2em;padding:0em;margin:0em;"></td>
+                    ';
+                }
+                echo '
+                    </tr>
+                        <td colspan="13" class="kiri kanan bawah text_blok text_kanan">Total Surplus/(Defisit)</td>
+                        '.$kolom_jml.'
+                        <td class="kanan bawah"></td>
+                        <td class="kanan bawah"></td>
+                    </tr>
+                    <tr>
+                        <td colspan="13" class="kiri kanan bawah text_blok" style="height: 2em;padding:0em;margin:0em;"></td>
+                        '.$kolom_batas.'
+                        <td class="kanan bawah"></td>
+                        <td class="kanan bawah"></td>
+                    </tr>
+                ';
                 echo $body_pembiayaan; 
             ?>
         </tbody>
