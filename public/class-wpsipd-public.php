@@ -2782,14 +2782,20 @@ class Wpsipd_Public
 				$post_content = '';
 				
 				if(
-					$_POST['jenis'] == '1'
+					(
+						$_POST['jenis'] == '1'
+						|| $_POST['jenis'] == '3'
+						|| $_POST['jenis'] == '4'
+						|| $_POST['jenis'] == '5'
+						|| $_POST['jenis'] == '6'
+					)
 					&& $_POST['model'] == 'perkada'
 					&& $_POST['cetak'] == 'apbd'
 				){
-					$nama_page = $_POST['tahun_anggaran'] . ' | APBD PENJABARAN Lampiran 1';
+					$nama_page = $_POST['tahun_anggaran'] . ' | APBD PENJABARAN Lampiran '.$_POST['jenis'];
 					$cat_name = $_POST['tahun_anggaran'] . ' APBD';
 					$post_content = '[apbdpenjabaran tahun_anggaran="'.$_POST['tahun_anggaran'].'" lampiran="'.$_POST['jenis'].'"]';
-					$ret['text_link'] = 'Print APBD PENJABARAN Lampiran 1';
+					$ret['text_link'] = 'Print APBD PENJABARAN Lampiran '.$_POST['jenis'];
 					$custom_post = $this->save_update_post($nama_page, $cat_name, $post_content);
 					$ret['link'] = esc_url( get_permalink($custom_post) );
 				}else if(
