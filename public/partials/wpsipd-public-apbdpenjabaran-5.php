@@ -1,10 +1,14 @@
 <?php
 global $wpdb;
+$type = 'murni';
+if(!empty($_GET) && !empty($_GET['type'])){
+    $type = $_GET['type'];
+}
 
 $akun_hibah_uang = $wpdb->get_results('SELECT id_akun, kode_akun, nama_akun FROM `data_akun` where is_bankeu_umum=1 order by kode_akun ASC', ARRAY_A);
 $data_hibah_uang = array();
 foreach ($akun_hibah_uang as $k => $v) {
-    $data = $wpdb->get_results("SELECT * FROM `data_rka` where kode_akun='".$v['kode_akun']."' and active=1 and tahun_anggaran=".$input['tahun_anggaran']." order by kode_sbl ASC", ARRAY_A);
+    $data = $wpdb->get_results("SELECT * FROM `data_rka` where kode_akun='".$v['kode_akun']."' and active=1 and tahun_anggaran=".$input['tahun_anggaran']." order by kode_sbl ASC, lokus_akun_teks ASC", ARRAY_A);
     if(!empty($data)){
         $data_hibah_uang = array_merge($data, $data_hibah_uang);
     }
@@ -81,54 +85,84 @@ ksort($data_hibah_uang_shorted['data']);
 
 $body_umum = '';
 foreach ($data_hibah_uang_shorted['data'] as $k => $skpd) {
+    $murni = '';
+    $selisih = '';
+    if($type == 'pergeseran'){
+        $murni = "<td class='kanan bawah text_kanan text_blok'>".number_format($skpd['total_murni'],0,",",".")."</td>";
+        $selisih = "<td class='kanan bawah text_kanan text_blok'>".number_format(($skpd['total']-$skpd['total_murni']),0,",",".")."</td>";
+    }
     $body_umum .= '
         <tr>
             <td class="kanan bawah kiri text_tengah text_blok"></td>
             <td class="kanan bawah text_blok" colspan="2">'.$k.' '.$skpd['nama'].'</td>
-            <td class="kanan bawah text_blok text_kanan">'.number_format($skpd['total_murni'],0,",",".").'</td>
+            '.$murni.'
             <td class="kanan bawah text_blok text_kanan">'.number_format($skpd['total'],0,",",".").'</td>
-            <td class="kanan bawah text_blok text_kanan">'.number_format(($skpd['total']-$skpd['total_murni']),0,",",".").'</td>
+            '.$selisih.'
         </tr>
     ';
     foreach ($skpd['data'] as $sub_keg) {
+        $murni = '';
+        $selisih = '';
+        if($type == 'pergeseran'){
+            $murni = "<td class='kanan bawah text_kanan text_blok'>".number_format($sub_keg['total_murni'],0,",",".")."</td>";
+            $selisih = "<td class='kanan bawah text_kanan text_blok'>".number_format(($sub_keg['total']-$sub_keg['total_murni']),0,",",".")."</td>";
+        }
         $body_umum .= '
             <tr class="sub_keg">
                 <td class="kanan bawah kiri text_tengah text_blok"></td>
                 <td class="kanan bawah text_blok" colspan="2" style="padding-left: 20px;">'.$sub_keg['nama'].'</td>
-                <td class="kanan bawah text_blok text_kanan">'.number_format($sub_keg['total_murni'],0,",",".").'</td>
+                '.$murni.'
                 <td class="kanan bawah text_blok text_kanan">'.number_format($sub_keg['total'],0,",",".").'</td>
-                <td class="kanan bawah text_blok text_kanan">'.number_format(($sub_keg['total']-$sub_keg['total_murni']),0,",",".").'</td>
+                '.$selisih.'
             </tr>
         ';
         foreach ($sub_keg['data'] as $kel) {
+            $murni = '';
+            $selisih = '';
+            if($type == 'pergeseran'){
+                $murni = "<td class='kanan bawah text_kanan text_blok'>".number_format($kel['total_murni'],0,",",".")."</td>";
+                $selisih = "<td class='kanan bawah text_kanan text_blok'>".number_format(($kel['total']-$kel['total_murni']),0,",",".")."</td>";
+            }
             $body_umum .= '
                 <tr class="kelompok">
                     <td class="kanan bawah kiri text_tengah text_blok"></td>
                     <td class="kanan bawah text_blok" colspan="2" style="padding-left: 40px;">'.$kel['nama'].'</td>
-                    <td class="kanan bawah text_blok text_kanan">'.number_format($kel['total_murni'],0,",",".").'</td>
+                    '.$murni.'
                     <td class="kanan bawah text_blok text_kanan">'.number_format($kel['total'],0,",",".").'</td>
-                    <td class="kanan bawah text_blok text_kanan">'.number_format(($kel['total']-$kel['total_murni']),0,",",".").'</td>
+                    '.$selisih.'
                 </tr>
             ';
             foreach ($kel['data'] as $ket) {
+                $murni = '';
+                $selisih = '';
+                if($type == 'pergeseran'){
+                    $murni = "<td class='kanan bawah text_kanan text_blok'>".number_format($ket['total_murni'],0,",",".")."</td>";
+                    $selisih = "<td class='kanan bawah text_kanan text_blok'>".number_format(($ket['total']-$ket['total_murni']),0,",",".")."</td>";
+                }
                 $body_umum .= '
                     <tr class="keterangan">
                         <td class="kanan bawah kiri text_tengah text_blok"></td>
                         <td class="kanan bawah text_blok" colspan="2" style="padding-left: 60px;">'.$ket['nama'].'</td>
-                        <td class="kanan bawah text_blok text_kanan">'.number_format($ket['total_murni'],0,",",".").'</td>
+                        '.$murni.'
                         <td class="kanan bawah text_blok text_kanan">'.number_format($ket['total'],0,",",".").'</td>
-                        <td class="kanan bawah text_blok text_kanan">'.number_format(($ket['total']-$ket['total_murni']),0,",",".").'</td>
+                        '.$selisih.'
                     </tr>
                 ';
                 ksort($ket['data']);
                 foreach ($ket['data'] as $akun) {
+                    $murni = '';
+                    $selisih = '';
+                    if($type == 'pergeseran'){
+                        $murni = "<td class='kanan bawah text_kanan text_blok'>".number_format($akun['total_murni'],0,",",".")."</td>";
+                        $selisih = "<td class='kanan bawah text_kanan text_blok'>".number_format(($akun['total']-$akun['total_murni']),0,",",".")."</td>";
+                    }
                     $body_umum .= '
                         <tr class="rekening">
                             <td class="kanan bawah kiri text_tengah text_blok"></td>
                             <td class="kanan bawah text_blok" colspan="2" style="padding-left: 80px;">'.$akun['nama'].'</td>
-                            <td class="kanan bawah text_blok text_kanan">'.number_format($akun['total_murni'],0,",",".").'</td>
+                            '.$murni.'
                             <td class="kanan bawah text_blok text_kanan">'.number_format($akun['total'],0,",",".").'</td>
-                            <td class="kanan bawah text_blok text_kanan">'.number_format(($akun['total']-$akun['total_murni']),0,",",".").'</td>
+                            '.$selisih.'
                         </tr>
                     ';
                     $no = 0;
@@ -152,28 +186,70 @@ foreach ($data_hibah_uang_shorted['data'] as $k => $skpd) {
                             $alamat[] = $db_alamat['nama'];
                         }
                         $alamat = implode(', ', $alamat);
+                        $murni = '';
+                        $selisih = '';
+                        if($type == 'pergeseran'){
+                            $murni = "<td class='kanan bawah text_kanan'>".number_format($rincian['rincian_murni'],0,",",".")."</td>";
+                            $selisih = "<td class='kanan bawah text_kanan'>".number_format(($rincian['rincian']-$rincian['rincian_murni']),0,",",".")."</td>";
+                        }
                         $body_umum .= '
                             <tr class="rincian" data-db="'.$rincian['id_rinci_sub_bl'].'|'.$rincian['kode_sbl'].'">
                                 <td class="kanan bawah kiri text_tengah">'.$no.'</td>
                                 <td class="kanan bawah" style="padding-left: 100px;">'.$rincian['lokus_akun_teks'].'</td>
                                 <td class="kanan bawah">'.$alamat.'</td>
-                                <td class="kanan bawah text_kanan">'.number_format($rincian['rincian_murni'],0,",",".").'</td>
+                                '.$murni.'
                                 <td class="kanan bawah text_kanan">'.number_format($rincian['rincian'],0,",",".").'</td>
-                                <td class="kanan bawah text_kanan">'.number_format(($rincian['rincian']-$rincian['rincian_murni']),0,",",".").'</td>
+                                '.$selisih.'
                             </tr>
                         ';
                     }
                 }
             }
         }
+        $murni = '';
+        $selisih = '';
+        if($type == 'pergeseran'){
+            $murni = "<td class='kanan bawah text_kanan text_blok'>".number_format($sub_keg['total_murni'],0,",",".")."</td>";
+            $selisih = "<td class='kanan bawah text_kanan text_blok'>".number_format(($sub_keg['total']-$sub_keg['total_murni']),0,",",".")."</td>";
+        }
+        $body_umum .= '
+            <tr>
+                <td class="kanan bawah kiri text_tengah text_blok">&nbsp;</td>
+                <td class="kanan bawah text_blok text_kanan" colspan="2">Jumlah Hibah Pada Sub Kegiatan</td>
+                '.$murni.'
+                <td class="kanan bawah text_blok text_kanan">'.number_format($sub_keg['total'],0,",",".").'</td>
+                '.$selisih.'
+            </tr>
+        ';
     }
+    $murni = '';
+    $selisih = '';
+    if($type == 'pergeseran'){
+        $murni = "<td class='kanan bawah text_kanan text_blok'>".number_format($skpd['total_murni'],0,",",".")."</td>";
+        $selisih = "<td class='kanan bawah text_kanan text_blok'>".number_format(($skpd['total']-$skpd['total_murni']),0,",",".")."</td>";
+    }
+    $body_umum .= '
+        <tr>
+            <td class="kanan bawah kiri text_tengah text_blok">&nbsp;</td>
+            <td class="kanan bawah text_blok text_kanan" colspan="2">Jumlah Hibah Pada SKPD</td>
+            '.$murni.'
+            <td class="kanan bawah text_blok text_kanan">'.number_format($skpd['total'],0,",",".").'</td>
+            '.$selisih.'
+        </tr>
+    ';
+}
+$murni = '';
+$selisih = '';
+if($type == 'pergeseran'){
+    $murni = "<td class='kanan bawah text_kanan text_blok'>".number_format($data_hibah_uang_shorted['total_murni'],0,",",".")."</td>";
+    $selisih = "<td class='kanan bawah text_kanan text_blok'>".number_format(($data_hibah_uang_shorted['total']-$data_hibah_uang_shorted['total_murni']),0,",",".")."</td>";
 }
 $body_umum .= '
     <tr>
         <td class="kiri kanan bawah text_blok text_kanan" colspan="3">Jumlah Total</td>
-        <td class="kanan bawah text_blok text_kanan">'.number_format($data_hibah_uang_shorted['total_murni'],0,",",".").'</td>
+        '.$murni.'
         <td class="kanan bawah text_blok text_kanan">'.number_format($data_hibah_uang_shorted['total'],0,",",".").'</td>
-        <td class="kanan bawah text_blok text_kanan">'.number_format(($data_hibah_uang_shorted['total']-$data_hibah_uang_shorted['total_murni']),0,",",".").'</td>
+        '.$selisih.'
     </tr>
 ';
 
@@ -181,7 +257,7 @@ $body_umum .= '
 $akun_hibah_brg = $wpdb->get_results('SELECT id_akun, kode_akun, nama_akun FROM `data_akun` where is_bankeu_khusus=1 order by kode_akun ASC', ARRAY_A);
 $data_hibah_brg = array();
 foreach ($akun_hibah_brg as $k => $v) {
-    $data = $wpdb->get_results("SELECT * FROM `data_rka` where kode_akun='".$v['kode_akun']."' and active=1 and tahun_anggaran=".$input['tahun_anggaran']." order by kode_sbl ASC", ARRAY_A);
+    $data = $wpdb->get_results("SELECT * FROM `data_rka` where kode_akun='".$v['kode_akun']."' and active=1 and tahun_anggaran=".$input['tahun_anggaran']." order by kode_sbl ASC, lokus_akun_teks ASC", ARRAY_A);
     if(!empty($data)){
         $data_hibah_brg = array_merge($data, $data_hibah_brg);
     }
@@ -258,54 +334,84 @@ ksort($data_hibah_brg_shorted['data']);
 
 $body_khusus = '';
 foreach ($data_hibah_brg_shorted['data'] as $k => $skpd) {
+    $murni = '';
+    $selisih = '';
+    if($type == 'pergeseran'){
+        $murni = "<td class='kanan bawah text_kanan text_blok'>".number_format($skpd['total_murni'],0,",",".")."</td>";
+        $selisih = "<td class='kanan bawah text_kanan text_blok'>".number_format(($skpd['total']-$skpd['total_murni']),0,",",".")."</td>";
+    }
     $body_khusus .= '
         <tr>
             <td class="kanan bawah kiri text_tengah text_blok"></td>
             <td class="kanan bawah text_blok" colspan="2">'.$k.' '.$skpd['nama'].'</td>
-            <td class="kanan bawah text_blok text_kanan">'.number_format($skpd['total_murni'],0,",",".").'</td>
+            '.$murni.'
             <td class="kanan bawah text_blok text_kanan">'.number_format($skpd['total'],0,",",".").'</td>
-            <td class="kanan bawah text_blok text_kanan">'.number_format(($skpd['total']-$skpd['total_murni']),0,",",".").'</td>
+            '.$selisih.'
         </tr>
     ';
     foreach ($skpd['data'] as $sub_keg) {
+        $murni = '';
+        $selisih = '';
+        if($type == 'pergeseran'){
+            $murni = "<td class='kanan bawah text_kanan text_blok'>".number_format($sub_keg['total_murni'],0,",",".")."</td>";
+            $selisih = "<td class='kanan bawah text_kanan text_blok'>".number_format(($sub_keg['total']-$sub_keg['total_murni']),0,",",".")."</td>";
+        }
         $body_khusus .= '
             <tr class="sub_keg">
                 <td class="kanan bawah kiri text_tengah text_blok"></td>
                 <td class="kanan bawah text_blok" colspan="2" style="padding-left: 20px;">'.$sub_keg['nama'].'</td>
-                <td class="kanan bawah text_blok text_kanan">'.number_format($sub_keg['total_murni'],0,",",".").'</td>
+                '.$murni.'
                 <td class="kanan bawah text_blok text_kanan">'.number_format($sub_keg['total'],0,",",".").'</td>
-                <td class="kanan bawah text_blok text_kanan">'.number_format(($sub_keg['total']-$sub_keg['total_murni']),0,",",".").'</td>
+                '.$selisih.'
             </tr>
         ';
         foreach ($sub_keg['data'] as $kel) {
+            $murni = '';
+            $selisih = '';
+            if($type == 'pergeseran'){
+                $murni = "<td class='kanan bawah text_kanan text_blok'>".number_format($kel['total_murni'],0,",",".")."</td>";
+                $selisih = "<td class='kanan bawah text_kanan text_blok'>".number_format(($kel['total']-$kel['total_murni']),0,",",".")."</td>";
+            }
             $body_khusus .= '
                 <tr class="kelompok">
                     <td class="kanan bawah kiri text_tengah text_blok"></td>
                     <td class="kanan bawah text_blok" colspan="2" style="padding-left: 40px;">'.$kel['nama'].'</td>
-                    <td class="kanan bawah text_blok text_kanan">'.number_format($kel['total_murni'],0,",",".").'</td>
+                    '.$murni.'
                     <td class="kanan bawah text_blok text_kanan">'.number_format($kel['total'],0,",",".").'</td>
-                    <td class="kanan bawah text_blok text_kanan">'.number_format(($kel['total']-$kel['total_murni']),0,",",".").'</td>
+                    '.$selisih.'
                 </tr>
             ';
             foreach ($kel['data'] as $ket) {
+                $murni = '';
+                $selisih = '';
+                if($type == 'pergeseran'){
+                    $murni = "<td class='kanan bawah text_kanan text_blok'>".number_format($ket['total_murni'],0,",",".")."</td>";
+                    $selisih = "<td class='kanan bawah text_kanan text_blok'>".number_format(($ket['total']-$ket['total_murni']),0,",",".")."</td>";
+                }
                 $body_khusus .= '
                     <tr class="keterangan">
                         <td class="kanan bawah kiri text_tengah text_blok"></td>
                         <td class="kanan bawah text_blok" colspan="2" style="padding-left: 60px;">'.$ket['nama'].'</td>
-                        <td class="kanan bawah text_blok text_kanan">'.number_format($ket['total_murni'],0,",",".").'</td>
+                        '.$murni.'
                         <td class="kanan bawah text_blok text_kanan">'.number_format($ket['total'],0,",",".").'</td>
-                        <td class="kanan bawah text_blok text_kanan">'.number_format(($ket['total']-$ket['total_murni']),0,",",".").'</td>
+                        '.$selisih.'
                     </tr>
                 ';
                 ksort($ket['data']);
                 foreach ($ket['data'] as $akun) {
+                    $murni = '';
+                    $selisih = '';
+                    if($type == 'pergeseran'){
+                        $murni = "<td class='kanan bawah text_kanan text_blok'>".number_format($akun['total_murni'],0,",",".")."</td>";
+                        $selisih = "<td class='kanan bawah text_kanan text_blok'>".number_format(($akun['total']-$akun['total_murni']),0,",",".")."</td>";
+                    }
                     $body_khusus .= '
                         <tr class="rekening">
                             <td class="kanan bawah kiri text_tengah text_blok"></td>
                             <td class="kanan bawah text_blok" colspan="2" style="padding-left: 80px;">'.$akun['nama'].'</td>
-                            <td class="kanan bawah text_blok text_kanan">'.number_format($akun['total_murni'],0,",",".").'</td>
+                            '.$murni.'
                             <td class="kanan bawah text_blok text_kanan">'.number_format($akun['total'],0,",",".").'</td>
-                            <td class="kanan bawah text_blok text_kanan">'.number_format(($akun['total']-$akun['total_murni']),0,",",".").'</td>
+                            '.$selisih.'
                         </tr>
                     ';
                     $no = 0;
@@ -329,28 +435,70 @@ foreach ($data_hibah_brg_shorted['data'] as $k => $skpd) {
                             $alamat[] = $db_alamat['nama'];
                         }
                         $alamat = implode(', ', $alamat);
+                        $murni = '';
+                        $selisih = '';
+                        if($type == 'pergeseran'){
+                            $murni = "<td class='kanan bawah text_kanan'>".number_format($rincian['rincian_murni'],0,",",".")."</td>";
+                            $selisih = "<td class='kanan bawah text_kanan'>".number_format(($rincian['rincian']-$rincian['rincian_murni']),0,",",".")."</td>";
+                        }
                         $body_khusus .= '
                             <tr class="rincian" data-db="'.$rincian['id_rinci_sub_bl'].'|'.$rincian['kode_sbl'].'">
                                 <td class="kanan bawah kiri text_tengah">'.$no.'</td>
                                 <td class="kanan bawah" style="padding-left: 100px;">'.$rincian['lokus_akun_teks'].'</td>
                                 <td class="kanan bawah">'.$alamat.'</td>
-                                <td class="kanan bawah text_kanan">'.number_format($rincian['rincian_murni'],0,",",".").'</td>
+                                '.$murni.'
                                 <td class="kanan bawah text_kanan">'.number_format($rincian['rincian'],0,",",".").'</td>
-                                <td class="kanan bawah text_kanan">'.number_format(($rincian['rincian']-$rincian['rincian_murni']),0,",",".").'</td>
+                                '.$selisih.'
                             </tr>
                         ';
                     }
                 }
             }
         }
+        $murni = '';
+        $selisih = '';
+        if($type == 'pergeseran'){
+            $murni = "<td class='kanan bawah text_kanan text_blok'>".number_format($sub_keg['total_murni'],0,",",".")."</td>";
+            $selisih = "<td class='kanan bawah text_kanan text_blok'>".number_format(($sub_keg['total']-$sub_keg['total_murni']),0,",",".")."</td>";
+        }
+        $body_khusus .= '
+            <tr>
+                <td class="kanan bawah kiri text_tengah text_blok">&nbsp;</td>
+                <td class="kanan bawah text_blok text_kanan" colspan="2">Jumlah Hibah Pada Sub Kegiatan</td>
+                '.$murni.'
+                <td class="kanan bawah text_blok text_kanan">'.number_format($sub_keg['total'],0,",",".").'</td>
+                '.$selisih.'
+            </tr>
+        ';
     }
+    $murni = '';
+    $selisih = '';
+    if($type == 'pergeseran'){
+        $murni = "<td class='kanan bawah text_kanan text_blok'>".number_format($skpd['total_murni'],0,",",".")."</td>";
+        $selisih = "<td class='kanan bawah text_kanan text_blok'>".number_format(($skpd['total']-$skpd['total_murni']),0,",",".")."</td>";
+    }
+    $body_khusus .= '
+        <tr>
+            <td class="kanan bawah kiri text_tengah text_blok">&nbsp;</td>
+            <td class="kanan bawah text_blok text_kanan" colspan="2">Jumlah Hibah Pada SKPD</td>
+            '.$murni.'
+            <td class="kanan bawah text_blok text_kanan">'.number_format($skpd['total'],0,",",".").'</td>
+            '.$selisih.'
+        </tr>
+    ';
+}
+$murni = '';
+$selisih = '';
+if($type == 'pergeseran'){
+    $murni = "<td class='kanan bawah text_kanan text_blok'>".number_format($data_hibah_brg_shorted['total_murni'],0,",",".")."</td>";
+    $selisih = "<td class='kanan bawah text_kanan text_blok'>".number_format(($data_hibah_brg_shorted['total']-$data_hibah_brg_shorted['total_murni']),0,",",".")."</td>";
 }
 $body_khusus .= '
     <tr>
         <td class="kiri kanan bawah text_blok text_kanan" colspan="3">Jumlah Total</td>
-        <td class="kanan bawah text_blok text_kanan">'.number_format($data_hibah_uang_shorted['total_murni'],0,",",".").'</td>
-        <td class="kanan bawah text_blok text_kanan">'.number_format($data_hibah_uang_shorted['total'],0,",",".").'</td>
-        <td class="kanan bawah text_blok text_kanan">'.number_format(($data_hibah_uang_shorted['total']-$data_hibah_uang_shorted['total_murni']),0,",",".").'</td>
+        '.$murni.'
+        <td class="kanan bawah text_blok text_kanan">'.number_format($data_hibah_brg_shorted['total'],0,",",".").'</td>
+        '.$selisih.'
     </tr>
 ';
 
@@ -386,9 +534,13 @@ $body_khusus .= '
                 <td class="atas kanan bawah kiri text_tengah text_blok">No</td>
                 <td class="atas kanan bawah text_tengah text_blok">Nama Penerima</td>
                 <td class="atas kanan bawah text_tengah text_blok">Alamat Penerima</td>
-                <td class="atas kanan bawah text_tengah text_blok">Sebelum Perubahan</td>
-                <td class="atas kanan bawah text_tengah text_blok">Sesudah Perubahan</td>
-                <td class="atas kanan bawah text_tengah text_blok">Bertambah/(Berkurang)</td>
+                <?php if($type == 'murni'): ?>
+                    <td class="atas kanan bawah text_tengah text_blok">Jumlah</td>
+                <?php else: ?>
+                    <td class="atas kanan bawah text_tengah text_blok">Sebelum Perubahan</td>
+                    <td class="atas kanan bawah text_tengah text_blok">Sesudah Perubahan</td>
+                    <td class="atas kanan bawah text_tengah text_blok">Bertambah/(Berkurang)</td>
+                <?php endif; ?>
             </tr>
         </thead>
         <tbody>
@@ -404,9 +556,13 @@ $body_khusus .= '
                 <td class="atas kanan bawah kiri text_tengah text_blok">No</td>
                 <td class="atas kanan bawah text_tengah text_blok">Nama Penerima</td>
                 <td class="atas kanan bawah text_tengah text_blok">Alamat Penerima</td>
-                <td class="atas kanan bawah text_tengah text_blok">Sebelum Perubahan</td>
-                <td class="atas kanan bawah text_tengah text_blok">Sesudah Perubahan</td>
-                <td class="atas kanan bawah text_tengah text_blok">Bertambah/(Berkurang)</td>
+                <?php if($type == 'murni'): ?>
+                    <td class="atas kanan bawah text_tengah text_blok">Jumlah</td>
+                <?php else: ?>
+                    <td class="atas kanan bawah text_tengah text_blok">Sebelum Perubahan</td>
+                    <td class="atas kanan bawah text_tengah text_blok">Sesudah Perubahan</td>
+                    <td class="atas kanan bawah text_tengah text_blok">Bertambah/(Berkurang)</td>
+                <?php endif; ?>
             </tr>
         </thead>
         <tbody>
@@ -424,4 +580,14 @@ $body_khusus .= '
 
 <script type="text/javascript">
     run_download_excel('apbd');
+    var _url = window.location.href;
+    var url = new URL(_url);
+    _url = url.origin+url.pathname+'?key='+url.searchParams.get('key');
+    var type = url.searchParams.get("type");
+    if(type && type=='pergeseran'){
+        var extend_action = '<a class="button button-primary" target="_blank" href="'+_url+'" style="margin-left: 10px;">Print APBD Lampiran 2</a>';
+    }else{
+        var extend_action = '<a class="button button-primary" target="_blank" href="'+_url+'&type=pergeseran" style="margin-left: 10px;">Print Pergeseran/Perubahan APBD Lampiran 2</a>';
+    }
+    jQuery('#action-sipd #excel').after(extend_action);
 </script>
