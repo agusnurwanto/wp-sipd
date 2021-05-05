@@ -753,7 +753,7 @@ $body_desa .= '
 
 // print_r($data_hibah_uang_shorted);
 ?>
-<div id="cetak" title="Laporan APBD PENJABARAN Lampiran 5 Tahun Anggaran <?php echo $input['tahun_anggaran']; ?>" style="padding: 5px;">
+<div id="cetak" title="Laporan APBD PENJABARAN Lampiran 6 Tahun Anggaran <?php echo $input['tahun_anggaran']; ?>" style="padding: 5px;">
     <table align="right" class="no-border no-padding" cellspacing="0" cellpadding="0" style="width:280px; font-size: 12px;">
         <tr>
             <td width="80" valign="top">Lampiran VI </td>
@@ -856,7 +856,7 @@ $body_desa .= '
     _url = url.origin+url.pathname+'?key='+url.searchParams.get('key');
     var type = url.searchParams.get("type");
     if(type && type=='pergeseran'){
-        var extend_action = '<a class="button button-primary" target="_blank" href="'+_url+'" style="margin-left: 10px;">Print APBD Lampiran 2</a>';
+        var extend_action = '<a class="button button-primary" target="_blank" href="'+_url+'" style="margin-left: 10px;">Print APBD Lampiran 6</a>';
     }else{
         var extend_action = '<a class="button button-primary" target="_blank" href="'+_url+'&type=pergeseran" style="margin-left: 10px;">Print Pergeseran/Perubahan APBD Lampiran 2</a>';
     }

@@ -577,7 +577,7 @@ $body_barang .= '
     _url = url.origin+url.pathname+'?key='+url.searchParams.get('key');
     var type = url.searchParams.get("type");
     if(type && type=='pergeseran'){
-        var extend_action = '<a class="button button-primary" target="_blank" href="'+_url+'" style="margin-left: 10px;">Print APBD Lampiran 2</a>';
+        var extend_action = '<a class="button button-primary" target="_blank" href="'+_url+'" style="margin-left: 10px;">Print APBD Lampiran 4</a>';
     }else{
         var extend_action = '<a class="button button-primary" target="_blank" href="'+_url+'&type=pergeseran" style="margin-left: 10px;">Print Pergeseran/Perubahan APBD Lampiran 2</a>';
     }

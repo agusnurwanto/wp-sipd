@@ -2254,6 +2254,7 @@ class Wpsipd_Simda
 			));
 			$kd_sub_fungsi = $ref_sub_fungsi90[0]->kd_sub_fungsi;
 
+			// perlu insert ke ref_program90 juga sepertinya
 			$this->CurlSimda(array(
 				'query' => "
 					INSERT INTO ref_kegiatan90 (

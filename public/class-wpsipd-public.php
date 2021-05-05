@@ -2309,6 +2309,11 @@ class Wpsipd_Public
 		if($input['lampiran'] == 6){
 			require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/wpsipd-public-apbdpenjabaran-6.php';
 		}
+
+		// APBD dikelompokan berdasarkan mandatory spending atau tag label yang dipilih user ketika membuat sub kegiatan
+		if($input['lampiran'] == 99){
+			require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/wpsipd-public-apbdpenjabaran-99.php';
+		}
 	}
 
 	public function get_cat_url()
