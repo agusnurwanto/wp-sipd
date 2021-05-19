@@ -985,6 +985,16 @@ class Wpsipd_Public
 					// $wpdb->update('data_unit', array( 'active' => 0 ), array(
 					// 	'tahun_anggaran' => $_POST['tahun_anggaran']
 					// ));
+
+					$cat_name = $_POST['tahun_anggaran'] . ' RKPD';
+					$taxonomy = 'category';
+					$cat  = get_term_by('name', $cat_name, $taxonomy);
+					if ($cat == false) {
+						$cat = wp_insert_term($cat_name, $taxonomy);
+						$cat_id = $cat['term_id'];
+					} else {
+						$cat_id = $cat->term_id;
+					}
 					foreach ($data_unit as $k => $v) {
 						$cek = $wpdb->get_var("SELECT id_skpd from data_unit where tahun_anggaran=".$_POST['tahun_anggaran']." AND id_skpd=" . $v['id_skpd']);
 						$opsi = array(
@@ -1035,16 +1045,6 @@ class Wpsipd_Public
 						$nama_page = $_POST['tahun_anggaran'] . ' | ' . $v['kode_skpd'] . ' | ' . $v['nama_skpd'];
 						$custom_post = get_page_by_title($nama_page, OBJECT, 'page');
 
-						$cat_name = $_POST['tahun_anggaran'] . ' RKPD';
-						$taxonomy = 'category';
-						$cat  = get_term_by('name', $cat_name, $taxonomy);
-						if ($cat == false) {
-							$cat = wp_insert_term($cat_name, $taxonomy);
-							$cat_id = $cat['term_id'];
-						} else {
-							$cat_id = $cat->term_id;
-						}
-
 						$_post = array(
 							'post_title'	=> $nama_page,
 							'post_content'	=> '[tampilrkpd id_skpd="'.$v['id_skpd'].'" tahun_anggaran="'.$_POST['tahun_anggaran'].'"]',
@@ -1076,6 +1076,40 @@ class Wpsipd_Public
 						wp_set_post_terms($custom_post->ID, array($cat_id), $taxonomy, $append);
 						$ret['renja_link'][$v['id_skpd']] = esc_url( get_permalink($custom_post));
 					}
+
+					$nama_page = 'RKPD '.$_POST['tahun_anggaran'];
+					$custom_post = get_page_by_title($nama_page, OBJECT, 'page');
+
+					$_post = array(
+						'post_title'	=> $nama_page,
+						'post_content'	=> '[tampilrkpd tahun_anggaran="'.$_POST['tahun_anggaran'].'"]',
+						'post_type'		=> 'page',
+						'post_status'	=> 'private',
+						'comment_status'	=> 'closed'
+					);
+					if (empty($custom_post) || empty($custom_post->ID)) {
+						$id = wp_insert_post($_post);
+						$_post['insert'] = 1;
+						$_post['ID'] = $id;
+					}else{
+						$_post['ID'] = $custom_post->ID;
+						wp_update_post( $_post );
+						$_post['update'] = 1;
+					}
+					$custom_post = get_page_by_title($nama_page, OBJECT, 'page');
+					update_post_meta($custom_post->ID, 'ast-breadcrumbs-content', 'disabled');
+					update_post_meta($custom_post->ID, 'ast-featured-img', 'disabled');
+					update_post_meta($custom_post->ID, 'ast-main-header-display', 'disabled');
+					update_post_meta($custom_post->ID, 'footer-sml-layout', 'disabled');
+					update_post_meta($custom_post->ID, 'site-content-layout', 'page-builder');
+					update_post_meta($custom_post->ID, 'site-post-title', 'disabled');
+					update_post_meta($custom_post->ID, 'site-sidebar-layout', 'no-sidebar');
+					update_post_meta($custom_post->ID, 'theme-transparent-header-meta', 'disabled');
+
+					$append = true;
+					wp_set_post_terms($custom_post->ID, array($cat_id), $taxonomy, $append);
+					$ret['renja_link'][0] = esc_url( get_permalink($custom_post));
+
 					if(carbon_get_theme_option('crb_singkron_simda') == 1){
 						$debug = false;
 						if(carbon_get_theme_option('crb_singkron_simda') == 1){
@@ -1097,6 +1131,58 @@ class Wpsipd_Public
 		}
 		die(json_encode($ret));
 	}
+
+	public function get_mandatory_spending_link(){
+		global $wpdb;
+		$ret = array(
+			'status'	=> 'success',
+			'action'	=> $_POST['action'],
+			'message'	=> 'Berhasil get mandatory spending link!'
+		);
+		if (!empty($_POST)) {
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == carbon_get_theme_option( 'crb_api_key_extension' )) {
+
+				$nama_page = 'Mandatory Spending | '.$_POST['tahun_anggaran'];
+				$custom_post = get_page_by_title($nama_page, OBJECT, 'page');
+
+				$_post = array(
+					'post_title'	=> $nama_page,
+					'post_content'	=> '[apbdpenjabaran tahun_anggaran="'.$_POST['tahun_anggaran'].'" lampiran=99]',
+					'post_type'		=> 'page',
+					'post_status'	=> 'private',
+					'comment_status'	=> 'closed'
+				);
+				if (empty($custom_post) || empty($custom_post->ID)) {
+					$id = wp_insert_post($_post);
+					$_post['insert'] = 1;
+					$_post['ID'] = $id;
+				}else{
+					$_post['ID'] = $custom_post->ID;
+					wp_update_post( $_post );
+					$_post['update'] = 1;
+				}
+				$custom_post = get_page_by_title($nama_page, OBJECT, 'page');
+				update_post_meta($custom_post->ID, 'ast-breadcrumbs-content', 'disabled');
+				update_post_meta($custom_post->ID, 'ast-featured-img', 'disabled');
+				update_post_meta($custom_post->ID, 'ast-main-header-display', 'disabled');
+				update_post_meta($custom_post->ID, 'footer-sml-layout', 'disabled');
+				update_post_meta($custom_post->ID, 'site-content-layout', 'page-builder');
+				update_post_meta($custom_post->ID, 'site-post-title', 'disabled');
+				update_post_meta($custom_post->ID, 'site-sidebar-layout', 'no-sidebar');
+				update_post_meta($custom_post->ID, 'theme-transparent-header-meta', 'disabled');
+
+				$ret['link'] = esc_url( get_permalink($custom_post));
+			} else {
+				$ret['status'] = 'error';
+				$ret['message'] = 'APIKEY tidak sesuai!';
+			}
+		} else {
+			$ret['status'] = 'error';
+			$ret['message'] = 'Format Salah!';
+		}
+		die(json_encode($ret));
+	}
+
 	public function singkron_data_giat()
 	{
 		global $wpdb;
