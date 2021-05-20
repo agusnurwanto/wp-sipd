@@ -264,6 +264,9 @@ class Wpsipd
 		$this->loader->add_action('wp_ajax_get_mandatory_spending_link',  $plugin_public, 'get_mandatory_spending_link');
 		$this->loader->add_action('wp_ajax_nopriv_get_mandatory_spending_link',  $plugin_public, 'get_mandatory_spending_link');
 
+		$this->loader->add_action('wp_ajax_update_nonactive_sub_bl',  $plugin_public, 'update_nonactive_sub_bl');
+		$this->loader->add_action('wp_ajax_nopriv_update_nonactive_sub_bl',  $plugin_public, 'update_nonactive_sub_bl');
+
 		add_shortcode('datassh', array($plugin_public, 'datassh'));
 		add_shortcode('rekbelanja', array($plugin_public, 'rekbelanja'));
 		add_shortcode('tampilrka', array($plugin_public, 'tampilrka'));

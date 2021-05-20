@@ -1711,6 +1711,64 @@ class Wpsipd_Public
 		die(json_encode($ret));
 	}
 
+	public function update_nonactive_sub_bl()
+	{
+		global $wpdb;
+		$ret = array(
+			'status'	=> 'success',
+			'message'	=> 'Berhasil update data_sub_keg_bl nonactive!',
+			'action'	=> $_POST['action'],
+			'id_unit'	=> $_POST['id_unit']
+		);
+		if (!empty($_POST)) {
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == carbon_get_theme_option( 'crb_api_key_extension' )) {
+				$wpdb->update('data_sub_keg_bl', array( 'active' => 0 ), array(
+					'tahun_anggaran' => $_POST['tahun_anggaran'],
+					'id_sub_skpd' => $_POST['id_unit']
+				));
+				$sub_bl = $wpdb->get_results("SELECT kode_sbl from data_sub_keg_bl where tahun_anggaran=".$_POST['tahun_anggaran']." AND id_sub_skpd='" . $_POST['id_unit'] . "'", ARRAY_A);
+				foreach ($sub_bl as $k => $sub) {
+					$wpdb->update('data_sub_keg_indikator', array( 'active' => 0 ), array(
+						'tahun_anggaran' => $_POST['tahun_anggaran'],
+						'kode_sbl' => $sub['kode_sbl']
+					));
+					$wpdb->update('data_keg_indikator_hasil', array( 'active' => 0 ), array(
+						'tahun_anggaran' => $_POST['tahun_anggaran'],
+						'kode_sbl' => $sub['kode_sbl']
+					));
+					$wpdb->update('data_tag_sub_keg', array( 'active' => 0 ), array(
+						'tahun_anggaran' => $_POST['tahun_anggaran'],
+						'kode_sbl' => $sub['kode_sbl']
+					));
+					$wpdb->update('data_capaian_prog_sub_keg', array( 'active' => 0 ), array(
+						'tahun_anggaran' => $_POST['tahun_anggaran'],
+						'kode_sbl' => $sub['kode_sbl']
+					));
+					$wpdb->update('data_output_giat_sub_keg', array( 'active' => 0 ), array(
+						'tahun_anggaran' => $_POST['tahun_anggaran'],
+						'kode_sbl' => $sub['kode_sbl']
+					));
+					$wpdb->update('data_dana_sub_keg', array( 'active' => 0 ), array(
+						'tahun_anggaran' => $_POST['tahun_anggaran'],
+						'kode_sbl' => $sub['kode_sbl']
+					));
+					$wpdb->update('data_lokasi_sub_keg', array( 'active' => 0 ), array(
+						'tahun_anggaran' => $_POST['tahun_anggaran'],
+						'kode_sbl' => $sub['kode_sbl']
+					));
+				}
+
+			} else {
+				$ret['status'] = 'error';
+				$ret['message'] = 'APIKEY tidak sesuai!';
+			}
+		} else {
+			$ret['status'] = 'error';
+			$ret['message'] = 'Format Salah!';
+		}
+		die(json_encode($ret));
+	}
+
 	public function singkron_rka()
 	{
 		global $wpdb;
