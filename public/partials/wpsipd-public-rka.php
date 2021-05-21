@@ -383,7 +383,7 @@ foreach ($bl as $k => $sub_bl) {
 
 		$profile_penerima = '';
 		if(!empty($item['lokus_akun_teks'])){
-			$profile_penerima = 'Nama: '.$item['lokus_akun_teks'];
+			$profile_penerima = $item['lokus_akun_teks'];
 		}
 		if(!empty($item['id_penerima'])){
 			$profile = $wpdb->get_results("
@@ -395,8 +395,27 @@ foreach ($bl as $k => $sub_bl) {
 				"
 			, ARRAY_A);
 			if(!empty($profil)){
-				$profile_penerima = '; Alamat: '.$profil[0]['nama_teks'].'; Jenis Penerima: '.$profil[0]['jenis_penerima'];
+				$profile_penerima = ', '.$profil[0]['nama_teks'].' ('.$profil[0]['jenis_penerima'].')';
 			}
+		}else if(!empty($item['id_prop_penerima'])){
+			$alamat = array();
+            if(!empty($item['id_lurah_penerima'])){
+                $db_alamat = $wpdb->get_row("SELECT nama from data_alamat where id_alamat=".$item['id_lurah_penerima']." and is_kel=1", ARRAY_A);
+                $alamat[] = $db_alamat['nama'];
+            }
+            if(!empty($item['id_camat_penerima'])){
+                $db_alamat = $wpdb->get_row("SELECT nama from data_alamat where id_alamat=".$item['id_camat_penerima']." and is_kec=1", ARRAY_A);
+                $alamat[] = $db_alamat['nama'];
+            }
+            if(!empty($item['id_kokab_penerima'])){
+                $db_alamat = $wpdb->get_row("SELECT nama from data_alamat where id_alamat=".$item['id_kokab_penerima']." and is_kab=1", ARRAY_A);
+                $alamat[] = $db_alamat['nama'];
+            }
+            if(!empty($item['id_prop_penerima'])){
+                $db_alamat = $wpdb->get_row("SELECT nama from data_alamat where id_alamat=".$item['id_prop_penerima']." and is_prov=1", ARRAY_A);
+                $alamat[] = $db_alamat['nama'];
+            }
+            $profile_penerima = implode(', ', $alamat);
 		}
 
 		$akun_all = explode('.', $item['kode_akun']);
@@ -639,7 +658,7 @@ foreach ($bl as $k => $sub_bl) {
 	            <table width="100%" class="cellpadding_5" style="border-spacing: 1px;" class="text_tengah text_15">
 	                <tr>
 	                    <td class="kiri atas kanan bawah text_blok">RENCANA KERJA DAN ANGGARAN<br/>SATUAN KERJA PERANGKAT DAERAH</td>
-	                    <td class="kiri atas kanan bawah text_blok" rowspan="2">Formulir<br/>RKA - RINCIAN BELANJA SKPD</td>
+	                    <td class="kiri atas kanan bawah text_blok text_tengah" style="vertical-align: middle;" rowspan="2">Formulir<br/>RKA - RINCIAN BELANJA SKPD</td>
 	                </tr>
 	                <tr>
 	                    <td class="kiri atas kanan bawah">Pemerintah <?php echo carbon_get_theme_option('crb_daerah'); ?> Tahun Anggaran <?php echo $tahun_anggaran; ?></td>
