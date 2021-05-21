@@ -161,7 +161,9 @@ foreach ($bl as $k => $sub_bl) {
 	$sd_sub = array();
 	foreach ($sd_sub_keg as $key => $sd) {
 		$new_sd = explode(' - ', $sd['namadana']);
-		$sd_sub[] = $new_sd[1];
+		if(!empty($new_sd[1])){
+			$sd_sub[] = $new_sd[1];
+		}
 	}
 
 	$sql = "
@@ -378,6 +380,25 @@ foreach ($bl as $k => $sub_bl) {
 		if(empty($item['kode_akun'])){
 			continue;
 		}
+
+		$profile_penerima = '';
+		if(!empty($item['lokus_akun_teks'])){
+			$profile_penerima = 'Nama: '.$item['lokus_akun_teks'];
+		}
+		if(!empty($item['id_penerima'])){
+			$profile = $wpdb->get_results("
+				SELECT 
+					*
+				from data_profile_penerima_bantuan 
+				where id_profil='".$item['id_penerima']."'
+					AND tahun_anggaran=".$bl[0]['tahun_anggaran']."
+				"
+			, ARRAY_A);
+			if(!empty($profil)){
+				$profile_penerima = '; Alamat: '.$profil[0]['nama_teks'].'; Jenis Penerima: '.$profil[0]['jenis_penerima'];
+			}
+		}
+
 		$akun_all = explode('.', $item['kode_akun']);
 		$akun_1 = $akun_all[0].'.'.$akun_all[1];
 		$akun_2 = $akun_1.'.'.$akun_all[2];
@@ -489,6 +510,7 @@ foreach ($bl as $k => $sub_bl) {
                 <td class="kanan bawah">
                     <div>'.$item['nama_komponen'].'</div>
                     <div style="margin-left: 20px">'.$item['spek_komponen'].'</div>
+                    <div style="margin-left: 40px" class="profile-penerima" id-profile="'.$item['id_penerima'].'" id-prop="'.$item['id_prop_penerima'].'" id-kokab="'.$item['id_kokab_penerima'].'" id-camat="'.$item['id_camat_penerima'].'" id-lurah="'.$item['id_lurah_penerima'].'">'.$profile_penerima.'</div>
                 </td>
                 <td class="kanan bawah" style="vertical-align: middle;">'.$item['koefisien'].'</td>
                 <td class="kanan bawah" style="vertical-align: middle;">'.$item['satuan'].'</td>
@@ -602,6 +624,13 @@ foreach ($bl as $k => $sub_bl) {
         /*.footer { position: fixed; bottom: 0; font-size:11px; display:block; }
         .pagenum:after { counter-increment: page; content: counter(page); }*/
     }
+
+    .profile-penerima {
+    	display: none;
+    }
+    header, nav {
+    	display: none;
+    }
 </style>
 <div class="cetak">
 	<table width="100%" class="cellpadding_1" style="border-spacing: 2px;">
@@ -613,7 +642,7 @@ foreach ($bl as $k => $sub_bl) {
 	                    <td class="kiri atas kanan bawah text_blok" rowspan="2">Formulir<br/>RKA - RINCIAN BELANJA SKPD</td>
 	                </tr>
 	                <tr>
-	                    <td class="kiri atas kanan bawah">Pemerintah Kabupaten Magetan Tahun Anggaran <?php echo $tahun_anggaran; ?></td>
+	                    <td class="kiri atas kanan bawah">Pemerintah <?php echo carbon_get_theme_option('crb_daerah'); ?> Tahun Anggaran <?php echo $tahun_anggaran; ?></td>
 	                </tr>
 	            </table>
 	        </td>
@@ -888,3 +917,18 @@ foreach ($bl as $k => $sub_bl) {
 	    </tr>
 	</table>
 </div>    
+<script type="text/javascript">
+	var body = '<h3>SETTING</h3><label><input type="checkbox" onclick="tampil_rinci(this);"> Tampilkan Rinci Profile Penerima Bantuan</label>';
+	var aksi = ''
+		+'<div id="action-sipd" class="hide-print">'
+			+body
+		+'</div>';
+	jQuery('body').prepend(aksi);
+	function tampil_rinci(that){
+		if(jQuery(that).is(':checked')){
+			jQuery('.profile-penerima').show();
+		}else{
+			jQuery('.profile-penerima').hide();
+		}
+	}
+</script>

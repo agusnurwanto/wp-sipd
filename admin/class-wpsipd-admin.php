@@ -424,18 +424,39 @@ class Wpsipd_Admin {
     		&& $_GET['key'] == carbon_get_theme_option( 'crb_api_key_extension' )
     	){
     		global $wp_query;
-	        // print_r($wp_query->queried_object);
-    		if($wp_query->queried_object->post_status == 'private'){
-				wp_update_post(array(
-			        'ID'    =>  $wp_query->queried_object->ID,
-			        'post_status'   =>  'publish'
-		        ));
-		        die('<script>window.location =  window.location.href;</script>');
-			}else{
-				wp_update_post(array(
-			        'ID'    =>  $wp_query->queried_object->ID,
-			        'post_status'   =>  'private'
-		        ));
+	        // print_r($wp_query);
+	        // print_r($wp_query->queried_object); die('tes');
+	        if(!empty($wp_query->queried_object)){
+	    		if($wp_query->queried_object->post_status == 'private'){
+					wp_update_post(array(
+				        'ID'    =>  $wp_query->queried_object->ID,
+				        'post_status'   =>  'publish'
+			        ));
+			        die('<script>window.location =  window.location.href;</script>');
+				}else{
+					wp_update_post(array(
+				        'ID'    =>  $wp_query->queried_object->ID,
+				        'post_status'   =>  'private'
+			        ));
+				}
+			}else if($wp_query->found_posts >= 1){
+				global $wpdb;
+				$sql = $wp_query->request;
+				$post = $wpdb->get_results($sql, ARRAY_A);
+				if(!empty($post)){
+					if($post[0]['post_status'] == 'private'){
+						wp_update_post(array(
+					        'ID'    =>  $post[0]['ID'],
+					        'post_status'   =>  'publish'
+				        ));
+				        die('<script>window.location =  window.location.href;</script>');
+					}else{
+						wp_update_post(array(
+					        'ID'    =>  $post[0]['ID'],
+					        'post_status'   =>  'private'
+				        ));
+					}
+				}
 			}
     	}
     }

@@ -1929,7 +1929,7 @@ class Wpsipd_Public
 						wp_set_post_terms($custom_post->ID, array($cat_id), $taxonomy, $append);
 						$category_link = get_category_link($cat_id);
 
-						$ret['message'] .= ' URL ' . $custom_post->guid;
+						$ret['message'] .= ' URL ' . $custom_post->guid . '?key=' . $_POST['api_key'];
 						$ret['category'] = $category_link;
 					}
 				} else if ($ret['status'] != 'error') {
