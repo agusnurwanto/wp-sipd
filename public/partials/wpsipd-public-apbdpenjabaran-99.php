@@ -4,6 +4,12 @@ $type = 'murni';
 if(!empty($_GET) && !empty($_GET['type'])){
     $type = $_GET['type'];
 }
+
+$format_rkpd = '';
+if(!empty($_GET) && !empty($_GET['rkpd'])){
+    $format_rkpd = $_GET['rkpd'];
+}
+
 $pengaturan = $wpdb->get_results($wpdb->prepare("
     select 
         * 
@@ -196,7 +202,7 @@ foreach ($subkeg as $kk => $sub) {
             'lokasi_sub_giat' => $lokasi_sub_giat,
             'data_renstra' => $data_renstra,
             'data_rpjmd' => $data_rpjmd,
-            'data'  => array()
+            'data'  => $sub
         );
     }
     $data_all['total'] += $sub['pagu'];
@@ -220,6 +226,7 @@ foreach ($subkeg as $kk => $sub) {
 
 // print_r($data_all); die();
 $body = '';
+$body_rkpd = '';
 foreach ($data_all['data'] as $label_tag) {
     $body .= '
         <tr style="background: #f7eb64;">
@@ -227,6 +234,14 @@ foreach ($data_all['data'] as $label_tag) {
             <td class="kanan bawah text_kanan text_blok">'.number_format($label_tag['total'],0,",",".").'</td>
             <td class="kanan bawah" colspan="4">&nbsp;</td>
             <td class="kanan bawah text_kanan text_blok">'.number_format($label_tag['total_n_plus'],0,",",".").'</td>
+        </tr>
+    ';
+    $body_rkpd .= '
+        <tr style="background: #f7eb64;">
+            <td class="kiri kanan bawah text_blok" colspan="15">'.$label_tag['nama'].'</td>
+            <td class="kanan bawah text_kanan text_blok">'.number_format($label_tag['total'],0,",",".").'</td>
+            <td class="kanan bawah text_kanan text_blok">'.number_format($label_tag['total_n_plus'],0,",",".").'</td>
+            <td class="kanan bawah"></td>
         </tr>
     ';
     foreach ($label_tag['data'] as $sub_skpd) {
@@ -238,10 +253,24 @@ foreach ($data_all['data'] as $label_tag) {
             <tr style="background: #ffe2e2;">
                 <td class="kiri kanan bawah text_blok"></td>
                 <td class="kanan bawah">&nbsp;</td>
-                <td class="kanan bawah text_blok" colspan="11">Sub Unit Organisasi : '.$sub_skpd['nama'].'</td>
+                <td class="kanan bawah text_blok" colspan="13">Sub Unit Organisasi : '.$sub_skpd['nama'].'</td>
                 <td class="kanan bawah text_kanan text_blok">'.number_format($sub_skpd['total'],0,",",".").'</td>
-                <td class="kanan bawah" colspan="4">&nbsp;</td>
                 <td class="kanan bawah text_kanan text_blok">'.number_format($sub_skpd['total_n_plus'],0,",",".").'</td>
+                <td class="kanan bawah"></td>
+            </tr>
+        ';
+        $body_rkpd .= '
+            <tr>
+                <td class="kiri kanan bawah text_blok"></td>
+                <td class="kanan bawah text_blok" colspan="17">Unit Organisasi : '.$sub_skpd['nama_skpd'].'</td>
+            </tr>
+            <tr style="background: #ffe2e2;">
+                <td class="kiri kanan bawah text_blok"></td>
+                <td class="kanan bawah">&nbsp;</td>
+                <td class="kanan bawah text_blok" colspan="13">Sub Unit Organisasi : '.$sub_skpd['nama'].'</td>
+                <td class="kanan bawah text_kanan text_blok">'.number_format($sub_skpd['total'],0,",",".").'</td>
+                <td class="kanan bawah text_kanan text_blok">'.number_format($sub_skpd['total_n_plus'],0,",",".").'</td>
+                <td class="kanan bawah"></td>
             </tr>
         ';
         foreach ($sub_skpd['data'] as $kd_urusan => $urusan) {
@@ -253,6 +282,16 @@ foreach ($data_all['data'] as $label_tag) {
                     <td class="kanan bawah">&nbsp;</td>
                     <td class="kanan bawah">&nbsp;</td>
                     <td class="kanan bawah text_blok" colspan="14">'.$urusan['nama'].'</td>
+                </tr>
+            ';
+            $body_rkpd .= '
+                <tr>
+                    <td class="kiri kanan bawah text_blok">'.$kd_urusan.'</td>
+                    <td class="kanan bawah">&nbsp;</td>
+                    <td class="kanan bawah">&nbsp;</td>
+                    <td class="kanan bawah">&nbsp;</td>
+                    <td class="kanan bawah">&nbsp;</td>
+                    <td class="kanan bawah text_blok" colspan="13">'.$urusan['nama'].'</td>
                 </tr>
             ';
             foreach ($urusan['data'] as $kd_bidang => $bidang) {
@@ -271,6 +310,19 @@ foreach ($data_all['data'] as $label_tag) {
                         <td class="kanan bawah text_kanan text_blok">'.number_format($bidang['total_n_plus'],0,",",".").'</td>
                     </tr>
                 ';
+                $body_rkpd .= '
+                    <tr>
+                        <td class="kiri kanan bawah text_blok">'.$kd_urusan.'</td>
+                        <td class="kanan bawah text_blok">'.$kd_bidang.'</td>
+                        <td class="kanan bawah">&nbsp;</td>
+                        <td class="kanan bawah">&nbsp;</td>
+                        <td class="kanan bawah">&nbsp;</td>
+                        <td class="kanan bawah text_blok" colspan="10">'.$bidang['nama'].'</td>
+                        <td class="kanan bawah text_kanan text_blok">'.number_format($bidang['total'],0,",",".").'</td>
+                        <td class="kanan bawah text_kanan text_blok">'.number_format($bidang['total_n_plus'],0,",",".").'</td>
+                        <td class="kanan bawah"></td>
+                    </tr>
+                ';
                 foreach ($bidang['data'] as $kd_program => $program) {
                     $kd_program = explode('.', $kd_program);
                     $kd_program = $kd_program[count($kd_program)-1];
@@ -287,6 +339,19 @@ foreach ($data_all['data'] as $label_tag) {
                             <td class="kanan bawah text_kanan text_blok">'.number_format($program['total_n_plus'],0,",",".").'</td>
                         </tr>
                     ';
+                    $body_rkpd .= '
+                        <tr>
+                            <td class="kiri kanan bawah text_blok">'.$kd_urusan.'</td>
+                            <td class="kanan bawah text_blok">'.$kd_bidang.'</td>
+                            <td class="kanan bawah text_blok">'.$kd_program.'</td>
+                            <td class="kanan bawah">&nbsp;</td>
+                            <td class="kanan bawah">&nbsp;</td>
+                            <td class="kanan bawah text_blok" colspan="10">'.$program['nama'].'</td>
+                            <td class="kanan bawah text_kanan text_blok">'.number_format($program['total'],0,",",".").'</td>
+                            <td class="kanan bawah text_kanan text_blok">'.number_format($program['total_n_plus'],0,",",".").'</td>
+                            <td class="kanan bawah"></td>
+                        </tr>
+                    ';
                     foreach ($program['data'] as $kd_giat => $giat) {
                         $kd_giat = explode('.', $kd_giat);
                         $kd_giat = $kd_giat[count($kd_giat)-2].'.'.$kd_giat[count($kd_giat)-1];
@@ -301,6 +366,19 @@ foreach ($data_all['data'] as $label_tag) {
                                 <td style="border:.5pt solid #000; vertical-align:middle;  text-align:right; font-weight:bold;">'.number_format($giat['total'],0,",",".").'</td>
                                 <td style="border:.5pt solid #000; vertical-align:middle; font-weight:bold;" colspan="4"></td>
                                 <td style="border:.5pt solid #000; vertical-align:middle;  text-align:right; font-weight:bold;">'.number_format($giat['total_n_plus'],0,",",".").'</td>
+                            </tr>
+                        ';
+                        $body_rkpd .= '
+                            <tr>
+                                <td style="border:.5pt solid #000; vertical-align:middle; font-weight:bold;" width="5">'.$kd_urusan.'</td>
+                                <td style="border:.5pt solid #000; vertical-align:middle; font-weight:bold; vnd.ms-excel.numberformat:00;" width="5">'.$kd_bidang.'</td>
+                                <td style="border:.5pt solid #000; vertical-align:middle; font-weight:bold; vnd.ms-excel.numberformat:000;" width="5">'.$kd_program.'</td>
+                                <td style="border:.5pt solid #000; vertical-align:middle; font-weight:bold;" width="5">'.$kd_giat.'</td>
+                                <td style="border:.5pt solid #000; vertical-align:middle;" width="5">&nbsp;</td>
+                                <td style="border:.5pt solid #000; vertical-align:middle; font-weight:bold;" colspan="10">'.$giat['nama'].'</td>
+                                <td style="border:.5pt solid #000; vertical-align:middle;  text-align:right; font-weight:bold;">'.number_format($giat['total'],0,",",".").'</td>
+                                <td style="border:.5pt solid #000; vertical-align:middle;  text-align:right; font-weight:bold;">'.number_format($giat['total_n_plus'],0,",",".").'</td>
+                                <td style="border:.5pt solid #000; vertical-align:middle; font-weight:bold;"></td>
                             </tr>
                         ';
                         foreach ($giat['data'] as $kd_sub_giat => $sub_giat) {
@@ -377,6 +455,32 @@ foreach ($data_all['data'] as $label_tag) {
                                     <td class="kanan bawah text_kanan">'.number_format($sub_giat['total_n_plus'],0,",",".").'</td>
                                 </tr>
                             ';
+                            $sasaran_text = '';
+                            if(!empty($sub_giat['data_renstra'])){
+                                $sasaran_text = $sub_giat['data_renstra'][0]['sasaran_teks'];
+                            }
+                            $body_rkpd .= '
+                                <tr>
+                                    <td class="kiri kanan bawah">'.$kd_urusan.'</td>
+                                    <td class="kanan bawah">'.$kd_bidang.'</td>
+                                    <td class="kanan bawah">'.$kd_program.'</td>
+                                    <td class="kanan bawah">'.$kd_giat.'</td>
+                                    <td class="kanan bawah">'.$kd_sub_giat.'</td>
+                                    <td class="kanan bawah">'.$sub_giat['nama'].'</td>
+                                    <td class="kanan bawah">'.$sub_giat['data']['label_kokab'].'</td>
+                                    <td class="kanan bawah">'.$sasaran_text.'</td>
+                                    <td class="kanan bawah">'.$lokasi_sub_giat.'</td>
+                                    <td class="kanan bawah">'.$capaian_prog.'</td>
+                                    <td class="kanan bawah">'.$target_capaian_prog.'</td>
+                                    <td class="kanan bawah">'.$output_sub_giat.'</td>
+                                    <td class="kanan bawah">'.$target_output_sub_giat.'</td>
+                                    <td class="kanan bawah">'.$output_giat.'</td>
+                                    <td class="kanan bawah">'.$target_output_giat.'</td>
+                                    <td class="kanan bawah text_kanan">'.number_format($sub_giat['total'],0,",",".").'</td>
+                                    <td class="kanan bawah text_kanan">'.number_format($sub_giat['total_n_plus'],0,",",".").'</td>
+                                    <td class="kanan bawah"></td>
+                                </tr>
+                            ';
                         }
                     }
                 }
@@ -384,82 +488,157 @@ foreach ($data_all['data'] as $label_tag) {
         }
     }
 }
-?>
 
-<div id="cetak" title="DAFTAR KEGIATAN MANDATORY SPENDING TAHUN ANGGARAN <?php echo $input['tahun_anggaran']; ?>" style="padding: 5px;">
-    <h4 style="text-align: center; font-size: 13px; margin: 10px auto; min-width: 450px; max-width: 570px; font-weight: bold;">DAFTAR KEGIATAN MANDATORY SPENDING TAHUN ANGGARAN <?php echo $input['tahun_anggaran']; ?></h4>
-    <table cellpadding="2" cellspacing="0" style="font-family:'Open Sans',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif; border-collapse: collapse; width:100%; table-layout:fixed; overflow-wrap: break-word; font-size: 60%; border: 0;">
-        <thead>
-            <tr>
-                <th style="padding: 0; border: 0; width:1%"></th>
-                <th style="padding: 0; border: 0; width:1.2%"></th>
-                <th style="padding: 0; border: 0; width:1.5%"></th>
-                <th style="padding: 0; border: 0; width:1.5%"></th>
-                <th style="padding: 0; border: 0; width:1.5%"></th>
-                <th style="padding: 0; border: 0; width:7%"></th>
-                <th style="padding: 0; border: 0; width:7.5%"></th>
-                <th style="padding: 0; border: 0; width:7.5%"></th>
-                <th style="padding: 0; border: 0; width:7.5%"></th>
-                <th style="padding: 0; border: 0; width:4%"></th>
-                <th style="padding: 0; border: 0; width:3.5%"></th>
-                <th style="padding: 0; border: 0; width:3.5%"></th>
-                <th style="padding: 0; border: 0; width:3.5%"></th>
-                <th style="padding: 0; border: 0; width:5.5%"></th>
-                <th style="padding: 0; border: 0; width:3.5%"></th>
-                <th style="padding: 0; border: 0; width:4%"></th>
-                <th style="padding: 0; border: 0; width:7.5%"></th>
-                <th style="padding: 0; border: 0; width:3.5%"></th>
-                <th style="padding: 0; border: 0; width:5.5%"></th>
-            </tr>
-            <tr>
-                <td class="atas kanan bawah kiri text_tengah text_blok" colspan="5" rowspan="3">Kode</td>
-                <td class="atas kanan bawah text_tengah text_blok" rowspan="3">Urusan/ Bidang Urusan Pemerintahan Daerah Dan Program/ Kegiatan</td>
-                <td class="atas kanan bawah text_tengah text_blok" colspan="3">Indikator Kinerja</td>
-                <td class="atas kanan bawah text_tengah text_blok" colspan="6">Rencana Tahun <?php echo $input['tahun_anggaran']; ?></td>
-                <td class="atas kanan bawah text_tengah text_blok" rowspan="3">Catatan Penting</td>
-                <td class="atas kanan bawah text_tengah text_blok" colspan="3">Prakiraan Maju Rencana Tahun <?php echo ($input['tahun_anggaran']+1); ?></td>
-            </tr>
-            <tr>
-                <td class="kanan bawah text_tengah text_blok" rowspan="2">Capaian Program</td>
-                <td class="kanan bawah text_tengah text_blok" rowspan="2">Keluaran Sub Kegiatan</td>
-                <td class="kanan bawah text_tengah text_blok" rowspan="2">Hasil Kegiatan</td>
-                <td class="kanan bawah text_tengah text_blok" rowspan="2">Lokasi Output Kegiatan</td>
-                <td class="kanan bawah text_tengah text_blok" colspan="3">Target Capaian Kinerja</td>
-                <td class="kanan bawah text_tengah text_blok" rowspan="2">Pagu Indikatif (Rp.)</td>
-                <td class="kanan bawah text_tengah text_blok" rowspan="2">Sumber Dana</td>
-                <td class="kanan bawah text_tengah text_blok" colspan="2">Target Capaian Kinerja</td>
-                <td class="kanan bawah text_tengah text_blok" rowspan="2">Kebutuhan Dana/<br/>Pagu Indikatif (Rp.)</td>
-            </tr>
-            <tr>
-                <td class="kanan bawah text_tengah text_blok">Program</td>
-                <td class="kanan bawah text_tengah text_blok">Keluaran Sub Kegiatan</td>
-                <td class="kanan bawah text_tengah text_blok">Hasil Kegiatan</td>
-                <td class="kanan bawah text_tengah text_blok">Tolok Ukur</td>
-                <td class="kanan bawah text_tengah text_blok">Target</td>
-            </tr>
-        </thead>
-        <tbody>
-            <?php echo $body; ?>
-            <tr>
-                <td class="kiri kanan bawah text_blok text_kanan" colspan="13">TOTAL</td>
-                <td class="kanan bawah text_kanan text_blok"><?php echo number_format($data_all['total'],0,",","."); ?></td>
-                <td class="kanan bawah" colspan="4">&nbsp;</td>
-                <td class="kanan bawah text_kanan text_blok"><?php echo number_format($data_all['total_n_plus'],0,",","."); ?></td>
-            </tr>
-        </tbody>
-    </table>
-</div>
+if(!empty($format_rkpd)){
+    echo '
+        <div id="cetak" title="DAFTAR KEGIATAN MANDATORY SPENDING TAHUN ANGGARAN '.$input['tahun_anggaran'].'" style="padding: 5px;">
+            <h4 style="text-align: center; font-size: 13px; margin: 10px auto; min-width: 450px; max-width: 570px; font-weight: bold;">DAFTAR KEGIATAN MANDATORY SPENDING TAHUN ANGGARAN '.$input['tahun_anggaran'].'</h4>
+            <table cellpadding="2" cellspacing="0" style="font-family:\'Open Sans\',-apple-system,BlinkMacSystemFont,\'Segoe UI\',sans-serif; border-collapse: collapse; width:100%; table-layout:fixed; overflow-wrap: break-word; font-size: 60%; border: 0;">
+                <thead>
+                    <tr>
+                        <th style="padding: 0; border: 0; width:1%"></th>
+                        <th style="padding: 0; border: 0; width:1.2%"></th>
+                        <th style="padding: 0; border: 0; width:1.5%"></th>
+                        <th style="padding: 0; border: 0; width:1.5%"></th>
+                        <th style="padding: 0; border: 0; width:1.5%"></th>
+                        <th style="padding: 0; border: 0; width:7%"></th>
+                        <th style="padding: 0; border: 0; width:5%"></th>
+                        <th style="padding: 0; border: 0; width:7.5%"></th>
+                        <th style="padding: 0; border: 0; width:4%"></th>
+                        <th style="padding: 0; border: 0; width:7.5%"></th>
+                        <th style="padding: 0; border: 0; width:3.5%"></th>
+                        <th style="padding: 0; border: 0; width:7.5%"></th>
+                        <th style="padding: 0; border: 0; width:3.5%"></th>
+                        <th style="padding: 0; border: 0; width:7.5%"></th>
+                        <th style="padding: 0; border: 0; width:3.5%"></th>
+                        <th style="padding: 0; border: 0; width:5.5%"></th>
+                        <th style="padding: 0; border: 0; width:5.5%"></th>
+                        <th style="padding: 0; border: 0; width:4%"></th>
+                    </tr>
+                    <tr>
+                        <td style="border:.5pt solid #000; vertical-align:middle; text-align:center; font-weight:bold;" colspan="5" rowspan="3">Kode</td>
+                        <td style="border:.5pt solid #000; vertical-align:middle; text-align:center; font-weight:bold;" rowspan="3">Urusan/ Bidang Urusan Pemerintahan Daerah Dan Program/ Kegiatan</td>
+                        <td style="border:.5pt solid #000; vertical-align:middle; text-align:center; font-weight:bold;" rowspan="3">Prioritas Daerah</td>
+                        <td style="border:.5pt solid #000; vertical-align:middle; text-align:center; font-weight:bold;" rowspan="3">Sasaran Daerah</td>
+                        <td style="border:.5pt solid #000; vertical-align:middle; text-align:center; font-weight:bold;" rowspan="3">Lokasi</td>
+                        <td style="border:.5pt solid #000; vertical-align:middle; text-align:center; font-weight:bold;" colspan="6">Indikator Kinerja</td>
+                        <td style="border:.5pt solid #000; vertical-align:middle; text-align:center; font-weight:bold;" rowspan="3">Pagu Indikatif (Rp.)</td>
+                        <td style="border:.5pt solid #000; vertical-align:middle; text-align:center; font-weight:bold;" rowspan="3">Prakiraan Maju (Rp.)</td>
+                        <td style="border:.5pt solid #000; vertical-align:middle; text-align:center; font-weight:bold;" colspan="1">Keterangan</td>
+                    </tr>
+                    <tr>
+                        <td style="border:.5pt solid #000; vertical-align:middle;  text-align:center; font-weight:bold;" colspan="2">Capaian Program</td>
+                        <td style="border:.5pt solid #000; vertical-align:middle;  text-align:center; font-weight:bold;" colspan="2">Keluaran Sub Kegiatan</td>
+                        <td style="border:.5pt solid #000; vertical-align:middle;  text-align:center; font-weight:bold;" colspan="2">Hasil Kegiatan</td>
+                        <!-- <td style="border:.5pt solid #000; vertical-align:middle;  text-align:center; font-weight:bold;" rowspan="2">Program Juara</td> -->
+                        <td style="border:.5pt solid #000; vertical-align:middle;  text-align:center; font-weight:bold;" rowspan="2">Prioritas Pembangunan Nasional</td>
+                    </tr>
+                    <tr>
+                        <td style="border:.5pt solid #000; vertical-align:middle;  text-align:center; font-weight:bold;">Tolok Ukur</td>
+                        <td style="border:.5pt solid #000; vertical-align:middle;  text-align:center; font-weight:bold;">Target</td>
+                        <td style="border:.5pt solid #000; vertical-align:middle;  text-align:center; font-weight:bold;">Tolok Ukur</td>
+                        <td style="border:.5pt solid #000; vertical-align:middle;  text-align:center; font-weight:bold;">Target</td>
+                        <td style="border:.5pt solid #000; vertical-align:middle;  text-align:center; font-weight:bold;">Tolok Ukur</td>
+                        <td style="border:.5pt solid #000; vertical-align:middle;  text-align:center; font-weight:bold;">Target</td>
+                    </tr>
+                </thead>
+                <tbody>
+                    '.$body_rkpd.'
+                    <tr>
+                        <td style="border:.5pt solid #000; vertical-align:middle; font-weight:bold; text-align:right" colspan="15">TOTAL</td>
+                        <td style="border:.5pt solid #000; vertical-align:middle;  text-align:right; font-weight:bold;">'.number_format($data_all['total'],0,",",".").'</td>
+                        <td style="border:.5pt solid #000; vertical-align:middle;  text-align:right; font-weight:bold;">'.number_format($data_all['total_n_plus'],0,",",".").'</td>
+                        <td style="border:.5pt solid #000; vertical-align:middle;"></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    ';
+}else{
+    echo '
+        <div id="cetak" title="DAFTAR KEGIATAN MANDATORY SPENDING TAHUN ANGGARAN '.$input['tahun_anggaran'].'" style="padding: 5px;">
+            <h4 style="text-align: center; font-size: 13px; margin: 10px auto; min-width: 450px; max-width: 570px; font-weight: bold;">DAFTAR KEGIATAN MANDATORY SPENDING TAHUN ANGGARAN '.$input['tahun_anggaran'].'</h4>
+            <table cellpadding="2" cellspacing="0" style="font-family:\'Open Sans\',-apple-system,BlinkMacSystemFont,\'Segoe UI\',sans-serif; border-collapse: collapse; width:100%; table-layout:fixed; overflow-wrap: break-word; font-size: 60%; border: 0;">
+                <thead>
+                    <tr>
+                        <th style="padding: 0; border: 0; width:1%"></th>
+                        <th style="padding: 0; border: 0; width:1.2%"></th>
+                        <th style="padding: 0; border: 0; width:1.5%"></th>
+                        <th style="padding: 0; border: 0; width:1.5%"></th>
+                        <th style="padding: 0; border: 0; width:1.5%"></th>
+                        <th style="padding: 0; border: 0; width:7%"></th>
+                        <th style="padding: 0; border: 0; width:7.5%"></th>
+                        <th style="padding: 0; border: 0; width:7.5%"></th>
+                        <th style="padding: 0; border: 0; width:7.5%"></th>
+                        <th style="padding: 0; border: 0; width:4%"></th>
+                        <th style="padding: 0; border: 0; width:3.5%"></th>
+                        <th style="padding: 0; border: 0; width:3.5%"></th>
+                        <th style="padding: 0; border: 0; width:3.5%"></th>
+                        <th style="padding: 0; border: 0; width:5.5%"></th>
+                        <th style="padding: 0; border: 0; width:3.5%"></th>
+                        <th style="padding: 0; border: 0; width:4%"></th>
+                        <th style="padding: 0; border: 0; width:7.5%"></th>
+                        <th style="padding: 0; border: 0; width:3.5%"></th>
+                        <th style="padding: 0; border: 0; width:5.5%"></th>
+                    </tr>
+                    <tr>
+                        <td class="atas kanan bawah kiri text_tengah text_blok" colspan="5" rowspan="3">Kode</td>
+                        <td class="atas kanan bawah text_tengah text_blok" rowspan="3">Urusan/ Bidang Urusan Pemerintahan Daerah Dan Program/ Kegiatan</td>
+                        <td class="atas kanan bawah text_tengah text_blok" colspan="3">Indikator Kinerja</td>
+                        <td class="atas kanan bawah text_tengah text_blok" colspan="6">Rencana Tahun '.$input['tahun_anggaran'].'</td>
+                        <td class="atas kanan bawah text_tengah text_blok" rowspan="3">Catatan Penting</td>
+                        <td class="atas kanan bawah text_tengah text_blok" colspan="3">Prakiraan Maju Rencana Tahun '.($input['tahun_anggaran']+1).'</td>
+                    </tr>
+                    <tr>
+                        <td class="kanan bawah text_tengah text_blok" rowspan="2">Capaian Program</td>
+                        <td class="kanan bawah text_tengah text_blok" rowspan="2">Keluaran Sub Kegiatan</td>
+                        <td class="kanan bawah text_tengah text_blok" rowspan="2">Hasil Kegiatan</td>
+                        <td class="kanan bawah text_tengah text_blok" rowspan="2">Lokasi Output Kegiatan</td>
+                        <td class="kanan bawah text_tengah text_blok" colspan="3">Target Capaian Kinerja</td>
+                        <td class="kanan bawah text_tengah text_blok" rowspan="2">Pagu Indikatif (Rp.)</td>
+                        <td class="kanan bawah text_tengah text_blok" rowspan="2">Sumber Dana</td>
+                        <td class="kanan bawah text_tengah text_blok" colspan="2">Target Capaian Kinerja</td>
+                        <td class="kanan bawah text_tengah text_blok" rowspan="2">Kebutuhan Dana/<br/>Pagu Indikatif (Rp.)</td>
+                    </tr>
+                    <tr>
+                        <td class="kanan bawah text_tengah text_blok">Program</td>
+                        <td class="kanan bawah text_tengah text_blok">Keluaran Sub Kegiatan</td>
+                        <td class="kanan bawah text_tengah text_blok">Hasil Kegiatan</td>
+                        <td class="kanan bawah text_tengah text_blok">Tolok Ukur</td>
+                        <td class="kanan bawah text_tengah text_blok">Target</td>
+                    </tr>
+                </thead>
+                <tbody>
+                    '.$body.'
+                    <tr>
+                        <td class="kiri kanan bawah text_blok text_kanan" colspan="13">TOTAL</td>
+                        <td class="kanan bawah text_kanan text_blok">'.number_format($data_all['total'],0,",",".").'</td>
+                        <td class="kanan bawah" colspan="4">&nbsp;</td>
+                        <td class="kanan bawah text_kanan text_blok">'.number_format($data_all['total_n_plus'],0,",",".").'</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    ';
+}
+?>
 
 <script type="text/javascript">
     run_download_excel();
     var _url = window.location.href;
     var url = new URL(_url);
     _url = url.origin+url.pathname+'?key='+url.searchParams.get('key');
-    var type = url.searchParams.get("type");
-    if(type && type=='detail'){
-        var extend_action = '<a class="button button-primary" target="_blank" href="'+_url+'" style="margin-left: 10px;">Sembunyikan capaian RENSTRA & RPJM</a>';
+    var rkpd = url.searchParams.get("rkpd");
+    if(!rkpd){
+        var type = url.searchParams.get("type");
+        if(type && type=='detail'){
+            var extend_action = '<a class="button button-primary" target="_blank" href="'+_url+'" style="margin-left: 10px;">Sembunyikan capaian RENSTRA & RPJM</a>';
+        }else{
+            var extend_action = '<a class="button button-primary" target="_blank" href="'+_url+'&type=detail" style="margin-left: 10px;">Tampilkan capaian RENSTRA & RPJM</a>';
+        }
+        extend_action += '<a class="button button-primary" target="_blank" href="'+_url+'&rkpd=1" style="margin-left: 10px;">Format RKPD</a>';
     }else{
-        var extend_action = '<a class="button button-primary" target="_blank" href="'+_url+'&type=detail" style="margin-left: 10px;">Tampilkan capaian RENSTRA & RPJM</a>';
+        var extend_action = '<a class="button button-primary" target="_blank" href="'+_url+'" style="margin-left: 10px;">Format RENJA</a>';
     }
     jQuery('#action-sipd #excel').after(extend_action);
 </script>
