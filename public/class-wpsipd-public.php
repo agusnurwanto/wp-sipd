@@ -1929,7 +1929,7 @@ class Wpsipd_Public
 						wp_set_post_terms($custom_post->ID, array($cat_id), $taxonomy, $append);
 						$category_link = get_category_link($cat_id);
 
-						$ret['message'] .= ' URL ' . $custom_post->guid . '?key=' . $_POST['api_key'];
+						$ret['message'] .= ' URL ' . $custom_post->guid . '?key=' . $this->gen_key($_POST['api_key']);
 						$ret['category'] = $category_link;
 					}
 				} else if ($ret['status'] != 'error') {
@@ -3030,5 +3030,14 @@ class Wpsipd_Public
 		$append = true;
 		wp_set_post_terms($custom_post->ID, array($cat_id), $taxonomy, $append);
 		return $custom_post;
+	}
+
+	function gen_key($key_db = false){
+		$now = time()*1000;
+		if(empty($key_db)){
+			$key_db = carbon_get_theme_option( 'crb_api_key_extension' );
+		}
+		$key = base64_encode($now.$key_db.$now);
+		return $key;
 	}
 }
