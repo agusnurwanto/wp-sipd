@@ -1,5 +1,5 @@
 <?php
-function generate_body($rek_pendapatan, $baris_kosong=false, $type='murni'){
+function generate_body($rek_pendapatan, $baris_kosong=false, $type='murni', $nama_rekening){
     global $wpdb;
     $data_pendapatan = array(
         'data' => array(),
@@ -198,19 +198,29 @@ function generate_body($rek_pendapatan, $baris_kosong=false, $type='murni'){
     $body_pendapatan .= "
     <tr>
         <td class='kiri kanan bawah'></td>
-        <td class='kanan bawah text_kanan text_blok'>Jumlah Pendapatan</td>
+        <td class='kanan bawah text_kanan text_blok'>Jumlah ".$nama_rekening."</td>
         ".$murni."
         <td class='kanan bawah text_kanan text_blok'>".number_format($data_pendapatan['total'],0,",",".")."</td>
         ".$selisih."
     </tr>";
+    if($nama_rekening == 'Belanja'){
+        $body_pendapatan .= "
+        <tr>
+            <td class='kiri kanan bawah'></td>
+            <td class='kanan bawah text_kanan text_blok'>Total Surplus/(Defisit)</td>
+            <td class='kanan bawah text_kanan text_blok'>-</td>
+            <td class='kanan bawah text_kanan text_blok'>-</td>
+            <td class='kanan bawah text_kanan text_blok'>-</td>
+        </tr>";
+    }
     if($baris_kosong){
         $body_pendapatan .= "
         <tr>
             <td class='kiri kanan bawah' style='color: #fff;'>.</td>
             <td class='kanan bawah'></td>
-            ".$murni."
             <td class='kanan bawah'></td>
-            ".$selisih."
+            <td class='kanan bawah'></td>
+            <td class='kanan bawah'></td>
         </tr>";
     }
     return $body_pendapatan;
@@ -236,7 +246,7 @@ $sql = $wpdb->prepare("
 ", $input['tahun_anggaran']);
 $rek_pendapatan = $wpdb->get_results($sql, ARRAY_A);
 
-$body_pendapatan = generate_body($rek_pendapatan, true, $type);
+$body_pendapatan = generate_body($rek_pendapatan, true, $type, 'Pendapatan');
 
 $sql = $wpdb->prepare("
     select 
@@ -252,7 +262,7 @@ $sql = $wpdb->prepare("
 ", $input['tahun_anggaran']);
 $rek_belanja = $wpdb->get_results($sql, ARRAY_A);
 
-$body_belanja = generate_body($rek_belanja, true, $type);
+$body_belanja = generate_body($rek_belanja, true, $type, 'Belanja');
 
 $sql = $wpdb->prepare("
     select 
@@ -268,7 +278,7 @@ $sql = $wpdb->prepare("
 ", $input['tahun_anggaran']);
 $rek_pembiayaan = $wpdb->get_results($sql, ARRAY_A);
 
-$body_pembiayaan = generate_body($rek_pembiayaan, false, $type);
+$body_pembiayaan = generate_body($rek_pembiayaan, false, $type, 'Pembiayaan');
 ?>
 
 <div id="cetak" title="Laporan APBD PENJABARAN Lampiran 1 Tahun Anggaran <?php echo $input['tahun_anggaran']; ?>">
