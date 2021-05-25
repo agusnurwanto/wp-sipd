@@ -1161,7 +1161,7 @@ class Wpsipd_Simda
 				                        );
 				                    }
 									// print_r($options); die($_POST['kode_sbl']);
-									$this->CurlSimda($options);
+									$this->CurlSimda($options, false, false);
 
 									$options = array(
 				                        'query' => "
@@ -1575,7 +1575,7 @@ class Wpsipd_Simda
 		}
 	}
 
-	function CurlSimda($options, $debug=false){
+	function CurlSimda($options, $debug=false, $debug_req=false){
         $query = $options['query'];
         $curl = curl_init();
         $req = array(
@@ -1584,8 +1584,11 @@ class Wpsipd_Simda
             'db' => carbon_get_theme_option('crb_db_simda')
         );
         set_time_limit(0);
-        $req = http_build_query($req);
         $url = carbon_get_theme_option( 'crb_url_api_simda' );
+    	if($debug_req){
+        	print_r($req); die($url);
+    	}
+        $req = http_build_query($req);
         curl_setopt_array($curl, array(
             CURLOPT_URL => $url,
             CURLOPT_RETURNTRANSFER => true,
@@ -2162,7 +2165,7 @@ class Wpsipd_Simda
                     .' and kd_program90='.$options['kd_program90']
                     .' and kd_kegiatan90='.$options['kd_kegiatan90']
                     .' and kd_sub_kegiatan='.$options['kd_sub_kegiatan']
-		));
+		), false, false);
 		if(
 			empty($mapping)
 			&& carbon_get_theme_option('crb_auto_ref_kegiatan_mapping') == 1
