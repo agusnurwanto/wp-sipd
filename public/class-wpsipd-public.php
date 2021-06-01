@@ -1769,6 +1769,47 @@ class Wpsipd_Public
 		die(json_encode($ret));
 	}
 
+	public function update_nonactive_sub_bl_kas()
+	{
+		global $wpdb;
+		$ret = array(
+			'status'	=> 'success',
+			'message'	=> 'Berhasil update data_sub_keg_bl > data_anggaran_kas nonactive!',
+			'action'	=> $_POST['action'],
+			'id_unit'	=> $_POST['id_unit']
+		);
+		if (!empty($_POST)) {
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == carbon_get_theme_option( 'crb_api_key_extension' )) {
+				$wpdb->update('data_sub_keg_bl', array( 'active' => 0 ), array(
+					'tahun_anggaran' => $_POST['tahun_anggaran'],
+					'id_sub_skpd' => $_POST['id_unit']
+				));
+				$sub_bl = $wpdb->get_results("SELECT kode_sbl, id_bidang_urusan from data_sub_keg_bl where tahun_anggaran=".$_POST['tahun_anggaran']." AND id_sub_skpd='" . $_POST['id_unit'] . "'", ARRAY_A);
+				foreach ($sub_bl as $k => $sub) {
+					$kode_sbl = explode('.', $sub['kode_sbl']);
+					$kode_sbl1 = $kode_sbl[0].'.'.$kode_sbl[1].'.'.$sub['id_bidang_urusan'].'.'.$kode_sbl[2].'.'.$kode_sbl[3].'.'.$kode_sbl[4];
+					$kode_sbl2 = $kode_sbl[1].'.'.$kode_sbl1;
+					$wpdb->update('data_anggaran_kas', array( 'active' => 0 ), array(
+						'tahun_anggaran' => $_POST['tahun_anggaran'],
+						'kode_sbl' => $kode_sbl1
+					));
+					$wpdb->update('data_anggaran_kas', array( 'active' => 0 ), array(
+						'tahun_anggaran' => $_POST['tahun_anggaran'],
+						'kode_sbl' => $kode_sbl2
+					));
+				}
+
+			} else {
+				$ret['status'] = 'error';
+				$ret['message'] = 'APIKEY tidak sesuai!';
+			}
+		} else {
+			$ret['status'] = 'error';
+			$ret['message'] = 'Format Salah!';
+		}
+		die(json_encode($ret));
+	}
+
 	public function singkron_rka()
 	{
 		global $wpdb;
