@@ -2824,7 +2824,8 @@ class Wpsipd_Public
 					);
 					foreach ($ret['data']['bl'] as $k => $v) {
 						$kode_sbl = explode('.', $v['kode_sbl']);
-						$kode_sbl = $kode_sbl[0].'.'.$kode_sbl[1].'.'.$v['id_bidang_urusan'].'.'.$kode_sbl[2].'.'.$kode_sbl[3].'.'.$kode_sbl[4];
+						// id_unit.id_skpd.id_sub_skpd (format kode_sbl terbaru)
+						$kode_sbl = $kode_sbl[1].'.'.$kode_sbl[0].'.'.$kode_sbl[1].'.'.$v['id_bidang_urusan'].'.'.$kode_sbl[2].'.'.$kode_sbl[3].'.'.$kode_sbl[4];
 						$kas = $wpdb->get_results("
 							SELECT 
 								* 
