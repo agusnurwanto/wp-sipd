@@ -702,7 +702,7 @@ class Wpsipd_Simda
 						, ARRAY_A);
 						if(empty($sub_giat)){
 							$ret['status'] = 'error';
-							$ret['message'] = 'Data Sub Kegaitan di table data_sub_keg_bl tidak ditemukan. Lakukan singkronisasi dulu di SIPD Merah!';
+							$ret['message'] = 'Data Sub Kegaitan di table data_sub_keg_bl dengan kode_sbl=\''.implode('.', $kode_sbl).'\' tidak ditemukan. Lakukan singkronisasi dulu di SIPD Merah!';
 						}
 						// print_r($sub_giat); die($wpdb->last_query);
 					}
