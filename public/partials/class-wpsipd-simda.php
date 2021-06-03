@@ -688,7 +688,8 @@ class Wpsipd_Simda
 					$type = $_POST['type'];
 					if($type == 'belanja'){
 						$kode_sbl = explode('.', $_POST['kode_sbl']);
-						unset($kode_sbl[2]);
+						unset($kode_sbl[0]);
+						unset($kode_sbl[3]);
 						$sub_giat = $wpdb->get_results($wpdb->prepare("
 							SELECT 
 								k.kode_sub_giat,
@@ -699,201 +700,207 @@ class Wpsipd_Simda
 								AND k.kode_sbl=%s
 								AND k.active=1", $tahun_anggaran, implode('.', $kode_sbl))
 						, ARRAY_A);
+						if(empty($sub_giat)){
+							$ret['status'] = 'error';
+							$ret['message'] = 'Data Sub Kegaitan di table data_sub_keg_bl tidak ditemukan. Lakukan singkronisasi dulu di SIPD Merah!';
+						}
 						// print_r($sub_giat); die($wpdb->last_query);
 					}
 
-					foreach ($_POST['data'] as $k => $v) {
-						if(!empty($v['id_skpd'])){
-							$kd_unit_simda = explode('.', carbon_get_theme_option('crb_unit_'.$v['id_skpd']));
-						}else{
-							$kd_unit_simda = explode('.', carbon_get_theme_option('crb_unit_'.$v['id_unit']));
-						}
-						if($type == 'belanja'){
-							$kd_unit_simda = explode('.', carbon_get_theme_option('crb_unit_'.$kode_sbl[1]));
-						}
-
-						if(empty($kd_unit_simda) || empty($kd_unit_simda[3])){
-							continue;
-						}
-						$_kd_urusan = $kd_unit_simda[0];
-						$_kd_bidang = $kd_unit_simda[1];
-						$kd_unit = $kd_unit_simda[2];
-						$kd_sub_unit = $kd_unit_simda[3];
-
-						$rak = $wpdb->get_results($wpdb->prepare("
-							SELECT 
-								k.*
-							from data_anggaran_kas k
-							where k.tahun_anggaran=%d
-								AND k.kode_sbl=%s
-								AND k.id_akun=%d
-								AND k.active=1", $tahun_anggaran, $_POST['kode_sbl'], $v['id_akun'])
-						, ARRAY_A);
-						
-						$akun = explode('.', $rak[0]['kode_akun']);
-		                $mapping_rek = $this->cekRekMapping(array(
-							'tahun_anggaran' => $tahun_anggaran,
-							'kode_akun' => $rak[0]['kode_akun'],
-							'kd_rek_0' => $akun[0],
-							'kd_rek_1' => $akun[1],
-							'kd_rek_2' => $akun[2],
-							'kd_rek_3' => $akun[3],
-							'kd_rek_4' => $akun[4],
-							'kd_rek_5' => $akun[5],
-		                ));
-
-						if($type == 'belanja'){
-							$kd = explode('.', $sub_giat[0]['kode_sub_giat']);
-							$kd_urusan90 = (int) $kd[0];
-							$kd_bidang90 = (int) $kd[1];
-							$kd_program90 = (int) $kd[2];
-							$kd_kegiatan90 = ((int) $kd[3]).'.'.$kd[4];
-							$kd_sub_kegiatan = (int) $kd[5];
-							$nama_keg = explode(' ', $sub_giat[0]['nama_sub_giat']);
-		                    unset($nama_keg[0]);
-		                    $nama_keg = implode(' ', $nama_keg);
-							$mapping = $this->cekKegiatanMapping(array(
-								'kd_urusan90' => $kd_urusan90,
-								'kd_bidang90' => $kd_bidang90,
-								'kd_program90' => $kd_program90,
-								'kd_kegiatan90' => $kd_kegiatan90,
-								'kd_sub_kegiatan' => $kd_sub_kegiatan,
-								'nama_program' => $sub_giat[0]['nama_giat'],
-								'nama_kegiatan' => $nama_keg,
-							));
-			            }else{
-			            	$mapping = true;
-			            }
-		                
-		                if(!empty($mapping) && !empty($mapping_rek)){
-		                	if($type == 'belanja'){
-								$kd_urusan = $mapping[0]->kd_urusan;
-								$kd_bidang = $mapping[0]->kd_bidang;
-								$kd_prog = $mapping[0]->kd_prog;
-								$kd_keg = $mapping[0]->kd_keg;
-								$id_prog = $kd_urusan.$this->CekNull($kd_bidang);
+					if($ret['status']!='error'){
+						foreach ($_POST['data'] as $k => $v) {
+							if(!empty($v['id_skpd'])){
+								$kd_unit_simda = explode('.', carbon_get_theme_option('crb_unit_'.$v['id_skpd']));
 							}else{
-								$kd_urusan = 0;
-								$kd_bidang = 0;
-								$kd_prog = 0;
-								$kd_keg = 0;
-								$id_prog = 0;
+								$kd_unit_simda = explode('.', carbon_get_theme_option('crb_unit_'.$v['id_unit']));
 							}
-							$cek_ta_rencana = $this->CurlSimda(array(
-								'query' => "
-									SELECT 
-										* 
-									from ta_rencana 
-									where tahun=".$tahun_anggaran
-			                            .' and kd_urusan='.$_kd_urusan
-			                            .' and kd_bidang='.$_kd_bidang
-			                            .' and kd_unit='.$kd_unit
-			                            .' and kd_sub='.$kd_sub_unit
-			                            .' and kd_prog='.$kd_prog
-			                            .' and id_prog='.$id_prog
-			                            .' and kd_keg='.$kd_keg
-			                            .' and kd_rek_1='.$mapping_rek[0]->kd_rek_1
-			                            .' and kd_rek_2='.$mapping_rek[0]->kd_rek_2
-			                            .' and kd_rek_3='.$mapping_rek[0]->kd_rek_3
-			                            .' and kd_rek_4='.$mapping_rek[0]->kd_rek_4
-			                            .' and kd_rek_5='.$mapping_rek[0]->kd_rek_5
-							));
-							if(!empty($cek_ta_rencana)){
-								$options = array(
-		                            'query' => "
-		                            UPDATE ta_rencana set
-		                                jan = ".$rak[0]['bulan_1'].",
-		                                feb = ".$rak[0]['bulan_2'].",
-		                                mar = ".$rak[0]['bulan_3'].",
-		                                apr = ".$rak[0]['bulan_4'].",
-		                                mei = ".$rak[0]['bulan_5'].",
-		                                jun = ".$rak[0]['bulan_6'].",
-		                                jul = ".$rak[0]['bulan_7'].",
-		                                agt = ".$rak[0]['bulan_8'].",
-		                                sep = ".$rak[0]['bulan_9'].",
-		                                okt = ".$rak[0]['bulan_10'].",
-		                                nop = ".$rak[0]['bulan_11'].",
-		                                des = ".$rak[0]['bulan_12']."
-		                            where 
-			                            tahun=".$tahun_anggaran
-			                            .' and kd_urusan='.$_kd_urusan
-			                            .' and kd_bidang='.$_kd_bidang
-			                            .' and kd_unit='.$kd_unit
-			                            .' and kd_sub='.$kd_sub_unit
-			                            .' and kd_prog='.$kd_prog
-			                            .' and id_prog='.$id_prog
-			                            .' and kd_keg='.$kd_keg
-			                            .' and kd_rek_1='.$mapping_rek[0]->kd_rek_1
-			                            .' and kd_rek_2='.$mapping_rek[0]->kd_rek_2
-			                            .' and kd_rek_3='.$mapping_rek[0]->kd_rek_3
-			                            .' and kd_rek_4='.$mapping_rek[0]->kd_rek_4
-			                            .' and kd_rek_5='.$mapping_rek[0]->kd_rek_5
-		                        );
-		                    }else{
-		                        $options = array(
-		                            'query' => "
-		                            INSERT INTO ta_rencana (
-		                                tahun,
-		                                kd_urusan,
-		                                kd_bidang,
-		                                kd_unit,
-		                                kd_sub,
-		                                kd_prog,
-		                                id_prog,
-		                                kd_keg,
-		                                kd_rek_1,
-			                            kd_rek_2,
-			                            kd_rek_3,
-			                            kd_rek_4,
-			                            kd_rek_5,
-			                            jan,
-		                                feb,
-		                                mar,
-		                                apr,
-		                                mei,
-		                                jun,
-		                                jul,
-		                                agt,
-		                                sep,
-		                                okt,
-		                                nop,
-		                                des
-		                            )
-		                            VALUES (
-		                                ".$tahun_anggaran.",
-		                                ".$_kd_urusan.",
-		                                ".$_kd_bidang.",
-		                                ".$kd_unit.",
-		                                ".$kd_sub_unit.",
-		                                ".$kd_prog.",
-		                                ".$id_prog.",
-		                                ".$kd_keg.",
-		                                ".$mapping_rek[0]->kd_rek_1.",
-			                            ".$mapping_rek[0]->kd_rek_2.",
-			                            ".$mapping_rek[0]->kd_rek_3.",
-			                            ".$mapping_rek[0]->kd_rek_4.",
-			                            ".$mapping_rek[0]->kd_rek_5.",
-		                                ".str_replace(',', '.', $rak[0]['bulan_1']).",
-		                                ".str_replace(',', '.', $rak[0]['bulan_2']).",
-		                                ".str_replace(',', '.', $rak[0]['bulan_3']).",
-		                                ".str_replace(',', '.', $rak[0]['bulan_4']).",
-		                                ".str_replace(',', '.', $rak[0]['bulan_5']).",
-		                                ".str_replace(',', '.', $rak[0]['bulan_6']).",
-		                                ".str_replace(',', '.', $rak[0]['bulan_7']).",
-		                                ".str_replace(',', '.', $rak[0]['bulan_8']).",
-		                                ".str_replace(',', '.', $rak[0]['bulan_9']).",
-		                                ".str_replace(',', '.', $rak[0]['bulan_10']).",
-		                                ".str_replace(',', '.', $rak[0]['bulan_11']).",
-		                                ".str_replace(',', '.', $rak[0]['bulan_12'])."
-		                            )"
-		                        );
+							if($type == 'belanja'){
+								$kd_unit_simda = explode('.', carbon_get_theme_option('crb_unit_'.$kode_sbl[1]));
 							}
-							// print_r($options); die($v['id_akun']);
-							$this->CurlSimda($options);
-		                }else{
-		                	$ret['status'] = 'error';
-							$ret['message'] = 'ref_kegiatan_mapping atau ref_rek_mapping tidak ditemukan!';
-		                }
+
+							if(empty($kd_unit_simda) || empty($kd_unit_simda[3])){
+								continue;
+							}
+							$_kd_urusan = $kd_unit_simda[0];
+							$_kd_bidang = $kd_unit_simda[1];
+							$kd_unit = $kd_unit_simda[2];
+							$kd_sub_unit = $kd_unit_simda[3];
+
+							$rak = $wpdb->get_results($wpdb->prepare("
+								SELECT 
+									k.*
+								from data_anggaran_kas k
+								where k.tahun_anggaran=%d
+									AND k.kode_sbl=%s
+									AND k.id_akun=%d
+									AND k.active=1", $tahun_anggaran, $_POST['kode_sbl'], $v['id_akun'])
+							, ARRAY_A);
+							
+							$akun = explode('.', $rak[0]['kode_akun']);
+			                $mapping_rek = $this->cekRekMapping(array(
+								'tahun_anggaran' => $tahun_anggaran,
+								'kode_akun' => $rak[0]['kode_akun'],
+								'kd_rek_0' => $akun[0],
+								'kd_rek_1' => $akun[1],
+								'kd_rek_2' => $akun[2],
+								'kd_rek_3' => $akun[3],
+								'kd_rek_4' => $akun[4],
+								'kd_rek_5' => $akun[5],
+			                ));
+
+							if($type == 'belanja'){
+								$kd = explode('.', $sub_giat[0]['kode_sub_giat']);
+								$kd_urusan90 = (int) $kd[0];
+								$kd_bidang90 = (int) $kd[1];
+								$kd_program90 = (int) $kd[2];
+								$kd_kegiatan90 = ((int) $kd[3]).'.'.$kd[4];
+								$kd_sub_kegiatan = (int) $kd[5];
+								$nama_keg = explode(' ', $sub_giat[0]['nama_sub_giat']);
+			                    unset($nama_keg[0]);
+			                    $nama_keg = implode(' ', $nama_keg);
+								$mapping = $this->cekKegiatanMapping(array(
+									'kd_urusan90' => $kd_urusan90,
+									'kd_bidang90' => $kd_bidang90,
+									'kd_program90' => $kd_program90,
+									'kd_kegiatan90' => $kd_kegiatan90,
+									'kd_sub_kegiatan' => $kd_sub_kegiatan,
+									'nama_program' => $sub_giat[0]['nama_giat'],
+									'nama_kegiatan' => $nama_keg,
+								));
+				            }else{
+				            	$mapping = true;
+				            }
+			                
+			                if(!empty($mapping) && !empty($mapping_rek)){
+			                	if($type == 'belanja'){
+									$kd_urusan = $mapping[0]->kd_urusan;
+									$kd_bidang = $mapping[0]->kd_bidang;
+									$kd_prog = $mapping[0]->kd_prog;
+									$kd_keg = $mapping[0]->kd_keg;
+									$id_prog = $kd_urusan.$this->CekNull($kd_bidang);
+								}else{
+									$kd_urusan = 0;
+									$kd_bidang = 0;
+									$kd_prog = 0;
+									$kd_keg = 0;
+									$id_prog = 0;
+								}
+								$cek_ta_rencana = $this->CurlSimda(array(
+									'query' => "
+										SELECT 
+											* 
+										from ta_rencana 
+										where tahun=".$tahun_anggaran
+				                            .' and kd_urusan='.$_kd_urusan
+				                            .' and kd_bidang='.$_kd_bidang
+				                            .' and kd_unit='.$kd_unit
+				                            .' and kd_sub='.$kd_sub_unit
+				                            .' and kd_prog='.$kd_prog
+				                            .' and id_prog='.$id_prog
+				                            .' and kd_keg='.$kd_keg
+				                            .' and kd_rek_1='.$mapping_rek[0]->kd_rek_1
+				                            .' and kd_rek_2='.$mapping_rek[0]->kd_rek_2
+				                            .' and kd_rek_3='.$mapping_rek[0]->kd_rek_3
+				                            .' and kd_rek_4='.$mapping_rek[0]->kd_rek_4
+				                            .' and kd_rek_5='.$mapping_rek[0]->kd_rek_5
+								));
+								if(!empty($cek_ta_rencana)){
+									$options = array(
+			                            'query' => "
+			                            UPDATE ta_rencana set
+			                                jan = ".$rak[0]['bulan_1'].",
+			                                feb = ".$rak[0]['bulan_2'].",
+			                                mar = ".$rak[0]['bulan_3'].",
+			                                apr = ".$rak[0]['bulan_4'].",
+			                                mei = ".$rak[0]['bulan_5'].",
+			                                jun = ".$rak[0]['bulan_6'].",
+			                                jul = ".$rak[0]['bulan_7'].",
+			                                agt = ".$rak[0]['bulan_8'].",
+			                                sep = ".$rak[0]['bulan_9'].",
+			                                okt = ".$rak[0]['bulan_10'].",
+			                                nop = ".$rak[0]['bulan_11'].",
+			                                des = ".$rak[0]['bulan_12']."
+			                            where 
+				                            tahun=".$tahun_anggaran
+				                            .' and kd_urusan='.$_kd_urusan
+				                            .' and kd_bidang='.$_kd_bidang
+				                            .' and kd_unit='.$kd_unit
+				                            .' and kd_sub='.$kd_sub_unit
+				                            .' and kd_prog='.$kd_prog
+				                            .' and id_prog='.$id_prog
+				                            .' and kd_keg='.$kd_keg
+				                            .' and kd_rek_1='.$mapping_rek[0]->kd_rek_1
+				                            .' and kd_rek_2='.$mapping_rek[0]->kd_rek_2
+				                            .' and kd_rek_3='.$mapping_rek[0]->kd_rek_3
+				                            .' and kd_rek_4='.$mapping_rek[0]->kd_rek_4
+				                            .' and kd_rek_5='.$mapping_rek[0]->kd_rek_5
+			                        );
+			                    }else{
+			                        $options = array(
+			                            'query' => "
+			                            INSERT INTO ta_rencana (
+			                                tahun,
+			                                kd_urusan,
+			                                kd_bidang,
+			                                kd_unit,
+			                                kd_sub,
+			                                kd_prog,
+			                                id_prog,
+			                                kd_keg,
+			                                kd_rek_1,
+				                            kd_rek_2,
+				                            kd_rek_3,
+				                            kd_rek_4,
+				                            kd_rek_5,
+				                            jan,
+			                                feb,
+			                                mar,
+			                                apr,
+			                                mei,
+			                                jun,
+			                                jul,
+			                                agt,
+			                                sep,
+			                                okt,
+			                                nop,
+			                                des
+			                            )
+			                            VALUES (
+			                                ".$tahun_anggaran.",
+			                                ".$_kd_urusan.",
+			                                ".$_kd_bidang.",
+			                                ".$kd_unit.",
+			                                ".$kd_sub_unit.",
+			                                ".$kd_prog.",
+			                                ".$id_prog.",
+			                                ".$kd_keg.",
+			                                ".$mapping_rek[0]->kd_rek_1.",
+				                            ".$mapping_rek[0]->kd_rek_2.",
+				                            ".$mapping_rek[0]->kd_rek_3.",
+				                            ".$mapping_rek[0]->kd_rek_4.",
+				                            ".$mapping_rek[0]->kd_rek_5.",
+			                                ".str_replace(',', '.', $rak[0]['bulan_1']).",
+			                                ".str_replace(',', '.', $rak[0]['bulan_2']).",
+			                                ".str_replace(',', '.', $rak[0]['bulan_3']).",
+			                                ".str_replace(',', '.', $rak[0]['bulan_4']).",
+			                                ".str_replace(',', '.', $rak[0]['bulan_5']).",
+			                                ".str_replace(',', '.', $rak[0]['bulan_6']).",
+			                                ".str_replace(',', '.', $rak[0]['bulan_7']).",
+			                                ".str_replace(',', '.', $rak[0]['bulan_8']).",
+			                                ".str_replace(',', '.', $rak[0]['bulan_9']).",
+			                                ".str_replace(',', '.', $rak[0]['bulan_10']).",
+			                                ".str_replace(',', '.', $rak[0]['bulan_11']).",
+			                                ".str_replace(',', '.', $rak[0]['bulan_12'])."
+			                            )"
+			                        );
+								}
+								// print_r($options); die($v['id_akun']);
+								$this->CurlSimda($options);
+			                }else{
+			                	$ret['status'] = 'error';
+								$ret['message'] = 'ref_kegiatan_mapping atau ref_rek_mapping tidak ditemukan!';
+			                }
+						}
 					}
 				} else {
 					$ret['status'] = 'error';
@@ -2155,6 +2162,7 @@ class Wpsipd_Simda
     }
 
     function cekKegiatanMapping($options){
+    	// print_r($options); die();
 		$mapping = $this->CurlSimda(array(
 			'query' => "
 				SELECT 
