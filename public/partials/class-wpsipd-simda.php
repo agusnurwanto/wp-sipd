@@ -35,7 +35,7 @@ class Wpsipd_Simda
 
 		$this->plugin_name = $plugin_name;
 		$this->version = $version;
-		$this->opsi_nilai_rincian = carbon_get_theme_option( 'crb_simda_pagu' );
+		$this->opsi_nilai_rincian = get_option( '_crb_simda_pagu' );
 	}
 
 	function singkronSimdaPembiayaan($opsi=array()){
