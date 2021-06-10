@@ -204,7 +204,13 @@ class Wpsipd_Admin {
 			        '2' => __( 'Tidak' )
 			    ) )
             	->set_default_value('2')
-            	->set_help_text('Kode default <b>kd_rek_3 += 100, kd_rek_4 += 100 dan kd_rek_5 += 100</b> sebagai tanda auto create by WP-SIPD.')
+            	->set_help_text('Kode default <b>kd_rek_3 += 100, kd_rek_4 += 100 dan kd_rek_5 += 100</b> sebagai tanda auto create by WP-SIPD.'),
+	        Field::make( 'radio', 'crb_simda_pagu', __( 'Nilai Rincian yang dikirim ke SIMDA' ) )
+			    ->add_options( array(
+			        '1' => __( 'Nilai Terakhir' ),
+			        '2' => __( 'Sebelum Perubahan' )
+			    ) )
+            	->set_default_value('1')
 	    );
 
 	    $cek_status_koneksi_simda = $this->CurlSimda(array(

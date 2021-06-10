@@ -27,11 +27,15 @@ class Wpsipd_Simda
 	 * @param      string    $plugin_name       The name of the plugin.
 	 * @param      string    $version    The version of this plugin.
 	 */
+	
+	private $opsi_nilai_rincian;
+
 	public function __construct($plugin_name, $version)
 	{
 
 		$this->plugin_name = $plugin_name;
 		$this->version = $version;
+		$this->opsi_nilai_rincian = carbon_get_theme_option( 'crb_simda_pagu' );
 	}
 
 	function singkronSimdaPembiayaan($opsi=array()){
@@ -168,6 +172,10 @@ class Wpsipd_Simda
 							$no_rinc = 0;
 							foreach ($v as $kk => $vv) {
 								$no_rinc++;
+								$total_rinci = $vv['total'];
+								if($this->opsi_nilai_rincian == 2){
+									$total_rinci = $vv['nilaimurni'];
+								}
 								$options = array(
 		                            'query' => "
 		                            INSERT INTO ta_pembiayaan_rinc (
@@ -220,8 +228,8 @@ class Wpsipd_Simda
 		                                0,
 		                                'Tahun',
 		                                1,
-		                                ".str_replace(',', '.', $vv['total']).",
-		                                ".str_replace(',', '.', $vv['total']).",
+		                                ".str_replace(',', '.', $total_rinci).",
+		                                ".str_replace(',', '.', $total_rinci).",
 		                                '".str_replace("'", '`', $vv['uraian'])."'
 		                            )"
 		                        );
@@ -390,6 +398,10 @@ class Wpsipd_Simda
 							$no_rinc = 0;
 							foreach ($v as $kk => $vv) {
 								$no_rinc++;
+								$total_rinci = $vv['total'];
+								if($this->opsi_nilai_rincian == 2){
+									$total_rinci = $vv['nilaimurni'];
+								}
 								$options = array(
 		                            'query' => "
 		                            INSERT INTO ta_pendapatan_rinc (
@@ -442,8 +454,8 @@ class Wpsipd_Simda
 		                                0,
 		                                'Tahun',
 		                                1,
-		                                ".str_replace(',', '.', $vv['total']).",
-		                                ".str_replace(',', '.', $vv['total']).",
+		                                ".str_replace(',', '.', $total_rinci).",
+		                                ".str_replace(',', '.', $total_rinci).",
 		                                '".str_replace("'", '`', $vv['uraian'])."'
 		                            )"
 		                        );
@@ -1474,6 +1486,17 @@ class Wpsipd_Simda
 														$nilai4_t = $rkkk['volum4'];
 													}
 													$jml_satuan = $nilai1_t*$nilai2_t*$nilai3_t*$nilai4_t;
+
+													$harga_satuan = $rkkk['harga_satuan'];
+													$total_rinci = $rkkk['total_harga'];
+													if($this->opsi_nilai_rincian == 2){
+														$harga_satuan = $rkkk['harga_satuan_murni'];
+														$total_rinci = $rkkk['rincian_murni'];
+														$nilai1 = $rkkk['volume_murni'];
+														$nilai2 = 0;
+														$nilai3 = 0;
+														$jml_satuan = $rkkk['volume_murni'];
+													}
 													$options = array(
 										                'query' => "
 												            INSERT INTO ta_belanja_rinc_sub (
@@ -1527,8 +1550,8 @@ class Wpsipd_Simda
 												                ". str_replace(',', '.', $nilai3) .",
 												                '".str_replace("'", '`', substr($rkkk['satuan'], 0, 50))."',
 												                ". str_replace(',', '.', $jml_satuan) .",
-												                ". str_replace(',', '.', $rkkk['harga_satuan']) .",
-												                ". str_replace(',', '.', $rkkk['total_harga']) .",
+												                ". str_replace(',', '.', $harga_satuan) .",
+												                ". str_replace(',', '.', $total_rinci) .",
 												                '".str_replace("'", '`', substr(implode(' | ', $komponen), 0, 255))."'
 												            )"
 										            );
