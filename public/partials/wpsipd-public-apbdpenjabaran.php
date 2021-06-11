@@ -1,5 +1,14 @@
 <?php
-function generate_body($rek_pendapatan, $baris_kosong=false, $type='murni', $nama_rekening){
+function ubah_minus($nilai){
+    if($nilai < 0){
+        $nilai = abs($nilai);
+        return '('.number_format($nilai,0,",",".").')';
+    }else{
+        return number_format($nilai,0,",",".");
+    }
+}
+
+function generate_body($rek_pendapatan, $baris_kosong=false, $type='murni', $nama_rekening, $dari_simda=0){
     global $wpdb;
     $data_pendapatan = array(
         'data' => array(),
@@ -7,6 +16,9 @@ function generate_body($rek_pendapatan, $baris_kosong=false, $type='murni', $nam
         'totalmurni' => 0
     );
     foreach ($rek_pendapatan as $k => $v) {
+        if($dari_simda!=0 && !empty($v['total_simda'])){
+            $v['totalmurni'] = $v['total_simda'];
+        }
         $rek = explode('.', $v['kode_akun']);
         $kode_akun = $rek[0];
         if(!$kode_akun){
@@ -96,90 +108,90 @@ function generate_body($rek_pendapatan, $baris_kosong=false, $type='murni', $nam
         $murni = '';
         $selisih = '';
         if($type == 'pergeseran'){
-            $murni = "<td class='kanan bawah text_kanan text_blok'>".number_format($v['totalmurni'],0,",",".")."</td>";
-            $selisih = "<td class='kanan bawah text_kanan text_blok'>".number_format(($v['total']-$v['totalmurni']),0,",",".")."</td>";
+            $murni = "<td class='kanan bawah text_kanan text_blok'>".ubah_minus($v['totalmurni'])."</td>";
+            $selisih = "<td class='kanan bawah text_kanan text_blok'>".ubah_minus(($v['total']-$v['totalmurni']))."</td>";
         }
         $body_pendapatan .= "
         <tr>
             <td class='kiri kanan bawah text_blok'>".$k."</td>
             <td class='kanan bawah text_blok'>".$v['nama']."</td>
             ".$murni."
-            <td class='kanan bawah text_kanan text_blok'>".number_format($v['total'],0,",",".")."</td>
+            <td class='kanan bawah text_kanan text_blok'>".ubah_minus($v['total'])."</td>
             ".$selisih."
         </tr>";
         foreach ($v['data'] as $kk => $vv) {
             $murni = '';
             $selisih = '';
             if($type == 'pergeseran'){
-                $murni = "<td class='kanan bawah text_kanan text_blok'>".number_format($vv['totalmurni'],0,",",".")."</td>";
-                $selisih = "<td class='kanan bawah text_kanan text_blok'>".number_format(($vv['total']-$vv['totalmurni']),0,",",".")."</td>";
+                $murni = "<td class='kanan bawah text_kanan text_blok'>".ubah_minus($vv['totalmurni'])."</td>";
+                $selisih = "<td class='kanan bawah text_kanan text_blok'>".ubah_minus(($vv['total']-$vv['totalmurni']))."</td>";
             }
             $body_pendapatan .= "
             <tr>
                 <td class='kiri kanan bawah text_blok'>".$kk."</td>
                 <td class='kanan bawah text_blok'>".$vv['nama']."</td>
                 ".$murni."
-                <td class='kanan bawah text_kanan text_blok'>".number_format($vv['total'],0,",",".")."</td>
+                <td class='kanan bawah text_kanan text_blok'>".ubah_minus($vv['total'])."</td>
                 ".$selisih."
             </tr>";
             foreach ($vv['data'] as $kkk => $vvv) {
                 $murni = '';
                 $selisih = '';
                 if($type == 'pergeseran'){
-                    $murni = "<td class='kanan bawah text_kanan'>".number_format($vvv['totalmurni'],0,",",".")."</td>";
-                    $selisih = "<td class='kanan bawah text_kanan'>".number_format(($vvv['total']-$vvv['totalmurni']),0,",",".")."</td>";
+                    $murni = "<td class='kanan bawah text_kanan'>".ubah_minus($vvv['totalmurni'])."</td>";
+                    $selisih = "<td class='kanan bawah text_kanan'>".ubah_minus(($vvv['total']-$vvv['totalmurni']))."</td>";
                 }
                 $body_pendapatan .= "
                 <tr>
                     <td class='kiri kanan bawah'>".$kkk."</td>
                     <td class='kanan bawah'>".$vvv['nama']."</td>
                     ".$murni."
-                    <td class='kanan bawah text_kanan'>".number_format($vvv['total'],0,",",".")."</td>
+                    <td class='kanan bawah text_kanan'>".ubah_minus($vvv['total'])."</td>
                     ".$selisih."
                 </tr>";
                 foreach ($vvv['data'] as $kkkk => $vvvv) {
                     $murni = '';
                     $selisih = '';
                     if($type == 'pergeseran'){
-                        $murni = "<td class='kanan bawah text_kanan'>".number_format($vvvv['totalmurni'],0,",",".")."</td>";
-                        $selisih = "<td class='kanan bawah text_kanan'>".number_format(($vvvv['total']-$vvvv['totalmurni']),0,",",".")."</td>";
+                        $murni = "<td class='kanan bawah text_kanan'>".ubah_minus($vvvv['totalmurni'])."</td>";
+                        $selisih = "<td class='kanan bawah text_kanan'>".ubah_minus(($vvvv['total']-$vvvv['totalmurni']))."</td>";
                     }
                     $body_pendapatan .= "
                     <tr>
                         <td class='kiri kanan bawah'>".$kkkk."</td>
                         <td class='kanan bawah'>".$vvvv['nama']."</td>
                         ".$murni."
-                        <td class='kanan bawah text_kanan'>".number_format($vvvv['total'],0,",",".")."</td>
+                        <td class='kanan bawah text_kanan'>".ubah_minus($vvvv['total'])."</td>
                         ".$selisih."
                     </tr>";
                     foreach ($vvvv['data'] as $kkkkk => $vvvvv) {
                         $murni = '';
                         $selisih = '';
                         if($type == 'pergeseran'){
-                            $murni = "<td class='kanan bawah text_kanan'>".number_format($vvvvv['totalmurni'],0,",",".")."</td>";
-                            $selisih = "<td class='kanan bawah text_kanan'>".number_format(($vvvvv['total']-$vvvvv['totalmurni']),0,",",".")."</td>";
+                            $murni = "<td class='kanan bawah text_kanan'>".ubah_minus($vvvvv['totalmurni'])."</td>";
+                            $selisih = "<td class='kanan bawah text_kanan'>".ubah_minus(($vvvvv['total']-$vvvvv['totalmurni']))."</td>";
                         }
                         $body_pendapatan .= "
                         <tr>
                             <td class='kiri kanan bawah'>".$kkkkk."</td>
                             <td class='kanan bawah'>".$vvvvv['nama']."</td>
                             ".$murni."
-                            <td class='kanan bawah text_kanan'>".number_format($vvvvv['total'],0,",",".")."</td>
+                            <td class='kanan bawah text_kanan'>".ubah_minus($vvvvv['total'])."</td>
                             ".$selisih."
                         </tr>";
                         foreach ($vvvvv['data'] as $kkkkkk => $vvvvvv) {
                             $murni = '';
                             $selisih = '';
                             if($type == 'pergeseran'){
-                                $murni = "<td class='kanan bawah text_kanan'>".number_format($vvvvvv['totalmurni'],0,",",".")."</td>";
-                                $selisih = "<td class='kanan bawah text_kanan'>".number_format(($vvvvvv['total']-$vvvvvv['totalmurni']),0,",",".")."</td>";
+                                $murni = "<td class='kanan bawah text_kanan'>".ubah_minus($vvvvvv['totalmurni'])."</td>";
+                                $selisih = "<td class='kanan bawah text_kanan'>".ubah_minus(($vvvvvv['total']-$vvvvvv['totalmurni']))."</td>";
                             }
                             $body_pendapatan .= "
                             <tr>
                                 <td class='kiri kanan bawah'>".$kkkkkk."</td>
                                 <td class='kanan bawah'>".$vvvvvv['nama']."</td>
                                 ".$murni."
-                                <td class='kanan bawah text_kanan'>".number_format($vvvvvv['total'],0,",",".")."</td>
+                                <td class='kanan bawah text_kanan'>".ubah_minus($vvvvvv['total'])."</td>
                                 ".$selisih."
                             </tr>";
                         }
@@ -192,15 +204,15 @@ function generate_body($rek_pendapatan, $baris_kosong=false, $type='murni', $nam
     $murni = '';
     $selisih = '';
     if($type == 'pergeseran'){
-        $murni = "<td class='kanan bawah text_kanan text_blok'>".number_format($data_pendapatan['totalmurni'],0,",",".")."</td>";
-        $selisih = "<td class='kanan bawah text_kanan text_blok'>".number_format(($data_pendapatan['totalmurni']-$data_pendapatan['total']),0,",",".")."</td>";
+        $murni = "<td class='kanan bawah text_kanan text_blok'>".ubah_minus($data_pendapatan['totalmurni'])."</td>";
+        $selisih = "<td class='kanan bawah text_kanan text_blok'>".ubah_minus(($data_pendapatan['totalmurni']-$data_pendapatan['total']))."</td>";
     }
     $body_pendapatan .= "
     <tr>
         <td class='kiri kanan bawah'></td>
         <td class='kanan bawah text_kanan text_blok'>Jumlah ".$nama_rekening."</td>
         ".$murni."
-        <td class='kanan bawah text_kanan text_blok'>".number_format($data_pendapatan['total'],0,",",".")."</td>
+        <td class='kanan bawah text_kanan text_blok'>".ubah_minus($data_pendapatan['total'])."</td>
         ".$selisih."
     </tr>";
     if($nama_rekening == 'Belanja'){
@@ -227,9 +239,14 @@ function generate_body($rek_pendapatan, $baris_kosong=false, $type='murni', $nam
 }
 
 global $wpdb;
+$GLOBALS['simdadb'] = $this->simda;
 $type = 'murni';
 if(!empty($_GET) && !empty($_GET['type'])){
     $type = $_GET['type'];
+}
+$dari_simda = 0;
+if(!empty($_GET) && !empty($_GET['dari_simda'])){
+    $dari_simda = $_GET['dari_simda'];
 }
 
 $sql = $wpdb->prepare("
@@ -262,7 +279,61 @@ $sql = $wpdb->prepare("
 ", $input['tahun_anggaran']);
 $rek_belanja = $wpdb->get_results($sql, ARRAY_A);
 
-$body_belanja = generate_body($rek_belanja, true, $type, 'Belanja');
+if($dari_simda != 0){
+    $options = array(
+        'query' => $wpdb->prepare("
+            select 
+                kd_rek_1,
+                kd_rek_2,
+                kd_rek_3,
+                kd_rek_4,
+                kd_rek_5,
+                sum(total) as total_simda
+            from ta_rask_arsip
+            where tahun=%d
+                and kd_perubahan=4
+                and kd_rek_1=5
+            group by kd_rek_1, kd_rek_2, kd_rek_3, kd_rek_4, kd_rek_5
+            order by  kd_rek_1 ASC, kd_rek_2 ASC, kd_rek_3 ASC, kd_rek_4 ASC, kd_rek_5 ASC
+        ", $input['tahun_anggaran'])
+    );
+    $rek_belanja_simda = $this->simda->CurlSimda($options);
+    $rek_belanja_simda2 = array();
+    foreach ($rek_belanja_simda as $k => $v) {
+        $options = array(
+            'query' => "
+                select 
+                    kd_rek90_1,
+                    kd_rek90_2,
+                    kd_rek90_3,
+                    kd_rek90_4,
+                    kd_rek90_5,
+                    kd_rek90_6
+                from ref_rek_mapping
+                where kd_rek_1=".$v->kd_rek_1."
+                    and kd_rek_2=".$v->kd_rek_2."
+                    and kd_rek_3=".$v->kd_rek_3."
+                    and kd_rek_4=".$v->kd_rek_4."
+                    and kd_rek_5=".$v->kd_rek_5."
+            ");
+        $akun_sipd = $this->simda->CurlSimda($options);
+        $v = (array) $v;
+        $v['kode_akun'] = $akun_sipd[0]->kd_rek90_1.'.'.$akun_sipd[0]->kd_rek90_2.'.'.$this->simda->CekNull($akun_sipd[0]->kd_rek90_3).'.'.$this->simda->CekNull($akun_sipd[0]->kd_rek90_4).'.'.$this->simda->CekNull($akun_sipd[0]->kd_rek90_5).'.'.$this->simda->CekNull($akun_sipd[0]->kd_rek90_6, 4);
+        $rek_belanja_simda2[$v['kode_akun']] = $v;
+    }
+    // print_r($rek_belanja_simda2); die();
+    foreach ($rek_belanja as $k => $v) {
+        if(!empty($rek_belanja_simda2[$v['kode_akun']])){
+            $rek_belanja_simda2[$v['kode_akun']]['total'] = $v['total'];
+            $rek_belanja_simda2[$v['kode_akun']]['totalmurni'] = $v['totalmurni'];
+        }else{
+            $rek_belanja_simda2[$v['kode_akun']] = $v;
+        }
+    }
+    $rek_belanja = $rek_belanja_simda2;
+}
+
+$body_belanja = generate_body($rek_belanja, true, $type, 'Belanja', $dari_simda);
 
 $sql = $wpdb->prepare("
     select 

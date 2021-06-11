@@ -1605,7 +1605,7 @@ class Wpsipd_Simda
 		}
 	}
 
-	function CurlSimda($options, $debug=false, $debug_req=false){
+	public function CurlSimda($options, $debug=false, $debug_req=false){
         $query = $options['query'];
         $curl = curl_init();
         $req = array(
