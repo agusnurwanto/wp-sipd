@@ -10,6 +10,10 @@ function ubah_minus($nilai){
 
 function generate_body($rek_pendapatan, $baris_kosong=false, $type='murni', $nama_rekening, $dari_simda=0){
     global $wpdb;
+    global $pendapatan_murni;
+    global $pendapatan_pergeseran;
+    global $belanja_murni;
+    global $belanja_pergeseran;
     $data_pendapatan = array(
         'data' => array(),
         'total' => 0,
@@ -83,6 +87,9 @@ function generate_body($rek_pendapatan, $baris_kosong=false, $type='murni', $nam
                 'total' => 0,
                 'totalmurni' => 0
             );
+        }
+        if(!isset($v['total'])){
+            $v['total'] = 0;
         }
         $data_pendapatan['total'] += $v['total'];
         $data_pendapatan['data'][$kode_akun]['total'] += $v['total'];
@@ -215,14 +222,21 @@ function generate_body($rek_pendapatan, $baris_kosong=false, $type='murni', $nam
         <td class='kanan bawah text_kanan text_blok'>".ubah_minus($data_pendapatan['total'])."</td>
         ".$selisih."
     </tr>";
+    if($nama_rekening == 'Pendapatan'){
+        $pendapatan_murni = $data_pendapatan['totalmurni'];
+        $pendapatan_pergeseran = $data_pendapatan['total'];
+    }
+
     if($nama_rekening == 'Belanja'){
+        $belanja_murni = $data_pendapatan['totalmurni'];
+        $belanja_pergeseran = $data_pendapatan['total'];
         $body_pendapatan .= "
         <tr>
             <td class='kiri kanan bawah'></td>
             <td class='kanan bawah text_kanan text_blok'>Total Surplus/(Defisit)</td>
-            <td class='kanan bawah text_kanan text_blok'>-</td>
-            <td class='kanan bawah text_kanan text_blok'>-</td>
-            <td class='kanan bawah text_kanan text_blok'>-</td>
+            <td class='kanan bawah text_kanan text_blok'>".ubah_minus($pendapatan_murni-$belanja_murni)."</td>
+            <td class='kanan bawah text_kanan text_blok'>".ubah_minus($pendapatan_pergeseran-$belanja_pergeseran)."</td>
+            <td class='kanan bawah text_kanan text_blok'>".ubah_minus(($pendapatan_murni-$belanja_murni) - ($pendapatan_pergeseran-$belanja_pergeseran))."</td>
         </tr>";
     }
     if($baris_kosong){
@@ -238,8 +252,77 @@ function generate_body($rek_pendapatan, $baris_kosong=false, $type='murni', $nam
     return $body_pendapatan;
 }
 
+function get_belanja_simda($rek_belanja, $input, $kd_rek_simda, $kd_rek_simda2=false){
+    global $wpdb;
+    global $simdadb;
+
+    $query_where = '';
+    if(!empty($kd_rek_simda2)){
+        $query_where = 'and kd_rek_2='.$kd_rek_simda2;
+    }
+    $options = array(
+        'query' => $wpdb->prepare("
+            select 
+                kd_rek_1,
+                kd_rek_2,
+                kd_rek_3,
+                kd_rek_4,
+                kd_rek_5,
+                sum(total) as total_simda
+            from ta_rask_arsip
+            where tahun=%d
+                and kd_perubahan=4
+                and kd_rek_1=%d
+                $query_where
+            group by kd_rek_1, kd_rek_2, kd_rek_3, kd_rek_4, kd_rek_5
+            order by  kd_rek_1 ASC, kd_rek_2 ASC, kd_rek_3 ASC, kd_rek_4 ASC, kd_rek_5 ASC
+        ", $input['tahun_anggaran'], $kd_rek_simda)
+    );
+    $rek_belanja_simda = $simdadb->CurlSimda($options);
+    $rek_belanja_simda2 = array();
+    foreach ($rek_belanja_simda as $k => $v) {
+        $options = array(
+            'query' => "
+                select 
+                    kd_rek90_1,
+                    kd_rek90_2,
+                    kd_rek90_3,
+                    kd_rek90_4,
+                    kd_rek90_5,
+                    kd_rek90_6
+                from ref_rek_mapping
+                where kd_rek_1=".$v->kd_rek_1."
+                    and kd_rek_2=".$v->kd_rek_2."
+                    and kd_rek_3=".$v->kd_rek_3."
+                    and kd_rek_4=".$v->kd_rek_4."
+                    and kd_rek_5=".$v->kd_rek_5."
+            ");
+        $akun_sipd = $simdadb->CurlSimda($options);
+        $v = (array) $v;
+        $v['kode_akun'] = $akun_sipd[0]->kd_rek90_1.'.'.$akun_sipd[0]->kd_rek90_2.'.'.$simdadb->CekNull($akun_sipd[0]->kd_rek90_3).'.'.$simdadb->CekNull($akun_sipd[0]->kd_rek90_4).'.'.$simdadb->CekNull($akun_sipd[0]->kd_rek90_5).'.'.$simdadb->CekNull($akun_sipd[0]->kd_rek90_6, 4);
+        $rek_belanja_simda2[$v['kode_akun']] = $v;
+    }
+    // print_r($rek_belanja_simda2); die();
+    foreach ($rek_belanja as $k => $v) {
+        $v['totalmurni'] = 0;
+        if(!empty($rek_belanja_simda2[$v['kode_akun']])){
+            $rek_belanja_simda2[$v['kode_akun']]['total'] = $v['total'];
+            $rek_belanja_simda2[$v['kode_akun']]['totalmurni'] = $v['totalmurni'];
+        }else{
+            $rek_belanja_simda2[$v['kode_akun']] = $v;
+        }
+    }
+    $rek_belanja = $rek_belanja_simda2;
+    return $rek_belanja;
+}
+
 global $wpdb;
 $GLOBALS['simdadb'] = $this->simda;
+$GLOBALS['pendapatan_murni'] = 0;
+$GLOBALS['pendapatan_pergeseran'] = 0;
+$GLOBALS['belanja_murni'] = 0;
+$GLOBALS['belanja_pergeseran'] = 0;
+
 $type = 'murni';
 if(!empty($_GET) && !empty($_GET['type'])){
     $type = $_GET['type'];
@@ -263,7 +346,11 @@ $sql = $wpdb->prepare("
 ", $input['tahun_anggaran']);
 $rek_pendapatan = $wpdb->get_results($sql, ARRAY_A);
 
-$body_pendapatan = generate_body($rek_pendapatan, true, $type, 'Pendapatan');
+if($dari_simda != 0){
+    $rek_pendapatan = get_belanja_simda($rek_pendapatan, $input, 4);
+}
+
+$body_pendapatan = generate_body($rek_pendapatan, true, $type, 'Pendapatan', $dari_simda);
 
 $sql = $wpdb->prepare("
     select 
@@ -280,57 +367,7 @@ $sql = $wpdb->prepare("
 $rek_belanja = $wpdb->get_results($sql, ARRAY_A);
 
 if($dari_simda != 0){
-    $options = array(
-        'query' => $wpdb->prepare("
-            select 
-                kd_rek_1,
-                kd_rek_2,
-                kd_rek_3,
-                kd_rek_4,
-                kd_rek_5,
-                sum(total) as total_simda
-            from ta_rask_arsip
-            where tahun=%d
-                and kd_perubahan=4
-                and kd_rek_1=5
-            group by kd_rek_1, kd_rek_2, kd_rek_3, kd_rek_4, kd_rek_5
-            order by  kd_rek_1 ASC, kd_rek_2 ASC, kd_rek_3 ASC, kd_rek_4 ASC, kd_rek_5 ASC
-        ", $input['tahun_anggaran'])
-    );
-    $rek_belanja_simda = $this->simda->CurlSimda($options);
-    $rek_belanja_simda2 = array();
-    foreach ($rek_belanja_simda as $k => $v) {
-        $options = array(
-            'query' => "
-                select 
-                    kd_rek90_1,
-                    kd_rek90_2,
-                    kd_rek90_3,
-                    kd_rek90_4,
-                    kd_rek90_5,
-                    kd_rek90_6
-                from ref_rek_mapping
-                where kd_rek_1=".$v->kd_rek_1."
-                    and kd_rek_2=".$v->kd_rek_2."
-                    and kd_rek_3=".$v->kd_rek_3."
-                    and kd_rek_4=".$v->kd_rek_4."
-                    and kd_rek_5=".$v->kd_rek_5."
-            ");
-        $akun_sipd = $this->simda->CurlSimda($options);
-        $v = (array) $v;
-        $v['kode_akun'] = $akun_sipd[0]->kd_rek90_1.'.'.$akun_sipd[0]->kd_rek90_2.'.'.$this->simda->CekNull($akun_sipd[0]->kd_rek90_3).'.'.$this->simda->CekNull($akun_sipd[0]->kd_rek90_4).'.'.$this->simda->CekNull($akun_sipd[0]->kd_rek90_5).'.'.$this->simda->CekNull($akun_sipd[0]->kd_rek90_6, 4);
-        $rek_belanja_simda2[$v['kode_akun']] = $v;
-    }
-    // print_r($rek_belanja_simda2); die();
-    foreach ($rek_belanja as $k => $v) {
-        if(!empty($rek_belanja_simda2[$v['kode_akun']])){
-            $rek_belanja_simda2[$v['kode_akun']]['total'] = $v['total'];
-            $rek_belanja_simda2[$v['kode_akun']]['totalmurni'] = $v['totalmurni'];
-        }else{
-            $rek_belanja_simda2[$v['kode_akun']] = $v;
-        }
-    }
-    $rek_belanja = $rek_belanja_simda2;
+    $rek_belanja = get_belanja_simda($rek_belanja, $input, 5);
 }
 
 $body_belanja = generate_body($rek_belanja, true, $type, 'Belanja', $dari_simda);
@@ -343,13 +380,39 @@ $sql = $wpdb->prepare("
         sum(nilaimurni) as totalmurni
     from data_pembiayaan
     where tahun_anggaran=%d
+        and type='penerimaan'
         and active=1
     group by kode_akun
     order by kode_akun ASC
 ", $input['tahun_anggaran']);
 $rek_pembiayaan = $wpdb->get_results($sql, ARRAY_A);
 
-$body_pembiayaan = generate_body($rek_pembiayaan, false, $type, 'Pembiayaan');
+if($dari_simda != 0){
+    $rek_pembiayaan = get_belanja_simda($rek_pembiayaan, $input, 6, 1);
+}
+
+$body_pembiayaan = generate_body($rek_pembiayaan, false, $type, 'Penerimaan Pembiayaan', $dari_simda);
+
+$sql = $wpdb->prepare("
+    select 
+        kode_akun,
+        nama_akun,
+        sum(total) as total,
+        sum(nilaimurni) as totalmurni
+    from data_pembiayaan
+    where tahun_anggaran=%d
+        and type='pengeluaran'
+        and active=1
+    group by kode_akun
+    order by kode_akun ASC
+", $input['tahun_anggaran']);
+$rek_pembiayaan = $wpdb->get_results($sql, ARRAY_A);
+
+if($dari_simda != 0){
+    $rek_pembiayaan = get_belanja_simda($rek_pembiayaan, $input, 6, 2);
+}
+
+$body_pembiayaan .= generate_body($rek_pembiayaan, false, $type, 'Pengeluaran Pembiayaan', $dari_simda);
 ?>
 
 <div id="cetak" title="Laporan APBD PENJABARAN Lampiran 1 Tahun Anggaran <?php echo $input['tahun_anggaran']; ?>">
@@ -412,10 +475,19 @@ $body_pembiayaan = generate_body($rek_pembiayaan, false, $type, 'Pembiayaan');
     var url = new URL(_url);
     _url = url.origin+url.pathname+'?key='+url.searchParams.get('key');
     var type = url.searchParams.get("type");
+    var dari_simda = url.searchParams.get("dari_simda");
     if(type && type=='pergeseran'){
         var extend_action = '<a class="button button-primary" target="_blank" href="'+_url+'" style="margin-left: 10px;">Print APBD Lampiran 1</a>';
     }else{
         var extend_action = '<a class="button button-primary" target="_blank" href="'+_url+'&type=pergeseran" style="margin-left: 10px;">Print Pergeseran/Perubahan APBD Lampiran 1</a>';
     }
+    var text = 'Nilai pagu murni dari database SIMDA'
+    extend_action += '<div style="margin-top: 15px">';
+    if(dari_simda && dari_simda!=0){
+        extend_action += '<a href="'+_url+'&type=pergeseran&dari_simda=0"><input type="checkbox" checked> '+text+'</a>';
+    }else{
+        extend_action += '<a href="'+_url+'&type=pergeseran&dari_simda=1"><input type="checkbox"> '+text+'</a>';
+    }
+    extend_action += '</div>';
     jQuery('#action-sipd').append(extend_action);
 </script>
