@@ -14,6 +14,10 @@ function generate_body($rek_pendapatan, $baris_kosong=false, $type='murni', $nam
     global $pendapatan_pergeseran;
     global $belanja_murni;
     global $belanja_pergeseran;
+    global $pembiayaan_penerimaan_murni;
+    global $pembiayaan_penerimaan_pergeseran;
+    global $pembiayaan_pengeluaran_murni;
+    global $pembiayaan_pengeluaran_pergeseran;
     $data_pendapatan = array(
         'data' => array(),
         'total' => 0,
@@ -115,15 +119,15 @@ function generate_body($rek_pendapatan, $baris_kosong=false, $type='murni', $nam
         $murni = '';
         $selisih = '';
         if($type == 'pergeseran'){
-            $murni = "<td class='kanan bawah text_kanan text_blok'>".ubah_minus($v['totalmurni'])."</td>";
-            $selisih = "<td class='kanan bawah text_kanan text_blok'>".ubah_minus(($v['total']-$v['totalmurni']))."</td>";
+            $murni = "<td class='kanan bawah text_kanan text_blok'></td>";
+            $selisih = "<td class='kanan bawah text_kanan text_blok'></td>";
         }
         $body_pendapatan .= "
         <tr>
             <td class='kiri kanan bawah text_blok'>".$k."</td>
             <td class='kanan bawah text_blok'>".$v['nama']."</td>
             ".$murni."
-            <td class='kanan bawah text_kanan text_blok'>".ubah_minus($v['total'])."</td>
+            <td class='kanan bawah text_kanan text_blok'></td>
             ".$selisih."
         </tr>";
         foreach ($v['data'] as $kk => $vv) {
@@ -225,9 +229,7 @@ function generate_body($rek_pendapatan, $baris_kosong=false, $type='murni', $nam
     if($nama_rekening == 'Pendapatan'){
         $pendapatan_murni = $data_pendapatan['totalmurni'];
         $pendapatan_pergeseran = $data_pendapatan['total'];
-    }
-
-    if($nama_rekening == 'Belanja'){
+    }else if($nama_rekening == 'Belanja'){
         $belanja_murni = $data_pendapatan['totalmurni'];
         $belanja_pergeseran = $data_pendapatan['total'];
         $body_pendapatan .= "
@@ -237,6 +239,20 @@ function generate_body($rek_pendapatan, $baris_kosong=false, $type='murni', $nam
             <td class='kanan bawah text_kanan text_blok'>".ubah_minus($pendapatan_murni-$belanja_murni)."</td>
             <td class='kanan bawah text_kanan text_blok'>".ubah_minus($pendapatan_pergeseran-$belanja_pergeseran)."</td>
             <td class='kanan bawah text_kanan text_blok'>".ubah_minus(($pendapatan_murni-$belanja_murni) - ($pendapatan_pergeseran-$belanja_pergeseran))."</td>
+        </tr>";
+    }else if($nama_rekening == 'Penerimaan Pembiayaan'){
+        $pembiayaan_penerimaan_murni = $data_pendapatan['totalmurni'];
+        $pembiayaan_penerimaan_pergeseran = $data_pendapatan['total'];
+    }else if($nama_rekening == 'Pengeluaran Pembiayaan'){
+        $pembiayaan_pengeluaran_murni = $data_pendapatan['totalmurni'];
+        $pembiayaan_pengeluaran_pergeseran = $data_pendapatan['total'];
+        $body_pendapatan .= "
+        <tr>
+            <td class='kiri kanan bawah'></td>
+            <td class='kanan bawah text_kanan text_blok'>Total Surplus/(Defisit)</td>
+            <td class='kanan bawah text_kanan text_blok'>".ubah_minus($pembiayaan_penerimaan_murni-$pembiayaan_pengeluaran_murni)."</td>
+            <td class='kanan bawah text_kanan text_blok'>".ubah_minus($pembiayaan_penerimaan_pergeseran-$pembiayaan_pengeluaran_pergeseran)."</td>
+            <td class='kanan bawah text_kanan text_blok'>".ubah_minus(($pembiayaan_penerimaan_murni-$pembiayaan_pengeluaran_murni) - ($pembiayaan_penerimaan_pergeseran-$pembiayaan_pengeluaran_pergeseran))."</td>
         </tr>";
     }
     if($baris_kosong){
@@ -322,6 +338,10 @@ $GLOBALS['pendapatan_murni'] = 0;
 $GLOBALS['pendapatan_pergeseran'] = 0;
 $GLOBALS['belanja_murni'] = 0;
 $GLOBALS['belanja_pergeseran'] = 0;
+$GLOBALS['pembiayaan_penerimaan_murni'] = 0;
+$GLOBALS['pembiayaan_penerimaan_pergeseran'] = 0;
+$GLOBALS['pembiayaan_pengeluaran_murni'] = 0;
+$GLOBALS['pembiayaan_pengeluaran_pergeseran'] = 0;
 
 $type = 'murni';
 if(!empty($_GET) && !empty($_GET['type'])){
@@ -391,7 +411,7 @@ if($dari_simda != 0){
     $rek_pembiayaan = get_belanja_simda($rek_pembiayaan, $input, 6, 1);
 }
 
-$body_pembiayaan = generate_body($rek_pembiayaan, false, $type, 'Penerimaan Pembiayaan', $dari_simda);
+$body_pembiayaan = generate_body($rek_pembiayaan, true, $type, 'Penerimaan Pembiayaan', $dari_simda);
 
 $sql = $wpdb->prepare("
     select 
