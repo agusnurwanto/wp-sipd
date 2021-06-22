@@ -1315,7 +1315,7 @@ class Wpsipd_Public
 		global $wpdb;
 		$ret = array(
 			'status'	=> 'success',
-			'message'	=> 'Berhasil set program kegiatan!'
+			'message'	=> 'Berhasil singkron sumber dana!'
 		);
 		if (!empty($_POST)) {
 			if (!empty($_POST['api_key']) && $_POST['api_key'] == carbon_get_theme_option( 'crb_api_key_extension' )) {
