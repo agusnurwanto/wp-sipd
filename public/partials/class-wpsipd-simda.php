@@ -727,7 +727,7 @@ class Wpsipd_Simda
 								$kd_unit_simda = explode('.', carbon_get_theme_option('crb_unit_'.$v['id_unit']));
 							}
 							if($type == 'belanja'){
-								$kd_unit_simda = explode('.', carbon_get_theme_option('crb_unit_'.$kode_sbl[1]));
+								$kd_unit_simda = explode('.', carbon_get_theme_option('crb_unit_'.$kode_sbl[2]));
 							}
 
 							if(empty($kd_unit_simda) || empty($kd_unit_simda[3])){
@@ -1503,6 +1503,21 @@ class Wpsipd_Simda
 														$nilai2 = 0;
 														$nilai3 = 0;
 														$jml_satuan = $rkkk['volume_murni'];
+													}
+													if(empty($nilai1)){
+														$nilai1 = 0;
+													}
+													if(empty($nilai2)){
+														$nilai2 = 0;
+													}
+													if(empty($nilai3)){
+														$nilai3 = 0;
+													}
+													if(empty($jml_satuan)){
+														$jml_satuan = 0;
+													}
+													if(empty($harga_satuan)){
+														$harga_satuan = 0;
 													}
 													$options = array(
 										                'query' => "
