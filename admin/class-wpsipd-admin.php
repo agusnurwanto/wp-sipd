@@ -114,6 +114,37 @@ class Wpsipd_Admin {
 	    return $randomString;
 	}
 
+	public function generatePage($nama_page, $tahun_anggaran){
+		$custom_post = get_page_by_title($nama_page, OBJECT, 'page');
+
+		$_post = array(
+			'post_title'	=> $nama_page,
+			'post_content'	=> '[monitor_sipd tahun_anggaran="'.$tahun_anggaran.'"]',
+			'post_type'		=> 'page',
+			'post_status'	=> 'private',
+			'comment_status'	=> 'closed'
+		);
+		if (empty($custom_post) || empty($custom_post->ID)) {
+			$id = wp_insert_post($_post);
+			$_post['insert'] = 1;
+			$_post['ID'] = $id;
+		}else{
+			$_post['ID'] = $custom_post->ID;
+			wp_update_post( $_post );
+			$_post['update'] = 1;
+		}
+		$custom_post = get_page_by_title($nama_page, OBJECT, 'page');
+		update_post_meta($custom_post->ID, 'ast-breadcrumbs-content', 'disabled');
+		update_post_meta($custom_post->ID, 'ast-featured-img', 'disabled');
+		update_post_meta($custom_post->ID, 'ast-main-header-display', 'disabled');
+		update_post_meta($custom_post->ID, 'footer-sml-layout', 'disabled');
+		update_post_meta($custom_post->ID, 'site-content-layout', 'page-builder');
+		update_post_meta($custom_post->ID, 'site-post-title', 'disabled');
+		update_post_meta($custom_post->ID, 'site-sidebar-layout', 'no-sidebar');
+		update_post_meta($custom_post->ID, 'theme-transparent-header-meta', 'disabled');
+		return esc_url( get_permalink($custom_post));
+	}
+
 	// https://docs.carbonfields.net/#/containers/theme-options
 	public function crb_attach_sipd_options(){
 		global $wpdb;
@@ -122,35 +153,44 @@ class Wpsipd_Admin {
 		$sibangda_link = $this->generate_sibangda_page();
 		$simda_link = $this->generate_simda_page();
 		$siencang_link = $this->generate_siencang_page();
+		$options_basic = array(
+            Field::make( 'text', 'crb_tahun_anggaran_sipd', 'Tahun Anggaran SIPD' )
+            	->set_default_value('2021'),
+            Field::make( 'text', 'crb_daerah', 'Nama Pemda' )
+            	->set_help_text('Data diambil dari halaman pengaturan SIPD menggunakan <a href="https://github.com/agusnurwanto/sipd-chrome-extension" target="_blank">SIPD chrome extension</a>.')
+            	->set_default_value(carbon_get_theme_option( 'crb_daerah' ))
+            	->set_attribute('readOnly', 'true'),
+            Field::make( 'text', 'crb_kepala_daerah', 'Kepala Daerah' )
+            	->set_default_value(carbon_get_theme_option( 'crb_kepala_daerah' ))
+            	->set_attribute('readOnly', 'true'),
+            Field::make( 'text', 'crb_wakil_daerah', 'Wakil Kepala Daerah' )
+            	->set_default_value(carbon_get_theme_option( 'crb_wakil_daerah' ))
+            	->set_attribute('readOnly', 'true'),
+            Field::make( 'text', 'crb_api_key_extension', 'API KEY chrome extension' )
+            	->set_default_value($this->generateRandomString())
+            	->set_help_text('API KEY ini dipakai untuk <a href="https://github.com/agusnurwanto/sipd-chrome-extension" target="_blank">SIPD chrome extension</a>.')
+            /*Field::make( 'html', 'crb_siencang' )
+            	->set_html( '<a target="_blank" href="'.$siencang_link.'">SIPD to SIENCANG</a> | <a href="https://github.com/ganjarnugraha/perencanaan-penganggaran" target="_blank">https://github.com/ganjarnugraha/perencanaan-penganggaran</a>' ),
+            Field::make( 'html', 'crb_simda' )
+            	->set_html( '<a target="_blank" href="'.$simda_link.'">SIPD to SIMDA BPKP</a>' ),
+            Field::make( 'html', 'crb_sibangda' )
+            	->set_html( '<a target="_blank" href="'.$sibangda_link.'">SIPD to SIBANGDA Bina Pembangunan Kemendagri</a>' ),
+            Field::make( 'html', 'crb_sirup' )
+            	->set_html( '<a target="_blank" href="'.$sirup_link.'">SIPD to SIRUP LKPP</a>' ),
+            Field::make( 'html', 'crb_sinergi' )
+            	->set_html( '<a target="_blank" href="'.$sinergi_link.'">SIPD to SINERGI DJPK Kementrian Keuangan</a>' ),*/
+        );
+
+		$tahun = $wpdb->get_results('select tahun_anggaran from data_unit group by tahun_anggaran', ARRAY_A);
+		foreach ($tahun as $k => $v) {
+			$url = $this->generatePage('Monitoring Update Data SIPD lokal Berdasar Waktu Terakhir Melakukan Singkronisasi Data | '.$v['tahun_anggaran'], $v['tahun_anggaran']);
+			$options_basic[] = Field::make( 'html', 'crb_monitor_update_'.$k )
+            	->set_html( '<a target="_blank" href="'.$url.'">Halaman Monitor Update Data Lokal SIPD Merah Tahun '.$v['tahun_anggaran'].'</a>' );
+		}
+
 		$basic_options_container = Container::make( 'theme_options', __( 'SIPD Options' ) )
 			->set_page_menu_position( 4 )
-	        ->add_fields( array(
-	            Field::make( 'text', 'crb_tahun_anggaran_sipd', 'Tahun Anggaran SIPD' )
-	            	->set_default_value('2021'),
-	            Field::make( 'text', 'crb_daerah', 'Nama Pemda' )
-	            	->set_help_text('Data diambil dari halaman pengaturan SIPD menggunakan <a href="https://github.com/agusnurwanto/sipd-chrome-extension" target="_blank">SIPD chrome extension</a>.')
-	            	->set_default_value(carbon_get_theme_option( 'crb_daerah' ))
-	            	->set_attribute('readOnly', 'true'),
-	            Field::make( 'text', 'crb_kepala_daerah', 'Kepala Daerah' )
-	            	->set_default_value(carbon_get_theme_option( 'crb_kepala_daerah' ))
-	            	->set_attribute('readOnly', 'true'),
-	            Field::make( 'text', 'crb_wakil_daerah', 'Wakil Kepala Daerah' )
-	            	->set_default_value(carbon_get_theme_option( 'crb_wakil_daerah' ))
-	            	->set_attribute('readOnly', 'true'),
-	            Field::make( 'text', 'crb_api_key_extension', 'API KEY chrome extension' )
-	            	->set_default_value($this->generateRandomString())
-	            	->set_help_text('API KEY ini dipakai untuk <a href="https://github.com/agusnurwanto/sipd-chrome-extension" target="_blank">SIPD chrome extension</a>.'),
-	            Field::make( 'html', 'crb_siencang' )
-	            	->set_html( '<a target="_blank" href="'.$siencang_link.'">SIPD to SIENCANG</a> | <a href="https://github.com/ganjarnugraha/perencanaan-penganggaran" target="_blank">https://github.com/ganjarnugraha/perencanaan-penganggaran</a>' ),
-	            Field::make( 'html', 'crb_simda' )
-	            	->set_html( '<a target="_blank" href="'.$simda_link.'">SIPD to SIMDA BPKP</a>' ),
-	            Field::make( 'html', 'crb_sibangda' )
-	            	->set_html( '<a target="_blank" href="'.$sibangda_link.'">SIPD to SIBANGDA Bina Pembangunan Kemendagri</a>' ),
-	            Field::make( 'html', 'crb_sirup' )
-	            	->set_html( '<a target="_blank" href="'.$sirup_link.'">SIPD to SIRUP LKPP</a>' ),
-	            Field::make( 'html', 'crb_sinergi' )
-	            	->set_html( '<a target="_blank" href="'.$sinergi_link.'">SIPD to SINERGI DJPK Kementrian Keuangan</a>' ),
-	        ) );
+	        ->add_fields( $options_basic );
 
 	    Container::make( 'theme_options', __( 'RPJM' ) )
 		    ->set_page_parent( $basic_options_container )

@@ -26,6 +26,7 @@ Cara pakai plugin:
 - `[apbdpenjabaran tahun_anggaran="2021" lampiran="3"]` short code untuk menampilkan APBD penjabaran lampiran 3
 - `[apbdpenjabaran tahun_anggaran="2021" lampiran="2" id_skpd="xxxx"]` short code untuk menampilkan APBD penjabaran lampiran 2
 - `[apbdpenjabaran tahun_anggaran="2021" lampiran="1"]` short code untuk menampilkan APBD penjabaran lampiran 1
+- `[monitor_sipd tahun_anggaran="2021" kode_rek="4,5,6.1,6.2"]` short code untuk halaman monitoring update pagu per SKPD yang diurutkan berdasarkan waktu updatenya
 
 ### HARUS Update php.ini
 
@@ -35,6 +36,7 @@ Optimasi server apache agar proses pengiriman data dari chrome extension ke serv
 - max_input_time = 600
 - memory_limit = 3556M
 - post_max_size = 20M
+- **pastikan untuk menghapus kode ; sebagai tanda komentar pada file php.ini, terutama pada configurasi ;max_input_vars. Jika tidak dilakukan maka settingan yang sudah dilakukan akan dianggap sebagai komentar dan tidak dijalankan oleh server apache.**
 
 Permintaan fitur:
 - User umum bisa request penambahan fitur dengan membuat issue

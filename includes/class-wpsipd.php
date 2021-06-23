@@ -275,6 +275,7 @@ class Wpsipd
 		add_shortcode('tampilrka', array($plugin_public, 'tampilrka'));
 		add_shortcode('tampilrkpd', array($plugin_public, 'tampilrkpd'));
 		add_shortcode('apbdpenjabaran', array($plugin_public, 'apbdpenjabaran'));
+		add_shortcode('monitor_sipd', array($plugin_public, 'monitor_sipd'));
 	}
 
 	/**

@@ -6,8 +6,8 @@ function run_download_excel(type){
 			+'<div style="padding-top: 20px;">'
 				+'<label><input id="tampil-1" type="checkbox" checked="true" onclick="tampilData(this, 1)"> Tampil Rekening</label>'
 				+'<label style="margin-left: 10px;"><input id="tampil-2" type="checkbox" checked="true" onclick="tampilData(this, 2)"> Tampil Keterangan</label>'
-				+'<label style="margin-left: 10px;"><input id="tampil-3" type="checkbox" checked="true" onclick="tampilData(this, 3)"> Tampil Kelompok</label>';
-			+'</div>'
+				+'<label style="margin-left: 10px;"><input id="tampil-3" type="checkbox" checked="true" onclick="tampilData(this, 3)"> Tampil Kelompok</label>'
+			+'</div>';
 	}
 	var download_excel = ''
 		+'<div id="action-sipd" class="hide-print">'
