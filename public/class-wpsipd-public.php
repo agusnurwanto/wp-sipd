@@ -1879,6 +1879,7 @@ class Wpsipd_Public
 							'id_label_prov' => $v['id_label_prov'],
 							'waktu_awal' => $v['waktu_awal'],
 							'pagu' => $v['pagu'],
+							'pagumurni' => $v['pagumurni'],
 							'output_sub_giat' => $v['output_sub_giat'],
 							'sasaran' => $v['sasaran'],
 							'indikator' => $v['indikator'],

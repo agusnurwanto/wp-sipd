@@ -29,12 +29,14 @@ foreach ($kode_rek as $rek) {
 	foreach ($skpd as $k => $opd) {
 		$type_belanja = '';
 		$table = '';
+		$table_tanpa_rinci = '';
 		if($rek == '4'){
 			$type_belanja = 'Pendapatan';
 			$table = 'data_pendapatan';
 		}else if($rek == '5'){
 			$type_belanja = 'Belanja';
 			$table = 'data_rka';
+			$table_tanpa_rinci = 'data_sub_keg_bl';
 		}else if($rek == '6.1'){
 			$table = 'data_pembiayaan';
 			$type_belanja = 'Pembiayaan Pengeluaran';
@@ -55,16 +57,48 @@ foreach ($kode_rek as $rek) {
 					sum(rincian_murni) as total_murni, 
 					sum(rincian) as total,
 					count(update_at) as jml 
-				from data_rka 
+				from '.$table.' 
 				where '.$where
 			, ARRAY_A);
 			$update_at = $wpdb->get_row('
 				select 
 					update_at
-				from data_rka 
+				from '.$table.' 
 				where '.$where.'
 				order by update_at ASC'
 			, ARRAY_A);
+
+			$where = '
+				tahun_anggaran='.$input['tahun_anggaran'].' 
+					and active=1 
+					and id_sub_skpd='.$opd['id_skpd'].'
+			';
+			$data_tanpa_rinci = $wpdb->get_row('
+				select 
+					sum(pagumurni) as total_murni, 
+					sum(pagu) as total,
+					count(update_at) as jml 
+				from '.$table_tanpa_rinci.' 
+				where '.$where
+			, ARRAY_A);
+			$update_at_tanpa_rinci = $wpdb->get_row('
+				select 
+					update_at
+				from '.$table_tanpa_rinci.' 
+				where '.$where.'
+				order by update_at ASC'
+			, ARRAY_A);
+
+			if($data_tanpa_rinci['jml']>=1){
+				$data_body[strtotime($update_at_tanpa_rinci['update_at']).$opd['id_skpd'].$rek.'-tanpa-rinci'] = array(
+					'rek' => $rek.'-tanpa-rinci',
+					'type_belanja' => $type_belanja.' Tanpa Rincian',
+					'skpd' => $opd['nama_skpd'],
+					'update_at' => $update_at_tanpa_rinci['update_at'],
+					'total_murni' => $data_tanpa_rinci['total_murni'],
+					'total' => $data_tanpa_rinci['total'],
+				);
+			}
 		}else{
 			$where = '
 				tahun_anggaran='.$input['tahun_anggaran'].' 
@@ -142,6 +176,7 @@ foreach ($data_body as $k => $data) {
 		+'<div style="padding-top: 20px;">'
 			+'<label><input type="checkbox" checked="true" onclick="tampilDataTypeBelanja(this, \'4\')"> Tampil Pendapatan</label>'
 			+'<label style="margin-left: 10px;"><input type="checkbox" checked="true" onclick="tampilDataTypeBelanja(this, \'5\')"> Tampil Belanja</label>'
+			+'<label style="margin-left: 10px;"><input type="checkbox" checked="true" onclick="tampilDataTypeBelanja(this, \'5-tanpa-rinci\')"> Tampil Belanja Tanpa Rincian</label>'
 			+'<label style="margin-left: 10px;"><input type="checkbox" checked="true" onclick="tampilDataTypeBelanja(this, \'6.1\')"> Tampil Pembiayaan Pengeluaran</label>'
 			+'<label style="margin-left: 10px;"><input type="checkbox" checked="true" onclick="tampilDataTypeBelanja(this, \'6.2\')"> Tampil Pembiayaan Penerimaan</label>'
 		+'</div>';

@@ -267,6 +267,7 @@ CREATE TABLE `data_sub_keg_bl` (
   `no_giat` varchar(50) NOT NULL,
   `id_label_prov` int(11) NOT NULL,
   `waktu_awal` int(11) NOT NULL,
+  `pagumurni` double(20, 0) DEFAULT NULL,
   `pagu` double(20, 0) NOT NULL,
   `output_sub_giat` text,
   `sasaran` text,
