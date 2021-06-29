@@ -2323,7 +2323,13 @@ class Wpsipd_Public
 							'tahun_anggaran' => $_POST['tahun_anggaran']
 						);
 
-						if(!empty($v['id_penerima']) || !empty($v['id_prop_penerima'])){
+						if(
+							!empty($v['id_penerima']) 
+							|| !empty($v['id_prop_penerima'])
+							|| !empty($v['id_camat_penerima'])
+							|| !empty($v['id_kokab_penerima'])
+							|| !empty($v['id_lurah_penerima'])
+						){
 							$opsi['id_prop_penerima'] = $v['id_prop_penerima'];
 							$opsi['id_camat_penerima'] = $v['id_camat_penerima'];
 							$opsi['id_kokab_penerima'] = $v['id_kokab_penerima'];
