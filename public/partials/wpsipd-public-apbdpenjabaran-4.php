@@ -168,19 +168,9 @@ foreach ($data_hibah_uang_shorted['data'] as $k => $skpd) {
                     $no = 0;
                     foreach ($akun['data'] as $rincian) {
                         $no++;
-                        $profile = false;
-                        if(!empty($rincian['id_penerima'])){
-                            $profile = $wpdb->get_row("SELECT * from data_profile_penerima_bantuan where id_profil=".$rincian['id_penerima']." and tahun=".$input['tahun_anggaran'], ARRAY_A);
-                        }
-                        $alamat = '';
-                        if(!empty($profile)){
-                            $alamat = $profile['alamat_teks'].' ('.$profile['jenis_penerima'].')';
-                        }else{
-                            $profile = $wpdb->get_row("SELECT * from data_profile_penerima_bantuan where nama_teks='".$rincian['lokus_akun_teks']."' and tahun=".$input['tahun_anggaran'], ARRAY_A);
-                            if(!empty($profile)){
-                                $alamat = $profile['alamat_teks'].' ('.$profile['jenis_penerima'].')';
-                            }
-                        }
+                        $alamat_array = $this->get_alamat($input, $rincian);
+                        $alamat = $alamat_array['alamat'];
+                        $lokus_akun_teks = $alamat_array['lokus_akun_teks'];
                         $murni = '';
                         $selisih = '';
                         if($type == 'pergeseran'){
@@ -188,8 +178,8 @@ foreach ($data_hibah_uang_shorted['data'] as $k => $skpd) {
                             $selisih = "<td class='kanan bawah text_kanan'>".number_format(($rincian['rincian']-$rincian['rincian_murni']),0,",",".")."</td>";
                         }
                         $body_uang .= '
-                            <tr class="rincian">
-                                <td class="kanan bawah kiri text_tengah" data-db="'.$rincian['id_rinci_sub_bl'].'|'.$rincian['kode_sbl'].'">'.$no.'</td>
+                            <tr class="rincian" data-db="'.$rincian['id_rinci_sub_bl'].'|'.$rincian['kode_sbl'].'" data-lokus-teks="'.$lokus_akun_teks.'">
+                                <td class="kanan bawah kiri text_tengah">'.$no.'</td>
                                 <td class="kanan bawah" style="padding-left: 100px;">'.$rincian['lokus_akun_teks'].'</td>
                                 <td class="kanan bawah">'.$alamat.'</td>
                                 '.$murni.'
@@ -412,19 +402,9 @@ foreach ($data_hibah_brg_shorted['data'] as $k => $skpd) {
                     $no = 0;
                     foreach ($akun['data'] as $rincian) {
                         $no++;
-                        $profile = false;
-                        if(!empty($rincian['id_penerima'])){
-                            $profile = $wpdb->get_row("SELECT * from data_profile_penerima_bantuan where id_profil=".$rincian['id_penerima']." and tahun=".$input['tahun_anggaran'], ARRAY_A);
-                        }
-                        $alamat = '';
-                        if(!empty($profile)){
-                            $alamat = $profile['alamat_teks'].' ('.$profile['jenis_penerima'].')';
-                        }else{
-                            $profile = $wpdb->get_row("SELECT * from data_profile_penerima_bantuan where nama_teks='".$rincian['lokus_akun_teks']."' and tahun=".$input['tahun_anggaran'], ARRAY_A);
-                            if(!empty($profile)){
-                                $alamat = $profile['alamat_teks'].' ('.$profile['jenis_penerima'].')';
-                            }
-                        }
+                        $alamat_array = $this->get_alamat($input, $rincian);
+                        $alamat = $alamat_array['alamat'];
+                        $lokus_akun_teks = $alamat_array['lokus_akun_teks'];
                         $murni = '';
                         $selisih = '';
                         if($type == 'pergeseran'){
@@ -432,7 +412,7 @@ foreach ($data_hibah_brg_shorted['data'] as $k => $skpd) {
                             $selisih = "<td class='kanan bawah text_kanan'>".number_format(($rincian['rincian']-$rincian['rincian_murni']),0,",",".")."</td>";
                         }
                         $body_barang .= '
-                            <tr class="rincian" data-db="'.$rincian['id_rinci_sub_bl'].'|'.$rincian['kode_sbl'].'">
+                            <tr class="rincian" data-db="'.$rincian['id_rinci_sub_bl'].'|'.$rincian['kode_sbl'].'" data-lokus-teks="'.$lokus_akun_teks.'">
                                 <td class="kanan bawah kiri text_tengah">'.$no.'</td>
                                 <td class="kanan bawah" style="padding-left: 100px;">'.$rincian['lokus_akun_teks'].'</td>
                                 <td class="kanan bawah">'.$alamat.'</td>

@@ -873,9 +873,12 @@ class Wpsipd_Public
 						// }
 					}
 
-					if(carbon_get_theme_option('crb_singkron_simda') == 1){
+					if(
+						carbon_get_theme_option('crb_singkron_simda') == 1
+						&& carbon_get_theme_option('crb_tahun_anggaran_sipd') == $_POST['tahun_anggaran']
+					){
 						$debug = false;
-						if(carbon_get_theme_option('crb_singkron_simda') == 1){
+						if(carbon_get_theme_option('crb_singkron_simda_debug') == 1){
 							$debug = true;
 						}
 						$this->simda->singkronSimdaPendapatan(array('return' => $debug));
@@ -945,9 +948,12 @@ class Wpsipd_Public
 						}
 					}
 
-					if(carbon_get_theme_option('crb_singkron_simda') == 1){
+					if(
+						carbon_get_theme_option('crb_singkron_simda') == 1
+						&& carbon_get_theme_option('crb_tahun_anggaran_sipd') == $_POST['tahun_anggaran']
+					){
 						$debug = false;
-						if(carbon_get_theme_option('crb_singkron_simda') == 1){
+						if(carbon_get_theme_option('crb_singkron_simda_debug') == 1){
 							$debug = true;
 						}
 						$this->simda->singkronSimdaPembiayaan(array('return' => $debug));
@@ -1110,9 +1116,12 @@ class Wpsipd_Public
 					wp_set_post_terms($custom_post->ID, array($cat_id), $taxonomy, $append);
 					$ret['renja_link'][0] = esc_url( get_permalink($custom_post));
 
-					if(carbon_get_theme_option('crb_singkron_simda') == 1){
+					if(
+						carbon_get_theme_option('crb_singkron_simda') == 1
+						&& carbon_get_theme_option('crb_tahun_anggaran_sipd') == $_POST['tahun_anggaran']
+					){
 						$debug = false;
-						if(carbon_get_theme_option('crb_singkron_simda') == 1){
+						if(carbon_get_theme_option('crb_singkron_simda_debug') == 1){
 							$debug = true;
 						}
 						$this->simda->singkronSimdaUnit(array('return' => $debug));
@@ -1437,6 +1446,54 @@ class Wpsipd_Public
 		die(json_encode($ret));
 	}
 
+	public function replace_char($str){
+		// $str = preg_replace("/(\r?\n){2,}/", " ", trim($str));
+		$str = trim($str);
+    	$str = html_entity_decode($str, ENT_QUOTES | ENT_XML1, 'UTF-8');
+		$str = str_replace(
+			array('"', "'",'\\'), 
+			array('petik_dua', 'petik_satu', ''), 
+			$str
+		);
+		return $str;
+	}
+
+	public function get_alamat($input, $rincian, $no=0){
+	    global $wpdb;
+	    $profile = false;
+	    if(!empty($rincian['id_penerima'])){
+	        $profile = $wpdb->get_row("SELECT * from data_profile_penerima_bantuan where id_profil=".$rincian['id_penerima']." and tahun=".$input['tahun_anggaran'], ARRAY_A);
+	    }
+	    $alamat = '';
+	    $lokus_akun_teks = $this->replace_char($rincian['lokus_akun_teks']);
+	    if(!empty($profile)){
+	        $alamat = $profile['alamat_teks'].' ('.$profile['jenis_penerima'].')';
+	    }else if(!empty($lokus_akun_teks)){
+	        $profile = $wpdb->get_row($wpdb->prepare("
+	            SELECT 
+	                alamat_teks, 
+	                jenis_penerima 
+	            from data_profile_penerima_bantuan 
+	            where BINARY nama_teks=%s 
+	                and tahun=%d", $lokus_akun_teks, $input['tahun_anggaran']
+	        ), ARRAY_A);
+	        if(!empty($profile)){
+	            $alamat = $profile['alamat_teks'].' ('.$profile['jenis_penerima'].')';
+	        }else{
+	            if(
+	                strpos($lokus_akun_teks, 'petik_satu') !== false 
+	                && $no <= 1
+	            ){
+	                $rincian['lokus_akun_teks'] = str_replace('petik_satu', 'petik_satupetik_satu', $lokus_akun_teks);
+	                return $this->get_alamat($input, $rincian, $no++);
+	            }else{
+	                echo "<script>console.log('".$rincian['lokus_akun_teks']."', \"".preg_replace('!\s+!', ' ', str_replace(array("\n", "\r"), " ", htmlentities($wpdb->last_query)))."\");</script>";
+	            }
+	        }
+	    }
+	    return array('alamat' => $alamat, 'lokus_akun_teks' => $lokus_akun_teks);
+	}
+
 	public function singkron_penerima_bantuan()
 	{
 		global $wpdb;
@@ -1450,11 +1507,12 @@ class Wpsipd_Public
 					$profile = $_POST['profile'];
 					foreach ($profile as $k => $v) {
 						$cek = $wpdb->get_var("SELECT id_profil from data_profile_penerima_bantuan where tahun=".$_POST['tahun_anggaran']." AND id_profil=" . $v['id_profil']);
+						$nama_teks = $this->replace_char($v['nama_teks']);
 						$opsi = array(
 							'alamat_teks' => $v['alamat_teks'],
 							'id_profil' => $v['id_profil'],
 							'jenis_penerima' => $v['jenis_penerima'],
-							'nama_teks' => $v['nama_teks'],
+							'nama_teks' => $nama_teks,
 							'tahun' => $_POST['tahun_anggaran'],
 							'updated_at' => current_time('mysql')
 						);
@@ -1553,7 +1611,7 @@ class Wpsipd_Public
 			if (!empty($_POST['api_key']) && $_POST['api_key'] == carbon_get_theme_option( 'crb_api_key_extension' )) {
 				if (!empty($_POST['data'])) {
 					$data_unit = $_POST['data'];
-					$cek = $wpdb->get_var("SELECT id_unit from data_unit_pagu where tahun_anggaran=".$_POST['tahun_anggaran']." AND id_unit=" . $data_unit['id_unit']);
+					$cek = $wpdb->get_var($wpdb->prepare("SELECT kode_skpd from data_unit_pagu where tahun_anggaran=%d AND kode_skpd=%s", $_POST['tahun_anggaran'], $data_unit['kode_skpd']));
 					$opsi = array(
 						'batasanpagu' => $data_unit['batasanpagu'],
 						'id_daerah' => $data_unit['id_daerah'],
@@ -1588,7 +1646,7 @@ class Wpsipd_Public
 
 					if (!empty($cek)) {
 						$wpdb->update('data_unit_pagu', $opsi, array(
-							'id_unit' => $v['id_unit'],
+							'kode_skpd' => $data_unit['kode_skpd'],
 							'tahun_anggaran' => $_POST['tahun_anggaran']
 						));
 					} else {
@@ -2289,9 +2347,12 @@ class Wpsipd_Public
 					$ret['message'] = 'Format RKA Salah!';
 				}
 
-				if(carbon_get_theme_option('crb_singkron_simda') == 1){
+				if(
+					carbon_get_theme_option('crb_singkron_simda') == 1
+					&& carbon_get_theme_option('crb_tahun_anggaran_sipd') == $_POST['tahun_anggaran']
+				){
 					$debug = false;
-					if(carbon_get_theme_option('crb_singkron_simda') == 1){
+					if(carbon_get_theme_option('crb_singkron_simda_debug') == 1){
 						$debug = true;
 					}
 					$this->simda->singkronSimda(array(
@@ -2819,9 +2880,12 @@ class Wpsipd_Public
 							$wpdb->insert('data_anggaran_kas', $opsi);
 						}
 					}
-					if(carbon_get_theme_option('crb_singkron_simda') == 1){
+					if(
+						carbon_get_theme_option('crb_singkron_simda') == 1
+						&& carbon_get_theme_option('crb_tahun_anggaran_sipd') == $_POST['tahun_anggaran']
+					){
 						$debug = false;
-						if(carbon_get_theme_option('crb_singkron_simda') == 1){
+						if(carbon_get_theme_option('crb_singkron_simda_debug') == 1){
 							$debug = true;
 						}
 						$this->simda->singkronSimdaKas(array(
