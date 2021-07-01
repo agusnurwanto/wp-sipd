@@ -46,7 +46,7 @@ $bl = $wpdb->get_results("
 	where kode_bl='".$input['kode_bl']."'"."
 		AND tahun_anggaran=".$input['tahun_anggaran']."
 		AND active=1"
-		." limit 2"
+		// ." limit 2"
 , ARRAY_A);
 
 $id_skpd = $bl[0]['id_sub_skpd'];
@@ -185,7 +185,7 @@ $total_pagu_murni = 0;
 $total_pagu = 0;
 foreach ($bl as $k => $sub_bl) {
 	$total_pagu_murni += $sub_bl['pagumurni'];
-	$total_pagu += $sub_bl['pagu_keg'];
+	$total_pagu += $sub_bl['pagu'];
 	$pagu += $sub_bl['pagu'];
 	$pagu_n_lalu += $sub_bl['pagu_n_lalu'];
 	$pagu_n_depan += $sub_bl['pagu_n_depan'];
@@ -481,24 +481,10 @@ foreach ($bl as $k => $sub_bl) {
 		if(empty($item['kode_akun'])){
 			continue;
 		}
-
-		$profile_penerima = '';
-		if(!empty($item['lokus_akun_teks'])){
-			$profile_penerima = $item['lokus_akun_teks'];
-		}
-		if(!empty($item['id_penerima'])){
-			$profile = $wpdb->get_results("
-				SELECT 
-					*
-				from data_profile_penerima_bantuan 
-				where id_profil='".$item['id_penerima']."'
-					AND tahun_anggaran=".$bl[0]['tahun_anggaran']."
-				"
-			, ARRAY_A);
-			if(!empty($profil)){
-				$profile_penerima = ', '.$profil[0]['nama_teks'].' ('.$profil[0]['jenis_penerima'].')';
-			}
-		}else if(!empty($item['id_prop_penerima'])){
+		$alamat_array = $this->get_alamat($bl[0], $item);
+        $alamat = $alamat_array['alamat'];
+        $lokus_akun_teks = $alamat_array['lokus_akun_teks'];
+		if(empty($alamat)){
 			$alamat = array();
             if(!empty($item['id_lurah_penerima'])){
                 $db_alamat = $wpdb->get_row("SELECT nama from data_alamat where id_alamat=".$item['id_lurah_penerima']." and is_kel=1", ARRAY_A);
@@ -517,6 +503,8 @@ foreach ($bl as $k => $sub_bl) {
                 $alamat[] = $db_alamat['nama'];
             }
             $profile_penerima = implode(', ', $alamat);
+		}else{
+			$profile_penerima = $lokus_akun_teks.', '.$alamat;
 		}
 
 		$akun_all = explode('.', $item['kode_akun']);
@@ -693,11 +681,11 @@ foreach ($bl as $k => $sub_bl) {
         		|| $type == 'dpa_perubahan'
         	){
 				$rin_murni = '
-                    <td class="kanan bawah text_kanan text_blok" style="white-space:nowrap">Rp. '.number_format($akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']][$akun_4_db[0]['kode_akun']][$item['nama_akun']][$item['subs_bl_teks']]['total_murni'],0,",",".").'</td>
+                    <td class="kanan bawah text_kanan text_blok nilai_kelompok" style="white-space:nowrap">Rp. '.number_format($akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']][$akun_4_db[0]['kode_akun']][$item['nama_akun']][$item['subs_bl_teks']]['total_murni'],0,",",".").'</td>
                     <td colspan="4" class="kanan bawah text_blok"></td>
 				';
 				$selisih_murni = '
-					<td class="kanan bawah text_blok text_kanan">Rp. '.number_format($akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']][$akun_4_db[0]['kode_akun']][$item['nama_akun']][$item['subs_bl_teks']]['total_murni']-$akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']][$akun_4_db[0]['kode_akun']][$item['nama_akun']][$item['subs_bl_teks']]['total'],0,",",".").'
+					<td class="kanan bawah text_blok text_kanan nilai_kelompok">Rp. '.number_format($akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']][$akun_4_db[0]['kode_akun']][$item['nama_akun']][$item['subs_bl_teks']]['total_murni']-$akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']][$akun_4_db[0]['kode_akun']][$item['nama_akun']][$item['subs_bl_teks']]['total'],0,",",".").'
 				';
 			}
 			$rin_sub_item .= '
@@ -705,7 +693,7 @@ foreach ($bl as $k => $sub_bl) {
 	                <td class="kiri kanan bawah text_blok">'.$akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']][$akun_4_db[0]['kode_akun']][$item['nama_akun']][$item['subs_bl_teks']]['kode_akun'].'</td>
                     <td class="kanan bawah text_blok" colspan="5">'.$akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']][$akun_4_db[0]['kode_akun']][$item['nama_akun']][$item['subs_bl_teks']]['nama_akun'].'</td>
                     '.$rin_murni.'
-                    <td class="kanan bawah text_kanan text_blok" style="white-space:nowrap">Rp. '.number_format($akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']][$akun_4_db[0]['kode_akun']][$item['nama_akun']][$item['subs_bl_teks']]['total'],0,",",".").'</td>
+                    <td class="kanan bawah text_kanan text_blok nilai_kelompok" style="white-space:nowrap">Rp. '.number_format($akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']][$akun_4_db[0]['kode_akun']][$item['nama_akun']][$item['subs_bl_teks']]['total'],0,",",".").'</td>
                     '.$selisih_murni.'
                 </tr>
 			';
@@ -719,11 +707,11 @@ foreach ($bl as $k => $sub_bl) {
         		|| $type == 'dpa_perubahan'
         	){
 				$rin_murni = '
-                    <td class="kanan bawah text_kanan text_blok" style="white-space:nowrap">Rp. '.number_format($akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']][$akun_4_db[0]['kode_akun']][$item['nama_akun']][$item['subs_bl_teks']][$item['ket_bl_teks']]['total_murni'],0,",",".").'</td>
+                    <td class="kanan bawah text_kanan text_blok nilai_keterangan" style="white-space:nowrap">Rp. '.number_format($akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']][$akun_4_db[0]['kode_akun']][$item['nama_akun']][$item['subs_bl_teks']][$item['ket_bl_teks']]['total_murni'],0,",",".").'</td>
                     <td colspan="4" class="kanan bawah text_blok"></td>
 				';
 				$selisih_murni = '
-					<td class="kanan bawah text_blok text_kanan">Rp. '.number_format($akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']][$akun_4_db[0]['kode_akun']][$item['nama_akun']][$item['subs_bl_teks']][$item['ket_bl_teks']]['total_murni']-$akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']][$akun_4_db[0]['kode_akun']][$item['nama_akun']][$item['subs_bl_teks']][$item['ket_bl_teks']]['total'],0,",",".").'
+					<td class="kanan bawah text_blok text_kanan nilai_keterangan">Rp. '.number_format($akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']][$akun_4_db[0]['kode_akun']][$item['nama_akun']][$item['subs_bl_teks']][$item['ket_bl_teks']]['total_murni']-$akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']][$akun_4_db[0]['kode_akun']][$item['nama_akun']][$item['subs_bl_teks']][$item['ket_bl_teks']]['total'],0,",",".").'
 				';
 			}
 			$rin_sub_item .= '
@@ -731,7 +719,7 @@ foreach ($bl as $k => $sub_bl) {
 	                <td class="kiri kanan bawah text_blok">'.$akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']][$akun_4_db[0]['kode_akun']][$item['nama_akun']][$item['subs_bl_teks']][$item['ket_bl_teks']]['kode_akun'].'</td>
                     <td class="kanan bawah text_blok" colspan="5">'.$akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']][$akun_4_db[0]['kode_akun']][$item['nama_akun']][$item['subs_bl_teks']][$item['ket_bl_teks']]['nama_akun'].'</td>
                     '.$rin_murni.'
-                    <td class="kanan bawah text_kanan text_blok" style="white-space:nowrap">Rp. '.number_format($akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']][$akun_4_db[0]['kode_akun']][$item['nama_akun']][$item['subs_bl_teks']][$item['ket_bl_teks']]['total'],0,",",".").'</td>
+                    <td class="kanan bawah text_kanan text_blok nilai_keterangan" style="white-space:nowrap">Rp. '.number_format($akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']][$akun_4_db[0]['kode_akun']][$item['nama_akun']][$item['subs_bl_teks']][$item['ket_bl_teks']]['total'],0,",",".").'</td>
                     '.$selisih_murni.'
                 </tr>
 			';
@@ -750,7 +738,7 @@ foreach ($bl as $k => $sub_bl) {
                 <td class="kanan bawah text_kanan" style="vertical-align: middle;white-space:nowrap">Rp. '.number_format($item['rincian_murni'],0,",",".").'</td>
 			';
 			$selisih_murni = '
-				<td class="kanan bawah text_kanan">Rp. </td>
+				<td class="kanan bawah text_kanan">Rp. '.number_format($item['rincian_murni']-$item['total_harga'],0,",",".").'</td>
 			';
 		}
 		$rin_sub_item .= '
@@ -803,6 +791,9 @@ foreach ($bl as $k => $sub_bl) {
 ?>
 
 <style type="text/css">
+	.nilai_kelompok, .nilai_keterangan {
+		color: #fff;
+	}
 	.cellpadding_1 td, .cellpadding_1 th {
 		padding: 1px;
 	}
@@ -1254,9 +1245,18 @@ foreach ($bl as $k => $sub_bl) {
 	</table>
 </div>    
 <script type="text/javascript">
+	function tampil_nilai(that, _class){
+		if(jQuery(that).is(':checked')){
+			jQuery(_class).css('color', 'inherit');
+		}else{
+			jQuery(_class).css('color', '#fff');
+		}
+	}
 	var body = ''
 		+'<h3>SETTING</h3>'
 		+'<label><input type="checkbox" onclick="tampil_rinci(this);"> Tampilkan Rinci Profile Penerima Bantuan</label>'
+		+'<label style="margin-left: 20px;"><input type="checkbox" onclick="tampil_nilai(this, \'.nilai_kelompok\');"> Tampilkan Nilai Kelompok</label>'
+		+'<label style="margin-left: 20px;"><input type="checkbox" onclick="tampil_nilai(this, \'.nilai_keterangan\');"> Tampilkan Nilai Keterangan</label>'
 		+'<label style="margin-left: 20px;"> Pilih format Laporan '
 	    	+'<select class="" style="min-width: 300px;" id="type_laporan">'
 	    		+'<option>-- format --</option>'
