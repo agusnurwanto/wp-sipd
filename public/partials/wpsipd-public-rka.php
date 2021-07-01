@@ -1138,12 +1138,91 @@ foreach ($bl as $k => $sub_bl) {
 	                    	<td class="kanan bawah text_blok text_kanan" style="white-space:nowrap">Rp. <?php echo number_format($total_pagu,0,",","."); ?></td>
 	                    	<?php echo $selisih_murni; ?>
 	                    </tr>
-	                
 	                </tbody>
-
 	            </table>
-	                        </td>
+	        </td>
 	    </tr>
+    <?php
+    if(
+		$type == 'dpa_murni'
+		|| $type == 'dpa_perubahan'
+	):
+    ?>
+    	<tr>
+    		<td>
+    			<table width="100%" style="border-spacing: 0px;">
+			    	<tr>
+			            <td class="kiri kanan atas bawah text_blok text_tengah" colspan="2">Rencana Penarikan Dana per Bulan</td>
+			            <td width="60%" class="kiri kanan atas bawah" rowspan="14">
+			                <table class="tabel-standar" width="100%" cellpadding="2">
+			                    <tbody>
+			                    	<tr>
+			                            <td class="text_tengah"><?php echo carbon_get_theme_option('crb_daerah'); ?> , Tanggal </td>
+			                        </tr>
+			                        <tr><td class="text_tengah" style="font-size: 110%;">Kepala&nbsp;<?php echo $unit[0]['namaunit']; ?></td></tr>
+			                        <tr><td height="80">&nbsp;</td></tr>
+			                        <tr><td class="text_tengah text-u"><?php echo $unit[0]['namakepala']; ?></td></tr>
+			                        <tr><td class="text_tengah">NIP: <?php echo $unit[0]['nipkepala']; ?></td></tr>
+			                    </tbody>
+			                </table>
+			            </td>
+			        </tr>
+				    <tr>
+			            <td width="20%" class="kiri kanan atas bawah">Januari</td>
+			            <td width="20%" class="kiri kanan atas bawah text_kanan">Rp 0</td>
+			        </tr>
+			        <tr>
+			            <td width="20%" class="kiri kanan atas bawah">Februari</td>
+			            <td width="20%" class="kiri kanan atas bawah text_kanan">Rp 0</td>
+			        </tr>
+			        <tr>
+			            <td width="20%" class="kiri kanan atas bawah">Maret</td>
+			            <td width="20%" class="kiri kanan atas bawah text_kanan">Rp 0</td>
+			        </tr>
+			        <tr>
+			            <td width="20%" class="kiri kanan atas bawah">April</td>
+			            <td width="20%" class="kiri kanan atas bawah text_kanan">Rp 0</td>
+			        </tr>
+			        <tr>
+			            <td width="20%" class="kiri kanan atas bawah">Mei</td>
+			            <td width="20%" class="kiri kanan atas bawah text_kanan">Rp 0</td>
+			        </tr>
+			        <tr>
+			            <td width="20%" class="kiri kanan atas bawah">Juni</td>
+			            <td width="20%" class="kiri kanan atas bawah text_kanan">Rp 0</td>
+			        </tr>
+			        <tr>
+			            <td width="20%" class="kiri kanan atas bawah">Juli</td>
+			            <td width="20%" class="kiri kanan atas bawah text_kanan">Rp 0</td>
+			        </tr>
+			        <tr>
+			            <td width="20%" class="kiri kanan atas bawah">Agustus</td>
+			            <td width="20%" class="kiri kanan atas bawah text_kanan">Rp 0</td>
+			        </tr>
+			        <tr>
+			            <td width="20%" class="kiri kanan atas bawah">September</td>
+			            <td width="20%" class="kiri kanan atas bawah text_kanan">Rp 0</td>
+			        </tr>
+			        <tr>
+			            <td width="20%" class="kiri kanan atas bawah">Oktober</td>
+			            <td width="20%" class="kiri kanan atas bawah text_kanan">Rp 0</td>
+			        </tr>
+			        <tr>
+			            <td width="20%" class="kiri kanan atas bawah">November</td>
+			            <td width="20%" class="kiri kanan atas bawah text_kanan">Rp 0</td>
+			        </tr>
+			        <tr>
+			            <td width="20%" class="kiri kanan atas bawah">Desember</td>
+			            <td width="20%" class="kiri kanan atas bawah text_kanan">Rp 0</td>
+			        </tr>
+			        <tr>
+				        <td class="kiri kanan atas bawah text_tengah">Jumlah</td>
+				        <td class="kiri kanan atas bawah text_kanan">Rp 0</td>
+				    </tr>
+    			</table>
+    		</td>
+    	</tr>
+	<?php else: ?>
 	    <tr>
 	        <td class="kiri kanan atas bawah" width="350" valign="top">
 	        &nbsp;
@@ -1154,10 +1233,17 @@ foreach ($bl as $k => $sub_bl) {
                     <tr><td colspan="3" class="text_tengah text_15">Kepala&nbsp;<?php echo $unit[0]['namaunit']; ?></td></tr>
 	                <tr><td colspan="3" height="80">&nbsp;</td></tr>
 	                <tr><td colspan="3" class="text_tengah"><?php echo $unit[0]['namakepala']; ?></td></tr>
-	                <tr><td colspan="3" class="text_tengah"><?php echo $unit[0]['nipkepala']; ?></td></tr>
+	                <tr><td colspan="3" class="text_tengah">NIP: <?php echo $unit[0]['nipkepala']; ?></td></tr>
                 </table>
 	        </td>
 	    </tr>
+	<?php endif; ?>
+    <?php
+    if(
+		$type == 'rka_murni'
+		|| $type == 'dpa_murni'
+	):
+    ?>
 	    <tr>
 	        <td colspan="2">
 	            <table width="100%" class="cellpadding_5" style="border-spacing: 0px;">
@@ -1172,6 +1258,7 @@ foreach ($bl as $k => $sub_bl) {
 	            </table>
 	        </td>
 	    </tr>
+	<?php endif; ?>
 	    <tr>
 	        <td colspan="2">
 	            <table width="100%" class="cellpadding_5" style="border-spacing: 0px;">
