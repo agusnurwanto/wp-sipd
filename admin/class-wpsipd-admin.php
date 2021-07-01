@@ -128,20 +128,20 @@ class Wpsipd_Admin {
 			$id = wp_insert_post($_post);
 			$_post['insert'] = 1;
 			$_post['ID'] = $id;
+			$custom_post = get_page_by_title($nama_page, OBJECT, 'page');
+			update_post_meta($custom_post->ID, 'ast-breadcrumbs-content', 'disabled');
+			update_post_meta($custom_post->ID, 'ast-featured-img', 'disabled');
+			update_post_meta($custom_post->ID, 'ast-main-header-display', 'disabled');
+			update_post_meta($custom_post->ID, 'footer-sml-layout', 'disabled');
+			update_post_meta($custom_post->ID, 'site-content-layout', 'page-builder');
+			update_post_meta($custom_post->ID, 'site-post-title', 'disabled');
+			update_post_meta($custom_post->ID, 'site-sidebar-layout', 'no-sidebar');
+			update_post_meta($custom_post->ID, 'theme-transparent-header-meta', 'disabled');
 		}else{
-			$_post['ID'] = $custom_post->ID;
-			wp_update_post( $_post );
-			$_post['update'] = 1;
+			// $_post['ID'] = $custom_post->ID;
+			// wp_update_post( $_post );
+			// $_post['update'] = 1;
 		}
-		$custom_post = get_page_by_title($nama_page, OBJECT, 'page');
-		update_post_meta($custom_post->ID, 'ast-breadcrumbs-content', 'disabled');
-		update_post_meta($custom_post->ID, 'ast-featured-img', 'disabled');
-		update_post_meta($custom_post->ID, 'ast-main-header-display', 'disabled');
-		update_post_meta($custom_post->ID, 'footer-sml-layout', 'disabled');
-		update_post_meta($custom_post->ID, 'site-content-layout', 'page-builder');
-		update_post_meta($custom_post->ID, 'site-post-title', 'disabled');
-		update_post_meta($custom_post->ID, 'site-sidebar-layout', 'no-sidebar');
-		update_post_meta($custom_post->ID, 'theme-transparent-header-meta', 'disabled');
 		return esc_url( get_permalink($custom_post));
 	}
 
