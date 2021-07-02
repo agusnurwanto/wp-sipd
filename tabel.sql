@@ -1376,3 +1376,37 @@ ALTER TABLE `data_asmas`
 --
 ALTER TABLE `data_pokir`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- Table structure for table `data_user_tapd_sekda`
+--
+
+CREATE TABLE `data_user_tapd_sekda` (
+  `id` int(11) NOT NULL,
+  `created_at` datetime NOT NULL,
+  `created_user` int(11) DEFAULT NULL,
+  `id_daerah` int(11) DEFAULT NULL,
+  `id_skpd` int(11) DEFAULT NULL,
+  `jabatan` text DEFAULT NULL,
+  `nama` text NOT NULL,
+  `nip` double(20,0) NOT NULL,
+  `no_urut` int(11) DEFAULT NULL,
+  `tahun` year(4) NOT NULL,
+  `updated_at` datetime NOT NULL,
+  `type` varchar(20) NOT NULL,
+  `tahun_anggaran` year(4) NOT NULL,
+  `singkron_at` datetime NOT NULL,
+  `active` tinyint(4) NOT NULL DEFAULT '1'
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+--
+-- Indexes for table `data_user_tapd_sekda`
+--
+ALTER TABLE `data_user_tapd_sekda`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- AUTO_INCREMENT for table `data_user_tapd_sekda`
+--
+ALTER TABLE `data_user_tapd_sekda`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;

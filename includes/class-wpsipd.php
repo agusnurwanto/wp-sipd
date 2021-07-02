@@ -270,6 +270,9 @@ class Wpsipd
 		$this->loader->add_action('wp_ajax_update_nonactive_sub_bl_kas',  $plugin_public, 'update_nonactive_sub_bl_kas');
 		$this->loader->add_action('wp_ajax_nopriv_update_nonactive_sub_bl_kas',  $plugin_public, 'update_nonactive_sub_bl_kas');
 
+		$this->loader->add_action('wp_ajax_singkron_pendahuluan',  $plugin_public, 'singkron_pendahuluan');
+		$this->loader->add_action('wp_ajax_nopriv_singkron_pendahuluan',  $plugin_public, 'singkron_pendahuluan');
+
 		add_shortcode('datassh', array($plugin_public, 'datassh'));
 		add_shortcode('rekbelanja', array($plugin_public, 'rekbelanja'));
 		add_shortcode('tampilrka', array($plugin_public, 'tampilrka'));

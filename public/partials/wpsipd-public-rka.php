@@ -1333,66 +1333,41 @@ foreach ($bl as $k => $sub_bl) {
 	                <tr class="text_tengah">
 	                    <td width="10" class="kiri kanan bawah">No.</td>
 	                    <td class="kanan bawah">Nama</td>
-	                    <td width="120" class="bawah kanan">NIP</td>
-	                    <td width="150" class="bawah kanan">Jabatan</td>
-	                    <td width="100" class="bawah kanan">Tanda Tangan</td>
-	                </tr>                    
-	                <tr>
-	                    <td width="10" class="kiri kanan bawah">1.</td>
-	                    <td class="bawah kanan">&nbsp;</td>
-	                    <td class="bawah kanan">&nbsp;</td>
-	                    <td class="bawah kanan">&nbsp;</td>
-	                    <td class="bawah kanan">&nbsp;</td>
+	                    <td width="200" class="bawah kanan">NIP</td>
+	                    <td width="200" class="bawah kanan">Jabatan</td>
+	                    <td width="200" class="bawah kanan">Tanda Tangan</td>
 	                </tr>
-	                <tr>
-	                    <td width="10" class="kiri kanan bawah">2.</td>
-	                    <td class="bawah kanan">&nbsp;</td>
-	                    <td class="bawah kanan">&nbsp;</td>
-	                    <td class="bawah kanan">&nbsp;</td>
-	                    <td class="bawah kanan">&nbsp;</td>
-	                </tr>
-	                <tr>
-	                    <td width="10" class="kiri kanan bawah">3.</td>
-	                    <td class="bawah kanan">&nbsp;</td>
-	                    <td class="bawah kanan">&nbsp;</td>
-	                    <td class="bawah kanan">&nbsp;</td>
-	                    <td class="bawah kanan">&nbsp;</td>
-	                </tr>
-	                <tr>
-	                    <td width="10" class="kiri kanan bawah">4.</td>
-	                    <td class="bawah kanan">&nbsp;</td>
-	                    <td class="bawah kanan">&nbsp;</td>
-	                    <td class="bawah kanan">&nbsp;</td>
-	                    <td class="bawah kanan">&nbsp;</td>
-	                </tr>
-	                <tr>
-	                    <td width="10" class="kiri kanan bawah">5.</td>
-	                    <td class="bawah kanan">&nbsp;</td>
-	                    <td class="bawah kanan">&nbsp;</td>
-	                    <td class="bawah kanan">&nbsp;</td>
-	                    <td class="bawah kanan">&nbsp;</td>
-	                </tr>
-	                <tr>
-	                    <td width="10" class="kiri kanan bawah">6.</td>
-	                    <td class="bawah kanan">&nbsp;</td>
-	                    <td class="bawah kanan">&nbsp;</td>
-	                    <td class="bawah kanan">&nbsp;</td>
-	                    <td class="bawah kanan">&nbsp;</td>
-	                </tr>
-	                <tr>
-	                    <td width="10" class="kiri kanan bawah">7.</td>
-	                    <td class="bawah kanan">&nbsp;</td>
-	                    <td class="bawah kanan">&nbsp;</td>
-	                    <td class="bawah kanan">&nbsp;</td>
-	                    <td class="bawah kanan">&nbsp;</td>
-	                </tr>
-	                <tr>
-	                    <td width="10" class="kiri kanan bawah">8.</td>
-	                    <td class="bawah kanan">&nbsp;</td>
-	                    <td class="bawah kanan">&nbsp;</td>
-	                    <td class="bawah kanan">&nbsp;</td>
-	                    <td class="bawah kanan">&nbsp;</td>
-	                </tr>
+	                <?php
+	                	$tapd = $wpdb->get_results("
+	                		select 
+	                			* 
+	                		from data_user_tapd_sekda 
+	                		where tahun_anggaran=".$input['tahun_anggaran'].'
+	                			and active=1
+	                			and type=\'tapd\'
+	                		order by no_urut', ARRAY_A
+	                	);
+	                	for ($i=0; $i < 8; $i++) { 
+	                		$no = $i+1;
+	                		$nama = '&nbsp;';
+	                		$nip = '&nbsp;';
+	                		$jabatan = '&nbsp;';
+	                		if(!empty($tapd[$i])){
+	                			$nama = $tapd[$i]['nama'];
+	                			$nip = $tapd[$i]['nip'];
+	                			$jabatan = $tapd[$i]['jabatan'];
+	                		}
+	                		echo '
+				                <tr>
+				                    <td width="10" class="kiri kanan bawah">'.$no.'.</td>
+				                    <td class="bawah kanan">'.$nama.'</td>
+				                    <td class="bawah kanan">'.$nip.'</td>
+				                    <td class="bawah kanan">'.$jabatan.'</td>
+	                    			<td class="bawah kanan">&nbsp;</td>
+				                </tr>
+	                		';
+	                	}
+	                ?>
 	            </table>
 	        </td>
 	    </tr>

@@ -3259,4 +3259,102 @@ class Wpsipd_Public
 		);
 		return $nama_bulan[(int) $bulan];
 	}
+
+	function singkron_pendahuluan(){
+		global $wpdb;
+		$ret = array();
+		$ret['status'] = 'success';
+		$ret['message'] = 'Berhasil singkron data pendahuluan (SEKDA & TAPD)';
+		if (!empty($_POST)) {
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == carbon_get_theme_option( 'crb_api_key_extension' )) {
+				if(!empty($_POST['data'])){
+					$wpdb->update('data_user_tapd_sekda', array( 'active' => 0 ), array(
+						'tahun_anggaran' => $_POST['tahun_anggaran'],
+					));
+					foreach ($_POST['data']['data_sekda'] as $k => $v) {
+						$sql = $wpdb->prepare("
+						    select 
+						        *
+						    from data_user_tapd_sekda
+						    where tahun_anggaran=%d
+						    	and type='sekda'
+						        and nip=%s
+						        and active=1
+						", $_POST['tahun_anggaran'], $v['nip']);
+						$cek = $wpdb->get_results($sql, ARRAY_A);
+						$opsi = array(
+							'created_at'	=> $v['created_at'],
+							'created_user'	=> $v['created_user'],
+							'id_daerah'	=> $v['id_daerah'],
+							'jabatan'	=> $v['jabatan'],
+							'nama'	=> $v['nama'],
+							'nip'	=> $v['nip'],
+							'tahun'	=> $v['tahun'],
+							'updated_at'	=> $v['updated_at'],
+							'type'	=>  'sekda',
+							'tahun_anggaran'	=> $_POST['tahun_anggaran'],
+							'singkron_at'	=>  current_time('mysql'),
+							'active'	=> 1
+						);
+						if (!empty($cek)) {
+							$wpdb->update('data_user_tapd_sekda', $opsi, array(
+								'tahun_anggaran' => $_POST['tahun_anggaran'],
+								'type' => 'sekda',
+								'nip' => $v['nip']
+							));
+						} else {
+							$wpdb->insert('data_user_tapd_sekda', $opsi);
+						}
+					}
+					foreach ($_POST['data']['tim_tapd'] as $k => $v) {
+						$sql = $wpdb->prepare("
+						    select 
+						        *
+						    from data_user_tapd_sekda
+						    where tahun_anggaran=%d
+						        and type='tapd'
+						        and nip=%s
+						        and active=1
+						", $_POST['tahun_anggaran'], $v['nip']);
+						$cek = $wpdb->get_results($sql, ARRAY_A);
+						$opsi = array(
+							'created_at'	=> $v['created_at'],
+							'created_user'	=> $v['created_user'],
+							'id_daerah'	=> $v['id_daerah'],
+							'id_skpd'	=> $v['id_skpd'],
+							'jabatan'	=> $v['jabatan'],
+							'nama'	=> $v['nama'],
+							'nip'	=> $v['nip'],
+							'no_urut'	=> $v['no_urut'],
+							'tahun'	=> $v['tahun'],
+							'updated_at'	=> $v['updated_at'],
+							'type'	=>  'tapd',
+							'tahun_anggaran'	=> $_POST['tahun_anggaran'],
+							'singkron_at'	=>  current_time('mysql'),
+							'active'	=> 1
+						);
+						if (!empty($cek)) {
+							$wpdb->update('data_user_tapd_sekda', $opsi, array(
+								'tahun_anggaran' => $_POST['tahun_anggaran'],
+								'type' => 'tapd',
+								'nip' => $v['nip']
+							));
+						} else {
+							$wpdb->insert('data_user_tapd_sekda', $opsi);
+						}
+					}
+				}else{
+					$ret['status'] = 'error';
+					$ret['message'] = 'Data pendahuluan tidak boleh kosong!';
+				}
+			} else {
+				$ret['status'] = 'error';
+				$ret['message'] = 'APIKEY tidak sesuai!';
+			}
+		} else {
+			$ret['status'] = 'error';
+			$ret['message'] = 'Format Salah!';
+		}
+		die(json_encode($ret));
+	}
 }
