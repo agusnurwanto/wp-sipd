@@ -729,6 +729,9 @@ class Wpsipd_Simda
 							if($type == 'belanja'){
 								$kd_unit_simda = explode('.', carbon_get_theme_option('crb_unit_'.$kode_sbl[2]));
 							}
+							if($type == 'pendapatan'){
+								$kd_unit_simda = explode('.', carbon_get_theme_option('crb_unit_'.$v['id_unit']));
+							}
 
 							if(empty($kd_unit_simda) || empty($kd_unit_simda[3])){
 								continue;
