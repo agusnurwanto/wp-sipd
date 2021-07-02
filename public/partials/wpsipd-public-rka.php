@@ -15,6 +15,7 @@ if(!empty($_GET) && !empty($_GET['type'])){
 }
 
 $judul_rincian = 'Rincian Anggaran Belanja Kegiatan Satuan Kerja Perangkat Daerah';
+$keterangan_sub = '';
 $judul = '
 	<td class="kiri atas kanan bawah text_blok text_tengah">RENCANA KERJA DAN ANGGARAN<br/>SATUAN KERJA PERANGKAT DAERAH</td>
 	<td class="kiri atas kanan bawah text_blok text_tengah" style="vertical-align: middle;" rowspan="2">Formulir<br/>RKA - RINCIAN BELANJA SKPD</td>
@@ -36,6 +37,20 @@ if($type == 'rka_perubahan'){
 	$judul = '
 		<td class="kiri atas kanan bawah text_blok text_tengah">DOKUMEN PELAKSANAAN PERGESERAN ANGGARAN<br/>SATUAN KERJA PERANGKAT DAERAH</td>
 		<td class="kiri atas kanan bawah text_blok text_tengah" style="vertical-align: middle;" rowspan="2">Formulir<br/>DPPA-RINCIAN BELANJA SKPD</td>
+	';
+}
+
+if(
+	$type == 'dpa_murni'
+	|| $type == 'dpa_perubahan'
+){
+
+	$keterangan_sub = '
+		<tr>
+			<td width="130">Keterangan</td>
+            <td width="10">:</td>
+            <td>&nbsp;</td>
+        </tr>
 	';
 }
 
@@ -186,6 +201,7 @@ $total_pagu = 0;
 foreach ($bl as $k => $sub_bl) {
 	$total_pagu_murni += $sub_bl['pagumurni'];
 	$total_pagu += $sub_bl['pagu'];
+	$pagu_murni += $sub_bl['pagumurni'];
 	$pagu += $sub_bl['pagu'];
 	$pagu_n_lalu += $sub_bl['pagu_n_lalu'];
 	$pagu_n_depan += $sub_bl['pagu_n_depan'];
@@ -309,7 +325,7 @@ foreach ($bl as $k => $sub_bl) {
                     <tr>
                         <td width="130">Sub Kegiatan</td>
                         <td width="10">:</td>
-                        <td>'.$sub_bl['nama_sub_giat'].'</td>
+                        <td>'.$bl[0]['kode_bidang_urusan'].substr($sub_bl['nama_sub_giat'], 4, strlen($sub_bl['nama_sub_giat'])).'</td>
                     </tr>
                     <tr>
                         <td width="130">Sumber Pendanaan</td>
@@ -340,6 +356,7 @@ foreach ($bl as $k => $sub_bl) {
                             </table>
                          </td>
                     </tr>
+                    '.$keterangan_sub.'
                 </table>
             </td>
     	</tr>
@@ -862,7 +879,7 @@ foreach ($bl as $k => $sub_bl) {
     	vertical-align: middle;
     }
 </style>
-<div class="cetak">
+<div class="cetak" contenteditable="true">
 	<table width="100%" class="cellpadding_1" style="border-spacing: 2px;">
 	    <tr>
 	        <td colspan="2">
@@ -905,8 +922,18 @@ foreach ($bl as $k => $sub_bl) {
 	                    <td>
 	                        <table width="50%" border="0" style="border-spacing: 0px;">
 	                            <tr>
+	                            <?php
+								if(
+									$type == 'dpa_murni'
+									|| $type == 'dpa_perubahan'
+								):
+								?>
+	                            	<td>(Indikator)</td>
+	                            	<td>(Target)</td>
+	                            <?php else: ?>
 	                            	<td>Indikator</td>
 	                            	<td>Target</td>
+	                            <?php endif; ?>
 	                            </tr>
 								<?php echo implode('', $ind_prog); ?>
 	                        </table>
@@ -930,17 +957,42 @@ foreach ($bl as $k => $sub_bl) {
 	                <tr>
 	                    <td width="150">Alokasi Tahun <?php echo $tahun_anggaran-1; ?></td>
 	                    <td width="10">:</td>
-	                    <td>Rp. <?php echo number_format($pagu_n_lalu,0,",","."); ?></td>
+	                    <td>Rp. <?php echo number_format($pagu_n_lalu,0,",","."); ?>
+                    	<?php
+							if(
+								$type == 'dpa_murni'
+								|| $type == 'dpa_perubahan'
+							){
+								echo '('.$this->terbilang($pagu_n_lalu).')';
+							}
+						?>
+						</td>
 	                </tr>
 	                <tr>
 	                    <td width="150">Alokasi Tahun <?php echo $tahun_anggaran; ?></td>
 	                    <td width="10">:</td>
-	                    <td>Rp. <?php echo number_format($pagu,0,",","."); ?></td>
+	                    <td>Rp. <?php echo number_format($pagu,0,",","."); ?>
+                    	<?php
+							if(
+								$type == 'dpa_murni'
+								|| $type == 'dpa_perubahan'
+							){
+								echo '('.$this->terbilang($pagu).')';
+							}
+						?></td>
 	                </tr>
 	                <tr>
 	                    <td width="150">Alokasi Tahun <?php echo $tahun_anggaran+1; ?></td>
 	                    <td width="10">:</td>
-	                    <td>Rp. <?php echo number_format($pagu_n_depan,0,",","."); ?></td>
+	                    <td>Rp. <?php echo number_format($pagu_n_depan,0,",","."); ?>
+                    	<?php
+							if(
+								$type == 'dpa_murni'
+								|| $type == 'dpa_perubahan'
+							){
+								echo '('.$this->terbilang($pagu_n_depan).')';
+							}
+						?></td>
 	                </tr>
 	            </table>
 	        </td>            
@@ -955,6 +1007,7 @@ foreach ($bl as $k => $sub_bl) {
             		$capaian_kegiatan_murni = '';
             		$masukan_kegiatan_murni = '';
             		$keluaran_kegiatan_murni = '';
+            		$hasil_kegiatan_murni = '';
 	            	if(
 	            		$type == 'rka_murni'
 	            		|| $type == 'dpa_murni'
@@ -1147,77 +1200,91 @@ foreach ($bl as $k => $sub_bl) {
 		$type == 'dpa_murni'
 		|| $type == 'dpa_perubahan'
 	):
+    	$_POST['api_key'] = carbon_get_theme_option( 'crb_api_key_extension' );
+    	$_POST['action'] = 'get_kas';
+    	$_POST['kode_giat'] = $bl[0]['kode_giat'];
+    	$_POST['kode_skpd'] = $bl[0]['kode_skpd'];
+    	$_POST['tahun_anggaran'] = $input['tahun_anggaran'];
+    	$kas = $this->get_kas(true);
+    	$kas = $kas['data'];
+    	$tgl_dpa = date('d ').$this->get_bulan(date('m')).date(' Y');
     ?>
     	<tr>
-    		<td>
-    			<table width="100%" style="border-spacing: 0px;">
+    		<td class="kiri kanan atas bawah cellpadding_5">
+    			<table width="100%" style="border-collapse: collapse;" cellpadding="6">
 			    	<tr>
 			            <td class="kiri kanan atas bawah text_blok text_tengah" colspan="2">Rencana Penarikan Dana per Bulan</td>
-			            <td width="60%" class="kiri kanan atas bawah" rowspan="14">
+			            <td width="60%" class="kiri kanan atas bawah" rowspan="14" style="vertical-align: middle;">
 			                <table class="tabel-standar" width="100%" cellpadding="2">
 			                    <tbody>
 			                    	<tr>
-			                            <td class="text_tengah"><?php echo carbon_get_theme_option('crb_daerah'); ?> , Tanggal </td>
+			                            <td class="text_tengah"><?php echo carbon_get_theme_option('crb_daerah'); ?> , Tanggal <?php echo $tgl_dpa; ?></td>
 			                        </tr>
 			                        <tr><td class="text_tengah" style="font-size: 110%;">Kepala&nbsp;<?php echo $unit[0]['namaunit']; ?></td></tr>
 			                        <tr><td height="80">&nbsp;</td></tr>
 			                        <tr><td class="text_tengah text-u"><?php echo $unit[0]['namakepala']; ?></td></tr>
 			                        <tr><td class="text_tengah">NIP: <?php echo $unit[0]['nipkepala']; ?></td></tr>
+			                        <tr><td style=" mso-number-format:\@;">&nbsp;</td></tr>
+                                    <tr><td class="text_tengah">Mengesahkan,</td></tr>
+                                    <tr><td class="text_tengah">PPKD</td></tr>
+                                    <tr><td height="80">&nbsp;</td></tr>
+                                    <tr><td class="text_tengah text-u">XXXXXX</td></tr>
+                                    <tr><td class="text_tengah">NIP: XXXXXX</td></tr>
 			                    </tbody>
 			                </table>
 			            </td>
 			        </tr>
 				    <tr>
 			            <td width="20%" class="kiri kanan atas bawah">Januari</td>
-			            <td width="20%" class="kiri kanan atas bawah text_kanan">Rp 0</td>
+			            <td width="20%" class="kiri kanan atas bawah text_kanan">Rp <?php echo number_format($kas['per_bulan'][0],0,",","."); ?></td>
 			        </tr>
 			        <tr>
 			            <td width="20%" class="kiri kanan atas bawah">Februari</td>
-			            <td width="20%" class="kiri kanan atas bawah text_kanan">Rp 0</td>
+			            <td width="20%" class="kiri kanan atas bawah text_kanan">Rp <?php echo number_format($kas['per_bulan'][1],0,",","."); ?></td>
 			        </tr>
 			        <tr>
 			            <td width="20%" class="kiri kanan atas bawah">Maret</td>
-			            <td width="20%" class="kiri kanan atas bawah text_kanan">Rp 0</td>
+			            <td width="20%" class="kiri kanan atas bawah text_kanan">Rp <?php echo number_format($kas['per_bulan'][2],0,",","."); ?></td>
 			        </tr>
 			        <tr>
 			            <td width="20%" class="kiri kanan atas bawah">April</td>
-			            <td width="20%" class="kiri kanan atas bawah text_kanan">Rp 0</td>
+			            <td width="20%" class="kiri kanan atas bawah text_kanan">Rp <?php echo number_format($kas['per_bulan'][3],0,",","."); ?></td>
 			        </tr>
 			        <tr>
 			            <td width="20%" class="kiri kanan atas bawah">Mei</td>
-			            <td width="20%" class="kiri kanan atas bawah text_kanan">Rp 0</td>
+			            <td width="20%" class="kiri kanan atas bawah text_kanan">Rp <?php echo number_format($kas['per_bulan'][4],0,",","."); ?></td>
 			        </tr>
 			        <tr>
 			            <td width="20%" class="kiri kanan atas bawah">Juni</td>
-			            <td width="20%" class="kiri kanan atas bawah text_kanan">Rp 0</td>
+			            <td width="20%" class="kiri kanan atas bawah text_kanan">Rp <?php echo number_format($kas['per_bulan'][5],0,",","."); ?></td>
 			        </tr>
 			        <tr>
 			            <td width="20%" class="kiri kanan atas bawah">Juli</td>
-			            <td width="20%" class="kiri kanan atas bawah text_kanan">Rp 0</td>
+			            <td width="20%" class="kiri kanan atas bawah text_kanan">Rp <?php echo number_format($kas['per_bulan'][6],0,",","."); ?></td>
 			        </tr>
 			        <tr>
 			            <td width="20%" class="kiri kanan atas bawah">Agustus</td>
-			            <td width="20%" class="kiri kanan atas bawah text_kanan">Rp 0</td>
+			            <td width="20%" class="kiri kanan atas bawah text_kanan">Rp <?php echo number_format($kas['per_bulan'][7],0,",","."); ?></td>
 			        </tr>
 			        <tr>
 			            <td width="20%" class="kiri kanan atas bawah">September</td>
-			            <td width="20%" class="kiri kanan atas bawah text_kanan">Rp 0</td>
+			            <td width="20%" class="kiri kanan atas bawah text_kanan">Rp <?php echo number_format($kas['per_bulan'][8],0,",","."); ?></td>
 			        </tr>
 			        <tr>
 			            <td width="20%" class="kiri kanan atas bawah">Oktober</td>
-			            <td width="20%" class="kiri kanan atas bawah text_kanan">Rp 0</td>
+			            <td width="20%" class="kiri kanan atas bawah text_kanan">Rp <?php echo number_format($kas['per_bulan'][9],0,",","."); ?></td>
 			        </tr>
 			        <tr>
 			            <td width="20%" class="kiri kanan atas bawah">November</td>
-			            <td width="20%" class="kiri kanan atas bawah text_kanan">Rp 0</td>
+			            <td width="20%" class="kiri kanan atas bawah text_kanan">Rp <?php echo number_format($kas['per_bulan'][10],0,",","."); ?></td>
 			        </tr>
 			        <tr>
 			            <td width="20%" class="kiri kanan atas bawah">Desember</td>
-			            <td width="20%" class="kiri kanan atas bawah text_kanan">Rp 0</td>
+			            <td width="20%" class="kiri kanan atas bawah text_kanan">Rp <?php echo number_format($kas['per_bulan'][11],0,",","."); ?></td>
 			        </tr>
 			        <tr>
 				        <td class="kiri kanan atas bawah text_tengah">Jumlah</td>
-				        <td class="kiri kanan atas bawah text_kanan">Rp 0</td>
+				        <td class="kiri kanan atas bawah text_kanan">Rp  <?php echo number_format($kas['total'],0,",","."); ?></td>
 				    </tr>
     			</table>
     		</td>
@@ -1229,7 +1296,7 @@ foreach ($bl as $k => $sub_bl) {
 	        </td>
 	        <td class="kiri kanan atas bawah" width="250" valign="top">
 	            <table width="100%" class="cellpadding_2" style="border-spacing: 0px;">
-	                <tr><td colspan="3" class="text_tengah"><?php echo carbon_get_theme_option('crb_daerah'); ?> , Tanggal </td></tr>
+	                <tr><td colspan="3" class="text_tengah"><?php echo carbon_get_theme_option('crb_daerah'); ?> , Tanggal <?php echo $tgl_dpa; ?></td></tr>
                     <tr><td colspan="3" class="text_tengah text_15">Kepala&nbsp;<?php echo $unit[0]['namaunit']; ?></td></tr>
 	                <tr><td colspan="3" height="80">&nbsp;</td></tr>
 	                <tr><td colspan="3" class="text_tengah"><?php echo $unit[0]['namakepala']; ?></td></tr>

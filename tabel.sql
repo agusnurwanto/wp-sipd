@@ -152,7 +152,7 @@ CREATE TABLE `data_capaian_prog_sub_keg` (
 --
 CREATE TABLE `data_dana_sub_keg` (
   `id` int(11) NOT NULL,
-  `namadana` varchar(50) DEFAULT NULL,
+  `namadana` text DEFAULT NULL,
   `kodedana` varchar(50) DEFAULT NULL,
   `iddana` int(11) DEFAULT NULL,
   `iddanasubbl` int(11) DEFAULT NULL,

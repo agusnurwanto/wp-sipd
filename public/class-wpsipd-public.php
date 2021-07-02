@@ -1897,6 +1897,9 @@ class Wpsipd_Public
 					$ret['status'] = 'error';
 					$ret['message'] = 'Format data Unit Salah!';
 				}
+				$_POST['idsubbl'] = (int) $_POST['idsubbl'];
+				$_POST['idbl'] = (int) $_POST['idbl'];
+
 				if (!empty($_POST['dataBl']) && $ret['status'] != 'error') {
 					$dataBl = $_POST['dataBl'];
 					foreach ($dataBl as $k => $v) {
@@ -2309,8 +2312,8 @@ class Wpsipd_Public
 							'updated_user' => $v['updated_user'],
 							'updateddate' => $v['updateddate'],
 							'updatedtime' => $v['updatedtime'],
-							'user1' => $v['user1'],
-							'user2' => $v['user2'],
+							'user1' => $this->replace_char($v['user1']),
+							'user2' => $this->replace_char($v['user2']),
 							'idbl' => $_POST['idbl'],
 							'idsubbl' => $_POST['idsubbl'],
 							'kode_bl' => $_POST['kode_bl'],
@@ -2913,7 +2916,7 @@ class Wpsipd_Public
 		die(json_encode($ret));
 	}
 
-	function get_kas(){
+	function get_kas($no_debug=false){
 		global $wpdb;
 		$ret = array(
 			'status'	=> 'success',
@@ -2921,7 +2924,20 @@ class Wpsipd_Public
 			'data'	=> array(
 				'bl' => array(),
 				'kas' => array(),
-				'per_bulan' => array(),
+				'per_bulan' => array(
+					0 => 0,
+					1 => 0,
+					2 => 0,
+					3 => 0,
+					4 => 0,
+					5 => 0,
+					6 => 0,
+					7 => 0,
+					8 => 0,
+					9 => 0,
+					10 => 0,
+					11 => 0
+				),
 				'total' => 0
 			)
 		);
@@ -2986,7 +3002,11 @@ class Wpsipd_Public
 			$ret['status'] = 'error';
 			$ret['message'] = 'Format Salah!';
 		}
-		die(json_encode($ret));
+		if($no_debug){
+			return $ret;
+		}else{
+			die(json_encode($ret));
+		}
 	}
 
 	function get_data_rka(){
@@ -3039,66 +3059,83 @@ class Wpsipd_Public
 
 	function get_link_laporan(){
 		global $wpdb;
-		$ret = array(
-			'status'	=> 'success',
-			'action'	=> $_POST['action'],
-			'cetak'		=> $_POST['cetak'],
-			'model'		=> $_POST['model'],
-			'jenis'		=> $_POST['jenis'],
-		);
+		$ret = $_POST;
+		$ret['status'] = 'success';
 		if (!empty($_POST)) {
 			if (!empty($_POST['api_key']) && $_POST['api_key'] == carbon_get_theme_option( 'crb_api_key_extension' )) {
-				$nama_page = $_POST['tahun_anggaran'] . ' | Laporan';
-				$cat_name = $_POST['tahun_anggaran'] . ' APBD';
-				$post_content = '';
-				
-				if(
-					(
-						$_POST['jenis'] == '1'
-						|| $_POST['jenis'] == '3'
-						|| $_POST['jenis'] == '4'
-						|| $_POST['jenis'] == '5'
-						|| $_POST['jenis'] == '6'
-					)
-					&& $_POST['model'] == 'perkada'
-					&& $_POST['cetak'] == 'apbd'
-				){
-					$nama_page = $_POST['tahun_anggaran'] . ' | APBD PENJABARAN Lampiran '.$_POST['jenis'];
-					$cat_name = $_POST['tahun_anggaran'] . ' APBD';
-					$post_content = '[apbdpenjabaran tahun_anggaran="'.$_POST['tahun_anggaran'].'" lampiran="'.$_POST['jenis'].'"]';
-					$ret['text_link'] = 'Print APBD PENJABARAN Lampiran '.$_POST['jenis'];
-					$custom_post = $this->save_update_post($nama_page, $cat_name, $post_content);
-					$ret['link'] = esc_url( get_permalink($custom_post) );
-				}else if(
-					$_POST['jenis'] == '2'
-					&& $_POST['model'] == 'perkada'
-					&& $_POST['cetak'] == 'apbd'
-				){
-					$sql = $wpdb->prepare("
-					    select 
-					        id_skpd,
-					        kode_skpd,
-					        nama_skpd
-					    from data_unit
-					    where tahun_anggaran=%d
-					        and active=1
-					", $_POST['tahun_anggaran']);
-					$unit = $wpdb->get_results($sql, ARRAY_A);
-					$ret['link'] = array();
-					foreach ($unit as $k => $v) {
-						$nama_page = $_POST['tahun_anggaran'] .' | '.$v['kode_skpd'].' | '.$v['nama_skpd'].' | '. ' | APBD PENJABARAN Lampiran 2';
-						$cat_name = $_POST['tahun_anggaran'] . ' APBD';
-						$post_content = '[apbdpenjabaran tahun_anggaran="'.$_POST['tahun_anggaran'].'" lampiran="'.$_POST['jenis'].'" id_skpd="'.$v['id_skpd'].'"]';
-						$custom_post = $this->save_update_post($nama_page, $cat_name, $post_content);
-						$ret['link'][$v['id_skpd']] = array(
-							'id_skpd' => $v['id_skpd'],
-							'text_link' => 'Print APBD PENJABARAN Lampiran 2',
-							'link' => esc_url( get_permalink($custom_post) )
-						);
-					}
+				if(!empty($_POST['kode_bl'])){
+					$kode_bl = explode('.', $_POST['kode_bl']);
+					unset($kode_bl[2]);
+					$bl = $wpdb->get_results($wpdb->prepare("
+						select 
+							* 
+						from data_sub_keg_bl 
+						where kode_bl=%s 
+							and active=1 
+							and tahun_anggaran=%d", implode('.', $kode_bl), $_POST['tahun_anggaran']
+					), ARRAY_A);
+					$ret['query'] = $wpdb->last_query;
+					$kodeunit = $bl[0]['kode_skpd'];
+					$kode_giat = $bl[0]['kode_bidang_urusan'].substr($bl[0]['kode_giat'], 4, strlen($bl[0]['kode_giat']));
+					$nama_page = $_POST['tahun_anggaran'] . ' | ' . $kodeunit . ' | ' . $kode_giat . ' | ' . $bl[0]['nama_giat'];
+					$custom_post = get_page_by_title($nama_page, OBJECT, 'post');
+					$ret['link'] = esc_url( get_permalink($custom_post));
+					$ret['text_link'] = 'Print DPA Lokal';
+					$ret['judul'] = $nama_page;
+					$ret['bl'] = $bl;
 				}else{
-					$ret['status'] = 'error';
-					$ret['message'] = 'Page tidak ditemukan!';
+					$nama_page = $_POST['tahun_anggaran'] . ' | Laporan';
+					$cat_name = $_POST['tahun_anggaran'] . ' APBD';
+					$post_content = '';
+					
+					if(
+						(
+							$_POST['jenis'] == '1'
+							|| $_POST['jenis'] == '3'
+							|| $_POST['jenis'] == '4'
+							|| $_POST['jenis'] == '5'
+							|| $_POST['jenis'] == '6'
+						)
+						&& $_POST['model'] == 'perkada'
+						&& $_POST['cetak'] == 'apbd'
+					){
+						$nama_page = $_POST['tahun_anggaran'] . ' | APBD PENJABARAN Lampiran '.$_POST['jenis'];
+						$cat_name = $_POST['tahun_anggaran'] . ' APBD';
+						$post_content = '[apbdpenjabaran tahun_anggaran="'.$_POST['tahun_anggaran'].'" lampiran="'.$_POST['jenis'].'"]';
+						$ret['text_link'] = 'Print APBD PENJABARAN Lampiran '.$_POST['jenis'];
+						$custom_post = $this->save_update_post($nama_page, $cat_name, $post_content);
+						$ret['link'] = esc_url( get_permalink($custom_post) );
+					}else if(
+						$_POST['jenis'] == '2'
+						&& $_POST['model'] == 'perkada'
+						&& $_POST['cetak'] == 'apbd'
+					){
+						$sql = $wpdb->prepare("
+						    select 
+						        id_skpd,
+						        kode_skpd,
+						        nama_skpd
+						    from data_unit
+						    where tahun_anggaran=%d
+						        and active=1
+						", $_POST['tahun_anggaran']);
+						$unit = $wpdb->get_results($sql, ARRAY_A);
+						$ret['link'] = array();
+						foreach ($unit as $k => $v) {
+							$nama_page = $_POST['tahun_anggaran'] .' | '.$v['kode_skpd'].' | '.$v['nama_skpd'].' | '. ' | APBD PENJABARAN Lampiran 2';
+							$cat_name = $_POST['tahun_anggaran'] . ' APBD';
+							$post_content = '[apbdpenjabaran tahun_anggaran="'.$_POST['tahun_anggaran'].'" lampiran="'.$_POST['jenis'].'" id_skpd="'.$v['id_skpd'].'"]';
+							$custom_post = $this->save_update_post($nama_page, $cat_name, $post_content);
+							$ret['link'][$v['id_skpd']] = array(
+								'id_skpd' => $v['id_skpd'],
+								'text_link' => 'Print APBD PENJABARAN Lampiran 2',
+								'link' => esc_url( get_permalink($custom_post) )
+							);
+						}
+					}else{
+						$ret['status'] = 'error';
+						$ret['message'] = 'Page tidak ditemukan!';
+					}
 				}
 			} else {
 				$ret['status'] = 'error';
@@ -3161,5 +3198,65 @@ class Wpsipd_Public
 		}
 		$key = base64_encode($now.$key_db.$now);
 		return $key;
+	}
+
+	function penyebut($nilai) {
+		$nilai = abs($nilai);
+		$huruf = array("", "satu", "dua", "tiga", "empat", "lima", "enam", "tujuh", "delapan", "sembilan", "sepuluh", "sebelas");
+		$temp = "";
+		if ($nilai < 12) {
+			$temp = " ". $huruf[$nilai];
+		} else if ($nilai <20) {
+			$temp = $this->penyebut($nilai - 10). " belas";
+		} else if ($nilai < 100) {
+			$temp = $this->penyebut($nilai/10)." puluh". $this->penyebut($nilai % 10);
+		} else if ($nilai < 200) {
+			$temp = " seratus" . $this->penyebut($nilai - 100);
+		} else if ($nilai < 1000) {
+			$temp = $this->penyebut($nilai/100) . " ratus" . $this->penyebut($nilai % 100);
+		} else if ($nilai < 2000) {
+			$temp = " seribu" . $this->penyebut($nilai - 1000);
+		} else if ($nilai < 1000000) {
+			$temp = $this->penyebut($nilai/1000) . " ribu" . $this->penyebut($nilai % 1000);
+		} else if ($nilai < 1000000000) {
+			$temp = $this->penyebut($nilai/1000000) . " juta" . $this->penyebut($nilai % 1000000);
+		} else if ($nilai < 1000000000000) {
+			$temp = $this->penyebut($nilai/1000000000) . " milyar" . $this->penyebut(fmod($nilai,1000000000));
+		} else if ($nilai < 1000000000000000) {
+			$temp = $this->penyebut($nilai/1000000000000) . " trilyun" . $this->penyebut(fmod($nilai,1000000000000));
+		}     
+		return $temp;
+	}
+ 
+	function terbilang($nilai) {
+		if($nilai==0) {
+			$hasil = "nol";
+		}else if($nilai<0) {
+			$hasil = "minus ". trim($this->penyebut($nilai));
+		} else {
+			$hasil = trim($this->penyebut($nilai));
+		}     		
+		return $hasil.' rupiah';
+	}
+
+	function get_bulan($bulan) {
+		if(empty($bulan)){
+			$bulan = date('m');
+		}
+		$nama_bulan = array(
+			"Januari", 
+			"Februari", 
+			"Maret", 
+			"April", 
+			"Mei", 
+			"Juni", 
+			"Juli", 
+			"Agustus", 
+			"September", 
+			"Oktober", 
+			"November", 
+			"Desember"
+		);
+		return $nama_bulan[(int) $bulan];
 	}
 }
