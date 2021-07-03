@@ -1551,39 +1551,53 @@ class Wpsipd_Public
 		if (!empty($_POST)) {
 			if (!empty($_POST['api_key']) && $_POST['api_key'] == carbon_get_theme_option( 'crb_api_key_extension' )) {
 				if (!empty($_POST['data_user'])) {
-					$data_user = $_POST['data_user'];
-					$cek = $wpdb->get_var("SELECT userName from data_user_penatausahaan where tahun=".$_POST['tahun_anggaran']." AND userName='" . $data_user['userName']."'");
-					$opsi = array(
-						"idSkpd" => $data_user['skpd']['idSkpd'],
-						"namaSkpd" => $data_user['skpd']['namaSkpd'],
-						"kodeSkpd" => $data_user['skpd']['kodeSkpd'],
-						"idDaerah" => $data_user['skpd']['idDaerah'],
-						"userName" => $data_user['userName'],
-						"nip" => $data_user['nip'],
-						"fullName" => $data_user['fullName'],
-						"nomorHp" => $data_user['nomorHp'],
-						"rank" => $data_user['rank'],
-						"npwp" => $data_user['npwp'],
-						"idJabatan" => $data_user['jabatan']['idJabatan'],
-						"namaJabatan" => $data_user['jabatan']['namaJabatan'],
-						"idRole" => $data_user['jabatan']['idRole'],
-						"order" => $data_user['jabatan']['order'],
-						"kpa" => $data_user['kpa'],
-						"bank" => $data_user['bank'],
-						"group" => $data_user['group'],
-						"password" => $data_user['password'],
-						"konfirmasiPassword" => $data_user['konfirmasiPassword'],
-						'tahun' => $_POST['tahun_anggaran'],
-						'updated_at' => current_time('mysql')
-					);
-
-					if (!empty($cek)) {
-						$wpdb->update('data_user_penatausahaan', $opsi, array(
+					foreach ($_POST['data_user'] as $key => $data_user) {
+						$cek = $wpdb->get_var("SELECT userName from data_user_penatausahaan where tahun=".$_POST['tahun_anggaran']." AND userName='" . $data_user['userName']."'");
+						$opsi = array(
+							"idSkpd" => $data_user['skpd']['idSkpd'],
+							"namaSkpd" => $data_user['skpd']['namaSkpd'],
+							"kodeSkpd" => $data_user['skpd']['kodeSkpd'],
+							"idDaerah" => $data_user['skpd']['idDaerah'],
+							"userName" => $data_user['userName'],
+							"nip" => $data_user['nip'],
+							"fullName" => $data_user['fullName'],
+							"nomorHp" => $data_user['nomorHp'],
+							"rank" => $data_user['rank'],
+							"npwp" => $data_user['npwp'],
+							"idJabatan" => $data_user['jabatan']['idJabatan'],
+							"namaJabatan" => $data_user['jabatan']['namaJabatan'],
+							"idRole" => $data_user['jabatan']['idRole'],
+							"order" => $data_user['jabatan']['order'],
+							"kpa" => $data_user['kpa'],
+							"bank" => $data_user['bank'],
+							"group" => $data_user['group'],
+							"password" => $data_user['password'],
+							"konfirmasiPassword" => $data_user['konfirmasiPassword'],
+							"kodeBank" => $data_user['kodeBank'],
+							"nama_rekening" => $data_user['nama_rekening'],
+							"nomorRekening" => $data_user['nomorRekening'],
+							"pangkatGolongan" => $data_user['pangkatGolongan'],
+							"tahunPegawai" => $data_user['tahunPegawai'],
+							"kodeDaerah" => $data_user['kodeDaerah'],
+							"is_from_sipd" => $data_user['is_from_sipd'],
+							"is_from_generate" => $data_user['is_from_generate'],
+							"is_from_external" => $data_user['is_from_external'],
+							"idSubUnit" => $data_user['idSubUnit'],
+							"idUser" => $data_user['idUser'],
+							"idPegawai" => $data_user['idPegawai'],
+							"alamat" => $data_user['alamat'],
 							'tahun' => $_POST['tahun_anggaran'],
-							'userName' => $data_user['userName']
-						));
-					} else {
-						$wpdb->insert('data_user_penatausahaan', $opsi);
+							'updated_at' => current_time('mysql')
+						);
+
+						if (!empty($cek)) {
+							$wpdb->update('data_user_penatausahaan', $opsi, array(
+								'tahun' => $_POST['tahun_anggaran'],
+								'userName' => $data_user['userName']
+							));
+						} else {
+							$wpdb->insert('data_user_penatausahaan', $opsi);
+						}
 					}
 				} else if ($ret['status'] != 'error') {
 					$ret['status'] = 'error';
