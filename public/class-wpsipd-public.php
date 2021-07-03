@@ -1552,7 +1552,14 @@ class Wpsipd_Public
 			if (!empty($_POST['api_key']) && $_POST['api_key'] == carbon_get_theme_option( 'crb_api_key_extension' )) {
 				if (!empty($_POST['data_user'])) {
 					foreach ($_POST['data_user'] as $key => $data_user) {
-						$cek = $wpdb->get_var("SELECT userName from data_user_penatausahaan where tahun=".$_POST['tahun_anggaran']." AND userName='" . $data_user['userName']."'");
+						$cek = $wpdb->get_var("
+							SELECT 
+								userName 
+							from data_user_penatausahaan 
+							where tahun=".$_POST['tahun_anggaran']." 
+								AND userName='" . $data_user['userName']."' 
+								AND idUser='".$data_user['idUser']."'"
+						);
 						$opsi = array(
 							"idSkpd" => $data_user['skpd']['idSkpd'],
 							"namaSkpd" => $data_user['skpd']['namaSkpd'],
@@ -1593,11 +1600,13 @@ class Wpsipd_Public
 						if (!empty($cek)) {
 							$wpdb->update('data_user_penatausahaan', $opsi, array(
 								'tahun' => $_POST['tahun_anggaran'],
-								'userName' => $data_user['userName']
+								'userName' => $data_user['userName'],
+								'idUser' => $data_user['idUser'],
 							));
 						} else {
 							$wpdb->insert('data_user_penatausahaan', $opsi);
 						}
+						$ret['sql'] = $wpdb->last_query;
 					}
 				} else if ($ret['status'] != 'error') {
 					$ret['status'] = 'error';
