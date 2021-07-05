@@ -1491,7 +1491,11 @@ class Wpsipd_Public
 	            }
 	        }
 	    }
-	    return array('alamat' => $alamat, 'lokus_akun_teks' => $lokus_akun_teks);
+	    return array(
+	    	'alamat' => $alamat, 
+	    	'lokus_akun_teks' => $lokus_akun_teks, 
+	    	'lokus_akun_teks_decode' => str_replace(array('petik_satu', 'petik_dua'), array("'", '"'), $lokus_akun_teks)
+	   	);
 	}
 
 	public function singkron_penerima_bantuan()

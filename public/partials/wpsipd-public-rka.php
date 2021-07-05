@@ -503,7 +503,7 @@ foreach ($bl as $k => $sub_bl) {
 		}
 		$alamat_array = $this->get_alamat($bl[0], $item);
         $alamat = $alamat_array['alamat'];
-        $lokus_akun_teks = $alamat_array['lokus_akun_teks'];
+        $lokus_akun_teks = $alamat_array['lokus_akun_teks_decode'];
 		if(empty($alamat)){
 			$alamat = array();
             if(!empty($item['id_lurah_penerima'])){
@@ -524,7 +524,11 @@ foreach ($bl as $k => $sub_bl) {
             }
             $profile_penerima = implode(', ', $alamat);
 		}else{
-			$profile_penerima = $lokus_akun_teks.', '.$alamat;
+			if(strpos($item['nama_komponen'], $lokus_akun_teks) !== false ){
+				$profile_penerima = $alamat;
+			}else{
+				$profile_penerima = $lokus_akun_teks.', '.$alamat;
+			}
 		}
 
 		$akun_all = explode('.', $item['kode_akun']);
@@ -758,7 +762,7 @@ foreach ($bl as $k => $sub_bl) {
                 <td class="kanan bawah text_kanan" style="vertical-align: middle;white-space:nowrap">Rp. '.number_format($item['rincian_murni'],0,",",".").'</td>
 			';
 			$selisih_murni = '
-				<td class="kanan bawah text_kanan">Rp. '.number_format($item['rincian_murni']-$item['total_harga'],0,",",".").'</td>
+				<td class="kanan bawah text_kanan" style="vertical-align: middle;white-space:nowrap">Rp. '.number_format($item['rincian_murni']-$item['total_harga'],0,",",".").'</td>
 			';
 		}
 		$rin_sub_item .= '
