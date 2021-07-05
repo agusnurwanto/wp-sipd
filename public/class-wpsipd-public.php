@@ -3384,4 +3384,14 @@ class Wpsipd_Public
 		}
 		die(json_encode($ret));
 	}
+
+	
+	function ubah_minus($nilai){
+	    if($nilai < 0){
+	        $nilai = abs($nilai);
+	        return '('.number_format($nilai,0,",",".").')';
+	    }else{
+	        return number_format($nilai,0,",",".");
+	    }
+	}
 }

@@ -577,7 +577,7 @@ foreach ($bl as $k => $sub_bl) {
                     <td colspan="4" class="kanan bawah text_blok"></td>
 				';
 				$selisih_murni = '
-					<td class="kanan bawah text_blok text_kanan">Rp. '.number_format($akun[$akun_1_db[0]['kode_akun']]['total_murni']-$akun[$akun_1_db[0]['kode_akun']]['total'],0,",",".").'
+					<td class="kanan bawah text_blok text_kanan">Rp. '.$this->ubah_minus($akun[$akun_1_db[0]['kode_akun']]['total']-$akun[$akun_1_db[0]['kode_akun']]['total_murni']).'
 				';
 			}
 			$rin_sub_item .= '
@@ -603,7 +603,7 @@ foreach ($bl as $k => $sub_bl) {
                     <td colspan="4" class="kanan bawah text_blok"></td>
 				';
 				$selisih_murni = '
-					<td class="kanan bawah text_blok text_kanan">Rp. '.number_format($akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']]['total_murni']-$akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']]['total'],0,",",".").'
+					<td class="kanan bawah text_blok text_kanan">Rp. '.$this->ubah_minus($akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']]['total']-$akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']]['total_murni']).'
 				';
 			}
 			$rin_sub_item .= '
@@ -629,7 +629,7 @@ foreach ($bl as $k => $sub_bl) {
                     <td colspan="4" class="kanan bawah text_blok"></td>
 				';
 				$selisih_murni = '
-					<td class="kanan bawah text_blok text_kanan">Rp. '.number_format($akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']]['total_murni']-$akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']]['total'],0,",",".").'
+					<td class="kanan bawah text_blok text_kanan">Rp. '.$this->ubah_minus($akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']]['total']-$akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']]['total_murni']).'
 				';
 			}
 			$rin_sub_item .= '
@@ -655,7 +655,7 @@ foreach ($bl as $k => $sub_bl) {
                     <td colspan="4" class="kanan bawah text_blok"></td>
 				';
 				$selisih_murni = '
-					<td class="kanan bawah text_blok text_kanan">Rp. '.number_format($akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']][$akun_4_db[0]['kode_akun']]['total_murni']-$akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']][$akun_4_db[0]['kode_akun']]['total'],0,",",".").'
+					<td class="kanan bawah text_blok text_kanan">Rp. '.$this->ubah_minus($akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']][$akun_4_db[0]['kode_akun']]['total']-$akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']][$akun_4_db[0]['kode_akun']]['total_murni']).'
 				';
 			}
 			$rin_sub_item .= '
@@ -683,7 +683,7 @@ foreach ($bl as $k => $sub_bl) {
                     <td colspan="4" class="kanan bawah text_blok"></td>
 				';
 				$selisih_murni = '
-					<td class="kanan bawah text_blok text_kanan">Rp. '.number_format($akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']][$akun_4_db[0]['kode_akun']][$item['nama_akun']]['total_murni']-$akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']][$akun_4_db[0]['kode_akun']][$item['nama_akun']]['total'],0,",",".").'
+					<td class="kanan bawah text_blok text_kanan">Rp. '.$this->ubah_minus($akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']][$akun_4_db[0]['kode_akun']][$item['nama_akun']]['total']-$akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']][$akun_4_db[0]['kode_akun']][$item['nama_akun']]['total_murni']).'
 				';
 			}
 			$rin_sub_item .= '
@@ -709,7 +709,7 @@ foreach ($bl as $k => $sub_bl) {
                     <td colspan="4" class="kanan bawah text_blok"></td>
 				';
 				$selisih_murni = '
-					<td class="kanan bawah text_blok text_kanan nilai_kelompok">Rp. '.number_format($akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']][$akun_4_db[0]['kode_akun']][$item['nama_akun']][$item['subs_bl_teks']]['total_murni']-$akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']][$akun_4_db[0]['kode_akun']][$item['nama_akun']][$item['subs_bl_teks']]['total'],0,",",".").'
+					<td class="kanan bawah text_blok text_kanan nilai_kelompok">Rp. '.$this->ubah_minus($akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']][$akun_4_db[0]['kode_akun']][$item['nama_akun']][$item['subs_bl_teks']]['total']-$akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']][$akun_4_db[0]['kode_akun']][$item['nama_akun']][$item['subs_bl_teks']]['total_murni']).'
 				';
 			}
 			$rin_sub_item .= '
@@ -735,7 +735,7 @@ foreach ($bl as $k => $sub_bl) {
                     <td colspan="4" class="kanan bawah text_blok"></td>
 				';
 				$selisih_murni = '
-					<td class="kanan bawah text_blok text_kanan nilai_keterangan">Rp. '.number_format($akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']][$akun_4_db[0]['kode_akun']][$item['nama_akun']][$item['subs_bl_teks']][$item['ket_bl_teks']]['total_murni']-$akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']][$akun_4_db[0]['kode_akun']][$item['nama_akun']][$item['subs_bl_teks']][$item['ket_bl_teks']]['total'],0,",",".").'
+					<td class="kanan bawah text_blok text_kanan nilai_keterangan">Rp. '.$this->ubah_minus($akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']][$akun_4_db[0]['kode_akun']][$item['nama_akun']][$item['subs_bl_teks']][$item['ket_bl_teks']]['total']-$akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']][$akun_4_db[0]['kode_akun']][$item['nama_akun']][$item['subs_bl_teks']][$item['ket_bl_teks']]['total_murni']).'
 				';
 			}
 			$rin_sub_item .= '
@@ -762,7 +762,7 @@ foreach ($bl as $k => $sub_bl) {
                 <td class="kanan bawah text_kanan" style="vertical-align: middle;white-space:nowrap">Rp. '.number_format($item['rincian_murni'],0,",",".").'</td>
 			';
 			$selisih_murni = '
-				<td class="kanan bawah text_kanan" style="vertical-align: middle;white-space:nowrap">Rp. '.number_format($item['rincian_murni']-$item['total_harga'],0,",",".").'</td>
+				<td class="kanan bawah text_kanan" style="vertical-align: middle;white-space:nowrap">Rp. '.$this->ubah_minus($item['total_harga']-$item['rincian_murni']).'</td>
 			';
 		}
 		$rin_sub_item .= '
@@ -798,7 +798,7 @@ foreach ($bl as $k => $sub_bl) {
             <td class="kanan bawah text_blok text_kanan" style="white-space:nowrap">Rp. '.number_format($total_sub_rinc_murni,0,",",".").'</td>
 		';
 		$selisih_murni = '
-			<td class="kanan bawah text_blok text_kanan" style="white-space:nowrap">Rp. '.number_format($total_sub_rinc_murni - $total_sub_rinc,0,",",".").'</td>
+			<td class="kanan bawah text_blok text_kanan" style="white-space:nowrap">Rp. '.$this->ubah_minus($total_sub_rinc - $total_sub_rinc_murni).'</td>
 		';
 	}
 	$rin_sub_item .= '
@@ -1211,7 +1211,7 @@ foreach ($bl as $k => $sub_bl) {
 		                    	<td class="kanan bawah text_blok text_kanan" style="white-space:nowrap">Rp. '.number_format($total_pagu_murni,0,",",".").'</td>
 							';
 							$selisih_murni = '
-								<td class="kanan bawah text_blok text_kanan">'.number_format($total_pagu_murni - $total_pagu,0,",",".").'</td>
+								<td class="kanan bawah text_blok text_kanan">'.$this->ubah_minus($total_pagu - $total_pagu_murni).'</td>
 							';
 						}
 	                ?>
