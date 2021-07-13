@@ -545,6 +545,8 @@ CREATE TABLE `data_dewan` (
   `nip` varchar(50) DEFAULT NULL,
   `notelp` varchar(50) DEFAULT NULL,
   `npwp` varchar(50) DEFAULT NULL,
+  `id_sub_skpd` int(11) DEFAULT NULL,
+  `active` tinyint(4) DEFAULT '1',
   `update_at` datetime NOT NULL,
   `tahun_anggaran` year(4) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;

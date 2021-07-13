@@ -282,6 +282,12 @@ class Wpsipd_Admin {
 	    Container::make( 'theme_options', __( 'SIMDA Setting' ) )
 		    ->set_page_parent( $basic_options_container )
 		    ->add_fields( $mapping_unit );
+
+		Container::make( 'user_meta', 'User SIPD' )
+	    ->add_fields( array(
+	        Field::make( 'text', 'crb_nama_skpd', 'Nama SKPD' ),
+	        Field::make( 'text', 'crb_jabatan', 'Jabatan' ),
+	    ) );
 	}
 
 	public function generate_siencang_page(){

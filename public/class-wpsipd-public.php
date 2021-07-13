@@ -351,7 +351,7 @@ class Wpsipd_Public
 					);
 					if (!empty($cek)) {
 						$wpdb->update('data_desa_kelurahan', $opsi, array(
-							'id_lurah' => $v['id_lurah'],
+							'id_lurah' => $data['id_lurah'],
 							'tahun_anggaran' => $_POST['tahun_anggaran']
 						));
 					} else {
@@ -373,12 +373,42 @@ class Wpsipd_Public
 		die(json_encode($ret));
 	}
 
-	public function singkron_user_dewan()
-	{
+	public function non_active_user(){
 		global $wpdb;
 		$ret = array(
 			'status'	=> 'success',
-			'message'	=> 'Berhasil export data anggota dewan!'
+			'message'	=> 'Berhasil menonactivekan user!',
+			'action'	=> $_POST['action']
+		);
+		if (!empty($_POST)) {
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == carbon_get_theme_option( 'crb_api_key_extension' )) {
+				if (!empty($_POST['id_level'])) {
+					$wpdb->update('data_dewan', array( 'active' => 0 ), array(
+						'tahun_anggaran' => $_POST['tahun_anggaran'],
+						'idlevel' => $_POST['id_level'],
+						'id_sub_skpd' => $_POST['id_sub_skpd']
+					));
+					$ret['sql'] = $wpdb->last_query;
+				} else {
+					$ret['status'] = 'error';
+					$ret['message'] = 'Format Data User Salah!';
+				}
+			} else {
+				$ret['status'] = 'error';
+				$ret['message'] = 'APIKEY tidak sesuai!';
+			}
+		} else {
+			$ret['status'] = 'error';
+			$ret['message'] = 'Format Salah!';
+		}
+		die(json_encode($ret));
+	}
+
+	public function singkron_user_dewan(){
+		global $wpdb;
+		$ret = array(
+			'status'	=> 'success',
+			'message'	=> 'Berhasil export data user!'
 		);
 		if (!empty($_POST)) {
 			if (!empty($_POST['api_key']) && $_POST['api_key'] == carbon_get_theme_option( 'crb_api_key_extension' )) {
@@ -423,12 +453,14 @@ class Wpsipd_Public
 						'nip' => $data['nip'],
 						'notelp' => $data['notelp'],
 						'npwp' => $data['npwp'],
+						'id_sub_skpd' => $data['id_sub_skpd'],
+						'active' => 1,
 						'update_at' => current_time('mysql'),
 						'tahun_anggaran' => $_POST['tahun_anggaran']
 					);
 					if (!empty($cek)) {
 						$wpdb->update('data_dewan', $opsi, array(
-							'iduser' => $v['iduser'],
+							'iduser' => $data['iduser'],
 							'tahun_anggaran' => $_POST['tahun_anggaran']
 						));
 					} else {
@@ -437,7 +469,7 @@ class Wpsipd_Public
 					// print_r($ssh); die();
 				} else {
 					$ret['status'] = 'error';
-					$ret['message'] = 'Format Data Dewan Salah!';
+					$ret['message'] = 'Format Data User Salah!';
 				}
 			} else {
 				$ret['status'] = 'error';
@@ -3385,7 +3417,7 @@ class Wpsipd_Public
 		die(json_encode($ret));
 	}
 
-	
+
 	function ubah_minus($nilai){
 	    if($nilai < 0){
 	        $nilai = abs($nilai);
