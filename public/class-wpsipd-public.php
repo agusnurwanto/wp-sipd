@@ -3426,4 +3426,73 @@ class Wpsipd_Public
 	        return number_format($nilai,0,",",".");
 	    }
 	}
+
+	function gen_user_sipd_merah($user = array()){
+		global $wpdb;
+		if(!empty($user)){
+			$username = $user['loginname'];
+			$email = $user['emailteks'];
+			if(empty($email)){
+				$email = $username.'@sipdlocal.com';
+			}
+			$role = get_role($user['jabatan']);
+			if(empty($role)){
+				add_role( $user['jabatan'], $user['jabatan'], array( 
+					'read' => true,
+					'edit_posts' => false,
+					'delete_posts' => false
+				) );
+			}
+			$insert_user = username_exists($username);
+			if(!$insert_user){
+				$option = array(
+					'user_login' => $username,
+					'user_pass' => $user['pass'],
+					'user_email' => $email,
+					'first_name' => $user['nama'],
+					'display_name' => $user['nama'],
+					'role' => $user['jabatan']
+				);
+				$insert_user = wp_insert_user($option);
+			}
+
+			$skpd = $wpdb->get_var("SELECT nama_skpd from data_unit where id_skpd=".$user['id_sub_skpd']." AND active=1");
+			$meta = array(
+			    '_crb_nama_skpd' => $skpd,
+			    '_id_sub_skpd' => $user['id_sub_skpd'],
+			    '_nip' => $user['nip']
+			);
+		    foreach( $meta as $key => $val ) {
+		      	update_user_meta( $insert_user, $key, $val ); 
+		    }
+		}
+	}
+
+	function generate_user_sipd_merah(){
+		global $wpdb;
+		$ret = array();
+		$ret['status'] = 'success';
+		$ret['message'] = 'Berhasil Generate User Wordpress dari DB Lokal SIPD Merah';
+		if (!empty($_POST)) {
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == carbon_get_theme_option( 'crb_api_key_extension' )) {
+				$users = $wpdb->get_results("SELECT * from data_dewan where active=1", ARRAY_A);
+				if(!empty($users)){
+					foreach ($users as $k => $user) {
+						$user['pass'] = $_POST['pass'];
+						$this->gen_user_sipd_merah($user);
+					}
+				}else{
+					$ret['status'] = 'error';
+					$ret['message'] = 'Data user kosong. Harap lakukan singkronisasi data user dulu!';
+				}
+			} else {
+				$ret['status'] = 'error';
+				$ret['message'] = 'APIKEY tidak sesuai!';
+			}
+		} else {
+			$ret['status'] = 'error';
+			$ret['message'] = 'Format Salah!';
+		}
+		die(json_encode($ret));
+	}
 }

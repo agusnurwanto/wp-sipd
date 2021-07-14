@@ -168,7 +168,10 @@ class Wpsipd_Admin {
             	->set_attribute('readOnly', 'true'),
             Field::make( 'text', 'crb_api_key_extension', 'API KEY chrome extension' )
             	->set_default_value($this->generateRandomString())
-            	->set_help_text('API KEY ini dipakai untuk <a href="https://github.com/agusnurwanto/sipd-chrome-extension" target="_blank">SIPD chrome extension</a>.')
+            	->set_help_text('API KEY ini dipakai untuk <a href="https://github.com/agusnurwanto/sipd-chrome-extension" target="_blank">SIPD chrome extension</a>.'),
+            Field::make( 'html', 'crb_generate_user_sipd_merah' )
+            	->set_html( '<a id="generate_user_sipd_merah" onclick="return false;" href="#" class="button button-primary button-large">Generate User SIPD Merah By DB Lokal</a>' )
+            	->set_help_text('Data user active yang ada di table data_dewan akan digenerate menjadi user wordpress.'),
             /*Field::make( 'html', 'crb_siencang' )
             	->set_html( '<a target="_blank" href="'.$siencang_link.'">SIPD to SIENCANG</a> | <a href="https://github.com/ganjarnugraha/perencanaan-penganggaran" target="_blank">https://github.com/ganjarnugraha/perencanaan-penganggaran</a>' ),
             Field::make( 'html', 'crb_simda' )
@@ -282,12 +285,6 @@ class Wpsipd_Admin {
 	    Container::make( 'theme_options', __( 'SIMDA Setting' ) )
 		    ->set_page_parent( $basic_options_container )
 		    ->add_fields( $mapping_unit );
-
-		Container::make( 'user_meta', 'User SIPD' )
-	    ->add_fields( array(
-	        Field::make( 'text', 'crb_nama_skpd', 'Nama SKPD' ),
-	        Field::make( 'text', 'crb_jabatan', 'Jabatan' ),
-	    ) );
 	}
 
 	public function generate_siencang_page(){
