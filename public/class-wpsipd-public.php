@@ -2564,6 +2564,15 @@ class Wpsipd_Public
 		echo $table;
 	}
 
+	public function monitor_rfk($atts)
+	{
+		// untuk disable render shortcode di halaman edit page/post
+		if(!empty($_GET) && !empty($_GET['post'])){
+			return '';
+		}
+		require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/wpsipd-public-monitor-rfk.php';
+	}
+
 	public function monitor_sipd($atts)
 	{
 		// untuk disable render shortcode di halaman edit page/post
@@ -3316,7 +3325,7 @@ class Wpsipd_Public
 			"November", 
 			"Desember"
 		);
-		return $nama_bulan[(int) $bulan];
+		return $nama_bulan[((int) $bulan)-1];
 	}
 
 	function singkron_pendahuluan(){

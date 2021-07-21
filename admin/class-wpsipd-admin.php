@@ -114,12 +114,15 @@ class Wpsipd_Admin {
 	    return $randomString;
 	}
 
-	public function generatePage($nama_page, $tahun_anggaran){
+	public function generatePage($nama_page, $tahun_anggaran, $content = false){
 		$custom_post = get_page_by_title($nama_page, OBJECT, 'page');
+		if(empty($content)){
+			$content = '[monitor_sipd tahun_anggaran="'.$tahun_anggaran.'"]';
+		}
 
 		$_post = array(
 			'post_title'	=> $nama_page,
-			'post_content'	=> '[monitor_sipd tahun_anggaran="'.$tahun_anggaran.'"]',
+			'post_content'	=> $content,
 			'post_type'		=> 'page',
 			'post_status'	=> 'private',
 			'comment_status'	=> 'closed'
@@ -184,11 +187,23 @@ class Wpsipd_Admin {
             	->set_html( '<a target="_blank" href="'.$sinergi_link.'">SIPD to SINERGI DJPK Kementrian Keuangan</a>' ),*/
         );
 
+		$rfk_pemda = array();
 		$tahun = $wpdb->get_results('select tahun_anggaran from data_unit group by tahun_anggaran', ARRAY_A);
 		foreach ($tahun as $k => $v) {
 			$url = $this->generatePage('Monitoring Update Data SIPD lokal Berdasar Waktu Terakhir Melakukan Singkronisasi Data | '.$v['tahun_anggaran'], $v['tahun_anggaran']);
 			$options_basic[] = Field::make( 'html', 'crb_monitor_update_'.$k )
             	->set_html( '<a target="_blank" href="'.$url.'">Halaman Monitor Update Data Lokal SIPD Merah Tahun '.$v['tahun_anggaran'].'</a>' );
+			
+			$url_pemda = $this->generatePage('Realisasi Fisik dan Keuangan Pemerintah Daerah | '.$v['tahun_anggaran'], $v['tahun_anggaran'], '[monitor_rfk tahun_anggaran="'.$v['tahun_anggaran'].'"]');
+            $unit = $wpdb->get_results("SELECT nama_skpd, id_skpd, kode_skpd from data_unit where active=1 and tahun_anggaran=".$v['tahun_anggaran'].' order by id_skpd ASC', ARRAY_A);
+            $body_pemda = '<ul style="margin-left: 20px;">';
+            foreach ($unit as $kk => $vv) {
+				$url_skpd = $this->generatePage('RFK '.$vv['nama_skpd'].' '.$vv['kode_skpd'].' | '.$v['tahun_anggaran'], $v['tahun_anggaran'], '[monitor_rfk tahun_anggaran="'.$v['tahun_anggaran'].'" id_skpd="'.$vv['id_skpd'].'"]');
+            	$body_pemda .= '<li><a target="_blank" href="'.$url_skpd.'">Halaman RFK '.$vv['nama_skpd'].' '.$v['tahun_anggaran'].'</a></li>';
+            }
+            $body_pemda .= '</ul>';
+			$rfk_pemda[] = Field::make( 'html', 'crb_rfk_pemda_'.$k )
+            	->set_html( '<a style="font-weight: bold;" target="_blank" href="'.$url_pemda.'">Halaman Realisasi Fisik dan Keuangan Pemerintah Daerah Tahun '.$v['tahun_anggaran'].'</a>'.$body_pemda );
 		}
 
 		$basic_options_container = Container::make( 'theme_options', __( 'SIPD Options' ) )
@@ -206,7 +221,7 @@ class Wpsipd_Admin {
 	            	->set_default_value('1')
 		    ) );
 
-		$unit = $wpdb->get_results("SELECT * from data_unit where active=1 and tahun_anggaran=".carbon_get_theme_option('crb_tahun_anggaran_sipd').' order by id_skpd ASC', ARRAY_A);
+		$unit = $wpdb->get_results("SELECT nama_skpd, id_skpd, kode_skpd from data_unit where active=1 and tahun_anggaran=".carbon_get_theme_option('crb_tahun_anggaran_sipd').' order by id_skpd ASC', ARRAY_A);
 		$mapping_unit = array(
 	        Field::make( 'radio', 'crb_singkron_simda', __( 'Auto Singkron ke DB SIMDA' ) )
 			    ->add_options( array(
@@ -285,6 +300,17 @@ class Wpsipd_Admin {
 	    Container::make( 'theme_options', __( 'SIMDA Setting' ) )
 		    ->set_page_parent( $basic_options_container )
 		    ->add_fields( $mapping_unit );
+
+	    $monev = Container::make( 'theme_options', __( 'MONEV SIPD' ) )
+			->set_page_menu_position( 4 )
+		    ->add_fields( $rfk_pemda );
+
+	    Container::make( 'theme_options', __( 'RFK' ) )
+		    ->set_page_parent( $monev )
+		    ->add_fields( $rfk_pemda );
+
+	    Container::make( 'theme_options', __( 'Indikator' ) )
+		    ->set_page_parent( $monev );
 	}
 
 	public function generate_siencang_page(){
