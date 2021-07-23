@@ -27,6 +27,8 @@ Cara pakai plugin:
 - `[apbdpenjabaran tahun_anggaran="2021" lampiran="2" id_skpd="xxxx"]` short code untuk menampilkan APBD penjabaran lampiran 2
 - `[apbdpenjabaran tahun_anggaran="2021" lampiran="1"]` short code untuk menampilkan APBD penjabaran lampiran 1
 - `[monitor_sipd tahun_anggaran="2021" kode_rek="4,5,6.1,6.2"]` short code untuk halaman monitoring update pagu per SKPD yang diurutkan berdasarkan waktu updatenya
+- Install plugin Ultimate Member untuk halaman profil user PA/KPA
+- Tambahkan shortcode `[menu_monev]` pada form user profile Ultimate Member untuk menampilkan url halaman MONEV sesuai user yang login
 
 ### HARUS Update php.ini
 

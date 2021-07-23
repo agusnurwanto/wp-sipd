@@ -18,6 +18,7 @@ jQuery(document).ready(function(){
 	          		"api_key": jQuery('input[name="carbon_fields_compact_input[_crb_api_key_extension]"]').val(),
 	          		"pass": prompt('Masukan password default untuk User yang akan dibuat')
 	          	},
+	          	dataType: "json",
 	          	success: function(data){
 					jQuery('#wrap-loading').hide();
 					return alert(data.message);

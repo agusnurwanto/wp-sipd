@@ -3469,7 +3469,8 @@ class Wpsipd_Public
 			$meta = array(
 			    '_crb_nama_skpd' => $skpd,
 			    '_id_sub_skpd' => $user['id_sub_skpd'],
-			    '_nip' => $user['nip']
+			    '_nip' => $user['nip'],
+			    'description' => 'User dibuat dari data SIPD Merah'
 			);
 		    foreach( $meta as $key => $val ) {
 		      	update_user_meta( $insert_user, $key, $val ); 
@@ -3484,15 +3485,31 @@ class Wpsipd_Public
 		$ret['message'] = 'Berhasil Generate User Wordpress dari DB Lokal SIPD Merah';
 		if (!empty($_POST)) {
 			if (!empty($_POST['api_key']) && $_POST['api_key'] == carbon_get_theme_option( 'crb_api_key_extension' )) {
-				$users = $wpdb->get_results("SELECT * from data_dewan where active=1", ARRAY_A);
-				if(!empty($users)){
-					foreach ($users as $k => $user) {
+				$users_pa = $wpdb->get_results("SELECT * from data_unit where active=1", ARRAY_A);
+				if(!empty($users_pa)){
+					foreach ($users_pa as $k => $user) {
 						$user['pass'] = $_POST['pass'];
+						$user['loginname'] = $user['nipkepala'];
+						$user['jabatan'] = $user['statuskepala'];
+						$user['nama'] = $user['namakepala'];
+						$user['id_sub_skpd'] = $user['id_skpd'];
+						$user['nip'] = $user['nipkepala'];
 						$this->gen_user_sipd_merah($user);
+					}
+
+					$users = $wpdb->get_results("SELECT * from data_dewan where active=1", ARRAY_A);
+					if(!empty($users)){
+						foreach ($users as $k => $user) {
+							$user['pass'] = $_POST['pass'];
+							$this->gen_user_sipd_merah($user);
+						}
+					}else{
+						$ret['status'] = 'error';
+						$ret['message'] = 'Data user kosong. Harap lakukan singkronisasi data user dulu!';
 					}
 				}else{
 					$ret['status'] = 'error';
-					$ret['message'] = 'Data user kosong. Harap lakukan singkronisasi data user dulu!';
+					$ret['message'] = 'Data user PA/KPA kosong. Harap lakukan singkronisasi data SKPD dulu!';
 				}
 			} else {
 				$ret['status'] = 'error';
@@ -3503,5 +3520,33 @@ class Wpsipd_Public
 			$ret['message'] = 'Format Salah!';
 		}
 		die(json_encode($ret));
+	}
+
+	public function menu_monev(){
+		global $wpdb;
+		$user_id = um_user( 'ID' );
+		$skpd = get_user_meta($user_id, '_crb_nama_skpd');
+		$id_skpd = get_user_meta($user_id, '_id_sub_skpd');
+		ob_start();
+		echo '<div>';
+		if(!empty($id_skpd)){ 
+			echo "<h5>SKPD: $skpd[0]</h5>";
+			$tahun = $wpdb->get_results('select tahun_anggaran from data_unit group by tahun_anggaran', ARRAY_A);
+			foreach ($tahun as $k => $v) {
+				$unit = $wpdb->get_results("SELECT nama_skpd, id_skpd, kode_skpd from data_unit where active=1 and tahun_anggaran=".$v['tahun_anggaran'].' and id_skpd='.$id_skpd[0], ARRAY_A);
+				echo '<ul>';
+	            foreach ($unit as $kk => $vv) {
+					$nama_page = 'RFK '.$vv['nama_skpd'].' '.$vv['kode_skpd'].' | '.$v['tahun_anggaran'];
+					$custom_post = get_page_by_title($nama_page, OBJECT, 'page');
+					$url_rfk = esc_url( get_permalink($custom_post));
+					echo '<li>MONEV RFK: <a href="'.$url_rfk.'" target="_blank">'.$nama_page.'</a></li>';
+				}
+				echo '</ul>';
+			}
+		}else{
+			echo 'SKPD tidak ditemukan!';
+		}
+		echo '</div>';
+		return ob_get_clean();
 	}
 }
