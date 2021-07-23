@@ -1425,3 +1425,30 @@ ALTER TABLE `data_user_tapd_sekda`
 --
 ALTER TABLE `data_user_tapd_sekda`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- Table structure for table `data_user_tapd_sekda`
+--
+
+CREATE TABLE `data_rfk` (
+  `id` int(11) NOT NULL,
+  `kode_sbl` text NOT NULL,
+  `realisasi_fisik` tinyint(3) DEFAULT NULL,
+  `permasalahan` text DEFAULT NULL,
+  `user_edit` text DEFAULT NULL,
+  `id_skpd` int(11) NOT NULL,
+  `created_at` datetime NOT NULL,
+  `tahun_anggaran` year(4) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+--
+-- Indexes for table `data_user_tapd_sekda`
+--
+ALTER TABLE `data_rfk`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- AUTO_INCREMENT for table `data_user_tapd_sekda`
+--
+ALTER TABLE `data_rfk`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;

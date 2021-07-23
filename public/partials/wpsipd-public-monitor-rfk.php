@@ -56,18 +56,24 @@ if(empty($units)){
 	}
 	$urut = $input['tahun_anggaran']-$start_rpjmd;
 }
+$current_user = wp_get_current_user();
 foreach ($units as $k => $unit): 
 	if($unit['is_skpd']==1){
 		$unit_induk = array($unit);
 		$subkeg = $wpdb->get_results($wpdb->prepare("
 			select 
-				* 
-			from data_sub_keg_bl 
-			where tahun_anggaran=%d
-				and active=1
-				and id_skpd=%d
-				and id_sub_skpd=%d
-			order by kode_sub_giat ASC
+				k.*,
+				r.realisasi_fisik, 
+				r.permasalahan
+			from data_sub_keg_bl k
+				left join data_rfk r on k.kode_sbl=r.kode_sbl
+					AND k.tahun_anggaran=r.tahun_anggaran
+					AND k.id_sub_skpd=r.id_skpd
+			where k.tahun_anggaran=%d
+				and k.active=1
+				and k.id_skpd=%d
+				and k.id_sub_skpd=%d
+			order by k.kode_sub_giat ASC
 		", $input['tahun_anggaran'], $unit['id_skpd'], $unit['id_skpd']), ARRAY_A);
 	}else{
 		$unit_induk = $wpdb->get_results($wpdb->prepare("
@@ -82,11 +88,16 @@ foreach ($units as $k => $unit):
 
 		$subkeg = $wpdb->get_results($wpdb->prepare("
 			select 
-				* 
-			from data_sub_keg_bl 
-			where tahun_anggaran=%d
-				and active=1
-				and id_sub_skpd=%d
+				k.*,
+				r.realisasi_fisik, 
+				r.permasalahan
+			from data_sub_keg_bl k
+				left join data_rfk r on k.kode_sbl=r.kode_sbl
+					AND k.tahun_anggaran=r.tahun_anggaran
+					AND k.id_sub_skpd=r.id_skpd
+			where k.tahun_anggaran=%d
+				and k.active=1
+				and k.id_sub_skpd=%d
 			order by kode_sub_giat ASC
 		", $input['tahun_anggaran'], $unit['id_skpd']), ARRAY_A);
 	}
@@ -147,12 +158,12 @@ foreach ($units as $k => $unit):
 	$body_rkpd = '';
 	foreach ($data_all['data'] as $kd_urusan => $urusan) {
 		$body .= '
-			<tr>
-		        <td class="text_center kiri kanan bawah text_blok">'.$kd_urusan.'</td>
-		        <td class="text_center kanan bawah">&nbsp;</td>
-		        <td class="text_center kanan bawah">&nbsp;</td>
-		        <td class="text_center kanan bawah">&nbsp;</td>
-		        <td class="text_center kanan bawah">&nbsp;</td>
+			<tr class="urusan" data-kode="'.$kd_urusan.'">
+		        <td class="text_tengah kiri kanan bawah text_blok">'.$kd_urusan.'</td>
+		        <td class="text_tengah kanan bawah">&nbsp;</td>
+		        <td class="text_tengah kanan bawah">&nbsp;</td>
+		        <td class="text_tengah kanan bawah">&nbsp;</td>
+		        <td class="text_tengah kanan bawah">&nbsp;</td>
 		        <td class="kanan bawah text_blok" colspan="7">'.$urusan['nama'].'</td>
 		    </tr>
 		';
@@ -160,17 +171,17 @@ foreach ($units as $k => $unit):
 			$kd_bidang = explode('.', $kd_bidang);
 			$kd_bidang = $kd_bidang[count($kd_bidang)-1];
 			$body .= '
-				<tr>
-		            <td class="text_center kiri kanan bawah text_blok">'.$kd_urusan.'</td>
-		            <td class="text_center kanan bawah text_blok">'.$kd_bidang.'</td>
-		            <td class="text_center kanan bawah">&nbsp;</td>
-		            <td class="text_center kanan bawah">&nbsp;</td>
-		            <td class="text_center kanan bawah">&nbsp;</td>
+				<tr class="bidang" data-kode="'.$kd_urusan.'.'.$kd_bidang.'">
+		            <td class="text_tengah kiri kanan bawah text_blok">'.$kd_urusan.'</td>
+		            <td class="text_tengah kanan bawah text_blok">'.$kd_bidang.'</td>
+		            <td class="text_tengah kanan bawah">&nbsp;</td>
+		            <td class="text_tengah kanan bawah">&nbsp;</td>
+		            <td class="text_tengah kanan bawah">&nbsp;</td>
 		            <td class="kanan bawah text_blok">'.$bidang['nama'].'</td>
 		            <td class="kanan bawah text_kanan text_blok">'.number_format($bidang['total'],0,",",".").'</td>
 		            <td class="kanan bawah text_blok"></td>
 		            <td class="kanan bawah text_blok"></td>
-		            <td class="kanan bawah text_blok"></td>
+		            <td class="kanan bawah text_blok bidang-realisasi-fisik text_tengah"></td>
 		        	<td class="kanan bawah text_kanan text_blok" colspan="2"></td>
 		        </tr>
 			';
@@ -178,17 +189,17 @@ foreach ($units as $k => $unit):
 				$kd_program = explode('.', $kd_program);
 				$kd_program = $kd_program[count($kd_program)-1];
 				$body .= '
-					<tr>
-			            <td class="text_center kiri kanan bawah text_blok">'.$kd_urusan.'</td>
-			            <td class="text_center kanan bawah text_blok">'.$kd_bidang.'</td>
-			            <td class="text_center kanan bawah text_blok">'.$kd_program.'</td>
-			            <td class="text_center kanan bawah">&nbsp;</td>
-			            <td class="text_center kanan bawah">&nbsp;</td>
+					<tr class="program" data-kode="'.$kd_urusan.'.'.$kd_bidang.'.'.$kd_program.'">
+			            <td class="text_tengah kiri kanan bawah text_blok">'.$kd_urusan.'</td>
+			            <td class="text_tengah kanan bawah text_blok">'.$kd_bidang.'</td>
+			            <td class="text_tengah kanan bawah text_blok">'.$kd_program.'</td>
+			            <td class="text_tengah kanan bawah">&nbsp;</td>
+			            <td class="text_tengah kanan bawah">&nbsp;</td>
 			            <td class="kanan bawah text_blok">'.$program['nama'].'</td>
 			            <td class="kanan bawah text_kanan text_blok">'.number_format($program['total'],0,",",".").'</td>
 			            <td class="kanan bawah text_blok"></td>
 			            <td class="kanan bawah text_blok"></td>
-			            <td class="kanan bawah text_blok"></td>
+			            <td class="kanan bawah text_blok program-realisasi-fisik text_tengah"></td>
 		        		<td class="kanan bawah text_kanan text_blok" colspan="2"></td>
 			        </tr>
 				';
@@ -196,37 +207,37 @@ foreach ($units as $k => $unit):
 					$kd_giat = explode('.', $kd_giat);
 					$kd_giat = $kd_giat[count($kd_giat)-2].'.'.$kd_giat[count($kd_giat)-1];
 					$body .= '
-				        <tr>
-				            <td class="text_center" style="border:.5pt solid #000; vertical-align:middle; font-weight:bold;" width="5">'.$kd_urusan.'</td>
-				            <td class="text_center" style="border:.5pt solid #000; vertical-align:middle; font-weight:bold; vnd.ms-excel.numberformat:00;" width="5">'.$kd_bidang.'</td>
-				            <td class="text_center" style="border:.5pt solid #000; vertical-align:middle; font-weight:bold; vnd.ms-excel.numberformat:000;" width="5">'.$kd_program.'</td>
-				            <td class="text_center" style="border:.5pt solid #000; vertical-align:middle; font-weight:bold;" width="5">'.$kd_giat.'</td>
-				            <td class="text_center" style="border:.5pt solid #000; vertical-align:middle;" width="5">&nbsp;</td>
+				        <tr class="kegiatan" data-kode="'.$kd_urusan.'.'.$kd_bidang.'.'.$kd_program.'.'.$kd_giat.'">
+				            <td class="text_tengah" style="border:.5pt solid #000; vertical-align:middle; font-weight:bold;" width="5">'.$kd_urusan.'</td>
+				            <td class="text_tengah" style="border:.5pt solid #000; vertical-align:middle; font-weight:bold; vnd.ms-excel.numberformat:00;" width="5">'.$kd_bidang.'</td>
+				            <td class="text_tengah" style="border:.5pt solid #000; vertical-align:middle; font-weight:bold; vnd.ms-excel.numberformat:000;" width="5">'.$kd_program.'</td>
+				            <td class="text_tengah" style="border:.5pt solid #000; vertical-align:middle; font-weight:bold;" width="5">'.$kd_giat.'</td>
+				            <td class="text_tengah" style="border:.5pt solid #000; vertical-align:middle;" width="5">&nbsp;</td>
 				            <td style="border:.5pt solid #000; vertical-align:middle; font-weight:bold;">'.$giat['nama'].'</td>
 				            <td style="border:.5pt solid #000; vertical-align:middle;  text-align:right; font-weight:bold;">'.number_format($giat['total'],0,",",".").'</td>
 				            <td style="border:.5pt solid #000; vertical-align:middle; font-weight:bold;"></td>
 				            <td style="border:.5pt solid #000; vertical-align:middle; font-weight:bold;"></td>
-				            <td style="border:.5pt solid #000; vertical-align:middle; font-weight:bold;"></td>
+				            <td style="border:.5pt solid #000; vertical-align:middle; font-weight:bold;" class="kegiatan-realisasi-fisik text_tengah"></td>
 		        			<td class="kanan bawah text_kanan text_blok" colspan="2"></td>
 				        </tr>
 					';
-					foreach ($giat['data'] as $kd_sub_giat => $sub_giat) {
-						$kd_sub_giat = explode('.', $kd_sub_giat);
+					foreach ($giat['data'] as $kd_sub_giat1 => $sub_giat) {
+						$kd_sub_giat = explode('.', $kd_sub_giat1);
 						$kd_sub_giat = $kd_sub_giat[count($kd_sub_giat)-1];
 						$body .= '
-					        <tr>
+					        <tr data-kode="'.$kd_sub_giat1.'" data-kdsbl="'.$sub_giat['data']['kode_sbl'].'" data-idskpd="'.$sub_giat['data']['id_sub_skpd'].'">
 					            <td class="kiri kanan bawah">'.$kd_urusan.'</td>
 					            <td class="kanan bawah">'.$kd_bidang.'</td>
 					            <td class="kanan bawah">'.$kd_program.'</td>
 					            <td class="kanan bawah">'.$kd_giat.'</td>
 					            <td class="kanan bawah">'.$kd_sub_giat.'</td>
-					            <td class="kanan bawah">'.$sub_giat['nama'].'</td>
+					            <td class="kanan bawah nama_sub_giat">'.$sub_giat['nama'].'</td>
 					            <td class="kanan bawah text_kanan">'.number_format($sub_giat['total'],0,",",".").'</td>
 					            <td class="kanan bawah"></td>
+					            <td class="kanan bawah text_tengah"></td>
+					            <td class="kanan bawah realisasi-fisik text_tengah" contenteditable="true">'.$sub_giat['data']['realisasi_fisik'].'</td>
 					            <td class="kanan bawah"></td>
-					            <td class="kanan bawah"></td>
-					            <td class="kanan bawah"></td>
-					            <td class="kanan bawah"></td>
+					            <td class="kanan bawah permasalahan" contenteditable="true">'.$sub_giat['data']['permasalahan'].'</td>
 					        </tr>
 						';
 					}
@@ -235,6 +246,8 @@ foreach ($units as $k => $unit):
 		}
 	}
 	echo '
+	<input type="hidden" value="'.carbon_get_theme_option( 'crb_api_key_extension' ).'" id="api_key">
+	<input type="hidden" value="'.$input['tahun_anggaran'].'" id="tahun_anggaran">
 	<div id="cetak" title="Laporan RFK '.$input['tahun_anggaran'].'" style="padding: 5px;">
 		<h4 style="text-align: center; margin: 0; font-weight: bold;">Realisasi Fisik dan Keuangan (RFK)<br>'.$unit['kode_skpd'].'&nbsp;'.$unit['nama_skpd'].'<br>Bulan '.$nama_bulan.' Tahun '.$input['tahun_anggaran'].'</h4>
 		<table cellpadding="2" cellspacing="0" style="font-family:\'Open Sans\',-apple-system,BlinkMacSystemFont,\'Segoe UI\',sans-serif; border-collapse: collapse; width:100%; table-layout:fixed; overflow-wrap: break-word; font-size: 70%; border: 0;">
@@ -291,7 +304,7 @@ foreach ($units as $k => $unit):
 			        <td class="kanan bawah text_kanan text_blok">'.number_format($data_all['total'],0,",",".").'</td>
 			        <td class="kanan bawah text_kanan text_blok"></td>
 			        <td class="kanan bawah text_kanan text_blok"></td>
-			        <td class="kanan bawah text_kanan text_blok"></td>
+			        <td class="kanan bawah text_kanan text_blok total-realisasi-fisik text_tengah"></td>
 			        <td class="kanan bawah text_kanan text_blok" colspan="2"></td>
 			    </tr>
 		    </tbody>
@@ -302,6 +315,72 @@ endforeach;
 ?>
 <script type="text/javascript">
 	run_download_excel();
+    function generate_total(){
+    	var total_parent = {};
+    	var total = 0;
+    	var total_s = 0;
+    	jQuery('.realisasi-fisik').map(function(i, b){
+    		var kode_sub = jQuery(b).closest('tr').attr('data-kode').split('.');
+    		var kode_kegiatan = kode_sub[0]+'.'+kode_sub[1]+'.'+kode_sub[2]+'.'+kode_sub[3]+'.'+kode_sub[4];
+    		var kode_program = kode_sub[0]+'.'+kode_sub[1]+'.'+kode_sub[2];
+    		var kode_bidang = kode_sub[0]+'.'+kode_sub[1];
+    		var val = jQuery(b).text();
+    		if(!isNaN(val) && +val >= 0 && +val <= 100){
+    			total += +val;
+    			total_s++;
+    			if(typeof total_parent[kode_bidang] == 'undefined'){
+    				total_parent[kode_bidang] = {
+    					total_bidang : 0,
+	    				total_bidang_s : 0
+    				}
+    			}
+    			if(typeof total_parent[kode_program] == 'undefined'){
+    				total_parent[kode_program] = {
+				    	total_program : 0,
+				    	total_program_s : 0
+    				}
+    			}
+    			if(typeof total_parent[kode_kegiatan] == 'undefined'){
+    				total_parent[kode_kegiatan] = {
+				    	total_kegiatan : 0,
+				    	total_kegiatan_s : 0
+    				}
+    			}
+    			total_parent[kode_bidang].total_bidang += +val;
+    			total_parent[kode_bidang].total_bidang_s++;
+    			total_parent[kode_program].total_program += +val;
+    			total_parent[kode_program].total_program_s++;
+    			total_parent[kode_kegiatan].total_kegiatan += +val;
+    			total_parent[kode_kegiatan].total_kegiatan_s++;
+    		}
+    	});
+    	for(var i in total_parent){
+    		if(typeof(total_parent[i].total_bidang) != 'undefined'){
+    			var total_bidang = 0;
+    			if(total_parent[i].total_bidang_s != 0){
+	    			total_bidang = Math.round(total_parent[i].total_bidang/total_parent[i].total_bidang_s);
+    			}
+	    		jQuery('tr[data-kode="'+i+'"]').find('.bidang-realisasi-fisik').text(total_bidang);
+	    	}else if(typeof(total_parent[i].total_program) != 'undefined'){
+    			var total_program = 0;
+    			if(total_parent[i].total_program_s != 0){
+	    			total_program = Math.round(total_parent[i].total_program/total_parent[i].total_program_s);
+	    		}
+	    		jQuery('tr[data-kode="'+i+'"]').find('.program-realisasi-fisik').text(total_program);
+	    	}else if(typeof(total_parent[i].total_kegiatan) != 'undefined'){
+    			var total_kegiatan = 0;
+    			if(total_parent[i].total_kegiatan_s != 0){
+	    			total_kegiatan = Math.round(total_parent[i].total_kegiatan/total_parent[i].total_kegiatan_s);
+	    		}
+	    		jQuery('tr[data-kode="'+i+'"]').find('.kegiatan-realisasi-fisik').text(total_kegiatan);
+	    	}
+    	}
+    	var end = 0;
+    	if(total_s != 0){
+    		end = Math.round(total/total_s);
+    	}
+    	jQuery('.total-realisasi-fisik').text(end);
+    }
 	var _url = window.location.href;
     var url = new URL(_url);
     _url = url.origin+url.pathname+'?key='+url.searchParams.get('key');
@@ -332,13 +411,96 @@ endforeach;
 					+'<option value="12">Desember</option>'
 				+'</select>'
 			+'</label>'
+			+'<button style="margin-left: 20px;" class="button button-primary" id="simpan-rfk">Simpan RFK</button>'
 		+'</div>';
-    jQuery('#action-sipd').append(extend_action);
-    jQuery('#pilih_bulan').val(+<?php echo $bulan; ?>);
-    jQuery('#pilih_bulan').on('click', function(){
-    	var val = jQuery(this).val();
-    	if(val != 0){
-    		window.open(url+'&bulan='+val,'_blank');
-    	}
-    });
+	jQuery(document).ready(function(){
+	    jQuery('#action-sipd').append(extend_action);
+	    jQuery('#pilih_bulan').val(+<?php echo $bulan; ?>);
+	    jQuery('#pilih_bulan').on('click', function(){
+	    	var val = jQuery(this).val();
+	    	if(val != 0){
+	    		window.open(url+'&bulan='+val,'_blank');
+	    	}
+	    });
+	    jQuery('.realisasi-fisik').on('input', function(){
+	    	generate_total();
+	    	var val = jQuery(this).text();
+	    	if(isNaN(+val) || +val > 100 || +val < 0){
+	    		alert('Input realisasi fisik harus dalam format angka antaran 0-100!');
+	    	}
+	    });
+	    jQuery('#simpan-rfk').on('click', function(){
+	    	if(confirm('Apakah anda yakin untuk menyimpan data ini?')){
+	    		jQuery('#wrap-loading').show();
+	    		var r_fisik = [];
+	    		var r_fisik_s = [];
+	    		var cek = false;
+	    		jQuery('.realisasi-fisik').map(function(i, b){
+	    			var tr = jQuery(b).closest('tr');
+	    			var val = jQuery(b).text();
+	    			if(isNaN(+val) || +val > 100 || +val < 0){
+			    		cek = tr.find('.nama_sub_giat').text();
+			    	}
+	    			r_fisik_s.push({
+	    				realisasi_fisik: val,
+	    				permasalahan: tr.find('.permasalahan').text(),
+	    				id_skpd: tr.attr('data-idskpd'),
+	    				kode_sbl: tr.attr('data-kdsbl')
+	    			});
+	    			if(i>0 && i%20==0){
+	    				r_fisik.push(r_fisik_s);
+	    				r_fisik_s = [];
+	    			}
+	    		});
+	    		if(cek){
+			    	alert('Input realisasi fisik sub kegiatan "'+cek+'" harus dalam format angka antaran 0-100! Realisasi tidak tersimpan.');
+	    			return;
+	    		}
+	    		if(r_fisik_s.length >= 1){
+	    			r_fisik.push(r_fisik_s);
+	    		}
+	    		r_fisik.reduce(function(sequence, nextData){
+	                return sequence.then(function(current_data){
+	            		return new Promise(function(resolve_redurce, reject_redurce){
+				    		jQuery.ajax({
+								url: "<?php echo admin_url('admin-ajax.php'); ?>",
+					          	type: "post",
+					          	data: {
+					          		"action": "simpan_rfk",
+					          		"api_key": jQuery('#api_key').val(),
+					          		"tahun_anggaran": jQuery('#tahun_anggaran').val(),
+					          		"user": "<?php echo $current_user->display_name; ?>",
+					          		"data": current_data
+					          	},
+					          	dataType: "json",
+					          	success: function(data){
+									return resolve_redurce(data.message);
+								},
+								error: function(e) {
+									console.log(e);
+									return resolve_redurce(data.message);
+								}
+							});
+		                })
+	                    .catch(function(e){
+	                        console.log(e);
+	                        return Promise.resolve(nextData);
+	                    });
+	                })
+	                .catch(function(e){
+	                    console.log(e);
+	                    return Promise.resolve(nextData);
+	                });
+	            }, Promise.resolve(r_fisik[r_fisik.length-1]))
+	            .then(function(){
+					jQuery('#wrap-loading').hide();
+					alert('Data berhasil disimpan!');
+	            })
+	            .catch(function(e){
+	                console.log(e);
+	            });
+	    	}
+	    });
+	    generate_total();
+	});
 </script>

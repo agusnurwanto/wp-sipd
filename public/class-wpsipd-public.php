@@ -3539,7 +3539,7 @@ class Wpsipd_Public
 					$nama_page = 'RFK '.$vv['nama_skpd'].' '.$vv['kode_skpd'].' | '.$v['tahun_anggaran'];
 					$custom_post = get_page_by_title($nama_page, OBJECT, 'page');
 					$url_rfk = esc_url( get_permalink($custom_post));
-					echo '<li>MONEV RFK: <a href="'.$url_rfk.'" target="_blank">'.$nama_page.'</a></li>';
+					echo '<li>MONEV RFK: <a href="'.$url_rfk.'&key='.$this->gen_key().'" target="_blank">'.$nama_page.'</a></li>';
 				}
 				echo '</ul>';
 			}
@@ -3548,5 +3548,53 @@ class Wpsipd_Public
 		}
 		echo '</div>';
 		return ob_get_clean();
+	}
+
+	public function simpan_rfk(){
+		global $wpdb;
+		$ret = array();
+		$ret['status'] = 'success';
+		$ret['message'] = 'Berhasil simpan realisasi fisik dan keuangan!';
+		if (!empty($_POST)) {
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == carbon_get_theme_option( 'crb_api_key_extension' )) {
+				foreach ($_POST['data'] as $k => $v) {
+					$sql = $wpdb->prepare("
+					    select 
+					        *
+					    from data_rfk
+					    where tahun_anggaran=%d
+					        and id_skpd=%d
+					        and kode_sbl=%s
+					", $_POST['tahun_anggaran'], $v['id_skpd'], $v['kode_sbl']);
+					$cek = $wpdb->get_results($sql, ARRAY_A);
+					$opsi = array(
+						'kode_sbl'	=> $v['kode_sbl'],
+						'realisasi_fisik'	=> $v['realisasi_fisik'],
+						'permasalahan'	=> $v['permasalahan'],
+						'user_edit'	=> $_POST['user'],
+						'id_skpd'	=> $v['id_skpd'],
+						'tahun_anggaran'	=> $_POST['tahun_anggaran'],
+						'created_at'	=>  current_time('mysql')
+					);
+					if (!empty($cek)) {
+						$wpdb->update('data_rfk', $opsi, array(
+							'tahun_anggaran' => $_POST['tahun_anggaran'],
+							'id_skpd' => $v['id_skpd'],
+							'kode_sbl' => $v['kode_sbl']
+						));
+					} else {
+						$wpdb->insert('data_rfk', $opsi);
+					}
+				}
+			} else {
+				$ret['status'] = 'error';
+				$ret['message'] = 'APIKEY tidak sesuai!';
+			}
+		} else {
+			$ret['status'] = 'error';
+			$ret['message'] = 'Format Salah!';
+		}
+		die(json_encode($ret));
+
 	}
 }
