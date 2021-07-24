@@ -3600,6 +3600,69 @@ class Wpsipd_Public
 		die(json_encode($ret));
 	}
 
+	public function reset_rfk(){
+		global $wpdb;
+		$ret = array();
+		$ret['status'] = 'success';
+		$ret['message'] = 'Berhasil reset data realisasi fisik dan keuangan sesuai bulan sebelumnya!';
+		if (!empty($_POST)) {
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == carbon_get_theme_option( 'crb_api_key_extension' )) {
+				$sql = $wpdb->prepare("
+				    select 
+				        *
+				    from data_rfk
+				    where tahun_anggaran=%d
+				        and bulan=%d
+				        and id_skpd=%d
+				", $_POST['tahun_anggaran'], $_POST['bulan']-1, $_POST['id_skpd']);
+				$rfk = $wpdb->get_results($sql, ARRAY_A);
+				foreach ($rfk as $k => $v) {
+					$sql = $wpdb->prepare("
+					    select 
+					        *
+					    from data_rfk
+					    where tahun_anggaran=%d
+					        and bulan=%d
+					        and id_skpd=%d
+					        and kode_sbl=%s
+					", $_POST['tahun_anggaran'], $_POST['bulan'], $_POST['id_skpd'], $v['kode_sbl']);
+					$cek = $wpdb->get_results($sql, ARRAY_A);
+					$opsi = array(
+						'bulan'	=> $_POST['bulan'],
+						'kode_sbl'	=> $v['kode_sbl'],
+						'realisasi_fisik'	=> $v['realisasi_fisik'],
+						'permasalahan'	=> $v['permasalahan'],
+						'user_edit'	=> $_POST['user'],
+						'id_skpd'	=> $v['id_skpd'],
+						'tahun_anggaran'	=> $_POST['tahun_anggaran'],
+						'created_at'	=>  current_time('mysql')
+					);
+					if (!empty($cek)) {
+						$wpdb->update('data_rfk', $opsi, array(
+							'tahun_anggaran' => $_POST['tahun_anggaran'],
+							'bulan' => $_POST['bulan'],
+							'id_skpd' => $v['id_skpd'],
+							'kode_sbl' => $v['kode_sbl']
+						));
+					} else {
+						$wpdb->insert('data_rfk', $opsi);
+					}
+				}
+				if(empty($rfk)){
+					$ret['status'] = 'error';
+					$ret['message'] = 'Data RFK bulan sebelumnya kosong!';
+				}
+			} else {
+				$ret['status'] = 'error';
+				$ret['message'] = 'APIKEY tidak sesuai!';
+			}
+		} else {
+			$ret['status'] = 'error';
+			$ret['message'] = 'Format Salah!';
+		}
+		die(json_encode($ret));
+	}
+
 	function get_pagu_simda($options = array()){
 		global $wpdb;
 		$sumber_pagu = $options['sumber_pagu'];
@@ -3653,11 +3716,19 @@ class Wpsipd_Public
 		$kd_prog = $options['kd_prog'];
 		$id_prog = $options['id_prog'];
 		$kd_keg = $options['kd_keg'];
+		$hari_mulai = $options['tahun_anggaran'].'-01-01';
+		$hari_akhir = $options['tahun_anggaran'].'-'.$this->simda->CekNull($options['bulan']).'-01';
+		$hari_akhir = date("Y-m-t", strtotime($hari_akhir));
 		$sql = $wpdb->prepare("
 			SELECT  sum(a.debet) as total
 			FROM ta_jurnalsemua_rinc a
 				left join ta_jurnalsemua p ON a.no_bukti=p.no_bukti
+					AND a.tahun = p.tahun
+					AND a.kd_source = p.kd_source
 			WHERE a.tahun = %d 
+				AND a.kd_jurnal <> 8
+				AND a.kd_rek_1 = 5
+				AND p.tgl_bukti BETWEEN %s AND %s
 				AND p.Kd_Urusan = %d
 				AND p.Kd_Bidang = %d
 				AND p.Kd_Unit = %d
@@ -3667,6 +3738,8 @@ class Wpsipd_Public
 				AND a.kd_keg = %d
 			", 
 			$options['tahun_anggaran'], 
+			$hari_mulai, 
+			$hari_akhir, 
 			$kd_urusan, 
 			$kd_bidang, 
 			$kd_unit, 
@@ -3675,10 +3748,10 @@ class Wpsipd_Public
 			$id_prog, 
 			$kd_keg
 		);
-		$pagu = $this->simda->CurlSimda(array('query' => $sql));
+		$pagu = $this->simda->CurlSimda(array('query' => $sql), false);
 		return $pagu[0]->total;
 	}
-	
+
 	function pembulatan($angka){
 		$angka = $angka*100;
 		return round($angka)/100;

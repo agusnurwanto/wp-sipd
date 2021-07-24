@@ -75,12 +75,13 @@ foreach ($units as $k => $unit):
 				left join data_rfk r on k.kode_sbl=r.kode_sbl
 					AND k.tahun_anggaran=r.tahun_anggaran
 					AND k.id_sub_skpd=r.id_skpd
+					AND r.bulan=%d
 			where k.tahun_anggaran=%d
 				and k.active=1
 				and k.id_skpd=%d
 				and k.id_sub_skpd=%d
 			order by k.kode_sub_giat ASC
-		", $input['tahun_anggaran'], $unit['id_skpd'], $unit['id_skpd']), ARRAY_A);
+		", $bulan, $input['tahun_anggaran'], $unit['id_skpd'], $unit['id_skpd']), ARRAY_A);
 	}else{
 		$unit_induk = $wpdb->get_results($wpdb->prepare("
 			select 
@@ -101,11 +102,12 @@ foreach ($units as $k => $unit):
 				left join data_rfk r on k.kode_sbl=r.kode_sbl
 					AND k.tahun_anggaran=r.tahun_anggaran
 					AND k.id_sub_skpd=r.id_skpd
+					AND r.bulan=%d
 			where k.tahun_anggaran=%d
 				and k.active=1
 				and k.id_sub_skpd=%d
 			order by kode_sub_giat ASC
-		", $input['tahun_anggaran'], $unit['id_skpd']), ARRAY_A);
+		", $bulan, $input['tahun_anggaran'], $unit['id_skpd']), ARRAY_A);
 	}
 	// echo $wpdb->last_query.'<br>';
 
@@ -363,6 +365,7 @@ foreach ($units as $k => $unit):
 	echo '
 	<input type="hidden" value="'.carbon_get_theme_option( 'crb_api_key_extension' ).'" id="api_key">
 	<input type="hidden" value="'.$input['tahun_anggaran'].'" id="tahun_anggaran">
+	<input type="hidden" value="'.$unit['id_skpd'].'" id="id_skpd">
 	<div id="cetak" title="Laporan RFK '.$input['tahun_anggaran'].'" style="padding: 5px;">
 		<h4 style="text-align: center; margin: 0; font-weight: bold;">Realisasi Fisik dan Keuangan (RFK)<br>'.$unit['kode_skpd'].'&nbsp;'.$unit['nama_skpd'].'<br>Bulan '.$nama_bulan.' Tahun '.$input['tahun_anggaran'].'</h4>
 		<table cellpadding="2" cellspacing="0" style="font-family:\'Open Sans\',-apple-system,BlinkMacSystemFont,\'Segoe UI\',sans-serif; border-collapse: collapse; width:100%; table-layout:fixed; overflow-wrap: break-word; font-size: 70%; border: 0;">
@@ -498,7 +501,14 @@ endforeach;
     }
 	var _url = window.location.href;
     var url = new URL(_url);
-    _url = url.origin+url.pathname+'?key='+url.searchParams.get('key');
+    var param = [];
+    if(url.searchParams.get('key')){
+    	param.push('key='+url.searchParams.get('key'));
+    }
+    if(url.searchParams.get('page_id')){
+    	param.push('page_id='+url.searchParams.get('page_id'));
+    }
+    _url = url.origin+url.pathname+'?'+param.join('&');
 	var extend_action = ''
 		+'<div style="margin-top: 20px;">'
 			+'<label>Sumber Pagu Indikatif: '
@@ -527,6 +537,7 @@ endforeach;
 				+'</select>'
 			+'</label>'
 			+'<button style="margin-left: 20px;" class="button button-primary" id="simpan-rfk">Simpan RFK</button>'
+			+'<button style="margin-left: 20px;" class="button button-default" id="reset-rfk">Reset RFK Bulan Sebelumnya</button>'
 		+'</div>';
 	jQuery(document).ready(function(){
 	    jQuery('#action-sipd').append(extend_action);
@@ -537,18 +548,48 @@ endforeach;
 	    	if(val > 0){
 	    		window.open(_url+'&sumber_pagu='+val,'_blank');
 	    	}
+	    	jQuery('#pilih_sumber_pagu').val(+<?php echo $sumber_pagu; ?>);
 	    });
 	    jQuery('#pilih_bulan').on('change', function(){
 	    	var val = +jQuery(this).val();
 	    	if(val > 0){
 	    		window.open(_url+'&bulan='+val,'_blank');
 	    	}
+	    	jQuery('#pilih_bulan').val(+<?php echo $bulan; ?>);
 	    });
 	    jQuery('.realisasi-fisik').on('input', function(){
 	    	generate_total();
 	    	var val = jQuery(this).text();
 	    	if(isNaN(+val) || +val > 100 || +val < 0){
 	    		alert('Input realisasi fisik harus dalam format angka antaran 0-100!');
+	    	}
+	    });
+	    jQuery('#reset-rfk').on('click', function(){
+	    	if(confirm('Apakah anda yakin untuk data RFK sesuai bulan sebelumnya? Data RFK saat ini akan disamakan dengan bulan sebelumnya!')){
+	    		jQuery('#wrap-loading').show();
+	    		var id_skpd = jQuery('#id_skpd').val();
+	    		jQuery.ajax({
+					url: "<?php echo admin_url('admin-ajax.php'); ?>",
+		          	type: "post",
+		          	data: {
+		          		"action": "reset_rfk",
+		          		"api_key": jQuery('#api_key').val(),
+		          		"tahun_anggaran": jQuery('#tahun_anggaran').val(),
+		          		"bulan": jQuery('#pilih_bulan').val(),
+		          		"id_skpd": id_skpd,
+		          		"user": "<?php echo $current_user->display_name; ?>"
+		          	},
+		          	dataType: "json",
+		          	success: function(data){
+		    			jQuery('#wrap-loading').hide();
+						alert(data.message);
+						window.location.href="";
+					},
+					error: function(e) {
+		    			jQuery('#wrap-loading').hide();
+						console.log(e);
+					}
+				});
 	    	}
 	    });
 	    jQuery('#simpan-rfk').on('click', function(){
@@ -597,11 +638,11 @@ endforeach;
 					          	},
 					          	dataType: "json",
 					          	success: function(data){
-									return resolve_redurce(data.message);
+									return resolve_redurce(nextData);
 								},
 								error: function(e) {
 									console.log(e);
-									return resolve_redurce(data.message);
+									return resolve_redurce(nextData);
 								}
 							});
 		                })
