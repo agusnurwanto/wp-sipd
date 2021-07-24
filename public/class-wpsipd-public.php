@@ -3601,14 +3601,86 @@ class Wpsipd_Public
 	}
 
 	function get_pagu_simda($options = array()){
-		$sql = "";
-		$pagu = 0;
-		return $pagu;
+		global $wpdb;
+		$sumber_pagu = $options['sumber_pagu'];
+		$kd_urusan = $options['kd_urusan'];
+		$kd_bidang = $options['kd_bidang'];
+		$kd_unit = $options['kd_unit'];
+		$kd_sub = $options['kd_sub'];
+		$kd_prog = $options['kd_prog'];
+		$id_prog = $options['id_prog'];
+		$kd_keg = $options['kd_keg'];
+		if(
+			$sumber_pagu == 4
+			|| $sumber_pagu == 5
+			|| $sumber_pagu == 6
+		){
+			$sql = $wpdb->prepare("
+				SELECT 
+					SUM(r.total) as total
+				FROM ta_rask_arsip r
+				WHERE r.tahun = %d
+					AND r.kd_perubahan = %d
+					AND r.kd_urusan = %d
+					AND r.kd_bidang = %d
+					AND r.kd_unit = %d
+					AND r.kd_sub = %d
+					AND r.kd_prog = %d
+					AND r.id_prog = %d
+					AND r.kd_keg = %d
+				", 
+				$options['tahun_anggaran'], 
+				$sumber_pagu, 
+				$kd_urusan, 
+				$kd_bidang, 
+				$kd_unit, 
+				$kd_sub, 
+				$kd_prog, 
+				$id_prog, 
+				$kd_keg
+			);
+		}
+		$pagu = $this->simda->CurlSimda(array('query' => $sql));
+		return $pagu[0]->total;
 	}
 
 	function get_realisasi_simda($options = array()){
-		$sql = "";
-		$pagu = 0;
-		return $pagu;
+		global $wpdb;
+		$kd_urusan = $options['kd_urusan'];
+		$kd_bidang = $options['kd_bidang'];
+		$kd_unit = $options['kd_unit'];
+		$kd_sub = $options['kd_sub'];
+		$kd_prog = $options['kd_prog'];
+		$id_prog = $options['id_prog'];
+		$kd_keg = $options['kd_keg'];
+		$sql = $wpdb->prepare("
+			SELECT  sum(a.debet) as total
+			FROM ta_jurnalsemua_rinc a
+				left join ta_jurnalsemua p ON a.no_bukti=p.no_bukti
+			WHERE a.tahun = %d 
+				AND p.Kd_Urusan = %d
+				AND p.Kd_Bidang = %d
+				AND p.Kd_Unit = %d
+				AND p.Kd_Sub = %d
+				AND a.kd_prog = %d
+				AND a.id_prog = %d
+				AND a.kd_keg = %d
+			", 
+			$options['tahun_anggaran'], 
+			$kd_urusan, 
+			$kd_bidang, 
+			$kd_unit, 
+			$kd_sub, 
+			$kd_prog, 
+			$id_prog, 
+			$kd_keg
+		);
+		$pagu = $this->simda->CurlSimda(array('query' => $sql));
+		return $pagu[0]->total;
+	}
+	
+	function pembulatan($angka){
+		$angka = $angka*100;
+		return round($angka)/100;
 	}
 }

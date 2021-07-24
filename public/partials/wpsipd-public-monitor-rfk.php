@@ -58,6 +58,12 @@ if(empty($units)){
 }
 $current_user = wp_get_current_user();
 foreach ($units as $k => $unit): 
+	$kd_unit_simda = explode('.', carbon_get_theme_option('crb_unit_'.$unit['id_skpd']));
+	$_kd_urusan = $kd_unit_simda[0];
+	$_kd_bidang = $kd_unit_simda[1];
+	$kd_unit = $kd_unit_simda[2];
+	$kd_sub_unit = $kd_unit_simda[3];
+
 	if($unit['is_skpd']==1){
 		$unit_induk = array($unit);
 		$subkeg = $wpdb->get_results($wpdb->prepare("
@@ -109,17 +115,62 @@ foreach ($units as $k => $unit):
 		'data' => array()
 	);
 	foreach ($subkeg as $kk => $sub) {
+		$kd = explode('.', $sub['kode_sub_giat']);
+		$kd_urusan90 = (int) $kd[0];
+		$kd_bidang90 = (int) $kd[1];
+		$kd_program90 = (int) $kd[2];
+		$kd_kegiatan90 = ((int) $kd[3]).'.'.$kd[4];
+		$kd_sub_kegiatan = (int) $kd[5];
+		$nama_keg = explode(' ', $sub['nama_sub_giat']);
+        unset($nama_keg[0]);
+        $nama_keg = implode(' ', $nama_keg);
+		$mapping = $this->simda->cekKegiatanMapping(array(
+			'kd_urusan90' => $kd_urusan90,
+			'kd_bidang90' => $kd_bidang90,
+			'kd_program90' => $kd_program90,
+			'kd_kegiatan90' => $kd_kegiatan90,
+			'kd_sub_kegiatan' => $kd_sub_kegiatan,
+			'nama_program' => $sub['nama_giat'],
+			'nama_kegiatan' => $nama_keg,
+		));
+
+		$kd_urusan = $mapping[0]->kd_urusan;
+		$kd_bidang = $mapping[0]->kd_bidang;
+		$kd_prog = $mapping[0]->kd_prog;
+		$kd_keg = $mapping[0]->kd_keg;
+
+        $id_prog = $kd_urusan.$this->simda->CekNull($kd_bidang);
 		$total_pagu = 0;
 		if($sumber_pagu == 1){
 			$total_pagu = $sub['pagu'];
 		}else if(
-			$sumber_pagu == 2
-			|| $sumber_pagu == 3
-			|| $sumber_pagu == 4
+			$sumber_pagu == 4
+			|| $sumber_pagu == 5
+			|| $sumber_pagu == 6
 		){
-			$total_pagu = $this->get_pagu_simda($sumber_pagu);
+			$total_pagu = $this->get_pagu_simda(array(
+				'tahun_anggaran' => $input['tahun_anggaran'],
+				'sumber_pagu' => $sumber_pagu,
+				'kd_urusan' => $_kd_urusan,
+				'kd_bidang' => $_kd_bidang,
+				'kd_unit' => $kd_unit,
+				'kd_sub' => $kd_sub_unit,
+				'kd_prog' => $kd_prog,
+				'id_prog' => $id_prog,
+				'kd_keg' => $kd_keg
+			));
 		}
-		$realisasi = $this->get_realisasi_simda();
+		$realisasi = $this->get_realisasi_simda(array(
+			'tahun_anggaran' => $input['tahun_anggaran'],
+			'bulan' => $bulan,
+			'kd_urusan' => $_kd_urusan,
+			'kd_bidang' => $_kd_bidang,
+			'kd_unit' => $kd_unit,
+			'kd_sub' => $kd_sub_unit,
+			'kd_prog' => $kd_prog,
+			'id_prog' => $id_prog,
+			'kd_keg' => $kd_keg
+		));
 
 		if(empty($data_all['data'][$sub['kode_urusan']])){
 			$data_all['data'][$sub['kode_urusan']] = array(
@@ -197,7 +248,7 @@ foreach ($units as $k => $unit):
 			$kd_bidang = $kd_bidang[count($kd_bidang)-1];
 			$capaian = 0;
 			if(!empty($bidang['total'])){
-				$capaian = ($bidang['realisasi']/$bidang['total'])*100;
+				$capaian = $this->pembulatan(($bidang['realisasi']/$bidang['total'])*100);
 			}
 			$body .= '
 				<tr class="bidang" data-kode="'.$kd_urusan.'.'.$kd_bidang.'">
@@ -219,7 +270,7 @@ foreach ($units as $k => $unit):
 				$kd_program = $kd_program[count($kd_program)-1];
 				$capaian = 0;
 				if(!empty($program['total'])){
-					$capaian = ($program['realisasi']/$program['total'])*100;
+					$capaian = $this->pembulatan(($program['realisasi']/$program['total'])*100);
 				}
 				$body .= '
 					<tr class="program" data-kode="'.$kd_urusan.'.'.$kd_bidang.'.'.$kd_program.'">
@@ -241,7 +292,7 @@ foreach ($units as $k => $unit):
 					$kd_giat = $kd_giat[count($kd_giat)-2].'.'.$kd_giat[count($kd_giat)-1];
 					$capaian = 0;
 					if(!empty($giat['total'])){
-						$capaian = ($giat['realisasi']/$giat['total'])*100;
+						$capaian = $this->pembulatan(($giat['realisasi']/$giat['total'])*100);
 					}
 					$body .= '
 				        <tr class="kegiatan" data-kode="'.$kd_urusan.'.'.$kd_bidang.'.'.$kd_program.'.'.$kd_giat.'">
@@ -277,8 +328,8 @@ foreach ($units as $k => $unit):
 						$kd_sub_giat = explode('.', $kd_sub_giat1);
 						$kd_sub_giat = $kd_sub_giat[count($kd_sub_giat)-1];
 						$capaian = 0;
-						if(!empty($total_pagu)){
-							$capaian = ($realisasi/$total_pagu)*100;
+						if(!empty($sub_giat['total'])){
+							$capaian = $this->pembulatan(($sub_giat['realisasi']/$sub_giat['total'])*100);
 						}
 						$realisasi_fisik = 0;
 						if(!empty($sub_giat['data']['realisasi_fisik'])){
@@ -304,6 +355,10 @@ foreach ($units as $k => $unit):
 				}
 			}
 		}
+	}
+	$capaian_total = 0;
+	if(!empty($data_all['total'])){
+		$capaian_total = $this->pembulatan(($data_all['realisasi']/$data_all['total'])*100);
 	}
 	echo '
 	<input type="hidden" value="'.carbon_get_theme_option( 'crb_api_key_extension' ).'" id="api_key">
@@ -362,8 +417,8 @@ foreach ($units as $k => $unit):
 				<tr>
 			        <td class="kiri kanan bawah text_blok text_kanan" colspan="6">TOTAL</td>
 			        <td class="kanan bawah text_kanan text_blok">'.number_format($data_all['total'],0,",",".").'</td>
-			        <td class="kanan bawah text_kanan text_blok"></td>
-			        <td class="kanan bawah text_tengah text_blok"></td>
+			        <td class="kanan bawah text_kanan text_blok">'.number_format($data_all['realisasi'],0,",",".").'</td>
+			        <td class="kanan bawah text_tengah text_blok">'.$capaian_total.'</td>
 			        <td class="kanan bawah text_blok total-realisasi-fisik text_tengah"></td>
 			        <td class="kanan bawah text_kanan text_blok" colspan="2"></td>
 			    </tr>
@@ -418,26 +473,26 @@ endforeach;
     		if(typeof(total_parent[i].total_bidang) != 'undefined'){
     			var total_bidang = 0;
     			if(total_parent[i].total_bidang_s != 0){
-	    			total_bidang = Math.round(total_parent[i].total_bidang/total_parent[i].total_bidang_s);
+	    			total_bidang = Math.round((total_parent[i].total_bidang/total_parent[i].total_bidang_s)*100)/100;
     			}
 	    		jQuery('tr[data-kode="'+i+'"]').find('.bidang-realisasi-fisik').text(total_bidang);
 	    	}else if(typeof(total_parent[i].total_program) != 'undefined'){
     			var total_program = 0;
     			if(total_parent[i].total_program_s != 0){
-	    			total_program = Math.round(total_parent[i].total_program/total_parent[i].total_program_s);
+	    			total_program = Math.round((total_parent[i].total_program/total_parent[i].total_program_s)*100)/100;
 	    		}
 	    		jQuery('tr[data-kode="'+i+'"]').find('.program-realisasi-fisik').text(total_program);
 	    	}else if(typeof(total_parent[i].total_kegiatan) != 'undefined'){
     			var total_kegiatan = 0;
     			if(total_parent[i].total_kegiatan_s != 0){
-	    			total_kegiatan = Math.round(total_parent[i].total_kegiatan/total_parent[i].total_kegiatan_s);
+	    			total_kegiatan = Math.round((total_parent[i].total_kegiatan/total_parent[i].total_kegiatan_s)*100)/100;
 	    		}
 	    		jQuery('tr[data-kode="'+i+'"]').find('.kegiatan-realisasi-fisik').text(total_kegiatan);
 	    	}
     	}
     	var end = 0;
     	if(total_s != 0){
-    		end = Math.round(total/total_s);
+    		end = Math.round((total/total_s)*100)/100;
     	}
     	jQuery('.total-realisasi-fisik').text(end);
     }
@@ -449,9 +504,9 @@ endforeach;
 			+'<label>Sumber Pagu Indikatif: '
 				+'<select id="pilih_sumber_pagu" style="padding: 5px;">'
 					+'<option value="1">RKA SIPD</option>'
-					+'<option value="2">APBD SIMDA</option>'
-					+'<option value="3">APBD Pergeseran</option>'
-					+'<option value="4">APBD Perubahan</option>'
+					+'<option value="4">APBD SIMDA</option>'
+					+'<option value="5">APBD Pergeseran</option>'
+					+'<option value="6">APBD Perubahan</option>'
 				+'</select>'
 			+'</label>'
 			+'<label style="margin-left: 20px;">Bulan Realisasi: '
@@ -475,6 +530,7 @@ endforeach;
 		+'</div>';
 	jQuery(document).ready(function(){
 	    jQuery('#action-sipd').append(extend_action);
+	    jQuery('#pilih_sumber_pagu').val(+<?php echo $sumber_pagu; ?>);
 	    jQuery('#pilih_bulan').val(+<?php echo $bulan; ?>);
 	    jQuery('#pilih_sumber_pagu').on('change', function(){
 	    	var val = +jQuery(this).val();
