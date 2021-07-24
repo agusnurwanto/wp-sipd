@@ -3563,11 +3563,13 @@ class Wpsipd_Public
 					        *
 					    from data_rfk
 					    where tahun_anggaran=%d
+					        and bulan=%d
 					        and id_skpd=%d
 					        and kode_sbl=%s
-					", $_POST['tahun_anggaran'], $v['id_skpd'], $v['kode_sbl']);
+					", $_POST['tahun_anggaran'], $_POST['bulan'], $v['id_skpd'], $v['kode_sbl']);
 					$cek = $wpdb->get_results($sql, ARRAY_A);
 					$opsi = array(
+						'bulan'	=> $_POST['bulan'],
 						'kode_sbl'	=> $v['kode_sbl'],
 						'realisasi_fisik'	=> $v['realisasi_fisik'],
 						'permasalahan'	=> $v['permasalahan'],
@@ -3579,6 +3581,7 @@ class Wpsipd_Public
 					if (!empty($cek)) {
 						$wpdb->update('data_rfk', $opsi, array(
 							'tahun_anggaran' => $_POST['tahun_anggaran'],
+							'bulan' => $_POST['bulan'],
 							'id_skpd' => $v['id_skpd'],
 							'kode_sbl' => $v['kode_sbl']
 						));
@@ -3595,6 +3598,17 @@ class Wpsipd_Public
 			$ret['message'] = 'Format Salah!';
 		}
 		die(json_encode($ret));
+	}
 
+	function get_pagu_simda($options = array()){
+		$sql = "";
+		$pagu = 0;
+		return $pagu;
+	}
+
+	function get_realisasi_simda($options = array()){
+		$sql = "";
+		$pagu = 0;
+		return $pagu;
 	}
 }

@@ -1432,6 +1432,7 @@ ALTER TABLE `data_user_tapd_sekda`
 
 CREATE TABLE `data_rfk` (
   `id` int(11) NOT NULL,
+  `bulan` tinyint(2) NOT NULL,
   `kode_sbl` text NOT NULL,
   `realisasi_fisik` tinyint(3) DEFAULT NULL,
   `permasalahan` text DEFAULT NULL,

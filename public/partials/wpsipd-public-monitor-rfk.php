@@ -5,9 +5,9 @@ $input = shortcode_atts( array(
 	'tahun_anggaran' => '2022'
 ), $atts );
 
-$type = '';
-if(!empty($_GET) && !empty($_GET['type'])){
-    $type = $_GET['type'];
+$sumber_pagu = '1';
+if(!empty($_GET) && !empty($_GET['sumber_pagu'])){
+    $sumber_pagu = $_GET['sumber_pagu'];
 }
 
 $bulan = date('m');
@@ -105,13 +105,27 @@ foreach ($units as $k => $unit):
 
 	$data_all = array(
 		'total' => 0,
+		'realisasi' => 0,
 		'data' => array()
 	);
 	foreach ($subkeg as $kk => $sub) {
+		$total_pagu = 0;
+		if($sumber_pagu == 1){
+			$total_pagu = $sub['pagu'];
+		}else if(
+			$sumber_pagu == 2
+			|| $sumber_pagu == 3
+			|| $sumber_pagu == 4
+		){
+			$total_pagu = $this->get_pagu_simda($sumber_pagu);
+		}
+		$realisasi = $this->get_realisasi_simda();
+
 		if(empty($data_all['data'][$sub['kode_urusan']])){
 			$data_all['data'][$sub['kode_urusan']] = array(
 				'nama'	=> $sub['nama_urusan'],
 				'total' => 0,
+				'realisasi' => 0,
 				'data'	=> array()
 			);
 		}
@@ -119,6 +133,7 @@ foreach ($units as $k => $unit):
 			$data_all['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']] = array(
 				'nama'	=> $sub['nama_bidang_urusan'],
 				'total' => 0,
+				'realisasi' => 0,
 				'data'	=> array()
 			);
 		}
@@ -126,6 +141,7 @@ foreach ($units as $k => $unit):
 			$data_all['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']] = array(
 				'nama'	=> $sub['nama_program'],
 				'total' => 0,
+				'realisasi' => 0,
 				'data'	=> array()
 			);
 		}
@@ -133,6 +149,7 @@ foreach ($units as $k => $unit):
 			$data_all['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']]['data'][$sub['kode_giat']] = array(
 				'nama'	=> $sub['nama_giat'],
 				'total' => 0,
+				'realisasi' => 0,
 				'data'	=> array()
 			);
 		}
@@ -142,15 +159,23 @@ foreach ($units as $k => $unit):
 			$data_all['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']]['data'][$sub['kode_giat']]['data'][$sub['kode_sub_giat']] = array(
 				'nama'	=> implode(' ', $nama),
 				'total' => 0,
+				'realisasi' => 0,
 				'data'	=> $sub
 			);
 		}
-		$data_all['total'] += $sub['pagu'];
-		$data_all['data'][$sub['kode_urusan']]['total'] += $sub['pagu'];
-		$data_all['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['total'] += $sub['pagu'];
-		$data_all['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']]['total'] += $sub['pagu'];
-		$data_all['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']]['data'][$sub['kode_giat']]['total'] += $sub['pagu'];
-		$data_all['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']]['data'][$sub['kode_giat']]['data'][$sub['kode_sub_giat']]['total'] += $sub['pagu'];
+		$data_all['total'] += $total_pagu;
+		$data_all['data'][$sub['kode_urusan']]['total'] += $total_pagu;
+		$data_all['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['total'] += $total_pagu;
+		$data_all['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']]['total'] += $total_pagu;
+		$data_all['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']]['data'][$sub['kode_giat']]['total'] += $total_pagu;
+		$data_all['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']]['data'][$sub['kode_giat']]['data'][$sub['kode_sub_giat']]['total'] += $total_pagu;
+
+		$data_all['realisasi'] += $realisasi;
+		$data_all['data'][$sub['kode_urusan']]['realisasi'] += $realisasi;
+		$data_all['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['realisasi'] += $realisasi;
+		$data_all['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']]['realisasi'] += $realisasi;
+		$data_all['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']]['data'][$sub['kode_giat']]['realisasi'] += $realisasi;
+		$data_all['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']]['data'][$sub['kode_giat']]['data'][$sub['kode_sub_giat']]['realisasi'] += $realisasi;
 	}
 
 	// print_r($data_all); die();
@@ -170,6 +195,10 @@ foreach ($units as $k => $unit):
 		foreach ($urusan['data'] as $kd_bidang => $bidang) {
 			$kd_bidang = explode('.', $kd_bidang);
 			$kd_bidang = $kd_bidang[count($kd_bidang)-1];
+			$capaian = 0;
+			if(!empty($bidang['total'])){
+				$capaian = ($bidang['realisasi']/$bidang['total'])*100;
+			}
 			$body .= '
 				<tr class="bidang" data-kode="'.$kd_urusan.'.'.$kd_bidang.'">
 		            <td class="text_tengah kiri kanan bawah text_blok">'.$kd_urusan.'</td>
@@ -179,8 +208,8 @@ foreach ($units as $k => $unit):
 		            <td class="text_tengah kanan bawah">&nbsp;</td>
 		            <td class="kanan bawah text_blok">'.$bidang['nama'].'</td>
 		            <td class="kanan bawah text_kanan text_blok">'.number_format($bidang['total'],0,",",".").'</td>
-		            <td class="kanan bawah text_blok"></td>
-		            <td class="kanan bawah text_blok"></td>
+		            <td class="kanan bawah text_kanan text_blok">'.number_format($bidang['realisasi'],0,",",".").'</td>
+		            <td class="kanan bawah text_blok text_tengah">'.$capaian.'</td>
 		            <td class="kanan bawah text_blok bidang-realisasi-fisik text_tengah"></td>
 		        	<td class="kanan bawah text_kanan text_blok" colspan="2"></td>
 		        </tr>
@@ -188,6 +217,10 @@ foreach ($units as $k => $unit):
 			foreach ($bidang['data'] as $kd_program => $program) {
 				$kd_program = explode('.', $kd_program);
 				$kd_program = $kd_program[count($kd_program)-1];
+				$capaian = 0;
+				if(!empty($program['total'])){
+					$capaian = ($program['realisasi']/$program['total'])*100;
+				}
 				$body .= '
 					<tr class="program" data-kode="'.$kd_urusan.'.'.$kd_bidang.'.'.$kd_program.'">
 			            <td class="text_tengah kiri kanan bawah text_blok">'.$kd_urusan.'</td>
@@ -197,8 +230,8 @@ foreach ($units as $k => $unit):
 			            <td class="text_tengah kanan bawah">&nbsp;</td>
 			            <td class="kanan bawah text_blok">'.$program['nama'].'</td>
 			            <td class="kanan bawah text_kanan text_blok">'.number_format($program['total'],0,",",".").'</td>
-			            <td class="kanan bawah text_blok"></td>
-			            <td class="kanan bawah text_blok"></td>
+			            <td class="kanan bawah text_kanan text_blok">'.number_format($program['realisasi'],0,",",".").'</td>
+			            <td class="kanan bawah text_blok text_tengah">'.$capaian.'</td>
 			            <td class="kanan bawah text_blok program-realisasi-fisik text_tengah"></td>
 		        		<td class="kanan bawah text_kanan text_blok" colspan="2"></td>
 			        </tr>
@@ -206,6 +239,10 @@ foreach ($units as $k => $unit):
 				foreach ($program['data'] as $kd_giat => $giat) {
 					$kd_giat = explode('.', $kd_giat);
 					$kd_giat = $kd_giat[count($kd_giat)-2].'.'.$kd_giat[count($kd_giat)-1];
+					$capaian = 0;
+					if(!empty($giat['total'])){
+						$capaian = ($giat['realisasi']/$giat['total'])*100;
+					}
 					$body .= '
 				        <tr class="kegiatan" data-kode="'.$kd_urusan.'.'.$kd_bidang.'.'.$kd_program.'.'.$kd_giat.'">
 				            <td class="text_tengah" style="border:.5pt solid #000; vertical-align:middle; font-weight:bold;" width="5">'.$kd_urusan.'</td>
@@ -214,18 +251,41 @@ foreach ($units as $k => $unit):
 				            <td class="text_tengah" style="border:.5pt solid #000; vertical-align:middle; font-weight:bold;" width="5">'.$kd_giat.'</td>
 				            <td class="text_tengah" style="border:.5pt solid #000; vertical-align:middle;" width="5">&nbsp;</td>
 				            <td style="border:.5pt solid #000; vertical-align:middle; font-weight:bold;">'.$giat['nama'].'</td>
-				            <td style="border:.5pt solid #000; vertical-align:middle;  text-align:right; font-weight:bold;">'.number_format($giat['total'],0,",",".").'</td>
-				            <td style="border:.5pt solid #000; vertical-align:middle; font-weight:bold;"></td>
-				            <td style="border:.5pt solid #000; vertical-align:middle; font-weight:bold;"></td>
+				            <td style="border:.5pt solid #000; vertical-align:middle; text-align:right; font-weight:bold;">'.number_format($giat['total'],0,",",".").'</td>
+				            <td style="border:.5pt solid #000; vertical-align:middle; text-align:right; font-weight:bold;">'.number_format($giat['realisasi'],0,",",".").'</td>
+				            <td class="text_tengah" style="border:.5pt solid #000; vertical-align:middle; font-weight:bold;">'.$capaian.'</td>
 				            <td style="border:.5pt solid #000; vertical-align:middle; font-weight:bold;" class="kegiatan-realisasi-fisik text_tengah"></td>
 		        			<td class="kanan bawah text_kanan text_blok" colspan="2"></td>
 				        </tr>
 					';
 					foreach ($giat['data'] as $kd_sub_giat1 => $sub_giat) {
+						$sql = "
+							SELECT 
+								* 
+							from data_dana_sub_keg 
+							where kode_sbl='".$sub_giat['data']['kode_sbl']."'
+								AND tahun_anggaran=".$sub_giat['data']['tahun_anggaran']."
+								AND active=1";
+						$sd_sub_keg = $wpdb->get_results($sql, ARRAY_A);
+						$sd_sub = array();
+						foreach ($sd_sub_keg as $key => $sd) {
+							$new_sd = explode(' - ', $sd['namadana']);
+							if(!empty($new_sd[1])){
+								$sd_sub[] = $new_sd[1];
+							}
+						}
 						$kd_sub_giat = explode('.', $kd_sub_giat1);
 						$kd_sub_giat = $kd_sub_giat[count($kd_sub_giat)-1];
+						$capaian = 0;
+						if(!empty($total_pagu)){
+							$capaian = ($realisasi/$total_pagu)*100;
+						}
+						$realisasi_fisik = 0;
+						if(!empty($sub_giat['data']['realisasi_fisik'])){
+							$realisasi_fisik = $sub_giat['data']['realisasi_fisik'];
+						}
 						$body .= '
-					        <tr data-kode="'.$kd_sub_giat1.'" data-kdsbl="'.$sub_giat['data']['kode_sbl'].'" data-idskpd="'.$sub_giat['data']['id_sub_skpd'].'">
+					        <tr data-kode="'.$kd_sub_giat1.'" data-kdsbl="'.$sub_giat['data']['kode_sbl'].'" data-idskpd="'.$sub_giat['data']['id_sub_skpd'].'" data-pagu="'.$total_pagu.'">
 					            <td class="kiri kanan bawah">'.$kd_urusan.'</td>
 					            <td class="kanan bawah">'.$kd_bidang.'</td>
 					            <td class="kanan bawah">'.$kd_program.'</td>
@@ -233,10 +293,10 @@ foreach ($units as $k => $unit):
 					            <td class="kanan bawah">'.$kd_sub_giat.'</td>
 					            <td class="kanan bawah nama_sub_giat">'.$sub_giat['nama'].'</td>
 					            <td class="kanan bawah text_kanan">'.number_format($sub_giat['total'],0,",",".").'</td>
-					            <td class="kanan bawah"></td>
-					            <td class="kanan bawah text_tengah"></td>
-					            <td class="kanan bawah realisasi-fisik text_tengah" contenteditable="true">'.$sub_giat['data']['realisasi_fisik'].'</td>
-					            <td class="kanan bawah"></td>
+					            <td class="kanan bawah text_kanan">'.number_format($sub_giat['realisasi'],0,",",".").'</td>
+					            <td class="kanan bawah text_tengah">'.$capaian.'</td>
+					            <td class="kanan bawah realisasi-fisik text_tengah" contenteditable="true">'.$realisasi_fisik.'</td>
+					            <td class="kanan bawah">'.implode(',<br>', $sd_sub).'</td>
 					            <td class="kanan bawah permasalahan" contenteditable="true">'.$sub_giat['data']['permasalahan'].'</td>
 					        </tr>
 						';
@@ -303,8 +363,8 @@ foreach ($units as $k => $unit):
 			        <td class="kiri kanan bawah text_blok text_kanan" colspan="6">TOTAL</td>
 			        <td class="kanan bawah text_kanan text_blok">'.number_format($data_all['total'],0,",",".").'</td>
 			        <td class="kanan bawah text_kanan text_blok"></td>
-			        <td class="kanan bawah text_kanan text_blok"></td>
-			        <td class="kanan bawah text_kanan text_blok total-realisasi-fisik text_tengah"></td>
+			        <td class="kanan bawah text_tengah text_blok"></td>
+			        <td class="kanan bawah text_blok total-realisasi-fisik text_tengah"></td>
 			        <td class="kanan bawah text_kanan text_blok" colspan="2"></td>
 			    </tr>
 		    </tbody>
@@ -416,10 +476,16 @@ endforeach;
 	jQuery(document).ready(function(){
 	    jQuery('#action-sipd').append(extend_action);
 	    jQuery('#pilih_bulan').val(+<?php echo $bulan; ?>);
-	    jQuery('#pilih_bulan').on('click', function(){
-	    	var val = jQuery(this).val();
-	    	if(val != 0){
-	    		window.open(url+'&bulan='+val,'_blank');
+	    jQuery('#pilih_sumber_pagu').on('change', function(){
+	    	var val = +jQuery(this).val();
+	    	if(val > 0){
+	    		window.open(_url+'&sumber_pagu='+val,'_blank');
+	    	}
+	    });
+	    jQuery('#pilih_bulan').on('change', function(){
+	    	var val = +jQuery(this).val();
+	    	if(val > 0){
+	    		window.open(_url+'&bulan='+val,'_blank');
 	    	}
 	    });
 	    jQuery('.realisasi-fisik').on('input', function(){
@@ -469,6 +535,7 @@ endforeach;
 					          		"action": "simpan_rfk",
 					          		"api_key": jQuery('#api_key').val(),
 					          		"tahun_anggaran": jQuery('#tahun_anggaran').val(),
+					          		"bulan": jQuery('#pilih_bulan').val(),
 					          		"user": "<?php echo $current_user->display_name; ?>",
 					          		"data": current_data
 					          	},
