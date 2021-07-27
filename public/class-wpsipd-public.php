@@ -2332,7 +2332,7 @@ class Wpsipd_Public
 							'harga_satuan_murni' => $v['harga_satuan_murni'],
 							'id_daerah' => $v['id_daerah'],
 							'id_rinci_sub_bl' => $v['id_rinci_sub_bl'],
-							'id_standar_nfs' => $v['id_standar_nfs'],
+							'id_standar_harga' => $v['id_standar_harga'],
 							'is_locked' => $v['is_locked'],
 							'jenis_bl' => $v['jenis_bl'],
 							'ket_bl_teks' => $v['ket_bl_teks'],
