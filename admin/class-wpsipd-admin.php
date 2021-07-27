@@ -44,6 +44,8 @@ class Wpsipd_Admin {
 	 */
 	private $version;
 
+	private $simda;
+
 	/**
 	 * Initialize the class and set its properties.
 	 *
@@ -51,17 +53,11 @@ class Wpsipd_Admin {
 	 * @param      string    $plugin_name       The name of this plugin.
 	 * @param      string    $version    The version of this plugin.
 	 */
-	public function __construct( $plugin_name, $version ) {
+	public function __construct( $plugin_name, $version, $simda ) {
 
 		$this->plugin_name = $plugin_name;
 		$this->version = $version;
-		$this->load_dependencies();
-		$this->simda = new Wpsipd_Simda( $plugin_name, $version );
-	}
-
-	private function load_dependencies()
-	{
-		require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/class-wpsipd-simda.php';
+		$this->simda = $simda;
 	}
 
 	/**
