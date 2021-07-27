@@ -136,10 +136,16 @@ foreach ($units as $k => $unit):
 			'nama_kegiatan' => $nama_keg,
 		));
 
-		$kd_urusan = $mapping[0]->kd_urusan;
-		$kd_bidang = $mapping[0]->kd_bidang;
-		$kd_prog = $mapping[0]->kd_prog;
-		$kd_keg = $mapping[0]->kd_keg;
+		$kd_urusan = 0;
+		$kd_bidang = 0;
+		$kd_prog = 0;
+		$kd_keg = 0;
+		if(!empty($mapping[0]) && !empty($mapping[0]->kd_urusan)){
+			$kd_urusan = $mapping[0]->kd_urusan;
+			$kd_bidang = $mapping[0]->kd_bidang;
+			$kd_prog = $mapping[0]->kd_prog;
+			$kd_keg = $mapping[0]->kd_keg;
+		}
 
         $id_prog = $kd_urusan.$this->simda->CekNull($kd_bidang);
 		$total_pagu = 0;

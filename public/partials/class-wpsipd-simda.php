@@ -30,12 +30,15 @@ class Wpsipd_Simda
 	
 	private $opsi_nilai_rincian;
 
+	private $status_koneksi_simda;
+
 	public function __construct($plugin_name, $version)
 	{
 
 		$this->plugin_name = $plugin_name;
 		$this->version = $version;
 		$this->opsi_nilai_rincian = get_option( '_crb_simda_pagu' );
+		$this->status_koneksi_simda = true;
 	}
 
 	function singkronSimdaPembiayaan($opsi=array()){
@@ -1624,32 +1627,39 @@ class Wpsipd_Simda
 	}
 
 	public function CurlSimda($options, $debug=false, $debug_req=false){
+		if(false == $this->status_koneksi_simda){
+			return;
+		}
         $query = $options['query'];
         $curl = curl_init();
         $req = array(
-            'api_key' => carbon_get_theme_option( 'crb_apikey_simda' ),
+            'api_key' => get_option( '_crb_apikey_simda' ),
             'query' => $query,
-            'db' => carbon_get_theme_option('crb_db_simda')
+            'db' => get_option('_crb_db_simda')
         );
         set_time_limit(0);
-        $url = carbon_get_theme_option( 'crb_url_api_simda' );
+        $url = get_option( '_crb_url_api_simda' );
     	if($debug_req){
         	print_r($req); die($url);
     	}
         $req = http_build_query($req);
+        $timeout = (int) get_option('_crb_timeout_simda');
+        if(empty($timeout)){
+        	$timeout = 10;
+        }
         curl_setopt_array($curl, array(
             CURLOPT_URL => $url,
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_ENCODING => "",
             CURLOPT_MAXREDIRS => 10,
-            CURLOPT_TIMEOUT => 30,
             CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
             CURLOPT_CUSTOMREQUEST => "POST",
             CURLOPT_POSTFIELDS => $req,
             CURLOPT_SSL_VERIFYPEER => false,
             CURLOPT_SSL_VERIFYHOST => false,
-            CURLOPT_CONNECTTIMEOUT => 0,
-            CURLOPT_TIMEOUT => 10000
+            CURLOPT_NOSIGNAL => 1,
+            CURLOPT_CONNECTTIMEOUT => 100,
+            CURLOPT_TIMEOUT => $timeout
         ));
 
         $response = curl_exec($curl);
@@ -1659,16 +1669,31 @@ class Wpsipd_Simda
         curl_close($curl);
 
         if ($err) {
-            echo "cURL Error #:" . $err; die();
+        	$this->status_koneksi_simda = false;
+        	$msg = "cURL Error #:".$err." (".$url.")";
+        	if($debug){
+            	echo $msg; die();
+        	}else{
+        		return $msg;
+        	}
         } else {
         	if($debug){
             	print_r($response); die();
         	}
             $ret = json_decode($response);
             if(!empty($ret->error)){
-                echo "<pre>".print_r($ret, 1)."</pre>"; die();
+            	if(empty($options['no_debug'])){
+                	echo "<pre>".print_r($ret, 1)."</pre>"; die();
+                }else{
+                	echo "<pre>".print_r($ret, 1)."</pre>"; die();
+                }
             }else{
-                return $ret->msg;
+            	if(!empty($ret->msg)){
+                	return $ret->msg;
+            	}else{
+        			$this->status_koneksi_simda = false;
+            		return $response.' (terkoneksi tapi gagal parsing data!)';
+            	}
             }
         }
     }

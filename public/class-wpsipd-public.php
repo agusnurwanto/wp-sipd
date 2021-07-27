@@ -3704,7 +3704,11 @@ class Wpsipd_Public
 			);
 		}
 		$pagu = $this->simda->CurlSimda(array('query' => $sql));
-		return $pagu[0]->total;
+		if(!empty($pagu[0])){
+			return $pagu[0]->total;
+		}else{
+			return 0;
+		}
 	}
 
 	function get_realisasi_simda($options = array()){
@@ -3749,7 +3753,11 @@ class Wpsipd_Public
 			$kd_keg
 		);
 		$pagu = $this->simda->CurlSimda(array('query' => $sql), false);
-		return $pagu[0]->total;
+		if(!empty($pagu[0])){
+			return $pagu[0]->total;
+		}else{
+			return 0;
+		}
 	}
 
 	function pembulatan($angka){
