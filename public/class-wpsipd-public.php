@@ -3717,23 +3717,27 @@ class Wpsipd_Public
 		$hari_mulai = $options['tahun_anggaran'].'-01-01';
 		$hari_akhir = $options['tahun_anggaran'].'-'.$this->simda->CekNull($options['bulan']).'-01';
 		$hari_akhir = date("Y-m-t", strtotime($hari_akhir));
+		
+		/* SPM dan SP2D */
 		$sql = $wpdb->prepare("
-			SELECT  sum(a.debet) as total
-			FROM ta_jurnalsemua_rinc a
-				left join ta_jurnalsemua p ON a.no_bukti=p.no_bukti
-					AND a.tahun = p.tahun
-					AND a.kd_source = p.kd_source
-			WHERE a.tahun = %d 
-				AND a.kd_jurnal <> 8
-				AND a.kd_rek_1 = 5
-				AND p.tgl_bukti BETWEEN %s AND %s
-				AND p.Kd_Urusan = %d
-				AND p.Kd_Bidang = %d
-				AND p.Kd_Unit = %d
-				AND p.Kd_Sub = %d
-				AND a.kd_prog = %d
-				AND a.id_prog = %d
-				AND a.kd_keg = %d
+			SELECT  sum(r.nilai) as total
+			FROM ta_spm_rinc r
+				inner join ta_spm s ON r.tahun = s.tahun 
+					AND r.no_spm = s.no_spm
+				inner join ta_sp2d p ON s.tahun = p.tahun
+					AND s.no_spm = p.no_spm 
+			WHERE r.tahun = %d 
+				AND p.no_sp2d is NOT NULL
+				AND s.jn_spm NOT IN (1,4)
+				AND r.kd_rek_1 NOT IN (6)
+				AND p.tgl_sp2d BETWEEN %s AND %s
+				AND r.Kd_Urusan = %d
+				AND r.Kd_Bidang = %d
+				AND r.Kd_Unit = %d
+				AND r.Kd_Sub = %d
+				AND r.kd_prog = %d
+				AND r.id_prog = %d
+				AND r.kd_keg = %d
 			", 
 			$options['tahun_anggaran'], 
 			$hari_mulai, 
@@ -3746,9 +3750,283 @@ class Wpsipd_Public
 			$id_prog, 
 			$kd_keg
 		);
-		$pagu = $this->simda->CurlSimda(array('query' => $sql), false);
+		$pagu_sp2d = $this->simda->CurlSimda(array('query' => $sql), false);
+
+		if(empty($pagu_sp2d[0])){
+			return $options['realisasi_anggaran'];
+		}
+
+		/* Penyesuaian */
+		$sql = $wpdb->prepare("
+			SELECT  sum(r.nilai) as total
+			FROM ta_penyesuaian p
+				inner join ta_penyesuaian_rinc r ON p.tahun = r.tahun 
+					AND p.no_bukti = r.no_bukti
+			WHERE r.tahun = %d 
+				AND r.d_k = 'K'
+				AND p.jns_p1 = 1
+				AND p.jns_p2 = 3
+				AND p.tgl_bukti BETWEEN %s AND %s
+				AND r.Kd_Urusan = %d
+				AND r.Kd_Bidang = %d
+				AND r.Kd_Unit = %d
+				AND r.Kd_Sub = %d
+				AND r.kd_prog = %d
+				AND r.id_prog = %d
+				AND r.kd_keg = %d
+			", 
+			$options['tahun_anggaran'], 
+			$hari_mulai, 
+			$hari_akhir, 
+			$kd_urusan, 
+			$kd_bidang, 
+			$kd_unit, 
+			$kd_sub, 
+			$kd_prog, 
+			$id_prog, 
+			$kd_keg
+		);
+		$pagu_penyesuaian = $this->simda->CurlSimda(array('query' => $sql), false);
+
+		/* Jurnal Koreksi */
+		$sql = $wpdb->prepare("
+			SELECT
+				sum(r.debet) as total_debet,
+				sum(r.kredit) as total_kredit
+			FROM ta_jurnalsemua j
+				inner join ta_jurnalsemua_rinc r ON j.tahun = r.tahun 
+					AND j.kd_source = r.kd_source 
+					AND j.no_bukti = r.no_bukti
+			WHERE r.tahun = %d 
+				AND r.kd_jurnal = 5
+				AND r.kd_rek_1 = 5
+				AND j.tgl_bukti BETWEEN %s AND %s
+				AND j.Kd_Urusan = %d
+				AND j.Kd_Bidang = %d
+				AND j.Kd_Unit = %d
+				AND j.Kd_Sub = %d
+				AND r.kd_prog = %d
+				AND r.id_prog = %d
+				AND r.kd_keg = %d
+			", 
+			$options['tahun_anggaran'], 
+			$hari_mulai, 
+			$hari_akhir, 
+			$kd_urusan, 
+			$kd_bidang, 
+			$kd_unit, 
+			$kd_sub, 
+			$kd_prog, 
+			$id_prog, 
+			$kd_keg
+		);
+		$pagu_koreksi = $this->simda->CurlSimda(array('query' => $sql), false);
+
+		$realisasi = $pagu_sp2d[0]->total - $pagu_penyesuaian[0]->total + $pagu_koreksi[0]->total_debet - $pagu_koreksi[0]->total_kredit;
+
+		/* Jurnal BLUD / FKTP */
+		if(
+			$kd_urusan == 1
+			AND $kd_bidang == 2
+		){
+			$sql = $wpdb->prepare("
+				SELECT
+					sum(r.nilai) as total
+				FROM ta_jurnal_rinc r
+					inner join ta_jurnal j ON j.tahun = r.tahun 
+						AND j.no_bukti = r.no_bukti
+				WHERE r.tahun = %d 
+					AND r.kd_jurnal = 5
+					AND r.kd_rek_1 = 5
+					AND r.tgl_bukti BETWEEN %s AND %s
+					AND r.Kd_Urusan = %d
+					AND r.Kd_Bidang = %d
+					AND r.Kd_Unit = %d
+					AND r.Kd_Sub = %d
+					AND r.kd_prog = %d
+					AND r.id_prog = %d
+					AND r.kd_keg = %d
+				", 
+				$options['tahun_anggaran'], 
+				$hari_mulai, 
+				$hari_akhir, 
+				$kd_urusan, 
+				$kd_bidang, 
+				$kd_unit, 
+				$kd_sub, 
+				$kd_prog, 
+				$id_prog, 
+				$kd_keg
+			);
+			$pagu_blud_fktp = $this->simda->CurlSimda(array('query' => $sql), false);
+
+			$realisasi = $realisasi + $pagu_blud_fktp;
+		}
+
+		$opsi = array(
+			'bulan'	=> $options['bulan'],
+			'kode_sbl'	=> $options['kode_sbl'],
+			'realisasi_anggaran' => $realisasi,
+			'user_edit'	=> $options['user'],
+			'id_skpd'	=> $options['id_skpd'],
+			'tahun_anggaran'	=> $options['tahun_anggaran'],
+			'created_at'	=>  current_time('mysql')
+		);
+		if(!empty($options['id_rfk'])){
+			$wpdb->update('data_rfk', $opsi, array(
+				'id' => $options['id_rfk']
+			));
+		}else{
+			$wpdb->insert('data_rfk', $opsi);
+		}
+
+		/*
+			Nilai realisasi adalah total dari:
+			REALISASI = Nilai SPM (SP2D) - Nilai Penyesuaian (ta_penyesuaian) + Nilai Jurnal Koreksi Debet (ta_jurnalsemua) - Nilai Jurnal Koreksi Kredit (ta_jurnal_semua)
+
+			Khusus belanja BLUD dan FKTP maka ditambahkan:
+			REALISASI = REALISASI + Jurnal BLUD / FKTP (ta_jurnal)
+		*/
+
+		return $realisasi;
+	}
+
+	function get_realisasi_simda_baru($options = array()){
+		global $wpdb;
+		$kd_urusan = $options['kd_urusan'];
+		$kd_bidang = $options['kd_bidang'];
+		$kd_unit = $options['kd_unit'];
+		$kd_sub = $options['kd_sub'];
+		$kd_prog = $options['kd_prog'];
+		$id_prog = $options['id_prog'];
+		$kd_keg = $options['kd_keg'];
+		$hari_mulai = $options['tahun_anggaran'].'-01-01';
+		$hari_akhir = $options['tahun_anggaran'].'-'.$this->simda->CekNull($options['bulan']).'-01';
+		$hari_akhir = date("Y-m-t", strtotime($hari_akhir));
+
+		$sql = $wpdb->prepare("
+			select 
+				Q.Tahun, 
+				Q.kd_urusan, 
+				Q.kd_bidang, 
+				Q.kd_unit, 
+				Q.kd_sub, 
+				Q.kd_prog, 
+				Q.kd_keg, 
+				Q.id_prog, 
+				D.nm_sub_unit, 
+				E.ket_program, 
+				F.ket_kegiatan,
+				Q.realisasi 
+			from (
+				select 
+					A.kd_keg, 
+					A.kd_prog, 
+					A.id_prog, 
+					D.kd_urusan, 
+					D.kd_bidang, 
+					D.kd_unit, 
+					D.kd_sub, 
+					D.Tahun,
+					sum(A.Debet-A.Kredit) AS 'Realisasi'
+				from Ta_JurnalSemua_Rinc A
+				inner join ref_rek_mapping B 
+					on 
+						A.kd_rek_1 = B.kd_rek_1 and 
+						A.kd_rek_2 = B.kd_rek_2 and 
+						A.kd_rek_3 = B.kd_rek_3 and 
+						A.kd_rek_4 = B.kd_rek_4 and 
+						A.kd_rek_5 = B.kd_rek_5
+				inner join ref_rek90_6 C 
+					on 
+						B.kd_rek90_1 = C.kd_rek90_1 and 
+						B.kd_rek90_2 = C.kd_rek90_2 and 
+						B.kd_rek90_3 = C.kd_rek90_3 and 
+						B.kd_rek90_4 = C.kd_rek90_4 and 
+						B.kd_rek90_5 = C.kd_rek90_5 and 
+						B.kd_rek90_6 = C.kd_rek90_6
+				inner join Ta_JurnalSemua D 
+					on 
+						A.Tahun = D.Tahun and 
+						A.Kd_Source = D.Kd_Source AND 
+						A.No_Bukti = D.No_Bukti
+				where 
+					(D.Tahun = %d) AND
+			        (D.tgl_bukti BETWEEN %s AND %s) and
+					(A.Kd_Jurnal <> 8) and 
+					B.kd_rek90_1 = 5
+				group by 
+					D.kd_urusan, 
+					D.kd_bidang, 
+					D.kd_unit, 
+					D.kd_sub, 
+					A.kd_prog, 
+					A.id_prog, 
+					A.kd_keg, 
+					D.Tahun
+			) Q
+			inner join ref_sub_unit D 
+				on 
+					Q.kd_urusan = D.kd_urusan and 
+					Q.kd_bidang = D.kd_bidang AND 
+					Q.kd_unit = D.kd_unit AND 
+					Q.Kd_sub = D.Kd_sub
+			inner join ta_program E 
+				on 
+					Q.kd_urusan = E.kd_urusan AND 
+					Q.kd_bidang = E.kd_bidang and 
+					Q.kd_unit = E.kd_unit and 
+					Q.kd_sub = E.kd_sub and 
+					Q.kd_prog = E.kd_prog and 
+					Q.id_prog = E.id_prog
+			inner join ta_kegiatan F 
+				on 
+					Q.kd_urusan = F.kd_urusan and 
+					Q.kd_bidang = F.kd_bidang and 
+					Q.kd_unit = F.kd_unit and 
+					Q.kd_sub = F.kd_sub and 
+					Q.kd_prog = F.kd_prog and 
+					Q.id_prog = F.id_prog and 
+					Q.kd_keg = F.kd_keg
+			group by 
+				Q.kd_urusan, 
+				Q.kd_bidang, 
+				Q.kd_unit, 
+				Q.kd_sub, 
+				Q.kd_prog, 
+				Q.kd_keg, 
+				Q.id_prog, 
+				D.nm_sub_unit, 
+				E.ket_program, 
+				F.ket_kegiatan, 
+				Q.Tahun, 
+				Q.realisasi
+			having 
+				Q.kd_urusan = %d and 
+				Q.kd_bidang = %d and 
+				Q.kd_unit = %d AND 
+				Q.kd_sub = %d and
+				Q.kd_prog = %d and
+				Q.id_prog = %d and
+				Q.kd_keg = %d
+			order by 
+				Q.kd_urusan, Q.kd_bidang, Q.kd_unit, Q.kd_sub, Q.kd_prog, Q.kd_keg asc
+		", 
+			$options['tahun_anggaran'], 
+			$hari_mulai, 
+			$hari_akhir, 
+			$kd_urusan, 
+			$kd_bidang, 
+			$kd_unit, 
+			$kd_sub, 
+			$kd_prog, 
+			$id_prog, 
+			$kd_keg
+		);
+
+		$pagu = $this->simda->CurlSimda(array('query' => $sql), true);
 		if(!empty($pagu[0])){
-			return $pagu[0]->total;
+			return $pagu[0]->realisasi;
 		}else{
 			return 0;
 		}

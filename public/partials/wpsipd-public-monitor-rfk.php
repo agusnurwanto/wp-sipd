@@ -69,6 +69,9 @@ foreach ($units as $k => $unit):
 		$subkeg = $wpdb->get_results($wpdb->prepare("
 			select 
 				k.*,
+				r.rak,
+				r.realisasi_anggaran, 
+				r.id as id_rfk, 
 				r.realisasi_fisik, 
 				r.permasalahan
 			from data_sub_keg_bl k
@@ -96,6 +99,9 @@ foreach ($units as $k => $unit):
 		$subkeg = $wpdb->get_results($wpdb->prepare("
 			select 
 				k.*,
+				r.rak,
+				r.realisasi_anggaran, 
+				r.id as id_rfk, 
 				r.realisasi_fisik, 
 				r.permasalahan
 			from data_sub_keg_bl k
@@ -169,7 +175,12 @@ foreach ($units as $k => $unit):
 			));
 		}
 		$realisasi = $this->get_realisasi_simda(array(
+			'user' => $current_user->display_name,
+			'id_skpd' => $input['id_skpd'],
+			'kode_sbl' => $sub['kode_sbl'],
 			'tahun_anggaran' => $input['tahun_anggaran'],
+			'realisasi_anggaran' => $sub['realisasi_anggaran'],
+			'id_rfk' => $sub['id_rfk'],
 			'bulan' => $bulan,
 			'kd_urusan' => $_kd_urusan,
 			'kd_bidang' => $_kd_bidang,
@@ -295,13 +306,15 @@ foreach ($units as $k => $unit):
 		        		<td class="kanan bawah text_kanan text_blok" colspan="2"></td>
 			        </tr>
 				';
-				foreach ($program['data'] as $kd_giat => $giat) {
-					$kd_giat = explode('.', $kd_giat);
+				foreach ($program['data'] as $kd_giat1 => $giat) {
+					$kd_giat = explode('.', $kd_giat1);
 					$kd_giat = $kd_giat[count($kd_giat)-2].'.'.$kd_giat[count($kd_giat)-1];
 					$capaian = 0;
 					if(!empty($giat['total'])){
 						$capaian = $this->pembulatan(($giat['realisasi']/$giat['total'])*100);
 					}
+					$nama_page = $input['tahun_anggaran'] . ' | ' . $unit['kode_skpd'] . ' | ' . $kd_giat1 . ' | ' . $giat['nama'];
+					$custom_post = get_page_by_title($nama_page, OBJECT, 'post');
 					$body .= '
 				        <tr class="kegiatan" data-kode="'.$kd_urusan.'.'.$kd_bidang.'.'.$kd_program.'.'.$kd_giat.'">
 				            <td class="text_tengah" style="border:.5pt solid #000; vertical-align:middle; font-weight:bold;" width="5">'.$kd_urusan.'</td>
@@ -309,7 +322,7 @@ foreach ($units as $k => $unit):
 				            <td class="text_tengah" style="border:.5pt solid #000; vertical-align:middle; font-weight:bold; vnd.ms-excel.numberformat:000;" width="5">'.$kd_program.'</td>
 				            <td class="text_tengah" style="border:.5pt solid #000; vertical-align:middle; font-weight:bold;" width="5">'.$kd_giat.'</td>
 				            <td class="text_tengah" style="border:.5pt solid #000; vertical-align:middle;" width="5">&nbsp;</td>
-				            <td style="border:.5pt solid #000; vertical-align:middle; font-weight:bold;">'.$giat['nama'].'</td>
+				            <td style="border:.5pt solid #000; vertical-align:middle; font-weight:bold;"><a href="'.$custom_post->guid . '?key=' . $this->gen_key().'" target="_blank">'.$giat['nama'].'</a></td>
 				            <td style="border:.5pt solid #000; vertical-align:middle; text-align:right; font-weight:bold;">'.number_format($giat['total'],0,",",".").'</td>
 				            <td style="border:.5pt solid #000; vertical-align:middle; text-align:right; font-weight:bold;">'.number_format($giat['realisasi'],0,",",".").'</td>
 				            <td class="text_tengah" style="border:.5pt solid #000; vertical-align:middle; font-weight:bold;">'.$capaian.'</td>

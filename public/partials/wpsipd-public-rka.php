@@ -1431,7 +1431,8 @@ foreach ($bl as $k => $sub_bl) {
 	    		+'<option value="dpa_murni">DPA Murni</option>'
 	    		+'<option value="dpa_perubahan">DPA Perubahan</option>'
 	    	+'</select>'
-	    +'</label>';
+	    +'</label>'
+		+'<label style="margin-left: 20px;"><input type="checkbox" onclick="mapping_label_sumberdana(this);"> Mapping Label & Sumber Dana</label>';
 	var aksi = ''
 		+'<div id="action-sipd" class="hide-print">'
 			+body
@@ -1442,6 +1443,14 @@ foreach ($bl as $k => $sub_bl) {
 			jQuery('.profile-penerima').show();
 		}else{
 			jQuery('.profile-penerima').hide();
+		}
+	}
+	function mapping_label_sumberdana(that){
+		if(jQuery(that).is(':checked')){
+			alert('tampilkan tombol edit label dan sumberdana!');
+			jQuery('.cetak').attr('contenteditable', false);
+		}else{
+			jQuery('.cetak').attr('contenteditable', true);
 		}
 	}
 

@@ -1434,6 +1434,8 @@ CREATE TABLE `data_rfk` (
   `id` int(11) NOT NULL,
   `bulan` tinyint(2) NOT NULL,
   `kode_sbl` text NOT NULL,
+  `rak` double(20,0) DEFAULT NULL,
+  `realisasi_anggaran` double(20,0) DEFAULT NULL,
   `realisasi_fisik` tinyint(3) DEFAULT NULL,
   `permasalahan` text DEFAULT NULL,
   `user_edit` text DEFAULT NULL,
