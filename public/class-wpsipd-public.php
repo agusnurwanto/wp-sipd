@@ -1330,9 +1330,177 @@ class Wpsipd_Public
 							$wpdb->insert('data_rpjmd', $opsi);
 						}
 					}
-				} else if ($ret['status'] != 'error') {
-					$ret['status'] = 'error';
-					$ret['message'] = 'Format data Salah!';
+				}
+				if (!empty($_POST['tujuan'])) {
+					$tujuan = $_POST['tujuan'];
+					$wpdb->update('data_rpjmd_tujuan', array('active' => 0), array(
+						'tahun_anggaran' => $_POST['tahun_anggaran']
+					));
+					foreach ($tujuan as $k => $v) {
+						if(empty($v['id_tujuan'])){
+							continue;
+						}
+						$cek = $wpdb->get_var("SELECT id_tujuan from data_rpjmd_tujuan where tahun_anggaran=".$_POST['tahun_anggaran']." AND id_unik='" . $v['id_unik']."' AND id_unik_indikator='" . $v['id_unik_indikator']."'");
+						$opsi = array(
+							'id_misi' => $v['id_misi'],
+                            'id_misi_old' => $v['id_misi_old'],
+                            'id_tujuan' => $v['id_tujuan'],
+                            'id_unik' => $v['id_unik'],
+                            'id_unik_indikator' => $v['id_unik_indikator'],
+                            'id_visi' => $v['id_visi'],
+                            'indikator_teks' => $v['indikator_teks'],
+                            'is_locked' => $v['is_locked'],
+                            'is_locked_indikator' => $v['is_locked_indikator'],
+                            'misi_lock' => $v['misi_lock'],
+                            'misi_teks' => $v['misi_teks'],
+                            'satuan' => $v['satuan'],
+                            'status' => $v['status'],
+                            'target_1' => $v['target_1'],
+                            'target_2' => $v['target_2'],
+                            'target_3' => $v['target_3'],
+                            'target_4' => $v['target_4'],
+                            'target_5' => $v['target_5'],
+                            'target_akhir' => $v['target_akhir'],
+                            'target_awal' => $v['target_awal'],
+                            'tujuan_teks' => $v['tujuan_teks'],
+                            'urut_misi' => $v['urut_misi'],
+                            'urut_tujuan' => $v['urut_tujuan'],
+                            'visi_teks' => $v['visi_teks'],
+							'active' => 1,
+							'update_at' => current_time('mysql'),
+							'tahun_anggaran' => $_POST['tahun_anggaran']
+						);
+
+						if (!empty($cek)) {
+							$wpdb->update('data_rpjmd_tujuan', $opsi, array(
+								'id_unik' => $v['id_unik'],
+								'id_unik_indikator' => $v['id_unik_indikator'],
+								'tahun_anggaran' => $_POST['tahun_anggaran']
+							));
+						} else {
+							$wpdb->insert('data_rpjmd_tujuan', $opsi);
+						}
+					}
+				}
+				if (!empty($_POST['sasaran'])) {
+					$sasaran = $_POST['sasaran'];
+					$wpdb->update('data_rpjmd_sasaran', array('active' => 0), array(
+						'tahun_anggaran' => $_POST['tahun_anggaran']
+					));
+					foreach ($sasaran as $k => $v) {
+						if(empty($v['id_sasaran'])){
+							continue;
+						}
+						$cek = $wpdb->get_var("SELECT id_sasaran from data_rpjmd_sasaran where tahun_anggaran=".$_POST['tahun_anggaran']." AND id_unik='" . $v['id_unik']."' AND id_unik_indikator='" . $v['id_unik_indikator']."'");
+						$opsi = array(
+							'id_misi' => $v['id_misi'],
+                            'id_misi_old' => $v['id_misi_old'],
+                            'id_sasaran' => $v['id_sasaran'],
+                            'id_unik' => $v['id_unik'],
+                            'id_unik_indikator' => $v['id_unik_indikator'],
+                            'id_visi' => $v['id_visi'],
+                            'indikator_teks' => $v['indikator_teks'],
+                            'is_locked' => $v['is_locked'],
+                            'is_locked_indikator' => $v['is_locked_indikator'],
+                            'kode_tujuan' => $v['kode_tujuan'],
+                            'misi_teks' => $v['misi_teks'],
+                            'sasaran_teks' => $v['sasaran_teks'],
+                            'satuan' => $v['satuan'],
+                            'status' => $v['status'],
+                            'target_1' => $v['target_1'],
+                            'target_2' => $v['target_2'],
+                            'target_3' => $v['target_3'],
+                            'target_4' => $v['target_4'],
+                            'target_5' => $v['target_5'],
+                            'target_akhir' => $v['target_akhir'],
+                            'target_awal' => $v['target_awal'],
+                            'tujuan_lock' => $v['tujuan_lock'],
+                            'tujuan_teks' => $v['tujuan_teks'],
+                            'urut_misi' => $v['urut_misi'],
+                            'urut_sasaran' => $v['urut_sasaran'],
+                            'urut_tujuan' => $v['urut_tujuan'],
+                            'visi_teks' => $v['visi_teks'],
+							'active' => 1,
+							'update_at' => current_time('mysql'),
+							'tahun_anggaran' => $_POST['tahun_anggaran']
+						);
+
+						if (!empty($cek)) {
+							$wpdb->update('data_rpjmd_sasaran', $opsi, array(
+								'id_unik' => $v['id_unik'],
+								'id_unik_indikator' => $v['id_unik_indikator'],
+								'tahun_anggaran' => $_POST['tahun_anggaran']
+							));
+						} else {
+							$wpdb->insert('data_rpjmd_sasaran', $opsi);
+						}
+					}
+				}
+				if (!empty($_POST['program'])) {
+					$program = $_POST['program'];
+					$wpdb->update('data_rpjmd_program', array('active' => 0), array(
+						'tahun_anggaran' => $_POST['tahun_anggaran']
+					));
+					foreach ($program as $k => $v) {
+						if(empty($v['id_program'])){
+							continue;
+						}
+						$cek = $wpdb->get_var("SELECT id_program from data_rpjmd_program where tahun_anggaran=".$_POST['tahun_anggaran']." AND id_unik='" . $v['id_unik']."' AND id_unik_indikator='" . $v['id_unik_indikator']."'");
+						$opsi = array(
+							'id_misi' => $v['id_misi'],
+		                    'id_misi_old' => $v['id_misi_old'],
+		                    'id_program' => $v['id_program'],
+		                    'id_unik' => $v['id_unik'],
+		                    'id_unik_indikator' => $v['id_unik_indikator'],
+		                    'id_unit' => $v['id_unit'],
+		                    'id_visi' => $v['id_visi'],
+		                    'indikator' => $v['indikator'],
+		                    'is_locked' => $v['is_locked'],
+		                    'is_locked_indikator' => $v['is_locked_indikator'],
+		                    'kode_sasaran' => $v['kode_sasaran'],
+		                    'kode_skpd' => $v['kode_skpd'],
+		                    'kode_tujuan' => $v['kode_tujuan'],
+		                    'misi_teks' => $v['misi_teks'],
+		                    'nama_program' => $v['nama_program'],
+		                    'nama_skpd' => $v['nama_skpd'],
+		                    'pagu_1' => $v['pagu_1'],
+		                    'pagu_2' => $v['pagu_2'],
+		                    'pagu_3' => $v['pagu_3'],
+		                    'pagu_4' => $v['pagu_4'],
+		                    'pagu_5' => $v['pagu_5'],
+		                    'program_lock' => $v['program_lock'],
+		                    'sasaran_lock' => $v['sasaran_lock'],
+		                    'sasaran_teks' => $v['sasaran_teks'],
+		                    'satuan' => $v['satuan'],
+		                    'status' => $v['status'],
+		                    'target_1' => $v['target_1'],
+		                    'target_2' => $v['target_2'],
+		                    'target_3' => $v['target_3'],
+		                    'target_4' => $v['target_4'],
+		                    'target_5' => $v['target_5'],
+		                    'target_akhir' => $v['target_akhir'],
+		                    'target_awal' => $v['target_awal'],
+		                    'tujuan_lock' => $v['tujuan_lock'],
+		                    'tujuan_teks' => $v['tujuan_teks'],
+		                    'urut_misi' => $v['urut_misi'],
+		                    'urut_sasaran' => $v['urut_sasaran'],
+		                    'urut_tujuan' => $v['urut_tujuan'],
+		                    'visi_teks' => $v['visi_teks'],
+							'active' => 1,
+							'update_at' => current_time('mysql'),
+							'tahun_anggaran' => $_POST['tahun_anggaran']
+						);
+
+						if (!empty($cek)) {
+							$wpdb->update('data_rpjmd_program', $opsi, array(
+								'id_unik' => $v['id_unik'],
+								'id_unik_indikator' => $v['id_unik_indikator'],
+								'tahun_anggaran' => $_POST['tahun_anggaran']
+							));
+						} else {
+							$wpdb->insert('data_rpjmd_program', $opsi);
+						}
+					}
 				}
 			} else {
 				$ret['status'] = 'error';

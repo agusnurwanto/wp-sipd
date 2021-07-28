@@ -357,7 +357,7 @@ foreach ($units as $k => $unit):
 							$realisasi_fisik = $sub_giat['data']['realisasi_fisik'];
 						}
 						$body .= '
-					        <tr data-kode="'.$kd_sub_giat1.'" data-kdsbl="'.$sub_giat['data']['kode_sbl'].'" data-idskpd="'.$sub_giat['data']['id_sub_skpd'].'" data-pagu="'.$total_pagu.'">
+					        <tr data-kode="'.$kd_sub_giat1.'" data-kdsbl="'.$sub_giat['data']['kode_sbl'].'" data-idskpd="'.$sub_giat['data']['id_sub_skpd'].'" data-pagu="'.$sub_giat['total'].'">
 					            <td class="kiri kanan bawah">'.$kd_urusan.'</td>
 					            <td class="kanan bawah">'.$kd_bidang.'</td>
 					            <td class="kanan bawah">'.$kd_program.'</td>
