@@ -4004,9 +4004,9 @@ class Wpsipd_Public
 					inner join ta_jurnal j ON j.tahun = r.tahun 
 						AND j.no_bukti = r.no_bukti
 				WHERE r.tahun = %d 
-					AND r.kd_jurnal = 5
+					AND j.kd_jurnal = 5
 					AND r.kd_rek_1 = 5
-					AND r.tgl_bukti BETWEEN %s AND %s
+					AND j.tgl_bukti BETWEEN %s AND %s
 					AND r.Kd_Urusan = %d
 					AND r.Kd_Bidang = %d
 					AND r.Kd_Unit = %d
@@ -4028,7 +4028,7 @@ class Wpsipd_Public
 			);
 			$pagu_blud_fktp = $this->simda->CurlSimda(array('query' => $sql), false);
 
-			$realisasi = $realisasi + $pagu_blud_fktp;
+			$realisasi = $realisasi + $pagu_blud_fktp[0]->total;
 		}
 
 		$opsi = array(
