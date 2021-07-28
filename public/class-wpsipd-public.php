@@ -1234,6 +1234,7 @@ class Wpsipd_Public
 						$opsi = array(
 							'id_bidang_urusan' => $v['id_bidang_urusan'],
 							'id_program' => $v['id_program'],
+							'id_giat' => $v['id_giat'],
 							'id_sub_giat' => $v['id_sub_giat'],
 							'id_urusan' => $v['id_urusan'],
 							'is_locked' => $v['is_locked'],
