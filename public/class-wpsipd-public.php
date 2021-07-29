@@ -2732,7 +2732,11 @@ class Wpsipd_Public
 		if(!empty($_GET) && !empty($_GET['post'])){
 			return '';
 		}
-		require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/wpsipd-public-monitor-rfk.php';
+		if(!empty($atts['id_skpd'])){
+			require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/wpsipd-public-monitor-rfk.php';
+		}else{
+			require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/wpsipd-public-monitor-rfk-pemda.php';
+		}
 	}
 
 	public function monitor_sipd($atts)

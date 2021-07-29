@@ -444,8 +444,8 @@ foreach ($units as $k => $unit):
 			    <tr>
 			        <td class="atas kanan bawah kiri text_tengah text_blok" colspan="5">Kode</td>
 			        <td class="atas kanan bawah text_tengah text_blok">Urusan/ Bidang Urusan Pemerintahan Daerah Dan Program/ Kegiatan</td>
-			        <td class="atas kanan bawah text_tengah text_blok">Pagu RKA SIPD (Rp.)</td>
-			        <td class="atas kanan bawah text_tengah text_blok">Pagu SIMDA (Rp.)</td>
+			        <td class="atas kanan bawah text_tengah text_blok">RKA SIPD (Rp.)</td>
+			        <td class="atas kanan bawah text_tengah text_blok">DPA SIMDA (Rp.)</td>
 			        <td class="atas kanan bawah text_tengah text_blok">Realisasi Keuangan (Rp.)</td>
 			        <td class="atas kanan bawah text_tengah text_blok">Capaian ( % )</td>
 			        <td class="atas kanan bawah text_tengah text_blok">Realisasi Fisik ( % )</td>
