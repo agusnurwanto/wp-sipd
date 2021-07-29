@@ -5,6 +5,11 @@ $input = shortcode_atts( array(
 ), $atts );
 global $wpdb;
 
+function button_mapping($class=false){
+	$button_mapping = '<span style="display: none;" data-id="'.$class.'" class="edit-mapping"><i class="dashicons dashicons-edit"></i></span>';
+	return $button_mapping;
+}
+
 if(empty($input['kode_bl'])){
 	echo "<h1 style='text-align: center;'>kode_bl tidak boleh kosong!</h1>"; exit;
 }
@@ -564,6 +569,8 @@ foreach ($bl as $k => $sub_bl) {
 			from data_akun 
 			where kode_akun='".$akun_4."'"
 		, ARRAY_A);
+
+		// rekening 1
 		if($akun[$akun_1_db[0]['kode_akun']]['status'] == 0){
 			$akun[$akun_1_db[0]['kode_akun']]['status'] = 1;
 			$rin_murni = '';
@@ -583,13 +590,15 @@ foreach ($bl as $k => $sub_bl) {
 			$rin_sub_item .= '
 				<tr>
 	                <td class="kiri kanan bawah text_blok">'.$akun[$akun_1_db[0]['kode_akun']]['kode_akun'].'</td>
-                    <td class="kanan bawah text_blok" colspan="5">'.$akun[$akun_1_db[0]['kode_akun']]['nama_akun'].'</td>
+                    <td class="kanan bawah text_blok" colspan="5">'.$akun[$akun_1_db[0]['kode_akun']]['nama_akun'].button_mapping($akun_1_db[0]['kode_akun']).'</td>
                     '.$rin_murni.'
                     <td class="kanan bawah text_kanan text_blok" style="white-space:nowrap">Rp. '.number_format($akun[$akun_1_db[0]['kode_akun']]['total'],0,",",".").'</td>
                     '.$selisih_murni.'
                 </tr>
 			';
 		}
+
+		// rekening 2
 		if($akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']]['status'] == 0){
 			$akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']]['status'] = 1;
 			$rin_murni = '';
@@ -609,13 +618,15 @@ foreach ($bl as $k => $sub_bl) {
 			$rin_sub_item .= '
 				<tr>
 	                <td class="kiri kanan bawah text_blok">'.$akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']]['kode_akun'].'</td>
-                    <td class="kanan bawah text_blok" colspan="5">'.$akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']]['nama_akun'].'</td>
+                    <td class="kanan bawah text_blok" colspan="5">'.$akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']]['nama_akun'].button_mapping($akun_2_db[0]['kode_akun']).'</td>
                     '.$rin_murni.'
                     <td class="kanan bawah text_kanan text_blok" style="white-space:nowrap">Rp. '.number_format($akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']]['total'],0,",",".").'</td>
                     '.$selisih_murni.'
                 </tr>
 			';
 		}
+
+		// rekening 3
 		if($akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']]['status'] == 0){
 			$akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']]['status'] = 1;
 			$rin_murni = '';
@@ -635,13 +646,15 @@ foreach ($bl as $k => $sub_bl) {
 			$rin_sub_item .= '
 				<tr>
 	                <td class="kiri kanan bawah text_blok">'.$akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']]['kode_akun'].'</td>
-                    <td class="kanan bawah text_blok" colspan="5">'.$akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']]['nama_akun'].'</td>
+                    <td class="kanan bawah text_blok" colspan="5">'.$akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']]['nama_akun'].button_mapping($akun_3_db[0]['kode_akun']).'</td>
                     '.$rin_murni.'
                     <td class="kanan bawah text_kanan text_blok" style="white-space:nowrap">Rp. '.number_format($akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']]['total'],0,",",".").'</td>
                     '.$selisih_murni.'
                 </tr>
 			';
 		}
+
+		// rekening 4
 		if($akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']][$akun_4_db[0]['kode_akun']]['status'] == 0){
 			$akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']][$akun_4_db[0]['kode_akun']]['status'] = 1;
 			$rin_murni = '';
@@ -661,15 +674,15 @@ foreach ($bl as $k => $sub_bl) {
 			$rin_sub_item .= '
 				<tr>
 	                <td class="kiri kanan bawah text_blok">'.$akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']][$akun_4_db[0]['kode_akun']]['kode_akun'].'</td>
-                    <td class="kanan bawah text_blok" colspan="5">'.$akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']][$akun_4_db[0]['kode_akun']]['nama_akun'].'</td>
+                    <td class="kanan bawah text_blok" colspan="5">'.$akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']][$akun_4_db[0]['kode_akun']]['nama_akun'].button_mapping($akun_4_db[0]['kode_akun']).'</td>
                     '.$rin_murni.'
                     <td class="kanan bawah text_kanan text_blok" style="white-space:nowrap">Rp. '.number_format($akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']][$akun_4_db[0]['kode_akun']]['total'],0,",",".").'</td>
                     '.$selisih_murni.'
                 </tr>
 			';
 		}
-		// print_r($akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']][$akun_4_db[0]['kode_akun']]);
-		// print_r($item['nama_akun']);
+
+		// rekening 5
 		if($akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']][$akun_4_db[0]['kode_akun']][$item['nama_akun']]['status'] == 0){
 			$akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']][$akun_4_db[0]['kode_akun']][$item['nama_akun']]['status'] = 1;
 			$rin_murni = '';
@@ -689,13 +702,15 @@ foreach ($bl as $k => $sub_bl) {
 			$rin_sub_item .= '
 				<tr>
 	                <td class="kiri kanan bawah text_blok">'.$akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']][$akun_4_db[0]['kode_akun']][$item['nama_akun']]['kode_akun'].'</td>
-                    <td class="kanan bawah text_blok" colspan="5">'.$akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']][$akun_4_db[0]['kode_akun']][$item['nama_akun']]['nama_akun'].'</td>
+                    <td class="kanan bawah text_blok" colspan="5">'.$akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']][$akun_4_db[0]['kode_akun']][$item['nama_akun']]['nama_akun'].button_mapping($akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']][$akun_4_db[0]['kode_akun']][$item['nama_akun']]['kode_akun']).'</td>
                     '.$rin_murni.'
                     <td class="kanan bawah text_kanan text_blok" style="white-space:nowrap">Rp. '.number_format($akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']][$akun_4_db[0]['kode_akun']][$item['nama_akun']]['total'],0,",",".").'</td>
                     '.$selisih_murni.'
                 </tr>
 			';
 		}
+
+		// kelompok / paket
 		if($akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']][$akun_4_db[0]['kode_akun']][$item['nama_akun']][$item['subs_bl_teks']]['status'] == 0){
 			$akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']][$akun_4_db[0]['kode_akun']][$item['nama_akun']][$item['subs_bl_teks']]['status'] = 1;
 			$rin_murni = '';
@@ -715,13 +730,15 @@ foreach ($bl as $k => $sub_bl) {
 			$rin_sub_item .= '
 				<tr>
 	                <td class="kiri kanan bawah text_blok">'.$akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']][$akun_4_db[0]['kode_akun']][$item['nama_akun']][$item['subs_bl_teks']]['kode_akun'].'</td>
-                    <td class="kanan bawah text_blok" colspan="5">'.$akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']][$akun_4_db[0]['kode_akun']][$item['nama_akun']][$item['subs_bl_teks']]['nama_akun'].'</td>
+                    <td class="kanan bawah text_blok" colspan="5">'.$akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']][$akun_4_db[0]['kode_akun']][$item['nama_akun']][$item['subs_bl_teks']]['nama_akun'].button_mapping($akun_4_db[0]['kode_akun'].'-'.$item['idsubtitle']).'</td>
                     '.$rin_murni.'
                     <td class="kanan bawah text_kanan text_blok nilai_kelompok" style="white-space:nowrap">Rp. '.number_format($akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']][$akun_4_db[0]['kode_akun']][$item['nama_akun']][$item['subs_bl_teks']]['total'],0,",",".").'</td>
                     '.$selisih_murni.'
                 </tr>
 			';
 		}
+
+		// keterangan
 		if($akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']][$akun_4_db[0]['kode_akun']][$item['nama_akun']][$item['subs_bl_teks']][$item['ket_bl_teks']]['status'] == 0){
 			$akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']][$akun_4_db[0]['kode_akun']][$item['nama_akun']][$item['subs_bl_teks']][$item['ket_bl_teks']]['status'] = 1;
 			$rin_murni = '';
@@ -741,13 +758,15 @@ foreach ($bl as $k => $sub_bl) {
 			$rin_sub_item .= '
 				<tr>
 	                <td class="kiri kanan bawah text_blok">'.$akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']][$akun_4_db[0]['kode_akun']][$item['nama_akun']][$item['subs_bl_teks']][$item['ket_bl_teks']]['kode_akun'].'</td>
-                    <td class="kanan bawah text_blok" colspan="5">'.$akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']][$akun_4_db[0]['kode_akun']][$item['nama_akun']][$item['subs_bl_teks']][$item['ket_bl_teks']]['nama_akun'].'</td>
+                    <td class="kanan bawah text_blok" colspan="5">'.$akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']][$akun_4_db[0]['kode_akun']][$item['nama_akun']][$item['subs_bl_teks']][$item['ket_bl_teks']]['nama_akun'].button_mapping($akun_4_db[0]['kode_akun'].'-'.$item['idsubtitle'].'-'.$item['idketerangan']).'</td>
                     '.$rin_murni.'
                     <td class="kanan bawah text_kanan text_blok nilai_keterangan" style="white-space:nowrap">Rp. '.number_format($akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']][$akun_4_db[0]['kode_akun']][$item['nama_akun']][$item['subs_bl_teks']][$item['ket_bl_teks']]['total'],0,",",".").'</td>
                     '.$selisih_murni.'
                 </tr>
 			';
 		}
+
+		// kommponen
 		$rin_murni = '';
 		$selisih_murni = '';
 		if(
@@ -769,7 +788,7 @@ foreach ($bl as $k => $sub_bl) {
 			<tr>
 				<td class="kiri kanan bawah text_blok">&nbsp;</td>
                 <td class="kanan bawah">
-                    <div>'.$item['nama_komponen'].'</div>
+                    <div>'.$item['nama_komponen'].button_mapping($akun_4_db[0]['kode_akun'].'-'.$item['idsubtitle'].'-'.$item['idketerangan'].'-'.$item['id_rinci_sub_bl']).'</div>
                     <div style="margin-left: 20px">'.$item['spek_komponen'].'</div>
                     <div style="margin-left: 40px" class="profile-penerima" id-profile="'.$item['id_penerima'].'" id-prop="'.$item['id_prop_penerima'].'" id-kokab="'.$item['id_kokab_penerima'].'" id-camat="'.$item['id_camat_penerima'].'" id-lurah="'.$item['id_lurah_penerima'].'">'.$profile_penerima.'</div>
                 </td>
@@ -886,6 +905,23 @@ foreach ($bl as $k => $sub_bl) {
     	vertical-align: middle;
     }
 </style>
+<div class="modal fade" id="mod-mapping" tabindex="-1" role="dialog" data-backdrop="static" aria-hidden="true" style="z-index: 99999">'
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header bgpanel-theme">
+                <h4 style="margin: 0;" class="modal-title" id="">Mapping Label & Sumber Dana</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span><i class="dashicons dashicons-dismiss"></i></span></button>
+            </div>
+            <div class="modal-body">
+            	tes
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-success" id="set-mapping">Simpan</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">Tutup</button>
+            </div>
+        </div>
+    </div>
+</div>
 <div class="cetak" contenteditable="true">
 	<table width="100%" class="cellpadding_5" style="border-spacing: 2px;">
 	    <tr class="no_padding">
@@ -1449,8 +1485,11 @@ foreach ($bl as $k => $sub_bl) {
 		if(jQuery(that).is(':checked')){
 			alert('tampilkan tombol edit label dan sumberdana!');
 			jQuery('.cetak').attr('contenteditable', false);
+			jQuery('.edit-mapping').show();
+			jQuery('.edit-sumber-dana').show();
 		}else{
 			jQuery('.cetak').attr('contenteditable', true);
+			jQuery('.edit-mapping').hide();
 		}
 	}
 
@@ -1464,5 +1503,8 @@ foreach ($bl as $k => $sub_bl) {
     }
     jQuery('#type_laporan').on('change', function(){
     	window.open(_url+'&type='+jQuery(this).val(), '_blank');
+    });
+    jQuery('.edit-mapping').on('click', function(){
+    	jQuery('#mod-mapping').modal('show');
     });
 </script>

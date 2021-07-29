@@ -135,3 +135,15 @@ tfoot { display:table-footer-group }
     transform: rotate(1800deg);
   }
 }
+.edit-mapping {
+    border: 2px solid;
+    padding: 2px;
+    border-radius: 50%;
+    color: #2196F3;
+    margin-left: 20px;
+    cursor: pointer;
+}
+.edit-mapping:hover {
+    background: #00BCD4;
+    color: #fff;
+}
