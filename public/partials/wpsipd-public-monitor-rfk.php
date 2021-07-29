@@ -69,6 +69,7 @@ foreach ($units as $k => $unit):
 		$subkeg = $wpdb->get_results($wpdb->prepare("
 			select 
 				k.*,
+				k.id as id_sub_keg, 
 				r.rak,
 				r.realisasi_anggaran, 
 				r.id as id_rfk, 
@@ -99,6 +100,7 @@ foreach ($units as $k => $unit):
 		$subkeg = $wpdb->get_results($wpdb->prepare("
 			select 
 				k.*,
+				k.id as id_sub_keg, 
 				r.rak,
 				r.realisasi_anggaran, 
 				r.id as id_rfk, 
@@ -119,6 +121,7 @@ foreach ($units as $k => $unit):
 
 	$data_all = array(
 		'total' => 0,
+		'total_simda' => 0,
 		'realisasi' => 0,
 		'data' => array()
 	);
@@ -174,6 +177,18 @@ foreach ($units as $k => $unit):
 				'kd_keg' => $kd_keg
 			));
 		}
+		$total_simda = $this->get_pagu_simda_last(array(
+			'tahun_anggaran' => $input['tahun_anggaran'],
+			'pagu_simda' => $sub['pagu_simda'],
+			'id_sub_keg' => $sub['id_sub_keg'],
+			'kd_urusan' => $_kd_urusan,
+			'kd_bidang' => $_kd_bidang,
+			'kd_unit' => $kd_unit,
+			'kd_sub' => $kd_sub_unit,
+			'kd_prog' => $kd_prog,
+			'id_prog' => $id_prog,
+			'kd_keg' => $kd_keg
+		));
 		$realisasi = $this->get_realisasi_simda(array(
 			'user' => $current_user->display_name,
 			'id_skpd' => $input['id_skpd'],
@@ -195,6 +210,7 @@ foreach ($units as $k => $unit):
 			$data_all['data'][$sub['kode_urusan']] = array(
 				'nama'	=> $sub['nama_urusan'],
 				'total' => 0,
+				'total_simda' => 0,
 				'realisasi' => 0,
 				'data'	=> array()
 			);
@@ -203,6 +219,7 @@ foreach ($units as $k => $unit):
 			$data_all['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']] = array(
 				'nama'	=> $sub['nama_bidang_urusan'],
 				'total' => 0,
+				'total_simda' => 0,
 				'realisasi' => 0,
 				'data'	=> array()
 			);
@@ -211,6 +228,7 @@ foreach ($units as $k => $unit):
 			$data_all['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']] = array(
 				'nama'	=> $sub['nama_program'],
 				'total' => 0,
+				'total_simda' => 0,
 				'realisasi' => 0,
 				'data'	=> array()
 			);
@@ -219,6 +237,7 @@ foreach ($units as $k => $unit):
 			$data_all['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']]['data'][$sub['kode_giat']] = array(
 				'nama'	=> $sub['nama_giat'],
 				'total' => 0,
+				'total_simda' => 0,
 				'realisasi' => 0,
 				'data'	=> array()
 			);
@@ -229,6 +248,7 @@ foreach ($units as $k => $unit):
 			$data_all['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']]['data'][$sub['kode_giat']]['data'][$sub['kode_sub_giat']] = array(
 				'nama'	=> implode(' ', $nama),
 				'total' => 0,
+				'total_simda' => 0,
 				'realisasi' => 0,
 				'data'	=> $sub
 			);
@@ -246,6 +266,13 @@ foreach ($units as $k => $unit):
 		$data_all['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']]['realisasi'] += $realisasi;
 		$data_all['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']]['data'][$sub['kode_giat']]['realisasi'] += $realisasi;
 		$data_all['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']]['data'][$sub['kode_giat']]['data'][$sub['kode_sub_giat']]['realisasi'] += $realisasi;
+
+		$data_all['total_simda'] += $total_simda;
+		$data_all['data'][$sub['kode_urusan']]['total_simda'] += $total_simda;
+		$data_all['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['total_simda'] += $total_simda;
+		$data_all['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']]['total_simda'] += $total_simda;
+		$data_all['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']]['data'][$sub['kode_giat']]['total_simda'] += $total_simda;
+		$data_all['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']]['data'][$sub['kode_giat']]['data'][$sub['kode_sub_giat']]['total_simda'] += $total_simda;
 	}
 
 	// print_r($data_all); die();
@@ -259,7 +286,7 @@ foreach ($units as $k => $unit):
 		        <td class="text_tengah kanan bawah">&nbsp;</td>
 		        <td class="text_tengah kanan bawah">&nbsp;</td>
 		        <td class="text_tengah kanan bawah">&nbsp;</td>
-		        <td class="kanan bawah text_blok" colspan="7">'.$urusan['nama'].'</td>
+		        <td class="kanan bawah text_blok" colspan="8">'.$urusan['nama'].'</td>
 		    </tr>
 		';
 		foreach ($urusan['data'] as $kd_bidang => $bidang) {
@@ -267,7 +294,7 @@ foreach ($units as $k => $unit):
 			$kd_bidang = $kd_bidang[count($kd_bidang)-1];
 			$capaian = 0;
 			if(!empty($bidang['total'])){
-				$capaian = $this->pembulatan(($bidang['realisasi']/$bidang['total'])*100);
+				$capaian = $this->pembulatan(($bidang['realisasi']/$bidang['total_simda'])*100);
 			}
 			$body .= '
 				<tr class="bidang" data-kode="'.$kd_urusan.'.'.$kd_bidang.'">
@@ -278,6 +305,7 @@ foreach ($units as $k => $unit):
 		            <td class="text_tengah kanan bawah">&nbsp;</td>
 		            <td class="kanan bawah text_blok">'.$bidang['nama'].'</td>
 		            <td class="kanan bawah text_kanan text_blok">'.number_format($bidang['total'],0,",",".").'</td>
+		            <td class="kanan bawah text_kanan text_blok">'.number_format($bidang['total_simda'],0,",",".").'</td>
 		            <td class="kanan bawah text_kanan text_blok">'.number_format($bidang['realisasi'],0,",",".").'</td>
 		            <td class="kanan bawah text_blok text_tengah">'.$capaian.'</td>
 		            <td class="kanan bawah text_blok bidang-realisasi-fisik text_tengah"></td>
@@ -300,6 +328,7 @@ foreach ($units as $k => $unit):
 			            <td class="text_tengah kanan bawah">&nbsp;</td>
 			            <td class="kanan bawah text_blok">'.$program['nama'].'</td>
 			            <td class="kanan bawah text_kanan text_blok">'.number_format($program['total'],0,",",".").'</td>
+			            <td class="kanan bawah text_kanan text_blok">'.number_format($program['total_simda'],0,",",".").'</td>
 			            <td class="kanan bawah text_kanan text_blok">'.number_format($program['realisasi'],0,",",".").'</td>
 			            <td class="kanan bawah text_blok text_tengah">'.$capaian.'</td>
 			            <td class="kanan bawah text_blok program-realisasi-fisik text_tengah"></td>
@@ -311,7 +340,7 @@ foreach ($units as $k => $unit):
 					$kd_giat = $kd_giat[count($kd_giat)-2].'.'.$kd_giat[count($kd_giat)-1];
 					$capaian = 0;
 					if(!empty($giat['total'])){
-						$capaian = $this->pembulatan(($giat['realisasi']/$giat['total'])*100);
+						$capaian = $this->pembulatan(($giat['realisasi']/$giat['total_simda'])*100);
 					}
 					$nama_page = $input['tahun_anggaran'] . ' | ' . $unit['kode_skpd'] . ' | ' . $kd_giat1 . ' | ' . $giat['nama'];
 					$custom_post = get_page_by_title($nama_page, OBJECT, 'post');
@@ -324,6 +353,7 @@ foreach ($units as $k => $unit):
 				            <td class="text_tengah" style="border:.5pt solid #000; vertical-align:middle;" width="5">&nbsp;</td>
 				            <td style="border:.5pt solid #000; vertical-align:middle; font-weight:bold;"><a href="'.$custom_post->guid . '?key=' . $this->gen_key().'" target="_blank">'.$giat['nama'].'</a></td>
 				            <td style="border:.5pt solid #000; vertical-align:middle; text-align:right; font-weight:bold;">'.number_format($giat['total'],0,",",".").'</td>
+				            <td style="border:.5pt solid #000; vertical-align:middle; text-align:right; font-weight:bold;">'.number_format($giat['total_simda'],0,",",".").'</td>
 				            <td style="border:.5pt solid #000; vertical-align:middle; text-align:right; font-weight:bold;">'.number_format($giat['realisasi'],0,",",".").'</td>
 				            <td class="text_tengah" style="border:.5pt solid #000; vertical-align:middle; font-weight:bold;">'.$capaian.'</td>
 				            <td style="border:.5pt solid #000; vertical-align:middle; font-weight:bold;" class="kegiatan-realisasi-fisik text_tengah"></td>
@@ -350,7 +380,7 @@ foreach ($units as $k => $unit):
 						$kd_sub_giat = $kd_sub_giat[count($kd_sub_giat)-1];
 						$capaian = 0;
 						if(!empty($sub_giat['total'])){
-							$capaian = $this->pembulatan(($sub_giat['realisasi']/$sub_giat['total'])*100);
+							$capaian = $this->pembulatan(($sub_giat['realisasi']/$sub_giat['total_simda'])*100);
 						}
 						$realisasi_fisik = 0;
 						if(!empty($sub_giat['data']['realisasi_fisik'])){
@@ -365,6 +395,7 @@ foreach ($units as $k => $unit):
 					            <td class="kanan bawah">'.$kd_sub_giat.'</td>
 					            <td class="kanan bawah nama_sub_giat">'.$sub_giat['nama'].'</td>
 					            <td class="kanan bawah text_kanan">'.number_format($sub_giat['total'],0,",",".").'</td>
+					            <td class="kanan bawah text_kanan">'.number_format($sub_giat['total_simda'],0,",",".").'</td>
 					            <td class="kanan bawah text_kanan">'.number_format($sub_giat['realisasi'],0,",",".").'</td>
 					            <td class="kanan bawah text_tengah">'.$capaian.'</td>
 					            <td class="kanan bawah realisasi-fisik text_tengah" contenteditable="true">'.$realisasi_fisik.'</td>
@@ -398,13 +429,14 @@ foreach ($units as $k => $unit):
 		            <th style="padding: 0; border: 0"></th>
 		            <th style="padding: 0; border: 0; width:140px"></th>
 		            <th style="padding: 0; border: 0; width:140px"></th>
+		            <th style="padding: 0; border: 0; width:140px"></th>
 		            <th style="padding: 0; border: 0; width:120px"></th>
 		            <th style="padding: 0; border: 0; width:120px"></th>
 		            <th style="padding: 0; border: 0; width:120px"></th>
 		            <th style="padding: 0; border: 0; width:200px"></th>
 		        </tr>
 			    <tr>
-			        <td colspan="12" style="vertical-align:middle; font-weight:bold; border: 0; font-size: 13px;">
+			        <td colspan="13" style="vertical-align:middle; font-weight:bold; border: 0; font-size: 13px;">
 			            Unit Organisasi : '.$unit_induk[0]['kode_skpd'].'&nbsp;'.$unit_induk[0]['nama_skpd'].'<br/>
 			            Sub Unit Organisasi : '.$unit['kode_skpd'].'&nbsp;'.$unit['nama_skpd'].'
 			        </td>
@@ -412,7 +444,8 @@ foreach ($units as $k => $unit):
 			    <tr>
 			        <td class="atas kanan bawah kiri text_tengah text_blok" colspan="5">Kode</td>
 			        <td class="atas kanan bawah text_tengah text_blok">Urusan/ Bidang Urusan Pemerintahan Daerah Dan Program/ Kegiatan</td>
-			        <td class="atas kanan bawah text_tengah text_blok">Pagu Indikatif (Rp.)</td>
+			        <td class="atas kanan bawah text_tengah text_blok">Pagu RKA SIPD (Rp.)</td>
+			        <td class="atas kanan bawah text_tengah text_blok">Pagu SIMDA (Rp.)</td>
 			        <td class="atas kanan bawah text_tengah text_blok">Realisasi Keuangan (Rp.)</td>
 			        <td class="atas kanan bawah text_tengah text_blok">Capaian ( % )</td>
 			        <td class="atas kanan bawah text_tengah text_blok">Realisasi Fisik ( % )</td>
@@ -428,10 +461,11 @@ foreach ($units as $k => $unit):
 			        <td class="atas kanan bawah text_tengah text_blok">6</td>
 			        <td class="atas kanan bawah text_tengah text_blok">7</td>
 			        <td class="atas kanan bawah text_tengah text_blok">8</td>
-			        <td class="atas kanan bawah text_tengah text_blok">9 = (8 / 7) * 100</td>
-			        <td class="atas kanan bawah text_tengah text_blok">10</td>
+			        <td class="atas kanan bawah text_tengah text_blok">9</td>
+			        <td class="atas kanan bawah text_tengah text_blok">10 = (9 / 8) * 100</td>
 			        <td class="atas kanan bawah text_tengah text_blok">11</td>
 			        <td class="atas kanan bawah text_tengah text_blok">12</td>
+			        <td class="atas kanan bawah text_tengah text_blok">13</td>
 			    </tr>
 		    </thead>
 		    <tbody>
@@ -439,6 +473,7 @@ foreach ($units as $k => $unit):
 				<tr>
 			        <td class="kiri kanan bawah text_blok text_kanan" colspan="6">TOTAL</td>
 			        <td class="kanan bawah text_kanan text_blok">'.number_format($data_all['total'],0,",",".").'</td>
+			        <td class="kanan bawah text_kanan text_blok">'.number_format($data_all['total_simda'],0,",",".").'</td>
 			        <td class="kanan bawah text_kanan text_blok">'.number_format($data_all['realisasi'],0,",",".").'</td>
 			        <td class="kanan bawah text_tengah text_blok">'.$capaian_total.'</td>
 			        <td class="kanan bawah text_blok total-realisasi-fisik text_tengah"></td>
@@ -530,7 +565,7 @@ endforeach;
     _url = url.origin+url.pathname+'?'+param.join('&');
 	var extend_action = ''
 		+'<div style="margin-top: 20px;">'
-			+'<label>Sumber Pagu Indikatif: '
+			+'<label style="display:none;">Sumber Pagu Indikatif: '
 				+'<select id="pilih_sumber_pagu" style="padding: 5px;">'
 					+'<option value="1">RKA SIPD</option>'
 					+'<option value="4">APBD SIMDA</option>'

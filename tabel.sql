@@ -235,72 +235,6 @@ CREATE TABLE `data_ssh_rek_belanja` (
 ) ENGINE = InnoDB DEFAULT CHARSET = latin1;
 -- 
 --
--- Table structure for table `data_sub_keg_bl`
---
-CREATE TABLE `data_sub_keg_bl` (
-  `id` int(11) NOT NULL,
-  `id_sub_skpd` int(11) NOT NULL,
-  `id_lokasi` int(11) DEFAULT NULL,
-  `id_label_kokab` int(11) NOT NULL,
-  `nama_dana` text,
-  `no_sub_giat` varchar(20) NOT NULL,
-  `kode_giat` varchar(50) NOT NULL,
-  `id_program` int(11) NOT NULL,
-  `nama_lokasi` text DEFAULT NULL,
-  `waktu_akhir` int(11) NOT NULL,
-  `pagu_n_lalu` double(20, 0) DEFAULT NULL,
-  `id_urusan` int(11) NOT NULL,
-  `id_unik_sub_bl` text NOT NULL,
-  `id_sub_giat` int(11) NOT NULL,
-  `label_prov` text,
-  `kode_program` varchar(50) NOT NULL,
-  `kode_sub_giat` varchar(50) NOT NULL,
-  `no_program` varchar(20) NOT NULL,
-  `kode_urusan` varchar(20) NOT NULL,
-  `kode_bidang_urusan` varchar(20) NOT NULL,
-  `nama_program` text NOT NULL,
-  `target_4` text,
-  `target_5` text,
-  `id_bidang_urusan` int(11) DEFAULT NULL,
-  `nama_bidang_urusan` text,
-  `target_3` text,
-  `no_giat` varchar(50) NOT NULL,
-  `id_label_prov` int(11) NOT NULL,
-  `waktu_awal` int(11) NOT NULL,
-  `pagumurni` double(20, 0) DEFAULT NULL,
-  `pagu` double(20, 0) NOT NULL,
-  `output_sub_giat` text,
-  `sasaran` text,
-  `indikator` text,
-  `id_dana` int(11) DEFAULT NULL,
-  `nama_sub_giat` text NOT NULL,
-  `pagu_n_depan` double(20, 0) NOT NULL,
-  `satuan` text,
-  `id_rpjmd` int(11) NOT NULL,
-  `id_giat` int(11) NOT NULL,
-  `id_label_pusat` int(11) NOT NULL,
-  `nama_giat` text NOT NULL,
-  `kode_skpd` varchar(50) NOT NULL,
-  `nama_skpd` text NOT NULL,
-  `kode_sub_skpd` varchar(50) NOT NULL,
-  `id_skpd` int(11) NOT NULL,
-  `id_sub_bl` int(11) DEFAULT NULL,
-  `nama_sub_skpd` text NOT NULL,
-  `target_1` text,
-  `nama_urusan` text NOT NULL,
-  `target_2` text,
-  `label_kokab` text,
-  `label_pusat` text,
-  `pagu_keg` double(20, 0) NOT NULL,
-  `id_bl` int(11) DEFAULT NULL,
-  `kode_bl` varchar(50) NOT NULL,
-  `kode_sbl` varchar(50) NOT NULL,
-  `active` tinyint(4) DEFAULT '1',
-  `update_at` datetime NOT NULL,
-  `tahun_anggaran` year(4) NOT NULL DEFAULT '2021'
-) ENGINE = InnoDB DEFAULT CHARSET = latin1;
--- 
---
 -- Table structure for table `data_sub_keg_indikator`
 --
 CREATE TABLE `data_sub_keg_indikator` (
@@ -1208,11 +1142,6 @@ ALTER TABLE `data_ssh_rek_belanja`
 ADD PRIMARY KEY (`id`),
   ADD KEY `id_standar_harga` (`id_standar_harga`);
 --
--- Indexes for table `data_sub_keg_bl`
---
-ALTER TABLE `data_sub_keg_bl`
-ADD PRIMARY KEY (`id`);
---
 -- Indexes for table `data_sub_keg_indikator`
 --
 ALTER TABLE `data_sub_keg_indikator`
@@ -1251,11 +1180,6 @@ MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 -- AUTO_INCREMENT for table `data_ssh_rek_belanja`
 --
 ALTER TABLE `data_ssh_rek_belanja`
-MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
---
--- AUTO_INCREMENT for table `data_sub_keg_bl`
---
-ALTER TABLE `data_sub_keg_bl`
 MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 --
 -- AUTO_INCREMENT for table `data_sub_keg_indikator`
@@ -1554,3 +1478,71 @@ ALTER TABLE `data_rpjmd_tujuan`
   ADD PRIMARY KEY (`id`);
 ALTER TABLE `data_rpjmd_tujuan`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+CREATE TABLE `data_sub_keg_bl` (
+  `id` int(11) NOT NULL,
+  `id_sub_skpd` int(11) NOT NULL,
+  `id_lokasi` int(11) DEFAULT NULL,
+  `id_label_kokab` int(11) NOT NULL,
+  `nama_dana` text,
+  `no_sub_giat` varchar(20) NOT NULL,
+  `kode_giat` varchar(50) NOT NULL,
+  `id_program` int(11) NOT NULL,
+  `nama_lokasi` text DEFAULT NULL,
+  `waktu_akhir` int(11) NOT NULL,
+  `pagu_n_lalu` double(20, 0) DEFAULT NULL,
+  `id_urusan` int(11) NOT NULL,
+  `id_unik_sub_bl` text NOT NULL,
+  `id_sub_giat` int(11) NOT NULL,
+  `label_prov` text,
+  `kode_program` varchar(50) NOT NULL,
+  `kode_sub_giat` varchar(50) NOT NULL,
+  `no_program` varchar(20) NOT NULL,
+  `kode_urusan` varchar(20) NOT NULL,
+  `kode_bidang_urusan` varchar(20) NOT NULL,
+  `nama_program` text NOT NULL,
+  `target_4` text,
+  `target_5` text,
+  `id_bidang_urusan` int(11) DEFAULT NULL,
+  `nama_bidang_urusan` text,
+  `target_3` text,
+  `no_giat` varchar(50) NOT NULL,
+  `id_label_prov` int(11) NOT NULL,
+  `waktu_awal` int(11) NOT NULL,
+  `pagumurni` double(20, 0) DEFAULT NULL,
+  `pagu` double(20, 0) NOT NULL,
+  `pagu_simda` double(20, 0) DEFAULT NULL,
+  `output_sub_giat` text,
+  `sasaran` text,
+  `indikator` text,
+  `id_dana` int(11) DEFAULT NULL,
+  `nama_sub_giat` text NOT NULL,
+  `pagu_n_depan` double(20, 0) NOT NULL,
+  `satuan` text,
+  `id_rpjmd` int(11) NOT NULL,
+  `id_giat` int(11) NOT NULL,
+  `id_label_pusat` int(11) NOT NULL,
+  `nama_giat` text NOT NULL,
+  `kode_skpd` varchar(50) NOT NULL,
+  `nama_skpd` text NOT NULL,
+  `kode_sub_skpd` varchar(50) NOT NULL,
+  `id_skpd` int(11) NOT NULL,
+  `id_sub_bl` int(11) DEFAULT NULL,
+  `nama_sub_skpd` text NOT NULL,
+  `target_1` text,
+  `nama_urusan` text NOT NULL,
+  `target_2` text,
+  `label_kokab` text,
+  `label_pusat` text,
+  `pagu_keg` double(20, 0) NOT NULL,
+  `id_bl` int(11) DEFAULT NULL,
+  `kode_bl` varchar(50) NOT NULL,
+  `kode_sbl` varchar(50) NOT NULL,
+  `active` tinyint(4) DEFAULT '1',
+  `update_at` datetime NOT NULL,
+  `tahun_anggaran` year(4) NOT NULL DEFAULT '2021'
+) ENGINE = InnoDB DEFAULT CHARSET = latin1;
+ALTER TABLE `data_sub_keg_bl`
+ADD PRIMARY KEY (`id`);
+ALTER TABLE `data_sub_keg_bl`
+MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
