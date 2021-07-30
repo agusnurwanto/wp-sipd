@@ -1688,7 +1688,7 @@ class Wpsipd_Simda
                 	echo "<pre>".print_r($ret, 1)."</pre>"; die();
                 }
             }else{
-            	if(!empty($ret->msg)){
+            	if(isset($ret->msg)){
                 	return $ret->msg;
             	}else{
         			$this->status_koneksi_simda = false;
