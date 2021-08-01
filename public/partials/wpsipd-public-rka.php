@@ -14,6 +14,11 @@ if(empty($input['kode_bl'])){
 	echo "<h1 style='text-align: center;'>kode_bl tidak boleh kosong!</h1>"; exit;
 }
 
+$api_key = carbon_get_theme_option( 'crb_api_key_extension' );
+
+$data_sumber_dana = $wpdb->get_results("select id_dana, nama_dana from data_sumber_dana where tahun_anggaran=".$input['tahun_anggaran'], ARRAY_A);
+$data_label_komponen = $wpdb->get_results("select id, nama from data_label_komponen where tahun_anggaran=".$input['tahun_anggaran'], ARRAY_A);
+
 $type = 'rka_murni';
 if(!empty($_GET) && !empty($_GET['type'])){
     $type = $_GET['type'];
@@ -220,11 +225,13 @@ foreach ($bl as $k => $sub_bl) {
 			AND tahun_anggaran=".$bl[0]['tahun_anggaran']."
 			AND active=1";
 	$sd_sub_keg = $wpdb->get_results($sql, ARRAY_A);
+	$sd_sub_id = array();
 	$sd_sub = array();
 	foreach ($sd_sub_keg as $key => $sd) {
 		$new_sd = explode(' - ', $sd['namadana']);
 		if(!empty($new_sd[1])){
 			$sd_sub[] = $new_sd[1];
+			$sd_sub_id[] = $sd['iddana'];
 		}
 	}
 
@@ -333,12 +340,12 @@ foreach ($bl as $k => $sub_bl) {
                     <tr class="'.$class_garis_table.'">
                         <td width="130">Sub Kegiatan</td>
                         <td width="10">:</td>
-                        <td>'.$bl[0]['kode_bidang_urusan'].substr($sub_bl['nama_sub_giat'], 4, strlen($sub_bl['nama_sub_giat'])).'</td>
+                        <td class="subkeg" data-kdsbl="'.$sub_bl['kode_sbl'].'">'.$bl[0]['kode_bidang_urusan'].substr($sub_bl['nama_sub_giat'], 4, strlen($sub_bl['nama_sub_giat'])).'</td>
                     </tr>
                     <tr class="'.$class_garis_table.'">
                         <td width="130">Sumber Pendanaan</td>
                         <td width="10">:</td>
-                        <td>'.implode(', ', $sd_sub).'</td>
+                        <td class="subkeg-sumberdana" data-kdsbl="'.$sub_bl['kode_sbl'].'" data-idsumberdana="'.implode(',', $sd_sub_id).'">'.implode(', ', $sd_sub).'</td>
                     </tr>
                     <tr class="'.$class_garis_table.'">
                         <td width="130">Lokasi</td>
@@ -590,7 +597,7 @@ foreach ($bl as $k => $sub_bl) {
 			$rin_sub_item .= '
 				<tr>
 	                <td class="kiri kanan bawah text_blok">'.$akun[$akun_1_db[0]['kode_akun']]['kode_akun'].'</td>
-                    <td class="kanan bawah text_blok" colspan="5">'.$akun[$akun_1_db[0]['kode_akun']]['nama_akun'].button_mapping($akun_1_db[0]['kode_akun']).'</td>
+                    <td class="kanan bawah text_blok" colspan="5"><span class="nama">'.$akun[$akun_1_db[0]['kode_akun']]['nama_akun'].'</span>'.button_mapping($sub_bl['kode_sbl'].'-'.$akun_1_db[0]['kode_akun']).'</td>
                     '.$rin_murni.'
                     <td class="kanan bawah text_kanan text_blok" style="white-space:nowrap">Rp. '.number_format($akun[$akun_1_db[0]['kode_akun']]['total'],0,",",".").'</td>
                     '.$selisih_murni.'
@@ -618,7 +625,7 @@ foreach ($bl as $k => $sub_bl) {
 			$rin_sub_item .= '
 				<tr>
 	                <td class="kiri kanan bawah text_blok">'.$akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']]['kode_akun'].'</td>
-                    <td class="kanan bawah text_blok" colspan="5">'.$akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']]['nama_akun'].button_mapping($akun_2_db[0]['kode_akun']).'</td>
+                    <td class="kanan bawah text_blok" colspan="5"><span class="nama">'.$akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']]['nama_akun'].'</span>'.button_mapping($sub_bl['kode_sbl'].'-'.$akun_2_db[0]['kode_akun']).'</td>
                     '.$rin_murni.'
                     <td class="kanan bawah text_kanan text_blok" style="white-space:nowrap">Rp. '.number_format($akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']]['total'],0,",",".").'</td>
                     '.$selisih_murni.'
@@ -646,7 +653,7 @@ foreach ($bl as $k => $sub_bl) {
 			$rin_sub_item .= '
 				<tr>
 	                <td class="kiri kanan bawah text_blok">'.$akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']]['kode_akun'].'</td>
-                    <td class="kanan bawah text_blok" colspan="5">'.$akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']]['nama_akun'].button_mapping($akun_3_db[0]['kode_akun']).'</td>
+                    <td class="kanan bawah text_blok" colspan="5"><span class="nama">'.$akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']]['nama_akun'].'</span>'.button_mapping($sub_bl['kode_sbl'].'-'.$akun_3_db[0]['kode_akun']).'</td>
                     '.$rin_murni.'
                     <td class="kanan bawah text_kanan text_blok" style="white-space:nowrap">Rp. '.number_format($akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']]['total'],0,",",".").'</td>
                     '.$selisih_murni.'
@@ -674,7 +681,7 @@ foreach ($bl as $k => $sub_bl) {
 			$rin_sub_item .= '
 				<tr>
 	                <td class="kiri kanan bawah text_blok">'.$akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']][$akun_4_db[0]['kode_akun']]['kode_akun'].'</td>
-                    <td class="kanan bawah text_blok" colspan="5">'.$akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']][$akun_4_db[0]['kode_akun']]['nama_akun'].button_mapping($akun_4_db[0]['kode_akun']).'</td>
+                    <td class="kanan bawah text_blok" colspan="5"><span class="nama">'.$akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']][$akun_4_db[0]['kode_akun']]['nama_akun'].'</span>'.button_mapping($sub_bl['kode_sbl'].'-'.$akun_4_db[0]['kode_akun']).'</td>
                     '.$rin_murni.'
                     <td class="kanan bawah text_kanan text_blok" style="white-space:nowrap">Rp. '.number_format($akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']][$akun_4_db[0]['kode_akun']]['total'],0,",",".").'</td>
                     '.$selisih_murni.'
@@ -702,7 +709,7 @@ foreach ($bl as $k => $sub_bl) {
 			$rin_sub_item .= '
 				<tr>
 	                <td class="kiri kanan bawah text_blok">'.$akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']][$akun_4_db[0]['kode_akun']][$item['nama_akun']]['kode_akun'].'</td>
-                    <td class="kanan bawah text_blok" colspan="5">'.$akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']][$akun_4_db[0]['kode_akun']][$item['nama_akun']]['nama_akun'].button_mapping($akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']][$akun_4_db[0]['kode_akun']][$item['nama_akun']]['kode_akun']).'</td>
+                    <td class="kanan bawah text_blok" colspan="5"><span class="nama">'.$akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']][$akun_4_db[0]['kode_akun']][$item['nama_akun']]['nama_akun'].'</span>'.button_mapping($sub_bl['kode_sbl'].'-'.$akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']][$akun_4_db[0]['kode_akun']][$item['nama_akun']]['kode_akun']).'</td>
                     '.$rin_murni.'
                     <td class="kanan bawah text_kanan text_blok" style="white-space:nowrap">Rp. '.number_format($akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']][$akun_4_db[0]['kode_akun']][$item['nama_akun']]['total'],0,",",".").'</td>
                     '.$selisih_murni.'
@@ -730,7 +737,7 @@ foreach ($bl as $k => $sub_bl) {
 			$rin_sub_item .= '
 				<tr>
 	                <td class="kiri kanan bawah text_blok">'.$akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']][$akun_4_db[0]['kode_akun']][$item['nama_akun']][$item['subs_bl_teks']]['kode_akun'].'</td>
-                    <td class="kanan bawah text_blok" colspan="5">'.$akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']][$akun_4_db[0]['kode_akun']][$item['nama_akun']][$item['subs_bl_teks']]['nama_akun'].button_mapping($akun_4_db[0]['kode_akun'].'-'.$item['idsubtitle']).'</td>
+                    <td class="kanan bawah text_blok" colspan="5"><span class="nama">'.$akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']][$akun_4_db[0]['kode_akun']][$item['nama_akun']][$item['subs_bl_teks']]['nama_akun'].'</span>'.button_mapping($sub_bl['kode_sbl'].'-'.$akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']][$akun_4_db[0]['kode_akun']][$item['nama_akun']]['kode_akun'].'-'.$item['idsubtitle']).'</td>
                     '.$rin_murni.'
                     <td class="kanan bawah text_kanan text_blok nilai_kelompok" style="white-space:nowrap">Rp. '.number_format($akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']][$akun_4_db[0]['kode_akun']][$item['nama_akun']][$item['subs_bl_teks']]['total'],0,",",".").'</td>
                     '.$selisih_murni.'
@@ -758,7 +765,7 @@ foreach ($bl as $k => $sub_bl) {
 			$rin_sub_item .= '
 				<tr>
 	                <td class="kiri kanan bawah text_blok">'.$akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']][$akun_4_db[0]['kode_akun']][$item['nama_akun']][$item['subs_bl_teks']][$item['ket_bl_teks']]['kode_akun'].'</td>
-                    <td class="kanan bawah text_blok" colspan="5">'.$akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']][$akun_4_db[0]['kode_akun']][$item['nama_akun']][$item['subs_bl_teks']][$item['ket_bl_teks']]['nama_akun'].button_mapping($akun_4_db[0]['kode_akun'].'-'.$item['idsubtitle'].'-'.$item['idketerangan']).'</td>
+                    <td class="kanan bawah text_blok" colspan="5"><span class="nama">'.$akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']][$akun_4_db[0]['kode_akun']][$item['nama_akun']][$item['subs_bl_teks']][$item['ket_bl_teks']]['nama_akun'].'</span>'.button_mapping($sub_bl['kode_sbl'].'-'.$akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']][$akun_4_db[0]['kode_akun']][$item['nama_akun']]['kode_akun'].'-'.$item['idsubtitle'].'-'.$item['idketerangan']).'</td>
                     '.$rin_murni.'
                     <td class="kanan bawah text_kanan text_blok nilai_keterangan" style="white-space:nowrap">Rp. '.number_format($akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']][$akun_4_db[0]['kode_akun']][$item['nama_akun']][$item['subs_bl_teks']][$item['ket_bl_teks']]['total'],0,",",".").'</td>
                     '.$selisih_murni.'
@@ -785,10 +792,10 @@ foreach ($bl as $k => $sub_bl) {
 			';
 		}
 		$rin_sub_item .= '
-			<tr>
+			<tr class="data-komponen">
 				<td class="kiri kanan bawah text_blok">&nbsp;</td>
                 <td class="kanan bawah">
-                    <div>'.$item['nama_komponen'].button_mapping($akun_4_db[0]['kode_akun'].'-'.$item['idsubtitle'].'-'.$item['idketerangan'].'-'.$item['id_rinci_sub_bl']).'</div>
+                    <div><span class="nama">'.$item['nama_komponen'].'</span>'.button_mapping($sub_bl['kode_sbl'].'-'.$akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']][$akun_4_db[0]['kode_akun']][$item['nama_akun']]['kode_akun'].'-'.$item['idsubtitle'].'-'.$item['idketerangan'].'-'.$item['id_rinci_sub_bl']).'</div>
                     <div style="margin-left: 20px">'.$item['spek_komponen'].'</div>
                     <div style="margin-left: 40px" class="profile-penerima" id-profile="'.$item['id_penerima'].'" id-prop="'.$item['id_prop_penerima'].'" id-kokab="'.$item['id_kokab_penerima'].'" id-camat="'.$item['id_camat_penerima'].'" id-lurah="'.$item['id_lurah_penerima'].'">'.$profile_penerima.'</div>
                 </td>
@@ -824,7 +831,7 @@ foreach ($bl as $k => $sub_bl) {
 		<tr>
             '.$rin_murni.'
             <td colspan="'.$colspan.'" class="kiri kanan bawah text_kanan text_blok">Jumlah Anggaran Sub Kegiatan :</td>
-            <td class="kanan bawah text_blok text_kanan" style="white-space:nowrap">Rp. '.number_format($total_sub_rinc,0,",",".").'</td>
+            <td class="kanan bawah text_blok text_kanan subkeg-total" style="white-space:nowrap" data-kdsbl="'.$sub_bl['kode_sbl'].'">Rp. '.number_format($total_sub_rinc,0,",",".").'</td>
             '.$selisih_murni.'
         </tr>
 	';
@@ -913,7 +920,84 @@ foreach ($bl as $k => $sub_bl) {
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span><i class="dashicons dashicons-dismiss"></i></span></button>
             </div>
             <div class="modal-body">
-            	tes
+            	<form>
+                  	<div class="form-group">
+                  		<table class="table table-bordered">
+                  			<tbody>
+                  				<tr>
+                  					<td width="150px;">Nama Sub Kegiatan</td>
+                  					<td width="25px">:</td>
+                  					<td id="mapping_nama_subkeg"></td>
+                  				</tr>
+                  				<tr>
+                  					<td>Total Rincian</td>
+                  					<td>:</td>
+                  					<td id="mapping_total_rincian"></td>
+                  				</tr>
+                  				<tr>
+                  					<td>Sumber Dana</td>
+                  					<td>:</td>
+                  					<td id="mapping_sumberdana_subkeg"></td>
+                  				</tr>
+                  				<tr id="wrap-rek_1">
+                  					<td>Rekening 1</td>
+                  					<td>:</td>
+                  					<td id="mapping_rek_1"></td>
+                  				</tr>
+                  				<tr id="wrap-rek_2">
+                  					<td>Rekening 2</td>
+                  					<td>:</td>
+                  					<td id="mapping_rek_2"></td>
+                  				</tr>
+                  				<tr id="wrap-rek_3">
+                  					<td>Rekening 3</td>
+                  					<td>:</td>
+                  					<td id="mapping_rek_3"></td>
+                  				</tr>
+                  				<tr id="wrap-rek_4">
+                  					<td>Rekening 4</td>
+                  					<td>:</td>
+                  					<td id="mapping_rek_4"></td>
+                  				</tr>
+                  				<tr id="wrap-rek_5">
+                  					<td>Rekening 5</td>
+                  					<td>:</td>
+                  					<td id="mapping_rek_5"></td>
+                  				</tr>
+                  				<tr id="wrap-kelompok">
+                  					<td>Kelompok/Paket</td>
+                  					<td>:</td>
+                  					<td id="mapping_kelompok"></td>
+                  				</tr>
+                  				<tr id="wrap-keterangan">
+                  					<td>Keterangan</td>
+                  					<td>:</td>
+                  					<td id="mapping_keterangan"></td>
+                  				</tr>
+                  				<tr id="wrap-item">
+                  					<td>Komponen/Item Rincian</td>
+                  					<td>:</td>
+                  					<td id="mapping_item"></td>
+                  				</tr>
+                  			</tbody>
+                  		</table>
+                  		<input type="hidden" id="mapping_id" />
+                  	</div>
+                  	<div class="form-group">
+                  		<label class="control-label" style="display: block;">Pilih Sumber Dana</label>
+                  		<select style="width: 100%;" id="mapping_sumberdana" multiple="multiple"></select>
+                  	</div>
+                  	<div class="form-group">
+                  		<label class="control-label" style="display: block;">Pilih Label</label>
+                  		<select style="width: 100%;" id="mapping_label" multiple="multiple">
+                  		<?php
+                  			foreach ($data_label_komponen as $k => $sd) {
+                  				echo '<option value="'.$sd['id'].'">'.$sd['nama'].'</option>';
+                  			}
+                  		?>
+                  		</select>
+                  	</div>
+                </form>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-success" id="set-mapping">Simpan</button>
@@ -1267,7 +1351,7 @@ foreach ($bl as $k => $sub_bl) {
 		$type == 'dpa_murni'
 		|| $type == 'dpa_perubahan'
 	):
-    	$_POST['api_key'] = carbon_get_theme_option( 'crb_api_key_extension' );
+    	$_POST['api_key'] = $api_key;
     	$_POST['action'] = 'get_kas';
     	$_POST['kode_giat'] = $bl[0]['kode_giat'];
     	$_POST['kode_skpd'] = $bl[0]['kode_skpd'];
@@ -1454,26 +1538,6 @@ foreach ($bl as $k => $sub_bl) {
 			jQuery(_class).css('color', '#fff');
 		}
 	}
-	var body = ''
-		+'<h3>SETTING</h3>'
-		+'<label><input type="checkbox" onclick="tampil_rinci(this);"> Tampilkan Rinci Profile Penerima Bantuan</label>'
-		+'<label style="margin-left: 20px;"><input type="checkbox" onclick="tampil_nilai(this, \'.nilai_kelompok\');"> Tampilkan Nilai Kelompok</label>'
-		+'<label style="margin-left: 20px;"><input type="checkbox" onclick="tampil_nilai(this, \'.nilai_keterangan\');"> Tampilkan Nilai Keterangan</label>'
-		+'<label style="margin-left: 20px;"> Pilih format Laporan '
-	    	+'<select class="" style="min-width: 300px;" id="type_laporan">'
-	    		+'<option>-- format --</option>'
-	    		+'<option value="rka_murni">RKA Murni</option>'
-	    		+'<option value="rka_perubahan">RKA Perubahan</option>'
-	    		+'<option value="dpa_murni">DPA Murni</option>'
-	    		+'<option value="dpa_perubahan">DPA Perubahan</option>'
-	    	+'</select>'
-	    +'</label>'
-		+'<label style="margin-left: 20px;"><input type="checkbox" onclick="mapping_label_sumberdana(this);"> Mapping Label & Sumber Dana</label>';
-	var aksi = ''
-		+'<div id="action-sipd" class="hide-print">'
-			+body
-		+'</div>';
-	jQuery('body').prepend(aksi);
 	function tampil_rinci(that){
 		if(jQuery(that).is(':checked')){
 			jQuery('.profile-penerima').show();
@@ -1482,29 +1546,169 @@ foreach ($bl as $k => $sub_bl) {
 		}
 	}
 	function mapping_label_sumberdana(that){
+		jQuery('.mapping').remove();
 		if(jQuery(that).is(':checked')){
-			alert('tampilkan tombol edit label dan sumberdana!');
+			jQuery('#wrap-loading').show();
 			jQuery('.cetak').attr('contenteditable', false);
 			jQuery('.edit-mapping').show();
 			jQuery('.edit-sumber-dana').show();
+			var sendData = jQuery('.data-komponen').map(function(i, b) {
+				return new Promise(function(resolve, reject){
+					var mapping = jQuery(b).find('.edit-mapping');
+					var id_unik = mapping.attr('data-id');
+					jQuery.ajax({
+						url: ajax.url,
+			          	type: "post",
+			          	data: {
+			          		"action": "get_mapping",
+			          		"api_key": "<?php echo $api_key; ?>",
+			          		"id_unik": id_unik
+			          	},
+			          	dataType: "json",
+			          	success: function(data){
+							var sumberdana = ''
+								+'<ul class="list-mapping">'
+									+'<li><span class="badge badge-primary mapping">DAU</span></li>'
+								+'</ul>';
+							var label = ''
+								+'<ul class="list-mapping">'
+									+'<li><span class="badge badge-success mapping">Covid</span></li>'
+								+'</ul>';
+							mapping.before(sumberdana+label);
+							return resolve(true);
+						},
+						error: function(e) {
+							console.log(e);
+							return resolve(true);
+						}
+					});
+                })
+                .catch(function(e){
+                    console.log(e);
+                    return Promise.resolve(true);
+                });
+			});
+
+			Promise.all(sendData)
+        	.then(function(val_all){
+				jQuery('#wrap-loading').hide();
+            })
+            .catch(function(err){
+                console.log('err', err);
+            });
 		}else{
 			jQuery('.cetak').attr('contenteditable', true);
 			jQuery('.edit-mapping').hide();
 		}
 	}
+	jQuery(document).ready(function(){
+		window.master_sumberdana = <?php echo json_encode($data_sumber_dana); ?>;
+		var body = ''
+			+'<h3>SETTING</h3>'
+			+'<label><input type="checkbox" onclick="tampil_rinci(this);"> Tampilkan Rinci Profile Penerima Bantuan</label>'
+			+'<label style="margin-left: 20px;"><input type="checkbox" onclick="tampil_nilai(this, \'.nilai_kelompok\');"> Tampilkan Nilai Kelompok</label>'
+			+'<label style="margin-left: 20px;"><input type="checkbox" onclick="tampil_nilai(this, \'.nilai_keterangan\');"> Tampilkan Nilai Keterangan</label>'
+			+'<label style="margin-left: 20px;"> Pilih format Laporan '
+		    	+'<select class="" style="min-width: 300px;" id="type_laporan">'
+		    		+'<option>-- format --</option>'
+		    		+'<option value="rka_murni">RKA Murni</option>'
+		    		+'<option value="rka_perubahan">RKA Perubahan</option>'
+		    		+'<option value="dpa_murni">DPA Murni</option>'
+		    		+'<option value="dpa_perubahan">DPA Perubahan</option>'
+		    	+'</select>'
+		    +'</label>'
+			+'<label style="margin-left: 20px;"><input type="checkbox" onclick="mapping_label_sumberdana(this);"> Mapping Label & Sumber Dana</label>';
+		var aksi = ''
+			+'<div id="action-sipd" class="hide-print">'
+				+body
+			+'</div>';
+		jQuery('body').prepend(aksi);
 
-	var _url = window.location.href;
-    var url = new URL(_url);
-    _url = url.origin+url.pathname+'?key='+url.searchParams.get('key');
-    var type = url.searchParams.get("type");
-    jQuery('#type_laporan').val('rka_murni');
-    if(type){
-    	jQuery('#type_laporan').val(type);
-    }
-    jQuery('#type_laporan').on('change', function(){
-    	window.open(_url+'&type='+jQuery(this).val(), '_blank');
-    });
-    jQuery('.edit-mapping').on('click', function(){
-    	jQuery('#mod-mapping').modal('show');
-    });
+		var _url = window.location.href;
+	    var url = new URL(_url);
+	    _url = url.origin+url.pathname+'?key='+url.searchParams.get('key');
+	    var type = url.searchParams.get("type");
+	    jQuery('#type_laporan').val('rka_murni');
+	    if(type){
+	    	jQuery('#type_laporan').val(type);
+	    }
+	    jQuery('#type_laporan').on('change', function(){
+	    	window.open(_url+'&type='+jQuery(this).val(), '_blank');
+	    });
+	    jQuery('.edit-mapping').on('click', function(){
+	    	jQuery('#wrap-rek_2').hide();
+	    	jQuery('#wrap-rek_3').hide();
+	    	jQuery('#wrap-rek_4').hide();
+	    	jQuery('#wrap-rek_5').hide();
+	    	jQuery('#wrap-kelompok').hide();
+	    	jQuery('#wrap-keterangan').hide();
+	    	jQuery('#wrap-item').hide();
+
+	    	var id = jQuery(this).attr('data-id');
+	    	var ids = id.split('-');
+	    	var kd_sbl = ids[0];
+	    	var rek = ids[1].split('.');
+	    	var rek_1 = rek[0]+'.'+rek[1];
+	    	var rek_2 = rek[0]+'.'+rek[1]+'.'+rek[2];
+	    	var rek_3 = rek[0]+'.'+rek[1]+'.'+rek[2]+'.'+rek[3];
+	    	var rek_4 = rek[0]+'.'+rek[1]+'.'+rek[2]+'.'+rek[3]+'.'+rek[4];
+	    	var rek_5 = rek[0]+'.'+rek[1]+'.'+rek[2]+'.'+rek[3]+'.'+rek[4]+'.'+rek[5];
+	    	var kelompok = ids[2];
+	    	var keterangan = ids[3];
+	    	var id_rinci = ids[4];
+	    	jQuery('#mapping_rek_1').text(rek_1+' '+jQuery('.edit-mapping[data-id="'+kd_sbl+'-'+rek_1+'"]').closest('td').find('.nama').text().trim());
+	    	if(rek[2]){
+	    		jQuery('#mapping_rek_2').text(rek_2+' '+jQuery('.edit-mapping[data-id="'+kd_sbl+'-'+rek_2+'"]').closest('td').find('.nama').text().trim());
+	    		jQuery('#wrap-rek_2').show();
+	    	}
+	    	if(rek[3]){
+	    		jQuery('#mapping_rek_3').text(rek_3+' '+jQuery('.edit-mapping[data-id="'+kd_sbl+'-'+rek_3+'"]').closest('td').find('.nama').text().trim());
+	    		jQuery('#wrap-rek_3').show();
+	    	}
+	    	if(rek[4]){
+	    		jQuery('#mapping_rek_4').text(rek_4+' '+jQuery('.edit-mapping[data-id="'+kd_sbl+'-'+rek_4+'"]').closest('td').find('.nama').text().trim());
+	    		jQuery('#wrap-rek_4').show();
+	    	}
+	    	if(rek[5]){
+	    		jQuery('#mapping_rek_5').text(rek_5+' '+jQuery('.edit-mapping[data-id="'+kd_sbl+'-'+rek_5+'"]').closest('td').find('.nama').text().trim());
+	    		jQuery('#wrap-rek_5').show();
+	    	}
+	    	if(ids[2]){
+	    		jQuery('#mapping_kelompok').text(jQuery('.edit-mapping[data-id="'+kd_sbl+'-'+rek_5+'-'+kelompok+'"]').closest('td').find('.nama').text().trim());
+	    		jQuery('#wrap-kelompok').show();
+	    	}
+	    	if(ids[3]){
+	    		jQuery('#mapping_keterangan').text(jQuery('.edit-mapping[data-id="'+kd_sbl+'-'+rek_5+'-'+kelompok+'-'+keterangan+'"]').closest('td').find('.nama').text().trim());
+	    		jQuery('#wrap-keterangan').show();
+	    	}
+	    	if(ids[3]){
+	    		jQuery('#mapping_item').text(jQuery('.edit-mapping[data-id="'+kd_sbl+'-'+rek_5+'-'+kelompok+'-'+keterangan+'-'+id_rinci+'"]').closest('td').find('.nama').text().trim());
+	    		jQuery('#wrap-item').show();
+	    	}
+
+	    	var nama_sub_keg = jQuery('.subkeg[data-kdsbl="'+kd_sbl+'"]').text();
+	    	var total_sub_keg = jQuery('.subkeg-total[data-kdsbl="'+kd_sbl+'"]').text();
+	    	var sumberdana_sub_keg = jQuery('.subkeg-sumberdana[data-kdsbl="'+kd_sbl+'"]').text();
+	    	var id_sumberdana_sub_keg = jQuery('.subkeg-sumberdana[data-kdsbl="'+kd_sbl+'"]').attr('data-idsumberdana').split(',');
+	    	jQuery('#mapping_nama_subkeg').text(nama_sub_keg);
+	    	jQuery('#mapping_total_rincian').text(total_sub_keg);
+	    	jQuery('#mapping_sumberdana_subkeg').text(sumberdana_sub_keg);
+	    	
+	    	jQuery('#mapping_id').val(id);
+	    	var option_sumber_dana = '';
+	    	master_sumberdana.map(function(b, i){
+	    		if(id_sumberdana_sub_keg.indexOf(b.id_dana) != -1){
+	    			option_sumber_dana += '<option value="'+b.id_dana+'">'+b.nama_dana+'</option>';
+	    		}
+	    	});
+	    	jQuery('#mapping_sumberdana').html(option_sumber_dana);
+	    	jQuery('#mapping_sumberdana').val(id_sumberdana_sub_keg).trigger('change');
+	    	var label = [];
+	    	jQuery('#mapping_label').val(label).trigger('change');
+	    	jQuery('#mod-mapping').modal('show');
+	    });
+	    jQuery('#mapping_sumberdana').select2();
+	    jQuery('#mapping_label').select2();
+	});
+
 </script>

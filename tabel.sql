@@ -1546,3 +1546,46 @@ ALTER TABLE `data_sub_keg_bl`
 ADD PRIMARY KEY (`id`);
 ALTER TABLE `data_sub_keg_bl`
 MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+CREATE TABLE `data_mapping_sumberdana` (
+  `id` int(11) NOT NULL,
+  `id_rinci_sub_bl` int(11) NOT NULL,
+  `id_sumber_dana` int(11) NOT NULL,
+  `user` text DEFAULT NULL,
+  `active` tinyint(4) NOT NULL,
+  `update_at` datetime NOT NULL,
+  `tahun_anggaran` year(4) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+ALTER TABLE `data_mapping_sumberdana`
+  ADD PRIMARY KEY (`id`);
+ALTER TABLE `data_mapping_sumberdana`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+CREATE TABLE `data_label_komponen` (
+  `id` int(11) NOT NULL,
+  `nama` text DEFAULT NULL,
+  `keterangan` text DEFAULT NULL,
+  `id_skpd` int(11) DEFAULT NULL,
+  `user` text DEFAULT NULL,
+  `active` tinyint(4) NOT NULL,
+  `update_at` datetime NOT NULL,
+  `tahun_anggaran` year(4) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+ALTER TABLE `data_label_komponen`
+  ADD PRIMARY KEY (`id`);
+ALTER TABLE `data_label_komponen`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+CREATE TABLE `data_mapping_label` (
+  `id` int(11) NOT NULL,
+  `id_rinci_sub_bl` int(11) NOT NULL,
+  `id_label_komponen` int(11) NOT NULL,
+  `user` text DEFAULT NULL,
+  `active` tinyint(4) NOT NULL,
+  `update_at` datetime NOT NULL,
+  `tahun_anggaran` year(4) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+ALTER TABLE `data_mapping_label`
+  ADD PRIMARY KEY (`id`);
+ALTER TABLE `data_mapping_label`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;

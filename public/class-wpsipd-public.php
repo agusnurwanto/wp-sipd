@@ -80,6 +80,7 @@ class Wpsipd_Public
 
 		wp_enqueue_style($this->plugin_name, plugin_dir_url(__FILE__) . 'css/wpsipd-public.css', array(), $this->version, 'all');
 		wp_enqueue_style($this->plugin_name . 'bootstrap', plugin_dir_url(__FILE__) . 'css/bootstrap.min.css', array(), $this->version, 'all');
+		wp_enqueue_style($this->plugin_name . 'select2', plugin_dir_url(__FILE__) . 'css/select2.min.css', array(), $this->version, 'all');
 
 		wp_enqueue_style( 'dashicons' );
 	}
@@ -106,6 +107,10 @@ class Wpsipd_Public
 
 		wp_enqueue_script($this->plugin_name, plugin_dir_url(__FILE__) . 'js/wpsipd-public.js', array('jquery'), $this->version, false);
 		wp_enqueue_script($this->plugin_name . 'bootstrap', plugin_dir_url(__FILE__) . 'js/bootstrap.bundle.min.js', array('jquery'), $this->version, false);
+		wp_enqueue_script($this->plugin_name . 'select2', plugin_dir_url(__FILE__) . 'js/select2.min.js', array('jquery'), $this->version, false);
+		wp_localize_script( $this->plugin_name, 'ajax', array(
+		    'url' => admin_url( 'admin-ajax.php' )
+		));
 	}
 
 	public function singkron_ssh($value = '')
@@ -4143,5 +4148,24 @@ class Wpsipd_Public
 	function pembulatan($angka){
 		$angka = $angka*100;
 		return round($angka)/100;
+	}
+
+	function get_mapping(){
+		global $wpdb;
+		$ret = array();
+		$ret['status'] = 'success';
+		$ret['message'] = 'Berhasil get data mapping!';
+		if (!empty($_POST)) {
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == carbon_get_theme_option( 'crb_api_key_extension' )) {
+
+			} else {
+				$ret['status'] = 'error';
+				$ret['message'] = 'APIKEY tidak sesuai!';
+			}
+		} else {
+			$ret['status'] = 'error';
+			$ret['message'] = 'Format Salah!';
+		}
+		die(json_encode($ret));
 	}
 }

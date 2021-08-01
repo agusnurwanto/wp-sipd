@@ -140,10 +140,23 @@ tfoot { display:table-footer-group }
     padding: 2px;
     border-radius: 50%;
     color: #2196F3;
-    margin-left: 20px;
+    margin-left: 10px;
     cursor: pointer;
 }
 .edit-mapping:hover {
     background: #00BCD4;
     color: #fff;
+}
+.list-mapping {
+    margin-left: 10px;
+    display: inline;
+}
+.list-mapping li{
+    display: inline-block;
+}
+.list-mapping .mapping {
+    padding: 5px;
+}
+.select2-container--default .select2-selection--multiple .select2-selection__choice__remove {
+    position: relative !important;
 }

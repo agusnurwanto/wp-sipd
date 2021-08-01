@@ -1668,11 +1668,12 @@ class Wpsipd_Simda
 
         curl_close($curl);
 
+        $debug_option = get_option('_crb_singkron_simda_debug');
         if ($err) {
         	$this->status_koneksi_simda = false;
         	$msg = "cURL Error #:".$err." (".$url.")";
-        	if($debug){
-            	echo $msg; die();
+        	if($debug_option == 1){
+            	die($msg);
         	}else{
         		return $msg;
         	}
@@ -1682,9 +1683,7 @@ class Wpsipd_Simda
         	}
             $ret = json_decode($response);
             if(!empty($ret->error)){
-            	if(empty($options['no_debug'])){
-                	echo "<pre>".print_r($ret, 1)."</pre>"; die();
-                }else{
+            	if(empty($options['no_debug']) && $debug_option==1){
                 	echo "<pre>".print_r($ret, 1)."</pre>"; die();
                 }
             }else{
@@ -1692,7 +1691,12 @@ class Wpsipd_Simda
                 	return $ret->msg;
             	}else{
         			$this->status_koneksi_simda = false;
-            		return $response.' (terkoneksi tapi gagal parsing data!)';
+            		$msg = $response.' (terkoneksi tapi gagal parsing data!)';
+        			if($debug_option == 1){
+            			die($msg);
+            		}else{
+            			return $msg;
+            		}
             	}
             }
         }
