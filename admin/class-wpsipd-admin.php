@@ -103,6 +103,9 @@ class Wpsipd_Admin {
 		 */
 
 		wp_enqueue_script( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'js/wpsipd-admin.js', array( 'jquery' ), $this->version, false );
+		wp_localize_script( $this->plugin_name, 'wpsipd', array(
+		    'api_key' => get_option( '_crb_api_key_extension' )
+		));
 
 	}
 
@@ -314,8 +317,76 @@ class Wpsipd_Admin {
 		    ->set_page_parent( $monev )
 		    ->add_fields( $rfk_pemda );
 
-	    Container::make( 'theme_options', __( 'Indikator' ) )
+	    Container::make( 'theme_options', __( 'Indikator RENJA' ) )
 		    ->set_page_parent( $monev );
+
+	    Container::make( 'theme_options', __( 'Label Komponen' ) )
+		    ->set_page_parent( $monev )
+		    ->add_fields( $this->generate_label_komponen() );
+
+	    Container::make( 'theme_options', __( 'Sumber Dana' ) )
+		    ->set_page_parent( $monev );
+	}
+
+	// hook filter untuk save field carbon field
+	public function crb_edit_save($save, $value, $field){
+		if($field->get_name() == '_crb_label_komponen'){
+			return "";
+		}else{
+			return $value;
+		}
+	}
+
+	public function generate_label_komponen(){
+		global $wpdb;
+		$tahun = $wpdb->get_results('select tahun_anggaran from data_unit group by tahun_anggaran', ARRAY_A);
+		$tahun_anggaran = array();
+		foreach ($tahun as $k => $v) {
+			$tahun_anggaran[$v['tahun_anggaran']] = $v['tahun_anggaran'];
+		}
+		$label = array(
+			Field::make( 'select', 'crb_tahun_anggaran', __( 'Pilih Tahun Anggaran' ) )
+			    ->add_options( $tahun_anggaran ),
+			Field::make( 'html', 'crb_daftar_label_komponen' )
+            	->set_html( '
+            		<style>
+            			.postbox-container { display: none; }
+            		</style>
+            		<table class="wp-list-table widefat fixed striped">
+            			<thead>
+            				<tr>
+            					<th class="text_tengah" style="width: 300px">Nama</th>
+            					<th class="text_tengah">Keterangan</th>
+            					<th class="text_tengah" style="width: 170px">Aksi</th>
+            				</tr>
+            			</thead>
+            			<tbody>
+            				<tr>
+            					<td>
+            						<input class="cf-text__input" type="text" id="nama_label">
+            						<input type="hidden" id="id_label">
+            					</td>
+            					<td><input class="cf-text__input" type="text" id="keterangan_label"></td>
+            					<td class="text_tengah"><button id="tambah_label_komponen" class="button button-primary" onclick="return false;">Simpan Label Komponen</button></td>
+            				</tr>
+            			</tbody>
+            		</table>
+            		<h3 class="text_tengah">Daftar Label Komponen</h3>
+            		<table class="wp-list-table widefat fixed striped">
+            			<thead>
+            				<tr class="text_tengah">
+            					<th class="text_tengah" style="width: 20px">No</th>
+            					<th class="text_tengah" style="width: 300px">Nama Label</th>
+            					<th class="text_tengah">Keterangan</th>
+            					<th class="text_tengah" style="width: 100px">Aksi</th>
+            				</tr>
+            			</thead>
+            			<tbody id="body_label">
+            			</tbody>
+            		</table>
+        		' )
+        );
+        return $label;
 	}
 
 	public function generate_siencang_page(){
@@ -500,5 +571,92 @@ class Wpsipd_Admin {
 				}
 			}
     	}
+    }
+
+    function get_label_komponen(){
+    	global $wpdb;
+		$ret = array(
+			'status'	=> 'success',
+			'message'	=> '<tr><td colspan="4" style="text-align: center;">Data Label Komponen kosong</td></tr>',
+			'data'		=> array()
+		);
+		if (!empty($_POST)) {
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == carbon_get_theme_option( 'crb_api_key_extension' )) {
+				$data_label_komponen = $wpdb->get_results("select id, nama, keterangan from data_label_komponen where tahun_anggaran=".$_POST['tahun_anggaran'], ARRAY_A);
+				$body = '';
+				foreach ($data_label_komponen as $k => $v) {
+					$body .= '
+					<tr>
+						<td class="text-tengah">'.($k+1).'</td>
+						<td>'.$v['nama'].'</td>
+						<td>'.$v['keterangan'].'</td>
+						<td class="text-tengah"><span style="" data-id="'.$v['id'].'" class="edit-label"><i class="dashicons dashicons-edit"></i></span> | <span style="" data-id="'.$v['id'].'" class="hapus-label"><i class="dashicons dashicons-no-alt"></i></span></td>
+					</tr>
+					';
+				}
+				if(!empty($body)){
+					$ret['message'] = $body;
+					$ret['data'] = $data_label_komponen;
+				}
+			} else {
+				$ret['status'] = 'error';
+				$ret['message'] = 'APIKEY tidak sesuai!';
+			}
+		}
+		die(json_encode($ret));
+    }
+
+    function simpan_data_label_komponen(){
+    	global $wpdb;
+		$ret = array(
+			'status'	=> 'success',
+			'message'	=> 'Berhasil simpan data label komponen!'
+		);
+		if (!empty($_POST)) {
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == carbon_get_theme_option( 'crb_api_key_extension' )) {
+				$current_user = wp_get_current_user();
+				$opsi = array(
+					'nama' => $_POST['nama'],
+					'keterangan' => $_POST['keterangan'],
+					'id_skpd' => '',
+					'user' => $current_user->display_name,
+					'active' => 1,
+					'update_at'	=> current_time('mysql'),
+					'tahun_anggaran'	=> $_POST['tahun_anggaran']
+				);
+				if (!empty($_POST['id_label'])) {
+					$wpdb->update('data_label_komponen', $opsi, array(
+						'tahun_anggaran'	=> $_POST['tahun_anggaran'],
+						'id' => $_POST['id_label']
+					));
+				} else {
+					$wpdb->insert('data_label_komponen', $opsi);
+				}
+			} else {
+				$ret['status'] = 'error';
+				$ret['message'] = 'APIKEY tidak sesuai!';
+			}
+		}
+		die(json_encode($ret));
+    }
+
+    function hapus_data_label_komponen(){
+    	global $wpdb;
+		$ret = array(
+			'status'	=> 'success',
+			'message'	=> 'Berhasil hapus data label komponen!'
+		);
+		if (!empty($_POST)) {
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == carbon_get_theme_option( 'crb_api_key_extension' )) {
+				$wpdb->delete('data_label_komponen', array(
+					'tahun_anggaran' => $_POST['tahun_anggaran'],
+					'id' => $_POST['id_label']
+				), array('%d', '%d'));
+			} else {
+				$ret['status'] = 'error';
+				$ret['message'] = 'APIKEY tidak sesuai!';
+			}
+		}
+		die(json_encode($ret));
     }
 }

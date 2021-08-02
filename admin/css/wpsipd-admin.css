@@ -1,3 +1,15 @@
+.text_tengah {
+    text-align: center !important;
+}
+.text_kiri {
+    text-align: left !important;
+}
+.text_kanan {
+    text-align: right !important;
+}
+.text_blok {
+    font-weight: bold !important;
+}
 #wrap-loading {
     display: none;
     width: 100%;
@@ -40,4 +52,28 @@
   100% {
     transform: rotate(1800deg);
   }
+}
+
+.edit-label {
+    border: 2px solid;
+    padding: 4px 2px;
+    border-radius: 50%;
+    color: #2196F3;
+    cursor: pointer;
+}
+.edit-label:hover {
+    background: #00BCD4;
+    color: #fff;
+}
+
+.hapus-label {
+    border: 2px solid;
+    padding: 4px 2px;
+    border-radius: 50%;
+    color: #f32121;
+    cursor: pointer;
+}
+.hapus-label:hover {
+    background: #f32121;
+    color: #fff;
 }

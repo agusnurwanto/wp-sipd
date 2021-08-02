@@ -166,6 +166,11 @@ class Wpsipd
 		$this->loader->add_action('admin_enqueue_scripts', $plugin_admin, 'enqueue_scripts');
 		$this->loader->add_action('carbon_fields_register_fields', $plugin_admin, 'crb_attach_sipd_options');
 		$this->loader->add_action('template_redirect', $plugin_admin, 'allow_access_private_post', 0);
+		$this->loader->add_filter('carbon_fields_should_save_field_value', $plugin_admin, 'crb_edit_save', 10, 3);
+
+		$this->loader->add_action('wp_ajax_get_label_komponen',  $plugin_admin, 'get_label_komponen');
+		$this->loader->add_action('wp_ajax_simpan_data_label_komponen',  $plugin_admin, 'simpan_data_label_komponen');
+		$this->loader->add_action('wp_ajax_hapus_data_label_komponen',  $plugin_admin, 'hapus_data_label_komponen');
 	}
 
 	/**
