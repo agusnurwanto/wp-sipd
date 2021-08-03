@@ -148,11 +148,12 @@ tfoot { display:table-footer-group }
     color: #fff;
 }
 .list-mapping {
-    margin-left: 10px;
+    margin-left: 5px;
     display: inline;
 }
 .list-mapping li{
     display: inline-block;
+    margin-left: 5px;
 }
 .list-mapping .mapping {
     padding: 5px;

@@ -659,4 +659,177 @@ class Wpsipd_Admin {
 		}
 		die(json_encode($ret));
     }
+
+    function simpan_mapping(){
+    	global $wpdb;
+		$ret = array(
+			'status'	=> 'success',
+			'message'	=> 'Berhasil simpan data mapping sumber dana dan label komponen!'
+		);
+		if (!empty($_POST)) {
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == carbon_get_theme_option( 'crb_api_key_extension' )) {
+				$current_user = wp_get_current_user();
+				if(!empty($_POST['id_mapping'])){
+					$ids = explode('-', $_POST['id_mapping']);
+					$kd_sbl = $ids[0];
+					$rek = explode('.', $ids[1]);
+					$rek_1 = $rek[0].'.'.$rek[1];
+					$rek_2 = false;
+					$rek_3 = false;
+					$rek_4 = false;
+					$rek_5 = false;
+					$kelompok = 0;
+					$keterangan = 0;
+					$ids_rinci = array();
+					if(isset($rek[2])){
+						$rek_2 = $rek_1.'.'.$rek[2];
+						$where = ' ';
+					}
+					if(isset($rek[3])){
+						$rek_3 = $rek_2.'.'.$rek[3];
+					}
+					if(isset($rek[4])){
+						$rek_4 = $rek_3.'.'.$rek[4];
+					}
+					if(isset($rek[5])){
+						$rek_5 = $rek_4.'.'.$rek[5];
+					}
+					$where = '';
+					if(isset($ids[2])){
+						$kelompok = $ids[2];
+						$where .= ' and idsubtitle='.$kelompok;
+					}
+					if(isset($ids[3])){
+						$keterangan = $ids[3];
+						$where .= ' and idketerangan='.$keterangan;
+					}
+					if(isset($ids[4])){
+						$ids_rinci[] = array(
+							'kode_akun' => $rek_5,
+							'id_rinci' => $ids[4],
+							'kelompok' => $kelompok,
+							'keterangan' => $keterangan
+						);
+					}else{
+						$data_rinci = $wpdb->get_results(
+							$wpdb->prepare("
+								select
+									id_rinci_sub_bl,
+									kode_akun,
+									idsubtitle,
+									idketerangan
+								from data_rka
+								where tahun_anggaran=%d
+									and kode_sbl='%s'
+									and kode_akun like %s
+									".$where,
+								$_POST['tahun_anggaran'], $kd_sbl, $ids[1].'%'
+							), ARRAY_A
+						);
+						foreach ($data_rinci as $k => $v) {
+							$ids_rinci[] = array(
+								'kode_akun' => $v['kode_akun'],
+								'id_rinci' => $v['id_rinci_sub_bl'],
+								'kelompok' => $v['idsubtitle'],
+								'keterangan' => $v['idketerangan']
+							);
+						}
+					}
+
+					$mapping_id = array();
+					foreach ($ids_rinci as $data_rinci) {
+						$id_rinci = $data_rinci['id_rinci'];
+						$mapping_id[] = $kd_sbl.'-'.$data_rinci['kode_akun'].'-'.$data_rinci['kelompok'].'-'.$data_rinci['keterangan'].'-'.$id_rinci;
+						$wpdb->update('data_mapping_label', 
+							array(
+								'user' => $current_user->display_name,
+								'active' => 0,
+								'update_at' => current_time('mysql')
+							), array(
+								'tahun_anggaran' => $_POST['tahun_anggaran'],
+								'id_rinci_sub_bl' => $id_rinci
+							)
+						);
+						foreach ($_POST['id_label'] as $k => $id_label) {
+							$cek = $wpdb->get_var($wpdb->prepare('
+								select 
+									id 
+								from data_mapping_label 
+								where tahun_anggaran=%d
+									and id_rinci_sub_bl=%d 
+									and id_label_komponen=%d', 
+								$_POST['tahun_anggaran'], $id_rinci, $id_label
+							));
+							$opsi = array(
+								'id_rinci_sub_bl' => $id_rinci,
+								'id_label_komponen' => $id_label,
+								'user' => $current_user->display_name,
+								'active' => 1,
+								'update_at' => current_time('mysql'),
+								'tahun_anggaran'	=> $_POST['tahun_anggaran']
+							);
+							if (!empty($cek)) {
+								$wpdb->update('data_mapping_label', $opsi, array(
+									'tahun_anggaran'	=> $_POST['tahun_anggaran'],
+									'id_rinci_sub_bl' => $id_rinci,
+									'id_label_komponen' => $id_label,
+								));
+							} else {
+								$wpdb->insert('data_mapping_label', $opsi);
+							}
+						}
+						$wpdb->update('data_mapping_sumberdana', 
+							array(
+								'user' => $current_user->display_name,
+								'active' => 0,
+								'update_at' => current_time('mysql')
+							), array(
+								'tahun_anggaran' => $_POST['tahun_anggaran'],
+								'id_rinci_sub_bl' => $id_rinci
+							)
+						);
+						foreach ($_POST['id_sumberdana'] as $k => $id_sumberdana) {
+							if(empty($id_sumberdana)){
+								continue;
+							}
+							$cek = $wpdb->get_var($wpdb->prepare('
+								select 
+									id 
+								from data_mapping_sumberdana 
+								where tahun_anggaran=%d
+									and id_rinci_sub_bl=%d 
+									and id_sumber_dana=%d', 
+								$_POST['tahun_anggaran'], $id_rinci, $id_sumberdana
+							));
+							$opsi = array(
+								'id_rinci_sub_bl' => $id_rinci,
+								'id_sumber_dana' => $id_sumberdana,
+								'user' => $current_user->display_name,
+								'active' => 1,
+								'update_at' => current_time('mysql'),
+								'tahun_anggaran'	=> $_POST['tahun_anggaran']
+							);
+							if (!empty($cek)) {
+								$wpdb->update('data_mapping_sumberdana', $opsi, array(
+									'tahun_anggaran'	=> $_POST['tahun_anggaran'],
+									'id_rinci_sub_bl' => $id_rinci,
+									'id_sumber_dana' => $id_sumberdana,
+								));
+							} else {
+								$wpdb->insert('data_mapping_sumberdana', $opsi);
+							}
+						}
+					}
+					$ret['ids_rinci'] = $mapping_id;
+				}else{
+					$ret['status'] = 'error';
+					$ret['message'] = 'Format ID mapping tidak sesuai!';	
+				}
+			} else {
+				$ret['status'] = 'error';
+				$ret['message'] = 'APIKEY tidak sesuai!';
+			}
+		}
+		die(json_encode($ret));
+    }
 }

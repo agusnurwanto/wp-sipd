@@ -4157,7 +4157,67 @@ class Wpsipd_Public
 		$ret['message'] = 'Berhasil get data mapping!';
 		if (!empty($_POST)) {
 			if (!empty($_POST['api_key']) && $_POST['api_key'] == carbon_get_theme_option( 'crb_api_key_extension' )) {
-
+				if(!empty($_POST['id_mapping'])){
+					$ids = explode('-', $_POST['id_mapping']);
+					$kd_sbl = $ids[0];
+					$rek = explode('.', $ids[1]);
+					$rek_1 = $rek[0].'.'.$rek[1];
+					$rek_2 = false;
+					$rek_3 = false;
+					$rek_4 = false;
+					$rek_5 = false;
+					$kelompok = false;
+					$keterangan = false;
+					$id_rinci = false;
+					if(isset($rek[2])){
+						$rek_2 = $rek_1.'.'.$rek[2];
+					}
+					if(isset($rek[3])){
+						$rek_3 = $rek_2.'.'.$rek[3];
+					}
+					if(isset($rek[4])){
+						$rek_4 = $rek_3.'.'.$rek[4];
+					}
+					if(isset($rek[5])){
+						$rek_5 = $rek_4.'.'.$rek[5];
+					}
+					if(isset($ids[2])){
+						$kelompok = $ids[2];
+					}
+					if(isset($ids[3])){
+						$keterangan = $ids[3];
+					}
+					if(isset($ids[4])){
+						$id_rinci = $ids[4];
+					}
+					$ret['data_label'] = $wpdb->get_results(
+						$wpdb->prepare('
+							select 
+								l.nama,
+								l.id
+							from data_mapping_label m
+								left join data_label_komponen l on m.id_label_komponen=l.id
+							where m.tahun_anggaran=%d
+								and m.id_rinci_sub_bl=%d
+								and m.active=1', 
+						$_POST['tahun_anggaran'], $id_rinci )
+					);
+					$ret['data_sumber_dana'] = $wpdb->get_results(
+						$wpdb->prepare('
+							select 
+								s.nama_dana,
+								s.id
+							from data_mapping_sumberdana m
+								left join data_sumber_dana s on m.id_sumber_dana=s.id
+							where m.tahun_anggaran=%d
+								and m.id_rinci_sub_bl=%d
+								and m.active=1', 
+						$_POST['tahun_anggaran'], $id_rinci )
+					);
+				} else {
+					$ret['status'] = 'error';
+					$ret['message'] = 'Id mapping tidak boleh kosong!';
+				}
 			} else {
 				$ret['status'] = 'error';
 				$ret['message'] = 'APIKEY tidak sesuai!';

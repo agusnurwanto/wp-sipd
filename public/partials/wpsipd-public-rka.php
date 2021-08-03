@@ -985,7 +985,7 @@ foreach ($bl as $k => $sub_bl) {
                   	</div>
                   	<div class="form-group">
                   		<label class="control-label" style="display: block;">Pilih Sumber Dana</label>
-                  		<select style="width: 100%;" id="mapping_sumberdana" multiple="multiple"></select>
+                  		<select style="width: 100%;" id="mapping_sumberdana"></select>
                   	</div>
                   	<div class="form-group">
                   		<label class="control-label" style="display: block;">Pilih Label</label>
@@ -1545,6 +1545,45 @@ foreach ($bl as $k => $sub_bl) {
 			jQuery('.profile-penerima').hide();
 		}
 	}
+	function get_mapping(options, callback){
+		jQuery(options.kommponen_html).find('.list-mapping').remove();
+		var mapping = jQuery(options.kommponen_html).find('.edit-mapping');
+		var id_unik = mapping.attr('data-id');
+		jQuery.ajax({
+			url: ajax.url,
+          	type: "post",
+          	data: {
+          		"action": "get_mapping",
+          		"api_key": "<?php echo $api_key; ?>",
+      			"tahun_anggaran": <?php echo $input['tahun_anggaran']; ?>,
+          		"id_mapping": id_unik
+          	},
+          	dataType: "json",
+          	success: function(data){
+				var sumberdana = '<ul class="list-mapping">';
+				data.data_sumber_dana.map(function(b, i){
+					sumberdana += '<li><span data-id="'+b.id+'" class="badge badge-primary mapping">'+b.nama_dana+'</span></li>';
+				});
+				sumberdana += '</ul>';
+
+				var label = '<ul class="list-mapping">';
+				data.data_label.map(function(b, i){
+					label += '<li><span data-id="'+b.id+'" class="badge badge-success mapping">'+b.nama+'</span></li>';
+				});
+				label += '</ul>';
+				mapping.before(sumberdana+label);
+				if(callback){
+					return callback(true);
+				}
+			},
+			error: function(e) {
+				console.log(e);
+				if(callback){
+					return callback(true);
+				}
+			}
+		});
+	}
 	function mapping_label_sumberdana(that){
 		jQuery('.mapping').remove();
 		if(jQuery(that).is(':checked')){
@@ -1554,33 +1593,10 @@ foreach ($bl as $k => $sub_bl) {
 			jQuery('.edit-sumber-dana').show();
 			var sendData = jQuery('.data-komponen').map(function(i, b) {
 				return new Promise(function(resolve, reject){
-					var mapping = jQuery(b).find('.edit-mapping');
-					var id_unik = mapping.attr('data-id');
-					jQuery.ajax({
-						url: ajax.url,
-			          	type: "post",
-			          	data: {
-			          		"action": "get_mapping",
-			          		"api_key": "<?php echo $api_key; ?>",
-			          		"id_unik": id_unik
-			          	},
-			          	dataType: "json",
-			          	success: function(data){
-							var sumberdana = ''
-								+'<ul class="list-mapping">'
-									+'<li><span class="badge badge-primary mapping">DAU</span></li>'
-								+'</ul>';
-							var label = ''
-								+'<ul class="list-mapping">'
-									+'<li><span class="badge badge-success mapping">Covid</span></li>'
-								+'</ul>';
-							mapping.before(sumberdana+label);
-							return resolve(true);
-						},
-						error: function(e) {
-							console.log(e);
-							return resolve(true);
-						}
+					get_mapping({
+						kommponen_html: b
+					}, function(ret){
+						resolve(ret);
 					});
                 })
                 .catch(function(e){
@@ -1701,14 +1717,66 @@ foreach ($bl as $k => $sub_bl) {
 	    			option_sumber_dana += '<option value="'+b.id_dana+'">'+b.nama_dana+'</option>';
 	    		}
 	    	});
+	    	if(option_sumber_dana == ''){
+	    		option_sumber_dana = '<option value="">Sumber dana belum diset di SIPD untuk kegiatan ini!</option>';
+	    	}
 	    	jQuery('#mapping_sumberdana').html(option_sumber_dana);
-	    	jQuery('#mapping_sumberdana').val(id_sumberdana_sub_keg).trigger('change');
 	    	var label = [];
+	    	if(ids[3]){
+		    	jQuery('.edit-mapping[data-id="'+kd_sbl+'-'+rek_5+'-'+kelompok+'-'+keterangan+'-'+id_rinci+'"]').closest('td').find('.mapping.badge-success').map(function(i, b){
+		    		label.push(jQuery(b).attr('data-id'));
+		    	});
+		    }
 	    	jQuery('#mapping_label').val(label).trigger('change');
 	    	jQuery('#mod-mapping').modal('show');
 	    });
-	    jQuery('#mapping_sumberdana').select2();
 	    jQuery('#mapping_label').select2();
+
+	    jQuery('#set-mapping').on('click', function(){
+	    	if(confirm('Apakah anda yakin untuk menyimpan data ini?')){
+		    	jQuery('#wrap-loading').show();
+		    	var id_mapping = jQuery('#mapping_id').val();
+		    	jQuery.ajax({
+					url: ajax.url,
+		          	type: "post",
+		          	data: {
+		          		"action": "simpan_mapping",
+		          		"api_key": "<?php echo $api_key; ?>",
+		          		"tahun_anggaran": <?php echo $input['tahun_anggaran']; ?>,
+		          		"id_mapping": jQuery('#mapping_id').val(),
+		          		"id_sumberdana[]": jQuery('#mapping_sumberdana').val(),
+		          		"id_label": jQuery('#mapping_label').val(),
+		          	},
+		          	dataType: "json",
+		          	success: function(data){
+		          		alert(data.message);
+		          		if(data.status == 'success'){
+		          			var sendData = data.ids_rinci.map(function(b, i){
+		          				return new Promise(function(resolve, reject){
+				          			get_mapping({
+										kommponen_html: jQuery('.edit-mapping[data-id="'+b+'"]').closest('tr.data-komponen')
+									}, function(ret){
+										resolve(ret);
+									});
+				                })
+				                .catch(function(e){
+				                    console.log(e);
+				                    return Promise.resolve(true);
+				                });
+		          			});
+		          			Promise.all(sendData)
+					    	.then(function(val_all){
+		    					jQuery('#mod-mapping').modal('hide');
+			    				jQuery('#wrap-loading').hide();
+					        })
+					        .catch(function(err){
+					            console.log('err', err);
+					        });
+		          		}
+		          	}
+		        });
+		    }
+	    });
 	});
 
 </script>
