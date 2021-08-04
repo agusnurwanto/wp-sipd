@@ -1546,9 +1546,12 @@ foreach ($bl as $k => $sub_bl) {
 		}
 	}
 	function get_mapping(options, callback){
-		jQuery(options.kommponen_html).find('.list-mapping').remove();
-		var mapping = jQuery(options.kommponen_html).find('.edit-mapping');
-		var id_unik = mapping.attr('data-id');
+		var id_unik = [];
+		options.kommponen_html.map(function(b, i){
+			jQuery(b).find('.list-mapping').remove();
+			var mapping = jQuery(b).find('.edit-mapping');
+			id_unik.push(mapping.attr('data-id'));
+		});
 		jQuery.ajax({
 			url: ajax.url,
           	type: "post",
@@ -1559,19 +1562,21 @@ foreach ($bl as $k => $sub_bl) {
           		"id_mapping": id_unik
           	},
           	dataType: "json",
-          	success: function(data){
-				var sumberdana = '<ul class="list-mapping">';
-				data.data_sumber_dana.map(function(b, i){
-					sumberdana += '<li><span data-id="'+b.id+'" class="badge badge-primary mapping">'+b.nama_dana+'</span></li>';
-				});
-				sumberdana += '</ul>';
+          	success: function(res){
+          		res.data.map(function(data, i){
+					var sumberdana = '<ul class="list-mapping">';
+					data.data_sumber_dana.map(function(b, i){
+						sumberdana += '<li><span data-id="'+b.id+'" class="badge badge-primary mapping">'+b.nama_dana+'</span></li>';
+					});
+					sumberdana += '</ul>';
 
-				var label = '<ul class="list-mapping">';
-				data.data_label.map(function(b, i){
-					label += '<li><span data-id="'+b.id+'" class="badge badge-success mapping">'+b.nama+'</span></li>';
-				});
-				label += '</ul>';
-				mapping.before(sumberdana+label);
+					var label = '<ul class="list-mapping">';
+					data.data_label.map(function(b, i){
+						label += '<li><span data-id="'+b.id+'" class="badge badge-success mapping">'+b.nama+'</span></li>';
+					});
+					label += '</ul>';
+					jQuery('.edit-mapping[data-id="'+data.id_unik+'"]').before(sumberdana+label);
+          		});
 				if(callback){
 					return callback(true);
 				}
@@ -1591,7 +1596,19 @@ foreach ($bl as $k => $sub_bl) {
 			jQuery('.cetak').attr('contenteditable', false);
 			jQuery('.edit-mapping').show();
 			jQuery('.edit-sumber-dana').show();
-			var sendData = jQuery('.data-komponen').map(function(i, b) {
+			var data_all = [];
+			var data_sementara = [];
+			jQuery('.data-komponen').map(function(i, b) {
+				data_sementara.push(b);
+				if(i>0 && i%250==0){
+					data_all.push(data_sementara);
+					data_sementara = [];
+				}
+			});
+			if(data_sementara.length >= 1){
+				data_all.push(data_sementara);
+			}
+			var sendData = data_all.map(function(b, i) {
 				return new Promise(function(resolve, reject){
 					get_mapping({
 						kommponen_html: b
@@ -1751,10 +1768,22 @@ foreach ($bl as $k => $sub_bl) {
 		          	success: function(data){
 		          		alert(data.message);
 		          		if(data.status == 'success'){
-		          			var sendData = data.ids_rinci.map(function(b, i){
+		          			var data_all = [];
+							var data_sementara = [];
+							data.ids_rinci.map(function(b, i) {
+								data_sementara.push(jQuery('.edit-mapping[data-id="'+b+'"]').closest('tr.data-komponen'));
+								if(i>0 && i%250==0){
+									data_all.push(data_sementara);
+									data_sementara = [];
+								}
+							});
+							if(data_sementara.length >= 1){
+								data_all.push(data_sementara);
+							}
+		          			var sendData = data_all.map(function(b, i){
 		          				return new Promise(function(resolve, reject){
 				          			get_mapping({
-										kommponen_html: jQuery('.edit-mapping[data-id="'+b+'"]').closest('tr.data-komponen')
+										kommponen_html: b
 									}, function(ret){
 										resolve(ret);
 									});
