@@ -351,6 +351,7 @@ class Wpsipd_Admin {
             	->set_html( '
             		<style>
             			.postbox-container { display: none; }
+            			#poststuff #post-body.columns-2 { margin: 0 !important; }
             		</style>
             		<table class="wp-list-table widefat fixed striped">
             			<thead>
@@ -366,7 +367,7 @@ class Wpsipd_Admin {
             						<input class="cf-text__input" type="text" id="nama_label">
             						<input type="hidden" id="id_label">
             					</td>
-            					<td><input class="cf-text__input" type="text" id="keterangan_label"></td>
+            					<td><textarea class="cf-text__input" type="text" id="keterangan_label"></textarea></td>
             					<td class="text_tengah"><button id="tambah_label_komponen" class="button button-primary" onclick="return false;">Simpan Label Komponen</button></td>
             				</tr>
             			</tbody>
@@ -614,23 +615,37 @@ class Wpsipd_Admin {
 		);
 		if (!empty($_POST)) {
 			if (!empty($_POST['api_key']) && $_POST['api_key'] == carbon_get_theme_option( 'crb_api_key_extension' )) {
-				$current_user = wp_get_current_user();
-				$opsi = array(
-					'nama' => $_POST['nama'],
-					'keterangan' => $_POST['keterangan'],
-					'id_skpd' => '',
-					'user' => $current_user->display_name,
-					'active' => 1,
-					'update_at'	=> current_time('mysql'),
-					'tahun_anggaran'	=> $_POST['tahun_anggaran']
+				$cek_exist = $wpdb->get_var($wpdb->prepare('
+					SELECT 
+						id 
+					from data_label_komponen 
+					where tahun_anggaran=%d 
+						and active=1 
+						and nama=%s
+					', $_POST['tahun_anggaran'], $_POST['nama'])
 				);
-				if (!empty($_POST['id_label'])) {
-					$wpdb->update('data_label_komponen', $opsi, array(
-						'tahun_anggaran'	=> $_POST['tahun_anggaran'],
-						'id' => $_POST['id_label']
-					));
+				if(!$cek_exist){
+					$current_user = wp_get_current_user();
+					$opsi = array(
+						'nama' => $_POST['nama'],
+						'keterangan' => $_POST['keterangan'],
+						'id_skpd' => '',
+						'user' => $current_user->display_name,
+						'active' => 1,
+						'update_at'	=> current_time('mysql'),
+						'tahun_anggaran'	=> $_POST['tahun_anggaran']
+					);
+					if (!empty($_POST['id_label'])) {
+						$wpdb->update('data_label_komponen', $opsi, array(
+							'tahun_anggaran'	=> $_POST['tahun_anggaran'],
+							'id' => $_POST['id_label']
+						));
+					} else {
+						$wpdb->insert('data_label_komponen', $opsi);
+					}
 				} else {
-					$wpdb->insert('data_label_komponen', $opsi);
+					$ret['status'] = 'error';
+					$ret['message'] = 'Nama label ini sudah digunakan!';
 				}
 			} else {
 				$ret['status'] = 'error';

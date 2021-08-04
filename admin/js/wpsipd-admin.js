@@ -84,6 +84,8 @@ jQuery(document).ready(function(){
 								jQuery('#nama_label').val('');
 								jQuery('#keterangan_label').val('');
 								load_label(tahun_anggaran.val());
+							}else{
+								jQuery('#wrap-loading').hide();
 							}
 							return alert(data.message);
 						},
