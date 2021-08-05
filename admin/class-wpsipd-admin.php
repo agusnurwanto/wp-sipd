@@ -119,7 +119,7 @@ class Wpsipd_Admin {
 	    return $randomString;
 	}
 
-	public function generatePage($nama_page, $tahun_anggaran, $content = false){
+	public function generatePage($nama_page, $tahun_anggaran, $content = false, $update = false){
 		$custom_post = get_page_by_title($nama_page, OBJECT, 'page');
 		if(empty($content)){
 			$content = '[monitor_sipd tahun_anggaran="'.$tahun_anggaran.'"]';
@@ -145,10 +145,10 @@ class Wpsipd_Admin {
 			update_post_meta($custom_post->ID, 'site-post-title', 'disabled');
 			update_post_meta($custom_post->ID, 'site-sidebar-layout', 'no-sidebar');
 			update_post_meta($custom_post->ID, 'theme-transparent-header-meta', 'disabled');
-		}else{
-			// $_post['ID'] = $custom_post->ID;
-			// wp_update_post( $_post );
-			// $_post['update'] = 1;
+		}else if($update){
+			$_post['ID'] = $custom_post->ID;
+			wp_update_post( $_post );
+			$_post['update'] = 1;
 		}
 		return esc_url( get_permalink($custom_post));
 	}
@@ -325,7 +325,8 @@ class Wpsipd_Admin {
 		    ->add_fields( $this->generate_label_komponen() );
 
 	    Container::make( 'theme_options', __( 'Sumber Dana' ) )
-		    ->set_page_parent( $monev );
+		    ->set_page_parent( $monev )
+		    ->add_fields( $this->generate_sumber_dana() );
 	}
 
 	// hook filter untuk save field carbon field
@@ -335,6 +336,68 @@ class Wpsipd_Admin {
 		}else{
 			return $value;
 		}
+	}
+
+	public function generate_sumber_dana(){
+		global $wpdb;
+		$tahun = $wpdb->get_results('select tahun_anggaran from data_unit group by tahun_anggaran', ARRAY_A);
+		$master_sumberdana = '';
+		$no = 0;
+		foreach ($tahun as $k => $v) {
+			$sumberdana = $wpdb->get_results('
+				select 
+					iddana,
+					kodedana,
+					namadana 
+				from data_dana_sub_keg 
+				where tahun_anggaran='.$v['tahun_anggaran'].'
+				group by iddana
+				order by kodedana ASC
+			', ARRAY_A);
+			foreach ($sumberdana as $key => $val) {
+				$no++;
+				$title = 'Laporan APBD Per Sumber Dana '.$val['kodedana'].' '.$val['namadana'].' | '.$v['tahun_anggaran'];
+				$shortcode = '[monitor_sumber_dana tahun_anggaran="'.$v['tahun_anggaran'].'" id_sumber_dana="'.$val['iddana'].'"]';
+				$update = true;
+				$url_skpd = $this->generatePage($title, $v['tahun_anggaran'], $shortcode, $update);
+				if(empty($val['kodedana'])){
+					$val['kodedana'] = '';
+					$val['namadana'] = 'Belum Di Setting';
+				}
+				$master_sumberdana .= '
+					<tr>
+						<td>'.$no.'</td>
+						<td>'.$val['kodedana'].'</td>
+						<td><a href="'.$url_skpd.'" target="_blank">'.$val['namadana'].'</a></td>
+						<td>'.$v['tahun_anggaran'].'</td>
+					</tr>
+				';
+			}
+		}
+		$label = array(
+			Field::make( 'html', 'crb_daftar_label_komponen' )
+            	->set_html( '
+            		<style>
+            			.postbox-container { display: none; }
+            			#poststuff #post-body.columns-2 { margin: 0 !important; }
+            		</style>
+            		<h3 class="text_tengah">Daftar Sumber Dana</h3>
+            		<table class="wp-list-table widefat fixed striped">
+            			<thead>
+            				<tr class="text_tengah">
+            					<th class="text_tengah" style="width: 20px">No</th>
+            					<th class="text_tengah" style="width: 100px">Kode</th>
+            					<th class="text_tengah">Sumber Dana</th>
+            					<th class="text_tengah" style="width: 100px">Tahun Anggaran</th>
+            				</tr>
+            			</thead>
+            			<tbody>
+            				'.$master_sumberdana.'
+            			</tbody>
+            		</table>
+        		' )
+        );
+        return $label;
 	}
 
 	public function generate_label_komponen(){
