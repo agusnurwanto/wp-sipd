@@ -19,28 +19,21 @@ if(!empty($input['id_sumber_dana'])){
 		$kode_sumber_dana = $sumber_dana[0]['kode_dana'];
 		$nama_sumber_dana = $sumber_dana[0]['nama_dana'];
 	}
-	$data_sub_giat = $wpdb->get_results('
-		select 
-			r.*
-		from data_dana_sub_keg d
-			join data_sub_keg_bl r on r.kode_sbl = d.kode_sbl
-				and r.tahun_anggaran = d.tahun_anggaran
-		where d.active=1 
-			and d.tahun_anggaran='.$input['tahun_anggaran'].'
-			and d.iddana='.$input['id_sumber_dana'], ARRAY_A);
-}else{
-	$data_sub_giat = $wpdb->get_results('
-		select 
-			r.*
-		from data_dana_sub_keg d
-			join data_sub_keg_bl r on r.kode_sbl = d.kode_sbl
-				and r.tahun_anggaran = d.tahun_anggaran
-		where d.active=1 
-			and d.tahun_anggaran='.$input['tahun_anggaran'].'
-			and d.iddana is null', ARRAY_A);
 }
+$data_sub_giat = $wpdb->get_results('
+	select 
+		r.*
+	from data_dana_sub_keg d
+		join data_sub_keg_bl r on r.kode_sbl = d.kode_sbl
+			and r.tahun_anggaran = d.tahun_anggaran
+			and r.active = d.active
+	where d.active=1 
+		and d.tahun_anggaran='.$input['tahun_anggaran'].'
+		and (
+			d.iddana='.$input['id_sumber_dana'].'
+			or d.iddana is null
+		)', ARRAY_A);
 $judul_laporan = array('Laporan APBD Per Sumber Dana',$kode_sumber_dana.' '.$nama_sumber_dana,'Tahun '.$input['tahun_anggaran']);
-
 
 $data_sumberdana_shorted = array(
     'data' => array(),
@@ -112,10 +105,28 @@ foreach ($data_sumberdana_shorted['data'] as $k => $skpd) {
         }
 		$nama_page = $input['tahun_anggaran'] . ' | ' . $sub_keg['data']['kode_skpd'] . ' | ' . $sub_keg['data']['kode_giat'] . ' | ' . $sub_keg['data']['nama_giat'];
 		$custom_post = get_page_by_title($nama_page, OBJECT, 'post');
+		$link = 'style="color: red;" title="'.$nama_page.'"';
+		if(!empty($custom_post)){
+			$link = 'href="'.$custom_post->guid. '?key=' . $this->gen_key().'"';
+		}else{
+			$kode_skpd = $wpdb->get_var("
+				SELECT 
+					kode_skpd 
+				from data_unit 
+				where id_skpd=".$sub_keg['data']['id_sub_skpd']."
+					AND tahun_anggaran=".$input['tahun_anggaran']."
+					AND active=1");
+			$nama_page = $input['tahun_anggaran'] . ' | ' . $kode_skpd . ' | ' . $sub_keg['data']['kode_giat'] . ' | ' . $sub_keg['data']['nama_giat'];
+			$custom_post = get_page_by_title($nama_page, OBJECT, 'post');
+			$link = 'style="color: red;" title="'.$nama_page.'"';
+			if(!empty($custom_post)){
+				$link = 'href="'.$custom_post->guid. '?key=' . $this->gen_key().'"';
+			}
+		}
         $body_sumberdana .= '
             <tr class="sub_keg">
                 <td class="kanan bawah kiri text_tengah">'.$no.'</td>
-                <td class="kanan bawah" style="padding-left: 20px;"><a href="'.$custom_post->guid . '?key=' . $this->gen_key().'" target="_blank">'.$sub_keg['nama'].'</a></td>
+                <td class="kanan bawah" style="padding-left: 20px;"><a '.$link.' target="_blank">'.$sub_keg['nama'].'</a></td>
                 <td class="kanan bawah">'.implode(', ', $sd_text).'</td>
                 '.$murni.'
                 <td class="kanan bawah text_kanan">'.number_format($sub_keg['total'],0,",",".").'</td>
