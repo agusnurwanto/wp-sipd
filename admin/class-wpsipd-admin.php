@@ -351,6 +351,7 @@ class Wpsipd_Admin {
 					namadana 
 				from data_dana_sub_keg 
 				where tahun_anggaran='.$v['tahun_anggaran'].'
+					and active=1
 				group by iddana
 				order by kodedana ASC
 			', ARRAY_A);
