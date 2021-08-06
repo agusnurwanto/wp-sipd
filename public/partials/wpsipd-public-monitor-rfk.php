@@ -293,7 +293,7 @@ foreach ($units as $k => $unit):
 			$kd_bidang = explode('.', $kd_bidang);
 			$kd_bidang = $kd_bidang[count($kd_bidang)-1];
 			$capaian = 0;
-			if(!empty($bidang['total'])){
+			if(!empty($bidang['total_simda'])){
 				$capaian = $this->pembulatan(($bidang['realisasi']/$bidang['total_simda'])*100);
 			}
 			$body .= '
@@ -316,8 +316,8 @@ foreach ($units as $k => $unit):
 				$kd_program = explode('.', $kd_program);
 				$kd_program = $kd_program[count($kd_program)-1];
 				$capaian = 0;
-				if(!empty($program['total'])){
-					$capaian = $this->pembulatan(($program['realisasi']/$program['total'])*100);
+				if(!empty($program['total_simda'])){
+					$capaian = $this->pembulatan(($program['realisasi']/$program['total_simda'])*100);
 				}
 				$body .= '
 					<tr class="program" data-kode="'.$kd_urusan.'.'.$kd_bidang.'.'.$kd_program.'">
@@ -339,7 +339,7 @@ foreach ($units as $k => $unit):
 					$kd_giat = explode('.', $kd_giat1);
 					$kd_giat = $kd_giat[count($kd_giat)-2].'.'.$kd_giat[count($kd_giat)-1];
 					$capaian = 0;
-					if(!empty($giat['total'])){
+					if(!empty($giat['total_simda'])){
 						$capaian = $this->pembulatan(($giat['realisasi']/$giat['total_simda'])*100);
 					}
 					$nama_page = $input['tahun_anggaran'] . ' | ' . $unit['kode_skpd'] . ' | ' . $kd_giat1 . ' | ' . $giat['nama'];
@@ -379,7 +379,7 @@ foreach ($units as $k => $unit):
 						$kd_sub_giat = explode('.', $kd_sub_giat1);
 						$kd_sub_giat = $kd_sub_giat[count($kd_sub_giat)-1];
 						$capaian = 0;
-						if(!empty($sub_giat['total'])){
+						if(!empty($sub_giat['total_simda'])){
 							$capaian = $this->pembulatan(($sub_giat['realisasi']/$sub_giat['total_simda'])*100);
 						}
 						$realisasi_fisik = 0;
