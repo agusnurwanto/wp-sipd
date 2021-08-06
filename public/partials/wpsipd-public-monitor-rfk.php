@@ -53,7 +53,9 @@ if(empty($units)){
 	}
 	$urut = $input['tahun_anggaran']-$start_rpjmd;
 }
+
 $current_user = wp_get_current_user();
+
 foreach ($units as $k => $unit): 
 	$kd_unit_simda = explode('.', carbon_get_theme_option('crb_unit_'.$unit['id_skpd']));
 	$_kd_urusan = $kd_unit_simda[0];
@@ -385,6 +387,14 @@ foreach ($units as $k => $unit):
 						if(!empty($sub_giat['data']['realisasi_fisik'])){
 							$realisasi_fisik = $sub_giat['data']['realisasi_fisik'];
 						}
+						$edit_fisik = 'contenteditable="true"';
+						$edit_masalah = 'contenteditable="true"';
+						$edit_catatan = '';
+						if(current_user_can('administrator')){
+							$edit_fisik = '';
+							$edit_masalah = '';
+							$edit_catatan = 'contenteditable="true"';
+						}
 						$body .= '
 					        <tr data-kode="'.$kd_sub_giat1.'" data-kdsbl="'.$sub_giat['data']['kode_sbl'].'" data-idskpd="'.$sub_giat['data']['id_sub_skpd'].'" data-pagu="'.$sub_giat['total'].'">
 					            <td class="kiri kanan bawah">'.$kd_urusan.'</td>
@@ -397,10 +407,10 @@ foreach ($units as $k => $unit):
 					            <td class="kanan bawah text_kanan">'.number_format($sub_giat['total_simda'],0,",",".").'</td>
 					            <td class="kanan bawah text_kanan">'.number_format($sub_giat['realisasi'],0,",",".").'</td>
 					            <td class="kanan bawah text_tengah">'.$capaian.'</td>
-					            <td class="kanan bawah realisasi-fisik text_tengah" contenteditable="true">'.$realisasi_fisik.'</td>
+					            <td class="kanan bawah realisasi-fisik text_tengah" '.$edit_fisik.'>'.$realisasi_fisik.'</td>
 					            <td class="kanan bawah">'.implode(',<br>', $sd_sub).'</td>
-					            <td class="kanan bawah permasalahan" contenteditable="true">'.$sub_giat['data']['permasalahan'].'</td>
-					            <td class="kanan bawah catatan_verifikator" contenteditable="true">'.$sub_giat['data']['catatan_verifikator'].'</td>
+					            <td class="kanan bawah permasalahan" '.$edit_masalah.'>'.$sub_giat['data']['permasalahan'].'</td>
+					            <td class="kanan bawah catatan_verifikator" '.$edit_catatan.'>'.$sub_giat['data']['catatan_verifikator'].'</td>
 					        </tr>
 						';
 					}
@@ -487,6 +497,11 @@ foreach ($units as $k => $unit):
 		<div style="page-break-after:always;"></div>
 </div>';
 endforeach; 
+
+$reset_rfk = '';
+if(!current_user_can('administrator')){
+	$reset_rfk = '<button style="margin-left: 20px;" class="button button-default" id="reset-rfk">Reset RFK Bulan Sebelumnya</button>';
+}
 ?>
 <script type="text/javascript">
 	run_download_excel();
@@ -593,8 +608,8 @@ endforeach;
 					+'<option value="12">Desember</option>'
 				+'</select>'
 			+'</label>'
-			+'<button style="margin-left: 20px;" class="button button-primary" id="simpan-rfk">Simpan RFK</button>'
-			+'<button style="margin-left: 20px;" class="button button-default" id="reset-rfk">Reset RFK Bulan Sebelumnya</button>'
+			+'<button style="margin-left: 20px;" class="button button-primary" id="simpan-rfk">Simpan Data</button>'
+			+'<?php echo $reset_rfk; ?>'
 		+'</div>';
 	jQuery(document).ready(function(){
 	    jQuery('#action-sipd').append(extend_action);

@@ -3757,14 +3757,19 @@ class Wpsipd_Public
 					$opsi = array(
 						'bulan'	=> $_POST['bulan'],
 						'kode_sbl'	=> $v['kode_sbl'],
-						'realisasi_fisik'	=> $v['realisasi_fisik'],
-						'permasalahan'	=> $v['permasalahan'],
-						'catatan_verifikator'	=> $v['catatan_verifikator'],
-						'user_edit'	=> $_POST['user'],
 						'id_skpd'	=> $v['id_skpd'],
-						'tahun_anggaran'	=> $_POST['tahun_anggaran'],
-						'created_at'	=>  current_time('mysql')
+						'tahun_anggaran'	=> $_POST['tahun_anggaran']
 					);
+					if(current_user_can('administrator')){
+						$opsi['catatan_verifikator'] = $v['catatan_verifikator'];
+						$opsi['user_verifikator'] = $v['user_edit'];
+						$opsi['update_verifikator_at'] = current_time('mysql');
+					}else{
+						$opsi['permasalahan'] = $v['permasalahan'];
+						$opsi['realisasi_fisik'] = $v['realisasi_fisik'];
+						$opsi['user_edit'] = $v['user_edit'];
+						$opsi['update_fisik_at'] = current_time('mysql');
+					}
 					if (!empty($cek)) {
 						$wpdb->update('data_rfk', $opsi, array(
 							'tahun_anggaran' => $_POST['tahun_anggaran'],
@@ -3773,6 +3778,7 @@ class Wpsipd_Public
 							'kode_sbl' => $v['kode_sbl']
 						));
 					} else {
+						$opsi['created_at'] = current_time('mysql');
 						$wpdb->insert('data_rfk', $opsi);
 					}
 				}
@@ -3819,7 +3825,6 @@ class Wpsipd_Public
 						'kode_sbl'	=> $v['kode_sbl'],
 						'realisasi_fisik'	=> $v['realisasi_fisik'],
 						'permasalahan'	=> $v['permasalahan'],
-						'catatan_verifikator'	=> $v['catatan_verifikator'],
 						'user_edit'	=> $_POST['user'],
 						'id_skpd'	=> $v['id_skpd'],
 						'tahun_anggaran'	=> $_POST['tahun_anggaran'],

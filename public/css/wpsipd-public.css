@@ -161,3 +161,6 @@ tfoot { display:table-footer-group }
 .select2-container--default .select2-selection--multiple .select2-selection__choice__remove {
     position: relative !important;
 }
+td[contenteditable="true"] {
+    background: #ff00002e;
+}

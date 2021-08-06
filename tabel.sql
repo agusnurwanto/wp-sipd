@@ -1348,6 +1348,9 @@ CREATE TABLE `data_rfk` (
   `permasalahan` text DEFAULT NULL,
   `catatan_verifikator` text DEFAULT NULL,
   `user_edit` text DEFAULT NULL,
+  `user_verifikator` text DEFAULT NULL,
+  `update_verifikator_at` datetime DEFAULT NULL,
+  `update_fisik_at` datetime DEFAULT NULL,
   `id_skpd` int(11) NOT NULL,
   `created_at` datetime NOT NULL,
   `tahun_anggaran` year(4) NOT NULL
