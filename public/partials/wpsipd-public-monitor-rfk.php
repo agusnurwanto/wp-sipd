@@ -22,10 +22,7 @@ if(!empty($input['id_skpd'])){
 			* 
 		from data_unit 
 		where tahun_anggaran=%d
-			and (
-				id_skpd IN (".$input['id_skpd'].") 
-				or idinduk IN(".$input['id_skpd'].")
-			)
+			and id_skpd IN (".$input['id_skpd'].") 
 			and active=1
 		order by id_skpd ASC
 	", $input['tahun_anggaran']);
