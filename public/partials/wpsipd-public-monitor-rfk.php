@@ -71,7 +71,8 @@ foreach ($units as $k => $unit):
 				r.realisasi_anggaran, 
 				r.id as id_rfk, 
 				r.realisasi_fisik, 
-				r.permasalahan
+				r.permasalahan,
+				r.catatan_verifikator
 			from data_sub_keg_bl k
 				left join data_rfk r on k.kode_sbl=r.kode_sbl
 					AND k.tahun_anggaran=r.tahun_anggaran
@@ -102,7 +103,8 @@ foreach ($units as $k => $unit):
 				r.realisasi_anggaran, 
 				r.id as id_rfk, 
 				r.realisasi_fisik, 
-				r.permasalahan
+				r.permasalahan,
+				r.catatan_verifikator
 			from data_sub_keg_bl k
 				left join data_rfk r on k.kode_sbl=r.kode_sbl
 					AND k.tahun_anggaran=r.tahun_anggaran
@@ -283,7 +285,7 @@ foreach ($units as $k => $unit):
 		        <td class="text_tengah kanan bawah">&nbsp;</td>
 		        <td class="text_tengah kanan bawah">&nbsp;</td>
 		        <td class="text_tengah kanan bawah">&nbsp;</td>
-		        <td class="kanan bawah text_blok" colspan="8">'.$urusan['nama'].'</td>
+		        <td class="kanan bawah text_blok" colspan="9">'.$urusan['nama'].'</td>
 		    </tr>
 		';
 		foreach ($urusan['data'] as $kd_bidang => $bidang) {
@@ -306,7 +308,7 @@ foreach ($units as $k => $unit):
 		            <td class="kanan bawah text_kanan text_blok">'.number_format($bidang['realisasi'],0,",",".").'</td>
 		            <td class="kanan bawah text_blok text_tengah">'.$capaian.'</td>
 		            <td class="kanan bawah text_blok bidang-realisasi-fisik text_tengah"></td>
-		        	<td class="kanan bawah text_kanan text_blok" colspan="2"></td>
+		        	<td class="kanan bawah text_kanan text_blok" colspan="3"></td>
 		        </tr>
 			';
 			foreach ($bidang['data'] as $kd_program => $program) {
@@ -329,7 +331,7 @@ foreach ($units as $k => $unit):
 			            <td class="kanan bawah text_kanan text_blok">'.number_format($program['realisasi'],0,",",".").'</td>
 			            <td class="kanan bawah text_blok text_tengah">'.$capaian.'</td>
 			            <td class="kanan bawah text_blok program-realisasi-fisik text_tengah"></td>
-		        		<td class="kanan bawah text_kanan text_blok" colspan="2"></td>
+		        		<td class="kanan bawah text_kanan text_blok" colspan="3"></td>
 			        </tr>
 				';
 				foreach ($program['data'] as $kd_giat1 => $giat) {
@@ -354,7 +356,7 @@ foreach ($units as $k => $unit):
 				            <td style="border:.5pt solid #000; vertical-align:middle; text-align:right; font-weight:bold;">'.number_format($giat['realisasi'],0,",",".").'</td>
 				            <td class="text_tengah" style="border:.5pt solid #000; vertical-align:middle; font-weight:bold;">'.$capaian.'</td>
 				            <td style="border:.5pt solid #000; vertical-align:middle; font-weight:bold;" class="kegiatan-realisasi-fisik text_tengah"></td>
-		        			<td class="kanan bawah text_kanan text_blok" colspan="2"></td>
+		        			<td class="kanan bawah text_kanan text_blok" colspan="3"></td>
 				        </tr>
 					';
 					foreach ($giat['data'] as $kd_sub_giat1 => $sub_giat) {
@@ -398,6 +400,7 @@ foreach ($units as $k => $unit):
 					            <td class="kanan bawah realisasi-fisik text_tengah" contenteditable="true">'.$realisasi_fisik.'</td>
 					            <td class="kanan bawah">'.implode(',<br>', $sd_sub).'</td>
 					            <td class="kanan bawah permasalahan" contenteditable="true">'.$sub_giat['data']['permasalahan'].'</td>
+					            <td class="kanan bawah catatan_verifikator" contenteditable="true">'.$sub_giat['data']['catatan_verifikator'].'</td>
 					        </tr>
 						';
 					}
@@ -431,9 +434,10 @@ foreach ($units as $k => $unit):
 		            <th style="padding: 0; border: 0; width:120px"></th>
 		            <th style="padding: 0; border: 0; width:120px"></th>
 		            <th style="padding: 0; border: 0; width:200px"></th>
+		            <th style="padding: 0; border: 0; width:200px"></th>
 		        </tr>
 			    <tr>
-			        <td colspan="13" style="vertical-align:middle; font-weight:bold; border: 0; font-size: 13px;">
+			        <td colspan="14" style="vertical-align:middle; font-weight:bold; border: 0; font-size: 13px;">
 			            Unit Organisasi : '.$unit_induk[0]['kode_skpd'].'&nbsp;'.$unit_induk[0]['nama_skpd'].'<br/>
 			            Sub Unit Organisasi : '.$unit['kode_skpd'].'&nbsp;'.$unit['nama_skpd'].'
 			        </td>
@@ -448,6 +452,7 @@ foreach ($units as $k => $unit):
 			        <td class="atas kanan bawah text_tengah text_blok">Realisasi Fisik ( % )</td>
 			        <td class="atas kanan bawah text_tengah text_blok">Sumber Dana</td>
 			        <td class="atas kanan bawah text_tengah text_blok">Permasalahan</td>
+			        <td class="atas kanan bawah text_tengah text_blok">Catatan Verifikator</td>
 			    </tr>
 			    <tr>
 			        <td class="atas kanan bawah kiri text_tengah text_blok">1</td>
@@ -463,6 +468,7 @@ foreach ($units as $k => $unit):
 			        <td class="atas kanan bawah text_tengah text_blok">11</td>
 			        <td class="atas kanan bawah text_tengah text_blok">12</td>
 			        <td class="atas kanan bawah text_tengah text_blok">13</td>
+			        <td class="atas kanan bawah text_tengah text_blok">14</td>
 			    </tr>
 		    </thead>
 		    <tbody>
@@ -474,7 +480,7 @@ foreach ($units as $k => $unit):
 			        <td class="kanan bawah text_kanan text_blok">'.number_format($data_all['realisasi'],0,",",".").'</td>
 			        <td class="kanan bawah text_tengah text_blok">'.$capaian_total.'</td>
 			        <td class="kanan bawah text_blok total-realisasi-fisik text_tengah"></td>
-			        <td class="kanan bawah text_kanan text_blok" colspan="2"></td>
+			        <td class="kanan bawah text_kanan text_blok" colspan="3"></td>
 			    </tr>
 		    </tbody>
 		</table>
@@ -658,6 +664,7 @@ endforeach;
 	    			r_fisik_s.push({
 	    				realisasi_fisik: val,
 	    				permasalahan: tr.find('.permasalahan').text(),
+	    				catatan_verifikator: tr.find('.catatan_verifikator').text(),
 	    				id_skpd: tr.attr('data-idskpd'),
 	    				kode_sbl: tr.attr('data-kdsbl')
 	    			});

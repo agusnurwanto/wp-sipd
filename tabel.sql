@@ -1346,6 +1346,7 @@ CREATE TABLE `data_rfk` (
   `realisasi_anggaran` double(20,0) DEFAULT NULL,
   `realisasi_fisik` tinyint(3) DEFAULT NULL,
   `permasalahan` text DEFAULT NULL,
+  `catatan_verifikator` text DEFAULT NULL,
   `user_edit` text DEFAULT NULL,
   `id_skpd` int(11) NOT NULL,
   `created_at` datetime NOT NULL,

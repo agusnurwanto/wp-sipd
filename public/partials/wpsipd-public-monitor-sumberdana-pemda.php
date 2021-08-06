@@ -223,7 +223,7 @@ foreach ($data_sumberdana_shorted['data'] as $k => $skpd) {
 			}
 		}
         $capaian = 0;
-        if(!empty($sub_giat['total_simda'])){
+        if(!empty($sub_keg['total_simda'])){
             $capaian = $this->pembulatan(($sub_keg['realisasi']/$sub_keg['total_simda'])*100);
         }
 
