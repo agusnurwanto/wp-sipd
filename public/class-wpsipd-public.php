@@ -4253,4 +4253,298 @@ class Wpsipd_Public
 		}
 		die(json_encode($ret));
 	}
+
+	function singkron_renstra_tujuan(){
+		global $wpdb;
+		$ret = array();
+		$ret['status'] = 'success';
+		$ret['message'] = 'Berhasil singkron tujuan RENSTRA!';
+		if (!empty($_POST)) {
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == carbon_get_theme_option( 'crb_api_key_extension' )) {
+				$wpdb->update('data_renstra_tujuan', array('active' => 0), array(
+					'tahun_anggaran' => $_POST['tahun_anggaran']
+				));
+				foreach ($_POST['tujuan'] as $k => $v) {
+					$cek = $wpdb->get_var("SELECT id_unik from data_renstra_tujuan where tahun_anggaran=".$_POST['tahun_anggaran']." AND id_unik='" . $v['id_unik']."' AND id_unik_indikator='" . $v['id_unik_indikator']."'");
+					$opsi = array(
+						'bidur_lock' => $v['bidur_lock'],
+						'id_bidang_urusan' => $v['id_bidang_urusan'],
+						'id_unik' => $v['id_unik'],
+						'id_unik_indikator' => $v['id_unik_indikator'],
+						'id_unit' => $v['id_unit'],
+						'indikator_teks' => $v['indikator_teks'],
+						'is_locked' => $v['is_locked'],
+						'is_locked_indikator' => $v['is_locked_indikator'],
+						'kode_bidang_urusan' => $v['kode_bidang_urusan'],
+						'kode_skpd' => $v['kode_skpd'],
+						'nama_bidang_urusan' => $v['nama_bidang_urusan'],
+						'nama_skpd' => $v['nama_skpd'],
+						'satuan' => $v['satuan'],
+						'status' => $v['status'],
+						'target_1' => $v['target_1'],
+						'target_2' => $v['target_2'],
+						'target_3' => $v['target_3'],
+						'target_4' => $v['target_4'],
+						'target_5' => $v['target_5'],
+						'target_akhir' => $v['target_akhir'],
+						'target_awal' => $v['target_awal'],
+						'tujuan_teks' => $v['tujuan_teks'],
+						'urut_tujuan' => $v['urut_tujuan'],
+						'active' => 1,
+						'update_at' => current_time('mysql'),
+						'tahun_anggaran' => $_POST['tahun_anggaran']
+					);
+
+					if (!empty($cek)) {
+						$wpdb->update('data_renstra_tujuan', $opsi, array(
+							'id_unik' => $v['id_unik'],
+							'id_unik_indikator' => $v['id_unik_indikator'],
+							'tahun_anggaran' => $_POST['tahun_anggaran']
+						));
+					} else {
+						$wpdb->insert('data_renstra_tujuan', $opsi);
+					}
+				}
+			} else {
+				$ret['status'] = 'error';
+				$ret['message'] = 'APIKEY tidak sesuai!';
+			}
+		} else {
+			$ret['status'] = 'error';
+			$ret['message'] = 'Format Salah!';
+		}
+		die(json_encode($ret));
+	}
+
+	function singkron_renstra_sasaran(){
+		global $wpdb;
+		$ret = array();
+		$ret['status'] = 'success';
+		$ret['message'] = 'Berhasil singkron sasaran RENSTRA!';
+		if (!empty($_POST)) {
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == carbon_get_theme_option( 'crb_api_key_extension' )) {
+				$wpdb->update('data_renstra_sasaran', array('active' => 0), array(
+					'tahun_anggaran' => $_POST['tahun_anggaran']
+				));
+				foreach ($_POST['sasaran'] as $k => $v) {
+					$cek = $wpdb->get_var("SELECT id_unik from data_renstra_sasaran where tahun_anggaran=".$_POST['tahun_anggaran']." AND id_unik='" . $v['id_unik']."' AND id_unik_indikator='" . $v['id_unik_indikator']."'");
+					$opsi = array(
+						'bidur_lock' => $v['bidur_lock'],
+						'id_bidang_urusan' => $v['id_bidang_urusan'],
+						'id_misi' => $v['id_misi'],
+						'id_unik' => $v['id_unik'],
+						'id_unik_indikator' => $v['id_unik_indikator'],
+						'id_unit' => $v['id_unit'],
+						'id_visi' => $v['id_visi'],
+						'indikator_teks' => $v['indikator_teks'],
+						'is_locked' => $v['is_locked'],
+						'is_locked_indikator' => $v['is_locked_indikator'],
+						'kode_bidang_urusan' => $v['kode_bidang_urusan'],
+						'kode_skpd' => $v['kode_skpd'],
+						'kode_tujuan' => $v['kode_tujuan'],
+						'nama_bidang_urusan' => $v['nama_bidang_urusan'],
+						'nama_skpd' => $v['nama_skpd'],
+						'sasaran_teks' => $v['sasaran_teks'],
+						'satuan' => $v['satuan'],
+						'status' => $v['status'],
+						'target_1' => $v['target_1'],
+						'target_2' => $v['target_2'],
+						'target_3' => $v['target_3'],
+						'target_4' => $v['target_4'],
+						'target_5' => $v['target_5'],
+						'target_akhir' => $v['target_akhir'],
+						'target_awal' => $v['target_awal'],
+						'tujuan_lock' => $v['tujuan_lock'],
+						'tujuan_teks' => $v['tujuan_teks'],
+						'urut_sasaran' => $v['urut_sasaran'],
+						'urut_tujuan' => $v['urut_tujuan'],
+						'active' => 1,
+						'update_at' => current_time('mysql'),
+						'tahun_anggaran' => $_POST['tahun_anggaran']
+					);
+
+					if (!empty($cek)) {
+						$wpdb->update('data_renstra_sasaran', $opsi, array(
+							'id_unik' => $v['id_unik'],
+							'id_unik_indikator' => $v['id_unik_indikator'],
+							'tahun_anggaran' => $_POST['tahun_anggaran']
+						));
+					} else {
+						$wpdb->insert('data_renstra_sasaran', $opsi);
+					}
+				}
+			} else {
+				$ret['status'] = 'error';
+				$ret['message'] = 'APIKEY tidak sesuai!';
+			}
+		} else {
+			$ret['status'] = 'error';
+			$ret['message'] = 'Format Salah!';
+		}
+		die(json_encode($ret));
+	}
+
+	function singkron_renstra_program(){
+		global $wpdb;
+		$ret = array();
+		$ret['status'] = 'success';
+		$ret['message'] = 'Berhasil singkron program RENSTRA!';
+		if (!empty($_POST)) {
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == carbon_get_theme_option( 'crb_api_key_extension' )) {
+				$wpdb->update('data_renstra_program', array('active' => 0), array(
+					'tahun_anggaran' => $_POST['tahun_anggaran']
+				));
+				foreach ($_POST['program'] as $k => $v) {
+					$cek = $wpdb->get_var("SELECT id_unik from data_renstra_program where tahun_anggaran=".$_POST['tahun_anggaran']." AND id_unik='" . $v['id_unik']."' AND id_unik_indikator='" . $v['id_unik_indikator']."'");
+					$opsi = array(
+						'bidur_lock' => $v['bidur_lock'],
+						'id_bidang_urusan' => $v['id_bidang_urusan'],
+						'id_misi' => $v['id_misi'],
+						'id_program' => $v['id_program'],
+						'id_unik' => $v['id_unik'],
+						'id_unik_indikator' => $v['id_unik_indikator'],
+						'id_unit' => $v['id_unit'],
+						'id_visi' => $v['id_visi'],
+						'indikator' => $v['indikator'],
+						'is_locked' => $v['is_locked'],
+						'is_locked_indikator' => $v['is_locked_indikator'],
+						'kode_bidang_urusan' => $v['kode_bidang_urusan'],
+						'kode_program' => $v['kode_program'],
+						'kode_sasaran' => $v['kode_sasaran'],
+						'kode_skpd' => $v['kode_skpd'],
+						'kode_tujuan' => $v['kode_tujuan'],
+						'nama_bidang_urusan' => $v['nama_bidang_urusan'],
+						'nama_program' => $v['nama_program'],
+						'nama_skpd' => $v['nama_skpd'],
+						'pagu_1' => $v['pagu_1'],
+						'pagu_2' => $v['pagu_2'],
+						'pagu_3' => $v['pagu_3'],
+						'pagu_4' => $v['pagu_4'],
+						'pagu_5' => $v['pagu_5'],
+						'program_lock' => $v['program_lock'],
+						'sasaran_lock' => $v['sasaran_lock'],
+						'sasaran_teks' => $v['sasaran_teks'],
+						'satuan' => $v['satuan'],
+						'status' => $v['status'],
+						'target_1' => $v['target_1'],
+						'target_2' => $v['target_2'],
+						'target_3' => $v['target_3'],
+						'target_4' => $v['target_4'],
+						'target_5' => $v['target_5'],
+						'target_akhir' => $v['target_akhir'],
+						'target_awal' => $v['target_awal'],
+						'tujuan_lock' => $v['tujuan_lock'],
+						'tujuan_teks' => $v['tujuan_teks'],
+						'urut_sasaran' => $v['urut_sasaran'],
+						'urut_tujuan' => $v['urut_tujuan'],
+						'active' => 1,
+						'update_at' => current_time('mysql'),
+						'tahun_anggaran' => $_POST['tahun_anggaran']
+					);
+
+					if (!empty($cek)) {
+						$wpdb->update('data_renstra_program', $opsi, array(
+							'id_unik' => $v['id_unik'],
+							'id_unik_indikator' => $v['id_unik_indikator'],
+							'tahun_anggaran' => $_POST['tahun_anggaran']
+						));
+					} else {
+						$wpdb->insert('data_renstra_program', $opsi);
+					}
+				}
+			} else {
+				$ret['status'] = 'error';
+				$ret['message'] = 'APIKEY tidak sesuai!';
+			}
+		} else {
+			$ret['status'] = 'error';
+			$ret['message'] = 'Format Salah!';
+		}
+		die(json_encode($ret));
+	}
+
+	function singkron_renstra_kegiatan(){
+		global $wpdb;
+		$ret = array();
+		$ret['status'] = 'success';
+		$ret['message'] = 'Berhasil singkron kegiatan RENSTRA!';
+		if (!empty($_POST)) {
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == carbon_get_theme_option( 'crb_api_key_extension' )) {
+				$wpdb->update('data_renstra_kegiatan', array('active' => 0), array(
+					'tahun_anggaran' => $_POST['tahun_anggaran']
+				));
+				foreach ($_POST['kegiatan'] as $k => $v) {
+					$cek = $wpdb->get_var("SELECT id_unik from data_renstra_kegiatan where tahun_anggaran=".$_POST['tahun_anggaran']." AND id_unik='" . $v['id_unik']."' AND id_unik_indikator='" . $v['id_unik_indikator']."'");
+					$opsi = array(
+						'bidur_lock' => $v['bidur_lock'],
+						'giat_lock' => $v['giat_lock'],
+						'id_bidang_urusan' => $v['id_bidang_urusan'],
+						'id_giat' => $v['id_giat'],
+						'id_misi' => $v['id_misi'],
+						'id_program' => $v['id_program'],
+						'id_unik' => $v['id_unik'],
+						'id_unik_indikator' => $v['id_unik_indikator'],
+						'id_unit' => $v['id_unit'],
+						'id_visi' => $v['id_visi'],
+						'indikator' => $v['indikator'],
+						'is_locked' => $v['is_locked'],
+						'is_locked_indikator' => $v['is_locked_indikator'],
+						'kode_bidang_urusan' => $v['kode_bidang_urusan'],
+						'kode_giat' => $v['kode_giat'],
+						'kode_program' => $v['kode_program'],
+						'kode_sasaran' => $v['kode_sasaran'],
+						'kode_skpd' => $v['kode_skpd'],
+						'kode_tujuan' => $v['kode_tujuan'],
+						'kode_unik_program' => $v['kode_unik_program'],
+						'nama_bidang_urusan' => $v['nama_bidang_urusan'],
+						'nama_giat' => $v['nama_giat'],
+						'nama_program' => $v['nama_program'],
+						'nama_skpd' => $v['nama_skpd'],
+						'pagu_1' => $v['pagu_1'],
+						'pagu_2' => $v['pagu_2'],
+						'pagu_3' => $v['pagu_3'],
+						'pagu_4' => $v['pagu_4'],
+						'pagu_5' => $v['pagu_5'],
+						'program_lock' => $v['program_lock'],
+						'renstra_prog_lock' => $v['renstra_prog_lock'],
+						'sasaran_lock' => $v['sasaran_lock'],
+						'sasaran_teks' => $v['sasaran_teks'],
+						'satuan' => $v['satuan'],
+						'status' => $v['status'],
+						'target_1' => $v['target_1'],
+						'target_2' => $v['target_2'],
+						'target_3' => $v['target_3'],
+						'target_4' => $v['target_4'],
+						'target_5' => $v['target_5'],
+						'target_akhir' => $v['target_akhir'],
+						'target_awal' => $v['target_awal'],
+						'tujuan_lock' => $v['tujuan_lock'],
+						'tujuan_teks' => $v['tujuan_teks'],
+						'urut_sasaran' => $v['urut_sasaran'],
+						'urut_tujuan' => $v['urut_tujuan'],
+						'active' => 1,
+						'update_at' => current_time('mysql'),
+						'tahun_anggaran' => $_POST['tahun_anggaran']
+					);
+
+					if (!empty($cek)) {
+						$wpdb->update('data_renstra_kegiatan', $opsi, array(
+							'id_unik' => $v['id_unik'],
+							'id_unik_indikator' => $v['id_unik_indikator'],
+							'tahun_anggaran' => $_POST['tahun_anggaran']
+						));
+					} else {
+						$wpdb->insert('data_renstra_kegiatan', $opsi);
+					}
+				}
+			} else {
+				$ret['status'] = 'error';
+				$ret['message'] = 'APIKEY tidak sesuai!';
+			}
+		} else {
+			$ret['status'] = 'error';
+			$ret['message'] = 'Format Salah!';
+		}
+		die(json_encode($ret));
+	}
 }

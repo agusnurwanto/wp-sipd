@@ -294,6 +294,18 @@ class Wpsipd
 		$this->loader->add_action('wp_ajax_generate_user_sipd_merah',  $plugin_public, 'generate_user_sipd_merah');
 		$this->loader->add_action('wp_ajax_nopriv_generate_user_sipd_merah',  $plugin_public, 'generate_user_sipd_merah');
 
+		$this->loader->add_action('wp_ajax_singkron_renstra_tujuan',  $plugin_public, 'singkron_renstra_tujuan');
+		$this->loader->add_action('wp_ajax_nopriv_singkron_renstra_tujuan',  $plugin_public, 'singkron_renstra_tujuan');
+
+		$this->loader->add_action('wp_ajax_singkron_renstra_sasaran',  $plugin_public, 'singkron_renstra_sasaran');
+		$this->loader->add_action('wp_ajax_nopriv_singkron_renstra_sasaran',  $plugin_public, 'singkron_renstra_sasaran');
+
+		$this->loader->add_action('wp_ajax_singkron_renstra_program',  $plugin_public, 'singkron_renstra_program');
+		$this->loader->add_action('wp_ajax_nopriv_singkron_renstra_program',  $plugin_public, 'singkron_renstra_program');
+
+		$this->loader->add_action('wp_ajax_singkron_renstra_kegiatan',  $plugin_public, 'singkron_renstra_kegiatan');
+		$this->loader->add_action('wp_ajax_nopriv_singkron_renstra_kegiatan',  $plugin_public, 'singkron_renstra_kegiatan');
+
 		$this->loader->add_action('wp_ajax_simpan_rfk',  $plugin_public, 'simpan_rfk');
 		$this->loader->add_action('wp_ajax_reset_rfk',  $plugin_public, 'reset_rfk');
 
