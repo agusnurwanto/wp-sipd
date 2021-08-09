@@ -14,6 +14,8 @@ if(empty($input['kode_bl'])){
 	echo "<h1 style='text-align: center;'>kode_bl tidak boleh kosong!</h1>"; exit;
 }
 
+$current_user = wp_get_current_user();
+
 $api_key = carbon_get_theme_option( 'crb_api_key_extension' );
 
 $data_sumber_dana = $wpdb->get_results("select id_dana, nama_dana from data_sumber_dana where tahun_anggaran=".$input['tahun_anggaran'], ARRAY_A);
@@ -79,6 +81,15 @@ $id_skpd = $bl[0]['id_sub_skpd'];
 if(empty($id_skpd)){
 	$id_skpd = $bl[0]['id_skpd'];
 }
+$unit_induk = $wpdb->get_results("
+	SELECT 
+		* 
+	from data_unit 
+	where id_skpd=".$bl[0]['id_skpd']."
+		AND tahun_anggaran=".$bl[0]['tahun_anggaran']."
+		AND active=1"
+, ARRAY_A);
+
 $unit = $wpdb->get_results("
 	SELECT 
 		* 
@@ -709,7 +720,7 @@ foreach ($bl as $k => $sub_bl) {
 			$rin_sub_item .= '
 				<tr>
 	                <td class="kiri kanan bawah text_blok">'.$akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']][$akun_4_db[0]['kode_akun']][$item['nama_akun']]['kode_akun'].'</td>
-                    <td class="kanan bawah text_blok" colspan="5"><span class="nama">'.$akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']][$akun_4_db[0]['kode_akun']][$item['nama_akun']]['nama_akun'].'</span>'.button_mapping($sub_bl['kode_sbl'].'-'.$akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']][$akun_4_db[0]['kode_akun']][$item['nama_akun']]['kode_akun']).'</td>
+                    <td class="kanan bawah text_blok kode_akun_td" colspan="5"><span class="nama">'.$akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']][$akun_4_db[0]['kode_akun']][$item['nama_akun']]['nama_akun'].'</span>'.button_mapping($sub_bl['kode_sbl'].'-'.$akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']][$akun_4_db[0]['kode_akun']][$item['nama_akun']]['kode_akun']).'</td>
                     '.$rin_murni.'
                     <td class="kanan bawah text_kanan text_blok" style="white-space:nowrap">Rp. '.number_format($akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']][$akun_4_db[0]['kode_akun']][$item['nama_akun']]['total'],0,",",".").'</td>
                     '.$selisih_murni.'
@@ -1088,12 +1099,12 @@ foreach ($bl as $k => $sub_bl) {
 	                <tr class="<?php echo $class_garis_table; ?>">
 	                    <td width="150">Organisasi</td>
 	                    <td width="10">:</td>
-	                    <td><?php echo $bl[0]['kode_skpd']; ?>&nbsp;<?php echo $bl[0]['nama_skpd']; ?></td>
+	                    <td><?php echo $unit_induk[0]['kode_skpd']; ?>&nbsp;<?php echo $unit_induk[0]['nama_skpd']; ?></td>
 	                </tr>
 	                <tr class="<?php echo $class_garis_table; ?>">
 	                    <td width="150">Unit</td>
 	                    <td width="10">:</td>
-	                    <td><?php echo $bl[0]['kode_sub_skpd']; ?>&nbsp;<?php echo $bl[0]['nama_sub_skpd']; ?></td>
+	                    <td><?php echo $unit[0]['kode_skpd']; ?>&nbsp;<?php echo $unit[0]['nama_skpd']; ?></td>
 	                </tr>
 	                <tr class="<?php echo $class_garis_table; ?>">
 	                    <td width="150">Alokasi Tahun <?php echo $tahun_anggaran-1; ?></td>
@@ -1112,7 +1123,7 @@ foreach ($bl as $k => $sub_bl) {
 	                <tr class="<?php echo $class_garis_table; ?>">
 	                    <td width="150">Alokasi Tahun <?php echo $tahun_anggaran; ?></td>
 	                    <td width="10">:</td>
-	                    <td>Rp. <?php echo number_format($pagu,0,",","."); ?>
+	                    <td class="total_giat">Rp. <?php echo number_format($pagu,0,",","."); ?>
                     	<?php
 							if(
 								$type == 'dpa_murni'
@@ -1624,7 +1635,68 @@ foreach ($bl as $k => $sub_bl) {
 
 			Promise.all(sendData)
         	.then(function(val_all){
-				jQuery('#wrap-loading').hide();
+				var data_all = [];
+				var data_sementara = [];
+				jQuery('.kode_akun_td').map(function(i, td) {
+					data_sementara.push(jQuery(td).find('.edit-mapping').attr('data-id'));
+					if(i>0 && i%250==0){
+						data_all.push(data_sementara);
+						data_sementara = [];
+					}
+				});
+				if(data_sementara.length >= 1){
+					data_all.push(data_sementara);
+				}
+				var sendDataAkun = data_all.map(function(id_unik, i) {
+					return new Promise(function(resolve, reject){
+						jQuery.ajax({
+							url: ajax.url,
+				          	type: "post",
+				          	data: {
+				          		"action": "get_realisasi_akun",
+				          		"api_key": "<?php echo $api_key; ?>",
+				      			"tahun_anggaran": <?php echo $input['tahun_anggaran']; ?>,
+				          		"id_skpd": "<?php echo $unit[0]['id_skpd']; ?>",
+				          		"id_unik": id_unik,
+				          		"user": "<?php echo $current_user->display_name; ?>"
+				          	},
+				          	dataType: "json",
+				          	success: function(res){
+				          		var rekap_total = {};
+				          		res.data.map(function(data, index){
+				          			if(typeof rekap_total[data.kode_sbl] == 'undefined'){
+				          				rekap_total[data.kode_sbl] = 0;
+				          			}
+				          			rekap_total[data.kode_sbl] += data.realisasi;
+									jQuery('.edit-mapping[data-id="'+data.id_unik+'"]').before(' <span data-realisasi="'+data.realisasi+'" class="badge badge-danger mapping text_12">Realisasi: '+data.realisasi_rp+'</span>');
+				          		});
+				          		var total_giat = 0;
+				          		for(var n in rekap_total){
+				          			total_giat += rekap_total[n];
+				          			jQuery('.subkeg[data-kdsbl="'+n+'"]').append(' <span data-realisasi="'+rekap_total[n]+'" class="badge badge-danger mapping text_12">Realisasi: '+formatRupiah(rekap_total[n])+'</span>');
+				          		}
+				          		jQuery('.total_giat').append(' <span data-realisasi="'+total_giat+'" class="badge badge-danger mapping text_12">Realisasi: '+formatRupiah(total_giat)+'</span>');
+								return resolve(true);
+							},
+							error: function(e) {
+								console.log(e);
+								return resolve(true);
+							}
+						});
+	                })
+	                .catch(function(e){
+	                    console.log(e);
+	                    return Promise.resolve(true);
+	                });
+				});
+
+				Promise.all(sendDataAkun)
+	        	.then(function(val_all){
+					jQuery('#wrap-loading').hide();
+				})
+	            .catch(function(err){
+	                console.log('err', err);
+	            });
             })
             .catch(function(err){
                 console.log('err', err);

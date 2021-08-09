@@ -40,11 +40,14 @@
 .text_blok{
     font-weight: bold;
 }        
+.text_12{
+    font-size: 12px !important;
+}
 .text_15{
-    font-size: 15px;
+    font-size: 15px !important;
 }
 .text_20{
-    font-size: 20px;
+    font-size: 20px !important;
 }
 .logoprinter{
     position:absolute;

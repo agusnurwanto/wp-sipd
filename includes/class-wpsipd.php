@@ -306,6 +306,9 @@ class Wpsipd
 		$this->loader->add_action('wp_ajax_singkron_renstra_kegiatan',  $plugin_public, 'singkron_renstra_kegiatan');
 		$this->loader->add_action('wp_ajax_nopriv_singkron_renstra_kegiatan',  $plugin_public, 'singkron_renstra_kegiatan');
 
+		$this->loader->add_action('wp_ajax_get_realisasi_akun',  $plugin_public, 'get_realisasi_akun');
+		$this->loader->add_action('wp_ajax_nopriv_get_realisasi_akun',  $plugin_public, 'get_realisasi_akun');
+
 		$this->loader->add_action('wp_ajax_simpan_rfk',  $plugin_public, 'simpan_rfk');
 		$this->loader->add_action('wp_ajax_reset_rfk',  $plugin_public, 'reset_rfk');
 

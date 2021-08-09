@@ -3959,6 +3959,34 @@ class Wpsipd_Public
 		$hari_mulai = $options['tahun_anggaran'].'-01-01';
 		$hari_akhir = $options['tahun_anggaran'].'-'.$this->simda->CekNull($options['bulan']).'-01';
 		$hari_akhir = date("Y-m-t", strtotime($hari_akhir));
+
+		$sql_akun = "";
+		if(!empty($options['kode_akun'])){
+			$akun = explode('.', $options['kode_akun']);
+            $mapping_rek = $this->simda->cekRekMapping(array(
+				'tahun_anggaran' => $options['tahun_anggaran'],
+				'kode_akun' => $options['kode_akun'],
+				'kd_rek_0' => $akun[0],
+				'kd_rek_1' => $akun[1],
+				'kd_rek_2' => $akun[2],
+				'kd_rek_3' => $akun[3],
+				'kd_rek_4' => $akun[4],
+				'kd_rek_5' => $akun[5],
+            ));
+            $sql_akun = $wpdb->prepare("
+            	AND r.kd_rek_1 = %d
+            	AND r.kd_rek_2 = %d
+            	AND r.kd_rek_3 = %d
+            	AND r.kd_rek_4 = %d
+            	AND r.kd_rek_5 = %d
+            	",
+            	$mapping_rek[0]->kd_rek_1,
+            	$mapping_rek[0]->kd_rek_2,
+            	$mapping_rek[0]->kd_rek_3,
+            	$mapping_rek[0]->kd_rek_4,
+            	$mapping_rek[0]->kd_rek_5
+            );
+		}
 		
 		/* SPM dan SP2D */
 		$sql = $wpdb->prepare("
@@ -3992,7 +4020,7 @@ class Wpsipd_Public
 			$id_prog, 
 			$kd_keg
 		);
-		$pagu_sp2d = $this->simda->CurlSimda(array('query' => $sql), false);
+		$pagu_sp2d = $this->simda->CurlSimda(array('query' => $sql.$sql_akun), false);
 
 		if(empty($pagu_sp2d[0])){
 			return $options['realisasi_anggaran'];
@@ -4028,7 +4056,7 @@ class Wpsipd_Public
 			$id_prog, 
 			$kd_keg
 		);
-		$pagu_penyesuaian = $this->simda->CurlSimda(array('query' => $sql), false);
+		$pagu_penyesuaian = $this->simda->CurlSimda(array('query' => $sql.$sql_akun), false);
 
 		/* Jurnal Koreksi */
 		$sql = $wpdb->prepare("
@@ -4062,7 +4090,7 @@ class Wpsipd_Public
 			$id_prog, 
 			$kd_keg
 		);
-		$pagu_koreksi = $this->simda->CurlSimda(array('query' => $sql), false);
+		$pagu_koreksi = $this->simda->CurlSimda(array('query' => $sql.$sql_akun), false);
 
 		$realisasi = $pagu_sp2d[0]->total - $pagu_penyesuaian[0]->total + $pagu_koreksi[0]->total_debet - $pagu_koreksi[0]->total_kredit;
 
@@ -4100,7 +4128,7 @@ class Wpsipd_Public
 				$id_prog, 
 				$kd_keg
 			);
-			$pagu_blud_fktp = $this->simda->CurlSimda(array('query' => $sql), false);
+			$pagu_blud_fktp = $this->simda->CurlSimda(array('query' => $sql.$sql_akun), false);
 
 			$realisasi = $realisasi + $pagu_blud_fktp[0]->total;
 
@@ -4132,26 +4160,45 @@ class Wpsipd_Public
 				$id_prog, 
 				$kd_keg
 			);
-			$pagu_sp3b = $this->simda->CurlSimda(array('query' => $sql), false);
+			$pagu_sp3b = $this->simda->CurlSimda(array('query' => $sql.$sql_akun), false);
 
 			$realisasi = $realisasi + $pagu_sp3b[0]->total;
 		}
 
-		$opsi = array(
-			'bulan'	=> $options['bulan'],
-			'kode_sbl'	=> $options['kode_sbl'],
-			'realisasi_anggaran' => $realisasi,
-			'user_edit'	=> $options['user'],
-			'id_skpd'	=> $options['id_skpd'],
-			'tahun_anggaran'	=> $options['tahun_anggaran'],
-			'created_at'	=>  current_time('mysql')
-		);
-		if(!empty($options['id_rfk'])){
-			$wpdb->update('data_rfk', $opsi, array(
-				'id' => $options['id_rfk']
-			));
+		if(!empty($options['kode_akun'])){
+			$opsi = array(
+				'realisasi' => $realisasi,
+				'kode_akun'	=> $options['kode_akun'],
+				'kode_sbl'	=> $options['kode_sbl'],
+				'id_skpd'	=> $options['id_skpd'],
+				'user'	=> $options['user'],
+				'tahun_anggaran'	=> $options['tahun_anggaran'],
+				'update_at'	=>  current_time('mysql')
+			);
+			if(!empty($options['id_realisasi_akun'])){
+				$wpdb->update('data_realisasi_akun', $opsi, array(
+					'id' => $options['id_realisasi_akun']
+				));
+			}else{
+				$wpdb->insert('data_realisasi_akun', $opsi);
+			}
 		}else{
-			$wpdb->insert('data_rfk', $opsi);
+			$opsi = array(
+				'bulan'	=> $options['bulan'],
+				'kode_sbl'	=> $options['kode_sbl'],
+				'realisasi_anggaran' => $realisasi,
+				'user_edit'	=> $options['user'],
+				'id_skpd'	=> $options['id_skpd'],
+				'tahun_anggaran'	=> $options['tahun_anggaran'],
+				'created_at'	=>  current_time('mysql')
+			);
+			if(!empty($options['id_rfk'])){
+				$wpdb->update('data_rfk', $opsi, array(
+					'id' => $options['id_rfk']
+				));
+			}else{
+				$wpdb->insert('data_rfk', $opsi);
+			}
 		}
 
 		/*
@@ -4536,6 +4583,120 @@ class Wpsipd_Public
 					} else {
 						$wpdb->insert('data_renstra_kegiatan', $opsi);
 					}
+				}
+			} else {
+				$ret['status'] = 'error';
+				$ret['message'] = 'APIKEY tidak sesuai!';
+			}
+		} else {
+			$ret['status'] = 'error';
+			$ret['message'] = 'Format Salah!';
+		}
+		die(json_encode($ret));
+	}
+
+	function get_realisasi_akun(){
+		global $wpdb;
+		$ret = array();
+		$ret['status'] = 'success';
+		$ret['message'] = 'Berhasil get realisasi akun rekening!';
+		$ret['data'] = array();
+		if (!empty($_POST)) {
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == carbon_get_theme_option( 'crb_api_key_extension' )) {
+				$kd_unit_simda = explode('.', carbon_get_theme_option('crb_unit_'.$_POST['id_skpd']));
+				$_kd_urusan = $kd_unit_simda[0];
+				$_kd_bidang = $kd_unit_simda[1];
+				$kd_unit = $kd_unit_simda[2];
+				$kd_sub_unit = $kd_unit_simda[3];
+				foreach ($_POST['id_unik'] as $k => $v) {
+					$ids = explode('-', $v);
+					$kode_sbl = $ids[0];
+					$kode_akun = $ids[1];
+					$rek = explode('.', $ids[1]);
+					$data_realisasi = array(
+						'id_unik' => $v,
+						'kode_sbl' => $kode_sbl,
+						'realisasi' => 0,
+						'realisasi_rp' => 'Rp 0'
+					);
+					$sub_db = $wpdb->get_results($wpdb->prepare("select * from data_sub_keg_bl where active=1 and tahun_anggaran=%d and kode_sbl=%s", $_POST['tahun_anggaran'], $kode_sbl), ARRAY_A);
+					if(!empty($sub_db)){
+						$sub = $sub_db[0];
+						$kd = explode('.', $sub['kode_sub_giat']);
+						$kd_urusan90 = (int) $kd[0];
+						$kd_bidang90 = (int) $kd[1];
+						$kd_program90 = (int) $kd[2];
+						$kd_kegiatan90 = ((int) $kd[3]).'.'.$kd[4];
+						$kd_sub_kegiatan = (int) $kd[5];
+						$nama_keg = explode(' ', $sub['nama_sub_giat']);
+				        unset($nama_keg[0]);
+				        $nama_keg = implode(' ', $nama_keg);
+						$mapping = $this->simda->cekKegiatanMapping(array(
+							'kd_urusan90' => $kd_urusan90,
+							'kd_bidang90' => $kd_bidang90,
+							'kd_program90' => $kd_program90,
+							'kd_kegiatan90' => $kd_kegiatan90,
+							'kd_sub_kegiatan' => $kd_sub_kegiatan,
+							'nama_program' => $sub['nama_giat'],
+							'nama_kegiatan' => $nama_keg
+						));
+
+						$kd_urusan = 0;
+						$kd_bidang = 0;
+						$kd_prog = 0;
+						$kd_keg = 0;
+						if(!empty($mapping[0]) && !empty($mapping[0]->kd_urusan)){
+							$kd_urusan = $mapping[0]->kd_urusan;
+							$kd_bidang = $mapping[0]->kd_bidang;
+							$kd_prog = $mapping[0]->kd_prog;
+							$kd_keg = $mapping[0]->kd_keg;
+						}
+				        $id_prog = $kd_urusan.$this->simda->CekNull($kd_bidang);
+
+						$realisasi_db = $wpdb->get_results($wpdb->prepare("
+							select 
+								id,
+								realisasi 
+							from data_realisasi_akun 
+							where active=1 
+								and tahun_anggaran=%d 
+								and kode_sbl=%s 
+								and kode_akun=%s 
+								and id_skpd=%d", 
+							$_POST['tahun_anggaran'], 
+							$kode_sbl, 
+							$kode_akun, 
+							$_POST['id_skpd']
+						), ARRAY_A);
+						$realisasi_db_total = 0;
+						$realisasi_db_id = 0;
+						if(!empty($realisasi_db)){
+							$realisasi_db_total = $realisasi_db[0]['realisasi'];
+							$realisasi_db_id = $realisasi_db[0]['id'];
+						}
+
+						$opsi = array(
+							'user' => $_POST['user'],
+							'id_skpd' => $_POST['id_skpd'],
+							'kode_sbl' => $kode_sbl,
+							'kode_akun' => $kode_akun,
+							'tahun_anggaran' => $_POST['tahun_anggaran'],
+							'bulan' => date('m'),
+							'realisasi_anggaran' => $realisasi_db_total,
+							'id_realisasi_akun' => $realisasi_db_id,
+							'kd_urusan' => $_kd_urusan,
+							'kd_bidang' => $_kd_bidang,
+							'kd_unit' => $kd_unit,
+							'kd_sub' => $kd_sub_unit,
+							'kd_prog' => $kd_prog,
+							'id_prog' => $id_prog,
+							'kd_keg' => $kd_keg
+						);
+						// $data_realisasi['opsi'] = $opsi;
+						$data_realisasi['realisasi'] = $this->get_realisasi_simda($opsi);
+						$data_realisasi['realisasi_rp'] = 'Rp '.number_format($data_realisasi['realisasi'], 0, ",", ".");
+					}
+					$ret['data'][] = $data_realisasi;
 				}
 			} else {
 				$ret['status'] = 'error';
