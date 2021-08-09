@@ -4260,6 +4260,19 @@ class Wpsipd_Public
 							$id_rinci = $ids[4];
 						}
 						$res = array('id_unik' => $id_unik);
+						$res['data_realisasi'] = $wpdb->get_var(
+							$wpdb->prepare('
+								select 
+									realisasi
+								from data_realisasi_rincian
+								where tahun_anggaran=%d
+									and id_rinci_sub_bl=%d
+									and active=1', 
+							$_POST['tahun_anggaran'], $id_rinci )
+						);
+						if(empty($res['data_realisasi'])){
+							$res['data_realisasi'] = 0;
+						}
 						$res['data_label'] = $wpdb->get_results(
 							$wpdb->prepare('
 								select 

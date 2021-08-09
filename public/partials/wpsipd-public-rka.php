@@ -351,7 +351,7 @@ foreach ($bl as $k => $sub_bl) {
                     <tr class="'.$class_garis_table.'">
                         <td width="130">Sub Kegiatan</td>
                         <td width="10">:</td>
-                        <td class="subkeg" data-kdsbl="'.$sub_bl['kode_sbl'].'">'.$bl[0]['kode_bidang_urusan'].substr($sub_bl['nama_sub_giat'], 4, strlen($sub_bl['nama_sub_giat'])).'</td>
+                        <td class="subkeg" data-kdsbl="'.$sub_bl['kode_sbl'].'"><span class="nama_sub">'.$bl[0]['kode_bidang_urusan'].substr($sub_bl['nama_sub_giat'], 4, strlen($sub_bl['nama_sub_giat'])).'</span></td>
                     </tr>
                     <tr class="'.$class_garis_table.'">
                         <td width="130">Sumber Pendanaan</td>
@@ -1008,6 +1008,10 @@ foreach ($bl as $k => $sub_bl) {
                   		?>
                   		</select>
                   	</div>
+                  	<div class="form-group" id="wrap-realisasi">
+                  		<label class="control-label" style="display: block;">Realisasi</label>
+                  		<input type="number" style="width: 100%;" id="mapping_realisasi"/>
+                  	</div>
                 </form>
             </div>
             <div class="modal-footer">
@@ -1586,7 +1590,11 @@ foreach ($bl as $k => $sub_bl) {
 						label += '<li><span data-id="'+b.id+'" class="badge badge-success mapping">'+b.nama+'</span></li>';
 					});
 					label += '</ul>';
-					jQuery('.edit-mapping[data-id="'+data.id_unik+'"]').before(sumberdana+label);
+
+					var realisasi = '<ul class="list-mapping">';
+					realisasi += '<li><span data-realisasi="'+data.data_realisasi+'" class="badge badge-danger mapping">Realisasi: '+formatRupiah(data.data_realisasi,1)+'</span></li>';
+					realisasi += '</ul>';
+					jQuery('.edit-mapping[data-id="'+data.id_unik+'"]').before(sumberdana+label+realisasi);
           		});
 				if(callback){
 					return callback(true);
@@ -1673,9 +1681,9 @@ foreach ($bl as $k => $sub_bl) {
 				          		var total_giat = 0;
 				          		for(var n in rekap_total){
 				          			total_giat += rekap_total[n];
-				          			jQuery('.subkeg[data-kdsbl="'+n+'"]').append(' <span data-realisasi="'+rekap_total[n]+'" class="badge badge-danger mapping text_12">Realisasi: '+formatRupiah(rekap_total[n])+'</span>');
+				          			jQuery('.subkeg[data-kdsbl="'+n+'"]').append(' <span data-realisasi="'+rekap_total[n]+'" class="badge badge-danger mapping text_12">Realisasi: '+formatRupiah(rekap_total[n], 1)+'</span>');
 				          		}
-				          		jQuery('.total_giat').append(' <span data-realisasi="'+total_giat+'" class="badge badge-danger mapping text_12">Realisasi: '+formatRupiah(total_giat)+'</span>');
+				          		jQuery('.total_giat').append(' <span data-realisasi="'+total_giat+'" class="badge badge-danger mapping text_12">Realisasi: '+formatRupiah(total_giat, 1)+'</span>');
 								return resolve(true);
 							},
 							error: function(e) {
@@ -1748,6 +1756,8 @@ foreach ($bl as $k => $sub_bl) {
 	    	jQuery('#wrap-kelompok').hide();
 	    	jQuery('#wrap-keterangan').hide();
 	    	jQuery('#wrap-item').hide();
+	    	jQuery('#mapping_realisasi').val(0);
+	    	jQuery('#wrap-realisasi').hide();
 
 	    	var id = jQuery(this).attr('data-id');
 	    	var ids = id.split('-');
@@ -1775,7 +1785,11 @@ foreach ($bl as $k => $sub_bl) {
 	    		jQuery('#wrap-rek_4').show();
 	    	}
 	    	if(rek[5]){
-	    		jQuery('#mapping_rek_5').text(rek_5+' '+jQuery('.edit-mapping[data-id="'+kd_sbl+'-'+rek_5+'"]').closest('td').find('.nama').text().trim());
+	    		var realisasi_html = jQuery('.edit-mapping[data-id="'+kd_sbl+'-'+rek_5+'"]').closest('td').find('.mapping');
+	    		var realisasi_akun_asli = realisasi_html.attr('data-realisasi');
+	    		var realisasi_akun = realisasi_html.text().trim();
+	    		var nama_akun = jQuery('.edit-mapping[data-id="'+kd_sbl+'-'+rek_5+'"]').closest('td').find('.nama').text().trim();
+	    		jQuery('#mapping_rek_5').html(rek_5+' '+nama_akun+' <span class="badge badge-danger mapping text_12" data-realisasi="'+realisasi_akun_asli+'">'+realisasi_akun+'</span>');
 	    		jQuery('#wrap-rek_5').show();
 	    	}
 	    	if(ids[2]){
@@ -1786,17 +1800,22 @@ foreach ($bl as $k => $sub_bl) {
 	    		jQuery('#mapping_keterangan').text(jQuery('.edit-mapping[data-id="'+kd_sbl+'-'+rek_5+'-'+kelompok+'-'+keterangan+'"]').closest('td').find('.nama').text().trim());
 	    		jQuery('#wrap-keterangan').show();
 	    	}
-	    	if(ids[3]){
+	    	if(ids[4]){
 	    		jQuery('#mapping_item').text(jQuery('.edit-mapping[data-id="'+kd_sbl+'-'+rek_5+'-'+kelompok+'-'+keterangan+'-'+id_rinci+'"]').closest('td').find('.nama').text().trim());
 	    		jQuery('#wrap-item').show();
+	    		jQuery('#mapping_realisasi').val(0);
+	    		var realisasi_rincian = jQuery('.edit-mapping[data-id="'+kd_sbl+'-'+rek_5+'-'+kelompok+'-'+keterangan+'-'+id_rinci+'"]').closest('td').find('.mapping').attr('data-realisasi');
+	    		jQuery('#mapping_realisasi').val(realisasi_rincian);
+	    		jQuery('#wrap-realisasi').show();
 	    	}
 
-	    	var nama_sub_keg = jQuery('.subkeg[data-kdsbl="'+kd_sbl+'"]').text();
+	    	var nama_sub_keg = jQuery('.subkeg[data-kdsbl="'+kd_sbl+'"] .nama_sub').text();
+	    	var realisasi_sub_keg = jQuery('.subkeg[data-kdsbl="'+kd_sbl+'"] .mapping').text();
 	    	var total_sub_keg = jQuery('.subkeg-total[data-kdsbl="'+kd_sbl+'"]').text();
 	    	var sumberdana_sub_keg = jQuery('.subkeg-sumberdana[data-kdsbl="'+kd_sbl+'"]').text();
 	    	var id_sumberdana_sub_keg = jQuery('.subkeg-sumberdana[data-kdsbl="'+kd_sbl+'"]').attr('data-idsumberdana').split(',');
 	    	jQuery('#mapping_nama_subkeg').text(nama_sub_keg);
-	    	jQuery('#mapping_total_rincian').text(total_sub_keg);
+	    	jQuery('#mapping_total_rincian').html(total_sub_keg+' <span class="badge badge-danger mapping text_12">'+realisasi_sub_keg+'</span>');
 	    	jQuery('#mapping_sumberdana_subkeg').text(sumberdana_sub_keg);
 	    	
 	    	jQuery('#mapping_id').val(id);
@@ -1823,59 +1842,66 @@ foreach ($bl as $k => $sub_bl) {
 
 	    jQuery('#set-mapping').on('click', function(){
 	    	if(confirm('Apakah anda yakin untuk menyimpan data ini?')){
-		    	jQuery('#wrap-loading').show();
 		    	var id_mapping = jQuery('#mapping_id').val();
-		    	jQuery.ajax({
-					url: ajax.url,
-		          	type: "post",
-		          	data: {
-		          		"action": "simpan_mapping",
-		          		"api_key": "<?php echo $api_key; ?>",
-		          		"tahun_anggaran": <?php echo $input['tahun_anggaran']; ?>,
-		          		"id_mapping": jQuery('#mapping_id').val(),
-		          		"id_sumberdana[]": jQuery('#mapping_sumberdana').val(),
-		          		"id_label": jQuery('#mapping_label').val(),
-		          	},
-		          	dataType: "json",
-		          	success: function(data){
-		          		alert(data.message);
-		          		if(data.status == 'success'){
-		          			var data_all = [];
-							var data_sementara = [];
-							data.ids_rinci.map(function(b, i) {
-								data_sementara.push(jQuery('.edit-mapping[data-id="'+b+'"]').closest('tr.data-komponen'));
-								if(i>0 && i%250==0){
+		    	var realisasi_rinci = +jQuery('#mapping_realisasi').val();
+		    	var realisasi_akun = +jQuery('#mapping_rek_5 .mapping').attr('data-realisasi');
+		    	if(realisasi_rinci > realisasi_akun){
+		    		return alert('Realisasi rincian tidak boleh lebih besar dari realisasi kode rekening');
+		    	}else{
+		    		jQuery('#wrap-loading').show();
+			    	jQuery.ajax({
+						url: ajax.url,
+			          	type: "post",
+			          	data: {
+			          		"action": "simpan_mapping",
+			          		"api_key": "<?php echo $api_key; ?>",
+			          		"tahun_anggaran": <?php echo $input['tahun_anggaran']; ?>,
+			          		"id_mapping": jQuery('#mapping_id').val(),
+			          		"id_sumberdana[]": jQuery('#mapping_sumberdana').val(),
+			          		"id_label": jQuery('#mapping_label').val(),
+			          		"realisasi": realisasi_rinci,
+			          	},
+			          	dataType: "json",
+			          	success: function(data){
+			          		alert(data.message);
+			          		if(data.status == 'success'){
+			          			var data_all = [];
+								var data_sementara = [];
+								data.ids_rinci.map(function(b, i) {
+									data_sementara.push(jQuery('.edit-mapping[data-id="'+b+'"]').closest('tr.data-komponen'));
+									if(i>0 && i%250==0){
+										data_all.push(data_sementara);
+										data_sementara = [];
+									}
+								});
+								if(data_sementara.length >= 1){
 									data_all.push(data_sementara);
-									data_sementara = [];
 								}
-							});
-							if(data_sementara.length >= 1){
-								data_all.push(data_sementara);
-							}
-		          			var sendData = data_all.map(function(b, i){
-		          				return new Promise(function(resolve, reject){
-				          			get_mapping({
-										kommponen_html: b
-									}, function(ret){
-										resolve(ret);
-									});
-				                })
-				                .catch(function(e){
-				                    console.log(e);
-				                    return Promise.resolve(true);
-				                });
-		          			});
-		          			Promise.all(sendData)
-					    	.then(function(val_all){
-		    					jQuery('#mod-mapping').modal('hide');
-			    				jQuery('#wrap-loading').hide();
-					        })
-					        .catch(function(err){
-					            console.log('err', err);
-					        });
-		          		}
-		          	}
-		        });
+			          			var sendData = data_all.map(function(b, i){
+			          				return new Promise(function(resolve, reject){
+					          			get_mapping({
+											kommponen_html: b
+										}, function(ret){
+											resolve(ret);
+										});
+					                })
+					                .catch(function(e){
+					                    console.log(e);
+					                    return Promise.resolve(true);
+					                });
+			          			});
+			          			Promise.all(sendData)
+						    	.then(function(val_all){
+			    					jQuery('#mod-mapping').modal('hide');
+				    				jQuery('#wrap-loading').hide();
+						        })
+						        .catch(function(err){
+						            console.log('err', err);
+						        });
+			          		}
+			          	}
+			        });
+			    }
 		    }
 	    });
 	});

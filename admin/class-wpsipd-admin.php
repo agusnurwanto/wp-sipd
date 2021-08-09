@@ -789,6 +789,30 @@ class Wpsipd_Admin {
 							'kelompok' => $kelompok,
 							'keterangan' => $keterangan
 						);
+						$cek = $wpdb->get_var($wpdb->prepare('
+							select 
+								id 
+							from data_realisasi_rincian 
+							where tahun_anggaran=%d
+								and id_rinci_sub_bl=%d', 
+							$_POST['tahun_anggaran'], $ids[4]
+						));
+						$opsi = array(
+							'id_rinci_sub_bl' => $ids[4],
+							'realisasi' => $_POST['realisasi'],
+							'user' => $current_user->display_name,
+							'active' => 1,
+							'update_at' => current_time('mysql'),
+							'tahun_anggaran'	=> $_POST['tahun_anggaran']
+						);
+						if (!empty($cek)) {
+							$wpdb->update('data_realisasi_rincian', $opsi, array(
+								'tahun_anggaran'	=> $_POST['tahun_anggaran'],
+								'id_rinci_sub_bl' => $ids[4]
+							));
+						} else {
+							$wpdb->insert('data_realisasi_rincian', $opsi);
+						}
 					}else{
 						$data_rinci = $wpdb->get_results(
 							$wpdb->prepare("
