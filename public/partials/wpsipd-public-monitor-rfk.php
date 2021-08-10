@@ -352,7 +352,7 @@ foreach ($units as $k => $unit):
 				            <td class="text_tengah" style="border:.5pt solid #000; vertical-align:middle; font-weight:bold; vnd.ms-excel.numberformat:000;" width="5">'.$kd_program.'</td>
 				            <td class="text_tengah" style="border:.5pt solid #000; vertical-align:middle; font-weight:bold;" width="5">'.$kd_giat.'</td>
 				            <td class="text_tengah" style="border:.5pt solid #000; vertical-align:middle;" width="5">&nbsp;</td>
-				            <td style="border:.5pt solid #000; vertical-align:middle; font-weight:bold;"><a href="'.$custom_post->guid . '?key=' . $this->gen_key().'" target="_blank">'.$giat['nama'].'</a></td>
+				            <td style="border:.5pt solid #000; vertical-align:middle; font-weight:bold;"><a href="'.get_permalink($custom_post) . '?key=' . $this->gen_key().'" target="_blank">'.$giat['nama'].'</a></td>
 				            <td style="border:.5pt solid #000; vertical-align:middle; text-align:right; font-weight:bold;">'.number_format($giat['total'],0,",",".").'</td>
 				            <td style="border:.5pt solid #000; vertical-align:middle; text-align:right; font-weight:bold;">'.number_format($giat['total_simda'],0,",",".").'</td>
 				            <td style="border:.5pt solid #000; vertical-align:middle; text-align:right; font-weight:bold;">'.number_format($giat['realisasi'],0,",",".").'</td>

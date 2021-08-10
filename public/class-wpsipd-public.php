@@ -2125,6 +2125,13 @@ class Wpsipd_Public
 					$ret['status'] = 'error';
 					$ret['message'] = 'Format data Unit Salah!';
 				}
+				if(!isset($_POST['idsubbl'])){
+					$_POST['idsubbl'] = '';
+				}
+				if(!isset($_POST['idbl'])){
+					$_POST['idbl'] = '';
+				}
+				
 				$_POST['idsubbl'] = (int) $_POST['idsubbl'];
 				$_POST['idbl'] = (int) $_POST['idbl'];
 
@@ -2137,6 +2144,30 @@ class Wpsipd_Public
 						$kode_giat = $v['kode_bidang_urusan'].substr($v['kode_giat'], 4, strlen($v['kode_giat']));
 						$kode_sub_giat = $v['kode_bidang_urusan'].substr($v['kode_sub_giat'], 4, strlen($v['kode_sub_giat']));
 						// die($kode_giat);
+						if(!isset($v['id_sub_bl'])){
+							$v['id_sub_bl'] = '';
+						}
+						if(!isset($v['id_bl'])){
+							$v['id_bl'] = '';
+						}
+						if(!isset($v['idsubbl'])){
+							$v['idsubbl'] = '';
+						}
+						if(!isset($v['idbl'])){
+							$v['idbl'] = '';
+						}
+						if(!isset($v['id_lokasi'])){
+							$v['id_lokasi'] = '';
+						}
+						if(!isset($v['nama_dana'])){
+							$v['nama_dana'] = '';
+						}
+						if(!isset($v['nama_lokasi'])){
+							$v['nama_lokasi'] = '';
+						}
+						if(!isset($v['id_dana'])){
+							$v['id_dana'] = '';
+						}
 
 						$opsi = array(
 							'id_sub_skpd' => $v['id_sub_skpd'],
