@@ -662,10 +662,14 @@ class Wpsipd_Admin {
 				$data_label_komponen = $wpdb->get_results("select id, nama, keterangan from data_label_komponen where tahun_anggaran=".$_POST['tahun_anggaran'], ARRAY_A);
 				$body = '';
 				foreach ($data_label_komponen as $k => $v) {
+					$title = 'Laporan APBD Per Label Komponen "'.$v['nama'].'" | '.$_POST['tahun_anggaran'];
+					$shortcode = '[monitor_label_komponen tahun_anggaran="'.$_POST['tahun_anggaran'].'" id_label="'.$v['id'].'"]';
+					$update = true;
+					$url_label = $this->generatePage($title, $_POST['tahun_anggaran'], $shortcode, $update);
 					$body .= '
 					<tr>
 						<td class="text-tengah">'.($k+1).'</td>
-						<td>'.$v['nama'].'</td>
+						<td><a href="'.$url_label.'" target="_blank">'.$v['nama'].'</a></td>
 						<td>'.$v['keterangan'].'</td>
 						<td class="text-tengah"><span style="" data-id="'.$v['id'].'" class="edit-label"><i class="dashicons dashicons-edit"></i></span> | <span style="" data-id="'.$v['id'].'" class="hapus-label"><i class="dashicons dashicons-no-alt"></i></span></td>
 					</tr>

@@ -583,6 +583,9 @@ class Wpsipd_Simda
 			'status'	=> 'success',
 			'message'	=> 'Berhasil export SIMDA!'
 		);
+		if(!empty($opsi['res'])){
+			$ret = $opsi['res'];
+		}
 		if (!empty($_POST)) {
 			if (!empty($_POST['api_key']) && $_POST['api_key'] == carbon_get_theme_option( 'crb_api_key_extension' )) {
 				if(!empty($_POST['data_unit']) && !empty($_POST['tahun_anggaran'])){

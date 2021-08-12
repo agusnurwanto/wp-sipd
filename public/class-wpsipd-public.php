@@ -1113,7 +1113,7 @@ class Wpsipd_Public
 						// https://stackoverflow.com/questions/3010124/wordpress-insert-category-tags-automatically-if-they-dont-exist
 						$append = true;
 						wp_set_post_terms($custom_post->ID, array($cat_id), $taxonomy, $append);
-						$ret['renja_link'][$v['id_skpd']] = esc_url( get_permalink($custom_post));
+						$ret['renja_link'][$v['kode_skpd']] = esc_url( get_permalink($custom_post));
 					}
 
 					$nama_page = 'RKPD '.$_POST['tahun_anggaran'];
@@ -1157,7 +1157,7 @@ class Wpsipd_Public
 						if(carbon_get_theme_option('crb_singkron_simda_debug') == 1){
 							$debug = true;
 						}
-						$this->simda->singkronSimdaUnit(array('return' => $debug));
+						$this->simda->singkronSimdaUnit(array('return' => $debug, 'res' => $ret));
 					}
 				} else if ($ret['status'] != 'error') {
 					$ret['status'] = 'error';
@@ -2788,6 +2788,15 @@ class Wpsipd_Public
 		}else{
 			require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/wpsipd-public-monitor-sumberdana-pemda.php';
 		}
+	}
+
+	public function monitor_label_komponen($atts)
+	{
+		// untuk disable render shortcode di halaman edit page/post
+		if(!empty($_GET) && !empty($_GET['post'])){
+			return '';
+		}
+		require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/wpsipd-public-monitor-label-komponen.php';
 	}
 
 	public function monitor_sipd($atts)
