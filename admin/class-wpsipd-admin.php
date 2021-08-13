@@ -227,17 +227,6 @@ class Wpsipd_Admin {
 			->set_page_menu_position( 4 )
 	        ->add_fields( $options_basic );
 
-	    Container::make( 'theme_options', __( 'RPJM' ) )
-		    ->set_page_parent( $basic_options_container )
-		    ->add_fields( array(
-		        Field::make( 'radio', 'crb_publik_rpjm', __( 'Publikasikan RPJM' ) )
-				    ->add_options( array(
-				        '1' => __( 'Ya' ),
-				        '2' => __( 'Tidak Publik' )
-				    ) )
-	            	->set_default_value('1')
-		    ) );
-
 		$unit = $wpdb->get_results("SELECT nama_skpd, id_skpd, kode_skpd from data_unit where active=1 and tahun_anggaran=".carbon_get_theme_option('crb_tahun_anggaran_sipd').' order by id_skpd ASC', ARRAY_A);
 		$mapping_unit = array(
 	        Field::make( 'radio', 'crb_singkron_simda', __( 'Auto Singkron ke DB SIMDA' ) )
@@ -353,6 +342,9 @@ class Wpsipd_Admin {
 
 	    Container::make( 'theme_options', __( 'APBD Penjabaran' ) )
 		    ->set_page_parent( $laporan );
+
+	    Container::make( 'theme_options', __( 'RPJM & RENSTRA' ) )
+		    ->set_page_parent( $laporan );
 	}
 
 	// hook filter untuk save field carbon field
@@ -385,7 +377,7 @@ class Wpsipd_Admin {
 				$no++;
 				$title = 'Laporan APBD Per Sumber Dana '.$val['kodedana'].' '.$val['namadana'].' | '.$v['tahun_anggaran'];
 				$shortcode = '[monitor_sumber_dana tahun_anggaran="'.$v['tahun_anggaran'].'" id_sumber_dana="'.$val['iddana'].'"]';
-				$update = true;
+				$update = false;
 				$url_skpd = $this->generatePage($title, $v['tahun_anggaran'], $shortcode, $update);
 				if(empty($val['kodedana'])){
 					$val['kodedana'] = '';
@@ -458,7 +450,7 @@ class Wpsipd_Admin {
 				$no++;
 				$title = 'Laporan APBD Per Tag/Label Sub Kegiatan '.$val['namalabel'].' | '.$v['tahun_anggaran'];
 				$shortcode = '[apbdpenjabaran tahun_anggaran="'.$v['tahun_anggaran'].'" lampiran=99 idlabelgiat="'.$val['idlabelgiat'].'"]';
-				$update = true;
+				$update = false;
 				$url_tag = $this->generatePage($title, $v['tahun_anggaran'], $shortcode, $update);
 				$master_tag .= '
 					<tr data-idlabelgiat="'.$val['idlabelgiat'].'">
@@ -745,7 +737,7 @@ class Wpsipd_Admin {
 				foreach ($data_label_komponen as $k => $v) {
 					$title = 'Laporan APBD Per Label Komponen "'.$v['nama'].'" | '.$_POST['tahun_anggaran'];
 					$shortcode = '[monitor_label_komponen tahun_anggaran="'.$_POST['tahun_anggaran'].'" id_label="'.$v['id'].'"]';
-					$update = true;
+					$update = false;
 					$url_label = $this->generatePage($title, $_POST['tahun_anggaran'], $shortcode, $update);
 					$body .= '
 					<tr>

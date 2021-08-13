@@ -308,14 +308,22 @@ $body_sumberdana .= '
 
 <script type="text/javascript">
     run_download_excel();
-    var _url = window.location.href;
-    var url = new URL(_url);
-    _url = url.origin+url.pathname+'?key='+url.searchParams.get('key');
+    var _url_asli = window.location.href;
+
+    var url = new URL(_url_asli);
+    _url_asli = changeUrl({ url: _url_asli, key: 'key', value: '<?php echo $this->gen_key(); ?>' });
+
     var type = url.searchParams.get("type");
     if(type && type=='pergeseran'){
-        var extend_action = '<a class="button button-primary" target="_blank" href="'+_url+'" style="margin-left: 10px;">Print APBD Murni</a>';
+        var extend_action = '<a class="button button-primary" target="_blank" href="'+changeUrl({ url: _url_asli, key: 'type', value: 'murni' })+'" style="margin-left: 10px;">Print APBD Murni</a>';
     }else{
-        var extend_action = '<a class="button button-primary" target="_blank" href="'+_url+'&type=pergeseran" style="margin-left: 10px;">Print Pergeseran/Perubahan APBD</a>';
+        var extend_action = '<a class="button button-primary" target="_blank" href="'+changeUrl({ url: _url_asli, key: 'type', value: 'pergeseran' })+'" style="margin-left: 10px;">Print Pergeseran/Perubahan APBD</a>';
+    }
+    var mapping = url.searchParams.get("mapping");
+    if(mapping && mapping==1){
+        extend_action += '<a href="'+changeUrl({ url: _url_asli, key: 'mapping', value: 0 })+'" target="_blank" class="button button-primary" style="margin-left: 10px;">Laporan Tanpa Mapping</a>';
+    }else{
+        extend_action += '<a href="'+changeUrl({ url: _url_asli, key: 'mapping', value: 1 })+'" target="_blank" class="button button-primary" style="margin-left: 10px;">Laporan Sesuai Mapping Sumber Dana</a>';
     }
     jQuery('#action-sipd #excel').after(extend_action);
 </script>

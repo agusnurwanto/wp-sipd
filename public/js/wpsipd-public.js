@@ -92,11 +92,12 @@ function run_download_excel(type){
 		jQuery(b).attr('style', style+" font-size: 20px;");
 	});
 
-	jQuery('td').map(function(i, b){
-		style = jQuery(b).attr('style');
+	var td = document.getElementsByTagName("td");
+	for(var i=0, l=td.length; i<l; i++){
+		style = td[i].getAttribute('style');
 		if (typeof style == 'undefined'){ style = ''; };
-		jQuery(b).attr('style', style+' mso-number-format:\\@;');
-	});
+		td[i].setAttribute('style', style+'; mso-number-format:\\@;');
+	};
 
 	jQuery('#excel').on('click', function(){
 		var name = "Laporan";
@@ -232,4 +233,24 @@ function formatRupiah(angka, prefix){
 
 	rupiah = split[1] != undefined ? rupiah + ',' + split[1] : rupiah;
 	return prefix == undefined ? rupiah : (rupiah ? 'Rp. ' + rupiah : '');
+}
+
+function changeUrl(option){
+    var key = option.key;
+    var value = option.value;
+    var _url = option.url;
+    var url_object = new URL(_url);
+    var value_asli = url_object.searchParams.get(key);
+    var _and = '&';
+    if(_url.indexOf('?') == -1){
+    	_url += '?';
+    	_and = '';
+    }
+
+    if(_url.indexOf(key) != -1){
+        _url = _url.replace(_and+key+'='+value_asli, _and+key+'='+value);
+    }else{
+        _url += _and+key+'='+value
+    }
+    return _url;
 }
