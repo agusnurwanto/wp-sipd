@@ -2834,6 +2834,7 @@ class Wpsipd_Public
 		}
 
 		$input = shortcode_atts( array(
+			'idlabelgiat' => '',
 			'lampiran' => '1',
 			'id_skpd' => false,
 			'tahun_anggaran' => '2021',

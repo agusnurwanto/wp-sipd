@@ -339,6 +339,20 @@ class Wpsipd_Admin {
 	    Container::make( 'theme_options', __( 'Sumber Dana' ) )
 		    ->set_page_parent( $monev )
 		    ->add_fields( $this->generate_sumber_dana() );
+
+	    $laporan = Container::make( 'theme_options', __( 'LAPORAN SIPD' ) )
+			->set_page_menu_position( 4 )
+		    ->add_fields( $this->generate_tag_sipd() );
+
+	    Container::make( 'theme_options', __( 'Tag/Label Sub Kegiatan' ) )
+		    ->set_page_parent( $laporan )
+		    ->add_fields( $this->generate_tag_sipd() );
+
+	    Container::make( 'theme_options', __( 'RKPD & RENJA' ) )
+		    ->set_page_parent( $laporan );
+
+	    Container::make( 'theme_options', __( 'APBD Penjabaran' ) )
+		    ->set_page_parent( $laporan );
 	}
 
 	// hook filter untuk save field carbon field
@@ -406,6 +420,73 @@ class Wpsipd_Admin {
             			</thead>
             			<tbody>
             				'.$master_sumberdana.'
+            			</tbody>
+            		</table>
+        		' )
+        );
+        return $label;
+	}
+
+	public function generate_tag_sipd(){
+		global $wpdb;
+		$tahun = $wpdb->get_results('select tahun_anggaran from data_unit group by tahun_anggaran', ARRAY_A);
+		$master_tag = '';
+		$no = 0;
+		foreach ($tahun as $k => $v) {
+			$no++;
+			$nama_page = 'Mandatory Spending | '.$v['tahun_anggaran'];
+			$custom_post = get_page_by_title($nama_page, OBJECT, 'page');
+			$master_tag .= '
+				<tr>
+					<td class="text_tengah">'.$no.'</td>
+					<td><a href="'.get_permalink($custom_post).'" target="_blank">Semua Label di tahun '.$v['tahun_anggaran'].'</a></td>
+					<td class="text_tengah">'.$v['tahun_anggaran'].'</td>
+				</tr>
+			';
+			$label_tag = $wpdb->get_results('
+				select 
+					idlabelgiat,
+					namalabel
+				from data_tag_sub_keg 
+				where tahun_anggaran='.$v['tahun_anggaran'].'
+					and active=1
+					and idlabelgiat!=0
+				group by idlabelgiat
+				order by idlabelgiat ASC
+			', ARRAY_A);
+			foreach ($label_tag as $key => $val) {
+				$no++;
+				$title = 'Laporan APBD Per Tag/Label Sub Kegiatan '.$val['namalabel'].' | '.$v['tahun_anggaran'];
+				$shortcode = '[apbdpenjabaran tahun_anggaran="'.$v['tahun_anggaran'].'" lampiran=99 idlabelgiat="'.$val['idlabelgiat'].'"]';
+				$update = true;
+				$url_tag = $this->generatePage($title, $v['tahun_anggaran'], $shortcode, $update);
+				$master_tag .= '
+					<tr data-idlabelgiat="'.$val['idlabelgiat'].'">
+						<td class="text_tengah">'.$no.'</td>
+						<td><a href="'.$url_tag.'" target="_blank" style="padding-left: 20px;">'.$val['namalabel'].'</a></td>
+						<td class="text_tengah">'.$v['tahun_anggaran'].'</td>
+					</tr>
+				';
+			}
+		}
+		$label = array(
+			Field::make( 'html', 'crb_daftar_tag_label_sub_kegiatan' )
+            	->set_html( '
+            		<style>
+            			.postbox-container { display: none; }
+            			#poststuff #post-body.columns-2 { margin: 0 !important; }
+            		</style>
+            		<h3 class="text_tengah">Daftar Tag/Label Sub Kegiatan</h3>
+            		<table class="wp-list-table widefat fixed striped">
+            			<thead>
+            				<tr class="text_tengah">
+            					<th class="text_tengah" style="width: 20px">No</th>
+            					<th class="text_tengah">Nama Tag/Label Sub Kegiatan</th>
+            					<th class="text_tengah" style="width: 140px">Tahun Anggaran</th>
+            				</tr>
+            			</thead>
+            			<tbody>
+            				'.$master_tag.'
             			</tbody>
             		</table>
         		' )

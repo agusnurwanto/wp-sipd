@@ -22,25 +22,41 @@ if(!empty($pengaturan)){
     $start_rpjmd = $pengaturan[0]['awal_rpjmd'];
 }
 $urut = $input['tahun_anggaran']-$start_rpjmd;
-$sql = "
-    SELECT 
-        s.*, t.* 
-    FROM `data_tag_sub_keg` t
-        LEFT JOIN data_sub_keg_bl s ON s.kode_sbl=t.kode_sbl 
-            AND s.tahun_anggaran=t.tahun_anggaran
-            AND s.tahun_anggaran=t.tahun_anggaran
-    WHERE t.idlabelgiat > 0 
-        AND t.active=1
-        AND t.tahun_anggaran=%d";
 
-$subkeg = $wpdb->get_results($wpdb->prepare($sql, $input['tahun_anggaran']), ARRAY_A);
+if(!empty($input['idlabelgiat'])){
+    $sql = "
+        SELECT 
+            s.*, t.* 
+        FROM `data_tag_sub_keg` t
+            LEFT JOIN data_sub_keg_bl s ON s.kode_sbl=t.kode_sbl 
+                AND s.tahun_anggaran=t.tahun_anggaran
+                AND s.tahun_anggaran=t.tahun_anggaran
+        WHERE t.idlabelgiat=%d 
+            AND t.active=1
+            AND t.tahun_anggaran=%d";
+    $subkeg = $wpdb->get_results($wpdb->prepare($sql, $input['idlabelgiat'], $input['tahun_anggaran']), ARRAY_A);
+}else{
+    $sql = "
+        SELECT 
+            s.*, t.* 
+        FROM `data_tag_sub_keg` t
+            LEFT JOIN data_sub_keg_bl s ON s.kode_sbl=t.kode_sbl 
+                AND s.tahun_anggaran=t.tahun_anggaran
+                AND s.tahun_anggaran=t.tahun_anggaran
+        WHERE t.idlabelgiat > 0 
+            AND t.active=1
+            AND t.tahun_anggaran=%d";
+    $subkeg = $wpdb->get_results($wpdb->prepare($sql, $input['tahun_anggaran']), ARRAY_A);
+}
 
+$nama_label = array();
 $data_all = array(
     'total' => 0,
     'total_n_plus' => 0,
     'data' => array()
 );
 foreach ($subkeg as $kk => $sub) {
+    $nama_label[$sub['namalabel']] = $sub['namalabel'];
     $kode = explode('.', $sub['kode_sbl']);
     $capaian_prog = $wpdb->get_results($wpdb->prepare("
         select 
@@ -253,10 +269,10 @@ foreach ($data_all['data'] as $label_tag) {
             <tr style="background: #ffe2e2;">
                 <td class="kiri kanan bawah text_blok"></td>
                 <td class="kanan bawah">&nbsp;</td>
-                <td class="kanan bawah text_blok" colspan="13">Sub Unit Organisasi : '.$sub_skpd['nama'].'</td>
+                <td class="kanan bawah text_blok" colspan="11">Sub Unit Organisasi : '.$sub_skpd['nama'].'</td>
                 <td class="kanan bawah text_kanan text_blok">'.number_format($sub_skpd['total'],0,",",".").'</td>
+                <td class="kanan bawah" colspan="4">&nbsp;</td>
                 <td class="kanan bawah text_kanan text_blok">'.number_format($sub_skpd['total_n_plus'],0,",",".").'</td>
-                <td class="kanan bawah"></td>
             </tr>
         ';
         $body_rkpd .= '
@@ -489,10 +505,13 @@ foreach ($data_all['data'] as $label_tag) {
     }
 }
 
+$nama_excel = 'LAPORAN APBD SESUAI TAG/LABEL SUB KEGIATAN '.implode(', ', $nama_label).' TAHUN ANGGARAN '.$input['tahun_anggaran'];
+$nama_laporan = 'LAPORAN APBD SESUAI TAG/LABEL SUB KEGIATAN<br>'.implode(', ', $nama_label).' TAHUN ANGGARAN '.$input['tahun_anggaran'];
+
 if(!empty($format_rkpd)){
     echo '
-        <div id="cetak" title="DAFTAR KEGIATAN MANDATORY SPENDING TAHUN ANGGARAN '.$input['tahun_anggaran'].'" style="padding: 5px;">
-            <h4 style="text-align: center; font-size: 13px; margin: 10px auto; min-width: 450px; max-width: 570px; font-weight: bold;">DAFTAR KEGIATAN MANDATORY SPENDING TAHUN ANGGARAN '.$input['tahun_anggaran'].'</h4>
+        <div id="cetak" title="'.$nama_excel.'" style="padding: 5px;">
+            <h4 style="text-align: center; font-size: 13px; margin: 10px auto; min-width: 450px; max-width: 570px; font-weight: bold;">'.$nama_laporan.'</h4>
             <table cellpadding="2" cellspacing="0" style="font-family:\'Open Sans\',-apple-system,BlinkMacSystemFont,\'Segoe UI\',sans-serif; border-collapse: collapse; width:100%; table-layout:fixed; overflow-wrap: break-word; font-size: 60%; border: 0;">
                 <thead>
                     <tr>
@@ -556,8 +575,8 @@ if(!empty($format_rkpd)){
     ';
 }else{
     echo '
-        <div id="cetak" title="DAFTAR KEGIATAN MANDATORY SPENDING TAHUN ANGGARAN '.$input['tahun_anggaran'].'" style="padding: 5px;">
-            <h4 style="text-align: center; font-size: 13px; margin: 10px auto; min-width: 450px; max-width: 570px; font-weight: bold;">DAFTAR KEGIATAN MANDATORY SPENDING TAHUN ANGGARAN '.$input['tahun_anggaran'].'</h4>
+        <div id="cetak" title="'.$nama_excel.'" style="padding: 5px;">
+            <h4 style="text-align: center; font-size: 13px; margin: 10px auto; min-width: 450px; max-width: 570px; font-weight: bold;">'.$nama_laporan.'</h4>
             <table cellpadding="2" cellspacing="0" style="font-family:\'Open Sans\',-apple-system,BlinkMacSystemFont,\'Segoe UI\',sans-serif; border-collapse: collapse; width:100%; table-layout:fixed; overflow-wrap: break-word; font-size: 60%; border: 0;">
                 <thead>
                     <tr>
