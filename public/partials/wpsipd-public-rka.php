@@ -1819,14 +1819,16 @@ foreach ($bl as $k => $sub_bl) {
 	    	jQuery('#mapping_sumberdana_subkeg').text(sumberdana_sub_keg);
 	    	
 	    	jQuery('#mapping_id').val(id);
-	    	var option_sumber_dana = '';
+	    	var option_sumber_dana = [];
 	    	master_sumberdana.map(function(b, i){
 	    		if(id_sumberdana_sub_keg.indexOf(b.id_dana) != -1){
-	    			option_sumber_dana += '<option value="'+b.id_dana+'">'+b.nama_dana+'</option>';
+	    			option_sumber_dana.push('<option value="'+b.id_dana+'">'+b.nama_dana+'</option>');
 	    		}
 	    	});
-	    	if(option_sumber_dana == ''){
+	    	if(option_sumber_dana.length == 0){
 	    		option_sumber_dana = '<option value="">Sumber dana belum diset di SIPD untuk kegiatan ini!</option>';
+	    	}else if(option_sumber_dana.length == 1){
+	    		option_sumber_dana = '<option value="">Satu Sumber dana tidak perlu dimapping!</option>';
 	    	}
 	    	jQuery('#mapping_sumberdana').html(option_sumber_dana);
 	    	var label = [];

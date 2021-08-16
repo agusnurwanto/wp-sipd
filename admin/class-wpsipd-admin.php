@@ -385,10 +385,11 @@ class Wpsipd_Admin {
 				}
 				$master_sumberdana .= '
 					<tr>
-						<td>'.$no.'</td>
+						<td class="text_tengah">'.$no.'</td>
 						<td>'.$val['kodedana'].'</td>
 						<td><a href="'.$url_skpd.'" target="_blank">'.$val['namadana'].'</a></td>
-						<td>'.$v['tahun_anggaran'].'</td>
+						<td class="text_tengah">'.$val['iddana'].'</td>
+						<td class="text_tengah">'.$v['tahun_anggaran'].'</td>
 					</tr>
 				';
 			}
@@ -407,7 +408,8 @@ class Wpsipd_Admin {
             					<th class="text_tengah" style="width: 20px">No</th>
             					<th class="text_tengah" style="width: 100px">Kode</th>
             					<th class="text_tengah">Sumber Dana</th>
-            					<th class="text_tengah" style="width: 100px">Tahun Anggaran</th>
+            					<th class="text_tengah" style="width: 50px">ID Dana</th>
+            					<th class="text_tengah" style="width: 110px">Tahun Anggaran</th>
             				</tr>
             			</thead>
             			<tbody>
