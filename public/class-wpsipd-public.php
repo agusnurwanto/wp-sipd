@@ -3988,6 +3988,77 @@ class Wpsipd_Public
 		}
 	}
 
+	function get_rak_simda($options = array()){
+		global $wpdb;
+		$kd_urusan = $options['kd_urusan'];
+		$kd_bidang = $options['kd_bidang'];
+		$kd_unit = $options['kd_unit'];
+		$kd_sub = $options['kd_sub'];
+		$kd_prog = $options['kd_prog'];
+		$id_prog = $options['id_prog'];
+		$kd_keg = $options['kd_keg'];
+		$sql = $wpdb->prepare("
+			SELECT 
+				sum(r.jan) as bulan_1,
+				sum(r.feb) as bulan_2,
+				sum(r.mar) as bulan_3,
+				sum(r.apr) as bulan_4,
+				sum(r.mei) as bulan_5,
+				sum(r.jun) as bulan_6,
+				sum(r.jul) as bulan_7,
+				sum(r.agt) as bulan_8,
+				sum(r.sep) as bulan_9,
+				sum(r.okt) as bulan_10,
+				sum(r.nop) as bulan_11,
+				sum(r.des) as bulan_12
+			FROM ta_rencana r
+			WHERE r.tahun = %d 
+				AND r.kd_urusan = %d
+				AND r.kd_bidang = %d
+				AND r.kd_unit = %d
+				AND r.kd_sub = %d
+				AND r.kd_prog = %d
+				AND r.id_prog = %d
+				AND r.kd_keg = %d
+			", 
+			$options['tahun_anggaran'], 
+			$kd_urusan, 
+			$kd_bidang, 
+			$kd_unit, 
+			$kd_sub, 
+			$kd_prog, 
+			$id_prog, 
+			$kd_keg
+		);
+		$rak = $this->simda->CurlSimda(array('query' => $sql), false);
+
+		$total_rak = 0;
+		if(empty($rak[0])){
+			return $options['rak'];
+		}else{
+			for($i=1; $i<=$options['bulan']; $i++){
+				$total_rak += $rak[0]->{'bulan_'.$i};
+			}
+		}
+		$opsi = array(
+			'bulan'	=> $options['bulan'],
+			'kode_sbl'	=> $options['kode_sbl'],
+			'rak' => $total_rak,
+			'user_edit'	=> $options['user'],
+			'id_skpd'	=> $options['id_skpd'],
+			'tahun_anggaran'	=> $options['tahun_anggaran'],
+			'created_at'	=>  current_time('mysql')
+		);
+		if(!empty($options['id_rfk'])){
+			$wpdb->update('data_rfk', $opsi, array(
+				'id' => $options['id_rfk']
+			));
+		}else{
+			$wpdb->insert('data_rfk', $opsi);
+		}
+		return $total_rak;
+	}
+
 	function get_realisasi_simda($options = array()){
 		global $wpdb;
 		$kd_urusan = $options['kd_urusan'];
