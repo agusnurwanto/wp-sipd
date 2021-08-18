@@ -320,6 +320,7 @@ class Wpsipd
 		add_shortcode('apbdpenjabaran', array($plugin_public, 'apbdpenjabaran'));
 		add_shortcode('monitor_sipd', array($plugin_public, 'monitor_sipd'));
 		add_shortcode('monitor_rfk', array($plugin_public, 'monitor_rfk'));
+		add_shortcode('monitor_monev_renja', array($plugin_public, 'monitor_monev_renja'));
 		add_shortcode('monitor_sumber_dana', array($plugin_public, 'monitor_sumber_dana'));
 		add_shortcode('monitor_label_komponen', array($plugin_public, 'monitor_label_komponen'));
 	}
