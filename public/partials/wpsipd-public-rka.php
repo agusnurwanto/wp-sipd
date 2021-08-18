@@ -6,7 +6,12 @@ $input = shortcode_atts( array(
 global $wpdb;
 
 function button_mapping($class=false){
-	$button_mapping = '<span style="display: none;" data-id="'.$class.'" class="edit-mapping"><i class="dashicons dashicons-edit"></i></span>';
+	$ids = explode('-', $class);
+	$data_akun = '';
+	if(count($ids) == 5){
+		$data_akun = 'data-akun="'.$ids[0].'-'.$ids[1].'"';
+	}
+	$button_mapping = '<span style="display: none;" data-id="'.$class.'" '.$data_akun.' class="edit-mapping"><i class="dashicons dashicons-edit"></i></span>';
 	return $button_mapping;
 }
 
@@ -811,11 +816,11 @@ foreach ($bl as $k => $sub_bl) {
                     <div style="margin-left: 40px" class="profile-penerima" id-profile="'.$item['id_penerima'].'" id-prop="'.$item['id_prop_penerima'].'" id-kokab="'.$item['id_kokab_penerima'].'" id-camat="'.$item['id_camat_penerima'].'" id-lurah="'.$item['id_lurah_penerima'].'">'.$profile_penerima.'</div>
                 </td>
                 '.$rin_murni.'
-                <td class="kanan bawah" style="vertical-align: middle;">'.$item['koefisien'].'</td>
+                <td class="kanan bawah volume_satuan" style="vertical-align: middle;">'.$item['koefisien'].'</td>
                 <td class="kanan bawah" style="vertical-align: middle;">'.$item['satuan'].'</td>
                 <td class="kanan bawah text_kanan" style="vertical-align: middle;">'.number_format($item['harga_satuan_murni'],0,",",".").'</td>
                 <td class="kanan bawah text_kanan" style="vertical-align: middle;">'.number_format($item['totalpajak'],0,",",".").'</td>
-                <td class="kanan bawah text_kanan" style="vertical-align: middle;white-space:nowrap">Rp. '.number_format($item['total_harga'],0,",",".").'</td>
+                <td class="kanan bawah text_kanan total_rinci" style="vertical-align: middle;white-space:nowrap">Rp. '.number_format($item['total_harga'],0,",",".").'</td>
                 '.$selisih_murni.'
             </tr>
 		';
@@ -1592,7 +1597,7 @@ foreach ($bl as $k => $sub_bl) {
 					label += '</ul>';
 
 					var realisasi = '<ul class="list-mapping">';
-					realisasi += '<li><span data-realisasi="'+data.data_realisasi+'" class="badge badge-danger mapping">Realisasi: '+formatRupiah(data.data_realisasi,1)+'</span></li>';
+					realisasi += '<li><span data-realisasi="'+data.data_realisasi+'" class="badge badge-danger mapping realisasi">Realisasi: '+formatRupiah(data.data_realisasi,1)+'</span></li>';
 					realisasi += '</ul>';
 					jQuery('.edit-mapping[data-id="'+data.id_unik+'"]').before(sumberdana+label+realisasi);
           		});
@@ -1671,19 +1676,29 @@ foreach ($bl as $k => $sub_bl) {
 				          	dataType: "json",
 				          	success: function(res){
 				          		var rekap_total = {};
+				          		var rekap_total_rak = {};
 				          		res.data.map(function(data, index){
 				          			if(typeof rekap_total[data.kode_sbl] == 'undefined'){
 				          				rekap_total[data.kode_sbl] = 0;
 				          			}
+				          			if(typeof rekap_total_rak[data.kode_sbl] == 'undefined'){
+				          				rekap_total_rak[data.kode_sbl] = 0;
+				          			}
 				          			rekap_total[data.kode_sbl] += data.realisasi;
-									jQuery('.edit-mapping[data-id="'+data.id_unik+'"]').before(' <span data-realisasi="'+data.realisasi+'" class="badge badge-danger mapping text_12">Realisasi: '+data.realisasi_rp+'</span>');
+				          			rekap_total_rak[data.kode_sbl] += data.rak;
+									jQuery('.edit-mapping[data-id="'+data.id_unik+'"]').before(' <span data-realisasi="'+data.realisasi+'" class="badge badge-danger mapping text_12 realisasi">Realisasi: '+data.realisasi_rp+'</span> <span data-rak="'+data.rak+'" class="badge badge-info mapping text_12 rak">RAK: '+data.rak_rp+'</span>');
 				          		});
 				          		var total_giat = 0;
 				          		for(var n in rekap_total){
 				          			total_giat += rekap_total[n];
-				          			jQuery('.subkeg[data-kdsbl="'+n+'"]').append(' <span data-realisasi="'+rekap_total[n]+'" class="badge badge-danger mapping text_12">Realisasi: '+formatRupiah(rekap_total[n], 1)+'</span>');
+				          			jQuery('.subkeg[data-kdsbl="'+n+'"]').append(' <span data-realisasi="'+rekap_total[n]+'" class="badge badge-danger mapping text_12 realisasi">Realisasi: '+formatRupiah(rekap_total[n], 1)+'</span>');
 				          		}
-				          		jQuery('.total_giat').append(' <span data-realisasi="'+total_giat+'" class="badge badge-danger mapping text_12">Realisasi: '+formatRupiah(total_giat, 1)+'</span>');
+				          		var total_giat_rak = 0;
+				          		for(var n in rekap_total_rak){
+				          			total_giat_rak += rekap_total_rak[n];
+				          			jQuery('.subkeg[data-kdsbl="'+n+'"]').append(' <span data-realisasi="'+rekap_total_rak[n]+'" class="badge badge-info mapping text_12 rak">Anggaran Kas: '+formatRupiah(rekap_total_rak[n], 1)+'</span>');
+				          		}
+				          		jQuery('.total_giat').append(' <span data-realisasi="'+total_giat+'" class="badge badge-danger mapping text_12 realisasi">Realisasi: '+formatRupiah(total_giat, 1)+'</span> <span data-rak="'+total_giat_rak+'" class="badge badge-info mapping text_12 rak">Anggaran Kas: '+formatRupiah(total_giat_rak, 1)+'</span>');
 								return resolve(true);
 							},
 							error: function(e) {
@@ -1785,11 +1800,15 @@ foreach ($bl as $k => $sub_bl) {
 	    		jQuery('#wrap-rek_4').show();
 	    	}
 	    	if(rek[5]){
-	    		var realisasi_html = jQuery('.edit-mapping[data-id="'+kd_sbl+'-'+rek_5+'"]').closest('td').find('.mapping');
+	    		var td_html = jQuery('.edit-mapping[data-id="'+kd_sbl+'-'+rek_5+'"]').closest('td');
+	    		var realisasi_html = td_html.find('.mapping.realisasi');
 	    		var realisasi_akun_asli = realisasi_html.attr('data-realisasi');
 	    		var realisasi_akun = realisasi_html.text().trim();
+	    		var rak_html = td_html.find('.mapping.rak');
+	    		var rak_akun_asli = rak_html.attr('data-rak');
+	    		var rak_akun = rak_html.text().trim();
 	    		var nama_akun = jQuery('.edit-mapping[data-id="'+kd_sbl+'-'+rek_5+'"]').closest('td').find('.nama').text().trim();
-	    		jQuery('#mapping_rek_5').html(rek_5+' '+nama_akun+' <span class="badge badge-danger mapping text_12" data-realisasi="'+realisasi_akun_asli+'">'+realisasi_akun+'</span>');
+	    		jQuery('#mapping_rek_5').html(rek_5+' '+nama_akun+' <span class="badge badge-danger mapping text_12" data-realisasi="'+realisasi_akun_asli+'">'+realisasi_akun+'</span> <span class="badge badge-info mapping text_12" data-rak="'+rak_akun_asli+'">'+rak_akun+'</span>');
 	    		jQuery('#wrap-rek_5').show();
 	    	}
 	    	if(ids[2]){
@@ -1801,21 +1820,38 @@ foreach ($bl as $k => $sub_bl) {
 	    		jQuery('#wrap-keterangan').show();
 	    	}
 	    	if(ids[4]){
-	    		jQuery('#mapping_item').text(jQuery('.edit-mapping[data-id="'+kd_sbl+'-'+rek_5+'-'+kelompok+'-'+keterangan+'-'+id_rinci+'"]').closest('td').find('.nama').text().trim());
+	    		var total_realiasi_rincian = 0;
+	    		jQuery('.edit-mapping[data-akun="'+kd_sbl+'-'+rek_5+'"]').map(function(i, b){
+	    			var mapping_html = jQuery(b);
+	    			if(mapping_html.attr('data-id') != id){
+	    				var td_html = mapping_html.closest('td');
+	    				var realisasi = +td_html.find('.mapping.realisasi').attr('data-realisasi');
+	    				total_realiasi_rincian += realisasi;
+	    			}
+	    		});
+	    		var td_html = jQuery('.edit-mapping[data-id="'+kd_sbl+'-'+rek_5+'-'+kelompok+'-'+keterangan+'-'+id_rinci+'"]');
+	    		var tr_html = td_html.closest('tr');
+	    		var volume_satuan = tr_html.find('td.volume_satuan').text();
+	    		var total_rinci = tr_html.find('td.total_rinci').text();
+	    		var nama_rinci = td_html.closest('td').find('.nama').text().trim();
+	    		jQuery('#mapping_item').html(nama_rinci+'<br>Koefisien: '+volume_satuan+'<br>Total Rinci: '+total_rinci);
 	    		jQuery('#wrap-item').show();
 	    		jQuery('#mapping_realisasi').val(0);
-	    		var realisasi_rincian = jQuery('.edit-mapping[data-id="'+kd_sbl+'-'+rek_5+'-'+kelompok+'-'+keterangan+'-'+id_rinci+'"]').closest('td').find('.mapping').attr('data-realisasi');
+	    		var realisasi_rincian = +td_html.closest('td').find('.mapping.realisasi').attr('data-realisasi');
 	    		jQuery('#mapping_realisasi').val(realisasi_rincian);
+	    		jQuery('#mapping_realisasi').attr('data-realisasi-all', total_realiasi_rincian);
+	    		jQuery('#wrap-realisasi label').html('Total realisasi dalam rekening = <span id="total_realiasi_rincian" class="text_blok">'+formatRupiah(total_realiasi_rincian+realisasi_rincian, 1)+'</span><br>Realisasi ');
 	    		jQuery('#wrap-realisasi').show();
 	    	}
 
 	    	var nama_sub_keg = jQuery('.subkeg[data-kdsbl="'+kd_sbl+'"] .nama_sub').text();
-	    	var realisasi_sub_keg = jQuery('.subkeg[data-kdsbl="'+kd_sbl+'"] .mapping').text();
+	    	var realisasi_sub_keg = jQuery('.subkeg[data-kdsbl="'+kd_sbl+'"] .mapping.realisasi').text();
+	    	var rak_sub_keg = jQuery('.subkeg[data-kdsbl="'+kd_sbl+'"] .mapping.rak').text();
 	    	var total_sub_keg = jQuery('.subkeg-total[data-kdsbl="'+kd_sbl+'"]').text();
 	    	var sumberdana_sub_keg = jQuery('.subkeg-sumberdana[data-kdsbl="'+kd_sbl+'"]').text();
 	    	var id_sumberdana_sub_keg = jQuery('.subkeg-sumberdana[data-kdsbl="'+kd_sbl+'"]').attr('data-idsumberdana').split(',');
 	    	jQuery('#mapping_nama_subkeg').text(nama_sub_keg);
-	    	jQuery('#mapping_total_rincian').html(total_sub_keg+' <span class="badge badge-danger mapping text_12">'+realisasi_sub_keg+'</span>');
+	    	jQuery('#mapping_total_rincian').html(total_sub_keg+' <span class="badge badge-danger mapping text_12">'+realisasi_sub_keg+'</span> <span class="badge badge-info mapping text_12">'+rak_sub_keg+'</span>');
 	    	jQuery('#mapping_sumberdana_subkeg').text(sumberdana_sub_keg);
 	    	
 	    	jQuery('#mapping_id').val(id);
@@ -1845,9 +1881,10 @@ foreach ($bl as $k => $sub_bl) {
 	    jQuery('#set-mapping').on('click', function(){
 	    	if(confirm('Apakah anda yakin untuk menyimpan data ini?')){
 		    	var id_mapping = jQuery('#mapping_id').val();
+		    	var realisasi_rinci_all = +jQuery('#mapping_realisasi').attr('data-realisasi-all');
 		    	var realisasi_rinci = +jQuery('#mapping_realisasi').val();
 		    	var realisasi_akun = +jQuery('#mapping_rek_5 .mapping').attr('data-realisasi');
-		    	if(realisasi_rinci > realisasi_akun){
+		    	if((realisasi_rinci+realisasi_rinci_all) > realisasi_akun){
 		    		return alert('Realisasi rincian tidak boleh lebih besar dari realisasi kode rekening');
 		    	}else{
 		    		jQuery('#wrap-loading').show();
@@ -1906,6 +1943,12 @@ foreach ($bl as $k => $sub_bl) {
 			    }
 		    }
 	    });
+
+	    jQuery('#mapping_realisasi').on('change', function(){
+	    	var total_realiasi_rincian = +jQuery(this).attr('data-realisasi-all');
+	    	var val = +jQuery(this).val();
+	    	jQuery('#total_realiasi_rincian').text(formatRupiah(total_realiasi_rincian+val, 1));
+	    })
 	});
 
 </script>

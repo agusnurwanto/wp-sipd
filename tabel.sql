@@ -1779,6 +1779,7 @@ ALTER TABLE `data_renstra_kegiatan`
 CREATE TABLE `data_realisasi_akun` (
   `id` int(11) NOT NULL,
   `realisasi` double(20, 0) DEFAULT NULL,
+  `rak` double(20, 0) DEFAULT NULL,
   `kode_akun` text DEFAULT NULL,
   `kode_sbl` text DEFAULT NULL,
   `id_skpd` int(11) DEFAULT NULL,

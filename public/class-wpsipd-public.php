@@ -3997,6 +3997,35 @@ class Wpsipd_Public
 		$kd_prog = $options['kd_prog'];
 		$id_prog = $options['id_prog'];
 		$kd_keg = $options['kd_keg'];
+
+		$sql_akun = "";
+		if(!empty($options['kode_akun'])){
+			$akun = explode('.', $options['kode_akun']);
+            $mapping_rek = $this->simda->cekRekMapping(array(
+				'tahun_anggaran' => $options['tahun_anggaran'],
+				'kode_akun' => $options['kode_akun'],
+				'kd_rek_0' => $akun[0],
+				'kd_rek_1' => $akun[1],
+				'kd_rek_2' => $akun[2],
+				'kd_rek_3' => $akun[3],
+				'kd_rek_4' => $akun[4],
+				'kd_rek_5' => $akun[5],
+            ));
+            $sql_akun = $wpdb->prepare("
+            	AND r.kd_rek_1 = %d
+            	AND r.kd_rek_2 = %d
+            	AND r.kd_rek_3 = %d
+            	AND r.kd_rek_4 = %d
+            	AND r.kd_rek_5 = %d
+            	",
+            	$mapping_rek[0]->kd_rek_1,
+            	$mapping_rek[0]->kd_rek_2,
+            	$mapping_rek[0]->kd_rek_3,
+            	$mapping_rek[0]->kd_rek_4,
+            	$mapping_rek[0]->kd_rek_5
+            );
+		}
+
 		$sql = $wpdb->prepare("
 			SELECT 
 				sum(r.jan) as bulan_1,
@@ -4030,7 +4059,7 @@ class Wpsipd_Public
 			$id_prog, 
 			$kd_keg
 		);
-		$rak = $this->simda->CurlSimda(array('query' => $sql), false);
+		$rak = $this->simda->CurlSimda(array('query' => $sql.$sql_akun), false);
 
 		$total_rak = 0;
 		if(empty($rak[0])){
@@ -4040,21 +4069,41 @@ class Wpsipd_Public
 				$total_rak += $rak[0]->{'bulan_'.$i};
 			}
 		}
-		$opsi = array(
-			'bulan'	=> $options['bulan'],
-			'kode_sbl'	=> $options['kode_sbl'],
-			'rak' => $total_rak,
-			'user_edit'	=> $options['user'],
-			'id_skpd'	=> $options['id_skpd'],
-			'tahun_anggaran'	=> $options['tahun_anggaran'],
-			'created_at'	=>  current_time('mysql')
-		);
-		if(!empty($options['id_rfk'])){
-			$wpdb->update('data_rfk', $opsi, array(
-				'id' => $options['id_rfk']
-			));
+		if(!empty($options['kode_akun'])){
+			$opsi = array(
+				'rak' => $total_rak,
+				'kode_akun'	=> $options['kode_akun'],
+				'kode_sbl'	=> $options['kode_sbl'],
+				'id_skpd'	=> $options['id_skpd'],
+				'user'	=> $options['user'],
+				'tahun_anggaran'	=> $options['tahun_anggaran'],
+				'active'	=> 1,
+				'update_at'	=>  current_time('mysql')
+			);
+			if(!empty($options['id_realisasi_akun'])){
+				$wpdb->update('data_realisasi_akun', $opsi, array(
+					'id' => $options['id_realisasi_akun']
+				));
+			}else{
+				$wpdb->insert('data_realisasi_akun', $opsi);
+			}
 		}else{
-			$wpdb->insert('data_rfk', $opsi);
+			$opsi = array(
+				'bulan'	=> $options['bulan'],
+				'kode_sbl'	=> $options['kode_sbl'],
+				'rak' => $total_rak,
+				'user_edit'	=> $options['user'],
+				'id_skpd'	=> $options['id_skpd'],
+				'tahun_anggaran'	=> $options['tahun_anggaran'],
+				'created_at'	=>  current_time('mysql')
+			);
+			if(!empty($options['id_rfk'])){
+				$wpdb->update('data_rfk', $opsi, array(
+					'id' => $options['id_rfk']
+				));
+			}else{
+				$wpdb->insert('data_rfk', $opsi);
+			}
 		}
 		return $total_rak;
 	}
@@ -4285,6 +4334,7 @@ class Wpsipd_Public
 				'id_skpd'	=> $options['id_skpd'],
 				'user'	=> $options['user'],
 				'tahun_anggaran'	=> $options['tahun_anggaran'],
+				'active'	=> 1,
 				'update_at'	=>  current_time('mysql')
 			);
 			if(!empty($options['id_realisasi_akun'])){
@@ -4781,6 +4831,7 @@ class Wpsipd_Public
 						$realisasi_db = $wpdb->get_results($wpdb->prepare("
 							select 
 								id,
+								rak, 
 								realisasi 
 							from data_realisasi_akun 
 							where active=1 
@@ -4794,9 +4845,11 @@ class Wpsipd_Public
 							$_POST['id_skpd']
 						), ARRAY_A);
 						$realisasi_db_total = 0;
+						$rak_db_total = 0;
 						$realisasi_db_id = 0;
 						if(!empty($realisasi_db)){
 							$realisasi_db_total = $realisasi_db[0]['realisasi'];
+							$rak_db_total = $realisasi_db[0]['rak'];
 							$realisasi_db_id = $realisasi_db[0]['id'];
 						}
 
@@ -4820,6 +4873,10 @@ class Wpsipd_Public
 						// $data_realisasi['opsi'] = $opsi;
 						$data_realisasi['realisasi'] = $this->get_realisasi_simda($opsi);
 						$data_realisasi['realisasi_rp'] = 'Rp '.number_format($data_realisasi['realisasi'], 0, ",", ".");
+
+						$opsi['rak'] = $rak_db_total;
+						$data_realisasi['rak'] = $this->get_rak_simda($opsi);
+						$data_realisasi['rak_rp'] = 'Rp '.number_format($data_realisasi['rak'], 0, ",", ".");
 					}
 					$ret['data'][] = $data_realisasi;
 				}
