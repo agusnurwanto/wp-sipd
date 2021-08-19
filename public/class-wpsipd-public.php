@@ -4097,6 +4097,16 @@ class Wpsipd_Public
 				$wpdb->insert('data_realisasi_akun', $opsi);
 			}
 		}else{
+			$sql = $wpdb->prepare("
+			    select 
+			        id
+			    from data_rfk
+			    where tahun_anggaran=%d
+			        and bulan=%d
+			        and id_skpd=%d
+			        and kode_sbl=%s
+			", $options['tahun_anggaran'], $options['bulan'], $options['id_skpd'], $options['kode_sbl']);
+			$cek = $wpdb->get_results($sql, ARRAY_A);
 			$opsi = array(
 				'bulan'	=> $options['bulan'],
 				'kode_sbl'	=> $options['kode_sbl'],
@@ -4106,9 +4116,12 @@ class Wpsipd_Public
 				'tahun_anggaran'	=> $options['tahun_anggaran'],
 				'created_at'	=>  current_time('mysql')
 			);
-			if(!empty($options['id_rfk'])){
+			if(!empty($cek)){
 				$wpdb->update('data_rfk', $opsi, array(
-					'id' => $options['id_rfk']
+					'tahun_anggaran' => $options['tahun_anggaran'],
+					'bulan' => $options['bulan'],
+					'id_skpd' => $options['id_skpd'],
+					'kode_sbl' => $options['kode_sbl']
 				));
 			}else{
 				$wpdb->insert('data_rfk', $opsi);
@@ -4354,6 +4367,16 @@ class Wpsipd_Public
 				$wpdb->insert('data_realisasi_akun', $opsi);
 			}
 		}else{
+			$sql = $wpdb->prepare("
+			    select 
+			        id
+			    from data_rfk
+			    where tahun_anggaran=%d
+			        and bulan=%d
+			        and id_skpd=%d
+			        and kode_sbl=%s
+			", $options['tahun_anggaran'], $options['bulan'], $options['id_skpd'], $options['kode_sbl']);
+			$cek = $wpdb->get_results($sql, ARRAY_A);
 			$opsi = array(
 				'bulan'	=> $options['bulan'],
 				'kode_sbl'	=> $options['kode_sbl'],
@@ -4363,9 +4386,12 @@ class Wpsipd_Public
 				'tahun_anggaran'	=> $options['tahun_anggaran'],
 				'created_at'	=>  current_time('mysql')
 			);
-			if(!empty($options['id_rfk'])){
+			if(!empty($cek)){
 				$wpdb->update('data_rfk', $opsi, array(
-					'id' => $options['id_rfk']
+					'tahun_anggaran' => $options['tahun_anggaran'],
+					'bulan' => $options['bulan'],
+					'id_skpd' => $options['id_skpd'],
+					'kode_sbl' => $options['kode_sbl']
 				));
 			}else{
 				$wpdb->insert('data_rfk', $opsi);
