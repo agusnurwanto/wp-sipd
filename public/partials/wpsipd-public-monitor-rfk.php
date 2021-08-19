@@ -452,8 +452,8 @@ foreach ($units as $k => $unit):
 		}
 	}
 	$capaian_total = 0;
-	if(!empty($data_all['total'])){
-		$capaian_total = $this->pembulatan(($data_all['realisasi']/$data_all['total'])*100);
+	if(!empty($data_all['total_simda'])){
+		$capaian_total = $this->pembulatan(($data_all['realisasi']/$data_all['total_simda'])*100);
 	}
 	echo '
 	<input type="hidden" value="'.carbon_get_theme_option( 'crb_api_key_extension' ).'" id="api_key">

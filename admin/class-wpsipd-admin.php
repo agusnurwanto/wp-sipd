@@ -193,6 +193,7 @@ class Wpsipd_Admin {
         );
 
 		$rfk_pemda = array();
+		$monev_pemda = array();
 		$tahun = $wpdb->get_results('select tahun_anggaran from data_unit group by tahun_anggaran order by tahun_anggaran ASC', ARRAY_A);
 		foreach ($tahun as $k => $v) {
 			$url = $this->generatePage('Monitoring Update Data SIPD lokal Berdasar Waktu Terakhir Melakukan Singkronisasi Data | '.$v['tahun_anggaran'], $v['tahun_anggaran']);
@@ -200,12 +201,16 @@ class Wpsipd_Admin {
             	->set_html( '<a target="_blank" href="'.$url.'">Halaman Monitor Update Data Lokal SIPD Merah Tahun '.$v['tahun_anggaran'].'</a>' );
 			
 			$url_pemda = $this->generatePage('Realisasi Fisik dan Keuangan Pemerintah Daerah | '.$v['tahun_anggaran'], $v['tahun_anggaran'], '[monitor_rfk tahun_anggaran="'.$v['tahun_anggaran'].'"]');
+			$url_pemda_monev = $this->generatePage('MONEV RENJA Pemerintah Daerah | '.$v['tahun_anggaran'], $v['tahun_anggaran'], '[monitor_monev_renja tahun_anggaran="'.$v['tahun_anggaran'].'"]');
+
             $unit = $wpdb->get_results("SELECT nama_skpd, id_skpd, kode_skpd from data_unit where active=1 and tahun_anggaran=".$v['tahun_anggaran'].' and is_skpd=1 order by nama_skpd ASC', ARRAY_A);
             $body_pemda = '<ul style="margin-left: 20px;">';
+            $body_pemda_monev = '<ul style="margin-left: 20px;">';
             foreach ($unit as $kk => $vv) {
+            	$subunit = $wpdb->get_results("SELECT nama_skpd, id_skpd, kode_skpd from data_unit where active=1 and tahun_anggaran=".$v['tahun_anggaran']." and is_skpd=0 and id_unit=".$vv["id_skpd"]." order by nama_skpd ASC", ARRAY_A);
+
 				$url_skpd = $this->generatePage('RFK '.$vv['nama_skpd'].' '.$vv['kode_skpd'].' | '.$v['tahun_anggaran'], $v['tahun_anggaran'], '[monitor_rfk tahun_anggaran="'.$v['tahun_anggaran'].'" id_skpd="'.$vv['id_skpd'].'"]');
             	$body_pemda .= '<li><a target="_blank" href="'.$url_skpd.'">Halaman RFK '.$vv['nama_skpd'].' '.$v['tahun_anggaran'].'</a>';
-            	$subunit = $wpdb->get_results("SELECT nama_skpd, id_skpd, kode_skpd from data_unit where active=1 and tahun_anggaran=".$v['tahun_anggaran']." and is_skpd=0 and id_unit=".$vv["id_skpd"]." order by nama_skpd ASC", ARRAY_A);
             	if(!empty($subunit)){
             		$body_pemda .= '<ul style="margin-left: 20px;">';
             	}
@@ -217,10 +222,27 @@ class Wpsipd_Admin {
             		$body_pemda .= '</ul>';
             	}
             	$body_pemda .= '</li>';
+
+				$url_skpd = $this->generatePage('MONEV '.$vv['nama_skpd'].' '.$vv['kode_skpd'].' | '.$v['tahun_anggaran'], $v['tahun_anggaran'], '[monitor_monev_renja tahun_anggaran="'.$v['tahun_anggaran'].'" id_skpd="'.$vv['id_skpd'].'"]');
+            	$body_pemda_monev .= '<li><a target="_blank" href="'.$url_skpd.'">Halaman MONEV '.$vv['nama_skpd'].' '.$v['tahun_anggaran'].'</a>';
+            	if(!empty($subunit)){
+            		$body_pemda_monev .= '<ul style="margin-left: 20px;">';
+            	}
+            	foreach ($subunit as $kkk => $vvv) {
+					$url_skpd = $this->generatePage('MONEV '.$vvv['nama_skpd'].' '.$vvv['kode_skpd'].' | '.$v['tahun_anggaran'], $v['tahun_anggaran'], '[monitor_monev_renja tahun_anggaran="'.$v['tahun_anggaran'].'" id_skpd="'.$vvv['id_skpd'].'"]');
+            		$body_pemda_monev .= '<li><a target="_blank" href="'.$url_skpd.'">Halaman MONEV '.$vvv['nama_skpd'].' '.$v['tahun_anggaran'].'</a></li>';
+            	}
+            	if(!empty($subunit)){
+            		$body_pemda_monev .= '</ul>';
+            	}
+            	$body_pemda_monev .= '</li>';
             }
             $body_pemda .= '</ul>';
+            $body_pemda_monev .= '</ul>';
 			$rfk_pemda[] = Field::make( 'html', 'crb_rfk_pemda_'.$k )
             	->set_html( '<a style="font-weight: bold;" target="_blank" href="'.$url_pemda.'">Halaman Realisasi Fisik dan Keuangan Pemerintah Daerah Tahun '.$v['tahun_anggaran'].'</a>'.$body_pemda );
+			$monev_pemda[] = Field::make( 'html', 'crb_monev_pemda_'.$k )
+            	->set_html( '<a style="font-weight: bold;" target="_blank" href="'.$url_pemda_monev.'">Halaman MONEV RENJA Daerah Tahun '.$v['tahun_anggaran'].'</a>'.$body_pemda_monev );
 		}
 
 		$basic_options_container = Container::make( 'theme_options', __( 'SIPD Options' ) )
@@ -319,7 +341,8 @@ class Wpsipd_Admin {
 		    ->add_fields( $rfk_pemda );
 
 	    Container::make( 'theme_options', __( 'Indikator RENJA' ) )
-		    ->set_page_parent( $monev );
+		    ->set_page_parent( $monev )
+		    ->add_fields( $monev_pemda );
 
 	    Container::make( 'theme_options', __( 'Label Komponen' ) )
 		    ->set_page_parent( $monev )

@@ -85,6 +85,7 @@ $body .='
 					$realisasi_fisik_rata = 0;
 					$capaian_arr = array();
 					$capaian_rata = 0;
+					$realisasi_fisik_rata = 0;
 
 					foreach ($subkeg as $kk => $sub) {
 						if($sumber_pagu == 1){
