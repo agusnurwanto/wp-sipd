@@ -461,7 +461,7 @@ foreach ($units as $k => $unit):
 	<input type="hidden" value="'.$unit['id_skpd'].'" id="id_skpd">
 	<div id="cetak" title="Laporan RFK '.$input['tahun_anggaran'].'" style="padding: 5px;">
 		<h4 style="text-align: center; margin: 0; font-weight: bold;">Realisasi Fisik dan Keuangan (RFK)<br>'.$unit['kode_skpd'].'&nbsp;'.$unit['nama_skpd'].'<br>Bulan '.$nama_bulan.' Tahun '.$input['tahun_anggaran'].'</h4>
-		<table cellpadding="2" cellspacing="0" style="font-family:\'Open Sans\',-apple-system,BlinkMacSystemFont,\'Segoe UI\',sans-serif; border-collapse: collapse; width:100%; table-layout:fixed; overflow-wrap: break-word; font-size: 70%; border: 0;">
+		<table cellpadding="2" cellspacing="0" style="font-family:\'Open Sans\',-apple-system,BlinkMacSystemFont,\'Segoe UI\',sans-serif; border-collapse: collapse; width:100%; overflow-wrap: break-word; font-size: 70%; border: 0;">
 		    <thead>
 		    	<tr>
 		            <th style="padding: 0; border: 0; width:30px"></th>
@@ -469,7 +469,7 @@ foreach ($units as $k => $unit):
 		            <th style="padding: 0; border: 0; width:30px"></th>
 		            <th style="padding: 0; border: 0; width:40px"></th>
 		            <th style="padding: 0; border: 0; width:30px"></th>
-		            <th style="padding: 0; border: 0"></th>
+		            <th style="padding: 0; border: 0; min-width: 300px;"></th>
 		            <th style="padding: 0; border: 0; width:140px"></th>
 		            <th style="padding: 0; border: 0; width:140px"></th>
 		            <th style="padding: 0; border: 0; width:140px"></th>
@@ -477,8 +477,8 @@ foreach ($units as $k => $unit):
 		            <th style="padding: 0; border: 0; width:140px"></th>
 		            <th style="padding: 0; border: 0; width:120px"></th>
 		            <th style="padding: 0; border: 0; width:120px"></th>
-		            <th style="padding: 0; border: 0; width:200px"></th>
-		            <th style="padding: 0; border: 0; width:200px"></th>
+		            <th style="padding: 0; border: 0; width:120px"></th>
+		            <th style="padding: 0; border: 0; width:100px"></th>
 		        </tr>
 			    <tr>
 			        <td colspan="15" style="vertical-align:middle; font-weight:bold; border: 0; font-size: 13px;">

@@ -101,7 +101,9 @@ $body .='
 						));
 						$realisasi_unit += $realisasi['realisasi_anggaran'];
 						$total_rak_simda_unit += $realisasi['rak'];
-						$realisasi_fisik_unit[] = $sub['realisasi_fisik'];
+						if(!empty($sub['realisasi_fisik'])){
+							$realisasi_fisik_unit[] = $sub['realisasi_fisik'];
+						}
 					}
 
 					if($total_simda_unit != 0){
