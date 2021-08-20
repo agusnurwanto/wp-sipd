@@ -62,11 +62,27 @@ $body .='
 			$total_simda_pemkab = 0;
 			$realisasi_pemkab = 0;
 			$total_rak_simda_pemkab = 0;
+			$capaian_pemkab = 0;
+			$realisasi_fisik_pemkab = 0;
+			$realisasi_fisik_avg_pemkab = array();
 			$current_user = wp_get_current_user();
 
+			$data_all = array();
 		    foreach($units as $unit){
-		    	if($unit['is_skpd']==1){
-					$subkeg = $wpdb->get_results($wpdb->prepare("
+
+		    	$sub_units = $wpdb->get_results("SELECT id_skpd, idinduk, kode_skpd, nama_skpd from data_unit where active=1 and tahun_anggaran=".$input['tahun_anggaran']." and idinduk=".$unit['id_skpd']." order by nama_skpd ASC", ARRAY_A);
+
+		    	if(count($sub_units) == 1){
+		    		
+		    		$total_pagu_unit = 0;
+		    		$total_simda_unit = 0;
+		    		$realisasi_unit = 0;
+		    		$total_rak_simda_unit = 0;
+		    		$realisasi_fisik_unit = array();
+		    		$capaian = 0;
+		    		$realisasi_fisik_avg = 0;
+
+		    		$subkegs = $wpdb->get_results($wpdb->prepare("
 						select 
 							k.*
 						from data_sub_keg_bl k
@@ -77,84 +93,155 @@ $body .='
 						order by k.kode_sub_giat ASC
 					", $input['tahun_anggaran'], $unit['id_skpd'], $unit['id_skpd']), ARRAY_A);
 
-					$total_pagu_unit = 0;
-					$total_simda_unit = 0;
-					$total_rak_simda_unit = 0;
-					$realisasi_unit = 0;
-					$realisasi_fisik_unit = array();
-					$realisasi_fisik_rata = 0;
-					$capaian_arr = array();
-					$capaian_rata = 0;
-					$realisasi_fisik_rata = 0;
+					foreach ($subkegs as $key => $subkeg) {
+						$data_rfk = $wpdb->get_results($wpdb->prepare("
+							    select 
+							        *
+							    from data_rfk
+							    where tahun_anggaran=%d
+							        and bulan=%d
+							        and id_skpd=%d
+							        and kode_sbl=%s
+							", $input['tahun_anggaran'], $bulan, $subkeg['id_skpd'], $subkeg['kode_sbl']), ARRAY_A);
+						
+						if(isset($data_rfk)){
+							foreach($data_rfk as $key => $rfk){
+								$realisasi_unit += isset($rfk['realisasi_anggaran']) ? $rfk['realisasi_anggaran'] : 0;
+								$total_rak_simda_unit += isset($rfk['rak']) ? $rfk['rak'] : 0;
+								$realisasi_fisik_unit[] = isset($rfk['realisasi_fisik']) ? $rfk['realisasi_fisik'] : 0;
+							}
+						}
 
-					foreach ($subkeg as $kk => $sub) {
-						if($sumber_pagu == 1){
-							$total_pagu = $sub['pagu'];
-							$total_pagu_unit += $total_pagu;
-						}
-						$total_simda_unit += isset($sub['pagu_simda']) ? $sub['pagu_simda'] : 0;
-						$realisasi = $this->get_realisasi_local(array(
-							'id_skpd' => $sub['id_skpd'],
-							'kode_sbl' => $sub['kode_sbl'],
-							'bulan' => $bulan,
-							'tahun_anggaran' => $input['tahun_anggaran'] 
-						));
-						$realisasi_unit += $realisasi['realisasi_anggaran'];
-						$total_rak_simda_unit += $realisasi['rak'];
-						if(!empty($sub['realisasi_fisik'])){
-							$realisasi_fisik_unit[] = $sub['realisasi_fisik'];
-						}
+						$total_pagu_unit += $subkeg['pagu'];
+						$total_simda_unit += $subkeg['pagu_simda'];
 					}
 
 					if($total_simda_unit != 0){
-						$capaian_rata = $this->pembulatan($realisasi_unit/$total_simda_unit*100);
+						$capaian = $this->pembulatan($realisasi_unit/$total_simda_unit*100);
 					}
+
 					if(array_sum($realisasi_fisik_unit) != 0){
-						$realisasi_fisik_rata = array_sum($realisasi_fisik_unit)/count($realisasi_fisik_unit);
+						$realisasi_fisik_avg = $this->pembulatan(array_sum($realisasi_fisik_unit)/count($realisasi_fisik_unit));
+						$realisasi_fisik_avg_pemkab[] = $realisasi_fisik_avg;
+					}else{
+						$realisasi_fisik_avg_pemkab[] = $realisasi_fisik_avg;
 					}
-		    		
-		    		$nama_page = 'RFK '.$unit['nama_skpd'].' '.$unit['kode_skpd'].' | '.$input['tahun_anggaran'];
+
+					$nama_page = 'RFK '.$unit['nama_skpd'].' '.$unit['kode_skpd'].' | '.$input['tahun_anggaran'];
 					$custom_post = get_page_by_title($nama_page, OBJECT, 'page');
 
-		    		$body.='
+					$body.='
 		    		<tr>
 				    	<td class="atas kanan bawah kiri text_tengah" colspan="5">'.$unit['kode_skpd'].'</td>
 				        <td class="atas kanan bawah text_kiri"><a href="'.get_permalink($custom_post) . '?key=' . $this->gen_key().'" target="_blank">'.$unit['nama_skpd'].'</a></td>
 				        <td class="atas kanan bawah text_kanan">'.number_format($total_pagu_unit,0,",",".").'</td>
 				        <td class="atas kanan bawah text_kanan">'.number_format($total_simda_unit,0,",",".").'</td>
 				        <td class="atas kanan bawah text_kanan">'.number_format($realisasi_unit,0,",",".").'</td>
-				        <td class="atas kanan bawah text_tengah">'.$capaian_rata.'</td>
+				        <td class="atas kanan bawah text_tengah">'.$capaian.'</td>
 				        <td class="atas kanan bawah text_tengah">'.number_format($total_rak_simda_unit,0,",",".").'</td>
-				        <td class="atas kanan bawah text_tengah">'.number_format($realisasi_fisik_rata,0,",",".").'</td>
+				        <td class="atas kanan bawah text_tengah">'.$realisasi_fisik_avg.'</td>
 				    </tr>
 			    	';
 
-			    	$total_pagu_pemkab +=$total_pagu_unit;
-			    	$total_simda_pemkab +=$total_simda_unit;
-			    	$realisasi_pemkab +=$realisasi_unit;
-			    	$total_rak_simda_pemkab +=$total_rak_simda_unit;
-				}
+			    	$total_pagu_pemkab += $total_pagu_unit;
+				    $total_simda_pemkab += $total_simda_unit;
+				    $realisasi_pemkab += $realisasi_unit;
+				    $total_rak_simda_pemkab += $total_rak_simda_unit;
 
-		    	$subunits = $wpdb->get_results("SELECT nama_skpd, id_skpd, kode_skpd from data_unit where active=1 and tahun_anggaran=".$input['tahun_anggaran']." and is_skpd=0 and id_unit=".$unit["id_skpd"]." order by nama_skpd ASC", ARRAY_A);
-		    	if(!empty($subunits)){
-		    		foreach ($subunits as $key => $subunit) {
-		    			$nama_page = 'RFK '.$subunit['nama_skpd'].' '.$subunit['kode_skpd'].' | '.$input['tahun_anggaran'];
+		    	}elseif(count($sub_units) > 1){
+
+		    		$total_pagu_unit = 0;
+			    	$total_simda_unit = 0;
+			    	$realisasi_unit = 0;
+			    	$total_rak_simda_unit = 0;			    	
+		    		$realisasi_fisik_unit = array();
+		    		$capaian = 0;
+		    		$realisasi_fisik_avg = 0;
+
+		    		foreach ($sub_units as $key => $sub_unit) {
+		    			
+		    			$subkegs = $wpdb->get_results($wpdb->prepare("
+							select 
+								k.*
+							from data_sub_keg_bl k
+							where k.tahun_anggaran=%d
+								and k.active=1
+								and k.id_sub_skpd=%d
+							order by k.kode_sub_giat ASC
+							", $input['tahun_anggaran'], $sub_unit['id_skpd']), ARRAY_A);
+
+						foreach ($subkegs as $key => $subkeg) {
+								$data_rfk = $wpdb->get_results($wpdb->prepare("
+									    select 
+									        *
+									    from data_rfk
+									    where tahun_anggaran=%d
+									        and bulan=%d
+									        and id_skpd=%d
+									        and kode_sbl=%s
+									", $input['tahun_anggaran'], $bulan, $subkeg['id_skpd'], $subkeg['kode_sbl']), ARRAY_A);
+								
+								$realisasi_fisik_sub_unit=array();
+								if(isset($data_rfk)){
+									foreach($data_rfk as $key => $rfk){
+										$total_rak_simda_unit += isset($rfk['rak']) ? $rfk['rak'] : 0; 
+										$realisasi_unit += isset($rfk['realisasi_anggaran']) ? $rfk['realisasi_anggaran'] : 0;
+										$realisasi_fisik_sub_unit[] = isset($rfk['realisasi_fisik']) ? $rfk['realisasi_fisik'] : 0;
+									}
+								}
+
+
+								$total_pagu_unit += $subkeg['pagu'];
+								$total_simda_unit += $subkeg['pagu_simda'];
+						}
+
+						if($total_simda_unit != 0){
+							$capaian = $this->pembulatan($realisasi_unit/$total_simda_unit*100);
+						}
+
+						if(array_sum($realisasi_fisik_sub_unit) != 0){
+							$realisasi_fisik_unit[] = $this->pembulatan(array_sum($realisasi_fisik_sub_unit)/count($realisasi_fisik_sub_unit));
+						}
+
+						$nama_page = 'RFK '.$unit['nama_skpd'].' '.$unit['kode_skpd'].' | '.$input['tahun_anggaran'];
 						$custom_post = get_page_by_title($nama_page, OBJECT, 'page');
-		    			$body.='
-					    	<tr>
-						    	<td class="atas kanan bawah kiri text_tengah" colspan="5">'.$subunit['kode_skpd'].'</td>
-						        <td class="atas kanan bawah text_kiri"><span style="margin-left:10px"><a href="'.get_permalink($custom_post) . '?key=' . $this->gen_key().'" target="_blank">'.$subunit['nama_skpd'].'</a></span></td>
-						        <td class="atas kanan bawah text_tengah"></td>
-						        <td class="atas kanan bawah text_tengah"></td>
-						        <td class="atas kanan bawah text_tengah"></td>
-						        <td class="atas kanan bawah text_tengah"></td>
-						        <td class="atas kanan bawah text_tengah"></td>
-						        <td class="atas kanan bawah text_tengah"></td>
-						    </tr>
-					    	';
+
 		    		}
+
+		    		if(array_sum($realisasi_fisik_unit) != 0){
+						$realisasi_fisik_avg = $this->pembulatan(array_sum($realisasi_fisik_unit)/count($realisasi_fisik_unit));
+						$realisasi_fisik_avg_pemkab[] = $realisasi_fisik_avg;
+					}else{
+						$realisasi_fisik_avg_pemkab[] = $realisasi_fisik_avg;
+					}
+
+		    		$body.='
+			    		<tr>
+					    	<td class="atas kanan bawah kiri text_tengah" colspan="5">'.$unit['kode_skpd'].'</td>
+					        <td class="atas kanan bawah text_kiri"><a href="'.get_permalink($custom_post) . '?key=' . $this->gen_key().'" target="_blank">'.$unit['nama_skpd'].'</a></td>
+					        <td class="atas kanan bawah text_kanan">'.number_format($total_pagu_unit,0,",",".").'</td>
+					        <td class="atas kanan bawah text_kanan">'.number_format($total_simda_unit,0,",",".").'</td>
+					        <td class="atas kanan bawah text_kanan">'.number_format($realisasi_unit,0,",",".").'</td>
+					        <td class="atas kanan bawah text_tengah">'.$capaian.'</td>
+					        <td class="atas kanan bawah text_tengah">'.number_format($total_rak_simda_unit,0,",",".").'</td>
+					        <td class="atas kanan bawah text_tengah">'.$realisasi_fisik_avg.'</td>
+					    </tr>
+				    	';
+
+				    $total_pagu_pemkab += $total_pagu_unit;
+				    $total_simda_pemkab += $total_simda_unit;
+				    $realisasi_pemkab += $realisasi_unit;
+				    $total_rak_simda_pemkab += $total_rak_simda_unit;
 		    	}
-		    } 
+		    }
+
+		    if($total_simda_pemkab != 0){
+		    	$capaian_pemkab = $this->pembulatan($realisasi_pemkab/$total_simda_pemkab*100);	
+		    }  
+
+		    if(array_sum($realisasi_fisik_avg_pemkab) != 0){
+				$realisasi_fisik_pemkab = $this->pembulatan(array_sum($realisasi_fisik_avg_pemkab)/count($realisasi_fisik_avg_pemkab));
+			} 
 
 		$body.='
 				<tr>
@@ -162,12 +249,52 @@ $body .='
 			        <td class="kanan bawah text_kanan text_blok">'.number_format($total_pagu_pemkab,0,",",".").'</td>
 			        <td class="kanan bawah text_kanan text_blok">'.number_format($total_simda_pemkab,0,",",".").'</td>
 			        <td class="kanan bawah text_kanan text_blok">'.number_format($realisasi_pemkab,0,",",".").'</td>
-			        <td class="kanan bawah text_kanan text_blok"></td>
-			        <td class="kanan bawah text_tengah text_blok">'.number_format($total_rak_simda_pemkab,0,",",".").'</td>
-			        <td class="kanan bawah text_blok total-realisasi-fisik text_tengah"></td>
+			        <td class="kanan bawah text_tengah text_blok">'.$capaian_pemkab.'</td>
+			        <td class="kanan bawah text_kanan text_blok">'.number_format($total_rak_simda_pemkab,0,",",".").'</td>
+			        <td class="kanan bawah text_blok total-realisasi-fisik text_tengah">'.$realisasi_fisik_pemkab.'</td>
 			    </tr>
 		    </tbody>
 		</table>
 	</div>';
 	
 	echo $body;
+?>
+
+<script type="text/javascript">
+	run_download_excel();
+	var _url = window.location.href;
+    var url = new URL(_url);
+    var param = [];
+    _url = url.origin+url.pathname+'?'+param.join('&');
+	var extend_action = ''
+		+'<div style="margin-top: 20px;">'
+			+'<label style="margin-left: 20px;">Bulan Realisasi: '
+				+'<select id="pilih_bulan" style="padding: 5px;">'
+					+'<option value="0">-- Bulan --</option>'
+					+'<option value="1">Januari</option>'
+					+'<option value="2">Februari</option>'
+					+'<option value="3">Maret</option>'
+					+'<option value="4">April</option>'
+					+'<option value="5">Mei</option>'
+					+'<option value="6">Juni</option>'
+					+'<option value="7">Juli</option>'
+					+'<option value="8">Agustus</option>'
+					+'<option value="9">September</option>'
+					+'<option value="10">Oktober</option>'
+					+'<option value="11">November</option>'
+					+'<option value="12">Desember</option>'
+				+'</select>'
+			+'</label>'
+		+'</div>';
+		jQuery(document).ready(function(){
+			jQuery('#action-sipd').append(extend_action);
+			jQuery('#pilih_bulan').val(+<?php echo $bulan; ?>);
+			jQuery('#pilih_bulan').on('change', function(){
+	    	var val = +jQuery(this).val();
+	    	if(val > 0){
+	    		window.open(_url+'&bulan='+val,'_blank');
+	    	}
+	    	jQuery('#pilih_bulan').val(+<?php echo $bulan; ?>);
+	    });
+		})
+</script>
