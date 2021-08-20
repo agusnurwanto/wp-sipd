@@ -4925,28 +4925,4 @@ class Wpsipd_Public
 		}
 		die(json_encode($ret));
 	}
-
-	function get_realisasi_local($params = array()){
-		global $wpdb;
-		$sql = $wpdb->prepare("
-				    select 
-				        *
-				    from data_rfk
-				    where tahun_anggaran=%d
-				        and bulan=%d
-				        and id_skpd=%d
-				        and kode_sbl=%s
-				", $params['tahun_anggaran'], $params['bulan'], $params['id_skpd'], $params['kode_sbl']);
-		$data_rfk = $wpdb->get_results($sql, ARRAY_A);
-		
-		$rak=0;
-		$realisasi_anggaran=0;
-		if(isset($data_rfk)){
-			foreach($data_rfk as $key => $value){
-				$rak += isset($value['rak']) ? $value['rak'] : 0; 
-				$realisasi_anggaran += isset($value['realisasi_anggaran']) ? $value['realisasi_anggaran'] : 0; 
-			}
-		}
-		return array('rak'=>$rak,'realisasi_anggaran'=>$realisasi_anggaran);
-	}
 }
