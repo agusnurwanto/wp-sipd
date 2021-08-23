@@ -28,7 +28,7 @@ $body = "";
 $body .='
 	<div id="cetak" title="Laporan RFK" style="padding: 5px;">
 		<h4 style="text-align: center; margin: 0; font-weight: bold;">Realisasi Fisik dan Keuangan (RFK)<br>'.$nama_pemda.'<br>Bulan '.$nama_bulan.' Tahun '.$input['tahun_anggaran'].'</h4>
-		<table cellpadding="2" cellspacing="0" style="font-family:\'Open Sans\',-apple-system,BlinkMacSystemFont,\'Segoe UI\',sans-serif; border-collapse: collapse; width:100%; table-layout:fixed; overflow-wrap: break-word; font-size: 70%; border: 0;">
+		<table cellpadding="2" cellspacing="0" style="font-family:\'Open Sans\',-apple-system,BlinkMacSystemFont,\'Segoe UI\',sans-serif; border-collapse: collapse; width:100%; table-layout:fixed; overflow-wrap: break-word; font-size: 80%; border: 0;">
 		    <thead>
 		    	<tr>
 		    		<th style="padding: 0; border: 0; width:30px"></th>
@@ -42,16 +42,18 @@ $body .='
 		            <th style="padding: 0; border: 0; width:140px"></th>
 		            <th style="padding: 0; border: 0; width:120px"></th>
 		            <th style="padding: 0; border: 0; width:120px"></th>
+		            <th style="padding: 0; border: 0; width:80px"></th>
+		            <th style="padding: 0; border: 0; width:120px"></th>
 		    	</tr>
 		    	<tr>
 			    	<td class="atas kanan bawah kiri text_tengah text_blok" colspan="5">Kode</td>
-			        <td class="atas kanan bawah text_tengah text_blok">Nama SKPD</td>
+			        <td class="atas kanan bawah text_tengah text_blok" style="padding: 0; width:140px">Nama SKPD</td>
 			        <td class="atas kanan bawah text_tengah text_blok">RKA SIPD (Rp.)</td>
 			        <td class="atas kanan bawah text_tengah text_blok">DPA SIMDA (Rp.)</td>
 			        <td class="atas kanan bawah text_tengah text_blok">Realisasi Keuangan (Rp.)</td>
 			        <td class="atas kanan bawah text_tengah text_blok">Capaian ( % )</td>
 			        <td class="atas kanan bawah text_tengah text_blok">RAK SIMDA (Rp.)</td>
-			        <td class="atas kanan bawah text_tengah text_blok" style="padding: 0; border: 0; width:20%">Realisasi Fisik ( % )</td>
+			        <td class="atas kanan bawah text_tengah text_blok">Realisasi Fisik ( % )</td>
 			        <td class="atas kanan bawah text_tengah text_blok">Update Terakhir</td>
 			    </tr>
 		    </thead>
@@ -198,7 +200,7 @@ $body .='
 				    <td class="atas kanan bawah text_kanan">'.number_format($value['realisasi_keuangan'],0,",",".").'</td>
 				    <td class="atas kanan bawah text_tengah">'.$this->pembulatan($value['capaian']).'</td>
 				    <td class="atas kanan bawah text_kanan">'.number_format($value['rak'],0,",",".").'</td>
-				    <td class="atas kanan bawah text_tengah">'.$this->pembulatan($value['realisasi_fisik']).'</td>
+				    <td class="atas kanan bawah text_tengah" style="width: 10px; overflow: hidden;">'.$this->pembulatan($value['realisasi_fisik']).'</td>
 				    <td class="atas kanan bawah text_tengah">'.$value['last_update'].'</td>
 				</tr>
 		';

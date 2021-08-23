@@ -4928,6 +4928,7 @@ class Wpsipd_Public
 
 	function get_date_rfk_update($params = array()){
 		global $wpdb;
+		$tanggal = '-';
 		$last_update = $wpdb->get_results($wpdb->prepare("
 							select 
 								min(d.created_at) as last_update
@@ -4952,8 +4953,12 @@ class Wpsipd_Public
 								$params['tahun_anggaran']
 					), ARRAY_A);
 
-		$date = new DateTime($last_update[0]['last_update']);
-		return $date->format('d-m-Y H:i:s');
+		if(!empty($last_update[0]['last_update'])){
+			$date = new DateTime($last_update[0]['last_update']);
+			$tanggal = $date->format('d-m-Y');
+		}
+
+		return $tanggal;
 	}
 
 	function get_monev(){
