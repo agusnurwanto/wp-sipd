@@ -4925,4 +4925,34 @@ class Wpsipd_Public
 		}
 		die(json_encode($ret));
 	}
+
+	function get_date_rfk_update($params = array()){
+		global $wpdb;
+		$last_update = $wpdb->get_results($wpdb->prepare("
+							select 
+								min(d.created_at) as last_update
+							from data_sub_keg_bl k 
+							left join data_rfk d 
+								on d.id_skpd=k.id_sub_skpd and 
+								d.kode_sbl=k.kode_sbl and 
+								d.tahun_anggaran=k.tahun_anggaran 
+							where 
+								k.tahun_anggaran=%d and 
+								k.id_sub_skpd in (
+									select 
+										id_skpd 
+									from data_unit 
+									where 
+										idinduk=".$params['id_skpd']." and 
+										active=1 and 
+										tahun_anggaran=".$params['tahun_anggaran']."
+								) and 
+								k.active=1
+							", 
+								$params['tahun_anggaran']
+					), ARRAY_A);
+
+		$date = new DateTime($last_update[0]['last_update']);
+		return $date->format('d-m-Y H:i:s');
+	}
 }
