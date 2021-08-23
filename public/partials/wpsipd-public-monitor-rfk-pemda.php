@@ -59,7 +59,7 @@ $body .='
 		    </thead>
 		    <tbody>';
 
-		    $units = $wpdb->get_results("SELECT nama_skpd, id_skpd, kode_skpd, is_skpd from data_unit where active=1 and tahun_anggaran=".$input['tahun_anggaran'].' and is_skpd=1 order by nama_skpd ASC', ARRAY_A);
+		    $units = $wpdb->get_results("SELECT nama_skpd, id_skpd, kode_skpd, is_skpd from data_unit where active=1 and tahun_anggaran=".$input['tahun_anggaran'].' and is_skpd=1 order by kode_skpd ASC', ARRAY_A);
 
 			$current_user = wp_get_current_user();
 			$data_all = array(
@@ -73,7 +73,7 @@ $body .='
 			);
 		    foreach($units as $unit){
 
-		    	$sub_units = $wpdb->get_results("SELECT id_skpd, idinduk, kode_skpd, nama_skpd from data_unit where active=1 and tahun_anggaran=".$input['tahun_anggaran']." and idinduk=".$unit['id_skpd']." order by nama_skpd ASC", ARRAY_A);
+		    	$sub_units = $wpdb->get_results("SELECT id_skpd, idinduk, kode_skpd, nama_skpd from data_unit where active=1 and tahun_anggaran=".$input['tahun_anggaran']." and idinduk=".$unit['id_skpd']." order by kode_skpd ASC", ARRAY_A);
 
 		    	if(count($sub_units) == 1){
 		    		$data_rfk = $wpdb->get_results($wpdb->prepare("
