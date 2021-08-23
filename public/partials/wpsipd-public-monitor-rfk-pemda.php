@@ -1,3 +1,6 @@
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/dt/dt-1.10.25/datatables.min.css"/>
+<script type="text/javascript" src="https://cdn.datatables.net/v/dt/dt-1.10.25/datatables.min.js"></script>
+
 <?php
 global $wpdb;
 $input = shortcode_atts( array(
@@ -28,7 +31,7 @@ $body = "";
 $body .='
 	<div id="cetak" title="Laporan RFK" style="padding: 5px;">
 		<h4 style="text-align: center; margin: 0; font-weight: bold;">Realisasi Fisik dan Keuangan (RFK)<br>'.$nama_pemda.'<br>Bulan '.$nama_bulan.' Tahun '.$input['tahun_anggaran'].'</h4>
-		<table cellpadding="2" cellspacing="0" style="font-family:\'Open Sans\',-apple-system,BlinkMacSystemFont,\'Segoe UI\',sans-serif; border-collapse: collapse; width:100%; table-layout:fixed; overflow-wrap: break-word; font-size: 80%; border: 0;">
+		<table id="table-rfk" cellpadding="2" cellspacing="0" style="font-family:\'Open Sans\',-apple-system,BlinkMacSystemFont,\'Segoe UI\',sans-serif; border-collapse: collapse; width:100%; table-layout:fixed; overflow-wrap: break-word; font-size: 80%; border: 0;">
 		    <thead>
 		    	<tr>
 		    		<th style="padding: 0; border: 0; width:30px"></th>
@@ -42,8 +45,8 @@ $body .='
 		            <th style="padding: 0; border: 0; width:140px"></th>
 		            <th style="padding: 0; border: 0; width:120px"></th>
 		            <th style="padding: 0; border: 0; width:120px"></th>
-		            <th style="padding: 0; border: 0; width:80px"></th>
-		            <th style="padding: 0; border: 0; width:120px"></th>
+		            <th style="padding: 0; border: 0; width:100px"></th>
+		            <th style="padding: 0; border: 0; width:90px"></th>
 		    	</tr>
 		    	<tr>
 			    	<td class="atas kanan bawah kiri text_tengah text_blok" colspan="5">Kode</td>
@@ -254,11 +257,13 @@ $body .='
 			jQuery('#action-sipd').append(extend_action);
 			jQuery('#pilih_bulan').val(+<?php echo $bulan; ?>);
 			jQuery('#pilih_bulan').on('change', function(){
-	    	var val = +jQuery(this).val();
-	    	if(val > 0){
-	    		window.open(_url+'&bulan='+val,'_blank');
-	    	}
-	    	jQuery('#pilih_bulan').val(+<?php echo $bulan; ?>);
-	    });
+		    	var val = +jQuery(this).val();
+		    	if(val > 0){
+		    		window.open(_url+'&bulan='+val,'_blank');
+		    	}
+		    	jQuery('#pilih_bulan').val(+<?php echo $bulan; ?>);
+		    });
+
+		    jQuery('#table-rfk').DataTable();
 		})
 </script>
