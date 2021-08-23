@@ -138,7 +138,7 @@ tfoot { display:table-footer-group }
     transform: rotate(1800deg);
   }
 }
-.edit-mapping {
+.edit-mapping, .edit-monev {
     border: 2px solid;
     padding: 2px;
     border-radius: 50%;
@@ -146,7 +146,10 @@ tfoot { display:table-footer-group }
     margin-left: 10px;
     cursor: pointer;
 }
-.edit-mapping:hover {
+.edit-monev {
+    padding: 1px 1px 7px;
+}
+.edit-mapping:hover, .edit-monev:hover {
     background: #00BCD4;
     color: #fff;
 }

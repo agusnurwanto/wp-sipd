@@ -265,7 +265,7 @@ foreach ($data_label_shorted['data'] as $k => $skpd) {
                             $selisih = "<td class='kanan bawah text_kanan'>".number_format(($rincian['rincian']-$rincian['rincian_murni']),0,",",".")."</td>";
                         }
                         $penyerapan = 0;
-                        if(!empty($rincian['total'])){
+                        if(!empty($rincian['rincian'])){
                             $penyerapan = $this->pembulatan(($rincian['realisasi']/$rincian['rincian'])*100);
                         }
                         $body_label .= '
