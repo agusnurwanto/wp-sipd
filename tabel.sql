@@ -1806,3 +1806,20 @@ ALTER TABLE `data_realisasi_rincian`
   ADD PRIMARY KEY (`id`);
 ALTER TABLE `data_realisasi_rincian`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+CREATE TABLE `data_realisasi_renja` (
+  `id` int(11) NOT NULL,
+  `tipe_indikator` int(11) NOT NULL,
+  `id_rumus_indikator` int(11) NOT NULL,
+  `kode_sbl` int(11) NOT NULL,
+  `realisasi_target` int(11) DEFAULT NULL,
+  `bulan` int(11) DEFAULT NULL,
+  `user` text DEFAULT NULL,
+  `active` tinyint(4) NOT NULL,
+  `update_at` datetime NOT NULL,
+  `tahun_anggaran` year(4) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+ALTER TABLE `data_realisasi_renja`
+  ADD PRIMARY KEY (`id`);
+ALTER TABLE `data_realisasi_renja`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;

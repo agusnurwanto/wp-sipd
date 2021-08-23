@@ -376,6 +376,12 @@ foreach ($units as $k => $unit):
 					}
 					$nama_page = $input['tahun_anggaran'] . ' | ' . $unit['kode_skpd'] . ' | ' . $kd_giat1 . ' | ' . $giat['nama'];
 					$custom_post = get_page_by_title($nama_page, OBJECT, 'post');
+					$link_kegiatan = get_permalink($custom_post);
+					if(strpos('?', $link_kegiatan) == -1){
+						$link_kegiatan .= '?key=' . $this->gen_key();
+					}else{
+						$link_kegiatan .= '&key=' . $this->gen_key();
+					}
 					$body .= '
 				        <tr class="kegiatan" data-kode="'.$kd_urusan.'.'.$kd_bidang.'.'.$kd_program.'.'.$kd_giat.'">
 				            <td class="text_tengah" style="border:.5pt solid #000; vertical-align:middle; font-weight:bold;" width="5">'.$kd_urusan.'</td>
@@ -383,7 +389,7 @@ foreach ($units as $k => $unit):
 				            <td class="text_tengah" style="border:.5pt solid #000; vertical-align:middle; font-weight:bold; vnd.ms-excel.numberformat:000;" width="5">'.$kd_program.'</td>
 				            <td class="text_tengah" style="border:.5pt solid #000; vertical-align:middle; font-weight:bold;" width="5">'.$kd_giat.'</td>
 				            <td class="text_tengah" style="border:.5pt solid #000; vertical-align:middle;" width="5">&nbsp;</td>
-				            <td style="border:.5pt solid #000; vertical-align:middle; font-weight:bold;"><a href="'.get_permalink($custom_post) . '?key=' . $this->gen_key().'" target="_blank">'.$giat['nama'].'</a></td>
+				            <td style="border:.5pt solid #000; vertical-align:middle; font-weight:bold;"><a href="'.$link_kegiatan.'" target="_blank">'.$giat['nama'].'</a></td>
 				            <td style="border:.5pt solid #000; vertical-align:middle; text-align:right; font-weight:bold;">'.number_format($giat['total'],0,",",".").'</td>
 				            <td style="border:.5pt solid #000; vertical-align:middle; text-align:right; font-weight:bold;">'.number_format($giat['total_simda'],0,",",".").'</td>
 				            <td style="border:.5pt solid #000; vertical-align:middle; text-align:right; font-weight:bold;">'.number_format($giat['realisasi'],0,",",".").'</td>
@@ -608,16 +614,11 @@ if(!current_user_can('administrator')){
     	}
     	jQuery('.total-realisasi-fisik').text(end);
     }
-	var _url = window.location.href;
-    var url = new URL(_url);
-    var param = [];
-    if(url.searchParams.get('key')){
-    	param.push('key='+url.searchParams.get('key'));
-    }
-    if(url.searchParams.get('page_id')){
-    	param.push('page_id='+url.searchParams.get('page_id'));
-    }
-    _url = url.origin+url.pathname+'?'+param.join('&');
+	var _url_asli = window.location.href;
+    var url = new URL(_url_asli);
+    _url_asli = changeUrl({ url: _url_asli, key: 'key', value: '<?php echo $this->gen_key(); ?>' });
+    _url_asli = changeUrl({ url: _url_asli, key: 'page_id', value: url.searchParams.get('page_id') });
+
 	var extend_action = ''
 		+'<div style="margin-top: 20px;">'
 			+'<label style="display:none;">Sumber Pagu Indikatif: '
@@ -655,14 +656,14 @@ if(!current_user_can('administrator')){
 	    jQuery('#pilih_sumber_pagu').on('change', function(){
 	    	var val = +jQuery(this).val();
 	    	if(val > 0){
-	    		window.open(_url+'&sumber_pagu='+val,'_blank');
+	    		window.open(_url_asli+'&sumber_pagu='+val,'_blank');
 	    	}
 	    	jQuery('#pilih_sumber_pagu').val(+<?php echo $sumber_pagu; ?>);
 	    });
 	    jQuery('#pilih_bulan').on('change', function(){
 	    	var val = +jQuery(this).val();
 	    	if(val > 0){
-	    		window.open(_url+'&bulan='+val,'_blank');
+	    		window.open(_url_asli+'&bulan='+val,'_blank');
 	    	}
 	    	jQuery('#pilih_bulan').val(+<?php echo $bulan; ?>);
 	    });

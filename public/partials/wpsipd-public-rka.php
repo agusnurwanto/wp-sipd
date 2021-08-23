@@ -928,7 +928,7 @@ foreach ($bl as $k => $sub_bl) {
     	vertical-align: middle;
     }
 </style>
-<div class="modal fade" id="mod-mapping" tabindex="-1" role="dialog" data-backdrop="static" aria-hidden="true" style="z-index: 99999">'
+<div class="modal fade" id="mod-mapping" tabindex="-1" role="dialog" data-backdrop="static" aria-hidden="true">'
     <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
             <div class="modal-header bgpanel-theme">

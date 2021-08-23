@@ -8,6 +8,19 @@ $input = shortcode_atts( array(
 if(empty($input['id_skpd'])){
 	die('<h1>SKPD tidak ditemukan!</h1>');
 }
+
+$api_key = carbon_get_theme_option( 'crb_api_key_extension' );
+
+function button_edit_monev($class=false){
+	$ids = explode('-', $class);
+	$data_akun = '';
+	if(count($ids) == 5){
+		$data_akun = 'data-monev="'.$ids[0].'-'.$ids[1].'"';
+	}
+	$ret = ' <span style="display: none;" data-id="'.$class.'" '.$data_akun.' class="edit-monev"><i class="dashicons dashicons-edit"></i></span>';
+	return $ret;
+}
+
 $sql = $wpdb->prepare("
 	select 
 		* 
@@ -81,36 +94,6 @@ foreach ($subkeg as $kk => $sub) {
 	$realisasi = $sub['realisasi_anggaran'];
 	$total_pagu = $sub['pagu'];
 	$kode = explode('.', $sub['kode_sbl']);
-	$capaian_prog = $wpdb->get_results($wpdb->prepare("
-		select 
-			* 
-		from data_capaian_prog_sub_keg 
-		where tahun_anggaran=%d
-			and active=1
-			and kode_sbl=%s
-			and capaianteks != ''
-		order by id ASC
-	", $input['tahun_anggaran'], $sub['kode_sbl']), ARRAY_A);
-
-	$output_giat = $wpdb->get_results($wpdb->prepare("
-		select 
-			* 
-		from data_output_giat_sub_keg 
-		where tahun_anggaran=%d
-			and active=1
-			and kode_sbl=%s
-		order by id ASC
-	", $input['tahun_anggaran'], $sub['kode_sbl']), ARRAY_A);
-
-	$output_sub_giat = $wpdb->get_results($wpdb->prepare("
-		select 
-			* 
-		from data_sub_keg_indikator
-		where tahun_anggaran=%d
-			and active=1
-			and kode_sbl=%s
-		order by id DESC
-	", $input['tahun_anggaran'], $sub['kode_sbl']), ARRAY_A);
 
 	$rfk_all = $wpdb->get_results($wpdb->prepare("
 		select 
@@ -165,6 +148,16 @@ foreach ($subkeg as $kk => $sub) {
 		);
 	}
 	if(empty($data_all['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']])){
+		$capaian_prog = $wpdb->get_results($wpdb->prepare("
+			select 
+				* 
+			from data_capaian_prog_sub_keg 
+			where tahun_anggaran=%d
+				and active=1
+				and kode_sbl=%s
+				and capaianteks != ''
+			order by id ASC
+		", $input['tahun_anggaran'], $sub['kode_sbl']), ARRAY_A);
 		$data_all['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']] = array(
 			'nama'	=> $sub['nama_program'],
 			'indikator' => $capaian_prog,
@@ -179,6 +172,15 @@ foreach ($subkeg as $kk => $sub) {
 		);
 	}
 	if(empty($data_all['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']]['data'][$sub['kode_giat']])){
+		$output_giat = $wpdb->get_results($wpdb->prepare("
+			select 
+				* 
+			from data_output_giat_sub_keg 
+			where tahun_anggaran=%d
+				and active=1
+				and kode_sbl=%s
+			order by id ASC
+		", $input['tahun_anggaran'], $sub['kode_sbl']), ARRAY_A);
 		$data_all['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']]['data'][$sub['kode_giat']] = array(
 			'nama'	=> $sub['nama_giat'],
 			'indikator' => $output_giat,
@@ -193,6 +195,15 @@ foreach ($subkeg as $kk => $sub) {
 		);
 	}
 	if(empty($data_all['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']]['data'][$sub['kode_giat']]['data'][$sub['kode_sub_giat']])){
+		$output_sub_giat = $wpdb->get_results($wpdb->prepare("
+			select 
+				* 
+			from data_sub_keg_indikator
+			where tahun_anggaran=%d
+				and active=1
+				and kode_sbl=%s
+			order by id DESC
+		", $input['tahun_anggaran'], $sub['kode_sbl']), ARRAY_A);
 		$nama = explode(' ', $sub['nama_sub_giat']);
 		unset($nama[0]);
 		$data_all['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']]['data'][$sub['kode_giat']]['data'][$sub['kode_sub_giat']] = array(
@@ -276,7 +287,7 @@ foreach ($data_all['data'] as $kd_urusan => $urusan) {
 			$target_capaian_prog = '';
 			$satuan_capaian_prog = '';
 			if(!empty($program['indikator'])){
-				$capaian_prog = $program['indikator'][0]['capaianteks'];
+				$capaian_prog = $program['indikator'][0]['capaianteks'].button_edit_monev();
 				$target_capaian_prog = $program['indikator'][0]['targetcapaian'];
 				$satuan_capaian_prog = $program['indikator'][0]['satuancapaian'];
 			}
@@ -336,7 +347,7 @@ foreach ($data_all['data'] as $kd_urusan => $urusan) {
 				$target_output_giat = '';
 				$satuan_output_giat = '';
 				if(!empty($giat['indikator'])){
-					$output_giat = $giat['indikator'][0]['outputteks'];
+					$output_giat = $giat['indikator'][0]['outputteks'].button_edit_monev();
 					$target_output_giat = $giat['indikator'][0]['targetoutput'];
 					$satuan_output_giat = $giat['indikator'][0]['satuanoutput'];
 				}
@@ -395,7 +406,7 @@ foreach ($data_all['data'] as $kd_urusan => $urusan) {
 					$satuan_output_sub_giat = array();
 					if(!empty($sub_giat['indikator'])){
 						foreach ($sub_giat['indikator'] as $k_sub => $v_sub) {
-							$output_sub_giat[] = $v_sub['outputteks'];
+							$output_sub_giat[] = $v_sub['outputteks'].button_edit_monev();
 							$target_output_sub_giat[] = $v_sub['targetoutput'];
 							$satuan_output_sub_giat[] = $v_sub['satuanoutput'];
 						}
@@ -464,7 +475,7 @@ foreach ($data_all['data'] as $kd_urusan => $urusan) {
 <input type="hidden" value="<?php echo $unit[0]['id_skpd']; ?>" id="id_skpd">
 <h4 style="text-align: center; margin: 0; font-weight: bold;">Monitoring dan Evaluasi Rencana Kerja <br><?php echo $unit[0]['kode_skpd'].'&nbsp;'.$unit[0]['nama_skpd'].'<br>Tahun '.$input['tahun_anggaran'].' '.$nama_pemda; ?></h4>
 <div id="cetak" title="Laporan MONEV RENJA" style="padding: 5px; overflow: auto; height: 80vh;">
-	<table cellpadding="2" cellspacing="0" style="font-family:\'Open Sans\',-apple-system,BlinkMacSystemFont,\'Segoe UI\',sans-serif; border-collapse: collapse; font-size: 70%; border: 0; table-layout: fixed;" contenteditable="true">
+	<table cellpadding="2" cellspacing="0" style="font-family:\'Open Sans\',-apple-system,BlinkMacSystemFont,\'Segoe UI\',sans-serif; border-collapse: collapse; font-size: 70%; border: 0; table-layout: fixed;" contenteditable="false">
 		<thead>
 			<tr>
 				<th rowspan="5" style="width: 60px;" class='atas kiri kanan bawah text_tengah text_blok'>No</th>
@@ -558,6 +569,56 @@ foreach ($data_all['data'] as $kd_urusan => $urusan) {
 		</tbody>
 	</table>
 </div>
+
+<div class="modal fade" id="mod-monev" tabindex="-1" role="dialog" data-backdrop="static" aria-hidden="true">'
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header bgpanel-theme">
+                <h4 style="margin: 0;" class="modal-title" id="">Edit MONEV Indikator Per Bulan</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span><i class="dashicons dashicons-dismiss"></i></span></button>
+            </div>
+            <div class="modal-body">
+            	<form>
+                  	<div class="form-group">
+                  		<table class="table table-bordered">
+                  		</table>
+                  	</div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script type="text/javascript">
 	run_download_excel();
+	var aksi = ''
+		+'<h3 style="margin-top: 20px;">SETTING</h3>'
+		+'<label><input type="checkbox" onclick="edit_monev_indikator(this);"> Edit Monev indikator</label>';
+	jQuery('#action-sipd').append(aksi);
+	function edit_monev_indikator(that){
+		if(jQuery(that).is(':checked')){
+			jQuery('.edit-monev').show();
+		}else{
+			jQuery('.edit-monev').hide();
+		}
+	}
+	jQuery('.edit-monev').on('click', function(){
+		jQuery('#wrap-loading').show();
+		var id_unik = jQuery(this).attr('data-monev');
+		jQuery.ajax({
+			url: ajax.url,
+          	type: "post",
+          	data: {
+          		"action": "get_monev",
+          		"api_key": "<?php echo $api_key; ?>",
+      			"tahun_anggaran": <?php echo $input['tahun_anggaran']; ?>,
+          		"id_unik": id_unik
+          	},
+          	dataType: "json",
+          	success: function(res){
+				jQuery('#mod-monev').modal('show');
+				jQuery('#wrap-loading').hide();
+			}
+		});
+	});
 </script>
