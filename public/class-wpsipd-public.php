@@ -2764,6 +2764,24 @@ class Wpsipd_Public
 		echo $table;
 	}
 
+	public function monitor_daftar_label_komponen($atts)
+	{
+		// untuk disable render shortcode di halaman edit page/post
+		if(!empty($_GET) && !empty($_GET['post'])){
+			return '';
+		}
+		require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/wpsipd-public-monitor-daftar-label-komponen.php';
+	}
+
+	public function monitor_daftar_sumber_dana($atts)
+	{
+		// untuk disable render shortcode di halaman edit page/post
+		if(!empty($_GET) && !empty($_GET['post'])){
+			return '';
+		}
+		require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/wpsipd-public-monitor-daftar-sumber-dana.php';
+	}
+
 	public function monitor_monev_renja($atts)
 	{
 		// untuk disable render shortcode di halaman edit page/post
@@ -3498,7 +3516,7 @@ class Wpsipd_Public
 	function gen_key($key_db = false){
 		$now = time()*1000;
 		if(empty($key_db)){
-			$key_db = carbon_get_theme_option( 'crb_api_key_extension' );
+			$key_db = get_option( '_crb_api_key_extension' );
 		}
 		$key = base64_encode($now.$key_db.$now);
 		return $key;
@@ -3770,12 +3788,24 @@ class Wpsipd_Public
 			$tahun = $wpdb->get_results('select tahun_anggaran from data_unit group by tahun_anggaran', ARRAY_A);
 			foreach ($tahun as $k => $v) {
 				$unit = $wpdb->get_results("SELECT nama_skpd, id_skpd, kode_skpd from data_unit where active=1 and tahun_anggaran=".$v['tahun_anggaran'].' and id_skpd='.$id_skpd[0], ARRAY_A);
+				echo "<h5>Tahun Anggaran ".$v['tahun_anggaran']."</h5>";
 				echo '<ul>';
 	            foreach ($unit as $kk => $vv) {
 					$nama_page = 'RFK '.$vv['nama_skpd'].' '.$vv['kode_skpd'].' | '.$v['tahun_anggaran'];
 					$custom_post = get_page_by_title($nama_page, OBJECT, 'page');
-					$url_rfk = esc_url( get_permalink($custom_post));
+					$url_rfk = esc_url(get_permalink($custom_post));
+
+					$nama_page_sd = 'Sumber Dana '.$vv['nama_skpd'].' '.$vv['kode_skpd'].' | '.$v['tahun_anggaran'];
+					$custom_post = get_page_by_title($nama_page_sd, OBJECT, 'page');
+					$url_sd = esc_url(get_permalink($custom_post));
+
+					$nama_page_label = 'Label Komponen '.$vv['nama_skpd'].' '.$vv['kode_skpd'].' | '.$v['tahun_anggaran'];
+					$custom_post = get_page_by_title($nama_page_label, OBJECT, 'page');
+					$url_label = esc_url(get_permalink($custom_post));
+
 					echo '<li>MONEV RFK: <a href="'.$url_rfk.'&key='.$this->gen_key().'" target="_blank">'.$nama_page.'</a></li>';
+					echo '<li>MONEV SUMBER DANA: <a href="'.$url_sd.'&key='.$this->gen_key().'" target="_blank">'.$nama_page_sd.'</a></li>';
+					echo '<li>MONEV LABEL KOMPONEN: <a href="'.$url_label.'&key='.$this->gen_key().'" target="_blank">'.$nama_page_label.'</a></li>';
 				}
 				echo '</ul>';
 			}
@@ -4969,7 +4999,24 @@ class Wpsipd_Public
 		$ret['data'] = array();
 		if (!empty($_POST)) {
 			if (!empty($_POST['api_key']) && $_POST['api_key'] == carbon_get_theme_option( 'crb_api_key_extension' )) {
-
+				$ids = explode('-', $_POST['id_unik']);
+				$tahun_anggaran = $ids[0];
+				$id_skpd = $ids[1];
+				$kode = $ids[2];
+				$kode_sbl = $ids[3];
+				$count_kode_sbl = count(explode('.', $ids[2]));
+				$type_indikator = 0;
+				// sub kegiatan
+				if($count_kode_sbl == 6){
+					$type_indikator = 1;
+				// kegiatan
+				}else if($count_kode_sbl == 5){
+					$type_indikator = 2;
+				// program
+				}else if($count_kode_sbl == 3){
+					$type_indikator = 3;
+				}
+				
 			} else {
 				$ret['status'] = 'error';
 				$ret['message'] = 'APIKEY tidak sesuai!';

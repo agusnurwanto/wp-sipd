@@ -1809,11 +1809,21 @@ ALTER TABLE `data_realisasi_rincian`
 
 CREATE TABLE `data_realisasi_renja` (
   `id` int(11) NOT NULL,
-  `tipe_indikator` int(11) NOT NULL,
-  `id_rumus_indikator` int(11) NOT NULL,
-  `kode_sbl` int(11) NOT NULL,
-  `realisasi_target` int(11) DEFAULT NULL,
-  `bulan` int(11) DEFAULT NULL,
+  `tipe_indikator` tinyint(4) DEFAULT NULL,
+  `id_rumus_indikator` int(11) DEFAULT NULL,
+  `kode_sbl` int(11) DEFAULT NULL,
+  `realisasi_bulan_1` int(11) DEFAULT NULL,
+  `realisasi_bulan_2` int(11) DEFAULT NULL,
+  `realisasi_bulan_3` int(11) DEFAULT NULL,
+  `realisasi_bulan_4` int(11) DEFAULT NULL,
+  `realisasi_bulan_5` int(11) DEFAULT NULL,
+  `realisasi_bulan_6` int(11) DEFAULT NULL,
+  `realisasi_bulan_7` int(11) DEFAULT NULL,
+  `realisasi_bulan_8` int(11) DEFAULT NULL,
+  `realisasi_bulan_9` int(11) DEFAULT NULL,
+  `realisasi_bulan_10` int(11) DEFAULT NULL,
+  `realisasi_bulan_11` int(11) DEFAULT NULL,
+  `realisasi_bulan_12` int(11) DEFAULT NULL,
   `user` text DEFAULT NULL,
   `active` tinyint(4) NOT NULL,
   `update_at` datetime NOT NULL,
@@ -1822,4 +1832,18 @@ CREATE TABLE `data_realisasi_renja` (
 ALTER TABLE `data_realisasi_renja`
   ADD PRIMARY KEY (`id`);
 ALTER TABLE `data_realisasi_renja`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+CREATE TABLE `data_rumus_indikator` (
+  `id` int(11) NOT NULL,
+  `rumus` text DEFAULT NULL,
+  `keterangan` text DEFAULT NULL,
+  `user` text DEFAULT NULL,
+  `active` tinyint(4) NOT NULL,
+  `update_at` datetime NOT NULL,
+  `tahun_anggaran` year(4) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+ALTER TABLE `data_rumus_indikator`
+  ADD PRIMARY KEY (`id`);
+ALTER TABLE `data_rumus_indikator`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;

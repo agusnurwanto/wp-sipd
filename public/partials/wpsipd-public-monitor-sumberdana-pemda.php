@@ -28,6 +28,11 @@ if(!empty($input['id_sumber_dana'])){
 	}
 }
 $bulan = (int) date('m');
+
+$where_skpd = '';
+if(!empty($_GET) && !empty($_GET['id_skpd'])){
+    $where_skpd = 'and r.id_sub_skpd='.$_GET['id_skpd'];
+}
 $data_sub_giat = $wpdb->get_results('
 	select 
 		r.*,
@@ -49,7 +54,8 @@ $data_sub_giat = $wpdb->get_results('
 		and (
 			d.iddana='.$input['id_sumber_dana'].'
 			or d.iddana is null
-		)', ARRAY_A);
+		)
+        '.$where_skpd, ARRAY_A);
 // echo $wpdb->last_query;
 $judul_laporan = array('Laporan Pagu SIPD Kemendagri Per Sumber Dana',$kode_sumber_dana.' '.$nama_sumber_dana,'Tahun '.$input['tahun_anggaran']);
 
@@ -63,7 +69,7 @@ $data_sumberdana_shorted = array(
 );
 
 foreach ($data_sub_giat as $k =>$v) {
-    $kd_unit_simda = explode('.', carbon_get_theme_option('crb_unit_'.$v['id_sub_skpd']));
+    $kd_unit_simda = explode('.', get_option('_crb_unit_'.$v['id_sub_skpd']));
     $_kd_urusan = $kd_unit_simda[0];
     $_kd_bidang = $kd_unit_simda[1];
     $kd_unit = $kd_unit_simda[2];

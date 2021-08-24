@@ -12,13 +12,14 @@ if(empty($input['id_skpd'])){
 $api_key = carbon_get_theme_option( 'crb_api_key_extension' );
 
 function button_edit_monev($class=false){
-	$ids = explode('-', $class);
-	$data_akun = '';
-	if(count($ids) == 5){
-		$data_akun = 'data-monev="'.$ids[0].'-'.$ids[1].'"';
-	}
-	$ret = ' <span style="display: none;" data-id="'.$class.'" '.$data_akun.' class="edit-monev"><i class="dashicons dashicons-edit"></i></span>';
+	$ret = ' <span style="display: none;" data-id="'.$class.'" class="edit-monev"><i class="dashicons dashicons-edit"></i></span>';
 	return $ret;
+}
+
+$rumus_indikator_db = $wpdb->get_results("SELECT * from data_rumus_indikator where active=1 and tahun_anggaran=".$input['tahun_anggaran'], ARRAY_A);
+$rumus_indikator = '';
+foreach ($rumus_indikator_db as $k => $v){
+	$rumus_indikator .= '<option value="'.$v['id'].'">'.$v['rumus'].'</option>';
 }
 
 $sql = $wpdb->prepare("
@@ -161,6 +162,7 @@ foreach ($subkeg as $kk => $sub) {
 		$data_all['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']] = array(
 			'nama'	=> $sub['nama_program'],
 			'indikator' => $capaian_prog,
+			'kode_sbl' => $sub['kode_sbl'],
 			'total' => 0,
 			'triwulan_1' => 0,
 			'triwulan_2' => 0,
@@ -184,6 +186,7 @@ foreach ($subkeg as $kk => $sub) {
 		$data_all['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']]['data'][$sub['kode_giat']] = array(
 			'nama'	=> $sub['nama_giat'],
 			'indikator' => $output_giat,
+			'kode_sbl' => $sub['kode_sbl'],
 			'total' => 0,
 			'triwulan_1' => 0,
 			'triwulan_2' => 0,
@@ -287,7 +290,7 @@ foreach ($data_all['data'] as $kd_urusan => $urusan) {
 			$target_capaian_prog = '';
 			$satuan_capaian_prog = '';
 			if(!empty($program['indikator'])){
-				$capaian_prog = $program['indikator'][0]['capaianteks'].button_edit_monev();
+				$capaian_prog = $program['indikator'][0]['capaianteks'].button_edit_monev($input['tahun_anggaran'].'-'.$input['id_skpd'].'-'.$kd_program_asli.'-'.$program['kode_sbl']);
 				$target_capaian_prog = $program['indikator'][0]['targetcapaian'];
 				$satuan_capaian_prog = $program['indikator'][0]['satuancapaian'];
 			}
@@ -297,16 +300,16 @@ foreach ($data_all['data'] as $kd_urusan => $urusan) {
 		            <td class="text_tengah kanan bawah text_blok"></td>
 		            <td class="text_tengah kanan bawah text_blok"></td>
 		            <td class="kanan bawah text_blok">'.$kd_program_asli.'</td>
-		            <td class="kanan bawah text_blok">'.$program['nama'].'</td>
-		            <td class="kanan bawah text_blok">'.$capaian_prog.'</td>
+		            <td class="kanan bawah text_blok nama">'.$program['nama'].'</td>
+		            <td class="kanan bawah text_blok indikator">'.$capaian_prog.'</td>
 		            <td class="text_tengah kanan bawah text_blok total_renstra"></td>
 		            <td class="text_tengah kanan bawah text_blok total_renstra">'.$satuan_capaian_prog.'</td>
 		            <td class="text_kanan kanan bawah text_blok total_renstra"></td>
 		            <td class="text_tengah kanan bawah text_blok realisasi_renstra_tahun_lalu"></td>
 		            <td class="text_tengah kanan bawah text_blok realisasi_renstra_tahun_lalu">'.$satuan_capaian_prog.'</td>
 		            <td class="text_kanan kanan bawah text_blok realisasi_renstra_tahun_lalu"></td>
-		            <td class="text_tengah kanan bawah text_blok total_renja">'.$target_capaian_prog.'</td>
-		            <td class="text_tengah kanan bawah text_blok total_renja">'.$satuan_capaian_prog.'</td>
+		            <td class="text_tengah kanan bawah text_blok total_renja target_indikator">'.$target_capaian_prog.'</td>
+		            <td class="text_tengah kanan bawah text_blok total_renja satuan_indikator">'.$satuan_capaian_prog.'</td>
 		            <td class="text_kanan kanan bawah text_blok total_renja">'.number_format($program['total_simda'],0,",",".").'</td>
 		            <td class="text_tengah kanan bawah text_blok triwulan_1"></td>
 		            <td class="text_tengah kanan bawah text_blok triwulan_1">'.$satuan_capaian_prog.'</td>
@@ -347,7 +350,7 @@ foreach ($data_all['data'] as $kd_urusan => $urusan) {
 				$target_output_giat = '';
 				$satuan_output_giat = '';
 				if(!empty($giat['indikator'])){
-					$output_giat = $giat['indikator'][0]['outputteks'].button_edit_monev();
+					$output_giat = $giat['indikator'][0]['outputteks'].button_edit_monev($input['tahun_anggaran'].'-'.$input['id_skpd'].'-'.$kd_giat1.'-'.$giat['kode_sbl']);
 					$target_output_giat = $giat['indikator'][0]['targetoutput'];
 					$satuan_output_giat = $giat['indikator'][0]['satuanoutput'];
 				}
@@ -357,16 +360,16 @@ foreach ($data_all['data'] as $kd_urusan => $urusan) {
 			            <td class="text_tengah kanan bawah text_blok"></td>
 			            <td class="text_tengah kanan bawah text_blok"></td>
 			            <td class="kanan bawah text_blok">'.$kd_giat1.'</td>
-			            <td class="kanan bawah text_blok"><a href="'.get_permalink($custom_post) . '?key=' . $this->gen_key().'" target="_blank">'.$giat['nama'].'</a></td>
-			            <td class="kanan bawah text_blok">'.$output_giat.'</td>
+			            <td class="kanan bawah text_blok nama"><a href="'.get_permalink($custom_post) . '?key=' . $this->gen_key().'" target="_blank">'.$giat['nama'].'</a></td>
+			            <td class="kanan bawah text_blok indikator">'.$output_giat.'</td>
 			            <td class="text_tengah kanan bawah text_blok total_renstra"></td>
 			            <td class="text_tengah kanan bawah text_blok total_renstra">'.$satuan_output_giat.'</td>
 			            <td class="text_kanan kanan bawah text_blok total_renstra"></td>
 			            <td class="text_tengah kanan bawah text_blok realisasi_renstra_tahun_lalu"></td>
 			            <td class="text_tengah kanan bawah text_blok realisasi_renstra_tahun_lalu">'.$satuan_output_giat.'</td>
 			            <td class="text_kanan kanan bawah text_blok realisasi_renstra_tahun_lalu"></td>
-			            <td class="text_tengah kanan bawah text_blok total_renja">'.$target_output_giat.'</td>
-			            <td class="text_tengah kanan bawah text_blok total_renja">'.$satuan_output_giat.'</td>
+			            <td class="text_tengah kanan bawah text_blok total_renja target_indikator">'.$target_output_giat.'</td>
+			            <td class="text_tengah kanan bawah text_blok total_renja satuan_indikator">'.$satuan_output_giat.'</td>
 			            <td class="text_kanan kanan bawah text_blok total_renja">'.number_format($giat['total_simda'],0,",",".").'</td>
 			            <td class="text_tengah kanan bawah text_blok triwulan_1"></td>
 			            <td class="text_tengah kanan bawah text_blok triwulan_1">'.$satuan_output_giat.'</td>
@@ -406,9 +409,9 @@ foreach ($data_all['data'] as $kd_urusan => $urusan) {
 					$satuan_output_sub_giat = array();
 					if(!empty($sub_giat['indikator'])){
 						foreach ($sub_giat['indikator'] as $k_sub => $v_sub) {
-							$output_sub_giat[] = $v_sub['outputteks'].button_edit_monev();
-							$target_output_sub_giat[] = $v_sub['targetoutput'];
-							$satuan_output_sub_giat[] = $v_sub['satuanoutput'];
+							$output_sub_giat[] = '<span data-id="'.$v_sub['idoutputbl'].'">'.$v_sub['outputteks'].button_edit_monev($input['tahun_anggaran'].'-'.$input['id_skpd'].'-'.$kd_sub_giat1.'-'.$sub_giat['data']['kode_sbl'].'-'.$v_sub['idoutputbl']).'</span>';
+							$target_output_sub_giat[] = '<span data-id="'.$v_sub['idoutputbl'].'">'.$v_sub['targetoutput'].'</span>';
+							$satuan_output_sub_giat[] = '<span data-id="'.$v_sub['idoutputbl'].'">'.$v_sub['satuanoutput'].'</span>';
 						}
 					}
 					$output_sub_giat = implode('<br>', $output_sub_giat);
@@ -420,16 +423,16 @@ foreach ($data_all['data'] as $kd_urusan => $urusan) {
 				            <td class="text_tengah kanan bawah"></td>
 				            <td class="text_tengah kanan bawah"></td>
 				            <td class="kanan bawah">'.$kd_sub_giat1.'</td>
-				            <td class="kanan bawah">'.$sub_giat['nama'].'</td>
-				            <td class="kanan bawah">'.$output_sub_giat.'</td>
+				            <td class="kanan bawah nama">'.$sub_giat['nama'].'</td>
+				            <td class="kanan bawah indikator">'.$output_sub_giat.'</td>
 				            <td class="text_tengah kanan bawah total_renstra"></td>
 				            <td class="text_tengah kanan bawah total_renstra">'.$satuan_output_sub_giat.'</td>
 				            <td class="text_kanan kanan bawah total_renstra"></td>
 				            <td class="text_tengah kanan bawah realisasi_renstra_tahun_lalu"></td>
 				            <td class="text_tengah kanan bawah realisasi_renstra_tahun_lalu">'.$satuan_output_sub_giat.'</td>
 				            <td class="text_kanan kanan bawah realisasi_renstra_tahun_lalu"></td>
-				            <td class="text_tengah kanan bawah total_renja">'.$target_output_sub_giat.'</td>
-				            <td class="text_tengah kanan bawah total_renja">'.$satuan_output_sub_giat.'</td>
+				            <td class="text_tengah kanan bawah total_renja target_indikator">'.$target_output_sub_giat.'</td>
+				            <td class="text_tengah kanan bawah total_renja satuan_indikator">'.$satuan_output_sub_giat.'</td>
 				            <td class="text_kanan kanan bawah total_renja">'.number_format($sub_giat['total_simda'],0,",",".").'</td>
 				            <td class="text_tengah kanan bawah triwulan_1"></td>
 				            <td class="text_tengah kanan bawah triwulan_1">'.$satuan_output_sub_giat.'</td>
@@ -463,11 +466,14 @@ foreach ($data_all['data'] as $kd_urusan => $urusan) {
 }
 ?>
 <style type="text/css">
-	table th {
+	table th, #mod-monev th {
 		vertical-align: middle;
 	}
 	body {
 		overflow: auto;
+	}
+	td[contenteditable="true"] {
+	    background: #ff00002e;
 	}
 </style>
 <input type="hidden" value="<?php echo carbon_get_theme_option( 'crb_api_key_extension' ); ?>" id="api_key">
@@ -581,9 +587,106 @@ foreach ($data_all['data'] as $kd_urusan => $urusan) {
             	<form>
                   	<div class="form-group">
                   		<table class="table table-bordered">
+                  			<tbody>
+                  				<tr>
+                  					<th style="width: 200px;">Program / Kegaitan / Sub Kegiatan</th>
+                  					<td id="monev-nama"></td>
+                  				</tr>
+                  				<tr>
+                  					<td colspan="2">
+                  						<table>
+                  							<thead>
+                  								<tr>
+                  									<th class="text_tengah">Indikator Program(outcome) dan Kegiatan (output), Sub Kegiatan</th>
+                  									<th class="text_tengah" style="width: 120px;">Target</th>
+                  									<th class="text_tengah" style="width: 120px;">Total Target Realisasi</th>
+                  									<th class="text_tengah" style="width: 120px;">Satuan</th>
+                  								</tr>
+                  							</thead>
+                  							<tbody id="monev-indikator">
+                  							</tbody>
+                  						</table>
+                  					</td>
+                  				</tr>
+                  				<tr>
+                  					<th colspan="2">
+                  						<table>
+                  							<thead>
+                  								<tr>
+                  									<th class="text_tengah" style="width: 50%;">Total Pagu (Rp.)</th>
+                  									<th class="text_tengah" style="width: 50%;">Total Pagu Realisasi (Rp.)</th>
+                  								</tr>
+                  							</thead>
+                  							<tbody>
+                  								<tr>
+                  									<td class="text_kanan" id="monev-pagu">-</td>
+                  									<td class="text_kanan" id="monev-total-realisasi">-</td>
+                  								</tr>
+                  							</tbody>
+                  						</table>
+                  					</th>
+                  				</tr>
+                  				<tr>
+                  					<th>Pilih Rumus Indikator</th>
+                  					<td>
+                  						<select style="width: 100%;" id="tipe_indikator">
+                  							<?php echo $rumus_indikator; ?>
+                  						</select>
+                  					</td>
+                  				</tr>
+                  				<tr>
+                  					<td colspan="2">
+                  						<table>
+                  							<thead>
+                  								<tr>
+		              								<th class="text_tengah">Bulan</th>
+		              								<th class="text_tengah" style="width: 150px;">RAK (Rp.)</th>
+		              								<th class="text_tengah" style="width: 150px;">Realisasi (Rp.)</th>
+		              								<th class="text_tengah" style="width: 150px;">Capaian (%)</th>
+		              								<th class="text_tengah" style="width: 150px;">Realisasi Target</th>
+		              							</tr>
+                  							</thead>
+                  							<tbody>
+                  								<tr>
+                  									<td>Januari</td>
+                  									<td class="text_kanan">-</td>
+                  									<td class="text_kanan">-</td>
+                  									<td class="text_tengah">-</td>
+                  									<td class="text_tengah" contenteditable="true">-</td>
+                  								</tr>
+                  								<tr>
+                  									<td>Februari</td>
+                  									<td class="text_kanan">-</td>
+                  									<td class="text_kanan">-</td>
+                  									<td class="text_tengah">-</td>
+                  									<td class="text_tengah" contenteditable="true">-</td>
+                  								</tr>
+                  								<tr>
+                  									<td>Maret</td>
+                  									<td class="text_kanan">-</td>
+                  									<td class="text_kanan">-</td>
+                  									<td class="text_tengah">-</td>
+                  									<td class="text_tengah" contenteditable="true">-</td>
+                  								</tr>
+                  								<tr>
+                  									<td>April</td>
+                  									<td class="text_kanan">-</td>
+                  									<td class="text_kanan">-</td>
+                  									<td class="text_tengah">-</td>
+                  									<td class="text_tengah" contenteditable="true">-</td>
+                  								</tr>
+                  							</tbody>
+                  						</table>
+                  					</td>
+                  				</tr>
+                  			</tbody>
                   		</table>
                   	</div>
                 </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-success" id="set-monev">Simpan</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">Tutup</button>
             </div>
         </div>
     </div>
@@ -604,7 +707,29 @@ foreach ($data_all['data'] as $kd_urusan => $urusan) {
 	}
 	jQuery('.edit-monev').on('click', function(){
 		jQuery('#wrap-loading').show();
-		var id_unik = jQuery(this).attr('data-monev');
+		var id_unik = jQuery(this).attr('data-id');
+		var tr = jQuery(this).closest('tr');
+		var nama = tr.find('td.nama').text();
+		var id_indikator = id_unik.split('-').pop();
+		var indikator_text = tr.find('td.indikator span[data-id="'+id_indikator+'"]').text();
+		if(indikator_text == ''){
+			indikator_text = tr.find('td.indikator').text();
+		}
+		var target_indikator_text = tr.find('td.target_indikator span[data-id="'+id_indikator+'"]').text();
+		if(target_indikator_text == ''){
+			target_indikator_text = tr.find('td.target_indikator').text();
+		}
+		var satuan_indikator_text = tr.find('td.satuan_indikator span[data-id="'+id_indikator+'"]').text();
+		if(satuan_indikator_text == ''){
+			satuan_indikator_text = tr.find('td.satuan_indikator').text();
+		}
+		var indikator = ''
+			+'<tr>'
+				+'<td>'+indikator_text+'</td>'
+				+'<td>'+target_indikator_text+'</td>'
+				+'<td></td>'
+				+'<td>'+satuan_indikator_text+'</td>'
+			+'</tr>';
 		jQuery.ajax({
 			url: ajax.url,
           	type: "post",
@@ -616,6 +741,8 @@ foreach ($data_all['data'] as $kd_urusan => $urusan) {
           	},
           	dataType: "json",
           	success: function(res){
+          		jQuery('#monev-nama').text(nama);
+          		jQuery('#monev-indikator').html(indikator);
 				jQuery('#mod-monev').modal('show');
 				jQuery('#wrap-loading').hide();
 			}
