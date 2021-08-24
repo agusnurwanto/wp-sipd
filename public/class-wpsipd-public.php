@@ -4929,6 +4929,11 @@ class Wpsipd_Public
 	function get_date_rfk_update($params = array()){
 		global $wpdb;
 		$tanggal = '-';
+		$column='idinduk';
+		
+		if(isset($params['type']) && $params['type']=='sub_unit'){
+			$column='id_skpd';
+		}
 		$last_update = $wpdb->get_results($wpdb->prepare("
 							select 
 								min(d.created_at) as last_update
@@ -4936,7 +4941,8 @@ class Wpsipd_Public
 							left join data_rfk d 
 								on d.id_skpd=k.id_sub_skpd and 
 								d.kode_sbl=k.kode_sbl and 
-								d.tahun_anggaran=k.tahun_anggaran 
+								d.tahun_anggaran=k.tahun_anggaran and 
+								d.bulan=".$params['bulan']." 
 							where 
 								k.tahun_anggaran=%d and 
 								k.id_sub_skpd in (
@@ -4944,7 +4950,7 @@ class Wpsipd_Public
 										id_skpd 
 									from data_unit 
 									where 
-										idinduk=".$params['id_skpd']." and 
+										".$column."=".$params['id_skpd']." and 
 										active=1 and 
 										tahun_anggaran=".$params['tahun_anggaran']."
 								) and 
