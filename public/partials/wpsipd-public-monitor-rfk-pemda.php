@@ -26,38 +26,56 @@ $nama_pemda = $pengaturan[0]['daerah'];
 
 $body = "";
 $body .='
+
+	<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/dt/dt-1.10.25/datatables.min.css"/>
+	<script type="text/javascript" src="https://cdn.datatables.net/v/dt/dt-1.10.25/datatables.min.js"></script>
+
+	<!-- Modal -->
+	<div class="modal fade bd-example-modal-xl" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="myExtraLargeModalLabel" aria-hidden="true">
+	  <div class="modal-dialog modal-xl" role="document">
+	    <div class="modal-content">
+	      <div class="modal-header">
+	        <h5 class="modal-title" id="exampleModalLabel" style="margin: 0 auto; text-align:center; font-weight: bold">Modal title</h5>
+	      </div>
+	      <div class="modal-body">
+
+	      </div>
+	      <div class="modal-footer">
+	        <button type="button" class="btn btn-danger" data-dismiss="modal">Tutup</button>
+	      </div>
+	    </div>
+	  </div>
+	</div>
+	
 	<div id="cetak" title="Laporan RFK" style="padding: 5px;">
-		<h4 style="text-align: center; margin: 0; font-weight: bold;">Realisasi Fisik dan Keuangan (RFK)<br>'.$nama_pemda.'<br>Bulan '.$nama_bulan.' Tahun '.$input['tahun_anggaran'].'</h4>
-		<table cellpadding="2" cellspacing="0" style="font-family:\'Open Sans\',-apple-system,BlinkMacSystemFont,\'Segoe UI\',sans-serif; border-collapse: collapse; width:100%; table-layout:fixed; overflow-wrap: break-word; font-size: 80%; border: 0;">
+		<h4 style="text-align: center; margin: 0; font-weight: bold;">REALISASI FISIK DAN KEUANGAN (RFK)<br>'.$nama_pemda.'<br>Bulan '.$nama_bulan.' Tahun '.$input['tahun_anggaran'].'</h4>
+		<table id="table-rfk" cellpadding="2" cellspacing="0" style="font-family:\'Open Sans\',-apple-system,BlinkMacSystemFont,\'Segoe UI\',sans-serif; border-collapse: collapse; width:100%; table-layout:fixed; overflow-wrap: break-word; font-size: 80%; border: 0;">
 		    <thead>
 		    	<tr>
-		    		<th style="padding: 0; border: 0; width:30px"></th>
-		            <th style="padding: 0; border: 0; width:30px"></th>
-		            <th style="padding: 0; border: 0; width:30px"></th>
-		            <th style="padding: 0; border: 0; width:40px"></th>
-		            <th style="padding: 0; border: 0; width:30px"></th>
-		            <th style="padding: 0; border: 0"></th>
+		    		<th style="padding: 0; border: 0; width:150px"></th>
+		            <th style="padding: 0; border: 0;"></th>
 		            <th style="padding: 0; border: 0; width:140px"></th>
 		            <th style="padding: 0; border: 0; width:140px"></th>
 		            <th style="padding: 0; border: 0; width:140px"></th>
+		            <th style="padding: 0; border: 0; width:85px"></th>
 		            <th style="padding: 0; border: 0; width:120px"></th>
-		            <th style="padding: 0; border: 0; width:120px"></th>
-		            <th style="padding: 0; border: 0; width:80px"></th>
-		            <th style="padding: 0; border: 0; width:120px"></th>
+		            <th style="padding: 0; border: 0; width:100px"></th>
+		            <th style="padding: 0; border: 0; width:90px"></th>
 		    	</tr>
 		    	<tr>
-			    	<td class="atas kanan bawah kiri text_tengah text_blok" colspan="5">Kode</td>
-			        <td class="atas kanan bawah text_tengah text_blok" style="padding: 0; width:140px">Nama SKPD</td>
-			        <td class="atas kanan bawah text_tengah text_blok">RKA SIPD (Rp.)</td>
-			        <td class="atas kanan bawah text_tengah text_blok">DPA SIMDA (Rp.)</td>
-			        <td class="atas kanan bawah text_tengah text_blok">Realisasi Keuangan (Rp.)</td>
-			        <td class="atas kanan bawah text_tengah text_blok">Capaian ( % )</td>
-			        <td class="atas kanan bawah text_tengah text_blok">RAK SIMDA (Rp.)</td>
-			        <td class="atas kanan bawah text_tengah text_blok">Realisasi Fisik ( % )</td>
-			        <td class="atas kanan bawah text_tengah text_blok">Update Terakhir</td>
+			    	<th class="atas kanan bawah kiri text_tengah text_blok">Kode</th>
+			        <th class="atas kanan bawah text_tengah text_blok" style="padding: 0; width:140px">Nama SKPD</th>
+			        <th class="atas kanan bawah text_tengah text_blok">RKA SIPD (Rp.)</th>
+			        <th class="atas kanan bawah text_tengah text_blok">DPA SIMDA (Rp.)</th>
+			        <th class="atas kanan bawah text_tengah text_blok">Realisasi Keuangan (Rp.)</th>
+			        <th class="atas kanan bawah text_tengah text_blok">Capaian ( % )</th>
+			        <th class="atas kanan bawah text_tengah text_blok">RAK SIMDA (Rp.)</th>
+			        <th class="atas kanan bawah text_tengah text_blok">Realisasi Fisik ( % )</th>
+			        <th class="atas kanan bawah text_tengah text_blok">Update Terakhir</th>
 			    </tr>
 		    </thead>
-		    <tbody>';
+		    <tbody>
+		    ';
 
 		    $units = $wpdb->get_results("SELECT nama_skpd, id_skpd, kode_skpd, is_skpd from data_unit where active=1 and tahun_anggaran=".$input['tahun_anggaran'].' and is_skpd=1 order by kode_skpd ASC', ARRAY_A);
 
@@ -101,8 +119,9 @@ $body .='
 					), ARRAY_A);
 
 					foreach ($data_rfk as $key => $rfk) {
-						$latest_update = $this->get_date_rfk_update(array('id_skpd'=>$unit['id_skpd'], 'tahun_anggaran' => $input['tahun_anggaran']));
+						$latest_update = $this->get_date_rfk_update(array('id_skpd'=>$unit['id_skpd'], 'tahun_anggaran' => $input['tahun_anggaran'], 'bulan'=>$bulan));
 						$data_all['data'][] = array(
+			    			'id_skpd' => $unit['id_skpd'],
 			    			'kode_skpd' => $unit['kode_skpd'],
 			    			'nama_skpd' => $unit['nama_skpd'],
 			    			'rka_sipd' => $rfk['pagu'],
@@ -112,6 +131,7 @@ $body .='
 			    			'rak' => $rfk['rak'],
 			    			'realisasi_fisik' => $rfk['realisasi_fisik'],
 			    			'last_update' => $latest_update,
+			    			'act' => ''
 			    		);
 
 			    		$data_all['total_rka_sipd']+=$rfk['pagu'];
@@ -130,6 +150,7 @@ $body .='
 		    		$rak_sub_unit=0;
 		    		$capaian_sub_unit=array();
 		    		$realisasi_fisik_sub_unit=array();
+		    		$data_all_sub_unit = array();
 		    		
 		    		foreach ($sub_units as $key => $sub_unit) {
 		    			
@@ -157,13 +178,32 @@ $body .='
 									$bulan
 						), ARRAY_A);
 
-						foreach ($data_rfk as $key => $rfk) {
+			    		foreach ($data_rfk as $key => $rfk) {
 							$pagu_sub_unit+=$rfk['pagu'];
 							$pagu_simda_sub_unit+=$rfk['pagu_simda'];
 							$realisasi_anggaran_sub_unit+=$rfk['realisasi_keuangan'];
 							$rak_sub_unit+=$rfk['rak'];
 							$capaian_sub_unit[]=$rfk['capaian'];
 							$realisasi_fisik_sub_unit[]=$rfk['realisasi_fisik'];
+
+							$latest_update_sub_unit = $this->get_date_rfk_update(array('id_skpd'=>$sub_unit['id_skpd'], 'tahun_anggaran' => $input['tahun_anggaran'], 'bulan'=>$bulan, 'type'=>'sub_unit'));
+							$nama_page_sub = 'RFK '.$sub_unit['nama_skpd'].' '.$sub_unit['kode_skpd'].' | '.$input['tahun_anggaran'];
+							$custom_post_sub = get_page_by_title($nama_page_sub, OBJECT, 'page');
+
+							//tambahkan sebagai data rincian sub unit
+							$data_all_sub_unit[] = array(
+				    			'id_skpd_induk' => $unit['id_skpd'],
+				    			'kode_skpd' => $sub_unit['kode_skpd'],
+				    			'nama_skpd' => $sub_unit['nama_skpd'],
+				    			'rka_sipd' => $rfk['pagu'],
+				    			'dpa_sipd' => $rfk['pagu_simda'],
+				    			'realisasi_keuangan' => $rfk['realisasi_keuangan'],
+				    			'capaian' => $this->pembulatan($rfk['capaian']),
+				    			'rak' => $rfk['rak'],
+				    			'realisasi_fisik' => $this->pembulatan($rfk['realisasi_fisik']),
+				    			'last_update' => $latest_update_sub_unit,
+				    			'url_sub_unit' => get_permalink($custom_post_sub) . '?key=' . $this->gen_key()
+				    		);
 
 							$data_all['total_rka_sipd']+=$rfk['pagu'];
 				    		$data_all['total_dpa_sipd']+=$rfk['pagu_simda'];
@@ -172,8 +212,9 @@ $body .='
 						}
 		    		}
 
-		    		$latest_update = $this->get_date_rfk_update(array('id_skpd'=>$unit['id_skpd'], 'tahun_anggaran' => $input['tahun_anggaran']));
+		    		$latest_update = $this->get_date_rfk_update(array('id_skpd'=>$unit['id_skpd'], 'tahun_anggaran' => $input['tahun_anggaran'], 'bulan'=>$bulan));
 		    		$data_all['data'][] = array(
+			    			'id_skpd' => $unit['id_skpd'],
 			    			'kode_skpd' => $unit['kode_skpd'],
 			    			'nama_skpd' => $unit['nama_skpd'],
 			    			'rka_sipd' => $pagu_sub_unit,
@@ -182,7 +223,9 @@ $body .='
 			    			'capaian' => !empty($pagu_simda_sub_unit) ? ($realisasi_anggaran_sub_unit/$pagu_simda_sub_unit)*100 : 0,
 			    			'rak' => $rak_sub_unit,
 			    			'realisasi_fisik' => !empty($realisasi_fisik_sub_unit) ? array_sum($realisasi_fisik_sub_unit)/count($realisasi_fisik_sub_unit) : 0,
-			    			'last_update' => $latest_update
+			    			'last_update' => $latest_update,
+			    			'data_sub_unit' => $data_all_sub_unit,
+			    			'act' => '<a class="btn btn-success btn-xs" href="javascript:void(0)" onclick="showsubunit(\''.$unit['id_skpd'].'\', \''.$unit['nama_skpd'].'\', \''.$bulan.'\', \''.$input['tahun_anggaran'].'\')" style="font-size: 0.8em;">+</a>'
 			    	);
 		    	}
 			}
@@ -193,8 +236,8 @@ $body .='
 		
 		$body.='
 		    	<tr>
-				    <td class="atas kanan bawah kiri text_tengah" colspan="5">'.$value['kode_skpd'].'</td>
-				    <td class="atas kanan bawah text_kiri"><a href="'.get_permalink($custom_post) . '?key=' . $this->gen_key().'" target="_blank">'.$value['nama_skpd'].'</a></td>
+				    <td class="atas kanan bawah kiri text_tengah">'.$value['kode_skpd'].' </td>
+				    <td class="atas kanan bawah text_kiri"><a href="'.get_permalink($custom_post) . '?key=' . $this->gen_key().'" target="_blank">'.$value['nama_skpd'].'</a> '.$value['act'].'</td>
 				    <td class="atas kanan bawah text_kanan">'.number_format($value['rka_sipd'],0,",",".").'</td>
 				    <td class="atas kanan bawah text_kanan">'.number_format($value['dpa_sipd'],0,",",".").'</td>
 				    <td class="atas kanan bawah text_kanan">'.number_format($value['realisasi_keuangan'],0,",",".").'</td>
@@ -205,20 +248,21 @@ $body .='
 				</tr>
 		';
 	}
-
-		$body.='
-				<tr>
-			        <td class="kiri kanan bawah text_blok text_kanan" colspan="6">TOTAL</td>
-			        <td class="kanan bawah text_kanan text_blok">'.number_format($data_all['total_rka_sipd'],0,",",".").'</td>
-			        <td class="kanan bawah text_kanan text_blok">'.number_format($data_all['total_dpa_sipd'],0,",",".").'</td>
-			        <td class="kanan bawah text_kanan text_blok">'.number_format($data_all['total_realisasi_keuangan'],0,",",".").'</td>
-			        <td class="kanan bawah text_tengah text_blok">'.$this->pembulatan(array_sum($data_all['capaian'])/count($data_all['capaian'])).'</td>
-			        <td class="kanan bawah text_kanan text_blok">'.number_format($data_all['total_rak_simda'],0,",",".").'</td>
-			        <td class="kanan bawah text_blok total-realisasi-fisik text_tengah">'.$this->pembulatan(array_sum($data_all['realisasi_fisik'])/count($data_all['realisasi_fisik'])).'</td>
-				    <td class="atas kanan bawah text_tengah"></td>
-			    </tr>
-		    </tbody>
-		</table>
+		$body .='</tbody>
+				<tfoot>
+					<tr>
+						<th style="border:1px solid"></th>
+					    <th class="kiri kanan bawah text_blok text_kanan">TOTAL</th>
+					    <th class="kanan bawah text_kanan text_blok">'.number_format($data_all['total_rka_sipd'],0,",",".").'</th>
+					    <th class="kanan bawah text_kanan text_blok">'.number_format($data_all['total_dpa_sipd'],0,",",".").'</th>
+					    <th class="kanan bawah text_kanan text_blok">'.number_format($data_all['total_realisasi_keuangan'],0,",",".").'</th>
+					    <th class="kanan bawah text_tengah text_blok">'.$this->pembulatan(array_sum($data_all['capaian'])/count($data_all['capaian'])).'</th>
+					    <th class="kanan bawah text_kanan text_blok">'.number_format($data_all['total_rak_simda'],0,",",".").'</th>
+					    <th class="kanan bawah text_blok total-realisasi-fisik text_tengah">'.$this->pembulatan(array_sum($data_all['realisasi_fisik'])/count($data_all['realisasi_fisik'])).'</th>
+						<th class="atas kanan bawah text_tengah"></th>
+					</tr>
+				</tfoot>
+			</table>
 	</div>';
 	
 	echo $body;
@@ -250,15 +294,120 @@ $body .='
 				+'</select>'
 			+'</label>'
 		+'</div>';
+		let data_all_rfk = <?=json_encode($data_all['data'])?>;
+
 		jQuery(document).ready(function(){
 			jQuery('#action-sipd').append(extend_action);
 			jQuery('#pilih_bulan').val(+<?php echo $bulan; ?>);
 			jQuery('#pilih_bulan').on('change', function(){
-	    	var val = +jQuery(this).val();
-	    	if(val > 0){
-	    		window.open(_url+'&bulan='+val,'_blank');
-	    	}
-	    	jQuery('#pilih_bulan').val(+<?php echo $bulan; ?>);
-	    });
+		    	var val = +jQuery(this).val();
+		    	if(val > 0){
+		    		window.open(_url+'&bulan='+val,'_blank');
+		    	}
+		    	jQuery('#pilih_bulan').val(+<?php echo $bulan; ?>);
+		    });
+
+			// init datatables
+		    jQuery('#table-rfk').DataTable();
+			
 		})
+		
+		function showsubunit(id_induk, nama_skpd, bulan, tahun){
+			let nama_bulan = get_bulan(bulan);
+			let modal_subunit = jQuery("#exampleModal");
+			modal_subunit.find('.modal-title').html('');
+			modal_subunit.find('.modal-body').html('');
+
+			let html = '';
+				html+='<table id="table-rfk-sub-unit" cellpadding="2" cellspacing="0" style="font-family:\'Open Sans\',-apple-system,BlinkMacSystemFont,\'Segoe UI\',sans-serif; border-collapse: collapse; width:100%; table-layout:fixed; overflow-wrap: break-word; font-size: 80%; border: 0;">'
+					    +'<thead>'
+					    	+'<tr>'
+					    		+'<th style="padding: 0; border: 0; width:150px"></th>'
+					            +'<th style="padding: 0; border: 0"></th>'
+					            +'<th style="padding: 0; border: 0; width:140px"></th>'
+					            +'<th style="padding: 0; border: 0; width:140px"></th>'
+					            +'<th style="padding: 0; border: 0; width:140px"></th>'
+					            +'<th style="padding: 0; border: 0; width:120px"></th>'
+					            +'<th style="padding: 0; border: 0; width:120px"></th>'
+					            +'<th style="padding: 0; border: 0; width:100px"></th>'
+					            +'<th style="padding: 0; border: 0; width:90px"></th>'
+					    	+'</tr>'
+					    	+'<tr>'
+						    	+'<th class="atas kanan bawah kiri text_tengah text_blok">Kode</th>'
+						        +'<th class="atas kanan bawah text_tengah text_blok" style="padding: 0; width:140px">Nama SKPD</th>'
+						        +'<th class="atas kanan bawah text_tengah text_blok">RKA SIPD (Rp.)</th>'
+						        +'<th class="atas kanan bawah text_tengah text_blok">DPA SIMDA (Rp.)</th>'
+						        +'<th class="atas kanan bawah text_tengah text_blok">Realisasi Keuangan (Rp.)</th>'
+						        +'<th class="atas kanan bawah text_tengah text_blok">Capaian ( % )</th>'
+						        +'<th class="atas kanan bawah text_tengah text_blok">RAK SIMDA (Rp.)</th>'
+						        +'<th class="atas kanan bawah text_tengah text_blok">Realisasi Fisik ( % )</th>'
+						        +'<th class="atas kanan bawah text_tengah text_blok">Update Terakhir</th>'
+						    +'</tr>'
+					    +'</thead>'
+					    +'<tbody>';
+
+					    data_all_rfk.map(function(data){
+							if(data.id_skpd==id_induk){
+								data.data_sub_unit.map(function(data_sub_unit){
+									html += ''
+										+'<tr>'
+											+ '<td class="atas kanan bawah kiri text_tengah">'+data_sub_unit.kode_skpd+'</td>'
+											+ '<td class="atas kanan bawah text_kiri"><a href='+data_sub_unit.url_sub_unit+' target="_blank">'+data_sub_unit.nama_skpd+'</a></td>'
+											+ '<td class="kanan bawah text_kanan">'+formatRupiah(data_sub_unit.rka_sipd)+'</td>'
+											+ '<td class="kanan bawah text_kanan">'+formatRupiah(data_sub_unit.dpa_sipd)+'</td>'
+											+ '<td class="kanan bawah text_kanan">'+formatRupiah(data_sub_unit.realisasi_keuangan)+'</td>'
+											+ '<td class="kanan bawah text_tengah">'+data_sub_unit.capaian+'</td>'
+											+ '<td class="kanan bawah text_kanan">'+formatRupiah(data_sub_unit.rak)+'</td>'
+											+ '<td class="kanan bawah text_kanan">'+data.realisasi_fisik+'</td>'
+											+ '<td class="kanan bawah text_tengah">'+data_sub_unit.last_update+'</td>'
+										+'</tr>'
+								})
+							}
+						});
+
+						html +='</tbody>'
+								+'<tfoot>'
+									+'<tr>'
+										+'<th style="border:1px solid"></th>'
+										+'<th style="border:1px solid">TOTAL</th>'
+										+'<th style="border:1px solid"></th>'
+										+'<th style="border:1px solid"></th>'
+										+'<th style="border:1px solid"></th>'
+										+'<th style="border:1px solid"></th>'
+										+'<th style="border:1px solid"></th>'
+										+'<th style="border:1px solid"></th>'
+										+'<th style="border:1px solid"></th>'
+									+'</tr>'
+								+'</tfoot>'
+						 +'</table>';
+			
+			modal_subunit.find('.modal-title').html('REALISASI FISIK DAN KEUANGAN (RFK) <br> ' + nama_skpd + '<br>' + ' Bulan ' + nama_bulan + ' Tahun ' + tahun);
+			modal_subunit.find('.modal-body').html(html);
+			modal_subunit.modal('show');
+
+			jQuery('#table-rfk-sub-unit').DataTable();
+		}
+
+		function get_bulan(bulan) {
+			let date = new Date();
+			if(!bulan || bulan == '' || bulan <= 0){
+				bulan = date.getMonth();
+			}
+			nama_bulan = [
+				"Januari", 
+				"Februari", 
+				"Maret", 
+				"April", 
+				"Mei", 
+				"Juni", 
+				"Juli", 
+				"Agustus", 
+				"September", 
+				"Oktober", 
+				"November", 
+				"Desember"
+			];
+			return nama_bulan[parseInt(bulan-1)];
+		}
+		
 </script>
