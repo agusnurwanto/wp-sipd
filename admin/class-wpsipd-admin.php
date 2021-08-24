@@ -155,6 +155,9 @@ class Wpsipd_Admin {
 
 	// https://docs.carbonfields.net/#/containers/theme-options
 	public function crb_attach_sipd_options(){
+		if( !is_admin() ){
+        	return;
+        }
 		global $wpdb;
 		$sinergi_link = $this->generate_sinergi_page();
 		$sirup_link = $this->generate_sirup_page();
@@ -216,12 +219,16 @@ class Wpsipd_Admin {
             foreach ($unit as $kk => $vv) {
             	$subunit = $wpdb->get_results("SELECT nama_skpd, id_skpd, kode_skpd from data_unit where active=1 and tahun_anggaran=".$v['tahun_anggaran']." and is_skpd=0 and id_unit=".$vv["id_skpd"]." order by kode_skpd ASC", ARRAY_A);
 
+				$this->generatePage('Sumber Dana '.$vv['nama_skpd'].' '.$vv['kode_skpd'].' | '.$v['tahun_anggaran'], $v['tahun_anggaran'], '[monitor_daftar_sumber_dana tahun_anggaran="'.$v['tahun_anggaran'].'" id_skpd="'.$vv['id_skpd'].'"]');
+				$this->generatePage('Label Komponen '.$vv['nama_skpd'].' '.$vv['kode_skpd'].' | '.$v['tahun_anggaran'], $v['tahun_anggaran'], '[monitor_daftar_label_komponen tahun_anggaran="'.$v['tahun_anggaran'].'" id_skpd="'.$vv['id_skpd'].'"]');
 				$url_skpd = $this->generatePage('RFK '.$vv['nama_skpd'].' '.$vv['kode_skpd'].' | '.$v['tahun_anggaran'], $v['tahun_anggaran'], '[monitor_rfk tahun_anggaran="'.$v['tahun_anggaran'].'" id_skpd="'.$vv['id_skpd'].'"]');
             	$body_pemda .= '<li><a target="_blank" href="'.$url_skpd.'">Halaman RFK '.$vv['kode_skpd'].' '.$vv['nama_skpd'].' '.$v['tahun_anggaran'].'</a>';
             	if(!empty($subunit)){
             		$body_pemda .= '<ul style="margin: 5px 20px;">';
             	}
             	foreach ($subunit as $kkk => $vvv) {
+            		$this->generatePage('Sumber Dana '.$vvv['nama_skpd'].' '.$vvv['kode_skpd'].' | '.$v['tahun_anggaran'], $v['tahun_anggaran'], '[monitor_daftar_sumber_dana tahun_anggaran="'.$v['tahun_anggaran'].'" id_skpd="'.$vvv['id_skpd'].'"]');
+					$this->generatePage('Label Komponen '.$vvv['nama_skpd'].' '.$vvv['kode_skpd'].' | '.$v['tahun_anggaran'], $v['tahun_anggaran'], '[monitor_daftar_label_komponen tahun_anggaran="'.$v['tahun_anggaran'].'" id_skpd="'.$vvv['id_skpd'].'"]');
 					$url_skpd = $this->generatePage('RFK '.$vvv['nama_skpd'].' '.$vvv['kode_skpd'].' | '.$v['tahun_anggaran'], $v['tahun_anggaran'], '[monitor_rfk tahun_anggaran="'.$v['tahun_anggaran'].'" id_skpd="'.$vvv['id_skpd'].'"]');
             		$body_pemda .= '<li><a target="_blank" href="'.$url_skpd.'">Halaman RFK '.$vvv['kode_skpd'].' '.$vvv['nama_skpd'].' '.$v['tahun_anggaran'].'</a></li>';
             	}
@@ -702,7 +709,7 @@ class Wpsipd_Admin {
     		&& !empty($_GET['key'])
     	){
     		$key = base64_decode($_GET['key']);
-    		$key_db = carbon_get_theme_option( 'crb_api_key_extension' );
+    		$key_db = get_option( '_crb_api_key_extension' );
     		$key = explode($key_db, $key);
     		$valid = 0;
     		if(

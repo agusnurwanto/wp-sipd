@@ -27,11 +27,18 @@ if(empty($label_db)){
 }
 
 $data_label = array();
+$where_skpd = '';
+if(!empty($_GET) && !empty($_GET['id_skpd'])){
+    $where_skpd = 'and s.id_sub_skpd='.$_GET['id_skpd'];
+}
 $data = $wpdb->get_results($wpdb->prepare("
         SELECT 
             r.*,
             _r.realisasi 
         FROM `data_rka` r
+            inner join data_sub_keg_bl s on s.kode_sbl=r.kode_sbl
+                and s.active=r.active
+                and s.tahun_anggaran=r.tahun_anggaran
             inner join data_mapping_label m on m.active=r.active
                 and m.tahun_anggaran=r.tahun_anggaran
                 and m.id_rinci_sub_bl=r.id_rinci_sub_bl
@@ -41,6 +48,7 @@ $data = $wpdb->get_results($wpdb->prepare("
         where r.active=1 
             and r.tahun_anggaran=%d
             and m.id_label_komponen=%d
+            ".$where_skpd."
             order by r.kode_sbl ASC
     ", $input['tahun_anggaran'], $input['id_label']), ARRAY_A);
 if(!empty($data)){
