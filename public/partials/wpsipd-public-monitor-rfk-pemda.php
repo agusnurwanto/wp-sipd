@@ -127,9 +127,9 @@ $body .='
 			    			'rka_sipd' => $rfk['pagu'],
 			    			'dpa_sipd' => $rfk['pagu_simda'],
 			    			'realisasi_keuangan' => $rfk['realisasi_keuangan'],
-			    			'capaian' => $rfk['capaian'],
+			    			'capaian' => $this->pembulatan($rfk['capaian']),
 			    			'rak' => $rfk['rak'],
-			    			'realisasi_fisik' => $rfk['realisasi_fisik'],
+			    			'realisasi_fisik' => $this->pembulatan($rfk['realisasi_fisik']),
 			    			'last_update' => $latest_update,
 			    			'act' => ''
 			    		);
@@ -220,12 +220,12 @@ $body .='
 			    			'rka_sipd' => $pagu_sub_unit,
 			    			'dpa_sipd' => $pagu_simda_sub_unit,
 			    			'realisasi_keuangan' => $realisasi_anggaran_sub_unit,
-			    			'capaian' => !empty($pagu_simda_sub_unit) ? ($realisasi_anggaran_sub_unit/$pagu_simda_sub_unit)*100 : 0,
+			    			'capaian' => !empty($pagu_simda_sub_unit) ? $this->pembulatan(($realisasi_anggaran_sub_unit/$pagu_simda_sub_unit)*100) : 0,
 			    			'rak' => $rak_sub_unit,
-			    			'realisasi_fisik' => !empty($realisasi_fisik_sub_unit) ? array_sum($realisasi_fisik_sub_unit)/count($realisasi_fisik_sub_unit) : 0,
+			    			'realisasi_fisik' => !empty($realisasi_fisik_sub_unit) ? $this->pembulatan(array_sum($realisasi_fisik_sub_unit)/count($realisasi_fisik_sub_unit)) : 0,
 			    			'last_update' => $latest_update,
 			    			'data_sub_unit' => $data_all_sub_unit,
-			    			'act' => '<a class="btn btn-success btn-xs" href="javascript:void(0)" onclick="showsubunit(\''.$unit['id_skpd'].'\', \''.$unit['nama_skpd'].'\', \''.$bulan.'\', \''.$input['tahun_anggaran'].'\')" style="font-size: 0.8em;">+</a>'
+			    			'act' => '<a class="btn btn-success btn-xs" href="javascript:void(0)" onclick="showsubunit(\''.$unit['id_skpd'].'\', \''.$bulan.'\', \''.$input['tahun_anggaran'].'\')" style="font-size: 0.8em;">+</a>'
 			    	);
 		    	}
 			}
@@ -241,9 +241,9 @@ $body .='
 				    <td class="atas kanan bawah text_kanan">'.number_format($value['rka_sipd'],0,",",".").'</td>
 				    <td class="atas kanan bawah text_kanan">'.number_format($value['dpa_sipd'],0,",",".").'</td>
 				    <td class="atas kanan bawah text_kanan">'.number_format($value['realisasi_keuangan'],0,",",".").'</td>
-				    <td class="atas kanan bawah text_tengah">'.$this->pembulatan($value['capaian']).'</td>
+				    <td class="atas kanan bawah text_tengah">'.$value['capaian'].'</td>
 				    <td class="atas kanan bawah text_kanan">'.number_format($value['rak'],0,",",".").'</td>
-				    <td class="atas kanan bawah text_tengah" style="width: 10px; overflow: hidden;">'.$this->pembulatan($value['realisasi_fisik']).'</td>
+				    <td class="atas kanan bawah text_tengah">'.$value['realisasi_fisik'].'</td>
 				    <td class="atas kanan bawah text_tengah">'.$value['last_update'].'</td>
 				</tr>
 		';
@@ -251,8 +251,7 @@ $body .='
 		$body .='</tbody>
 				<tfoot>
 					<tr>
-						<th style="border:1px solid"></th>
-					    <th class="kiri kanan bawah text_blok text_kanan">TOTAL</th>
+						<th class="kiri kanan bawah text_blok text_kanan" colspan="2">TOTAL</th>
 					    <th class="kanan bawah text_kanan text_blok">'.number_format($data_all['total_rka_sipd'],0,",",".").'</th>
 					    <th class="kanan bawah text_kanan text_blok">'.number_format($data_all['total_dpa_sipd'],0,",",".").'</th>
 					    <th class="kanan bawah text_kanan text_blok">'.number_format($data_all['total_realisasi_keuangan'],0,",",".").'</th>
@@ -312,7 +311,7 @@ $body .='
 			
 		})
 		
-		function showsubunit(id_induk, nama_skpd, bulan, tahun){
+		function showsubunit(id_induk, bulan, tahun){
 			let nama_bulan = get_bulan(bulan);
 			let modal_subunit = jQuery("#exampleModal");
 			modal_subunit.find('.modal-title').html('');
@@ -346,8 +345,11 @@ $body .='
 					    +'</thead>'
 					    +'<tbody>';
 
+					    let i = 0;
+					    let index = 0;
 					    data_all_rfk.map(function(data){
 							if(data.id_skpd==id_induk){
+								index = i;
 								data.data_sub_unit.map(function(data_sub_unit){
 									html += ''
 										+'<tr>'
@@ -358,30 +360,30 @@ $body .='
 											+ '<td class="kanan bawah text_kanan">'+formatRupiah(data_sub_unit.realisasi_keuangan)+'</td>'
 											+ '<td class="kanan bawah text_tengah">'+data_sub_unit.capaian+'</td>'
 											+ '<td class="kanan bawah text_kanan">'+formatRupiah(data_sub_unit.rak)+'</td>'
-											+ '<td class="kanan bawah text_kanan">'+data.realisasi_fisik+'</td>'
+											+ '<td class="kanan bawah text_kanan">'+data_sub_unit.realisasi_fisik+'</td>'
 											+ '<td class="kanan bawah text_tengah">'+data_sub_unit.last_update+'</td>'
 										+'</tr>'
-								})
+								});
 							}
+							i++;
 						});
 
 						html +='</tbody>'
 								+'<tfoot>'
 									+'<tr>'
-										+'<th style="border:1px solid"></th>'
-										+'<th style="border:1px solid">TOTAL</th>'
-										+'<th style="border:1px solid"></th>'
-										+'<th style="border:1px solid"></th>'
-										+'<th style="border:1px solid"></th>'
-										+'<th style="border:1px solid"></th>'
-										+'<th style="border:1px solid"></th>'
-										+'<th style="border:1px solid"></th>'
+										+'<th style="border:1px solid" colspan="2">TOTAL</th>'
+										+'<th style="border:1px solid">'+formatRupiah(data_all_rfk[index].rka_sipd)+'</th>'
+										+'<th style="border:1px solid">'+formatRupiah(data_all_rfk[index].dpa_sipd)+'</th>'
+										+'<th style="border:1px solid">'+formatRupiah(data_all_rfk[index].realisasi_keuangan)+'</th>'
+										+'<th style="border:1px solid">'+data_all_rfk[index].capaian+'</th>'
+										+'<th style="border:1px solid">'+formatRupiah(data_all_rfk[index].rak)+'</th>'
+										+'<th style="border:1px solid">'+data_all_rfk[index].realisasi_fisik+'</th>'
 										+'<th style="border:1px solid"></th>'
 									+'</tr>'
 								+'</tfoot>'
 						 +'</table>';
-			
-			modal_subunit.find('.modal-title').html('REALISASI FISIK DAN KEUANGAN (RFK) <br> ' + nama_skpd + '<br>' + ' Bulan ' + nama_bulan + ' Tahun ' + tahun);
+
+			modal_subunit.find('.modal-title').html('REALISASI FISIK DAN KEUANGAN (RFK) <br> ' + data_all_rfk[index].nama_skpd + '<br>' + ' Bulan ' + nama_bulan + ' Tahun ' + tahun);
 			modal_subunit.find('.modal-body').html(html);
 			modal_subunit.modal('show');
 
