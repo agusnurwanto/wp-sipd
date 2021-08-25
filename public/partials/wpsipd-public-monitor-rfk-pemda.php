@@ -59,6 +59,7 @@ $body .='
 		            <th style="padding: 0; border: 0; width:140px"></th>
 		            <th style="padding: 0; border: 0; width:80px"></th>
 		            <th style="padding: 0; border: 0; width:120px"></th>
+		            <th style="padding: 0; border: 0; width:75px"></th>
 		            <th style="padding: 0; border: 0; width:100px"></th>
 		            <th style="padding: 0; border: 0; width:90px"></th>
 		    	</tr>
@@ -70,6 +71,7 @@ $body .='
 			        <th class="atas kanan bawah text_tengah text_blok">Realisasi Keuangan (Rp.)</th>
 			        <th class="atas kanan bawah text_tengah text_blok">Capaian ( % )</th>
 			        <th class="atas kanan bawah text_tengah text_blok">RAK SIMDA (Rp.)</th>
+			        <th class="atas kanan bawah text_tengah text_blok">Deviasi ( % )</th>
 			        <th class="atas kanan bawah text_tengah text_blok">Realisasi Fisik ( % )</th>
 			        <th class="atas kanan bawah text_tengah text_blok">Update Terakhir</th>
 			    </tr>
@@ -87,7 +89,8 @@ $body .='
 				'total_realisasi_keuangan' => 0,
 				'capaian' => array(),
 				'total_rak_simda' => 0,
-				'realisasi_fisik' => array()
+				'realisasi_fisik' => array(),
+				'deviasi' => array()
 			);
 		    foreach($units as $unit){
 
@@ -101,7 +104,8 @@ $body .='
 								sum(d.realisasi_anggaran) realisasi_keuangan,
 								IFNULL((sum(d.realisasi_anggaran)/sum(k.pagu_simda)*100),0) capaian, 
 								avg(IFNULL(d.realisasi_fisik,0)) realisasi_fisik, 
-								sum(d.rak) rak
+								sum(d.rak) rak,
+								IFNULL((sum(k.pagu_simda)-sum(d.rak))/sum(k.pagu_simda)*100,0) deviasi
 							from data_sub_keg_bl k 
 							left join data_rfk d 
 								on d.id_skpd=k.id_sub_skpd and 
@@ -117,6 +121,7 @@ $body .='
 								$unit['id_skpd'],
 								$bulan
 					), ARRAY_A);
+					// die($wpdb->last_query);
 
 					foreach ($data_rfk as $key => $rfk) {
 						$latest_update = $this->get_date_rfk_update(array('id_skpd'=>$unit['id_skpd'], 'tahun_anggaran' => $input['tahun_anggaran'], 'bulan'=>$bulan));
@@ -129,6 +134,7 @@ $body .='
 			    			'realisasi_keuangan' => $rfk['realisasi_keuangan'],
 			    			'capaian' => $this->pembulatan($rfk['capaian']),
 			    			'rak' => $rfk['rak'],
+			    			'deviasi' => $this->pembulatan($rfk['deviasi']),
 			    			'realisasi_fisik' => $this->pembulatan($rfk['realisasi_fisik']),
 			    			'last_update' => $latest_update,
 			    			'act' => ''
@@ -140,6 +146,7 @@ $body .='
 			    		$data_all['capaian'][]=$rfk['capaian'];
 			    		$data_all['total_rak_simda']+=$rfk['rak'];
 			    		$data_all['realisasi_fisik'][]=$rfk['realisasi_fisik'];
+			    		$data_all['deviasi'][]=$rfk['deviasi'];
 					}
 
 		    	}elseif(count($sub_units) > 1){
@@ -149,6 +156,7 @@ $body .='
 		    		$realisasi_anggaran_sub_unit=0;
 		    		$rak_sub_unit=0;
 		    		$capaian_sub_unit=array();
+		    		$deviasi_sub_unit=array();
 		    		$realisasi_fisik_sub_unit=array();
 		    		$data_all_sub_unit = array();
 		    		
@@ -161,7 +169,8 @@ $body .='
 									sum(d.realisasi_anggaran) realisasi_keuangan,
 									IFNULL((sum(d.realisasi_anggaran)/sum(k.pagu_simda)*100),0) capaian, 
 									avg(IFNULL(d.realisasi_fisik,0)) realisasi_fisik, 
-									sum(d.rak) rak
+									sum(d.rak) rak,
+									IFNULL((sum(k.pagu_simda)-sum(d.rak))/sum(k.pagu_simda)*100,0) deviasi
 								from data_sub_keg_bl k 
 								left join data_rfk d 
 									on d.id_skpd=k.id_sub_skpd and 
@@ -184,6 +193,7 @@ $body .='
 							$realisasi_anggaran_sub_unit+=$rfk['realisasi_keuangan'];
 							$rak_sub_unit+=$rfk['rak'];
 							$capaian_sub_unit[]=$rfk['capaian'];
+							$deviasi_sub_unit[]=$rfk['deviasi'];
 							$realisasi_fisik_sub_unit[]=$rfk['realisasi_fisik'];
 
 							$latest_update_sub_unit = $this->get_date_rfk_update(array('id_skpd'=>$sub_unit['id_skpd'], 'tahun_anggaran' => $input['tahun_anggaran'], 'bulan'=>$bulan, 'type'=>'sub_unit'));
@@ -200,6 +210,7 @@ $body .='
 				    			'realisasi_keuangan' => $rfk['realisasi_keuangan'],
 				    			'capaian' => $this->pembulatan($rfk['capaian']),
 				    			'rak' => $rfk['rak'],
+				    			'deviasi' => $this->pembulatan($rfk['deviasi']),
 				    			'realisasi_fisik' => $this->pembulatan($rfk['realisasi_fisik']),
 				    			'last_update' => $latest_update_sub_unit,
 				    			'url_sub_unit' => get_permalink($custom_post_sub) . '?key=' . $this->gen_key()
@@ -223,9 +234,10 @@ $body .='
 			    			'capaian' => !empty($pagu_simda_sub_unit) ? $this->pembulatan(($realisasi_anggaran_sub_unit/$pagu_simda_sub_unit)*100) : 0,
 			    			'rak' => $rak_sub_unit,
 			    			'realisasi_fisik' => !empty($realisasi_fisik_sub_unit) ? $this->pembulatan(array_sum($realisasi_fisik_sub_unit)/count($realisasi_fisik_sub_unit)) : 0,
+			    			'deviasi' => !empty($pagu_simda_sub_unit) ? $this->pembulatan(($realisasi_anggaran_sub_unit/$pagu_simda_sub_unit)*100) : 0,
 			    			'last_update' => $latest_update,
 			    			'data_sub_unit' => $data_all_sub_unit,
-			    			'act' => '<a class="btn btn-success btn-xs" href="javascript:void(0)" onclick="showsubunit(\''.$unit['id_skpd'].'\', \''.$bulan.'\', \''.$input['tahun_anggaran'].'\')" style="font-size: 0.8em;">+</a>'
+			    			'act' => '<a href="javascript:void(0)" onclick="showsubunit(\''.$unit['id_skpd'].'\', \''.$bulan.'\', \''.$input['tahun_anggaran'].'\')">'.$unit['nama_skpd'].'</a>'
 			    	);
 		    	}
 			}
@@ -233,16 +245,21 @@ $body .='
 	foreach ($data_all['data'] as $key => $value) {
 		$nama_page = 'RFK '.$value['nama_skpd'].' '.$value['kode_skpd'].' | '.$input['tahun_anggaran'];
 		$custom_post = get_page_by_title($nama_page, OBJECT, 'page');
+		$url = '<a href="'.get_permalink($custom_post) . '?key=' . $this->gen_key().'" target="_blank">'.$value['nama_skpd'].'</a> ';
+		if(isset($value['act']) && $value['act'] != ''){
+			$url = $value['act'];
+		}
 		
 		$body.='
 		    	<tr>
 				    <td class="atas kanan bawah kiri text_tengah" data-search="'.$value['kode_skpd'].'">'.$value['kode_skpd'].' </td>
-				    <td class="atas kanan bawah text_kiri" data-search="'.$value['nama_skpd'].'"><a href="'.get_permalink($custom_post) . '?key=' . $this->gen_key().'" target="_blank">'.$value['nama_skpd'].'</a> '.$value['act'].'</td>
+				    <td class="atas kanan bawah text_kiri" data-search="'.$value['nama_skpd'].'">'.$url.'</td>
 				    <td class="atas kanan bawah text_kanan" data-order="'.$value['rka_sipd'].'">'.number_format($value['rka_sipd'],0,",",".").'</td>
 				    <td class="atas kanan bawah text_kanan" data-order="'.$value['dpa_sipd'].'">'.number_format($value['dpa_sipd'],0,",",".").'</td>
 				    <td class="atas kanan bawah text_kanan" data-order="'.$value['realisasi_keuangan'].'">'.number_format($value['realisasi_keuangan'],0,",",".").'</td>
 				    <td class="atas kanan bawah text_tengah">'.$value['capaian'].'</td>
 				    <td class="atas kanan bawah text_kanan" data-order="'.$value['rak'].'">'.number_format($value['rak'],0,",",".").'</td>
+				    <td class="atas kanan bawah text_tengah">'.$value['deviasi'].'</td>
 				    <td class="atas kanan bawah text_tengah">'.$value['realisasi_fisik'].'</td>
 				    <td class="atas kanan bawah text_tengah">'.$value['last_update'].'</td>
 				</tr>
@@ -257,6 +274,7 @@ $body .='
 					    <th class="kanan bawah text_kanan text_blok">'.number_format($data_all['total_realisasi_keuangan'],0,",",".").'</th>
 					    <th class="kanan bawah text_tengah text_blok">'.$this->pembulatan(array_sum($data_all['capaian'])/count($data_all['capaian'])).'</th>
 					    <th class="kanan bawah text_kanan text_blok">'.number_format($data_all['total_rak_simda'],0,",",".").'</th>
+					    <th class="kanan bawah text_tengah text_blok">'.$this->pembulatan(array_sum($data_all['deviasi'])/count($data_all['deviasi'])).'</th>
 					    <th class="kanan bawah text_blok total-realisasi-fisik text_tengah">'.$this->pembulatan(array_sum($data_all['realisasi_fisik'])/count($data_all['realisasi_fisik'])).'</th>
 						<th class="atas kanan bawah text_tengah"></th>
 					</tr>
@@ -321,13 +339,14 @@ $body .='
 				html+='<table id="table-rfk-sub-unit" cellpadding="2" cellspacing="0" style="font-family:\'Open Sans\',-apple-system,BlinkMacSystemFont,\'Segoe UI\',sans-serif; border-collapse: collapse; width:100%; table-layout:fixed; overflow-wrap: break-word; font-size: 70%; border: 0;">'
 					    +'<thead>'
 					    	+'<tr>'
-					    		+'<th style="padding: 0; border: 0; width:150px"></th>'
+					    		+'<th style="padding: 0; border: 0; width:130px"></th>'
 					            +'<th style="padding: 0; border: 0"></th>'
 					            +'<th style="padding: 0; border: 0; width:140px"></th>'
 					            +'<th style="padding: 0; border: 0; width:140px"></th>'
 					            +'<th style="padding: 0; border: 0; width:140px"></th>'
 					            +'<th style="padding: 0; border: 0; width:80px"></th>'
 					            +'<th style="padding: 0; border: 0; width:120px"></th>'
+					            +'<th style="padding: 0; border: 0; width:75px"></th>'
 					            +'<th style="padding: 0; border: 0; width:100px"></th>'
 					            +'<th style="padding: 0; border: 0; width:90px"></th>'
 					    	+'</tr>'
@@ -339,6 +358,7 @@ $body .='
 						        +'<th class="atas kanan bawah text_tengah text_blok">Realisasi Keuangan (Rp.)</th>'
 						        +'<th class="atas kanan bawah text_tengah text_blok">Capaian ( % )</th>'
 						        +'<th class="atas kanan bawah text_tengah text_blok">RAK SIMDA (Rp.)</th>'
+						        +'<th class="atas kanan bawah text_tengah text_blok">Deviasi ( % )</th>'
 						        +'<th class="atas kanan bawah text_tengah text_blok">Realisasi Fisik ( % )</th>'
 						        +'<th class="atas kanan bawah text_tengah text_blok">Update Terakhir</th>'
 						    +'</tr>'
@@ -360,6 +380,7 @@ $body .='
 											+ '<td class="kanan bawah text_kanan" data-order="'+data_sub_unit.realisasi_keuangan+'">'+formatRupiah(data_sub_unit.realisasi_keuangan)+'</td>'
 											+ '<td class="kanan bawah text_tengah">'+data_sub_unit.capaian+'</td>'
 											+ '<td class="kanan bawah text_kanan" data-order="'+data_sub_unit.rak+'">'+formatRupiah(data_sub_unit.rak)+'</td>'
+											+ '<td class="kanan bawah text_tengah">'+data_sub_unit.deviasi+'</td>'
 											+ '<td class="kanan bawah text_tengah">'+data_sub_unit.realisasi_fisik+'</td>'
 											+ '<td class="kanan bawah text_tengah">'+data_sub_unit.last_update+'</td>'
 										+'</tr>'
@@ -377,6 +398,7 @@ $body .='
 										+'<th style="border:1px solid" class="kanan bawah text_kanan">'+formatRupiah(data_all_rfk[index].realisasi_keuangan)+'</th>'
 										+'<th style="border:1px solid" class="kanan bawah text_tengah">'+data_all_rfk[index].capaian+'</th>'
 										+'<th style="border:1px solid" class="kanan bawah text_kanan">'+formatRupiah(data_all_rfk[index].rak)+'</th>'
+										+'<th style="border:1px solid" class="kanan bawah text_tengah">'+data_all_rfk[index].deviasi+'</th>'
 										+'<th style="border:1px solid" class="kanan bawah text_tengah">'+data_all_rfk[index].realisasi_fisik+'</th>'
 										+'<th style="border:1px solid"></th>'
 									+'</tr>'
