@@ -49,7 +49,7 @@ $body .='
 	
 	<div id="cetak" title="Laporan RFK" style="padding: 5px;">
 		<h4 style="text-align: center; margin: 0; font-weight: bold;">REALISASI FISIK DAN KEUANGAN (RFK)<br>'.$nama_pemda.'<br>Bulan '.$nama_bulan.' Tahun '.$input['tahun_anggaran'].'</h4>
-		<table id="table-rfk" cellpadding="2" cellspacing="0" style="font-family:\'Open Sans\',-apple-system,BlinkMacSystemFont,\'Segoe UI\',sans-serif; border-collapse: collapse; width:100%; table-layout:fixed; overflow-wrap: break-word; font-size: 80%; border: 0;">
+		<table id="table-rfk" cellpadding="2" cellspacing="0" style="font-family:\'Open Sans\',-apple-system,BlinkMacSystemFont,\'Segoe UI\',sans-serif; border-collapse: collapse; width:100%; table-layout:fixed; overflow-wrap: break-word; font-size: 70%; border: 0;">
 		    <thead>
 		    	<tr>
 		    		<th style="padding: 0; border: 0; width:150px"></th>
@@ -57,14 +57,14 @@ $body .='
 		            <th style="padding: 0; border: 0; width:140px"></th>
 		            <th style="padding: 0; border: 0; width:140px"></th>
 		            <th style="padding: 0; border: 0; width:140px"></th>
-		            <th style="padding: 0; border: 0; width:85px"></th>
+		            <th style="padding: 0; border: 0; width:80px"></th>
 		            <th style="padding: 0; border: 0; width:120px"></th>
 		            <th style="padding: 0; border: 0; width:100px"></th>
 		            <th style="padding: 0; border: 0; width:90px"></th>
 		    	</tr>
 		    	<tr>
 			    	<th class="atas kanan bawah kiri text_tengah text_blok">Kode</th>
-			        <th class="atas kanan bawah text_tengah text_blok" style="padding: 0; width:140px">Nama SKPD</th>
+			        <th class="atas kanan bawah text_tengah text_blok">Nama SKPD</th>
 			        <th class="atas kanan bawah text_tengah text_blok">RKA SIPD (Rp.)</th>
 			        <th class="atas kanan bawah text_tengah text_blok">DPA SIMDA (Rp.)</th>
 			        <th class="atas kanan bawah text_tengah text_blok">Realisasi Keuangan (Rp.)</th>
@@ -236,13 +236,13 @@ $body .='
 		
 		$body.='
 		    	<tr>
-				    <td class="atas kanan bawah kiri text_tengah">'.$value['kode_skpd'].' </td>
-				    <td class="atas kanan bawah text_kiri"><a href="'.get_permalink($custom_post) . '?key=' . $this->gen_key().'" target="_blank">'.$value['nama_skpd'].'</a> '.$value['act'].'</td>
-				    <td class="atas kanan bawah text_kanan">'.number_format($value['rka_sipd'],0,",",".").'</td>
-				    <td class="atas kanan bawah text_kanan">'.number_format($value['dpa_sipd'],0,",",".").'</td>
-				    <td class="atas kanan bawah text_kanan">'.number_format($value['realisasi_keuangan'],0,",",".").'</td>
+				    <td class="atas kanan bawah kiri text_tengah" data-search="'.$value['kode_skpd'].'">'.$value['kode_skpd'].' </td>
+				    <td class="atas kanan bawah text_kiri" data-search="'.$value['nama_skpd'].'"><a href="'.get_permalink($custom_post) . '?key=' . $this->gen_key().'" target="_blank">'.$value['nama_skpd'].'</a> '.$value['act'].'</td>
+				    <td class="atas kanan bawah text_kanan" data-order="'.$value['rka_sipd'].'">'.number_format($value['rka_sipd'],0,",",".").'</td>
+				    <td class="atas kanan bawah text_kanan" data-order="'.$value['dpa_sipd'].'">'.number_format($value['dpa_sipd'],0,",",".").'</td>
+				    <td class="atas kanan bawah text_kanan" data-order="'.$value['realisasi_keuangan'].'">'.number_format($value['realisasi_keuangan'],0,",",".").'</td>
 				    <td class="atas kanan bawah text_tengah">'.$value['capaian'].'</td>
-				    <td class="atas kanan bawah text_kanan">'.number_format($value['rak'],0,",",".").'</td>
+				    <td class="atas kanan bawah text_kanan" data-order="'.$value['rak'].'">'.number_format($value['rak'],0,",",".").'</td>
 				    <td class="atas kanan bawah text_tengah">'.$value['realisasi_fisik'].'</td>
 				    <td class="atas kanan bawah text_tengah">'.$value['last_update'].'</td>
 				</tr>
@@ -318,7 +318,7 @@ $body .='
 			modal_subunit.find('.modal-body').html('');
 
 			let html = '';
-				html+='<table id="table-rfk-sub-unit" cellpadding="2" cellspacing="0" style="font-family:\'Open Sans\',-apple-system,BlinkMacSystemFont,\'Segoe UI\',sans-serif; border-collapse: collapse; width:100%; table-layout:fixed; overflow-wrap: break-word; font-size: 80%; border: 0;">'
+				html+='<table id="table-rfk-sub-unit" cellpadding="2" cellspacing="0" style="font-family:\'Open Sans\',-apple-system,BlinkMacSystemFont,\'Segoe UI\',sans-serif; border-collapse: collapse; width:100%; table-layout:fixed; overflow-wrap: break-word; font-size: 70%; border: 0;">'
 					    +'<thead>'
 					    	+'<tr>'
 					    		+'<th style="padding: 0; border: 0; width:150px"></th>'
@@ -326,14 +326,14 @@ $body .='
 					            +'<th style="padding: 0; border: 0; width:140px"></th>'
 					            +'<th style="padding: 0; border: 0; width:140px"></th>'
 					            +'<th style="padding: 0; border: 0; width:140px"></th>'
-					            +'<th style="padding: 0; border: 0; width:120px"></th>'
+					            +'<th style="padding: 0; border: 0; width:80px"></th>'
 					            +'<th style="padding: 0; border: 0; width:120px"></th>'
 					            +'<th style="padding: 0; border: 0; width:100px"></th>'
 					            +'<th style="padding: 0; border: 0; width:90px"></th>'
 					    	+'</tr>'
 					    	+'<tr>'
 						    	+'<th class="atas kanan bawah kiri text_tengah text_blok">Kode</th>'
-						        +'<th class="atas kanan bawah text_tengah text_blok" style="padding: 0; width:140px">Nama SKPD</th>'
+						        +'<th class="atas kanan bawah text_tengah text_blok">Nama SKPD</th>'
 						        +'<th class="atas kanan bawah text_tengah text_blok">RKA SIPD (Rp.)</th>'
 						        +'<th class="atas kanan bawah text_tengah text_blok">DPA SIMDA (Rp.)</th>'
 						        +'<th class="atas kanan bawah text_tengah text_blok">Realisasi Keuangan (Rp.)</th>'
@@ -354,12 +354,12 @@ $body .='
 									html += ''
 										+'<tr>'
 											+ '<td class="atas kanan bawah kiri text_tengah">'+data_sub_unit.kode_skpd+'</td>'
-											+ '<td class="atas kanan bawah text_kiri"><a href='+data_sub_unit.url_sub_unit+' target="_blank">'+data_sub_unit.nama_skpd+'</a></td>'
-											+ '<td class="kanan bawah text_kanan">'+formatRupiah(data_sub_unit.rka_sipd)+'</td>'
-											+ '<td class="kanan bawah text_kanan">'+formatRupiah(data_sub_unit.dpa_sipd)+'</td>'
-											+ '<td class="kanan bawah text_kanan">'+formatRupiah(data_sub_unit.realisasi_keuangan)+'</td>'
+											+ '<td class="atas kanan bawah text_kiri" data-search="'+data_sub_unit.nama_skpd+'"><a href='+data_sub_unit.url_sub_unit+' target="_blank">'+data_sub_unit.nama_skpd+'</a></td>'
+											+ '<td class="kanan bawah text_kanan" data-order="'+data_sub_unit.rka_sipd+'">'+formatRupiah(data_sub_unit.rka_sipd)+'</td>'
+											+ '<td class="kanan bawah text_kanan" data-order="'+data_sub_unit.dpa_sipd+'">'+formatRupiah(data_sub_unit.dpa_sipd)+'</td>'
+											+ '<td class="kanan bawah text_kanan" data-order="'+data_sub_unit.realisasi_keuangan+'">'+formatRupiah(data_sub_unit.realisasi_keuangan)+'</td>'
 											+ '<td class="kanan bawah text_tengah">'+data_sub_unit.capaian+'</td>'
-											+ '<td class="kanan bawah text_kanan">'+formatRupiah(data_sub_unit.rak)+'</td>'
+											+ '<td class="kanan bawah text_kanan" data-order="'+data_sub_unit.rak+'">'+formatRupiah(data_sub_unit.rak)+'</td>'
 											+ '<td class="kanan bawah text_tengah">'+data_sub_unit.realisasi_fisik+'</td>'
 											+ '<td class="kanan bawah text_tengah">'+data_sub_unit.last_update+'</td>'
 										+'</tr>'
