@@ -58,7 +58,7 @@ $body .='
 		            <th style="padding: 0; border: 0; width:140px"></th>
 		            <th style="padding: 0; border: 0; width:140px"></th>
 		            <th style="padding: 0; border: 0; width:80px"></th>
-		            <th style="padding: 0; border: 0; width:120px"></th>
+		            <th style="padding: 0; border: 0; width:100px"></th>
 		            <th style="padding: 0; border: 0; width:75px"></th>
 		            <th style="padding: 0; border: 0; width:100px"></th>
 		            <th style="padding: 0; border: 0; width:90px"></th>
@@ -70,7 +70,7 @@ $body .='
 			        <th class="atas kanan bawah text_tengah text_blok">DPA SIMDA (Rp.)</th>
 			        <th class="atas kanan bawah text_tengah text_blok">Realisasi Keuangan (Rp.)</th>
 			        <th class="atas kanan bawah text_tengah text_blok">Capaian ( % )</th>
-			        <th class="atas kanan bawah text_tengah text_blok">RAK SIMDA (Rp.)</th>
+			        <th class="atas kanan bawah text_tengah text_blok">RAK SIMDA ( % )</th>
 			        <th class="atas kanan bawah text_tengah text_blok">Deviasi ( % )</th>
 			        <th class="atas kanan bawah text_tengah text_blok">Realisasi Fisik ( % )</th>
 			        <th class="atas kanan bawah text_tengah text_blok">Update Terakhir</th>
@@ -78,9 +78,8 @@ $body .='
 		    </thead>
 		    <tbody>
 		    ';
-
-		    $units = $wpdb->get_results("SELECT nama_skpd, id_skpd, kode_skpd, is_skpd from data_unit where active=1 and tahun_anggaran=".$input['tahun_anggaran'].' and is_skpd=1 order by kode_skpd ASC', ARRAY_A);
-
+		    // die($body);
+		    $units = $wpdb->get_results("SELECT nama_skpd, id_skpd, kode_skpd, is_skpd FROM data_unit WHERE active=1 AND tahun_anggaran=".$input['tahun_anggaran'].' AND is_skpd=1 ORDER BY nama_skpd ASC', ARRAY_A);
 			$current_user = wp_get_current_user();
 			$data_all = array(
 				'data' => array(),
@@ -89,6 +88,7 @@ $body .='
 				'total_realisasi_keuangan' => 0,
 				'capaian' => array(),
 				'total_rak_simda' => 0,
+				'target_rak' => array(),
 				'realisasi_fisik' => array(),
 				'deviasi' => array()
 			);
@@ -98,23 +98,24 @@ $body .='
 
 		    	if(count($sub_units) == 1){
 		    		$data_rfk = $wpdb->get_results($wpdb->prepare("
-							select 
-								sum(k.pagu) pagu, 
-								sum(k.pagu_simda) pagu_simda, 
-								sum(d.realisasi_anggaran) realisasi_keuangan,
-								IFNULL((sum(d.realisasi_anggaran)/sum(k.pagu_simda)*100),0) capaian, 
-								avg(IFNULL(d.realisasi_fisik,0)) realisasi_fisik, 
-								sum(d.rak) rak,
-								IFNULL((sum(k.pagu_simda)-sum(d.rak))/sum(k.pagu_simda)*100,0) deviasi
-							from data_sub_keg_bl k 
-							left join data_rfk d 
-								on d.id_skpd=k.id_sub_skpd and 
-								d.kode_sbl=k.kode_sbl and 
+							SELECT 
+								SUM(k.pagu) pagu, 
+								SUM(k.pagu_simda) pagu_simda, 
+								SUM(d.realisasi_anggaran) realisasi_keuangan,
+								IFNULL((SUM(d.realisasi_anggaran)/SUM(k.pagu_simda)*100),0) capaian, 
+								AVG(IFNULL(d.realisasi_fisik,0)) realisasi_fisik, 
+								SUM(d.rak) rak,
+								IFNULL((SUM(d.rak)/SUM(k.pagu_simda)*100),0) target_rak,
+								(IFNULL((SUM(d.rak)/SUM(k.pagu_simda)*100),0)-IFNULL((SUM(d.realisasi_anggaran)/SUM(k.pagu_simda)*100),0)) deviasi
+							FROM data_sub_keg_bl k 
+							LEFT JOIN data_rfk d 
+								ON d.id_skpd=k.id_sub_skpd AND 
+								d.kode_sbl=k.kode_sbl AND 
 								d.tahun_anggaran=k.tahun_anggaran 
-							where 
-								k.tahun_anggaran=%d and 
-								k.id_sub_skpd=%d and 
-								k.active=1 and 
+							WHERE 
+								k.tahun_anggaran=%d AND 
+								k.id_sub_skpd=%d AND 
+								k.active=1 AND 
 								bulan=%d
 							", 
 								$input['tahun_anggaran'],
@@ -134,6 +135,7 @@ $body .='
 			    			'realisasi_keuangan' => $rfk['realisasi_keuangan'],
 			    			'capaian' => $this->pembulatan($rfk['capaian']),
 			    			'rak' => $rfk['rak'],
+			    			'target_rak' => $this->pembulatan($rfk['target_rak']),
 			    			'deviasi' => $this->pembulatan($rfk['deviasi']),
 			    			'realisasi_fisik' => $this->pembulatan($rfk['realisasi_fisik']),
 			    			'last_update' => $latest_update,
@@ -145,6 +147,7 @@ $body .='
 			    		$data_all['total_realisasi_keuangan']+=$rfk['realisasi_keuangan'];
 			    		$data_all['capaian'][]=$rfk['capaian'];
 			    		$data_all['total_rak_simda']+=$rfk['rak'];
+			    		$data_all['target_rak'][]=$rfk['target_rak'];
 			    		$data_all['realisasi_fisik'][]=$rfk['realisasi_fisik'];
 			    		$data_all['deviasi'][]=$rfk['deviasi'];
 					}
@@ -155,52 +158,48 @@ $body .='
 		    		$pagu_simda_sub_unit=0;
 		    		$realisasi_anggaran_sub_unit=0;
 		    		$rak_sub_unit=0;
-		    		$capaian_sub_unit=array();
-		    		$deviasi_sub_unit=array();
 		    		$realisasi_fisik_sub_unit=array();
 		    		$data_all_sub_unit = array();
 		    		
 		    		foreach ($sub_units as $key => $sub_unit) {
 		    			
 			    		$data_rfk = $wpdb->get_results($wpdb->prepare("
-								select 
-									sum(k.pagu) pagu, 
-									sum(k.pagu_simda) pagu_simda, 
-									sum(d.realisasi_anggaran) realisasi_keuangan,
-									IFNULL((sum(d.realisasi_anggaran)/sum(k.pagu_simda)*100),0) capaian, 
-									avg(IFNULL(d.realisasi_fisik,0)) realisasi_fisik, 
-									sum(d.rak) rak,
-									IFNULL((sum(k.pagu_simda)-sum(d.rak))/sum(k.pagu_simda)*100,0) deviasi
-								from data_sub_keg_bl k 
-								left join data_rfk d 
-									on d.id_skpd=k.id_sub_skpd and 
-									d.kode_sbl=k.kode_sbl and 
+								SELECT 
+									SUM(k.pagu) pagu, 
+									SUM(k.pagu_simda) pagu_simda, 
+									SUM(d.realisasi_anggaran) realisasi_keuangan,
+									IFNULL((SUM(d.realisasi_anggaran)/SUM(k.pagu_simda)*100),0) capaian, 
+									AVG(IFNULL(d.realisasi_fisik,0)) realisasi_fisik, 
+									SUM(d.rak) rak,
+									(IFNULL((SUM(d.rak)/SUM(k.pagu_simda)*100),0)-IFNULL((SUM(d.realisasi_anggaran)/SUM(k.pagu_simda)*100),0)) deviasi
+								FROM data_sub_keg_bl k 
+								LEFT JOIN data_rfk d 
+									ON d.id_skpd=k.id_sub_skpd AND 
+									d.kode_sbl=k.kode_sbl AND 
 									d.tahun_anggaran=k.tahun_anggaran 
-								where 
-									k.tahun_anggaran=%d and 
-									k.id_sub_skpd=%d and 
-									k.active=1 and 
+								WHERE 
+									k.tahun_anggaran=%d AND 
+									k.id_sub_skpd=%d AND 
+									k.active=1 AND 
 									bulan=%d
 								", 
 									$input['tahun_anggaran'],
 									$sub_unit['id_skpd'],
 									$bulan
 						), ARRAY_A);
+						// die($wpdb->last_query);
 
 			    		foreach ($data_rfk as $key => $rfk) {
 							$pagu_sub_unit+=$rfk['pagu'];
 							$pagu_simda_sub_unit+=$rfk['pagu_simda'];
 							$realisasi_anggaran_sub_unit+=$rfk['realisasi_keuangan'];
 							$rak_sub_unit+=$rfk['rak'];
-							$capaian_sub_unit[]=$rfk['capaian'];
-							$deviasi_sub_unit[]=$rfk['deviasi'];
 							$realisasi_fisik_sub_unit[]=$rfk['realisasi_fisik'];
 
 							$latest_update_sub_unit = $this->get_date_rfk_update(array('id_skpd'=>$sub_unit['id_skpd'], 'tahun_anggaran' => $input['tahun_anggaran'], 'bulan'=>$bulan, 'type'=>'sub_unit'));
 							$nama_page_sub = 'RFK '.$sub_unit['nama_skpd'].' '.$sub_unit['kode_skpd'].' | '.$input['tahun_anggaran'];
 							$custom_post_sub = get_page_by_title($nama_page_sub, OBJECT, 'page');
 
-							//tambahkan sebagai data rincian sub unit
 							$data_all_sub_unit[] = array(
 				    			'id_skpd_induk' => $unit['id_skpd'],
 				    			'kode_skpd' => $sub_unit['kode_skpd'],
@@ -210,6 +209,7 @@ $body .='
 				    			'realisasi_keuangan' => $rfk['realisasi_keuangan'],
 				    			'capaian' => $this->pembulatan($rfk['capaian']),
 				    			'rak' => $rfk['rak'],
+				    			'target_rak' => $this->pembulatan($rfk['target_rak']),
 				    			'deviasi' => $this->pembulatan($rfk['deviasi']),
 				    			'realisasi_fisik' => $this->pembulatan($rfk['realisasi_fisik']),
 				    			'last_update' => $latest_update_sub_unit,
@@ -233,8 +233,9 @@ $body .='
 			    			'realisasi_keuangan' => $realisasi_anggaran_sub_unit,
 			    			'capaian' => !empty($pagu_simda_sub_unit) ? $this->pembulatan(($realisasi_anggaran_sub_unit/$pagu_simda_sub_unit)*100) : 0,
 			    			'rak' => $rak_sub_unit,
+			    			'target_rak' => !empty($pagu_simda_sub_unit) ? $this->pembulatan(($rak_sub_unit/$pagu_simda_sub_unit)*100) : 0,
 			    			'realisasi_fisik' => !empty($realisasi_fisik_sub_unit) ? $this->pembulatan(array_sum($realisasi_fisik_sub_unit)/count($realisasi_fisik_sub_unit)) : 0,
-			    			'deviasi' => !empty($pagu_simda_sub_unit) ? $this->pembulatan(($realisasi_anggaran_sub_unit/$pagu_simda_sub_unit)*100) : 0,
+			    			'deviasi' => !empty($pagu_simda_sub_unit) ? $this->pembulatan(($rak_sub_unit/$pagu_simda_sub_unit*100) - ($realisasi_anggaran_sub_unit/$pagu_simda_sub_unit)*100) : 0,
 			    			'last_update' => $latest_update,
 			    			'data_sub_unit' => $data_all_sub_unit,
 			    			'act' => '<a href="javascript:void(0)" onclick="showsubunit(\''.$unit['id_skpd'].'\', \''.$bulan.'\', \''.$input['tahun_anggaran'].'\')">'.$unit['nama_skpd'].'</a>'
@@ -258,7 +259,7 @@ $body .='
 				    <td class="atas kanan bawah text_kanan" data-order="'.$value['dpa_sipd'].'">'.number_format($value['dpa_sipd'],0,",",".").'</td>
 				    <td class="atas kanan bawah text_kanan" data-order="'.$value['realisasi_keuangan'].'">'.number_format($value['realisasi_keuangan'],0,",",".").'</td>
 				    <td class="atas kanan bawah text_tengah">'.$value['capaian'].'</td>
-				    <td class="atas kanan bawah text_kanan" data-order="'.$value['rak'].'">'.number_format($value['rak'],0,",",".").'</td>
+				    <td class="atas kanan bawah text_tengah" data="'.$value['rak'].'">'.$value['target_rak'].'</td>
 				    <td class="atas kanan bawah text_tengah">'.$value['deviasi'].'</td>
 				    <td class="atas kanan bawah text_tengah">'.$value['realisasi_fisik'].'</td>
 				    <td class="atas kanan bawah text_tengah">'.$value['last_update'].'</td>
@@ -273,7 +274,7 @@ $body .='
 					    <th class="kanan bawah text_kanan text_blok">'.number_format($data_all['total_dpa_sipd'],0,",",".").'</th>
 					    <th class="kanan bawah text_kanan text_blok">'.number_format($data_all['total_realisasi_keuangan'],0,",",".").'</th>
 					    <th class="kanan bawah text_tengah text_blok">'.$this->pembulatan(array_sum($data_all['capaian'])/count($data_all['capaian'])).'</th>
-					    <th class="kanan bawah text_kanan text_blok">'.number_format($data_all['total_rak_simda'],0,",",".").'</th>
+					    <th class="kanan bawah text_tengah text_blok">'.$this->pembulatan(array_sum($data_all['target_rak'])/count($data_all['target_rak'])).'</th>
 					    <th class="kanan bawah text_tengah text_blok">'.$this->pembulatan(array_sum($data_all['deviasi'])/count($data_all['deviasi'])).'</th>
 					    <th class="kanan bawah text_blok total-realisasi-fisik text_tengah">'.$this->pembulatan(array_sum($data_all['realisasi_fisik'])/count($data_all['realisasi_fisik'])).'</th>
 						<th class="atas kanan bawah text_tengah"></th>
@@ -345,7 +346,7 @@ $body .='
 					            +'<th style="padding: 0; border: 0; width:140px"></th>'
 					            +'<th style="padding: 0; border: 0; width:140px"></th>'
 					            +'<th style="padding: 0; border: 0; width:80px"></th>'
-					            +'<th style="padding: 0; border: 0; width:120px"></th>'
+					            +'<th style="padding: 0; border: 0; width:100px"></th>'
 					            +'<th style="padding: 0; border: 0; width:75px"></th>'
 					            +'<th style="padding: 0; border: 0; width:100px"></th>'
 					            +'<th style="padding: 0; border: 0; width:90px"></th>'
@@ -357,7 +358,7 @@ $body .='
 						        +'<th class="atas kanan bawah text_tengah text_blok">DPA SIMDA (Rp.)</th>'
 						        +'<th class="atas kanan bawah text_tengah text_blok">Realisasi Keuangan (Rp.)</th>'
 						        +'<th class="atas kanan bawah text_tengah text_blok">Capaian ( % )</th>'
-						        +'<th class="atas kanan bawah text_tengah text_blok">RAK SIMDA (Rp.)</th>'
+						        +'<th class="atas kanan bawah text_tengah text_blok">RAK SIMDA ( % )</th>'
 						        +'<th class="atas kanan bawah text_tengah text_blok">Deviasi ( % )</th>'
 						        +'<th class="atas kanan bawah text_tengah text_blok">Realisasi Fisik ( % )</th>'
 						        +'<th class="atas kanan bawah text_tengah text_blok">Update Terakhir</th>'
@@ -379,7 +380,7 @@ $body .='
 											+ '<td class="kanan bawah text_kanan" data-order="'+data_sub_unit.dpa_sipd+'">'+formatRupiah(data_sub_unit.dpa_sipd)+'</td>'
 											+ '<td class="kanan bawah text_kanan" data-order="'+data_sub_unit.realisasi_keuangan+'">'+formatRupiah(data_sub_unit.realisasi_keuangan)+'</td>'
 											+ '<td class="kanan bawah text_tengah">'+data_sub_unit.capaian+'</td>'
-											+ '<td class="kanan bawah text_kanan" data-order="'+data_sub_unit.rak+'">'+formatRupiah(data_sub_unit.rak)+'</td>'
+											+ '<td class="kanan bawah text_tengah">'+data_sub_unit.target_rak+'</td>'
 											+ '<td class="kanan bawah text_tengah">'+data_sub_unit.deviasi+'</td>'
 											+ '<td class="kanan bawah text_tengah">'+data_sub_unit.realisasi_fisik+'</td>'
 											+ '<td class="kanan bawah text_tengah">'+data_sub_unit.last_update+'</td>'
@@ -397,7 +398,7 @@ $body .='
 										+'<th style="border:1px solid" class="kanan bawah text_kanan">'+formatRupiah(data_all_rfk[index].dpa_sipd)+'</th>'
 										+'<th style="border:1px solid" class="kanan bawah text_kanan">'+formatRupiah(data_all_rfk[index].realisasi_keuangan)+'</th>'
 										+'<th style="border:1px solid" class="kanan bawah text_tengah">'+data_all_rfk[index].capaian+'</th>'
-										+'<th style="border:1px solid" class="kanan bawah text_kanan">'+formatRupiah(data_all_rfk[index].rak)+'</th>'
+										+'<th style="border:1px solid" class="kanan bawah text_kanan">'+data_all_rfk[index].target_rak+'</th>'
 										+'<th style="border:1px solid" class="kanan bawah text_tengah">'+data_all_rfk[index].deviasi+'</th>'
 										+'<th style="border:1px solid" class="kanan bawah text_tengah">'+data_all_rfk[index].realisasi_fisik+'</th>'
 										+'<th style="border:1px solid"></th>'
