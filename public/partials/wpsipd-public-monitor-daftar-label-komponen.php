@@ -13,11 +13,11 @@ $body = '';
 foreach ($data_label_komponen as $k => $v) {
 	$title = 'Laporan APBD Per Label Komponen "'.$v['nama'].'" | '.$input['tahun_anggaran'];
 	$custom_post = get_page_by_title($title, OBJECT, 'page');
-	$url_label = esc_url(get_permalink($custom_post));
+	$url_label = $this->get_link_post($custom_post);
 	$body .= '
 	<tr>
 		<td class="text-tengah">'.($k+1).'</td>
-		<td><a href="'.$url_label.'&key='.$this->gen_key().'&id_skpd='.$input['id_skpd'].'" target="_blank">'.$v['nama'].'</a></td>
+		<td><a href="'.$url_label.'&id_skpd='.$input['id_skpd'].'" target="_blank">'.$v['nama'].'</a></td>
 		<td>'.$v['keterangan'].'</td>
 	</tr>
 	';

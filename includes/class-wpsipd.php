@@ -172,6 +172,7 @@ class Wpsipd
 		$this->loader->add_action('wp_ajax_simpan_data_label_komponen',  $plugin_admin, 'simpan_data_label_komponen');
 		$this->loader->add_action('wp_ajax_hapus_data_label_komponen',  $plugin_admin, 'hapus_data_label_komponen');
 		$this->loader->add_action('wp_ajax_simpan_mapping',  $plugin_admin, 'simpan_mapping');
+		$this->loader->add_action('wp_ajax_load_ajax_carbon',  $plugin_admin, 'load_ajax_carbon');
 	}
 
 	/**

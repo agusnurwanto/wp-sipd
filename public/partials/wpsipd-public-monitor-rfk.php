@@ -57,7 +57,7 @@ if(empty($units)){
 $current_user = wp_get_current_user();
 
 foreach ($units as $k => $unit): 
-	$kd_unit_simda = explode('.', carbon_get_theme_option('crb_unit_'.$unit['id_skpd']));
+	$kd_unit_simda = explode('.', get_option('_crb_unit_'.$unit['id_skpd']));
 	$_kd_urusan = $kd_unit_simda[0];
 	$_kd_bidang = $kd_unit_simda[1];
 	$kd_unit = $kd_unit_simda[2];
@@ -376,12 +376,7 @@ foreach ($units as $k => $unit):
 					}
 					$nama_page = $input['tahun_anggaran'] . ' | ' . $unit['kode_skpd'] . ' | ' . $kd_giat1 . ' | ' . $giat['nama'];
 					$custom_post = get_page_by_title($nama_page, OBJECT, 'post');
-					$link_kegiatan = get_permalink($custom_post);
-					if(strpos('?', $link_kegiatan) == -1){
-						$link_kegiatan .= '?key=' . $this->gen_key();
-					}else{
-						$link_kegiatan .= '&key=' . $this->gen_key();
-					}
+					$link_kegiatan = $this->get_link_post($custom_post);
 					$body .= '
 				        <tr class="kegiatan" data-kode="'.$kd_urusan.'.'.$kd_bidang.'.'.$kd_program.'.'.$kd_giat.'">
 				            <td class="text_tengah" style="border:.5pt solid #000; vertical-align:middle; font-weight:bold;" width="5">'.$kd_urusan.'</td>
@@ -462,7 +457,7 @@ foreach ($units as $k => $unit):
 		$capaian_total = $this->pembulatan(($data_all['realisasi']/$data_all['total_simda'])*100);
 	}
 	echo '
-	<input type="hidden" value="'.carbon_get_theme_option( 'crb_api_key_extension' ).'" id="api_key">
+	<input type="hidden" value="'.get_option( '_crb_api_key_extension' ).'" id="api_key">
 	<input type="hidden" value="'.$input['tahun_anggaran'].'" id="tahun_anggaran">
 	<input type="hidden" value="'.$unit['id_skpd'].'" id="id_skpd">
 	<div id="cetak" title="Laporan RFK '.$input['tahun_anggaran'].'" style="padding: 5px;">
@@ -502,7 +497,7 @@ foreach ($units as $k => $unit):
 			        <td class="atas kanan bawah text_tengah text_blok">RAK SIMDA (Rp.)</td>
 			        <td class="atas kanan bawah text_tengah text_blok">Realisasi Fisik ( % )</td>
 			        <td class="atas kanan bawah text_tengah text_blok">Sumber Dana</td>
-			        <td class="atas kanan bawah text_tengah text_blok">Permasalahan</td>
+			        <td class="atas kanan bawah text_tengah text_blok">Keterangan / Permasalahan</td>
 			        <td class="atas kanan bawah text_tengah text_blok">Catatan Verifikator</td>
 			    </tr>
 			    <tr>

@@ -271,7 +271,7 @@ foreach ($data_sumberdana_shorted['data'] as $k => $skpd) {
 			$custom_post = get_page_by_title($nama_page, OBJECT, 'post');
 			$link = 'style="color: red;" title="'.$nama_page.'"';
 			if(!empty($custom_post)){
-				$link = 'href="'.get_permalink($custom_post). '?key=' . $this->gen_key().'"';
+                $link = $this->get_link_post($custom_post);
 			}
 		}
         $capaian = 0;

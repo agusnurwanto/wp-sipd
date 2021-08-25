@@ -52,6 +52,31 @@ jQuery(document).ready(function(){
 			});
 		}
 	});
+	if(jQuery("#load_ajax_carbon").length >= 1){
+		jQuery('#wrap-loading').show();
+			jQuery.ajax({
+				url: ajaxurl,
+	          	type: "post",
+	          	data: {
+	          		"action": "load_ajax_carbon",
+	          		"api_key": wpsipd.api_key,
+	          		"type": jQuery("#load_ajax_carbon").attr('data-type')
+	          	},
+	          	dataType: "json",
+	          	success: function(data){
+					jQuery('#wrap-loading').hide();
+					if(data.status == 'success'){
+						jQuery('#load_ajax_carbon').html(data.message);
+					}else{
+						return alert(data.message);
+					}
+				},
+				error: function(e) {
+					console.log(e);
+					return alert(data.message);
+				}
+			});
+	}
 	if(jQuery("#body_label").length >= 1){
 		var tahun_anggaran = jQuery('select[name="carbon_fields_compact_input[_crb_tahun_anggaran]"]');
 		load_label(tahun_anggaran.val());

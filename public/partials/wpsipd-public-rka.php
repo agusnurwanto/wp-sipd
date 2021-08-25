@@ -21,7 +21,7 @@ if(empty($input['kode_bl'])){
 
 $current_user = wp_get_current_user();
 
-$api_key = carbon_get_theme_option( 'crb_api_key_extension' );
+$api_key = get_option( '_crb_api_key_extension' );
 
 $data_sumber_dana = $wpdb->get_results("select id_dana, nama_dana from data_sumber_dana where tahun_anggaran=".$input['tahun_anggaran'], ARRAY_A);
 $data_label_komponen = $wpdb->get_results("select id, nama from data_label_komponen where tahun_anggaran=".$input['tahun_anggaran'], ARRAY_A);
@@ -311,10 +311,10 @@ foreach ($bl as $k => $sub_bl) {
 		$header_sub = '
 			<tr>
 	            <td class="kiri kanan bawah atas text_tengah text_blok" rowspan="3" style="vertical-align: middle;">Kode Rekening</td>
-	            <td class="kanan bawah text_tengah text_blok" rowspan="3" style="vertical-align: middle;">Uraian</td>
-	            <td class="kanan bawah text_tengah text_blok" colspan="5">Sebelum Perubahan</td>
-	            <td class="kanan bawah text_tengah text_blok" colspan="5">Setelah Perubahan</td>
-	            <td class="kanan bawah text_tengah text_blok" rowspan="3" style="vertical-align: middle;">Bertambah/ (Berkurang)</td>
+	            <td class="kanan bawah atas text_tengah text_blok" rowspan="3" style="vertical-align: middle;">Uraian</td>
+	            <td class="kanan bawah atas text_tengah text_blok" colspan="5">Sebelum Perubahan</td>
+	            <td class="kanan bawah atas text_tengah text_blok" colspan="5">Setelah Perubahan</td>
+	            <td class="kanan bawah atas text_tengah text_blok" rowspan="3" style="vertical-align: middle;">Bertambah/ (Berkurang)</td>
 	        </tr>
 			<tr>
 	            <td class="kanan bawah text_tengah text_blok" colspan="4">Rincian Perhitungan</td>
@@ -337,9 +337,9 @@ foreach ($bl as $k => $sub_bl) {
 		$header_sub = '
 			<tr>
 	            <td class="kiri kanan bawah atas text_tengah text_blok" rowspan="2">Kode Rekening</td>
-	            <td class="kanan bawah text_tengah text_blok" rowspan="2">Uraian</td>
-	            <td class="kanan bawah text_tengah text_blok" colspan="4">Rincian Perhitungan</td>
-	            <td class="kanan bawah text_tengah text_blok" rowspan="2">Jumlah</td>
+	            <td class="kanan bawah atas text_tengah text_blok" rowspan="2">Uraian</td>
+	            <td class="kanan bawah atas text_tengah text_blok" colspan="4">Rincian Perhitungan</td>
+	            <td class="kanan bawah atas text_tengah text_blok" rowspan="2">Jumlah</td>
 	        </tr>
 	        <tr>
 	            <td class="kanan bawah text_tengah text_blok">Koefisien</td>
@@ -820,7 +820,7 @@ foreach ($bl as $k => $sub_bl) {
                 <td class="kanan bawah" style="vertical-align: middle;">'.$item['satuan'].'</td>
                 <td class="kanan bawah text_kanan" style="vertical-align: middle;">'.number_format($item['harga_satuan_murni'],0,",",".").'</td>
                 <td class="kanan bawah text_kanan" style="vertical-align: middle;">'.number_format($item['totalpajak'],0,",",".").'</td>
-                <td class="kanan bawah text_kanan total_rinci" style="vertical-align: middle;white-space:nowrap">Rp. '.number_format($item['total_harga'],0,",",".").'</td>
+                <td class="kanan bawah text_kanan total_rinci" data-total="'.$item['total_harga'].'" style="vertical-align: middle;white-space:nowrap">Rp. '.number_format($item['total_harga'],0,",",".").'</td>
                 '.$selisih_murni.'
             </tr>
 		';
@@ -1035,7 +1035,7 @@ foreach ($bl as $k => $sub_bl) {
 	                    <?php echo $judul; ?>
 	                </tr>
 	                <tr>
-	                    <td class="kiri atas kanan bawah text_tengah">Pemerintah <?php echo carbon_get_theme_option('crb_daerah'); ?> Tahun Anggaran <?php echo $tahun_anggaran; ?></td>
+	                    <td class="kiri atas kanan bawah text_tengah">Pemerintah <?php echo get_option('_crb_daerah'); ?> Tahun Anggaran <?php echo $tahun_anggaran; ?></td>
 	                </tr>
 	            </table>
 	        </td>
@@ -1395,7 +1395,7 @@ foreach ($bl as $k => $sub_bl) {
 			                <table class="tabel-standar" width="100%" cellpadding="2">
 			                    <tbody>
 			                    	<tr>
-			                            <td class="text_tengah"><?php echo carbon_get_theme_option('crb_daerah'); ?> , Tanggal <?php echo $tgl_laporan; ?></td>
+			                            <td class="text_tengah"><?php echo get_option('_crb_daerah'); ?> , Tanggal <?php echo $tgl_laporan; ?></td>
 			                        </tr>
 			                        <tr><td class="text_tengah" style="font-size: 110%;">Kepala&nbsp;<?php echo $unit[0]['namaunit']; ?></td></tr>
 			                        <tr><td height="80">&nbsp;</td></tr>
@@ -1473,7 +1473,7 @@ foreach ($bl as $k => $sub_bl) {
 	        </td>
 	        <td class="kiri kanan atas bawah" width="250" valign="top">
 	            <table width="100%" class="cellpadding_2" style="border-spacing: 0px;">
-	                <tr><td colspan="3" class="text_tengah"><?php echo carbon_get_theme_option('crb_daerah'); ?> , Tanggal <?php echo $tgl_laporan; ?></td></tr>
+	                <tr><td colspan="3" class="text_tengah"><?php echo get_option('_crb_daerah'); ?> , Tanggal <?php echo $tgl_laporan; ?></td></tr>
                     <tr><td colspan="3" class="text_tengah text_15">Kepala&nbsp;<?php echo $unit[0]['namaunit']; ?></td></tr>
 	                <tr><td colspan="3" height="80">&nbsp;</td></tr>
 	                <tr><td colspan="3" class="text_tengah"><?php echo $unit[0]['namakepala']; ?></td></tr>
@@ -1752,16 +1752,15 @@ foreach ($bl as $k => $sub_bl) {
 			+'</div>';
 		jQuery('body').prepend(aksi);
 
-		var _url = window.location.href;
-	    var url = new URL(_url);
-	    _url = url.origin+url.pathname+'?key='+url.searchParams.get('key');
+		var _url_asli = window.location.href;
+	    var url = new URL(_url_asli);
 	    var type = url.searchParams.get("type");
 	    jQuery('#type_laporan').val('rka_murni');
 	    if(type){
 	    	jQuery('#type_laporan').val(type);
 	    }
 	    jQuery('#type_laporan').on('change', function(){
-	    	window.open(_url+'&type='+jQuery(this).val(), '_blank');
+	    	window.open(changeUrl({key: 'type', value: jQuery(this).val(), url: _url_asli}), '_blank');
 	    });
 	    jQuery('.edit-mapping').on('click', function(){
 	    	jQuery('#wrap-rek_2').hide();
@@ -1833,8 +1832,10 @@ foreach ($bl as $k => $sub_bl) {
 	    		var tr_html = td_html.closest('tr');
 	    		var volume_satuan = tr_html.find('td.volume_satuan').text();
 	    		var total_rinci = tr_html.find('td.total_rinci').text();
+	    		var total_rinci_asli = tr_html.find('td.total_rinci').attr('data-total');
 	    		var nama_rinci = td_html.closest('td').find('.nama').text().trim();
 	    		jQuery('#mapping_item').html(nama_rinci+'<br>Koefisien: '+volume_satuan+'<br>Total Rinci: '+total_rinci);
+	    		jQuery('#mapping_item').attr('data-total', total_rinci_asli);
 	    		jQuery('#wrap-item').show();
 	    		jQuery('#mapping_realisasi').val(0);
 	    		var realisasi_rincian = +td_html.closest('td').find('.mapping.realisasi').attr('data-realisasi');
@@ -1884,8 +1885,11 @@ foreach ($bl as $k => $sub_bl) {
 		    	var realisasi_rinci_all = +jQuery('#mapping_realisasi').attr('data-realisasi-all');
 		    	var realisasi_rinci = +jQuery('#mapping_realisasi').val();
 		    	var realisasi_akun = +jQuery('#mapping_rek_5 .mapping').attr('data-realisasi');
+		    	var total_asli = +jQuery('#mapping_item').attr('data-total');
 		    	if((realisasi_rinci+realisasi_rinci_all) > realisasi_akun){
 		    		return alert('Realisasi rincian tidak boleh lebih besar dari realisasi kode rekening');
+		    	}else if(realisasi_rinci > total_asli){
+		    		return alert('Realisasi rincian tidak boleh lebih besar dari nilai rincian');
 		    	}else{
 		    		jQuery('#wrap-loading').show();
 			    	jQuery.ajax({

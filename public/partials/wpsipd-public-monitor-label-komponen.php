@@ -178,10 +178,11 @@ foreach ($data_label_shorted['data'] as $k => $skpd) {
         }
         $nama_page = $input['tahun_anggaran'] . ' | ' . $k . ' | ' . $sub_keg['kode_giat'] . ' | ' . $sub_keg['nama_giat'];
         $custom_post = get_page_by_title($nama_page, OBJECT, 'post');
+        $link = $this->get_link_post($custom_post);
         $body_label .= '
             <tr class="sub_keg">
                 <td class="kanan bawah kiri text_tengah text_blok"></td>
-                <td class="kanan bawah text_blok" colspan="2" style="padding-left: 20px;"><a href="'.get_permalink($custom_post) . '?key=' . $this->gen_key().'" target="_blank">'.$sub_keg['nama'].'</a></td>
+                <td class="kanan bawah text_blok" colspan="2" style="padding-left: 20px;"><a href="'.$link.'" target="_blank">'.$sub_keg['nama'].'</a></td>
                 '.$murni.'
                 <td class="kanan bawah text_blok text_kanan">'.number_format($sub_keg['total'],0,",",".").'</td>
                 '.$selisih.'

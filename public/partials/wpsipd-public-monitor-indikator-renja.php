@@ -9,7 +9,7 @@ if(empty($input['id_skpd'])){
 	die('<h1>SKPD tidak ditemukan!</h1>');
 }
 
-$api_key = carbon_get_theme_option( 'crb_api_key_extension' );
+$api_key = get_option('_crb_api_key_extension' );
 
 function button_edit_monev($class=false){
 	$ret = ' <span style="display: none;" data-id="'.$class.'" class="edit-monev"><i class="dashicons dashicons-edit"></i></span>';
@@ -342,6 +342,7 @@ foreach ($data_all['data'] as $kd_urusan => $urusan) {
 				$kd_giat = $kd_giat[count($kd_giat)-2].'.'.$kd_giat[count($kd_giat)-1];
 				$nama_page = $input['tahun_anggaran'] . ' | ' . $unit[0]['kode_skpd'] . ' | ' . $kd_giat1 . ' | ' . $giat['nama'];
 				$custom_post = get_page_by_title($nama_page, OBJECT, 'post');
+				$link = $this->get_link_post($custom_post);
 				$capaian = 0;
 				if(!empty($giat['total_simda'])){
 					$capaian = $this->pembulatan(($giat['realisasi']/$giat['total_simda'])*100);
@@ -360,7 +361,7 @@ foreach ($data_all['data'] as $kd_urusan => $urusan) {
 			            <td class="text_tengah kanan bawah text_blok"></td>
 			            <td class="text_tengah kanan bawah text_blok"></td>
 			            <td class="kanan bawah text_blok">'.$kd_giat1.'</td>
-			            <td class="kanan bawah text_blok nama"><a href="'.get_permalink($custom_post) . '?key=' . $this->gen_key().'" target="_blank">'.$giat['nama'].'</a></td>
+			            <td class="kanan bawah text_blok nama"><a href="'.$link.'" target="_blank">'.$giat['nama'].'</a></td>
 			            <td class="kanan bawah text_blok indikator">'.$output_giat.'</td>
 			            <td class="text_tengah kanan bawah text_blok total_renstra"></td>
 			            <td class="text_tengah kanan bawah text_blok total_renstra">'.$satuan_output_giat.'</td>
@@ -476,7 +477,7 @@ foreach ($data_all['data'] as $kd_urusan => $urusan) {
 	    background: #ff00002e;
 	}
 </style>
-<input type="hidden" value="<?php echo carbon_get_theme_option( 'crb_api_key_extension' ); ?>" id="api_key">
+<input type="hidden" value="<?php echo get_option('_crb_api_key_extension' ); ?>" id="api_key">
 <input type="hidden" value="<?php echo $input['tahun_anggaran']; ?>" id="tahun_anggaran">
 <input type="hidden" value="<?php echo $unit[0]['id_skpd']; ?>" id="id_skpd">
 <h4 style="text-align: center; margin: 0; font-weight: bold;">Monitoring dan Evaluasi Rencana Kerja <br><?php echo $unit[0]['kode_skpd'].'&nbsp;'.$unit[0]['nama_skpd'].'<br>Tahun '.$input['tahun_anggaran'].' '.$nama_pemda; ?></h4>

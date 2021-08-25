@@ -30,7 +30,7 @@ foreach ($sumberdana as $key => $val) {
 	$no++;
 	$title = 'Laporan APBD Per Sumber Dana '.$val['kodedana'].' '.$val['namadana'].' | '.$input['tahun_anggaran'];
 	$custom_post = get_page_by_title($title, OBJECT, 'page');
-	$url_skpd = esc_url(get_permalink($custom_post));
+	$url_skpd = $this->get_link_post($custom_post);
 	if(empty($val['kodedana'])){
 		$val['kodedana'] = '';
 		$val['namadana'] = 'Belum Di Setting';
@@ -39,7 +39,7 @@ foreach ($sumberdana as $key => $val) {
 		<tr>
 			<td class="text_tengah">'.$no.'</td>
 			<td>'.$val['kodedana'].'</td>
-			<td><a href="'.$url_skpd.'&key='.$this->gen_key().'&id_skpd='.$input['id_skpd'].'" target="_blank">'.$val['namadana'].'</a></td>
+			<td><a href="'.$url_skpd.'&id_skpd='.$input['id_skpd'].'" target="_blank">'.$val['namadana'].'</a></td>
 			<td class="text_tengah">'.$val['iddana'].'</td>
 			<td class="text_tengah">'.$input['tahun_anggaran'].'</td>
 		</tr>

@@ -233,11 +233,11 @@ $body .='
 	foreach ($data_all['data'] as $key => $value) {
 		$nama_page = 'RFK '.$value['nama_skpd'].' '.$value['kode_skpd'].' | '.$input['tahun_anggaran'];
 		$custom_post = get_page_by_title($nama_page, OBJECT, 'page');
-		
+		$link = $this->get_link_post($custom_post);
 		$body.='
 		    	<tr>
 				    <td class="atas kanan bawah kiri text_tengah">'.$value['kode_skpd'].' </td>
-				    <td class="atas kanan bawah text_kiri"><a href="'.get_permalink($custom_post) . '?key=' . $this->gen_key().'" target="_blank">'.$value['nama_skpd'].'</a> '.$value['act'].'</td>
+				    <td class="atas kanan bawah text_kiri"><a href="'.$link.'" target="_blank">'.$value['nama_skpd'].'</a> '.$value['act'].'</td>
 				    <td class="atas kanan bawah text_kanan">'.number_format($value['rka_sipd'],0,",",".").'</td>
 				    <td class="atas kanan bawah text_kanan">'.number_format($value['dpa_sipd'],0,",",".").'</td>
 				    <td class="atas kanan bawah text_kanan">'.number_format($value['realisasi_keuangan'],0,",",".").'</td>

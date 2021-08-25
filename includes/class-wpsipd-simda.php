@@ -48,7 +48,7 @@ class Wpsipd_Simda
 			'message'	=> 'Berhasil export SIMDA!'
 		);
 		if (!empty($_POST)) {
-			if (!empty($_POST['api_key']) && $_POST['api_key'] == carbon_get_theme_option( 'crb_api_key_extension' )) {
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option('_crb_api_key_extension' )) {
 				if(!empty($_POST['data']) && !empty($_POST['tahun_anggaran'])){
 					$tahun_anggaran = $_POST['tahun_anggaran'];
 					$pembiayaan_all = array();
@@ -64,7 +64,7 @@ class Wpsipd_Simda
 						$pembiayaan_all[$v['kode_akun']][] = $v;
 					}
 					foreach ($pembiayaan_all as $kode_akun => $v) {
-						$kd_unit_simda = explode('.', carbon_get_theme_option('crb_unit_'.$_POST['id_skpd']));
+						$kd_unit_simda = explode('.', get_option('_crb_unit_'.$_POST['id_skpd']));
 						if(empty($kd_unit_simda) || empty($kd_unit_simda[3])){
 							continue;
 						}
@@ -265,7 +265,7 @@ class Wpsipd_Simda
 			'message'	=> 'Berhasil export SIMDA!'
 		);
 		if (!empty($_POST)) {
-			if (!empty($_POST['api_key']) && $_POST['api_key'] == carbon_get_theme_option( 'crb_api_key_extension' )) {
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option('_crb_api_key_extension' )) {
 				if(!empty($_POST['data']) && !empty($_POST['tahun_anggaran'])){
 					$tahun_anggaran = $_POST['tahun_anggaran'];
 					$pendapatan_all = array();
@@ -288,7 +288,7 @@ class Wpsipd_Simda
 					$no_pendapatan = 0;
 					foreach ($pendapatan_all as $kode_akun => $v) {
 						$no_pendapatan++;
-						$kd_unit_simda = explode('.', carbon_get_theme_option('crb_unit_'.$_POST['id_skpd']));
+						$kd_unit_simda = explode('.', get_option('_crb_unit_'.$_POST['id_skpd']));
 						if(empty($kd_unit_simda) || empty($kd_unit_simda[3])){
 							continue;
 						}
@@ -587,10 +587,10 @@ class Wpsipd_Simda
 			$ret = $opsi['res'];
 		}
 		if (!empty($_POST)) {
-			if (!empty($_POST['api_key']) && $_POST['api_key'] == carbon_get_theme_option( 'crb_api_key_extension' )) {
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option('_crb_api_key_extension' )) {
 				if(!empty($_POST['data_unit']) && !empty($_POST['tahun_anggaran'])){
 					$ref_unit_all = array();
-					if(carbon_get_theme_option('crb_singkron_simda_unit') == 1){
+					if(get_option('_crb_singkron_simda_unit') == 1){
 						// singkron unit dulu
 						foreach ($_POST['data_unit'] as $k => $v) {
 							$v['only_unit'] = true;
@@ -603,7 +603,7 @@ class Wpsipd_Simda
 						}
 					}
 					foreach ($_POST['data_unit'] as $k => $v) {
-						$kd_unit_simda = explode('.', carbon_get_theme_option('crb_unit_'.$v['id_skpd']));
+						$kd_unit_simda = explode('.', get_option('_crb_unit_'.$v['id_skpd']));
 						if(empty($kd_unit_simda) || empty($kd_unit_simda[3])){
 							continue;
 						}
@@ -700,7 +700,7 @@ class Wpsipd_Simda
 			'message'	=> 'Berhasil export SIMDA!'
 		);
 		if (!empty($_POST)) {
-			if (!empty($_POST['api_key']) && $_POST['api_key'] == carbon_get_theme_option( 'crb_api_key_extension' )) {
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option('_crb_api_key_extension' )) {
 				if(!empty($_POST['data']) && !empty($_POST['tahun_anggaran'])){
 					$tahun_anggaran = $_POST['tahun_anggaran'];
 					$type = $_POST['type'];
@@ -728,15 +728,15 @@ class Wpsipd_Simda
 					if($ret['status']!='error'){
 						foreach ($_POST['data'] as $k => $v) {
 							if(!empty($v['id_skpd'])){
-								$kd_unit_simda = explode('.', carbon_get_theme_option('crb_unit_'.$v['id_skpd']));
+								$kd_unit_simda = explode('.', get_option('_crb_unit_'.$v['id_skpd']));
 							}else{
-								$kd_unit_simda = explode('.', carbon_get_theme_option('crb_unit_'.$v['id_unit']));
+								$kd_unit_simda = explode('.', get_option('_crb_unit_'.$v['id_unit']));
 							}
 							if($type == 'belanja'){
-								$kd_unit_simda = explode('.', carbon_get_theme_option('crb_unit_'.$kode_sbl[2]));
+								$kd_unit_simda = explode('.', get_option('_crb_unit_'.$kode_sbl[2]));
 							}
 							if($type == 'pendapatan'){
-								$kd_unit_simda = explode('.', carbon_get_theme_option('crb_unit_'.$v['id_unit']));
+								$kd_unit_simda = explode('.', get_option('_crb_unit_'.$v['id_unit']));
 							}
 
 							if(empty($kd_unit_simda) || empty($kd_unit_simda[3])){
@@ -947,7 +947,7 @@ class Wpsipd_Simda
 			'message'	=> 'Berhasil export SIMDA!'
 		);
 		if (!empty($_POST)) {
-			if (!empty($_POST['api_key']) && $_POST['api_key'] == carbon_get_theme_option( 'crb_api_key_extension' )) {
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option('_crb_api_key_extension' )) {
 				$kodeunit = '';
 				if(!empty($_POST['kode_sbl']) && !empty($_POST['tahun_anggaran'])){
 					$sbl = $wpdb->get_results($wpdb->prepare("
@@ -1028,7 +1028,7 @@ class Wpsipd_Simda
 							$bulan = array('Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember');
 							$waktu_pelaksanaan = $bulan[$v['waktu_awal']-1].' s.d. '.$bulan[$v['waktu_akhir']-1];
 
-							$kd_unit_simda = explode('.', carbon_get_theme_option('crb_unit_'.$v['id_sub_skpd']));
+							$kd_unit_simda = explode('.', get_option('_crb_unit_'.$v['id_sub_skpd']));
 							$tahun_anggaran = $v['tahun_anggaran'];
 							if(!empty($kd_unit_simda) && !empty($kd_unit_simda[3])){
 								$kd = explode('.', $v['kode_sub_giat']);
@@ -1825,7 +1825,7 @@ class Wpsipd_Simda
 
 		if(
 			empty($mapping_rek)
-			&& carbon_get_theme_option('crb_auto_ref_rek_mapping') == 1
+			&& get_option('_crb_auto_ref_rek_mapping') == 1
 		){
 
 			$cek_rek_1 = $this->CurlSimda(array(
@@ -2249,7 +2249,7 @@ class Wpsipd_Simda
 		), false, false);
 		if(
 			empty($mapping)
-			&& carbon_get_theme_option('crb_auto_ref_kegiatan_mapping') == 1
+			&& get_option('_crb_auto_ref_kegiatan_mapping') == 1
 		){
 			$ref_bidang_mapping = $this->CurlSimda(array(
 				'query' => "
@@ -2432,7 +2432,7 @@ class Wpsipd_Simda
 							AND active=1", $tahun_anggaran)
 					, ARRAY_A);
 					foreach ($unit as $k => $v) {
-						$unit[$k]['mapping'] = carbon_get_theme_option( 'crb_unit_'.$v['id_skpd'] );
+						$unit[$k]['mapping'] = get_option('_crb_unit_'.$v['id_skpd'] );
 					}
 					foreach ($up as $k => $v) {
 						$rinc = $this->CurlSimda(array(
