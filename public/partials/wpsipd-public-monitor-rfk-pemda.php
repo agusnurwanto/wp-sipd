@@ -57,10 +57,10 @@ $body .='
 		            <th style="padding: 0; border: 0; width:140px"></th>
 		            <th style="padding: 0; border: 0; width:140px"></th>
 		            <th style="padding: 0; border: 0; width:140px"></th>
-		            <th style="padding: 0; border: 0; width:80px"></th>
+		            <th style="padding: 0; border: 0; width:110px"></th>
 		            <th style="padding: 0; border: 0; width:100px"></th>
-		            <th style="padding: 0; border: 0; width:75px"></th>
-		            <th style="padding: 0; border: 0; width:100px"></th>
+		            <th style="padding: 0; border: 0; width:120px"></th>
+		            <th style="padding: 0; border: 0; width:90px"></th>
 		            <th style="padding: 0; border: 0; width:90px"></th>
 		    	</tr>
 		    	<tr>
@@ -74,6 +74,18 @@ $body .='
 			        <th class="atas kanan bawah text_tengah text_blok">Deviasi ( % )</th>
 			        <th class="atas kanan bawah text_tengah text_blok">Realisasi Fisik ( % )</th>
 			        <th class="atas kanan bawah text_tengah text_blok">Update Terakhir</th>
+			    </tr>
+			    <tr>
+			    	<th class="atas kanan bawah kiri text_tengah text_blok">1</th>
+			        <th class="atas kanan bawah text_tengah text_blok">2</th>
+			        <th class="atas kanan bawah text_tengah text_blok">3</th>
+			        <th class="atas kanan bawah text_tengah text_blok">4</th>
+			        <th class="atas kanan bawah text_tengah text_blok">5</th>
+			        <th class="atas kanan bawah text_tengah text_blok">6 = (5 / 4) * 100</th>
+			        <th class="atas kanan bawah text_tengah text_blok">7</th>
+			        <th class="atas kanan bawah text_tengah text_blok">8 = ((7 - 6) / 7) * 100</th>
+			        <th class="atas kanan bawah text_tengah text_blok">9</th>
+			        <th class="atas kanan bawah text_tengah text_blok">10</th>
 			    </tr>
 		    </thead>
 		    <tbody>
@@ -106,7 +118,7 @@ $body .='
 								AVG(IFNULL(d.realisasi_fisik,0)) realisasi_fisik, 
 								SUM(d.rak) rak,
 								IFNULL((SUM(d.rak)/SUM(k.pagu_simda)*100),0) target_rak,
-								(IFNULL((SUM(d.rak)/SUM(k.pagu_simda)*100),0)-IFNULL((SUM(d.realisasi_anggaran)/SUM(k.pagu_simda)*100),0)) deviasi
+								((IFNULL((SUM(d.rak)/SUM(k.pagu_simda)*100),0)-IFNULL((SUM(d.realisasi_anggaran)/SUM(k.pagu_simda)*100),0)) / (IFNULL((SUM(d.rak)/SUM(k.pagu_simda)*100),0))) * 100 deviasi
 							FROM data_sub_keg_bl k 
 							LEFT JOIN data_rfk d 
 								ON d.id_skpd=k.id_sub_skpd AND 
@@ -172,7 +184,7 @@ $body .='
 									AVG(IFNULL(d.realisasi_fisik,0)) realisasi_fisik, 
 									SUM(d.rak) rak,
 									IFNULL((SUM(d.rak)/SUM(k.pagu_simda)*100),0) target_rak,
-									(IFNULL((SUM(d.rak)/SUM(k.pagu_simda)*100),0)-IFNULL((SUM(d.realisasi_anggaran)/SUM(k.pagu_simda)*100),0)) deviasi
+									((IFNULL((SUM(d.rak)/SUM(k.pagu_simda)*100),0)-IFNULL((SUM(d.realisasi_anggaran)/SUM(k.pagu_simda)*100),0)) / (IFNULL((SUM(d.rak)/SUM(k.pagu_simda)*100),0))) * 100 deviasi
 								FROM data_sub_keg_bl k 
 								LEFT JOIN data_rfk d 
 									ON d.id_skpd=k.id_sub_skpd AND 
@@ -237,7 +249,13 @@ $body .='
 			    			'rak' => $rak_sub_unit,
 			    			'target_rak' => !empty($pagu_simda_sub_unit) ? $this->pembulatan(($rak_sub_unit/$pagu_simda_sub_unit)*100) : 0,
 			    			'realisasi_fisik' => !empty($realisasi_fisik_sub_unit) ? $this->pembulatan(array_sum($realisasi_fisik_sub_unit)/count($realisasi_fisik_sub_unit)) : 0,
-			    			'deviasi' => !empty($pagu_simda_sub_unit) ? $this->pembulatan(($rak_sub_unit/$pagu_simda_sub_unit*100) - ($realisasi_anggaran_sub_unit/$pagu_simda_sub_unit)*100) : 0,
+			    			'deviasi' => !empty($pagu_simda_sub_unit) ? $this->pembulatan(
+			    				(
+			    					(
+			    						($rak_sub_unit/$pagu_simda_sub_unit*100) - ($realisasi_anggaran_sub_unit/$pagu_simda_sub_unit)*100
+			    					) / ($rak_sub_unit/$pagu_simda_sub_unit*100)
+			    				) * 100
+			    			) : 0,
 			    			'last_update' => $latest_update,
 			    			'data_sub_unit' => $data_all_sub_unit,
 			    			'act' => '<a href="javascript:void(0)" onclick="showsubunit(\''.$unit['id_skpd'].'\', \''.$bulan.'\', \''.$input['tahun_anggaran'].'\')">'.$unit['nama_skpd'].'</a>'
@@ -342,16 +360,16 @@ $body .='
 				html+='<table id="table-rfk-sub-unit" cellpadding="2" cellspacing="0" style="font-family:\'Open Sans\',-apple-system,BlinkMacSystemFont,\'Segoe UI\',sans-serif; border-collapse: collapse; width:100%; table-layout:fixed; overflow-wrap: break-word; font-size: 70%; border: 0;">'
 					    +'<thead>'
 					    	+'<tr>'
-					    		+'<th style="padding: 0; border: 0; width:130px"></th>'
+					    		+'<th style="padding: 0; border: 0; width:125px"></th>'
 					            +'<th style="padding: 0; border: 0"></th>'
 					            +'<th style="padding: 0; border: 0; width:140px"></th>'
 					            +'<th style="padding: 0; border: 0; width:140px"></th>'
 					            +'<th style="padding: 0; border: 0; width:140px"></th>'
-					            +'<th style="padding: 0; border: 0; width:80px"></th>'
-					            +'<th style="padding: 0; border: 0; width:100px"></th>'
+					            +'<th style="padding: 0; border: 0; width:110px"></th>'
 					            +'<th style="padding: 0; border: 0; width:75px"></th>'
-					            +'<th style="padding: 0; border: 0; width:100px"></th>'
+					            +'<th style="padding: 0; border: 0; width:120px"></th>'
 					            +'<th style="padding: 0; border: 0; width:90px"></th>'
+					            +'<th style="padding: 0; border: 0; width:80px"></th>'
 					    	+'</tr>'
 					    	+'<tr>'
 						    	+'<th class="atas kanan bawah kiri text_tengah text_blok">Kode</th>'
@@ -364,6 +382,18 @@ $body .='
 						        +'<th class="atas kanan bawah text_tengah text_blok">Deviasi ( % )</th>'
 						        +'<th class="atas kanan bawah text_tengah text_blok">Realisasi Fisik ( % )</th>'
 						        +'<th class="atas kanan bawah text_tengah text_blok">Update Terakhir</th>'
+						    +'</tr>'
+						    +'<tr>'
+						    	+'<th class="atas kanan bawah kiri text_tengah text_blok">1</th>'
+						        +'<th class="atas kanan bawah text_tengah text_blok">2</th>'
+						        +'<th class="atas kanan bawah text_tengah text_blok">3</th>'
+						        +'<th class="atas kanan bawah text_tengah text_blok">4</th>'
+						        +'<th class="atas kanan bawah text_tengah text_blok">5</th>'
+						        +'<th class="atas kanan bawah text_tengah text_blok">6 = (5 / 4) * 100</th>'
+						        +'<th class="atas kanan bawah text_tengah text_blok">7</th>'
+						        +'<th class="atas kanan bawah text_tengah text_blok">8 = ((7 - 6) / 7) * 100</th>'
+						        +'<th class="atas kanan bawah text_tengah text_blok">9</th>'
+						        +'<th class="atas kanan bawah text_tengah text_blok">10</th>'
 						    +'</tr>'
 					    +'</thead>'
 					    +'<tbody>';
@@ -400,7 +430,7 @@ $body .='
 										+'<th style="border:1px solid" class="kanan bawah text_kanan">'+formatRupiah(data_all_rfk[index].dpa_sipd)+'</th>'
 										+'<th style="border:1px solid" class="kanan bawah text_kanan">'+formatRupiah(data_all_rfk[index].realisasi_keuangan)+'</th>'
 										+'<th style="border:1px solid" class="kanan bawah text_tengah">'+data_all_rfk[index].capaian+'</th>'
-										+'<th style="border:1px solid" class="kanan bawah text_kanan">'+data_all_rfk[index].target_rak+'</th>'
+										+'<th style="border:1px solid" data-rfk="'+data_all_rfk[index].rak+'" class="kanan bawah text_tengah">'+data_all_rfk[index].target_rak+'</th>'
 										+'<th style="border:1px solid" class="kanan bawah text_tengah">'+data_all_rfk[index].deviasi+'</th>'
 										+'<th style="border:1px solid" class="kanan bawah text_tengah">'+data_all_rfk[index].realisasi_fisik+'</th>'
 										+'<th style="border:1px solid"></th>'
