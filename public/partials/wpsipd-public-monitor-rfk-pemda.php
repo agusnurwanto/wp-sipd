@@ -260,6 +260,7 @@ $body .='
 			    			'data_sub_unit' => $data_all_sub_unit,
 			    			'act' => '<a href="javascript:void(0)" onclick="showsubunit(\''.$unit['id_skpd'].'\', \''.$bulan.'\', \''.$input['tahun_anggaran'].'\')">'.$unit['nama_skpd'].'</a>'
 			    	);
+			    	$data_all['realisasi_fisik'][]=!empty($realisasi_fisik_sub_unit) ? (array_sum($realisasi_fisik_sub_unit)/count($realisasi_fisik_sub_unit)) : 0;
 		    	}
 			}
 
@@ -286,16 +287,25 @@ $body .='
 			</tr>
 		';
 	}
+
+	$total_rka_sipd = $data_all['total_rka_sipd'];
+	$total_dpa_sipd = $data_all['total_dpa_sipd'];
+	$total_realisasi_keuangan = $data_all['total_realisasi_keuangan'];
+	$capaian = ($total_realisasi_keuangan/$total_dpa_sipd)*100;
+	$total_rak_simda = $data_all['total_rak_simda'];
+	$target_rak_simda = ($total_rak_simda/$total_dpa_sipd)*100;
+	$deviasi = (($target_rak_simda-$capaian)/$target_rak_simda)*100;
+
 	$body .='</tbody>
 				<tfoot>
 					<tr>
 						<th class="kiri kanan bawah text_blok text_kanan" colspan="2">TOTAL</th>
-					    <th class="kanan bawah text_kanan text_blok">'.number_format($data_all['total_rka_sipd'],0,",",".").'</th>
-					    <th class="kanan bawah text_kanan text_blok">'.number_format($data_all['total_dpa_sipd'],0,",",".").'</th>
-					    <th class="kanan bawah text_kanan text_blok">'.number_format($data_all['total_realisasi_keuangan'],0,",",".").'</th>
-					    <th class="kanan bawah text_tengah text_blok">'.$this->pembulatan(array_sum($data_all['capaian'])/count($data_all['capaian'])).'</th>
-					    <th class="kanan bawah text_tengah text_blok">'.$this->pembulatan(array_sum($data_all['target_rak'])/count($data_all['target_rak'])).'</th>
-					    <th class="kanan bawah text_tengah text_blok">'.$this->pembulatan(array_sum($data_all['deviasi'])/count($data_all['deviasi'])).'</th>
+					    <th class="kanan bawah text_kanan text_blok">'.number_format($total_rka_sipd,0,",",".").'</th>
+					    <th class="kanan bawah text_kanan text_blok">'.number_format($total_dpa_sipd,0,",",".").'</th>
+					    <th class="kanan bawah text_kanan text_blok">'.number_format($total_realisasi_keuangan,0,",",".").'</th>
+					    <th class="kanan bawah text_tengah text_blok">'.$this->pembulatan($capaian).'</th>
+					    <th class="kanan bawah text_tengah text_blok" data-rak="'.$data_all['total_rak_simda'].'">'.$this->pembulatan($target_rak_simda).'</th>
+					    <th class="kanan bawah text_tengah text_blok">'.$this->pembulatan($deviasi).'</th>
 					    <th class="kanan bawah text_blok total-realisasi-fisik text_tengah">'.$this->pembulatan(array_sum($data_all['realisasi_fisik'])/count($data_all['realisasi_fisik'])).'</th>
 						<th class="atas kanan bawah text_tengah"></th>
 					</tr>
