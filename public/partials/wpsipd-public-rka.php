@@ -1847,6 +1847,7 @@ foreach ($bl as $k => $sub_bl) {
 
 	    	var nama_sub_keg = jQuery('.subkeg[data-kdsbl="'+kd_sbl+'"] .nama_sub').text();
 	    	var realisasi_sub_keg = jQuery('.subkeg[data-kdsbl="'+kd_sbl+'"] .mapping.realisasi').text();
+	    	var id_sumberdana_mapping = jQuery('.subkeg[data-kdsbl="'+kd_sbl+'"] .mapping').attr('data-id');
 	    	var rak_sub_keg = jQuery('.subkeg[data-kdsbl="'+kd_sbl+'"] .mapping.rak').text();
 	    	var total_sub_keg = jQuery('.subkeg-total[data-kdsbl="'+kd_sbl+'"]').text();
 	    	var sumberdana_sub_keg = jQuery('.subkeg-sumberdana[data-kdsbl="'+kd_sbl+'"]').text();
@@ -1859,7 +1860,11 @@ foreach ($bl as $k => $sub_bl) {
 	    	var option_sumber_dana = [];
 	    	master_sumberdana.map(function(b, i){
 	    		if(id_sumberdana_sub_keg.indexOf(b.id_dana) != -1){
-	    			option_sumber_dana.push('<option value="'+b.id_dana+'">'+b.nama_dana+'</option>');
+	    			var selected = '';
+	    			if(b.id_dana == id_sumberdana_mapping){
+	    				selected = 'selected';
+	    			}
+	    			option_sumber_dana.push('<option '+selected+' value="'+b.id_dana+'">'+b.nama_dana+'</option>');
 	    		}
 	    	});
 	    	if(option_sumber_dana.length == 0){
