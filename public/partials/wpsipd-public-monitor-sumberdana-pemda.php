@@ -64,6 +64,7 @@ $data_sumberdana_shorted = array(
     'total_simda' => 0,
     'realisasi' => 0,
     'total_sd_mapping' => 0,
+    'realisasi_mapping' => 0,
     'total_murni' => 0,
     'total' => 0
 );
@@ -135,6 +136,7 @@ foreach ($data_sub_giat as $k =>$v) {
         'kd_keg' => $kd_keg
     ));
 
+    $sd_realisasi = array();
     $sd_data = array();
     $sd_text = array();
     $all_sd = $wpdb->get_results("select namadana, iddana from data_dana_sub_keg where tahun_anggaran=".$input['tahun_anggaran']." and kode_sbl='".$v['kode_sbl']."' and active=1", ARRAY_A);
@@ -143,10 +145,13 @@ foreach ($data_sub_giat as $k =>$v) {
         if($type_mapping == 1 && $length_sd > 1){
             $sd_mapping = $wpdb->get_results("
                 select 
-                    sum(r.rincian) as total
+                    sum(r.rincian) as total,
+                    sum(n.realisasi) as realisasi
                 from data_mapping_sumberdana m
                     inner join data_rka r on r.id_rinci_sub_bl=m.id_rinci_sub_bl
                         and r.active=m.active
+                    left join data_realisasi_rincian n on r.id_rinci_sub_bl=n.id_rinci_sub_bl
+                        and r.active=n.active
                 where r.tahun_anggaran=".$input['tahun_anggaran']."
                     and r.kode_sbl='".$v['kode_sbl']."'
                     and r.active=1
@@ -154,8 +159,10 @@ foreach ($data_sub_giat as $k =>$v) {
             ", ARRAY_A);
             if(!empty($sd_mapping)){
                 $sd['namadana'] .= ' ('.number_format($sd_mapping[0]['total'],0,",",".").')';
+                $sd_realisasi[$sd['iddana']] = $sd_mapping[0]['realisasi'];
                 $sd_data[$sd['iddana']] = $sd_mapping[0]['total'];
             }else{
+                $sd_realisasi[$sd['iddana']] = 0;
                 $sd_data[$sd['iddana']] = 0;
             }
         }
@@ -164,8 +171,11 @@ foreach ($data_sub_giat as $k =>$v) {
     $v['sd_text'] = $sd_text;
     if(empty($sd_data)){
         $sd_data[$input['id_sumber_dana']] = $v['pagu'];
+        $sd_realisasi[$input['id_sumber_dana']] = $realisasi;
     }
+
     $v['sd_data'] = $sd_data;
+    $v['sd_realisasi'] = $sd_realisasi;
 
 	$kode = explode('.', $v['kode_sbl']);
     $idskpd = $kode[1];
@@ -177,6 +187,7 @@ foreach ($data_sub_giat as $k =>$v) {
             'total' => 0,
             'total_simda' => 0,
             'total_sd_mapping' => 0,
+            'realisasi_mapping' => 0,
             'realisasi' => 0,
             'data' => array()
         );
@@ -188,6 +199,7 @@ foreach ($data_sub_giat as $k =>$v) {
             'total' => 0,
             'total_simda' => 0,
             'total_sd_mapping' => 0,
+            'realisasi_mapping' => 0,
             'realisasi' => 0,
             'data' => $v
         );
@@ -212,6 +224,10 @@ foreach ($data_sub_giat as $k =>$v) {
     $data_sumberdana_shorted['data'][$skpd['kode_skpd']]['data'][$v['kode_sbl']]['total_sd_mapping'] += $sd_data[$input['id_sumber_dana']];
     $data_sumberdana_shorted['data'][$skpd['kode_skpd']]['total_sd_mapping'] += $sd_data[$input['id_sumber_dana']];
     $data_sumberdana_shorted['total_sd_mapping'] += $sd_data[$input['id_sumber_dana']];
+
+    $data_sumberdana_shorted['data'][$skpd['kode_skpd']]['data'][$v['kode_sbl']]['realisasi_mapping'] += $sd_realisasi[$input['id_sumber_dana']];
+    $data_sumberdana_shorted['data'][$skpd['kode_skpd']]['realisasi_mapping'] += $sd_realisasi[$input['id_sumber_dana']];
+    $data_sumberdana_shorted['realisasi_mapping'] += $sd_realisasi[$input['id_sumber_dana']];
 }
 ksort($data_sumberdana_shorted['data']);
 
@@ -229,7 +245,13 @@ foreach ($data_sumberdana_shorted['data'] as $k => $skpd) {
     }
     $mapping_sd = '';
     if($type_mapping == 1){
+        $capaian_mapping = 0;
+        if(!empty($skpd['total_sd_mapping'])){
+            $capaian_mapping = $this->pembulatan(($skpd['realisasi_mapping']/$skpd['total_sd_mapping'])*100);
+        }
         $mapping_sd = '<td class="kanan bawah text_blok text_kanan">'.number_format($skpd['total_sd_mapping'],0,",",".").'</td>';
+        $mapping_sd .= '<td class="kanan bawah text_blok text_kanan">'.number_format($skpd['realisasi_mapping'],0,",",".").'</td>';
+        $mapping_sd .= '<td class="kanan bawah text_blok text_kanan">'.$capaian_mapping.'</td>';
     }
     $body_sumberdana .= '
         <tr>
@@ -280,7 +302,13 @@ foreach ($data_sumberdana_shorted['data'] as $k => $skpd) {
         }
         $mapping_sd = '';
         if($type_mapping == 1){
+            $capaian_mapping = 0;
+            if(!empty($sub_keg['total_sd_mapping'])){
+                $capaian_mapping = $this->pembulatan(($sub_keg['realisasi_mapping']/$sub_keg['total_sd_mapping'])*100);
+            }
             $mapping_sd = '<td class="kanan bawah text_kanan">'.number_format($sub_keg['total_sd_mapping'],0,",",".").'</td>';
+            $mapping_sd .= '<td class="kanan bawah text_kanan">'.number_format($sub_keg['realisasi_mapping'],0,",",".").'</td>';
+            $mapping_sd .= '<td class="kanan bawah text_kanan">'.$capaian_mapping.'</td>';
         }
         $body_sumberdana .= '
             <tr class="sub_keg">
@@ -310,7 +338,13 @@ if(!empty($data_sumberdana_shorted['total_simda'])){
 }
 $mapping_sd = '';
 if($type_mapping == 1){
+    $capaian_mapping = 0;
+    if(!empty($data_sumberdana_shorted['total_sd_mapping'])){
+        $capaian_mapping = $this->pembulatan(($data_sumberdana_shorted['realisasi_mapping']/$data_sumberdana_shorted['total_sd_mapping'])*100);
+    }
     $mapping_sd = '<td class="kanan bawah text_blok text_kanan">'.number_format($data_sumberdana_shorted['total_sd_mapping'],0,",",".").'</td>';
+    $mapping_sd .= '<td class="kanan bawah text_blok text_kanan">'.number_format($data_sumberdana_shorted['realisasi_mapping'],0,",",".").'</td>';
+    $mapping_sd .= '<td class="kanan bawah text_blok text_kanan">'.$capaian_mapping.'</td>';
 }
 $body_sumberdana .= '
     <tr>
@@ -337,6 +371,8 @@ $body_sumberdana .= '
                 <td class="atas kanan bawah text_tengah text_blok" width="300px;">Sumber Dana</td>
                 <?php if($type_mapping == 1):?>
                     <td class="atas kanan bawah text_tengah text_blok" style="width: 140px;">Sumber Dana Mapping (Rp.)</td>
+                    <td class="atas kanan bawah text_tengah text_blok" style="width: 140px;">Realisasi Mapping (Rp.)</td>
+                    <td class="atas kanan bawah text_tengah text_blok" style="width: 100px;">Capaian Mapping (%)</td>
                 <?php endif; ?>
                 <?php if($type == 'murni'): ?>
                     <td class="atas kanan bawah text_tengah text_blok" style="width: 140px;">RKA SIPD (Rp.)</td>
@@ -347,7 +383,7 @@ $body_sumberdana .= '
                 <?php endif; ?>
                 <td class="atas kanan bawah text_tengah text_blok" style="width: 140px;">Pagu Simda (Rp.)</td>
                 <td class="atas kanan bawah text_tengah text_blok" style="width: 140px;">Ralisasi Simda (Rp.)</td>
-                <td class="atas kanan bawah text_tengah text_blok" style="width: 120px;">Capaian (%)</td>
+                <td class="atas kanan bawah text_tengah text_blok" style="width: 100px;">Capaian (%)</td>
             </tr>
         </thead>
         <tbody>
