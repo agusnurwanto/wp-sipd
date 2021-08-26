@@ -111,14 +111,14 @@ $body .='
 		    	if(count($sub_units) == 1){
 		    		$data_rfk = $wpdb->get_results($wpdb->prepare("
 							SELECT 
-								SUM(k.pagu) pagu, 
-								SUM(k.pagu_simda) pagu_simda, 
-								SUM(d.realisasi_anggaran) realisasi_keuangan,
+								IFNULL(SUM(k.pagu),0) pagu, 
+								IFNULL(SUM(k.pagu_simda),0) pagu_simda, 
+								IFNULL(SUM(d.realisasi_anggaran),0) realisasi_keuangan,
 								IFNULL((SUM(d.realisasi_anggaran)/SUM(k.pagu_simda)*100),0) capaian, 
 								AVG(IFNULL(d.realisasi_fisik,0)) realisasi_fisik, 
-								SUM(d.rak) rak,
+								IFNULL(SUM(d.rak),0) rak,
 								IFNULL((SUM(d.rak)/SUM(k.pagu_simda)*100),0) target_rak,
-								((IFNULL((SUM(d.rak)/SUM(k.pagu_simda)*100),0)-IFNULL((SUM(d.realisasi_anggaran)/SUM(k.pagu_simda)*100),0)) / (IFNULL((SUM(d.rak)/SUM(k.pagu_simda)*100),0))) * 100 deviasi
+								IFNULL(((IFNULL((SUM(d.rak)/SUM(k.pagu_simda)*100),0)-IFNULL((SUM(d.realisasi_anggaran)/SUM(k.pagu_simda)*100),0)) / (IFNULL((SUM(d.rak)/SUM(k.pagu_simda)*100),0))),0) * 100 deviasi
 							FROM data_sub_keg_bl k 
 							LEFT JOIN data_rfk d 
 								ON d.id_skpd=k.id_sub_skpd AND 
@@ -177,14 +177,14 @@ $body .='
 		    			
 			    		$data_rfk = $wpdb->get_results($wpdb->prepare("
 								SELECT 
-									SUM(k.pagu) pagu, 
-									SUM(k.pagu_simda) pagu_simda, 
-									SUM(d.realisasi_anggaran) realisasi_keuangan,
+									IFNULL(SUM(k.pagu),0) pagu, 
+									IFNULL(SUM(k.pagu_simda),0) pagu_simda, 
+									IFNULL(SUM(d.realisasi_anggaran),0) realisasi_keuangan,
 									IFNULL((SUM(d.realisasi_anggaran)/SUM(k.pagu_simda)*100),0) capaian, 
 									AVG(IFNULL(d.realisasi_fisik,0)) realisasi_fisik, 
-									SUM(d.rak) rak,
+									IFNULL(SUM(d.rak),0) rak,
 									IFNULL((SUM(d.rak)/SUM(k.pagu_simda)*100),0) target_rak,
-									((IFNULL((SUM(d.rak)/SUM(k.pagu_simda)*100),0)-IFNULL((SUM(d.realisasi_anggaran)/SUM(k.pagu_simda)*100),0)) / (IFNULL((SUM(d.rak)/SUM(k.pagu_simda)*100),0))) * 100 deviasi
+									IFNULL(((IFNULL((SUM(d.rak)/SUM(k.pagu_simda)*100),0)-IFNULL((SUM(d.realisasi_anggaran)/SUM(k.pagu_simda)*100),0)) / (IFNULL((SUM(d.rak)/SUM(k.pagu_simda)*100),0))),0) * 100 deviasi
 								FROM data_sub_keg_bl k 
 								LEFT JOIN data_rfk d 
 									ON d.id_skpd=k.id_sub_skpd AND 
@@ -342,7 +342,7 @@ $body .='
 				+'</select>'
 			+'</label>'
 		+'</div>';
-		let data_all_rfk = <?=json_encode($data_all['data'])?>;
+		let data_all_rfk = <?php echo json_encode($data_all['data']); ?>;
 
 		jQuery(document).ready(function(){
 			jQuery('#action-sipd').append(extend_action);
