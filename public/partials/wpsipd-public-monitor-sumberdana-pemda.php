@@ -64,6 +64,7 @@ $data_sumberdana_shorted = array(
     'total_simda' => 0,
     'realisasi' => 0,
     'total_sd_mapping' => 0,
+    'realisasi_mapping' => 0,
     'total_murni' => 0,
     'total' => 0
 );
@@ -177,6 +178,7 @@ foreach ($data_sub_giat as $k =>$v) {
             'total' => 0,
             'total_simda' => 0,
             'total_sd_mapping' => 0,
+            'realisasi_mapping' => 0,
             'realisasi' => 0,
             'data' => array()
         );
@@ -188,6 +190,7 @@ foreach ($data_sub_giat as $k =>$v) {
             'total' => 0,
             'total_simda' => 0,
             'total_sd_mapping' => 0,
+            'realisasi_mapping' => 0,
             'realisasi' => 0,
             'data' => $v
         );
@@ -229,7 +232,13 @@ foreach ($data_sumberdana_shorted['data'] as $k => $skpd) {
     }
     $mapping_sd = '';
     if($type_mapping == 1){
+        $capaian_mapping = 0;
+        if(!empty($skpd['total_sd_mapping'])){
+            $capaian_mapping = $this->pembulatan(($skpd['realisasi_mapping']/$skpd['total_sd_mapping'])*100);
+        }
         $mapping_sd = '<td class="kanan bawah text_blok text_kanan">'.number_format($skpd['total_sd_mapping'],0,",",".").'</td>';
+        $mapping_sd .= '<td class="kanan bawah text_blok text_kanan">'.number_format($skpd['realisasi_mapping'],0,",",".").'</td>';
+        $mapping_sd .= '<td class="kanan bawah text_blok text_kanan">'.$capaian_mapping.'</td>';
     }
     $body_sumberdana .= '
         <tr>
@@ -280,7 +289,13 @@ foreach ($data_sumberdana_shorted['data'] as $k => $skpd) {
         }
         $mapping_sd = '';
         if($type_mapping == 1){
+            $capaian_mapping = 0;
+            if(!empty($sub_keg['total_sd_mapping'])){
+                $capaian_mapping = $this->pembulatan(($sub_keg['realisasi_mapping']/$sub_keg['total_sd_mapping'])*100);
+            }
             $mapping_sd = '<td class="kanan bawah text_kanan">'.number_format($sub_keg['total_sd_mapping'],0,",",".").'</td>';
+            $mapping_sd .= '<td class="kanan bawah text_blok text_kanan">'.number_format($sub_keg['realisasi_mapping'],0,",",".").'</td>';
+            $mapping_sd .= '<td class="kanan bawah text_blok text_kanan">'.$capaian_mapping.'</td>';
         }
         $body_sumberdana .= '
             <tr class="sub_keg">
@@ -310,7 +325,13 @@ if(!empty($data_sumberdana_shorted['total_simda'])){
 }
 $mapping_sd = '';
 if($type_mapping == 1){
+    $capaian_mapping = 0;
+    if(!empty($data_sumberdana_shorted['total_sd_mapping'])){
+        $capaian_mapping = $this->pembulatan(($data_sumberdana_shorted['realisasi_mapping']/$data_sumberdana_shorted['total_sd_mapping'])*100);
+    }
     $mapping_sd = '<td class="kanan bawah text_blok text_kanan">'.number_format($data_sumberdana_shorted['total_sd_mapping'],0,",",".").'</td>';
+    $mapping_sd .= '<td class="kanan bawah text_blok text_kanan">'.number_format($data_sumberdana_shorted['realisasi_mapping'],0,",",".").'</td>';
+    $mapping_sd .= '<td class="kanan bawah text_blok text_kanan">'.$capaian_mapping.'</td>';
 }
 $body_sumberdana .= '
     <tr>
@@ -337,6 +358,8 @@ $body_sumberdana .= '
                 <td class="atas kanan bawah text_tengah text_blok" width="300px;">Sumber Dana</td>
                 <?php if($type_mapping == 1):?>
                     <td class="atas kanan bawah text_tengah text_blok" style="width: 140px;">Sumber Dana Mapping (Rp.)</td>
+                    <td class="atas kanan bawah text_tengah text_blok" style="width: 140px;">Realisasi Mapping (Rp.)</td>
+                    <td class="atas kanan bawah text_tengah text_blok" style="width: 100px;">Capaian Mapping (%)</td>
                 <?php endif; ?>
                 <?php if($type == 'murni'): ?>
                     <td class="atas kanan bawah text_tengah text_blok" style="width: 140px;">RKA SIPD (Rp.)</td>
@@ -347,7 +370,7 @@ $body_sumberdana .= '
                 <?php endif; ?>
                 <td class="atas kanan bawah text_tengah text_blok" style="width: 140px;">Pagu Simda (Rp.)</td>
                 <td class="atas kanan bawah text_tengah text_blok" style="width: 140px;">Ralisasi Simda (Rp.)</td>
-                <td class="atas kanan bawah text_tengah text_blok" style="width: 120px;">Capaian (%)</td>
+                <td class="atas kanan bawah text_tengah text_blok" style="width: 100px;">Capaian (%)</td>
             </tr>
         </thead>
         <tbody>
