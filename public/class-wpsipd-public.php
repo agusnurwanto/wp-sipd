@@ -5031,7 +5031,29 @@ class Wpsipd_Public
 				}else if($count_kode_sbl == 3){
 					$type_indikator = 3;
 				}
-				
+				$bulan = date('m');
+				$tbody = '';
+				for($i=1; $i<=$bulan; $i++){
+					$tbody .= '
+						<tr>
+							<td>'.$this->get_bulan($i).'</td>
+							<td class="text_kanan">-</td>
+							<td class="text_kanan">-</td>
+							<td class="text_tengah">-</td>
+							<td class="text_tengah" contenteditable="true">-</td>
+						</tr>
+					';
+				}
+				$tbody .= '
+					<tr>
+						<td class="text_tengah text_blok">Total</td>
+						<td class="text_kanan text_blok">-</td>
+						<td class="text_kanan text_blok">-</td>
+						<td class="text_tengah text_blok">-</td>
+						<td class="text_tengah text_blok" contenteditable="true">-</td>
+					</tr>
+				';
+				$ret['table'] = $tbody;
 			} else {
 				$ret['status'] = 'error';
 				$ret['message'] = 'APIKEY tidak sesuai!';
