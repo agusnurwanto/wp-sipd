@@ -578,7 +578,7 @@ foreach ($data_all['data'] as $kd_urusan => $urusan) {
 </div>
 
 <div class="modal fade" id="mod-monev" tabindex="-1" role="dialog" data-backdrop="static" aria-hidden="true">'
-    <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-dialog" style="min-width: 1200px;" role="document">
         <div class="modal-content">
             <div class="modal-header bgpanel-theme">
                 <h4 style="margin: 0;" class="modal-title" id="">Edit MONEV Indikator Per Bulan</h4>
