@@ -174,6 +174,10 @@ class Wpsipd_Admin {
 		    ->set_page_parent( $monev )
 		    ->add_fields( $this->get_ajax_field(array('type' => 'rfk')) );
 
+		Container::make( 'theme_options', __( 'Indikator RENSTRA' ) )
+		    ->set_page_parent( $monev )
+		    ->add_fields( $this->get_ajax_field(array('type' => 'monev_renstra')) );
+
 	    Container::make( 'theme_options', __( 'Indikator RENJA' ) )
 		    ->set_page_parent( $monev )
 		    ->add_fields( $this->get_ajax_field(array('type' => 'monev_renja')) );
@@ -286,6 +290,9 @@ class Wpsipd_Admin {
 						}else if($_POST['type'] == 'monev_renja'){
 							$url_skpd = $this->generatePage('MONEV '.$vv['nama_skpd'].' '.$vv['kode_skpd'].' | '.$v['tahun_anggaran'], $v['tahun_anggaran'], '[monitor_monev_renja tahun_anggaran="'.$v['tahun_anggaran'].'" id_skpd="'.$vv['id_skpd'].'"]');
 		            		$body_pemda .= '<li><a target="_blank" href="'.$url_skpd.'">Halaman MONEV '.$vv['kode_skpd'].' '.$vv['nama_skpd'].' '.$v['tahun_anggaran'].'</a> (NIP: '.$vv['nipkepala'].')';
+						}else if($_POST['type'] == 'monev_renstra'){
+							$url_skpd = $this->generatePage('MONEV RENSTRA '.$vv['nama_skpd'].' '.$vv['kode_skpd'].' | '.$v['tahun_anggaran'], $v['tahun_anggaran'], '[monitor_monev_renstra tahun_anggaran="'.$v['tahun_anggaran'].'" id_skpd="'.$vv['id_skpd'].'"]');
+		            		$body_pemda .= '<li><a target="_blank" href="'.$url_skpd.'">Halaman MONEV RENSTRA '.$vv['kode_skpd'].' '.$vv['nama_skpd'].' '.$v['tahun_anggaran'].'</a> (NIP: '.$vv['nipkepala'].')';
 						}else if($_POST['type'] == 'sumber_dana'){
 							$this->generatePage('Sumber Dana '.$vv['nama_skpd'].' '.$vv['kode_skpd'].' | '.$v['tahun_anggaran'], $v['tahun_anggaran'], '[monitor_daftar_sumber_dana tahun_anggaran="'.$v['tahun_anggaran'].'" id_skpd="'.$vv['id_skpd'].'"]');
 						}else if($_POST['type'] == 'label_komponen'){
@@ -302,6 +309,9 @@ class Wpsipd_Admin {
 							}else if($_POST['type'] == 'monev_renja'){
 								$url_skpd = $this->generatePage('MONEV '.$vvv['nama_skpd'].' '.$vvv['kode_skpd'].' | '.$v['tahun_anggaran'], $v['tahun_anggaran'], '[monitor_monev_renja tahun_anggaran="'.$v['tahun_anggaran'].'" id_skpd="'.$vvv['id_skpd'].'"]');
 			            		$body_pemda .= '<li><a target="_blank" href="'.$url_skpd.'">Halaman MONEV '.$vvv['kode_skpd'].' '.$vvv['nama_skpd'].' '.$v['tahun_anggaran'].'</a> (NIP: '.$vvv['nipkepala'].')</li>';
+							}else if($_POST['type'] == 'monev_renstra'){
+								$url_skpd = $this->generatePage('MONEV RENSTRA '.$vvv['nama_skpd'].' '.$vvv['kode_skpd'].' | '.$v['tahun_anggaran'], $v['tahun_anggaran'], '[monitor_monev_renstra tahun_anggaran="'.$v['tahun_anggaran'].'" id_skpd="'.$vvv['id_skpd'].'"]');
+			            		$body_pemda .= '<li><a target="_blank" href="'.$url_skpd.'">Halaman MONEV RENSTRA '.$vvv['kode_skpd'].' '.$vvv['nama_skpd'].' '.$v['tahun_anggaran'].'</a> (NIP: '.$vvv['nipkepala'].')</li>';
 							}else if($_POST['type'] == 'sumber_dana'){
 		            			$this->generatePage('Sumber Dana '.$vvv['nama_skpd'].' '.$vvv['kode_skpd'].' | '.$v['tahun_anggaran'], $v['tahun_anggaran'], '[monitor_daftar_sumber_dana tahun_anggaran="'.$v['tahun_anggaran'].'" id_skpd="'.$vvv['id_skpd'].'"]');
 							}else if($_POST['type'] == 'label_komponen'){
@@ -321,9 +331,12 @@ class Wpsipd_Admin {
 					}else if($_POST['type'] == 'monev_renja'){
 						$url_pemda = $this->generatePage('MONEV RENJA Pemerintah Daerah | '.$v['tahun_anggaran'], $v['tahun_anggaran'], '[monitor_monev_renja tahun_anggaran="'.$v['tahun_anggaran'].'"]');
 						$body_all .= '<a style="font-weight: bold;" target="_blank" href="'.$url_pemda.'">Halaman MONEV RENJA Daerah Tahun '.$v['tahun_anggaran'].'</a>'.$body_pemda;
+			        }else if($_POST['type'] == 'monev_renstra'){
+						$url_pemda = $this->generatePage('MONEV RENSTRA Pemerintah Daerah | '.$v['tahun_anggaran'], $v['tahun_anggaran'], '[monitor_monev_renstra tahun_anggaran="'.$v['tahun_anggaran'].'"]');
+						$body_all .= '<a style="font-weight: bold;" target="_blank" href="'.$url_pemda.'">Halaman MONEV RENSTRA Daerah Tahun '.$v['tahun_anggaran'].'</a>'.$body_pemda;
 			        }
 				}
-				if($_POST['type'] == 'rfk' || $_POST['type'] == 'monev_renja'){
+				if($_POST['type'] == 'rfk' || $_POST['type'] == 'monev_renja' || $_POST['type'] == 'monev_renstra'){
 					$ret['message'] = $body_all;
 				}
 			}
