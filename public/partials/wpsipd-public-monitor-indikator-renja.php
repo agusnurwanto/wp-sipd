@@ -643,8 +643,15 @@ foreach ($data_all['data'] as $kd_urusan => $urusan) {
 		              								<th class="text_tengah">Bulan</th>
 		              								<th class="text_tengah" style="width: 150px;">RAK (Rp.)</th>
 		              								<th class="text_tengah" style="width: 150px;">Realisasi (Rp.)</th>
-		              								<th class="text_tengah" style="width: 150px;">Capaian (%)</th>
+		              								<th class="text_tengah" style="width: 150px;">Selisih (Rp.)</th>
 		              								<th class="text_tengah" style="width: 150px;">Realisasi Target</th>
+		              							</tr>
+                  								<tr>
+		              								<th class="text_tengah">1</th>
+		              								<th class="text_tengah">2</th>
+		              								<th class="text_tengah">3</th>
+		              								<th class="text_tengah">4 = 2 - 3</th>
+		              								<th class="text_tengah">5</th>
 		              							</tr>
                   							</thead>
                   							<tbody id="monev-body"></tbody>

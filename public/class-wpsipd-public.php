@@ -3522,12 +3522,20 @@ class Wpsipd_Public
 		return $custom_post;
 	}
 
-	function gen_key($key_db = false){
+	function gen_key($key_db = false, $options = array()){
 		$now = time()*1000;
 		if(empty($key_db)){
-			$key_db = get_option( '_crb_api_key_extension' );
+			$key_db = md5(get_option( '_crb_api_key_extension' ));
 		}
-		$key = base64_encode($now.$key_db.$now);
+		$tambahan_url = '';
+		if(!empty($options['custom_url'])){
+			$custom_url = array();
+			foreach ($options['custom_url'] as $k => $v) {
+				$custom_url[] = $v['key'].'='.$v['value'];
+			}
+			$tambahan_url = $key_db.implode('&', $custom_url);
+		}
+		$key = base64_encode($now.$key_db.$now.$tambahan_url);
 		return $key;
 	}
 
@@ -5019,38 +5027,106 @@ class Wpsipd_Public
 				$id_skpd = $ids[1];
 				$kode = $ids[2];
 				$kode_sbl = $ids[3];
+				$kode_sbl_s = explode('.', $kode_sbl);
 				$count_kode_sbl = count(explode('.', $ids[2]));
 				$type_indikator = 0;
+
 				// sub kegiatan
 				if($count_kode_sbl == 6){
 					$type_indikator = 1;
 				// kegiatan
 				}else if($count_kode_sbl == 5){
+					$kode_sbl = $kode_sbl_s[0].'.'.$kode_sbl_s[1].'.'.$kode_sbl_s[2].'.'.$kode_sbl_s[3];
 					$type_indikator = 2;
 				// program
 				}else if($count_kode_sbl == 3){
+					$kode_sbl = $kode_sbl_s[0].'.'.$kode_sbl_s[1].'.'.$kode_sbl_s[2];
 					$type_indikator = 3;
 				}
-				$bulan = date('m');
+
+				$realisasi_target = $wpdb->get_results($wpdb->prepare("
+					select
+						*
+					from data_realisasi_renja
+					where tahun_anggaran=%d
+						and tipe_indikator=%d
+						and kode_sbl=%s
+				"), $tahun_anggaran, $type_indikator, $kode_sbl);
+
+				$rfk_all = $wpdb->get_results($wpdb->prepare("
+					select 
+						realisasi_anggaran,
+						rak,
+						bulan
+					from data_rfk
+					where tahun_anggaran=%d
+						and id_skpd=%d
+						and kode_sbl LIKE %s
+					order by id DESC
+				", $tahun_anggaran, $id_skpd, $kode_sbl.'%'), ARRAY_A);
+				$ret['rfk_sql'] = $wpdb->last_query;
+				$realisasi_anggaran = array();
+				$rak = array();
+				foreach ($rfk_all as $k => $v) {
+					if(empty($realisasi_anggaran[$v['bulan']])){
+						$realisasi_anggaran[$v['bulan']] = 0;
+					}
+					$realisasi_anggaran[$v['bulan']] += $v['realisasi_anggaran'];
+					if(empty($rak[$v['bulan']])){
+						$rak[$v['bulan']] = 0;
+					}
+					$rak[$v['bulan']] += $v['rak'];
+				}
+
+				$total_rak = 0;
+				$total_realisasi = 0;
+				$total_selisih = 0;
+				$bulan = 12;
 				$tbody = '';
 				for($i=1; $i<=$bulan; $i++){
+					if(empty($realisasi_anggaran[$i])){
+						$realisasi_anggaran[$i] = 0;
+					}
+					$bulan_minus = $i-1;
+					if(empty($realisasi_anggaran[$bulan_minus])){
+						$realisasi_anggaran[$bulan_minus] = 0;
+					}
+					$realisasi_bulanan = $realisasi_anggaran[$i] - $realisasi_anggaran[$bulan_minus];
+					if($realisasi_bulanan < 0){
+						$realisasi_bulanan = 0;
+					}
+					if(empty($rak[$i])){
+						$rak[$i] = 0;
+					}
+					$bulan_minus = $i-1;
+					if(empty($rak[$bulan_minus])){
+						$rak[$bulan_minus] = 0;
+					}
+					$rak_bulanan = $rak[$i] - $rak[$bulan_minus];
+					if($rak_bulanan < 0){
+						$rak_bulanan = 0;
+					}
+					$selisih = $rak_bulanan-$realisasi_bulanan;
 					$tbody .= '
 						<tr>
 							<td>'.$this->get_bulan($i).'</td>
-							<td class="text_kanan">-</td>
-							<td class="text_kanan">-</td>
-							<td class="text_tengah">-</td>
-							<td class="text_tengah" contenteditable="true">-</td>
+							<td class="text_kanan">'.number_format($rak_bulanan,0,",",".").'</td>
+							<td class="text_kanan">'.number_format($realisasi_bulanan,0,",",".").'</td>
+							<td class="text_kanan">'.number_format($selisih,0,",",".").'</td>
+							<td class="text_tengah target_realisasi" contenteditable="true">0</td>
 						</tr>
 					';
+					$total_rak += $rak_bulanan;
+					$total_realisasi += $realisasi_bulanan;
+					$total_selisih += $selisih;
 				}
 				$tbody .= '
 					<tr>
 						<td class="text_tengah text_blok">Total</td>
-						<td class="text_kanan text_blok">-</td>
-						<td class="text_kanan text_blok">-</td>
-						<td class="text_tengah text_blok">-</td>
-						<td class="text_tengah text_blok" contenteditable="true">-</td>
+						<td class="text_kanan text_blok">'.number_format($total_rak,0,",",".").'</td>
+						<td class="text_kanan text_blok">'.number_format($total_realisasi,0,",",".").'</td>
+						<td class="text_kanan text_blok">'.number_format($total_selisih,0,",",".").'</td>
+						<td class="text_tengah text_blok" id="total_target_realisasi">0</td>
 					</tr>
 				';
 				$ret['table'] = $tbody;
@@ -5067,11 +5143,67 @@ class Wpsipd_Public
 
 	public function get_link_post($custom_post){
 		$link = get_permalink($custom_post);
+		$options = array();
+		if(!empty($custom_post->custom_url)){
+			$options['custom_url'] = $custom_post->custom_url;
+		}
 		if(strpos($link, '?') === false){
-			$link .= '?key=' . $this->gen_key();
+			$link .= '?key=' . $this->gen_key(false, $options);
 		}else{
-			$link .= '&key=' . $this->gen_key();
+			$link .= '&key=' . $this->gen_key(false, $options);
 		}
 		return $link;
+	}
+
+	public function decode_key($value){
+		$key = base64_decode($value);
+		$key_db = md5(get_option( '_crb_api_key_extension' ));
+		$key = explode($key_db, $key);
+		$get = array();
+		if(!empty($key[2])){
+			$all_get = explode('&', $key[2]);
+			foreach ($all_get as $k => $v) {
+				$current_get = explode('=', $v);
+				$get[$current_get[0]] = $current_get[1];
+			}
+		}
+		return $get;
+	}
+
+	public function get_url_page(){
+		global $wpdb;
+		$ret = array();
+		$ret['status'] = 'success';
+		$ret['message'] = 'Berhasil get data link!';
+		$ret['data'] = array();
+		if (!empty($_POST)) {
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+				if(!empty($_POST['type'])){
+					$type_page = $_POST['type'];
+					if(!empty($_POST['tahun_anggaran'])){
+						$tahun_anggaran = $_POST['tahun_anggaran'];
+					}else{
+						$tahun_anggaran = 2021;
+					}
+					if($type_page == 'rfk_pemda'){
+						$title = 'Realisasi Fisik dan Keuangan Pemerintah Daerah | '.$tahun_anggaran;
+						$custom_post = get_page_by_title($title);
+						$custom_post->custom_url = array(array('key' => 'public', 'value' => 1));
+						$url = $this->get_link_post($custom_post);
+						$ret['url'] = $url;
+					}
+				}else{
+					$ret['status'] = 'error';
+					$ret['message'] = 'Param type tidak sesuai!';
+				}
+			} else {
+				$ret['status'] = 'error';
+				$ret['message'] = 'APIKEY tidak sesuai!';
+			}
+		} else {
+			$ret['status'] = 'error';
+			$ret['message'] = 'Format Salah!';
+		}
+		die(json_encode($ret));
 	}
 }
