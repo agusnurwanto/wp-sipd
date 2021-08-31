@@ -1809,9 +1809,10 @@ ALTER TABLE `data_realisasi_rincian`
 
 CREATE TABLE `data_realisasi_renja` (
   `id` int(11) NOT NULL,
+  `id_indikator` int(11) DEFAULT NULL,
   `tipe_indikator` tinyint(4) DEFAULT NULL,
   `id_rumus_indikator` int(11) DEFAULT NULL,
-  `kode_sbl` int(11) DEFAULT NULL,
+  `kode_sbl` text DEFAULT NULL,
   `realisasi_bulan_1` int(11) DEFAULT NULL,
   `realisasi_bulan_2` int(11) DEFAULT NULL,
   `realisasi_bulan_3` int(11) DEFAULT NULL,

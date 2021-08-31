@@ -5014,6 +5014,88 @@ class Wpsipd_Public
 		return $tanggal;
 	}
 
+	function save_monev_renja(){
+		global $wpdb;
+		$ret = array();
+		$ret['status'] = 'success';
+		$ret['message'] = 'Berhasil simpan data MONEV!';
+		$ret['data'] = array();
+		if (!empty($_POST)) {
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+				$ids = explode('-', $_POST['id_unik']);
+				$tahun_anggaran = $ids[0];
+				$id_skpd = $ids[1];
+				$kode = $ids[2];
+				$kode_sbl = $ids[3];
+				$id_indikator = $ids[4];
+				$kode_sbl_s = explode('.', $kode_sbl);
+				$count_kode_sbl = count(explode('.', $ids[2]));
+				$type_indikator = 0;
+
+				// sub kegiatan
+				if($count_kode_sbl == 6){
+					$type_indikator = 1;
+				// kegiatan
+				}else if($count_kode_sbl == 5){
+					$kode_sbl = $kode_sbl_s[0].'.'.$kode_sbl_s[1].'.'.$kode_sbl_s[2].'.'.$kode_sbl_s[3];
+					$type_indikator = 2;
+				// program
+				}else if($count_kode_sbl == 3){
+					$kode_sbl = $kode_sbl_s[0].'.'.$kode_sbl_s[1].'.'.$kode_sbl_s[2];
+					$type_indikator = 3;
+				}
+				$cek = $wpdb->get_results($wpdb->prepare("
+					select id
+					from data_realisasi_renja
+					where tahun_anggaran=%d
+						and id_indikator=%d
+						and tipe_indikator=%d
+						and kode_sbl=%s
+				", $tahun_anggaran, $id_indikator, $type_indikator, $kode_sbl));
+				$opsi = array(
+					'id_indikator' => $id_indikator,
+					'tipe_indikator' => $type_indikator,
+					'id_rumus_indikator' => $_POST['rumus_indikator'],
+					'kode_sbl' => $kode_sbl,
+					'realisasi_bulan_1' => $_POST['data']['target_realisasi_bulan_1'],
+					'realisasi_bulan_2' => $_POST['data']['target_realisasi_bulan_2'],
+					'realisasi_bulan_3' => $_POST['data']['target_realisasi_bulan_3'],
+					'realisasi_bulan_4' => $_POST['data']['target_realisasi_bulan_4'],
+					'realisasi_bulan_5' => $_POST['data']['target_realisasi_bulan_5'],
+					'realisasi_bulan_6' => $_POST['data']['target_realisasi_bulan_6'],
+					'realisasi_bulan_7' => $_POST['data']['target_realisasi_bulan_7'],
+					'realisasi_bulan_8' => $_POST['data']['target_realisasi_bulan_8'],
+					'realisasi_bulan_9' => $_POST['data']['target_realisasi_bulan_9'],
+					'realisasi_bulan_10' => $_POST['data']['target_realisasi_bulan_10'],
+					'realisasi_bulan_11' => $_POST['data']['target_realisasi_bulan_11'],
+					'realisasi_bulan_12' => $_POST['data']['target_realisasi_bulan_12'],
+					'user' => '',
+					'active' => 1,
+					'update_at' => current_time('mysql'),
+					'tahun_anggaran' => $tahun_anggaran
+				);
+				if (!empty($cek)) {
+					$wpdb->update('data_realisasi_renja', $opsi, array(
+						'id_indikator' => $id_indikator,
+						'type_indikator' => $type_indikator,
+						'kode_sbl' => $kode_sbl,
+						'tahun_anggaran' => $tahun_anggaran
+					));
+				} else {
+					$wpdb->insert('data_realisasi_renja', $opsi);
+				}
+
+			} else {
+				$ret['status'] = 'error';
+				$ret['message'] = 'APIKEY tidak sesuai!';
+			}
+		} else {
+			$ret['status'] = 'error';
+			$ret['message'] = 'Format Salah!';
+		}
+		die(json_encode($ret));
+	}
+
 	function get_monev(){
 		global $wpdb;
 		$ret = array();
@@ -5027,6 +5109,7 @@ class Wpsipd_Public
 				$id_skpd = $ids[1];
 				$kode = $ids[2];
 				$kode_sbl = $ids[3];
+				$id_indikator = $ids[4];
 				$kode_sbl_s = explode('.', $kode_sbl);
 				$count_kode_sbl = count(explode('.', $ids[2]));
 				$type_indikator = 0;
@@ -5044,14 +5127,31 @@ class Wpsipd_Public
 					$type_indikator = 3;
 				}
 
-				$realisasi_target = $wpdb->get_results($wpdb->prepare("
+				$realisasi_renja = $wpdb->get_results($wpdb->prepare("
 					select
-						*
+						id_rumus_indikator,
+						realisasi_bulan_1,
+						realisasi_bulan_2,
+						realisasi_bulan_3,
+						realisasi_bulan_4,
+						realisasi_bulan_5,
+						realisasi_bulan_6,
+						realisasi_bulan_7,
+						realisasi_bulan_8,
+						realisasi_bulan_9,
+						realisasi_bulan_10,
+						realisasi_bulan_11,
+						realisasi_bulan_12
 					from data_realisasi_renja
 					where tahun_anggaran=%d
+						and id_indikator=%d
 						and tipe_indikator=%d
 						and kode_sbl=%s
-				"), $tahun_anggaran, $type_indikator, $kode_sbl);
+				", $tahun_anggaran, $id_indikator, $type_indikator, $kode_sbl), ARRAY_A);
+				$ret['id_rumus_indikator'] = 1;
+				if(!empty($realisasi_renja)){
+					$ret['id_rumus_indikator'] = $realisasi_renja[0]['id_rumus_indikator'];
+				}
 
 				$rfk_all = $wpdb->get_results($wpdb->prepare("
 					select 
@@ -5084,6 +5184,10 @@ class Wpsipd_Public
 				$bulan = 12;
 				$tbody = '';
 				for($i=1; $i<=$bulan; $i++){
+					$realisasi_target_bulanan = 0;
+					if(!empty($realisasi_renja)){
+						$realisasi_target_bulanan = $realisasi_renja[0]['realisasi_bulan_'.$i];
+					}
 					if(empty($realisasi_anggaran[$i])){
 						$realisasi_anggaran[$i] = 0;
 					}
@@ -5113,7 +5217,7 @@ class Wpsipd_Public
 							<td class="text_kanan">'.number_format($rak_bulanan,0,",",".").'</td>
 							<td class="text_kanan">'.number_format($realisasi_bulanan,0,",",".").'</td>
 							<td class="text_kanan">'.number_format($selisih,0,",",".").'</td>
-							<td class="text_tengah target_realisasi" contenteditable="true">0</td>
+							<td class="text_tengah target_realisasi" id="target_realisasi_bulan_'.$i.'" contenteditable="true" onkeypress="onlyNumber(event);" onkeyup="setTotalMonev();">'.$realisasi_target_bulanan.'</td>
 						</tr>
 					';
 					$total_rak += $rak_bulanan;

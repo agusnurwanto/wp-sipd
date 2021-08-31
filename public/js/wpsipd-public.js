@@ -254,3 +254,7 @@ function changeUrl(option){
     }
     return _url;
 }
+
+function onlyNumber(e){
+	if (isNaN(String.fromCharCode(e.which))) e.preventDefault();
+}
