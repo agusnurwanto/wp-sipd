@@ -310,6 +310,12 @@ class Wpsipd
 		$this->loader->add_action('wp_ajax_get_realisasi_akun',  $plugin_public, 'get_realisasi_akun');
 		$this->loader->add_action('wp_ajax_nopriv_get_realisasi_akun',  $plugin_public, 'get_realisasi_akun');
 
+		$this->loader->add_action('wp_ajax_get_url_page',  $plugin_public, 'get_url_page');
+		$this->loader->add_action('wp_ajax_nopriv_get_url_page',  $plugin_public, 'get_url_page');
+
+		$this->loader->add_action('wp_ajax_save_monev_renja',  $plugin_public, 'save_monev_renja');
+		$this->loader->add_action('wp_ajax_nopriv_save_monev_renja',  $plugin_public, 'save_monev_renja');
+
 		$this->loader->add_action('wp_ajax_simpan_rfk',  $plugin_public, 'simpan_rfk');
 		$this->loader->add_action('wp_ajax_reset_rfk',  $plugin_public, 'reset_rfk');
 		$this->loader->add_action('wp_ajax_get_monev',  $plugin_public, 'get_monev');

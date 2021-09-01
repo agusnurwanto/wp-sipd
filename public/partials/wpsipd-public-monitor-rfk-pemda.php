@@ -5,6 +5,14 @@ $input = shortcode_atts( array(
 	'tahun_anggaran' => '2022'
 ), $atts );
 
+$public = 0;
+if(!empty($_GET) && !empty($_GET['key'])){
+	$keys = $this->decode_key($_GET['key']);
+	if(!empty($keys['public']) && $keys['public']==1){
+		$public = 1;
+	}
+}
+
 $sumber_pagu = '1';
 if(!empty($_GET) && !empty($_GET['sumber_pagu'])){
     $sumber_pagu = $_GET['sumber_pagu'];
@@ -98,7 +106,7 @@ $body .='
 		    <tbody>
 		    ';
 		    // die($body);
-		    $units = $wpdb->get_results("SELECT nama_skpd, id_skpd, kode_skpd, is_skpd FROM data_unit WHERE active=1 AND tahun_anggaran=".$input['tahun_anggaran'].' AND is_skpd=1 ORDER BY nama_skpd ASC LIMIT 3', ARRAY_A);
+		    $units = $wpdb->get_results("SELECT nama_skpd, id_skpd, kode_skpd, is_skpd FROM data_unit WHERE active=1 AND tahun_anggaran=".$input['tahun_anggaran'].' AND is_skpd=1 ORDER BY kode_skpd ASC', ARRAY_A);
 			$current_user = wp_get_current_user();
 			$data_all = array(
 				'data' => array(),
@@ -144,9 +152,11 @@ $body .='
 					// die($wpdb->last_query);
 
 					foreach ($data_rfk as $key => $rfk) {
-						$nama_page = 'RFK '.$unit['nama_skpd'].' '.$unit['kode_skpd'].' | '.$input['tahun_anggaran'];
-						$custom_post = get_page_by_title($nama_page, OBJECT, 'page');
-						$link = $this->get_link_post($custom_post);
+						if(empty($public)){
+							$nama_page = 'RFK '.$unit['nama_skpd'].' '.$unit['kode_skpd'].' | '.$input['tahun_anggaran'];
+							$custom_post = get_page_by_title($nama_page, OBJECT, 'page');
+							$link = $this->get_link_post($custom_post);
+						}
 						$latest_update = $this->get_date_rfk_update(array('id_skpd'=>$unit['id_skpd'], 'tahun_anggaran' => $input['tahun_anggaran'], 'bulan'=>$bulan));
 						
 						$data_all['data'][] = array(
@@ -225,7 +235,10 @@ $body .='
 							$latest_update_sub_unit = $this->get_date_rfk_update(array('id_skpd'=>$sub_unit['id_skpd'], 'tahun_anggaran' => $input['tahun_anggaran'], 'bulan'=>$bulan, 'type'=>'sub_unit'));
 							$nama_page_sub = 'RFK '.$sub_unit['nama_skpd'].' '.$sub_unit['kode_skpd'].' | '.$input['tahun_anggaran'];
 							$custom_post_sub = get_page_by_title($nama_page_sub, OBJECT, 'page');
-							$link = $this->get_link_post($custom_post_sub);
+							$link = '#';
+							if(empty($public)){
+								$link = $this->get_link_post($custom_post_sub);
+							}
 
 							$data_all_sub_unit[] = array(
 				    			'id_skpd_induk' => $unit['id_skpd'],
@@ -339,7 +352,9 @@ $body .='
 ?>
 
 <script type="text/javascript">
-	run_download_excel();
+	<?php if(empty($public)){ ?>
+		run_download_excel();
+	<?php } ?>
 	var _url = window.location.href;
     var url = new URL(_url);
     var param = [];
@@ -464,10 +479,15 @@ $body .='
 							if(data.id_skpd==id_induk){
 								index = i;
 								data.data_sub_unit.map(function(data_sub_unit){
+									<?php if(empty($public)){ ?>
+										var link_sub_unit = '<a href='+data_sub_unit.url_sub_unit+' target="_blank">'+data_sub_unit.nama_skpd+'</a>';
+									<?php }else{ ?>
+										var link_sub_unit = data_sub_unit.nama_skpd;
+									<?php } ?>
 									html += ''
 										+'<tr>'
 											+ '<td class="atas kanan bawah kiri text_tengah">'+data_sub_unit.kode_skpd+'</td>'
-											+ '<td class="atas kanan bawah text_kiri" data-search="'+data_sub_unit.nama_skpd+'"><a href='+data_sub_unit.url_sub_unit+' target="_blank">'+data_sub_unit.nama_skpd+'</a></td>'
+											+ '<td class="atas kanan bawah text_kiri" data-search="'+data_sub_unit.nama_skpd+'">'+link_sub_unit+'</td>'
 											+ '<td class="kanan bawah text_kanan" data-order="'+data_sub_unit.rka_sipd+'">'+formatRupiah(data_sub_unit.rka_sipd)+'</td>'
 											+ '<td class="kanan bawah text_kanan" data-order="'+data_sub_unit.dpa_sipd+'">'+formatRupiah(data_sub_unit.dpa_sipd)+'</td>'
 											+ '<td class="kanan bawah text_kanan" data-order="'+data_sub_unit.realisasi_keuangan+'">'+formatRupiah(data_sub_unit.realisasi_keuangan)+'</td>'

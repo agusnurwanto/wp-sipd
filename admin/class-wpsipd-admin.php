@@ -754,7 +754,7 @@ class Wpsipd_Admin {
     		&& !empty($_GET['key'])
     	){
     		$key = base64_decode($_GET['key']);
-    		$key_db = get_option( '_crb_api_key_extension' );
+    		$key_db = md5(get_option( '_crb_api_key_extension' ));
     		$key = explode($key_db, $key);
     		$valid = 0;
     		if(
