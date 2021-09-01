@@ -30,6 +30,13 @@ $body .='
 	<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/dt/dt-1.10.25/datatables.min.css"/>
 	<script type="text/javascript" src="https://cdn.datatables.net/v/dt/dt-1.10.25/datatables.min.js"></script>
 
+	<style>
+		.background-status {
+			background-color: #f56262;
+			color: white;
+		}
+	</style>
+
 	<!-- Modal -->
 	<div class="modal fade bd-example-modal-xl" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="myExtraLargeModalLabel" aria-hidden="true">
 	  <div class="modal-dialog modal-xl" role="document">
@@ -91,7 +98,7 @@ $body .='
 		    <tbody>
 		    ';
 		    // die($body);
-		    $units = $wpdb->get_results("SELECT nama_skpd, id_skpd, kode_skpd, is_skpd FROM data_unit WHERE active=1 AND tahun_anggaran=".$input['tahun_anggaran'].' AND is_skpd=1 ORDER BY nama_skpd ASC', ARRAY_A);
+		    $units = $wpdb->get_results("SELECT nama_skpd, id_skpd, kode_skpd, is_skpd FROM data_unit WHERE active=1 AND tahun_anggaran=".$input['tahun_anggaran'].' AND is_skpd=1 ORDER BY nama_skpd ASC LIMIT 3', ARRAY_A);
 			$current_user = wp_get_current_user();
 			$data_all = array(
 				'data' => array(),
@@ -137,7 +144,11 @@ $body .='
 					// die($wpdb->last_query);
 
 					foreach ($data_rfk as $key => $rfk) {
+						$nama_page = 'RFK '.$unit['nama_skpd'].' '.$unit['kode_skpd'].' | '.$input['tahun_anggaran'];
+						$custom_post = get_page_by_title($nama_page, OBJECT, 'page');
+						$link = $this->get_link_post($custom_post);
 						$latest_update = $this->get_date_rfk_update(array('id_skpd'=>$unit['id_skpd'], 'tahun_anggaran' => $input['tahun_anggaran'], 'bulan'=>$bulan));
+						
 						$data_all['data'][] = array(
 			    			'id_skpd' => $unit['id_skpd'],
 			    			'kode_skpd' => $unit['kode_skpd'],
@@ -151,6 +162,8 @@ $body .='
 			    			'deviasi' => $this->pembulatan($rfk['deviasi']),
 			    			'realisasi_fisik' => $this->pembulatan($rfk['realisasi_fisik']),
 			    			'last_update' => $latest_update,
+			    			'data_sub_unit' => '',
+			    			'url_unit' => $link,
 			    			'act' => ''
 			    		);
 
@@ -258,6 +271,7 @@ $body .='
 			    			) : 0,
 			    			'last_update' => $latest_update,
 			    			'data_sub_unit' => $data_all_sub_unit,
+			    			'url_unit' => '',
 			    			'act' => '<a href="javascript:void(0)" onclick="showsubunit(\''.$unit['id_skpd'].'\', \''.$bulan.'\', \''.$input['tahun_anggaran'].'\')">'.$unit['nama_skpd'].'</a>'
 			    	);
 			    	$data_all['realisasi_fisik'][]=!empty($realisasi_fisik_sub_unit) ? (array_sum($realisasi_fisik_sub_unit)/count($realisasi_fisik_sub_unit)) : 0;
@@ -265,13 +279,21 @@ $body .='
 			}
 
 	foreach ($data_all['data'] as $key => $value) {
-		$nama_page = 'RFK '.$value['nama_skpd'].' '.$value['kode_skpd'].' | '.$input['tahun_anggaran'];
-		$custom_post = get_page_by_title($nama_page, OBJECT, 'page');
-		$link = $this->get_link_post($custom_post);
-		$url = '<a href="'.$link.'" target="_blank">'.$value['nama_skpd'].'</a> ';
+		$url = '<a href="'.$value['url_unit'].'" target="_blank">'.$value['nama_skpd'].'</a> ';
+		$status_update = array();
 		if(isset($value['act']) && $value['act'] != ''){
 			$url = $value['act'];
+			foreach ($value['data_sub_unit'] as $k => $v) {
+				if($v['last_update']=='-'){
+					$status_update[]=$v['last_update'];
+				}
+			}
+		}else{
+			if($value['last_update']=='-'){
+				$status_update[]=$value['last_update'];
+			}
 		}
+		$background = !empty(count($status_update)) ? 'background-status' : '';
 		$body.='
 	    	<tr>
 			    <td class="atas kanan bawah kiri text_tengah" data-search="'.$value['kode_skpd'].'">'.$value['kode_skpd'].' </td>
@@ -283,7 +305,7 @@ $body .='
 			    <td class="atas kanan bawah text_tengah" data="'.$value['rak'].'">'.$value['target_rak'].'</td>
 			    <td class="atas kanan bawah text_tengah">'.$value['deviasi'].'</td>
 			    <td class="atas kanan bawah text_tengah">'.$value['realisasi_fisik'].'</td>
-			    <td class="atas kanan bawah text_tengah">'.$value['last_update'].'</td>
+			    <td class="atas kanan bawah text_tengah '.$background.'">'.$value['last_update'].'</td>
 			</tr>
 		';
 	}
@@ -291,10 +313,10 @@ $body .='
 	$total_rka_sipd = $data_all['total_rka_sipd'];
 	$total_dpa_sipd = $data_all['total_dpa_sipd'];
 	$total_realisasi_keuangan = $data_all['total_realisasi_keuangan'];
-	$capaian = ($total_realisasi_keuangan/$total_dpa_sipd)*100;
+	$capaian = !empty($total_dpa_sipd) ? ($total_realisasi_keuangan/$total_dpa_sipd)*100 : 0;
 	$total_rak_simda = $data_all['total_rak_simda'];
-	$target_rak_simda = ($total_rak_simda/$total_dpa_sipd)*100;
-	$deviasi = (($target_rak_simda-$capaian)/$target_rak_simda)*100;
+	$target_rak_simda = !empty($total_dpa_sipd) ? ($total_rak_simda/$total_dpa_sipd)*100 : 0;
+	$deviasi = !empty($target_rak_simda) ? (($target_rak_simda-$capaian)/$target_rak_simda)*100 : 0;
 
 	$body .='</tbody>
 				<tfoot>
@@ -345,6 +367,7 @@ $body .='
 		let data_all_rfk = <?php echo json_encode($data_all['data']); ?>;
 
 		jQuery(document).ready(function(){
+			jQuery('<a id="open_all_skpd" onclick="return false;" href="#" class="button button-primary" style="margin-left:5px">RFK ALL OPD</a>').insertAfter("#excel");
 			jQuery('#action-sipd').append(extend_action);
 			jQuery('#pilih_bulan').val(+<?php echo $bulan; ?>);
 			jQuery('#pilih_bulan').on('change', function(){
@@ -355,9 +378,36 @@ $body .='
 		    	jQuery('#pilih_bulan').val(+<?php echo $bulan; ?>);
 		    });
 
-			// init datatables
+		    jQuery('#open_all_skpd').on('click', function(){
+		    	var time = prompt("Isi jeda akses RFK semua OPD (dalam menit)");
+		    	var no = 0;
+		    	var length = data_all_rfk.length;
+		    	var data_all = [];
+
+		    	if(time === null){
+		    		return;
+		    	}
+		    	data_all_rfk.map(function(val){
+		    		if(val.data_sub_unit.length > 0){
+		    			val.data_sub_unit.map(function(val2){
+		    				data_all.push(val2.url_sub_unit);
+		    			})
+		    		}else{
+		    			data_all.push(val.url_unit);
+		    		}
+		    	})
+		    	
+		    	var interval = setInterval(function(){
+		    		if(no == data_all.length-1){ 
+						clearInterval(interval) 
+					}; 
+
+					window.open(data_all[no]+'&page_close=1');
+					no++;
+				}, time*60*1000);
+		    })
+
 		    jQuery('#table-rfk').DataTable();
-			
 		})
 		
 		function showsubunit(id_induk, bulan, tahun){

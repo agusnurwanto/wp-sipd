@@ -5,6 +5,11 @@ $input = shortcode_atts( array(
 	'tahun_anggaran' => '2022'
 ), $atts );
 
+$page_close = '0';
+if(!empty($_GET) && !empty($_GET['page_close'])){
+    $page_close = $_GET['page_close'];
+}
+
 $sumber_pagu = '1';
 if(!empty($_GET) && !empty($_GET['sumber_pagu'])){
     $sumber_pagu = $_GET['sumber_pagu'];
@@ -834,5 +839,10 @@ if(!current_user_can('administrator')){
 	    	}
 	    });
 	    generate_total();
+
+	    <?php 
+	    if($page_close==1){ ?>
+	    	window.close();
+	    <?php } ?>
 	});
 </script>
