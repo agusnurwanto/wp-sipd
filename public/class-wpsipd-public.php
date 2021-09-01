@@ -5077,7 +5077,7 @@ class Wpsipd_Public
 				if (!empty($cek)) {
 					$wpdb->update('data_realisasi_renja', $opsi, array(
 						'id_indikator' => $id_indikator,
-						'type_indikator' => $type_indikator,
+						'tipe_indikator' => $type_indikator,
 						'kode_sbl' => $kode_sbl,
 						'tahun_anggaran' => $tahun_anggaran
 					));
@@ -5217,7 +5217,7 @@ class Wpsipd_Public
 							<td class="text_kanan">'.number_format($rak_bulanan,0,",",".").'</td>
 							<td class="text_kanan">'.number_format($realisasi_bulanan,0,",",".").'</td>
 							<td class="text_kanan">'.number_format($selisih,0,",",".").'</td>
-							<td class="text_tengah target_realisasi" id="target_realisasi_bulan_'.$i.'" contenteditable="true" onkeypress="onlyNumber(event);" onkeyup="setTotalMonev();">'.$realisasi_target_bulanan.'</td>
+							<td class="text_tengah target_realisasi" id="target_realisasi_bulan_'.$i.'" contenteditable="true" onkeypress="onlyNumber(event);" onkeyup="setTotalMonev(this);">'.$realisasi_target_bulanan.'</td>
 						</tr>
 					';
 					$total_rak += $rak_bulanan;
