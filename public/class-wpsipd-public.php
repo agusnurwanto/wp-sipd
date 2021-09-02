@@ -5178,6 +5178,11 @@ class Wpsipd_Public
 					$rak[$v['bulan']] += $v['rak'];
 				}
 
+				$tahun_sekarang = date('Y');
+				$batas_bulan_input = date('m');
+				if($tahun_anggaran < $tahun_anggaran){
+					$batas_bulan_input = 12;
+				}
 				$total_rak = 0;
 				$total_realisasi = 0;
 				$total_selisih = 0;
@@ -5211,13 +5216,17 @@ class Wpsipd_Public
 						$rak_bulanan = 0;
 					}
 					$selisih = $rak_bulanan-$realisasi_bulanan;
+					$editable = 'contenteditable="true"';
+					if($batas_bulan_input < $i){
+						$editable = '';
+					}
 					$tbody .= '
 						<tr>
 							<td>'.$this->get_bulan($i).'</td>
 							<td class="text_kanan">'.number_format($rak_bulanan,0,",",".").'</td>
 							<td class="text_kanan">'.number_format($realisasi_bulanan,0,",",".").'</td>
 							<td class="text_kanan">'.number_format($selisih,0,",",".").'</td>
-							<td class="text_tengah target_realisasi" id="target_realisasi_bulan_'.$i.'" contenteditable="true" onkeypress="onlyNumber(event);" onkeyup="setTotalMonev(this);">'.$realisasi_target_bulanan.'</td>
+							<td class="text_tengah target_realisasi" id="target_realisasi_bulan_'.$i.'" '.$editable.' onkeypress="onlyNumber(event);" onkeyup="setTotalMonev(this);">'.$realisasi_target_bulanan.'</td>
 						</tr>
 					';
 					$total_rak += $rak_bulanan;

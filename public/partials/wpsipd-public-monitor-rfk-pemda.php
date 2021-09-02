@@ -40,8 +40,7 @@ $body .='
 
 	<style>
 		.background-status {
-			background-color: #f56262;
-			color: white;
+			background-color: #fdf6a5;
 		}
 	</style>
 

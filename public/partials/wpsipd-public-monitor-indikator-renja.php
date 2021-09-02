@@ -9,6 +9,11 @@ if(empty($input['id_skpd'])){
 	die('<h1>SKPD tidak ditemukan!</h1>');
 }
 
+$tahun_sekarang = date('Y');
+$batas_bulan_input = date('m');
+if($tahun_anggaran < $tahun_anggaran){
+	$batas_bulan_input = 12;
+}
 $api_key = get_option('_crb_api_key_extension' );
 
 function button_edit_monev($class=false){
@@ -985,6 +990,7 @@ $url_skpd = '<a href="'.$link.'" target="_blank">'.$unit[0]['kode_skpd'].' '.$un
 
 <script type="text/javascript">
 	run_download_excel();
+	var batas_bulan_input = <?php echo $batas_bulan_input; ?>;
 	var aksi = ''
 		+'<h3 style="margin-top: 20px;">SETTING</h3>'
 		+'<label><input type="checkbox" onclick="edit_monev_indikator(this);"> Edit Monev indikator</label>';
