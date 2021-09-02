@@ -152,10 +152,11 @@ $body .='
 					// die($wpdb->last_query);
 
 					foreach ($data_rfk as $key => $rfk) {
+						$link = $unit['nama_skpd'];
 						if(empty($public)){
 							$nama_page = 'RFK '.$unit['nama_skpd'].' '.$unit['kode_skpd'].' | '.$input['tahun_anggaran'];
 							$custom_post = get_page_by_title($nama_page, OBJECT, 'page');
-							$link = $this->get_link_post($custom_post);
+							$link = '<a href="'.$this->get_link_post($custom_post).'" target="_blank">'.$unit['nama_skpd'].'</a> ';
 						}
 						$latest_update = $this->get_date_rfk_update(array('id_skpd'=>$unit['id_skpd'], 'tahun_anggaran' => $input['tahun_anggaran'], 'bulan'=>$bulan));
 						
@@ -292,7 +293,7 @@ $body .='
 			}
 
 	foreach ($data_all['data'] as $key => $value) {
-		$url = '<a href="'.$value['url_unit'].'" target="_blank">'.$value['nama_skpd'].'</a> ';
+		// $url = '<a href="'.$value['url_unit'].'" target="_blank">'.$value['nama_skpd'].'</a> ';
 		$status_update = array();
 		if(isset($value['act']) && $value['act'] != ''){
 			$url = $value['act'];
@@ -302,6 +303,7 @@ $body .='
 				}
 			}
 		}else{
+			$url = $value['url_unit'];
 			if($value['last_update']=='-'){
 				$status_update[]=$value['last_update'];
 			}
