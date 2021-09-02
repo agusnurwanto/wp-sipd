@@ -363,11 +363,15 @@ foreach ($units as $k => $unit):
 			$kd_bidang = $kd_bidang[count($kd_bidang)-1];
 			$capaian = 0;
 			if(!empty($bidang['total_simda'])){
-				$capaian = $this->pembulatan(($bidang['realisasi']/$bidang['total_simda'])*100);
+				$capaian = ($bidang['realisasi']/$bidang['total_simda'])*100;
 			}
 			$capaian_rak = 0;
 			if(!empty($bidang['total_simda'])){
-				$capaian_rak = $this->pembulatan(($bidang['total_rak_simda']/$bidang['total_simda'])*100);
+				$capaian_rak = ($bidang['total_rak_simda']/$bidang['total_simda'])*100;
+			}
+			$deviasi_bidang = 0;
+			if(!empty($bidang['total_simda'])){
+				$deviasi_bidang = (($capaian_rak-$capaian)/$capaian_rak)*100;
 			}
 			$body .= '
 				<tr class="bidang" data-kode="'.$kd_urusan.'.'.$kd_bidang.'">
@@ -380,9 +384,9 @@ foreach ($units as $k => $unit):
 		            <td class="kanan bawah text_kanan text_blok">'.number_format($bidang['total'],0,",",".").'</td>
 		            <td class="kanan bawah text_kanan text_blok">'.number_format($bidang['total_simda'],0,",",".").'</td>
 		            <td class="kanan bawah text_kanan text_blok">'.number_format($bidang['realisasi'],0,",",".").'</td>
-		            <td class="kanan bawah text_blok text_tengah">'.$capaian.'</td>
-		            <td class="kanan bawah text_tengah text_blok">'.$capaian_rak.'</td>
-		            <td class="kanan bawah text_tengah text_blok">'.$this->pembulatan($bidang['deviasi']/$bidang['jml_sub_keg']).'</td>
+		            <td class="kanan bawah text_blok text_tengah">'.$this->pembulatan($capaian).'</td>
+		            <td class="kanan bawah text_tengah text_blok">'.$this->pembulatan($capaian_rak).'</td>
+		            <td class="kanan bawah text_tengah text_blok">'.$this->pembulatan($deviasi_bidang).'</td>
 		            <td class="kanan bawah text_blok bidang-realisasi-fisik text_tengah"></td>
 		        	<td class="kanan bawah text_kanan text_blok" colspan="3"></td>
 		        </tr>
@@ -392,11 +396,15 @@ foreach ($units as $k => $unit):
 				$kd_program = $kd_program[count($kd_program)-1];
 				$capaian = 0;
 				if(!empty($program['total_simda'])){
-					$capaian = $this->pembulatan(($program['realisasi']/$program['total_simda'])*100);
+					$capaian = ($program['realisasi']/$program['total_simda'])*100;
 				}
 				$capaian_rak = 0;
 				if(!empty($program['total_simda'])){
-					$capaian_rak = $this->pembulatan(($program['total_rak_simda']/$program['total_simda'])*100);
+					$capaian_rak = ($program['total_rak_simda']/$program['total_simda'])*100;
+				}
+				$deviasi_program = 0;
+				if(!empty($capaian_rak)){
+					$deviasi_program = (($capaian_rak-$capaian)/$capaian_rak)*100;
 				}
 				$body .= '
 					<tr class="program" data-kode="'.$kd_urusan.'.'.$kd_bidang.'.'.$kd_program.'">
@@ -409,9 +417,9 @@ foreach ($units as $k => $unit):
 			            <td class="kanan bawah text_kanan text_blok">'.number_format($program['total'],0,",",".").'</td>
 			            <td class="kanan bawah text_kanan text_blok">'.number_format($program['total_simda'],0,",",".").'</td>
 			            <td class="kanan bawah text_kanan text_blok">'.number_format($program['realisasi'],0,",",".").'</td>
-			            <td class="kanan bawah text_blok text_tengah">'.$capaian.'</td>
-			            <td class="kanan bawah text_tengah text_blok">'.$capaian_rak.'</td>
-			            <td class="kanan bawah text_tengah text_blok">'.$this->pembulatan($program['deviasi']/$program['jml_sub_keg']).'</td>
+			            <td class="kanan bawah text_blok text_tengah">'.$this->pembulatan($capaian).'</td>
+			            <td class="kanan bawah text_tengah text_blok">'.$this->pembulatan($capaian_rak).'</td>
+			            <td class="kanan bawah text_tengah text_blok">'.$this->pembulatan($deviasi_program).'</td>
 			            <td class="kanan bawah text_blok program-realisasi-fisik text_tengah"></td>
 		        		<td class="kanan bawah text_kanan text_blok" colspan="3"></td>
 			        </tr>
@@ -421,11 +429,15 @@ foreach ($units as $k => $unit):
 					$kd_giat = $kd_giat[count($kd_giat)-2].'.'.$kd_giat[count($kd_giat)-1];
 					$capaian = 0;
 					if(!empty($giat['total_simda'])){
-						$capaian = $this->pembulatan(($giat['realisasi']/$giat['total_simda'])*100);
+						$capaian = ($giat['realisasi']/$giat['total_simda'])*100;
 					}
 					$capaian_rak = 0;
 					if(!empty($giat['total_simda'])){
-						$capaian_rak = $this->pembulatan(($giat['total_rak_simda']/$giat['total_simda'])*100);
+						$capaian_rak = ($giat['total_rak_simda']/$giat['total_simda'])*100;
+					}
+					$deviasi_kegiatan = 0;
+					if(!empty($capaian_rak)){
+						$deviasi_kegiatan = (($capaian_rak-$capaian)/$capaian_rak)*100;
 					}
 					$nama_page = $input['tahun_anggaran'] . ' | ' . $unit['kode_skpd'] . ' | ' . $kd_giat1 . ' | ' . $giat['nama'];
 					$custom_post = get_page_by_title($nama_page, OBJECT, 'post');
@@ -441,9 +453,9 @@ foreach ($units as $k => $unit):
 				            <td style="border:.5pt solid #000; vertical-align:middle; text-align:right; font-weight:bold;">'.number_format($giat['total'],0,",",".").'</td>
 				            <td style="border:.5pt solid #000; vertical-align:middle; text-align:right; font-weight:bold;">'.number_format($giat['total_simda'],0,",",".").'</td>
 				            <td style="border:.5pt solid #000; vertical-align:middle; text-align:right; font-weight:bold;">'.number_format($giat['realisasi'],0,",",".").'</td>
-				            <td class="text_tengah" style="border:.5pt solid #000; vertical-align:middle; font-weight:bold;">'.$capaian.'</td>
-				            <td class="text_tengah" style="border:.5pt solid #000; vertical-align:middle; font-weight:bold;">'.$capaian_rak.'</td>
-				            <td class="text_tengah" style="border:.5pt solid #000; vertical-align:middle; font-weight:bold;">'.$this->pembulatan($giat['deviasi']/$giat['jml_sub_keg']).'</td>
+				            <td class="text_tengah" style="border:.5pt solid #000; vertical-align:middle; font-weight:bold;">'.$this->pembulatan($capaian).'</td>
+				            <td class="text_tengah" style="border:.5pt solid #000; vertical-align:middle; font-weight:bold;">'.$this->pembulatan($capaian_rak).'</td>
+				            <td class="text_tengah" style="border:.5pt solid #000; vertical-align:middle; font-weight:bold;">'.$this->pembulatan($deviasi_kegiatan).'</td>
 				            <td style="border:.5pt solid #000; vertical-align:middle; font-weight:bold;" class="kegiatan-realisasi-fisik text_tengah"></td>
 		        			<td class="kanan bawah text_kanan text_blok" colspan="3"></td>
 				        </tr>
@@ -468,11 +480,15 @@ foreach ($units as $k => $unit):
 						$kd_sub_giat = $kd_sub_giat[count($kd_sub_giat)-1];
 						$capaian = 0;
 						if(!empty($sub_giat['total_simda'])){
-							$capaian = $this->pembulatan(($sub_giat['realisasi']/$sub_giat['total_simda'])*100);
+							$capaian = ($sub_giat['realisasi']/$sub_giat['total_simda'])*100;
 						}
 						$capaian_rak = 0;
 						if(!empty($sub_giat['total_simda'])){
-							$capaian_rak = $this->pembulatan(($sub_giat['total_rak_simda']/$sub_giat['total_simda'])*100);
+							$capaian_rak = ($sub_giat['total_rak_simda']/$sub_giat['total_simda'])*100;
+						}
+						$deviasi_sub_kegiatan = 0;
+						if(!empty($capaian_rak)){
+							$deviasi_sub_kegiatan = (($capaian_rak-$capaian)/$capaian_rak)*100;
 						}
 						$realisasi_fisik = 0;
 						if(!empty($sub_giat['data']['realisasi_fisik'])){
@@ -497,9 +513,9 @@ foreach ($units as $k => $unit):
 					            <td class="kanan bawah text_kanan">'.number_format($sub_giat['total'],0,",",".").'</td>
 					            <td class="kanan bawah text_kanan">'.number_format($sub_giat['total_simda'],0,",",".").'</td>
 					            <td class="kanan bawah text_kanan">'.number_format($sub_giat['realisasi'],0,",",".").'</td>
-					            <td class="kanan bawah text_tengah">'.$capaian.'</td>
-					            <td class="kanan bawah text_tengah">'.$capaian_rak.'</td>
-					            <td class="kanan bawah text_tengah">'.$this->pembulatan($sub_giat['deviasi']/$sub_giat['jml_sub_keg']).'</td>
+					            <td class="kanan bawah text_tengah">'.$this->pembulatan($capaian).'</td>
+					            <td class="kanan bawah text_tengah">'.$this->pembulatan($capaian_rak).'</td>
+					            <td class="kanan bawah text_tengah">'.$this->pembulatan($deviasi_sub_kegiatan).'</td>
 					            <td class="kanan bawah realisasi-fisik text_tengah" '.$edit_fisik.'>'.$realisasi_fisik.'</td>
 					            <td class="kanan bawah">'.implode(',<br>', $sd_sub).'</td>
 					            <td class="kanan bawah permasalahan" '.$edit_masalah.'>'.$sub_giat['data']['permasalahan'].'</td>
@@ -513,11 +529,15 @@ foreach ($units as $k => $unit):
 	}
 	$capaian_total = 0;
 	if(!empty($data_all['total_simda'])){
-		$capaian_total = $this->pembulatan(($data_all['realisasi']/$data_all['total_simda'])*100);
+		$capaian_total = ($data_all['realisasi']/$data_all['total_simda'])*100;
 	}
 	$capaian_rak = 0;
 	if(!empty($data_all['total_simda'])){
-		$capaian_rak = $this->pembulatan(($data_all['total_rak_simda']/$data_all['total_simda'])*100);
+		$capaian_rak = ($data_all['total_rak_simda']/$data_all['total_simda'])*100;
+	}
+	$deviasi_pemkab=0;
+	if(!empty($capaian_rak)){
+		$deviasi_pemkab = (($capaian_rak-$capaian_total)/$capaian_rak)*100;
 	}
 	echo '
 	<input type="hidden" value="'.get_option( '_crb_api_key_extension' ).'" id="api_key">
@@ -591,9 +611,9 @@ foreach ($units as $k => $unit):
 			        <td class="kanan bawah text_kanan text_blok">'.number_format($data_all['total'],0,",",".").'</td>
 			        <td class="kanan bawah text_kanan text_blok">'.number_format($data_all['total_simda'],0,",",".").'</td>
 			        <td class="kanan bawah text_kanan text_blok">'.number_format($data_all['realisasi'],0,",",".").'</td>
-			        <td class="kanan bawah text_tengah text_blok">'.$capaian_total.'</td>
-			        <td class="kanan bawah text_tengah text_blok">'.$capaian_rak.'</td>
-			        <td class="kanan bawah text_tengah text_blok">'.$this->pembulatan($data_all['deviasi']/$data_all['jml_sub_keg']).'</td>
+			        <td class="kanan bawah text_tengah text_blok">'.$this->pembulatan($capaian_total).'</td>
+			        <td class="kanan bawah text_tengah text_blok">'.$this->pembulatan($capaian_rak).'</td>
+			        <td class="kanan bawah text_tengah text_blok">'.$this->pembulatan($deviasi_pemkab).'</td>
 			        <td class="kanan bawah text_blok total-realisasi-fisik text_tengah"></td>
 			        <td class="kanan bawah text_kanan text_blok" colspan="3"></td>
 			    </tr>
