@@ -152,12 +152,9 @@ $body .='
 					// die($wpdb->last_query);
 
 					foreach ($data_rfk as $key => $rfk) {
-						$link = $unit['nama_skpd'];
-						if(empty($public)){
-							$nama_page = 'RFK '.$unit['nama_skpd'].' '.$unit['kode_skpd'].' | '.$input['tahun_anggaran'];
-							$custom_post = get_page_by_title($nama_page, OBJECT, 'page');
-							$link = '<a href="'.$this->get_link_post($custom_post).'" target="_blank">'.$unit['nama_skpd'].'</a> ';
-						}
+						$nama_page = 'RFK '.$unit['nama_skpd'].' '.$unit['kode_skpd'].' | '.$input['tahun_anggaran'];
+						$custom_post = get_page_by_title($nama_page, OBJECT, 'page');
+						$link = $this->get_link_post($custom_post);
 						$latest_update = $this->get_date_rfk_update(array('id_skpd'=>$unit['id_skpd'], 'tahun_anggaran' => $input['tahun_anggaran'], 'bulan'=>$bulan));
 						
 						$data_all['data'][] = array(
@@ -293,26 +290,31 @@ $body .='
 			}
 
 	foreach ($data_all['data'] as $key => $value) {
-		// $url = '<a href="'.$value['url_unit'].'" target="_blank">'.$value['nama_skpd'].'</a> ';
+
+		$tag = $value['nama_skpd'];
+		if(empty($public)){
+			$tag = '<a href="'.$value['url_unit'].'" target="_blank">'.$value['nama_skpd'].'</a> ';
+		}
+
 		$status_update = array();
 		if(isset($value['act']) && $value['act'] != ''){
-			$url = $value['act'];
+			$tag = $value['act'];
 			foreach ($value['data_sub_unit'] as $k => $v) {
 				if($v['last_update']=='-'){
 					$status_update[]=$v['last_update'];
 				}
 			}
 		}else{
-			$url = $value['url_unit'];
 			if($value['last_update']=='-'){
 				$status_update[]=$value['last_update'];
 			}
 		}
 		$background = !empty(count($status_update)) ? 'background-status' : '';
+
 		$body.='
 	    	<tr>
 			    <td class="atas kanan bawah kiri text_tengah" data-search="'.$value['kode_skpd'].'">'.$value['kode_skpd'].' </td>
-			    <td class="atas kanan bawah text_kiri" data-search="'.$value['nama_skpd'].'">'.$url.'</td>
+			    <td class="atas kanan bawah text_kiri" data-search="'.$value['nama_skpd'].'">'.$tag.'</td>
 			    <td class="atas kanan bawah text_kanan" data-order="'.$value['rka_sipd'].'">'.number_format($value['rka_sipd'],0,",",".").'</td>
 			    <td class="atas kanan bawah text_kanan" data-order="'.$value['dpa_sipd'].'">'.number_format($value['dpa_sipd'],0,",",".").'</td>
 			    <td class="atas kanan bawah text_kanan" data-order="'.$value['realisasi_keuangan'].'">'.number_format($value['realisasi_keuangan'],0,",",".").'</td>
@@ -384,7 +386,7 @@ $body .='
 		let data_all_rfk = <?php echo json_encode($data_all['data']); ?>;
 
 		jQuery(document).ready(function(){
-			jQuery('<a id="open_all_skpd" onclick="return false;" href="#" class="button button-primary" style="margin-left:5px">RFK ALL OPD</a>').insertAfter("#excel");
+			jQuery('<a id="open_all_skpd" onclick="return false;" href="#" class="button button-primary" style="margin-left:5px">AKSES RFK ALL OPD</a>').insertAfter("#excel");
 			jQuery('#action-sipd').append(extend_action);
 			jQuery('#pilih_bulan').val(+<?php echo $bulan; ?>);
 			jQuery('#pilih_bulan').on('change', function(){
@@ -396,7 +398,8 @@ $body .='
 		    });
 
 		    jQuery('#open_all_skpd').on('click', function(){
-		    	var time = prompt("Isi jeda akses RFK semua OPD (dalam menit)");
+
+		    	var time = prompt("Isi jeda akses RFK semua OPD (detik)", 30);
 		    	var no = 0;
 		    	var length = data_all_rfk.length;
 		    	var data_all = [];
@@ -404,6 +407,8 @@ $body .='
 		    	if(time === null){
 		    		return;
 		    	}
+
+		    	jQuery("#wrap-loading").css('display','block');
 		    	data_all_rfk.map(function(val){
 		    		if(val.data_sub_unit.length > 0){
 		    			val.data_sub_unit.map(function(val2){
@@ -417,11 +422,13 @@ $body .='
 		    	var interval = setInterval(function(){
 		    		if(no == data_all.length-1){ 
 						clearInterval(interval) 
+		    			jQuery("#wrap-loading").css('display','none');
 					}; 
 
+					console.log(data_all[no]+'&page_close=1');
 					window.open(data_all[no]+'&page_close=1');
 					no++;
-				}, time*60*1000);
+				}, time*1000);
 		    })
 
 		    jQuery('#table-rfk').DataTable();
