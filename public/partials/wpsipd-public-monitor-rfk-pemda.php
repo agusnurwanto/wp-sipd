@@ -40,13 +40,13 @@ $body .='
 
 	<style>
 		.background-status {
-			background-color: #fcd86d;
+			background-color: #fdf6a5;
 		}
 	</style>
 
 	<!-- Modal -->
 	<div class="modal fade bd-example-modal-xl" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="myExtraLargeModalLabel" aria-hidden="true">
-	  <div class="modal-dialog modal-xl" role="document">
+	  <div class="modal-dialog" style="min-width:1250px" role="document">
 	    <div class="modal-content">
 	      <div class="modal-header">
 	        <h5 class="modal-title" id="exampleModalLabel" style="margin: 0 auto; text-align:center; font-weight: bold">Modal title</h5>
@@ -61,6 +61,7 @@ $body .='
 	  </div>
 	</div>
 	
+	<input type="hidden" value="'.get_option( '_crb_api_key_extension' ).'" id="api_key">
 	<div id="cetak" title="Laporan RFK" style="padding: 5px;">
 		<h4 style="text-align: center; margin: 0; font-weight: bold;">REALISASI FISIK DAN KEUANGAN (RFK)<br>'.$nama_pemda.'<br>Bulan '.$nama_bulan.' Tahun '.$input['tahun_anggaran'].'</h4>
 		<table id="table-rfk" cellpadding="2" cellspacing="0" style="font-family:\'Open Sans\',-apple-system,BlinkMacSystemFont,\'Segoe UI\',sans-serif; border-collapse: collapse; width:100%; table-layout:fixed; overflow-wrap: break-word; font-size: 70%; border: 0;">
@@ -68,15 +69,15 @@ $body .='
 		    	<tr>
 		    		<th style="padding: 0; border: 0; width:150px"></th>
 		            <th style="padding: 0; border: 0;"></th>
-		            <th style="padding: 0; border: 0; width:140px"></th>
-		            <th style="padding: 0; border: 0; width:140px"></th>
-		            <th style="padding: 0; border: 0; width:140px"></th>
+		            <th style="padding: 0; border: 0; width:120px"></th>
+		            <th style="padding: 0; border: 0; width:120px"></th>
+		            <th style="padding: 0; border: 0; width:120px"></th>
 		            <th style="padding: 0; border: 0; width:110px"></th>
 		            <th style="padding: 0; border: 0; width:100px"></th>
 		            <th style="padding: 0; border: 0; width:120px"></th>
 		            <th style="padding: 0; border: 0; width:90px"></th>
 		            <th style="padding: 0; border: 0; width:90px"></th>
-		            <th style="padding: 0; border: 0; width:90px"></th>
+		            <th style="padding: 0; border: 0; width:100px"></th>
 		    	</tr>
 		    	<tr>
 			    	<th class="atas kanan bawah kiri text_tengah text_blok">Kode</th>
@@ -135,7 +136,8 @@ $body .='
 								AVG(IFNULL(d.realisasi_fisik,0)) realisasi_fisik, 
 								IFNULL(SUM(d.rak),0) rak,
 								IFNULL((SUM(d.rak)/SUM(k.pagu_simda)*100),0) target_rak,
-								IFNULL(((IFNULL((SUM(d.rak)/SUM(k.pagu_simda)*100),0)-IFNULL((SUM(d.realisasi_anggaran)/SUM(k.pagu_simda)*100),0)) / (IFNULL((SUM(d.rak)/SUM(k.pagu_simda)*100),0))),0) * 100 deviasi
+								IFNULL(((IFNULL((SUM(d.rak)/SUM(k.pagu_simda)*100),0)-IFNULL((SUM(d.realisasi_anggaran)/SUM(k.pagu_simda)*100),0)) / (IFNULL((SUM(d.rak)/SUM(k.pagu_simda)*100),0))),0) * 100 deviasi,
+								(SELECT catatan_ka_adbang FROM data_catatan_rfk_unit WHERE id_skpd=".$unit['id_skpd']." AND bulan=".$bulan." AND tahun_anggaran=".$input['tahun_anggaran'].") cat_ka_adbang
 							FROM data_sub_keg_bl k 
 							LEFT JOIN data_rfk d 
 								ON d.id_skpd=k.id_sub_skpd AND 
@@ -171,6 +173,7 @@ $body .='
 			    			'target_rak' => $this->pembulatan($rfk['target_rak']),
 			    			'deviasi' => $this->pembulatan($rfk['deviasi']),
 			    			'realisasi_fisik' => $this->pembulatan($rfk['realisasi_fisik']),
+			    			'cat_ka_adbang' => $rfk['cat_ka_adbang'],
 			    			'last_update' => $latest_update,
 			    			'data_sub_unit' => '',
 			    			'url_unit' => $link,
@@ -207,7 +210,8 @@ $body .='
 									AVG(IFNULL(d.realisasi_fisik,0)) realisasi_fisik, 
 									IFNULL(SUM(d.rak),0) rak,
 									IFNULL((SUM(d.rak)/SUM(k.pagu_simda)*100),0) target_rak,
-									IFNULL(((IFNULL((SUM(d.rak)/SUM(k.pagu_simda)*100),0)-IFNULL((SUM(d.realisasi_anggaran)/SUM(k.pagu_simda)*100),0)) / (IFNULL((SUM(d.rak)/SUM(k.pagu_simda)*100),0))),0) * 100 deviasi
+									IFNULL(((IFNULL((SUM(d.rak)/SUM(k.pagu_simda)*100),0)-IFNULL((SUM(d.realisasi_anggaran)/SUM(k.pagu_simda)*100),0)) / (IFNULL((SUM(d.rak)/SUM(k.pagu_simda)*100),0))),0) * 100 deviasi,
+									(SELECT catatan_ka_adbang FROM data_catatan_rfk_unit WHERE id_skpd=".$sub_unit['id_skpd']." AND bulan=".$bulan." AND tahun_anggaran=".$input['tahun_anggaran'].") cat_ka_adbang
 								FROM data_sub_keg_bl k 
 								LEFT JOIN data_rfk d 
 									ON d.id_skpd=k.id_sub_skpd AND 
@@ -241,6 +245,7 @@ $body .='
 							}
 
 							$data_all_sub_unit[] = array(
+				    			'id_skpd' => $sub_unit['id_skpd'],
 				    			'id_skpd_induk' => $unit['id_skpd'],
 				    			'kode_skpd' => $sub_unit['kode_skpd'],
 				    			'nama_skpd' => $sub_unit['nama_skpd'],
@@ -252,6 +257,7 @@ $body .='
 				    			'target_rak' => $this->pembulatan($rfk['target_rak']),
 				    			'deviasi' => $this->pembulatan($rfk['deviasi']),
 				    			'realisasi_fisik' => $this->pembulatan($rfk['realisasi_fisik']),
+			    				'cat_ka_adbang' => $rfk['cat_ka_adbang'],
 				    			'last_update' => $latest_update_sub_unit,
 				    			'url_sub_unit' => $link
 				    		);
@@ -284,6 +290,7 @@ $body .='
 			    			) : 0,
 			    			'last_update' => $latest_update,
 			    			'data_sub_unit' => $data_all_sub_unit,
+			    			'cat_ka_adbang' => '',
 			    			'url_unit' => '',
 			    			'act' => '<a href="javascript:void(0)" onclick="showsubunit(\''.$unit['id_skpd'].'\', \''.$bulan.'\', \''.$input['tahun_anggaran'].'\')">'.$unit['nama_skpd'].'</a>'
 			    	);
@@ -298,8 +305,13 @@ $body .='
 			$tag = '<a href="'.$value['url_unit'].'" target="_blank">'.$value['nama_skpd'].'</a> ';
 		}
 
+		$editable = 'true';
 		$status_update = array();
+		$catatan_rfk_class = 'catatan_rfk_unit';
+		
 		if(isset($value['act']) && $value['act'] != ''){
+			$catatan_rfk_class = '';
+			$editable = 'false';
 			$tag = $value['act'];
 			foreach ($value['data_sub_unit'] as $k => $v) {
 				if($v['last_update']=='-'){
@@ -314,7 +326,7 @@ $body .='
 		$background = !empty(count($status_update)) ? 'background-status' : '';
 
 		$body.='
-	    	<tr>
+	    	<tr data-idskpd="'.$value['id_skpd'].'">
 			    <td class="atas kanan bawah kiri text_tengah" data-search="'.$value['kode_skpd'].'">'.$value['kode_skpd'].' </td>
 			    <td class="atas kanan bawah text_kiri" data-search="'.$value['nama_skpd'].'">'.$tag.'</td>
 			    <td class="atas kanan bawah text_kanan" data-order="'.$value['rka_sipd'].'">'.number_format($value['rka_sipd'],0,",",".").'</td>
@@ -325,7 +337,7 @@ $body .='
 			    <td class="atas kanan bawah text_tengah">'.$value['deviasi'].'</td>
 			    <td class="atas kanan bawah text_tengah">'.$value['realisasi_fisik'].'</td>
 			    <td class="atas kanan bawah text_tengah '.$background.'">'.$value['last_update'].'</td>
-			    <td class="atas kanan bawah text_tengah" contenteditable="true"></td>
+			    <td class="atas kanan bawah text_tengah '.$catatan_rfk_class.'" contenteditable="'.$editable.'">'.$value['cat_ka_adbang'].'</td>
 			</tr>
 		';
 	}
@@ -387,10 +399,14 @@ $body .='
 				+'</select>'
 			+'</label>'
 		+'</div>';
-		let data_all_rfk = <?php echo json_encode($data_all['data']); ?>;
 
+		let data_all_rfk = <?php echo json_encode($data_all['data']); ?>;
+		
 		jQuery(document).ready(function(){
+			<?php if(empty($public)){ ?>
 			jQuery('<a id="open_all_skpd" onclick="return false;" href="#" class="button button-primary" style="margin-left:5px">AKSES RFK ALL OPD</a>').insertAfter("#excel");
+			jQuery('<a href="javascript:void(0)" style="margin-left: 5px; text-transform: uppercase" class="button button-primary" id="simpan-catatan-rfk-unit">Simpan Catatan</a>').insertAfter("#open_all_skpd");
+			<?php } ?>
 			jQuery('#action-sipd').append(extend_action);
 			jQuery('#pilih_bulan').val(+<?php echo $bulan; ?>);
 			jQuery('#pilih_bulan').on('change', function(){
@@ -435,29 +451,42 @@ $body .='
 				}, time*1000);
 		    })
 
+		    jQuery("#simpan-catatan-rfk-unit").on('click', function(){
+	    		simpan_catatan_rfk('catatan_rfk_unit');
+		    })
+
 		    jQuery('#table-rfk').DataTable();
 		})
-		
+
 		function showsubunit(id_induk, bulan, tahun){
+			let html = '';
 			let nama_bulan = get_bulan(bulan);
 			let modal_subunit = jQuery("#exampleModal");
+
 			modal_subunit.find('.modal-title').html('');
 			modal_subunit.find('.modal-body').html('');
 
-			let html = '';
+				<?php if(empty($public)){ ?>
+					html+=''
+						+'<div style="margin-top:20px; margin-bottom:20px; text-align:center">'
+							+'<a href="javascript:void(0)" style="margin-left: 5px; text-transform: uppercase" class="button button-primary" id="simpan-catatan-rfk-sub-unit">Simpan Catatan</a>'
+						+'</div>';
+				<?php } ?>
+
 				html+='<table id="table-rfk-sub-unit" cellpadding="2" cellspacing="0" style="font-family:\'Open Sans\',-apple-system,BlinkMacSystemFont,\'Segoe UI\',sans-serif; border-collapse: collapse; width:100%; table-layout:fixed; overflow-wrap: break-word; font-size: 70%; border: 0;">'
 					    +'<thead>'
 					    	+'<tr>'
 					    		+'<th style="padding: 0; border: 0; width:125px"></th>'
 					            +'<th style="padding: 0; border: 0"></th>'
-					            +'<th style="padding: 0; border: 0; width:140px"></th>'
-					            +'<th style="padding: 0; border: 0; width:140px"></th>'
-					            +'<th style="padding: 0; border: 0; width:140px"></th>'
+					            +'<th style="padding: 0; border: 0; width:120px"></th>'
+					            +'<th style="padding: 0; border: 0; width:120px"></th>'
+					            +'<th style="padding: 0; border: 0; width:120px"></th>'
 					            +'<th style="padding: 0; border: 0; width:110px"></th>'
 					            +'<th style="padding: 0; border: 0; width:75px"></th>'
-					            +'<th style="padding: 0; border: 0; width:120px"></th>'
+					            +'<th style="padding: 0; border: 0; width:110px"></th>'
 					            +'<th style="padding: 0; border: 0; width:90px"></th>'
 					            +'<th style="padding: 0; border: 0; width:80px"></th>'
+					            +'<th style="padding: 0; border: 0; width:100px"></th>'
 					    	+'</tr>'
 					    	+'<tr>'
 						    	+'<th class="atas kanan bawah kiri text_tengah text_blok">Kode</th>'
@@ -470,6 +499,7 @@ $body .='
 						        +'<th class="atas kanan bawah text_tengah text_blok">Deviasi ( % )</th>'
 						        +'<th class="atas kanan bawah text_tengah text_blok">Realisasi Fisik ( % )</th>'
 						        +'<th class="atas kanan bawah text_tengah text_blok">Update Terakhir</th>'
+						        +'<th class="atas kanan bawah text_tengah text_blok">Catatan Ka.Adbang</th>'
 						    +'</tr>'
 						    +'<tr>'
 						    	+'<th class="atas kanan bawah kiri text_tengah text_blok">1</th>'
@@ -482,6 +512,7 @@ $body .='
 						        +'<th class="atas kanan bawah text_tengah text_blok">8 = ((7 - 6) / 7) * 100</th>'
 						        +'<th class="atas kanan bawah text_tengah text_blok">9</th>'
 						        +'<th class="atas kanan bawah text_tengah text_blok">10</th>'
+						        +'<th class="atas kanan bawah text_tengah text_blok">11</th>'
 						    +'</tr>'
 					    +'</thead>'
 					    +'<tbody>';
@@ -498,7 +529,7 @@ $body .='
 										var link_sub_unit = data_sub_unit.nama_skpd;
 									<?php } ?>
 									html += ''
-										+'<tr>'
+										+'<tr data-idskpd="'+data_sub_unit.id_skpd+'">'
 											+ '<td class="atas kanan bawah kiri text_tengah">'+data_sub_unit.kode_skpd+'</td>'
 											+ '<td class="atas kanan bawah text_kiri" data-search="'+data_sub_unit.nama_skpd+'">'+link_sub_unit+'</td>'
 											+ '<td class="kanan bawah text_kanan" data-order="'+data_sub_unit.rka_sipd+'">'+formatRupiah(data_sub_unit.rka_sipd)+'</td>'
@@ -509,6 +540,7 @@ $body .='
 											+ '<td class="kanan bawah text_tengah">'+data_sub_unit.deviasi+'</td>'
 											+ '<td class="kanan bawah text_tengah">'+data_sub_unit.realisasi_fisik+'</td>'
 											+ '<td class="kanan bawah text_tengah">'+data_sub_unit.last_update+'</td>'
+											+ '<td class="kanan bawah text_tengah catatan_rfk_sub_unit" contenteditable="true">'+data_sub_unit.cat_ka_adbang+'</td>'
 										+'</tr>'
 								});
 							}
@@ -527,6 +559,7 @@ $body .='
 										+'<th style="border:1px solid" class="kanan bawah text_tengah">'+data_all_rfk[index].deviasi+'</th>'
 										+'<th style="border:1px solid" class="kanan bawah text_tengah">'+data_all_rfk[index].realisasi_fisik+'</th>'
 										+'<th style="border:1px solid"></th>'
+										+'<th style="border:1px solid"></th>'
 									+'</tr>'
 								+'</tfoot>'
 						 +'</table>';
@@ -535,7 +568,70 @@ $body .='
 			modal_subunit.find('.modal-body').html(html);
 			modal_subunit.modal('show');
 
+			jQuery("#simpan-catatan-rfk-sub-unit").on('click', function(){
+	    		simpan_catatan_rfk('catatan_rfk_sub_unit');
+		    })
+
 			jQuery('#table-rfk-sub-unit').DataTable();
+		}
+
+		function simpan_catatan_rfk(tag){
+			if(confirm('Apakah anda yakin untuk menyimpan data ini?')){
+	    			jQuery('#wrap-loading').show();
+	    			
+	    			var arr_catatan_rfk_unit = [];
+	    			jQuery("."+tag).map(function(i,r){
+	    				var tr = jQuery(r).closest('tr');
+	    				var val = jQuery(r).text();
+
+	    				arr_catatan_rfk_unit.push({
+	    					catatan_ka_adbang : val,
+	    					id_skpd : tr.attr("data-idskpd")
+	    				})
+	    			})
+
+	    			arr_catatan_rfk_unit.reduce(function(sequence, nextData){
+		                return sequence.then(function(current_data){
+		            		return new Promise(function(resolve_redurce, reject_redurce){
+					    		jQuery.ajax({
+									url: "<?php echo admin_url('admin-ajax.php'); ?>",
+						          	type: "post",
+						          	data: {
+						          		"action": "simpan_catatan_rfk_unit",
+						          		"api_key": jQuery('#api_key').val(),
+						          		"tahun_anggaran": <?php echo $input['tahun_anggaran'] ?>,
+						          		"bulan": jQuery('#pilih_bulan').val(),
+						          		"user": "<?php echo $current_user->display_name; ?>",
+						          		"data": current_data
+						          	},
+						          	dataType: "json",
+						          	success: function(data){
+										return resolve_redurce(nextData);
+									},
+									error: function(e) {
+										console.log(e);
+										return resolve_redurce(nextData);
+									}
+								});
+			                })
+		                    .catch(function(e){
+		                        console.log(e);
+		                        return Promise.resolve(nextData);
+		                    });
+		                })
+		                .catch(function(e){
+		                    console.log(e);
+		                    return Promise.resolve(nextData);
+		                });
+		            }, Promise.resolve(arr_catatan_rfk_unit[arr_catatan_rfk_unit.length-1]))
+		            .then(function(){
+						jQuery('#wrap-loading').hide();
+						alert('Data berhasil disimpan!');
+		            })
+		            .catch(function(e){
+		                console.log(e);
+		            });
+	    		}
 		}
 
 		function get_bulan(bulan) {

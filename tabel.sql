@@ -1,4 +1,37 @@
 --
+-- Table structure for table `data_catatan_rfk_unit`
+--
+
+CREATE TABLE `data_catatan_rfk_unit` (
+  `id` int(11) NOT NULL,
+  `bulan` tinyint(2) NOT NULL,
+  `catatan_ka_adbang` text NOT NULL,
+  `id_skpd` int(11) NOT NULL,
+  `tahun_anggaran` year(4) NOT NULL,
+  `created_by` text NOT NULL,
+  `created_at` datetime NOT NULL,
+  `updated_by` text NOT NULL,
+  `updated_at` datetime NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+--
+-- Indexes for table `data_catatan_rfk_unit`
+--
+ALTER TABLE `data_catatan_rfk_unit`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- AUTO_INCREMENT for dumped tables
+--
+
+--
+-- AUTO_INCREMENT for table `data_catatan_rfk_unit`
+--
+ALTER TABLE `data_catatan_rfk_unit`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=43;
+COMMIT;
+
+--
 -- Table structure for table `data_unit`
 --
 CREATE TABLE `data_unit` (

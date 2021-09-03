@@ -5310,4 +5310,45 @@ class Wpsipd_Public
 		}
 		die(json_encode($ret));
 	}
+
+	function simpan_catatan_rfk_unit(){
+
+		global $wpdb;
+		$return = array(
+			'status' => 'success',
+			'message' => 'Berhasil simpan data!'
+		);
+
+		if(isset($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )){
+			$cek = $wpdb->get_var("SELECT id FROM data_catatan_rfk_unit WHERE id_skpd=".$_POST['data']['id_skpd']." AND bulan=".$_POST['bulan']." AND tahun_anggaran=".$_POST['tahun_anggaran']);
+			
+			if(!empty($cek)){				
+				$data = array(
+					'bulan' => $_POST['bulan'],
+					'catatan_ka_adbang' => !empty($_POST['data']['catatan_ka_adbang']) ? $_POST['data']['catatan_ka_adbang'] : NULL,
+					'id_skpd' => $_POST['data']['id_skpd'],
+					'tahun_anggaran' => $_POST['tahun_anggaran'],
+					'updated_by' => $_POST['user'],
+					'updated_at' => current_time('mysql')
+				);
+				$wpdb->update('data_catatan_rfk_unit', $data, array('id_skpd'=>$_POST['data']['id_skpd'], 'bulan'=>$_POST['bulan'], 'tahun_anggaran'=>$_POST['tahun_anggaran']));
+			}else{
+				$data = array(
+					'bulan' => $_POST['bulan'],
+					'catatan_ka_adbang' => !empty($_POST['data']['catatan_ka_adbang']) ? $_POST['data']['catatan_ka_adbang'] : NULL,
+					'id_skpd' => $_POST['data']['id_skpd'],
+					'tahun_anggaran' => $_POST['tahun_anggaran'],
+					'created_by' => $_POST['user'],
+					'created_at' => current_time('mysql')
+				);
+				$wpdb->insert('data_catatan_rfk_unit', $data);
+			}
+		}else{
+			$return = array(
+				'status' => 'error',
+				'message' => 'APIKEY tidak sama!'
+			);
+		}
+		die(json_encode($return));		
+	}
 }
