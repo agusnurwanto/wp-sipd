@@ -5032,6 +5032,30 @@ class Wpsipd_Public
 				$count_kode_sbl = count(explode('.', $ids[2]));
 				$type_indikator = 0;
 
+				$tahun_sekarang = date('Y');
+				$batas_bulan_input = date('m');
+				if($tahun_anggaran < $tahun_sekarang){
+					$batas_bulan_input = 12;
+				}
+				$realisasi_bulan = array();
+				$realisasi_bulan[1] = $_POST['data']['target_realisasi_bulan_1'];
+				$realisasi_bulan[2] = $_POST['data']['target_realisasi_bulan_2'];
+				$realisasi_bulan[3] = $_POST['data']['target_realisasi_bulan_3'];
+				$realisasi_bulan[4] = $_POST['data']['target_realisasi_bulan_4'];
+				$realisasi_bulan[5] = $_POST['data']['target_realisasi_bulan_5'];
+				$realisasi_bulan[6] = $_POST['data']['target_realisasi_bulan_6'];
+				$realisasi_bulan[7] = $_POST['data']['target_realisasi_bulan_7'];
+				$realisasi_bulan[8] = $_POST['data']['target_realisasi_bulan_8'];
+				$realisasi_bulan[9] = $_POST['data']['target_realisasi_bulan_9'];
+				$realisasi_bulan[10] = $_POST['data']['target_realisasi_bulan_10'];
+				$realisasi_bulan[11] = $_POST['data']['target_realisasi_bulan_11'];
+				$realisasi_bulan[12] = $_POST['data']['target_realisasi_bulan_12'];
+				for($i=1; $i<=12; $i++){
+					if($i > $batas_bulan_input){
+						$realisasi_bulan[$i] = 0;
+					}
+				}
+
 				// sub kegiatan
 				if($count_kode_sbl == 6){
 					$type_indikator = 1;
@@ -5057,18 +5081,18 @@ class Wpsipd_Public
 					'tipe_indikator' => $type_indikator,
 					'id_rumus_indikator' => $_POST['rumus_indikator'],
 					'kode_sbl' => $kode_sbl,
-					'realisasi_bulan_1' => $_POST['data']['target_realisasi_bulan_1'],
-					'realisasi_bulan_2' => $_POST['data']['target_realisasi_bulan_2'],
-					'realisasi_bulan_3' => $_POST['data']['target_realisasi_bulan_3'],
-					'realisasi_bulan_4' => $_POST['data']['target_realisasi_bulan_4'],
-					'realisasi_bulan_5' => $_POST['data']['target_realisasi_bulan_5'],
-					'realisasi_bulan_6' => $_POST['data']['target_realisasi_bulan_6'],
-					'realisasi_bulan_7' => $_POST['data']['target_realisasi_bulan_7'],
-					'realisasi_bulan_8' => $_POST['data']['target_realisasi_bulan_8'],
-					'realisasi_bulan_9' => $_POST['data']['target_realisasi_bulan_9'],
-					'realisasi_bulan_10' => $_POST['data']['target_realisasi_bulan_10'],
-					'realisasi_bulan_11' => $_POST['data']['target_realisasi_bulan_11'],
-					'realisasi_bulan_12' => $_POST['data']['target_realisasi_bulan_12'],
+					'realisasi_bulan_1' => $realisasi_bulan[1],
+					'realisasi_bulan_2' => $realisasi_bulan[2],
+					'realisasi_bulan_3' => $realisasi_bulan[3],
+					'realisasi_bulan_4' => $realisasi_bulan[4],
+					'realisasi_bulan_5' => $realisasi_bulan[5],
+					'realisasi_bulan_6' => $realisasi_bulan[6],
+					'realisasi_bulan_7' => $realisasi_bulan[7],
+					'realisasi_bulan_8' => $realisasi_bulan[8],
+					'realisasi_bulan_9' => $realisasi_bulan[9],
+					'realisasi_bulan_10' =>$realisasi_bulan[10],
+					'realisasi_bulan_11' =>$realisasi_bulan[11],
+					'realisasi_bulan_12' =>$realisasi_bulan[12],
 					'user' => '',
 					'active' => 1,
 					'update_at' => current_time('mysql'),
@@ -5178,6 +5202,11 @@ class Wpsipd_Public
 					$rak[$v['bulan']] += $v['rak'];
 				}
 
+				$tahun_sekarang = date('Y');
+				$batas_bulan_input = date('m');
+				if($tahun_anggaran < $tahun_sekarang){
+					$batas_bulan_input = 12;
+				}
 				$total_rak = 0;
 				$total_realisasi = 0;
 				$total_selisih = 0;
@@ -5211,13 +5240,17 @@ class Wpsipd_Public
 						$rak_bulanan = 0;
 					}
 					$selisih = $rak_bulanan-$realisasi_bulanan;
+					$editable = 'contenteditable="true"';
+					if($batas_bulan_input < $i){
+						$editable = '';
+					}
 					$tbody .= '
 						<tr>
 							<td>'.$this->get_bulan($i).'</td>
 							<td class="text_kanan">'.number_format($rak_bulanan,0,",",".").'</td>
 							<td class="text_kanan">'.number_format($realisasi_bulanan,0,",",".").'</td>
 							<td class="text_kanan">'.number_format($selisih,0,",",".").'</td>
-							<td class="text_tengah target_realisasi" id="target_realisasi_bulan_'.$i.'" contenteditable="true" onkeypress="onlyNumber(event);" onkeyup="setTotalMonev(this);">'.$realisasi_target_bulanan.'</td>
+							<td class="text_tengah target_realisasi" id="target_realisasi_bulan_'.$i.'" '.$editable.' onkeypress="onlyNumber(event);" onkeyup="setTotalMonev(this);">'.$realisasi_target_bulanan.'</td>
 						</tr>
 					';
 					$total_rak += $rak_bulanan;
