@@ -40,8 +40,7 @@ $body .='
 
 	<style>
 		.background-status {
-			background-color: #f56262;
-			color: white;
+			background-color: #fcd86d;
 		}
 	</style>
 
@@ -77,6 +76,7 @@ $body .='
 		            <th style="padding: 0; border: 0; width:120px"></th>
 		            <th style="padding: 0; border: 0; width:90px"></th>
 		            <th style="padding: 0; border: 0; width:90px"></th>
+		            <th style="padding: 0; border: 0; width:90px"></th>
 		    	</tr>
 		    	<tr>
 			    	<th class="atas kanan bawah kiri text_tengah text_blok">Kode</th>
@@ -89,6 +89,7 @@ $body .='
 			        <th class="atas kanan bawah text_tengah text_blok">Deviasi ( % )</th>
 			        <th class="atas kanan bawah text_tengah text_blok">Realisasi Fisik ( % )</th>
 			        <th class="atas kanan bawah text_tengah text_blok">Update Terakhir</th>
+			        <th class="atas kanan bawah text_tengah text_blok">Catatan Ka.Adbang</th>
 			    </tr>
 			    <tr>
 			    	<th class="atas kanan bawah kiri text_tengah text_blok">1</th>
@@ -101,6 +102,7 @@ $body .='
 			        <th class="atas kanan bawah text_tengah text_blok">8 = ((7 - 6) / 7) * 100</th>
 			        <th class="atas kanan bawah text_tengah text_blok">9</th>
 			        <th class="atas kanan bawah text_tengah text_blok">10</th>
+			        <th class="atas kanan bawah text_tengah text_blok">11</th>
 			    </tr>
 		    </thead>
 		    <tbody>
@@ -323,6 +325,7 @@ $body .='
 			    <td class="atas kanan bawah text_tengah">'.$value['deviasi'].'</td>
 			    <td class="atas kanan bawah text_tengah">'.$value['realisasi_fisik'].'</td>
 			    <td class="atas kanan bawah text_tengah '.$background.'">'.$value['last_update'].'</td>
+			    <td class="atas kanan bawah text_tengah" contenteditable="true"></td>
 			</tr>
 		';
 	}
@@ -346,6 +349,7 @@ $body .='
 					    <th class="kanan bawah text_tengah text_blok" data-rak="'.$data_all['total_rak_simda'].'">'.$this->pembulatan($target_rak_simda).'</th>
 					    <th class="kanan bawah text_tengah text_blok">'.$this->pembulatan($deviasi).'</th>
 					    <th class="kanan bawah text_blok total-realisasi-fisik text_tengah">'.$this->pembulatan(array_sum($data_all['realisasi_fisik'])/count($data_all['realisasi_fisik'])).'</th>
+						<th class="atas kanan bawah text_tengah"></th>
 						<th class="atas kanan bawah text_tengah"></th>
 					</tr>
 				</tfoot>
