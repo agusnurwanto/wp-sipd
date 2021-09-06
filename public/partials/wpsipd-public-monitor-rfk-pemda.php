@@ -132,12 +132,12 @@ $body .='
 								IFNULL(SUM(k.pagu),0) pagu, 
 								IFNULL(SUM(k.pagu_simda),0) pagu_simda, 
 								IFNULL(SUM(d.realisasi_anggaran),0) realisasi_keuangan,
-								IFNULL((SUM(d.realisasi_anggaran)/SUM(k.pagu_simda)*100),0) capaian, 
+								IFNULL((SUM(d.realisasi_anggaran)/SUM(k.pagu_simda)*100),100) capaian, 
 								AVG(IFNULL(d.realisasi_fisik,0)) realisasi_fisik, 
 								IFNULL(SUM(d.rak),0) rak,
-								IFNULL((SUM(d.rak)/SUM(k.pagu_simda)*100),0) target_rak,
-								IFNULL(((IFNULL((SUM(d.rak)/SUM(k.pagu_simda)*100),0)-IFNULL((SUM(d.realisasi_anggaran)/SUM(k.pagu_simda)*100),0)) / (IFNULL((SUM(d.rak)/SUM(k.pagu_simda)*100),0))),0) * 100 deviasi,
-								(SELECT catatan_ka_adbang FROM data_catatan_rfk_unit WHERE id_skpd=".$unit['id_skpd']." AND bulan=".$bulan." AND tahun_anggaran=".$input['tahun_anggaran'].") cat_ka_adbang
+								IFNULL((SUM(d.rak)/SUM(k.pagu_simda)*100),100) target_rak,
+								IFNULL(((IFNULL((SUM(d.rak)/SUM(k.pagu_simda)*100),100)-IFNULL((SUM(d.realisasi_anggaran)/SUM(k.pagu_simda)*100),100)) / (IFNULL((SUM(d.rak)/SUM(k.pagu_simda)*100),100))),0) * 100 deviasi,
+								IFNULL((SELECT catatan_ka_adbang FROM data_catatan_rfk_unit WHERE id_skpd=".$unit['id_skpd']." AND bulan=".$bulan." AND tahun_anggaran=".$input['tahun_anggaran']."), '') cat_ka_adbang
 							FROM data_sub_keg_bl k 
 							LEFT JOIN data_rfk d 
 								ON d.id_skpd=k.id_sub_skpd AND 
@@ -206,12 +206,12 @@ $body .='
 									IFNULL(SUM(k.pagu),0) pagu, 
 									IFNULL(SUM(k.pagu_simda),0) pagu_simda, 
 									IFNULL(SUM(d.realisasi_anggaran),0) realisasi_keuangan,
-									IFNULL((SUM(d.realisasi_anggaran)/SUM(k.pagu_simda)*100),0) capaian, 
+									IFNULL((SUM(d.realisasi_anggaran)/SUM(k.pagu_simda)*100),100) capaian, 
 									AVG(IFNULL(d.realisasi_fisik,0)) realisasi_fisik, 
 									IFNULL(SUM(d.rak),0) rak,
-									IFNULL((SUM(d.rak)/SUM(k.pagu_simda)*100),0) target_rak,
-									IFNULL(((IFNULL((SUM(d.rak)/SUM(k.pagu_simda)*100),0)-IFNULL((SUM(d.realisasi_anggaran)/SUM(k.pagu_simda)*100),0)) / (IFNULL((SUM(d.rak)/SUM(k.pagu_simda)*100),0))),0) * 100 deviasi,
-									(SELECT catatan_ka_adbang FROM data_catatan_rfk_unit WHERE id_skpd=".$sub_unit['id_skpd']." AND bulan=".$bulan." AND tahun_anggaran=".$input['tahun_anggaran'].") cat_ka_adbang
+									IFNULL((SUM(d.rak)/SUM(k.pagu_simda)*100),100) target_rak,
+									IFNULL(((IFNULL((SUM(d.rak)/SUM(k.pagu_simda)*100),100)-IFNULL((SUM(d.realisasi_anggaran)/SUM(k.pagu_simda)*100),100)) / (IFNULL((SUM(d.rak)/SUM(k.pagu_simda)*100),100))),0) * 100 deviasi,
+									IFNULL((SELECT COALESCE(catatan_ka_adbang, '-') FROM data_catatan_rfk_unit WHERE id_skpd=".$sub_unit['id_skpd']." AND bulan=".$bulan." AND tahun_anggaran=".$input['tahun_anggaran']."), '') cat_ka_adbang
 								FROM data_sub_keg_bl k 
 								LEFT JOIN data_rfk d 
 									ON d.id_skpd=k.id_sub_skpd AND 
@@ -269,6 +269,43 @@ $body .='
 						}
 		    		}
 
+
+		    		if(empty($realisasi_anggaran_sub_unit) && empty($pagu_simda_sub_unit))
+		    		{
+		    			$capaian = 100;
+		    		}
+		    		elseif(
+		    				(empty($realisasi_anggaran_sub_unit) && !empty($pagu_simda_sub_unit)) || 
+		    				(!empty($realisasi_anggaran_sub_unit) && !empty($pagu_simda_sub_unit))
+		    			)
+		    		{
+		    			$capaian = ($realisasi_anggaran_sub_unit/$pagu_simda_sub_unit)*100;
+		    		}elseif(!empty($realisasi_anggaran_sub_unit) && empty($pagu_simda_sub_unit))
+		    		{
+		    			$capaian = 0;
+		    		}
+
+		    		if(empty($rak_sub_unit) && empty($pagu_simda_sub_unit))
+		    		{
+		    			$target_rak = 100;
+		    		}
+		    		elseif(
+		    				(empty($rak_sub_unit) && !empty($pagu_simda_sub_unit)) || 
+		    				(!empty($rak_sub_unit) && !empty($pagu_simda_sub_unit))
+		    			)
+		    		{
+		    			$target_rak = ($rak_sub_unit/$pagu_simda_sub_unit)*100;
+		    		}elseif(!empty($rak_sub_unit) && empty($pagu_simda_sub_unit))
+		    		{
+		    			$target_rak = 0;
+		    		}
+
+		    		if(!empty($target_rak)){
+		    			$deviasi = (($target_rak-$capaian)/$target_rak) * 100;
+		    		}else{
+		    			$deviasi = 100;
+		    		}
+
 		    		$latest_update = $this->get_date_rfk_update(array('id_skpd'=>$unit['id_skpd'], 'tahun_anggaran' => $input['tahun_anggaran'], 'bulan'=>$bulan));
 		    		$data_all['data'][] = array(
 			    			'id_skpd' => $unit['id_skpd'],
@@ -277,17 +314,11 @@ $body .='
 			    			'rka_sipd' => $pagu_sub_unit,
 			    			'dpa_sipd' => $pagu_simda_sub_unit,
 			    			'realisasi_keuangan' => $realisasi_anggaran_sub_unit,
-			    			'capaian' => !empty($pagu_simda_sub_unit) ? $this->pembulatan(($realisasi_anggaran_sub_unit/$pagu_simda_sub_unit)*100) : 0,
+			    			'capaian' => $this->pembulatan($capaian),
 			    			'rak' => $rak_sub_unit,
-			    			'target_rak' => !empty($pagu_simda_sub_unit) ? $this->pembulatan(($rak_sub_unit/$pagu_simda_sub_unit)*100) : 0,
+			    			'target_rak' => $this->pembulatan($target_rak),
 			    			'realisasi_fisik' => !empty($realisasi_fisik_sub_unit) ? $this->pembulatan(array_sum($realisasi_fisik_sub_unit)/count($realisasi_fisik_sub_unit)) : 0,
-			    			'deviasi' => !empty($pagu_simda_sub_unit) ? $this->pembulatan(
-			    				(
-			    					(
-			    						($rak_sub_unit/$pagu_simda_sub_unit*100) - ($realisasi_anggaran_sub_unit/$pagu_simda_sub_unit)*100
-			    					) / ($rak_sub_unit/$pagu_simda_sub_unit*100)
-			    				) * 100
-			    			) : 0,
+			    			'deviasi' => $this->pembulatan($deviasi),
 			    			'last_update' => $latest_update,
 			    			'data_sub_unit' => $data_all_sub_unit,
 			    			'cat_ka_adbang' => '',
@@ -300,19 +331,19 @@ $body .='
 
 	foreach ($data_all['data'] as $key => $value) {
 
+		$editable = 'false';
 		$tag = $value['nama_skpd'];
 		if(empty($public)){
 			$tag = '<a href="'.$value['url_unit'].'" target="_blank">'.$value['nama_skpd'].'</a> ';
+			$editable = 'true';
 		}
-
-		$editable = 'true';
-		$status_update = array();
-		$catatan_rfk_class = 'catatan_rfk_unit';
 		
+		$status_update = array();
+		$catatan_rfk_class = 'catatan_rfk_unit';	
 		if(isset($value['act']) && $value['act'] != ''){
-			$catatan_rfk_class = '';
 			$editable = 'false';
 			$tag = $value['act'];
+			$catatan_rfk_class = '';
 			foreach ($value['data_sub_unit'] as $k => $v) {
 				if($v['last_update']=='-'){
 					$status_update[]=$v['last_update'];
@@ -459,6 +490,7 @@ $body .='
 		})
 
 		function showsubunit(id_induk, bulan, tahun){
+			var editable = 'false';
 			let html = '';
 			let nama_bulan = get_bulan(bulan);
 			let modal_subunit = jQuery("#exampleModal");
@@ -471,6 +503,7 @@ $body .='
 						+'<div style="margin-top:20px; margin-bottom:20px; text-align:center">'
 							+'<a href="javascript:void(0)" style="margin-left: 5px; text-transform: uppercase" class="button button-primary" id="simpan-catatan-rfk-sub-unit">Simpan Catatan</a>'
 						+'</div>';
+					editable = true;
 				<?php } ?>
 
 				html+='<table id="table-rfk-sub-unit" cellpadding="2" cellspacing="0" style="font-family:\'Open Sans\',-apple-system,BlinkMacSystemFont,\'Segoe UI\',sans-serif; border-collapse: collapse; width:100%; table-layout:fixed; overflow-wrap: break-word; font-size: 70%; border: 0;">'

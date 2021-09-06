@@ -28,8 +28,7 @@ ALTER TABLE `data_catatan_rfk_unit`
 -- AUTO_INCREMENT for table `data_catatan_rfk_unit`
 --
 ALTER TABLE `data_catatan_rfk_unit`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=43;
-COMMIT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- Table structure for table `data_unit`
