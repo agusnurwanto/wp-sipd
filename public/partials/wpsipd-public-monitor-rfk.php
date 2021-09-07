@@ -501,6 +501,8 @@ foreach ($units as $k => $unit):
 							$edit_fisik = '';
 							$edit_masalah = '';
 							$edit_catatan = 'contenteditable="true"';
+						}else if(empty($sub_giat['total_simda'])){
+							$edit_fisik = '';
 						}
 						$body .= '
 					        <tr data-kode="'.$kd_sub_giat1.'" data-kdsbl="'.$sub_giat['data']['kode_sbl'].'" data-idskpd="'.$sub_giat['data']['id_sub_skpd'].'" data-pagu="'.$sub_giat['total'].'">
@@ -511,7 +513,7 @@ foreach ($units as $k => $unit):
 					            <td class="kanan bawah">'.$kd_sub_giat.'</td>
 					            <td class="kanan bawah nama_sub_giat">'.$sub_giat['nama'].'</td>
 					            <td class="kanan bawah text_kanan">'.number_format($sub_giat['total'],0,",",".").'</td>
-					            <td class="kanan bawah text_kanan">'.number_format($sub_giat['total_simda'],0,",",".").'</td>
+					            <td class="kanan bawah text_kanan total_simda" data-pagu="'.$sub_giat['total_simda'].'">'.number_format($sub_giat['total_simda'],0,",",".").'</td>
 					            <td class="kanan bawah text_kanan">'.number_format($sub_giat['realisasi'],0,",",".").'</td>
 					            <td class="kanan bawah text_tengah">'.$this->pembulatan($capaian).'</td>
 					            <td class="kanan bawah text_tengah">'.$this->pembulatan($capaian_rak).'</td>
@@ -539,6 +541,16 @@ foreach ($units as $k => $unit):
 	if(!empty($capaian_rak)){
 		$deviasi_pemkab = (($capaian_rak-$capaian_total)/$capaian_rak)*100;
 	}
+
+	$catatan_ka_adbang = $wpdb->get_row('
+		SELECT 
+			catatan_ka_adbang 
+		from data_catatan_rfk_unit 
+		where bulan='.$bulan.' 
+			and id_skpd='.$unit['id_skpd'].' 
+			and tahun_anggaran='.$input['tahun_anggaran'], ARRAY_A
+	);
+
 	echo '
 	<input type="hidden" value="'.get_option( '_crb_api_key_extension' ).'" id="api_key">
 	<input type="hidden" value="'.$input['tahun_anggaran'].'" id="tahun_anggaran">
@@ -607,7 +619,7 @@ foreach ($units as $k => $unit):
 		    <tbody>
 		        '.$body.'
 				<tr>
-			        <td class="kiri kanan bawah text_blok text_kanan" colspan="6">TOTAL</td>
+			        <td class="kiri kanan bawah text_blok text_kanan" colspan="6">TOTAL dan CATATAN KESIMPULAN</td>
 			        <td class="kanan bawah text_kanan text_blok">'.number_format($data_all['total'],0,",",".").'</td>
 			        <td class="kanan bawah text_kanan text_blok">'.number_format($data_all['total_simda'],0,",",".").'</td>
 			        <td class="kanan bawah text_kanan text_blok">'.number_format($data_all['realisasi'],0,",",".").'</td>
@@ -615,7 +627,7 @@ foreach ($units as $k => $unit):
 			        <td class="kanan bawah text_tengah text_blok">'.$this->pembulatan($capaian_rak).'</td>
 			        <td class="kanan bawah text_tengah text_blok">'.$this->pembulatan($deviasi_pemkab).'</td>
 			        <td class="kanan bawah text_blok total-realisasi-fisik text_tengah"></td>
-			        <td class="kanan bawah text_kanan text_blok" colspan="3"></td>
+			        <td class="kanan bawah text_kanan text_blok" colspan="3">'.$catatan_ka_adbang['catatan_ka_adbang'].'</td>
 			    </tr>
 		    </tbody>
 		</table>
@@ -635,7 +647,9 @@ if(!current_user_can('administrator')){
     	var total = 0;
     	var total_s = 0;
     	jQuery('.realisasi-fisik').map(function(i, b){
-    		var kode_sub = jQuery(b).closest('tr').attr('data-kode').split('.');
+    		var tr = jQuery(b).closest('tr');
+    		var pagu_simda = tr.find('.total_simda').attr('data-pagu');
+    		var kode_sub = tr.attr('data-kode').split('.');
     		var kode_kegiatan = kode_sub[0]+'.'+kode_sub[1]+'.'+kode_sub[2]+'.'+kode_sub[3]+'.'+kode_sub[4];
     		var kode_program = kode_sub[0]+'.'+kode_sub[1]+'.'+kode_sub[2];
     		var kode_bidang = kode_sub[0]+'.'+kode_sub[1];
@@ -661,6 +675,7 @@ if(!current_user_can('administrator')){
 				    	total_kegiatan_s : 0
     				}
     			}
+    			if(pagu_simda == 0){ return; }
     			total_parent[kode_bidang].total_bidang += +val;
     			total_parent[kode_bidang].total_bidang_s++;
     			total_parent[kode_program].total_program += +val;
