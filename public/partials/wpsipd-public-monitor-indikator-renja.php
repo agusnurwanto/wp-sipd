@@ -156,6 +156,9 @@ foreach ($subkeg as $kk => $sub) {
 			'data'	=> array()
 		);
 	}
+
+	$nama = explode(' ', $sub['nama_sub_giat']);
+	$kode_sub_giat_asli = explode('.', $nama[0]);
 	if(empty($data_all['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']])){
 		$capaian_prog = $wpdb->get_results($wpdb->prepare("
 			select 
@@ -195,6 +198,7 @@ foreach ($subkeg as $kk => $sub) {
 			'indikator' => $capaian_prog,
 			'realisasi_indikator' => $realisasi_renja,
 			'kode_sbl' => $sub['kode_sbl'],
+			'kode_urusan_bidang' => $kode_sub_giat_asli[0].'.'.$kode_sub_giat_asli[1].'.'.$kode_sub_giat_asli[2],
 			'total' => 0,
 			'triwulan_1' => 0,
 			'triwulan_2' => 0,
@@ -243,6 +247,7 @@ foreach ($subkeg as $kk => $sub) {
 			'indikator' => $output_giat,
 			'realisasi_indikator' => $realisasi_renja,
 			'kode_sbl' => $sub['kode_sbl'],
+			'kode_urusan_bidang' => $kode_sub_giat_asli[0].'.'.$kode_sub_giat_asli[1].'.'.$kode_sub_giat_asli[2].'.'.$kode_sub_giat_asli[3].'.'.$kode_sub_giat_asli[4],
 			'total' => 0,
 			'triwulan_1' => 0,
 			'triwulan_2' => 0,
@@ -448,11 +453,24 @@ foreach ($data_all['data'] as $kd_urusan => $urusan) {
 			$realisasi_indikator_tw4 = '<span class="realisasi_indikator_tw4-0">'.$realisasi_indikator_tw4.'</span>';
 			$total_tw = '<span class="total_tw-0 rumus_indikator '.$class_rumus_target.'">'.$total_tw.'</span>';
 			$capaian_realisasi_indikator = '<span class="capaian_realisasi_indikator-0 rumus_indikator '.$class_rumus_target.'">'.$this->pembulatan($capaian_realisasi_indikator).'</span>';
+			$renstra = $wpdb->get_results("select * from data_renstra_kegiatan where kode_program='$program[kode_urusan_bidang]' and tahun_anggaran=$input[tahun_anggaran] and active=1 and kode_skpd='".$unit[0]['kode_skpd']."'", ARRAY_A);
+			$renstra_sasaran = array();
+			$renstra_tujuan = array();
+			$renstra_indikator = array();
+			foreach ($renstra as $k => $v) {
+				$sasaran_teks = explode('||', $v['sasaran_teks']);
+				$renstra_sasaran[0] = $sasaran_teks[0];
+				$tujuan_teks = explode('||', $v['tujuan_teks']);
+				$renstra_tujuan[0] = $tujuan_teks[0];
+				$renstra_indikator[] = '<li>'.$v['indikator'].'</li>';
+			}
+			$renstra_sasaran = implode('<br>', $renstra_sasaran).' <ul class="indikator_renstra">'.implode('', $renstra_indikator).'</ul>';
+			$renstra_tujuan = implode('<br>', $renstra_tujuan);
 			$body_monev .= '
 				<tr class="program" data-kode="'.$kd_urusan.'.'.$kd_bidang.'.'.$kd_program.'">
 		            <td class="kiri kanan bawah text_blok">'.$no_program.'</td>
-		            <td class="text_tengah kanan bawah text_blok"></td>
-		            <td class="text_tengah kanan bawah text_blok"></td>
+		            <td class="kanan bawah text_blok">'.$renstra_tujuan.'</td>
+		            <td class="kanan bawah text_blok">'.$renstra_sasaran.'</td>
 		            <td class="kanan bawah text_blok">'.$kd_program_asli.'</td>
 		            <td class="kanan bawah text_blok nama">'.$program['nama'].'</td>
 		            <td class="kanan bawah text_blok indikator rumus_indikator '.$class_rumus_target.'">'.$capaian_prog.'</td>
@@ -584,11 +602,24 @@ foreach ($data_all['data'] as $kd_urusan => $urusan) {
 				$realisasi_indikator_tw4 = '<span class="realisasi_indikator_tw4-0">'.$realisasi_indikator_tw4.'</span>';
 				$total_tw = '<span class="total_tw-0 rumus_indikator '.$class_rumus_target.'">'.$total_tw.'</span>';
 				$capaian_realisasi_indikator = '<span class="capaian_realisasi_indikator-0 rumus_indikator '.$class_rumus_target.'">'.$this->pembulatan($capaian_realisasi_indikator).'</span>';
+				$renstra = $wpdb->get_results("select * from data_renstra_kegiatan where kode_giat='$giat[kode_urusan_bidang]' and tahun_anggaran=$input[tahun_anggaran] and active=1 and kode_skpd='".$unit[0]['kode_skpd']."'", ARRAY_A);
+				$renstra_sasaran = array();
+				$renstra_tujuan = array();
+				$renstra_indikator = array();
+				foreach ($renstra as $k => $v) {
+					$sasaran_teks = explode('||', $v['sasaran_teks']);
+					$renstra_sasaran[0] = '<span class="renstra_kegiatan">'.$sasaran_teks[0].'</span>';
+					$tujuan_teks = explode('||', $v['tujuan_teks']);
+					$renstra_tujuan[0] = '<span class="renstra_kegiatan">'.$tujuan_teks[0].'</span>';
+					$renstra_indikator[] = '<li>'.$v['indikator'].'</li>';
+				}
+				$renstra_sasaran = implode('<br>', $renstra_sasaran).' <ul class="indikator_renstra">'.implode('', $renstra_indikator).'</ul>';
+				$renstra_tujuan = implode('<br>', $renstra_tujuan);
 				$body_monev .= '
-					<tr class="kegiatan" data-kode="'.$kd_urusan.'.'.$kd_bidang.'.'.$kd_program.'.'.$kd_giat.'">
+					<tr class="kegiatan" data-kode="'.$kd_urusan.'.'.$kd_bidang.'.'.$kd_program.'.'.$kd_giat.'" data-kode_giat="'.$kd_giat1.'">
 			            <td class="kiri kanan bawah text_blok">'.$no_program.'.'.$no_kegiatan.'</td>
-			            <td class="text_tengah kanan bawah text_blok"></td>
-			            <td class="text_tengah kanan bawah text_blok"></td>
+			            <td class="kanan bawah text_blok">'.$renstra_tujuan.'</td>
+			            <td class="kanan bawah text_blok">'.$renstra_sasaran.'</td>
 			            <td class="kanan bawah text_blok">'.$kd_giat1.'</td>
 			            <td class="kanan bawah text_blok nama"><a href="'.$link.'" target="_blank">'.$giat['nama'].'</a></td>
 			            <td class="kanan bawah text_blok indikator rumus_indikator '.$class_rumus_target.'">'.$output_giat.'</td>
@@ -808,6 +839,9 @@ $url_skpd = '<a href="'.$link.'" target="_blank">'.$unit[0]['kode_skpd'].' '.$un
 	}
 	.persentase {
 		color: #9d00ff; 
+	}
+	.renstra_kegiatan, .indikator_renstra {
+		display: none;
 	}
 </style>
 <input type="hidden" value="<?php echo get_option('_crb_api_key_extension' ); ?>" id="api_key">

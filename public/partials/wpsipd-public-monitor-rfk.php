@@ -619,7 +619,7 @@ foreach ($units as $k => $unit):
 		    <tbody>
 		        '.$body.'
 				<tr>
-			        <td class="kiri kanan bawah text_blok text_kanan" colspan="6">TOTAL dan CATATAN KESIMPULAN</td>
+			        <td class="kiri kanan bawah text_blok text_kanan" colspan="6">TOTAL dan CATATAN KESIMPULAN KABAG ADBANG</td>
 			        <td class="kanan bawah text_kanan text_blok">'.number_format($data_all['total'],0,",",".").'</td>
 			        <td class="kanan bawah text_kanan text_blok">'.number_format($data_all['total_simda'],0,",",".").'</td>
 			        <td class="kanan bawah text_kanan text_blok">'.number_format($data_all['realisasi'],0,",",".").'</td>
@@ -627,7 +627,7 @@ foreach ($units as $k => $unit):
 			        <td class="kanan bawah text_tengah text_blok">'.$this->pembulatan($capaian_rak).'</td>
 			        <td class="kanan bawah text_tengah text_blok">'.$this->pembulatan($deviasi_pemkab).'</td>
 			        <td class="kanan bawah text_blok total-realisasi-fisik text_tengah"></td>
-			        <td class="kanan bawah text_kanan text_blok" colspan="3">'.$catatan_ka_adbang['catatan_ka_adbang'].'</td>
+			        <td class="kanan bawah text_kiri text_blok" colspan="3">'.$catatan_ka_adbang['catatan_ka_adbang'].'</td>
 			    </tr>
 		    </tbody>
 		</table>
