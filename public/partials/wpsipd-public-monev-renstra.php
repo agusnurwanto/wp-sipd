@@ -52,6 +52,223 @@ $current_user = wp_get_current_user();
 $bulan = date('m');
 $body_monev = '';
 
+$data_all = array(
+	'data' => array()
+);
+
+$programs = $wpdb->get_results($wpdb->prepare("select * from data_renstra_program where id_unit=".$input['id_skpd']." and active=1 and tahun_anggaran=".$input['tahun_anggaran']), ARRAY_A);
+// print_r($wpdb->last_query);die();
+
+foreach ($programs as $key => $program) {
+	
+	$program_teks = explode('||', $program['tujuan_teks']);
+	if(empty($data_all['data'][$program['kode_tujuan']])){
+		$data_all['data'][$program['kode_tujuan']] = array(
+			'nama' => $program_teks[0],
+			'indikator' => array(),
+			'data' => array(),
+		);
+
+		$indikators = $wpdb->get_results($wpdb->prepare("select * from data_renstra_tujuan where id_unik='".$program['kode_tujuan']."' and active=1 and tahun_anggaran=".$input['tahun_anggaran']), ARRAY_A);
+
+		if(!empty($indikators)){
+			foreach ($indikators as $key => $indikator) {
+
+				$target_1 = explode(' ', $indikator['target_1']);
+				$target_2 = explode(' ', $indikator['target_2']);
+				$target_3 = explode(' ', $indikator['target_3']);
+				$target_4 = explode(' ', $indikator['target_4']);
+				$target_5 = explode(' ', $indikator['target_5']);
+				$target_awal = explode(' ', $indikator['target_awal']);
+				$target_akhir = explode(' ', $indikator['target_akhir']);
+
+				$data_all['data'][$program['kode_tujuan']]['indikator'][] = array(
+					'id_unik_indikator' => $indikator['id_unik_indikator'],
+					'indikator_teks' => $indikator['indikator_teks'],
+					'satuan' => $indikator['satuan'],
+					'target_1' => $target_1[0],
+					'target_2' => $target_2[0],
+					'target_3' => $target_3[0],
+					'target_4' => $target_4[0],
+					'target_5' => $target_5[0],
+					'target_awal' => $target_awal[0],
+					'target_akhir' => $target_akhir[0],
+				);
+			}
+		}
+	}
+
+	if(empty($data_all['data'][$program['kode_tujuan']]['data'][$program['kode_sasaran']])){
+		$data_all['data'][$program['kode_tujuan']]['data'][$program['kode_sasaran']] = array(
+			'nama' => $program['sasaran_teks'],
+			'indikator' => array(),
+			'data' => array(),
+		);
+
+		$indikators = $wpdb->get_results($wpdb->prepare("select * from data_renstra_sasaran where id_unik='".$program['kode_sasaran']."' and active=1 and tahun_anggaran=".$input['tahun_anggaran']), ARRAY_A);
+
+		if(!empty($indikators)){
+			foreach ($indikators as $key => $indikator) {
+
+				$target_1 = explode(' ', $indikator['target_1']);
+				$target_2 = explode(' ', $indikator['target_2']);
+				$target_3 = explode(' ', $indikator['target_3']);
+				$target_4 = explode(' ', $indikator['target_4']);
+				$target_5 = explode(' ', $indikator['target_5']);
+				$target_awal = explode(' ', $indikator['target_awal']);
+				$target_akhir = explode(' ', $indikator['target_akhir']);
+
+				$data_all['data'][$program['kode_tujuan']]['data'][$program['kode_sasaran']]['indikator'][] = array(
+					'id_unik_indikator' => $indikator['id_unik_indikator'],
+					'indikator_teks' => $indikator['indikator_teks'],
+					'satuan' => $indikator['satuan'],
+					'target_1' => $target_1[0],
+					'target_2' => $target_2[0],
+					'target_3' => $target_3[0],
+					'target_4' => $target_4[0],
+					'target_5' => $target_5[0],
+					'target_awal' => $target_awal[0],
+					'target_akhir' => $target_akhir[0],
+				);
+			}
+		}
+	}
+}
+
+// print_r($data_all);die();
+
+foreach ($data_all['data'] as $key => $tujuan) {
+	$body_monev .= '
+				<tr class="program" data-kode="">
+		            <td class="kiri kanan bawah text_blok"></td>
+		            <td class="text_kiri kanan bawah text_blok">'.$tujuan['nama'].'</td>
+		            <td class="text_tengah kanan bawah text_blok"></td>
+		            <td class="kanan bawah text_blok"></td>
+		            <td class="kanan bawah text_blok nama"></td>
+		            <td class="kanan bawah text_blok indikator rumus_indikator"></td>
+		            <td class="text_tengah kanan bawah text_blok total_renstra"></td>
+		            <td class="text_tengah kanan bawah text_blok total_renstra"></td>
+		            <td class="text_kanan kanan bawah text_blok total_renstra"></td>
+		            <td class="text_tengah kanan bawah text_blok realisasi_renstra_tahun_lalu"></td>
+		            <td class="text_tengah kanan bawah text_blok realisasi_renstra_tahun_lalu"></td>
+		            <td class="text_kanan kanan bawah text_blok realisasi_renstra_tahun_lalu"></td>
+		            <td class="text_tengah kanan bawah text_blok total_renja target_indikator"></td>
+		            <td class="text_tengah kanan bawah text_blok total_renja satuan_indikator"></td>
+		            <td class="text_kanan kanan bawah text_blok total_renja pagu_renja" data-pagu=""></td>
+		            <td class="text_tengah kanan bawah text_blok triwulan_1"></td>
+		            <td class="text_tengah kanan bawah text_blok triwulan_1"></td>
+		            <td class="text_kanan kanan bawah text_blok triwulan_1"></td>
+		            <td class="text_tengah kanan bawah text_blok triwulan_2"></td>
+		            <td class="text_tengah kanan bawah text_blok triwulan_2"></td>
+		            <td class="text_kanan kanan bawah text_blok triwulan_2"></td>
+		            <td class="text_tengah kanan bawah text_blok triwulan_3"></td>
+		            <td class="text_tengah kanan bawah text_blok triwulan_3"></td>
+		            <td class="text_kanan kanan bawah text_blok triwulan_3"></td>
+		            <td class="text_tengah kanan bawah text_blok triwulan_4"></td>
+		            <td class="text_tengah kanan bawah text_blok triwulan_4"></td>
+		            <td class="text_kanan kanan bawah text_blok triwulan_4"></td>
+		            <td class="text_tengah kanan bawah text_blok realisasi_renja"></td>
+		            <td class="text_tengah kanan bawah text_blok realisasi_renja"></td>
+		            <td class="text_kanan kanan bawah text_blok realisasi_renja pagu_renja_realisasi" data-pagu=""></td>
+		            <td class="text_tengah kanan bawah text_blok capaian_renja"></td>
+		            <td class="text_kanan kanan bawah text_blok capaian_renja"></td>
+		            <td class="text_tengah kanan bawah text_blok realisasi_renstra_tahun_berjalan"></td>
+		            <td class="text_tengah kanan bawah text_blok realisasi_renstra_tahun_berjalan"></td>
+		            <td class="text_kanan kanan bawah text_blok realisasi_renstra_tahun_berjalan"></td>
+		            <td class="text_tengah kanan bawah text_blok capaian_renstra_tahun_berjalan"></td>
+		            <td class="text_kanan kanan bawah text_blok capaian_renstra_tahun_berjalan"></td>
+	        		<td class="kanan bawah text_blok"></td>
+		        </tr>';
+
+		        foreach ($tujuan['indikator'] as $key => $indikator_tujuan) {
+		        	$body_monev .= '
+						<tr class="program" data-kode="">
+				            <td class="kiri kanan bawah text_blok"></td>
+				            <td class="text_kiri kanan bawah text_blok"></td>
+				            <td class="text_tengah kanan bawah text_blok"></td>
+				            <td class="kanan bawah text_blok"></td>
+				            <td class="kanan bawah text_blok nama"></td>
+				            <td class="kanan bawah text_blok indikator rumus_indikator">'.$indikator_tujuan['indikator_teks'].'</td>
+				            <td class="text_tengah kanan bawah text_blok total_renstra">'.$indikator_tujuan['target_akhir'].'</td>
+				            <td class="text_tengah kanan bawah text_blok total_renstra">'.$indikator_tujuan['satuan'].'</td>
+				            <td class="text_kanan kanan bawah text_blok total_renstra"></td>
+				            <td class="text_tengah kanan bawah text_blok realisasi_renstra_tahun_lalu"></td>
+				            <td class="text_tengah kanan bawah text_blok realisasi_renstra_tahun_lalu"></td>
+				            <td class="text_kanan kanan bawah text_blok realisasi_renstra_tahun_lalu"></td>
+				            <td class="text_tengah kanan bawah text_blok total_renja target_indikator"></td>
+				            <td class="text_tengah kanan bawah text_blok total_renja satuan_indikator"></td>
+				            <td class="text_kanan kanan bawah text_blok total_renja pagu_renja" data-pagu=""></td>
+				            <td class="text_tengah kanan bawah text_blok triwulan_1"></td>
+				            <td class="text_tengah kanan bawah text_blok triwulan_1"></td>
+				            <td class="text_kanan kanan bawah text_blok triwulan_1"></td>
+				            <td class="text_tengah kanan bawah text_blok triwulan_2"></td>
+				            <td class="text_tengah kanan bawah text_blok triwulan_2"></td>
+				            <td class="text_kanan kanan bawah text_blok triwulan_2"></td>
+				            <td class="text_tengah kanan bawah text_blok triwulan_3"></td>
+				            <td class="text_tengah kanan bawah text_blok triwulan_3"></td>
+				            <td class="text_kanan kanan bawah text_blok triwulan_3"></td>
+				            <td class="text_tengah kanan bawah text_blok triwulan_4"></td>
+				            <td class="text_tengah kanan bawah text_blok triwulan_4"></td>
+				            <td class="text_kanan kanan bawah text_blok triwulan_4"></td>
+				            <td class="text_tengah kanan bawah text_blok realisasi_renja"></td>
+				            <td class="text_tengah kanan bawah text_blok realisasi_renja"></td>
+				            <td class="text_kanan kanan bawah text_blok realisasi_renja pagu_renja_realisasi" data-pagu=""></td>
+				            <td class="text_tengah kanan bawah text_blok capaian_renja"></td>
+				            <td class="text_kanan kanan bawah text_blok capaian_renja"></td>
+				            <td class="text_tengah kanan bawah text_blok realisasi_renstra_tahun_berjalan"></td>
+				            <td class="text_tengah kanan bawah text_blok realisasi_renstra_tahun_berjalan"></td>
+				            <td class="text_kanan kanan bawah text_blok realisasi_renstra_tahun_berjalan"></td>
+				            <td class="text_tengah kanan bawah text_blok capaian_renstra_tahun_berjalan"></td>
+				            <td class="text_kanan kanan bawah text_blok capaian_renstra_tahun_berjalan"></td>
+			        		<td class="kanan bawah text_blok"></td>
+				        </tr>';
+		        }
+
+		        foreach ($tujuan['data'] as $key => $indikator_tujuan) {
+		        	$body_monev .= '
+						<tr class="program" data-kode="">
+				            <td class="kiri kanan bawah text_blok"></td>
+				            <td class="text_kiri kanan bawah text_blok"></td>
+				            <td class="text_tengah kanan bawah text_blok"></td>
+				            <td class="kanan bawah text_blok"></td>
+				            <td class="kanan bawah text_blok nama"></td>
+				            <td class="kanan bawah text_blok indikator rumus_indikator">'.$indikator_tujuan['indikator_teks'].'</td>
+				            <td class="text_tengah kanan bawah text_blok total_renstra">'.$indikator_tujuan['target_akhir'].'</td>
+				            <td class="text_tengah kanan bawah text_blok total_renstra">'.$indikator_tujuan['satuan'].'</td>
+				            <td class="text_kanan kanan bawah text_blok total_renstra"></td>
+				            <td class="text_tengah kanan bawah text_blok realisasi_renstra_tahun_lalu"></td>
+				            <td class="text_tengah kanan bawah text_blok realisasi_renstra_tahun_lalu"></td>
+				            <td class="text_kanan kanan bawah text_blok realisasi_renstra_tahun_lalu"></td>
+				            <td class="text_tengah kanan bawah text_blok total_renja target_indikator"></td>
+				            <td class="text_tengah kanan bawah text_blok total_renja satuan_indikator"></td>
+				            <td class="text_kanan kanan bawah text_blok total_renja pagu_renja" data-pagu=""></td>
+				            <td class="text_tengah kanan bawah text_blok triwulan_1"></td>
+				            <td class="text_tengah kanan bawah text_blok triwulan_1"></td>
+				            <td class="text_kanan kanan bawah text_blok triwulan_1"></td>
+				            <td class="text_tengah kanan bawah text_blok triwulan_2"></td>
+				            <td class="text_tengah kanan bawah text_blok triwulan_2"></td>
+				            <td class="text_kanan kanan bawah text_blok triwulan_2"></td>
+				            <td class="text_tengah kanan bawah text_blok triwulan_3"></td>
+				            <td class="text_tengah kanan bawah text_blok triwulan_3"></td>
+				            <td class="text_kanan kanan bawah text_blok triwulan_3"></td>
+				            <td class="text_tengah kanan bawah text_blok triwulan_4"></td>
+				            <td class="text_tengah kanan bawah text_blok triwulan_4"></td>
+				            <td class="text_kanan kanan bawah text_blok triwulan_4"></td>
+				            <td class="text_tengah kanan bawah text_blok realisasi_renja"></td>
+				            <td class="text_tengah kanan bawah text_blok realisasi_renja"></td>
+				            <td class="text_kanan kanan bawah text_blok realisasi_renja pagu_renja_realisasi" data-pagu=""></td>
+				            <td class="text_tengah kanan bawah text_blok capaian_renja"></td>
+				            <td class="text_kanan kanan bawah text_blok capaian_renja"></td>
+				            <td class="text_tengah kanan bawah text_blok realisasi_renstra_tahun_berjalan"></td>
+				            <td class="text_tengah kanan bawah text_blok realisasi_renstra_tahun_berjalan"></td>
+				            <td class="text_kanan kanan bawah text_blok realisasi_renstra_tahun_berjalan"></td>
+				            <td class="text_tengah kanan bawah text_blok capaian_renstra_tahun_berjalan"></td>
+				            <td class="text_kanan kanan bawah text_blok capaian_renstra_tahun_berjalan"></td>
+			        		<td class="kanan bawah text_blok"></td>
+				        </tr>';
+		        }
+}
+
 ?>
 
 <style type="text/css">

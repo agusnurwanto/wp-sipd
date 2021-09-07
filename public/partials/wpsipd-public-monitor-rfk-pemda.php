@@ -59,10 +59,13 @@ $body .='
 	      </div>
 	    </div>
 	  </div>
-	</div>
+	</div>';
 	
-	<input type="hidden" value="'.get_option( '_crb_api_key_extension' ).'" id="api_key">
-	<div id="cetak" title="Laporan RFK" style="padding: 5px;">
+	if(empty($public)){
+		$body .='<input type="hidden" value="'.get_option( '_crb_api_key_extension' ).'" id="api_key">';
+	}
+	
+	$body .='<div id="cetak" title="Laporan RFK" style="padding: 5px;">
 		<h4 style="text-align: center; margin: 0; font-weight: bold;">REALISASI FISIK DAN KEUANGAN (RFK)<br>'.$nama_pemda.'<br>Bulan '.$nama_bulan.' Tahun '.$input['tahun_anggaran'].'</h4>
 		<table id="table-rfk" cellpadding="2" cellspacing="0" style="font-family:\'Open Sans\',-apple-system,BlinkMacSystemFont,\'Segoe UI\',sans-serif; border-collapse: collapse; width:100%; table-layout:fixed; overflow-wrap: break-word; font-size: 70%; border: 0;">
 		    <thead>
@@ -133,7 +136,21 @@ $body .='
 								IFNULL(SUM(k.pagu_simda),0) pagu_simda, 
 								IFNULL(SUM(d.realisasi_anggaran),0) realisasi_keuangan,
 								IFNULL((SUM(d.realisasi_anggaran)/SUM(k.pagu_simda)*100),100) capaian, 
-								AVG(IFNULL(d.realisasi_fisik,0)) realisasi_fisik, 
+								AVG(IFNULL(d.realisasi_fisik,0)) realisasi_fisik_old,
+								(
+									SELECT 
+										AVG(IFNULL(dr.realisasi_fisik,0)) 
+									FROM data_sub_keg_bl ds
+									LEFT JOIN data_rfk dr
+										ON dr.id_skpd=ds.id_sub_skpd AND
+										dr.kode_sbl=ds.kode_sbl AND
+										dr.tahun_anggaran=ds.tahun_anggaran
+									WHERE
+										ds.tahun_anggaran=".$input['tahun_anggaran']." AND
+										ds.id_sub_skpd=".$unit['id_skpd']." AND
+										bulan=".$bulan." AND 
+										(ds.pagu_simda > 0 OR ds.pagu_simda IS NOT NULL)
+								) realisasi_fisik,
 								IFNULL(SUM(d.rak),0) rak,
 								IFNULL((SUM(d.rak)/SUM(k.pagu_simda)*100),100) target_rak,
 								IFNULL(((IFNULL((SUM(d.rak)/SUM(k.pagu_simda)*100),100)-IFNULL((SUM(d.realisasi_anggaran)/SUM(k.pagu_simda)*100),100)) / (IFNULL((SUM(d.rak)/SUM(k.pagu_simda)*100),100))),0) * 100 deviasi,
@@ -207,7 +224,21 @@ $body .='
 									IFNULL(SUM(k.pagu_simda),0) pagu_simda, 
 									IFNULL(SUM(d.realisasi_anggaran),0) realisasi_keuangan,
 									IFNULL((SUM(d.realisasi_anggaran)/SUM(k.pagu_simda)*100),100) capaian, 
-									AVG(IFNULL(d.realisasi_fisik,0)) realisasi_fisik, 
+									AVG(IFNULL(d.realisasi_fisik,0)) realisasi_fisik_old,
+									(
+										SELECT 
+											AVG(IFNULL(dr.realisasi_fisik,0)) 
+										FROM data_sub_keg_bl ds
+										LEFT JOIN data_rfk dr
+											ON dr.id_skpd=ds.id_sub_skpd AND
+											dr.kode_sbl=ds.kode_sbl AND
+											dr.tahun_anggaran=ds.tahun_anggaran
+										WHERE
+											ds.tahun_anggaran=".$input['tahun_anggaran']." AND
+											ds.id_sub_skpd=".$sub_unit['id_skpd']." AND
+											bulan=".$bulan." AND 
+											(ds.pagu_simda > 0 OR ds.pagu_simda IS NOT NULL)
+									) realisasi_fisik, 
 									IFNULL(SUM(d.rak),0) rak,
 									IFNULL((SUM(d.rak)/SUM(k.pagu_simda)*100),100) target_rak,
 									IFNULL(((IFNULL((SUM(d.rak)/SUM(k.pagu_simda)*100),100)-IFNULL((SUM(d.realisasi_anggaran)/SUM(k.pagu_simda)*100),100)) / (IFNULL((SUM(d.rak)/SUM(k.pagu_simda)*100),100))),0) * 100 deviasi,
