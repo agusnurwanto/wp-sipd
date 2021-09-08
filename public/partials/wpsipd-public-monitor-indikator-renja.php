@@ -1049,13 +1049,23 @@ $url_skpd = '<a href="'.$link.'" target="_blank">'.$unit[0]['kode_skpd'].' '.$un
 	var batas_bulan_input = <?php echo $batas_bulan_input; ?>;
 	var aksi = ''
 		+'<h3 style="margin-top: 20px;">SETTING</h3>'
-		+'<label><input type="checkbox" onclick="edit_monev_indikator(this);"> Edit Monev indikator</label>';
+		+'<label><input type="checkbox" onclick="edit_monev_indikator(this);"> Edit Monev indikator</label>'
+		+'<label style="margin-left: 20px;"><input type="checkbox" onclick="tampil_indikator_renstra(this);"> Tampilkan indikator RENSTRA</label>';
 	jQuery('#action-sipd').append(aksi);
 	function edit_monev_indikator(that){
 		if(jQuery(that).is(':checked')){
 			jQuery('.edit-monev').show();
 		}else{
 			jQuery('.edit-monev').hide();
+		}
+	}
+	function tampil_indikator_renstra(that){
+		if(jQuery(that).is(':checked')){
+			jQuery('.renstra_kegiatan').show();
+			jQuery('.indikator_renstra').show();
+		}else{
+			jQuery('.renstra_kegiatan').hide();
+			jQuery('.indikator_renstra').hide();
 		}
 	}
 	function setRumus(id){
