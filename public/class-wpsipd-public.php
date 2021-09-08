@@ -5267,6 +5267,7 @@ class Wpsipd_Public
 					</tr>
 				';
 				$ret['table'] = $tbody;
+				$ret['tipe_indikator'] = $type_indikator;
 			} else {
 				$ret['status'] = 'error';
 				$ret['message'] = 'APIKEY tidak sesuai!';
