@@ -1375,8 +1375,8 @@ CREATE TABLE `data_rfk` (
   `bulan` tinyint(2) NOT NULL,
   `kode_sbl` text NOT NULL,
   `rak` double(20,0) DEFAULT NULL,
-  `realisasi_anggaran` double(20,0) DEFAULT NULL,
-  `realisasi_fisik` tinyint(3) DEFAULT NULL,
+  `realisasi_anggaran` double(20,2) DEFAULT NULL,
+  `realisasi_fisik` decimal(5,2) DEFAULT NULL,
   `permasalahan` text DEFAULT NULL,
   `catatan_verifikator` text DEFAULT NULL,
   `user_edit` text DEFAULT NULL,
@@ -1810,7 +1810,7 @@ ALTER TABLE `data_renstra_kegiatan`
 
 CREATE TABLE `data_realisasi_akun` (
   `id` int(11) NOT NULL,
-  `realisasi` double(20, 0) DEFAULT NULL,
+  `realisasi` double(20, 2) DEFAULT NULL,
   `rak` double(20, 0) DEFAULT NULL,
   `kode_akun` text DEFAULT NULL,
   `kode_sbl` text DEFAULT NULL,
@@ -1828,7 +1828,7 @@ ALTER TABLE `data_realisasi_akun`
 CREATE TABLE `data_realisasi_rincian` (
   `id` int(11) NOT NULL,
   `id_rinci_sub_bl` int(11) NOT NULL,
-  `realisasi` double(20,0) DEFAULT NULL,
+  `realisasi` double(20,2) DEFAULT NULL,
   `user` text DEFAULT NULL,
   `active` tinyint(4) NOT NULL,
   `update_at` datetime NOT NULL,
