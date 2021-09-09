@@ -28,29 +28,34 @@ if(empty($label_db)){
 
 $data_label = array();
 $where_skpd = '';
+$inner_skpd = '';
 if(!empty($_GET) && !empty($_GET['id_skpd'])){
+    $inner_skpd = '
+        inner join data_sub_keg_bl s on s.kode_sbl=r.kode_sbl
+            and s.active=r.active
+            and s.tahun_anggaran=r.tahun_anggaran';
     $where_skpd = 'and s.id_sub_skpd='.$_GET['id_skpd'];
 }
-$data = $wpdb->get_results($wpdb->prepare("
+$sql = $wpdb->prepare("
         SELECT 
             r.*,
-            _r.realisasi 
+            rr.realisasi 
         FROM `data_rka` r
-            inner join data_sub_keg_bl s on s.kode_sbl=r.kode_sbl
-                and s.active=r.active
-                and s.tahun_anggaran=r.tahun_anggaran
+            ".$inner_skpd."
             inner join data_mapping_label m on m.active=r.active
                 and m.tahun_anggaran=r.tahun_anggaran
                 and m.id_rinci_sub_bl=r.id_rinci_sub_bl
-            left join data_realisasi_rincian _r on _r.active=r.active
-                and _r.tahun_anggaran=r.tahun_anggaran
-                and _r.id_rinci_sub_bl=r.id_rinci_sub_bl
+            left join data_realisasi_rincian rr on rr.active=r.active
+                and rr.tahun_anggaran=r.tahun_anggaran
+                and rr.id_rinci_sub_bl=r.id_rinci_sub_bl
         where r.active=1 
             and r.tahun_anggaran=%d
             and m.id_label_komponen=%d
             ".$where_skpd."
             order by r.kode_sbl ASC
-    ", $input['tahun_anggaran'], $input['id_label']), ARRAY_A);
+    ", $input['tahun_anggaran'], $input['id_label']);
+// die($sql);
+$data = $wpdb->get_results($sql, ARRAY_A);
 if(!empty($data)){
     $data_label = $data;
 }

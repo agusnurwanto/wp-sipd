@@ -816,7 +816,8 @@ if(!current_user_can('administrator')){
 	    				permasalahan: tr.find('.permasalahan').text(),
 	    				catatan_verifikator: tr.find('.catatan_verifikator').text(),
 	    				id_skpd: tr.attr('data-idskpd'),
-	    				kode_sbl: tr.attr('data-kdsbl')
+	    				kode_sbl: tr.attr('data-kdsbl'),
+		          		user_edit: "<?php echo $current_user->display_name; ?>"
 	    			});
 	    			if(i>0 && i%20==0){
 	    				r_fisik.push(r_fisik_s);
