@@ -5078,6 +5078,7 @@ class Wpsipd_Public
 				", $tahun_anggaran, $id_indikator, $type_indikator, $kode_sbl));
 				$opsi = array(
 					'id_indikator' => $id_indikator,
+					'id_unik_indikator_renstra' => $_POST['id_indikator_renstra'],
 					'tipe_indikator' => $type_indikator,
 					'id_rumus_indikator' => $_POST['rumus_indikator'],
 					'kode_sbl' => $kode_sbl,
@@ -5154,6 +5155,7 @@ class Wpsipd_Public
 				$realisasi_renja = $wpdb->get_results($wpdb->prepare("
 					select
 						id_rumus_indikator,
+						id_unik_indikator_renstra,
 						realisasi_bulan_1,
 						realisasi_bulan_2,
 						realisasi_bulan_3,
@@ -5173,8 +5175,10 @@ class Wpsipd_Public
 						and kode_sbl=%s
 				", $tahun_anggaran, $id_indikator, $type_indikator, $kode_sbl), ARRAY_A);
 				$ret['id_rumus_indikator'] = 1;
+				$ret['id_unik_indikator_renstra'] = '';
 				if(!empty($realisasi_renja)){
 					$ret['id_rumus_indikator'] = $realisasi_renja[0]['id_rumus_indikator'];
+					$ret['id_unik_indikator_renstra'] = $realisasi_renja[0]['id_unik_indikator_renstra'];
 				}
 
 				$rfk_all = $wpdb->get_results($wpdb->prepare("
