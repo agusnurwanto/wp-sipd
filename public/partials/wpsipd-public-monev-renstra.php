@@ -77,8 +77,15 @@ $subkeg = $wpdb->get_results($wpdb->prepare("
 foreach ($subkeg as $kk => $sub)
 {
 	
-	$kegs = $wpdb->get_results($wpdb->prepare("select * from data_renstra_kegiatan where kode_giat='".$sub['kode_giat']."' and id_unit=".$unit[0]['id_skpd']." and tahun_anggaran=".$input['tahun_anggaran']), ARRAY_A);
-	// echo '<pre>';print_r($wpdb->last_query);echo '</pre>';die();
+	$kegs = $wpdb->get_results($wpdb->prepare("
+			select 
+				* 
+			from data_renstra_kegiatan 
+			where 
+				kode_giat=%s and 
+				id_unit=%d and 
+				tahun_anggaran=%d", 
+			$sub['kode_giat'], $unit[0]['id_skpd'], $input['tahun_anggaran']), ARRAY_A);
 	
 	if(!empty($kegs))
 	{
@@ -94,7 +101,15 @@ foreach ($subkeg as $kk => $sub)
 						'data' => array(),
 					);
 
-					$indikators = $wpdb->get_results($wpdb->prepare("select * from data_renstra_tujuan where id_unik='".$keg['kode_tujuan']."' and active=1 and tahun_anggaran=".$input['tahun_anggaran']), ARRAY_A);
+					$indikators = $wpdb->get_results($wpdb->prepare("
+							select 
+								* 
+							from data_renstra_tujuan 
+							where 
+								id_unik=%s and 
+								active=1 and 
+								tahun_anggaran=%d", 
+							$keg['kode_tujuan'], $input['tahun_anggaran']), ARRAY_A);
 
 					if(!empty($indikators))
 					{
@@ -125,7 +140,15 @@ foreach ($subkeg as $kk => $sub)
 						'data' => array(),
 					);
 
-					$indikators = $wpdb->get_results($wpdb->prepare("select * from data_renstra_sasaran where id_unik='".$keg['kode_sasaran']."' and active=1 and tahun_anggaran=".$input['tahun_anggaran']), ARRAY_A);
+					$indikators = $wpdb->get_results($wpdb->prepare("
+						select 
+							* 
+						from data_renstra_sasaran 
+						where 
+							id_unik=%s and 
+							active=1 and 
+							tahun_anggaran=%d", 
+					$keg['kode_sasaran'],$input['tahun_anggaran']), ARRAY_A);
 
 					if(!empty($indikators))
 					{
@@ -156,7 +179,16 @@ foreach ($subkeg as $kk => $sub)
 						'data' => array(),
 					);
 
-					$indikators = $wpdb->get_results($wpdb->prepare("select * from data_renstra_program where id_unit=".$input['id_skpd']." and kode_program='".$keg['kode_program']."' and active=1 and tahun_anggaran=".$input['tahun_anggaran']), ARRAY_A);
+					$indikators = $wpdb->get_results($wpdb->prepare("
+						select 
+							* 
+						from data_renstra_program 
+						where 
+							id_unit=%d and 
+							kode_program=%s and 
+							active=1 and 
+							tahun_anggaran=%d",
+							$input['id_skpd'], $keg['kode_program'], $input['tahun_anggaran']), ARRAY_A);
 
 					if(!empty($indikators))
 					{
@@ -187,7 +219,16 @@ foreach ($subkeg as $kk => $sub)
 						'indikator' => array()
 					);
 
-					$indikators = $wpdb->get_results($wpdb->prepare("select * from data_renstra_kegiatan where id_unit=".$input['id_skpd']." and kode_giat='".$keg['kode_giat']."' and active=1 and tahun_anggaran=".$input['tahun_anggaran']), ARRAY_A);
+					$indikators = $wpdb->get_results($wpdb->prepare("
+						select 
+							* 
+						from data_renstra_kegiatan 
+						where 
+							id_unit=%d and 
+							kode_giat=%s and 
+							active=1 and 
+							tahun_anggaran=%d", 
+							$input['id_skpd'], $keg['kode_giat'], $input['tahun_anggaran']), ARRAY_A);
 
 					if(!empty($indikators))
 					{
@@ -214,7 +255,8 @@ foreach ($subkeg as $kk => $sub)
 	else
 	{
 		
-		if(empty($data_all['data']['-'])){
+		if(empty($data_all['data']['-']))
+		{
 			$data_all['data']['-'] = array(
 				'nama' => 'Tujuan Renstra tidak ditemukan',
 				'indikator' => array(),
@@ -222,7 +264,8 @@ foreach ($subkeg as $kk => $sub)
 			);
 		}
 
-		if(empty($data_all['data']['-']['data']['-'])){
+		if(empty($data_all['data']['-']['data']['-']))
+		{
 			$data_all['data']['-']['data']['-'] = array(
 				'nama' => 'Sasaran Renstra tidak ditemukan',
 				'indikator' => array(),
@@ -230,7 +273,8 @@ foreach ($subkeg as $kk => $sub)
 			);
 		}
 
-		if(empty($data_all['data']['-']['data']['-']['data'][$sub['nama_program']])){
+		if(empty($data_all['data']['-']['data']['-']['data'][$sub['nama_program']]))
+		{
 			$data_all['data']['-']['data']['-']['data'][$sub['nama_program']] = array(
 				'nama' => $sub['nama_program'],
 				'indikator' => array(),
@@ -238,7 +282,8 @@ foreach ($subkeg as $kk => $sub)
 			);
 		}
 
-		if(empty($data_all['data']['-']['data']['-']['data'][$sub['nama_program']]['data'][$sub['nama_giat']])){
+		if(empty($data_all['data']['-']['data']['-']['data'][$sub['nama_program']]['data'][$sub['nama_giat']]))
+		{
 
 			$data_all['data']['-']['data']['-']['data'][$sub['nama_program']]['data'][$sub['nama_giat']] = array(
 				'nama' => $sub['nama_giat'],
@@ -482,14 +527,14 @@ foreach ($subkeg as $kk => $sub)
 				            <td class="kanan bawah text_blok"></td>
 				            <td class="kanan bawah text_blok nama"></td>
 				            <td class="kanan bawah text_blok indikator rumus_indikator">'.$ind_program['indikator_teks'].'</td>
-				            <td class="text_tengah kanan bawah text_blok total_renstra"></td>
-				            <td class="text_tengah kanan bawah text_blok total_renstra"></td>
+				            <td class="text_tengah kanan bawah text_blok total_renstra">'.$ind_program['target_5'].'</td>
+				            <td class="text_tengah kanan bawah text_blok total_renstra">'.$ind_program['satuan'].'</td>
 				            <td class="text_kanan kanan bawah text_blok total_renstra"></td>
 				            <td class="text_tengah kanan bawah text_blok realisasi_renstra_tahun_lalu"></td>
 				            <td class="text_tengah kanan bawah text_blok realisasi_renstra_tahun_lalu"></td>
 				            <td class="text_kanan kanan bawah text_blok realisasi_renstra_tahun_lalu"></td>
-				            <td class="text_tengah kanan bawah text_blok total_renja target_indikator"></td>
-				            <td class="text_tengah kanan bawah text_blok total_renja satuan_indikator"></td>
+				            <td class="text_tengah kanan bawah text_blok total_renja target_indikator">'.$ind_program['target_'.$urut].'</td>
+				            <td class="text_tengah kanan bawah text_blok total_renja satuan_indikator">'.$ind_program['satuan'].'</td>
 				            <td class="text_kanan kanan bawah text_blok total_renja pagu_renja" data-pagu=""></td>
 				            <td class="text_tengah kanan bawah text_blok triwulan_1"></td>
 				            <td class="text_tengah kanan bawah text_blok triwulan_1"></td>
@@ -520,7 +565,7 @@ foreach ($subkeg as $kk => $sub)
 				foreach ($program['data'] as $key => $kegiatan) 
 				{
 					$body_monev .= '
-						<tr class="kegiatan" data-kode="'.$kode_giat['kode_giat'].'">
+						<tr class="kegiatan" data-kode="">
 				            <td class="kiri kanan bawah text_blok"></td>
 				            <td class="text_kiri kanan bawah text_blok"></td>
 				            <td class="text_kiri kanan bawah text_blok"></td>
@@ -571,14 +616,14 @@ foreach ($subkeg as $kk => $sub)
 						            <td class="kanan bawah text_blok"></td>
 						            <td class="kanan bawah text_blok nama"></td>
 						            <td class="kanan bawah text_blok indikator rumus_indikator">'.$ind_kegiatan['indikator_teks'].'</td>
-						            <td class="text_tengah kanan bawah text_blok total_renstra"></td>
-						            <td class="text_tengah kanan bawah text_blok total_renstra"></td>
+						            <td class="text_tengah kanan bawah text_blok total_renstra">'.$ind_kegiatan['target_5'].'</td>
+						            <td class="text_tengah kanan bawah text_blok total_renstra">'.$ind_kegiatan['satuan'].'</td>
 						            <td class="text_kanan kanan bawah text_blok total_renstra"></td>
 						            <td class="text_tengah kanan bawah text_blok realisasi_renstra_tahun_lalu"></td>
 						            <td class="text_tengah kanan bawah text_blok realisasi_renstra_tahun_lalu"></td>
 						            <td class="text_kanan kanan bawah text_blok realisasi_renstra_tahun_lalu"></td>
-						            <td class="text_tengah kanan bawah text_blok total_renja target_indikator"></td>
-						            <td class="text_tengah kanan bawah text_blok total_renja satuan_indikator"></td>
+						            <td class="text_tengah kanan bawah text_blok total_renja target_indikator">'.$ind_kegiatan['target_'.$urut].'</td>
+						            <td class="text_tengah kanan bawah text_blok total_renja satuan_indikator">'.$ind_kegiatan['satuan'].'</td>
 						            <td class="text_kanan kanan bawah text_blok total_renja pagu_renja" data-pagu=""></td>
 						            <td class="text_tengah kanan bawah text_blok triwulan_1"></td>
 						            <td class="text_tengah kanan bawah text_blok triwulan_1"></td>
