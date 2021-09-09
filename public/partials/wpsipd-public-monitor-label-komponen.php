@@ -31,7 +31,7 @@ $where_skpd = '';
 if(!empty($_GET) && !empty($_GET['id_skpd'])){
     $where_skpd = 'and s.id_sub_skpd='.$_GET['id_skpd'];
 }
-$data = $wpdb->get_results($wpdb->prepare("
+$sql = $wpdb->prepare("
         SELECT 
             r.*,
             _r.realisasi 
@@ -50,7 +50,9 @@ $data = $wpdb->get_results($wpdb->prepare("
             and m.id_label_komponen=%d
             ".$where_skpd."
             order by r.kode_sbl ASC
-    ", $input['tahun_anggaran'], $input['id_label']), ARRAY_A);
+    ", $input['tahun_anggaran'], $input['id_label']);
+// die($sql);
+$data = $wpdb->get_results($sql, ARRAY_A);
 if(!empty($data)){
     $data_label = $data;
 }
