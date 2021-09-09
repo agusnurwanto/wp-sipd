@@ -3810,19 +3810,19 @@ class Wpsipd_Public
 	            foreach ($unit as $kk => $vv) {
 					$nama_page = 'RFK '.$vv['nama_skpd'].' '.$vv['kode_skpd'].' | '.$v['tahun_anggaran'];
 					$custom_post = get_page_by_title($nama_page, OBJECT, 'page');
-					$url_rfk = esc_url(get_permalink($custom_post));
+					$url_rfk = $this->get_link_post($custom_post);
 
 					$nama_page_sd = 'Sumber Dana '.$vv['nama_skpd'].' '.$vv['kode_skpd'].' | '.$v['tahun_anggaran'];
 					$custom_post = get_page_by_title($nama_page_sd, OBJECT, 'page');
-					$url_sd = esc_url(get_permalink($custom_post));
+					$url_sd = $this->get_link_post($custom_post);
 
 					$nama_page_label = 'Label Komponen '.$vv['nama_skpd'].' '.$vv['kode_skpd'].' | '.$v['tahun_anggaran'];
 					$custom_post = get_page_by_title($nama_page_label, OBJECT, 'page');
-					$url_label = esc_url(get_permalink($custom_post));
+					$url_label = $this->get_link_post($custom_post);
 
-					echo '<li>MONEV RFK: <a href="'.$url_rfk.'&key='.$this->gen_key().'" target="_blank">'.$nama_page.'</a></li>';
-					echo '<li>MONEV SUMBER DANA: <a href="'.$url_sd.'&key='.$this->gen_key().'" target="_blank">'.$nama_page_sd.'</a></li>';
-					echo '<li>MONEV LABEL KOMPONEN: <a href="'.$url_label.'&key='.$this->gen_key().'" target="_blank">'.$nama_page_label.'</a></li>';
+					echo '<li>MONEV RFK: <a href="'.$url_rfk.'" target="_blank">'.$nama_page.'</a></li>';
+					echo '<li>MONEV SUMBER DANA: <a href="'.$url_sd.'" target="_blank">'.$nama_page_sd.'</a></li>';
+					echo '<li>MONEV LABEL KOMPONEN: <a href="'.$url_label.'" target="_blank">'.$nama_page_label.'</a></li>';
 				}
 				echo '</ul>';
 			}
