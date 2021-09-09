@@ -52,7 +52,7 @@ if(!empty($pengaturan)){
 	$awal_rpjmd = $pengaturan[0]['awal_rpjmd'];
 	$akhir_rpjmd = $pengaturan[0]['akhir_rpjmd'];
 }
-$urut = $input['tahun_anggaran']-$awal_rpjmd;
+$tahun_renstra = $input['tahun_anggaran']-$awal_rpjmd;
 $nama_pemda = $pengaturan[0]['daerah'];
 
 $current_user = wp_get_current_user();
@@ -453,7 +453,7 @@ foreach ($data_all['data'] as $kd_urusan => $urusan) {
 			$realisasi_indikator_tw4 = '<span class="realisasi_indikator_tw4-0">'.$realisasi_indikator_tw4.'</span>';
 			$total_tw = '<span class="total_tw-0 rumus_indikator '.$class_rumus_target.'">'.$total_tw.'</span>';
 			$capaian_realisasi_indikator = '<span class="capaian_realisasi_indikator-0 rumus_indikator '.$class_rumus_target.'">'.$this->pembulatan($capaian_realisasi_indikator).'</span>';
-			$renstra = $wpdb->get_results("select * from data_renstra_kegiatan where kode_program='$program[kode_urusan_bidang]' and tahun_anggaran=$input[tahun_anggaran] and active=1 and kode_skpd='".$unit[0]['kode_skpd']."'", ARRAY_A);
+			$renstra = $wpdb->get_results("select * from data_renstra_program where kode_program='$program[kode_urusan_bidang]' and tahun_anggaran=$input[tahun_anggaran] and active=1 and kode_skpd='".$unit[0]['kode_skpd']."'", ARRAY_A);
 			$renstra_sasaran = array();
 			$renstra_tujuan = array();
 			$renstra_indikator = array();
@@ -462,7 +462,8 @@ foreach ($data_all['data'] as $kd_urusan => $urusan) {
 				$renstra_sasaran[0] = $sasaran_teks[0];
 				$tujuan_teks = explode('||', $v['tujuan_teks']);
 				$renstra_tujuan[0] = $tujuan_teks[0];
-				$renstra_indikator[] = '<li>'.$v['indikator'].'</li>';
+				$target_indikator_renstra = explode(' ', $v['target_'.$tahun_renstra]);
+				$renstra_indikator[] = '<li><span class="indikator_renstra_text_hide">'.$v['indikator'].'</span> <span class="target_indikator_renstra_text_hide">'.$target_indikator_renstra[0].'</span> <span class="satuan_indikator_renstra_text_hide">'.$v['satuan'].'</span> (Rp <span class="pagu_indikator_renstra_text_hide">'.number_format($v['pagu_'.$tahun_renstra],0,",",".").'</span>)</li>';
 			}
 			$renstra_sasaran = implode('<br>', $renstra_sasaran).' <ul class="indikator_renstra">'.implode('', $renstra_indikator).'</ul>';
 			$renstra_tujuan = implode('<br>', $renstra_tujuan);
@@ -611,7 +612,8 @@ foreach ($data_all['data'] as $kd_urusan => $urusan) {
 					$renstra_sasaran[0] = '<span class="renstra_kegiatan">'.$sasaran_teks[0].'</span>';
 					$tujuan_teks = explode('||', $v['tujuan_teks']);
 					$renstra_tujuan[0] = '<span class="renstra_kegiatan">'.$tujuan_teks[0].'</span>';
-					$renstra_indikator[] = '<li>'.$v['indikator'].'</li>';
+					$target_indikator_renstra = explode(' ', $v['target_'.$tahun_renstra]);
+					$renstra_indikator[] = '<li><span class="indikator_renstra_text_hide">'.$v['indikator'].'</span> <span class="target_indikator_renstra_text_hide">'.$target_indikator_renstra[0].'</span> <span class="satuan_indikator_renstra_text_hide">'.$v['satuan'].'</span> (Rp <span class="pagu_indikator_renstra_text_hide">'.number_format($v['pagu_'.$tahun_renstra],0,",",".").'</span>)</li>';
 				}
 				$renstra_sasaran = implode('<br>', $renstra_sasaran).' <ul class="indikator_renstra">'.implode('', $renstra_indikator).'</ul>';
 				$renstra_tujuan = implode('<br>', $renstra_tujuan);
@@ -843,6 +845,9 @@ $url_skpd = '<a href="'.$link.'" target="_blank">'.$unit[0]['kode_skpd'].' '.$un
 	.renstra_kegiatan, .indikator_renstra {
 		display: none;
 	}
+	#mod-monev table {
+	    margin: 0;
+	}
 </style>
 <input type="hidden" value="<?php echo get_option('_crb_api_key_extension' ); ?>" id="api_key">
 <input type="hidden" value="<?php echo $input['tahun_anggaran']; ?>" id="tahun_anggaran">
@@ -965,6 +970,22 @@ $url_skpd = '<a href="'.$link.'" target="_blank">'.$unit[0]['kode_skpd'].' '.$un
                   						<table>
                   							<thead>
                   								<tr>
+					              					<th class="text_tengah" colspan="2">Indikator RENSTRA Tahun <?php echo $input['tahun_anggaran']; ?></th>
+					              					<th class="text_tengah" style="width: 100px;">Target</th>
+					              					<th class="text_tengah" style="width: 100px;">Satuan</th>
+					              					<th class="text_tengah" style="width: 140px;">Pagu (Rp)</th>
+												</tr>
+                  							</thead>
+                  							<tbody id="monev-body-renstra">
+                  							</tbody>
+                  						</table>
+                  					</td>
+                  				</tr>
+                  				<tr>
+                  					<td colspan="2">
+                  						<table>
+                  							<thead>
+                  								<tr>
                   									<th class="text_tengah">Indikator Program(outcome) dan Kegiatan (output), Sub Kegiatan</th>
                   									<th class="text_tengah" style="width: 120px;">Target</th>
                   									<th class="text_tengah" style="width: 120px;">Satuan</th>
@@ -1022,9 +1043,9 @@ $url_skpd = '<a href="'.$link.'" target="_blank">'.$unit[0]['kode_skpd'].' '.$un
                   							<tbody id="monev-body"></tbody>
                   							<tfoot>
 												<tr>
-													<th class="text_tengah text_blok">Target Indikator</th>
+													<th class="text_kiri text_blok">Target Indikator</th>
 													<th class="text_kanan text_blok" id="target_indikator_monev_rumus">0</th>
-													<th class="text_kanan text_blok" colspan="2">Capaian target dihitung sesuai rumus indikator</th>
+													<th class="text_kiri text_blok" colspan="2">Capaian target dihitung sesuai rumus indikator</th>
 													<th class="text_tengah text_blok" id="capaian_target_realisasi">0</th>
 												</tr>
                   							</tfoot>
@@ -1049,13 +1070,23 @@ $url_skpd = '<a href="'.$link.'" target="_blank">'.$unit[0]['kode_skpd'].' '.$un
 	var batas_bulan_input = <?php echo $batas_bulan_input; ?>;
 	var aksi = ''
 		+'<h3 style="margin-top: 20px;">SETTING</h3>'
-		+'<label><input type="checkbox" onclick="edit_monev_indikator(this);"> Edit Monev indikator</label>';
+		+'<label><input type="checkbox" onclick="edit_monev_indikator(this);"> Edit Monev indikator</label>'
+		+'<label style="margin-left: 20px;"><input type="checkbox" onclick="tampil_indikator_renstra(this);"> Tampilkan indikator RENSTRA</label>';
 	jQuery('#action-sipd').append(aksi);
 	function edit_monev_indikator(that){
 		if(jQuery(that).is(':checked')){
 			jQuery('.edit-monev').show();
 		}else{
 			jQuery('.edit-monev').hide();
+		}
+	}
+	function tampil_indikator_renstra(that){
+		if(jQuery(that).is(':checked')){
+			jQuery('.renstra_kegiatan').show();
+			jQuery('.indikator_renstra').show();
+		}else{
+			jQuery('.renstra_kegiatan').hide();
+			jQuery('.indikator_renstra').hide();
 		}
 	}
 	function setRumus(id){
@@ -1156,6 +1187,25 @@ $url_skpd = '<a href="'.$link.'" target="_blank">'.$unit[0]['kode_skpd'].' '.$un
           		jQuery('#monev-body').html(res.table);
 				jQuery('#mod-monev').attr('data-id_unik', id_unik);
           		setRumus(res.id_rumus_indikator);
+          		jQuery('#monev-body-renstra').html('');
+          		if(res.tipe_indikator == 2 || res.tipe_indikator == 3){
+          			var renstra_html = '';
+          			tr.find('.indikator_renstra li').map(function(i, b){
+          				var indikator_renstra_text = jQuery(b).find('.indikator_renstra_text_hide').text();
+          				var indikator_renstra_target = jQuery(b).find('.target_indikator_renstra_text_hide').text();
+          				var indikator_renstra_satuan = jQuery(b).find('.satuan_indikator_renstra_text_hide').text();
+          				var indikator_renstra_pagu = jQuery(b).find('.pagu_indikator_renstra_text_hide').text();
+          				renstra_html += ''
+          					+'<tr>'
+          						+'<td class="text_tengah"><input type="radio" name="pilih_indikator_renstra"></td>'
+          						+'<td>'+indikator_renstra_text+'</td>'
+          						+'<td class="text_tengah">'+indikator_renstra_target+'</td>'
+          						+'<td class="text_tengah">'+indikator_renstra_satuan+'</td>'
+          						+'<td class="text_kanan">'+indikator_renstra_pagu+'</td>'
+          					+'<tr>';
+          			});
+          			jQuery('#monev-body-renstra').html(renstra_html);
+          		}
 				jQuery('#mod-monev').modal('show');
 				jQuery('#wrap-loading').hide();
 			}
