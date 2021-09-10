@@ -3820,9 +3820,19 @@ class Wpsipd_Public
 					$custom_post = get_page_by_title($nama_page_label, OBJECT, 'page');
 					$url_label = $this->get_link_post($custom_post);
 
+					$nama_page_monev_renja = 'MONEV '.$vv['nama_skpd'].' '.$vv['kode_skpd'].' | '.$v['tahun_anggaran'];
+					$custom_post = get_page_by_title($nama_page_monev_renja, OBJECT, 'page');
+					$url_monev_renja = $this->get_link_post($custom_post);
+
+					$nama_page_monev_renstra = 'MONEV RENSTRA '.$vv['nama_skpd'].' '.$vv['kode_skpd'].' | '.$v['tahun_anggaran'];
+					$custom_post = get_page_by_title($nama_page_monev_renstra, OBJECT, 'page');
+					$url_monev_renstra = $this->get_link_post($custom_post);
+
 					echo '<li>MONEV RFK: <a href="'.$url_rfk.'" target="_blank">'.$nama_page.'</a></li>';
 					echo '<li>MONEV SUMBER DANA: <a href="'.$url_sd.'" target="_blank">'.$nama_page_sd.'</a></li>';
 					echo '<li>MONEV LABEL KOMPONEN: <a href="'.$url_label.'" target="_blank">'.$nama_page_label.'</a></li>';
+					echo '<li>MONEV INDIKATOR RENJA: <a href="'.$url_monev_renja.'" target="_blank">'.$nama_page_monev_renja.'</a></li>';
+					echo '<li>MONEV INDIKATOR RENSTRA: <a href="'.$url_monev_renstra.'" target="_blank">'.$nama_page_monev_renstra.'</a></li>';
 				}
 				echo '</ul>';
 			}
@@ -5037,6 +5047,19 @@ class Wpsipd_Public
 				if($tahun_anggaran < $tahun_sekarang){
 					$batas_bulan_input = 12;
 				}
+				$keterangan_bulan = array();
+				$keterangan_bulan[1] = $_POST['keterangan']['keterangan_bulan_1'];
+				$keterangan_bulan[2] = $_POST['keterangan']['keterangan_bulan_2'];
+				$keterangan_bulan[3] = $_POST['keterangan']['keterangan_bulan_3'];
+				$keterangan_bulan[4] = $_POST['keterangan']['keterangan_bulan_4'];
+				$keterangan_bulan[5] = $_POST['keterangan']['keterangan_bulan_5'];
+				$keterangan_bulan[6] = $_POST['keterangan']['keterangan_bulan_6'];
+				$keterangan_bulan[7] = $_POST['keterangan']['keterangan_bulan_7'];
+				$keterangan_bulan[8] = $_POST['keterangan']['keterangan_bulan_8'];
+				$keterangan_bulan[9] = $_POST['keterangan']['keterangan_bulan_9'];
+				$keterangan_bulan[10] = $_POST['keterangan']['keterangan_bulan_10'];
+				$keterangan_bulan[11] = $_POST['keterangan']['keterangan_bulan_11'];
+				$keterangan_bulan[12] = $_POST['keterangan']['keterangan_bulan_12'];
 				$realisasi_bulan = array();
 				$realisasi_bulan[1] = $_POST['data']['target_realisasi_bulan_1'];
 				$realisasi_bulan[2] = $_POST['data']['target_realisasi_bulan_2'];
@@ -5094,6 +5117,18 @@ class Wpsipd_Public
 					'realisasi_bulan_10' =>$realisasi_bulan[10],
 					'realisasi_bulan_11' =>$realisasi_bulan[11],
 					'realisasi_bulan_12' =>$realisasi_bulan[12],
+					'keterangan_bulan_1' => $keterangan_bulan[1],
+					'keterangan_bulan_2' => $keterangan_bulan[2],
+					'keterangan_bulan_3' => $keterangan_bulan[3],
+					'keterangan_bulan_4' => $keterangan_bulan[4],
+					'keterangan_bulan_5' => $keterangan_bulan[5],
+					'keterangan_bulan_6' => $keterangan_bulan[6],
+					'keterangan_bulan_7' => $keterangan_bulan[7],
+					'keterangan_bulan_8' => $keterangan_bulan[8],
+					'keterangan_bulan_9' => $keterangan_bulan[9],
+					'keterangan_bulan_10' =>$keterangan_bulan[10],
+					'keterangan_bulan_11' =>$keterangan_bulan[11],
+					'keterangan_bulan_12' =>$keterangan_bulan[12],
 					'user' => '',
 					'active' => 1,
 					'update_at' => current_time('mysql'),
@@ -5167,7 +5202,19 @@ class Wpsipd_Public
 						realisasi_bulan_9,
 						realisasi_bulan_10,
 						realisasi_bulan_11,
-						realisasi_bulan_12
+						realisasi_bulan_12,
+						keterangan_bulan_1,
+						keterangan_bulan_2,
+						keterangan_bulan_3,
+						keterangan_bulan_4,
+						keterangan_bulan_5,
+						keterangan_bulan_6,
+						keterangan_bulan_7,
+						keterangan_bulan_8,
+						keterangan_bulan_9,
+						keterangan_bulan_10,
+						keterangan_bulan_11,
+						keterangan_bulan_12
 					from data_realisasi_renja
 					where tahun_anggaran=%d
 						and id_indikator=%d
@@ -5255,6 +5302,7 @@ class Wpsipd_Public
 							<td class="text_kanan">'.number_format($realisasi_bulanan,0,",",".").'</td>
 							<td class="text_kanan">'.number_format($selisih,0,",",".").'</td>
 							<td class="text_tengah target_realisasi" id="target_realisasi_bulan_'.$i.'" '.$editable.' onkeypress="onlyNumber(event);" onkeyup="setTotalMonev(this);">'.$realisasi_target_bulanan.'</td>
+							<td class="text_kiri" id="keterangan_bulan_'.$i.'" '.$editable.'>'.$realisasi_renja[0]['keterangan_bulan_'.$i].'</td>
 						</tr>
 					';
 					$total_rak += $rak_bulanan;
@@ -5268,6 +5316,7 @@ class Wpsipd_Public
 						<td class="text_kanan text_blok">'.number_format($total_realisasi,0,",",".").'</td>
 						<td class="text_kanan text_blok">'.number_format($total_selisih,0,",",".").'</td>
 						<td class="text_tengah text_blok" id="total_target_realisasi">0</td>
+						<td class="text_tengah text_blok"></td>
 					</tr>
 				';
 				$ret['table'] = $tbody;

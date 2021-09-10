@@ -995,7 +995,7 @@ $url_skpd = '<a href="'.$link.'" target="_blank">'.$unit[0]['kode_skpd'].' '.$un
 </div>
 
 <div class="modal fade" id="mod-monev" tabindex="-1" role="dialog" data-backdrop="static" aria-hidden="true">'
-    <div class="modal-dialog" style="min-width: 800px;" role="document">
+    <div class="modal-dialog" style="min-width: 900px;" role="document">
         <div class="modal-content">
             <div class="modal-header bgpanel-theme">
                 <h4 style="margin: 0;" class="modal-title" id="">Edit MONEV Indikator Per Bulan</h4>
@@ -1076,6 +1076,7 @@ $url_skpd = '<a href="'.$link.'" target="_blank">'.$unit[0]['kode_skpd'].' '.$un
 		              								<th class="text_tengah" style="width: 150px;">Realisasi (Rp.)</th>
 		              								<th class="text_tengah" style="width: 150px;">Selisih (Rp.)</th>
 		              								<th class="text_tengah" style="width: 150px;">Realisasi Target</th>
+		              								<th class="text_tengah" style="width: 200px;">Keterangan / Permasalahan / Saran</th>
 		              							</tr>
                   								<tr>
 		              								<th class="text_tengah">1</th>
@@ -1083,6 +1084,7 @@ $url_skpd = '<a href="'.$link.'" target="_blank">'.$unit[0]['kode_skpd'].' '.$un
 		              								<th class="text_tengah">3</th>
 		              								<th class="text_tengah">4 = 2 - 3</th>
 		              								<th class="text_tengah">5</th>
+		              								<th class="text_tengah">6</th>
 		              							</tr>
                   							</thead>
                   							<tbody id="monev-body"></tbody>
@@ -1092,6 +1094,7 @@ $url_skpd = '<a href="'.$link.'" target="_blank">'.$unit[0]['kode_skpd'].' '.$un
 													<th class="text_kanan text_blok" id="target_indikator_monev_rumus">0</th>
 													<th class="text_kiri text_blok" colspan="2">Capaian target dihitung sesuai rumus indikator</th>
 													<th class="text_tengah text_blok" id="capaian_target_realisasi">0</th>
+													<th class="text_tengah text_blok"></th>
 												</tr>
                   							</tfoot>
                   						</table>
@@ -1263,6 +1266,7 @@ $url_skpd = '<a href="'.$link.'" target="_blank">'.$unit[0]['kode_skpd'].' '.$un
 	});
 	jQuery('#set-monev').on('click', function(){
 		var target_realisasi = {};
+		var keterangan = {};
 		var total_tw1 = 0;
 		var total_tw2 = 0;
 		var total_tw3 = 0;
@@ -1272,7 +1276,9 @@ $url_skpd = '<a href="'.$link.'" target="_blank">'.$unit[0]['kode_skpd'].' '.$un
 		var tipe_indikator = jQuery('#tipe_indikator').val();
 		for(var i=1; i<=12; i++){
 			var id = 'target_realisasi_bulan_'+i; 
+			var id_ket = 'keterangan_bulan_'+i; 
 			target_realisasi[id] = +jQuery('#'+id).text().trim();
+			keterangan[id_ket] = jQuery('#'+id_ket).text().trim();
 			if(i<=3){
 				if(tipe_indikator == 3 || tipe_indikator == 2){
 					if(i == 3){
@@ -1327,6 +1333,7 @@ $url_skpd = '<a href="'.$link.'" target="_blank">'.$unit[0]['kode_skpd'].' '.$un
 	      			"tahun_anggaran": <?php echo $input['tahun_anggaran']; ?>,
 	          		"id_unik": id_unik,
 	          		"data": target_realisasi,
+	          		"keterangan": keterangan,
 	          		"rumus_indikator": jQuery('#tipe_indikator').val(),
 	          		"id_indikator_renstra": id_indikator_renstra
 	          	},
