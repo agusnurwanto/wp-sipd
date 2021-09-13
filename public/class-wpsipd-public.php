@@ -5464,19 +5464,38 @@ class Wpsipd_Public
 					$data['user_verifikator'] = $current_user->display_name;
 					$data['update_verifikator_at'] = current_time('mysql');
 				}else{
+					$file_name = $_POST['triwulan'].'.'.$_POST['tahun_anggaran'].'.'.$_POST['id_skpd'].'.MONEV_RENJA.xlsx';
+					$target_folder = plugin_dir_path(dirname(__FILE__)).'public/media/';
+					$target_file = $target_folder.$file_name;
+					// max 10MB
+					if ($_FILES["file"]["size"] > 1000000) {
+						$ret['status'] = 'error';
+						$ret['message'] = 'Max file upload sebesar 10MB!';
+					}
+					// cek type file
+					$imageFileType = strtolower(pathinfo($target_folder.basename($_FILES["file"]["name"]),PATHINFO_EXTENSION));
+					if($imageFileType != "xlsx") {
+						$ret['status'] = 'error';
+						$ret['message'] = 'File yang diupload harus berextensi .xlsx!';
+					}
+					if($ret['status'] == 'success'){
+						move_uploaded_file($_FILES["file"]["tmp_name"], $target_file);
+					}
 					$data['keterangan_skpd'] = $_POST['keterangan_skpd'];
 					$data['user_skpd'] = $current_user->display_name;
-					$data['file_monev'] = $_POST['file_monev'];
+					$data['file_monev'] = $file_name;
 					$data['update_skpd_at'] = current_time('mysql');
 				}
-				if(!empty($cek)){				
-					$wpdb->update('data_monev_renja_triwulan', $data, array(
-						'id_skpd'=>$_POST['id_skpd'], 
-						'triwulan'=>$_POST['triwulan'], 
-						'tahun_anggaran'=>$_POST['tahun_anggaran']
-					));
-				}else{
-					$wpdb->insert('data_monev_renja_triwulan', $data);
+				if($ret['status'] == 'success'){
+					if(!empty($cek)){				
+						$wpdb->update('data_monev_renja_triwulan', $data, array(
+							'id_skpd'=>$_POST['id_skpd'], 
+							'triwulan'=>$_POST['triwulan'], 
+							'tahun_anggaran'=>$_POST['tahun_anggaran']
+						));
+					}else{
+						$wpdb->insert('data_monev_renja_triwulan', $data);
+					}
 				}
 			} else {
 				$ret['status'] = 'error';

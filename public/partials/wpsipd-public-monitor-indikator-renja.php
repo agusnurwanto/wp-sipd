@@ -1058,7 +1058,7 @@ function generate_aksi_triwulan($type){
 	$hapus = '<span style="margin-left: 10px;" class="edit-monev-file edit-monev-file-danger hapus_monev_triwulan"><i class="dashicons dashicons-no-alt"></i></span>';
 	$ret = '';
 	if($type == 'skpd'){
-		$ret = $simpan;
+		$ret = $simpan.$hapus;
 	}else if($type == 'verifikator'){
 		$ret = $simpan;
 	}
@@ -1068,7 +1068,13 @@ function generate_aksi_triwulan($type){
 $keterangan_skpd_triwulan = 'contenteditable="true"';
 $keterangan_verifikator_triwulan = '';
 $aksi_user = 'skpd';
+$upload_monev = '
+	<div>
+		<input type="file" class="upload_monev" style="font-size:12px; width: 100%; overflow: hidden;">
+	</div>
+';
 if(current_user_can('administrator')){
+	$upload_monev = '';
 	$keterangan_skpd_triwulan = '';
 	$keterangan_verifikator_triwulan = 'contenteditable="true"';
 	$aksi_user = 'verifikator';
@@ -1086,17 +1092,17 @@ $monev_triwulan = $wpdb->get_results("
 		AND tahun_anggaran=".$input['tahun_anggaran'], ARRAY_A
 );
 $monev_triwulan_all = array(
-	'1' => array('file_monev' => '', 'update_skpd_at' => '', 'keterangan_skpd' => '', 'catatan_verifikator' => '', 'update_verifikator_at' => ''),
-	'2' => array('file_monev' => '', 'update_skpd_at' => '', 'keterangan_skpd' => '', 'catatan_verifikator' => '', 'update_verifikator_at' => ''),
-	'3' => array('file_monev' => '', 'update_skpd_at' => '', 'keterangan_skpd' => '', 'catatan_verifikator' => '', 'update_verifikator_at' => ''),
-	'4' => array('file_monev' => '', 'update_skpd_at' => '', 'keterangan_skpd' => '', 'catatan_verifikator' => '', 'update_verifikator_at' => '')
+	'1' => array('file_monev' => $upload_monev, 'update_skpd_at' => '', 'keterangan_skpd' => '', 'catatan_verifikator' => '', 'update_verifikator_at' => ''),
+	'2' => array('file_monev' => $upload_monev, 'update_skpd_at' => '', 'keterangan_skpd' => '', 'catatan_verifikator' => '', 'update_verifikator_at' => ''),
+	'3' => array('file_monev' => $upload_monev, 'update_skpd_at' => '', 'keterangan_skpd' => '', 'catatan_verifikator' => '', 'update_verifikator_at' => ''),
+	'4' => array('file_monev' => $upload_monev, 'update_skpd_at' => '', 'keterangan_skpd' => '', 'catatan_verifikator' => '', 'update_verifikator_at' => '')
 );
 foreach ($monev_triwulan as $k => $v) {
-	$monev_triwulan_all[$v['triwulan']]['file_monev'] = $v['file_monev'];
-	$monev_triwulan_all[$v['triwulan']]['update_skpd_at'] = $v['update_skpd_at'];
+	$monev_triwulan_all[$v['triwulan']]['file_monev'] .= '<br><a class="file_monev" href="'.esc_url(plugin_dir_url(__DIR__).'media/'.$v['file_monev']).'" target="_blank">'.$v['file_monev'].'</a>';
 	$monev_triwulan_all[$v['triwulan']]['keterangan_skpd'] = $v['keterangan_skpd'];
 	$monev_triwulan_all[$v['triwulan']]['catatan_verifikator'] = $v['catatan_verifikator'];
 	$monev_triwulan_all[$v['triwulan']]['update_verifikator_at'] = $v['update_verifikator_at'];
+	$monev_triwulan_all[$v['triwulan']]['update_skpd_at'] = $v['update_skpd_at'];
 }
 ?>
 <div class="hide-print" style="margin: auto; max-width: 1200px;">
@@ -1110,7 +1116,7 @@ foreach ($monev_triwulan as $k => $v) {
 				<th class="text_tengah" style="width: 250px;">Keterangan SKPD</th>
 				<th class="text_tengah">Catatan Verifikator</th>
 				<th class="text_tengah" style="width: 150px;">Tanggal Update Catatan</th>
-				<th class="text_tengah" style="width: 70px;">Aksi</th>
+				<th class="text_tengah" style="width: 100px;">Aksi</th>
 			</tr>
 		</thead>
 		<tbody>
@@ -1167,6 +1173,7 @@ foreach ($monev_triwulan as $k => $v) {
 		<li>Untuk melihat indikator renstra pada laporan MONEV lakukan checked pada <b>Settings > Tampilkan indikator RENSTRA</b></li>
 		<li>Lampiran excel, tanggal update file dan keterangan SKPD pada tabel Data File MONEV Indikator RENJA diisi oleh user SKPD (PA/KPA)</li>
 		<li>Catatan verifikator dan tanggal update catatan pada tabel Data File MONEV Indikator RENJA diisi oleh user Admin (BAPPEDA)</li>
+		<li>Ukuran file maksimal adalah 10MB dan berextensi .xlsx (excel)</li>
 	</ul>
 </div>
 <div class="modal fade" id="mod-monev" tabindex="-1" role="dialog" data-backdrop="static" aria-hidden="true">'
@@ -1596,6 +1603,7 @@ foreach ($monev_triwulan as $k => $v) {
 			        processData: false,
 		          	success: function(res){
 						jQuery('#wrap-loading').hide();
+		          		alert(res.message);
 		          	}
 		        });
 			}
