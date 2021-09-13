@@ -256,5 +256,12 @@ function changeUrl(option){
 }
 
 function onlyNumber(e){
-	if (isNaN(String.fromCharCode(e.which))) e.preventDefault();
+	var _string = String.fromCharCode(e.which);
+	// console.log('e.which', e.which, _string);
+	if(
+		isNaN(String.fromCharCode(e.which))
+		&& _string != '.'
+	){
+		e.preventDefault()
+	};
 }

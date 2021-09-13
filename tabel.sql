@@ -1,7 +1,3 @@
---
--- Table structure for table `data_catatan_rfk_unit`
---
-
 CREATE TABLE `data_catatan_rfk_unit` (
   `id` int(11) NOT NULL,
   `bulan` tinyint(2) NOT NULL,
@@ -13,20 +9,8 @@ CREATE TABLE `data_catatan_rfk_unit` (
   `updated_by` text NOT NULL,
   `updated_at` datetime NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
---
--- Indexes for table `data_catatan_rfk_unit`
---
 ALTER TABLE `data_catatan_rfk_unit`
   ADD PRIMARY KEY (`id`);
-
---
--- AUTO_INCREMENT for dumped tables
---
-
---
--- AUTO_INCREMENT for table `data_catatan_rfk_unit`
---
 ALTER TABLE `data_catatan_rfk_unit`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
@@ -1842,21 +1826,34 @@ ALTER TABLE `data_realisasi_rincian`
 CREATE TABLE `data_realisasi_renja` (
   `id` int(11) NOT NULL,
   `id_indikator` int(11) DEFAULT NULL,
+  `id_unik_indikator_renstra` text DEFAULT NULL,
   `tipe_indikator` tinyint(4) DEFAULT NULL,
   `id_rumus_indikator` int(11) DEFAULT NULL,
   `kode_sbl` text DEFAULT NULL,
-  `realisasi_bulan_1` int(11) DEFAULT NULL,
-  `realisasi_bulan_2` int(11) DEFAULT NULL,
-  `realisasi_bulan_3` int(11) DEFAULT NULL,
-  `realisasi_bulan_4` int(11) DEFAULT NULL,
-  `realisasi_bulan_5` int(11) DEFAULT NULL,
-  `realisasi_bulan_6` int(11) DEFAULT NULL,
-  `realisasi_bulan_7` int(11) DEFAULT NULL,
-  `realisasi_bulan_8` int(11) DEFAULT NULL,
-  `realisasi_bulan_9` int(11) DEFAULT NULL,
-  `realisasi_bulan_10` int(11) DEFAULT NULL,
-  `realisasi_bulan_11` int(11) DEFAULT NULL,
-  `realisasi_bulan_12` int(11) DEFAULT NULL,
+  `realisasi_bulan_1` double(20,2) DEFAULT NULL,
+  `realisasi_bulan_2` double(20,2) DEFAULT NULL,
+  `realisasi_bulan_3` double(20,2) DEFAULT NULL,
+  `realisasi_bulan_4` double(20,2) DEFAULT NULL,
+  `realisasi_bulan_5` double(20,2) DEFAULT NULL,
+  `realisasi_bulan_6` double(20,2) DEFAULT NULL,
+  `realisasi_bulan_7` double(20,2) DEFAULT NULL,
+  `realisasi_bulan_8` double(20,2) DEFAULT NULL,
+  `realisasi_bulan_9` double(20,2) DEFAULT NULL,
+  `realisasi_bulan_10` double(20,2) DEFAULT NULL,
+  `realisasi_bulan_11` double(20,2) DEFAULT NULL,
+  `realisasi_bulan_12` double(20,2) DEFAULT NULL,
+  `keterangan_bulan_1` text DEFAULT NULL,
+  `keterangan_bulan_2` text DEFAULT NULL,
+  `keterangan_bulan_3` text DEFAULT NULL,
+  `keterangan_bulan_4` text DEFAULT NULL,
+  `keterangan_bulan_5` text DEFAULT NULL,
+  `keterangan_bulan_6` text DEFAULT NULL,
+  `keterangan_bulan_7` text DEFAULT NULL,
+  `keterangan_bulan_8` text DEFAULT NULL,
+  `keterangan_bulan_9` text DEFAULT NULL,
+  `keterangan_bulan_10` text DEFAULT NULL,
+  `keterangan_bulan_11` text DEFAULT NULL,
+  `keterangan_bulan_12` text DEFAULT NULL,
   `user` text DEFAULT NULL,
   `active` tinyint(4) NOT NULL,
   `update_at` datetime NOT NULL,
