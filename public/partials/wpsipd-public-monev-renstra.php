@@ -66,13 +66,15 @@ $subkeg = $wpdb->get_results($wpdb->prepare("
 			kode_giat,
 			 nama_giat,
 			 kode_program,
-			 nama_program 
+			 nama_program,
+			 sum(pagu_simda) dpa 
 		from data_sub_keg_bl
 		where tahun_anggaran=%d
 			and active=1
-			and id_sub_skpd=%d group by kode_giat
+			and id_sub_skpd=%d 
+		group by kode_giat
 		order by kode_sub_giat ASC
-	", $input['tahun_anggaran'], $unit[0]['id_skpd']), ARRAY_A);
+	", $input['tahun_anggaran'], $input['id_skpd']), ARRAY_A);
 
 foreach ($subkeg as $kk => $sub)
 {
@@ -84,12 +86,12 @@ foreach ($subkeg as $kk => $sub)
 			where 
 				kode_giat=%s and 
 				id_unit=%d and 
+				active=1 and 
 				tahun_anggaran=%d", 
-			$sub['kode_giat'], $unit[0]['id_skpd'], $input['tahun_anggaran']), ARRAY_A);
+			$sub['kode_giat'], $input['id_skpd'], $input['tahun_anggaran']), ARRAY_A);
 	
 	if(!empty($kegs))
 	{
-
 		foreach ($kegs as $keykeg => $keg)
 		{
 				if(empty($data_all['data'][$keg['kode_tujuan']]))
@@ -175,6 +177,7 @@ foreach ($subkeg as $kk => $sub)
 					$program_teks = explode("||", $keg['nama_program']);
 					$data_all['data'][$keg['kode_tujuan']]['data'][$keg['kode_sasaran']]['data'][$keg['kode_program']] = array(
 						'nama' => $program_teks[0],
+						'pagu_renja' => 0,
 						'indikator' => array(),
 						'data' => array(),
 					);
@@ -216,23 +219,13 @@ foreach ($subkeg as $kk => $sub)
 					$kegiatan_teks = explode("||", $keg['nama_giat']);
 					$data_all['data'][$keg['kode_tujuan']]['data'][$keg['kode_sasaran']]['data'][$keg['kode_program']]['data'][$keg['kode_giat']] = array(
 						'nama' => $kegiatan_teks[0],
+						'pagu_renja' => $sub['dpa'],
 						'indikator' => array()
 					);
 
-					$indikators = $wpdb->get_results($wpdb->prepare("
-						select 
-							* 
-						from data_renstra_kegiatan 
-						where 
-							id_unit=%d and 
-							kode_giat=%s and 
-							active=1 and 
-							tahun_anggaran=%d", 
-							$input['id_skpd'], $keg['kode_giat'], $input['tahun_anggaran']), ARRAY_A);
-
-					if(!empty($indikators))
+					if(!empty($kegs))
 					{
-						foreach ($indikators as $key => $indikator) 
+						foreach ($kegs as $key => $indikator) 
 						{
 
 							$data_all['data'][$keg['kode_tujuan']]['data'][$keg['kode_sasaran']]['data'][$keg['kode_program']]['data'][$keg['kode_giat']]['indikator'][] = array(
@@ -250,7 +243,10 @@ foreach ($subkeg as $kk => $sub)
 						}
 					}
 				}
+
 		}
+
+		$data_all['data'][$keg['kode_tujuan']]['data'][$keg['kode_sasaran']]['data'][$keg['kode_program']]['pagu_renja'] += $sub['dpa'];
 	}
 	else
 	{
@@ -275,8 +271,10 @@ foreach ($subkeg as $kk => $sub)
 
 		if(empty($data_all['data']['-']['data']['-']['data'][$sub['nama_program']]))
 		{
+			
 			$data_all['data']['-']['data']['-']['data'][$sub['nama_program']] = array(
 				'nama' => $sub['nama_program'],
+				'pagu_renja' => 0,
 				'indikator' => array(),
 				'data' => array(),
 			);
@@ -287,9 +285,13 @@ foreach ($subkeg as $kk => $sub)
 
 			$data_all['data']['-']['data']['-']['data'][$sub['nama_program']]['data'][$sub['nama_giat']] = array(
 				'nama' => $sub['nama_giat'],
+				'pagu_renja' => $sub['dpa'],
 				'indikator' => array()
 			);
 		}
+
+		$data_all['data']['-']['data']['-']['data'][$sub['nama_program']]['pagu_renja'] += $sub['dpa'];
+
 	}	
 }
 
@@ -335,7 +337,7 @@ foreach ($subkeg as $kk => $sub)
 		            <td class="text_kanan kanan bawah text_blok realisasi_renstra_tahun_berjalan"></td>
 		            <td class="text_tengah kanan bawah text_blok capaian_renstra_tahun_berjalan"></td>
 		            <td class="text_kanan kanan bawah text_blok capaian_renstra_tahun_berjalan"></td>
-	        		<td class="kanan bawah text_blok"></td>
+	        		<td class="kanan bawah text_blok">'.$unit[0]['nama_skpd'].'</td>
 		        </tr>';
 
 			foreach ($tujuan['indikator'] as $key => $ind_tujuan) 
@@ -379,7 +381,7 @@ foreach ($subkeg as $kk => $sub)
 			            <td class="text_kanan kanan bawah text_blok realisasi_renstra_tahun_berjalan"></td>
 			            <td class="text_tengah kanan bawah text_blok capaian_renstra_tahun_berjalan"></td>
 			            <td class="text_kanan kanan bawah text_blok capaian_renstra_tahun_berjalan"></td>
-		        		<td class="kanan bawah text_blok"></td>
+		        		<td class="kanan bawah text_blok">'.$unit[0]['nama_skpd'].'</td>
 			        </tr>';
 			}		        
 
@@ -425,7 +427,7 @@ foreach ($subkeg as $kk => $sub)
 			            <td class="text_kanan kanan bawah text_blok realisasi_renstra_tahun_berjalan"></td>
 			            <td class="text_tengah kanan bawah text_blok capaian_renstra_tahun_berjalan"></td>
 			            <td class="text_kanan kanan bawah text_blok capaian_renstra_tahun_berjalan"></td>
-		        		<td class="kanan bawah text_blok"></td>
+		        		<td class="kanan bawah text_blok">'.$unit[0]['nama_skpd'].'</td>
 			        </tr>';
 
 			foreach ($sasaran['indikator'] as $key => $ind_sasaran) 
@@ -469,7 +471,7 @@ foreach ($subkeg as $kk => $sub)
 			            <td class="text_kanan kanan bawah text_blok realisasi_renstra_tahun_berjalan"></td>
 			            <td class="text_tengah kanan bawah text_blok capaian_renstra_tahun_berjalan"></td>
 			            <td class="text_kanan kanan bawah text_blok capaian_renstra_tahun_berjalan"></td>
-		        		<td class="kanan bawah text_blok"></td>
+		        		<td class="kanan bawah text_blok">'.$unit[0]['nama_skpd'].'</td>
 			        </tr>';
 			}
 
@@ -491,7 +493,7 @@ foreach ($subkeg as $kk => $sub)
 			            <td class="text_kanan kanan bawah text_blok realisasi_renstra_tahun_lalu"></td>
 			            <td class="text_tengah kanan bawah text_blok total_renja target_indikator"></td>
 			            <td class="text_tengah kanan bawah text_blok total_renja satuan_indikator"></td>
-			            <td class="text_kanan kanan bawah text_blok total_renja pagu_renja" data-pagu=""></td>
+			            <td class="text_kanan kanan bawah text_blok total_renja pagu_renja" data-pagu="">'.number_format($program['pagu_renja'],2,",",".").'</td>
 			            <td class="text_tengah kanan bawah text_blok triwulan_1"></td>
 			            <td class="text_tengah kanan bawah text_blok triwulan_1"></td>
 			            <td class="text_kanan kanan bawah text_blok triwulan_1"></td>
@@ -514,7 +516,7 @@ foreach ($subkeg as $kk => $sub)
 			            <td class="text_kanan kanan bawah text_blok realisasi_renstra_tahun_berjalan"></td>
 			            <td class="text_tengah kanan bawah text_blok capaian_renstra_tahun_berjalan"></td>
 			            <td class="text_kanan kanan bawah text_blok capaian_renstra_tahun_berjalan"></td>
-		        		<td class="kanan bawah text_blok"></td>
+		        		<td class="kanan bawah text_blok">'.$unit[0]['nama_skpd'].'</td>
 			        </tr>';
 
 			    foreach ($program['indikator'] as $key => $ind_program) 
@@ -558,7 +560,7 @@ foreach ($subkeg as $kk => $sub)
 				            <td class="text_kanan kanan bawah text_blok realisasi_renstra_tahun_berjalan"></td>
 				            <td class="text_tengah kanan bawah text_blok capaian_renstra_tahun_berjalan"></td>
 				            <td class="text_kanan kanan bawah text_blok capaian_renstra_tahun_berjalan"></td>
-			        		<td class="kanan bawah text_blok"></td>
+			        		<td class="kanan bawah text_blok">'.$unit[0]['nama_skpd'].'</td>
 				        </tr>';
 				}
 
@@ -580,7 +582,7 @@ foreach ($subkeg as $kk => $sub)
 				            <td class="text_kanan kanan bawah text_blok realisasi_renstra_tahun_lalu"></td>
 				            <td class="text_tengah kanan bawah text_blok total_renja target_indikator"></td>
 				            <td class="text_tengah kanan bawah text_blok total_renja satuan_indikator"></td>
-				            <td class="text_kanan kanan bawah text_blok total_renja pagu_renja" data-pagu=""></td>
+				            <td class="text_kanan kanan bawah text_blok total_renja pagu_renja" data-pagu="">'.number_format($kegiatan['pagu_renja'],2,',','.').'</td>
 				            <td class="text_tengah kanan bawah text_blok triwulan_1"></td>
 				            <td class="text_tengah kanan bawah text_blok triwulan_1"></td>
 				            <td class="text_kanan kanan bawah text_blok triwulan_1"></td>
@@ -603,7 +605,7 @@ foreach ($subkeg as $kk => $sub)
 				            <td class="text_kanan kanan bawah text_blok realisasi_renstra_tahun_berjalan"></td>
 				            <td class="text_tengah kanan bawah text_blok capaian_renstra_tahun_berjalan"></td>
 				            <td class="text_kanan kanan bawah text_blok capaian_renstra_tahun_berjalan"></td>
-			        		<td class="kanan bawah text_blok"></td>
+			        		<td class="kanan bawah text_blok">'.$unit[0]['nama_skpd'].'</td>
 				        </tr>';
 
 				        foreach ($kegiatan['indikator'] as $key => $ind_kegiatan) 
@@ -647,7 +649,7 @@ foreach ($subkeg as $kk => $sub)
 						            <td class="text_kanan kanan bawah text_blok realisasi_renstra_tahun_berjalan"></td>
 						            <td class="text_tengah kanan bawah text_blok capaian_renstra_tahun_berjalan"></td>
 						            <td class="text_kanan kanan bawah text_blok capaian_renstra_tahun_berjalan"></td>
-					        		<td class="kanan bawah text_blok"></td>
+					        		<td class="kanan bawah text_blok">'.$unit[0]['nama_skpd'].'</td>
 						        </tr>';
 						}
 				}
