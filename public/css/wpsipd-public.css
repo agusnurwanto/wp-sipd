@@ -138,7 +138,7 @@ tfoot { display:table-footer-group }
     transform: rotate(1800deg);
   }
 }
-.edit-mapping, .edit-monev {
+.edit-mapping, .edit-monev, .edit-monev-file {
     border: 2px solid;
     padding: 2px;
     border-radius: 50%;

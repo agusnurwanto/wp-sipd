@@ -1882,3 +1882,21 @@ INSERT INTO `data_rumus_indikator` (`id`, `rumus`, `keterangan`, `user`, `active
 (1, 'Indikator Tren Positif', 'Indikator Tren Positif adalah jenis indikator yang semakin tinggi realisasi maka dianggap semakin baik. Rumus capaian target = Realisasi/Target * 100. Rumus total target triwulan = akumulasi dari semua triwulan.', NULL, 1, '2021-08-23 00:00:00', 2021),
 (2, 'Indikator Tren Negatif', 'Indikator Tren Negatif adalah jenis indikator yang semakin rendah realisasi maka dianggap semakin baik. Contoh : Angka Stunting. Rumus capaian target : Target/Realisasi * 100. Total triwulan = realisasi triwulan terakhir.', NULL, 1, '2021-08-23 00:00:00', 2021),
 (3, 'Indikator Jenis Persentase', 'Indikator Jenis Persentase adalah jenis indikator berupa persentase. Pengisian realisasi target per bulan diisi sama atau lebih besar dari bulan sebelumnya. Rumus capaian target = Realisasi/Target * 100. Rumus total target triwulan = realisasi triwulan terakhir.', NULL, 1, '2021-08-23 00:00:00', 2021);
+
+CREATE TABLE `data_monev_renja_triwulan` (
+  `id` int(11) NOT NULL,
+  `triwulan` tinyint(1) NOT NULL,
+  `keterangan_skpd` text DEFAULT NULL,
+  `id_skpd` int(11) NOT NULL,
+  `user_skpd` text DEFAULT NULL,
+  `catatan_verifikator` text DEFAULT NULL,
+  `user_verifikator` text DEFAULT NULL,
+  `file_monev` text DEFAULT NULL,
+  `update_skpd_at` datetime NOT NULL,
+  `update_verifikator_at` datetime NOT NULL,
+  `tahun_anggaran` year(4) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+ALTER TABLE `data_monev_renja_triwulan`
+  ADD PRIMARY KEY (`id`);
+ALTER TABLE `data_monev_renja_triwulan`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;

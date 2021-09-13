@@ -5399,43 +5399,93 @@ class Wpsipd_Public
 	}
 
 	function simpan_catatan_rfk_unit(){
-
 		global $wpdb;
-		$return = array(
+		$ret = array(
 			'status' => 'success',
 			'message' => 'Berhasil simpan data!'
 		);
 
-		if(isset($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )){
-			$cek = $wpdb->get_var("SELECT id FROM data_catatan_rfk_unit WHERE id_skpd=".$_POST['data']['id_skpd']." AND bulan=".$_POST['bulan']." AND tahun_anggaran=".$_POST['tahun_anggaran']);
-			
-			if(!empty($cek)){				
+		if (!empty($_POST)) {
+			if(isset($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )){
+				$cek = $wpdb->get_var("SELECT id FROM data_catatan_rfk_unit WHERE id_skpd=".$_POST['data']['id_skpd']." AND bulan=".$_POST['bulan']." AND tahun_anggaran=".$_POST['tahun_anggaran']);
 				$data = array(
 					'bulan' => $_POST['bulan'],
 					'catatan_ka_adbang' => !empty($_POST['data']['catatan_ka_adbang']) ? $_POST['data']['catatan_ka_adbang'] : NULL,
 					'id_skpd' => $_POST['data']['id_skpd'],
-					'tahun_anggaran' => $_POST['tahun_anggaran'],
-					'updated_by' => $_POST['user'],
-					'updated_at' => current_time('mysql')
+					'tahun_anggaran' => $_POST['tahun_anggaran']
 				);
-				$wpdb->update('data_catatan_rfk_unit', $data, array('id_skpd'=>$_POST['data']['id_skpd'], 'bulan'=>$_POST['bulan'], 'tahun_anggaran'=>$_POST['tahun_anggaran']));
+				if(!empty($cek)){
+					$data['updated_by'] = $_POST['user'];
+					$data['updated_at'] = current_time('mysql');
+					$wpdb->update('data_catatan_rfk_unit', $data, array('id_skpd'=>$_POST['data']['id_skpd'], 'bulan'=>$_POST['bulan'], 'tahun_anggaran'=>$_POST['tahun_anggaran']));
+				}else{
+					$data['created_by'] = $_POST['user'];
+					$data['created_at'] = current_time('mysql');
+					$wpdb->insert('data_catatan_rfk_unit', $data);
+				}
 			}else{
-				$data = array(
-					'bulan' => $_POST['bulan'],
-					'catatan_ka_adbang' => !empty($_POST['data']['catatan_ka_adbang']) ? $_POST['data']['catatan_ka_adbang'] : NULL,
-					'id_skpd' => $_POST['data']['id_skpd'],
-					'tahun_anggaran' => $_POST['tahun_anggaran'],
-					'created_by' => $_POST['user'],
-					'created_at' => current_time('mysql')
+				$ret = array(
+					'status' => 'error',
+					'message' => 'APIKEY tidak sama!'
 				);
-				$wpdb->insert('data_catatan_rfk_unit', $data);
 			}
-		}else{
-			$return = array(
-				'status' => 'error',
-				'message' => 'APIKEY tidak sama!'
-			);
+		} else {
+			$ret['status'] = 'error';
+			$ret['message'] = 'Format Salah!';
 		}
-		die(json_encode($return));		
+		die(json_encode($ret));		
+	}
+
+	function save_monev_renja_triwulan(){
+		global $wpdb;
+		$ret = array(
+			'status' => 'success',
+			'message' => 'Berhasil simpan data!'
+		);
+
+		if (!empty($_POST)) {
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+				$current_user = wp_get_current_user();
+				$cek = $wpdb->get_var("
+					SELECT 
+						id 
+					FROM data_monev_renja_triwulan 
+					WHERE id_skpd=".$_POST['id_skpd']." 
+						AND triwulan=".$_POST['triwulan']." 
+						AND tahun_anggaran=".$_POST['tahun_anggaran']
+				);
+				$data = array(
+					'triwulan' => $_POST['triwulan'],
+					'id_skpd' => $_POST['id_skpd'],
+					'tahun_anggaran' => $_POST['tahun_anggaran']
+				);
+				if(current_user_can('administrator')){
+					$data['catatan_verifikator'] = $_POST['catatan_verifikator'];
+					$data['user_verifikator'] = $current_user->display_name;
+					$data['update_verifikator_at'] = current_time('mysql');
+				}else{
+					$data['keterangan_skpd'] = $_POST['keterangan_skpd'];
+					$data['user_skpd'] = $current_user->display_name;
+					$data['file_monev'] = $_POST['file_monev'];
+					$data['update_skpd_at'] = current_time('mysql');
+				}
+				if(!empty($cek)){				
+					$wpdb->update('data_monev_renja_triwulan', $data, array(
+						'id_skpd'=>$_POST['id_skpd'], 
+						'triwulan'=>$_POST['triwulan'], 
+						'tahun_anggaran'=>$_POST['tahun_anggaran']
+					));
+				}else{
+					$wpdb->insert('data_monev_renja_triwulan', $data);
+				}
+			} else {
+				$ret['status'] = 'error';
+				$ret['message'] = 'APIKEY tidak sesuai!';
+			}
+		} else {
+			$ret['status'] = 'error';
+			$ret['message'] = 'Format Salah!';
+		}
+		die(json_encode($ret));
 	}
 }
