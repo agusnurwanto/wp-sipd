@@ -1165,11 +1165,19 @@ foreach ($monev_triwulan as $k => $v) {
 
 	<h4 style="margin: 30px 0 10px; font-weight: bold;">Dokumentasi:</h4>
 	<ul>
+		<li>Nama SKPD berisi url menuju halaman RFK</li>
+		<li>Nama kegiatan berisi url menuju halaman RKA/DPA</li>
+		<li>Nilai realisasi anggaran per triwulan diambil dari data SP2D SIMDA yang diload saat membuka halaman RFK per bulan</li>
 		<li>Untuk mengisi MONEV RENJA per bulan lakukan checked pada <b>Settings > Edit Monev indikator</b></li>
 		<li>Untuk melihat indikator renstra pada laporan MONEV lakukan checked pada <b>Settings > Tampilkan indikator RENSTRA</b></li>
+		<li>Indikator berwarna <b>hitam</b> adalah indikator dengan rumus <b>Tren Positif</b></li>
+		<li>Indikator berwarna <b>merah</b> adalah indikator dengan rumus <b>Tren Negatif</b></li>
+		<li>Indikator berwarna <b>ungu</b> adalah indikator dengan rumus <b>Prosentase</b></li>
 		<li>Lampiran excel, tanggal update file dan keterangan SKPD pada tabel Data File MONEV Indikator RENJA diisi oleh user SKPD (PA/KPA)</li>
 		<li>Catatan verifikator dan tanggal update catatan pada tabel Data File MONEV Indikator RENJA diisi oleh user Admin (BAPPEDA)</li>
 		<li>Ukuran file maksimal adalah 10MB dan berextensi .xlsx (excel)</li>
+		<li>Tekan tombol (X) untuk menghapus file .xlsx (excel)</li>
+		<li>Tekan tombol checklist berwarna biru untuk menyimpan data File MONEV</li>
 	</ul>
 </div>
 <div class="modal fade" id="mod-monev" tabindex="-1" role="dialog" data-backdrop="static" aria-hidden="true">'
@@ -1598,10 +1606,57 @@ foreach ($monev_triwulan as $k => $v) {
 			        contentType: false,
 			        processData: false,
 		          	success: function(res){
+		          		if(res.status == 'success'){
+		          			if(res.update_skpd_at){
+			          			var file_html = ''
+			          				+'<div style="padding-top: 10px;">'
+			          					+'<a class="file_monev" href="<?php echo esc_url(plugin_dir_url(__DIR__).'media/'); ?>'+res.nama_file+'" target="_blank">'+res.nama_file+'</a>'
+			          				+'</div>';
+			          			tr.find('.file_monev').closest('div').remove();
+			          			tr.find('.lampiran_excel').append(file_html);
+			          			tr.find('.tgl_update_file').text(res.update_skpd_at);
+			          		}else{
+		          				tr.find('.tgl_update_catatan_renja').text(res.update_verifikator_at);
+			          		}
+		          		}
 						jQuery('#wrap-loading').hide();
 		          		alert(res.message);
 		          	}
 		        });
+			}
+		});
+		jQuery('.hapus_monev_triwulan').on('click', function(){
+			var tr = jQuery(this).closest('tr');
+			var file = tr.find('.file_monev');
+			if(file.length <= 0){
+				return alert('File belum diupload!');
+			}else{
+				var file_name = file.text();
+				if(confirm('Apakah anda yakin untuk menghapus file upload '+file_name+'?')){
+					jQuery('#wrap-loading').show();
+					var triwulan = tr.attr('data-tw');
+					var form_data = new FormData();
+	    			form_data.append('file_remove', 1);
+	    			form_data.append('api_key', "<?php echo $api_key; ?>");
+	    			form_data.append('tahun_anggaran', <?php echo $input['tahun_anggaran']; ?>);
+	    			form_data.append('id_skpd',  <?php echo $input['id_skpd']; ?>);
+	    			form_data.append('triwulan', triwulan);
+					jQuery.ajax({
+						url: ajax.url+'?action=save_monev_renja_triwulan',
+			          	type: "post",
+			          	data: form_data,
+			          	dataType: "json",
+				        cache: false,
+				        contentType: false,
+				        processData: false,
+			          	success: function(res){
+							file.closest('div').remove();
+			          		tr.find('.tgl_update_file').text(res.update_skpd_at);
+							jQuery('#wrap-loading').hide();
+			          		alert(res.message);
+			          	}
+			        });
+				}
 			}
 		});
 	});

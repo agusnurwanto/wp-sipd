@@ -5463,28 +5463,37 @@ class Wpsipd_Public
 					$data['catatan_verifikator'] = $_POST['catatan_verifikator'];
 					$data['user_verifikator'] = $current_user->display_name;
 					$data['update_verifikator_at'] = current_time('mysql');
+					$ret['update_verifikator_at'] = $data['update_verifikator_at'];
 				}else{
-					$file_name = $_POST['triwulan'].'.'.$_POST['tahun_anggaran'].'.'.$_POST['id_skpd'].'.MONEV_RENJA.xlsx';
+					$file_name = ((int) $_POST['triwulan']).'.'.((int) $_POST['tahun_anggaran']).'.'.((int) $_POST['id_skpd']).'.MONEV_RENJA.xlsx';
 					$target_folder = plugin_dir_path(dirname(__FILE__)).'public/media/';
 					$target_file = $target_folder.$file_name;
-					// max 10MB
-					if ($_FILES["file"]["size"] > 1000000) {
-						$ret['status'] = 'error';
-						$ret['message'] = 'Max file upload sebesar 10MB!';
+					if(!empty($_POST['file_remove']) && $_POST['file_remove']==1){
+						$ret['message'] = 'Berhasil hapus file '.$file_name.'!';
+						$file_name = '';
+						unlink($target_file);
+					}else{
+						// max 10MB
+						if ($_FILES["file"]["size"] > 1000000) {
+							$ret['status'] = 'error';
+							$ret['message'] = 'Max file upload sebesar 10MB!';
+						}
+						// cek type file
+						$imageFileType = strtolower(pathinfo($target_folder.basename($_FILES["file"]["name"]),PATHINFO_EXTENSION));
+						if($imageFileType != "xlsx") {
+							$ret['status'] = 'error';
+							$ret['message'] = 'File yang diupload harus berextensi .xlsx!';
+						}
+						if($ret['status'] == 'success'){
+							move_uploaded_file($_FILES["file"]["tmp_name"], $target_file);
+						}
+						$data['keterangan_skpd'] = $_POST['keterangan_skpd'];
 					}
-					// cek type file
-					$imageFileType = strtolower(pathinfo($target_folder.basename($_FILES["file"]["name"]),PATHINFO_EXTENSION));
-					if($imageFileType != "xlsx") {
-						$ret['status'] = 'error';
-						$ret['message'] = 'File yang diupload harus berextensi .xlsx!';
-					}
-					if($ret['status'] == 'success'){
-						move_uploaded_file($_FILES["file"]["tmp_name"], $target_file);
-					}
-					$data['keterangan_skpd'] = $_POST['keterangan_skpd'];
 					$data['user_skpd'] = $current_user->display_name;
 					$data['file_monev'] = $file_name;
 					$data['update_skpd_at'] = current_time('mysql');
+					$ret['update_skpd_at'] = $data['update_skpd_at'];
+					$ret['nama_file'] = $file_name;
 				}
 				if($ret['status'] == 'success'){
 					if(!empty($cek)){				
