@@ -302,7 +302,7 @@ foreach ($units as $k => $unit):
 		}
 
 		$deviasi = 0;
-		if(!empty($total_simda) && !empty($total_rak_simda)){
+		if(!empty($total_simda) && !empty($total_rak_simda) && !empty($realisasi)){
 			$capaian_realisasi = ($realisasi/$total_simda)*100;
 			$capaian_rak = ($total_rak_simda/$total_simda)*100;
 			$deviasi = (($capaian_rak-$capaian_realisasi)/$capaian_rak)*100;
@@ -655,8 +655,6 @@ if(!current_user_can('administrator')){
     		var kode_bidang = kode_sub[0]+'.'+kode_sub[1];
     		var val = jQuery(b).text();
     		if(!isNaN(val) && +val >= 0 && +val <= 100){
-    			total += +val;
-    			total_s++;
     			if(typeof total_parent[kode_bidang] == 'undefined'){
     				total_parent[kode_bidang] = {
     					total_bidang : 0,
@@ -676,6 +674,8 @@ if(!current_user_can('administrator')){
     				}
     			}
     			if(pagu_simda == 0){ return; }
+    			total += +val;
+    			total_s++;
     			total_parent[kode_bidang].total_bidang += +val;
     			total_parent[kode_bidang].total_bidang_s++;
     			total_parent[kode_program].total_program += +val;
