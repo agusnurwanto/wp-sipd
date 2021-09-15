@@ -397,7 +397,7 @@ class Wpsipd_Admin {
 			        '2' => __( 'Sebelum Perubahan' )
 			    ) )
             	->set_default_value('1'),
-            Field::make( 'text', 'crb_custom_mapping_sub_keg_simda', 'Custom Mapping Sub Kegiatan SIPD ke SIMDA' )
+            Field::make( 'textarea', 'crb_custom_mapping_sub_keg_simda', 'Custom Mapping Sub Kegiatan SIPD ke SIMDA' )
             	->set_help_text('Data ini untuk mengakomodir perbedaan kode sub kegiatan yang ada di SIPD dan SIMDA. Juga perbedaan mapping sub kegiatan ke Sub Unit SIMDA. Contoh pengisian data sebagai berikut 5.02.0.00.0.00.04.0000_5.02.02.2.01.05-4.04.01.02_4.04.18.08 data dipisah dengan pemisah "," (koma). Formatnya adalah <b>kodeSkpdSipd_kodeSubKeg-kodeSubUnitSimda_kodeRefKegiatan</b>.')
 	    );
 

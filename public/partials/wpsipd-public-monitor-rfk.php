@@ -60,13 +60,10 @@ if(empty($units)){
 }
 
 $current_user = wp_get_current_user();
+$custom_mapping = $this->get_custom_mapping_sub_keg();
 
 foreach ($units as $k => $unit): 
 	$kd_unit_simda = explode('.', get_option('_crb_unit_'.$unit['id_skpd']));
-	$_kd_urusan = $kd_unit_simda[0];
-	$_kd_bidang = $kd_unit_simda[1];
-	$kd_unit = $kd_unit_simda[2];
-	$kd_sub_unit = $kd_unit_simda[3];
 
 	if($unit['is_skpd']==1){
 		$unit_induk = array($unit);
@@ -135,6 +132,11 @@ foreach ($units as $k => $unit):
 		'data' => array()
 	);
 	foreach ($subkeg as $kk => $sub) {
+		$_kd_urusan = $kd_unit_simda[0];
+		$_kd_bidang = $kd_unit_simda[1];
+		$kd_unit = $kd_unit_simda[2];
+		$kd_sub_unit = $kd_unit_simda[3];
+
 		$kd = explode('.', $sub['kode_sub_giat']);
 		$kd_urusan90 = (int) $kd[0];
 		$kd_bidang90 = (int) $kd[1];
@@ -163,6 +165,23 @@ foreach ($units as $k => $unit):
 			$kd_bidang = $mapping[0]->kd_bidang;
 			$kd_prog = $mapping[0]->kd_prog;
 			$kd_keg = $mapping[0]->kd_keg;
+			foreach ($custom_mapping as $c_map_k => $c_map_v) {
+				if(
+					$unit['kode_skpd'] == $c_map_v['sipd']['kode_skpd']
+					&& $sub['kode_sub_giat'] == $c_map_v['sipd']['kode_sub_keg']
+				){
+					$kd_unit_simda_map = explode('.', $c_map_v['simda']['kode_skpd']);
+					$_kd_urusan = $kd_unit_simda_map[0];
+					$_kd_bidang = $kd_unit_simda_map[1];
+					$kd_unit = $kd_unit_simda_map[2];
+					$kd_sub_unit = $kd_unit_simda_map[3];
+					$kd_keg_simda = explode('.', $c_map_v['simda']['kode_sub_keg']);
+					$kd_urusan = $kd_keg_simda[0];
+					$kd_bidang = $kd_keg_simda[1];
+					$kd_prog = $kd_keg_simda[2];
+					$kd_keg = $kd_keg_simda[3];
+				}
+			}
 		}
 
         $id_prog = $kd_urusan.$this->simda->CekNull($kd_bidang);
@@ -214,6 +233,9 @@ foreach ($units as $k => $unit):
 			'id_prog' => $id_prog,
 			'kd_keg' => $kd_keg
 		));
+		if($total_simda == 0){
+			$total_rak_simda = 0;
+		}
 		$realisasi = $this->get_realisasi_simda(array(
 			'user' => $current_user->display_name,
 			'id_skpd' => $input['id_skpd'],
@@ -624,7 +646,7 @@ foreach ($units as $k => $unit):
 			        <td class="kanan bawah text_kanan text_blok">'.number_format($data_all['total_simda'],0,",",".").'</td>
 			        <td class="kanan bawah text_kanan text_blok">'.number_format($data_all['realisasi'],0,",",".").'</td>
 			        <td class="kanan bawah text_tengah text_blok">'.$this->pembulatan($capaian_total).'</td>
-			        <td class="kanan bawah text_tengah text_blok">'.$this->pembulatan($capaian_rak).'</td>
+			        <td class="kanan bawah text_tengah text_blok" data="'.$data_all['total_rak_simda'].'">'.$this->pembulatan($capaian_rak).'</td>
 			        <td class="kanan bawah text_tengah text_blok">'.$this->pembulatan($deviasi_pemkab).'</td>
 			        <td class="kanan bawah text_blok total-realisasi-fisik text_tengah"></td>
 			        <td class="kanan bawah text_kiri text_blok" colspan="3">'.$catatan_ka_adbang['catatan_ka_adbang'].'</td>

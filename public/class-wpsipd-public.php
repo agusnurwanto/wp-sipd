@@ -5516,4 +5516,26 @@ class Wpsipd_Public
 		}
 		die(json_encode($ret));
 	}
+
+	function get_custom_mapping_sub_keg(){
+		$data = get_option('_crb_custom_mapping_sub_keg_simda');
+		$data = explode(',', $data);
+		$data_all = array();
+		foreach ($data as $k => $v) {
+			$baris = explode('-', $v);
+			$sipd = explode('_', $baris[0]);
+			$simda = explode('_', $baris[1]);
+			$data_all[$v] = array(
+				'sipd' => array(
+					'kode_skpd' => $sipd[0],
+					'kode_sub_keg' => $sipd[1]
+				), 
+				'simda' => array(
+					'kode_skpd' => $simda[0],
+					'kode_sub_keg' => $simda[1]
+				)
+			);
+		}
+		return $data_all;
+	}
 }
