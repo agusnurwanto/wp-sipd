@@ -951,6 +951,9 @@ $url_skpd = '<a href="'.$link.'" target="_blank">'.$unit[0]['kode_skpd'].' '.$un
 		background: grey;
 		color: #fff;
 	}
+	.display-indikator-renstra {
+		display: none;
+	}
 </style>
 <input type="hidden" value="<?php echo get_option('_crb_api_key_extension' ); ?>" id="api_key">
 <input type="hidden" value="<?php echo $input['tahun_anggaran']; ?>" id="tahun_anggaran">
@@ -1198,7 +1201,7 @@ foreach ($monev_triwulan as $k => $v) {
                   				</tr>
                   				<tr>
                   					<td colspan="2">
-                  						<table>
+                  						<table class="display-indikator-renstra">
                   							<thead>
                   								<tr>
 					              					<th class="text_tengah" colspan="2" rowspan="2">Indikator RENSTRA</th>
@@ -1331,6 +1334,13 @@ foreach ($monev_triwulan as $k => $v) {
 		jQuery('#helptext_tipe_indikator li[data-id="'+id+'"]').show();
 		setTotalMonev(false);
 	}
+	function jenis_indikator(id_unik){
+		let idunik = id_unik;
+		let data = idunik.split("-");
+		let kode = data[2];
+		let jenis_indikator = kode.split(".");
+		return jenis_indikator.length;
+	}
 	function setTotalMonev(that){
 		var total_indikator = +jQuery('#target_indikator_monev').text();
 		var tipe_indikator = jQuery('#tipe_indikator').val();
@@ -1431,6 +1441,7 @@ foreach ($monev_triwulan as $k => $v) {
 	          		setRumus(res.id_rumus_indikator);
 	          		jQuery('#monev-body-renstra').html('');
 	          		if(res.tipe_indikator == 2 || res.tipe_indikator == 3){
+	          			jQuery(".display-indikator-renstra").show();
 	          			var renstra_html = '';
 	          			tr.find('.indikator_renstra li').map(function(i, b){
 	          				var id_indikator_renstra = jQuery(b).attr('data-id');
@@ -1456,6 +1467,8 @@ foreach ($monev_triwulan as $k => $v) {
 	          					+'</tr>';
 	          			});
 	          			jQuery('#monev-body-renstra').html(renstra_html);
+	          		}else{
+	          			jQuery(".display-indikator-renstra").hide();
 	          		}
 					jQuery('#mod-monev').modal('show');
 					jQuery('#wrap-loading').hide();
@@ -1511,69 +1524,82 @@ foreach ($monev_triwulan as $k => $v) {
 					}
 				}
 			}
-			var cek_indikator_renstra = jQuery('input[name="pilih_indikator_renstra"]');
-			var id_indikator_renstra = '';
-			if(cek_indikator_renstra.length >= 1){
-				id_indikator_renstra = jQuery('input[name="pilih_indikator_renstra"]:checked').val();
-				if(!id_indikator_renstra){
-					return alert('Indiktor renstra harus dipilih!');
+			
+			var status = false;
+			var id_unik = jQuery('#mod-monev').attr('data-id_unik');
+			var jenisIndikator = jenis_indikator(id_unik);
+			
+			if(jenisIndikator == 6){
+				status = true;
+			}else if(jenisIndikator == 5 || jenisIndikator == 3){
+				var cek_indikator_renstra = jQuery('input[name="pilih_indikator_renstra"]');
+				var id_indikator_renstra = '';
+				if(cek_indikator_renstra.length >= 1){
+					id_indikator_renstra = jQuery('input[name="pilih_indikator_renstra"]:checked').val();
+					if(!id_indikator_renstra){
+						alert('Indiktor renstra belum dipilih, klik ok untuk melanjutkan!');
+					}
+					status = true;
 				}
 			}
-			if(id_indikator_renstra && confirm('Apakah anda yakin untuk menyimpan data ini!')){
-				jQuery('#wrap-loading').show();
-				var id_unik = jQuery('#mod-monev').attr('data-id_unik');
-				jQuery.ajax({
-					url: ajax.url,
-		          	type: "post",
-		          	data: {
-		          		"action": "save_monev_renja",
-		          		"api_key": "<?php echo $api_key; ?>",
-		      			"tahun_anggaran": <?php echo $input['tahun_anggaran']; ?>,
-		          		"id_unik": id_unik,
-		          		"data": target_realisasi,
-		          		"keterangan": keterangan,
-		          		"rumus_indikator": jQuery('#tipe_indikator').val(),
-		          		"id_indikator_renstra": id_indikator_renstra
-		          	},
-		          	dataType: "json",
-		          	success: function(res){
-		          		var tr  = jQuery('.edit-monev[data-id="'+id_unik+'"]').closest('tr');
-		          		var ids = id_unik.split('-');
-		          		var id_indikator = ids[4];
-		          		jQuery(tr).find('.realisasi_indikator_tw1-'+id_indikator).text(total_tw1);
-		          		jQuery(tr).find('.realisasi_indikator_tw2-'+id_indikator).text(total_tw2);
-		          		jQuery(tr).find('.realisasi_indikator_tw3-'+id_indikator).text(total_tw3);
-		          		jQuery(tr).find('.realisasi_indikator_tw4-'+id_indikator).text(total_tw4);
-		          		jQuery(tr).find('.realisasi_indikator_tw4-'+id_indikator).text(total_tw4);
-		          		jQuery(tr).find('.total_tw-'+id_indikator).text(total_tw);
-		          		jQuery(tr).find('.capaian_realisasi_indikator-'+id_indikator).text(capaian_realisasi_indikator);
-		          		jQuery(tr).find('.rumus_indikator').removeClass('positif negatif persentase');
-		          		var rumus_indikator = 'positif';
-		          		if(tipe_indikator == 2){
-		          			rumus_indikator = 'negatif';
-		          		}else if(tipe_indikator == 3){
-		          			rumus_indikator = 'persentase';
-		          		}
-		          		jQuery(tr).find('.rumus_indikator').addClass(rumus_indikator);
-		          		if(id_indikator_renstra){
-		          			var tr_modal = jQuery('input[value="'+id_indikator_renstra+'"]').closest('tr');
-		          			var target_1 = +tr_modal.find('td.target_renstra_1').text().replace(/,/g, '.').trim();
-		          			var target_2 = +tr_modal.find('td.target_renstra_2').text().replace(/,/g, '.').trim();
-		          			var target_3 = +tr_modal.find('td.target_renstra_3').text().replace(/,/g, '.').trim();
-		          			var target_4 = +tr_modal.find('td.target_renstra_4').text().replace(/,/g, '.').trim();
-		          			var target_5 = +tr_modal.find('td.target_renstra_5').text().replace(/,/g, '.').trim();
-		          			var total_target_renstra = target_1+target_2+target_3+target_4+target_5;
-		          			if(tipe_indikator == 2){
-		          				total_target_renstra = target_5;
-		          			}else if(tipe_indikator == 3){
-		          				total_target_renstra = target_5;
-		          			}
-		          			jQuery(tr).find('.total_target_renstra').text(total_target_renstra);
-		          		}
-						jQuery('#mod-monev').modal('hide');
-						jQuery('#wrap-loading').hide();
-					}
-				});
+
+			if(status){
+				if(confirm('Apakah anda yakin untuk menyimpan data ini!')){
+					jQuery('#wrap-loading').show();
+					var id_unik = jQuery('#mod-monev').attr('data-id_unik');
+					jQuery.ajax({
+						url: ajax.url,
+			          	type: "post",
+			          	data: {
+			          		"action": "save_monev_renja",
+			          		"api_key": "<?php echo $api_key; ?>",
+			      			"tahun_anggaran": <?php echo $input['tahun_anggaran']; ?>,
+			          		"id_unik": id_unik,
+			          		"data": target_realisasi,
+			          		"keterangan": keterangan,
+			          		"rumus_indikator": jQuery('#tipe_indikator').val(),
+			          		"id_indikator_renstra": id_indikator_renstra
+			          	},
+			          	dataType: "json",
+			          	success: function(res){
+			          		var tr  = jQuery('.edit-monev[data-id="'+id_unik+'"]').closest('tr');
+			          		var ids = id_unik.split('-');
+			          		var id_indikator = ids[4];
+			          		jQuery(tr).find('.realisasi_indikator_tw1-'+id_indikator).text(total_tw1);
+			          		jQuery(tr).find('.realisasi_indikator_tw2-'+id_indikator).text(total_tw2);
+			          		jQuery(tr).find('.realisasi_indikator_tw3-'+id_indikator).text(total_tw3);
+			          		jQuery(tr).find('.realisasi_indikator_tw4-'+id_indikator).text(total_tw4);
+			          		jQuery(tr).find('.realisasi_indikator_tw4-'+id_indikator).text(total_tw4);
+			          		jQuery(tr).find('.total_tw-'+id_indikator).text(total_tw);
+			          		jQuery(tr).find('.capaian_realisasi_indikator-'+id_indikator).text(capaian_realisasi_indikator);
+			          		jQuery(tr).find('.rumus_indikator').removeClass('positif negatif persentase');
+			          		var rumus_indikator = 'positif';
+			          		if(tipe_indikator == 2){
+			          			rumus_indikator = 'negatif';
+			          		}else if(tipe_indikator == 3){
+			          			rumus_indikator = 'persentase';
+			          		}
+			          		jQuery(tr).find('.rumus_indikator').addClass(rumus_indikator);
+			          		if(id_indikator_renstra){
+			          			var tr_modal = jQuery('input[value="'+id_indikator_renstra+'"]').closest('tr');
+			          			var target_1 = +tr_modal.find('td.target_renstra_1').text().replace(/,/g, '.').trim();
+			          			var target_2 = +tr_modal.find('td.target_renstra_2').text().replace(/,/g, '.').trim();
+			          			var target_3 = +tr_modal.find('td.target_renstra_3').text().replace(/,/g, '.').trim();
+			          			var target_4 = +tr_modal.find('td.target_renstra_4').text().replace(/,/g, '.').trim();
+			          			var target_5 = +tr_modal.find('td.target_renstra_5').text().replace(/,/g, '.').trim();
+			          			var total_target_renstra = target_1+target_2+target_3+target_4+target_5;
+			          			if(tipe_indikator == 2){
+			          				total_target_renstra = target_5;
+			          			}else if(tipe_indikator == 3){
+			          				total_target_renstra = target_5;
+			          			}
+			          			jQuery(tr).find('.total_target_renstra').text(total_target_renstra);
+			          		}
+							jQuery('#mod-monev').modal('hide');
+							jQuery('#wrap-loading').hide();
+						}
+					});
+				}
 			}
 		});
 		jQuery('.simpan_monev_triwulan').on('click', function(){
