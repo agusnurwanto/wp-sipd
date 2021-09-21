@@ -101,15 +101,15 @@ $bulan = date('m');
 						{
 							$data_all['data'][$keg['kode_tujuan']]['indikator'][] = array(
 								'id_unik_indikator' => $indikator['id_unik_indikator'],
-								'indikator_teks' => !empty($indikator['indikator_teks']) ? $indikator['indikator_teks'].button_edit_monev($input['tahun_anggaran'].'-'.$input['id_skpd'].'-'.$keg['kode_tujuan'].'-'.$indikator['id_unik_indikator']) : 'Kosong',
-								'satuan' => $indikator['satuan'],
-								'target_1' => $indikator['target_1'],
-								'target_2' => $indikator['target_2'],
-								'target_3' => $indikator['target_3'],
-								'target_4' => $indikator['target_4'],
-								'target_5' => $indikator['target_5'],
-								'target_awal' => $indikator['target_awal'],
-								'target_akhir' => $indikator['target_akhir'],
+								'indikator_teks' => !empty($indikator['indikator_teks']) ? $indikator['indikator_teks'].button_edit_monev($input['tahun_anggaran'].'-'.$input['id_skpd'].'-'.$keg['kode_tujuan'].'-'.$indikator['id_unik_indikator']) : '-',
+								'satuan' => !empty($indikator['satuan']) ? $indikator['satuan'] : "",
+								'target_1' => !empty($indikator['target_1']) ? $indikator['target_1'] : "",
+								'target_2' => !empty($indikator['target_2']) ? $indikator['target_2'] : "",
+								'target_3' => !empty($indikator['target_3']) ? $indikator['target_3'] : "",
+								'target_4' => !empty($indikator['target_4']) ? $indikator['target_4'] : "",
+								'target_5' => !empty($indikator['target_5']) ? $indikator['target_5'] : "",
+								'target_awal' => !empty($indikator['target_awal']) ? $indikator['target_awal'] : "",
+								'target_akhir' => !empty($indikator['target_akhir']) ? $indikator['target_akhir'] : "",
 							);
 						}
 					}
@@ -141,14 +141,14 @@ $bulan = date('m');
 							$data_all['data'][$keg['kode_tujuan']]['data'][$keg['kode_sasaran']]['indikator'][] = array(
 								'id_unik_indikator' => $indikator['id_unik_indikator'],
 								'indikator_teks' => $indikator['indikator_teks'],
-								'satuan' => $indikator['satuan'],
-								'target_1' => $target_1['target_1'],
-								'target_2' => $target_2['target_2'],
-								'target_3' => $target_3['target_3'],
-								'target_4' => $target_4['target_4'],
-								'target_5' => $target_5['target_5'],
-								'target_awal' => $target_awal['target_awal'],
-								'target_akhir' => $target_akhir['target_akhir'],
+								'satuan' => !empty($indikator['satuan']) ? $indikator['satuan'] : "",
+								'target_1' => !empty($indikator['target_1']) ? $indikator['target_1'] : "",
+								'target_2' => !empty($indikator['target_2']) ? $indikator['target_2'] : "",
+								'target_3' => !empty($indikator['target_3']) ? $indikator['target_3'] : "",
+								'target_4' => !empty($indikator['target_4']) ? $indikator['target_4'] : "",
+								'target_5' => !empty($indikator['target_5']) ? $indikator['target_5'] : "",
+								'target_awal' => !empty($indikator['target_awal']) ? $indikator['target_awal'] : "",
+								'target_akhir' => !empty($indikator['target_akhir']) ? $indikator['target_akhir'] : "",
 							);
 						}
 					}
@@ -159,7 +159,6 @@ $bulan = date('m');
 					$program_teks = explode("||", $keg['nama_program']);
 					$data_all['data'][$keg['kode_tujuan']]['data'][$keg['kode_sasaran']]['data'][$keg['kode_program']] = array(
 						'nama' => $program_teks[0],
-						// 'pagu_renja' => 0,
 						'indikator' => array(),
 						'data' => array(),
 					);
@@ -183,14 +182,14 @@ $bulan = date('m');
 							$data_all['data'][$keg['kode_tujuan']]['data'][$keg['kode_sasaran']]['data'][$keg['kode_program']]['indikator'][] = array(
 								'id_unik_indikator' => $indikator['id_unik_indikator'],
 								'indikator_teks' => $indikator['indikator'],
-								'satuan' => $indikator['satuan'],
-								'target_1' => $indikator['target_1'],
-								'target_2' => $indikator['target_2'],
-								'target_3' => $indikator['target_3'],
-								'target_4' => $indikator['target_4'],
-								'target_5' => $indikator['target_5'],
-								'target_awal' => $indikator['target_awal'],
-								'target_akhir' => $indikator['target_akhir'],
+								'satuan' => !empty($indikator['satuan']) ? $indikator['satuan'] : "",
+								'target_1' => !empty($indikator['target_1']) ? $indikator['target_1'] : "",
+								'target_2' => !empty($indikator['target_2']) ? $indikator['target_2'] : "",
+								'target_3' => !empty($indikator['target_3']) ? $indikator['target_3'] : "",
+								'target_4' => !empty($indikator['target_4']) ? $indikator['target_4'] : "",
+								'target_5' => !empty($indikator['target_5']) ? $indikator['target_5'] : "",
+								'target_awal' => !empty($indikator['target_awal']) ? $indikator['target_awal'] : "",
+								'target_akhir' => !empty($indikator['target_akhir']) ? $indikator['target_akhir'] : "",
 							);
 						}
 					}
@@ -201,7 +200,6 @@ $bulan = date('m');
 					$kegiatan_teks = explode("||", $keg['nama_giat']);
 					$data_all['data'][$keg['kode_tujuan']]['data'][$keg['kode_sasaran']]['data'][$keg['kode_program']]['data'][$keg['kode_giat']] = array(
 						'nama' => $kegiatan_teks[0],
-						// 'pagu_renja' => $sub['dpa'],
 						'indikator' => array()
 					);
 
@@ -215,7 +213,7 @@ $bulan = date('m');
 							active=1 and 
 							tahun_anggaran=%d",
 							$keg['kode_giat'], $input['id_skpd'], $input['tahun_anggaran']), ARRAY_A);
-					// die($wpdb->last_query);
+
 					if(!empty($indikators))
 					{
 						foreach ($indikators as $key => $indikator) 
@@ -224,14 +222,14 @@ $bulan = date('m');
 							$data_all['data'][$keg['kode_tujuan']]['data'][$keg['kode_sasaran']]['data'][$keg['kode_program']]['data'][$keg['kode_giat']]['indikator'][] = array(
 								'id_unik_indikator' => $indikator['id_unik_indikator'],
 								'indikator_teks' => $indikator['indikator'],
-								'satuan' => $indikator['satuan'],
-								'target_1' => $indikator['target_1'],
-								'target_2' => $indikator['target_2'],
-								'target_3' => $indikator['target_3'],
-								'target_4' => $indikator['target_4'],
-								'target_5' => $indikator['target_5'],
-								'target_awal' => $indikator['target_awal'],
-								'target_akhir' => $indikator['target_akhir'],
+								'satuan' => !empty($indikator['satuan']) ? $indikator['satuan'] : "",
+								'target_1' => !empty($indikator['target_1']) ? $indikator['target_1'] : "",
+								'target_2' => !empty($indikator['target_2']) ? $indikator['target_2'] : "",
+								'target_3' => !empty($indikator['target_3']) ? $indikator['target_3'] : "",
+								'target_4' => !empty($indikator['target_4']) ? $indikator['target_4'] : "",
+								'target_5' => !empty($indikator['target_5']) ? $indikator['target_5'] : "",
+								'target_awal' => !empty($indikator['target_awal']) ? $indikator['target_awal'] : "",
+								'target_akhir' => !empty($indikator['target_akhir']) ? $indikator['target_akhir'] : "",
 							);
 						}
 					}
@@ -262,7 +260,7 @@ $bulan = date('m');
 		            <td class="text_kiri kanan bawah text_blok">'.$tujuan['nama'].'</td>
 		            <td class="text_tengah kanan bawah text_blok"></td>
 		            <td class="kanan bawah text_blok"></td>
-		            <td class="kanan bawah text_blok nama"></td>
+		            <td class="kanan bawah text_blok"></td>
 		            <td class="kanan bawah text_blok indikator rumus_indikator">'.implode(' </br><br> ', $indikator['indikator_teks']).'</td>
 		            <td class="text_tengah kanan bawah text_blok total_renstra">'.implode(' </br><br> ', $indikator['target_akhir']).'</td>
 		            <td class="text_tengah kanan bawah text_blok total_renstra">'.implode(' </br><br> ', $indikator['satuan']).'</td>
@@ -373,8 +371,8 @@ $bulan = date('m');
 			            <td class="kiri kanan bawah text_blok"></td>
 			            <td class="text_kiri kanan bawah text_blok"></td>
 			            <td class="text_kiri kanan bawah text_blok"></td>
+			            <td class="kanan bawah text_blok" nama>'.$program['nama'].'</td>
 			            <td class="kanan bawah text_blok"></td>
-			            <td class="kanan bawah text_blok nama">'.$program['nama'].'</td>
 			            <td class="kanan bawah text_blok indikator rumus_indikator">'.implode(' </br><br> ', $indikator['indikator_teks']).'</td>
 			            <td class="text_tengah kanan bawah text_blok total_renstra">'.implode(' </br><br> ', $indikator['target_akhir']).'</td>
 			            <td class="text_tengah kanan bawah text_blok total_renstra">'.implode(' </br><br> ', $indikator['satuan']).'</td>
@@ -494,8 +492,8 @@ $bulan = date('m');
 				<th rowspan="5" style="width: 60px;" class='atas kiri kanan bawah text_tengah text_blok'>No</th>
 				<th rowspan="2" style="width: 200px;" class='atas kanan bawah text_tengah text_blok'>Tujuan</th>
 				<th rowspan="2" style="width: 200px;" class='atas kanan bawah text_tengah text_blok'>Sasaran</th>
-				<th rowspan="2" style="width: 100px;" class='atas kanan bawah text_tengah text_blok'>Kode</th>
-				<th rowspan="2" style="width: 300px;" class='atas kanan bawah text_tengah text_blok'>Program, Kegiatan</th>
+				<th rowspan="2" style="width: 250px;" class='atas kanan bawah text_tengah text_blok'>Program</th>
+				<th rowspan="2" style="width: 250px;" class='atas kanan bawah text_tengah text_blok'>Kegiatan</th>
 				<th rowspan="2" style="width: 200px;" class='atas kanan bawah text_tengah text_blok'>Indikator Kinerja Tujuan, Sasaran, Program(outcome) dan Kegiatan (output)</th>
 				<th rowspan="2" colspan="3" style="width: 300px;" class='atas kanan bawah text_tengah text_blok'>Target Renstra SKPD pada Tahun <?php echo $awal_rpjmd; ?> s/d <?php echo $akhir_rpjmd; ?> (periode Renstra SKPD)</th>
 				<th rowspan="2" colspan="3" style="width: 300px;" class='atas kanan bawah text_tengah text_blok'>Realisasi Capaian Kinerja Renstra SKPD sampai dengan Renja SKPD Tahun Lalu</th>
