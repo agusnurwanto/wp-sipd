@@ -71,6 +71,9 @@ $bulan = date('m');
 				active=1 and 
 				tahun_anggaran=%d",
 				$input['id_skpd'], $input['tahun_anggaran']), ARRAY_A);
+
+	// echo '<pre>';print_r($wpdb->last_query);echo '</pre>';die();
+	// echo '<pre>';print_r($kegs);echo '</pre>';die();
 	
 	if(!empty($kegs))
 	{
@@ -159,8 +162,10 @@ $bulan = date('m');
 					$program_teks = explode("||", $keg['nama_program']);
 					$data_all['data'][$keg['kode_tujuan']]['data'][$keg['kode_sasaran']]['data'][$keg['kode_program']] = array(
 						'nama' => $program_teks[0],
+						'id_program' => $keg['id_program'],
 						'indikator' => array(),
 						'data' => array(),
+						'status_rpjm' => 'Tidak terkoneksi'
 					);
 
 					$indikators = $wpdb->get_results($wpdb->prepare("
@@ -178,6 +183,24 @@ $bulan = date('m');
 					{
 						foreach ($indikators as $key => $indikator) 
 						{
+
+							$status = $wpdb->get_results($wpdb->prepare("
+								SELECT 
+									* 
+								FROM data_rpjmd_program 
+								where 
+									id_program=%d and 
+									tahun_anggaran=%d and 
+									active=1 and 
+									id_unit=%d", 
+								$indikator['id_program'],
+								$input['tahun_anggaran'],
+								$input['id_skpd']
+							), ARRAY_A);
+
+							if(!empty($status)){
+								$data_all['data'][$keg['kode_tujuan']]['data'][$keg['kode_sasaran']]['data'][$keg['kode_program']]['status_rpjm'] = 'Terkoneksi';
+							}
 
 							$data_all['data'][$keg['kode_tujuan']]['data'][$keg['kode_sasaran']]['data'][$keg['kode_program']]['indikator'][] = array(
 								'id_unik_indikator' => $indikator['id_unik_indikator'],
@@ -366,9 +389,10 @@ $bulan = date('m');
 					$indikator['target_'.$urut][]=$v['target_'.$urut];
 					$indikator['satuan'][]=$v['satuan'];
 				}
+				$style_status_rpjm = ($program['status_rpjm']=='Terkoneksi') ? 'terkoneksi_rpjmd' : '';
 				$body_monev .= '
-					<tr class="program" data-kode="">
-			            <td class="kiri kanan bawah text_blok"></td>
+					<tr class="program" data-kode="'.$input['tahun_anggaran'].'-'.$input['id_skpd'].'-'.$program['id_program'].'">
+			            <td class="kiri kanan bawah text_blok '.$style_status_rpjm.'">'.$program['status_rpjm'].'</td>
 			            <td class="text_kiri kanan bawah text_blok"></td>
 			            <td class="text_kiri kanan bawah text_blok"></td>
 			            <td class="kanan bawah text_blok" nama>'.$program['nama'].'</td>
@@ -480,6 +504,9 @@ $bulan = date('m');
 	td[contenteditable="true"] {
 	    background: #ff00002e;
 	}
+	.terkoneksi_rpjmd {
+		background-color: aqua;
+	}
 </style>
 <input type="hidden" value="<?php echo get_option('_crb_api_key_extension' ); ?>" id="api_key">
 <input type="hidden" value="<?php echo $input['tahun_anggaran']; ?>" id="tahun_anggaran">
@@ -489,7 +516,7 @@ $bulan = date('m');
 	<table cellpadding="2" cellspacing="0" style="font-family:\'Open Sans\',-apple-system,BlinkMacSystemFont,\'Segoe UI\',sans-serif; border-collapse: collapse; font-size: 70%; border: 0; table-layout: fixed;" contenteditable="false">
 		<thead>
 			<tr>
-				<th rowspan="5" style="width: 60px;" class='atas kiri kanan bawah text_tengah text_blok'>No</th>
+				<th rowspan="5" style="width: 100px;" class='atas kiri kanan bawah text_tengah text_blok'>Status Program RPJM</th>
 				<th rowspan="2" style="width: 200px;" class='atas kanan bawah text_tengah text_blok'>Tujuan</th>
 				<th rowspan="2" style="width: 200px;" class='atas kanan bawah text_tengah text_blok'>Sasaran</th>
 				<th rowspan="2" style="width: 250px;" class='atas kanan bawah text_tengah text_blok'>Program</th>
