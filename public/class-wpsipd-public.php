@@ -4579,7 +4579,25 @@ class Wpsipd_Public
 					'tahun_anggaran' => $_POST['tahun_anggaran']
 				));
 				foreach ($_POST['tujuan'] as $k => $v) {
-					$cek = $wpdb->get_var("SELECT id_unik from data_renstra_tujuan where tahun_anggaran=".$_POST['tahun_anggaran']." AND id_unik='" . $v['id_unik']."' AND id_unik_indikator='" . $v['id_unik_indikator']."'");
+					if(empty($v['id_unik_indikator'])){
+						$v['id_unik_indikator'] = '';
+					}
+					if(empty($v['id_unit'])){
+						$v['id_unit'] = '';
+					}
+					if(empty($v['id_unik'])){
+						$v['id_unik'] = '';
+					}
+					$cek = $wpdb->get_var("
+						SELECT 
+							id_unik 
+						from data_renstra_tujuan 
+						where tahun_anggaran=".$_POST['tahun_anggaran']." 
+							AND id_unik='" . $v['id_unik']."' 
+							AND id_unik_indikator='" . $v['id_unik_indikator']."' 
+							AND id_unit='" . $v['id_unit']."'
+							AND id_bidang_urusan='" . $v['id_bidang_urusan']."'
+					");
 					$opsi = array(
 						'bidur_lock' => $v['bidur_lock'],
 						'id_bidang_urusan' => $v['id_bidang_urusan'],
@@ -4611,6 +4629,8 @@ class Wpsipd_Public
 
 					if (!empty($cek)) {
 						$wpdb->update('data_renstra_tujuan', $opsi, array(
+							'id_bidang_urusan' => $v['id_bidang_urusan'],
+							'id_unit' => $v['id_unit'],
 							'id_unik' => $v['id_unik'],
 							'id_unik_indikator' => $v['id_unik_indikator'],
 							'tahun_anggaran' => $_POST['tahun_anggaran']
@@ -4641,7 +4661,24 @@ class Wpsipd_Public
 					'tahun_anggaran' => $_POST['tahun_anggaran']
 				));
 				foreach ($_POST['sasaran'] as $k => $v) {
-					$cek = $wpdb->get_var("SELECT id_unik from data_renstra_sasaran where tahun_anggaran=".$_POST['tahun_anggaran']." AND id_unik='" . $v['id_unik']."' AND id_unik_indikator='" . $v['id_unik_indikator']."'");
+					if(empty($v['id_unik'])){
+						$v['id_unik'] = '0';
+					}
+					if(empty($v['id_unik_indikator'])){
+						$v['id_unik_indikator'] = '0';
+					}
+					if(empty($v['id_bidang_urusan'])){
+						$v['id_bidang_urusan'] = '0';
+					}
+					$cek = $wpdb->get_var("
+						SELECT 
+							id_unik 
+						from data_renstra_sasaran 
+						where tahun_anggaran=".$_POST['tahun_anggaran']." 
+							AND id_unik='" . $v['id_unik']."' 
+							AND id_unik_indikator='" . $v['id_unik_indikator']."'
+							AND id_bidang_urusan='" . $v['id_bidang_urusan']."'
+					");
 					$opsi = array(
 						'bidur_lock' => $v['bidur_lock'],
 						'id_bidang_urusan' => $v['id_bidang_urusan'],
@@ -4681,6 +4718,7 @@ class Wpsipd_Public
 						$wpdb->update('data_renstra_sasaran', $opsi, array(
 							'id_unik' => $v['id_unik'],
 							'id_unik_indikator' => $v['id_unik_indikator'],
+							'id_bidang_urusan' => $v['id_bidang_urusan'],
 							'tahun_anggaran' => $_POST['tahun_anggaran']
 						));
 					} else {
@@ -4709,7 +4747,44 @@ class Wpsipd_Public
 					'tahun_anggaran' => $_POST['tahun_anggaran']
 				));
 				foreach ($_POST['program'] as $k => $v) {
-					$cek = $wpdb->get_var("SELECT id_unik from data_renstra_program where tahun_anggaran=".$_POST['tahun_anggaran']." AND id_unik='" . $v['id_unik']."' AND id_unik_indikator='" . $v['id_unik_indikator']."'");
+					if(empty($v['id_unik'])){
+						$v['id_unik'] = '0';
+					}
+					if(empty($v['id_unik_indikator'])){
+						$v['id_unik_indikator'] = '0';
+					}
+					if(empty($v['id_program'])){
+						$v['id_program'] = '0';
+					}
+					if(empty($v['id_bidang_urusan'])){
+						$v['id_bidang_urusan'] = '0';
+					}
+					if(empty($v['id_visi'])){
+						$v['id_visi'] = '0';
+					}
+					if(empty($v['id_misi'])){
+						$v['id_misi'] = '0';
+					}
+					if(empty($v['urut_tujuan'])){
+						$v['urut_tujuan'] = '0';
+					}
+					if(empty($v['urut_sasaran'])){
+						$v['urut_sasaran'] = '0';
+					}
+					$cek = $wpdb->get_var("
+						SELECT 
+							id_unik 
+						from data_renstra_program 
+						where tahun_anggaran=".$_POST['tahun_anggaran']." 
+							AND id_unik='" . $v['id_unik']."' 
+							AND id_unik_indikator='" . $v['id_unik_indikator']."'
+							AND id_program='" . $v['id_program']."'
+							AND id_bidang_urusan='" . $v['id_bidang_urusan']."'
+							AND id_visi='" . $v['id_visi']."'
+							AND id_misi='" . $v['id_misi']."'
+							AND urut_tujuan='" . $v['urut_tujuan']."'
+							AND urut_sasaran='" . $v['urut_sasaran']."'
+					");
 					$opsi = array(
 						'bidur_lock' => $v['bidur_lock'],
 						'id_bidang_urusan' => $v['id_bidang_urusan'],
@@ -4760,6 +4835,12 @@ class Wpsipd_Public
 						$wpdb->update('data_renstra_program', $opsi, array(
 							'id_unik' => $v['id_unik'],
 							'id_unik_indikator' => $v['id_unik_indikator'],
+							'id_bidang_urusan' => $v['id_bidang_urusan'],
+							'id_program' => $v['id_program'],
+							'id_visi' => $v['id_visi'],
+							'id_misi' => $v['id_misi'],
+							'urut_tujuan' => $v['urut_tujuan'],
+							'urut_sasaran' => $v['urut_sasaran'],
 							'tahun_anggaran' => $_POST['tahun_anggaran']
 						));
 					} else {
@@ -4788,7 +4869,40 @@ class Wpsipd_Public
 					'tahun_anggaran' => $_POST['tahun_anggaran']
 				));
 				foreach ($_POST['kegiatan'] as $k => $v) {
-					$cek = $wpdb->get_var("SELECT id_unik from data_renstra_kegiatan where tahun_anggaran=".$_POST['tahun_anggaran']." AND id_unik='" . $v['id_unik']."' AND id_unik_indikator='" . $v['id_unik_indikator']."'");
+					if(empty($v['id_unik'])){
+						$v['id_unik'] = '0';
+					}
+					if(empty($v['id_unik_indikator'])){
+						$v['id_unik_indikator'] = '0';
+					}
+					if(empty($v['id_bidang_urusan'])){
+						$v['id_bidang_urusan'] = '0';
+					}
+					if(empty($v['id_visi'])){
+						$v['id_visi'] = '0';
+					}
+					if(empty($v['id_misi'])){
+						$v['id_misi'] = '0';
+					}
+					if(empty($v['urut_tujuan'])){
+						$v['urut_tujuan'] = '0';
+					}
+					if(empty($v['urut_sasaran'])){
+						$v['urut_sasaran'] = '0';
+					}
+					$cek = $wpdb->get_var("
+						SELECT 
+							id_unik 
+						from data_renstra_kegiatan 
+						where tahun_anggaran=".$_POST['tahun_anggaran']." 
+							AND id_unik='" . $v['id_unik']."' 
+							AND id_unik_indikator='" . $v['id_unik_indikator']."'
+							AND id_bidang_urusan='" . $v['id_bidang_urusan']."'
+							AND id_visi='" . $v['id_visi']."'
+							AND id_misi='" . $v['id_misi']."'
+							AND urut_tujuan='" . $v['urut_tujuan']."'
+							AND urut_sasaran='" . $v['urut_sasaran']."'
+					");
 					$opsi = array(
 						'bidur_lock' => $v['bidur_lock'],
 						'giat_lock' => $v['giat_lock'],
@@ -4845,6 +4959,11 @@ class Wpsipd_Public
 						$wpdb->update('data_renstra_kegiatan', $opsi, array(
 							'id_unik' => $v['id_unik'],
 							'id_unik_indikator' => $v['id_unik_indikator'],
+							'id_bidang_urusan' => $v['id_bidang_urusan'],
+							'id_visi' => $v['id_visi'],
+							'id_misi' => $v['id_misi'],
+							'urut_tujuan' => $v['urut_tujuan'],
+							'urut_sasaran' => $v['urut_sasaran'],
 							'tahun_anggaran' => $_POST['tahun_anggaran']
 						));
 					} else {
