@@ -321,6 +321,7 @@ class Wpsipd
 		$this->loader->add_action('wp_ajax_get_monev',  $plugin_public, 'get_monev');
 		$this->loader->add_action('wp_ajax_save_monev_renja_triwulan',  $plugin_public, 'save_monev_renja_triwulan');
 		$this->loader->add_action('wp_ajax_simpan_catatan_rfk_unit',  $plugin_public, 'simpan_catatan_rfk_unit');
+		$this->loader->add_action('wp_ajax_get_data_rpjm',  $plugin_public, 'get_data_rpjm');
 
 		add_shortcode('menu_monev',  array($plugin_public, 'menu_monev'));
 		add_shortcode('datassh', array($plugin_public, 'datassh'));

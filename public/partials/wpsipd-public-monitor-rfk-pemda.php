@@ -502,6 +502,7 @@ $body .='
 		+'</div>';
 
 		let data_all_rfk = <?php echo json_encode($data_all['data']); ?>;
+		console.log(data_all_rfk);
 		
 		jQuery(document).ready(function(){
 			<?php if(empty($public)){ ?>

@@ -161,8 +161,11 @@ $bulan = date('m');
 				{
 					$program_teks = explode("||", $keg['nama_program']);
 					$data_all['data'][$keg['kode_tujuan']]['data'][$keg['kode_sasaran']]['data'][$keg['kode_program']] = array(
+						'kode_tujuan' => $keg['kode_tujuan'],
+						'kode_sasaran' => $keg['kode_sasaran'],
 						'nama' => $program_teks[0],
 						'id_program' => $keg['id_program'],
+						'kode_program' => $keg['kode_program'],
 						'indikator' => array(),
 						'data' => array(),
 						'status_rpjm' => 'Tidak terkoneksi'
@@ -181,26 +184,26 @@ $bulan = date('m');
 
 					if(!empty($indikators))
 					{
+						$data_rpjm = $wpdb->get_results($wpdb->prepare("
+							SELECT 
+								* 
+							FROM data_rpjmd_program 
+							where 
+								id_program=%d and 
+								tahun_anggaran=%d and 
+								active=1 and 
+								id_unit=%d", 
+							$keg['id_program'],
+							$input['tahun_anggaran'],
+							$input['id_skpd']
+						), ARRAY_A);
+
+						if(!empty($data_rpjm)){
+							$data_all['data'][$keg['kode_tujuan']]['data'][$keg['kode_sasaran']]['data'][$keg['kode_program']]['status_rpjm'] = 'Terkoneksi';
+						}
+						
 						foreach ($indikators as $key => $indikator) 
 						{
-
-							$status = $wpdb->get_results($wpdb->prepare("
-								SELECT 
-									* 
-								FROM data_rpjmd_program 
-								where 
-									id_program=%d and 
-									tahun_anggaran=%d and 
-									active=1 and 
-									id_unit=%d", 
-								$indikator['id_program'],
-								$input['tahun_anggaran'],
-								$input['id_skpd']
-							), ARRAY_A);
-
-							if(!empty($status)){
-								$data_all['data'][$keg['kode_tujuan']]['data'][$keg['kode_sasaran']]['data'][$keg['kode_program']]['status_rpjm'] = 'Terkoneksi';
-							}
 
 							$data_all['data'][$keg['kode_tujuan']]['data'][$keg['kode_sasaran']]['data'][$keg['kode_program']]['indikator'][] = array(
 								'id_unik_indikator' => $indikator['id_unik_indikator'],
@@ -391,8 +394,8 @@ $bulan = date('m');
 				}
 				$style_status_rpjm = ($program['status_rpjm']=='Terkoneksi') ? 'terkoneksi_rpjmd' : '';
 				$body_monev .= '
-					<tr class="program" data-kode="'.$input['tahun_anggaran'].'-'.$input['id_skpd'].'-'.$program['id_program'].'">
-			            <td class="kiri kanan bawah text_blok '.$style_status_rpjm.'">'.$program['status_rpjm'].'</td>
+					<tr class="program" data-kode="'.$input['tahun_anggaran'].'-'.$input['id_skpd'].'-'.$program['kode_tujuan'].'-'.$program['kode_sasaran'].'-'.$program['kode_program'].'-'.$program['id_program'].'">
+			            <td class="kiri kanan bawah text_blok '.$style_status_rpjm.'"><a href="javascript:void(0)" onclick="show_rpjm(\''.$input['tahun_anggaran'].'\', \''.$input['id_skpd'].'\', \''.$program['id_program'].'\')">'.$program['status_rpjm'].'</a></td>
 			            <td class="text_kiri kanan bawah text_blok"></td>
 			            <td class="text_kiri kanan bawah text_blok"></td>
 			            <td class="kanan bawah text_blok" nama>'.$program['nama'].'</td>
@@ -608,94 +611,46 @@ $bulan = date('m');
 	</table>
 </div>
 
-<div class="modal fade" id="mod-monev" tabindex="-1" role="dialog" data-backdrop="static" aria-hidden="true">'
+<div class="modal fade" id="modal-monev" tabindex="-1" role="dialog" data-backdrop="static" aria-hidden="true">'
     <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
             <div class="modal-header bgpanel-theme">
-                <h4 style="margin: 0;" class="modal-title" id="">Edit MONEV Indikator Per Bulan</h4>
+                <h4 style="margin: 0;" class="modal-title" id=""></h4>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span><i class="dashicons dashicons-dismiss"></i></span></button>
             </div>
             <div class="modal-body">
-            	<form>
-                  	<div class="form-group">
-                  		<table class="table table-bordered">
-                  			<tbody>
-                  				<tr>
-                  					<th style="width: 200px;">Tujuan / Sasaran</th>
-                  					<td id="monev-nama"></td>
-                  				</tr>
-                  				<tr>
-                  					<td colspan="2">
-                  						<table>
-                  							<thead>
-                  								<tr>
-                  									<th class="text_tengah">Indikator Kinerja Tujuan, Sasaran</th>
-                  									<th class="text_tengah" style="width: 120px;">Target</th>
-                  									<th class="text_tengah" style="width: 120px;">Total Target Realisasi</th>
-                  									<th class="text_tengah" style="width: 120px;">Satuan</th>
-                  								</tr>
-                  							</thead>
-                  							<tbody id="monev-indikator">
-                  							</tbody>
-                  						</table>
-                  					</td>
-                  				</tr>
-                  				<tr>
-                  					<th>Pilih Rumus Indikator</th>
-                  					<td>
-                  						<select style="width: 100%;" id="tipe_indikator">
-                  							<?php echo $rumus_indikator; ?>
-                  						</select>
-                  					</td>
-                  				</tr>
-                  				<tr>
-                  					<td colspan="2">
-                  						<table>
-                  							<thead>
-                  								<tr>
-		              								<th class="text_tengah">Bulan</th>
-		              								<th class="text_tengah" style="width: 150px;">Capaian (%)</th>
-		              								<th class="text_tengah" style="width: 150px;">Realisasi Target</th>
-		              							</tr>
-                  							</thead>
-                  							<tbody>
-                  								<tr>
-                  									<td>Januari</td>
-                  									<td class="text_tengah">-</td>
-                  									<td class="text_tengah" contenteditable="true">-</td>
-                  								</tr>
-                  								<tr>
-                  									<td>Februari</td>
-                  									<td class="text_tengah">-</td>
-                  									<td class="text_tengah" contenteditable="true">-</td>
-                  								</tr>
-                  								<tr>
-                  									<td>Maret</td>
-                  									<td class="text_tengah">-</td>
-                  									<td class="text_tengah" contenteditable="true">-</td>
-                  								</tr>
-                  								<tr>
-                  									<td>April</td>
-                  									<td class="text_tengah">-</td>
-                  									<td class="text_tengah" contenteditable="true">-</td>
-                  								</tr>
-                  								<tr>
-                  									<td>April</td>
-                  									<td class="text_tengah">-</td>
-                  									<td class="text_tengah" contenteditable="true">-</td>
-                  								</tr>
-                  							</tbody>
-                  						</table>
-                  					</td>
-                  				</tr>
-                  			</tbody>
-                  		</table>
-                  	</div>
-                </form>
+
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-success" id="set-monev">Simpan</button>
-                <button type="button" class="btn btn-default" data-dismiss="modal">Tutup</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modal-rpjmd" tabindex="-1" role="dialog" data-backdrop="static" aria-hidden="true">'
+    <div class="modal-dialog" style="min-width:1500px" role="document">
+        <div class="modal-content">
+            <div class="modal-header bgpanel-theme">
+                <h5 class="modal-title" id="exampleModalLabel" style="margin: 0 auto; text-align:center; font-weight: bold"></h5>
+            </div>
+            <div class="modal-body">
+            	<table cellpadding="2" cellspacing="0" style="font-family:\'Open Sans\',-apple-system,BlinkMacSystemFont,\'Segoe UI\',sans-serif; border-collapse: collapse; font-size: 70%; border: 0; table-layout: fixed;" contenteditable="false">
+						<thead>
+							<tr>
+								<th style="width: 100px;" class='atas kanan bawah text_tengah text_blok'>Visi</th>
+								<th style="width: 200px;" class='atas kanan bawah text_tengah text_blok'>Misi</th>
+								<th style="width: 200px;" class='atas kanan bawah text_tengah text_blok'>Tujuan</th>
+								<th style="width: 200px;" class='atas kanan bawah text_tengah text_blok'>Sasaran</th>
+								<th style="width: 250px;" class='atas kanan bawah text_tengah text_blok'>Program</th>
+								<th style="width: 200px;" class='atas kanan bawah text_tengah text_blok'>Indikator RPJMD (Tujuan, Sasaran, Program)</th>
+							</tr>
+						</thead>
+						<tbody id="body-rpjmd">
+						</tbody>
+					</table>
+            </div>
+            <div class="modal-footer">
+            	<button type="button" class="btn btn-danger" data-dismiss="modal">Tutup</button>
             </div>
         </div>
     </div>
@@ -703,6 +658,8 @@ $bulan = date('m');
 
 <script type="text/javascript">
 	run_download_excel();
+	let data_all = <?php echo json_encode($data_all); ?>;
+
 	var aksi = ''
 		+'<h3 style="margin-top: 20px;">SETTING</h3>'
 		+'<label><input type="checkbox" onclick="edit_monev_indikator(this);"> Edit Monev indikator</label>';
@@ -719,4 +676,29 @@ $bulan = date('m');
 		jQuery('#mod-monev').modal('show');
 		jQuery('#wrap-loading').hide();
 	});
+
+	function show_rpjm(tahun_anggaran, id_unit, id_program){
+		let modal = jQuery("#modal-rpjmd");
+		jQuery.ajax({
+
+			url:"<?php echo admin_url("admin-ajax.php") ?>",
+			type:"post",
+			data:{
+				"action": "get_data_rpjm",
+				"tahun_anggaran": tahun_anggaran,
+				"id_unit": id_unit,
+				"id_program" : id_program
+			},
+			dataType:"json",
+			success: function(response){
+				if(response.status==1){
+					modal.find("#body-rpjmd").html('');
+			  		modal.find("#body-rpjmd").html(response.body_rpjm);
+					modal.find('.modal-title').html('RPJMD <br> <?php echo $unit[0]['kode_skpd'].'&nbsp;'.$unit[0]['nama_skpd'].'<br>Tahun '.$input['tahun_anggaran'].' <br> '.$nama_pemda; ?>');
+				}		
+				modal.modal('show');
+			}
+		});
+
+	}
 </script>
