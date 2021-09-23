@@ -165,22 +165,22 @@ foreach ($units as $k => $unit):
 			$kd_bidang = $mapping[0]->kd_bidang;
 			$kd_prog = $mapping[0]->kd_prog;
 			$kd_keg = $mapping[0]->kd_keg;
-			foreach ($custom_mapping as $c_map_k => $c_map_v) {
-				if(
-					$unit['kode_skpd'] == $c_map_v['sipd']['kode_skpd']
-					&& $sub['kode_sub_giat'] == $c_map_v['sipd']['kode_sub_keg']
-				){
-					$kd_unit_simda_map = explode('.', $c_map_v['simda']['kode_skpd']);
-					$_kd_urusan = $kd_unit_simda_map[0];
-					$_kd_bidang = $kd_unit_simda_map[1];
-					$kd_unit = $kd_unit_simda_map[2];
-					$kd_sub_unit = $kd_unit_simda_map[3];
-					$kd_keg_simda = explode('.', $c_map_v['simda']['kode_sub_keg']);
-					$kd_urusan = $kd_keg_simda[0];
-					$kd_bidang = $kd_keg_simda[1];
-					$kd_prog = $kd_keg_simda[2];
-					$kd_keg = $kd_keg_simda[3];
-				}
+		}
+		foreach ($custom_mapping as $c_map_k => $c_map_v) {
+			if(
+				$unit['kode_skpd'] == $c_map_v['sipd']['kode_skpd']
+				&& $sub['kode_sub_giat'] == $c_map_v['sipd']['kode_sub_keg']
+			){
+				$kd_unit_simda_map = explode('.', $c_map_v['simda']['kode_skpd']);
+				$_kd_urusan = $kd_unit_simda_map[0];
+				$_kd_bidang = $kd_unit_simda_map[1];
+				$kd_unit = $kd_unit_simda_map[2];
+				$kd_sub_unit = $kd_unit_simda_map[3];
+				$kd_keg_simda = explode('.', $c_map_v['simda']['kode_sub_keg']);
+				$kd_urusan = $kd_keg_simda[0];
+				$kd_bidang = $kd_keg_simda[1];
+				$kd_prog = $kd_keg_simda[2];
+				$kd_keg = $kd_keg_simda[3];
 			}
 		}
 
@@ -304,8 +304,17 @@ foreach ($units as $k => $unit):
 		if(empty($data_all['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']]['data'][$sub['kode_giat']]['data'][$sub['kode_sub_giat']])){
 			$nama = explode(' ', $sub['nama_sub_giat']);
 			unset($nama[0]);
+			$detail_simda = array(
+				'kd_urusan' => $_kd_urusan,
+				'kd_bidang' => $_kd_bidang,
+				'kd_unit' => $kd_unit,
+				'kd_sub' => $kd_sub_unit,
+				'kd_prog' => $kd_prog,
+				'id_prog' => $id_prog,
+				'kd_keg' => $kd_keg
+			);
 			$data_all['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']]['data'][$sub['kode_giat']]['data'][$sub['kode_sub_giat']] = array(
-				'nama'	=> implode(' ', $nama),
+				'nama'	=> implode(' ', $nama).'<span class="detail_simda">'.json_encode($detail_simda).'</span>',
 				'total' => 0,
 				'total_simda' => 0,
 				'realisasi' => 0,
@@ -574,6 +583,9 @@ foreach ($units as $k => $unit):
 	);
 
 	echo '
+	<style>
+		.detail_simda { display: none; }
+	</style>
 	<input type="hidden" value="'.get_option( '_crb_api_key_extension' ).'" id="api_key">
 	<input type="hidden" value="'.$input['tahun_anggaran'].'" id="tahun_anggaran">
 	<input type="hidden" value="'.$unit['id_skpd'].'" id="id_skpd">
