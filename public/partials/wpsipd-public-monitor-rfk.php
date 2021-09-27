@@ -60,7 +60,6 @@ if(empty($units)){
 }
 
 $current_user = wp_get_current_user();
-$custom_mapping = $this->get_custom_mapping_sub_keg();
 
 foreach ($units as $k => $unit): 
 	$kd_unit_simda = explode('.', get_option('_crb_unit_'.$unit['id_skpd']));
@@ -166,7 +165,7 @@ foreach ($units as $k => $unit):
 			$kd_prog = $mapping[0]->kd_prog;
 			$kd_keg = $mapping[0]->kd_keg;
 		}
-		foreach ($custom_mapping as $c_map_k => $c_map_v) {
+		foreach ($this->simda->custom_mapping as $c_map_k => $c_map_v) {
 			if(
 				$unit['kode_skpd'] == $c_map_v['sipd']['kode_skpd']
 				&& $sub['kode_sub_giat'] == $c_map_v['sipd']['kode_sub_keg']

@@ -31,14 +31,38 @@ class Wpsipd_Simda
 	private $opsi_nilai_rincian;
 
 	private $status_koneksi_simda;
+	
+	public $custom_mapping;
 
-	public function __construct($plugin_name, $version)
-	{
+	public function __construct($plugin_name, $version){
 
 		$this->plugin_name = $plugin_name;
 		$this->version = $version;
 		$this->opsi_nilai_rincian = get_option( '_crb_simda_pagu' );
 		$this->status_koneksi_simda = true;
+		$this->custom_mapping = $this->get_custom_mapping_sub_keg();
+	}
+
+	function get_custom_mapping_sub_keg(){
+		$data = get_option('_crb_custom_mapping_sub_keg_simda');
+		$data = explode(',', $data);
+		$data_all = array();
+		foreach ($data as $k => $v) {
+			$baris = explode('-', $v);
+			$sipd = explode('_', $baris[0]);
+			$simda = explode('_', $baris[1]);
+			$data_all[$v] = array(
+				'sipd' => array(
+					'kode_skpd' => $sipd[0],
+					'kode_sub_keg' => $sipd[1]
+				), 
+				'simda' => array(
+					'kode_skpd' => $simda[0],
+					'kode_sub_keg' => $simda[1]
+				)
+			);
+		}
+		return $data_all;
 	}
 
 	function singkronSimdaPembiayaan($opsi=array()){
@@ -729,9 +753,19 @@ class Wpsipd_Simda
 						foreach ($_POST['data'] as $k => $v) {
 							if(!empty($v['id_skpd'])){
 								$kd_unit_simda = explode('.', get_option('_crb_unit_'.$v['id_skpd']));
+								$id_unit_sipd = $v['id_skpd'];
 							}else{
 								$kd_unit_simda = explode('.', get_option('_crb_unit_'.$v['id_unit']));
+								$id_unit_sipd = $v['id_unit'];
 							}
+							$unit_sipd = $wpdb->get_results($wpdb->prepare("
+								SELECT 
+									u.kode_skpd 
+								from data_unit u
+								where u.tahun_anggaran=%d
+									AND u.id_skpd=%d
+									AND u.active=1", $tahun_anggaran, $id_unit_sipd)
+							, ARRAY_A);
 							if($type == 'belanja'){
 								$kd_unit_simda = explode('.', get_option('_crb_unit_'.$kode_sbl[2]));
 							}
@@ -798,6 +832,23 @@ class Wpsipd_Simda
 									$kd_bidang = $mapping[0]->kd_bidang;
 									$kd_prog = $mapping[0]->kd_prog;
 									$kd_keg = $mapping[0]->kd_keg;
+									foreach ($this->custom_mapping as $c_map_k => $c_map_v) {
+										if(
+											$unit_sipd[0]['kode_skpd'] == $c_map_v['sipd']['kode_skpd']
+											&& $sub_giat[0]['kode_sub_giat'] == $c_map_v['sipd']['kode_sub_keg']
+										){
+											$kd_unit_simda_map = explode('.', $c_map_v['simda']['kode_skpd']);
+											$_kd_urusan = $kd_unit_simda_map[0];
+											$_kd_bidang = $kd_unit_simda_map[1];
+											$kd_unit = $kd_unit_simda_map[2];
+											$kd_sub_unit = $kd_unit_simda_map[3];
+											$kd_keg_simda = explode('.', $c_map_v['simda']['kode_sub_keg']);
+											$kd_urusan = $kd_keg_simda[0];
+											$kd_bidang = $kd_keg_simda[1];
+											$kd_prog = $kd_keg_simda[2];
+											$kd_keg = $kd_keg_simda[3];
+										}
+									}
 									$id_prog = $kd_urusan.$this->CekNull($kd_bidang);
 								}else{
 									$kd_urusan = 0;
@@ -1059,7 +1110,23 @@ class Wpsipd_Simda
 									$kd_bidang = $mapping[0]->kd_bidang;
 									$kd_prog = $mapping[0]->kd_prog;
 									$kd_keg = $mapping[0]->kd_keg;
-
+									foreach ($this->custom_mapping as $c_map_k => $c_map_v) {
+										if(
+											$_POST['kode_skpd'] == $c_map_v['sipd']['kode_skpd']
+											&& $v['kode_sub_giat'] == $c_map_v['sipd']['kode_sub_keg']
+										){
+											$kd_unit_simda_map = explode('.', $c_map_v['simda']['kode_skpd']);
+											$_kd_urusan = $kd_unit_simda_map[0];
+											$_kd_bidang = $kd_unit_simda_map[1];
+											$kd_unit = $kd_unit_simda_map[2];
+											$kd_sub_unit = $kd_unit_simda_map[3];
+											$kd_keg_simda = explode('.', $c_map_v['simda']['kode_sub_keg']);
+											$kd_urusan = $kd_keg_simda[0];
+											$kd_bidang = $kd_keg_simda[1];
+											$kd_prog = $kd_keg_simda[2];
+											$kd_keg = $kd_keg_simda[3];
+										}
+									}
 				                    $id_prog = $kd_urusan.$this->CekNull($kd_bidang);
 				                    $nama_prog = $v['nama_giat'];
 

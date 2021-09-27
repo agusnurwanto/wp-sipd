@@ -76,6 +76,17 @@ foreach ($data_sub_giat as $k =>$v) {
     $kd_unit = $kd_unit_simda[2];
     $kd_sub_unit = $kd_unit_simda[3];
 
+    $kode = explode('.', $v['kode_sbl']);
+    $idskpd = $kode[1];
+    $skpd = $wpdb->get_row($wpdb->prepare("
+        SELECT 
+            nama_skpd, kode_skpd 
+        from data_unit 
+        where id_skpd=%d 
+            and tahun_anggaran=%d
+            and active=1",
+        $idskpd, $input['tahun_anggaran']), ARRAY_A);
+
     $kd = explode('.', $v['kode_sub_giat']);
     $kd_urusan90 = (int) $kd[0];
     $kd_bidang90 = (int) $kd[1];
@@ -104,6 +115,23 @@ foreach ($data_sub_giat as $k =>$v) {
         $kd_bidang = $mapping[0]->kd_bidang;
         $kd_prog = $mapping[0]->kd_prog;
         $kd_keg = $mapping[0]->kd_keg;
+    }
+    foreach ($this->simda->custom_mapping as $c_map_k => $c_map_v) {
+        if(
+            $skpd['kode_skpd'] == $c_map_v['sipd']['kode_skpd']
+            && $v['kode_sub_giat'] == $c_map_v['sipd']['kode_sub_keg']
+        ){
+            $kd_unit_simda_map = explode('.', $c_map_v['simda']['kode_skpd']);
+            $_kd_urusan = $kd_unit_simda_map[0];
+            $_kd_bidang = $kd_unit_simda_map[1];
+            $kd_unit = $kd_unit_simda_map[2];
+            $kd_sub_unit = $kd_unit_simda_map[3];
+            $kd_keg_simda = explode('.', $c_map_v['simda']['kode_sub_keg']);
+            $kd_urusan = $kd_keg_simda[0];
+            $kd_bidang = $kd_keg_simda[1];
+            $kd_prog = $kd_keg_simda[2];
+            $kd_keg = $kd_keg_simda[3];
+        }
     }
 
     $id_prog = $kd_urusan.$this->simda->CekNull($kd_bidang);
@@ -176,10 +204,6 @@ foreach ($data_sub_giat as $k =>$v) {
 
     $v['sd_data'] = $sd_data;
     $v['sd_realisasi'] = $sd_realisasi;
-
-	$kode = explode('.', $v['kode_sbl']);
-    $idskpd = $kode[1];
-    $skpd = $wpdb->get_row("SELECT nama_skpd, kode_skpd from data_unit where id_skpd=$idskpd", ARRAY_A);
     if(empty($data_sumberdana_shorted['data'][$skpd['kode_skpd']])){
         $data_sumberdana_shorted['data'][$skpd['kode_skpd']] = array(
             'nama' => $skpd['nama_skpd'],

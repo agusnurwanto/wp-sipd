@@ -483,6 +483,69 @@ class Wpsipd_Public
 		die(json_encode($ret));
 	}
 
+	public function singkron_skpd_mitra_bappeda(){
+		global $wpdb;
+		$ret = array(
+			'status'	=> 'success',
+			'message'	=> 'Berhasil export data SKPD user mitra!'
+		);
+		if (!empty($_POST)) {
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+				if (!empty($_POST['data'])) {
+					$wpdb->update('data_skpd_mitra_bappeda', array( 'active' => 0 ), array(
+						'id_user' => $_POST['id_user'],
+						'tahun_anggaran' => $_POST['tahun_anggaran']
+					));
+					foreach ($_POST['data'] as $k => $v) {
+						$cek = $wpdb->get_var("
+							SELECT 
+								id_user 
+							from data_skpd_mitra_bappeda 
+							where tahun_anggaran=".$_POST['tahun_anggaran']." 
+								AND id_unit=" . $v['id_unit']."
+								AND id_user=" . $v['id_user']
+						);
+						$opsi = array(
+							'akses_user' => $v['akses_user'],
+							'id_level' => $v['id_level'],
+							'id_unit' => $v['id_unit'],
+							'id_user' => $v['id_user'],
+							'is_locked' => $v['is_locked'],
+							'kode_skpd' => $v['kode_skpd'],
+							'login_name' => $v['login_name'],
+							'nama_skpd' => $v['nama_skpd'],
+							'nama_user' => $v['nama_user'],
+							'nip' => $v['nip'],
+							'active' => 1,
+							'update_at' => current_time('mysql'),
+							'tahun_anggaran' => $_POST['tahun_anggaran']
+						);
+						if (!empty($cek)) {
+							$wpdb->update('data_skpd_mitra_bappeda', $opsi, array(
+								'id_unit' => $v['id_unit'],
+								'id_user' => $v['id_user'],
+								'tahun_anggaran' => $_POST['tahun_anggaran']
+							));
+						} else {
+							$wpdb->insert('data_skpd_mitra_bappeda', $opsi);
+						}
+					}
+					// print_r($ssh); die();
+				} else {
+					$ret['status'] = 'error';
+					$ret['message'] = 'Format Data SKPD Mitra Salah!';
+				}
+			} else {
+				$ret['status'] = 'error';
+				$ret['message'] = 'APIKEY tidak sesuai!';
+			}
+		} else {
+			$ret['status'] = 'error';
+			$ret['message'] = 'Format Salah!';
+		}
+		die(json_encode($ret));
+	}
+
 	public function singkron_asmas()
 	{
 		global $wpdb;
@@ -4994,6 +5057,15 @@ class Wpsipd_Public
 				$_kd_bidang = $kd_unit_simda[1];
 				$kd_unit = $kd_unit_simda[2];
 				$kd_sub_unit = $kd_unit_simda[3];
+
+    			$skpd = $wpdb->get_row($wpdb->prepare("
+    				SELECT 
+    					nama_skpd, kode_skpd 
+    				from data_unit 
+    				where id_skpd=%d 
+    					and tahun_anggaran=%d
+    					and active=1",
+    				$_POST['id_skpd'], $_POST['tahun_anggaran']), ARRAY_A);
 				foreach ($_POST['id_unik'] as $k => $v) {
 					$ids = explode('-', $v);
 					$kode_sbl = $ids[0];
@@ -5037,6 +5109,23 @@ class Wpsipd_Public
 							$kd_prog = $mapping[0]->kd_prog;
 							$kd_keg = $mapping[0]->kd_keg;
 						}
+					    foreach ($this->simda->custom_mapping as $c_map_k => $c_map_v) {
+					        if(
+					            $skpd['kode_skpd'] == $c_map_v['sipd']['kode_skpd']
+					            && $sub['kode_sub_giat'] == $c_map_v['sipd']['kode_sub_keg']
+					        ){
+					            $kd_unit_simda_map = explode('.', $c_map_v['simda']['kode_skpd']);
+					            $_kd_urusan = $kd_unit_simda_map[0];
+					            $_kd_bidang = $kd_unit_simda_map[1];
+					            $kd_unit = $kd_unit_simda_map[2];
+					            $kd_sub_unit = $kd_unit_simda_map[3];
+					            $kd_keg_simda = explode('.', $c_map_v['simda']['kode_sub_keg']);
+					            $kd_urusan = $kd_keg_simda[0];
+					            $kd_bidang = $kd_keg_simda[1];
+					            $kd_prog = $kd_keg_simda[2];
+					            $kd_keg = $kd_keg_simda[3];
+					        }
+					    }
 				        $id_prog = $kd_urusan.$this->simda->CekNull($kd_bidang);
 
 						$realisasi_db = $wpdb->get_results($wpdb->prepare("
@@ -5634,28 +5723,6 @@ class Wpsipd_Public
 			$ret['message'] = 'Format Salah!';
 		}
 		die(json_encode($ret));
-	}
-
-	function get_custom_mapping_sub_keg(){
-		$data = get_option('_crb_custom_mapping_sub_keg_simda');
-		$data = explode(',', $data);
-		$data_all = array();
-		foreach ($data as $k => $v) {
-			$baris = explode('-', $v);
-			$sipd = explode('_', $baris[0]);
-			$simda = explode('_', $baris[1]);
-			$data_all[$v] = array(
-				'sipd' => array(
-					'kode_skpd' => $sipd[0],
-					'kode_sub_keg' => $sipd[1]
-				), 
-				'simda' => array(
-					'kode_skpd' => $simda[0],
-					'kode_sub_keg' => $simda[1]
-				)
-			);
-		}
-		return $data_all;
 	}
 
 	function get_data_rpjm(){
