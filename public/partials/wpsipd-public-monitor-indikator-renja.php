@@ -1072,7 +1072,10 @@ $keterangan_skpd_triwulan = 'contenteditable="true"';
 $keterangan_verifikator_triwulan = '';
 $aksi_user = 'skpd';
 $upload_monev = '<input type="file" class="upload_monev" style="font-size:12px; width: 100%; overflow: hidden;">';
-if(current_user_can('administrator')){
+if(
+	current_user_can('administrator')
+	|| in_array("mitra_bappeda", $current_user->roles)
+){
 	$upload_monev = '';
 	$keterangan_skpd_triwulan = '';
 	$keterangan_verifikator_triwulan = 'contenteditable="true"';

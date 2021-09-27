@@ -3804,6 +3804,7 @@ class Wpsipd_Public
 			    '_crb_nama_skpd' => $skpd,
 			    '_id_sub_skpd' => $user['id_sub_skpd'],
 			    '_nip' => $user['nip'],
+			    'id_user_sipd' => $user['iduser'],
 			    'description' => 'User dibuat dari data SIPD Merah'
 			);
 		    foreach( $meta as $key => $val ) {
@@ -3835,6 +3836,12 @@ class Wpsipd_Public
 					if(!empty($users)){
 						foreach ($users as $k => $user) {
 							$user['pass'] = $_POST['pass'];
+							if(
+								$user['idlevel'] == 11
+								|| $user['idlevel'] == 7
+							){
+								$user['jabatan'] = 'mitra_bappeda';
+							}
 							$this->gen_user_sipd_merah($user);
 						}
 					}else{
@@ -3856,18 +3863,16 @@ class Wpsipd_Public
 		die(json_encode($ret));
 	}
 
-	public function menu_monev(){
+	public function menu_monev_skpd($options){
 		global $wpdb;
-		$user_id = um_user( 'ID' );
-		$skpd = get_user_meta($user_id, '_crb_nama_skpd');
-		$id_skpd = get_user_meta($user_id, '_id_sub_skpd');
-		ob_start();
+		$id_skpd = $options['id_skpd'];
+		$nama_skpd = $options['nama_skpd'];
 		echo '<div>';
 		if(!empty($id_skpd)){ 
-			echo "<h5>SKPD: $skpd[0]</h5>";
+			echo "<h5>SKPD: $nama_skpd</h5>";
 			$tahun = $wpdb->get_results('select tahun_anggaran from data_unit group by tahun_anggaran', ARRAY_A);
 			foreach ($tahun as $k => $v) {
-				$unit = $wpdb->get_results("SELECT nama_skpd, id_skpd, kode_skpd from data_unit where active=1 and tahun_anggaran=".$v['tahun_anggaran'].' and id_skpd='.$id_skpd[0], ARRAY_A);
+				$unit = $wpdb->get_results("SELECT nama_skpd, id_skpd, kode_skpd from data_unit where active=1 and tahun_anggaran=".$v['tahun_anggaran'].' and id_skpd='.$id_skpd, ARRAY_A);
 				echo "<h5>Tahun Anggaran ".$v['tahun_anggaran']."</h5>";
 				echo '<ul>';
 	            foreach ($unit as $kk => $vv) {
@@ -3903,7 +3908,50 @@ class Wpsipd_Public
 			echo 'SKPD tidak ditemukan!';
 		}
 		echo '</div>';
-		return ob_get_clean();
+		return;
+	}
+
+	public function menu_monev(){
+		global $wpdb;
+		$user_id = um_user( 'ID' );
+		$user_meta = get_userdata($user_id);
+		if(empty($user_meta->roles)){
+			echo 'User ini tidak dapat akses sama sekali :)';
+		}else if(in_array("mitra_bappeda", $user_meta->roles)){
+			$id_user_sipd = get_user_meta($user_id, 'id_user_sipd');
+			if(!empty($id_user_sipd)){
+				$skpd_mitra = $wpdb->get_results("
+					SELECT 
+						nama_skpd, 
+						id_unit, 
+						kode_skpd 
+					from data_skpd_mitra_bappeda 
+					where active=1 
+						and id_user=".$id_user_sipd[0]." 
+					group by id_unit", ARRAY_A);
+				foreach ($skpd_mitra as $k => $v) {
+					$this->menu_monev_skpd(array(
+						'id_skpd' => $v['id_unit'],
+						'nama_skpd' => $v['nama_skpd']
+					));
+				}
+			}else{
+				echo 'User ID SIPD tidak ditemukan!';
+			}
+		}else if(
+			in_array("PA", $user_meta->roles)
+			|| in_array("KPA", $user_meta->roles)
+			|| in_array("PLT", $user_meta->roles)
+		){
+			$skpd = get_user_meta($user_id, '_crb_nama_skpd');
+			$id_skpd = get_user_meta($user_id, '_id_sub_skpd');
+			$this->menu_monev_skpd(array(
+				'id_skpd' => $id_skpd[0],
+				'nama_skpd' => $skpd[0]
+			));
+		}else{
+			echo 'User ini tidak dapat akses halaman ini :)';
+		}
 	}
 
 	public function simpan_rfk(){

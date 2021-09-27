@@ -527,7 +527,11 @@ foreach ($units as $k => $unit):
 						$edit_fisik = 'contenteditable="true"';
 						$edit_masalah = 'contenteditable="true"';
 						$edit_catatan = '';
-						if(current_user_can('administrator')){
+						if(in_array("mitra_bappeda", $current_user->roles)){
+							$edit_fisik = '';
+							$edit_masalah = '';
+							$edit_catatan = '';
+						}else if(current_user_can('administrator')){
 							$edit_fisik = '';
 							$edit_masalah = '';
 							$edit_catatan = 'contenteditable="true"';
