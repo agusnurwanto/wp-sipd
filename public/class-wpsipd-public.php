@@ -5420,6 +5420,7 @@ class Wpsipd_Public
 		$ret['data'] = array();
 		if (!empty($_POST)) {
 			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+				$current_user = wp_get_current_user();
 				$ids = explode('-', $_POST['id_unik']);
 				$tahun_anggaran = $ids[0];
 				$id_skpd = $ids[1];
@@ -5548,7 +5549,11 @@ class Wpsipd_Public
 					}
 					$selisih = $rak_bulanan-$realisasi_bulanan;
 					$editable = 'contenteditable="true"';
-					if($batas_bulan_input < $i){
+					if(
+						$batas_bulan_input < $i
+						|| current_user_can('administrator')
+						|| in_array("mitra_bappeda", $current_user->roles)
+					){
 						$editable = '';
 					}
 					$tbody .= '
