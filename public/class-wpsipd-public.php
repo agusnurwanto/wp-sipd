@@ -3943,6 +3943,15 @@ class Wpsipd_Public
 			|| in_array("KPA", $user_meta->roles)
 			|| in_array("PLT", $user_meta->roles)
 		){
+			$month = date('m');
+			$triwulan = floor($month/3);
+			$notif = '<h5 style="text-align: center; padding: 10px; border: 5px; background: #f5d3d3; text-decoration: underline; border-radius: 5px;">Sekarang awal bulan triwulan baru. Waktunya mengisi <b>MONEV indikator RENJA triwulan '.$triwulan.'</b>.<br>Jaga kesehatan & semangat!</h5>';
+			if($month%3 == 1){
+				if($triwulan == 0){
+					$triwulan = 4;
+				}
+				echo $notif;
+			}
 			$skpd = get_user_meta($user_id, '_crb_nama_skpd');
 			$id_skpd = get_user_meta($user_id, '_id_sub_skpd');
 			$this->menu_monev_skpd(array(
