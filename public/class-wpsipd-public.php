@@ -1401,6 +1401,74 @@ class Wpsipd_Public
 						}
 					}
 				}
+
+				if (!empty($_POST['visi'])) {
+					$visi = $_POST['visi'];
+					$wpdb->update('data_rpjmd_visi', array('active' => 0), array(
+						'tahun_anggaran' => $_POST['tahun_anggaran']
+					));
+					foreach ($visi as $k => $v) {
+						if(empty($v['id_visi'])){
+							continue;
+						}
+						$cek = $wpdb->get_var("SELECT id_visi from data_rpjmd_visi where tahun_anggaran=".$_POST['tahun_anggaran']." AND id_visi='" . $v['id_visi']."'");
+						$opsi = array(
+							'id_visi' => $v['id_visi'],
+							'is_locked' => $v['is_locked'],
+							'status' => $v['status'],
+							'visi_teks' => $v['visi_teks'],
+							'active' => 1,
+							'update_at' => current_time('mysql'),
+							'tahun_anggaran' => $_POST['tahun_anggaran']
+						);
+
+						if (!empty($cek)) {
+							$wpdb->update('data_rpjmd_visi', $opsi, array(
+								'id_visi' => $v['id_visi'],
+								'tahun_anggaran' => $_POST['tahun_anggaran']
+							));
+						} else {
+							$wpdb->insert('data_rpjmd_visi', $opsi);
+						}
+					}
+				}
+				
+				if (!empty($_POST['misi'])) {
+					$misi = $_POST['misi'];
+					$wpdb->update('data_rpjmd_misi', array('active' => 0), array(
+						'tahun_anggaran' => $_POST['tahun_anggaran']
+					));
+					foreach ($misi as $k => $v) {
+						if(empty($v['id_misi'])){
+							continue;
+						}
+						$cek = $wpdb->get_var("SELECT id_misi from data_rpjmd_misi where tahun_anggaran=".$_POST['tahun_anggaran']." AND id_misi='" . $v['id_misi']."'");
+						$opsi = array(
+							'id_misi' => $v['id_misi'],
+							'id_misi_old' => $v['id_misi_old'],
+							'id_visi' => $v['id_visi'],
+							'is_locked' => $v['is_locked'],
+							'misi_teks' => $v['misi_teks'],
+							'status' => $v['status'],
+							'urut_misi' => $v['urut_misi'],
+							'visi_lock' => $v['visi_lock'],
+							'visi_teks' => $v['visi_teks'],
+							'active' => 1,
+							'update_at' => current_time('mysql'),
+							'tahun_anggaran' => $_POST['tahun_anggaran']
+						);
+
+						if (!empty($cek)) {
+							$wpdb->update('data_rpjmd_misi', $opsi, array(
+								'id_misi' => $v['id_misi'],
+								'tahun_anggaran' => $_POST['tahun_anggaran']
+							));
+						} else {
+							$wpdb->insert('data_rpjmd_misi', $opsi);
+						}
+					}
+				}
+
 				if (!empty($_POST['tujuan'])) {
 					$tujuan = $_POST['tujuan'];
 					$wpdb->update('data_rpjmd_tujuan', array('active' => 0), array(
@@ -2825,6 +2893,15 @@ class Wpsipd_Public
 			</table>
 		';
 		echo $table;
+	}
+
+	public function monitor_monev_rpjm($atts)
+	{
+		// untuk disable render shortcode di halaman edit page/post
+		if(!empty($_GET) && !empty($_GET['post'])){
+			return '';
+		}
+		require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/wpsipd-public-monev-rpjm.php';
 	}
 
 	public function monitor_monev_renstra($atts)

@@ -1921,3 +1921,38 @@ ALTER TABLE `data_skpd_mitra_bappeda`
   ADD PRIMARY KEY (`id`);
 ALTER TABLE `data_skpd_mitra_bappeda`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+CREATE TABLE `data_rpjmd_visi` (
+  `id` int(11) NOT NULL,
+  `id_visi` int(11) DEFAULT NULL,
+  `is_locked` tinyint(2) DEFAULT NULL,
+  `status` text DEFAULT NULL,
+  `visi_teks` text DEFAULT NULL,
+  `update_at` datetime NOT NULL,
+  `active` tinyint(4) NOT NULL,
+  `tahun_anggaran` year(4) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+ALTER TABLE `data_rpjmd_visi`
+  ADD PRIMARY KEY (`id`);
+ALTER TABLE `data_rpjmd_visi`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+CREATE TABLE `data_rpjmd_misi` (
+  `id` int(11) NOT NULL,
+  `id_misi` int(11) DEFAULT NULL,
+  `id_misi_old` int(11) DEFAULT NULL,
+  `id_visi` int(11) DEFAULT NULL,
+  `is_locked` tinyint(2) DEFAULT NULL,
+  `misi_teks` text DEFAULT NULL,
+  `status` text DEFAULT NULL,
+  `urut_misi` tinyint(2) DEFAULT NULL,
+  `visi_lock` tinyint(2) DEFAULT NULL,
+  `visi_teks` text DEFAULT NULL,
+  `update_at` datetime NOT NULL,
+  `active` tinyint(4) NOT NULL,
+  `tahun_anggaran` year(4) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+ALTER TABLE `data_rpjmd_misi`
+  ADD PRIMARY KEY (`id`);
+ALTER TABLE `data_rpjmd_misi`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;

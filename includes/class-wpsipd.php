@@ -340,6 +340,7 @@ class Wpsipd
 		add_shortcode('monitor_daftar_sumber_dana', array($plugin_public, 'monitor_daftar_sumber_dana'));
 		add_shortcode('monitor_daftar_label_komponen', array($plugin_public, 'monitor_daftar_label_komponen'));
 		add_shortcode('monitor_monev_renstra', array($plugin_public, 'monitor_monev_renstra'));
+		add_shortcode('monitor_monev_rpjm', array($plugin_public, 'monitor_monev_rpjm'));
 	}
 
 	/**
