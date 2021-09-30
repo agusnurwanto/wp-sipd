@@ -3550,7 +3550,7 @@ class Wpsipd_Public
 					$kode_giat = $bl[0]['kode_bidang_urusan'].substr($bl[0]['kode_giat'], 4, strlen($bl[0]['kode_giat']));
 					$nama_page = $_POST['tahun_anggaran'] . ' | ' . $kodeunit . ' | ' . $kode_giat . ' | ' . $bl[0]['nama_giat'];
 					$custom_post = get_page_by_title($nama_page, OBJECT, 'post');
-					$ret['link'] = esc_url( get_permalink($custom_post));
+					$ret['link'] = $this->get_link_post($custom_post);
 					$ret['text_link'] = 'Print DPA Lokal';
 					$ret['judul'] = $nama_page;
 					$ret['bl'] = $bl;
@@ -3575,7 +3575,7 @@ class Wpsipd_Public
 						$post_content = '[apbdpenjabaran tahun_anggaran="'.$_POST['tahun_anggaran'].'" lampiran="'.$_POST['jenis'].'"]';
 						$ret['text_link'] = 'Print APBD PENJABARAN Lampiran '.$_POST['jenis'];
 						$custom_post = $this->save_update_post($nama_page, $cat_name, $post_content);
-						$ret['link'] = esc_url( get_permalink($custom_post) );
+						$ret['link'] = $this->get_link_post($custom_post);
 					}else if(
 						$_POST['jenis'] == '2'
 						&& $_POST['model'] == 'perkada'
@@ -3600,7 +3600,7 @@ class Wpsipd_Public
 							$ret['link'][$v['id_skpd']] = array(
 								'id_skpd' => $v['id_skpd'],
 								'text_link' => 'Print APBD PENJABARAN Lampiran 2',
-								'link' => esc_url( get_permalink($custom_post) )
+								'link' => $this->get_link_post($custom_post);
 							);
 						}
 					}else{
