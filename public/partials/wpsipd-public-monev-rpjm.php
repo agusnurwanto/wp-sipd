@@ -64,81 +64,109 @@ $data_all = array(
 );
 $bulan = date('m');
 
-$sql = $wpdb->prepare("
-	select 
-		* 
-	from data_rpjmd_tujuan
-	where tahun_anggaran=%d
-		and active=1
-", $input['tahun_anggaran']);
-$tujuan_all = $wpdb->get_results($sql, ARRAY_A);
-
+$visi_ids = array();
+$misi_ids = array();
 $tujuan_ids = array();
 $sasaran_ids = array();
 $program_ids = array();
-foreach ($tujuan_all as $tujuan) {
-	if(empty($data_all['data'][$tujuan['id_visi']])){
-		$data_all['data'][$tujuan['id_visi']] = array(
-			'nama' => $tujuan['visi_teks'],
-			'data' => array()
-		);
-	}
-	if(empty($data_all['data'][$tujuan['id_visi']]['data'][$tujuan['id_misi']])){
-		$data_all['data'][$tujuan['id_visi']]['data'][$tujuan['id_misi']] = array(
-			'nama' => $tujuan['misi_teks'],
-			'data' => array()
-		);
-	}
-	if(empty($data_all['data'][$tujuan['id_visi']]['data'][$tujuan['id_misi']]['data'][$tujuan['id_unik']])){
-		$data_all['data'][$tujuan['id_visi']]['data'][$tujuan['id_misi']]['data'][$tujuan['id_unik']] = array(
-			'nama' => $tujuan['tujuan_teks'],
+
+$sql = $wpdb->prepare("
+	select 
+		* 
+	from data_rpjmd_visi
+	where tahun_anggaran=%d
+		and active=1
+", $input['tahun_anggaran']);
+$visi_all = $wpdb->get_results($sql, ARRAY_A);
+foreach ($visi_all as $visi) {
+	if(empty($data_all['data'][$visi['id_visi']])){
+		$data_all['data'][$visi['id_visi']] = array(
+			'nama' => $visi['visi_teks'],
 			'data' => array()
 		);
 	}
 
-	$tujuan_ids[$tujuan['id_unik']] = "'".$tujuan['id_unik']."'";
+	$visi_ids[$visi['id_visi']] = "'".$visi['id_visi']."'";
 	$sql = $wpdb->prepare("
 		select 
 			* 
-		from data_rpjmd_sasaran
+		from data_rpjmd_misi
 		where tahun_anggaran=%d
-			and kode_tujuan=%s
+			and id_visi=%s
 			and active=1
-	", $input['tahun_anggaran'], $tujuan['id_unik']);
-	$sasaran_all = $wpdb->get_results($sql, ARRAY_A);
-	foreach ($sasaran_all as $sasaran) {
-		if(empty($data_all['data'][$tujuan['id_visi']]['data'][$tujuan['id_misi']]['data'][$tujuan['id_unik']]['data'][$sasaran['id_unik']])){
-			$data_all['data'][$tujuan['id_visi']]['data'][$tujuan['id_misi']]['data'][$tujuan['id_unik']]['data'][$sasaran['id_unik']] = array(
-				'nama' => $sasaran['sasaran_teks'],
+	", $input['tahun_anggaran'], $visi['id_visi']);
+	$misi_all = $wpdb->get_results($sql, ARRAY_A);
+	foreach ($misi_all as $misi) {
+		if(empty($data_all['data'][$visi['id_visi']]['data'][$misi['id_misi']])){
+			$data_all['data'][$visi['id_visi']]['data'][$misi['id_misi']] = array(
+				'nama' => $misi['misi_teks'],
 				'data' => array()
 			);
 		}
 
-		$sasaran_ids[$sasaran['id_unik']] = "'".$sasaran['id_unik']."'";
+		$misi_ids[$misi['id_misi']] = "'".$misi['id_misi']."'";
 		$sql = $wpdb->prepare("
 			select 
 				* 
-			from data_rpjmd_program
+			from data_rpjmd_tujuan
 			where tahun_anggaran=%d
-				and kode_sasaran=%s
+				and id_misi=%s
 				and active=1
-		", $input['tahun_anggaran'], $sasaran['id_unik']);
-		$program_all = $wpdb->get_results($sql, ARRAY_A);
-		foreach ($program_all as $program) {
-			$program_ids[$program['id_unik']] = "'".$program['id_unik']."'";
-			if(empty($data_all['data'][$tujuan['id_visi']]['data'][$tujuan['id_misi']]['data'][$tujuan['id_unik']]['data'][$sasaran['id_unik']]['data'][$program['id_unik']])){
-				$data_all['data'][$tujuan['id_visi']]['data'][$tujuan['id_misi']]['data'][$tujuan['id_unik']]['data'][$sasaran['id_unik']]['data'][$program['id_unik']] = array(
-					'nama' => $program['nama_program'],
-					'kode_skpd' => $program['kode_skpd'],
-					'nama_skpd' => $program['nama_skpd'],
+		", $input['tahun_anggaran'], $misi['id_misi']);
+		$tujuan_all = $wpdb->get_results($sql, ARRAY_A);
+		foreach ($tujuan_all as $tujuan) {
+			if(empty($data_all['data'][$visi['id_visi']]['data'][$misi['id_misi']]['data'][$tujuan['id_unik']])){
+				$data_all['data'][$visi['id_visi']]['data'][$misi['id_misi']]['data'][$tujuan['id_unik']] = array(
+					'nama' => $tujuan['tujuan_teks'],
 					'data' => array()
 				);
 			}
-			if(empty($data_all['data'][$tujuan['id_visi']]['data'][$tujuan['id_misi']]['data'][$tujuan['id_unik']]['data'][$sasaran['id_unik']]['data'][$program['id_unik']]['data'][$program['id_unik_indikator']])){
-				$data_all['data'][$tujuan['id_visi']]['data'][$tujuan['id_misi']]['data'][$tujuan['id_unik']]['data'][$sasaran['id_unik']]['data'][$program['id_unik']]['data'][$program['id_unik_indikator']] = array(
-					'nama' => $program['indikator'],
-					'data' => array()
-				);
+
+			$tujuan_ids[$tujuan['id_unik']] = "'".$tujuan['id_unik']."'";
+			$sql = $wpdb->prepare("
+				select 
+					* 
+				from data_rpjmd_sasaran
+				where tahun_anggaran=%d
+					and kode_tujuan=%s
+					and active=1
+			", $input['tahun_anggaran'], $tujuan['id_unik']);
+			$sasaran_all = $wpdb->get_results($sql, ARRAY_A);
+			foreach ($sasaran_all as $sasaran) {
+				if(empty($data_all['data'][$visi['id_visi']]['data'][$misi['id_misi']]['data'][$tujuan['id_unik']]['data'][$sasaran['id_unik']])){
+					$data_all['data'][$visi['id_visi']]['data'][$misi['id_misi']]['data'][$tujuan['id_unik']]['data'][$sasaran['id_unik']] = array(
+						'nama' => $sasaran['sasaran_teks'],
+						'data' => array()
+					);
+				}
+
+				$sasaran_ids[$sasaran['id_unik']] = "'".$sasaran['id_unik']."'";
+				$sql = $wpdb->prepare("
+					select 
+						* 
+					from data_rpjmd_program
+					where tahun_anggaran=%d
+						and kode_sasaran=%s
+						and active=1
+				", $input['tahun_anggaran'], $sasaran['id_unik']);
+				$program_all = $wpdb->get_results($sql, ARRAY_A);
+				foreach ($program_all as $program) {
+					$program_ids[$program['id_unik']] = "'".$program['id_unik']."'";
+					if(empty($data_all['data'][$visi['id_visi']]['data'][$misi['id_misi']]['data'][$tujuan['id_unik']]['data'][$sasaran['id_unik']]['data'][$program['id_unik']])){
+						$data_all['data'][$visi['id_visi']]['data'][$misi['id_misi']]['data'][$tujuan['id_unik']]['data'][$sasaran['id_unik']]['data'][$program['id_unik']] = array(
+							'nama' => $program['nama_program'],
+							'kode_skpd' => $program['kode_skpd'],
+							'nama_skpd' => $program['nama_skpd'],
+							'data' => array()
+						);
+					}
+					if(empty($data_all['data'][$visi['id_visi']]['data'][$misi['id_misi']]['data'][$tujuan['id_unik']]['data'][$sasaran['id_unik']]['data'][$program['id_unik']]['data'][$program['id_unik_indikator']])){
+						$data_all['data'][$visi['id_visi']]['data'][$misi['id_misi']]['data'][$tujuan['id_unik']]['data'][$sasaran['id_unik']]['data'][$program['id_unik']]['data'][$program['id_unik_indikator']] = array(
+							'nama' => $program['indikator'],
+							'data' => array()
+						);
+					}
+				}
 			}
 		}
 	}
@@ -168,6 +196,150 @@ if(empty($data_all['data']['visi_kosong']['data']['misi_kosong']['data']['tujuan
 		'nama' => '<span style="color: red">kosong</span>',
 		'data' => array()
 	);
+}
+
+// select misi yang belum terselect
+$sql = $wpdb->prepare("
+	select 
+		* 
+	from data_rpjmd_misi
+	where tahun_anggaran=%d
+		and active=1
+		and id_misi not in (".implode(',', $misi_ids).")
+", $input['tahun_anggaran']);
+$misi_all_kosong = $wpdb->get_results($sql, ARRAY_A);
+foreach ($misi_all_kosong as $misi) {
+	if(empty($data_all['data']['visi_kosong']['data'][$misi['id_misi']])){
+		$data_all['data']['visi_kosong']['data'][$misi['id_misi']]['data'] = array(
+			'nama' => $misi['misi_teks'],
+			'data' => array()
+		);
+	}
+	$sql = $wpdb->prepare("
+		select 
+			* 
+		from data_rpjmd_tujuan
+		where tahun_anggaran=%d
+			and id_misi=%s
+			and active=1
+	", $input['tahun_anggaran'], $misi['id_misi']);
+	$tujuan_all_kosong = $wpdb->get_results($sql, ARRAY_A);
+	foreach ($tujuan_all_kosong as $tujuan) {
+		$tujuan_ids[$tujuan['id_unik']] = "'".$tujuan['id_unik']."'";
+		if(empty($data_all['data']['visi_kosong']['data'][$misi['id_misi']]['data'][$tujuan['id_unik']])){
+			$data_all['data']['visi_kosong']['data'][$misi['id_misi']]['data'][$tujuan['id_unik']] = array(
+				'nama' => $tujuan['sasaran_teks'],
+				'data' => array()
+			);
+		}
+		$sql = $wpdb->prepare("
+			select 
+				* 
+			from data_rpjmd_sasaran
+			where tahun_anggaran=%d
+				and kode_tujuan=%s
+				and active=1
+		", $input['tahun_anggaran'], $tujuan['id_unik']);
+		$sasaran_all = $wpdb->get_results($sql, ARRAY_A);
+		foreach ($sasaran_all as $sasaran) {
+			$sasaran_ids[$sasaran['id_unik']] = "'".$sasaran['id_unik']."'";
+			if(empty($data_all['data']['visi_kosong']['data'][$misi['id_misi']]['data'][$tujuan['id_unik']]['data'][$sasaran['id_unik']])){
+				$data_all['data']['visi_kosong']['data'][$misi['id_misi']]['data'][$tujuan['id_unik']]['data'][$sasaran['id_unik']] = array(
+					'nama' => $sasaran['sasaran_teks'],
+					'data' => array()
+				);
+			}
+			$sql = $wpdb->prepare("
+				select 
+					* 
+				from data_rpjmd_program
+				where tahun_anggaran=%d
+					and kode_sasaran=%s
+					and active=1
+			", $input['tahun_anggaran'], $sasaran['id_unik']);
+			$program_all = $wpdb->get_results($sql, ARRAY_A);
+			foreach ($program_all as $program) {
+				$program_ids[$program['id_unik']] = "'".$program['id_unik']."'";
+				if(empty($data_all['data']['visi_kosong']['data'][$misi['id_misi']]['data'][$tujuan['id_unik']]['data'][$sasaran['id_unik']]['data'][$program['id_unik']])){
+					$data_all['data']['visi_kosong']['data'][$misi['id_misi']]['data'][$tujuan['id_unik']]['data'][$sasaran['id_unik']]['data'][$program['id_unik']] = array(
+						'nama' => $program['nama_program'],
+						'kode_skpd' => $program['kode_skpd'],
+						'nama_skpd' => $program['nama_skpd'],
+						'data' => array()
+					);
+				}
+				if(empty($data_all['data']['visi_kosong']['data'][$misi['id_misi']]['data'][$tujuan['id_unik']]['data'][$sasaran['id_unik']]['data'][$program['id_unik']]['data'][$program['id_unik_indikator']])){
+					$data_all['data']['visi_kosong']['data'][$misi['id_misi']]['data'][$tujuan['id_unik']]['data'][$sasaran['id_unik']]['data'][$program['id_unik']]['data'][$program['id_unik_indikator']] = array(
+						'nama' => $program['indikator'],
+						'data' => array()
+					);
+				}
+			}
+		}
+	}
+}
+
+// select tujuan yang belum terselect
+$sql = $wpdb->prepare("
+	select 
+		* 
+	from data_rpjmd_tujuan
+	where tahun_anggaran=%d
+		and active=1
+		and id_unik not in (".implode(',', $sasaran_ids).")
+", $input['tahun_anggaran']);
+$tujuan_all_kosong = $wpdb->get_results($sql, ARRAY_A);
+foreach ($tujuan_all_kosong as $tujuan) {
+	if(empty($data_all['data']['visi_kosong']['data']['misi_kosong']['data'][$tujuan['id_unik']])){
+		$data_all['data']['visi_kosong']['data']['misi_kosong']['data'][$tujuan['id_unik']] = array(
+			'nama' => $tujuan['tujuan_teks'],
+			'data' => array()
+		);
+	}
+	$sql = $wpdb->prepare("
+		select 
+			* 
+		from data_rpjmd_sasaran
+		where tahun_anggaran=%d
+			and kode_tujuan=%s
+			and active=1
+	", $input['tahun_anggaran'], $tujuan['id_unik']);
+	$sasaran_all = $wpdb->get_results($sql, ARRAY_A);
+	foreach ($sasaran_all as $sasaran) {
+		$sasaran_ids[$sasaran['id_unik']] = "'".$sasaran['id_unik']."'";
+		if(empty($data_all['data']['visi_kosong']['data']['misi_kosong']['data'][$tujuan['id_unik']]['data'][$sasaran['id_unik']])){
+			$data_all['data']['visi_kosong']['data']['misi_kosong']['data'][$tujuan['id_unik']]['data'][$sasaran['id_unik']] = array(
+				'nama' => $sasaran['sasaran_teks'],
+				'data' => array()
+			);
+		}
+		$sql = $wpdb->prepare("
+			select 
+				* 
+			from data_rpjmd_program
+			where tahun_anggaran=%d
+				and kode_sasaran=%s
+				and active=1
+		", $input['tahun_anggaran'], $sasaran['id_unik']);
+		$program_all = $wpdb->get_results($sql, ARRAY_A);
+		foreach ($program_all as $program) {
+			$program_ids[$program['id_unik']] = "'".$program['id_unik']."'";
+			if(empty($data_all['data']['visi_kosong']['data']['misi_kosong']['data'][$tujuan['id_unik']]['data'][$sasaran['id_unik']]['data'][$program['id_unik']])){
+				$data_all['data']['visi_kosong']['data']['misi_kosong']['data'][$tujuan['id_unik']]['data'][$sasaran['id_unik']]['data'][$program['id_unik']] = array(
+					'nama' => $program['nama_program'],
+					'kode_skpd' => $program['kode_skpd'],
+					'nama_skpd' => $program['nama_skpd'],
+					'data' => array()
+				);
+			}
+			if(empty($data_all['data']['visi_kosong']['data']['misi_kosong']['data'][$tujuan['id_unik']]['data'][$sasaran['id_unik']]['data'][$program['id_unik']]['data'][$program['id_unik_indikator']])){
+				$data_all['data']['visi_kosong']['data']['misi_kosong']['data'][$tujuan['id_unik']]['data'][$sasaran['id_unik']]['data'][$program['id_unik']]['data'][$program['id_unik_indikator']] = array(
+					'nama' => $program['indikator'],
+					'data' => array()
+				);
+			}
+		}
+	}
 }
 
 // select sasaran yang belum terselect
@@ -433,8 +605,22 @@ foreach ($data_all['data'] as $visi) {
 
 	var aksi = ''
 		+'<h3 style="margin-top: 20px;">SETTING</h3>'
-		+'<label><input type="checkbox" onclick="edit_monev_indikator(this);"> Edit Monev indikator</label>';
+		+'<label><input type="checkbox" onclick="edit_monev_indikator(this);"> Edit Monev indikator</label>'
+		+'<label style="margin-left: 20px;"><input type="checkbox" onclick="show_debug(this);"> Debug Cascading RPJM</label>';
 	jQuery('#action-sipd').append(aksi);
+	function show_debug(that){
+		if(jQuery(that).is(':checked')){
+			jQuery('.debug-visi').show();
+			jQuery('.debug-misi').show();
+			jQuery('.debug-tujuan').show();
+			jQuery('.debug-sasaran').show();
+		}else{
+			jQuery('.debug-visi').hide();
+			jQuery('.debug-misi').hide();
+			jQuery('.debug-tujuan').hide();
+			jQuery('.debug-sasaran').hide();
+		}
+	}
 	function edit_monev_indikator(that){
 		if(jQuery(that).is(':checked')){
 			jQuery('.edit-monev').show();
