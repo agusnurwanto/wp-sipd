@@ -3600,7 +3600,7 @@ class Wpsipd_Public
 							$ret['link'][$v['id_skpd']] = array(
 								'id_skpd' => $v['id_skpd'],
 								'text_link' => 'Print APBD PENJABARAN Lampiran 2',
-								'link' => $this->get_link_post($custom_post);
+								'link' => $this->get_link_post($custom_post)
 							);
 						}
 					}else{
