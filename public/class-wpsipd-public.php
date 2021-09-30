@@ -4568,7 +4568,16 @@ class Wpsipd_Public
 			$pagu_blud_fktp = $this->simda->CurlSimda(array('query' => $sql.$sql_akun), false);
 
 			$realisasi = $realisasi + $pagu_blud_fktp[0]->total;
+		}
 
+		/* Jurnal BLUD / FKTP + SIMDA BOS */
+		if(
+			$kd_urusan == 1
+			AND (
+				$kd_bidang == 1
+				|| $kd_bidang == 2
+			)
+		){
 			$sql = $wpdb->prepare("
 				SELECT
 					sum(r.nilai) as total
