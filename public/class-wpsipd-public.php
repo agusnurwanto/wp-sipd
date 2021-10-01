@@ -4097,6 +4097,68 @@ class Wpsipd_Public
 		die(json_encode($ret));
 	}
 
+	public function reset_catatan_verifkator_rfk(){
+		global $wpdb;
+		$ret = array();
+		$ret['status'] = 'success';
+		$ret['message'] = 'Berhasil reset catatan verifikator sesuai bulan sebelumnya!';
+		if (!empty($_POST)) {
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+				$sql = $wpdb->prepare("
+				    select 
+				        *
+				    from data_rfk
+				    where tahun_anggaran=%d
+				        and bulan=%d
+				        and id_skpd=%d
+				", $_POST['tahun_anggaran'], $_POST['bulan']-1, $_POST['id_skpd']);
+				$rfk = $wpdb->get_results($sql, ARRAY_A);
+				foreach ($rfk as $k => $v) {
+					$sql = $wpdb->prepare("
+					    select 
+					        *
+					    from data_rfk
+					    where tahun_anggaran=%d
+					        and bulan=%d
+					        and id_skpd=%d
+					        and kode_sbl=%s
+					", $_POST['tahun_anggaran'], $_POST['bulan'], $_POST['id_skpd'], $v['kode_sbl']);
+					$cek = $wpdb->get_results($sql, ARRAY_A);
+					$opsi = array(
+						'bulan'	=> $_POST['bulan'],
+						'kode_sbl'	=> $v['kode_sbl'],
+						'catatan_verifikator'	=> $v['catatan_verifikator'],
+						'user_verifikator'	=> $_POST['user'],
+						'id_skpd'	=> $v['id_skpd'],
+						'tahun_anggaran'	=> $_POST['tahun_anggaran'],
+						'update_verifikator_at'	=>  current_time('mysql')
+					);
+					if (!empty($cek)) {
+						$wpdb->update('data_rfk', $opsi, array(
+							'tahun_anggaran' => $_POST['tahun_anggaran'],
+							'bulan' => $_POST['bulan'],
+							'id_skpd' => $v['id_skpd'],
+							'kode_sbl' => $v['kode_sbl']
+						));
+					} else {
+						$wpdb->insert('data_rfk', $opsi);
+					}
+				}
+				if(empty($rfk)){
+					$ret['status'] = 'error';
+					$ret['message'] = 'Data RFK bulan sebelumnya kosong!';
+				}
+			} else {
+				$ret['status'] = 'error';
+				$ret['message'] = 'APIKEY tidak sesuai!';
+			}
+		} else {
+			$ret['status'] = 'error';
+			$ret['message'] = 'Format Salah!';
+		}
+		die(json_encode($ret));
+	}
+
 	public function reset_rfk(){
 		global $wpdb;
 		$ret = array();

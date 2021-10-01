@@ -675,8 +675,22 @@ endforeach;
 $reset_rfk = '';
 if(!current_user_can('administrator')){
 	$reset_rfk = '<button style="margin-left: 20px;" class="button button-default" id="reset-rfk">Reset RFK Bulan Sebelumnya</button>';
+}else{
+	$reset_rfk = '<button style="margin-left: 20px;" class="button button-default" id="reset-verifikator-rfk">Reset Catatan Verifikator RFK Bulan Sebelumnya</button>';
 }
 ?>
+
+<div class="hide-print" id="catatan_dokumentasi" style="max-width: 1200px; margin: auto;">
+	<h4 style="margin: 30px 0 10px; font-weight: bold;">Catatan Dokumentasi:</h4>
+	<ul>
+		<li>Laporan RFK secara default menampilkan data pada bulan berjalan</li>
+		<li>Tombol <b>DOWNLOAD EXCEL</b> digunakan untuk mendownload tabel laporan RFK ke format excel</li>
+		<li>Pilihan <b>Bulan Realisasi</b> digunakan untuk menampilkan laporan RFK sesuai bulan yang dipilih</li>
+		<li>Tombol <b>Simpan Data</b> digunakan untuk menyimpan data yang sudah diinput atau diedit oleh user SKPD dan user verfikator</li>
+		<li>Tombol <b>Reset RFK bulan sebelumnya</b> digunakan untuk mengupdate data input sesuai dengan data di bulan sebelumnya. Fitur ini mempermudah user untuk menginput data pada awal bulan, agar tidak perlu menginput satu per satu data mulai dari awal</li>
+		<li><b>CATATAN KESIMPULAN KABAG ADBANG</b> adalah catatan yang diisi oleh KABAG ADBANG, berisi kesimpulan dari catatan verfikator</li>
+	</ul>
+</div>
 <script type="text/javascript">
 	run_download_excel();
     function generate_total(){
@@ -809,7 +823,7 @@ if(!current_user_can('administrator')){
 	    	}
 	    });
 	    jQuery('#reset-rfk').on('click', function(){
-	    	if(confirm('Apakah anda yakin untuk data RFK sesuai bulan sebelumnya? Data RFK saat ini akan disamakan dengan bulan sebelumnya!')){
+	    	if(confirm('Apakah anda yakin untuk reset data RFK sesuai bulan sebelumnya? Data RFK saat ini akan disamakan dengan bulan sebelumnya!')){
 	    		jQuery('#wrap-loading').show();
 	    		var id_skpd = jQuery('#id_skpd').val();
 	    		jQuery.ajax({
@@ -817,6 +831,34 @@ if(!current_user_can('administrator')){
 		          	type: "post",
 		          	data: {
 		          		"action": "reset_rfk",
+		          		"api_key": jQuery('#api_key').val(),
+		          		"tahun_anggaran": jQuery('#tahun_anggaran').val(),
+		          		"bulan": jQuery('#pilih_bulan').val(),
+		          		"id_skpd": id_skpd,
+		          		"user": "<?php echo $current_user->display_name; ?>"
+		          	},
+		          	dataType: "json",
+		          	success: function(data){
+		    			jQuery('#wrap-loading').hide();
+						alert(data.message);
+						window.location.href="";
+					},
+					error: function(e) {
+		    			jQuery('#wrap-loading').hide();
+						console.log(e);
+					}
+				});
+	    	}
+	    });
+	    jQuery('#reset-verifikator-rfk').on('click', function(){
+	    	if(confirm('Apakah anda yakin untuk reset catatan verifikasi RFK sesuai bulan sebelumnya? Data saat ini akan disamakan dengan bulan sebelumnya!')){
+	    		jQuery('#wrap-loading').show();
+	    		var id_skpd = jQuery('#id_skpd').val();
+	    		jQuery.ajax({
+					url: "<?php echo admin_url('admin-ajax.php'); ?>",
+		          	type: "post",
+		          	data: {
+		          		"action": "reset_catatan_verifkator_rfk",
 		          		"api_key": jQuery('#api_key').val(),
 		          		"tahun_anggaran": jQuery('#tahun_anggaran').val(),
 		          		"bulan": jQuery('#pilih_bulan').val(),

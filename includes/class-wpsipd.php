@@ -321,6 +321,7 @@ class Wpsipd
 
 		$this->loader->add_action('wp_ajax_simpan_rfk',  $plugin_public, 'simpan_rfk');
 		$this->loader->add_action('wp_ajax_reset_rfk',  $plugin_public, 'reset_rfk');
+		$this->loader->add_action('wp_ajax_reset_catatan_verifkator_rfk',  $plugin_public, 'reset_catatan_verifkator_rfk');
 		$this->loader->add_action('wp_ajax_get_monev',  $plugin_public, 'get_monev');
 		$this->loader->add_action('wp_ajax_save_monev_renja_triwulan',  $plugin_public, 'save_monev_renja_triwulan');
 		$this->loader->add_action('wp_ajax_simpan_catatan_rfk_unit',  $plugin_public, 'simpan_catatan_rfk_unit');
