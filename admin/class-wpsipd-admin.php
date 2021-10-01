@@ -297,9 +297,6 @@ class Wpsipd_Admin {
 						}else if($_POST['type'] == 'monev_renstra'){
 							$url_skpd = $this->generatePage('MONEV RENSTRA '.$vv['nama_skpd'].' '.$vv['kode_skpd'].' | '.$v['tahun_anggaran'], $v['tahun_anggaran'], '[monitor_monev_renstra tahun_anggaran="'.$v['tahun_anggaran'].'" id_skpd="'.$vv['id_skpd'].'"]');
 		            		$body_pemda .= '<li><a target="_blank" href="'.$url_skpd.'">Halaman MONEV RENSTRA '.$vv['kode_skpd'].' '.$vv['nama_skpd'].' '.$v['tahun_anggaran'].'</a> (NIP: '.$vv['nipkepala'].')';
-						}else if($_POST['type'] == 'monev_rpjm'){
-							$url_skpd = $this->generatePage('MONEV RPJM '.$vv['nama_skpd'].' '.$vv['kode_skpd'].' | '.$v['tahun_anggaran'], $v['tahun_anggaran'], '[monitor_monev_rpjm tahun_anggaran="'.$v['tahun_anggaran'].'" id_skpd="'.$vv['id_skpd'].'"]');
-		            		$body_pemda .= '<li><a target="_blank" href="'.$url_skpd.'">Halaman MONEV RPJM '.$vv['kode_skpd'].' '.$vv['nama_skpd'].' '.$v['tahun_anggaran'].'</a> (NIP: '.$vv['nipkepala'].')';
 						}else if($_POST['type'] == 'sumber_dana'){
 							$this->generatePage('Sumber Dana '.$vv['nama_skpd'].' '.$vv['kode_skpd'].' | '.$v['tahun_anggaran'], $v['tahun_anggaran'], '[monitor_daftar_sumber_dana tahun_anggaran="'.$v['tahun_anggaran'].'" id_skpd="'.$vv['id_skpd'].'"]');
 						}else if($_POST['type'] == 'label_komponen'){
@@ -319,9 +316,6 @@ class Wpsipd_Admin {
 							}else if($_POST['type'] == 'monev_renstra'){
 								$url_skpd = $this->generatePage('MONEV RENSTRA '.$vvv['nama_skpd'].' '.$vvv['kode_skpd'].' | '.$v['tahun_anggaran'], $v['tahun_anggaran'], '[monitor_monev_renstra tahun_anggaran="'.$v['tahun_anggaran'].'" id_skpd="'.$vvv['id_skpd'].'"]');
 			            		$body_pemda .= '<li><a target="_blank" href="'.$url_skpd.'">Halaman MONEV RENSTRA '.$vvv['kode_skpd'].' '.$vvv['nama_skpd'].' '.$v['tahun_anggaran'].'</a> (NIP: '.$vvv['nipkepala'].')</li>';
-							}else if($_POST['type'] == 'monev_rpjm'){
-								$url_skpd = $this->generatePage('MONEV RPJM '.$vvv['nama_skpd'].' '.$vvv['kode_skpd'].' | '.$v['tahun_anggaran'], $v['tahun_anggaran'], '[monitor_monev_rpjm tahun_anggaran="'.$v['tahun_anggaran'].'" id_skpd="'.$vvv['id_skpd'].'"]');
-			            		$body_pemda .= '<li><a target="_blank" href="'.$url_skpd.'">Halaman MONEV RPJM '.$vvv['kode_skpd'].' '.$vvv['nama_skpd'].' '.$v['tahun_anggaran'].'</a> (NIP: '.$vvv['nipkepala'].')</li>';
 							}else if($_POST['type'] == 'sumber_dana'){
 		            			$this->generatePage('Sumber Dana '.$vvv['nama_skpd'].' '.$vvv['kode_skpd'].' | '.$v['tahun_anggaran'], $v['tahun_anggaran'], '[monitor_daftar_sumber_dana tahun_anggaran="'.$v['tahun_anggaran'].'" id_skpd="'.$vvv['id_skpd'].'"]');
 							}else if($_POST['type'] == 'label_komponen'){

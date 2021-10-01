@@ -69,6 +69,7 @@ $misi_ids = array();
 $tujuan_ids = array();
 $sasaran_ids = array();
 $program_ids = array();
+$skpd_filter = array();
 
 $sql = $wpdb->prepare("
 	select 
@@ -152,6 +153,11 @@ foreach ($visi_all as $visi) {
 				$program_all = $wpdb->get_results($sql, ARRAY_A);
 				foreach ($program_all as $program) {
 					$program_ids[$program['id_unik']] = "'".$program['id_unik']."'";
+					if(empty($program['kode_skpd'])){
+						$program['kode_skpd'] = '00';
+						$program['nama_skpd'] = 'SKPD Kosong';
+					}
+					$skpd_filter[$program['kode_skpd']] = $program['nama_skpd'];
 					if(empty($data_all['data'][$visi['id_visi']]['data'][$misi['id_misi']]['data'][$tujuan['id_unik']]['data'][$sasaran['id_unik']]['data'][$program['id_unik']])){
 						$data_all['data'][$visi['id_visi']]['data'][$misi['id_misi']]['data'][$tujuan['id_unik']]['data'][$sasaran['id_unik']]['data'][$program['id_unik']] = array(
 							'nama' => $program['nama_program'],
@@ -286,7 +292,7 @@ $sql = $wpdb->prepare("
 	from data_rpjmd_tujuan
 	where tahun_anggaran=%d
 		and active=1
-		and id_unik not in (".implode(',', $sasaran_ids).")
+		and id_unik not in (".implode(',', $tujuan_ids).")
 ", $input['tahun_anggaran']);
 $tujuan_all_kosong = $wpdb->get_results($sql, ARRAY_A);
 foreach ($tujuan_all_kosong as $tujuan) {
@@ -433,7 +439,7 @@ $no_visi = 0;
 foreach ($data_all['data'] as $visi) {
 	$no_visi++;
 	$body .= '
-		<tr>
+		<tr class="tr-visi">
 			<td class="kiri atas kanan bawah">'.$no_visi.'</td>
 			<td class="atas kanan bawah">'.$visi['nama'].'</td>
 			<td class="atas kanan bawah"></td>
@@ -453,7 +459,7 @@ foreach ($data_all['data'] as $visi) {
 	foreach ($visi['data'] as $misi) {
 		$no_misi++;
 		$body .= '
-			<tr>
+			<tr class="tr-misi">
 				<td class="kiri atas kanan bawah">'.$no_visi.'.'.$no_misi.'</td>
 				<td class="atas kanan bawah"><span class="debug-visi">'.$visi['nama'].'</span></td>
 				<td class="atas kanan bawah">'.$misi['nama'].'</td>
@@ -473,7 +479,7 @@ foreach ($data_all['data'] as $visi) {
 		foreach ($misi['data'] as $tujuan) {
 			$no_tujuan++;
 			$body .= '
-				<tr>
+				<tr class="tr-tujuan">
 					<td class="kiri atas kanan bawah">'.$no_visi.'.'.$no_misi.'.'.$no_tujuan.'</td>
 					<td class="atas kanan bawah"><span class="debug-visi">'.$visi['nama'].'</span></td>
 					<td class="atas kanan bawah"><span class="debug-misi">'.$misi['nama'].'</span></td>
@@ -493,7 +499,7 @@ foreach ($data_all['data'] as $visi) {
 			foreach ($tujuan['data'] as $sasaran) {
 				$no_sasaran++;
 				$body .= '
-					<tr>
+					<tr class="tr-sasaran">
 						<td class="kiri atas kanan bawah">'.$no_visi.'.'.$no_misi.'.'.$no_tujuan.'.'.$no_sasaran.'</td>
 						<td class="atas kanan bawah"><span class="debug-visi">'.$visi['nama'].'</span></td>
 						<td class="atas kanan bawah"><span class="debug-misi">'.$misi['nama'].'</span></td>
@@ -519,7 +525,7 @@ foreach ($data_all['data'] as $visi) {
 					}
 					$text_indikator = implode('<br>', $text_indikator);
 					$body .= '
-						<tr>
+						<tr class="tr-program" data-kode-skpd="'.$program['kode_skpd'].'">
 							<td class="kiri atas kanan bawah">'.$no_visi.'.'.$no_misi.'.'.$no_tujuan.'.'.$no_sasaran.'.'.$no_program.'</td>
 							<td class="atas kanan bawah"><span class="debug-visi">'.$visi['nama'].'</span></td>
 							<td class="atas kanan bawah"><span class="debug-misi">'.$misi['nama'].'</span></td>
@@ -540,6 +546,12 @@ foreach ($data_all['data'] as $visi) {
 		}
 	}
 }
+
+ksort($skpd_filter);
+$skpd_filter_html = '<option value="">Pilih SKPD</option>';
+foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
+	$skpd_filter_html .= '<option value="'.$kode_skpd.'">'.$kode_skpd.' '.$nama_skpd.'</option>';
+}
 ?>
 <style type="text/css">
 	.debug-visi, .debug-misi, .debug-tujuan, .debug-sasaran { display: none; }
@@ -549,19 +561,19 @@ foreach ($data_all['data'] as $visi) {
 	<table cellpadding="2" cellspacing="0" style="font-family:\'Open Sans\',-apple-system,BlinkMacSystemFont,\'Segoe UI\',sans-serif; border-collapse: collapse; font-size: 70%; border: 0; table-layout: fixed;" contenteditable="false">
 		<thead>
 			<tr>
-				<th class="atas kiri kanan bawah text_tengah text_blok">No</th>
-				<th class="atas kanan bawah text_tengah text_blok">Visi</th>
-				<th class="atas kanan bawah text_tengah text_blok">Misi</th>
-				<th class="atas kanan bawah text_tengah text_blok">Tujuan</th>
-				<th class="atas kanan bawah text_tengah text_blok">Sasaran</th>
-				<th class="atas kanan bawah text_tengah text_blok">Program</th>
-				<th class="atas kanan bawah text_tengah text_blok">Indikator</th>
-				<th class="atas kanan bawah text_tengah text_blok">Triwulan 1</th>
-				<th class="atas kanan bawah text_tengah text_blok">Triwulan 2</th>
-				<th class="atas kanan bawah text_tengah text_blok">Triwulan 3</th>
-				<th class="atas kanan bawah text_tengah text_blok">Triwulan 4</th>
-				<th class="atas kanan bawah text_tengah text_blok">Total Tahun Berjalan</th>
-				<th class="atas kanan bawah text_tengah text_blok">Keterangan</th>
+				<th style="width: 85px;" class="atas kiri kanan bawah text_tengah text_blok">No</th>
+				<th style="width: 200px;" class="atas kanan bawah text_tengah text_blok">Visi</th>
+				<th style="width: 200px;" class="atas kanan bawah text_tengah text_blok">Misi</th>
+				<th style="width: 200px;" class="atas kanan bawah text_tengah text_blok">Tujuan</th>
+				<th style="width: 200px;" class="atas kanan bawah text_tengah text_blok">Sasaran</th>
+				<th style="width: 200px;" class="atas kanan bawah text_tengah text_blok">Program</th>
+				<th style="width: 400px;" class="atas kanan bawah text_tengah text_blok">Indikator</th>
+				<th style="width: 100px;" class="atas kanan bawah text_tengah text_blok">Triwulan 1</th>
+				<th style="width: 100px;" class="atas kanan bawah text_tengah text_blok">Triwulan 2</th>
+				<th style="width: 100px;" class="atas kanan bawah text_tengah text_blok">Triwulan 3</th>
+				<th style="width: 100px;" class="atas kanan bawah text_tengah text_blok">Triwulan 4</th>
+				<th style="width: 100px;" class="atas kanan bawah text_tengah text_blok">Total Tahun Berjalan</th>
+				<th style="width: 150px;" class="atas kanan bawah text_tengah text_blok">Keterangan</th>
 			</tr>
 			<tr>
 				<th class='atas kiri kanan bawah text_tengah text_blok'>0</th>
@@ -606,8 +618,60 @@ foreach ($data_all['data'] as $visi) {
 	var aksi = ''
 		+'<h3 style="margin-top: 20px;">SETTING</h3>'
 		+'<label><input type="checkbox" onclick="edit_monev_indikator(this);"> Edit Monev indikator</label>'
-		+'<label style="margin-left: 20px;"><input type="checkbox" onclick="show_debug(this);"> Debug Cascading RPJM</label>';
+		+'<label style="margin-left: 20px;"><input type="checkbox" onclick="show_debug(this);"> Debug Cascading RPJM</label>'
+		+'<label style="margin-left: 20px;">'
+			+'Sembunyikan Baris '
+			+'<select id="sembunyikan-baris" onchange="sembunyikan_baris(this);" style="padding: 5px 10px; min-width: 200px;">'
+				+'<option value="">Pilih Baris</option>'
+				+'<option value="tr-misi">Misi</option>'
+				+'<option value="tr-tujuan">Tujuan</option>'
+				+'<option value="tr-sasaran">Sasaran</option>'
+				+'<option value="tr-program">Program</option>'
+			+'</select>'
+		+'</label>'
+		+'<label style="margin-left: 20px;">'
+			+'Filter SKPD '
+			+'<select onchange="filter_skpd(this);" style="padding: 5px 10px; min-width: 200px; max-width: 400px;">'
+				+'<?php echo $skpd_filter_html; ?>'
+			+'</select>'
+		+'</label>';
 	jQuery('#action-sipd').append(aksi);
+	function filter_skpd(that){
+		var tr_program = jQuery('.tr-program');
+		var val = jQuery(that).val();
+		if(val == ''){
+			tr_program.show();
+		}else{
+			tr_program.hide();
+			jQuery('.tr-program[data-kode-skpd="'+val+'"]').show();
+		}
+	}
+	function sembunyikan_baris(that){
+		var val = jQuery(that).val();
+		var tr_misi = jQuery('.tr-misi');
+		var tr_tujuan = jQuery('.tr-tujuan');
+		var tr_sasaran = jQuery('.tr-sasaran');
+		var tr_program = jQuery('.tr-program');
+		tr_misi.show();
+		tr_tujuan.show();
+		tr_sasaran.show();
+		tr_program.show();
+		if(val == 'tr-misi'){
+			tr_misi.hide();
+			tr_tujuan.hide();
+			tr_sasaran.hide();
+			tr_program.hide();
+		}else if(val == 'tr-tujuan'){
+			tr_tujuan.hide();
+			tr_sasaran.hide();
+			tr_program.hide();
+		}else if(val == 'tr-sasaran'){
+			tr_sasaran.hide();
+			tr_program.hide();
+		}else if(val == 'tr-program'){
+			tr_program.hide();
+		}
+	}
 	function show_debug(that){
 		if(jQuery(that).is(':checked')){
 			jQuery('.debug-visi').show();
