@@ -188,7 +188,7 @@ if(!empty($tujuan)){
 						$sasaran_value['urut_tujuan'],
 						$sasaran_value['id_bidang_urusan'],
 						$sasaran_value['id_misi'],
-						$sasaran_value['id_visi'],
+						$sasaran_value['id_visi']
 				), ARRAY_A);
 				// echo '<pre>';print_r($wpdb->last_query);echo '</pre>';die();
 
@@ -431,7 +431,7 @@ if(!empty($tujuan)){
 						$s_value['urut_tujuan'],
 						$s_value['id_bidang_urusan'],
 						$s_value['id_misi'],
-						$s_value['id_visi'],
+						$s_value['id_visi']
 				), ARRAY_A);
 				// echo '<pre>';print_r($wpdb->last_query);echo '</pre>';die();
 
@@ -801,7 +801,7 @@ if(!empty($tujuan)){
 						$k_value['urut_tujuan'],
 						$k_value['id_bidang_urusan'],
 						$k_value['id_misi'],
-						$k_value['id_visi'],
+						$k_value['id_visi']
 				), ARRAY_A);
 
 			if(!array_key_exists($program_key, $data_all['data'][$tujuan_key]['data'][$sasaran_key]['data']) && empty($cek_program)){ 
