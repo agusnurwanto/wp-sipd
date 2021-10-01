@@ -5,12 +5,28 @@ $input = shortcode_atts( array(
 	'tahun_anggaran' => '2022'
 ), $atts );
 
-$api_key = get_option('_crb_api_key_extension' );
-
 function button_edit_monev($class=false){
 	$ret = ' <span style="display: none;" data-id="'.$class.'" class="edit-monev"><i class="dashicons dashicons-edit"></i></span>';
 	return $ret;
 }
+
+function get_target($target, $satuan){
+	if(empty($satuan)){
+		return $target;
+	}else{
+		$target = explode($satuan, $target);
+		return $target[0];
+	}
+}
+
+function parsing_nama_kode($nama_kode){
+	$nama_kodes = explode('||', $nama_kode);
+	$nama = $nama_kodes[0];
+	unset($nama_kodes[0]);
+	return $nama.'<span class="debug-kode">||'.implode('||', $nama_kodes).'</span>';
+}
+
+$api_key = get_option('_crb_api_key_extension' );
 
 $rumus_indikator_db = $wpdb->get_results("SELECT * from data_rumus_indikator where active=1 and tahun_anggaran=".$input['tahun_anggaran'], ARRAY_A);
 $rumus_indikator = '';
@@ -169,7 +185,7 @@ foreach ($visi_all as $visi) {
 					if(empty($data_all['data'][$visi['id_visi']]['data'][$misi['id_misi']]['data'][$tujuan['id_unik']]['data'][$sasaran['id_unik']]['data'][$program['id_unik']]['data'][$program['id_unik_indikator']])){
 						$data_all['data'][$visi['id_visi']]['data'][$misi['id_misi']]['data'][$tujuan['id_unik']]['data'][$sasaran['id_unik']]['data'][$program['id_unik']]['data'][$program['id_unik_indikator']] = array(
 							'nama' => $program['indikator'],
-							'data' => array()
+							'data' => $program
 						);
 					}
 				}
@@ -453,6 +469,10 @@ foreach ($data_all['data'] as $visi) {
 			<td class="atas kanan bawah"></td>
 			<td class="atas kanan bawah"></td>
 			<td class="atas kanan bawah"></td>
+			<td class="atas kanan bawah"></td>
+			<td class="atas kanan bawah"></td>
+			<td class="atas kanan bawah"></td>
+			<td class="atas kanan bawah"></td>
 		</tr>
 	';
 	$no_misi = 0;
@@ -473,6 +493,9 @@ foreach ($data_all['data'] as $visi) {
 				<td class="atas kanan bawah"></td>
 				<td class="atas kanan bawah"></td>
 				<td class="atas kanan bawah"></td>
+				<td class="atas kanan bawah"></td>
+				<td class="atas kanan bawah"></td>
+				<td class="atas kanan bawah"></td>
 			</tr>
 		';
 		$no_tujuan = 0;
@@ -483,7 +506,10 @@ foreach ($data_all['data'] as $visi) {
 					<td class="kiri atas kanan bawah">'.$no_visi.'.'.$no_misi.'.'.$no_tujuan.'</td>
 					<td class="atas kanan bawah"><span class="debug-visi">'.$visi['nama'].'</span></td>
 					<td class="atas kanan bawah"><span class="debug-misi">'.$misi['nama'].'</span></td>
-					<td class="atas kanan bawah">'.$tujuan['nama'].'</td>
+					<td class="atas kanan bawah">'.parsing_nama_kode($tujuan['nama']).'</td>
+					<td class="atas kanan bawah"></td>
+					<td class="atas kanan bawah"></td>
+					<td class="atas kanan bawah"></td>
 					<td class="atas kanan bawah"></td>
 					<td class="atas kanan bawah"></td>
 					<td class="atas kanan bawah"></td>
@@ -504,7 +530,10 @@ foreach ($data_all['data'] as $visi) {
 						<td class="atas kanan bawah"><span class="debug-visi">'.$visi['nama'].'</span></td>
 						<td class="atas kanan bawah"><span class="debug-misi">'.$misi['nama'].'</span></td>
 						<td class="atas kanan bawah"><span class="debug-tujuan">'.$tujuan['nama'].'</span></td>
-						<td class="atas kanan bawah">'.$sasaran['nama'].'</td>
+						<td class="atas kanan bawah">'.parsing_nama_kode($sasaran['nama']).'</td>
+						<td class="atas kanan bawah"></td>
+						<td class="atas kanan bawah"></td>
+						<td class="atas kanan bawah"></td>
 						<td class="atas kanan bawah"></td>
 						<td class="atas kanan bawah"></td>
 						<td class="atas kanan bawah"></td>
@@ -519,11 +548,34 @@ foreach ($data_all['data'] as $visi) {
 				foreach ($sasaran['data'] as $program) {
 					$no_program++;
 					$text_indikator = array();
+					$target_awal = array();
+					$target_1 = array();
+					$target_2 = array();
+					$target_3 = array();
+					$target_4 = array();
+					$target_5 = array();
+					$target_akhir = array();
+					$satuan = array();
 					foreach ($program['data'] as $indikator_program) {
-						$text_indikator[] = $indikator_program['nama'];
-
+						$text_indikator[] = '<div class="indikator_program">'.$indikator_program['nama'].'</div>';
+						$target_awal[] = '<div class="indikator_program">'.get_target($indikator_program['data']['target_awal'], $indikator_program['data']['satuan']).'</div>';
+						$target_1[] = '<div class="indikator_program">'.get_target($indikator_program['data']['target_1'], $indikator_program['data']['satuan']).'</div>';
+						$target_2[] = '<div class="indikator_program">'.get_target($indikator_program['data']['target_2'], $indikator_program['data']['satuan']).'</div>';
+						$target_3[] = '<div class="indikator_program">'.get_target($indikator_program['data']['target_3'], $indikator_program['data']['satuan']).'</div>';
+						$target_4[] = '<div class="indikator_program">'.get_target($indikator_program['data']['target_4'], $indikator_program['data']['satuan']).'</div>';
+						$target_5[] = '<div class="indikator_program">'.get_target($indikator_program['data']['target_5'], $indikator_program['data']['satuan']).'</div>';
+						$target_akhir[] = '<div class="indikator_program">'.get_target($indikator_program['data']['target_akhir'], $indikator_program['data']['satuan']).'</div>';
+						$satuan[] = '<div class="indikator_program">'.$indikator_program['data']['satuan'].'</div>';
 					}
-					$text_indikator = implode('<br>', $text_indikator);
+					$text_indikator = implode('', $text_indikator);
+					$target_awal = implode('', $target_awal);
+					$target_1 = implode('', $target_1);
+					$target_2 = implode('', $target_2);
+					$target_3 = implode('', $target_3);
+					$target_4 = implode('', $target_4);
+					$target_5 = implode('', $target_5);
+					$target_akhir = implode('', $target_akhir);
+					$satuan = implode('', $satuan);
 					$body .= '
 						<tr class="tr-program" data-kode-skpd="'.$program['kode_skpd'].'">
 							<td class="kiri atas kanan bawah">'.$no_visi.'.'.$no_misi.'.'.$no_tujuan.'.'.$no_sasaran.'.'.$no_program.'</td>
@@ -531,14 +583,17 @@ foreach ($data_all['data'] as $visi) {
 							<td class="atas kanan bawah"><span class="debug-misi">'.$misi['nama'].'</span></td>
 							<td class="atas kanan bawah"><span class="debug-tujuan">'.$tujuan['nama'].'</span></td>
 							<td class="atas kanan bawah"><span class="debug-sasaran">'.$sasaran['nama'].'</span></td>
-							<td class="atas kanan bawah">'.$program['nama'].'</td>
+							<td class="atas kanan bawah">'.parsing_nama_kode($program['nama']).'</td>
 							<td class="atas kanan bawah">'.$text_indikator.'</td>
-							<td class="atas kanan bawah"></td>
-							<td class="atas kanan bawah"></td>
-							<td class="atas kanan bawah"></td>
-							<td class="atas kanan bawah"></td>
-							<td class="atas kanan bawah"></td>
-							<td class="atas kanan bawah">'.$program['nama_skpd'].'</td>
+							<td class="atas kanan bawah text_tengah">'.$target_awal.'</td>
+							<td class="atas kanan bawah text_tengah">'.$target_1.'</td>
+							<td class="atas kanan bawah text_tengah">'.$target_2.'</td>
+							<td class="atas kanan bawah text_tengah">'.$target_3.'</td>
+							<td class="atas kanan bawah text_tengah">'.$target_4.'</td>
+							<td class="atas kanan bawah text_tengah">'.$target_5.'</td>
+							<td class="atas kanan bawah text_tengah">'.$target_akhir.'</td>
+							<td class="atas kanan bawah text_tengah">'.$satuan.'</td>
+							<td class="atas kanan bawah">'.$program['kode_skpd'].' '.$program['nama_skpd'].'</td>
 						</tr>
 					';
 				}
@@ -554,7 +609,8 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
 }
 ?>
 <style type="text/css">
-	.debug-visi, .debug-misi, .debug-tujuan, .debug-sasaran { display: none; }
+	.debug-visi, .debug-misi, .debug-tujuan, .debug-sasaran, .debug-kode { display: none; }
+	.indikator_program { min-height: 40px; }
 </style>
 <h4 style="text-align: center; margin: 0; font-weight: bold;">Monitoring dan Evaluasi RPJMD (Rencana Pembangunan Jangka Menengah Daerah) <br><?php echo $judul_skpd.'Tahun '.$input['tahun_anggaran'].' '.$nama_pemda; ?></h4>
 <div id="cetak" title="Laporan MONEV RENJA" style="padding: 5px; overflow: auto; height: 80vh;">
@@ -568,11 +624,14 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
 				<th style="width: 200px;" class="atas kanan bawah text_tengah text_blok">Sasaran</th>
 				<th style="width: 200px;" class="atas kanan bawah text_tengah text_blok">Program</th>
 				<th style="width: 400px;" class="atas kanan bawah text_tengah text_blok">Indikator</th>
-				<th style="width: 100px;" class="atas kanan bawah text_tengah text_blok">Triwulan 1</th>
-				<th style="width: 100px;" class="atas kanan bawah text_tengah text_blok">Triwulan 2</th>
-				<th style="width: 100px;" class="atas kanan bawah text_tengah text_blok">Triwulan 3</th>
-				<th style="width: 100px;" class="atas kanan bawah text_tengah text_blok">Triwulan 4</th>
-				<th style="width: 100px;" class="atas kanan bawah text_tengah text_blok">Total Tahun Berjalan</th>
+				<th style="width: 100px;" class="atas kanan bawah text_tengah text_blok">Target Awal</th>
+				<th style="width: 100px;" class="atas kanan bawah text_tengah text_blok">Target Tahun 1</th>
+				<th style="width: 100px;" class="atas kanan bawah text_tengah text_blok">Target Tahun 2</th>
+				<th style="width: 100px;" class="atas kanan bawah text_tengah text_blok">Target Tahun 3</th>
+				<th style="width: 100px;" class="atas kanan bawah text_tengah text_blok">Target Tahun 4</th>
+				<th style="width: 100px;" class="atas kanan bawah text_tengah text_blok">Target Tahun 5</th>
+				<th style="width: 100px;" class="atas kanan bawah text_tengah text_blok">Target Akhir</th>
+				<th style="width: 100px;" class="atas kanan bawah text_tengah text_blok">Satuan</th>
 				<th style="width: 150px;" class="atas kanan bawah text_tengah text_blok">Keterangan</th>
 			</tr>
 			<tr>
@@ -589,6 +648,9 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
 				<th class='atas kanan bawah text_tengah text_blok'>10</th>
 				<th class='atas kanan bawah text_tengah text_blok'>11</th>
 				<th class='atas kanan bawah text_tengah text_blok'>12</th>
+				<th class='atas kanan bawah text_tengah text_blok'>13</th>
+				<th class='atas kanan bawah text_tengah text_blok'>14</th>
+				<th class='atas kanan bawah text_tengah text_blok'>15</th>
 			</tr>
 		</thead>
 		<tbody>
@@ -678,11 +740,13 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
 			jQuery('.debug-misi').show();
 			jQuery('.debug-tujuan').show();
 			jQuery('.debug-sasaran').show();
+			jQuery('.debug-kode').show();
 		}else{
 			jQuery('.debug-visi').hide();
 			jQuery('.debug-misi').hide();
 			jQuery('.debug-tujuan').hide();
 			jQuery('.debug-sasaran').hide();
+			jQuery('.debug-kode').hide();
 		}
 	}
 	function edit_monev_indikator(that){
