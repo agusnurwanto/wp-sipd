@@ -316,6 +316,9 @@ class Wpsipd
 		$this->loader->add_action('wp_ajax_save_monev_renja',  $plugin_public, 'save_monev_renja');
 		$this->loader->add_action('wp_ajax_nopriv_save_monev_renja',  $plugin_public, 'save_monev_renja');
 
+		$this->loader->add_action('wp_ajax_singkron_skpd_mitra_bappeda',  $plugin_public, 'singkron_skpd_mitra_bappeda');
+		$this->loader->add_action('wp_ajax_nopriv_singkron_skpd_mitra_bappeda',  $plugin_public, 'singkron_skpd_mitra_bappeda');
+
 		$this->loader->add_action('wp_ajax_simpan_rfk',  $plugin_public, 'simpan_rfk');
 		$this->loader->add_action('wp_ajax_reset_rfk',  $plugin_public, 'reset_rfk');
 		$this->loader->add_action('wp_ajax_get_monev',  $plugin_public, 'get_monev');
@@ -337,6 +340,7 @@ class Wpsipd
 		add_shortcode('monitor_daftar_sumber_dana', array($plugin_public, 'monitor_daftar_sumber_dana'));
 		add_shortcode('monitor_daftar_label_komponen', array($plugin_public, 'monitor_daftar_label_komponen'));
 		add_shortcode('monitor_monev_renstra', array($plugin_public, 'monitor_monev_renstra'));
+		add_shortcode('monitor_monev_rpjm', array($plugin_public, 'monitor_monev_rpjm'));
 	}
 
 	/**

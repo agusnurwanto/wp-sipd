@@ -1900,3 +1900,59 @@ ALTER TABLE `data_monev_renja_triwulan`
   ADD PRIMARY KEY (`id`);
 ALTER TABLE `data_monev_renja_triwulan`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+CREATE TABLE `data_skpd_mitra_bappeda` (
+  `id` int(11) NOT NULL,
+  `akses_user` text DEFAULT NULL,
+  `id_level` int(11) DEFAULT NULL,
+  `id_unit` int(11) DEFAULT NULL,
+  `id_user` int(11) DEFAULT NULL,
+  `is_locked` tinyint(4) DEFAULT NULL,
+  `kode_skpd` text DEFAULT NULL,
+  `login_name` text DEFAULT NULL,
+  `nama_skpd` text DEFAULT NULL,
+  `nama_user` text DEFAULT NULL,
+  `nip` text DEFAULT NULL,
+  `update_at` datetime NOT NULL,
+  `active` tinyint(4) NOT NULL,
+  `tahun_anggaran` year(4) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+ALTER TABLE `data_skpd_mitra_bappeda`
+  ADD PRIMARY KEY (`id`);
+ALTER TABLE `data_skpd_mitra_bappeda`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+CREATE TABLE `data_rpjmd_visi` (
+  `id` int(11) NOT NULL,
+  `id_visi` int(11) DEFAULT NULL,
+  `is_locked` tinyint(2) DEFAULT NULL,
+  `status` text DEFAULT NULL,
+  `visi_teks` text DEFAULT NULL,
+  `update_at` datetime NOT NULL,
+  `active` tinyint(4) NOT NULL,
+  `tahun_anggaran` year(4) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+ALTER TABLE `data_rpjmd_visi`
+  ADD PRIMARY KEY (`id`);
+ALTER TABLE `data_rpjmd_visi`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+CREATE TABLE `data_rpjmd_misi` (
+  `id` int(11) NOT NULL,
+  `id_misi` int(11) DEFAULT NULL,
+  `id_misi_old` int(11) DEFAULT NULL,
+  `id_visi` int(11) DEFAULT NULL,
+  `is_locked` tinyint(2) DEFAULT NULL,
+  `misi_teks` text DEFAULT NULL,
+  `status` text DEFAULT NULL,
+  `urut_misi` tinyint(2) DEFAULT NULL,
+  `visi_lock` tinyint(2) DEFAULT NULL,
+  `visi_teks` text DEFAULT NULL,
+  `update_at` datetime NOT NULL,
+  `active` tinyint(4) NOT NULL,
+  `tahun_anggaran` year(4) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+ALTER TABLE `data_rpjmd_misi`
+  ADD PRIMARY KEY (`id`);
+ALTER TABLE `data_rpjmd_misi`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;

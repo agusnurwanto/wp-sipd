@@ -174,6 +174,10 @@ class Wpsipd_Admin {
 		    ->set_page_parent( $monev )
 		    ->add_fields( $this->get_ajax_field(array('type' => 'rfk')) );
 
+		Container::make( 'theme_options', __( 'Indikator RPJM' ) )
+		    ->set_page_parent( $monev )
+		    ->add_fields( $this->get_ajax_field(array('type' => 'monev_rpjm')) );
+
 		Container::make( 'theme_options', __( 'Indikator RENSTRA' ) )
 		    ->set_page_parent( $monev )
 		    ->add_fields( $this->get_ajax_field(array('type' => 'monev_renstra')) );
@@ -334,9 +338,17 @@ class Wpsipd_Admin {
 			        }else if($_POST['type'] == 'monev_renstra'){
 						$url_pemda = $this->generatePage('MONEV RENSTRA Pemerintah Daerah | '.$v['tahun_anggaran'], $v['tahun_anggaran'], '[monitor_monev_renstra tahun_anggaran="'.$v['tahun_anggaran'].'"]');
 						$body_all .= '<a style="font-weight: bold;" target="_blank" href="'.$url_pemda.'">Halaman MONEV RENSTRA Daerah Tahun '.$v['tahun_anggaran'].'</a>'.$body_pemda;
+			        }else if($_POST['type'] == 'monev_rpjm'){
+						$url_pemda = $this->generatePage('MONEV RPJM Pemerintah Daerah | '.$v['tahun_anggaran'], $v['tahun_anggaran'], '[monitor_monev_rpjm tahun_anggaran="'.$v['tahun_anggaran'].'"]');
+						$body_all .= '<a style="font-weight: bold;" target="_blank" href="'.$url_pemda.'">Halaman MONEV RPJM Daerah Tahun '.$v['tahun_anggaran'].'</a>'.$body_pemda;
 			        }
 				}
-				if($_POST['type'] == 'rfk' || $_POST['type'] == 'monev_renja' || $_POST['type'] == 'monev_renstra'){
+				if(
+					$_POST['type'] == 'rfk' 
+					|| $_POST['type'] == 'monev_renja' 
+					|| $_POST['type'] == 'monev_renstra'
+					|| $_POST['type'] == 'monev_rpjm'
+				){
 					$ret['message'] = $body_all;
 				}
 			}

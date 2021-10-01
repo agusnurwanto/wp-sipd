@@ -1072,7 +1072,12 @@ $keterangan_skpd_triwulan = 'contenteditable="true"';
 $keterangan_verifikator_triwulan = '';
 $aksi_user = 'skpd';
 $upload_monev = '<input type="file" class="upload_monev" style="font-size:12px; width: 100%; overflow: hidden;">';
-if(current_user_can('administrator')){
+$edit_monev = '<button type="button" class="btn btn-success" id="set-monev">Simpan</button>';
+if(
+	current_user_can('administrator')
+	|| in_array("mitra_bappeda", $current_user->roles)
+){
+	$edit_monev = '';
 	$upload_monev = '';
 	$keterangan_skpd_triwulan = '';
 	$keterangan_verifikator_triwulan = 'contenteditable="true"';
@@ -1302,7 +1307,7 @@ foreach ($monev_triwulan as $k => $v) {
                 </form>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-success" id="set-monev">Simpan</button>
+                <?php echo $edit_monev; ?>
                 <button type="button" class="btn btn-default" data-dismiss="modal">Tutup</button>
             </div>
         </div>
