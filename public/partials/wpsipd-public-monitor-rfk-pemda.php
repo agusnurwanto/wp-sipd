@@ -480,7 +480,7 @@ $body .='
 		<li>Tombol <b>AKSES RFK ALL OPD</b> digunakan untuk mengakses halaman RFK seluruh OPD sesuai dengan waktu yang ditentukan user.</li>
 		<li>Pilihan <b>Bulan Realisasi</b> digunakan untuk menampilkan laporan RFK sesuai bulan yang dipilih.</li>
 		<li>Tombol <b>SIMPAN CATATAN</b> digunakan untuk menyimpan catatan yang sudah diinput atau diedit oleh Kabag Adbang.</li>
-		<li>Tombol <b>RESET CATATAN</b> digunakan untuk mengupdate catatan sesuai dengan catatan di bulan sebelumnya. Catatan di bulan berjalan akan muncul jika data RFK bulan berjalan sudah diakses.</li>
+		<li>Tombol <b>RESET CATATAN</b> digunakan untuk mengupdate catatan bulan berjalan sesuai dengan catatan di bulan sebelumnya. Catatan bulan bejalan tidak akan muncul jika data RFK bulan berjalan BELUM PERNAH DIAKSES/DIBUKA meski catatan sudah pernah diinput.</li>
 	</ul>
 </div>
 
