@@ -472,6 +472,18 @@ $body .='
 	echo $body;
 ?>
 
+<div class="hide-print" id="catatan_dokumentasi" style="max-width: 1200px; margin: auto;">
+	<h4 style="margin: 30px 0 10px; font-weight: bold;">Catatan Dokumentasi:</h4>
+	<ul>
+		<li>Laporan RFK secara default menampilkan data pada bulan berjalan.</li>
+		<li>Tombol <b>DOWNLOAD EXCEL</b> digunakan untuk mendownload tabel laporan RFK ke format excel.</li>
+		<li>Tombol <b>AKSES RFK ALL OPD</b> digunakan untuk mengakses halaman RFK seluruh OPD sesuai dengan waktu yang ditentukan user.</li>
+		<li>Pilihan <b>Bulan Realisasi</b> digunakan untuk menampilkan laporan RFK sesuai bulan yang dipilih.</li>
+		<li>Tombol <b>SIMPAN CATATAN</b> digunakan untuk menyimpan catatan yang sudah diinput atau diedit oleh Kabag Adbang.</li>
+		<li>Tombol <b>RESET CATATAN</b> digunakan untuk mengupdate catatan sesuai dengan catatan di bulan sebelumnya. Catatan di bulan berjalan akan muncul jika data RFK bulan berjalan sudah diakses.</li>
+	</ul>
+</div>
+
 <script type="text/javascript">
 	<?php if(empty($public)){ ?>
 		run_download_excel();
@@ -508,6 +520,7 @@ $body .='
 			<?php if(empty($public)){ ?>
 			jQuery('<a id="open_all_skpd" onclick="return false;" href="#" class="button button-primary" style="margin-left:5px">AKSES RFK ALL OPD</a>').insertAfter("#excel");
 			jQuery('<a href="javascript:void(0)" style="margin-left: 5px; text-transform: uppercase" class="button button-primary" id="simpan-catatan-rfk-unit">Simpan Catatan</a>').insertAfter("#open_all_skpd");
+			jQuery('<a href="javascript:void(0)" style="margin-left: 5px; text-transform: uppercase" class="button button-primary" id="reset-rfk-pemda">Reset Catatan</a>').insertAfter("#simpan-catatan-rfk-unit");
 			<?php } ?>
 			jQuery('#action-sipd').append(extend_action);
 			jQuery('#pilih_bulan').val(+<?php echo $bulan; ?>);
@@ -556,6 +569,33 @@ $body .='
 		    jQuery("#simpan-catatan-rfk-unit").on('click', function(){
 	    		simpan_catatan_rfk('catatan_rfk_unit');
 		    })
+
+		    jQuery('#reset-rfk-pemda').on('click', function(){
+		    	if(confirm('Apakah anda yakin untuk reset catatan Unit kerja sesuai bulan sebelumnya? Catatan unit kerja saat ini akan disamakan dengan bulan sebelumnya!')){
+		    		jQuery('#wrap-loading').show();
+		    		jQuery.ajax({
+						url: "<?php echo admin_url('admin-ajax.php'); ?>",
+			          	type: "post",
+			          	data: {
+			          		"action": "reset_rfk_pemda",
+			          		"api_key": jQuery('#api_key').val(),
+			          		"tahun_anggaran": <?php echo $input['tahun_anggaran'] ?>,
+			          		"bulan": jQuery('#pilih_bulan').val(),
+			          		"user": "<?php echo $current_user->display_name; ?>"
+			          	},
+			          	dataType: "json",
+			          	success: function(data){
+			    			jQuery('#wrap-loading').hide();
+							alert(data.message);
+							location.reload();
+						},
+						error: function(e) {
+			    			jQuery('#wrap-loading').hide();
+							console.log(e);
+						}
+					});
+		    	}
+		    });
 
 		    jQuery('#table-rfk').DataTable();
 		})

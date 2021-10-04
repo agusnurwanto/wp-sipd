@@ -6157,4 +6157,89 @@ class Wpsipd_Public
 		}
 		echo json_encode($return);exit();
 	}
+
+	public function reset_rfk_pemda(){
+		global $wpdb;
+		$ret = array(
+			'status' => 'success',
+			'message' => 'Berhasil reset data sesuai bulan sebelumnya!',
+		);
+
+		if(!empty($_POST)){
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+				$bulan = $_POST['bulan'];
+				$bulan_n = $_POST['bulan']-1;
+				$tahun_anggaran = $_POST['tahun_anggaran'];
+
+				$units = $wpdb->get_results($wpdb->prepare("
+						SELECT 
+							id_skpd, nama_skpd, active 
+						FROM 
+							data_unit 
+						WHERE 
+							active=1 AND 
+							tahun_anggaran=%d 
+						ORDER BY 
+							kode_skpd ASC",
+							$tahun_anggaran
+						), ARRAY_A);
+
+				foreach ($units as $key => $unit) {
+					$data_n = $wpdb->get_results($wpdb->prepare("
+						SELECT 
+							id,bulan,tahun_anggaran,id_skpd,catatan_ka_adbang
+						FROM
+							data_catatan_rfk_unit
+						WHERE
+							bulan=%d and
+							id_skpd=%d and
+							tahun_anggaran=%d",
+							$bulan_n,
+							$unit['id_skpd'],
+							$tahun_anggaran
+					), ARRAY_A);
+					
+					if(!empty($data_n)){
+						foreach ($data_n as $k => $v) {
+							$cek = $wpdb->get_results($wpdb->prepare("
+								SELECT id FROM data_catatan_rfk_unit WHERE bulan=%d AND id_skpd=%d AND tahun_anggaran=%d",$bulan,$v['id_skpd'],$tahun_anggaran),ARRAY_A);
+							if (!empty($cek)) {
+								$data = array(
+									'catatan_ka_adbang' => $v['catatan_ka_adbang'],
+									'updated_by' => $_POST['user'],
+									'updated_at' => current_time('mysql')
+								);
+								$wpdb->update('data_catatan_rfk_unit', $data, array(
+									'tahun_anggaran' => $_POST['tahun_anggaran'],
+									'bulan' => $bulan,
+									'id_skpd' => $v['id_skpd']
+								));
+							} else {
+								$data = array(
+									'id_skpd' => $v['id_skpd'],
+									'bulan' => $bulan,
+									'tahun_anggaran' => $_POST['tahun_anggaran'],
+									'catatan_ka_adbang' => $v['catatan_ka_adbang'],
+									'created_by' => $_POST['user'],
+									'created_at' => current_time('mysql')
+								);
+								$stat = $wpdb->insert('data_catatan_rfk_unit', $data);
+							}
+						}
+					}
+				}
+			}else{
+				$ret = array(
+					'status' => 'error',
+					'message' => 'Apikey salah!',
+				);		
+			}
+		}else{
+			$ret = array(
+				'status' => 'error',
+				'message' => 'Format salah!',
+			);			
+		}
+		die(json_encode($ret));
+	}
 }

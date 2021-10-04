@@ -327,6 +327,8 @@ class Wpsipd
 		$this->loader->add_action('wp_ajax_simpan_catatan_rfk_unit',  $plugin_public, 'simpan_catatan_rfk_unit');
 		$this->loader->add_action('wp_ajax_get_data_rpjm',  $plugin_public, 'get_data_rpjm');
 
+		$this->loader->add_action('wp_ajax_reset_rfk_pemda',  $plugin_public, 'reset_rfk_pemda');
+
 		add_shortcode('menu_monev',  array($plugin_public, 'menu_monev'));
 		add_shortcode('datassh', array($plugin_public, 'datassh'));
 		add_shortcode('rekbelanja', array($plugin_public, 'rekbelanja'));
