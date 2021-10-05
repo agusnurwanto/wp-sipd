@@ -313,7 +313,7 @@ foreach ($units as $k => $unit):
 				'kd_keg' => $kd_keg
 			);
 			$data_all['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']]['data'][$sub['kode_giat']]['data'][$sub['kode_sub_giat']] = array(
-				'nama'	=> implode(' ', $nama).'<span class="detail_simda">'.json_encode($detail_simda).'</span>',
+				'nama'	=> implode(' ', $nama).'<span class="detail_simda">'.json_encode($detail_simda).'</span><span class="badge badge-danger simpan-per-sub-keg">SIMPAN</span>',
 				'total' => 0,
 				'total_simda' => 0,
 				'realisasi' => 0,
@@ -373,8 +373,9 @@ foreach ($units as $k => $unit):
 		$data_all['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']]['data'][$sub['kode_giat']]['deviasi'] += $deviasi;
 		$data_all['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']]['data'][$sub['kode_giat']]['data'][$sub['kode_sub_giat']]['deviasi'] += $deviasi;
 	}
-
 	// print_r($data_all); die();
+
+	$data_input = array();
 	$body = '';
 	$body_rkpd = '';
 	foreach ($data_all['data'] as $kd_urusan => $urusan) {
@@ -538,6 +539,11 @@ foreach ($units as $k => $unit):
 						}else if(empty($sub_giat['total_simda'])){
 							$edit_fisik = '';
 						}
+						$data_input[$sub_giat['data']['kode_sbl']] = array(
+							'realisasi_fisik' => $realisasi_fisik,
+							'permasalahan' => $sub_giat['data']['permasalahan'],
+							'catatan_verifikator' => $sub_giat['data']['catatan_verifikator']
+						);
 						$body .= '
 					        <tr data-kode="'.$kd_sub_giat1.'" data-kdsbl="'.$sub_giat['data']['kode_sbl'].'" data-idskpd="'.$sub_giat['data']['id_sub_skpd'].'" data-pagu="'.$sub_giat['total'].'">
 					            <td class="kiri kanan bawah">'.$kd_urusan.'</td>
@@ -587,7 +593,15 @@ foreach ($units as $k => $unit):
 
 	echo '
 	<style>
-		.detail_simda { display: none; }
+		.detail_simda, .simpan-per-sub-keg { display: none; }
+		.simpan-per-sub-keg {
+		    font-size: 10px;
+		    margin-left: 10px;
+		    cursor: pointer;
+		}
+		.tr-belum-save {
+			background: #ffbc0073;
+		}
 	</style>
 	<input type="hidden" value="'.get_option( '_crb_api_key_extension' ).'" id="api_key">
 	<input type="hidden" value="'.$input['tahun_anggaran'].'" id="tahun_anggaran">
@@ -689,9 +703,11 @@ if(!current_user_can('administrator')){
 		<li>Tombol <b>Simpan Data</b> digunakan untuk menyimpan data yang sudah diinput atau diedit oleh user SKPD dan user verfikator</li>
 		<li>Tombol <b>Reset RFK bulan sebelumnya</b> digunakan untuk mengupdate data input sesuai dengan data di bulan sebelumnya. Fitur ini mempermudah user untuk menginput data pada awal bulan, agar tidak perlu menginput satu per satu data mulai dari awal</li>
 		<li><b>CATATAN KESIMPULAN KABAG ADBANG</b> adalah catatan yang diisi oleh KABAG ADBANG, berisi kesimpulan dari catatan verfikator</li>
+		<li>Tombol <b>SIMPAN</b> berwarna merah pada sub kegiatan akan muncul, jika ada data yang belum disimpan oleh user SKPD ataupun user verifikator</li>
 	</ul>
 </div>
 <script type="text/javascript">
+	var data_input = <?php echo json_encode($data_input); ?>;
 	run_download_excel();
     function generate_total(){
     	var total_parent = {};
@@ -820,7 +836,76 @@ if(!current_user_can('administrator')){
 	    	var val = jQuery(this).text();
 	    	if(isNaN(+val) || +val > 100 || +val < 0){
 	    		alert('Input realisasi fisik harus dalam format angka antaran 0-100!');
+	    	}else{
+		    	var tr = jQuery(this).closest('tr');
+		    	tr.removeClass('tr-belum-save');
+		    	var kd_sbl = tr.attr('data-kdsbl');
+		    	if(data_input[kd_sbl].realisasi_fisik != val){
+		    		tr.find('.simpan-per-sub-keg').show();
+		    		tr.addClass('tr-belum-save');
+		    	}
+		    }
+	    });
+	    jQuery('.permasalahan').on('input', function(){
+	    	generate_total();
+	    	var val = jQuery(this).text();
+	    	var tr = jQuery(this).closest('tr');
+	    	tr.removeClass('tr-belum-save');
+	    	var kd_sbl = tr.attr('data-kdsbl');
+	    	if(data_input[kd_sbl].permasalahan != val){
+	    		tr.find('.simpan-per-sub-keg').show();
+	    		tr.addClass('tr-belum-save');
 	    	}
+	    });
+	    jQuery('.catatan_verifikator').on('input', function(){
+	    	generate_total();
+	    	var val = jQuery(this).text();
+	    	var tr = jQuery(this).closest('tr');
+	    	tr.removeClass('tr-belum-save');
+	    	var kd_sbl = tr.attr('data-kdsbl');
+	    	if(data_input[kd_sbl].catatan_verifikator != val){
+	    		tr.find('.simpan-per-sub-keg').show();
+	    		tr.addClass('tr-belum-save');
+	    	}
+	    });
+	    jQuery('.simpan-per-sub-keg').on('click', function(){
+	    	var tr = jQuery(this).closest('tr');
+	    	var val = tr.find('.realisasi-fisik').text();
+	    	var cek = false;
+			if(isNaN(+val) || +val > 100 || +val < 0){
+	    		cek = tr.find('.nama_sub_giat').text();
+	    	}
+    		if(cek){
+		    	alert('Input realisasi fisik sub kegiatan "'+cek+'" harus dalam format angka antaran 0-100! Realisasi tidak tersimpan.');
+    			return;
+    		}else{
+	    		jQuery('#wrap-loading').show();
+		    	jQuery.ajax({
+					url: "<?php echo admin_url('admin-ajax.php'); ?>",
+		          	type: "post",
+		          	data: {
+		          		"action": "simpan_rfk",
+		          		"api_key": jQuery('#api_key').val(),
+		          		"tahun_anggaran": jQuery('#tahun_anggaran').val(),
+		          		"bulan": jQuery('#pilih_bulan').val(),
+		          		"user": "<?php echo $current_user->display_name; ?>",
+		          		"data": [{
+		    				realisasi_fisik: val,
+		    				permasalahan: tr.find('.permasalahan').text(),
+		    				catatan_verifikator: tr.find('.catatan_verifikator').text(),
+		    				id_skpd: tr.attr('data-idskpd'),
+		    				kode_sbl: tr.attr('data-kdsbl'),
+			          		user_edit: "<?php echo $current_user->display_name; ?>"
+		    			}]
+		          	},
+		          	dataType: "json",
+		          	success: function(data){
+						tr.removeClass('tr-belum-save');
+						tr.find('.simpan-per-sub-keg').hide();
+						jQuery('#wrap-loading').hide();
+					}
+				});
+		    }
 	    });
 	    jQuery('#reset-rfk').on('click', function(){
 	    	if(confirm('Apakah anda yakin untuk reset data RFK sesuai bulan sebelumnya? Data RFK saat ini akan disamakan dengan bulan sebelumnya!')){
@@ -880,7 +965,6 @@ if(!current_user_can('administrator')){
 	    });
 	    jQuery('#simpan-rfk').on('click', function(){
 	    	if(confirm('Apakah anda yakin untuk menyimpan data ini?')){
-	    		jQuery('#wrap-loading').show();
 	    		var r_fisik = [];
 	    		var r_fisik_s = [];
 	    		var cek = false;
@@ -891,6 +975,7 @@ if(!current_user_can('administrator')){
 			    		cek = tr.find('.nama_sub_giat').text();
 			    	}
 	    			r_fisik_s.push({
+	    				tr: i,
 	    				realisasi_fisik: val,
 	    				permasalahan: tr.find('.permasalahan').text(),
 	    				catatan_verifikator: tr.find('.catatan_verifikator').text(),
@@ -906,51 +991,59 @@ if(!current_user_can('administrator')){
 	    		if(cek){
 			    	alert('Input realisasi fisik sub kegiatan "'+cek+'" harus dalam format angka antaran 0-100! Realisasi tidak tersimpan.');
 	    			return;
-	    		}
-	    		if(r_fisik_s.length >= 1){
-	    			r_fisik.push(r_fisik_s);
-	    		}
-	    		r_fisik.reduce(function(sequence, nextData){
-	                return sequence.then(function(current_data){
-	            		return new Promise(function(resolve_redurce, reject_redurce){
-				    		jQuery.ajax({
-								url: "<?php echo admin_url('admin-ajax.php'); ?>",
-					          	type: "post",
-					          	data: {
-					          		"action": "simpan_rfk",
-					          		"api_key": jQuery('#api_key').val(),
-					          		"tahun_anggaran": jQuery('#tahun_anggaran').val(),
-					          		"bulan": jQuery('#pilih_bulan').val(),
-					          		"user": "<?php echo $current_user->display_name; ?>",
-					          		"data": current_data
-					          	},
-					          	dataType: "json",
-					          	success: function(data){
-									return resolve_redurce(nextData);
-								},
-								error: function(e) {
-									console.log(e);
-									return resolve_redurce(nextData);
-								}
-							});
+	    		}else{
+		    		jQuery('#wrap-loading').show();
+		    		if(r_fisik_s.length >= 1){
+		    			r_fisik.push(r_fisik_s);
+		    		}
+		    		r_fisik.reduce(function(sequence, nextData){
+		                return sequence.then(function(current_data){
+		            		return new Promise(function(resolve_redurce, reject_redurce){
+					    		jQuery.ajax({
+									url: "<?php echo admin_url('admin-ajax.php'); ?>",
+						          	type: "post",
+						          	data: {
+						          		"action": "simpan_rfk",
+						          		"api_key": jQuery('#api_key').val(),
+						          		"tahun_anggaran": jQuery('#tahun_anggaran').val(),
+						          		"bulan": jQuery('#pilih_bulan').val(),
+						          		"user": "<?php echo $current_user->display_name; ?>",
+						          		"data": current_data
+						          	},
+						          	dataType: "json",
+						          	success: function(data){
+						          		current_data.map(function(b, i){
+		            						var no_tr = b.tr;
+			            					var tr = jQuery('.realisasi-fisik').eq(no_tr).closest('tr');
+											tr.removeClass('tr-belum-save');
+											tr.find('.simpan-per-sub-keg').hide();
+						          		});
+										return resolve_redurce(nextData);
+									},
+									error: function(e) {
+										console.log(e);
+										return resolve_redurce(nextData);
+									}
+								});
+			                })
+		                    .catch(function(e){
+		                        console.log(e);
+		                        return Promise.resolve(nextData);
+		                    });
 		                })
-	                    .catch(function(e){
-	                        console.log(e);
-	                        return Promise.resolve(nextData);
-	                    });
-	                })
-	                .catch(function(e){
-	                    console.log(e);
-	                    return Promise.resolve(nextData);
-	                });
-	            }, Promise.resolve(r_fisik[r_fisik.length-1]))
-	            .then(function(){
-					jQuery('#wrap-loading').hide();
-					alert('Data berhasil disimpan!');
-	            })
-	            .catch(function(e){
-	                console.log(e);
-	            });
+		                .catch(function(e){
+		                    console.log(e);
+		                    return Promise.resolve(nextData);
+		                });
+		            }, Promise.resolve(r_fisik[r_fisik.length-1]))
+		            .then(function(){
+						jQuery('#wrap-loading').hide();
+						alert('Data berhasil disimpan!');
+		            })
+		            .catch(function(e){
+		                console.log(e);
+		            });
+		        }
 	    	}
 	    });
 	    generate_total();
