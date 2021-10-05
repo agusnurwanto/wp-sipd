@@ -843,6 +843,8 @@ if(!current_user_can('administrator')){
 		    	if(data_input[kd_sbl].realisasi_fisik != val){
 		    		tr.find('.simpan-per-sub-keg').show();
 		    		tr.addClass('tr-belum-save');
+		    	}else{
+		    		tr.find('.simpan-per-sub-keg').hide();
 		    	}
 		    }
 	    });
@@ -855,6 +857,8 @@ if(!current_user_can('administrator')){
 	    	if(data_input[kd_sbl].permasalahan != val){
 	    		tr.find('.simpan-per-sub-keg').show();
 	    		tr.addClass('tr-belum-save');
+	    	}else{
+	    		tr.find('.simpan-per-sub-keg').hide();
 	    	}
 	    });
 	    jQuery('.catatan_verifikator').on('input', function(){
@@ -866,6 +870,8 @@ if(!current_user_can('administrator')){
 	    	if(data_input[kd_sbl].catatan_verifikator != val){
 	    		tr.find('.simpan-per-sub-keg').show();
 	    		tr.addClass('tr-belum-save');
+	    	}else{
+	    		tr.find('.simpan-per-sub-keg').hide();
 	    	}
 	    });
 	    jQuery('.simpan-per-sub-keg').on('click', function(){
@@ -880,6 +886,10 @@ if(!current_user_can('administrator')){
     			return;
     		}else{
 	    		jQuery('#wrap-loading').show();
+	    		var realisasi_fisik = val;
+				var permasalahan = tr.find('.permasalahan').text();
+				var catatan_verifikator = tr.find('.catatan_verifikator').text();
+				var kd_sbl = tr.attr('data-kdsbl');
 		    	jQuery.ajax({
 					url: "<?php echo admin_url('admin-ajax.php'); ?>",
 		          	type: "post",
@@ -890,16 +900,19 @@ if(!current_user_can('administrator')){
 		          		"bulan": jQuery('#pilih_bulan').val(),
 		          		"user": "<?php echo $current_user->display_name; ?>",
 		          		"data": [{
-		    				realisasi_fisik: val,
-		    				permasalahan: tr.find('.permasalahan').text(),
-		    				catatan_verifikator: tr.find('.catatan_verifikator').text(),
+		    				realisasi_fisik: realisasi_fisik,
+		    				permasalahan: permasalahan,
+		    				catatan_verifikator: catatan_verifikator,
 		    				id_skpd: tr.attr('data-idskpd'),
-		    				kode_sbl: tr.attr('data-kdsbl'),
+		    				kode_sbl: kd_sbl,
 			          		user_edit: "<?php echo $current_user->display_name; ?>"
 		    			}]
 		          	},
 		          	dataType: "json",
 		          	success: function(data){
+		          		data_input[kd_sbl].realisasi_fisik = realisasi_fisik;
+		          		data_input[kd_sbl].permasalahan = permasalahan;
+		          		data_input[kd_sbl].catatan_verifikator = catatan_verifikator;
 						tr.removeClass('tr-belum-save');
 						tr.find('.simpan-per-sub-keg').hide();
 						jQuery('#wrap-loading').hide();
@@ -1017,6 +1030,10 @@ if(!current_user_can('administrator')){
 			            					var tr = jQuery('.realisasi-fisik').eq(no_tr).closest('tr');
 											tr.removeClass('tr-belum-save');
 											tr.find('.simpan-per-sub-keg').hide();
+											var kd_sbl = b.kode_sbl;
+							          		data_input[kd_sbl].realisasi_fisik = b.realisasi_fisik;
+							          		data_input[kd_sbl].permasalahan = b.permasalahan;
+							          		data_input[kd_sbl].catatan_verifikator = b.catatan_verifikator;
 						          		});
 										return resolve_redurce(nextData);
 									},
