@@ -313,7 +313,7 @@ foreach ($units as $k => $unit):
 				'kd_keg' => $kd_keg
 			);
 			$data_all['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']]['data'][$sub['kode_giat']]['data'][$sub['kode_sub_giat']] = array(
-				'nama'	=> implode(' ', $nama).'<span class="detail_simda">'.json_encode($detail_simda).'</span><span class="badge badge-danger simpan-per-sub-keg">SIMPAN</span>',
+				'nama'	=> implode(' ', $nama).'<span class="detail_simda hide-excel">'.json_encode($detail_simda).'</span><span class="badge badge-danger simpan-per-sub-keg hide-excel">SIMPAN</span>',
 				'total' => 0,
 				'total_simda' => 0,
 				'realisasi' => 0,

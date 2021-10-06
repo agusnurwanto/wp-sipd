@@ -105,6 +105,14 @@ function run_download_excel(type){
 		if(title){
 			name = title;
 		}
+		var cek_hide_excel = jQuery('#cetak .hide-excel');
+		if(cek_hide_excel.length >= 1){
+			cek_hide_excel.remove();
+			setTimeout(function(){
+				alert('Ada beberapa fungsi yang tidak bekerja setelah melakukan donwload excel. Refresh halaman ini!');
+			}, 5000);
+		}
+
 		tableHtmlToExcel('cetak', name);
 	});
 }
