@@ -42,6 +42,15 @@ $body .='
 		.background-status {
 			background-color: #fdf6a5;
 		}
+		.simpan-per-unit { display: none; }
+		.simpan-per-unit {
+		    font-size: 10px;
+		    cursor: pointer;
+		    text-align: center;
+		}
+		.tr-belum-save {
+			background: #ffbc0073;
+		}
 	</style>
 
 	<!-- Modal -->
@@ -410,10 +419,12 @@ $body .='
 		
 		$status_update = array();
 		$catatan_rfk_class = 'catatan_rfk_unit';	
+		$event = "<span class='badge badge-danger simpan-per-unit hide-excel'>SIMPAN</span>";	
 		if(isset($value['act']) && $value['act'] != ''){
 			$editable = 'false';
 			$tag = $value['act'];
 			$catatan_rfk_class = '';
+			$event = '';
 			foreach ($value['data_sub_unit'] as $k => $v) {
 				if($v['last_update']=='-'){
 					$status_update[]=$v['last_update'];
@@ -428,7 +439,7 @@ $body .='
 
 		$body.='
 	    	<tr data-idskpd="'.$value['id_skpd'].'">
-			    <td class="atas kanan bawah kiri text_tengah" data-search="'.$value['kode_skpd'].'">'.$value['kode_skpd'].' </td>
+			    <td class="atas kanan bawah kiri text_tengah" data-search="'.$value['kode_skpd'].'">'.$value['kode_skpd'].'</td>
 			    <td class="atas kanan bawah text_kiri" data-search="'.$value['nama_skpd'].'">'.$tag.'</td>
 			    <td class="atas kanan bawah text_kanan" data-order="'.$value['rka_sipd'].'">'.number_format($value['rka_sipd'],0,",",".").'</td>
 			    <td class="atas kanan bawah text_kanan" data-order="'.$value['dpa_sipd'].'">'.number_format($value['dpa_sipd'],0,",",".").'</td>
@@ -437,8 +448,8 @@ $body .='
 			    <td class="atas kanan bawah text_tengah" data="'.$value['rak'].'">'.$value['target_rak'].'</td>
 			    <td class="atas kanan bawah text_tengah">'.$value['deviasi'].'</td>
 			    <td class="atas kanan bawah text_tengah">'.$value['realisasi_fisik'].'</td>
-			    <td class="atas kanan bawah text_tengah '.$background.'">'.$value['last_update'].'</td>
-			    <td class="atas kanan bawah text_tengah '.$catatan_rfk_class.'" contenteditable="'.$editable.'">'.$value['cat_ka_adbang'].'</td>
+			    <td class="atas kanan bawah text_tengah '.$background.'">'.$value['last_update'].'  '.$event.'</td>
+			    <td class="atas kanan bawah text_tengah '.$catatan_rfk_class.'" data-content="'.$value['cat_ka_adbang'].'" contenteditable="'.$editable.'">'.$value['cat_ka_adbang'].'</td>
 			</tr>
 		';
 	}
@@ -513,8 +524,8 @@ $body .='
 			+'</label>'
 		+'</div>';
 
-		let data_all_rfk = <?php echo json_encode($data_all['data']); ?>;
-		console.log(data_all_rfk);
+		var data_all_rfk = <?php echo json_encode($data_all['data']); ?>;
+		// console.log(data_all_rfk);
 		
 		jQuery(document).ready(function(){
 			<?php if(empty($public)){ ?>
@@ -560,7 +571,7 @@ $body .='
 		    			jQuery("#wrap-loading").css('display','none');
 					}; 
 
-					console.log(data_all[no]+'&page_close=1');
+					// console.log(data_all[no]+'&page_close=1');
 					window.open(data_all[no]+'&page_close=1');
 					no++;
 				}, time*1000);
@@ -597,6 +608,10 @@ $body .='
 		    	}
 		    });
 
+		    jQuery('.catatan_rfk_unit').on('input', compareCatatan);
+		    jQuery('.simpan-per-unit').on('click', function(){
+		    	simpan_catatan_rfk_unit(this, 'catatan_rfk_unit');
+		    })
 		    jQuery('#table-rfk').DataTable();
 		})
 
@@ -683,7 +698,7 @@ $body .='
 											+ '<td class="kanan bawah text_tengah">'+data_sub_unit.target_rak+'</td>'
 											+ '<td class="kanan bawah text_tengah">'+data_sub_unit.deviasi+'</td>'
 											+ '<td class="kanan bawah text_tengah">'+data_sub_unit.realisasi_fisik+'</td>'
-											+ '<td class="kanan bawah text_tengah">'+data_sub_unit.last_update+'</td>'
+											+ '<td class="kanan bawah text_tengah">'+data_sub_unit.last_update+' '+'<span class="badge badge-danger simpan-per-unit hide-excel">SIMPAN</span>'+'</td>'
 											+ '<td class="kanan bawah text_tengah catatan_rfk_sub_unit" contenteditable="true">'+data_sub_unit.cat_ka_adbang+'</td>'
 										+'</tr>'
 								});
@@ -715,7 +730,10 @@ $body .='
 			jQuery("#simpan-catatan-rfk-sub-unit").on('click', function(){
 	    		simpan_catatan_rfk('catatan_rfk_sub_unit');
 		    })
-
+		    jQuery('.catatan_rfk_sub_unit').on('input', compareCatatan);
+		    jQuery(".simpan-per-unit").on('click', function(){
+		    	simpan_catatan_rfk_unit(this, 'catatan_rfk_sub_unit');
+		    })
 			jQuery('#table-rfk-sub-unit').DataTable();
 		}
 
@@ -777,6 +795,55 @@ $body .='
 		            });
 	    		}
 		}
+
+
+		function simpan_catatan_rfk_unit(that, tag)
+		{
+			jQuery('#wrap-loading').show();
+			var tr = jQuery(that).closest('tr');
+			var val = tr.find('.'+tag).text();
+			var id_skpd = tr.attr("data-idskpd");
+
+			jQuery.ajax({
+				url: "<?php echo admin_url('admin-ajax.php'); ?>",
+				type: "post",
+				data: {
+						"action": "simpan_catatan_rfk_unit",
+						"api_key": jQuery('#api_key').val(),
+						"tahun_anggaran": <?php echo $input['tahun_anggaran'] ?>,
+						"bulan": jQuery('#pilih_bulan').val(),
+						"user": "<?php echo $current_user->display_name; ?>",
+						"data": {
+							"id_skpd": id_skpd,
+							"catatan_ka_adbang": val,
+						}
+					},
+					dataType: "json",
+					success: function(data){
+						alert(data.message);
+						tr.find('.'+tag).attr('data-content',val);
+						tr.find('.simpan-per-unit').hide();
+						jQuery('#wrap-loading').hide();
+					},
+					error: function(e) {
+						alert(e.message);
+					}
+			});
+		}
+
+		function compareCatatan(){
+		    var tr = jQuery(this).closest('tr');
+		    var val = jQuery(this).text();
+		    var catatan = jQuery(this).attr('data-content');
+		    	
+		    tr.find('tr-belum-save');
+		    if(val != catatan){
+		    	tr.find('.simpan-per-unit').show();
+		    	tr.addClass('tr-belum-save');
+		    }else{
+		    	tr.find('.simpan-per-unit').hide();
+		    }
+		 }
 
 		function get_bulan(bulan) {
 			let date = new Date();
