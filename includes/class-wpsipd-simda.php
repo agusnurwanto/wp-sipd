@@ -1053,7 +1053,7 @@ class Wpsipd_Simda
 										/* 
 										- Cek jika iddana lebih dari 255 karena type kd_sumber adalah tinyint, idmaksimal 255.
 										- Type kolom tabel ref_sumber_dana tidak bisa dirubah karena berelasi ke beberapa tabel lainnya.
-										- Admin simda perlu menginput sumber dana secara manual di tabel ref_sumber_dana dengan nama yang sesuai dengan yang ada di SIPD.
+										- Admin simda perlu menginput sumber dana secara manual di tabel ref_sumber_dana dengan nama sumber dana yang sesuai di SIPD.
 										*/
 										if($sd['iddana'] > 255){
 											$cek_sd = $this->CurlSimda(array(
