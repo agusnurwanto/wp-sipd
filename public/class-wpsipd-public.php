@@ -5822,7 +5822,6 @@ class Wpsipd_Public
 			'status' => 'success',
 			'message' => 'Berhasil simpan data!'
 		);
-
 		if (!empty($_POST)) {
 			if(isset($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )){
 				$cek = $wpdb->get_var("SELECT id FROM data_catatan_rfk_unit WHERE id_skpd=".$_POST['data']['id_skpd']." AND bulan=".$_POST['bulan']." AND tahun_anggaran=".$_POST['tahun_anggaran']);
@@ -5832,6 +5831,7 @@ class Wpsipd_Public
 					'id_skpd' => $_POST['data']['id_skpd'],
 					'tahun_anggaran' => $_POST['tahun_anggaran']
 				);
+				
 				if(!empty($cek)){
 					$data['updated_by'] = $_POST['user'];
 					$data['updated_at'] = current_time('mysql');
