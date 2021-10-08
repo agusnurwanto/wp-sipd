@@ -822,6 +822,7 @@ $body .='
 					success: function(data){
 						alert(data.message);
 						tr.find('.'+tag).attr('data-content',val);
+		    			tr.removeClass('odd ubah-warna');
 						tr.find('.simpan-per-unit').hide();
 						jQuery('#wrap-loading').hide();
 					},
