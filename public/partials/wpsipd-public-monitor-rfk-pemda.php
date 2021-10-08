@@ -48,8 +48,8 @@ $body .='
 		    cursor: pointer;
 		    text-align: center;
 		}
-		.tr-belum-save {
-			background: #ffbc0073;
+		table.dataTable tbody tr.odd.ubah-warna {
+		 	background-color:#ffbc0073
 		}
 	</style>
 
@@ -419,7 +419,7 @@ $body .='
 		
 		$status_update = array();
 		$catatan_rfk_class = 'catatan_rfk_unit';	
-		$event = "<span class='badge badge-danger simpan-per-unit hide-excel'>SIMPAN</span>";	
+		$event = "</br></br><span class='badge badge-danger simpan-per-unit hide-excel'>SIMPAN</span>";	
 		if(isset($value['act']) && $value['act'] != ''){
 			$editable = 'false';
 			$tag = $value['act'];
@@ -698,8 +698,8 @@ $body .='
 											+ '<td class="kanan bawah text_tengah">'+data_sub_unit.target_rak+'</td>'
 											+ '<td class="kanan bawah text_tengah">'+data_sub_unit.deviasi+'</td>'
 											+ '<td class="kanan bawah text_tengah">'+data_sub_unit.realisasi_fisik+'</td>'
-											+ '<td class="kanan bawah text_tengah">'+data_sub_unit.last_update+' '+'<span class="badge badge-danger simpan-per-unit hide-excel">SIMPAN</span>'+'</td>'
-											+ '<td class="kanan bawah text_tengah catatan_rfk_sub_unit" contenteditable="true">'+data_sub_unit.cat_ka_adbang+'</td>'
+											+ '<td class="kanan bawah text_tengah">'+data_sub_unit.last_update+' '+'</br></br><span class="badge badge-danger simpan-per-unit hide-excel">SIMPAN</span>'+'</td>'
+											+ '<td class="kanan bawah text_tengah catatan_rfk_sub_unit" contenteditable="true" data-content="'+data_sub_unit.cat_ka_adbang+'">'+data_sub_unit.cat_ka_adbang+'</td>'
 										+'</tr>'
 								});
 							}
@@ -836,12 +836,12 @@ $body .='
 		    var val = jQuery(this).text();
 		    var catatan = jQuery(this).attr('data-content');
 		    	
-		    tr.find('tr-belum-save');
 		    if(val != catatan){
 		    	tr.find('.simpan-per-unit').show();
-		    	tr.addClass('tr-belum-save');
+		    	tr.addClass('odd ubah-warna');
 		    }else{
 		    	tr.find('.simpan-per-unit').hide();
+		    	tr.removeClass('odd ubah-warna');
 		    }
 		 }
 
