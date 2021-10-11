@@ -4876,6 +4876,7 @@ class Wpsipd_Public
 						'is_locked' => $v['is_locked'],
 						'is_locked_indikator' => $v['is_locked_indikator'],
 						'kode_bidang_urusan' => $v['kode_bidang_urusan'],
+						'kode_sasaran_rpjm' => $v['kode_sasaran_rpjm'],
 						'kode_skpd' => $v['kode_skpd'],
 						'nama_bidang_urusan' => $v['nama_bidang_urusan'],
 						'nama_skpd' => $v['nama_skpd'],
