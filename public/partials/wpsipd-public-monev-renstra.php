@@ -71,20 +71,43 @@ $tujuan = $wpdb->get_results($wpdb->prepare("
 				active=1 and 
 				tahun_anggaran=%d order by id",
 				$input['id_skpd'], $input['tahun_anggaran']), ARRAY_A);
-	// echo '<pre>';print_r($wpdb->last_query);echo '</pre>';die();
+// echo '<pre>';print_r($wpdb->last_query);echo '</pre>';die();
 
 if(!empty($tujuan)){
 	foreach ($tujuan as $t => $tujuan_value) {
 		$tujuan_key = $tujuan_value['id_bidang_urusan']."-".$tujuan_value['id_unik'];
 		if(empty($data_all['data'][$tujuan_key])){
+
+			$status_rpjmd='';
+			if(!empty($tujuan_value['kode_sasaran_rpjm'])){
+				$cek_status_rpjmd = $wpdb->get_results($wpdb->prepare("
+					SELECT 
+						id 
+					FROM 
+						data_rpjmd_sasaran 
+					WHERE 
+						active=1 AND
+						id_unik=%s AND
+						tahun_anggaran=%d",
+						$tujuan_value['kode_sasaran_rpjm'],
+						$input['tahun_anggaran']
+					), ARRAY_A);
+
+				if(!empty($cek_status_rpjmd)){
+					$status_rpjmd='TERKONEKSI';
+				}
+			}
+
 			$nama = explode("||", $tujuan_value['tujuan_teks']);
 			$nama_bidang_urusan = explode("||", $tujuan_value['nama_bidang_urusan']);
 			$data_all['data'][$tujuan_key] = array(
 				'id_unit' => $tujuan_value['id_unit'],
+				'status_rpjmd' => $status_rpjmd,
 				'status' => '1',
 				'nama' => $tujuan_value['tujuan_teks'],
 				'nama_teks' => $nama[0],
 				'id_unik' => $tujuan_value['id_unik'],
+				'kode_sasaran_rpjm' => $tujuan_value['kode_sasaran_rpjm'],
 				'kode_tujuan' => $tujuan_value['id_unik'],
 				'urut_tujuan' => $tujuan_value['urut_tujuan'],
 				'id_bidang_urusan' => $tujuan_value['id_bidang_urusan'],
@@ -126,7 +149,8 @@ if(!empty($tujuan)){
 		if(!empty($sasaran)){
 			foreach ($sasaran as $s => $sasaran_value) {
 				$nama = explode("||", $sasaran_value['sasaran_teks']);
-				$sasaran_key = $nama[2];
+				$sasaran_key = $nama[2];			
+
 				if(empty($data_all['data'][$tujuan_key]['data'][$sasaran_key])){
 					$nama_bidang_urusan = explode("||", $sasaran_value['nama_bidang_urusan']);
 					$data_all['data'][$tujuan_key]['data'][$sasaran_key] = array(
@@ -292,7 +316,7 @@ if(!empty($tujuan)){
 								}
 
 								if(!empty($kegiatan_value['id_unik_indikator']) && empty($data_all['data'][$tujuan_key]['data'][$sasaran_key]['data'][$program_value['kode_program']]['data'][$kegiatan_value['kode_giat']]['indikator'][$kegiatan_value['id_unik_indikator']])){
-									// ambil data indikator kegiatan
+									
 									$data_all['data'][$tujuan_key]['data'][$sasaran_key]['data'][$program_value['kode_program']]['data'][$kegiatan_value['kode_giat']]['indikator'][$kegiatan_value['id_unik_indikator']] = array(
 										'id_unik_indikator' => $kegiatan_value['id_unik_indikator'],
 										'indikator_teks' => !empty($kegiatan_value['indikator']) ? $kegiatan_value['indikator'] : '-',
@@ -310,10 +334,10 @@ if(!empty($tujuan)){
 						}
 					}
 				}
-			} // end loop sasaran
+			}
 		}
-	} // end loop tujuan
-} // end tujuan
+	} 
+}
 
 	$sasaran = $wpdb->get_results($wpdb->prepare("
 				select * from data_renstra_sasaran 
@@ -355,6 +379,7 @@ if(!empty($tujuan)){
 					$data_all['data'][$tujuan_key] = array(
 						'id_unit' => '',
 						'status' => '0',
+						'status_rpjmd' => '',
 						'nama' => 'TUJUAN KOSONG => ' . $s_value['tujuan_teks'],
 						'nama_teks' => 'TUJUAN KOSONG',
 						'id_unik' => '',
@@ -372,6 +397,7 @@ if(!empty($tujuan)){
 
 				$nama = explode("||", $s_value['sasaran_teks']);
 				$sasaran_key = $nama[2];
+
 				if(empty($data_all['data'][$tujuan_key]['data'][$sasaran_key])){
 					$data_all['data'][$tujuan_key]['data'][$sasaran_key] = array(
 						'id_unit' => $s_value['id_unit'],
@@ -461,8 +487,24 @@ if(!empty($tujuan)){
 								'data' => array()
 							);
 
-							if(!empty($p_value['id_unik_indikator'])){
-								// ambil data indikator sasaran
+							// if(!empty($p_value['id_unik_indikator'])){
+							// 	// ambil data indikator sasaran
+							// }
+
+							if(!empty($p_value['id_unik_indikator']) && empty($data_all['data'][$tujuan_key]['data'][$sasaran_key]['data'][$p_value['kode_program']]['indikator'][$p_value['id_unik_indikator']])){
+								// ambil data indikator program
+								$data_all['data'][$tujuan_key]['data'][$sasaran_key]['data'][$p_value['kode_program']]['indikator'][$p_value['id_unik_indikator']] = array(
+									'id_unik_indikator' => $p_value['id_unik_indikator'],
+									'indikator_teks' => !empty($p_value['indikator']) ? $p_value['indikator'] : '-',
+									'satuan' => !empty($p_value['satuan']) ? $p_value['satuan'] : "",
+									'target_1' => !empty($p_value['target_1']) ? $p_value['target_1'] : "",
+									'target_2' => !empty($p_value['target_2']) ? $p_value['target_2'] : "",
+									'target_3' => !empty($p_value['target_3']) ? $p_value['target_3'] : "",
+									'target_4' => !empty($p_value['target_4']) ? $p_value['target_4'] : "",
+									'target_5' => !empty($p_value['target_5']) ? $p_value['target_5'] : "",
+									'target_awal' => !empty($p_value['target_awal']) ? $p_value['target_awal'] : "",
+									'target_akhir' => !empty($p_value['target_akhir']) ? $p_value['target_akhir'] : "",
+								);
 							}
 						}
 
@@ -579,6 +621,7 @@ if(!empty($tujuan)){
 					$nama = explode("||", $p_value['tujuan_teks']);
 					$data_all['data'][$tujuan_key] = array(
 						'id_unit' => '',
+						'status_rpjmd' => '',
 						'status' => '0',
 						'nama' => 'TUJUAN KOSONG => '.$p_value['tujuan_teks'],
 						'nama_teks' => 'TUJUAN KOSONG',
@@ -734,6 +777,7 @@ if(!empty($tujuan)){
 				$nama = explode("||", $k_value['tujuan_teks']);
 				$data_all['data'][$tujuan_key] = array(
 					'id_unit' => '',
+					'status_rpjmd' => '',
 					'status' => '0',
 					'nama' => 'TUJUAN KOSONG => '.$k_value['tujuan_teks'],
 					'nama_teks' => 'TUJUAN KOSONG',
@@ -864,7 +908,6 @@ if(!empty($tujuan)){
 	}
 
 	// echo '<pre>';print_r($data_all['data']);echo '</pre>'; die();
-
 	foreach ($data_all['data'] as $key => $tujuan) 
 	{
 
@@ -882,9 +925,12 @@ if(!empty($tujuan)){
 			}
 
 			$backgroundColor = !empty($tujuan['status']) ? '' : '#ffdbdb';
+			$status_rpjmd = !empty($tujuan['status_rpjmd']) ? '<a href="javascript:void(0)" onclick="show_rpjm(\''.$input['tahun_anggaran'].'\', \''.$input['id_skpd'].'\', \''.$tujuan['kode_sasaran_rpjm'].'\')">
+			            	'.$tujuan['status_rpjmd'].'
+			            	</a>' : $tujuan['status_rpjmd'];
 			$body_monev .= '
-				<tr class="tujuan" data-kode="" style="background-color:'.$backgroundColor.'">
-		            <td class="kiri kanan bawah text_blok"></td>
+				<tr class="tujuan tr-tujuan" data-kode="" style="background-color:'.$backgroundColor.'">
+		            <td class="kiri kanan bawah text_blok">'.$status_rpjmd.'</td>
 		            <td class="kiri kanan bawah text_blok">
 		            	<span class="debug-renstra">'.$tujuan['nama_bidang_urusan'].'</span>
 		            	<span class="nondebug-renstra">'.$tujuan['nama_bidang_urusan_teks'].'</span>
@@ -948,7 +994,7 @@ if(!empty($tujuan)){
 
 				$backgroundColor = !empty($sasaran['status']) ? '' : '#ffdbdb';
 				$body_monev .= '
-					<tr class="sasaran" data-kode="" style="background-color:'.$backgroundColor.'">
+					<tr class="sasaran tr-sasaran" data-kode="" style="background-color:'.$backgroundColor.'">
 			            <td class="kiri kanan bawah text_blok"></td>
 			            <td class="kiri kanan bawah text_blok">
 			            	<span class="debug-renstra">'.$sasaran['nama_bidang_urusan'].'</span>
@@ -1013,10 +1059,9 @@ if(!empty($tujuan)){
 				}
 
 				$backgroundColor = !empty($program['status']) ? '' : '#ffdbdb';
-				$style_status_rpjm = '';
 				$body_monev .= '
-					<tr class="program" data-kode="'.$input['tahun_anggaran'].'-'.$input['id_skpd'].'-'.$program['kode_tujuan'].'-'.$program['kode_sasaran'].'-'.$program['kode_program'].'" style="background-color:'.$backgroundColor.'">
-			            <td class="kiri kanan bawah text_blok '.$style_status_rpjm.'"><a href="javascript:void(0)" onclick="show_rpjm(\''.$input['tahun_anggaran'].'\', \''.$input['id_skpd'].'\')"></a></td>
+					<tr class="program tr-program" data-kode="'.$input['tahun_anggaran'].'-'.$input['id_skpd'].'-'.$program['kode_tujuan'].'-'.$program['kode_sasaran'].'-'.$program['kode_program'].'" style="background-color:'.$backgroundColor.'">
+			            <td class="kiri kanan bawah text_blok"></td>
 			            <td class="text_kiri kanan bawah text_blok">
 			            	<span class="debug-renstra">'.$program['nama_bidang_urusan'].'</span>
 			            </td>
@@ -1083,7 +1128,7 @@ if(!empty($tujuan)){
 
 					$backgroundColor = !empty($kegiatan['status']) ? '' : '#ffdbdb';
 					$body_monev .= '
-						<tr class="kegiatan" data-kode="" style="background-color:'.$backgroundColor.'">
+						<tr class="kegiatan tr-kegiatan" data-kode="" style="background-color:'.$backgroundColor.'">
 				            <td class="kiri kanan bawah"></td>
 				            <td class="kiri kanan bawah">
 				            	<span class="debug-renstra">'.$kegiatan['nama_bidang_urusan'].'</span>
@@ -1167,7 +1212,7 @@ if(!empty($tujuan)){
 	<table cellpadding="2" cellspacing="0" style="font-family:\'Open Sans\',-apple-system,BlinkMacSystemFont,\'Segoe UI\',sans-serif; border-collapse: collapse; font-size: 70%; border: 0; table-layout: fixed;" contenteditable="false">
 		<thead>
 			<tr>
-				<th rowspan="5" style="width: 100px;" class='atas kiri kanan bawah text_tengah text_blok'>Status Program RPJM</th>
+				<th rowspan="5" style="width: 100px;" class='atas kiri kanan bawah text_tengah text_blok'>Status Koneksi RPJM</th>
 				<th rowspan="2" style="width: 200px;" class='atas kanan bawah text_tengah text_blok'>Bidang Urusan</th>
 				<th rowspan="2" style="width: 200px;" class='atas kanan bawah text_tengah text_blok'>Tujuan</th>
 				<th rowspan="2" style="width: 200px;" class='atas kanan bawah text_tengah text_blok'>Sasaran</th>
@@ -1261,6 +1306,15 @@ if(!empty($tujuan)){
 	</table>
 </div>
 
+<div class="hide-print" id="catatan_dokumentasi" style="max-width: 1200px; margin: auto;">
+	<h4 style="margin: 30px 0 10px; font-weight: bold;">Catatan Dokumentasi:</h4>
+	<ul>
+		<li>Data dengan latar belakang warna merah menandakan data tidak terhubung.</li>
+		<li>Debug Cascading Renstra digunakan untuk menampilkan detail data dari TUJUAN hingga KEGIATAN.</li>
+		<li>Status Koneksi RPJM menunjukan keterkaitan antara TUJUAN RENSTRA dengan SASARAN RPJM.</li>
+	</ul>
+</div>
+
 <div class="modal fade" id="modal-monev" tabindex="-1" role="dialog" data-backdrop="static" aria-hidden="true">'
     <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
@@ -1278,7 +1332,7 @@ if(!empty($tujuan)){
 </div>
 
 <div class="modal fade" id="modal-rpjmd" tabindex="-1" role="dialog" data-backdrop="static" aria-hidden="true">'
-    <div class="modal-dialog" style="min-width:1500px" role="document">
+    <div class="modal-dialog" style="min-width:1200px" role="document">
         <div class="modal-content">
             <div class="modal-header bgpanel-theme">
                 <h5 class="modal-title" id="exampleModalLabel" style="margin: 0 auto; text-align:center; font-weight: bold"></h5>
@@ -1313,7 +1367,17 @@ if(!empty($tujuan)){
 	var aksi = ''
 		+'<h3 style="margin-top: 20px;">SETTING</h3>'
 		+'<label><input type="checkbox" onclick="edit_monev_indikator(this);"> Edit Monev indikator</label>&nbsp;'
-		+'<label><input type="checkbox" onclick="debug_renstra(this);"> Debug Renstra</label>';
+		+'<label><input type="checkbox" onclick="debug_renstra(this);"> Debug Cascading Renstra</label>'
+		+'<label style="margin-left: 20px;">'
+			+'Sembunyikan Baris '
+			+'<select id="sembunyikan-baris" onchange="sembunyikan_baris(this);" style="padding: 5px 10px; min-width: 200px;">'
+				+'<option value="">Pilih Baris</option>'
+				+'<option value="tr-tujuan">Tujuan</option>'
+				+'<option value="tr-sasaran">Sasaran</option>'
+				+'<option value="tr-program">Program</option>'
+				+'<option value="tr-kegiatan">Kegiatan</option>'
+			+'</select>'
+		+'</label>'
 	jQuery('#action-sipd').append(aksi);
 	function edit_monev_indikator(that){
 		if(jQuery(that).is(':checked')){
@@ -1321,6 +1385,32 @@ if(!empty($tujuan)){
 		}else{
 			jQuery('.edit-monev').hide();
 		}
+	}
+	function sembunyikan_baris(that){
+		var val = jQuery(that).val();
+		var tr_tujuan = jQuery('.tr-tujuan');
+		var tr_sasaran = jQuery('.tr-sasaran');
+		var tr_program = jQuery('.tr-program');
+		var tr_kegiatan = jQuery('.tr-kegiatan');
+		tr_tujuan.show();
+		tr_sasaran.show();
+		tr_program.show();
+		tr_kegiatan.show();
+		if(val == 'tr-tujuan'){
+			tr_tujuan.hide();
+			tr_sasaran.hide();
+			tr_program.hide();
+			tr_kegiatan.hide();
+		}else if(val == 'tr-sasaran'){
+			tr_sasaran.hide();
+			tr_program.hide();
+			tr_kegiatan.hide();
+		}else if(val == 'tr-program'){
+			tr_program.hide();
+			tr_kegiatan.hide();
+		}else if(val == 'tr-kegiatan'){
+			tr_kegiatan.hide();
+		} 
 	}
 	function debug_renstra(that){
 		if(jQuery(that).is(':checked')){
@@ -1337,7 +1427,8 @@ if(!empty($tujuan)){
 		jQuery('#wrap-loading').hide();
 	});
 
-	function show_rpjm(tahun_anggaran, id_unit, id_program){
+	function show_rpjm(tahun_anggaran, id_unit, kode_sasaran_rpjm){
+		jQuery('#wrap-loading').show();
 		let modal = jQuery("#modal-rpjmd");
 		jQuery.ajax({
 
@@ -1347,7 +1438,7 @@ if(!empty($tujuan)){
 				"action": "get_data_rpjm",
 				"tahun_anggaran": tahun_anggaran,
 				"id_unit": id_unit,
-				"id_program" : id_program
+				"kode_sasaran_rpjm" : kode_sasaran_rpjm
 			},
 			dataType:"json",
 			success: function(response){
@@ -1357,6 +1448,7 @@ if(!empty($tujuan)){
 					modal.find('.modal-title').html('RPJMD <br> <?php echo $unit[0]['kode_skpd'].'&nbsp;'.$unit[0]['nama_skpd'].'<br>Tahun '.$input['tahun_anggaran'].' <br> '.$nama_pemda; ?>');
 				}		
 				modal.modal('show');
+				jQuery('#wrap-loading').hide();
 			}
 		});
 

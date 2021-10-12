@@ -5938,27 +5938,24 @@ class Wpsipd_Public
 	function get_data_rpjm(){
 		global $wpdb;
 
-		$id_program = $_POST['id_program'];
+		$id_unik = $_POST['kode_sasaran_rpjm'];
 		$tahun_anggaran = $_POST['tahun_anggaran'];
 		$id_unit = $_POST['id_unit'];
 
 		$data_rpjmd = $wpdb->get_results($wpdb->prepare("
 							SELECT 
 								* 
-							FROM data_rpjmd_program 
+							FROM data_rpjmd_sasaran 
 							where 
-								id_program=%d and 
-								tahun_anggaran=%d and 
 								active=1 and 
-								id_unit=%d", 
-							$id_program,
-							$tahun_anggaran,
-							$id_unit
+								id_unik=%s and 
+								tahun_anggaran=%d", 
+							$id_unik,
+							$tahun_anggaran
 						), ARRAY_A);
 
 		$return['status'] = 0;
 		$return['body_rpjm'] = '';
-
 		if(!empty($data_rpjmd)){
 			
 			$data_all = array(
@@ -6014,7 +6011,6 @@ class Wpsipd_Public
 								'target_akhir' => !empty($indikator['target_akhir']) ? $indikator['target_akhir'] : "",
 							);	
 						}
-						//jika tidak ditemukan indikator tujuan coba dianalisa ke arah tidak terkoneksi dg tujuan rpjmd
 					}
 				}
 
@@ -6025,44 +6021,7 @@ class Wpsipd_Public
 						'data' => array(),
 					);
 
-					$indikators = $wpdb->get_results($wpdb->prepare("
-						select 
-							* 
-						from data_rpjmd_sasaran 
-						where 
-							active=1 and 
-							id_unik=%s and 
-							tahun_anggaran=%d
-						",
-						$v['kode_sasaran'],
-						$tahun_anggaran
-					), ARRAY_A);
-
-					if(!empty($indikators)){
-						foreach ($indikators as $key => $indikator) {
-							$data_all['data'][$v['id_visi']]['data'][$v['id_misi']]['data'][$v['kode_tujuan']]['data'][$v['kode_sasaran']]['indikator'][] = array(
-								'indikator' => !empty($indikator['indikator_teks']) ? $indikator['indikator_teks'] : "",
-								'satuan' => !empty($indikator['satuan']) ? $indikator['satuan'] : "",
-								'target_1' => !empty($indikator['target_1']) ? $indikator['target_1'] : "",
-								'target_2' => !empty($indikator['target_2']) ? $indikator['target_2'] : "",
-								'target_3' => !empty($indikator['target_3']) ? $indikator['target_3'] : "",
-								'target_4' => !empty($indikator['target_4']) ? $indikator['target_4'] : "",
-								'target_5' => !empty($indikator['target_5']) ? $indikator['target_5'] : "",
-								'target_awal' => !empty($indikator['target_awal']) ? $indikator['target_awal'] : "",
-								'target_akhir' => !empty($indikator['target_akhir']) ? $indikator['target_akhir'] : "",
-							);	
-						}
-						//jika tidak ditemukan indikator tujuan coba dianalisa ke arah tidak terkoneksi dg tujuan rpjmd
-					}
-				}
-
-				if(empty($data_all['data'][$v['id_visi']]['data'][$v['id_misi']]['data'][$v['kode_tujuan']]['data'][$v['kode_sasaran']]['data'][$v['id_program']])){
-					$data_all['data'][$v['id_visi']]['data'][$v['id_misi']]['data'][$v['kode_tujuan']]['data'][$v['kode_sasaran']]['data'][$v['id_program']] = array(
-						'nama' => $v['nama_program'],
-						'indikator' => array(),
-					);
-
-					if(!empty($v['id_unik'])){
+					if(!empty($v['id_unik_indikator'])){
 						$data_all['data'][$v['id_visi']]['data'][$v['id_misi']]['data'][$v['kode_tujuan']]['data'][$v['kode_sasaran']]['data'][$v['id_program']]['indikator'][] = array(
 								'id_unik' => $v['id_unik'],
 								'id_unik_indikator' => $v['id_unik_indikator'],
@@ -6076,6 +6035,51 @@ class Wpsipd_Public
 								'target_awal' => $v['target_awal'],
 								'target_akhir' => $v['target_akhir'],
 						);
+					}
+				}
+
+				$program = $wpdb->get_results($wpdb->prepare("
+					select 
+						* 
+					from data_rpjmd_program 
+					where 
+						active=1 and
+						kode_sasaran=%s and
+						id_unit=%d and
+						tahun_anggaran=%d",
+
+						$v['id_unik'],
+						$id_unit,
+						$tahun_anggaran
+					), ARRAY_A);
+				// die($wpdb->last_query);
+		
+				if(!empty($program)){
+					foreach ($program as $kp => $vp) {
+						
+						if(empty($data_all['data'][$v['id_visi']]['data'][$v['id_misi']]['data'][$v['kode_tujuan']]['data'][$v['kode_sasaran']]['data'][$vp['id_program']]))
+						{
+							$data_all['data'][$v['id_visi']]['data'][$v['id_misi']]['data'][$v['kode_tujuan']]['data'][$v['kode_sasaran']]['data'][$vp['id_program']] = array(
+								'nama' => $vp['nama_program'],
+								'indikator' => array(),
+							);
+
+							if(!empty($vp['id_unik_indikator'])){
+								$data_all['data'][$v['id_visi']]['data'][$v['id_misi']]['data'][$v['kode_tujuan']]['data'][$v['kode_sasaran']]['data'][$vp['id_program']]['indikator'][] = array(
+										'id_unik' => $vp['id_unik'],
+										'id_unik_indikator' => $vp['id_unik_indikator'],
+										'indikator' => $vp['indikator'],
+										'satuan' => $vp['satuan'],
+										'target_1' => $vp['target_1'],
+										'target_2' => $vp['target_2'],
+										'target_3' => $vp['target_3'],
+										'target_4' => $vp['target_4'],
+										'target_5' => $vp['target_5'],
+										'target_awal' => $vp['target_awal'],
+										'target_akhir' => $vp['target_akhir'],
+								);
+							}
+						}
 					}
 				}
 			}
