@@ -1621,6 +1621,7 @@ CREATE TABLE `data_renstra_tujuan` (
   `is_locked` tinyint(4) DEFAULT NULL,
   `is_locked_indikator` tinyint(4) DEFAULT NULL,
   `kode_bidang_urusan` text DEFAULT NULL,
+  `kode_sasaran_rpjm` text DEFAULT NULL,
   `kode_skpd` text DEFAULT NULL,
   `nama_bidang_urusan` text DEFAULT NULL,
   `nama_skpd` text DEFAULT NULL,
