@@ -1048,6 +1048,7 @@ class Wpsipd_Simda
 								if(!empty($sd['iddana'])){
 									$new_sd = explode(' - ', $sd['namadana']);
 									$nama_sd = trim($new_sd[1]);
+									$nama_sd = substr($nama_sd, 0, 100);
 									$cek_sd = $this->CurlSimda(array('query' => "select * from ref_sumber_dana where kd_sumber=".$sd['iddana'].""));
 									if(empty($cek_sd)){
 										/* 

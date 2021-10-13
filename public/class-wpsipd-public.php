@@ -2659,6 +2659,10 @@ class Wpsipd_Public
 							'kode_sbl' => $_POST['kode_sbl']
 						), array('%d', '%s'));
 					}
+					// untuk menghapus rka subkeg yang dihapus di perubahan
+                   	if($rka == 0){
+                       $rka = array();
+                   	}
 					foreach ($rka as $k => $v) {
 						$cek = $wpdb->get_var("SELECT id_rinci_sub_bl from data_rka where tahun_anggaran=".$_POST['tahun_anggaran']." AND id_rinci_sub_bl='" . $v['id_rinci_sub_bl'] . "' AND kode_sbl='".$_POST['kode_sbl']."'");
 						$opsi = array(
