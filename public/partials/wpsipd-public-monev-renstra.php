@@ -929,7 +929,7 @@ if(!empty($tujuan)){
 			            	</a>' : $tujuan['status_rpjmd'];
 
 			$backgroundColor = !empty($tujuan['status']) ? '' : '#ffdbdb';
-			$backgroundColor = !empty($tujuan['status_rpjmd']) ? '' : '#ffdbdb';
+			$backgroundColor = !empty($tujuan['status_rpjmd']) ? '' : '#f7d2a1';
 			$body_monev .= '
 				<tr class="tujuan tr-tujuan" data-kode="" style="background-color:'.$backgroundColor.'">
 		            <td class="kiri kanan bawah text_blok">'.$status_rpjmd.'</td>
@@ -1311,9 +1311,10 @@ if(!empty($tujuan)){
 <div class="hide-print" id="catatan_dokumentasi" style="max-width: 1200px; margin: auto;">
 	<h4 style="margin: 30px 0 10px; font-weight: bold;">Catatan Dokumentasi:</h4>
 	<ul>
-		<li>Data dengan latar belakang warna merah menandakan data tidak terhubung.</li>
+		<li>Data dengan latar belakang warna orange menandakan Tujuan Renstra tidak terhubung dengan sasaran RPJM.</li>
+		<li>Data dengan latar belakang warna merah menandakan Tujuan Renstra atau Sasaran Renstra tidak terhubung.</li>
 		<li>Debug Cascading Renstra digunakan untuk menampilkan detail data dari TUJUAN hingga KEGIATAN.</li>
-		<li>Status Koneksi RPJM menunjukan keterkaitan antara TUJUAN RENSTRA dengan SASARAN RPJM.</li>
+		<li>Status Koneksi RPJM menunjukan keterkaitan antara TUJUAN RENSTRA dengan SASARAN RPJM dan dapat diakses untuk melihat detail hierarkinya.</li>
 	</ul>
 </div>
 
