@@ -592,7 +592,7 @@ if(!empty($tujuan)){
 		foreach ($program as $p => $p_value) {
 			
 			$tujuan_key = $p_value['id_bidang_urusan'].'-'.$p_value['kode_tujuan'];
-			$sasaran_key = $p_value['kode_sasaran'];
+			$sasaran_key = !empty($p_value['kode_sasaran']) ? $p_value['kode_sasaran'] : 'KEY-KOSONG';
 			$cek_sasaran = $wpdb->get_results($wpdb->prepare("
 				select * from data_renstra_sasaran where
 				active=1 and
@@ -613,7 +613,7 @@ if(!empty($tujuan)){
 				$p_value['urut_tujuan']
 			), ARRAY_A);
 
-			if(!array_key_exists($sasaran_key, $data_all['data'][$tujuan_key]['data']) || empty($cek_sasaran)){
+			if(empty($data_all['data'][$tujuan_key]['data'][$sasaran_key]) || empty($cek_sasaran)){
 				
 				$nama_bidang_urusan = explode("||", $p_value['nama_bidang_urusan']);
 				$tujuan_key .= "-404";
@@ -924,10 +924,12 @@ if(!empty($tujuan)){
 				$indikator['satuan'][]=$v['satuan'];
 			}
 
-			$backgroundColor = !empty($tujuan['status']) ? '' : '#ffdbdb';
 			$status_rpjmd = !empty($tujuan['status_rpjmd']) ? '<a href="javascript:void(0)" onclick="show_rpjm(\''.$input['tahun_anggaran'].'\', \''.$input['id_skpd'].'\', \''.$tujuan['kode_sasaran_rpjm'].'\')">
 			            	'.$tujuan['status_rpjmd'].'
 			            	</a>' : $tujuan['status_rpjmd'];
+
+			$backgroundColor = !empty($tujuan['status']) ? '' : '#ffdbdb';
+			$backgroundColor = !empty($tujuan['status_rpjmd']) ? '' : '#ffdbdb';
 			$body_monev .= '
 				<tr class="tujuan tr-tujuan" data-kode="" style="background-color:'.$backgroundColor.'">
 		            <td class="kiri kanan bawah text_blok">'.$status_rpjmd.'</td>
