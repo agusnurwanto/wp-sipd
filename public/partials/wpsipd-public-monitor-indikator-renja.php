@@ -775,7 +775,10 @@ foreach ($data_all['data'] as $kd_urusan => $urusan) {
 							$total_tw[$k_sub] = 0;
 							$capaian_realisasi_indikator[$k_sub] = 0;
 							$class_rumus_target[$k_sub] = "positif";
-							if(!empty($realisasi_indikator)){
+							if(
+								!empty($realisasi_indikator) 
+								&& !empty($realisasi_indikator[$v_sub['idoutputbl']])
+							){
 								$rumus_indikator = $realisasi_indikator[$v_sub['idoutputbl']]['id_rumus_indikator'];
 								$max = 0;
 								for($i=1; $i<=12; $i++){
