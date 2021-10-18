@@ -1547,8 +1547,8 @@ foreach ($monev_triwulan as $k => $v) {
 					if(!id_indikator_renstra){
 						alert('Indiktor renstra belum dipilih, klik ok untuk melanjutkan!');
 					}
-					status = true;
 				}
+				status = true;
 			}
 
 			if(status){
