@@ -4039,6 +4039,21 @@ class Wpsipd_Public
 				'id_skpd' => $id_skpd[0],
 				'nama_skpd' => $skpd[0]
 			));
+		}else if(in_array("tapd_pp", $user_meta->roles)){
+			$skpd_mitra = $wpdb->get_results("
+				SELECT 
+					nama_skpd, 
+					id_skpd, 
+					kode_skpd 
+				from data_unit 
+				where active=1 
+				group by id_skpd", ARRAY_A);
+			foreach ($skpd_mitra as $k => $v) {
+				$this->menu_monev_skpd(array(
+					'id_skpd' => $v['id_skpd'],
+					'nama_skpd' => $v['nama_skpd']
+				));
+			}
 		}else{
 			echo 'User ini tidak dapat akses halaman ini :)';
 		}
