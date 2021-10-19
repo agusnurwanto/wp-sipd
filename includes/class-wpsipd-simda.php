@@ -1942,7 +1942,7 @@ class Wpsipd_Simda
 							nm_rek_1
 						) VALUES (
 							".((int)$options['kd_rek_0']).",
-							'".str_replace("'", '`', substr($rek_name[0]['nama_akun'], 0, 255))."'
+							'".str_replace("'", '`', substr($rek_name[0]['nama_akun'], 0, 100))."'
 						)"
 				));
 			}
@@ -1972,7 +1972,7 @@ class Wpsipd_Simda
 						) VALUES (
 							".((int)$options['kd_rek_0']).",
 							".((int)$options['kd_rek_1']).",
-							'".str_replace("'", '`', substr($rek_name[0]['nama_akun'], 0, 255))."'
+							'".str_replace("'", '`', substr($rek_name[0]['nama_akun'], 0, 100))."'
 						)"
 				));
 			}
@@ -2005,7 +2005,7 @@ class Wpsipd_Simda
 							".((int)$options['kd_rek_0']).",
 							".((int)$options['kd_rek_1']).",
 							".$kd_rek_3.",
-							'".str_replace("'", '`', substr($rek_name[0]['nama_akun'], 0, 255))."'
+							'".str_replace("'", '`', substr($rek_name[0]['nama_akun'], 0, 100))."'
 						)"
 				));
 			}
@@ -2137,7 +2137,7 @@ class Wpsipd_Simda
 						) VALUES (
 							".((int)$options['kd_rek_0']).",
 							".((int)$options['kd_rek_1']).",
-							'".str_replace("'", '`', substr($rek_name[0]['nama_akun'], 0, 255))."'
+							'".str_replace("'", '`', substr($rek_name[0]['nama_akun'], 0, 100))."'
 						)"
 				));
 			}
@@ -2170,7 +2170,7 @@ class Wpsipd_Simda
 							".((int)$options['kd_rek_0']).",
 							".((int)$options['kd_rek_1']).",
 							".((int)$options['kd_rek_2']).",
-							'".str_replace("'", '`', substr($rek_name[0]['nama_akun'], 0, 255))."'
+							'".str_replace("'", '`', substr($rek_name[0]['nama_akun'], 0, 100))."'
 						)"
 				));
 			}
