@@ -386,6 +386,32 @@ $body .='
 		    		$deviasi = !empty($target_rak) ? (($target_rak-$capaian)/$target_rak) * 100 : 100;
 
 		    		$latest_update = $this->get_date_rfk_update(array('id_skpd'=>$unit['id_skpd'], 'tahun_anggaran' => $input['tahun_anggaran'], 'bulan'=>$bulan));
+		    		$cat_ka_adbang = $wpdb->get_row($wpdb->prepare("
+		    			select 
+		    				(case 
+		    					when 
+		    						(
+		    							select count(id) from data_rfk 
+		    							where id_skpd in 
+		    								(
+		    									select id_skpd from data_unit where idinduk=%d) and bulan=%d and tahun_anggaran=%d
+		    								)!=0 
+		    					then 
+		    						(select catatan_ka_adbang from data_catatan_rfk_unit where id_skpd=%d and bulan=%d and tahun_anggaran=%d) 
+		    					else NULL end
+		    				) 
+		    				catatan_ka_adbang",
+
+		    				$unit['id_skpd'], 
+		    				$bulan, 
+		    				$input['tahun_anggaran'],
+		    				
+		    				"-".$unit['id_skpd'], 
+		    				$bulan, 
+		    				$input['tahun_anggaran']
+		    			), ARRAY_A);
+
+		    		// die($wpdb->last_query);
 		    		$data_all['data'][] = array(
 			    			'id_skpd' => $unit['id_skpd'],
 			    			'kode_skpd' => $unit['kode_skpd'],
@@ -400,7 +426,7 @@ $body .='
 			    			'deviasi' => $this->pembulatan($deviasi),
 			    			'last_update' => $latest_update,
 			    			'data_sub_unit' => $data_all_sub_unit,
-			    			'cat_ka_adbang' => '',
+			    			'cat_ka_adbang' => $cat_ka_adbang['catatan_ka_adbang'],
 			    			'url_unit' => '',
 			    			'act' => '<a href="javascript:void(0)" onclick="showsubunit(\''.$unit['id_skpd'].'\', \''.$bulan.'\', \''.$input['tahun_anggaran'].'\')">'.$unit['nama_skpd'].'</a>'
 			    	);
@@ -419,12 +445,16 @@ $body .='
 		
 		$status_update = array();
 		$catatan_rfk_class = 'catatan_rfk_unit';	
+		$idskpd = $value['id_skpd'];
 		$event = "</br></br><span class='badge badge-danger simpan-per-unit hide-excel'>SIMPAN</span>";	
 		if(isset($value['act']) && $value['act'] != ''){
-			$editable = 'false';
+			
+			// $editable = 'false';
+			// $catatan_rfk_class = '';
+			// $event = '';
+
 			$tag = $value['act'];
-			$catatan_rfk_class = '';
-			$event = '';
+			$idskpd = "-".$value['id_skpd'];
 			foreach ($value['data_sub_unit'] as $k => $v) {
 				if($v['last_update']=='-'){
 					$status_update[]=$v['last_update'];
@@ -438,7 +468,7 @@ $body .='
 		$background = !empty(count($status_update)) ? 'background-status' : '';
 
 		$body.='
-	    	<tr data-idskpd="'.$value['id_skpd'].'">
+	    	<tr data-idskpd="'.$idskpd.'">
 			    <td class="atas kanan bawah kiri text_tengah" data-search="'.$value['kode_skpd'].'">'.$value['kode_skpd'].'</td>
 			    <td class="atas kanan bawah text_kiri" data-search="'.$value['nama_skpd'].'">'.$tag.'</td>
 			    <td class="atas kanan bawah text_kanan" data-order="'.$value['rka_sipd'].'">'.number_format($value['rka_sipd'],0,",",".").'</td>
@@ -487,11 +517,12 @@ $body .='
 	<h4 style="margin: 30px 0 10px; font-weight: bold;">Catatan Dokumentasi:</h4>
 	<ul>
 		<li>Laporan RFK secara default menampilkan data pada bulan berjalan.</li>
+		<li>Catatan Ka.Adbang di bulan bejalan <b>TIDAK AKAN MUNCUL</b> jika data RFK bulan berjalan <b>BELUM PERNAH DIAKSES/DIBUKA</b> meski catatan sudah pernah diinput.</li>
 		<li>Tombol <b>DOWNLOAD EXCEL</b> digunakan untuk mendownload tabel laporan RFK ke format excel.</li>
 		<li>Tombol <b>AKSES RFK ALL OPD</b> digunakan untuk mengakses halaman RFK seluruh OPD sesuai dengan waktu yang ditentukan user.</li>
 		<li>Pilihan <b>Bulan Realisasi</b> digunakan untuk menampilkan laporan RFK sesuai bulan yang dipilih.</li>
 		<li>Tombol <b>SIMPAN CATATAN</b> digunakan untuk menyimpan catatan yang sudah diinput atau diedit oleh Kabag Adbang.</li>
-		<li>Tombol <b>RESET CATATAN</b> digunakan untuk mengupdate catatan bulan berjalan sesuai dengan catatan di bulan sebelumnya. Catatan bulan bejalan tidak akan muncul jika data RFK bulan berjalan BELUM PERNAH DIAKSES/DIBUKA meski catatan sudah pernah diinput.</li>
+		<li>Tombol <b>RESET CATATAN</b> digunakan untuk mengupdate catatan bulan berjalan sesuai dengan catatan di bulan sebelumnya.</li>
 	</ul>
 </div>
 
@@ -503,29 +534,37 @@ $body .='
     var url = new URL(_url);
     var param = [];
     _url = url.origin+url.pathname+'?'+param.join('&');
+    var date = new Date();
+	var bulan = date.getMonth()+1;
+    var nama_bulan = [
+				"Januari", 
+				"Februari", 
+				"Maret", 
+				"April", 
+				"Mei", 
+				"Juni", 
+				"Juli", 
+				"Agustus", 
+				"September", 
+				"Oktober", 
+				"November", 
+				"Desember"
+			];
 	var extend_action = ''
 		+'<div style="margin-top: 20px;">'
 			+'<label style="margin-left: 20px;">Bulan Realisasi: '
 				+'<select id="pilih_bulan" style="padding: 5px;">'
-					+'<option value="0">-- Bulan --</option>'
-					+'<option value="1">Januari</option>'
-					+'<option value="2">Februari</option>'
-					+'<option value="3">Maret</option>'
-					+'<option value="4">April</option>'
-					+'<option value="5">Mei</option>'
-					+'<option value="6">Juni</option>'
-					+'<option value="7">Juli</option>'
-					+'<option value="8">Agustus</option>'
-					+'<option value="9">September</option>'
-					+'<option value="10">Oktober</option>'
-					+'<option value="11">November</option>'
-					+'<option value="12">Desember</option>'
-				+'</select>'
+					+'<option value="0">-- Bulan --</option>';
+					nama_bulan.map(function(val, i){
+						var index = i+1;
+						if(index <= bulan){
+							extend_action += '<option value="'+index+'">'+val+'</option>'
+						}
+					})
+			extend_action += '</select>'
 			+'</label>'
 		+'</div>';
-
-		var data_all_rfk = <?php echo json_encode($data_all['data']); ?>;
-		// console.log(data_all_rfk);
+	var data_all_rfk = <?php echo json_encode($data_all['data']); ?>;
 		
 		jQuery(document).ready(function(){
 			<?php if(empty($public)){ ?>
@@ -846,26 +885,10 @@ $body .='
 		    }
 		 }
 
-		function get_bulan(bulan) {
-			let date = new Date();
-			if(!bulan || bulan == '' || bulan <= 0){
-				bulan = date.getMonth();
+		function get_bulan(bln) {
+			if(!bln || bln == '' || bln <= 0){
+				bln = date.getMonth();
 			}
-			nama_bulan = [
-				"Januari", 
-				"Februari", 
-				"Maret", 
-				"April", 
-				"Mei", 
-				"Juni", 
-				"Juli", 
-				"Agustus", 
-				"September", 
-				"Oktober", 
-				"November", 
-				"Desember"
-			];
-			return nama_bulan[parseInt(bulan-1)];
+			return nama_bulan[parseInt(bln-1)];
 		}
-		
 </script>

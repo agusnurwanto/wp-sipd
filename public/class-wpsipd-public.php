@@ -5958,226 +5958,237 @@ class Wpsipd_Public
 	function get_data_rpjm(){
 		global $wpdb;
 
-		$id_unik = $_POST['kode_sasaran_rpjm'];
-		$tahun_anggaran = $_POST['tahun_anggaran'];
-		$id_unit = $_POST['id_unit'];
 
-		$data_rpjmd = $wpdb->get_results($wpdb->prepare("
-							SELECT 
-								* 
-							FROM data_rpjmd_sasaran 
-							where 
-								active=1 and 
-								id_unik=%s and 
-								tahun_anggaran=%d", 
-							$id_unik,
-							$tahun_anggaran
-						), ARRAY_A);
+		if(empty($_POST)){		
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
 
-		$return['status'] = 0;
-		$return['body_rpjm'] = '';
-		if(!empty($data_rpjmd)){
-			
-			$data_all = array(
-				'data' => array()
-			);
-			foreach ($data_rpjmd as $k => $v) {
-				
-				if(empty($data_all['data'][$v['id_visi']])){
-					$data_all['data'][$v['id_visi']] = array(
-						'nama' => $v['visi_teks'],
+				$id_unik = $_POST['kode_sasaran_rpjm'];
+				$tahun_anggaran = $_POST['tahun_anggaran'];
+				$id_unit = $_POST['id_unit'];
+
+				$data_rpjmd = $wpdb->get_results($wpdb->prepare("
+									SELECT 
+										* 
+									FROM data_rpjmd_sasaran 
+									where 
+										active=1 and 
+										id_unik=%s and 
+										tahun_anggaran=%d", 
+									$id_unik,
+									$tahun_anggaran
+								), ARRAY_A);
+
+				$return['status'] = 0;
+				$return['body_rpjm'] = '';
+				if(!empty($data_rpjmd)){
+					
+					$data_all = array(
 						'data' => array()
 					);
-				}
-
-				if(empty($data_all['data'][$v['id_visi']]['data'][$v['id_misi']])){
-					$data_all['data'][$v['id_visi']]['data'][$v['id_misi']] = array(
-						'nama' => $v['misi_teks'],
-						'data' => array()
-					);
-				}
-
-				if(empty($data_all['data'][$v['id_visi']]['data'][$v['id_misi']]['data'][$v['kode_tujuan']])){
-					$data_all['data'][$v['id_visi']]['data'][$v['id_misi']]['data'][$v['kode_tujuan']] = array(
-						'nama' => $v['tujuan_teks'],
-						'indikator' => array(),
-						'data' => array(),
-					);
-
-					$indikators = $wpdb->get_results($wpdb->prepare("
-						select 
-							* 
-						from data_rpjmd_tujuan 
-						where 
-							active=1 and 
-							id_unik=%s and
-							tahun_anggaran=%d
-						",
-						$v['kode_tujuan'],
-						$tahun_anggaran
-					), ARRAY_A);
-
-					if(!empty($indikators)){
-						foreach ($indikators as $key => $indikator) {
-							$data_all['data'][$v['id_visi']]['data'][$v['id_misi']]['data'][$v['kode_tujuan']]['indikator'][] = array(
-								'indikator' => !empty($indikator['indikator_teks']) ? $indikator['indikator_teks'] : "",
-								'satuan' => !empty($indikator['satuan']) ? $indikator['satuan'] : "",
-								'target_1' => !empty($indikator['target_1']) ? $indikator['target_1'] : "",
-								'target_2' => !empty($indikator['target_2']) ? $indikator['target_2'] : "",
-								'target_3' => !empty($indikator['target_3']) ? $indikator['target_3'] : "",
-								'target_4' => !empty($indikator['target_4']) ? $indikator['target_4'] : "",
-								'target_5' => !empty($indikator['target_5']) ? $indikator['target_5'] : "",
-								'target_awal' => !empty($indikator['target_awal']) ? $indikator['target_awal'] : "",
-								'target_akhir' => !empty($indikator['target_akhir']) ? $indikator['target_akhir'] : "",
-							);	
-						}
-					}
-				}
-
-				if(empty($data_all['data'][$v['id_visi']]['data'][$v['id_misi']]['data'][$v['kode_tujuan']]['data'][$v['kode_sasaran']])){
-					$data_all['data'][$v['id_visi']]['data'][$v['id_misi']]['data'][$v['kode_tujuan']]['data'][$v['kode_sasaran']] = array(
-						'nama' => $v['sasaran_teks'],
-						'indikator' => array(),
-						'data' => array(),
-					);
-
-					if(!empty($v['id_unik_indikator'])){
-						$data_all['data'][$v['id_visi']]['data'][$v['id_misi']]['data'][$v['kode_tujuan']]['data'][$v['kode_sasaran']]['data'][$v['id_program']]['indikator'][] = array(
-								'id_unik' => $v['id_unik'],
-								'id_unik_indikator' => $v['id_unik_indikator'],
-								'indikator' => $v['indikator'],
-								'satuan' => $v['satuan'],
-								'target_1' => $v['target_1'],
-								'target_2' => $v['target_2'],
-								'target_3' => $v['target_3'],
-								'target_4' => $v['target_4'],
-								'target_5' => $v['target_5'],
-								'target_awal' => $v['target_awal'],
-								'target_akhir' => $v['target_akhir'],
-						);
-					}
-				}
-
-				$program = $wpdb->get_results($wpdb->prepare("
-					select 
-						* 
-					from data_rpjmd_program 
-					where 
-						active=1 and
-						kode_sasaran=%s and
-						id_unit=%d and
-						tahun_anggaran=%d",
-
-						$v['id_unik'],
-						$id_unit,
-						$tahun_anggaran
-					), ARRAY_A);
-				// die($wpdb->last_query);
-		
-				if(!empty($program)){
-					foreach ($program as $kp => $vp) {
+					foreach ($data_rpjmd as $k => $v) {
 						
-						if(empty($data_all['data'][$v['id_visi']]['data'][$v['id_misi']]['data'][$v['kode_tujuan']]['data'][$v['kode_sasaran']]['data'][$vp['id_program']]))
-						{
-							$data_all['data'][$v['id_visi']]['data'][$v['id_misi']]['data'][$v['kode_tujuan']]['data'][$v['kode_sasaran']]['data'][$vp['id_program']] = array(
-								'nama' => $vp['nama_program'],
+						if(empty($data_all['data'][$v['id_visi']])){
+							$data_all['data'][$v['id_visi']] = array(
+								'nama' => $v['visi_teks'],
+								'data' => array()
+							);
+						}
+
+						if(empty($data_all['data'][$v['id_visi']]['data'][$v['id_misi']])){
+							$data_all['data'][$v['id_visi']]['data'][$v['id_misi']] = array(
+								'nama' => $v['misi_teks'],
+								'data' => array()
+							);
+						}
+
+						if(empty($data_all['data'][$v['id_visi']]['data'][$v['id_misi']]['data'][$v['kode_tujuan']])){
+							$data_all['data'][$v['id_visi']]['data'][$v['id_misi']]['data'][$v['kode_tujuan']] = array(
+								'nama' => $v['tujuan_teks'],
 								'indikator' => array(),
+								'data' => array(),
 							);
 
-							if(!empty($vp['id_unik_indikator'])){
-								$data_all['data'][$v['id_visi']]['data'][$v['id_misi']]['data'][$v['kode_tujuan']]['data'][$v['kode_sasaran']]['data'][$vp['id_program']]['indikator'][] = array(
-										'id_unik' => $vp['id_unik'],
-										'id_unik_indikator' => $vp['id_unik_indikator'],
-										'indikator' => $vp['indikator'],
-										'satuan' => $vp['satuan'],
-										'target_1' => $vp['target_1'],
-										'target_2' => $vp['target_2'],
-										'target_3' => $vp['target_3'],
-										'target_4' => $vp['target_4'],
-										'target_5' => $vp['target_5'],
-										'target_awal' => $vp['target_awal'],
-										'target_akhir' => $vp['target_akhir'],
+							$indikators = $wpdb->get_results($wpdb->prepare("
+								select 
+									* 
+								from data_rpjmd_tujuan 
+								where 
+									active=1 and 
+									id_unik=%s and
+									tahun_anggaran=%d
+								",
+								$v['kode_tujuan'],
+								$tahun_anggaran
+							), ARRAY_A);
+
+							if(!empty($indikators)){
+								foreach ($indikators as $key => $indikator) {
+									$data_all['data'][$v['id_visi']]['data'][$v['id_misi']]['data'][$v['kode_tujuan']]['indikator'][] = array(
+										'indikator' => !empty($indikator['indikator_teks']) ? $indikator['indikator_teks'] : "",
+										'satuan' => !empty($indikator['satuan']) ? $indikator['satuan'] : "",
+										'target_1' => !empty($indikator['target_1']) ? $indikator['target_1'] : "",
+										'target_2' => !empty($indikator['target_2']) ? $indikator['target_2'] : "",
+										'target_3' => !empty($indikator['target_3']) ? $indikator['target_3'] : "",
+										'target_4' => !empty($indikator['target_4']) ? $indikator['target_4'] : "",
+										'target_5' => !empty($indikator['target_5']) ? $indikator['target_5'] : "",
+										'target_awal' => !empty($indikator['target_awal']) ? $indikator['target_awal'] : "",
+										'target_akhir' => !empty($indikator['target_akhir']) ? $indikator['target_akhir'] : "",
+									);	
+								}
+							}
+						}
+
+						if(empty($data_all['data'][$v['id_visi']]['data'][$v['id_misi']]['data'][$v['kode_tujuan']]['data'][$v['kode_sasaran']])){
+							$data_all['data'][$v['id_visi']]['data'][$v['id_misi']]['data'][$v['kode_tujuan']]['data'][$v['kode_sasaran']] = array(
+								'nama' => $v['sasaran_teks'],
+								'indikator' => array(),
+								'data' => array(),
+							);
+
+							if(!empty($v['id_unik_indikator'])){
+								$data_all['data'][$v['id_visi']]['data'][$v['id_misi']]['data'][$v['kode_tujuan']]['data'][$v['kode_sasaran']]['data'][$v['id_program']]['indikator'][] = array(
+										'id_unik' => $v['id_unik'],
+										'id_unik_indikator' => $v['id_unik_indikator'],
+										'indikator' => $v['indikator'],
+										'satuan' => $v['satuan'],
+										'target_1' => $v['target_1'],
+										'target_2' => $v['target_2'],
+										'target_3' => $v['target_3'],
+										'target_4' => $v['target_4'],
+										'target_5' => $v['target_5'],
+										'target_awal' => $v['target_awal'],
+										'target_akhir' => $v['target_akhir'],
 								);
 							}
 						}
+
+						$program = $wpdb->get_results($wpdb->prepare("
+							select 
+								* 
+							from data_rpjmd_program 
+							where 
+								active=1 and
+								kode_sasaran=%s and
+								id_unit=%d and
+								tahun_anggaran=%d",
+
+								$v['id_unik'],
+								$id_unit,
+								$tahun_anggaran
+							), ARRAY_A);
+						// die($wpdb->last_query);
+				
+						if(!empty($program)){
+							foreach ($program as $kp => $vp) {
+								
+								if(empty($data_all['data'][$v['id_visi']]['data'][$v['id_misi']]['data'][$v['kode_tujuan']]['data'][$v['kode_sasaran']]['data'][$vp['id_program']]))
+								{
+									$data_all['data'][$v['id_visi']]['data'][$v['id_misi']]['data'][$v['kode_tujuan']]['data'][$v['kode_sasaran']]['data'][$vp['id_program']] = array(
+										'nama' => $vp['nama_program'],
+										'indikator' => array(),
+									);
+
+									if(!empty($vp['id_unik_indikator'])){
+										$data_all['data'][$v['id_visi']]['data'][$v['id_misi']]['data'][$v['kode_tujuan']]['data'][$v['kode_sasaran']]['data'][$vp['id_program']]['indikator'][] = array(
+												'id_unik' => $vp['id_unik'],
+												'id_unik_indikator' => $vp['id_unik_indikator'],
+												'indikator' => $vp['indikator'],
+												'satuan' => $vp['satuan'],
+												'target_1' => $vp['target_1'],
+												'target_2' => $vp['target_2'],
+												'target_3' => $vp['target_3'],
+												'target_4' => $vp['target_4'],
+												'target_5' => $vp['target_5'],
+												'target_awal' => $vp['target_awal'],
+												'target_akhir' => $vp['target_akhir'],
+										);
+									}
+								}
+							}
+						}
 					}
-				}
-			}
 
-			// echo '<pre>';print_r($data_all);echo '</pre>';die();
-			$body = '';
-			foreach ($data_all['data'] as $v => $visi) {
-				$body .= '
-				<tr class="misi" data-kode="">
-		            <td class="kiri kanan bawah text_blok">'.$visi['nama'].'</td>
-		            <td class="text_kiri kanan bawah text_blok"></td>
-		            <td class="text_kiri kanan bawah text_blok"></td>
-		            <td class="kanan bawah text_blok"></td>
-		            <td class="kanan bawah text_blok"></td>
-		            <td class="text_kiri kanan bawah text_blok"></td>
-		        </tr>';
-
-		        foreach ($visi['data'] as $m => $misi) {
-		        	$body .= '
-					<tr class="misi" data-kode="">
-			            <td class="kiri kanan bawah text_blok"></td>
-			            <td class="text_kiri kanan bawah text_blok">'.$misi['nama'].'</td>
-			            <td class="text_kiri kanan bawah text_blok"></td>
-			            <td class="kanan bawah text_blok"></td>
-			            <td class="kanan bawah text_blok"></td>
-			            <td class="text_kiri kanan bawah text_blok"></td>
-			        </tr>';
-
-			        foreach ($misi['data'] as $t => $tujuan) {
-			        	$tujuan_teks = explode("||", $tujuan['nama']);
-			        	$body .= '
+					// echo '<pre>';print_r($data_all);echo '</pre>';die();
+					$body = '';
+					foreach ($data_all['data'] as $v => $visi) {
+						$body .= '
 						<tr class="misi" data-kode="">
-				            <td class="kiri kanan bawah text_blok"></td>
+				            <td class="kiri kanan bawah text_blok">'.$visi['nama'].'</td>
 				            <td class="text_kiri kanan bawah text_blok"></td>
-				            <td class="text_kiri kanan bawah text_blok">'.$tujuan_teks[0].'</td>
+				            <td class="text_kiri kanan bawah text_blok"></td>
 				            <td class="kanan bawah text_blok"></td>
 				            <td class="kanan bawah text_blok"></td>
 				            <td class="text_kiri kanan bawah text_blok"></td>
 				        </tr>';
 
-				        foreach ($tujuan['data'] as $s => $sasaran) {
-			        		$sasaran_teks = explode("||", $sasaran['nama']);
+				        foreach ($visi['data'] as $m => $misi) {
 				        	$body .= '
 							<tr class="misi" data-kode="">
 					            <td class="kiri kanan bawah text_blok"></td>
+					            <td class="text_kiri kanan bawah text_blok">'.$misi['nama'].'</td>
 					            <td class="text_kiri kanan bawah text_blok"></td>
-					            <td class="text_kiri kanan bawah text_blok"></td>
-					            <td class="kanan bawah text_blok">'.$sasaran_teks[0].'</td>
+					            <td class="kanan bawah text_blok"></td>
 					            <td class="kanan bawah text_blok"></td>
 					            <td class="text_kiri kanan bawah text_blok"></td>
 					        </tr>';
 
-					        foreach ($sasaran['data'] as $p => $program) {
-					        	$program_teks = explode("||", $program['nama']);
-					        	$indikator = array(
-									'indikator_teks' => array()
-								);
-								foreach ($program['indikator'] as $i => $p_indikator) {
-									$indikator['indikator_teks'][]=$p_indikator['indikator'];
-								}
-					        	
+					        foreach ($misi['data'] as $t => $tujuan) {
+					        	$tujuan_teks = explode("||", $tujuan['nama']);
 					        	$body .= '
 								<tr class="misi" data-kode="">
 						            <td class="kiri kanan bawah text_blok"></td>
 						            <td class="text_kiri kanan bawah text_blok"></td>
-						            <td class="text_kiri kanan bawah text_blok"></td>
+						            <td class="text_kiri kanan bawah text_blok">'.$tujuan_teks[0].'</td>
 						            <td class="kanan bawah text_blok"></td>
-						            <td class="kanan bawah text_blok">'.$program_teks[0].'</td>
-						            <td class="text_kiri kanan bawah text_blok">'.implode(' <br><br> ', $indikator['indikator_teks']).'</td>
-						        </tr>';						        
+						            <td class="kanan bawah text_blok"></td>
+						            <td class="text_kiri kanan bawah text_blok"></td>
+						        </tr>';
+
+						        foreach ($tujuan['data'] as $s => $sasaran) {
+					        		$sasaran_teks = explode("||", $sasaran['nama']);
+						        	$body .= '
+									<tr class="misi" data-kode="">
+							            <td class="kiri kanan bawah text_blok"></td>
+							            <td class="text_kiri kanan bawah text_blok"></td>
+							            <td class="text_kiri kanan bawah text_blok"></td>
+							            <td class="kanan bawah text_blok">'.$sasaran_teks[0].'</td>
+							            <td class="kanan bawah text_blok"></td>
+							            <td class="text_kiri kanan bawah text_blok"></td>
+							        </tr>';
+
+							        foreach ($sasaran['data'] as $p => $program) {
+							        	$program_teks = explode("||", $program['nama']);
+							        	$indikator = array(
+											'indikator_teks' => array()
+										);
+										foreach ($program['indikator'] as $i => $p_indikator) {
+											$indikator['indikator_teks'][]=$p_indikator['indikator'];
+										}
+							        	
+							        	$body .= '
+										<tr class="misi" data-kode="">
+								            <td class="kiri kanan bawah text_blok"></td>
+								            <td class="text_kiri kanan bawah text_blok"></td>
+								            <td class="text_kiri kanan bawah text_blok"></td>
+								            <td class="kanan bawah text_blok"></td>
+								            <td class="kanan bawah text_blok">'.$program_teks[0].'</td>
+								            <td class="text_kiri kanan bawah text_blok">'.implode(' <br><br> ', $indikator['indikator_teks']).'</td>
+								        </tr>';						        
+							        }
+						        }
 					        }
 				        }
-			        }
-		        }
+					}
+					$return['status'] = 1;
+					$return['body_rpjm'] = $body;
+				}
+			}else{
+				$return['status'] = 'error';
+				$return['message'] = 'APIKEY tidak sesuai!';
 			}
-
-			$return['status'] = 1;
-			$return['body_rpjm'] = $body;
+		}else{
+			$return['status'] = 'error';
+			$return['message'] = 'Format Salah!';
 		}
 		echo json_encode($return);exit();
 	}
@@ -6217,12 +6228,29 @@ class Wpsipd_Public
 						WHERE
 							bulan=%d and
 							id_skpd=%d and
-							tahun_anggaran=%d",
+							tahun_anggaran=%d
+						
+						UNION
+
+						SELECT 
+							id,bulan,tahun_anggaran,id_skpd,catatan_ka_adbang
+						FROM
+							data_catatan_rfk_unit
+						WHERE
+							bulan=%d and
+							id_skpd=%d and
+							tahun_anggaran=%d
+							",
 							$bulan_n,
 							$unit['id_skpd'],
+							$tahun_anggaran,
+							
+							$bulan_n,
+							"-".$unit['id_skpd'],
 							$tahun_anggaran
 					), ARRAY_A);
-					
+					// die($wpdb->last_query);
+
 					if(!empty($data_n)){
 						foreach ($data_n as $k => $v) {
 							$cek = $wpdb->get_results($wpdb->prepare("
@@ -6265,5 +6293,44 @@ class Wpsipd_Public
 			);			
 		}
 		die(json_encode($ret));
+	}
+
+	public function get_monev_renstra()
+	{
+		global $wpdb;
+		if(!empty($_POST)){
+			if(!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )){
+
+				// get data diperlakukan berdasarkan jenis indikator, check indikator berdasarkan type indikator.
+
+
+				$indikator = $wpdb->get_results($wpdb->prepare("select * from data_renstra_kegiatan where active=1 and id=%d and id_unit=%d and tahun_anggaran=%d",
+				$_POST['id'], $_POST['id_skpd'], $_POST['tahun_anggaran']), ARRAY_A);
+				
+				$body = '';
+				foreach ($indikator as $key => $value) {
+					$body .='
+						<tr>
+							<td colspan="2">'.$value['indikator'].'</td>
+							<td>'.$value['target_1'].'</td>
+							<td>'.$value['target_2'].'</td>
+							<td>'.$value['target_3'].'</td>
+							<td>'.$value['target_4'].'</td>
+							<td>'.$value['target_5'].'</td>
+							<td>'.$value['satuan'].'</td>
+							<td>Rp. </td>
+						</tr>
+					';	
+				}
+				$return['body'] = $body;
+			}else{
+				$return['status'] = 'error';
+				$return['message'] = 'APIKEY tidak sesuai!';
+			}
+		}else{
+			$return['status'] = 'error';
+			$return['message'] = 'Format Salah!';
+		}
+		echo json_encode($return);exit();
 	}
 }

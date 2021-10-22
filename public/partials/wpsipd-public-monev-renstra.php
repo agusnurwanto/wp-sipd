@@ -20,11 +20,12 @@ function button_edit_monev($class=false)
 
 $rumus_indikator_db = $wpdb->get_results("SELECT * from data_rumus_indikator where active=1 and tahun_anggaran=".$input['tahun_anggaran'], ARRAY_A);
 $rumus_indikator = '';
+$keterangan_indikator_html = '';
 foreach ($rumus_indikator_db as $k => $v)
 {
 	$rumus_indikator .= '<option value="'.$v['id'].'">'.$v['rumus'].'</option>';
+	$keterangan_indikator_html .= '<li data-id="'.$v['id'].'" style="display: none;">'.$v['keterangan'].'</li>';
 }
-
 $sql = $wpdb->prepare("
 	select 
 		* 
@@ -43,10 +44,20 @@ $pengaturan = $wpdb->get_results($wpdb->prepare("
 ", $input['tahun_anggaran']), ARRAY_A);
 
 $awal_rpjmd = 2018;
+$tahun_anggaran_1 = 2019;
+$tahun_anggaran_2 = 2020;
+$tahun_anggaran_3 = 2021;
+$tahun_anggaran_4 = 2022;
+$tahun_anggaran_5 = 2023;
 $akhir_rpjmd = 2023;
 if(!empty($pengaturan))
 {
-	$awal_rpjmd = $pengaturan[0]['awal_rpjmd'];
+	$awal_rpjmd = $pengaturan[0]['awal_rpjmd'];	
+	$tahun_anggaran_1 = $awal_rpjmd+1;
+	$tahun_anggaran_2 = $awal_rpjmd+2;
+	$tahun_anggaran_3 = $awal_rpjmd+3;
+	$tahun_anggaran_4 = $awal_rpjmd+4;
+	$tahun_anggaran_5 = $awal_rpjmd+5;
 	$akhir_rpjmd = $pengaturan[0]['akhir_rpjmd'];
 }
 $urut = $input['tahun_anggaran']-$awal_rpjmd;
@@ -120,6 +131,7 @@ if(!empty($tujuan)){
 
 			if(!empty($tujuan_value['id_unik_indikator']) && empty($data_all['data'][$tujuan_key]['indikator'][$tujuan_value['id_unik_indikator']])){
 				$data_all['data'][$tujuan_key]['indikator'][$tujuan_value['id_unik_indikator']] = array(
+					'id' => $tujuan_value['id'],
 					'id_unik_indikator' => $tujuan_value['id_unik_indikator'],
 					'indikator_teks' => !empty($tujuan_value['indikator_teks']) ? $tujuan_value['indikator_teks'] : '-',
 					'satuan' => !empty($tujuan_value['satuan']) ? $tujuan_value['satuan'] : "",
@@ -175,6 +187,7 @@ if(!empty($tujuan)){
 
 					if(!empty($sasaran_value['id_unik_indikator']) && empty($data_all['data'][$tujuan_key]['data'][$sasaran_key]['indikator'][$sasaran_value['id_unik_indikator']])){
 						$data_all['data'][$tujuan_key]['data'][$sasaran_key]['indikator'][$sasaran_value['id_unik_indikator']] = array(
+							'id' => $sasaran_value['id'],
 							'id_unik_indikator' => $sasaran_value['id_unik_indikator'],
 							'indikator_teks' => !empty($sasaran_value['indikator_teks']) ? $sasaran_value['indikator_teks'] : '-',
 							'satuan' => !empty($sasaran_value['satuan']) ? $sasaran_value['satuan'] : "",
@@ -242,9 +255,10 @@ if(!empty($tujuan)){
 								'data' => array()
 							);
 
-							if(!empty($program_value['id_unik_indikator']) && empty($data_all['data'][$tujuan_key]['data'][$sasaran_key]['data'][$program_value['kode_program']]['indikator'][$program_value['id_unik_indikator']])){
-								// ambil data indikator program
+							if(!empty($program_value['id_unik']) && empty($data_all['data'][$tujuan_key]['data'][$sasaran_key]['data'][$program_value['kode_program']]['indikator'][$program_value['id_unik']])){
+								
 								$data_all['data'][$tujuan_key]['data'][$sasaran_key]['data'][$program_value['kode_program']]['indikator'][$program_value['id_unik_indikator']] = array(
+									'id' => $program_value['id'],
 									'id_unik_indikator' => $program_value['id_unik_indikator'],
 									'indikator_teks' => !empty($program_value['indikator']) ? $program_value['indikator'] : '-',
 									'satuan' => !empty($program_value['satuan']) ? $program_value['satuan'] : "",
@@ -318,6 +332,7 @@ if(!empty($tujuan)){
 								if(!empty($kegiatan_value['id_unik_indikator']) && empty($data_all['data'][$tujuan_key]['data'][$sasaran_key]['data'][$program_value['kode_program']]['data'][$kegiatan_value['kode_giat']]['indikator'][$kegiatan_value['id_unik_indikator']])){
 									
 									$data_all['data'][$tujuan_key]['data'][$sasaran_key]['data'][$program_value['kode_program']]['data'][$kegiatan_value['kode_giat']]['indikator'][$kegiatan_value['id_unik_indikator']] = array(
+										'id' => $kegiatan_value['id'],
 										'id_unik_indikator' => $kegiatan_value['id_unik_indikator'],
 										'indikator_teks' => !empty($kegiatan_value['indikator']) ? $kegiatan_value['indikator'] : '-',
 										'satuan' => !empty($kegiatan_value['satuan']) ? $kegiatan_value['satuan'] : "",
@@ -421,6 +436,7 @@ if(!empty($tujuan)){
 
 					if(!empty($s_value['id_unik_indikator']) && empty($data_all['data'][$tujuan_key]['data'][$sasaran_key]['indikator'][$s_value['id_unik_indikator']])){
 						$data_all['data'][$tujuan_key]['data'][$sasaran_key]['indikator'][$s_value['id_unik_indikator']] = array(
+							'id' => $s_value['id'],
 							'id_unik_indikator' => $s_value['id_unik_indikator'],
 							'indikator_teks' => !empty($s_value['indikator_teks']) ? $s_value['indikator_teks'].button_edit_monev($input['tahun_anggaran'].'-'.$input['id_skpd'].'-'.$keg['kode_tujuan'].'-'.$s_value['id_unik_indikator']) : '-',
 							'satuan' => !empty($s_value['satuan']) ? $s_value['satuan'] : "",
@@ -487,13 +503,10 @@ if(!empty($tujuan)){
 								'data' => array()
 							);
 
-							// if(!empty($p_value['id_unik_indikator'])){
-							// 	// ambil data indikator sasaran
-							// }
-
 							if(!empty($p_value['id_unik_indikator']) && empty($data_all['data'][$tujuan_key]['data'][$sasaran_key]['data'][$p_value['kode_program']]['indikator'][$p_value['id_unik_indikator']])){
-								// ambil data indikator program
+								
 								$data_all['data'][$tujuan_key]['data'][$sasaran_key]['data'][$p_value['kode_program']]['indikator'][$p_value['id_unik_indikator']] = array(
+									'id' => $p_value['id'],
 									'id_unik_indikator' => $p_value['id_unik_indikator'],
 									'indikator_teks' => !empty($p_value['indikator']) ? $p_value['indikator'] : '-',
 									'satuan' => !empty($p_value['satuan']) ? $p_value['satuan'] : "",
@@ -564,8 +577,21 @@ if(!empty($tujuan)){
 									);
 								}
 
-								if(!empty($kegiatan_value['id_unik_indikator'])){
-									// ambil data indikator sasaran
+								if(!empty($k_value['id_unik_indikator']) && empty($data_all['data'][$tujuan_key]['data'][$sasaran_key]['data'][$p_value['kode_program']]['data'][$k_value['kode_giat']]['indikator'][$k_value['id_unik_indikator']])){
+
+									$data_all['data'][$tujuan_key]['data'][$sasaran_key]['data'][$p_value['kode_program']]['data'][$k_value['kode_giat']]['indikator'][$k_value['id_unik_indikator']] = array(
+										'id' => $k_value['id'],
+										'id_unik_indikator' => $k_value['id_unik_indikator'],
+										'indikator_teks' => !empty($k_value['indikator']) ? $k_value['indikator'] : '-',
+										'satuan' => !empty($k_value['satuan']) ? $k_value['satuan'] : "",
+										'target_1' => !empty($k_value['target_1']) ? $k_value['target_1'] : "",
+										'target_2' => !empty($k_value['target_2']) ? $k_value['target_2'] : "",
+										'target_3' => !empty($k_value['target_3']) ? $k_value['target_3'] : "",
+										'target_4' => !empty($k_value['target_4']) ? $k_value['target_4'] : "",
+										'target_5' => !empty($k_value['target_5']) ? $k_value['target_5'] : "",
+										'target_awal' => !empty($k_value['target_awal']) ? $k_value['target_awal'] : "",
+										'target_akhir' => !empty($k_value['target_akhir']) ? $k_value['target_akhir'] : ""
+									);
 								}
 							}
 						}
@@ -684,8 +710,21 @@ if(!empty($tujuan)){
 						'data' => array()
 					);
 
-					if(!empty($p_value['id_unik_indikator'])){
-						// ambil data indikator sasaran
+					if(!empty($p_value['id_unik_indikator']) && empty($data_all['data'][$tujuan_key]['data'][$sasaran_key]['data'][$p_value['kode_program']]['indikator'][$p_value['id_unik_indikator']])){
+								
+						$data_all['data'][$tujuan_key]['data'][$sasaran_key]['data'][$p_value['kode_program']]['indikator'][$p_value['id_unik_indikator']] = array(
+							'id' => $p_value['id'],
+							'id_unik_indikator' => $p_value['id_unik_indikator'],
+							'indikator_teks' => !empty($p_value['indikator']) ? $p_value['indikator'] : '-',
+							'satuan' => !empty($p_value['satuan']) ? $p_value['satuan'] : "",
+							'target_1' => !empty($p_value['target_1']) ? $p_value['target_1'] : "",
+							'target_2' => !empty($p_value['target_2']) ? $p_value['target_2'] : "",
+							'target_3' => !empty($p_value['target_3']) ? $p_value['target_3'] : "",
+							'target_4' => !empty($p_value['target_4']) ? $p_value['target_4'] : "",
+							'target_5' => !empty($p_value['target_5']) ? $p_value['target_5'] : "",
+							'target_awal' => !empty($p_value['target_awal']) ? $p_value['target_awal'] : "",
+							'target_akhir' => !empty($p_value['target_akhir']) ? $p_value['target_akhir'] : "",
+						);
 					}
 				}
 
@@ -746,12 +785,25 @@ if(!empty($tujuan)){
 							);
 						}
 
-						if(!empty($k_value['id_unik_indikator'])){
-							// ambil data indikator sasaran
+						if(!empty($k_value['id_unik_indikator']) && empty($data_all['data'][$tujuan_key]['data'][$sasaran_key]['data'][$p_value['kode_program']]['data'][$k_value['kode_giat']]['indikator'][$k_value['id_unik_indikator']])){
+
+								$data_all['data'][$tujuan_key]['data'][$sasaran_key]['data'][$p_value['kode_program']]['data'][$k_value['kode_giat']]['indikator'][$k_value['id_unik_indikator']] = array(
+								'id' => $k_value['id'],
+								'id_unik_indikator' => $k_value['id_unik_indikator'],
+								'indikator_teks' => !empty($k_value['indikator']) ? $k_value['indikator'] : '-',
+								'satuan' => !empty($k_value['satuan']) ? $k_value['satuan'] : "",
+								'target_1' => !empty($k_value['target_1']) ? $k_value['target_1'] : "",
+								'target_2' => !empty($k_value['target_2']) ? $k_value['target_2'] : "",
+								'target_3' => !empty($k_value['target_3']) ? $k_value['target_3'] : "",
+								'target_4' => !empty($k_value['target_4']) ? $k_value['target_4'] : "",
+								'target_5' => !empty($k_value['target_5']) ? $k_value['target_5'] : "",
+								'target_awal' => !empty($k_value['target_awal']) ? $k_value['target_awal'] : "",
+								'target_akhir' => !empty($k_value['target_akhir']) ? $k_value['target_akhir'] : ""
+							);
 						}
 					}
 				}
-			} //
+			}
 		}
 	}
 
@@ -899,8 +951,21 @@ if(!empty($tujuan)){
 						);
 					}
 
-					if(!empty($k_value['id_unik_indikator'])){
-						// ambil data indikator sasaran
+					if(!empty($k_value['id_unik_indikator']) && empty($data_all['data'][$tujuan_key]['data'][$sasaran_key]['data'][$program_key]['data'][$k_value['kode_giat']]['indikator'][$k_value['id_unik_indikator']])){
+
+							$data_all['data'][$tujuan_key]['data'][$sasaran_key]['data'][$program_key]['data'][$k_value['kode_giat']]['indikator'][$k_value['id_unik_indikator']] = array(
+							'id' => $k_value['id'],
+							'id_unik_indikator' => $k_value['id_unik_indikator'],
+							'indikator_teks' => !empty($k_value['indikator']) ? $k_value['indikator'] : '-',
+							'satuan' => !empty($k_value['satuan']) ? $k_value['satuan'] : "",
+							'target_1' => !empty($k_value['target_1']) ? $k_value['target_1'] : "",
+							'target_2' => !empty($k_value['target_2']) ? $k_value['target_2'] : "",
+							'target_3' => !empty($k_value['target_3']) ? $k_value['target_3'] : "",
+							'target_4' => !empty($k_value['target_4']) ? $k_value['target_4'] : "",
+							'target_5' => !empty($k_value['target_5']) ? $k_value['target_5'] : "",
+							'target_awal' => !empty($k_value['target_awal']) ? $k_value['target_awal'] : "",
+							'target_akhir' => !empty($k_value['target_akhir']) ? $k_value['target_akhir'] : ""
+						);
 					}
 				}
 			}
@@ -918,7 +983,9 @@ if(!empty($tujuan)){
 					'satuan' => array(),
 				);
 			foreach ($tujuan['indikator'] as $k => $v) {
-				$indikator['indikator_teks'][]=$v['indikator_teks'];
+				$indikator_teks = $v['indikator_teks'].button_edit_monev($input['tahun_anggaran'].'-'.$input['id_skpd'].'-'.$v['id'].'-1');
+
+				$indikator['indikator_teks'][]=$indikator_teks;
 				$indikator['target_akhir'][]=$v['target_akhir'];
 				$indikator['target_'.$urut][]=$v['target_'.$urut];
 				$indikator['satuan'][]=$v['satuan'];
@@ -988,7 +1055,9 @@ if(!empty($tujuan)){
 					'satuan' => array(),
 				);
 				foreach ($sasaran['indikator'] as $k => $v) {
-					$indikator['indikator_teks'][]=$v['indikator_teks'];
+					$indikator_teks = $v['indikator_teks'].button_edit_monev($input['tahun_anggaran'].'-'.$input['id_skpd'].'-'.$v['id'].'-2');
+
+					$indikator['indikator_teks'][]=$indikator_teks;
 					$indikator['target_akhir'][]=$v['target_akhir'];
 					$indikator['target_'.$urut][]=$v['target_'.$urut];
 					$indikator['satuan'][]=$v['satuan'];
@@ -1054,7 +1123,9 @@ if(!empty($tujuan)){
 					'satuan' => array(),
 				);
 				foreach ($program['indikator'] as $k => $v) {
-					$indikator['indikator_teks'][]=$v['indikator_teks'];
+					$indikator_teks = $v['indikator_teks'].button_edit_monev($input['tahun_anggaran'].'-'.$input['id_skpd'].'-'.$v['id'].'-3');
+
+					$indikator['indikator_teks'][]=$indikator_teks;
 					$indikator['target_akhir'][]=$v['target_akhir'];
 					$indikator['target_'.$urut][]=$v['target_'.$urut];
 					$indikator['satuan'][]=$v['satuan'];
@@ -1122,7 +1193,9 @@ if(!empty($tujuan)){
 						'satuan' => array(),
 					);
 					foreach ($kegiatan['indikator'] as $k => $v) {
-						$indikator['indikator_teks'][]=$v['indikator_teks'];
+						$indikator_teks = $v['indikator_teks'].button_edit_monev($input['tahun_anggaran'].'-'.$input['id_skpd'].'-'.$v['id'].'-4');
+
+						$indikator['indikator_teks'][]=$indikator_teks;
 						$indikator['target_akhir'][]=$v['target_akhir'];
 						$indikator['target_'.$urut][]=$v['target_'.$urut];
 						$indikator['satuan'][]=$v['satuan'];
@@ -1190,7 +1263,7 @@ if(!empty($tujuan)){
 ?>
 
 <style type="text/css">
-	table th, #mod-monev th {
+	table th, #modal-monev th {
 		vertical-align: middle;
 	}
 	body {
@@ -1322,11 +1395,102 @@ if(!empty($tujuan)){
     <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
             <div class="modal-header bgpanel-theme">
-                <h4 style="margin: 0;" class="modal-title" id=""></h4>
+                <h4 style="margin: 0;" class="modal-title" id="">Edit MONEV Indikator Per Bulan</h4>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span><i class="dashicons dashicons-dismiss"></i></span></button>
             </div>
             <div class="modal-body">
-
+            	<form>
+                  	<div class="form-group">
+                  		<table class="table table-bordered">
+                  			<tbody>
+                  				<tr>
+                  					<th style="width: 200px;">Tujuan / Sasaran / Program / Kegiatan</th>
+                  					<td id="monev-nama"></td>
+                  				</tr>
+                  				<tr>
+                  					<td colspan="2">
+                  						<table class="display-indikator-renstra">
+                  							<thead>
+                  								<tr>
+					              					<th class="text_tengah" colspan="2" rowspan="2">Indikator</th>
+					              					<th class="text_tengah" style="width: 100px;" colspan="5">Target</th>
+					              					<th class="text_tengah" style="width: 100px;" rowspan="2">Satuan</th>
+					              					<th class="text_tengah" style="width: 140px;" rowspan="2">Pagu (Rp)<br>Tahun <?php echo $input['tahun_anggaran']; ?></th>
+												</tr>
+												<tr>
+													<th><?php echo $tahun_anggaran_1; ?></th>
+													<th><?php echo $tahun_anggaran_2; ?></th>
+													<th><?php echo $tahun_anggaran_3; ?></th>
+													<th><?php echo $tahun_anggaran_4; ?></th>
+													<th><?php echo $tahun_anggaran_5; ?></th>
+												</tr>
+                  							</thead>
+                  							<tbody id="monev-body-renstra">
+                  							</tbody>
+                  						</table>
+                  					</td>
+                  				</tr>
+                  				<tr>
+                  					<td colspan="2">
+                  						<table>
+                  							<thead>
+                  								<tr>
+                  									<th class="text_tengah">Pilih Rumus Indikator</th>
+                  								</tr>
+                  							</thead>
+                  							<tbody>
+                  								<tr>
+                  									<td>
+				                  						<select style="width: 100%;" id="tipe_indikator">
+				                  							<?php echo $rumus_indikator; ?>
+				                  						</select>
+				                  						<ul id="helptext_tipe_indikator" style="margin: 10px 0 0 30px;">
+				                  							<?php echo $keterangan_indikator_html; ?>
+				                  						</ul>
+				                  					</td>
+                  								</tr>
+                  							</tbody>
+                  						</table>
+                  					</td>
+                  				</tr>
+                  				<tr>
+                  					<td colspan="2">
+                  						<table>
+                  							<thead>
+                  								<tr>
+		              								<th class="text_tengah">Bulan</th>
+		              								<th class="text_tengah" style="width: 150px;">RAK (Rp.)</th>
+		              								<th class="text_tengah" style="width: 150px;">Realisasi (Rp.)</th>
+		              								<th class="text_tengah" style="width: 150px;">Selisih (Rp.)</th>
+		              								<th class="text_tengah" style="width: 150px;">Realisasi Target</th>
+		              								<th class="text_tengah" style="width: 200px;">Keterangan / Permasalahan / Saran</th>
+		              							</tr>
+                  								<tr>
+		              								<th class="text_tengah">1</th>
+		              								<th class="text_tengah">2</th>
+		              								<th class="text_tengah">3</th>
+		              								<th class="text_tengah">4 = 2 - 3</th>
+		              								<th class="text_tengah">5</th>
+		              								<th class="text_tengah">6</th>
+		              							</tr>
+                  							</thead>
+                  							<tbody id="monev-body"></tbody>
+                  							<tfoot>
+												<tr>
+													<th class="text_kiri text_blok">Target Indikator</th>
+													<th class="text_kanan text_blok" id="target_indikator_monev_rumus">0</th>
+													<th class="text_kiri text_blok" colspan="2">Capaian target dihitung sesuai rumus indikator</th>
+													<th class="text_tengah text_blok" id="capaian_target_realisasi">0</th>
+													<th class="text_tengah text_blok"></th>
+												</tr>
+                  							</tfoot>
+                  						</table>
+                  					</td>
+                  				</tr>
+                  			</tbody>
+                  		</table>
+                  	</div>
+                </form>
             </div>
             <div class="modal-footer">
             </div>
@@ -1366,28 +1530,72 @@ if(!empty($tujuan)){
 <script type="text/javascript">
 	run_download_excel();
 	let data_all = <?php echo json_encode($data_all); ?>;
+	console.log(data_all);
 
-	var aksi = ''
-		+'<h3 style="margin-top: 20px;">SETTING</h3>'
-		+'<label><input type="checkbox" onclick="edit_monev_indikator(this);"> Edit Monev indikator</label>&nbsp;'
-		+'<label><input type="checkbox" onclick="debug_renstra(this);"> Debug Cascading Renstra</label>'
-		+'<label style="margin-left: 20px;">'
-			+'Sembunyikan Baris '
-			+'<select id="sembunyikan-baris" onchange="sembunyikan_baris(this);" style="padding: 5px 10px; min-width: 200px;">'
-				+'<option value="">Pilih Baris</option>'
-				+'<option value="tr-tujuan">Tujuan</option>'
-				+'<option value="tr-sasaran">Sasaran</option>'
-				+'<option value="tr-program">Program</option>'
-				+'<option value="tr-kegiatan">Kegiatan</option>'
-			+'</select>'
-		+'</label>'
-	jQuery('#action-sipd').append(aksi);
+	jQuery(document).on('ready', function(){
+		var aksi = ''
+			+'<h3 style="margin-top: 20px;">SETTING</h3>'
+			+'<label><input type="checkbox" onclick="edit_monev_indikator(this);"> Edit Monev indikator</label>&nbsp;'
+			+'<label><input type="checkbox" onclick="debug_renstra(this);"> Debug Cascading Renstra</label>'
+			+'<label><input type="checkbox" onclick="setting_sakip(this);"> Setting SAKIP</label>'
+			+'<label style="margin-left: 15px;">'
+				+'Sembunyikan Baris '
+				+'<select id="sembunyikan-baris" onchange="sembunyikan_baris(this);" style="padding: 5px 10px; min-width: 200px;">'
+					+'<option value="">Pilih Baris</option>'
+					+'<option value="tr-tujuan">Tujuan</option>'
+					+'<option value="tr-sasaran">Sasaran</option>'
+					+'<option value="tr-program">Program</option>'
+					+'<option value="tr-kegiatan">Kegiatan</option>'
+				+'</select>'
+			+'</label>'
+		jQuery('#action-sipd').append(aksi);
+		jQuery('#tipe_indikator').on('click', function(){
+			setRumus(jQuery(this).val());
+		});
+		jQuery('.edit-monev').on('click', function(){
+			jQuery('#wrap-loading').show();
+			var tr = jQuery(this).closest('tr');
+			var nama = tr.find('span.nondebug-renstra').text();
+			var kode = jQuery(this).attr("data-id");
+			var rinc_kode = kode.split('-');
+
+			jQuery("#monev-body-renstra").html('');
+			jQuery.ajax({
+				url: '<?php echo admin_url("admin-ajax.php") ?>',
+				type: 'post',
+				data:{
+					'action' : 'get_monev_renstra',
+	          		"api_key": "<?php echo $api_key; ?>",
+					'tahun_anggaran' : rinc_kode[0],
+					'id_skpd': rinc_kode[1],
+					'id': rinc_kode[2],
+					'type_indikator': rinc_kode[3],
+				},
+				dataType:'json',
+				success:function(res){
+					jQuery("#monev-nama").html(nama);
+					jQuery("#monev-body-renstra").html(res.body);
+					setRumus(1);
+					jQuery('#modal-monev').modal('show');
+					jQuery('#wrap-loading').hide();
+				}
+			})
+
+		});
+	});
+
 	function edit_monev_indikator(that){
 		if(jQuery(that).is(':checked')){
 			jQuery('.edit-monev').show();
 		}else{
 			jQuery('.edit-monev').hide();
 		}
+	}
+	function setRumus(id){
+		jQuery('#tipe_indikator').val(id);
+		jQuery('#helptext_tipe_indikator li').hide();
+		jQuery('#helptext_tipe_indikator li[data-id="'+id+'"]').show();
+		// setTotalMonev(false);
 	}
 	function sembunyikan_baris(that){
 		var val = jQuery(that).val();
@@ -1424,11 +1632,6 @@ if(!empty($tujuan)){
 			jQuery('.nondebug-renstra').show();
 		}
 	}
-	jQuery('.edit-monev').on('click', function(){
-		jQuery('#wrap-loading').show();
-		jQuery('#mod-monev').modal('show');
-		jQuery('#wrap-loading').hide();
-	});
 
 	function show_rpjm(tahun_anggaran, id_unit, kode_sasaran_rpjm){
 		jQuery('#wrap-loading').show();
@@ -1439,6 +1642,7 @@ if(!empty($tujuan)){
 			type:"post",
 			data:{
 				"action": "get_data_rpjm",
+	          	"api_key": "<?php echo $api_key; ?>",
 				"tahun_anggaran": tahun_anggaran,
 				"id_unit": id_unit,
 				"kode_sasaran_rpjm" : kode_sasaran_rpjm
