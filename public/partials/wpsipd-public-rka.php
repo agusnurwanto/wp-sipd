@@ -22,6 +22,7 @@ if(empty($input['kode_bl'])){
 $current_user = wp_get_current_user();
 
 $api_key = get_option( '_crb_api_key_extension' );
+$kunci_sd_mapping = get_option( '_crb_kunci_sumber_dana_mapping' );
 
 $data_sumber_dana = $wpdb->get_results("select id_dana, nama_dana from data_sumber_dana where tahun_anggaran=".$input['tahun_anggaran'], ARRAY_A);
 $data_label_komponen = $wpdb->get_results("select id, nama from data_label_komponen where tahun_anggaran=".$input['tahun_anggaran'], ARRAY_A);
@@ -928,7 +929,7 @@ foreach ($bl as $k => $sub_bl) {
     	vertical-align: middle;
     }
 </style>
-<div class="modal fade" id="mod-mapping" tabindex="-1" role="dialog" data-backdrop="static" aria-hidden="true">'
+<div class="modal fade" id="mod-mapping" role="dialog" data-backdrop="static" aria-hidden="true">'
     <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
             <div class="modal-header bgpanel-theme">
@@ -1857,6 +1858,7 @@ foreach ($bl as $k => $sub_bl) {
 	    	jQuery('#mapping_sumberdana_subkeg').text(sumberdana_sub_keg);
 	    	
 	    	jQuery('#mapping_id').val(id);
+    	<?php if($kunci_sd_mapping == 1){ ?>
 	    	var option_sumber_dana = [];
 	    	master_sumberdana.map(function(b, i){
 	    		if(id_sumberdana_sub_keg.indexOf(b.id_dana) != -1){
@@ -1873,16 +1875,24 @@ foreach ($bl as $k => $sub_bl) {
 	    		option_sumber_dana = '<option value="">Satu Sumber dana tidak perlu dimapping!</option>';
 	    	}
 	    	jQuery('#mapping_sumberdana').html(option_sumber_dana);
-	    	var label = [];
-	    	if(ids[3]){
-		    	jQuery('.edit-mapping[data-id="'+kd_sbl+'-'+rek_5+'-'+kelompok+'-'+keterangan+'-'+id_rinci+'"]').closest('td').find('.mapping.badge-success').map(function(i, b){
-		    		label.push(jQuery(b).attr('data-id'));
-		    	});
-		    }
-	    	jQuery('#mapping_label').val(label).trigger('change');
+    	<?php }else{ ?>
+    		if(typeof id_sumberdana_mapping != 'undefined'){
+	    		jQuery('#mapping_sumberdana').val(id_sumberdana_mapping).trigger('change');
+    		}
+    	<?php } ?>
+	    	var sumber_dana = [];
+	    	jQuery('#mapping_label').val(id_sumberdana_mapping).trigger('change');
 	    	jQuery('#mod-mapping').modal('show');
 	    });
 	    jQuery('#mapping_label').select2();
+    <?php if($kunci_sd_mapping == 2){ ?>
+    	var option_sumber_dana = ['<option value="">Pilih Sumber Dana</option>'];
+    	master_sumberdana.map(function(b, i){
+			option_sumber_dana.push('<option value="'+b.id_dana+'">'+b.nama_dana+'</option>');
+    	});
+    	jQuery('#mapping_sumberdana').html(option_sumber_dana);
+	    jQuery('#mapping_sumberdana').select2();
+    <?php } ?>
 
 	    jQuery('#set-mapping').on('click', function(){
 	    	if(confirm('Apakah anda yakin untuk menyimpan data ini?')){
