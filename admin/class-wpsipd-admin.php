@@ -235,6 +235,13 @@ class Wpsipd_Admin {
             Field::make( 'text', 'crb_api_key_extension', 'API KEY chrome extension' )
             	->set_default_value($this->generateRandomString())
             	->set_help_text('API KEY ini dipakai untuk <a href="https://github.com/agusnurwanto/sipd-chrome-extension" target="_blank">SIPD chrome extension</a>.'),
+            Field::make( 'radio', 'crb_kunci_sumber_dana_mapping', 'Kunci pilihan Sumber Dana di Halaman Mapping Rincian' )
+            	->add_options( array(
+			        '1' => __( 'Ya' ),
+			        '2' => __( 'Tidak' )
+			    ) )
+            	->set_default_value('1')
+            	->set_help_text('Fitur ini untuk mengunci pilihan sumber dana sesuai yang sudah disetting di sipd.kemendagri.go.id saat melakukan mapping sumber dana. Pilih <b>Tidak</b> jika tidak ingin mengunci pilihan sumber dana.'),
             Field::make( 'html', 'crb_generate_user_sipd_merah' )
             	->set_html( '<a id="generate_user_sipd_merah" onclick="return false;" href="#" class="button button-primary button-large">Generate User SIPD Merah By DB Lokal</a>' )
             	->set_help_text('Data user active yang ada di table data_dewan akan digenerate menjadi user wordpress.'),
@@ -875,7 +882,11 @@ class Wpsipd_Admin {
 						and nama=%s
 					', $_POST['tahun_anggaran'], $_POST['nama'])
 				);
-				if(!$cek_exist){
+				// cek jika belum ada atau update label
+				if(
+					!$cek_exist 
+					|| !empty($_POST['id_label'])
+				){
 					$current_user = wp_get_current_user();
 					$opsi = array(
 						'nama' => $_POST['nama'],
