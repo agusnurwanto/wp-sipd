@@ -5,6 +5,27 @@ $input = shortcode_atts( array(
 	'tahun_anggaran' => '2022'
 ), $atts );
 
+$bulan = date('m');
+$tahun_asli = date('Y');
+$bulan_asli = date('m');
+
+if(!empty($_GET) && !empty($_GET['bulan'])){
+    $bulan = $_GET['bulan'];
+}
+$nama_bulan = $this->get_bulan($bulan);
+
+if(empty($_GET['debug'])){
+	if(
+		$input['tahun_anggaran'] > $tahun_asli
+		|| (
+			$bulan > $bulan_asli
+			&& $input['tahun_anggaran'] == $tahun_asli
+		)
+	){
+		die('<h1>RFK Bulan '.$nama_bulan.' tahun '.$input['tahun_anggaran'].' tidak ditemukan!</h1>');
+	}
+}
+
 $public = 0;
 if(!empty($_GET) && !empty($_GET['key'])){
 	$keys = $this->decode_key($_GET['key']);
@@ -17,12 +38,6 @@ $sumber_pagu = '1';
 if(!empty($_GET) && !empty($_GET['sumber_pagu'])){
     $sumber_pagu = $_GET['sumber_pagu'];
 }
-
-$bulan = date('m');
-if(!empty($_GET) && !empty($_GET['bulan'])){
-    $bulan = $_GET['bulan'];
-}
-$nama_bulan = $this->get_bulan($bulan);
 
 $pengaturan = $wpdb->get_results($wpdb->prepare("
 	select 
@@ -224,7 +239,7 @@ $body .='
 			    			'cat_ka_adbang' => $rfk['cat_ka_adbang'],
 			    			'last_update' => $latest_update,
 			    			'data_sub_unit' => '',
-			    			'url_unit' => $link,
+			    			'url_unit' => $link.'&bulan='.$bulan,
 			    			'act' => ''
 			    		);
 
@@ -342,7 +357,7 @@ $body .='
 				    			'realisasi_fisik' => $this->pembulatan($rfk['realisasi_fisik']),
 			    				'cat_ka_adbang' => $rfk['cat_ka_adbang'],
 				    			'last_update' => $latest_update_sub_unit,
-				    			'url_sub_unit' => $link
+				    			'url_sub_unit' => $link.'&bulan='.$bulan
 				    		);
 
 							$data_all['total_rka_sipd']+=$rfk['pagu'];
@@ -566,7 +581,7 @@ $body .='
 		+'</div>';
 	var data_all_rfk = <?php echo json_encode($data_all['data']); ?>;
 		
-		jQuery(document).ready(function(){
+	jQuery(document).ready(function(){
 			<?php if(empty($public)){ ?>
 			jQuery('<a id="open_all_skpd" onclick="return false;" href="#" class="button button-primary" style="margin-left:5px">AKSES RFK ALL OPD</a>').insertAfter("#excel");
 			jQuery('<a href="javascript:void(0)" style="margin-left: 5px; text-transform: uppercase" class="button button-primary" id="simpan-catatan-rfk-unit">Simpan Catatan</a>').insertAfter("#open_all_skpd");
@@ -652,9 +667,9 @@ $body .='
 		    	simpan_catatan_rfk_unit(this, 'catatan_rfk_unit');
 		    })
 		    jQuery('#table-rfk').DataTable();
-		})
+	})
 
-		function showsubunit(id_induk, bulan, tahun){
+	function showsubunit(id_induk, bulan, tahun){
 			var editable = 'false';
 			let html = '';
 			let nama_bulan = get_bulan(bulan);
@@ -774,9 +789,9 @@ $body .='
 		    	simpan_catatan_rfk_unit(this, 'catatan_rfk_sub_unit');
 		    })
 			jQuery('#table-rfk-sub-unit').DataTable();
-		}
+	}
 
-		function simpan_catatan_rfk(tag){
+	function simpan_catatan_rfk(tag){
 			if(confirm('Apakah anda yakin untuk menyimpan data ini?')){
 	    			jQuery('#wrap-loading').show();
 	    			
@@ -833,11 +848,11 @@ $body .='
 		                console.log(e);
 		            });
 	    		}
-		}
+	}
 
 
-		function simpan_catatan_rfk_unit(that, tag)
-		{
+	function simpan_catatan_rfk_unit(that, tag)
+	{
 			jQuery('#wrap-loading').show();
 			var tr = jQuery(that).closest('tr');
 			var val = tr.find('.'+tag).text();
@@ -869,9 +884,9 @@ $body .='
 						alert(e.message);
 					}
 			});
-		}
+	}
 
-		function compareCatatan(){
+	function compareCatatan(){
 		    var tr = jQuery(this).closest('tr');
 		    var val = jQuery(this).text();
 		    var catatan = jQuery(this).attr('data-content');
@@ -883,12 +898,12 @@ $body .='
 		    	tr.find('.simpan-per-unit').hide();
 		    	tr.removeClass('odd ubah-warna');
 		    }
-		 }
+	}
 
-		function get_bulan(bln) {
-			if(!bln || bln == '' || bln <= 0){
-				bln = date.getMonth();
-			}
-			return nama_bulan[parseInt(bln-1)];
+	function get_bulan(bln) {
+		if(!bln || bln == '' || bln <= 0){
+			bln = date.getMonth();
 		}
+		return nama_bulan[parseInt(bln-1)];
+	}
 </script>

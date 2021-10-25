@@ -1957,3 +1957,44 @@ ALTER TABLE `data_rpjmd_misi`
   ADD PRIMARY KEY (`id`);
 ALTER TABLE `data_rpjmd_misi`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+CREATE TABLE `data_realisasi_renstra` (
+  `id` int(11) NOT NULL,
+  `id_indikator` int(11) NOT NULL,
+  `type_indikator` int(11) NOT NULL,
+  `id_rumus_indikator` int(11) NOT NULL,
+  `realisasi_bulan_1` double(20,2) NOT NULL,
+  `realisasi_bulan_2` double(20,2) NOT NULL,
+  `realisasi_bulan_3` double(20,2) NOT NULL,
+  `realisasi_bulan_4` double(20,2) NOT NULL,
+  `realisasi_bulan_5` double(20,2) NOT NULL,
+  `realisasi_bulan_6` double(20,2) NOT NULL,
+  `realisasi_bulan_7` double(20,2) NOT NULL,
+  `realisasi_bulan_8` double(20,2) NOT NULL,
+  `realisasi_bulan_9` double(20,2) NOT NULL,
+  `realisasi_bulan_10` double(20,2) NOT NULL,
+  `realisasi_bulan_11` double(20,2) NOT NULL,
+  `realisasi_bulan_12` double(20,2) NOT NULL,
+  `keterangan_bulan_1` text NOT NULL,
+  `keterangan_bulan_2` text NOT NULL,
+  `keterangan_bulan_3` text NOT NULL,
+  `keterangan_bulan_4` text NOT NULL,
+  `keterangan_bulan_5` text NOT NULL,
+  `keterangan_bulan_6` text NOT NULL,
+  `keterangan_bulan_7` text NOT NULL,
+  `keterangan_bulan_8` text NOT NULL,
+  `keterangan_bulan_9` text NOT NULL,
+  `keterangan_bulan_10` text NOT NULL,
+  `keterangan_bulan_11` text NOT NULL,
+  `keterangan_bulan_12` text NOT NULL,
+  `tahun_anggaran` year(4) NOT NULL,
+  `created_by` text NOT NULL,
+  `created_at` datetime NOT NULL,
+  `update_by` text NOT NULL,
+  `update_at` datetime NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+ALTER TABLE `data_realisasi_renstra`
+  ADD PRIMARY KEY (`id`);
+ALTER TABLE `data_realisasi_renstra`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+COMMIT;
