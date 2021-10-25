@@ -6335,28 +6335,79 @@ class Wpsipd_Public
 		if(!empty($_POST)){
 			if(!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )){
 
-				// get data diperlakukan berdasarkan jenis indikator, check indikator berdasarkan type indikator.
+				$bulan = 12;
+				$body_renstra = '';
+				$body_realisasi_renstra = '';
+				switch ($_POST['type_indikator']) {
+					case '4':
+						$indikator = $wpdb->get_results($wpdb->prepare("select * from data_renstra_kegiatan where active=1 and id=%d and id_unit=%d and tahun_anggaran=%d",
+						$_POST['id'], $_POST['id_skpd'], $_POST['tahun_anggaran']), ARRAY_A);
+						
+						
+						foreach ($indikator as $key => $value) {
+							$body_renstra .='
+								<tr>
+									<td colspan="2">'.$value['indikator'].'</td>
+									<td>'.$value['target_1'].'</td>
+									<td>'.$value['target_2'].'</td>
+									<td>'.$value['target_3'].'</td>
+									<td>'.$value['target_4'].'</td>
+									<td>'.$value['target_5'].'</td>
+									<td>'.$value['satuan'].'</td>
+									<td colspan="2">Rp. '.number_format($value['pagu_'.$_POST['urut']], 2, ',', '.').'</td>
+								</tr>
+							';	
+						}
 
+						for($i=1; $i <= $bulan; $i++){
+							$body_realisasi_renstra .='
+								<tr>
+									<td>'.$this->get_bulan($i).'</td>
+									<td contenteditable="true"></td>
+									<td contenteditable="true"></td>
+									<td contenteditable="true"></td>
+								</tr>
+							';
+						}
+						break;
 
-				$indikator = $wpdb->get_results($wpdb->prepare("select * from data_renstra_kegiatan where active=1 and id=%d and id_unit=%d and tahun_anggaran=%d",
-				$_POST['id'], $_POST['id_skpd'], $_POST['tahun_anggaran']), ARRAY_A);
-				
-				$body = '';
-				foreach ($indikator as $key => $value) {
-					$body .='
-						<tr>
-							<td colspan="2">'.$value['indikator'].'</td>
-							<td>'.$value['target_1'].'</td>
-							<td>'.$value['target_2'].'</td>
-							<td>'.$value['target_3'].'</td>
-							<td>'.$value['target_4'].'</td>
-							<td>'.$value['target_5'].'</td>
-							<td>'.$value['satuan'].'</td>
-							<td>Rp. </td>
-						</tr>
-					';	
+					case '3':
+						$indikator = $wpdb->get_results($wpdb->prepare("select * from data_renstra_program where active=1 and id=%d and id_unit=%d and tahun_anggaran=%d",
+						$_POST['id'], $_POST['id_skpd'], $_POST['tahun_anggaran']), ARRAY_A);
+						
+						foreach ($indikator as $key => $value) {
+							$body_renstra .='
+								<tr>
+									<td colspan="2">'.$value['indikator'].'</td>
+									<td>'.$value['target_1'].'</td>
+									<td>'.$value['target_2'].'</td>
+									<td>'.$value['target_3'].'</td>
+									<td>'.$value['target_4'].'</td>
+									<td>'.$value['target_5'].'</td>
+									<td>'.$value['satuan'].'</td>
+									<td colspan="2">Rp. '.number_format($value['pagu_'.$_POST['urut']], 2, ',', '.').'</td>
+								</tr>
+							';	
+						}
+						for($i=1; $i <= $bulan; $i++){
+							$body_realisasi_renstra .='
+								<tr>
+									<td>'.$this->get_bulan($i).'</td>
+									<td contenteditable="true"></td>
+									<td contenteditable="true"></td>
+									<td contenteditable="true"></td>
+								</tr>
+							';
+						}
+						break;
+					
+					default:
+						// code...
+						break;
 				}
-				$return['body'] = $body;
+
+				$return['body_renstra'] = $body_renstra;
+				$return['body_realisasi_renstra'] = $body_realisasi_renstra;
 			}else{
 				$return['status'] = 'error';
 				$return['message'] = 'APIKEY tidak sesuai!';
