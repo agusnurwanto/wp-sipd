@@ -3950,7 +3950,7 @@ class Wpsipd_Public
 		$nama_skpd = $options['nama_skpd'];
 		echo '<div>';
 		if(!empty($id_skpd)){ 
-			echo "<h5>SKPD: $nama_skpd</h5>";
+			echo "<h5 class='text_tengah' style='margin-bottom: 10px;'>$nama_skpd</h5>";
 			$tahun = $_GET['tahun'];
 			$unit = $wpdb->get_results($wpdb->prepare("
 				SELECT 
@@ -3962,8 +3962,7 @@ class Wpsipd_Public
 					and tahun_anggaran=%d
 					and id_skpd=%d",
 				$tahun, $id_skpd), ARRAY_A);
-			echo "<h5>Tahun Anggaran ".$tahun."</h5>";
-			echo '<ul>';
+			echo '<ul class="aksi-monev text_tengah">';
             foreach ($unit as $kk => $vv) {
 				$nama_page = 'RFK '.$vv['nama_skpd'].' '.$vv['kode_skpd'].' | '.$tahun;
 				$custom_post = get_page_by_title($nama_page, OBJECT, 'page');
@@ -3985,11 +3984,11 @@ class Wpsipd_Public
 				$custom_post = get_page_by_title($nama_page_monev_renstra, OBJECT, 'page');
 				$url_monev_renstra = $this->get_link_post($custom_post);
 
-				echo '<li>MONEV RFK: <a href="'.$url_rfk.'" target="_blank">'.$nama_page.'</a></li>';
-				echo '<li>MONEV SUMBER DANA: <a href="'.$url_sd.'" target="_blank">'.$nama_page_sd.'</a></li>';
-				echo '<li>MONEV LABEL KOMPONEN: <a href="'.$url_label.'" target="_blank">'.$nama_page_label.'</a></li>';
-				echo '<li>MONEV INDIKATOR RENJA: <a href="'.$url_monev_renja.'" target="_blank">'.$nama_page_monev_renja.'</a></li>';
-				echo '<li>MONEV INDIKATOR RENSTRA: <a href="'.$url_monev_renstra.'" target="_blank">'.$nama_page_monev_renstra.'</a></li>';
+				echo '<li><a href="'.$url_rfk.'" target="_blank" class="btn btn-info">MONEV RFK</a></li>';
+				echo '<li><a href="'.$url_sd.'" target="_blank" class="btn btn-info">MONEV SUMBER DANA</a></li>';
+				echo '<li><a href="'.$url_label.'" target="_blank" class="btn btn-info">MONEV LABEL KOMPONEN</a></li>';
+				echo '<li><a href="'.$url_monev_renja.'" target="_blank" class="btn btn-info">MONEV INDIKATOR RENJA</a></li>';
+				echo '<li><a href="'.$url_monev_renstra.'" target="_blank" class="btn btn-info">MONEV INDIKATOR RENSTRA</a></li>';
 			}
 			echo '</ul>';
 
@@ -4007,8 +4006,8 @@ class Wpsipd_Public
 		if(empty($user_meta->roles)){
 			echo 'User ini tidak dapat akses sama sekali :)';
 		}else if(in_array("mitra_bappeda", $user_meta->roles)){
-			$cek = $this->pilih_tahun_anggaran();
-			if(!empty($cek)){ return; }
+			$this->pilih_tahun_anggaran();
+			if(empty($_GET) || empty($_GET['tahun'])){ return; }
 
 			$id_user_sipd = get_user_meta($user_id, 'id_user_sipd');
 			if(!empty($id_user_sipd)){
@@ -4035,8 +4034,8 @@ class Wpsipd_Public
 			|| in_array("KPA", $user_meta->roles)
 			|| in_array("PLT", $user_meta->roles)
 		){
-			$cek = $this->pilih_tahun_anggaran();
-			if(!empty($cek)){ return; }
+			$this->pilih_tahun_anggaran();
+			if(empty($_GET) || empty($_GET['tahun'])){ return; }
 
 			$month = date('m');
 			$triwulan = floor($month/3);
@@ -4054,8 +4053,8 @@ class Wpsipd_Public
 				'nama_skpd' => $skpd[0]
 			));
 		}else if(in_array("tapd_pp", $user_meta->roles)){
-			$cek = $this->pilih_tahun_anggaran();
-			if(!empty($cek)){ return; }
+			$this->pilih_tahun_anggaran();
+			if(empty($_GET) || empty($_GET['tahun'])){ return; }
 
 			$skpd_mitra = $wpdb->get_results("
 				SELECT 
@@ -4078,19 +4077,24 @@ class Wpsipd_Public
 
 	public function pilih_tahun_anggaran(){
 		global $wpdb;
-		if(empty($_GET) || empty($_GET['tahun'])){
-			$tahun = $wpdb->get_results('select tahun_anggaran from data_unit group by tahun_anggaran', ARRAY_A);
-			echo "
-			<h5 class='text_tengah'>Pilih Tahun Anggaran</h5>
-			<ul class='daftar-tahun text_tengah'>";
-			foreach ($tahun as $k => $v) {
-				echo "<li><a href='?tahun=".$v['tahun_anggaran']."' class='btn btn-primary'>".$v['tahun_anggaran']."</a></li>";
-			}
-			echo "</ul>";
-			return true;
-		}else{
-			return false;
+		$tahun_aktif = false;
+		$class_hide = '';
+		if(!empty($_GET) && !empty($_GET['tahun'])){
+			$tahun_aktif = $_GET['tahun'];
+			$class_hide = 'display: none;';
 		}
+		$tahun = $wpdb->get_results('select tahun_anggaran from data_unit group by tahun_anggaran', ARRAY_A);
+		echo "
+		<h5 class='text_tengah' style='".$class_hide."'>PILIH TAHUN ANGGARAN</h5>
+		<ul class='daftar-tahun text_tengah'>";
+		foreach ($tahun as $k => $v) {
+			$class = 'btn-primary';
+			if($tahun_aktif == $v['tahun_anggaran']){
+				$class = 'btn-success';
+			}
+			echo "<li><a href='?tahun=".$v['tahun_anggaran']."' class='btn ".$class."'>".$v['tahun_anggaran']."</a></li>";
+		}
+		echo "</ul>";
 	}
 
 	public function simpan_rfk(){
