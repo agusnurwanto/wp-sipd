@@ -170,3 +170,10 @@ tfoot { display:table-footer-group }
 td[contenteditable="true"] {
     background: #ff00002e;
 }
+.daftar-tahun {
+    margin: 0;
+}
+.daftar-tahun li {
+    display: inline-block;
+    margin: 0 10px;
+}

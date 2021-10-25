@@ -3951,40 +3951,48 @@ class Wpsipd_Public
 		echo '<div>';
 		if(!empty($id_skpd)){ 
 			echo "<h5>SKPD: $nama_skpd</h5>";
-			$tahun = $wpdb->get_results('select tahun_anggaran from data_unit group by tahun_anggaran', ARRAY_A);
-			foreach ($tahun as $k => $v) {
-				$unit = $wpdb->get_results("SELECT nama_skpd, id_skpd, kode_skpd from data_unit where active=1 and tahun_anggaran=".$v['tahun_anggaran'].' and id_skpd='.$id_skpd, ARRAY_A);
-				echo "<h5>Tahun Anggaran ".$v['tahun_anggaran']."</h5>";
-				echo '<ul>';
-	            foreach ($unit as $kk => $vv) {
-					$nama_page = 'RFK '.$vv['nama_skpd'].' '.$vv['kode_skpd'].' | '.$v['tahun_anggaran'];
-					$custom_post = get_page_by_title($nama_page, OBJECT, 'page');
-					$url_rfk = $this->get_link_post($custom_post);
+			$tahun = $_GET['tahun'];
+			$unit = $wpdb->get_results($wpdb->prepare("
+				SELECT 
+					nama_skpd, 
+					id_skpd, 
+					kode_skpd 
+				from data_unit 
+				where active=1 
+					and tahun_anggaran=%d
+					and id_skpd=%d",
+				$tahun, $id_skpd), ARRAY_A);
+			echo "<h5>Tahun Anggaran ".$tahun."</h5>";
+			echo '<ul>';
+            foreach ($unit as $kk => $vv) {
+				$nama_page = 'RFK '.$vv['nama_skpd'].' '.$vv['kode_skpd'].' | '.$tahun;
+				$custom_post = get_page_by_title($nama_page, OBJECT, 'page');
+				$url_rfk = $this->get_link_post($custom_post);
 
-					$nama_page_sd = 'Sumber Dana '.$vv['nama_skpd'].' '.$vv['kode_skpd'].' | '.$v['tahun_anggaran'];
-					$custom_post = get_page_by_title($nama_page_sd, OBJECT, 'page');
-					$url_sd = $this->get_link_post($custom_post);
+				$nama_page_sd = 'Sumber Dana '.$vv['nama_skpd'].' '.$vv['kode_skpd'].' | '.$tahun;
+				$custom_post = get_page_by_title($nama_page_sd, OBJECT, 'page');
+				$url_sd = $this->get_link_post($custom_post);
 
-					$nama_page_label = 'Label Komponen '.$vv['nama_skpd'].' '.$vv['kode_skpd'].' | '.$v['tahun_anggaran'];
-					$custom_post = get_page_by_title($nama_page_label, OBJECT, 'page');
-					$url_label = $this->get_link_post($custom_post);
+				$nama_page_label = 'Label Komponen '.$vv['nama_skpd'].' '.$vv['kode_skpd'].' | '.$tahun;
+				$custom_post = get_page_by_title($nama_page_label, OBJECT, 'page');
+				$url_label = $this->get_link_post($custom_post);
 
-					$nama_page_monev_renja = 'MONEV '.$vv['nama_skpd'].' '.$vv['kode_skpd'].' | '.$v['tahun_anggaran'];
-					$custom_post = get_page_by_title($nama_page_monev_renja, OBJECT, 'page');
-					$url_monev_renja = $this->get_link_post($custom_post);
+				$nama_page_monev_renja = 'MONEV '.$vv['nama_skpd'].' '.$vv['kode_skpd'].' | '.$tahun;
+				$custom_post = get_page_by_title($nama_page_monev_renja, OBJECT, 'page');
+				$url_monev_renja = $this->get_link_post($custom_post);
 
-					$nama_page_monev_renstra = 'MONEV RENSTRA '.$vv['nama_skpd'].' '.$vv['kode_skpd'].' | '.$v['tahun_anggaran'];
-					$custom_post = get_page_by_title($nama_page_monev_renstra, OBJECT, 'page');
-					$url_monev_renstra = $this->get_link_post($custom_post);
+				$nama_page_monev_renstra = 'MONEV RENSTRA '.$vv['nama_skpd'].' '.$vv['kode_skpd'].' | '.$tahun;
+				$custom_post = get_page_by_title($nama_page_monev_renstra, OBJECT, 'page');
+				$url_monev_renstra = $this->get_link_post($custom_post);
 
-					echo '<li>MONEV RFK: <a href="'.$url_rfk.'" target="_blank">'.$nama_page.'</a></li>';
-					echo '<li>MONEV SUMBER DANA: <a href="'.$url_sd.'" target="_blank">'.$nama_page_sd.'</a></li>';
-					echo '<li>MONEV LABEL KOMPONEN: <a href="'.$url_label.'" target="_blank">'.$nama_page_label.'</a></li>';
-					echo '<li>MONEV INDIKATOR RENJA: <a href="'.$url_monev_renja.'" target="_blank">'.$nama_page_monev_renja.'</a></li>';
-					echo '<li>MONEV INDIKATOR RENSTRA: <a href="'.$url_monev_renstra.'" target="_blank">'.$nama_page_monev_renstra.'</a></li>';
-				}
-				echo '</ul>';
+				echo '<li>MONEV RFK: <a href="'.$url_rfk.'" target="_blank">'.$nama_page.'</a></li>';
+				echo '<li>MONEV SUMBER DANA: <a href="'.$url_sd.'" target="_blank">'.$nama_page_sd.'</a></li>';
+				echo '<li>MONEV LABEL KOMPONEN: <a href="'.$url_label.'" target="_blank">'.$nama_page_label.'</a></li>';
+				echo '<li>MONEV INDIKATOR RENJA: <a href="'.$url_monev_renja.'" target="_blank">'.$nama_page_monev_renja.'</a></li>';
+				echo '<li>MONEV INDIKATOR RENSTRA: <a href="'.$url_monev_renstra.'" target="_blank">'.$nama_page_monev_renstra.'</a></li>';
 			}
+			echo '</ul>';
+
 		}else{
 			echo 'SKPD tidak ditemukan!';
 		}
@@ -3999,6 +4007,9 @@ class Wpsipd_Public
 		if(empty($user_meta->roles)){
 			echo 'User ini tidak dapat akses sama sekali :)';
 		}else if(in_array("mitra_bappeda", $user_meta->roles)){
+			$cek = $this->pilih_tahun_anggaran();
+			if(!empty($cek)){ return; }
+
 			$id_user_sipd = get_user_meta($user_id, 'id_user_sipd');
 			if(!empty($id_user_sipd)){
 				$skpd_mitra = $wpdb->get_results("
@@ -4024,6 +4035,9 @@ class Wpsipd_Public
 			|| in_array("KPA", $user_meta->roles)
 			|| in_array("PLT", $user_meta->roles)
 		){
+			$cek = $this->pilih_tahun_anggaran();
+			if(!empty($cek)){ return; }
+
 			$month = date('m');
 			$triwulan = floor($month/3);
 			$notif = '<h5 style="text-align: center; padding: 10px; border: 5px; background: #f5d3d3; text-decoration: underline; border-radius: 5px;">Sekarang awal bulan triwulan baru. Waktunya mengisi <b>MONEV indikator RENJA triwulan '.$triwulan.'</b>.<br>Jaga kesehatan & semangat!</h5>';
@@ -4040,6 +4054,9 @@ class Wpsipd_Public
 				'nama_skpd' => $skpd[0]
 			));
 		}else if(in_array("tapd_pp", $user_meta->roles)){
+			$cek = $this->pilih_tahun_anggaran();
+			if(!empty($cek)){ return; }
+
 			$skpd_mitra = $wpdb->get_results("
 				SELECT 
 					nama_skpd, 
@@ -4056,6 +4073,23 @@ class Wpsipd_Public
 			}
 		}else{
 			echo 'User ini tidak dapat akses halaman ini :)';
+		}
+	}
+
+	public function pilih_tahun_anggaran(){
+		global $wpdb;
+		if(empty($_GET) || empty($_GET['tahun'])){
+			$tahun = $wpdb->get_results('select tahun_anggaran from data_unit group by tahun_anggaran', ARRAY_A);
+			echo "
+			<h5 class='text_tengah'>Pilih Tahun Anggaran</h5>
+			<ul class='daftar-tahun text_tengah'>";
+			foreach ($tahun as $k => $v) {
+				echo "<li><a href='?tahun=".$v['tahun_anggaran']."' class='btn btn-primary'>".$v['tahun_anggaran']."</a></li>";
+			}
+			echo "</ul>";
+			return true;
+		}else{
+			return false;
 		}
 	}
 
