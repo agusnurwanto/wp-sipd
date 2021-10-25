@@ -14,7 +14,7 @@ if(!empty($_GET) && !empty($_GET['bulan'])){
 }
 $nama_bulan = $this->get_bulan($bulan);
 
-if(empty($_GET['debug'])){
+if(empty($_GET) || empty($_GET['debug'])){
 	if(
 		$input['tahun_anggaran'] > $tahun_asli
 		|| (
