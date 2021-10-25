@@ -15,11 +15,28 @@ if(!empty($_GET) && !empty($_GET['sumber_pagu'])){
     $sumber_pagu = $_GET['sumber_pagu'];
 }
 
-$bulan = date('m');
+$tahun_asli = date('Y');
+$bulan_asli = date('m');
 if(!empty($_GET) && !empty($_GET['bulan'])){
     $bulan = $_GET['bulan'];
+}else{
+	$bulan = $bulan_asli;
 }
+
 $nama_bulan = $this->get_bulan($bulan);
+
+// secara default pada bulan dan tahun anggaran yg akan datang tidak bisa membuka halaman RFK. kecuali jika ada parameter debug
+if(empty($_GET) || empty($_GET['debug'])){
+	if(
+		$input['tahun_anggaran'] > $tahun_asli
+		|| (
+			$bulan > $bulan_asli
+			&& $input['tahun_anggaran'] == $tahun_asli
+		)
+	){
+		die('<h1>RFK Bulan '.$nama_bulan.' tahun '.$input['tahun_anggaran'].' tidak ditemukan!</h1>');
+	}
+}
 
 if(!empty($input['id_skpd'])){
 	$sql = $wpdb->prepare("
@@ -783,6 +800,25 @@ if(!current_user_can('administrator')){
     _url_asli = changeUrl({ url: _url_asli, key: 'key', value: '<?php echo $this->gen_key(); ?>' });
     _url_asli = changeUrl({ url: _url_asli, key: 'page_id', value: url.searchParams.get('page_id') });
 
+<?php
+	$all_bulan = array();
+	$all_bulan[1] = '<option value="1">Januari</option>';
+	$all_bulan[2] = '<option value="2">Februari</option>';
+	$all_bulan[3] = '<option value="3">Maret</option>';
+	$all_bulan[4] = '<option value="4">April</option>';
+	$all_bulan[5] = '<option value="5">Mei</option>';
+	$all_bulan[6] = '<option value="6">Juni</option>';
+	$all_bulan[7] = '<option value="7">Juli</option>';
+	$all_bulan[8] = '<option value="8">Agustus</option>';
+	$all_bulan[9] = '<option value="9">September</option>';
+	$all_bulan[10] = '<option value="10">Oktober</option>';
+	$all_bulan[11] = '<option value="11">November</option>';
+	$all_bulan[12] = '<option value="12">Desember</option>';
+	$opsi_bulan = '';
+	for($i=1; $i<=$bulan_asli; $i++){
+		$opsi_bulan .= $all_bulan[$i];
+	}
+?>
 	var extend_action = ''
 		+'<div style="margin-top: 20px;">'
 			+'<label style="display:none;">Sumber Pagu Indikatif: '
@@ -794,20 +830,9 @@ if(!current_user_can('administrator')){
 				+'</select>'
 			+'</label>'
 			+'<label style="margin-left: 20px;">Bulan Realisasi: '
-				+'<select id="pilih_bulan" style="padding: 5px;">'
+				+'<select id="pilih_bulan" style="padding: 5px;" data-bulan-asli="<?php echo $bulan_asli; ?>">'
 					+'<option value="0">-- Bulan --</option>'
-					+'<option value="1">Januari</option>'
-					+'<option value="2">Februari</option>'
-					+'<option value="3">Maret</option>'
-					+'<option value="4">April</option>'
-					+'<option value="5">Mei</option>'
-					+'<option value="6">Juni</option>'
-					+'<option value="7">Juli</option>'
-					+'<option value="8">Agustus</option>'
-					+'<option value="9">September</option>'
-					+'<option value="10">Oktober</option>'
-					+'<option value="11">November</option>'
-					+'<option value="12">Desember</option>'
+					+'<?php echo $opsi_bulan; ?>'
 				+'</select>'
 			+'</label>'
 			+'<button style="margin-left: 20px;" class="button button-primary" id="simpan-rfk">Simpan Data</button>'
