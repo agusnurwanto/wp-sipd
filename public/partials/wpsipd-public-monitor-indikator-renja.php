@@ -108,6 +108,7 @@ $data_all = array(
 	'realisasi' => 0,
 	'data' => array()
 );
+$crb_cara_input_realisasi = get_option('_crb_cara_input_realisasi', 1);
 foreach ($subkeg as $kk => $sub) {
 	$kd = explode('.', $sub['kode_sub_giat']);
 	$kd_urusan90 = (int) $kd[0];
@@ -118,7 +119,11 @@ foreach ($subkeg as $kk => $sub) {
 	$nama_keg = explode(' ', $sub['nama_sub_giat']);
     unset($nama_keg[0]);
     $nama_keg = implode(' ', $nama_keg);
-	$total_simda = $sub['pagu_simda'];
+    if($crb_cara_input_realisasi == 1){
+		$total_simda = $sub['pagu_simda'];
+	}else{
+		$total_simda = $sub['pagu'];
+	}
 	$realisasi = $sub['realisasi_anggaran'];
 	$total_pagu = $sub['pagu'];
 	$kode = explode('.', $sub['kode_sbl']);
@@ -1259,6 +1264,7 @@ foreach ($monev_triwulan as $k => $v) {
 		<li>Ukuran file maksimal adalah 10MB dan berextensi .xlsx (excel)</li>
 		<li>Tekan tombol (X) untuk menghapus file .xlsx (excel)</li>
 		<li>Tekan tombol checklist berwarna biru untuk menyimpan data File MONEV</li>
+		<li>Pagu program, kegiatan dan sub kegiatan RENJA diambil dari nilai DPA terakhir di SIMDA jika pengaturan cara input realisasi disetting <b>otomatis ambil dari SIMDA</b>. Jika pengaturan cara input realisasi disetting <b>manual</b> maka pagu program, kegiatan dan sub kegiatan diambil dari nilai RKA terakhir di sipd.kemendagri.go.id</li>
 	</ul>
 </div>
 <div class="modal fade" id="mod-monev" tabindex="-1" role="dialog" data-backdrop="static" aria-hidden="true">'
@@ -1305,7 +1311,7 @@ foreach ($monev_triwulan as $k => $v) {
                   						<table>
                   							<thead>
                   								<tr>
-                  									<th class="text_tengah">Indikator Program(outcome) dan Kegiatan (output), Sub Kegiatan</th>
+                  									<th class="text_tengah">Indikator Program(outcome) dan Kegiatan (output), Sub Kegiatan RENJA</th>
                   									<th class="text_tengah" style="width: 120px;">Target</th>
                   									<th class="text_tengah" style="width: 120px;">Satuan</th>
                   								</tr>
@@ -1366,7 +1372,7 @@ foreach ($monev_triwulan as $k => $v) {
 												<tr>
 													<th class="text_kiri text_blok">Target Indikator</th>
 													<th class="text_kanan text_blok" id="target_indikator_monev_rumus">0</th>
-													<th class="text_kiri text_blok" colspan="2">Capaian target dihitung sesuai rumus indikator</th>
+													<th class="text_kiri text_blok" colspan="2">Capaian target dihitung sesuai rumus indikator. Satuan (%)</th>
 													<th class="text_tengah text_blok" id="capaian_target_realisasi">0</th>
 													<th class="text_tengah text_blok"></th>
 												</tr>
@@ -1464,6 +1470,25 @@ foreach ($monev_triwulan as $k => $v) {
 		jQuery('#total_target_realisasi').text(total);
 		jQuery('#capaian_target_realisasi').text(total_realisasi_indikator);
 	}
+	function setTotalRealisasi(){
+		console.log('setTotalRealisasi');
+		var total_rak = 0;
+		var total_realisasi = 0;
+		var total_selisih = 0;
+		jQuery('#monev-body .target_realisasi').map(function(){
+			var tr = jQuery(this).closest('tr');
+			var nilai_rak = +tr.find('.nilai_rak').text();
+			var nilai_realisasi = +tr.find('.nilai_realisasi').text();
+			var nilai_selisih = nilai_rak-nilai_realisasi;
+			tr.find('.nilai_selisih').text(formatRupiah(nilai_selisih));
+			total_rak += nilai_rak;
+			total_realisasi += nilai_realisasi;
+			total_selisih += nilai_selisih;
+		});
+		jQuery('#total_nilai_rak').text(formatRupiah(total_rak));
+		jQuery('#total_nilai_realisasi').text(formatRupiah(total_realisasi));
+		jQuery('#total_nilai_selisih').text(formatRupiah(total_selisih));
+	}
 	jQuery(document).on('ready', function(){
 		var aksi = ''
 			+'<h3 style="margin-top: 20px;">SETTING</h3>'
@@ -1499,7 +1524,7 @@ foreach ($monev_triwulan as $k => $v) {
 					+'<td class="text_tengah" id="target_indikator_monev">'+target_indikator_text+'</td>'
 					+'<td class="text_tengah">'+satuan_indikator_text+'</td>'
 				+'</tr>';
-			jQuery('#target_indikator_monev_rumus').text(target_indikator_text);
+			jQuery('#target_indikator_monev_rumus').text(target_indikator_text+' '+satuan_indikator_text);
 			jQuery.ajax({
 				url: ajax.url,
 	          	type: "post",
@@ -1544,6 +1569,12 @@ foreach ($monev_triwulan as $k => $v) {
 	          						+'<td class="text_kanan">'+indikator_renstra_pagu+'</td>'
 	          					+'</tr>';
 	          			});
+	          			if(renstra_html == ''){
+	          				renstra_html = ''
+	          					+'<tr>'
+	          						+'<td colspan="9" class="text_tengah">Data kosong!</td>'
+	          					+'</tr>'
+	          			}
 	          			jQuery('#monev-body-renstra').html(renstra_html);
 	          		}else{
 	          			jQuery(".display-indikator-renstra").hide();

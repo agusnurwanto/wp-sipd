@@ -5762,6 +5762,8 @@ class Wpsipd_Public
 				$total_selisih = 0;
 				$bulan = 12;
 				$tbody = '';
+
+				$crb_cara_input_realisasi = get_option('_crb_cara_input_realisasi', 1);
 				for($i=1; $i<=$bulan; $i++){
 					$realisasi_target_bulanan = 0;
 					if(!empty($realisasi_renja)){
@@ -5790,20 +5792,45 @@ class Wpsipd_Public
 						$rak_bulanan = 0;
 					}
 					$selisih = $rak_bulanan-$realisasi_bulanan;
+
+					$rak_bulanan_format = number_format($rak_bulanan,0,",",".");
+					$realisasi_bulanan_format = number_format($realisasi_bulanan,0,",",".");
+					$selisih_format = number_format($selisih,0,",",".");
+
 					$editable = 'contenteditable="true"';
+					$editable_realisasi = 'contenteditable="true"';
+
+					/* 
+						- jika bulan belum dilalui 
+						- atau user login adalah admin 
+						- atau user login adalah mitra bappeda
+						- atau user login adalah tapd bappeda
+					*/
 					if(
 						$batas_bulan_input < $i
 						|| current_user_can('administrator')
 						|| in_array("mitra_bappeda", $current_user->roles)
+						|| in_array("tapd_pp", $current_user->roles)
 					){
 						$editable = '';
+						$editable_realisasi = '';
+
+					// jika input realisasi secara manual
+					}else if($crb_cara_input_realisasi == 2){
+						$rak_bulanan_format = $rak_bulanan;
+						$realisasi_bulanan_format = $realisasi_bulanan;
+					}
+
+					// jika cara input realisasi otomatis dari SIMDA
+					if($crb_cara_input_realisasi == 1){
+						$editable_realisasi = '';
 					}
 					$tbody .= '
 						<tr>
 							<td>'.$this->get_bulan($i).'</td>
-							<td class="text_kanan">'.number_format($rak_bulanan,0,",",".").'</td>
-							<td class="text_kanan">'.number_format($realisasi_bulanan,0,",",".").'</td>
-							<td class="text_kanan">'.number_format($selisih,0,",",".").'</td>
+							<td class="text_kanan nilai_rak" '.$editable_realisasi.' onkeypress="onlyNumber(event);" onkeyup="setTotalRealisasi();">'.$rak_bulanan_format.'</td>
+							<td class="text_kanan nilai_realisasi" '.$editable_realisasi.' onkeypress="onlyNumber(event);" onkeyup="setTotalRealisasi();">'.$realisasi_bulanan_format.'</td>
+							<td class="text_kanan nilai_selisih">'.$selisih_format.'</td>
 							<td class="text_tengah target_realisasi" id="target_realisasi_bulan_'.$i.'" '.$editable.' onkeypress="onlyNumber(event);" onkeyup="setTotalMonev(this);">'.$realisasi_target_bulanan.'</td>
 							<td class="text_kiri" id="keterangan_bulan_'.$i.'" '.$editable.'>'.$realisasi_renja[0]['keterangan_bulan_'.$i].'</td>
 						</tr>
@@ -5815,9 +5842,9 @@ class Wpsipd_Public
 				$tbody .= '
 					<tr>
 						<td class="text_tengah text_blok">Total</td>
-						<td class="text_kanan text_blok">'.number_format($total_rak,0,",",".").'</td>
-						<td class="text_kanan text_blok">'.number_format($total_realisasi,0,",",".").'</td>
-						<td class="text_kanan text_blok">'.number_format($total_selisih,0,",",".").'</td>
+						<td class="text_kanan text_blok" id="total_nilai_rak">'.number_format($total_rak,0,",",".").'</td>
+						<td class="text_kanan text_blok" id="total_nilai_realisasi">'.number_format($total_realisasi,0,",",".").'</td>
+						<td class="text_kanan text_blok" id="total_nilai_selisih">'.number_format($total_selisih,0,",",".").'</td>
 						<td class="text_tengah text_blok" id="total_target_realisasi">0</td>
 						<td class="text_tengah text_blok"></td>
 					</tr>
