@@ -1477,8 +1477,8 @@ foreach ($monev_triwulan as $k => $v) {
 		var total_selisih = 0;
 		jQuery('#monev-body .target_realisasi').map(function(){
 			var tr = jQuery(this).closest('tr');
-			var nilai_rak = +tr.find('.nilai_rak').text();
-			var nilai_realisasi = +tr.find('.nilai_realisasi').text();
+			var nilai_rak = +tr.find('.nilai_rak').text().replace(/\./g,'');
+			var nilai_realisasi = +tr.find('.nilai_realisasi').text().replace(/\./g,'');
 			var nilai_selisih = nilai_rak-nilai_realisasi;
 			tr.find('.nilai_selisih').text(formatRupiah(nilai_selisih));
 			total_rak += nilai_rak;
@@ -1585,6 +1585,8 @@ foreach ($monev_triwulan as $k => $v) {
 			});
 		});
 		jQuery('#set-monev').on('click', function(){
+			var nilai_rak = {};
+			var nilai_realisasi = {};
 			var target_realisasi = {};
 			var keterangan = {};
 			var total_tw1 = 0;
@@ -1595,8 +1597,12 @@ foreach ($monev_triwulan as $k => $v) {
 			var capaian_realisasi_indikator = jQuery('#capaian_target_realisasi').text();
 			var tipe_indikator = jQuery('#tipe_indikator').val();
 			for(var i=1; i<=12; i++){
-				var id = 'target_realisasi_bulan_'+i; 
+				var id_rak = 'nilai_rak_bulan_'+i;
+				var id_realisasi = 'nilai_realisasi_bulan_'+i;
+				var id = 'target_realisasi_bulan_'+i;
 				var id_ket = 'keterangan_bulan_'+i; 
+				nilai_rak[id_rak] = +jQuery('#'+id_rak).text().trim();
+				nilai_realisasi[id_realisasi] = +jQuery('#'+id_realisasi).text().trim();
 				target_realisasi[id] = +jQuery('#'+id).text().trim();
 				keterangan[id_ket] = jQuery('#'+id_ket).text().trim();
 				if(i<=3){
@@ -1666,6 +1672,8 @@ foreach ($monev_triwulan as $k => $v) {
 			          		"id_unik": id_unik,
 			          		"data": target_realisasi,
 			          		"keterangan": keterangan,
+			          		"rak": nilai_rak,
+			          		"realisasi": nilai_realisasi,
 			          		"rumus_indikator": jQuery('#tipe_indikator').val(),
 			          		"id_indikator_renstra": id_indikator_renstra
 			          	},

@@ -222,8 +222,12 @@ function tableHtmlToExcel(tableID, filename = ''){
 }
 
 function formatRupiah(angka, prefix){
-	if(!angka || angka == '' || angka <= 0){
+	var cek_minus = false;
+	if(!angka || angka == '' || angka == 0){
 		angka = '0';
+	}else if(angka < 0){
+		angka = angka*-1;
+		cek_minus = true;
 	}
 	try {
 		angka += '';
@@ -244,7 +248,11 @@ function formatRupiah(angka, prefix){
 	}
 
 	rupiah = split[1] != undefined ? rupiah + ',' + split[1] : rupiah;
-	return prefix == undefined ? rupiah : (rupiah ? 'Rp. ' + rupiah : '');
+	if(cek_minus){
+		return '-'+(prefix == undefined ? rupiah : (rupiah ? 'Rp. ' + rupiah : ''));
+	}else{
+		return prefix == undefined ? rupiah : (rupiah ? 'Rp. ' + rupiah : '');
+	}
 }
 
 function changeUrl(option){
