@@ -3944,6 +3944,17 @@ class Wpsipd_Public
 		die(json_encode($ret));
 	}
 
+	public function get_carbon_multiselect($field){
+		global $wpdb;
+		$table = $wpdb->prefix."options";
+		return $wpdb->get_results($wpdb->prepare("
+			select 
+				option_value as value
+			from ".$table."
+			where option_name like %s
+		", '_'.$field.'%'), ARRAY_A);
+	}
+
 	public function menu_monev_skpd($options){
 		global $wpdb;
 		$id_skpd = $options['id_skpd'];
@@ -3951,6 +3962,12 @@ class Wpsipd_Public
 		echo '<div>';
 		if(!empty($id_skpd)){ 
 			echo "<h5 class='text_tengah' style='margin-bottom: 10px;'>$nama_skpd</h5>";
+			$daftar_tombol = $this->get_carbon_multiselect('crb_daftar_tombol_user_dashboard');
+			$daftar_tombol_list = array();
+			foreach ($daftar_tombol as $v) {
+				$daftar_tombol_list[$v['value']] = $v['value'];
+			}
+
 			$tahun = $_GET['tahun'];
 			$unit = $wpdb->get_results($wpdb->prepare("
 				SELECT 
@@ -3984,11 +4001,21 @@ class Wpsipd_Public
 				$custom_post = get_page_by_title($nama_page_monev_renstra, OBJECT, 'page');
 				$url_monev_renstra = $this->get_link_post($custom_post);
 
-				echo '<li><a href="'.$url_rfk.'" target="_blank" class="btn btn-info">MONEV RFK</a></li>';
-				echo '<li><a href="'.$url_sd.'" target="_blank" class="btn btn-info">MONEV SUMBER DANA</a></li>';
-				echo '<li><a href="'.$url_label.'" target="_blank" class="btn btn-info">MONEV LABEL KOMPONEN</a></li>';
-				echo '<li><a href="'.$url_monev_renja.'" target="_blank" class="btn btn-info">MONEV INDIKATOR RENJA</a></li>';
-				echo '<li><a href="'.$url_monev_renstra.'" target="_blank" class="btn btn-info">MONEV INDIKATOR RENSTRA</a></li>';
+				if(!empty($daftar_tombol_list[1])){
+					echo '<li><a href="'.$url_rfk.'" target="_blank" class="btn btn-info">MONEV RFK</a></li>';
+				}
+				if(!empty($daftar_tombol_list[2])){
+					echo '<li><a href="'.$url_sd.'" target="_blank" class="btn btn-info">MONEV SUMBER DANA</a></li>';
+				}
+				if(!empty($daftar_tombol_list[3])){
+					echo '<li><a href="'.$url_label.'" target="_blank" class="btn btn-info">MONEV LABEL KOMPONEN</a></li>';
+				}
+				if(!empty($daftar_tombol_list[4])){
+					echo '<li><a href="'.$url_monev_renja.'" target="_blank" class="btn btn-info">MONEV INDIKATOR RENJA</a></li>';
+				}
+				if(!empty($daftar_tombol_list[5])){
+					echo '<li><a href="'.$url_monev_renstra.'" target="_blank" class="btn btn-info">MONEV INDIKATOR RENSTRA</a></li>';
+				}
 			}
 			echo '</ul>';
 

@@ -242,6 +242,24 @@ class Wpsipd_Admin {
 			    ) )
             	->set_default_value('1')
             	->set_help_text('Fitur ini untuk mengunci pilihan sumber dana sesuai yang sudah disetting di sipd.kemendagri.go.id saat melakukan mapping sumber dana. Pilih <b>Tidak</b> jika tidak ingin mengunci pilihan sumber dana.'),
+            Field::make( 'radio', 'crb_cara_input_realisasi', 'Input realisasi anggaran' )
+            	->add_options( array(
+			        '1' => __( 'Otomatis dari database SIMDA' ),
+			        '2' => __( 'Manual' )
+			    ) )
+            	->set_default_value('1')
+            	->set_help_text('Jika dipilih manual maka SKPD perlu melakuan input manual realisasi anggaran.'),
+            Field::make( 'multiselect', 'crb_daftar_tombol_user_dashboard', 'Daftar tombol di halaman dashboard user' )
+            	->add_options( array(
+			        '1' => __( 'MONEV RFK' ),
+			        '2' => __( 'MONEV SUMBER DANA' ),
+			        '3' => __( 'MONEV LABEL KOMPONEN' ),
+			        '4' => __( 'MONEV INDIKATOR RENJA' ),
+			        '5' => __( 'MONEV INDIKATOR RENSTRA' ),
+			        '6' => __( 'MONEV INDIKATOR RPJM' )
+			    ) )
+            	->set_default_value(array('1','2','3','4','5'))
+            	->set_help_text('Daftar fitur ini akan ditampilkan dalam bentuk tombol di halaman dasboard user setelah berhasil login.'),
             Field::make( 'html', 'crb_generate_user_sipd_merah' )
             	->set_html( '<a id="generate_user_sipd_merah" onclick="return false;" href="#" class="button button-primary button-large">Generate User SIPD Merah By DB Lokal</a>' )
             	->set_help_text('Data user active yang ada di table data_dewan akan digenerate menjadi user wordpress.'),
