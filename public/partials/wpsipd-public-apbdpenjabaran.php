@@ -1,4 +1,8 @@
 <?php
+// If this file is called directly, abort.
+if ( ! defined( 'WPINC' ) ) {
+    die;
+}
 function ubah_minus($nilai){
     if($nilai < 0){
         $nilai = abs($nilai);
