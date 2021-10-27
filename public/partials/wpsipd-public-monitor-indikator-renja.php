@@ -579,19 +579,19 @@ foreach ($data_all['data'] as $kd_urusan => $urusan) {
 		            <td class="text_kanan kanan bawah text_blok total_renja pagu_renja" data-pagu="'.$program['total_simda'].'">'.number_format($program['total_simda'],0,",",".").'</td>
 		            <td class="text_tengah kanan bawah text_blok triwulan_1">'.$realisasi_indikator_tw1.'</td>
 		            <td class="text_tengah kanan bawah text_blok triwulan_1">'.$satuan_capaian_prog.'</td>
-		            <td class="text_kanan kanan bawah text_blok triwulan_1">'.number_format($program['triwulan_1'],0,",",".").'</td>
+		            <td class="text_kanan kanan bawah text_blok triwulan_1"><span class="nilai_realisasi_tw1">'.number_format($program['triwulan_1'],0,",",".").'</span></td>
 		            <td class="text_tengah kanan bawah text_blok triwulan_2">'.$realisasi_indikator_tw2.'</td>
 		            <td class="text_tengah kanan bawah text_blok triwulan_2">'.$satuan_capaian_prog.'</td>
-		            <td class="text_kanan kanan bawah text_blok triwulan_2">'.number_format($program['triwulan_2'],0,",",".").'</td>
+		            <td class="text_kanan kanan bawah text_blok triwulan_2"><span class="nilai_realisasi_tw2">'.number_format($program['triwulan_2'],0,",",".").'</span></td>
 		            <td class="text_tengah kanan bawah text_blok triwulan_3">'.$realisasi_indikator_tw3.'</td>
 		            <td class="text_tengah kanan bawah text_blok triwulan_3">'.$satuan_capaian_prog.'</td>
-		            <td class="text_kanan kanan bawah text_blok triwulan_3">'.number_format($program['triwulan_3'],0,",",".").'</td>
+		            <td class="text_kanan kanan bawah text_blok triwulan_3"><span class="nilai_realisasi_tw3">'.number_format($program['triwulan_3'],0,",",".").'</span></td>
 		            <td class="text_tengah kanan bawah text_blok triwulan_4">'.$realisasi_indikator_tw4.'</td>
 		            <td class="text_tengah kanan bawah text_blok triwulan_4">'.$satuan_capaian_prog.'</td>
-		            <td class="text_kanan kanan bawah text_blok triwulan_4">'.number_format($program['triwulan_4'],0,",",".").'</td>
+		            <td class="text_kanan kanan bawah text_blok triwulan_4"><span class="nilai_realisasi_tw4">'.number_format($program['triwulan_4'],0,",",".").'</span></td>
 		            <td class="text_tengah kanan bawah text_blok realisasi_renja">'.$total_tw.'</td>
 		            <td class="text_tengah kanan bawah text_blok realisasi_renja">'.$satuan_capaian_prog.'</td>
-		            <td class="text_kanan kanan bawah text_blok realisasi_renja pagu_renja_realisasi" data-pagu="'.$program['realisasi'].'">'.number_format($program['realisasi'],0,",",".").'</td>
+		            <td class="text_kanan kanan bawah text_blok realisasi_renja pagu_renja_realisasi" data-pagu="'.$program['realisasi'].'"><span class="nilai_realisasi_renja">'.number_format($program['realisasi'],0,",",".").'</span></td>
 		            <td class="text_tengah kanan bawah text_blok capaian_renja">'.$capaian_realisasi_indikator.'</td>
 		            <td class="text_kanan kanan bawah text_blok capaian_renja">'.$capaian.'</td>
 		            <td class="text_tengah kanan bawah text_blok realisasi_renstra_tahun_berjalan">'.$total_realisasi_target_renstra_tahun_berjalan.'</td>
@@ -793,19 +793,19 @@ foreach ($data_all['data'] as $kd_urusan => $urusan) {
 			            <td class="text_kanan kanan bawah text_blok total_renja pagu_renja" data-pagu="'.$giat['total_simda'].'">'.number_format($giat['total_simda'],0,",",".").'</td>
 			            <td class="text_tengah kanan bawah text_blok triwulan_1">'.$realisasi_indikator_tw1.'</td>
 			            <td class="text_tengah kanan bawah text_blok triwulan_1">'.$satuan_output_giat.'</td>
-			            <td class="text_kanan kanan bawah text_blok triwulan_1">'.number_format($giat['triwulan_1'],0,",",".").'</td>
+			            <td class="text_kanan kanan bawah text_blok triwulan_1"><span class="nilai_realisasi_tw1">'.number_format($giat['triwulan_1'],0,",",".").'</span></td>
 			            <td class="text_tengah kanan bawah text_blok triwulan_2">'.$realisasi_indikator_tw2.'</td>
 			            <td class="text_tengah kanan bawah text_blok triwulan_2">'.$satuan_output_giat.'</td>
-			            <td class="text_kanan kanan bawah text_blok triwulan_2">'.number_format($giat['triwulan_2'],0,",",".").'</td>
+			            <td class="text_kanan kanan bawah text_blok triwulan_2"><span class="nilai_realisasi_tw2">'.number_format($giat['triwulan_2'],0,",",".").'</span></td>
 			            <td class="text_tengah kanan bawah text_blok triwulan_3">'.$realisasi_indikator_tw3.'</td>
 			            <td class="text_tengah kanan bawah text_blok triwulan_3">'.$satuan_output_giat.'</td>
-			            <td class="text_kanan kanan bawah text_blok triwulan_3">'.number_format($giat['triwulan_3'],0,",",".").'</td>
+			            <td class="text_kanan kanan bawah text_blok triwulan_3"><span class="nilai_realisasi_tw3">'.number_format($giat['triwulan_3'],0,",",".").'</span></td>
 			            <td class="text_tengah kanan bawah text_blok triwulan_4">'.$realisasi_indikator_tw4.'</td>
 			            <td class="text_tengah kanan bawah text_blok triwulan_4">'.$satuan_output_giat.'</td>
-			            <td class="text_kanan kanan bawah text_blok triwulan_4">'.number_format($giat['triwulan_4'],0,",",".").'</td>
+			            <td class="text_kanan kanan bawah text_blok triwulan_4"><span class="nilai_realisasi_tw4">'.number_format($giat['triwulan_4'],0,",",".").'</span></td>
 			            <td class="text_tengah kanan bawah text_blok realisasi_renja">'.$total_tw.'</td>
 			            <td class="text_tengah kanan bawah text_blok realisasi_renja">'.$satuan_output_giat.'</td>
-			            <td class="text_kanan kanan bawah text_blok realisasi_renja pagu_renja_realisasi" data-pagu="'.$giat['realisasi'].'">'.number_format($giat['realisasi'],0,",",".").'</td>
+			            <td class="text_kanan kanan bawah text_blok realisasi_renja pagu_renja_realisasi" data-pagu="'.$giat['realisasi'].'"><span class="nilai_realisasi_renja">'.number_format($giat['realisasi'],0,",",".").'</span></td>
 			            <td class="text_tengah kanan bawah text_blok capaian_renja">'.$capaian_realisasi_indikator.'</td>
 			            <td class="text_kanan kanan bawah text_blok capaian_renja">'.$capaian.'</td>
 			            <td class="text_tengah kanan bawah text_blok realisasi_renstra_tahun_berjalan">'.$total_realisasi_target_renstra_tahun_berjalan.'</td>
@@ -952,19 +952,19 @@ foreach ($data_all['data'] as $kd_urusan => $urusan) {
 				            <td class="text_kanan kanan bawah total_renja pagu_renja" data-pagu="'.$sub_giat['total_simda'].'">'.number_format($sub_giat['total_simda'],0,",",".").'</td>
 				            <td class="text_tengah kanan bawah triwulan_1">'.$realisasi_indikator_tw1.'</td>
 				            <td class="text_tengah kanan bawah triwulan_1">'.$satuan_output_sub_giat.'</td>
-				            <td class="text_kanan kanan bawah triwulan_1">'.number_format($sub_giat['triwulan_1'],0,",",".").'</td>
+				            <td class="text_kanan kanan bawah triwulan_1"><span class="nilai_realisasi_tw1">'.number_format($sub_giat['triwulan_1'],0,",",".").'</span></td>
 				            <td class="text_tengah kanan bawah triwulan_2">'.$realisasi_indikator_tw2.'</td>
 				            <td class="text_tengah kanan bawah triwulan_2">'.$satuan_output_sub_giat.'</td>
-				            <td class="text_kanan kanan bawah triwulan_2">'.number_format($sub_giat['triwulan_2'],0,",",".").'</td>
+				            <td class="text_kanan kanan bawah triwulan_2"><span class="nilai_realisasi_tw2">'.number_format($sub_giat['triwulan_2'],0,",",".").'</span></td>
 				            <td class="text_tengah kanan bawah triwulan_3">'.$realisasi_indikator_tw3.'</td>
 				            <td class="text_tengah kanan bawah triwulan_3">'.$satuan_output_sub_giat.'</td>
-				            <td class="text_kanan kanan bawah triwulan_3">'.number_format($sub_giat['triwulan_3'],0,",",".").'</td>
+				            <td class="text_kanan kanan bawah triwulan_3"><span class="nilai_realisasi_tw3">'.number_format($sub_giat['triwulan_3'],0,",",".").'</span></td>
 				            <td class="text_tengah kanan bawah triwulan_4">'.$realisasi_indikator_tw4.'</td>
 				            <td class="text_tengah kanan bawah triwulan_4">'.$satuan_output_sub_giat.'</td>
-				            <td class="text_kanan kanan bawah triwulan_4">'.number_format($sub_giat['triwulan_4'],0,",",".").'</td>
+				            <td class="text_kanan kanan bawah triwulan_4"><span class="nilai_realisasi_tw4">'.number_format($sub_giat['triwulan_4'],0,",",".").'</span></td>
 				            <td class="text_tengah kanan bawah realisasi_renja">'.$total_tw.'</td>
 				            <td class="text_tengah kanan bawah realisasi_renja">'.$satuan_output_sub_giat.'</td>
-				            <td class="text_kanan kanan bawah realisasi_renja pagu_renja_realisasi" data-pagu="'.$sub_giat['realisasi'].'">'.number_format($sub_giat['realisasi'],0,",",".").'</td>
+				            <td class="text_kanan kanan bawah realisasi_renja pagu_renja_realisasi" data-pagu="'.$sub_giat['realisasi'].'"><span class="nilai_realisasi_renja">'.number_format($sub_giat['realisasi'],0,",",".").'</span></td>
 				            <td class="text_tengah kanan bawah capaian_renja">'.$capaian_realisasi_indikator.'</td>
 				            <td class="text_kanan kanan bawah capaian_renja">'.$capaian.'</td>
 				            <td class="text_tengah kanan bawah realisasi_renstra_tahun_berjalan"></td>
@@ -1471,7 +1471,6 @@ foreach ($monev_triwulan as $k => $v) {
 		jQuery('#capaian_target_realisasi').text(total_realisasi_indikator);
 	}
 	function setTotalRealisasi(){
-		console.log('setTotalRealisasi');
 		var total_rak = 0;
 		var total_realisasi = 0;
 		var total_selisih = 0;
@@ -1594,6 +1593,11 @@ foreach ($monev_triwulan as $k => $v) {
 			var total_tw3 = 0;
 			var total_tw4 = 0;
 			var total_tw = jQuery('#total_target_realisasi').text();
+			var total_tw1_realisasi = 0;
+			var total_tw2_realisasi = 0;
+			var total_tw3_realisasi = 0;
+			var total_tw4_realisasi = 0;
+			var total_tw_realisasi = jQuery('#total_nilai_realisasi').text();
 			var capaian_realisasi_indikator = jQuery('#capaian_target_realisasi').text();
 			var tipe_indikator = jQuery('#tipe_indikator').val();
 			for(var i=1; i<=12; i++){
@@ -1602,10 +1606,11 @@ foreach ($monev_triwulan as $k => $v) {
 				var id = 'target_realisasi_bulan_'+i;
 				var id_ket = 'keterangan_bulan_'+i; 
 				nilai_rak[id_rak] = +jQuery('#'+id_rak).text().trim();
-				nilai_realisasi[id_realisasi] = +jQuery('#'+id_realisasi).text().trim();
+				nilai_realisasi[id_realisasi] = +jQuery('#'+id_realisasi).text().trim().replace(/\./g, '');
 				target_realisasi[id] = +jQuery('#'+id).text().trim();
 				keterangan[id_ket] = jQuery('#'+id_ket).text().trim();
 				if(i<=3){
+					total_tw1_realisasi += nilai_realisasi[id_realisasi];
 					if(tipe_indikator == 3 || tipe_indikator == 2){
 						if(i == 3){
 							total_tw1 = target_realisasi[id];
@@ -1614,6 +1619,7 @@ foreach ($monev_triwulan as $k => $v) {
 						total_tw1 += target_realisasi[id];
 					}
 				}else if(i<=6){
+					total_tw2_realisasi += nilai_realisasi[id_realisasi];
 					if(tipe_indikator == 3 || tipe_indikator == 2){
 						if(i == 6){
 							total_tw2 = target_realisasi[id];
@@ -1622,6 +1628,7 @@ foreach ($monev_triwulan as $k => $v) {
 						total_tw2 += target_realisasi[id];
 					}
 				}else if(i<=9){
+					total_tw3_realisasi += nilai_realisasi[id_realisasi];
 					if(tipe_indikator == 3 || tipe_indikator == 2){
 						if(i == 9){
 							total_tw3 = target_realisasi[id];
@@ -1630,6 +1637,7 @@ foreach ($monev_triwulan as $k => $v) {
 						total_tw3 += target_realisasi[id];
 					}
 				}else if(i<=12){
+					total_tw4_realisasi += nilai_realisasi[id_realisasi];
 					if(tipe_indikator == 3 || tipe_indikator == 2){
 						if(i == 12){
 							total_tw4 = target_realisasi[id];
@@ -1688,6 +1696,13 @@ foreach ($monev_triwulan as $k => $v) {
 			          		jQuery(tr).find('.realisasi_indikator_tw4-'+id_indikator).text(total_tw4);
 			          		jQuery(tr).find('.realisasi_indikator_tw4-'+id_indikator).text(total_tw4);
 			          		jQuery(tr).find('.total_tw-'+id_indikator).text(total_tw);
+			          	<?php if($crb_cara_input_realisasi == 2){ ?>
+			          		jQuery(tr).find('.nilai_realisasi_tw1').text(formatRupiah(total_tw1_realisasi));
+			          		jQuery(tr).find('.nilai_realisasi_tw2').text(formatRupiah(total_tw2_realisasi));
+			          		jQuery(tr).find('.nilai_realisasi_tw3').text(formatRupiah(total_tw3_realisasi));
+			          		jQuery(tr).find('.nilai_realisasi_tw4').text(formatRupiah(total_tw4_realisasi));
+			          		jQuery(tr).find('.nilai_realisasi_renja').text(total_tw_realisasi);
+			          	<?php } ?>
 			          		jQuery(tr).find('.capaian_realisasi_indikator-'+id_indikator).text(capaian_realisasi_indikator);
 			          		jQuery(tr).find('.rumus_indikator').removeClass('positif negatif persentase');
 			          		var rumus_indikator = 'positif';
