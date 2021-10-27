@@ -5598,6 +5598,7 @@ class Wpsipd_Public
 						and tipe_indikator=%d
 						and kode_sbl=%s
 				", $tahun_anggaran, $id_indikator, $type_indikator, $kode_sbl));
+				$ret['data_realisasi_renja'] = $wpdb->last_query;
 				$opsi = array(
 					'id_indikator' => $id_indikator,
 					'id_unik_indikator_renstra' => $_POST['id_indikator_renstra'],
