@@ -5530,6 +5530,7 @@ class Wpsipd_Public
 		$ret['data'] = array();
 		if (!empty($_POST)) {
 			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+				$current_user = wp_get_current_user();
 				$ids = explode('-', $_POST['id_unik']);
 				$tahun_anggaran = $ids[0];
 				$id_skpd = $ids[1];
@@ -5597,6 +5598,7 @@ class Wpsipd_Public
 						and tipe_indikator=%d
 						and kode_sbl=%s
 				", $tahun_anggaran, $id_indikator, $type_indikator, $kode_sbl));
+				$ret['data_realisasi_renja'] = $wpdb->last_query;
 				$opsi = array(
 					'id_indikator' => $id_indikator,
 					'id_unik_indikator_renstra' => $_POST['id_indikator_renstra'],
@@ -5627,7 +5629,7 @@ class Wpsipd_Public
 					'keterangan_bulan_10' =>$keterangan_bulan[10],
 					'keterangan_bulan_11' =>$keterangan_bulan[11],
 					'keterangan_bulan_12' =>$keterangan_bulan[12],
-					'user' => '',
+					'user' => $current_user->display_name,
 					'active' => 1,
 					'update_at' => current_time('mysql'),
 					'tahun_anggaran' => $tahun_anggaran
@@ -5643,6 +5645,52 @@ class Wpsipd_Public
 					$wpdb->insert('data_realisasi_renja', $opsi);
 				}
 
+				$crb_cara_input_realisasi = get_option('_crb_cara_input_realisasi', 1);
+				// cek jika cara input realisasi secara manual dan tipe indikator adalah sub kegiatan
+				if(
+					$crb_cara_input_realisasi == 2
+					&& $type_indikator == 1
+					&& !empty($_POST['rak'])
+					&& !empty($_POST['realisasi'])
+				){
+					// lakukan update data_rfk hanya pada bulan yang sudah dilalui
+					for($bulan=1; $bulan<=$batas_bulan_input; $bulan++){
+						$sql = $wpdb->prepare("
+						    select 
+						        id
+						    from data_rfk
+						    where tahun_anggaran=%d
+						        and bulan=%d
+						        and id_skpd=%d
+						        and kode_sbl=%s
+						", $tahun_anggaran, $bulan, $id_skpd, $kode_sbl);
+						$cek = $wpdb->get_results($sql, ARRAY_A);
+						$realisasi_anggaran = 0;
+						for($b=1; $b<=$bulan; $b++){
+							$realisasi_anggaran += $_POST['realisasi']['nilai_realisasi_bulan_'.$b];
+						}
+						$opsi = array(
+							'bulan'	=> $bulan,
+							'kode_sbl'	=> $kode_sbl,
+							'rak' => $_POST['rak']['nilai_rak_bulan_'.$bulan],
+							'realisasi_anggaran' => $realisasi_anggaran,
+							'user_edit'	=> $current_user->display_name,
+							'id_skpd'	=> $id_skpd,
+							'tahun_anggaran'	=> $tahun_anggaran,
+							'created_at'	=>  current_time('mysql')
+						);
+						if(!empty($cek)){
+							$wpdb->update('data_rfk', $opsi, array(
+								'tahun_anggaran' => $tahun_anggaran,
+								'bulan' => $bulan,
+								'id_skpd' => $id_skpd,
+								'kode_sbl' => $kode_sbl
+							));
+						}else{
+							$wpdb->insert('data_rfk', $opsi);
+						}
+					}
+				}
 			} else {
 				$ret['status'] = 'error';
 				$ret['message'] = 'APIKEY tidak sesuai!';
@@ -5762,6 +5810,8 @@ class Wpsipd_Public
 				$total_selisih = 0;
 				$bulan = 12;
 				$tbody = '';
+
+				$crb_cara_input_realisasi = get_option('_crb_cara_input_realisasi', 1);
 				for($i=1; $i<=$bulan; $i++){
 					$realisasi_target_bulanan = 0;
 					if(!empty($realisasi_renja)){
@@ -5790,20 +5840,50 @@ class Wpsipd_Public
 						$rak_bulanan = 0;
 					}
 					$selisih = $rak_bulanan-$realisasi_bulanan;
+
+					$rak_bulanan_format = number_format($rak_bulanan,0,",",".");
+					$realisasi_bulanan_format = number_format($realisasi_bulanan,0,",",".");
+					$selisih_format = number_format($selisih,0,",",".");
+
 					$editable = 'contenteditable="true"';
+					$editable_realisasi = 'contenteditable="true"';
+
+					/* 
+						- jika bulan belum dilalui 
+						- atau user login adalah admin 
+						- atau user login adalah mitra bappeda
+						- atau user login adalah tapd bappeda
+					*/
 					if(
 						$batas_bulan_input < $i
 						|| current_user_can('administrator')
 						|| in_array("mitra_bappeda", $current_user->roles)
+						|| in_array("tapd_pp", $current_user->roles)
 					){
 						$editable = '';
+						$editable_realisasi = '';
+					// jika input realisasi secara manual dan type indikator adalah sub kegiatan
+					}else if(
+						$crb_cara_input_realisasi == 2 
+						&& $type_indikator == 1
+					){
+						$rak_bulanan_format = $rak_bulanan;
+						$realisasi_bulanan_format = $realisasi_bulanan;
+					}
+
+					// jika cara input realisasi otomatis dari SIMDA atau tipe indikator bukan sub kegiatan
+					if(
+						$crb_cara_input_realisasi == 1
+						|| $type_indikator != 1
+					){
+						$editable_realisasi = '';
 					}
 					$tbody .= '
 						<tr>
 							<td>'.$this->get_bulan($i).'</td>
-							<td class="text_kanan">'.number_format($rak_bulanan,0,",",".").'</td>
-							<td class="text_kanan">'.number_format($realisasi_bulanan,0,",",".").'</td>
-							<td class="text_kanan">'.number_format($selisih,0,",",".").'</td>
+							<td class="text_kanan nilai_rak" '.$editable_realisasi.' onkeypress="onlyNumber(event);" onkeyup="setTotalRealisasi();" id="nilai_rak_bulan_'.$i.'">'.$rak_bulanan_format.'</td>
+							<td class="text_kanan nilai_realisasi" '.$editable_realisasi.' onkeypress="onlyNumber(event);" onkeyup="setTotalRealisasi();" id="nilai_realisasi_bulan_'.$i.'">'.$realisasi_bulanan_format.'</td>
+							<td class="text_kanan nilai_selisih">'.$selisih_format.'</td>
 							<td class="text_tengah target_realisasi" id="target_realisasi_bulan_'.$i.'" '.$editable.' onkeypress="onlyNumber(event);" onkeyup="setTotalMonev(this);">'.$realisasi_target_bulanan.'</td>
 							<td class="text_kiri" id="keterangan_bulan_'.$i.'" '.$editable.'>'.$realisasi_renja[0]['keterangan_bulan_'.$i].'</td>
 						</tr>
@@ -5815,9 +5895,9 @@ class Wpsipd_Public
 				$tbody .= '
 					<tr>
 						<td class="text_tengah text_blok">Total</td>
-						<td class="text_kanan text_blok">'.number_format($total_rak,0,",",".").'</td>
-						<td class="text_kanan text_blok">'.number_format($total_realisasi,0,",",".").'</td>
-						<td class="text_kanan text_blok">'.number_format($total_selisih,0,",",".").'</td>
+						<td class="text_kanan text_blok" id="total_nilai_rak">'.number_format($total_rak,0,",",".").'</td>
+						<td class="text_kanan text_blok" id="total_nilai_realisasi">'.number_format($total_realisasi,0,",",".").'</td>
+						<td class="text_kanan text_blok" id="total_nilai_selisih">'.number_format($total_selisih,0,",",".").'</td>
 						<td class="text_tengah text_blok" id="total_target_realisasi">0</td>
 						<td class="text_tengah text_blok"></td>
 					</tr>

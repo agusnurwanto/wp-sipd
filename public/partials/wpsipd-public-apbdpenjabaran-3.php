@@ -1,4 +1,8 @@
 <?php
+// If this file is called directly, abort.
+if ( ! defined( 'WPINC' ) ) {
+    die;
+}
 global $wpdb;
 $type = 'murni';
 if(!empty($_GET) && !empty($_GET['type'])){

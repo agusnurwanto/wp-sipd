@@ -1,5 +1,8 @@
 <?php
-
+// If this file is called directly, abort.
+if ( ! defined( 'WPINC' ) ) {
+    die;
+}
 global $total_belanja_murni;
 global $total_belanja;
 global $total_pendapatan_murni;
