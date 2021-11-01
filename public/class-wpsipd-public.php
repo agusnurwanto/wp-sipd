@@ -6447,78 +6447,150 @@ class Wpsipd_Public
 			if(!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )){
 
 				$bulan = 12;
+				$indikator = '';
 				$body_renstra = '';
+				$rumus_indikator = 1;
 				$body_realisasi_renstra = '';
 				switch ($_POST['type_indikator']) {
+
+					// indikator kegiatan
 					case '4':
 						$indikator = $wpdb->get_results($wpdb->prepare("select * from data_renstra_kegiatan where active=1 and id=%d and id_unit=%d and tahun_anggaran=%d",
 						$_POST['id'], $_POST['id_skpd'], $_POST['tahun_anggaran']), ARRAY_A);
-						
-						
-						foreach ($indikator as $key => $value) {
-							$body_renstra .='
-								<tr>
-									<td colspan="2">'.$value['indikator'].'</td>
-									<td>'.$value['target_1'].'</td>
-									<td>'.$value['target_2'].'</td>
-									<td>'.$value['target_3'].'</td>
-									<td>'.$value['target_4'].'</td>
-									<td>'.$value['target_5'].'</td>
-									<td>'.$value['satuan'].'</td>
-									<td colspan="2">Rp. '.number_format($value['pagu_'.$_POST['urut']], 2, ',', '.').'</td>
-								</tr>
-							';	
-						}
-
-						for($i=1; $i <= $bulan; $i++){
-							$body_realisasi_renstra .='
-								<tr>
-									<td>'.$this->get_bulan($i).'</td>
-									<td contenteditable="true"></td>
-									<td contenteditable="true"></td>
-									<td contenteditable="true"></td>
-								</tr>
-							';
-						}
 						break;
 
+					// indikator program
 					case '3':
 						$indikator = $wpdb->get_results($wpdb->prepare("select * from data_renstra_program where active=1 and id=%d and id_unit=%d and tahun_anggaran=%d",
 						$_POST['id'], $_POST['id_skpd'], $_POST['tahun_anggaran']), ARRAY_A);
-						
-						foreach ($indikator as $key => $value) {
-							$body_renstra .='
-								<tr>
-									<td colspan="2">'.$value['indikator'].'</td>
-									<td>'.$value['target_1'].'</td>
-									<td>'.$value['target_2'].'</td>
-									<td>'.$value['target_3'].'</td>
-									<td>'.$value['target_4'].'</td>
-									<td>'.$value['target_5'].'</td>
-									<td>'.$value['satuan'].'</td>
-									<td colspan="2">Rp. '.number_format($value['pagu_'.$_POST['urut']], 2, ',', '.').'</td>
-								</tr>
-							';	
-						}
-						for($i=1; $i <= $bulan; $i++){
-							$body_realisasi_renstra .='
-								<tr>
-									<td>'.$this->get_bulan($i).'</td>
-									<td contenteditable="true"></td>
-									<td contenteditable="true"></td>
-									<td contenteditable="true"></td>
-								</tr>
-							';
-						}
 						break;
 					
 					default:
-						// code...
+						$return['status'] = 'error';
+						$return['message'] = 'REQUEST TIDAK SPESIFIK';
 						break;
 				}
 
-				$return['body_renstra'] = $body_renstra;
-				$return['body_realisasi_renstra'] = $body_realisasi_renstra;
+				if(!empty($indikator)){
+					foreach ($indikator as $key => $value) {
+						$body_renstra .='
+							<tr>
+								<td colspan="2">'.$value['indikator'].'</td>
+								<td>'.$value['target_1'].'</td>
+								<td>'.$value['target_2'].'</td>
+								<td>'.$value['target_3'].'</td>
+								<td>'.$value['target_4'].'</td>
+								<td>'.$value['target_5'].'</td>
+								<td>'.$value['satuan'].'</td>
+								<td colspan="2">Rp. '.number_format($value['pagu_'.$_POST['urut']], 2, ',', '.').'</td>
+								</tr>';	
+					}
+
+					if(!empty($indikator['id_rumus_indikator'])){
+						$rumus_indikator = $indikator['id_rumus_indikator'];
+					}
+
+					$realisasi_renstra = $wpdb->get_row($wpdb->prepare("select * from data_realisasi_renstra where id_indikator=%d and type_indikator=%d and tahun_anggaran=%d", $_POST['id'], $_POST['type_indikator'], $_POST['tahun_anggaran']), ARRAY_A);
+
+					for($i=1; $i <= $bulan; $i++){
+						$edited='false';
+						if($i <= $_POST['bulan']){
+							$edited='true';
+						}
+						$realisasi_target_bulanan = !empty($realisasi_renstra['realisasi_bulan_'.$i]) ? $realisasi_renstra['realisasi_bulan_'.$i] : 0;
+						$realisasi_anggaran_bulanan = !empty($realisasi_renstra['realisasi_anggaran_bulan_'.$i]) ? $realisasi_renstra['realisasi_anggaran_bulan_'.$i] : 0;
+						$body_realisasi_renstra .='
+							<tr>
+								<td>'.$this->get_bulan($i).'</td>
+								<td contenteditable="'.$edited.'" id="realisasi_anggaran_bulan_'.$i.'">'.$realisasi_anggaran_bulanan.'</td>
+								<td contenteditable="'.$edited.'" id="realisasi_target_bulan_'.$i.'">'.$realisasi_target_bulanan.'</td>
+								<td contenteditable="'.$edited.'" id="keterangan_bulan_'.$i.'">'.$realisasi_renstra['keterangan_bulan_'.$i].'</td>
+							</tr>';
+					}
+
+					$return['rumus_indikator'] = $rumus_indikator;
+					$return['body_renstra'] = $body_renstra;
+					$return['body_realisasi_renstra'] = $body_realisasi_renstra;
+				}
+			}else{
+				$return['status'] = 'error';
+				$return['message'] = 'APIKEY tidak sesuai!';
+			}
+		}else{
+			$return['status'] = 'error';
+			$return['message'] = 'Format Salah!';
+		}
+		echo json_encode($return);exit();
+	}
+
+	public function save_monev_renstra()
+	{
+		global $wpdb;
+		$current_user = wp_get_current_user();
+		$return = array(
+			'status' => 'success',
+			'message' => 'Berhasil simpan data!',
+		);
+
+		if(!empty($_POST)){
+			if(!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )){
+
+				$data = array(
+					'id_indikator' => $_POST['id_indikator'],
+					'id_rumus_indikator' => $_POST['id_rumus_indikator'],
+					'type_indikator' => $_POST['type_indikator'],
+					'realisasi_bulan_1' => $_POST['realisasi_target']['realisasi_target_bulan_1'],
+					'realisasi_bulan_2' => $_POST['realisasi_target']['realisasi_target_bulan_2'],
+					'realisasi_bulan_3' => $_POST['realisasi_target']['realisasi_target_bulan_3'],
+					'realisasi_bulan_4' => $_POST['realisasi_target']['realisasi_target_bulan_4'],
+					'realisasi_bulan_5' => $_POST['realisasi_target']['realisasi_target_bulan_5'],
+					'realisasi_bulan_6' => $_POST['realisasi_target']['realisasi_target_bulan_6'],
+					'realisasi_bulan_7' => $_POST['realisasi_target']['realisasi_target_bulan_7'],
+					'realisasi_bulan_8' => $_POST['realisasi_target']['realisasi_target_bulan_8'],
+					'realisasi_bulan_9' => $_POST['realisasi_target']['realisasi_target_bulan_9'],
+					'realisasi_bulan_10' => $_POST['realisasi_target']['realisasi_target_bulan_10'],
+					'realisasi_bulan_11' => $_POST['realisasi_target']['realisasi_target_bulan_11'],
+					'realisasi_bulan_12' => $_POST['realisasi_target']['realisasi_target_bulan_12'],
+					'realisasi_anggaran_bulan_1' => $_POST['realisasi_anggaran']['realisasi_anggaran_bulan_1'],
+					'realisasi_anggaran_bulan_2' => $_POST['realisasi_anggaran']['realisasi_anggaran_bulan_2'],
+					'realisasi_anggaran_bulan_3' => $_POST['realisasi_anggaran']['realisasi_anggaran_bulan_3'],
+					'realisasi_anggaran_bulan_4' => $_POST['realisasi_anggaran']['realisasi_anggaran_bulan_4'],
+					'realisasi_anggaran_bulan_5' => $_POST['realisasi_anggaran']['realisasi_anggaran_bulan_5'],
+					'realisasi_anggaran_bulan_6' => $_POST['realisasi_anggaran']['realisasi_anggaran_bulan_6'],
+					'realisasi_anggaran_bulan_7' => $_POST['realisasi_anggaran']['realisasi_anggaran_bulan_7'],
+					'realisasi_anggaran_bulan_8' => $_POST['realisasi_anggaran']['realisasi_anggaran_bulan_8'],
+					'realisasi_anggaran_bulan_9' => $_POST['realisasi_anggaran']['realisasi_anggaran_bulan_9'],
+					'realisasi_anggaran_bulan_10' => $_POST['realisasi_anggaran']['realisasi_anggaran_bulan_10'],
+					'realisasi_anggaran_bulan_11' => $_POST['realisasi_anggaran']['realisasi_anggaran_bulan_11'],
+					'realisasi_anggaran_bulan_12' => $_POST['realisasi_anggaran']['realisasi_anggaran_bulan_12'],
+					'keterangan_bulan_1' => $_POST['keterangan']['keterangan_bulan_1'],
+					'keterangan_bulan_2' => $_POST['keterangan']['keterangan_bulan_2'],
+					'keterangan_bulan_3' => $_POST['keterangan']['keterangan_bulan_3'],
+					'keterangan_bulan_4' => $_POST['keterangan']['keterangan_bulan_4'],
+					'keterangan_bulan_5' => $_POST['keterangan']['keterangan_bulan_5'],
+					'keterangan_bulan_6' => $_POST['keterangan']['keterangan_bulan_6'],
+					'keterangan_bulan_7' => $_POST['keterangan']['keterangan_bulan_7'],
+					'keterangan_bulan_8' => $_POST['keterangan']['keterangan_bulan_8'],
+					'keterangan_bulan_9' => $_POST['keterangan']['keterangan_bulan_9'],
+					'keterangan_bulan_10' => $_POST['keterangan']['keterangan_bulan_10'],
+					'keterangan_bulan_11' => $_POST['keterangan']['keterangan_bulan_11'],
+					'keterangan_bulan_12' => $_POST['keterangan']['keterangan_bulan_12'],
+					'tahun_anggaran' => $_POST['tahun_anggaran']
+				);
+
+				$cek_data = $wpdb->get_row($wpdb->prepare("select id from data_realisasi_renstra where id_indikator=%d and type_indikator=%d and tahun_anggaran=%d", $_POST['id_indikator'], $_POST['type_indikator'], $_POST['tahun_anggaran']), ARRAY_A);
+				// die($wpdb->last_query);
+
+				if(empty($cek_data['id'])){
+					$data['created_by'] = $current_user->display_name;
+					$data['created_at'] = current_time('mysql');
+					$wpdb->insert('data_realisasi_renstra', $data);
+				}else{
+					$data['updated_by'] = $current_user->display_name;
+					$data['updated_at'] = current_time('mysql');
+					$wpdb->update('data_realisasi_renstra', $data, array('id_indikator' => $_POST['id_indikator'], 'type_indikator' => $_POST['type_indikator'], 'tahun_anggaran' => $_POST['tahun_anggaran']));
+				}
+				
 			}else{
 				$return['status'] = 'error';
 				$return['message'] = 'APIKEY tidak sesuai!';

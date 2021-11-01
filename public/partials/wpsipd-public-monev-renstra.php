@@ -67,16 +67,12 @@ if(!empty($pengaturan))
 $urut = $input['tahun_anggaran']-$awal_rpjmd;
 $nama_pemda = $pengaturan[0]['daerah'];
 
-$current_user = wp_get_current_user();
 $bulan = date('m');
 $body_monev = '';
-
 $data_all = array(
 	'data' => array()
 );
-
-$bulan = date('m');
-
+$current_user = wp_get_current_user();
 $tujuan = $wpdb->get_results($wpdb->prepare("
 			select 
 				* 
@@ -264,24 +260,24 @@ if(!empty($tujuan)){
 							
 						if(!empty($program_value['id_unik_indikator']) && empty($data_all['data'][$tujuan_key]['data'][$sasaran_key]['data'][$program_value['kode_program']]['indikator'][$program_value['id_unik_indikator']])){
 
-								$data_all['data'][$tujuan_key]['data'][$sasaran_key]['data'][$program_value['kode_program']]['indikator'][$program_value['id_unik_indikator']] = array(
-									'id' => $program_value['id'],
-									'id_unik_indikator' => $program_value['id_unik_indikator'],
-									'indikator_teks' => !empty($program_value['indikator']) ? $program_value['indikator'] : '-',
-									'satuan' => !empty($program_value['satuan']) ? $program_value['satuan'] : "",
-									'target_1' => !empty($program_value['target_1']) ? $program_value['target_1'] : "",
-									'target_2' => !empty($program_value['target_2']) ? $program_value['target_2'] : "",
-									'target_3' => !empty($program_value['target_3']) ? $program_value['target_3'] : "",
-									'target_4' => !empty($program_value['target_4']) ? $program_value['target_4'] : "",
-									'target_5' => !empty($program_value['target_5']) ? $program_value['target_5'] : "",
-									'target_awal' => !empty($program_value['target_awal']) ? $program_value['target_awal'] : "",
-									'target_akhir' => !empty($program_value['target_akhir']) ? $program_value['target_akhir'] : "",
-									'pagu_1' => !empty($program_value['pagu_1']) ? $program_value['pagu_1'] : null,
-									'pagu_2' => !empty($program_value['pagu_2']) ? $program_value['pagu_2'] : null,
-									'pagu_3' => !empty($program_value['pagu_3']) ? $program_value['pagu_3'] : null,
-									'pagu_4' => !empty($program_value['pagu_4']) ? $program_value['pagu_4'] : null,
-									'pagu_5' => !empty($program_value['pagu_5']) ? $program_value['pagu_5'] : null
-								);
+							$data_all['data'][$tujuan_key]['data'][$sasaran_key]['data'][$program_value['kode_program']]['indikator'][$program_value['id_unik_indikator']] = array(
+								'id' => $program_value['id'],
+								'id_unik_indikator' => $program_value['id_unik_indikator'],
+								'indikator_teks' => !empty($program_value['indikator']) ? $program_value['indikator'] : '-',
+								'satuan' => !empty($program_value['satuan']) ? $program_value['satuan'] : "",
+								'target_1' => !empty($program_value['target_1']) ? $program_value['target_1'] : "",
+								'target_2' => !empty($program_value['target_2']) ? $program_value['target_2'] : "",
+								'target_3' => !empty($program_value['target_3']) ? $program_value['target_3'] : "",
+								'target_4' => !empty($program_value['target_4']) ? $program_value['target_4'] : "",
+								'target_5' => !empty($program_value['target_5']) ? $program_value['target_5'] : "",
+								'target_awal' => !empty($program_value['target_awal']) ? $program_value['target_awal'] : "",
+								'target_akhir' => !empty($program_value['target_akhir']) ? $program_value['target_akhir'] : "",
+								'pagu_1' => !empty($program_value['pagu_1']) ? $program_value['pagu_1'] : null,
+								'pagu_2' => !empty($program_value['pagu_2']) ? $program_value['pagu_2'] : null,
+								'pagu_3' => !empty($program_value['pagu_3']) ? $program_value['pagu_3'] : null,
+								'pagu_4' => !empty($program_value['pagu_4']) ? $program_value['pagu_4'] : null,
+								'pagu_5' => !empty($program_value['pagu_5']) ? $program_value['pagu_5'] : null
+							);
 						}
 
 						$kegiatan = $wpdb->get_results($wpdb->prepare("
@@ -1030,7 +1026,7 @@ foreach ($data_all['data'] as $key => $tujuan)
 					'satuan' => array(),
 				);
 			foreach ($tujuan['indikator'] as $k => $v) {
-				$indikator_teks = $v['indikator_teks'].button_edit_monev($input['tahun_anggaran'].'-'.$input['id_skpd'].'-'.$v['id'].'-'.$urut.'-1');
+				$indikator_teks = $v['indikator_teks'].button_edit_monev($input['tahun_anggaran'].'-'.$input['id_skpd'].'-'.$v['id'].'-'.$urut.'-1'.'-'.$bulan);
 
 				$indikator['indikator_teks'][]=$indikator_teks;
 				$indikator['target_akhir'][]=$v['target_akhir'];
@@ -1102,7 +1098,7 @@ foreach ($data_all['data'] as $key => $tujuan)
 					'satuan' => array(),
 				);
 				foreach ($sasaran['indikator'] as $k => $v) {
-					$indikator_teks = $v['indikator_teks'].button_edit_monev($input['tahun_anggaran'].'-'.$input['id_skpd'].'-'.$v['id'].'-'.$urut.'-2');
+					$indikator_teks = $v['indikator_teks'].button_edit_monev($input['tahun_anggaran'].'-'.$input['id_skpd'].'-'.$v['id'].'-'.$urut.'-2'.'-'.$bulan);
 
 					$indikator['indikator_teks'][]=$indikator_teks;
 					$indikator['target_akhir'][]=$v['target_akhir'];
@@ -1217,7 +1213,7 @@ foreach ($data_all['data'] as $key => $tujuan)
 			        </tr>';
 
 				foreach ($program['indikator'] as $k => $v) {
-					$indikator_teks = $v['indikator_teks'].button_edit_monev($input['tahun_anggaran'].'-'.$input['id_skpd'].'-'.$v['id'].'-'.$urut.'-3');
+					$indikator_teks = $v['indikator_teks'].button_edit_monev($input['tahun_anggaran'].'-'.$input['id_skpd'].'-'.$v['id'].'-'.$urut.'-3'.'-'.$bulan);
 
 					$body_monev .= '
 						<tr class="program tr-ind-program" data-kode="'.$input['tahun_anggaran'].'-'.$input['id_skpd'].'-'.$program['kode_tujuan'].'-'.$program['kode_sasaran'].'-'.$program['kode_program'].'" style="background-color:'.$backgroundColor.'">
@@ -1332,7 +1328,7 @@ foreach ($data_all['data'] as $key => $tujuan)
 				        </tr>';
 
 				    foreach ($kegiatan['indikator'] as $k => $v) {
-						$indikator_teks = $v['indikator_teks'].button_edit_monev($input['tahun_anggaran'].'-'.$input['id_skpd'].'-'.$v['id'].'-'.$urut.'-4');
+						$indikator_teks = $v['indikator_teks'].button_edit_monev($input['tahun_anggaran'].'-'.$input['id_skpd'].'-'.$v['id'].'-'.$urut.'-4'.'-'.$bulan);
 						
 						$backgroundColor = !empty($kegiatan['status']) ? '' : '#ffdbdb';
 						$body_monev .= '
@@ -1389,7 +1385,6 @@ foreach ($data_all['data'] as $key => $tujuan)
 				        		<td class="kanan bawah">'.$unit[0]['nama_skpd'].'</td>
 					        </tr>';
 					}
-
 				}
 			}
 		}
@@ -1538,6 +1533,8 @@ foreach ($data_all['data'] as $key => $tujuan)
             </div>
             <div class="modal-body">
             	<form>
+            		<input type="hidden" id="id_indikator">
+            		<input type="hidden" id="type_indikator">
                   	<div class="form-group">
                   		<table class="table table-bordered">
                   			<tbody>
@@ -1579,10 +1576,10 @@ foreach ($data_all['data'] as $key => $tujuan)
                   							<tbody>
                   								<tr>
                   									<td>
-				                  						<select style="width: 100%;" id="tipe_indikator">
+				                  						<select style="width: 100%;" id="rumus_indikator">
 				                  							<?php echo $rumus_indikator; ?>
 				                  						</select>
-				                  						<ul id="helptext_tipe_indikator" style="margin: 10px 0 0 30px;">
+				                  						<ul id="helptext_rumus_indikator" style="margin: 10px 0 0 30px;">
 				                  							<?php echo $keterangan_indikator_html; ?>
 				                  						</ul>
 				                  					</td>
@@ -1625,7 +1622,7 @@ foreach ($data_all['data'] as $key => $tujuan)
                 </form>
             </div>
             <div class="modal-footer">
-            	<button type="button" class="btn btn-success">Simpan</button>
+            	<button type="button" class="btn btn-success simpan-monev-renstra">Simpan</button>
 				<button type="button" class="btn btn-danger" data-dismiss="modal">Tutup</button>
             </div>
         </div>
@@ -1663,7 +1660,7 @@ foreach ($data_all['data'] as $key => $tujuan)
 
 <script type="text/javascript">
 	run_download_excel();
-	let data_all = <?php echo json_encode($data_all); ?>;
+	var data_all = <?php echo json_encode($data_all); ?>;
 	console.log(data_all);
 
 	jQuery(document).on('ready', function(){
@@ -1683,7 +1680,7 @@ foreach ($data_all['data'] as $key => $tujuan)
 				+'</select>'
 			+'</label>'
 		jQuery('#action-sipd').append(aksi);
-		jQuery('#tipe_indikator').on('click', function(){
+		jQuery('#rumus_indikator').on('click', function(){
 			setRumus(jQuery(this).val());
 		});
 		jQuery('.edit-monev').on('click', function(){
@@ -1705,19 +1702,56 @@ foreach ($data_all['data'] as $key => $tujuan)
 					'id': rinc_kode[2],
 					'urut': rinc_kode[3],
 					'type_indikator': rinc_kode[4],
+					'bulan': rinc_kode[5],
 				},
 				dataType:'json',
 				success:function(res){
 					jQuery("#monev-nama").html(nama);
 					jQuery("#monev-body-renstra").html(res.body_renstra);
 					jQuery("#monev-body-realisasi-renstra").html(res.body_realisasi_renstra);
-					setRumus(1);
+					jQuery("#id_indikator").val(rinc_kode[2]);
+					jQuery("#type_indikator").val(rinc_kode[4]);
+					setRumus(res.rumus_indikator);
 					jQuery('#modal-monev').modal('show');
 					jQuery('#wrap-loading').hide();
 				}
 			})
 
 		});
+
+		jQuery(".simpan-monev-renstra").on('click', function(){
+			jQuery('#wrap-loading').show();
+			var realisasi_anggaran = {};
+			var realisasi_target = {};
+			var keterangan = {};
+
+			for (var i = 1; i <= 12; i++) {
+				realisasi_anggaran['realisasi_anggaran_bulan_'+i] = jQuery("#realisasi_anggaran_bulan_"+i).text().trim();
+				realisasi_target['realisasi_target_bulan_'+i] = jQuery("#realisasi_target_bulan_"+i).text().trim();
+				keterangan['keterangan_bulan_'+i] = jQuery("#keterangan_bulan_"+i).text().trim();
+			}
+
+			jQuery.ajax({
+				url:'<?php echo admin_url("admin-ajax.php") ?>',
+				type:'post',
+				data:{
+					'action' : 'save_monev_renstra',
+			        "api_key" : "<?php echo $api_key; ?>",
+					'id_indikator' : jQuery("#id_indikator").val(),
+					'id_rumus_indikator' : jQuery("#rumus_indikator").val(),
+					'type_indikator' : jQuery("#type_indikator").val(),
+					'realisasi_anggaran':realisasi_anggaran,
+					'realisasi_target':realisasi_target,
+					'keterangan':keterangan,
+					'tahun_anggaran' : jQuery("#tahun_anggaran").val()
+				},
+				dataType:'json',
+				success:function(result){
+					alert(result.message);
+					jQuery('#wrap-loading').hide();
+				}
+			});
+		})
 	});
 
 	function edit_monev_indikator(that){
@@ -1771,7 +1805,7 @@ foreach ($data_all['data'] as $key => $tujuan)
 
 	function show_rpjm(tahun_anggaran, id_unit, kode_sasaran_rpjm){
 		jQuery('#wrap-loading').show();
-		let modal = jQuery("#modal-rpjmd");
+		var modal = jQuery("#modal-rpjmd");
 		jQuery.ajax({
 
 			url:"<?php echo admin_url("admin-ajax.php") ?>",
