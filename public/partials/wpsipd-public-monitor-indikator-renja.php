@@ -409,6 +409,11 @@ foreach ($data_all['data'] as $kd_urusan => $urusan) {
 			$total_tw = array();
 			$capaian_realisasi_indikator = array();
 			$class_rumus_target = array();
+			$total_target_renstra_text = array();
+			$total_target_renstra = array();
+			$satuan_renstra = array();
+			$total_pagu_renstra = array();
+			$total_pagu_renstra_renja = array();
 			if(!empty($program['indikator'])){
 				$realisasi_indikator = array();
 				foreach ($program['realisasi_indikator'] as $k_sub => $v_sub) {
@@ -499,6 +504,9 @@ foreach ($data_all['data'] as $kd_urusan => $urusan) {
 					$total_tw[$k_sub] = '<span class="total_tw-'.$k_sub.' rumus_indikator '.$class_rumus_target[$k_sub].'">'.$total_tw[$k_sub].'</span>';
 					$capaian_realisasi_indikator[$k_sub] = '<span class="capaian_realisasi_indikator-'.$k_sub.' rumus_indikator '.$class_rumus_target[$k_sub].'">'.$this->pembulatan($capaian_realisasi_indikator[$k_sub]).'</span>';
 					$capaian_prog[] = '<span data-id="'.$k_sub.'" class="rumus_indikator '.$class_rumus_target[$k_sub].'">'.$v_sub['capaianteks'].button_edit_monev($input['tahun_anggaran'].'-'.$input['id_skpd'].'-'.$kd_program_asli.'-'.$program['kode_sbl'].'-'.$k_sub).'</span>';
+					$total_target_renstra_text[$k_sub] = '<span class="total_target_renstra" data-id="'.$k_sub.'">0</span>';
+					$satuan_renstra[$k_sub] = '<span class="satuan_renstra" data-id="'.$k_sub.'">'.$v_sub['satuancapaian'].'</span>';
+					$total_pagu_renstra_renja[$k_sub] = '<span class="monev_total_renstra" data-id="'.$k_sub.'">0</span>';
 				}
 			}
 			$capaian_prog = implode('<br>', $capaian_prog);
@@ -515,81 +523,27 @@ foreach ($data_all['data'] as $kd_urusan => $urusan) {
 			$total_realisasi_pagu_renstra_tahun_lalu = 0;
 			$total_realisasi_target_renstra_tahun_berjalan = 0;
 			$total_realisasi_pagu_renstra_tahun_berjalan = 0;
-			$total_target_renstra_text = array();
-			$total_target_renstra = array();
-			$satuan_renstra = array();
-			$total_pagu_renstra = array();
-			$total_pagu_renstra_renja = array();
 			$renstra = $wpdb->get_results("select * from data_renstra_program where kode_program='$program[kode_urusan_bidang]' and tahun_anggaran=$input[tahun_anggaran] and active=1 and id_unit='".$unit[0]['id_unit']."'", ARRAY_A);
-			// echo $wpdb->last_query;
-			$renstra_sasaran = array();
-			$renstra_tujuan = array();
-			$renstra_indikator = array();
-			foreach ($renstra as $k => $v) {
-				if(!empty($renstra_indikator[$v['id_unik_indikator']])){
-					continue;
-				}
-				$sasaran_teks = explode('||', $v['sasaran_teks']);
-				$renstra_sasaran[0] = $sasaran_teks[0];
-				$tujuan_teks = explode('||', $v['tujuan_teks']);
-				$renstra_tujuan[0] = $tujuan_teks[0];
-				$target_indikator_renstra_1 = explode(' ', $v['target_1']);
-				$target_indikator_renstra_2 = explode(' ', $v['target_2']);
-				$target_indikator_renstra_3 = explode(' ', $v['target_3']);
-				$target_indikator_renstra_4 = explode(' ', $v['target_4']);
-				$target_indikator_renstra_5 = explode(' ', $v['target_5']);
-				$pagu_1 = explode(' ', $v['pagu_1']);
-				$pagu_2 = explode(' ', $v['pagu_2']);
-				$pagu_3 = explode(' ', $v['pagu_3']);
-				$pagu_4 = explode(' ', $v['pagu_4']);
-				$pagu_5 = explode(' ', $v['pagu_5']);
-				$total_pagu_renstra[$k] = $pagu_1[0]+$pagu_2[0]+$pagu_3[0]+$pagu_4[0]+$pagu_5[0];
-				$renstra_indikator[$v['id_unik_indikator']] = '<li data-id='.$v['id_unik_indikator'].'><span class="indikator_renstra_text_hide">'.$v['indikator'].'</span> <span class="target_indikator_renstra_text_hide">'.$target_indikator_renstra_1[0].' | '.$target_indikator_renstra_2[0].' | '.$target_indikator_renstra_3[0].' | '.$target_indikator_renstra_4[0].' | '.$target_indikator_renstra_5[0].'</span> <span class="satuan_indikator_renstra_text_hide">'.$v['satuan'].'</span> (Rp <span class="pagu_indikator_renstra_text_hide">'.number_format($v['pagu_'.$tahun_renstra],0,",",".").'</span> / Rp <span class="total_pagu_indikator_renstra_text_hide">'.number_format($total_pagu_renstra[$k],0,",",".").'</span>)</li>';
-
-				foreach ($program['realisasi_indikator'] as $k_sub => $v_sub) {
-					$total_target_renstra[$k_sub] = 0;
-					if(
-						!empty($v_sub['id_unik_indikator_renstra']) 
-						&& $v_sub['id_unik_indikator_renstra'] == $v['id_unik_indikator']
-					){
-						$total_target_renstra[$k_sub] = valid_number($target_indikator_renstra_1[0])+valid_number($target_indikator_renstra_2[0])+valid_number($target_indikator_renstra_3[0])+valid_number($target_indikator_renstra_4[0])+valid_number($target_indikator_renstra_5[0]);
-						if($rumus_indikator == 1){
-							$total_target_renstra[$k_sub] = $total_target_renstra[$k_sub];
-						}else if($rumus_indikator == 2){
-							$total_target_renstra[$k_sub] = valid_number($target_indikator_renstra_5[0]);
-						}else if($rumus_indikator == 3){
-							$total_target_renstra[$k_sub] = valid_number($target_indikator_renstra_5[0]);
-						}
-						$pagu_1 = explode(' ', $v['pagu_1']);
-						$pagu_2 = explode(' ', $v['pagu_2']);
-						$pagu_3 = explode(' ', $v['pagu_3']);
-						$pagu_4 = explode(' ', $v['pagu_4']);
-						$pagu_5 = explode(' ', $v['pagu_5']);
-						$total_pagu_renstra_renja[$k_sub] = $pagu_1[0]+$pagu_2[0]+$pagu_3[0]+$pagu_4[0]+$pagu_5[0];
-						$total_target_renstra_text[$k_sub] = '<span class="total_target_renstra" data-id="'.$k_sub.'">'.number_format($total_target_renstra[$k_sub],2,",",".").'</span>';
-						$satuan_renstra[$k_sub] = '<span class="satuan_renstra" data-id="'.$k_sub.'">'.$v['satuan'].'</span>';
-						$total_pagu_renstra_renja[$k_sub] = '<span class="monev_total_renstra" data-id="'.$k_sub.'">'.number_format($total_pagu_renstra_renja[$k_sub],0,",",".").'</span>';
-					}
-				}
-			}
-			$total_target_renstra_text = implode('<br>', $total_target_renstra_text);
-			$satuan_renstra = implode('<br>', $satuan_renstra);
-			$total_pagu_renstra_renja = implode('<br>', $total_pagu_renstra_renja);
-			$renstra_sasaran = implode('<br>', $renstra_sasaran).' <ul class="indikator_renstra">'.implode('', $renstra_indikator).'</ul>';
-			$renstra_tujuan = implode('<br>', $renstra_tujuan);
+			$data_renstra = $this->get_indikator_renstra_renja(array(
+				'renstra' => $renstra,
+				'type' => 'program',
+				'renja' => $program,
+				'default_satuan_renstra' => $satuan_capaian_prog,
+				'tahun_renstra' => $tahun_renstra
+			));
 			$body_monev .= '
 				<tr class="program" data-kode="'.$kd_urusan.'.'.$kd_bidang.'.'.$kd_program.'" data-bidang-urusan="'.$program['kode_urusan_bidang'].'">
 		            <td class="kiri kanan bawah text_blok">'.$no_program.'</td>
-		            <td class="kanan bawah text_blok">'.$renstra_tujuan.'</td>
-		            <td class="kanan bawah text_blok">'.$renstra_sasaran.'</td>
+		            <td class="kanan bawah text_blok">'.$data_renstra['renstra_tujuan'].'</td>
+		            <td class="kanan bawah text_blok">'.$data_renstra['renstra_sasaran'].'</td>
 		            <td class="kanan bawah text_blok">'.$kd_program_asli.'</td>
 		            <td class="kanan bawah text_blok nama">'.$program['nama'].'</td>
 		            <td class="kanan bawah text_blok indikator">'.$capaian_prog.'</td>
-		            <td class="text_tengah kanan bawah text_blok total_renstra">'.$total_target_renstra_text.'</td>
-		            <td class="text_tengah kanan bawah text_blok total_renstra">'.$satuan_renstra.'</td>
-		            <td class="text_kanan kanan bawah text_blok total_renstra">'.$total_pagu_renstra_renja.'</td>
+		            <td class="text_tengah kanan bawah text_blok total_renstra">'.$data_renstra['total_target_renstra_text'].'</td>
+		            <td class="text_tengah kanan bawah text_blok total_renstra">'.$data_renstra['satuan_renstra'].'</td>
+		            <td class="text_kanan kanan bawah text_blok total_renstra">'.$data_renstra['total_pagu_renstra_renja'].'</td>
 		            <td class="text_tengah kanan bawah text_blok realisasi_renstra_tahun_lalu">'.$total_realisasi_target_renstra_tahun_lalu.'</td>
-		            <td class="text_tengah kanan bawah text_blok realisasi_renstra_tahun_lalu">'.$satuan_capaian_prog.'</td>
+		            <td class="text_tengah kanan bawah text_blok realisasi_renstra_tahun_lalu">'.$data_renstra['satuan_renstra'].'</td>
 		            <td class="text_kanan kanan bawah text_blok realisasi_renstra_tahun_lalu">'.$total_realisasi_pagu_renstra_tahun_lalu.'</td>
 		            <td class="text_tengah kanan bawah text_blok total_renja target_indikator">'.$target_capaian_prog.'</td>
 		            <td class="text_tengah kanan bawah text_blok total_renja satuan_indikator">'.$satuan_capaian_prog.'</td>
@@ -612,7 +566,7 @@ foreach ($data_all['data'] as $kd_urusan => $urusan) {
 		            <td class="text_tengah kanan bawah text_blok capaian_renja">'.$capaian_realisasi_indikator.'</td>
 		            <td class="text_kanan kanan bawah text_blok capaian_renja">'.$capaian.'</td>
 		            <td class="text_tengah kanan bawah text_blok realisasi_renstra_tahun_berjalan">'.$total_realisasi_target_renstra_tahun_berjalan.'</td>
-		            <td class="text_tengah kanan bawah text_blok realisasi_renstra_tahun_berjalan">'.$satuan_capaian_prog.'</td>
+		            <td class="text_tengah kanan bawah text_blok realisasi_renstra_tahun_berjalan">'.$data_renstra['satuan_renstra'].'</td>
 		            <td class="text_kanan kanan bawah text_blok realisasi_renstra_tahun_berjalan">'.$total_realisasi_pagu_renstra_tahun_berjalan.'</td>
 		            <td class="text_tengah kanan bawah text_blok capaian_renstra_tahun_berjalan"></td>
 		            <td class="text_kanan kanan bawah text_blok capaian_renstra_tahun_berjalan"></td>
@@ -746,77 +700,27 @@ foreach ($data_all['data'] as $kd_urusan => $urusan) {
 				$total_realisasi_pagu_renstra_tahun_lalu = 0;
 				$total_realisasi_target_renstra_tahun_berjalan = 0;
 				$total_realisasi_pagu_renstra_tahun_berjalan = 0;
-				$total_target_renstra_text = array();
-				$total_target_renstra = array();
-				$satuan_renstra = array();
-				$total_pagu_renstra = array();
-				$total_pagu_renstra_renja = array();
 				$renstra = $wpdb->get_results("select * from data_renstra_kegiatan where kode_giat='$giat[kode_urusan_bidang]' and tahun_anggaran=$input[tahun_anggaran] and active=1 and id_unit='".$unit[0]['id_unit']."'", ARRAY_A);
-				$renstra_sasaran = array();
-				$renstra_tujuan = array();
-				$renstra_indikator = array();
-				foreach ($renstra as $k => $v) {
-					$sasaran_teks = explode('||', $v['sasaran_teks']);
-					$renstra_sasaran[0] = '<span class="renstra_kegiatan">'.$sasaran_teks[0].'</span>';
-					$tujuan_teks = explode('||', $v['tujuan_teks']);
-					$renstra_tujuan[0] = '<span class="renstra_kegiatan">'.$tujuan_teks[0].'</span>';
-					$target_indikator_renstra_1 = explode(' ', $v['target_1']);
-					$target_indikator_renstra_2 = explode(' ', $v['target_2']);
-					$target_indikator_renstra_3 = explode(' ', $v['target_3']);
-					$target_indikator_renstra_4 = explode(' ', $v['target_4']);
-					$target_indikator_renstra_5 = explode(' ', $v['target_5']);
-					$pagu_1 = explode(' ', $v['pagu_1']);
-					$pagu_2 = explode(' ', $v['pagu_2']);
-					$pagu_3 = explode(' ', $v['pagu_3']);
-					$pagu_4 = explode(' ', $v['pagu_4']);
-					$pagu_5 = explode(' ', $v['pagu_5']);
-					$total_pagu_renstra[$k] = $pagu_1[0]+$pagu_2[0]+$pagu_3[0]+$pagu_4[0]+$pagu_5[0];
-					$renstra_indikator[] = '<li data-id='.$v['id_unik_indikator'].'><span class="indikator_renstra_text_hide">'.$v['indikator'].'</span> <span class="target_indikator_renstra_text_hide">'.$target_indikator_renstra_1[0].' | '.$target_indikator_renstra_2[0].' | '.$target_indikator_renstra_3[0].' | '.$target_indikator_renstra_4[0].' | '.$target_indikator_renstra_5[0].'</span> <span class="satuan_indikator_renstra_text_hide">'.$v['satuan'].'</span> (Rp <span class="pagu_indikator_renstra_text_hide">'.number_format($v['pagu_'.$tahun_renstra],0,",",".").'</span> / Rp <span class="total_pagu_indikator_renstra_text_hide">'.number_format($total_pagu_renstra[$k],0,",",".").'</span>)</li>';
-
-					foreach ($giat['realisasi_indikator'] as $k_sub => $v_sub) {
-						$total_target_renstra[$k_sub] = 0;
-						if(
-							!empty($v_sub['id_unik_indikator_renstra']) 
-							&& $v_sub['id_unik_indikator_renstra'] == $v['id_unik_indikator']
-						){
-							$total_target_renstra[$k_sub] = valid_number($target_indikator_renstra_1[0])+valid_number($target_indikator_renstra_2[0])+valid_number($target_indikator_renstra_3[0])+valid_number($target_indikator_renstra_4[0])+valid_number($target_indikator_renstra_5[0]);
-							if($rumus_indikator == 1){
-								$total_target_renstra[$k_sub] = $total_target_renstra[$k_sub];
-							}else if($rumus_indikator == 2){
-								$total_target_renstra[$k_sub] = valid_number($target_indikator_renstra_5[0]);
-							}else if($rumus_indikator == 3){
-								$total_target_renstra[$k_sub] = valid_number($target_indikator_renstra_5[0]);
-							}
-							$pagu_1 = explode(' ', $v['pagu_1']);
-							$pagu_2 = explode(' ', $v['pagu_2']);
-							$pagu_3 = explode(' ', $v['pagu_3']);
-							$pagu_4 = explode(' ', $v['pagu_4']);
-							$pagu_5 = explode(' ', $v['pagu_5']);
-							$total_pagu_renstra_renja[$k_sub] = $pagu_1[0]+$pagu_2[0]+$pagu_3[0]+$pagu_4[0]+$pagu_5[0];
-							$total_target_renstra_text[$k_sub] = '<span class="total_target_renstra" data-id="'.$k_sub.'">'.number_format($total_target_renstra[$k_sub],2,",",".").'</span>';
-							$satuan_renstra[$k_sub] = '<span class="satuan_renstra" data-id="'.$k_sub.'">'.$v['satuan'].'</span>';
-							$total_pagu_renstra_renja[$k_sub] = '<span class="monev_total_renstra" data-id="'.$k_sub.'">'.number_format($total_pagu_renstra_renja[$k_sub],0,",",".").'</span>';
-						}
-					}
-				}
-				$total_target_renstra_text = implode('<br>', $total_target_renstra_text);
-				$satuan_renstra = implode('<br>', $satuan_renstra);
-				$total_pagu_renstra_renja = implode('<br>', $total_pagu_renstra_renja);
-				$renstra_sasaran = implode('<br>', $renstra_sasaran).' <ul class="indikator_renstra">'.implode('', $renstra_indikator).'</ul>';
-				$renstra_tujuan = implode('<br>', $renstra_tujuan);
+				$data_renstra = $this->get_indikator_renstra_renja(array(
+					'renstra' => $renstra,
+					'type' => 'kegiatan',
+					'renja' => $giat,
+					'default_satuan_renstra' => $satuan_output_giat,
+					'tahun_renstra' => $tahun_renstra
+				));
 				$body_monev .= '
 					<tr class="kegiatan" data-kode="'.$kd_urusan.'.'.$kd_bidang.'.'.$kd_program.'.'.$kd_giat.'" data-kode_giat="'.$kd_giat1.'" data-bidang-urusan="'.$giat['kode_urusan_bidang'].'">
 			            <td class="kiri kanan bawah text_blok">'.$no_program.'.'.$no_kegiatan.'</td>
-			            <td class="kanan bawah text_blok">'.$renstra_tujuan.'</td>
-			            <td class="kanan bawah text_blok">'.$renstra_sasaran.'</td>
+			            <td class="kanan bawah text_blok">'.$data_renstra['renstra_tujuan'].'</td>
+			            <td class="kanan bawah text_blok">'.$data_renstra['renstra_sasaran'].'</td>
 			            <td class="kanan bawah text_blok">'.$kd_giat1.'</td>
 			            <td class="kanan bawah text_blok nama"><a href="'.$link.'" target="_blank">'.$giat['nama'].'</a></td>
 			            <td class="kanan bawah text_blok indikator">'.$output_giat.'</td>
-			            <td class="text_tengah kanan bawah text_blok total_renstra">'.$total_target_renstra_text.'</td>
-			            <td class="text_tengah kanan bawah text_blok total_renstra">'.$satuan_renstra.'</td>
-			            <td class="text_kanan kanan bawah text_blok total_renstra">'.$total_pagu_renstra_renja.'</td>
+			            <td class="text_tengah kanan bawah text_blok total_renstra">'.$data_renstra['total_target_renstra_text'].'</td>
+			            <td class="text_tengah kanan bawah text_blok total_renstra">'.$data_renstra['satuan_renstra'].'</td>
+			            <td class="text_kanan kanan bawah text_blok total_renstra">'.$data_renstra['total_pagu_renstra_renja'].'</td>
 			            <td class="text_tengah kanan bawah text_blok realisasi_renstra_tahun_lalu">'.$total_realisasi_target_renstra_tahun_lalu.'</td>
-			            <td class="text_tengah kanan bawah text_blok realisasi_renstra_tahun_lalu">'.$satuan_output_giat.'</td>
+			            <td class="text_tengah kanan bawah text_blok realisasi_renstra_tahun_lalu">'.$data_renstra['satuan_renstra'].'</td>
 			            <td class="text_kanan kanan bawah text_blok realisasi_renstra_tahun_lalu">'.$total_realisasi_pagu_renstra_tahun_lalu.'</td>
 			            <td class="text_tengah kanan bawah text_blok total_renja target_indikator">'.$target_output_giat.'</td>
 			            <td class="text_tengah kanan bawah text_blok total_renja satuan_indikator">'.$satuan_output_giat.'</td>
@@ -839,7 +743,7 @@ foreach ($data_all['data'] as $kd_urusan => $urusan) {
 			            <td class="text_tengah kanan bawah text_blok capaian_renja">'.$capaian_realisasi_indikator.'</td>
 			            <td class="text_kanan kanan bawah text_blok capaian_renja">'.$capaian.'</td>
 			            <td class="text_tengah kanan bawah text_blok realisasi_renstra_tahun_berjalan">'.$total_realisasi_target_renstra_tahun_berjalan.'</td>
-			            <td class="text_tengah kanan bawah text_blok realisasi_renstra_tahun_berjalan">'.$satuan_output_giat.'</td>
+			            <td class="text_tengah kanan bawah text_blok realisasi_renstra_tahun_berjalan">'.$data_renstra['satuan_renstra'].'</td>
 			            <td class="text_kanan kanan bawah text_blok realisasi_renstra_tahun_berjalan">'.$total_realisasi_pagu_renstra_tahun_berjalan.'</td>
 			            <td class="text_tengah kanan bawah text_blok capaian_renstra_tahun_berjalan"></td>
 			            <td class="text_kanan kanan bawah text_blok capaian_renstra_tahun_berjalan"></td>
@@ -1217,6 +1121,11 @@ foreach ($monev_triwulan as $k => $v) {
 	$monev_triwulan_all[$v['triwulan']]['update_skpd_at'] = $v['update_skpd_at'];
 }
 ?>
+<style type="text/css">
+	#monev-body-renstra {
+		word-break: break-word;
+	}
+</style>
 <div class="hide-print" style="margin: auto; max-width: 1200px;">
 	<h4 style="text-align: center; margin: 30px 0 10px; font-weight: bold;">Data File MONEV Indikator RENJA Tahun <?php echo $input['tahun_anggaran']; ?></h4>
 	<table class="table table-bordered" id="data-file-monev">
@@ -1295,6 +1204,11 @@ foreach ($monev_triwulan as $k => $v) {
 		<li>Tekan tombol (X) untuk menghapus file .xlsx (excel)</li>
 		<li>Tekan tombol checklist berwarna biru untuk menyimpan data File MONEV</li>
 		<li>Pagu program, kegiatan dan sub kegiatan RENJA diambil dari nilai DPA terakhir di SIMDA jika pengaturan cara input realisasi disetting <b>otomatis ambil dari SIMDA</b>. Jika pengaturan cara input realisasi disetting <b>manual</b> maka pagu program, kegiatan dan sub kegiatan diambil dari nilai RKA terakhir di sipd.kemendagri.go.id</li>
+		<li>Untuk kolom <b>Realisasi Capaian Kinerja Renstra SKPD sampai dengan Renja SKPD Tahun Lalu</b> perlu diisi manual dengan mendownload laporan excel terlebih dulu. Untuk kolom <b>satuan</b> sudah otomatis mengikuti satuan dari indikator RENSTRA</li>
+		<li>Untuk kolom nomor 6 <b>Realisasi Capaian Kinerja Renstra SKPD sampai dengan Renja SKPD Tahun Lalu</b> perlu diisi manual dengan mendownload laporan excel terlebih dulu. Sedangkan kolom <b>satuan</b> sudah otomatis mengikuti satuan dari indikator RENSTRA</li>
+		<li>Untuk kolom nomor 14 <b>Realisasi Kinerja dan Anggaran Renstra SKPD s/d Tahun 2021 (Akhir Tahun Pelaksanaan Renja SKPD)</b> perlu diisi manual dengan mendownload laporan excel terlebih dulu. Sedangkan kolom <b>satuan</b> sudah otomatis mengikuti satuan dari indikator RENSTRA</li>
+		<li>Untuk kolom nomor 15 <b>Tingkat Capaian Kinerja dan Realisasi Anggaran Renstra SKPD s/d tahun 2021 (%)</b> juga diisi manual karena isianya dalah rumus dari kolom <b>14/5x100</b></li>
+		<li>Jika target indikator RENSTRA bertipe string/karakter maka total target adalah tahun ke 5. Tidak diakumulasikan seperti ketika tipenya interger/angka.</li>
 	</ul>
 </div>
 <div class="modal fade" id="mod-monev" tabindex="-1" role="dialog" data-backdrop="static" aria-hidden="true">'
@@ -1749,8 +1663,15 @@ foreach ($monev_triwulan as $k => $v) {
 			          			var target_2 = +tr_modal.find('td.target_renstra_2').text().replace(/,/g, '.').trim();
 			          			var target_3 = +tr_modal.find('td.target_renstra_3').text().replace(/,/g, '.').trim();
 			          			var target_4 = +tr_modal.find('td.target_renstra_4').text().replace(/,/g, '.').trim();
-			          			var target_5 = +tr_modal.find('td.target_renstra_5').text().replace(/,/g, '.').trim();
+			          			var target_5_asli = tr_modal.find('td.target_renstra_5').text().replace(/,/g, '.').trim();
+			          			var target_5 = +target_5_asli;
 			          			var total_target_renstra = target_1+target_2+target_3+target_4+target_5;
+
+			          			// cek jika type target bukan interger
+			          			if(isNaN(target_5) || isNaN(total_target_renstra)){
+			          				target_5 = target_5_asli;
+			          				total_target_renstra = target_5;
+			          			}
 			          			if(tipe_indikator == 2){
 			          				total_target_renstra = target_5;
 			          			}else if(tipe_indikator == 3){

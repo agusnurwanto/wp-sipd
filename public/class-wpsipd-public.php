@@ -6529,4 +6529,144 @@ class Wpsipd_Public
 		}
 		echo json_encode($return);exit();
 	}
+
+	public function valid_number($no){
+		$no = str_replace(array(','), array('.'), $no);
+		return $no;
+	}
+
+	public function get_indikator_renstra_renja($options){
+		$renstra = $options['renstra'];
+		$renja = $options['renja'];
+		$type = $options['type'];
+		$ret['renstra_sasaran'] = array();
+		$ret['renstra_tujuan'] = array();
+		$ret['renstra_indikator'] = array();
+		$ret['total_pagu_renstra'] = array();
+		$ret['total_target_renstra'] = array();
+		$ret['total_pagu_renstra_renja'] = array();
+		$ret['total_target_renstra_text'] = array();
+		foreach ($renja['indikator'] as $k_sub => $v_sub) {
+			$ret['total_target_renstra_text'][$k_sub] = '<span class="total_target_renstra" data-id="'.$k_sub.'">0</span>';
+			$ret['total_pagu_renstra_renja'][$k_sub] = '<span class="monev_total_renstra" data-id="'.$k_sub.'">0</span>';
+			if($options['type'] == 'kegiatan'){
+				$ret['satuan_renstra'][$k_sub] = '<span class="satuan_renstra" data-id="'.$k_sub.'">'.$v_sub['satuanoutput'].'</span>';
+			}else if($options['type'] == 'program'){
+				$ret['satuan_renstra'][$k_sub] = '<span class="satuan_renstra" data-id="'.$k_sub.'">'.$v_sub['satuancapaian'].'</span>';
+			}
+		}
+
+		foreach ($renstra as $k => $v) {
+			$sasaran_teks = explode('||', $v['sasaran_teks']);
+			$tujuan_teks = explode('||', $v['tujuan_teks']);
+			if($options['type'] == 'kegiatan'){
+				$ret['renstra_sasaran'][0] = '<span class="renstra_kegiatan">'.$sasaran_teks[0].'</span>';
+				$ret['renstra_tujuan'][0] = '<span class="renstra_kegiatan">'.$tujuan_teks[0].'</span>';
+			}else if($options['type'] == 'program'){
+				$ret['renstra_sasaran'][0] = $sasaran_teks[0];
+				$ret['renstra_tujuan'][0] = $tujuan_teks[0];
+			}
+			$target_indikator_renstra_1 = explode(' ', $v['target_1']);
+			$target_indikator_renstra_2 = explode(' ', $v['target_2']);
+			$target_indikator_renstra_3 = explode(' ', $v['target_3']);
+			$target_indikator_renstra_4 = explode(' ', $v['target_4']);
+			$target_indikator_renstra_5 = explode(' ', $v['target_5']);
+			$pagu_1 = explode(' ', $v['pagu_1']);
+			$pagu_2 = explode(' ', $v['pagu_2']);
+			$pagu_3 = explode(' ', $v['pagu_3']);
+			$pagu_4 = explode(' ', $v['pagu_4']);
+			$pagu_5 = explode(' ', $v['pagu_5']);
+			$ret['total_pagu_renstra'][$k] = $pagu_1[0]+$pagu_2[0]+$pagu_3[0]+$pagu_4[0]+$pagu_5[0];
+
+			// debug RENSTRA
+			$ret['renstra_indikator'][] = '<li data-id='.$v['id_unik_indikator'].'><span class="indikator_renstra_text_hide">'.$v['indikator'].'</span> <span class="target_indikator_renstra_text_hide">'.$target_indikator_renstra_1[0].' | '.$target_indikator_renstra_2[0].' | '.$target_indikator_renstra_3[0].' | '.$target_indikator_renstra_4[0].' | '.$target_indikator_renstra_5[0].'</span> <span class="satuan_indikator_renstra_text_hide">'.$v['satuan'].'</span> (Rp <span class="pagu_indikator_renstra_text_hide">'.number_format($v['pagu_'.$options['tahun_renstra']],0,",",".").'</span> / Rp <span class="total_pagu_indikator_renstra_text_hide">'.number_format($ret['total_pagu_renstra'][$k],0,",",".").'</span>)</li>';
+
+			foreach ($renja['realisasi_indikator'] as $k_sub => $v_sub) {
+				$ret['total_target_renstra'][$k_sub] = 0;
+				if(
+					!empty($v_sub['id_unik_indikator_renstra']) 
+					&& $v_sub['id_unik_indikator_renstra'] == $v['id_unik_indikator']
+				){
+					$rumus_indikator = $v_sub['id_rumus_indikator'];
+					if(empty($v['satuan'])){
+						if($options['type'] == 'kegiatan'){
+							$v['satuan'] = $v_sub['satuanoutput'];
+						}else if($options['type'] == 'program'){
+							$v['satuan'] = $v_sub['satuancapaian'];
+						}
+					}
+					$cek_string = false;
+					$target_renstra_1 = $this->valid_number($target_indikator_renstra_1[0]);
+					if(!is_numeric($target_renstra_1)){
+						$cek_string = true;
+					}else{
+						$ret['total_target_renstra'][$k_sub] += $target_renstra_1;
+					}
+					$target_renstra_2 = $this->valid_number($target_indikator_renstra_2[0]);
+					if(!is_numeric($target_renstra_2)){
+						$cek_string = true;
+					}else{
+						$ret['total_target_renstra'][$k_sub] += $target_renstra_2;
+					}
+					$target_renstra_3 = $this->valid_number($target_indikator_renstra_3[0]);
+					if(!is_numeric($target_renstra_3)){
+						$cek_string = true;
+					}else{
+						$ret['total_target_renstra'][$k_sub] += $target_renstra_3;
+					}
+					$target_renstra_4 = $this->valid_number($target_indikator_renstra_4[0]);
+					if(!is_numeric($target_renstra_4)){
+						$cek_string = true;
+					}else{
+						$ret['total_target_renstra'][$k_sub] += $target_renstra_4;
+					}
+					$target_renstra_5 = $this->valid_number($target_indikator_renstra_5[0]);
+					if(!is_numeric($target_renstra_5)){
+						$cek_string = true;
+					}else{
+						$ret['total_target_renstra'][$k_sub] += $target_renstra_5;
+					}
+
+					if($rumus_indikator == 1){
+						if($cek_string){
+							$ret['total_target_renstra'][$k_sub] = $target_indikator_renstra_5[0];
+						}else{
+							$ret['total_target_renstra'][$k_sub] = number_format($ret['total_target_renstra'][$k_sub],2,",",".");
+						}
+					}else if($rumus_indikator == 2){
+						if($cek_string){
+							$ret['total_target_renstra'][$k_sub] = $target_indikator_renstra_5[0];
+						}else{
+							$ret['total_target_renstra'][$k_sub] = number_format($this->valid_number($target_indikator_renstra_5[0]),2,",",".");
+						}
+					}else if($rumus_indikator == 3){
+						if($cek_string){
+							$ret['total_target_renstra'][$k_sub] = $target_indikator_renstra_5[0];
+						}else{
+							$ret['total_target_renstra'][$k_sub] = number_format($this->valid_number($target_indikator_renstra_5[0]),2,",",".");
+						}
+					}
+					$pagu_1 = explode(' ', $v['pagu_1']);
+					$pagu_2 = explode(' ', $v['pagu_2']);
+					$pagu_3 = explode(' ', $v['pagu_3']);
+					$pagu_4 = explode(' ', $v['pagu_4']);
+					$pagu_5 = explode(' ', $v['pagu_5']);
+					$ret['total_pagu_renstra_renja'][$k_sub] = $pagu_1[0]+$pagu_2[0]+$pagu_3[0]+$pagu_4[0]+$pagu_5[0];
+					$ret['total_target_renstra_text'][$k_sub] = '<span class="total_target_renstra" data-id="'.$k_sub.'">'.$ret['total_target_renstra'][$k_sub].'</span>';
+					$ret['satuan_renstra'][$k_sub] = '<span class="satuan_renstra" data-id="'.$k_sub.'">'.$v['satuan'].'</span>';
+					$ret['total_pagu_renstra_renja'][$k_sub] = '<span class="monev_total_renstra" data-id="'.$k_sub.'">'.number_format($ret['total_pagu_renstra_renja'][$k_sub],0,",",".").'</span>';
+				}
+			}
+		}
+		$ret['total_target_renstra_text'] = implode('<br>', $ret['total_target_renstra_text']);
+		if(empty($ret['satuan_renstra'])){
+			$ret['satuan_renstra'] = str_replace('data-id="', 'class="mod_total_renstra" data-id="', $options['default_satuan_renstra']);
+		}else{
+			$ret['satuan_renstra'] = implode('<br>', $ret['satuan_renstra']);
+		}
+		$ret['total_pagu_renstra_renja'] = implode('<br>', $ret['total_pagu_renstra_renja']);
+		$ret['renstra_sasaran'] = implode('<br>', $ret['renstra_sasaran']).' <ul class="indikator_renstra">'.implode('', $ret['renstra_indikator']).'</ul>';
+		$ret['renstra_tujuan'] = implode('<br>', $ret['renstra_tujuan']);
+		return $ret;
+	}
 }
