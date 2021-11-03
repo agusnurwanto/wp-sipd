@@ -1535,6 +1535,7 @@ foreach ($data_all['data'] as $key => $tujuan)
             	<form>
             		<input type="hidden" id="id_indikator">
             		<input type="hidden" id="type_indikator">
+            		<input type="hidden" id="target_indikator">
                   	<div class="form-group">
                   		<table class="table table-bordered">
                   			<tbody>
@@ -1568,6 +1569,31 @@ foreach ($data_all['data'] as $key => $tujuan)
                   				<tr>
                   					<td colspan="2">
                   						<table>
+                  							<thead>
+                  								<tr>
+                  									<th class="text_tengah">Hitung Capaian Indikator</th>
+                  								</tr>
+                  							</thead>
+                  							<tbody>
+                  								<tr>
+                  									<td>
+				                  						<select style="width: 100%;" id="hitung_indikator">
+				                  							<option value="1">Automatis</option>
+				                  							<option value="0">Manual</option>
+				                  						</select>
+				                  						<ul id="helptext_hitung_indikator" style="margin: 10px 0 0 30px;">
+				                  							<li data-id="1" style="display: none;">Capaian indikator dihitung secara otomatis oleh system</li>
+				                  							<li data-id="0" style="display: none;">Capaian indikator diisi manual</li>
+				                  						</ul>
+				                  					</td>
+                  								</tr>
+                  							</tbody>
+                  						</table>
+                  					</td>
+                  				</tr>
+                  				<tr>
+                  					<td colspan="2">
+                  						<table id="table_rumus_indikator">
                   							<thead>
                   								<tr>
                   									<th class="text_tengah">Pilih Rumus Indikator</th>
@@ -1608,9 +1634,10 @@ foreach ($data_all['data'] as $key => $tujuan)
                   							<tbody id="monev-body-realisasi-renstra"></tbody>
                   							<tfoot>
 												<tr>
-													<th colspan="2" class="text_kiri text_blok">Capaian target dihitung sesuai rumus indikator</th>
-													<th class="text_tengah text_blok" id="capaian_target_realisasi">0</th>
-													<th class="text_tengah text_blok"></th>
+													<td class="text_kiri text_blok">Capaian</td>
+													<td class="text_tengah text_blok" id="sum_realisasi_anggaran">0</td>
+													<td class="text_tengah text_blok" id="capaian_indikator"></td>
+													<td class="text_tengah text_blok"></td>
 												</tr>
                   							</tfoot>
                   						</table>
@@ -1683,6 +1710,14 @@ foreach ($data_all['data'] as $key => $tujuan)
 		jQuery('#rumus_indikator').on('click', function(){
 			setRumus(jQuery(this).val());
 		});
+		jQuery('#hitung_indikator').on('click', function(){
+			setHitungCapaian(jQuery(this).val());
+			if(jQuery(this).val()==1){
+				jQuery("#table_rumus_indikator").show();
+			}else{
+				jQuery("#table_rumus_indikator").hide();
+			}
+		});
 		jQuery('.edit-monev').on('click', function(){
 			jQuery('#wrap-loading').show();
 			var tr = jQuery(this).closest('tr');
@@ -1712,6 +1747,10 @@ foreach ($data_all['data'] as $key => $tujuan)
 					jQuery("#id_indikator").val(rinc_kode[2]);
 					jQuery("#type_indikator").val(rinc_kode[4]);
 					setRumus(res.rumus_indikator);
+					setHitungCapaian(res.hitung_indikator);
+					jQuery("#target_indikator").val(res.target_indikator);
+					jQuery("#sum_realisasi_anggaran").text(res.sum_realisasi_anggaran);
+					jQuery("#capaian_indikator").text(res.capaian_indikator);
 					jQuery('#modal-monev').modal('show');
 					jQuery('#wrap-loading').hide();
 				}
@@ -1740,6 +1779,7 @@ foreach ($data_all['data'] as $key => $tujuan)
 					'id_indikator' : jQuery("#id_indikator").val(),
 					'id_rumus_indikator' : jQuery("#rumus_indikator").val(),
 					'type_indikator' : jQuery("#type_indikator").val(),
+					'hitung_indikator' : jQuery("#hitung_indikator").val(),
 					'realisasi_anggaran':realisasi_anggaran,
 					'realisasi_target':realisasi_target,
 					'keterangan':keterangan,
@@ -1754,6 +1794,16 @@ foreach ($data_all['data'] as $key => $tujuan)
 		})
 	});
 
+	jQuery("#rumus_indikator").on('change', function(){
+		var rumus = jQuery(this).val();
+
+		var total_realisasi_anggaran=0;
+		for (var i = 1; i <= <?php echo $bulan; ?>; i++) {
+			total_realisasi_anggaran += parseInt(jQuery("#realisasi_anggaran_bulan_"+i).text());
+		}
+
+		console.log(total_realisasi_anggaran);
+	})
 	function edit_monev_indikator(that){
 		if(jQuery(that).is(':checked')){
 			jQuery('.edit-monev').show();
@@ -1763,9 +1813,76 @@ foreach ($data_all['data'] as $key => $tujuan)
 	}
 	function setRumus(id){
 		jQuery('#tipe_indikator').val(id);
-		jQuery('#helptext_tipe_indikator li').hide();
-		jQuery('#helptext_tipe_indikator li[data-id="'+id+'"]').show();
-		// setTotalMonev(false);
+		jQuery('#helptext_rumus_indikator li').hide();
+		jQuery('#helptext_rumus_indikator li[data-id="'+id+'"]').show();
+	}
+	function setHitungCapaian(id){
+		jQuery('#hitung_indikator').val(id);
+		jQuery('#helptext_hitung_indikator li').hide();
+		jQuery('#helptext_hitung_indikator li[data-id="'+id+'"]').show();
+	}
+	function setTotalMonev(){
+		var i = 1;
+		var total = 0;
+		jQuery("#monev-body-realisasi-renstra .realisasi_anggaran").map(function(){
+			if(i <= <?php echo $bulan; ?>){
+				total += parseInt(jQuery("#realisasi_anggaran_bulan_"+i).text());
+			}
+			i++;
+		})
+		jQuery("#sum_realisasi_anggaran").text(total);
+	}
+	function setCapaianMonev(that){
+
+		var hitung = jQuery("#hitung_indikator").val();
+		var target_indikator = +jQuery('#target_indikator').text();
+		var rumus_indikator = jQuery('#rumus_indikator').val();
+		var target_indikator = jQuery("#target_indikator").val();
+		var target = target_indikator.split(" ");
+
+		if(hitung==1){
+			if(rumus_indikator == 3 && that){
+				var id = jQuery(that).attr('id');
+				var bulan = +id.replace('realisasi_target_bulan_', '');
+				if(bulan > 1){
+					var val_bulan_sebelumnya = +jQuery('#realisasi_target_bulan_'+(bulan-1)).text();
+					var val = jQuery(that).text();
+					if(val < val_bulan_sebelumnya && val > 0){
+						jQuery(that).text(val_bulan_sebelumnya);
+						alert('Untuk rumus indikator persentasi, nilai target tidak boleh lebih kecil dari bulan sebelumnya!');
+					}
+				}
+			}
+			var realisasi = 0;
+			var target_batas_bulan_input = 0;
+			var bulan = 0;
+			jQuery('#monev-body-realisasi-renstra .realisasi_target_bulanan').map(function(){
+				bulan++;
+				var realisasi_target_bulanan = +jQuery(this).text();
+				realisasi += realisasi_target_bulanan;
+				if(<?php echo $bulan; ?> == bulan){
+					target_batas_bulan_input = realisasi_target_bulanan;
+				}
+			});
+			
+			var capaian = 0;
+			if(rumus_indikator == 1){
+				if(target[0] > 0){
+					capaian = Math.round((realisasi/target[0])*10000)/100;
+				}
+			}else if(rumus_indikator == 2){
+				realisasi = target_batas_bulan_input;
+				if(realisasi > 0){
+					capaian = Math.round((target[0]/realisasi)*10000)/100;
+				}
+			}else if(rumus_indikator == 3){
+				realisasi = target_batas_bulan_input;
+				if(target[0] > 0){
+					capaian = Math.round((realisasi/target[0])*10000)/100;
+				}
+			}
+			jQuery("#capaian_indikator").text(capaian);
+		}
 	}
 	function sembunyikan_baris(that){
 		var val = jQuery(that).val();

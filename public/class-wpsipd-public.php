@@ -6450,16 +6450,17 @@ class Wpsipd_Public
 				$indikator = '';
 				$body_renstra = '';
 				$rumus_indikator = 1;
+				$hitung_indikator = 1;
+				$target_indikator = 0;
+				$capaian_indikator = 0;
+				$sum_realisasi_anggaran = 0;
 				$body_realisasi_renstra = '';
 				switch ($_POST['type_indikator']) {
-
-					// indikator kegiatan
 					case '4':
 						$indikator = $wpdb->get_results($wpdb->prepare("select * from data_renstra_kegiatan where active=1 and id=%d and id_unit=%d and tahun_anggaran=%d",
 						$_POST['id'], $_POST['id_skpd'], $_POST['tahun_anggaran']), ARRAY_A);
 						break;
 
-					// indikator program
 					case '3':
 						$indikator = $wpdb->get_results($wpdb->prepare("select * from data_renstra_program where active=1 and id=%d and id_unit=%d and tahun_anggaran=%d",
 						$_POST['id'], $_POST['id_skpd'], $_POST['tahun_anggaran']), ARRAY_A);
@@ -6483,11 +6484,15 @@ class Wpsipd_Public
 								<td>'.$value['target_5'].'</td>
 								<td>'.$value['satuan'].'</td>
 								<td colspan="2">Rp. '.number_format($value['pagu_'.$_POST['urut']], 2, ',', '.').'</td>
-								</tr>';	
+							</tr>';
+						$target_indikator = $value['target_'.$_POST['urut']];
 					}
 
 					if(!empty($indikator['id_rumus_indikator'])){
 						$rumus_indikator = $indikator['id_rumus_indikator'];
+					}
+					if(!empty($indikator['hitung_indikator'])){
+						$hitung_indikator = $indikator['hitung_indikator'];
 					}
 
 					$realisasi_renstra = $wpdb->get_row($wpdb->prepare("select * from data_realisasi_renstra where id_indikator=%d and type_indikator=%d and tahun_anggaran=%d", $_POST['id'], $_POST['type_indikator'], $_POST['tahun_anggaran']), ARRAY_A);
@@ -6502,13 +6507,18 @@ class Wpsipd_Public
 						$body_realisasi_renstra .='
 							<tr>
 								<td>'.$this->get_bulan($i).'</td>
-								<td contenteditable="'.$edited.'" id="realisasi_anggaran_bulan_'.$i.'">'.$realisasi_anggaran_bulanan.'</td>
-								<td contenteditable="'.$edited.'" id="realisasi_target_bulan_'.$i.'">'.$realisasi_target_bulanan.'</td>
-								<td contenteditable="'.$edited.'" id="keterangan_bulan_'.$i.'">'.$realisasi_renstra['keterangan_bulan_'.$i].'</td>
+								<td class="realisasi_anggaran" contenteditable="'.$edited.'" id="realisasi_anggaran_bulan_'.$i.'" style="text-align:right" onkeypress=onlyNumber(event) onkeyup=setTotalMonev()>'.number_format($realisasi_anggaran_bulanan,2,'.',',').'</td>
+								<td class="realisasi_target_bulanan" contenteditable="'.$edited.'" id="realisasi_target_bulan_'.$i.'" style="text-align:center" onkeypress=onlyNumber(event) onkeyup=setCapaianMonev(this)>'.$realisasi_target_bulanan.'</td>
+								<td contenteditable="'.$edited.'" id="keterangan_bulan_'.$i.'" style="text-align:left">'.$realisasi_renstra['keterangan_bulan_'.$i].'</td>
 							</tr>';
+						$sum_realisasi_anggaran += $realisasi_anggaran_bulanan;
 					}
 
 					$return['rumus_indikator'] = $rumus_indikator;
+					$return['hitung_indikator'] = $hitung_indikator;
+					$return['target_indikator'] = $target_indikator;
+					$return['sum_realisasi_anggaran'] = number_format($sum_realisasi_anggaran,2,'.',',');
+					$return['capaian_indikator'] = !empty($realisasi_renstra['capaian_bulan_'.$_POST['bulan']]) ? $realisasi_renstra['capaian_bulan_'.$_POST['bulan']] : 0;
 					$return['body_renstra'] = $body_renstra;
 					$return['body_realisasi_renstra'] = $body_realisasi_renstra;
 				}
@@ -6539,6 +6549,8 @@ class Wpsipd_Public
 					'id_indikator' => $_POST['id_indikator'],
 					'id_rumus_indikator' => $_POST['id_rumus_indikator'],
 					'type_indikator' => $_POST['type_indikator'],
+					'type_indikator' => $_POST['type_indikator'],
+					'hitung_indikator' => $_POST['hitung_indikator'],
 					'realisasi_bulan_1' => $_POST['realisasi_target']['realisasi_target_bulan_1'],
 					'realisasi_bulan_2' => $_POST['realisasi_target']['realisasi_target_bulan_2'],
 					'realisasi_bulan_3' => $_POST['realisasi_target']['realisasi_target_bulan_3'],
