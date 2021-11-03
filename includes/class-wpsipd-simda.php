@@ -1136,7 +1136,7 @@ class Wpsipd_Simda
 										$kd_keg = $mapping[0]->kd_keg;
 										foreach ($this->custom_mapping as $c_map_k => $c_map_v) {
 											if(
-												$_POST['kode_skpd'] == $c_map_v['sipd']['kode_skpd']
+												$_POST['data_unit']['kodeunit'] == $c_map_v['sipd']['kode_skpd']
 												&& $v['kode_sub_giat'] == $c_map_v['sipd']['kode_sub_keg']
 											){
 												$kd_unit_simda_map = explode('.', $c_map_v['simda']['kode_skpd']);
@@ -2328,8 +2328,7 @@ class Wpsipd_Simda
 
     function cekKegiatanMapping($options){
     	// print_r($options); die();
-		$mapping = $this->CurlSimda(array(
-			'query' => "
+		$sql =  "
 				SELECT 
 					* 
 				from ref_kegiatan_mapping
@@ -2337,7 +2336,10 @@ class Wpsipd_Simda
                     .' and kd_bidang90='.$options['kd_bidang90']
                     .' and kd_program90='.$options['kd_program90']
                     .' and kd_kegiatan90='.$options['kd_kegiatan90']
-                    .' and kd_sub_kegiatan='.$options['kd_sub_kegiatan']
+                    .' and kd_sub_kegiatan='.$options['kd_sub_kegiatan'];
+		// echo $sql;
+		$mapping = $this->CurlSimda(array(
+			'query' => $sql
 		), false, false);
 		if(
 			empty($mapping)
@@ -2396,22 +2398,34 @@ class Wpsipd_Simda
 				$kd_prog = $mapping_prog[0]->kd_prog;
 			}
 			$kd_keg = 150+$options['kd_sub_kegiatan'];
-			$this->CurlSimda(array(
+			$mapping_keg = $this->CurlSimda(array(
 				'query' => "
-					INSERT INTO ref_kegiatan (
-						kd_urusan,
-						kd_bidang,
-						kd_prog,
-						kd_keg,
-						ket_kegiatan
-					) VALUES (
-						".$ref_bidang_mapping[0]->kd_urusan.",
-						".$ref_bidang_mapping[0]->kd_bidang.",
-						".$kd_prog.",
-						".$kd_keg.",
-						'".str_replace("'", '`', substr($options['nama_kegiatan'], 0, 255))."'
-					)"
+					SELECT 
+						* 
+					from ref_kegiatan
+					where kd_urusan=".$ref_bidang_mapping[0]->kd_urusan
+	                    .' and kd_bidang='.$ref_bidang_mapping[0]->kd_bidang
+	                    .' and kd_prog='.$kd_prog
+	                    .' and kd_keg='.$kd_keg
 			));
+			if(empty($mapping_keg)){
+				$this->CurlSimda(array(
+					'query' => "
+						INSERT INTO ref_kegiatan (
+							kd_urusan,
+							kd_bidang,
+							kd_prog,
+							kd_keg,
+							ket_kegiatan
+						) VALUES (
+							".$ref_bidang_mapping[0]->kd_urusan.",
+							".$ref_bidang_mapping[0]->kd_bidang.",
+							".$kd_prog.",
+							".$kd_keg.",
+							'".str_replace("'", '`', substr($options['nama_kegiatan'], 0, 255))."'
+						)"
+				));
+			}
 			$ref_bidang = $this->CurlSimda(array(
 				'query' => "
 					SELECT 
@@ -2431,44 +2445,71 @@ class Wpsipd_Simda
 			$kd_sub_fungsi = $ref_sub_fungsi90[0]->kd_sub_fungsi;
 
 			// perlu insert ke ref_program90 juga sepertinya
-			$this->CurlSimda(array(
+			$mapping_keg90 = $this->CurlSimda(array(
 				'query' => "
-					INSERT INTO ref_kegiatan90 (
-						kd_urusan,
-						kd_bidang,
-						kd_program,
-						kd_kegiatan,
-						nm_kegiatan,
-						kd_fungsi,
-						kd_sub_fungsi
-					) VALUES (
-						".$options['kd_urusan90'].",
-						".$options['kd_bidang90'].",
-						".$options['kd_program90'].",
-						".$options['kd_kegiatan90'].",
-						'".str_replace("'", '`', substr($options['nama_program'], 0, 255))."',
-						".$kd_fungsi.",
-						".$kd_sub_fungsi."
-					)"
+					SELECT 
+						* 
+					from ref_kegiatan90
+					where kd_urusan=".$options['kd_urusan90']
+	                    .' and kd_bidang='.$options['kd_bidang90']
+	                    .' and kd_program='.$options['kd_program90']
+	                    .' and kd_kegiatan='.$options['kd_kegiatan90']
+						.' and kd_fungsi='.$kd_fungsi
+						.' and kd_sub_fungsi='.$kd_sub_fungsi
 			));
-			$this->CurlSimda(array(
+			if(empty($mapping_keg90)){
+				$this->CurlSimda(array(
+					'query' => "
+						INSERT INTO ref_kegiatan90 (
+							kd_urusan,
+							kd_bidang,
+							kd_program,
+							kd_kegiatan,
+							nm_kegiatan,
+							kd_fungsi,
+							kd_sub_fungsi
+						) VALUES (
+							".$options['kd_urusan90'].",
+							".$options['kd_bidang90'].",
+							".$options['kd_program90'].",
+							".$options['kd_kegiatan90'].",
+							'".str_replace("'", '`', substr($options['nama_program'], 0, 255))."',
+							".$kd_fungsi.",
+							".$kd_sub_fungsi."
+						)"
+				));
+			}
+			$mapping_sub_keg90 = $this->CurlSimda(array(
 				'query' => "
-					INSERT INTO ref_sub_kegiatan90 (
-						kd_urusan,
-						kd_bidang,
-						kd_program,
-						kd_kegiatan,
-						kd_sub_kegiatan,
-						nm_sub_kegiatan
-					) VALUES (
-						".$options['kd_urusan90'].",
-						".$options['kd_bidang90'].",
-						".$options['kd_program90'].",
-						".$options['kd_kegiatan90'].",
-						".$options['kd_sub_kegiatan'].",
-						'".str_replace("'", '`', substr($options['nama_kegiatan'], 0, 255))."'
-					)"
+					SELECT 
+						* 
+					from ref_sub_kegiatan90
+					where kd_urusan=".$options['kd_urusan90']
+	                    .' and kd_bidang='.$options['kd_bidang90']
+	                    .' and kd_program='.$options['kd_program90']
+	                    .' and kd_kegiatan='.$options['kd_kegiatan90']
+						.' and kd_sub_kegiatan='.$options['kd_sub_kegiatan']
 			));
+			if(empty($mapping_sub_keg90)){
+				$this->CurlSimda(array(
+					'query' => "
+						INSERT INTO ref_sub_kegiatan90 (
+							kd_urusan,
+							kd_bidang,
+							kd_program,
+							kd_kegiatan,
+							kd_sub_kegiatan,
+							nm_sub_kegiatan
+						) VALUES (
+							".$options['kd_urusan90'].",
+							".$options['kd_bidang90'].",
+							".$options['kd_program90'].",
+							".$options['kd_kegiatan90'].",
+							".$options['kd_sub_kegiatan'].",
+							'".str_replace("'", '`', substr($options['nama_kegiatan'], 0, 255))."'
+						)"
+				));
+			}
 			$this->CurlSimda(array(
 				'query' => "
 					INSERT INTO ref_kegiatan_mapping (

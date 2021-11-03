@@ -4081,6 +4081,7 @@ class Wpsipd_Public
 			));
 		}else if(in_array("tapd_pp", $user_meta->roles)){
 			$this->pilih_tahun_anggaran();
+			$this->tampil_menu_rpjm();
 			if(empty($_GET) || empty($_GET['tahun'])){ return; }
 
 			$skpd_mitra = $wpdb->get_results("
@@ -4100,6 +4101,20 @@ class Wpsipd_Public
 		}else{
 			echo 'User ini tidak dapat akses halaman ini :)';
 		}
+	}
+
+	public function tampil_menu_rpjm(){
+		if(!empty($_GET) && !empty($_GET['tahun'])){
+			global $wpdb;
+			$tahun_aktif = $_GET['tahun'];
+			$custom_post = get_page_by_title('MONEV RPJM Pemerintah Daerah | '.$tahun_aktif);
+			$url_pemda = $this->get_link_post($custom_post);
+			echo '
+			<ul class="daftar-tahun text_tengah">
+				<a class="btn btn-danger" target="_blank" href="'.$url_pemda.'">MONEV RPJM</a>
+			</ul>';
+		}
+
 	}
 
 	public function pilih_tahun_anggaran(){
