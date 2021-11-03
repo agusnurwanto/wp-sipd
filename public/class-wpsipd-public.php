@@ -6879,14 +6879,14 @@ class Wpsipd_Public
 		global $wpdb;
 		$ret = array(
 			'status' => 'success',
-			'message' => 'Berhasil get RKA SIMDA!',
+			'message' => 'Berhasil get DPA SIMDA!',
 		);
 
 		if(!empty($_POST)){
 			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
 				$tahun_anggaran = $_POST['tahun_anggaran'];
 				$unit_simda = $this->get_ref_unit(array('tahun_anggaran' => $tahun_anggaran));
-				foreach ($_POST['id_skpd'] as $k => $v) {
+				foreach ($_POST['id_skpd'] as $id_skpd) {
 					$kd_unit_simda_asli = get_option('_crb_unit_'.$id_skpd);
 					$kd_unit_simda = explode('.', $kd_unit_simda_asli);
 					if(
@@ -6926,6 +6926,9 @@ class Wpsipd_Public
 					}else{
 						$ret['data'][$id_skpd] = 0;
 					}
+				}
+				foreach ($unit_simda as $k => $v) {
+					$ret['data_blm_singkron'][$k] = $v;
 				}
 			}else{
 				$ret = array(

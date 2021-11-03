@@ -100,6 +100,7 @@ foreach ($kode_rek as $rek) {
 					'type_belanja' => $type_belanja.' Tanpa Rincian',
 					'skpd' => $opd['nama_skpd'],
 					'id_skpd' => $opd['id_skpd'],
+					'kode_skpd' => $opd['kode_skpd'],
 					'update_at' => $update_at_tanpa_rinci['update_at'],
 					'total_murni' => $data_tanpa_rinci['total_murni'],
 					'total' => $data_tanpa_rinci['total'],
@@ -132,6 +133,7 @@ foreach ($kode_rek as $rek) {
 					'type_belanja' => $type_belanja.' Pagu SKPD',
 					'skpd' => $opd['nama_skpd'],
 					'id_skpd' => $opd['id_skpd'],
+					'kode_skpd' => $opd['kode_skpd'],
 					'update_at' => $update_at_pagu_unit['update_at'],
 					'total_murni' => $data_pagu_unit['total_murni'],
 					'total' => $data_pagu_unit['total'],
@@ -165,6 +167,7 @@ foreach ($kode_rek as $rek) {
 				'type_belanja' => $type_belanja,
 				'skpd' => $opd['nama_skpd'],
 				'id_skpd' => $opd['id_skpd'],
+				'kode_skpd' => $opd['kode_skpd'],
 				'update_at' => $update_at['update_at'],
 				'total_murni' => $data['total_murni'],
 				'total' => $data['total'],
@@ -178,11 +181,14 @@ $body = '';
 $no = 0;
 foreach ($data_body as $k => $data) {
 	$no++;
+	$nama_page = 'RFK '.$data['skpd'].' '.$data['kode_skpd'].' | '.$input['tahun_anggaran'];
+	$custom_post = get_page_by_title($nama_page, OBJECT, 'page');
+	$link = $this->get_link_post($custom_post);
 	$body .= '
 		<tr data-type-belanja="'.$data['rek'].'" data-id-skpd="'.$data['id_skpd'].'">
 			<td class="text-center">'.$no.'</td>
 			<td class="text-center">'.$data['type_belanja'].'</td>
-			<td>'.$data['skpd'].'</td>
+			<td><a href="'.$link.'" target="_blank">'.$data['skpd'].'</a></td>
 			<td class="text-center">'.$data['update_at'].'</td>
 			<td class="text-right">'.number_format($data['total_murni'],0,",",".").'</td>
 			<td class="text-right pagu_total">'.number_format($data['total'],0,",",".").'</td>
