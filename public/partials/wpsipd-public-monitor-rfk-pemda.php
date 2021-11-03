@@ -272,7 +272,7 @@ $body .='
 							SELECT 
 								IFNULL(SUM(k.pagu),0) pagu, 
 								IFNULL(SUM(k.pagu_simda),0) pagu_simda, 
-								IFNULL(SUM(d.realisasi_anggaran),0) realisasi_keuangan,
+								IFNULL(SUM(TRIM(d.realisasi_anggaran)+0),0) realisasi_keuangan,
 								IFNULL((SUM(d.realisasi_anggaran)/SUM(k.pagu_simda)*100),100) capaian,
 								e.rak,
 								e.realisasi_fisik,
