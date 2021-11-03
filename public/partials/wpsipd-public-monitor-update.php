@@ -209,7 +209,7 @@ foreach ($data_body as $k => $data) {
 					<th class="text-center">No</th>
 					<th class="text-center">Type Belanja</th>
 					<th class="text-center">Nama SKPD</th>
-					<th class="text-center">Last Syncrone</th>
+					<th class="text-center" style="width: 100px;">Last Syncrone</th>
 					<th class="text-center">Pagu Sebelum</th>
 					<th class="text-center">Pagu Terkini</th>
 					<th class="text-center rka_simda" style="display: none;">Pagu RKA SIMDA</th>
