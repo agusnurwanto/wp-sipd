@@ -6768,4 +6768,158 @@ class Wpsipd_Public
 		$ret['renstra_tujuan'] = implode('<br>', $ret['renstra_tujuan']);
 		return $ret;
 	}
+
+	public function get_ref_unit($options){
+		global $wpdb;
+		$tahun_anggaran = $options['tahun_anggaran'];
+		$sql = $wpdb->prepare("
+			SELECT 
+				*
+			FROM ref_sub_unit r"
+		);
+		$new_unit = array();
+		$unit_simda = $this->simda->CurlSimda(array('query' => $sql));
+		foreach ($unit_simda as $k => $v) {
+			$new_unit[$v->kd_urusan.'.'.$v->kd_bidang.'.'.$v->kd_unit.'.'.$v->kd_sub] = $v;
+		}
+		return $new_unit;
+	}
+
+	public function get_rka_simda(){
+		global $wpdb;
+		$ret = array(
+			'status' => 'success',
+			'message' => 'Berhasil get RKA SIMDA!',
+			'data'	=> array(),
+			'data_blm_singkron'	=> array()
+		);
+
+		if(!empty($_POST)){
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+				$tahun_anggaran = $_POST['tahun_anggaran'];
+				$unit_simda = $this->get_ref_unit(array('tahun_anggaran' => $tahun_anggaran));
+				foreach ($_POST['id_skpd'] as $id_skpd) {
+					$kd_unit_simda_asli = get_option('_crb_unit_'.$id_skpd);
+					$kd_unit_simda = explode('.', $kd_unit_simda_asli);
+					if(
+						!empty($kd_unit_simda) 
+						&& !empty($kd_unit_simda[3])
+					){
+						if(!empty($unit_simda[$kd_unit_simda_asli])){
+							unset($unit_simda[$kd_unit_simda_asli]);
+						}
+						$_kd_urusan = $kd_unit_simda[0];
+						$_kd_bidang = $kd_unit_simda[1];
+						$kd_unit = $kd_unit_simda[2];
+						$kd_sub_unit = $kd_unit_simda[3];
+						$sql = $wpdb->prepare("
+							SELECT 
+								SUM(r.total) as total
+							FROM ta_belanja_rinc_sub r
+							WHERE r.tahun = %d
+								AND r.kd_urusan = %d
+								AND r.kd_bidang = %d
+								AND r.kd_unit = %d
+								AND r.kd_sub = %d
+							", 
+							$tahun_anggaran, 
+							$_kd_urusan, 
+							$_kd_bidang, 
+							$kd_unit, 
+							$kd_sub_unit
+						);
+						$pagu = $this->simda->CurlSimda(array('query' => $sql));
+						if(!empty($pagu[0])){
+							$ret['data'][$id_skpd] = number_format($pagu[0]->total, 0, ",", ".");
+						}else{
+							$ret['data'][$id_skpd] = 0;
+						}
+					}else{
+						$ret['data'][$id_skpd] = 0;
+					}
+				}
+				foreach ($unit_simda as $k => $v) {
+					$ret['data_blm_singkron'][$k] = $v;
+				}
+			}else{
+				$ret = array(
+					'status' => 'error',
+					'message' => 'Apikey salah!',
+				);		
+			}
+		}else{
+			$ret = array(
+				'status' => 'error',
+				'message' => 'Format salah!',
+			);			
+		}
+		die(json_encode($ret));
+	}
+
+	function get_dpa_simda(){
+		global $wpdb;
+		$ret = array(
+			'status' => 'success',
+			'message' => 'Berhasil get RKA SIMDA!',
+		);
+
+		if(!empty($_POST)){
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+				$tahun_anggaran = $_POST['tahun_anggaran'];
+				$unit_simda = $this->get_ref_unit(array('tahun_anggaran' => $tahun_anggaran));
+				foreach ($_POST['id_skpd'] as $k => $v) {
+					$kd_unit_simda_asli = get_option('_crb_unit_'.$id_skpd);
+					$kd_unit_simda = explode('.', $kd_unit_simda_asli);
+					if(
+						!empty($kd_unit_simda) 
+						&& !empty($kd_unit_simda[3])
+					){
+						if(!empty($unit_simda[$kd_unit_simda_asli])){
+							unset($unit_simda[$kd_unit_simda_asli]);
+						}
+						$_kd_urusan = $kd_unit_simda[0];
+						$_kd_bidang = $kd_unit_simda[1];
+						$kd_unit = $kd_unit_simda[2];
+						$kd_sub_unit = $kd_unit_simda[3];
+						$sql = $wpdb->prepare("
+							SELECT 
+								SUM(r.total) as total
+							FROM ta_rask_arsip r
+							WHERE r.tahun = %d
+								AND r.kd_perubahan = (SELECT MAX(Kd_Perubahan) FROM Ta_Rask_Arsip)
+								AND r.kd_urusan = %d
+								AND r.kd_bidang = %d
+								AND r.kd_unit = %d
+								AND r.kd_sub = %d
+							", 
+							$tahun_anggaran, 
+							$_kd_urusan, 
+							$_kd_bidang, 
+							$kd_unit, 
+							$kd_sub_unit
+						);
+						$pagu = $this->simda->CurlSimda(array('query' => $sql));
+						if(!empty($pagu[0])){
+							$ret['data'][$id_skpd] = number_format($pagu[0]->total, 0, ",", ".");
+						}else{
+							$ret['data'][$id_skpd] = 0;
+						}
+					}else{
+						$ret['data'][$id_skpd] = 0;
+					}
+				}
+			}else{
+				$ret = array(
+					'status' => 'error',
+					'message' => 'Apikey salah!',
+				);		
+			}
+		}else{
+			$ret = array(
+				'status' => 'error',
+				'message' => 'Format salah!',
+			);			
+		}
+		die(json_encode($ret));
+	}
 }
