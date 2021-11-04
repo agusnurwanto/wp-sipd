@@ -527,10 +527,14 @@ $type = 'murni';
 if(!empty($_GET) && !empty($_GET['type'])){
     $type = $_GET['type'];
 }
-$skpd_induk = $wpdb->get_results('SELECT id_skpd FROM `data_unit` where idinduk='.$input['id_skpd'].' and tahun_anggaran='.$input['tahun_anggaran'].' and active=1', ARRAY_A);
 $id_skpd_all = array();
-foreach ($skpd_induk as $k => $v) {
-    $id_skpd_all[] = $v['id_skpd'];
+if($skpd['is_skpd'] == 1){
+    $skpd_induk = $wpdb->get_results('SELECT id_skpd FROM `data_unit` where idinduk='.$input['id_skpd'].' and tahun_anggaran='.$input['tahun_anggaran'].' and active=1', ARRAY_A);
+    foreach ($skpd_induk as $k => $v) {
+        $id_skpd_all[] = $v['id_skpd'];
+    }
+}else{
+    $id_skpd_all[0] = $input['id_skpd'];
 }
 
 $sql = $wpdb->prepare("
