@@ -6491,12 +6491,12 @@ class Wpsipd_Public
 				$body_realisasi_renstra = '';
 				switch ($_POST['type_indikator']) {
 					case '4':
-						$indikator = $wpdb->get_results($wpdb->prepare("select * from data_renstra_kegiatan where active=1 and id=%d and id_unit=%d and tahun_anggaran=%d",
+						$indikator = $wpdb->get_row($wpdb->prepare("select * from data_renstra_kegiatan where active=1 and id=%d and id_unit=%d and tahun_anggaran=%d",
 						$_POST['id'], $_POST['id_skpd'], $_POST['tahun_anggaran']), ARRAY_A);
 						break;
 
 					case '3':
-						$indikator = $wpdb->get_results($wpdb->prepare("select * from data_renstra_program where active=1 and id=%d and id_unit=%d and tahun_anggaran=%d",
+						$indikator = $wpdb->get_row($wpdb->prepare("select * from data_renstra_program where active=1 and id=%d and id_unit=%d and tahun_anggaran=%d",
 						$_POST['id'], $_POST['id_skpd'], $_POST['tahun_anggaran']), ARRAY_A);
 						break;
 					
@@ -6507,52 +6507,47 @@ class Wpsipd_Public
 				}
 
 				if(!empty($indikator)){
-					foreach ($indikator as $key => $value) {
-						$body_renstra .='
+					$body_renstra .='
 							<tr>
-								<td colspan="2">'.$value['indikator'].'</td>
-								<td>'.$value['target_1'].'</td>
-								<td>'.$value['target_2'].'</td>
-								<td>'.$value['target_3'].'</td>
-								<td>'.$value['target_4'].'</td>
-								<td>'.$value['target_5'].'</td>
-								<td>'.$value['satuan'].'</td>
-								<td colspan="2">Rp. '.number_format($value['pagu_'.$_POST['urut']], 2, ',', '.').'</td>
+								<td colspan="2">'.$indikator['indikator'].'</td>
+								<td>'.$indikator['target_1'].'</td>
+								<td>'.$indikator['target_2'].'</td>
+								<td>'.$indikator['target_3'].'</td>
+								<td>'.$indikator['target_4'].'</td>
+								<td>'.$indikator['target_5'].'</td>
+								<td>'.$indikator['satuan'].'</td>
+								<td colspan="2">Rp. '.number_format($indikator['pagu_'.$_POST['urut']], 2, ',', '.').'</td>
 							</tr>';
-						$target_indikator = $value['target_'.$_POST['urut']];
-					}
-
-					if(!empty($indikator['id_rumus_indikator'])){
-						$rumus_indikator = $indikator['id_rumus_indikator'];
-					}
-					if(!empty($indikator['hitung_indikator'])){
-						$hitung_indikator = $indikator['hitung_indikator'];
-					}
-
+					$target_indikator = $indikator['target_'.$_POST['urut']];					
+					
 					$realisasi_renstra = $wpdb->get_row($wpdb->prepare("select * from data_realisasi_renstra where id_indikator=%d and type_indikator=%d and tahun_anggaran=%d", $_POST['id'], $_POST['type_indikator'], $_POST['tahun_anggaran']), ARRAY_A);
+
+					$hitung_indikator = !is_null($realisasi_renstra['hitung_indikator']) ? $realisasi_renstra['hitung_indikator'] : $hitung_indikator;
+					$rumus_indikator = !is_null($realisasi_renstra['id_rumus_indikator']) ? $realisasi_renstra['id_rumus_indikator'] : $rumus_indikator;
 
 					for($i=1; $i <= $bulan; $i++){
 						$edited='false';
 						if($i <= $_POST['bulan']){
 							$edited='true';
 						}
-						$realisasi_target_bulanan = !empty($realisasi_renstra['realisasi_bulan_'.$i]) ? $realisasi_renstra['realisasi_bulan_'.$i] : 0;
 						$realisasi_anggaran_bulanan = !empty($realisasi_renstra['realisasi_anggaran_bulan_'.$i]) ? $realisasi_renstra['realisasi_anggaran_bulan_'.$i] : 0;
+						$realisasi_target_bulanan = !empty($realisasi_renstra['realisasi_bulan_'.$i]) ? $realisasi_renstra['realisasi_bulan_'.$i] : 0;
+						$capaian_target_bulanan = !empty($realisasi_renstra['capaian_bulan_'.$i]) ? $realisasi_renstra['capaian_bulan_'.$i] : 0;
 						$body_realisasi_renstra .='
 							<tr>
 								<td>'.$this->get_bulan($i).'</td>
 								<td class="realisasi_anggaran" contenteditable="'.$edited.'" id="realisasi_anggaran_bulan_'.$i.'" style="text-align:right" onkeypress=onlyNumber(event) onkeyup=setTotalMonev()>'.number_format($realisasi_anggaran_bulanan,2,'.',',').'</td>
-								<td class="realisasi_target_bulanan" contenteditable="'.$edited.'" id="realisasi_target_bulan_'.$i.'" style="text-align:center" onkeypress=onlyNumber(event) onkeyup=setCapaianMonev(this)>'.$realisasi_target_bulanan.'</td>
+								<td class="realisasi_target_bulanan" contenteditable="'.$edited.'" id="realisasi_target_bulan_'.$i.'" style="text-align:center" onkeyup=setCapaianMonev(this)>'.$realisasi_target_bulanan.'</td>
+								<td class="capaian_target_bulanan" id="capaian_target_bulan_'.$i.'" style="text-align:center">'.$capaian_target_bulanan.'</td>
 								<td contenteditable="'.$edited.'" id="keterangan_bulan_'.$i.'" style="text-align:left">'.$realisasi_renstra['keterangan_bulan_'.$i].'</td>
 							</tr>';
 						$sum_realisasi_anggaran += $realisasi_anggaran_bulanan;
 					}
 
-					$return['rumus_indikator'] = $rumus_indikator;
 					$return['hitung_indikator'] = $hitung_indikator;
+					$return['rumus_indikator'] = $rumus_indikator;
 					$return['target_indikator'] = $target_indikator;
 					$return['sum_realisasi_anggaran'] = number_format($sum_realisasi_anggaran,2,'.',',');
-					$return['capaian_indikator'] = !empty($realisasi_renstra['capaian_bulan_'.$_POST['bulan']]) ? $realisasi_renstra['capaian_bulan_'.$_POST['bulan']] : 0;
 					$return['body_renstra'] = $body_renstra;
 					$return['body_realisasi_renstra'] = $body_realisasi_renstra;
 				}
@@ -6578,7 +6573,7 @@ class Wpsipd_Public
 
 		if(!empty($_POST)){
 			if(!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )){
-
+				
 				$data = array(
 					'id_indikator' => $_POST['id_indikator'],
 					'id_rumus_indikator' => $_POST['id_rumus_indikator'],
@@ -6597,6 +6592,18 @@ class Wpsipd_Public
 					'realisasi_bulan_10' => $_POST['realisasi_target']['realisasi_target_bulan_10'],
 					'realisasi_bulan_11' => $_POST['realisasi_target']['realisasi_target_bulan_11'],
 					'realisasi_bulan_12' => $_POST['realisasi_target']['realisasi_target_bulan_12'],
+					'capaian_bulan_1' => $_POST['capaian_indikator']['capaian_bulan_1'],
+					'capaian_bulan_2' => $_POST['capaian_indikator']['capaian_bulan_2'],
+					'capaian_bulan_3' => $_POST['capaian_indikator']['capaian_bulan_3'],
+					'capaian_bulan_4' => $_POST['capaian_indikator']['capaian_bulan_4'],
+					'capaian_bulan_5' => $_POST['capaian_indikator']['capaian_bulan_5'],
+					'capaian_bulan_6' => $_POST['capaian_indikator']['capaian_bulan_6'],
+					'capaian_bulan_7' => $_POST['capaian_indikator']['capaian_bulan_7'],
+					'capaian_bulan_8' => $_POST['capaian_indikator']['capaian_bulan_8'],
+					'capaian_bulan_9' => $_POST['capaian_indikator']['capaian_bulan_9'],
+					'capaian_bulan_10' => $_POST['capaian_indikator']['capaian_bulan_10'],
+					'capaian_bulan_11' => $_POST['capaian_indikator']['capaian_bulan_11'],
+					'capaian_bulan_12' => $_POST['capaian_indikator']['capaian_bulan_12'],
 					'realisasi_anggaran_bulan_1' => $_POST['realisasi_anggaran']['realisasi_anggaran_bulan_1'],
 					'realisasi_anggaran_bulan_2' => $_POST['realisasi_anggaran']['realisasi_anggaran_bulan_2'],
 					'realisasi_anggaran_bulan_3' => $_POST['realisasi_anggaran']['realisasi_anggaran_bulan_3'],
@@ -6625,7 +6632,6 @@ class Wpsipd_Public
 				);
 
 				$cek_data = $wpdb->get_row($wpdb->prepare("select id from data_realisasi_renstra where id_indikator=%d and type_indikator=%d and tahun_anggaran=%d", $_POST['id_indikator'], $_POST['type_indikator'], $_POST['tahun_anggaran']), ARRAY_A);
-				// die($wpdb->last_query);
 
 				if(empty($cek_data['id'])){
 					$data['created_by'] = $current_user->display_name;

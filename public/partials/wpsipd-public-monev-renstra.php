@@ -1622,6 +1622,7 @@ foreach ($data_all['data'] as $key => $tujuan)
 		              								<th class="text_tengah">Bulan</th>
 		              								<th class="text_tengah" style="width: 300px;">Realisasi (Rp.)</th>
 		              								<th class="text_tengah" style="width: 200px;">Realisasi Target</th>
+		              								<th class="text_tengah" style="width: 200px;">Capaian Target (%)</th>
 		              								<th class="text_tengah" style="width: 200px;">Keterangan / Permasalahan / Saran</th>
 		              							</tr>
                   								<tr>
@@ -1629,17 +1630,10 @@ foreach ($data_all['data'] as $key => $tujuan)
 		              								<th class="text_tengah">2</th>
 		              								<th class="text_tengah">3</th>
 		              								<th class="text_tengah">4</th>
+		              								<th class="text_tengah">5</th>
 		              							</tr>
                   							</thead>
                   							<tbody id="monev-body-realisasi-renstra"></tbody>
-                  							<tfoot>
-												<tr>
-													<td class="text_kiri text_blok">Capaian</td>
-													<td class="text_tengah text_blok" id="sum_realisasi_anggaran">0</td>
-													<td class="text_tengah text_blok" id="capaian_indikator"></td>
-													<td class="text_tengah text_blok"></td>
-												</tr>
-                  							</tfoot>
                   						</table>
                   					</td>
                   				</tr>
@@ -1714,8 +1708,16 @@ foreach ($data_all['data'] as $key => $tujuan)
 			setHitungCapaian(jQuery(this).val());
 			if(jQuery(this).val()==1){
 				jQuery("#table_rumus_indikator").show();
-			}else{
+				for (var i = 1; i <= <?php echo $bulan ?>; i++) {
+					jQuery("#realisasi_target_bulan_"+i).attr('onkeypress','onlyNumber(event)');
+					jQuery("#capaian_target_bulan_"+i).attr('contenteditable',"false");
+				}
+			}else if(jQuery(this).val()==0){
 				jQuery("#table_rumus_indikator").hide();
+				for (var i = 1; i <= <?php echo $bulan ?>; i++) {
+					jQuery("#realisasi_target_bulan_"+i).attr('onkeypress','');
+					jQuery("#capaian_target_bulan_"+i).attr('contenteditable',"true");
+				}
 			}
 		});
 		jQuery('.edit-monev').on('click', function(){
@@ -1725,6 +1727,7 @@ foreach ($data_all['data'] as $key => $tujuan)
 			var kode = jQuery(this).attr("data-id");
 			var rinc_kode = kode.split('-');
 
+			jQuery("#table_rumus_indikator").show();
 			jQuery("#monev-body-renstra").html('');
 			jQuery.ajax({
 				url: '<?php echo admin_url("admin-ajax.php") ?>',
@@ -1746,11 +1749,25 @@ foreach ($data_all['data'] as $key => $tujuan)
 					jQuery("#monev-body-realisasi-renstra").html(res.body_realisasi_renstra);
 					jQuery("#id_indikator").val(rinc_kode[2]);
 					jQuery("#type_indikator").val(rinc_kode[4]);
-					setRumus(res.rumus_indikator);
-					setHitungCapaian(res.hitung_indikator);
 					jQuery("#target_indikator").val(res.target_indikator);
 					jQuery("#sum_realisasi_anggaran").text(res.sum_realisasi_anggaran);
-					jQuery("#capaian_indikator").text(res.capaian_indikator);
+
+					if(res.hitung_indikator==0){
+						jQuery("#table_rumus_indikator").hide();
+						for (var i = 1; i <= <?php echo $bulan ?>; i++) {
+							jQuery("#realisasi_target_bulan_"+i).attr('onkeypress','');
+							jQuery("#capaian_target_bulan_"+i).attr('contenteditable',"true");
+						}
+					} else if (res.hitung_indikator==1){
+						jQuery("#table_rumus_indikator").show();
+						for (var i = 1; i <= <?php echo $bulan ?>; i++) {
+							jQuery("#realisasi_target_bulan_"+i).attr('onkeypress','onlyNumber(event)');
+							jQuery("#capaian_target_bulan_"+i).attr('contenteditable',"false");
+						}
+					}
+
+					setHitungCapaian(res.hitung_indikator);
+					setRumus(res.rumus_indikator);
 					jQuery('#modal-monev').modal('show');
 					jQuery('#wrap-loading').hide();
 				}
@@ -1762,14 +1779,16 @@ foreach ($data_all['data'] as $key => $tujuan)
 			jQuery('#wrap-loading').show();
 			var realisasi_anggaran = {};
 			var realisasi_target = {};
+			var capaian_indikator = {};
 			var keterangan = {};
 
 			for (var i = 1; i <= 12; i++) {
 				realisasi_anggaran['realisasi_anggaran_bulan_'+i] = jQuery("#realisasi_anggaran_bulan_"+i).text().trim();
 				realisasi_target['realisasi_target_bulan_'+i] = jQuery("#realisasi_target_bulan_"+i).text().trim();
+				capaian_indikator['capaian_bulan_'+i] = jQuery("#capaian_target_bulan_"+i).text().trim();
 				keterangan['keterangan_bulan_'+i] = jQuery("#keterangan_bulan_"+i).text().trim();
 			}
-
+			
 			jQuery.ajax({
 				url:'<?php echo admin_url("admin-ajax.php") ?>',
 				type:'post',
@@ -1782,6 +1801,7 @@ foreach ($data_all['data'] as $key => $tujuan)
 					'hitung_indikator' : jQuery("#hitung_indikator").val(),
 					'realisasi_anggaran':realisasi_anggaran,
 					'realisasi_target':realisasi_target,
+					'capaian_indikator':capaian_indikator,
 					'keterangan':keterangan,
 					'tahun_anggaran' : jQuery("#tahun_anggaran").val()
 				},
@@ -1801,8 +1821,6 @@ foreach ($data_all['data'] as $key => $tujuan)
 		for (var i = 1; i <= <?php echo $bulan; ?>; i++) {
 			total_realisasi_anggaran += parseInt(jQuery("#realisasi_anggaran_bulan_"+i).text());
 		}
-
-		console.log(total_realisasi_anggaran);
 	})
 	function edit_monev_indikator(that){
 		if(jQuery(that).is(':checked')){
@@ -1834,6 +1852,7 @@ foreach ($data_all['data'] as $key => $tujuan)
 	}
 	function setCapaianMonev(that){
 
+		var tag = jQuery(this).attr('id');
 		var hitung = jQuery("#hitung_indikator").val();
 		var target_indikator = +jQuery('#target_indikator').text();
 		var rumus_indikator = jQuery('#rumus_indikator').val();

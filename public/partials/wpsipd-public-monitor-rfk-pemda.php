@@ -99,7 +99,7 @@ $body .='
 		    <thead>
 		    	<tr>
 		    		<th style="padding: 0; border: 0; width:150px"></th>
-		            <th style="padding: 0; border: 0;"></th>
+		            <th style="padding: 0; border: 0; width:100px"></th>
 		            <th style="padding: 0; border: 0; width:120px"></th>
 		            <th style="padding: 0; border: 0; width:120px"></th>
 		            <th style="padding: 0; border: 0; width:120px"></th>
@@ -485,6 +485,11 @@ $body .='
 			}
 		}
 		$background = !empty(count($status_update)) ? 'background-status' : '';
+		$last_update = $value['last_update']; 
+		if($value['last_update'] != '-'){
+			$update = explode("-", $value['last_update']);
+			$last_update = $update[2]."-".$update[1]."-".$update[0];
+		}
 
 		$body.='
 	    	<tr data-idskpd="'.$idskpd.'">
@@ -497,7 +502,7 @@ $body .='
 			    <td class="atas kanan bawah text_tengah" data="'.$value['rak'].'">'.$value['target_rak'].'</td>
 			    <td class="atas kanan bawah text_tengah">'.$value['deviasi'].'</td>
 			    <td class="atas kanan bawah text_tengah">'.$value['realisasi_fisik'].'</td>
-			    <td class="atas kanan bawah text_tengah '.$background.'">'.$value['last_update'].'  '.$event.'</td>
+			    <td class="atas kanan bawah text_tengah '.$background.'" data-order="'.$last_update.'">'.$value['last_update'].'  '.$event.'</td>
 			    <td class="atas kanan bawah text_tengah '.$catatan_rfk_class.'" data-content="'.$value['cat_ka_adbang'].'" contenteditable="'.$editable.'">'.$value['cat_ka_adbang'].'</td>
 			</tr>
 		';
@@ -584,6 +589,7 @@ $body .='
 			+'</label>'
 		+'</div>';
 	var data_all_rfk = <?php echo json_encode($data_all['data']); ?>;
+	console.log(data_all_rfk);
 		
 	jQuery(document).ready(function(){
 			<?php if(empty($public)){ ?>
@@ -616,12 +622,18 @@ $body .='
 		    	data_all_rfk.map(function(val){
 		    		if(val.data_sub_unit.length > 0){
 		    			val.data_sub_unit.map(function(val2){
-		    				data_all.push(val2.url_sub_unit);
+		    				var data = [];
+		    				data['nama_skpd'] = val2.nama_skpd;
+		    				data['url'] = val2.url_sub_unit;
+		    				data_all.push(data);
 		    			})
 		    		}else{
-		    			data_all.push(val.url_unit);
+		    			var data = [];
+		    			data['nama_skpd'] = val.nama_skpd;
+		    			data['url'] = val.url_unit;
+		    			data_all.push(data);
 		    		}
-		    	})
+		    	});
 		    	
 		    	var interval = setInterval(function(){
 		    		if(no == data_all.length-1){ 
@@ -629,8 +641,8 @@ $body .='
 		    			jQuery("#wrap-loading").css('display','none');
 					}; 
 
-					// console.log(data_all[no]+'&page_close=1');
-					window.open(data_all[no]+'&page_close=1');
+					console.log(data_all[no]['nama_skpd']);
+					window.open(data_all[no]['url']+'&page_close=1');
 					no++;
 				}, time*1000);
 		    })
@@ -694,7 +706,7 @@ $body .='
 					    +'<thead>'
 					    	+'<tr>'
 					    		+'<th style="padding: 0; border: 0; width:125px"></th>'
-					            +'<th style="padding: 0; border: 0"></th>'
+					            +'<th style="padding: 0; border: 0" ></th>'
 					            +'<th style="padding: 0; border: 0; width:120px"></th>'
 					            +'<th style="padding: 0; border: 0; width:120px"></th>'
 					            +'<th style="padding: 0; border: 0; width:120px"></th>'
