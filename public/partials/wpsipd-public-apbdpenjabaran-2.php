@@ -502,7 +502,7 @@ function generate_body($rek_pendapatan, $nama_table, $type='murni', $skpd){
     }
     $body_pendapatan .= "
     <tr>
-        <td class='kiri kanan bawah text_kanan text_blok' colspan='13'>Jumlah ".$nama_table."</td>
+        <td class='kiri kanan bawah text_kanan text_blok colspan_kurang' colspan='13'>Jumlah ".$nama_table."</td>
         ".$murni."
         <td class='kanan bawah text_kanan text_blok'>".number_format($data_pendapatan['total'],0,",",".")."</td>
         ".$selisih."
@@ -662,7 +662,7 @@ $urusan = $wpdb->get_row('SELECT nama_bidang_urusan FROM `data_prog_keg` where k
     <table cellpadding="3" cellspacing="0" class="apbd-penjabaran" width="100%">
         <thead>
             <tr>
-                <td class="atas kanan bawah kiri text_tengah text_blok" id="kode_rekening" colspan="12">Kode Rekening</td>
+                <td class="atas kanan bawah kiri text_tengah text_blok colspan_kurang" colspan="12">Kode Rekening</td>
                 <td class="atas kanan bawah text_tengah text_blok">Uraian</td>
                 <?php if($type == 'murni'): ?>
                     <td class="atas kanan bawah text_tengah text_blok" width="150px">Jumlah</td>
@@ -702,13 +702,13 @@ $urusan = $wpdb->get_row('SELECT nama_bidang_urusan FROM `data_prog_keg` where k
                 }
                 echo '
                     </tr>
-                        <td colspan="13" class="kiri kanan bawah text_blok text_kanan">Total Surplus/(Defisit)</td>
+                        <td colspan="13" class="kiri kanan bawah text_blok text_kanan colspan_kurang">Total Surplus/(Defisit)</td>
                         '.$kolom_jml.'
                         <td class="kanan bawah"></td>
                         <td class="kanan bawah"></td>
                     </tr>
                     <tr>
-                        <td colspan="13" class="kiri kanan bawah text_blok" style="height: 2em;padding:0em;margin:0em;"></td>
+                        <td colspan="13" class="kiri kanan bawah text_blok colspan_kurang" style="height: 2em;padding:0em;margin:0em;"></td>
                         '.$kolom_batas.'
                         <td class="kanan bawah"></td>
                         <td class="kanan bawah"></td>
@@ -758,11 +758,20 @@ $urusan = $wpdb->get_row('SELECT nama_bidang_urusan FROM `data_prog_keg` where k
     }
     function hide_rekening_objek(that){
         var checked = jQuery(that).is(':checked');
-        jQuery('.rincian_objek').show();
-        jQuery('.sub_rincian_objek').show();
         if(checked){
+            jQuery('.rincian_objek').hide();
+            jQuery('.sub_rincian_objek').hide();
+            jQuery('.colspan_kurang').map(function(i, b){
+                var colspan = +jQuery(b).attr('colspan');
+                jQuery(b).attr('colspan', colspan-2);
+            });
+        }else{
             jQuery('.rincian_objek').show();
             jQuery('.sub_rincian_objek').show();
+            jQuery('.colspan_kurang').map(function(i, b){
+                var colspan = +jQuery(b).attr('colspan');
+                jQuery(b).attr('colspan', colspan+2);
+            });
         }
     }
 
