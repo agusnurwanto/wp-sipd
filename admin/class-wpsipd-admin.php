@@ -206,7 +206,8 @@ class Wpsipd_Admin {
 		    ->set_page_parent( $laporan );
 
 	    Container::make( 'theme_options', __( 'APBD Penjabaran' ) )
-		    ->set_page_parent( $laporan );
+		    ->set_page_parent( $laporan )
+		    ->add_fields( $this->get_ajax_field(array('type' => 'apbdpenjabaran')) );
 
 	    Container::make( 'theme_options', __( 'RPJM & RENSTRA' ) )
 		    ->set_page_parent( $laporan );
@@ -326,6 +327,9 @@ class Wpsipd_Admin {
 							$this->generatePage('Sumber Dana '.$vv['nama_skpd'].' '.$vv['kode_skpd'].' | '.$v['tahun_anggaran'], $v['tahun_anggaran'], '[monitor_daftar_sumber_dana tahun_anggaran="'.$v['tahun_anggaran'].'" id_skpd="'.$vv['id_skpd'].'"]');
 						}else if($_POST['type'] == 'label_komponen'){
 							$this->generatePage('Label Komponen '.$vv['nama_skpd'].' '.$vv['kode_skpd'].' | '.$v['tahun_anggaran'], $v['tahun_anggaran'], '[monitor_daftar_label_komponen tahun_anggaran="'.$v['tahun_anggaran'].'" id_skpd="'.$vv['id_skpd'].'"]');
+						}else if($_POST['type'] == 'apbdpenjabaran'){
+							$url_skpd = $this->generatePage($v['tahun_anggaran'] .' | '.$vv['kode_skpd'].' | '.$vv['nama_skpd'].' | '. ' | APBD PENJABARAN Lampiran 2', $v['tahun_anggaran'], '[apbdpenjabaran tahun_anggaran="'.$v['tahun_anggaran'].'" lampiran="2" id_skpd="'.$vv['id_skpd'].'"]');
+		            		$body_pemda .= '<li><a target="_blank" href="'.$url_skpd.'">Halaman APBD PENJABARAN Lampiran 2 '.$vv['kode_skpd'].' '.$vv['nama_skpd'].' '.$v['tahun_anggaran'].'</a> (NIP: '.$vv['nipkepala'].')';
 						}
 
 		            	if(!empty($subunit)){
@@ -345,6 +349,9 @@ class Wpsipd_Admin {
 		            			$this->generatePage('Sumber Dana '.$vvv['nama_skpd'].' '.$vvv['kode_skpd'].' | '.$v['tahun_anggaran'], $v['tahun_anggaran'], '[monitor_daftar_sumber_dana tahun_anggaran="'.$v['tahun_anggaran'].'" id_skpd="'.$vvv['id_skpd'].'"]');
 							}else if($_POST['type'] == 'label_komponen'){
 								$this->generatePage('Label Komponen '.$vvv['nama_skpd'].' '.$vvv['kode_skpd'].' | '.$v['tahun_anggaran'], $v['tahun_anggaran'], '[monitor_daftar_label_komponen tahun_anggaran="'.$v['tahun_anggaran'].'" id_skpd="'.$vvv['id_skpd'].'"]');
+							}else if($_POST['type'] == 'apbdpenjabaran'){
+								$url_skpd = $this->generatePage($v['tahun_anggaran'] .' | '.$vvv['kode_skpd'].' | '.$vvv['nama_skpd'].' | '. ' | APBD PENJABARAN Lampiran 2', $v['tahun_anggaran'], '[apbdpenjabaran tahun_anggaran="'.$v['tahun_anggaran'].'" lampiran="2" id_skpd="'.$vvv['id_skpd'].'"]');
+			            		$body_pemda .= '<li><a target="_blank" href="'.$url_skpd.'">Halaman APBD PENJABARAN Lampiran 2 '.$vv['kode_skpd'].' '.$vvv['nama_skpd'].' '.$v['tahun_anggaran'].'</a> (NIP: '.$vvv['nipkepala'].')';
 							}
 		            	}
 		            	if(!empty($subunit)){
@@ -366,6 +373,18 @@ class Wpsipd_Admin {
 			        }else if($_POST['type'] == 'monev_rpjm'){
 						$url_pemda = $this->generatePage('MONEV RPJM Pemerintah Daerah | '.$v['tahun_anggaran'], $v['tahun_anggaran'], '[monitor_monev_rpjm tahun_anggaran="'.$v['tahun_anggaran'].'"]');
 						$body_all .= '<a style="font-weight: bold;" target="_blank" href="'.$url_pemda.'">Halaman MONEV RPJM Daerah Tahun '.$v['tahun_anggaran'].'</a>'.$body_pemda;
+			        }else if($_POST['type'] == 'apbdpenjabaran'){
+			        	$url_penjabaran1 = $this->generatePage($v['tahun_anggaran'] . ' | APBD PENJABARAN Lampiran 1', '[apbdpenjabaran tahun_anggaran="'.$v['tahun_anggaran'].'" lampiran="1"]');
+			        	$url_penjabaran3 = $this->generatePage($v['tahun_anggaran'] . ' | APBD PENJABARAN Lampiran 3', '[apbdpenjabaran tahun_anggaran="'.$v['tahun_anggaran'].'" lampiran="3"]');
+			        	$url_penjabaran4 = $this->generatePage($v['tahun_anggaran'] . ' | APBD PENJABARAN Lampiran 4', '[apbdpenjabaran tahun_anggaran="'.$v['tahun_anggaran'].'" lampiran="4"]');
+			        	$url_penjabaran5 = $this->generatePage($v['tahun_anggaran'] . ' | APBD PENJABARAN Lampiran 5', '[apbdpenjabaran tahun_anggaran="'.$v['tahun_anggaran'].'" lampiran="5"]');
+			        	$url_penjabaran6 = $this->generatePage($v['tahun_anggaran'] . ' | APBD PENJABARAN Lampiran 6', '[apbdpenjabaran tahun_anggaran="'.$v['tahun_anggaran'].'" lampiran="6"]');
+						$body_all .= '<a style="font-weight: bold;" target="_blank" href="'.$url_penjabaran1.'">Halaman APBD PENJABARAN Lampiran 1 Tahun '.$v['tahun_anggaran'].'</a><br>';
+						$body_all .= '<a style="font-weight: bold;" target="_blank" href="'.$url_penjabaran3.'">Halaman APBD PENJABARAN Lampiran 3 Tahun '.$v['tahun_anggaran'].'</a><br>';
+						$body_all .= '<a style="font-weight: bold;" target="_blank" href="'.$url_penjabaran4.'">Halaman APBD PENJABARAN Lampiran 4 Tahun '.$v['tahun_anggaran'].'</a><br>';
+						$body_all .= '<a style="font-weight: bold;" target="_blank" href="'.$url_penjabaran5.'">Halaman APBD PENJABARAN Lampiran 5 Tahun '.$v['tahun_anggaran'].'</a><br>';
+						$body_all .= '<a style="font-weight: bold;" target="_blank" href="'.$url_penjabaran6.'">Halaman APBD PENJABARAN Lampiran 6 Tahun '.$v['tahun_anggaran'].'</a>';
+						$body_all .= $body_pemda;
 			        }
 				}
 				if(
@@ -373,6 +392,7 @@ class Wpsipd_Admin {
 					|| $_POST['type'] == 'monev_renja' 
 					|| $_POST['type'] == 'monev_renstra'
 					|| $_POST['type'] == 'monev_rpjm'
+					|| $_POST['type'] == 'apbdpenjabaran'
 				){
 					$ret['message'] = $body_all;
 				}

@@ -2139,37 +2139,56 @@ class Wpsipd_Public
 		);
 		if (!empty($_POST)) {
 			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
-				$wpdb->update('data_sub_keg_bl', array( 'active' => 0 ), array(
-					'tahun_anggaran' => $_POST['tahun_anggaran'],
-					'id_sub_skpd' => $_POST['id_unit']
-				));
-				$sub_bl = $wpdb->get_results("SELECT kode_sbl from data_sub_keg_bl where tahun_anggaran=".$_POST['tahun_anggaran']." AND id_sub_skpd='" . $_POST['id_unit'] . "'", ARRAY_A);
+				$sub_bl = $wpdb->get_results($wpdb->prepare("
+					SELECT 
+						kode_sbl 
+					from data_sub_keg_bl 
+					where tahun_anggaran=%d 
+						AND id_sub_skpd=%s"
+					, $_POST['tahun_anggaran'], $_POST['id_unit']
+				), ARRAY_A);
 				foreach ($sub_bl as $k => $sub) {
-					$wpdb->update('data_sub_keg_indikator', array( 'active' => 0 ), array(
+					$cek_aktif = false;
+					foreach ($_POST['subkeg_aktif'] as $v) {
+						if($v['kode_sbl'] == $sub['kode_sbl']){
+							$cek_aktif = true;
+							break;
+						}
+					}
+					$aktif = 0;
+					if($cek_aktif){
+						$aktif = 1;
+					}
+					$wpdb->update('data_sub_keg_bl', array( 'active' => $aktif ), array(
+						'tahun_anggaran' => $_POST['tahun_anggaran'],
+						'id_sub_skpd' => $_POST['id_unit'],
+						'kode_sbl' => $sub['kode_sbl']
+					));
+					$wpdb->update('data_sub_keg_indikator', array( 'active' => $aktif ), array(
 						'tahun_anggaran' => $_POST['tahun_anggaran'],
 						'kode_sbl' => $sub['kode_sbl']
 					));
-					$wpdb->update('data_keg_indikator_hasil', array( 'active' => 0 ), array(
+					$wpdb->update('data_keg_indikator_hasil', array( 'active' => $aktif ), array(
 						'tahun_anggaran' => $_POST['tahun_anggaran'],
 						'kode_sbl' => $sub['kode_sbl']
 					));
-					$wpdb->update('data_tag_sub_keg', array( 'active' => 0 ), array(
+					$wpdb->update('data_tag_sub_keg', array( 'active' => $aktif ), array(
 						'tahun_anggaran' => $_POST['tahun_anggaran'],
 						'kode_sbl' => $sub['kode_sbl']
 					));
-					$wpdb->update('data_capaian_prog_sub_keg', array( 'active' => 0 ), array(
+					$wpdb->update('data_capaian_prog_sub_keg', array( 'active' => $aktif ), array(
 						'tahun_anggaran' => $_POST['tahun_anggaran'],
 						'kode_sbl' => $sub['kode_sbl']
 					));
-					$wpdb->update('data_output_giat_sub_keg', array( 'active' => 0 ), array(
+					$wpdb->update('data_output_giat_sub_keg', array( 'active' => $aktif ), array(
 						'tahun_anggaran' => $_POST['tahun_anggaran'],
 						'kode_sbl' => $sub['kode_sbl']
 					));
-					$wpdb->update('data_dana_sub_keg', array( 'active' => 0 ), array(
+					$wpdb->update('data_dana_sub_keg', array( 'active' => $aktif ), array(
 						'tahun_anggaran' => $_POST['tahun_anggaran'],
 						'kode_sbl' => $sub['kode_sbl']
 					));
-					$wpdb->update('data_lokasi_sub_keg', array( 'active' => 0 ), array(
+					$wpdb->update('data_lokasi_sub_keg', array( 'active' => $aktif ), array(
 						'tahun_anggaran' => $_POST['tahun_anggaran'],
 						'kode_sbl' => $sub['kode_sbl']
 					));
@@ -6773,5 +6792,162 @@ class Wpsipd_Public
 		$ret['renstra_sasaran'] = implode('<br>', $ret['renstra_sasaran']).' <ul class="indikator_renstra">'.implode('', $ret['renstra_indikator']).'</ul>';
 		$ret['renstra_tujuan'] = implode('<br>', $ret['renstra_tujuan']);
 		return $ret;
+	}
+
+	public function get_ref_unit($options){
+		global $wpdb;
+		$tahun_anggaran = $options['tahun_anggaran'];
+		$sql = $wpdb->prepare("
+			SELECT 
+				*
+			FROM ref_sub_unit r"
+		);
+		$new_unit = array();
+		$unit_simda = $this->simda->CurlSimda(array('query' => $sql));
+		foreach ($unit_simda as $k => $v) {
+			$new_unit[$v->kd_urusan.'.'.$v->kd_bidang.'.'.$v->kd_unit.'.'.$v->kd_sub] = $v;
+		}
+		return $new_unit;
+	}
+
+	public function get_rka_simda(){
+		global $wpdb;
+		$ret = array(
+			'status' => 'success',
+			'message' => 'Berhasil get RKA SIMDA!',
+			'data'	=> array(),
+			'data_blm_singkron'	=> array()
+		);
+
+		if(!empty($_POST)){
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+				$tahun_anggaran = $_POST['tahun_anggaran'];
+				$unit_simda = $this->get_ref_unit(array('tahun_anggaran' => $tahun_anggaran));
+				foreach ($_POST['id_skpd'] as $id_skpd) {
+					$kd_unit_simda_asli = get_option('_crb_unit_'.$id_skpd);
+					$kd_unit_simda = explode('.', $kd_unit_simda_asli);
+					if(
+						!empty($kd_unit_simda) 
+						&& !empty($kd_unit_simda[3])
+					){
+						if(!empty($unit_simda[$kd_unit_simda_asli])){
+							unset($unit_simda[$kd_unit_simda_asli]);
+						}
+						$_kd_urusan = $kd_unit_simda[0];
+						$_kd_bidang = $kd_unit_simda[1];
+						$kd_unit = $kd_unit_simda[2];
+						$kd_sub_unit = $kd_unit_simda[3];
+						$sql = $wpdb->prepare("
+							SELECT 
+								SUM(r.total) as total
+							FROM ta_belanja_rinc_sub r
+							WHERE r.tahun = %d
+								AND r.kd_urusan = %d
+								AND r.kd_bidang = %d
+								AND r.kd_unit = %d
+								AND r.kd_sub = %d
+							", 
+							$tahun_anggaran, 
+							$_kd_urusan, 
+							$_kd_bidang, 
+							$kd_unit, 
+							$kd_sub_unit
+						);
+						$pagu = $this->simda->CurlSimda(array('query' => $sql));
+						if(!empty($pagu[0])){
+							$ret['data'][$id_skpd] = number_format($pagu[0]->total, 0, ",", ".");
+						}else{
+							$ret['data'][$id_skpd] = 0;
+						}
+					}else{
+						$ret['data'][$id_skpd] = 0;
+					}
+				}
+				foreach ($unit_simda as $k => $v) {
+					$ret['data_blm_singkron'][$k] = $v;
+				}
+			}else{
+				$ret = array(
+					'status' => 'error',
+					'message' => 'Apikey salah!',
+				);		
+			}
+		}else{
+			$ret = array(
+				'status' => 'error',
+				'message' => 'Format salah!',
+			);			
+		}
+		die(json_encode($ret));
+	}
+
+	function get_dpa_simda(){
+		global $wpdb;
+		$ret = array(
+			'status' => 'success',
+			'message' => 'Berhasil get DPA SIMDA!',
+		);
+
+		if(!empty($_POST)){
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+				$tahun_anggaran = $_POST['tahun_anggaran'];
+				$unit_simda = $this->get_ref_unit(array('tahun_anggaran' => $tahun_anggaran));
+				foreach ($_POST['id_skpd'] as $id_skpd) {
+					$kd_unit_simda_asli = get_option('_crb_unit_'.$id_skpd);
+					$kd_unit_simda = explode('.', $kd_unit_simda_asli);
+					if(
+						!empty($kd_unit_simda) 
+						&& !empty($kd_unit_simda[3])
+					){
+						if(!empty($unit_simda[$kd_unit_simda_asli])){
+							unset($unit_simda[$kd_unit_simda_asli]);
+						}
+						$_kd_urusan = $kd_unit_simda[0];
+						$_kd_bidang = $kd_unit_simda[1];
+						$kd_unit = $kd_unit_simda[2];
+						$kd_sub_unit = $kd_unit_simda[3];
+						$sql = $wpdb->prepare("
+							SELECT 
+								SUM(r.total) as total
+							FROM ta_rask_arsip r
+							WHERE r.tahun = %d
+								AND r.kd_perubahan = (SELECT MAX(Kd_Perubahan) FROM Ta_Rask_Arsip)
+								AND r.kd_urusan = %d
+								AND r.kd_bidang = %d
+								AND r.kd_unit = %d
+								AND r.kd_sub = %d
+							", 
+							$tahun_anggaran, 
+							$_kd_urusan, 
+							$_kd_bidang, 
+							$kd_unit, 
+							$kd_sub_unit
+						);
+						$pagu = $this->simda->CurlSimda(array('query' => $sql));
+						if(!empty($pagu[0])){
+							$ret['data'][$id_skpd] = number_format($pagu[0]->total, 0, ",", ".");
+						}else{
+							$ret['data'][$id_skpd] = 0;
+						}
+					}else{
+						$ret['data'][$id_skpd] = 0;
+					}
+				}
+				foreach ($unit_simda as $k => $v) {
+					$ret['data_blm_singkron'][$k] = $v;
+				}
+			}else{
+				$ret = array(
+					'status' => 'error',
+					'message' => 'Apikey salah!',
+				);		
+			}
+		}else{
+			$ret = array(
+				'status' => 'error',
+				'message' => 'Format salah!',
+			);			
+		}
+		die(json_encode($ret));
 	}
 }

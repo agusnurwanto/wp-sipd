@@ -527,10 +527,14 @@ $type = 'murni';
 if(!empty($_GET) && !empty($_GET['type'])){
     $type = $_GET['type'];
 }
-$skpd_induk = $wpdb->get_results('SELECT id_skpd FROM `data_unit` where idinduk='.$input['id_skpd'].' and tahun_anggaran='.$input['tahun_anggaran'].' and active=1', ARRAY_A);
 $id_skpd_all = array();
-foreach ($skpd_induk as $k => $v) {
-    $id_skpd_all[] = $v['id_skpd'];
+if($skpd['is_skpd'] == 1){
+    $skpd_induk = $wpdb->get_results('SELECT id_skpd FROM `data_unit` where idinduk='.$input['id_skpd'].' and tahun_anggaran='.$input['tahun_anggaran'].' and active=1', ARRAY_A);
+    foreach ($skpd_induk as $k => $v) {
+        $id_skpd_all[] = $v['id_skpd'];
+    }
+}else{
+    $id_skpd_all[0] = $input['id_skpd'];
 }
 
 $sql = $wpdb->prepare("
@@ -619,7 +623,7 @@ $body_pembiayaan = generate_body($rek_pembiayaan, 'Pembiayaan', $type, $skpd);
 $urusan = $wpdb->get_row('SELECT nama_bidang_urusan FROM `data_prog_keg` where kode_bidang_urusan=\''.$kode[0].'.'.$kode[1].'\' and tahun_anggaran='.$input['tahun_anggaran'], ARRAY_A);
 ?>
 <div id="cetak" title="Laporan APBD PENJABARAN Lampiran 2 Tahun Anggaran <?php echo $input['tahun_anggaran']; ?>" style="padding: 5px;">
-    <table align="right" class="no-border no-padding" cellspacing="0" cellpadding="0" style="width:280px; font-size: 12px;">
+    <table align="right" class="table-header no-border no-padding" cellspacing="0" cellpadding="0" style="width:280px; font-size: 12px;">
         <tr>
             <td width="80" valign="top">Lampiran II </td>
             <td width="10" valign="top">:</td>
@@ -640,7 +644,7 @@ $urusan = $wpdb->get_row('SELECT nama_bidang_urusan FROM `data_prog_keg` where k
             <td class="text_kiri" contenteditable="true">&nbsp;xx Desember xxx</td>
         </tr>
     </table>
-    <h4 style="text-align: center; font-size: 13px; margin: 10px auto; font-weight: bold;">KABUPATEN MAGETAN <br>PENJABARAN PERUBAHAN APBD MENURUT URUSAN PEMERINTAHAN DAERAH, ORGANISASI, PROGRAM, KEGIATAN, SUB KEGIATAN, KELOMPOK, JENIS, OBJEK, RINCIAN OBJEK, SUB RINCIAN OBJEK PENDAPATAN, BELANJA, DAN PEMBIAYAAN<br>TAHUN ANGGARAN <?php echo $input['tahun_anggaran']; ?></h4>
+    <h4 class="table-header" style="text-align: center; font-size: 13px; margin: 10px auto; font-weight: bold;">KABUPATEN MAGETAN <br>PENJABARAN PERUBAHAN APBD MENURUT URUSAN PEMERINTAHAN DAERAH, ORGANISASI, PROGRAM, KEGIATAN, SUB KEGIATAN, KELOMPOK, JENIS, OBJEK, RINCIAN OBJEK, SUB RINCIAN OBJEK PENDAPATAN, BELANJA, DAN PEMBIAYAAN<br>TAHUN ANGGARAN <?php echo $input['tahun_anggaran']; ?></h4>
     <table cellspacing="2" cellpadding="0" class="apbd-penjabaran no-border no-padding">
         <tbody>
             <tr>
@@ -714,7 +718,7 @@ $urusan = $wpdb->get_row('SELECT nama_bidang_urusan FROM `data_prog_keg` where k
             ?>
         </tbody>
     </table>
-    <table width="25%" class="no-border no-padding" align="right" cellpadding="2" cellspacing="0" style="width:280px; font-size: 12px;">
+    <table width="25%" class="table-ttd no-border no-padding" align="right" cellpadding="2" cellspacing="0" style="width:280px; font-size: 12px;">
         <tr><td colspan="3" class="text_tengah" height="20px"></td></tr>
         <tr><td colspan="3" class="text_tengah text_15" contenteditable="true">Bupati XXXX  </td></tr>
         <tr><td colspan="3" height="80">&nbsp;</td></tr>
@@ -725,6 +729,34 @@ $urusan = $wpdb->get_row('SELECT nama_bidang_urusan FROM `data_prog_keg` where k
 
 <script type="text/javascript">
     run_download_excel();
+    function hide_header_ttd(that, type){
+        var checked = jQuery(that).is(':checked');
+        var hide2 = jQuery('#hide2').is(':checked');
+        var hide3 = jQuery('#hide3').is(':checked');
+        jQuery('.table-ttd').show();
+        jQuery('.table-header').show();
+        if(checked){
+            if(type == 1){
+                jQuery('#hide2').prop('checked', false);
+                jQuery('#hide3').prop('checked', false);
+                jQuery('.table-ttd').hide();
+                jQuery('.table-header').hide();
+            }else if(type == 2){
+                jQuery('#hide1').prop('checked', false);
+                if(hide3){
+                    jQuery('.table-ttd').hide();
+                }
+                jQuery('.table-header').hide();
+            }else if(type == 3){
+                jQuery('#hide1').prop('checked', false);
+                if(hide2){
+                    jQuery('.table-header').hide();
+                }
+                jQuery('.table-ttd').hide();
+            }
+        }
+    }
+
     var _url = window.location.href;
     var url = new URL(_url);
     _url = url.origin+url.pathname+'?key='+url.searchParams.get('key');
@@ -734,5 +766,11 @@ $urusan = $wpdb->get_row('SELECT nama_bidang_urusan FROM `data_prog_keg` where k
     }else{
         var extend_action = '<a class="button button-primary" target="_blank" href="'+_url+'&type=pergeseran" style="margin-left: 10px;">Print Pergeseran/Perubahan APBD Lampiran 2</a>';
     }
+    extend_action += ''
+        +'<div style="margin-top: 15px">'
+            +'<label><input id="hide1" type="checkbox" onclick="hide_header_ttd(this, 1)"> Hilangkan header & TTD</label>'
+            +'<label style="margin-left: 25px;"><input id="hide2" type="checkbox" onclick="hide_header_ttd(this, 2)"> Hilangkan header</label>'
+            +'<label style="margin-left: 25px;"><input id="hide3" type="checkbox" onclick="hide_header_ttd(this, 3)"> Hilangkan TTD</label>'
+        +'</div>';
     jQuery('#action-sipd').append(extend_action);
 </script>

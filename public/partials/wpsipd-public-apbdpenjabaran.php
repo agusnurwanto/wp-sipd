@@ -236,13 +236,19 @@ function generate_body($rek_pendapatan, $baris_kosong=false, $type='murni', $nam
     }else if($nama_rekening == 'Belanja'){
         $belanja_murni = $data_pendapatan['totalmurni'];
         $belanja_pergeseran = $data_pendapatan['total'];
+        $murni = '';
+        $selisih = '';
+        if($type == 'pergeseran'){
+            $murni = "<td class='kanan bawah text_kanan text_blok'>".ubah_minus($pendapatan_murni-$belanja_murni)."</td>";
+            $selisih = "<td class='kanan bawah text_kanan text_blok'>".ubah_minus(($pendapatan_murni-$belanja_murni) - ($pendapatan_pergeseran-$belanja_pergeseran))."</td>";
+        }
         $body_pendapatan .= "
         <tr>
             <td class='kiri kanan bawah'></td>
             <td class='kanan bawah text_kanan text_blok'>Total Surplus/(Defisit)</td>
-            <td class='kanan bawah text_kanan text_blok'>".ubah_minus($pendapatan_murni-$belanja_murni)."</td>
+            ".$murni."
             <td class='kanan bawah text_kanan text_blok'>".ubah_minus($pendapatan_pergeseran-$belanja_pergeseran)."</td>
-            <td class='kanan bawah text_kanan text_blok'>".ubah_minus(($pendapatan_murni-$belanja_murni) - ($pendapatan_pergeseran-$belanja_pergeseran))."</td>
+            ".$selisih."
         </tr>";
     }else if($nama_rekening == 'Penerimaan Pembiayaan'){
         $pembiayaan_penerimaan_murni = $data_pendapatan['totalmurni'];
@@ -250,23 +256,35 @@ function generate_body($rek_pendapatan, $baris_kosong=false, $type='murni', $nam
     }else if($nama_rekening == 'Pengeluaran Pembiayaan'){
         $pembiayaan_pengeluaran_murni = $data_pendapatan['totalmurni'];
         $pembiayaan_pengeluaran_pergeseran = $data_pendapatan['total'];
+        $murni = '';
+        $selisih = '';
+        if($type == 'pergeseran'){
+            $murni = "<td class='kanan bawah text_kanan text_blok'>".ubah_minus($pembiayaan_penerimaan_murni-$pembiayaan_pengeluaran_murni)."</td>";
+            $selisih = "<td class='kanan bawah text_kanan text_blok'>".ubah_minus(($pembiayaan_penerimaan_murni-$pembiayaan_pengeluaran_murni) - ($pembiayaan_penerimaan_pergeseran-$pembiayaan_pengeluaran_pergeseran))."</td>";
+        }
         $body_pendapatan .= "
         <tr>
             <td class='kiri kanan bawah'></td>
             <td class='kanan bawah text_kanan text_blok'>Total Surplus/(Defisit)</td>
-            <td class='kanan bawah text_kanan text_blok'>".ubah_minus($pembiayaan_penerimaan_murni-$pembiayaan_pengeluaran_murni)."</td>
+            ".$murni."
             <td class='kanan bawah text_kanan text_blok'>".ubah_minus($pembiayaan_penerimaan_pergeseran-$pembiayaan_pengeluaran_pergeseran)."</td>
-            <td class='kanan bawah text_kanan text_blok'>".ubah_minus(($pembiayaan_penerimaan_murni-$pembiayaan_pengeluaran_murni) - ($pembiayaan_penerimaan_pergeseran-$pembiayaan_pengeluaran_pergeseran))."</td>
+            ".$selisih."
         </tr>";
     }
     if($baris_kosong){
+        $murni = '';
+        $selisih = '';
+        if($type == 'pergeseran'){
+            $murni = "<td class='kanan bawah'></td>";
+            $selisih = "<td class='kanan bawah'></td>";
+        }
         $body_pendapatan .= "
         <tr>
             <td class='kiri kanan bawah' style='color: #fff;'>.</td>
             <td class='kanan bawah'></td>
+            ".$murni."
             <td class='kanan bawah'></td>
-            <td class='kanan bawah'></td>
-            <td class='kanan bawah'></td>
+            ".$selisih."
         </tr>";
     }
     return $body_pendapatan;

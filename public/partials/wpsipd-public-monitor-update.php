@@ -99,6 +99,8 @@ foreach ($kode_rek as $rek) {
 					'rek' => $rek.'-tanpa-rinci',
 					'type_belanja' => $type_belanja.' Tanpa Rincian',
 					'skpd' => $opd['nama_skpd'],
+					'id_skpd' => $opd['id_skpd'],
+					'kode_skpd' => $opd['kode_skpd'],
 					'update_at' => $update_at_tanpa_rinci['update_at'],
 					'total_murni' => $data_tanpa_rinci['total_murni'],
 					'total' => $data_tanpa_rinci['total'],
@@ -130,6 +132,8 @@ foreach ($kode_rek as $rek) {
 					'rek' => $rek.'-pagu-skpd',
 					'type_belanja' => $type_belanja.' Pagu SKPD',
 					'skpd' => $opd['nama_skpd'],
+					'id_skpd' => $opd['id_skpd'],
+					'kode_skpd' => $opd['kode_skpd'],
 					'update_at' => $update_at_pagu_unit['update_at'],
 					'total_murni' => $data_pagu_unit['total_murni'],
 					'total' => $data_pagu_unit['total'],
@@ -162,6 +166,8 @@ foreach ($kode_rek as $rek) {
 				'rek' => $rek,
 				'type_belanja' => $type_belanja,
 				'skpd' => $opd['nama_skpd'],
+				'id_skpd' => $opd['id_skpd'],
+				'kode_skpd' => $opd['kode_skpd'],
 				'update_at' => $update_at['update_at'],
 				'total_murni' => $data['total_murni'],
 				'total' => $data['total'],
@@ -175,36 +181,52 @@ $body = '';
 $no = 0;
 foreach ($data_body as $k => $data) {
 	$no++;
+	$nama_page = 'RFK '.$data['skpd'].' '.$data['kode_skpd'].' | '.$input['tahun_anggaran'];
+	$custom_post = get_page_by_title($nama_page, OBJECT, 'page');
+	$link = $this->get_link_post($custom_post);
 	$body .= '
-		<tr data-type-belanja="'.$data['rek'].'">
+		<tr data-type-belanja="'.$data['rek'].'" data-id-skpd="'.$data['id_skpd'].'">
 			<td class="text-center">'.$no.'</td>
 			<td class="text-center">'.$data['type_belanja'].'</td>
-			<td>'.$data['skpd'].'</td>
+			<td><a href="'.$link.'" target="_blank">'.$data['skpd'].'</a></td>
 			<td class="text-center">'.$data['update_at'].'</td>
 			<td class="text-right">'.number_format($data['total_murni'],0,",",".").'</td>
-			<td class="text-right">'.number_format($data['total'],0,",",".").'</td>
+			<td class="text-right pagu_total">'.number_format($data['total'],0,",",".").'</td>
+			<td class="text-right rka_simda" style="display: none;"></td>
+			<td class="text-right dpa_simda" style="display: none;"></td>
 		</tr>
 	';
 }
 
 ?>
-<div class="cetak" style="padding: 10px;">
-	<h1 class="text-center">Monitoring Data SIPD lokal Berdasar Waktu Terakhir Melakukan Singkronisasi Data Tahun <?php echo $input['tahun_anggaran']; ?></h1>
-	<table>
-		<thead>
-			<tr>
-				<th class="text-center">No</th>
-				<th class="text-center">Type Belanja</th>
-				<th class="text-center">Nama SKPD</th>
-				<th class="text-center">Last Syncrone</th>
-				<th class="text-center">Pagu Sebelum</th>
-				<th class="text-center">Pagu Terkini</th>
-			</tr>
-		</thead>
-		<tbody>
-			<?php echo $body; ?>
-		</tbody>
-	</table>
+<style type="text/css">
+	.warning {
+		background: #f1a4a4;
+	}
+</style>
+<div class="cetak">
+	<div style="padding: 10px;">
+		<input type="hidden" value="<?php echo get_option( '_crb_api_key_extension' ); ?>" id="api_key">
+		<input type="hidden" value="<?php echo $input['tahun_anggaran']; ?>" id="tahun_anggaran">
+		<h1 class="text-center">Monitoring Data SIPD lokal Berdasar Waktu Terakhir Melakukan Singkronisasi Data Tahun <?php echo $input['tahun_anggaran']; ?></h1>
+		<table cellpadding="2" cellspacing="0" style="font-family:\'Open Sans\',-apple-system,BlinkMacSystemFont,\'Segoe UI\',sans-serif; border-collapse: collapse; width:100%; overflow-wrap: break-word;" class="table table-bordered">
+			<thead id="data_header">
+				<tr>
+					<th class="text-center">No</th>
+					<th class="text-center">Type Belanja</th>
+					<th class="text-center">Nama SKPD</th>
+					<th class="text-center" style="width: 100px;">Last Syncrone</th>
+					<th class="text-center">Pagu Sebelum</th>
+					<th class="text-center">Pagu Terkini</th>
+					<th class="text-center rka_simda" style="display: none;">Pagu RKA SIMDA</th>
+					<th class="text-center dpa_simda" style="display: none;">Pagu DPA SIMDA</th>
+				</tr>
+			</thead>
+			<tbody id="data_body">
+				<?php echo $body; ?>
+			</tbody>
+		</table>
+	</div>
 </div>
 <script type="text/javascript">
 	run_download_excel();
@@ -216,6 +238,8 @@ foreach ($data_body as $k => $data) {
 			+'<label style="margin-left: 10px;"><input type="checkbox" checked="true" onclick="tampilDataTypeBelanja(this, \'5-pagu-skpd\')"> Tampil Belanja Pagu SKPD</label>'
 			+'<label style="margin-left: 10px;"><input type="checkbox" checked="true" onclick="tampilDataTypeBelanja(this, \'6.1\')"> Tampil Pembiayaan Pengeluaran</label>'
 			+'<label style="margin-left: 10px;"><input type="checkbox" checked="true" onclick="tampilDataTypeBelanja(this, \'6.2\')"> Tampil Pembiayaan Penerimaan</label>'
+			+'<label style="margin-left: 10px;"><input type="checkbox" onclick="tampilDataRkaSimda(this)"> Tampil RKA SIMDA</label>'
+			+'<label style="margin-left: 10px;"><input type="checkbox" onclick="tampilDataDpaSimda(this)"> Tampil DPA SIMDA</label>'
 		+'</div>';
 	jQuery('#action-sipd #excel').after(filter);
 	function tampilDataTypeBelanja(that, kd_rek){
@@ -223,6 +247,110 @@ foreach ($data_body as $k => $data) {
 			jQuery('tr[data-type-belanja="'+kd_rek+'"]').show();
 		}else{
 			jQuery('tr[data-type-belanja="'+kd_rek+'"]').hide();
+		}
+	}
+	function tampilDataRkaSimda(that){
+		if(jQuery(that).is(':checked')){
+			jQuery('.rka_simda').show();
+			jQuery('#wrap-loading').show();
+			var data_id_skpd = [];
+			jQuery('#data_body tr').map(function(i, b){
+				var tr = jQuery(b);
+				var type_rek = tr.attr('data-type-belanja');
+				if(type_rek == 5){
+					data_id_skpd.push(tr.attr('data-id-skpd'));
+				}
+			});
+			jQuery.ajax({
+				url: "<?php echo admin_url('admin-ajax.php'); ?>",
+	          	type: "post",
+	          	data: {
+	          		"action": "get_rka_simda",
+	          		"api_key": jQuery('#api_key').val(),
+	          		"tahun_anggaran": jQuery('#tahun_anggaran').val(),
+	          		"id_skpd": data_id_skpd
+	          	},
+	          	dataType: "json",
+	          	success: function(data){
+					jQuery('#wrap-loading').hide();
+					var data_blm_singkron = [];
+					for(var id_skpd in data.data_blm_singkron){
+						data_blm_singkron.push(data.data_blm_singkron[id_skpd].nm_sub_unit);
+					}
+	          		if(data_blm_singkron.length >= 1){
+	          			alert('SKPD yang belum tersingkronisasi dari SIMDA: '+data_blm_singkron.join(', '));
+	          		}
+	          		for(var id_skpd in data.data){
+	          			var tr = jQuery('#data_body tr[data-id-skpd="'+id_skpd+'"][data-type-belanja="5"]');
+	          			var pagu_total = tr.find('.pagu_total').text().trim();
+	          			var rka_simda = tr.find('td.rka_simda');
+	          			rka_simda.text(data.data[id_skpd]);
+	          			rka_simda.removeClass('warning');
+	          			if(pagu_total != data.data[id_skpd]){
+	          				rka_simda.addClass('warning');
+	          			}
+	          		}
+				},
+				error: function(e) {
+					console.log(e);
+					jQuery('#wrap-loading').hide();
+					return;
+				}
+			});
+		}else{
+			jQuery('.rka_simda').hide();
+		}
+	}
+	function tampilDataDpaSimda(that){
+		if(jQuery(that).is(':checked')){
+			jQuery('.dpa_simda').show();
+			jQuery('#wrap-loading').show();
+			var data_id_skpd = [];
+			jQuery('#data_body tr').map(function(i, b){
+				var tr = jQuery(b);
+				var type_rek = tr.attr('data-type-belanja');
+				if(type_rek == 5){
+					data_id_skpd.push(tr.attr('data-id-skpd'));
+				}
+			});
+			jQuery.ajax({
+				url: "<?php echo admin_url('admin-ajax.php'); ?>",
+	          	type: "post",
+	          	data: {
+	          		"action": "get_dpa_simda",
+	          		"api_key": jQuery('#api_key').val(),
+	          		"tahun_anggaran": jQuery('#tahun_anggaran').val(),
+	          		"id_skpd": data_id_skpd
+	          	},
+	          	dataType: "json",
+	          	success: function(data){
+					jQuery('#wrap-loading').hide();
+					var data_blm_singkron = [];
+					for(var id_skpd in data.data_blm_singkron){
+						data_blm_singkron.push(data.data_blm_singkron[id_skpd].nm_sub_unit);
+					}
+	          		if(data_blm_singkron.length >= 1){
+	          			alert('SKPD yang belum tersingkronisasi dari SIMDA: '+data_blm_singkron.join(', '));
+	          		}
+	          		for(var id_skpd in data.data){
+	          			var tr = jQuery('#data_body tr[data-id-skpd="'+id_skpd+'"][data-type-belanja="5"]');
+	          			var pagu_total = tr.find('.pagu_total').text().trim();
+	          			var dpa_simda = tr.find('td.dpa_simda');
+	          			dpa_simda.text(data.data[id_skpd]);
+	          			dpa_simda.removeClass('warning');
+	          			if(pagu_total != data.data[id_skpd]){
+	          				dpa_simda.addClass('warning');
+	          			}
+	          		}
+				},
+				error: function(e) {
+					console.log(e);
+					jQuery('#wrap-loading').hide();
+					return;
+				}
+			});
+		}else{
+			jQuery('.dpa_simda').hide();
 		}
 	}
 </script>
