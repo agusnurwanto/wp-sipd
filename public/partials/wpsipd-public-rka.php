@@ -354,6 +354,14 @@ foreach ($bl as $k => $sub_bl) {
 	        </tr>
 		';
 	}
+	$bulan_awal = '';
+	if(!empty($sub_bl['waktu_awal']) && !empty($bulan[$sub_bl['waktu_awal']-1])){
+		$bulan_awal = $bulan[$sub_bl['waktu_awal']-1];
+	}
+	$bulan_akhir = '';
+	if(!empty($sub_bl['waktu_akhir']) && !empty($bulan[$sub_bl['waktu_akhir']-1])){
+		$bulan_akhir = $bulan[$sub_bl['waktu_akhir']-1];
+	}
 	$rin_sub .= '
 		<tr class="no_padding">
             <td colspan="13">
@@ -376,7 +384,7 @@ foreach ($bl as $k => $sub_bl) {
                     <tr class="'.$class_garis_table.'">
                         <td width="130">Waktu Pelaksanaan</td>
                         <td width="10">:</td>
-                        <td>'.$bulan[$sub_bl['waktu_awal']-1].' s.d. '.$bulan[$sub_bl['waktu_akhir']-1].'</td>
+                        <td>'.$bulan_awal.' s.d. '.$bulan_akhir.'</td>
                     </tr>
                     <tr valign="top" class="'.$class_garis_table.'">
                         <td width="150">Keluaran Sub Kegiatan</td>
@@ -1830,6 +1838,7 @@ foreach ($bl as $k => $sub_bl) {
 	    			if(mapping_html.attr('data-id') != id){
 	    				var td_html = mapping_html.closest('td');
 	    				var realisasi = +td_html.find('.mapping.realisasi').attr('data-realisasi');
+	    				console.log('realisasi', realisasi);
 	    				total_realiasi_rincian += realisasi;
 	    			}
 	    		});
