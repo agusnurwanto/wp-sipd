@@ -260,6 +260,7 @@ foreach ($data_sub_giat as $k =>$v) {
 ksort($data_sumberdana_shorted['data']);
 
 $body_sumberdana = '';
+$no_all = 0;
 foreach ($data_sumberdana_shorted['data'] as $k => $skpd) {
     $murni = '';
     $selisih = '';
@@ -296,7 +297,8 @@ foreach ($data_sumberdana_shorted['data'] as $k => $skpd) {
     ';
 	$no = 0;
     foreach ($skpd['data'] as $sub_keg) {
-    	$no++;
+    	$no_all++;
+        $no++;
         $murni = '';
         $selisih = '';
         if($type == 'pergeseran'){
@@ -308,8 +310,9 @@ foreach ($data_sumberdana_shorted['data'] as $k => $skpd) {
 		$custom_post = get_page_by_title($nama_page, OBJECT, 'post');
 		$link = 'style="color: red;" title="'.$nama_page.'"';
 		if(!empty($custom_post)){
-			$link = 'href="'.get_permalink($custom_post). '&key=' . $this->gen_key().'"';
+			$link = 'href="'.$this->get_link_post($custom_post).'"';
 		}else{
+            // cek jika kode_skpd tidak ditemukan di tabel sub_keg_bl maka dicari dari data_unit
 			$kode_skpd = $wpdb->get_var("
 				SELECT 
 					kode_skpd 
@@ -321,9 +324,10 @@ foreach ($data_sumberdana_shorted['data'] as $k => $skpd) {
 			$custom_post = get_page_by_title($nama_page, OBJECT, 'post');
 			$link = 'style="color: red;" title="'.$nama_page.'"';
 			if(!empty($custom_post)){
-                $link = $this->get_link_post($custom_post);
+                $link = 'href="'.$this->get_link_post($custom_post).'"';
 			}
 		}
+
         $capaian = 0;
         if(!empty($sub_keg['total_simda'])){
             $capaian = $this->pembulatan(($sub_keg['realisasi']/$sub_keg['total_simda'])*100);
@@ -340,7 +344,7 @@ foreach ($data_sumberdana_shorted['data'] as $k => $skpd) {
         }
         $body_sumberdana .= '
             <tr class="sub_keg">
-                <td class="kanan bawah kiri text_tengah">'.$no.'</td>
+                <td class="kanan bawah kiri text_tengah">'.$no_all.'</td>
                 <td class="kanan bawah" style="padding-left: 20px;"><a '.$link.' target="_blank">'.$sub_keg['nama'].'</a></td>
                 <td class="kanan bawah">'.implode(',<br>', $sub_keg['data']['sd_text']).'</td>
                 '.$mapping_sd.'

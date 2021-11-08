@@ -505,6 +505,7 @@ class Wpsipd_Admin {
 				select 
 					iddana,
 					kodedana,
+					count(kodedana) as jml,
 					namadana 
 				from data_dana_sub_keg 
 				where tahun_anggaran='.$v['tahun_anggaran'].'
@@ -527,6 +528,7 @@ class Wpsipd_Admin {
 						<td class="text_tengah">'.$no.'</td>
 						<td>'.$val['kodedana'].'</td>
 						<td><a href="'.$url_skpd.'" target="_blank">'.$val['namadana'].'</a></td>
+						<td class="text_tengah">'.$val['jml'].'</td>
 						<td class="text_tengah">'.$val['iddana'].'</td>
 						<td class="text_tengah">'.$v['tahun_anggaran'].'</td>
 					</tr>
@@ -547,6 +549,7 @@ class Wpsipd_Admin {
             					<th class="text_tengah" style="width: 20px">No</th>
             					<th class="text_tengah" style="width: 100px">Kode</th>
             					<th class="text_tengah">Sumber Dana</th>
+            					<th class="text_tengah" style="width: 150px">Jumlah Sub Kegiatan</th>
             					<th class="text_tengah" style="width: 50px">ID Dana</th>
             					<th class="text_tengah" style="width: 110px">Tahun Anggaran</th>
             				</tr>
