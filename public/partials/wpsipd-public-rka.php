@@ -1894,7 +1894,13 @@ foreach ($bl as $k => $sub_bl) {
 
 	    	var nama_sub_keg = jQuery('.subkeg[data-kdsbl="'+kd_sbl+'"] .nama_sub').text();
 	    	var realisasi_sub_keg = jQuery('.subkeg[data-kdsbl="'+kd_sbl+'"] .mapping.realisasi').text();
-	    	var id_sumberdana_mapping = jQuery('.subkeg[data-kdsbl="'+kd_sbl+'"] .mapping').attr('data-id');
+	    	jQuery('#mapping_sumberdana').val('').trigger('change');
+	    	var td_html = jQuery(this).closest('td');
+	    	var id_sumberdana_mapping = td_html.find('.list-mapping .mapping.badge-primary').attr('data-id');
+	    	var id_label_mapping = [];
+	    	td_html.find('.list-mapping .mapping.badge-success').map(function(i, b){
+	    		id_label_mapping.push(jQuery(b).attr('data-id'));
+	    	});
 	    	var rak_sub_keg = jQuery('.subkeg[data-kdsbl="'+kd_sbl+'"] .mapping.rak').text();
 	    	var total_sub_keg = jQuery('.subkeg-total[data-kdsbl="'+kd_sbl+'"]').text();
 	    	var sumberdana_sub_keg = jQuery('.subkeg-sumberdana[data-kdsbl="'+kd_sbl+'"]').text();
@@ -1927,7 +1933,7 @@ foreach ($bl as $k => $sub_bl) {
     		}
     	<?php } ?>
 	    	var sumber_dana = [];
-	    	jQuery('#mapping_label').val(id_sumberdana_mapping).trigger('change');
+	    	jQuery('#mapping_label').val(id_label_mapping).trigger('change');
 	    	jQuery('#mod-mapping').modal('show');
 	    });
 	    jQuery('#mapping_label').select2();
