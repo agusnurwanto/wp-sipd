@@ -40,6 +40,7 @@ if(!empty($_GET) && !empty($_GET['id_skpd'])){
 $data_sub_giat = $wpdb->get_results('
 	select 
 		r.*,
+        d.pagudana,
         f.rak,
         f.realisasi_anggaran, 
         f.id as id_rfk, 
@@ -65,6 +66,7 @@ $judul_laporan = array('Laporan Pagu SIPD Kemendagri Per Sumber Dana',$kode_sumb
 
 $data_sumberdana_shorted = array(
     'data' => array(),
+    'pagudana' => 0,
     'total_simda' => 0,
     'realisasi' => 0,
     'total_sd_mapping' => 0,
@@ -73,13 +75,10 @@ $data_sumberdana_shorted = array(
     'total' => 0
 );
 
-foreach ($data_sub_giat as $k =>$v) {
-    $kd_unit_simda = explode('.', get_option('_crb_unit_'.$v['id_sub_skpd']));
-    $_kd_urusan = $kd_unit_simda[0];
-    $_kd_bidang = $kd_unit_simda[1];
-    $kd_unit = $kd_unit_simda[2];
-    $kd_sub_unit = $kd_unit_simda[3];
+// dibuat 0 agar tidak perlu melakukan cek realtime dari simda karena terlalu membebani server.
+$get_simda_realtime = 0;
 
+foreach ($data_sub_giat as $k =>$v) {
     $kode = explode('.', $v['kode_sbl']);
     $idskpd = $kode[1];
     $skpd = $wpdb->get_row($wpdb->prepare("
@@ -91,82 +90,92 @@ foreach ($data_sub_giat as $k =>$v) {
             and active=1",
         $idskpd, $input['tahun_anggaran']), ARRAY_A);
 
-    $kd = explode('.', $v['kode_sub_giat']);
-    $kd_urusan90 = (int) $kd[0];
-    $kd_bidang90 = (int) $kd[1];
-    $kd_program90 = (int) $kd[2];
-    $kd_kegiatan90 = ((int) $kd[3]).'.'.$kd[4];
-    $kd_sub_kegiatan = (int) $kd[5];
-    $nama_keg = explode(' ', $v['nama_sub_giat']);
-    unset($nama_keg[0]);
-    $nama_keg = implode(' ', $nama_keg);
-    $mapping = $this->simda->cekKegiatanMapping(array(
-        'kd_urusan90' => $kd_urusan90,
-        'kd_bidang90' => $kd_bidang90,
-        'kd_program90' => $kd_program90,
-        'kd_kegiatan90' => $kd_kegiatan90,
-        'kd_sub_kegiatan' => $kd_sub_kegiatan,
-        'nama_program' => $v['nama_giat'],
-        'nama_kegiatan' => $nama_keg,
-    ));
+    if($get_simda_realtime == 1){
+        $kd_unit_simda = explode('.', get_option('_crb_unit_'.$v['id_sub_skpd']));
+        $_kd_urusan = $kd_unit_simda[0];
+        $_kd_bidang = $kd_unit_simda[1];
+        $kd_unit = $kd_unit_simda[2];
+        $kd_sub_unit = $kd_unit_simda[3];
+        $kd = explode('.', $v['kode_sub_giat']);
+        $kd_urusan90 = (int) $kd[0];
+        $kd_bidang90 = (int) $kd[1];
+        $kd_program90 = (int) $kd[2];
+        $kd_kegiatan90 = ((int) $kd[3]).'.'.$kd[4];
+        $kd_sub_kegiatan = (int) $kd[5];
+        $nama_keg = explode(' ', $v['nama_sub_giat']);
+        unset($nama_keg[0]);
+        $nama_keg = implode(' ', $nama_keg);
+        $mapping = $this->simda->cekKegiatanMapping(array(
+            'kd_urusan90' => $kd_urusan90,
+            'kd_bidang90' => $kd_bidang90,
+            'kd_program90' => $kd_program90,
+            'kd_kegiatan90' => $kd_kegiatan90,
+            'kd_sub_kegiatan' => $kd_sub_kegiatan,
+            'nama_program' => $v['nama_giat'],
+            'nama_kegiatan' => $nama_keg,
+        ));
 
-    $kd_urusan = 0;
-    $kd_bidang = 0;
-    $kd_prog = 0;
-    $kd_keg = 0;
-    if(!empty($mapping[0]) && !empty($mapping[0]->kd_urusan)){
-        $kd_urusan = $mapping[0]->kd_urusan;
-        $kd_bidang = $mapping[0]->kd_bidang;
-        $kd_prog = $mapping[0]->kd_prog;
-        $kd_keg = $mapping[0]->kd_keg;
-    }
-    foreach ($this->simda->custom_mapping as $c_map_k => $c_map_v) {
-        if(
-            $skpd['kode_skpd'] == $c_map_v['sipd']['kode_skpd']
-            && $v['kode_sub_giat'] == $c_map_v['sipd']['kode_sub_keg']
-        ){
-            $kd_unit_simda_map = explode('.', $c_map_v['simda']['kode_skpd']);
-            $_kd_urusan = $kd_unit_simda_map[0];
-            $_kd_bidang = $kd_unit_simda_map[1];
-            $kd_unit = $kd_unit_simda_map[2];
-            $kd_sub_unit = $kd_unit_simda_map[3];
-            $kd_keg_simda = explode('.', $c_map_v['simda']['kode_sub_keg']);
-            $kd_urusan = $kd_keg_simda[0];
-            $kd_bidang = $kd_keg_simda[1];
-            $kd_prog = $kd_keg_simda[2];
-            $kd_keg = $kd_keg_simda[3];
+        $kd_urusan = 0;
+        $kd_bidang = 0;
+        $kd_prog = 0;
+        $kd_keg = 0;
+        if(!empty($mapping[0]) && !empty($mapping[0]->kd_urusan)){
+            $kd_urusan = $mapping[0]->kd_urusan;
+            $kd_bidang = $mapping[0]->kd_bidang;
+            $kd_prog = $mapping[0]->kd_prog;
+            $kd_keg = $mapping[0]->kd_keg;
         }
-    }
+        foreach ($this->simda->custom_mapping as $c_map_k => $c_map_v) {
+            if(
+                $skpd['kode_skpd'] == $c_map_v['sipd']['kode_skpd']
+                && $v['kode_sub_giat'] == $c_map_v['sipd']['kode_sub_keg']
+            ){
+                $kd_unit_simda_map = explode('.', $c_map_v['simda']['kode_skpd']);
+                $_kd_urusan = $kd_unit_simda_map[0];
+                $_kd_bidang = $kd_unit_simda_map[1];
+                $kd_unit = $kd_unit_simda_map[2];
+                $kd_sub_unit = $kd_unit_simda_map[3];
+                $kd_keg_simda = explode('.', $c_map_v['simda']['kode_sub_keg']);
+                $kd_urusan = $kd_keg_simda[0];
+                $kd_bidang = $kd_keg_simda[1];
+                $kd_prog = $kd_keg_simda[2];
+                $kd_keg = $kd_keg_simda[3];
+            }
+        }
 
-    $id_prog = $kd_urusan.$this->simda->CekNull($kd_bidang);
-    $total_simda = $this->get_pagu_simda_last(array(
-        'tahun_anggaran' => $input['tahun_anggaran'],
-        'pagu_simda' => $v['pagu_simda'],
-        'id_sub_keg' => $v['id'],
-        'kd_urusan' => $_kd_urusan,
-        'kd_bidang' => $_kd_bidang,
-        'kd_unit' => $kd_unit,
-        'kd_sub' => $kd_sub_unit,
-        'kd_prog' => $kd_prog,
-        'id_prog' => $id_prog,
-        'kd_keg' => $kd_keg
-    ));
-    $realisasi = $this->get_realisasi_simda(array(
-        'user' => $current_user->display_name,
-        'id_skpd' => $input['id_skpd'],
-        'kode_sbl' => $v['kode_sbl'],
-        'tahun_anggaran' => $input['tahun_anggaran'],
-        'realisasi_anggaran' => $v['realisasi_anggaran'],
-        'id_rfk' => $v['id_rfk'],
-        'bulan' => $bulan,
-        'kd_urusan' => $_kd_urusan,
-        'kd_bidang' => $_kd_bidang,
-        'kd_unit' => $kd_unit,
-        'kd_sub' => $kd_sub_unit,
-        'kd_prog' => $kd_prog,
-        'id_prog' => $id_prog,
-        'kd_keg' => $kd_keg
-    ));
+        $id_prog = $kd_urusan.$this->simda->CekNull($kd_bidang);
+        $total_simda = $this->get_pagu_simda_last(array(
+            'tahun_anggaran' => $input['tahun_anggaran'],
+            'pagu_simda' => $v['pagu_simda'],
+            'id_sub_keg' => $v['id'],
+            'kd_urusan' => $_kd_urusan,
+            'kd_bidang' => $_kd_bidang,
+            'kd_unit' => $kd_unit,
+            'kd_sub' => $kd_sub_unit,
+            'kd_prog' => $kd_prog,
+            'id_prog' => $id_prog,
+            'kd_keg' => $kd_keg
+        ));
+        $realisasi = $this->get_realisasi_simda(array(
+            'user' => $current_user->display_name,
+            'id_skpd' => $input['id_skpd'],
+            'kode_sbl' => $v['kode_sbl'],
+            'tahun_anggaran' => $input['tahun_anggaran'],
+            'realisasi_anggaran' => $v['realisasi_anggaran'],
+            'id_rfk' => $v['id_rfk'],
+            'bulan' => $bulan,
+            'kd_urusan' => $_kd_urusan,
+            'kd_bidang' => $_kd_bidang,
+            'kd_unit' => $kd_unit,
+            'kd_sub' => $kd_sub_unit,
+            'kd_prog' => $kd_prog,
+            'id_prog' => $id_prog,
+            'kd_keg' => $kd_keg
+        ));
+    }else{
+        $total_simda = $v['pagu_simda'];
+        $realisasi = $v['realisasi_anggaran'];
+    }
 
     $sd_realisasi = array();
     $sd_data = array();
@@ -211,6 +220,7 @@ foreach ($data_sub_giat as $k =>$v) {
     if(empty($data_sumberdana_shorted['data'][$skpd['kode_skpd']])){
         $data_sumberdana_shorted['data'][$skpd['kode_skpd']] = array(
             'nama' => $skpd['nama_skpd'],
+            'pagudana' => 0,
             'total_murni' => 0,
             'total' => 0,
             'total_simda' => 0,
@@ -223,6 +233,7 @@ foreach ($data_sub_giat as $k =>$v) {
     if(empty($data_sumberdana_shorted['data'][$skpd['kode_skpd']]['data'][$v['kode_sbl']])){
         $data_sumberdana_shorted['data'][$skpd['kode_skpd']]['data'][$v['kode_sbl']] = array(
             'nama' => $v['nama_sub_giat'],
+            'pagudana' => 0,
             'total_murni' => 0,
             'total' => 0,
             'total_simda' => 0,
@@ -232,6 +243,10 @@ foreach ($data_sub_giat as $k =>$v) {
             'data' => $v
         );
     }
+    
+    $data_sumberdana_shorted['data'][$skpd['kode_skpd']]['data'][$v['kode_sbl']]['pagudana'] += $v['pagudana'];
+    $data_sumberdana_shorted['data'][$skpd['kode_skpd']]['pagudana'] += $v['pagudana'];
+    $data_sumberdana_shorted['pagudana'] += $v['pagudana'];
     
     $data_sumberdana_shorted['data'][$skpd['kode_skpd']]['data'][$v['kode_sbl']]['realisasi'] += $realisasi;
     $data_sumberdana_shorted['data'][$skpd['kode_skpd']]['realisasi'] += $realisasi;
@@ -290,6 +305,7 @@ foreach ($data_sumberdana_shorted['data'] as $k => $skpd) {
             '.$murni.'
             <td class="kanan bawah text_blok text_kanan">'.number_format($skpd['total'],0,",",".").'</td>
             '.$selisih.'
+            <td class="kanan bawah text_blok text_kanan">'.number_format($skpd['pagudana'],0,",",".").'</td>
             <td class="kanan bawah text_blok text_kanan">'.number_format($skpd['total_simda'],0,",",".").'</td>
             <td class="kanan bawah text_blok text_kanan">'.number_format($skpd['realisasi'],0,",",".").'</td>
             <td class="kanan bawah text_blok text_tengah">'.$capaian.'</td>
@@ -351,6 +367,7 @@ foreach ($data_sumberdana_shorted['data'] as $k => $skpd) {
                 '.$murni.'
                 <td class="kanan bawah text_kanan">'.number_format($sub_keg['total'],0,",",".").'</td>
                 '.$selisih.'
+                <td class="kanan bawah text_kanan">'.number_format($sub_keg['pagudana'],0,",",".").'</td>
                 <td class="kanan bawah text_kanan">'.number_format($sub_keg['total_simda'],0,",",".").'</td>
                 <td class="kanan bawah text_kanan">'.number_format($sub_keg['realisasi'],0,",",".").'</td>
                 <td class="kanan bawah text_tengah">'.$capaian.'</td>
@@ -385,6 +402,7 @@ $body_sumberdana .= '
         '.$murni.'
         <td class="kanan bawah text_blok text_kanan">'.number_format($data_sumberdana_shorted['total'],0,",",".").'</td>
         '.$selisih.'
+        <td class="kanan bawah text_blok text_kanan">'.number_format($data_sumberdana_shorted['pagudana'],0,",",".").'</td>
         <td class="kanan bawah text_blok text_kanan">'.number_format($data_sumberdana_shorted['total_simda'],0,",",".").'</td>
         <td class="kanan bawah text_blok text_kanan">'.number_format($data_sumberdana_shorted['realisasi'],0,",",".").'</td>
         <td class="kanan bawah text_blok text_tengah">'.$capaian.'</td>
@@ -413,6 +431,7 @@ $body_sumberdana .= '
                     <td class="atas kanan bawah text_tengah text_blok" style="width: 140px;">RKA SIPD Sesudah Perubahan (Rp.)</td>
                     <td class="atas kanan bawah text_tengah text_blok" style="width: 140px;">RKA SIPD Bertambah/(Berkurang) (Rp.)</td>
                 <?php endif; ?>
+                <td class="atas kanan bawah text_tengah text_blok" style="width: 140px;">Pagu Sumber Dana SIPD (Rp.)</td>
                 <td class="atas kanan bawah text_tengah text_blok" style="width: 140px;">Pagu Simda (Rp.)</td>
                 <td class="atas kanan bawah text_tengah text_blok" style="width: 140px;">Ralisasi Simda (Rp.)</td>
                 <td class="atas kanan bawah text_tengah text_blok" style="width: 100px;">Capaian (%)</td>
