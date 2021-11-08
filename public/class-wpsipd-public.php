@@ -2678,7 +2678,6 @@ class Wpsipd_Public
 							'kode_sbl' => $_POST['kode_sbl']
 						), array('%d', '%s'));
 					}
-					// untuk menghapus rka subkeg yang dihapus di perubahan
                    	if($rka == 0){
                        $rka = array();
                    	}
@@ -2765,8 +2764,16 @@ class Wpsipd_Public
 					}
 					// print_r($ssh); die();
 				} else if ($ret['status'] != 'error') {
-					$ret['status'] = 'error';
-					$ret['message'] = 'Format RKA Salah!';
+					// untuk menghapus rka subkeg yang dihapus di perubahan
+					if($_POST['rka'] == 0){
+						$wpdb->delete('data_rka', array(
+							'tahun_anggaran' => $_POST['tahun_anggaran'],
+							'kode_sbl' => $_POST['kode_sbl']
+						), array('%d', '%s'));
+					}else{
+						$ret['status'] = 'error';
+						$ret['message'] = 'Format RKA Salah!';
+					}
 				}
 
 				if(
