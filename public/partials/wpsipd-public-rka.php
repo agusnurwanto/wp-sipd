@@ -201,12 +201,23 @@ $target_ind_capaian_kegiatan = array();
 $ind_prog = array();
 foreach ($ind_prog_db as $k => $v) {
 	// print_r($v); die();
-	$ind_prog[] = '
-		<tr>
-            <td width="495">'.$v['capaianteks'].'</td>
-            <td width="495">'.$v['targetcapaianteks'].'</td>
-        </tr>
-	';
+	if($type == 'dpa_perubahan'){
+		$ind_prog[] = '
+			<tr>
+	            <td class="kiri atas kanan bawah"></td>
+	            <td class="kiri atas kanan bawah"></td>
+	            <td class="kiri atas kanan bawah" width="495">'.$v['capaianteks'].'</td>
+	            <td class="kiri atas kanan bawah" width="495">'.$v['targetcapaianteks'].'</td>
+	        </tr>
+		';
+	}else{
+		$ind_prog[] = '
+			<tr>
+	            <td class="kiri atas kanan bawah" width="495">'.$v['capaianteks'].'</td>
+	            <td class="kiri atas kanan bawah" width="495">'.$v['targetcapaianteks'].'</td>
+	        </tr>
+		';
+	}
 	$ind_capaian_kegiatan[] = '
 		<tr>
             <td width="495">'.$v['capaianteks'].'</td>
@@ -265,13 +276,23 @@ foreach ($bl as $k => $sub_bl) {
 			AND active=1";
 	$indikator_sub_keg = $wpdb->get_results($sql, ARRAY_A);
 	// print_r($indikator_sub_keg); die($wpdb->last_query);
-	$indikator_sub_murni = '';
 	$indikator_sub = '';
 	foreach ($indikator_sub_keg as $key => $ind) {
+		$indikator_sub_murni = '';
+		if(
+			$type == 'rka_perubahan'
+			|| $type == 'dpa_perubahan'
+		){
+			$indikator_sub_murni = '
+				<td class="kiri kanan bawah atas"></td>
+				<td class="kiri kanan bawah atas"></td>
+			';
+		}
 		$indikator_sub .= '
 			<tr>
-                <td>'.$ind['outputteks'].'</td>
-                <td>'.$ind['targetoutputteks'].'</td>
+				'.$indikator_sub_murni.'
+                <td class="kiri kanan bawah atas">'.$ind['outputteks'].'</td>
+                <td class="kiri kanan bawah atas">'.$ind['targetoutputteks'].'</td>
             </tr>
 		';
 	}
@@ -297,21 +318,25 @@ foreach ($bl as $k => $sub_bl) {
 		}
 	}
 
-	$table_ind_perubahan_murni = '';
+	$table_indikator_sub_keg = '';
 	if(
 		$type == 'rka_perubahan'
 		|| $type == 'dpa_perubahan'
 	){
-		if($type == 'rka_perubahan'){
-			$table_ind_perubahan_murni = '
-				<table width="100%" border="0" style="border-spacing: 0px;">
-	                <tr>
-	                	<td width="495">Indikator (Sebelum Perubahan)</td>
-	                	<td width="495">Target (Sebelum Perubahan)</td>
-	                </tr>
-	                '.$indikator_sub_murni.'
-	            </table>';
-	    }
+		$table_indikator_sub_keg = '
+			<table class="tabel-indikator" width="100%" border="0" style="border-spacing: 0px;">
+				<tr>
+					<th class="kiri kanan bawah atas text_tengah" colspan="2">Sebelum Perubahan</th>
+					<th class="kiri kanan bawah atas text_tengah" colspan="2">Setelah Perubahan</th>
+				</tr>
+                <tr>
+                	<th class="kiri kanan bawah atas text_tengah" width="495">Indikator</th>
+                	<th class="kiri kanan bawah atas text_tengah" width="495">Target</th>
+                	<th class="kiri kanan bawah atas text_tengah" width="495">Indikator</th>
+                	<th class="kiri kanan bawah atas text_tengah" width="495">Target</th>
+                </tr>
+                '.$indikator_sub.'
+            </table>';
 
 		$header_sub = '
 			<tr>
@@ -339,6 +364,14 @@ foreach ($bl as $k => $sub_bl) {
 	        </tr>
 		';
 	}else{
+		$table_indikator_sub_keg = '
+			<table class="tabel-indikator" width="100%" border="0" style="border-spacing: 0px;">
+                <tr>
+                	<th class="kiri kanan bawah atas text_tengah" width="495">Indikator</th>
+                	<th class="kiri kanan bawah atas text_tengah" width="495">Target</th>
+                </tr>
+                '.$indikator_sub.'
+            </table>';
 		$header_sub = '
 			<tr>
 	            <td class="kiri kanan bawah atas text_tengah text_blok" rowspan="2">Kode Rekening</td>
@@ -353,6 +386,14 @@ foreach ($bl as $k => $sub_bl) {
 	            <td class="kanan bawah text_tengah text_blok">PPN</td>
 	        </tr>
 		';
+	}
+	$bulan_awal = '';
+	if(!empty($sub_bl['waktu_awal']) && !empty($bulan[$sub_bl['waktu_awal']-1])){
+		$bulan_awal = $bulan[$sub_bl['waktu_awal']-1];
+	}
+	$bulan_akhir = '';
+	if(!empty($sub_bl['waktu_akhir']) && !empty($bulan[$sub_bl['waktu_akhir']-1])){
+		$bulan_akhir = $bulan[$sub_bl['waktu_akhir']-1];
 	}
 	$rin_sub .= '
 		<tr class="no_padding">
@@ -376,20 +417,13 @@ foreach ($bl as $k => $sub_bl) {
                     <tr class="'.$class_garis_table.'">
                         <td width="130">Waktu Pelaksanaan</td>
                         <td width="10">:</td>
-                        <td>'.$bulan[$sub_bl['waktu_awal']-1].' s.d. '.$bulan[$sub_bl['waktu_akhir']-1].'</td>
+                        <td>'.$bulan_awal.' s.d. '.$bulan_akhir.'</td>
                     </tr>
                     <tr valign="top" class="'.$class_garis_table.'">
                         <td width="150">Keluaran Sub Kegiatan</td>
                         <td width="10">:</td>
                         <td>
-                        	'.$table_ind_perubahan_murni.'
-                            <table width="100%" border="0" style="border-spacing: 0px;">
-                                <tr>
-                                	<td width="495">Indikator</td>
-                                	<td width="495">Target</td>
-                                </tr>
-                                '.$indikator_sub.'
-                            </table>
+                        	'.$table_indikator_sub_keg.'
                          </td>
                     </tr>
                     '.$keterangan_sub.'
@@ -880,6 +914,9 @@ foreach ($bl as $k => $sub_bl) {
 	.cellpadding_5 > tbody > tr > td, .cellpadding_5 > thead > tr > th {
 		padding: 5px;
 	}
+	.tabel-indikator td, .tabel-indikator th {
+		padding: 2px 4px;
+	}
 	.no_padding, .no_padding>td {
 		padding: 0 !important;
 	}
@@ -1086,19 +1123,23 @@ foreach ($bl as $k => $sub_bl) {
 	                    <td width="150">Capaian Program</td>
 	                    <td width="10">:</td>
 	                    <td>
-	                        <table width="50%" border="0" style="border-spacing: 0px;">
-	                            <tr>
-	                            <?php
-								if(
-									$type == 'dpa_murni'
-									|| $type == 'dpa_perubahan'
-								):
-								?>
-	                            	<td>(Indikator)</td>
-	                            	<td>(Target)</td>
+	                        <table width="50%" border="0" style="border-spacing: 0px;" class="tabel-indikator">
+	                            <tr class="text_tengah">
+	                            <?php if($type == 'dpa_perubahan'): ?>
+	                            	<th class="kiri atas kanan bawah" colspan="2">Sebelum Perubahan</th>
+	                            	<th class="kiri atas kanan bawah" colspan="2">Setelah Perubahan</th>
+	                            </tr>
+	                            <tr class="text_tengah">
+	                            	<th class="kiri atas kanan bawah">Indikator</th>
+	                            	<th class="kiri atas kanan bawah">Target</th>
+	                            	<th class="kiri atas kanan bawah">Indikator</th>
+	                            	<th class="kiri atas kanan bawah">Target</th>
+	                            <?php elseif($type == 'dpa_murni'): ?>
+	                            	<th class="kiri atas kanan bawah">(Indikator)</th>
+	                            	<th class="kiri atas kanan bawah">(Target)</th>
 	                            <?php else: ?>
-	                            	<td>Indikator</td>
-	                            	<td>Target</td>
+	                            	<th class="kiri atas kanan bawah">Indikator</th>
+	                            	<th class="kiri atas kanan bawah">Target</th>
 	                            <?php endif; ?>
 	                            </tr>
 								<?php echo implode('', $ind_prog); ?>
@@ -1830,6 +1871,7 @@ foreach ($bl as $k => $sub_bl) {
 	    			if(mapping_html.attr('data-id') != id){
 	    				var td_html = mapping_html.closest('td');
 	    				var realisasi = +td_html.find('.mapping.realisasi').attr('data-realisasi');
+	    				console.log('realisasi', realisasi);
 	    				total_realiasi_rincian += realisasi;
 	    			}
 	    		});
@@ -1852,8 +1894,13 @@ foreach ($bl as $k => $sub_bl) {
 
 	    	var nama_sub_keg = jQuery('.subkeg[data-kdsbl="'+kd_sbl+'"] .nama_sub').text();
 	    	var realisasi_sub_keg = jQuery('.subkeg[data-kdsbl="'+kd_sbl+'"] .mapping.realisasi').text();
-	    	var id_sumberdana_mapping = jQuery('.subkeg[data-kdsbl="'+kd_sbl+'"] .mapping').attr('data-id');
-	    	console.log(kd_sbl);
+	    	jQuery('#mapping_sumberdana').val('').trigger('change');
+	    	var td_html = jQuery(this).closest('td');
+	    	var id_sumberdana_mapping = td_html.find('.list-mapping .mapping.badge-primary').attr('data-id');
+	    	var id_label_mapping = [];
+	    	td_html.find('.list-mapping .mapping.badge-success').map(function(i, b){
+	    		id_label_mapping.push(jQuery(b).attr('data-id'));
+	    	});
 	    	var rak_sub_keg = jQuery('.subkeg[data-kdsbl="'+kd_sbl+'"] .mapping.rak').text();
 	    	var total_sub_keg = jQuery('.subkeg-total[data-kdsbl="'+kd_sbl+'"]').text();
 	    	var sumberdana_sub_keg = jQuery('.subkeg-sumberdana[data-kdsbl="'+kd_sbl+'"]').text();
@@ -1886,7 +1933,7 @@ foreach ($bl as $k => $sub_bl) {
     		}
     	<?php } ?>
 	    	var sumber_dana = [];
-	    	jQuery('#mapping_label').val(id_sumberdana_mapping).trigger('change');
+	    	jQuery('#mapping_label').val(id_label_mapping).trigger('change');
 	    	jQuery('#mod-mapping').modal('show');
 	    });
 	    jQuery('#mapping_label').select2();

@@ -2678,7 +2678,6 @@ class Wpsipd_Public
 							'kode_sbl' => $_POST['kode_sbl']
 						), array('%d', '%s'));
 					}
-					// untuk menghapus rka subkeg yang dihapus di perubahan
                    	if($rka == 0){
                        $rka = array();
                    	}
@@ -2765,8 +2764,16 @@ class Wpsipd_Public
 					}
 					// print_r($ssh); die();
 				} else if ($ret['status'] != 'error') {
-					$ret['status'] = 'error';
-					$ret['message'] = 'Format RKA Salah!';
+					// untuk menghapus rka subkeg yang dihapus di perubahan
+					if($_POST['rka'] == 0){
+						$wpdb->delete('data_rka', array(
+							'tahun_anggaran' => $_POST['tahun_anggaran'],
+							'kode_sbl' => $_POST['kode_sbl']
+						), array('%d', '%s'));
+					}else{
+						$ret['status'] = 'error';
+						$ret['message'] = 'Format RKA Salah!';
+					}
 				}
 
 				if(
@@ -3560,13 +3567,18 @@ class Wpsipd_Public
 				if(!empty($_POST['kode_bl'])){
 					$kode_bl = explode('.', $_POST['kode_bl']);
 					unset($kode_bl[2]);
+					// kode_skpd diselect dari data_unit karena pada tabel data_sub_keg_bl kolom kode_sub_skpd dan nama skpd salah
 					$bl = $wpdb->get_results($wpdb->prepare("
 						select 
-							* 
-						from data_sub_keg_bl 
-						where kode_bl=%s 
-							and active=1 
-							and tahun_anggaran=%d", implode('.', $kode_bl), $_POST['tahun_anggaran']
+							u.kode_skpd,
+							s.kode_bidang_urusan,
+							s.kode_giat,
+							s.nama_giat 
+						from data_sub_keg_bl s
+							left join data_unit u on s.id_sub_skpd=u.id_skpd
+						where s.kode_bl=%s 
+							and s.active=1 
+							and s.tahun_anggaran=%d", implode('.', $kode_bl), $_POST['tahun_anggaran']
 					), ARRAY_A);
 					$ret['query'] = $wpdb->last_query;
 					$kodeunit = $bl[0]['kode_skpd'];
