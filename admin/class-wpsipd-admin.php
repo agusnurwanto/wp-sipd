@@ -499,11 +499,11 @@ class Wpsipd_Admin {
 		global $wpdb;
 		$tahun = $wpdb->get_results('select tahun_anggaran from data_unit group by tahun_anggaran', ARRAY_A);
 		$master_sumberdana = '';
-		$no = 0;
 		foreach ($tahun as $k => $v) {
 			$sumberdana = $wpdb->get_results('
 				select 
 					iddana,
+					sum(pagudana) as pagudana,
 					kodedana,
 					count(kodedana) as jml,
 					namadana 
@@ -513,6 +513,8 @@ class Wpsipd_Admin {
 				group by iddana
 				order by kodedana ASC
 			', ARRAY_A);
+			$no = 0;
+			$total_sd = 0;
 			foreach ($sumberdana as $key => $val) {
 				$no++;
 				$title = 'Laporan APBD Per Sumber Dana '.$val['kodedana'].' '.$val['namadana'].' | '.$v['tahun_anggaran'];
@@ -528,12 +530,21 @@ class Wpsipd_Admin {
 						<td class="text_tengah">'.$no.'</td>
 						<td>'.$val['kodedana'].'</td>
 						<td><a href="'.$url_skpd.'" target="_blank">'.$val['namadana'].'</a></td>
+						<td class="text_kanan">'.number_format($val['pagudana'],0,",",".").'</td>
 						<td class="text_tengah">'.$val['jml'].'</td>
 						<td class="text_tengah">'.$val['iddana'].'</td>
 						<td class="text_tengah">'.$v['tahun_anggaran'].'</td>
 					</tr>
 				';
+				$total_sd += $val['pagudana'];
 			}
+			$master_sumberdana .= '
+				<tr class="text_blok">
+					<td class="text_tengah" colspan="3">Total Pagu Sumber Dana Tahun '.$v['tahun_anggaran'].'</td>
+					<td class="text_kanan">'.number_format($total_sd,0,",",".").'</td>
+					<td class="text_tengah" colspan="3"></td>
+				</tr>
+			';
 		}
 		$label = array(
 			Field::make( 'html', 'crb_daftar_label_komponen' )
@@ -549,6 +560,7 @@ class Wpsipd_Admin {
             					<th class="text_tengah" style="width: 20px">No</th>
             					<th class="text_tengah" style="width: 100px">Kode</th>
             					<th class="text_tengah">Sumber Dana</th>
+            					<th class="text_tengah" style="width: 150px">Pagu Sumber Dana (Rp.)</th>
             					<th class="text_tengah" style="width: 150px">Jumlah Sub Kegiatan</th>
             					<th class="text_tengah" style="width: 50px">ID Dana</th>
             					<th class="text_tengah" style="width: 110px">Tahun Anggaran</th>
