@@ -13,23 +13,32 @@ if(empty($input['id_skpd'])){
 	die('<h1>SKPD tidak ditemukan!</h1>');
 }
 
-$master_sumberdana = '';
+$lock_sumber_dana = get_option('_crb_kunci_sumber_dana_mapping');
+
+if($lock_sumber_dana==1)
+{
+	$sumberdana = $wpdb->get_results('
+		select 
+			d.iddana, d.kodedana, d.namadana, sum(d.pagudana) total_pagudana, count(s.kode_sbl) jumlah_kegiatan 
+		from data_dana_sub_keg d
+			INNER JOIN data_sub_keg_bl s ON d.kode_sbl=s.kode_sbl
+				AND s.tahun_anggaran=d.tahun_anggaran
+				AND s.active=d.active
+		where d.tahun_anggaran='.$input['tahun_anggaran'].'
+			and s.id_sub_skpd='.$input['id_skpd'].'
+			and d.active=1
+		group by iddana
+		order by kodedana ASC
+	', ARRAY_A);
+}
+
+if($lock_sumber_dana==2)
+{
+
+}
+die($wpdb->last_query);
 $no = 0;
-$sumberdana = $wpdb->get_results('
-	select 
-		d.iddana,
-		d.kodedana,
-		d.namadana 
-	from data_dana_sub_keg d
-		INNER JOIN data_sub_keg_bl s ON d.kode_sbl=s.kode_sbl
-			AND s.tahun_anggaran=d.tahun_anggaran
-			AND s.active=d.active
-	where d.tahun_anggaran='.$input['tahun_anggaran'].'
-		and s.id_sub_skpd='.$input['id_skpd'].'
-		and d.active=1
-	group by iddana
-	order by kodedana ASC
-', ARRAY_A);
+$master_sumberdana = '';
 foreach ($sumberdana as $key => $val) {
 	$no++;
 	$title = 'Laporan APBD Per Sumber Dana '.$val['kodedana'].' '.$val['namadana'].' | '.$input['tahun_anggaran'];

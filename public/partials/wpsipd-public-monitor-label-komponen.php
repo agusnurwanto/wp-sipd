@@ -58,7 +58,7 @@ $sql = $wpdb->prepare("
             ".$where_skpd."
             order by r.kode_sbl ASC
     ", $input['tahun_anggaran'], $input['id_label']);
-// die($sql);
+die($sql);
 $data = $wpdb->get_results($sql, ARRAY_A);
 if(!empty($data)){
     $data_label = $data;

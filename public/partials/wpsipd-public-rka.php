@@ -1853,6 +1853,7 @@ foreach ($bl as $k => $sub_bl) {
 	    	var nama_sub_keg = jQuery('.subkeg[data-kdsbl="'+kd_sbl+'"] .nama_sub').text();
 	    	var realisasi_sub_keg = jQuery('.subkeg[data-kdsbl="'+kd_sbl+'"] .mapping.realisasi').text();
 	    	var id_sumberdana_mapping = jQuery('.subkeg[data-kdsbl="'+kd_sbl+'"] .mapping').attr('data-id');
+	    	console.log(kd_sbl);
 	    	var rak_sub_keg = jQuery('.subkeg[data-kdsbl="'+kd_sbl+'"] .mapping.rak').text();
 	    	var total_sub_keg = jQuery('.subkeg-total[data-kdsbl="'+kd_sbl+'"]').text();
 	    	var sumberdana_sub_keg = jQuery('.subkeg-sumberdana[data-kdsbl="'+kd_sbl+'"]').text();
