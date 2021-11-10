@@ -20,6 +20,29 @@ function load_label(tahun_anggaran){
 	});
 }
 
+function format_sumberdana(){
+	jQuery("#wrap-loading").show();
+	var tahun = jQuery('#pilih_tahun').val();
+	var format = jQuery('input[name="format-sd"]:checked').attr('format-id');
+	jQuery.ajax({
+		url: ajaxurl,
+      	type: "post",
+      	data: {
+      		"action": "generate_sumber_dana_format",
+      		"api_key": wpsipd.api_key,
+      		"format": format,
+      		"tahun_anggaran": tahun
+      	},
+      	success: function(data){
+			jQuery("#tabel_monev_sumber_dana").html(data);
+			jQuery("#wrap-loading").hide();
+		},
+		error: function(e) {
+			console.log(e);
+		}
+	});
+}
+
 jQuery(document).ready(function(){
 	var loading = ''
 		+'<div id="wrap-loading">'
@@ -28,6 +51,9 @@ jQuery(document).ready(function(){
 	    +'</div>';
 	if(jQuery('#wrap-loading').length == 0){
 		jQuery('body').prepend(loading);
+	}
+	if(jQuery('#tabel_monev_sumber_dana').length >= 1){
+		format_sumberdana();
 	}
 	jQuery('#generate_user_sipd_merah').on('click', function(){
 		if(confirm("Apakah anda yakin akan menggenerate user SIPD!")){

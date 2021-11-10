@@ -497,28 +497,67 @@ class Wpsipd_Admin {
 
 	public function generate_sumber_dana(){
 		global $wpdb;
-		$tahun = $wpdb->get_results('select tahun_anggaran from data_unit group by tahun_anggaran', ARRAY_A);
-		$master_sumberdana = '';
-		$no = 0;
+		$tahun = $wpdb->get_results('select tahun_anggaran from data_unit group by tahun_anggaran order by tahun_anggaran ASC', ARRAY_A);
+		$options_tahun = array();
+		$tahun_skr = date('Y');
 		foreach ($tahun as $k => $v) {
-			$sumberdana = $wpdb->get_results('
+			$selected = '';
+			if($tahun_skr == $v['tahun_anggaran']){
+				$selected = 'selected';
+			}
+			$options_tahun[] = '<option '.$selected.' value="'.$v['tahun_anggaran'].'">'.$v['tahun_anggaran'].'</option>';
+		}
+		$label = array(
+			Field::make( 'html', 'crb_daftar_label_komponen' )
+            	->set_html( '
+            		<style>
+            			.postbox-container { display: none; }
+            			#poststuff #post-body.columns-2 { margin: 0 !important; }
+            		</style>
+            		<div class="text_tengah" style="margin-bottom: 1em;">
+	            		<h3>Daftar Sumber Dana</h3>
+	            		<select style="margin-bottom: 15px; width: 200px;" id="pilih_tahun" onchange="format_sumberdana();">
+	            			<option value="0">Pilih Tahun</option>
+	            			'.implode('', $options_tahun).'
+	            		</select>
+	            		<br>
+	            		<label><input type="radio" checked name="format-sd" format-id="1" onclick="format_sumberdana();"> Format Per Sumber Dana SIPD</label>
+	            		<label style="margin-left: 25px;"><input type="radio" name="format-sd" format-id="2" onclick="format_sumberdana();"> Format Kombinasi Sumber Dana SIPD</label>
+	            		<label style="margin-left: 25px;"><input type="radio" name="format-sd" format-id="3" onclick="format_sumberdana();"> Format Per Sumber Dana Mapping</label>
+	            	</div>
+	            	<div id="tabel_monev_sumber_dana">
+	            	</div>
+        		' )
+        );
+        return $label;
+	}
+
+	public function generate_sumber_dana_format(){
+		global $wpdb;
+		$format = $_POST['format'];
+		$tahun = $_POST['tahun_anggaran'];
+		if($format == 1){
+			$sumberdana = $wpdb->get_results($wpdb->prepare('
 				select 
 					iddana,
+					sum(pagudana) as pagudana,
 					kodedana,
 					count(kodedana) as jml,
 					namadana 
 				from data_dana_sub_keg 
-				where tahun_anggaran='.$v['tahun_anggaran'].'
+				where tahun_anggaran=%d
 					and active=1
 				group by iddana
 				order by kodedana ASC
-			', ARRAY_A);
+			', $tahun), ARRAY_A);
+			$no = 0;
+			$total_sd = 0;
 			foreach ($sumberdana as $key => $val) {
 				$no++;
-				$title = 'Laporan APBD Per Sumber Dana '.$val['kodedana'].' '.$val['namadana'].' | '.$v['tahun_anggaran'];
-				$shortcode = '[monitor_sumber_dana tahun_anggaran="'.$v['tahun_anggaran'].'" id_sumber_dana="'.$val['iddana'].'"]';
+				$title = 'Laporan APBD Per Sumber Dana '.$val['kodedana'].' '.$val['namadana'].' | '.$tahun;
+				$shortcode = '[monitor_sumber_dana tahun_anggaran="'.$tahun.'" id_sumber_dana="'.$val['iddana'].'"]';
 				$update = false;
-				$url_skpd = $this->generatePage($title, $v['tahun_anggaran'], $shortcode, $update);
+				$url_skpd = $this->generatePage($title, $tahun, $shortcode, $update);
 				if(empty($val['kodedana'])){
 					$val['kodedana'] = '';
 					$val['namadana'] = 'Belum Di Setting';
@@ -528,40 +567,154 @@ class Wpsipd_Admin {
 						<td class="text_tengah">'.$no.'</td>
 						<td>'.$val['kodedana'].'</td>
 						<td><a href="'.$url_skpd.'" target="_blank">'.$val['namadana'].'</a></td>
+						<td class="text_kanan">'.number_format($val['pagudana'],0,",",".").'</td>
 						<td class="text_tengah">'.$val['jml'].'</td>
 						<td class="text_tengah">'.$val['iddana'].'</td>
-						<td class="text_tengah">'.$v['tahun_anggaran'].'</td>
+						<td class="text_tengah">'.$tahun.'</td>
 					</tr>
 				';
+				$total_sd += $val['pagudana'];
 			}
-		}
-		$label = array(
-			Field::make( 'html', 'crb_daftar_label_komponen' )
-            	->set_html( '
-            		<style>
-            			.postbox-container { display: none; }
-            			#poststuff #post-body.columns-2 { margin: 0 !important; }
-            		</style>
-            		<h3 class="text_tengah">Daftar Sumber Dana</h3>
-            		<table class="wp-list-table widefat fixed striped">
-            			<thead>
-            				<tr class="text_tengah">
-            					<th class="text_tengah" style="width: 20px">No</th>
-            					<th class="text_tengah" style="width: 100px">Kode</th>
-            					<th class="text_tengah">Sumber Dana</th>
-            					<th class="text_tengah" style="width: 150px">Jumlah Sub Kegiatan</th>
-            					<th class="text_tengah" style="width: 50px">ID Dana</th>
-            					<th class="text_tengah" style="width: 110px">Tahun Anggaran</th>
-            				</tr>
-            			</thead>
-            			<tbody>
-            				'.$master_sumberdana.'
-            			</tbody>
-            		</table>
-        		' )
-        );
-        $label = array_merge($label, $this->get_ajax_field(array('type' => 'sumber_dana')));
-        return $label;
+			$total_rka = $wpdb->get_results('
+				select 
+					sum(pagu) as total_rka
+				from data_sub_keg_bl 
+				where tahun_anggaran='.$tahun.'
+					and active=1
+			', ARRAY_A);
+			$master_sumberdana .= '
+				<tr class="text_blok">
+					<td class="text_tengah" colspan="3">Total Pagu Sumber Dana Tahun '.$tahun.'</td>
+					<td class="text_kanan">'.number_format($total_sd,0,",",".").'</td>
+					<td class="text_tengah" colspan="2">Total RKA</td>
+					<td class="text_tengah">'.number_format($total_rka[0]['total_rka'],0,",",".").'</td>
+				</tr>
+			';
+			$tabel = '
+        		<table class="wp-list-table widefat fixed striped">
+        			<thead>
+        				<tr class="text_tengah">
+        					<th class="text_tengah" style="width: 20px">No</th>
+        					<th class="text_tengah" style="width: 100px">Kode</th>
+        					<th class="text_tengah">Sumber Dana</th>
+        					<th class="text_tengah" style="width: 150px">Pagu Sumber Dana (Rp.)</th>
+        					<th class="text_tengah" style="width: 150px">Jumlah Sub Kegiatan</th>
+        					<th class="text_tengah" style="width: 50px">ID Dana</th>
+        					<th class="text_tengah" style="width: 110px">Tahun Anggaran</th>
+        				</tr>
+        			</thead>
+        			<tbody>
+        				'.$master_sumberdana.'
+        			</tbody>
+        		</table>
+    		';
+	        die($tabel);
+	    }else if($format == 2){
+	    }else if($format == 3){
+	    	$data_all = array();
+	    	$total_harga = 0;
+	    	$realisasi = 0;
+	    	$jml_rincian = 0;
+    		$rka_db = $wpdb->get_results($wpdb->prepare('
+    			select
+    				r.id_rinci_sub_bl,
+    				r.total_harga,
+    				d.realisasi
+    			from data_rka r
+    				left join data_realisasi_rincian d ON r.id_rinci_sub_bl=d.id_rinci_sub_bl
+    					and d.tahun_anggaran=r.tahun_anggaran
+    					and d.active=r.active
+    			where r.tahun_anggaran=%d
+    				and r.active=1
+    		', $tahun), ARRAY_A);
+    		foreach ($rka_db as $rka) {
+    			if(empty($rka['realisasi'])){
+    				$rka['realisasi'] = 0;
+    			}
+    			$mapping_db = $wpdb->get_results($wpdb->prepare('
+    				select 
+    					d.kode_dana,
+    					d.nama_dana
+    				from data_mapping_sumberdana s
+    					inner join data_sumber_dana d ON s.id_sumber_dana=d.id_dana
+    						and d.tahun_anggaran=s.tahun_anggaran
+    				where s.tahun_anggaran=%d
+    					and s.active=1
+    					and s.id_rinci_sub_bl=%d
+    			', $tahun, $rka['id_rinci_sub_bl']), ARRAY_A);
+    			if(!empty($mapping_db)){
+	    			foreach ($mapping_db as $mapping) {
+	    				if(empty($data_all[$mapping['kode_dana']])){
+	    					$data_all[$mapping['kode_dana']] = array(
+	    						'kode_dana' => $mapping['kode_dana'],
+	    						'nama_dana' => $mapping['nama_dana'],
+	    						'jml_rincian' => 0,
+	    						'pagu' => 0,
+	    						'realisasi' => 0
+		    				);
+	    				}
+		    			$data_all[$mapping['kode_dana']]['jml_rincian']++;
+		    			$data_all[$mapping['kode_dana']]['pagu'] += $rka['total_harga'];
+		    			$data_all[$mapping['kode_dana']]['realisasi'] += $rka['realisasi'];
+	    			}
+	    		}else{
+	    			if(empty($data_all['kosong'])){
+		    			$data_all['kosong'] = array(
+    						'kode_dana' => '-',
+    						'nama_dana' => 'Belum di mapping!',
+    						'jml_rincian' => 0,
+    						'pagu' => 0,
+    						'realisasi' => 0
+	    				);
+		    		}
+		    		$data_all['kosong']['jml_rincian']++;
+		    		$data_all['kosong']['pagu'] += $rka['total_harga'];
+		    		$data_all['kosong']['realisasi'] += $rka['realisasi'];
+	    		}
+	    		$total_harga += $rka['total_harga'];
+	    		$realisasi += $rka['realisasi'];
+	    		$jml_rincian++;
+    		}
+	    	$master_sumberdana = '';
+	    	$no = 0;
+	    	foreach ($data_all as $k => $v) {
+	    		$no++;
+	    		$master_sumberdana .= '
+	    			<tr>
+	    				<td class="text_tengah">'.$no.'</td>
+	    				<td>'.$v['kode_dana'].'</td>
+	    				<td>'.$v['nama_dana'].'</td>
+	    				<td class="text_kanan">'.number_format($v['pagu'],0,",",".").'</td>
+	    				<td class="text_kanan">'.number_format($v['realisasi'],0,",",".").'</td>
+	    				<td class="text_tengah">'.number_format($v['jml_rincian'],0,",",".").'</td>
+	    			</tr>
+	    		';
+	    	}
+	    	$tabel = '
+        		<table class="wp-list-table widefat fixed striped">
+        			<thead>
+        				<tr class="text_tengah">
+        					<th class="text_tengah" style="width: 20px">No</th>
+        					<th class="text_tengah" style="width: 100px">Kode</th>
+        					<th class="text_tengah">Sumber Dana</th>
+        					<th class="text_tengah" style="width: 150px">Pagu Sumber Dana (Rp.)</th>
+        					<th class="text_tengah" style="width: 150px">Realisasi</th>
+        					<th class="text_tengah" style="width: 150px">Jumlah Rincian</th>
+        				</tr>
+        			</thead>
+        			<tbody>
+        				'.$master_sumberdana.'
+        				<tr class="text_blok">
+		    				<td class="text_tengah" colspan="3">Total</td>
+		    				<td class="text_kanan">'.number_format($total_harga,0,",",".").'</td>
+		    				<td class="text_kanan">'.number_format($realisasi,0,",",".").'</td>
+		    				<td class="text_tengah">'.number_format($jml_rincian,0,",",".").'</td>
+		    			</tr>
+        			</tbody>
+        		</table>
+    		';
+	        die($tabel);
+	    }
 	}
 
 	public function generate_tag_sipd(){

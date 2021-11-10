@@ -359,7 +359,7 @@ foreach ($data_sumberdana_shorted['data'] as $k => $skpd) {
             $mapping_sd .= '<td class="kanan bawah text_kanan">'.$capaian_mapping.'</td>';
         }
         $body_sumberdana .= '
-            <tr class="sub_keg">
+            <tr class="sub_keg" style="display:none;">
                 <td class="kanan bawah kiri text_tengah">'.$no_all.'</td>
                 <td class="kanan bawah" style="padding-left: 20px;"><a '.$link.' target="_blank">'.$sub_keg['nama'].'</a></td>
                 <td class="kanan bawah">'.implode(',<br>', $sub_keg['data']['sd_text']).'</td>
@@ -443,6 +443,15 @@ $body_sumberdana .= '
 </div>
 
 <script type="text/javascript">
+    function show_sub_keg(that){
+        var checked = jQuery(that).is(':checked');
+        if(checked){
+            jQuery('tr.sub_keg').show();
+        }else{
+            jQuery('tr.sub_keg').hide();
+        }
+    }
+
     run_download_excel();
     var _url_asli = window.location.href;
 
@@ -461,5 +470,8 @@ $body_sumberdana .= '
     }else{
         extend_action += '<a href="'+changeUrl({ url: _url_asli, key: 'mapping', value: 1 })+'" target="_blank" class="button button-primary" style="margin-left: 10px;">Laporan Sesuai Mapping Sumber Dana</a>';
     }
+    extend_action += ''
+        +'<h3 style="margin-top: 20px;">SETING</h3>'
+        +'<label><input type="checkbox" onclick="show_sub_keg(this);"> Tampilkan Sub Kegiatan</label>';
     jQuery('#action-sipd #excel').after(extend_action);
 </script>
