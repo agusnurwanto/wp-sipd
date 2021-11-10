@@ -609,8 +609,111 @@ class Wpsipd_Admin {
         		</table>
     		';
 	        die($tabel);
-	    }else{
-
+	    }else if($format == 2){
+	    }else if($format == 3){
+	    	$data_all = array();
+	    	$total_harga = 0;
+	    	$realisasi = 0;
+	    	$jml_rincian = 0;
+    		$rka_db = $wpdb->get_results($wpdb->prepare('
+    			select
+    				r.id_rinci_sub_bl,
+    				r.total_harga,
+    				d.realisasi
+    			from data_rka r
+    				left join data_realisasi_rincian d ON r.id_rinci_sub_bl=d.id_rinci_sub_bl
+    					and d.tahun_anggaran=r.tahun_anggaran
+    					and d.active=r.active
+    			where r.tahun_anggaran=%d
+    				and r.active=1
+    		', $tahun), ARRAY_A);
+    		foreach ($rka_db as $rka) {
+    			if(empty($rka['realisasi'])){
+    				$rka['realisasi'] = 0;
+    			}
+    			$mapping_db = $wpdb->get_results($wpdb->prepare('
+    				select 
+    					d.kode_dana,
+    					d.nama_dana
+    				from data_mapping_sumberdana s
+    					inner join data_sumber_dana d ON s.id_sumber_dana=d.id_dana
+    						and d.tahun_anggaran=s.tahun_anggaran
+    				where s.tahun_anggaran=%d
+    					and s.active=1
+    					and s.id_rinci_sub_bl=%d
+    			', $tahun, $rka['id_rinci_sub_bl']), ARRAY_A);
+    			if(!empty($mapping_db)){
+	    			foreach ($mapping_db as $mapping) {
+	    				if(empty($data_all[$mapping['kode_dana']])){
+	    					$data_all[$mapping['kode_dana']] = array(
+	    						'kode_dana' => $mapping['kode_dana'],
+	    						'nama_dana' => $mapping['nama_dana'],
+	    						'jml_rincian' => 0,
+	    						'pagu' => 0,
+	    						'realisasi' => 0
+		    				);
+	    				}
+		    			$data_all[$mapping['kode_dana']]['jml_rincian']++;
+		    			$data_all[$mapping['kode_dana']]['pagu'] += $rka['total_harga'];
+		    			$data_all[$mapping['kode_dana']]['realisasi'] += $rka['realisasi'];
+	    			}
+	    		}else{
+	    			if(empty($data_all['kosong'])){
+		    			$data_all['kosong'] = array(
+    						'kode_dana' => '-',
+    						'nama_dana' => 'Belum di mapping!',
+    						'jml_rincian' => 0,
+    						'pagu' => 0,
+    						'realisasi' => 0
+	    				);
+		    		}
+		    		$data_all['kosong']['jml_rincian']++;
+		    		$data_all['kosong']['pagu'] += $rka['total_harga'];
+		    		$data_all['kosong']['realisasi'] += $rka['realisasi'];
+	    		}
+	    		$total_harga += $rka['total_harga'];
+	    		$realisasi += $rka['realisasi'];
+	    		$jml_rincian++;
+    		}
+	    	$master_sumberdana = '';
+	    	$no = 0;
+	    	foreach ($data_all as $k => $v) {
+	    		$no++;
+	    		$master_sumberdana .= '
+	    			<tr>
+	    				<td class="text_tengah">'.$no.'</td>
+	    				<td>'.$v['kode_dana'].'</td>
+	    				<td>'.$v['nama_dana'].'</td>
+	    				<td class="text_kanan">'.number_format($v['pagu'],0,",",".").'</td>
+	    				<td class="text_kanan">'.number_format($v['realisasi'],0,",",".").'</td>
+	    				<td class="text_tengah">'.number_format($v['jml_rincian'],0,",",".").'</td>
+	    			</tr>
+	    		';
+	    	}
+	    	$tabel = '
+        		<table class="wp-list-table widefat fixed striped">
+        			<thead>
+        				<tr class="text_tengah">
+        					<th class="text_tengah" style="width: 20px">No</th>
+        					<th class="text_tengah" style="width: 100px">Kode</th>
+        					<th class="text_tengah">Sumber Dana</th>
+        					<th class="text_tengah" style="width: 150px">Pagu Sumber Dana (Rp.)</th>
+        					<th class="text_tengah" style="width: 150px">Realisasi</th>
+        					<th class="text_tengah" style="width: 150px">Jumlah Rincian</th>
+        				</tr>
+        			</thead>
+        			<tbody>
+        				'.$master_sumberdana.'
+        				<tr class="text_blok">
+		    				<td class="text_tengah" colspan="3">Total</td>
+		    				<td class="text_kanan">'.number_format($total_harga,0,",",".").'</td>
+		    				<td class="text_kanan">'.number_format($realisasi,0,",",".").'</td>
+		    				<td class="text_tengah">'.number_format($jml_rincian,0,",",".").'</td>
+		    			</tr>
+        			</tbody>
+        		</table>
+    		';
+	        die($tabel);
 	    }
 	}
 
