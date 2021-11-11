@@ -520,6 +520,9 @@ class Wpsipd_Admin {
 	            			<option value="0">Pilih Tahun</option>
 	            			'.implode('', $options_tahun).'
 	            		</select>
+	            		<select style="margin-bottom: 15px; margin-left: 25px; min-width: 200px;" id="pilih_skpd" onchange="format_sumberdana();">
+	            			<option value="0">Semua SKPD</option>
+	            		</select>
 	            		<br>
 	            		<label><input type="radio" checked name="format-sd" format-id="1" onclick="format_sumberdana();"> Format Per Sumber Dana SIPD</label>
 	            		<label style="margin-left: 25px;"><input type="radio" name="format-sd" format-id="2" onclick="format_sumberdana();"> Format Kombinasi Sumber Dana SIPD</label>
@@ -532,24 +535,61 @@ class Wpsipd_Admin {
         return $label;
 	}
 
+	public function get_list_skpd(){
+		global $wpdb;
+		$tahun = $_POST['tahun_anggaran'];
+		$options_skpd = array();
+		$unit = $wpdb->get_results("SELECT nama_skpd, id_skpd, kode_skpd, nipkepala from data_unit where active=1 and tahun_anggaran=".$tahun.' and is_skpd=1 order by kode_skpd ASC', ARRAY_A);
+        foreach ($unit as $kk => $vv) {
+			$options_skpd[] = $vv;
+        	$subunit = $wpdb->get_results("SELECT nama_skpd, id_skpd, kode_skpd, nipkepala from data_unit where active=1 and tahun_anggaran=".$tahun." and is_skpd=0 and id_unit=".$vv["id_skpd"]." order by kode_skpd ASC", ARRAY_A);
+        	foreach ($subunit as $kkk => $vvv) {
+        		$vvv['kode_skpd'] = '-- '.$vvv['kode_skpd'];
+				$options_skpd[] = $vvv;
+        	}
+        }
+        die(json_encode($options_skpd));
+	}
+
 	public function generate_sumber_dana_format(){
 		global $wpdb;
 		$format = $_POST['format'];
 		$tahun = $_POST['tahun_anggaran'];
+		$id_skpd = $_POST['id_skpd'];
 		if($format == 1){
-			$sumberdana = $wpdb->get_results($wpdb->prepare('
-				select 
-					iddana,
-					sum(pagudana) as pagudana,
-					kodedana,
-					count(kodedana) as jml,
-					namadana 
-				from data_dana_sub_keg 
-				where tahun_anggaran=%d
-					and active=1
-				group by iddana
-				order by kodedana ASC
-			', $tahun), ARRAY_A);
+			if(!empty($id_skpd)){
+				$sumberdana = $wpdb->get_results($wpdb->prepare('
+					select 
+						d.iddana, 
+						sum(d.pagudana) as pagudana, 
+						d.kodedana, 
+						count(s.kode_sbl) as jml,
+						d.namadana
+					from data_dana_sub_keg d
+						INNER JOIN data_sub_keg_bl s ON d.kode_sbl=s.kode_sbl
+							AND s.tahun_anggaran=d.tahun_anggaran
+							AND s.active=d.active
+					where d.tahun_anggaran=%d
+						and s.id_sub_skpd=%d
+						and d.active=1
+					group by d.iddana
+					order by d.kodedana ASC
+				', $tahun, $id_skpd), ARRAY_A);
+			}else{
+				$sumberdana = $wpdb->get_results($wpdb->prepare('
+					select 
+						iddana,
+						sum(pagudana) as pagudana,
+						kodedana,
+						count(kodedana) as jml,
+						namadana 
+					from data_dana_sub_keg 
+					where tahun_anggaran=%d
+						and active=1
+					group by iddana
+					order by kodedana ASC
+				', $tahun), ARRAY_A);
+			}
 			$no = 0;
 			$total_sd = 0;
 			foreach ($sumberdana as $key => $val) {
@@ -575,19 +615,50 @@ class Wpsipd_Admin {
 				';
 				$total_sd += $val['pagudana'];
 			}
-			$total_rka = $wpdb->get_results('
-				select 
-					sum(pagu) as total_rka
-				from data_sub_keg_bl 
-				where tahun_anggaran='.$tahun.'
-					and active=1
-			', ARRAY_A);
+			if(!empty($id_skpd)){
+				$total_rka = $wpdb->get_results($wpdb->prepare('
+					select 
+						sum(pagu) as total_rka
+					from data_sub_keg_bl 
+					where tahun_anggaran=%d
+						and id_sub_skpd=%d
+						and active=1
+				', $tahun, $id_skpd), ARRAY_A);
+				$skpd = $wpdb->get_results($wpdb->prepare("
+					SELECT 
+						nama_skpd, 
+						id_skpd, 
+						kode_skpd
+					from data_unit 
+					where active=1 
+						and tahun_anggaran=%d
+						and id_skpd=%d
+					order by kode_skpd ASC
+				", $tahun, $id_skpd), ARRAY_A);
+
+				$title = 'RFK '.$skpd[0]['nama_skpd'].' '.$skpd[0]['kode_skpd'].' | '.$tahun;
+				$shortcode = '[monitor_rfk tahun_anggaran="'.$tahun.'" id_skpd="'.$skpd[0]['id_skpd'].'"]';
+				$update = false;
+				$url_skpd = $this->generatePage($title, $tahun, $shortcodee, $update);
+			}else{
+				$total_rka = $wpdb->get_results($wpdb->prepare('
+					select 
+						sum(pagu) as total_rka
+					from data_sub_keg_bl 
+					where tahun_anggaran=%d
+						and active=1
+				', $tahun), ARRAY_A);
+				$title = 'Realisasi Fisik dan Keuangan Pemerintah Daerah | '.$tahun;
+				$shortcode = '[monitor_rfk tahun_anggaran="'.$tahun.'"]';
+				$update = false;
+				$url_skpd = $this->generatePage($title, $tahun, $shortcodee, $update);
+			}
 			$master_sumberdana .= '
 				<tr class="text_blok">
 					<td class="text_tengah" colspan="3">Total Pagu Sumber Dana Tahun '.$tahun.'</td>
 					<td class="text_kanan">'.number_format($total_sd,0,",",".").'</td>
 					<td class="text_tengah" colspan="2">Total RKA</td>
-					<td class="text_tengah">'.number_format($total_rka[0]['total_rka'],0,",",".").'</td>
+					<td class="text_tengah"><a target="_blank" href="'.$url_skpd.'">'.number_format($total_rka[0]['total_rka'],0,",",".").'</a></td>
 				</tr>
 			';
 			$tabel = '

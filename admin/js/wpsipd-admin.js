@@ -21,29 +21,67 @@ function load_label(tahun_anggaran){
 }
 
 function format_sumberdana(){
-	jQuery("#wrap-loading").show();
 	var tahun = jQuery('#pilih_tahun').val();
-	var format = jQuery('input[name="format-sd"]:checked').attr('format-id');
-	jQuery.ajax({
-		url: ajaxurl,
-      	type: "post",
-      	data: {
-      		"action": "generate_sumber_dana_format",
-      		"api_key": wpsipd.api_key,
-      		"format": format,
-      		"tahun_anggaran": tahun
-      	},
-      	success: function(data){
-			jQuery("#tabel_monev_sumber_dana").html(data);
-			jQuery("#wrap-loading").hide();
-		},
-		error: function(e) {
-			console.log(e);
-		}
+	var id_skpd = jQuery('#pilih_skpd').val();
+	get_list_skpd(tahun, function(){
+		jQuery("#wrap-loading").show();
+		jQuery('#pilih_skpd').val(id_skpd);
+		var format = jQuery('input[name="format-sd"]:checked').attr('format-id');
+		jQuery.ajax({
+			url: ajaxurl,
+	      	type: "post",
+	      	data: {
+	      		"action": "generate_sumber_dana_format",
+	      		"api_key": wpsipd.api_key,
+	      		"id_skpd": id_skpd,
+	      		"format": format,
+	      		"tahun_anggaran": tahun
+	      	},
+	      	success: function(data){
+				jQuery("#tabel_monev_sumber_dana").html(data);
+				jQuery("#wrap-loading").hide();
+			},
+			error: function(e) {
+				console.log(e);
+			}
+		});
 	});
 }
 
+function get_list_skpd(tahun, cb){
+	if(options_skpd[tahun]){
+		var opsi = '<option value="0">Semua SKPD</option>';
+		options_skpd[tahun].map(function(b, i){
+			opsi += '<option value="'+b.id_skpd+'">'+b.kode_skpd+' '+b.nama_skpd+'</option>';
+		});
+		jQuery('#pilih_skpd').html(opsi);
+		cb();
+	}else{
+		jQuery("#wrap-loading").show();
+		jQuery.ajax({
+			url: ajaxurl,
+	      	type: "post",
+	      	data: {
+	      		"action": "get_list_skpd",
+	      		"api_key": wpsipd.api_key,
+	      		"tahun_anggaran": tahun
+	      	},
+	      	dataType: 'json',
+	      	success: function(data){
+				window.options_skpd[tahun] = data;
+				jQuery("#wrap-loading").hide();
+				get_list_skpd(tahun, cb);
+			},
+			error: function(e) {
+				get_list_skpd(tahun, cb);
+				console.log(e);
+			}
+		});
+	}
+}
+
 jQuery(document).ready(function(){
+	window.options_skpd = {};
 	var loading = ''
 		+'<div id="wrap-loading">'
 	        +'<div class="lds-hourglass"></div>'
