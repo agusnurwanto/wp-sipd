@@ -109,6 +109,37 @@ class Wpsipd_Admin {
 
 	}
 
+	function gen_key($key_db = false, $options = array()){
+		$now = time()*1000;
+		if(empty($key_db)){
+			$key_db = md5(get_option( '_crb_api_key_extension' ));
+		}
+		$tambahan_url = '';
+		if(!empty($options['custom_url'])){
+			$custom_url = array();
+			foreach ($options['custom_url'] as $k => $v) {
+				$custom_url[] = $v['key'].'='.$v['value'];
+			}
+			$tambahan_url = $key_db.implode('&', $custom_url);
+		}
+		$key = base64_encode($now.$key_db.$now.$tambahan_url);
+		return $key;
+	}
+
+	public function get_link_post($custom_post){
+		$link = get_permalink($custom_post);
+		$options = array();
+		if(!empty($custom_post->custom_url)){
+			$options['custom_url'] = $custom_post->custom_url;
+		}
+		if(strpos($link, '?') === false){
+			$link .= '?key=' . $this->gen_key(false, $options);
+		}else{
+			$link .= '&key=' . $this->gen_key(false, $options);
+		}
+		return $link;
+	}
+
 	public function generateRandomString($length = 10) {
 	    $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
 	    $charactersLength = strlen($characters);
@@ -150,7 +181,7 @@ class Wpsipd_Admin {
 			wp_update_post( $_post );
 			$_post['update'] = 1;
 		}
-		return esc_url( get_permalink($custom_post));
+		return $this->get_link_post($custom_post);
 	}
 
 	// https://docs.carbonfields.net/#/containers/theme-options
@@ -634,7 +665,8 @@ class Wpsipd_Admin {
     			$mapping_db = $wpdb->get_results($wpdb->prepare('
     				select 
     					d.kode_dana,
-    					d.nama_dana
+    					d.nama_dana,
+    					d.id_dana
     				from data_mapping_sumberdana s
     					inner join data_sumber_dana d ON s.id_sumber_dana=d.id_dana
     						and d.tahun_anggaran=s.tahun_anggaran
@@ -646,6 +678,7 @@ class Wpsipd_Admin {
 	    			foreach ($mapping_db as $mapping) {
 	    				if(empty($data_all[$mapping['kode_dana']])){
 	    					$data_all[$mapping['kode_dana']] = array(
+	    						'id_dana' => $mapping['id_dana'],
 	    						'kode_dana' => $mapping['kode_dana'],
 	    						'nama_dana' => $mapping['nama_dana'],
 	    						'jml_rincian' => 0,
@@ -660,6 +693,7 @@ class Wpsipd_Admin {
 	    		}else{
 	    			if(empty($data_all['kosong'])){
 		    			$data_all['kosong'] = array(
+    						'id_dana' => '',
     						'kode_dana' => '-',
     						'nama_dana' => 'Belum di mapping!',
     						'jml_rincian' => 0,
@@ -679,11 +713,19 @@ class Wpsipd_Admin {
 	    	$no = 0;
 	    	foreach ($data_all as $k => $v) {
 	    		$no++;
+	    		if(empty($v['id_dana'])){
+					$title = 'Laporan APBD Per Sumber Dana   | '.$tahun;
+	    		}else{
+					$title = 'Laporan APBD Per Sumber Dana '.$v['kode_dana'].' '.$v['nama_dana'].' | '.$tahun;
+	    		}
+				$shortcode = '[monitor_sumber_dana tahun_anggaran="'.$tahun.'" id_sumber_dana="'.$v['id_dana'].'"]';
+				$update = false;
+				$url_skpd = $this->generatePage($title, $tahun, $shortcode, $update).'&mapping=1';
 	    		$master_sumberdana .= '
 	    			<tr>
 	    				<td class="text_tengah">'.$no.'</td>
 	    				<td>'.$v['kode_dana'].'</td>
-	    				<td>'.$v['nama_dana'].'</td>
+	    				<td><a href="'.$url_skpd.'" target="_blank">'.$v['nama_dana'].'</a></td>
 	    				<td class="text_kanan">'.number_format($v['pagu'],0,",",".").'</td>
 	    				<td class="text_kanan">'.number_format($v['realisasi'],0,",",".").'</td>
 	    				<td class="text_tengah">'.number_format($v['jml_rincian'],0,",",".").'</td>
@@ -698,7 +740,7 @@ class Wpsipd_Admin {
         					<th class="text_tengah" style="width: 100px">Kode</th>
         					<th class="text_tengah">Sumber Dana</th>
         					<th class="text_tengah" style="width: 150px">Pagu Sumber Dana (Rp.)</th>
-        					<th class="text_tengah" style="width: 150px">Realisasi</th>
+        					<th class="text_tengah" style="width: 150px">Realisasi Rincian</th>
         					<th class="text_tengah" style="width: 150px">Jumlah Rincian</th>
         				</tr>
         			</thead>
