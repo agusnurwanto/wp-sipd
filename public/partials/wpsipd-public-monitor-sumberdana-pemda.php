@@ -409,7 +409,6 @@ $body_sumberdana .= '
     </tr>
 ';
 
-// print_r($data_sumberdana_shorted);
 ?>
 <div id="cetak" title="<?php echo implode(' ', $judul_laporan); ?>" style="padding: 5px;">
 	<h4 style="text-align: center; margin: 0; font-weight: bold;"><?php echo implode('<br>', $judul_laporan); ?></h4>
