@@ -6963,6 +6963,214 @@ class Wpsipd_Public
 		die(json_encode($ret));
 	}
 
+	public function get_sumber_dana_mapping(){
+		global $wpdb;
+		$return = array(
+			'status' => 'success',
+			'data'	=> array()
+		);
+
+		$master_sumberdana = '';
+		if(!empty($_POST)){
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+				if($_POST['format_sumber_dana'] == 1){
+					$sumberdana = $wpdb->get_results('
+						select 
+							d.iddana, d.kodedana, d.namadana, sum(d.pagudana) total, count(s.kode_sbl) jml 
+						from data_dana_sub_keg d
+							INNER JOIN data_sub_keg_bl s ON d.kode_sbl=s.kode_sbl
+								AND s.tahun_anggaran=d.tahun_anggaran
+								AND s.active=d.active
+						where d.tahun_anggaran='.$_POST['tahun_anggaran'].'
+							and s.id_sub_skpd='.$_POST['id_skpd'].'
+							and d.active=1
+						group by iddana
+						order by kodedana ASC
+					', ARRAY_A);
+
+					foreach ($sumberdana as $key => $val) {
+						$no++;
+						$title = 'Laporan APBD Per Sumber Dana '.$val['kodedana'].' '.$val['namadana'].' | '.$_POST['tahun_anggaran'];
+						$custom_post = get_page_by_title($title, OBJECT, 'page');
+						$url_skpd = $this->get_link_post($custom_post);
+						if(empty($val['kodedana'])){
+							$val['kodedana'] = '';
+							$val['namadana'] = 'Belum Di Setting';
+						}
+						$master_sumberdana .= '
+							<tr>
+								<td class="text_tengah atas kanan bawah kiri">'.$no.'</td>
+								<td class="text_kiri atas kanan bawah">'.$val['kodedana'].'</td>
+								<td class="text_kiri atas kanan bawah"><a href="'.$url_skpd.'&id_skpd='.$_POST['id_skpd'].'" target="_blank" data-id="'.$title.'">'.$val['namadana'].'</a></td>
+								<td class="text_kanan atas kanan bawah">'.number_format($val['total'], 0,',','.').'</td>
+								<td class="text_tengah atas kanan bawah">'.$val['jml'].'</td>
+								<td class="text_tengah atas kanan bawah">'.$val['iddana'].'</td>
+								<td class="text_tengah atas kanan bawah">'.$_POST['tahun_anggaran'].'</td>
+							</tr>
+						';
+					}
+					$return = array(
+						'status' => 'success',
+						'body' => $master_sumberdana
+					);
+				}elseif ($_POST['format_sumber_dana'] == 3) {
+					$arr_html = array(
+						'data' => array()
+					);
+					$data_all = array(
+						'data' => array()
+					);
+					$sub_keg_bl = $wpdb->get_results($wpdb->prepare("
+						SELECT 
+							kode_sbl, 
+							nama_sub_giat 
+						FROM data_sub_keg_bl 
+						WHERE 
+							active=1 AND 
+							id_sub_skpd=%d AND 
+							tahun_anggaran=%d", 
+							$_POST['id_skpd'], $_POST['tahun_anggaran']), 
+						ARRAY_A);
+					
+					foreach ($sub_keg_bl as $k1 => $s) {
+
+						if(empty($data_all['data'][$s['kode_sbl']])){
+							$data_all['data'][$s['kode_sbl']] = array(
+								'kode_sub_giat' => $s['kode_sbl'],
+								'nama_sub_giat' => $s['nama_sub_giat'],
+								'data' => array()
+							);
+
+							$mapping = $wpdb->get_results($wpdb->prepare("
+								SELECT 
+									c.kode_dana, 
+									a.id_sumber_dana, 
+									COUNT(id_sumber_dana) jml, 
+									SUM(b.total_harga) total_harga, 
+									c.nama_dana 
+								FROM data_mapping_sumberdana a 
+									LEFT JOIN data_rka b 
+										ON a.id_rinci_sub_bl=b.id_rinci_sub_bl
+									LEFT JOIN data_sumber_dana c 
+										ON a.id_sumber_dana=c.id_dana
+								WHERE 
+									b.kode_sbl=%s AND
+									a.tahun_anggaran=%d AND
+									b.tahun_anggaran=%d AND
+									a.active=1 AND 
+									b.active=1 
+								GROUP BY a.id_sumber_dana 
+								ORDER BY a.id DESC", 
+									$s['kode_sbl'],
+									$_POST['tahun_anggaran'],
+									$_POST['tahun_anggaran']
+							), 
+							ARRAY_A);
+
+							foreach ($mapping as $k2 => $r) {
+								$data_all['data'][$s['kode_sbl']]['data'][$r['id_sumber_dana']] = array(
+									'kode_dana' => $r['kode_dana'],
+									'id_sumber_dana' => $r['id_sumber_dana'],
+									'nama_dana' => $r['nama_dana'],
+									'jumlah' => $r['jml'],
+									'total_harga' => $r['total_harga']
+								);
+							}
+						}
+					}
+
+					foreach ($data_all['data'] as $k1 => $v1) {
+						if(empty($v1['data'])){
+							$key=0;
+							if(empty($arr_html['data'][$key])){
+								$arr_html['data'][$key] = array(
+									'kode_dana' => '',
+									'id_sumber_dana' => 0,
+									'namadana' => 'Belum disetting',
+									'jml_sub_keg' => 0,
+									'total_pagu' => 0
+								);
+							}
+							$arr_html['data'][$key]['jml_sub_keg']+=1;
+						}
+
+						foreach ($v1['data'] as $k2 => $v2) {
+							if(empty($arr_html['data'][$v2['id_sumber_dana']])){
+								$arr_html['data'][$v2['id_sumber_dana']] = array(
+									'kode_dana' => $v2['kode_dana'],
+									'id_sumber_dana' => $v2['id_sumber_dana'],
+									'namadana' => $v2['nama_dana'],
+									'jml_sub_keg' => 0,
+									'total_pagu' => 0
+								);
+							}
+							$arr_html['data'][$v2['id_sumber_dana']]['jml_sub_keg']+=1;
+							$arr_html['data'][$v2['id_sumber_dana']]['total_pagu']+=$v2['total_harga'];
+						}
+					}
+
+					$no = 1;
+					$total_pagu = 0;
+					foreach ($arr_html['data'] as $key => $value) {
+						$title = 'Laporan APBD Per Sumber Dana '.$value['kode_dana'].' '.$value['kode_dana'].' | '.$_POST['tahun_anggaran'];
+						$shortcode = '[monitor_sumber_dana tahun_anggaran="'.$_POST['tahun_anggaran'].'" id_sumber_dana="'.$value['id_sumber_dana'].'"]';
+						$update = false;
+						$url_skpd = $this->generatePage($title, $_POST['tahun_anggaran'], $shortcode, $update);
+
+						$master_sumberdana .= '
+							<tr>
+								<td class="atas kanan bawah kiri text_tengah">'.$no.'</td>
+								<td class="atas kanan bawah">'.$value['kode_dana'].'</td>
+								<td class="atas kanan bawah"><a href="'.$url_skpd.'&id_skpd='.$_POST['id_skpd'].'&mapping=1" target="_blank" data-title="'.$title.'" data-id="'.$_POST['tahun_anggaran'].'-'.$_POST['id_skpd'].'-'.$value['id_sumber_dana'].'">'.$value['namadana'].'</a></td>
+								<td class="atas kanan bawah text_tengah text_kanan">'.number_format($value['total_pagu'], 0,',','.').'</td>
+								<td class="atas kanan bawah text_tengah">'.$value['jml_sub_keg'].'</td>
+								<td class="atas kanan bawah text_tengah">'.$value['id_sumber_dana'].'</td>
+								<td class="atas kanan bawah text_tengah">'.$_POST['tahun_anggaran'].'</td>
+							</tr>
+						';
+
+						$total_pagu += $value['total_pagu'];
+						$no++;
+					}
+					$master_sumberdana .="
+						<tr>
+							<td colspan='3' class='atas kanan bawah kiri text_tengah text_blok'>TOTAL</td>
+							<td class='atas kanan bawah text_kanan text_blok'>".number_format($total_pagu, 0,',','.')."</td>
+							<td class='atas kanan bawah text_blok'></td>
+							<td class='atas kanan bawah text_blok'></td>
+							<td class='atas kanan bawah text_blok'></td>
+						</tr>
+					";
+
+					$return = array(
+						'status' => 'success',
+						'body' => $master_sumberdana
+					);
+				}elseif ($_POST['format_sumber_dana'] == 2) {
+					$master_sumberdana .="
+						<tr>
+							<td colspan='7' class='atas kanan bawah kiri text_tengah text_blok'>DALAM PENGERJAAN</td>
+						</tr>";
+					$return = array(
+						'status' => 'success',
+						'body' => $master_sumberdana
+					);
+				}
+			}else{
+				$return = array(
+					'status' => 'error',
+					'message'	=> 'Api Key tidak sesuai!'
+				);
+			}
+		}else{
+			$return = array(
+				'status' => 'error',
+				'message'	=> 'Format tidak sesuai!'
+			);
+		}
+		die(json_encode($return));
+	}
+
 	public function get_rincian_sumber_dana_mapping(){
 		
 		global $wpdb;
@@ -7073,5 +7281,39 @@ class Wpsipd_Public
 			'rincian' => $html_sub 
 		);
 		die(json_encode($response));
+	}
+
+	public function generatePage($nama_page, $tahun_anggaran, $content = false, $update = false){
+		$custom_post = get_page_by_title($nama_page, OBJECT, 'page');
+		if(empty($content)){
+			$content = '[monitor_sipd tahun_anggaran="'.$tahun_anggaran.'"]';
+		}
+
+		$_post = array(
+			'post_title'	=> $nama_page,
+			'post_content'	=> $content,
+			'post_type'		=> 'page',
+			'post_status'	=> 'private',
+			'comment_status'	=> 'closed'
+		);
+		if (empty($custom_post) || empty($custom_post->ID)) {
+			$id = wp_insert_post($_post);
+			$_post['insert'] = 1;
+			$_post['ID'] = $id;
+			$custom_post = get_page_by_title($nama_page, OBJECT, 'page');
+			update_post_meta($custom_post->ID, 'ast-breadcrumbs-content', 'disabled');
+			update_post_meta($custom_post->ID, 'ast-featured-img', 'disabled');
+			update_post_meta($custom_post->ID, 'ast-main-header-display', 'disabled');
+			update_post_meta($custom_post->ID, 'footer-sml-layout', 'disabled');
+			update_post_meta($custom_post->ID, 'site-content-layout', 'page-builder');
+			update_post_meta($custom_post->ID, 'site-post-title', 'disabled');
+			update_post_meta($custom_post->ID, 'site-sidebar-layout', 'no-sidebar');
+			update_post_meta($custom_post->ID, 'theme-transparent-header-meta', 'disabled');
+		}else if($update){
+			$_post['ID'] = $custom_post->ID;
+			wp_update_post( $_post );
+			$_post['update'] = 1;
+		}
+		return $this->get_link_post($custom_post);
 	}
 }
