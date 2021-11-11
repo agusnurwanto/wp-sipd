@@ -333,6 +333,8 @@ class Wpsipd
 		$this->loader->add_action('wp_ajax_reset_rfk_pemda',  $plugin_public, 'reset_rfk_pemda');
 		$this->loader->add_action('wp_ajax_get_monev_renstra',  $plugin_public, 'get_monev_renstra');
 		$this->loader->add_action('wp_ajax_save_monev_renstra',  $plugin_public, 'save_monev_renstra');
+		
+		$this->loader->add_action('wp_ajax_get_rincian_sumber_dana_mapping',  $plugin_public, 'get_rincian_sumber_dana_mapping');
 
 		add_shortcode('menu_monev',  array($plugin_public, 'menu_monev'));
 		add_shortcode('datassh', array($plugin_public, 'datassh'));

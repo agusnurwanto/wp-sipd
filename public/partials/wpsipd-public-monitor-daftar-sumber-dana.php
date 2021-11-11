@@ -15,6 +15,7 @@ if(empty($input['id_skpd'])){
 
 $no = 0;
 $master_sumberdana = '';
+$rincian = '';
 $lock_sumber_dana = get_option('_crb_kunci_sumber_dana_mapping');
 
 if($lock_sumber_dana==1)
@@ -86,7 +87,6 @@ if($lock_sumber_dana==2)
 				'data' => array()
 			);
 
-			// kolom untuk filter sumber dana di table data_sumber_dana perlu dicek lagi
 			$mapping = $wpdb->get_results($wpdb->prepare("
 				SELECT 
 					c.kode_dana, 
@@ -98,7 +98,7 @@ if($lock_sumber_dana==2)
 					LEFT JOIN data_rka b 
 						ON a.id_rinci_sub_bl=b.id_rinci_sub_bl
 					LEFT JOIN data_sumber_dana c 
-						ON a.id_sumber_dana=c.id
+						ON a.id_sumber_dana=c.id_dana
 				WHERE 
 					b.kode_sbl=%s AND
 					a.tahun_anggaran=%d AND
@@ -161,15 +161,18 @@ if($lock_sumber_dana==2)
 		$title = 'Laporan APBD Per Sumber Dana '.$value['kode_dana'].' '.$value['namadana'].' | '.$input['tahun_anggaran'];
 		$custom_post = get_page_by_title($title, OBJECT, 'page');
 		$url_skpd = $this->get_link_post($custom_post);
+		/*
+			<td class="atas kanan bawah"><a href="javascript:void(0)" data-id="'.$input['tahun_anggaran'].'-'.$input['id_skpd'].'-'.$value['id_sumber_dana'].'" onclick="getRincianMapping(this)">'.$value['namadana'].'</a></td>
+		*/
 		$master_sumberdana .= '
 			<tr>
-				<td class="text_tengah">'.$no.'</td>
-				<td>'.$value['kode_dana'].'</td>
-				<td><a href="'.$url_skpd.'&id_skpd='.$input['id_skpd'].'" target="_blank" data-id="'.$title.'">'.$value['namadana'].'</a></td>
-				<td class="text_tengah text_kanan">'.number_format($value['total_pagu'], 0,',','.').'</td>
-				<td class="text_tengah">'.$value['jml_sub_keg'].'</td>
-				<td class="text_tengah">'.$value['id_sumber_dana'].'</td>
-				<td class="text_tengah">'.$input['tahun_anggaran'].'</td>
+				<td class="atas kanan bawah kiri text_tengah">'.$no.'</td>
+				<td class="atas kanan bawah">'.$value['kode_dana'].'</td>
+				<td class="atas kanan bawah"><a href="'.$url_skpd.'&id_skpd='.$input['id_skpd'].'" data-title="'.$title.'" data-id="'.$input['tahun_anggaran'].'-'.$input['id_skpd'].'-'.$value['id_sumber_dana'].'" onclick="getRincianMapping(this)">'.$value['namadana'].'</a></td>
+				<td class="atas kanan bawah text_tengah text_kanan">'.number_format($value['total_pagu'], 0,',','.').'</td>
+				<td class="atas kanan bawah text_tengah">'.$value['jml_sub_keg'].'</td>
+				<td class="atas kanan bawah text_tengah">'.$value['id_sumber_dana'].'</td>
+				<td class="atas kanan bawah text_tengah">'.$input['tahun_anggaran'].'</td>
 			</tr>
 		';
 
@@ -178,30 +181,71 @@ if($lock_sumber_dana==2)
 	}
 	$master_sumberdana .="
 		<tr>
-			<td colspan='3' class='text_tengah'>TOTAL</td>
-			<td class='text_kanan'>".number_format($total_pagu, 0,',','.')."</td>
-			<td></td>
-			<td></td>
-			<td></td>
+			<td colspan='3' class='atas kanan bawah kiri text_tengah text_blok'>TOTAL</td>
+			<td class='atas kanan bawah text_kanan'>".number_format($total_pagu, 0,',','.')."</td>
+			<td class='atas kanan bawah'></td>
+			<td class='atas kanan bawah'></td>
+			<td class='atas kanan bawah'></td>
 		</tr>
 	";
+	$rincian .='<div id="rincian" style="padding: 10px;"></div>';	
 }
 ?>
 
-<h3 class="text_tengah">Daftar Sumber Dana</h3>
-	<table class="wp-list-table widefat fixed striped">
+<style type="text/css">
+	
+	.tabel-sumber-dana {
+		font-size: small;
+	}
+
+</style>
+
+<div style="padding: 10px;">
+	<h3 class="text_tengah">DAFTAR SUMBER DANA</h3>
+	<table class="wp-list-table widefat fixed striped tabel-sumber-dana">
 		<thead>
 			<tr class="text_tengah">
-				<th class="text_tengah" style="width: 20px">No</th>
-				<th class="text_tengah" style="width: 100px">Kode</th>
-				<th class="text_tengah">Sumber Dana</th>
-				<th class="text_tengah">Total Pagu Sumber Dana(Rp.)</th>
-				<th class="text_tengah" style="width:50px">Jumlah Sub Kegiatan</th>
-				<th class="text_tengah" style="width: 50px">ID Dana</th>
-				<th class="text_tengah" style="width: 110px">Tahun Anggaran</th>
+				<th class="atas kanan bawah kiri text_tengah" style="width: 20px">No</th>
+				<th class="atas kanan bawah text_tengah" style="width: 100px">Kode</th>
+				<th class="atas kanan bawah text_tengah">Sumber Dana</th>
+				<th class="atas kanan bawah text_tengah">Total Pagu Sumber Dana(Rp.)</th>
+				<th class="atas kanan bawah text_tengah" style="width:50px">Jumlah Sub Kegiatan</th>
+				<th class="atas kanan bawah text_tengah" style="width: 50px">ID Dana</th>
+				<th class="atas kanan bawah text_tengah" style="width: 110px">Tahun Anggaran</th>
 			</tr>
 		</thead>
 		<tbody>
 			<?php echo $master_sumberdana; ?>
 		</tbody>
 	</table>
+</div>
+<?php echo $rincian; ?>
+
+<script>
+	function getRincianMapping(that){
+		var data = jQuery(that).attr('data-id');
+		var dataTemp = data.split('-');
+		var tahun_anggaran = dataTemp[0];
+		var id_skpd = dataTemp[1];
+		var id_sumber_dana = dataTemp[2];
+
+		jQuery("#rincian").html('');
+		jQuery("#wrap-loading").show();
+		jQuery.ajax({
+			url: "<?php echo admin_url('admin-ajax.php'); ?>",
+			type:"post",
+			data:{
+				'action' : "get_rincian_sumber_dana_mapping",
+				'tahun_anggaran' : tahun_anggaran,
+				'id_skpd' : id_skpd,
+				'id_sumber_dana' : id_sumber_dana,
+			},
+			dataType: "json",
+			success:function(response){
+				jQuery("#wrap-loading").hide();
+				jQuery("#rincian").html(response.rincian);
+			}
+		})
+	}
+
+</script>

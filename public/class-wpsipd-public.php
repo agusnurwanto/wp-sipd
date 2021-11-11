@@ -6962,4 +6962,116 @@ class Wpsipd_Public
 		}
 		die(json_encode($ret));
 	}
+
+	public function get_rincian_sumber_dana_mapping(){
+		
+		global $wpdb;
+		$data_all = array(
+			'data' => array()
+		);
+
+		$bulan = (int) date('m');
+		$list_sub_keg_bl = $wpdb->get_results($wpdb->prepare("
+			SELECT 
+				a.kode_sbl, 
+				a.nama_sub_giat,
+				a.pagu,
+				a.pagu_simda,
+				b.realisasi_anggaran 
+			FROM data_sub_keg_bl a
+				LEFT JOIN data_rfk b
+					ON 
+						a.kode_sbl=b.kode_sbl AND 
+						a.tahun_anggaran=b.tahun_anggaran AND
+						a.id_sub_skpd=b.id_skpd AND
+						b.bulan = ".$bulan."
+			WHERE 
+				a.active=1 AND 
+				a.id_sub_skpd=%d AND 
+				a.tahun_anggaran=%d", 
+				$_POST['id_skpd'], $_POST['tahun_anggaran']), 
+		ARRAY_A);
+
+		foreach ($list_sub_keg_bl as $key_sub => $val_sub) {
+			if(empty($data_all['data'][$val_sub['kode_sbl']])){
+				$list_mapping = $wpdb->get_row($wpdb->prepare("
+					SELECT 
+						SUM(b.total_harga) total_harga,
+						c.nama_dana 
+					FROM data_mapping_sumberdana a 
+						LEFT JOIN data_rka b 
+							ON a.id_rinci_sub_bl=b.id_rinci_sub_bl
+						LEFT JOIN data_sumber_dana c 
+							ON a.id_sumber_dana=c.id_dana
+					WHERE 
+						b.kode_sbl=%s AND
+						a.id_sumber_dana=%d AND
+						a.tahun_anggaran=%d AND
+						b.tahun_anggaran=%d AND
+						a.active=1 AND 
+						b.active=1 
+					GROUP BY a.id_sumber_dana 
+					ORDER BY a.id DESC", 
+						$val_sub['kode_sbl'],
+						$_POST['id_sumber_dana'],
+						$_POST['tahun_anggaran'],
+						$_POST['tahun_anggaran']
+				), 
+				ARRAY_A);
+
+				if(!empty($list_mapping)){
+					$data_all['data'][$val_sub['kode_sbl']] = array(
+						'kode_sbl' => $val_sub['kode_sbl'],
+						'nama_sub_giat' => $val_sub['nama_sub_giat'],
+						'pagu_rka' => $val_sub['pagu'],
+						'pagu_dpa' => $val_sub['pagu_simda'],
+						'realisasi_anggaran' => $val_sub['realisasi_anggaran'],
+						'nama_dana' => $list_mapping['nama_dana'],
+						'pagu_sumber_dana' => $list_mapping['total_harga'],
+						'capaian' => !empty($val_sub['pagu_simda']) ? $this->pembulatan(($val_sub['realisasi_anggaran']/$val_sub['pagu_simda']) * 100) : 0
+					);
+				}
+			}
+		}
+
+		$no=1;
+		$html_sub_body = '';
+		foreach ($data_all['data'] as $key => $value) {
+			$html_sub_body .= "
+				<tr class='sub_keg'>
+					<td class='atas kanan bawah kiri'>".$no."</td>
+					<td class='atas kanan bawah'>".$value['nama_sub_giat']."</td>
+					<td class='atas kanan bawah'>".$value['nama_dana']."</td>
+					<td class='atas kanan bawah text_kanan'>".number_format($value['pagu_rka'],0,',','.')."</td>
+					<td class='atas kanan bawah text_kanan'>".number_format($value['pagu_sumber_dana'],0,',','.')."</td>
+					<td class='atas kanan bawah text_kanan'>".number_format($value['pagu_dpa'],0,',','.')."</td>
+					<td class='atas kanan bawah text_kanan'>".number_format($value['realisasi_anggaran'],0,',','.')."</td>
+					<td class='atas kanan bawah text_tengah'>".$value['capaian']."</td>
+				</tr>
+			";
+			$no++;
+		}
+
+		$html_sub = '<h4 style="text-align: center; margin: 0; font-weight: bold;"></h4>
+		    <table cellpadding="3" cellspacing="0" class="apbd-penjabaran" width="100%">
+		        <thead>
+		            <tr>
+		                <td class="atas kanan bawah kiri text_tengah text_blok" width="20px;">No</td>
+		                <td class="atas kanan bawah text_tengah text_blok">SKPD/Sub Kegiatan</td>
+		                <td class="atas kanan bawah text_tengah text_blok" width="300px;">Sumber Dana</td>
+		                <td class="atas kanan bawah text_tengah text_blok" style="width: 140px;">RKA SIPD (Rp.)</td>
+		                <td class="atas kanan bawah text_tengah text_blok" style="width: 140px;">Pagu Sumber Dana SIPD (Rp.)</td>
+		                <td class="atas kanan bawah text_tengah text_blok" style="width: 140px;">Pagu Simda (Rp.)</td>
+		                <td class="atas kanan bawah text_tengah text_blok" style="width: 140px;">Ralisasi Simda (Rp.)</td>
+		                <td class="atas kanan bawah text_tengah text_blok" style="width: 100px;">Capaian (%)</td>
+		            </tr>
+		        </thead>
+		        <tbody>'.$html_sub_body.'</tbody>
+		    </table>';
+
+		$response = array(
+			'rincian' => $html_sub 
+		);
+		die(json_encode($response));
+	}
 }
