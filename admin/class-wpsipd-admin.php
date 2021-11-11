@@ -717,18 +717,46 @@ class Wpsipd_Admin {
 	    	$total_harga = 0;
 	    	$realisasi = 0;
 	    	$jml_rincian = 0;
-    		$rka_db = $wpdb->get_results($wpdb->prepare('
-    			select
-    				r.id_rinci_sub_bl,
-    				r.total_harga,
-    				d.realisasi
-    			from data_rka r
-    				left join data_realisasi_rincian d ON r.id_rinci_sub_bl=d.id_rinci_sub_bl
-    					and d.tahun_anggaran=r.tahun_anggaran
-    					and d.active=r.active
-    			where r.tahun_anggaran=%d
-    				and r.active=1
-    		', $tahun), ARRAY_A);
+	    	if(!empty($id_skpd)){
+	    		$sub_keg = $wpdb->get_results($wpdb->prepare('
+	    			select
+	    				kode_sbl
+	    			from data_sub_keg_bl
+	    			where tahun_anggaran=%d
+	    				and active=1
+	    				and id_sub_skpd=%d
+	    		', $tahun, $id_skpd), ARRAY_A);
+	    		$list_kode_sbl = array();
+	    		foreach ($sub_keg as $k => $sub) {
+	    			$list_kode_sbl[] = "'".$sub['kode_sbl']."'";
+	    		}
+	    		$rka_db = $wpdb->get_results($wpdb->prepare('
+	    			select
+	    				r.id_rinci_sub_bl,
+	    				r.total_harga,
+	    				d.realisasi
+	    			from data_rka r
+	    				left join data_realisasi_rincian d ON r.id_rinci_sub_bl=d.id_rinci_sub_bl
+	    					and d.tahun_anggaran=r.tahun_anggaran
+	    					and d.active=r.active
+	    			where r.tahun_anggaran=%d
+	    				and r.active=1
+	    				and r.kode_sbl IN ('.implode(',', $list_kode_sbl).')
+	    		', $tahun), ARRAY_A);
+	    	}else{
+	    		$rka_db = $wpdb->get_results($wpdb->prepare('
+	    			select
+	    				r.id_rinci_sub_bl,
+	    				r.total_harga,
+	    				d.realisasi
+	    			from data_rka r
+	    				left join data_realisasi_rincian d ON r.id_rinci_sub_bl=d.id_rinci_sub_bl
+	    					and d.tahun_anggaran=r.tahun_anggaran
+	    					and d.active=r.active
+	    			where r.tahun_anggaran=%d
+	    				and r.active=1
+	    		', $tahun), ARRAY_A);
+	    	}
     		foreach ($rka_db as $rka) {
     			if(empty($rka['realisasi'])){
     				$rka['realisasi'] = 0;
@@ -762,8 +790,8 @@ class Wpsipd_Admin {
 		    			$data_all[$mapping['kode_dana']]['realisasi'] += $rka['realisasi'];
 	    			}
 	    		}else{
-	    			if(empty($data_all['kosong'])){
-		    			$data_all['kosong'] = array(
+	    			if(empty($data_all['0'])){
+		    			$data_all['0'] = array(
     						'id_dana' => '',
     						'kode_dana' => '-',
     						'nama_dana' => 'Belum di mapping!',
@@ -772,14 +800,15 @@ class Wpsipd_Admin {
     						'realisasi' => 0
 	    				);
 		    		}
-		    		$data_all['kosong']['jml_rincian']++;
-		    		$data_all['kosong']['pagu'] += $rka['total_harga'];
-		    		$data_all['kosong']['realisasi'] += $rka['realisasi'];
+		    		$data_all['0']['jml_rincian']++;
+		    		$data_all['0']['pagu'] += $rka['total_harga'];
+		    		$data_all['0']['realisasi'] += $rka['realisasi'];
 	    		}
 	    		$total_harga += $rka['total_harga'];
 	    		$realisasi += $rka['realisasi'];
 	    		$jml_rincian++;
     		}
+    		ksort($data_all);
 	    	$master_sumberdana = '';
 	    	$no = 0;
 	    	foreach ($data_all as $k => $v) {
