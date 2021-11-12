@@ -6987,6 +6987,7 @@ class Wpsipd_Public
 						group by iddana
 						order by kodedana ASC
 					', ARRAY_A);
+					// die($wpdb->last_query);
 
 					foreach ($sumberdana as $key => $val) {
 						$no++;
@@ -7013,7 +7014,7 @@ class Wpsipd_Public
 						'status' => 'success',
 						'body' => $master_sumberdana
 					);
-				}elseif ($_POST['format_sumber_dana'] == 3) {
+				}elseif ($_POST['format_sumber_dana'] == 2) {
 					$arr_html = array(
 						'data' => array()
 					);
@@ -7066,7 +7067,8 @@ class Wpsipd_Public
 									$_POST['tahun_anggaran']
 							), 
 							ARRAY_A);
-
+							// echo '<pre>';print_r($wpdb->last_query);echo '</pre>';die();
+							
 							foreach ($mapping as $k2 => $r) {
 								$data_all['data'][$s['kode_sbl']]['data'][$r['id_sumber_dana']] = array(
 									'kode_dana' => $r['kode_dana'],
@@ -7078,7 +7080,8 @@ class Wpsipd_Public
 							}
 						}
 					}
-
+					
+					// echo '<pre>';print_r($data_all['data']);echo '</pre>';die();
 					foreach ($data_all['data'] as $k1 => $v1) {
 						if(empty($v1['data'])){
 							$key=0;
@@ -7091,7 +7094,7 @@ class Wpsipd_Public
 									'total_pagu' => 0
 								);
 							}
-							$arr_html['data'][$key]['jml_sub_keg']+=1;
+							$arr_html['data'][$key]['jml_sub_keg']++;
 						}
 
 						foreach ($v1['data'] as $k2 => $v2) {
@@ -7104,7 +7107,7 @@ class Wpsipd_Public
 									'total_pagu' => 0
 								);
 							}
-							$arr_html['data'][$v2['id_sumber_dana']]['jml_sub_keg']+=1;
+							$arr_html['data'][$v2['id_sumber_dana']]['jml_sub_keg']++;
 							$arr_html['data'][$v2['id_sumber_dana']]['total_pagu']+=$v2['total_harga'];
 						}
 					}
@@ -7146,7 +7149,7 @@ class Wpsipd_Public
 						'status' => 'success',
 						'body' => $master_sumberdana
 					);
-				}elseif ($_POST['format_sumber_dana'] == 2) {
+				}elseif ($_POST['format_sumber_dana'] == 3) {
 					$master_sumberdana .="
 						<tr>
 							<td colspan='7' class='atas kanan bawah kiri text_tengah text_blok'>DALAM PENGERJAAN</td>

@@ -9,73 +9,120 @@ $input = shortcode_atts( array(
 	'tahun_anggaran' => '2021'
 ), $atts );
 
-if(empty($input['id_skpd'])){
+$tahun_asli = date('Y');
+if(empty($_GET) || empty($_GET['debug'])){
+	if($input['tahun_anggaran'] > $tahun_asli){
+		die('<h1>Halaman Sumber Dana tahun '.$input['tahun_anggaran'].' tidak ditemukan!</h1>');
+	}
+}
+if(!empty($input['id_skpd'])){
+	$sql = $wpdb->prepare("
+		select 
+			kodeunit, namaunit 
+		from data_unit 
+		where tahun_anggaran=%d
+			and id_skpd IN (".$input['id_skpd'].") 
+			and active=1
+		order by id_skpd ASC
+	", $input['tahun_anggaran']);
+}else{
+	$sql = $wpdb->prepare("
+		select 
+			kodeunit, namaunit 
+		from data_unit 
+		where tahun_anggaran=%d
+			and active=1
+		order by id_skpd ASC
+	", $input['tahun_anggaran']);
+}
+$units = $wpdb->get_row($sql, ARRAY_A);
+
+$opt_tahun = '<option value="">Pilih Tahun</option>';
+if(empty($units)){
 	die('<h1>SKPD tidak ditemukan!</h1>');
+}else{
+	$pengaturan = $wpdb->get_row($wpdb->prepare("
+		select 
+			awal_rpjmd, akhir_rpjmd 
+		from data_pengaturan_sipd 
+		where tahun_anggaran=%d and id=1
+	", $input['tahun_anggaran']), ARRAY_A);
+	
+	for ($i=$pengaturan['awal_rpjmd']; $i <= $pengaturan['akhir_rpjmd']; $i++) {
+		if($i<=$input['tahun_anggaran']){
+			$opt_tahun.='<option value="'.$i.'">'.$i.'</option>';
+		} 
+	}
 }
 $format_sumber_dana = get_option('_crb_kunci_sumber_dana_mapping');
 ?>
 
 <style type="text/css">
-	
 	.tabel-sumber-dana {
 		font-size: small;
 	}
-
 </style>
 
-<input type="hidden" value="<?php echo get_option( '_crb_api_key_extension' ); ?>" id="api_key">
-<div class="text_tengah" style="padding: 10px;">
-	<h3 class="text_tengah">DAFTAR SUMBER DANA</h3>
-	<select style="margin-bottom: 15px; width: 200px;" id="pilih_tahun" onchange="tahun_sumberdana();">
-		<option value="0">Pilih Tahun</option>
-	    <option selected="" value="2021">2021</option>
-	    <option value="2022">2022</option>
-	</select>
-	<select style="margin-bottom: 15px; margin-left: 25px; min-width: 200px;" id="pilih_skpd">
-	    <option value="2234">2.16.2.21.2.20.01.0000 DINAS KOMUNIKASI DAN INFORMATIKA</option>
-	</select>
-	<br>
-	<label>
-		<input type="radio" id="format_1" name="format-sd" format-id="1" onclick="format_sumberdana(this);"> Format Per Sumber Dana SIPD
-	</label>
-	<label style="margin-left: 25px;">
-		<input type="radio" id="format_2" name="format-sd" format-id="2" onclick="format_sumberdana(this);"> Format Kombinasi Sumber Dana SIPD
-	</label>
-	<label style="margin-left: 25px;">
-		<input type="radio" id="format_3" name="format-sd" format-id="3" onclick="format_sumberdana(this);"> Format Per Sumber Dana Mapping
-	</label>
-</div>
+<div id="cetak" title="Daftar Sumber Dana <?php echo $units['namaunit'] ." Tahun ".$input['tahun_anggaran'];?>">
+	<input type="hidden" value="<?php echo get_option( '_crb_api_key_extension' ); ?>" id="api_key">
+	<div class="text_tengah" style="padding: 10px;">
+		<h4 class="text_tengah" style="text-align: center; margin: 0; font-weight: bold;">
+			Daftar Sumber Dana <br>
+			<?php echo $units['kodeunit'].' '.$units['namaunit']; ?>
+		</h4>
+		<br>
+		<div class="hide-excel">
+			<label>
+				Tahun
+				<select style="margin-bottom: 15px; width: 200px;" id="pilih_tahun" onchange="tahun_sumberdana();">
+					<?php echo $opt_tahun; ?>
+				</select>
+			</label>
+			<br>
+			<label>
+				<input type="radio" id="format_1" name="format-sd" format-id="1" onclick="format_sumberdana(this);"> Format Per Sumber Dana SIPD
+			</label>
+			<label style="margin-left: 25px;">
+				<input type="radio" id="format_2" name="format-sd" format-id="2" onclick="format_sumberdana(this);"> Format Per Sumber Dana Mapping
+			</label>
+			<label style="margin-left: 25px;">
+				<input type="radio" id="format_3" name="format-sd" format-id="3" onclick="format_sumberdana(this);"> Format Kombinasi Sumber Dana SIPD
+			</label>
+		</div>
+	</div>
 
-<div style="padding:10px">
-	<table class="wp-list-table widefat fixed striped tabel-sumber-dana">
+	<div style="padding:10px">
+		<table class="wp-list-table widefat fixed striped tabel-sumber-dana">
 			<thead>
 				<tr class="text_tengah">
-					<th class="atas kanan bawah kiri text_tengah" style="width: 20px">No</th>
-					<th class="atas kanan bawah text_tengah" style="width: 100px">Kode</th>
-					<th class="atas kanan bawah text_tengah">Sumber Dana</th>
-					<th class="atas kanan bawah text_tengah">Total Pagu Sumber Dana(Rp.)</th>
-					<th class="atas kanan bawah text_tengah" style="width:50px">Jumlah Sub Kegiatan</th>
-					<th class="atas kanan bawah text_tengah" style="width: 50px">ID Dana</th>
-					<th class="atas kanan bawah text_tengah" style="width: 110px">Tahun Anggaran</th>
+					<th class="atas kanan bawah kiri text_tengah" style="width: 20px; vertical-align: middle;">No</th>
+					<th class="atas kanan bawah text_tengah" style="width: 100px; vertical-align: middle;">Kode</th>
+					<th class="atas kanan bawah text_tengah" style="vertical-align: middle;">Sumber Dana</th>
+					<th class="atas kanan bawah text_tengah" style="vertical-align: middle;">Total Pagu Sumber Dana(Rp.)</th>
+					<th class="atas kanan bawah text_tengah" style="width:50px; vertical-align: middle;">Jumlah Sub Kegiatan</th>
+					<th class="atas kanan bawah text_tengah" style="width: 50px; vertical-align: middle;">ID Dana</th>
+					<th class="atas kanan bawah text_tengah" style="width: 110px; vertical-align: middle;">Tahun Anggaran</th>
 				</tr>
 			</thead>
 			<tbody id="body-sumber-dana">
 			</tbody>
 		</table>
+	</div>
 </div>
 
 <script>
-
+	run_download_excel();
 	var format_sumber_dana = <?php echo $format_sumber_dana; ?> 
 	jQuery(document).ready(function(){
+		jQuery("#pilih_tahun").val(<?php echo $input['tahun_anggaran']; ?>);
 		if(format_sumber_dana==1){
 			jQuery("#format_1").prop("checked",true);
 		}else if(format_sumber_dana==2){
-			jQuery("#format_3").prop("checked",true);
+			jQuery("#format_2").prop("checked",true);
 		}else{
 			jQuery("#format_3").prop("checked",true);
 		}
-		// get_sumber_dana(format_sumber_dana);
+		get_sumber_dana(format_sumber_dana);
 	})
 
 	function get_sumber_dana(format_sumber_dana){
