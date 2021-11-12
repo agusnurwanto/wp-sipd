@@ -712,6 +712,130 @@ class Wpsipd_Admin {
     		';
 	        die($tabel);
 	    }else if($format == 2){
+	    	if(!empty($id_skpd)){
+		    	$sub_keg = $wpdb->get_results($wpdb->prepare('
+	    			select
+	    				kode_sbl,
+	    				pagu,
+	    				pagu_simda
+	    			from data_sub_keg_bl
+	    			where tahun_anggaran=%d
+	    				and active=1
+	    				and id_sub_skpd=%d
+	    		', $tahun, $id_skpd), ARRAY_A);
+		    }else{
+		    	$sub_keg = $wpdb->get_results($wpdb->prepare('
+	    			select
+	    				kode_sbl,
+	    				pagu,
+	    				pagu_simda
+	    			from data_sub_keg_bl
+	    			where tahun_anggaran=%d
+	    				and active=1
+	    		', $tahun), ARRAY_A);
+		    }
+		    $data_all = array();
+		    foreach ($sub_keg as $k => $sub) {
+			    $sumberdana = $wpdb->get_results($wpdb->prepare('
+					select 
+						d.iddana, 
+						sum(d.pagudana) as pagudana, 
+						d.kodedana, 
+						d.namadana
+					from data_dana_sub_keg d
+					where d.tahun_anggaran=%d
+						and d.active=1
+						and d.kode_sbl=%s
+					group by d.iddana
+					order by d.kodedana ASC
+				', $tahun, $sub['kode_sbl']), ARRAY_A);
+				$id_dana = array();
+				$pagu_dana = array();
+				$kode_sd = array();
+				$nama_sd = array();
+				foreach ($sumberdana as $dana) {
+					$id_dana[] = $dana['iddana'];
+					$pagu_dana[] = $dana['pagudana'];
+					$kode_sd[] = $dana['kodedana'];
+					$nama_sd[] = $dana['namadana'];
+				}
+				$_id_dana = implode('<br>', $id_dana);
+				$_pagu_dana = implode('<br>', $pagu_dana);
+				$_kode_sd = implode('<br>', $kode_sd);
+				$_nama_sd = implode('<br>', $nama_sd);
+				if(empty($data_all[$_kode_sd])){
+					$data_all[$_kode_sd] = array(
+						'id_dana' => $_id_dana,
+						'pagu_dana' => $_pagu_dana,
+						'kode_sd' => $_kode_sd,
+						'nama_sd' => $_nama_sd,
+						'raw_id_dana' => $id_dana,
+						'raw_pagu_dana' => $pagu_dana,
+						'raw_kode_sd' => $kode_sd,
+						'raw_nama_sd' => $nama_sd,
+						'pagu_rka' => 0,
+						'pagu_simda' => 0,
+						'jml_sub' => 0
+					);
+				}
+				$data_all[$_kode_sd]['pagu_rka'] += $sub['pagu'];
+				$data_all[$_kode_sd]['pagu_simda'] += $sub['pagu_simda'];
+				$data_all[$_kode_sd]['jml_sub']++;
+		    }
+		    $master_sumberdana = '';
+		    $no = 0;
+		    $jml_sub = 0;
+		    $total_rka = 0;
+		    ksort($data_all);
+		    foreach ($data_all as $k => $val) {
+		    	$no++;
+		    	$url_skpd = '#';
+		    	$master_sumberdana .= '
+					<tr>
+						<td class="text_tengah">'.$no.'</td>
+						<td>'.$val['kode_sd'].'</td>
+						<td>'.$val['nama_sd'].'</td>
+						<td class="text_kanan">'.number_format($val['pagu_dana'],0,",",".").'</td>
+						<td class="text_kanan">'.number_format($val['pagu_rka'],0,",",".").'</td>
+						<td class="text_tengah">'.$val['jml_sub'].'</td>
+					</tr>
+				';
+				foreach ($val['raw_pagu_dana'] as $dana) {
+					$total_sd += $dana;
+				}
+				$jml_sub += $val['jml_sub'];
+				$total_rka += $val['pagu_rka'];
+		    }
+		    $title = 'Realisasi Fisik dan Keuangan Pemerintah Daerah | '.$tahun;
+			$shortcode = '[monitor_rfk tahun_anggaran="'.$tahun.'"]';
+			$update = false;
+			$url_skpd = $this->generatePage($title, $tahun, $shortcode, $update);
+			$master_sumberdana .= '
+				<tr class="text_blok">
+					<td class="text_tengah" colspan="3">Total</td>
+					<td class="text_kanan">'.number_format($total_sd,0,",",".").'</td>
+					<td class="text_kanan"><a target="_blank" href="'.$url_skpd.'">'.number_format($total_rka,0,",",".").'</a></td>
+					<td class="text_tengah">'.number_format($jml_sub,0,",",".").'</td>
+				</tr>
+			';
+			$tabel = '
+        		<table class="wp-list-table widefat fixed striped">
+        			<thead>
+        				<tr class="text_tengah">
+        					<th class="text_tengah" style="width: 20px">No</th>
+        					<th class="text_tengah" style="width: 100px">Kode</th>
+        					<th class="text_tengah">Sumber Dana</th>
+        					<th class="text_tengah" style="width: 150px">Pagu Sumber Dana (Rp.)</th>
+        					<th class="text_tengah" style="width: 150px">Pagu RKA (Rp.)</th>
+        					<th class="text_tengah" style="width: 150px">Jumlah Sub Keg</th>
+        				</tr>
+        			</thead>
+        			<tbody>
+        				'.$master_sumberdana.'
+        			</tbody>
+        		</table>
+    		';
+	        die($tabel);
 	    }else if($format == 3){
 	    	$data_all = array();
 	    	$total_harga = 0;
