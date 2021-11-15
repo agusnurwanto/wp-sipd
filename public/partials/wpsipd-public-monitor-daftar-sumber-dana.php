@@ -74,7 +74,7 @@ $format_sumber_dana = get_option('_crb_kunci_sumber_dana_mapping');
 		<div class="hide-excel">
 			<label>
 				Tahun
-				<select style="margin-bottom: 15px; width: 200px;" id="pilih_tahun" onchange="tahun_sumberdana();">
+				<select style="margin-bottom: 15px; width: 200px;" id="pilih_tahun" onchange="tahun_sumberdana(this);">
 					<?php echo $opt_tahun; ?>
 				</select>
 			</label>
@@ -83,38 +83,27 @@ $format_sumber_dana = get_option('_crb_kunci_sumber_dana_mapping');
 				<input type="radio" id="format_1" name="format-sd" format-id="1" onclick="format_sumberdana(this);"> Format Per Sumber Dana SIPD
 			</label>
 			<label style="margin-left: 25px;">
-				<input type="radio" id="format_2" name="format-sd" format-id="2" onclick="format_sumberdana(this);"> Format Per Sumber Dana Mapping
+				<input type="radio" id="format_3" name="format-sd" format-id="3" onclick="format_sumberdana(this);"> Format Kombinasi Sumber Dana SIPD
 			</label>
 			<label style="margin-left: 25px;">
-				<input type="radio" id="format_3" name="format-sd" format-id="3" onclick="format_sumberdana(this);"> Format Kombinasi Sumber Dana SIPD
+				<input type="radio" id="format_2" name="format-sd" format-id="2" onclick="format_sumberdana(this);"> Format Per Sumber Dana Mapping
 			</label>
 		</div>
 	</div>
 
 	<div style="padding:10px">
-		<table class="wp-list-table widefat fixed striped tabel-sumber-dana">
-			<thead>
-				<tr class="text_tengah">
-					<th class="atas kanan bawah kiri text_tengah" style="width: 20px; vertical-align: middle;">No</th>
-					<th class="atas kanan bawah text_tengah" style="width: 100px; vertical-align: middle;">Kode</th>
-					<th class="atas kanan bawah text_tengah" style="vertical-align: middle;">Sumber Dana</th>
-					<th class="atas kanan bawah text_tengah" style="vertical-align: middle;">Total Pagu Sumber Dana(Rp.)</th>
-					<th class="atas kanan bawah text_tengah" style="width:50px; vertical-align: middle;">Jumlah Sub Kegiatan</th>
-					<th class="atas kanan bawah text_tengah" style="width: 50px; vertical-align: middle;">ID Dana</th>
-					<th class="atas kanan bawah text_tengah" style="width: 110px; vertical-align: middle;">Tahun Anggaran</th>
-				</tr>
-			</thead>
-			<tbody id="body-sumber-dana">
-			</tbody>
-		</table>
+		<table class="wp-list-table widefat fixed striped tabel-sumber-dana"></table>
 	</div>
 </div>
 
 <script>
 	run_download_excel();
-	var format_sumber_dana = <?php echo $format_sumber_dana; ?> 
 	jQuery(document).ready(function(){
-		jQuery("#pilih_tahun").val(<?php echo $input['tahun_anggaran']; ?>);
+
+		var format_sumber_dana = <?php echo $format_sumber_dana; ?>;
+		var tahun = <?php echo $input['tahun_anggaran']; ?>;
+		
+		jQuery("#pilih_tahun").val(tahun);
 		if(format_sumber_dana==1){
 			jQuery("#format_1").prop("checked",true);
 		}else if(format_sumber_dana==2){
@@ -122,10 +111,10 @@ $format_sumber_dana = get_option('_crb_kunci_sumber_dana_mapping');
 		}else{
 			jQuery("#format_3").prop("checked",true);
 		}
-		get_sumber_dana(format_sumber_dana);
+		get_sumber_dana(format_sumber_dana, tahun);
 	})
 
-	function get_sumber_dana(format_sumber_dana){
+	function get_sumber_dana(format_sumber_dana, tahun){
 		jQuery("#wrap-loading").show();
 		jQuery.ajax({
 			url: "<?php echo admin_url('admin-ajax.php'); ?>",
@@ -133,25 +122,28 @@ $format_sumber_dana = get_option('_crb_kunci_sumber_dana_mapping');
 			data:{
 				'action' : "get_sumber_dana_mapping",
 				'api_key' : jQuery("#api_key").val(),
-				'tahun_anggaran' : <?php echo $input['tahun_anggaran']; ?>,
+				'tahun_anggaran' : tahun,
 				'id_skpd' : <?php echo $input['id_skpd']; ?>,
 				'format_sumber_dana' : format_sumber_dana,
 			},
 			dataType: "json",
 			success:function(response){
 				jQuery("#wrap-loading").hide();
-				jQuery("#body-sumber-dana").html(response.body);
+				jQuery(".tabel-sumber-dana").html(response.table_content);
 			}
 		})
 	}
 
 	function format_sumberdana(that){
 		var format = jQuery(that).attr('format-id');
-		get_sumber_dana(format);
+		var tahun = jQuery("#pilih_tahun").val();
+		get_sumber_dana(format, tahun);
 	}
 
-	function tahun_sumberdana(){
-		
+	function tahun_sumberdana(that){
+		var format = jQuery("input[type=radio]:checked").attr("format-id");
+		var tahun = jQuery(that).val();
+		get_sumber_dana(format, tahun);
 	}
 
 	function getRincianMapping(that){
