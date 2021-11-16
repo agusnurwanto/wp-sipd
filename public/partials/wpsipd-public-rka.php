@@ -1579,6 +1579,11 @@ foreach ($bl as $k => $sub_bl) {
 	                			$nama = $tapd[$i]['nama'];
 	                			$nip = $tapd[$i]['nip'];
 	                			$jabatan = $tapd[$i]['jabatan'];
+	                		}else if(
+								$type == 'dpa_perubahan'
+								|| $type == 'dpa_murni'
+							){
+	                			continue;
 	                		}
 	                		echo '
 				                <tr>
