@@ -7148,7 +7148,7 @@ class Wpsipd_Public
 			    			<tr>
 			    				<td class="atas kanan bawah kiri text_tengah">'.$no.'</td>
 			    				<td class="atas kanan bawah">'.$value['kode_dana'].'</td>
-			    				<td class="atas kanan bawah"><a href="'.$url_skpd.'" target="_blank">'.$value['nama_dana'].'</a></td>
+			    				<td class="atas kanan bawah"><a href="'.$url_skpd.'&mapping=1" target="_blank">'.$value['nama_dana'].'</a></td>
 			    				<td class="atas kanan bawah text_kanan">'.number_format($value['pagu'],0,",",".").'</td>
 			    				<td class="atas kanan bawah text_kanan">'.number_format($value['realisasi'],0,",",".").'</td>
 			    				<td class="atas kanan bawah text_tengah">'.number_format($value['jml_rincian'],0,",",".").'</td>

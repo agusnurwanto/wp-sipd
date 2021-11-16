@@ -37,30 +37,74 @@ $where_skpd = '';
 if(!empty($_GET) && !empty($_GET['id_skpd'])){
     $where_skpd = 'and r.id_sub_skpd='.$_GET['id_skpd'];
 }
-$data_sub_giat = $wpdb->get_results('
-	select 
-		r.*,
-        d.pagudana,
-        f.rak,
-        f.realisasi_anggaran, 
-        f.id as id_rfk, 
-        f.realisasi_fisik, 
-        f.permasalahan
-	from data_dana_sub_keg d
-		inner join data_sub_keg_bl r on r.kode_sbl = d.kode_sbl
-			and r.tahun_anggaran = d.tahun_anggaran
-			and r.active = d.active
-        left join data_rfk f on r.kode_sbl=f.kode_sbl
-            and r.tahun_anggaran=f.tahun_anggaran
-            and r.id_sub_skpd=f.id_skpd
-            and f.bulan='.$bulan.'
-	where d.active=1 
-		and d.tahun_anggaran='.$input['tahun_anggaran'].'
-		and (
-			d.iddana='.$input['id_sumber_dana'].'
-			or d.iddana is null
-		)
-        '.$where_skpd, ARRAY_A);
+if(empty($input['id_sumber_dana'])){
+    $input['id_sumber_dana'] = 0;
+}
+
+if($type_mapping == 1){
+    $kd_sbl = $wpdb->get_results("
+        select 
+            r.kode_sbl
+        from data_mapping_sumberdana m
+            inner join data_rka r on r.id_rinci_sub_bl=m.id_rinci_sub_bl
+                and r.active=m.active
+                and r.tahun_anggaran=m.tahun_anggaran
+        where r.tahun_anggaran=".$input['tahun_anggaran']."
+            and r.active=1
+            and m.id_sumber_dana=".$input['id_sumber_dana']."
+        group by r.kode_sbl
+    ", ARRAY_A);
+    $kd_sbl_s = array();
+    foreach ($kd_sbl as $k => $v) {
+        $kd_sbl_s[] = "'".$v['kode_sbl']."'";
+    }
+    $data_sub_giat = $wpdb->get_results('
+        select 
+            r.*,
+            d.pagudana,
+            f.rak,
+            f.realisasi_anggaran, 
+            f.id as id_rfk, 
+            f.realisasi_fisik, 
+            f.permasalahan
+        from data_dana_sub_keg d
+            inner join data_sub_keg_bl r on r.kode_sbl = d.kode_sbl
+                and r.tahun_anggaran = d.tahun_anggaran
+                and r.active = d.active
+            left join data_rfk f on r.kode_sbl=f.kode_sbl
+                and r.tahun_anggaran=f.tahun_anggaran
+                and r.id_sub_skpd=f.id_skpd
+                and f.bulan='.$bulan.'
+        where d.active=1 
+            and d.tahun_anggaran='.$input['tahun_anggaran'].'
+            and r.kode_sbl IN ('.implode(',', $kd_sbl_s).')
+            '.$where_skpd, ARRAY_A);
+}else{
+    $data_sub_giat = $wpdb->get_results('
+    	select 
+    		r.*,
+            d.pagudana,
+            f.rak,
+            f.realisasi_anggaran, 
+            f.id as id_rfk, 
+            f.realisasi_fisik, 
+            f.permasalahan
+    	from data_dana_sub_keg d
+    		inner join data_sub_keg_bl r on r.kode_sbl = d.kode_sbl
+    			and r.tahun_anggaran = d.tahun_anggaran
+    			and r.active = d.active
+            left join data_rfk f on r.kode_sbl=f.kode_sbl
+                and r.tahun_anggaran=f.tahun_anggaran
+                and r.id_sub_skpd=f.id_skpd
+                and f.bulan='.$bulan.'
+    	where d.active=1 
+    		and d.tahun_anggaran='.$input['tahun_anggaran'].'
+    		and (
+    			d.iddana='.$input['id_sumber_dana'].'
+    			or d.iddana is null
+    		)
+            '.$where_skpd, ARRAY_A);
+}
 // echo $wpdb->last_query;
 $judul_laporan = array('Laporan Pagu SIPD Kemendagri Per Sumber Dana',$kode_sumber_dana.' '.$nama_sumber_dana,'Tahun '.$input['tahun_anggaran']);
 
@@ -180,10 +224,22 @@ foreach ($data_sub_giat as $k =>$v) {
     $sd_realisasi = array();
     $sd_data = array();
     $sd_text = array();
-    $all_sd = $wpdb->get_results("select namadana, iddana from data_dana_sub_keg where tahun_anggaran=".$input['tahun_anggaran']." and kode_sbl='".$v['kode_sbl']."' and active=1", ARRAY_A);
+    $all_sd = $wpdb->get_results("
+        select 
+            d.namadana,
+            d.iddana,
+            m.kode_dana
+        from data_dana_sub_keg as d
+            left join data_sumber_dana m on d.iddana = m.id_dana
+                and d.tahun_anggaran = m.tahun_anggaran
+        where d.tahun_anggaran=".$input['tahun_anggaran']." 
+            and d.kode_sbl='".$v['kode_sbl']."' 
+            and d.active=1
+        ", ARRAY_A);
     $length_sd = count($all_sd);
     foreach ($all_sd as $sd) {
-        if($type_mapping == 1 && $length_sd > 1){
+        // dicomment karena semua sub keg harus dimapping walaupun hanya tersetting satu sumberdana
+        // if($type_mapping == 1 && $length_sd > 1){
             $sd_mapping = $wpdb->get_results("
                 select 
                     sum(r.rincian) as total,
@@ -206,8 +262,8 @@ foreach ($data_sub_giat as $k =>$v) {
                 $sd_realisasi[$sd['iddana']] = 0;
                 $sd_data[$sd['iddana']] = 0;
             }
-        }
-        $sd_text[] = $sd['namadana'];
+        // }
+        $sd_text[] = $sd['kode_dana'].' '.$sd['namadana'];
     }
     $v['sd_text'] = $sd_text;
     if(empty($sd_data)){
@@ -288,7 +344,9 @@ foreach ($data_sumberdana_shorted['data'] as $k => $skpd) {
         $capaian = $this->pembulatan(($skpd['realisasi']/$skpd['total_simda'])*100);
     }
     $mapping_sd = '';
+    $colspan_nm = 2;
     if($type_mapping == 1){
+        $colspan_nm = 3;
         $capaian_mapping = 0;
         if(!empty($skpd['total_sd_mapping'])){
             $capaian_mapping = $this->pembulatan(($skpd['realisasi_mapping']/$skpd['total_sd_mapping'])*100);
@@ -300,7 +358,7 @@ foreach ($data_sumberdana_shorted['data'] as $k => $skpd) {
     $body_sumberdana .= '
         <tr>
             <td class="kanan bawah kiri text_tengah text_blok"></td>
-            <td class="kanan bawah text_blok" colspan="2">'.$k.' '.$skpd['nama'].'</td>
+            <td class="kanan bawah text_blok" colspan="'.$colspan_nm.'">'.$k.' '.$skpd['nama'].'</td>
             '.$mapping_sd.'
             '.$murni.'
             <td class="kanan bawah text_blok text_kanan">'.number_format($skpd['total'],0,",",".").'</td>
@@ -354,7 +412,8 @@ foreach ($data_sumberdana_shorted['data'] as $k => $skpd) {
             if(!empty($sub_keg['total_sd_mapping'])){
                 $capaian_mapping = $this->pembulatan(($sub_keg['realisasi_mapping']/$sub_keg['total_sd_mapping'])*100);
             }
-            $mapping_sd = '<td class="kanan bawah text_kanan">'.number_format($sub_keg['total_sd_mapping'],0,",",".").'</td>';
+            $mapping_sd = '<td class="kanan bawah text_kanan">'.$kode_sumber_dana.' '.$nama_sumber_dana.'</td>';
+            $mapping_sd .= '<td class="kanan bawah text_kanan">'.number_format($sub_keg['total_sd_mapping'],0,",",".").'</td>';
             $mapping_sd .= '<td class="kanan bawah text_kanan">'.number_format($sub_keg['realisasi_mapping'],0,",",".").'</td>';
             $mapping_sd .= '<td class="kanan bawah text_kanan">'.$capaian_mapping.'</td>';
         }
@@ -386,7 +445,9 @@ if(!empty($data_sumberdana_shorted['total_simda'])){
     $capaian = $this->pembulatan(($data_sumberdana_shorted['realisasi']/$data_sumberdana_shorted['total_simda'])*100);
 }
 $mapping_sd = '';
+$colspan_nm = 3;
 if($type_mapping == 1){
+    $colspan_nm = 4;
     $capaian_mapping = 0;
     if(!empty($data_sumberdana_shorted['total_sd_mapping'])){
         $capaian_mapping = $this->pembulatan(($data_sumberdana_shorted['realisasi_mapping']/$data_sumberdana_shorted['total_sd_mapping'])*100);
@@ -397,7 +458,7 @@ if($type_mapping == 1){
 }
 $body_sumberdana .= '
     <tr>
-        <td class="kiri kanan bawah text_blok text_kanan" colspan="3">Jumlah Total</td>
+        <td class="kiri kanan bawah text_blok text_tengah" colspan="'.$colspan_nm.'">Jumlah Total</td>
         '.$mapping_sd.'
         '.$murni.'
         <td class="kanan bawah text_blok text_kanan">'.number_format($data_sumberdana_shorted['total'],0,",",".").'</td>
@@ -417,9 +478,10 @@ $body_sumberdana .= '
             <tr>
                 <td class="atas kanan bawah kiri text_tengah text_blok" width="20px;">No</td>
                 <td class="atas kanan bawah text_tengah text_blok">SKPD/Sub Kegiatan</td>
-                <td class="atas kanan bawah text_tengah text_blok" width="300px;">Sumber Dana</td>
+                <td class="atas kanan bawah text_tengah text_blok" width="300px;">Sumber Dana SIPD</td>
                 <?php if($type_mapping == 1):?>
-                    <td class="atas kanan bawah text_tengah text_blok" style="width: 140px;">Sumber Dana Mapping (Rp.)</td>
+                    <td class="atas kanan bawah text_tengah text_blok" style="width: 140px;">Sumber Dana Mapping</td>
+                    <td class="atas kanan bawah text_tengah text_blok" style="width: 140px;">Pagu Mapping (Rp.)</td>
                     <td class="atas kanan bawah text_tengah text_blok" style="width: 140px;">Realisasi Mapping (Rp.)</td>
                     <td class="atas kanan bawah text_tengah text_blok" style="width: 100px;">Capaian Mapping (%)</td>
                 <?php endif; ?>
