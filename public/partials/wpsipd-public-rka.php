@@ -28,7 +28,7 @@ $current_user = wp_get_current_user();
 $api_key = get_option( '_crb_api_key_extension' );
 $kunci_sd_mapping = get_option( '_crb_kunci_sumber_dana_mapping' );
 
-$data_sumber_dana = $wpdb->get_results("select id_dana, nama_dana from data_sumber_dana where tahun_anggaran=".$input['tahun_anggaran'], ARRAY_A);
+$data_sumber_dana = $wpdb->get_results("select id_dana, nama_dana, kode_dana from data_sumber_dana where tahun_anggaran=".$input['tahun_anggaran'], ARRAY_A);
 $data_label_komponen = $wpdb->get_results("select id, nama from data_label_komponen where tahun_anggaran=".$input['tahun_anggaran'], ARRAY_A);
 
 $type = 'rka_murni';
@@ -251,18 +251,22 @@ foreach ($bl as $k => $sub_bl) {
 
 	$sql = "
 		SELECT 
-			* 
-		from data_dana_sub_keg 
+			d.iddana,
+			d.namadana,
+			m.kode_dana
+		from data_dana_sub_keg d
+			left join data_sumber_dana m on d.iddana=m.id_dana
+				and d.tahun_anggaran = m.tahun_anggaran
 		where kode_sbl='".$sub_bl['kode_sbl']."'
-			AND tahun_anggaran=".$bl[0]['tahun_anggaran']."
-			AND active=1";
+			AND d.tahun_anggaran=".$bl[0]['tahun_anggaran']."
+			AND d.active=1";
 	$sd_sub_keg = $wpdb->get_results($sql, ARRAY_A);
 	$sd_sub_id = array();
 	$sd_sub = array();
 	foreach ($sd_sub_keg as $key => $sd) {
 		$new_sd = explode(' - ', $sd['namadana']);
 		if(!empty($new_sd[1])){
-			$sd_sub[] = $new_sd[1];
+			$sd_sub[] = '<span class="kode-dana">'.$sd['kode_dana'].'</span> '.$new_sd[1];
 			$sd_sub_id[] = $sd['iddana'];
 		}
 	}
@@ -960,7 +964,7 @@ foreach ($bl as $k => $sub_bl) {
         .pagenum:after { counter-increment: page; content: counter(page); }*/
     }
 
-    .profile-penerima {
+    .profile-penerima, .kode-dana {
     	display: none;
     }
     header, nav {
@@ -1637,7 +1641,7 @@ foreach ($bl as $k => $sub_bl) {
           		res.data.map(function(data, i){
 					var sumberdana = '<ul class="list-mapping">';
 					data.data_sumber_dana.map(function(b, i){
-						sumberdana += '<li><span data-id="'+b.id+'" class="badge badge-primary mapping">'+b.nama_dana+'</span></li>';
+						sumberdana += '<li><span class="kode-dana">'+b.kode_dana+' </span><span data-id="'+b.id+'" class="badge badge-primary mapping">'+b.nama_dana+'</span></li>';
 					});
 					sumberdana += '</ul>';
 
@@ -1908,11 +1912,11 @@ foreach ($bl as $k => $sub_bl) {
 	    	});
 	    	var rak_sub_keg = jQuery('.subkeg[data-kdsbl="'+kd_sbl+'"] .mapping.rak').text();
 	    	var total_sub_keg = jQuery('.subkeg-total[data-kdsbl="'+kd_sbl+'"]').text();
-	    	var sumberdana_sub_keg = jQuery('.subkeg-sumberdana[data-kdsbl="'+kd_sbl+'"]').text();
+	    	var sumberdana_sub_keg = jQuery('.subkeg-sumberdana[data-kdsbl="'+kd_sbl+'"]').html().replace(/kode-dana/g, 'kode-dana-mapping');
 	    	var id_sumberdana_sub_keg = jQuery('.subkeg-sumberdana[data-kdsbl="'+kd_sbl+'"]').attr('data-idsumberdana').split(',');
 	    	jQuery('#mapping_nama_subkeg').text(nama_sub_keg);
 	    	jQuery('#mapping_total_rincian').html(total_sub_keg+' <span class="badge badge-danger mapping text_12">'+realisasi_sub_keg+'</span> <span class="badge badge-info mapping text_12">'+rak_sub_keg+'</span>');
-	    	jQuery('#mapping_sumberdana_subkeg').text(sumberdana_sub_keg);
+	    	jQuery('#mapping_sumberdana_subkeg').html(sumberdana_sub_keg);
 	    	
 	    	jQuery('#mapping_id').val(id);
     	<?php if($kunci_sd_mapping == 1){ ?>
@@ -1923,7 +1927,7 @@ foreach ($bl as $k => $sub_bl) {
 	    			if(b.id_dana == id_sumberdana_mapping){
 	    				selected = 'selected';
 	    			}
-	    			option_sumber_dana.push('<option '+selected+' value="'+b.id_dana+'">'+b.nama_dana+'</option>');
+	    			option_sumber_dana.push('<option '+selected+' value="'+b.id_dana+'">'+b.kode_dana+' '+b.nama_dana+'</option>');
 	    		}
 	    	});
 	    	if(option_sumber_dana.length == 0){
@@ -1945,7 +1949,7 @@ foreach ($bl as $k => $sub_bl) {
     <?php if($kunci_sd_mapping == 2){ ?>
     	var option_sumber_dana = ['<option value="">Pilih Sumber Dana</option>'];
     	master_sumberdana.map(function(b, i){
-			option_sumber_dana.push('<option value="'+b.id_dana+'">'+b.nama_dana+'</option>');
+			option_sumber_dana.push('<option value="'+b.id_dana+'">'+b.kode_dana+' '+b.nama_dana+'</option>');
     	});
     	jQuery('#mapping_sumberdana').html(option_sumber_dana);
 	    jQuery('#mapping_sumberdana').select2();
