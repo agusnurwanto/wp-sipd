@@ -629,6 +629,9 @@ class Wpsipd_Admin {
 				$shortcode = '[monitor_sumber_dana tahun_anggaran="'.$tahun.'" id_sumber_dana="'.$val['iddana'].'"]';
 				$update = false;
 				$url_skpd = $this->generatePage($title, $tahun, $shortcode, $update);
+				if(!empty($id_skpd)){
+					$url_skpd .= '&id_skpd='.$id_skpd;
+				}
 				if(empty($val['kodedana'])){
 					$val['kodedana'] = '';
 					$val['namadana'] = 'Belum Di Setting';
@@ -945,6 +948,9 @@ class Wpsipd_Admin {
 				$shortcode = '[monitor_sumber_dana tahun_anggaran="'.$tahun.'" id_sumber_dana="'.$v['id_dana'].'"]';
 				$update = false;
 				$url_skpd = $this->generatePage($title, $tahun, $shortcode, $update).'&mapping=1';
+				if(!empty($id_skpd)){
+					$url_skpd .= '&id_skpd='.$id_skpd;
+				}
 	    		$master_sumberdana .= '
 	    			<tr>
 	    				<td class="text_tengah">'.$no.'</td>
