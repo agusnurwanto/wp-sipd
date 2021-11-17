@@ -447,6 +447,7 @@ if(!empty($data_sumberdana_shorted['total_simda'])){
 $mapping_sd = '';
 $colspan_nm = 3;
 if($type_mapping == 1){
+    $judul_laporan[0] .= ' Hasil Mapping';
     $colspan_nm = 4;
     $capaian_mapping = 0;
     if(!empty($data_sumberdana_shorted['total_sd_mapping'])){
