@@ -7013,13 +7013,38 @@ class Wpsipd_Public
 						$total_sd+=$val['total'];
 					}
 
+					$total_rka = $wpdb->get_results($wpdb->prepare('
+					select 
+						sum(pagu) as total_rka
+					from data_sub_keg_bl 
+					where tahun_anggaran=%d
+						and id_sub_skpd=%d
+						and active=1
+					', $_POST['tahun_anggaran'], $_POST['id_skpd']), ARRAY_A);
+
+					$skpd = $wpdb->get_results($wpdb->prepare("
+						SELECT 
+							nama_skpd, 
+							id_skpd, 
+							kode_skpd
+						from data_unit 
+						where active=1 
+							and tahun_anggaran=%d
+							and id_skpd=%d
+						order by kode_skpd ASC
+					", $_POST['tahun_anggaran'], $_POST['id_skpd']), ARRAY_A);
+
+					$title = 'RFK '.$skpd[0]['nama_skpd'].' '.$skpd[0]['kode_skpd'].' | '.$_POST['tahun_anggaran'];
+					$shortcode = '[monitor_rfk tahun_anggaran="'.$_POST['tahun_anggaran'].'" id_skpd="'.$skpd[0]['id_skpd'].'"]';
+					$update = false;
+					$url_skpd = $this->generatePage($title, $_POST['tahun_anggaran'], $shortcodee, $update);
+
 					$master_sumberdana .= "
 						<tr>
-							<td colspan='3' class='atas kanan bawah kiri text_tengah text_blok'>TOTAL</td>
+							<td colspan='3' class='atas kanan bawah kiri text_tengah text_blok'>Total</td>
 							<td class='atas kanan bawah text_kanan text_blok'>".number_format($total_sd, 0,',','.')."</td>
-							<td class='atas kanan bawah text_kanan text_blok'></td>
-							<td class='atas kanan bawah text_tengah text_blok'></td>
-							<td class='atas kanan bawah text_tengah text_blok'></td>
+							<td class='text_tengah kanan bawah text_blok' colspan='2'>Total RKA</td>
+							<td class='text_kanan kanan bawah text_blok'><a target='_blank' href='".$url_skpd."'>".number_format($total_rka[0]['total_rka'],0,",",".")."</a></td>
 						</tr>
 					";
 
@@ -7158,7 +7183,7 @@ class Wpsipd_Public
 					
 					$master_sumberdana .="
 						<tr>
-							<td colspan='3' class='atas kanan bawah kiri text_tengah text_blok'>TOTAL</td>
+							<td colspan='3' class='atas kanan bawah kiri text_tengah text_blok'>Total</td>
 							<td class='atas kanan bawah text_kanan text_blok'>".number_format($total_harga, 0,',','.')."</td>
 							<td class='atas kanan bawah text_kanan text_blok'>".number_format($realisasi, 0,',','.')."</td>
 							<td class='atas kanan bawah text_tengah text_blok'>".$jml_rincian."</td>
@@ -7253,12 +7278,12 @@ class Wpsipd_Public
 				    	$url_skpd = '#';
 				    	$master_sumberdana .= '
 							<tr>
-								<td class="text_tengah">'.$no.'</td>
-								<td>'.$val['kode_sd'].'</td>
-								<td>'.$val['nama_sd'].'</td>
-								<td class="text_kanan">'.number_format($val['pagu_dana'],0,",",".").'</td>
-								<td class="text_kanan">'.number_format($val['pagu_rka'],0,",",".").'</td>
-								<td class="text_tengah">'.$val['jml_sub'].'</td>
+								<td class="text_tengah atas kanan bawah kiri">'.$no.'</td>
+								<td class="atas kanan bawah">'.$val['kode_sd'].'</td>
+								<td class="atas kanan bawah">'.$val['nama_sd'].'</td>
+								<td class="text_kanan atas kanan bawah atas kanan bawah">'.number_format($val['pagu_dana'],0,",",".").'</td>
+								<td class="text_kanan atas kanan bawah atas kanan bawah">'.number_format($val['pagu_rka'],0,",",".").'</td>
+								<td class="text_tengah atas kanan bawah atas kanan bawah">'.$val['jml_sub'].'</td>
 							</tr>
 						';
 						foreach ($val['raw_pagu_dana'] as $dana) {
@@ -7273,22 +7298,22 @@ class Wpsipd_Public
 					$url_skpd = $this->generatePage($title, $tahun, $shortcode, $update);
 					$master_sumberdana .= '
 						<tr class="text_blok">
-							<td class="text_tengah" colspan="3">Total</td>
-							<td class="text_kanan">'.number_format($total_sd,0,",",".").'</td>
-							<td class="text_kanan"><a target="_blank" href="'.$url_skpd.'">'.number_format($total_rka,0,",",".").'</a></td>
-							<td class="text_tengah">'.number_format($jml_sub,0,",",".").'</td>
+							<td class="text_tengah atas kanan bawah kiri" colspan="3">Total</td>
+							<td class="text_kanan atas kanan bawah ">'.number_format($total_sd,0,",",".").'</td>
+							<td class="text_kanan atas kanan bawah "><a target="_blank" href="'.$url_skpd.'">'.number_format($total_rka,0,",",".").'</a></td>
+							<td class="text_tengah atas kanan bawah ">'.number_format($jml_sub,0,",",".").'</td>
 						</tr>
 					';
 					$table_content = '
 		        		<table class="wp-list-table widefat fixed striped">
 		        			<thead>
-		        				<tr class="text_tengah">
-		        					<th class="text_tengah" style="width: 20px">No</th>
-		        					<th class="text_tengah" style="width: 100px">Kode</th>
-		        					<th class="text_tengah">Sumber Dana</th>
-		        					<th class="text_tengah" style="width: 150px">Pagu Sumber Dana (Rp.)</th>
-		        					<th class="text_tengah" style="width: 150px">Pagu RKA (Rp.)</th>
-		        					<th class="text_tengah" style="width: 150px">Jumlah Sub Keg</th>
+		        				<tr class="text_tengah atas kanan bawah kiri">
+		        					<th class="text_tengah atas kanan bawah" style="width: 20px">No</th>
+		        					<th class="text_tengah atas kanan bawah" style="width: 100px">Kode</th>
+		        					<th class="text_tengah atas kanan bawah">Sumber Dana</th>
+		        					<th class="text_tengah atas kanan bawah" style="width: 150px">Pagu Sumber Dana (Rp.)</th>
+		        					<th class="text_tengah atas kanan bawah" style="width: 150px">Pagu RKA (Rp.)</th>
+		        					<th class="text_tengah atas kanan bawah" style="width: 150px">Jumlah Sub Keg</th>
 		        				</tr>
 		        			</thead>
 		        			<tbody>
