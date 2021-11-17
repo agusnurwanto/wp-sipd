@@ -7021,7 +7021,7 @@ class Wpsipd_Public
 						and id_sub_skpd=%d
 						and active=1
 					', $_POST['tahun_anggaran'], $_POST['id_skpd']), ARRAY_A);
-
+					
 					$skpd = $wpdb->get_results($wpdb->prepare("
 						SELECT 
 							nama_skpd, 
@@ -7044,7 +7044,7 @@ class Wpsipd_Public
 							<td colspan='3' class='atas kanan bawah kiri text_tengah text_blok'>Total</td>
 							<td class='atas kanan bawah text_kanan text_blok'>".number_format($total_sd, 0,',','.')."</td>
 							<td class='text_tengah kanan bawah text_blok' colspan='2'>Total RKA</td>
-							<td class='text_kanan kanan bawah text_blok'><a target='_blank' href='".$url_skpd."&id_skpd=".$_POST['id_skpd'].">".number_format($total_rka[0]['total_rka'],0,",",".")."</a></td>
+							<td class='text_kanan kanan bawah text_blok'><a target='_blank' href='".$url_skpd."&id_skpd=".$_POST['id_skpd']."'>".number_format($total_rka[0]['total_rka'],0,",",".")."</a></td>
 						</tr>
 					";
 
@@ -7054,7 +7054,7 @@ class Wpsipd_Public
 								<th class="atas kanan bawah kiri text_tengah" style="width: 20px; vertical-align: middle;">No</th>
 								<th class="atas kanan bawah text_tengah" style="width: 100px; vertical-align: middle;">Kode</th>
 								<th class="atas kanan bawah text_tengah" style="vertical-align: middle;">Sumber Dana</th>
-								<th class="atas kanan bawah text_tengah" style="vertical-align: middle;">Total Pagu Sumber Dana(Rp.)</th>
+								<th class="atas kanan bawah text_tengah" style="vertical-align: middle;">Pagu Sumber Dana(Rp.)</th>
 								<th class="atas kanan bawah text_tengah" style="width:50px; vertical-align: middle;">Jumlah Sub Kegiatan</th>
 								<th class="atas kanan bawah text_tengah" style="width: 50px; vertical-align: middle;">ID Dana</th>
 								<th class="atas kanan bawah text_tengah" style="width: 110px; vertical-align: middle;">Tahun Anggaran</th>
@@ -7066,9 +7066,16 @@ class Wpsipd_Public
 						</tfooter>
 						';
 
+					$list_dokumentasi = "
+						<li>Format Per Sumber Dana SIPD menampilkan daftar sumber dana berdasarkan sumber dana yang di input melalui SIPD Merah.</li>
+						<li>Pagu Sumber Dana merupakan akumulasi pagu sumber dana dari masing-masing sub kegiatan yang di kelompokan berdasarkan jenis sumber dana.</li>
+						<li>Jumlah Sub Kegiatan merupakan jumlah sub kegiatan dengan sumber dana yang sama.</li>
+					";
+
 					$return = array(
 						'status' => 'success',
-						'table_content' => $table_content
+						'table_content' => $table_content,
+						'list_dokumentasi' => $list_dokumentasi,
 					);
 				}elseif ($_POST['format_sumber_dana'] == 2) {
 					
@@ -7196,19 +7203,26 @@ class Wpsipd_Public
 								<th class="atas kanan bawah kiri text_tengah" style="width: 20px; vertical-align: middle;">No</th>
 								<th class="atas kanan bawah text_tengah" style="width: 100px; vertical-align: middle;">Kode</th>
 								<th class="atas kanan bawah text_tengah" style="vertical-align: middle;">Sumber Dana</th>
-								<th class="atas kanan bawah text_tengah" style="vertical-align: middle;">Total Pagu Sumber Dana(Rp.)</th>
+								<th class="atas kanan bawah text_tengah" style="vertical-align: middle;">Pagu Sumber Dana(Rp.)</th>
 								<th class="atas kanan bawah text_tengah" style="vertical-align: middle;">Realisasi Rincian</th>
 								<th class="atas kanan bawah text_tengah" style="width: 110px; vertical-align: middle;">Jumlah Rincian</th>
 							</tr>
 						</thead>
 						<tbody id="body-sumber-dana">'.$master_sumberdana.'</tbody>';
 
+					$list_dokumentasi = "
+						<li>Format Per Sumber Dana Mapping menampilkan daftar sumber dana berdasarkan hasil mapping rincian dari masing-masing sub kegiatan.</li>
+						<li>Pagu Sumber Dana merupakan akumulasi pagu sumber dana berdasarkan hasil mapping dari masing-masing sub kegiatan yang dikelompokan berdasarkan sumber dana yang sama.</li>
+						<li>Realisasi Rincian merupakan akumulasi realisasi rincian yang diinput melalui halaman mapping sumber dana yang dikelompokkan berdasarkan sumber dana yang sama.</li>
+						<li>Jumlah Rincian merupakan akumulasi dari rincian yang diinput melalui halaman mapping sumber yang dikelompokkan berdasarkan sumber dana yang sama.</li>
+					";
+
 					$return = array(
 						'status' => 'success',
-						'table_content' => $table_content
+						'table_content' => $table_content,
+						'list_dokumentasi' => $list_dokumentasi
 					);
 				}elseif ($_POST['format_sumber_dana'] == 3) {
-
 					$sub_keg = $wpdb->get_results($wpdb->prepare('
 		    			select
 		    				kode_sbl,
@@ -7298,9 +7312,9 @@ class Wpsipd_Public
 					$url_skpd = $this->generatePage($title, $tahun, $shortcode, $update);
 					$master_sumberdana .= '
 						<tr class="text_blok">
-							<td class="text_tengah atas kanan bawah kiri" colspan="3">Total</td>
+							<td class="text_tengah atas kanan bawah kiri" colspan="3">Total_</td>
 							<td class="text_kanan atas kanan bawah ">'.number_format($total_sd,0,",",".").'</td>
-							<td class="text_kanan atas kanan bawah "><a target="_blank" href="'.$url_skpd.'&id_skpd='.$_POST['id_skpd'].'>'.number_format($total_rka,0,",",".").'</a></td>
+							<td class="text_kanan atas kanan bawah "><a target="_blank" href="'.$url_skpd.'&id_skpd='.$_POST['id_skpd'].'">'.number_format($total_rka,0,",",".").'</a></td>
 							<td class="text_tengah atas kanan bawah ">'.number_format($jml_sub,0,",",".").'</td>
 						</tr>
 					';
@@ -7321,9 +7335,17 @@ class Wpsipd_Public
 		        			</tbody>
 		        		</table>
 		    		';
+
+		    		$list_dokumentasi = "
+						<li>Format Kombinasi Sumber Dana SIPD menampilkan daftar sumber dana berdasarkan kombinasi sumber dana yang di input melalui SIPD Merah.</li>
+						<li>Pagu Sumber Dana merupakan akumulasi pagu sumber dana dari masing-masing sub kegiatan yang di kelompokan berdasarkan kombinasi sumber dana yang sama.</li>
+						<li>Jumlah Sub Kegiatan merupakan jumlah sub kegiatan yang di kelompokan berdasarkan kombinasi sumber dana yang sama.</li>
+					";
+
 					$return = array(
 						'status' => 'success',
-						'table_content' => $table_content
+						'table_content' => $table_content,
+						'list_dokumentasi' => $list_dokumentasi
 					);
 				}
 			}else{

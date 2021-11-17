@@ -92,6 +92,12 @@ $format_sumber_dana = get_option('_crb_kunci_sumber_dana_mapping');
 	</div>
 </div>
 
+<div class="hide-print" id="catatan_dokumentasi" style="max-width: 1200px; margin: auto;">
+	<h4 style="margin: 30px 0 10px; font-weight: bold;">Catatan Dokumentasi:</h4>
+	<ul id="list_dokumentasi">
+	</ul>
+</div>
+
 <script>
 	run_download_excel();
 	jQuery(document).ready(function(){
@@ -126,6 +132,7 @@ $format_sumber_dana = get_option('_crb_kunci_sumber_dana_mapping');
 			success:function(response){
 				jQuery("#wrap-loading").hide();
 				jQuery(".tabel-sumber-dana").html(response.table_content);
+				jQuery("#list_dokumentasi").html(response.list_dokumentasi);
 			}
 		})
 	}
