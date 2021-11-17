@@ -7044,7 +7044,7 @@ class Wpsipd_Public
 							<td colspan='3' class='atas kanan bawah kiri text_tengah text_blok'>Total</td>
 							<td class='atas kanan bawah text_kanan text_blok'>".number_format($total_sd, 0,',','.')."</td>
 							<td class='text_tengah kanan bawah text_blok' colspan='2'>Total RKA</td>
-							<td class='text_kanan kanan bawah text_blok'><a target='_blank' href='".$url_skpd."'>".number_format($total_rka[0]['total_rka'],0,",",".")."</a></td>
+							<td class='text_kanan kanan bawah text_blok'><a target='_blank' href='".$url_skpd."&id_skpd=".$_POST['id_skpd'].">".number_format($total_rka[0]['total_rka'],0,",",".")."</a></td>
 						</tr>
 					";
 
@@ -7173,7 +7173,7 @@ class Wpsipd_Public
 			    			<tr>
 			    				<td class="atas kanan bawah kiri text_tengah">'.$no.'</td>
 			    				<td class="atas kanan bawah">'.$value['kode_dana'].'</td>
-			    				<td class="atas kanan bawah"><a href="'.$url_skpd.'&mapping=1" target="_blank">'.$value['nama_dana'].'</a></td>
+			    				<td class="atas kanan bawah"><a href="'.$url_skpd.'&id_skpd='.$_POST['id_skpd'].'&mapping=1" target="_blank">'.$value['nama_dana'].'</a></td>
 			    				<td class="atas kanan bawah text_kanan">'.number_format($value['pagu'],0,",",".").'</td>
 			    				<td class="atas kanan bawah text_kanan">'.number_format($value['realisasi'],0,",",".").'</td>
 			    				<td class="atas kanan bawah text_tengah">'.number_format($value['jml_rincian'],0,",",".").'</td>
@@ -7300,7 +7300,7 @@ class Wpsipd_Public
 						<tr class="text_blok">
 							<td class="text_tengah atas kanan bawah kiri" colspan="3">Total</td>
 							<td class="text_kanan atas kanan bawah ">'.number_format($total_sd,0,",",".").'</td>
-							<td class="text_kanan atas kanan bawah "><a target="_blank" href="'.$url_skpd.'">'.number_format($total_rka,0,",",".").'</a></td>
+							<td class="text_kanan atas kanan bawah "><a target="_blank" href="'.$url_skpd.'&id_skpd='.$_POST['id_skpd'].'>'.number_format($total_rka,0,",",".").'</a></td>
 							<td class="text_tengah atas kanan bawah ">'.number_format($jml_sub,0,",",".").'</td>
 						</tr>
 					';

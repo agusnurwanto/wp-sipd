@@ -107,7 +107,7 @@ $format_sumber_dana = get_option('_crb_kunci_sumber_dana_mapping');
 		}else{
 			jQuery("#format_3").prop("checked",true);
 		}
-		// get_sumber_dana(format_sumber_dana, tahun);
+		get_sumber_dana(format_sumber_dana, tahun);
 	})
 
 	function get_sumber_dana(format_sumber_dana, tahun){
