@@ -373,19 +373,38 @@ $dari_simda = 0;
 if(!empty($_GET) && !empty($_GET['dari_simda'])){
     $dari_simda = $_GET['dari_simda'];
 }
+if(!empty($_GET) && !empty($_GET['id_skpd'])){
+    $input['id_skpd'] = $_GET['id_skpd'];
+}
 
-$sql = $wpdb->prepare("
-    select 
-        kode_akun,
-        nama_akun,
-        sum(total) as total,
-        sum(nilaimurni) as totalmurni
-    from data_pendapatan
-    where tahun_anggaran=%d
-        and active=1
-    group by kode_akun
-    order by kode_akun ASC
-", $input['tahun_anggaran']);
+if(!empty($input['id_skpd'])){
+    $sql = $wpdb->prepare("
+        select 
+            kode_akun,
+            nama_akun,
+            sum(total) as total,
+            sum(nilaimurni) as totalmurni
+        from data_pendapatan
+        where tahun_anggaran=%d
+            and active=1
+            and id_skpd=%d
+        group by kode_akun
+        order by kode_akun ASC
+    ", $input['tahun_anggaran'], $input['id_skpd']);
+}else{
+    $sql = $wpdb->prepare("
+        select 
+            kode_akun,
+            nama_akun,
+            sum(total) as total,
+            sum(nilaimurni) as totalmurni
+        from data_pendapatan
+        where tahun_anggaran=%d
+            and active=1
+        group by kode_akun
+        order by kode_akun ASC
+    ", $input['tahun_anggaran']);
+}
 $rek_pendapatan = $wpdb->get_results($sql, ARRAY_A);
 
 if($dari_simda != 0){
@@ -394,18 +413,37 @@ if($dari_simda != 0){
 
 $body_pendapatan = generate_body($rek_pendapatan, true, $type, 'Pendapatan', $dari_simda);
 
-$sql = $wpdb->prepare("
-    select 
-        kode_akun,
-        nama_akun,
-        sum(rincian) as total,
-        sum(rincian_murni) as totalmurni
-    from data_rka
-    where tahun_anggaran=%d
-        and active=1
-    group by kode_akun
-    order by kode_akun ASC
-", $input['tahun_anggaran']);
+if(!empty($input['id_skpd'])){
+    $sql = $wpdb->prepare("
+        select 
+            r.kode_akun,
+            r.nama_akun,
+            sum(r.rincian) as total,
+            sum(r.rincian_murni) as totalmurni
+        from data_rka r
+            inner join data_sub_keg_bl s on s.kode_sbl = r.kode_sbl
+                and s.active = r.active
+                and s.tahun_anggaran = r.tahun_anggaran
+        where r.tahun_anggaran=%d
+            and r.active=1
+            and s.id_sub_skpd=%d
+        group by r.kode_akun
+        order by r.kode_akun ASC
+    ", $input['tahun_anggaran'], $input['id_skpd']);
+}else{
+    $sql = $wpdb->prepare("
+        select 
+            kode_akun,
+            nama_akun,
+            sum(rincian) as total,
+            sum(rincian_murni) as totalmurni
+        from data_rka
+        where tahun_anggaran=%d
+            and active=1
+        group by kode_akun
+        order by kode_akun ASC
+    ", $input['tahun_anggaran']);
+}
 $rek_belanja = $wpdb->get_results($sql, ARRAY_A);
 
 if($dari_simda != 0){
@@ -414,19 +452,36 @@ if($dari_simda != 0){
 
 $body_belanja = generate_body($rek_belanja, true, $type, 'Belanja', $dari_simda);
 
-$sql = $wpdb->prepare("
-    select 
-        kode_akun,
-        nama_akun,
-        sum(total) as total,
-        sum(nilaimurni) as totalmurni
-    from data_pembiayaan
-    where tahun_anggaran=%d
-        and type='penerimaan'
-        and active=1
-    group by kode_akun
-    order by kode_akun ASC
-", $input['tahun_anggaran']);
+if(!empty($input['id_skpd'])){
+    $sql = $wpdb->prepare("
+        select 
+            kode_akun,
+            nama_akun,
+            sum(total) as total,
+            sum(nilaimurni) as totalmurni
+        from data_pembiayaan
+        where tahun_anggaran=%d
+            and type='penerimaan'
+            and active=1
+            and id_skpd=%d
+        group by kode_akun
+        order by kode_akun ASC
+    ", $input['tahun_anggaran'], $input['id_skpd']);
+}else{
+    $sql = $wpdb->prepare("
+        select 
+            kode_akun,
+            nama_akun,
+            sum(total) as total,
+            sum(nilaimurni) as totalmurni
+        from data_pembiayaan
+        where tahun_anggaran=%d
+            and type='penerimaan'
+            and active=1
+        group by kode_akun
+        order by kode_akun ASC
+    ", $input['tahun_anggaran']);
+}
 $rek_pembiayaan = $wpdb->get_results($sql, ARRAY_A);
 
 if($dari_simda != 0){
@@ -435,19 +490,36 @@ if($dari_simda != 0){
 
 $body_pembiayaan = generate_body($rek_pembiayaan, true, $type, 'Penerimaan Pembiayaan', $dari_simda);
 
-$sql = $wpdb->prepare("
-    select 
-        kode_akun,
-        nama_akun,
-        sum(total) as total,
-        sum(nilaimurni) as totalmurni
-    from data_pembiayaan
-    where tahun_anggaran=%d
-        and type='pengeluaran'
-        and active=1
-    group by kode_akun
-    order by kode_akun ASC
-", $input['tahun_anggaran']);
+if(!empty($input['id_skpd'])){
+    $sql = $wpdb->prepare("
+        select 
+            kode_akun,
+            nama_akun,
+            sum(total) as total,
+            sum(nilaimurni) as totalmurni
+        from data_pembiayaan
+        where tahun_anggaran=%d
+            and type='pengeluaran'
+            and active=1
+            and id_skpd=%d
+        group by kode_akun
+        order by kode_akun ASC
+    ", $input['tahun_anggaran'], $input['id_skpd']);
+}else{
+    $sql = $wpdb->prepare("
+        select 
+            kode_akun,
+            nama_akun,
+            sum(total) as total,
+            sum(nilaimurni) as totalmurni
+        from data_pembiayaan
+        where tahun_anggaran=%d
+            and type='pengeluaran'
+            and active=1
+        group by kode_akun
+        order by kode_akun ASC
+    ", $input['tahun_anggaran']);
+}
 $rek_pembiayaan = $wpdb->get_results($sql, ARRAY_A);
 
 if($dari_simda != 0){
@@ -455,6 +527,24 @@ if($dari_simda != 0){
 }
 
 $body_pembiayaan .= generate_body($rek_pembiayaan, false, $type, 'Pengeluaran Pembiayaan', $dari_simda);
+
+$nama_skpd = "";
+$options_skpd = array();
+$unit = $wpdb->get_results("SELECT nama_skpd, id_skpd, kode_skpd, nipkepala from data_unit where active=1 and tahun_anggaran=".$input['tahun_anggaran'].' and is_skpd=1 order by kode_skpd ASC', ARRAY_A);
+foreach ($unit as $kk => $vv) {
+    $options_skpd[] = $vv;
+    $subunit = $wpdb->get_results("SELECT nama_skpd, id_skpd, kode_skpd, nipkepala from data_unit where active=1 and tahun_anggaran=".$input['tahun_anggaran']." and is_skpd=0 and id_unit=".$vv["id_skpd"]." order by kode_skpd ASC", ARRAY_A);
+    if($input['id_skpd'] == $vv['id_skpd']){
+        $nama_skpd = '<br>'.$vv['kode_skpd'].' '.$vv['nama_skpd'];
+    }
+    foreach ($subunit as $kkk => $vvv) {
+        if($input['id_skpd'] == $vvv['id_skpd']){
+            $nama_skpd = '<br>'.$vvv['kode_skpd'].' '.$vvv['nama_skpd'];
+        }
+        $vvv['kode_skpd'] = '-- '.$vvv['kode_skpd'];
+        $options_skpd[] = $vvv;
+    }
+}
 ?>
 
 <div id="cetak" title="Laporan APBD PENJABARAN Lampiran 1 Tahun Anggaran <?php echo $input['tahun_anggaran']; ?>">
@@ -479,7 +569,7 @@ $body_pembiayaan .= generate_body($rek_pembiayaan, false, $type, 'Pengeluaran Pe
             <td class="text_kiri" contenteditable="true">&nbsp;xx Desember xxx</td>
         </tr>
     </table>
-    <h4 style="text-align: center; font-size: 13px; margin: 10px auto; min-width: 450px; max-width: 550px; font-weight: bold;">KABUPATEN MAGETAN <br>RINGKASAN  PENJABARAN  APBD YANG DIKLASIFIKASI MENURUT KELOMPOK DAN JENIS PENDAPATAN, BELANJA, DAN PEMBIAYAAN<br>TAHUN ANGGARAN <?php echo $input['tahun_anggaran']; ?></h4>
+    <h4 style="text-align: center; font-size: 13px; margin: 10px auto; min-width: 450px; max-width: 550px; font-weight: bold;">KABUPATEN MAGETAN <br>RINGKASAN  PENJABARAN  APBD YANG DIKLASIFIKASI MENURUT KELOMPOK DAN JENIS PENDAPATAN, BELANJA, DAN PEMBIAYAAN<?php echo $nama_skpd; ?><br>TAHUN ANGGARAN <?php echo $input['tahun_anggaran']; ?></h4>
     <table cellpadding="3" cellspacing="0" class="apbd-penjabaran" width="100%">
         <thead>
             <tr>
@@ -512,12 +602,27 @@ $body_pembiayaan .= generate_body($rek_pembiayaan, false, $type, 'Pengeluaran Pe
 </div>
 
 <script type="text/javascript">
+    function ubah_skpd(){
+        var pilih_id_skpd = jQuery('#pilih_skpd').val();
+        if(type){
+            _url = changeUrl({ url: _url, key: 'type', value: type });
+        }
+        if(dari_simda){
+            _url = changeUrl({ url: _url, key: 'dari_simda', value: dari_simda });
+        }
+        _url = changeUrl({ url: _url, key: 'id_skpd', value: pilih_id_skpd });
+        window.open(_url);
+        jQuery('#pilih_skpd').val(id_skpd);
+    }
+
+    var list_skpd = <?php echo json_encode($options_skpd); ?>;
     run_download_excel();
-    var _url = window.location.href;
+    window._url = window.location.href;
     var url = new URL(_url);
-    _url = url.origin+url.pathname+'?key='+url.searchParams.get('key');
-    var type = url.searchParams.get("type");
-    var dari_simda = url.searchParams.get("dari_simda");
+    _url = changeUrl({ url: _url, key: 'key', value: '<?php echo $this->gen_key(); ?>' });
+    window.type = url.searchParams.get("type");
+    window.dari_simda = url.searchParams.get("dari_simda");
+    window.id_skpd = url.searchParams.get("id_skpd");
     if(type && type=='pergeseran'){
         var extend_action = '<a class="button button-primary" target="_blank" href="'+_url+'" style="margin-left: 10px;">Print APBD Lampiran 1</a>';
     }else{
@@ -530,6 +635,15 @@ $body_pembiayaan .= generate_body($rek_pembiayaan, false, $type, 'Pengeluaran Pe
     }else{
         extend_action += '<a href="'+_url+'&type=pergeseran&dari_simda=1"><input type="checkbox"> '+text+'</a>';
     }
+    var options = '<option value="">Semua SKPD</option>';
+    list_skpd.map(function(b, i){
+        var selected = "";
+        if(id_skpd && id_skpd == b.id_skpd){
+            selected = "selected";
+        }
+        options += '<option '+selected+' value="'+b.id_skpd+'">'+b.kode_skpd+' '+b.nama_skpd+'</option>';
+    });
+    extend_action += '<select id="pilih_skpd" onchange="ubah_skpd();" style="width:500px; margin-left:25px;">'+options+'</select>';
     extend_action += '</div>';
     jQuery('#action-sipd').append(extend_action);
 </script>
