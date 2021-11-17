@@ -33,9 +33,22 @@ if(!empty($input['id_sumber_dana'])){
 }
 $bulan = (int) date('m');
 
+$judul_skpd = '';
 $where_skpd = '';
 if(!empty($_GET) && !empty($_GET['id_skpd'])){
-    $where_skpd = 'and r.id_sub_skpd='.$_GET['id_skpd'];
+    $id_skpd = $_GET['id_skpd'];
+    $where_skpd = 'and r.id_sub_skpd='.$id_skpd;
+    $skpd = $wpdb->get_results($wpdb->prepare("
+        select
+            id_skpd,
+            nama_skpd,
+            kode_skpd
+        from data_unit
+        where tahun_anggaran=%d
+            and id_skpd=%d
+            and active=1
+    ", $input['tahun_anggaran'], $id_skpd), ARRAY_A);
+    $judul_skpd = $skpd[0]['kode_skpd'].' '.$skpd[0]['nama_skpd'];
 }
 if(empty($input['id_sumber_dana'])){
     $input['id_sumber_dana'] = 0;
@@ -106,7 +119,14 @@ if($type_mapping == 1){
             '.$where_skpd, ARRAY_A);
 }
 // echo $wpdb->last_query;
-$judul_laporan = array('Laporan Pagu SIPD Kemendagri Per Sumber Dana',$kode_sumber_dana.' '.$nama_sumber_dana,'Tahun '.$input['tahun_anggaran']);
+
+$judul_laporan = array();
+$judul_laporan[] = 'Laporan Pagu SIPD Kemendagri Per Sumber Dana';
+$judul_laporan[] = $kode_sumber_dana.' '.$nama_sumber_dana;
+if(!empty($judul_skpd)){
+    $judul_laporan[] = $judul_skpd;
+}
+$judul_laporan[] = 'Tahun '.$input['tahun_anggaran'];
 
 $data_sumberdana_shorted = array(
     'data' => array(),
