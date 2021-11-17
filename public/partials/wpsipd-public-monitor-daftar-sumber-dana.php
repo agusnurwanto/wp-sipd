@@ -37,21 +37,17 @@ if(!empty($input['id_skpd'])){
 }
 $units = $wpdb->get_row($sql, ARRAY_A);
 
-$opt_tahun = '<option value="">Pilih Tahun</option>';
 if(empty($units)){
 	die('<h1>SKPD tidak ditemukan!</h1>');
 }else{
-	$pengaturan = $wpdb->get_row($wpdb->prepare("
-		select 
-			awal_rpjmd, akhir_rpjmd 
-		from data_pengaturan_sipd 
-		where tahun_anggaran=%d and id=1
-	", $input['tahun_anggaran']), ARRAY_A);
-	
-	for ($i=$pengaturan['awal_rpjmd']; $i <= $pengaturan['akhir_rpjmd']; $i++) {
-		if($i<=$input['tahun_anggaran']){
-			$opt_tahun.='<option value="'.$i.'">'.$i.'</option>';
-		} 
+	$opt_tahun = '<option value="">Pilih Tahun</option>';
+	$pengaturan = $wpdb->get_results($wpdb->prepare("select distinct(tahun_anggaran) tahun from data_unit where active=%d", 1), ARRAY_A);
+	foreach ($pengaturan as $key => $value) {
+		$selected='';
+		if($value['tahun']==$tahun_asli){
+			$selected='selected';
+		}
+		$opt_tahun.='<option value="'.$value['tahun'].'" '.$selected.'>'.$value['tahun'].'</option>';
 	}
 }
 $format_sumber_dana = get_option('_crb_kunci_sumber_dana_mapping');
@@ -111,7 +107,7 @@ $format_sumber_dana = get_option('_crb_kunci_sumber_dana_mapping');
 		}else{
 			jQuery("#format_3").prop("checked",true);
 		}
-		get_sumber_dana(format_sumber_dana, tahun);
+		// get_sumber_dana(format_sumber_dana, tahun);
 	})
 
 	function get_sumber_dana(format_sumber_dana, tahun){
@@ -141,9 +137,11 @@ $format_sumber_dana = get_option('_crb_kunci_sumber_dana_mapping');
 	}
 
 	function tahun_sumberdana(that){
-		var format = jQuery("input[type=radio]:checked").attr("format-id");
 		var tahun = jQuery(that).val();
-		get_sumber_dana(format, tahun);
+		if(tahun != "" && tahun > 0 && tahun != undefined){
+			var format = jQuery("input[type=radio]:checked").attr("format-id");
+			get_sumber_dana(format, tahun);
+		}
 	}
 
 	function getRincianMapping(that){
