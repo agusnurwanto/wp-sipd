@@ -1434,11 +1434,27 @@ class Wpsipd_Admin {
 					$where = '';
 					if(isset($ids[2])){
 						$kelompok = $ids[2];
-						$where .= ' and idsubtitle='.$kelompok;
+						$subs_bl_teks = $wpdb->get_var($wpdb->prepare('
+							select 
+								subs_bl_teks 
+							from data_rka 
+							where tahun_anggaran=%d
+								and id=%d', 
+							$_POST['tahun_anggaran'], $kelompok
+						));
+						$where .= ' and subs_bl_teks=\''.$subs_bl_teks.'\'';
 					}
 					if(isset($ids[3])){
 						$keterangan = $ids[3];
-						$where .= ' and idketerangan='.$keterangan;
+						$ket_bl_teks = $wpdb->get_var($wpdb->prepare('
+							select 
+								ket_bl_teks 
+							from data_rka 
+							where tahun_anggaran=%d
+								and id=%d', 
+							$_POST['tahun_anggaran'], $keterangan
+						));
+						$where .= ' and ket_bl_teks=\''.$ket_bl_teks.'\'';
 					}
 					if(isset($ids[4])){
 						$ids_rinci[] = array(
@@ -1475,24 +1491,37 @@ class Wpsipd_Admin {
 						$data_rinci = $wpdb->get_results(
 							$wpdb->prepare("
 								select
+									id,
 									id_rinci_sub_bl,
 									kode_akun,
 									idsubtitle,
-									idketerangan
+									idsubtitle,
+									subs_bl_teks,
+									ket_bl_teks
 								from data_rka
 								where tahun_anggaran=%d
 									and kode_sbl='%s'
 									and kode_akun like %s
-									".$where,
+									".$where."
+								Order by kode_akun ASC, subs_bl_teks ASC, ket_bl_teks ASC",
 								$_POST['tahun_anggaran'], $kd_sbl, $ids[1].'%'
 							), ARRAY_A
 						);
+						$id_kelompok = array();
+						$id_keterangan = array();
 						foreach ($data_rinci as $k => $v) {
+							$key_ket = $v['kode_akun'].'-'.$v['subs_bl_teks'].'-'.$v['ket_bl_teks'];
+							if(empty($id_kelompok[$key_ket])){
+								$id_kelompok[$key_ket] = $v['id'];
+							}
+							if(empty($id_keterangan[$key_ket])){
+								$id_keterangan[$key_ket] = $v['id'];
+							}
 							$ids_rinci[] = array(
 								'kode_akun' => $v['kode_akun'],
 								'id_rinci' => $v['id_rinci_sub_bl'],
-								'kelompok' => $v['idsubtitle'],
-								'keterangan' => $v['idketerangan']
+								'kelompok' => $id_kelompok[$key_ket],
+								'keterangan' => $id_keterangan[$key_ket]
 							);
 						}
 					}
