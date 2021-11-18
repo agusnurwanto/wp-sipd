@@ -7171,7 +7171,7 @@ class Wpsipd_Public
 			    	$no = 0;
 			    	foreach ($data as $key => $value) {
 			    		$no++;
-			    		$title = 'Laporan APBD Per Sumber Dana '.$value['kode_dana'].' '.$value['kode_dana'].' | '.$_POST['tahun_anggaran'];
+			    		$title = 'Laporan APBD Per Sumber Dana '.$value['kode_dana'].' '.$value['nama_dana'].' | '.$_POST['tahun_anggaran'];
 						$shortcode = '[monitor_sumber_dana tahun_anggaran="'.$_POST['tahun_anggaran'].'" id_sumber_dana="'.$value['id_dana'].'"]';
 						$update = false;
 						$url_skpd = $this->generatePage($title, $_POST['tahun_anggaran'], $shortcode, $update);
