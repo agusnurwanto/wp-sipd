@@ -262,8 +262,8 @@ foreach ($data_sub_giat as $k =>$v) {
         // if($type_mapping == 1 && $length_sd > 1){
             $sd_mapping = $wpdb->get_results("
                 select 
-                    sum(r.rincian) as total,
-                    sum(n.realisasi) as realisasi
+                    COALESCE(sum(r.rincian),0) as total,
+                    COALESCE(sum(n.realisasi),0) as realisasi
                 from data_mapping_sumberdana m
                     inner join data_rka r on r.id_rinci_sub_bl=m.id_rinci_sub_bl
                         and r.active=m.active
@@ -340,18 +340,19 @@ foreach ($data_sub_giat as $k =>$v) {
     $data_sumberdana_shorted['data'][$skpd['kode_skpd']]['total_murni'] += $v['pagumurni'];
     $data_sumberdana_shorted['total_murni'] += $v['pagumurni'];
 
-    $data_sumberdana_shorted['data'][$skpd['kode_skpd']]['data'][$v['kode_sbl']]['total_sd_mapping'] += $sd_data[$input['id_sumber_dana']];
-    $data_sumberdana_shorted['data'][$skpd['kode_skpd']]['total_sd_mapping'] += $sd_data[$input['id_sumber_dana']];
-    $data_sumberdana_shorted['total_sd_mapping'] += $sd_data[$input['id_sumber_dana']];
+    $data_sumberdana_shorted['data'][$skpd['kode_skpd']]['data'][$v['kode_sbl']]['total_sd_mapping'] += $sd_data[$input['id_sumber_dana']] ?? 0;
+    $data_sumberdana_shorted['data'][$skpd['kode_skpd']]['total_sd_mapping'] += $sd_data[$input['id_sumber_dana']] ?? 0;
+    $data_sumberdana_shorted['total_sd_mapping'] += $sd_data[$input['id_sumber_dana']] ?? 0;
 
-    $data_sumberdana_shorted['data'][$skpd['kode_skpd']]['data'][$v['kode_sbl']]['realisasi_mapping'] += $sd_realisasi[$input['id_sumber_dana']];
-    $data_sumberdana_shorted['data'][$skpd['kode_skpd']]['realisasi_mapping'] += $sd_realisasi[$input['id_sumber_dana']];
-    $data_sumberdana_shorted['realisasi_mapping'] += $sd_realisasi[$input['id_sumber_dana']];
+    $data_sumberdana_shorted['data'][$skpd['kode_skpd']]['data'][$v['kode_sbl']]['realisasi_mapping'] += $sd_realisasi[$input['id_sumber_dana']] ?? 0;
+    $data_sumberdana_shorted['data'][$skpd['kode_skpd']]['realisasi_mapping'] += $sd_realisasi[$input['id_sumber_dana']] ?? 0;
+    $data_sumberdana_shorted['realisasi_mapping'] += $sd_realisasi[$input['id_sumber_dana']] ?? 0;
 }
 ksort($data_sumberdana_shorted['data']);
 
 $body_sumberdana = '';
 $no_all = 0;
+
 foreach ($data_sumberdana_shorted['data'] as $k => $skpd) {
     $murni = '';
     $selisih = '';
