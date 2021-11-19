@@ -12,6 +12,7 @@ function load_label(tahun_anggaran){
       	success: function(data){
 			jQuery("#body_label").html(data.message);
 			window.data_label_komponen = data.data;
+			set_analis_komponen();
 			jQuery("#wrap-loading").hide();
 		},
 		error: function(e) {
@@ -78,6 +79,18 @@ function get_list_skpd(tahun, cb){
 			}
 		});
 	}
+}
+
+function set_analis_komponen(){
+	if(typeof analisa_komponen == 'undefined'){
+		window.analisa_komponen = [];
+	}
+	analisa_komponen.map(function(b, i){
+		var tr = jQuery('.edit-label[data-id="'+b.id_label_komponen+'"]').closest('tr');
+		tr.find('.pagu-rincian').text(b.pagu);
+		tr.find('.realisasi-rincian').text(b.realisasi);
+		tr.find('.jml-rincian').text(b.jml_rincian);
+	});
 }
 
 jQuery(document).ready(function(){
@@ -201,6 +214,7 @@ jQuery(document).ready(function(){
 					jQuery('#wrap-loading').hide();
 					if(data.status == 'success'){
 						window.analisa_komponen = data.data;
+						set_analis_komponen();
 					}else{
 						return alert(data.message);
 					}
@@ -211,9 +225,7 @@ jQuery(document).ready(function(){
 					return alert(e);
 				}
 			});
-
 		});
-
 		jQuery('#body_label').on('click', '.edit-label', function(){
 			var id_label = jQuery(this).attr('data-id');
 			data_label_komponen.map(function(b, i){

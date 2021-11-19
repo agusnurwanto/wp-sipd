@@ -77,3 +77,6 @@
     background: #f32121;
     color: #fff;
 }
+#dokumentasi li {
+    list-style: initial;
+}

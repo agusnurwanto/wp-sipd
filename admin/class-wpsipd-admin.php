@@ -1072,6 +1072,7 @@ class Wpsipd_Admin {
             			.postbox-container { display: none; }
             			#poststuff #post-body.columns-2 { margin: 0 !important; }
             		</style>
+            		<h3 class="text_tengah">Form Tambah dan Edit Label Komponen</h3>
             		<table class="wp-list-table widefat fixed striped">
             			<thead>
             				<tr>
@@ -1091,6 +1092,7 @@ class Wpsipd_Admin {
             				</tr>
             			</tbody>
             		</table>
+            		<hr style="margin: 40px 0 0;">
             		<h3 class="text_tengah">Daftar Label Komponen</h3>
             		<table class="wp-list-table widefat fixed striped">
             			<thead>
@@ -1110,6 +1112,13 @@ class Wpsipd_Admin {
             			<tbody id="body_label">
             			</tbody>
             		</table>
+            		<h3>Dokumentasi:</h3>
+            		<ul style="margin-left: 30px;" id="dokumentasi">
+            			<li><b>Tahun Anggaran</b> untuk menampilkan data label komponen dalam tahun anggaran tersebut</li>
+            			<li><b>Form Tambah dan Edit Label Komponen</b> digunakan untuk menambahkan label komponen baru atau melakukan update label komponen</li>
+            			<li><b>Daftar Label Komponen</b> menampilkan daftar label komponen yang sudah dibuat</li>
+            			<li>Tombol refresh berwarna biru pada kolom <b>Analisa Rincian</b> berfungsi untuk menampilkan data pagu, realisasi dan jumlah rincian</li>
+            		</ul>
         		' )
         );
         $label = array_merge($label, $this->get_ajax_field(array('type' => 'label_komponen')));
@@ -1321,9 +1330,9 @@ class Wpsipd_Admin {
 						<td class="text_tengah">'.($k+1).'</td>
 						<td><a href="'.$url_label.'" target="_blank">'.$v['nama'].'</a></td>
 						<td>'.$v['keterangan'].'</td>
-						<td class="text_kanan">-</td>
-						<td class="text_kanan">-</td>
-						<td class="text_kanan">-</td>
+						<td class="text_kanan pagu-rincian">-</td>
+						<td class="text_kanan realisasi-rincian">-</td>
+						<td class="text_kanan jml-rincian">-</td>
 						<td class="text_tengah"><span style="" data-id="'.$v['id'].'" class="edit-label"><i class="dashicons dashicons-edit"></i></span> | <span style="" data-id="'.$v['id'].'" class="hapus-label"><i class="dashicons dashicons-no-alt"></i></span></td>
 					</tr>
 					';
@@ -1371,7 +1380,10 @@ class Wpsipd_Admin {
 					group by m.id_label_komponen
 					', $tahun_anggaran), ARRAY_A);
 				foreach ($data as $k => $v) {
-					$ret['data'][$v['id_label_komponen']] = $v;
+					$v['pagu'] = number_format($v['pagu'],0,",",".");
+					$v['realisasi'] = number_format($v['realisasi'],0,",",".");
+					$v['jml_rincian'] = number_format($v['jml_rincian'],0,",",".");
+					$ret['data'][] = $v;
 				}
 			} else {
 				$ret['status'] = 'error';
