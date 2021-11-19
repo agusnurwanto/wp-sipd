@@ -1094,11 +1094,17 @@ class Wpsipd_Admin {
             		<h3 class="text_tengah">Daftar Label Komponen</h3>
             		<table class="wp-list-table widefat fixed striped">
             			<thead>
-            				<tr class="text_tengah">
-            					<th class="text_tengah" style="width: 20px">No</th>
-            					<th class="text_tengah" style="width: 300px">Nama Label</th>
-            					<th class="text_tengah">Keterangan</th>
-            					<th class="text_tengah" style="width: 100px">Aksi</th>
+            				<tr>
+            					<th class="text_tengah text_blok" rowspan="2" style="width: 20px">No</th>
+            					<th class="text_tengah text_blok" rowspan="2" style="width: 250px">Nama Label</th>
+            					<th class="text_tengah text_blok" rowspan="2">Keterangan</th>
+            					<th class="text_tengah text_blok" colspan="3" style="width: 400px;">Analisa Rincian <span style="" data-id="analis-rincian" id="analisa_komponen" class="edit-label"><i class="dashicons dashicons-controls-repeat"></i></span></th>
+            					<th class="text_tengah text_blok" rowspan="2" style="width: 70px">Aksi</th>
+            				</tr>
+            				<tr>
+            					<th class="text_tengah text_blok" style="width: 140px">Pagu Rincian</th>
+            					<th class="text_tengah text_blok" style="width: 140px">Realisasi</th>
+            					<th class="text_tengah text_blok">Jumlah Rincian</th>
             				</tr>
             			</thead>
             			<tbody id="body_label">
@@ -1312,16 +1318,60 @@ class Wpsipd_Admin {
 					$url_label = $this->generatePage($title, $_POST['tahun_anggaran'], $shortcode, $update);
 					$body .= '
 					<tr>
-						<td class="text-tengah">'.($k+1).'</td>
+						<td class="text_tengah">'.($k+1).'</td>
 						<td><a href="'.$url_label.'" target="_blank">'.$v['nama'].'</a></td>
 						<td>'.$v['keterangan'].'</td>
-						<td class="text-tengah"><span style="" data-id="'.$v['id'].'" class="edit-label"><i class="dashicons dashicons-edit"></i></span> | <span style="" data-id="'.$v['id'].'" class="hapus-label"><i class="dashicons dashicons-no-alt"></i></span></td>
+						<td class="text_kanan">-</td>
+						<td class="text_kanan">-</td>
+						<td class="text_kanan">-</td>
+						<td class="text_tengah"><span style="" data-id="'.$v['id'].'" class="edit-label"><i class="dashicons dashicons-edit"></i></span> | <span style="" data-id="'.$v['id'].'" class="hapus-label"><i class="dashicons dashicons-no-alt"></i></span></td>
 					</tr>
 					';
 				}
 				if(!empty($body)){
 					$ret['message'] = $body;
 					$ret['data'] = $data_label_komponen;
+				}
+			} else {
+				$ret['status'] = 'error';
+				$ret['message'] = 'APIKEY tidak sesuai!';
+			}
+		}
+		die(json_encode($ret));
+    }
+
+    function get_analis_rincian_label(){
+    	global $wpdb;
+		$ret = array(
+			'status'	=> 'success',
+			'message'	=> 'Berhasil get analisa label komponen!',
+			'data'		=> array()
+		);
+		if (!empty($_POST)) {
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option('_crb_api_key_extension' )) {
+				$tahun_anggaran = $_POST['tahun_anggaran'];
+				$data = $wpdb->get_results($wpdb->prepare('
+					SELECT 
+						m.id_label_komponen,
+						sum(r.total_harga) as pagu,
+						sum(d.realisasi) as realisasi,
+						count(m.id) as jml_rincian 
+					FROM data_mapping_label m
+						inner join data_label_komponen l on m.id_label_komponen=l.id
+							and l.active=m.active
+							and l.tahun_anggaran=m.tahun_anggaran
+						inner join data_rka r on m.id_rinci_sub_bl=r.id_rinci_sub_bl
+							and r.active=m.active
+							and r.tahun_anggaran=m.tahun_anggaran
+						left join data_realisasi_rincian d on d.id_rinci_sub_bl=m.id_rinci_sub_bl
+							and d.active=m.active
+							and d.tahun_anggaran=m.tahun_anggaran
+					where m.active=1
+						and m.tahun_anggaran=%d
+					group by m.id_label_komponen
+					', $tahun_anggaran), ARRAY_A);
+				foreach ($data as $k => $v) {
+					$ret['data'][$v['id_label_komponen']] = $v;
 				}
 			} else {
 				$ret['status'] = 'error';

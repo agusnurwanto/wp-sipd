@@ -186,6 +186,34 @@ jQuery(document).ready(function(){
 				}
 			}
 		});
+		jQuery('#analisa_komponen').on('click', function(){
+			jQuery('#wrap-loading').show();
+			jQuery.ajax({
+				url: ajaxurl,
+	          	type: "post",
+	          	data: {
+	          		"action": "get_analis_rincian_label",
+	          		"api_key": wpsipd.api_key,
+	          		"tahun_anggaran": tahun_anggaran.val()
+	          	},
+	          	dataType: "json",
+	          	success: function(data){
+					jQuery('#wrap-loading').hide();
+					if(data.status == 'success'){
+						window.analisa_komponen = data.data;
+					}else{
+						return alert(data.message);
+					}
+				},
+				error: function(e) {
+					console.log(e);
+					jQuery('#wrap-loading').hide();
+					return alert(e);
+				}
+			});
+
+		});
+
 		jQuery('#body_label').on('click', '.edit-label', function(){
 			var id_label = jQuery(this).attr('data-id');
 			data_label_komponen.map(function(b, i){

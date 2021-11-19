@@ -1816,8 +1816,9 @@ class Wpsipd_Public
 	                strpos($lokus_akun_teks, 'petik_satu') !== false 
 	                && $no <= 1
 	            ){
+	            	$no++;
 	                $rincian['lokus_akun_teks'] = str_replace('petik_satu', 'petik_satupetik_satu', $lokus_akun_teks);
-	                return $this->get_alamat($input, $rincian, $no++);
+	                return $this->get_alamat($input, $rincian, $no);
 	            }else{
 	                echo "<script>console.log('".$rincian['lokus_akun_teks']."', \"".preg_replace('!\s+!', ' ', str_replace(array("\n", "\r"), " ", htmlentities($wpdb->last_query)))."\");</script>";
 	            }
