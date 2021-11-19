@@ -96,7 +96,7 @@ if($type_mapping == 1){
             and d.tahun_anggaran='.$input['tahun_anggaran'].'
             and r.kode_sbl IN ('.implode(',', $kd_sbl_s).')
             '.$where_skpd, ARRAY_A);
-    
+
 }else if($type_mapping==2){
 
     $arr_input_id_sumber_dana = array();
@@ -517,7 +517,7 @@ foreach ($data_sumberdana_shorted['data'] as $k => $skpd) {
             if(!empty($sub_keg['total_sd_mapping'])){
                 $capaian_mapping = $this->pembulatan(($sub_keg['realisasi_mapping']/$sub_keg['total_sd_mapping'])*100);
             }
-            $mapping_sd = '<td class="kanan bawah text_kanan">'.$kode_sumber_dana.' '.$nama_sumber_dana.'</td>';
+            $mapping_sd = '<td class="kanan bawah text_kanan">'.$nama_laporan.'</td>';
             $mapping_sd .= '<td class="kanan bawah text_kanan">'.number_format($sub_keg['total_sd_mapping'],0,",",".").'</td>';
             $mapping_sd .= '<td class="kanan bawah text_kanan">'.number_format($sub_keg['realisasi_mapping'],0,",",".").'</td>';
             $mapping_sd .= '<td class="kanan bawah text_kanan">'.$capaian_mapping.'</td>';
