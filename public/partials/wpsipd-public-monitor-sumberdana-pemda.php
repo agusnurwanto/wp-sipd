@@ -22,14 +22,21 @@ if(!empty($_GET) && !empty($_GET['mapping'])){
     $type_mapping = $_GET['mapping'];
 }
 
-$kode_sumber_dana = '';
-$nama_sumber_dana = '';
+$detail_sd = array();
 if(!empty($input['id_sumber_dana'])){
-	$sumber_dana = $wpdb->get_results('SELECT * from data_sumber_dana where id_dana='.$input['id_sumber_dana'], ARRAY_A);
-	if(!empty($sumber_dana)){
-		$kode_sumber_dana = $sumber_dana[0]['kode_dana'];
-		$nama_sumber_dana = $sumber_dana[0]['nama_dana'];
-	}
+    $sumber_dana = $wpdb->get_results('SELECT * from data_sumber_dana where id_dana in ('.$input['id_sumber_dana'].')', ARRAY_A);
+    if(!empty($sumber_dana)){
+        foreach ($sumber_dana as $key => $value) {
+            if(empty($detail_sd[$value['kode_dana']])){
+                $detail_sd[$value['kode_dana']] = array(
+                    'kode_dana' => $value['kode_dana'],
+                    'nama_dana' => $value['nama_dana'],
+                );
+            }
+        }
+    }
+}else{
+    $input['id_sumber_dana'] = 0;
 }
 $bulan = (int) date('m');
 
@@ -50,9 +57,6 @@ if(!empty($_GET) && !empty($_GET['id_skpd'])){
     ", $input['tahun_anggaran'], $id_skpd), ARRAY_A);
     $judul_skpd = $skpd[0]['kode_skpd'].' '.$skpd[0]['nama_skpd'];
 }
-if(empty($input['id_sumber_dana'])){
-    $input['id_sumber_dana'] = 0;
-}
 
 if($type_mapping == 1){
     $kd_sbl = $wpdb->get_results("
@@ -64,7 +68,7 @@ if($type_mapping == 1){
                 and r.tahun_anggaran=m.tahun_anggaran
         where r.tahun_anggaran=".$input['tahun_anggaran']."
             and r.active=1
-            and m.id_sumber_dana=".$input['id_sumber_dana']."
+            and m.id_sumber_dana in (".$input['id_sumber_dana'].")
         group by r.kode_sbl
     ", ARRAY_A);
     $kd_sbl_s = array();
@@ -92,37 +96,121 @@ if($type_mapping == 1){
             and d.tahun_anggaran='.$input['tahun_anggaran'].'
             and r.kode_sbl IN ('.implode(',', $kd_sbl_s).')
             '.$where_skpd, ARRAY_A);
-}else{
+}else if($type_mapping==2){
+
+    $arr_input_id_sumber_dana = array();
+    $id_sumber_dana = explode(',', $input['id_sumber_dana']);
+    foreach ($id_sumber_dana as $key => $value) {
+        $arr_input_id_sumber_dana[] = $value;
+    }
+    
+    $data_sbl = $wpdb->get_results($wpdb->prepare("
+        select 
+            kode_sbl 
+        from data_sub_keg_bl 
+        where 
+            tahun_anggaran=%d
+            and active=1
+            and id_sub_skpd=%d
+        ", $input['tahun_anggaran'], $_GET['id_skpd'])
+        , ARRAY_A);
+    // die($wpdb->last_query);
+
+    $arr_kode_sbl = array();
+    foreach ($data_sbl as $sbl) {
+        $sumber_dana = $wpdb->get_results($wpdb->prepare("
+            select 
+                d.iddana
+            from data_dana_sub_keg d
+            where 
+                d.tahun_anggaran=%d
+                and d.active=1
+                and d.kode_sbl=%s
+                group by d.iddana
+                order by d.kodedana ASC
+        ", $input['tahun_anggaran'], $sbl['kode_sbl']), ARRAY_A);
+        // die($wpdb->last_query);
+
+        $arr_id_dana = array();
+        foreach ($sumber_dana as $sd) {
+            $arr_id_dana[] = $sd['iddana'];            
+        }
+
+        // $diff = array_diff($arr_input_id_sumber_dana, $arr_id_dana);
+        // print_r($diff);die();
+        if(array_values($arr_input_id_sumber_dana)==array_values($arr_id_dana)){
+            $arr_kode_sbl[] = $sbl['kode_sbl'];
+            // echo '<pre>';print_r($wpdb->last_query);echo '</pre>';
+        }
+        // echo '<pre>';print_r($sbl['kode_sbl']);echo '</pre>';
+    }
+
+    $kd_sbl_s = array();
+    foreach ($arr_kode_sbl as $k => $v) {
+        $kd_sbl_s[] = "'".$v."'";
+    }
+    // echo '<pre>';print_r($kd_sbl_s);echo '</pre>';
+    // die();
     $data_sub_giat = $wpdb->get_results('
-    	select 
-    		r.*,
+        select 
+            r.*,
             d.pagudana,
             f.rak,
             f.realisasi_anggaran, 
             f.id as id_rfk, 
             f.realisasi_fisik, 
             f.permasalahan
-    	from data_dana_sub_keg d
-    		inner join data_sub_keg_bl r on r.kode_sbl = d.kode_sbl
-    			and r.tahun_anggaran = d.tahun_anggaran
-    			and r.active = d.active
+        from data_dana_sub_keg d
+            inner join data_sub_keg_bl r on r.kode_sbl = d.kode_sbl
+                and r.tahun_anggaran = d.tahun_anggaran
+                and r.active = d.active
             left join data_rfk f on r.kode_sbl=f.kode_sbl
                 and r.tahun_anggaran=f.tahun_anggaran
                 and r.id_sub_skpd=f.id_skpd
                 and f.bulan='.$bulan.'
-    	where d.active=1 
-    		and d.tahun_anggaran='.$input['tahun_anggaran'].'
-    		and (
-    			d.iddana='.$input['id_sumber_dana'].'
-    			or d.iddana is null
-    		)
+        where d.active=1 
+            and d.tahun_anggaran='.$input['tahun_anggaran'].'
+            and r.kode_sbl IN ('.implode(',', $kd_sbl_s).')
+            '.$where_skpd, ARRAY_A);
+    // die($wpdb->last_query);
+}else if ($type_mapping==0) {
+    $data_sub_giat = $wpdb->get_results('
+        select 
+            r.*,
+            d.pagudana,
+            f.rak,
+            f.realisasi_anggaran, 
+            f.id as id_rfk, 
+            f.realisasi_fisik, 
+            f.permasalahan
+        from data_dana_sub_keg d
+            inner join data_sub_keg_bl r on r.kode_sbl = d.kode_sbl
+                and r.tahun_anggaran = d.tahun_anggaran
+                and r.active = d.active
+            left join data_rfk f on r.kode_sbl=f.kode_sbl
+                and r.tahun_anggaran=f.tahun_anggaran
+                and r.id_sub_skpd=f.id_skpd
+                and f.bulan='.$bulan.'
+        where d.active=1 
+            and d.tahun_anggaran='.$input['tahun_anggaran'].'
+            and (
+                d.iddana in ('.$input['id_sumber_dana'].')
+                or d.iddana is null
+            )
             '.$where_skpd, ARRAY_A);
 }
-// echo $wpdb->last_query;
+// echo $wpdb->last_query;die();
 
 $judul_laporan = array();
 $judul_laporan[] = 'Laporan Pagu SIPD Kemendagri Per Sumber Dana';
-$judul_laporan[] = $kode_sumber_dana.' '.$nama_sumber_dana;
+$nama_laporan = '';
+foreach ($detail_sd as $key => $value) {
+    if(!empty($nama_laporan)){
+        $nama_laporan .= ' | ';
+    }
+    $nama_laporan .= $value['kode_dana'].' '.$value['nama_dana'];
+}
+$judul_laporan[] = $nama_laporan;
 if(!empty($judul_skpd)){
     $judul_laporan[] = $judul_skpd;
 }

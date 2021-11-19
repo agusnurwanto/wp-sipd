@@ -7213,7 +7213,7 @@ class Wpsipd_Public
 
 					$list_dokumentasi = "
 						<li>Format Per Sumber Dana Mapping menampilkan daftar sumber dana berdasarkan hasil mapping rincian dari masing-masing sub kegiatan.</li>
-						<li>Pagu Sumber Dana merupakan akumulasi pagu sumber dana berdasarkan hasil mapping dari masing-masing sub kegiatan yang dikelompokan berdasarkan sumber dana yang sama.</li>
+						<li>Pagu Sumber Dana merupakan akumulasi pagu rincian item berdasarkan hasil mapping dari masing-masing sub kegiatan yang dikelompokan berdasarkan sumber dana yang sama.</li>
 						<li>Realisasi Rincian merupakan akumulasi realisasi rincian yang diinput melalui halaman mapping sumber dana yang dikelompokkan berdasarkan sumber dana yang sama.</li>
 						<li>Jumlah Rincian merupakan akumulasi dari rincian yang diinput melalui halaman mapping sumber yang dikelompokkan berdasarkan sumber dana yang sama.</li>
 					";
@@ -7234,7 +7234,6 @@ class Wpsipd_Public
 		    				and active=1
 		    				and id_sub_skpd=%d
 		    		', $_POST['tahun_anggaran'], $_POST['id_skpd']), ARRAY_A);
-
 					$data_all = array();
 				    foreach ($sub_keg as $k => $sub) {
 					    $sumberdana = $wpdb->get_results($wpdb->prepare('
@@ -7261,14 +7260,20 @@ class Wpsipd_Public
 							$nama_sd[] = $dana['namadana'];
 						}
 						$_id_dana = implode('<br>', $id_dana);
-						$_pagu_dana = implode('<br>', $pagu_dana);
+						$_pagu_dana = array_sum($pagu_dana);
 						$_kode_sd = implode('<br>', $kode_sd);
 						$_nama_sd = implode('<br>', $nama_sd);
+						$_kombinasi_id_sd = implode(',', $id_dana);
+						$_kombinasi_kode_sd = implode('|', $kode_sd);
+						$_kombinasi_nama_sd = implode('|', $nama_sd);
 						if(empty($data_all[$_kode_sd])){
 							$data_all[$_kode_sd] = array(
 								'id_dana' => $_id_dana,
 								'pagu_dana' => $_pagu_dana,
 								'kode_sd' => $_kode_sd,
+								'kombinasi_id_sd' => $_kombinasi_id_sd,
+								'kombinasi_kode_sd' => $_kombinasi_kode_sd,
+								'kombinasi_nama_sd' => $_kombinasi_nama_sd,
 								'nama_sd' => $_nama_sd,
 								'raw_id_dana' => $id_dana,
 								'raw_pagu_dana' => $pagu_dana,
@@ -7278,6 +7283,9 @@ class Wpsipd_Public
 								'pagu_simda' => 0,
 								'jml_sub' => 0
 							);
+						}else{
+							$data_all[$_kode_sd]['pagu_dana'] += $_pagu_dana;
+							$data_all[$_kode_sd]['raw_pagu_dana'][] = $_pagu_dana;
 						}
 						$data_all[$_kode_sd]['pagu_rka'] += $sub['pagu'];
 						$data_all[$_kode_sd]['pagu_simda'] += $sub['pagu_simda'];
@@ -7288,14 +7296,21 @@ class Wpsipd_Public
 				    $jml_sub = 0;
 				    $total_rka = 0;
 				    ksort($data_all);
-				    foreach ($data_all as $k => $val) {
+
+					foreach ($data_all as $k => $val) {
 				    	$no++;
-				    	$url_skpd = '#';
+				    	$title = 'Laporan APBD Per Sumber Dana '.$val['kombinasi_kode_sd'].' '.$val['kombinasi_nama_sd'].' | '.$_POST['tahun_anggaran'];
+						$shortcode = '[monitor_sumber_dana tahun_anggaran="'.$_POST['tahun_anggaran'].'" id_sumber_dana="'.$val['kombinasi_id_sd'].'"]';
+						$update = false;
+						// $url_skpd = "javascript:void(0)";
+						$url_skpd = $this->generatePage($title, $_POST['tahun_anggaran'], $shortcode, $update);
+						$url_skpd .= "&id_skpd=".$_POST['id_skpd']."&mapping=2";
+					
 				    	$master_sumberdana .= '
 							<tr>
 								<td class="text_tengah atas kanan bawah kiri">'.$no.'</td>
 								<td class="atas kanan bawah">'.$val['kode_sd'].'</td>
-								<td class="atas kanan bawah">'.$val['nama_sd'].'</td>
+								<td class="atas kanan bawah">'.$val['nama_sd'].'</br><a class="badge badge-success" href="'.$url_skpd.'" data-title="'.$title.'" target="_blank">Detail</a>'.'</td>
 								<td class="text_kanan atas kanan bawah atas kanan bawah">'.number_format($val['pagu_dana'],0,",",".").'</td>
 								<td class="text_kanan atas kanan bawah atas kanan bawah">'.number_format($val['pagu_rka'],0,",",".").'</td>
 								<td class="text_tengah atas kanan bawah atas kanan bawah">'.$val['jml_sub'].'</td>
@@ -7313,7 +7328,7 @@ class Wpsipd_Public
 					$url_skpd = $this->generatePage($title, $tahun, $shortcode, $update);
 					$master_sumberdana .= '
 						<tr class="text_blok">
-							<td class="text_tengah atas kanan bawah kiri" colspan="3">Total_</td>
+							<td class="text_tengah atas kanan bawah kiri" colspan="3">Total</td>
 							<td class="text_kanan atas kanan bawah ">'.number_format($total_sd,0,",",".").'</td>
 							<td class="text_kanan atas kanan bawah "><a target="_blank" href="'.$url_skpd.'&id_skpd='.$_POST['id_skpd'].'">'.number_format($total_rka,0,",",".").'</a></td>
 							<td class="text_tengah atas kanan bawah ">'.number_format($jml_sub,0,",",".").'</td>
