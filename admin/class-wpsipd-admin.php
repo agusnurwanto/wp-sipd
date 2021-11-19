@@ -753,27 +753,26 @@ class Wpsipd_Admin {
 					order by d.kodedana ASC
 				', $tahun, $sub['kode_sbl']), ARRAY_A);
 				$id_dana = array();
-				$pagu_dana = array();
+				$pagu_dana_raw = array();
+				$format_pagu_dana = array();
 				$kode_sd = array();
 				$nama_sd = array();
 				foreach ($sumberdana as $dana) {
 					$id_dana[] = $dana['iddana'];
-					$pagu_dana[] = $dana['pagudana'];
+					$pagu_dana_raw[$dana['iddana']] = $dana['pagudana'];
 					$kode_sd[] = $dana['kodedana'];
 					$nama_sd[] = $dana['namadana'];
 				}
 				$_id_dana = implode('<br>', $id_dana);
-				$_pagu_dana = implode('<br>', $pagu_dana);
 				$_kode_sd = implode('<br>', $kode_sd);
 				$_nama_sd = implode('<br>', $nama_sd);
 				if(empty($data_all[$_kode_sd])){
 					$data_all[$_kode_sd] = array(
 						'id_dana' => $_id_dana,
-						'pagu_dana' => $_pagu_dana,
 						'kode_sd' => $_kode_sd,
 						'nama_sd' => $_nama_sd,
 						'raw_id_dana' => $id_dana,
-						'raw_pagu_dana' => $pagu_dana,
+						'raw_pagu_dana' => array(),
 						'raw_kode_sd' => $kode_sd,
 						'raw_nama_sd' => $nama_sd,
 						'pagu_rka' => 0,
@@ -781,31 +780,46 @@ class Wpsipd_Admin {
 						'jml_sub' => 0
 					);
 				}
+				if(empty($data_all[$_kode_sd]['raw_pagu_dana'][$sub['kode_sbl']])){
+					$data_all[$_kode_sd]['raw_pagu_dana'][$sub['kode_sbl']] = $pagu_dana_raw;
+				}
 				$data_all[$_kode_sd]['pagu_rka'] += $sub['pagu'];
 				$data_all[$_kode_sd]['pagu_simda'] += $sub['pagu_simda'];
 				$data_all[$_kode_sd]['jml_sub']++;
 		    }
+
 		    $master_sumberdana = '';
 		    $no = 0;
 		    $jml_sub = 0;
 		    $total_rka = 0;
+		    $total_sd = 0;
 		    ksort($data_all);
 		    foreach ($data_all as $k => $val) {
 		    	$no++;
 		    	$url_skpd = '#';
+		    	$pagu_dana = array();
+				foreach ($val['raw_pagu_dana'] as $sub) {
+					foreach ($sub as $iddana => $dana) {
+						if(empty($pagu_dana[$iddana])){
+							$pagu_dana[$iddana] = 0;
+						}
+						$pagu_dana[$iddana] += $dana;
+						$total_sd += $dana;
+					}
+				}
+				foreach ($pagu_dana as $iddana => $pagu) {
+					$pagu_dana[$iddana] = number_format($pagu,0,",",".");
+				}
 		    	$master_sumberdana .= '
 					<tr>
 						<td class="text_tengah">'.$no.'</td>
 						<td>'.$val['kode_sd'].'</td>
 						<td>'.$val['nama_sd'].'</td>
-						<td class="text_kanan">'.number_format($val['pagu_dana'],0,",",".").'</td>
+						<td class="text_kanan">'.implode('<br>', $pagu_dana).'</td>
 						<td class="text_kanan">'.number_format($val['pagu_rka'],0,",",".").'</td>
 						<td class="text_tengah">'.$val['jml_sub'].'</td>
 					</tr>
 				';
-				foreach ($val['raw_pagu_dana'] as $dana) {
-					$total_sd += $dana;
-				}
 				$jml_sub += $val['jml_sub'];
 				$total_rka += $val['pagu_rka'];
 		    }
@@ -1072,6 +1086,7 @@ class Wpsipd_Admin {
             			.postbox-container { display: none; }
             			#poststuff #post-body.columns-2 { margin: 0 !important; }
             		</style>
+            		<h3 class="text_tengah">Form Tambah dan Edit Label Komponen</h3>
             		<table class="wp-list-table widefat fixed striped">
             			<thead>
             				<tr>
@@ -1091,6 +1106,7 @@ class Wpsipd_Admin {
             				</tr>
             			</tbody>
             		</table>
+            		<hr style="margin: 40px 0 0;">
             		<h3 class="text_tengah">Daftar Label Komponen</h3>
             		<table class="wp-list-table widefat fixed striped">
             			<thead>
@@ -1110,6 +1126,13 @@ class Wpsipd_Admin {
             			<tbody id="body_label">
             			</tbody>
             		</table>
+            		<h3>Dokumentasi:</h3>
+            		<ul style="margin-left: 30px;" id="dokumentasi">
+            			<li><b>Tahun Anggaran</b> untuk menampilkan data label komponen dalam tahun anggaran tersebut</li>
+            			<li><b>Form Tambah dan Edit Label Komponen</b> digunakan untuk menambahkan label komponen baru atau melakukan update label komponen</li>
+            			<li><b>Daftar Label Komponen</b> menampilkan daftar label komponen yang sudah dibuat</li>
+            			<li>Tombol refresh berwarna biru pada kolom <b>Analisa Rincian</b> berfungsi untuk menampilkan data pagu, realisasi dan jumlah rincian</li>
+            		</ul>
         		' )
         );
         $label = array_merge($label, $this->get_ajax_field(array('type' => 'label_komponen')));
@@ -1321,9 +1344,9 @@ class Wpsipd_Admin {
 						<td class="text_tengah">'.($k+1).'</td>
 						<td><a href="'.$url_label.'" target="_blank">'.$v['nama'].'</a></td>
 						<td>'.$v['keterangan'].'</td>
-						<td class="text_kanan">-</td>
-						<td class="text_kanan">-</td>
-						<td class="text_kanan">-</td>
+						<td class="text_kanan pagu-rincian">-</td>
+						<td class="text_kanan realisasi-rincian">-</td>
+						<td class="text_kanan jml-rincian">-</td>
 						<td class="text_tengah"><span style="" data-id="'.$v['id'].'" class="edit-label"><i class="dashicons dashicons-edit"></i></span> | <span style="" data-id="'.$v['id'].'" class="hapus-label"><i class="dashicons dashicons-no-alt"></i></span></td>
 					</tr>
 					';
@@ -1371,7 +1394,10 @@ class Wpsipd_Admin {
 					group by m.id_label_komponen
 					', $tahun_anggaran), ARRAY_A);
 				foreach ($data as $k => $v) {
-					$ret['data'][$v['id_label_komponen']] = $v;
+					$v['pagu'] = number_format($v['pagu'],0,",",".");
+					$v['realisasi'] = number_format($v['realisasi'],0,",",".");
+					$v['jml_rincian'] = number_format($v['jml_rincian'],0,",",".");
+					$ret['data'][] = $v;
 				}
 			} else {
 				$ret['status'] = 'error';
