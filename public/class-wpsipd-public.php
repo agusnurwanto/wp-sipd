@@ -7250,17 +7250,16 @@ class Wpsipd_Public
 							order by d.kodedana ASC
 						', $_POST['tahun_anggaran'], $sub['kode_sbl']), ARRAY_A);
 						$id_dana = array();
-						$pagu_dana = array();
+						$pagu_dana_raw = array();
 						$kode_sd = array();
 						$nama_sd = array();
 						foreach ($sumberdana as $dana) {
 							$id_dana[] = $dana['iddana'];
-							$pagu_dana[] = $dana['pagudana'];
+							$pagu_dana_raw[$dana['iddana']] = $dana['pagudana'];
 							$kode_sd[] = $dana['kodedana'];
 							$nama_sd[] = $dana['namadana'];
 						}
 						$_id_dana = implode('<br>', $id_dana);
-						$_pagu_dana = array_sum($pagu_dana);
 						$_kode_sd = implode('<br>', $kode_sd);
 						$_nama_sd = implode('<br>', $nama_sd);
 						$_kombinasi_id_sd = implode(',', $id_dana);
@@ -7276,29 +7275,44 @@ class Wpsipd_Public
 								'kombinasi_nama_sd' => $_kombinasi_nama_sd,
 								'nama_sd' => $_nama_sd,
 								'raw_id_dana' => $id_dana,
-								'raw_pagu_dana' => $pagu_dana,
+								'raw_pagu_dana' => array(),
 								'raw_kode_sd' => $kode_sd,
 								'raw_nama_sd' => $nama_sd,
 								'pagu_rka' => 0,
 								'pagu_simda' => 0,
 								'jml_sub' => 0
 							);
-						}else{
-							$data_all[$_kode_sd]['pagu_dana'] += $_pagu_dana;
-							$data_all[$_kode_sd]['raw_pagu_dana'][] = $_pagu_dana;
+						}
+						
+						if(empty($data_all[$_kode_sd]['raw_pagu_dana'][$sub['kode_sbl']])){
+							$data_all[$_kode_sd]['raw_pagu_dana'][$sub['kode_sbl']] = $pagu_dana_raw;
 						}
 						$data_all[$_kode_sd]['pagu_rka'] += $sub['pagu'];
 						$data_all[$_kode_sd]['pagu_simda'] += $sub['pagu_simda'];
 						$data_all[$_kode_sd]['jml_sub']++;
 				    }
+
 				    $master_sumberdana = '';
 				    $no = 0;
 				    $jml_sub = 0;
 				    $total_rka = 0;
 				    ksort($data_all);
-
 					foreach ($data_all as $k => $val) {
 				    	$no++;
+				    	$pagu_dana = array();
+						foreach ($val['raw_pagu_dana'] as $sub) {
+							foreach ($sub as $iddana => $dana) {
+								if(empty($pagu_dana[$iddana])){
+									$pagu_dana[$iddana] = 0;
+								}
+								$pagu_dana[$iddana] += $dana;
+								$total_sd += $dana;
+							}
+						}
+						foreach ($pagu_dana as $iddana => $pagu) {
+							$pagu_dana[$iddana] = number_format($pagu,0,",",".");
+						}
+
 				    	$title = 'Laporan APBD Per Sumber Dana '.$val['kombinasi_kode_sd'].' '.$val['kombinasi_nama_sd'].' | '.$_POST['tahun_anggaran'];
 						$shortcode = '[monitor_sumber_dana tahun_anggaran="'.$_POST['tahun_anggaran'].'" id_sumber_dana="'.$val['kombinasi_id_sd'].'"]';
 						$update = false;
@@ -7310,17 +7324,15 @@ class Wpsipd_Public
 								<td class="text_tengah atas kanan bawah kiri">'.$no.'</td>
 								<td class="atas kanan bawah">'.$val['kode_sd'].'</td>
 								<td class="atas kanan bawah"><a href="'.$url_skpd.'" data-title="'.$title.'" target="_blank">'.$val['nama_sd'].'</a>'.'</td>
-								<td class="text_kanan atas kanan bawah atas kanan bawah">'.number_format($val['pagu_dana'],0,",",".").'</td>
+								<td class="text_kanan atas kanan bawah atas kanan bawah">'.implode('<br>', $pagu_dana).'</td>
 								<td class="text_kanan atas kanan bawah atas kanan bawah">'.number_format($val['pagu_rka'],0,",",".").'</td>
 								<td class="text_tengah atas kanan bawah atas kanan bawah">'.$val['jml_sub'].'</td>
 							</tr>
 						';
-						foreach ($val['raw_pagu_dana'] as $dana) {
-							$total_sd += $dana;
-						}
 						$jml_sub += $val['jml_sub'];
 						$total_rka += $val['pagu_rka'];
 				    }
+
 				    $title = 'Realisasi Fisik dan Keuangan Pemerintah Daerah | '.$tahun;
 					$shortcode = '[monitor_rfk tahun_anggaran="'.$tahun.'"]';
 					$update = false;
