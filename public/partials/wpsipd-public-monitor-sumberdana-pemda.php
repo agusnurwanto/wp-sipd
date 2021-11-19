@@ -96,6 +96,7 @@ if($type_mapping == 1){
             and d.tahun_anggaran='.$input['tahun_anggaran'].'
             and r.kode_sbl IN ('.implode(',', $kd_sbl_s).')
             '.$where_skpd, ARRAY_A);
+    
 }else if($type_mapping==2){
 
     $arr_input_id_sumber_dana = array();
@@ -135,22 +136,16 @@ if($type_mapping == 1){
         foreach ($sumber_dana as $sd) {
             $arr_id_dana[] = $sd['iddana'];            
         }
-
-        // $diff = array_diff($arr_input_id_sumber_dana, $arr_id_dana);
-        // print_r($diff);die();
         if(array_values($arr_input_id_sumber_dana)==array_values($arr_id_dana)){
             $arr_kode_sbl[] = $sbl['kode_sbl'];
-            // echo '<pre>';print_r($wpdb->last_query);echo '</pre>';
         }
-        // echo '<pre>';print_r($sbl['kode_sbl']);echo '</pre>';
     }
 
     $kd_sbl_s = array();
     foreach ($arr_kode_sbl as $k => $v) {
         $kd_sbl_s[] = "'".$v."'";
     }
-    // echo '<pre>';print_r($kd_sbl_s);echo '</pre>';
-    // die();
+    
     $data_sub_giat = $wpdb->get_results('
         select 
             r.*,
@@ -173,6 +168,7 @@ if($type_mapping == 1){
             and r.kode_sbl IN ('.implode(',', $kd_sbl_s).')
             '.$where_skpd, ARRAY_A);
     // die($wpdb->last_query);
+
 }else if ($type_mapping==0) {
     $data_sub_giat = $wpdb->get_results('
         select 

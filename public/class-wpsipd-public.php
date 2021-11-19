@@ -7302,7 +7302,6 @@ class Wpsipd_Public
 				    	$title = 'Laporan APBD Per Sumber Dana '.$val['kombinasi_kode_sd'].' '.$val['kombinasi_nama_sd'].' | '.$_POST['tahun_anggaran'];
 						$shortcode = '[monitor_sumber_dana tahun_anggaran="'.$_POST['tahun_anggaran'].'" id_sumber_dana="'.$val['kombinasi_id_sd'].'"]';
 						$update = false;
-						// $url_skpd = "javascript:void(0)";
 						$url_skpd = $this->generatePage($title, $_POST['tahun_anggaran'], $shortcode, $update);
 						$url_skpd .= "&id_skpd=".$_POST['id_skpd']."&mapping=2";
 					
@@ -7310,7 +7309,7 @@ class Wpsipd_Public
 							<tr>
 								<td class="text_tengah atas kanan bawah kiri">'.$no.'</td>
 								<td class="atas kanan bawah">'.$val['kode_sd'].'</td>
-								<td class="atas kanan bawah">'.$val['nama_sd'].'</br><a class="badge badge-success" href="'.$url_skpd.'" data-title="'.$title.'" target="_blank">Detail</a>'.'</td>
+								<td class="atas kanan bawah"><a href="'.$url_skpd.'" data-title="'.$title.'" target="_blank">'.$val['nama_sd'].'</a>'.'</td>
 								<td class="text_kanan atas kanan bawah atas kanan bawah">'.number_format($val['pagu_dana'],0,",",".").'</td>
 								<td class="text_kanan atas kanan bawah atas kanan bawah">'.number_format($val['pagu_rka'],0,",",".").'</td>
 								<td class="text_tengah atas kanan bawah atas kanan bawah">'.$val['jml_sub'].'</td>
