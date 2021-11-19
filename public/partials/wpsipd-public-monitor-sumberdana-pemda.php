@@ -22,14 +22,32 @@ if(!empty($_GET) && !empty($_GET['mapping'])){
     $type_mapping = $_GET['mapping'];
 }
 
-$kode_sumber_dana = '';
-$nama_sumber_dana = '';
+// 1234
+// $kode_sumber_dana = '';
+// $nama_sumber_dana = '';
+// if(!empty($input['id_sumber_dana'])){
+// 	$sumber_dana = $wpdb->get_results('SELECT * from data_sumber_dana where id_dana='.$input['id_sumber_dana'], ARRAY_A);
+// 	if(!empty($sumber_dana)){
+// 		$kode_sumber_dana = $sumber_dana[0]['kode_dana'];
+// 		$nama_sumber_dana = $sumber_dana[0]['nama_dana'];
+// 	}
+// }
+
+$detail_sd = array();
 if(!empty($input['id_sumber_dana'])){
-	$sumber_dana = $wpdb->get_results('SELECT * from data_sumber_dana where id_dana='.$input['id_sumber_dana'], ARRAY_A);
-	if(!empty($sumber_dana)){
-		$kode_sumber_dana = $sumber_dana[0]['kode_dana'];
-		$nama_sumber_dana = $sumber_dana[0]['nama_dana'];
-	}
+    $sumber_dana = $wpdb->get_results('SELECT * from data_sumber_dana where id_dana in ('.$input['id_sumber_dana'].')', ARRAY_A);
+    if(!empty($sumber_dana)){
+        foreach ($sumber_dana as $key => $value) {
+            if(empty($detail_sd[$value['kode_dana']])){
+                $detail_sd[$value['kode_dana']] = array(
+                    'kode_dana' => $value['kode_dana'],
+                    'nama_dana' => $value['nama_dana'],
+                );
+            }
+        }
+    }
+}else{
+    $input['id_sumber_dana'] = 0;
 }
 $bulan = (int) date('m');
 
@@ -50,9 +68,6 @@ if(!empty($_GET) && !empty($_GET['id_skpd'])){
     ", $input['tahun_anggaran'], $id_skpd), ARRAY_A);
     $judul_skpd = $skpd[0]['kode_skpd'].' '.$skpd[0]['nama_skpd'];
 }
-if(empty($input['id_sumber_dana'])){
-    $input['id_sumber_dana'] = 0;
-}
 
 if($type_mapping == 1){
     $kd_sbl = $wpdb->get_results("
@@ -64,7 +79,7 @@ if($type_mapping == 1){
                 and r.tahun_anggaran=m.tahun_anggaran
         where r.tahun_anggaran=".$input['tahun_anggaran']."
             and r.active=1
-            and m.id_sumber_dana=".$input['id_sumber_dana']."
+            and m.id_sumber_dana in (".$input['id_sumber_dana'].")
         group by r.kode_sbl
     ", ARRAY_A);
     $kd_sbl_s = array();
@@ -113,16 +128,23 @@ if($type_mapping == 1){
     	where d.active=1 
     		and d.tahun_anggaran='.$input['tahun_anggaran'].'
     		and (
-    			d.iddana='.$input['id_sumber_dana'].'
+    			d.iddana in ('.$input['id_sumber_dana'].')
     			or d.iddana is null
     		)
             '.$where_skpd, ARRAY_A);
 }
-// echo $wpdb->last_query;
+// echo $wpdb->last_query;die();
 
 $judul_laporan = array();
 $judul_laporan[] = 'Laporan Pagu SIPD Kemendagri Per Sumber Dana';
-$judul_laporan[] = $kode_sumber_dana.' '.$nama_sumber_dana;
+$nama_laporan = '';
+foreach ($detail_sd as $key => $value) {
+    if(!empty($nama_laporan)){
+        $nama_laporan .= ' | ';
+    }
+    $nama_laporan .= $value['kode_dana'].' '.$value['nama_dana'];
+}
+$judul_laporan[] = $nama_laporan;
 if(!empty($judul_skpd)){
     $judul_laporan[] = $judul_skpd;
 }
