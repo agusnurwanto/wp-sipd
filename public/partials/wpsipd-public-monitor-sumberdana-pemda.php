@@ -115,8 +115,7 @@ if($type_mapping == 1){
             and id_sub_skpd=%d
         ", $input['tahun_anggaran'], $_GET['id_skpd'])
         , ARRAY_A);
-    // die($wpdb->last_query);
-
+    
     $arr_kode_sbl = array();
     foreach ($data_sbl as $sbl) {
         $sumber_dana = $wpdb->get_results($wpdb->prepare("
@@ -130,7 +129,6 @@ if($type_mapping == 1){
                 group by d.iddana
                 order by d.kodedana ASC
         ", $input['tahun_anggaran'], $sbl['kode_sbl']), ARRAY_A);
-        // die($wpdb->last_query);
 
         $arr_id_dana = array();
         foreach ($sumber_dana as $sd) {
@@ -166,8 +164,7 @@ if($type_mapping == 1){
         where d.active=1 
             and d.tahun_anggaran='.$input['tahun_anggaran'].'
             and r.kode_sbl IN ('.implode(',', $kd_sbl_s).')
-            '.$where_skpd, ARRAY_A);
-    // die($wpdb->last_query);
+            '.$where_skpd.' group by r.kode_sbl', ARRAY_A);
 
 }else if ($type_mapping==0) {
     $data_sub_giat = $wpdb->get_results('
