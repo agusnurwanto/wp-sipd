@@ -7113,7 +7113,7 @@ class Wpsipd_Public
 				    				and r.active=1
 				    				and r.kode_sbl=%s
 				    		', $_POST['tahun_anggaran'], $s['kode_sbl']), ARRAY_A);
-
+						// die($wpdb->last_query);
 						foreach ($rka as $k2 => $v2) {
 				    		if(empty($v2['realisasi'])){
 				    			$v2['realisasi'] = 0;
@@ -7140,10 +7140,12 @@ class Wpsipd_Public
 					    						'nama_dana' => $v_m['nama_dana'],
 					    						'jml_rincian' => 0,
 					    						'pagu' => 0,
-					    						'realisasi' => 0
+					    						'realisasi' => 0,
+					    						'id_rinci_sub_bl' => array()
 						   				);
 					    			}
 
+						   			$data[$v_m['id_dana']]['id_rinci_sub_bl'][]=$v2['id_rinci_sub_bl'];
 						   			$data[$v_m['id_dana']]['jml_rincian']++;
 						   			$data[$v_m['id_dana']]['pagu'] += $v2['total_harga'];
 						   			$data[$v_m['id_dana']]['realisasi'] += $v2['realisasi'];
@@ -7157,7 +7159,8 @@ class Wpsipd_Public
 				    					'nama_dana' => 'Belum di mapping!',
 				    					'jml_rincian' => 0,
 				    					'pagu' => 0,
-				    					'realisasi' => 0
+				    					'realisasi' => 0,
+				    					'id_rinci_sub_bl' => array()
 					    			);
 						   		}
 						   		$data[$key]['jml_rincian']++;
@@ -7179,10 +7182,12 @@ class Wpsipd_Public
 						$update = false;
 						$url_skpd = $this->generatePage($title, $_POST['tahun_anggaran'], $shortcode, $update);
 
+						// $id_rinci_sub_bl=implode(",", $value['id_rinci_sub_bl']);
+						$id_rinci_sub_bl=0;
 			    		$master_sumberdana .= '
 			    			<tr>
 			    				<td class="atas kanan bawah kiri text_tengah">'.$no.'</td>
-			    				<td class="atas kanan bawah">'.$value['kode_dana'].'</td>
+			    				<td class="atas kanan bawah" data-id-rinci-sub-bl="'.$id_rinci_sub_bl.'">'.$value['kode_dana'].'</td>
 			    				<td class="atas kanan bawah"><a href="'.$url_skpd.'&id_skpd='.$_POST['id_skpd'].'&mapping=2" target="_blank">'.$value['nama_dana'].'</a></td>
 			    				<td class="atas kanan bawah text_kanan">'.number_format($value['pagu'],0,",",".").'</td>
 			    				<td class="atas kanan bawah text_kanan">'.number_format($value['realisasi'],0,",",".").'</td>

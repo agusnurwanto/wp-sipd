@@ -556,8 +556,8 @@ class Wpsipd_Admin {
 	            		</select>
 	            		<br>
 	            		<label><input type="radio" checked name="format-sd" format-id="1" onclick="format_sumberdana();"> Format Per Sumber Dana SIPD</label>
-	            		<label style="margin-left: 25px;"><input type="radio" name="format-sd" format-id="2" onclick="format_sumberdana();"> Format Kombinasi Sumber Dana SIPD</label>
-	            		<label style="margin-left: 25px;"><input type="radio" name="format-sd" format-id="3" onclick="format_sumberdana();"> Format Per Sumber Dana Mapping</label>
+	            		<label style="margin-left: 25px;"><input type="radio" name="format-sd" format-id="3" onclick="format_sumberdana();"> Format Kombinasi Sumber Dana SIPD</label>
+	            		<label style="margin-left: 25px;"><input type="radio" name="format-sd" format-id="2" onclick="format_sumberdana();"> Format Per Sumber Dana Mapping</label>
 	            	</div>
 	            	<div id="tabel_monev_sumber_dana">
 	            	</div>
@@ -587,7 +587,10 @@ class Wpsipd_Admin {
 		$format = $_POST['format'];
 		$tahun = $_POST['tahun_anggaran'];
 		$id_skpd = $_POST['id_skpd'];
-		if($format == 1){
+
+		// sumber dana asli sipd
+		if($format == 1)
+		{
 			if(!empty($id_skpd)){
 				$sumberdana = $wpdb->get_results($wpdb->prepare('
 					select 
@@ -640,7 +643,7 @@ class Wpsipd_Admin {
 					<tr>
 						<td class="text_tengah">'.$no.'</td>
 						<td>'.$val['kodedana'].'</td>
-						<td><a href="'.$url_skpd.'" target="_blank">'.$val['namadana'].'</a></td>
+						<td><a href="'.$url_skpd.'&mapping=1" target="_blank">'.$val['namadana'].'</a></td>
 						<td class="text_kanan">'.number_format($val['pagudana'],0,",",".").'</td>
 						<td class="text_tengah">'.$val['jml'].'</td>
 						<td class="text_tengah">'.$val['iddana'].'</td>
@@ -714,160 +717,10 @@ class Wpsipd_Admin {
         		</table>
     		';
 	        die($tabel);
-	    }else if($format == 2){
-	    	if(!empty($id_skpd)){
-		    	$sub_keg = $wpdb->get_results($wpdb->prepare('
-	    			select
-	    				kode_sbl,
-	    				pagu,
-	    				pagu_simda
-	    			from data_sub_keg_bl
-	    			where tahun_anggaran=%d
-	    				and active=1
-	    				and id_sub_skpd=%d
-	    		', $tahun, $id_skpd), ARRAY_A);
-		    }else{
-		    	$sub_keg = $wpdb->get_results($wpdb->prepare('
-	    			select
-	    				kode_sbl,
-	    				pagu,
-	    				pagu_simda
-	    			from data_sub_keg_bl
-	    			where tahun_anggaran=%d
-	    				and active=1
-	    		', $tahun), ARRAY_A);
-		    }
-		    $data_all = array();
-		    foreach ($sub_keg as $k => $sub) {
-			    $sumberdana = $wpdb->get_results($wpdb->prepare('
-					select 
-						d.iddana, 
-						sum(d.pagudana) as pagudana, 
-						d.kodedana, 
-						d.namadana
-					from data_dana_sub_keg d
-					where d.tahun_anggaran=%d
-						and d.active=1
-						and d.kode_sbl=%s
-					group by d.iddana
-					order by d.kodedana ASC
-				', $tahun, $sub['kode_sbl']), ARRAY_A);
-				$id_dana = array();
-				$pagu_dana_raw = array();
-				$format_pagu_dana = array();
-				$kode_sd = array();
-				$nama_sd = array();
-				foreach ($sumberdana as $dana) {
-					$id_dana[] = $dana['iddana'];
-					$pagu_dana_raw[$dana['iddana']] = $dana['pagudana'];
-					$kode_sd[] = $dana['kodedana'];
-					$nama_sd[] = $dana['namadana'];
-				}
-				$_id_dana = implode('<br>', $id_dana);
-				$_kode_sd = implode('<br>', $kode_sd);
-				$_nama_sd = implode('<br>', $nama_sd);
-				$_kombinasi_id_sd = implode(',', $id_dana);
-				$_kombinasi_kode_sd = implode('|', $kode_sd);
-				$_kombinasi_nama_sd = implode('|', $nama_sd);
-				if(empty($data_all[$_kode_sd])){
-					$title = 'Laporan APBD Per Sumber Dana '.$_kombinasi_kode_sd.' '.$_kombinasi_nama_sd.' | '.$tahun;
-					$shortcode = '[monitor_sumber_dana tahun_anggaran="'.$tahun.'" id_sumber_dana="'.$_kombinasi_id_sd.'"]';
-					$update = false;
-					$url_skpd = $this->generatePage($title, $tahun, $shortcode, $update);
-					if(!empty($id_skpd)){
-						$url_skpd .= "&id_skpd=".$id_skpd."&mapping=2";
-					}else{
-						$url_skpd .= "&mapping=2";
-					}
-					$data_all[$_kode_sd] = array(
-						'title' => $title,
-						'url_page' => $url_skpd,
-						'id_dana' => $_id_dana,
-						'kode_sd' => $_kode_sd,
-						'nama_sd' => $_nama_sd,
-						'raw_id_dana' => $id_dana,
-						'raw_pagu_dana' => array(),
-						'raw_kode_sd' => $kode_sd,
-						'raw_nama_sd' => $nama_sd,
-						'pagu_rka' => 0,
-						'pagu_simda' => 0,
-						'jml_sub' => 0
-					);
-				}
-				if(empty($data_all[$_kode_sd]['raw_pagu_dana'][$sub['kode_sbl']])){
-					$data_all[$_kode_sd]['raw_pagu_dana'][$sub['kode_sbl']] = $pagu_dana_raw;
-				}
-				$data_all[$_kode_sd]['pagu_rka'] += $sub['pagu'];
-				$data_all[$_kode_sd]['pagu_simda'] += $sub['pagu_simda'];
-				$data_all[$_kode_sd]['jml_sub']++;
-		    }
-
-		    $master_sumberdana = '';
-		    $no = 0;
-		    $jml_sub = 0;
-		    $total_rka = 0;
-		    $total_sd = 0;
-		    ksort($data_all);
-		    foreach ($data_all as $k => $val) {
-		    	$no++;
-		    	$url_skpd = '#';
-		    	$pagu_dana = array();
-				foreach ($val['raw_pagu_dana'] as $sub) {
-					foreach ($sub as $iddana => $dana) {
-						if(empty($pagu_dana[$iddana])){
-							$pagu_dana[$iddana] = 0;
-						}
-						$pagu_dana[$iddana] += $dana;
-						$total_sd += $dana;
-					}
-				}
-				foreach ($pagu_dana as $iddana => $pagu) {
-					$pagu_dana[$iddana] = number_format($pagu,0,",",".");
-				}
-		    	$master_sumberdana .= '
-					<tr>
-						<td class="text_tengah">'.$no.'</td>
-						<td>'.$val['kode_sd'].'</td>
-						<td><a href="'.$val['url_page'].'" data-title="'.$val['title'].'" target="_blank">'.$val['nama_sd'].'</a></td>
-						<td class="text_kanan">'.implode('<br>', $pagu_dana).'</td>
-						<td class="text_kanan">'.number_format($val['pagu_rka'],0,",",".").'</td>
-						<td class="text_tengah">'.$val['jml_sub'].'</td>
-					</tr>
-				';
-				$jml_sub += $val['jml_sub'];
-				$total_rka += $val['pagu_rka'];
-		    }
-		    $title = 'Realisasi Fisik dan Keuangan Pemerintah Daerah | '.$tahun;
-			$shortcode = '[monitor_rfk tahun_anggaran="'.$tahun.'"]';
-			$update = false;
-			$url_skpd = $this->generatePage($title, $tahun, $shortcode, $update);
-			$master_sumberdana .= '
-				<tr class="text_blok">
-					<td class="text_tengah" colspan="3">Total</td>
-					<td class="text_kanan">'.number_format($total_sd,0,",",".").'</td>
-					<td class="text_kanan"><a target="_blank" href="'.$url_skpd.'">'.number_format($total_rka,0,",",".").'</a></td>
-					<td class="text_tengah">'.number_format($jml_sub,0,",",".").'</td>
-				</tr>
-			';
-			$tabel = '
-        		<table class="wp-list-table widefat fixed striped">
-        			<thead>
-        				<tr class="text_tengah">
-        					<th class="text_tengah" style="width: 20px">No</th>
-        					<th class="text_tengah" style="width: 100px">Kode</th>
-        					<th class="text_tengah">Sumber Dana</th>
-        					<th class="text_tengah" style="width: 150px">Pagu Sumber Dana (Rp.)</th>
-        					<th class="text_tengah" style="width: 150px">Pagu RKA (Rp.)</th>
-        					<th class="text_tengah" style="width: 150px">Jumlah Sub Keg</th>
-        				</tr>
-        			</thead>
-        			<tbody>
-        				'.$master_sumberdana.'
-        			</tbody>
-        		</table>
-    		';
-	        die($tabel);
-	    }else if($format == 3){
+	    }
+	    // sumber dana mapping
+	    else if($format == 2)
+	    {
 	    	$data_all = array();
 	    	$total_harga = 0;
 	    	$realisasi = 0;
@@ -975,7 +828,7 @@ class Wpsipd_Admin {
 	    		}
 				$shortcode = '[monitor_sumber_dana tahun_anggaran="'.$tahun.'" id_sumber_dana="'.$v['id_dana'].'"]';
 				$update = false;
-				$url_skpd = $this->generatePage($title, $tahun, $shortcode, $update).'&mapping=1';
+				$url_skpd = $this->generatePage($title, $tahun, $shortcode, $update).'&mapping=2';
 				if(!empty($id_skpd)){
 					$url_skpd .= '&id_skpd='.$id_skpd;
 				}
@@ -1015,6 +868,163 @@ class Wpsipd_Admin {
     		';
 	        die($tabel);
 	    }
+	    // sumber dana kombinasi
+	    else if($format == 3)
+	    {
+	    	if(!empty($id_skpd)){
+		    	$sub_keg = $wpdb->get_results($wpdb->prepare('
+	    			select
+	    				kode_sbl,
+	    				pagu,
+	    				pagu_simda
+	    			from data_sub_keg_bl
+	    			where tahun_anggaran=%d
+	    				and active=1
+	    				and id_sub_skpd=%d
+	    		', $tahun, $id_skpd), ARRAY_A);
+		    }else{
+		    	$sub_keg = $wpdb->get_results($wpdb->prepare('
+	    			select
+	    				kode_sbl,
+	    				pagu,
+	    				pagu_simda
+	    			from data_sub_keg_bl
+	    			where tahun_anggaran=%d
+	    				and active=1
+	    		', $tahun), ARRAY_A);
+		    }
+		    $data_all = array();
+		    foreach ($sub_keg as $k => $sub) {
+			    $sumberdana = $wpdb->get_results($wpdb->prepare('
+					select 
+						d.iddana, 
+						sum(d.pagudana) as pagudana, 
+						d.kodedana, 
+						d.namadana
+					from data_dana_sub_keg d
+					where d.tahun_anggaran=%d
+						and d.active=1
+						and d.kode_sbl=%s
+					group by d.iddana
+					order by d.kodedana ASC
+				', $tahun, $sub['kode_sbl']), ARRAY_A);
+				$id_dana = array();
+				$pagu_dana_raw = array();
+				$format_pagu_dana = array();
+				$kode_sd = array();
+				$nama_sd = array();
+				foreach ($sumberdana as $dana) {
+					$id_dana[] = $dana['iddana'];
+					$pagu_dana_raw[$dana['iddana']] = $dana['pagudana'];
+					$kode_sd[] = $dana['kodedana'];
+					$nama_sd[] = $dana['namadana'];
+				}
+				$_id_dana = implode('<br>', $id_dana);
+				$_kode_sd = implode('<br>', $kode_sd);
+				$_nama_sd = implode('<br>', $nama_sd);
+				$_kombinasi_id_sd = implode(',', $id_dana);
+				$_kombinasi_kode_sd = implode('|', $kode_sd);
+				$_kombinasi_nama_sd = implode('|', $nama_sd);
+				if(empty($data_all[$_kode_sd])){
+					$title = 'Laporan APBD Per Sumber Dana '.$_kombinasi_kode_sd.' '.$_kombinasi_nama_sd.' | '.$tahun;
+					$shortcode = '[monitor_sumber_dana tahun_anggaran="'.$tahun.'" id_sumber_dana="'.$_kombinasi_id_sd.'"]';
+					$update = false;
+					$url_skpd = $this->generatePage($title, $tahun, $shortcode, $update);
+					if(!empty($id_skpd)){
+						$url_skpd .= "&id_skpd=".$id_skpd."&mapping=3";
+					}else{
+						$url_skpd .= "&mapping=3";
+					}
+					$data_all[$_kode_sd] = array(
+						'title' => $title,
+						'url_page' => $url_skpd,
+						'id_dana' => $_id_dana,
+						'kode_sd' => $_kode_sd,
+						'nama_sd' => $_nama_sd,
+						'raw_id_dana' => $id_dana,
+						'raw_pagu_dana' => array(),
+						'raw_kode_sd' => $kode_sd,
+						'raw_nama_sd' => $nama_sd,
+						'pagu_rka' => 0,
+						'pagu_simda' => 0,
+						'jml_sub' => 0
+					);
+				}
+				if(empty($data_all[$_kode_sd]['raw_pagu_dana'][$sub['kode_sbl']])){
+					$data_all[$_kode_sd]['raw_pagu_dana'][$sub['kode_sbl']] = $pagu_dana_raw;
+				}
+				$data_all[$_kode_sd]['pagu_rka'] += $sub['pagu'];
+				$data_all[$_kode_sd]['pagu_simda'] += $sub['pagu_simda'];
+				$data_all[$_kode_sd]['jml_sub']++;
+		    }
+
+		    $master_sumberdana = '';
+		    $no = 0;
+		    $jml_sub = 0;
+		    $total_rka = 0;
+		    $total_sd = 0;
+		    ksort($data_all);
+		    foreach ($data_all as $k => $val) {
+		    	$no++;
+		    	$url_skpd = '#';
+		    	$pagu_dana = array();
+				foreach ($val['raw_pagu_dana'] as $sub) {
+					foreach ($sub as $iddana => $dana) {
+						if(empty($pagu_dana[$iddana])){
+							$pagu_dana[$iddana] = 0;
+						}
+						$pagu_dana[$iddana] += $dana;
+						$total_sd += $dana;
+					}
+				}
+				foreach ($pagu_dana as $iddana => $pagu) {
+					$pagu_dana[$iddana] = number_format($pagu,0,",",".");
+				}
+		    	$master_sumberdana .= '
+					<tr>
+						<td class="text_tengah">'.$no.'</td>
+						<td>'.$val['kode_sd'].'</td>
+						<td><a href="'.$val['url_page'].'" data-title="'.$val['title'].'" target="_blank">'.$val['nama_sd'].'</a></td>
+						<td class="text_kanan">'.implode('<br>', $pagu_dana).'</td>
+						<td class="text_kanan">'.number_format($val['pagu_rka'],0,",",".").'</td>
+						<td class="text_tengah">'.$val['jml_sub'].'</td>
+					</tr>
+				';
+				$jml_sub += $val['jml_sub'];
+				$total_rka += $val['pagu_rka'];
+		    }
+		    $title = 'Realisasi Fisik dan Keuangan Pemerintah Daerah | '.$tahun;
+			$shortcode = '[monitor_rfk tahun_anggaran="'.$tahun.'"]';
+			$update = false;
+			$url_skpd = $this->generatePage($title, $tahun, $shortcode, $update);
+			$master_sumberdana .= '
+				<tr class="text_blok">
+					<td class="text_tengah" colspan="3">Total</td>
+					<td class="text_kanan">'.number_format($total_sd,0,",",".").'</td>
+					<td class="text_kanan"><a target="_blank" href="'.$url_skpd.'">'.number_format($total_rka,0,",",".").'</a></td>
+					<td class="text_tengah">'.number_format($jml_sub,0,",",".").'</td>
+				</tr>
+			';
+			$tabel = '
+        		<table class="wp-list-table widefat fixed striped">
+        			<thead>
+        				<tr class="text_tengah">
+        					<th class="text_tengah" style="width: 20px">No</th>
+        					<th class="text_tengah" style="width: 100px">Kode</th>
+        					<th class="text_tengah">Sumber Dana</th>
+        					<th class="text_tengah" style="width: 150px">Pagu Sumber Dana (Rp.)</th>
+        					<th class="text_tengah" style="width: 150px">Pagu RKA (Rp.)</th>
+        					<th class="text_tengah" style="width: 150px">Jumlah Sub Keg</th>
+        				</tr>
+        			</thead>
+        			<tbody>
+        				'.$master_sumberdana.'
+        			</tbody>
+        		</table>
+    		';
+	        die($tabel);
+	    }
+	    
 	}
 
 	public function generate_tag_sipd(){

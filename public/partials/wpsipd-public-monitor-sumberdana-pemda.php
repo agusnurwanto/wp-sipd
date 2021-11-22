@@ -487,27 +487,21 @@ foreach ($data_sumberdana_shorted['data'] as $k => $skpd) {
             $selisih = "<td class='kanan bawah text_kanan'>".number_format(($sub_keg['total']-$sub_keg['total_murni']),0,",",".")."</td>";
         }
 
-		$nama_page = $input['tahun_anggaran'] . ' | ' . $sub_keg['data']['kode_skpd'] . ' | ' . $sub_keg['data']['kode_giat'] . ' | ' . $sub_keg['data']['nama_giat'];
-		$custom_post = get_page_by_title($nama_page, OBJECT, 'post');
-		$link = 'style="color: red;" title="'.$nama_page.'"';
-		if(!empty($custom_post)){
-			$link = 'href="'.$this->get_link_post($custom_post).'"';
-		}else{
-            // cek jika kode_skpd tidak ditemukan di tabel sub_keg_bl maka dicari dari data_unit
-			$kode_skpd = $wpdb->get_var("
-				SELECT 
-					kode_skpd 
-				from data_unit 
-				where id_skpd=".$sub_keg['data']['id_sub_skpd']."
-					AND tahun_anggaran=".$input['tahun_anggaran']."
-					AND active=1");
-			$nama_page = $input['tahun_anggaran'] . ' | ' . $kode_skpd . ' | ' . $sub_keg['data']['kode_giat'] . ' | ' . $sub_keg['data']['nama_giat'];
-			$custom_post = get_page_by_title($nama_page, OBJECT, 'post');
-			$link = 'style="color: red;" title="'.$nama_page.'"';
-			if(!empty($custom_post)){
-                $link = 'href="'.$this->get_link_post($custom_post).'"';
-			}
-		}
+
+        // kode unit select dari data unit karena kode skp di data_sub_keg_bl tidak semua valid
+		$kode_skpd = $wpdb->get_var("
+			SELECT 
+				kode_skpd 
+			from data_unit 
+			where id_skpd=".$sub_keg['data']['id_sub_skpd']."
+				AND tahun_anggaran=".$input['tahun_anggaran']."
+				AND active=1");
+		$nama_page = $input['tahun_anggaran'] . ' | ' . $kode_skpd . ' | ' . $sub_keg['data']['kode_giat'] . ' | ' . $sub_keg['data']['nama_giat'];
+    	$custom_post = get_page_by_title($nama_page, OBJECT, 'post');
+    	$link = 'style="color: red;" title="'.$nama_page.'"';
+    	if(!empty($custom_post)){
+            $link = 'href="'.$this->get_link_post($custom_post).'"';
+    	}
 
         $capaian = 0;
         if(!empty($sub_keg['total_simda'])){
