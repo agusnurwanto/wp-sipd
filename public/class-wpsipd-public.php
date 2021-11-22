@@ -6974,6 +6974,7 @@ class Wpsipd_Public
 		$master_sumberdana = '';
 		if(!empty($_POST)){
 			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+				// sumber dana asli sipd
 				if($_POST['format_sumber_dana'] == 1){
 
 					$total_sd = 0;
@@ -7004,7 +7005,7 @@ class Wpsipd_Public
 							<tr>
 								<td class="text_tengah atas kanan bawah kiri">'.$no.'</td>
 								<td class="text_kiri atas kanan bawah">'.$val['kodedana'].'</td>
-								<td class="text_kiri atas kanan bawah"><a href="'.$url_skpd.'&id_skpd='.$_POST['id_skpd'].'" target="_blank" data-id="'.$title.'">'.$val['namadana'].'</a></td>
+								<td class="text_kiri atas kanan bawah"><a href="'.$url_skpd.'&id_skpd='.$_POST['id_skpd'].'&mapping=1" target="_blank" data-id="'.$title.'">'.$val['namadana'].'</a></td>
 								<td class="text_kanan atas kanan bawah">'.number_format($val['total'], 0,',','.').'</td>
 								<td class="text_tengah atas kanan bawah">'.$val['jml'].'</td>
 								<td class="text_tengah atas kanan bawah">'.$val['iddana'].'</td>
@@ -7078,7 +7079,8 @@ class Wpsipd_Public
 						'table_content' => $table_content,
 						'list_dokumentasi' => $list_dokumentasi,
 					);
-				}elseif ($_POST['format_sumber_dana'] == 2) {
+				// 	sumber dana mapping
+				}elseif ($_POST['format_sumber_dana'] == 2) {  
 					
 					$data = array();
 					$total_harga = 0;
@@ -7181,7 +7183,7 @@ class Wpsipd_Public
 			    			<tr>
 			    				<td class="atas kanan bawah kiri text_tengah">'.$no.'</td>
 			    				<td class="atas kanan bawah">'.$value['kode_dana'].'</td>
-			    				<td class="atas kanan bawah"><a href="'.$url_skpd.'&id_skpd='.$_POST['id_skpd'].'&mapping=1" target="_blank">'.$value['nama_dana'].'</a></td>
+			    				<td class="atas kanan bawah"><a href="'.$url_skpd.'&id_skpd='.$_POST['id_skpd'].'&mapping=2" target="_blank">'.$value['nama_dana'].'</a></td>
 			    				<td class="atas kanan bawah text_kanan">'.number_format($value['pagu'],0,",",".").'</td>
 			    				<td class="atas kanan bawah text_kanan">'.number_format($value['realisasi'],0,",",".").'</td>
 			    				<td class="atas kanan bawah text_tengah">'.number_format($value['jml_rincian'],0,",",".").'</td>
@@ -7223,6 +7225,7 @@ class Wpsipd_Public
 						'table_content' => $table_content,
 						'list_dokumentasi' => $list_dokumentasi
 					);
+				// sumber dana kombinasi
 				}elseif ($_POST['format_sumber_dana'] == 3) {
 					$sub_keg = $wpdb->get_results($wpdb->prepare('
 		    			select
@@ -7317,7 +7320,7 @@ class Wpsipd_Public
 						$shortcode = '[monitor_sumber_dana tahun_anggaran="'.$_POST['tahun_anggaran'].'" id_sumber_dana="'.$val['kombinasi_id_sd'].'"]';
 						$update = false;
 						$url_skpd = $this->generatePage($title, $_POST['tahun_anggaran'], $shortcode, $update);
-						$url_skpd .= "&id_skpd=".$_POST['id_skpd']."&mapping=2";
+						$url_skpd .= "&id_skpd=".$_POST['id_skpd']."&mapping=3";
 					
 				    	$master_sumberdana .= '
 							<tr>
