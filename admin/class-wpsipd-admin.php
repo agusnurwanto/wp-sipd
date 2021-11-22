@@ -766,8 +766,22 @@ class Wpsipd_Admin {
 				$_id_dana = implode('<br>', $id_dana);
 				$_kode_sd = implode('<br>', $kode_sd);
 				$_nama_sd = implode('<br>', $nama_sd);
+				$_kombinasi_id_sd = implode(',', $id_dana);
+				$_kombinasi_kode_sd = implode('|', $kode_sd);
+				$_kombinasi_nama_sd = implode('|', $nama_sd);
 				if(empty($data_all[$_kode_sd])){
+					$title = 'Laporan APBD Per Sumber Dana '.$_kombinasi_kode_sd.' '.$_kombinasi_nama_sd.' | '.$tahun;
+					$shortcode = '[monitor_sumber_dana tahun_anggaran="'.$tahun.'" id_sumber_dana="'.$_kombinasi_id_sd.'"]';
+					$update = false;
+					$url_skpd = $this->generatePage($title, $tahun, $shortcode, $update);
+					if(!empty($id_skpd)){
+						$url_skpd .= "&id_skpd=".$id_skpd."&mapping=2";
+					}else{
+						$url_skpd .= "&mapping=2";
+					}
 					$data_all[$_kode_sd] = array(
+						'title' => $title,
+						'url_page' => $url_skpd,
 						'id_dana' => $_id_dana,
 						'kode_sd' => $_kode_sd,
 						'nama_sd' => $_nama_sd,
@@ -814,7 +828,7 @@ class Wpsipd_Admin {
 					<tr>
 						<td class="text_tengah">'.$no.'</td>
 						<td>'.$val['kode_sd'].'</td>
-						<td>'.$val['nama_sd'].'</td>
+						<td><a href="'.$val['url_page'].'" data-title="'.$val['title'].'" target="_blank">'.$val['nama_sd'].'</a></td>
 						<td class="text_kanan">'.implode('<br>', $pagu_dana).'</td>
 						<td class="text_kanan">'.number_format($val['pagu_rka'],0,",",".").'</td>
 						<td class="text_tengah">'.$val['jml_sub'].'</td>
