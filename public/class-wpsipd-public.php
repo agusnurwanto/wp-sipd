@@ -7056,7 +7056,7 @@ class Wpsipd_Public
 								<th class="atas kanan bawah kiri text_tengah" style="width: 20px; vertical-align: middle;">No</th>
 								<th class="atas kanan bawah text_tengah" style="width: 100px; vertical-align: middle;">Kode</th>
 								<th class="atas kanan bawah text_tengah" style="vertical-align: middle;">Sumber Dana</th>
-								<th class="atas kanan bawah text_tengah" style="vertical-align: middle;">Pagu Sumber Dana(Rp.)</th>
+								<th class="atas kanan bawah text_tengah" style="vertical-align: middle;">Pagu Sumber Dana (Rp.)</th>
 								<th class="atas kanan bawah text_tengah" style="width:50px; vertical-align: middle;">Jumlah Sub Kegiatan</th>
 								<th class="atas kanan bawah text_tengah" style="width: 50px; vertical-align: middle;">ID Dana</th>
 								<th class="atas kanan bawah text_tengah" style="width: 110px; vertical-align: middle;">Tahun Anggaran</th>
@@ -7211,7 +7211,7 @@ class Wpsipd_Public
 								<th class="atas kanan bawah kiri text_tengah" style="width: 20px; vertical-align: middle;">No</th>
 								<th class="atas kanan bawah text_tengah" style="width: 100px; vertical-align: middle;">Kode</th>
 								<th class="atas kanan bawah text_tengah" style="vertical-align: middle;">Sumber Dana</th>
-								<th class="atas kanan bawah text_tengah" style="vertical-align: middle;">Pagu Sumber Dana(Rp.)</th>
+								<th class="atas kanan bawah text_tengah" style="vertical-align: middle;">Pagu Sumber Dana Mapping (Rp.)</th>
 								<th class="atas kanan bawah text_tengah" style="vertical-align: middle;">Realisasi Rincian</th>
 								<th class="atas kanan bawah text_tengah" style="width: 110px; vertical-align: middle;">Jumlah Rincian</th>
 							</tr>

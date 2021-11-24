@@ -85,8 +85,10 @@ if($type_mapping==1)
                 or d.iddana is null
             )
             '.$where_skpd, ARRAY_A);
+
+    $default_nama_laporan = 'Laporan Pagu SIPD Kemendagri Per Sumber Dana';
 }
-//  sumber dana mapping
+// sumber dana mapping
 elseif ($type_mapping==2)
 {
     $kd_sbl = $wpdb->get_results("
@@ -126,6 +128,8 @@ elseif ($type_mapping==2)
             and d.tahun_anggaran='.$input['tahun_anggaran'].'
             and r.kode_sbl IN ('.implode(',', $kd_sbl_s).')
             '.$where_skpd.' group by r.kode_sbl', ARRAY_A);
+    // die($wpdb->last_query);
+    $default_nama_laporan = 'Laporan Pagu Sumber Dana Mapping';
 }
 // sumber dana kombinasi
 elseif($type_mapping==3)
@@ -196,11 +200,13 @@ elseif($type_mapping==3)
             and d.tahun_anggaran='.$input['tahun_anggaran'].'
             and r.kode_sbl IN ('.implode(',', $kd_sbl_s).')
             '.$where_skpd.' group by r.kode_sbl', ARRAY_A);
+
+    $default_nama_laporan = 'Laporan Pagu Kombinasi Sumber Dana SIPD';
 }
 // echo $wpdb->last_query;die();
 
 $judul_laporan = array();
-$judul_laporan[] = 'Laporan Pagu SIPD Kemendagri Per Sumber Dana';
+$judul_laporan[] = $default_nama_laporan;
 $nama_laporan = '';
 foreach ($detail_sd as $key => $value) {
     if(!empty($nama_laporan)){
@@ -372,6 +378,32 @@ foreach ($data_sub_giat as $k =>$v) {
         $sd_text[] = $sd['kode_dana'].' '.$sd['namadana'];
     }
     $v['sd_text'] = $sd_text;
+
+    // ambil pagu item rincian rka berdasarkan pagu mapping
+    if($type_mapping == 2){
+         $sd_mapping = $wpdb->get_results("
+                select 
+                    COALESCE(sum(r.rincian),0) as total,
+                    COALESCE(sum(n.realisasi),0) as realisasi
+                from data_mapping_sumberdana m
+                    inner join data_rka r on r.id_rinci_sub_bl=m.id_rinci_sub_bl
+                        and r.active=m.active
+                    left join data_realisasi_rincian n on r.id_rinci_sub_bl=n.id_rinci_sub_bl
+                        and r.active=n.active
+                where r.tahun_anggaran=".$input['tahun_anggaran']."
+                    and r.kode_sbl='".$v['kode_sbl']."'
+                    and r.active=1
+                    and m.id_sumber_dana=".$input['id_sumber_dana']."
+            ", ARRAY_A);
+            if(!empty($sd_mapping)){
+                $sd_realisasi[$input['id_sumber_dana']] = $sd_mapping[0]['realisasi'];
+                $sd_data[$input['id_sumber_dana']] = $sd_mapping[0]['total'];
+            }else{
+                $sd_realisasi[$input['id_sumber_dana']] = 0;
+                $sd_data[$input['id_sumber_dana']] = 0;
+            }
+    }
+
     if(empty($sd_data)){
         $sd_data[$input['id_sumber_dana']] = $v['pagu'];
         $sd_realisasi[$input['id_sumber_dana']] = $realisasi;
@@ -436,6 +468,8 @@ foreach ($data_sub_giat as $k =>$v) {
 }
 ksort($data_sumberdana_shorted['data']);
 
+// echo '<pre>';print_r($data_sumberdana_shorted['data']);echo '</pre>';die();
+
 $body_sumberdana = '';
 $no_all = 0;
 
@@ -462,6 +496,10 @@ foreach ($data_sumberdana_shorted['data'] as $k => $skpd) {
         $mapping_sd .= '<td class="kanan bawah text_blok text_kanan">'.number_format($skpd['realisasi_mapping'],0,",",".").'</td>';
         $mapping_sd .= '<td class="kanan bawah text_blok text_kanan">'.$capaian_mapping.'</td>';
     }
+    $pagu_sd_sipd = '';
+    if($type_mapping == 1 || $type_mapping == 2){
+        $pagu_sd_sipd .= '<td class="kanan bawah text_blok text_kanan">'.number_format($skpd['pagudana'],0,",",".").'</td>';
+    }
     $body_sumberdana .= '
         <tr>
             <td class="kanan bawah kiri text_tengah text_blok"></td>
@@ -470,7 +508,7 @@ foreach ($data_sumberdana_shorted['data'] as $k => $skpd) {
             '.$murni.'
             <td class="kanan bawah text_blok text_kanan">'.number_format($skpd['total'],0,",",".").'</td>
             '.$selisih.'
-            <td class="kanan bawah text_blok text_kanan">'.number_format($skpd['pagudana'],0,",",".").'</td>
+            '.$pagu_sd_sipd.'
             <td class="kanan bawah text_blok text_kanan">'.number_format($skpd['total_simda'],0,",",".").'</td>
             <td class="kanan bawah text_blok text_kanan">'.number_format($skpd['realisasi'],0,",",".").'</td>
             <td class="kanan bawah text_blok text_tengah">'.$capaian.'</td>
@@ -486,7 +524,6 @@ foreach ($data_sumberdana_shorted['data'] as $k => $skpd) {
             $murni = "<td class='kanan bawah text_kanan'>".number_format($sub_keg['total_murni'],0,",",".")."</td>";
             $selisih = "<td class='kanan bawah text_kanan'>".number_format(($sub_keg['total']-$sub_keg['total_murni']),0,",",".")."</td>";
         }
-
 
         // kode unit select dari data unit karena kode skp di data_sub_keg_bl tidak semua valid
 		$kode_skpd = $wpdb->get_var("
@@ -518,6 +555,10 @@ foreach ($data_sumberdana_shorted['data'] as $k => $skpd) {
             $mapping_sd .= '<td class="kanan bawah text_kanan">'.number_format($sub_keg['realisasi_mapping'],0,",",".").'</td>';
             $mapping_sd .= '<td class="kanan bawah text_kanan">'.$capaian_mapping.'</td>';
         }
+        $pagu_sd_sipd = '';
+        if($type_mapping == 1 || $type_mapping == 2){
+            $pagu_sd_sipd .= '<td class="kanan bawah text_kanan">'.number_format($sub_keg['pagudana'],0,",",".").'</td>';
+        }
         $body_sumberdana .= '
             <tr class="sub_keg" style="display:none;">
                 <td class="kanan bawah kiri text_tengah">'.$no_all.'</td>
@@ -527,7 +568,7 @@ foreach ($data_sumberdana_shorted['data'] as $k => $skpd) {
                 '.$murni.'
                 <td class="kanan bawah text_kanan">'.number_format($sub_keg['total'],0,",",".").'</td>
                 '.$selisih.'
-                <td class="kanan bawah text_kanan">'.number_format($sub_keg['pagudana'],0,",",".").'</td>
+                '.$pagu_sd_sipd.'
                 <td class="kanan bawah text_kanan">'.number_format($sub_keg['total_simda'],0,",",".").'</td>
                 <td class="kanan bawah text_kanan">'.number_format($sub_keg['realisasi'],0,",",".").'</td>
                 <td class="kanan bawah text_tengah">'.$capaian.'</td>
@@ -558,6 +599,10 @@ if($type_mapping == 2){
     $mapping_sd .= '<td class="kanan bawah text_blok text_kanan">'.number_format($data_sumberdana_shorted['realisasi_mapping'],0,",",".").'</td>';
     $mapping_sd .= '<td class="kanan bawah text_blok text_kanan">'.$capaian_mapping.'</td>';
 }
+$pagu_sd_sipd = '';
+if($type_mapping == 1 || $type_mapping == 2){
+    $pagu_sd_sipd .= '<td class="kanan bawah text_blok text_kanan">'.number_format($data_sumberdana_shorted['pagudana'],0,",",".").'</td>';
+}
 $body_sumberdana .= '
     <tr>
         <td class="kiri kanan bawah text_blok text_tengah" colspan="'.$colspan_nm.'">Jumlah Total</td>
@@ -565,7 +610,7 @@ $body_sumberdana .= '
         '.$murni.'
         <td class="kanan bawah text_blok text_kanan">'.number_format($data_sumberdana_shorted['total'],0,",",".").'</td>
         '.$selisih.'
-        <td class="kanan bawah text_blok text_kanan">'.number_format($data_sumberdana_shorted['pagudana'],0,",",".").'</td>
+        '.$pagu_sd_sipd.'
         <td class="kanan bawah text_blok text_kanan">'.number_format($data_sumberdana_shorted['total_simda'],0,",",".").'</td>
         <td class="kanan bawah text_blok text_kanan">'.number_format($data_sumberdana_shorted['realisasi'],0,",",".").'</td>
         <td class="kanan bawah text_blok text_tengah">'.$capaian.'</td>
@@ -583,7 +628,7 @@ $body_sumberdana .= '
                 <td class="atas kanan bawah text_tengah text_blok" width="300px;">Sumber Dana SIPD</td>
                 <?php if($type_mapping == 2):?>
                     <td class="atas kanan bawah text_tengah text_blok" style="width: 140px;">Sumber Dana Mapping</td>
-                    <td class="atas kanan bawah text_tengah text_blok" style="width: 140px;">Pagu Mapping (Rp.)</td>
+                    <td class="atas kanan bawah text_tengah text_blok" style="width: 140px;">Pagu Sumber Dana Mapping (Rp.)</td>
                     <td class="atas kanan bawah text_tengah text_blok" style="width: 140px;">Realisasi Mapping (Rp.)</td>
                     <td class="atas kanan bawah text_tengah text_blok" style="width: 100px;">Capaian Mapping (%)</td>
                 <?php endif; ?>
@@ -594,10 +639,37 @@ $body_sumberdana .= '
                     <td class="atas kanan bawah text_tengah text_blok" style="width: 140px;">RKA SIPD Sesudah Perubahan (Rp.)</td>
                     <td class="atas kanan bawah text_tengah text_blok" style="width: 140px;">RKA SIPD Bertambah/(Berkurang) (Rp.)</td>
                 <?php endif; ?>
+                <?php if($type_mapping == 1 || $type_mapping == 2):?>
                 <td class="atas kanan bawah text_tengah text_blok" style="width: 140px;">Pagu Sumber Dana SIPD (Rp.)</td>
+                <?php endif; ?>
                 <td class="atas kanan bawah text_tengah text_blok" style="width: 140px;">Pagu Simda (Rp.)</td>
                 <td class="atas kanan bawah text_tengah text_blok" style="width: 140px;">Ralisasi Simda (Rp.)</td>
                 <td class="atas kanan bawah text_tengah text_blok" style="width: 100px;">Capaian (%)</td>
+            </tr>
+
+            <tr>
+                <td class="atas kanan bawah kiri text_tengah text_blok" width="20px;">0</td>
+                <td class="atas kanan bawah text_tengah text_blok">1</td>
+                <td class="atas kanan bawah text_tengah text_blok" width="300px;">2</td>
+                <?php if($type_mapping == 2):?>
+                    <td class="atas kanan bawah text_tengah text_blok" style="width: 140px;">3</td>
+                    <td class="atas kanan bawah text_tengah text_blok" style="width: 140px;">4</td>
+                    <td class="atas kanan bawah text_tengah text_blok" style="width: 140px;">5</td>
+                    <td class="atas kanan bawah text_tengah text_blok" style="width: 100px;">6 = 5/4 x 100</td>
+                <?php endif; ?>
+                <?php if($type == 'murni'): ?>
+                    <td class="atas kanan bawah text_tengah text_blok" style="width: 140px;">7</td>
+                <?php else: ?>
+                    <td class="atas kanan bawah text_tengah text_blok" style="width: 140px;">8</td>
+                    <td class="atas kanan bawah text_tengah text_blok" style="width: 140px;">9</td>
+                    <td class="atas kanan bawah text_tengah text_blok" style="width: 140px;">10</td>
+                <?php endif; ?>
+                <?php if($type_mapping == 1 || $type_mapping == 2):?>
+                <td class="atas kanan bawah text_tengah text_blok" style="width: 140px;">11</td>
+                <?php endif; ?>
+                <td class="atas kanan bawah text_tengah text_blok" style="width: 140px;">12</td>
+                <td class="atas kanan bawah text_tengah text_blok" style="width: 140px;">13</td>
+                <td class="atas kanan bawah text_tengah text_blok" style="width: 100px;">14 = 13/12 x 100</td>
             </tr>
         </thead>
         <tbody>
@@ -610,9 +682,8 @@ $body_sumberdana .= '
     <h4 style="margin: 30px 0 10px; font-weight: bold;">Catatan Dokumentasi:</h4>
     <ul>
         <li>Sumber Dana Mapping diambil dari sumber dana hasil mapping di halaman RKA.</li>
-        <li>Pagu Mapping diambil dari pagu rincian item RKA.</li>
+        <li>Pagu Sumber Dana Mapping diambil dari pagu rincian item RKA.</li>
         <li>Realisasi Mapping diambil dari hasil mapping realisasi item rincian RKA.</li>
-        <li>CApaian</li>
     </ul>
 </div>
 
