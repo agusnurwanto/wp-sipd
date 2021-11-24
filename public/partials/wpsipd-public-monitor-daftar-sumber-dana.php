@@ -10,11 +10,11 @@ $input = shortcode_atts( array(
 ), $atts );
 
 $tahun_asli = date('Y');
-if(empty($_GET) || empty($_GET['debug'])){
-	if($input['tahun_anggaran'] > $tahun_asli){
-		die('<h1>Halaman Sumber Dana tahun '.$input['tahun_anggaran'].' tidak ditemukan!</h1>');
-	}
-}
+// if(empty($_GET) || empty($_GET['debug'])){
+// 	if($input['tahun_anggaran'] > $tahun_asli){
+// 		die('<h1>Halaman Sumber Dana tahun '.$input['tahun_anggaran'].' tidak ditemukan!</h1>');
+// 	}
+// }
 if(!empty($input['id_skpd'])){
 	$sql = $wpdb->prepare("
 		select 
