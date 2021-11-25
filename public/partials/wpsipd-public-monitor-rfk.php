@@ -422,7 +422,7 @@ foreach ($units as $k => $unit):
 				$capaian_rak = ($bidang['total_rak_simda']/$bidang['total_simda'])*100;
 			}
 			$deviasi_bidang = 0;
-			if(!empty($bidang['total_simda'])){
+			if(!empty($capaian_rak)){
 				$deviasi_bidang = (($capaian_rak-$capaian)/$capaian_rak)*100;
 			}
 			$body .= '
@@ -725,15 +725,16 @@ if(!current_user_can('administrator')){
 		<li>Tombol <b>Reset RFK bulan sebelumnya</b> digunakan untuk mengupdate data input sesuai dengan data di bulan sebelumnya. Fitur ini mempermudah user untuk menginput data pada awal bulan, agar tidak perlu menginput satu per satu data mulai dari awal</li>
 		<li><b>CATATAN KESIMPULAN KABAG ADBANG</b> adalah catatan yang diisi oleh KABAG ADBANG, berisi kesimpulan dari catatan verfikator</li>
 		<li>Tombol <b>SIMPAN</b> berwarna merah pada sub kegiatan akan muncul, jika ada data yang belum disimpan oleh user SKPD ataupun user verifikator</li>
+		<li>Perhitungan <b>total realisasi fisik</b> adalah akumulasi realiasi fisik seluruh sub kegiatan dibagi jumlah sub kegiatan yang ada nilai pagu simdanya</li>
 	</ul>
 </div>
 <script type="text/javascript">
 	var data_input = <?php echo json_encode($data_input); ?>;
 	run_download_excel();
     function generate_total(){
-    	var total_parent = {};
-    	var total = 0;
-    	var total_s = 0;
+    	window.total_parent = {};
+    	window.total = 0;
+    	window.total_s = 0;
     	jQuery('.realisasi-fisik').map(function(i, b){
     		var tr = jQuery(b).closest('tr');
     		var pagu_simda = tr.find('.total_simda').attr('data-pagu');
