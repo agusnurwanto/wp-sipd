@@ -546,6 +546,9 @@ foreach ($units as $k => $unit):
 						if(!empty($sub_giat['data']['realisasi_fisik'])){
 							$realisasi_fisik = $sub_giat['data']['realisasi_fisik'];
 						}
+						if(empty($sub_giat['total_simda'])){
+							$realisasi_fisik = '';
+						}
 						$edit_fisik = 'contenteditable="true"';
 						$edit_masalah = 'contenteditable="true"';
 						$edit_catatan = '';
@@ -726,6 +729,7 @@ if(!current_user_can('administrator')){
 		<li><b>CATATAN KESIMPULAN KABAG ADBANG</b> adalah catatan yang diisi oleh KABAG ADBANG, berisi kesimpulan dari catatan verfikator</li>
 		<li>Tombol <b>SIMPAN</b> berwarna merah pada sub kegiatan akan muncul, jika ada data yang belum disimpan oleh user SKPD ataupun user verifikator</li>
 		<li>Perhitungan <b>total realisasi fisik</b> adalah akumulasi realiasi fisik seluruh sub kegiatan dibagi jumlah sub kegiatan yang ada nilai pagu simdanya</li>
+		<li>Untuk menampilkan detail akumulasi realisasi fisik per kegiatan, program dan bidang urusan klik pada kotak checkbox <b>Tampilkan Detail Realisasi Fisik</b>. Secara default akumulasi tidak ditampilkan agar tidak membuat bingung user dalam memahami nilai total realisasi fisik.</li>
 	</ul>
 </div>
 <script type="text/javascript">
@@ -779,19 +783,19 @@ if(!current_user_can('administrator')){
     			if(total_parent[i].total_bidang_s != 0){
 	    			total_bidang = Math.round((total_parent[i].total_bidang/total_parent[i].total_bidang_s)*100)/100;
     			}
-	    		jQuery('tr[data-kode="'+i+'"]').find('.bidang-realisasi-fisik').text(total_bidang);
+	    		jQuery('tr[data-kode="'+i+'"]').find('.bidang-realisasi-fisik').html('<span>'+total_bidang+'</span>');
 	    	}else if(typeof(total_parent[i].total_program) != 'undefined'){
     			var total_program = 0;
     			if(total_parent[i].total_program_s != 0){
 	    			total_program = Math.round((total_parent[i].total_program/total_parent[i].total_program_s)*100)/100;
 	    		}
-	    		jQuery('tr[data-kode="'+i+'"]').find('.program-realisasi-fisik').text(total_program);
+	    		jQuery('tr[data-kode="'+i+'"]').find('.program-realisasi-fisik').html('<span>'+total_program+'</span>');
 	    	}else if(typeof(total_parent[i].total_kegiatan) != 'undefined'){
     			var total_kegiatan = 0;
     			if(total_parent[i].total_kegiatan_s != 0){
 	    			total_kegiatan = Math.round((total_parent[i].total_kegiatan/total_parent[i].total_kegiatan_s)*100)/100;
 	    		}
-	    		jQuery('tr[data-kode="'+i+'"]').find('.kegiatan-realisasi-fisik').text(total_kegiatan);
+	    		jQuery('tr[data-kode="'+i+'"]').find('.kegiatan-realisasi-fisik').html('<span>'+total_kegiatan+'</span>');
 	    	}
     	}
     	var end = 0;
@@ -824,6 +828,18 @@ if(!current_user_can('administrator')){
 		$opsi_bulan .= $all_bulan[$i];
 	}
 ?>
+	function tampil_detail_fisik(){
+		if(jQuery('#tampil-detail-fisik').is(':checked')){
+    		jQuery('.kegiatan-realisasi-fisik span').show();
+    		jQuery('.program-realisasi-fisik span').show();
+    		jQuery('.bidang-realisasi-fisik span').show();
+    	}else{
+    		jQuery('.kegiatan-realisasi-fisik span').hide();
+    		jQuery('.program-realisasi-fisik span').hide();
+    		jQuery('.bidang-realisasi-fisik span').hide();
+    	}
+	}
+
 	var extend_action = ''
 		+'<div style="margin-top: 20px;">'
 			+'<label style="display:none;">Sumber Pagu Indikatif: '
@@ -842,11 +858,16 @@ if(!current_user_can('administrator')){
 			+'</label>'
 			+'<button style="margin-left: 20px;" class="button button-primary" id="simpan-rfk">Simpan Data</button>'
 			+'<?php echo $reset_rfk; ?>'
+			+'<label style="margin-left: 20px;"><input type="checkbox" id="tampil-detail-fisik" onclick="tampil_detail_fisik();"> Tampilkan Detail Realisasi Fisik</label>'
 		+'</div>';
 	jQuery(document).ready(function(){
 	    jQuery('#action-sipd').append(extend_action);
 	    jQuery('#pilih_sumber_pagu').val(+<?php echo $sumber_pagu; ?>);
 	    jQuery('#pilih_bulan').val(+<?php echo $bulan; ?>);
+		
+		setTimeout(function(){
+			tampil_detail_fisik();
+		}, 1000);
 	    jQuery('#pilih_sumber_pagu').on('change', function(){
 	    	var val = +jQuery(this).val();
 	    	if(val > 0){
