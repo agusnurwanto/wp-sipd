@@ -42,6 +42,7 @@ $bulan = (int) date('m');
 
 $judul_skpd = '';
 $where_skpd = '';
+$id_skpd = false;
 if(!empty($_GET) && !empty($_GET['id_skpd'])){
     $id_skpd = $_GET['id_skpd'];
     $where_skpd = 'and r.id_sub_skpd='.$id_skpd;
@@ -140,16 +141,28 @@ elseif($type_mapping==3)
         $arr_input_id_sumber_dana[] = $value;
     }
     
-    $data_sbl = $wpdb->get_results($wpdb->prepare("
-        select 
-            kode_sbl 
-        from data_sub_keg_bl 
-        where 
-            tahun_anggaran=%d
-            and active=1
-            and id_sub_skpd=%d
-        ", $input['tahun_anggaran'], $_GET['id_skpd'])
-        , ARRAY_A);
+    if(!empty($id_skpd)){
+        $data_sbl = $wpdb->get_results($wpdb->prepare("
+            select 
+                kode_sbl 
+            from data_sub_keg_bl 
+            where 
+                tahun_anggaran=%d
+                and active=1
+                and id_sub_skpd=%d
+            ", $input['tahun_anggaran'], $id_skpd)
+            , ARRAY_A);
+    }else{
+        $data_sbl = $wpdb->get_results($wpdb->prepare("
+            select 
+                kode_sbl 
+            from data_sub_keg_bl 
+            where 
+                tahun_anggaran=%d
+                and active=1
+            ", $input['tahun_anggaran'])
+            , ARRAY_A);
+    }
 
     $arr_kode_sbl = array();
     foreach ($data_sbl as $sbl) {
