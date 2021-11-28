@@ -523,6 +523,7 @@ CREATE TABLE `data_tag_sub_keg` (
 
 CREATE TABLE `data_pengaturan_sipd` (
   `id` int(11) NOT NULL,
+  `id_daerah` int(11) DEFAULT NULL,
   `daerah` text DEFAULT NULL,
   `kepala_daerah` text DEFAULT NULL,
   `wakil_kepala_daerah` text DEFAULT NULL,

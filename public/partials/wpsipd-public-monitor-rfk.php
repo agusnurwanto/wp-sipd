@@ -152,6 +152,9 @@ foreach ($units as $k => $unit):
 		'data' => array()
 	);
 	foreach ($subkeg as $kk => $sub) {
+		if(empty($kd_unit_simda) || empty($kd_unit_simda[3])){
+			continue;
+		}
 		$_kd_urusan = $kd_unit_simda[0];
 		$_kd_bidang = $kd_unit_simda[1];
 		$kd_unit = $kd_unit_simda[2];
@@ -614,6 +617,9 @@ foreach ($units as $k => $unit):
 			and id_skpd='.$unit['id_skpd'].' 
 			and tahun_anggaran='.$input['tahun_anggaran'], ARRAY_A
 	);
+	if(!empty($catatan_ka_adbang)){
+		$catatan_ka_adbang = $catatan_ka_adbang['catatan_ka_adbang'];
+	}
 
 	echo '
 	<style>
@@ -702,7 +708,7 @@ foreach ($units as $k => $unit):
 			        <td class="kanan bawah text_tengah text_blok" data="'.$data_all['total_rak_simda'].'">'.$this->pembulatan($capaian_rak).'</td>
 			        <td class="kanan bawah text_tengah text_blok">'.$this->pembulatan($deviasi_pemkab).'</td>
 			        <td class="kanan bawah text_blok total-realisasi-fisik text_tengah"></td>
-			        <td class="kanan bawah text_kiri text_blok" colspan="3">'.$catatan_ka_adbang['catatan_ka_adbang'].'</td>
+			        <td class="kanan bawah text_kiri text_blok" colspan="3">'.$catatan_ka_adbang.'</td>
 			    </tr>
 		    </tbody>
 		</table>
