@@ -410,7 +410,7 @@ foreach ($units as $k => $unit):
 		        <td class="text_tengah kanan bawah">&nbsp;</td>
 		        <td class="text_tengah kanan bawah">&nbsp;</td>
 		        <td class="text_tengah kanan bawah">&nbsp;</td>
-		        <td class="kanan bawah text_blok" colspan="11">'.$urusan['nama'].'</td>
+		        <td class="kanan bawah text_blok" colspan="12">'.$urusan['nama'].'</td>
 		    </tr>
 		';
 		foreach ($urusan['data'] as $kd_bidang => $bidang) {
@@ -443,6 +443,7 @@ foreach ($units as $k => $unit):
 		            <td class="kanan bawah text_tengah text_blok">'.$this->pembulatan($capaian_rak).'</td>
 		            <td class="kanan bawah text_tengah text_blok">'.$this->pembulatan($deviasi_bidang).'</td>
 		            <td class="kanan bawah text_blok bidang-realisasi-fisik text_tengah"></td>
+		            <td class="kanan bawah text_blok bidang-nilai-realisasi-fisik text_kanan"></td>
 		        	<td class="kanan bawah text_kanan text_blok" colspan="3"></td>
 		        </tr>
 			';
@@ -476,6 +477,7 @@ foreach ($units as $k => $unit):
 			            <td class="kanan bawah text_tengah text_blok">'.$this->pembulatan($capaian_rak).'</td>
 			            <td class="kanan bawah text_tengah text_blok">'.$this->pembulatan($deviasi_program).'</td>
 			            <td class="kanan bawah text_blok program-realisasi-fisik text_tengah"></td>
+			            <td class="kanan bawah text_blok program-nilai-realisasi-fisik text_kanan"></td>
 		        		<td class="kanan bawah text_kanan text_blok" colspan="3"></td>
 			        </tr>
 				';
@@ -512,6 +514,7 @@ foreach ($units as $k => $unit):
 				            <td class="text_tengah" style="border:.5pt solid #000; vertical-align:middle; font-weight:bold;">'.$this->pembulatan($capaian_rak).'</td>
 				            <td class="text_tengah" style="border:.5pt solid #000; vertical-align:middle; font-weight:bold;">'.$this->pembulatan($deviasi_kegiatan).'</td>
 				            <td style="border:.5pt solid #000; vertical-align:middle; font-weight:bold;" class="kegiatan-realisasi-fisik text_tengah"></td>
+				            <td style="border:.5pt solid #000; vertical-align:middle; font-weight:bold;" class="kegiatan-nilai-realisasi-fisik text_kanan"></td>
 		        			<td class="kanan bawah text_kanan text_blok" colspan="3"></td>
 				        </tr>
 					';
@@ -586,6 +589,7 @@ foreach ($units as $k => $unit):
 					            <td class="kanan bawah text_tengah">'.$this->pembulatan($capaian_rak).'</td>
 					            <td class="kanan bawah text_tengah">'.$this->pembulatan($deviasi_sub_kegiatan).'</td>
 					            <td class="kanan bawah realisasi-fisik text_tengah" '.$edit_fisik.'>'.$realisasi_fisik.'</td>
+					            <td class="kanan bawah nilai-realisasi-fisik text_kanan"></td>
 					            <td class="kanan bawah">'.implode(',<br>', $sd_sub).'</td>
 					            <td class="kanan bawah permasalahan" '.$edit_masalah.'>'.$sub_giat['data']['permasalahan'].'</td>
 					            <td class="kanan bawah catatan_verifikator" '.$edit_catatan.'>'.$sub_giat['data']['catatan_verifikator'].'</td>
@@ -654,6 +658,7 @@ foreach ($units as $k => $unit):
 		            <th style="padding: 0; border: 0; width:120px"></th>
 		            <th style="padding: 0; border: 0; width:120px"></th>
 		            <th style="padding: 0; border: 0; width:120px"></th>
+		            <th style="padding: 0; border: 0; width:140px"></th>
 		            <th style="padding: 0; border: 0; width:120px"></th>
 		            <th style="padding: 0; border: 0; width:120px"></th>
 		            <th style="padding: 0; border: 0; width:100px"></th>
@@ -674,6 +679,7 @@ foreach ($units as $k => $unit):
 			        <td class="atas kanan bawah text_tengah text_blok">RAK SIMDA ( % )</td>
 			        <td class="atas kanan bawah text_tengah text_blok">Deviasi ( % )</td>
 			        <td class="atas kanan bawah text_tengah text_blok">Realisasi Fisik ( % )</td>
+			        <td class="atas kanan bawah text_tengah text_blok">Nilai Realisasi Fisik ( Rp )</td>
 			        <td class="atas kanan bawah text_tengah text_blok">Sumber Dana</td>
 			        <td class="atas kanan bawah text_tengah text_blok">Keterangan / Permasalahan</td>
 			        <td class="atas kanan bawah text_tengah text_blok">Catatan Verifikator</td>
@@ -691,10 +697,11 @@ foreach ($units as $k => $unit):
 			        <td class="atas kanan bawah text_tengah text_blok">10 = (9 / 8) * 100</td>
 			        <td class="atas kanan bawah text_tengah text_blok">11</td>
 			        <td class="atas kanan bawah text_tengah text_blok">12 = ((11-10)/11) * 100</td>
-			        <td class="atas kanan bawah text_tengah text_blok">13</td>
-			        <td class="atas kanan bawah text_tengah text_blok">14</td>
+			        <td class="atas kanan bawah text_tengah text_blok">13 = (13 / 8) * 100</td>
+			        <td class="atas kanan bawah text_tengah text_blok">14 = (8 * 13) / 100</td>
 			        <td class="atas kanan bawah text_tengah text_blok">15</td>
 			        <td class="atas kanan bawah text_tengah text_blok">16</td>
+			        <td class="atas kanan bawah text_tengah text_blok">17</td>
 			    </tr>
 		    </thead>
 		    <tbody>
@@ -708,6 +715,7 @@ foreach ($units as $k => $unit):
 			        <td class="kanan bawah text_tengah text_blok" data="'.$data_all['total_rak_simda'].'">'.$this->pembulatan($capaian_rak).'</td>
 			        <td class="kanan bawah text_tengah text_blok">'.$this->pembulatan($deviasi_pemkab).'</td>
 			        <td class="kanan bawah text_blok total-realisasi-fisik text_tengah"></td>
+			        <td class="kanan bawah text_blok total-nilai-realisasi-fisik text_kanan"></td>
 			        <td class="kanan bawah text_kiri text_blok" colspan="3">'.$catatan_ka_adbang.'</td>
 			    </tr>
 		    </tbody>
@@ -734,8 +742,8 @@ if(!current_user_can('administrator')){
 		<li>Tombol <b>Reset RFK bulan sebelumnya</b> digunakan untuk mengupdate data input sesuai dengan data di bulan sebelumnya. Fitur ini mempermudah user untuk menginput data pada awal bulan, agar tidak perlu menginput satu per satu data mulai dari awal</li>
 		<li><b>CATATAN KESIMPULAN KABAG ADBANG</b> adalah catatan yang diisi oleh KABAG ADBANG, berisi kesimpulan dari catatan verfikator</li>
 		<li>Tombol <b>SIMPAN</b> berwarna merah pada sub kegiatan akan muncul, jika ada data yang belum disimpan oleh user SKPD ataupun user verifikator</li>
-		<li>Perhitungan <b>total realisasi fisik</b> adalah akumulasi realiasi fisik seluruh sub kegiatan dibagi jumlah sub kegiatan yang ada nilai pagu simdanya</li>
-		<li>Untuk menampilkan detail akumulasi realisasi fisik per kegiatan, program dan bidang urusan klik pada kotak checkbox <b>Tampilkan Detail Realisasi Fisik</b>. Secara default akumulasi tidak ditampilkan agar tidak membuat bingung user dalam memahami nilai total realisasi fisik.</li>
+		<li style="display: none;">Perhitungan <b>total realisasi fisik</b> adalah akumulasi realiasi fisik seluruh sub kegiatan dibagi jumlah sub kegiatan yang ada nilai pagu simdanya</li>
+		<li style="display: none;">Untuk menampilkan detail akumulasi realisasi fisik per kegiatan, program dan bidang urusan klik pada kotak checkbox <b>Tampilkan Detail Realisasi Fisik</b>. Secara default akumulasi tidak ditampilkan agar tidak membuat bingung user dalam memahami nilai total realisasi fisik.</li>
 	</ul>
 </div>
 <script type="text/javascript">
@@ -743,72 +751,99 @@ if(!current_user_can('administrator')){
 	run_download_excel();
     function generate_total(){
     	window.total_parent = {};
+    	window.total_simda = 0;
+    	window.total_nilai = 0;
     	window.total = 0;
     	window.total_s = 0;
     	jQuery('.realisasi-fisik').map(function(i, b){
     		var tr = jQuery(b).closest('tr');
-    		var pagu_simda = tr.find('.total_simda').attr('data-pagu');
+    		var pagu_simda = +tr.find('.total_simda').attr('data-pagu');
     		var kode_sub = tr.attr('data-kode').split('.');
     		var kode_kegiatan = kode_sub[0]+'.'+kode_sub[1]+'.'+kode_sub[2]+'.'+kode_sub[3]+'.'+kode_sub[4];
     		var kode_program = kode_sub[0]+'.'+kode_sub[1]+'.'+kode_sub[2];
     		var kode_bidang = kode_sub[0]+'.'+kode_sub[1];
     		var val = jQuery(b).text();
+    		var nilai_fisik = 0;
     		if(!isNaN(val) && +val >= 0 && +val <= 100){
+    			nilai_fisik = (val*pagu_simda)/100;
     			if(typeof total_parent[kode_bidang] == 'undefined'){
     				total_parent[kode_bidang] = {
+    					total_simda : 0,
     					total_bidang : 0,
+    					total_nilai_bidang : 0,
 	    				total_bidang_s : 0
     				}
     			}
     			if(typeof total_parent[kode_program] == 'undefined'){
     				total_parent[kode_program] = {
+				    	total_simda : 0,
 				    	total_program : 0,
+				    	total_nilai_program : 0,
 				    	total_program_s : 0
     				}
     			}
     			if(typeof total_parent[kode_kegiatan] == 'undefined'){
     				total_parent[kode_kegiatan] = {
+				    	total_simda : 0,
 				    	total_kegiatan : 0,
+				    	total_nilai_kegiatan : 0,
 				    	total_kegiatan_s : 0
     				}
     			}
     			if(pagu_simda == 0){ return; }
     			total += +val;
+    			total_nilai += nilai_fisik;
+    			total_simda += pagu_simda;
     			total_s++;
+    			total_parent[kode_bidang].total_simda += pagu_simda;
     			total_parent[kode_bidang].total_bidang += +val;
+    			total_parent[kode_bidang].total_nilai_bidang += nilai_fisik;
     			total_parent[kode_bidang].total_bidang_s++;
+    			total_parent[kode_program].total_simda += pagu_simda;
     			total_parent[kode_program].total_program += +val;
+    			total_parent[kode_program].total_nilai_program += nilai_fisik;
     			total_parent[kode_program].total_program_s++;
+    			total_parent[kode_kegiatan].total_simda += pagu_simda;
     			total_parent[kode_kegiatan].total_kegiatan += +val;
+    			total_parent[kode_kegiatan].total_nilai_kegiatan += nilai_fisik;
     			total_parent[kode_kegiatan].total_kegiatan_s++;
     		}
+    		tr.find('.nilai-realisasi-fisik').text(formatRupiah(nilai_fisik));
     	});
     	for(var i in total_parent){
     		if(typeof(total_parent[i].total_bidang) != 'undefined'){
     			var total_bidang = 0;
     			if(total_parent[i].total_bidang_s != 0){
-	    			total_bidang = Math.round((total_parent[i].total_bidang/total_parent[i].total_bidang_s)*100)/100;
+	    			// total_bidang = Math.round((total_parent[i].total_bidang/total_parent[i].total_bidang_s)*100)/100;
+	    			total_bidang = Math.round((total_parent[i].total_nilai_bidang/total_parent[i].total_simda)*10000)/100;
     			}
 	    		jQuery('tr[data-kode="'+i+'"]').find('.bidang-realisasi-fisik').html('<span>'+total_bidang+'</span>');
+	    		jQuery('tr[data-kode="'+i+'"]').find('.bidang-nilai-realisasi-fisik').html('<span>'+formatRupiah(total_parent[i].total_nilai_bidang)+'</span>');
 	    	}else if(typeof(total_parent[i].total_program) != 'undefined'){
     			var total_program = 0;
     			if(total_parent[i].total_program_s != 0){
-	    			total_program = Math.round((total_parent[i].total_program/total_parent[i].total_program_s)*100)/100;
+	    			// total_program = Math.round((total_parent[i].total_program/total_parent[i].total_program_s)*100)/100;
+	    			total_program = Math.round((total_parent[i].total_nilai_program/total_parent[i].total_simda)*10000)/100;
 	    		}
 	    		jQuery('tr[data-kode="'+i+'"]').find('.program-realisasi-fisik').html('<span>'+total_program+'</span>');
+	    		jQuery('tr[data-kode="'+i+'"]').find('.program-nilai-realisasi-fisik').html('<span>'+formatRupiah(total_parent[i].total_nilai_program)+'</span>');
 	    	}else if(typeof(total_parent[i].total_kegiatan) != 'undefined'){
     			var total_kegiatan = 0;
     			if(total_parent[i].total_kegiatan_s != 0){
-	    			total_kegiatan = Math.round((total_parent[i].total_kegiatan/total_parent[i].total_kegiatan_s)*100)/100;
+	    			// total_kegiatan = Math.round((total_parent[i].total_kegiatan/total_parent[i].total_kegiatan_s)*100)/100;
+	    			total_kegiatan = Math.round((total_parent[i].total_nilai_kegiatan/total_parent[i].total_simda)*10000)/100;
 	    		}
 	    		jQuery('tr[data-kode="'+i+'"]').find('.kegiatan-realisasi-fisik').html('<span>'+total_kegiatan+'</span>');
+	    		jQuery('tr[data-kode="'+i+'"]').find('.kegiatan-nilai-realisasi-fisik').html('<span>'+formatRupiah(total_parent[i].total_nilai_kegiatan)+'</span>');
 	    	}
     	}
     	var end = 0;
     	if(total_s != 0){
-    		end = Math.round((total/total_s)*100)/100;
+    		// end = Math.round((total/total_s)*100)/100;
+    		end = Math.round((total_nilai/total_simda)*10000)/100;
     	}
     	jQuery('.total-realisasi-fisik').text(end);
+    	jQuery('.total-nilai-realisasi-fisik').text(formatRupiah(total_nilai));
     }
 	var _url_asli = window.location.href;
     var url = new URL(_url_asli);
@@ -839,10 +874,16 @@ if(!current_user_can('administrator')){
     		jQuery('.kegiatan-realisasi-fisik span').show();
     		jQuery('.program-realisasi-fisik span').show();
     		jQuery('.bidang-realisasi-fisik span').show();
+    		jQuery('.kegiatan-nilai-realisasi-fisik span').show();
+    		jQuery('.program-nilai-realisasi-fisik span').show();
+    		jQuery('.bidang-nilai-realisasi-fisik span').show();
     	}else{
     		jQuery('.kegiatan-realisasi-fisik span').hide();
     		jQuery('.program-realisasi-fisik span').hide();
     		jQuery('.bidang-realisasi-fisik span').hide();
+    		jQuery('.kegiatan-nilai-realisasi-fisik span').hide();
+    		jQuery('.program-nilai-realisasi-fisik span').hide();
+    		jQuery('.bidang-nilai-realisasi-fisik span').hide();
     	}
 	}
 
@@ -871,9 +912,9 @@ if(!current_user_can('administrator')){
 	    jQuery('#pilih_sumber_pagu').val(+<?php echo $sumber_pagu; ?>);
 	    jQuery('#pilih_bulan').val(+<?php echo $bulan; ?>);
 		
-		setTimeout(function(){
-			tampil_detail_fisik();
-		}, 1000);
+		// setTimeout(function(){
+		// 	tampil_detail_fisik();
+		// }, 1000);
 	    jQuery('#pilih_sumber_pagu').on('change', function(){
 	    	var val = +jQuery(this).val();
 	    	if(val > 0){
