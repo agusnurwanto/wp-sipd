@@ -563,6 +563,9 @@ class Wpsipd_Admin {
 	            	</div>
         		' )
         );
+
+        // walau tidak ditampilkan tapi code dibawah ini adalah untuk menggenerate page sumber dana per skpd
+        $label = array_merge($label, $this->get_ajax_field(array('type' => 'sumber_dana')));
         return $label;
 	}
 

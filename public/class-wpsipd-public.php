@@ -809,8 +809,9 @@ class Wpsipd_Public
 			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
 				if (!empty($_POST['data'])) {
 					$data = $_POST['data'];
-					$cek = $wpdb->get_var("SELECT kepala_daerah from data_pengaturan_sipd where tahun_anggaran=".$_POST['tahun_anggaran']." AND kepala_daerah='".$data['kepala_daerah']."'");
+					$cek = $wpdb->get_var("SELECT kepala_daerah from data_pengaturan_sipd where tahun_anggaran=".$_POST['tahun_anggaran']." AND id_daerah='".$data['id_daerah']."'");
 					$opsi = array(
+						'id_daerah' => $data['id_daerah'],
 						'daerah' => $data['daerah'],
 						'kepala_daerah' => $data['kepala_daerah'],
 						'wakil_kepala_daerah' => $data['wakil_kepala_daerah'],
@@ -828,16 +829,16 @@ class Wpsipd_Public
 					update_option( '_crb_wakil_daerah', $data['wakil_kepala_daerah'] );
 					if (!empty($cek)) {
 						$wpdb->update('data_pengaturan_sipd', $opsi, array(
-							'kepala_daerah' => $v['kepala_daerah'],
+							'id_daerah' => $v['id_daerah'],
 							'tahun_anggaran' => $_POST['tahun_anggaran']
 						));
 					} else {
 						$wpdb->insert('data_pengaturan_sipd', $opsi);
 					}
-					// print_r($ssh); die();
+					// print_r($opsi); die($wpdb->last_query);
 				} else {
 					$ret['status'] = 'error';
-					$ret['message'] = 'Format Data Dewan Salah!';
+					$ret['message'] = 'Format Data Pengaturan Salah!';
 				}
 			} else {
 				$ret['status'] = 'error';
