@@ -4071,7 +4071,7 @@ class Wpsipd_Public
 
 			$id_user_sipd = get_user_meta($user_id, 'id_user_sipd');
 			if(!empty($id_user_sipd)){
-				$skpd_mitra = $wpdb->get_results("
+				$skpd_mitra = $wpdb->get_results($wpdb->prepare("
 					SELECT 
 						nama_skpd, 
 						id_unit, 
@@ -4079,7 +4079,8 @@ class Wpsipd_Public
 					from data_skpd_mitra_bappeda 
 					where active=1 
 						and id_user=".$id_user_sipd[0]." 
-					group by id_unit", ARRAY_A);
+						and tahun_anggaran=%d 
+					group by id_unit", $_GET['tahun']), ARRAY_A);
 				foreach ($skpd_mitra as $k => $v) {
 					$this->menu_monev_skpd(array(
 						'id_skpd' => $v['id_unit'],
@@ -4106,25 +4107,36 @@ class Wpsipd_Public
 				}
 				echo $notif;
 			}
-			$skpd = get_user_meta($user_id, '_crb_nama_skpd');
-			$id_skpd = get_user_meta($user_id, '_id_sub_skpd');
-			$this->menu_monev_skpd(array(
-				'id_skpd' => $id_skpd[0],
-				'nama_skpd' => $skpd[0]
-			));
+			$nipkepala = get_user_meta($user_id, '_nip');
+			$skpd_db = $wpdb->get_results($wpdb->prepare("
+				SELECT 
+					nama_skpd, 
+					id_skpd, 
+					kode_skpd 
+				from data_unit 
+				where nipkepala=%s 
+					and tahun_anggaran=%d
+				group by id_skpd", $nipkepala[0], $_GET['tahun']), ARRAY_A);
+			foreach ($skpd_db as $skpd) {
+				$this->menu_monev_skpd(array(
+					'id_skpd' => $skpd['id_skpd'],
+					'nama_skpd' => $skpd['nama_skpd']
+				));
+			}
 		}else if(in_array("tapd_pp", $user_meta->roles)){
 			$this->pilih_tahun_anggaran();
 			$this->tampil_menu_rpjm();
 			if(empty($_GET) || empty($_GET['tahun'])){ return; }
 
-			$skpd_mitra = $wpdb->get_results("
+			$skpd_mitra = $wpdb->get_results($wpdb->prepare("
 				SELECT 
 					nama_skpd, 
 					id_skpd, 
 					kode_skpd 
 				from data_unit 
 				where active=1 
-				group by id_skpd", ARRAY_A);
+					and tahun_anggaran=%d
+				group by id_skpd", $_GET['tahun_anggaran']), ARRAY_A);
 			foreach ($skpd_mitra as $k => $v) {
 				$this->menu_monev_skpd(array(
 					'id_skpd' => $v['id_skpd'],
