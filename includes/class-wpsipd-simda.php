@@ -530,17 +530,33 @@ class Wpsipd_Simda
 		}else{
 			$nama_unit = $opsi['nama_skpd'];
 		}
+
+		$kd_urusan = $bidang_mapping[0]->kd_urusan;
+		$kd_bidang = $bidang_mapping[0]->kd_bidang;
+		$x_mapping_skpd = array();
+		$mapping_skpd = get_option( '_crb_unit_'.$opsi['id_skpd'] );
+		if(!empty($mapping_skpd)){
+			$x_mapping_skpd = explode('.', $mapping_skpd);
+			$kd_urusan = $x_mapping_skpd[0];
+			if(!empty($x_mapping_skpd[1])){
+				$kd_bidang = $x_mapping_skpd[1];
+			}
+		}
 		$cek_unit = $this->CurlSimda(array(
-			'query' => 'select * from ref_unit where kd_urusan='.$bidang_mapping[0]->kd_urusan.' and kd_bidang='.$bidang_mapping[0]->kd_bidang.' and nm_unit=\''.$nama_unit.'\''
+			'query' => 'select * from ref_unit where kd_urusan='.$kd_urusan.' and kd_bidang='.$kd_bidang.' and nm_unit=\''.$nama_unit.'\''
 		));
 		if(empty($cek_unit)){
-			$no_unit = $this->CurlSimda(array(
-				'query' => 'select max(kd_unit) as max_unit from ref_unit where kd_urusan='.$bidang_mapping[0]->kd_urusan.' and kd_bidang='.$bidang_mapping[0]->kd_bidang
-			));
-			if(empty($no_unit) || $no_unit[0]->max_unit == 0){
-				$no_unit = 1;
+			if(!empty($x_mapping_skpd[2])){
+				$no_unit = $x_mapping_skpd[2];
 			}else{
-				$no_unit = $no_unit[0]->max_unit+1;
+				$no_unit = $this->CurlSimda(array(
+					'query' => 'select max(kd_unit) as max_unit from ref_unit where kd_urusan='.$kd_urusan.' and kd_bidang='.$kd_bidang
+				));
+				if(empty($no_unit) || $no_unit[0]->max_unit == 0){
+					$no_unit = 1;
+				}else{
+					$no_unit = $no_unit[0]->max_unit+1;
+				}
 			}
 			if($opsi['is_skpd'] == 1){
 				$this->CurlSimda(array(
@@ -552,8 +568,8 @@ class Wpsipd_Simda
 						nm_unit, 
 						kd_unit90
 					) VALUES (
-						'.$bidang_mapping[0]->kd_urusan.', 
-						'.$bidang_mapping[0]->kd_bidang.', 
+						'.$kd_urusan.', 
+						'.$kd_bidang.', 
 						'.$no_unit.',
 						\''.$opsi['nama_skpd'].'\',
 						\''.$kode_unit90.'\'
@@ -567,16 +583,20 @@ class Wpsipd_Simda
 
 		if(empty($opsi['only_unit'])){
 			$cek_sub_unit = $this->CurlSimda(array(
-			'query' => 'select * from ref_sub_unit where kd_urusan='.$bidang_mapping[0]->kd_urusan.' and kd_bidang='.$bidang_mapping[0]->kd_bidang.' and kd_unit='.$no_unit.' and nm_sub_unit=\''.$opsi['nama_skpd'].'\''
+			'query' => 'select * from ref_sub_unit where kd_urusan='.$kd_urusan.' and kd_bidang='.$kd_bidang.' and kd_unit='.$no_unit.' and nm_sub_unit=\''.$opsi['nama_skpd'].'\''
 			));
 			if(empty($cek_sub_unit)){
-				$no_sub_unit = $this->CurlSimda(array(
-					'query' => 'select max(kd_sub) as max_unit from ref_sub_unit where kd_urusan='.$bidang_mapping[0]->kd_urusan.' and kd_bidang='.$bidang_mapping[0]->kd_bidang.' and kd_unit='.$no_unit
-				));
-				if(empty($no_sub_unit) || $no_sub_unit[0]->max_unit == 0){
-					$no_sub_unit = 1;
+				if(!empty($x_mapping_skpd[3])){
+					$no_sub_unit = $x_mapping_skpd[3];
 				}else{
-					$no_sub_unit = $no_sub_unit[0]->max_unit+1;
+					$no_sub_unit = $this->CurlSimda(array(
+						'query' => 'select max(kd_sub) as max_unit from ref_sub_unit where kd_urusan='.$kd_urusan.' and kd_bidang='.$kd_bidang.' and kd_unit='.$no_unit
+					));
+					if(empty($no_sub_unit) || $no_sub_unit[0]->max_unit == 0){
+						$no_sub_unit = 1;
+					}else{
+						$no_sub_unit = $no_sub_unit[0]->max_unit+1;
+					}
 				}
 				$this->CurlSimda(array(
 					'query' => '
@@ -587,8 +607,8 @@ class Wpsipd_Simda
 						kd_sub, 
 						nm_sub_unit
 					) VALUES (
-						'.$bidang_mapping[0]->kd_urusan.', 
-						'.$bidang_mapping[0]->kd_bidang.', 
+						'.$kd_urusan.', 
+						'.$kd_bidang.', 
 						'.$no_unit.',
 						'.$no_sub_unit.',
 						\''.$opsi['nama_skpd'].'\'
@@ -598,7 +618,7 @@ class Wpsipd_Simda
 				$no_sub_unit = $cek_sub_unit[0]->kd_sub;
 			}
 		}
-		$kd_sub_unit_simda = $bidang_mapping[0]->kd_urusan.'.'.$bidang_mapping[0]->kd_bidang.'.'.$no_unit.'.'.$no_sub_unit;
+		$kd_sub_unit_simda = $kd_urusan.'.'.$kd_bidang.'.'.$no_unit.'.'.$no_sub_unit;
 		update_option( '_crb_unit_'.$opsi['id_skpd'], $kd_sub_unit_simda );
 		return $kd_sub_unit_simda;
 	}
