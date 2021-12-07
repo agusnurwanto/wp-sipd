@@ -150,7 +150,8 @@ $body .='
 				'capaian' => array(),
 				'total_rak_simda' => 0,
 				'target_rak' => array(),
-				'realisasi_fisik' => array(),
+				// 'realisasi_fisik' => array(),
+				'total_nilai_realsasi_fisik' => 0,
 				'deviasi' => array()
 			);
 		    foreach($units as $unit){
@@ -165,35 +166,14 @@ $body .='
 								IFNULL(SUM(k.pagu_simda),0) pagu_simda, 
 								IFNULL(SUM(d.realisasi_anggaran),0) realisasi_keuangan,
 								IFNULL((SUM(d.realisasi_anggaran)/SUM(k.pagu_simda)*100),100) capaian,
-								e.rak,
-								e.realisasi_fisik,
+								SUM(IFNULL(d.rak,0)) rak,
+								AVG(IFNULL(d.realisasi_fisik,0)) realisasi_fisik,
 								f.cat_ka_adbang
 							FROM data_sub_keg_bl k 
 							LEFT JOIN data_rfk d 
 								ON d.id_skpd=k.id_sub_skpd AND 
 								d.kode_sbl=k.kode_sbl AND 
 								d.tahun_anggaran=k.tahun_anggaran
-							LEFT JOIN (
-								SELECT 
-										ds.tahun_anggaran,
-										ds.id_sub_skpd,
-										dr.bulan,
-										SUM(IFNULL(dr.rak,0)) rak,
-										AVG(IFNULL(dr.realisasi_fisik,0)) realisasi_fisik 
-									FROM data_sub_keg_bl ds
-									LEFT JOIN data_rfk dr
-										ON dr.id_skpd=ds.id_sub_skpd AND
-										dr.kode_sbl=ds.kode_sbl AND
-										dr.tahun_anggaran=ds.tahun_anggaran
-									WHERE
-										ds.tahun_anggaran=".$input['tahun_anggaran']." AND
-										ds.id_sub_skpd=".$unit['id_skpd']." AND
-										dr.bulan=".$bulan." AND
-										ds.pagu_simda > 0
-							) e ON
-									e.id_sub_skpd=k.id_sub_skpd AND 
-									e.bulan=d.bulan and
-									e.tahun_anggaran=k.tahun_anggaran
 							LEFT JOIN (
 								SELECT
 									id_skpd,
@@ -209,7 +189,8 @@ $body .='
 								f.id_skpd=k.id_sub_skpd AND 
 								f.bulan=d.bulan AND 
 								f.tahun_anggaran=k.tahun_anggaran
-							WHERE 
+							WHERE
+								k.pagu_simda > 0 AND
 								k.tahun_anggaran=%d AND 
 								k.id_sub_skpd=%d AND 
 								k.active=1 AND 
@@ -220,6 +201,32 @@ $body .='
 							), ARRAY_A);
 
 					foreach ($data_rfk as $key => $rfk) {
+
+						$nilai_realisasi_fisik = 0;
+						$items = $wpdb->get_results($wpdb->prepare("
+							SELECT 
+								IFNULL(d.realisasi_fisik,0) nilai_realisasi_fisik,
+								IFNULL(k.pagu_simda,0) pagu_simda
+							FROM data_sub_keg_bl k 
+							LEFT JOIN data_rfk d 
+								ON d.id_skpd=k.id_sub_skpd AND 
+								d.kode_sbl=k.kode_sbl AND 
+								d.tahun_anggaran=k.tahun_anggaran
+							WHERE
+								k.pagu_simda > 0 AND
+								k.tahun_anggaran=%d AND 
+								k.id_sub_skpd=%d AND 
+								k.active=1 AND 
+								d.bulan=%d",
+								$input['tahun_anggaran'],
+								$unit['id_skpd'],
+								$bulan
+							), ARRAY_A);						
+
+						foreach ($items as $item) {
+							$nilai_realisasi_fisik += ($item['nilai_realisasi_fisik']/100)*$item['pagu_simda'];
+						}
+
 						$nama_page = 'RFK '.$unit['nama_skpd'].' '.$unit['kode_skpd'].' | '.$input['tahun_anggaran'];
 						$custom_post = get_page_by_title($nama_page, OBJECT, 'page');
 						$link = $this->get_link_post($custom_post);
@@ -239,7 +246,8 @@ $body .='
 			    			'rak' => $rfk['rak'],
 			    			'target_rak' => $this->pembulatan($target_rak),
 			    			'deviasi' => $this->pembulatan($deviasi),
-			    			'realisasi_fisik' => $this->pembulatan($rfk['realisasi_fisik']),
+			    			// 'realisasi_fisik' => $this->pembulatan($rfk['realisasi_fisik']),
+			    			'nilai_realisasi_fisik' => $nilai_realisasi_fisik,
 			    			'cat_ka_adbang' => $rfk['cat_ka_adbang'],
 			    			'last_update' => $latest_update,
 			    			'data_sub_unit' => '',
@@ -253,7 +261,8 @@ $body .='
 			    		$data_all['capaian'][]=$rfk['capaian'];
 			    		$data_all['total_rak_simda']+=$rfk['rak'];
 			    		$data_all['target_rak'][]=$target_rak;
-			    		$data_all['realisasi_fisik'][]=$rfk['realisasi_fisik'];
+			    		// $data_all['realisasi_fisik'][]=$rfk['realisasi_fisik'];
+			    		$data_all['total_nilai_realsasi_fisik'] += $nilai_realisasi_fisik;
 			    		$data_all['deviasi'][]=$deviasi;
 					}
 
@@ -263,7 +272,8 @@ $body .='
 		    		$pagu_simda_sub_unit=0;
 		    		$realisasi_anggaran_sub_unit=0;
 		    		$rak_sub_unit=0;
-		    		$realisasi_fisik_sub_unit=array();
+		    		// $realisasi_fisik_sub_unit=array();
+		    		$nilai_realisasi_fisik_sub_unit=0;
 		    		$data_all_sub_unit = array();
 		    		
 		    		foreach ($sub_units as $key => $sub_unit) {
@@ -274,35 +284,14 @@ $body .='
 								IFNULL(SUM(k.pagu_simda),0) pagu_simda, 
 								IFNULL(SUM(TRIM(d.realisasi_anggaran)+0),0) realisasi_keuangan,
 								IFNULL((SUM(d.realisasi_anggaran)/SUM(k.pagu_simda)*100),100) capaian,
-								e.rak,
-								e.realisasi_fisik,
+								SUM(IFNULL(d.rak,0)) rak,
+								AVG(IFNULL(d.realisasi_fisik,0)) realisasi_fisik,
 								f.cat_ka_adbang
 							FROM data_sub_keg_bl k 
 							LEFT JOIN data_rfk d 
 								ON d.id_skpd=k.id_sub_skpd AND 
 								d.kode_sbl=k.kode_sbl AND 
 								d.tahun_anggaran=k.tahun_anggaran
-							LEFT JOIN (
-								SELECT 
-										ds.tahun_anggaran,
-										ds.id_sub_skpd,
-										dr.bulan,
-										SUM(IFNULL(dr.rak,0)) rak,
-										AVG(IFNULL(dr.realisasi_fisik,0)) realisasi_fisik 
-									FROM data_sub_keg_bl ds
-									LEFT JOIN data_rfk dr
-										ON dr.id_skpd=ds.id_sub_skpd AND
-										dr.kode_sbl=ds.kode_sbl AND
-										dr.tahun_anggaran=ds.tahun_anggaran
-									WHERE
-										ds.tahun_anggaran=".$input['tahun_anggaran']." AND
-										ds.id_sub_skpd=".$sub_unit['id_skpd']." AND
-										dr.bulan=".$bulan." AND
-										ds.pagu_simda > 0
-							) e ON
-									e.id_sub_skpd=k.id_sub_skpd AND 
-									e.bulan=d.bulan and
-									e.tahun_anggaran=k.tahun_anggaran
 							LEFT JOIN (
 								SELECT
 									id_skpd,
@@ -318,7 +307,8 @@ $body .='
 								f.id_skpd=k.id_sub_skpd AND 
 								f.bulan=d.bulan AND 
 								f.tahun_anggaran=k.tahun_anggaran
-							WHERE 
+							WHERE
+								k.pagu_simda > 0 AND
 								k.tahun_anggaran=%d AND 
 								k.id_sub_skpd=%d AND 
 								k.active=1 AND 
@@ -329,11 +319,38 @@ $body .='
 							), ARRAY_A);
 
 			    		foreach ($data_rfk as $key => $rfk) {
+
+							$nilai_realisasi_fisik = 0;
+							$items = $wpdb->get_results($wpdb->prepare("
+								SELECT 
+									IFNULL(d.realisasi_fisik,0) nilai_realisasi_fisik,
+									IFNULL(k.pagu_simda,0) pagu_simda
+								FROM data_sub_keg_bl k 
+								LEFT JOIN data_rfk d 
+									ON d.id_skpd=k.id_sub_skpd AND 
+									d.kode_sbl=k.kode_sbl AND 
+									d.tahun_anggaran=k.tahun_anggaran
+								WHERE
+									k.pagu_simda > 0 AND
+									k.tahun_anggaran=%d AND 
+									k.id_sub_skpd=%d AND 
+									k.active=1 AND 
+									d.bulan=%d",
+									$input['tahun_anggaran'],
+									$sub_unit['id_skpd'],
+									$bulan
+								), ARRAY_A);						
+
+							foreach ($items as $item) {
+								$nilai_realisasi_fisik += ($item['nilai_realisasi_fisik']/100)*$item['pagu_simda'];
+							}
+
 							$pagu_sub_unit+=$rfk['pagu'];
 							$pagu_simda_sub_unit+=$rfk['pagu_simda'];
 							$realisasi_anggaran_sub_unit+=$rfk['realisasi_keuangan'];
 							$rak_sub_unit+=$rfk['rak'];
-							$realisasi_fisik_sub_unit[]=$rfk['realisasi_fisik'];
+							// $realisasi_fisik_sub_unit[]=$rfk['realisasi_fisik'];
+							$nilai_realisasi_fisik_sub_unit+=$nilai_realisasi_fisik;
 
 							$latest_update_sub_unit = $this->get_date_rfk_update(array('id_skpd'=>$sub_unit['id_skpd'], 'tahun_anggaran' => $input['tahun_anggaran'], 'bulan'=>$bulan, 'type'=>'sub_unit'));
 							$nama_page_sub = 'RFK '.$sub_unit['nama_skpd'].' '.$sub_unit['kode_skpd'].' | '.$input['tahun_anggaran'];
@@ -345,6 +362,7 @@ $body .='
 
 							$target_rak_sub_unit = !empty($rfk['pagu_simda']) ? ($rfk['rak'] / $rfk['pagu_simda']) * 100 : 100;
 							$deviasi_sub_unit = !empty($target_rak_sub_unit) ? (($target_rak_sub_unit-$rfk['capaian'])/$target_rak_sub_unit) * 100 : 100;
+							$realisasi_fisik = !empty($rfk['pagu_simda']) ? $nilai_realisasi_fisik/$rfk['pagu_simda']*100 : 100;
 
 							$data_all_sub_unit[] = array(
 				    			'id_skpd' => $sub_unit['id_skpd'],
@@ -358,7 +376,9 @@ $body .='
 				    			'rak' => $rfk['rak'],
 				    			'target_rak' => $this->pembulatan($target_rak_sub_unit),
 				    			'deviasi' => $this->pembulatan($deviasi_sub_unit),
-				    			'realisasi_fisik' => $this->pembulatan($rfk['realisasi_fisik']),
+				    			// 'realisasi_fisik' => $this->pembulatan($rfk['realisasi_fisik']),
+				    			'realisasi_fisik' => $this->pembulatan($realisasi_fisik),
+				    			'nilai_realisasi_fisik' => $nilai_realisasi_fisik,
 			    				'cat_ka_adbang' => $rfk['cat_ka_adbang'],
 				    			'last_update' => $latest_update_sub_unit,
 				    			'url_sub_unit' => $link.'&bulan='.$bulan
@@ -367,6 +387,7 @@ $body .='
 							$data_all['total_rka_sipd']+=$rfk['pagu'];
 				    		$data_all['total_dpa_sipd']+=$rfk['pagu_simda'];
 				    		$data_all['total_realisasi_keuangan']+=$rfk['realisasi_keuangan'];
+				    		$data_all['total_nilai_realsasi_fisik']+=$nilai_realisasi_fisik;
 				    		$data_all['total_rak_simda']+=$rfk['rak'];
 						}
 		    		}
@@ -430,7 +451,7 @@ $body .='
 		    				$input['tahun_anggaran']
 		    			), ARRAY_A);
 
-		    		// die($wpdb->last_query);
+		    		$realisasi_fisik_sub_unit = !empty($pagu_simda_sub_unit) ? $this->pembulatan($nilai_realisasi_fisik_sub_unit/$pagu_simda_sub_unit*100) : 100;
 		    		$data_all['data'][] = array(
 			    			'id_skpd' => $unit['id_skpd'],
 			    			'kode_skpd' => $unit['kode_skpd'],
@@ -441,7 +462,9 @@ $body .='
 			    			'capaian' => $this->pembulatan($capaian),
 			    			'rak' => $rak_sub_unit,
 			    			'target_rak' => $this->pembulatan($target_rak),
-			    			'realisasi_fisik' => !empty($realisasi_fisik_sub_unit) ? $this->pembulatan(array_sum($realisasi_fisik_sub_unit)/count($realisasi_fisik_sub_unit)) : 0,
+			    			// 'realisasi_fisik' => !empty($realisasi_fisik_sub_unit) ? $this->pembulatan(array_sum($realisasi_fisik_sub_unit)/count($realisasi_fisik_sub_unit)) : 0,
+			    			'realisasi_fisik' => $this->pembulatan($realisasi_fisik_sub_unit),
+			    			'nilai_realisasi_fisik' => $nilai_realisasi_fisik_sub_unit,
 			    			'deviasi' => $this->pembulatan($deviasi),
 			    			'last_update' => $latest_update,
 			    			'data_sub_unit' => $data_all_sub_unit,
@@ -449,7 +472,7 @@ $body .='
 			    			'url_unit' => '',
 			    			'act' => '<a href="javascript:void(0)" onclick="showsubunit(\''.$unit['id_skpd'].'\', \''.$bulan.'\', \''.$input['tahun_anggaran'].'\')">'.$unit['nama_skpd'].'</a>'
 			    	);
-			    	$data_all['realisasi_fisik'][]=!empty($realisasi_fisik_sub_unit) ? (array_sum($realisasi_fisik_sub_unit)/count($realisasi_fisik_sub_unit)) : 0;
+			    	// $data_all['realisasi_fisik'][]=!empty($realisasi_fisik_sub_unit) ? (array_sum($realisasi_fisik_sub_unit)/count($realisasi_fisik_sub_unit)) : 0;
 		    	}
 			}
 
@@ -491,6 +514,8 @@ $body .='
 			$last_update = $update[2]."-".$update[1]."-".$update[0];
 		}
 
+		// $realisasi_fisik = $value['realisasi_fisik'];
+		$realisasi_fisik = !empty($value['dpa_sipd']) ? $this->pembulatan(($value['nilai_realisasi_fisik']/$value['dpa_sipd'])*100) : 100;
 		$body.='
 	    	<tr data-idskpd="'.$idskpd.'">
 			    <td class="atas kanan bawah kiri text_tengah" data-search="'.$value['kode_skpd'].'">'.$value['kode_skpd'].'</td>
@@ -501,7 +526,7 @@ $body .='
 			    <td class="atas kanan bawah text_tengah">'.$value['capaian'].'</td>
 			    <td class="atas kanan bawah text_tengah" data="'.$value['rak'].'">'.$value['target_rak'].'</td>
 			    <td class="atas kanan bawah text_tengah">'.$value['deviasi'].'</td>
-			    <td class="atas kanan bawah text_tengah">'.$value['realisasi_fisik'].'</td>
+			    <td class="atas kanan bawah text_tengah" data-nilai-realisasi-fisik="'.$value['nilai_realisasi_fisik'].'">'.$realisasi_fisik.'</td>
 			    <td class="atas kanan bawah text_tengah '.$background.'" data-order="'.$last_update.'">'.$value['last_update'].'  '.$event.'</td>
 			    <td class="atas kanan bawah text_tengah '.$catatan_rfk_class.'" data-content="'.$value['cat_ka_adbang'].'" contenteditable="'.$editable.'">'.$value['cat_ka_adbang'].'</td>
 			</tr>
@@ -515,6 +540,10 @@ $body .='
 	$total_rak_simda = $data_all['total_rak_simda'];
 	$target_rak_simda = !empty($total_dpa_sipd) ? ($total_rak_simda/$total_dpa_sipd)*100 : 100;
 	$deviasi = !empty($target_rak_simda) ? (($target_rak_simda-$capaian)/$target_rak_simda)*100 : 100;
+	$realisasi_fisik_pemda = !empty($data_all['total_dpa_sipd']) ? ($data_all['total_nilai_realsasi_fisik']/$data_all['total_dpa_sipd'])*100 : 100;
+
+
+	// <th class="kanan bawah text_blok total-realisasi-fisik text_tengah">'.$this->pembulatan(array_sum($data_all['realisasi_fisik'])/count($data_all['realisasi_fisik'])).'</th>
 
 	$body .='</tbody>
 				<tfoot>
@@ -526,7 +555,7 @@ $body .='
 					    <th class="kanan bawah text_tengah text_blok">'.$this->pembulatan($capaian).'</th>
 					    <th class="kanan bawah text_tengah text_blok" data-rak="'.$data_all['total_rak_simda'].'">'.$this->pembulatan($target_rak_simda).'</th>
 					    <th class="kanan bawah text_tengah text_blok">'.$this->pembulatan($deviasi).'</th>
-					    <th class="kanan bawah text_blok total-realisasi-fisik text_tengah">'.$this->pembulatan(array_sum($data_all['realisasi_fisik'])/count($data_all['realisasi_fisik'])).'</th>
+					    <th class="kanan bawah text_blok total-realisasi-fisik text_tengah data-nilai-realisasi-fisik-pemda="'.trim($data_all['total_nilai_realsasi_fisik']).'">'.$this->pembulatan($realisasi_fisik_pemda).'</th>
 						<th class="atas kanan bawah text_tengah"></th>
 						<th class="atas kanan bawah text_tengah"></th>
 					</tr>
@@ -757,6 +786,7 @@ $body .='
 									<?php }else{ ?>
 										var link_sub_unit = data_sub_unit.nama_skpd;
 									<?php } ?>
+
 									html += ''
 										+'<tr data-idskpd="'+data_sub_unit.id_skpd+'">'
 											+ '<td class="atas kanan bawah kiri text_tengah">'+data_sub_unit.kode_skpd+'</td>'
@@ -767,7 +797,7 @@ $body .='
 											+ '<td class="kanan bawah text_tengah">'+data_sub_unit.capaian+'</td>'
 											+ '<td class="kanan bawah text_tengah">'+data_sub_unit.target_rak+'</td>'
 											+ '<td class="kanan bawah text_tengah">'+data_sub_unit.deviasi+'</td>'
-											+ '<td class="kanan bawah text_tengah">'+data_sub_unit.realisasi_fisik+'</td>'
+											+ '<td class="kanan bawah text_tengah" data-nilai-realisasi-fisik='+data_sub_unit.nilai_realisasi_fisik+'>'+data_sub_unit.realisasi_fisik+'</td>'
 											+ '<td class="kanan bawah text_tengah">'+data_sub_unit.last_update+' '+'</br></br><span class="badge badge-danger simpan-per-unit hide-excel">SIMPAN</span>'+'</td>'
 											+ '<td class="kanan bawah text_tengah catatan_rfk_sub_unit" contenteditable="true" data-content="'+data_sub_unit.cat_ka_adbang+'">'+data_sub_unit.cat_ka_adbang+'</td>'
 										+'</tr>'
