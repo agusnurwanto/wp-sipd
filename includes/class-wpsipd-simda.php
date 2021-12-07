@@ -542,9 +542,15 @@ class Wpsipd_Simda
 				$kd_bidang = $x_mapping_skpd[1];
 			}
 		}
-		$cek_unit = $this->CurlSimda(array(
-			'query' => 'select * from ref_unit where kd_urusan='.$kd_urusan.' and kd_bidang='.$kd_bidang.' and nm_unit=\''.$nama_unit.'\''
-		));
+		if(!empty($x_mapping_skpd[2])){
+			$cek_unit = $this->CurlSimda(array(
+				'query' => 'select * from ref_unit where kd_urusan='.$kd_urusan.' and kd_bidang='.$kd_bidang.' and kd_unit='.$x_mapping_skpd[2]
+			));
+		}else{
+			$cek_unit = $this->CurlSimda(array(
+				'query' => 'select * from ref_unit where kd_urusan='.$kd_urusan.' and kd_bidang='.$kd_bidang.' and nm_unit=\''.$nama_unit.'\''
+			));
+		}
 		if(empty($cek_unit)){
 			if(!empty($x_mapping_skpd[2])){
 				$no_unit = $x_mapping_skpd[2];
@@ -582,9 +588,15 @@ class Wpsipd_Simda
 		$no_sub_unit = 1;
 
 		if(empty($opsi['only_unit'])){
-			$cek_sub_unit = $this->CurlSimda(array(
-			'query' => 'select * from ref_sub_unit where kd_urusan='.$kd_urusan.' and kd_bidang='.$kd_bidang.' and kd_unit='.$no_unit.' and nm_sub_unit=\''.$opsi['nama_skpd'].'\''
-			));
+			if(!empty($x_mapping_skpd[3])){
+				$cek_sub_unit = $this->CurlSimda(array(
+				'query' => 'select * from ref_sub_unit where kd_urusan='.$kd_urusan.' and kd_bidang='.$kd_bidang.' and kd_unit='.$no_unit.' and kd_sub='.$x_mapping_skpd[3]
+				));
+			}else{
+				$cek_sub_unit = $this->CurlSimda(array(
+				'query' => 'select * from ref_sub_unit where kd_urusan='.$kd_urusan.' and kd_bidang='.$kd_bidang.' and kd_unit='.$no_unit.' and nm_sub_unit=\''.$opsi['nama_skpd'].'\''
+				));
+			}
 			if(empty($cek_sub_unit)){
 				if(!empty($x_mapping_skpd[3])){
 					$no_sub_unit = $x_mapping_skpd[3];
@@ -619,7 +631,9 @@ class Wpsipd_Simda
 			}
 		}
 		$kd_sub_unit_simda = $kd_urusan.'.'.$kd_bidang.'.'.$no_unit.'.'.$no_sub_unit;
-		update_option( '_crb_unit_'.$opsi['id_skpd'], $kd_sub_unit_simda );
+		if(empty($x_mapping_skpd[3])){
+			update_option( '_crb_unit_'.$opsi['id_skpd'], $kd_sub_unit_simda );
+		}
 		return $kd_sub_unit_simda;
 	}
 
