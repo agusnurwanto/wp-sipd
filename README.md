@@ -9,7 +9,7 @@ Semoga bermanfaat
 
 ### Chrome extension https://github.com/agusnurwanto/sipd-chrome-extension
 
-Cara pakai plugin:
+### Cara pakai plugin
 - Install wordpress
 - Install plugin ini dan aktifkan
 - Import SQL file tabel.sql untuk membuat tabel tempat menyimpan data yang diambil dari sipd.kemendagri.go.id
@@ -31,7 +31,6 @@ Cara pakai plugin:
 - Tambahkan shortcode `[menu_monev]` pada form user profile Ultimate Member untuk menampilkan url halaman MONEV sesuai user yang login
 
 ### HARUS Update php.ini
-
 Optimasi server apache agar proses pengiriman data dari chrome extension ke server wordpress berjalan lancar (edit file php.ini):
 - max_input_vars = 1000000
 - max_execution_time = 300
@@ -40,11 +39,18 @@ Optimasi server apache agar proses pengiriman data dari chrome extension ke serv
 - post_max_size = 20M
 - **pastikan untuk menghapus kode ; sebagai tanda komentar pada file php.ini, terutama pada configurasi ;max_input_vars. Jika tidak dilakukan maka settingan yang sudah dilakukan akan dianggap sebagai komentar dan tidak dijalankan oleh server apache.**
 
-Permintaan fitur:
+### Cara singkron tahun anggaran baru 2022 ke database SQL Server SIMDA
+- Sesuaikan tahun anggaran baru di form **SIPD Options > Tahun Anggaran SIPD**
+- Ubah database SIMDA sesuai database tahun yang baru di halaman **SIMDA Options > Database SIMDA**
+- Tambahkan database SIMDA yang baru di database_simda dan lakukan testing koneksi di aplikasi https://github.com/agusnurwanto/SIMDA-API-PHP
+- Lakukan singkroniasi data perangkat daerah menggunakan akun admin daerah atau TAPD pemda di SIPD kemendagri
+- Lakukan cek kembali mapping SKPD di halaman **SIMDA Options**. Jika di tabel ta_sub_unit belum dibuat data SKPD-nya, maka perlu dibuat dulu manual atau bisa digenerate dengan mengaktifkan opsi di form **Integrasi Sub Unit SIMDA sesuai SIPD**
+- Setelah dipastikan data mapping SKPD sudah sesuai antara di SIPD dan SIMDA, baru melakukan singkronisasi RKA
+
+### Permintaan fitur baru
 - User umum bisa request penambahan fitur dengan membuat issue
 
 ### Video Tutorial 
-
 - Progress Pengembangan Aplikasi SIPD Lokal, Export RKA Semua Kegiatan https://youtu.be/t84n2jZUfFo
 - Integrasi data SIPD ke SIMDA keuangan https://youtu.be/vFOsAlnxmTo
 - Setting Koneksi SIMDA API PHP menggunakan ODBC di Windows https://www.youtube.com/watch?v=ojc6Dr6fZ8I

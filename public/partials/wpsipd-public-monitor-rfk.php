@@ -410,7 +410,7 @@ foreach ($units as $k => $unit):
 		        <td class="text_tengah kanan bawah">&nbsp;</td>
 		        <td class="text_tengah kanan bawah">&nbsp;</td>
 		        <td class="text_tengah kanan bawah">&nbsp;</td>
-		        <td class="kanan bawah text_blok" colspan="12">'.$urusan['nama'].'</td>
+		        <td class="kanan bawah text_blok nama_urusan" colspan="12">'.$urusan['nama'].'</td>
 		    </tr>
 		';
 		foreach ($urusan['data'] as $kd_bidang => $bidang) {
@@ -658,13 +658,13 @@ foreach ($units as $k => $unit):
 		            <th style="padding: 0; border: 0; width:120px"></th>
 		            <th style="padding: 0; border: 0; width:120px"></th>
 		            <th style="padding: 0; border: 0; width:120px"></th>
-		            <th style="padding: 0; border: 0; width:140px"></th>
+		            <th style="padding: 0; border: 0; width:140px" class="thead-nilai-fisik"></th>
 		            <th style="padding: 0; border: 0; width:120px"></th>
 		            <th style="padding: 0; border: 0; width:120px"></th>
 		            <th style="padding: 0; border: 0; width:100px"></th>
 		        </tr>
 			    <tr>
-			        <td colspan="16" style="vertical-align:middle; font-weight:bold; border: 0; font-size: 13px;">
+			        <td colspan="16" style="vertical-align:middle; font-weight:bold; border: 0; font-size: 13px;" class="nama_skpd">
 			            Unit Organisasi : '.$unit_induk[0]['kode_skpd'].'&nbsp;'.$unit_induk[0]['nama_skpd'].'<br/>
 			            Sub Unit Organisasi : '.$unit['kode_skpd'].'&nbsp;'.$unit['nama_skpd'].'
 			        </td>
@@ -679,7 +679,7 @@ foreach ($units as $k => $unit):
 			        <td class="atas kanan bawah text_tengah text_blok">RAK SIMDA ( % )</td>
 			        <td class="atas kanan bawah text_tengah text_blok">Deviasi ( % )</td>
 			        <td class="atas kanan bawah text_tengah text_blok">Realisasi Fisik ( % )</td>
-			        <td class="atas kanan bawah text_tengah text_blok">Nilai Realisasi Fisik ( Rp )</td>
+			        <td class="atas kanan bawah text_tengah text_blok thead-nilai-fisik">Nilai Realisasi Fisik ( Rp )</td>
 			        <td class="atas kanan bawah text_tengah text_blok">Sumber Dana</td>
 			        <td class="atas kanan bawah text_tengah text_blok">Keterangan / Permasalahan</td>
 			        <td class="atas kanan bawah text_tengah text_blok">Catatan Verifikator</td>
@@ -697,8 +697,8 @@ foreach ($units as $k => $unit):
 			        <td class="atas kanan bawah text_tengah text_blok">10 = (9 / 8) * 100</td>
 			        <td class="atas kanan bawah text_tengah text_blok">11</td>
 			        <td class="atas kanan bawah text_tengah text_blok">12 = ((11-10)/11) * 100</td>
-			        <td class="atas kanan bawah text_tengah text_blok">13 = (13 / 8) * 100</td>
-			        <td class="atas kanan bawah text_tengah text_blok">14 = (8 * 13) / 100</td>
+			        <td class="atas kanan bawah text_tengah text_blok">13 = (14 / 8) * 100</td>
+			        <td class="atas kanan bawah text_tengah text_blok thead-nilai-fisik">14 = (8 * 13) / 100</td>
 			        <td class="atas kanan bawah text_tengah text_blok">15</td>
 			        <td class="atas kanan bawah text_tengah text_blok">16</td>
 			        <td class="atas kanan bawah text_tengah text_blok">17</td>
@@ -818,7 +818,7 @@ if(!current_user_can('administrator')){
 	    			total_bidang = Math.round((total_parent[i].total_nilai_bidang/total_parent[i].total_simda)*10000)/100;
     			}
 	    		jQuery('tr[data-kode="'+i+'"]').find('.bidang-realisasi-fisik').html('<span>'+total_bidang+'</span>');
-	    		jQuery('tr[data-kode="'+i+'"]').find('.bidang-nilai-realisasi-fisik').html('<span>'+formatRupiah(total_parent[i].total_nilai_bidang)+'</span>');
+	    		jQuery('tr[data-kode="'+i+'"]').find('.bidang-nilai-realisasi-fisik').html('<span>'+formatRupiah(Math.round(total_parent[i].total_nilai_bidang))+'</span>');
 	    	}else if(typeof(total_parent[i].total_program) != 'undefined'){
     			var total_program = 0;
     			if(total_parent[i].total_program_s != 0){
@@ -826,7 +826,7 @@ if(!current_user_can('administrator')){
 	    			total_program = Math.round((total_parent[i].total_nilai_program/total_parent[i].total_simda)*10000)/100;
 	    		}
 	    		jQuery('tr[data-kode="'+i+'"]').find('.program-realisasi-fisik').html('<span>'+total_program+'</span>');
-	    		jQuery('tr[data-kode="'+i+'"]').find('.program-nilai-realisasi-fisik').html('<span>'+formatRupiah(total_parent[i].total_nilai_program)+'</span>');
+	    		jQuery('tr[data-kode="'+i+'"]').find('.program-nilai-realisasi-fisik').html('<span>'+formatRupiah(Math.round(total_parent[i].total_nilai_program))+'</span>');
 	    	}else if(typeof(total_parent[i].total_kegiatan) != 'undefined'){
     			var total_kegiatan = 0;
     			if(total_parent[i].total_kegiatan_s != 0){
@@ -834,7 +834,7 @@ if(!current_user_can('administrator')){
 	    			total_kegiatan = Math.round((total_parent[i].total_nilai_kegiatan/total_parent[i].total_simda)*10000)/100;
 	    		}
 	    		jQuery('tr[data-kode="'+i+'"]').find('.kegiatan-realisasi-fisik').html('<span>'+total_kegiatan+'</span>');
-	    		jQuery('tr[data-kode="'+i+'"]').find('.kegiatan-nilai-realisasi-fisik').html('<span>'+formatRupiah(total_parent[i].total_nilai_kegiatan)+'</span>');
+	    		jQuery('tr[data-kode="'+i+'"]').find('.kegiatan-nilai-realisasi-fisik').html('<span>'+formatRupiah(Math.round(total_parent[i].total_nilai_kegiatan))+'</span>');
 	    	}
     	}
     	var end = 0;
@@ -843,7 +843,7 @@ if(!current_user_can('administrator')){
     		end = Math.round((total_nilai/total_simda)*10000)/100;
     	}
     	jQuery('.total-realisasi-fisik').text(end);
-    	jQuery('.total-nilai-realisasi-fisik').text(formatRupiah(total_nilai));
+    	jQuery('.total-nilai-realisasi-fisik').text(formatRupiah(Math.round(total_nilai)));
     }
 	var _url_asli = window.location.href;
     var url = new URL(_url_asli);
@@ -887,6 +887,28 @@ if(!current_user_can('administrator')){
     	}
 	}
 
+	function tampil_nilai_fisik(){
+		if(jQuery('#tampil-nilai-fisik').is(':checked')){
+    		jQuery('.nama_urusan').attr('colspan', 12);
+    		jQuery('.nama_skpd').attr('colspan', 16);
+    		jQuery('.thead-nilai-fisik').show();
+    		jQuery('.total-nilai-realisasi-fisik').show();
+    		jQuery('.nilai-realisasi-fisik').show();
+    		jQuery('.kegiatan-nilai-realisasi-fisik').show();
+    		jQuery('.program-nilai-realisasi-fisik').show();
+    		jQuery('.bidang-nilai-realisasi-fisik').show();
+    	}else{
+    		jQuery('.nama_urusan').attr('colspan', 11);
+    		jQuery('.nama_skpd').attr('colspan', 15);
+    		jQuery('.thead-nilai-fisik').hide();
+    		jQuery('.total-nilai-realisasi-fisik').hide();
+    		jQuery('.nilai-realisasi-fisik').hide();
+    		jQuery('.kegiatan-nilai-realisasi-fisik').hide();
+    		jQuery('.program-nilai-realisasi-fisik').hide();
+    		jQuery('.bidang-nilai-realisasi-fisik').hide();
+    	}
+	}
+
 	var extend_action = ''
 		+'<div style="margin-top: 20px;">'
 			+'<label style="display:none;">Sumber Pagu Indikatif: '
@@ -905,16 +927,17 @@ if(!current_user_can('administrator')){
 			+'</label>'
 			+'<button style="margin-left: 20px;" class="button button-primary" id="simpan-rfk">Simpan Data</button>'
 			+'<?php echo $reset_rfk; ?>'
-			+'<label style="margin-left: 20px;"><input type="checkbox" id="tampil-detail-fisik" onclick="tampil_detail_fisik();"> Tampilkan Detail Realisasi Fisik</label>'
+			+'<label style="margin-left: 20px;"><input type="checkbox" id="tampil-detail-fisik" checked onclick="tampil_detail_fisik();"> Tampilkan Detail Realisasi Fisik</label>'
+			+'<label style="margin-left: 20px;"><input type="checkbox" id="tampil-nilai-fisik" onclick="tampil_nilai_fisik();"> Tampilkan Nilai Realisasi Fisik</label>'
 		+'</div>';
 	jQuery(document).ready(function(){
 	    jQuery('#action-sipd').append(extend_action);
 	    jQuery('#pilih_sumber_pagu').val(+<?php echo $sumber_pagu; ?>);
 	    jQuery('#pilih_bulan').val(+<?php echo $bulan; ?>);
 		
-		// setTimeout(function(){
-		// 	tampil_detail_fisik();
-		// }, 1000);
+		setTimeout(function(){
+			tampil_nilai_fisik();
+		}, 1000);
 	    jQuery('#pilih_sumber_pagu').on('change', function(){
 	    	var val = +jQuery(this).val();
 	    	if(val > 0){

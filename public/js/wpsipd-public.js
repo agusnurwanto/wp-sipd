@@ -230,6 +230,11 @@ function formatRupiah(angka, prefix){
 		cek_minus = true;
 	}
 	try {
+		if(typeof angka == 'number'){
+			angka = Math.round(angka*100)/100;
+			angka += '';
+			angka = angka.replace(/\./g, ',').toString();
+		}
 		// if(typeof angka == 'number'){
 		// 	angka += '';
 		// 	var number_string = angka.replace(/\./g, ',').toString();
