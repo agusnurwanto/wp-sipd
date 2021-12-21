@@ -197,6 +197,31 @@ class Wpsipd_Public
 		die(json_encode($ret));
 	}
 
+	public function get_skpd(){
+		global $wpdb;
+		$ret = array(
+			'action'	=> $_POST['action'],
+			'run'	=> $_POST['run'],
+			'status'	=> 'success',
+			'message'	=> 'Berhasil get SKPD!'
+		);
+		if (!empty($_POST)) {
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+				$data_ssh = $wpdb->get_results($wpdb->prepare("
+					SELECT 
+						* 
+					from data_unit 
+					where tahun_anggaran=%d
+						and active=1", $_POST['tahun_anggaran']), ARRAY_A);
+				$ret['data'] = $data_ssh;
+			} else {
+				$ret['status'] = 'error';
+				$ret['message'] = 'APIKEY tidak sesuai!';
+			}
+		}
+		die(json_encode($ret));
+	}
+
 	public function get_ssh(){
 		global $wpdb;
 		$ret = array(
