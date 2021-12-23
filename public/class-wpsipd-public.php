@@ -207,13 +207,26 @@ class Wpsipd_Public
 		);
 		if (!empty($_POST)) {
 			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
-				$data_ssh = $wpdb->get_results($wpdb->prepare("
+				$data_skpd = $wpdb->get_results($wpdb->prepare("
 					SELECT 
 						* 
 					from data_unit 
 					where tahun_anggaran=%d
-						and active=1", $_POST['tahun_anggaran']), ARRAY_A);
-				$ret['data'] = $data_ssh;
+						and active=1", 
+				$_POST['tahun_anggaran']), ARRAY_A);
+				foreach ($data_skpd as $k => $v) {
+					$kode_skpd = explode('.', $v['kode_skpd']);
+					$bidur_1 = $kode_skpd[0].'.'.$kode_skpd[1];
+					$bidur_2 = $kode_skpd[2].'.'.$kode_skpd[3];
+					$bidur_3 = $kode_skpd[4].'.'.$kode_skpd[5];
+					$data_skpd[$k]['bidur__1'] = $bidur_1;
+					$data_skpd[$k]['bidur__2'] = $bidur_2;
+					$data_skpd[$k]['bidur__3'] = $bidur_3;
+					$data_skpd[$k]['bidur1'] = $wpdb->get_var($wpdb->prepare("select nama_bidang_urusan from data_prog_keg where tahun_anggaran=%d and kode_bidang_urusan=%s limit 1", $_POST['tahun_anggaran'], $bidur_1));
+					$data_skpd[$k]['bidur2'] = $wpdb->get_var($wpdb->prepare("select nama_bidang_urusan from data_prog_keg where tahun_anggaran=%d and kode_bidang_urusan=%s limit 1", $_POST['tahun_anggaran'], $bidur_2));
+					$data_skpd[$k]['bidur3'] = $wpdb->get_var($wpdb->prepare("select nama_bidang_urusan from data_prog_keg where tahun_anggaran=%d and kode_bidang_urusan=%s limit 1", $_POST['tahun_anggaran'], $bidur_3));
+				}
+				$ret['data'] = $data_skpd;
 			} else {
 				$ret['status'] = 'error';
 				$ret['message'] = 'APIKEY tidak sesuai!';
