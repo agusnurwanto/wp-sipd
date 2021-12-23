@@ -1852,8 +1852,8 @@ class Wpsipd_Public
 		$str = trim($str);
     	$str = html_entity_decode($str, ENT_QUOTES | ENT_XML1, 'UTF-8');
 		$str = str_replace(
-			array('"', "'",'\\'), 
-			array('petik_dua', 'petik_satu', ''), 
+			array('"', "'",'\\', '&#039'), 
+			array('petik_dua', 'petik_satu', '', 'petik_satu'), 
 			$str
 		);
 		return $str;
@@ -2831,8 +2831,8 @@ class Wpsipd_Public
 						} else {
 							$wpdb->insert('data_rka', $opsi);
 						}
+						// print_r($opsi); print_r($wpdb->last_query);
 					}
-					// print_r($ssh); die();
 				} else if ($ret['status'] != 'error') {
 					// untuk menghapus rka subkeg yang dihapus di perubahan
 					if($_POST['rka'] == 0){
