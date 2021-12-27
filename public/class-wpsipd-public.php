@@ -995,64 +995,67 @@ class Wpsipd_Public
 		);
 		if (!empty($_POST)) {
 			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
-				if (!empty($_POST['data'])) {
-					$data = $_POST['data'];
-					foreach ($data as $k => $v) {
-						$cek = $wpdb->get_var("SELECT id_pendapatan from data_pendapatan where tahun_anggaran=".$_POST['tahun_anggaran']." AND id_pendapatan=" . $v['id_pendapatan'] ." AND id_skpd=".$_POST['id_skpd']);
-						$opsi = array(
-							'created_user' => $v['created_user'],
-							'createddate' => $v['createddate'],
-							'createdtime' => $v['createdtime'],
+				$data = $_POST['data'];
+				$wpdb->update('data_pendapatan', array('active' => 0), array(
+					'tahun_anggaran' => $_POST['tahun_anggaran'],
+					'id_skpd' => $_POST['id_skpd']
+				));
+				foreach ($data as $k => $v) {
+					$cek = $wpdb->get_var($wpdb->prepare("
+						SELECT id_pendapatan 
+						from data_pendapatan 
+						where tahun_anggaran=%d 
+							AND id_pendapatan=%d 
+							AND id_skpd=%d", 
+						$_POST['tahun_anggaran'], $v['id_pendapatan'], $_POST['id_skpd']
+					));
+					$opsi = array(
+						'created_user' => $v['created_user'],
+						'createddate' => $v['createddate'],
+						'createdtime' => $v['createdtime'],
+						'id_pendapatan' => $v['id_pendapatan'],
+						'keterangan' => $v['keterangan'],
+						'kode_akun' => $v['kode_akun'],
+						'nama_akun' => $v['nama_akun'],
+						'nilaimurni' => $v['nilaimurni'],
+						'program_koordinator' => $v['program_koordinator'],
+						'rekening' => $v['rekening'],
+						'skpd_koordinator' => $v['skpd_koordinator'],
+						'total' => $v['total'],
+						'updated_user' => $v['updated_user'],
+						'updateddate' => $v['updateddate'],
+						'updatedtime' => $v['updatedtime'],
+						'uraian' => $v['uraian'],
+						'urusan_koordinator' => $v['urusan_koordinator'],
+						'user1' => $v['user1'],
+						'user2' => $v['user2'],
+						'id_skpd' => $_POST['id_skpd'],
+						'active' => 1,
+						'update_at' => current_time('mysql'),
+						'tahun_anggaran' => $_POST['tahun_anggaran']
+					);
+					if (!empty($cek)) {
+						$wpdb->update('data_pendapatan', $opsi, array(
 							'id_pendapatan' => $v['id_pendapatan'],
-							'keterangan' => $v['keterangan'],
-							'kode_akun' => $v['kode_akun'],
-							'nama_akun' => $v['nama_akun'],
-							'nilaimurni' => $v['nilaimurni'],
-							'program_koordinator' => $v['program_koordinator'],
-							'rekening' => $v['rekening'],
-							'skpd_koordinator' => $v['skpd_koordinator'],
-							'total' => $v['total'],
-							'updated_user' => $v['updated_user'],
-							'updateddate' => $v['updateddate'],
-							'updatedtime' => $v['updatedtime'],
-							'uraian' => $v['uraian'],
-							'urusan_koordinator' => $v['urusan_koordinator'],
-							'user1' => $v['user1'],
-							'user2' => $v['user2'],
-							'id_skpd' => $_POST['id_skpd'],
-							'active' => 1,
-							'update_at' => current_time('mysql'),
-							'tahun_anggaran' => $_POST['tahun_anggaran']
-						);
-						if (!empty($cek)) {
-							$wpdb->update('data_pendapatan', $opsi, array(
-								'id_pendapatan' => $v['id_pendapatan'],
-								'tahun_anggaran' => $_POST['tahun_anggaran'],
-								'id_skpd' => $_POST['id_skpd']
-							));
-						} else {
-							$wpdb->insert('data_pendapatan', $opsi);
-						}
-						// if($v['id_pendapatan'] == '14384'){
-						// 	print_r($opsi); die();
-						// }
+							'tahun_anggaran' => $_POST['tahun_anggaran'],
+							'id_skpd' => $_POST['id_skpd']
+						));
+					} else {
+						$wpdb->insert('data_pendapatan', $opsi);
 					}
-
-					if(
-						get_option('_crb_singkron_simda') == 1
-						&& get_option('_crb_tahun_anggaran_sipd') == $_POST['tahun_anggaran']
-					){
-						$debug = false;
-						if(get_option('_crb_singkron_simda_debug') == 1){
-							$debug = true;
-						}
-						$this->simda->singkronSimdaPendapatan(array('return' => $debug));
-					}
-					// print_r($ssh); die();
-				} else {
-					$ret['status'] = 'error';
-					$ret['message'] = 'Format Pendapatan Salah!';
 				}
+
+				if(
+					get_option('_crb_singkron_simda') == 1
+					&& get_option('_crb_tahun_anggaran_sipd') == $_POST['tahun_anggaran']
+				){
+					$debug = false;
+					if(get_option('_crb_singkron_simda_debug') == 1){
+						$debug = true;
+					}
+					$this->simda->singkronSimdaPendapatan(array('return' => $debug));
+				}
+				// print_r($ssh); die();
 			} else {
 				$ret['status'] = 'error';
 				$ret['message'] = 'APIKEY tidak sesuai!';
@@ -1073,61 +1076,71 @@ class Wpsipd_Public
 		);
 		if (!empty($_POST)) {
 			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
-				if (!empty($_POST['data'])) {
-					$data = $_POST['data'];
-					foreach ($data as $k => $v) {
-						$cek = $wpdb->get_var("SELECT id_pembiayaan from data_pembiayaan where tahun_anggaran=".$_POST['tahun_anggaran']." AND id_pembiayaan=" . $v['id_pembiayaan']);
-						$opsi = array(
-							'created_user' => $v['created_user'],
-							'createddate' => $v['createddate'],
-							'createdtime' => $v['createdtime'],
+				$data = $_POST['data'];
+				$wpdb->update('data_pembiayaan', array('active' => 0), array(
+					'tahun_anggaran' => $_POST['tahun_anggaran'],
+					'id_skpd' => $_POST['id_skpd'],
+					'type' => $v['type']
+				));
+				foreach ($data as $k => $v) {
+					$cek = $wpdb->get_var($wpdb->prepare("
+						SELECT id_pembiayaan 
+						from data_pembiayaan 
+						where tahun_anggaran=%d
+							AND id_pembiayaan=%d
+							AND id_skpd=%d
+							AND type=%s",
+						$_POST['tahun_anggaran'], $v['id_pembiayaan'], $_POST['id_skpd'], $v['type']
+					));
+					$opsi = array(
+						'created_user' => $v['created_user'],
+						'createddate' => $v['createddate'],
+						'createdtime' => $v['createdtime'],
+						'id_pembiayaan' => $v['id_pembiayaan'],
+						'keterangan' => $v['keterangan'],
+						'kode_akun' => $v['kode_akun'],
+						'nama_akun' => $v['nama_akun'],
+						'nilaimurni' => $v['nilaimurni'],
+						'program_koordinator' => $v['program_koordinator'],
+						'rekening' => $v['rekening'],
+						'skpd_koordinator' => $v['skpd_koordinator'],
+						'total' => $v['total'],
+						'updated_user' => $v['updated_user'],
+						'updateddate' => $v['updateddate'],
+						'updatedtime' => $v['updatedtime'],
+						'uraian' => $v['uraian'],
+						'urusan_koordinator' => $v['urusan_koordinator'],
+						'type' => $v['type'],
+						'user1' => $v['user1'],
+						'user2' => $v['user2'],
+						'id_skpd' => $_POST['id_skpd'],
+						'active' => 1,
+						'update_at' => current_time('mysql'),
+						'tahun_anggaran' => $_POST['tahun_anggaran']
+					);
+					if (!empty($cek)) {
+						$wpdb->update('data_pembiayaan', $opsi, array(
 							'id_pembiayaan' => $v['id_pembiayaan'],
-							'keterangan' => $v['keterangan'],
-							'kode_akun' => $v['kode_akun'],
-							'nama_akun' => $v['nama_akun'],
-							'nilaimurni' => $v['nilaimurni'],
-							'program_koordinator' => $v['program_koordinator'],
-							'rekening' => $v['rekening'],
-							'skpd_koordinator' => $v['skpd_koordinator'],
-							'total' => $v['total'],
-							'updated_user' => $v['updated_user'],
-							'updateddate' => $v['updateddate'],
-							'updatedtime' => $v['updatedtime'],
-							'uraian' => $v['uraian'],
-							'urusan_koordinator' => $v['urusan_koordinator'],
+							'tahun_anggaran' => $_POST['tahun_anggaran'],
 							'type' => $v['type'],
-							'user1' => $v['user1'],
-							'user2' => $v['user2'],
-							'id_skpd' => $_POST['id_skpd'],
-							'active' => 1,
-							'update_at' => current_time('mysql'),
-							'tahun_anggaran' => $_POST['tahun_anggaran']
-						);
-						if (!empty($cek)) {
-							$wpdb->update('data_pembiayaan', $opsi, array(
-								'id_pembiayaan' => $v['id_pembiayaan'],
-								'tahun_anggaran' => $_POST['tahun_anggaran']
-							));
-						} else {
-							$wpdb->insert('data_pembiayaan', $opsi);
-						}
+							'id_skpd' => $_POST['id_skpd']
+						));
+					} else {
+						$wpdb->insert('data_pembiayaan', $opsi);
 					}
-
-					if(
-						get_option('_crb_singkron_simda') == 1
-						&& get_option('_crb_tahun_anggaran_sipd') == $_POST['tahun_anggaran']
-					){
-						$debug = false;
-						if(get_option('_crb_singkron_simda_debug') == 1){
-							$debug = true;
-						}
-						$this->simda->singkronSimdaPembiayaan(array('return' => $debug));
-					}
-					// print_r($ssh); die();
-				} else {
-					$ret['status'] = 'error';
-					$ret['message'] = 'Format Pembiayaan Salah!';
 				}
+
+				if(
+					get_option('_crb_singkron_simda') == 1
+					&& get_option('_crb_tahun_anggaran_sipd') == $_POST['tahun_anggaran']
+				){
+					$debug = false;
+					if(get_option('_crb_singkron_simda_debug') == 1){
+						$debug = true;
+					}
+					$this->simda->singkronSimdaPembiayaan(array('return' => $debug));
+				}
+				// print_r($ssh); die();
 			} else {
 				$ret['status'] = 'error';
 				$ret['message'] = 'APIKEY tidak sesuai!';
