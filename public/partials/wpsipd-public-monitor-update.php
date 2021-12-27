@@ -65,6 +65,7 @@ foreach ($kode_rek as $rek) {
 				from '.$table.' 
 				where '.$where
 			, ARRAY_A);
+
 			$update_at = $wpdb->get_row('
 				select 
 					update_at

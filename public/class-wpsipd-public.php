@@ -2275,6 +2275,10 @@ class Wpsipd_Public
 						'tahun_anggaran' => $_POST['tahun_anggaran'],
 						'kode_sbl' => $sub['kode_sbl']
 					));
+                                        $wpdb->update('data_rka', array( 'active' => $aktif ), array(
+                                                'tahun_anggaran' => $_POST['tahun_anggaran'],
+                                                'kode_sbl' => $sub['kode_sbl']
+                                        ));
 				}
 
 			} else {
