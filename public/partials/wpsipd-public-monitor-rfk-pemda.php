@@ -74,7 +74,7 @@ $body .='
 
 	<!-- Modal -->
 	<div class="modal fade bd-example-modal-xl" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="myExtraLargeModalLabel" aria-hidden="true">
-	  <div class="modal-dialog" style="min-width:1250px" role="document">
+	  <div class="modal-dialog" style="min-width:1350px" role="document">
 	    <div class="modal-content">
 	      <div class="modal-header">
 	        <h5 class="modal-title" id="exampleModalLabel" style="margin: 0 auto; text-align:center; font-weight: bold">Modal title</h5>
@@ -104,10 +104,11 @@ $body .='
 		            <th style="padding: 0; border: 0; width:120px"></th>
 		            <th style="padding: 0; border: 0; width:120px"></th>
 		            <th style="padding: 0; border: 0; width:110px"></th>
-		            <th style="padding: 0; border: 0; width:100px"></th>
+		            <th style="padding: 0; border: 0; width:65px"></th>
 		            <th style="padding: 0; border: 0; width:120px"></th>
 		            <th style="padding: 0; border: 0; width:90px"></th>
-		            <th style="padding: 0; border: 0; width:90px"></th>
+		            <th style="padding: 0; border: 0; width:120px"></th>
+		            <th style="padding: 0; border: 0; width:70px"></th>
 		            <th style="padding: 0; border: 0; width:100px"></th>
 		    	</tr>
 		    	<tr>
@@ -120,6 +121,7 @@ $body .='
 			        <th class="atas kanan bawah text_tengah text_blok">RAK SIMDA ( % )</th>
 			        <th class="atas kanan bawah text_tengah text_blok">Deviasi ( % )</th>
 			        <th class="atas kanan bawah text_tengah text_blok">Realisasi Fisik ( % )</th>
+			        <th class="atas kanan bawah text_tengah text_blok">Nilai Realisasi Fisik </br>( Rp. )</th>
 			        <th class="atas kanan bawah text_tengah text_blok">Update Terakhir</th>
 			        <th class="atas kanan bawah text_tengah text_blok">Catatan Ka.Adbang</th>
 			    </tr>
@@ -135,6 +137,7 @@ $body .='
 			        <th class="atas kanan bawah text_tengah text_blok">9</th>
 			        <th class="atas kanan bawah text_tengah text_blok">10</th>
 			        <th class="atas kanan bawah text_tengah text_blok">11</th>
+			        <th class="atas kanan bawah text_tengah text_blok">12</th>
 			    </tr>
 		    </thead>
 		    <tbody>
@@ -427,18 +430,18 @@ $body .='
 
 		    		$latest_update = $this->get_date_rfk_update(array('id_skpd'=>$unit['id_skpd'], 'tahun_anggaran' => $input['tahun_anggaran'], 'bulan'=>$bulan));
 		    		$cat_ka_adbang = $wpdb->get_row($wpdb->prepare("
-		    			select 
-		    				(case 
-		    					when 
+		    			SELECT 
+		    				(CASE 
+		    					WHEN 
 		    						(
-		    							select count(id) from data_rfk 
-		    							where id_skpd in 
+		    							SELECT COUNT(id) FROM data_rfk 
+		    							WHERE id_skpd in 
 		    								(
-		    									select id_skpd from data_unit where idinduk=%d) and bulan=%d and tahun_anggaran=%d
+		    									SELECT id_skpd FROM data_unit WHERE idinduk=%d) AND bulan=%d AND tahun_anggaran=%d
 		    								)!=0 
-		    					then 
-		    						(select catatan_ka_adbang from data_catatan_rfk_unit where id_skpd=%d and bulan=%d and tahun_anggaran=%d) 
-		    					else NULL end
+		    					THEN 
+		    						(SELECT catatan_ka_adbang FROM data_catatan_rfk_unit WHERE id_skpd=%d AND bulan=%d AND tahun_anggaran=%d) 
+		    					ELSE NULL END
 		    				) 
 		    				catatan_ka_adbang",
 
@@ -527,6 +530,7 @@ $body .='
 			    <td class="atas kanan bawah text_tengah" data="'.$value['rak'].'">'.$value['target_rak'].'</td>
 			    <td class="atas kanan bawah text_tengah">'.$value['deviasi'].'</td>
 			    <td class="atas kanan bawah text_tengah" data-nilai-realisasi-fisik="'.$value['nilai_realisasi_fisik'].'">'.$realisasi_fisik.'</td>
+			    <td class="atas kanan bawah text_tengah">'.number_format($value['nilai_realisasi_fisik'],0,",",".").'</td>
 			    <td class="atas kanan bawah text_tengah '.$background.'" data-order="'.$last_update.'">'.$value['last_update'].'  '.$event.'</td>
 			    <td class="atas kanan bawah text_tengah '.$catatan_rfk_class.'" data-content="'.$value['cat_ka_adbang'].'" contenteditable="'.$editable.'">'.$value['cat_ka_adbang'].'</td>
 			</tr>
@@ -556,6 +560,7 @@ $body .='
 					    <th class="kanan bawah text_tengah text_blok" data-rak="'.$data_all['total_rak_simda'].'">'.$this->pembulatan($target_rak_simda).'</th>
 					    <th class="kanan bawah text_tengah text_blok">'.$this->pembulatan($deviasi).'</th>
 					    <th class="kanan bawah text_blok total-realisasi-fisik text_tengah data-nilai-realisasi-fisik-pemda="'.trim($data_all['total_nilai_realsasi_fisik']).'">'.$this->pembulatan($realisasi_fisik_pemda).'</th>
+						<th class="atas kanan bawah text_tengah">'.number_format($data_all['total_nilai_realsasi_fisik'],0,",",".").'</th>
 						<th class="atas kanan bawah text_tengah"></th>
 						<th class="atas kanan bawah text_tengah"></th>
 					</tr>
@@ -743,6 +748,7 @@ $body .='
 					            +'<th style="padding: 0; border: 0; width:75px"></th>'
 					            +'<th style="padding: 0; border: 0; width:110px"></th>'
 					            +'<th style="padding: 0; border: 0; width:90px"></th>'
+					            +'<th style="padding: 0; border: 0; width:150px"></th>'
 					            +'<th style="padding: 0; border: 0; width:80px"></th>'
 					            +'<th style="padding: 0; border: 0; width:100px"></th>'
 					    	+'</tr>'
@@ -756,6 +762,7 @@ $body .='
 						        +'<th class="atas kanan bawah text_tengah text_blok">RAK SIMDA ( % )</th>'
 						        +'<th class="atas kanan bawah text_tengah text_blok">Deviasi ( % )</th>'
 						        +'<th class="atas kanan bawah text_tengah text_blok">Realisasi Fisik ( % )</th>'
+						        +'<th class="atas kanan bawah text_tengah text_blok">Nilai Realisasi Fisik ( Rp. )</th>'
 						        +'<th class="atas kanan bawah text_tengah text_blok">Update Terakhir</th>'
 						        +'<th class="atas kanan bawah text_tengah text_blok">Catatan Ka.Adbang</th>'
 						    +'</tr>'
@@ -771,6 +778,7 @@ $body .='
 						        +'<th class="atas kanan bawah text_tengah text_blok">9</th>'
 						        +'<th class="atas kanan bawah text_tengah text_blok">10</th>'
 						        +'<th class="atas kanan bawah text_tengah text_blok">11</th>'
+						        +'<th class="atas kanan bawah text_tengah text_blok">12</th>'
 						    +'</tr>'
 					    +'</thead>'
 					    +'<tbody>';
@@ -798,6 +806,7 @@ $body .='
 											+ '<td class="kanan bawah text_tengah">'+data_sub_unit.target_rak+'</td>'
 											+ '<td class="kanan bawah text_tengah">'+data_sub_unit.deviasi+'</td>'
 											+ '<td class="kanan bawah text_tengah" data-nilai-realisasi-fisik='+data_sub_unit.nilai_realisasi_fisik+'>'+data_sub_unit.realisasi_fisik+'</td>'
+											+ '<td class="kanan bawah text_tengah">'+formatRupiah(data_sub_unit.nilai_realisasi_fisik)+'</td>'
 											+ '<td class="kanan bawah text_tengah">'+data_sub_unit.last_update+' '+'</br></br><span class="badge badge-danger simpan-per-unit hide-excel">SIMPAN</span>'+'</td>'
 											+ '<td class="kanan bawah text_tengah catatan_rfk_sub_unit" contenteditable="true" data-content="'+data_sub_unit.cat_ka_adbang+'">'+data_sub_unit.cat_ka_adbang+'</td>'
 										+'</tr>'
@@ -817,6 +826,7 @@ $body .='
 										+'<th style="border:1px solid" data-rfk="'+data_all_rfk[index].rak+'" class="kanan bawah text_tengah">'+data_all_rfk[index].target_rak+'</th>'
 										+'<th style="border:1px solid" class="kanan bawah text_tengah">'+data_all_rfk[index].deviasi+'</th>'
 										+'<th style="border:1px solid" class="kanan bawah text_tengah">'+data_all_rfk[index].realisasi_fisik+'</th>'
+										+'<th style="border:1px solid" class="kanan bawah text_tengah">'+formatRupiah(data_all_rfk[index].nilai_realisasi_fisik)+'</th>'
 										+'<th style="border:1px solid"></th>'
 										+'<th style="border:1px solid"></th>'
 									+'</tr>'
