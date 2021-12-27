@@ -322,6 +322,12 @@ class Wpsipd
 		$this->loader->add_action('wp_ajax_singkron_skpd_mitra_bappeda',  $plugin_public, 'singkron_skpd_mitra_bappeda');
 		$this->loader->add_action('wp_ajax_nopriv_singkron_skpd_mitra_bappeda',  $plugin_public, 'singkron_skpd_mitra_bappeda');
 
+		$this->loader->add_action('wp_ajax_get_ssh',  $plugin_public, 'get_ssh');
+		$this->loader->add_action('wp_ajax_nopriv_get_ssh',  $plugin_public, 'get_ssh');
+
+		$this->loader->add_action('wp_ajax_get_skpd',  $plugin_public, 'get_skpd');
+		$this->loader->add_action('wp_ajax_nopriv_get_skpd',  $plugin_public, 'get_skpd');
+
 		$this->loader->add_action('wp_ajax_simpan_rfk',  $plugin_public, 'simpan_rfk');
 		$this->loader->add_action('wp_ajax_reset_rfk',  $plugin_public, 'reset_rfk');
 		$this->loader->add_action('wp_ajax_reset_catatan_verifkator_rfk',  $plugin_public, 'reset_catatan_verifkator_rfk');
