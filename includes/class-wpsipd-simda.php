@@ -75,7 +75,7 @@ class Wpsipd_Simda
 		);
 		if (!empty($_POST)) {
 			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option('_crb_api_key_extension' )) {
-				if(!empty($_POST['data']) && !empty($_POST['tahun_anggaran'])){
+				if(!empty($_POST['tahun_anggaran'])){
 					$tahun_anggaran = $_POST['tahun_anggaran'];
 					$pembiayaan_all = array();
 					$pembiayaan = $wpdb->get_results($wpdb->prepare("
@@ -284,7 +284,7 @@ class Wpsipd_Simda
 		);
 		if (!empty($_POST)) {
 			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option('_crb_api_key_extension' )) {
-				if(!empty($_POST['data']) && !empty($_POST['tahun_anggaran'])){
+				if(!empty($_POST['tahun_anggaran'])){
 					$tahun_anggaran = $_POST['tahun_anggaran'];
 					$pendapatan_all = array();
 					foreach ($_POST['data'] as $k => $v) {
