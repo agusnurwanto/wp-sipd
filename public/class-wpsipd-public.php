@@ -258,7 +258,9 @@ class Wpsipd_Public
 							* 
 						from data_ssh 
 						where tahun_anggaran=%d
-							and is_deleted=0", $_POST['tahun_anggaran']), ARRAY_A);
+							and is_deleted=0
+							and kelompok=%d", 
+					$_POST['tahun_anggaran'], $_POST['kelompok']), ARRAY_A);
 					$data = array(); 
 					foreach ($data_ssh as $k => $v) {
 						// if($k >= 10){ continue; }
