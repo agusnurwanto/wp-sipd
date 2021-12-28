@@ -244,19 +244,32 @@ class Wpsipd_Public
 		);
 		if (!empty($_POST)) {
 			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
-				$data_ssh = $wpdb->get_results($wpdb->prepare("
-					SELECT 
-						* 
-					from data_ssh 
-					where tahun_anggaran=%d
-						and is_deleted=0", $_POST['tahun_anggaran']), ARRAY_A);
-				$data = array(); 
-				foreach ($data_ssh as $k => $v) {
-					// if($k >= 10){ continue; }
-					$v['rek_belanja'] = $wpdb->get_results("SELECT * from data_ssh_rek_belanja where id_standar_harga=" . $v['id_standar_harga'], ARRAY_A);
-					$data[] = $v;
+				if(
+					!empty($_POST['kelompok'])
+					&& (
+						$_POST['kelompok'] == 1 // SSH
+						|| $_POST['kelompok'] == 2 // HSPK
+						|| $_POST['kelompok'] == 3 // ASB
+						|| $_POST['kelompok'] == 4 // SBU
+					)
+				){
+					$data_ssh = $wpdb->get_results($wpdb->prepare("
+						SELECT 
+							* 
+						from data_ssh 
+						where tahun_anggaran=%d
+							and is_deleted=0", $_POST['tahun_anggaran']), ARRAY_A);
+					$data = array(); 
+					foreach ($data_ssh as $k => $v) {
+						// if($k >= 10){ continue; }
+						$v['rek_belanja'] = $wpdb->get_results("SELECT * from data_ssh_rek_belanja where id_standar_harga=" . $v['id_standar_harga'], ARRAY_A);
+						$data[] = $v;
+					}
+					$ret['data'] = $data;
+				}else{
+					$ret['status'] = 'error';
+					$ret['message'] = 'ID kelompok harus diisi! 1=SSH, 4=SBU, 2=HSPK, 3=ASB';
 				}
-				$ret['data'] = $data;
 			} else {
 				$ret['status'] = 'error';
 				$ret['message'] = 'APIKEY tidak sesuai!';
