@@ -209,8 +209,22 @@ foreach ($units as $k => $unit):
 
         $id_prog = $kd_urusan.$this->simda->CekNull($kd_bidang);
 		$total_pagu = 0;
+		$debug_pagu = '';
 		if($sumber_pagu == 1){
 			$total_pagu = $sub['pagu'];
+			$total_rka = $wpdb->get_row($wpdb->prepare('
+				select 
+					sum(rincian) as total
+				from data_rka
+				where tahun_anggaran=%d
+					and active=1
+					and kode_sbl=%s',
+			$input['tahun_anggaran'], $sub['kode_sbl']), ARRAY_A);
+			$warning = '';
+			if($sub['pagu'] != $total_rka['total']){
+				$warning = "style='background: #ff00002e;'";
+			}
+			$debug_pagu = ' <span class="detail_simda hide-excel" '.$warning.'>'.$sub['pagu'].'=='.$total_rka['total'].'</span>';
 		}else if(
 			$sumber_pagu == 4
 			|| $sumber_pagu == 5
@@ -337,7 +351,7 @@ foreach ($units as $k => $unit):
 				'kd_keg' => $kd_keg
 			);
 			$data_all['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']]['data'][$sub['kode_giat']]['data'][$sub['kode_sub_giat']] = array(
-				'nama'	=> implode(' ', $nama).'<span class="detail_simda hide-excel">'.json_encode($detail_simda).'</span><span class="badge badge-danger simpan-per-sub-keg hide-excel">SIMPAN</span>',
+				'nama'	=> implode(' ', $nama).$debug_pagu.'<span class="detail_simda hide-excel">'.json_encode($detail_simda).'</span><span class="badge badge-danger simpan-per-sub-keg hide-excel">SIMPAN</span>',
 				'total' => 0,
 				'total_simda' => 0,
 				'realisasi' => 0,
