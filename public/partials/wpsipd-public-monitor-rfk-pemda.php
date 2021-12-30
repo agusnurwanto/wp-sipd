@@ -69,6 +69,9 @@ $body .='
 		}
 		table.dataTable tbody tr.odd.ubah-warna {
 		 	background-color:#ffbc0073
+		},
+		.nilai-realisasi-fisik {
+			display: none;
 		}
 	</style>
 
@@ -107,7 +110,7 @@ $body .='
 		            <th style="padding: 0; border: 0; width:65px"></th>
 		            <th style="padding: 0; border: 0; width:120px"></th>
 		            <th style="padding: 0; border: 0; width:90px"></th>
-		            <th style="padding: 0; border: 0; width:120px"></th>
+		            <th style="padding: 0; border: 0; width:120px" class="nilai-realisasi-fisik"></th>
 		            <th style="padding: 0; border: 0; width:70px"></th>
 		            <th style="padding: 0; border: 0; width:100px"></th>
 		    	</tr>
@@ -121,7 +124,7 @@ $body .='
 			        <th class="atas kanan bawah text_tengah text_blok">RAK SIMDA ( % )</th>
 			        <th class="atas kanan bawah text_tengah text_blok">Deviasi ( % )</th>
 			        <th class="atas kanan bawah text_tengah text_blok">Realisasi Fisik ( % )</th>
-			        <th class="atas kanan bawah text_tengah text_blok">Nilai Realisasi Fisik </br>( Rp. )</th>
+			        <th class="atas kanan bawah text_tengah text_blok nilai-realisasi-fisik">Nilai Realisasi Fisik </br>( Rp. )</th>
 			        <th class="atas kanan bawah text_tengah text_blok">Update Terakhir</th>
 			        <th class="atas kanan bawah text_tengah text_blok">Catatan Ka.Adbang</th>
 			    </tr>
@@ -135,7 +138,7 @@ $body .='
 			        <th class="atas kanan bawah text_tengah text_blok">7</th>
 			        <th class="atas kanan bawah text_tengah text_blok">8 = ((7 - 6) / 7) * 100</th>
 			        <th class="atas kanan bawah text_tengah text_blok">9</th>
-			        <th class="atas kanan bawah text_tengah text_blok">10</th>
+			        <th class="atas kanan bawah text_tengah text_blok nilai-realisasi-fisik">10</th>
 			        <th class="atas kanan bawah text_tengah text_blok">11</th>
 			        <th class="atas kanan bawah text_tengah text_blok">12</th>
 			    </tr>
@@ -530,7 +533,7 @@ $body .='
 			    <td class="atas kanan bawah text_tengah" data="'.$value['rak'].'">'.$value['target_rak'].'</td>
 			    <td class="atas kanan bawah text_tengah">'.$value['deviasi'].'</td>
 			    <td class="atas kanan bawah text_tengah" data-nilai-realisasi-fisik="'.$value['nilai_realisasi_fisik'].'">'.$realisasi_fisik.'</td>
-			    <td class="atas kanan bawah text_tengah">'.number_format($value['nilai_realisasi_fisik'],0,",",".").'</td>
+			    <td class="atas kanan bawah text_tengah nilai-realisasi-fisik">'.number_format($value['nilai_realisasi_fisik'],0,",",".").'</td>
 			    <td class="atas kanan bawah text_tengah '.$background.'" data-order="'.$last_update.'">'.$value['last_update'].'  '.$event.'</td>
 			    <td class="atas kanan bawah text_tengah '.$catatan_rfk_class.'" data-content="'.$value['cat_ka_adbang'].'" contenteditable="'.$editable.'">'.$value['cat_ka_adbang'].'</td>
 			</tr>
@@ -560,7 +563,7 @@ $body .='
 					    <th class="kanan bawah text_tengah text_blok" data-rak="'.$data_all['total_rak_simda'].'">'.$this->pembulatan($target_rak_simda).'</th>
 					    <th class="kanan bawah text_tengah text_blok">'.$this->pembulatan($deviasi).'</th>
 					    <th class="kanan bawah text_blok total-realisasi-fisik text_tengah data-nilai-realisasi-fisik-pemda="'.trim($data_all['total_nilai_realsasi_fisik']).'">'.$this->pembulatan($realisasi_fisik_pemda).'</th>
-						<th class="atas kanan bawah text_tengah">'.number_format($data_all['total_nilai_realsasi_fisik'],0,",",".").'</th>
+						<th class="atas kanan bawah nilai-realisasi-fisik text_tengah">'.number_format($data_all['total_nilai_realsasi_fisik'],0,",",".").'</th>
 						<th class="atas kanan bawah text_tengah"></th>
 						<th class="atas kanan bawah text_tengah"></th>
 					</tr>
@@ -609,7 +612,7 @@ $body .='
 				"Desember"
 			];
 	var extend_action = ''
-		+'<div style="margin-top: 20px;">'
+		+'<div style="margin-top: 20px;" id="opt-bulan">'
 			+'<label style="margin-left: 20px;">Bulan Realisasi: '
 				+'<select id="pilih_bulan" style="padding: 5px;">'
 					+'<option value="0">-- Bulan --</option>';
@@ -623,14 +626,9 @@ $body .='
 			+'</label>'
 		+'</div>';
 	var data_all_rfk = <?php echo json_encode($data_all['data']); ?>;
-	console.log(data_all_rfk);
+	// console.log(data_all_rfk);
 		
 	jQuery(document).ready(function(){
-			<?php if(empty($public)){ ?>
-			jQuery('<a id="open_all_skpd" onclick="return false;" href="#" class="button button-primary" style="margin-left:5px">AKSES RFK ALL OPD</a>').insertAfter("#excel");
-			jQuery('<a href="javascript:void(0)" style="margin-left: 5px; text-transform: uppercase" class="button button-primary" id="simpan-catatan-rfk-unit">Simpan Catatan</a>').insertAfter("#open_all_skpd");
-			jQuery('<a href="javascript:void(0)" style="margin-left: 5px; text-transform: uppercase" class="button button-primary" id="reset-rfk-pemda">Reset Catatan</a>').insertAfter("#simpan-catatan-rfk-unit");
-			<?php } ?>
 			jQuery('#action-sipd').append(extend_action);
 			jQuery('#pilih_bulan').val(+<?php echo $bulan; ?>);
 			jQuery('#pilih_bulan').on('change', function(){
@@ -640,6 +638,13 @@ $body .='
 		    	}
 		    	jQuery('#pilih_bulan').val(+<?php echo $bulan; ?>);
 		    });
+
+		    <?php if(empty($public)){ ?>
+			jQuery('<a id="open_all_skpd" onclick="return false;" href="#" class="button button-primary" style="margin-left:5px">AKSES RFK ALL OPD</a>').insertAfter("#excel");
+			jQuery('<a href="javascript:void(0)" style="margin-left: 5px; text-transform: uppercase" class="button button-primary" id="simpan-catatan-rfk-unit">Simpan Catatan</a>').insertAfter("#open_all_skpd");
+			jQuery('<a href="javascript:void(0)" style="margin-left: 5px; text-transform: uppercase" class="button button-primary" id="reset-rfk-pemda">Reset Catatan</a>').insertAfter("#simpan-catatan-rfk-unit");
+		    jQuery('<label><input type="checkbox" id="cb-nilai-realisasi" onclick="tampil_nilai_fisik()"> Tampilkan Nilai Realisasi Fisik</label>').insertAfter("#opt-bulan");
+			<?php } ?>
 
 		    jQuery('#open_all_skpd').on('click', function(){
 
@@ -717,6 +722,7 @@ $body .='
 		    	simpan_catatan_rfk_unit(this, 'catatan_rfk_unit');
 		    })
 		    jQuery('#table-rfk').DataTable();
+		    jQuery('.nilai-realisasi-fisik').hide();
 	})
 
 	function showsubunit(id_induk, bulan, tahun){
@@ -954,6 +960,14 @@ $body .='
 		    	tr.find('.simpan-per-unit').hide();
 		    	tr.removeClass('odd ubah-warna');
 		    }
+	}
+
+	function tampil_nilai_fisik(){
+		if(jQuery("#cb-nilai-realisasi").prop("checked")){
+			jQuery('.nilai-realisasi-fisik').show();
+		}else{
+			jQuery('.nilai-realisasi-fisik').hide();
+		}
 	}
 
 	function get_bulan(bln) {
