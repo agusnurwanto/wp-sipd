@@ -65,6 +65,7 @@ foreach ($kode_rek as $rek) {
 				from '.$table.' 
 				where '.$where
 			, ARRAY_A);
+
 			$update_at = $wpdb->get_row('
 				select 
 					update_at
@@ -95,9 +96,14 @@ foreach ($kode_rek as $rek) {
 			, ARRAY_A);
 
 			if($data_tanpa_rinci['jml']>=1){
+				$warning = 0;
+				if($data_tanpa_rinci['total'] != $data['total']){
+					$warning = 1;
+				}
 				$data_body[strtotime($update_at_tanpa_rinci['update_at']).$opd['id_skpd'].$rek.'-tanpa-rinci'] = array(
+					'warning' => $warning,
 					'rek' => $rek.'-tanpa-rinci',
-					'type_belanja' => $type_belanja.' Tanpa Rincian',
+					'type_belanja' => $type_belanja.' Tanpa Rincian <span class="debug hide">'.$wpdb->last_query.'</span>',
 					'skpd' => $opd['nama_skpd'],
 					'id_skpd' => $opd['id_skpd'],
 					'kode_skpd' => $opd['kode_skpd'],
@@ -130,7 +136,7 @@ foreach ($kode_rek as $rek) {
 			if($data_pagu_unit['jml']>=1){
 				$data_body[strtotime($update_at_pagu_unit['update_at']).$opd['id_skpd'].$rek.'-pagu-skpd'] = array(
 					'rek' => $rek.'-pagu-skpd',
-					'type_belanja' => $type_belanja.' Pagu SKPD',
+					'type_belanja' => $type_belanja.' Pagu SKPD <span class="debug hide">'.$wpdb->last_query.'</span>',
 					'skpd' => $opd['nama_skpd'],
 					'id_skpd' => $opd['id_skpd'],
 					'kode_skpd' => $opd['kode_skpd'],
@@ -164,7 +170,7 @@ foreach ($kode_rek as $rek) {
 		if($data['jml']>=1){
 			$data_body[strtotime($update_at['update_at']).$opd['id_skpd'].$rek] = array(
 				'rek' => $rek,
-				'type_belanja' => $type_belanja,
+				'type_belanja' => $type_belanja.' <span class="debug hide">'.$wpdb->last_query.'</span>',
 				'skpd' => $opd['nama_skpd'],
 				'id_skpd' => $opd['id_skpd'],
 				'kode_skpd' => $opd['kode_skpd'],
@@ -184,6 +190,10 @@ foreach ($data_body as $k => $data) {
 	$nama_page = 'RFK '.$data['skpd'].' '.$data['kode_skpd'].' | '.$input['tahun_anggaran'];
 	$custom_post = get_page_by_title($nama_page, OBJECT, 'page');
 	$link = $this->get_link_post($custom_post);
+	$warning = '';
+	if(!empty($data['warning'])){
+		$warning = 'background: #ff00002e;';
+	}
 	$body .= '
 		<tr data-type-belanja="'.$data['rek'].'" data-id-skpd="'.$data['id_skpd'].'">
 			<td class="text-center">'.$no.'</td>
@@ -191,7 +201,7 @@ foreach ($data_body as $k => $data) {
 			<td><a href="'.$link.'" target="_blank">'.$data['skpd'].'</a></td>
 			<td class="text-center">'.$data['update_at'].'</td>
 			<td class="text-right">'.number_format($data['total_murni'],0,",",".").'</td>
-			<td class="text-right pagu_total">'.number_format($data['total'],0,",",".").'</td>
+			<td class="text-right pagu_total" style="'.$warning.'">'.number_format($data['total'],0,",",".").'</td>
 			<td class="text-right rka_simda" style="display: none;"></td>
 			<td class="text-right dpa_simda" style="display: none;"></td>
 		</tr>
@@ -202,6 +212,9 @@ foreach ($data_body as $k => $data) {
 <style type="text/css">
 	.warning {
 		background: #f1a4a4;
+	}
+	.hide {
+		display: none;
 	}
 </style>
 <div class="cetak">
