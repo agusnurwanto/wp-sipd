@@ -4,6 +4,7 @@ Semoga bermanfaat
 
 ### DONASI
 - Donasi untuk pengembang aplikasi, klik di link ini https://smkasiyahhomeschooling.blogspot.com/p/donasi-pengembangan-smk-asiyah.html
+- Untuk pemda yang kesulitan dalam penerapan wp-sipd atau belum memiliki tenaga IT, kami menawarkan jasa setting dan penerapan wp-sipd. Informasi lebih detail di https://smkasiyahhomeschooling.blogspot.com/p/produk-dan-layanan-kami.html
 
 ### GRUP telegram https://t.me/sipd_chrome_extension
 

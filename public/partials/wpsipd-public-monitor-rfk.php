@@ -23,6 +23,8 @@ $tahun_asli = date('Y');
 $bulan_asli = date('m');
 if(!empty($_GET) && !empty($_GET['bulan'])){
     $bulan = $_GET['bulan'];
+}else if($input['tahun_anggaran'] < $tahun_asli){
+	$bulan = 12;
 }else{
 	$bulan = $bulan_asli;
 }
@@ -879,8 +881,14 @@ if(!current_user_can('administrator')){
 	$all_bulan[11] = '<option value="11">November</option>';
 	$all_bulan[12] = '<option value="12">Desember</option>';
 	$opsi_bulan = '';
-	for($i=1; $i<=$bulan_asli; $i++){
-		$opsi_bulan .= $all_bulan[$i];
+	if($input['tahun_anggaran'] < $tahun_asli){
+		for($i=1; $i<=12; $i++){
+			$opsi_bulan .= $all_bulan[$i];
+		}
+	}else{
+		for($i=1; $i<=$bulan_asli; $i++){
+			$opsi_bulan .= $all_bulan[$i];
+		}
 	}
 ?>
 	function tampil_detail_fisik(){
