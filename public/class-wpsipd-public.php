@@ -3422,74 +3422,78 @@ class Wpsipd_Public
 		if (!empty($_POST)) {
 			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
 				if(
-					!empty($_POST['data']) 
-					&& !empty($_POST['type']) 
+					!empty($_POST['type']) 
 					|| (
 						!empty($_POST['kode_sbl']) && $_POST['type']=='belanja'
 					)
 				){
-					$data = $_POST['data'];
 					$wpdb->update('data_anggaran_kas', array( 'active' => 0 ), array(
 						'tahun_anggaran' => $_POST['tahun_anggaran'],
 						'type' => $_POST['type'],
+						'id_unit' => $_POST['id_skpd'],
 						'kode_sbl' => $_POST['kode_sbl']
 					));
-					foreach ($data as $k => $v) {
-						if(empty($v['id_akun'])){
-							continue;
-						}
-						$cek = $wpdb->get_var("
-							SELECT 
-								id_akun 
-							from data_anggaran_kas 
-							where tahun_anggaran=".$_POST['tahun_anggaran']." 
-								AND kode_sbl='" . $_POST['kode_sbl']."' 
-								AND type='" . $_POST['type']."' 
-								AND id_akun=".$v['id_akun']);
-						$opsi = array(
-							'bulan_1' => $v['bulan_1'],
-							'bulan_2' => $v['bulan_2'],
-							'bulan_3' => $v['bulan_3'],
-							'bulan_4' => $v['bulan_4'],
-							'bulan_5' => $v['bulan_5'],
-							'bulan_6' => $v['bulan_6'],
-							'bulan_7' => $v['bulan_7'],
-							'bulan_8' => $v['bulan_8'],
-							'bulan_9' => $v['bulan_9'],
-							'bulan_10' => $v['bulan_10'],
-							'bulan_11' => $v['bulan_11'],
-							'bulan_12' => $v['bulan_12'],
-							'id_akun' => $v['id_akun'],
-							'id_bidang_urusan' => $v['id_bidang_urusan'],
-							'id_daerah' => $v['id_daerah'],
-							'id_giat' => $v['id_giat'],
-							'id_program' => $v['id_program'],
-							'id_skpd' => $v['id_skpd'],
-							'id_sub_giat' => $v['id_sub_giat'],
-							'id_sub_skpd' => $v['id_sub_skpd'],
-							'id_unit' => $v['id_unit'],
-							'kode_akun' => $v['kode_akun'],
-							'nama_akun' => $v['nama_akun'],
-							'selisih' => $v['selisih'],
-							'tahun' => $v['tahun'],
-							'total_akb' => $v['total_akb'],
-							'total_rincian' => $v['total_rincian'],
-							'active' => 1,
-							'kode_sbl' => $_POST['kode_sbl'],
-							'type' => $_POST['type'],
-							'tahun_anggaran' => $_POST['tahun_anggaran'],
-							'updated_at' => current_time('mysql')
-						);
-
-						if (!empty($cek)) {
-							$wpdb->update('data_anggaran_kas', $opsi, array(
-								'tahun_anggaran' => $_POST['tahun_anggaran'],
+					if(!empty($_POST['data'])){
+						$data = $_POST['data'];
+						foreach ($data as $k => $v) {
+							if(empty($v['id_akun'])){
+								continue;
+							}
+							$cek = $wpdb->get_var("
+								SELECT 
+									id_akun 
+								from data_anggaran_kas 
+								where tahun_anggaran=".$_POST['tahun_anggaran']." 
+									AND kode_sbl='" . $_POST['kode_sbl']."' 
+									AND id_unit='" . $_POST['id_skpd']."' 
+									AND type='" . $_POST['type']."' 
+									AND id_akun=".$v['id_akun']);
+							$opsi = array(
+								'bulan_1' => $v['bulan_1'],
+								'bulan_2' => $v['bulan_2'],
+								'bulan_3' => $v['bulan_3'],
+								'bulan_4' => $v['bulan_4'],
+								'bulan_5' => $v['bulan_5'],
+								'bulan_6' => $v['bulan_6'],
+								'bulan_7' => $v['bulan_7'],
+								'bulan_8' => $v['bulan_8'],
+								'bulan_9' => $v['bulan_9'],
+								'bulan_10' => $v['bulan_10'],
+								'bulan_11' => $v['bulan_11'],
+								'bulan_12' => $v['bulan_12'],
+								'id_akun' => $v['id_akun'],
+								'id_bidang_urusan' => $v['id_bidang_urusan'],
+								'id_daerah' => $v['id_daerah'],
+								'id_giat' => $v['id_giat'],
+								'id_program' => $v['id_program'],
+								'id_skpd' => $v['id_skpd'],
+								'id_sub_giat' => $v['id_sub_giat'],
+								'id_sub_skpd' => $v['id_sub_skpd'],
+								'id_unit' => $_POST['id_skpd'],
+								'kode_akun' => $v['kode_akun'],
+								'nama_akun' => $v['nama_akun'],
+								'selisih' => $v['selisih'],
+								'tahun' => $v['tahun'],
+								'total_akb' => $v['total_akb'],
+								'total_rincian' => $v['total_rincian'],
+								'active' => 1,
 								'kode_sbl' => $_POST['kode_sbl'],
 								'type' => $_POST['type'],
-								'id_akun' => $v['id_akun']
-							));
-						} else {
-							$wpdb->insert('data_anggaran_kas', $opsi);
+								'tahun_anggaran' => $_POST['tahun_anggaran'],
+								'updated_at' => current_time('mysql')
+							);
+
+							if (!empty($cek)) {
+								$wpdb->update('data_anggaran_kas', $opsi, array(
+									'tahun_anggaran' => $_POST['tahun_anggaran'],
+									'kode_sbl' => $_POST['kode_sbl'],
+									'type' => $_POST['type'],
+									'id_unit' => $_POST['id_skpd'],
+									'id_akun' => $v['id_akun']
+								));
+							} else {
+								$wpdb->insert('data_anggaran_kas', $opsi);
+							}
 						}
 					}
 					if(

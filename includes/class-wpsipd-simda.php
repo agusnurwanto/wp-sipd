@@ -770,12 +770,15 @@ class Wpsipd_Simda
 
 					if($ret['status']!='error'){
 						foreach ($_POST['data'] as $k => $v) {
-							if(!empty($v['id_skpd'])){
-								$kd_unit_simda = explode('.', get_option('_crb_unit_'.$v['id_skpd']));
-								$id_unit_sipd = $v['id_skpd'];
-							}else{
+							if(!empty($v['id_sub_skpd'])){
+								$kd_unit_simda = explode('.', get_option('_crb_unit_'.$v['id_sub_skpd']));
+								$id_unit_sipd = $v['id_sub_skpd'];
+							}else if(!empty($v['id_unit'])){
 								$kd_unit_simda = explode('.', get_option('_crb_unit_'.$v['id_unit']));
 								$id_unit_sipd = $v['id_unit'];
+							}else{
+								$kd_unit_simda = explode('.', get_option('_crb_unit_'.$v['id_skpd']));
+								$id_unit_sipd = $v['id_skpd'];
 							}
 							$unit_sipd = $wpdb->get_results($wpdb->prepare("
 								SELECT 
