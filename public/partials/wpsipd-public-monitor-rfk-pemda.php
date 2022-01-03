@@ -15,6 +15,8 @@ $bulan_asli = date('m');
 
 if(!empty($_GET) && !empty($_GET['bulan'])){
     $bulan = $_GET['bulan'];
+}elseif($input['tahun_anggaran'] < $tahun_asli){
+	$bulan = 12;
 }
 $nama_bulan = $this->get_bulan($bulan);
 
@@ -616,12 +618,28 @@ $body .='
 			+'<label style="margin-left: 20px;">Bulan Realisasi: '
 				+'<select id="pilih_bulan" style="padding: 5px;">'
 					+'<option value="0">-- Bulan --</option>';
-					nama_bulan.map(function(val, i){
-						var index = i+1;
-						if(index <= bulan){
-							extend_action += '<option value="'+index+'">'+val+'</option>'
+					<?php 
+						if($input['tahun_anggaran'] < $tahun_asli){
+					?>
+							nama_bulan.map(function(val, i){
+								var index = i+1;
+								if(index <= <?php echo $bulan ?>){
+									extend_action += '<option value="'+index+'">'+val+'</option>'
+								}
+							})
+					<?php
+						}else{
+					?>
+							nama_bulan.map(function(val, i){
+								var index = i+1;
+								if(index <= bulan){
+									extend_action += '<option value="'+index+'">'+val+'</option>'
+								}
+							})
+					<?php
 						}
-					})
+					?>
+					
 			extend_action += '</select>'
 			+'</label>'
 		+'</div>';
@@ -721,8 +739,16 @@ $body .='
 		    jQuery('.simpan-per-unit').on('click', function(){
 		    	simpan_catatan_rfk_unit(this, 'catatan_rfk_unit');
 		    })
-		    jQuery('#table-rfk').DataTable();
 		    jQuery('.nilai-realisasi-fisik').hide();
+		    jQuery('#table-rfk').DataTable({
+		    	"drawCallback": function( settings ) {
+			        if(jQuery("#cb-nilai-realisasi").prop("checked")){
+			        	jQuery('.nilai-realisasi-fisik').show();
+			        }else{
+			        	jQuery('.nilai-realisasi-fisik').hide();
+			        }
+			    }
+		    });
 	})
 
 	function showsubunit(id_induk, bulan, tahun){
