@@ -235,6 +235,67 @@ class Wpsipd_Public
 		die(json_encode($ret));
 	}
 
+	public function get_skpd_fmis(){
+		global $wpdb;
+		$ret = array(
+			'kode_pemda'	=> $_POST['kode_pemda'],
+			'nama_pemda'	=> $_POST['nama_pemda'],
+			'skpd'	=> array()
+		);
+		if (!empty($_POST)) {
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+				$data_skpd_db = $wpdb->get_results($wpdb->prepare("
+					SELECT 
+						* 
+					from data_unit 
+					where tahun_anggaran=%d
+						and active=1
+					order by id_skpd ASC", 
+				$_POST['tahun_anggaran']), ARRAY_A);
+				foreach ($data_skpd_db as $k => $v) {
+					if($v['is_skpd'] == 1)	{
+						$data_skpd = array(
+							'id_skpd' => $v['id_skpd'],
+							'kode_skpd' => $v['kode_skpd'],
+							'nama_skpd' => $v['nama_skpd'],
+							'unit' => array(
+								array(
+									'id_unit' => $v['id_skpd'],
+									'kode_unit' => $v['kode_skpd'],
+									'nama_unit' => $v['nama_skpd'],
+									'sub_unit' => array(
+										array(
+											'id_sub' => $v['id_skpd'],
+											'kode_sub' => $v['kode_skpd'],
+											'nama_sub' => $v['nama_skpd']
+										)
+									)
+								)
+							)
+						);
+						foreach ($data_skpd_db as $kk => $vv) {
+							if(
+								$v['id_skpd'] == $vv['id_unit']
+								and $vv['is_skpd'] == 0
+							){
+								$data_skpd['unit'][0]['sub_unit'][] = array(
+									'id_sub' => $vv['id_skpd'],
+									'kode_sub' => $vv['kode_skpd'],
+									'nama_sub' => $vv['nama_skpd']
+								);
+							}
+						}
+						$ret['skpd'][] = $data_skpd;
+					}
+				}
+			} else {
+				$ret['status'] = 'error';
+				$ret['message'] = 'APIKEY tidak sesuai!';
+			}
+		}
+		die(json_encode($ret));
+	}
+
 	public function get_ssh(){
 		global $wpdb;
 		$ret = array(
