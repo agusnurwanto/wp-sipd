@@ -4357,7 +4357,8 @@ class Wpsipd_Public
 				SELECT 
 					nama_skpd, 
 					id_skpd, 
-					kode_skpd 
+					kode_skpd,
+					is_skpd
 				from data_unit 
 				where nipkepala=%s 
 					and tahun_anggaran=%d
@@ -4367,10 +4368,29 @@ class Wpsipd_Public
 					'id_skpd' => $skpd['id_skpd'],
 					'nama_skpd' => $skpd['nama_skpd']
 				));
+				if($skpd['is_skpd'] == 1){
+					$sub_skpd_db = $wpdb->get_results($wpdb->prepare("
+						SELECT 
+							nama_skpd, 
+							id_skpd, 
+							kode_skpd,
+							is_skpd
+						from data_unit 
+						where id_unit=%d 
+							and tahun_anggaran=%d
+							and is_skpd=0
+						group by id_skpd", $skpd['id_skpd'], $_GET['tahun']), ARRAY_A);
+					foreach ($sub_skpd_db as $sub_skpd) {
+						$this->menu_monev_skpd(array(
+							'id_skpd' => $sub_skpd['id_skpd'],
+							'nama_skpd' => $sub_skpd['nama_skpd']
+						));
+					}
+				}
 			}
 		}else if(in_array("tapd_pp", $user_meta->roles)){
 			$this->pilih_tahun_anggaran();
-			//$this->tampil_menu_rpjm();
+			$this->tampil_menu_rpjm();
 			if(empty($_GET) || empty($_GET['tahun'])){ return; }
 
 			$skpd_mitra = $wpdb->get_results($wpdb->prepare("
@@ -4396,13 +4416,20 @@ class Wpsipd_Public
 	public function tampil_menu_rpjm(){
 		if(!empty($_GET) && !empty($_GET['tahun'])){
 			global $wpdb;
-			$tahun_aktif = $_GET['tahun'];
-			$custom_post = get_page_by_title('MONEV RPJM Pemerintah Daerah | '.$tahun_aktif);
-			$url_pemda = $this->get_link_post($custom_post);
-			echo '
-			<ul class="daftar-tahun text_tengah">
-				<a class="btn btn-danger" target="_blank" href="'.$url_pemda.'">MONEV RPJM</a>
-			</ul>';
+			$daftar_tombol = $this->get_carbon_multiselect('crb_daftar_tombol_user_dashboard');
+			$daftar_tombol_list = array();
+			foreach ($daftar_tombol as $v) {
+				$daftar_tombol_list[$v['value']] = $v['value'];
+			}
+			if(!empty($daftar_tombol_list[6])){
+				$tahun_aktif = $_GET['tahun'];
+				$custom_post = get_page_by_title('MONEV RPJM Pemerintah Daerah | '.$tahun_aktif);
+				$url_pemda = $this->get_link_post($custom_post);
+				echo '
+				<ul class="daftar-tahun text_tengah">
+					<a class="btn btn-danger" target="_blank" href="'.$url_pemda.'">MONEV RPJM</a>
+				</ul>';
+			}
 		}
 
 	}
