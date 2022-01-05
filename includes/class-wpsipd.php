@@ -325,6 +325,9 @@ class Wpsipd
 		$this->loader->add_action('wp_ajax_get_ssh',  $plugin_public, 'get_ssh');
 		$this->loader->add_action('wp_ajax_nopriv_get_ssh',  $plugin_public, 'get_ssh');
 
+		$this->loader->add_action('wp_ajax_get_ssh_fmis',  $plugin_public, 'get_ssh_fmis');
+		$this->loader->add_action('wp_ajax_nopriv_get_ssh_fmis',  $plugin_public, 'get_ssh_fmis');
+
 		$this->loader->add_action('wp_ajax_get_skpd',  $plugin_public, 'get_skpd');
 		$this->loader->add_action('wp_ajax_nopriv_get_skpd',  $plugin_public, 'get_skpd');
 

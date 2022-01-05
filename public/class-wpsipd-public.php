@@ -341,6 +341,86 @@ class Wpsipd_Public
 		die(json_encode($ret));
 	}
 
+	public function get_ssh_fmis(){
+		global $wpdb;
+		$ret = array(
+			'no_perkada'	=> $_POST['no_perkada'],
+			'tgl_perkada'	=> $_POST['tgl_perkada'],
+			'keterangan'	=> $_POST['keterangan'],
+			'golongan'	=> array()
+		);
+		if (!empty($_POST)) {
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+				if(
+					!empty($_POST['kelompok'])
+					&& (
+						$_POST['kelompok'] == 1 // SSH
+						|| $_POST['kelompok'] == 2 // HSPK
+						|| $_POST['kelompok'] == 3 // ASB
+						|| $_POST['kelompok'] == 4 // SBU
+					)
+				){
+					$data_ssh = $wpdb->get_results($wpdb->prepare("
+						SELECT 
+							* 
+						from data_ssh 
+						where tahun_anggaran=%d
+							and is_deleted=0
+							and kelompok=%d", 
+					$_POST['tahun_anggaran'], $_POST['kelompok']), ARRAY_A);
+					$data = array();
+					foreach ($data_ssh as $k => $v) {
+						if($k >= 10){ continue; }
+						$rek_ssh = explode('.', $v['kode_kel_standar_harga']);
+						$rek_golongan = $rek_ssh[0].'.'.$rek_ssh[1].'.'.$rek_ssh[2].'.'.$rek_ssh[3].'.'.$rek_ssh[4];
+						$rek_kelompok = $rek_golongan.'.'.$rek_ssh[5];
+						$rek_sub_kelompok = $v['kode_kel_standar_harga'];
+						if(empty($data[$rek_golongan])){
+							$data[$rek_golongan] = array(
+								'no_golongan'=> count($data)+1,
+								'uraian_golongan'=> $rek_golongan,
+								'kelompok'=> array()
+							);
+						}
+						if(empty($data[$rek_golongan]['kelompok'][$rek_kelompok])){
+							$data[$rek_golongan]['kelompok'][$rek_kelompok] = array(
+								'no_kelompok'=> count($data[$rek_golongan]['kelompok'])+1,
+								'uraian_kelompok'=> $rek_kelompok,
+								'sub_kelompok'=> array()
+							);
+						}
+						if(empty($data[$rek_golongan]['kelompok'][$rek_kelompok]['sub_kelompok'][$rek_sub_kelompok])){
+							$data[$rek_golongan]['kelompok'][$rek_kelompok]['sub_kelompok'][$rek_sub_kelompok] = array(
+								'no_sub_kelompok'=> count($data[$rek_golongan]['kelompok'][$rek_kelompok]['sub_kelompok'])+1,
+								'uraian_sub_kelompok'=> $rek_sub_kelompok.' '.$v['nama_kel_standar_harga'],
+								'item_ssh'=> array()
+							);
+						}
+						$v['rek_belanja'] = $wpdb->get_results("SELECT kode_akun, nama_akun from data_ssh_rek_belanja where id_standar_harga=" . $v['id_standar_harga'], ARRAY_A);
+						$no_item = count($data[$rek_golongan]['kelompok'][$rek_kelompok]['sub_kelompok'][$rek_sub_kelompok])+1;
+						$data[$rek_golongan]['kelompok'][$rek_kelompok]['sub_kelompok'][$rek_sub_kelompok]['item_ssh'][] = array(
+							'id_ssh' => $v['id_standar_harga'],
+							'no_item' => $no_item,
+							'uraian_item' => $v['nama_standar_harga'],
+							'spesifikasi' => $rek_sub_kelompok.' '.$v['spek'],
+							'satuan' => $v['satuan'],
+							'harga' => $v['harga'],
+							'rek_belanja' => $v['rek_belanja']
+						);
+					}
+					$ret['golongan'] = $data;
+				}else{
+					$ret['status'] = 'error';
+					$ret['message'] = 'ID kelompok harus diisi! 1=SSH, 4=SBU, 2=HSPK, 3=ASB';
+				}
+			} else {
+				$ret['status'] = 'error';
+				$ret['message'] = 'APIKEY tidak sesuai!';
+			}
+		}
+		die(json_encode($ret));
+	}
+
 	public function datassh($atts)
 	{
 		$a = shortcode_atts(array(
