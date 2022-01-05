@@ -4370,7 +4370,7 @@ class Wpsipd_Public
 			}
 		}else if(in_array("tapd_pp", $user_meta->roles)){
 			$this->pilih_tahun_anggaran();
-			$this->tampil_menu_rpjm();
+			//$this->tampil_menu_rpjm();
 			if(empty($_GET) || empty($_GET['tahun'])){ return; }
 
 			$skpd_mitra = $wpdb->get_results($wpdb->prepare("
@@ -4381,7 +4381,7 @@ class Wpsipd_Public
 				from data_unit 
 				where active=1 
 					and tahun_anggaran=%d
-				group by id_skpd", $_GET['tahun_anggaran']), ARRAY_A);
+				group by id_skpd", $_GET['tahun']), ARRAY_A);
 			foreach ($skpd_mitra as $k => $v) {
 				$this->menu_monev_skpd(array(
 					'id_skpd' => $v['id_skpd'],
@@ -6347,7 +6347,11 @@ class Wpsipd_Public
 					'id_skpd' => $_POST['id_skpd'],
 					'tahun_anggaran' => $_POST['tahun_anggaran']
 				);
-				if(current_user_can('administrator')){
+				if(
+					current_user_can('administrator')
+					|| in_array("mitra_bappeda", $current_user->roles)
+                                        || in_array("tapd_pp", $current_user->roles)
+				){
 					$data['catatan_verifikator'] = $_POST['catatan_verifikator'];
 					$data['user_verifikator'] = $current_user->display_name;
 					$data['update_verifikator_at'] = current_time('mysql');

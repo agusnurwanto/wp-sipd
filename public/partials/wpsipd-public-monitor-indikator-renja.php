@@ -1088,6 +1088,7 @@ $edit_monev = '<button type="button" class="btn btn-success" id="set-monev">Simp
 if(
 	current_user_can('administrator')
 	|| in_array("mitra_bappeda", $current_user->roles)
+	|| in_array("tapd_pp", $current_user->roles)
 ){
 	$edit_monev = '';
 	$upload_monev = '';
@@ -1204,7 +1205,6 @@ foreach ($monev_triwulan as $k => $v) {
 		<li>Tekan tombol (X) untuk menghapus file .xlsx (excel)</li>
 		<li>Tekan tombol checklist berwarna biru untuk menyimpan data File MONEV</li>
 		<li>Pagu program, kegiatan dan sub kegiatan RENJA diambil dari nilai DPA terakhir di SIMDA jika pengaturan cara input realisasi disetting <b>otomatis ambil dari SIMDA</b>. Jika pengaturan cara input realisasi disetting <b>manual</b> maka pagu program, kegiatan dan sub kegiatan diambil dari nilai RKA terakhir di sipd.kemendagri.go.id</li>
-		<li>Untuk kolom <b>Realisasi Capaian Kinerja Renstra SKPD sampai dengan Renja SKPD Tahun Lalu</b> perlu diisi manual dengan mendownload laporan excel terlebih dulu. Untuk kolom <b>satuan</b> sudah otomatis mengikuti satuan dari indikator RENSTRA</li>
 		<li>Untuk kolom nomor 6 <b>Realisasi Capaian Kinerja Renstra SKPD sampai dengan Renja SKPD Tahun Lalu</b> perlu diisi manual dengan mendownload laporan excel terlebih dulu. Sedangkan kolom <b>satuan</b> sudah otomatis mengikuti satuan dari indikator RENSTRA</li>
 		<li>Untuk kolom nomor 14 <b>Realisasi Kinerja dan Anggaran Renstra SKPD s/d Tahun 2021 (Akhir Tahun Pelaksanaan Renja SKPD)</b> perlu diisi manual dengan mendownload laporan excel terlebih dulu. Sedangkan kolom <b>satuan</b> sudah otomatis mengikuti satuan dari indikator RENSTRA</li>
 		<li>Untuk kolom nomor 15 <b>Tingkat Capaian Kinerja dan Realisasi Anggaran Renstra SKPD s/d tahun 2021 (%)</b> juga diisi manual karena isianya dalah rumus dari kolom <b>14/5x100</b></li>
@@ -1697,7 +1697,7 @@ foreach ($monev_triwulan as $k => $v) {
 				var triwulan = tr.attr('data-tw');
 				var keterangan_skpd = tr.find('.keterangan_skpd').text();
 				var catatan_verifikator = tr.find('.catatan_verifikator').text();
-				var file_data = jQuery('.upload_monev');
+				var file_data = tr.find('.upload_monev');
 				if(file_data.length >= 1){
 					file_data = file_data.prop('files')[0];
 				}else{
