@@ -251,6 +251,18 @@ class Wpsipd_Admin {
 		// $sibangda_link = $this->generate_sibangda_page();
 		// $simda_link = $this->generate_simda_page();
 		// $siencang_link = $this->generate_siencang_page();
+		$sumber_dana_all = array();
+		$sumber_dana = $wpdb->get_results("
+			SELECT
+				id_dana,
+				kode_dana,
+				nama_dana
+			from data_sumber_dana
+			group by id_dana
+		", ARRAY_A);
+		foreach ($sumber_dana as $k => $v) {
+			$sumber_dana_all[$v['id_dana']] = $v['kode_dana'].' '.$v['nama_dana'].' ['.$v['id_dana'].']';
+		}
 		$options_basic = array(
             Field::make( 'text', 'crb_tahun_anggaran_sipd', 'Tahun Anggaran SIPD' )
             	->set_default_value('2021'),
@@ -292,6 +304,10 @@ class Wpsipd_Admin {
 			    ) )
             	->set_default_value(array('1','2','3','4','5'))
             	->set_help_text('Daftar fitur ini akan ditampilkan dalam bentuk tombol di halaman dasboard user setelah berhasil login.'),
+            Field::make( 'select', 'crb_default_sumber_dana', 'Sumber dana default ketika sumber dana di sub kegiatan belum disetting' )
+            	->add_options( $sumber_dana_all )
+            	->set_default_value(1)
+            	->set_help_text('Sumber dana ini akan digunakan di custom mapping sumber dana dan ketika singkron ke SIMDA'),
             Field::make( 'html', 'crb_generate_user_sipd_merah' )
             	->set_html( '<a id="generate_user_sipd_merah" onclick="return false;" href="#" class="button button-primary button-large">Generate User SIPD Merah By DB Lokal</a>' )
             	->set_help_text('Data user active yang ada di table data_dewan akan digenerate menjadi user wordpress.'),
@@ -849,6 +865,13 @@ class Wpsipd_Admin {
 	    	$tabel = '
         		<table class="wp-list-table widefat fixed striped">
         			<thead>
+        				<tr>
+        					<th colspan="6" class="text_tengah">
+        						<a class="button-primary" id="dpa_simda-to-wp_sipd" onclick="return false;" href="#">Singkronisasi Sumber Dana dari DPA SIMDA ke WP-SIPD</a>
+        						<a class="button" id="sipd_lokal-to-wp_sipd" onclick="return false;" href="#">Singkronisasi Sumber Dana dari DB SIPD Lokal ke WP-SIPD</a>
+        						<a class="button-primary" id="wp_sipd-to-rka_simda" onclick="return false;" href="#">Singkronisasi Sumber Dana dari WP-SIPD ke RKA SIMDA</a>
+        					</th>
+        				</tr>
         				<tr class="text_tengah">
         					<th class="text_tengah" style="width: 20px">No</th>
         					<th class="text_tengah" style="width: 100px">Kode</th>
@@ -1723,6 +1746,111 @@ class Wpsipd_Admin {
 				}else{
 					$ret['status'] = 'error';
 					$ret['message'] = 'Format ID mapping tidak sesuai!';	
+				}
+			} else {
+				$ret['status'] = 'error';
+				$ret['message'] = 'APIKEY tidak sesuai!';
+			}
+		}
+		die(json_encode($ret));
+    }
+
+    function sumberdana_sipd_lokal_ke_wp_sipd(){
+    	global $wpdb;
+		$ret = array(
+			'status'	=> 'success',
+			'message'	=> 'Berhasil singkronisasi sumber dana dari SIPD Lokal ke WP-SIPD!'
+		);
+		if (!empty($_POST)) {
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option('_crb_api_key_extension' )) {
+				$current_user = wp_get_current_user();
+				if(!empty($_POST['id_skpd'])){
+					$sub_keg = $wpdb->get_results($wpdb->prepare("
+						SELECT 
+							kode_sbl,
+							tahun_anggaran
+						FROM data_sub_keg_bl
+						where tahun_anggaran=%d
+							and active=1
+							and id_sub_skpd=%d
+						group by kode_sbl
+					", $_POST['tahun_anggaran'], $_POST['id_skpd']), ARRAY_A);
+				}else{
+					$sub_keg = $wpdb->get_results($wpdb->prepare("
+						SELECT 
+							kode_sbl,
+							tahun_anggaran
+						FROM data_sub_keg_bl
+						where tahun_anggaran=%d
+							and active=1
+						group by kode_sbl
+					", $_POST['tahun_anggaran']), ARRAY_A);
+				}
+				foreach ($sub_keg as $sub) {
+					$dana = $wpdb->get_results($wpdb->prepare("
+						SELECT 
+							iddana, 
+							kodedana, 
+							namadana, 
+							kode_sbl,
+							tahun_anggaran
+						FROM data_dana_sub_keg
+						where tahun_anggaran=%d
+							and kode_sbl=%s
+							and iddana!=0
+							and active=1
+					", $sub['tahun_anggaran'], $sub['kode_sbl']), ARRAY_A);
+					if(!empty($dana)){
+						$iddana = $dana[0]['iddana'];
+					}else{
+						$iddana = get_option('_crb_default_sumber_dana' );
+					}
+					$rka = $wpdb->get_results("
+						SELECT
+							id_rinci_sub_bl
+						FROM data_rka
+						where tahun_anggaran=".$sub['tahun_anggaran']."
+							and kode_sbl='".$sub['kode_sbl']."'
+							and active=1
+					", ARRAY_A);
+					foreach ($rka as $rinci) {
+						$wpdb->update('data_mapping_sumberdana', 
+							array(
+								'user' => $current_user->display_name,
+								'active' => 0,
+								'update_at' => current_time('mysql')
+							), array(
+								'tahun_anggaran' => $sub['tahun_anggaran'],
+								'id_rinci_sub_bl' => $rinci['id_rinci_sub_bl']
+							)
+						);
+						$cek = $wpdb->get_var($wpdb->prepare('
+							select 
+								id 
+							from data_mapping_sumberdana 
+							where tahun_anggaran=%d
+								and id_rinci_sub_bl=%d 
+								and id_sumber_dana=%d', 
+							$sub['tahun_anggaran'], $rinci['id_rinci_sub_bl'], $iddana
+						));
+						$opsi = array(
+							'id_rinci_sub_bl' => $rinci['id_rinci_sub_bl'],
+							'id_sumber_dana' => $iddana,
+							'user' => $current_user->display_name,
+							'active' => 1,
+							'update_at' => current_time('mysql'),
+							'tahun_anggaran'	=> $sub['tahun_anggaran']
+						);
+						if (!empty($cek)) {
+							$wpdb->update('data_mapping_sumberdana', $opsi, array(
+								'tahun_anggaran'	=> $sub['tahun_anggaran'],
+								'id_rinci_sub_bl' => $rinci['id_rinci_sub_bl'],
+								'id_sumber_dana' => $iddana,
+							));
+						} else {
+							$wpdb->insert('data_mapping_sumberdana', $opsi);
+						}
+					}
 				}
 			} else {
 				$ret['status'] = 'error';

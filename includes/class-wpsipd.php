@@ -176,6 +176,7 @@ class Wpsipd
 		$this->loader->add_action('wp_ajax_generate_sumber_dana_format',  $plugin_admin, 'generate_sumber_dana_format');
 		$this->loader->add_action('wp_ajax_get_list_skpd',  $plugin_admin, 'get_list_skpd');
 		$this->loader->add_action('wp_ajax_get_analis_rincian_label',  $plugin_admin, 'get_analis_rincian_label');
+		$this->loader->add_action('wp_ajax_sumberdana_sipd_lokal_ke_wp_sipd',  $plugin_admin, 'sumberdana_sipd_lokal_ke_wp_sipd');
 	}
 
 	/**

@@ -268,4 +268,41 @@ jQuery(document).ready(function(){
 			});
 		});
 	}
+	jQuery('#tabel_monev_sumber_dana').on('click', '#dpa_simda-to-wp_sipd', function(){
+		if(confirm('Apakah anda yakin untuk singkronisasi data sumber dana dari DPA SIMDA ke WP-SIPD?')){
+			alert('Masih dalam pengembangan!');
+		}
+	});
+	jQuery('#tabel_monev_sumber_dana').on('click', '#sipd_lokal-to-wp_sipd', function(){
+		if(confirm('Apakah anda yakin untuk singkronisasi data sumber dana dari SIPD Lokal ke WP-SIPD?')){
+			jQuery('#wrap-loading').show();
+			var tahun = jQuery('#pilih_tahun').val();
+			var id_skpd = jQuery('#pilih_skpd').val();
+			jQuery.ajax({
+				url: ajaxurl,
+	          	type: "post",
+	          	data: {
+	          		"action": "sumberdana_sipd_lokal_ke_wp_sipd",
+	          		"api_key": wpsipd.api_key,
+	          		"tahun_anggaran": tahun,
+	          		"id_skpd": id_skpd
+	          	},
+	          	dataType: "json",
+	          	success: function(data){
+					jQuery('#wrap-loading').hide();
+					return alert(data.message);
+				},
+				error: function(e) {
+					console.log(e);
+					jQuery('#wrap-loading').hide();
+					return alert('Ada kesalahan sistem! Cek console log.');
+				}
+			});
+		}
+	});
+	jQuery('#tabel_monev_sumber_dana').on('click', '#wp_sipd-to-rka_simda', function(){
+		if(confirm('Apakah anda yakin untuk singkronisasi data sumber dana dari WP-SIPD ke RKA SIMDA?')){
+
+		}
+	});
 });
