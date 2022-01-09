@@ -1468,7 +1468,8 @@ class Wpsipd_Simda
 											from data_rka 
 											where kode_sbl='".$v['kode_sbl']."'
 												AND tahun_anggaran=".$v['tahun_anggaran']."
-												AND active=1";
+												AND active=1
+												AND kode_akun!=''";
 										$rka = $wpdb->get_results($sql, ARRAY_A);
 										$akun_all = array();
 										$rinc_all = array();
