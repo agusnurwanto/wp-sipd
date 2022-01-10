@@ -1022,6 +1022,10 @@ class Wpsipd_Simda
 		if (!empty($_POST)) {
 			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option('_crb_api_key_extension' )) {
 				$kodeunit = '';
+				$opsi_return = false;
+				if(!empty($opsi['return'])){
+					$opsi_return = $opsi['return'];
+				}
 				if(!empty($_POST['kode_sbl']) && !empty($_POST['tahun_anggaran'])){
 					$sbl = $wpdb->get_results($wpdb->prepare("
 						SELECT 
@@ -1054,70 +1058,6 @@ class Wpsipd_Simda
 								}
 							}
 
-							$sql = "
-								SELECT 
-									* 
-								from data_dana_sub_keg 
-								where kode_sbl='".$v['kode_sbl']."'
-									AND tahun_anggaran=".$v['tahun_anggaran']."
-									AND active=1";
-							$sd_sub_keg = $wpdb->get_results($sql, ARRAY_A);
-							$id_sd = array();
-							$default_kd_sumber = 1;
-							foreach ($sd_sub_keg as $key => $sd) {
-								if(!empty($sd['iddana'])){
-									$new_sd = explode(' - ', $sd['namadana']);
-									$nama_sd = trim($new_sd[1]);
-									$nama_sd = substr($nama_sd, 0, 100);
-									$cek_sd = $this->CurlSimda(array('query' => "select * from ref_sumber_dana where kd_sumber=".$sd['iddana'].""));
-									if(empty($cek_sd)){
-										/* 
-										- Cek jika iddana lebih dari 255 karena type kd_sumber adalah tinyint, idmaksimal 255.
-										- Type kolom tabel ref_sumber_dana tidak bisa dirubah karena berelasi ke beberapa tabel lainnya.
-										- Admin simda perlu menginput sumber dana secara manual di tabel ref_sumber_dana dengan nama sumber dana yang sesuai di SIPD.
-										*/
-										if($sd['iddana'] > 255){
-											$cek_sd = $this->CurlSimda(array(
-												'query' => "select * from ref_sumber_dana where nm_sumber='".$nama_sd."'"
-											));
-											if(!empty($cek_sd)){
-												$sd['iddana'] = $cek_sd[0]->kd_sumber;
-											}else{
-												$ret['status'] = 'error';
-												$ret['simda_status'] = 'error';
-												$ret['simda_msg'] = 'Sumber dana dengan kd_sumber='.$sd['iddana'].' dan nm_sumber="'.$nama_sd.'" tidak dapat disimpan di tabel ref_sumber_dana. Harap tambahkan secara manual! nm_sumber harus sama dan untuk kd_sumber tidak harus sama. Sesuaikan dengan kondisi.';
-											}
-										}else{
-											$options = array('query' => "
-												INSERT INTO ref_sumber_dana (
-					                                kd_sumber,
-					                                nm_sumber
-					                            )
-					                            VALUES (
-													".$sd['iddana'].",
-													'".$nama_sd."'
-												)"
-											);
-											$this->CurlSimda($options);
-										}
-									}else{
-										if($cek_sd[0]->nm_sumber != $nama_sd){
-											$options = array('query' => "
-												UPDATE ref_sumber_dana 
-												set nm_sumber='".$nama_sd."'
-												where kd_sumber=".$sd['iddana'].""
-											);
-											$this->CurlSimda($options);
-										}
-									}
-									$id_sd[] = $sd['iddana'];
-								}
-							}
-							if(empty($id_sd)){
-								$sumber_dana = $default_kd_sumber;
-							}else{
-								$sumber_dana = $id_sd[0];
-							}
 							if($ret['status'] != 'error'){
 
 								$bulan = array('Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember');
@@ -1222,6 +1162,24 @@ class Wpsipd_Simda
 											// print_r($options); die();
 											$this->CurlSimda($options);
 										}
+
+										$sql = "
+											SELECT 
+												id_rinci_sub_bl
+											from data_rka 
+											where kode_sbl='".$v['kode_sbl']."'
+												AND tahun_anggaran=".$v['tahun_anggaran']."
+												AND active=1
+												AND kode_akun!=''
+											Order by kode_akun ASC, subs_bl_teks ASC, ket_bl_teks ASC, id_rinci_sub_bl ASC
+											LIMIT 1";
+										$id_rinci_sub_bl = $wpdb->get_var($sql);
+										$id_sumber_dana_kegiatan = $this->get_id_sumber_dana_simda(array(
+											'tahun_anggaran' => $v['tahun_anggaran'],
+											'id_rinci_sub_bl' => $id_rinci_sub_bl,
+											'return' => $opsi_return
+										));
+
 										$options = array(
 					                        'query' => "
 					                        select
@@ -1247,7 +1205,7 @@ class Wpsipd_Simda
 					                                lokasi = '".str_replace("'", '`', substr(implode(', ', $lokasi_sub), 0, 800))."',
 					                                status_kegiatan = 1,
 					                                pagu_anggaran = ".str_replace(',', '.', $v['pagu']).",
-					                                kd_sumber = ".$sumber_dana.",
+					                                kd_sumber = ".$id_sumber_dana_kegiatan.",
 					                                waktu_pelaksanaan = '".str_replace("'", '`', substr($waktu_pelaksanaan, 0, 100))."',
 					                                kelompok_sasaran = '".str_replace("'", '`', substr($v['sasaran'], 0, 255))."'
 					                            where 
@@ -1295,7 +1253,7 @@ class Wpsipd_Simda
 					                                1,
 					                                ".str_replace(',', '.', $v['pagu']).",
 					                                '".str_replace("'", '`', substr($waktu_pelaksanaan, 0, 100))."',
-					                                ".$sumber_dana."
+					                                ".$id_sumber_dana_kegiatan."
 					                            )"
 					                        );
 					                    }
@@ -1469,18 +1427,36 @@ class Wpsipd_Simda
 											where kode_sbl='".$v['kode_sbl']."'
 												AND tahun_anggaran=".$v['tahun_anggaran']."
 												AND active=1
-												AND kode_akun!=''";
+												AND kode_akun!=''
+											Order by kode_akun ASC, subs_bl_teks ASC, ket_bl_teks ASC, id_rinci_sub_bl ASC";
 										$rka = $wpdb->get_results($sql, ARRAY_A);
 										$akun_all = array();
 										$rinc_all = array();
 										foreach ($rka as $kk => $rk) {
+											$aktivitas = $rk['subs_bl_teks'].' | '.$rk['ket_bl_teks'];
 											if(empty($akun_all[$rk['kode_akun']])){
-												$akun_all[$rk['kode_akun']] = array();	
+												$id_sumber_dana_akun = $this->get_id_sumber_dana_simda(array(
+													'tahun_anggaran' => $v['tahun_anggaran'],
+													'id_rinci_sub_bl' => $rk['id_rinci_sub_bl'],
+													'return' => $opsi_return
+												));
+												$akun_all[$rk['kode_akun']] = array(
+													'id_sumber_dana' => $id_sumber_dana_akun,
+													'data' => array()
+												);	
 											}
-											if(empty($akun_all[$rk['kode_akun']][$rk['subs_bl_teks'].' | '.$rk['ket_bl_teks']])){
-												$akun_all[$rk['kode_akun']][$rk['subs_bl_teks'].' | '.$rk['ket_bl_teks']] = array();	
+											if(empty($akun_all[$rk['kode_akun']]['data'][$aktivitas])){
+												$id_sumber_dana_aktivitas = $this->get_id_sumber_dana_simda(array(
+													'tahun_anggaran' => $v['tahun_anggaran'],
+													'id_rinci_sub_bl' => $rk['id_rinci_sub_bl'],
+													'return' => $opsi_return
+												));
+												$akun_all[$rk['kode_akun']]['data'][$aktivitas] = array(
+													'id_sumber_dana' => $id_sumber_dana_aktivitas,
+													'data' => array()
+												);	
 											}
-											$akun_all[$rk['kode_akun']][$rk['subs_bl_teks'].' | '.$rk['ket_bl_teks']][] = $rk;
+											$akun_all[$rk['kode_akun']]['data'][$aktivitas]['data'][] = $rk;
 										}
 										
 										foreach ($akun_all as $kk => $rk) {
@@ -1528,14 +1504,14 @@ class Wpsipd_Simda
 											                ".$mapping_rek[0]->kd_rek_3.",
 											                ".$mapping_rek[0]->kd_rek_4.",
 											                ".$mapping_rek[0]->kd_rek_5.",
-											                ".$sumber_dana."
+											                ".$rk['id_sumber_dana']."
 											            )"
 									            );
 							                    // print_r($options); die();
 							                    $this->CurlSimda($options);
 												
 						                		$no_rinc = 0;
-												foreach ($rk as $kkk => $rkk) {
+												foreach ($rk['data'] as $kkk => $rkk) {
 													$no_rinc++;
 													$options = array(
 										                'query' => "
@@ -1572,14 +1548,14 @@ class Wpsipd_Simda
 												                ".$mapping_rek[0]->kd_rek_5.",
 												                ".$no_rinc.",
 												                '".str_replace("'", '`', substr($kkk, 0, 255))."',
-												                ".$sumber_dana."
+												                ".$rkk['id_sumber_dana']."
 												            )"
 										            );
 								                    // print_r($options); die();
 								                    $this->CurlSimda($options);
 
 							                		$no_rinc_sub = 0;
-													foreach ($rkk as $kkkk => $rkkk) {
+													foreach ($rkk['data'] as $kkkk => $rkkk) {
 														$no_rinc_sub++;
 														$komponen = array($rkkk['nama_komponen'], $rkkk['spek_komponen']);
 														$nilai1 = 0;
@@ -1739,6 +1715,91 @@ class Wpsipd_Simda
 		}
 		if(!empty($opsi['return'])){
 			die(json_encode($ret));
+		}else{
+			return $ret;
+		}
+	}
+
+	public function get_id_sumber_dana_simda($options=array()){
+		global $wpdb;
+		$ret = array();
+		$tahun_anggaran = $options['tahun_anggaran'];
+		$id_rinci_sub_bl = $options['id_rinci_sub_bl'];
+		$id_sumber_dana = $wpdb->get_var($wpdb->prepare('
+			select 
+				id_sumber_dana 
+			from data_mapping_sumberdana 
+			where tahun_anggaran=%d
+				and id_rinci_sub_bl=%d
+				and active=1', 
+			$tahun_anggaran, $id_rinci_sub_bl
+		));
+
+		if(empty($id_sumber_dana)){
+			$id_sumber_dana = get_option('_crb_default_sumber_dana' );
+		}
+
+		$sql = "
+			SELECT 
+				nama_dana
+			from data_sumber_dana 
+			where id_dana=".$id_sumber_dana."
+				AND tahun_anggaran=".$tahun_anggaran."";
+		$namadana = $wpdb->get_var($sql);
+		$new_sd = explode(' - ', $namadana);
+		$nama_sd = trim($new_sd[1]);
+		$nama_sd = substr($nama_sd, 0, 100);
+		$cek_sd = $this->CurlSimda(array(
+			'query' => "select * from ref_sumber_dana where kd_sumber=".$id_sumber_dana.""
+		));
+		if(empty($cek_sd)){
+			/* 
+			- Cek jika iddana lebih dari 255 karena type kd_sumber adalah tinyint, idmaksimal 255.
+			- Type kolom tabel ref_sumber_dana tidak bisa dirubah karena berelasi ke beberapa tabel lainnya.
+			- Admin simda perlu menginput sumber dana secara manual di tabel ref_sumber_dana dengan nama sumber dana yang sesuai di SIPD.
+			*/
+			if($id_sumber_dana > 255){
+				$cek_sd = $this->CurlSimda(array(
+					'query' => "select * from ref_sumber_dana where nm_sumber='".$nama_sd."'"
+				));
+				if(!empty($cek_sd)){
+					$id_sumber_dana = $cek_sd[0]->kd_sumber;
+				}else{
+					$ret['status'] = 'error';
+					$ret['simda_status'] = 'error';
+					$ret['simda_msg'] = 'Sumber dana dengan kd_sumber='.$id_sumber_dana.' dan nm_sumber="'.$nama_sd.'" tidak dapat disimpan di tabel ref_sumber_dana. Harap tambahkan secara manual! nm_sumber harus sama dan untuk kd_sumber tidak harus sama. Sesuaikan dengan kondisi.';
+				}
+			}else{
+				$options = array('query' => "
+					INSERT INTO ref_sumber_dana (
+                        kd_sumber,
+                        nm_sumber
+                    )
+                    VALUES (
+						".$id_sumber_dana.",
+						'".$nama_sd."'
+					)"
+				);
+				$this->CurlSimda($options);
+			}
+		}else{
+			if($cek_sd[0]->nm_sumber != $nama_sd){
+				$options = array('query' => "
+					UPDATE ref_sumber_dana 
+					set nm_sumber='".$nama_sd."'
+					where kd_sumber=".$id_sumber_dana.""
+				);
+				$this->CurlSimda($options);
+			}
+		}
+
+		if(
+			!empty($options['return'])
+			&& $ret['status'] == 'error'
+		){
+			die(json_encode($ret));
+		}else{
+			return $id_sumber_dana;
 		}
 	}
 

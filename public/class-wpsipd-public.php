@@ -2847,6 +2847,7 @@ class Wpsipd_Public
 					}
 				}
 
+				$iddana = false;
 				if (!empty($_POST['dataDana']) && $ret['status'] != 'error') {
 					$dataDana = $_POST['dataDana'];
 					$wpdb->update('data_dana_sub_keg', array( 'active' => 0 ), array(
@@ -2854,6 +2855,12 @@ class Wpsipd_Public
 						'kode_sbl' => $_POST['kode_sbl']
 					));
 					foreach ($dataDana as $k => $v) {
+						if(
+							empty($iddana)
+							&& !empty($v['iddana'])
+						){
+							$iddana = $v['iddana'];
+						}
 						$cek = $wpdb->get_var("SELECT kode_sbl from data_dana_sub_keg where tahun_anggaran=".$_POST['tahun_anggaran']." AND kode_sbl='" . $_POST['kode_sbl'] . "' AND iddanasubbl='" . $v['iddanasubbl'] . "'");
 						$opsi = array(
 							'namadana' => $v['namadana'],
@@ -2877,6 +2884,9 @@ class Wpsipd_Public
 							$wpdb->insert('data_dana_sub_keg', $opsi);
 						}
 					}
+				}
+				if(empty($iddana)){
+					$iddana = get_option('_crb_default_sumber_dana' );
 				}
 
 				if (!empty($_POST['dataLokout']) && $ret['status'] != 'error') {
@@ -3005,6 +3015,27 @@ class Wpsipd_Public
 							$wpdb->insert('data_rka', $opsi);
 						}
 						// print_r($opsi); print_r($wpdb->last_query);
+
+						$cek = $wpdb->get_var($wpdb->prepare('
+							select 
+								id 
+							from data_mapping_sumberdana 
+							where tahun_anggaran=%d
+								and id_rinci_sub_bl=%d 
+								and active=1', 
+							$_POST['tahun_anggaran'], $v['id_rinci_sub_bl']
+						));
+						if (empty($cek)) {
+							$opsi = array(
+								'id_rinci_sub_bl' => $rinci['id_rinci_sub_bl'],
+								'id_sumber_dana' => $iddana,
+								'user' => $current_user->display_name,
+								'active' => 1,
+								'update_at' => current_time('mysql'),
+								'tahun_anggaran' => $_POST['tahun_anggaran']
+							);
+							$wpdb->insert('data_mapping_sumberdana', $opsi);
+						}
 					}
 				} else if ($ret['status'] != 'error') {
 					// untuk menghapus rka subkeg yang dihapus di perubahan

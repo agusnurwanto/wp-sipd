@@ -867,9 +867,9 @@ class Wpsipd_Admin {
         			<thead>
         				<tr>
         					<th colspan="6" class="text_tengah">
-        						<a class="button-primary" id="dpa_simda-to-wp_sipd" onclick="return false;" href="#">Singkronisasi Sumber Dana dari DPA SIMDA ke WP-SIPD</a>
+        						<a class="button-primary" id="dpa_simda-to-wp_sipd" onclick="return false;" href="#" style="display: none;">Singkronisasi Sumber Dana dari DPA SIMDA ke WP-SIPD</a>
         						<a class="button" id="sipd_lokal-to-wp_sipd" onclick="return false;" href="#">Singkronisasi Sumber Dana dari DB SIPD Lokal ke WP-SIPD</a>
-        						<a class="button-primary" id="wp_sipd-to-rka_simda" onclick="return false;" href="#">Singkronisasi Sumber Dana dari WP-SIPD ke RKA SIMDA</a>
+        						<a class="button-primary" id="wp_sipd-to-rka_simda" onclick="return false;" href="#">Singkronisasi Sumber Dana dan RKA dari WP-SIPD ke RKA SIMDA</a>
         					</th>
         				</tr>
         				<tr class="text_tengah">
@@ -1850,6 +1850,58 @@ class Wpsipd_Admin {
 						} else {
 							$wpdb->insert('data_mapping_sumberdana', $opsi);
 						}
+					}
+				}
+			} else {
+				$ret['status'] = 'error';
+				$ret['message'] = 'APIKEY tidak sesuai!';
+			}
+		}
+		die(json_encode($ret));
+    }
+
+    function sumberdana_wp_sipd_ke_rka_simda(){
+    	global $wpdb;
+		$ret = array(
+			'status'	=> 'success',
+			'message'	=> 'Berhasil singkronisasi sumber dana dari WP-SIPD ke RKA SIMDA!'
+		);
+		if (!empty($_POST)) {
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option('_crb_api_key_extension' )) {
+				$current_user = wp_get_current_user();
+				$debug = false;
+				if(get_option('_crb_singkron_simda_debug') == 1){
+					$debug = true;
+				}
+				if(!empty($_POST['id_skpd'])){
+					$sub_keg = $wpdb->get_results($wpdb->prepare("
+						SELECT 
+							kode_sbl,
+							tahun_anggaran
+						FROM data_sub_keg_bl
+						where tahun_anggaran=%d
+							and active=1
+							and id_sub_skpd=%d
+						group by kode_sbl
+					", $_POST['tahun_anggaran'], $_POST['id_skpd']), ARRAY_A);
+				}else{
+					$sub_keg = $wpdb->get_results($wpdb->prepare("
+						SELECT 
+							kode_sbl,
+							tahun_anggaran
+						FROM data_sub_keg_bl
+						where tahun_anggaran=%d
+							and active=1
+						group by kode_sbl
+					", $_POST['tahun_anggaran']), ARRAY_A);
+				}
+				foreach ($sub_keg as $sub) {
+					$_POST['kode_sbl'] = $sub['kode_sbl'];
+					$res = $this->simda->singkronSimda(array(
+						'return' => false
+					));
+					if($res['status'] == 'error'){
+						die(json_encode($res));
 					}
 				}
 			} else {

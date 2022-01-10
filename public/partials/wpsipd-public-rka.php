@@ -443,7 +443,7 @@ foreach ($bl as $k => $sub_bl) {
 		where kode_sbl='".$sub_bl['kode_sbl']."'
 			AND tahun_anggaran=".$bl[0]['tahun_anggaran']."
 			AND active=1
-		Order by kode_akun ASC, subs_bl_teks ASC, ket_bl_teks ASC"
+		Order by kode_akun ASC, subs_bl_teks ASC, ket_bl_teks ASC, id_rinci_sub_bl ASC"
 	, ARRAY_A);
 	// print_r($rinc); die();
 	$rin_sub_item = '';

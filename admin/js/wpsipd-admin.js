@@ -301,8 +301,81 @@ jQuery(document).ready(function(){
 		}
 	});
 	jQuery('#tabel_monev_sumber_dana').on('click', '#wp_sipd-to-rka_simda', function(){
-		if(confirm('Apakah anda yakin untuk singkronisasi data sumber dana dari WP-SIPD ke RKA SIMDA?')){
+		if(confirm('Apakah anda yakin untuk singkronisasi data sumber dana dan RKA dari WP-SIPD ke RKA SIMDA?')){
+			jQuery('#wrap-loading').show();
+			var tahun = jQuery('#pilih_tahun').val();
+			var id_skpd = jQuery('#pilih_skpd').val();
+			var id_all_skpd = [];
+			if(id_skpd != 0){
+				var nama_skpd = jQuery('#pilih_skpd option:selected').text();
+				id_all_skpd.push({
+					id_skpd: id_skpd,
+					nama: nama_skpd
+				});
+			}else{
+				jQuery('#pilih_skpd option').map(function(i, b){
+					var id_skpd = jQuery(b).attr('value');
+					if(id_skpd != 0){
+						var nama_skpd = jQuery(b).text();
+						id_all_skpd.push({
+							id_skpd: id_skpd,
+							nama: nama_skpd
+						});
+					}
+				});
+			}
 
+			jQuery('#persen-loading').attr('persen', 0);
+			jQuery('#persen-loading').html('0%');
+			jQuery('#persen-loading').attr('total', id_all_skpd.length);
+			var last = id_all_skpd.length-1;
+			id_all_skpd.reduce(function(sequence, nextData){
+                return sequence.then(function(skpd){
+            		return new Promise(function(resolve_redurce, reject_redurce){
+						var c_persen = +jQuery('#persen-loading').attr('persen');
+						c_persen++;
+						jQuery('#persen-loading').attr('persen', c_persen);
+						jQuery('#persen-loading').html(((c_persen/id_all_skpd.length)*100).toFixed(2)+'%'+'<br>'+skpd.nama);
+						jQuery.ajax({
+							url: ajaxurl,
+				          	type: "post",
+				          	data: {
+				          		"action": "sumberdana_wp_sipd_ke_rka_simda",
+				          		"api_key": wpsipd.api_key,
+				          		"tahun_anggaran": tahun,
+				          		"id_skpd": skpd.id_skpd
+				          	},
+				          	dataType: "json",
+				          	success: function(data){
+				          		return resolve_redurce(nextData);
+							},
+							error: function(e) {
+								console.log(e);
+				          		return resolve_redurce(nextData);
+							}
+						});
+            		})
+                    .catch(function(e){
+                        console.log(e);
+                        return Promise.resolve(nextData);
+                    });
+                })
+                .catch(function(e){
+                    console.log(e);
+                    return Promise.resolve(nextData);
+                });
+            }, Promise.resolve(id_all_skpd[last]))
+            .then(function(){
+				jQuery('#wrap-loading').hide();
+				jQuery('#persen-loading').html('');
+				jQuery('#persen-loading').attr('persen', '');
+				jQuery('#persen-loading').attr('total', '');
+				return alert('Berhasil singkronisasi sumberdana dan RKA dari WP-SIPD ke RKA SIMDA!');
+            })
+            .catch(function(e){
+                console.log(e);
+				return alert('Ada kesalahan sistem! Cek console log.');
+            });
 		}
 	});
 });

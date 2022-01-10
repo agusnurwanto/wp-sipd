@@ -80,3 +80,19 @@
 #dokumentasi li {
     list-style: initial;
 }
+
+#persen-loading{
+    text-align: center;
+    position: fixed;
+    height: 64px;
+    top: 50vh;
+    left: 50%;
+    z-index: 99999;
+    margin-top: -90px;
+    color: #fff;
+    font-size: 26px;
+    font-weight: bold;
+    width: 100vw;
+    margin-left: -50vw;
+    line-height: 1;
+}
