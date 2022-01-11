@@ -4731,7 +4731,7 @@ class Wpsipd_Public
 				SUM(r.total) as total
 			FROM ta_rask_arsip r
 			WHERE r.tahun = %d
-				AND r.kd_perubahan = (SELECT MAX(Kd_Perubahan) FROM Ta_Rask_Arsip)
+				AND r.kd_perubahan = (SELECT MAX(Kd_Perubahan) FROM Ta_Rask_Arsip where tahun=%d)
 				AND r.kd_urusan = %d
 				AND r.kd_bidang = %d
 				AND r.kd_unit = %d
@@ -4740,6 +4740,7 @@ class Wpsipd_Public
 				AND r.id_prog = %d
 				AND r.kd_keg = %d
 			", 
+			$options['tahun_anggaran'], 
 			$options['tahun_anggaran'], 
 			$kd_urusan, 
 			$kd_bidang, 
@@ -7244,12 +7245,13 @@ class Wpsipd_Public
 								SUM(r.total) as total
 							FROM ta_rask_arsip r
 							WHERE r.tahun = %d
-								AND r.kd_perubahan = (SELECT MAX(Kd_Perubahan) FROM Ta_Rask_Arsip)
+								AND r.kd_perubahan = (SELECT MAX(Kd_Perubahan) FROM Ta_Rask_Arsip where tahun=%d)
 								AND r.kd_urusan = %d
 								AND r.kd_bidang = %d
 								AND r.kd_unit = %d
 								AND r.kd_sub = %d
 							", 
+							$tahun_anggaran, 
 							$tahun_anggaran, 
 							$_kd_urusan, 
 							$_kd_bidang, 
