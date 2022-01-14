@@ -852,7 +852,7 @@ foreach ($bl as $k => $sub_bl) {
 			$rin_murni = '
                 <td class="kanan bawah" style="vertical-align: middle;">'.$item['koefisien_murni'].'</td>
                 <td class="kanan bawah" style="vertical-align: middle;">'.$item['satuan'].'</td>
-                <td class="kanan bawah text_kanan" style="vertical-align: middle;">'.number_format($item['harga_satuan'],0,",",".").'</td>
+                <td class="kanan bawah text_kanan" style="vertical-align: middle;">'.number_format($item['harga_satuan_murni'],0,",",".").'</td>
                 <td class="kanan bawah text_kanan" style="vertical-align: middle;">'.number_format($item['pajak_murni'],0,",",".").'</td>
                 <td class="kanan bawah text_kanan" style="vertical-align: middle;white-space:nowrap">Rp. '.number_format($item['rincian_murni'],0,",",".").'</td>
 			';
@@ -871,7 +871,7 @@ foreach ($bl as $k => $sub_bl) {
                 '.$rin_murni.'
                 <td class="kanan bawah volume_satuan" style="vertical-align: middle;">'.$item['koefisien'].'</td>
                 <td class="kanan bawah" style="vertical-align: middle;">'.$item['satuan'].'</td>
-                <td class="kanan bawah text_kanan" style="vertical-align: middle;">'.number_format($item['harga_satuan_murni'],0,",",".").'</td>
+                <td class="kanan bawah text_kanan" style="vertical-align: middle;">'.number_format($item['harga_satuan'],0,",",".").'</td>
                 <td class="kanan bawah text_kanan" style="vertical-align: middle;">'.number_format($item['totalpajak'],0,",",".").'</td>
                 <td class="kanan bawah text_kanan total_rinci" data-total="'.$item['total_harga'].'" style="vertical-align: middle;white-space:nowrap">Rp. '.number_format($item['total_harga'],0,",",".").'</td>
                 '.$selisih_murni.'
