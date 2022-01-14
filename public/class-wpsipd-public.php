@@ -3027,9 +3027,9 @@ class Wpsipd_Public
 						));
 						if (empty($cek)) {
 							$opsi = array(
-								'id_rinci_sub_bl' => $rinci['id_rinci_sub_bl'],
+								'id_rinci_sub_bl' => $v['id_rinci_sub_bl'],
 								'id_sumber_dana' => $iddana,
-								'user' => $current_user->display_name,
+								'user' => 'Singkron SIPD Merah',
 								'active' => 1,
 								'update_at' => current_time('mysql'),
 								'tahun_anggaran' => $_POST['tahun_anggaran']
