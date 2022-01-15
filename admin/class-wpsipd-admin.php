@@ -264,6 +264,8 @@ class Wpsipd_Admin {
 			$sumber_dana_all[$v['id_dana']] = $v['kode_dana'].' '.$v['nama_dana'].' ['.$v['id_dana'].']';
 		}
 		$options_basic = array(
+            Field::make( 'text', 'crb_awal_rpjmd', 'Tahun Awal RPJMD' )
+            	->set_default_value('2018'),
             Field::make( 'text', 'crb_tahun_anggaran_sipd', 'Tahun Anggaran SIPD' )
             	->set_default_value('2021'),
             Field::make( 'text', 'crb_daerah', 'Nama Pemda' )

@@ -5460,9 +5460,14 @@ class Wpsipd_Public
 		$ret['message'] = 'Berhasil singkron program RENSTRA!';
 		if (!empty($_POST)) {
 			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
-				$wpdb->update('data_renstra_program', array('active' => 0), array(
-					'tahun_anggaran' => $_POST['tahun_anggaran']
-				));
+				if(
+					empty($_POST['page']) 
+					|| $_POST['page'] == 1
+				){
+					$wpdb->update('data_renstra_program', array('active' => 0), array(
+						'tahun_anggaran' => $_POST['tahun_anggaran']
+					));
+				}
 				foreach ($_POST['program'] as $k => $v) {
 					if(empty($v['id_unik'])){
 						$v['id_unik'] = '0';
@@ -5582,9 +5587,14 @@ class Wpsipd_Public
 		$ret['message'] = 'Berhasil singkron kegiatan RENSTRA!';
 		if (!empty($_POST)) {
 			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
-				$wpdb->update('data_renstra_kegiatan', array('active' => 0), array(
-					'tahun_anggaran' => $_POST['tahun_anggaran']
-				));
+				if(
+					empty($_POST['page']) 
+					|| $_POST['page'] == 1
+				){
+					$wpdb->update('data_renstra_kegiatan', array('active' => 0), array(
+						'tahun_anggaran' => $_POST['tahun_anggaran']
+					));
+				}
 				foreach ($_POST['kegiatan'] as $k => $v) {
 					if(empty($v['id_unik'])){
 						$v['id_unik'] = '0';
