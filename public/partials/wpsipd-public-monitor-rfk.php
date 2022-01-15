@@ -68,18 +68,11 @@ $units = $wpdb->get_results($sql, ARRAY_A);
 if(empty($units)){
 	die('<h1>SKPD tidak ditemukan!</h1>');
 }else{
-	$pengaturan = $wpdb->get_results($wpdb->prepare("
-		select 
-			* 
-		from data_pengaturan_sipd 
-		where tahun_anggaran=%d
-	", $input['tahun_anggaran']), ARRAY_A);
-
-	$start_rpjmd = 2018;
-	if(!empty($pengaturan)){
-		$start_rpjmd = $pengaturan[0]['awal_rpjmd'];
+	$awal_rpjmd = get_option('_crb_awal_rpjmd' );
+	if(empty($awal_rpjmd)){
+		$awal_rpjmd = 2018;
 	}
-	$urut = $input['tahun_anggaran']-$start_rpjmd;
+	$urut = $input['tahun_anggaran']-$awal_rpjmd;
 }
 
 $current_user = wp_get_current_user();
@@ -155,7 +148,7 @@ foreach ($units as $k => $unit):
 	);
 	foreach ($subkeg as $kk => $sub) {
 		if(empty($kd_unit_simda) || empty($kd_unit_simda[3])){
-			continue;
+			$kd_unit_simda = array(0, 0, 0, 0);
 		}
 		$_kd_urusan = $kd_unit_simda[0];
 		$_kd_bidang = $kd_unit_simda[1];
@@ -261,7 +254,7 @@ foreach ($units as $k => $unit):
 			'id_skpd' => $input['id_skpd'],
 			'kode_sbl' => $sub['kode_sbl'],
 			'tahun_anggaran' => $input['tahun_anggaran'],
-			'realisasi_anggaran' => $sub['rak'],
+			'rak' => $sub['rak'],
 			'id_rfk' => $sub['id_rfk'],
 			'bulan' => $bulan,
 			'kd_urusan' => $_kd_urusan,
