@@ -3016,25 +3016,27 @@ class Wpsipd_Public
 						}
 						// print_r($opsi); print_r($wpdb->last_query);
 
-						$cek = $wpdb->get_var($wpdb->prepare('
-							select 
-								id 
-							from data_mapping_sumberdana 
-							where tahun_anggaran=%d
-								and id_rinci_sub_bl=%d 
-								and active=1', 
-							$_POST['tahun_anggaran'], $v['id_rinci_sub_bl']
-						));
-						if (empty($cek)) {
-							$opsi = array(
-								'id_rinci_sub_bl' => $v['id_rinci_sub_bl'],
-								'id_sumber_dana' => $iddana,
-								'user' => 'Singkron SIPD Merah',
-								'active' => 1,
-								'update_at' => current_time('mysql'),
-								'tahun_anggaran' => $_POST['tahun_anggaran']
-							);
-							$wpdb->insert('data_mapping_sumberdana', $opsi);
+						if(!empty($v['id_rinci_sub_bl'])){
+							$cek = $wpdb->get_var($wpdb->prepare('
+								select 
+									id 
+								from data_mapping_sumberdana 
+								where tahun_anggaran=%d
+									and id_rinci_sub_bl=%d 
+									and active=1', 
+								$_POST['tahun_anggaran'], $v['id_rinci_sub_bl']
+							));
+							if (empty($cek)) {
+								$opsi = array(
+									'id_rinci_sub_bl' => $v['id_rinci_sub_bl'],
+									'id_sumber_dana' => $iddana,
+									'user' => 'Singkron SIPD Merah',
+									'active' => 1,
+									'update_at' => current_time('mysql'),
+									'tahun_anggaran' => $_POST['tahun_anggaran']
+								);
+								$wpdb->insert('data_mapping_sumberdana', $opsi);
+							}
 						}
 					}
 				} else if ($ret['status'] != 'error') {
