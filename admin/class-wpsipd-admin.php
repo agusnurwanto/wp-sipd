@@ -197,6 +197,10 @@ class Wpsipd_Admin {
 		    ->set_page_parent( $basic_options_container )
 		    ->add_fields( $this->get_mapping_unit() );
 
+	    Container::make( 'theme_options', __( 'FMIS Setting' ) )
+		    ->set_page_parent( $basic_options_container )
+		    ->add_fields( $this->get_setting_fmis() );
+
 	    $monev = Container::make( 'theme_options', __( 'MONEV SIPD' ) )
 			->set_page_menu_position( 4 )
 		    ->add_fields( $this->get_ajax_field(array('type' => 'rfk')) );
@@ -448,6 +452,19 @@ class Wpsipd_Admin {
 			}
 		}
 		die(json_encode($ret));
+	}
+
+	public function get_setting_fmis(){
+		global $wpdb;
+		$tahun_anggaran = get_option('_crb_tahun_anggaran_sipd');
+		$unit = $wpdb->get_results("SELECT nama_skpd, id_skpd, kode_skpd from data_unit where active=1 and tahun_anggaran=".$tahun_anggaran.' order by id_skpd ASC', ARRAY_A);
+		$mapping_unit = array();
+		$mapping_unit[] = Field::make( 'html', 'crb_fmis_keterangan' )
+	        ->set_html( '<h3>Tahun anggaran WP-SIPD: '.$tahun_anggaran.'</h3>Informasi terkait integrasi data WP-SIPD ke FMIS bisa dicek di <a href="https://smkasiyahhomeschooling.blogspot.com/2021/12/fmis-chrome-extension-untuk-integrasi.html" target="blank">https://smkasiyahhomeschooling.blogspot.com/2021/12/fmis-chrome-extension-untuk-integrasi.html</a>.' );
+		foreach ($unit as $k => $v) {
+			$mapping_unit[] = Field::make( 'text', 'crb_unit_fmis_'.$tahun_anggaran.'_'.$v['id_skpd'], ($k+1).'. Kode Sub Unit FMIS untuk '.$v['kode_skpd'].' '.$v['nama_skpd'] );
+		}
+		return $mapping_unit;
 	}
 
 	public function get_mapping_unit(){

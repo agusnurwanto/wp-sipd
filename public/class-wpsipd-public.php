@@ -7877,4 +7877,134 @@ class Wpsipd_Public
 		}
 		return $this->get_link_post($custom_post);
 	}
+
+	public function get_sub_keg(){
+		global $wpdb;
+		$ret = array(
+			'action'	=> $_POST['action'],
+			'run'	=> $_POST['run'],
+			'status'	=> 'success',
+			'message'	=> 'Berhasil get sub kegiatan!'
+		);
+		if (!empty($_POST)) {
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+				$tahun_anggaran = $_POST['tahun_anggaran'];
+				$id_skpd_sipds = $wpdb->get_results($wpdb->prepare('
+					SELECT 
+						id_skpd
+					FROM data_unit
+					WHERE tahun_anggaran=%d
+						AND active=1
+				', $tahun_anggaran), ARRAY_A);
+				$id_skpd_sipd = false;
+				foreach ($id_skpd_sipds as $k => $v) {
+					$id_mapping = get_option('_crb_unit_fmis_'.$tahun_anggaran.'_'.$v['id_skpd']);
+					if($id_mapping == $_POST['id_skpd_fmis']){
+						$id_skpd_sipd = $v['id_skpd'];
+					}
+				}
+				if(
+					!empty($id_skpd_sipd) 
+					&& !empty($_POST['id_skpd_fmis'])
+				){
+					$data_sub_keg = $wpdb->get_results($wpdb->prepare("
+						SELECT 
+							* 
+						from data_sub_keg_bl 
+						where tahun_anggaran=%d
+							and id_skpd=%d
+							and active=1", 
+					$tahun_anggaran, $id_skpd_sipd), ARRAY_A);
+					foreach ($data_sub_keg as $k => $v) {
+						$data_sub_keg[$k]['sub_keg_indikator'] = $wpdb->get_results("
+							select 
+								* 
+							from data_sub_keg_indikator 
+							where tahun_anggaran=".$v['tahun_anggaran']."
+								and kode_sbl='".$v['kode_sbl']."'
+								and active=1", ARRAY_A);
+						$data_sub_keg[$k]['sub_keg_indikator_hasil'] = $wpdb->get_results("
+							select 
+								* 
+							from data_keg_indikator_hasil 
+							where tahun_anggaran=".$v['tahun_anggaran']."
+								and kode_sbl='".$v['kode_sbl']."'
+								and active=1", ARRAY_A);
+						$data_sub_keg[$k]['tag_sub_keg'] = $wpdb->get_results("
+							select 
+								* 
+							from data_tag_sub_keg 
+							where tahun_anggaran=".$v['tahun_anggaran']."
+								and kode_sbl='".$v['kode_sbl']."'
+								and active=1", ARRAY_A);
+						$data_sub_keg[$k]['capaian_prog_sub_keg'] = $wpdb->get_results("
+							select 
+								* 
+							from data_capaian_prog_sub_keg 
+							where tahun_anggaran=".$v['tahun_anggaran']."
+								and kode_sbl='".$v['kode_sbl']."'
+								and active=1", ARRAY_A);
+						$data_sub_keg[$k]['output_giat'] = $wpdb->get_results("
+							select 
+								* 
+							from data_output_giat_sub_keg 
+							where tahun_anggaran=".$v['tahun_anggaran']."
+								and kode_sbl='".$v['kode_sbl']."'
+								and active=1", ARRAY_A);
+						$data_sub_keg[$k]['lokasi_sub_keg'] = $wpdb->get_results("
+							select 
+								* 
+							from data_lokasi_sub_keg 
+							where tahun_anggaran=".$v['tahun_anggaran']."
+								and kode_sbl='".$v['kode_sbl']."'
+								and active=1", ARRAY_A);
+					}
+					$ret['data'] = $data_sub_keg;
+				}else{
+					$ret['status'] = 'error';
+					$ret['message'] = 'id_skpd_fmis='.$_POST['id_skpd_fmis'].' tahun_anggaran='.$tahun_anggaran.' belum dimapping!';
+				}
+			} else {
+				$ret['status'] = 'error';
+				$ret['message'] = 'APIKEY tidak sesuai!';
+			}
+		}
+		die(json_encode($ret));
+	}
+
+	function mapping_skpd_fmis(){
+		global $wpdb;
+		$ret = array(
+			'action'	=> $_POST['action'],
+			'status'	=> 'success',
+			'message'	=> 'Berhasil mapping SKPD!'
+		);
+		if (!empty($_POST)) {
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+				$tahun_anggaran = $_POST['tahun_anggaran'];
+				foreach ($_POST['data'] as $k => $skpd) {
+					foreach ($skpd['sub_unit'] as $kk => $sub_unit) {
+						$id_skpd_sipd = $wpdb->get_var($wpdb->prepare('
+							SELECT 
+								id_skpd
+							FROM data_unit
+							WHERE nama_skpd=%s
+								AND tahun_anggaran=%d
+								AND active=1
+						', $sub_unit['name'], $tahun_anggaran));
+						if(!empty($id_skpd_sipd)){
+							update_option('_crb_unit_fmis_'.$tahun_anggaran.'_'.$id_skpd_sipd, $sub_unit['id']);
+							$ret['data_sukses_mapping'][] = $sub_unit;
+						}else{
+							$ret['data_gagal_mapping'][] = $sub_unit;
+						}
+					}
+				}
+			} else {
+				$ret['status'] = 'error';
+				$ret['message'] = 'APIKEY tidak sesuai!';
+			}
+		}
+		die(json_encode($ret));
+	}
 }
