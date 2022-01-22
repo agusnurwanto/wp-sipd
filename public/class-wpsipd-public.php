@@ -7889,23 +7889,34 @@ class Wpsipd_Public
 		if (!empty($_POST)) {
 			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
 				$tahun_anggaran = $_POST['tahun_anggaran'];
-				$id_skpd_sipds = $wpdb->get_results($wpdb->prepare('
-					SELECT 
-						id_skpd
-					FROM data_unit
-					WHERE tahun_anggaran=%d
-						AND active=1
-				', $tahun_anggaran), ARRAY_A);
+				$id_skpd_fmis = $_POST['id_skpd_fmis'];
 				$id_skpd_sipd = false;
-				foreach ($id_skpd_sipds as $k => $v) {
-					$id_mapping = get_option('_crb_unit_fmis_'.$tahun_anggaran.'_'.$v['id_skpd']);
-					if($id_mapping == $_POST['id_skpd_fmis']){
-						$id_skpd_sipd = $v['id_skpd'];
+				if(!empty($id_skpd_fmis)){
+					$id_skpd_sipds = $wpdb->get_results($wpdb->prepare('
+						SELECT 
+							id_skpd
+						FROM data_unit
+						WHERE tahun_anggaran=%d
+							AND active=1
+					', $tahun_anggaran), ARRAY_A);
+					foreach ($id_skpd_sipds as $k => $v) {
+						$id_mapping = get_option('_crb_unit_fmis_'.$tahun_anggaran.'_'.$v['id_skpd']);
+						$id_fmis = explode('.', $id_skpd_fmis);
+						if(count($id_fmis) >= 2){
+							if($id_mapping == $id_skpd_fmis){
+								$id_skpd_sipd = $v['id_skpd'];
+							}
+						}else{
+							$id_mappings = explode('.', $id_mapping);
+							if($id_mappings[0] == $id_fmis[0]){
+								$id_skpd_sipd = $v['id_skpd'];
+							}
+						}
 					}
 				}
 				if(
 					!empty($id_skpd_sipd) 
-					&& !empty($_POST['id_skpd_fmis'])
+					&& !empty($id_skpd_fmis)
 				){
 					$data_sub_keg = $wpdb->get_results($wpdb->prepare("
 						SELECT 
@@ -7993,7 +8004,7 @@ class Wpsipd_Public
 								AND active=1
 						', $sub_unit['name'], $tahun_anggaran));
 						if(!empty($id_skpd_sipd)){
-							update_option('_crb_unit_fmis_'.$tahun_anggaran.'_'.$id_skpd_sipd, $sub_unit['id']);
+							update_option('_crb_unit_fmis_'.$tahun_anggaran.'_'.$id_skpd_sipd, $skpd['id'].'.'.$sub_unit['id']);
 							$ret['data_sukses_mapping'][] = $sub_unit;
 						}else{
 							$ret['data_gagal_mapping'][] = $sub_unit;

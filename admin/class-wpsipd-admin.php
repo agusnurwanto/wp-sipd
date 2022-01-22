@@ -461,6 +461,8 @@ class Wpsipd_Admin {
 		$mapping_unit = array();
 		$mapping_unit[] = Field::make( 'html', 'crb_fmis_keterangan' )
 	        ->set_html( '<h3>Tahun anggaran WP-SIPD: '.$tahun_anggaran.'</h3>Informasi terkait integrasi data WP-SIPD ke FMIS bisa dicek di <a href="https://smkasiyahhomeschooling.blogspot.com/2021/12/fmis-chrome-extension-untuk-integrasi.html" target="blank">https://smkasiyahhomeschooling.blogspot.com/2021/12/fmis-chrome-extension-untuk-integrasi.html</a>.' );
+		$mapping_unit[] = Field::make( 'html', 'crb_fmis_keterangan_mapping' )
+	        ->set_html( 'Mapping SKPD berisi ID dari Unit dan Sub Unit FMIS. Data ID SKPD FMIS dapat dilihat pada form edit atau tambah user. ID dipisahkan dengan delimiter "." (titik). Contoh jika ID dari Unit Dindik adalah 50 dan ID dari sub Unit Dindik adalah 70, maka penulisanya adalah <b>50.70</b>.' );
 		foreach ($unit as $k => $v) {
 			$mapping_unit[] = Field::make( 'text', 'crb_unit_fmis_'.$tahun_anggaran.'_'.$v['id_skpd'], ($k+1).'. Kode Sub Unit FMIS untuk '.$v['kode_skpd'].' '.$v['nama_skpd'] );
 		}
