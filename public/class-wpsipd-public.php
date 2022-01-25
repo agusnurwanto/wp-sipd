@@ -1943,6 +1943,33 @@ class Wpsipd_Public
 		die(json_encode($ret));
 	}
 
+	public function get_sumber_dana()
+	{
+		global $wpdb;
+		$ret = array(
+			'status'	=> 'success',
+			'message'	=> 'Berhasil get data sumber dana!'
+		);
+		if (!empty($_POST)) {
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+				$dana = $wpdb->get_results($wpdb->prepare("
+					SELECT 
+						*
+					from data_sumber_dana
+					where tahun_anggaran=%d",
+				$_POST['tahun_anggaran']), ARRAY_A);
+				$ret['data'] = $dana;
+			} else {
+				$ret['status'] = 'error';
+				$ret['message'] = 'APIKEY tidak sesuai!';
+			}
+		} else {
+			$ret['status'] = 'error';
+			$ret['message'] = 'Format Salah!';
+		}
+		die(json_encode($ret));
+	}
+
 	public function singkron_alamat()
 	{
 		global $wpdb;
