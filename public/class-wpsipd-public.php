@@ -1947,6 +1947,7 @@ class Wpsipd_Public
 	{
 		global $wpdb;
 		$ret = array(
+			'action'	=> $_POST['action'],
 			'status'	=> 'success',
 			'message'	=> 'Berhasil get data sumber dana!'
 		);
@@ -7921,7 +7922,8 @@ class Wpsipd_Public
 				if(!empty($id_skpd_fmis)){
 					$id_skpd_sipds = $wpdb->get_results($wpdb->prepare('
 						SELECT 
-							id_skpd
+							id_skpd,
+							is_skpd
 						FROM data_unit
 						WHERE tahun_anggaran=%d
 							AND active=1
@@ -7933,7 +7935,7 @@ class Wpsipd_Public
 							if($id_mapping == $id_skpd_fmis){
 								$id_skpd_sipd = $v['id_skpd'];
 							}
-						}else{
+						}else if($v['is_skpd'] == 1){
 							$id_mappings = explode('.', $id_mapping);
 							if($id_mappings[0] == $id_fmis[0]){
 								$id_skpd_sipd = $v['id_skpd'];
@@ -7947,13 +7949,18 @@ class Wpsipd_Public
 				){
 					$data_sub_keg = $wpdb->get_results($wpdb->prepare("
 						SELECT 
-							* 
-						from data_sub_keg_bl 
-						where tahun_anggaran=%d
-							and id_skpd=%d
-							and active=1", 
+							s.*,
+							u.nama_skpd as nama_skpd_data_unit
+						from data_sub_keg_bl s 
+						inner join data_unit u on s.id_sub_skpd = u.id_skpd
+							and u.tahun_anggaran = s.tahun_anggaran
+							and u.active = s.active
+						where s.tahun_anggaran=%d
+							and u.id_unit=%d
+							and s.active=1", 
 					$tahun_anggaran, $id_skpd_sipd), ARRAY_A);
 					foreach ($data_sub_keg as $k => $v) {
+						$data_sub_keg[$k]['id_mapping'] = get_option('_crb_unit_fmis_'.$tahun_anggaran.'_'.$v['id_sub_skpd']);
 						$data_sub_keg[$k]['sub_keg_indikator'] = $wpdb->get_results("
 							select 
 								* 
