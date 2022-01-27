@@ -355,6 +355,7 @@ class Wpsipd_Public
 							$newdata['kode_standar_harga'] = $_POST['tahun_anggaran'];
 							$newdata['nama_standar_harga'] = substr($v['harga_satuan'].' '.$v['satuan'].' '.$v['nama_komponen'], 0, 250);
 							$newdata['spek'] = $v['spek_komponen'];
+							$newdata['satuan'] = $v['satuan'];
 							$newdata['kelompok'] = 9;
 							$newdata['harga'] = $v['harga_satuan'];
 							$newdata['kode_kel_standar_harga'] = $_POST['tahun_anggaran'];
