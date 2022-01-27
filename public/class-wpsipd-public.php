@@ -353,7 +353,7 @@ class Wpsipd_Public
 							$newdata = array();
 							$newdata['rek_belanja'] = $v['rek_belanja'];
 							$newdata['kode_standar_harga'] = $_POST['tahun_anggaran'];
-							$newdata['nama_standar_harga'] = $v['nama_komponen'].' '.$v['harga_satuan'].' '.$v['satuan'];
+							$newdata['nama_standar_harga'] = substr($v['nama_komponen'], 0, 150).' '.$v['harga_satuan'].' '.$v['satuan'];
 							$newdata['spek'] = $v['spek_komponen'];
 							$newdata['kelompok'] = 1;
 							$newdata['harga'] = $v['harga_satuan'];
