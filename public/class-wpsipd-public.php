@@ -312,21 +312,70 @@ class Wpsipd_Public
 						|| $_POST['kelompok'] == 2 // HSPK
 						|| $_POST['kelompok'] == 3 // ASB
 						|| $_POST['kelompok'] == 4 // SBU
+						|| $_POST['kelompok'] == 9 // RKA
 					)
 				){
-					$data_ssh = $wpdb->get_results($wpdb->prepare("
-						SELECT 
-							* 
-						from data_ssh 
-						where tahun_anggaran=%d
-							and is_deleted=0
-							and kelompok=%d", 
-					$_POST['tahun_anggaran'], $_POST['kelompok']), ARRAY_A);
-					$data = array(); 
-					foreach ($data_ssh as $k => $v) {
-						// if($k >= 10){ continue; }
-						$v['rek_belanja'] = $wpdb->get_results("SELECT * from data_ssh_rek_belanja where id_standar_harga=" . $v['id_standar_harga'], ARRAY_A);
-						$data[] = $v;
+					if($_POST['kelompok'] == 9){
+						$data_ssh = $wpdb->get_results($wpdb->prepare("
+							SELECT 
+								nama_komponen,
+								spek_komponen,
+								harga_satuan,
+								satuan,
+								kode_akun,
+								nama_akun
+							from data_rka 
+							where tahun_anggaran=%d
+								and active=1
+							group by nama_komponen, spek_komponen, harga_satuan, satuan, kode_akun, nama_akun", 
+						$_POST['tahun_anggaran'], $_POST['kelompok']), ARRAY_A);
+						$data = array(); 
+						$data1 = array(); 
+						foreach ($data_ssh as $k => $v) {
+							$key = $v['nama_komponen'].$v['spek_komponen'].$v['harga_satuan'].$v['satuan'];
+							if(empty($data1[$key])){
+								$v['rek_belanja'] = array(
+									array(
+										'kode_akun' => $v['kode_akun'],
+										'nama_akun' => $v['nama_akun']
+									)
+								);
+								$data1[$key] = $v;
+							}else{
+								$data1[$key]['rek_belanja'][] = array(
+									'kode_akun' => $v['kode_akun'],
+									'nama_akun' => $v['nama_akun']
+								);
+							}
+						}
+						foreach ($data1 as $k => $v) {
+							// if($k >= 10){ continue; }
+							$newdata = array();
+							$newdata['rek_belanja'] = $v['rek_belanja'];
+							$newdata['kode_standar_harga'] = $_POST['tahun_anggaran'];
+							$newdata['nama_standar_harga'] = $v['nama_komponen'].' '.$v['harga_satuan'].' '.$v['satuan'];
+							$newdata['spek'] = $v['spek_komponen'];
+							$newdata['kelompok'] = 1;
+							$newdata['harga'] = $v['harga_satuan'];
+							$newdata['kode_kel_standar_harga'] = $_POST['tahun_anggaran'];
+							$newdata['nama_kel_standar_harga'] = $_POST['tahun_anggaran'];
+							$data[] = $newdata;
+						}
+					}else{
+						$data_ssh = $wpdb->get_results($wpdb->prepare("
+							SELECT 
+								* 
+							from data_ssh 
+							where tahun_anggaran=%d
+								and is_deleted=0
+								and kelompok=%d", 
+						$_POST['tahun_anggaran'], $_POST['kelompok']), ARRAY_A);
+						$data = array(); 
+						foreach ($data_ssh as $k => $v) {
+							// if($k >= 10){ continue; }
+							$v['rek_belanja'] = $wpdb->get_results("SELECT * from data_ssh_rek_belanja where id_standar_harga=" . $v['id_standar_harga'], ARRAY_A);
+							$data[] = $v;
+						}
 					}
 					$ret['data'] = $data;
 				}else{
