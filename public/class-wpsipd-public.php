@@ -327,6 +327,7 @@ class Wpsipd_Public
 							from data_rka 
 							where tahun_anggaran=%d
 								and active=1
+								and kode_akun!=''
 							group by nama_komponen, spek_komponen, harga_satuan, satuan, kode_akun, nama_akun", 
 						$_POST['tahun_anggaran'], $_POST['kelompok']), ARRAY_A);
 						$data = array(); 
