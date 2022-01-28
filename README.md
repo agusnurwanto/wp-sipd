@@ -30,6 +30,7 @@ Semoga bermanfaat
 - `[monitor_sipd tahun_anggaran="2021" kode_rek="4,5,6.1,6.2"]` short code untuk halaman monitoring update pagu per SKPD yang diurutkan berdasarkan waktu updatenya
 - Install plugin Ultimate Member untuk halaman profil user PA/KPA
 - Tambahkan shortcode `[menu_monev]` pada form user profile Ultimate Member untuk menampilkan url halaman MONEV sesuai user yang login
+- Jika terjadi koneksi database sql server error karena integrasi simda setting diaktifkan, tambahkan paramter GET **no_simda=1** pada url. Parameter ini untuk memutuskan koneksi ke DB SQL SERVER, selanjutnya kita bisa memperbaikan settingan koneksi di menu **SIMDA Setting**.
 
 ### HARUS Update php.ini
 Optimasi server apache agar proses pengiriman data dari chrome extension ke server wordpress berjalan lancar (edit file php.ini):

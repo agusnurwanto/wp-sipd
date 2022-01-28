@@ -1804,7 +1804,13 @@ class Wpsipd_Simda
 	}
 
 	public function CurlSimda($options, $debug=false, $debug_req=false){
-		if(false == $this->status_koneksi_simda){
+		if(
+			false == $this->status_koneksi_simda
+			|| (
+				!empty($_GET) 
+				&& !empty($_GET['no_simda'])
+			)
+		){
 			return;
 		}
         $query = $options['query'];
