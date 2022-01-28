@@ -360,7 +360,7 @@ class Wpsipd_Public
 							$newdata['kelompok'] = 9;
 							$newdata['harga'] = $v['harga_satuan'];
 							$newdata['kode_kel_standar_harga'] = $_POST['tahun_anggaran'];
-							$newdata['nama_kel_standar_harga'] = $_POST['tahun_anggaran'];
+							$newdata['nama_kel_standar_harga'] = substr($v['nama_komponen'], 0, 250);
 							$data[] = $newdata;
 						}
 					}else{
