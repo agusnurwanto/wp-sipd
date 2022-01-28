@@ -318,6 +318,7 @@ class Wpsipd_Public
 					if($_POST['kelompok'] == 9){
 						$data_ssh = $wpdb->get_results($wpdb->prepare("
 							SELECT 
+								jenis_bl,
 								nama_komponen,
 								spek_komponen,
 								harga_satuan,
@@ -328,7 +329,7 @@ class Wpsipd_Public
 							where tahun_anggaran=%d
 								and active=1
 								and kode_akun!=''
-							group by nama_komponen, spek_komponen, harga_satuan, satuan, kode_akun, nama_akun", 
+							group by jenis_bl, nama_komponen, spek_komponen, harga_satuan, satuan, kode_akun, nama_akun", 
 						$_POST['tahun_anggaran'], $_POST['kelompok']), ARRAY_A);
 						$data = array(); 
 						$data1 = array(); 
@@ -359,8 +360,9 @@ class Wpsipd_Public
 							$newdata['satuan'] = $v['satuan'];
 							$newdata['kelompok'] = 9;
 							$newdata['harga'] = $v['harga_satuan'];
-							$newdata['kode_kel_standar_harga'] = $_POST['tahun_anggaran'];
-							$newdata['nama_kel_standar_harga'] = substr($v['nama_komponen'], 0, 250);
+							$newdata['kode_gol_standar_harga'] = $_POST['tahun_anggaran'];
+							$newdata['kode_kel_standar_harga'] = $v['jenis_bl'];
+							$newdata['nama_sub_kel_standar_harga'] = substr($v['nama_komponen'], 0, 250);
 							$data[] = $newdata;
 						}
 					}else{
