@@ -461,6 +461,12 @@ class Wpsipd_Admin {
 		$mapping_unit = array();
 		$mapping_unit[] = Field::make( 'html', 'crb_fmis_keterangan' )
 	        ->set_html( '<h3>Tahun anggaran WP-SIPD: '.$tahun_anggaran.'</h3>Informasi terkait integrasi data WP-SIPD ke FMIS bisa dicek di <a href="https://smkasiyahhomeschooling.blogspot.com/2021/12/fmis-chrome-extension-untuk-integrasi.html" target="blank">https://smkasiyahhomeschooling.blogspot.com/2021/12/fmis-chrome-extension-untuk-integrasi.html</a>.' );
+	    $mapping_unit[] = Field::make( 'textarea', 'crb_custom_mapping_rekening_fmis', 'Custom Mapping Rekening Antara SIPD dan FMIS' )
+            	->set_help_text('Data ini untuk mengakomodir perbedaan kode rekening yang ada di SIPD dan FMIS. Contoh pengisian data sebagai berikut 5.1.01.88.88.8888-5.2.2.16.1.3 data dipisah dengan pemisah "," (koma). Formatnya adalah <b>kode_rek_sipd-kode_rek_fmis</b>.');
+	    $mapping_unit[] = Field::make( 'textarea', 'crb_custom_mapping_sumberdana_fmis', 'Custom Mapping Sumber Dana Antara SIPD dan FMIS' )
+            	->set_help_text('Data ini untuk mengakomodir perbedaan kode sumber dana yang ada di SIPD dan FMIS. Contoh pengisian data sebagai berikut [xxx]-[xxx] data dipisah dengan pemisah "," (koma). Formatnya adalah <b>[nama sumber dana sipd]-[nama sumber dana fmis]</b>.');
+	    $mapping_unit[] = Field::make( 'textarea', 'crb_custom_mapping_subkeg_fmis', 'Custom Mapping Sub Kegaitan SIPD dan FMIS' )
+            	->set_help_text('Data ini untuk mengakomodir perbedaan kode sub kegiatan yang ada di SIPD dan SIMDA. Juga perbedaan mapping sub kegiatan ke Sub Unit SIMDA. Contoh pengisian data sebagai berikut 5.02.0.00.0.00.04.0000_5.02.02.2.01.05-10.45_4.04.18.08 data dipisah dengan pemisah "," (koma). Formatnya adalah <b>kodeSkpdSipd_kodeSubKeg-kodeMappingSKPDFmis_kodeRefKegiatan</b>.');
 		$mapping_unit[] = Field::make( 'html', 'crb_fmis_keterangan_mapping' )
 	        ->set_html( 'Mapping SKPD berisi ID dari Unit dan Sub Unit FMIS. Data ID SKPD FMIS dapat dilihat pada form edit atau tambah user. ID dipisahkan dengan delimiter "." (titik). Contoh jika ID dari Unit Dindik adalah 50 dan ID dari sub Unit Dindik adalah 70, maka penulisanya adalah <b>50.70</b>.' );
 		foreach ($unit as $k => $v) {

@@ -279,6 +279,9 @@ class Wpsipd
 		$this->loader->add_action('wp_ajax_get_data_rka',  $plugin_public, 'get_data_rka');
 		$this->loader->add_action('wp_ajax_nopriv_get_data_rka',  $plugin_public, 'get_data_rka');
 
+		$this->loader->add_action('wp_ajax_mapping_rek_fmis',  $plugin_public, 'mapping_rek_fmis');
+		$this->loader->add_action('wp_ajax_nopriv_mapping_rek_fmis',  $plugin_public, 'mapping_rek_fmis');
+
 		$this->loader->add_action('wp_ajax_get_mandatory_spending_link',  $plugin_public, 'get_mandatory_spending_link');
 		$this->loader->add_action('wp_ajax_nopriv_get_mandatory_spending_link',  $plugin_public, 'get_mandatory_spending_link');
 
