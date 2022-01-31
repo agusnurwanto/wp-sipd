@@ -8181,7 +8181,7 @@ class Wpsipd_Public
 						WHERE tahun_anggaran=%d
 							and kode_akun like '5%'
 							and set_input=1
-					", $_POST['tahun_anggaran']));
+					", $_POST['tahun_anggaran']), ARRAY_A);
 					$rek_fmis = $_POST['rek'];
 					$new_rek_fmis = array();
 					foreach($rek_fmis as $rek){
@@ -8199,9 +8199,24 @@ class Wpsipd_Public
 							$cek_sipd_belum_ada_di_fmis[$kode_akun] = $rek;
 						}
 					}
+					$current_mapping = get_option('_crb_custom_mapping_rekening_fmis');
+					$current_mapping = explode(',', $current_mapping);
+					$mapping_rek = array();
+					foreach($current_mapping as $v){
+						$rek = explode('-', $v);
+						$mapping_rek[$rek[0]] = '';
+						if(!empty($rek[1])){
+							$mapping_rek[$rek[0]] = $rek[1];
+						}
+					}
+
 					$mapping = array();
 					foreach($cek_sipd_belum_ada_di_fmis as $k => $v){
-						$mapping[] = $k.'-'.$k;
+						if(!empty($mapping_rek[$k])){
+							$mapping[] = $k.'-'.$mapping_rek[$k];
+						}else{
+							$mapping[] = $k.'-'.$k;
+						}
 					}
 					update_option( '_crb_custom_mapping_rekening_fmis', implode(',', $mapping) );
 					$ret['data_rek'] = $cek_sipd_belum_ada_di_fmis;
