@@ -8172,7 +8172,43 @@ class Wpsipd_Public
 		);
 		if (!empty($_POST)) {
 			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
-
+				if(!empty($_POST['rek'])){
+					$rek_sipd = $wpdb->get_results($wpdb->prepare("
+						SELECT 
+							*
+						FROM
+							data_akun
+						WHERE tahun_anggaran=%d
+							and kode_akun like '5%'
+							and set_input=1
+					", $_POST['tahun_anggaran']));
+					$rek_fmis = $_POST['rek'];
+					$new_rek_fmis = array();
+					foreach($rek_fmis as $rek){
+						$new_rek_fmis[$rek['kdrek']] = $rek;
+					}
+					$cek_sipd_belum_ada_di_fmis = array();
+					foreach($rek_sipd as $rek){
+						$_kode_akun = explode('.', $rek['kode_akun']);
+						$kode_akun = array();
+						foreach ($_kode_akun as $v) {
+							$kode_akun[] = (int)$v;
+						}
+						$kode_akun = implode('.', $kode_akun);
+						if(empty($new_rek_fmis[$kode_akun])){
+							$cek_sipd_belum_ada_di_fmis[$kode_akun] = $rek;
+						}
+					}
+					$mapping = array();
+					foreach($cek_sipd_belum_ada_di_fmis as $k => $v){
+						$mapping[] = $k.'-'.$k;
+					}
+					update_option( '_crb_custom_mapping_rekening_fmis', implode(',', $mapping) );
+					$ret['data_rek'] = $cek_sipd_belum_ada_di_fmis;
+				}else{
+					$ret['status'] = 'error';
+					$ret['message'] = 'format salah!';
+				}
 			} else {
 				$ret['status'] = 'error';
 				$ret['message'] = 'APIKEY tidak sesuai!';
