@@ -2006,13 +2006,53 @@ class Wpsipd_Public
 		);
 		if (!empty($_POST)) {
 			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
-				$dana = $wpdb->get_results($wpdb->prepare("
-					SELECT 
-						*
-					from data_sumber_dana
-					where tahun_anggaran=%d",
-				$_POST['tahun_anggaran']), ARRAY_A);
-				$ret['data'] = $dana;
+				if(!empty($_POST['sumber_dana'])){
+					$sd_fmis = array();
+					foreach($_POST['sumber_dana'] as $v){
+						$sd_fmis[$v['uraian']] = $v;
+					}
+					$dana = $wpdb->get_results($wpdb->prepare("
+						SELECT 
+							*
+						from data_sumber_dana
+						where tahun_anggaran=%d
+							and set_input='Ya'",
+					$_POST['tahun_anggaran']), ARRAY_A);
+					$cek_sipd_belum_ada_di_fmis = array();
+					foreach($dana as $v){
+						$nama = explode('] - ', $v['nama_dana']);
+						$nama = trim(str_replace(' - ', '-', $nama[1]));
+						if(empty($sd_fmis[$nama])){
+							$cek_sipd_belum_ada_di_fmis[$nama] = $v;
+						}
+					}
+					$current_mapping = get_option('_crb_custom_mapping_sumberdana_fmis');
+					$current_mapping = explode(',', $current_mapping);
+					$mapping_rek = array();
+					foreach($current_mapping as $v){
+						$rek = explode('-', $v);
+						$mapping_rek[$rek[0]] = '';
+						if(!empty($rek[1])){
+							$mapping_rek[$rek[0]] = $rek[1];
+						}
+					}
+
+					$mapping = array();
+					foreach($cek_sipd_belum_ada_di_fmis as $k => $v){
+						$k = '['.$k.']';
+						if(!empty($mapping_rek[$k])){
+							$mapping[] = $k.'-'.$mapping_rek[$k];
+						}else{
+							$mapping[] = $k.'-'.$k;
+						}
+					}
+					update_option( '_crb_custom_mapping_sumberdana_fmis', implode(',', $mapping) );
+					$ret['data'] = $cek_sipd_belum_ada_di_fmis;
+					$ret['total'] = count($dana);
+				}else{
+					$ret['status'] = 'error';
+					$ret['message'] = 'Format salah!';
+				}
 			} else {
 				$ret['status'] = 'error';
 				$ret['message'] = 'APIKEY tidak sesuai!';
