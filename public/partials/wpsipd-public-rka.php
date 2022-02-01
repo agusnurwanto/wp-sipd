@@ -28,7 +28,15 @@ $current_user = wp_get_current_user();
 $api_key = get_option( '_crb_api_key_extension' );
 $kunci_sd_mapping = get_option( '_crb_kunci_sumber_dana_mapping' );
 
-$data_sumber_dana = $wpdb->get_results("select id_dana, nama_dana, kode_dana from data_sumber_dana where tahun_anggaran=".$input['tahun_anggaran'], ARRAY_A);
+$data_sumber_dana = $wpdb->get_results("
+	select 
+		id_dana, 
+		nama_dana, 
+		kode_dana 
+	from data_sumber_dana 
+	where set_input='Ya'
+		and tahun_anggaran=".$input['tahun_anggaran']
+, ARRAY_A);
 $data_label_komponen = $wpdb->get_results("select id, nama from data_label_komponen where tahun_anggaran=".$input['tahun_anggaran'], ARRAY_A);
 
 $type = 'rka_murni';

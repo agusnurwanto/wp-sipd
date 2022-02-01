@@ -256,12 +256,19 @@ class Wpsipd_Admin {
 		// $simda_link = $this->generate_simda_page();
 		// $siencang_link = $this->generate_siencang_page();
 		$sumber_dana_all = array();
+		$tahun_anggaran = get_option('_crb_tahun_anggaran_sipd');
+		if(empty($tahun_anggaran)){
+			$tahun_anggaran = date('Y');
+		}
+
 		$sumber_dana = $wpdb->get_results("
 			SELECT
 				id_dana,
 				kode_dana,
 				nama_dana
 			from data_sumber_dana
+			where set_input='Ya'
+				and tahun_anggaran=".$tahun_anggaran."
 			group by id_dana
 		", ARRAY_A);
 		foreach ($sumber_dana as $k => $v) {
