@@ -473,7 +473,11 @@ class Wpsipd_Admin {
 	    $mapping_unit[] = Field::make( 'textarea', 'crb_custom_mapping_sumberdana_fmis', 'Custom Mapping Sumber Dana Antara SIPD dan FMIS' )
             	->set_help_text('Data ini untuk mengakomodir perbedaan kode sumber dana yang ada di SIPD dan FMIS. Contoh pengisian data sebagai berikut [xxx]-[xxx] data dipisah dengan pemisah "," (koma). Formatnya adalah <b>[nama sumber dana sipd]-[nama sumber dana fmis]</b>.');
 	    $mapping_unit[] = Field::make( 'textarea', 'crb_custom_mapping_subkeg_fmis', 'Custom Mapping Sub Kegaitan SIPD dan FMIS' )
-            	->set_help_text('Data ini untuk mengakomodir perbedaan kode sub kegiatan yang ada di SIPD dan SIMDA. Juga perbedaan mapping sub kegiatan ke Sub Unit SIMDA. Contoh pengisian data sebagai berikut 5.02.0.00.0.00.04.0000_5.02.02.2.01.05-10.45_4.04.18.08 data dipisah dengan pemisah "," (koma). Formatnya adalah <b>kodeSkpdSipd_kodeSubKeg-kodeMappingSKPDFmis_kodeRefKegiatan</b>.');
+            	->set_help_text('Data ini untuk mengakomodir perbedaan nama sub kegiatan yang ada di SIPD dan FMIS. Contoh pengisian data sebagai berikut [nama_subkeg]-[nama_subkeg] data dipisah dengan pemisah "," (koma).');
+	    $mapping_unit[] = Field::make( 'textarea', 'crb_custom_mapping_keg_fmis', 'Custom Mapping Kegaitan SIPD dan FMIS' )
+            	->set_help_text('Data ini untuk mengakomodir perbedaan nama kegiatan yang ada di SIPD dan FMIS. Contoh pengisian data sebagai berikut [nama_kegiatan]-[nama_kegiatan] data dipisah dengan pemisah "," (koma).');
+	    $mapping_unit[] = Field::make( 'textarea', 'crb_custom_mapping_program_fmis', 'Custom Mapping Program SIPD dan FMIS' )
+            	->set_help_text('Data ini untuk mengakomodir perbedaan nama program yang ada di SIPD dan FMIS. Contoh pengisian data sebagai berikut [nama_program]-[nama_program] data dipisah dengan pemisah "," (koma).');
 		$mapping_unit[] = Field::make( 'html', 'crb_fmis_keterangan_mapping' )
 	        ->set_html( 'Mapping SKPD berisi ID dari Unit dan Sub Unit FMIS. Data ID SKPD FMIS dapat dilihat pada form edit atau tambah user. ID dipisahkan dengan delimiter "." (titik). Contoh jika ID dari Unit Dindik adalah 50 dan ID dari sub Unit Dindik adalah 70, maka penulisanya adalah <b>50.70</b>.' );
 		foreach ($unit as $k => $v) {

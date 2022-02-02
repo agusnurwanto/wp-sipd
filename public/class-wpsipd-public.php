@@ -8271,4 +8271,141 @@ class Wpsipd_Public
 		}
 		die(json_encode($ret));
 	}
+
+	function mapping_sub_kegiatan_fmis(){
+		global $wpdb;
+		$ret = array(
+			'action'	=> $_POST['action'],
+			'status'	=> 'success',
+			'message'	=> 'Berhasil cek mapping sub kegiatan!'
+		);
+		if (!empty($_POST)) {
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+				if(!empty($_POST['sub_kegiatan'])){
+					$sub_keg_fmis = $_POST['sub_kegiatan'];
+					$new_prog_fmis = array();
+					$new_keg_fmis = array();
+					$new_sub_keg_fmis = array();
+					foreach($sub_keg_fmis as $sub){
+						$new_sub_keg_fmis[trim($sub['sub_kegiatan'])] = $sub;
+						$new_keg_fmis[trim($sub['kegiatan'])] = $sub;
+						$new_prog_fmis[trim($sub['program'])] = $sub;
+					}
+					$sub_keg_sipd = $wpdb->get_results($wpdb->prepare("
+						SELECT 
+							*
+						FROM
+							data_prog_keg
+						WHERE tahun_anggaran=%d
+					", $_POST['tahun_anggaran']), ARRAY_A);
+					$cek_sipd_belum_ada_di_fmis = array();
+					$cek_sipd_keg_belum_ada_di_fmis = array();
+					$cek_sipd_prog_belum_ada_di_fmis = array();
+					foreach($sub_keg_sipd as $sub){
+						// cek sub kegiatan
+						$_nama_sub = explode(' ', $sub['nama_sub_giat']);
+						unset($_nama_sub[0]);
+						$nama_sub = trim(implode(' ', $_nama_sub));
+						if(empty($new_sub_keg_fmis[$nama_sub])){
+							$cek_sipd_belum_ada_di_fmis[$nama_sub] = $sub;
+						}
+
+						// cek kegiatan
+						$_nama_giat = explode(' ', $sub['nama_giat']);
+						unset($_nama_giat[0]);
+						$nama_giat = trim(implode(' ', $_nama_giat));
+						if(empty($new_keg_fmis[$nama_giat])){
+							$cek_sipd_keg_belum_ada_di_fmis[$nama_giat] = $sub;
+						}
+
+						// cek program
+						$_nama_program = explode(' ', $sub['nama_program']);
+						unset($_nama_program[0]);
+						$nama_program = trim(implode(' ', $_nama_program));
+						if(empty($new_prog_fmis[$nama_program])){
+							$cek_sipd_prog_belum_ada_di_fmis[$nama_program] = $sub;
+						}
+					}
+
+					// update mapping sub kegiatan
+					$current_mapping = get_option('_crb_custom_mapping_subkeg_fmis');
+					$current_mapping = explode(',', $current_mapping);
+					$mapping_sub = array();
+					foreach($current_mapping as $v){
+						$rek = explode('-', $v);
+						$mapping_sub[$rek[0]] = '';
+						if(!empty($rek[1])){
+							$mapping_sub[$rek[0]] = $rek[1];
+						}
+					}
+					$mapping = array();
+					foreach($cek_sipd_belum_ada_di_fmis as $k => $v){
+						$k = '['.$k.']';
+						if(!empty($mapping_sub[$k])){
+							$mapping[] = $k.'-'.$mapping_sub[$k];
+						}else{
+							$mapping[] = $k.'-'.$k;
+						}
+					}
+					update_option( '_crb_custom_mapping_subkeg_fmis', implode(',', $mapping) );
+
+					// update mapping kegiatan
+					$current_mapping = get_option('_crb_custom_mapping_keg_fmis');
+					$current_mapping = explode(',', $current_mapping);
+					$mapping_keg = array();
+					foreach($current_mapping as $v){
+						$rek = explode('-', $v);
+						$mapping_keg[$rek[0]] = '';
+						if(!empty($rek[1])){
+							$mapping_keg[$rek[0]] = $rek[1];
+						}
+					}
+					$mapping = array();
+					foreach($cek_sipd_keg_belum_ada_di_fmis as $k => $v){
+						$k = '['.$k.']';
+						if(!empty($mapping_keg[$k])){
+							$mapping[] = $k.'-'.$mapping_keg[$k];
+						}else{
+							$mapping[] = $k.'-'.$k;
+						}
+					}
+					update_option( '_crb_custom_mapping_keg_fmis', implode(',', $mapping) );
+
+					// update mapping program
+					$current_mapping = get_option('_crb_custom_mapping_program_fmis');
+					$current_mapping = explode(',', $current_mapping);
+					$mapping_prog = array();
+					foreach($current_mapping as $v){
+						$rek = explode('-', $v);
+						$mapping_prog[$rek[0]] = '';
+						if(!empty($rek[1])){
+							$mapping_prog[$rek[0]] = $rek[1];
+						}
+					}
+					$mapping = array();
+					foreach($cek_sipd_prog_belum_ada_di_fmis as $k => $v){
+						$k = '['.$k.']';
+						if(!empty($mapping_prog[$k])){
+							$mapping[] = $k.'-'.$mapping_prog[$k];
+						}else{
+							$mapping[] = $k.'-'.$k;
+						}
+					}
+					update_option( '_crb_custom_mapping_program_fmis', implode(',', $mapping) );
+
+					$ret['data_prog'] = $cek_sipd_prog_belum_ada_di_fmis;
+					$ret['data_keg'] = $cek_sipd_keg_belum_ada_di_fmis;
+					$ret['data_sub'] = $cek_sipd_belum_ada_di_fmis;
+					$ret['message'] = 'Program yang perlu dimapping ada '.count($cek_sipd_prog_belum_ada_di_fmis).' program. Kegiatan yang perlu dimapping ada '.count($cek_sipd_keg_belum_ada_di_fmis).' kegiatan. Sub kegiatan yang perlu dimapping ada '.count($cek_sipd_belum_ada_di_fmis).' sub kegiatan. Informasi detail cek di WP-SIPD dashboard.';
+				}else{
+					$ret['status'] = 'error';
+					$ret['message'] = 'format salah!';
+				}
+			} else {
+				$ret['status'] = 'error';
+				$ret['message'] = 'APIKEY tidak sesuai!';
+			}
+		}
+		die(json_encode($ret));
+	}
 }
