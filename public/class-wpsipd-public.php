@@ -8040,6 +8040,15 @@ class Wpsipd_Public
 					!empty($id_skpd_sipd) 
 					&& !empty($id_skpd_fmis)
 				){
+					$program_mapping = $this->get_fmis_mapping(array(
+						'name' => '_crb_custom_mapping_program_fmis'
+					));
+					$keg_mapping = $this->get_fmis_mapping(array(
+						'name' => '_crb_custom_mapping_keg_fmis'
+					));
+					$subkeg_mapping = $this->get_fmis_mapping(array(
+						'name' => '_crb_custom_mapping_subkeg_fmis'
+					));
 					$data_sub_keg = $wpdb->get_results($wpdb->prepare("
 						SELECT 
 							s.*,
@@ -8053,6 +8062,19 @@ class Wpsipd_Public
 							and s.active=1", 
 					$tahun_anggaran, $id_skpd_sipd), ARRAY_A);
 					foreach ($data_sub_keg as $k => $v) {
+						if(!empty($program_mapping[$v['nama_program']])){
+							$data_sub_keg[$k]['nama_program'] = $program_mapping[$v['nama_program']];
+						}
+						if(!empty($keg_mapping[$v['nama_giat']])){
+							$data_sub_keg[$k]['nama_giat'] = $keg_mapping[$v['nama_giat']];
+						}
+						$nama_sub_giat = explode(' ', $v['nama_sub_giat']);
+						$kode_sub = $nama_sub_giat[0];
+						unset($nama_sub_giat[0]);
+						$nama_sub_giat = implode(' ', $nama_sub_giat);
+						if(!empty($subkeg_mapping[$nama_sub_giat])){
+							$data_sub_keg[$k]['nama_sub_giat'] = $kode_sub.' '.$subkeg_mapping[$nama_sub_giat];
+						}
 						$data_sub_keg[$k]['id_mapping'] = get_option('_crb_unit_fmis_'.$tahun_anggaran.'_'.$v['id_sub_skpd']);
 						$data_sub_keg[$k]['sub_keg_indikator'] = $wpdb->get_results("
 							select 
@@ -8108,6 +8130,17 @@ class Wpsipd_Public
 			}
 		}
 		die(json_encode($ret));
+	}
+
+	public function get_fmis_mapping($options){
+		$mapping = get_option($options['name']);
+		$mapping = explode(',', $mapping);
+		$ret = array();
+		foreach($mapping as $map){
+			$map = explode(']-[', $map);
+			$ret[str_replace('[', '', $map[0])] = str_replace(']', '', $map[1]);
+		}
+		return $ret;
 	}
 
 	public function get_sub_keg_rka(){
@@ -8287,9 +8320,9 @@ class Wpsipd_Public
 					$new_keg_fmis = array();
 					$new_sub_keg_fmis = array();
 					foreach($sub_keg_fmis as $sub){
-						$new_sub_keg_fmis[trim($sub['sub_kegiatan'])] = $sub;
-						$new_keg_fmis[trim($sub['kegiatan'])] = $sub;
-						$new_prog_fmis[trim($sub['program'])] = $sub;
+						$new_sub_keg_fmis[strtolower(trim($sub['sub_kegiatan']))] = $sub;
+						$new_keg_fmis[strtolower(trim($sub['kegiatan']))] = $sub;
+						$new_prog_fmis[strtolower(trim($sub['program']))] = $sub;
 					}
 					$sub_keg_sipd = $wpdb->get_results($wpdb->prepare("
 						SELECT 
@@ -8306,7 +8339,7 @@ class Wpsipd_Public
 						$_nama_sub = explode(' ', $sub['nama_sub_giat']);
 						unset($_nama_sub[0]);
 						$nama_sub = trim(implode(' ', $_nama_sub));
-						if(empty($new_sub_keg_fmis[$nama_sub])){
+						if(empty($new_sub_keg_fmis[strtolower($nama_sub)])){
 							$cek_sipd_belum_ada_di_fmis[$nama_sub] = $sub;
 						}
 
@@ -8314,7 +8347,7 @@ class Wpsipd_Public
 						$_nama_giat = explode(' ', $sub['nama_giat']);
 						unset($_nama_giat[0]);
 						$nama_giat = trim(implode(' ', $_nama_giat));
-						if(empty($new_keg_fmis[$nama_giat])){
+						if(empty($new_keg_fmis[strtolower($nama_giat)])){
 							$cek_sipd_keg_belum_ada_di_fmis[$nama_giat] = $sub;
 						}
 
@@ -8322,7 +8355,7 @@ class Wpsipd_Public
 						$_nama_program = explode(' ', $sub['nama_program']);
 						unset($_nama_program[0]);
 						$nama_program = trim(implode(' ', $_nama_program));
-						if(empty($new_prog_fmis[$nama_program])){
+						if(empty($new_prog_fmis[strtolower($nama_program)])){
 							$cek_sipd_prog_belum_ada_di_fmis[$nama_program] = $sub;
 						}
 					}
