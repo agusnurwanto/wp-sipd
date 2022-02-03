@@ -8134,7 +8134,7 @@ class Wpsipd_Public
 
 	public function get_fmis_mapping($options){
 		$mapping = get_option($options['name']);
-		$mapping = explode(',', $mapping);
+		$mapping = explode('],[', $mapping);
 		$ret = array();
 		foreach($mapping as $map){
 			$map = explode(']-[', $map);
