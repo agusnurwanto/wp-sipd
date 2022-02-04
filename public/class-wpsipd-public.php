@@ -8154,14 +8154,15 @@ class Wpsipd_Public
 			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
 				$tahun_anggaran = $_POST['tahun_anggaran'];
 				$kode_sbl = $_POST['kode_sbl'];
-				$rka = $wpdb->get_results($wpdb->prepare('
+				$rka = $wpdb->get_results($wpdb->prepare("
 					SELECT 
 						*
 					FROM data_rka
 					WHERE tahun_anggaran=%d
 						AND active=1
 						AND kode_sbl=%s
-				', $tahun_anggaran, $kode_sbl), ARRAY_A);
+						AND kode_akun!=''
+				", $tahun_anggaran, $kode_sbl), ARRAY_A);
 				$id_sumber_dana_default = get_option('_crb_default_sumber_dana' );
 				$sumber_dana_default = $wpdb->get_results($wpdb->prepare('
 					SELECT 
