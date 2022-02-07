@@ -7383,6 +7383,7 @@ class Wpsipd_Public
 								AND r.kd_bidang = %d
 								AND r.kd_unit = %d
 								AND r.kd_sub = %d
+								AND r.kd_rek_1 = 5
 							", 
 							$tahun_anggaran, 
 							$tahun_anggaran, 
