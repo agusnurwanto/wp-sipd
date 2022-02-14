@@ -735,9 +735,9 @@ endforeach;
 
 $reset_rfk = '';
 if(!current_user_can('administrator')){
-	$reset_rfk = '<button style="margin-left: 20px;" class="button button-default" id="reset-rfk">Reset RFK Bulan Sebelumnya</button>';
+	$reset_rfk = '<button style="margin-left: 20px;" class="components-button button button-default" id="reset-rfk">Reset RFK Bulan Sebelumnya</button>';
 }else{
-	$reset_rfk = '<button style="margin-left: 20px;" class="button button-default" id="reset-verifikator-rfk">Reset Catatan Verifikator RFK Bulan Sebelumnya</button>';
+	$reset_rfk = '<button style="margin-left: 20px;" class="components-button button button-default" id="reset-verifikator-rfk">Reset Catatan Verifikator RFK Bulan Sebelumnya</button>';
 }
 ?>
 
@@ -940,7 +940,7 @@ if(!current_user_can('administrator')){
 					+'<?php echo $opsi_bulan; ?>'
 				+'</select>'
 			+'</label>'
-			+'<button style="margin-left: 20px;" class="button button-primary" id="simpan-rfk">Simpan Data</button>'
+			+'<button style="margin-left: 20px;" class="components-button button button-primary" id="simpan-rfk">Simpan Data</button>'
 			+'<?php echo $reset_rfk; ?>'
 			+'<label style="margin-left: 20px;"><input type="checkbox" id="tampil-detail-fisik" checked onclick="tampil_detail_fisik();"> Tampilkan Detail Realisasi Fisik</label>'
 			+'<label style="margin-left: 20px;"><input type="checkbox" id="tampil-nilai-fisik" onclick="tampil_nilai_fisik();"> Tampilkan Nilai Realisasi Fisik</label>'

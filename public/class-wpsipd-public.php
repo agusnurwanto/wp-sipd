@@ -312,10 +312,85 @@ class Wpsipd_Public
 						|| $_POST['kelompok'] == 2 // HSPK
 						|| $_POST['kelompok'] == 3 // ASB
 						|| $_POST['kelompok'] == 4 // SBU
+						|| $_POST['kelompok'] == 8 // RKA APBD Murni SIMDA
 						|| $_POST['kelompok'] == 9 // RKA
 					)
 				){
-					if($_POST['kelompok'] == 9){
+					if($_POST['kelompok'] == 8){
+						$sql = $wpdb->prepare("
+							SELECT 
+								r.kd_rek_1,
+								r.kd_rek_2,
+								r.kd_rek_3,
+								r.kd_rek_4,
+								r.kd_rek_5,
+								r.kd_rek90_1,
+								r.kd_rek90_2,
+								r.kd_rek90_3,
+								r.kd_rek90_4,
+								r.kd_rek90_5,
+								r.kd_rek90_6,
+								rr.nm_rek90_6
+							FROM ref_rek_mapping r
+								inner join ref_rek90_6 rr on r.kd_rek90_1 = rr.kd_rek90_1
+									and r.kd_rek90_2 = rr.kd_rek90_2
+									and r.kd_rek90_3 = rr.kd_rek90_3
+									and r.kd_rek90_4 = rr.kd_rek90_4
+									and r.kd_rek90_5 = rr.kd_rek90_5
+									and r.kd_rek90_6 = rr.kd_rek90_6
+						");
+						$data_rek = $this->simda->CurlSimda(array('query' => $sql));
+						$new_rek = array();
+						foreach($data_rek as $rek){
+							$keyword = $rek->kd_rek_1.$rek->kd_rek_2.$rek->kd_rek_3.$rek->kd_rek_4.$rek->kd_rek_5;
+							$keyword90 = $rek->kd_rek90_1.'.'.$rek->kd_rek90_2.'.'.$rek->kd_rek90_3.'.'.$rek->kd_rek90_4.'.'.$rek->kd_rek90_5.'.'.$rek->kd_rek90_6;
+							$new_rek[$keyword] = array(
+								'kode_akun' => $keyword90,
+								'nama_akun' => $rek->nm_rek90_6
+							);
+						}
+
+						$sql = $wpdb->prepare("
+							SELECT 
+								*
+							FROM ta_rask_arsip r
+							WHERE r.tahun = %d
+								AND r.kd_perubahan = 4
+								AND r.kd_rek_1 = 5
+							", 
+							$_POST['tahun_anggaran']
+						);
+						$data_ssh = $this->simda->CurlSimda(array('query' => $sql));
+						$data = array(); 
+						$data1 = array(); 
+						// set rekening pada item SSH berdasarkan keyword array
+						foreach ($data_ssh as $k => $v) {
+							$keyword = $v->kd_rek_1.$v->kd_rek_2.$v->kd_rek_3.$v->kd_rek_4.$v->kd_rek_5;
+							$key = $v->keterangan.$v->nilai_rp.$v->satuan123;
+							if(empty($data1[$key])){
+								$v->rek_belanja = array($new_rek[$keyword]);
+								$data1[$key] = (array) $v;
+							}else{
+								$data1[$key]['rek_belanja'][] = $new_rek[$keyword];
+							}
+						}
+						// set variable ssh sesuai kebutuhan ssh di FMIS
+						foreach ($data1 as $k => $v) {
+							// if($k >= 10){ continue; }
+							$newdata = array();
+							$newdata['rek_belanja'] = $v['rek_belanja'];
+							$newdata['kode_standar_harga'] = $_POST['tahun_anggaran'];
+							$newdata['nama_standar_harga'] = substr($v['nilai_rp'].' '.$v['satuan123'].' '.$v['keterangan'], 0, 250);
+							$newdata['spek'] = '';
+							$newdata['satuan'] = $v['satuan123'];
+							$newdata['kelompok'] = 9;
+							$newdata['harga'] = $v['nilai_rp'];
+							$newdata['kode_gol_standar_harga'] = $_POST['tahun_anggaran'].' RKA SIMDA';
+							$newdata['kode_kel_standar_harga'] = $v['kd_urusan'].'.'.$v['kd_bidang'].'.'.$v['kd_unit'].'.'.$v['kd_sub'].'.'.$v['kd_prog'].'.'.$v['id_prog'].'.'.$v['kd_keg'];
+							$newdata['nama_sub_kel_standar_harga'] = substr($v['keterangan_rinc'], 0, 250);
+							$data[] = $newdata;
+						}
+					}else if($_POST['kelompok'] == 9){
 						$data_ssh = $wpdb->get_results($wpdb->prepare("
 							SELECT 
 								jenis_bl,

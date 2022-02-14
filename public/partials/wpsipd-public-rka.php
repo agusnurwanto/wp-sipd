@@ -1084,8 +1084,8 @@ foreach ($bl as $k => $sub_bl) {
                 </form>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-success" id="set-mapping">Simpan</button>
-                <button type="button" class="btn btn-default" data-dismiss="modal">Tutup</button>
+                <button type="button" class="components-button btn btn-success" id="set-mapping">Simpan</button>
+                <button type="button" class="components-button btn btn-default" data-dismiss="modal">Tutup</button>
             </div>
         </div>
     </div>
