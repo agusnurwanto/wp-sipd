@@ -8253,6 +8253,8 @@ class Wpsipd_Public
 								);
 								$sub_keg = $this->simda->CurlSimda(array('query' => $sql));
 								foreach($sub_keg as $k => $dpa){
+									$kd_urusan = substr($dpa->id_prog, 0, 1);
+									$kd_bidang = (int) substr($dpa->id_prog, 1, 2);
 									$sql = $wpdb->prepare("
 										SELECT
 											kd_urusan90,
@@ -8265,7 +8267,7 @@ class Wpsipd_Public
 											AND kd_bidang=%d
 											AND kd_prog=%d
 											AND kd_keg=%d
-									", $dpa->kd_urusan, $dpa->kd_bidang, $dpa->kd_prog, $dpa->kd_keg);
+									", $kd_urusan, $kd_bidang, $dpa->kd_prog, $dpa->kd_keg);
 									$keg90 = $this->simda->CurlSimda(array('query' => $sql));
 
 									// cek jika program penunjang urusan
@@ -8334,6 +8336,7 @@ class Wpsipd_Public
 									}else{
 										$newdata['nama_sub_skpd'] = 'Kode Unit SIMDA = '.$kd_unit_simda.', belum dimapping!';
 									}
+									$newdata['kode_sbl'] = $kd_keg;
 
 									$data_sub_keg[] = $newdata;
 								}
