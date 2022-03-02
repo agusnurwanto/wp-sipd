@@ -8089,7 +8089,7 @@ class Wpsipd_Public
 					$tahun_anggaran = $_POST['tahun_anggaran'];
 					$id_skpd_fmis = $_POST['id_skpd_fmis'];
 					$idsumber = $_POST['idsumber'];
-					$id_skpd_sipd = false;
+					$id_skpd_sipd = array();
 					$id_mapping_simda = array();
 					if(!empty($id_skpd_fmis)){
 						$id_skpd_sipds = $wpdb->get_results($wpdb->prepare('
@@ -8112,12 +8112,12 @@ class Wpsipd_Public
 							$id_fmis = explode('.', $id_skpd_fmis);
 							if(count($id_fmis) >= 2){
 								if($id_mapping == $id_skpd_fmis){
-									$id_skpd_sipd = $v['id_skpd'];
+									$id_skpd_sipd[] = $v['id_skpd'];
 								}
-							}else if($v['is_skpd'] == 1){
+							}else{
 								$id_mappings = explode('.', $id_mapping);
 								if($id_mappings[0] == $id_fmis[0]){
-									$id_skpd_sipd = $v['id_skpd'];
+									$id_skpd_sipd[] = $v['id_skpd'];
 								}
 							}
 						}
@@ -8146,9 +8146,9 @@ class Wpsipd_Public
 									and u.tahun_anggaran = s.tahun_anggaran
 									and u.active = s.active
 								where s.tahun_anggaran=%d
-									and u.id_unit=%d
+									and u.id_skpd IN (".implode(',', $id_skpd_sipd).")
 									and s.active=1", 
-							$tahun_anggaran, $id_skpd_sipd), ARRAY_A);
+							$tahun_anggaran), ARRAY_A);
 							foreach ($data_sub_keg as $k => $v) {
 								if(!empty($program_mapping[$v['nama_program']])){
 									$data_sub_keg[$k]['nama_program'] = $program_mapping[$v['nama_program']];
@@ -8207,7 +8207,9 @@ class Wpsipd_Public
 										and kode_sbl='".$v['kode_sbl']."'
 										and active=1", ARRAY_A);
 							}
-						}else if($idsumber == 2){
+						// sementara dicomment dulu karena get data dari simda belum siap
+						// }else if($idsumber == 2){
+						}else if($idsumber == 22){
 							$kd_unit_simda_asli = get_option('_crb_unit_'.$id_skpd_sipd);
 							$kd_unit_simda = explode('.', $kd_unit_simda_asli);
 							if(
@@ -8532,6 +8534,74 @@ class Wpsipd_Public
 				$ret['status'] = 'error';
 				$ret['message'] = 'APIKEY tidak sesuai!';
 			}
+		}
+		die(json_encode($ret));
+	}
+
+	public function get_data_pendapatan(){
+		global $wpdb;
+		$ret = array(
+			'action'	=> $_POST['action'],
+			'status'	=> 'success',
+			'message'	=> 'Berhasil get data Pendapatan!'
+		);
+		if (!empty($_POST)) {
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+				$tahun_anggaran = $_POST['tahun_anggaran'];
+				$id_skpd_fmis = $_POST['id_skpd_fmis'];
+				$id_skpd_sipd = array();
+				if(!empty($id_skpd_fmis)){
+					$id_skpd_sipds = $wpdb->get_results($wpdb->prepare('
+						SELECT 
+							id_skpd,
+							is_skpd,
+							nama_skpd
+						FROM data_unit
+						WHERE tahun_anggaran=%d
+							AND active=1
+					', $tahun_anggaran), ARRAY_A);
+					foreach ($id_skpd_sipds as $k => $v) {
+						$kd_unit_simda_asli = get_option('_crb_unit_'.$v['id_skpd']);
+						$id_mapping = get_option('_crb_unit_fmis_'.$tahun_anggaran.'_'.$v['id_skpd']);
+						$id_mapping_simda[$kd_unit_simda_asli] = array(
+							'id_skpd' => $v['id_skpd'],
+							'id_mapping_fmis' => $id_mapping,
+							'nama_skpd' => $v['nama_skpd']
+						);
+						$id_fmis = explode('.', $id_skpd_fmis);
+						if(count($id_fmis) >= 2){
+							if($id_mapping == $id_skpd_fmis){
+								$id_skpd_sipd[] = $v['id_skpd'];
+							}
+						}else{
+							$id_mappings = explode('.', $id_mapping);
+							if($id_mappings[0] == $id_fmis[0]){
+								$id_skpd_sipd[] = $v['id_skpd'];
+							}
+						}
+					}
+				}
+				if(
+					!empty($id_skpd_sipd) 
+					&& !empty($id_skpd_fmis)
+				){
+					$pendapatan = $wpdb->get_results($wpdb->prepare('
+						SELECT 
+							*
+						FROM data_pendapatan
+						WHERE tahun_anggaran=%d
+							and id_skpd IN ('.implode(',', $id_skpd_sipd).')
+							and active=1
+					', $_POST['tahun_anggaran']), ARRAY_A);
+					$ret['data'] = $pendapatan;
+				}
+			} else {
+				$ret['status'] = 'error';
+				$ret['message'] = 'APIKEY tidak sesuai!';
+			}
+		} else {
+			$ret['status'] = 'error';
+			$ret['message'] = 'Format Salah!';
 		}
 		die(json_encode($ret));
 	}
