@@ -2159,14 +2159,14 @@ class Wpsipd_Public
 					foreach($_POST['sumber_dana'] as $v){
 						$sd_fmis[$v['uraian']] = $v;
 					}
+					$cek_sipd_belum_ada_di_fmis = array();
+
 					$dana = $wpdb->get_results($wpdb->prepare("
 						SELECT 
 							*
 						from data_sumber_dana
-						where tahun_anggaran=%d
-							and set_input='Ya'",
+						where tahun_anggaran=%d",
 					$_POST['tahun_anggaran']), ARRAY_A);
-					$cek_sipd_belum_ada_di_fmis = array();
 					foreach($dana as $v){
 						$nama = explode('] - ', $v['nama_dana']);
 						$nama = trim(str_replace(' - ', '-', $nama[1]));
@@ -2174,6 +2174,43 @@ class Wpsipd_Public
 							$cek_sipd_belum_ada_di_fmis[$nama] = $v;
 						}
 					}
+
+					$dana_pendapatan = $wpdb->get_results($wpdb->prepare("
+						SELECT 
+							nama_akun as nama_dana,
+							kode_akun as kode_dana,
+							'' as iddana,
+							'pendapatan' as jenis
+						from data_pendapatan
+						where tahun_anggaran=%d
+						group by nama_akun",
+					$_POST['tahun_anggaran']), ARRAY_A);
+					foreach($dana_pendapatan as $v){
+						$nama = $v['nama_dana'];
+						$nama = trim(str_replace(' - ', '-', $nama));
+						if(empty($sd_fmis[$nama])){
+							$cek_sipd_belum_ada_di_fmis[$nama] = $v;
+						}
+					}
+
+					$dana_pembiayaan = $wpdb->get_results($wpdb->prepare("
+						SELECT 
+							nama_akun as nama_dana,
+							kode_akun as kode_dana,
+							'' as iddana,
+							type as jenis
+						from data_pembiayaan
+						where tahun_anggaran=%d
+						group by nama_akun",
+					$_POST['tahun_anggaran']), ARRAY_A);
+					foreach($dana_pembiayaan as $v){
+						$nama = $v['nama_dana'];
+						$nama = trim(str_replace(' - ', '-', $nama));
+						if(empty($sd_fmis[$nama])){
+							$cek_sipd_belum_ada_di_fmis[$nama] = $v;
+						}
+					}
+					
 					$current_mapping = get_option('_crb_custom_mapping_sumberdana_fmis');
 					$current_mapping = explode(',', $current_mapping);
 					$mapping_rek = array();
@@ -2196,7 +2233,7 @@ class Wpsipd_Public
 					}
 					update_option( '_crb_custom_mapping_sumberdana_fmis', implode(',', $mapping) );
 					$ret['data'] = $cek_sipd_belum_ada_di_fmis;
-					$ret['total'] = count($dana);
+					$ret['total'] = count($dana)+count($dana_pendapatan)+count($dana_pembiayaan);
 				}else{
 					$ret['status'] = 'error';
 					$ret['message'] = 'Format salah!';
@@ -8600,13 +8637,20 @@ class Wpsipd_Public
 				){
 					$pendapatan = $wpdb->get_results($wpdb->prepare('
 						SELECT 
-							*
-						FROM data_pendapatan
-						WHERE tahun_anggaran=%d
-							and id_skpd IN ('.implode(',', $id_skpd_sipd).')
-							and active=1
+							p.*,
+							u.nama_skpd
+						FROM data_pendapatan p
+							LEFT JOIN data_unit u ON p.id_skpd=u.id_skpd
+								AND u.active=p.active
+								AND u.tahun_anggaran=p.tahun_anggaran
+						WHERE p.tahun_anggaran=%d
+							and p.id_skpd IN ('.implode(',', $id_skpd_sipd).')
+							and p.active=1
 					', $_POST['tahun_anggaran']), ARRAY_A);
 					$ret['sql'] = $wpdb->last_query;
+					foreach($pendapatan as $k => $v){
+						$pendapatan[$k]['id_mapping'] = get_option('_crb_unit_fmis_'.$tahun_anggaran.'_'.$v['id_skpd']);
+					}
 					$ret['data'] = $pendapatan;
 				}
 			} else {
@@ -8678,16 +8722,23 @@ class Wpsipd_Public
 					!empty($id_skpd_sipd) 
 					&& !empty($id_skpd_fmis)
 				){
-					$pendapatan = $wpdb->get_results($wpdb->prepare('
+					$data_db = $wpdb->get_results($wpdb->prepare('
 						SELECT 
-							*
-						FROM data_pembiayaan
-						WHERE tahun_anggaran=%d
-							and id_skpd IN ('.implode(',', $id_skpd_sipd).')
-							and active=1
+							p.*,
+							u.nama_skpd
+						FROM data_pembiayaan p
+							LEFT JOIN data_unit u ON p.id_skpd=u.id_skpd
+								AND u.active=p.active
+								AND u.tahun_anggaran=p.tahun_anggaran
+						WHERE p.tahun_anggaran=%d
+							and p.id_skpd IN ('.implode(',', $id_skpd_sipd).')
+							and p.active=1
 					', $_POST['tahun_anggaran']), ARRAY_A);
+					foreach($data_db as $k => $v){
+						$data_db[$k]['id_mapping'] = get_option('_crb_unit_fmis_'.$tahun_anggaran.'_'.$v['id_skpd']);
+					}
 					$ret['sql'] = $wpdb->last_query;
-					$ret['data'] = $pendapatan;
+					$ret['data'] = $data_db;
 				}
 			} else {
 				$ret['status'] = 'error';
