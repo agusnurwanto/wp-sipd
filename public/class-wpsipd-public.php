@@ -312,11 +312,84 @@ class Wpsipd_Public
 						|| $_POST['kelompok'] == 2 // HSPK
 						|| $_POST['kelompok'] == 3 // ASB
 						|| $_POST['kelompok'] == 4 // SBU
+						|| $_POST['kelompok'] == 7 // Pendapatan & Pembiayaan
 						|| $_POST['kelompok'] == 8 // RKA APBD Murni SIMDA
 						|| $_POST['kelompok'] == 9 // RKA
 					)
 				){
-					if($_POST['kelompok'] == 8){
+					if($_POST['kelompok'] == 7){
+						$data = array();
+						$data_ssh = $wpdb->get_results($wpdb->prepare("
+							SELECT 
+								kode_akun,
+								nama_akun,
+								total,
+								uraian,
+								keterangan
+							from data_pendapatan 
+							where tahun_anggaran=%d
+								and active=1
+								and kode_akun!=''", 
+						$_POST['tahun_anggaran']), ARRAY_A);
+
+						// set variable ssh sesuai kebutuhan ssh di FMIS
+						foreach ($data_ssh as $k => $v) {
+							// if($k >= 10){ continue; }
+							$newdata = array();
+							$newdata['rek_belanja'] = array(
+								array(
+									'kode_akun' => $v['kode_akun'],
+									'nama_akun' => $v['nama_akun']
+								)
+							);
+							$newdata['kode_standar_harga'] = $_POST['tahun_anggaran'];
+							$newdata['nama_standar_harga'] = substr($v['total'].' Rupiah '.$v['uraian'], 0, 250);
+							$newdata['spek'] = '';
+							$newdata['satuan'] = 'Rupiah';
+							$newdata['kelompok'] = 9;
+							$newdata['harga'] = $v['total'];
+							$newdata['kode_gol_standar_harga'] = $_POST['tahun_anggaran'];
+							$newdata['kode_kel_standar_harga'] = 'Pendapatan';
+							$newdata['nama_sub_kel_standar_harga'] = substr($v['keterangan'], 0, 250);
+							$data[] = $newdata;
+						}
+
+						$data_ssh = $wpdb->get_results($wpdb->prepare("
+							SELECT 
+								type,
+								kode_akun,
+								nama_akun,
+								total,
+								uraian,
+								keterangan
+							from data_pembiayaan 
+							where tahun_anggaran=%d
+								and active=1
+								and kode_akun!=''", 
+						$_POST['tahun_anggaran']), ARRAY_A);
+
+						// set variable ssh sesuai kebutuhan ssh di FMIS
+						foreach ($data_ssh as $k => $v) {
+							// if($k >= 10){ continue; }
+							$newdata = array();
+							$newdata['rek_belanja'] = array(
+								array(
+									'kode_akun' => $v['kode_akun'],
+									'nama_akun' => $v['nama_akun']
+								)
+							);
+							$newdata['kode_standar_harga'] = $_POST['tahun_anggaran'];
+							$newdata['nama_standar_harga'] = substr($v['total'].' Rupiah '.$v['uraian'], 0, 250);
+							$newdata['spek'] = '';
+							$newdata['satuan'] = 'Rupiah';
+							$newdata['kelompok'] = 9;
+							$newdata['harga'] = $v['total'];
+							$newdata['kode_gol_standar_harga'] = $_POST['tahun_anggaran'];
+							$newdata['kode_kel_standar_harga'] = 'Pembiayaan '.$v['type'];
+							$newdata['nama_sub_kel_standar_harga'] = substr($v['keterangan'], 0, 250);
+							$data[] = $newdata;
+						}
+					}else if($_POST['kelompok'] == 8){
 						$sql = $wpdb->prepare("
 							SELECT 
 								r.kd_rek_1,
