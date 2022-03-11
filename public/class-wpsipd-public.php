@@ -2156,7 +2156,9 @@ class Wpsipd_Public
 			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
 				if(!empty($_POST['sumber_dana'])){
 					$sd_fmis = array();
-					foreach($_POST['sumber_dana'] as $v){
+					$sumber_dana = json_decode(stripslashes(html_entity_decode($_POST['sumber_dana'])));
+					foreach($sumber_dana as $v){
+						$v = (array) $v;
 						$sd_fmis[$v['uraian']] = $v;
 					}
 					$cek_sipd_belum_ada_di_fmis = array();
@@ -4001,6 +4003,72 @@ class Wpsipd_Public
 			$ret['message'] = 'Format Salah!';
 		}
 		die(json_encode($ret));
+	}
+
+	function get_kas_fmis($no_debug=false){
+		global $wpdb;
+		$ret = array(
+			'status'	=> 'success',
+			'action'	=> $_POST['action'],
+			'data'	=> array()
+		);
+		if (!empty($_POST)) {
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+				$tahun_anggaran = $_POST['tahun_anggaran'];
+				$type = $_POST['type'];
+				$id_skpd_fmis = $_POST['id_skpd_fmis'];
+				$get_id = $this->get_id_skpd_fmis($id_skpd_fmis, $tahun_anggaran);
+				$id_skpd_sipd = $get_id['id_skpd_sipd'];
+				// anggaran kas belanja
+				if($type == 1){
+					$data_sub_keg = $wpdb->get_results($wpdb->prepare("
+						SELECT 
+							s.*,
+							u.nama_skpd as nama_skpd_data_unit
+						from data_sub_keg_bl s 
+						inner join data_unit u on s.id_sub_skpd = u.id_skpd
+							and u.tahun_anggaran = s.tahun_anggaran
+							and u.active = s.active
+						where s.tahun_anggaran=%d
+							and u.id_skpd IN (".implode(',', $id_skpd_sipd).")
+							and s.active=1", 
+					$tahun_anggaran), ARRAY_A);
+					$kas = array();
+					foreach($data_sub_keg as $k => $v){
+						$kode_sbl = explode('.', $v['kode_sbl']);
+						$kode_sbl = $kode_sbl[1].'.'.$kode_sbl[0].'.'.$kode_sbl[1].'.'.$v['id_bidang_urusan'].'.'.$kode_sbl[2].'.'.$kode_sbl[3].'.'.$kode_sbl[4];
+						$kas = $wpdb->get_results("
+							SELECT 
+								* 
+							from data_anggaran_kas 
+							where kode_sbl='".$kode_sbl."' 
+								AND tahun_anggaran=".$v['tahun_anggaran']."
+								AND active=1"
+							, ARRAY_A
+						);
+						$v['kas'] = $kas;
+						$ret['data'][] = $v;
+					}
+				// anggaran kas pendapatan
+				}else if($type == 2){
+
+				// anggaran kas pembiayaan
+				}else if($type == 2){
+
+				}
+			} else {
+				$ret['status'] = 'error';
+				$ret['message'] = 'APIKEY tidak sesuai!';
+			}
+		} else {
+			$ret['status'] = 'error';
+			$ret['message'] = 'Format Salah!';
+		}
+		if($no_debug){
+			return $ret;
+		}else{
+			die(json_encode($ret));
+		}
 	}
 
 	function get_kas($no_debug=false){
@@ -8523,8 +8591,11 @@ class Wpsipd_Public
 		if (!empty($_POST)) {
 			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
 				$tahun_anggaran = $_POST['tahun_anggaran'];
-				foreach ($_POST['data'] as $k => $skpd) {
+				$data = json_decode(stripslashes(html_entity_decode($_POST['data'])));
+				foreach ($data as $k => $skpd) {
+					$skpd = (array) $skpd;
 					foreach ($skpd['sub_unit'] as $kk => $sub_unit) {
+						$sub_unit = (array) $sub_unit;
 						$id_skpd_sipd = $wpdb->get_var($wpdb->prepare('
 							SELECT 
 								id_skpd
@@ -8568,9 +8639,10 @@ class Wpsipd_Public
 							and kode_akun like '5%'
 							and set_input=1
 					", $_POST['tahun_anggaran']), ARRAY_A);
-					$rek_fmis = $_POST['rek'];
+					$rek_fmis = json_decode(stripslashes(html_entity_decode($_POST['rek'])));
 					$new_rek_fmis = array();
 					foreach($rek_fmis as $rek){
+						$rek = (array) $rek;
 						$new_rek_fmis[$rek['kdrek']] = $rek;
 					}
 					$cek_sipd_belum_ada_di_fmis = array();
@@ -8667,12 +8739,14 @@ class Wpsipd_Public
 	public function get_id_skpd_fmis($id_skpd_fmis, $tahun_anggaran){
 		global $wpdb;
 		$id_skpd_sipd = array();
+		$kode_skpd_sipd = array();
 		$id_mapping_simda = array();
 		if(!empty($id_skpd_fmis)){
 			$id_skpd_sipds = $wpdb->get_results($wpdb->prepare('
 				SELECT 
 					id_skpd,
 					is_skpd,
+					kode_skpd,
 					nama_skpd
 				FROM data_unit
 				WHERE tahun_anggaran=%d
@@ -8684,24 +8758,28 @@ class Wpsipd_Public
 				$id_mapping_simda[$kd_unit_simda_asli] = array(
 					'id_skpd' => $v['id_skpd'],
 					'id_mapping_fmis' => $id_mapping,
+					'kode_skpd' => $v['kode_skpd'],
 					'nama_skpd' => $v['nama_skpd']
 				);
 				$id_fmis = explode('.', $id_skpd_fmis);
 				if(count($id_fmis) >= 2){
 					if($id_mapping == $id_skpd_fmis){
 						$id_skpd_sipd[] = $v['id_skpd'];
+						$kode_skpd_sipd[] = $v['kode_skpd'];
 					}
 				}else{
 					$id_mappings = explode('.', $id_mapping);
 					if($id_mappings[0] == $id_fmis[0]){
 						$id_skpd_sipd[] = $v['id_skpd'];
+						$kode_skpd_sipd[] = $v['kode_skpd'];
 					}
 				}
 			}
 		}
 		return array(
 			'id_skpd_sipd' => $id_skpd_sipd,
-			'id_mapping_simda' => $id_mapping_simda
+			'id_mapping_simda' => $id_mapping_simda,
+			'kode_skpd_sipd' => $kode_skpd_sipd
 		);
 	}
 

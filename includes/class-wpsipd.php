@@ -252,6 +252,9 @@ class Wpsipd
 		$this->loader->add_action('wp_ajax_get_kas',  $plugin_public, 'get_kas');
 		$this->loader->add_action('wp_ajax_nopriv_get_kas',  $plugin_public, 'get_kas');
 
+		$this->loader->add_action('wp_ajax_get_kas_fmis',  $plugin_public, 'get_kas_fmis');
+		$this->loader->add_action('wp_ajax_nopriv_get_kas_fmis',  $plugin_public, 'get_kas_fmis');
+
 		$this->loader->add_action('wp_ajax_get_all_sub_unit',  $plugin_public, 'get_all_sub_unit');
 		$this->loader->add_action('wp_ajax_nopriv_get_all_sub_unit',  $plugin_public, 'get_all_sub_unit');
 
