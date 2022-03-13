@@ -4019,8 +4019,89 @@ class Wpsipd_Public
 				$id_skpd_fmis = $_POST['id_skpd_fmis'];
 				$get_id = $this->get_id_skpd_fmis($id_skpd_fmis, $tahun_anggaran);
 				$id_skpd_sipd = $get_id['id_skpd_sipd'];
-				// anggaran kas belanja
-				if($type == 1){
+				$program_mapping = $this->get_fmis_mapping(array(
+					'name' => '_crb_custom_mapping_program_fmis'
+				));
+				$keg_mapping = $this->get_fmis_mapping(array(
+					'name' => '_crb_custom_mapping_keg_fmis'
+				));
+				$subkeg_mapping = $this->get_fmis_mapping(array(
+					'name' => '_crb_custom_mapping_subkeg_fmis'
+				));
+				// anggaran kas belanja sipd
+				if($type == 4){
+					$data_sub_keg = $wpdb->get_results($wpdb->prepare("
+						SELECT 
+							s.*,
+							u.nama_skpd as nama_skpd_data_unit
+						from data_sub_keg_bl s 
+						inner join data_unit u on s.id_sub_skpd = u.id_skpd
+							and u.tahun_anggaran = s.tahun_anggaran
+							and u.active = s.active
+						where s.tahun_anggaran=%d
+							and u.id_skpd IN (".implode(',', $id_skpd_sipd).")
+							and s.active=1", 
+					$tahun_anggaran), ARRAY_A);
+					foreach($data_sub_keg as $k => $sub){
+						$newsub = array(
+							'kode_sbl' => $sub['kode_sbl'],
+							'nama_skpd_data_unit' => $sub['nama_skpd_data_unit'],
+							'kode_sub_skpd' => $sub['kode_sub_skpd'],
+							'pagu' => $sub['pagu'],
+							'pagu_keg' => $sub['pagu_keg'],
+							'pagu_n_depan' => $sub['pagu_n_depan'],
+							'pagu_n_lalu' => $sub['pagu_n_lalu'],
+							'nama_giat' => $sub['nama_giat'],
+							'nama_program' => $sub['nama_program'],
+							'id_bidang_urusan' => $sub['id_bidang_urusan'],
+							'nama_bidang_urusan' => $sub['nama_bidang_urusan'],
+							'nama_urusan' => $sub['nama_urusan'],
+							'nama_sub_giat' => $sub['nama_sub_giat']
+						);
+						if(!empty($program_mapping[$sub['nama_program']])){
+							$newsub['nama_program'] = $program_mapping[$sub['nama_program']];
+						}
+						if(!empty($keg_mapping[$sub['nama_giat']])){
+							$newsub['nama_giat'] = $keg_mapping[$sub['nama_giat']];
+						}
+						$nama_sub_giat = explode(' ', $sub['nama_sub_giat']);
+						$kode_sub = $nama_sub_giat[0];
+						unset($nama_sub_giat[0]);
+						$nama_sub_giat = implode(' ', $nama_sub_giat);
+						if(!empty($subkeg_mapping[$nama_sub_giat])){
+							$newsub['nama_sub_giat'] = $kode_sub.' '.$subkeg_mapping[$nama_sub_giat];
+						}
+						$newsub['id_mapping'] = get_option('_crb_unit_fmis_'.$tahun_anggaran.'_'.$sub['id_sub_skpd']);
+						$kas = array();
+						$kode_sbl = explode('.', $sub['kode_sbl']);
+						$kode_sbl = $kode_sbl[1].'.'.$kode_sbl[0].'.'.$kode_sbl[1].'.'.$sub['id_bidang_urusan'].'.'.$kode_sbl[2].'.'.$kode_sbl[3].'.'.$kode_sbl[4];
+						$kas = $wpdb->get_results("
+							SELECT 
+								bulan_1, 
+								bulan_2, 
+								bulan_3, 
+								bulan_4, 
+								bulan_5, 
+								bulan_6, 
+								bulan_7, 
+								bulan_8, 
+								bulan_9, 
+								bulan_10, 
+								bulan_11, 
+								bulan_12, 
+								kode_akun,
+								nama_akun,
+							from data_anggaran_kas 
+							where kode_sbl='".$kode_sbl."' 
+								AND tahun_anggaran=".$sub['tahun_anggaran']."
+								AND active=1"
+							, ARRAY_A
+						);
+						$newsub['kas'] = $kas;
+						$ret['data'][] = $newsub;
+					}
+				// anggaran kas belanja simda
+				}else if($type == 5){
 					$data_sub_keg = $wpdb->get_results($wpdb->prepare("
 						SELECT 
 							s.*,
@@ -4034,20 +4115,102 @@ class Wpsipd_Public
 							and s.active=1", 
 					$tahun_anggaran), ARRAY_A);
 					$kas = array();
-					foreach($data_sub_keg as $k => $v){
-						$kode_sbl = explode('.', $v['kode_sbl']);
-						$kode_sbl = $kode_sbl[1].'.'.$kode_sbl[0].'.'.$kode_sbl[1].'.'.$v['id_bidang_urusan'].'.'.$kode_sbl[2].'.'.$kode_sbl[3].'.'.$kode_sbl[4];
-						$kas = $wpdb->get_results("
-							SELECT 
-								* 
-							from data_anggaran_kas 
-							where kode_sbl='".$kode_sbl."' 
-								AND tahun_anggaran=".$v['tahun_anggaran']."
-								AND active=1"
-							, ARRAY_A
+					foreach($data_sub_keg as $k => $sub){
+						$newsub = array(
+							'kode_sbl' => $sub['kode_sbl'],
+							'nama_skpd_data_unit' => $sub['nama_skpd_data_unit'],
+							'kode_sub_skpd' => $sub['kode_sub_skpd'],
+							'pagu' => $sub['pagu'],
+							'pagu_keg' => $sub['pagu_keg'],
+							'pagu_n_depan' => $sub['pagu_n_depan'],
+							'pagu_n_lalu' => $sub['pagu_n_lalu'],
+							'nama_giat' => $sub['nama_giat'],
+							'nama_program' => $sub['nama_program'],
+							'id_bidang_urusan' => $sub['id_bidang_urusan'],
+							'nama_bidang_urusan' => $sub['nama_bidang_urusan'],
+							'nama_urusan' => $sub['nama_urusan'],
+							'nama_sub_giat' => $sub['nama_sub_giat']
 						);
-						$v['kas'] = $kas;
-						$ret['data'][] = $v;
+						if(!empty($program_mapping[$sub['nama_program']])){
+							$newsub['nama_program'] = $program_mapping[$sub['nama_program']];
+						}
+						if(!empty($keg_mapping[$sub['nama_giat']])){
+							$newsub['nama_giat'] = $keg_mapping[$sub['nama_giat']];
+						}
+						$nama_sub_giat = explode(' ', $sub['nama_sub_giat']);
+						$kode_sub = $nama_sub_giat[0];
+						unset($nama_sub_giat[0]);
+						$nama_sub_giat = implode(' ', $nama_sub_giat);
+						if(!empty($subkeg_mapping[$nama_sub_giat])){
+							$newsub['nama_sub_giat'] = $kode_sub.' '.$subkeg_mapping[$nama_sub_giat];
+						}
+						$newsub['id_mapping'] = get_option('_crb_unit_fmis_'.$tahun_anggaran.'_'.$sub['id_sub_skpd']);
+						$kd_unit_simda = explode('.', get_option('_crb_unit_'.$sub['id_sub_skpd']));
+						$_kd_urusan = $kd_unit_simda[0];
+						$_kd_bidang = $kd_unit_simda[1];
+						$kd_unit = $kd_unit_simda[2];
+						$kd_sub_unit = $kd_unit_simda[3];
+						$kd = explode('.', $sub['kode_sub_giat']);
+						$kd_urusan90 = (int) $kd[0];
+						$kd_bidang90 = (int) $kd[1];
+						$kd_program90 = (int) $kd[2];
+						$kd_kegiatan90 = ((int) $kd[3]).'.'.$kd[4];
+						$kd_sub_kegiatan = (int) $kd[5];
+						$nama_keg = explode(' ', $sub['nama_sub_giat']);
+				        unset($nama_keg[0]);
+				        $nama_keg = implode(' ', $nama_keg);
+						$mapping = $this->simda->cekKegiatanMapping(array(
+							'kd_urusan90' => $kd_urusan90,
+							'kd_bidang90' => $kd_bidang90,
+							'kd_program90' => $kd_program90,
+							'kd_kegiatan90' => $kd_kegiatan90,
+							'kd_sub_kegiatan' => $kd_sub_kegiatan,
+							'nama_program' => $sub['nama_giat'],
+							'nama_kegiatan' => $nama_keg
+						));
+
+						$kd_urusan = 0;
+						$kd_bidang = 0;
+						$kd_prog = 0;
+						$kd_keg = 0;
+						if(!empty($mapping[0]) && !empty($mapping[0]->kd_urusan)){
+							$kd_urusan = $mapping[0]->kd_urusan;
+							$kd_bidang = $mapping[0]->kd_bidang;
+							$kd_prog = $mapping[0]->kd_prog;
+							$kd_keg = $mapping[0]->kd_keg;
+						}
+					    foreach ($this->simda->custom_mapping as $c_map_k => $c_map_v) {
+					        if(
+					            $skpd['kode_skpd'] == $c_map_v['sipd']['kode_skpd']
+					            && $sub['kode_sub_giat'] == $c_map_v['sipd']['kode_sub_keg']
+					        ){
+					            $kd_unit_simda_map = explode('.', $c_map_v['simda']['kode_skpd']);
+					            $_kd_urusan = $kd_unit_simda_map[0];
+					            $_kd_bidang = $kd_unit_simda_map[1];
+					            $kd_unit = $kd_unit_simda_map[2];
+					            $kd_sub_unit = $kd_unit_simda_map[3];
+					            $kd_keg_simda = explode('.', $c_map_v['simda']['kode_sub_keg']);
+					            $kd_urusan = $kd_keg_simda[0];
+					            $kd_bidang = $kd_keg_simda[1];
+					            $kd_prog = $kd_keg_simda[2];
+					            $kd_keg = $kd_keg_simda[3];
+					        }
+					    }
+				        $id_prog = $kd_urusan.$this->simda->CekNull($kd_bidang);
+						$opsi = array(
+							'tahun_anggaran' => $tahun_anggaran,
+							'rak_all' => true,
+							'kd_urusan' => $_kd_urusan,
+							'kd_bidang' => $_kd_bidang,
+							'kd_unit' => $kd_unit,
+							'kd_sub' => $kd_sub_unit,
+							'kd_prog' => $kd_prog,
+							'id_prog' => $id_prog,
+							'kd_keg' => $kd_keg
+						);
+						$kas = $this->get_rak_simda($opsi);
+						$newsub['kas'] = $kas;
+						$ret['data'][] = $newsub;
 					}
 				// anggaran kas pendapatan
 				}else if($type == 2){
@@ -5175,40 +5338,105 @@ class Wpsipd_Public
             );
 		}
 
-		$sql = $wpdb->prepare("
-			SELECT 
-				sum(r.jan) as bulan_1,
-				sum(r.feb) as bulan_2,
-				sum(r.mar) as bulan_3,
-				sum(r.apr) as bulan_4,
-				sum(r.mei) as bulan_5,
-				sum(r.jun) as bulan_6,
-				sum(r.jul) as bulan_7,
-				sum(r.agt) as bulan_8,
-				sum(r.sep) as bulan_9,
-				sum(r.okt) as bulan_10,
-				sum(r.nop) as bulan_11,
-				sum(r.des) as bulan_12
-			FROM ta_rencana r
-			WHERE r.tahun = %d 
-				AND r.kd_urusan = %d
-				AND r.kd_bidang = %d
-				AND r.kd_unit = %d
-				AND r.kd_sub = %d
-				AND r.kd_prog = %d
-				AND r.id_prog = %d
-				AND r.kd_keg = %d
-			", 
-			$options['tahun_anggaran'], 
-			$kd_urusan, 
-			$kd_bidang, 
-			$kd_unit, 
-			$kd_sub, 
-			$kd_prog, 
-			$id_prog, 
-			$kd_keg
-		);
-		$rak = $this->simda->CurlSimda(array('query' => $sql.$sql_akun), false);
+		if(!empty($options['rak_all'])){
+			$sql = $wpdb->prepare("
+				SELECT 
+					m.kd_rek90_1,
+					m.kd_rek90_2,
+					m.kd_rek90_3,
+					m.kd_rek90_4,
+					m.kd_rek90_5,
+					m.kd_rek90_6,
+					r6.nm_rek90_6 as nama_akun,
+					r.jan as bulan_1,
+					r.feb as bulan_2,
+					r.mar as bulan_3,
+					r.apr as bulan_4,
+					r.mei as bulan_5,
+					r.jun as bulan_6,
+					r.jul as bulan_7,
+					r.agt as bulan_8,
+					r.sep as bulan_9,
+					r.okt as bulan_10,
+					r.nop as bulan_11,
+					r.des as bulan_12
+				FROM ta_rencana r
+					LEFT JOIN ref_rek_mapping m on m.kd_rek_1=r.kd_rek_1
+						and m.kd_rek_2=r.kd_rek_2
+						and m.kd_rek_3=r.kd_rek_3
+						and m.kd_rek_4=r.kd_rek_4
+					LEFT JOIN ref_rek90_6 r6 on m.kd_rek90_1=r6.kd_rek90_1
+						and m.kd_rek90_2=r6.kd_rek90_2
+						and m.kd_rek90_3=r6.kd_rek90_3
+						and m.kd_rek90_4=r6.kd_rek90_4
+						and m.kd_rek90_5=r6.kd_rek90_5
+						and m.kd_rek90_6=r6.kd_rek90_6
+				WHERE r.tahun = %d 
+					AND r.kd_urusan = %d
+					AND r.kd_bidang = %d
+					AND r.kd_unit = %d
+					AND r.kd_sub = %d
+					AND r.kd_prog = %d
+					AND r.id_prog = %d
+					AND r.kd_keg = %d
+				", 
+				$options['tahun_anggaran'], 
+				$kd_urusan, 
+				$kd_bidang, 
+				$kd_unit, 
+				$kd_sub, 
+				$kd_prog, 
+				$id_prog, 
+				$kd_keg
+			);
+			$rak = $this->simda->CurlSimda(array('query' => $sql.$sql_akun), false);
+			$ret = array();
+			foreach($rak as $key => $val){
+				$ret[$key] = array();
+				foreach($val as $k => $v){
+					if(!is_numeric($k)){
+						$ret[$key][$k] = $v;
+					}
+				}
+				$ret[$key]['kode_akun'] = $val->kd_rek90_1.'.'.$val->kd_rek90_2.'.'.$this->simda->CekNull($val->kd_rek90_3).'.'.$this->simda->CekNull($val->kd_rek90_4).'.'.$this->simda->CekNull($val->kd_rek90_5).'.'.$this->simda->CekNull($val->kd_rek90_6, 4);
+			}
+			return $ret;
+		}else{
+			$sql = $wpdb->prepare("
+				SELECT 
+					sum(r.jan) as bulan_1,
+					sum(r.feb) as bulan_2,
+					sum(r.mar) as bulan_3,
+					sum(r.apr) as bulan_4,
+					sum(r.mei) as bulan_5,
+					sum(r.jun) as bulan_6,
+					sum(r.jul) as bulan_7,
+					sum(r.agt) as bulan_8,
+					sum(r.sep) as bulan_9,
+					sum(r.okt) as bulan_10,
+					sum(r.nop) as bulan_11,
+					sum(r.des) as bulan_12
+				FROM ta_rencana r
+				WHERE r.tahun = %d 
+					AND r.kd_urusan = %d
+					AND r.kd_bidang = %d
+					AND r.kd_unit = %d
+					AND r.kd_sub = %d
+					AND r.kd_prog = %d
+					AND r.id_prog = %d
+					AND r.kd_keg = %d
+				", 
+				$options['tahun_anggaran'], 
+				$kd_urusan, 
+				$kd_bidang, 
+				$kd_unit, 
+				$kd_sub, 
+				$kd_prog, 
+				$id_prog, 
+				$kd_keg
+			);
+			$rak = $this->simda->CurlSimda(array('query' => $sql.$sql_akun), false);
+		}
 
 		$total_rak = 0;
 		if(empty($rak[0])){
