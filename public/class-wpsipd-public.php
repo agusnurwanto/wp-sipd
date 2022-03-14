@@ -8858,13 +8858,17 @@ class Wpsipd_Public
 							s.kode_dana,
 							s.nama_dana
 						FROM data_mapping_sumberdana m
-						LEFT JOIN data_sumber_dana s on s.id_dana=m.id_sumber_dana
+						INNER JOIN data_sumber_dana s on s.id_dana=m.id_sumber_dana
 							and s.tahun_anggaran=m.tahun_anggaran
 						WHERE m.tahun_anggaran=%d
 							AND m.active=1
 							AND m.id_rinci_sub_bl=%d
 					', $tahun_anggaran, $v['id_rinci_sub_bl']), ARRAY_A);
-					if(!empty($sumber_dana)){
+					if(
+						!empty($sumber_dana) 
+						&& !empty($sumber_dana[0])
+						&& !empty($sumber_dana[0]['nama_dana'])
+					){
 						$rka[$k]['sumber_dana'] = $sumber_dana;
 					}else{
 						$rka[$k]['sumber_dana'] = $sumber_dana_default;
