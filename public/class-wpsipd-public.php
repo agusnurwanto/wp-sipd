@@ -4090,7 +4090,7 @@ class Wpsipd_Public
 								bulan_11, 
 								bulan_12, 
 								kode_akun,
-								nama_akun,
+								nama_akun
 							from data_anggaran_kas 
 							where kode_sbl='".$kode_sbl."' 
 								AND tahun_anggaran=".$sub['tahun_anggaran']."
@@ -4099,6 +4099,49 @@ class Wpsipd_Public
 						);
 						$newsub['kas'] = $kas;
 						$ret['data'][] = $newsub;
+
+						if(empty($kas_p[$sub['id_sub_skpd']])){
+							$newsub = array(
+								'kode_sbl' => '',
+								'nama_skpd_data_unit' => $sub['nama_skpd_data_unit'],
+								'kode_sub_skpd' => $sub['kode_sub_skpd'],
+								'pagu' => 0,
+								'pagu_keg' => 0,
+								'pagu_n_depan' => 0,
+								'pagu_n_lalu' => 0,
+								'nama_giat' => 'Non Kegiatan',
+								'nama_program' => 'Non Program',
+								'id_bidang_urusan' => 0,
+								'nama_bidang_urusan' => 'PROGRAM PENUNJANG URUSAN PEMERINTAHAN DAERAH',
+								'nama_urusan' => 'PROGRAM PENUNJANG URUSAN PEMERINTAHAN DAERAH',
+								'nama_sub_giat' => 'Non Sub Kegiatan'
+							);
+							$kas = $wpdb->get_results("
+								SELECT 
+									bulan_1, 
+									bulan_2, 
+									bulan_3, 
+									bulan_4, 
+									bulan_5, 
+									bulan_6, 
+									bulan_7, 
+									bulan_8, 
+									bulan_9, 
+									bulan_10, 
+									bulan_11, 
+									bulan_12, 
+									kode_akun,
+									nama_akun
+								from data_anggaran_kas 
+								where type IN ('pendapatan', 'pembiayaan-pengeluaran', 'pembiayaan-penerimaan') 
+									AND id_skpd = ".$sub['id_sub_skpd']."
+									AND tahun_anggaran=".$sub['tahun_anggaran']."
+									AND active=1"
+								, ARRAY_A
+							);
+							$newsub['kas'] = $kas;
+							$ret['data'][] = $newsub;
+						}
 					}
 				// anggaran kas belanja simda
 				}else if($type == 5){
@@ -4115,6 +4158,7 @@ class Wpsipd_Public
 							and s.active=1", 
 					$tahun_anggaran), ARRAY_A);
 					$kas = array();
+					$kas_p = array();
 					foreach($data_sub_keg as $k => $sub){
 						$newsub = array(
 							'kode_sbl' => $sub['kode_sbl'],
@@ -4211,13 +4255,39 @@ class Wpsipd_Public
 						$kas = $this->get_rak_simda($opsi);
 						$newsub['kas'] = $kas;
 						$ret['data'][] = $newsub;
+
+						if(empty($kas_p[$sub['id_sub_skpd']])){
+							$newsub = array(
+								'kode_sbl' => '',
+								'nama_skpd_data_unit' => $sub['nama_skpd_data_unit'],
+								'kode_sub_skpd' => $sub['kode_sub_skpd'],
+								'pagu' => 0,
+								'pagu_keg' => 0,
+								'pagu_n_depan' => 0,
+								'pagu_n_lalu' => 0,
+								'nama_giat' => 'Non Kegiatan',
+								'nama_program' => 'Non Program',
+								'id_bidang_urusan' => 0,
+								'nama_bidang_urusan' => 'PROGRAM PENUNJANG URUSAN PEMERINTAHAN DAERAH',
+								'nama_urusan' => 'PROGRAM PENUNJANG URUSAN PEMERINTAHAN DAERAH',
+								'nama_sub_giat' => 'Non Sub Kegiatan'
+							);
+							$opsi = array(
+								'tahun_anggaran' => $tahun_anggaran,
+								'rak_all' => true,
+								'kd_urusan' => $_kd_urusan,
+								'kd_bidang' => $_kd_bidang,
+								'kd_unit' => $kd_unit,
+								'kd_sub' => $kd_sub_unit,
+								'kd_prog' => 0,
+								'id_prog' => 0,
+								'kd_keg' => 0
+							);
+							$kas = $this->get_rak_simda($opsi);
+							$newsub['kas'] = $kas;
+							$ret['data'][] = $newsub;
+						}
 					}
-				// anggaran kas pendapatan
-				}else if($type == 2){
-
-				// anggaran kas pembiayaan
-				}else if($type == 2){
-
 				}
 			} else {
 				$ret['status'] = 'error';
