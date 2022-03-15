@@ -317,6 +317,9 @@ class Wpsipd_Public
 						|| $_POST['kelompok'] == 9 // RKA
 					)
 				){
+					$rek_mapping = $this->get_fmis_mapping(array(
+						'name' => '_crb_custom_mapping_rekening_fmis'
+					));
 					if($_POST['kelompok'] == 7){
 						$data = array();
 						$data_ssh = $wpdb->get_results($wpdb->prepare("
@@ -370,7 +373,21 @@ class Wpsipd_Public
 
 						// set variable ssh sesuai kebutuhan ssh di FMIS
 						foreach ($data_ssh as $k => $v) {
-							// if($k >= 10){ continue; }
+							$_kode_akun = explode('.', $v['kode_akun']);
+							$kode_akun = array();
+							foreach ($_kode_akun as $vv) {
+								$kode_akun[] = (int)$vv;
+							}
+							$kode_akun = implode('.', $kode_akun);
+							if(!empty($rek_mapping[$kode_akun])){
+								$_kode_akun = explode('.', $rek_mapping[$kode_akun]);
+								$_kode_akun[2] = $this->simda->CekNull($_kode_akun[2]);
+								$_kode_akun[3] = $this->simda->CekNull($_kode_akun[3]);
+								$_kode_akun[4] = $this->simda->CekNull($_kode_akun[4]);
+								$_kode_akun[5] = $this->simda->CekNull($_kode_akun[5], 4);
+								$v['kode_akun'] = implode('.', $_kode_akun);
+							}
+
 							$newdata = array();
 							$newdata['rek_belanja'] = array(
 								array(
@@ -480,8 +497,23 @@ class Wpsipd_Public
 							group by jenis_bl, nama_komponen, spek_komponen, harga_satuan, satuan, kode_akun, nama_akun", 
 						$_POST['tahun_anggaran'], $_POST['kelompok']), ARRAY_A);
 						$data = array(); 
-						$data1 = array(); 
+						$data1 = array();
 						foreach ($data_ssh as $k => $v) {
+							$_kode_akun = explode('.', $v['kode_akun']);
+							$kode_akun = array();
+							foreach ($_kode_akun as $vv) {
+								$kode_akun[] = (int)$vv;
+							}
+							$kode_akun = implode('.', $kode_akun);
+							if(!empty($rek_mapping[$kode_akun])){
+								$_kode_akun = explode('.', $rek_mapping[$kode_akun]);
+								$_kode_akun[2] = $this->simda->CekNull($_kode_akun[2]);
+								$_kode_akun[3] = $this->simda->CekNull($_kode_akun[3]);
+								$_kode_akun[4] = $this->simda->CekNull($_kode_akun[4]);
+								$_kode_akun[5] = $this->simda->CekNull($_kode_akun[5], 4);
+								$v['kode_akun'] = implode('.', $_kode_akun);
+							}
+
 							$key = $v['nama_komponen'].$v['spek_komponen'].$v['harga_satuan'].$v['satuan'];
 							if(empty($data1[$key])){
 								$v['rek_belanja'] = array(
@@ -4028,6 +4060,9 @@ class Wpsipd_Public
 				$subkeg_mapping = $this->get_fmis_mapping(array(
 					'name' => '_crb_custom_mapping_subkeg_fmis'
 				));
+				$rek_mapping = $this->get_fmis_mapping(array(
+					'name' => '_crb_custom_mapping_rekening_fmis'
+				));
 				// anggaran kas belanja sipd
 				if($type == 4){
 					$data_sub_keg = $wpdb->get_results($wpdb->prepare("
@@ -4097,6 +4132,22 @@ class Wpsipd_Public
 								AND active=1"
 							, ARRAY_A
 						);
+						foreach($kas as $n => $v){
+							$_kode_akun = explode('.', $v['kode_akun']);
+							$kode_akun = array();
+							foreach ($_kode_akun as $vv) {
+								$kode_akun[] = (int)$vv;
+							}
+							$kode_akun = implode('.', $kode_akun);
+							if(!empty($rek_mapping[$kode_akun])){
+								$_kode_akun = explode('.', $rek_mapping[$kode_akun]);
+								$_kode_akun[2] = $this->simda->CekNull($_kode_akun[2]);
+								$_kode_akun[3] = $this->simda->CekNull($_kode_akun[3]);
+								$_kode_akun[4] = $this->simda->CekNull($_kode_akun[4]);
+								$_kode_akun[5] = $this->simda->CekNull($_kode_akun[5], 4);
+								$kas[$n]['kode_akun'] = implode('.', $_kode_akun);
+							}
+						}
 						$newsub['kas'] = $kas;
 						$ret['data'][] = $newsub;
 
@@ -4139,6 +4190,22 @@ class Wpsipd_Public
 									AND active=1"
 								, ARRAY_A
 							);
+							foreach($kas as $n => $v){
+								$_kode_akun = explode('.', $v['kode_akun']);
+								$kode_akun = array();
+								foreach ($_kode_akun as $vv) {
+									$kode_akun[] = (int)$vv;
+								}
+								$kode_akun = implode('.', $kode_akun);
+								if(!empty($rek_mapping[$kode_akun])){
+									$_kode_akun = explode('.', $rek_mapping[$kode_akun]);
+									$_kode_akun[2] = $this->simda->CekNull($_kode_akun[2]);
+									$_kode_akun[3] = $this->simda->CekNull($_kode_akun[3]);
+									$_kode_akun[4] = $this->simda->CekNull($_kode_akun[4]);
+									$_kode_akun[5] = $this->simda->CekNull($_kode_akun[5], 4);
+									$kas[$n]['kode_akun'] = implode('.', $_kode_akun);
+								}
+							}
 							$newsub['kas'] = $kas;
 							$ret['data'][] = $newsub;
 						}
@@ -4253,6 +4320,22 @@ class Wpsipd_Public
 							'kd_keg' => $kd_keg
 						);
 						$kas = $this->get_rak_simda($opsi);
+						foreach($kas as $n => $v){
+							$_kode_akun = explode('.', $v['kode_akun']);
+							$kode_akun = array();
+							foreach ($_kode_akun as $vv) {
+								$kode_akun[] = (int)$vv;
+							}
+							$kode_akun = implode('.', $kode_akun);
+							if(!empty($rek_mapping[$kode_akun])){
+								$_kode_akun = explode('.', $rek_mapping[$kode_akun]);
+								$_kode_akun[2] = $this->simda->CekNull($_kode_akun[2]);
+								$_kode_akun[3] = $this->simda->CekNull($_kode_akun[3]);
+								$_kode_akun[4] = $this->simda->CekNull($_kode_akun[4]);
+								$_kode_akun[5] = $this->simda->CekNull($_kode_akun[5], 4);
+								$kas[$n]['kode_akun'] = implode('.', $_kode_akun);
+							}
+						}
 						$newsub['kas'] = $kas;
 						$ret['data'][] = $newsub;
 
@@ -4284,6 +4367,22 @@ class Wpsipd_Public
 								'kd_keg' => 0
 							);
 							$kas = $this->get_rak_simda($opsi);
+							foreach($kas as $n => $v){
+								$_kode_akun = explode('.', $v['kode_akun']);
+								$kode_akun = array();
+								foreach ($_kode_akun as $vv) {
+									$kode_akun[] = (int)$vv;
+								}
+								$kode_akun = implode('.', $kode_akun);
+								if(!empty($rek_mapping[$kode_akun])){
+									$_kode_akun = explode('.', $rek_mapping[$kode_akun]);
+									$_kode_akun[2] = $this->simda->CekNull($_kode_akun[2]);
+									$_kode_akun[3] = $this->simda->CekNull($_kode_akun[3]);
+									$_kode_akun[4] = $this->simda->CekNull($_kode_akun[4]);
+									$_kode_akun[5] = $this->simda->CekNull($_kode_akun[5], 4);
+									$kas[$n]['kode_akun'] = implode('.', $_kode_akun);
+								}
+							}
 							$newsub['kas'] = $kas;
 							$ret['data'][] = $newsub;
 						}
@@ -8811,12 +8910,22 @@ class Wpsipd_Public
 	}
 
 	public function get_fmis_mapping($options){
-		$mapping = get_option($options['name']);
-		$mapping = explode('],[', $mapping);
-		$ret = array();
-		foreach($mapping as $map){
-			$map = explode(']-[', $map);
-			$ret[str_replace('[', '', $map[0])] = str_replace(']', '', $map[1]);
+		if($options['name'] == '_crb_custom_mapping_rekening_fmis'){
+			$mapping = get_option($options['name']);
+			$mapping = explode(',', $mapping);
+			$ret = array();
+			foreach($mapping as $map){
+				$map = explode('-', $map);
+				$ret[$map[0]] = $map[1];
+			}
+		}else{
+			$mapping = get_option($options['name']);
+			$mapping = explode('],[', $mapping);
+			$ret = array();
+			foreach($mapping as $map){
+				$map = explode(']-[', $map);
+				$ret[str_replace('[', '', $map[0])] = str_replace(']', '', $map[1]);
+			}
 		}
 		return $ret;
 	}
@@ -8851,7 +8960,24 @@ class Wpsipd_Public
 					WHERE tahun_anggaran=%d
 						AND id_dana=%d
 				', $tahun_anggaran, $id_sumber_dana_default), ARRAY_A);
+				$rek_mapping = $this->get_fmis_mapping(array(
+					'name' => '_crb_custom_mapping_rekening_fmis'
+				));
 				foreach ($rka as $k => $v) {
+					$_kode_akun = explode('.', $v['kode_akun']);
+					$kode_akun = array();
+					foreach ($_kode_akun as $vv) {
+						$kode_akun[] = (int)$vv;
+					}
+					$kode_akun = implode('.', $kode_akun);
+					if(!empty($rek_mapping[$kode_akun])){
+						$_kode_akun = explode('.', $rek_mapping[$kode_akun]);
+						$_kode_akun[2] = $this->simda->CekNull($_kode_akun[2]);
+						$_kode_akun[3] = $this->simda->CekNull($_kode_akun[3]);
+						$_kode_akun[4] = $this->simda->CekNull($_kode_akun[4]);
+						$_kode_akun[5] = $this->simda->CekNull($_kode_akun[5], 4);
+						$rka[$k]['kode_akun'] = implode('.', $_kode_akun);
+					}
 					$sumber_dana = $wpdb->get_results($wpdb->prepare('
 						SELECT 
 							m.id_sumber_dana,
