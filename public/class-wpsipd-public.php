@@ -320,6 +320,7 @@ class Wpsipd_Public
 					$rek_mapping = $this->get_fmis_mapping(array(
 						'name' => '_crb_custom_mapping_rekening_fmis'
 					));
+					$type_pagu = get_option('_crb_fmis_pagu');
 					if($_POST['kelompok'] == 7){
 						$data = array();
 						$data_ssh = $wpdb->get_results($wpdb->prepare("
@@ -327,6 +328,7 @@ class Wpsipd_Public
 								kode_akun,
 								nama_akun,
 								total,
+								nilaimurni,
 								uraian,
 								keterangan
 							from data_pendapatan 
@@ -337,7 +339,12 @@ class Wpsipd_Public
 
 						// set variable ssh sesuai kebutuhan ssh di FMIS
 						foreach ($data_ssh as $k => $v) {
-							// if($k >= 10){ continue; }
+							if(
+								!empty($type_pagu)
+								&& $type_pagu == 2
+							){
+								$data_ssh[$k]['total'] = $v['nilaimurni'];
+							}
 							$newdata = array();
 							$newdata['rek_belanja'] = array(
 								array(
@@ -363,6 +370,7 @@ class Wpsipd_Public
 								kode_akun,
 								nama_akun,
 								total,
+								nilaimurni,
 								uraian,
 								keterangan
 							from data_pembiayaan 
@@ -373,6 +381,12 @@ class Wpsipd_Public
 
 						// set variable ssh sesuai kebutuhan ssh di FMIS
 						foreach ($data_ssh as $k => $v) {
+							if(
+								!empty($type_pagu)
+								&& $type_pagu == 2
+							){
+								$data_ssh[$k]['total'] = $v['nilaimurni'];
+							}
 							$_kode_akun = explode('.', $v['kode_akun']);
 							$kode_akun = array();
 							foreach ($_kode_akun as $vv) {
@@ -440,12 +454,19 @@ class Wpsipd_Public
 							);
 						}
 
+						$kd_perubahan = 4;
+						if(
+							!empty($type_pagu)
+							&& $type_pagu == 2
+						){
+							$kd_perubahan = '(SELECT max(kd_perubahan) from ta_rask_arsip where tahun='.$tahun_anggaran.')';
+						}
 						$sql = $wpdb->prepare("
 							SELECT 
 								*
 							FROM ta_rask_arsip r
 							WHERE r.tahun = %d
-								AND r.kd_perubahan = 4
+								AND r.kd_perubahan = $kd_perubahan
 								AND r.kd_rek_1 = 5
 							", 
 							$_POST['tahun_anggaran']
@@ -487,6 +508,7 @@ class Wpsipd_Public
 								nama_komponen,
 								spek_komponen,
 								harga_satuan,
+								harga_satuan_murni,
 								satuan,
 								kode_akun,
 								nama_akun
@@ -499,6 +521,12 @@ class Wpsipd_Public
 						$data = array(); 
 						$data1 = array();
 						foreach ($data_ssh as $k => $v) {
+							if(
+								!empty($type_pagu)
+								&& $type_pagu == 2
+							){
+								$data_ssh[$k]['harga_satuan'] = $v['harga_satuan_murni'];
+							}
 							$_kode_akun = explode('.', $v['kode_akun']);
 							$kode_akun = array();
 							foreach ($_kode_akun as $vv) {
@@ -8685,6 +8713,7 @@ class Wpsipd_Public
 							'name' => '_crb_custom_mapping_subkeg_fmis'
 						));
 						$data_sub_keg = array();
+						$type_pagu = get_option('_crb_fmis_pagu');
 						if($idsumber == 1){
 							$data_sub_keg = $wpdb->get_results($wpdb->prepare("
 								SELECT 
@@ -8699,6 +8728,13 @@ class Wpsipd_Public
 									and s.active=1", 
 							$tahun_anggaran), ARRAY_A);
 							foreach ($data_sub_keg as $k => $v) {
+								if(
+									!empty($type_pagu)
+									&& $type_pagu == 2
+								){
+									$data_sub_keg[$k]['pagu'] = $v['pagumurni'];
+									$data_sub_keg[$k]['pagu_keg'] = $v['pagumurni'];
+								}
 								if(!empty($program_mapping[$v['nama_program']])){
 									$data_sub_keg[$k]['nama_program'] = $program_mapping[$v['nama_program']];
 								}
@@ -8772,6 +8808,13 @@ class Wpsipd_Public
 								$_kd_bidang = $kd_unit_simda[1];
 								$kd_unit = $kd_unit_simda[2];
 								$kd_sub_unit = $kd_unit_simda[3];
+								$kd_perubahan = '(SELECT max(kd_perubahan) from ta_rask_arsip where tahun='.$tahun_anggaran.')';
+								if(
+									!empty($type_pagu)
+									&& $type_pagu == 2
+								){
+									$kd_perubahan = 4;
+								}
 								$sql = $wpdb->prepare("
 									SELECT 
 										r.kd_urusan, 
@@ -8784,7 +8827,7 @@ class Wpsipd_Public
 										SUM(r.total) as total
 									FROM ta_rask_arsip r
 									WHERE r.tahun = %d
-										AND r.kd_perubahan = 4
+										AND r.kd_perubahan = $kd_perubahan
 										AND r.kd_urusan = %d
 										AND r.kd_bidang = %d
 										AND r.kd_unit = %d
@@ -8967,7 +9010,18 @@ class Wpsipd_Public
 				$rek_mapping = $this->get_fmis_mapping(array(
 					'name' => '_crb_custom_mapping_rekening_fmis'
 				));
+				$type_pagu = get_option('_crb_fmis_pagu');
 				foreach ($rka as $k => $v) {
+					if(
+						!empty($type_pagu)
+						&& $type_pagu == 2
+					){
+						$rka[$k]['pajak'] = $v['pajak_murni'];
+						$rka[$k]['rincian'] = $v['rincian_murni'];
+						$rka[$k]['volume'] = $v['volume_murni'];
+						$rka[$k]['koefisien'] = $v['koefisien_murni'];
+						$rka[$k]['harga_satuan'] = $v['harga_satuan_murni'];
+					}
 					$_kode_akun = explode('.', $v['kode_akun']);
 					$kode_akun = array();
 					foreach ($_kode_akun as $vv) {
@@ -9152,7 +9206,14 @@ class Wpsipd_Public
 							and p.active=1
 					', $_POST['tahun_anggaran']), ARRAY_A);
 					$ret['sql'] = $wpdb->last_query;
+					$type_pagu = get_option('_crb_fmis_pagu');
 					foreach($pendapatan as $k => $v){
+						if(
+							!empty($type_pagu)
+							&& $type_pagu == 2
+						){
+							$pendapatan[$k]['total'] = $v['nilaimurni'];
+						}
 						$pendapatan[$k]['id_mapping'] = get_option('_crb_unit_fmis_'.$tahun_anggaran.'_'.$v['id_skpd']);
 					}
 					$ret['data'] = $pendapatan;
@@ -9244,7 +9305,14 @@ class Wpsipd_Public
 							and p.id_skpd IN ('.implode(',', $id_skpd_sipd).')
 							and p.active=1
 					', $_POST['tahun_anggaran']), ARRAY_A);
+					$type_pagu = get_option('_crb_fmis_pagu');
 					foreach($data_db as $k => $v){
+						if(
+							!empty($type_pagu)
+							&& $type_pagu == 2
+						){
+							$data_db[$k]['total'] = $v['nilaimurni'];
+						}
 						$data_db[$k]['id_mapping'] = get_option('_crb_unit_fmis_'.$tahun_anggaran.'_'.$v['id_skpd']);
 					}
 					$ret['sql'] = $wpdb->last_query;

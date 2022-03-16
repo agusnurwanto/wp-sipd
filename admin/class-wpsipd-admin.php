@@ -480,6 +480,13 @@ class Wpsipd_Admin {
             	->set_help_text('Data ini untuk mengakomodir perbedaan nama program yang ada di SIPD dan FMIS. Contoh pengisian data sebagai berikut [nama_program]-[nama_program] data dipisah dengan pemisah "," (koma).');
 		$mapping_unit[] = Field::make( 'html', 'crb_fmis_keterangan_mapping' )
 	        ->set_html( 'Mapping SKPD berisi ID dari Unit dan Sub Unit FMIS. Data ID SKPD FMIS dapat dilihat pada form edit atau tambah user. ID dipisahkan dengan delimiter "." (titik). Contoh jika ID dari Unit Dindik adalah 50 dan ID dari sub Unit Dindik adalah 70, maka penulisanya adalah <b>50.70</b>.' );
+        $mapping_unit[] = Field::make( 'radio', 'crb_fmis_pagu', __( 'Nilai Rincian yang dikirim ke FMIS' ) )
+		    ->add_options( array(
+		        '1' => __( 'Nilai Terakhir' ),
+		        '2' => __( 'Sebelum Perubahan' )
+		    ) )
+        	->set_default_value('1')
+        	->set_help_text('Pilihan ini untuk opsi yang dipakai saat penarikan data dijadwal pergeseran atau perubahan. Jika masih jadwal APBD Murni maka pilih <b>Nilai Terakhir</b>.');
 		foreach ($unit as $k => $v) {
 			$mapping_unit[] = Field::make( 'text', 'crb_unit_fmis_'.$tahun_anggaran.'_'.$v['id_skpd'], ($k+1).'. Kode Sub Unit FMIS untuk '.$v['kode_skpd'].' '.$v['nama_skpd'] );
 		}
