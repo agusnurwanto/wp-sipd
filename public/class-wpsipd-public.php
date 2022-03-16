@@ -1466,12 +1466,16 @@ class Wpsipd_Public
 		if (!empty($_POST)) {
 			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
 				$data = $_POST['data'];
-				$wpdb->update('data_pembiayaan', array('active' => 0), array(
-					'tahun_anggaran' => $_POST['tahun_anggaran'],
-					'id_skpd' => $_POST['id_skpd'],
-					'type' => $v['type']
-				));
+				$type = array();
 				foreach ($data as $k => $v) {
+					if(empty($type[$v['type']])){
+						$type[$v['type']] = 1;
+						$wpdb->update('data_pembiayaan', array('active' => 0), array(
+							'tahun_anggaran' => $_POST['tahun_anggaran'],
+							'id_skpd' => $_POST['id_skpd'],
+							'type' => $v['type']
+						));
+					}
 					$cek = $wpdb->get_var($wpdb->prepare("
 						SELECT id_pembiayaan 
 						from data_pembiayaan 

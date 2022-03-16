@@ -731,7 +731,7 @@ CREATE TABLE `data_pembiayaan` (
   `createddate` varchar(50) DEFAULT NULL,
   `createdtime` varchar(50) DEFAULT NULL,
   `id_pembiayaan` int(11) DEFAULT NULL,
-  `keterangan` varchar(50) DEFAULT NULL,
+  `keterangan` text DEFAULT NULL,
   `kode_akun` varchar(50) DEFAULT NULL,
   `nama_akun` text,
   `nilaimurni` double DEFAULT NULL,
