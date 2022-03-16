@@ -343,7 +343,7 @@ class Wpsipd_Public
 								!empty($type_pagu)
 								&& $type_pagu == 2
 							){
-								$data_ssh[$k]['total'] = $v['nilaimurni'];
+								$v['total'] = $v['nilaimurni'];
 							}
 							$newdata = array();
 							$newdata['rek_belanja'] = array(
@@ -385,7 +385,7 @@ class Wpsipd_Public
 								!empty($type_pagu)
 								&& $type_pagu == 2
 							){
-								$data_ssh[$k]['total'] = $v['nilaimurni'];
+								$v['total'] = $v['nilaimurni'];
 							}
 							$_kode_akun = explode('.', $v['kode_akun']);
 							$kode_akun = array();
@@ -525,7 +525,7 @@ class Wpsipd_Public
 								!empty($type_pagu)
 								&& $type_pagu == 2
 							){
-								$data_ssh[$k]['harga_satuan'] = $v['harga_satuan_murni'];
+								$v['harga_satuan'] = $v['harga_satuan_murni'];
 							}
 							$_kode_akun = explode('.', $v['kode_akun']);
 							$kode_akun = array();
@@ -9122,7 +9122,11 @@ class Wpsipd_Public
 						FROM
 							data_akun
 						WHERE tahun_anggaran=%d
-							and kode_akun like '5%'
+							and (
+								kode_akun like '4%'
+								or kode_akun like '5%'
+								or kode_akun like '6%'
+							)
 							and set_input=1
 					", $_POST['tahun_anggaran']), ARRAY_A);
 					$rek_fmis = json_decode(stripslashes(html_entity_decode($_POST['rek'])));
