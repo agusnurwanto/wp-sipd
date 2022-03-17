@@ -215,6 +215,7 @@ class Wpsipd_Public
 						and active=1", 
 				$_POST['tahun_anggaran']), ARRAY_A);
 				foreach ($data_skpd as $k => $v) {
+					$data_skpd[$k]['id_mapping'] = get_option('_crb_unit_fmis_'.$_POST['tahun_anggaran'].'_'.$v['id_skpd']);
 					$kode_skpd = explode('.', $v['kode_skpd']);
 					$bidur_1 = $kode_skpd[0].'.'.$kode_skpd[1];
 					$bidur_2 = $kode_skpd[2].'.'.$kode_skpd[3];
@@ -9391,7 +9392,7 @@ class Wpsipd_Public
 		if (!empty($_POST)) {
 			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
 				if(!empty($_POST['sub_kegiatan'])){
-					$sub_keg_fmis = $_POST['sub_kegiatan'];
+					$sub_keg_fmis = json_decode(stripslashes(html_entity_decode($_POST['sub_kegiatan'])));
 					$new_prog_fmis = array();
 					$new_keg_fmis = array();
 					$new_sub_keg_fmis = array();
