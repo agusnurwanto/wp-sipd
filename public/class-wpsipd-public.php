@@ -9397,6 +9397,7 @@ class Wpsipd_Public
 					$new_keg_fmis = array();
 					$new_sub_keg_fmis = array();
 					foreach($sub_keg_fmis as $sub){
+						$sub = (array) $sub;
 						$new_sub_keg_fmis[strtolower(trim($sub['sub_kegiatan']))] = $sub;
 						$new_keg_fmis[strtolower(trim($sub['kegiatan']))] = $sub;
 						$new_prog_fmis[strtolower(trim($sub['program']))] = $sub;
