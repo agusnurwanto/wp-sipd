@@ -345,6 +345,20 @@ class Wpsipd_Public
 							){
 								$v['total'] = $v['nilaimurni'];
 							}
+							$_kode_akun = explode('.', $v['kode_akun']);
+							$kode_akun = array();
+							foreach ($_kode_akun as $vv) {
+								$kode_akun[] = (int)$vv;
+							}
+							$kode_akun = implode('.', $kode_akun);
+							if(!empty($rek_mapping[$kode_akun])){
+								$_kode_akun = explode('.', $rek_mapping[$kode_akun]);
+								$_kode_akun[2] = $this->simda->CekNull($_kode_akun[2]);
+								$_kode_akun[3] = $this->simda->CekNull($_kode_akun[3]);
+								$_kode_akun[4] = $this->simda->CekNull($_kode_akun[4]);
+								$_kode_akun[5] = $this->simda->CekNull($_kode_akun[5], 4);
+								$v['kode_akun'] = implode('.', $_kode_akun);
+							}
 							$newdata = array();
 							$newdata['rek_belanja'] = array(
 								array(
@@ -9211,12 +9225,29 @@ class Wpsipd_Public
 					', $_POST['tahun_anggaran']), ARRAY_A);
 					$ret['sql'] = $wpdb->last_query;
 					$type_pagu = get_option('_crb_fmis_pagu');
+					$rek_mapping = $this->get_fmis_mapping(array(
+						'name' => '_crb_custom_mapping_rekening_fmis'
+					));
 					foreach($pendapatan as $k => $v){
 						if(
 							!empty($type_pagu)
 							&& $type_pagu == 2
 						){
 							$pendapatan[$k]['total'] = $v['nilaimurni'];
+						}
+						$_kode_akun = explode('.', $v['kode_akun']);
+						$kode_akun = array();
+						foreach ($_kode_akun as $vv) {
+							$kode_akun[] = (int)$vv;
+						}
+						$kode_akun = implode('.', $kode_akun);
+						if(!empty($rek_mapping[$kode_akun])){
+							$_kode_akun = explode('.', $rek_mapping[$kode_akun]);
+							$_kode_akun[2] = $this->simda->CekNull($_kode_akun[2]);
+							$_kode_akun[3] = $this->simda->CekNull($_kode_akun[3]);
+							$_kode_akun[4] = $this->simda->CekNull($_kode_akun[4]);
+							$_kode_akun[5] = $this->simda->CekNull($_kode_akun[5], 4);
+							$pendapatan[$k]['kode_akun'] = implode('.', $_kode_akun);
 						}
 						$pendapatan[$k]['id_mapping'] = get_option('_crb_unit_fmis_'.$tahun_anggaran.'_'.$v['id_skpd']);
 					}
@@ -9310,12 +9341,29 @@ class Wpsipd_Public
 							and p.active=1
 					', $_POST['tahun_anggaran']), ARRAY_A);
 					$type_pagu = get_option('_crb_fmis_pagu');
+					$rek_mapping = $this->get_fmis_mapping(array(
+						'name' => '_crb_custom_mapping_rekening_fmis'
+					));
 					foreach($data_db as $k => $v){
 						if(
 							!empty($type_pagu)
 							&& $type_pagu == 2
 						){
 							$data_db[$k]['total'] = $v['nilaimurni'];
+						}
+						$_kode_akun = explode('.', $v['kode_akun']);
+						$kode_akun = array();
+						foreach ($_kode_akun as $vv) {
+							$kode_akun[] = (int)$vv;
+						}
+						$kode_akun = implode('.', $kode_akun);
+						if(!empty($rek_mapping[$kode_akun])){
+							$_kode_akun = explode('.', $rek_mapping[$kode_akun]);
+							$_kode_akun[2] = $this->simda->CekNull($_kode_akun[2]);
+							$_kode_akun[3] = $this->simda->CekNull($_kode_akun[3]);
+							$_kode_akun[4] = $this->simda->CekNull($_kode_akun[4]);
+							$_kode_akun[5] = $this->simda->CekNull($_kode_akun[5], 4);
+							$data_db[$k]['kode_akun'] = implode('.', $_kode_akun);
 						}
 						$data_db[$k]['id_mapping'] = get_option('_crb_unit_fmis_'.$tahun_anggaran.'_'.$v['id_skpd']);
 					}
