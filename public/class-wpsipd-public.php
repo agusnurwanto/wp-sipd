@@ -4112,6 +4112,7 @@ class Wpsipd_Public
 				));
 				// anggaran kas belanja sipd
 				if($type == 4){
+					$kas_p = array();
 					$data_sub_keg = $wpdb->get_results($wpdb->prepare("
 						SELECT 
 							s.*,
@@ -4207,12 +4208,12 @@ class Wpsipd_Public
 								'pagu_keg' => 0,
 								'pagu_n_depan' => 0,
 								'pagu_n_lalu' => 0,
-								'nama_giat' => 'Non Kegiatan',
-								'nama_program' => 'Non Program',
+								'nama_giat' => 'x.x.xx.xx.xx Non Kegiatan',
+								'nama_program' => 'x.x.xx.xx.xx Non Program',
 								'id_bidang_urusan' => 0,
 								'nama_bidang_urusan' => 'PROGRAM PENUNJANG URUSAN PEMERINTAHAN DAERAH',
 								'nama_urusan' => 'PROGRAM PENUNJANG URUSAN PEMERINTAHAN DAERAH',
-								'nama_sub_giat' => 'Non Sub Kegiatan'
+								'nama_sub_giat' => 'x.x.xx.xx.xx Non Sub Kegiatan'
 							);
 							$kas = $wpdb->get_results("
 								SELECT 
@@ -4395,12 +4396,12 @@ class Wpsipd_Public
 								'pagu_keg' => 0,
 								'pagu_n_depan' => 0,
 								'pagu_n_lalu' => 0,
-								'nama_giat' => 'Non Kegiatan',
-								'nama_program' => 'Non Program',
+								'nama_giat' => 'x.x.xx.xx.xx Non Kegiatan',
+								'nama_program' => 'x.x.xx.xx.xx Non Program',
 								'id_bidang_urusan' => 0,
 								'nama_bidang_urusan' => 'PROGRAM PENUNJANG URUSAN PEMERINTAHAN DAERAH',
 								'nama_urusan' => 'PROGRAM PENUNJANG URUSAN PEMERINTAHAN DAERAH',
-								'nama_sub_giat' => 'Non Sub Kegiatan'
+								'nama_sub_giat' => 'x.x.xx.xx.xx Non Sub Kegiatan'
 							);
 							$opsi = array(
 								'tahun_anggaran' => $tahun_anggaran,
