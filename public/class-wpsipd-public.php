@@ -4215,6 +4215,7 @@ class Wpsipd_Public
 								'nama_urusan' => 'PROGRAM PENUNJANG URUSAN PEMERINTAHAN DAERAH',
 								'nama_sub_giat' => 'x.x.xx.xx.xx Non Sub Kegiatan'
 							);
+							$newsub['id_mapping'] = get_option('_crb_unit_fmis_'.$tahun_anggaran.'_'.$sub['id_sub_skpd']);
 							$kas = $wpdb->get_results("
 								SELECT 
 									bulan_1, 
@@ -4403,6 +4404,7 @@ class Wpsipd_Public
 								'nama_urusan' => 'PROGRAM PENUNJANG URUSAN PEMERINTAHAN DAERAH',
 								'nama_sub_giat' => 'x.x.xx.xx.xx Non Sub Kegiatan'
 							);
+							$newsub['id_mapping'] = get_option('_crb_unit_fmis_'.$tahun_anggaran.'_'.$sub['id_sub_skpd']);
 							$opsi = array(
 								'tahun_anggaran' => $tahun_anggaran,
 								'rak_all' => true,
