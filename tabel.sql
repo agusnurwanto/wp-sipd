@@ -1556,6 +1556,7 @@ CREATE TABLE `data_sub_keg_bl` (
   `label_kokab` text,
   `label_pusat` text,
   `pagu_keg` double(20, 0) NOT NULL,
+  `pagu_fmis` double(20, 0) DEFAULT NULL,
   `id_bl` int(11) DEFAULT NULL,
   `kode_bl` varchar(50) NOT NULL,
   `kode_sbl` varchar(50) NOT NULL,

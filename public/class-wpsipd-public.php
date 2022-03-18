@@ -9268,7 +9268,7 @@ class Wpsipd_Public
 		die(json_encode($ret));
 	}
 
-	public function get_id_skpd_fmis($id_skpd_fmis, $tahun_anggaran){
+	public function get_id_skpd_fmis($id_skpd_fmis, $tahun_anggaran, $cek_sub_unit=false){
 		global $wpdb;
 		$id_skpd_sipd = array();
 		$kode_skpd_sipd = array();
@@ -9300,10 +9300,18 @@ class Wpsipd_Public
 						$kode_skpd_sipd[] = $v['kode_skpd'];
 					}
 				}else{
-					$id_mappings = explode('.', $id_mapping);
-					if($id_mappings[0] == $id_fmis[0]){
-						$id_skpd_sipd[] = $v['id_skpd'];
-						$kode_skpd_sipd[] = $v['kode_skpd'];
+					if(empty($cek_sub_unit)){
+						$id_mappings = explode('.', $id_mapping);
+						if($id_mappings[0] == $id_fmis[0]){
+							$id_skpd_sipd[] = $v['id_skpd'];
+							$kode_skpd_sipd[] = $v['kode_skpd'];
+						}
+					}else{
+						$id_mappings = explode('.', $id_mapping);
+						if($id_mappings[1] == $id_fmis[0]){
+							$id_skpd_sipd[] = $v['id_skpd'];
+							$kode_skpd_sipd[] = $v['kode_skpd'];
+						}
 					}
 				}
 			}
@@ -9511,6 +9519,70 @@ class Wpsipd_Public
 					$ret['data_keg'] = $cek_sipd_keg_belum_ada_di_fmis;
 					$ret['data_sub'] = $cek_sipd_belum_ada_di_fmis;
 					$ret['message'] = 'Program yang perlu dimapping ada '.count($cek_sipd_prog_belum_ada_di_fmis).' program. Kegiatan yang perlu dimapping ada '.count($cek_sipd_keg_belum_ada_di_fmis).' kegiatan. Sub kegiatan yang perlu dimapping ada '.count($cek_sipd_belum_ada_di_fmis).' sub kegiatan. Informasi detail cek di WP-SIPD dashboard.';
+				}else{
+					$ret['status'] = 'error';
+					$ret['message'] = 'format salah!';
+				}
+			} else {
+				$ret['status'] = 'error';
+				$ret['message'] = 'APIKEY tidak sesuai!';
+			}
+		}
+		die(json_encode($ret));
+	}
+
+	function singkroniasi_total_sub_keg_fmis(){
+		global $wpdb;
+		$ret = array(
+			'action'	=> $_POST['action'],
+			'status'	=> 'success',
+			'message'	=> 'Berhasil edit pagu_fmis sub kegiatan SIPD!'
+		);
+		if (!empty($_POST)) {
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+				if(!empty($_POST['data'])){
+					$tahun_anggaran = $_POST['tahun_anggaran'];
+					$sub_keg_fmis = json_decode(stripslashes(html_entity_decode($_POST['data'])));
+					$data_fmis = array();
+					foreach($sub_keg_fmis as $fmis){
+						$data_fmis = (array) $fmis;
+					}
+					// cek jika sub kegiatan di mapping
+					$subkeg_mapping = $this->get_fmis_mapping(array(
+						'name' => '_crb_custom_mapping_subkeg_fmis'
+					));
+					foreach($subkeg_mapping as $nama_sub_sipd => $nama_sub_fmis){
+						if($data_fmis['sub_kegiatan'] == $nama_sub_fmis){
+							$data_fmis['sub_kegiatan'] = $nama_sub_sipd;
+						}
+					}
+					$id_mapping = $data_fmis['idsubunit'];
+					$get_id = $this->get_id_skpd_fmis($id_mapping, $tahun_anggaran, true);
+					$id_skpd_sipd = $get_id['id_skpd_sipd'];
+					if(!empty($id_skpd_sipd)){
+						$sub_sipd = $wpdb->get_results($wpdb->prepare("
+							SELECT
+								id
+							FROM data_sub_keg_bl
+							WHERE tahun_anggaran = %d
+								AND active = 1
+								AND id_sub_skpd = %d
+								AND nama_sub_giat like %s
+						", $_POST['tahun_anggaran'], $id_skpd_sipd[0], '% '.$data_fmis['sub_kegiatan']), ARRAY_A);
+						if(!empty($sub_sipd)){
+							$wpdb->update('data_sub_keg_bl', array(
+								'pagu_fmis' => $data_fmis['total']
+							), array(
+								'id' => $sub_sipd[0]['id']
+							));
+						}else{
+							$ret['status'] = 'error';
+							$ret['message'] = 'Sub Kegiatan SIPD dari id_sub_skpd='.$id_skpd_sipd[0].' dan sub kegiatan="'.$data_fmis['sub_kegiatan'].'" tidak ditemukan';
+						}
+					}else{
+						$ret['status'] = 'error';
+						$ret['message'] = 'Sub Unit SIPD dari id mapping '.$id_mapping.' tidak ditemukan';
+					}
 				}else{
 					$ret['status'] = 'error';
 					$ret['message'] = 'format salah!';

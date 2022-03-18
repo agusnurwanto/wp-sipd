@@ -294,6 +294,9 @@ class Wpsipd
 		$this->loader->add_action('wp_ajax_get_data_pembiayaan',  $plugin_public, 'get_data_pembiayaan');
 		$this->loader->add_action('wp_ajax_nopriv_get_data_pembiayaan',  $plugin_public, 'get_data_pembiayaan');
 
+		$this->loader->add_action('wp_ajax_singkroniasi_total_sub_keg_fmis',  $plugin_public, 'singkroniasi_total_sub_keg_fmis');
+		$this->loader->add_action('wp_ajax_nopriv_singkroniasi_total_sub_keg_fmis',  $plugin_public, 'singkroniasi_total_sub_keg_fmis');
+
 		$this->loader->add_action('wp_ajax_get_mandatory_spending_link',  $plugin_public, 'get_mandatory_spending_link');
 		$this->loader->add_action('wp_ajax_nopriv_get_mandatory_spending_link',  $plugin_public, 'get_mandatory_spending_link');
 
