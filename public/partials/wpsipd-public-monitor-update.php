@@ -61,6 +61,7 @@ foreach ($kode_rek as $rek) {
 				select 
 					sum(rincian_murni) as total_murni, 
 					sum(rincian) as total,
+					0 as total_fmis,
 					count(update_at) as jml 
 				from '.$table.' 
 				where '.$where
@@ -161,6 +162,7 @@ foreach ($kode_rek as $rek) {
 			$data = $wpdb->get_row('
 				select 
 					sum(nilaimurni) as total_murni, 
+					sum(pagu_fmis) as total_fmis,
 					sum(total) as total,
 					count(update_at) as jml
 				from '.$table.' 
@@ -175,6 +177,13 @@ foreach ($kode_rek as $rek) {
 			, ARRAY_A);
 		}
 		if($data['jml']>=1){
+			$warning_fmis = 0;
+			if(
+				$table != 'data_rka'
+				&& $data['total_fmis'] != $data['total']
+			){
+				$warning_fmis = 1;
+			}
 			$data_body[strtotime($update_at['update_at']).$opd['id_skpd'].$rek] = array(
 				'rek' => $rek,
 				'type_belanja' => $type_belanja.' <span class="debug hide">'.$wpdb->last_query.'</span>',
@@ -183,6 +192,8 @@ foreach ($kode_rek as $rek) {
 				'kode_skpd' => $opd['kode_skpd'],
 				'update_at' => $update_at['update_at'],
 				'total_murni' => $data['total_murni'],
+				'warning_fmis' => $warning_fmis,
+				'total_fmis' => $data['total_fmis'],
 				'total' => $data['total'],
 			);
 		}
