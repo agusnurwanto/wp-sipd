@@ -2065,6 +2065,10 @@ ALTER TABLE `data_realisasi_renstra`
 
 CREATE TABLE `data_aktivitas_fmis` (
     `id` int(11) NOT NULL,
+    `id_mapping` text DEFAULT NULL,
+    `id_sub_skpd` int(11) DEFAULT NULL,
+    `aktivitas` text DEFAULT NULL,
+    `idaktivitas` int(11) DEFAULT NULL,
     `dt_rowid` text DEFAULT NULL,
     `dt_rowindex` int(11) DEFAULT NULL,
     `created_at` datetime DEFAULT NULL,
