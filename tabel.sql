@@ -2116,6 +2116,8 @@ ALTER TABLE `data_aktivitas_fmis`
 
 CREATE TABLE `data_rincian_fmis` (
     `id` int(11) NOT NULL,
+    `id_mapping` text DEFAULT NULL,
+    `id_sub_skpd` int(11) DEFAULT NULL,
     `idaktivitas` int(11) DEFAULT NULL,
     `aktivitas` text DEFAULT NULL,
     `dt_rowid` text DEFAULT NULL,
