@@ -9743,10 +9743,10 @@ class Wpsipd_Public
 			'keterangan' => ''
 		);
 		$uraian_belanja = explode('Rupiah ', $uraian);
-		if(!empty($uraian_belanja[1])){
+		if(count($uraian_belanja) >= 2){
 			$uraian_belanja = explode(' | ', $uraian_belanja[1]);
 			$ret['uraian'] = $uraian_belanja[0];
-			if(!empty($uraian_belanja[1])){
+			if(count($uraian_belanja) >= 2){
 				$ret['keterangan'] = $uraian_belanja[1];
 			}
 		}
