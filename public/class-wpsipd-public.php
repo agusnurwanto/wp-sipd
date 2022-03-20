@@ -9651,7 +9651,7 @@ class Wpsipd_Public
 										AND active = 1
 										AND id_sub_skpd = %d
 										AND nama_sub_giat like %s
-								", $_POST['tahun_anggaran'], $id_skpd_sipd[0], '% '.$data_fmis['sub_kegiatan']), ARRAY_A);
+								", $_POST['tahun_anggaran'], $id_skpd_sipd[0], '% '.$data_fmis['sub_kegiatan'].'%'), ARRAY_A);
 								if(!empty($sub_sipd)){
 									$wpdb->update('data_sub_keg_bl', array(
 										'pagu_fmis' => $data_fmis['total']
