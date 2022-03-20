@@ -9698,8 +9698,8 @@ class Wpsipd_Public
 											AND id_skpd = %d
 											AND kode_akun = %s
 											AND uraian = %s
-											AND keterangan = %s
-									", $tahun_anggaran, $id_skpd_sipd[0], $rinci['kode_rekening'], $uraian, $keterangan), ARRAY_A);
+											AND keterangan like %s
+									", $tahun_anggaran, $id_skpd_sipd[0], $rinci['kode_rekening'], $uraian, $keterangan.'%'), ARRAY_A);
 									if(!empty($sub_sipd)){
 										$wpdb->update('data_pendapatan', array(
 											'pagu_fmis' => $rinci['jumlah']
@@ -9725,8 +9725,8 @@ class Wpsipd_Public
 											AND id_skpd = %d
 											AND kode_akun = %s
 											AND uraian = %s
-											AND keterangan = %s
-									", $tahun_anggaran, $id_skpd_sipd[0], $rinci['kode_rekening'], $uraian, $keterangan), ARRAY_A);
+											AND keterangan like %s
+									", $tahun_anggaran, $id_skpd_sipd[0], $rinci['kode_rekening'], $uraian, $keterangan.'%'), ARRAY_A);
 									if(!empty($sub_sipd)){
 										$wpdb->update('data_pembiayaan', array(
 											'pagu_fmis' => $rinci['jumlah']
