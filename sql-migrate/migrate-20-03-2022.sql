@@ -57,3 +57,7 @@ ALTER TABLE `data_rincian_fmis`
   ADD PRIMARY KEY (`id`);
 ALTER TABLE `data_rincian_fmis`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+ALTER TABLE `data_rincian_fmis`  ADD `nama_sub_giat` text NULL  AFTER `id_sub_skpd`;
+ALTER TABLE `data_rincian_fmis`  ADD `nama_giat` text NULL  AFTER `id_sub_skpd`;
+ALTER TABLE `data_rincian_fmis`  ADD `nama_program` text NULL  AFTER `id_sub_skpd`;

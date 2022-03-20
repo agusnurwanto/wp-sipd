@@ -9544,6 +9544,16 @@ class Wpsipd_Public
 					$tahun_anggaran = $_POST['tahun_anggaran'];
 					$sub_keg_fmis = json_decode(stripslashes($_POST['data']));
 					$ret['message_rinci'] = array();
+					// cek jika sub kegiatan di mapping
+					$subkeg_mapping = $this->get_fmis_mapping(array(
+						'name' => '_crb_custom_mapping_subkeg_fmis'
+					));
+					$keg_mapping = $this->get_fmis_mapping(array(
+						'name' => '_crb_custom_mapping_keg_fmis'
+					));
+					$program_mapping = $this->get_fmis_mapping(array(
+						'name' => '_crb_custom_mapping_program_fmis'
+					));
 					foreach($sub_keg_fmis as $fmis){
 						$data_fmis = (array) $fmis;
 						$new_rincian = array();
@@ -9551,13 +9561,19 @@ class Wpsipd_Public
 							$new_rincian[] = (array) $rincian;
 						}
 						$data_fmis['rincian'] = $new_rincian;
-						// cek jika sub kegiatan di mapping
-						$subkeg_mapping = $this->get_fmis_mapping(array(
-							'name' => '_crb_custom_mapping_subkeg_fmis'
-						));
 						foreach($subkeg_mapping as $nama_sub_sipd => $nama_sub_fmis){
 							if($data_fmis['sub_kegiatan'] == $nama_sub_fmis){
 								$data_fmis['sub_kegiatan'] = $nama_sub_sipd;
+							}
+						}
+						foreach($keg_mapping as $nama_giat_sipd => $nama_giat_fmis){
+							if($data_fmis['kegiatan'] == $nama_giat_fmis){
+								$data_fmis['kegiatan'] = $nama_giat_sipd;
+							}
+						}
+						foreach($program_mapping as $nama_program_sipd => $nama_program_fmis){
+							if($data_fmis['program'] == $nama_program_fmis){
+								$data_fmis['program'] = $nama_program_sipd;
 							}
 						}
 						$id_mapping = $data_fmis['idsubunit'];
@@ -9586,6 +9602,9 @@ class Wpsipd_Public
 									'idaktivitas' => $rinci['idaktivitas'],
 									'id_mapping' => $id_mapping,
 									'id_sub_skpd' => $id_skpd_sipd[0],
+									'nama_sub_giat' => $data_fmis['sub_kegiatan'],
+									'nama_giat' => $data_fmis['kegiatan'],
+									'nama_program' => $data_fmis['program'],
 									'aktivitas' => $rinci['aktivitas'],
 									'dt_rowid' => $rinci['DT_RowId'],
 									'dt_rowindex' => $rinci['DT_RowIndex'],
@@ -9651,7 +9670,9 @@ class Wpsipd_Public
 										AND active = 1
 										AND id_sub_skpd = %d
 										AND nama_sub_giat like %s
-								", $_POST['tahun_anggaran'], $id_skpd_sipd[0], '% '.$data_fmis['sub_kegiatan'].'%'), ARRAY_A);
+										AND nama_giat like %s
+										AND nama_program like %s
+								", $_POST['tahun_anggaran'], $id_skpd_sipd[0], '% '.$data_fmis['sub_kegiatan'].'%', $data_fmis['kegiatan'].'%', $data_fmis['program'].'%'), ARRAY_A);
 								if(!empty($sub_sipd)){
 									$wpdb->update('data_sub_keg_bl', array(
 										'pagu_fmis' => $data_fmis['total']
