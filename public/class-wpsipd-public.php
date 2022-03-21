@@ -9697,9 +9697,9 @@ class Wpsipd_Public
 											AND active = 1
 											AND id_skpd = %d
 											AND kode_akun = %s
-											AND uraian = %s
+											AND uraian like %s
 											AND keterangan like %s
-									", $tahun_anggaran, $id_skpd_sipd[0], $rinci['kode_rekening'], $uraian, $keterangan.'%'), ARRAY_A);
+									", $tahun_anggaran, $id_skpd_sipd[0], $rinci['kode_rekening'], $uraian.'%', $keterangan.'%'), ARRAY_A);
 									if(!empty($sub_sipd)){
 										$wpdb->update('data_pendapatan', array(
 											'pagu_fmis' => $rinci['jumlah']
@@ -9724,9 +9724,9 @@ class Wpsipd_Public
 											AND active = 1
 											AND id_skpd = %d
 											AND kode_akun = %s
-											AND uraian = %s
+											AND uraian like %s
 											AND keterangan like %s
-									", $tahun_anggaran, $id_skpd_sipd[0], $rinci['kode_rekening'], $uraian, $keterangan.'%'), ARRAY_A);
+									", $tahun_anggaran, $id_skpd_sipd[0], $rinci['kode_rekening'], $uraian.'%', $keterangan.'%'), ARRAY_A);
 									if(!empty($sub_sipd)){
 										$wpdb->update('data_pembiayaan', array(
 											'pagu_fmis' => $rinci['jumlah']
@@ -9766,9 +9766,11 @@ class Wpsipd_Public
 		$uraian_belanja = explode('Rupiah ', $uraian);
 		if(count($uraian_belanja) >= 2){
 			$uraian_belanja = explode(' | ', $uraian_belanja[1]);
-			$ret['uraian'] = $uraian_belanja[0];
+			$ret['uraian'] = explode("\n", $uraian_belanja[0]);
+			$ret['uraian'] = $ret['uraian'][0];
 			if(count($uraian_belanja) >= 2){
-				$ret['keterangan'] = $uraian_belanja[1];
+				$ret['keterangan'] = explode("\n", $uraian_belanja[1]);
+				$ret['keterangan'] = $ret['keterangan'][0];
 			}
 		}
 		return $ret;
