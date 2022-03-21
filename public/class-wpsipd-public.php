@@ -9554,6 +9554,9 @@ class Wpsipd_Public
 					$program_mapping = $this->get_fmis_mapping(array(
 						'name' => '_crb_custom_mapping_program_fmis'
 					));
+					$rek_mapping = $this->get_fmis_mapping(array(
+						'name' => '_crb_custom_mapping_rekening_fmis'
+					));
 					foreach($sub_keg_fmis as $fmis){
 						$data_fmis = (array) $fmis;
 						$new_rincian = array();
@@ -9581,7 +9584,21 @@ class Wpsipd_Public
 						$id_skpd_sipd = $get_id['id_skpd_sipd'];
 						if(!empty($id_skpd_sipd)){
 							$cek_aktivitas = array();
-							foreach($data_fmis['rincian'] as $rinci){
+							foreach($data_fmis['rincian'] as $key => $rinci){
+								foreach($rek_mapping as $rek_mapping_sipd => $rek_mapping_fmis){
+									$_kode_akun = explode('.', $rinci['kode_rekening']);
+									$_kode_akun = (int)$_kode_akun[0].'.'.(int)$_kode_akun[1].'.'.(int)$_kode_akun[2].'.'.(int)$_kode_akun[3].'.'.(int)$_kode_akun[4].'.'.(int)$_kode_akun[5];
+									if($_kode_akun == $rek_mapping_fmis){
+										$_kode_akun = explode('.', $rek_mapping_sipd);
+										$_kode_akun[2] = $this->simda->CekNull($_kode_akun[2]);
+										$_kode_akun[3] = $this->simda->CekNull($_kode_akun[3]);
+										$_kode_akun[4] = $this->simda->CekNull($_kode_akun[4]);
+										$_kode_akun[5] = $this->simda->CekNull($_kode_akun[5], 4);
+										$rinci['kode_rekening'] = implode('.', $_kode_akun);
+										$rinci['kdrek1'] = $rek_mapping_sipd[0];
+										$data_fmis['rincian'][$key] = $rinci;
+									}
+								}
 								if(empty($cek_aktivitas[$rinci['idaktivitas']])){
 									$wpdb->update('data_rincian_fmis', array(
 										'active' => 0
@@ -9664,20 +9681,32 @@ class Wpsipd_Public
 							if($data_fmis['rincian'][0]['kdrek1'] == 5){
 								$sub_sipd = $wpdb->get_results($wpdb->prepare("
 									SELECT
-										id
+										id,
+										nama_program,
+										nama_giat,
+										nama_sub_giat
 									FROM data_sub_keg_bl
 									WHERE tahun_anggaran = %d
 										AND active = 1
 										AND id_sub_skpd = %d
-										AND nama_sub_giat like %s
-										AND nama_giat like %s
-										AND nama_program like %s
-								", $_POST['tahun_anggaran'], $id_skpd_sipd[0], '% '.$data_fmis['sub_kegiatan'].'%', $data_fmis['kegiatan'].'%', $data_fmis['program'].'%'), ARRAY_A);
-								if(!empty($sub_sipd)){
+								", $_POST['tahun_anggaran'], $id_skpd_sipd[0]), ARRAY_A);
+								$sub = array();
+								foreach($sub_sipd as $v){
+									$nm_sub = explode(' ', $v['nama_sub_giat']);
+									unset($nm_sub[0]);
+									if(
+										$this->replace_text(implode(' ', $nm_sub)) == $this->replace_text($data_fmis['sub_kegiatan'])
+										&& $this->replace_text($v['nama_giat']) == $this->replace_text($data_fmis['kegiatan'])
+										&& $this->replace_text($v['nama_program']) == $this->replace_text($data_fmis['program'])
+									){
+										$sub = $v;
+									}
+								}
+								if(!empty($sub)){
 									$wpdb->update('data_sub_keg_bl', array(
 										'pagu_fmis' => $data_fmis['total']
 									), array(
-										'id' => $sub_sipd[0]['id']
+										'id' => $sub['id']
 									));
 								}else{
 									$ret['status'] = 'error';
@@ -9756,6 +9785,10 @@ class Wpsipd_Public
 			}
 		}
 		die(json_encode($ret));
+	}
+
+	function replace_text($text){
+		return trim(strtolower($text));
 	}
 
 	function get_uraian_belanja_fmis($uraian){
