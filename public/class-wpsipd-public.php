@@ -9564,16 +9564,19 @@ class Wpsipd_Public
 							$new_rincian[] = (array) $rincian;
 						}
 						$data_fmis['rincian'] = $new_rincian;
+						$data_fmis['sub_kegiatan_asli'] = $data_fmis['sub_kegiatan'];
 						foreach($subkeg_mapping as $nama_sub_sipd => $nama_sub_fmis){
 							if($data_fmis['sub_kegiatan'] == $nama_sub_fmis){
 								$data_fmis['sub_kegiatan'] = $nama_sub_sipd;
 							}
 						}
+						$data_fmis['kegiatan_asli'] = $data_fmis['kegiatan'];
 						foreach($keg_mapping as $nama_giat_sipd => $nama_giat_fmis){
 							if($data_fmis['kegiatan'] == $nama_giat_fmis){
 								$data_fmis['kegiatan'] = $nama_giat_sipd;
 							}
 						}
+						$data_fmis['program_asli'] = $data_fmis['program'];
 						foreach($program_mapping as $nama_program_sipd => $nama_program_fmis){
 							if($data_fmis['program'] == $nama_program_fmis){
 								$data_fmis['program'] = $nama_program_sipd;
@@ -9625,7 +9628,6 @@ class Wpsipd_Public
 									'aktivitas' => $rinci['aktivitas'],
 									'dt_rowid' => $rinci['DT_RowId'],
 									'dt_rowindex' => $rinci['DT_RowIndex'],
-									'created_at' => $rinci['created_at'],
 									'created_id' => $rinci['created_id'],
 									'harga' => $rinci['harga'],
 									'idrkpdrenjabelanja' => $rinci['idrkpdrenjabelanja'],
@@ -9668,11 +9670,14 @@ class Wpsipd_Public
 									'tahun_anggaran' => $tahun_anggaran,
 									'active' => 1,
 								);
+								if(!empty($rinci['created_at'])){
+									$opsi['created_at'] = $rinci['created_at'];
+								}
 								if(empty($get_rinci)){
 									$wpdb->insert('data_rincian_fmis', $opsi);
 								}else{
 									$wpdb->update('data_rincian_fmis', $opsi, array(
-										'id' => $get_rinci['id']
+										'id' => $get_rinci[0]['id']
 									));
 								}
 							}
@@ -9681,23 +9686,72 @@ class Wpsipd_Public
 							if($data_fmis['rincian'][0]['kdrek1'] == 5){
 								$sub_sipd = $wpdb->get_results($wpdb->prepare("
 									SELECT
-										id,
-										nama_program,
-										nama_giat,
-										nama_sub_giat
-									FROM data_sub_keg_bl
-									WHERE tahun_anggaran = %d
-										AND active = 1
-										AND id_sub_skpd = %d
+										s.id,
+										s.nama_sub_giat as nama_sub_giat_bl,
+										p.nama_program,
+										p.nama_giat,
+										p.nama_sub_giat
+									FROM data_sub_keg_bl s
+									LEFT JOIN data_prog_keg p ON p.kode_sub_giat=s.kode_sub_giat
+										AND p.status=''
+									WHERE s.tahun_anggaran = %d
+										AND s.active = 1
+										AND s.id_sub_skpd = %d
 								", $_POST['tahun_anggaran'], $id_skpd_sipd[0]), ARRAY_A);
+								$ret['sql'] = $wpdb->last_query;
 								$sub = array();
 								foreach($sub_sipd as $v){
+									// pengecekan karena sub kegiatan belum dimutakhirkan sedangkan master program kegiatan sudah dimutakhirkan
+									if(empty($v['nama_sub_giat'])){
+										$nm_sub = explode(' ', $v['nama_sub_giat_bl']);
+										$kode_sub = $nm_sub[0];
+										$bl = $wpdb->get_results("
+											SELECT
+												nama_program,
+												nama_giat,
+												nama_sub_giat
+											FROM data_prog_keg
+											where kode_sub_giat='$kode_sub'
+											order by id_sub_giat desc
+										", ARRAY_A);
+										if(!empty($bl)){
+											$new_sub = array();
+											foreach($bl as $vv){
+												$nm_sub_x = explode(' ', $vv['nama_sub_giat']);
+												unset($nm_sub_x[0]);
+												if(
+													$this->replace_text(implode(' ', $nm_sub_x)) == $this->replace_text($data_fmis['sub_kegiatan'])
+													|| $this->replace_text(implode(' ', $nm_sub_x)) == $this->replace_text($data_fmis['sub_kegiatan_asli'])
+												){
+													$new_sub = $vv;
+												}
+											}
+											if(!empty($new_sub)){
+												$v['nama_sub_giat'] = $new_sub['nama_sub_giat'];
+												$v['nama_giat'] = $new_sub['nama_giat'];
+												$v['nama_program'] = $new_sub['nama_program'];
+											}
+										}
+									}
 									$nm_sub = explode(' ', $v['nama_sub_giat']);
 									unset($nm_sub[0]);
+									$nm_giat = explode(' ', $v['nama_giat']);
+									unset($nm_giat[0]);
+									$nm_prog = explode(' ', $v['nama_program']);
+									unset($nm_prog[0]);
 									if(
-										$this->replace_text(implode(' ', $nm_sub)) == $this->replace_text($data_fmis['sub_kegiatan'])
-										&& $this->replace_text($v['nama_giat']) == $this->replace_text($data_fmis['kegiatan'])
-										&& $this->replace_text($v['nama_program']) == $this->replace_text($data_fmis['program'])
+										(
+											$this->replace_text(implode(' ', $nm_sub)) == $this->replace_text($data_fmis['sub_kegiatan'])
+											|| $this->replace_text(implode(' ', $nm_sub)) == $this->replace_text($data_fmis['sub_kegiatan_asli'])
+										)
+										&& (
+											$this->replace_text(implode(' ', $nm_giat)) == $this->replace_text($data_fmis['kegiatan'])
+											|| $this->replace_text(implode(' ', $nm_giat)) == $this->replace_text($data_fmis['kegiatan_asli'])
+										)
+										&& (
+											$this->replace_text(implode(' ', $nm_prog)) == $this->replace_text($data_fmis['program'])
+											|| $this->replace_text(implode(' ', $nm_prog)) == $this->replace_text($data_fmis['program_asli'])
+										)
 									){
 										$sub = $v;
 									}
@@ -9788,7 +9842,9 @@ class Wpsipd_Public
 	}
 
 	function replace_text($text){
-		return trim(strtolower($text));
+		$text = trim(strtolower($text));
+		// echo $text.' | ';
+		return $text;
 	}
 
 	function get_uraian_belanja_fmis($uraian){
