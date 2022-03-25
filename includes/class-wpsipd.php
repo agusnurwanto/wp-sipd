@@ -383,6 +383,8 @@ class Wpsipd
 		$this->loader->add_action('wp_ajax_get_sumber_dana_mapping',  $plugin_public, 'get_sumber_dana_mapping');
 		$this->loader->add_action('wp_ajax_get_rincian_sumber_dana_mapping',  $plugin_public, 'get_rincian_sumber_dana_mapping');
 
+		$this->loader->add_action('wp_ajax_get_data_usulan_ssh',  $plugin_public, 'get_data_usulan_ssh');
+
 		add_shortcode('menu_monev',  array($plugin_public, 'menu_monev'));
 		add_shortcode('datassh', array($plugin_public, 'datassh'));
 		add_shortcode('rekbelanja', array($plugin_public, 'rekbelanja'));
@@ -398,6 +400,7 @@ class Wpsipd
 		add_shortcode('monitor_daftar_label_komponen', array($plugin_public, 'monitor_daftar_label_komponen'));
 		add_shortcode('monitor_monev_renstra', array($plugin_public, 'monitor_monev_renstra'));
 		add_shortcode('monitor_monev_rpjm', array($plugin_public, 'monitor_monev_rpjm'));
+		add_shortcode('data_ssh_usulan', array($plugin_public, 'data_ssh_usulan'));
 	}
 
 	/**

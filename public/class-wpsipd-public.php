@@ -9864,4 +9864,85 @@ class Wpsipd_Public
 		}
 		return $ret;
 	}
+
+	public function data_ssh_usulan($atts)
+	{
+		// untuk disable render shortcode di halaman edit page/post
+		if(!empty($_GET) && !empty($_GET['post'])){
+			return '';
+		}
+		$user_id = um_user( 'ID' );
+		$user_meta = get_userdata($user_id);
+		if(empty($user_meta->roles)){
+			echo 'User ini tidak dapat akses sama sekali :)';
+		}else if(in_array("administrator", $user_meta->roles) || in_array("PLT", $user_meta->roles)){
+			require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/wpsipd-public-ssh-usulan.php';
+		}
+	}
+
+	public function get_data_usulan_ssh(){
+		global $wpdb;
+		$user_id = um_user( 'ID' );
+		$user_meta = get_userdata($user_id);
+		
+		$return = array(
+			'status' => 'success',
+			'data'	=> array()
+		);
+
+		$table_content = '';
+		if(!empty($_POST)){
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+
+					$data_ssh = $wpdb->get_results('SELECT * FROM data_ssh_usulan WHERE tahun_anggaran=2022 AND kelompok=1 LIMIT 20', ARRAY_A);
+
+				    ksort($data_ssh);
+			    	$no = 0;
+			    	foreach ($data_ssh as $key => $value) {
+			    		$no++;
+						$edit = '<a href="#" onclick="return edit_verif_ssh_usulan();"><i class="fa fa-pencil-square-o" aria-hidden="true"></i></a>';
+						$akun = '<a href="#" onclick="return edit_akun_ssh_usulan(\''.$value['id_standar_harga'].'\');"><i class="fa fa-search-plus" aria-hidden="true"></i></a>';
+						
+						$keterangan_status = (!empty($value['keterangan_status'])) ? $value['keterangan_status'] : '-';
+						$status_upload_sipd = ($value['status_upload_sipd'] == 'sudah') ? $value['status_upload_sipd'] : 'Belum';
+
+						if(in_array("administrator", $user_meta->roles)){
+							$verify = '<a href="#" onclick="return verify_ssh_usulan(\''.$value['id_standar_harga'].'\');"><i class="fa fa-tasks" aria-hidden="true"></i></a>';
+						}else{
+							$verify = '';
+						}
+
+			    		$table_content .= '
+							<tr>
+								<td>'.$value['kode_standar_harga'].'</td>
+								<td>'.$value['nama_standar_harga'].'</td>
+								<td>'.$value['spek'].'</td>
+								<td>'.$value['satuan'].'</td>
+								<td>'.$value['harga'].'</td>
+								<td class="text-center"><span style="display:block;">'.$value['status'].'</span></td>
+								<td class="text-center">'.ucwords($keterangan_status).'</td>
+								<td class="text-center">'.ucwords($status_upload_sipd).'</td>
+								<td class="text-center">'.$verify.'&nbsp&nbsp'.$edit.'&nbsp&nbsp'.$akun.'</td>
+							</tr>
+			    		';
+			    	}
+
+					$return = array(
+						'status' => 'success',
+						'table_content' => $table_content
+					);
+			}else{
+				$return = array(
+					'status' => 'error',
+					'message'	=> 'Api Key tidak sesuai!'
+				);
+			}
+		}else{
+			$return = array(
+				'status' => 'error',
+				'message'	=> 'Format tidak sesuai!'
+			);
+		}
+		die(json_encode($return));
+	}
 }
