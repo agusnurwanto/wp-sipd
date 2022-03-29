@@ -10314,7 +10314,7 @@ class Wpsipd_Public
 				// getting total number records without any search
 				$sql_tot = "SELECT count(*) as jml FROM `data_ssh`";
 				$sql = "SELECT ".implode(', ', $columns)." FROM `data_ssh`";
-				$where_first = " WHERE tahun_anggaran=".$wpdb->prepare('%d', $params['tahun_anggaran']);
+				$where_first = " WHERE id_standar_harga IS NOT NULL AND tahun_anggaran=".$wpdb->prepare('%d', $params['tahun_anggaran']);
 				$sqlTot .= $sql_tot.$where_first;
 				$sqlRec .= $sql.$where_first;
 				if(isset($where) && $where != '') {
@@ -10336,55 +10336,6 @@ class Wpsipd_Public
 				);
 
 				die(json_encode($json_data));
-			}else{
-				$return = array(
-					'status' => 'error',
-					'message'	=> 'Api Key tidak sesuai!'
-				);
-			}
-		}else{
-			$return = array(
-				'status' => 'error',
-				'message'	=> 'Format tidak sesuai!'
-			);
-		}
-		die(json_encode($return));
-	}
-
-	public function get_data_ssh_sipd_lama(){
-		global $wpdb;
-		$return = array(
-			'status' => 'success',
-			'data'	=> array()
-		);
-
-		$table_content = '';
-		if(!empty($_POST)){
-			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
-					$tahun_anggaran = $_POST['tahun_anggaran'];
-
-					$data_ssh = $wpdb->get_results($wpdb->prepare('SELECT * FROM data_ssh WHERE tahun_anggaran=%s LIMIT %d',$tahun_anggaran,100), ARRAY_A); //limit karena masih error kalau load banyak
-
-				    ksort($data_ssh);
-			    	$no = 0;
-			    	foreach ($data_ssh as $key => $value) {
-			    		$no++;
-
-			    		$table_content .= '
-							<tr>
-								<td>'.$value['kode_standar_harga'].'</td>
-								<td>'.$value['nama_standar_harga'].'</td>
-								<td>'.$value['spek'].'</td>
-								<td>'.$value['satuan'].'</td>
-								<td>'.number_format($value['harga'],0,",",".").'</td>
-							</tr>
-			    		';
-			    	}
-
-					$return = array(
-						'status' => 'success',
-						'table_content' => $table_content
-					);
 			}else{
 				$return = array(
 					'status' => 'error',
