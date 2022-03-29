@@ -40,6 +40,7 @@ $body = '';
 			<table id="data_ssh_sipd_table" cellpadding="2" cellspacing="0" style="font-family:\'Open Sans\',-apple-system,BlinkMacSystemFont,\'Segoe UI\',sans-serif; border-collapse: collapse; width:100%; overflow-wrap: break-word;" class="table table-bordered">
 				<thead id="data_header">
 					<tr>
+						<th class="text-center">ID Komponen</th>
 						<th class="text-center">Kode Komponen</th>
 						<th class="text-center">Uraian Komponen</th>
 						<th class="text-center">Spesifikasi</th>
@@ -128,21 +129,46 @@ $body = '';
 
 		function get_data_ssh_sipd(tahun){
 			jQuery("#wrap-loading").show();
-			jQuery.ajax({
-				url: "<?php echo admin_url('admin-ajax.php'); ?>",
-				type:"post",
-				data:{
-					'action' : "get_data_ssh_sipd",
-					'api_key' : jQuery("#api_key").val(),
-					'tahun_anggaran' : tahun,
+			jQuery('#data_ssh_sipd_table').DataTable({
+				"processing": true,
+        		"serverSide": true,
+		        "ajax": {
+		        	url: "<?php echo admin_url('admin-ajax.php'); ?>",
+					type:"post",
+					data:{
+						'action' : "get_data_ssh_sipd",
+						'api_key' : jQuery("#api_key").val(),
+						'tahun_anggaran' : tahun,
+					}
 				},
-				dataType: "json",
-				success:function(response){
+				"initComplete":function( settings, json){
 					jQuery("#wrap-loading").hide();
-					jQuery(".data_body_ssh").html(response.table_content);
-					jQuery('#data_ssh_sipd_table').DataTable();
-				}
-			})
+				},
+				"columns": [
+		            { 
+		            	"data": "id_standar_harga",
+		            	className: "text-center"
+		            },
+		            { 
+		            	"data": "kode_standar_harga",
+		            	className: "text-center"
+		            },
+		            { "data": "nama_standar_harga" },
+		            { "data": "spek" },
+		            { 
+		            	"data": "satuan",
+		            	className: "text-center"
+		            },
+		            { 
+		            	"data": "harga",
+		            	className: "text-right",
+		            	render: function(data, type) {
+			                var number = jQuery.fn.dataTable.render.number( '.', ',', 2, ''). display(data);
+			                return number;
+			            }
+		            }
+		        ]
+		    });
 		}
 
 		function get_data_satuan_ssh(tahun){

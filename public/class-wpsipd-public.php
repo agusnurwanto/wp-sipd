@@ -10282,9 +10282,77 @@ class Wpsipd_Public
 
 	public function get_data_ssh_sipd(){
 		global $wpdb;
-		$user_id = um_user( 'ID' );
-		$user_meta = get_userdata($user_id);
-		
+		$return = array(
+			'status' => 'success',
+			'data'	=> array()
+		);
+
+		$table_content = '';
+		if(!empty($_POST)){
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+				$params = $columns = $totalRecords = $data = array();
+				$params = $_REQUEST;
+				$columns = array( 
+					0 =>'id_standar_harga',
+					1 =>'kode_standar_harga', 
+					2 => 'nama_standar_harga',
+					3 => 'spek',
+					4 => 'satuan',
+					5 => 'harga'
+				);
+				$where = $sqlTot = $sqlRec = "";
+
+				// check search value exist
+				if( !empty($params['search']['value']) ) {
+					$where .=" AND ( kode_standar_harga LIKE ".$wpdb->prepare('%s', "%".$params['search']['value']."%");    
+					$where .=" OR nama_standar_harga LIKE ".$wpdb->prepare('%s', "%".$params['search']['value']."%");
+					$where .=" OR spek LIKE ".$wpdb->prepare('%s', "%".$params['search']['value']."%");
+					$where .=" OR id_standar_harga LIKE ".$wpdb->prepare('%s', "%".$params['search']['value']."%");
+					$where .=" OR harga LIKE ".$wpdb->prepare('%s', "%".$params['search']['value']."%")." )";
+				}
+
+				// getting total number records without any search
+				$sql_tot = "SELECT count(*) as jml FROM `data_ssh`";
+				$sql = "SELECT ".implode(', ', $columns)." FROM `data_ssh`";
+				$where_first = " WHERE tahun_anggaran=".$wpdb->prepare('%d', $params['tahun_anggaran']);
+				$sqlTot .= $sql_tot.$where_first;
+				$sqlRec .= $sql.$where_first;
+				if(isset($where) && $where != '') {
+					$sqlTot .= $where;
+					$sqlRec .= $where;
+				}
+
+			 	$sqlRec .=  " ORDER BY ". $columns[$params['order'][0]['column']]."   ".$params['order'][0]['dir']."  LIMIT ".$params['start']." ,".$params['length']." ";
+
+				$queryTot = $wpdb->get_results($sqlTot, ARRAY_A);
+				$totalRecords = $queryTot[0]['jml'];
+				$queryRecords = $wpdb->get_results($sqlRec, ARRAY_A);
+
+				$json_data = array(
+					"draw"            => intval( $params['draw'] ),   
+					"recordsTotal"    => intval( $totalRecords ),  
+					"recordsFiltered" => intval($totalRecords),
+					"data"            => $queryRecords
+				);
+
+				die(json_encode($json_data));
+			}else{
+				$return = array(
+					'status' => 'error',
+					'message'	=> 'Api Key tidak sesuai!'
+				);
+			}
+		}else{
+			$return = array(
+				'status' => 'error',
+				'message'	=> 'Format tidak sesuai!'
+			);
+		}
+		die(json_encode($return));
+	}
+
+	public function get_data_ssh_sipd_lama(){
+		global $wpdb;
 		$return = array(
 			'status' => 'success',
 			'data'	=> array()
