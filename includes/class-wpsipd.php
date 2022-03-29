@@ -384,6 +384,13 @@ class Wpsipd
 		$this->loader->add_action('wp_ajax_get_rincian_sumber_dana_mapping',  $plugin_public, 'get_rincian_sumber_dana_mapping');
 
 		$this->loader->add_action('wp_ajax_get_data_usulan_ssh',  $plugin_public, 'get_data_usulan_ssh');
+		$this->loader->add_action('wp_ajax_get_data_satuan_ssh',  $plugin_public, 'get_data_satuan_ssh');
+		$this->loader->add_action('wp_ajax_get_data_kategori_ssh',  $plugin_public, 'get_data_kategori_ssh');
+		$this->loader->add_action('wp_ajax_get_data_akun_ssh',  $plugin_public, 'get_data_akun_ssh');
+		$this->loader->add_action('wp_ajax_get_data_nama_ssh',  $plugin_public, 'get_data_nama_ssh');
+		$this->loader->add_action('wp_ajax_submit_usulan_ssh',  $plugin_public, 'submit_usulan_ssh');
+		// $this->loader->add_action('wp_ajax_get_data_usulan_ssh_by_komponen',  $plugin_public, 'get_data_usulan_ssh_by_komponen');
+		$this->loader->add_action('wp_ajax_get_data_ssh_sipd',  $plugin_public, 'get_data_ssh_sipd');
 
 		add_shortcode('menu_monev',  array($plugin_public, 'menu_monev'));
 		add_shortcode('datassh', array($plugin_public, 'datassh'));
@@ -401,6 +408,7 @@ class Wpsipd
 		add_shortcode('monitor_monev_renstra', array($plugin_public, 'monitor_monev_renstra'));
 		add_shortcode('monitor_monev_rpjm', array($plugin_public, 'monitor_monev_rpjm'));
 		add_shortcode('data_ssh_usulan', array($plugin_public, 'data_ssh_usulan'));
+		add_shortcode('data_ssh_sipd', array($plugin_public, 'data_ssh_sipd'));
 	}
 
 	/**

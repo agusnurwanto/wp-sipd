@@ -343,6 +343,9 @@ class Wpsipd_Admin {
 			$url_ssh = $this->generatePage('Usulan data Standar Satuan Harga | '.$v['tahun_anggaran'], $v['tahun_anggaran'], '[data_ssh_usulan tahun_anggaran="'.$v['tahun_anggaran'].'"]');
 			$options_basic[] = Field::make( 'html', 'crb_ssh_usulan_'.$k )
             	->set_html( '<a target="_blank" href="'.$url_ssh.'">Usulan Satuan Standar Harga (SSH) '.$v['tahun_anggaran'].'</a>' );
+			$url_data_ssh = $this->generatePage('Data Standar Satuan Harga SIPD | '.$v['tahun_anggaran'], $v['tahun_anggaran'], '[data_ssh_sipd tahun_anggaran="'.$v['tahun_anggaran'].'"]');
+			$options_basic[] = Field::make( 'html', 'crb_data_ssh_sipd_'.$k )
+            	->set_html( '<a target="_blank" href="'.$url_data_ssh.'">Data Satuan Standar Harga (SSH) SIPD '.$v['tahun_anggaran'].'</a>' );
         }
         return $options_basic;
 	}

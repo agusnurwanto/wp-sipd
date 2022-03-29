@@ -36,10 +36,8 @@ $body = '';
 		<div style="padding: 10px;">
 			<input type="hidden" value="<?php echo get_option( '_crb_api_key_extension' ); ?>" id="api_key">
 			<input type="hidden" value="<?php echo $input['tahun_anggaran']; ?>" id="tahun_anggaran">
-			<h1 class="text-center" style="margin:3rem;">Data usulan satuan standar harga (SSH) tahun anggaran <?php echo $input['tahun_anggaran']; ?></h1>
-			<button style="margin: 0 0 2rem 0.5rem;border-radius:0.2rem;" class="tambah_ssh" data-toggle="modal" data-target="#tambahUsulanSsh" onclick="add_new_ssh()">Tambah Item SSH</button>
-			<button style="margin: 0 0 2rem 0.5rem;border-radius:0.2rem;" class="tambah_new_ssh" data-toggle="modal" data-target="#tambahUsulanSsh" onclick="get_data_name_komponen_ssh(<?php echo $input['tahun_anggaran']; ?>)">Tambah Harga SSH</button>
-			<table id="usulan_ssh_table" cellpadding="2" cellspacing="0" style="font-family:\'Open Sans\',-apple-system,BlinkMacSystemFont,\'Segoe UI\',sans-serif; border-collapse: collapse; width:100%; overflow-wrap: break-word;" class="table table-bordered">
+			<h1 class="text-center" style="margin:3rem;">Data satuan standar harga (SSH) SIPD tahun anggaran <?php echo $input['tahun_anggaran']; ?></h1>
+			<table id="data_ssh_sipd_table" cellpadding="2" cellspacing="0" style="font-family:\'Open Sans\',-apple-system,BlinkMacSystemFont,\'Segoe UI\',sans-serif; border-collapse: collapse; width:100%; overflow-wrap: break-word;" class="table table-bordered">
 				<thead id="data_header">
 					<tr>
 						<th class="text-center">Kode Komponen</th>
@@ -47,10 +45,6 @@ $body = '';
 						<th class="text-center">Spesifikasi</th>
 						<th class="text-center">Satuan</th>
 						<th class="text-center">Harga Satuan</th>
-						<th class="text-center">Status</th>
-						<th class="text-center"">Keterangan</th>
-						<th class="text-center"">Upload ke SIPD</th>
-						<th class="text-right"">Aksi</th>
 					</tr>
 				</thead>
 				<tbody id="data_body" class="data_body_ssh">
@@ -83,21 +77,21 @@ $body = '';
 			
 			globalThis.tahun = <?php echo $input['tahun_anggaran']; ?>;
 			
-			get_data_ssh(tahun);
+			get_data_ssh_sipd(tahun);
 			let get_data = 1;
 
-			jQuery('#tambahUsulanSsh').on('hidden.bs.modal', function () {
-				jQuery("#tambahUsulanSsh .modal-dialog").removeClass("modal-lg");
-				jQuery("#tambahUsulanSsh .modal-dialog").removeClass("modal-xl");
-				jQuery("#tambahUsulanSsh .modal-dialog").removeClass("modal-sm");
-				jQuery("#tambahUsulanSsh .modal-body").html("");
-				jQuery("#tambahUsulanSsh .modal-footer").removeClass("");
-			})
+			// jQuery('#tambahUsulanSsh').on('hidden.bs.modal', function () {
+			// 	jQuery("#tambahUsulanSsh .modal-dialog").removeClass("modal-lg");
+			// 	jQuery("#tambahUsulanSsh .modal-dialog").removeClass("modal-xl");
+			// 	jQuery("#tambahUsulanSsh .modal-dialog").removeClass("modal-sm");
+			// 	jQuery("#tambahUsulanSsh .modal-body").html("");
+			// 	jQuery("#tambahUsulanSsh .modal-footer").removeClass("");
+			// })
 
-            get_data_kategori_ssh(tahun);
-            get_data_satuan_ssh(tahun);
-            get_data_akun_ssh(tahun);
-            get_data_nama_ssh(tahun);
+            // get_data_kategori_ssh(tahun);
+            // get_data_satuan_ssh(tahun);
+            // get_data_akun_ssh(tahun);
+            // get_data_nama_ssh(tahun);
 		})
 
 		function add_new_ssh(){
@@ -132,13 +126,13 @@ $body = '';
 					});
 		}
 
-		function get_data_ssh(tahun){
+		function get_data_ssh_sipd(tahun){
 			jQuery("#wrap-loading").show();
 			jQuery.ajax({
 				url: "<?php echo admin_url('admin-ajax.php'); ?>",
 				type:"post",
 				data:{
-					'action' : "get_data_usulan_ssh",
+					'action' : "get_data_ssh_sipd",
 					'api_key' : jQuery("#api_key").val(),
 					'tahun_anggaran' : tahun,
 				},
@@ -146,7 +140,7 @@ $body = '';
 				success:function(response){
 					jQuery("#wrap-loading").hide();
 					jQuery(".data_body_ssh").html(response.table_content);
-					jQuery('#usulan_ssh_table').DataTable();
+					jQuery('#data_ssh_sipd_table').DataTable();
 				}
 			})
 		}
