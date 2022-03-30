@@ -98,6 +98,7 @@ $body = '';
             get_data_satuan_ssh(tahun);
             get_data_akun_ssh(tahun);
             get_data_nama_ssh(tahun);
+			get_komponen_and_id_kel_ssh(tahun);
 		})
 
 		function add_new_ssh(){
@@ -120,7 +121,7 @@ $body = '';
 					"<div><label for=\'u_keterangan_lampiran\' style=\'display:inline-block\'>Keterangan</label>"+
 						"<input type=\'text\' id=\'u_keterangan_lampiran\' style=\'display:block;width:100%;\' placeholder=\'Link Google Drive Keterangan\'>"+
 						"<small>*Masukkan link Google Drive berisikan lampiran minimal 3 harga toko beserta gambar.</small></div></div>");
-			jQuery(".modal-footer").html("<button style=\'margin: 0 0 2rem 0.5rem;border-radius:0.2rem;\' class=\'submitBtn\' onclick=\'submitUsulanSshForm(<?php echo $input['tahun_anggaran']; ?>,0)\'>Simpan</button>");
+			jQuery(".modal-footer").html("<button style=\'margin: 0 0 2rem 0.5rem;border-radius:0.2rem;\' class=\'submitBtn\' onclick=\'submitUsulanSshForm(<?php echo $input['tahun_anggaran']; ?>)\'>Simpan</button>");
 					jQuery("#u_kategori").html(dataCategorySsh.table_content);
 					jQuery("#u_satuan").html(dataSatuanSsh.table_content);
 					jQuery("#u_akun").html(dataAkunSsh.table_content);
@@ -220,36 +221,46 @@ $body = '';
 			jQuery("#tambahUsulanSsh .modal-dialog").addClass("modal-lg");
 			jQuery("#tambahUsulanSshLabel").html("Tambah Harga usulan SSH");
 			jQuery(".modal-body").html("<div>"+
-						"<label for=\'u_kategori\' style=\'display:inline-block\'>Kategori</label>"+
-						"<select id=\'u_kategori\' class=\'js-example-basic-single\' style=\'display:block;width:100%;\'></select></div>"+
-					"<div><label for=\'u_nama_komponen\' style=\'display:inline-block\'>Nama Komponen</label>"+
-						"<select id=\'u_nama_komponen\' class=\'js-example-basic-single\' style=\'display:block;width:100%;\' placeholder=\'Nama Komponen\'></select></div>"+
-					"<div><label for=\'u_spesifikasi\' style=\'display:inline-block\'>Spesifikasi</label>"+
-						"<input type=\'text\' id=\'u_spesifikasi\' style=\'display:block;width:100%;\' placeholder=\'Spesifikasi\'></div>"+
-					"<div><label for=\'u_satuan\' style=\'display:inline-block\'>Satuan</label>"+
-						"<select id=\'u_satuan\' class=\'js-example-basic-single\' style=\'display:block;width:100%;\'></select></div>"+
-					"<div><label for=\'u_harga_satuan\' style=\'display:inline-block\'>Harga Satuan</label>"+
-						"<input type=\'text\' id=\'u_harga_satuan\' style=\'display:block;width:100%;\' placeholder=\'Harga Satuan\'></div>"+
-					"<div><label for=\'u_akun\' style=\'display:inline-block\'>Akun</label>"+
-						"<select id=\'u_akun\' class=\'select2-multiple\' name=\'states[]\' multiple=\'multiple\' style=\'display:block;width:100%;\'></select></div>"+
+						"<label for=\'tambah_harga_kategori\' style=\'display:inline-block\'>Kategori</label>"+
+						"<input type=\'text\' id=\'tambah_harga_kategori\' style=\'display:block;width:100%;\' placeholder=\'Kategori\' disabled></div>"+
+					"<div><label for=\'tambah_harga_nama_komponent\' style=\'display:inline-block\'>Nama Komponen</label>"+
+						"<select id=\'tambah_harga_nama_komponent\' class=\'js-example-basic-single\' style=\'display:block;width:100%;\' placeholder=\'Nama Komponen\'></select></div>"+
+					"<div><label for=\'tambah_harga_spesifikasi\' style=\'display:inline-block\'>Spesifikasi</label>"+
+						"<input type=\'text\' id=\'tambah_harga_spesifikasi\' style=\'display:block;width:100%;\' placeholder=\'Spesifikasi\' disabled></div>"+
+					"<div><label for=\'tambah_harga_satuan\' style=\'display:inline-block\'>Satuan</label>"+
+						"<input type=\'text\' id=\'tambah_harga_satuan\' style=\'display:block;width:100%;\' placeholder=\'Satuan\' disabled></div>"+
+					"<div><label for=\'tambah_harga_harga_satuan\' style=\'display:inline-block\'>Harga Satuan</label>"+
+						"<input type=\'text\' id=\'tambah_harga_harga_satuan\' style=\'display:block;width:100%;\' placeholder=\'Harga Satuan\'></div>"+
+					"<div><label for=\'tambah_harga_akun\' style=\'display:inline-block\'>Akun</label>"+
+						"<textarea type=\'text\' id=\'tambah_harga_akun\' style=\'display:block;width:100%;\' placeholder=\'Akun\' disabled></textarea></div>"+
 					"<div><label for=\'u_keterangan_lampiran\' style=\'display:inline-block\'>Keterangan</label>"+
 						"<input type=\'text\' id=\'u_keterangan_lampiran\' style=\'display:block;width:100%;\' placeholder=\'Link Google Drive Keterangan\'>"+
 						"<small>*Masukkan link Google Drive berisikan lampiran minimal 3 harga toko beserta gambar.</small></div></div>");
-			jQuery(".modal-footer").html("<button style=\'margin: 0 0 2rem 0.5rem;border-radius:0.2rem;\' class=\'submitBtn\' onclick=\'submitUsulanSshForm(<?php echo $input['tahun_anggaran']; ?>,1)\'>Simpan</button>");
-					jQuery("#u_kategori").html(dataCategorySsh.table_content);
-					jQuery("#u_nama_komponen").html(dataNamaSsh.table_content);
-					jQuery("#u_satuan").html(dataSatuanSsh.table_content);
-					jQuery("#u_akun").html(dataAkunSsh.table_content);
-					jQuery('.js-example-basic-single').select2({
-						dropdownParent: jQuery('#tambahUsulanSsh')
-					});
-					jQuery('.select2-multiple').select2({
-						dropdownParent: jQuery('#tambahUsulanSsh')
-					});
-					jQuery("#u_nama_komponen").on("change", function(){
-						var id_standar_harga = jQuery(this).val();
-						// get_data_usulan_ssh_by_komponen(id_standar_harga)
-					})
+			jQuery(".modal-footer").html("<button style=\'margin: 0 0 2rem 0.5rem;border-radius:0.2rem;\' class=\'submitBtn\' onclick=\'submitUsulanTambahHargaSshForm(<?php echo $input['tahun_anggaran']; ?>)\'>Simpan</button>");
+			jQuery("#tambah_harga_nama_komponent").html(dataKomponenAndId.table_content);
+			jQuery('.js-example-basic-single').select2({
+				dropdownParent: jQuery('#tambahUsulanSsh')
+			});
+			jQuery("#tambah_harga_nama_komponent").on("change", function(){
+				var id_standar_harga = jQuery(this).val();
+				get_data_usulan_ssh_by_komponen(id_standar_harga)
+			})
+		}
+
+		function get_komponen_and_id_kel_ssh(tahun){
+			jQuery.ajax({
+				url: "<?php echo admin_url('admin-ajax.php'); ?>",
+				type:"post",
+				data:{
+					'action' : "get_komponen_and_id_kel_ssh",
+					'api_key' : jQuery("#api_key").val(),
+					'tahun_anggaran' : tahun,
+				},
+				dataType: "json",
+				success:function(response){
+					globalThis.dataKomponenAndId = response;
+				}
+			})
 		}
 
 		function get_data_usulan_ssh_by_komponen(id_standar_harga){
@@ -263,8 +274,10 @@ $body = '';
 				},
 				dataType: 'json',
 				success:function(response){
-					jQuery("#u_spesifikasi").val(response.data_ssh_usulan_by_id.spek);
-					jQuery("#u_harga_satuan").val(response.data_ssh_usulan_by_id.harga);
+					jQuery("#tambah_harga_kategori").val(response.data_ssh_usulan_by_id.kode_kel_standar_harga+" "+response.data_ssh_usulan_by_id.nama_kel_standar_harga);
+					jQuery("#tambah_harga_spesifikasi").val(response.data_ssh_usulan_by_id.spek);
+					jQuery("#tambah_harga_satuan").val(response.data_ssh_usulan_by_id.satuan);
+					jQuery("#tambah_harga_akun").html(response.table_content);
 					if(response.status != 'success'){
 						alert('<span style="color:red;">Some problem occurred, please try again.</span>');
 					}
@@ -272,7 +285,7 @@ $body = '';
 			});
 		}
 
-		function submitUsulanSshForm(tahun,addNewPrice){
+		function submitUsulanSshForm(tahun){
 			var kategori = jQuery('#u_kategori').val();
 			var nama_komponen = jQuery('#u_nama_komponen').val();
 			var spesifikasi = jQuery('#u_spesifikasi').val();
@@ -299,7 +312,6 @@ $body = '';
 						'harga_satuan' : harga_satuan,
 						'akun' : akun,
 						'tahun_anggaran' : tahun,
-						'add_new_price'	: addNewPrice,
 						'keterangan_lampiran' : keterangan_lampiran,
 					},
 					dataType: 'json',
@@ -463,6 +475,48 @@ $body = '';
 						get_data_ssh(tahun);
 					}
 				});
+		}
+
+		function submitUsulanTambahHargaSshForm(tahun){
+			var id_standar_harga = jQuery('#tambah_harga_nama_komponent').val();
+			var harga_satuan = jQuery('#tambah_harga_harga_satuan').val();
+			var keterangan_lampiran = jQuery('#u_keterangan_lampiran').val();
+			jQuery("#wrap-loading").show();
+			if(harga_satuan.trim() == '' || keterangan_lampiran.trim() == '' || id_standar_harga.trim() == ''){
+				jQuery("#wrap-loading").hide();
+				alert('Harap diisi semua, tidak ada yang kosong.');
+				return false;
+			}else{
+				jQuery.ajax({
+					url: "<?php echo admin_url('admin-ajax.php'); ?>",
+					type:'post',
+					data:{
+						'action' : 'submit_tambah_harga_ssh',
+						'api_key' : jQuery("#api_key").val(),
+						'tahun_anggaran' : tahun,
+						'id_standar_harga' : id_standar_harga,
+						'harga_satuan' : harga_satuan,
+						'keterangan_lampiran' : keterangan_lampiran,
+					},
+					dataType: 'json',
+					beforeSend: function () {
+						jQuery('.submitBtn').attr("disabled","disabled");
+						jQuery('.modal-body').css('opacity', '.5');
+					},
+					success:function(response){
+						if(response.status == 'success'){
+							// alert('<span style="color:green;">Thanks for contacting us, we\'ll get back to you soon.</p>');
+						}else{
+							alert(response.message);
+						}
+						jQuery('#tambahUsulanSsh').modal('hide')
+						jQuery('.submitBtn').removeAttr("disabled");
+						jQuery('.modal-body').css('opacity', '');
+						jQuery("#wrap-loading").hide();
+						get_data_ssh(tahun);
+					}
+				});
+			}
 		}
 
 	</script> 

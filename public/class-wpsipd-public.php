@@ -9919,7 +9919,7 @@ class Wpsipd_Public
 								<td>'.$value['nama_standar_harga'].'</td>
 								<td>'.$value['spek'].'</td>
 								<td>'.$value['satuan'].'</td>
-								<td>'.number_format($value['harga'],0,",",".").'</td>
+								<td>'.number_format($value['harga'],2,",",".").'</td>
 								<td class="text-center"><span style="display:block;">'.$value['status'].'</span></td>
 								<td class="text-center">'.ucwords($keterangan_status).'</td>
 								<td class="text-center">'.ucwords($status_upload_sipd).'</td>
@@ -10090,7 +10090,6 @@ class Wpsipd_Public
 				$harga = $_POST['harga_satuan'];
 				$akun = $_POST['akun'];
 				$tahun_anggaran = $_POST['tahun_anggaran'];
-				$add_new_price = $_POST['add_new_price'];
 				$keterangan_lampiran = $_POST['keterangan_lampiran'];
 				
 				$data_kategori = $wpdb->get_results($wpdb->prepare("SELECT * FROM data_kelompok_satuan_harga WHERE id_kategori = %d",$kategori), ARRAY_A);
@@ -10098,11 +10097,6 @@ class Wpsipd_Public
 
 				foreach($akun as $v_akun){
 					$data_akun[$v_akun] = $wpdb->get_results($wpdb->prepare("SELECT id_akun,kode_akun,nama_akun FROM data_akun WHERE id_akun = %d",$v_akun), ARRAY_A);
-				}
-
-				if($add_new_price){
-					$find_standar_harga = $wpdb->get_results($wpdb->prepare("SELECT nama_standar_harga FROM data_ssh_usulan WHERE id_standar_harga = %d",$nama_standar_harga), ARRAY_A);
-					$nama_standar_harga = $find_standar_harga[0]['nama_standar_harga'];
 				}
 
 				$date_now = date("Y-m-d H:i:s");
@@ -10242,13 +10236,20 @@ class Wpsipd_Public
 					$id_standar_harga = $_POST['id_standar_harga'];
 					
 					$data_ssh_usulan_by_id = $wpdb->get_results($wpdb->prepare('SELECT * FROM data_ssh_usulan WHERE id_standar_harga = %d',$id_standar_harga), ARRAY_A);
+					$data_ssh_akun_by_id = $wpdb->get_results($wpdb->prepare('SELECT * FROM data_ssh_rek_belanja_usulan WHERE id_standar_harga = %d',$id_standar_harga), ARRAY_A);
 
 				    ksort($data_ssh_usulan_by_id);
 			    	$no = 0;
 
+					$table_content = '';
+					foreach($data_ssh_akun_by_id as $data_akun){
+						$table_content .= $data_akun['nama_akun']."&#13;&#10;";
+					}
+
 					$return = array(
 						'status' => 'success',
-						'data_ssh_usulan_by_id' => $data_ssh_usulan_by_id[0]
+						'data_ssh_usulan_by_id' => $data_ssh_usulan_by_id[0],
+						'table_content' => $table_content,
 					);
 			}else{
 				$return = array(
@@ -10336,6 +10337,152 @@ class Wpsipd_Public
 				);
 
 				die(json_encode($json_data));
+			}else{
+				$return = array(
+					'status' => 'error',
+					'message'	=> 'Api Key tidak sesuai!'
+				);
+			}
+		}else{
+			$return = array(
+				'status' => 'error',
+				'message'	=> 'Format tidak sesuai!'
+			);
+		}
+		die(json_encode($return));
+	}
+
+	public function get_komponen_and_id_kel_ssh(){
+		global $wpdb;
+		$return = array(
+			'status' => 'success',
+			'data'	=> array()
+		);
+
+		$table_content = '';
+		if(!empty($_POST)){
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+					$tahun_anggaran = $_POST['tahun_anggaran'];
+					
+					$data_nama_ssh = $wpdb->get_results($wpdb->prepare('SELECT id_standar_harga,kode_standar_harga, nama_standar_harga FROM data_ssh_usulan WHERE tahun_anggaran = %d',$tahun_anggaran), ARRAY_A);
+
+				    ksort($data_nama_ssh);
+			    	$no = 0;
+			    	foreach ($data_nama_ssh as $key => $value) {
+			    		$no++;
+			    		$table_content .= '
+							<option value="'.$value['id_standar_harga'].'">'.$value['kode_standar_harga'].' '.$value['nama_standar_harga'].'</option>
+			    		';
+			    	}
+
+					$return = array(
+						'status' => 'success',
+						'table_content' => $table_content
+					);
+			}else{
+				$return = array(
+					'status' => 'error',
+					'message'	=> 'Api Key tidak sesuai!'
+				);
+			}
+		}else{
+			$return = array(
+				'status' => 'error',
+				'message'	=> 'Format tidak sesuai!'
+			);
+		}
+		die(json_encode($return));
+	}
+
+	public function submit_tambah_harga_ssh(){
+		global $wpdb;
+		$return = array(
+			'status' => 'success',
+			'data'	=> array()
+		);
+
+		$table_content = '';
+		if(!empty($_POST)){
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+				$id_standar_harga = $_POST['id_standar_harga'];
+				$tahun_anggaran = $_POST['tahun_anggaran'];
+				$harga_satuan = $_POST['harga_satuan'];
+				$keterangan_lampiran = $_POST['keterangan_lampiran'];
+				
+				$data_old_ssh = $wpdb->get_results($wpdb->prepare("SELECT * FROM data_ssh_usulan WHERE id_standar_harga = %d",$id_standar_harga), ARRAY_A);
+				$data_old_ssh_akun = $wpdb->get_results($wpdb->prepare("SELECT * FROM data_ssh_rek_belanja_usulan WHERE id_standar_harga = %d",$id_standar_harga), ARRAY_A);
+
+				foreach($data_old_ssh_akun as $v_a_akun){
+					$data_akun[$v_a_akun['id_akun']] = $wpdb->get_results($wpdb->prepare("SELECT id_akun,kode_akun,nama_akun FROM data_akun WHERE id_akun = %d",$v_a_akun['id_akun']), ARRAY_A);
+				}
+
+				$date_now = date("Y-m-d H:i:s");
+
+				// //avoid double ssh
+				$data_avoid = $wpdb->get_results($wpdb->prepare("SELECT id FROM data_ssh_usulan WHERE 
+								nama_standar_harga = %s AND
+								satuan = %s AND
+								spek = %s AND
+								harga = %s AND
+								kode_kel_standar_harga = %s",
+								$data_old_ssh[0]['nama_standar_harga'],$data_old_ssh[0]['satuan'],$data_old_ssh[0]['spek'],$harga_satuan,$data_old_ssh[0]['kode_kel_standar_harga']), ARRAY_A);
+
+				if(!empty($data_avoid)){
+					$return = array(
+						'status' => 'error',
+						'message'	=> 'Standar Harga Sudah Ada!',
+						'opsi_ssh' => $data_avoid,
+					);
+
+					die(json_encode($return));
+				}
+
+				$last_kode_standar_harga = $wpdb->get_results($wpdb->prepare("SELECT id_standar_harga,kode_standar_harga FROM `data_ssh_usulan` WHERE kode_standar_harga=(SELECT MAX(kode_standar_harga) FROM `data_ssh_usulan` WHERE kode_kel_standar_harga = %s)",$data_old_ssh[0]['kode_kel_standar_harga']), ARRAY_A);
+				$last_kode_standar_harga = (empty($last_kode_standar_harga[0]['kode_standar_harga'])) ? "0" : explode(".",$last_kode_standar_harga[0]['kode_standar_harga']);
+				$last_kode_standar_harga = (int) end($last_kode_standar_harga);
+				$last_kode_standar_harga = $last_kode_standar_harga+1;
+				$last_kode_standar_harga = sprintf("%05d",$last_kode_standar_harga);
+				$last_kode_standar_harga = $data_old_ssh[0]['kode_kel_standar_harga'].'.'.$last_kode_standar_harga;
+
+				$id_standar_harga = $wpdb->get_results($wpdb->prepare("SELECT id_standar_harga FROM `data_ssh_usulan` WHERE id_standar_harga=(SELECT MAX(id_standar_harga) FROM `data_ssh_usulan`) AND tahun_anggaran=%d",$tahun_anggaran), ARRAY_A);
+				$id_standar_harga = !empty($id_standar_harga) ? $id_standar_harga[0]['id_standar_harga'] + 1 : 1;
+
+				//insert data usulan ssh
+				$opsi_ssh = array(
+					'id_standar_harga' => $id_standar_harga,
+					'kode_standar_harga' => $last_kode_standar_harga,
+					'nama_standar_harga' => $data_old_ssh[0]['nama_standar_harga'],
+					'satuan' => $data_old_ssh[0]['satuan'],
+					'spek' => $data_old_ssh[0]['spek'],
+					'created_at' => $date_now,
+					'kelompok' => 1,
+					'harga' => $harga_satuan,
+					'kode_kel_standar_harga' => $data_old_ssh[0]['kode_kel_standar_harga'],
+					'nama_kel_standar_harga' => $data_old_ssh[0]['nama_kel_standar_harga'],
+					'tahun_anggaran' => $tahun_anggaran,
+					'status' => 'waiting',
+					'keterangan_lampiran' => $keterangan_lampiran,
+				);
+
+				$wpdb->insert('data_ssh_usulan',$opsi_ssh);
+
+				foreach($data_old_ssh_akun as $v_akun){
+					$opsi_akun[$v_akun['id_akun']] = array(
+						'id_akun' => $data_akun[$v_akun['id_akun']][0]['id_akun'],
+						'kode_akun' => $data_akun[$v_akun['id_akun']][0]['kode_akun'],
+						'nama_akun' => $data_akun[$v_akun['id_akun']][0]['kode_akun'].' '.$data_akun[$v_akun['id_akun']][0]['nama_akun'],
+						'id_standar_harga' => $id_standar_harga,
+						'tahun_anggaran' => $tahun_anggaran,
+					);
+	
+					$wpdb->insert('data_ssh_rek_belanja_usulan',$opsi_akun[$v_akun['id_akun']]);
+				}
+
+					$return = array(
+						'status' => 'success',
+						'message'	=> 'Berhasil!',
+						'opsi_ssh' => $opsi_ssh,
+					);
 			}else{
 				$return = array(
 					'status' => 'error',
