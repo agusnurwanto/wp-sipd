@@ -42,6 +42,7 @@ $body = '';
 			<table id="usulan_ssh_table" cellpadding="2" cellspacing="0" style="font-family:\'Open Sans\',-apple-system,BlinkMacSystemFont,\'Segoe UI\',sans-serif; border-collapse: collapse; width:100%; overflow-wrap: break-word;" class="table table-bordered">
 				<thead id="data_header">
 					<tr>
+						<th class="text-center">ID Komponen</th>
 						<th class="text-center">Kode Komponen</th>
 						<th class="text-center">Uraian Komponen</th>
 						<th class="text-center">Spesifikasi</th>
@@ -135,21 +136,62 @@ $body = '';
 
 		function get_data_ssh(tahun){
 			jQuery("#wrap-loading").show();
-			jQuery.ajax({
-				url: "<?php echo admin_url('admin-ajax.php'); ?>",
-				type:"post",
-				data:{
-					'action' : "get_data_usulan_ssh",
-					'api_key' : jQuery("#api_key").val(),
-					'tahun_anggaran' : tahun,
+			globalThis.usulanSSHTable = jQuery('#usulan_ssh_table').DataTable({
+				"processing": true,
+        		"serverSide": true,
+		        "ajax": {
+		        	url: "<?php echo admin_url('admin-ajax.php'); ?>",
+					type:"post",
+					data:{
+						'action' : "get_data_usulan_ssh",
+						'api_key' : jQuery("#api_key").val(),
+						'tahun_anggaran' : tahun,
+					}
 				},
-				dataType: "json",
-				success:function(response){
+				"initComplete":function( settings, json){
 					jQuery("#wrap-loading").hide();
-					jQuery(".data_body_ssh").html(response.table_content);
-					jQuery('#usulan_ssh_table').DataTable();
-				}
-			})
+				},
+				"columns": [
+		            { 
+		            	"data": "id_standar_harga",
+		            	className: "text-center"
+		            },
+		            { 
+		            	"data": "kode_standar_harga",
+		            	className: "text-center"
+		            },
+		            { "data": "nama_standar_harga" },
+		            { "data": "spek" },
+		            { 
+		            	"data": "satuan",
+		            	className: "text-center"
+		            },
+		            { 
+		            	"data": "harga",
+		            	className: "text-right",
+		            	render: function(data, type) {
+			                var number = jQuery.fn.dataTable.render.number( '.', ',', 2, ''). display(data);
+			                return number;
+			            }
+		            },
+					{ 
+		            	"data": "status",
+		            	className: "text-center"
+		            },
+					{ 
+		            	"data": "keterangan_status",
+		            	className: "text-center"
+		            },
+					{ 
+		            	"data": "status_upload_sipd",
+		            	className: "text-center"
+		            },
+					{ 
+		            	"data": "aksi",
+		            	className: "text-center"
+		            }
+		        ]
+		    });
 		}
 
 		function get_data_satuan_ssh(tahun){
@@ -329,14 +371,14 @@ $body = '';
 						jQuery('.submitBtn').removeAttr("disabled");
 						jQuery('.modal-body').css('opacity', '');
 						jQuery("#wrap-loading").hide();
-						get_data_ssh(tahun);
+						usulanSSHTable.ajax.reload();	
 					}
 				});
 			}
 		}
 
 		//edit akun ssh usulan
-		function edit_akun_ssh_usulan(id_ssh){
+		function edit_akun_ssh_usulan(id_standar_harga){
 			jQuery('#tambahUsulanSsh').modal('show');
 			jQuery("#tambahUsulanSsh .modal-dialog").removeClass("modal-xl modal-sm");
 			jQuery("#tambahUsulanSsh .modal-dialog").addClass("modal-lg");
@@ -362,9 +404,9 @@ $body = '';
 				url: "<?php echo admin_url('admin-ajax.php'); ?>",
 				type:"post",
 				data:{
-					'action' : "get_data_ssh_by_id",
+					'action' : "get_data_ssh_usulan_by_id",
 					'api_key' : jQuery("#api_key").val(),
-					'id_ssh' : id_ssh,
+					'id_standar_harga' : id_standar_harga,
 				},
 				dataType: "json",
 				success:function(response){
@@ -399,7 +441,7 @@ $body = '';
 					url: "<?php echo admin_url('admin-ajax.php'); ?>",
 					type:'post',
 					data:{
-						'action' : 'submit_add_new_akun_ssh',
+						'action' : 'submit_add_new_akun_ssh_usulan',
 						'api_key' : jQuery("#api_key").val(),
 						'id_standar_harga' : id_standar_harga,
 						'data_akun' : data_akun,
@@ -418,14 +460,14 @@ $body = '';
 						jQuery('.submitBtn').removeAttr("disabled");
 						jQuery('.modal-body').css('opacity', '');
 						jQuery("#wrap-loading").hide();
-						get_data_ssh(tahun);
+						usulanSSHTable.ajax.reload();
 					}
 				});
 			}
 		}
 
 		//edit akun ssh usulan
-		function verify_ssh_usulan(id_ssh){
+		function verify_ssh_usulan(id_standar_ssh){
 			jQuery('#tambahUsulanSsh').modal('show');
 			jQuery("#tambahUsulanSshLabel").html("Verifikasi SSH");
 			jQuery("#tambahUsulanSsh .modal-dialog").removeClass("modal-lg modal-xl");
@@ -434,7 +476,7 @@ $body = '';
 						"<tr><td><input class=\'verify-ssh\' id=\'verify-ssh-yes\' name=\'verify_ssh\' value=\'1\' type=\'radio\' checked><label for=\'verify-ssh-yes\'>Terima</label></td>"+
 						"<td><input class=\'verify-ssh\' id=\'verify-ssh-no\' name=\'verify_ssh\' value=\'0\' type=\'radio\'><label for=\'verify-ssh-no\'>Tolak</label></td></tr>"+
 						"<tr class=\'add-desc-verify-ssh\' style=\'display:none;\'><td colspan=\'2\'><label for=\'alasan_verify_ssh\' style=\'display:inline-block;\'>Alasan</label><textarea id=\'alasan_verify_ssh\'></textarea></td></tr></div>");
-			jQuery(".modal-footer").html("<button style=\'margin: 0 0 2rem 0.5rem;border-radius:0.2rem;\' class=\'btn_submit_verify_ssh\' onclick=\'submit_verify_ssh("+id_ssh+")\'>Simpan</button>");
+			jQuery(".modal-footer").html("<button style=\'margin: 0 0 2rem 0.5rem;border-radius:0.2rem;\' class=\'btn_submit_verify_ssh\' onclick=\'submit_verify_ssh("+id_standar_ssh+")\'>Simpan</button>");
 			jQuery("#verify-ssh-no").on("click", function() {
 				jQuery(".add-desc-verify-ssh").show();
 			})
@@ -443,7 +485,7 @@ $body = '';
 			})
 		}
 
-		function submit_verify_ssh(id_ssh){
+		function submit_verify_ssh(id_standar_ssh){
 			var verify_ssh = jQuery("input[name=\'verify_ssh\']:checked").val();
 			var reason_verify_ssh = jQuery("#alasan_verify_ssh").val();
 			jQuery("#wrap-loading").show();
@@ -455,7 +497,7 @@ $body = '';
 						'api_key' : jQuery("#api_key").val(),
 						'verify_ssh' : verify_ssh,
 						'reason_verify_ssh' : reason_verify_ssh,
-						'id_ssh_verify_ssh' : id_ssh,
+						'id_ssh_verify_ssh' : id_standar_ssh,
 					},
 					dataType: 'json',
 					beforeSend: function () {
@@ -472,7 +514,7 @@ $body = '';
 						jQuery('.submitBtn').removeAttr("disabled");
 						jQuery('.modal-body').css('opacity', '');
 						jQuery("#wrap-loading").hide();
-						get_data_ssh(tahun);
+						usulanSSHTable.ajax.reload();
 					}
 				});
 		}
@@ -513,7 +555,7 @@ $body = '';
 						jQuery('.submitBtn').removeAttr("disabled");
 						jQuery('.modal-body').css('opacity', '');
 						jQuery("#wrap-loading").hide();
-						get_data_ssh(tahun);
+						usulanSSHTable.ajax.reload();
 					}
 				});
 			}

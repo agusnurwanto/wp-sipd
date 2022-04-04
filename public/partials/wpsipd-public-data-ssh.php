@@ -12,6 +12,7 @@ $body = '';
 ?>
 
 	<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/dt/dt-1.10.25/datatables.min.css"/>
+	<link href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
 
 	<div class="cetak">
 		<div style="padding: 10px;">
@@ -27,11 +28,29 @@ $body = '';
 						<th class="text-center">Spesifikasi</th>
 						<th class="text-center">Satuan</th>
 						<th class="text-center">Harga Satuan</th>
+						<th class="text-center">Aksi</th>
 					</tr>
 				</thead>
 				<tbody id="data_body" class="data_body_ssh">
 				</tbody>
 			</table>
+		</div>
+	</div>
+
+	<div class="modal fade mt-4" id="modalDataSSH" tabindex="-1" role="dialog" aria-labelledby="modalDataSSHLabel" aria-hidden="true">
+		<div class="modal-dialog modal-lg" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title" id="modalDataSSHLabel">Modal title</h5>
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+					<span aria-hidden="true">&times;</span>
+					</button>
+				</div>
+				<div class="modal-body">
+				</div> 
+				<div class="modal-footer">
+				</div>
+			</div>
 		</div>
 	</div>
 
@@ -83,9 +102,51 @@ $body = '';
 			                var number = jQuery.fn.dataTable.render.number( '.', ',', 2, ''). display(data);
 			                return number;
 			            }
+		            },
+		            { 
+		            	"data": "aksi",
+		            	className: "text-right"
 		            }
 		        ]
 		    });
+		}
+
+		//data akun ssh sipd
+		function data_akun_ssh_sipd(id_standar_harga){
+			jQuery('#modalDataSSH').modal('show');
+			jQuery("#modalDataSSH .modal-dialog").removeClass("modal-xl modal-sm");
+			jQuery("#modalDataSSH .modal-dialog").addClass("modal-lg");
+			jQuery("#modalDataSSHLabel").html("Data akun");
+			jQuery(".modal-body").html("<div class=\'akun-ssh-desc\'><table>"+
+						"<tr><td class=\'first-desc\'>Kategori</td><td class=\'sec-desc\'>:</td><td><span id=\'u_data_kategori\'></span></td></tr>"+
+						"<tr><td class=\'first-desc\'>Nama Komponen</td><td class=\'sec-desc\'>:</td><td><span id=\'u_data_nama_komponen\'></span></td></tr>"+
+						"<tr><td class=\'first-desc\'>Spesifikasi</td><td class=\'sec-desc\'>:</td><td><span id=\'u_data_spesifikasi\'></span></td></tr>"+
+						"<tr><td class=\'first-desc\'>Satuan</td><td class=\'sec-desc\'>:</td><td><span id=\'u_data_satuan\'></span></td></tr>"+
+						"<tr><td class=\'first-desc\'>Harga Satuan</td><td class=\'sec-desc\'>:</td><td><span id=\'u_data_harga_satuan\'></span></td></tr>"+
+						"<tr><td class=\'first-desc\'>Akun</td><td class=\'sec-desc\'>:</td><td><ul class=\'ul-desc-akun\'></ul></td></tr></table></div></div>");
+
+			jQuery.ajax({
+				url: "<?php echo admin_url('admin-ajax.php'); ?>",
+				type:"post",
+				data:{
+					'action' : "get_data_ssh_sipd_by_id",
+					'api_key' : jQuery("#api_key").val(),
+					'id_standar_harga' : id_standar_harga,
+				},
+				dataType: "json",
+				success:function(response){
+					jQuery("#u_data_kategori").html(response.data.kode_standar_harga);
+					jQuery("#u_data_nama_komponen").html(response.data.nama_standar_harga);
+					jQuery("#u_data_spesifikasi").html(response.data.spek);
+					jQuery("#u_data_satuan").html(response.data.satuan);
+					jQuery("#u_data_harga_satuan").html(response.data.harga);
+					jQuery("#u_data_add_ssh_akun_id").val(response.data.id_standar_harga);
+					var data_akun = response.data_akun;
+					jQuery.each( data_akun, function( key, value ) {
+						jQuery("ul.ul-desc-akun").append(`<li>${value.nama_akun}</li>`);
+					});
+				}
+			})
 		}
 
 	</script> 

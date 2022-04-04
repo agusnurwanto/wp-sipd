@@ -393,6 +393,10 @@ class Wpsipd
 		$this->loader->add_action('wp_ajax_get_data_ssh_sipd',  $plugin_public, 'get_data_ssh_sipd');
 		$this->loader->add_action('wp_ajax_get_komponen_and_id_kel_ssh',  $plugin_public, 'get_komponen_and_id_kel_ssh');
 		$this->loader->add_action('wp_ajax_submit_tambah_harga_ssh',  $plugin_public, 'submit_tambah_harga_ssh');
+		$this->loader->add_action('wp_ajax_submit_verify_ssh',  $plugin_public, 'submit_verify_ssh');
+		$this->loader->add_action('wp_ajax_get_data_ssh_sipd_by_id',  $plugin_public, 'get_data_ssh_sipd_by_id');
+		$this->loader->add_action('wp_ajax_get_data_ssh_usulan_by_id',  $plugin_public, 'get_data_ssh_usulan_by_id');
+		$this->loader->add_action('wp_ajax_submit_add_new_akun_ssh_usulan',  $plugin_public, 'submit_add_new_akun_ssh_usulan');
 
 		add_shortcode('menu_monev',  array($plugin_public, 'menu_monev'));
 		add_shortcode('datassh', array($plugin_public, 'datassh'));
