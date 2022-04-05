@@ -397,6 +397,8 @@ class Wpsipd
 		$this->loader->add_action('wp_ajax_get_data_ssh_sipd_by_id',  $plugin_public, 'get_data_ssh_sipd_by_id');
 		$this->loader->add_action('wp_ajax_get_data_ssh_usulan_by_id',  $plugin_public, 'get_data_ssh_usulan_by_id');
 		$this->loader->add_action('wp_ajax_submit_add_new_akun_ssh_usulan',  $plugin_public, 'submit_add_new_akun_ssh_usulan');
+		$this->loader->add_action('wp_ajax_get_data_ssh_analisis',  $plugin_public, 'get_data_ssh_analisis');
+		$this->loader->add_action('wp_ajax_get_data_chart_ssh',  $plugin_public, 'get_data_chart_ssh');
 
 		add_shortcode('menu_monev',  array($plugin_public, 'menu_monev'));
 		add_shortcode('datassh', array($plugin_public, 'datassh'));
@@ -415,6 +417,7 @@ class Wpsipd
 		add_shortcode('monitor_monev_rpjm', array($plugin_public, 'monitor_monev_rpjm'));
 		add_shortcode('data_ssh_usulan', array($plugin_public, 'data_ssh_usulan'));
 		add_shortcode('data_ssh_sipd', array($plugin_public, 'data_ssh_sipd'));
+		add_shortcode('data_halaman_menu_ssh', array($plugin_public, 'data_halaman_menu_ssh'));
 	}
 
 	/**

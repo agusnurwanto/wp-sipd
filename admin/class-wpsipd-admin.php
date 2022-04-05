@@ -313,7 +313,8 @@ class Wpsipd_Admin {
 			        '3' => __( 'MONEV LABEL KOMPONEN' ),
 			        '4' => __( 'MONEV INDIKATOR RENJA' ),
 			        '5' => __( 'MONEV INDIKATOR RENSTRA' ),
-			        '6' => __( 'MONEV INDIKATOR RPJM' )
+			        '6' => __( 'MONEV INDIKATOR RPJM' ),
+					'7' => __( 'MENU SSH' )
 			    ) )
             	->set_default_value(array('1','2','3','4','5'))
             	->set_help_text('Daftar fitur ini akan ditampilkan dalam bentuk tombol di halaman dasboard user setelah berhasil login.'),
@@ -346,6 +347,7 @@ class Wpsipd_Admin {
 			$url_data_ssh = $this->generatePage('Data Standar Satuan Harga SIPD | '.$v['tahun_anggaran'], $v['tahun_anggaran'], '[data_ssh_sipd tahun_anggaran="'.$v['tahun_anggaran'].'"]');
 			$options_basic[] = Field::make( 'html', 'crb_data_ssh_sipd_'.$k )
             	->set_html( '<a target="_blank" href="'.$url_data_ssh.'">Data Satuan Standar Harga (SSH) SIPD '.$v['tahun_anggaran'].'</a>' );
+			$url_page_ssh = $this->generatePage('Halaman Menu Standar Satuan Harga (SSH) | '.$v['tahun_anggaran'], $v['tahun_anggaran'], '[data_halaman_menu_ssh tahun_anggaran="'.$v['tahun_anggaran'].'"]');
         }
         return $options_basic;
 	}
