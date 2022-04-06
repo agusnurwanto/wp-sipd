@@ -5068,10 +5068,6 @@ class Wpsipd_Public
 				$custom_post = get_page_by_title($nama_page_monev_renstra, OBJECT, 'page');
 				$url_monev_renstra = $this->get_link_post($custom_post);
 
-				$nama_page_menu_ssh = 'Halaman Menu Standar Satuan Harga (SSH) | '.$tahun;
-				$custom_post = get_page_by_title($nama_page_menu_ssh, OBJECT, 'page');
-				$url_menu_ssh = $this->get_link_post($custom_post);
-
 				if(!empty($daftar_tombol_list[1])){
 					echo '<li><a href="'.$url_rfk.'" target="_blank" class="btn btn-info">MONEV RFK</a></li>';
 				}
@@ -5087,6 +5083,14 @@ class Wpsipd_Public
 				if(!empty($daftar_tombol_list[5])){
 					echo '<li><a href="'.$url_monev_renstra.'" target="_blank" class="btn btn-info">MONEV INDIKATOR RENSTRA</a></li>';
 				}
+			}
+			$user_id = um_user( 'ID' );
+			$user_meta = get_userdata($user_id);
+			if(in_array("administrator", $user_meta->roles) || in_array("PLT", $user_meta->roles) || in_array("PA", $user_meta->roles) || in_array("KPA", $user_meta->roles)){
+				$nama_page_menu_ssh = 'Halaman Menu Standar Satuan Harga (SSH) | '.$tahun;
+				$custom_post = get_page_by_title($nama_page_menu_ssh, OBJECT, 'page');
+				$url_menu_ssh = $this->get_link_post($custom_post);
+
 				if(!empty($daftar_tombol_list[7])){
 					echo '<li><a href="'.$url_menu_ssh.'" target="_blank" class="btn btn-info">MENU SSH</a></li>';
 				}
@@ -10757,16 +10761,16 @@ class Wpsipd_Public
 				if( !empty($params['search']['value']) ) {
 					$where .=" AND ( nama_komponen LIKE ".$wpdb->prepare('%s', "%".$params['search']['value']."%");    
 					$where .=" OR spek_komponen LIKE ".$wpdb->prepare('%s', "%".$params['search']['value']."%");
-					$where .=" OR harga_satuan LIKE ".$wpdb->prepare('%d', "%".$params['search']['value']."%");
+					$where .=" OR harga_satuan LIKE ".$wpdb->prepare('%s', "%".$params['search']['value']."%");
 					$where .=" OR satuan LIKE ".$wpdb->prepare('%s', "%".$params['search']['value']."%");
-					$where .=" OR volume LIKE ".$wpdb->prepare('%d', "%".$params['search']['value']."%");
-					$where .=" OR total LIKE ".$wpdb->prepare('%d', "%".$params['search']['value']."%")." )";
+					$where .=" OR volume LIKE ".$wpdb->prepare('%s', "%".$params['search']['value']."%")." )";
+					// $where .=" OR SUM(total_harga) LIKE ".$wpdb->prepare('%s', "%".$params['search']['value']."%")." )";
 				}
 
 				// getting total number records without any search
 				$sql_tot = "SELECT count(*) as jml FROM `data_rka`";
 				$sql = "SELECT ".implode(', ', $columns)." FROM `data_rka`";
-				$where_first = " WHERE active=1 and tahun_anggaran=".$wpdb->prepare('%d', $params['tahun_anggaran'])." GROUP by nama_komponen, spek_komponen";
+				$where_first = " WHERE active=1 and tahun_anggaran=".$wpdb->prepare('%d', $params['tahun_anggaran']);
 				$sqlTot .= $sql_tot.$where_first;
 				$sqlRec .= $sql.$where_first;
 				if(isset($where) && $where != '') {
@@ -10774,7 +10778,7 @@ class Wpsipd_Public
 					$sqlRec .= $where;
 				}
 
-			 	$sqlRec .=  " ORDER BY total DESC, ". $columns[$params['order'][0]['column']]."   ".$params['order'][0]['dir']."  LIMIT ".$params['start']." ,".$params['length']." ";
+			 	$sqlRec .=  " GROUP by nama_komponen, spek_komponen ORDER BY total DESC, ". $columns[$params['order'][0]['column']]."   ".$params['order'][0]['dir']."  LIMIT ".$params['start']." ,".$params['length']." ";
 
 				$queryTot = $wpdb->get_results($sqlTot, ARRAY_A);
 				$totalRecords = $queryTot[0]['jml'];
@@ -10815,7 +10819,7 @@ class Wpsipd_Public
 					$tahun_anggaran = $_POST['tahun_anggaran'];
 					
 					$data_ssh = $wpdb->get_results("SELECT nama_komponen, spek_komponen, ANY_VALUE(harga_satuan) as harga_satuan, ANY_VALUE(satuan) as satuan, ANY_VALUE(volume) as volume,
- 										sum(total_harga) as total FROM `data_rka` where active=1 and tahun_anggaran=".$wpdb->prepare('%d', $tahun_anggaran)." GROUP by nama_komponen, spek_komponen order by total desc limit 10",ARRAY_A);
+ 										sum(total_harga) as total FROM `data_rka` where active=1 and tahun_anggaran=".$wpdb->prepare('%d', $tahun_anggaran)." GROUP by nama_komponen, spek_komponen order by total desc limit 20",ARRAY_A);
 
 					$return = array(
 						'status' => 'success',

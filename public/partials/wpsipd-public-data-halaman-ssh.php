@@ -13,10 +13,6 @@ $nama_page_menu_ssh = 'Data Standar Satuan Harga SIPD | '.$input['tahun_anggaran
 $custom_post = get_page_by_title($nama_page_menu_ssh, OBJECT, 'page');
 $url_data_ssh = $this->get_link_post($custom_post);
 
-$nama_page_menu_ssh_usulan = 'Data Usulan Standar Satuan Harga (SSH) | '.$input['tahun_anggaran'];
-$custom_post_usulan = get_page_by_title($nama_page_menu_ssh_usulan, OBJECT, 'page');
-$url_data_ssh_usulan = $this->get_link_post($custom_post_usulan);
-
 $body = '';
 ?>
 
@@ -26,16 +22,17 @@ $body = '';
 		<div style="padding: 10px;">
 			<input type="hidden" value="<?php echo get_option( '_crb_api_key_extension' ); ?>" id="api_key">
 			<input type="hidden" value="<?php echo $input['tahun_anggaran']; ?>" id="tahun_anggaran">
-			<h1 class="text-center" style="margin:3rem;">Halaman Menu Satuan Standar Harga Tahun Anggaran <?php echo $input['tahun_anggaran']; ?></h1>
-			<div style="margin: 0 0 2rem 0;">
-				<a href="<?php echo $url_data_ssh ?>" style="text-decoration:none;" class="button button-primary button-large tambah_ssh" target="_blank">Data SSH SIPD</a>
-				<a href="<?php echo $url_data_ssh_usulan ?>" style="text-decoration:none;" class="button button-primary button-large tambah_ssh" target="_blank">Data Usulan SSH</a>
-			</div>
-			<div class="card" style="width:40rem;margin:0 0 2rem 0">
+			<h1 class="text-center" style="margin:3rem;">Data Rincian Belanja Terbesar Tahun Anggaran <?php echo $input['tahun_anggaran']; ?></h1>
+			<div class="card" style="width:100%;margin:0 0 2rem 0">
 				<div class="card-body">
 					<canvas id="mycanvas"></canvas>
 				</div>
 			</div>
+			<h1 class="text-center" style="margin:3rem;">Manajemen Data SSH Tahun Anggaran <?php echo $input['tahun_anggaran']; ?></h1>
+			<div style="margin: 0 0 2rem 0;" class="text-center">
+				<a href="<?php echo $url_data_ssh ?>" style="text-decoration:none;" class="button button-primary button-large tambah_ssh" target="_blank">Data SSH SIPD</a>
+			</div>
+			<h1 class="text-center" style="margin:3rem;">Data Rekapitulasi Rincian Belanja Tahun Anggaran <?php echo $input['tahun_anggaran']; ?></h1>
 			<table id="data_ssh_analisis" cellpadding="2" cellspacing="0" style="font-family:\'Open Sans\',-apple-system,BlinkMacSystemFont,\'Segoe UI\',sans-serif; border-collapse: collapse; width:100%; overflow-wrap: break-word;" class="table table-bordered">
 				<thead id="data_header">
 					<tr>
@@ -80,9 +77,10 @@ $body = '';
 					var total = [];
 
 					for(var i in response.data) {
-						nama.push(response.data[i].satuan);
+						var name = response.data[i].nama_komponen.substring(0, 10);
+						var nama_komponen = name+"...";
+						nama.push(nama_komponen);
 						total.push(response.data[i].total);
-						console.log(response.data[i].total);
 					}
 
 					var chartdata = {
@@ -90,10 +88,10 @@ $body = '';
 						datasets : [
 						{
 							label: 'Total Harga',
-							backgroundColor: 'rgba(200, 200, 200, 0.75)',
-							borderColor: 'rgba(200, 200, 200, 0.75)',
-							hoverBackgroundColor: 'rgba(200, 200, 200, 1)',
-							hoverBorderColor: 'rgba(200, 200, 200, 1)',
+							backgroundColor: '#49e2ff',
+							borderColor: '#46d5f1',
+							hoverBackgroundColor: '#CCCCCC',
+							hoverBorderColor: '#666666',
 							data: total
 						}
 						]
