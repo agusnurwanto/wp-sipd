@@ -11,10 +11,6 @@ global $wpdb;
 $body = '';
 ?>
 
-	<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/dt/dt-1.10.25/datatables.min.css"/>
-	<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
-	<link href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
-
 	<style type="text/css">
 		.warning {
 			background: #f1a4a4;
@@ -33,7 +29,7 @@ $body = '';
 		}
 	</style>
 	<div class="cetak">
-		<div style="padding: 10px;">
+		<div style="padding: 10px;margin:0 0 3rem 0;">
 			<input type="hidden" value="<?php echo get_option( '_crb_api_key_extension' ); ?>" id="api_key">
 			<input type="hidden" value="<?php echo $input['tahun_anggaran']; ?>" id="tahun_anggaran">
 			<h1 class="text-center" style="margin:3rem;">Data usulan satuan standar harga (SSH) tahun anggaran <?php echo $input['tahun_anggaran']; ?></h1>
@@ -77,8 +73,6 @@ $body = '';
 		</div>
 	</div>
 
-	<script type="text/javascript" src="https://cdn.datatables.net/v/dt/dt-1.10.25/datatables.min.js"></script>
-	<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 	<script>
 		jQuery(document).ready(function(){
 			
