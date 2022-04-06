@@ -10,8 +10,12 @@ $input = shortcode_atts( array(
 global $wpdb;
 $body = '';
 ?>
+
+	<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/dt/dt-1.10.25/datatables.min.css"/>
+	<link href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+
 	<div class="cetak">
-		<div style="padding: 10px;margin:0 0 3rem 0;">
+		<div style="padding: 10px;">
 			<input type="hidden" value="<?php echo get_option( '_crb_api_key_extension' ); ?>" id="api_key">
 			<input type="hidden" value="<?php echo $input['tahun_anggaran']; ?>" id="tahun_anggaran">
 			<h1 class="text-center" style="margin:3rem;">Data satuan standar harga (SSH) SIPD tahun anggaran <?php echo $input['tahun_anggaran']; ?></h1>
@@ -50,6 +54,7 @@ $body = '';
 		</div>
 	</div>
 
+	<script type="text/javascript" src="https://cdn.datatables.net/v/dt/dt-1.10.25/datatables.min.js"></script>
 	<script>
 		jQuery(document).ready(function(){
 			
