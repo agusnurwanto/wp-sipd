@@ -275,23 +275,40 @@ class Wpsipd_Admin {
 			$sumber_dana_all[$v['id_dana']] = $v['kode_dana'].' '.$v['nama_dana'].' ['.$v['id_dana'].']';
 		}
 		$options_basic = array(
+			Field::make( 'text', 'crb_server_wp_sipd', 'Server WP-SIPD' )
+            	->set_attribute('placeholder', 'https://wpsipd.qodrbee.com/wp-admin/admin-ajax.php')
+            	->set_default_value('https://wpsipd.qodrbee.com/wp-admin/admin-ajax.php')
+            	->set_attribute('readOnly', 'true')
+            	->set_required( true ),
+			Field::make( 'text', 'crb_server_wp_sipd_api_key', 'API KEY WP-SIPD' )
+            	->set_attribute('placeholder', 'xxxxxxx-xx-xxx-xxxx-xxxxxxxxxx')
+            	->set_default_value('bcvbsdfr12-ret-ert-dfg-hghj6575')
+            	->set_attribute('readOnly', 'true')
+            	->set_required( true ),
+			Field::make( 'text', 'crb_no_wa', 'No Whatsapp' )
+            	->set_attribute('placeholder', '628xxxxxxxxx')
+            	->set_required( true )
+				->set_help_text('Nomor whatsapp untuk menerima pesan dari server WP-SIPD'),
+            Field::make( 'text', 'crb_daerah', 'Nama Pemda' )
+            	->set_default_value(get_option('_crb_daerah' ))
+            	->set_required( true ),
+            Field::make( 'text', 'crb_api_key_extension', 'Lisensi key chrome extension' )
+            	->set_required( true )
+            	->set_attribute('readOnly', 'true')
+            	->set_help_text('Lisensi key ini dipakai untuk <a href="https://github.com/agusnurwanto/sipd-chrome-extension" target="_blank">SIPD chrome extension</a>.'),
+           	Field::make( 'html', 'crb_html_set_lisensi' )
+            	->set_html( '<a onclick="generate_lisensi(); return false;" href="#" class="button button-primary">Generate Lisensi WP-SIPD</a>' ),
             Field::make( 'text', 'crb_awal_rpjmd', 'Tahun Awal RPJMD' )
             	->set_default_value('2018'),
             Field::make( 'text', 'crb_tahun_anggaran_sipd', 'Tahun Anggaran SIPD' )
             	->set_default_value('2021'),
-            Field::make( 'text', 'crb_daerah', 'Nama Pemda' )
-            	->set_help_text('Data diambil dari halaman pengaturan SIPD menggunakan <a href="https://github.com/agusnurwanto/sipd-chrome-extension" target="_blank">SIPD chrome extension</a>.')
-            	->set_default_value(get_option('_crb_daerah' ))
-            	->set_attribute('readOnly', 'true'),
             Field::make( 'text', 'crb_kepala_daerah', 'Kepala Daerah' )
+            	->set_help_text('Data diambil dari halaman pengaturan SIPD menggunakan <a href="https://github.com/agusnurwanto/sipd-chrome-extension" target="_blank">SIPD chrome extension</a>.')
             	->set_default_value(get_option('_crb_kepala_daerah' ))
             	->set_attribute('readOnly', 'true'),
             Field::make( 'text', 'crb_wakil_daerah', 'Wakil Kepala Daerah' )
             	->set_default_value(get_option('_crb_wakil_daerah' ))
             	->set_attribute('readOnly', 'true'),
-            Field::make( 'text', 'crb_api_key_extension', 'API KEY chrome extension' )
-            	->set_default_value($this->generateRandomString())
-            	->set_help_text('API KEY ini dipakai untuk <a href="https://github.com/agusnurwanto/sipd-chrome-extension" target="_blank">SIPD chrome extension</a>.'),
             Field::make( 'radio', 'crb_kunci_sumber_dana_mapping', 'Kunci pilihan Sumber Dana di Halaman Mapping Rincian' )
             	->add_options( array(
 			        '1' => __( 'Ya' ),
@@ -1964,5 +1981,88 @@ class Wpsipd_Admin {
 			}
 		}
 		die(json_encode($ret));
+    }
+
+    function generate_lisensi(){
+    	$url	= get_option('_crb_server_wp_sipd');
+    	$api_key_wp_sipd = get_option('_crb_server_wp_sipd_api_key');
+    	$no_wa 		= get_option('_crb_no_wa');
+		$nama_pemda = get_option('_crb_daerah');
+		$domain = $_SERVER['SERVER_NAME'];
+		$cek = true;
+		if(empty($url)){
+			$cek = false;
+			$pesan = 'Server WP-SIPD wajib diisi!';
+		}else if(empty($no_wa)){
+			$cek = false;
+			$pesan = 'Nomor WA wajib diisi!';
+		}else if(empty($nama_pemda)){
+			$cek = false;
+			$pesan = 'Nama Pemda wajib diisi!';
+		}
+		if(true == $cek){
+			$api_params = array(
+				'action' => 'generate_lisensi_bn',
+				'api_key' => $api_key_wp_sipd,
+				'no_wa' => $no_wa,
+				'nama_pemda' => $nama_pemda,
+				'produk' => 'WP-SIPD',
+				'domain' => $domain,
+			);
+			$req = http_build_query($api_params);
+			$curl = curl_init();
+			curl_setopt_array($curl, array(
+	            CURLOPT_URL => $url,
+	            CURLOPT_RETURNTRANSFER => true,
+	            CURLOPT_ENCODING => "",
+	            CURLOPT_MAXREDIRS => 10,
+	            CURLOPT_TIMEOUT => 30,
+	            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+	            CURLOPT_CUSTOMREQUEST => "POST",
+	            CURLOPT_POSTFIELDS => $req,
+	            CURLOPT_SSL_VERIFYPEER => false,
+	            CURLOPT_SSL_VERIFYHOST => false,
+	            CURLOPT_CONNECTTIMEOUT => 0,
+	            CURLOPT_TIMEOUT => 10000
+	        ));
+	        $response = curl_exec($curl);
+	        $err = curl_error($curl);
+	        curl_close($curl);
+	        if ($err) {
+	        	$ret = array(
+	        		'status' => 'error',
+	        		'message' => "cURL Error #:".$err." (".$url.")"
+	        	);
+	        } else {
+	            $ret = json_decode($response);
+	            if(
+	            	!empty($ret)
+	            	&& $ret->status == 'success'
+	            ){
+	            	update_option('_crb_api_key_extension', $ret->lisensi);
+	            }else{
+	            	if(
+	            		!empty($ret)
+	            		&& !empty($ret->error)
+	            	){
+	            		$response = $ret->message;
+	            	}
+	            	$ret = array(
+		        		'status' => 'error',
+		        		'message' => $response
+		        	);
+	            }
+	        }
+	    }else{
+	    	$ret = array(
+        		'status' => 'error',
+        		'message' => $pesan
+        	);
+	    }
+		die(json_encode(array(
+			'url' => $url,
+			'params' => $api_params,
+			'response' => $ret
+		)));
     }
 }
