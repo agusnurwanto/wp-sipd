@@ -1906,6 +1906,7 @@ ALTER TABLE `data_realisasi_renja`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 CREATE TABLE `data_rumus_indikator` (
+  `id_asli` int(11) NOT NULL,
   `id` int(11) NOT NULL,
   `rumus` text DEFAULT NULL,
   `keterangan` text DEFAULT NULL,
@@ -1915,14 +1916,17 @@ CREATE TABLE `data_rumus_indikator` (
   `tahun_anggaran` year(4) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 ALTER TABLE `data_rumus_indikator`
-  ADD PRIMARY KEY (`id`);
+  ADD PRIMARY KEY (`id_asli`);
 ALTER TABLE `data_rumus_indikator`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id_asli` int(11) NOT NULL AUTO_INCREMENT;
 
 INSERT INTO `data_rumus_indikator` (`id`, `rumus`, `keterangan`, `user`, `active`, `update_at`, `tahun_anggaran`) VALUES
 (1, 'Indikator Tren Positif', 'Indikator Tren Positif adalah jenis indikator yang semakin tinggi realisasi maka dianggap semakin baik. Rumus capaian target = Realisasi/Target * 100. Rumus total target triwulan = akumulasi dari semua triwulan.', NULL, 1, '2021-08-23 00:00:00', 2021),
 (2, 'Indikator Tren Negatif', 'Indikator Tren Negatif adalah jenis indikator yang semakin rendah realisasi maka dianggap semakin baik. Contoh : Angka Stunting. Rumus capaian target : Target/Realisasi * 100. Total triwulan = realisasi triwulan terakhir.', NULL, 1, '2021-08-23 00:00:00', 2021),
 (3, 'Indikator Jenis Persentase', 'Indikator Jenis Persentase adalah jenis indikator berupa persentase. Pengisian realisasi target per bulan diisi sama atau lebih besar dari bulan sebelumnya. Rumus capaian target = Realisasi/Target * 100. Rumus total target triwulan = realisasi triwulan terakhir.', NULL, 1, '2021-08-23 00:00:00', 2021);
+(1, 'Indikator Tren Positif', 'Indikator Tren Positif adalah jenis indikator yang semakin tinggi realisasi maka dianggap semakin baik. Rumus capaian target = Realisasi/Target * 100. Rumus total target triwulan = akumulasi dari semua triwulan.', NULL, 1, '2021-08-23 00:00:00', 2022),
+(2, 'Indikator Tren Negatif', 'Indikator Tren Negatif adalah jenis indikator yang semakin rendah realisasi maka dianggap semakin baik. Contoh : Angka Stunting. Rumus capaian target : Target/Realisasi * 100. Total triwulan = realisasi triwulan terakhir.', NULL, 1, '2021-08-23 00:00:00', 2022),
+(3, 'Indikator Jenis Persentase', 'Indikator Jenis Persentase adalah jenis indikator berupa persentase. Pengisian realisasi target per bulan diisi sama atau lebih besar dari bulan sebelumnya. Rumus capaian target = Realisasi/Target * 100. Rumus total target triwulan = realisasi triwulan terakhir.', NULL, 1, '2021-08-23 00:00:00', 2022);
 
 CREATE TABLE `data_monev_renja_triwulan` (
   `id` int(11) NOT NULL,
