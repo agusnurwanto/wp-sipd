@@ -15,11 +15,8 @@ $url_data_ssh = $this->get_link_post($custom_post);
 
 $body = '';
 ?>
-
-	<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/dt/dt-1.10.25/datatables.min.css"/>
-
 	<div class="cetak">
-		<div style="padding: 10px;">
+		<div style="padding: 10px;margin:0 0 3rem 0;">
 			<input type="hidden" value="<?php echo get_option( '_crb_api_key_extension' ); ?>" id="api_key">
 			<input type="hidden" value="<?php echo $input['tahun_anggaran']; ?>" id="tahun_anggaran">
 			<h1 class="text-center" style="margin:3rem;">Data Rincian Belanja Terbesar Tahun Anggaran <?php echo $input['tahun_anggaran']; ?></h1>
@@ -50,7 +47,6 @@ $body = '';
 		</div>
 	</div>
 
-	<script type="text/javascript" src="https://cdn.datatables.net/v/dt/dt-1.10.25/datatables.min.js"></script>
 	<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/chart.js@3.7.1/dist/chart.min.js"></script>
 	<script>
 		jQuery(document).ready(function(){
