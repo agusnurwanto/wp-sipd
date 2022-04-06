@@ -100,16 +100,19 @@ function generate_lisensi(){
       	type: "post",
       	data: {
       		"action": "generate_lisensi",
-      		"api_key": wpsipd.api_key
+      		"api_key": wpsipd.api_key,
+      		"server": jQuery('input[name="carbon_fields_compact_input[_crb_server_wp_sipd]"]').val(),
+      		"api_key_server": jQuery('input[name="carbon_fields_compact_input[_crb_server_wp_sipd_api_key]"]').val(),
+      		"no_wa": jQuery('input[name="carbon_fields_compact_input[_crb_no_wa]"]').val(),
+      		"pemda": jQuery('input[name="carbon_fields_compact_input[_crb_daerah]"]').val()
       	},
       	dataType: "json",
       	success: function(data){
 			jQuery('#wrap-loading').hide();
+			alert(data.response.message);
 			if(data.response.status == 'success'){
 				jQuery('#load_ajax_carbon').html(data.response.message);
 				jQuery('input[name="carbon_fields_compact_input[_crb_api_key_extension]"]').val(data.response.lisensi);
-			}else{
-				return alert(data.response.message);
 			}
 		},
 		error: function(e) {
