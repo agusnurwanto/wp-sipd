@@ -286,9 +286,10 @@ class Wpsipd_Admin {
             	->set_attribute('readOnly', 'true')
             	->set_required( true ),
 			Field::make( 'text', 'crb_no_wa', 'No Whatsapp' )
+            	->set_attribute('type', 'number')
             	->set_attribute('placeholder', '628xxxxxxxxx')
             	->set_required( true )
-				->set_help_text('Nomor whatsapp untuk menerima pesan dari server WP-SIPD'),
+				->set_help_text('Nomor whatsapp untuk menerima pesan dari server WP-SIPD. Format nomor diawali dengan 62xxxxxxxxxx tanpa perlu ada + di depan nomor.'),
             Field::make( 'text', 'crb_daerah', 'Nama Pemda' )
             	->set_default_value(get_option('_crb_daerah' ))
             	->set_required( true ),
@@ -1984,23 +1985,30 @@ class Wpsipd_Admin {
     }
 
     function generate_lisensi(){
-    	$url	= get_option('_crb_server_wp_sipd');
-    	$api_key_wp_sipd = get_option('_crb_server_wp_sipd_api_key');
-    	$no_wa 		= get_option('_crb_no_wa');
-		$nama_pemda = get_option('_crb_daerah');
-		$domain = $_SERVER['SERVER_NAME'];
 		$cek = true;
-		if(empty($url)){
+		if(empty($_POST['server'])){
 			$cek = false;
 			$pesan = 'Server WP-SIPD wajib diisi!';
-		}else if(empty($no_wa)){
+		}else if(empty($_POST['api_key_server'])){
+			$cek = false;
+			$pesan = 'API KEY Server WP-SIPD wajib diisi!';
+		}else if(empty($_POST['no_wa'])){
 			$cek = false;
 			$pesan = 'Nomor WA wajib diisi!';
-		}else if(empty($nama_pemda)){
+		}else if(empty($_POST['pemda'])){
 			$cek = false;
 			$pesan = 'Nama Pemda wajib diisi!';
 		}
 		if(true == $cek){
+	    	$url = $_POST['server'];
+	    	$api_key_wp_sipd = $_POST['api_key_server'];
+	    	$no_wa = $_POST['no_wa'];
+	    	$nama_pemda = $_POST['pemda'];
+	    	update_option('_crb_server_wp_sipd', $url);
+	    	update_option('_crb_server_wp_sipd_api_key', $api_key_wp_sipd);
+	    	update_option('_crb_no_wa', $no_wa);
+			update_option('_crb_daerah', $nama_pemda);
+			$domain = $_SERVER['SERVER_NAME'];
 			$api_params = array(
 				'action' => 'generate_lisensi_bn',
 				'api_key' => $api_key_wp_sipd,
