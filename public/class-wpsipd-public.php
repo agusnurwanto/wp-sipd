@@ -10373,7 +10373,7 @@ class Wpsipd_Public
 
 				foreach($queryRecords as $recKey => $recVal){
 					$iconPlus = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-plus-circle" viewBox="0 0 16 16"><path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/><path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z"/></svg>';
-					$queryRecords[$recKey]['aksi'] = '<a href="#" onclick="return data_akun_ssh_sipd(\''.$recVal['id_standar_harga'].'\');" title="Melihat Data Akun">'.$iconPlus.'</i></a>';
+					$queryRecords[$recKey]['aksi'] = '<a href="#" onclick="return data_akun_ssh_sipd(\''.$recVal['id_standar_harga'].'\');" title="Melihat Data Akun">'.$iconPlus.'</a>';
 				}
 
 				$json_data = array(
@@ -10754,9 +10754,9 @@ class Wpsipd_Public
 				$columns = array( 
 					0 =>'nama_komponen',
 					1 =>'spek_komponen', 
-					2 => 'harga_satuan as harga_satuan',
-					3 => 'satuan as satuan',
-					4 => 'volume as volume',
+					2 => 'harga_satuan',
+					3 => 'satuan',
+					4 => 'volume',
 					5 => 'SUM(total_harga) as total'
 				);
 				$where = $sqlTot = $sqlRec = "";
@@ -10783,9 +10783,10 @@ class Wpsipd_Public
 				}
 
 			 	$sqlRec .=  " GROUP by nama_komponen, spek_komponen ORDER BY total DESC, ". $columns[$params['order'][0]['column']]."   ".$params['order'][0]['dir']."  LIMIT ".$params['start']." ,".$params['length']." ";
+				$sqlTot .=  " GROUP by nama_komponen, spek_komponen DESC";
 
 				$queryTot = $wpdb->get_results($sqlTot, ARRAY_A);
-				$totalRecords = $queryTot[0]['jml'];
+				$totalRecords = count($queryTot);
 				$queryRecords = $wpdb->get_results($sqlRec, ARRAY_A);
 
 				$json_data = array(
