@@ -10823,7 +10823,7 @@ class Wpsipd_Public
 			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
 					$tahun_anggaran = $_POST['tahun_anggaran'];
 					
-					$data_ssh = $wpdb->get_results("SELECT nama_komponen, spek_komponen, ANY_VALUE(harga_satuan) as harga_satuan, ANY_VALUE(satuan) as satuan, ANY_VALUE(volume) as volume,
+					$data_ssh = $wpdb->get_results("SELECT nama_komponen, spek_komponen, harga_satuan, satuan, volume,
  										sum(total_harga) as total FROM `data_rka` where active=1 and tahun_anggaran=".$wpdb->prepare('%d', $tahun_anggaran)." GROUP by nama_komponen, spek_komponen order by total desc limit 20",ARRAY_A);
 
 					$return = array(
