@@ -10768,8 +10768,6 @@ class Wpsipd_Public
 					$where .=" OR spek_komponen LIKE ".$wpdb->prepare('%s', "%".$params['search']['value']."%");
 					$where .=" OR harga_satuan LIKE ".$wpdb->prepare('%s', "%".$params['search']['value']."%");
 					$where .=" OR satuan LIKE ".$wpdb->prepare('%s', "%".$params['search']['value']."%");
-					$where .=" OR volume LIKE ".$wpdb->prepare('%s', "%".$params['search']['value']."%")." )";
-					// $where .=" OR SUM(total_harga) LIKE ".$wpdb->prepare('%s', "%".$params['search']['value']."%")." )";
 				}
 
 				// getting total number records without any search
@@ -10783,8 +10781,8 @@ class Wpsipd_Public
 					$sqlRec .= $where;
 				}
 
-			 	$sqlRec .=  " GROUP by nama_komponen, spek_komponen ORDER BY total DESC, ". $columns[$params['order'][0]['column']]."   ".$params['order'][0]['dir']."  LIMIT ".$params['start']." ,".$params['length']." ";
-				$sqlTot .=  " GROUP by nama_komponen, spek_komponen DESC";
+			 	$sqlRec .=  " GROUP by nama_komponen, spek_komponen, harga_satuan ORDER BY total DESC, ". $columns[$params['order'][0]['column']]."   ".$params['order'][0]['dir']."  LIMIT ".$params['start']." ,".$params['length']." ";
+				$sqlTot .=  " GROUP by nama_komponen, spek_komponen, harga_satuan";
 
 				$queryTot = $wpdb->get_results($sqlTot, ARRAY_A);
 				$totalRecords = count($queryTot);
@@ -10825,7 +10823,7 @@ class Wpsipd_Public
 					$tahun_anggaran = $_POST['tahun_anggaran'];
 					
 					$data_ssh = $wpdb->get_results("SELECT nama_komponen, spek_komponen, harga_satuan, satuan, volume,
- 										sum(total_harga) as total FROM `data_rka` where active=1 and tahun_anggaran=".$wpdb->prepare('%d', $tahun_anggaran)." GROUP by nama_komponen, spek_komponen order by total desc limit 20",ARRAY_A);
+ 										sum(total_harga) as total FROM `data_rka` where active=1 and tahun_anggaran=".$wpdb->prepare('%d', $tahun_anggaran)." GROUP by nama_komponen, spek_komponen, harga_satuan order by total desc limit 20",ARRAY_A);
 
 					$return = array(
 						'status' => 'success',
