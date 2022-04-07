@@ -81,6 +81,7 @@ class Wpsipd_Public
 		wp_enqueue_style($this->plugin_name, plugin_dir_url(__FILE__) . 'css/wpsipd-public.css', array(), $this->version, 'all');
 		wp_enqueue_style($this->plugin_name . 'bootstrap', plugin_dir_url(__FILE__) . 'css/bootstrap.min.css', array(), $this->version, 'all');
 		wp_enqueue_style($this->plugin_name . 'select2', plugin_dir_url(__FILE__) . 'css/select2.min.css', array(), $this->version, 'all');
+		wp_enqueue_style($this->plugin_name . 'datatables', plugin_dir_url(__FILE__) . 'css/datatables.min.css', array(), $this->version, 'all');
 
 		wp_enqueue_style( 'dashicons' );
 	}
@@ -108,6 +109,7 @@ class Wpsipd_Public
 		wp_enqueue_script($this->plugin_name, plugin_dir_url(__FILE__) . 'js/wpsipd-public.js', array('jquery'), $this->version, false);
 		wp_enqueue_script($this->plugin_name . 'bootstrap', plugin_dir_url(__FILE__) . 'js/bootstrap.bundle.min.js', array('jquery'), $this->version, false);
 		wp_enqueue_script($this->plugin_name . 'select2', plugin_dir_url(__FILE__) . 'js/select2.min.js', array('jquery'), $this->version, false);
+		wp_enqueue_script($this->plugin_name . 'datatables', plugin_dir_url(__FILE__) . 'js/datatables.min.js', array('jquery'), $this->version, false);
 		wp_localize_script( $this->plugin_name, 'ajax', array(
 		    'url' => admin_url( 'admin-ajax.php' )
 		));
@@ -9946,8 +9948,8 @@ class Wpsipd_Public
 				$queryRecords = $wpdb->get_results($sqlRec, ARRAY_A);
 
 				foreach($queryRecords as $recKey => $recVal){
-						// $edit = '<a href="#" onclick="return edit_verif_ssh_usulan();" title="Edit Verifikasi Item Usulan SSH"><i class="fa fa-pencil-square-o" aria-hidden="true"></i></a>';
-						$akun = '<a href="#" onclick="return edit_akun_ssh_usulan(\''.$recVal['id_standar_harga'].'\');" title="Edit Akun Usulan SSH"><i class="fa fa-search-plus" aria-hidden="true"></i></a>';
+						$iconPlus = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-plus-circle" viewBox="0 0 16 16"><path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/><path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z"/></svg>';
+						$akun = '<a href="#" onclick="return edit_akun_ssh_usulan(\''.$recVal['id_standar_harga'].'\');" title="Edit Akun Usulan SSH">'.$iconPlus.'</a>';
 						
 						if(empty($recVal['keterangan_status'])){
 							$queryRecords[$recKey]['keterangan_status'] = "-";
@@ -9957,7 +9959,8 @@ class Wpsipd_Public
 						}
 
 						if(in_array("administrator", $user_meta->roles)){
-							$verify = '<a href="#" onclick="return verify_ssh_usulan(\''.$recVal['id_standar_harga'].'\');" title="Verifikasi Item Usulan SSH"><i class="fa fa-tasks" aria-hidden="true"></i></a>';
+							$iconFilter = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-filter-circle" viewBox="0 0 16 16"><path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/><path d="M7 11.5a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 0 1h-1a.5.5 0 0 1-.5-.5zm-2-3a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5zm-2-3a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1-.5-.5z"/></svg>';
+							$verify = '<a href="#" onclick="return verify_ssh_usulan(\''.$recVal['id_standar_harga'].'\');" title="Verifikasi Item Usulan SSH">'.$iconFilter.'</a>';
 						}else{
 							$verify = '';
 						}
@@ -10369,7 +10372,8 @@ class Wpsipd_Public
 				$queryRecords = $wpdb->get_results($sqlRec, ARRAY_A);
 
 				foreach($queryRecords as $recKey => $recVal){
-					$queryRecords[$recKey]['aksi'] = '<a href="#" onclick="return data_akun_ssh_sipd(\''.$recVal['id_standar_harga'].'\');" title="Melihat Data Akun"><i class="fa fa-search-plus" aria-hidden="true"></i></a>';
+					$iconPlus = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-plus-circle" viewBox="0 0 16 16"><path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/><path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z"/></svg>';
+					$queryRecords[$recKey]['aksi'] = '<a href="#" onclick="return data_akun_ssh_sipd(\''.$recVal['id_standar_harga'].'\');" title="Melihat Data Akun">'.$iconPlus.'</a>';
 				}
 
 				$json_data = array(
@@ -10750,9 +10754,9 @@ class Wpsipd_Public
 				$columns = array( 
 					0 =>'nama_komponen',
 					1 =>'spek_komponen', 
-					2 => 'ANY_VALUE(harga_satuan) as harga_satuan',
-					3 => 'ANY_VALUE(satuan) as satuan',
-					4 => 'ANY_VALUE(volume) as volume',
+					2 => 'harga_satuan',
+					3 => 'satuan',
+					4 => 'volume',
 					5 => 'SUM(total_harga) as total'
 				);
 				$where = $sqlTot = $sqlRec = "";
@@ -10779,9 +10783,10 @@ class Wpsipd_Public
 				}
 
 			 	$sqlRec .=  " GROUP by nama_komponen, spek_komponen ORDER BY total DESC, ". $columns[$params['order'][0]['column']]."   ".$params['order'][0]['dir']."  LIMIT ".$params['start']." ,".$params['length']." ";
+				$sqlTot .=  " GROUP by nama_komponen, spek_komponen DESC";
 
 				$queryTot = $wpdb->get_results($sqlTot, ARRAY_A);
-				$totalRecords = $queryTot[0]['jml'];
+				$totalRecords = count($queryTot);
 				$queryRecords = $wpdb->get_results($sqlRec, ARRAY_A);
 
 				$json_data = array(
