@@ -110,6 +110,7 @@ class Wpsipd_Public
 		wp_enqueue_script($this->plugin_name . 'bootstrap', plugin_dir_url(__FILE__) . 'js/bootstrap.bundle.min.js', array('jquery'), $this->version, false);
 		wp_enqueue_script($this->plugin_name . 'select2', plugin_dir_url(__FILE__) . 'js/select2.min.js', array('jquery'), $this->version, false);
 		wp_enqueue_script($this->plugin_name . 'datatables', plugin_dir_url(__FILE__) . 'js/datatables.min.js', array('jquery'), $this->version, false);
+		wp_enqueue_script($this->plugin_name . 'chart', plugin_dir_url(__FILE__) . 'js/chart.min.js', array('jquery'), $this->version, false);
 		wp_localize_script( $this->plugin_name, 'ajax', array(
 		    'url' => admin_url( 'admin-ajax.php' )
 		));
@@ -10756,7 +10757,7 @@ class Wpsipd_Public
 					1 =>'spek_komponen', 
 					2 => 'harga_satuan',
 					3 => 'satuan',
-					4 => 'volume',
+					4 => 'SUM(volume) as volume',
 					5 => 'SUM(total_harga) as total'
 				);
 				$where = $sqlTot = $sqlRec = "";

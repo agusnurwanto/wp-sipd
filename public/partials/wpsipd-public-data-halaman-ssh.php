@@ -47,8 +47,7 @@ $body = '';
 		</div>
 	</div>
 
-	<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/chart.js@3.7.1/dist/chart.min.js"></script>
-	<script>
+	<script type="text/javascript">
 		jQuery(document).ready(function(){
 			
 			globalThis.tahun = <?php echo $input['tahun_anggaran']; ?>;
@@ -73,8 +72,11 @@ $body = '';
 					var total = [];
 
 					for(var i in response.data) {
-						var name = response.data[i].nama_komponen.substring(0, 10);
-						var nama_komponen = name+"...";
+						var name = response.data[i].nama_komponen.substring(0, 30);
+						var nama_komponen = name;
+						if(name.length < response.data[i].nama_komponen.length){
+							nama_komponen += "...";
+						}
 						nama.push(nama_komponen);
 						total.push(response.data[i].total);
 					}
@@ -82,14 +84,14 @@ $body = '';
 					var chartdata = {
 						labels: nama,
 						datasets : [
-						{
-							label: 'Total Harga',
-							backgroundColor: '#49e2ff',
-							borderColor: '#46d5f1',
-							hoverBackgroundColor: '#CCCCCC',
-							hoverBorderColor: '#666666',
-							data: total
-						}
+							{
+								label: 'Total',
+								backgroundColor: '#49e2ff',
+								borderColor: '#46d5f1',
+								hoverBackgroundColor: '#CCCCCC',
+								hoverBorderColor: '#666666',
+								data: total
+							}
 						]
 					};
 
@@ -142,7 +144,11 @@ $body = '';
 		            	className: "text-center" },
 		            { 
 		            	"data": "volume",
-		            	className: "text-center"
+		            	className: "text-right",
+		            	render: function(data, type) {
+			                var number = jQuery.fn.dataTable.render.number( '.', ',', 2, ''). display(data);
+			                return number;
+			            }
 		            },
 		            { 
 		            	"data": "total",
