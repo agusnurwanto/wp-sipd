@@ -9287,26 +9287,26 @@ class Wpsipd_Public
 		$id_skpd_sipd = array();
 		$kode_skpd_sipd = array();
 		$id_mapping_simda = array();
-		if(!empty($id_skpd_fmis)){
-			$id_skpd_sipds = $wpdb->get_results($wpdb->prepare('
-				SELECT 
-					id_skpd,
-					is_skpd,
-					kode_skpd,
-					nama_skpd
-				FROM data_unit
-				WHERE tahun_anggaran=%d
-					AND active=1
-			', $tahun_anggaran), ARRAY_A);
-			foreach ($id_skpd_sipds as $k => $v) {
-				$kd_unit_simda_asli = get_option('_crb_unit_'.$v['id_skpd']);
-				$id_mapping = get_option('_crb_unit_fmis_'.$tahun_anggaran.'_'.$v['id_skpd']);
-				$id_mapping_simda[$kd_unit_simda_asli] = array(
-					'id_skpd' => $v['id_skpd'],
-					'id_mapping_fmis' => $id_mapping,
-					'kode_skpd' => $v['kode_skpd'],
-					'nama_skpd' => $v['nama_skpd']
-				);
+		$id_skpd_sipds = $wpdb->get_results($wpdb->prepare('
+			SELECT 
+				id_skpd,
+				is_skpd,
+				kode_skpd,
+				nama_skpd
+			FROM data_unit
+			WHERE tahun_anggaran=%d
+				AND active=1
+		', $tahun_anggaran), ARRAY_A);
+		foreach ($id_skpd_sipds as $k => $v) {
+			$kd_unit_simda_asli = get_option('_crb_unit_'.$v['id_skpd']);
+			$id_mapping = get_option('_crb_unit_fmis_'.$tahun_anggaran.'_'.$v['id_skpd']);
+			$id_mapping_simda[$kd_unit_simda_asli] = array(
+				'id_skpd' => $v['id_skpd'],
+				'id_mapping_fmis' => $id_mapping,
+				'kode_skpd' => $v['kode_skpd'],
+				'nama_skpd' => $v['nama_skpd']
+			);
+			if(!empty($id_skpd_fmis)){
 				$id_fmis = explode('.', $id_skpd_fmis);
 				if(count($id_fmis) >= 2){
 					if($id_mapping == $id_skpd_fmis){
@@ -9328,6 +9328,9 @@ class Wpsipd_Public
 						}
 					}
 				}
+			}else if(false === $id_skpd_fmis){
+				$id_skpd_sipd[] = $v['id_skpd'];
+				$kode_skpd_sipd[] = $v['kode_skpd'];
 			}
 		}
 		return array(
@@ -10820,15 +10823,54 @@ class Wpsipd_Public
 
 		if(!empty($_POST)){
 			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
-					$tahun_anggaran = $_POST['tahun_anggaran'];
-					
-					$data_ssh = $wpdb->get_results("SELECT nama_komponen, spek_komponen, harga_satuan, satuan, volume,
- 										sum(total_harga) as total FROM `data_rka` where active=1 and tahun_anggaran=".$wpdb->prepare('%d', $tahun_anggaran)." GROUP by nama_komponen, spek_komponen, harga_satuan order by total desc limit 20",ARRAY_A);
+				$tahun_anggaran = $_POST['tahun_anggaran'];
+				$data_ssh = $wpdb->get_results("SELECT nama_komponen, spek_komponen, harga_satuan, satuan, volume, sum(total_harga) as total FROM `data_rka` where active=1 and tahun_anggaran=".$wpdb->prepare('%d', $tahun_anggaran)." GROUP by nama_komponen, spek_komponen, harga_satuan order by total desc limit 20",ARRAY_A);
 
-					$return = array(
-						'status' => 'success',
-						'data' => $data_ssh
-					);
+				$return = array(
+					'status' => 'success',
+					'data' => $data_ssh
+				);
+			}else{
+				$return = array(
+					'status' => 'error',
+					'message'	=> 'Api Key tidak sesuai!'
+				);
+			}
+		}else{
+			$return = array(
+				'status' => 'error',
+				'message'	=> 'Format tidak sesuai!'
+			);
+		}
+		die(json_encode($return));
+	}
+
+	public function get_spd(){
+		global $wpdb;
+		$return = array(
+			'status' => 'success',
+			'message' => 'Berhasil get SPD!',
+			'data'	=> array()
+		);
+
+		if(!empty($_POST)){
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+				$tahun_anggaran = $_POST['tahun_anggaran'];
+				$mapping_skpd = $this->get_id_skpd_fmis(false, $tahun_anggaran);
+				$sql = $wpdb->prepare("SELECT * FROM ta_spd where tahun=%d", $tahun_anggaran);
+				$return['sql'] = $sql;
+				$data_spd = $this->simda->CurlSimda(array(
+					'query' => $sql,
+					'debug' => 1
+				));
+				foreach($data_spd as $k => $spd){
+					$kd_sub_unit = $spd->kd_urusan.'.'.$spd->kd_bidang.'.'.$spd->kd_unit.'.'.$spd->kd_sub;
+					$data_spd[$k]->kd_sub_unit = $kd_sub_unit;
+					if(!empty($mapping_skpd['id_mapping_simda'][$kd_sub_unit])){
+						$data_spd[$k]->skpd = $mapping_skpd['id_mapping_simda'][$kd_sub_unit];
+					}
+				}
+				$return['data'] = $data_spd;
 			}else{
 				$return = array(
 					'status' => 'error',
