@@ -370,6 +370,9 @@ class Wpsipd
 		$this->loader->add_action('wp_ajax_get_spd',  $plugin_public, 'get_spd');
 		$this->loader->add_action('wp_ajax_nopriv_get_spd',  $plugin_public, 'get_spd');
 
+		$this->loader->add_action('wp_ajax_get_spd_rinci',  $plugin_public, 'get_spd_rinci');
+		$this->loader->add_action('wp_ajax_nopriv_get_spd_rinci',  $plugin_public, 'get_spd_rinci');
+
 		$this->loader->add_action('wp_ajax_simpan_rfk',  $plugin_public, 'simpan_rfk');
 		$this->loader->add_action('wp_ajax_reset_rfk',  $plugin_public, 'reset_rfk');
 		$this->loader->add_action('wp_ajax_reset_catatan_verifkator_rfk',  $plugin_public, 'reset_catatan_verifkator_rfk');
