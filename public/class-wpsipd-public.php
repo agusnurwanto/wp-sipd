@@ -10848,6 +10848,7 @@ class Wpsipd_Public
 	public function get_spd(){
 		global $wpdb;
 		$return = array(
+			'action' => $_POST['action'],
 			'status' => 'success',
 			'message' => 'Berhasil get SPD!',
 			'data'	=> array()
