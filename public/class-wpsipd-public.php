@@ -11004,11 +11004,19 @@ class Wpsipd_Public
 						if(!empty($subkeg_mapping[$sub[0]['nama_sub_giat']])){
 							$prog_keg[$kd_keg_simda]['nama_sub_giat'] = $subkeg_mapping[$sub[0]['nama_sub_giat']];
 						}
-						$kode_akun = $spd->kd_rek90_1.'.'.$spd->kd_rek90_2.'.'.$spd->kd_rek90_3.'.'.$spd->kd_rek90_4.'.'.$spd->kd_rek90_5.'.'.$spd->kd_rek90_6;
-						$prog_keg[$kd_keg_simda]['kode_akun'] = $kode_akun;
-						if(!empty($rek_mapping[$kode_akun])){
-							$prog_keg[$kd_keg_simda]['kode_akun'] = $rek_mapping[$kode_akun];
-						}
+					}
+
+					$kode_akun = $spd->kd_rek90_1.'.'.$spd->kd_rek90_2.'.'.$spd->kd_rek90_3.'.'.$spd->kd_rek90_4.'.'.$spd->kd_rek90_5.'.'.$spd->kd_rek90_6;
+					$prog_keg[$kd_keg_simda]['kode_akun'] = $kode_akun;
+					if(!empty($rek_mapping[$kode_akun])){
+						$prog_keg[$kd_keg_simda]['kode_akun'] = $rek_mapping[$kode_akun];
+						$akun = explode('.', $rek_mapping[$kode_akun]);
+						$data_spd[$k]->kd_rek90_1 = $akun[0];
+						$data_spd[$k]->kd_rek90_2 = $akun[1];
+						$data_spd[$k]->kd_rek90_3 = $akun[2];
+						$data_spd[$k]->kd_rek90_4 = $akun[3];
+						$data_spd[$k]->kd_rek90_5 = $akun[4];
+						$data_spd[$k]->kd_rek90_6 = $akun[5];
 					}
 					$data_spd[$k]->detail = $prog_keg[$kd_keg_simda];
 				}
