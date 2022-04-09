@@ -1,4 +1,4 @@
-ALTER TABLE data_rumus_indikator DROP CONSTRAINT PRIMARY;
+ALTER TABLE `data_rumus_indikator` CHANGE `id` `id` INT(11) NOT NULL;
+ALTER TABLE `data_rumus_indikator` DROP PRIMARY KEY;
 ALTER TABLE `data_rumus_indikator` ADD `id_asli` int(11)  AFTER `id`;
-ALTER TABLE `data_rumus_indikator` ADD PRIMARY KEY (`id_asli`);
-ALTER TABLE `data_rumus_indikator` MODIFY `id_asli` int(11) NOT NULL AUTO_INCREMENT;
+ALTER TABLE `data_rumus_indikator` CHANGE `id_asli` `id_asli` INT(11) NOT NULL AUTO_INCREMENT, add PRIMARY KEY (`id_asli`);
