@@ -3591,6 +3591,15 @@ class Wpsipd_Public
 		echo $table;
 	}
 
+	public function monitoring_data_spd($atts)
+	{
+		// untuk disable render shortcode di halaman edit page/post
+		if(!empty($_GET) && !empty($_GET['post'])){
+			return '';
+		}
+		require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/wpsipd-public-monitor-spd.php';
+	}
+
 	public function monitor_monev_rpjm($atts)
 	{
 		// untuk disable render shortcode di halaman edit page/post
@@ -11021,6 +11030,57 @@ class Wpsipd_Public
 					$data_spd[$k]->detail = $prog_keg[$kd_keg_simda];
 				}
 				$return['data'] = $data_spd;
+			}else{
+				$return = array(
+					'status' => 'error',
+					'message'	=> 'Api Key tidak sesuai!'
+				);
+			}
+		}else{
+			$return = array(
+				'status' => 'error',
+				'message'	=> 'Format tidak sesuai!'
+			);
+		}
+		die(json_encode($return));
+	}
+
+	public function get_pegawai_simda(){
+		global $wpdb;
+		$return = array(
+			'action' => $_POST['action'],
+			'status' => 'success',
+			'message' => 'Berhasil get data Pegawai SIMDA!',
+			'data'	=> array()
+		);
+
+		if(!empty($_POST)){
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+				$tahun_anggaran = $_POST['tahun_anggaran'];
+				$sql = $wpdb->prepare("
+					SELECT 
+						p.*,
+						j.nm_jab
+					from ta_sub_unit_jab p
+					left join ref_jabatan j on p.kd_jab=j.kd_jab
+					where p.tahun=%d
+					", 
+					$tahun_anggaran
+				);
+				$return['sql'] = $sql;
+				$data_pegawai = $this->simda->CurlSimda(array(
+					'query' => $sql,
+					'debug' => 1
+				));
+				$mapping_skpd = $this->get_id_skpd_fmis(false, $tahun_anggaran);
+				foreach($data_pegawai as $k => $pegawai){
+					$kd_sub_unit = $pegawai->kd_urusan.'.'.$pegawai->kd_bidang.'.'.$pegawai->kd_unit.'.'.$pegawai->kd_sub;
+					$data_pegawai[$k]->kd_sub_unit = $kd_sub_unit;
+					if(!empty($mapping_skpd['id_mapping_simda'][$kd_sub_unit])){
+						$data_pegawai[$k]->skpd = $mapping_skpd['id_mapping_simda'][$kd_sub_unit];
+					}
+				}
+				$return['data'] = $data_pegawai;
 			}else{
 				$return = array(
 					'status' => 'error',

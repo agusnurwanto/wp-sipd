@@ -373,6 +373,9 @@ class Wpsipd
 		$this->loader->add_action('wp_ajax_get_spd_rinci',  $plugin_public, 'get_spd_rinci');
 		$this->loader->add_action('wp_ajax_nopriv_get_spd_rinci',  $plugin_public, 'get_spd_rinci');
 
+		$this->loader->add_action('wp_ajax_get_pegawai_simda',  $plugin_public, 'get_pegawai_simda');
+		$this->loader->add_action('wp_ajax_nopriv_get_pegawai_simda',  $plugin_public, 'get_pegawai_simda');
+
 		$this->loader->add_action('wp_ajax_simpan_rfk',  $plugin_public, 'simpan_rfk');
 		$this->loader->add_action('wp_ajax_reset_rfk',  $plugin_public, 'reset_rfk');
 		$this->loader->add_action('wp_ajax_reset_catatan_verifkator_rfk',  $plugin_public, 'reset_catatan_verifkator_rfk');
@@ -425,6 +428,7 @@ class Wpsipd
 		add_shortcode('data_ssh_usulan', array($plugin_public, 'data_ssh_usulan'));
 		add_shortcode('data_ssh_sipd', array($plugin_public, 'data_ssh_sipd'));
 		add_shortcode('data_halaman_menu_ssh', array($plugin_public, 'data_halaman_menu_ssh'));
+		add_shortcode('monitoring_data_spd', array($plugin_public, 'monitoring_data_spd'));
 	}
 
 	/**
