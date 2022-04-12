@@ -3688,6 +3688,17 @@ class Wpsipd_Public
 		}
 		require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/wpsipd-public-monitor-update.php';
 	}
+	
+	public function monitor_satuan_harga($atts)
+	{
+		// untuk disable render shortcode di halaman edit page/post
+		if(!empty($_GET) && !empty($_GET['post'])){
+			return '';
+		}
+		if(!empty($atts['id_skpd'])){
+			require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/wpsipd-public-monitor-satuan-harga.php';
+		}
+	}
 
 	public function tampilrka($atts)
 	{
@@ -10782,10 +10793,25 @@ class Wpsipd_Public
 					$where .=" OR satuan LIKE ".$wpdb->prepare('%s', "%".$params['search']['value']."%");
 				}
 
+				$current_user = wp_get_current_user();
+				$data_ssh = $wpdb->get_results("SELECT id_unit FROM `data_unit` where nipkepala=".$wpdb->prepare('%d', $current_user->user_login),ARRAY_A);
+				
+				// mengambil data per skpd
+				$sqlKodeBl = '';
+				if(!empty($data_ssh[0]['id_unit']) && $current_user->roles != 'administrator'){
+					$data_bl = array();
+					$sql = "SELECT kode_bl FROM data_sub_keg_bl WHERE id_skpd = ".$wpdb->prepare('%s', $data_ssh[0]['id_unit'])." GROUP BY id_skpd,kode_bl";
+					$run = $wpdb->get_results($sql,ARRAY_A);
+					foreach ($run as $value) {
+						array_push($data_bl,strval($value['kode_bl']));
+					}
+					$sqlKodeBl = " and kode_bl in ('".implode("','", $data_bl)."')";
+				}
+
 				// getting total number records without any search
 				$sql_tot = "SELECT count(*) as jml FROM `data_rka`";
 				$sql = "SELECT ".implode(', ', $columns)." FROM `data_rka`";
-				$where_first = " WHERE active=1 and tahun_anggaran=".$wpdb->prepare('%d', $params['tahun_anggaran']);
+				$where_first = " WHERE active=1 and tahun_anggaran=".$wpdb->prepare('%d', $params['tahun_anggaran']).$sqlKodeBl;
 				$sqlTot .= $sql_tot.$where_first;
 				$sqlRec .= $sql.$where_first;
 				if(isset($where) && $where != '') {
@@ -10833,7 +10859,22 @@ class Wpsipd_Public
 		if(!empty($_POST)){
 			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
 				$tahun_anggaran = $_POST['tahun_anggaran'];
-				$data_ssh = $wpdb->get_results("SELECT nama_komponen, spek_komponen, harga_satuan, satuan, volume, sum(total_harga) as total FROM `data_rka` where active=1 and tahun_anggaran=".$wpdb->prepare('%d', $tahun_anggaran)." GROUP by nama_komponen, spek_komponen, harga_satuan order by total desc limit 20",ARRAY_A);
+				$current_user = wp_get_current_user();
+				$data_ssh = $wpdb->get_results("SELECT id_unit FROM `data_unit` where nipkepala=".$wpdb->prepare('%d', $current_user->user_login),ARRAY_A);
+				
+				// mengambil data per skpd
+				$sqlKodeBl = '';
+				if(!empty($data_ssh[0]['id_unit']) && $current_user->roles != 'administrator'){
+					$data_bl = array();
+					$sql = "SELECT kode_bl FROM data_sub_keg_bl WHERE id_skpd = ".$wpdb->prepare('%s', $data_ssh[0]['id_unit'])." GROUP BY id_skpd,kode_bl";
+					$run = $wpdb->get_results($sql,ARRAY_A);
+					foreach ($run as $value) {
+						array_push($data_bl,strval($value['kode_bl']));
+					}
+					$sqlKodeBl = " and kode_bl in ('".implode("','", $data_bl)."')";
+				}
+
+				$data_ssh = $wpdb->get_results("SELECT nama_komponen, spek_komponen, harga_satuan, satuan, volume, sum(total_harga) as total FROM `data_rka` where active=1 and tahun_anggaran=".$wpdb->prepare('%d', $tahun_anggaran).$sqlKodeBl." GROUP by nama_komponen, spek_komponen, harga_satuan order by total desc limit 20",ARRAY_A);
 
 				$return = array(
 					'status' => 'success',
@@ -11081,6 +11122,132 @@ class Wpsipd_Public
 					}
 				}
 				$return['data'] = $data_pegawai;
+			}else{
+				$return = array(
+					'status' => 'error',
+					'message'	=> 'Api Key tidak sesuai!'
+				);
+			}
+		}else{
+			$return = array(
+				'status' => 'error',
+				'message'	=> 'Format tidak sesuai!'
+			);
+		}
+		die(json_encode($return));
+	}
+
+	public function get_data_ssh_analisis_skpd(){
+		global $wpdb;
+		$return = array(
+			'status' => 'success',
+			'data'	=> array()
+		);
+
+		$table_content = '';
+		if(!empty($_POST)){
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+				$params = $columns = $totalRecords = $data = array();
+				$params = $_REQUEST;
+				$columns = array( 
+					0 =>'nama_komponen',
+					1 =>'spek_komponen', 
+					2 => 'harga_satuan',
+					3 => 'satuan',
+					4 => 'SUM(volume) as volume',
+					5 => 'SUM(total_harga) as total'
+				);
+				$where = $sqlTot = $sqlRec = "";
+
+				// check search value exist
+				if( !empty($params['search']['value']) ) {
+					$where .=" AND ( nama_komponen LIKE ".$wpdb->prepare('%s', "%".$params['search']['value']."%");    
+					$where .=" OR spek_komponen LIKE ".$wpdb->prepare('%s', "%".$params['search']['value']."%");
+					$where .=" OR harga_satuan LIKE ".$wpdb->prepare('%s', "%".$params['search']['value']."%");
+					$where .=" OR satuan LIKE ".$wpdb->prepare('%s', "%".$params['search']['value']."%");
+				}
+
+				// mengambil data per skpd
+				$sqlKodeBl = '';
+				if($_POST['id_skpd'] != 0){
+					$data_bl = array();
+					$sql = "SELECT kode_bl FROM data_sub_keg_bl WHERE id_skpd = ".$wpdb->prepare('%s', $_POST['id_skpd'])." GROUP BY id_skpd,kode_bl";
+					$run = $wpdb->get_results($sql,ARRAY_A);
+					foreach ($run as $value) {
+						array_push($data_bl,strval($value['kode_bl']));
+					}
+					$sqlKodeBl = " and kode_bl in ('".implode("','", $data_bl)."')";
+				}
+
+				// getting total number records without any search
+				$sql_tot = "SELECT count(*) as jml FROM `data_rka`";
+				$sql = "SELECT ".implode(', ', $columns)." FROM `data_rka`";
+				$where_first = " WHERE active=1 and tahun_anggaran=".$wpdb->prepare('%d', $params['tahun_anggaran']).$sqlKodeBl;
+				$sqlTot .= $sql_tot.$where_first;
+				$sqlRec .= $sql.$where_first;
+				if(isset($where) && $where != '') {
+					$sqlTot .= $where;
+					$sqlRec .= $where;
+				}
+
+			 	$sqlRec .=  " GROUP by nama_komponen, spek_komponen, harga_satuan ORDER BY total DESC, ". $columns[$params['order'][0]['column']]."   ".$params['order'][0]['dir']."  LIMIT ".$params['start']." ,".$params['length']." ";
+				$sqlTot .=  " GROUP by nama_komponen, spek_komponen, harga_satuan";
+
+				$queryTot = $wpdb->get_results($sqlTot, ARRAY_A);
+				$totalRecords = count($queryTot);
+				$queryRecords = $wpdb->get_results($sqlRec, ARRAY_A);
+
+				$json_data = array(
+					"draw"            => intval( $params['draw'] ),   
+					"recordsTotal"    => intval( $totalRecords ),  
+					"recordsFiltered" => intval($totalRecords),
+					"data"            => $queryRecords
+				);
+
+				die(json_encode($json_data));
+			}else{
+				$return = array(
+					'status' => 'error',
+					'message'	=> 'Api Key tidak sesuai!'
+				);
+			}
+		}else{
+			$return = array(
+				'status' => 'error',
+				'message'	=> 'Format tidak sesuai!'
+			);
+		}
+		die(json_encode($return));
+	}
+
+	public function get_data_chart_ssh_skpd(){
+		global $wpdb;
+		$return = array(
+			'status' => 'success',
+			'data'	=> array()
+		);
+
+		if(!empty($_POST)){
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+				$tahun_anggaran = $_POST['tahun_anggaran'];
+				// mengambil data per skpd
+				$sqlKodeBl = '';
+				if($_POST['id_skpd'] != 0){
+					$data_bl = array();
+					$sql = "SELECT kode_bl FROM data_sub_keg_bl WHERE id_skpd = ".$wpdb->prepare('%s', $_POST['id_skpd'])." GROUP BY id_skpd,kode_bl";
+					$run = $wpdb->get_results($sql,ARRAY_A);
+					foreach ($run as $value) {
+						array_push($data_bl,strval($value['kode_bl']));
+					}
+					$sqlKodeBl = " and kode_bl in ('".implode("','", $data_bl)."')";
+				}
+
+				$data_ssh = $wpdb->get_results("SELECT nama_komponen, spek_komponen, harga_satuan, satuan, volume, sum(total_harga) as total FROM `data_rka` where active=1 and tahun_anggaran=".$wpdb->prepare('%d', $tahun_anggaran).$sqlKodeBl." GROUP by nama_komponen, spek_komponen, harga_satuan order by total desc limit 20",ARRAY_A);
+
+				$return = array(
+					'status' => 'success',
+					'data' => $data_ssh
+				);
 			}else{
 				$return = array(
 					'status' => 'error',
