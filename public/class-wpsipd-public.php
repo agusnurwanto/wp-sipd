@@ -10790,7 +10790,7 @@ class Wpsipd_Public
 					$where .=" AND ( nama_komponen LIKE ".$wpdb->prepare('%s', "%".$params['search']['value']."%");    
 					$where .=" OR spek_komponen LIKE ".$wpdb->prepare('%s', "%".$params['search']['value']."%");
 					$where .=" OR harga_satuan LIKE ".$wpdb->prepare('%s', "%".$params['search']['value']."%");
-					$where .=" OR satuan LIKE ".$wpdb->prepare('%s', "%".$params['search']['value']."%");
+					$where .=" OR satuan LIKE ".$wpdb->prepare('%s', "%".$params['search']['value']."%").")";
 				}
 
 				$current_user = wp_get_current_user();
@@ -11164,7 +11164,7 @@ class Wpsipd_Public
 					$where .=" AND ( nama_komponen LIKE ".$wpdb->prepare('%s', "%".$params['search']['value']."%");    
 					$where .=" OR spek_komponen LIKE ".$wpdb->prepare('%s', "%".$params['search']['value']."%");
 					$where .=" OR harga_satuan LIKE ".$wpdb->prepare('%s', "%".$params['search']['value']."%");
-					$where .=" OR satuan LIKE ".$wpdb->prepare('%s', "%".$params['search']['value']."%");
+					$where .=" OR satuan LIKE ".$wpdb->prepare('%s', "%".$params['search']['value']."%").")";
 				}
 
 				// mengambil data per skpd
