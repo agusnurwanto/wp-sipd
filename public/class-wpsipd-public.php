@@ -11095,4 +11095,171 @@ class Wpsipd_Public
 		}
 		die(json_encode($return));
 	}
+
+	public function cek_api_key(){
+		global $wpdb;
+		$return = array(
+			'action' => $_POST['action'],
+			'status' => 'success',
+			'api_key' => '',
+			'message' => 'Berhasil cek lisensi!'
+		);
+
+		if(!empty($_POST)){
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+				$res = $this->simda->cek_lisensi(array(
+					'api_key' => $_POST['api_key']
+				));
+				$return = array_merge($return, $res);
+			}else{
+				$return['status'] = 'error';
+				$return['message']	= 'Api Key tidak sesuai!';
+			}
+		}else{
+			$return['status'] = 'error';
+			$return['message']	= 'Format tidak sesuai!';
+		}
+		die(json_encode($return));
+	}
+
+	function singkroniasi_spd_fmis(){
+		global $wpdb;
+		$return = array(
+			'action' => $_POST['action'],
+			'status' => 'success',
+			'message' => 'Berhasil singkronisasi data SPD!'
+		);
+
+		if(!empty($_POST)){
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+				$tahun_anggaran = $_POST['tahun_anggaran'];
+				$spd = json_decode(stripslashes(html_entity_decode($_POST['data'])));
+				$cek = $wpdb->get_results($wpdb->prepare("
+						select 
+							id 
+						from data_spd 
+						where tahun_anggaran=%d and no_spd=%s
+					", $tahun_anggaran, $spd->no_spd), ARRAY_A);
+				$data_spd = array(
+				 	'no_spd' => $spd->no_spd,
+				 	'uraian' => $spd->uraian,
+				 	'id_skpd_sipd' => $spd->skpd->id_skpd,
+				 	'kode_skpd_simda' => $spd->kd_sub_unit,
+				 	'id_skpd_fmis' => $spd->id_mapping_fmis,
+				 	'created_at' => $spd->tgl_spd,
+				 	'active' => 1,
+				 	'tahun_anggaran' => $tahun_anggaran
+				);
+				if(empty($cek)){
+					$wpdb->insert('data_spd', $data_spd);
+				}else{
+					$wpdb->update('data_spd', $data_spd, array( 'id' => $cek['id'] ) );
+				}
+				$wpdb->update('data_spd_rinci', array('active' => 0),
+					array(
+						'tahun_anggaran' => $tahun_anggaran,
+						'no_spd' => $spd->no_spd
+					)
+				);
+				$spd_simda = array();
+				foreach($spd->spd_simda as $k => $v){
+					$keyword = $v->kode_akun;
+					$spd_simda[$keyword] = $v;
+				}
+				foreach($spd->spd_fmis as $k => $v){
+					$cek = $wpdb->get_results($wpdb->prepare("
+						select 
+							id 
+						from data_spd_rinci 
+						where tahun_anggaran=%d 
+							and no_spd=%s
+							and kdrek1=%d
+							and kdrek2=%d
+							and kdrek3=%d
+							and kdrek4=%d
+							and kdrek5=%d
+							and kdrek6=%d
+							and idrefaktivitas=%d
+							and idsubunit=%d
+						", 
+						$tahun_anggaran, 
+						$no_spd, 
+						$v->kdrek1, 
+						$v->kdrek2, 
+						$v->kdrek3, 
+						$v->kdrek4, 
+						$v->kdrek5, 
+						$v->kdrek6, 
+						$v->idrefaktivitas, 
+						$v->idsubunit
+					), ARRAY_A);
+					$kode_akun = '';
+					$nama_sub_giat = '';
+					$nama_giat = '';
+					$nama_program = '';
+					$kd_urusan = '';
+					$kd_unit = '';
+					$kd_bidang = '';
+					$kd_prog = '';
+					$kd_keg = '';
+					$id_prog = '';
+					if(!empty($v->spd_simda_rinci)){
+						$kode_akun = $v->spd_simda_rinci->kode_akun;
+						$nama_sub_giat = $v->spd_simda_rinci->nama_sub_giat;
+						$nama_giat = $v->spd_simda_rinci->nama_giat;
+						$nama_program = $v->spd_simda_rinci->nama_program;
+						$kd_urusan = $v->spd_simda_rinci->kd_urusan;
+						$kd_unit = $v->spd_simda_rinci->kd_unit;
+						$kd_bidang = $v->spd_simda_rinci->kd_bidang;
+						$kd_prog = $v->spd_simda_rinci->kd_prog;
+						$kd_keg = $v->spd_simda_rinci->kd_keg;
+						$id_prog = $v->spd_simda_rinci->id_prog;
+					}
+					$data_spd_rinci = array(
+					 	'no_spd' => $spd->no_spd,
+						'idrefaktivitas' => $v->idrefaktivitas,
+						'idsubunit' => $v->idsubunit,
+						'kdrek1' => $v->kdrek1,
+						'kdrek2' => $v->kdrek2,
+						'kdrek3' => $v->kdrek3,
+						'kdrek4' => $v->kdrek4,
+						'kdrek5' => $v->kdrek5,
+						'kdrek6' => $v->kdrek6,
+						'nilai' => $v->nilai,
+						'rekening' => $v->rekening,
+						'aktivitas_uraian' => $v->aktivitas_uraian,
+						'subkegiatan' => $v->subkegiatan,
+						'kode_akun' => $kode_akun,
+						'nama_sub_giat' => $nama_sub_giat,
+						'nama_giat' => $nama_giat,
+						'nama_program' => $nama_program,
+						'kd_urusan' => $kd_urusan,
+						'kd_unit' => $kd_unit,
+						'kd_bidang' => $kd_bidang,
+						'kd_prog' => $kd_prog,
+						'kd_keg' => $kd_keg,
+						'id_prog' => $id_prog,
+					 	'active' => 1,
+					 	'tahun_anggaran' => $tahun_anggaran
+					);
+					if(empty($cek)){
+						$wpdb->insert('data_spd_rinci', $data_spd_rinci);
+					}else{
+						$wpdb->update('data_spd_rinci', $data_spd_rinci, array( 'id' => $cek['id'] ) );
+					}
+				}
+			}else{
+				$return = array(
+					'status' => 'error',
+					'message'	=> 'Api Key tidak sesuai!'
+				);
+			}
+		}else{
+			$return = array(
+				'status' => 'error',
+				'message'	=> 'Format tidak sesuai!'
+			);
+		}
+		die(json_encode($return));
+	}
 }

@@ -2685,4 +2685,102 @@ class Wpsipd_Simda
 		}
 		die(json_encode($ret));
     }
+
+    function cek_lisensi($options){
+    	$return = array(
+			'status' => 'success',
+			'api_key' => '',
+			'message' => 'Berhasil cek lisensi!'
+		);
+    	$res = $this->fetch_lisensi(array(
+			'post' => array(
+				'action' => 'cek_lisensi',
+				'lisensi' => $options['api_key']
+			)
+		));
+		$return['res'] = $res;
+		if(!empty($res['err'])){
+			$return['status'] = 'error';
+        	$return['message'] = "cURL Error #:".$res['err']." (".$res['url'].")";
+		}else{
+			$ret = json_decode($res['response']);
+            if(
+            	!empty($ret)
+            	&& $ret->status == 'success'
+            ){
+				$return['api_key'] = $ret->api_key;
+            }else{
+            	if(
+            		!empty($ret)
+            		&& !empty($ret->error)
+            	){
+            		$res['response'] = $ret->message;
+            	}
+				$return['status'] = 'error';
+				$return['message'] = $res['response'];
+            }
+		}
+		return $return;
+	}
+
+    function fetch_lisensi($options){
+    	$url = get_option('_crb_server_wp_sipd');
+    	$api_key_wp_sipd = get_option('_crb_server_wp_sipd_api_key');
+    	$no_wa = get_option('_crb_no_wa');
+		$nama_pemda = get_option('_crb_daerah');
+		$cek = true;
+		if(empty($url)){
+			$cek = false;
+			$pesan = 'Server WP-SIPD wajib diisi!';
+		}else if(empty($api_key_wp_sipd)){
+			$cek = false;
+			$pesan = 'API KEY Server WP-SIPD wajib diisi!';
+		}else if(empty($no_wa)){
+			$cek = false;
+			$pesan = 'Nomor WA wajib diisi!';
+		}else if(empty($nama_pemda)){
+			$cek = false;
+			$pesan = 'Nama Pemda wajib diisi!';
+		}
+		if(true == $cek){
+			$domain = $_SERVER['SERVER_NAME'];
+			$api_params = array(
+				'api_key' => $api_key_wp_sipd,
+				'no_wa' => $no_wa,
+				'nama_pemda' => $nama_pemda,
+				'produk' => 'WP-SIPD',
+				'domain' => $domain,
+			);
+			$api_params = array_merge($api_params, $options['post']);
+			$req = http_build_query($api_params);
+			$curl = curl_init();
+			curl_setopt_array($curl, array(
+	            CURLOPT_URL => $url,
+	            CURLOPT_RETURNTRANSFER => true,
+	            CURLOPT_ENCODING => "",
+	            CURLOPT_MAXREDIRS => 10,
+	            CURLOPT_TIMEOUT => 30,
+	            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+	            CURLOPT_CUSTOMREQUEST => "POST",
+	            CURLOPT_POSTFIELDS => $req,
+	            CURLOPT_SSL_VERIFYPEER => false,
+	            CURLOPT_SSL_VERIFYHOST => false,
+	            CURLOPT_CONNECTTIMEOUT => 0,
+	            CURLOPT_TIMEOUT => 10000
+	        ));
+	        $response = curl_exec($curl);
+	        $err = curl_error($curl);
+	        curl_close($curl);
+	    }else{
+	    	$api_params = array();
+	    	$response = '';
+	    	$err = $pesan;
+	    }
+        return array( 
+        	'url' => $url, 
+        	'params' => $api_params, 
+        	'response' => $response, 
+        	'err' => $err 
+        );
+    }
 }

@@ -376,6 +376,12 @@ class Wpsipd
 		$this->loader->add_action('wp_ajax_get_pegawai_simda',  $plugin_public, 'get_pegawai_simda');
 		$this->loader->add_action('wp_ajax_nopriv_get_pegawai_simda',  $plugin_public, 'get_pegawai_simda');
 
+		$this->loader->add_action('wp_ajax_singkroniasi_spd_fmis',  $plugin_public, 'singkroniasi_spd_fmis');
+		$this->loader->add_action('wp_ajax_nopriv_singkroniasi_spd_fmis',  $plugin_public, 'singkroniasi_spd_fmis');
+
+		$this->loader->add_action('wp_ajax_cek_api_key',  $plugin_public, 'cek_api_key');
+		$this->loader->add_action('wp_ajax_nopriv_cek_api_key',  $plugin_public, 'cek_api_key');
+
 		$this->loader->add_action('wp_ajax_simpan_rfk',  $plugin_public, 'simpan_rfk');
 		$this->loader->add_action('wp_ajax_reset_rfk',  $plugin_public, 'reset_rfk');
 		$this->loader->add_action('wp_ajax_reset_catatan_verifkator_rfk',  $plugin_public, 'reset_catatan_verifkator_rfk');
