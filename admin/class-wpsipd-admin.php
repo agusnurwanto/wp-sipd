@@ -229,6 +229,10 @@ class Wpsipd_Admin {
 		    ->set_page_parent( $monev )
 		    ->add_fields( $this->generate_sumber_dana() );
 
+		Container::make( 'theme_options', __( 'Satuan Harga' ) )
+		    ->set_page_parent( $monev )
+		    ->add_fields( $this->get_ajax_field(array('type' => 'monev_satuan_harga')) );
+
 	    $laporan = Container::make( 'theme_options', __( 'LAPORAN SIPD' ) )
 			->set_page_menu_position( 4 )
 		    ->add_fields( $this->generate_tag_sipd() );
@@ -419,6 +423,9 @@ class Wpsipd_Admin {
 						}else if($_POST['type'] == 'apbdpenjabaran'){
 							$url_skpd = $this->generatePage($v['tahun_anggaran'] .' | '.$vv['kode_skpd'].' | '.$vv['nama_skpd'].' | '. ' | APBD PENJABARAN Lampiran 2', $v['tahun_anggaran'], '[apbdpenjabaran tahun_anggaran="'.$v['tahun_anggaran'].'" lampiran="2" id_skpd="'.$vv['id_skpd'].'"]');
 		            		$body_pemda .= '<li><a target="_blank" href="'.$url_skpd.'">Halaman APBD PENJABARAN Lampiran 2 '.$vv['kode_skpd'].' '.$vv['nama_skpd'].' '.$v['tahun_anggaran'].'</a> (NIP: '.$vv['nipkepala'].')';
+						}else if($_POST['type'] == 'monev_satuan_harga'){
+							$url_skpd = $this->generatePage('Rekapitulasi Rincian Belanja '.$vv['nama_skpd'].' '.$vv['kode_skpd'].' | '.$v['tahun_anggaran'], $v['tahun_anggaran'], '[monitor_satuan_harga tahun_anggaran="'.$v['tahun_anggaran'].'" id_skpd="'.$vv['id_skpd'].'"]');
+		            		$body_pemda .= '<li><a target="_blank" href="'.$url_skpd.'">Halaman Rekapitulasi Rincian Belanja '.$vv['kode_skpd'].' '.$vv['nama_skpd'].' '.$v['tahun_anggaran'].'</a> (NIP: '.$vv['nipkepala'].')';
 						}
 
 		            	if(!empty($subunit)){
@@ -441,6 +448,9 @@ class Wpsipd_Admin {
 							}else if($_POST['type'] == 'apbdpenjabaran'){
 								$url_skpd = $this->generatePage($v['tahun_anggaran'] .' | '.$vvv['kode_skpd'].' | '.$vvv['nama_skpd'].' | '. ' | APBD PENJABARAN Lampiran 2', $v['tahun_anggaran'], '[apbdpenjabaran tahun_anggaran="'.$v['tahun_anggaran'].'" lampiran="2" id_skpd="'.$vvv['id_skpd'].'"]');
 			            		$body_pemda .= '<li><a target="_blank" href="'.$url_skpd.'">Halaman APBD PENJABARAN Lampiran 2 '.$vv['kode_skpd'].' '.$vvv['nama_skpd'].' '.$v['tahun_anggaran'].'</a> (NIP: '.$vvv['nipkepala'].')';
+							}else if($_POST['type'] == 'monev_satuan_harga'){
+								$url_skpd = $this->generatePage('Rekapitulasi Rincian Belanja '.$vvv['nama_skpd'].' '.$vvv['kode_skpd'].' | '.$v['tahun_anggaran'], $v['tahun_anggaran'], '[monitor_satuan_harga tahun_anggaran="'.$v['tahun_anggaran'].'" id_skpd="'.$vvv['id_skpd'].'"]');
+								$body_pemda .= '<li><a target="_blank" href="'.$url_skpd.'">Halaman Rekapitulasi Rincian Belanja '.$vvv['kode_skpd'].' '.$vvv['nama_skpd'].' '.$v['tahun_anggaran'].'</a> (NIP: '.$vvv['nipkepala'].')';
 							}
 		            	}
 		            	if(!empty($subunit)){
@@ -474,7 +484,10 @@ class Wpsipd_Admin {
 						$body_all .= '<a style="font-weight: bold;" target="_blank" href="'.$url_penjabaran5.'">Halaman APBD PENJABARAN Lampiran 5 Tahun '.$v['tahun_anggaran'].'</a><br>';
 						$body_all .= '<a style="font-weight: bold;" target="_blank" href="'.$url_penjabaran6.'">Halaman APBD PENJABARAN Lampiran 6 Tahun '.$v['tahun_anggaran'].'</a>';
 						$body_all .= $body_pemda;
-			        }
+			        }else if($_POST['type'] == 'monev_satuan_harga'){
+						$url_pemda = $this->generatePage('Rekapitulasi Rincian Belanja Pemerintah Daerah '.$v['tahun_anggaran'], $v['tahun_anggaran'], '[monitor_satuan_harga tahun_anggaran="'.$v['tahun_anggaran'].'"]');
+						$body_all .= '<a style="font-weight: bold;" target="_blank" href="'.$url_pemda.'">Halaman Rekapitulasi Rincian Belanja '.$v['tahun_anggaran'].'</a>'.$body_pemda;
+					}
 				}
 				if(
 					$_POST['type'] == 'rfk' 
@@ -482,6 +495,7 @@ class Wpsipd_Admin {
 					|| $_POST['type'] == 'monev_renstra'
 					|| $_POST['type'] == 'monev_rpjm'
 					|| $_POST['type'] == 'apbdpenjabaran'
+					|| $_POST['type'] == 'monev_satuan_harga'
 				){
 					$ret['message'] = $body_all;
 				}
