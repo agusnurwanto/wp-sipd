@@ -11263,14 +11263,12 @@ class Wpsipd_Public
 							id 
 						from data_spd 
 						where tahun_anggaran=%d and no_spd=%s
-					", $tahun_anggaran, $spd->no_spd), ARRAY_A);
+					", $tahun_anggaran, $spd->spd_no), ARRAY_A);
 				$data_spd = array(
-				 	'no_spd' => $spd->no_spd,
+				 	'no_spd' => $spd->spd_no,
 				 	'uraian' => $spd->uraian,
-				 	'id_skpd_sipd' => $spd->skpd->id_skpd,
-				 	'kode_skpd_simda' => $spd->kd_sub_unit,
-				 	'id_skpd_fmis' => $spd->id_mapping_fmis,
-				 	'created_at' => $spd->tgl_spd,
+				 	'id_skpd_fmis' => $spd->idunit,
+				 	'created_at' => $spd->spd_tgl+' 00:00:00',
 				 	'active' => 1,
 				 	'tahun_anggaran' => $tahun_anggaran
 				);
@@ -11282,15 +11280,10 @@ class Wpsipd_Public
 				$wpdb->update('data_spd_rinci', array('active' => 0),
 					array(
 						'tahun_anggaran' => $tahun_anggaran,
-						'no_spd' => $spd->no_spd
+						'no_spd' => $spd->spd_no
 					)
 				);
-				$spd_simda = array();
-				foreach($spd->spd_simda as $k => $v){
-					$keyword = $v->kode_akun;
-					$spd_simda[$keyword] = $v;
-				}
-				foreach($spd->spd_fmis as $k => $v){
+				foreach($spd->spd_fmis_rinci as $k => $v){
 					$cek = $wpdb->get_results($wpdb->prepare("
 						select 
 							id 
@@ -11317,30 +11310,8 @@ class Wpsipd_Public
 						$v->idrefaktivitas, 
 						$v->idsubunit
 					), ARRAY_A);
-					$kode_akun = '';
-					$nama_sub_giat = '';
-					$nama_giat = '';
-					$nama_program = '';
-					$kd_urusan = '';
-					$kd_unit = '';
-					$kd_bidang = '';
-					$kd_prog = '';
-					$kd_keg = '';
-					$id_prog = '';
-					if(!empty($v->spd_simda_rinci)){
-						$kode_akun = $v->spd_simda_rinci->kode_akun;
-						$nama_sub_giat = $v->spd_simda_rinci->nama_sub_giat;
-						$nama_giat = $v->spd_simda_rinci->nama_giat;
-						$nama_program = $v->spd_simda_rinci->nama_program;
-						$kd_urusan = $v->spd_simda_rinci->kd_urusan;
-						$kd_unit = $v->spd_simda_rinci->kd_unit;
-						$kd_bidang = $v->spd_simda_rinci->kd_bidang;
-						$kd_prog = $v->spd_simda_rinci->kd_prog;
-						$kd_keg = $v->spd_simda_rinci->kd_keg;
-						$id_prog = $v->spd_simda_rinci->id_prog;
-					}
 					$data_spd_rinci = array(
-					 	'no_spd' => $spd->no_spd,
+					 	'no_spd' => $spd->spd_no,
 						'idrefaktivitas' => $v->idrefaktivitas,
 						'idsubunit' => $v->idsubunit,
 						'kdrek1' => $v->kdrek1,
@@ -11353,16 +11324,6 @@ class Wpsipd_Public
 						'rekening' => $v->rekening,
 						'aktivitas_uraian' => $v->aktivitas_uraian,
 						'subkegiatan' => $v->subkegiatan,
-						'kode_akun' => $kode_akun,
-						'nama_sub_giat' => $nama_sub_giat,
-						'nama_giat' => $nama_giat,
-						'nama_program' => $nama_program,
-						'kd_urusan' => $kd_urusan,
-						'kd_unit' => $kd_unit,
-						'kd_bidang' => $kd_bidang,
-						'kd_prog' => $kd_prog,
-						'kd_keg' => $kd_keg,
-						'id_prog' => $id_prog,
 					 	'active' => 1,
 					 	'tahun_anggaran' => $tahun_anggaran
 					);
