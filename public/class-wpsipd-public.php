@@ -5110,7 +5110,7 @@ class Wpsipd_Public
 			$user_id = um_user( 'ID' );
 			$user_meta = get_userdata($user_id);
 			if(in_array("administrator", $user_meta->roles) || in_array("PLT", $user_meta->roles) || in_array("PA", $user_meta->roles) || in_array("KPA", $user_meta->roles)){
-				$nama_page_menu_ssh = 'Halaman Menu Standar Satuan Harga (SSH) | '.$tahun;
+				$nama_page_menu_ssh = 'Rekapitulasi Rincian Belanja '.$vv['nama_skpd'].' '.$vv['kode_skpd'].' | '.$tahun;
 				$custom_post = get_page_by_title($nama_page_menu_ssh, OBJECT, 'page');
 				$url_menu_ssh = $this->get_link_post($custom_post);
 
