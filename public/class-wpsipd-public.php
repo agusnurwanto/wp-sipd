@@ -3768,6 +3768,16 @@ class Wpsipd_Public
 		}
 	}
 
+	public function laporan_per_item_ssh($atts)
+	{
+		// untuk disable render shortcode di halaman edit page/post
+		if(!empty($_GET) && !empty($_GET['post'])){
+			return '';
+		}
+		
+		require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/wpsipd-public-laporan-per-item-ssh.php';
+	}
+
 	public function get_cat_url()
 	{
 		global $wpdb;
@@ -10781,7 +10791,8 @@ class Wpsipd_Public
 					2 => 'harga_satuan',
 					3 => 'satuan',
 					4 => 'SUM(volume) as volume',
-					5 => 'SUM(total_harga) as total'
+					5 => 'SUM(total_harga) as total',
+					6 => 'kode_bl'
 				);
 				$where = $sqlTot = $sqlRec = "";
 
@@ -10826,11 +10837,21 @@ class Wpsipd_Public
 				$totalRecords = count($queryTot);
 				$queryRecords = $wpdb->get_results($sqlRec, ARRAY_A);
 
+				$title = 'Laporan Data per Item SSH';
+				$shortcode = '[laporan_per_item_ssh]';
+				$update = false;
+				$url_skpd = $this->generatePage($title, $params['tahun_anggaran'], $shortcode, $update);
+
+				foreach($queryRecords as $key => $val){
+					$queryRecords[$key]['link'] = '<a href="'.$url_skpd.'&nama_komponen='.$val['nama_komponen'].'&spek_komponen='.$val['spek_komponen'].'&harga_satuan='.$val['harga_satuan'].'&satuan='.$val['satuan'].'" target="_blank" style="text-decoration: none;">'.$val['nama_komponen'].'</a>';
+				}
+
 				$json_data = array(
 					"draw"            => intval( $params['draw'] ),   
 					"recordsTotal"    => intval( $totalRecords ),  
 					"recordsFiltered" => intval($totalRecords),
-					"data"            => $queryRecords
+					"data"            => $queryRecords,
+					"sql"	=> $sqlRec
 				);
 
 				die(json_encode($json_data));
@@ -11404,7 +11425,7 @@ class Wpsipd_Public
 					$sqlKodeBl = " and kode_bl in ('".implode("','", $data_bl)."')";
 				}
 
-				$data_ssh = $wpdb->get_results("SELECT nama_komponen, spek_komponen, harga_satuan, satuan, volume, sum(total_harga) as total FROM `data_rka` where active=1 and tahun_anggaran=".$wpdb->prepare('%d', $tahun_anggaran).$sqlKodeBl." GROUP by nama_komponen, spek_komponen, harga_satuan order by total desc limit 20",ARRAY_A);
+				$data_ssh = $wpdb->get_results("SELECT nama_komponen, spek_komponen, harga_satuan, satuan, volume, sum(total_harga) as total FROM `data_rka` where active=1 and tahun_anggaran=".$wpdb->prepare('%d', $_POST['tahun_anggaran']).$sqlKodeBl." GROUP by nama_komponen, spek_komponen, harga_satuan order by total desc limit 20",ARRAY_A);
 
 				$return = array(
 					'status' => 'success',

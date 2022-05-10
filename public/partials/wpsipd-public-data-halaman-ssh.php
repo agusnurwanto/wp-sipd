@@ -124,7 +124,7 @@ $body = '';
 				},
 				"columns": [
 		            { 
-		            	"data": "nama_komponen",
+		            	"data": "link",
 		            	className: "text-left"
 		            },
 		            { 
