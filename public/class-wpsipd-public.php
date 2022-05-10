@@ -10850,8 +10850,7 @@ class Wpsipd_Public
 					"draw"            => intval( $params['draw'] ),   
 					"recordsTotal"    => intval( $totalRecords ),  
 					"recordsFiltered" => intval($totalRecords),
-					"data"            => $queryRecords,
-					"sql"	=> $sqlRec
+					"data"            => $queryRecords
 				);
 
 				die(json_encode($json_data));
