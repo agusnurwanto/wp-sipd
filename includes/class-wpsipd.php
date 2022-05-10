@@ -438,6 +438,7 @@ class Wpsipd
 		add_shortcode('data_halaman_menu_ssh', array($plugin_public, 'data_halaman_menu_ssh'));
 		add_shortcode('monitoring_data_spd', array($plugin_public, 'monitoring_data_spd'));
 		add_shortcode('monitor_satuan_harga', array($plugin_public, 'monitor_satuan_harga'));
+		add_shortcode('laporan_per_item_ssh', array($plugin_public, 'laporan_per_item_ssh'));
 	}
 
 	/**
