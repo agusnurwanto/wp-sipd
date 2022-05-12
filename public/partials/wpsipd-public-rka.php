@@ -85,14 +85,18 @@ if(
 	';
 }
 
+$kd_bl = explode('.', $input['kode_bl']);
+unset($kd_bl[0]);
+$kd_bl = implode('.', $kd_bl);
+
 $bl = $wpdb->get_results("
 	SELECT 
 		* 
 	from data_sub_keg_bl 
-	where kode_bl='".$input['kode_bl']."'"."
+	where kode_bl like '%.".$kd_bl."'"."
 		AND tahun_anggaran=".$input['tahun_anggaran']."
-		AND active=1"
-		// ." limit 2"
+		AND active=1
+	order by kode_sub_giat ASC"
 , ARRAY_A);
 
 $id_skpd = $bl[0]['id_sub_skpd'];

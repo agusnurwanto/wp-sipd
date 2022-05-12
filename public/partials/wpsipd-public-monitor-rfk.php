@@ -99,10 +99,9 @@ foreach ($units as $k => $unit):
 					AND r.bulan=%d
 			where k.tahun_anggaran=%d
 				and k.active=1
-				and k.id_skpd=%d
 				and k.id_sub_skpd=%d
 			order by k.kode_sub_giat ASC
-		", $bulan, $input['tahun_anggaran'], $unit['id_skpd'], $unit['id_skpd']), ARRAY_A);
+		", $bulan, $input['tahun_anggaran'], $unit['id_skpd']), ARRAY_A);
 	}else{
 		$unit_induk = $wpdb->get_results($wpdb->prepare("
 			select 
