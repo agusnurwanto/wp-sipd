@@ -19,6 +19,11 @@ if(!empty($_GET) && !empty($_GET['sumber_pagu'])){
     $sumber_pagu = $_GET['sumber_pagu'];
 }
 
+$cek_pagu_dpa = 'simda';
+if(!empty($_GET) && !empty($_GET['pagu_dpa'])){
+    $cek_pagu_dpa = 'fmis';
+}
+
 $tahun_asli = date('Y');
 $bulan_asli = date('m');
 if(!empty($_GET) && !empty($_GET['bulan'])){
@@ -140,6 +145,7 @@ foreach ($units as $k => $unit):
 		'jml_sub_keg' => 0,
 		'total' => 0,
 		'total_simda' => 0,
+		'total_fmis' => 0,
 		'realisasi' => 0,
 		'total_rak_simda' => 0,
 		'deviasi' => 0,
@@ -203,6 +209,10 @@ foreach ($units as $k => $unit):
 
         $id_prog = $kd_urusan.$this->simda->CekNull($kd_bidang);
 		$total_pagu = 0;
+		$total_fmis = $sub['pagu_fmis'];
+		if(empty($total_fmis)){
+			$total_fmis = 0;
+		}
 		$debug_pagu = '';
 		if($sumber_pagu == 1){
 			$total_pagu = $sub['pagu'];
@@ -289,6 +299,7 @@ foreach ($units as $k => $unit):
 				'nama'	=> $sub['nama_urusan'],
 				'total' => 0,
 				'total_simda' => 0,
+				'total_fmis' => 0,
 				'realisasi' => 0,
 				'deviasi' => 0,
 				'jml_sub_keg' => 0,
@@ -301,6 +312,7 @@ foreach ($units as $k => $unit):
 				'nama'	=> $sub['nama_bidang_urusan'],
 				'total' => 0,
 				'total_simda' => 0,
+				'total_fmis' => 0,
 				'realisasi' => 0,
 				'deviasi' => 0,
 				'jml_sub_keg' => 0,
@@ -313,6 +325,7 @@ foreach ($units as $k => $unit):
 				'nama'	=> $sub['nama_program'],
 				'total' => 0,
 				'total_simda' => 0,
+				'total_fmis' => 0,
 				'realisasi' => 0,
 				'deviasi' => 0,
 				'jml_sub_keg' => 0,
@@ -325,6 +338,7 @@ foreach ($units as $k => $unit):
 				'nama'	=> $sub['nama_giat'],
 				'total' => 0,
 				'total_simda' => 0,
+				'total_fmis' => 0,
 				'realisasi' => 0,
 				'deviasi' => 0,
 				'jml_sub_keg' => 0,
@@ -348,6 +362,7 @@ foreach ($units as $k => $unit):
 				'nama'	=> implode(' ', $nama).$debug_pagu.'<span class="detail_simda hide-excel">'.json_encode($detail_simda).'</span><span class="badge badge-danger simpan-per-sub-keg hide-excel">SIMPAN</span>',
 				'total' => 0,
 				'total_simda' => 0,
+				'total_fmis' => 0,
 				'realisasi' => 0,
 				'deviasi' => 0,
 				'jml_sub_keg' => 0,
@@ -383,6 +398,13 @@ foreach ($units as $k => $unit):
 		$data_all['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']]['realisasi'] += $realisasi;
 		$data_all['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']]['data'][$sub['kode_giat']]['realisasi'] += $realisasi;
 		$data_all['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']]['data'][$sub['kode_giat']]['data'][$sub['kode_sub_giat']]['realisasi'] += $realisasi;
+
+		$data_all['total_fmis'] += $total_fmis;
+		$data_all['data'][$sub['kode_urusan']]['total_fmis'] += $total_fmis;
+		$data_all['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['total_fmis'] += $total_fmis;
+		$data_all['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']]['total_fmis'] += $total_fmis;
+		$data_all['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']]['data'][$sub['kode_giat']]['total_fmis'] += $total_fmis;
+		$data_all['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']]['data'][$sub['kode_giat']]['data'][$sub['kode_sub_giat']]['total_fmis'] += $total_fmis;
 
 		$data_all['total_simda'] += $total_simda;
 		$data_all['data'][$sub['kode_urusan']]['total_simda'] += $total_simda;
@@ -436,6 +458,10 @@ foreach ($units as $k => $unit):
 			if(!empty($capaian_rak)){
 				$deviasi_bidang = (($capaian_rak-$capaian)/$capaian_rak)*100;
 			}
+			$bidang_dpa = $bidang['total_simda'];
+			if($cek_pagu_dpa == 'fmis'){
+				$bidang_dpa = $bidang['total_fmis'];
+			}
 			$body .= '
 				<tr class="bidang" data-kode="'.$kd_urusan.'.'.$kd_bidang.'">
 		            <td class="text_tengah kiri kanan bawah text_blok">'.$kd_urusan.'</td>
@@ -445,7 +471,7 @@ foreach ($units as $k => $unit):
 		            <td class="text_tengah kanan bawah">&nbsp;</td>
 		            <td class="kanan bawah text_blok">'.$bidang['nama'].'</td>
 		            <td class="kanan bawah text_kanan text_blok">'.number_format($bidang['total'],0,",",".").'</td>
-		            <td class="kanan bawah text_kanan text_blok">'.number_format($bidang['total_simda'],0,",",".").'</td>
+		            <td class="kanan bawah text_kanan text_blok">'.number_format($bidang_dpa,0,",",".").'</td>
 		            <td class="kanan bawah text_kanan text_blok">'.number_format($bidang['realisasi'],0,",",".").'</td>
 		            <td class="kanan bawah text_blok text_tengah">'.$this->pembulatan($capaian).'</td>
 		            <td class="kanan bawah text_tengah text_blok">'.$this->pembulatan($capaian_rak).'</td>
@@ -470,6 +496,10 @@ foreach ($units as $k => $unit):
 				if(!empty($capaian_rak)){
 					$deviasi_program = (($capaian_rak-$capaian)/$capaian_rak)*100;
 				}
+				$prog_dpa = $program['total_simda'];
+				if($cek_pagu_dpa == 'fmis'){
+					$prog_dpa = $program['total_fmis'];
+				}
 				$body .= '
 					<tr class="program" data-kode="'.$kd_urusan.'.'.$kd_bidang.'.'.$kd_program.'">
 			            <td class="text_tengah kiri kanan bawah text_blok">'.$kd_urusan.'</td>
@@ -479,7 +509,7 @@ foreach ($units as $k => $unit):
 			            <td class="text_tengah kanan bawah">&nbsp;</td>
 			            <td class="kanan bawah text_blok">'.$program['nama'].'</td>
 			            <td class="kanan bawah text_kanan text_blok">'.number_format($program['total'],0,",",".").'</td>
-			            <td class="kanan bawah text_kanan text_blok">'.number_format($program['total_simda'],0,",",".").'</td>
+			            <td class="kanan bawah text_kanan text_blok">'.number_format($prog_dpa,0,",",".").'</td>
 			            <td class="kanan bawah text_kanan text_blok">'.number_format($program['realisasi'],0,",",".").'</td>
 			            <td class="kanan bawah text_blok text_tengah">'.$this->pembulatan($capaian).'</td>
 			            <td class="kanan bawah text_tengah text_blok">'.$this->pembulatan($capaian_rak).'</td>
@@ -507,6 +537,10 @@ foreach ($units as $k => $unit):
 					$nama_page = $input['tahun_anggaran'] . ' | ' . $unit['kode_skpd'] . ' | ' . $kd_giat1 . ' | ' . $giat['nama'];
 					$custom_post = get_page_by_title($nama_page, OBJECT, 'post');
 					$link_kegiatan = $this->get_link_post($custom_post);
+					$keg_dpa = $giat['total_simda'];
+					if($cek_pagu_dpa == 'fmis'){
+						$keg_dpa = $giat['total_fmis'];
+					}
 					$body .= '
 				        <tr class="kegiatan" data-kode="'.$kd_urusan.'.'.$kd_bidang.'.'.$kd_program.'.'.$kd_giat.'">
 				            <td class="text_tengah" style="border:.5pt solid #000; vertical-align:middle; font-weight:bold;" width="5">'.$kd_urusan.'</td>
@@ -516,7 +550,7 @@ foreach ($units as $k => $unit):
 				            <td class="text_tengah" style="border:.5pt solid #000; vertical-align:middle;" width="5">&nbsp;</td>
 				            <td style="border:.5pt solid #000; vertical-align:middle; font-weight:bold;"><a href="'.$link_kegiatan.'" target="_blank">'.$giat['nama'].'</a></td>
 				            <td style="border:.5pt solid #000; vertical-align:middle; text-align:right; font-weight:bold;">'.number_format($giat['total'],0,",",".").'</td>
-				            <td style="border:.5pt solid #000; vertical-align:middle; text-align:right; font-weight:bold;">'.number_format($giat['total_simda'],0,",",".").'</td>
+				            <td style="border:.5pt solid #000; vertical-align:middle; text-align:right; font-weight:bold;">'.number_format($keg_dpa,0,",",".").'</td>
 				            <td style="border:.5pt solid #000; vertical-align:middle; text-align:right; font-weight:bold;">'.number_format($giat['realisasi'],0,",",".").'</td>
 				            <td class="text_tengah" style="border:.5pt solid #000; vertical-align:middle; font-weight:bold;">'.$this->pembulatan($capaian).'</td>
 				            <td class="text_tengah" style="border:.5pt solid #000; vertical-align:middle; font-weight:bold;">'.$this->pembulatan($capaian_rak).'</td>
@@ -582,6 +616,10 @@ foreach ($units as $k => $unit):
 							'permasalahan' => $sub_giat['data']['permasalahan'],
 							'catatan_verifikator' => $sub_giat['data']['catatan_verifikator']
 						);
+						$sub_keg_dpa = $sub_giat['total_simda'];
+						if($cek_pagu_dpa == 'fmis'){
+							$sub_keg_dpa = $sub_giat['total_fmis'];
+						}
 						$body .= '
 					        <tr data-kode="'.$kd_sub_giat1.'" data-kdsbl="'.$sub_giat['data']['kode_sbl'].'" data-idskpd="'.$sub_giat['data']['id_sub_skpd'].'" data-pagu="'.$sub_giat['total'].'">
 					            <td class="kiri kanan bawah">'.$kd_urusan.'</td>
@@ -591,7 +629,7 @@ foreach ($units as $k => $unit):
 					            <td class="kanan bawah">'.$kd_sub_giat.'</td>
 					            <td class="kanan bawah nama_sub_giat">'.$sub_giat['nama'].'</td>
 					            <td class="kanan bawah text_kanan">'.number_format($sub_giat['total'],0,",",".").'</td>
-					            <td class="kanan bawah text_kanan total_simda" data-pagu="'.$sub_giat['total_simda'].'">'.number_format($sub_giat['total_simda'],0,",",".").'</td>
+					            <td class="kanan bawah text_kanan total_simda" data-pagu="'.$sub_keg_dpa.'">'.number_format($sub_keg_dpa,0,",",".").'</td>
 					            <td class="kanan bawah text_kanan">'.number_format($sub_giat['realisasi'],0,",",".").'</td>
 					            <td class="kanan bawah text_tengah">'.$this->pembulatan($capaian).'</td>
 					            <td class="kanan bawah text_tengah">'.$this->pembulatan($capaian_rak).'</td>
@@ -631,6 +669,13 @@ foreach ($units as $k => $unit):
 	);
 	if(!empty($catatan_ka_adbang)){
 		$catatan_ka_adbang = $catatan_ka_adbang['catatan_ka_adbang'];
+	}
+
+	$kolom_dpa = 'DPA SIMDA';
+	$total_dpa = $data_all['total_simda'];
+	if($cek_pagu_dpa == 'fmis'){
+		$kolom_dpa = 'RKA FMIS';
+		$total_dpa = $data_all['total_fmis'];
 	}
 
 	echo '
@@ -681,7 +726,7 @@ foreach ($units as $k => $unit):
 			        <td class="atas kanan bawah kiri text_tengah text_blok" colspan="5">Kode</td>
 			        <td class="atas kanan bawah text_tengah text_blok">Urusan/ Bidang Urusan Pemerintahan Daerah Dan Program/ Kegiatan</td>
 			        <td class="atas kanan bawah text_tengah text_blok">RKA SIPD (Rp.)</td>
-			        <td class="atas kanan bawah text_tengah text_blok">DPA SIMDA (Rp.)</td>
+			        <td class="atas kanan bawah text_tengah text_blok">'.$kolom_dpa.' (Rp.)</td>
 			        <td class="atas kanan bawah text_tengah text_blok">Realisasi Keuangan (Rp.)</td>
 			        <td class="atas kanan bawah text_tengah text_blok">Capaian ( % )</td>
 			        <td class="atas kanan bawah text_tengah text_blok">RAK SIMDA ( % )</td>
@@ -717,7 +762,7 @@ foreach ($units as $k => $unit):
 				<tr>
 			        <td class="kiri kanan bawah text_blok text_kanan" colspan="6">TOTAL dan CATATAN KESIMPULAN KABAG ADBANG</td>
 			        <td class="kanan bawah text_kanan text_blok">'.number_format($data_all['total'],0,",",".").'</td>
-			        <td class="kanan bawah text_kanan text_blok">'.number_format($data_all['total_simda'],0,",",".").'</td>
+			        <td class="kanan bawah text_kanan text_blok">'.number_format($total_dpa,0,",",".").'</td>
 			        <td class="kanan bawah text_kanan text_blok">'.number_format($data_all['realisasi'],0,",",".").'</td>
 			        <td class="kanan bawah text_tengah text_blok">'.$this->pembulatan($capaian_total).'</td>
 			        <td class="kanan bawah text_tengah text_blok" data="'.$data_all['total_rak_simda'].'">'.$this->pembulatan($capaian_rak).'</td>
@@ -943,10 +988,17 @@ if(!current_user_can('administrator')){
 			+'<?php echo $reset_rfk; ?>'
 			+'<label style="margin-left: 20px;"><input type="checkbox" id="tampil-detail-fisik" checked onclick="tampil_detail_fisik();"> Tampilkan Detail Realisasi Fisik</label>'
 			+'<label style="margin-left: 20px;"><input type="checkbox" id="tampil-nilai-fisik" onclick="tampil_nilai_fisik();"> Tampilkan Nilai Realisasi Fisik</label>'
+			+'<label style="margin-left: 20px;">Pagu DPA: '
+				+'<select id="pagu_dpa" style="padding: 5px;">'
+					+'<option value="simda">APBD SIMDA</option>'
+					+'<option value="fmis">APBD FMIS</option>'
+				+'</select>'
+			+'</label>'
 		+'</div>';
 	jQuery(document).ready(function(){
 	    jQuery('#action-sipd').append(extend_action);
 	    jQuery('#pilih_sumber_pagu').val(+<?php echo $sumber_pagu; ?>);
+	    jQuery('#pagu_dpa').val('<?php echo $cek_pagu_dpa; ?>');
 	    jQuery('#pilih_bulan').val(+<?php echo $bulan; ?>);
 		
 		setTimeout(function(){
@@ -958,6 +1010,12 @@ if(!current_user_can('administrator')){
 	    		window.open(_url_asli+'&sumber_pagu='+val,'_blank');
 	    	}
 	    	jQuery('#pilih_sumber_pagu').val(+<?php echo $sumber_pagu; ?>);
+	    });
+	    jQuery('#pagu_dpa').on('change', function(){
+	    	var val = jQuery(this).val();
+	    	var new_url = changeUrl({ url: _url_asli, key: 'pagu_dpa', value: val });
+	    	window.open(new_url,'_blank');
+	    	jQuery('#pagu_dpa').val('<?php echo $cek_pagu_dpa; ?>');
 	    });
 	    jQuery('#pilih_bulan').on('change', function(){
 	    	var val = +jQuery(this).val();

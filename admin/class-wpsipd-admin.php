@@ -344,6 +344,13 @@ class Wpsipd_Admin {
             	->add_options( $sumber_dana_all )
             	->set_default_value(1)
             	->set_help_text('Sumber dana ini akan digunakan di custom mapping sumber dana dan ketika singkron ke SIMDA'),
+            Field::make( 'select', 'crb_default_sumber_pagu_dpa', 'Nilai pagu DPA untuk RFK' )
+            	->add_options( array(
+            		'1' => 'APBD SIMDA',
+            		'2' => 'APBD FMIS'
+            	) )
+            	->set_default_value(1)
+            	->set_help_text('Nilai pagu DPA pada halaman monitoring data realisasi fisik dan keuangan (RFK)'),
             Field::make( 'html', 'crb_generate_user_sipd_merah' )
             	->set_html( '<a id="generate_user_sipd_merah" onclick="return false;" href="#" class="button button-primary button-large">Generate User SIPD Merah By DB Lokal</a>' )
             	->set_help_text('Data user active yang ada di table data_dewan akan digenerate menjadi user wordpress.'),
@@ -399,6 +406,11 @@ class Wpsipd_Admin {
 		);
 		if (!empty($_POST)) {
 			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option('_crb_api_key_extension' )) {
+				$sumber_pagu_dpa = get_option('_crb_default_sumber_pagu_dpa');
+				$url_nilai_dpa = '&pagu_dpa=simda';
+				if($sumber_pagu_dpa == 2){
+					$url_nilai_dpa = '&pagu_dpa=fmis';
+				}
 				$body_all = '';
 				$tahun = $wpdb->get_results('select tahun_anggaran from data_unit group by tahun_anggaran order by tahun_anggaran ASC', ARRAY_A);
 				foreach ($tahun as $k => $v) {
@@ -409,7 +421,7 @@ class Wpsipd_Admin {
 
 						if($_POST['type'] == 'rfk'){
 							$url_skpd = $this->generatePage('RFK '.$vv['nama_skpd'].' '.$vv['kode_skpd'].' | '.$v['tahun_anggaran'], $v['tahun_anggaran'], '[monitor_rfk tahun_anggaran="'.$v['tahun_anggaran'].'" id_skpd="'.$vv['id_skpd'].'"]');
-		            		$body_pemda .= '<li><a target="_blank" href="'.$url_skpd.'">Halaman RFK '.$vv['kode_skpd'].' '.$vv['nama_skpd'].' '.$v['tahun_anggaran'].'</a> (NIP: '.$vv['nipkepala'].')';
+		            		$body_pemda .= '<li><a target="_blank" href="'.$url_skpd.$url_nilai_dpa.'">Halaman RFK '.$vv['kode_skpd'].' '.$vv['nama_skpd'].' '.$v['tahun_anggaran'].'</a> (NIP: '.$vv['nipkepala'].')';
 						}else if($_POST['type'] == 'monev_renja'){
 							$url_skpd = $this->generatePage('MONEV '.$vv['nama_skpd'].' '.$vv['kode_skpd'].' | '.$v['tahun_anggaran'], $v['tahun_anggaran'], '[monitor_monev_renja tahun_anggaran="'.$v['tahun_anggaran'].'" id_skpd="'.$vv['id_skpd'].'"]');
 		            		$body_pemda .= '<li><a target="_blank" href="'.$url_skpd.'">Halaman MONEV '.$vv['kode_skpd'].' '.$vv['nama_skpd'].' '.$v['tahun_anggaran'].'</a> (NIP: '.$vv['nipkepala'].')';
@@ -434,7 +446,7 @@ class Wpsipd_Admin {
 		            	foreach ($subunit as $kkk => $vvv) {
 							if($_POST['type'] == 'rfk'){
 								$url_skpd = $this->generatePage('RFK '.$vvv['nama_skpd'].' '.$vvv['kode_skpd'].' | '.$v['tahun_anggaran'], $v['tahun_anggaran'], '[monitor_rfk tahun_anggaran="'.$v['tahun_anggaran'].'" id_skpd="'.$vvv['id_skpd'].'"]');
-			            		$body_pemda .= '<li><a target="_blank" href="'.$url_skpd.'">Halaman RFK '.$vvv['kode_skpd'].' '.$vvv['nama_skpd'].' '.$v['tahun_anggaran'].'</a> (NIP: '.$vvv['nipkepala'].')</li>';
+			            		$body_pemda .= '<li><a target="_blank" href="'.$url_skpd.$url_nilai_dpa.'">Halaman RFK '.$vvv['kode_skpd'].' '.$vvv['nama_skpd'].' '.$v['tahun_anggaran'].'</a> (NIP: '.$vvv['nipkepala'].')</li>';
 							}else if($_POST['type'] == 'monev_renja'){
 								$url_skpd = $this->generatePage('MONEV '.$vvv['nama_skpd'].' '.$vvv['kode_skpd'].' | '.$v['tahun_anggaran'], $v['tahun_anggaran'], '[monitor_monev_renja tahun_anggaran="'.$v['tahun_anggaran'].'" id_skpd="'.$vvv['id_skpd'].'"]');
 			            		$body_pemda .= '<li><a target="_blank" href="'.$url_skpd.'">Halaman MONEV '.$vvv['kode_skpd'].' '.$vvv['nama_skpd'].' '.$v['tahun_anggaran'].'</a> (NIP: '.$vvv['nipkepala'].')</li>';
@@ -462,7 +474,7 @@ class Wpsipd_Admin {
 
 					if($_POST['type'] == 'rfk'){
 						$url_pemda = $this->generatePage('Realisasi Fisik dan Keuangan Pemerintah Daerah | '.$v['tahun_anggaran'], $v['tahun_anggaran'], '[monitor_rfk tahun_anggaran="'.$v['tahun_anggaran'].'"]');
-						$body_all .= '<a style="font-weight: bold;" target="_blank" href="'.$url_pemda.'">Halaman Realisasi Fisik dan Keuangan Pemerintah Daerah Tahun '.$v['tahun_anggaran'].'</a>'.$body_pemda;
+						$body_all .= '<a style="font-weight: bold;" target="_blank" href="'.$url_pemda.$url_nilai_dpa.'">Halaman Realisasi Fisik dan Keuangan Pemerintah Daerah Tahun '.$v['tahun_anggaran'].'</a>'.$body_pemda;
 					}else if($_POST['type'] == 'monev_renja'){
 						$url_pemda = $this->generatePage('MONEV RENJA Pemerintah Daerah | '.$v['tahun_anggaran'], $v['tahun_anggaran'], '[monitor_monev_renja tahun_anggaran="'.$v['tahun_anggaran'].'"]');
 						$body_all .= '<a style="font-weight: bold;" target="_blank" href="'.$url_pemda.'">Halaman MONEV RENJA Daerah Tahun '.$v['tahun_anggaran'].'</a>'.$body_pemda;
