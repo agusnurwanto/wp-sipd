@@ -10915,7 +10915,7 @@ class Wpsipd_Public
 		die(json_encode($return));
 	}
 
-	public function get_spd(){
+	public function get_spd($cek_return = false){
 		global $wpdb;
 		$return = array(
 			'action' => $_POST['action'],
@@ -10928,7 +10928,7 @@ class Wpsipd_Public
 			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
 				$tahun_anggaran = $_POST['tahun_anggaran'];
 				$mapping_skpd = $this->get_id_skpd_fmis(false, $tahun_anggaran);
-				$sql = $wpdb->prepare("SELECT * FROM ta_spd where tahun=%d", $tahun_anggaran);
+				$sql = $wpdb->prepare("SELECT * FROM ta_spd where tahun=%d order by tgl_spd ASC", $tahun_anggaran);
 				$return['sql'] = $sql;
 				$data_spd = $this->simda->CurlSimda(array(
 					'query' => $sql,
@@ -10954,7 +10954,11 @@ class Wpsipd_Public
 				'message'	=> 'Format tidak sesuai!'
 			);
 		}
-		die(json_encode($return));
+		if($cek_return){
+			return $return;
+		}else{
+			die(json_encode($return));
+		}
 	}
 
 	public function get_spd_rinci(){
