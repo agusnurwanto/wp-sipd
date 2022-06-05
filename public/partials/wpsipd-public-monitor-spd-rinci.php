@@ -23,41 +23,60 @@ $_POST['kd_bidang'] = $input['kd_bidang'];
 $_POST['kd_unit'] = $input['kd_unit']; 
 $_POST['kd_sub'] = $input['kd_sub'];
 $spd = $this->get_spd_rinci(true);
+$spd_unik = array();
+foreach ($spd['data'] as $val) {
+	$kode_unik = $input['tahun_anggaran'].$val->no_spd.$val->detail['nama_sub_giat'].$val->kd_rek90_1.$val->kd_rek90_2.$val->kd_rek90_3.$val->kd_rek90_4.$val->kd_rek90_5.$val->kd_rek90_6;
+	if(empty($spd_unik[$kode_unik])){
+		$spd_unik[$kode_unik] = array('simda' => array(), 'fmis' => array());
+	}
+	$spd_unik[$kode_unik]['simda'][] = $val;
+}
+
+$spd_fmis = $wpdb->get_results($wpdb->prepare("
+	SELECT 
+		*
+	FROM data_spd_rinci 
+	where tahun_anggaran=%d
+		and no_spd=%s
+		and active=1
+	", 
+	$input['tahun_anggaran'], 
+	$val->no_spd
+), ARRAY_A);
+foreach ($spd_fmis as $val) {
+	$kode_unik = $val['tahun_anggaran'].$val['no_spd'].$val['subkegiatan'].$val['kdrek1'].$val['kdrek2'].$val['kdrek3'].$val['kdrek4'].$val['kdrek5'].$val['kdrek6'];
+	if(empty($spd_unik[$kode_unik])){
+		$spd_unik[$kode_unik] = array('simda' => array(), 'fmis' => array());
+	}
+	$spd_unik[$kode_unik]['fmis'][] = $val;
+}
+
 $no = 0;
 $total_all_fmis = 0;
 $total_all_simda = 0;
 $body = '';
-foreach ($spd['data'] as $val) {
+foreach ($spd_unik as $val) {
 	$no++;
-	$total_fmis = $wpdb->get_var($wpdb->prepare("
-		SELECT 
-			sum(nilai) as nilai
-		FROM data_spd_rinci 
-		where tahun_anggaran=%d
-			and no_spd=%s
-			and kdrek1=%s
-			and kdrek2=%s
-			and kdrek3=%s
-			and kdrek4=%s
-			and kdrek5=%s
-			and kdrek6=%s
-			and active=1
-		", 
-		$input['tahun_anggaran'], 
-		$val->no_spd, 
-		$val->kd_rek90_1, 
-		$val->kd_rek90_2, 
-		$val->kd_rek90_3, 
-		$val->kd_rek90_4, 
-		$val->kd_rek90_5, 
-		$val->kd_rek90_6
-	));
-	if(!empty($total_fmis)){
-		$total_fmis = $total_fmis;
-	}else{
-		$total_fmis = 0;
+	$nama_program = '';
+	$nama_giat = '';
+	$nama_sub_giat = '';
+	$kode_akun = '';
+	$kode_akun_simda = '';
+	$total_fmis = 0;
+	foreach($val['fmis'] as $rinci_fmis){
+		$total_fmis += $rinci_fmis['nilai'];
+		$nama_sub_giat = $rinci_fmis['subkegiatan'];
+		$kode_akun = $rinci_fmis['kdrek1'].'.'.$rinci_fmis['kdrek2'].'.'.$rinci_fmis['kdrek3'].'.'.$rinci_fmis['kdrek4'].'.'.$rinci_fmis['kdrek5'].'.'.$rinci_fmis['kdrek6'];
 	}
-	$total_simda = $val->nilai;
+	$total_simda = 0;
+	foreach($val['simda'] as $rinci_simda){
+		$total_simda += $rinci_simda->nilai;
+		$nama_program = $rinci_simda->detail['nama_program'];
+		$nama_giat = $rinci_simda->detail['nama_giat'];
+		$nama_sub_giat = $rinci_simda->detail['nama_sub_giat'];
+		$kode_akun = $rinci_simda->detail['kode_akun'];
+		$kode_akun_simda = $rinci_simda->kd_rek_1.'.'.$rinci_simda->kd_rek_2.'.'.$rinci_simda->kd_rek_3.'.'.$rinci_simda->kd_rek_4.'.'.$rinci_simda->kd_rek_5;
+	}
 	$background = '';
 	if($total_fmis != $total_simda){
 		$background = 'background: #ffdbdb';
@@ -65,11 +84,11 @@ foreach ($spd['data'] as $val) {
 	$body .= '
 		<tr>
 			<td class="text-center">'.$no.'</td>
-			<td>'.$val->detail['nama_program'].'</td>
-			<td>'.$val->detail['nama_giat'].'</td>
-			<td>'.$val->detail['nama_sub_giat'].'</td>
-			<td class="text-center">'.$val->detail['kode_akun'].'</td>
-			<td class="text-center">'.$val->kd_rek_1.'.'.$val->kd_rek_2.'.'.$val->kd_rek_3.'.'.$val->kd_rek_4.'.'.$val->kd_rek_5.'</td>
+			<td>'.$nama_program.'</td>
+			<td>'.$nama_giat.'</td>
+			<td>'.$nama_sub_giat.'</td>
+			<td class="text-center">'.$kode_akun.'</td>
+			<td class="text-center">'.$kode_akun_simda.'</td>
 			<td class="text-right" style="'.$background.'">'.number_format($total_fmis, 2, ',', '.').'</td>
 			<td class="text-right" style="'.$background.'">'.number_format($total_simda, 2, ',', '.').'</td>
 		</tr>
