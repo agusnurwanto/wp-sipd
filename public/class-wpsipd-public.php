@@ -3591,6 +3591,15 @@ class Wpsipd_Public
 		echo $table;
 	}
 
+	public function monitoring_spd_rinci($atts)
+	{
+		// untuk disable render shortcode di halaman edit page/post
+		if(!empty($_GET) && !empty($_GET['post'])){
+			return '';
+		}
+		require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/wpsipd-public-monitor-spd-rinci.php';
+	}
+
 	public function monitoring_data_spd($atts)
 	{
 		// untuk disable render shortcode di halaman edit page/post
@@ -10961,7 +10970,7 @@ class Wpsipd_Public
 		}
 	}
 
-	public function get_spd_rinci(){
+	public function get_spd_rinci($cek_return = false){
 		global $wpdb;
 		$return = array(
 			'action' => $_POST['action'],
@@ -11107,7 +11116,11 @@ class Wpsipd_Public
 				'message'	=> 'Format tidak sesuai!'
 			);
 		}
-		die(json_encode($return));
+		if($cek_return){
+			return $return;
+		}else{
+			die(json_encode($return));
+		}
 	}
 
 	public function get_pegawai_simda(){

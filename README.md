@@ -49,3 +49,7 @@ Optimasi server apache agar proses pengiriman data dari chrome extension ke serv
 - Progress Pengembangan Aplikasi SIPD Lokal, Export RKA Semua Kegiatan https://youtu.be/t84n2jZUfFo
 - Integrasi data SIPD ke SIMDA keuangan https://youtu.be/vFOsAlnxmTo
 - Setting Koneksi SIMDA API PHP menggunakan ODBC di Windows https://www.youtube.com/watch?v=ojc6Dr6fZ8I
+- Hapus RKA, Aktivitas, Sub Kegiatan, Kegiatan dan Program FMIS https://youtu.be/xXVd-cAMB_w
+- Mapping Program Kegiatan dan Monitoring Hasil Singkronisasi WP-SIPD ke FMIS https://youtu.be/7J_k8NEAZLM
+- Singkronisasi Pendapatan, Pembiayaan dan Anggaran Kas FMIS https://youtu.be/BECuRXKvwAg
+- Cara Update Script Chrome Extension dan WP-SIPD dengan GIT Bash https://youtu.be/WiWWK-1suzY
