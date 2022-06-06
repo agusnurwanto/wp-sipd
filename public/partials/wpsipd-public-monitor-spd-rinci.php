@@ -25,7 +25,7 @@ $_POST['kd_sub'] = $input['kd_sub'];
 $spd = $this->get_spd_rinci(true);
 $spd_unik = array();
 foreach ($spd['data'] as $val) {
-	$kode_unik = $input['tahun_anggaran'].$val->no_spd.$val->detail['nama_sub_giat'].$val->kd_rek90_1.$val->kd_rek90_2.$val->kd_rek90_3.$val->kd_rek90_4.$val->kd_rek90_5.$val->kd_rek90_6;
+	$kode_unik = trim(strtolower($input['tahun_anggaran'].$val->no_spd.$val->detail['nama_sub_giat'].$val->kd_rek90_1.$val->kd_rek90_2.$val->kd_rek90_3.$val->kd_rek90_4.$val->kd_rek90_5.$val->kd_rek90_6));
 	if(empty($spd_unik[$kode_unik])){
 		$spd_unik[$kode_unik] = array('simda' => array(), 'fmis' => array());
 	}
@@ -44,19 +44,18 @@ $spd_fmis = $wpdb->get_results($wpdb->prepare("
 	$val->no_spd
 ), ARRAY_A);
 foreach ($spd_fmis as $val) {
-	$kode_unik = $val['tahun_anggaran'].$val['no_spd'].$val['subkegiatan'].$val['kdrek1'].$val['kdrek2'].$val['kdrek3'].$val['kdrek4'].$val['kdrek5'].$val['kdrek6'];
+	$kode_unik = trim(strtolower($val['tahun_anggaran'].$val['no_spd'].$val['subkegiatan'].$val['kdrek1'].$val['kdrek2'].$val['kdrek3'].$val['kdrek4'].$val['kdrek5'].$val['kdrek6']));
 	if(empty($spd_unik[$kode_unik])){
 		$spd_unik[$kode_unik] = array('simda' => array(), 'fmis' => array());
 	}
 	$spd_unik[$kode_unik]['fmis'][] = $val;
 }
 
-$no = 0;
 $total_all_fmis = 0;
 $total_all_simda = 0;
 $body = '';
 foreach ($spd_unik as $val) {
-	$no++;
+	$no_id = array();
 	$nama_program = '';
 	$nama_giat = '';
 	$nama_sub_giat = '';
@@ -64,12 +63,14 @@ foreach ($spd_unik as $val) {
 	$kode_akun_simda = '';
 	$total_fmis = 0;
 	foreach($val['fmis'] as $rinci_fmis){
+		// $no_id[] = $rinci_fmis['kdurut'];
 		$total_fmis += $rinci_fmis['nilai'];
 		$nama_sub_giat = $rinci_fmis['subkegiatan'];
 		$kode_akun = $rinci_fmis['kdrek1'].'.'.$rinci_fmis['kdrek2'].'.'.$rinci_fmis['kdrek3'].'.'.$rinci_fmis['kdrek4'].'.'.$rinci_fmis['kdrek5'].'.'.$rinci_fmis['kdrek6'];
 	}
 	$total_simda = 0;
 	foreach($val['simda'] as $rinci_simda){
+		$no_id[] = $rinci_simda->no_id;
 		$total_simda += $rinci_simda->nilai;
 		$nama_program = $rinci_simda->detail['nama_program'];
 		$nama_giat = $rinci_simda->detail['nama_giat'];
@@ -83,7 +84,7 @@ foreach ($spd_unik as $val) {
 	}
 	$body .= '
 		<tr>
-			<td class="text-center">'.$no.'</td>
+			<td class="text-center">'.implode('.', $no_id).'</td>
 			<td>'.$nama_program.'</td>
 			<td>'.$nama_giat.'</td>
 			<td>'.$nama_sub_giat.'</td>
@@ -109,6 +110,9 @@ if($total_all_fmis != $total_all_simda){
 	.hide {
 		display: none;
 	}
+	th {
+		vertical-align: middle !important;
+	}
 </style>
 <div class="cetak">
 	<div style="padding: 10px;">
@@ -116,10 +120,10 @@ if($total_all_fmis != $total_all_simda){
 		<input type="hidden" value="<?php echo $input['tahun_anggaran']; ?>" id="tahun_anggaran">
 		<h1 class="text-center">Monitoring Data SPD Rinci Tahun <?php echo $input['tahun_anggaran']; ?></h1>
 		<h3 class="text-center"><?php echo $input['nama_skpd']; ?><br>No SPD: <?php echo $input['no_spd']; ?></h3>
-		<table cellpadding="2" cellspacing="0" style="font-family:\'Open Sans\',-apple-system,BlinkMacSystemFont,\'Segoe UI\',sans-serif; border-collapse: collapse; width:100%; overflow-wrap: break-word;" class="table table-bordered">
+		<table id="data-table" class="table table-bordered">
 			<thead id="data_header">
 				<tr>
-					<th class="text-center">No</th>
+					<th class="text-center">No ID</th>
 					<th class="text-center">Program</th>
 					<th class="text-center">Kegiatan</th>
 					<th class="text-center">Sub Kegiatan</th>
@@ -134,9 +138,34 @@ if($total_all_fmis != $total_all_simda){
 			</tbody>
 			<tfoot>
 				<th colspan="6" class="text-center">Total</th>
-				<th class="text-right" style="<?php echo $background_all; ?>"><?php echo number_format($total_all_fmis, 2, ',', '.'); ?></th>
-				<th class="text-right" style="<?php echo $background_all; ?>"><?php echo number_format($total_all_simda, 2, ',', '.'); ?></th>
+				<th class="text-right" id="total_fmis" style="<?php echo $background_all; ?>"><?php echo number_format($total_all_fmis, 2, ',', '.'); ?></th>
+				<th class="text-right" id="total_simda" style="<?php echo $background_all; ?>"><?php echo number_format($total_all_simda, 2, ',', '.'); ?></th>
 			</tfoot>
 		</table>
 	</div>
 </div>
+<script type="text/javascript">
+	jQuery(document).ready(function(){
+		jQuery('#data-table').DataTable({
+	        columnDefs: [
+	            { "width": "45px", "targets": 0 }
+	        ],
+			lengthMenu: [[20, 50, 100, -1], [20, 50, 100, "All"]],
+			footerCallback: function ( row, data, start, end, display ) {
+	            var api = this.api();
+	            var total_page = api.column( 6, { page: 'current'} )
+	                .data()
+	                .reduce( function (a, b) {
+	                    return a + to_number(b);
+	                }, 0 );
+	            jQuery('#total_fmis').text(formatRupiah(total_page));
+	            var total_page = api.column( 7, { page: 'current'} )
+	                .data()
+	                .reduce( function (a, b) {
+	                    return a + to_number(b);
+	                }, 0 );
+	            jQuery('#total_simda').text(formatRupiah(total_page));
+	        }
+		});
+	});
+</script>

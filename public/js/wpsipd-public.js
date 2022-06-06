@@ -9,6 +9,17 @@ jQuery(document).ready(function(){
 	}
 });
 
+function to_number(text){
+	if(typeof text == 'number'){
+		return text;
+	}
+	text = +(text.replace(/\./g, '').replace(/,/g, '.'));
+	if(typeof text == 'NaN'){
+		text = 0;
+	}
+	return text;
+}
+
 function run_download_excel(type){
 	var current_url = window.location.href;
 	var body = '<a id="excel" onclick="return false;" href="#" class="button button-primary">DOWNLOAD EXCEL</a>';
