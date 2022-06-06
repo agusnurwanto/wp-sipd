@@ -1,0 +1,13 @@
+ALTER TABLE `data_spd_rinci` CHANGE `kdrek1` `kdrek1` INT(5) NULL DEFAULT NULL;
+ALTER TABLE `data_spd_rinci` CHANGE `kdrek2` `kdrek2` INT(5) NULL DEFAULT NULL;
+ALTER TABLE `data_spd_rinci` CHANGE `kdrek3` `kdrek3` INT(5) NULL DEFAULT NULL;
+ALTER TABLE `data_spd_rinci` CHANGE `kdrek4` `kdrek4` INT(5) NULL DEFAULT NULL;
+ALTER TABLE `data_spd_rinci` CHANGE `kdrek5` `kdrek5` INT(5) NULL DEFAULT NULL;
+ALTER TABLE `data_spd_rinci` CHANGE `kdrek6` `kdrek6` INT(5) NULL DEFAULT NULL;
+ALTER TABLE `data_spd_rinci` CHANGE `kd_urusan` `kd_urusan` INT(5) NULL DEFAULT NULL;
+ALTER TABLE `data_spd_rinci` CHANGE `kd_unit` `kd_unit` INT(5) NULL DEFAULT NULL;
+ALTER TABLE `data_spd_rinci` CHANGE `kd_bidang` `kd_bidang` INT(5) NULL DEFAULT NULL;
+ALTER TABLE `data_spd_rinci` CHANGE `kd_prog` `kd_prog` INT(5) NULL DEFAULT NULL;
+ALTER TABLE `data_spd_rinci` CHANGE `kd_keg` `kd_keg` INT(5) NULL DEFAULT NULL;
+ALTER TABLE `data_spd_rinci` CHANGE `id_prog` `id_prog` INT(5) NULL DEFAULT NULL;
+ALTER TABLE `data_spd_rinci` ADD `kdurut` INT NULL AFTER `id`;

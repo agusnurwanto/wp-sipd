@@ -63,7 +63,7 @@ foreach ($spd_unik as $val) {
 	$kode_akun_simda = '';
 	$total_fmis = 0;
 	foreach($val['fmis'] as $rinci_fmis){
-		// $no_id[] = $rinci_fmis['kdurut'];
+		$no_id[] = $rinci_fmis['kdurut'];
 		$total_fmis += $rinci_fmis['nilai'];
 		$nama_sub_giat = $rinci_fmis['subkegiatan'];
 		$kode_akun = $rinci_fmis['kdrek1'].'.'.$rinci_fmis['kdrek2'].'.'.$rinci_fmis['kdrek3'].'.'.$rinci_fmis['kdrek4'].'.'.$rinci_fmis['kdrek5'].'.'.$rinci_fmis['kdrek6'];
@@ -123,7 +123,7 @@ if($total_all_fmis != $total_all_simda){
 		<table id="data-table" class="table table-bordered">
 			<thead id="data_header">
 				<tr>
-					<th class="text-center">No ID</th>
+					<th class="text-center">No ID<br>FMS<br>SMD</th>
 					<th class="text-center">Program</th>
 					<th class="text-center">Kegiatan</th>
 					<th class="text-center">Sub Kegiatan</th>

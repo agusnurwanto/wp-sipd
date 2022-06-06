@@ -11348,6 +11348,7 @@ class Wpsipd_Public
 						$v->idsubunit
 					), ARRAY_A);
 					$data_spd_rinci = array(
+					 	'kdurut' => $spd->kdurut,
 					 	'no_spd' => $spd->spd_no,
 						'idrefaktivitas' => $v->idrefaktivitas,
 						'idsubunit' => $v->idsubunit,
