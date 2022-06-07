@@ -300,6 +300,52 @@ class Wpsipd_Public
 		die(json_encode($ret));
 	}
 
+	public function get_meta_subunit_simda(){
+		global $wpdb;
+		$ret = array(
+			'action'	=> $_POST['action'],
+			'data'	=> array()
+		);
+		if (!empty($_POST)) {
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+				$tahun_anggaran = $_POST['tahun_anggaran'];
+				$sql = $wpdb->prepare("
+					SELECT 
+						s.*,
+						j.*
+					from ta_sub_unit s
+					left join ta_sub_unit_jab j on s.tahun=j.tahun
+						and s.kd_urusan=j.kd_urusan
+						and s.kd_bidang=j.kd_bidang
+						and s.kd_unit=j.kd_unit
+						and s.kd_sub=j.kd_sub
+					where s.tahun=%d
+						and j.kd_jab=4
+					", 
+					$tahun_anggaran
+				);
+				$return['sql'] = $sql;
+				$data_sub_unit = $this->simda->CurlSimda(array(
+					'query' => $sql,
+					'debug' => 1
+				));
+				$mapping_skpd = $this->get_id_skpd_fmis(false, $tahun_anggaran);
+				foreach($data_sub_unit as $k => $sub_unit){
+					$kd_sub_unit = $sub_unit->kd_urusan.'.'.$sub_unit->kd_bidang.'.'.$sub_unit->kd_unit.'.'.$sub_unit->kd_sub;
+					$data_sub_unit[$k]->kd_sub_unit = $kd_sub_unit;
+					if(!empty($mapping_skpd['id_mapping_simda'][$kd_sub_unit])){
+						$data_sub_unit[$k]->skpd = $mapping_skpd['id_mapping_simda'][$kd_sub_unit];
+					}
+				}
+				$ret['data'] = $data_sub_unit;
+			} else {
+				$ret['status'] = 'error';
+				$ret['message'] = 'APIKEY tidak sesuai!';
+			}
+		}
+		die(json_encode($ret));
+	}
+
 	public function get_ssh(){
 		global $wpdb;
 		$ret = array(

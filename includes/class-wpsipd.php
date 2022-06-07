@@ -355,6 +355,9 @@ class Wpsipd
 		$this->loader->add_action('wp_ajax_get_skpd_fmis',  $plugin_public, 'get_skpd_fmis');
 		$this->loader->add_action('wp_ajax_nopriv_get_skpd_fmis',  $plugin_public, 'get_skpd_fmis');
 
+		$this->loader->add_action('wp_ajax_get_meta_subunit_simda',  $plugin_public, 'get_meta_subunit_simda');
+		$this->loader->add_action('wp_ajax_nopriv_get_meta_subunit_simda',  $plugin_public, 'get_meta_subunit_simda');
+
 		$this->loader->add_action('wp_ajax_get_sub_keg',  $plugin_public, 'get_sub_keg');
 		$this->loader->add_action('wp_ajax_nopriv_get_sub_keg',  $plugin_public, 'get_sub_keg');
 
