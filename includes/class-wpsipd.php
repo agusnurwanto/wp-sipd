@@ -370,6 +370,9 @@ class Wpsipd
 		$this->loader->add_action('wp_ajax_mapping_skpd_fmis',  $plugin_public, 'mapping_skpd_fmis');
 		$this->loader->add_action('wp_ajax_nopriv_mapping_skpd_fmis',  $plugin_public, 'mapping_skpd_fmis');
 
+		$this->loader->add_action('wp_ajax_get_spp',  $plugin_public, 'get_spp');
+		$this->loader->add_action('wp_ajax_nopriv_get_spp',  $plugin_public, 'get_spp');
+
 		$this->loader->add_action('wp_ajax_get_spd',  $plugin_public, 'get_spd');
 		$this->loader->add_action('wp_ajax_nopriv_get_spd',  $plugin_public, 'get_spd');
 
