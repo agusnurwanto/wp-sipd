@@ -382,6 +382,9 @@ class Wpsipd
 		$this->loader->add_action('wp_ajax_get_spp_rinci',  $plugin_public, 'get_spp_rinci');
 		$this->loader->add_action('wp_ajax_nopriv_get_spp_rinci',  $plugin_public, 'get_spp_rinci');
 
+		$this->loader->add_action('wp_ajax_get_tagihan',  $plugin_public, 'get_tagihan');
+		$this->loader->add_action('wp_ajax_nopriv_get_tagihan',  $plugin_public, 'get_tagihan');
+
 		$this->loader->add_action('wp_ajax_get_pegawai_simda',  $plugin_public, 'get_pegawai_simda');
 		$this->loader->add_action('wp_ajax_nopriv_get_pegawai_simda',  $plugin_public, 'get_pegawai_simda');
 

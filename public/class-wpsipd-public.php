@@ -436,6 +436,82 @@ class Wpsipd_Public
 		die(json_encode($ret));
 	}
 
+	public function get_tagihan(){
+		global $wpdb;
+		$ret = array(
+			'action'	=> $_POST['action'],
+			'data'	=> array()
+		);
+		if (!empty($_POST)) {
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+				$tahun_anggaran = $_POST['tahun_anggaran'];
+				$id_skpd_fmis = false;
+				if(!empty($_POST['idsubunit'])){
+					$id_skpd_fmis = $_POST['idsubunit'];
+				}
+				$mapping_skpd = $this->get_id_skpd_fmis($id_skpd_fmis, $tahun_anggaran, true);
+				$kd_urusan = array();
+				$kd_bidang = array();
+				$kd_unit = array();
+				$kd_sub = array();
+				foreach($mapping_skpd['id_skpd_sipd'] as $id){
+					$kd_unit_simda_asli = get_option('_crb_unit_'.$id);
+					$kd_simda = explode('.', $kd_unit_simda_asli);
+					if(!empty($kd_simda[0])){
+						if(empty($kd_urusan[$kd_simda[0]])){
+							$kd_urusan[$kd_simda[0]] = $kd_simda[0];
+						}
+					}
+					if(!empty($kd_simda[1])){
+						if(empty($kd_bidang[$kd_simda[1]])){
+							$kd_bidang[$kd_simda[1]] = $kd_simda[1];
+						}
+					}
+					if(!empty($kd_simda[2])){
+						if(empty($kd_unit[$kd_simda[2]])){
+							$kd_unit[$kd_simda[2]] = $kd_simda[2];
+						}
+					}
+					if(!empty($kd_simda[3])){
+						if(empty($kd_sub[$kd_simda[3]])){
+							$kd_sub[$kd_simda[3]] = $kd_simda[3];
+						}
+					}
+				}
+				$sql = $wpdb->prepare("
+					SELECT 
+						s.*
+					from ta_spp s
+					where s.tahun=%d
+						and s.no_tagihan is not null
+						and s.kd_urusan in (".implode(',', $kd_urusan).")
+						and s.kd_bidang in (".implode(',', $kd_bidang).")
+						and s.kd_unit in (".implode(',', $kd_unit).")
+						and s.kd_sub in (".implode(',', $kd_sub).")
+					", 
+					$tahun_anggaran
+				);
+				$return['sql'] = $sql;
+				$spp = $this->simda->CurlSimda(array(
+					'query' => $sql,
+					'debug' => 1
+				));
+				foreach($spp as $k => $v){
+					$kd_sub_unit = $v->kd_urusan.'.'.$v->kd_bidang.'.'.$v->kd_unit.'.'.$v->kd_sub;
+					$spp[$k]->kd_sub_unit = $kd_sub_unit;
+					if(!empty($mapping_skpd['id_mapping_simda'][$kd_sub_unit])){
+						$spp[$k]->skpd = $mapping_skpd['id_mapping_simda'][$kd_sub_unit];
+					}
+				}
+				$ret['data'] = $spp;
+			} else {
+				$ret['status'] = 'error';
+				$ret['message'] = 'APIKEY tidak sesuai!';
+			}
+		}
+		die(json_encode($ret));
+	}
+
 	public function get_ssh(){
 		global $wpdb;
 		$ret = array(
