@@ -348,7 +348,7 @@ $body = '';
 			var akun = jQuery('#u_akun').val();
 			var keterangan_lampiran = jQuery('#u_keterangan_lampiran').val();
 			jQuery("#wrap-loading").show();
-			if(kategori.trim() == '' || nama_komponen.trim() == '' || spesifikasi.trim() == '' || satuan.trim() == '' || harga_satuan.trim() == ''){
+			if(kategori.trim() == '' || nama_komponen.trim() == '' || spesifikasi.trim() == '' || satuan.trim() == '' || harga_satuan.trim() == '' || akun == '' || keterangan_lampiran.trim() == ''){
 				jQuery("#wrap-loading").hide();
 				alert('Harap diisi semua, tidak ada yang kosong.');
 				return false;
@@ -507,6 +507,11 @@ $body = '';
 			var verify_ssh = jQuery("input[name=\'verify_ssh\']:checked").val();
 			var reason_verify_ssh = jQuery("#alasan_verify_ssh").val();
 			jQuery("#wrap-loading").show();
+			if(verify_ssh == 0 && reason_verify_ssh.trim() == ''){
+				jQuery("#wrap-loading").hide();
+				alert('Harap diisi semua, tidak ada yang kosong.');
+				return false;
+			}else{
 				jQuery.ajax({
 					url: "<?php echo admin_url('admin-ajax.php'); ?>",
 					type:'post',
@@ -535,6 +540,7 @@ $body = '';
 						usulanSSHTable.ajax.reload();
 					}
 				});
+			}
 		}
 
 		function submitUsulanTambahHargaSshForm(tahun){
@@ -644,7 +650,7 @@ $body = '';
 			var harga_satuan = jQuery('#edit_usulan_harga_satuan').val();
 			var keterangan_lampiran = jQuery('#edit_usulan_keterangan_lampiran').val();
 			jQuery("#wrap-loading").show();
-			if(kategori.trim() == '' || nama_komponen.trim() == '' || spesifikasi.trim() == '' || satuan.trim() == '' || harga_satuan.trim() == ''){
+			if(kategori.trim() == '' || nama_komponen.trim() == '' || spesifikasi.trim() == '' || satuan.trim() == '' || harga_satuan.trim() == '' || keterangan_lampiran.trim() == ''){
 				jQuery("#wrap-loading").hide();
 				alert('Harap diisi semua, tidak ada yang kosong.');
 				return false;
