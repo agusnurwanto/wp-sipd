@@ -429,6 +429,10 @@ class Wpsipd
 		$this->loader->add_action('wp_ajax_get_data_chart_ssh',  $plugin_public, 'get_data_chart_ssh');
 		$this->loader->add_action('wp_ajax_get_data_ssh_analisis_skpd',  $plugin_public, 'get_data_ssh_analisis_skpd');
 		$this->loader->add_action('wp_ajax_get_data_chart_ssh_skpd',  $plugin_public, 'get_data_chart_ssh_skpd');
+		$this->loader->add_action('wp_ajax_submit_edit_usulan_ssh',  $plugin_public, 'submit_edit_usulan_ssh');
+		$this->loader->add_action('wp_ajax_submit_delete_usulan_ssh',  $plugin_public, 'submit_delete_usulan_ssh');
+		$this->loader->add_action('wp_ajax_submit_delete_akun_usulan_ssh',  $plugin_public, 'submit_delete_akun_usulan_ssh');
+		$this->loader->add_action('wp_ajax_submit_delete_check_usulan_ssh',  $plugin_public, 'submit_delete_check_usulan_ssh');
 
 		add_shortcode('menu_monev',  array($plugin_public, 'menu_monev'));
 		add_shortcode('datassh', array($plugin_public, 'datassh'));
