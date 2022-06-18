@@ -17,6 +17,18 @@ $url_data_ssh = $this->get_link_post($custom_post);
 $nama_page_menu_ssh_usulan = 'Data Usulan Standar Satuan Harga (SSH) | '.$input['tahun_anggaran'];
 $custom_post_usulan = get_page_by_title($nama_page_menu_ssh_usulan, OBJECT, 'page');
 $url_data_ssh_usulan = $this->get_link_post($custom_post_usulan);
+$sql = $wpdb->prepare("
+	SELECT 
+		du.kode_skpd,
+		du.nama_skpd
+		FROM data_unit as du 
+		WHERE du.active=1 
+			and du.tahun_anggaran=%d 
+			AND du.id_skpd=%d",
+		$input['tahun_anggaran'],
+		$input['id_skpd']
+	);
+$skpd = $wpdb->get_results($sql, ARRAY_A);
 
 $body = '';
 ?>
@@ -24,7 +36,7 @@ $body = '';
 		<div style="padding: 10px;margin:0 0 3rem 0;">
 			<input type="hidden" value="<?php echo get_option( '_crb_api_key_extension' ); ?>" id="api_key">
 			<input type="hidden" value="<?php echo $input['tahun_anggaran']; ?>" id="tahun_anggaran">
-			<h2 class="text-center" style="margin:3rem;">Daftar 20 Rincian Belanja Terbesar<br><?php echo get_option('_crb_daerah'); ?><br>Tahun Anggaran <?php echo $input['tahun_anggaran']; ?></h2>
+			<h2 class="text-center" style="margin:3rem;">Daftar 20 Rincian Belanja Terbesar<br><?php echo get_option('_crb_daerah'); ?><br>Tahun Anggaran <?php echo $input['tahun_anggaran']; ?><br><?php echo $skpd[0]['kode_skpd'].' '.$skpd[0]['nama_skpd']; ?></h2>
 			<div class="card" style="width:100%;margin:0 0 2rem 0">
 				<div class="card-body">
 					<canvas id="mycanvas"></canvas>

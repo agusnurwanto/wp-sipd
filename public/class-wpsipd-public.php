@@ -11892,6 +11892,15 @@ class Wpsipd_Public
 				$totalRecords = count($queryTot);
 				$queryRecords = $wpdb->get_results($sqlRec, ARRAY_A);
 
+				$title = 'Laporan Data per Item SSH';
+				$shortcode = '[laporan_per_item_ssh]';
+				$update = false;
+				$url_skpd = $this->generatePage($title, $params['tahun_anggaran'], $shortcode, $update);
+
+				foreach($queryRecords as $key => $val){
+					$queryRecords[$key]['nama_komponen'] = '<a href="'.$url_skpd.'&nama_komponen='.$val['nama_komponen'].'&spek_komponen='.$val['spek_komponen'].'&harga_satuan='.$val['harga_satuan'].'&satuan='.$val['satuan'].'&id_skpd='.$_POST['id_skpd'].'" target="_blank" style="text-decoration: none;">'.$val['nama_komponen'].'</a>';
+				}
+
 				$json_data = array(
 					"draw"            => intval( $params['draw'] ),   
 					"recordsTotal"    => intval( $totalRecords ),  
