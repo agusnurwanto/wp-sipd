@@ -385,6 +385,12 @@ class Wpsipd
 		$this->loader->add_action('wp_ajax_get_tagihan',  $plugin_public, 'get_tagihan');
 		$this->loader->add_action('wp_ajax_nopriv_get_tagihan',  $plugin_public, 'get_tagihan');
 
+		$this->loader->add_action('wp_ajax_get_sp2b',  $plugin_public, 'get_sp2b');
+		$this->loader->add_action('wp_ajax_nopriv_get_sp2b',  $plugin_public, 'get_sp2b');
+
+		$this->loader->add_action('wp_ajax_get_sp2b_rinci',  $plugin_public, 'get_sp2b_rinci');
+		$this->loader->add_action('wp_ajax_nopriv_get_sp2b_rinci',  $plugin_public, 'get_sp2b_rinci');
+
 		$this->loader->add_action('wp_ajax_get_pegawai_simda',  $plugin_public, 'get_pegawai_simda');
 		$this->loader->add_action('wp_ajax_nopriv_get_pegawai_simda',  $plugin_public, 'get_pegawai_simda');
 

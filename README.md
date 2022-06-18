@@ -53,3 +53,6 @@ Optimasi server apache agar proses pengiriman data dari chrome extension ke serv
 - Mapping Program Kegiatan dan Monitoring Hasil Singkronisasi WP-SIPD ke FMIS https://youtu.be/7J_k8NEAZLM
 - Singkronisasi Pendapatan, Pembiayaan dan Anggaran Kas FMIS https://youtu.be/BECuRXKvwAg
 - Cara Update Script Chrome Extension dan WP-SIPD dengan GIT Bash https://youtu.be/WiWWK-1suzY
+- Integrasi WP-SIPD ke FMIS https://youtu.be/8wDyFBXkWaM
+- Singkronisasi dan Monitoring SPD SIMDA ke FMIS https://youtu.be/3wTlBvkTUUw
+- Generate atau Update User SKPD Untuk WP-SIPD https://youtu.be/8UuxObArjCo
