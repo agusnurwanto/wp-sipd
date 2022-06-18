@@ -14,6 +14,10 @@ $nama_page_menu_ssh = 'Data Standar Satuan Harga SIPD | '.$input['tahun_anggaran
 $custom_post = get_page_by_title($nama_page_menu_ssh, OBJECT, 'page');
 $url_data_ssh = $this->get_link_post($custom_post);
 
+$nama_page_menu_ssh_usulan = 'Data Usulan Standar Satuan Harga (SSH) | '.$input['tahun_anggaran'];
+$custom_post_usulan = get_page_by_title($nama_page_menu_ssh_usulan, OBJECT, 'page');
+$url_data_ssh_usulan = $this->get_link_post($custom_post_usulan);
+
 $body = '';
 ?>
 	<div class="cetak">
@@ -29,6 +33,7 @@ $body = '';
 			<h2 class="text-center" style="margin:3rem;">Manajemen Satuan Harga</h2>
 			<div style="margin: 0 0 2rem 0;" class="text-center">
 				<a href="<?php echo $url_data_ssh ?>" style="text-decoration:none;" class="button button-primary button-large tambah_ssh" target="_blank">Data SSH SIPD</a>
+				<a href="<?php echo $url_data_ssh_usulan ?>" style="text-decoration:none;" class="button button-primary button-large tambah_ssh" target="_blank">Data Usulan SSH</a>
 			</div>
 			<h2 class="text-center" style="margin:3rem;">Data Rekapitulasi Rincian Belanja Tahun Anggaran <?php echo $input['tahun_anggaran']; ?></h2>
 			<table id="data_ssh_analisis" cellpadding="2" cellspacing="0" style="font-family:\'Open Sans\',-apple-system,BlinkMacSystemFont,\'Segoe UI\',sans-serif; border-collapse: collapse; width:100%; overflow-wrap: break-word;" class="table table-bordered">
