@@ -529,9 +529,9 @@ $body = '';
 					},
 					success:function(response){
 						if(response.status == 'success'){
-							// alert('<span style="color:green;">Thanks for contacting us, we\'ll get back to you soon.</p>');
+							alert('Data berhasil diverifikasi.');
 						}else{
-							alert('<span style="color:red;">Some problem occurred, please try again.</span>');
+							alert("GAGAL! "+response.message);
 						}
 						jQuery('#tambahUsulanSsh').modal('hide')
 						jQuery('.submitBtn').removeAttr("disabled");
