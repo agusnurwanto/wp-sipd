@@ -397,6 +397,12 @@ class Wpsipd
 		$this->loader->add_action('wp_ajax_singkroniasi_spd_fmis',  $plugin_public, 'singkroniasi_spd_fmis');
 		$this->loader->add_action('wp_ajax_nopriv_singkroniasi_spd_fmis',  $plugin_public, 'singkroniasi_spd_fmis');
 
+		$this->loader->add_action('wp_ajax_singkron_kategori_ssh',  $plugin_public, 'singkron_kategori_ssh');
+		$this->loader->add_action('wp_ajax_nopriv_singkron_kategori_ssh',  $plugin_public, 'singkron_kategori_ssh');
+
+		$this->loader->add_action('wp_ajax_singkron_satuan',  $plugin_public, 'singkron_satuan');
+		$this->loader->add_action('wp_ajax_nopriv_singkron_satuan',  $plugin_public, 'singkron_satuan');
+
 		$this->loader->add_action('wp_ajax_cek_api_key',  $plugin_public, 'cek_api_key');
 		$this->loader->add_action('wp_ajax_nopriv_cek_api_key',  $plugin_public, 'cek_api_key');
 
