@@ -14,7 +14,12 @@ $spek_komponen = $_GET['spek_komponen'];
 $harga_satuan = $_GET['harga_satuan'];
 $satuan = $_GET['satuan'];
 
-$sql = "
+$where_skpd = '';
+if(!empty($_GET['id_skpd'])){
+	$where_skpd = $wpdb->prepare("AND dskb.id_sub_skpd=%d", $_GET['id_skpd']);
+}
+
+$sql = $wpdb->prepare("
 	SELECT 
 		du.kode_skpd,
 		du.nama_skpd,
@@ -38,13 +43,20 @@ $sql = "
 			and du.active = dr.active
 			and du.tahun_anggaran = dr.tahun_anggaran
 		WHERE dr.active=1 
-			and dr.tahun_anggaran='".$input['tahun_anggaran']."' 
-			AND dr.nama_komponen='".$nama_komponen."' 
-			AND dr.spek_komponen='".$spek_komponen."' 
-			AND dr.harga_satuan=".$harga_satuan." 
-			AND dr.satuan='".$satuan."' 
+			and dr.tahun_anggaran=%d 
+			AND dr.nama_komponen=%s 
+			AND dr.spek_komponen=%s 
+			AND dr.harga_satuan=%d 
+			AND dr.satuan=%s
+			$where_skpd
 		GROUP by dr.kode_sbl
-		ORDER BY total DESC, dr.nama_komponen asc";
+		ORDER BY total DESC, dr.nama_komponen asc",
+		$input['tahun_anggaran'],
+		$nama_komponen,
+		$spek_komponen,
+		$harga_satuan,
+		$satuan
+	);
 $queryRecords = $wpdb->get_results($sql, ARRAY_A);
 
 $data_sub_komponen = [

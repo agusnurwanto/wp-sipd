@@ -497,7 +497,7 @@ class Wpsipd_Admin {
 						$body_all .= '<a style="font-weight: bold;" target="_blank" href="'.$url_penjabaran6.'">Halaman APBD PENJABARAN Lampiran 6 Tahun '.$v['tahun_anggaran'].'</a>';
 						$body_all .= $body_pemda;
 			        }else if($_POST['type'] == 'monev_satuan_harga'){
-						$url_pemda = $this->generatePage('Rekapitulasi Rincian Belanja Pemerintah Daerah '.$v['tahun_anggaran'], $v['tahun_anggaran'], '[monitor_satuan_harga tahun_anggaran="'.$v['tahun_anggaran'].'"]');
+						$url_pemda = $this->generatePage('Rekapitulasi Rincian Belanja Pemerintah Daerah '.$v['tahun_anggaran'], $v['tahun_anggaran'], '[data_halaman_menu_ssh tahun_anggaran="'.$v['tahun_anggaran'].'"]');
 						$body_all .= '<a style="font-weight: bold;" target="_blank" href="'.$url_pemda.'">Halaman Rekapitulasi Rincian Belanja '.$v['tahun_anggaran'].'</a>'.$body_pemda;
 					}
 				}
