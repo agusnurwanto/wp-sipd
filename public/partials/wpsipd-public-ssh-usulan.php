@@ -230,7 +230,7 @@ $body = '';
 		            	className: "text-center"
 		            },
 					{ 
-		            	"data": "keterangan_status",
+		            	"data": "show_keterangan",
 		            	className: "text-center"
 		            },
 					{ 
@@ -669,7 +669,7 @@ $body = '';
 			success:function(response){
 				jQuery('#wrap-loading').hide();
 				jQuery('#u_kategori').val(response.data_kel_standar_harga_by_id.id_kategori).trigger('change');
-				jQuery('#u_satuan').val(response.data.satuan).trigger('change');
+				jQuery('#u_satuan').val(response.data_satuan.id_satuan).trigger('change');
 				jQuery("#u_nama_komponen").val(response.data.nama_standar_harga);
 				jQuery("#u_spesifikasi").val(response.data.spek);
 				jQuery("#u_harga_satuan").val(response.data.harga);
