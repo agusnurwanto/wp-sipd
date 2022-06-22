@@ -3644,7 +3644,7 @@ class Wpsipd_Public
 							'volume' => $v['volume'],
 							'volume_murni' => $v['volume_murni'],
 							'spek' => $v['spek'],
-							'subs_bl_teks' => $v['subs_bl_teks'],
+							'subs_bl_teks' => $v['subs_bl_teks']['subs_asli'],
 							'total_harga' => $v['total_harga'],
 							'rincian' => $v['rincian'],
 							'rincian_murni' => $v['rincian_murni'],
