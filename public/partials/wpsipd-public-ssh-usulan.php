@@ -86,6 +86,7 @@ $body = '';
 	</div>
 </div>
 
+<!-- Modal tambah usulan ssh -->
 <div class="modal fade" id="tambahUsulanSshModal" role="dialog" data-backdrop="static" aria-hidden="true">
 	<div class="modal-dialog modal-lg" role="document">
 		<div class="modal-content">
@@ -359,10 +360,11 @@ $body = '';
 					"<input type=\'text\' id=\'tambah_harga_harga_satuan\' style=\'display:block;width:100%;\' placeholder=\'Harga Satuan\'></div>"+
 				"<div><label for=\'tambah_harga_akun\' style=\'display:inline-block\'>Rekening Akun</label>"+
 					"<textarea type=\'text\' id=\'tambah_harga_akun\' style=\'display:block;width:100%;\' placeholder=\'Rekening Akun\' disabled></textarea></div>"+
-				"<div><label for=\'u_keterangan_lampiran\' style=\'display:inline-block\'>Keterangan</label>"+
-					"<input type=\'text\' id=\'u_keterangan_lampiran\' style=\'display:block;width:100%;\' placeholder=\'Link Google Drive Keterangan\'>"+
+				"<div><label for=\'tambah_harga_keterangan_lampiran\' style=\'display:inline-block\'>Keterangan</label>"+
+					"<input type=\'text\' id=\'tambah_harga_keterangan_lampiran\' style=\'display:block;width:100%;\' placeholder=\'Link Google Drive Keterangan\'>"+
 					"<small>*Masukkan link Google Drive berisikan lampiran minimal 3 harga toko beserta gambar.</small></div></div>");
-		jQuery("#tambahUsulanSsh .modal-footer").html("<button style=\'margin: 0 0 2rem 0.5rem;border-radius:0.2rem;\' class=\'submitBtn\' onclick=\'submitUsulanTambahHargaSshForm(<?php echo $input['tahun_anggaran']; ?>)\'>Simpan</button>");
+		jQuery("#tambahUsulanSsh .modal-footer").html("<button class=\'btn btn-primary submitBtn\' onclick=\'submitUsulanTambahHargaSshForm(<?php echo $input['tahun_anggaran']; ?>)\'>Simpan</button>"+
+		"<button type=\'button\' class=\'components-button btn btn-default\' data-dismiss=\'modal\'>Tutup</button>");
 		jQuery("#tambah_harga_nama_komponent").html(dataKomponenAndId.table_content);
 		jQuery('.js-example-basic-single').select2();
 		jQuery("#tambah_harga_nama_komponent").on("change", function(){
@@ -613,7 +615,7 @@ $body = '';
 	function submitUsulanTambahHargaSshForm(tahun){
 		var id_standar_harga = jQuery('#tambah_harga_nama_komponent').val();
 		var harga_satuan = jQuery('#tambah_harga_harga_satuan').val();
-		var keterangan_lampiran = jQuery('#u_keterangan_lampiran').val();
+		var keterangan_lampiran = jQuery('#tambah_harga_keterangan_lampiran').val();
 		jQuery("#wrap-loading").show();
 		if(harga_satuan.trim() == '' || keterangan_lampiran.trim() == '' || id_standar_harga.trim() == ''){
 			jQuery("#wrap-loading").hide();

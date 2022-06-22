@@ -10681,10 +10681,16 @@ class Wpsipd_Public
 			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
 					$id_standar_harga = $_POST['id_standar_harga'];
 					
-					$data_ssh_usulan_by_id = $wpdb->get_results($wpdb->prepare('SELECT * FROM data_ssh_usulan WHERE id_standar_harga = %d',$id_standar_harga), ARRAY_A);
-					$data_ssh_akun_by_id = $wpdb->get_results($wpdb->prepare('SELECT * FROM data_ssh_rek_belanja_usulan WHERE id_standar_harga = %d',$id_standar_harga), ARRAY_A);
+					$data_ssh_by_id = $wpdb->get_results($wpdb->prepare('SELECT * FROM data_ssh WHERE id_standar_harga = %d',$id_standar_harga), ARRAY_A);
 
-				    ksort($data_ssh_usulan_by_id);
+					$data_ssh_akun_by_id = $wpdb->get_results($wpdb->prepare('SELECT * FROM data_ssh_rek_belanja WHERE id_standar_harga = %d',$id_standar_harga), ARRAY_A);
+					
+					if(empty($data_ssh_by_id)){
+						$data_ssh_by_id = $wpdb->get_results($wpdb->prepare('SELECT * FROM data_ssh_usulan WHERE id_standar_harga = %d',$id_standar_harga), ARRAY_A);
+						$data_ssh_akun_by_id = $wpdb->get_results($wpdb->prepare('SELECT * FROM data_ssh_rek_belanja_usulan WHERE id_standar_harga = %d',$id_standar_harga), ARRAY_A);
+					}
+
+				    ksort($data_ssh_by_id);
 			    	$no = 0;
 
 					$table_content = '';
@@ -10694,7 +10700,7 @@ class Wpsipd_Public
 
 					$return = array(
 						'status' => 'success',
-						'data_ssh_usulan_by_id' => $data_ssh_usulan_by_id[0],
+						'data_ssh_usulan_by_id' => $data_ssh_by_id[0],
 						'table_content' => $table_content,
 					);
 			}else{
@@ -10814,11 +10820,15 @@ class Wpsipd_Public
 			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
 					$tahun_anggaran = $_POST['tahun_anggaran'];
 					
-					$data_nama_ssh = $wpdb->get_results($wpdb->prepare('SELECT id_standar_harga,kode_standar_harga, nama_standar_harga FROM data_ssh_usulan WHERE tahun_anggaran = %d',$tahun_anggaran), ARRAY_A);
+					$data_nama_ssh = $wpdb->get_results($wpdb->prepare('SELECT id_standar_harga,kode_standar_harga, nama_standar_harga FROM data_ssh WHERE tahun_anggaran = %d LIMIT 20',$tahun_anggaran), ARRAY_A);
 
+					$data_nama_ssh_usulan = $wpdb->get_results($wpdb->prepare('SELECT id_standar_harga,kode_standar_harga, nama_standar_harga FROM data_ssh_usulan WHERE tahun_anggaran = %d LIMIT 20',$tahun_anggaran), ARRAY_A);
+
+					/** Menggabungkan data array */
+					$data_nama_ssh_combine = array_merge($data_nama_ssh,$data_nama_ssh_usulan);
 				    ksort($data_nama_ssh);
 			    	$no = 0;
-			    	foreach ($data_nama_ssh as $key => $value) {
+			    	foreach ($data_nama_ssh_combine as $key => $value) {
 			    		$no++;
 			    		$table_content .= '
 							<option value="'.$value['id_standar_harga'].'">'.$value['kode_standar_harga'].' '.$value['nama_standar_harga'].'</option>
@@ -10861,9 +10871,14 @@ class Wpsipd_Public
 					$harga_satuan = trim(htmlspecialchars($_POST['harga_satuan']));
 					$keterangan_lampiran = trim(htmlspecialchars($_POST['keterangan_lampiran']));
 					
-					$data_old_ssh = $wpdb->get_results($wpdb->prepare("SELECT * FROM data_ssh_usulan WHERE id_standar_harga = %d",$id_standar_harga), ARRAY_A);
-					$data_old_ssh_akun = $wpdb->get_results($wpdb->prepare("SELECT * FROM data_ssh_rek_belanja_usulan WHERE id_standar_harga = %d",$id_standar_harga), ARRAY_A);
-	
+					$data_old_ssh = $wpdb->get_results($wpdb->prepare("SELECT * FROM data_ssh WHERE id_standar_harga = %d",$id_standar_harga), ARRAY_A);
+					$data_old_ssh_akun = $wpdb->get_results($wpdb->prepare("SELECT * FROM data_ssh_rek_belanja WHERE id_standar_harga = %d",$id_standar_harga), ARRAY_A);
+
+					if(empty($data_old_ssh)){
+						$data_old_ssh = $wpdb->get_results($wpdb->prepare("SELECT * FROM data_ssh_usulan WHERE id_standar_harga = %d",$id_standar_harga), ARRAY_A);
+						$data_old_ssh_akun = $wpdb->get_results($wpdb->prepare("SELECT * FROM data_ssh_rek_belanja_usulan WHERE id_standar_harga = %d",$id_standar_harga), ARRAY_A);
+					}
+
 					foreach($data_old_ssh_akun as $v_a_akun){
 						$data_akun[$v_a_akun['id_akun']] = $wpdb->get_results($wpdb->prepare("SELECT id_akun,kode_akun,nama_akun FROM data_akun WHERE id_akun = %d",$v_a_akun['id_akun']), ARRAY_A);
 					}
