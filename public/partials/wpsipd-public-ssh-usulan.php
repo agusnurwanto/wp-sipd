@@ -241,7 +241,7 @@ $body = '';
             get_data_satuan_ssh(tahun);
             get_data_akun_ssh(tahun);
             get_data_nama_ssh(tahun);
-			get_komponen_and_id_kel_ssh(tahun);
+			// get_komponen_and_id_kel_ssh(tahun);
 		});
 		let get_data = 1;
 		jQuery('#tambahUsulanSsh').on('hidden.bs.modal', function () {
@@ -418,20 +418,44 @@ $body = '';
 			typeof dataCategorySsh != 'undefined'
 			&& typeof dataSatuanSsh != 'undefined'
 			&& typeof dataAkunSsh != 'undefined'
-			&& typeof dataKomponenAndId != 'undefined'
-			&& typeof dataAkunSsh != 'undefined'
 		){
 			jQuery("#u_kategori").html(dataCategorySsh.table_content);
 			jQuery("#u_satuan").html(dataSatuanSsh.table_content);
 			jQuery("#u_akun").html(dataAkunSsh.table_content);
-			jQuery("#tambah_harga_komp_nama_komponent").html(dataKomponenAndId.table_content);
-			jQuery("#tambah_akun_komp_nama_komponent").html(dataKomponenAndId.table_content);
 			jQuery("#tambah_new_akun_komp").html(dataAkunSsh.table_content);
 			jQuery('#u_kategori').select2();
 			jQuery('#u_satuan').select2();
 			jQuery('#u_akun').select2();
-			jQuery('#tambah_harga_komp_nama_komponent').select2();
-			jQuery('#tambah_akun_komp_nama_komponent').select2();
+			var ajax_nama_komponen = {
+			  	ajax: {
+				    url: "<?php echo admin_url('admin-ajax.php'); ?>",
+				    type: 'post',
+				    dataType: 'json',
+				    data: function (params) {
+				      	var query = {
+				        	search: params.term,
+					        page: params.page || 0,
+					        action: 'get_komponen_and_id_kel_ssh',
+					        api_key : jQuery("#api_key").val(),
+							tahun_anggaran : tahun
+				      	}
+				      	return query;
+				    },
+				    processResults: function (data, params) {
+				    	console.log('data', data);
+				      	return {
+					        results: data.results,
+					        pagination: {
+					          	more: data.pagination.more
+					        }
+				      	};
+				    }
+			  	},
+			    placeholder: 'Cari komponen',
+			    minimumInputLength: 3
+			};
+			jQuery('#tambah_harga_komp_nama_komponent').select2(ajax_nama_komponen);
+			jQuery('#tambah_akun_komp_nama_komponent').select2(ajax_nama_komponen);
 			jQuery('#tambah_new_akun_komp').select2();
 
 			jQuery('.tambah_ssh').attr('disabled', false);
