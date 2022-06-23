@@ -44,8 +44,8 @@ $body = '';
 		<h1 class="text-center">Data usulan satuan standar harga (SSH)<br>tahun anggaran <?php echo $input['tahun_anggaran']; ?></h1>
 		<div style="margin-bottom: 25px;">
 			<button class="btn btn-primary tambah_ssh" disabled onclick="tambah_new_ssh(<?php echo $input['tahun_anggaran']; ?>);">Tambah Item SSH</button>
-			<button class="btn btn-primary tambah_new_ssh" disabled onclick="get_data_name_komponen_ssh(<?php echo $input['tahun_anggaran']; ?>)">Tambah Harga SSH</button>
-			<button class="btn btn-primary tambah_new_ssh" disabled onclick="get_data_name_komponen_akun_ssh(<?php echo $input['tahun_anggaran']; ?>)">Tambah Akun SSH</button>
+			<button class="btn btn-primary tambah_new_ssh" disabled onclick="get_data_by_name_komponen_ssh('harga',<?php echo $input['tahun_anggaran']; ?>)">Tambah Harga SSH</button>
+			<button class="btn btn-primary tambah_new_ssh" disabled onclick="get_data_by_name_komponen_ssh('akun',<?php echo $input['tahun_anggaran']; ?>)">Tambah Akun SSH</button>
 			<button class="btn btn-danger delete_new_ssh" onclick="delete_check_data_usulan_ssh()">Hapus Terpilih</button>
 		</div>
 		<table id="usulan_ssh_table" class="table table-bordered">
@@ -76,12 +76,107 @@ $body = '';
 			<div class="modal-header">
 				<h5 class="modal-title" id="tambahUsulanSshLabel">Modal title</h5>
 				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
-				<span aria-hidden="true">&times;</span>
+					<span aria-hidden="true">&times;</span>
 				</button>
 			</div>
 			<div class="modal-body">
 			</div> 
 			<div class="modal-footer">
+			</div>
+		</div>
+	</div>
+</div>
+
+<!-- Modal tambah harga usulan -->
+<div class="modal fade" id="tambahUsulanHargaByKompSSH" role="dialog" data-backdrop="static" aria-hidden="true">
+	<div class="modal-dialog modal-lg" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title" id="tambahUsulanHargaByKompSSHLabel">Tambah Harga usulan SSH</h5>
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+					<span aria-hidden="true">&times;</span>
+				</button>
+			</div>
+			<div class="modal-body">
+				<div>
+					<label for="tambah_harga_komp_kategori" style="display:inline-block">Kategori</label>
+					<input type="text" id="tambah_harga_komp_kategori" style="display:block;width:100%;" placeholder="Kategori" disabled>
+				</div>
+				<div>
+					<label for="tambah_harga_komp_nama_komponent" style="display:inline-block">Nama Komponen</label>
+					<select id="tambah_harga_komp_nama_komponent" class="js-example-basic-single" style="display:block;width:100%;" placeholder="Nama Komponen"></select>
+				</div>
+				<div>
+					<label for="tambah_harga_komp_spesifikasi" style="display:inline-block">Spesifikasi</label>
+					<input type="text" id="tambah_harga_komp_spesifikasi" style="display:block;width:100%;" placeholder="Spesifikasi" disabled>
+				</div>
+				<div>
+					<label for="tambah_harga_komp_satuan" style="display:inline-block">Satuan</label>
+					<input type="text" id="tambah_harga_komp_satuan" style="display:block;width:100%;" placeholder="Satuan" disabled>
+				</div>
+				<div>
+					<label for="tambah_harga_komp_harga_satuan" style="display:inline-block">Harga Satuan</label>
+					<input type="text" id="tambah_harga_komp_harga_satuan" style="display:block;width:100%;" placeholder="Harga Satuan">
+				</div>
+				<div>
+					<label for="tambah_harga_komp_akun" style="display:inline-block">Rekening Akun</label>
+					<textarea type="text" id="tambah_harga_komp_akun" style="display:block;width:100%;" placeholder="Rekening Akun" disabled></textarea>
+				</div>
+				<div>
+					<label for="tambah_harga_komp_keterangan_lampiran" style="display:inline-block">Keterangan</label>
+					<input type="text" id="tambah_harga_komp_keterangan_lampiran" style="display:block;width:100%;" placeholder="Link Google Drive Keterangan">
+					<small>*Masukkan link Google Drive berisikan lampiran minimal 3 harga toko beserta gambar.</small>
+				</div>
+			</div> 
+			<div class="modal-footer">
+				<button class="btn btn-primary submitBtn" onclick="submitUsulanTambahHargaSshForm(<?php echo $input['tahun_anggaran']; ?>)">Simpan</button>
+				<button type="button" class="components-button btn btn-secondary" data-dismiss="modal">Tutup</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+<!-- Modal tambah akun usulan -->
+<div class="modal fade" id="tambahUsulanAkunByKompSSH" role="dialog" data-backdrop="static" aria-hidden="true">
+	<div class="modal-dialog modal-lg" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title" id="tambahUsulanAkunByKompSSHLabel">Tambah Rekening Akun usulan SSH</h5>
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+					<span aria-hidden="true">&times;</span>
+				</button>
+			</div>
+			<div class="modal-body">
+				<div>
+					<label for="tambah_akun_komp_kategori" style="display:inline-block">Kategori</label>
+					<input type="text" id="tambah_akun_komp_kategori" style="display:block;width:100%;" placeholder="Kategori" disabled>
+				</div>
+				<div><label for="tambah_akun_komp_nama_komponent" style="display:inline-block">Nama Komponen</label>
+					<select id="tambah_akun_komp_nama_komponent" class="js-example-basic-single" style="display:block;width:100%;" placeholder="Nama Komponen"></select>
+				</div>
+				<div><label for="tambah_akun_komp_spesifikasi" style="display:inline-block">Spesifikasi</label>
+					<input type="text" id="tambah_akun_komp_spesifikasi" style="display:block;width:100%;" placeholder="Spesifikasi" disabled>
+				</div>
+				<div><label for="tambah_akun_komp_satuan" style="display:inline-block">Satuan</label>
+					<input type="text" id="tambah_akun_komp_satuan" style="display:block;width:100%;" placeholder="Satuan" disabled>
+				</div>
+				<div><label for="tambah_akun_komp_harga_satuan" style="display:inline-block">Harga Satuan</label>
+					<input type="text" id="tambah_akun_komp_harga_satuan" style="display:block;width:100%;" placeholder="Harga Satuan" disabled>
+				</div>
+				<div><label for="tambah_akun_komp_akun" style="display:inline-block">Rekening Akun</label>
+					<textarea type="text" id="tambah_akun_komp_akun" style="display:block;width:100%;" placeholder="Rekening Akun" disabled></textarea>
+				</div>
+				<div><label for="tambah_new_akun_komp" style="display:inline-block">Rekening Akun</label>
+					<select id="tambah_new_akun_komp" name="states[]" multiple="multiple" style="display:block;width:100%;"></select>
+				</div>
+				<div><label for="tambah_akun_komp_keterangan_lampiran" style="display:inline-block">Keterangan</label>
+					<input type="text" id="tambah_akun_komp_keterangan_lampiran" style="display:block;width:100%;" placeholder="Link Google Drive Keterangan" disabled>
+					<small>*Masukkan link Google Drive berisikan lampiran minimal 3 harga toko beserta gambar.</small>
+				</div>
+			</div> 
+			<div class="modal-footer">
+				<button class="btn btn-primary submitBtn" onclick="submitUsulanTambahAkunSshForm(<?php echo $input['tahun_anggaran']; ?>)">Simpan</button>
+				<button type="button" class="components-button btn btn-secondary" data-dismiss="modal">Tutup</button>
 			</div>
 		</div>
 	</div>
@@ -167,6 +262,25 @@ $body = '';
 			jQuery("#tambahUsulanSshModal .modal-title").html("");
 			jQuery("#tambahUsulanSshModal .submitBtn").text("");
 			jQuery("#tambahUsulanSshModal .submitBtn").attr("onclick", '');
+		})
+		jQuery('#tambahUsulanHargaByKompSSH').on('hidden.bs.modal', function () {
+			jQuery("#tambah_harga_komp_kategori").val("");
+			jQuery("#tambah_harga_komp_nama_komponent").val("");
+			jQuery("#tambah_harga_komp_spesifikasi").val("");
+			jQuery("#tambah_harga_komp_satuan").val("");
+			jQuery("#tambah_harga_komp_harga_satuan").val("");
+			jQuery("#tambah_harga_komp_akun").html("");
+			jQuery("#tambah_harga_komp_keterangan_lampiran").val("");
+		})
+		jQuery('#tambahUsulanAkunByKompSSH').on('hidden.bs.modal', function () {
+			jQuery("#tambah_akun_komp_kategori").val("");
+			jQuery("#tambah_akun_komp_nama_komponent").val("");
+			jQuery("#tambah_akun_komp_spesifikasi").val("");
+			jQuery("#tambah_akun_komp_satuan").val("");
+			jQuery("#tambah_akun_komp_harga_satuan").val("");
+			jQuery("#tambah_akun_komp_akun").html("");
+			jQuery("#tambah_new_akun_komp").val("");
+			jQuery("#tambah_akun_komp_keterangan_lampiran").val("");
 		})
 		jQuery('#checkall').click(function(){
 			if(jQuery(this).is(':checked')){
@@ -304,13 +418,21 @@ $body = '';
 			typeof dataCategorySsh != 'undefined'
 			&& typeof dataSatuanSsh != 'undefined'
 			&& typeof dataAkunSsh != 'undefined'
+			&& typeof dataKomponenAndId != 'undefined'
+			&& typeof dataAkunSsh != 'undefined'
 		){
 			jQuery("#u_kategori").html(dataCategorySsh.table_content);
 			jQuery("#u_satuan").html(dataSatuanSsh.table_content);
 			jQuery("#u_akun").html(dataAkunSsh.table_content);
+			jQuery("#tambah_harga_komp_nama_komponent").html(dataKomponenAndId.table_content);
+			jQuery("#tambah_akun_komp_nama_komponent").html(dataKomponenAndId.table_content);
+			jQuery("#tambah_new_akun_komp").html(dataAkunSsh.table_content);
 			jQuery('#u_kategori').select2();
 			jQuery('#u_satuan').select2();
 			jQuery('#u_akun').select2();
+			jQuery('#tambah_harga_komp_nama_komponent').select2();
+			jQuery('#tambah_akun_komp_nama_komponent').select2();
+			jQuery('#tambah_new_akun_komp').select2();
 
 			jQuery('.tambah_ssh').attr('disabled', false);
 			jQuery('.tambah_new_ssh').attr('disabled', false);
@@ -343,71 +465,21 @@ $body = '';
 		jQuery('#tambahUsulanSshModal').modal('show');
 	}
 
-	function get_data_name_komponen_ssh(tahun){
-		jQuery("#tambahUsulanSsh").modal("show");
-		jQuery("#tambahUsulanSsh .modal-dialog").removeClass("modal-xl modal-sm");
-		jQuery("#tambahUsulanSsh .modal-dialog").addClass("modal-lg");
-		jQuery("#tambahUsulanSshLabel").html("Tambah Harga usulan SSH");
-		jQuery("#tambahUsulanSsh .modal-body").html("<div>"+
-					"<label for=\'tambah_harga_kategori\' style=\'display:inline-block\'>Kategori</label>"+
-					"<input type=\'text\' id=\'tambah_harga_kategori\' style=\'display:block;width:100%;\' placeholder=\'Kategori\' disabled></div>"+
-				"<div><label for=\'tambah_harga_nama_komponent\' style=\'display:inline-block\'>Nama Komponen</label>"+
-					"<select id=\'tambah_harga_nama_komponent\' class=\'js-example-basic-single\' style=\'display:block;width:100%;\' placeholder=\'Nama Komponen\'></select></div>"+
-				"<div><label for=\'tambah_harga_spesifikasi\' style=\'display:inline-block\'>Spesifikasi</label>"+
-					"<input type=\'text\' id=\'tambah_harga_spesifikasi\' style=\'display:block;width:100%;\' placeholder=\'Spesifikasi\' disabled></div>"+
-				"<div><label for=\'tambah_harga_satuan\' style=\'display:inline-block\'>Satuan</label>"+
-					"<input type=\'text\' id=\'tambah_harga_satuan\' style=\'display:block;width:100%;\' placeholder=\'Satuan\' disabled></div>"+
-				"<div><label for=\'tambah_harga_harga_satuan\' style=\'display:inline-block\'>Harga Satuan</label>"+
-					"<input type=\'text\' id=\'tambah_harga_harga_satuan\' style=\'display:block;width:100%;\' placeholder=\'Harga Satuan\'></div>"+
-				"<div><label for=\'tambah_harga_akun\' style=\'display:inline-block\'>Rekening Akun</label>"+
-					"<textarea type=\'text\' id=\'tambah_harga_akun\' style=\'display:block;width:100%;\' placeholder=\'Rekening Akun\' disabled></textarea></div>"+
-				"<div><label for=\'tambah_harga_keterangan_lampiran\' style=\'display:inline-block\'>Keterangan</label>"+
-					"<input type=\'text\' id=\'tambah_harga_keterangan_lampiran\' style=\'display:block;width:100%;\' placeholder=\'Link Google Drive Keterangan\'>"+
-					"<small>*Masukkan link Google Drive berisikan lampiran minimal 3 harga toko beserta gambar.</small></div></div>");
-		jQuery("#tambahUsulanSsh .modal-footer").html("<button class=\'btn btn-primary submitBtn\' onclick=\'submitUsulanTambahHargaSshForm(<?php echo $input['tahun_anggaran']; ?>)\'>Simpan</button>"+
-		"<button type=\'button\' class=\'components-button btn btn-default\' data-dismiss=\'modal\'>Tutup</button>");
-		jQuery("#tambah_harga_nama_komponent").html(dataKomponenAndId.table_content);
-		jQuery('.js-example-basic-single').select2();
-		jQuery("#tambah_harga_nama_komponent").on("change", function(){
-			var id_standar_harga = jQuery(this).val();
-			get_data_usulan_ssh_by_komponen(id_standar_harga)
-		});
-	}
-
-	/** Modal data sesuai komponen ssh */
-	function get_data_name_komponen_akun_ssh(tahun){
-		jQuery("#tambahUsulanSsh").modal("show");
-		jQuery("#tambahUsulanSsh .modal-dialog").removeClass("modal-xl modal-sm");
-		jQuery("#tambahUsulanSsh .modal-dialog").addClass("modal-lg");
-		jQuery("#tambahUsulanSshLabel").html("Tambah Akun Rekening usulan SSH");
-		jQuery("#tambahUsulanSsh .modal-body").html("<div>"+
-					"<label for=\'tambah_akun_kategori\' style=\'display:inline-block\'>Kategori</label>"+
-					"<input type=\'text\' id=\'tambah_akun_kategori\' style=\'display:block;width:100%;\' placeholder=\'Kategori\' disabled></div>"+
-				"<div><label for=\'tambah_akun_nama_komponent\' style=\'display:inline-block\'>Nama Komponen</label>"+
-					"<select id=\'tambah_akun_nama_komponent\' class=\'js-example-basic-single\' style=\'display:block;width:100%;\' placeholder=\'Nama Komponen\'></select></div>"+
-				"<div><label for=\'tambah_akun_spesifikasi\' style=\'display:inline-block\'>Spesifikasi</label>"+
-					"<input type=\'text\' id=\'tambah_akun_spesifikasi\' style=\'display:block;width:100%;\' placeholder=\'Spesifikasi\' disabled></div>"+
-				"<div><label for=\'tambah_akun_satuan\' style=\'display:inline-block\'>Satuan</label>"+
-					"<input type=\'text\' id=\'tambah_akun_satuan\' style=\'display:block;width:100%;\' placeholder=\'Satuan\' disabled></div>"+
-				"<div><label for=\'tambah_akun_harga_satuan\' style=\'display:inline-block\'>Harga Satuan</label>"+
-					"<input type=\'text\' id=\'tambah_akun_harga_satuan\' style=\'display:block;width:100%;\' placeholder=\'Harga Satuan\' disabled></div>"+
-				"<div><label for=\'tambah_akun_akun\' style=\'display:inline-block\'>Rekening Akun</label>"+
-					"<textarea type=\'text\' id=\'tambah_akun_akun\' style=\'display:block;width:100%;\' placeholder=\'Rekening Akun\' disabled></textarea></div>"+
-				"<div><label for=\'tambah_new_akun\' style=\'display:inline-block\'>Rekening Akun</label>"+
-					"<select id=\'tambah_new_akun\' name=\'states[]\' multiple=\'multiple\' style=\'display:block;width:100%;\'></select></div>"+
-				"<div><label for=\'tambah_akun_keterangan_lampiran\' style=\'display:inline-block\'>Keterangan</label>"+
-					"<input type=\'text\' id=\'tambah_akun_keterangan_lampiran\' style=\'display:block;width:100%;\' placeholder=\'Link Google Drive Keterangan\' disabled>"+
-					"<small>*Masukkan link Google Drive berisikan lampiran minimal 3 harga toko beserta gambar.</small></div></div>");
-		jQuery("#tambahUsulanSsh .modal-footer").html("<button class=\'btn btn-primary submitBtn\' onclick=\'submitUsulanTambahAkunSshForm(<?php echo $input['tahun_anggaran']; ?>)\'>Simpan</button>"+
-		"<button type=\'button\' class=\'components-button btn btn-default\' data-dismiss=\'modal\'>Tutup</button>");
-		jQuery("#tambah_akun_nama_komponent").html(dataKomponenAndId.table_content);
-		jQuery('.js-example-basic-single').select2();
-		jQuery("#tambah_new_akun").html(dataAkunSsh.table_content);
-		jQuery('#tambah_new_akun').select2();
-		jQuery("#tambah_akun_nama_komponent").on("change", function(){
-			var id_standar_harga = jQuery(this).val();
-			get_data_usulan_akun_ssh_by_komponen(id_standar_harga)
-		});
+	/** Menampilkan data SSH sesuai komponen */
+	function get_data_by_name_komponen_ssh(jenis, tahun){
+		if(jenis === 'harga'){
+			jQuery("#tambah_harga_komp_nama_komponent").on("change", function(){
+				var id_standar_harga = jQuery(this).val();
+				get_data_usulan_ssh_by_komponen('harga',id_standar_harga)
+			});
+			jQuery('#tambahUsulanHargaByKompSSH').modal('show');
+		}else if(jenis === 'akun'){
+			jQuery("#tambah_akun_komp_nama_komponent").on("change", function(){
+				var id_standar_harga = jQuery(this).val();
+				get_data_usulan_ssh_by_komponen('akun',id_standar_harga)
+			});
+			jQuery('#tambahUsulanAkunByKompSSH').modal('show');
+		}
 	}
 
 	function get_komponen_and_id_kel_ssh(tahun){
@@ -422,34 +494,13 @@ $body = '';
 			dataType: "json",
 			success:function(response){
 				globalThis.dataKomponenAndId = response;
+				enable_button();
 			}
 		})
 	}
 
-	function get_data_usulan_ssh_by_komponen(id_standar_harga){
-		jQuery.ajax({
-			url: "<?php echo admin_url('admin-ajax.php'); ?>",
-			type:'post',
-			data:{
-				'action' : 'get_data_usulan_ssh_by_komponen',
-				'api_key' : jQuery("#api_key").val(),
-				'id_standar_harga' : id_standar_harga,
-			},
-			dataType: 'json',
-			success:function(response){
-				jQuery("#tambah_harga_kategori").val(response.data_ssh_usulan_by_id.kode_kel_standar_harga+" "+response.data_ssh_usulan_by_id.nama_kel_standar_harga);
-				jQuery("#tambah_harga_spesifikasi").val(response.data_ssh_usulan_by_id.spek);
-				jQuery("#tambah_harga_satuan").val(response.data_ssh_usulan_by_id.satuan);
-				jQuery("#tambah_harga_akun").html(response.table_content);
-				if(response.status != 'success'){
-					alert('Some problem occurred, please try again.');
-				}
-			}
-		});
-	}
-
 	/** Ambil data detail ssh sesuai komponen */
-	function get_data_usulan_akun_ssh_by_komponen(id_standar_harga){
+	function get_data_usulan_ssh_by_komponen(jenis, id_standar_harga){
 		jQuery.ajax({
 			url: "<?php echo admin_url('admin-ajax.php'); ?>",
 			type:'post',
@@ -460,12 +511,20 @@ $body = '';
 			},
 			dataType: 'json',
 			success:function(response){
-				jQuery("#tambah_akun_kategori").val(response.data_ssh_usulan_by_id.kode_kel_standar_harga+" "+response.data_ssh_usulan_by_id.nama_kel_standar_harga+" "+response.data_ssh_usulan_by_id.id_standar_harga);
-				jQuery("#tambah_akun_spesifikasi").val(response.data_ssh_usulan_by_id.spek);
-				jQuery("#tambah_akun_satuan").val(response.data_ssh_usulan_by_id.satuan);
-				jQuery("#tambah_akun_harga_satuan").val(response.data_ssh_usulan_by_id.harga);
-				jQuery("#tambah_akun_keterangan_lampiran").val(response.data_ssh_usulan_by_id.keterangan_lampiran);
-				jQuery("#tambah_akun_akun").html(response.table_content);
+				if(jenis === 'harga'){
+					jQuery("#tambah_harga_komp_kategori").val(response.data_ssh_usulan_by_id.kode_kel_standar_harga+" "+response.data_ssh_usulan_by_id.nama_kel_standar_harga);
+					jQuery("#tambah_harga_komp_spesifikasi").val(response.data_ssh_usulan_by_id.spek);
+					jQuery("#tambah_harga_komp_satuan").val(response.data_ssh_usulan_by_id.satuan);
+					jQuery("#tambah_harga_komp_akun").html(response.table_content);
+
+				}else if(jenis === 'akun'){
+					jQuery("#tambah_akun_komp_kategori").val(response.data_ssh_usulan_by_id.kode_kel_standar_harga+" "+response.data_ssh_usulan_by_id.nama_kel_standar_harga);
+					jQuery("#tambah_akun_komp_spesifikasi").val(response.data_ssh_usulan_by_id.spek);
+					jQuery("#tambah_akun_komp_satuan").val(response.data_ssh_usulan_by_id.satuan);
+					jQuery("#tambah_akun_komp_harga_satuan").val(response.data_ssh_usulan_by_id.harga);
+					jQuery("#tambah_akun_komp_keterangan_lampiran").val(response.data_ssh_usulan_by_id.keterangan_lampiran);
+					jQuery("#tambah_akun_komp_akun").html(response.table_content);
+				}
 				if(response.status != 'success'){
 					alert('Some problem occurred, please try again.');
 				}
@@ -675,9 +734,9 @@ $body = '';
 	}
 
 	function submitUsulanTambahHargaSshForm(tahun){
-		var id_standar_harga = jQuery('#tambah_harga_nama_komponent').val();
-		var harga_satuan = jQuery('#tambah_harga_harga_satuan').val();
-		var keterangan_lampiran = jQuery('#tambah_harga_keterangan_lampiran').val();
+		var id_standar_harga = jQuery('#tambah_harga_komp_nama_komponent').val();
+		var harga_satuan = jQuery('#tambah_harga_komp_harga_satuan').val();
+		var keterangan_lampiran = jQuery('#tambah_harga_komp_keterangan_lampiran').val();
 		jQuery("#wrap-loading").show();
 		if(harga_satuan.trim() == '' || keterangan_lampiran.trim() == '' || id_standar_harga.trim() == ''){
 			jQuery("#wrap-loading").hide();
@@ -706,7 +765,7 @@ $body = '';
 					}else{
 						alert(response.message);
 					}
-					jQuery('#tambahUsulanSsh').modal('hide')
+					jQuery('#tambahUsulanHargaByKompSSH').modal('hide')
 					jQuery('.submitBtn').removeAttr("disabled");
 					jQuery('.modal-body').css('opacity', '');
 					jQuery("#wrap-loading").hide();
@@ -718,8 +777,8 @@ $body = '';
 
 	/** Submit tombol usulan akun rekening */
 	function submitUsulanTambahAkunSshForm(tahun){
-		var id_standar_harga = jQuery('#tambah_akun_nama_komponent').val();
-		var new_akun = jQuery('#tambah_new_akun').val();
+		var id_standar_harga = jQuery('#tambah_akun_komp_nama_komponent').val();
+		var new_akun = jQuery('#tambah_new_akun_komp').val();
 		jQuery("#wrap-loading").show();
 		if(new_akun == '' || id_standar_harga.trim() == ''){
 			jQuery("#wrap-loading").hide();
@@ -747,7 +806,7 @@ $body = '';
 					}else{
 						alert(response.message);
 					}
-					jQuery('#tambahUsulanSsh').modal('hide')
+					jQuery('#tambahUsulanAkunByKompSSH').modal('hide')
 					jQuery('.submitBtn').removeAttr("disabled");
 					jQuery('.modal-body').css('opacity', '');
 					jQuery("#wrap-loading").hide();
