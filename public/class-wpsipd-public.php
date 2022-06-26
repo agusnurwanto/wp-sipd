@@ -3170,6 +3170,8 @@ class Wpsipd_Public
 	{
 		global $wpdb;
 		$ret = array(
+			'action'	=> $_POST['action'],
+			'kode_sbl'	=> $_POST['kode_sbl'],
 			'status'	=> 'success',
 			'message'	=> 'Berhasil export RKA!'
 		);
@@ -3369,233 +3371,235 @@ class Wpsipd_Public
 					$ret['message'] = 'Format data BL Salah!';
 				}
 
-				if (!empty($_POST['dataOutput']) && $ret['status'] != 'error') {
-					$dataOutput = $_POST['dataOutput'];
-					$wpdb->update('data_sub_keg_indikator', array( 'active' => 0 ), array(
-						'tahun_anggaran' => $_POST['tahun_anggaran'],
-						'kode_sbl' => $_POST['kode_sbl']
-					));
-					foreach ($dataOutput as $k => $v) {
-						$cek = $wpdb->get_var("SELECT kode_sbl from data_sub_keg_indikator where tahun_anggaran=".$_POST['tahun_anggaran']." AND kode_sbl='" . $_POST['kode_sbl'] . "' AND idoutputbl='" . $v['idoutputbl'] . "'");
-						$opsi = array(
-							'outputteks' => $v['outputteks'],
-							'targetoutput' => $v['targetoutput'],
-							'satuanoutput' => $v['satuanoutput'],
-							'idoutputbl' => $v['idoutputbl'],
-							'targetoutputteks' => $v['targetoutputteks'],
-							'kode_sbl' => $_POST['kode_sbl'],
-							'idsubbl' => $_POST['idsubbl'],
-							'active' => 1,
-							'update_at' => current_time('mysql'),
-							'tahun_anggaran' => $_POST['tahun_anggaran']
-						);
-						if (!empty($cek)) {
-							$wpdb->update('data_sub_keg_indikator', $opsi, array(
-								'kode_sbl' => $_POST['kode_sbl'],
-								'idoutputbl' => $v['idoutputbl'],
-								'tahun_anggaran' => $_POST['tahun_anggaran']
-							));
-						} else {
-							$wpdb->insert('data_sub_keg_indikator', $opsi);
-						}
-					}
-				}
-
-				if (!empty($_POST['dataHasil']) && $ret['status'] != 'error') {
-					$dataHasil = $_POST['dataHasil'];
-					$wpdb->update('data_keg_indikator_hasil', array( 'active' => 0 ), array(
-						'tahun_anggaran' => $_POST['tahun_anggaran'],
-						'kode_sbl' => $_POST['kode_sbl']
-					));
-					foreach ($dataHasil as $k => $v) {
-						$cek = $wpdb->get_var("SELECT kode_sbl from data_keg_indikator_hasil where tahun_anggaran=".$_POST['tahun_anggaran']." AND kode_sbl='" . $_POST['kode_sbl'] . "' AND hasilteks='" . $v['hasilteks'] . "'");
-						$opsi = array(
-							'hasilteks' => $v['hasilteks'],
-							'satuanhasil' => $v['satuanhasil'],
-							'targethasil' => $v['targethasil'],
-							'targethasilteks' => $v['targethasilteks'],
-							'kode_sbl' => $_POST['kode_sbl'],
-							'idsubbl' => $_POST['idsubbl'],
-							'active' => 1,
-							'update_at' => current_time('mysql'),
-							'tahun_anggaran' => $_POST['tahun_anggaran']
-						);
-						if (!empty($cek)) {
-							$wpdb->update('data_keg_indikator_hasil', $opsi, array(
-								'kode_sbl' => $_POST['kode_sbl'],
-								'hasilteks' => $v['hasilteks'],
-								'tahun_anggaran' => $_POST['tahun_anggaran']
-							));
-						} else {
-							$wpdb->insert('data_keg_indikator_hasil', $opsi);
-						}
-					}
-				}
-
-				if (!empty($_POST['dataTag']) && $ret['status'] != 'error') {
-					$dataTag = $_POST['dataTag'];
-					$wpdb->update('data_tag_sub_keg', array( 'active' => 0 ), array(
-						'tahun_anggaran' => $_POST['tahun_anggaran'],
-						'kode_sbl' => $_POST['kode_sbl']
-					));
-					foreach ($dataTag as $k => $v) {
-						$cek = $wpdb->get_var("SELECT kode_sbl from data_tag_sub_keg where tahun_anggaran=".$_POST['tahun_anggaran']." AND kode_sbl='" . $_POST['kode_sbl'] . "' AND idtagbl='" . $v['idtagbl'] . "'");
-						$opsi = array(
-							'idlabelgiat' => $v['idlabelgiat'],
-							'namalabel' => $v['namalabel'],
-							'idtagbl' => $v['idtagbl'],
-							'kode_sbl' => $_POST['kode_sbl'],
-							'idsubbl' => $_POST['idsubbl'],
-							'active' => 1,
-							'update_at' => current_time('mysql'),
-							'tahun_anggaran' => $_POST['tahun_anggaran']
-						);
-						if (!empty($cek)) {
-							$wpdb->update('data_tag_sub_keg', $opsi, array(
-								'kode_sbl' => $_POST['kode_sbl'],
-								'idtagbl' => $v['idtagbl'],
-								'tahun_anggaran' => $_POST['tahun_anggaran']
-							));
-						} else {
-							$wpdb->insert('data_tag_sub_keg', $opsi);
-						}
-					}
-				}
-
-				if (!empty($_POST['dataCapaian']) && $ret['status'] != 'error') {
-					$dataCapaian = $_POST['dataCapaian'];
-					$wpdb->update('data_capaian_prog_sub_keg', array( 'active' => 0 ), array(
-						'tahun_anggaran' => $_POST['tahun_anggaran'],
-						'kode_sbl' => $_POST['kode_sbl']
-					));
-					foreach ($dataCapaian as $k => $v) {
-						$cek = $wpdb->get_var("SELECT kode_sbl from data_capaian_prog_sub_keg where tahun_anggaran=".$_POST['tahun_anggaran']." AND kode_sbl='" . $_POST['kode_sbl'] . "' AND capaianteks='" . $v['capaianteks'] . "'");
-						$opsi = array(
-							'satuancapaian' => $v['satuancapaian'],
-							'targetcapaianteks' => $v['targetcapaianteks'],
-							'capaianteks' => $v['capaianteks'],
-							'targetcapaian' => $v['targetcapaian'],
-							'kode_sbl' => $_POST['kode_sbl'],
-							'idsubbl' => $_POST['idsubbl'],
-							'active' => 1,
-							'update_at' => current_time('mysql'),
-							'tahun_anggaran' => $_POST['tahun_anggaran']
-						);
-						if (!empty($cek)) {
-							$wpdb->update('data_capaian_prog_sub_keg', $opsi, array(
-								'kode_sbl' => $_POST['kode_sbl'],
-								'capaianteks' => $v['capaianteks'],
-								'tahun_anggaran' => $_POST['tahun_anggaran']
-							));
-						} else {
-							$wpdb->insert('data_capaian_prog_sub_keg', $opsi);
-						}
-					}
-				}
-
-				if (!empty($_POST['dataOutputGiat']) && $ret['status'] != 'error') {
-					$dataOutputGiat = $_POST['dataOutputGiat'];
-					$wpdb->update('data_output_giat_sub_keg', array( 'active' => 0 ), array(
-						'tahun_anggaran' => $_POST['tahun_anggaran'],
-						'kode_sbl' => $_POST['kode_sbl']
-					));
-					foreach ($dataOutputGiat as $k => $v) {
-						$cek = $wpdb->get_var("SELECT kode_sbl from data_output_giat_sub_keg where tahun_anggaran=".$_POST['tahun_anggaran']." AND kode_sbl='" . $_POST['kode_sbl'] . "' AND outputteks='" . $v['outputteks'] . "'");
-						$opsi = array(
-							'outputteks' => $v['outputteks'],
-							'satuanoutput' => $v['satuanoutput'],
-							'targetoutput' => $v['targetoutput'],
-							'targetoutputteks' => $v['targetoutputteks'],
-							'kode_sbl' => $_POST['kode_sbl'],
-							'idsubbl' => $_POST['idsubbl'],
-							'active' => 1,
-							'update_at' => current_time('mysql'),
-							'tahun_anggaran' => $_POST['tahun_anggaran']
-						);
-						if (!empty($cek)) {
-							$wpdb->update('data_output_giat_sub_keg', $opsi, array(
-								'kode_sbl' => $_POST['kode_sbl'],
+				if($_POST['total_page'] == $_POST['no_page']){
+					if (!empty($_POST['dataOutput']) && $ret['status'] != 'error') {
+						$dataOutput = $_POST['dataOutput'];
+						$wpdb->update('data_sub_keg_indikator', array( 'active' => 0 ), array(
+							'tahun_anggaran' => $_POST['tahun_anggaran'],
+							'kode_sbl' => $_POST['kode_sbl']
+						));
+						foreach ($dataOutput as $k => $v) {
+							$cek = $wpdb->get_var("SELECT kode_sbl from data_sub_keg_indikator where tahun_anggaran=".$_POST['tahun_anggaran']." AND kode_sbl='" . $_POST['kode_sbl'] . "' AND idoutputbl='" . $v['idoutputbl'] . "'");
+							$opsi = array(
 								'outputteks' => $v['outputteks'],
+								'targetoutput' => $v['targetoutput'],
+								'satuanoutput' => $v['satuanoutput'],
+								'idoutputbl' => $v['idoutputbl'],
+								'targetoutputteks' => $v['targetoutputteks'],
+								'kode_sbl' => $_POST['kode_sbl'],
+								'idsubbl' => $_POST['idsubbl'],
+								'active' => 1,
+								'update_at' => current_time('mysql'),
 								'tahun_anggaran' => $_POST['tahun_anggaran']
-							));
-						} else {
-							$wpdb->insert('data_output_giat_sub_keg', $opsi);
+							);
+							if (!empty($cek)) {
+								$wpdb->update('data_sub_keg_indikator', $opsi, array(
+									'kode_sbl' => $_POST['kode_sbl'],
+									'idoutputbl' => $v['idoutputbl'],
+									'tahun_anggaran' => $_POST['tahun_anggaran']
+								));
+							} else {
+								$wpdb->insert('data_sub_keg_indikator', $opsi);
+							}
 						}
 					}
-				}
 
-				$iddana = false;
-				if (!empty($_POST['dataDana']) && $ret['status'] != 'error') {
-					$dataDana = $_POST['dataDana'];
-					$wpdb->update('data_dana_sub_keg', array( 'active' => 0 ), array(
-						'tahun_anggaran' => $_POST['tahun_anggaran'],
-						'kode_sbl' => $_POST['kode_sbl']
-					));
-					foreach ($dataDana as $k => $v) {
-						if(
-							empty($iddana)
-							&& !empty($v['iddana'])
-						){
-							$iddana = $v['iddana'];
-						}
-						$cek = $wpdb->get_var("SELECT kode_sbl from data_dana_sub_keg where tahun_anggaran=".$_POST['tahun_anggaran']." AND kode_sbl='" . $_POST['kode_sbl'] . "' AND iddanasubbl='" . $v['iddanasubbl'] . "'");
-						$opsi = array(
-							'namadana' => $v['namadana'],
-							'kodedana' => $v['kodedana'],
-							'iddana' => $v['iddana'],
-							'iddanasubbl' => $v['iddanasubbl'],
-							'pagudana' => $v['pagudana'],
-							'kode_sbl' => $_POST['kode_sbl'],
-							'idsubbl' => $_POST['idsubbl'],
-							'active' => 1,
-							'update_at' => current_time('mysql'),
-							'tahun_anggaran' => $_POST['tahun_anggaran']
-						);
-						if (!empty($cek)) {
-							$wpdb->update('data_dana_sub_keg', $opsi, array(
+					if (!empty($_POST['dataHasil']) && $ret['status'] != 'error') {
+						$dataHasil = $_POST['dataHasil'];
+						$wpdb->update('data_keg_indikator_hasil', array( 'active' => 0 ), array(
+							'tahun_anggaran' => $_POST['tahun_anggaran'],
+							'kode_sbl' => $_POST['kode_sbl']
+						));
+						foreach ($dataHasil as $k => $v) {
+							$cek = $wpdb->get_var("SELECT kode_sbl from data_keg_indikator_hasil where tahun_anggaran=".$_POST['tahun_anggaran']." AND kode_sbl='" . $_POST['kode_sbl'] . "' AND hasilteks='" . $v['hasilteks'] . "'");
+							$opsi = array(
+								'hasilteks' => $v['hasilteks'],
+								'satuanhasil' => $v['satuanhasil'],
+								'targethasil' => $v['targethasil'],
+								'targethasilteks' => $v['targethasilteks'],
 								'kode_sbl' => $_POST['kode_sbl'],
+								'idsubbl' => $_POST['idsubbl'],
+								'active' => 1,
+								'update_at' => current_time('mysql'),
+								'tahun_anggaran' => $_POST['tahun_anggaran']
+							);
+							if (!empty($cek)) {
+								$wpdb->update('data_keg_indikator_hasil', $opsi, array(
+									'kode_sbl' => $_POST['kode_sbl'],
+									'hasilteks' => $v['hasilteks'],
+									'tahun_anggaran' => $_POST['tahun_anggaran']
+								));
+							} else {
+								$wpdb->insert('data_keg_indikator_hasil', $opsi);
+							}
+						}
+					}
+
+					if (!empty($_POST['dataTag']) && $ret['status'] != 'error') {
+						$dataTag = $_POST['dataTag'];
+						$wpdb->update('data_tag_sub_keg', array( 'active' => 0 ), array(
+							'tahun_anggaran' => $_POST['tahun_anggaran'],
+							'kode_sbl' => $_POST['kode_sbl']
+						));
+						foreach ($dataTag as $k => $v) {
+							$cek = $wpdb->get_var("SELECT kode_sbl from data_tag_sub_keg where tahun_anggaran=".$_POST['tahun_anggaran']." AND kode_sbl='" . $_POST['kode_sbl'] . "' AND idtagbl='" . $v['idtagbl'] . "'");
+							$opsi = array(
+								'idlabelgiat' => $v['idlabelgiat'],
+								'namalabel' => $v['namalabel'],
+								'idtagbl' => $v['idtagbl'],
+								'kode_sbl' => $_POST['kode_sbl'],
+								'idsubbl' => $_POST['idsubbl'],
+								'active' => 1,
+								'update_at' => current_time('mysql'),
+								'tahun_anggaran' => $_POST['tahun_anggaran']
+							);
+							if (!empty($cek)) {
+								$wpdb->update('data_tag_sub_keg', $opsi, array(
+									'kode_sbl' => $_POST['kode_sbl'],
+									'idtagbl' => $v['idtagbl'],
+									'tahun_anggaran' => $_POST['tahun_anggaran']
+								));
+							} else {
+								$wpdb->insert('data_tag_sub_keg', $opsi);
+							}
+						}
+					}
+
+					if (!empty($_POST['dataCapaian']) && $ret['status'] != 'error') {
+						$dataCapaian = $_POST['dataCapaian'];
+						$wpdb->update('data_capaian_prog_sub_keg', array( 'active' => 0 ), array(
+							'tahun_anggaran' => $_POST['tahun_anggaran'],
+							'kode_sbl' => $_POST['kode_sbl']
+						));
+						foreach ($dataCapaian as $k => $v) {
+							$cek = $wpdb->get_var("SELECT kode_sbl from data_capaian_prog_sub_keg where tahun_anggaran=".$_POST['tahun_anggaran']." AND kode_sbl='" . $_POST['kode_sbl'] . "' AND capaianteks='" . $v['capaianteks'] . "'");
+							$opsi = array(
+								'satuancapaian' => $v['satuancapaian'],
+								'targetcapaianteks' => $v['targetcapaianteks'],
+								'capaianteks' => $v['capaianteks'],
+								'targetcapaian' => $v['targetcapaian'],
+								'kode_sbl' => $_POST['kode_sbl'],
+								'idsubbl' => $_POST['idsubbl'],
+								'active' => 1,
+								'update_at' => current_time('mysql'),
+								'tahun_anggaran' => $_POST['tahun_anggaran']
+							);
+							if (!empty($cek)) {
+								$wpdb->update('data_capaian_prog_sub_keg', $opsi, array(
+									'kode_sbl' => $_POST['kode_sbl'],
+									'capaianteks' => $v['capaianteks'],
+									'tahun_anggaran' => $_POST['tahun_anggaran']
+								));
+							} else {
+								$wpdb->insert('data_capaian_prog_sub_keg', $opsi);
+							}
+						}
+					}
+
+					if (!empty($_POST['dataOutputGiat']) && $ret['status'] != 'error') {
+						$dataOutputGiat = $_POST['dataOutputGiat'];
+						$wpdb->update('data_output_giat_sub_keg', array( 'active' => 0 ), array(
+							'tahun_anggaran' => $_POST['tahun_anggaran'],
+							'kode_sbl' => $_POST['kode_sbl']
+						));
+						foreach ($dataOutputGiat as $k => $v) {
+							$cek = $wpdb->get_var("SELECT kode_sbl from data_output_giat_sub_keg where tahun_anggaran=".$_POST['tahun_anggaran']." AND kode_sbl='" . $_POST['kode_sbl'] . "' AND outputteks='" . $v['outputteks'] . "'");
+							$opsi = array(
+								'outputteks' => $v['outputteks'],
+								'satuanoutput' => $v['satuanoutput'],
+								'targetoutput' => $v['targetoutput'],
+								'targetoutputteks' => $v['targetoutputteks'],
+								'kode_sbl' => $_POST['kode_sbl'],
+								'idsubbl' => $_POST['idsubbl'],
+								'active' => 1,
+								'update_at' => current_time('mysql'),
+								'tahun_anggaran' => $_POST['tahun_anggaran']
+							);
+							if (!empty($cek)) {
+								$wpdb->update('data_output_giat_sub_keg', $opsi, array(
+									'kode_sbl' => $_POST['kode_sbl'],
+									'outputteks' => $v['outputteks'],
+									'tahun_anggaran' => $_POST['tahun_anggaran']
+								));
+							} else {
+								$wpdb->insert('data_output_giat_sub_keg', $opsi);
+							}
+						}
+					}
+
+					$iddana = false;
+					if (!empty($_POST['dataDana']) && $ret['status'] != 'error') {
+						$dataDana = $_POST['dataDana'];
+						$wpdb->update('data_dana_sub_keg', array( 'active' => 0 ), array(
+							'tahun_anggaran' => $_POST['tahun_anggaran'],
+							'kode_sbl' => $_POST['kode_sbl']
+						));
+						foreach ($dataDana as $k => $v) {
+							if(
+								empty($iddana)
+								&& !empty($v['iddana'])
+							){
+								$iddana = $v['iddana'];
+							}
+							$cek = $wpdb->get_var("SELECT kode_sbl from data_dana_sub_keg where tahun_anggaran=".$_POST['tahun_anggaran']." AND kode_sbl='" . $_POST['kode_sbl'] . "' AND iddanasubbl='" . $v['iddanasubbl'] . "'");
+							$opsi = array(
+								'namadana' => $v['namadana'],
+								'kodedana' => $v['kodedana'],
+								'iddana' => $v['iddana'],
 								'iddanasubbl' => $v['iddanasubbl'],
+								'pagudana' => $v['pagudana'],
+								'kode_sbl' => $_POST['kode_sbl'],
+								'idsubbl' => $_POST['idsubbl'],
+								'active' => 1,
+								'update_at' => current_time('mysql'),
 								'tahun_anggaran' => $_POST['tahun_anggaran']
-							));
-						} else {
-							$wpdb->insert('data_dana_sub_keg', $opsi);
+							);
+							if (!empty($cek)) {
+								$wpdb->update('data_dana_sub_keg', $opsi, array(
+									'kode_sbl' => $_POST['kode_sbl'],
+									'iddanasubbl' => $v['iddanasubbl'],
+									'tahun_anggaran' => $_POST['tahun_anggaran']
+								));
+							} else {
+								$wpdb->insert('data_dana_sub_keg', $opsi);
+							}
 						}
 					}
-				}
-				if(empty($iddana)){
-					$iddana = get_option('_crb_default_sumber_dana' );
-				}
+					if(empty($iddana)){
+						$iddana = get_option('_crb_default_sumber_dana' );
+					}
 
-				if (!empty($_POST['dataLokout']) && $ret['status'] != 'error') {
-					$dataLokout = $_POST['dataLokout'];
-					$wpdb->update('data_lokasi_sub_keg', array( 'active' => 0 ), array(
-						'tahun_anggaran' => $_POST['tahun_anggaran'],
-						'kode_sbl' => $_POST['kode_sbl']
-					));
-					foreach ($dataLokout as $k => $v) {
-						$cek = $wpdb->get_var("SELECT kode_sbl from data_lokasi_sub_keg where tahun_anggaran=".$_POST['tahun_anggaran']." AND kode_sbl='" . $_POST['kode_sbl'] . "' AND iddetillokasi='" . $v['iddetillokasi'] . "'");
-						$opsi = array(
-							'camatteks' => $v['camatteks'],
-							'daerahteks' => $v['daerahteks'],
-							'idcamat' => $v['idcamat'],
-							'iddetillokasi' => $v['iddetillokasi'],
-							'idkabkota' => $v['idkabkota'],
-							'idlurah' => $v['idlurah'],
-							'lurahteks' => $v['lurahteks'],
-							'kode_sbl' => $_POST['kode_sbl'],
-							'idsubbl' => $_POST['idsubbl'],
-							'active' => 1,
-							'update_at' => current_time('mysql'),
-							'tahun_anggaran' => $_POST['tahun_anggaran']
-						);
-						if (!empty($cek)) {
-							$wpdb->update('data_lokasi_sub_keg', $opsi, array(
-								'kode_sbl' => $_POST['kode_sbl'],
+					if (!empty($_POST['dataLokout']) && $ret['status'] != 'error') {
+						$dataLokout = $_POST['dataLokout'];
+						$wpdb->update('data_lokasi_sub_keg', array( 'active' => 0 ), array(
+							'tahun_anggaran' => $_POST['tahun_anggaran'],
+							'kode_sbl' => $_POST['kode_sbl']
+						));
+						foreach ($dataLokout as $k => $v) {
+							$cek = $wpdb->get_var("SELECT kode_sbl from data_lokasi_sub_keg where tahun_anggaran=".$_POST['tahun_anggaran']." AND kode_sbl='" . $_POST['kode_sbl'] . "' AND iddetillokasi='" . $v['iddetillokasi'] . "'");
+							$opsi = array(
+								'camatteks' => $v['camatteks'],
+								'daerahteks' => $v['daerahteks'],
+								'idcamat' => $v['idcamat'],
 								'iddetillokasi' => $v['iddetillokasi'],
+								'idkabkota' => $v['idkabkota'],
+								'idlurah' => $v['idlurah'],
+								'lurahteks' => $v['lurahteks'],
+								'kode_sbl' => $_POST['kode_sbl'],
+								'idsubbl' => $_POST['idsubbl'],
+								'active' => 1,
+								'update_at' => current_time('mysql'),
 								'tahun_anggaran' => $_POST['tahun_anggaran']
-							));
-						} else {
-							$wpdb->insert('data_lokasi_sub_keg', $opsi);
+							);
+							if (!empty($cek)) {
+								$wpdb->update('data_lokasi_sub_keg', $opsi, array(
+									'kode_sbl' => $_POST['kode_sbl'],
+									'iddetillokasi' => $v['iddetillokasi'],
+									'tahun_anggaran' => $_POST['tahun_anggaran']
+								));
+							} else {
+								$wpdb->insert('data_lokasi_sub_keg', $opsi);
+							}
 						}
 					}
 				}
@@ -3732,6 +3736,7 @@ class Wpsipd_Public
 				if(
 					get_option('_crb_singkron_simda') == 1
 					&& get_option('_crb_tahun_anggaran_sipd') == $_POST['tahun_anggaran']
+					&& $_POST['total_page'] == $_POST['no_page']
 				){
 					$debug = false;
 					if(get_option('_crb_singkron_simda_debug') == 1){

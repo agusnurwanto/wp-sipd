@@ -1016,6 +1016,8 @@ class Wpsipd_Simda
 	function singkronSimda($opsi=array()){
 		global $wpdb;
 		$ret = array(
+			'action'	=> $_POST['action'],
+			'kode_sbl'	=> $_POST['kode_sbl'],
 			'status'	=> 'success',
 			'message'	=> 'Berhasil export SIMDA!'
 		);
