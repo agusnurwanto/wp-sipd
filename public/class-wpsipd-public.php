@@ -10396,7 +10396,7 @@ class Wpsipd_Public
 						SELECT 
 							* 
 						FROM data_kelompok_satuan_harga 
-						WHERE tahun_anggaran = %d LIMIT 30',
+						WHERE tahun_anggaran = %d',
 						$tahun_anggaran
 					), ARRAY_A);
 			    	$no = 0;
