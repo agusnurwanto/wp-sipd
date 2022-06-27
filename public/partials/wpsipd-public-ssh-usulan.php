@@ -36,6 +36,16 @@ $body = '';
 	    margin: 2px;
 	    display: inline-block;
 	}
+	.kol-keterangan{
+		max-width: 300px;
+	}
+	.more-bold{
+		font-weight: 700;
+    	color: #50575e;
+	}
+	ul.keterangan{
+		margin-bottom: 0!important;
+	}
 </style>
 <div class="cetak">
 	<div style="padding: 10px;">
@@ -324,7 +334,7 @@ $body = '';
 		            	className: "text-center"
 		            },
 		            { 
-		            	"data": "kode_standar_harga",
+		            	"data": "show_kode_komponen",
 		            	className: "text-center"
 		            },
 		            { "data": "nama_standar_harga" },
@@ -347,7 +357,7 @@ $body = '';
 		            },
 					{ 
 		            	"data": "show_keterangan",
-		            	className: "text-center"
+		            	className: "text-left kol-keterangan"
 		            },
 					{ 
 		            	"data": "status_upload_sipd",
@@ -604,55 +614,55 @@ $body = '';
 	}
 
 	//edit akun ssh usulan
-	function edit_akun_ssh_usulan(id_standar_harga){
-		jQuery('#tambahUsulanSsh').modal('show');
-		jQuery("#tambahUsulanSsh .modal-dialog").removeClass("modal-xl modal-sm");
-		jQuery("#tambahUsulanSsh .modal-dialog").addClass("modal-lg");
-		jQuery("#tambahUsulanSshLabel").html("Tambah Rekening Akun");
-		jQuery("#tambahUsulanSsh .modal-body").html("<div class=\'akun-ssh-desc\'><table>"+
-					"<tr><td class=\'first-desc\'>Kategori</td><td class=\'sec-desc\'>:</td><td><span id=\'u_data_kategori\'></span></td></tr>"+
-					"<tr><td class=\'first-desc\'>Nama Komponen</td><td class=\'sec-desc\'>:</td><td><span id=\'u_data_nama_komponen\'></span></td></tr>"+
-					"<tr><td class=\'first-desc\'>Spesifikasi</td><td class=\'sec-desc\'>:</td><td><span id=\'u_data_spesifikasi\'></span></td></tr>"+
-					"<tr><td class=\'first-desc\'>Satuan</td><td class=\'sec-desc\'>:</td><td><span id=\'u_data_satuan\'></span></td></tr>"+
-					"<tr><td class=\'first-desc\'>Harga Satuan</td><td class=\'sec-desc\'>:</td><td><span id=\'u_data_harga_satuan\'></span></td></tr>"+
-					"<tr><td class=\'first-desc\'>Rekening Akun</td><td class=\'sec-desc\'>:</td><td class=\'pt-0\'><div class=\'ul-desc-akun\'></div></td></tr></table>"+
-					"<div class=\'add_akun_to_ssh\' style=\'display:none;\'><label for=\'u_data_akun\' style=\'display:inline-block\'>Tambah Rekening Akun</label>"+
-					"<input type=\'hidden\' id=\'u_data_add_ssh_akun_id\'>"+
-					"<select id=\'u_data_akun\' class=\'select2-multiple\' name=\'states[]\' multiple=\'multiple\' style=\'display:block;width:100%;\' required></select>"+
-					"<button style=\'margin: 1rem 0 2rem 0;border-radius:0.2rem;\' class=\'submitBtn btn_add_akun_to_ssh btn-success\' onclick=\'save_add_akun_to_ssh("+tahun+")\'>Simpan Rekening</button></div></div>");
-		jQuery("#tambahUsulanSsh .modal-footer").html("<button style=\'margin: 0 0 2rem 0.5rem;border-radius:0.2rem;\' class=\'btn_add_akun_to_ssh\' onclick=\'field_add_akun_to_ssh()\'>Tambah Rekening</button>");
-		jQuery("#u_data_akun").html(dataAkunSsh.table_content);
-		jQuery('.select2-multiple').select2({
-			dropdownParent: jQuery('#tambahUsulanSsh')
-		});
-		let iconX = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x-square" viewBox="0 0 16 16" style="color:red;"><path d="M14 1a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1h12zM2 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H2z"/><path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/></svg>';
+	// function edit_akun_ssh_usulan(id_standar_harga){
+		// jQuery('#tambahUsulanSsh').modal('show');
+		// jQuery("#tambahUsulanSsh .modal-dialog").removeClass("modal-xl modal-sm");
+		// jQuery("#tambahUsulanSsh .modal-dialog").addClass("modal-lg");
+		// jQuery("#tambahUsulanSshLabel").html("Tambah Rekening Akun");
+		// jQuery("#tambahUsulanSsh .modal-body").html("<div class=\'akun-ssh-desc\'><table>"+
+		// 			"<tr><td class=\'first-desc\'>Kategori</td><td class=\'sec-desc\'>:</td><td><span id=\'u_data_kategori\'></span></td></tr>"+
+		// 			"<tr><td class=\'first-desc\'>Nama Komponen</td><td class=\'sec-desc\'>:</td><td><span id=\'u_data_nama_komponen\'></span></td></tr>"+
+		// 			"<tr><td class=\'first-desc\'>Spesifikasi</td><td class=\'sec-desc\'>:</td><td><span id=\'u_data_spesifikasi\'></span></td></tr>"+
+		// 			"<tr><td class=\'first-desc\'>Satuan</td><td class=\'sec-desc\'>:</td><td><span id=\'u_data_satuan\'></span></td></tr>"+
+		// 			"<tr><td class=\'first-desc\'>Harga Satuan</td><td class=\'sec-desc\'>:</td><td><span id=\'u_data_harga_satuan\'></span></td></tr>"+
+		// 			"<tr><td class=\'first-desc\'>Rekening Akun</td><td class=\'sec-desc\'>:</td><td class=\'pt-0\'><div class=\'ul-desc-akun\'></div></td></tr></table>"+
+		// 			"<div class=\'add_akun_to_ssh\' style=\'display:none;\'><label for=\'u_data_akun\' style=\'display:inline-block\'>Tambah Rekening Akun</label>"+
+		// 			"<input type=\'hidden\' id=\'u_data_add_ssh_akun_id\'>"+
+		// 			"<select id=\'u_data_akun\' class=\'select2-multiple\' name=\'states[]\' multiple=\'multiple\' style=\'display:block;width:100%;\' required></select>"+
+		// 			"<button style=\'margin: 1rem 0 2rem 0;border-radius:0.2rem;\' class=\'submitBtn btn_add_akun_to_ssh btn-success\' onclick=\'save_add_akun_to_ssh("+tahun+")\'>Simpan Rekening</button></div></div>");
+		// jQuery("#tambahUsulanSsh .modal-footer").html("<button style=\'margin: 0 0 2rem 0.5rem;border-radius:0.2rem;\' class=\'btn_add_akun_to_ssh\' onclick=\'field_add_akun_to_ssh()\'>Tambah Rekening</button>");
+		// jQuery("#u_data_akun").html(dataAkunSsh.table_content);
+		// jQuery('.select2-multiple').select2({
+		// 	dropdownParent: jQuery('#tambahUsulanSsh')
+		// });
+		// let iconX = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x-square" viewBox="0 0 16 16" style="color:red;"><path d="M14 1a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1h12zM2 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H2z"/><path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/></svg>';
 
-		jQuery.ajax({
-			url: "<?php echo admin_url('admin-ajax.php'); ?>",
-			type:"post",
-			data:{
-				'action' : "get_data_ssh_usulan_by_id",
-				'api_key' : jQuery("#api_key").val(),
-				'id_standar_harga' : id_standar_harga,
-				'tahun_anggaran'	: tahun
-			},
-			dataType: "json",
-			success:function(response){
-				jQuery("#u_data_kategori").html(response.data.kode_standar_harga);
-				jQuery("#u_data_nama_komponen").html(response.data.nama_standar_harga);
-				jQuery("#u_data_spesifikasi").html(response.data.spek);
-				jQuery("#u_data_satuan").html(response.data.satuan);
-				jQuery("#u_data_harga_satuan").html(response.data.harga);
-				jQuery("#u_data_add_ssh_akun_id").val(response.data.id_standar_harga);
-				var data_akun = response.data_akun;
-				jQuery.each( data_akun, function( key, value ) {
-					jQuery(".ul-desc-akun").append(`<div class="row" id="rek_akun_${value.id}" style="border-bottom: 1px solid #ebebeb;padding: 6px;">
-					<div class="col-10">${value.nama_akun}</div>
-					<div class="col-2 text-center"><a href="#" onclick="return delete_akun_ssh_usulan('${id_standar_harga}','${value.id}');" title="Delete rekening akun usulan SSH">${iconX}</a></div></div>`);
-				});
-			}
-		})
-	}
+		// jQuery.ajax({
+		// 	url: "<?php echo admin_url('admin-ajax.php'); ?>",
+		// 	type:"post",
+		// 	data:{
+		// 		'action' : "get_data_ssh_usulan_by_id",
+		// 		'api_key' : jQuery("#api_key").val(),
+		// 		'id_standar_harga' : id_standar_harga,
+		// 		'tahun_anggaran'	: tahun
+		// 	},
+		// 	dataType: "json",
+		// 	success:function(response){
+		// 		jQuery("#u_data_kategori").html(response.data.kode_standar_harga);
+		// 		jQuery("#u_data_nama_komponen").html(response.data.nama_standar_harga);
+		// 		jQuery("#u_data_spesifikasi").html(response.data.spek);
+		// 		jQuery("#u_data_satuan").html(response.data.satuan);
+		// 		jQuery("#u_data_harga_satuan").html(response.data.harga);
+		// 		jQuery("#u_data_add_ssh_akun_id").val(response.data.id_standar_harga);
+		// 		var data_akun = response.data_akun;
+		// 		jQuery.each( data_akun, function( key, value ) {
+		// 			jQuery(".ul-desc-akun").append(`<div class="row" id="rek_akun_${value.id}" style="border-bottom: 1px solid #ebebeb;padding: 6px;">
+		// 			<div class="col-10">${value.nama_akun}</div>
+		// 			<div class="col-2 text-center"><a href="#" onclick="return delete_akun_ssh_usulan('${id_standar_harga}','${value.id}');" title="Delete rekening akun usulan SSH">${iconX}</a></div></div>`);
+		// 		});
+		// 	}
+		// })
+	// }
 
 	function field_add_akun_to_ssh(){
 		jQuery(".add_akun_to_ssh").toggle();
@@ -1049,6 +1059,13 @@ $body = '';
 			jQuery("#wrap-loading").hide();
 			alert('Tidak ada data dihapus!');
 		}
+	}
+
+	function readMore(btn){
+		let post = btn.parentElement;
+		post.querySelector(".dots").classList.toggle("hide");
+		post.querySelector(".more").classList.toggle("hide");
+		btn.textContent == "more" ? btn.textContent = "less" : btn.textContent = "more";
 	}
 
 </script> 

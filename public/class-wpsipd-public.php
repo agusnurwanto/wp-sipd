@@ -10249,6 +10249,9 @@ class Wpsipd_Public
 					7 => 'keterangan_status',
 					8 => 'status_upload_sipd',
 					9 => 'created_user',
+					10=> 'kode_standar_harga_sipd',
+					11=> 'created_at',
+					12=> 'keterangan_lampiran'
 				);
 				$where = $sqlTot = $sqlRec = "";
 
@@ -10295,18 +10298,34 @@ class Wpsipd_Public
 					$created_user = "";
 					if(!empty($recVal['created_user'])){
 						$created_user = get_userdata($recVal['created_user']);
-						$created_user = $created_user->display_name;
+						$created_user = '<li>'.$created_user->display_name.'</li>';
 					}
-					$keterangan_status = "1";
-					if(empty($recVal['keterangan_status'])){
-						$keterangan_status = "-";
+					$keterangan_status = "";
+					if(!empty($recVal['keterangan_status'])){
+						if(strlen($recVal['keterangan_status']) > 25){
+							$keterangan_status = '<li>'.substr($recVal['keterangan_status'],0,25).'<span class="dots">...</span>';
+							$keterangan_status .= '<span class="hide more">'.substr($recVal['keterangan_status'],25).'</span>&nbsp;<span class="more-bold" onclick="readMore(this)">more</span></li>';
+						}else{
+							$keterangan_status = '<li>'.$recVal['keterangan_status'].'</li>';
+						}
 					}
 
-					$pemisah = "";
-					if(!empty($created_user) && !empty($keterangan_status) && $keterangan_status != "-"){
-						$pemisah = " - ";
+					$created_at = "";
+					if(!empty($recVal['created_at'])){
+						$created_at = '<li>'.date( 'd-m-Y', strtotime($recVal['created_at'])).'</li>';
 					}
-					$queryRecords[$recKey]['show_keterangan'] = $created_user.$pemisah.$queryRecords[$recKey]['keterangan_status'];
+
+					$keterangan_lampiran = "";
+					if(!empty($recVal['keterangan_lampiran'])){
+						if(strlen($recVal['keterangan_lampiran']) > 25){
+							$keterangan_lampiran = '<li>'.substr($recVal['keterangan_lampiran'],0,25).'<span class="dots">...</span>';
+							$keterangan_lampiran .= '<span class="hide more">'.substr($recVal['keterangan_lampiran'],25).'</span>&nbsp;<span class="more-bold" onclick="readMore(this)">more</span></li>';
+						}else{
+							$keterangan_lampiran = '<li>'.$recVal['keterangan_lampiran'].'</li>';
+						}
+					}
+
+					$queryRecords[$recKey]['show_keterangan'] = '<ul class="keterangan">'.$created_user.$keterangan_status.$created_at.$keterangan_lampiran.'</ul>';
 					$queryRecords[$recKey]['show_keterangan'] = $queryRecords[$recKey]['show_keterangan'] == '' ? '-' : $queryRecords[$recKey]['show_keterangan'];
 
 					if($recVal['status_upload_sipd'] != 'sudah'){
@@ -10321,8 +10340,16 @@ class Wpsipd_Public
 					}
 					$deleteCheck = '<input type="checkbox" class="delete_check" id="delcheck_'.$recVal['id_standar_harga'].'" onclick="checkcheckbox();" value="'.$recVal['id_standar_harga'].'">';
 
-					$queryRecords[$recKey]['aksi'] = '<ul class="td-aksi">'.$verify.$editUsulanSSH.$akun.$deleteUsulanSSH.'</ul>';	
+					$kode_komponen = '<div>'.$recVal['kode_standar_harga'].'</div>';
+					$kode_komponen .= '<div style="margin: 4px 0 0 0 0;color: #666;line-height:1.4em;font-size: 13px;">(Usulan)</div>';
+					if(!empty($recVal['kode_standar_harga_sipd'])){
+						$kode_komponen .= '<div style="margin: 6px 0 0 0;">'.$recVal['kode_standar_harga_sipd'].'</div>';
+						$kode_komponen .= '<div style="margin: 4px 0 0 0 0;color: #666;line-height:1.4em;font-size: 13px;">(Existing SIPD)</div>';
+					}
+
+					$queryRecords[$recKey]['aksi'] = '<ul class="td-aksi">'.$verify.$editUsulanSSH.$deleteUsulanSSH.'</ul>';	
 					$queryRecords[$recKey]['deleteCheckbox'] = $deleteCheck;
+					$queryRecords[$recKey]['show_kode_komponen'] = $kode_komponen;
 				}
 
 				$json_data = array(
@@ -10364,7 +10391,7 @@ class Wpsipd_Public
 						SELECT 
 							* 
 						FROM data_kelompok_satuan_harga 
-						WHERE tahun_anggaran = %d',
+						WHERE tahun_anggaran = %d LIMIT 30',
 						$tahun_anggaran
 					), ARRAY_A);
 			    	$no = 0;
