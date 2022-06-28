@@ -10256,7 +10256,8 @@ class Wpsipd_Public
 					9 => 'created_user',
 					10=> 'kode_standar_harga_sipd',
 					11=> 'created_at',
-					12=> 'keterangan_lampiran'
+					12=> 'keterangan_lampiran',
+					13=> 'status_jenis_usulan'
 				);
 				$where = $sqlTot = $sqlRec = "";
 
@@ -10303,35 +10304,32 @@ class Wpsipd_Public
 					$created_user = "";
 					if(!empty($recVal['created_user'])){
 						$created_user = get_userdata($recVal['created_user']);
-						$created_user = '<li>'.$created_user->display_name.'</li>';
+						$created_user = '<tr><td>Pengusul: '.$created_user->display_name.'</td></tr>';
 					}
 					$keterangan_status = "";
 					if(!empty($recVal['keterangan_status'])){
 						if(strlen($recVal['keterangan_status']) > 25){
-							$keterangan_status = '<li>'.substr($recVal['keterangan_status'],0,25).'<span class="dots">...</span>';
-							$keterangan_status .= '<span class="hide more">'.substr($recVal['keterangan_status'],25).'</span>&nbsp;<span class="more-bold" onclick="readMore(this)">more</span></li>';
+							$keterangan_status = '<tr><td class="in-kol-keterangan">Komentar: '.substr($recVal['keterangan_status'],0,20).'<span class="dots">...</span>';
+							$keterangan_status .= '<span class="hide more">'.substr($recVal['keterangan_status'],20).'</span>&nbsp;<span class="more-bold medium-bold" onclick="readMore(this)">more</span></td></tr>';
 						}else{
-							$keterangan_status = '<li>'.$recVal['keterangan_status'].'</li>';
+							$keterangan_status = '<tr><td>Komentar: '.$recVal['keterangan_status'].'</td></tr>';
 						}
 					}
 
 					$created_at = "";
 					if(!empty($recVal['created_at'])){
-						$created_at = '<li>'.date( 'd-m-Y', strtotime($recVal['created_at'])).'</li>';
+						$created_at = '<tr><td>Tanggal: '.date( 'd-m-Y', strtotime($recVal['created_at'])).'</td></tr>';
 					}
 
 					$keterangan_lampiran = "";
 					if(!empty($recVal['keterangan_lampiran'])){
 						if(strlen($recVal['keterangan_lampiran']) > 25){
-							$keterangan_lampiran = '<li>'.substr($recVal['keterangan_lampiran'],0,25).'<span class="dots">...</span>';
-							$keterangan_lampiran .= '<span class="hide more">'.substr($recVal['keterangan_lampiran'],25).'</span>&nbsp;<span class="more-bold" onclick="readMore(this)">more</span></li>';
+							$keterangan_lampiran = '<tr><td class="in-kol-keterangan">Lampiran: '.substr($recVal['keterangan_lampiran'],0,20).'<span class="dots">...</span>';
+							$keterangan_lampiran .= '<span class="hide more">'.substr($recVal['keterangan_lampiran'],20).'</span>&nbsp;<span class="more-bold medium-bold" onclick="readMore(this)">more</span></td></tr>';
 						}else{
-							$keterangan_lampiran = '<li>'.$recVal['keterangan_lampiran'].'</li>';
+							$keterangan_lampiran = '<tr><td>Lampiran: '.$recVal['keterangan_lampiran'].'</td></tr>';
 						}
 					}
-
-					$queryRecords[$recKey]['show_keterangan'] = '<ul class="keterangan">'.$created_user.$keterangan_status.$created_at.$keterangan_lampiran.'</ul>';
-					$queryRecords[$recKey]['show_keterangan'] = $queryRecords[$recKey]['show_keterangan'] == '' ? '-' : $queryRecords[$recKey]['show_keterangan'];
 
 					if($recVal['status_upload_sipd'] != 'sudah'){
 						$queryRecords[$recKey]['status_upload_sipd'] = 'Belum';
@@ -10345,16 +10343,29 @@ class Wpsipd_Public
 					}
 					$deleteCheck = '<input type="checkbox" class="delete_check" id="delcheck_'.$recVal['id_standar_harga'].'" onclick="checkcheckbox();" value="'.$recVal['id_standar_harga'].'">';
 
-					$kode_komponen = '<div>'.$recVal['kode_standar_harga'].'</div>';
-					$kode_komponen .= '<div style="margin: 4px 0 0 0 0;color: #666;line-height:1.4em;font-size: 13px;">(Usulan)</div>';
+					$kode_komponen = '<table style="margin: 0;"><tr><td>Usulan: '.$recVal['kode_standar_harga'].'</td></tr>';
+					// $kode_komponen .= '<tr><td style="color: #666;line-height:1.4em;font-size: 13px;">(Usulan)</td></tr>';
 					if(!empty($recVal['kode_standar_harga_sipd'])){
-						$kode_komponen .= '<div style="margin: 6px 0 0 0;">'.$recVal['kode_standar_harga_sipd'].'</div>';
-						$kode_komponen .= '<div style="margin: 4px 0 0 0 0;color: #666;line-height:1.4em;font-size: 13px;">(Existing SIPD)</div>';
+						$kode_komponen .= '<tr><td>Data SIPD: '.$recVal['kode_standar_harga_sipd'].'</td></tr>';
+						// $kode_komponen .= '<tr><td style="color: #666;line-height:1.4em;font-size: 13px;">(Existing SIPD)</td></tr>';
 					}
+					$kode_komponen .= '</table>';
+
+					$spek_satuan = '<table style="margin: 0;"><tr><td>Spesifikasi: '.$recVal['spek'].'</tr></td>';
+					$spek_satuan .= '<tr><td>Satuan: '.$recVal['satuan'].'</td></tr></table>';
+
+					$show_status = '<table style="margin: 0;">';
+					$show_status .= '<tr><td>Usulan: <span class="medium-bold-2">'.ucwords($recVal['status']).'</span></td></tr>';
+					$show_status .= '<tr><td>Upload SIPD: <span class="medium-bold-2">'.ucwords($queryRecords[$recKey]['status_upload_sipd']).'</span></td></tr>';
+					$show_status .= '<tr><td>Jenis: <span class="medium-bold-2">'.ucwords(str_replace("_"," ",$recVal['status_jenis_usulan'])).'</span></td></tr></table>';
 
 					$queryRecords[$recKey]['aksi'] = '<ul class="td-aksi">'.$verify.$editUsulanSSH.$deleteUsulanSSH.'</ul>';	
 					$queryRecords[$recKey]['deleteCheckbox'] = $deleteCheck;
 					$queryRecords[$recKey]['show_kode_komponen'] = $kode_komponen;
+					$queryRecords[$recKey]['spek_satuan'] = $spek_satuan;
+					$queryRecords[$recKey]['show_status'] = $show_status;
+					$queryRecords[$recKey]['show_keterangan'] = '<table style="margin: 0;">'.$created_user.$keterangan_status.$created_at.$keterangan_lampiran.'</table>';
+					$queryRecords[$recKey]['show_keterangan'] = $queryRecords[$recKey]['show_keterangan'] == '' ? '-' : $queryRecords[$recKey]['show_keterangan'];
 				}
 
 				$json_data = array(
@@ -10396,7 +10407,7 @@ class Wpsipd_Public
 						SELECT 
 							* 
 						FROM data_kelompok_satuan_harga 
-						WHERE tahun_anggaran = %d',
+						WHERE tahun_anggaran = %d LIMIT 500',
 						$tahun_anggaran
 					), ARRAY_A);
 			    	$no = 0;
@@ -10443,7 +10454,7 @@ class Wpsipd_Public
 			    	$no = 0;
 			    	foreach ($data_satuan as $key => $value) {
 			    		$no++;
-			    		$table_content .= '<option value="'.$value['id_satuan'].'">'.$value['nama_satuan'].'</option>';
+			    		$table_content .= '<option value="'.$value['nama_satuan'].'">'.$value['nama_satuan'].'</option>';
 			    	}
 
 					$return = array(
@@ -10535,7 +10546,9 @@ class Wpsipd_Public
 					$keterangan_lampiran = trim(htmlspecialchars($_POST['keterangan_lampiran']));
 					
 					$data_kategori = $wpdb->get_results($wpdb->prepare("SELECT * FROM data_kelompok_satuan_harga WHERE id_kategori = %d",$kategori), ARRAY_A);
-					$data_satuan = $wpdb->get_results($wpdb->prepare("SELECT * FROM data_satuan WHERE id_satuan = %d",$satuan), ARRAY_A);
+
+					$data_kategori['kode_kategori'] = substr($data_kategori[0]['kode_kategori'],0,17);
+					$data_kategori['nama_kategori'] = substr($data_kategori[0]['kode_kategori'],19);
 
 					$data_akun = array();
 					foreach($akun as $v_akun){
@@ -10556,10 +10569,10 @@ class Wpsipd_Public
 							harga = %s AND
 							kode_kel_standar_harga = %s",
 						$nama_standar_harga,
-						$data_satuan[0]['nama_satuan'],
+						$satuan,
 						$spek,
 						$harga,
-						$data_kategori[0]['kode_kategori']
+						$data_kategori['kode_kategori']
 					), ARRAY_A);
 
 					//avoid double data ssh usulan
@@ -10574,10 +10587,10 @@ class Wpsipd_Public
 							harga = %s AND
 							kode_kel_standar_harga = %s",
 						$nama_standar_harga,
-						$data_satuan[0]['nama_satuan'],
+						$satuan,
 						$spek,
 						$harga,
-						$data_kategori[0]['kode_kategori']
+						$data_kategori['kode_kategori']
 					), ARRAY_A);
 
 					if(!empty($data_avoid) || !empty($data_avoid_usulan)){
@@ -10591,12 +10604,12 @@ class Wpsipd_Public
 						die(json_encode($return));
 					}
 
-					$last_kode_standar_harga = $wpdb->get_results($wpdb->prepare("SELECT id_standar_harga,kode_standar_harga FROM `data_ssh_usulan` WHERE kode_standar_harga=(SELECT MAX(kode_standar_harga) FROM `data_ssh_usulan` WHERE kode_kel_standar_harga = %s)",$data_kategori[0]['kode_kategori']), ARRAY_A);
+					$last_kode_standar_harga = $wpdb->get_results($wpdb->prepare("SELECT id_standar_harga,kode_standar_harga FROM `data_ssh_usulan` WHERE kode_standar_harga=(SELECT MAX(kode_standar_harga) FROM `data_ssh_usulan` WHERE kode_kel_standar_harga = %s)",$data_kategori['kode_kategori']), ARRAY_A);
 					$last_kode_standar_harga = (empty($last_kode_standar_harga[0]['kode_standar_harga'])) ? "0" : explode(".",$last_kode_standar_harga[0]['kode_standar_harga']);
 					$last_kode_standar_harga = (int) end($last_kode_standar_harga);
 					$last_kode_standar_harga = $last_kode_standar_harga+1;
 					$last_kode_standar_harga = sprintf("%05d",$last_kode_standar_harga);
-					$last_kode_standar_harga = $data_kategori[0]['kode_kategori'].'.'.$last_kode_standar_harga;
+					$last_kode_standar_harga = $data_kategori['kode_kategori'].'.'.$last_kode_standar_harga;
 
 					$id_standar_harga = $wpdb->get_results("SELECT id_standar_harga FROM `data_ssh_usulan` WHERE id_standar_harga=(SELECT MAX(id_standar_harga) FROM `data_ssh_usulan`) AND tahun_anggaran=2022", ARRAY_A);
 					$id_standar_harga = !empty($id_standar_harga) ? $id_standar_harga[0]['id_standar_harga'] + 1 : 1;
@@ -10606,17 +10619,18 @@ class Wpsipd_Public
 						'id_standar_harga' => $id_standar_harga,
 						'kode_standar_harga' => $last_kode_standar_harga,
 						'nama_standar_harga' => $nama_standar_harga,
-						'satuan' => $data_satuan[0]['nama_satuan'],
+						'satuan' => $satuan,
 						'spek' => $spek,
 						'created_at' => $date_now,
 						'created_user' => $user_id,
 						'kelompok' => 1,
 						'harga' => $harga,
-						'kode_kel_standar_harga' => $data_kategori[0]['kode_kategori'],
-						'nama_kel_standar_harga' => $data_kategori[0]['uraian_kategori'],
+						'kode_kel_standar_harga' => $data_kategori['kode_kategori'],
+						'nama_kel_standar_harga' => $data_kategori['nama_kategori'],
 						'tahun_anggaran' => $tahun_anggaran,
 						'status' => 'waiting',
 						'keterangan_lampiran' => $keterangan_lampiran,
+						'status_jenis_usulan' => 'tambah_baru'
 					);
 
 					$wpdb->insert('data_ssh_usulan',$opsi_ssh);
@@ -11030,7 +11044,8 @@ class Wpsipd_Public
 						'tahun_anggaran' => $tahun_anggaran,
 						'status' => 'waiting',
 						'keterangan_lampiran' => $keterangan_lampiran,
-						'kode_standar_harga_sipd' => $kode_standar_harga_sipd
+						'kode_standar_harga_sipd' => $kode_standar_harga_sipd,
+						'status_jenis_usulan' => 'tambah_harga'
 					);
 	
 					$wpdb->insert('data_ssh_usulan',$opsi_ssh);
@@ -11132,7 +11147,8 @@ class Wpsipd_Public
 							'tahun_anggaran' => $tahun_anggaran,
 							'status' => 'waiting',
 							'keterangan_lampiran' => NULL,
-							'kode_standar_harga_sipd' => $kode_standar_harga_sipd
+							'kode_standar_harga_sipd' => $kode_standar_harga_sipd,
+							'status_jenis_usulan' => 'tambah_akun'
 						);
 		
 						$wpdb->insert('data_ssh_usulan',$opsi_ssh);
@@ -11324,9 +11340,7 @@ class Wpsipd_Public
 
 					$data_akun_ssh = $wpdb->get_results($wpdb->prepare('SELECT id,id_akun,nama_akun FROM data_ssh_rek_belanja_usulan WHERE id_standar_harga = %d',$id_standar_harga), ARRAY_A);
 
-					$data_kel_standar_harga_by_id = $wpdb->get_results($wpdb->prepare('SELECT * FROM data_kelompok_satuan_harga WHERE kode_kategori = %s AND tahun_anggaran = %s LIMIT %d',$data_id_ssh[0]['kode_kel_standar_harga'],$tahun_anggaran,5), ARRAY_A);
-
-					$data_satuan = $wpdb->get_results($wpdb->prepare("SELECT id_satuan,nama_satuan FROM data_satuan WHERE nama_satuan = %s",$data_id_ssh[0]['satuan']), ARRAY_A);
+					$data_kel_standar_harga_by_id = $wpdb->get_results($wpdb->prepare('SELECT * FROM data_kelompok_satuan_harga WHERE kode_kategori = %s AND tahun_anggaran = %s',$data_id_ssh[0]['kode_kel_standar_harga'],$tahun_anggaran), ARRAY_A);
 				    
 					ksort($data_id_ssh);
 
@@ -11334,8 +11348,7 @@ class Wpsipd_Public
 						'status' 						=> 'success',
 						'data' 							=> $data_id_ssh[0],
 						'data_akun'						=> $data_akun_ssh,
-						'data_kel_standar_harga_by_id'	=> $data_kel_standar_harga_by_id[0],
-						'data_satuan'					=> $data_satuan[0],
+						'data_kel_standar_harga_by_id'	=> $data_kel_standar_harga_by_id[0]
 					);
 			}else{
 				$return = array(
@@ -12398,7 +12411,6 @@ class Wpsipd_Public
 					$id_standar_harga		= trim(htmlspecialchars($_POST['id_standar_harga']));
 					
 					$data_kategori = $wpdb->get_results($wpdb->prepare("SELECT kode_kategori,uraian_kategori FROM data_kelompok_satuan_harga WHERE id_kategori = %d",$kategori), ARRAY_A);
-					$data_satuan = $wpdb->get_results($wpdb->prepare("SELECT nama_satuan FROM data_satuan WHERE id_satuan = %d",$satuan), ARRAY_A);
 					$data_this_id_ssh = $wpdb->get_results($wpdb->prepare('SELECT id_standar_harga,kode_kel_standar_harga,kode_standar_harga,status FROM data_ssh_usulan WHERE id_standar_harga = %d',$id_standar_harga), ARRAY_A);
 	
 					$date_now = date("Y-m-d H:i:s");
@@ -12416,7 +12428,7 @@ class Wpsipd_Public
 							kode_kel_standar_harga = %s AND
 							NOT id_standar_harga = %d",
 						$nama_standar_harga,
-						$data_satuan[0]['nama_satuan'],
+						$satuan,
 						$spek,
 						$harga,
 						$data_kategori[0]['kode_kategori'],
@@ -12436,7 +12448,7 @@ class Wpsipd_Public
 							kode_kel_standar_harga = %s AND
 							NOT id_standar_harga = %d",
 						$nama_standar_harga,
-						$data_satuan[0]['nama_satuan'],
+						$satuan,
 						$spek,
 						$harga,
 						$data_kategori[0]['kode_kategori'],
@@ -12470,7 +12482,7 @@ class Wpsipd_Public
 						$opsi_edit_ssh = array(
 							'kode_standar_harga' => $last_kode_standar_harga,
 							'nama_standar_harga' => $nama_standar_harga,
-							'satuan' => $data_satuan[0]['nama_satuan'],
+							'satuan' => $satuan,
 							'spek' => $spek,
 							'created_at' => $date_now,
 							'kelompok' => 1,

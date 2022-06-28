@@ -39,12 +39,32 @@ $body = '';
 	.kol-keterangan{
 		max-width: 300px;
 	}
-	.more-bold{
-		font-weight: 700;
-    	color: #50575e;
+	td.kol-keterangan{
+		padding: 0!important;
+	}
+	td.in-kol-keterangan{
+		max-width: 300px;
+	}
+	.medium-bold{
+		font-weight: 600;
+		color: #50575e;
+	}
+	.medium-bold-2{
+		font-weight: 600;
+		color: #212529;
 	}
 	ul.keterangan{
 		margin-bottom: 0!important;
+	}
+	td.spek-satuan{
+		padding: 0!important;
+	}
+
+	td.show_status{
+		padding: 0!important;
+	}
+	td.show-komponen{
+		padding: 0!important;
 	}
 </style>
 <div class="cetak">
@@ -62,15 +82,12 @@ $body = '';
 			<thead id="data_header">
 				<tr>
 					<th class="text-center"><input type="checkbox" id="checkall"></th>
-					<th class="text-center">ID</th>
 					<th class="text-center">Kode Komponen</th>
 					<th class="text-center">Uraian Komponen</th>
-					<th class="text-center">Spesifikasi</th>
-					<th class="text-center">Satuan</th>
+					<th class="text-center">Spesifikasi Satuan</th>
 					<th class="text-center">Harga Satuan</th>
-					<th class="text-center">Status</th>
 					<th class="text-center">Keterangan</th>
-					<th class="text-center">Upload ke SIPD</th>
+					<th class="text-center">Status</th>
 					<th class="text-right">Aksi</th>
 				</tr>
 			</thead>
@@ -330,19 +347,13 @@ $body = '';
 		            	className: "text-center"
 		            },
 		            { 
-		            	"data": "id_standar_harga",
-		            	className: "text-center"
-		            },
-		            { 
 		            	"data": "show_kode_komponen",
-		            	className: "text-center"
+		            	className: "text-left show-komponen"
 		            },
 		            { "data": "nama_standar_harga" },
-		            { "data": "spek" },
-		            { 
-		            	"data": "satuan",
-		            	className: "text-center"
-		            },
+		            { "data": "spek_satuan",
+		            	className: "text-left spek-satuan"
+					},
 		            { 
 		            	"data": "harga",
 		            	className: "text-right",
@@ -352,16 +363,12 @@ $body = '';
 			            }
 		            },
 					{ 
-		            	"data": "status",
-		            	className: "text-center"
-		            },
-					{ 
 		            	"data": "show_keterangan",
 		            	className: "text-left kol-keterangan"
 		            },
 					{ 
-		            	"data": "status_upload_sipd",
-		            	className: "text-center"
+		            	"data": "show_status",
+		            	className: "text-left show_status"
 		            },
 					{ 
 		            	"data": "aksi",
@@ -867,7 +874,7 @@ $body = '';
 			success:function(response){
 				jQuery('#wrap-loading').hide();
 				jQuery('#u_kategori').val(response.data_kel_standar_harga_by_id.id_kategori).trigger('change');
-				jQuery('#u_satuan').val(response.data_satuan.id_satuan).trigger('change');
+				jQuery('#u_satuan').val(response.data.satuan).trigger('change');
 				jQuery("#u_nama_komponen").val(response.data.nama_standar_harga);
 				jQuery("#u_spesifikasi").val(response.data.spek);
 				jQuery("#u_harga_satuan").val(response.data.harga);
@@ -941,7 +948,7 @@ $body = '';
 	}
 
 	function delete_ssh_usulan(id_standar_harga){
-		let confirmDelete = confirm("Apakah anda yakin akang menghapus usulan SSH?");
+		let confirmDelete = confirm("Apakah anda yakin akan menghapus usulan SSH?");
 		if(confirmDelete){
 			jQuery.ajax({
 				url: "<?php echo admin_url('admin-ajax.php'); ?>",
@@ -966,7 +973,7 @@ $body = '';
 	}
 
 	function delete_akun_ssh_usulan(id_standar_harga,id){
-		let confirmDelete = confirm("Apakah anda yakin akang menghapus rekening akun usulan SSH?");
+		let confirmDelete = confirm("Apakah anda yakin akan menghapus rekening akun usulan SSH?");
 		if(confirmDelete){
 			jQuery("#wrap-loading").show();
 			if(id_standar_harga == '' || id == ''){
