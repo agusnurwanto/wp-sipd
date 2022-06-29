@@ -11340,7 +11340,7 @@ class Wpsipd_Public
 
 					$data_akun_ssh = $wpdb->get_results($wpdb->prepare('SELECT id,id_akun,nama_akun FROM data_ssh_rek_belanja_usulan WHERE id_standar_harga = %d',$id_standar_harga), ARRAY_A);
 
-					$data_kel_standar_harga_by_id = $wpdb->get_results($wpdb->prepare('SELECT * FROM data_kelompok_satuan_harga WHERE kode_kategori = %s AND tahun_anggaran = %s',$data_id_ssh[0]['kode_kel_standar_harga'],$tahun_anggaran), ARRAY_A);
+					$data_kel_standar_harga_by_id = $wpdb->get_results($wpdb->prepare('SELECT * FROM data_kelompok_satuan_harga WHERE kode_kategori LIKE %s AND tahun_anggaran = %s',$data_id_ssh[0]['kode_kel_standar_harga'].'%',$tahun_anggaran), ARRAY_A);
 				    
 					ksort($data_id_ssh);
 

@@ -2206,7 +2206,8 @@ CREATE TABLE `data_ssh_usulan` (
   `keterangan_status` text,
   `status_upload_sipd` varchar(20) DEFAULT NULL,
   `keterangan_lampiran` text,
-  'kode_standar_harga_sipd' varchar(30) DEFAULT NULL
+  'kode_standar_harga_sipd' varchar(30) DEFAULT NULL,
+  'status_jenis_usulan' varchar(30) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 --

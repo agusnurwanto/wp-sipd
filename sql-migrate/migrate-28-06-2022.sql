@@ -1,0 +1,1 @@
+ALTER TABLE `data_ssh_usulan`  ADD `status_jenis_usulan` varchar(30) DEFAULT NULL AFTER `kode_standar_harga_sipd`;
