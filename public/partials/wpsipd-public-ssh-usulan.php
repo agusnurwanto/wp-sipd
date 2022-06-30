@@ -132,6 +132,7 @@ $body = '';
 				<div>
 					<label for="tambah_harga_komp_nama_komponent" style="display:inline-block">Nama Komponen</label>
 					<select id="tambah_harga_komp_nama_komponent" class="js-example-basic-single" style="display:block;width:100%;" placeholder="Nama Komponen"></select>
+					<input type="text" id="tambah_harga_show_komp_nama" class="hide" style="width:100%;" placeholder="Nama Komponen" disabled>
 				</div>
 				<div>
 					<label for="tambah_harga_komp_spesifikasi" style="display:inline-block">Spesifikasi</label>
@@ -180,6 +181,7 @@ $body = '';
 				</div>
 				<div><label for="tambah_akun_komp_nama_komponent" style="display:inline-block">Nama Komponen</label>
 					<select id="tambah_akun_komp_nama_komponent" class="js-example-basic-single" style="display:block;width:100%;" placeholder="Nama Komponen"></select>
+					<input type="text" id="tambah_akun_show_komp_nama" class="hide" style="width:100%;" placeholder="Nama Komponen" disabled>
 				</div>
 				<div><label for="tambah_akun_komp_spesifikasi" style="display:inline-block">Spesifikasi</label>
 					<input type="text" id="tambah_akun_komp_spesifikasi" style="display:block;width:100%;" placeholder="Spesifikasi" disabled>
@@ -196,7 +198,7 @@ $body = '';
 				<div><label for="tambah_new_akun_komp" style="display:inline-block">Rekening Akun</label>
 					<select id="tambah_new_akun_komp" name="states[]" multiple="multiple" style="display:block;width:100%;"></select>
 				</div>
-				<div><label for="tambah_akun_komp_keterangan_lampiran" style="display:inline-block">Keterangan</label>
+				<div id="tambah_akun_lampiran"><label for="tambah_akun_komp_keterangan_lampiran" style="display:inline-block">Keterangan</label>
 					<input type="text" id="tambah_akun_komp_keterangan_lampiran" style="display:block;width:100%;" placeholder="Link Google Drive Keterangan" disabled>
 					<small>*Masukkan link Google Drive berisikan lampiran minimal 3 harga toko beserta gambar.</small>
 				</div>
@@ -292,22 +294,35 @@ $body = '';
 		})
 		jQuery('#tambahUsulanHargaByKompSSH').on('hidden.bs.modal', function () {
 			jQuery("#tambah_harga_komp_kategori").val("");
-			jQuery("#tambah_harga_komp_nama_komponent").val("");
+			jQuery("#tambah_harga_komp_nama_komponent").val("").trigger('change');
+			jQuery("#tambah_harga_komp_nama_komponent").next(".select2-container").removeClass("hide");
+			jQuery("#tambah_harga_show_komp_nama").addClass("hide");
 			jQuery("#tambah_harga_komp_spesifikasi").val("");
 			jQuery("#tambah_harga_komp_satuan").val("");
 			jQuery("#tambah_harga_komp_harga_satuan").val("");
 			jQuery("#tambah_harga_komp_akun").html("");
 			jQuery("#tambah_harga_komp_keterangan_lampiran").val("");
+			jQuery("#tambahUsulanHargaByKompSSH .modal-title").html("");
+			jQuery("#tambahUsulanHargaByKompSSH .submitBtn").text("");
+			jQuery("#tambahUsulanHargaByKompSSH .submitBtn").attr("onclick", '');
+			jQuery("#tambah_harga_komp_nama_komponent").attr("disabled", false);
 		})
 		jQuery('#tambahUsulanAkunByKompSSH').on('hidden.bs.modal', function () {
 			jQuery("#tambah_akun_komp_kategori").val("");
-			jQuery("#tambah_akun_komp_nama_komponent").val("");
+			jQuery("#tambah_akun_komp_nama_komponent").val("").trigger('change');
+			jQuery("#tambah_akun_komp_nama_komponent").next(".select2-container").removeClass("hide");
+			jQuery("#tambah_akun_show_komp_nama").addClass("hide");
 			jQuery("#tambah_akun_komp_spesifikasi").val("");
 			jQuery("#tambah_akun_komp_satuan").val("");
 			jQuery("#tambah_akun_komp_harga_satuan").val("");
 			jQuery("#tambah_akun_komp_akun").html("");
-			jQuery("#tambah_new_akun_komp").val("");
+			jQuery("#tambah_new_akun_komp").val("").trigger('change');
 			jQuery("#tambah_akun_komp_keterangan_lampiran").val("");
+			jQuery("#tambah_akun_lampiran").show();
+			jQuery("#tambahUsulanAkunByKompSSH .modal-title").html("");
+			jQuery("#tambahUsulanAkunByKompSSH .submitBtn").text("");
+			jQuery("#tambahUsulanAkunByKompSSH .submitBtn").attr("onclick", '');
+			
 		})
 		jQuery('#checkall').click(function(){
 			if(jQuery(this).is(':checked')){
@@ -511,15 +526,29 @@ $body = '';
 		if(jenis === 'harga'){
 			jQuery("#tambah_harga_komp_nama_komponent").on("change", function(){
 				var id_standar_harga = jQuery(this).val();
-				get_data_usulan_ssh_by_komponen('harga',id_standar_harga)
+				if(id_standar_harga != null){
+					get_data_usulan_ssh_by_komponen('harga',id_standar_harga)
+				}
 			});
 			jQuery('#tambahUsulanHargaByKompSSH').modal('show');
+			jQuery("#tambahUsulanHargaByKompSSH .modal-title").html('Tambah Harga usulan SSH');
+			jQuery("#tambahUsulanHargaByKompSSH .submitBtn")
+				.attr("onclick", 'submitUsulanTambahHargaSshForm('+tahun+')')
+				.attr("disabled", false)
+				.text("Simpan");
 		}else if(jenis === 'akun'){
 			jQuery("#tambah_akun_komp_nama_komponent").on("change", function(){
 				var id_standar_harga = jQuery(this).val();
-				get_data_usulan_ssh_by_komponen('akun',id_standar_harga)
+				if(id_standar_harga != null){
+					get_data_usulan_ssh_by_komponen('akun',id_standar_harga)
+				}
 			});
 			jQuery('#tambahUsulanAkunByKompSSH').modal('show');
+			jQuery("#tambahUsulanAkunByKompSSH .modal-title").html('Tambah Rekening Akun usulan SSH');
+			jQuery("#tambahUsulanAkunByKompSSH .submitBtn")
+				.attr("onclick", 'submitUsulanTambahAkunSshForm('+tahun+')')
+				.attr("disabled", false)
+				.text("Simpan");
 		}
 	}
 
@@ -734,6 +763,7 @@ $body = '';
 		})
 	}
 
+	/** submit verifikasi usulan ssh */
 	function submit_verify_ssh(id_standar_ssh){
 		var verify_ssh = jQuery("input[name=\'verify_ssh\']:checked").val();
 		var reason_verify_ssh = jQuery("#alasan_verify_ssh").val();
@@ -774,6 +804,7 @@ $body = '';
 			}
 	}
 
+	/** submit tambah usulan harga ssh */
 	function submitUsulanTambahHargaSshForm(tahun){
 		var id_standar_harga = jQuery('#tambah_harga_komp_nama_komponent').val();
 		var harga_satuan = jQuery('#tambah_harga_komp_harga_satuan').val();
@@ -856,11 +887,11 @@ $body = '';
 			});
 		}
 	}
+
 	/** edit akun ssh usulan */
-	function edit_ssh_usulan(id_standar_harga){
+	function edit_ssh_usulan(status_jenis_usulan,id_standar_harga){
 		jQuery('#wrap-loading').show();
-		jQuery('#tambahUsulanSshModal').modal('show');
-		jQuery("#tambahUsulanSshModal .modal-title").html("Edit usulan SSH");
+
 		jQuery.ajax({
 			url: "<?php echo admin_url('admin-ajax.php'); ?>",
 			type:"post",
@@ -873,21 +904,58 @@ $body = '';
 			dataType: "json",
 			success:function(response){
 				jQuery('#wrap-loading').hide();
-				jQuery('#u_kategori').val(response.data_kel_standar_harga_by_id.id_kategori).trigger('change');
-				jQuery('#u_satuan').val(response.data.satuan).trigger('change');
-				jQuery("#u_nama_komponen").val(response.data.nama_standar_harga);
-				jQuery("#u_spesifikasi").val(response.data.spek);
-				jQuery("#u_harga_satuan").val(response.data.harga);
-				jQuery("#u_keterangan_lampiran").val(response.data.keterangan_lampiran);
-				var val_akun = [];
-				response.data_akun.map(function(b, i){
-					val_akun.push(b.id_akun);
-				});
-				jQuery('#u_akun').val(val_akun).trigger('change');
-				jQuery("#tambahUsulanSshModal .submitBtn")
-					.attr('onclick', 'submitEditUsulanSshForm('+id_standar_harga+', '+tahun+')')
-					.attr('disabled', false)
-					.text('Simpan');
+				if(status_jenis_usulan === 'tambah_akun'){
+					jQuery('#tambahUsulanAkunByKompSSH').modal('show');
+					jQuery("#tambahUsulanAkunByKompSSH .modal-title").html('Edit Tambah Akun Usulan SSH');
+					jQuery("#tambah_akun_komp_kategori").val(response.data.kode_kel_standar_harga+" "+response.data.nama_kel_standar_harga);
+					jQuery("#tambah_akun_komp_nama_komponent").next(".select2-container").addClass("hide");
+					jQuery("#tambah_akun_show_komp_nama").removeClass("hide");
+					jQuery("#tambah_akun_show_komp_nama").val(response.data.nama_standar_harga);
+					jQuery("#tambah_akun_komp_spesifikasi").val(response.data.spek);
+					jQuery("#tambah_akun_komp_satuan").val(response.data.satuan);
+					jQuery("#tambah_akun_komp_harga_satuan").val(response.data.harga);
+					jQuery("#tambah_akun_komp_keterangan_lampiran").val(response.data.keterangan_lampiran);
+					jQuery("#tambah_akun_komp_akun").html(response.table_content_akun);
+					jQuery("#tambah_akun_lampiran").hide();
+					jQuery("#tambahUsulanAkunByKompSSH .submitBtn")
+						.attr('onclick', 'submitEditTambahAkunUsulanSshForm('+id_standar_harga+', '+tahun+')')
+						.attr("disabled", false)
+						.text("Simpan");
+				}else if(status_jenis_usulan === 'tambah_harga'){
+					jQuery('#tambahUsulanHargaByKompSSH').modal('show');
+					jQuery("#tambahUsulanHargaByKompSSH .modal-title").html('Edit Tambah Harga Usulan SSH');
+					jQuery("#tambah_harga_komp_kategori").val(response.data.kode_kel_standar_harga+" "+response.data.nama_kel_standar_harga);
+					jQuery("#tambah_harga_komp_nama_komponent").next(".select2-container").addClass("hide");
+					jQuery("#tambah_harga_show_komp_nama").removeClass("hide");
+					jQuery("#tambah_harga_show_komp_nama").val(response.data.nama_standar_harga);
+					jQuery("#tambah_harga_komp_spesifikasi").val(response.data.spek);
+					jQuery("#tambah_harga_komp_satuan").val(response.data.satuan);
+					jQuery("#tambah_harga_komp_harga_satuan").val(response.data.harga);
+					jQuery("#tambah_harga_komp_keterangan_lampiran").val(response.data.keterangan_lampiran);
+					jQuery("#tambah_harga_komp_akun").html(response.table_content_akun);
+					jQuery("#tambahUsulanHargaByKompSSH .submitBtn")
+						.attr('onclick', 'submitEditTambahHargaUsulanSshForm('+id_standar_harga+', '+tahun+')')
+						.attr("disabled", false)
+						.text("Simpan");
+				}else if(status_jenis_usulan == 'tambah_baru'){
+					jQuery('#tambahUsulanSshModal').modal('show');
+					jQuery("#tambahUsulanSshModal .modal-title").html('Edit Tambah Usulan SSH');
+					jQuery('#u_kategori').val(response.data_kel_standar_harga_by_id.id_kategori).trigger('change');
+					jQuery('#u_satuan').val(response.data.satuan).trigger('change');
+					jQuery("#u_nama_komponen").val(response.data.nama_standar_harga);
+					jQuery("#u_spesifikasi").val(response.data.spek);
+					jQuery("#u_harga_satuan").val(response.data.harga);
+					jQuery("#u_keterangan_lampiran").val(response.data.keterangan_lampiran);
+					var val_akun = [];
+					response.data_akun.map(function(b, i){
+						val_akun.push(b.id_akun);
+					});
+					jQuery('#u_akun').val(val_akun).trigger('change');
+					jQuery("#tambahUsulanSshModal .submitBtn")
+						.attr('onclick', 'submitEditUsulanSshForm('+id_standar_harga+', '+tahun+')')
+						.attr('disabled', false)
+						.text('Simpan');
+				}
 			}
 		})
 	}
@@ -942,6 +1010,88 @@ $body = '';
 					jQuery("#wrap-loading").hide();
 					jQuery('#tambahUsulanSshModal').modal('hide')
 					usulanSSHTable.ajax.reload();	
+				}
+			});
+		}
+	}
+
+	/** submit edit tambah usulan harga ssh */
+	function submitEditTambahHargaUsulanSshForm(id_standar_harga,tahun){
+		var harga_satuan = jQuery('#tambah_harga_komp_harga_satuan').val();
+		var keterangan_lampiran = jQuery('#tambah_harga_komp_keterangan_lampiran').val();
+		jQuery("#wrap-loading").show();
+		if(harga_satuan.trim() == '' || keterangan_lampiran.trim() == '' || id_standar_harga == ''){
+			jQuery("#wrap-loading").hide();
+			alert('Harap diisi semua, tidak ada yang kosong.');
+			return false;
+		}else{
+			jQuery.ajax({
+				url: "<?php echo admin_url('admin-ajax.php'); ?>",
+				type:'post',
+				data:{
+					'action' : 'submit_edit_tambah_harga_ssh',
+					'api_key' : jQuery("#api_key").val(),
+					'tahun_anggaran' : tahun,
+					'id_standar_harga' : id_standar_harga,
+					'harga_satuan' : harga_satuan,
+					'keterangan_lampiran' : keterangan_lampiran,
+				},
+				dataType: 'json',
+				beforeSend: function () {
+					jQuery('.submitBtn').attr("disabled","disabled");
+					jQuery('.modal-body').css('opacity', '.5');
+				},
+				success:function(response){
+					if(response.status == 'success'){
+						alert('Data berhasil disimpan.');
+					}else{
+						alert(response.message);
+					}
+					jQuery('#tambahUsulanHargaByKompSSH').modal('hide')
+					jQuery('.submitBtn').removeAttr("disabled");
+					jQuery('.modal-body').css('opacity', '');
+					jQuery("#wrap-loading").hide();
+					usulanSSHTable.ajax.reload();
+				}
+			});
+		}
+	}
+
+	/** submit edit tambah akun ssh */
+	function submitEditTambahAkunUsulanSshForm(id_standar_harga,tahun){
+		var new_akun = jQuery('#tambah_new_akun_komp').val();
+		jQuery("#wrap-loading").show();
+		if(new_akun == ''){
+			jQuery("#wrap-loading").hide();
+			alert('Harap diisi semua, tidak ada yang kosong.');
+			return false;
+		}else{
+			jQuery.ajax({
+				url: "<?php echo admin_url('admin-ajax.php'); ?>",
+				type:'post',
+				data:{
+					'action' : 'submit_edit_tambah_akun_ssh',
+					'api_key' : jQuery("#api_key").val(),
+					'tahun_anggaran' : tahun,
+					'id_standar_harga' : id_standar_harga,
+					'new_akun' : new_akun
+				},
+				dataType: 'json',
+				beforeSend: function () {
+					jQuery('.submitBtn').attr("disabled","disabled");
+					jQuery('.modal-body').css('opacity', '.5');
+				},
+				success:function(response){
+					if(response.status == 'success'){
+						alert('Data berhasil disimpan.');
+					}else{
+						alert(response.message);
+					}
+					jQuery('#tambahUsulanAkunByKompSSH').modal('hide')
+					jQuery('.submitBtn').removeAttr("disabled");
+					jQuery('.modal-body').css('opacity', '');
+					jQuery("#wrap-loading").hide();
+					usulanSSHTable.ajax.reload();
 				}
 			});
 		}

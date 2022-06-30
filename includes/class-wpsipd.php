@@ -446,6 +446,8 @@ class Wpsipd
 		$this->loader->add_action('wp_ajax_submit_delete_akun_usulan_ssh',  $plugin_public, 'submit_delete_akun_usulan_ssh');
 		$this->loader->add_action('wp_ajax_submit_delete_check_usulan_ssh',  $plugin_public, 'submit_delete_check_usulan_ssh');
 		$this->loader->add_action('wp_ajax_submit_tambah_akun_ssh',  $plugin_public, 'submit_tambah_akun_ssh');
+		$this->loader->add_action('wp_ajax_submit_edit_tambah_harga_ssh', $plugin_public, 'submit_edit_tambah_harga_ssh');
+		$this->loader->add_action('wp_ajax_submit_edit_tambah_akun_ssh', $plugin_public, 'submit_edit_tambah_akun_ssh');
 
 		add_shortcode('menu_monev',  array($plugin_public, 'menu_monev'));
 		add_shortcode('datassh', array($plugin_public, 'datassh'));
