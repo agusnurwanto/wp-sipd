@@ -2280,6 +2280,7 @@ CREATE TABLE `data_kelompok_satuan_harga` (
   `kode_kategori` varchar(64) DEFAULT NULL,
   `uraian_kategori` text,
   `tipe_kelompok` varchar(20) DEFAULT NULL,
+  `active` tinyint(2) NOT NULL DEFAULT '1',
   `tahun_anggaran` year(4) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 

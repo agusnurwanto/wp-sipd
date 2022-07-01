@@ -12976,16 +12976,20 @@ class Wpsipd_Public
 		if(!empty($_POST)){
 			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
 				$kategori = $_POST['kategori'];
+				$wpdb->update('data_kelompok_satuan_harga', array('active' => 0), array(
+					'tahun_anggaran'	=> $_POST['tahun_anggaran'],
+					'tipe_kelompok' => $_POST['tipe_ssh']
+				));
 				foreach ($kategori as $k => $v) {
 					$cek = $wpdb->get_var($wpdb->prepare("
 						SELECT 
 							id 
 						from data_kelompok_satuan_harga 
 						where tahun_anggaran=%d 
-							AND kode_kategori=%s
+							AND id_kategori=%s
 							AND tipe_kelompok=%s",
 						$_POST['tahun_anggaran'],
-						$v['kode_kategori'],
+						$v['id_kategori'],
 						$v['kelompok']
 					));
 					$opsi = array(
@@ -12993,12 +12997,13 @@ class Wpsipd_Public
 						'kode_kategori' => $v['kode_kategori'],
 						'uraian_kategori' => $v['uraian_kategori'],
 						'tipe_kelompok' => $v['kelompok'],
+						'active' => 1,
 						'tahun_anggaran'	=> $_POST['tahun_anggaran']
 					);
 					if (!empty($cek)) {
 						$wpdb->update('data_kelompok_satuan_harga', $opsi, array(
 							'tahun_anggaran'	=> $_POST['tahun_anggaran'],
-							'kode_kategori' => $v['kode_kategori']
+							'id_kategori' => $v['id_kategori']
 						));
 					} else {
 						$wpdb->insert('data_kelompok_satuan_harga', $opsi);
@@ -13054,6 +13059,58 @@ class Wpsipd_Public
 						$wpdb->insert('data_satuan', $opsi);
 					}
 				}
+			}else{
+				$return = array(
+					'status' => 'error',
+					'message'	=> 'Api Key tidak sesuai!'
+				);
+			}
+		}else{
+			$return = array(
+				'status' => 'error',
+				'message'	=> 'Format tidak sesuai!'
+			);
+		}
+		die(json_encode($return));
+	}
+
+	public function get_usulan_ssh_sipd(){
+		global $wpdb;
+		$return = array(
+			'action' => $_POST['action'],
+			'status' => 'success',
+			'message' => 'Berhasil get usulan SSH!',
+			'data'	=> array()
+		);
+
+		if(!empty($_POST)){
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+				$data = $wpdb->get_results($wpdb->prepare("
+					SELECT 
+						s.*
+					from data_ssh_usulan as s
+					where s.tahun_anggaran=%d
+						and s.status='approved'
+						and (
+							s.status_upload_sipd is null
+							OR s.status_upload_sipd=0
+						)
+					",
+					$_POST['tahun_anggaran']
+				), ARRAY_A);
+				foreach($data as $k => $v){
+					$data[$k]['akun'] = $wpdb->get_results($wpdb->prepare("
+						SELECT 
+							r.*
+						from data_ssh_rek_belanja_usulan r 
+						where r.id_standar_harga=%d
+							and r.tahun_anggaran=%d
+						",
+						$v['id'],
+						$_POST['tahun_anggaran']
+					), ARRAY_A);
+				}
+				$return['data'] = $data;
 			}else{
 				$return = array(
 					'status' => 'error',

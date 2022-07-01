@@ -406,6 +406,9 @@ class Wpsipd
 		$this->loader->add_action('wp_ajax_cek_api_key',  $plugin_public, 'cek_api_key');
 		$this->loader->add_action('wp_ajax_nopriv_cek_api_key',  $plugin_public, 'cek_api_key');
 
+		$this->loader->add_action('wp_ajax_get_usulan_ssh_sipd',  $plugin_public, 'get_usulan_ssh_sipd');
+		$this->loader->add_action('wp_ajax_nopriv_get_usulan_ssh_sipd',  $plugin_public, 'get_usulan_ssh_sipd');
+
 		$this->loader->add_action('wp_ajax_simpan_rfk',  $plugin_public, 'simpan_rfk');
 		$this->loader->add_action('wp_ajax_reset_rfk',  $plugin_public, 'reset_rfk');
 		$this->loader->add_action('wp_ajax_reset_catatan_verifkator_rfk',  $plugin_public, 'reset_catatan_verifkator_rfk');
