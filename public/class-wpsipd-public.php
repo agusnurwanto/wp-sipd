@@ -10407,7 +10407,7 @@ class Wpsipd_Public
 						SELECT 
 							* 
 						FROM data_kelompok_satuan_harga 
-						WHERE tahun_anggaran = %d LIMIT 500',
+						WHERE tahun_anggaran = %d',
 						$tahun_anggaran
 					), ARRAY_A);
 			    	$no = 0;
@@ -12732,12 +12732,13 @@ class Wpsipd_Public
 						$tahun_anggaran
 					), ARRAY_A);
 					
+					/** get data exist akun by id */
 					$cek_akun = array();
 					foreach($akun_exist as $v_akun){
 						$cek_akun[$v_akun['id_akun']] = $v_akun;
 					}
 
-					// get data detail akun
+					// get data detail input new akun
 					$data_akun = array();
 					foreach($new_akun as $v_akun){
 						$data_akun[$v_akun] = $wpdb->get_results($wpdb->prepare("SELECT id_akun,kode_akun,nama_akun FROM data_akun WHERE id_akun = %d",$v_akun), ARRAY_A);
@@ -12760,6 +12761,13 @@ class Wpsipd_Public
 							));
 							unset($cek_akun[$id_akun]);
 						}
+					}
+
+					// hapus akun yang tidak dipakai
+					foreach($cek_akun as $v_akun){
+						$wpdb->delete('data_ssh_rek_belanja_usulan', array(
+							'id' => $v_akun['id']
+						), array('%d'));
 					}
 
 					$return = array(

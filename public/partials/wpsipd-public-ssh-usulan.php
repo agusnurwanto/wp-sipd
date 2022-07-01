@@ -916,6 +916,11 @@ $body = '';
 					jQuery("#tambah_akun_komp_harga_satuan").val(response.data.harga);
 					jQuery("#tambah_akun_komp_keterangan_lampiran").val(response.data.keterangan_lampiran);
 					jQuery("#tambah_akun_komp_akun").html(response.table_content_akun);
+					var val_akun = [];
+					response.data_akun.map(function(b, i){
+						val_akun.push(b.id_akun);
+					});
+					jQuery('#tambah_new_akun_komp').val(val_akun).trigger('change');
 					jQuery("#tambah_akun_lampiran").hide();
 					jQuery("#tambahUsulanAkunByKompSSH .submitBtn")
 						.attr('onclick', 'submitEditTambahAkunUsulanSshForm('+id_standar_harga+', '+tahun+')')
