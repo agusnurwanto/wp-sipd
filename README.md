@@ -42,6 +42,9 @@ Optimasi server apache agar proses pengiriman data dari chrome extension ke serv
 - Lakukan cek kembali mapping SKPD di halaman **SIMDA Options**. Jika di tabel ta_sub_unit belum dibuat data SKPD-nya, maka perlu dibuat dulu manual atau bisa digenerate dengan mengaktifkan opsi di form **Integrasi Sub Unit SIMDA sesuai SIPD**
 - Setelah dipastikan data mapping SKPD sudah sesuai antara di SIPD dan SIMDA, baru melakukan singkronisasi RKA
 
+### Modul Usulan SSH
+- Dokumentasi Modul SSH https://docs.google.com/document/d/1gYioieXf3kvzE34TwBZ_HRtB5jPGtUM2P57zCt0-L9o/edit?usp=sharing
+
 ### Permintaan fitur baru
 - User umum bisa request penambahan fitur dengan membuat issue
 
