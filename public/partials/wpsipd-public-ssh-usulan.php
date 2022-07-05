@@ -66,6 +66,16 @@ $body = '';
 	td.show-komponen{
 		padding: 0!important;
 	}
+	.toolbar {
+		float: left;
+	}
+	.bulk-action {
+		padding: .55rem;
+		border-color: #eaeaea;
+	}
+	.verify-ssh{
+		margin-right: .5rem;
+	}
 </style>
 <div class="cetak">
 	<div style="padding: 10px;">
@@ -76,7 +86,6 @@ $body = '';
 			<button class="btn btn-primary tambah_ssh" disabled onclick="tambah_new_ssh(<?php echo $input['tahun_anggaran']; ?>);">Tambah Item SSH</button>
 			<button class="btn btn-primary tambah_new_ssh" disabled onclick="get_data_by_name_komponen_ssh('harga',<?php echo $input['tahun_anggaran']; ?>)">Tambah Harga SSH</button>
 			<button class="btn btn-primary tambah_new_ssh" disabled onclick="get_data_by_name_komponen_ssh('akun',<?php echo $input['tahun_anggaran']; ?>)">Tambah Akun SSH</button>
-			<button class="btn btn-danger delete_new_ssh" onclick="delete_check_data_usulan_ssh()">Hapus Terpilih</button>
 		</div>
 		<table id="usulan_ssh_table" class="table table-bordered">
 			<thead id="data_header">
@@ -349,10 +358,6 @@ $body = '';
 						'tahun_anggaran' : tahun,
 					}
 				},
-				"initComplete":function( settings, json){
-					jQuery("#wrap-loading").hide();
-					resolve();
-				},
   				order: [0],
 				"columns": [
 					{ 
@@ -389,8 +394,20 @@ $body = '';
 		            	"data": "aksi",
 		            	className: "text-center"
 		            }
-		        ]
-		    });
+		        ],
+				dom: '<"toolbar">frtip',
+				"initComplete":function( settings, json){
+					jQuery("#wrap-loading").hide();
+					resolve();
+				},
+				dom: '<"toolbar">frtip'
+			});
+			jQuery('div.toolbar').html('<select class="btn bulk-action" id="multi_select_action">'+
+				'<option value="0">Tindakan Massal</option>'+
+				'<option value="approve">Setuju</option>'+
+				'<option value="notapprove">Tolak</option>'+
+				'<option value="delete">Hapus</option></select>'+
+			'&nbsp;<button type="submit" class="btn btn-secondary" onclick="action_check_data_usulan_ssh()">Terapkan</button>');
 		});
 	}
 
@@ -1180,46 +1197,111 @@ $body = '';
         }
     }
 
-	// Delete record
-	function delete_check_data_usulan_ssh(){
+	// Multi action
+	function action_check_data_usulan_ssh(){
+		var data_action = jQuery('#multi_select_action').val();
 
-		var deleteids_arr = [];
+		var check_id_arr = [];
 
 		jQuery("input:checkbox[class=delete_check]:checked").each(function () {
-			deleteids_arr.push(jQuery(this).val());
+			check_id_arr.push(jQuery(this).val());
 		});
 		jQuery("#wrap-loading").show();
 
-		if(deleteids_arr.length > 0){
+		if(check_id_arr.length > 0){
 
-			var confirmdelete = confirm("Apakah kamu yakin hapus data?");
-			if (confirmdelete == true) {
-				jQuery.ajax({
-					url: "<?php echo admin_url('admin-ajax.php'); ?>",
-					type:"post",
-					data:{
-						'action' : "submit_delete_check_usulan_ssh",
-						'api_key' : jQuery("#api_key").val(),
-						'tahun_anggaran' : tahun,
-						'deleteids_arr'	: deleteids_arr
-					},
-					dataType: "json",
-					success:function(response){
-						jQuery("#wrap-loading").hide();
-						if(response.status == 'success'){
-							alert('Data berhasil dihapus.');
-						}else{
-							alert(`GAGAL! ${response.message}`);
+			if(data_action == 'delete'){
+				var confirmdelete = confirm("Apakah kamu yakin hapus data?");
+				if (confirmdelete == true) {
+					jQuery.ajax({
+						url: "<?php echo admin_url('admin-ajax.php'); ?>",
+						type:"post",
+						data:{
+							'action' : "submit_delete_check_usulan_ssh",
+							'api_key' : jQuery("#api_key").val(),
+							'tahun_anggaran' : tahun,
+							'check_id_arr'	: check_id_arr
+						},
+						dataType: "json",
+						success:function(response){
+							jQuery("#wrap-loading").hide();
+							if(response.status == 'success'){
+								alert('Data berhasil dihapus.');
+							}else{
+								alert(`GAGAL! ${response.message}`);
+							}
+							usulanSSHTable.ajax.reload();
 						}
-						usulanSSHTable.ajax.reload();
+					})
+				}else{
+					jQuery("#wrap-loading").hide();
+				}
+			}else if(data_action == 'approve'){
+				var confirmapprove = confirm("Apakah kamu yakin menyetujui data?");
+				if (confirmapprove == true) {
+					jQuery.ajax({
+						url: "<?php echo admin_url('admin-ajax.php'); ?>",
+						type:"post",
+						data:{
+							'action' : "submit_approve_check_usulan_ssh",
+							'api_key' : jQuery("#api_key").val(),
+							'tahun_anggaran' : tahun,
+							'check_id_arr'	: check_id_arr,
+							'alasan': '',
+							'status': data_action
+						},
+						dataType: "json",
+						success:function(response){
+							jQuery("#wrap-loading").hide();
+							if(response.status == 'success'){
+								alert('Data berhasil disetujui.');
+							}else{
+								alert(`GAGAL! ${response.message}`);
+							}
+							usulanSSHTable.ajax.reload();
+						}
+					})
+				}else{
+					jQuery("#wrap-loading").hide();
+				}
+			}else if(data_action == 'notapprove'){
+				var reason = prompt("Alasan:", "");
+				if(reason != null || reason != ""){
+					var confirmnotapprove = confirm("Apakah kamu yakin menolak data?");
+					if (confirmnotapprove == true) {
+						jQuery.ajax({
+							url: "<?php echo admin_url('admin-ajax.php'); ?>",
+							type:"post",
+							data:{
+								'action' : "submit_approve_check_usulan_ssh",
+								'api_key' : jQuery("#api_key").val(),
+								'tahun_anggaran' : tahun,
+								'check_id_arr'	: check_id_arr,
+								'alasan': reason,
+								'status': data_action
+							},
+							dataType: "json",
+							success:function(response){
+								jQuery("#wrap-loading").hide();
+								if(response.status == 'success'){
+									alert('Data berhasil ditolak.');
+								}else{
+									alert(`GAGAL! ${response.message}`);
+								}
+								usulanSSHTable.ajax.reload();
+							}
+						})
 					}
-				})
+				}
+				jQuery("#wrap-loading").hide();
 			}else{
 				jQuery("#wrap-loading").hide();
+				alert('Tindakan massal tidak dipilih!');
 			}
-		}else if(deleteids_arr.length == 0){
+
+		}else if(check_id_arr.length == 0){
 			jQuery("#wrap-loading").hide();
-			alert('Tidak ada data dihapus!');
+			alert('Tidak ada data dipilih!');
 		}
 	}
 
