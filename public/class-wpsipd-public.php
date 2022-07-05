@@ -12908,6 +12908,7 @@ class Wpsipd_Public
 		die(json_encode($return));
 	}
 
+	/** Submit delete check multi select */
 	public function submit_delete_check_usulan_ssh(){
 		global $wpdb;
 		$return = array(
@@ -12923,9 +12924,9 @@ class Wpsipd_Public
 			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
 				// $id_standar_harga		= $_POST['id_standar_harga'];
 				$tahun_anggaran			= $_POST['tahun_anggaran'];
-				$deleteids_arr = $_POST['deleteids_arr'];
+				$check_id_arr = $_POST['check_id_arr'];
 
-				foreach($deleteids_arr as $deleteid){
+				foreach($check_id_arr as $deleteid){
 					$data_this_id_ssh = $wpdb->get_results($wpdb->prepare('SELECT id_standar_harga,kode_kel_standar_harga,kode_standar_harga,status FROM data_ssh_usulan WHERE id_standar_harga = %d',$deleteid), ARRAY_A);
 					if($data_this_id_ssh[0]['status'] == 'waiting' || in_array("administrator", $user_meta->roles)){
 						$wpdb->delete('data_ssh_usulan', array(
@@ -12948,6 +12949,87 @@ class Wpsipd_Public
 							'message'	=> "User tidak diijinkan!\nData sudah dalam tahap verifikasi",
 						);
 					}
+				}
+			}else{
+				$return = array(
+					'status' => 'error',
+					'message'	=> 'Api Key tidak sesuai!'
+				);
+			}
+		}else{
+			$return = array(
+				'status' => 'error',
+				'message'	=> 'Format tidak sesuai!'
+			);
+		}
+		die(json_encode($return));
+	}
+
+	/** Submit approve check multi select */
+	public function submit_approve_check_usulan_ssh(){
+		global $wpdb;
+		$return = array(
+			'status' => 'success',
+			'data'	=> array()
+		);
+
+		$user_id = um_user( 'ID' );
+		$user_meta = get_userdata($user_id);
+
+		$table_content = '';
+		if(!empty($_POST)){
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+				$tahun_anggaran	= $_POST['tahun_anggaran'];
+				$check_id_arr	= $_POST['check_id_arr'];
+				$status			= $_POST['status'];
+				$alasan			= $_POST['alasan'];
+
+				if(!empty($_POST['check_id_arr']) && !empty($_POST['status'])){
+					if($status =='notapprove' && $_POST['alasan'] == ""){
+						$return = array(
+							'status' => 'error',
+							'message'	=> 'Alasan tidak boleh kosong!',
+						);
+					}else{
+						foreach($check_id_arr as $checked_id){
+							$data_this_id_ssh = $wpdb->get_results($wpdb->prepare('SELECT id_standar_harga,kode_kel_standar_harga,kode_standar_harga,status FROM data_ssh_usulan WHERE id_standar_harga = %d',$checked_id), ARRAY_A);
+							if($data_this_id_ssh[0]['status'] == 'waiting' || in_array("administrator", $user_meta->roles)){
+								$date_now = date("Y-m-d H:i:s");
+				
+								$status_usulan_ssh = ($status == 'approve') ? 'approved' : 'rejected';
+				
+								$keterangan_status = (!empty($alasan)) ? $alasan : NULL;
+				
+								//update status data usulan ssh
+								$opsi_ssh = array(
+									'status' => $status_usulan_ssh,
+									'keterangan_status' => $keterangan_status,
+									'update_at' => $date_now,
+								);
+				
+								$where_ssh = array(
+									'id_standar_harga' => $checked_id
+								);
+				
+								$wpdb->update('data_ssh_usulan',$opsi_ssh,$where_ssh);
+								
+								$return = array(
+									'status' => 'success',
+									'message'	=> 'Berhasil!',
+								);
+							}else{
+								$return = array(
+									'status' => 'error',
+									'message'	=> "User tidak diijinkan!\nData sudah dalam tahap verifikasi",
+								);
+							}
+						}
+					}
+				}else{
+					$return = array(
+						'status' => 'error',
+						'message'	=> 'Tidak ada data yang dipilih!'
+					);
 				}
 			}else{
 				$return = array(
