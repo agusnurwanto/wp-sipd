@@ -10335,6 +10335,15 @@ class Wpsipd_Public
 						$queryRecords[$recKey]['status_upload_sipd'] = 'Belum';
 					}
 
+					$status_verif = '';
+					if($recVal['status'] == 'approved'){
+						$status_verif = 'Disetujui';
+					}else if($recVal['status'] == 'rejected'){
+						$status_verif = 'Ditolak';
+					}else if($recVal['status'] == 'waiting'){
+						$status_verif = 'Menunggu';
+					}
+
 					if(in_array("administrator", $user_meta->roles)){
 						$iconFilter = '<i class="dashicons dashicons-yes"></i>';
 						$verify = '<li><a class="btn btn-success" href="#" onclick="return verify_ssh_usulan(\''.$recVal['id_standar_harga'].'\');" title="Verifikasi Item Usulan SSH">'.$iconFilter.'</a></li>';
@@ -10355,7 +10364,7 @@ class Wpsipd_Public
 					$spek_satuan .= '<tr><td>Satuan: '.$recVal['satuan'].'</td></tr></table>';
 
 					$show_status = '<table style="margin: 0;">';
-					$show_status .= '<tr><td>Usulan: <span class="medium-bold-2">'.ucwords($recVal['status']).'</span></td></tr>';
+					$show_status .= '<tr><td>Usulan: <span class="medium-bold-2">'.$status_verif.'</span></td></tr>';
 					$show_status .= '<tr><td>Upload SIPD: <span class="medium-bold-2">'.ucwords($queryRecords[$recKey]['status_upload_sipd']).'</span></td></tr>';
 					$show_status .= '<tr><td>Jenis: <span class="medium-bold-2">'.ucwords(str_replace("_"," ",$recVal['status_jenis_usulan'])).'</span></td></tr></table>';
 

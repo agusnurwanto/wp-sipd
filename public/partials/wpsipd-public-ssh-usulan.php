@@ -402,7 +402,7 @@ $body = '';
 				},
 				dom: '<"toolbar">frtip'
 			});
-			jQuery('div.toolbar').html('<select class="btn bulk-action" id="multi_select_action">'+
+			jQuery('div.toolbar').html('<select class="bulk-action" id="multi_select_action">'+
 				'<option value="0">Tindakan Massal</option>'+
 				'<option value="approve">Setuju</option>'+
 				'<option value="notapprove">Tolak</option>'+
