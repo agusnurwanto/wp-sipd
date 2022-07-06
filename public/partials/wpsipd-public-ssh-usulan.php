@@ -402,7 +402,7 @@ $body = '';
 				},
 				dom: '<"toolbar">frtip'
 			});
-			jQuery('div.toolbar').html('<select class="btn bulk-action" id="multi_select_action">'+
+			jQuery('div.toolbar').html('<select class="bulk-action" id="multi_select_action">'+
 				'<option value="0">Tindakan Massal</option>'+
 				'<option value="approve">Setuju</option>'+
 				'<option value="notapprove">Tolak</option>'+
@@ -982,8 +982,12 @@ $body = '';
 		})
 	}
 
-	function cannot_edit_ssh_usulan(){
-		alert('Tidak bisa edit usulan SSH karena sudah ditahap verifikasi');
+	function cannot_change_ssh_usulan(option,jenis){
+		if(jenis == 'usulan'){
+			alert('Tidak bisa '+option+' usulan SSH karena sudah ditahap verifikasi');
+		}else if(jenis == 'upload'){
+			alert('Tidak bisa '+option+' usulan SSH karena sudah ditahap upload SIPD');
+		}
 	}
 
 	function submitEditUsulanSshForm(id_standar_harga,tahun){
