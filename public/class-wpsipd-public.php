@@ -11094,20 +11094,6 @@ class Wpsipd_Public
 	
 					$wpdb->insert('data_ssh_usulan',$opsi_ssh);
 	
-					if(!empty($data_old_ssh_akun)){
-						foreach($data_old_ssh_akun as $v_akun){
-							$opsi_akun[$v_akun['id_akun']] = array(
-								'id_akun' => $data_akun[$v_akun['id_akun']][0]['id_akun'],
-								'kode_akun' => $data_akun[$v_akun['id_akun']][0]['kode_akun'],
-								'nama_akun' => $data_akun[$v_akun['id_akun']][0]['kode_akun'].' '.$data_akun[$v_akun['id_akun']][0]['nama_akun'],
-								'id_standar_harga' => $id_standar_harga,
-								'tahun_anggaran' => $tahun_anggaran,
-							);
-		
-							$wpdb->insert('data_ssh_rek_belanja_usulan',$opsi_akun[$v_akun['id_akun']]);
-						}
-					}
-	
 					$return = array(
 						'status' => 'success',
 						'message'	=> 'Berhasil!',
@@ -11396,8 +11382,16 @@ class Wpsipd_Public
 					$data_kel_standar_harga_by_id = $wpdb->get_results($wpdb->prepare('SELECT * FROM data_kelompok_satuan_harga WHERE kode_kategori LIKE %s AND tahun_anggaran = %s',$data_id_ssh[0]['kode_kel_standar_harga'].'%',$tahun_anggaran), ARRAY_A);
 				    
 					$table_content_akun = '';
+					if(!empty($data_id_ssh[0]['kode_standar_harga_sipd'])){
+						$data_id_ssh_existing = $wpdb->get_results($wpdb->prepare('SELECT id_standar_harga FROM data_ssh WHERE kode_standar_harga = %s', $data_id_ssh[0]['kode_standar_harga_sipd']), ARRAY_A);
+						$data_akun_ssh_existing_sipd = $wpdb->get_results($wpdb->prepare('SELECT id,id_akun,nama_akun FROM data_ssh_rek_belanja WHERE id_standar_harga = %d',$data_id_ssh_existing[0]['id_standar_harga']), ARRAY_A);
+						foreach($data_akun_ssh_existing_sipd as $data_akun){
+							$table_content_akun .= $data_akun['nama_akun']."&#13;&#10;";
+						}
+					}
+
 					foreach($data_akun_ssh as $data_akun){
-						$table_content_akun .= $data_akun['nama_akun']."&#13;&#10;";
+						$table_content_akun .= 'Usulan '.$data_akun['nama_akun']."&#13;&#10;";
 					}
 					
 					ksort($data_id_ssh);
