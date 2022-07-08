@@ -201,10 +201,10 @@ $body = '';
 				<div><label for="tambah_akun_komp_harga_satuan" style="display:inline-block">Harga Satuan</label>
 					<input type="text" id="tambah_akun_komp_harga_satuan" style="display:block;width:100%;" placeholder="Harga Satuan" disabled>
 				</div>
-				<div><label for="tambah_akun_komp_akun" style="display:inline-block">Rekening Akun</label>
+				<div><label for="tambah_akun_komp_akun" style="display:inline-block">Rekening Akun SIPD</label>
 					<textarea type="text" id="tambah_akun_komp_akun" style="display:block;width:100%;" placeholder="Rekening Akun" disabled></textarea>
 				</div>
-				<div><label for="tambah_new_akun_komp" style="display:inline-block">Rekening Akun</label>
+				<div><label for="tambah_new_akun_komp" style="display:inline-block">Rekening Akun Usulan</label>
 					<select id="tambah_new_akun_komp" name="states[]" multiple="multiple" style="display:block;width:100%;"></select>
 				</div>
 				<div id="tambah_akun_lampiran"><label for="tambah_akun_komp_keterangan_lampiran" style="display:inline-block">Keterangan</label>
@@ -982,11 +982,17 @@ $body = '';
 					jQuery("#tambah_akun_komp_harga_satuan").val(response.data.harga);
 					jQuery("#tambah_akun_komp_keterangan_lampiran").val(response.data.keterangan_lampiran);
 					jQuery("#tambah_akun_komp_akun").html(response.table_content_akun);
-					var val_akun = [];
-					response.data_akun.map(function(b, i){
-						val_akun.push(b.id_akun);
+					response.data_akun_usulan.map(function(b, i){
+						var myText = b.id_akun+" "+b.nama_akun;
+						var option = new Option(myText,b.id_akun, true, true);
+						jQuery("#tambah_new_akun_komp").append(option).trigger('change');
+						jQuery("#tambah_new_akun_komp").trigger({
+							type: 'select2:select',
+							params: {
+								data: b.id_akun
+							}
+						});
 					});
-					jQuery('#tambah_new_akun_komp').val(val_akun).trigger('change');
 					jQuery("#tambah_akun_lampiran").hide();
 					jQuery("#tambahUsulanAkunByKompSSH .submitBtn")
 						.attr('onclick', 'submitEditTambahAkunUsulanSshForm('+id_standar_harga+', '+tahun+')')
@@ -1011,17 +1017,31 @@ $body = '';
 				}else if(status_jenis_usulan == 'tambah_baru'){
 					jQuery('#tambahUsulanSshModal').modal('show');
 					jQuery("#tambahUsulanSshModal .modal-title").html('Edit Tambah Usulan SSH');
-					jQuery('#u_kategori').val(response.data_kel_standar_harga_by_id.id_kategori).trigger('change');
+					var myText = response.data_kel_standar_harga_by_id.tipe_kelompok+" "+response.data_kel_standar_harga_by_id.kode_kategori+" "+response.data_kel_standar_harga_by_id.uraian_kategori;
+					var option = new Option(myText,response.data_kel_standar_harga_by_id.id_kategori, true, true);	
+					jQuery("#u_kategori").append(option).trigger('change');
+					jQuery("#u_kategori").trigger({
+						type: 'select2:select',
+						params: {
+							data: response.data_kel_standar_harga_by_id.id_kategori
+						}
+					});
 					jQuery('#u_satuan').val(response.data.satuan).trigger('change');
 					jQuery("#u_nama_komponen").val(response.data.nama_standar_harga);
 					jQuery("#u_spesifikasi").val(response.data.spek);
 					jQuery("#u_harga_satuan").val(response.data.harga);
 					jQuery("#u_keterangan_lampiran").val(response.data.keterangan_lampiran);
-					var val_akun = [];
-					response.data_akun.map(function(b, i){
-						val_akun.push(b.id_akun);
+					response.data_akun_usulan.map(function(b, i){
+						var myText = b.id_akun+" "+b.nama_akun;
+						var option = new Option(myText,b.id_akun, true, true);
+						jQuery("#u_akun").append(option).trigger('change');
+						jQuery("#u_akun").trigger({
+							type: 'select2:select',
+							params: {
+								data: b.id_akun
+							}
+						});
 					});
-					jQuery('#u_akun').val(val_akun).trigger('change');
 					jQuery("#tambahUsulanSshModal .submitBtn")
 						.attr('onclick', 'submitEditUsulanSshForm('+id_standar_harga+', '+tahun+')')
 						.attr('disabled', false)
