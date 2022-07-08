@@ -11375,31 +11375,27 @@ class Wpsipd_Public
 					$id_standar_harga = $_POST['id_standar_harga'];
 					$tahun_anggaran = $_POST['tahun_anggaran'];
 					
-					$data_id_ssh = $wpdb->get_results($wpdb->prepare('SELECT * FROM data_ssh_usulan WHERE id_standar_harga = %d',$id_standar_harga), ARRAY_A);
+					$data_id_ssh_usulan = $wpdb->get_results($wpdb->prepare('SELECT * FROM data_ssh_usulan WHERE id_standar_harga = %d',$id_standar_harga), ARRAY_A);
 
-					$data_akun_ssh = $wpdb->get_results($wpdb->prepare('SELECT id,id_akun,nama_akun FROM data_ssh_rek_belanja_usulan WHERE id_standar_harga = %d',$id_standar_harga), ARRAY_A);
+					$data_akun_ssh_usulan = $wpdb->get_results($wpdb->prepare('SELECT id,id_akun,nama_akun FROM data_ssh_rek_belanja_usulan WHERE id_standar_harga = %d',$id_standar_harga), ARRAY_A);
 
-					$data_kel_standar_harga_by_id = $wpdb->get_results($wpdb->prepare('SELECT * FROM data_kelompok_satuan_harga WHERE kode_kategori LIKE %s AND tahun_anggaran = %s',$data_id_ssh[0]['kode_kel_standar_harga'].'%',$tahun_anggaran), ARRAY_A);
+					$data_kel_standar_harga_by_id = $wpdb->get_results($wpdb->prepare('SELECT * FROM data_kelompok_satuan_harga WHERE kode_kategori LIKE %s AND tahun_anggaran = %s',$data_id_ssh_usulan[0]['kode_kel_standar_harga'].'%',$tahun_anggaran), ARRAY_A);
 				    
 					$table_content_akun = '';
-					if(!empty($data_id_ssh[0]['kode_standar_harga_sipd'])){
-						$data_id_ssh_existing = $wpdb->get_results($wpdb->prepare('SELECT id_standar_harga FROM data_ssh WHERE kode_standar_harga = %s', $data_id_ssh[0]['kode_standar_harga_sipd']), ARRAY_A);
+					if(!empty($data_id_ssh_usulan[0]['kode_standar_harga_sipd'])){
+						$data_id_ssh_existing = $wpdb->get_results($wpdb->prepare('SELECT id_standar_harga FROM data_ssh WHERE kode_standar_harga = %s', $data_id_ssh_usulan[0]['kode_standar_harga_sipd']), ARRAY_A);
 						$data_akun_ssh_existing_sipd = $wpdb->get_results($wpdb->prepare('SELECT id,id_akun,nama_akun FROM data_ssh_rek_belanja WHERE id_standar_harga = %d',$data_id_ssh_existing[0]['id_standar_harga']), ARRAY_A);
 						foreach($data_akun_ssh_existing_sipd as $data_akun){
 							$table_content_akun .= $data_akun['nama_akun']."&#13;&#10;";
 						}
 					}
 
-					foreach($data_akun_ssh as $data_akun){
-						$table_content_akun .= 'Usulan '.$data_akun['nama_akun']."&#13;&#10;";
-					}
-					
-					ksort($data_id_ssh);
+					ksort($data_id_ssh_usulan);
 
 					$return = array(
 						'status' 						=> 'success',
-						'data' 							=> $data_id_ssh[0],
-						'data_akun'						=> $data_akun_ssh,
+						'data' 							=> $data_id_ssh_usulan[0],
+						'data_akun_usulan'				=> $data_akun_ssh_usulan,
 						'data_kel_standar_harga_by_id'	=> $data_kel_standar_harga_by_id[0],
 						'table_content_akun'			=> $table_content_akun
 					);
