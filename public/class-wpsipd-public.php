@@ -3527,7 +3527,6 @@ class Wpsipd_Public
 						}
 					}
 
-					$iddana = false;
 					if (!empty($_POST['dataDana']) && $ret['status'] != 'error') {
 						$dataDana = $_POST['dataDana'];
 						$wpdb->update('data_dana_sub_keg', array( 'active' => 0 ), array(
@@ -3535,12 +3534,6 @@ class Wpsipd_Public
 							'kode_sbl' => $_POST['kode_sbl']
 						));
 						foreach ($dataDana as $k => $v) {
-							if(
-								empty($iddana)
-								&& !empty($v['iddana'])
-							){
-								$iddana = $v['iddana'];
-							}
 							$cek = $wpdb->get_var("SELECT kode_sbl from data_dana_sub_keg where tahun_anggaran=".$_POST['tahun_anggaran']." AND kode_sbl='" . $_POST['kode_sbl'] . "' AND iddanasubbl='" . $v['iddanasubbl'] . "'");
 							$opsi = array(
 								'namadana' => $v['namadana'],
@@ -3565,10 +3558,6 @@ class Wpsipd_Public
 							}
 						}
 					}
-					if(empty($iddana)){
-						$iddana = get_option('_crb_default_sumber_dana' );
-					}
-
 					if (!empty($_POST['dataLokout']) && $ret['status'] != 'error') {
 						$dataLokout = $_POST['dataLokout'];
 						$wpdb->update('data_lokasi_sub_keg', array( 'active' => 0 ), array(
@@ -3602,6 +3591,22 @@ class Wpsipd_Public
 							}
 						}
 					}
+				}
+
+				$iddana = false;
+				if (!empty($_POST['dataDana'])) {
+					$dataDana = $_POST['dataDana'];
+					foreach ($dataDana as $k => $v) {
+						if(
+							empty($iddana)
+							&& !empty($v['iddana'])
+						){
+							$iddana = $v['iddana'];
+						}
+					}
+				}
+				if(empty($iddana)){
+					$iddana = get_option('_crb_default_sumber_dana' );
 				}
 
 				if (!empty($_POST['rka']) && $ret['status'] != 'error') {
