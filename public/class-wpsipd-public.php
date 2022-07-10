@@ -3649,6 +3649,12 @@ class Wpsipd_Public
 							'volume_murni' => $v['volume_murni'],
 							'spek' => $v['spek'],
 							'subs_bl_teks' => $v['subs_bl_teks']['subs_asli'],
+							'substeks' => $v['subs_bl_teks']['substeks'],
+							'id_dana' => $v['subs_bl_teks']['sumber_dana']['id_dana'],
+							'nama_dana' => $v['subs_bl_teks']['sumber_dana']['nama_dana'],
+							'is_paket' => $v['subs_bl_teks']['sumber_dana']['is_paket'],
+							'kode_dana' => $v['subs_bl_teks']['sumber_dana']['kode_dana'],
+							'subtitle_teks' => $v['subs_bl_teks']['sumber_dana']['subtitle_teks'],
 							'total_harga' => $v['total_harga'],
 							'rincian' => $v['rincian'],
 							'rincian_murni' => $v['rincian_murni'],
@@ -3666,7 +3672,7 @@ class Wpsipd_Public
 							'kode_sbl' => $_POST['kode_sbl'],
 							'idkomponen' => $v['idkomponen'],
 							'idketerangan' => $v['idketerangan'],
-							'idsubtitle' => $v['idsubtitle'],
+							'idsubtitle' => $v['subs_bl_teks']['sumber_dana']['id_subtitle'],
 							'active' => 1,
 							'update_at' => current_time('mysql'),
 							'tahun_anggaran' => $_POST['tahun_anggaran']
@@ -3698,7 +3704,7 @@ class Wpsipd_Public
 						// print_r($opsi); print_r($wpdb->last_query);
 
 						if(!empty($v['id_rinci_sub_bl'])){
-							$cek = $wpdb->get_var($wpdb->prepare('
+							$cek_id = $wpdb->get_var($wpdb->prepare('
 								select 
 									id 
 								from data_mapping_sumberdana 
@@ -3707,16 +3713,25 @@ class Wpsipd_Public
 									and active=1', 
 								$_POST['tahun_anggaran'], $v['id_rinci_sub_bl']
 							));
-							if (empty($cek)) {
-								$opsi = array(
-									'id_rinci_sub_bl' => $v['id_rinci_sub_bl'],
-									'id_sumber_dana' => $iddana,
-									'user' => 'Singkron SIPD Merah',
-									'active' => 1,
-									'update_at' => current_time('mysql'),
-									'tahun_anggaran' => $_POST['tahun_anggaran']
-								);
+							$opsi = array(
+								'id_rinci_sub_bl' => $v['id_rinci_sub_bl'],
+								'id_sumber_dana' => $iddana,
+								'user' => 'Singkron SIPD Merah',
+								'active' => 1,
+								'update_at' => current_time('mysql'),
+								'tahun_anggaran' => $_POST['tahun_anggaran']
+							);
+							$update = false;
+							if(!empty($v['subs_bl_teks']['sumber_dana']['id_dana'])){
+								$update = true;
+								$opsi['id_sumber_dana'] = $v['subs_bl_teks']['sumber_dana']['id_dana'];
+							}
+							if (empty($cek_id)) {
 								$wpdb->insert('data_mapping_sumberdana', $opsi);
+							}else if($update) {
+								$wpdb->update('data_mapping_sumberdana', $opsi, array(
+									'id' => $cek_id
+								));
 							}
 						}
 					}
