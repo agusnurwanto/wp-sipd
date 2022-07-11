@@ -204,7 +204,7 @@ $body = '';
 				<div><label for="tambah_akun_komp_akun" style="display:inline-block">Rekening Akun SIPD</label>
 					<textarea type="text" id="tambah_akun_komp_akun" style="display:block;width:100%;" placeholder="Rekening Akun" disabled></textarea>
 				</div>
-				<div><label for="tambah_new_akun_komp" style="display:inline-block">Rekening Akun Usulan</label>
+				<div><label for="tambah_new_akun_komp" id_standar_harga="" style="display:inline-block">Rekening Akun Usulan</label>
 					<select id="tambah_new_akun_komp" name="states[]" multiple="multiple" style="display:block;width:100%;"></select>
 				</div>
 				<div id="tambah_akun_lampiran"><label for="tambah_akun_komp_keterangan_lampiran" style="display:inline-block">Keterangan</label>
@@ -323,6 +323,7 @@ $body = '';
 			jQuery("#tambah_akun_komp_harga_satuan").val("");
 			jQuery("#tambah_akun_komp_akun").html("");
 			jQuery("#tambah_new_akun_komp").val("").trigger('change');
+			jQuery("#tambah_new_akun_komp").attr('id_standar_harga', '');;
 			jQuery("#tambah_akun_komp_keterangan_lampiran").val("");
 			jQuery("#tambah_akun_lampiran").show();
 			jQuery("#tambahUsulanAkunByKompSSH .modal-title").html("");
@@ -533,6 +534,7 @@ $body = '';
 					        page: params.page || 0,
 					        action: 'get_data_akun_ssh',
 					        api_key : jQuery("#api_key").val(),
+					        id_standar_harga : jQuery("#tambah_new_akun_komp").attr('id_standar_harga'),
 							tahun_anggaran : tahun
 				      	}
 				      	return query;
@@ -982,6 +984,7 @@ $body = '';
 					jQuery("#tambah_akun_komp_harga_satuan").val(response.data.harga);
 					jQuery("#tambah_akun_komp_keterangan_lampiran").val(response.data.keterangan_lampiran);
 					jQuery("#tambah_akun_komp_akun").html(response.table_content_akun);
+					jQuery("#tambah_new_akun_komp").attr('id_standar_harga', id_standar_harga);
 					response.data_akun_usulan.map(function(b, i){
 						var myText = b.id_akun+" "+b.nama_akun;
 						var option = new Option(myText,b.id_akun, true, true);

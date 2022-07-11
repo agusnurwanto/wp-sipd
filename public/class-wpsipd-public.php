@@ -10538,10 +10538,29 @@ class Wpsipd_Public
 		if(!empty($_POST)){
 			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
 					$tahun_anggaran = $_POST['tahun_anggaran'];
+
+					$filter = array();
+					if(!empty($_POST['id_standar_harga'])){
+						$id_standar_harga = $_POST['id_standar_harga'];
+						$data_id_ssh_usulan = $wpdb->get_results($wpdb->prepare('SELECT kode_standar_harga_sipd FROM data_ssh_usulan WHERE id_standar_harga = %d',$id_standar_harga), ARRAY_A);
+						$data_akun_ssh_usulan = $wpdb->get_results($wpdb->prepare('SELECT id,id_akun,nama_akun FROM data_ssh_rek_belanja_usulan WHERE id_standar_harga = %d',$id_standar_harga), ARRAY_A);
+						if(!empty($data_id_ssh_usulan[0]['kode_standar_harga_sipd'])){
+							$data_id_ssh_existing = $wpdb->get_results($wpdb->prepare('SELECT id_standar_harga FROM data_ssh WHERE kode_standar_harga = %s', $data_id_ssh_usulan[0]['kode_standar_harga_sipd']), ARRAY_A);
+							$data_akun_ssh_existing_sipd = $wpdb->get_results($wpdb->prepare('SELECT id,id_akun,nama_akun FROM data_ssh_rek_belanja WHERE id_standar_harga = %d',$data_id_ssh_existing[0]['id_standar_harga']), ARRAY_A);
+						}
+						$filter_all = array_merge($data_akun_ssh_usulan, $data_akun_ssh_existing_sipd);
+						foreach($filter_all as $akun){
+							$filter[] = $akun['id_akun'];
+						}
+					}
+
 					$where = '';
+					if(!empty($filter)){
+						$where .= ' AND id_akun NOT IN ('.implode(',', $filter).')';
+					}
 					if(!empty($_POST['search'])){
 						$_POST['search'] = '%'.$_POST['search'].'%';
-						$where = $wpdb->prepare('
+						$where .= $wpdb->prepare('
 							AND (
 								kode_akun LIKE %s
 								OR nama_akun LIKE %s
@@ -11409,9 +11428,6 @@ class Wpsipd_Public
 							$table_content_akun .= $data_akun['nama_akun']."&#13;&#10;";
 						}
 					}
-
-					ksort($data_id_ssh_usulan);
-
 					$return = array(
 						'status' 						=> 'success',
 						'data' 							=> $data_id_ssh_usulan[0],
