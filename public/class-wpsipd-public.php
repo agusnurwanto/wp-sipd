@@ -7231,10 +7231,14 @@ class Wpsipd_Public
 						for($b=1; $b<=$bulan; $b++){
 							$realisasi_anggaran += $_POST['realisasi']['nilai_realisasi_bulan_'.$b];
 						}
+						$rak = 0;
+						for($b=1; $b<=$bulan; $b++){
+							$rak += $_POST['rak']['nilai_rak_bulan_'.$b];
+						}
 						$opsi = array(
 							'bulan'	=> $bulan,
 							'kode_sbl'	=> $kode_sbl,
-							'rak' => $_POST['rak']['nilai_rak_bulan_'.$bulan],
+							'rak' => $rak,
 							'realisasi_anggaran' => $realisasi_anggaran,
 							'user_edit'	=> $current_user->display_name,
 							'id_skpd'	=> $id_skpd,
