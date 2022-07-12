@@ -87,6 +87,14 @@ $body = '';
 			<button class="btn btn-primary tambah_new_ssh" disabled onclick="get_data_by_name_komponen_ssh('harga',<?php echo $input['tahun_anggaran']; ?>)">Tambah Harga SSH</button>
 			<button class="btn btn-primary tambah_new_ssh" disabled onclick="get_data_by_name_komponen_ssh('akun',<?php echo $input['tahun_anggaran']; ?>)">Tambah Akun SSH</button>
 		</div>
+		<div class="toolbar">
+			<select class="bulk-action" id="multi_select_action">
+				<option value="0">Tindakan Massal</option>
+				<option value="approve">Setuju</option>
+				<option value="notapprove">Tolak</option>
+				<option value="delete">Hapus</option></select>
+			<button type="submit" class="btn btn-secondary" onclick="action_check_data_usulan_ssh()">Terapkan</button>
+		</div>
 		<table id="usulan_ssh_table" class="table table-bordered">
 			<thead id="data_header">
 				<tr>
@@ -277,6 +285,7 @@ $body = '';
 			jQuery('#wrap-loading').show();
             get_data_satuan_ssh(tahun);
             get_data_nama_ssh(tahun);
+			jQuery("#usulan_ssh_table_wrapper div:first").addClass("h-100 align-items-center");
 		});
 		let get_data = 1;
 		jQuery('#tambahUsulanSsh').on('hidden.bs.modal', function () {
@@ -352,7 +361,7 @@ $body = '';
 					data:{
 						'action' : "get_data_usulan_ssh",
 						'api_key' : jQuery("#api_key").val(),
-						'tahun_anggaran' : tahun,
+						'tahun_anggaran' : tahun
 					}
 				},
   				order: [0],
@@ -365,11 +374,15 @@ $body = '';
 		            },
 		            { 
 		            	"data": "show_kode_komponen",
-		            	className: "text-left show-komponen"
+		            	className: "text-left show-komponen",
+						"targets": "no-sort",
+						"orderable": false
 		            },
 		            { "data": "nama_standar_harga" },
 		            { "data": "spek_satuan",
-		            	className: "text-left spek-satuan"
+		            	className: "text-left spek-satuan",
+						"targets": "no-sort",
+						"orderable": false
 					},
 		            { 
 		            	"data": "harga",
@@ -381,30 +394,28 @@ $body = '';
 		            },
 					{ 
 		            	"data": "show_keterangan",
-		            	className: "text-left kol-keterangan"
+		            	className: "text-left kol-keterangan",
+						"targets": "no-sort",
+						"orderable": false
 		            },
 					{ 
 		            	"data": "show_status",
-		            	className: "text-left show_status"
+		            	className: "text-left show_status",
+						"targets": "no-sort",
+						"orderable": false
 		            },
 					{ 
 		            	"data": "aksi",
-		            	className: "text-center"
+		            	className: "text-center",
+						"targets": "no-sort",
+						"orderable": false
 		            }
 		        ],
-				dom: '<"toolbar">frtip',
 				"initComplete":function( settings, json){
 					jQuery("#wrap-loading").hide();
 					resolve();
-				},
-				dom: '<"toolbar">frtip'
+				}
 			});
-			jQuery('div.toolbar').html('<select class="bulk-action" id="multi_select_action">'+
-				'<option value="0">Tindakan Massal</option>'+
-				'<option value="approve">Setuju</option>'+
-				'<option value="notapprove">Tolak</option>'+
-				'<option value="delete">Hapus</option></select>'+
-			'&nbsp;<button type="submit" class="btn btn-secondary" onclick="action_check_data_usulan_ssh()">Terapkan</button>');
 		});
 	}
 
