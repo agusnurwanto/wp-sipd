@@ -3527,7 +3527,6 @@ class Wpsipd_Public
 						}
 					}
 
-					$iddana = false;
 					if (!empty($_POST['dataDana']) && $ret['status'] != 'error') {
 						$dataDana = $_POST['dataDana'];
 						$wpdb->update('data_dana_sub_keg', array( 'active' => 0 ), array(
@@ -3535,12 +3534,6 @@ class Wpsipd_Public
 							'kode_sbl' => $_POST['kode_sbl']
 						));
 						foreach ($dataDana as $k => $v) {
-							if(
-								empty($iddana)
-								&& !empty($v['iddana'])
-							){
-								$iddana = $v['iddana'];
-							}
 							$cek = $wpdb->get_var("SELECT kode_sbl from data_dana_sub_keg where tahun_anggaran=".$_POST['tahun_anggaran']." AND kode_sbl='" . $_POST['kode_sbl'] . "' AND iddanasubbl='" . $v['iddanasubbl'] . "'");
 							$opsi = array(
 								'namadana' => $v['namadana'],
@@ -3565,10 +3558,6 @@ class Wpsipd_Public
 							}
 						}
 					}
-					if(empty($iddana)){
-						$iddana = get_option('_crb_default_sumber_dana' );
-					}
-
 					if (!empty($_POST['dataLokout']) && $ret['status'] != 'error') {
 						$dataLokout = $_POST['dataLokout'];
 						$wpdb->update('data_lokasi_sub_keg', array( 'active' => 0 ), array(
@@ -3602,6 +3591,22 @@ class Wpsipd_Public
 							}
 						}
 					}
+				}
+
+				$iddana = false;
+				if (!empty($_POST['dataDana'])) {
+					$dataDana = $_POST['dataDana'];
+					foreach ($dataDana as $k => $v) {
+						if(
+							empty($iddana)
+							&& !empty($v['iddana'])
+						){
+							$iddana = $v['iddana'];
+						}
+					}
+				}
+				if(empty($iddana)){
+					$iddana = get_option('_crb_default_sumber_dana' );
 				}
 
 				if (!empty($_POST['rka']) && $ret['status'] != 'error') {
@@ -3649,6 +3654,12 @@ class Wpsipd_Public
 							'volume_murni' => $v['volume_murni'],
 							'spek' => $v['spek'],
 							'subs_bl_teks' => $v['subs_bl_teks']['subs_asli'],
+							'substeks' => $v['subs_bl_teks']['substeks'],
+							'id_dana' => $v['subs_bl_teks']['sumber_dana']['id_dana'],
+							'nama_dana' => $v['subs_bl_teks']['sumber_dana']['nama_dana'],
+							'is_paket' => $v['subs_bl_teks']['sumber_dana']['is_paket'],
+							'kode_dana' => $v['subs_bl_teks']['sumber_dana']['kode_dana'],
+							'subtitle_teks' => $v['subs_bl_teks']['sumber_dana']['subtitle_teks'],
 							'total_harga' => $v['total_harga'],
 							'rincian' => $v['rincian'],
 							'rincian_murni' => $v['rincian_murni'],
@@ -3666,7 +3677,7 @@ class Wpsipd_Public
 							'kode_sbl' => $_POST['kode_sbl'],
 							'idkomponen' => $v['idkomponen'],
 							'idketerangan' => $v['idketerangan'],
-							'idsubtitle' => $v['idsubtitle'],
+							'idsubtitle' => $v['subs_bl_teks']['sumber_dana']['id_subtitle'],
 							'active' => 1,
 							'update_at' => current_time('mysql'),
 							'tahun_anggaran' => $_POST['tahun_anggaran']
@@ -3698,7 +3709,7 @@ class Wpsipd_Public
 						// print_r($opsi); print_r($wpdb->last_query);
 
 						if(!empty($v['id_rinci_sub_bl'])){
-							$cek = $wpdb->get_var($wpdb->prepare('
+							$cek_id = $wpdb->get_var($wpdb->prepare('
 								select 
 									id 
 								from data_mapping_sumberdana 
@@ -3707,16 +3718,25 @@ class Wpsipd_Public
 									and active=1', 
 								$_POST['tahun_anggaran'], $v['id_rinci_sub_bl']
 							));
-							if (empty($cek)) {
-								$opsi = array(
-									'id_rinci_sub_bl' => $v['id_rinci_sub_bl'],
-									'id_sumber_dana' => $iddana,
-									'user' => 'Singkron SIPD Merah',
-									'active' => 1,
-									'update_at' => current_time('mysql'),
-									'tahun_anggaran' => $_POST['tahun_anggaran']
-								);
+							$opsi = array(
+								'id_rinci_sub_bl' => $v['id_rinci_sub_bl'],
+								'id_sumber_dana' => $iddana,
+								'user' => 'Singkron SIPD Merah',
+								'active' => 1,
+								'update_at' => current_time('mysql'),
+								'tahun_anggaran' => $_POST['tahun_anggaran']
+							);
+							$update = false;
+							if(!empty($v['subs_bl_teks']['sumber_dana']['id_dana'])){
+								$update = true;
+								$opsi['id_sumber_dana'] = $v['subs_bl_teks']['sumber_dana']['id_dana'];
+							}
+							if (empty($cek_id)) {
 								$wpdb->insert('data_mapping_sumberdana', $opsi);
+							}else if($update) {
+								$wpdb->update('data_mapping_sumberdana', $opsi, array(
+									'id' => $cek_id
+								));
 							}
 						}
 					}
@@ -7211,10 +7231,14 @@ class Wpsipd_Public
 						for($b=1; $b<=$bulan; $b++){
 							$realisasi_anggaran += $_POST['realisasi']['nilai_realisasi_bulan_'.$b];
 						}
+						$rak = 0;
+						for($b=1; $b<=$bulan; $b++){
+							$rak += $_POST['rak']['nilai_rak_bulan_'.$b];
+						}
 						$opsi = array(
 							'bulan'	=> $bulan,
 							'kode_sbl'	=> $kode_sbl,
-							'rak' => $_POST['rak']['nilai_rak_bulan_'.$bulan],
+							'rak' => $rak,
 							'realisasi_anggaran' => $realisasi_anggaran,
 							'user_edit'	=> $current_user->display_name,
 							'id_skpd'	=> $id_skpd,
@@ -10518,10 +10542,29 @@ class Wpsipd_Public
 		if(!empty($_POST)){
 			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
 					$tahun_anggaran = $_POST['tahun_anggaran'];
+
+					$filter = array();
+					if(!empty($_POST['id_standar_harga'])){
+						$id_standar_harga = $_POST['id_standar_harga'];
+						$data_id_ssh_usulan = $wpdb->get_results($wpdb->prepare('SELECT kode_standar_harga_sipd FROM data_ssh_usulan WHERE id_standar_harga = %d',$id_standar_harga), ARRAY_A);
+						$data_akun_ssh_usulan = $wpdb->get_results($wpdb->prepare('SELECT id,id_akun,nama_akun FROM data_ssh_rek_belanja_usulan WHERE id_standar_harga = %d',$id_standar_harga), ARRAY_A);
+						if(!empty($data_id_ssh_usulan[0]['kode_standar_harga_sipd'])){
+							$data_id_ssh_existing = $wpdb->get_results($wpdb->prepare('SELECT id_standar_harga FROM data_ssh WHERE kode_standar_harga = %s', $data_id_ssh_usulan[0]['kode_standar_harga_sipd']), ARRAY_A);
+							$data_akun_ssh_existing_sipd = $wpdb->get_results($wpdb->prepare('SELECT id,id_akun,nama_akun FROM data_ssh_rek_belanja WHERE id_standar_harga = %d',$data_id_ssh_existing[0]['id_standar_harga']), ARRAY_A);
+						}
+						$filter_all = array_merge($data_akun_ssh_usulan, $data_akun_ssh_existing_sipd);
+						foreach($filter_all as $akun){
+							$filter[] = $akun['id_akun'];
+						}
+					}
+
 					$where = '';
+					if(!empty($filter)){
+						$where .= ' AND id_akun NOT IN ('.implode(',', $filter).')';
+					}
 					if(!empty($_POST['search'])){
 						$_POST['search'] = '%'.$_POST['search'].'%';
-						$where = $wpdb->prepare('
+						$where .= $wpdb->prepare('
 							AND (
 								kode_akun LIKE %s
 								OR nama_akun LIKE %s
@@ -11389,9 +11432,6 @@ class Wpsipd_Public
 							$table_content_akun .= $data_akun['nama_akun']."&#13;&#10;";
 						}
 					}
-
-					ksort($data_id_ssh_usulan);
-
 					$return = array(
 						'status' 						=> 'success',
 						'data' 							=> $data_id_ssh_usulan[0],
