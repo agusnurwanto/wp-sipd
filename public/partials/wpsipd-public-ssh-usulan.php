@@ -70,8 +70,9 @@ $body = '';
 		float: left;
 	}
 	.bulk-action {
-		padding: .55rem;
+		padding: .45rem;
 		border-color: #eaeaea;
+		vertical-align: middle;
 	}
 	.verify-ssh{
 		margin-right: .5rem;
@@ -86,14 +87,6 @@ $body = '';
 			<button class="btn btn-primary tambah_ssh" disabled onclick="tambah_new_ssh(<?php echo $input['tahun_anggaran']; ?>);">Tambah Item SSH</button>
 			<button class="btn btn-primary tambah_new_ssh" disabled onclick="get_data_by_name_komponen_ssh('harga',<?php echo $input['tahun_anggaran']; ?>)">Tambah Harga SSH</button>
 			<button class="btn btn-primary tambah_new_ssh" disabled onclick="get_data_by_name_komponen_ssh('akun',<?php echo $input['tahun_anggaran']; ?>)">Tambah Akun SSH</button>
-		</div>
-		<div class="toolbar">
-			<select class="bulk-action" id="multi_select_action">
-				<option value="0">Tindakan Massal</option>
-				<option value="approve">Setuju</option>
-				<option value="notapprove">Tolak</option>
-				<option value="delete">Hapus</option></select>
-			<button type="submit" class="btn btn-secondary" onclick="action_check_data_usulan_ssh()">Terapkan</button>
 		</div>
 		<table id="usulan_ssh_table" class="table table-bordered">
 			<thead id="data_header">
@@ -286,6 +279,21 @@ $body = '';
             get_data_satuan_ssh(tahun);
             get_data_nama_ssh(tahun);
 			jQuery("#usulan_ssh_table_wrapper div:first").addClass("h-100 align-items-center");
+			let html_filter = "<select class='ml-3 bulk-action' id='multi_select_action'>"+
+				"<option value='0'>Tindakan Massal</option>"+
+				"<option value='approve'>Setuju</option>"+
+				"<option value='notapprove'>Tolak</option>"+
+				"<option value='delete'>Hapus</option></select>"+
+			"<button type='submit' class='ml-1 btn btn-secondary' onclick='action_check_data_usulan_ssh()'>Terapkan</button>"+
+			"<select class='ml-3 bulk-action' id='search_filter_action'>"+
+				"<option value=''>Pilih Filter</option>"+
+				"<option value='diterima'>Diterima</option>"+
+				"<option value='ditolak'>Ditolak</option>"+
+				"<option value='sudah_upload_sipd'>Sudah upload SIPD</option>"+
+				"<option value='belum_upload_sipd'>Belum upload SIPD</option>"+
+			"</select>"+
+			"<button type='submit' class='ml-1 btn btn-secondary' onclick='action_filter_data_usulan_ssh()'>Saring</button>"
+			jQuery("#usulan_ssh_table_length").append(html_filter);
 		});
 		let get_data = 1;
 		jQuery('#tambahUsulanSsh').on('hidden.bs.modal', function () {
@@ -347,7 +355,6 @@ $body = '';
 				jQuery('.delete_check').prop('checked', false);
 			}
 		})
-
 	});
 
 	function get_data_ssh(tahun){
@@ -362,7 +369,8 @@ $body = '';
 					data:{
 						'action' : "get_data_usulan_ssh",
 						'api_key' : jQuery("#api_key").val(),
-						'tahun_anggaran' : tahun
+						'tahun_anggaran' : tahun,
+						'filter' : jQuery('#search_filter_action').val()
 					}
 				},
   				order: [0],
@@ -1390,6 +1398,10 @@ $body = '';
 			jQuery("#wrap-loading").hide();
 			alert('Tidak ada data dipilih!');
 		}
+	}
+
+	function action_filter_data_usulan_ssh(){
+		usulanSSHTable.draw();
 	}
 
 	function readMore(btn){

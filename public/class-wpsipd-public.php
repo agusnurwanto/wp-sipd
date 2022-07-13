@@ -10262,10 +10262,9 @@ class Wpsipd_Public
 			'data'	=> array()
 		);
 
-		$table_content = '';
 		if(!empty($_POST)){
 			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
-				$params = $columns = $totalRecords = $data = array();
+				$params = $columns = $totalRecords = array();
 				$params = $_REQUEST;
 				$columns = array( 
 					0 =>'id_standar_harga',
@@ -10381,10 +10380,8 @@ class Wpsipd_Public
 					$deleteCheck = '<input type="checkbox" class="delete_check" id="delcheck_'.$recVal['id_standar_harga'].'" onclick="checkcheckbox();" value="'.$recVal['id_standar_harga'].'">';
 
 					$kode_komponen = '<table style="margin: 0;"><tr><td>Usulan: '.$recVal['kode_standar_harga'].'</td></tr>';
-					// $kode_komponen .= '<tr><td style="color: #666;line-height:1.4em;font-size: 13px;">(Usulan)</td></tr>';
 					if(!empty($recVal['kode_standar_harga_sipd'])){
 						$kode_komponen .= '<tr><td>Data SIPD: '.$recVal['kode_standar_harga_sipd'].'</td></tr>';
-						// $kode_komponen .= '<tr><td style="color: #666;line-height:1.4em;font-size: 13px;">(Existing SIPD)</td></tr>';
 					}
 					$kode_komponen .= '</table>';
 
