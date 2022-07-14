@@ -243,7 +243,7 @@ $body_uang .= '
 ';
 
 
-$akun_hibah_brg = $wpdb->get_results('SELECT id_akun, kode_akun, nama_akun FROM `data_akun` where is_hibah_brg=1 order by kode_akun ASC', ARRAY_A);
+$akun_hibah_brg = $wpdb->get_results('SELECT id_akun, kode_akun, nama_akun FROM `data_akun` where is_hibah_brg=1 and tahun_anggaran='.$input['tahun_anggaran'].' order by kode_akun ASC', ARRAY_A);
 $data_hibah_brg = array();
 foreach ($akun_hibah_brg as $k => $v) {
     $data = $wpdb->get_results("SELECT * FROM `data_rka` where kode_akun='".$v['kode_akun']."' and active=1 and tahun_anggaran=".$input['tahun_anggaran']." order by kode_sbl ASC", ARRAY_A);
