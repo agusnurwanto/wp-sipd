@@ -10293,6 +10293,21 @@ class Wpsipd_Public
 					$where .=" OR harga LIKE ".$wpdb->prepare('%s', "%".$params['search']['value']."%")." )";
 				}
 
+				/** check filter */
+				if(!empty($_POST['filter'])){
+					if($_POST['filter'] == 'diterima'){
+						$where .=" AND status = 'approved' ";
+					}else if($_POST['filter'] == 'ditolak'){
+						$where .=" AND status = 'rejected' ";
+					}else if($_POST['filter'] == 'menunggu'){
+						$where .=" AND status = 'waiting' ";
+					}else if($_POST['filter'] == 'sudah_upload_sipd'){
+						$where .=" AND status_upload_sipd = '1' ";
+					}else if($_POST['filter'] == 'belum_upload_sipd'){
+						$where .=" AND status_upload_sipd != '1' OR status_upload_sipd IS NULL ";
+					}
+				}
+
 				// getting total number records without any search
 				$sql_tot = "SELECT count(*) as jml FROM `data_ssh_usulan`";
 				$sql = "SELECT ".implode(', ', $columns)." FROM `data_ssh_usulan`";

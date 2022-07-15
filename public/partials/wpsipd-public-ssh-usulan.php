@@ -289,10 +289,11 @@ $body = '';
 				"<option value=''>Pilih Filter</option>"+
 				"<option value='diterima'>Diterima</option>"+
 				"<option value='ditolak'>Ditolak</option>"+
+				"<option value='menunggu'>Menunggu</option>"+
 				"<option value='sudah_upload_sipd'>Sudah upload SIPD</option>"+
 				"<option value='belum_upload_sipd'>Belum upload SIPD</option>"+
 			"</select>"+
-			"<button type='submit' class='ml-1 btn btn-secondary' onclick='action_filter_data_usulan_ssh()'>Saring</button>"
+			"<button type='button' class='ml-1 btn btn-secondary' onclick='action_filter_data_usulan_ssh()'>Saring</button>"
 			jQuery("#usulan_ssh_table_length").append(html_filter);
 		});
 		let get_data = 1;
@@ -360,7 +361,11 @@ $body = '';
 	function get_data_ssh(tahun){
 		jQuery("#wrap-loading").show();
 		return new Promise(function(resolve, reject){
-			globalThis.usulanSSHTable = jQuery('#usulan_ssh_table').DataTable({
+			globalThis.usulanSSHTable = jQuery('#usulan_ssh_table')
+			.on('preXhr.dt', function ( e, settings, data ) {
+				data.filter = jQuery("#search_filter_action").val();
+			} )
+			.DataTable({
 				"processing": true,
         		"serverSide": true,
 		        "ajax": {
@@ -369,8 +374,7 @@ $body = '';
 					data:{
 						'action' : "get_data_usulan_ssh",
 						'api_key' : jQuery("#api_key").val(),
-						'tahun_anggaran' : tahun,
-						'filter' : jQuery('#search_filter_action').val()
+						'tahun_anggaran' : tahun
 					}
 				},
   				order: [0],
