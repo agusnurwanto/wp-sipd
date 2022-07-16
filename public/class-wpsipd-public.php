@@ -10868,13 +10868,7 @@ class Wpsipd_Public
 		if(!empty($_GET) && !empty($_GET['post'])){
 			return '';
 		}
-		$user_id = um_user( 'ID' );
-		$user_meta = get_userdata($user_id);
-		if(empty($user_meta->roles)){
-			echo 'User ini tidak dapat akses sama sekali :)';
-		}else if(in_array("administrator", $user_meta->roles) || in_array("PLT", $user_meta->roles) || in_array("PA", $user_meta->roles) || in_array("KPA", $user_meta->roles)){
-			require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/wpsipd-public-data-ssh.php';
-		}
+		require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/wpsipd-public-data-ssh.php';
 	}
 
 	public function get_data_ssh_sipd(){

@@ -409,6 +409,12 @@ class Wpsipd
 		$this->loader->add_action('wp_ajax_get_usulan_ssh_sipd',  $plugin_public, 'get_usulan_ssh_sipd');
 		$this->loader->add_action('wp_ajax_nopriv_get_usulan_ssh_sipd',  $plugin_public, 'get_usulan_ssh_sipd');
 
+		$this->loader->add_action('wp_ajax_get_data_ssh_sipd',  $plugin_public, 'get_data_ssh_sipd');
+		$this->loader->add_action('wp_ajax_nopriv_get_data_ssh_sipd',  $plugin_public, 'get_data_ssh_sipd');
+
+		$this->loader->add_action('wp_ajax_get_data_ssh_sipd_by_id',  $plugin_public, 'get_data_ssh_sipd_by_id');
+		$this->loader->add_action('wp_ajax_nopriv_get_data_ssh_sipd_by_id',  $plugin_public, 'get_data_ssh_sipd_by_id');
+
 		$this->loader->add_action('wp_ajax_simpan_rfk',  $plugin_public, 'simpan_rfk');
 		$this->loader->add_action('wp_ajax_reset_rfk',  $plugin_public, 'reset_rfk');
 		$this->loader->add_action('wp_ajax_reset_catatan_verifkator_rfk',  $plugin_public, 'reset_catatan_verifkator_rfk');
@@ -433,11 +439,9 @@ class Wpsipd
 		$this->loader->add_action('wp_ajax_get_data_nama_ssh',  $plugin_public, 'get_data_nama_ssh');
 		$this->loader->add_action('wp_ajax_submit_usulan_ssh',  $plugin_public, 'submit_usulan_ssh');
 		$this->loader->add_action('wp_ajax_get_data_usulan_ssh_by_komponen',  $plugin_public, 'get_data_usulan_ssh_by_komponen');
-		$this->loader->add_action('wp_ajax_get_data_ssh_sipd',  $plugin_public, 'get_data_ssh_sipd');
 		$this->loader->add_action('wp_ajax_get_komponen_and_id_kel_ssh',  $plugin_public, 'get_komponen_and_id_kel_ssh');
 		$this->loader->add_action('wp_ajax_submit_tambah_harga_ssh',  $plugin_public, 'submit_tambah_harga_ssh');
 		$this->loader->add_action('wp_ajax_submit_verify_ssh',  $plugin_public, 'submit_verify_ssh');
-		$this->loader->add_action('wp_ajax_get_data_ssh_sipd_by_id',  $plugin_public, 'get_data_ssh_sipd_by_id');
 		$this->loader->add_action('wp_ajax_get_data_ssh_usulan_by_id',  $plugin_public, 'get_data_ssh_usulan_by_id');
 		$this->loader->add_action('wp_ajax_submit_add_new_akun_ssh_usulan',  $plugin_public, 'submit_add_new_akun_ssh_usulan');
 		$this->loader->add_action('wp_ajax_get_data_ssh_analisis',  $plugin_public, 'get_data_ssh_analisis');
