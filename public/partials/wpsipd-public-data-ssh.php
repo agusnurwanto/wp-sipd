@@ -8,8 +8,24 @@ $input = shortcode_atts( array(
 ), $atts );
 
 global $wpdb;
+$tahun = $wpdb->get_results('select tahun_anggaran from data_unit group by tahun_anggaran order by tahun_anggaran ASC', ARRAY_A);
+$select_tahun = "<option value=''>Pilih berdasarkan tahun anggaran</option>";
+foreach($tahun as $tahun_value){
+	$nama_page_menu_ssh = 'Data Standar Satuan Harga SIPD | '.$tahun_value['tahun_anggaran'];
+	$custom_post = get_page_by_title($nama_page_menu_ssh, OBJECT, 'page');
+	$url_data_ssh = $this->get_link_post($custom_post);
+	$select_tahun .= "<option value='".$url_data_ssh."'>Data Satuan Standar Harga (SSH) SIPD ".$tahun_value['tahun_anggaran']."</option>";
+}
+
 $body = '';
 ?>
+	<style>
+	.bulk-action {
+		padding: .45rem;
+		border-color: #eaeaea;
+		vertical-align: middle;
+	}
+	</style>
 	<div class="cetak">
 		<div style="padding: 10px;margin:0 0 3rem 0;">
 			<input type="hidden" value="<?php echo get_option( '_crb_api_key_extension' ); ?>" id="api_key">
@@ -24,6 +40,7 @@ $body = '';
 						<th class="text-center">Spesifikasi</th>
 						<th class="text-center">Satuan</th>
 						<th class="text-center">Harga Satuan</th>
+						<th class="text-center">Tipe Kelompok</th>
 						<th class="text-center">Aksi</th>
 					</tr>
 				</thead>
@@ -56,6 +73,13 @@ $body = '';
 			globalThis.tahun = <?php echo $input['tahun_anggaran']; ?>;
 			
 			get_data_ssh_sipd(tahun);
+
+			let html_filter = "<select class='ml-3 bulk-action' id='selectYears'><?php echo $select_tahun ?></select>"
+			jQuery("#data_ssh_sipd_table_length").append(html_filter);
+
+			jQuery('#selectYears').on('change', function(e){
+				window.location = jQuery(this).find('option:selected').val();
+			});
 		})
 
 		function get_data_ssh_sipd(tahun){
@@ -97,6 +121,10 @@ $body = '';
 			                var number = jQuery.fn.dataTable.render.number( '.', ',', 2, ''). display(data);
 			                return number;
 			            }
+		            },
+		            { 
+		            	"data": "tipe_kelompok",
+		            	className: "text-center"
 		            },
 		            { 
 		            	"data": "aksi",
