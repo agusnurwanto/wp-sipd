@@ -10890,7 +10890,7 @@ class Wpsipd_Public
 					3 => 'spek',
 					4 => 'satuan',
 					5 => 'harga',
-					6 => 'dk.tipe_kelompok'
+					6 => 'kelompok'
 				);
 				$where = $sqlTot = $sqlRec = "";
 
@@ -10904,9 +10904,9 @@ class Wpsipd_Public
 				}
 
 				// getting total number records without any search
-				$sql_tot = "SELECT count(*) as jml FROM `data_ssh` ds";
-				$sql = "SELECT ".implode(', ', $columns)." FROM `data_ssh` ds LEFT JOIN data_kelompok_satuan_harga dk on dk.kode_kategori = ds.kode_kel_standar_harga";
-				$where_first = " WHERE ds.id_standar_harga IS NOT NULL AND ds.tahun_anggaran=".$wpdb->prepare('%d', $params['tahun_anggaran']);
+				$sql_tot = "SELECT count(*) as jml FROM `data_ssh`";
+				$sql = "SELECT ".implode(', ', $columns)." FROM `data_ssh`";
+				$where_first = " WHERE id_standar_harga IS NOT NULL AND tahun_anggaran=".$wpdb->prepare('%d', $params['tahun_anggaran']);
 				$sqlTot .= $sql_tot.$where_first;
 				$sqlRec .= $sql.$where_first;
 				if(isset($where) && $where != '') {
@@ -10923,6 +10923,12 @@ class Wpsipd_Public
 				foreach($queryRecords as $recKey => $recVal){
 					$iconPlus = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-plus-circle" viewBox="0 0 16 16"><path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/><path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z"/></svg>';
 					$queryRecords[$recKey]['aksi'] = '<a href="#" onclick="return data_akun_ssh_sipd(\''.$recVal['id_standar_harga'].'\');" title="Melihat Data Akun">'.$iconPlus.'</a>';
+					$tipe_kelompok = ['SSH','HSPK','ASB','SBU'];
+					if(!empty($recVal['kelompok'])){
+						$queryRecords[$recKey]['show_kelompok'] = $tipe_kelompok[$recVal['kelompok']-1];
+					}else{
+						$queryRecords[$recKey]['show_kelompok'] = '-';
+					}
 				}
 
 				$json_data = array(

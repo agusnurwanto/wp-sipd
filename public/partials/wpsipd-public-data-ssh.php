@@ -123,7 +123,7 @@ $body = '';
 			            }
 		            },
 		            { 
-		            	"data": "tipe_kelompok",
+		            	"data": "show_kelompok",
 		            	className: "text-center"
 		            },
 		            { 
