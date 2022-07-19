@@ -10591,7 +10591,8 @@ class Wpsipd_Public
 							nama_akun 
 						FROM data_akun 
 						WHERE set_input = %d
-						AND tahun_anggaran = %d
+							AND tahun_anggaran = %d
+							AND kode_akun LIKE '5.%'
 							$where
 						LIMIT %d, 20",
 						1,
@@ -13321,11 +13322,44 @@ class Wpsipd_Public
 						where r.id_standar_harga=%d
 							and r.tahun_anggaran=%d
 						",
-						$v['id'],
+						$v['id_standar_harga'],
 						$_POST['tahun_anggaran']
 					), ARRAY_A);
 				}
 				$return['data'] = $data;
+			}else{
+				$return = array(
+					'status' => 'error',
+					'message'	=> 'Api Key tidak sesuai!'
+				);
+			}
+		}else{
+			$return = array(
+				'status' => 'error',
+				'message'	=> 'Format tidak sesuai!'
+			);
+		}
+		die(json_encode($return));
+	}
+
+	public function update_usulan_ssh_sipd(){
+		global $wpdb;
+		$return = array(
+			'action' => $_POST['action'],
+			'status' => 'success',
+			'message' => 'Berhasil update status usulan SSH!'
+		);
+
+		if(!empty($_POST)){
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+				foreach($_POST['data_id'] as $id_standar_harga){
+					$wpdb->update('data_ssh_usulan', array(
+						'status_upload_sipd' => 1
+					), array(
+						'id_standar_harga' => $id_standar_harga,
+						'tahun_anggaran' => $_POST['tahun_anggaran']
+					));
+				}
 			}else{
 				$return = array(
 					'status' => 'error',
