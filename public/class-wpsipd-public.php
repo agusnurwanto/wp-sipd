@@ -10885,12 +10885,13 @@ class Wpsipd_Public
 				$params = $columns = $totalRecords = $data = array();
 				$params = $_REQUEST;
 				$columns = array( 
-					0 =>'id_standar_harga',
-					1 =>'kode_standar_harga', 
+					0 => 'id_standar_harga',
+					1 => 'kode_standar_harga', 
 					2 => 'nama_standar_harga',
 					3 => 'spek',
 					4 => 'satuan',
-					5 => 'harga'
+					5 => 'harga',
+					6 => 'dk.tipe_kelompok'
 				);
 				$where = $sqlTot = $sqlRec = "";
 
@@ -10904,9 +10905,9 @@ class Wpsipd_Public
 				}
 
 				// getting total number records without any search
-				$sql_tot = "SELECT count(*) as jml FROM `data_ssh`";
-				$sql = "SELECT ".implode(', ', $columns)." FROM `data_ssh`";
-				$where_first = " WHERE id_standar_harga IS NOT NULL AND tahun_anggaran=".$wpdb->prepare('%d', $params['tahun_anggaran']);
+				$sql_tot = "SELECT count(*) as jml FROM `data_ssh` ds";
+				$sql = "SELECT ".implode(', ', $columns)." FROM `data_ssh` ds LEFT JOIN data_kelompok_satuan_harga dk on dk.kode_kategori = ds.kode_kel_standar_harga";
+				$where_first = " WHERE ds.id_standar_harga IS NOT NULL AND ds.tahun_anggaran=".$wpdb->prepare('%d', $params['tahun_anggaran']);
 				$sqlTot .= $sql_tot.$where_first;
 				$sqlRec .= $sql.$where_first;
 				if(isset($where) && $where != '') {
