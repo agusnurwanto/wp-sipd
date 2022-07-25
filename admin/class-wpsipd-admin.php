@@ -378,6 +378,9 @@ class Wpsipd_Admin {
 			$options_basic[] = Field::make( 'html', 'crb_menu_data_ssh_sipd_'.$k )
             	->set_html( '<a target="_blank" href="'.$url_data_ssh_public.'">Data Satuan Standar Harga (SSH) SIPD '.$v['tahun_anggaran'].'</a>' );
 		}
+		$url = $this->generatePage('Setting penjadwalan', $v['tahun_anggaran'], '[setting_penjadwalan]');
+		$options_basic[] = Field::make( 'html', 'crb_penjadwalan_' )
+			->set_html( '<a target="_blank" href="'.$url.'">Halaman Pengaturan Penjadwalan</a>' );
         return $options_basic;
 	}
 

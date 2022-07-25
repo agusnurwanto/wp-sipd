@@ -4099,6 +4099,16 @@ class Wpsipd_Public
 		require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/wpsipd-public-laporan-per-item-ssh.php';
 	}
 
+	public function setting_penjadwalan($atts)
+	{
+		// untuk disable render shortcode di halaman edit page/post
+		if(!empty($_GET) && !empty($_GET['post'])){
+			return '';
+		}
+		
+		require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/wpsipd-public-setting-penjadwalan.php';
+	}
+
 	public function get_cat_url()
 	{
 		global $wpdb;
@@ -13366,6 +13376,311 @@ class Wpsipd_Public
 						'id_standar_harga' => $id_standar_harga,
 						'tahun_anggaran' => $_POST['tahun_anggaran']
 					));
+				}
+			}else{
+				$return = array(
+					'status' => 'error',
+					'message'	=> 'Api Key tidak sesuai!'
+				);
+			}
+		}else{
+			$return = array(
+				'status' => 'error',
+				'message'	=> 'Format tidak sesuai!'
+			);
+		}
+		die(json_encode($return));
+	}
+
+	/** Ambil data penjadwalan */
+	public function get_data_penjadwalan(){
+		global $wpdb;
+		$return = array(
+			'status' => 'success',
+			'data'	=> array()
+		);
+
+		if(!empty($_POST)){
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+				$params = $columns = $totalRecords = $data = array();
+				$params = $_REQUEST;
+				$columns = array( 
+					0 => 'id_jadwal_lokal',
+					1 => 'nama', 
+					2 => 'waktu_awal',
+					3 => 'waktu_akhir',
+					4 => 'status'
+				);
+				$where = $sqlTot = $sqlRec = "";
+
+				// check search value exist
+				if( !empty($params['search']['value']) ) {
+					$where .=" AND ( nama LIKE ".$wpdb->prepare('%s', "%".$params['search']['value']."%");    
+					$where .=" OR waktu_awal LIKE ".$wpdb->prepare('%s', "%".$params['search']['value']."%");
+					$where .=" OR waktu_akhir LIKE ".$wpdb->prepare('%s', "%".$params['search']['value']."%");
+				}
+
+				// getting total number records without any search
+				$sqlTot = "SELECT count(*) as jml FROM `data_jadwal_lokal`";
+				$sqlRec = "SELECT ".implode(', ', $columns)." FROM `data_jadwal_lokal`";
+				if(isset($where) && $where != '') {
+					$sqlTot .= $where;
+					$sqlRec .= $where;
+				}
+
+			 	$sqlRec .=  " ORDER BY ". $columns[$params['order'][0]['column']]."   ".$params['order'][0]['dir']."  LIMIT ".$params['start']." ,".$params['length']." ";
+
+				$queryTot = $wpdb->get_results($sqlTot, ARRAY_A);
+				$totalRecords = $queryTot[0]['jml'];
+				$queryRecords = $wpdb->get_results($sqlRec, ARRAY_A);
+
+				foreach($queryRecords as $recKey => $recVal){
+					$edit	= '<a class="btn btn-warning mr-2" href="#" onclick="return edit_data_penjadwalan(\''.$recVal['id_jadwal_lokal'].'\');" title="Edit data penjadwalan"><i class="dashicons dashicons-edit"></i></a>';
+					$delete	= '<a class="btn btn-danger" href="#" onclick="return hapus_data_penjadwalan(\''.$recVal['id_jadwal_lokal'].'\');" title="Hapus data penjadwalan"><i class="dashicons dashicons-trash"></i></a>';
+					
+					$queryRecords[$recKey]['waktu_awal']	= date('d-m-Y H:i', strtotime($recVal['waktu_awal']));
+					$queryRecords[$recKey]['waktu_akhir']	= date('d-m-Y H:i', strtotime($recVal['waktu_akhir']));
+					$queryRecords[$recKey]['aksi'] = $edit.''.$delete;
+					$queryRecords[$recKey]['nama'] = ucfirst($recVal['nama']);
+					$queryRecords[$recKey]['status'] = $recVal['status'] == 1 ? 'dikunci' : 'terbuka';
+				}
+
+				$json_data = array(
+					"draw"            => intval( $params['draw'] ),   
+					"recordsTotal"    => intval( $totalRecords ),  
+					"recordsFiltered" => intval( $totalRecords ),
+					"data"            => $queryRecords
+				);
+
+				die(json_encode($json_data));
+			}else{
+				$return = array(
+					'status' => 'error',
+					'message'	=> 'Api Key tidak sesuai!'
+				);
+			}
+		}else{
+			$return = array(
+				'status' => 'error',
+				'message'	=> 'Format tidak sesuai!'
+			);
+		}
+		die(json_encode($return));
+	}
+
+	/** Submit data penjadwalan */
+	public function submit_add_schedule(){
+		global $wpdb;
+		$user_id = um_user( 'ID' );
+		$user_meta = get_userdata($user_id);
+		$return = array(
+			'status' => 'success',
+			'data'	=> array()
+		);
+
+		if(!empty($_POST)){
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+				if(in_array("administrator", $user_meta->roles)){
+					if(!empty($_POST['nama']) && !empty($_POST['jadwal_mulai']) && !empty($_POST['jadwal_selesai'])){
+						$nama			= trim(htmlspecialchars($_POST['nama']));
+						$jadwal_mulai	= trim(htmlspecialchars($_POST['jadwal_mulai']));
+						$jadwal_mulai	= date('Y-m-d H:i:s', strtotime($jadwal_mulai));
+						$jadwal_selesai	= trim(htmlspecialchars($_POST['jadwal_selesai']));
+						$jadwal_selesai	= date('Y-m-d H:i:s', strtotime($jadwal_selesai));
+
+						//insert data penjadwalan
+						$data_jadwal = array(
+							'nama' 			=> $nama,
+							'waktu_awal'	=> $jadwal_mulai,
+							'waktu_akhir'	=> $jadwal_selesai,
+							'status'		=> 0
+						);
+
+						$wpdb->insert('data_jadwal_lokal',$data_jadwal);
+						
+						$return = array(
+							'status'		=> 'success',
+							'message'		=> 'Berhasil!',
+							'data_jadwal'	=> $data_jadwal,
+						);
+					}else{
+						$return = array(
+							'status' => 'error',
+							'message'	=> 'Harap diisi semua,tidak boleh ada yang kosong!'
+						);
+					}
+				}else{
+					$return = array(
+						'status' => 'error',
+						'message'	=> "User tidak diijinkan!",
+					);
+				}
+			}else{
+				$return = array(
+					'status' => 'error',
+					'message'	=> 'Api Key tidak sesuai!'
+				);
+			}
+		}else{
+			$return = array(
+				'status' => 'error',
+				'message'	=> 'Format tidak sesuai!'
+			);
+		}
+		die(json_encode($return));
+	}
+
+	/** get data jadwal by id */
+	public function get_data_jadwal_by_id(){
+		global $wpdb;
+		$return = array(
+			'status' => 'success',
+			'data'	=> array()
+		);
+
+		if(!empty($_POST)){
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+					$id_jadwal_lokal = $_POST['id_jadwal_lokal'];
+					
+					$data_penjadwalan_by_id = $wpdb->get_results($wpdb->prepare('SELECT * FROM data_jadwal_lokal WHERE id_jadwal_lokal = %d',$id_jadwal_lokal), ARRAY_A);
+ 
+					$return = array(
+						'status' 						=> 'success',
+						'data' 							=> $data_penjadwalan_by_id[0]
+					);
+			}else{
+				$return = array(
+					'status'	=> 'error',
+					'message'	=> 'Api Key tidak sesuai!'
+				);
+			}
+		}else{
+			$return = array(
+				'status'	=> 'error',
+				'message'	=> 'Format tidak sesuai!'
+			);
+		}
+		die(json_encode($return));
+	}
+
+	/** Submit data penjadwalan */
+	public function submit_edit_schedule(){
+		global $wpdb;
+		$user_id = um_user( 'ID' );
+		$user_meta = get_userdata($user_id);
+		$return = array(
+			'status' => 'success',
+			'data'	=> array()
+		);
+
+		if(!empty($_POST)){
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+				if(in_array("administrator", $user_meta->roles)){
+					if(!empty($_POST['id_jadwal_lokal']) && !empty($_POST['nama']) && !empty($_POST['jadwal_mulai']) && !empty($_POST['jadwal_selesai'])){
+						$id_jadwal_lokal= trim(htmlspecialchars($_POST['id_jadwal_lokal']));
+						$nama			= trim(htmlspecialchars($_POST['nama']));
+						$jadwal_mulai	= trim(htmlspecialchars($_POST['jadwal_mulai']));
+						$jadwal_mulai	= date('Y-m-d H:i:s', strtotime($jadwal_mulai));
+						$jadwal_selesai	= trim(htmlspecialchars($_POST['jadwal_selesai']));
+						$jadwal_selesai	= date('Y-m-d H:i:s', strtotime($jadwal_selesai));
+
+						$data_this_id = $wpdb->get_results($wpdb->prepare('SELECT * FROM data_jadwal_lokal WHERE id_jadwal_lokal = %d',$id_jadwal_lokal), ARRAY_A);
+
+						if($data_this_id[0]['status'] == 0 || $data_this_id[0]['status'] == NULL){
+							//insert data penjadwalan
+							$data_jadwal = array(
+								'nama' 			=> $nama,
+								'waktu_awal'	=> $jadwal_mulai,
+								'waktu_akhir'	=> $jadwal_selesai,
+							);
+
+							$wpdb->update('data_jadwal_lokal', $data_jadwal, array(
+								'id_jadwal_lokal'	=> $id_jadwal_lokal
+							));
+							
+							$return = array(
+								'status'		=> 'success',
+								'message'		=> 'Berhasil!',
+								'data_jadwal'	=> $data_jadwal,
+							);
+						}else{
+							$return = array(
+								'status' => 'error',
+								'message'	=> "User tidak diijinkan!\nData sudah dikunci!",
+							);
+						}
+					}else{
+						$return = array(
+							'status' => 'error',
+							'message'	=> 'Harap diisi semua,tidak boleh ada yang kosong!'
+						);
+					}
+				}else{
+					$return = array(
+						'status' => 'error',
+						'message'	=> "User tidak diijinkan!",
+					);
+				}
+			}else{
+				$return = array(
+					'status' => 'error',
+					'message'	=> 'Api Key tidak sesuai!'
+				);
+			}
+		}else{
+			$return = array(
+				'status' => 'error',
+				'message'	=> 'Format tidak sesuai!'
+			);
+		}
+		die(json_encode($return));
+	}
+
+	/** Submit delete data jadwal */
+	public function submit_delete_schedule(){
+		global $wpdb;
+		$return = array(
+			'status' => 'success',
+			'data'	=> array()
+		);
+
+		$user_id = um_user( 'ID' );
+		$user_meta = get_userdata($user_id);
+
+		if(!empty($_POST)){
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+				if(!empty($_POST['id_jadwal_lokal'])){
+					if(in_array("administrator", $user_meta->roles)){
+						$id_jadwal_lokal= trim(htmlspecialchars($_POST['id_jadwal_lokal']));
+
+						$data_this_id = $wpdb->get_results($wpdb->prepare('SELECT * FROM data_jadwal_lokal WHERE id_jadwal_lokal = %d',$id_jadwal_lokal), ARRAY_A);
+
+						if($data_this_id[0]['status'] == 0 || $data_this_id[0]['status'] == NULL){
+							$wpdb->delete('data_jadwal_lokal', array(
+								'id_jadwal_lokal' => $id_jadwal_lokal
+							), array('%d'));
+
+							$return = array(
+								'status' => 'success',
+								'message'	=> 'Berhasil!',
+							);
+						}else{
+							$return = array(
+								'status' => 'error',
+								'message'	=> "User tidak diijinkan!\nData sudah dikunci!",
+							);
+						}
+					}else{
+						$return = array(
+							'status' => 'error',
+							'message'	=> "User tidak diijinkan!",
+						);
+					}
+				}else{
+					$return = array(
+						'status' => 'error',
+						'message'	=> 'Harap diisi semua,tidak boleh ada yang kosong!'
+					);
 				}
 			}else{
 				$return = array(

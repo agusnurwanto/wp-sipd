@@ -459,6 +459,11 @@ class Wpsipd
 		$this->loader->add_action('wp_ajax_submit_tambah_akun_ssh',  $plugin_public, 'submit_tambah_akun_ssh');
 		$this->loader->add_action('wp_ajax_submit_edit_tambah_harga_ssh', $plugin_public, 'submit_edit_tambah_harga_ssh');
 		$this->loader->add_action('wp_ajax_submit_edit_tambah_akun_ssh', $plugin_public, 'submit_edit_tambah_akun_ssh');
+		$this->loader->add_action('wp_ajax_get_data_penjadwalan', $plugin_public, 'get_data_penjadwalan');
+		$this->loader->add_action('wp_ajax_submit_add_schedule',  $plugin_public, 'submit_add_schedule');
+		$this->loader->add_action('wp_ajax_get_data_jadwal_by_id',  $plugin_public, 'get_data_jadwal_by_id');
+		$this->loader->add_action('wp_ajax_submit_edit_schedule',  $plugin_public, 'submit_edit_schedule');
+		$this->loader->add_action('wp_ajax_submit_delete_schedule',  $plugin_public, 'submit_delete_schedule');
 
 		add_shortcode('menu_monev',  array($plugin_public, 'menu_monev'));
 		add_shortcode('datassh', array($plugin_public, 'datassh'));
@@ -482,6 +487,7 @@ class Wpsipd
 		add_shortcode('monitor_satuan_harga', array($plugin_public, 'monitor_satuan_harga'));
 		add_shortcode('laporan_per_item_ssh', array($plugin_public, 'laporan_per_item_ssh'));
 		add_shortcode('monitoring_spd_rinci', array($plugin_public, 'monitoring_spd_rinci'));
+		add_shortcode('setting_penjadwalan', array($plugin_public, 'setting_penjadwalan'));
 	}
 
 	/**
