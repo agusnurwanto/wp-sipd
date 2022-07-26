@@ -260,6 +260,30 @@ $body = '';
 		}
 	}
 
+	function lock_data_penjadwalan(id_jadwal_lokal){
+		let confirmLocked = confirm("Apakah anda yakin akan mengunci penjadwalan?");
+		if(confirmLocked){
+			jQuery.ajax({
+				url: "<?php echo admin_url('admin-ajax.php'); ?>",
+				type:'post',
+				data:{
+					'action' 				: 'submit_lock_schedule',
+					'api_key'				: jQuery("#api_key").val(),
+					'id_jadwal_lokal'		: id_jadwal_lokal
+				},
+				dataType: 'json',
+				success:function(response){
+					if(response.status == 'success'){
+						alert('Data berhasil dikunci!.');
+					}else{
+						alert(`GAGAL! \n${response.message}`);
+					}
+					penjadwalanTable.ajax.reload();	
+				}
+			});
+		}
+	}
+
 	jQuery(function() {
 		jQuery('#jadwal_tanggal').daterangepicker({
 			timePicker: true,
@@ -271,5 +295,15 @@ $body = '';
 			}
 		});
 	});
+
+	function cannot_change_schedule(jenis){
+		if(jenis == 'kunci'){
+			alert('Tidak bisa kunci karena penjadwalan sudah dikunci');
+		}else if(jenis == 'edit'){
+			alert('Tidak bisa edit karena penjadwalan sudah dikunci');
+		}else if(jenis == 'hapus'){
+			alert('Tidak bisa hapus karena penjadwalan sudah dikunci');
+		}
+	}
 
 </script> 

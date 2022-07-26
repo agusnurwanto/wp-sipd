@@ -13435,12 +13435,19 @@ class Wpsipd_Public
 				$queryRecords = $wpdb->get_results($sqlRec, ARRAY_A);
 
 				foreach($queryRecords as $recKey => $recVal){
-					$edit	= '<a class="btn btn-warning mr-2" href="#" onclick="return edit_data_penjadwalan(\''.$recVal['id_jadwal_lokal'].'\');" title="Edit data penjadwalan"><i class="dashicons dashicons-edit"></i></a>';
-					$delete	= '<a class="btn btn-danger" href="#" onclick="return hapus_data_penjadwalan(\''.$recVal['id_jadwal_lokal'].'\');" title="Hapus data penjadwalan"><i class="dashicons dashicons-trash"></i></a>';
+					if($recVal['status'] == 1){
+						$lock	= '<a class="btn btn-success mr-2 disabled" href="#" onclick="return cannot_change_schedule(\'kunci\');" title="Kunci data penjadwalan" aria-disabled="true"><i class="dashicons dashicons-lock"></i></a>';
+						$edit	= '<a class="btn btn-warning mr-2 disabled" href="#" onclick="return cannot_change_schedule(\'edit\');" title="Edit data penjadwalan" aria-disabled="true"><i class="dashicons dashicons-edit"></i></a>';
+						$delete	= '<a class="btn btn-danger disabled" href="#" onclick="return cannot_change_schedule(\'hapus\');" title="Hapus data penjadwalan" aria-disabled="true"><i class="dashicons dashicons-trash"></i></a>';
+					}else{
+						$lock	= '<a class="btn btn-success mr-2" href="#" onclick="return lock_data_penjadwalan(\''.$recVal['id_jadwal_lokal'].'\');" title="Kunci data penjadwalan"><i class="dashicons dashicons-unlock"></i></a>';
+						$edit	= '<a class="btn btn-warning mr-2" href="#" onclick="return edit_data_penjadwalan(\''.$recVal['id_jadwal_lokal'].'\');" title="Edit data penjadwalan"><i class="dashicons dashicons-edit"></i></a>';
+						$delete	= '<a class="btn btn-danger" href="#" onclick="return hapus_data_penjadwalan(\''.$recVal['id_jadwal_lokal'].'\');" title="Hapus data penjadwalan"><i class="dashicons dashicons-trash"></i></a>';
+					}
 					
 					$queryRecords[$recKey]['waktu_awal']	= date('d-m-Y H:i', strtotime($recVal['waktu_awal']));
 					$queryRecords[$recKey]['waktu_akhir']	= date('d-m-Y H:i', strtotime($recVal['waktu_akhir']));
-					$queryRecords[$recKey]['aksi'] = $edit.''.$delete;
+					$queryRecords[$recKey]['aksi'] = $lock.$edit.$delete;
 					$queryRecords[$recKey]['nama'] = ucfirst($recVal['nama']);
 					$queryRecords[$recKey]['status'] = $recVal['status'] == 1 ? 'dikunci' : 'terbuka';
 				}
@@ -13587,7 +13594,7 @@ class Wpsipd_Public
 						$data_this_id = $wpdb->get_results($wpdb->prepare('SELECT * FROM data_jadwal_lokal WHERE id_jadwal_lokal = %d',$id_jadwal_lokal), ARRAY_A);
 
 						if($data_this_id[0]['status'] == 0 || $data_this_id[0]['status'] == NULL){
-							//insert data penjadwalan
+							//update data penjadwalan
 							$data_jadwal = array(
 								'nama' 			=> $nama,
 								'waktu_awal'	=> $jadwal_mulai,
@@ -13668,6 +13675,85 @@ class Wpsipd_Public
 							$return = array(
 								'status' => 'error',
 								'message'	=> "User tidak diijinkan!\nData sudah dikunci!",
+							);
+						}
+					}else{
+						$return = array(
+							'status' => 'error',
+							'message'	=> "User tidak diijinkan!",
+						);
+					}
+				}else{
+					$return = array(
+						'status' => 'error',
+						'message'	=> 'Harap diisi semua,tidak boleh ada yang kosong!'
+					);
+				}
+			}else{
+				$return = array(
+					'status' => 'error',
+					'message'	=> 'Api Key tidak sesuai!'
+				);
+			}
+		}else{
+			$return = array(
+				'status' => 'error',
+				'message'	=> 'Format tidak sesuai!'
+			);
+		}
+		die(json_encode($return));
+	}
+
+	/** Submit lock data jadwal */
+	public function submit_lock_schedule(){
+		global $wpdb;
+		$return = array(
+			'status' => 'success',
+			'data'	=> array()
+		);
+
+		$user_id = um_user( 'ID' );
+		$user_meta = get_userdata($user_id);
+
+		if(!empty($_POST)){
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+				if(!empty($_POST['id_jadwal_lokal'])){
+					if(in_array("administrator", $user_meta->roles)){
+						$id_jadwal_lokal= trim(htmlspecialchars($_POST['id_jadwal_lokal']));
+
+						$data_this_id 	= $wpdb->get_results($wpdb->prepare('SELECT * FROM data_jadwal_lokal WHERE id_jadwal_lokal = %d',$id_jadwal_lokal), ARRAY_A);
+
+						date_default_timezone_set("Asia/Bangkok");
+						$dateTime = new DateTime();
+						$time_now = $dateTime->format('Y-m-d H:i:s');
+						if($time_now > $data_this_id[0]['waktu_awal']){
+							if($time_now < $data_this_id[0]['waktu_akhir']){
+								if($data_this_id[0]['status'] == 0 || $data_this_id[0]['status'] == NULL){
+									//lock data penjadwalan
+									$wpdb->update('data_jadwal_lokal', array('status' => 1), array(
+										'id_jadwal_lokal'	=> $id_jadwal_lokal
+									));
+		
+									$return = array(
+										'status' => 'success',
+										'message'	=> 'Berhasil!',
+									);
+								}else{
+									$return = array(
+										'status' => 'error',
+										'message'	=> "User tidak diijinkan!\nData sudah dikunci!",
+									);
+								}
+							}else{
+								$return = array(
+									'status' => 'error',
+									'message'	=> "Penjadwalan sudah kadaluwarsa!",
+								);
+							}
+						}else{
+							$return = array(
+								'status' => 'error',
+								'message'	=> "Penjadwalan belum dimulai!",
 							);
 						}
 					}else{
