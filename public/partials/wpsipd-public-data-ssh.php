@@ -11,10 +11,11 @@ global $wpdb;
 $tahun = $wpdb->get_results('select tahun_anggaran from data_unit group by tahun_anggaran order by tahun_anggaran ASC', ARRAY_A);
 $select_tahun = "<option value=''>Pilih berdasarkan tahun anggaran</option>";
 foreach($tahun as $tahun_value){
+	$select = $tahun_value['tahun_anggaran'] == $input['tahun_anggaran'] ? 'selected' : '';
 	$nama_page_menu_ssh = 'Data Standar Satuan Harga SIPD | '.$tahun_value['tahun_anggaran'];
 	$custom_post = get_page_by_title($nama_page_menu_ssh, OBJECT, 'page');
 	$url_data_ssh = $this->get_link_post($custom_post);
-	$select_tahun .= "<option value='".$url_data_ssh."'>Data Satuan Standar Harga (SSH) SIPD ".$tahun_value['tahun_anggaran']."</option>";
+	$select_tahun .= "<option value='".$url_data_ssh."' ".$select.">Data Satuan Standar Harga (SSH) SIPD ".$tahun_value['tahun_anggaran']."</option>";
 }
 
 $body = '';
@@ -78,7 +79,10 @@ $body = '';
 			jQuery("#data_ssh_sipd_table_length").append(html_filter);
 
 			jQuery('#selectYears').on('change', function(e){
-				window.location = jQuery(this).find('option:selected').val();
+				let selectedVal = jQuery(this).find('option:selected').val();
+				if(selectedVal != ''){
+					window.location = selectedVal;
+				}
 			});
 		})
 

@@ -82,3 +82,5 @@ ALTER TABLE `data_rka_history`
 --
 ALTER TABLE `data_rka_history`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+ALTER TABLE `data_jadwal_lokal` ADD `tahun_anggaran` year(4) NOT NULL DEFAULT '2022' AFTER `status`;

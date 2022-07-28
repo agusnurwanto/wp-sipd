@@ -13409,7 +13409,8 @@ class Wpsipd_Public
 					1 => 'nama', 
 					2 => 'waktu_awal',
 					3 => 'waktu_akhir',
-					4 => 'status'
+					4 => 'status',
+					5 => 'tahun_anggaran'
 				);
 				$where = $sqlTot = $sqlRec = "";
 
@@ -13421,8 +13422,8 @@ class Wpsipd_Public
 				}
 
 				// getting total number records without any search
-				$sqlTot = "SELECT count(*) as jml FROM `data_jadwal_lokal`";
-				$sqlRec = "SELECT ".implode(', ', $columns)." FROM `data_jadwal_lokal`";
+				$sqlTot = "SELECT count(*) as jml FROM `data_jadwal_lokal` WHERE tahun_anggaran=".$wpdb->prepare('%d', $_POST['tahun_anggaran']);
+				$sqlRec = "SELECT ".implode(', ', $columns)." FROM `data_jadwal_lokal` WHERE tahun_anggaran=".$wpdb->prepare('%d', $_POST['tahun_anggaran']);
 				if(isset($where) && $where != '') {
 					$sqlTot .= $where;
 					$sqlRec .= $where;
@@ -13488,18 +13489,20 @@ class Wpsipd_Public
 		if(!empty($_POST)){
 			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
 				if(in_array("administrator", $user_meta->roles)){
-					if(!empty($_POST['nama']) && !empty($_POST['jadwal_mulai']) && !empty($_POST['jadwal_selesai'])){
+					if(!empty($_POST['nama']) && !empty($_POST['jadwal_mulai']) && !empty($_POST['jadwal_selesai']) && !empty($_POST['tahun_anggaran'])){
 						$nama			= trim(htmlspecialchars($_POST['nama']));
 						$jadwal_mulai	= trim(htmlspecialchars($_POST['jadwal_mulai']));
 						$jadwal_mulai	= date('Y-m-d H:i:s', strtotime($jadwal_mulai));
 						$jadwal_selesai	= trim(htmlspecialchars($_POST['jadwal_selesai']));
 						$jadwal_selesai	= date('Y-m-d H:i:s', strtotime($jadwal_selesai));
+						$tahun_anggaran	= trim(htmlspecialchars($_POST['tahun_anggaran']));
 
 						//insert data penjadwalan
 						$data_jadwal = array(
 							'nama' 			=> $nama,
 							'waktu_awal'	=> $jadwal_mulai,
 							'waktu_akhir'	=> $jadwal_selesai,
+							'tahun_anggaran'=> $tahun_anggaran,
 							'status'		=> 0
 						);
 

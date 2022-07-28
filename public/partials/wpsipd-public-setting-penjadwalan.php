@@ -4,7 +4,20 @@ if ( ! defined( 'WPINC' ) ) {
 	die;
 }
 
+$input = shortcode_atts( array(
+	'tahun_anggaran' => '2022'
+), $atts );
+
 global $wpdb;
+$tahun = $wpdb->get_results('select tahun_anggaran from data_unit group by tahun_anggaran order by tahun_anggaran ASC', ARRAY_A);
+$select_tahun = "<option value=''>Pilih berdasarkan tahun anggaran</option>";
+foreach($tahun as $tahun_value){
+	$select = $tahun_value['tahun_anggaran'] == $input['tahun_anggaran'] ? 'selected' : '';
+	$nama_page_menu_ssh = 'Setting penjadwalan | '.$tahun_value['tahun_anggaran'];
+	$custom_post = get_page_by_title($nama_page_menu_ssh, OBJECT, 'page');
+	$url_data_ssh = $this->get_link_post($custom_post);
+	$select_tahun .= "<option value='".$url_data_ssh."' ".$select.">Setting penjadwalan | ".$tahun_value['tahun_anggaran']."</option>";
+}
 
 $body = '';
 ?>
@@ -19,7 +32,7 @@ $body = '';
 <div class="cetak">
 	<div style="padding: 10px;margin:0 0 3rem 0;">
 		<input type="hidden" value="<?php echo get_option( '_crb_api_key_extension' ); ?>" id="api_key">
-		<h1 class="text-center" style="margin:3rem;">Halaman Setting Penjadwalan</h1>
+		<h1 class="text-center" style="margin:3rem;">Halaman Setting Penjadwalan  <?php echo $input['tahun_anggaran']; ?></h1>
 		<div style="margin-bottom: 25px;">
 			<button class="btn btn-primary tambah_ssh" onclick="tambah_jadwal();">Tambah Jadwal</button>
 		</div>
@@ -30,6 +43,7 @@ $body = '';
 					<th class="text-center">Status</th>
 					<th class="text-center">Jadwal Mulai</th>
 					<th class="text-center">Jadwal Selesai</th>
+					<th class="text-center">Tahun Anggaran</th>
 					<th class="text-center">Aksi</th>
 				</tr>
 			</thead>
@@ -70,8 +84,19 @@ $body = '';
 <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
 <script>
 	jQuery(document).ready(function(){
-		
+		globalThis.tahun_anggaran = <?php echo $input['tahun_anggaran']; ?>;
+
 		get_data_penjadwalan();
+
+		let html_filter = "<select class='ml-3 bulk-action' id='selectYears'><?php echo $select_tahun ?></select>"
+		jQuery("#data_penjadwalan_table_length").append(html_filter);
+
+		jQuery('#selectYears').on('change', function(e){
+			let selectedVal = jQuery(this).find('option:selected').val();
+			if(selectedVal != ''){
+				window.location = selectedVal;
+			}
+		});
 
 		jQuery('#modalTambahJadwal').on('hidden.bs.modal', function () {
 			jQuery("#jadwal_nama").val("");
@@ -88,8 +113,9 @@ $body = '';
 				url: "<?php echo admin_url('admin-ajax.php'); ?>",
 				type:"post",
 				data:{
-					'action' : "get_data_penjadwalan",
-					'api_key' : jQuery("#api_key").val()
+					'action' 		: "get_data_penjadwalan",
+					'api_key' 		: jQuery("#api_key").val(),
+					'tahun_anggaran': tahun_anggaran
 				}
 			},
 			"initComplete":function( settings, json){
@@ -110,6 +136,10 @@ $body = '';
 				},
 				{ 
 					"data": "waktu_akhir",
+					className: "text-center"
+				},
+				{ 
+					"data": "tahun_anggaran",
 					className: "text-center"
 				},
 				{ 
@@ -150,7 +180,8 @@ $body = '';
 					'api_key'		: jQuery("#api_key").val(),
 					'nama'			: nama,
 					'jadwal_mulai'	: jadwalMulai,
-					'jadwal_selesai': jadwalSelesai
+					'jadwal_selesai': jadwalSelesai,
+					'tahun_anggaran': tahun_anggaran
 				},
 				beforeSend: function() {
 					jQuery('.submitBtn').attr('disabled','disabled')
