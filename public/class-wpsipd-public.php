@@ -13436,9 +13436,9 @@ class Wpsipd_Public
 
 				foreach($queryRecords as $recKey => $recVal){
 					if($recVal['status'] == 1){
-						$lock	= '<a class="btn btn-success mr-2 disabled" href="#" onclick="return cannot_change_schedule(\'kunci\');" title="Kunci data penjadwalan" aria-disabled="true"><i class="dashicons dashicons-lock"></i></a>';
-						$edit	= '<a class="btn btn-warning mr-2 disabled" href="#" onclick="return cannot_change_schedule(\'edit\');" title="Edit data penjadwalan" aria-disabled="true"><i class="dashicons dashicons-edit"></i></a>';
-						$delete	= '<a class="btn btn-danger disabled" href="#" onclick="return cannot_change_schedule(\'hapus\');" title="Hapus data penjadwalan" aria-disabled="true"><i class="dashicons dashicons-trash"></i></a>';
+						$lock	= '<a class="btn btn-success disabled" href="#" onclick="return cannot_change_schedule(\'kunci\');" title="Kunci data penjadwalan" aria-disabled="true"><i class="dashicons dashicons-lock"></i></a>';
+						$edit	= '';
+						$delete	= '';
 					}else{
 						$lock	= '<a class="btn btn-success mr-2" href="#" onclick="return lock_data_penjadwalan(\''.$recVal['id_jadwal_lokal'].'\');" title="Kunci data penjadwalan"><i class="dashicons dashicons-unlock"></i></a>';
 						$edit	= '<a class="btn btn-warning mr-2" href="#" onclick="return edit_data_penjadwalan(\''.$recVal['id_jadwal_lokal'].'\');" title="Edit data penjadwalan"><i class="dashicons dashicons-edit"></i></a>';
@@ -13733,10 +13733,19 @@ class Wpsipd_Public
 									$wpdb->update('data_jadwal_lokal', array('status' => 1), array(
 										'id_jadwal_lokal'	=> $id_jadwal_lokal
 									));
+
+									$columns = array('created_user','createddate','createdtime','harga_satuan','harga_satuan_murni','id_daerah','id_rinci_sub_bl','id_standar_nfs','is_locked','jenis_bl','ket_bl_teks','kode_akun','koefisien','koefisien_murni','lokus_akun_teks','nama_akun','nama_komponen','spek_komponen','satuan','spek','sat1','sat2','sat3','sat4','volum1','volum2','volum3','volum4','volume','volume_murni','subs_bl_teks','subtitle_teks','kode_dana','is_paket','nama_dana','id_dana','substeks','total_harga','rincian','rincian_murni','totalpajak','pajak','pajak_murni','updated_user','updateddate','updatedtime','user1','user2','active','update_at','tahun_anggaran','idbl','idsubbl','kode_bl','kode_sbl','id_prop_penerima','id_camat_penerima','id_kokab_penerima','id_lurah_penerima','id_penerima','idkomponen','idketerangan','idsubtitle');
 		
+									$sqlBackup =  "INSERT INTO data_rka_history (".implode(', ', $columns).",id_data_rka,id_local_schedule)
+												SELECT ".implode(', ', $columns).",id as id_data_rka,".$data_this_id[0]['id_jadwal_lokal']."
+												FROM data_rka";
+
+									 $queryRecords = $wpdb->query($sqlBackup);
+
 									$return = array(
 										'status' => 'success',
 										'message'	=> 'Berhasil!',
+										'data_input' => $queryRecords
 									);
 								}else{
 									$return = array(
