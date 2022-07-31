@@ -250,6 +250,34 @@ class Wpsipd_Admin {
 
 	    Container::make( 'theme_options', __( 'RPJM & RENSTRA' ) )
 		    ->set_page_parent( $laporan );
+
+	    $input_perencanaan = Container::make( 'theme_options', __( 'Input Perencanaan SIPD' ) )
+			->set_page_menu_position( 4 )
+		    ->add_fields( $this->generate_jadwal_perencanaan() );
+
+	    Container::make( 'theme_options', __( 'Jadwal Perencanaan' ) )
+		    ->set_page_parent( $input_perencanaan )
+		    ->add_fields( $this->generate_jadwal_perencanaan() );
+
+	    Container::make( 'theme_options', __( 'Input RPJPD' ) )
+		    ->set_page_parent( $input_perencanaan )
+		    ->add_fields( $this->generate_input_rpjpd() );
+
+	    Container::make( 'theme_options', __( 'Input RPJM' ) )
+		    ->set_page_parent( $input_perencanaan )
+		    ->add_fields( $this->generate_input_rpjm() );
+
+	    Container::make( 'theme_options', __( 'Input RPD' ) )
+		    ->set_page_parent( $input_perencanaan )
+		    ->add_fields( $this->generate_input_rpd() );
+
+	    Container::make( 'theme_options', __( 'Input RENSTRA' ) )
+		    ->set_page_parent( $input_perencanaan )
+		    ->add_fields( $this->generate_input_renstra() );
+
+	    Container::make( 'theme_options', __( 'Input RENJA' ) )
+		    ->set_page_parent( $input_perencanaan )
+		    ->add_fields( $this->generate_input_renja() );
 	}
 
 	public function options_basic(){
@@ -438,6 +466,9 @@ class Wpsipd_Admin {
 						}else if($_POST['type'] == 'monev_satuan_harga'){
 							$url_skpd = $this->generatePage('Rekapitulasi Rincian Belanja '.$vv['nama_skpd'].' '.$vv['kode_skpd'].' | '.$v['tahun_anggaran'], $v['tahun_anggaran'], '[monitor_satuan_harga tahun_anggaran="'.$v['tahun_anggaran'].'" id_skpd="'.$vv['id_skpd'].'"]');
 		            		$body_pemda .= '<li><a target="_blank" href="'.$url_skpd.'">Halaman Rekapitulasi Rincian Belanja '.$vv['kode_skpd'].' '.$vv['nama_skpd'].' '.$v['tahun_anggaran'].'</a> (NIP: '.$vv['nipkepala'].')';
+						}else if($_POST['type'] == 'input_renja'){
+							$url_skpd = $this->generatePage('Input RENJA '.$vv['nama_skpd'].' '.$vv['kode_skpd'].' | '.$v['tahun_anggaran'], $v['tahun_anggaran'], '[input_renja tahun_anggaran="'.$v['tahun_anggaran'].'" id_skpd="'.$vv['id_skpd'].'"]');
+		            		$body_pemda .= '<li><a target="_blank" href="'.$url_skpd.'">Halaman Input RENJA '.$vv['kode_skpd'].' '.$vv['nama_skpd'].' '.$v['tahun_anggaran'].'</a> (NIP: '.$vv['nipkepala'].')';
 						}
 
 		            	if(!empty($subunit)){
@@ -463,6 +494,9 @@ class Wpsipd_Admin {
 							}else if($_POST['type'] == 'monev_satuan_harga'){
 								$url_skpd = $this->generatePage('Rekapitulasi Rincian Belanja '.$vvv['nama_skpd'].' '.$vvv['kode_skpd'].' | '.$v['tahun_anggaran'], $v['tahun_anggaran'], '[monitor_satuan_harga tahun_anggaran="'.$v['tahun_anggaran'].'" id_skpd="'.$vvv['id_skpd'].'"]');
 								$body_pemda .= '<li><a target="_blank" href="'.$url_skpd.'">Halaman Rekapitulasi Rincian Belanja '.$vvv['kode_skpd'].' '.$vvv['nama_skpd'].' '.$v['tahun_anggaran'].'</a> (NIP: '.$vvv['nipkepala'].')';
+							}else if($_POST['type'] == 'input_renja'){
+								$url_skpd = $this->generatePage('Input RENJA '.$vvv['nama_skpd'].' '.$vvv['kode_skpd'].' | '.$v['tahun_anggaran'], $v['tahun_anggaran'], '[input_renja tahun_anggaran="'.$v['tahun_anggaran'].'" id_skpd="'.$vvv['id_skpd'].'"]');
+								$body_pemda .= '<li><a target="_blank" href="'.$url_skpd.'">Halaman Input RENJA '.$vvv['kode_skpd'].' '.$vvv['nama_skpd'].' '.$v['tahun_anggaran'].'</a> (NIP: '.$vvv['nipkepala'].')';
 							}
 		            	}
 		            	if(!empty($subunit)){
@@ -501,6 +535,8 @@ class Wpsipd_Admin {
 						$url_pemda = $this->generatePage('Rekapitulasi Rincian Belanja Pemerintah Daerah '.$v['tahun_anggaran'], $v['tahun_anggaran'], '[data_halaman_menu_ssh tahun_anggaran="'.$v['tahun_anggaran'].'"]');
 						$body_all .= '<a style="font-weight: bold;" target="_blank" href="'.$url_pemda.'">Halaman Rekapitulasi Rincian Belanja '.$v['tahun_anggaran'].'</a>';
 						$body_all .= '<div style="padding:.75rem 0 0 .75rem;"><a style="font-weight: bold;" target="_blank" href="'.$url_add_new_ssh.'">Halaman Data Usulan SSH '.$v['tahun_anggaran'].'</a></div>'.$body_pemda;
+			        }else if($_POST['type'] == 'input_renja'){
+			        	$body_all .= $body_pemda;
 					}
 				}
 				if(
@@ -510,6 +546,7 @@ class Wpsipd_Admin {
 					|| $_POST['type'] == 'monev_rpjm'
 					|| $_POST['type'] == 'apbdpenjabaran'
 					|| $_POST['type'] == 'monev_satuan_harga'
+					|| $_POST['type'] == 'input_renja'
 				){
 					$ret['message'] = $body_all;
 				}
@@ -1154,6 +1191,122 @@ class Wpsipd_Admin {
 	        die($tabel);
 	    }
 	    
+	}
+
+	public function generate_jadwal_perencanaan(){
+		global $wpdb;
+		$tahun = $wpdb->get_results('select tahun_anggaran from data_unit group by tahun_anggaran', ARRAY_A);
+		$list_data = '';
+
+		$title = 'Jadwal Input Perencanaan RPJPD';
+		$shortcode = '[jadwal_rpjpd]';
+		$update = false;
+		$page_url = $this->generatePage($title, false, $shortcode, $update);
+		$list_data .= '<li><a href="'.get_permalink($page_url).'" target="_blank">'.$title.'</a></li>';
+
+		$title = 'Jadwal Input Perencanaan RPJM';
+		$shortcode = '[jadwal_rpjm]';
+		$update = false;
+		$page_url = $this->generatePage($title, false, $shortcode, $update);
+		$list_data .= '<li><a href="'.get_permalink($page_url).'" target="_blank">'.$title.'</a></li>';
+
+		$title = 'Jadwal Input Perencanaan RPD';
+		$shortcode = '[jadwal_rpd]';
+		$update = false;
+		$page_url = $this->generatePage($title, false, $shortcode, $update);
+		$list_data .= '<li><a href="'.get_permalink($page_url).'" target="_blank">'.$title.'</a></li>';
+
+		$title = 'Jadwal Input Perencanaan RENSTRA';
+		$shortcode = '[jadwal_renstra]';
+		$update = false;
+		$page_url = $this->generatePage($title, false, $shortcode, $update);
+		$list_data .= '<li><a href="'.get_permalink($page_url).'" target="_blank">'.$title.'</a></li>';
+		
+		$no = 0;
+		foreach ($tahun as $k => $v) {
+			$title = 'Jadwal Input Perencanaan RENJA | '.$v['tahun_anggaran'];
+			$shortcode = '[jadwal_renja tahun_anggaran="'.$v['tahun_anggaran'].'"]';
+			$update = false;
+			$page_url = $this->generatePage($title, $v['tahun_anggaran'], $shortcode, $update);
+			$list_data .= '<li><a href="'.get_permalink($page_url).'" target="_blank">'.$title.'</a></li>';
+		}
+		$label = array(
+			Field::make( 'html', 'crb_jadwal_perencanaan' )
+            	->set_html( '
+            		<ul>'.$list_data.'</ul>
+            	' )
+        );
+        return $label;
+	}
+
+	public function generate_input_rpjpd(){
+		global $wpdb;
+		$title = 'Input Perencanaan RPJPD';
+		$shortcode = '[input_rpjpd]';
+		$update = false;
+		$page_url = $this->generatePage($title, false, $shortcode, $update);
+		$list_data = '<li><a href="'.get_permalink($page_url).'" target="_blank">'.$title.'</a></li>';
+		$label = array(
+			Field::make( 'html', 'crb_input_rpjpd' )
+            	->set_html( '
+            		<ul>'.$list_data.'</ul>
+            	' )
+        );
+        return $label;
+	}
+
+	public function generate_input_rpjm(){
+		global $wpdb;
+		$title = 'Input Perencanaan RPJM';
+		$shortcode = '[input_rpjm]';
+		$update = false;
+		$page_url = $this->generatePage($title, false, $shortcode, $update);
+		$list_data = '<li><a href="'.get_permalink($page_url).'" target="_blank">'.$title.'</a></li>';
+		$label = array(
+			Field::make( 'html', 'crb_input_rpjm' )
+            	->set_html( '
+            		<ul>'.$list_data.'</ul>
+            	' )
+        );
+        return $label;
+	}
+
+	public function generate_input_rpd(){
+		global $wpdb;
+		$title = 'Input Perencanaan RPD';
+		$shortcode = '[input_rpd]';
+		$update = false;
+		$page_url = $this->generatePage($title, false, $shortcode, $update);
+		$list_data = '<li><a href="'.get_permalink($page_url).'" target="_blank">'.$title.'</a></li>';
+		$label = array(
+			Field::make( 'html', 'crb_input_rpd' )
+            	->set_html( '
+            		<ul>'.$list_data.'</ul>
+            	' )
+        );
+        return $label;
+	}
+
+	public function generate_input_renstra(){
+		global $wpdb;
+		$title = 'Input Perencanaan RENSTRA';
+		$shortcode = '[input_renstra]';
+		$update = false;
+		$page_url = $this->generatePage($title, false, $shortcode, $update);
+		$list_data = '<li><a href="'.get_permalink($page_url).'" target="_blank">'.$title.'</a></li>';
+		$label = array(
+			Field::make( 'html', 'crb_input_renstra' )
+            	->set_html( '
+            		<ul>'.$list_data.'</ul>
+            	' )
+        );
+        return $label;
+	}
+
+	public function generate_input_renja(){
+		global $wpdb;
+		$label = $this->get_ajax_field(array('type' => 'input_renja'));
+        return $label;
 	}
 
 	public function generate_tag_sipd(){
