@@ -1202,25 +1202,25 @@ class Wpsipd_Admin {
 		$shortcode = '[jadwal_rpjpd]';
 		$update = false;
 		$page_url = $this->generatePage($title, false, $shortcode, $update);
-		$list_data .= '<li><a href="'.get_permalink($page_url).'" target="_blank">'.$title.'</a></li>';
+		$list_data .= '<li><a href="'.$page_url.'" target="_blank">'.$title.'</a></li>';
 
 		$title = 'Jadwal Input Perencanaan RPJM';
 		$shortcode = '[jadwal_rpjm]';
 		$update = false;
 		$page_url = $this->generatePage($title, false, $shortcode, $update);
-		$list_data .= '<li><a href="'.get_permalink($page_url).'" target="_blank">'.$title.'</a></li>';
+		$list_data .= '<li><a href="'.$page_url.'" target="_blank">'.$title.'</a></li>';
 
 		$title = 'Jadwal Input Perencanaan RPD';
 		$shortcode = '[jadwal_rpd]';
 		$update = false;
 		$page_url = $this->generatePage($title, false, $shortcode, $update);
-		$list_data .= '<li><a href="'.get_permalink($page_url).'" target="_blank">'.$title.'</a></li>';
+		$list_data .= '<li><a href="'.$page_url.'" target="_blank">'.$title.'</a></li>';
 
 		$title = 'Jadwal Input Perencanaan RENSTRA';
 		$shortcode = '[jadwal_renstra]';
 		$update = false;
 		$page_url = $this->generatePage($title, false, $shortcode, $update);
-		$list_data .= '<li><a href="'.get_permalink($page_url).'" target="_blank">'.$title.'</a></li>';
+		$list_data .= '<li><a href="'.$page_url.'" target="_blank">'.$title.'</a></li>';
 		
 		$no = 0;
 		foreach ($tahun as $k => $v) {
@@ -1228,7 +1228,7 @@ class Wpsipd_Admin {
 			$shortcode = '[jadwal_renja tahun_anggaran="'.$v['tahun_anggaran'].'"]';
 			$update = false;
 			$page_url = $this->generatePage($title, $v['tahun_anggaran'], $shortcode, $update);
-			$list_data .= '<li><a href="'.get_permalink($page_url).'" target="_blank">'.$title.'</a></li>';
+			$list_data .= '<li><a href="'.$page_url.'" target="_blank">'.$title.'</a></li>';
 		}
 		$label = array(
 			Field::make( 'html', 'crb_jadwal_perencanaan' )
@@ -1245,7 +1245,7 @@ class Wpsipd_Admin {
 		$shortcode = '[input_rpjpd]';
 		$update = false;
 		$page_url = $this->generatePage($title, false, $shortcode, $update);
-		$list_data = '<li><a href="'.get_permalink($page_url).'" target="_blank">'.$title.'</a></li>';
+		$list_data = '<li><a href="'.$page_url.'" target="_blank">'.$title.'</a></li>';
 		$label = array(
 			Field::make( 'html', 'crb_input_rpjpd' )
             	->set_html( '
@@ -1261,7 +1261,7 @@ class Wpsipd_Admin {
 		$shortcode = '[input_rpjm]';
 		$update = false;
 		$page_url = $this->generatePage($title, false, $shortcode, $update);
-		$list_data = '<li><a href="'.get_permalink($page_url).'" target="_blank">'.$title.'</a></li>';
+		$list_data = '<li><a href="'.$page_url.'" target="_blank">'.$title.'</a></li>';
 		$label = array(
 			Field::make( 'html', 'crb_input_rpjm' )
             	->set_html( '
@@ -1277,7 +1277,7 @@ class Wpsipd_Admin {
 		$shortcode = '[input_rpd]';
 		$update = false;
 		$page_url = $this->generatePage($title, false, $shortcode, $update);
-		$list_data = '<li><a href="'.get_permalink($page_url).'" target="_blank">'.$title.'</a></li>';
+		$list_data = '<li><a href="'.$page_url.'" target="_blank">'.$title.'</a></li>';
 		$label = array(
 			Field::make( 'html', 'crb_input_rpd' )
             	->set_html( '
@@ -1293,7 +1293,7 @@ class Wpsipd_Admin {
 		$shortcode = '[input_renstra]';
 		$update = false;
 		$page_url = $this->generatePage($title, false, $shortcode, $update);
-		$list_data = '<li><a href="'.get_permalink($page_url).'" target="_blank">'.$title.'</a></li>';
+		$list_data = '<li><a href="'.$page_url.'" target="_blank">'.$title.'</a></li>';
 		$label = array(
 			Field::make( 'html', 'crb_input_renstra' )
             	->set_html( '

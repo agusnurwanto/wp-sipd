@@ -489,6 +489,7 @@ class Wpsipd
 		add_shortcode('laporan_per_item_ssh', array($plugin_public, 'laporan_per_item_ssh'));
 		add_shortcode('monitoring_spd_rinci', array($plugin_public, 'monitoring_spd_rinci'));
 		add_shortcode('setting_penjadwalan', array($plugin_public, 'setting_penjadwalan'));
+		add_shortcode('input_rpjm', array($plugin_public, 'input_rpjm'));
 	}
 
 	/**
