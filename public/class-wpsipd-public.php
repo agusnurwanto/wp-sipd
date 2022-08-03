@@ -10328,6 +10328,37 @@ class Wpsipd_Public
 					}
 				}
 
+				/** Jika admin tampilkan semua data */
+				if(!in_array("administrator",$user_meta->roles)){
+					$this_user_meta = get_user_meta($user_id);
+					/** cari data user berdasarkan nama skpd */
+					if($this_user_meta['_crb_nama_skpd'][0] != ''){
+						$user_meta = get_users(array(
+							'meta_key' => '_crb_nama_skpd',
+							'meta_value' => $this_user_meta['_crb_nama_skpd'][0]
+						));
+						
+						$id_user_skpd = array();
+						foreach ($user_meta as $metaVal) {
+							array_push($id_user_skpd,$metaVal->data->ID);
+						}
+						$get_by_skpd = $id_user_skpd;
+					}else{
+						$get_by_skpd = array($user_id);
+					}
+					
+					/** menambahkan filter data usulan ssh berdasarkan skpd terkait */
+					if(count($get_by_skpd) >= 1){
+						foreach($get_by_skpd as $skpd_key => $skpd_val){
+							if($skpd_key == 0){
+								$where .=" AND created_user = ".$skpd_val." ";
+							}else if($skpd_key > 1){
+								$where .=" OR created_user = ".$skpd_val." ";
+							}
+						}
+					}
+				}
+
 				// getting total number records without any search
 				$sql_tot = "SELECT count(*) as jml FROM `data_ssh_usulan`";
 				$sql = "SELECT ".implode(', ', $columns)." FROM `data_ssh_usulan`";
@@ -10363,8 +10394,11 @@ class Wpsipd_Public
 
 					$created_user = "";
 					if(!empty($recVal['created_user'])){
-						$created_user = get_userdata($recVal['created_user']);
-						$created_user = '<tr><td>Pengusul: '.$created_user->display_name.'</td></tr>';
+						$created_user_data = get_userdata($recVal['created_user']);
+						$created_user_meta = get_user_meta($recVal['created_user']);
+						$pengusul = ($created_user_meta['_crb_nama_skpd'][0] == '') ? $created_user_data->display_name : $created_user_meta['_crb_nama_skpd'][0];
+
+						$created_user = '<tr><td>Pengusul: '.$pengusul.'</td></tr>';
 					}
 					$keterangan_status = "";
 					if(!empty($recVal['keterangan_status'])){
