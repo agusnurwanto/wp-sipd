@@ -526,6 +526,47 @@ class Wpsipd_Public
 		die(json_encode($ret));
 	}
 
+	public function get_sp2d(){
+		global $wpdb;
+		$ret = array(
+			'action'	=> $_POST['action'],
+			'data'	=> array()
+		);
+		if (!empty($_POST)) {
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+				$tahun_anggaran = $_POST['tahun_anggaran'];
+				$spm_all = json_decode(stripslashes(html_entity_decode($_POST['spm_no'])));
+				if(!empty($spm_all)){
+					foreach($spm_all as $k => $v){
+						$spm_all[$k] = "'$v'";
+					}
+					$sql = $wpdb->prepare("
+						SELECT 
+							*
+						from ta_sp2d
+						where tahun=%d
+							and no_spm in (".implode(',', $spm_all).")
+						", 
+						$tahun_anggaran
+					);
+					$return['sql'] = $sql;
+					$sp2d = $this->simda->CurlSimda(array(
+						'query' => $sql,
+						'debug' => 1
+					));
+					$ret['data'] = $sp2d;
+				}else{
+					$ret['status'] = 'error';
+					$ret['message'] = 'No SPM tidak boleh kosong!';
+				}
+			} else {
+				$ret['status'] = 'error';
+				$ret['message'] = 'APIKEY tidak sesuai!';
+			}
+		}
+		die(json_encode($ret));
+	}
+
 	public function get_tagihan(){
 		global $wpdb;
 		$ret = array(
