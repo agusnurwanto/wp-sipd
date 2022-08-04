@@ -436,6 +436,137 @@ class Wpsipd_Public
 		die(json_encode($ret));
 	}
 
+	public function get_spm(){
+		global $wpdb;
+		$ret = array(
+			'action'	=> $_POST['action'],
+			'tipe'	=> $_POST['tipe'],
+			'data'	=> array()
+		);
+		if (!empty($_POST)) {
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+				$tahun_anggaran = $_POST['tahun_anggaran'];
+				$jenis = 1;
+				if($_POST['tipe'] == 'up'){
+					$jenis = 1;
+				}else if($_POST['tipe'] == 'gu'){
+					$jenis = 2;
+				}else if($_POST['tipe'] == 'ls'){
+					$jenis = 3;
+				}else if($_POST['tipe'] == 'tu'){
+					$jenis = 4;
+				}else if($_POST['tipe'] == 'nihil'){
+					$jenis = 5;
+				}
+				$id_skpd_fmis = false;
+				if(!empty($_POST['idsubunit'])){
+					$id_skpd_fmis = $_POST['idsubunit'];
+				}
+				$mapping_skpd = $this->get_id_skpd_fmis($id_skpd_fmis, $tahun_anggaran, true);
+				$kd_urusan = array();
+				$kd_bidang = array();
+				$kd_unit = array();
+				$kd_sub = array();
+				foreach($mapping_skpd['id_skpd_sipd'] as $id){
+					$kd_unit_simda_asli = get_option('_crb_unit_'.$id);
+					$kd_simda = explode('.', $kd_unit_simda_asli);
+					if(!empty($kd_simda[0])){
+						if(empty($kd_urusan[$kd_simda[0]])){
+							$kd_urusan[$kd_simda[0]] = $kd_simda[0];
+						}
+					}
+					if(!empty($kd_simda[1])){
+						if(empty($kd_bidang[$kd_simda[1]])){
+							$kd_bidang[$kd_simda[1]] = $kd_simda[1];
+						}
+					}
+					if(!empty($kd_simda[2])){
+						if(empty($kd_unit[$kd_simda[2]])){
+							$kd_unit[$kd_simda[2]] = $kd_simda[2];
+						}
+					}
+					if(!empty($kd_simda[3])){
+						if(empty($kd_sub[$kd_simda[3]])){
+							$kd_sub[$kd_simda[3]] = $kd_simda[3];
+						}
+					}
+				}
+				$sql = $wpdb->prepare("
+					SELECT 
+						*
+					from ta_spm
+					where tahun=%d
+						and jn_spm=%d
+						and kd_urusan in (".implode(',', $kd_urusan).")
+						and kd_bidang in (".implode(',', $kd_bidang).")
+						and kd_unit in (".implode(',', $kd_unit).")
+						and kd_sub in (".implode(',', $kd_sub).")
+					", 
+					$tahun_anggaran, 
+					$jenis
+				);
+				$return['sql'] = $sql;
+				$spm = $this->simda->CurlSimda(array(
+					'query' => $sql,
+					'debug' => 1
+				));
+				foreach($spm as $k => $v){
+					$kd_sub_unit = $v->kd_urusan.'.'.$v->kd_bidang.'.'.$v->kd_unit.'.'.$v->kd_sub;
+					$spm[$k]->kd_sub_unit = $kd_sub_unit;
+					if(!empty($mapping_skpd['id_mapping_simda'][$kd_sub_unit])){
+						$spm[$k]->skpd = $mapping_skpd['id_mapping_simda'][$kd_sub_unit];
+					}
+				}
+				$ret['data'] = $spm;
+			} else {
+				$ret['status'] = 'error';
+				$ret['message'] = 'APIKEY tidak sesuai!';
+			}
+		}
+		die(json_encode($ret));
+	}
+
+	public function get_sp2d(){
+		global $wpdb;
+		$ret = array(
+			'action'	=> $_POST['action'],
+			'data'	=> array()
+		);
+		if (!empty($_POST)) {
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+				$tahun_anggaran = $_POST['tahun_anggaran'];
+				$spm_all = json_decode(stripslashes(html_entity_decode($_POST['spm_no'])));
+				if(!empty($spm_all)){
+					foreach($spm_all as $k => $v){
+						$spm_all[$k] = "'$v'";
+					}
+					$sql = $wpdb->prepare("
+						SELECT 
+							*
+						from ta_sp2d
+						where tahun=%d
+							and no_spm in (".implode(',', $spm_all).")
+						", 
+						$tahun_anggaran
+					);
+					$return['sql'] = $sql;
+					$sp2d = $this->simda->CurlSimda(array(
+						'query' => $sql,
+						'debug' => 1
+					));
+					$ret['data'] = $sp2d;
+				}else{
+					$ret['status'] = 'error';
+					$ret['message'] = 'No SPM tidak boleh kosong!';
+				}
+			} else {
+				$ret['status'] = 'error';
+				$ret['message'] = 'APIKEY tidak sesuai!';
+			}
+		}
+		die(json_encode($ret));
+	}
+
 	public function get_tagihan(){
 		global $wpdb;
 		$ret = array(
