@@ -421,6 +421,12 @@ class Wpsipd
 		$this->loader->add_action('wp_ajax_get_data_ssh_sipd',  $plugin_public, 'get_data_ssh_sipd');
 		$this->loader->add_action('wp_ajax_nopriv_get_data_ssh_sipd',  $plugin_public, 'get_data_ssh_sipd');
 
+		$this->loader->add_action('wp_ajax_get_kontrak',  $plugin_public, 'get_kontrak');
+		$this->loader->add_action('wp_ajax_nopriv_get_kontrak',  $plugin_public, 'get_kontrak');
+
+		$this->loader->add_action('wp_ajax_get_kontrak_addendum',  $plugin_public, 'get_kontrak_addendum');
+		$this->loader->add_action('wp_ajax_nopriv_get_kontrak_addendum',  $plugin_public, 'get_kontrak_addendum');
+
 		$this->loader->add_action('wp_ajax_get_data_ssh_sipd_by_id',  $plugin_public, 'get_data_ssh_sipd_by_id');
 		$this->loader->add_action('wp_ajax_nopriv_get_data_ssh_sipd_by_id',  $plugin_public, 'get_data_ssh_sipd_by_id');
 

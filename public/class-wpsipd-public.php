@@ -436,7 +436,7 @@ class Wpsipd_Public
 		die(json_encode($ret));
 	}
 
-		public function get_spm(){
+	public function get_spm(){
 		global $wpdb;
 		$ret = array(
 			'action'	=> $_POST['action'],
@@ -635,6 +635,153 @@ class Wpsipd_Public
 					}
 				}
 				$ret['data'] = $spp;
+			} else {
+				$ret['status'] = 'error';
+				$ret['message'] = 'APIKEY tidak sesuai!';
+			}
+		}
+		die(json_encode($ret));
+	}
+
+	public function get_kontrak(){
+		global $wpdb;
+		$ret = array(
+			'action'	=> $_POST['action'],
+			'data'	=> array()
+		);
+		if (!empty($_POST)) {
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+				$tahun_anggaran = $_POST['tahun_anggaran'];
+				$id_skpd_fmis = false;
+				if(!empty($_POST['idsubunit'])){
+					$id_skpd_fmis = $_POST['idsubunit'];
+				}
+				$mapping_skpd = $this->get_id_skpd_fmis($id_skpd_fmis, $tahun_anggaran, true);
+				$kd_urusan = array();
+				$kd_bidang = array();
+				$kd_unit = array();
+				$kd_sub = array();
+				foreach($mapping_skpd['id_skpd_sipd'] as $id){
+					$kd_unit_simda_asli = get_option('_crb_unit_'.$id);
+					$kd_simda = explode('.', $kd_unit_simda_asli);
+					if(!empty($kd_simda[0])){
+						if(empty($kd_urusan[$kd_simda[0]])){
+							$kd_urusan[$kd_simda[0]] = $kd_simda[0];
+						}
+					}
+					if(!empty($kd_simda[1])){
+						if(empty($kd_bidang[$kd_simda[1]])){
+							$kd_bidang[$kd_simda[1]] = $kd_simda[1];
+						}
+					}
+					if(!empty($kd_simda[2])){
+						if(empty($kd_unit[$kd_simda[2]])){
+							$kd_unit[$kd_simda[2]] = $kd_simda[2];
+						}
+					}
+					if(!empty($kd_simda[3])){
+						if(empty($kd_sub[$kd_simda[3]])){
+							$kd_sub[$kd_simda[3]] = $kd_simda[3];
+						}
+					}
+				}
+				$sql = $wpdb->prepare("
+					SELECT 
+						s.*
+					from ta_kontrak s
+					where s.tahun=%d
+						and s.kd_urusan in (".implode(',', $kd_urusan).")
+						and s.kd_bidang in (".implode(',', $kd_bidang).")
+						and s.kd_unit in (".implode(',', $kd_unit).")
+						and s.kd_sub in (".implode(',', $kd_sub).")
+					", 
+					$tahun_anggaran
+				);
+				$ret['sql'] = $sql;
+				$program_mapping = $this->get_fmis_mapping(array(
+					'name' => '_crb_custom_mapping_program_fmis'
+				));
+				$keg_mapping = $this->get_fmis_mapping(array(
+					'name' => '_crb_custom_mapping_keg_fmis'
+				));
+				$subkeg_mapping = $this->get_fmis_mapping(array(
+					'name' => '_crb_custom_mapping_subkeg_fmis'
+				));
+				$rek_mapping = $this->get_fmis_mapping(array(
+					'name' => '_crb_custom_mapping_rekening_fmis'
+				));
+				$kontrak = $this->simda->CurlSimda(array(
+					'query' => $sql,
+					'debug' => 1
+				));
+				$prog_keg = array();
+				foreach($kontrak as $k => $v){
+					$kd_sub_unit = $v->kd_urusan.'.'.$v->kd_bidang.'.'.$v->kd_unit.'.'.$v->kd_sub;
+					$kontrak[$k]->kd_sub_unit = $kd_sub_unit;
+					if(!empty($mapping_skpd['id_mapping_simda'][$kd_sub_unit])){
+						$kontrak[$k]->skpd = $mapping_skpd['id_mapping_simda'][$kd_sub_unit];
+					}
+					$kd_urusan_asli = substr($v->id_prog, 0, 1);
+					$kd_bidang_asli = (int) substr($v->id_prog, 1);
+					$kd_keg_simda = $kd_urusan_asli.'.'.$kd_bidang_asli.'.'.$v->kd_prog.'.'.$v->kd_keg;
+					if(empty($prog_keg[$kd_keg_simda])){
+						$prog_keg[$kd_keg_simda] = array();
+						$sql = "
+							SELECT 
+								m.*
+							from ref_kegiatan_mapping m
+							where m.kd_urusan=$kd_urusan_asli
+								and m.kd_bidang=$kd_bidang_asli
+								and m.kd_prog=$v->kd_prog
+								and m.kd_keg=$v->kd_keg
+						";
+						$mapping = $this->simda->CurlSimda(array(
+							'query' => $sql,
+							'debug' => 1
+						));
+						$kd_urusan_sipd = $mapping[0]->kd_urusan90;
+						$kd_bidang_sipd = $mapping[0]->kd_bidang90;
+						if($mapping[0]->kd_program90 == 1){
+							$kd_urusan_sipd = 'X';
+							$kd_bidang_sipd = 'XX';
+						}
+						$kode_sub = $kd_urusan_sipd.'.'.$this->simda->CekNull($kd_bidang_sipd).'.'.$this->simda->CekNull($mapping[0]->kd_program90).'.'.$mapping[0]->kd_kegiatan90.'.'.$this->simda->CekNull($mapping[0]->kd_sub_kegiatan);
+						$sub = $wpdb->get_results($wpdb->prepare("
+							select
+								*
+							from data_prog_keg
+							where tahun_anggaran=%d
+								and kode_sub_giat=%s
+						", $tahun_anggaran, $kode_sub), ARRAY_A);
+
+						$sub[0]['nama_program'] = explode(' ', $sub[0]['nama_program']);
+						unset($sub[0]['nama_program'][0]);
+						$sub[0]['nama_program'] = implode(' ', $sub[0]['nama_program']);
+
+						$sub[0]['nama_giat'] = explode(' ', $sub[0]['nama_giat']);
+						unset($sub[0]['nama_giat'][0]);
+						$sub[0]['nama_giat'] = implode(' ', $sub[0]['nama_giat']);
+
+						$sub[0]['nama_sub_giat'] = explode(' ', $sub[0]['nama_sub_giat']);
+						unset($sub[0]['nama_sub_giat'][0]);
+						$sub[0]['nama_sub_giat'] = implode(' ', $sub[0]['nama_sub_giat']);
+
+						$prog_keg[$kd_keg_simda]['nama_program'] = $sub[0]['nama_program'];
+						$prog_keg[$kd_keg_simda]['nama_giat'] = $sub[0]['nama_giat'];
+						$prog_keg[$kd_keg_simda]['nama_sub_giat'] = $sub[0]['nama_sub_giat'];
+						if(!empty($program_mapping[$sub[0]['nama_program']])){
+							$prog_keg[$kd_keg_simda]['nama_program'] = $program_mapping[$sub[0]['nama_program']];
+						}
+						if(!empty($keg_mapping[$sub[0]['nama_giat']])){
+							$prog_keg[$kd_keg_simda]['nama_giat'] = $keg_mapping[$sub[0]['nama_giat']];
+						}
+						if(!empty($subkeg_mapping[$sub[0]['nama_sub_giat']])){
+							$prog_keg[$kd_keg_simda]['nama_sub_giat'] = $subkeg_mapping[$sub[0]['nama_sub_giat']];
+						}
+					}
+					$kontrak[$k]->detail = $prog_keg[$kd_keg_simda];
+				}
+				$ret['data'] = $kontrak;
 			} else {
 				$ret['status'] = 'error';
 				$ret['message'] = 'APIKEY tidak sesuai!';
@@ -14087,5 +14234,45 @@ class Wpsipd_Public
 			);
 		}
 		die(json_encode($return));
+	}
+
+	public function get_kontrak_addendum(){
+		global $wpdb;
+		$ret = array(
+			'action'	=> $_POST['action'],
+			'data'	=> array()
+		);
+		if (!empty($_POST)) {
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+				$tahun_anggaran = $_POST['tahun_anggaran'];
+				$sql = $wpdb->prepare("
+					SELECT 
+						s.*
+					from ta_kontrak_addendum s
+					where s.tahun=%d
+						and s.no_kontrak=%s
+					", 
+					$tahun_anggaran,
+					$_POST['no_kontrak']
+				);
+				$ret['sql'] = $sql;
+				$kontrak = $this->simda->CurlSimda(array(
+					'query' => $sql,
+					'debug' => 1
+				));
+				$ret['data'] = $kontrak;
+			}else{
+				$ret = array(
+					'status' => 'error',
+					'message'	=> 'Api Key tidak sesuai!'
+				);
+			}
+		}else{
+			$ret = array(
+				'status' => 'error',
+				'message'	=> 'Format tidak sesuai!'
+			);
+		}
+		die(json_encode($ret));
 	}
 }
