@@ -39,7 +39,12 @@ class Wpsipd_Simda
 		$this->plugin_name = $plugin_name;
 		$this->version = $version;
 		$this->opsi_nilai_rincian = get_option( '_crb_simda_pagu' );
-		$this->status_koneksi_simda = true;
+		$simda = get_option( '_crb_singkron_simda' );
+		if($simda == 1){
+			$this->status_koneksi_simda = true;
+		}else{
+			$this->status_koneksi_simda = false;
+		}
 		$this->custom_mapping = $this->get_custom_mapping_sub_keg();
 	}
 
