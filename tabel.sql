@@ -2379,7 +2379,8 @@ CREATE TABLE `data_jadwal_lokal` (
   `waktu_awal` datetime DEFAULT NULL,
   `waktu_akhir` datetime DEFAULT NULL,
   `status` int(11) NOT NULL DEFAULT '0',
-  `tahun_anggaran` year(4) NOT NULL DEFAULT '2022'
+  `tahun_anggaran` year(4) NOT NULL DEFAULT '2022',
+  `id_tipe` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 --
@@ -2809,4 +2810,38 @@ ALTER TABLE `data_mapping_sumberdana_history`
 -- AUTO_INCREMENT for table `data_mapping_sumberdana_history`
 --
 ALTER TABLE `data_mapping_sumberdana_history`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- Table structure for table `data_tipe_perencanaan`
+--
+
+CREATE TABLE `data_tipe_perencanaan` (
+  `id` int(11) NOT NULL,
+  `nama_tipe` varchar(64) NOT NULL,
+  `keterangan_tipe` text NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+--
+-- Dumping data for table `data_tipe_perencanaan`
+--
+
+INSERT INTO `data_tipe_perencanaan` (`id`, `nama_tipe`, `keterangan_tipe`) VALUES
+(1, 'rpjpd\r\n', ''),
+(2, 'rpjm', ''),
+(3, 'rpd', ''),
+(4, 'renstra', ''),
+(5, 'renja', ''),
+(6, 'penganggaran', '');
+
+--
+-- Indexes for table `data_tipe_perencanaan`
+--
+ALTER TABLE `data_tipe_perencanaan`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- AUTO_INCREMENT for table `data_tipe_perencanaan`
+--
+ALTER TABLE `data_tipe_perencanaan`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;

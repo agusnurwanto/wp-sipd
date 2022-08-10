@@ -8,6 +8,13 @@ $input = shortcode_atts( array(
 	'tahun_anggaran' => '2022'
 ), $atts );
 
+if($tipe_perencanaan == 'renja'){
+	$judul = 'Renja';
+}else{
+	$tipe_perencanaan = 'penganggaran';
+	$judul = 'Penganggaran';
+}
+
 global $wpdb;
 $tahun = $wpdb->get_results('select tahun_anggaran from data_unit group by tahun_anggaran order by tahun_anggaran ASC', ARRAY_A);
 $select_tahun = "<option value=''>Pilih berdasarkan tahun anggaran</option>";
@@ -32,7 +39,7 @@ $body = '';
 <div class="cetak">
 	<div style="padding: 10px;margin:0 0 3rem 0;">
 		<input type="hidden" value="<?php echo get_option( '_crb_api_key_extension' ); ?>" id="api_key">
-		<h1 class="text-center" style="margin:3rem;">Halaman Setting Penjadwalan  <?php echo $input['tahun_anggaran']; ?></h1>
+		<h1 class="text-center" style="margin:3rem;">Halaman Setting Penjadwalan <?php echo $judul; ?>  <?php echo $input['tahun_anggaran']; ?></h1>
 		<div style="margin-bottom: 25px;">
 			<button class="btn btn-primary tambah_ssh" onclick="tambah_jadwal();">Tambah Jadwal</button>
 		</div>
@@ -85,11 +92,12 @@ $body = '';
 <script>
 	jQuery(document).ready(function(){
 		globalThis.tahun_anggaran = <?php echo $input['tahun_anggaran']; ?>;
+		globalThis.tipe_perencanaan = '<?php echo $tipe_perencanaan; ?>';
 
 		get_data_penjadwalan();
 
-		let html_filter = "<select class='ml-3 bulk-action' id='selectYears'><?php echo $select_tahun ?></select>"
-		jQuery("#data_penjadwalan_table_length").append(html_filter);
+		// let html_filter = "<select class='ml-3 bulk-action' id='selectYears'><?php echo $select_tahun ?></select>"
+		// jQuery("#data_penjadwalan_table_length").append(html_filter);
 
 		jQuery('#selectYears').on('change', function(e){
 			let selectedVal = jQuery(this).find('option:selected').val();
@@ -115,7 +123,8 @@ $body = '';
 				data:{
 					'action' 		: "get_data_penjadwalan",
 					'api_key' 		: jQuery("#api_key").val(),
-					'tahun_anggaran': tahun_anggaran
+					'tahun_anggaran': tahun_anggaran,
+					'tipe_perencanaan' : tipe_perencanaan
 				}
 			},
 			"initComplete":function( settings, json){
@@ -176,12 +185,13 @@ $body = '';
 				type: 'post',
 				dataType: 'json',
 				data:{
-					'action'		: 'submit_add_schedule',
-					'api_key'		: jQuery("#api_key").val(),
-					'nama'			: nama,
-					'jadwal_mulai'	: jadwalMulai,
-					'jadwal_selesai': jadwalSelesai,
-					'tahun_anggaran': tahun_anggaran
+					'action'			: 'submit_add_schedule',
+					'api_key'			: jQuery("#api_key").val(),
+					'nama'				: nama,
+					'jadwal_mulai'		: jadwalMulai,
+					'jadwal_selesai'	: jadwalSelesai,
+					'tahun_anggaran'	: tahun_anggaran,
+					'tipe_perencanaan'	: tipe_perencanaan
 				},
 				beforeSend: function() {
 					jQuery('.submitBtn').attr('disabled','disabled')
@@ -242,12 +252,13 @@ $body = '';
 				type: 'post',
 				dataType: 'json',
 				data:{
-					'action'		: 'submit_edit_schedule',
-					'api_key'		: jQuery("#api_key").val(),
-					'nama'			: nama,
-					'jadwal_mulai'	: jadwalMulai,
-					'jadwal_selesai': jadwalSelesai,
-					'id_jadwal_lokal': id_jadwal_lokal
+					'action'			: 'submit_edit_schedule',
+					'api_key'			: jQuery("#api_key").val(),
+					'nama'				: nama,
+					'jadwal_mulai'		: jadwalMulai,
+					'jadwal_selesai'	: jadwalSelesai,
+					'id_jadwal_lokal'	: id_jadwal_lokal,
+					'tipe_perencanaan'	: tipe_perencanaan
 				},
 				beforeSend: function() {
 					jQuery('.submitBtn').attr('disabled','disabled')

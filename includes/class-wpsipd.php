@@ -496,6 +496,7 @@ class Wpsipd
 		add_shortcode('monitoring_spd_rinci', array($plugin_public, 'monitoring_spd_rinci'));
 		add_shortcode('setting_penjadwalan', array($plugin_public, 'setting_penjadwalan'));
 		add_shortcode('input_rpjm', array($plugin_public, 'input_rpjm'));
+		add_shortcode('jadwal_renja', array($plugin_public, 'jadwal_renja'));
 	}
 
 	/**

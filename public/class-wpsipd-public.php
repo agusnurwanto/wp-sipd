@@ -436,7 +436,7 @@ class Wpsipd_Public
 		die(json_encode($ret));
 	}
 
-	public function get_spm(){
+		public function get_spm(){
 		global $wpdb;
 		$ret = array(
 			'action'	=> $_POST['action'],
@@ -11057,6 +11057,17 @@ class Wpsipd_Public
 		require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/wpsipd-public-data-ssh.php';
 	}
 
+	public function jadwal_renja($atts){
+		// untuk disable render shortcode di halaman edit page/post
+		if(!empty($_GET) && !empty($_GET['post'])){
+			return '';
+		}
+
+		$tipe_perencanaan = 'renja';
+
+		require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/wpsipd-public-setting-penjadwalan.php';
+	}
+
 	public function get_data_ssh_sipd(){
 		global $wpdb;
 		$return = array(
@@ -13577,65 +13588,81 @@ class Wpsipd_Public
 
 		if(!empty($_POST)){
 			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
-				$params = $columns = $totalRecords = $data = array();
-				$params = $_REQUEST;
-				$columns = array( 
-					0 => 'id_jadwal_lokal',
-					1 => 'nama', 
-					2 => 'waktu_awal',
-					3 => 'waktu_akhir',
-					4 => 'status',
-					5 => 'tahun_anggaran'
-				);
-				$where = $sqlTot = $sqlRec = "";
+				if(!empty($_POST['tahun_anggaran']) && !empty($_POST['tipe_perencanaan'])){
+					$params = $columns = $totalRecords = $data = array();
+					$params = $_REQUEST;
+					$columns = array(
+						0 => 'id_jadwal_lokal',
+						1 => 'nama',
+						2 => 'waktu_awal',
+						3 => 'waktu_akhir',
+						4 => 'status',
+						5 => 'tahun_anggaran'
+					);
+					$where = $sqlTot = $sqlRec = "";
 
-				// check search value exist
-				if( !empty($params['search']['value']) ) {
-					$where .=" AND ( nama LIKE ".$wpdb->prepare('%s', "%".$params['search']['value']."%");    
-					$where .=" OR waktu_awal LIKE ".$wpdb->prepare('%s', "%".$params['search']['value']."%");
-					$where .=" OR waktu_akhir LIKE ".$wpdb->prepare('%s', "%".$params['search']['value']."%");
-				}
-
-				// getting total number records without any search
-				$sqlTot = "SELECT count(*) as jml FROM `data_jadwal_lokal` WHERE tahun_anggaran=".$wpdb->prepare('%d', $_POST['tahun_anggaran']);
-				$sqlRec = "SELECT ".implode(', ', $columns)." FROM `data_jadwal_lokal` WHERE tahun_anggaran=".$wpdb->prepare('%d', $_POST['tahun_anggaran']);
-				if(isset($where) && $where != '') {
-					$sqlTot .= $where;
-					$sqlRec .= $where;
-				}
-
-			 	$sqlRec .=  " ORDER BY ". $columns[$params['order'][0]['column']]."   ".$params['order'][0]['dir']."  LIMIT ".$params['start']." ,".$params['length']." ";
-
-				$queryTot = $wpdb->get_results($sqlTot, ARRAY_A);
-				$totalRecords = $queryTot[0]['jml'];
-				$queryRecords = $wpdb->get_results($sqlRec, ARRAY_A);
-
-				foreach($queryRecords as $recKey => $recVal){
-					if($recVal['status'] == 1){
-						$lock	= '<a class="btn btn-success disabled" href="#" onclick="return cannot_change_schedule(\'kunci\');" title="Kunci data penjadwalan" aria-disabled="true"><i class="dashicons dashicons-lock"></i></a>';
-						$edit	= '';
-						$delete	= '';
-					}else{
-						$lock	= '<a class="btn btn-success mr-2" href="#" onclick="return lock_data_penjadwalan(\''.$recVal['id_jadwal_lokal'].'\');" title="Kunci data penjadwalan"><i class="dashicons dashicons-unlock"></i></a>';
-						$edit	= '<a class="btn btn-warning mr-2" href="#" onclick="return edit_data_penjadwalan(\''.$recVal['id_jadwal_lokal'].'\');" title="Edit data penjadwalan"><i class="dashicons dashicons-edit"></i></a>';
-						$delete	= '<a class="btn btn-danger" href="#" onclick="return hapus_data_penjadwalan(\''.$recVal['id_jadwal_lokal'].'\');" title="Hapus data penjadwalan"><i class="dashicons dashicons-trash"></i></a>';
+					// check search value exist
+					if( !empty($params['search']['value']) ) {
+						$where .=" AND ( nama LIKE ".$wpdb->prepare('%s', "%".$params['search']['value']."%");   
+						$where .=" OR waktu_awal LIKE ".$wpdb->prepare('%s', "%".$params['search']['value']."%");
+						$where .=" OR waktu_akhir LIKE ".$wpdb->prepare('%s', "%".$params['search']['value']."%");
 					}
+
+					/** Search id tipe */
+					$tipe_perencanaan = $_POST['tipe_perencanaan'];
+					if(!empty($tipe_perencanaan)){
+						$sqlTipe = $wpdb->get_results("SELECT * FROM `data_tipe_perencanaan` WHERE nama_tipe='".$tipe_perencanaan."'", ARRAY_A);
+						if(!empty($sqlTipe)){
+							$where .=" AND id_tipe = ".$sqlTipe[0]['id'];
+						}
+					}
+
+					// getting total number records without any search
+					$sqlTot = "SELECT count(*) as jml FROM `data_jadwal_lokal` WHERE tahun_anggaran=".$wpdb->prepare('%d', $_POST['tahun_anggaran']);
+					$sqlRec = "SELECT ".implode(', ', $columns)." FROM `data_jadwal_lokal` WHERE tahun_anggaran=".$wpdb->prepare('%d', $_POST['tahun_anggaran']);
+					if(isset($where) && $where != '') {
+						$sqlTot .= $where;
+						$sqlRec .= $where;
+					}
+
+					$sqlRec .=  " ORDER BY ". $columns[$params['order'][0]['column']]."   ".$params['order'][0]['dir']."  LIMIT ".$params['start']." ,".$params['length']." ";
+
+					$queryTot = $wpdb->get_results($sqlTot, ARRAY_A);
+					$totalRecords = $queryTot[0]['jml'];
+					$queryRecords = $wpdb->get_results($sqlRec, ARRAY_A);
+
+					foreach($queryRecords as $recKey => $recVal){
+						if($recVal['status'] == 1){
+							$lock	= '<a class="btn btn-success disabled" href="#" onclick="return cannot_change_schedule(\'kunci\');" title="Kunci data penjadwalan" aria-disabled="true"><i class="dashicons dashicons-lock"></i></a>';
+							$edit	= '';
+							$delete	= '';
+						}else{
+							$lock	= '<a class="btn btn-success mr-2" href="#" onclick="return lock_data_penjadwalan(\''.$recVal['id_jadwal_lokal'].'\');" title="Kunci data penjadwalan"><i class="dashicons dashicons-unlock"></i></a>';
+							$edit	= '<a class="btn btn-warning mr-2" href="#" onclick="return edit_data_penjadwalan(\''.$recVal['id_jadwal_lokal'].'\');" title="Edit data penjadwalan"><i class="dashicons dashicons-edit"></i></a>';
+							$delete	= '<a class="btn btn-danger" href="#" onclick="return hapus_data_penjadwalan(\''.$recVal['id_jadwal_lokal'].'\');" title="Hapus data penjadwalan"><i class="dashicons dashicons-trash"></i></a>';
+						}
 					
-					$queryRecords[$recKey]['waktu_awal']	= date('d-m-Y H:i', strtotime($recVal['waktu_awal']));
-					$queryRecords[$recKey]['waktu_akhir']	= date('d-m-Y H:i', strtotime($recVal['waktu_akhir']));
-					$queryRecords[$recKey]['aksi'] = $lock.$edit.$delete;
-					$queryRecords[$recKey]['nama'] = ucfirst($recVal['nama']);
-					$queryRecords[$recKey]['status'] = $recVal['status'] == 1 ? 'dikunci' : 'terbuka';
+						$queryRecords[$recKey]['waktu_awal']	= date('d-m-Y H:i', strtotime($recVal['waktu_awal']));
+						$queryRecords[$recKey]['waktu_akhir']	= date('d-m-Y H:i', strtotime($recVal['waktu_akhir']));
+						$queryRecords[$recKey]['aksi'] = $lock.$edit.$delete;
+						$queryRecords[$recKey]['nama'] = ucfirst($recVal['nama']);
+						$queryRecords[$recKey]['status'] = $recVal['status'] == 1 ? 'dikunci' : 'terbuka';
+					}
+
+					$json_data = array(
+						"draw"            => intval( $params['draw'] ),  
+						"recordsTotal"    => intval( $totalRecords ), 
+						"recordsFiltered" => intval( $totalRecords ),
+						"data"            => $queryRecords
+					);
+
+					die(json_encode($json_data));
+				}else{
+					$return = array(
+						'status' => 'error',
+						'message'	=> 'Harap diisi semua,tidak boleh ada yang kosong!'
+					);
 				}
-
-				$json_data = array(
-					"draw"            => intval( $params['draw'] ),   
-					"recordsTotal"    => intval( $totalRecords ),  
-					"recordsFiltered" => intval( $totalRecords ),
-					"data"            => $queryRecords
-				);
-
-				die(json_encode($json_data));
 			}else{
 				$return = array(
 					'status' => 'error',
@@ -13664,21 +13691,41 @@ class Wpsipd_Public
 		if(!empty($_POST)){
 			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
 				if(in_array("administrator", $user_meta->roles)){
-					if(!empty($_POST['nama']) && !empty($_POST['jadwal_mulai']) && !empty($_POST['jadwal_selesai']) && !empty($_POST['tahun_anggaran'])){
-						$nama			= trim(htmlspecialchars($_POST['nama']));
-						$jadwal_mulai	= trim(htmlspecialchars($_POST['jadwal_mulai']));
-						$jadwal_mulai	= date('Y-m-d H:i:s', strtotime($jadwal_mulai));
-						$jadwal_selesai	= trim(htmlspecialchars($_POST['jadwal_selesai']));
-						$jadwal_selesai	= date('Y-m-d H:i:s', strtotime($jadwal_selesai));
-						$tahun_anggaran	= trim(htmlspecialchars($_POST['tahun_anggaran']));
+					if(!empty($_POST['nama']) && !empty($_POST['jadwal_mulai']) && !empty($_POST['jadwal_selesai']) && !empty($_POST['tahun_anggaran']) && !empty($_POST['tipe_perencanaan'])){
+						$nama				= trim(htmlspecialchars($_POST['nama']));
+						$jadwal_mulai		= trim(htmlspecialchars($_POST['jadwal_mulai']));
+						$jadwal_mulai		= date('Y-m-d H:i:s', strtotime($jadwal_mulai));
+						$jadwal_selesai		= trim(htmlspecialchars($_POST['jadwal_selesai']));
+						$jadwal_selesai		= date('Y-m-d H:i:s', strtotime($jadwal_selesai));
+						$tahun_anggaran		= trim(htmlspecialchars($_POST['tahun_anggaran']));
+						$tipe_perencanaan	= trim(htmlspecialchars($_POST['tipe_perencanaan']));
+
+						$id_tipe = 0;
+						if(!empty($tipe_perencanaan)){
+							$sqlTipe = $wpdb->get_results("SELECT * FROM `data_tipe_perencanaan` WHERE nama_tipe='".$tipe_perencanaan."'", ARRAY_A);
+							if(!empty($sqlTipe)){
+								$id_tipe = $sqlTipe[0]['id'];
+
+								$sqlSameTipe = $wpdb->get_results("SELECT * FROM `data_jadwal_lokal` WHERE id_tipe='".$id_tipe."'", ARRAY_A);
+								foreach($sqlSameTipe as $valTipe){
+									if($jadwal_mulai > $valTipe['waktu_awal'] && $jadwal_mulai < $valTipe['waktu_akhir'] || $jadwal_selesai > $valTipe['waktu_awal'] && $jadwal_selesai < $valTipe['waktu_akhir']){
+										$return = array(
+												'status' => 'error',
+												'message'	=> 'Waktu sudah dipakai jadwal lain!'
+										);
+										die(json_encode($return));
+									}
+								}
+							}
+						}
 
 						//insert data penjadwalan
 						$data_jadwal = array(
-							'nama' 			=> $nama,
-							'waktu_awal'	=> $jadwal_mulai,
-							'waktu_akhir'	=> $jadwal_selesai,
-							'tahun_anggaran'=> $tahun_anggaran,
-							'status'		=> 0
+							'nama' 				=> $nama,
+							'waktu_awal'		=> $jadwal_mulai,
+							'waktu_akhir'		=> $jadwal_selesai,
+							'tahun_anggaran'	=> $tahun_anggaran,
+							'status'			=> 0
 						);
 
 						$wpdb->insert('data_jadwal_lokal',$data_jadwal);
