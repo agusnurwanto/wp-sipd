@@ -611,8 +611,10 @@ class Wpsipd_Public
 				}
 				$sql = $wpdb->prepare("
 					SELECT 
-						s.*
+						s.*,
+						t.*
 					from ta_spp s
+						left join ta_tagihan t on s.no_tagihan=t.no_tagihan
 					where s.tahun=%d
 						and s.no_tagihan is not null
 						and s.kd_urusan in (".implode(',', $kd_urusan).")
