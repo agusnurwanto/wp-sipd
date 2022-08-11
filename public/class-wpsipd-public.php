@@ -14110,7 +14110,7 @@ class Wpsipd_Public
 		
 									$sql_backup_data_rka =  "INSERT INTO data_rka_history (".implode(', ', $columns_1).",id_data_rka,id_local_schedule)
 												SELECT ".implode(', ', $columns_1).",id as id_data_rka,".$data_this_id[0]['id_jadwal_lokal']."
-												FROM data_rka";
+												FROM data_rka WHERE tahun_anggaran='".$data_this_id[0]['tahun_anggaran']."'";
 
 									$queryRecords1 = $wpdb->query($sql_backup_data_rka);
 
@@ -14118,7 +14118,7 @@ class Wpsipd_Public
 
 									$sql_backup_data_sub_keg_bl =  "INSERT INTO data_sub_keg_bl_history (".implode(', ', $columns_2).",id_data_sub_keg_bl,id_local_schedule)
 												SELECT ".implode(', ', $columns_2).",id as id_data_sub_keg_bl,".$data_this_id[0]['id_jadwal_lokal']."
-												FROM data_sub_keg_bl";
+												FROM data_sub_keg_bl WHERE tahun_anggaran='".$data_this_id[0]['tahun_anggaran']."'";
 
 									$queryRecords2 = $wpdb->query($sql_backup_data_sub_keg_bl);
 
@@ -14126,7 +14126,7 @@ class Wpsipd_Public
 
 									$sql_backup_data_sub_keg_indikator =  "INSERT INTO data_sub_keg_indikator_history (".implode(', ', $oclumns_3).",id_data_sub_keg_indikator,id_local_schedule)
 												SELECT ".implode(', ', $oclumns_3).",id as id_data_sub_keg_indikator,".$data_this_id[0]['id_jadwal_lokal']."
-												FROM data_sub_keg_indikator";
+												FROM data_sub_keg_indikator WHERE tahun_anggaran='".$data_this_id[0]['tahun_anggaran']."'";
 
 									$queryRecords3 = $wpdb->query($sql_backup_data_sub_keg_indikator);
 
@@ -14134,7 +14134,7 @@ class Wpsipd_Public
 
 									$sql_backup_data_keg_indikator_hasil =  "INSERT INTO data_keg_indikator_hasil_history (".implode(', ', $oclumns_4).",id_data_keg_indikator_hasil,id_local_schedule)
 												SELECT ".implode(', ', $oclumns_4).",id as id_data_keg_indikator_hasil,".$data_this_id[0]['id_jadwal_lokal']."
-												FROM data_keg_indikator_hasil";
+												FROM data_keg_indikator_hasil WHERE tahun_anggaran='".$data_this_id[0]['tahun_anggaran']."'";
 
 									$queryRecords4 = $wpdb->query($sql_backup_data_keg_indikator_hasil);
 
@@ -14142,7 +14142,7 @@ class Wpsipd_Public
 
 									$sql_backup_data_tag_sub_keg =  "INSERT INTO data_tag_sub_keg_history (".implode(', ', $oclumns_5).",id_data_tag_sub_keg,id_local_schedule)
 												SELECT ".implode(', ', $oclumns_5).",id as id_data_tag_sub_keg,".$data_this_id[0]['id_jadwal_lokal']."
-												FROM data_tag_sub_keg";
+												FROM data_tag_sub_keg WHERE tahun_anggaran='".$data_this_id[0]['tahun_anggaran']."'";
 
 									$queryRecords5 = $wpdb->query($sql_backup_data_tag_sub_keg);
 
@@ -14150,7 +14150,7 @@ class Wpsipd_Public
 
 									$sql_backup_data_capaian_prog_sub_keg =  "INSERT INTO data_capaian_prog_sub_keg_history (".implode(', ', $oclumns_6).",id_data_capaian_prog_sub_keg,id_local_schedule)
 												SELECT ".implode(', ', $oclumns_6).",id as id_data_capaian_prog_sub_keg,".$data_this_id[0]['id_jadwal_lokal']."
-												FROM data_capaian_prog_sub_keg";
+												FROM data_capaian_prog_sub_keg WHERE tahun_anggaran='".$data_this_id[0]['tahun_anggaran']."'";
 
 									$queryRecords6 = $wpdb->query($sql_backup_data_capaian_prog_sub_keg);
 
@@ -14158,7 +14158,7 @@ class Wpsipd_Public
 
 									$sql_backup_data_output_giat_sub_keg =  "INSERT INTO data_output_giat_sub_keg_history (".implode(', ', $oclumns_7).",id_data_output_giat_sub_keg,id_local_schedule)
 												SELECT ".implode(', ', $oclumns_7).",id as id_data_output_giat_sub_keg,".$data_this_id[0]['id_jadwal_lokal']."
-												FROM data_output_giat_sub_keg";
+												FROM data_output_giat_sub_keg WHERE tahun_anggaran='".$data_this_id[0]['tahun_anggaran']."'";
 
 									$queryRecords7 = $wpdb->query($sql_backup_data_output_giat_sub_keg);
 
@@ -14166,7 +14166,7 @@ class Wpsipd_Public
 
 									$sql_backup_data_dana_sub_keg =  "INSERT INTO data_dana_sub_keg_history (".implode(', ', $oclumns_8).",id_data_dana_sub_keg,id_local_schedule)
 												SELECT ".implode(', ', $oclumns_8).",id as id_data_dana_sub_keg,".$data_this_id[0]['id_jadwal_lokal']."
-												FROM data_dana_sub_keg";
+												FROM data_dana_sub_keg WHERE tahun_anggaran='".$data_this_id[0]['tahun_anggaran']."'";
 
 									$queryRecords8 = $wpdb->query($sql_backup_data_dana_sub_keg);
 
@@ -14174,7 +14174,7 @@ class Wpsipd_Public
 
 									$sql_backup_data_lokasi_sub_keg =  "INSERT INTO data_lokasi_sub_keg_history (".implode(', ', $oclumns_9).",id_data_lokasi_sub_keg,id_local_schedule)
 												SELECT ".implode(', ', $oclumns_9).",id as id_data_lokasi_sub_keg,".$data_this_id[0]['id_jadwal_lokal']."
-												FROM data_lokasi_sub_keg";
+												FROM data_lokasi_sub_keg WHERE tahun_anggaran='".$data_this_id[0]['tahun_anggaran']."'";
 
 									$queryRecords9 = $wpdb->query($sql_backup_data_lokasi_sub_keg);
 
@@ -14182,7 +14182,7 @@ class Wpsipd_Public
 
 									$sql_backup_data_mapping_sumberdana =  "INSERT INTO data_mapping_sumberdana_history (".implode(', ', $oclumns_10).",id_data_mapping_sumberdana,id_local_schedule)
 												SELECT ".implode(', ', $oclumns_10).",id as id_data_mapping_sumberdana,".$data_this_id[0]['id_jadwal_lokal']."
-												FROM data_mapping_sumberdana";
+												FROM data_mapping_sumberdana WHERE tahun_anggaran='".$data_this_id[0]['tahun_anggaran']."'";
 
 									$queryRecords10 = $wpdb->query($sql_backup_data_mapping_sumberdana);
 

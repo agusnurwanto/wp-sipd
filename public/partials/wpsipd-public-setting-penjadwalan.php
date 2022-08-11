@@ -8,8 +8,13 @@ $input = shortcode_atts( array(
 	'tahun_anggaran' => '2022'
 ), $atts );
 
-if($tipe_perencanaan == 'renja'){
-	$judul = 'Renja';
+if(isset($tipe_perencanaan)){
+	if($tipe_perencanaan == 'renja'){
+		$judul = 'Renja';
+	}else{
+		$tipe_perencanaan = 'penganggaran';
+		$judul = 'Penganggaran';
+	}
 }else{
 	$tipe_perencanaan = 'penganggaran';
 	$judul = 'Penganggaran';
@@ -281,6 +286,7 @@ $body = '';
 	function hapus_data_penjadwalan(id_jadwal_lokal){
 		let confirmDelete = confirm("Apakah anda yakin akan menghapus penjadwalan?");
 		if(confirmDelete){
+			jQuery('#wrap-loading').show();
 			jQuery.ajax({
 				url: "<?php echo admin_url('admin-ajax.php'); ?>",
 				type:'post',
@@ -296,6 +302,7 @@ $body = '';
 					}else{
 						alert(`GAGAL! \n${response.message}`);
 					}
+					jQuery('#wrap-loading').hide();
 					penjadwalanTable.ajax.reload();	
 				}
 			});
@@ -305,6 +312,7 @@ $body = '';
 	function lock_data_penjadwalan(id_jadwal_lokal){
 		let confirmLocked = confirm("Apakah anda yakin akan mengunci penjadwalan?");
 		if(confirmLocked){
+			jQuery('#wrap-loading').show();
 			jQuery.ajax({
 				url: "<?php echo admin_url('admin-ajax.php'); ?>",
 				type:'post',
@@ -320,6 +328,7 @@ $body = '';
 					}else{
 						alert(`GAGAL! \n${response.message}`);
 					}
+					jQuery('#wrap-loading').hide();
 					penjadwalanTable.ajax.reload();	
 				}
 			});

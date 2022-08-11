@@ -2827,7 +2827,7 @@ CREATE TABLE `data_tipe_perencanaan` (
 --
 
 INSERT INTO `data_tipe_perencanaan` (`id`, `nama_tipe`, `keterangan_tipe`) VALUES
-(1, 'rpjpd\r\n', ''),
+(1, 'rpjpd', ''),
 (2, 'rpjm', ''),
 (3, 'rpd', ''),
 (4, 'renstra', ''),
