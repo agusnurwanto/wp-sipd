@@ -180,6 +180,7 @@ $body = '';
 		let nama = jQuery('#jadwal_nama').val()
 		let jadwalMulai = jQuery("#jadwal_tanggal").data('daterangepicker').startDate.format('YYYY-MM-DD HH:mm:ss')
 		let jadwalSelesai = jQuery("#jadwal_tanggal").data('daterangepicker').endDate.format('YYYY-MM-DD HH:mm:ss')
+		let this_tahun_anggaran = jQuery("#jadwal_tanggal").data('daterangepicker').startDate.format('YYYY')
 		if(nama.trim() == '' || jadwalMulai == '' || jadwalSelesai == ''){
 			jQuery("#wrap-loading").hide()
 			alert("Ada yang kosong, Harap diisi semua")
@@ -195,21 +196,21 @@ $body = '';
 					'nama'				: nama,
 					'jadwal_mulai'		: jadwalMulai,
 					'jadwal_selesai'	: jadwalSelesai,
-					'tahun_anggaran'	: tahun_anggaran,
+					'tahun_anggaran'	: this_tahun_anggaran,
 					'tipe_perencanaan'	: tipe_perencanaan
 				},
 				beforeSend: function() {
 					jQuery('.submitBtn').attr('disabled','disabled')
 				},
 				success: function(response){
+					jQuery('#modalTambahJadwal').modal('hide')
+					jQuery('#wrap-loading').hide()
 					if(response.status == 'success'){
 						alert('Data berhasil ditambahkan')
+						penjadwalanTable.ajax.reload()
 					}else{
 						alert(response.message)
 					}
-					jQuery('#modalTambahJadwal').modal('hide')
-					jQuery('#wrap-loading').hide()
-					penjadwalanTable.ajax.reload()
 				}
 			})
 		}
@@ -269,14 +270,14 @@ $body = '';
 					jQuery('.submitBtn').attr('disabled','disabled')
 				},
 				success: function(response){
+					jQuery('#modalTambahJadwal').modal('hide')
+					jQuery('#wrap-loading').hide()
 					if(response.status == 'success'){
 						alert('Data berhasil diperbarui')
+						penjadwalanTable.ajax.reload()
 					}else{
 						alert(`GAGAL! \n${response.message}`)
 					}
-					jQuery('#modalTambahJadwal').modal('hide')
-					jQuery('#wrap-loading').hide()
-					penjadwalanTable.ajax.reload()
 				}
 			})
 		}
@@ -297,13 +298,13 @@ $body = '';
 				},
 				dataType: 'json',
 				success:function(response){
+					jQuery('#wrap-loading').hide();
 					if(response.status == 'success'){
 						alert('Data berhasil dihapus!.');
+						penjadwalanTable.ajax.reload();	
 					}else{
 						alert(`GAGAL! \n${response.message}`);
 					}
-					jQuery('#wrap-loading').hide();
-					penjadwalanTable.ajax.reload();	
 				}
 			});
 		}
@@ -323,13 +324,13 @@ $body = '';
 				},
 				dataType: 'json',
 				success:function(response){
+					jQuery('#wrap-loading').hide();
 					if(response.status == 'success'){
 						alert('Data berhasil dikunci!.');
+						penjadwalanTable.ajax.reload();	
 					}else{
 						alert(`GAGAL! \n${response.message}`);
 					}
-					jQuery('#wrap-loading').hide();
-					penjadwalanTable.ajax.reload();	
 				}
 			});
 		}

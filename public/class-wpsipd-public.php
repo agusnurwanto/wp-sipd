@@ -13848,40 +13848,52 @@ class Wpsipd_Public
 						$tipe_perencanaan	= trim(htmlspecialchars($_POST['tipe_perencanaan']));
 
 						$id_tipe = 0;
-						if(!empty($tipe_perencanaan)){
-							$sqlTipe = $wpdb->get_results("SELECT * FROM `data_tipe_perencanaan` WHERE nama_tipe='".$tipe_perencanaan."'", ARRAY_A);
-							if(!empty($sqlTipe)){
-								$id_tipe = $sqlTipe[0]['id'];
+						$sqlTipe = $wpdb->get_results("SELECT * FROM `data_tipe_perencanaan` WHERE nama_tipe='".$tipe_perencanaan."'", ARRAY_A);
+						if(!empty($sqlTipe)){
+							$id_tipe = $sqlTipe[0]['id'];
 
-								$sqlSameTipe = $wpdb->get_results("SELECT * FROM `data_jadwal_lokal` WHERE id_tipe='".$id_tipe."'", ARRAY_A);
-								foreach($sqlSameTipe as $valTipe){
-									if($jadwal_mulai > $valTipe['waktu_awal'] && $jadwal_mulai < $valTipe['waktu_akhir'] || $jadwal_selesai > $valTipe['waktu_awal'] && $jadwal_selesai < $valTipe['waktu_akhir']){
-										$return = array(
-												'status' => 'error',
-												'message'	=> 'Waktu sudah dipakai jadwal lain!'
-										);
-										die(json_encode($return));
-									}
+							$sqlSameTipe = $wpdb->get_results("SELECT * FROM `data_jadwal_lokal` WHERE id_tipe='".$id_tipe."'", ARRAY_A);
+							foreach($sqlSameTipe as $valTipe){
+								if($valTipe['status'] == 0){
+									$return = array(
+										'status' => 'error',
+										'message'	=> 'Masih ada penjadwalan yang terbuka!'
+									);
+									die(json_encode($return));
+								}
+								if($jadwal_mulai > $valTipe['waktu_awal'] && $jadwal_mulai < $valTipe['waktu_akhir'] || $jadwal_selesai > $valTipe['waktu_awal'] && $jadwal_selesai < $valTipe['waktu_akhir']){
+									$return = array(
+										'status' => 'error',
+										'message'	=> 'Waktu sudah dipakai jadwal lain!'
+									);
+									die(json_encode($return));
 								}
 							}
+
+							//insert data penjadwalan
+							$data_jadwal = array(
+								'nama' 				=> $nama,
+								'waktu_awal'		=> $jadwal_mulai,
+								'waktu_akhir'		=> $jadwal_selesai,
+								'tahun_anggaran'	=> $tahun_anggaran,
+								'status'			=> 0,
+								'tahun_anggaran'	=> $tahun_anggaran,
+								'id_tipe'			=> $id_tipe
+							);
+	
+							$wpdb->insert('data_jadwal_lokal',$data_jadwal);
+							
+							$return = array(
+								'status'		=> 'success',
+								'message'		=> 'Berhasil!',
+								'data_jadwal'	=> $data_jadwal,
+							);
+						}else{
+							$return = array(
+									'status' => 'error',
+									'message'	=> 'Tipe penjadwalan tidak diketahui!'
+							);
 						}
-
-						//insert data penjadwalan
-						$data_jadwal = array(
-							'nama' 				=> $nama,
-							'waktu_awal'		=> $jadwal_mulai,
-							'waktu_akhir'		=> $jadwal_selesai,
-							'tahun_anggaran'	=> $tahun_anggaran,
-							'status'			=> 0
-						);
-
-						$wpdb->insert('data_jadwal_lokal',$data_jadwal);
-						
-						$return = array(
-							'status'		=> 'success',
-							'message'		=> 'Berhasil!',
-							'data_jadwal'	=> $data_jadwal,
-						);
 					}else{
 						$return = array(
 							'status' => 'error',
