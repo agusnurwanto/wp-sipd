@@ -4183,6 +4183,15 @@ class Wpsipd_Public
 		echo $table;
 	}
 
+	public function monitoring_sql_migrate($atts)
+	{
+		// untuk disable render shortcode di halaman edit page/post
+		if(!empty($_GET) && !empty($_GET['post'])){
+			return '';
+		}
+		require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/wpsipd-public-monitor-sql-migrate.php';
+	}
+
 	public function monitoring_spd_rinci($atts)
 	{
 		// untuk disable render shortcode di halaman edit page/post
@@ -14263,6 +14272,49 @@ class Wpsipd_Public
 					'debug' => 1
 				));
 				$ret['data'] = $kontrak;
+			}else{
+				$ret = array(
+					'status' => 'error',
+					'message'	=> 'Api Key tidak sesuai!'
+				);
+			}
+		}else{
+			$ret = array(
+				'status' => 'error',
+				'message'	=> 'Format tidak sesuai!'
+			);
+		}
+		die(json_encode($ret));
+	}
+
+	public function run_sql_migrate(){
+		global $wpdb;
+		$ret = array(
+			'status'	=> 'success',
+			'message'	=> 'Berhasil menjalankan SQL migrate!'
+		);
+		if (!empty($_POST)) {
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+				$file = basename($_POST['file']);
+				$ret['value'] = $file.' (tgl: '.date('Y-m-d H:i:s').')';
+				$path = WPSIPD_PLUGIN_PATH.'/sql-migrate/'.$file;
+				if(file_exists($path)){
+					$sql = file_get_contents($path);
+					$ret['sql'] = $sql;
+					$wpdb->hide_errors();
+					require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
+					$rows_affected = dbDelta($sql);
+					if(empty($rows_affected)){
+						$ret['status'] = 'error';
+						$ret['message'] = $wpdb->last_error;
+					}else{
+						update_option('_last_update_sql_migrate', $ret['value']);
+						$ret['message'] = implode(' | ', $rows_affected);
+					}
+				}else{
+					$ret['status'] = 'error';
+					$ret['message'] = 'File '.$file.' tidak ditemukan!';
+				}
 			}else{
 				$ret = array(
 					'status' => 'error',

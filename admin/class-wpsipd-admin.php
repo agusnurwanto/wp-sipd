@@ -287,6 +287,8 @@ class Wpsipd_Admin {
 		// $sibangda_link = $this->generate_sibangda_page();
 		// $simda_link = $this->generate_simda_page();
 		// $siencang_link = $this->generate_siencang_page();
+
+		$url_sql_migrate = $this->generatePage('Monitoring SQL migrate WP-SIPD', false, '[monitoring_sql_migrate]');
 		$sumber_dana_all = array();
 		$tahun_anggaran = get_option('_crb_tahun_anggaran_sipd');
 		if(empty($tahun_anggaran)){
@@ -382,6 +384,9 @@ class Wpsipd_Admin {
             Field::make( 'html', 'crb_generate_user_sipd_merah' )
             	->set_html( '<a id="generate_user_sipd_merah" onclick="return false;" href="#" class="button button-primary button-large">Generate User SIPD Merah By DB Lokal</a>' )
             	->set_help_text('Data user active yang ada di table data_dewan akan digenerate menjadi user wordpress.'),
+            Field::make( 'html', 'crb_sql_migrate' )
+            	->set_html( '<a target="_blank" href="'.$url_sql_migrate.'" class="button button-primary button-large">SQL Migrate WP-SIPD</a>' )
+            	->set_help_text('Status SQL migrate WP-SIPD jika ada update struktur database.'),
             /*Field::make( 'html', 'crb_siencang' )
             	->set_html( '<a target="_blank" href="'.$siencang_link.'">SIPD to SIENCANG</a> | <a href="https://github.com/ganjarnugraha/perencanaan-penganggaran" target="_blank">https://github.com/ganjarnugraha/perencanaan-penganggaran</a>' ),
             Field::make( 'html', 'crb_simda' )
