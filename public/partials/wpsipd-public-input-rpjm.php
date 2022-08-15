@@ -73,7 +73,7 @@ if(!empty($pengaturan)){
 	$akhir_rpjmd = $pengaturan[0]['akhir_rpjmd'];
 }
 $urut = $input['tahun_anggaran']-$awal_rpjmd;
-$nama_pemda = $pengaturan[0]['daerah'];
+$nama_pemda = get_option('_crb_daerah');
 
 $current_user = wp_get_current_user();
 $bulan = date('m');
@@ -91,13 +91,11 @@ $sasaran_ids = array();
 $program_ids = array();
 $skpd_filter = array();
 
-$sql = $wpdb->prepare("
+$sql = "
 	select 
 		* 
-	from data_rpjmd_visi
-	where tahun_anggaran=%d
-		and active=1
-", $input['tahun_anggaran']);
+	from data_rpjmd_visi_lokal
+";
 $visi_all = $wpdb->get_results($sql, ARRAY_A);
 foreach ($visi_all as $visi) {
 	if(empty($data_all['data'][$visi['id_visi']])){
@@ -111,11 +109,9 @@ foreach ($visi_all as $visi) {
 	$sql = $wpdb->prepare("
 		select 
 			* 
-		from data_rpjmd_misi
-		where tahun_anggaran=%d
-			and id_visi=%s
-			and active=1
-	", $input['tahun_anggaran'], $visi['id_visi']);
+		from data_rpjmd_misi_lokal
+		where id_visi=%s
+	", $visi['id_visi']);
 	$misi_all = $wpdb->get_results($sql, ARRAY_A);
 	foreach ($misi_all as $misi) {
 		if(empty($data_all['data'][$visi['id_visi']]['data'][$misi['id_misi']])){
@@ -129,11 +125,9 @@ foreach ($visi_all as $visi) {
 		$sql = $wpdb->prepare("
 			select 
 				* 
-			from data_rpjmd_tujuan
-			where tahun_anggaran=%d
-				and id_misi=%s
-				and active=1
-		", $input['tahun_anggaran'], $misi['id_misi']);
+			from data_rpjmd_tujuan_lokal
+			where id_misi=%s
+		", $misi['id_misi']);
 		$tujuan_all = $wpdb->get_results($sql, ARRAY_A);
 		foreach ($tujuan_all as $tujuan) {
 			if(empty($data_all['data'][$visi['id_visi']]['data'][$misi['id_misi']]['data'][$tujuan['id_unik']])){
@@ -147,11 +141,9 @@ foreach ($visi_all as $visi) {
 			$sql = $wpdb->prepare("
 				select 
 					* 
-				from data_rpjmd_sasaran
-				where tahun_anggaran=%d
-					and kode_tujuan=%s
-					and active=1
-			", $input['tahun_anggaran'], $tujuan['id_unik']);
+				from data_rpjmd_sasaran_lokal
+				where kode_tujuan=%s
+			", $tujuan['id_unik']);
 			$sasaran_all = $wpdb->get_results($sql, ARRAY_A);
 			foreach ($sasaran_all as $sasaran) {
 				if(empty($data_all['data'][$visi['id_visi']]['data'][$misi['id_misi']]['data'][$tujuan['id_unik']]['data'][$sasaran['id_unik']])){
@@ -165,11 +157,9 @@ foreach ($visi_all as $visi) {
 				$sql = $wpdb->prepare("
 					select 
 						* 
-					from data_rpjmd_program
-					where tahun_anggaran=%d
-						and kode_sasaran=%s
-						and active=1
-				", $input['tahun_anggaran'], $sasaran['id_unik']);
+					from data_rpjmd_program_lokal
+					where kode_sasaran=%s
+				", $sasaran['id_unik']);
 				$program_all = $wpdb->get_results($sql, ARRAY_A);
 				foreach ($program_all as $program) {
 					$program_ids[$program['id_unik']] = "'".$program['id_unik']."'";
@@ -225,14 +215,20 @@ if(empty($data_all['data']['visi_kosong']['data']['misi_kosong']['data']['tujuan
 }
 
 // select misi yang belum terselect
-$sql = $wpdb->prepare("
-	select 
-		* 
-	from data_rpjmd_misi
-	where tahun_anggaran=%d
-		and active=1
-		and id_misi not in (".implode(',', $misi_ids).")
-", $input['tahun_anggaran']);
+if(!empty($misi_ids)){
+	$sql = "
+		select 
+			* 
+		from data_rpjmd_misi_lokal
+		where id_misi not in (".implode(',', $misi_ids).")
+	";
+}else{
+	$sql = "
+		select 
+			* 
+		from data_rpjmd_misi_lokal
+	";
+}
 $misi_all_kosong = $wpdb->get_results($sql, ARRAY_A);
 foreach ($misi_all_kosong as $misi) {
 	if(empty($data_all['data']['visi_kosong']['data'][$misi['id_misi']])){
@@ -244,11 +240,9 @@ foreach ($misi_all_kosong as $misi) {
 	$sql = $wpdb->prepare("
 		select 
 			* 
-		from data_rpjmd_tujuan
-		where tahun_anggaran=%d
-			and id_misi=%s
-			and active=1
-	", $input['tahun_anggaran'], $misi['id_misi']);
+		from data_rpjmd_tujuan_lokal
+		where id_misi=%s
+	", $misi['id_misi']);
 	$tujuan_all_kosong = $wpdb->get_results($sql, ARRAY_A);
 	foreach ($tujuan_all_kosong as $tujuan) {
 		$tujuan_ids[$tujuan['id_unik']] = "'".$tujuan['id_unik']."'";
@@ -261,11 +255,9 @@ foreach ($misi_all_kosong as $misi) {
 		$sql = $wpdb->prepare("
 			select 
 				* 
-			from data_rpjmd_sasaran
-			where tahun_anggaran=%d
-				and kode_tujuan=%s
-				and active=1
-		", $input['tahun_anggaran'], $tujuan['id_unik']);
+			from data_rpjmd_sasaran_lokal
+			where kode_tujuan=%s
+		", $tujuan['id_unik']);
 		$sasaran_all = $wpdb->get_results($sql, ARRAY_A);
 		foreach ($sasaran_all as $sasaran) {
 			$sasaran_ids[$sasaran['id_unik']] = "'".$sasaran['id_unik']."'";
@@ -278,11 +270,9 @@ foreach ($misi_all_kosong as $misi) {
 			$sql = $wpdb->prepare("
 				select 
 					* 
-				from data_rpjmd_program
-				where tahun_anggaran=%d
-					and kode_sasaran=%s
-					and active=1
-			", $input['tahun_anggaran'], $sasaran['id_unik']);
+				from data_rpjmd_program_lokal
+				where kode_sasaran=%s
+			", $sasaran['id_unik']);
 			$program_all = $wpdb->get_results($sql, ARRAY_A);
 			foreach ($program_all as $program) {
 				$program_ids[$program['id_unik']] = "'".$program['id_unik']."'";
@@ -306,14 +296,20 @@ foreach ($misi_all_kosong as $misi) {
 }
 
 // select tujuan yang belum terselect
-$sql = $wpdb->prepare("
-	select 
-		* 
-	from data_rpjmd_tujuan
-	where tahun_anggaran=%d
-		and active=1
-		and id_unik not in (".implode(',', $tujuan_ids).")
-", $input['tahun_anggaran']);
+if(!empty($tujuan_ids)){
+	$sql = "
+		select 
+			* 
+		from data_rpjmd_tujuan_lokal
+		where id_unik not in (".implode(',', $tujuan_ids).")
+	";
+}else{
+	$sql = "
+		select 
+			* 
+		from data_rpjmd_tujuan_lokal
+	";
+}
 $tujuan_all_kosong = $wpdb->get_results($sql, ARRAY_A);
 foreach ($tujuan_all_kosong as $tujuan) {
 	if(empty($data_all['data']['visi_kosong']['data']['misi_kosong']['data'][$tujuan['id_unik']])){
@@ -325,11 +321,9 @@ foreach ($tujuan_all_kosong as $tujuan) {
 	$sql = $wpdb->prepare("
 		select 
 			* 
-		from data_rpjmd_sasaran
-		where tahun_anggaran=%d
-			and kode_tujuan=%s
-			and active=1
-	", $input['tahun_anggaran'], $tujuan['id_unik']);
+		from data_rpjmd_sasaran_lokal
+		where kode_tujuan=%s
+	", $tujuan['id_unik']);
 	$sasaran_all = $wpdb->get_results($sql, ARRAY_A);
 	foreach ($sasaran_all as $sasaran) {
 		$sasaran_ids[$sasaran['id_unik']] = "'".$sasaran['id_unik']."'";
@@ -342,11 +336,9 @@ foreach ($tujuan_all_kosong as $tujuan) {
 		$sql = $wpdb->prepare("
 			select 
 				* 
-			from data_rpjmd_program
-			where tahun_anggaran=%d
-				and kode_sasaran=%s
-				and active=1
-		", $input['tahun_anggaran'], $sasaran['id_unik']);
+			from data_rpjmd_program_lokal
+			where kode_sasaran=%s
+		", $sasaran['id_unik']);
 		$program_all = $wpdb->get_results($sql, ARRAY_A);
 		foreach ($program_all as $program) {
 			$program_ids[$program['id_unik']] = "'".$program['id_unik']."'";
@@ -369,14 +361,20 @@ foreach ($tujuan_all_kosong as $tujuan) {
 }
 
 // select sasaran yang belum terselect
-$sql = $wpdb->prepare("
-	select 
-		* 
-	from data_rpjmd_sasaran
-	where tahun_anggaran=%d
-		and active=1
-		and id_unik not in (".implode(',', $sasaran_ids).")
-", $input['tahun_anggaran']);
+if(!empty($sasaran_ids)){
+	$sql = "
+		select 
+			* 
+		from data_rpjmd_sasaran_lokal
+		where id_unik not in (".implode(',', $sasaran_ids).")
+	";
+}else{
+	$sql = "
+		select 
+			* 
+		from data_rpjmd_sasaran_lokal
+	";
+}
 $sasaran_all_kosong = $wpdb->get_results($sql, ARRAY_A);
 foreach ($sasaran_all_kosong as $sasaran) {
 	if(empty($data_all['data']['visi_kosong']['data']['misi_kosong']['data']['tujuan_kosong']['data'][$sasaran['id_unik']])){
@@ -388,11 +386,9 @@ foreach ($sasaran_all_kosong as $sasaran) {
 	$sql = $wpdb->prepare("
 		select 
 			* 
-		from data_rpjmd_program
-		where tahun_anggaran=%d
-			and kode_sasaran=%s
-			and active=1
-	", $input['tahun_anggaran'], $sasaran['id_unik']);
+		from data_rpjmd_program_lokal
+		where kode_sasaran=%s
+	", $sasaran['id_unik']);
 	$program_all = $wpdb->get_results($sql, ARRAY_A);
 	foreach ($program_all as $program) {
 		$program_ids[$program['id_unik']] = "'".$program['id_unik']."'";
@@ -414,14 +410,20 @@ foreach ($sasaran_all_kosong as $sasaran) {
 }
 
 // select program yang belum terselect
-$sql = $wpdb->prepare("
-	select 
-		* 
-	from data_rpjmd_program
-	where tahun_anggaran=%d
-		and id_unik not in (".implode(',', $program_ids).")
-		and active=1
-", $input['tahun_anggaran']);
+if(!empty($program_ids)){
+	$sql = "
+		select 
+			* 
+		from data_rpjmd_program_lokal
+		where id_unik not in (".implode(',', $program_ids).")
+	";
+}else{
+	$sql = "
+		select 
+			* 
+		from data_rpjmd_program_lokal
+	";
+}
 $program_all = $wpdb->get_results($sql, ARRAY_A);
 foreach ($program_all as $program) {
 	if(empty($data_all['data']['visi_kosong']['data']['misi_kosong']['data']['tujuan_kosong']['data']['sasaran_kosong']['data'][$program['id_unik']])){
@@ -682,6 +684,7 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
 	let data_all = <?php echo json_encode($data_all); ?>;
 
 	var aksi = ''
+		+'<a style="margin-left: 10px;" id="singkron-sipd" onclick="return false;" href="#" class="button button-primary">Ambil data dari SIPD lokal</a>'
 		+'<h3 style="margin-top: 20px;">SETTING</h3>'
 		+'<label><input type="checkbox" onclick="edit_monev_indikator(this);"> Edit Monev indikator</label>'
 		+'<label style="margin-left: 20px;"><input type="checkbox" onclick="show_debug(this);"> Debug Cascading RPJM</label>'
@@ -764,5 +767,25 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
 		jQuery('#wrap-loading').show();
 		jQuery('#mod-monev').modal('show');
 		jQuery('#wrap-loading').hide();
+	});
+	jQuery('#singkron-sipd').on('click', function(){
+		if(confirm('Apakah anda yakin untuk mengambil data dari SIPD lokal? data lama akan diupdate!')){
+			jQuery('#wrap-loading').show();
+			jQuery.ajax({
+				url: ajax.url,
+	          	type: "post",
+	          	data: {
+	          		"action": "singkron_rpjmd_sipd_lokal",
+	          		"api_key": "<?php echo $api_key; ?>",
+	      			"tahun_anggaran": <?php echo $input['tahun_anggaran']; ?>,
+	          		"user": "<?php echo $current_user->display_name; ?>"
+	          	},
+	          	dataType: "json",
+	          	success: function(res){
+					jQuery('#wrap-loading').hide();
+					
+	          	}
+	        });
+		}
 	});
 </script>

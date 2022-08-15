@@ -44,17 +44,7 @@ $sumber_pagu = '1';
 if(!empty($_GET) && !empty($_GET['sumber_pagu'])){
     $sumber_pagu = $_GET['sumber_pagu'];
 }
-
-$pengaturan = $wpdb->get_results($wpdb->prepare("
-	select 
-		* 
-	from data_pengaturan_sipd 
-	where tahun_anggaran=%d
-", $input['tahun_anggaran']), ARRAY_A);
-$nama_pemda = 'Pemda Nusantara';
-if(!empty($pengaturan)){
-	$nama_pemda = $pengaturan[0]['daerah'];
-}
+$nama_pemda = get_option('_crb_daerah');
 
 $body = "";
 $body .='

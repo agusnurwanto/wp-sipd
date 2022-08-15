@@ -65,7 +65,7 @@ if(!empty($pengaturan))
 	$akhir_rpjmd = $pengaturan[0]['akhir_rpjmd'];
 }
 $urut = $input['tahun_anggaran']-$awal_rpjmd;
-$nama_pemda = $pengaturan[0]['daerah'];
+$nama_pemda = get_option('_crb_daerah');
 
 $bulan = date('m');
 $body_monev = '';

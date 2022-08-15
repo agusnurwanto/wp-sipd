@@ -339,11 +339,9 @@ class Wpsipd_Admin {
             	->set_default_value('2021'),
             Field::make( 'text', 'crb_kepala_daerah', 'Kepala Daerah' )
             	->set_help_text('Data diambil dari halaman pengaturan SIPD menggunakan <a href="https://github.com/agusnurwanto/sipd-chrome-extension" target="_blank">SIPD chrome extension</a>.')
-            	->set_default_value(get_option('_crb_kepala_daerah' ))
-            	->set_attribute('readOnly', 'true'),
+            	->set_default_value(get_option('_crb_kepala_daerah' )),
             Field::make( 'text', 'crb_wakil_daerah', 'Wakil Kepala Daerah' )
-            	->set_default_value(get_option('_crb_wakil_daerah' ))
-            	->set_attribute('readOnly', 'true'),
+            	->set_default_value(get_option('_crb_wakil_daerah' )),
             Field::make( 'radio', 'crb_kunci_sumber_dana_mapping', 'Kunci pilihan Sumber Dana di Halaman Mapping Rincian' )
             	->add_options( array(
 			        '1' => __( 'Ya' ),

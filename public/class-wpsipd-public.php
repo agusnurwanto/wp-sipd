@@ -14341,4 +14341,134 @@ class Wpsipd_Public
 		}
 		die(json_encode($ret));
 	}
+
+	public function singkron_rpjmd_sipd_lokal(){
+		global $wpdb;
+		$ret = array(
+			'status'	=> 'success',
+			'message'	=> 'Berhasil mengambil data RPJMD dari data SIPD lokal!'
+		);
+		if (!empty($_POST)) {
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+				$tahun_anggaran = $_POST['tahun_anggaran'];
+				$sql = $wpdb->prepare("
+					select 
+						* 
+					from data_rpjmd_visi
+					where tahun_anggaran=%d
+						and active=1
+				", $tahun_anggaran);
+				$visi_all = $wpdb->get_results($sql, ARRAY_A);
+				foreach ($visi_all as $visi) {
+					if(empty($data_all['data'][$visi['id_visi']])){
+						$data_all['data'][$visi['id_visi']] = array(
+							'nama' => $visi['visi_teks'],
+							'data' => array()
+						);
+					}
+
+					$visi_ids[$visi['id_visi']] = "'".$visi['id_visi']."'";
+					$sql = $wpdb->prepare("
+						select 
+							* 
+						from data_rpjmd_misi
+						where tahun_anggaran=%d
+							and id_visi=%s
+							and active=1
+					", $tahun_anggaran, $visi['id_visi']);
+					$misi_all = $wpdb->get_results($sql, ARRAY_A);
+					foreach ($misi_all as $misi) {
+						if(empty($data_all['data'][$visi['id_visi']]['data'][$misi['id_misi']])){
+							$data_all['data'][$visi['id_visi']]['data'][$misi['id_misi']] = array(
+								'nama' => $misi['misi_teks'],
+								'data' => array()
+							);
+						}
+
+						$misi_ids[$misi['id_misi']] = "'".$misi['id_misi']."'";
+						$sql = $wpdb->prepare("
+							select 
+								* 
+							from data_rpjmd_tujuan
+							where tahun_anggaran=%d
+								and id_misi=%s
+								and active=1
+						", $tahun_anggaran, $misi['id_misi']);
+						$tujuan_all = $wpdb->get_results($sql, ARRAY_A);
+						foreach ($tujuan_all as $tujuan) {
+							if(empty($data_all['data'][$visi['id_visi']]['data'][$misi['id_misi']]['data'][$tujuan['id_unik']])){
+								$data_all['data'][$visi['id_visi']]['data'][$misi['id_misi']]['data'][$tujuan['id_unik']] = array(
+									'nama' => $tujuan['tujuan_teks'],
+									'data' => array()
+								);
+							}
+
+							$tujuan_ids[$tujuan['id_unik']] = "'".$tujuan['id_unik']."'";
+							$sql = $wpdb->prepare("
+								select 
+									* 
+								from data_rpjmd_sasaran
+								where tahun_anggaran=%d
+									and kode_tujuan=%s
+									and active=1
+							", $tahun_anggaran, $tujuan['id_unik']);
+							$sasaran_all = $wpdb->get_results($sql, ARRAY_A);
+							foreach ($sasaran_all as $sasaran) {
+								if(empty($data_all['data'][$visi['id_visi']]['data'][$misi['id_misi']]['data'][$tujuan['id_unik']]['data'][$sasaran['id_unik']])){
+									$data_all['data'][$visi['id_visi']]['data'][$misi['id_misi']]['data'][$tujuan['id_unik']]['data'][$sasaran['id_unik']] = array(
+										'nama' => $sasaran['sasaran_teks'],
+										'data' => array()
+									);
+								}
+
+								$sasaran_ids[$sasaran['id_unik']] = "'".$sasaran['id_unik']."'";
+								$sql = $wpdb->prepare("
+									select 
+										* 
+									from data_rpjmd_program
+									where tahun_anggaran=%d
+										and kode_sasaran=%s
+										and active=1
+								", $tahun_anggaran, $sasaran['id_unik']);
+								$program_all = $wpdb->get_results($sql, ARRAY_A);
+								foreach ($program_all as $program) {
+									$program_ids[$program['id_unik']] = "'".$program['id_unik']."'";
+									if(empty($program['kode_skpd'])){
+										$program['kode_skpd'] = '00';
+										$program['nama_skpd'] = 'SKPD Kosong';
+									}
+									$skpd_filter[$program['kode_skpd']] = $program['nama_skpd'];
+									if(empty($data_all['data'][$visi['id_visi']]['data'][$misi['id_misi']]['data'][$tujuan['id_unik']]['data'][$sasaran['id_unik']]['data'][$program['id_unik']])){
+										$data_all['data'][$visi['id_visi']]['data'][$misi['id_misi']]['data'][$tujuan['id_unik']]['data'][$sasaran['id_unik']]['data'][$program['id_unik']] = array(
+											'nama' => $program['nama_program'],
+											'kode_skpd' => $program['kode_skpd'],
+											'nama_skpd' => $program['nama_skpd'],
+											'data' => array()
+										);
+									}
+									if(empty($data_all['data'][$visi['id_visi']]['data'][$misi['id_misi']]['data'][$tujuan['id_unik']]['data'][$sasaran['id_unik']]['data'][$program['id_unik']]['data'][$program['id_unik_indikator']])){
+										$data_all['data'][$visi['id_visi']]['data'][$misi['id_misi']]['data'][$tujuan['id_unik']]['data'][$sasaran['id_unik']]['data'][$program['id_unik']]['data'][$program['id_unik_indikator']] = array(
+											'nama' => $program['indikator'],
+											'data' => $program
+										);
+									}
+								}
+							}
+						}
+					}
+				}
+			}else{
+				$ret = array(
+					'status' => 'error',
+					'message'	=> 'Api Key tidak sesuai!'
+				);
+			}
+		}else{
+			$ret = array(
+				'status' => 'error',
+				'message'	=> 'Format tidak sesuai!'
+			);
+		}
+		die(json_encode($ret));
+	}
 }

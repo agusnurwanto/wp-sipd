@@ -75,7 +75,7 @@ if(!empty($pengaturan)){
 	$akhir_rpjmd = $pengaturan[0]['akhir_rpjmd'];
 }
 $tahun_renstra = $input['tahun_anggaran']-$awal_rpjmd;
-$nama_pemda = $pengaturan[0]['daerah'];
+$nama_pemda = get_option('_crb_daerah');
 
 $current_user = wp_get_current_user();
 
