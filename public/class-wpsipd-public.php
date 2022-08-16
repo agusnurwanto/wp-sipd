@@ -14309,7 +14309,11 @@ class Wpsipd_Public
 			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
 				$file = basename($_POST['file']);
 				$ret['value'] = $file.' (tgl: '.date('Y-m-d H:i:s').')';
-				$path = WPSIPD_PLUGIN_PATH.'/sql-migrate/'.$file;
+				if($file == 'table.sql'){
+					$path = WPSIPD_PLUGIN_PATH.'/'.$file;
+				}else{
+					$path = WPSIPD_PLUGIN_PATH.'/sql-migrate/'.$file;
+				}
 				if(file_exists($path)){
 					$sql = file_get_contents($path);
 					$ret['sql'] = $sql;
@@ -14360,14 +14364,22 @@ class Wpsipd_Public
 				", $tahun_anggaran);
 				$visi_all = $wpdb->get_results($sql, ARRAY_A);
 				foreach ($visi_all as $visi) {
-					if(empty($data_all['data'][$visi['id_visi']])){
-						$data_all['data'][$visi['id_visi']] = array(
-							'nama' => $visi['visi_teks'],
-							'data' => array()
-						);
+					$table = 'data_rpjmd_visi_lokal';
+					$id_cek = $wpdb->get_var("
+						SELECT id from $table 
+						where visi_teks='{$visi['visi_teks']}'");
+					$data = array(
+						'id_visi' => $visi['id_visi'],
+					  	'is_locked' => $visi['is_locked'],
+					  	'status' => $visi['status'],
+				  		'visi_teks' => $visi['visi_teks'],
+				  		'update_at' => $visi['update_at']
+					);
+					if(!empty($id_cek)){
+						$wpdb->update($table, $data, array('id' => $id_cek));
+					}else{
+						$wpdb->insert($table, $data);
 					}
-
-					$visi_ids[$visi['id_visi']] = "'".$visi['id_visi']."'";
 					$sql = $wpdb->prepare("
 						select 
 							* 
@@ -14378,14 +14390,29 @@ class Wpsipd_Public
 					", $tahun_anggaran, $visi['id_visi']);
 					$misi_all = $wpdb->get_results($sql, ARRAY_A);
 					foreach ($misi_all as $misi) {
-						if(empty($data_all['data'][$visi['id_visi']]['data'][$misi['id_misi']])){
-							$data_all['data'][$visi['id_visi']]['data'][$misi['id_misi']] = array(
-								'nama' => $misi['misi_teks'],
-								'data' => array()
-							);
+						$table = 'data_rpjmd_misi_lokal';
+						$id_cek = $wpdb->get_var("
+							SELECT id from $table 
+							where misi_teks='{$misi['misi_teks']}' 
+								and visi_teks='{$misi['visi_teks']}'
+						");
+						$data = array(
+							'id_misi' => $misi['id_misi'],
+							'id_misi_old' => $misi['id_misi_old'],
+							'id_visi' => $misi['id_visi'],
+							'is_locked' => $misi['is_locked'],
+							'misi_teks' => $misi['misi_teks'],
+							'status' => $misi['status'],
+							'urut_misi' => $misi['urut_misi'],
+							'visi_lock' => $misi['visi_lock'],
+							'visi_teks' => $misi['visi_teks'],
+							'update_at' => $misi['update_at']
+						);
+						if(!empty($id_cek)){
+							$wpdb->update($table, $data, array('id' => $id_cek));
+						}else{
+							$wpdb->insert($table, $data);
 						}
-
-						$misi_ids[$misi['id_misi']] = "'".$misi['id_misi']."'";
 						$sql = $wpdb->prepare("
 							select 
 								* 
@@ -14396,14 +14423,45 @@ class Wpsipd_Public
 						", $tahun_anggaran, $misi['id_misi']);
 						$tujuan_all = $wpdb->get_results($sql, ARRAY_A);
 						foreach ($tujuan_all as $tujuan) {
-							if(empty($data_all['data'][$visi['id_visi']]['data'][$misi['id_misi']]['data'][$tujuan['id_unik']])){
-								$data_all['data'][$visi['id_visi']]['data'][$misi['id_misi']]['data'][$tujuan['id_unik']] = array(
-									'nama' => $tujuan['tujuan_teks'],
-									'data' => array()
-								);
+							$table = 'data_rpjmd_tujuan_lokal';
+							$id_cek = $wpdb->get_var("
+								SELECT id from $table 
+								where tujuan_teks='{$tujuan['tujuan_teks']}' 
+									and misi_teks='{$tujuan['misi_teks']}'
+									and indikator_teks='{$tujuan['indikator_teks']}'
+							");
+							$data = array(
+								'id_misi' => $tujuan['id_misi'],
+								'id_misi_old' => $tujuan['id_misi_old'],
+								'id_tujuan' => $tujuan['id_tujuan'],
+								'id_unik' => $tujuan['id_unik'],
+								'id_unik_indikator' => $tujuan['id_unik_indikator'],
+								'id_visi' => $tujuan['id_visi'],
+								'indikator_teks' => $tujuan['indikator_teks'],
+								'is_locked' => $tujuan['is_locked'],
+								'is_locked_indikator' => $tujuan['is_locked_indikator'],
+								'misi_lock' => $tujuan['misi_lock'],
+								'misi_teks' => $tujuan['misi_teks'],
+								'satuan' => $tujuan['satuan'],
+								'status' => $tujuan['status'],
+								'target_1' => $tujuan['target_1'],
+								'target_2' => $tujuan['target_2'],
+								'target_3' => $tujuan['target_3'],
+								'target_4' => $tujuan['target_4'],
+								'target_5' => $tujuan['target_5'],
+								'target_akhir' => $tujuan['target_akhir'],
+								'target_awal' => $tujuan['target_awal'],
+								'tujuan_teks' => $tujuan['tujuan_teks'],
+								'urut_misi' => $tujuan['urut_misi'],
+								'urut_tujuan' => $tujuan['urut_tujuan'],
+								'visi_teks' => $tujuan['visi_teks'],
+								'update_at' => $tujuan['update_at']
+							);
+							if(!empty($id_cek)){
+								$wpdb->update($table, $data, array('id' => $id_cek));
+							}else{
+								$wpdb->insert($table, $data);
 							}
-
-							$tujuan_ids[$tujuan['id_unik']] = "'".$tujuan['id_unik']."'";
 							$sql = $wpdb->prepare("
 								select 
 									* 
@@ -14414,14 +14472,48 @@ class Wpsipd_Public
 							", $tahun_anggaran, $tujuan['id_unik']);
 							$sasaran_all = $wpdb->get_results($sql, ARRAY_A);
 							foreach ($sasaran_all as $sasaran) {
-								if(empty($data_all['data'][$visi['id_visi']]['data'][$misi['id_misi']]['data'][$tujuan['id_unik']]['data'][$sasaran['id_unik']])){
-									$data_all['data'][$visi['id_visi']]['data'][$misi['id_misi']]['data'][$tujuan['id_unik']]['data'][$sasaran['id_unik']] = array(
-										'nama' => $sasaran['sasaran_teks'],
-										'data' => array()
-									);
+								$table = 'data_rpjmd_sasaran_lokal';
+								$id_cek = $wpdb->get_var("
+									SELECT id from $table 
+									where sasaran_teks='{$sasaran['sasaran_teks']}' 
+										and tujuan_teks='{$sasaran['tujuan_teks']}'
+										and indikator_teks='{$sasaran['indikator_teks']}'
+								");
+								$data = array(
+									'id_misi' => $sasaran['id_misi'],
+									'id_misi_old'=> $sasaran['id_misi_old'],
+									'id_sasaran'=> $sasaran['id_sasaran'],
+									'id_unik'=> $sasaran['id_unik'],
+									'id_unik_indikator'=> $sasaran['id_unik_indikator'],
+									'id_visi'=> $sasaran['id_visi'],
+									'indikator_teks'=> $sasaran['indikator_teks'],
+									'is_locked'=> $sasaran['is_locked'],
+									'is_locked_indikator'=> $sasaran['is_locked_indikator'],
+									'kode_tujuan'=> $sasaran['kode_tujuan'],
+									'misi_teks'=> $sasaran['misi_teks'],
+									'sasaran_teks'=> $sasaran['sasaran_teks'],
+									'satuan'=> $sasaran['satuan'],
+									'status'=> $sasaran['status'],
+									'target_1'=> $sasaran['target_1'],
+									'target_2'=> $sasaran['target_2'],
+									'target_3'=> $sasaran['target_3'],
+									'target_4'=> $sasaran['target_4'],
+									'target_5'=> $sasaran['target_5'],
+									'target_akhir'=> $sasaran['target_akhir'],
+									'target_awal'=> $sasaran['target_awal'],
+									'tujuan_lock'=> $sasaran['tujuan_lock'],
+									'tujuan_teks'=> $sasaran['tujuan_teks'],
+									'urut_misi'=> $sasaran['urut_misi'],
+									'urut_sasaran'=> $sasaran['urut_sasaran'],
+									'urut_tujuan'=> $sasaran['urut_tujuan'],
+									'visi_teks'=> $sasaran['visi_teks'],
+									'update_at'=> $sasaran['update_at']
+								);
+								if(!empty($id_cek)){
+									$wpdb->update($table, $data, array('id' => $id_cek));
+								}else{
+									$wpdb->insert($table, $data);
 								}
-
-								$sasaran_ids[$sasaran['id_unik']] = "'".$sasaran['id_unik']."'";
 								$sql = $wpdb->prepare("
 									select 
 										* 
@@ -14432,25 +14524,59 @@ class Wpsipd_Public
 								", $tahun_anggaran, $sasaran['id_unik']);
 								$program_all = $wpdb->get_results($sql, ARRAY_A);
 								foreach ($program_all as $program) {
-									$program_ids[$program['id_unik']] = "'".$program['id_unik']."'";
-									if(empty($program['kode_skpd'])){
-										$program['kode_skpd'] = '00';
-										$program['nama_skpd'] = 'SKPD Kosong';
-									}
-									$skpd_filter[$program['kode_skpd']] = $program['nama_skpd'];
-									if(empty($data_all['data'][$visi['id_visi']]['data'][$misi['id_misi']]['data'][$tujuan['id_unik']]['data'][$sasaran['id_unik']]['data'][$program['id_unik']])){
-										$data_all['data'][$visi['id_visi']]['data'][$misi['id_misi']]['data'][$tujuan['id_unik']]['data'][$sasaran['id_unik']]['data'][$program['id_unik']] = array(
-											'nama' => $program['nama_program'],
-											'kode_skpd' => $program['kode_skpd'],
-											'nama_skpd' => $program['nama_skpd'],
-											'data' => array()
-										);
-									}
-									if(empty($data_all['data'][$visi['id_visi']]['data'][$misi['id_misi']]['data'][$tujuan['id_unik']]['data'][$sasaran['id_unik']]['data'][$program['id_unik']]['data'][$program['id_unik_indikator']])){
-										$data_all['data'][$visi['id_visi']]['data'][$misi['id_misi']]['data'][$tujuan['id_unik']]['data'][$sasaran['id_unik']]['data'][$program['id_unik']]['data'][$program['id_unik_indikator']] = array(
-											'nama' => $program['indikator'],
-											'data' => $program
-										);
+									$table = 'data_rpjmd_program_lokal';
+									$id_cek = $wpdb->get_var("
+										SELECT id from $table 
+										where nama_program='{$program['nama_program']}' 
+											and sasaran_teks='{$program['sasaran_teks']}'
+											and indikator='{$program['indikator']}'
+									");
+									$data = array(
+										'id_misi' => $program['id_misi'],
+										'id_misi_old' => $program['id_misi_old'],
+										'id_program' => $program['id_program'],
+										'id_unik' => $program['id_unik'],
+										'id_unik_indikator' => $program['id_unik_indikator'],
+										'id_unit' => $program['id_unit'],
+										'id_visi' => $program['id_visi'],
+										'indikator' => $program['indikator'],
+										'is_locked' => $program['is_locked'],
+										'is_locked_indikator' => $program['is_locked_indikator'],
+										'kode_sasaran' => $program['kode_sasaran'],
+										'kode_skpd' => $program['kode_skpd'],
+										'kode_tujuan' => $program['kode_tujuan'],
+										'misi_teks' => $program['misi_teks'],
+										'nama_program' => $program['nama_program'],
+										'nama_skpd' => $program['nama_skpd'],
+										'pagu_1' => $program['pagu_1'],
+										'pagu_2' => $program['pagu_2'],
+										'pagu_3' => $program['pagu_3'],
+										'pagu_4' => $program['pagu_4'],
+										'pagu_5' => $program['pagu_5'],
+										'program_lock' => $program['program_lock'],
+										'sasaran_lock' => $program['sasaran_lock'],
+										'sasaran_teks' => $program['sasaran_teks'],
+										'satuan' => $program['satuan'],
+										'status' => $program['status'],
+										'target_1' => $program['target_1'],
+										'target_2' => $program['target_2'],
+										'target_3' => $program['target_3'],
+										'target_4' => $program['target_4'],
+										'target_5' => $program['target_5'],
+										'target_akhir' => $program['target_akhir'],
+										'target_awal' => $program['target_awal'],
+										'tujuan_lock' => $program['tujuan_lock'],
+										'tujuan_teks' => $program['tujuan_teks'],
+										'urut_misi' => $program['urut_misi'],
+										'urut_sasaran' => $program['urut_sasaran'],
+										'urut_tujuan' => $program['urut_tujuan'],
+										'visi_teks' => $program['visi_teks'],
+										'update_at' => $program['update_at']
+									);
+									if(!empty($id_cek)){
+										$wpdb->update($table, $data, array('id' => $id_cek));
+									}else{
+										$wpdb->insert($table, $data);
 									}
 								}
 							}

@@ -22,7 +22,7 @@ function to_number(text){
 
 function run_download_excel(type){
 	var current_url = window.location.href;
-	var body = '<a id="excel" onclick="return false;" href="#" class="button button-primary">DOWNLOAD EXCEL</a>';
+	var body = '<a id="excel" onclick="return false;" href="#" class="btn btn-primary">DOWNLOAD EXCEL</a>';
 	if(type == 'apbd'){
 		body += ''
 			+'<div style="padding-top: 20px;">'
