@@ -4,14 +4,14 @@
 	$files = array_diff(scandir($path), array('.', '..'));
 	$data = array(
 		0 => '
-			<tr time="'.0.'" file="table.sql">
+			<tr time="0" file="tabel.sql">
 				<td class="text-center">-</td>
-				<td class="text-center">table.sql</td>
+				<td class="text-center">tabel.sql</td>
 				<td class="text-center">
-					<button onclick="run_sql_migrate(\'table.sql\'); return false;" class="btn btn-primary">RUN</button>
+					<button onclick="run_sql_migrate(\'tabel.sql\'); return false;" class="btn btn-primary">RUN</button>
 				</td>
 			</tr>
-		';
+		'
 	);
 	foreach($files as $k => $v){
 		$tgl = str_replace('migrate-', '', $v);

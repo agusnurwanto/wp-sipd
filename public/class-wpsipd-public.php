@@ -14309,7 +14309,7 @@ class Wpsipd_Public
 			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
 				$file = basename($_POST['file']);
 				$ret['value'] = $file.' (tgl: '.date('Y-m-d H:i:s').')';
-				if($file == 'table.sql'){
+				if($file == 'tabel.sql'){
 					$path = WPSIPD_PLUGIN_PATH.'/'.$file;
 				}else{
 					$path = WPSIPD_PLUGIN_PATH.'/sql-migrate/'.$file;
@@ -14317,8 +14317,8 @@ class Wpsipd_Public
 				if(file_exists($path)){
 					$sql = file_get_contents($path);
 					$ret['sql'] = $sql;
-					$wpdb->hide_errors();
 					require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
+					$wpdb->hide_errors();
 					$rows_affected = dbDelta($sql);
 					if(empty($rows_affected)){
 						$ret['status'] = 'error';
