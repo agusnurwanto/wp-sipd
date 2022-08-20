@@ -68,7 +68,7 @@
 	function run_sql_migrate(file) {
 		jQuery("#wrap-loading").show();
 		jQuery.ajax({
-			url: ajaxurl,
+			url: ajax.url,
 	      	type: "post",
 	      	data: {
 	      		"action": "run_sql_migrate",

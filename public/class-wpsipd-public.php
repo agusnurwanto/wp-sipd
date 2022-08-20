@@ -14597,4 +14597,46 @@ class Wpsipd_Public
 		}
 		die(json_encode($ret));
 	}
+
+	function get_visi_rpjm(){
+		global $wpdb;
+		$ret = array(
+			'status'	=> 'success',
+			'message'	=> 'Berhasil get visi RPJM!'
+		);
+		if (!empty($_POST)) {
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+				$type = $_POST['type'];
+				if($type == 1){
+					$sql = $wpdb->prepare("
+						select 
+							* 
+						from data_rpjmd_visi_lokal
+					");
+					$ret['data'] = $wpdb->get_results($sql, ARRAY_A);
+				}else{
+					$tahun_anggaran = $_POST['tahun_anggaran'];
+					$sql = $wpdb->prepare("
+						select 
+							* 
+						from data_rpjmd_visi
+						where tahun_anggaran=%d
+							and active=1
+					", $tahun_anggaran);
+					$ret['data'] = $wpdb->get_results($sql, ARRAY_A);
+				}
+			}else{
+				$ret = array(
+					'status' => 'error',
+					'message'	=> 'Api Key tidak sesuai!'
+				);
+			}
+		}else{
+			$ret = array(
+				'status' => 'error',
+				'message'	=> 'Format tidak sesuai!'
+			);
+		}
+		die(json_encode($ret));
+	}
 }
