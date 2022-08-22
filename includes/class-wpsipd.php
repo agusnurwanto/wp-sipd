@@ -479,6 +479,8 @@ class Wpsipd
 		$this->loader->add_action('wp_ajax_submit_lock_schedule',  $plugin_public, 'submit_lock_schedule');
 		$this->loader->add_action('wp_ajax_run_sql_migrate',  $plugin_public, 'run_sql_migrate');
 		$this->loader->add_action('wp_ajax_singkron_rpjmd_sipd_lokal',  $plugin_public, 'singkron_rpjmd_sipd_lokal');
+		$this->loader->add_action('wp_ajax_submit_lock_schedule_rpjm',  $plugin_public, 'submit_lock_schedule_rpjm');
+		$this->loader->add_action('wp_ajax_submit_lock_schedule_renstra',  $plugin_public, 'submit_lock_schedule_renstra');
 
 		add_shortcode('menu_monev',  array($plugin_public, 'menu_monev'));
 		add_shortcode('datassh', array($plugin_public, 'datassh'));
@@ -506,6 +508,8 @@ class Wpsipd
 		add_shortcode('input_rpjm', array($plugin_public, 'input_rpjm'));
 		add_shortcode('jadwal_renja', array($plugin_public, 'jadwal_renja'));
 		add_shortcode('monitoring_sql_migrate', array($plugin_public, 'monitoring_sql_migrate'));
+		add_shortcode('jadwal_rpjm', array($plugin_public, 'jadwal_rpjm'));
+		add_shortcode('jadwal_renstra', array($plugin_public, 'jadwal_renstra'));
 	}
 
 	/**
