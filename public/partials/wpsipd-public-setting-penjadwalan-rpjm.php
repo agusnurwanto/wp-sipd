@@ -19,7 +19,7 @@ $body = '';
 <div class="cetak">
 	<div style="padding: 10px;margin:0 0 3rem 0;">
 		<input type="hidden" value="<?php echo get_option( '_crb_api_key_extension' ); ?>" id="api_key">
-	<h1 class="text-center" style="margin:3rem;">Halaman Input Perencanaan RPJM</h1>
+	<h1 class="text-center" style="margin:3rem;">Jadwal Input Perencanaan RPJM Lokal</h1>
 		<div style="margin-bottom: 25px;">
 			<button class="btn btn-primary tambah_ssh" onclick="tambah_jadwal();">Tambah Jadwal</button>
 		</div>
@@ -31,6 +31,7 @@ $body = '';
 					<th class="text-center">Jadwal Mulai</th>
 					<th class="text-center">Jadwal Selesai</th>
 					<th class="text-center">Tahun Mulai Anggaran</th>
+					<th class="text-center">Tahun Selesai Anggaran</th>
 					<th class="text-center">Aksi</th>
 				</tr>
 			</thead>
@@ -120,6 +121,10 @@ $body = '';
 				},
 				{ 
 					"data": "tahun_anggaran",
+					className: "text-center"
+				},
+				{ 
+					"data": "tahun_anggaran_selesai",
 					className: "text-center"
 				},
 				{ 

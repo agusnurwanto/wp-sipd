@@ -13788,6 +13788,14 @@ class Wpsipd_Public
 					$tipe_perencanaan = $_POST['tipe_perencanaan'];
 					$sqlTipe = $wpdb->get_results("SELECT * FROM `data_tipe_perencanaan` WHERE nama_tipe='".$tipe_perencanaan."'", ARRAY_A);
 
+					$time_period = array(
+						"rpjpd" 	=> 20,
+						"rpjm"		=> 6,
+						"rpd"		=> 0,
+						"renstra"	=> 5,
+						"renja"		=> 1,
+					);
+
 					if(!empty($_POST['tahun_anggaran'])){
 						$where .=" AND tahun_anggaran = ".$_POST['tahun_anggaran'];
 					}
@@ -13816,12 +13824,15 @@ class Wpsipd_Public
 							$edit	= '<a class="btn btn-warning mr-2" href="#" onclick="return edit_data_penjadwalan(\''.$recVal['id_jadwal_lokal'].'\');" title="Edit data penjadwalan"><i class="dashicons dashicons-edit"></i></a>';
 							$delete	= '<a class="btn btn-danger" href="#" onclick="return hapus_data_penjadwalan(\''.$recVal['id_jadwal_lokal'].'\');" title="Hapus data penjadwalan"><i class="dashicons dashicons-trash"></i></a>';
 						}
+
+						$tahun_anggaran_selesai = $recVal['tahun_anggaran'] + $time_period[$tipe_perencanaan];
 					
 						$queryRecords[$recKey]['waktu_awal']	= date('d-m-Y H:i', strtotime($recVal['waktu_awal']));
 						$queryRecords[$recKey]['waktu_akhir']	= date('d-m-Y H:i', strtotime($recVal['waktu_akhir']));
 						$queryRecords[$recKey]['aksi'] = $lock.$edit.$delete;
 						$queryRecords[$recKey]['nama'] = ucfirst($recVal['nama']);
 						$queryRecords[$recKey]['status'] = $recVal['status'] == 1 ? 'dikunci' : 'terbuka';
+						$queryRecords[$recKey]['tahun_anggaran_selesai'] = $tahun_anggaran_selesai;
 					}
 
 					$json_data = array(
@@ -14310,83 +14321,43 @@ class Wpsipd_Public
 
 									$columns_1 = array('id_misi','id_misi_old','id_visi','is_locked','misi_teks','status','urut_misi','visi_lock','visi_teks','update_at','active','tahun_anggaran');
 		
-									$sql_backup_data_rpjmd_misi =  "INSERT INTO data_rpjmd_misi_history (".implode(', ', $columns_1).",id_jadwal,id_asli)
+									$sql_backup_data_rpjmd_misi_lokal =  "INSERT INTO data_rpjmd_misi_lokal_history (".implode(', ', $columns_1).",id_jadwal,id_asli)
 												SELECT ".implode(', ', $columns_1).", ".$data_this_id[0]['id_jadwal_lokal'].", id as id_asli
-												FROM data_rpjmd_misi";
-
-									$queryRecords1 = $wpdb->query($sql_backup_data_rpjmd_misi);
-
-									$columns_2 = array('id_misi','id_misi_old','id_visi','is_locked','misi_teks','status','urut_misi','visi_lock','visi_teks','update_at','active','tahun_anggaran');
-		
-									$sql_backup_data_rpjmd_misi_lokal =  "INSERT INTO data_rpjmd_misi_lokal_history (".implode(', ', $columns_2).",id_jadwal,id_asli)
-												SELECT ".implode(', ', $columns_2).", ".$data_this_id[0]['id_jadwal_lokal'].", id as id_asli
 												FROM data_rpjmd_misi_lokal";
 
-									$queryRecords2 = $wpdb->query($sql_backup_data_rpjmd_misi_lokal);
+									$queryRecords1 = $wpdb->query($sql_backup_data_rpjmd_misi_lokal);
 
-									$columns_3 = array('id_misi','id_misi_old','id_program','id_unik','id_unik_indikator','id_unit','id_visi','indikator','is_locked','is_locked_indikator','kode_sasaran','kode_skpd','kode_tujuan','misi_teks','nama_program','nama_skpd','pagu_1','pagu_2','pagu_3','pagu_4','pagu_5','program_lock','sasaran_lock','sasaran_teks','satuan','status','target_1','target_2','target_3','target_4','target_5','target_akhir','target_awal','tujuan_lock','tujuan_teks','urut_misi','urut_sasaran','urut_tujuan','visi_teks','active','update_at','tahun_anggaran');
+									$columns_2 = array('id_misi','id_misi_old','id_program','id_unik','id_unik_indikator','id_unit','id_visi','indikator','is_locked','is_locked_indikator','kode_sasaran','kode_skpd','kode_tujuan','misi_teks','nama_program','nama_skpd','pagu_1','pagu_2','pagu_3','pagu_4','pagu_5','program_lock','sasaran_lock','sasaran_teks','satuan','status','target_1','target_2','target_3','target_4','target_5','target_akhir','target_awal','tujuan_lock','tujuan_teks','urut_misi','urut_sasaran','urut_tujuan','visi_teks','active','update_at','tahun_anggaran');
 		
-									$sql_backup_data_rpjmd_program =  "INSERT INTO data_rpjmd_program_history (".implode(', ', $columns_3).",id_jadwal,id_asli)
-												SELECT ".implode(', ', $columns_3).", ".$data_this_id[0]['id_jadwal_lokal'].", id as id_asli
-												FROM data_rpjmd_program";
-
-									$queryRecords3 = $wpdb->query($sql_backup_data_rpjmd_program);
-
-									$columns_4 = array('id_misi','id_misi_old','id_program','id_unik','id_unik_indikator','id_unit','id_visi','indikator','is_locked','is_locked_indikator','kode_sasaran','kode_skpd','kode_tujuan','misi_teks','nama_program','nama_skpd','pagu_1','pagu_2','pagu_3','pagu_4','pagu_5','program_lock','sasaran_lock','sasaran_teks','satuan','status','target_1','target_2','target_3','target_4','target_5','target_akhir','target_awal','tujuan_lock','tujuan_teks','urut_misi','urut_sasaran','urut_tujuan','visi_teks','active','update_at','tahun_anggaran');
-		
-									$sql_backup_data_rpjmd_program_lokal =  "INSERT INTO data_rpjmd_program_lokal_history (".implode(', ', $columns_4).",id_jadwal,id_asli)
-												SELECT ".implode(', ', $columns_4).", ".$data_this_id[0]['id_jadwal_lokal'].", id as id_asli
+									$sql_backup_data_rpjmd_program_lokal =  "INSERT INTO data_rpjmd_program_lokal_history (".implode(', ', $columns_2).",id_jadwal,id_asli)
+												SELECT ".implode(', ', $columns_2).", ".$data_this_id[0]['id_jadwal_lokal'].", id as id_asli
 												FROM data_rpjmd_program_lokal";
 
-									$queryRecords4 = $wpdb->query($sql_backup_data_rpjmd_program_lokal);
+									$queryRecords2 = $wpdb->query($sql_backup_data_rpjmd_program_lokal);
 
-									$columns_5 = array('id_misi','id_misi_old','id_sasaran','id_unik','id_unik_indikator','id_visi','indikator_teks','is_locked','is_locked_indikator','kode_tujuan','misi_teks','sasaran_teks','satuan','status','target_1','target_2','target_3','target_4','target_5','target_akhir','target_awal','tujuan_lock','tujuan_teks','urut_misi','urut_sasaran','urut_tujuan','visi_teks','active','update_at','tahun_anggaran');
+									$columns_3 = array('id_misi','id_misi_old','id_sasaran','id_unik','id_unik_indikator','id_visi','indikator_teks','is_locked','is_locked_indikator','kode_tujuan','misi_teks','sasaran_teks','satuan','status','target_1','target_2','target_3','target_4','target_5','target_akhir','target_awal','tujuan_lock','tujuan_teks','urut_misi','urut_sasaran','urut_tujuan','visi_teks','active','update_at','tahun_anggaran');
 		
-									$sql_backup_data_rpjmd_sasaran =  "INSERT INTO data_rpjmd_sasaran_history (".implode(', ', $columns_5).",id_jadwal,id_asli)
-												SELECT ".implode(', ', $columns_5).", ".$data_this_id[0]['id_jadwal_lokal'].", id as id_asli
-												FROM data_rpjmd_sasaran";
-
-									$queryRecords5 = $wpdb->query($sql_backup_data_rpjmd_sasaran);
-
-									$columns_6 = array('id_misi','id_misi_old','id_sasaran','id_unik','id_unik_indikator','id_visi','indikator_teks','is_locked','is_locked_indikator','kode_tujuan','misi_teks','sasaran_teks','satuan','status','target_1','target_2','target_3','target_4','target_5','target_akhir','target_awal','tujuan_lock','tujuan_teks','urut_misi','urut_sasaran','urut_tujuan','visi_teks','active','update_at','tahun_anggaran');
-		
-									$sql_backup_data_rpjmd_sasaran_lokal =  "INSERT INTO data_rpjmd_sasaran_lokal_history (".implode(', ', $columns_6).",id_jadwal,id_asli)
-												SELECT ".implode(', ', $columns_6).", ".$data_this_id[0]['id_jadwal_lokal'].", id as id_asli
+									$sql_backup_data_rpjmd_sasaran_lokal =  "INSERT INTO data_rpjmd_sasaran_lokal_history (".implode(', ', $columns_3).",id_jadwal,id_asli)
+												SELECT ".implode(', ', $columns_3).", ".$data_this_id[0]['id_jadwal_lokal'].", id as id_asli
 												FROM data_rpjmd_sasaran_lokal";
 
-									$queryRecords6 = $wpdb->query($sql_backup_data_rpjmd_sasaran_lokal);
+									$queryRecords3 = $wpdb->query($sql_backup_data_rpjmd_sasaran_lokal);
 
-									$columns_7 = array('id_misi','id_misi_old','id_tujuan','id_unik','id_unik_indikator','id_visi','indikator_teks','is_locked','is_locked_indikator','misi_lock','misi_teks','satuan','status','target_1','target_2','target_3','target_4','target_5','target_akhir','target_awal','tujuan_teks','urut_misi','urut_tujuan','visi_teks','active','update_at','tahun_anggaran');
+									$columns_4 = array('id_misi','id_misi_old','id_tujuan','id_unik','id_unik_indikator','id_visi','indikator_teks','is_locked','is_locked_indikator','misi_lock','misi_teks','satuan','status','target_1','target_2','target_3','target_4','target_5','target_akhir','target_awal','tujuan_teks','urut_misi','urut_tujuan','visi_teks','active','update_at','tahun_anggaran');
 		
-									$sql_backup_data_rpjmd_tujuan =  "INSERT INTO data_rpjmd_tujuan_history (".implode(', ', $columns_7).",id_jadwal,id_asli)
-												SELECT ".implode(', ', $columns_7).", ".$data_this_id[0]['id_jadwal_lokal'].", id as id_asli
-												FROM data_rpjmd_tujuan";
-
-									$queryRecords7 = $wpdb->query($sql_backup_data_rpjmd_tujuan);
-
-									$columns_8 = array('id_misi','id_misi_old','id_tujuan','id_unik','id_unik_indikator','id_visi','indikator_teks','is_locked','is_locked_indikator','misi_lock','misi_teks','satuan','status','target_1','target_2','target_3','target_4','target_5','target_akhir','target_awal','tujuan_teks','urut_misi','urut_tujuan','visi_teks','active','update_at','tahun_anggaran');
-		
-									$sql_backup_data_rpjmd_tujuan_lokal =  "INSERT INTO data_rpjmd_tujuan_lokal_history (".implode(', ', $columns_8).",id_jadwal,id_asli)
-												SELECT ".implode(', ', $columns_8).", ".$data_this_id[0]['id_jadwal_lokal'].", id as id_asli
+									$sql_backup_data_rpjmd_tujuan_lokal =  "INSERT INTO data_rpjmd_tujuan_lokal_history (".implode(', ', $columns_4).",id_jadwal,id_asli)
+												SELECT ".implode(', ', $columns_4).", ".$data_this_id[0]['id_jadwal_lokal'].", id as id_asli
 												FROM data_rpjmd_tujuan_lokal";
 
-									$queryRecords8 = $wpdb->query($sql_backup_data_rpjmd_tujuan_lokal);
+									$queryRecords4 = $wpdb->query($sql_backup_data_rpjmd_tujuan_lokal);
 
-  									$columns_9 = array('id_visi','is_locked','status','visi_teks','update_at','active','tahun_anggaran');
+									$columns_5 = array('id_visi','is_locked','status','visi_teks','update_at','active','tahun_anggaran');
 		
-									$sql_backup_data_rpjmd_visi =  "INSERT INTO data_rpjmd_visi_history (".implode(', ', $columns_9).",id_jadwal,id_asli)
-												SELECT ".implode(', ', $columns_9).", ".$data_this_id[0]['id_jadwal_lokal'].", id as id_asli
-												FROM data_rpjmd_visi";
-
-									$queryRecords9 = $wpdb->query($sql_backup_data_rpjmd_visi);
-
-									$columns_10 = array('id_visi','is_locked','status','visi_teks','update_at','active','tahun_anggaran');
-		
-									$sql_backup_data_rpjmd_visi_lokal =  "INSERT INTO data_rpjmd_visi_lokal_history (".implode(', ', $columns_10).",id_jadwal,id_asli)
-												SELECT ".implode(', ', $columns_10).", ".$data_this_id[0]['id_jadwal_lokal'].", id as id_asli
+									$sql_backup_data_rpjmd_visi_lokal =  "INSERT INTO data_rpjmd_visi_lokal_history (".implode(', ', $columns_5).",id_jadwal,id_asli)
+												SELECT ".implode(', ', $columns_5).", ".$data_this_id[0]['id_jadwal_lokal'].", id as id_asli
 												FROM data_rpjmd_visi_lokal";
 
-									$queryRecords10 = $wpdb->query($sql_backup_data_rpjmd_visi_lokal);
+									$queryRecords5 = $wpdb->query($sql_backup_data_rpjmd_visi_lokal);
 
 									$return = array(
 										'status' => 'success',
@@ -14470,67 +14441,35 @@ class Wpsipd_Public
 
 									$columns_1 = array('bidur_lock','giat_lock','id_bidang_urusan','id_giat','id_misi','id_program','id_unik','id_unik_indikator','id_unit','id_visi','indikator','is_locked','is_locked_indikator','kode_bidang_urusan','kode_giat','kode_program','kode_sasaran','kode_skpd','kode_tujuan','kode_unik_program','nama_bidang_urusan','nama_giat','nama_program','nama_skpd','pagu_1','pagu_2','pagu_3','pagu_4','pagu_5','program_lock','renstra_prog_lock','sasaran_lock','sasaran_teks','satuan','status','target_1','target_2','target_3','target_4','target_5','target_akhir','target_awal','tujuan_lock','tujuan_teks','urut_sasaran','urut_tujuan','active','update_at','tahun_anggaran');
 		
-									$sql_backup_data_renstra_kegiatan =  "INSERT INTO data_renstra_kegiatan_history (".implode(', ', $columns_1).",id_jadwal,id_asli)
+									$sql_backup_data_renstra_kegiatan_lokal =  "INSERT INTO data_renstra_kegiatan_lokal_history (".implode(', ', $columns_1).",id_jadwal,id_asli)
 												SELECT ".implode(', ', $columns_1).", ".$data_this_id[0]['id_jadwal_lokal'].", id as id_asli
-												FROM data_renstra_kegiatan";
-
-									$queryRecords1 = $wpdb->query($sql_backup_data_renstra_kegiatan);
-
-									$columns_2 = array('bidur_lock','giat_lock','id_bidang_urusan','id_giat','id_misi','id_program','id_unik','id_unik_indikator','id_unit','id_visi','indikator','is_locked','is_locked_indikator','kode_bidang_urusan','kode_giat','kode_program','kode_sasaran','kode_skpd','kode_tujuan','kode_unik_program','nama_bidang_urusan','nama_giat','nama_program','nama_skpd','pagu_1','pagu_2','pagu_3','pagu_4','pagu_5','program_lock','renstra_prog_lock','sasaran_lock','sasaran_teks','satuan','status','target_1','target_2','target_3','target_4','target_5','target_akhir','target_awal','tujuan_lock','tujuan_teks','urut_sasaran','urut_tujuan','active','update_at','tahun_anggaran');
-		
-									$sql_backup_data_renstra_kegiatan_lokal =  "INSERT INTO data_renstra_kegiatan_lokal_history (".implode(', ', $columns_2).",id_jadwal,id_asli)
-												SELECT ".implode(', ', $columns_2).", ".$data_this_id[0]['id_jadwal_lokal'].", id as id_asli
 												FROM data_renstra_kegiatan_lokal";
 
-									$queryRecords2 = $wpdb->query($sql_backup_data_renstra_kegiatan_lokal);
+									$queryRecords1 = $wpdb->query($sql_backup_data_renstra_kegiatan_lokal);
 
-									$columns_3 = array('bidur_lock','id_bidang_urusan','id_misi','id_program','id_unik','id_unik_indikator','id_unit','id_visi','indikator','is_locked','is_locked_indikator','kode_bidang_urusan','kode_program','kode_sasaran','kode_skpd','kode_tujuan','nama_bidang_urusan','nama_program','nama_skpd','pagu_1','pagu_2','pagu_3','pagu_4','pagu_5','program_lock','sasaran_lock','sasaran_teks','satuan','status','target_1','target_2','target_3','target_4','target_5','target_akhir','target_awal','tujuan_lock','tujuan_teks','urut_sasaran','urut_tujuan','active','update_at','tahun_anggaran');
+									$columns_2 = array('bidur_lock','id_bidang_urusan','id_misi','id_program','id_unik','id_unik_indikator','id_unit','id_visi','indikator','is_locked','is_locked_indikator','kode_bidang_urusan','kode_program','kode_sasaran','kode_skpd','kode_tujuan','nama_bidang_urusan','nama_program','nama_skpd','pagu_1','pagu_2','pagu_3','pagu_4','pagu_5','program_lock','sasaran_lock','sasaran_teks','satuan','status','target_1','target_2','target_3','target_4','target_5','target_akhir','target_awal','tujuan_lock','tujuan_teks','urut_sasaran','urut_tujuan','active','update_at','tahun_anggaran');
 		
-									$sql_backup_data_renstra_program =  "INSERT INTO data_renstra_program_history (".implode(', ', $columns_3).",id_jadwal,id_asli)
-												SELECT ".implode(', ', $columns_3).", ".$data_this_id[0]['id_jadwal_lokal'].", id as id_asli
-												FROM data_renstra_program";
-
-									$queryRecords3 = $wpdb->query($sql_backup_data_renstra_program);
-
-									$columns_4 = array('bidur_lock','id_bidang_urusan','id_misi','id_program','id_unik','id_unik_indikator','id_unit','id_visi','indikator','is_locked','is_locked_indikator','kode_bidang_urusan','kode_program','kode_sasaran','kode_skpd','kode_tujuan','nama_bidang_urusan','nama_program','nama_skpd','pagu_1','pagu_2','pagu_3','pagu_4','pagu_5','program_lock','sasaran_lock','sasaran_teks','satuan','status','target_1','target_2','target_3','target_4','target_5','target_akhir','target_awal','tujuan_lock','tujuan_teks','urut_sasaran','urut_tujuan','active','update_at','tahun_anggaran');
-		
-									$sql_backup_data_renstra_program_lokal =  "INSERT INTO data_renstra_program_lokal_history (".implode(', ', $columns_4).",id_jadwal,id_asli)
-												SELECT ".implode(', ', $columns_4).", ".$data_this_id[0]['id_jadwal_lokal'].", id as id_asli
+									$sql_backup_data_renstra_program_lokal =  "INSERT INTO data_renstra_program_lokal_history (".implode(', ', $columns_2).",id_jadwal,id_asli)
+												SELECT ".implode(', ', $columns_2).", ".$data_this_id[0]['id_jadwal_lokal'].", id as id_asli
 												FROM data_renstra_program_lokal";
 
-									$queryRecords4 = $wpdb->query($sql_backup_data_renstra_program_lokal);
+									$queryRecords2 = $wpdb->query($sql_backup_data_renstra_program_lokal);
 
-									$columns_5 = array('bidur_lock','id_bidang_urusan','id_misi','id_unik','id_unik_indikator','id_unit','id_visi','indikator_teks','is_locked','is_locked_indikator','kode_bidang_urusan','kode_skpd','kode_tujuan','nama_bidang_urusan','nama_skpd','sasaran_teks','satuan','status','target_1','target_2','target_3','target_4','target_5','target_akhir','target_awal','tujuan_lock','tujuan_teks','urut_sasaran','urut_tujuan','active','update_at','tahun_anggaran');
+									$columns_3 = array('bidur_lock','id_bidang_urusan','id_misi','id_unik','id_unik_indikator','id_unit','id_visi','indikator_teks','is_locked','is_locked_indikator','kode_bidang_urusan','kode_skpd','kode_tujuan','nama_bidang_urusan','nama_skpd','sasaran_teks','satuan','status','target_1','target_2','target_3','target_4','target_5','target_akhir','target_awal','tujuan_lock','tujuan_teks','urut_sasaran','urut_tujuan','active','update_at','tahun_anggaran');
 		
-									$sql_backup_data_renstra_sasaran =  "INSERT INTO data_renstra_sasaran_history (".implode(', ', $columns_5).",id_jadwal,id_asli)
-												SELECT ".implode(', ', $columns_5).", ".$data_this_id[0]['id_jadwal_lokal'].", id as id_asli
-												FROM data_renstra_sasaran";
-
-									$queryRecords5 = $wpdb->query($sql_backup_data_renstra_sasaran);
-
-									$columns_6 = array('bidur_lock','id_bidang_urusan','id_misi','id_unik','id_unik_indikator','id_unit','id_visi','indikator_teks','is_locked','is_locked_indikator','kode_bidang_urusan','kode_skpd','kode_tujuan','nama_bidang_urusan','nama_skpd','sasaran_teks','satuan','status','target_1','target_2','target_3','target_4','target_5','target_akhir','target_awal','tujuan_lock','tujuan_teks','urut_sasaran','urut_tujuan','active','update_at','tahun_anggaran');
-		
-									$sql_backup_data_renstra_sasaran_lokal =  "INSERT INTO data_renstra_sasaran_lokal_history (".implode(', ', $columns_6).",id_jadwal,id_asli)
-												SELECT ".implode(', ', $columns_6).", ".$data_this_id[0]['id_jadwal_lokal'].", id as id_asli
+									$sql_backup_data_renstra_sasaran_lokal =  "INSERT INTO data_renstra_sasaran_lokal_history (".implode(', ', $columns_3).",id_jadwal,id_asli)
+												SELECT ".implode(', ', $columns_3).", ".$data_this_id[0]['id_jadwal_lokal'].", id as id_asli
 												FROM data_renstra_sasaran_lokal";
 
-									$queryRecords6 = $wpdb->query($sql_backup_data_renstra_sasaran_lokal);
+									$queryRecords3 = $wpdb->query($sql_backup_data_renstra_sasaran_lokal);
 
-									$columns_7 = array('bidur_lock','id_bidang_urusan','id_unik','id_unik_indikator','id_unit','indikator_teks','is_locked','is_locked_indikator','kode_bidang_urusan','kode_sasaran_rpjm','kode_skpd','nama_bidang_urusan','nama_skpd','satuan','status','target_1','target_2','target_3','target_4','target_5','target_akhir','target_awal','tujuan_teks','urut_tujuan','active','update_at','tahun_anggaran');
+									$columns_4 = array('bidur_lock','id_bidang_urusan','id_unik','id_unik_indikator','id_unit','indikator_teks','is_locked','is_locked_indikator','kode_bidang_urusan','kode_sasaran_rpjm','kode_skpd','nama_bidang_urusan','nama_skpd','satuan','status','target_1','target_2','target_3','target_4','target_5','target_akhir','target_awal','tujuan_teks','urut_tujuan','active','update_at','tahun_anggaran');
 		
-									$sql_backup_data_renstra_tujuan =  "INSERT INTO data_renstra_tujuan_history (".implode(', ', $columns_7).",id_jadwal,id_asli)
-												SELECT ".implode(', ', $columns_7).", ".$data_this_id[0]['id_jadwal_lokal'].", id as id_asli
-												FROM data_renstra_tujuan";
-
-									$queryRecords7 = $wpdb->query($sql_backup_data_renstra_tujuan);
-
-									$columns_8 = array('bidur_lock','id_bidang_urusan','id_unik','id_unik_indikator','id_unit','indikator_teks','is_locked','is_locked_indikator','kode_bidang_urusan','kode_sasaran_rpjm','kode_skpd','nama_bidang_urusan','nama_skpd','satuan','status','target_1','target_2','target_3','target_4','target_5','target_akhir','target_awal','tujuan_teks','urut_tujuan','active','update_at','tahun_anggaran');
-		
-									$sql_backup_data_renstra_tujuan_lokal =  "INSERT INTO data_renstra_tujuan_lokal_history (".implode(', ', $columns_8).",id_jadwal,id_asli)
-												SELECT ".implode(', ', $columns_8).", ".$data_this_id[0]['id_jadwal_lokal'].", id as id_asli
+									$sql_backup_data_renstra_tujuan_lokal =  "INSERT INTO data_renstra_tujuan_lokal_history (".implode(', ', $columns_4).",id_jadwal,id_asli)
+												SELECT ".implode(', ', $columns_4).", ".$data_this_id[0]['id_jadwal_lokal'].", id as id_asli
 												FROM data_renstra_tujuan_lokal";
 
-									$queryRecords8 = $wpdb->query($sql_backup_data_renstra_tujuan_lokal);
+									$queryRecords4 = $wpdb->query($sql_backup_data_renstra_tujuan_lokal);
 
 									$return = array(
 										'status' => 'success',
