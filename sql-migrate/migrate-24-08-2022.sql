@@ -160,7 +160,6 @@ CREATE TABLE `data_rpd_tujuan_lokal` (
   `urut_saspok` tinyint(4) DEFAULT NULL,
   `urut_tujuan` tinyint(4) DEFAULT NULL,
   `visi_teks` text DEFAULT NULL,
-  `active` tinyint(4) NOT NULL,
   `update_at` datetime NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 ALTER TABLE `data_rpd_tujuan_lokal`
@@ -201,7 +200,6 @@ CREATE TABLE `data_rpd_sasaran_lokal` (
   `urut_saspok` text DEFAULT NULL,
   `urut_tujuan` text DEFAULT NULL,
   `visi_teks` text DEFAULT NULL,
-  `active` tinyint(4) NOT NULL,
   `update_at` datetime NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 ALTER TABLE `data_rpd_sasaran_lokal`
@@ -256,7 +254,6 @@ CREATE TABLE `data_rpd_program_lokal` (
   `urut_saspok` tinyint(4) DEFAULT NULL,
   `urut_tujuan` tinyint(4) DEFAULT NULL,
   `visi_teks` text DEFAULT NULL,
-  `active` tinyint(4) NOT NULL,
   `update_at` datetime NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 ALTER TABLE `data_rpd_program_lokal`
@@ -432,7 +429,6 @@ CREATE TABLE `data_rpd_tujuan_lokal_history` (
   `urut_saspok` tinyint(4) DEFAULT NULL,
   `urut_tujuan` tinyint(4) DEFAULT NULL,
   `visi_teks` text DEFAULT NULL,
-  `active` tinyint(4) NOT NULL,
   `update_at` datetime NOT NULL,
   `id_jadwal` int(11) NOT NULL,
   `id_asli` int(11) NOT NULL
@@ -475,7 +471,6 @@ CREATE TABLE `data_rpd_sasaran_lokal_history` (
   `urut_saspok` text DEFAULT NULL,
   `urut_tujuan` text DEFAULT NULL,
   `visi_teks` text DEFAULT NULL,
-  `active` tinyint(4) NOT NULL,
   `update_at` datetime NOT NULL,
   `id_jadwal` int(11) NOT NULL,
   `id_asli` int(11) NOT NULL
@@ -532,7 +527,6 @@ CREATE TABLE `data_rpd_program_lokal_history` (
   `urut_saspok` tinyint(4) DEFAULT NULL,
   `urut_tujuan` tinyint(4) DEFAULT NULL,
   `visi_teks` text DEFAULT NULL,
-  `active` tinyint(4) NOT NULL,
   `update_at` datetime NOT NULL,
   `id_jadwal` int(11) NOT NULL,
   `id_asli` int(11) NOT NULL

@@ -436,6 +436,9 @@ class Wpsipd
 		$this->loader->add_action('wp_ajax_singkron_data_rpd',  $plugin_public, 'singkron_data_rpd');
 		$this->loader->add_action('wp_ajax_nopriv_singkron_data_rpd',  $plugin_public, 'singkron_data_rpd');
 
+		$this->loader->add_action('wp_ajax_get_tujuan_rpd',  $plugin_public, 'get_tujuan_rpd');
+		$this->loader->add_action('wp_ajax_nopriv_get_tujuan_rpd',  $plugin_public, 'get_tujuan_rpd');
+
 		$this->loader->add_action('wp_ajax_simpan_rfk',  $plugin_public, 'simpan_rfk');
 		$this->loader->add_action('wp_ajax_reset_rfk',  $plugin_public, 'reset_rfk');
 		$this->loader->add_action('wp_ajax_reset_catatan_verifkator_rfk',  $plugin_public, 'reset_catatan_verifkator_rfk');
@@ -485,6 +488,7 @@ class Wpsipd
 		$this->loader->add_action('wp_ajax_submit_lock_schedule',  $plugin_public, 'submit_lock_schedule');
 		$this->loader->add_action('wp_ajax_run_sql_migrate',  $plugin_public, 'run_sql_migrate');
 		$this->loader->add_action('wp_ajax_singkron_rpjmd_sipd_lokal',  $plugin_public, 'singkron_rpjmd_sipd_lokal');
+		$this->loader->add_action('wp_ajax_singkron_rpd_sipd_lokal',  $plugin_public, 'singkron_rpd_sipd_lokal');
 		$this->loader->add_action('wp_ajax_submit_lock_schedule_rpjm',  $plugin_public, 'submit_lock_schedule_rpjm');
 		$this->loader->add_action('wp_ajax_submit_lock_schedule_renstra',  $plugin_public, 'submit_lock_schedule_renstra');
 
@@ -516,6 +520,7 @@ class Wpsipd
 		add_shortcode('monitoring_sql_migrate', array($plugin_public, 'monitoring_sql_migrate'));
 		add_shortcode('jadwal_rpjm', array($plugin_public, 'jadwal_rpjm'));
 		add_shortcode('jadwal_renstra', array($plugin_public, 'jadwal_renstra'));
+		add_shortcode('input_rpd', array($plugin_public, 'input_rpd'));
 	}
 
 	/**
