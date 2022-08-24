@@ -2739,6 +2739,199 @@ class Wpsipd_Public
 		die(json_encode($ret));
 	}
 
+	public function singkron_data_rpd()
+	{
+		global $wpdb;
+		$ret = array(
+			'status'	=> 'success',
+			'message'	=> 'Berhasil singkron RPD!'
+		);
+		if (!empty($_POST)) {
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+
+				if (!empty($_POST['tujuan'])) {
+					$tujuan = $_POST['tujuan'];
+					$wpdb->update('data_rpd_tujuan', array('active' => 0), array('active' => 1));
+					foreach ($tujuan as $k => $v) {
+						if(empty($v['id_tujuan'])){
+							continue;
+						}
+						$cek = $wpdb->get_var("SELECT id_tujuan from data_rpd_tujuan where id_unik='" . $v['id_unik']."' AND id_unik_indikator='" . $v['id_unik_indikator']."'");
+						$opsi = array(
+							'head_teks' => $v['head_teks'],
+							'id_misi_old' => $v['id_misi_old'],
+							'id_tujuan' => $v['id_tujuan'],
+							'id_unik' => $v['id_unik'],
+							'id_unik_indikator' => $v['id_unik_indikator'],
+							'indikator_teks' => $v['indikator_teks'],
+							'is_locked' => $v['is_locked'],
+							'is_locked_indikator' => $v['is_locked_indikator'],
+							'isu_teks' => $v['isu_teks'],
+							'kebijakan_teks' => $v['kebijakan_teks'],
+							'misi_lock' => $v['misi_lock'],
+							'misi_teks' => $v['misi_teks'],
+							'saspok_teks' => $v['saspok_teks'],
+							'satuan' => $v['satuan'],
+							'status' => $v['status'],
+							'target_1' => $v['target_1'],
+							'target_2' => $v['target_2'],
+							'target_3' => $v['target_3'],
+							'target_4' => $v['target_4'],
+							'target_5' => $v['target_5'],
+							'target_akhir' => $v['target_akhir'],
+							'target_awal' => $v['target_awal'],
+							'tujuan_teks' => $v['tujuan_teks'],
+							'urut_misi' => $v['urut_misi'],
+							'urut_saspok' => $v['urut_saspok'],
+							'urut_tujuan' => $v['urut_tujuan'],
+							'visi_teks' => $v['visi_teks'],
+							'active' => 1,
+							'update_at' => current_time('mysql')
+						);
+
+						if (!empty($cek)) {
+							$wpdb->update('data_rpd_tujuan', $opsi, array(
+								'id_unik' => $v['id_unik'],
+								'id_unik_indikator' => $v['id_unik_indikator']
+							));
+						} else {
+							$wpdb->insert('data_rpd_tujuan', $opsi);
+						}
+					}
+				}
+				if (!empty($_POST['sasaran'])) {
+					$sasaran = $_POST['sasaran'];
+					$wpdb->update('data_rpd_sasaran', array('active' => 0), array('active' => 1));
+					foreach ($sasaran as $k => $v) {
+						if(empty($v['id_sasaran'])){
+							continue;
+						}
+						$cek = $wpdb->get_var("SELECT id_sasaran from data_rpd_sasaran where id_unik='" . $v['id_unik']."' AND id_unik_indikator='" . $v['id_unik_indikator']."'");
+						$opsi = array(
+							'head_teks' => $v['head_teks'],
+							'id_misi_old' => $v['id_misi_old'],
+							'id_sasaran' => $v['id_sasaran'],
+							'id_unik' => $v['id_unik'],
+							'id_unik_indikator' => $v['id_unik_indikator'],
+							'indikator_teks' => $v['indikator_teks'],
+							'is_locked' => $v['is_locked'],
+							'is_locked_indikator' => $v['is_locked_indikator'],
+							'isu_teks' => $v['isu_teks'],
+							'kebijakan_teks' => $v['kebijakan_teks'],
+							'kode_tujuan' => $v['kode_tujuan'],
+							'misi_lock' => $v['misi_lock'],
+							'misi_teks' => $v['misi_teks'],
+							'sasaran_teks' => $v['sasaran_teks'],
+							'saspok_teks' => $v['saspok_teks'],
+							'satuan' => $v['satuan'],
+							'status' => $v['status'],
+							'target_1' => $v['target_1'],
+							'target_2' => $v['target_2'],
+							'target_3' => $v['target_3'],
+							'target_4' => $v['target_4'],
+							'target_5' => $v['target_5'],
+							'target_akhir' => $v['target_akhir'],
+							'target_awal' => $v['target_awal'],
+							'tujuan_lock' => $v['tujuan_lock'],
+							'tujuan_teks' => $v['tujuan_teks'],
+							'urut_misi' => $v['urut_misi'],
+							'urut_sasaran' => $v['urut_sasaran'],
+							'urut_saspok' => $v['urut_saspok'],
+							'urut_tujuan' => $v['urut_tujuan'],
+							'visi_teks' => $v['visi_teks'],
+							'active' => 1,
+							'update_at' => current_time('mysql')
+						);
+
+						if (!empty($cek)) {
+							$wpdb->update('data_rpd_sasaran', $opsi, array(
+								'id_unik' => $v['id_unik'],
+								'id_unik_indikator' => $v['id_unik_indikator']
+							));
+						} else {
+							$wpdb->insert('data_rpd_sasaran', $opsi);
+						}
+					}
+				}
+				if (!empty($_POST['program'])) {
+					$program = $_POST['program'];
+					$wpdb->update('data_rpd_program', array('active' => 0), array('active' => 1));
+					foreach ($program as $k => $v) {
+						if(empty($v['id_program'])){
+							continue;
+						}
+						$cek = $wpdb->get_var("SELECT id_program from data_rpd_program where id_unik='" . $v['id_unik']."' AND id_unik_indikator='" . $v['id_unik_indikator']."'");
+						$opsi = array(
+							'head_teks' => $v['head_teks'],
+							'id_bidur_mth' => $v['id_bidur_mth'],
+							'id_misi_old' => $v['id_misi_old'],
+							'id_program' => $v['id_program'],
+							'id_program_mth' => $v['id_program_mth'],
+							'id_unik' => $v['id_unik'],
+							'id_unik_indikator' => $v['id_unik_indikator'],
+							'id_unit' => $v['id_unit'],
+							'indikator' => $v['indikator'],
+							'is_locked' => $v['is_locked'],
+							'is_locked_indikator' => $v['is_locked_indikator'],
+							'isu_teks' => $v['isu_teks'],
+							'kebijakan_teks' => $v['kebijakan_teks'],
+							'kode_sasaran' => $v['kode_sasaran'],
+							'kode_skpd' => $v['kode_skpd'],
+							'kode_tujuan' => $v['kode_tujuan'],
+							'misi_lock' => $v['misi_lock'],
+							'misi_teks' => $v['misi_teks'],
+							'nama_program' => $v['nama_program'],
+							'nama_skpd' => $v['nama_skpd'],
+							'pagu_1' => $v['pagu_1'],
+							'pagu_2' => $v['pagu_2'],
+							'pagu_3' => $v['pagu_3'],
+							'pagu_4' => $v['pagu_4'],
+							'pagu_5' => $v['pagu_5'],
+							'program_lock' => $v['program_lock'],
+							'sasaran_lock' => $v['sasaran_lock'],
+							'sasaran_teks' => $v['sasaran_teks'],
+							'saspok_teks' => $v['saspok_teks'],
+							'satuan' => $v['satuan'],
+							'status' => $v['status'],
+							'target_1' => $v['target_1'],
+							'target_2' => $v['target_2'],
+							'target_3' => $v['target_3'],
+							'target_4' => $v['target_4'],
+							'target_5' => $v['target_5'],
+							'target_akhir' => $v['target_akhir'],
+							'target_awal' => $v['target_awal'],
+							'tujuan_lock' => $v['tujuan_lock'],
+							'tujuan_teks' => $v['tujuan_teks'],
+							'urut_misi' => $v['urut_misi'],
+							'urut_sasaran' => $v['urut_sasaran'],
+							'urut_saspok' => $v['urut_saspok'],
+							'urut_tujuan' => $v['urut_tujuan'],
+							'visi_teks' => $v['visi_teks'],
+							'active' => 1,
+							'update_at' => current_time('mysql')
+						);
+
+						if (!empty($cek)) {
+							$wpdb->update('data_rpd_program', $opsi, array(
+								'id_unik' => $v['id_unik'],
+								'id_unik_indikator' => $v['id_unik_indikator']
+							));
+						} else {
+							$wpdb->insert('data_rpd_program', $opsi);
+						}
+					}
+				}
+			} else {
+				$ret['status'] = 'error';
+				$ret['message'] = 'APIKEY tidak sesuai!';
+			}
+		} else {
+			$ret['status'] = 'error';
+			$ret['message'] = 'Format Salah!';
+		}
+		die(json_encode($ret));
+	}
+
 	public function singkron_sumber_dana()
 	{
 		global $wpdb;
