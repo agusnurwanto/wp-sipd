@@ -13790,7 +13790,7 @@ class Wpsipd_Public
 
 					$time_period = array(
 						"rpjpd" 	=> 20,
-						"rpjm"		=> 6,
+						"rpjm"		=> 5,
 						"rpd"		=> 0,
 						"renstra"	=> 5,
 						"renja"		=> 1,
