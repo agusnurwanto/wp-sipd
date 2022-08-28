@@ -20,7 +20,11 @@ if(!empty($_GET) && !empty($_GET['sumber_pagu'])){
 }
 
 $cek_pagu_dpa = 'simda';
-if(!empty($_GET) && !empty($_GET['pagu_dpa'])){
+if(
+	!empty($_GET) 
+	&& !empty($_GET['pagu_dpa'])
+	&& $_GET['pagu_dpa'] == 'fmis'
+){
     $cek_pagu_dpa = 'fmis';
 }
 

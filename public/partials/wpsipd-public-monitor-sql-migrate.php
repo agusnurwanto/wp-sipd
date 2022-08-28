@@ -33,6 +33,21 @@
 	if(empty($last_update)){
 		$last_update = 'Belum pernah dirun!';
 	}
+
+	$versi = get_option('_wp_sipd_db_version');
+    if($versi !== $this->version){
+    	$ket = '
+    		<div class="notice notice-warning is-dismissible">
+        		<p>Versi database WP-SIPD tidak sesuai! harap dimutakhirkan. Versi saat ini=<b>'.$this->version.'</b> dan versi WP-SIPD kamu=<b>'.$versi.'</p>
+         	</div>
+         ';
+    }else{
+    	$ket = '
+    		<div class="notice notice-warning is-dismissible">
+        		<p>Versi database WP-SIPD sudah yang terbaru! Versi=<b>'.$this->version.'</b></p>
+         	</div>
+         ';
+    }
 ?>
 <style type="text/css">
 	.warning {
@@ -49,6 +64,7 @@
 	<div style="padding: 10px;">
 		<input type="hidden" value="<?php echo get_option( '_crb_api_key_extension' ); ?>" id="api_key">
 		<h1 class="text-center">Monitoring SQL migrate WP-SIPD</h1>
+		<h3 class="text-center"><?php echo $ket; ?></h3>
 		<h3 class="text-center">Update terakhir: <b id="status_update"><?php echo $last_update; ?></b></h3>
 		<table cellpadding="2" cellspacing="0" style="font-family:\'Open Sans\',-apple-system,BlinkMacSystemFont,\'Segoe UI\',sans-serif; border-collapse: collapse; width:100%; overflow-wrap: break-word;" class="table table-bordered">
 			<thead id="data_header">
@@ -80,6 +96,7 @@
 	      		if(data.status == 'success'){
 	      			alert('Sukses: '+data.message);
 					jQuery("#status_update").html(data.value);
+					jQuery(".notice").html('<p>Versi database WP-SIPD sudah yang terbaru! Versi=<b>'+data.version+'</b></p>');
 					update_status();
 				}else{
 	      			alert('Error: '+data.message);

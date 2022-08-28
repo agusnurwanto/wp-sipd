@@ -14782,15 +14782,30 @@ class Wpsipd_Public
 				if(file_exists($path)){
 					$sql = file_get_contents($path);
 					$ret['sql'] = $sql;
-					require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
-					$wpdb->hide_errors();
-					$rows_affected = dbDelta($sql);
-					if(empty($rows_affected)){
-						$ret['status'] = 'error';
-						$ret['message'] = $wpdb->last_error;
+					if($file == 'tabel.sql'){
+						require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
+						$wpdb->hide_errors();
+						$rows_affected = dbDelta($sql);
+						if(empty($rows_affected)){
+							$ret['status'] = 'error';
+							$ret['message'] = $wpdb->last_error;
+						}else{
+							$ret['message'] = implode(' | ', $rows_affected);
+						}
 					}else{
+						$wpdb->hide_errors();
+						$res = $wpdb->query($sql);
+						if(empty($res)){
+							$ret['status'] = 'error';
+							$ret['message'] = $wpdb->last_error;
+						}else{
+							$ret['message'] = $res;
+						}
+					}
+					if($ret['status'] == 'success'){
+						$ret['version'] = $this->version;
 						update_option('_last_update_sql_migrate', $ret['value']);
-						$ret['message'] = implode(' | ', $rows_affected);
+						update_option('_wp_sipd_db_version', $this->version);
 					}
 				}else{
 					$ret['status'] = 'error';

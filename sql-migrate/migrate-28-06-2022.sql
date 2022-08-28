@@ -1,2 +1,0 @@
-ALTER TABLE `data_ssh_usulan`  ADD `status_jenis_usulan` varchar(30) DEFAULT NULL AFTER `kode_standar_harga_sipd`;
-ALTER TABLE `data_kelompok_satuan_harga`  ADD `active` tinyint(2) NOT NULL DEFAULT '1' AFTER `tipe_kelompok`;
