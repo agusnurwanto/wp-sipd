@@ -11456,6 +11456,24 @@ class Wpsipd_Public
 
 		require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/wpsipd-public-setting-penjadwalan-renstra.php';
 	}
+	
+	public function jadwal_rpjpd($atts){
+		// untuk disable render shortcode di halaman edit page/post
+		if(!empty($_GET) && !empty($_GET['post'])){
+			return '';
+		}
+
+		require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/wpsipd-public-setting-penjadwalan-rpjpd.php';
+	}
+
+	public function jadwal_rpd($atts){
+		// untuk disable render shortcode di halaman edit page/post
+		if(!empty($_GET) && !empty($_GET['post'])){
+			return '';
+		}
+
+		require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/wpsipd-public-setting-penjadwalan-rpd.php';
+	}
 
 	public function get_data_ssh_sipd(){
 		global $wpdb;
@@ -14003,7 +14021,7 @@ class Wpsipd_Public
 
 					$time_period = array(
 						"rpjpd" 	=> 20,
-						"rpjm"		=> 6,
+						"rpjm"		=> 5,
 						"rpd"		=> 0,
 						"renstra"	=> 5,
 						"renja"		=> 1,
@@ -14532,7 +14550,7 @@ class Wpsipd_Public
 										'id_jadwal_lokal'	=> $id_jadwal_lokal
 									));
 
-									$columns_1 = array('id_misi','id_misi_old','id_visi','is_locked','misi_teks','status','urut_misi','visi_lock','visi_teks','update_at','active','tahun_anggaran');
+									$columns_1 = array('id_misi','id_misi_old','id_visi','is_locked','misi_teks','status','urut_misi','visi_lock','visi_teks','update_at');
 		
 									$sql_backup_data_rpjmd_misi_lokal =  "INSERT INTO data_rpjmd_misi_lokal_history (".implode(', ', $columns_1).",id_jadwal,id_asli)
 												SELECT ".implode(', ', $columns_1).", ".$data_this_id[0]['id_jadwal_lokal'].", id as id_asli
@@ -14683,6 +14701,110 @@ class Wpsipd_Public
 												FROM data_renstra_tujuan_lokal";
 
 									$queryRecords4 = $wpdb->query($sql_backup_data_renstra_tujuan_lokal);
+
+									$return = array(
+										'status' => 'success',
+										'message'	=> 'Berhasil!',
+										'data_input' => $queryRecords1
+									);
+								}else{
+									$return = array(
+										'status' => 'error',
+										'message'	=> "User tidak diijinkan!\nData sudah dikunci!",
+									);
+								}
+							}else{
+								$return = array(
+									'status' => 'error',
+									'message'	=> "Penjadwalan sudah kadaluwarsa!",
+								);
+							}
+						}else{
+							$return = array(
+								'status' => 'error',
+								'message'	=> "Penjadwalan belum dimulai!",
+							);
+						}
+					}else{
+						$return = array(
+							'status' => 'error',
+							'message'	=> "User tidak diijinkan!",
+						);
+					}
+				}else{
+					$return = array(
+						'status' => 'error',
+						'message'	=> 'Harap diisi semua,tidak boleh ada yang kosong!'
+					);
+				}
+			}else{
+				$return = array(
+					'status' => 'error',
+					'message'	=> 'Api Key tidak sesuai!'
+				);
+			}
+		}else{
+			$return = array(
+				'status' => 'error',
+				'message'	=> 'Format tidak sesuai!'
+			);
+		}
+		die(json_encode($return));
+	}
+
+	/** Submit lock data jadwal RPD */
+	public function submit_lock_schedule_rpd(){
+		global $wpdb;
+		$return = array(
+			'status' => 'success',
+			'data'	=> array()
+		);
+
+		$user_id = um_user( 'ID' );
+		$user_meta = get_userdata($user_id);
+
+		if(!empty($_POST)){
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+				if(!empty($_POST['id_jadwal_lokal'])){
+					if(in_array("administrator", $user_meta->roles)){
+						$id_jadwal_lokal= trim(htmlspecialchars($_POST['id_jadwal_lokal']));
+
+						$data_this_id 	= $wpdb->get_results($wpdb->prepare('SELECT * FROM data_jadwal_lokal WHERE id_jadwal_lokal = %d',$id_jadwal_lokal), ARRAY_A);
+
+						date_default_timezone_set("Asia/Bangkok");
+						$dateTime = new DateTime();
+						$time_now = $dateTime->format('Y-m-d H:i:s');
+						if($time_now > $data_this_id[0]['waktu_awal']){
+							if($time_now < $data_this_id[0]['waktu_akhir']){
+								if($data_this_id[0]['status'] == 0 || $data_this_id[0]['status'] == NULL){
+									//lock data penjadwalan
+									$wpdb->update('data_jadwal_lokal', array('status' => 1), array(
+										'id_jadwal_lokal'	=> $id_jadwal_lokal
+									));
+
+									$columns_1 = array('head_teks','id_misi_old','id_tujuan','id_unik','id_unik_indikator','indikator_teks','is_locked','is_locked_indikator','isu_teks','kebijakan_teks','misi_lock','misi_teks','saspok_teks','satuan','status','target_1','target_2','target_3','target_4','target_5','target_akhir','target_awal','tujuan_teks','urut_misi','urut_saspok','urut_tujuan','visi_teks','update_at');
+		
+									$sql_backup_data_rpd_tujuan_lokal =  "INSERT INTO data_rpd_tujuan_lokal_history (".implode(', ', $columns_1).",id_jadwal,id_asli)
+												SELECT ".implode(', ', $columns_1).", ".$data_this_id[0]['id_jadwal_lokal'].", id as id_asli
+												FROM data_rpd_tujuan_lokal";
+
+									$queryRecords1 = $wpdb->query($sql_backup_data_rpd_tujuan_lokal);
+
+									$columns_2 = array('head_teks','id_misi_old','id_sasaran','id_unik','id_unik_indikator','indikator_teks','is_locked','is_locked_indikator','isu_teks','kebijakan_teks','kode_tujuan','misi_lock','misi_teks','sasaran_teks','saspok_teks','satuan','status','target_1','target_2','target_3','target_4','target_5','target_akhir','target_awal','tujuan_lock','tujuan_teks','urut_misi','urut_sasaran','urut_saspok','urut_tujuan','visi_teks','update_at');
+		
+									$sql_backup_data_rpd_sasaran_lokal =  "INSERT INTO data_rpd_sasaran_lokal_history (".implode(', ', $columns_2).",id_jadwal,id_asli)
+												SELECT ".implode(', ', $columns_2).", ".$data_this_id[0]['id_jadwal_lokal'].", id as id_asli
+												FROM data_rpd_sasaran_lokal";
+
+									$queryRecords2 = $wpdb->query($sql_backup_data_rpd_sasaran_lokal);
+
+									$columns_3 = array('head_teks','id_bidur_mth','id_misi_old','id_program','id_program_mth','id_unik','id_unik_indikator','id_unit','indikator','is_locked','is_locked_indikator','isu_teks','kebijakan_teks','kode_sasaran','kode_skpd','kode_tujuan','misi_lock','misi_teks','nama_program','nama_skpd','pagu_1','pagu_2','pagu_3','pagu_4','pagu_5','program_lock','sasaran_lock','sasaran_teks','saspok_teks','satuan','status','target_1','target_2','target_3','target_4','target_5','target_akhir','target_awal','tujuan_lock','tujuan_teks','urut_misi','urut_sasaran','urut_saspok','urut_tujuan','visi_teks','update_at');
+		
+									$sql_backup_data_rpd_program_lokal =  "INSERT INTO data_rpd_program_lokal_history (".implode(', ', $columns_3).",id_jadwal,id_asli)
+												SELECT ".implode(', ', $columns_3).", ".$data_this_id[0]['id_jadwal_lokal'].", id as id_asli
+												FROM data_rpd_program_lokal";
+
+									$queryRecords3 = $wpdb->query($sql_backup_data_rpd_program_lokal);
 
 									$return = array(
 										'status' => 'success',
@@ -15368,5 +15490,47 @@ class Wpsipd_Public
 			);
 		}
 		die(json_encode($ret));
+	}
+
+	function validasi_jadwal_perencanaan($tipe_perencanaan){
+		global $wpdb;
+
+		$data_return = array(
+			'status' => 200,
+			'message' => "Berhasil"
+		);
+
+		if(!empty($tipe_perencanaan)){
+			date_default_timezone_set("Asia/Bangkok");
+			$dateTime = new DateTime();
+			$time_now = $dateTime->format('Y-m-d H:i:s');
+
+			$sql_tipe = $wpdb->get_results("SELECT * FROM `data_tipe_perencanaan` WHERE nama_tipe='".$tipe_perencanaan."'", ARRAY_A);
+
+			$sql_jadwal_lokal = $wpdb->get_results("SELECT nama,waktu_awal,waktu_akhir,status,tahun_anggaran FROM `data_jadwal_lokal` WHERE status = 0 AND (waktu_awal < '".$time_now."' AND waktu_akhir > '".$time_now."') AND id_tipe='".$sql_tipe[0]['id']."'", ARRAY_A);
+
+			if(!empty($sql_jadwal_lokal)){
+				$data_return = array(
+					'status' 	=> 'success',
+					'message'	=> "Berhasil",
+					'data'		=> $sql_jadwal_lokal
+				);
+			}else{
+				$data_return = array(
+					'status' 	=> 'error',
+					'message'	=> "Data terbuka tidak ditemukan.",
+					'data'		=> $sql_jadwal_lokal
+				);
+			}
+			
+		}else{
+			$data_return = array(
+				'status' 	=> 'error',
+				'message' 	=> "Gagal, tipe perencanaan tidak ada",
+				'data'		=> ''
+			);
+		}
+
+		return $data_return;
 	}
 }
