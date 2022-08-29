@@ -522,6 +522,7 @@ class Wpsipd
 		add_shortcode('jadwal_rpjm', array($plugin_public, 'jadwal_rpjm'));
 		add_shortcode('jadwal_renstra', array($plugin_public, 'jadwal_renstra'));
 		add_shortcode('input_rpd', array($plugin_public, 'input_rpd'));
+		add_shortcode('input_rpjpd', array($plugin_public, 'input_rpjpd'));
 	}
 
 	/**

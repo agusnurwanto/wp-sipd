@@ -3521,6 +3521,102 @@ CREATE TABLE `data_rpd_program_lokal_history` (
   PRIMARY KEY  (id)
 );
 
+CREATE TABLE `data_rpjpd_visi` (
+  `id` int(11) NOT NULL auto_increment,
+  `visi_teks` text DEFAULT NULL,
+  `update_at` datetime NOT NULL,
+  PRIMARY KEY  (id)
+);
+
+CREATE TABLE `data_rpjpd_misi` (
+  `id` int(11) NOT NULL auto_increment,
+  `id_visi` int(11) DEFAULT NULL,
+  `misi_teks` text DEFAULT NULL,
+  `urut_misi` tinyint(4) DEFAULT NULL,
+  `update_at` datetime NOT NULL,
+  PRIMARY KEY  (id)
+);
+
+CREATE TABLE `data_rpjpd_sasaran` (
+  `id` int(11) NOT NULL auto_increment,
+  `id_misi` int(11) DEFAULT NULL,
+  `saspok_teks` text DEFAULT NULL,
+  `urut_saspok` tinyint(4) DEFAULT NULL,
+  `update_at` datetime NOT NULL,
+  PRIMARY KEY  (id)
+);
+
+CREATE TABLE `data_rpjpd_kebijakan` (
+  `id` int(11) NOT NULL auto_increment,
+  `id_saspok` int(11) DEFAULT NULL,
+  `kebijakan_teks` text DEFAULT NULL,
+  `urut_kebijakan` tinyint(4) DEFAULT NULL,
+  `update_at` datetime NOT NULL,
+  PRIMARY KEY  (id)
+);
+
+CREATE TABLE `data_rpjpd_sasaran` (
+  `id` int(11) NOT NULL auto_increment,
+  `id_kebijakan` int(11) DEFAULT NULL,
+  `isu_teks` text DEFAULT NULL,
+  `urut_isu` tinyint(4) DEFAULT NULL,
+  `update_at` datetime NOT NULL,
+  PRIMARY KEY  (id)
+);
+
+CREATE TABLE `data_rpjpd_visi_history` (
+  `id` int(11) NOT NULL auto_increment,
+  `visi_teks` text DEFAULT NULL,
+  `update_at` datetime NOT NULL,
+  `id_jadwal` int(11) NOT NULL,
+  `id_asli` int(11) NOT NULL,
+  PRIMARY KEY  (id)
+);
+
+CREATE TABLE `data_rpjpd_misi_history` (
+  `id` int(11) NOT NULL auto_increment,
+  `id_visi` int(11) DEFAULT NULL,
+  `misi_teks` text DEFAULT NULL,
+  `urut_misi` tinyint(4) DEFAULT NULL,
+  `update_at` datetime NOT NULL,
+  `id_jadwal` int(11) NOT NULL,
+  `id_asli` int(11) NOT NULL,
+  PRIMARY KEY  (id)
+);
+
+CREATE TABLE `data_rpjpd_sasaran_history` (
+  `id` int(11) NOT NULL auto_increment,
+  `id_misi` int(11) DEFAULT NULL,
+  `saspok_teks` text DEFAULT NULL,
+  `urut_saspok` tinyint(4) DEFAULT NULL,
+  `update_at` datetime NOT NULL,
+  `id_jadwal` int(11) NOT NULL,
+  `id_asli` int(11) NOT NULL,
+  PRIMARY KEY  (id)
+);
+
+CREATE TABLE `data_rpjpd_kebijakan_history` (
+  `id` int(11) NOT NULL auto_increment,
+  `id_saspok` int(11) DEFAULT NULL,
+  `kebijakan_teks` text DEFAULT NULL,
+  `urut_kebijakan` tinyint(4) DEFAULT NULL,
+  `update_at` datetime NOT NULL,
+  `id_jadwal` int(11) NOT NULL,
+  `id_asli` int(11) NOT NULL,
+  PRIMARY KEY  (id)
+);
+
+CREATE TABLE `data_rpjpd_sasaran_history` (
+  `id` int(11) NOT NULL auto_increment,
+  `id_kebijakan` int(11) DEFAULT NULL,
+  `isu_teks` text DEFAULT NULL,
+  `urut_isu` tinyint(4) DEFAULT NULL,
+  `update_at` datetime NOT NULL,
+  `id_jadwal` int(11) NOT NULL,
+  `id_asli` int(11) NOT NULL,
+  PRIMARY KEY  (id)
+);
+
 INSERT INTO `data_label_komponen` (`id`, `nama`, `keterangan`, `id_skpd`, `user`, `active`, `update_at`, `tahun_anggaran`) VALUES
 (1, 'Penanganan Covid 19', 'Laporan Monev Penanganan Covid 19', 0, 'Admin SIPD', 1, '2021-08-02 16:25:51', 2021),
 (4, 'Alokasi Dana Pendidikan', 'Alokasi anggaran pendidikan sebesar 20% dari APBD sesuai amanat UUD 1945 pasal 31 ayat (4) dan UU No. 20 tahun 2003 tentang Sistem Pendidikan Nasional pasal 49 ayat (1). http://www.djpk.kemenkeu.go.id/?ufaq=apakah-yang-disebut-dengan-mandatory-spending', 0, 'Admin SIPD', 1, '2021-10-22 13:49:18', 2021),

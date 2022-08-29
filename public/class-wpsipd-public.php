@@ -4611,6 +4611,16 @@ class Wpsipd_Public
 		require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/wpsipd-public-input-rpd.php';
 	}
 
+	public function input_rpjpd($atts)
+	{
+		// untuk disable render shortcode di halaman edit page/post
+		if(!empty($_GET) && !empty($_GET['post'])){
+			return '';
+		}
+		
+		require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/wpsipd-public-input-rpjpd.php';
+	}
+
 	public function get_cat_url()
 	{
 		global $wpdb;
