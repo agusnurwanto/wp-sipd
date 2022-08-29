@@ -13,9 +13,9 @@
  * @package           Wpsipd
  *
  * @wordpress-plugin
- * Plugin Name:       Data SIPD
+ * Plugin Name:       WP SIPD
  * Plugin URI:        https://github.com/agusnurwanto/wp-sipd
- * Description:       generate ussing https://wppb.me/
+ * Description:       Aplikasi Open Source untuk backup data SIPD lokal
  * Version:           1.0.0
  * Author:            Agus Nurwanto
  * Author URI:        https://github.com/agusnurwanto

@@ -1,1 +1,0 @@
-ALTER TABLE `data_ssh_usulan`  ADD `kode_standar_harga_sipd` varchar(30) DEFAULT NULL AFTER `keterangan_lampiran`;

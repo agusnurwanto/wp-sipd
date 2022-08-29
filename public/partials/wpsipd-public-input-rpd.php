@@ -319,7 +319,7 @@ foreach ($data_all['data'] as $tujuan) {
 	$body .= '
 		<tr class="tr-tujuan">
 			<td class="kiri atas kanan bawah">'.$no_tujuan.'</td>
-			<td class="atas kanan bawah">'.parsing_nama_kode($tujuan['nama']).$indikator_tujuan.'</td>
+			<td class="atas kanan bawah">'.parsing_nama_kode($tujuan['nama']).'</td>
 			<td class="atas kanan bawah"></td>
 			<td class="atas kanan bawah"></td>
 			<td class="atas kanan bawah">'.$indikator_tujuan.'</td>

@@ -184,6 +184,18 @@ class Wpsipd_Admin {
 		return $this->get_link_post($custom_post);
 	}
 
+	function wp_sipd_admin_notice(){
+        $versi = get_option('_wp_sipd_db_version');
+        if($versi !== $this->version){
+        	$url_sql_migrate = $this->generatePage('Monitoring SQL migrate WP-SIPD', false, '[monitoring_sql_migrate]');
+        	echo '
+        		<div class="notice notice-warning is-dismissible">
+	        		<p>Versi database WP-SIPD tidak sesuai! harap dimutakhirkan. Versi saat ini=<b>'.$this->version.'</b> dan versi WP-SIPD kamu=<b>'.$versi.'</b>. Silahkan update di halaman <a href="'.$url_sql_migrate.'" class="button button-primary button-large">SQL Migrate WP-SIPD</a></p>
+	         	</div>
+	         ';
+        }
+	}
+
 	// https://docs.carbonfields.net/#/containers/theme-options
 	public function crb_attach_sipd_options(){
 		if( !is_admin() ){
@@ -560,8 +572,11 @@ class Wpsipd_Admin {
 
 	public function get_setting_fmis(){
 		global $wpdb;
+		$unit = array();
 		$tahun_anggaran = get_option('_crb_tahun_anggaran_sipd');
-		$unit = $wpdb->get_results("SELECT nama_skpd, id_skpd, kode_skpd from data_unit where active=1 and tahun_anggaran=".$tahun_anggaran.' order by id_skpd ASC', ARRAY_A);
+		if(empty(!$tahun_anggaran)){
+			$unit = $wpdb->get_results("SELECT nama_skpd, id_skpd, kode_skpd from data_unit where active=1 and tahun_anggaran=".$tahun_anggaran.' order by id_skpd ASC', ARRAY_A);
+		}
 		$mapping_unit = array();
 		$mapping_unit[] = Field::make( 'html', 'crb_fmis_keterangan' )
 	        ->set_html( '<h3>Tahun anggaran WP-SIPD: '.$tahun_anggaran.'</h3>Informasi terkait integrasi data WP-SIPD ke FMIS bisa dicek di <a href="https://smkasiyahhomeschooling.blogspot.com/2021/12/fmis-chrome-extension-untuk-integrasi.html" target="blank">https://smkasiyahhomeschooling.blogspot.com/2021/12/fmis-chrome-extension-untuk-integrasi.html</a>.' );
@@ -592,7 +607,11 @@ class Wpsipd_Admin {
 
 	public function get_mapping_unit(){
 		global $wpdb;
-		$unit = $wpdb->get_results("SELECT nama_skpd, id_skpd, kode_skpd from data_unit where active=1 and tahun_anggaran=".get_option('_crb_tahun_anggaran_sipd').' order by id_skpd ASC', ARRAY_A);
+		$unit = array();
+		$tahun_anggaran = get_option('_crb_tahun_anggaran_sipd');
+		if(empty(!$tahun_anggaran)){
+			$unit = $wpdb->get_results("SELECT nama_skpd, id_skpd, kode_skpd from data_unit where active=1 and tahun_anggaran=".$tahun_anggaran.' order by id_skpd ASC', ARRAY_A);
+		}
 		$mapping_unit = array(
 	        Field::make( 'radio', 'crb_singkron_simda', __( 'Auto Singkron ke DB SIMDA' ) )
 			    ->add_options( array(
