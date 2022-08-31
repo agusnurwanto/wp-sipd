@@ -1594,7 +1594,7 @@ CREATE TABLE `data_aktivitas_fmis` (
     `volume_renja1` text DEFAULT NULL,
     `volume_renja2` text DEFAULT NULL,
     `tahun_anggaran` year(4) NOT NULL,
-    `active` tinyint(4) NOT NULL DEFAULT '1',,
+    `active` tinyint(4) NOT NULL DEFAULT '1',
     PRIMARY KEY  (id)
 );
 
@@ -1650,7 +1650,7 @@ CREATE TABLE `data_rincian_fmis` (
     `volume_renja2` TEXT DEFAULT NULL,
     `volume_renja3` TEXT DEFAULT NULL,
     `tahun_anggaran` year(4) NOT NULL,
-    `active` tinyint(4) NOT NULL DEFAULT '1',,
+    `active` tinyint(4) NOT NULL DEFAULT '1',
     PRIMARY KEY  (id)
 );
 
