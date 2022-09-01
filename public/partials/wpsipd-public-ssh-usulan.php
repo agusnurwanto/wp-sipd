@@ -157,6 +157,20 @@ $body = '';
 					<input type="text" id="tambah_harga_komp_harga_satuan" style="display:block;width:100%;" placeholder="Harga Satuan">
 				</div>
 				<div>
+					<label for='tambah_harga_komp_jenis_produk' style='display:inline-block'>Jenis Produk</label>
+					<div>
+						<input type='radio' id='tambah_harga_komp_jenis_produk_dalam_negeri' name='tambah_harga_komp_jenis_produk' value='dalam_negeri' disabled>
+						<label class='mr-4' for='tambah_harga_komp_jenis_produk_dalam_negeri'>Produk Dalam Negeri</label>
+						<input type='radio' id='tambah_harga_komp_jenis_produk_luar_negeri' name='tambah_harga_komp_jenis_produk' value='luar_negeri' disabled>
+						<label for='tambah_harga_komp_jenis_produk_luar_negeri'>Produk Luar Negeri</label>
+					</div>
+				</div>
+				<div>
+					<label for='tambah_harga_komp_tkdn' style='display: block;'>Tingkat Komponen Dalam Negeri (TKDN)</label>
+					<input type='number' id='tambah_harga_komp_tkdn' style='width:22%;' placeholder='Presentase TKDN' disabled>
+					<label style='font-size: 1.2rem;margin-left: 0.5rem;'>%</label>
+				</div>
+				<div>
 					<label for="tambah_harga_komp_akun" style="display:inline-block">Rekening Akun</label>
 					<textarea type="text" id="tambah_harga_komp_akun" style="display:block;width:100%;" placeholder="Rekening Akun" disabled></textarea>
 				</div>
@@ -201,6 +215,20 @@ $body = '';
 				</div>
 				<div><label for="tambah_akun_komp_harga_satuan" style="display:inline-block">Harga Satuan</label>
 					<input type="text" id="tambah_akun_komp_harga_satuan" style="display:block;width:100%;" placeholder="Harga Satuan" disabled>
+				</div>
+				<div>
+					<label for='tambah_akun_komp_jenis_produk' style='display:inline-block'>Jenis Produk</label>
+					<div>
+						<input type='radio' id='tambah_akun_komp_jenis_produk_dalam_negeri' name='tambah_akun_komp_jenis_produk' value='dalam_negeri' disabled>
+						<label class='mr-4' for='tambah_akun_komp_jenis_produk_dalam_negeri'>Produk Dalam Negeri</label>
+						<input type='radio' id='tambah_akun_komp_jenis_produk_luar_negeri' name='tambah_akun_komp_jenis_produk' value='luar_negeri' disabled>
+						<label for='tambah_akun_komp_jenis_produk_luar_negeri'>Produk Luar Negeri</label>
+					</div>
+				</div>
+				<div>
+					<label for='tambah_akun_komp_tkdn' style='display: block;'>Tingkat Komponen Dalam Negeri (TKDN)</label>
+					<input type='number' id='tambah_akun_komp_tkdn' style='width:22%;' placeholder='Presentase TKDN' disabled>
+					<label style='font-size: 1.2rem;margin-left: 0.5rem;'>%</label>
 				</div>
 				<div><label for="tambah_akun_komp_akun" style="display:inline-block">Rekening Akun SIPD</label>
 					<textarea type="text" id="tambah_akun_komp_akun" style="display:block;width:100%;" placeholder="Rekening Akun" disabled></textarea>
@@ -251,6 +279,20 @@ $body = '';
 				<div>
 					<label for='u_harga_satuan' style='display:inline-block'>Harga Satuan</label>
 					<input type='number' id='u_harga_satuan' style='display:block;width:100%;' placeholder='Harga Satuan'>
+				</div>
+				<div>
+					<label for='u_jenis_produk' style='display:inline-block'>Jenis Produk</label>
+					<div>
+						<input type='radio' id='u_jenis_produk_dalam_negeri' name='u_jenis_produk' value='dalam_negeri'>
+						<label class='mr-4' for='u_jenis_produk_dalam_negeri'>Produk Dalam Negeri</label>
+						<input type='radio' id='u_jenis_produk_luar_negeri' name='u_jenis_produk' value='luar_negeri'>
+						<label for='u_jenis_produk_luar_negeri'>Produk Luar Negeri</label>
+					</div>
+				</div>
+				<div>
+					<label for='u_tkdn' style='display: block;'>Tingkat Komponen Dalam Negeri (TKDN)</label>
+					<input type='number' id='u_tkdn' style='width:22%;' placeholder='Presentase TKDN'>
+					<label style='font-size: 1.2rem;margin-left: 0.5rem;'>%</label>
 				</div>
 				<div>
 					<label for='u_akun' style='display:inline-block'>Rekening Akun</label>
@@ -677,6 +719,8 @@ $body = '';
 					jQuery("#tambah_harga_komp_spesifikasi").val(response.data_ssh_usulan_by_id.spek);
 					jQuery("#tambah_harga_komp_satuan").val(response.data_ssh_usulan_by_id.satuan);
 					jQuery("#tambah_harga_komp_akun").html(response.table_content);
+					jQuery(`#tambah_harga_komp_jenis_produk_${response.data_ssh_usulan_by_id.jenis_produk}`).prop('checked',true);
+					jQuery("#tambah_harga_komp_tkdn").val(response.data_ssh_usulan_by_id.tkdn);
 
 				}else if(jenis === 'akun'){
 					jQuery("#tambah_akun_komp_kategori").val(response.data_ssh_usulan_by_id.kode_kel_standar_harga+" "+response.data_ssh_usulan_by_id.nama_kel_standar_harga);
@@ -685,6 +729,8 @@ $body = '';
 					jQuery("#tambah_akun_komp_harga_satuan").val(response.data_ssh_usulan_by_id.harga);
 					jQuery("#tambah_akun_komp_keterangan_lampiran").val(response.data_ssh_usulan_by_id.keterangan_lampiran);
 					jQuery("#tambah_akun_komp_akun").html(response.table_content);
+					jQuery(`#tambah_akun_komp_jenis_produk_${response.data_ssh_usulan_by_id.jenis_produk}`).prop('checked',true);
+					jQuery("#tambah_akun_komp_tkdn").val(response.data_ssh_usulan_by_id.tkdn);
 				}
 				if(response.status != 'success'){
 					alert('Some problem occurred, please try again.');
@@ -701,8 +747,10 @@ $body = '';
 		var harga_satuan = jQuery('#u_harga_satuan').val();
 		var akun = jQuery('#u_akun').val();
 		var keterangan_lampiran = jQuery('#u_keterangan_lampiran').val();
+		var jenis_produk = jQuery('input[name=u_jenis_produk]:checked').val();
+		var tkdn = jQuery('#u_tkdn').val();
 		jQuery("#wrap-loading").show();
-		if(kategori.trim() == '' || nama_komponen.trim() == '' || spesifikasi.trim() == '' || satuan.trim() == '' || harga_satuan.trim() == '' || akun == '' || keterangan_lampiran.trim() == '' ){
+		if(kategori.trim() == '' || nama_komponen.trim() == '' || spesifikasi.trim() == '' || satuan.trim() == '' || harga_satuan.trim() == '' || jenis_produk.trim() == '' || tkdn.trim() == '' || akun == '' || keterangan_lampiran.trim() == '' ){
 			jQuery("#wrap-loading").hide();
 			alert('Harap diisi semua, tidak ada yang kosong.');
 			return false;
@@ -718,6 +766,8 @@ $body = '';
 					'spesifikasi' : spesifikasi,
 					'satuan' : satuan,
 					'harga_satuan' : harga_satuan,
+					'jenis_produk' : jenis_produk,
+					'tkdn' : tkdn,
 					'akun' : akun,
 					'tahun_anggaran' : tahun,
 					'keterangan_lampiran' : keterangan_lampiran,
@@ -1005,6 +1055,8 @@ $body = '';
 					jQuery("#tambah_akun_komp_spesifikasi").val(response.data.spek);
 					jQuery("#tambah_akun_komp_satuan").val(response.data.satuan);
 					jQuery("#tambah_akun_komp_harga_satuan").val(response.data.harga);
+					jQuery(`#tambah_akun_komp_jenis_produk_${response.data.jenis_produk}`).prop('checked',true);
+					jQuery("#tambah_akun_komp_tkdn").val(response.data.tkdn);
 					jQuery("#tambah_akun_komp_keterangan_lampiran").val(response.data.keterangan_lampiran);
 					jQuery("#tambah_akun_komp_akun").html(response.table_content_akun);
 					jQuery("#tambah_new_akun_komp").attr('id_standar_harga', id_standar_harga);
@@ -1034,6 +1086,8 @@ $body = '';
 					jQuery("#tambah_harga_komp_spesifikasi").val(response.data.spek);
 					jQuery("#tambah_harga_komp_satuan").val(response.data.satuan);
 					jQuery("#tambah_harga_komp_harga_satuan").val(response.data.harga);
+					jQuery(`#tambah_harga_komp_jenis_produk_${response.data.jenis_produk}`).prop('checked',true);
+					jQuery("#tambah_harga_komp_tkdn").val(response.data.tkdn);
 					jQuery("#tambah_harga_komp_keterangan_lampiran").val(response.data.keterangan_lampiran);
 					jQuery("#tambah_harga_komp_akun").html(response.table_content_akun);
 					jQuery("#tambahUsulanHargaByKompSSH .submitBtn")
@@ -1056,6 +1110,8 @@ $body = '';
 					jQuery("#u_nama_komponen").val(response.data.nama_standar_harga);
 					jQuery("#u_spesifikasi").val(response.data.spek);
 					jQuery("#u_harga_satuan").val(response.data.harga);
+					jQuery(`#u_jenis_produk_${response.data.jenis_produk}`).prop('checked',true);
+					jQuery("#u_tkdn").val(response.data.tkdn);
 					jQuery("#u_keterangan_lampiran").val(response.data.keterangan_lampiran);
 					response.data_akun_usulan.map(function(b, i){
 						var myText = b.id_akun+" "+b.nama_akun;
@@ -1093,6 +1149,8 @@ $body = '';
 		var harga_satuan = jQuery('#u_harga_satuan').val();
 		var keterangan_lampiran = jQuery('#u_keterangan_lampiran').val();
 		var akun = jQuery('#u_akun').val();
+		var jenis_produk = jQuery('input[name=u_jenis_produk]:checked').val();
+		var tkdn = jQuery('#u_tkdn').val();
 		jQuery("#wrap-loading").show();
 		if(
 			kategori.trim() == ''
@@ -1100,6 +1158,8 @@ $body = '';
 			|| spesifikasi.trim() == ''
 			|| satuan.trim() == ''
 			|| harga_satuan.trim() == ''
+			|| jenis_produk.trim() == ''
+			|| tkdn.trim() == ''
 		){
 			jQuery("#wrap-loading").hide();
 			alert('Harap diisi semua, tidak ada yang kosong.');
@@ -1117,6 +1177,8 @@ $body = '';
 					'spesifikasi'			: spesifikasi,
 					'satuan'				: satuan,
 					'harga_satuan'			: harga_satuan,
+					'jenis_produk'			: jenis_produk,
+					'tkdn'					: tkdn,
 					'akun' 					: akun,
 					'tahun_anggaran'		: tahun,
 					'keterangan_lampiran'	: keterangan_lampiran,

@@ -10802,7 +10802,9 @@ class Wpsipd_Public
 					10=> 'kode_standar_harga_sipd',
 					11=> 'created_at',
 					12=> 'keterangan_lampiran',
-					13=> 'status_jenis_usulan'
+					13=> 'status_jenis_usulan',
+					14=> 'jenis_produk',
+					15=> 'tkdn'
 				);
 				$where = $sqlTot = $sqlRec = "";
 
@@ -10956,15 +10958,23 @@ class Wpsipd_Public
 					}
 					$kode_komponen .= '</table>';
 
-					$spek_satuan = '<table style="margin: 0;"><tr><td>Spesifikasi: '.$recVal['spek'].'</tr></td>';
-					$spek_satuan .= '<tr><td>Satuan: '.$recVal['satuan'].'</td></tr></table>';
+					$arr_jenis_produk = ['dalam_negeri' => 'Dalam Negeri', 'luar_negeri' => 'Luar Negeri'];
+					$jenis_produk = ($recVal['jenis_produk'] == 'dalam_negeri' || $recVal['jenis_produk'] == 'luar_negeri') ? $arr_jenis_produk[$recVal['jenis_produk']] : '-';
+					$spek_satuan = '<table style="margin: 0;"><tr><td>Spesifikasi: '.ucwords($recVal['spek']).'</tr></td>';
+					$spek_satuan .= '<tr><td>Satuan: '.ucwords($recVal['satuan']).'</td></tr><tr><td>Jenis Produk: '.ucwords($jenis_produk).'</td></tr><tr><td>TKDN: '.$recVal['tkdn'].' %</td></tr></table>';
 
 					$show_status = '<table style="margin: 0;">';
 					$show_status .= '<tr><td>Usulan: <span class="medium-bold-2">'.$status_verif.'</span></td></tr>';
 					$show_status .= '<tr><td>Upload SIPD: <span class="medium-bold-2">'.ucwords($queryRecords[$recKey]['status_upload_sipd']).'</span></td></tr>';
 					$show_status .= '<tr><td>Jenis: <span class="medium-bold-2">'.ucwords(str_replace("_"," ",$recVal['status_jenis_usulan'])).'</span></td></tr></table>';
 
-					$queryRecords[$recKey]['aksi'] = '<ul class="td-aksi">'.$verify.$editUsulanSSH.$deleteUsulanSSH.'</ul>';	
+					if($recVal['status_upload_sipd'] == 1){
+						$tombol_aksi = '<li><a class="btn btn-success" href="#" onclick="alert(\'Usulan SSH sudah diupload ke SIPD\')" title="Usulan SSH sudah diupload ke SIPD"><span class="dashicons dashicons-lock"></span></a></li>';
+					}else{
+						$tombol_aksi = $verify.$editUsulanSSH.$deleteUsulanSSH;
+					}
+
+					$queryRecords[$recKey]['aksi'] = '<ul class="td-aksi">'.$tombol_aksi.'</ul>';	
 					$queryRecords[$recKey]['deleteCheckbox'] = $deleteCheck;
 					$queryRecords[$recKey]['show_kode_komponen'] = $kode_komponen;
 					$queryRecords[$recKey]['spek_satuan'] = $spek_satuan;
@@ -11194,7 +11204,7 @@ class Wpsipd_Public
 		$table_content = '';
 		if(!empty($_POST)){
 			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
-				if(!empty($_POST['kategori']) && !empty($_POST['nama_komponen']) && !empty($_POST['spesifikasi']) && !empty($_POST['satuan']) && !empty($_POST['harga_satuan']) && !empty($_POST['akun']) && !empty($_POST['keterangan_lampiran'])){
+				if(!empty($_POST['kategori']) && !empty($_POST['nama_komponen']) && !empty($_POST['spesifikasi']) && !empty($_POST['satuan']) && !empty($_POST['harga_satuan']) && !empty($_POST['jenis_produk']) && !empty($_POST['tkdn']) && !empty($_POST['akun']) && !empty($_POST['keterangan_lampiran'])){
 					$kategori =trim(htmlspecialchars($_POST['kategori']));
 					$nama_standar_harga = trim(htmlspecialchars($_POST['nama_komponen']));
 					$spek = trim(htmlspecialchars($_POST['spesifikasi']));
@@ -11203,6 +11213,9 @@ class Wpsipd_Public
 					$akun = $_POST['akun'];
 					$tahun_anggaran = trim(htmlspecialchars($_POST['tahun_anggaran']));
 					$keterangan_lampiran = trim(htmlspecialchars($_POST['keterangan_lampiran']));
+					$jenis_produk = trim(htmlspecialchars($_POST['jenis_produk']));
+					$jenis_produk = ($jenis_produk == 'dalam_negeri' || $jenis_produk == 'luar_negeri') ? $jenis_produk : NULL;
+					$tkdn = trim(htmlspecialchars($_POST['tkdn']));
 					
 					$data_kategori = $wpdb->get_results($wpdb->prepare("SELECT * FROM data_kelompok_satuan_harga WHERE id_kategori = %d",$kategori), ARRAY_A);
 
@@ -11286,7 +11299,9 @@ class Wpsipd_Public
 						'tahun_anggaran' => $tahun_anggaran,
 						'status' => 'waiting',
 						'keterangan_lampiran' => $keterangan_lampiran,
-						'status_jenis_usulan' => 'tambah_baru'
+						'status_jenis_usulan' => 'tambah_baru',
+						'jenis_produk' => $jenis_produk,
+						'tkdn' => $tkdn
 					);
 
 					$wpdb->insert('data_ssh_usulan',$opsi_ssh);
@@ -11749,7 +11764,9 @@ class Wpsipd_Public
 						'status' => 'waiting',
 						'keterangan_lampiran' => $keterangan_lampiran,
 						'kode_standar_harga_sipd' => $kode_standar_harga_sipd,
-						'status_jenis_usulan' => 'tambah_harga'
+						'status_jenis_usulan' => 'tambah_harga',
+						'jenis_produk' => $data_old_ssh[0]['jenis_produk'],
+						'tkdn'	=> $data_old_ssh[0]['tkdn']
 					);
 	
 					$wpdb->insert('data_ssh_usulan',$opsi_ssh);
@@ -11838,7 +11855,9 @@ class Wpsipd_Public
 							'status' => 'waiting',
 							'keterangan_lampiran' => NULL,
 							'kode_standar_harga_sipd' => $kode_standar_harga_sipd,
-							'status_jenis_usulan' => 'tambah_akun'
+							'status_jenis_usulan' => 'tambah_akun',
+							'jenis_produk'	=> $data_old_ssh[0]['jenis_produk'],
+							'tkdn'	=> $data_old_ssh[0]['tkdn']
 						);
 		
 						$wpdb->insert('data_ssh_usulan',$opsi_ssh);
@@ -13105,16 +13124,19 @@ class Wpsipd_Public
 		$table_content = '';
 		if(!empty($_POST)){
 			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
-				if(!empty($_POST['kategori']) && !empty($_POST['spesifikasi']) && !empty($_POST['satuan']) && !empty($_POST['harga_satuan']) && !empty($_POST['tahun_anggaran']) && !empty($_POST['keterangan_lampiran']) && !empty($_POST['id_standar_harga'])){
-					$kategori = trim(htmlspecialchars($_POST['kategori']));
-					$nama_standar_harga = trim(htmlspecialchars($_POST['nama_komponen']));
-					$spek = trim(htmlspecialchars($_POST['spesifikasi']));
-					$satuan = trim(htmlspecialchars($_POST['satuan']));
-					$harga = trim(htmlspecialchars($_POST['harga_satuan']));
-					$tahun_anggaran = trim(htmlspecialchars($_POST['tahun_anggaran']));
-					$keterangan_lampiran = trim(htmlspecialchars($_POST['keterangan_lampiran']));
-					$akun = $_POST['akun'];
+				if(!empty($_POST['kategori']) && !empty($_POST['spesifikasi']) && !empty($_POST['satuan']) && !empty($_POST['harga_satuan']) && !empty($_POST['jenis_produk']) && !empty($_POST['tkdn']) && !empty($_POST['tahun_anggaran']) && !empty($_POST['keterangan_lampiran']) && !empty($_POST['id_standar_harga'])){
+					$kategori 				= trim(htmlspecialchars($_POST['kategori']));
+					$nama_standar_harga 	= trim(htmlspecialchars($_POST['nama_komponen']));
+					$spek 					= trim(htmlspecialchars($_POST['spesifikasi']));
+					$satuan 				= trim(htmlspecialchars($_POST['satuan']));
+					$harga					= trim(htmlspecialchars($_POST['harga_satuan']));
+					$tahun_anggaran 		= trim(htmlspecialchars($_POST['tahun_anggaran']));
+					$keterangan_lampiran 	= trim(htmlspecialchars($_POST['keterangan_lampiran']));
+					$akun 					= $_POST['akun'];
 					$id_standar_harga		= trim(htmlspecialchars($_POST['id_standar_harga']));
+					$jenis_produk 			= trim(htmlspecialchars($_POST['jenis_produk']));
+					$jenis_produk 			= ($jenis_produk == 'dalam_negeri' || $jenis_produk == 'luar_negeri') ? $jenis_produk : NULL;
+					$tkdn 					= trim(htmlspecialchars($_POST['tkdn']));
 					
 					$data_kategori = $wpdb->get_results($wpdb->prepare("SELECT kode_kategori,uraian_kategori FROM data_kelompok_satuan_harga WHERE id_kategori = %d",$kategori), ARRAY_A);
 					$data_this_id_ssh = $wpdb->get_results($wpdb->prepare('SELECT id_standar_harga,kode_kel_standar_harga,kode_standar_harga,status,status_upload_sipd FROM data_ssh_usulan WHERE id_standar_harga = %d',$id_standar_harga), ARRAY_A);
@@ -13198,6 +13220,8 @@ class Wpsipd_Public
 								'nama_kel_standar_harga' => $data_kategori[0]['uraian_kategori'],
 								'tahun_anggaran' => $tahun_anggaran,
 								'keterangan_lampiran' => $keterangan_lampiran,
+								'jenis_produk'	=> $jenis_produk,
+								'tkdn'	=> $tkdn
 							);
 	
 							$wpdb->update('data_ssh_usulan', $opsi_edit_ssh, array(
