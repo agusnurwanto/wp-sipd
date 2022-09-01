@@ -78,6 +78,12 @@
 				<?php echo $body; ?>
 			</tbody>
 		</table>
+		<h5>Catatan:</h5>
+		<ul>
+			<li>File yang wajib di RUN adalah file <b>tabel.sql</b></li>
+			<li>Untuk file yang lain bisa di RUN jika diperlukan. Jika data sudah benar dan di RUN makan query akan error. Kecuali untuk file <b>tabel.sql</b></li>
+			<li>Jika ada error waktu menjalankan query selain <b>tabel.sql</b>, maka diabaikan saja</li>
+		</ul>
 	</div>
 </div>
 <script type="text/javascript">
