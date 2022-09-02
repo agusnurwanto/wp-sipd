@@ -61,7 +61,7 @@ if(empty($units)){
 }
 ?>
 <div id="cetak" title="Laporan RKPD <?php echo $input['tahun_anggaran']; ?>">
-	<h4 style="text-align: center; font-size: 11px; margin: 0; font-weight: bold;">Program dan Kegiatan Perangkat Daerah<br/>Kabupaten Magetan <br/>Tahun <?php echo $input['tahun_anggaran']; ?></h4>
+	<h4 style="text-align: center; font-size: 11px; margin: 0; font-weight: bold;">Program dan Kegiatan Perangkat Daerah<br/><?php echo get_option('_crb_daerah'); ?> <br/>Tahun <?php echo $input['tahun_anggaran']; ?></h4>
 <?php 
 	foreach ($units as $k => $unit): 
 		if($unit['is_skpd']==1){

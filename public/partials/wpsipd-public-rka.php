@@ -28,7 +28,15 @@ $current_user = wp_get_current_user();
 $api_key = get_option( '_crb_api_key_extension' );
 $kunci_sd_mapping = get_option( '_crb_kunci_sumber_dana_mapping' );
 
-$data_sumber_dana = $wpdb->get_results("select id_dana, nama_dana, kode_dana from data_sumber_dana where tahun_anggaran=".$input['tahun_anggaran'], ARRAY_A);
+$data_sumber_dana = $wpdb->get_results("
+	select 
+		id_dana, 
+		nama_dana, 
+		kode_dana 
+	from data_sumber_dana 
+	where set_input='Ya'
+		and tahun_anggaran=".$input['tahun_anggaran']
+, ARRAY_A);
 $data_label_komponen = $wpdb->get_results("select id, nama from data_label_komponen where tahun_anggaran=".$input['tahun_anggaran'], ARRAY_A);
 
 $type = 'rka_murni';
@@ -77,14 +85,18 @@ if(
 	';
 }
 
+$kd_bl = explode('.', $input['kode_bl']);
+unset($kd_bl[0]);
+$kd_bl = implode('.', $kd_bl);
+
 $bl = $wpdb->get_results("
 	SELECT 
 		* 
 	from data_sub_keg_bl 
-	where kode_bl='".$input['kode_bl']."'"."
+	where kode_bl like '%.".$kd_bl."'"."
 		AND tahun_anggaran=".$input['tahun_anggaran']."
-		AND active=1"
-		// ." limit 2"
+		AND active=1
+	order by kode_sub_giat ASC"
 , ARRAY_A);
 
 $id_skpd = $bl[0]['id_sub_skpd'];
@@ -852,7 +864,7 @@ foreach ($bl as $k => $sub_bl) {
 			$rin_murni = '
                 <td class="kanan bawah" style="vertical-align: middle;">'.$item['koefisien_murni'].'</td>
                 <td class="kanan bawah" style="vertical-align: middle;">'.$item['satuan'].'</td>
-                <td class="kanan bawah text_kanan" style="vertical-align: middle;">'.number_format($item['harga_satuan'],0,",",".").'</td>
+                <td class="kanan bawah text_kanan" style="vertical-align: middle;">'.number_format($item['harga_satuan_murni'],0,",",".").'</td>
                 <td class="kanan bawah text_kanan" style="vertical-align: middle;">'.number_format($item['pajak_murni'],0,",",".").'</td>
                 <td class="kanan bawah text_kanan" style="vertical-align: middle;white-space:nowrap">Rp. '.number_format($item['rincian_murni'],0,",",".").'</td>
 			';
@@ -871,7 +883,7 @@ foreach ($bl as $k => $sub_bl) {
                 '.$rin_murni.'
                 <td class="kanan bawah volume_satuan" style="vertical-align: middle;">'.$item['koefisien'].'</td>
                 <td class="kanan bawah" style="vertical-align: middle;">'.$item['satuan'].'</td>
-                <td class="kanan bawah text_kanan" style="vertical-align: middle;">'.number_format($item['harga_satuan_murni'],0,",",".").'</td>
+                <td class="kanan bawah text_kanan" style="vertical-align: middle;">'.number_format($item['harga_satuan'],0,",",".").'</td>
                 <td class="kanan bawah text_kanan" style="vertical-align: middle;">'.number_format($item['totalpajak'],0,",",".").'</td>
                 <td class="kanan bawah text_kanan total_rinci" data-total="'.$item['total_harga'].'" style="vertical-align: middle;white-space:nowrap">Rp. '.number_format($item['total_harga'],0,",",".").'</td>
                 '.$selisih_murni.'
@@ -1076,8 +1088,8 @@ foreach ($bl as $k => $sub_bl) {
                 </form>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-success" id="set-mapping">Simpan</button>
-                <button type="button" class="btn btn-default" data-dismiss="modal">Tutup</button>
+                <button type="button" class="components-button btn btn-success" id="set-mapping">Simpan</button>
+                <button type="button" class="components-button btn btn-default" data-dismiss="modal">Tutup</button>
             </div>
         </div>
     </div>

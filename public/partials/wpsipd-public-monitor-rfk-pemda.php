@@ -44,14 +44,7 @@ $sumber_pagu = '1';
 if(!empty($_GET) && !empty($_GET['sumber_pagu'])){
     $sumber_pagu = $_GET['sumber_pagu'];
 }
-
-$pengaturan = $wpdb->get_results($wpdb->prepare("
-	select 
-		* 
-	from data_pengaturan_sipd 
-	where tahun_anggaran=%d
-", $input['tahun_anggaran']), ARRAY_A);
-$nama_pemda = $pengaturan[0]['daerah'];
+$nama_pemda = get_option('_crb_daerah');
 
 $body = "";
 $body .='
@@ -148,6 +141,14 @@ $body .='
 		    <tbody>
 		    ';
 		    // die($body);
+
+		    $where = 'k.pagu_simda > 0 AND';
+		    $crb_cara_input_realisasi = get_option('_crb_cara_input_realisasi', 1);
+			// cek jika cara input realisasi secara manual dan tipe indikator adalah sub kegiatan
+			if($crb_cara_input_realisasi == 2){
+		    	$where = '';
+			}
+
 		    $units = $wpdb->get_results("SELECT nama_skpd, id_skpd, kode_skpd, is_skpd FROM data_unit WHERE active=1 AND tahun_anggaran=".$input['tahun_anggaran'].' AND is_skpd=1 ORDER BY kode_skpd ASC', ARRAY_A);
 			$current_user = wp_get_current_user();
 			$data_all = array(
@@ -198,7 +199,7 @@ $body .='
 								f.bulan=d.bulan AND 
 								f.tahun_anggaran=k.tahun_anggaran
 							WHERE
-								k.pagu_simda > 0 AND
+								".$where."
 								k.tahun_anggaran=%d AND 
 								k.id_sub_skpd=%d AND 
 								k.active=1 AND 
@@ -221,7 +222,7 @@ $body .='
 								d.kode_sbl=k.kode_sbl AND 
 								d.tahun_anggaran=k.tahun_anggaran
 							WHERE
-								k.pagu_simda > 0 AND
+								".$where."
 								k.tahun_anggaran=%d AND 
 								k.id_sub_skpd=%d AND 
 								k.active=1 AND 
@@ -316,7 +317,7 @@ $body .='
 								f.bulan=d.bulan AND 
 								f.tahun_anggaran=k.tahun_anggaran
 							WHERE
-								k.pagu_simda > 0 AND
+								".$where."
 								k.tahun_anggaran=%d AND 
 								k.id_sub_skpd=%d AND 
 								k.active=1 AND 
@@ -339,7 +340,7 @@ $body .='
 									d.kode_sbl=k.kode_sbl AND 
 									d.tahun_anggaran=k.tahun_anggaran
 								WHERE
-									k.pagu_simda > 0 AND
+									".$where."
 									k.tahun_anggaran=%d AND 
 									k.id_sub_skpd=%d AND 
 									k.active=1 AND 

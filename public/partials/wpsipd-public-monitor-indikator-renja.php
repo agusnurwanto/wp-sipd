@@ -56,7 +56,10 @@ $pengaturan = $wpdb->get_results($wpdb->prepare("
 	where tahun_anggaran=%d
 ", $input['tahun_anggaran']), ARRAY_A);
 
-$awal_rpjmd = 2018;
+$awal_rpjmd = get_option('_crb_awal_rpjmd' );
+if(empty($awal_rpjmd)){
+	$awal_rpjmd = 2018;
+}
 $tahun_anggaran_1 = 2019;
 $tahun_anggaran_2 = 2020;
 $tahun_anggaran_3 = 2021;
@@ -64,7 +67,6 @@ $tahun_anggaran_4 = 2022;
 $tahun_anggaran_5 = 2023;
 $akhir_rpjmd = 2023;
 if(!empty($pengaturan)){
-	$awal_rpjmd = $pengaturan[0]['awal_rpjmd'];
 	$tahun_anggaran_1 = $awal_rpjmd+1;
 	$tahun_anggaran_2 = $awal_rpjmd+2;
 	$tahun_anggaran_3 = $awal_rpjmd+3;
@@ -73,7 +75,7 @@ if(!empty($pengaturan)){
 	$akhir_rpjmd = $pengaturan[0]['akhir_rpjmd'];
 }
 $tahun_renstra = $input['tahun_anggaran']-$awal_rpjmd;
-$nama_pemda = $pengaturan[0]['daerah'];
+$nama_pemda = get_option('_crb_daerah');
 
 $current_user = wp_get_current_user();
 

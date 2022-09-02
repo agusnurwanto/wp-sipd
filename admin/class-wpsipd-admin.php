@@ -184,6 +184,18 @@ class Wpsipd_Admin {
 		return $this->get_link_post($custom_post);
 	}
 
+	function wp_sipd_admin_notice(){
+        $versi = get_option('_wp_sipd_db_version');
+        if($versi !== $this->version){
+        	$url_sql_migrate = $this->generatePage('Monitoring SQL migrate WP-SIPD', false, '[monitoring_sql_migrate]');
+        	echo '
+        		<div class="notice notice-warning is-dismissible">
+	        		<p>Versi database WP-SIPD tidak sesuai! harap dimutakhirkan. Versi saat ini=<b>'.$this->version.'</b> dan versi WP-SIPD kamu=<b>'.$versi.'</b>. Silahkan update di halaman <a href="'.$url_sql_migrate.'" class="button button-primary button-large">SQL Migrate WP-SIPD</a></p>
+	         	</div>
+	         ';
+        }
+	}
+
 	// https://docs.carbonfields.net/#/containers/theme-options
 	public function crb_attach_sipd_options(){
 		if( !is_admin() ){
@@ -196,6 +208,10 @@ class Wpsipd_Admin {
 	    Container::make( 'theme_options', __( 'SIMDA Setting' ) )
 		    ->set_page_parent( $basic_options_container )
 		    ->add_fields( $this->get_mapping_unit() );
+
+	    Container::make( 'theme_options', __( 'FMIS Setting' ) )
+		    ->set_page_parent( $basic_options_container )
+		    ->add_fields( $this->get_setting_fmis() );
 
 	    $monev = Container::make( 'theme_options', __( 'MONEV SIPD' ) )
 			->set_page_menu_position( 4 )
@@ -225,6 +241,10 @@ class Wpsipd_Admin {
 		    ->set_page_parent( $monev )
 		    ->add_fields( $this->generate_sumber_dana() );
 
+		Container::make( 'theme_options', __( 'Satuan Harga' ) )
+		    ->set_page_parent( $monev )
+		    ->add_fields( $this->get_ajax_field(array('type' => 'monev_satuan_harga')) );
+
 	    $laporan = Container::make( 'theme_options', __( 'LAPORAN SIPD' ) )
 			->set_page_menu_position( 4 )
 		    ->add_fields( $this->generate_tag_sipd() );
@@ -242,6 +262,34 @@ class Wpsipd_Admin {
 
 	    Container::make( 'theme_options', __( 'RPJM & RENSTRA' ) )
 		    ->set_page_parent( $laporan );
+
+	    $input_perencanaan = Container::make( 'theme_options', __( 'Input Perencanaan SIPD' ) )
+			->set_page_menu_position( 4 )
+		    ->add_fields( $this->generate_jadwal_perencanaan() );
+
+	    Container::make( 'theme_options', __( 'Jadwal Perencanaan' ) )
+		    ->set_page_parent( $input_perencanaan )
+		    ->add_fields( $this->generate_jadwal_perencanaan() );
+
+	    Container::make( 'theme_options', __( 'Input RPJPD' ) )
+		    ->set_page_parent( $input_perencanaan )
+		    ->add_fields( $this->generate_input_rpjpd() );
+
+	    Container::make( 'theme_options', __( 'Input RPJM' ) )
+		    ->set_page_parent( $input_perencanaan )
+		    ->add_fields( $this->generate_input_rpjm() );
+
+	    Container::make( 'theme_options', __( 'Input RPD' ) )
+		    ->set_page_parent( $input_perencanaan )
+		    ->add_fields( $this->generate_input_rpd() );
+
+	    Container::make( 'theme_options', __( 'Input RENSTRA' ) )
+		    ->set_page_parent( $input_perencanaan )
+		    ->add_fields( $this->generate_input_renstra() );
+
+	    Container::make( 'theme_options', __( 'Input RENJA' ) )
+		    ->set_page_parent( $input_perencanaan )
+		    ->add_fields( $this->generate_input_renja() );
 	}
 
 	public function options_basic(){
@@ -251,34 +299,61 @@ class Wpsipd_Admin {
 		// $sibangda_link = $this->generate_sibangda_page();
 		// $simda_link = $this->generate_simda_page();
 		// $siencang_link = $this->generate_siencang_page();
+
+		$url_sql_migrate = $this->generatePage('Monitoring SQL migrate WP-SIPD', false, '[monitoring_sql_migrate]');
 		$sumber_dana_all = array();
+		$tahun_anggaran = get_option('_crb_tahun_anggaran_sipd');
+		if(empty($tahun_anggaran)){
+			$tahun_anggaran = date('Y');
+		}
+
 		$sumber_dana = $wpdb->get_results("
 			SELECT
 				id_dana,
 				kode_dana,
 				nama_dana
 			from data_sumber_dana
+			where set_input='Ya'
+				and tahun_anggaran=".$tahun_anggaran."
 			group by id_dana
 		", ARRAY_A);
 		foreach ($sumber_dana as $k => $v) {
 			$sumber_dana_all[$v['id_dana']] = $v['kode_dana'].' '.$v['nama_dana'].' ['.$v['id_dana'].']';
 		}
 		$options_basic = array(
+			Field::make( 'text', 'crb_server_wp_sipd', 'Server WP-SIPD' )
+            	->set_attribute('placeholder', 'https://wpsipd.qodrbee.com/wp-admin/admin-ajax.php')
+            	->set_default_value('https://wpsipd.qodrbee.com/wp-admin/admin-ajax.php')
+            	->set_attribute('readOnly', 'true')
+            	->set_required( true ),
+			Field::make( 'text', 'crb_server_wp_sipd_api_key', 'API KEY WP-SIPD' )
+            	->set_attribute('placeholder', 'xxxxxxx-xx-xxx-xxxx-xxxxxxxxxx')
+            	->set_default_value('bcvbsdfr12-ret-ert-dfg-hghj6575')
+            	->set_attribute('readOnly', 'true')
+            	->set_required( true ),
+			Field::make( 'text', 'crb_no_wa', 'No Whatsapp' )
+            	->set_attribute('type', 'number')
+            	->set_attribute('placeholder', '628xxxxxxxxx')
+            	->set_required( true )
+				->set_help_text('Nomor whatsapp untuk menerima pesan dari server WP-SIPD. Format nomor diawali dengan 62xxxxxxxxxx tanpa perlu ada + di depan nomor.'),
+            Field::make( 'text', 'crb_daerah', 'Nama Pemda' )
+            	->set_default_value(get_option('_crb_daerah' ))
+            	->set_required( true ),
+            Field::make( 'text', 'crb_api_key_extension', 'Lisensi key chrome extension' )
+            	->set_required( true )
+            	->set_attribute('readOnly', 'true')
+            	->set_help_text('Lisensi key ini dipakai untuk <a href="https://github.com/agusnurwanto/sipd-chrome-extension" target="_blank">SIPD chrome extension</a>.'),
+           	Field::make( 'html', 'crb_html_set_lisensi' )
+            	->set_html( '<a onclick="generate_lisensi(); return false;" href="#" class="button button-primary">Generate Lisensi WP-SIPD</a>' ),
+            Field::make( 'text', 'crb_awal_rpjmd', 'Tahun Awal RPJMD' )
+            	->set_default_value('2018'),
             Field::make( 'text', 'crb_tahun_anggaran_sipd', 'Tahun Anggaran SIPD' )
             	->set_default_value('2021'),
-            Field::make( 'text', 'crb_daerah', 'Nama Pemda' )
-            	->set_help_text('Data diambil dari halaman pengaturan SIPD menggunakan <a href="https://github.com/agusnurwanto/sipd-chrome-extension" target="_blank">SIPD chrome extension</a>.')
-            	->set_default_value(get_option('_crb_daerah' ))
-            	->set_attribute('readOnly', 'true'),
             Field::make( 'text', 'crb_kepala_daerah', 'Kepala Daerah' )
-            	->set_default_value(get_option('_crb_kepala_daerah' ))
-            	->set_attribute('readOnly', 'true'),
+            	->set_help_text('Data diambil dari halaman pengaturan SIPD menggunakan <a href="https://github.com/agusnurwanto/sipd-chrome-extension" target="_blank">SIPD chrome extension</a>.')
+            	->set_default_value(get_option('_crb_kepala_daerah' )),
             Field::make( 'text', 'crb_wakil_daerah', 'Wakil Kepala Daerah' )
-            	->set_default_value(get_option('_crb_wakil_daerah' ))
-            	->set_attribute('readOnly', 'true'),
-            Field::make( 'text', 'crb_api_key_extension', 'API KEY chrome extension' )
-            	->set_default_value($this->generateRandomString())
-            	->set_help_text('API KEY ini dipakai untuk <a href="https://github.com/agusnurwanto/sipd-chrome-extension" target="_blank">SIPD chrome extension</a>.'),
+            	->set_default_value(get_option('_crb_wakil_daerah' )),
             Field::make( 'radio', 'crb_kunci_sumber_dana_mapping', 'Kunci pilihan Sumber Dana di Halaman Mapping Rincian' )
             	->add_options( array(
 			        '1' => __( 'Ya' ),
@@ -300,7 +375,8 @@ class Wpsipd_Admin {
 			        '3' => __( 'MONEV LABEL KOMPONEN' ),
 			        '4' => __( 'MONEV INDIKATOR RENJA' ),
 			        '5' => __( 'MONEV INDIKATOR RENSTRA' ),
-			        '6' => __( 'MONEV INDIKATOR RPJM' )
+			        '6' => __( 'MONEV INDIKATOR RPJM' ),
+					'7' => __( 'MENU SSH' )
 			    ) )
             	->set_default_value(array('1','2','3','4','5'))
             	->set_help_text('Daftar fitur ini akan ditampilkan dalam bentuk tombol di halaman dasboard user setelah berhasil login.'),
@@ -308,9 +384,19 @@ class Wpsipd_Admin {
             	->add_options( $sumber_dana_all )
             	->set_default_value(1)
             	->set_help_text('Sumber dana ini akan digunakan di custom mapping sumber dana dan ketika singkron ke SIMDA'),
+            Field::make( 'select', 'crb_default_sumber_pagu_dpa', 'Nilai pagu DPA untuk RFK' )
+            	->add_options( array(
+            		'1' => 'APBD SIMDA',
+            		'2' => 'APBD FMIS'
+            	) )
+            	->set_default_value(1)
+            	->set_help_text('Nilai pagu DPA pada halaman monitoring data realisasi fisik dan keuangan (RFK)'),
             Field::make( 'html', 'crb_generate_user_sipd_merah' )
             	->set_html( '<a id="generate_user_sipd_merah" onclick="return false;" href="#" class="button button-primary button-large">Generate User SIPD Merah By DB Lokal</a>' )
             	->set_help_text('Data user active yang ada di table data_dewan akan digenerate menjadi user wordpress.'),
+            Field::make( 'html', 'crb_sql_migrate' )
+            	->set_html( '<a target="_blank" href="'.$url_sql_migrate.'" class="button button-primary button-large">SQL Migrate WP-SIPD</a>' )
+            	->set_help_text('Status SQL migrate WP-SIPD jika ada update struktur database.'),
             /*Field::make( 'html', 'crb_siencang' )
             	->set_html( '<a target="_blank" href="'.$siencang_link.'">SIPD to SIENCANG</a> | <a href="https://github.com/ganjarnugraha/perencanaan-penganggaran" target="_blank">https://github.com/ganjarnugraha/perencanaan-penganggaran</a>' ),
             Field::make( 'html', 'crb_simda' )
@@ -327,7 +413,17 @@ class Wpsipd_Admin {
 			$url = $this->generatePage('Monitoring Update Data SIPD lokal Berdasar Waktu Terakhir Melakukan Singkronisasi Data | '.$v['tahun_anggaran'], $v['tahun_anggaran']);
 			$options_basic[] = Field::make( 'html', 'crb_monitor_update_'.$k )
             	->set_html( '<a target="_blank" href="'.$url.'">Halaman Monitor Update Data Lokal SIPD Merah Tahun '.$v['tahun_anggaran'].'</a>' );
-        }
+
+			$url = $this->generatePage('Monitoring Data SPD | '.$v['tahun_anggaran'], $v['tahun_anggaran'], '[monitoring_data_spd tahun_anggaran="'.$v['tahun_anggaran'].'"]');
+			$options_basic[] = Field::make( 'html', 'crb_monitor_spd_'.$k )
+            	->set_html( '<a target="_blank" href="'.$url.'">Halaman Monitor Data SPD (Surat Penyediaan Dana) '.$v['tahun_anggaran'].'</a>' );
+			$url_data_ssh_public = $this->generate_data_ssh_page($v['tahun_anggaran']);
+			$options_basic[] = Field::make( 'html', 'crb_menu_data_ssh_sipd_'.$k )
+            	->set_html( '<a target="_blank" href="'.$url_data_ssh_public.'">Data Satuan Standar Harga (SSH) SIPD '.$v['tahun_anggaran'].'</a>' );
+			$url = $this->generatePage('Setting penjadwalan | '.$v['tahun_anggaran'], $v['tahun_anggaran'], '[setting_penjadwalan tahun_anggaran="'.$v['tahun_anggaran'].'"]');
+			$options_basic[] = Field::make( 'html', 'crb_penjadwalan_'.$k )
+				->set_html( '<a target="_blank" href="'.$url.'">Halaman Pengaturan Penjadwalan '.$v['tahun_anggaran'].'</a>' );
+		}
         return $options_basic;
 	}
 
@@ -353,6 +449,11 @@ class Wpsipd_Admin {
 		);
 		if (!empty($_POST)) {
 			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option('_crb_api_key_extension' )) {
+				$sumber_pagu_dpa = get_option('_crb_default_sumber_pagu_dpa');
+				$url_nilai_dpa = '&pagu_dpa=simda';
+				if($sumber_pagu_dpa == 2){
+					$url_nilai_dpa = '&pagu_dpa=fmis';
+				}
 				$body_all = '';
 				$tahun = $wpdb->get_results('select tahun_anggaran from data_unit group by tahun_anggaran order by tahun_anggaran ASC', ARRAY_A);
 				foreach ($tahun as $k => $v) {
@@ -363,7 +464,7 @@ class Wpsipd_Admin {
 
 						if($_POST['type'] == 'rfk'){
 							$url_skpd = $this->generatePage('RFK '.$vv['nama_skpd'].' '.$vv['kode_skpd'].' | '.$v['tahun_anggaran'], $v['tahun_anggaran'], '[monitor_rfk tahun_anggaran="'.$v['tahun_anggaran'].'" id_skpd="'.$vv['id_skpd'].'"]');
-		            		$body_pemda .= '<li><a target="_blank" href="'.$url_skpd.'">Halaman RFK '.$vv['kode_skpd'].' '.$vv['nama_skpd'].' '.$v['tahun_anggaran'].'</a> (NIP: '.$vv['nipkepala'].')';
+		            		$body_pemda .= '<li><a target="_blank" href="'.$url_skpd.$url_nilai_dpa.'">Halaman RFK '.$vv['kode_skpd'].' '.$vv['nama_skpd'].' '.$v['tahun_anggaran'].'</a> (NIP: '.$vv['nipkepala'].')';
 						}else if($_POST['type'] == 'monev_renja'){
 							$url_skpd = $this->generatePage('MONEV '.$vv['nama_skpd'].' '.$vv['kode_skpd'].' | '.$v['tahun_anggaran'], $v['tahun_anggaran'], '[monitor_monev_renja tahun_anggaran="'.$v['tahun_anggaran'].'" id_skpd="'.$vv['id_skpd'].'"]');
 		            		$body_pemda .= '<li><a target="_blank" href="'.$url_skpd.'">Halaman MONEV '.$vv['kode_skpd'].' '.$vv['nama_skpd'].' '.$v['tahun_anggaran'].'</a> (NIP: '.$vv['nipkepala'].')';
@@ -377,6 +478,12 @@ class Wpsipd_Admin {
 						}else if($_POST['type'] == 'apbdpenjabaran'){
 							$url_skpd = $this->generatePage($v['tahun_anggaran'] .' | '.$vv['kode_skpd'].' | '.$vv['nama_skpd'].' | '. ' | APBD PENJABARAN Lampiran 2', $v['tahun_anggaran'], '[apbdpenjabaran tahun_anggaran="'.$v['tahun_anggaran'].'" lampiran="2" id_skpd="'.$vv['id_skpd'].'"]');
 		            		$body_pemda .= '<li><a target="_blank" href="'.$url_skpd.'">Halaman APBD PENJABARAN Lampiran 2 '.$vv['kode_skpd'].' '.$vv['nama_skpd'].' '.$v['tahun_anggaran'].'</a> (NIP: '.$vv['nipkepala'].')';
+						}else if($_POST['type'] == 'monev_satuan_harga'){
+							$url_skpd = $this->generatePage('Rekapitulasi Rincian Belanja '.$vv['nama_skpd'].' '.$vv['kode_skpd'].' | '.$v['tahun_anggaran'], $v['tahun_anggaran'], '[monitor_satuan_harga tahun_anggaran="'.$v['tahun_anggaran'].'" id_skpd="'.$vv['id_skpd'].'"]');
+		            		$body_pemda .= '<li><a target="_blank" href="'.$url_skpd.'">Halaman Rekapitulasi Rincian Belanja '.$vv['kode_skpd'].' '.$vv['nama_skpd'].' '.$v['tahun_anggaran'].'</a> (NIP: '.$vv['nipkepala'].')';
+						}else if($_POST['type'] == 'input_renja'){
+							$url_skpd = $this->generatePage('Input RENJA '.$vv['nama_skpd'].' '.$vv['kode_skpd'].' | '.$v['tahun_anggaran'], $v['tahun_anggaran'], '[input_renja tahun_anggaran="'.$v['tahun_anggaran'].'" id_skpd="'.$vv['id_skpd'].'"]');
+		            		$body_pemda .= '<li><a target="_blank" href="'.$url_skpd.'">Halaman Input RENJA '.$vv['kode_skpd'].' '.$vv['nama_skpd'].' '.$v['tahun_anggaran'].'</a> (NIP: '.$vv['nipkepala'].')';
 						}
 
 		            	if(!empty($subunit)){
@@ -385,7 +492,7 @@ class Wpsipd_Admin {
 		            	foreach ($subunit as $kkk => $vvv) {
 							if($_POST['type'] == 'rfk'){
 								$url_skpd = $this->generatePage('RFK '.$vvv['nama_skpd'].' '.$vvv['kode_skpd'].' | '.$v['tahun_anggaran'], $v['tahun_anggaran'], '[monitor_rfk tahun_anggaran="'.$v['tahun_anggaran'].'" id_skpd="'.$vvv['id_skpd'].'"]');
-			            		$body_pemda .= '<li><a target="_blank" href="'.$url_skpd.'">Halaman RFK '.$vvv['kode_skpd'].' '.$vvv['nama_skpd'].' '.$v['tahun_anggaran'].'</a> (NIP: '.$vvv['nipkepala'].')</li>';
+			            		$body_pemda .= '<li><a target="_blank" href="'.$url_skpd.$url_nilai_dpa.'">Halaman RFK '.$vvv['kode_skpd'].' '.$vvv['nama_skpd'].' '.$v['tahun_anggaran'].'</a> (NIP: '.$vvv['nipkepala'].')</li>';
 							}else if($_POST['type'] == 'monev_renja'){
 								$url_skpd = $this->generatePage('MONEV '.$vvv['nama_skpd'].' '.$vvv['kode_skpd'].' | '.$v['tahun_anggaran'], $v['tahun_anggaran'], '[monitor_monev_renja tahun_anggaran="'.$v['tahun_anggaran'].'" id_skpd="'.$vvv['id_skpd'].'"]');
 			            		$body_pemda .= '<li><a target="_blank" href="'.$url_skpd.'">Halaman MONEV '.$vvv['kode_skpd'].' '.$vvv['nama_skpd'].' '.$v['tahun_anggaran'].'</a> (NIP: '.$vvv['nipkepala'].')</li>';
@@ -399,6 +506,12 @@ class Wpsipd_Admin {
 							}else if($_POST['type'] == 'apbdpenjabaran'){
 								$url_skpd = $this->generatePage($v['tahun_anggaran'] .' | '.$vvv['kode_skpd'].' | '.$vvv['nama_skpd'].' | '. ' | APBD PENJABARAN Lampiran 2', $v['tahun_anggaran'], '[apbdpenjabaran tahun_anggaran="'.$v['tahun_anggaran'].'" lampiran="2" id_skpd="'.$vvv['id_skpd'].'"]');
 			            		$body_pemda .= '<li><a target="_blank" href="'.$url_skpd.'">Halaman APBD PENJABARAN Lampiran 2 '.$vv['kode_skpd'].' '.$vvv['nama_skpd'].' '.$v['tahun_anggaran'].'</a> (NIP: '.$vvv['nipkepala'].')';
+							}else if($_POST['type'] == 'monev_satuan_harga'){
+								$url_skpd = $this->generatePage('Rekapitulasi Rincian Belanja '.$vvv['nama_skpd'].' '.$vvv['kode_skpd'].' | '.$v['tahun_anggaran'], $v['tahun_anggaran'], '[monitor_satuan_harga tahun_anggaran="'.$v['tahun_anggaran'].'" id_skpd="'.$vvv['id_skpd'].'"]');
+								$body_pemda .= '<li><a target="_blank" href="'.$url_skpd.'">Halaman Rekapitulasi Rincian Belanja '.$vvv['kode_skpd'].' '.$vvv['nama_skpd'].' '.$v['tahun_anggaran'].'</a> (NIP: '.$vvv['nipkepala'].')';
+							}else if($_POST['type'] == 'input_renja'){
+								$url_skpd = $this->generatePage('Input RENJA '.$vvv['nama_skpd'].' '.$vvv['kode_skpd'].' | '.$v['tahun_anggaran'], $v['tahun_anggaran'], '[input_renja tahun_anggaran="'.$v['tahun_anggaran'].'" id_skpd="'.$vvv['id_skpd'].'"]');
+								$body_pemda .= '<li><a target="_blank" href="'.$url_skpd.'">Halaman Input RENJA '.$vvv['kode_skpd'].' '.$vvv['nama_skpd'].' '.$v['tahun_anggaran'].'</a> (NIP: '.$vvv['nipkepala'].')';
 							}
 		            	}
 		            	if(!empty($subunit)){
@@ -410,7 +523,7 @@ class Wpsipd_Admin {
 
 					if($_POST['type'] == 'rfk'){
 						$url_pemda = $this->generatePage('Realisasi Fisik dan Keuangan Pemerintah Daerah | '.$v['tahun_anggaran'], $v['tahun_anggaran'], '[monitor_rfk tahun_anggaran="'.$v['tahun_anggaran'].'"]');
-						$body_all .= '<a style="font-weight: bold;" target="_blank" href="'.$url_pemda.'">Halaman Realisasi Fisik dan Keuangan Pemerintah Daerah Tahun '.$v['tahun_anggaran'].'</a>'.$body_pemda;
+						$body_all .= '<a style="font-weight: bold;" target="_blank" href="'.$url_pemda.$url_nilai_dpa.'">Halaman Realisasi Fisik dan Keuangan Pemerintah Daerah Tahun '.$v['tahun_anggaran'].'</a>'.$body_pemda;
 					}else if($_POST['type'] == 'monev_renja'){
 						$url_pemda = $this->generatePage('MONEV RENJA Pemerintah Daerah | '.$v['tahun_anggaran'], $v['tahun_anggaran'], '[monitor_monev_renja tahun_anggaran="'.$v['tahun_anggaran'].'"]');
 						$body_all .= '<a style="font-weight: bold;" target="_blank" href="'.$url_pemda.'">Halaman MONEV RENJA Daerah Tahun '.$v['tahun_anggaran'].'</a>'.$body_pemda;
@@ -432,7 +545,14 @@ class Wpsipd_Admin {
 						$body_all .= '<a style="font-weight: bold;" target="_blank" href="'.$url_penjabaran5.'">Halaman APBD PENJABARAN Lampiran 5 Tahun '.$v['tahun_anggaran'].'</a><br>';
 						$body_all .= '<a style="font-weight: bold;" target="_blank" href="'.$url_penjabaran6.'">Halaman APBD PENJABARAN Lampiran 6 Tahun '.$v['tahun_anggaran'].'</a>';
 						$body_all .= $body_pemda;
-			        }
+			        }else if($_POST['type'] == 'monev_satuan_harga'){
+						$url_add_new_ssh = $this->generatePage('Data Usulan Standar Satuan Harga (SSH) | '.$v['tahun_anggaran'], $v['tahun_anggaran'], '[data_ssh_usulan tahun_anggaran="'.$v['tahun_anggaran'].'"]');
+						$url_pemda = $this->generatePage('Rekapitulasi Rincian Belanja Pemerintah Daerah '.$v['tahun_anggaran'], $v['tahun_anggaran'], '[data_halaman_menu_ssh tahun_anggaran="'.$v['tahun_anggaran'].'"]');
+						$body_all .= '<a style="font-weight: bold;" target="_blank" href="'.$url_pemda.'">Halaman Rekapitulasi Rincian Belanja '.$v['tahun_anggaran'].'</a>';
+						$body_all .= '<div style="padding:.75rem 0 0 .75rem;"><a style="font-weight: bold;" target="_blank" href="'.$url_add_new_ssh.'">Halaman Data Usulan SSH '.$v['tahun_anggaran'].'</a></div>'.$body_pemda;
+			        }else if($_POST['type'] == 'input_renja'){
+			        	$body_all .= $body_pemda;
+					}
 				}
 				if(
 					$_POST['type'] == 'rfk' 
@@ -440,6 +560,8 @@ class Wpsipd_Admin {
 					|| $_POST['type'] == 'monev_renstra'
 					|| $_POST['type'] == 'monev_rpjm'
 					|| $_POST['type'] == 'apbdpenjabaran'
+					|| $_POST['type'] == 'monev_satuan_harga'
+					|| $_POST['type'] == 'input_renja'
 				){
 					$ret['message'] = $body_all;
 				}
@@ -448,9 +570,48 @@ class Wpsipd_Admin {
 		die(json_encode($ret));
 	}
 
+	public function get_setting_fmis(){
+		global $wpdb;
+		$unit = array();
+		$tahun_anggaran = get_option('_crb_tahun_anggaran_sipd');
+		if(empty(!$tahun_anggaran)){
+			$unit = $wpdb->get_results("SELECT nama_skpd, id_skpd, kode_skpd from data_unit where active=1 and tahun_anggaran=".$tahun_anggaran.' order by id_skpd ASC', ARRAY_A);
+		}
+		$mapping_unit = array();
+		$mapping_unit[] = Field::make( 'html', 'crb_fmis_keterangan' )
+	        ->set_html( '<h3>Tahun anggaran WP-SIPD: '.$tahun_anggaran.'</h3>Informasi terkait integrasi data WP-SIPD ke FMIS bisa dicek di <a href="https://smkasiyahhomeschooling.blogspot.com/2021/12/fmis-chrome-extension-untuk-integrasi.html" target="blank">https://smkasiyahhomeschooling.blogspot.com/2021/12/fmis-chrome-extension-untuk-integrasi.html</a>.' );
+	    $mapping_unit[] = Field::make( 'textarea', 'crb_custom_mapping_rekening_fmis', 'Custom Mapping Rekening Antara SIPD dan FMIS' )
+            	->set_help_text('Data ini untuk mengakomodir perbedaan kode rekening yang ada di SIPD dan FMIS. Contoh pengisian data sebagai berikut 5.1.01.88.88.8888-5.2.2.16.1.3 data dipisah dengan pemisah "," (koma). Formatnya adalah <b>kode_rek_sipd-kode_rek_fmis</b>.');
+	    $mapping_unit[] = Field::make( 'textarea', 'crb_custom_mapping_sumberdana_fmis', 'Custom Mapping Sumber Dana Antara SIPD dan FMIS' )
+            	->set_help_text('Data ini untuk mengakomodir perbedaan kode sumber dana yang ada di SIPD dan FMIS. Contoh pengisian data sebagai berikut [xxx]-[xxx] data dipisah dengan pemisah "," (koma). Formatnya adalah <b>[nama sumber dana sipd]-[nama sumber dana fmis]</b>.');
+	    $mapping_unit[] = Field::make( 'textarea', 'crb_custom_mapping_subkeg_fmis', 'Custom Mapping Sub Kegaitan SIPD dan FMIS' )
+            	->set_help_text('Data ini untuk mengakomodir perbedaan nama sub kegiatan yang ada di SIPD dan FMIS. Contoh pengisian data sebagai berikut [nama_subkeg]-[nama_subkeg] data dipisah dengan pemisah "," (koma).');
+	    $mapping_unit[] = Field::make( 'textarea', 'crb_custom_mapping_keg_fmis', 'Custom Mapping Kegaitan SIPD dan FMIS' )
+            	->set_help_text('Data ini untuk mengakomodir perbedaan nama kegiatan yang ada di SIPD dan FMIS. Contoh pengisian data sebagai berikut [nama_kegiatan]-[nama_kegiatan] data dipisah dengan pemisah "," (koma).');
+	    $mapping_unit[] = Field::make( 'textarea', 'crb_custom_mapping_program_fmis', 'Custom Mapping Program SIPD dan FMIS' )
+            	->set_help_text('Data ini untuk mengakomodir perbedaan nama program yang ada di SIPD dan FMIS. Contoh pengisian data sebagai berikut [nama_program]-[nama_program] data dipisah dengan pemisah "," (koma).');
+		$mapping_unit[] = Field::make( 'html', 'crb_fmis_keterangan_mapping' )
+	        ->set_html( 'Mapping SKPD berisi ID dari Unit dan Sub Unit FMIS. Data ID SKPD FMIS dapat dilihat pada form edit atau tambah user. ID dipisahkan dengan delimiter "." (titik). Contoh jika ID dari Unit Dindik adalah 50 dan ID dari sub Unit Dindik adalah 70, maka penulisanya adalah <b>50.70</b>.' );
+        $mapping_unit[] = Field::make( 'radio', 'crb_fmis_pagu', __( 'Nilai Rincian yang dikirim ke FMIS' ) )
+		    ->add_options( array(
+		        '1' => __( 'Nilai Terakhir' ),
+		        '2' => __( 'Sebelum Perubahan' )
+		    ) )
+        	->set_default_value('1')
+        	->set_help_text('Pilihan ini untuk opsi yang dipakai saat penarikan data dijadwal pergeseran atau perubahan. Jika masih jadwal APBD Murni maka pilih <b>Nilai Terakhir</b>.');
+		foreach ($unit as $k => $v) {
+			$mapping_unit[] = Field::make( 'text', 'crb_unit_fmis_'.$tahun_anggaran.'_'.$v['id_skpd'], ($k+1).'. Kode Sub Unit FMIS untuk '.$v['kode_skpd'].' '.$v['nama_skpd'] );
+		}
+		return $mapping_unit;
+	}
+
 	public function get_mapping_unit(){
 		global $wpdb;
-		$unit = $wpdb->get_results("SELECT nama_skpd, id_skpd, kode_skpd from data_unit where active=1 and tahun_anggaran=".get_option('_crb_tahun_anggaran_sipd').' order by id_skpd ASC', ARRAY_A);
+		$unit = array();
+		$tahun_anggaran = get_option('_crb_tahun_anggaran_sipd');
+		if(empty(!$tahun_anggaran)){
+			$unit = $wpdb->get_results("SELECT nama_skpd, id_skpd, kode_skpd from data_unit where active=1 and tahun_anggaran=".$tahun_anggaran.' order by id_skpd ASC', ARRAY_A);
+		}
 		$mapping_unit = array(
 	        Field::make( 'radio', 'crb_singkron_simda', __( 'Auto Singkron ke DB SIMDA' ) )
 			    ->add_options( array(
@@ -500,7 +661,8 @@ class Wpsipd_Admin {
 			        '1' => __( 'Nilai Terakhir' ),
 			        '2' => __( 'Sebelum Perubahan' )
 			    ) )
-            	->set_default_value('1'),
+            	->set_default_value('1')
+            	->set_help_text('Pilihan ini untuk dipakai saat jadwal pergeseran atau perubahan. Jika masih jadwal APBD Murni maka pilih <b>Nilai Terakhir</b>.'),
             Field::make( 'textarea', 'crb_custom_mapping_sub_keg_simda', 'Custom Mapping Sub Kegiatan SIPD ke SIMDA' )
             	->set_help_text('Data ini untuk mengakomodir perbedaan kode sub kegiatan yang ada di SIPD dan SIMDA. Juga perbedaan mapping sub kegiatan ke Sub Unit SIMDA. Contoh pengisian data sebagai berikut 5.02.0.00.0.00.04.0000_5.02.02.2.01.05-4.04.01.02_4.04.18.08 data dipisah dengan pemisah "," (koma). Formatnya adalah <b>kodeSkpdSipd_kodeSubKeg-kodeSubUnitSimda_kodeRefKegiatan</b>.')
 	    );
@@ -1053,6 +1215,122 @@ class Wpsipd_Admin {
 	    
 	}
 
+	public function generate_jadwal_perencanaan(){
+		global $wpdb;
+		$tahun = $wpdb->get_results('select tahun_anggaran from data_unit group by tahun_anggaran', ARRAY_A);
+		$list_data = '';
+
+		$title = 'Jadwal Input Perencanaan RPJPD';
+		$shortcode = '[jadwal_rpjpd]';
+		$update = false;
+		$page_url = $this->generatePage($title, false, $shortcode, $update);
+		$list_data .= '<li><a href="'.$page_url.'" target="_blank">'.$title.'</a></li>';
+
+		$title = 'Jadwal Input Perencanaan RPJM';
+		$shortcode = '[jadwal_rpjm]';
+		$update = false;
+		$page_url = $this->generatePage($title, false, $shortcode, $update);
+		$list_data .= '<li><a href="'.$page_url.'" target="_blank">'.$title.'</a></li>';
+
+		$title = 'Jadwal Input Perencanaan RPD';
+		$shortcode = '[jadwal_rpd]';
+		$update = false;
+		$page_url = $this->generatePage($title, false, $shortcode, $update);
+		$list_data .= '<li><a href="'.$page_url.'" target="_blank">'.$title.'</a></li>';
+
+		$title = 'Jadwal Input Perencanaan RENSTRA';
+		$shortcode = '[jadwal_renstra]';
+		$update = false;
+		$page_url = $this->generatePage($title, false, $shortcode, $update);
+		$list_data .= '<li><a href="'.$page_url.'" target="_blank">'.$title.'</a></li>';
+		
+		$no = 0;
+		foreach ($tahun as $k => $v) {
+			$title = 'Jadwal Input Perencanaan RENJA | '.$v['tahun_anggaran'];
+			$shortcode = '[jadwal_renja tahun_anggaran="'.$v['tahun_anggaran'].'"]';
+			$update = false;
+			$page_url = $this->generatePage($title, $v['tahun_anggaran'], $shortcode, $update);
+			$list_data .= '<li><a href="'.$page_url.'" target="_blank">'.$title.'</a></li>';
+		}
+		$label = array(
+			Field::make( 'html', 'crb_jadwal_perencanaan' )
+            	->set_html( '
+            		<ul>'.$list_data.'</ul>
+            	' )
+        );
+        return $label;
+	}
+
+	public function generate_input_rpjpd(){
+		global $wpdb;
+		$title = 'Input Perencanaan RPJPD';
+		$shortcode = '[input_rpjpd]';
+		$update = false;
+		$page_url = $this->generatePage($title, false, $shortcode, $update);
+		$list_data = '<li><a href="'.$page_url.'" target="_blank">'.$title.'</a></li>';
+		$label = array(
+			Field::make( 'html', 'crb_input_rpjpd' )
+            	->set_html( '
+            		<ul>'.$list_data.'</ul>
+            	' )
+        );
+        return $label;
+	}
+
+	public function generate_input_rpjm(){
+		global $wpdb;
+		$title = 'Input Perencanaan RPJM';
+		$shortcode = '[input_rpjm]';
+		$update = false;
+		$page_url = $this->generatePage($title, false, $shortcode, $update);
+		$list_data = '<li><a href="'.$page_url.'" target="_blank">'.$title.'</a></li>';
+		$label = array(
+			Field::make( 'html', 'crb_input_rpjm' )
+            	->set_html( '
+            		<ul>'.$list_data.'</ul>
+            	' )
+        );
+        return $label;
+	}
+
+	public function generate_input_rpd(){
+		global $wpdb;
+		$title = 'Input Perencanaan RPD';
+		$shortcode = '[input_rpd]';
+		$update = false;
+		$page_url = $this->generatePage($title, false, $shortcode, $update);
+		$list_data = '<li><a href="'.$page_url.'" target="_blank">'.$title.'</a></li>';
+		$label = array(
+			Field::make( 'html', 'crb_input_rpd' )
+            	->set_html( '
+            		<ul>'.$list_data.'</ul>
+            	' )
+        );
+        return $label;
+	}
+
+	public function generate_input_renstra(){
+		global $wpdb;
+		$title = 'Input Perencanaan RENSTRA';
+		$shortcode = '[input_renstra]';
+		$update = false;
+		$page_url = $this->generatePage($title, false, $shortcode, $update);
+		$list_data = '<li><a href="'.$page_url.'" target="_blank">'.$title.'</a></li>';
+		$label = array(
+			Field::make( 'html', 'crb_input_renstra' )
+            	->set_html( '
+            		<ul>'.$list_data.'</ul>
+            	' )
+        );
+        return $label;
+	}
+
+	public function generate_input_renja(){
+		global $wpdb;
+		$label = $this->get_ajax_field(array('type' => 'input_renja'));
+        return $label;
+	}
+
 	public function generate_tag_sipd(){
 		global $wpdb;
 		$tahun = $wpdb->get_results('select tahun_anggaran from data_unit group by tahun_anggaran', ARRAY_A);
@@ -1310,6 +1588,38 @@ class Wpsipd_Admin {
 			update_post_meta($custom_post->ID, 'site-post-title', 'disabled');
 			update_post_meta($custom_post->ID, 'site-sidebar-layout', 'no-sidebar');
 			update_post_meta($custom_post->ID, 'theme-transparent-header-meta', 'disabled');
+		}
+		return get_permalink($custom_post->ID);
+	}
+
+	public function generate_data_ssh_page($tahun_anggaran){
+		$nama_page = 'Data Standar Satuan Harga SIPD | '.$tahun_anggaran;
+		$custom_post = get_page_by_title($nama_page, OBJECT, 'page');
+
+		$_post = array(
+			'post_title'	=> $nama_page,
+			'post_content'	=> '[data_ssh_sipd tahun_anggaran="'.$tahun_anggaran.'"]',
+			'post_type'		=> 'page',
+			'post_status'	=> 'publish',
+			'comment_status'	=> 'closed'
+		);
+		if (empty($custom_post) || empty($custom_post->ID)) {
+			$id = wp_insert_post($_post);
+			$_post['insert'] = 1;
+			$_post['ID'] = $id;
+			$custom_post = get_page_by_title($nama_page, OBJECT, 'page');
+			update_post_meta($custom_post->ID, 'ast-breadcrumbs-content', 'disabled');
+			update_post_meta($custom_post->ID, 'ast-featured-img', 'disabled');
+			update_post_meta($custom_post->ID, 'ast-main-header-display', 'disabled');
+			update_post_meta($custom_post->ID, 'footer-sml-layout', 'disabled');
+			update_post_meta($custom_post->ID, 'site-content-layout', 'page-builder');
+			update_post_meta($custom_post->ID, 'site-post-title', 'disabled');
+			update_post_meta($custom_post->ID, 'site-sidebar-layout', 'no-sidebar');
+			update_post_meta($custom_post->ID, 'theme-transparent-header-meta', 'disabled');
+		}else if($custom_post->post_status == 'private'){
+			$_post['ID'] = $custom_post->ID;
+			wp_update_post( $_post );
+			$_post['update'] = 1;
 		}
 		return get_permalink($custom_post->ID);
 	}
@@ -1910,5 +2220,95 @@ class Wpsipd_Admin {
 			}
 		}
 		die(json_encode($ret));
+    }
+
+    function generate_lisensi(){
+		$cek = true;
+		if(empty($_POST['server'])){
+			$cek = false;
+			$pesan = 'Server WP-SIPD wajib diisi!';
+		}else if(empty($_POST['api_key_server'])){
+			$cek = false;
+			$pesan = 'API KEY Server WP-SIPD wajib diisi!';
+		}else if(empty($_POST['no_wa'])){
+			$cek = false;
+			$pesan = 'Nomor WA wajib diisi!';
+		}else if(empty($_POST['pemda'])){
+			$cek = false;
+			$pesan = 'Nama Pemda wajib diisi!';
+		}
+		if(true == $cek){
+	    	$url = $_POST['server'];
+	    	$api_key_wp_sipd = $_POST['api_key_server'];
+	    	$no_wa = $_POST['no_wa'];
+	    	$nama_pemda = $_POST['pemda'];
+	    	update_option('_crb_server_wp_sipd', $url);
+	    	update_option('_crb_server_wp_sipd_api_key', $api_key_wp_sipd);
+	    	update_option('_crb_no_wa', $no_wa);
+			update_option('_crb_daerah', $nama_pemda);
+			$domain = $_SERVER['SERVER_NAME'];
+			$api_params = array(
+				'action' => 'generate_lisensi_bn',
+				'api_key' => $api_key_wp_sipd,
+				'no_wa' => $no_wa,
+				'nama_pemda' => $nama_pemda,
+				'produk' => 'WP-SIPD',
+				'domain' => $domain,
+			);
+			$req = http_build_query($api_params);
+			$curl = curl_init();
+			curl_setopt_array($curl, array(
+	            CURLOPT_URL => $url,
+	            CURLOPT_RETURNTRANSFER => true,
+	            CURLOPT_ENCODING => "",
+	            CURLOPT_MAXREDIRS => 10,
+	            CURLOPT_TIMEOUT => 30,
+	            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+	            CURLOPT_CUSTOMREQUEST => "POST",
+	            CURLOPT_POSTFIELDS => $req,
+	            CURLOPT_SSL_VERIFYPEER => false,
+	            CURLOPT_SSL_VERIFYHOST => false,
+	            CURLOPT_CONNECTTIMEOUT => 0,
+	            CURLOPT_TIMEOUT => 10000
+	        ));
+	        $response = curl_exec($curl);
+	        $err = curl_error($curl);
+	        curl_close($curl);
+	        if ($err) {
+	        	$ret = array(
+	        		'status' => 'error',
+	        		'message' => "cURL Error #:".$err." (".$url.")"
+	        	);
+	        } else {
+	            $ret = json_decode($response);
+	            if(
+	            	!empty($ret)
+	            	&& $ret->status == 'success'
+	            ){
+	            	update_option('_crb_api_key_extension', $ret->lisensi);
+	            }else{
+	            	if(
+	            		!empty($ret)
+	            		&& !empty($ret->error)
+	            	){
+	            		$response = $ret->message;
+	            	}
+	            	$ret = array(
+		        		'status' => 'error',
+		        		'message' => $response
+		        	);
+	            }
+	        }
+	    }else{
+	    	$ret = array(
+        		'status' => 'error',
+        		'message' => $pesan
+        	);
+	    }
+		die(json_encode(array(
+			'url' => $url,
+			'params' => $api_params,
+			'response' => $ret
+		)));
     }
 }

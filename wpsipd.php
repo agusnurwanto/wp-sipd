@@ -13,10 +13,10 @@
  * @package           Wpsipd
  *
  * @wordpress-plugin
- * Plugin Name:       Data SIPD
+ * Plugin Name:       WP SIPD
  * Plugin URI:        https://github.com/agusnurwanto/wp-sipd
- * Description:       generate ussing https://wppb.me/
- * Version:           1.0.0
+ * Description:       Aplikasi Open Source untuk backup data SIPD lokal
+ * Version:           1.0.2
  * Author:            Agus Nurwanto
  * Author URI:        https://github.com/agusnurwanto
  * License:           GPL-2.0+
@@ -29,6 +29,9 @@
 if ( ! defined( 'WPINC' ) ) {
 	die;
 }
+
+define( 'WPSIPD_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
+define( 'WPSIPD_PLUGIN_PATH', plugin_dir_path(__FILE__) );
 
 // ============== https://carbonfields.net/ ================
 if(!defined('Carbon_Fields_Plugin\PLUGIN_FILE')){
@@ -55,7 +58,7 @@ if(!function_exists('carbon_fields_boot_plugin')){
  * Start at version 1.0.0 and use SemVer - https://semver.org
  * Rename this for your plugin and update it as you release new versions.
  */
-define( 'WPSIPD_VERSION', '1.0.0' );
+define( 'WPSIPD_VERSION', '1.0.2' );
 
 /**
  * The code that runs during plugin activation.

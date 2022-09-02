@@ -93,6 +93,35 @@ function set_analis_komponen(){
 	});
 }
 
+function generate_lisensi(){
+	jQuery('#wrap-loading').show();
+	jQuery.ajax({
+		url: ajaxurl,
+      	type: "post",
+      	data: {
+      		"action": "generate_lisensi",
+      		"api_key": wpsipd.api_key,
+      		"server": jQuery('input[name="carbon_fields_compact_input[_crb_server_wp_sipd]"]').val(),
+      		"api_key_server": jQuery('input[name="carbon_fields_compact_input[_crb_server_wp_sipd_api_key]"]').val(),
+      		"no_wa": jQuery('input[name="carbon_fields_compact_input[_crb_no_wa]"]').val(),
+      		"pemda": jQuery('input[name="carbon_fields_compact_input[_crb_daerah]"]').val()
+      	},
+      	dataType: "json",
+      	success: function(data){
+			jQuery('#wrap-loading').hide();
+			alert(data.response.message);
+			if(data.response.status == 'success'){
+				jQuery('#load_ajax_carbon').html(data.response.message);
+				jQuery('input[name="carbon_fields_compact_input[_crb_api_key_extension]"]').val(data.response.lisensi);
+			}
+		},
+		error: function(e) {
+			console.log(e);
+			return alert(e);
+		}
+	});
+}
+
 jQuery(document).ready(function(){
 	window.options_skpd = {};
 	var loading = ''
@@ -131,28 +160,28 @@ jQuery(document).ready(function(){
 	});
 	if(jQuery("#load_ajax_carbon").length >= 1){
 		jQuery('#wrap-loading').show();
-			jQuery.ajax({
-				url: ajaxurl,
-	          	type: "post",
-	          	data: {
-	          		"action": "load_ajax_carbon",
-	          		"api_key": wpsipd.api_key,
-	          		"type": jQuery("#load_ajax_carbon").attr('data-type')
-	          	},
-	          	dataType: "json",
-	          	success: function(data){
-					jQuery('#wrap-loading').hide();
-					if(data.status == 'success'){
-						jQuery('#load_ajax_carbon').html(data.message);
-					}else{
-						return alert(data.message);
-					}
-				},
-				error: function(e) {
-					console.log(e);
+		jQuery.ajax({
+			url: ajaxurl,
+          	type: "post",
+          	data: {
+          		"action": "load_ajax_carbon",
+          		"api_key": wpsipd.api_key,
+          		"type": jQuery("#load_ajax_carbon").attr('data-type')
+          	},
+          	dataType: "json",
+          	success: function(data){
+				jQuery('#wrap-loading').hide();
+				if(data.status == 'success'){
+					jQuery('#load_ajax_carbon').html(data.message);
+				}else{
 					return alert(data.message);
 				}
-			});
+			},
+			error: function(e) {
+				console.log(e);
+				return alert(data.message);
+			}
+		});
 	}
 	if(jQuery("#body_label").length >= 1){
 		var tahun_anggaran = jQuery('select[name="carbon_fields_compact_input[_crb_tahun_anggaran]"]');

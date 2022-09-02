@@ -61,6 +61,7 @@ foreach ($kode_rek as $rek) {
 				select 
 					sum(rincian_murni) as total_murni, 
 					sum(rincian) as total,
+					0 as total_fmis,
 					count(update_at) as jml 
 				from '.$table.' 
 				where '.$where
@@ -83,6 +84,7 @@ foreach ($kode_rek as $rek) {
 				select 
 					sum(pagumurni) as total_murni, 
 					sum(pagu) as total,
+					sum(pagu_fmis) as total_fmis,
 					count(update_at) as jml 
 				from '.$table_tanpa_rinci.' 
 				where '.$where
@@ -100,14 +102,20 @@ foreach ($kode_rek as $rek) {
 				if($data_tanpa_rinci['total'] != $data['total']){
 					$warning = 1;
 				}
+				$warning_fmis = 0;
+				if($data_tanpa_rinci['total_fmis'] != $data['total']){
+					$warning_fmis = 1;
+				}
 				$data_body[strtotime($update_at_tanpa_rinci['update_at']).$opd['id_skpd'].$rek.'-tanpa-rinci'] = array(
 					'warning' => $warning,
+					'warning_fmis' => $warning_fmis,
 					'rek' => $rek.'-tanpa-rinci',
 					'type_belanja' => $type_belanja.' Tanpa Rincian <span class="debug hide">'.$wpdb->last_query.'</span>',
 					'skpd' => $opd['nama_skpd'],
 					'id_skpd' => $opd['id_skpd'],
 					'kode_skpd' => $opd['kode_skpd'],
 					'update_at' => $update_at_tanpa_rinci['update_at'],
+					'total_fmis' => $data_tanpa_rinci['total_fmis'],
 					'total_murni' => $data_tanpa_rinci['total_murni'],
 					'total' => $data_tanpa_rinci['total'],
 				);
@@ -154,6 +162,7 @@ foreach ($kode_rek as $rek) {
 			$data = $wpdb->get_row('
 				select 
 					sum(nilaimurni) as total_murni, 
+					sum(pagu_fmis) as total_fmis,
 					sum(total) as total,
 					count(update_at) as jml
 				from '.$table.' 
@@ -168,6 +177,13 @@ foreach ($kode_rek as $rek) {
 			, ARRAY_A);
 		}
 		if($data['jml']>=1){
+			$warning_fmis = 0;
+			if(
+				$table != 'data_rka'
+				&& $data['total_fmis'] != $data['total']
+			){
+				$warning_fmis = 1;
+			}
 			$data_body[strtotime($update_at['update_at']).$opd['id_skpd'].$rek] = array(
 				'rek' => $rek,
 				'type_belanja' => $type_belanja.' <span class="debug hide">'.$wpdb->last_query.'</span>',
@@ -176,6 +192,8 @@ foreach ($kode_rek as $rek) {
 				'kode_skpd' => $opd['kode_skpd'],
 				'update_at' => $update_at['update_at'],
 				'total_murni' => $data['total_murni'],
+				'warning_fmis' => $warning_fmis,
+				'total_fmis' => $data['total_fmis'],
 				'total' => $data['total'],
 			);
 		}
@@ -194,12 +212,20 @@ foreach ($data_body as $k => $data) {
 	if(!empty($data['warning'])){
 		$warning = 'background: #ff00002e;';
 	}
+	$warning_fmis = '';
+	if(!empty($data['warning_fmis'])){
+		$warning_fmis = 'background: #ff00002e;';
+	}
+	if(empty($data['total_fmis'])){
+		$data['total_fmis'] = 0;
+	}
 	$body .= '
 		<tr data-type-belanja="'.$data['rek'].'" data-id-skpd="'.$data['id_skpd'].'">
 			<td class="text-center">'.$no.'</td>
 			<td class="text-center">'.$data['type_belanja'].'</td>
 			<td><a href="'.$link.'" target="_blank">'.$data['skpd'].'</a></td>
 			<td class="text-center">'.$data['update_at'].'</td>
+			<td class="text-right" style="'.$warning_fmis.'">'.number_format($data['total_fmis'],0,",",".").'</td>
 			<td class="text-right">'.number_format($data['total_murni'],0,",",".").'</td>
 			<td class="text-right pagu_total" style="'.$warning.'">'.number_format($data['total'],0,",",".").'</td>
 			<td class="text-right rka_simda" style="display: none;"></td>
@@ -229,6 +255,7 @@ foreach ($data_body as $k => $data) {
 					<th class="text-center">Type Belanja</th>
 					<th class="text-center">Nama SKPD</th>
 					<th class="text-center" style="width: 100px;">Last Syncrone</th>
+					<th class="text-center">Pagu FMIS</th>
 					<th class="text-center">Pagu Sebelum</th>
 					<th class="text-center">Pagu Terkini</th>
 					<th class="text-center rka_simda" style="display: none;">Pagu RKA SIMDA</th>

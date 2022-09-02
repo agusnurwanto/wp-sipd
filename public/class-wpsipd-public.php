@@ -81,6 +81,7 @@ class Wpsipd_Public
 		wp_enqueue_style($this->plugin_name, plugin_dir_url(__FILE__) . 'css/wpsipd-public.css', array(), $this->version, 'all');
 		wp_enqueue_style($this->plugin_name . 'bootstrap', plugin_dir_url(__FILE__) . 'css/bootstrap.min.css', array(), $this->version, 'all');
 		wp_enqueue_style($this->plugin_name . 'select2', plugin_dir_url(__FILE__) . 'css/select2.min.css', array(), $this->version, 'all');
+		wp_enqueue_style($this->plugin_name . 'datatables', plugin_dir_url(__FILE__) . 'css/datatables.min.css', array(), $this->version, 'all');
 
 		wp_enqueue_style( 'dashicons' );
 	}
@@ -108,6 +109,8 @@ class Wpsipd_Public
 		wp_enqueue_script($this->plugin_name, plugin_dir_url(__FILE__) . 'js/wpsipd-public.js', array('jquery'), $this->version, false);
 		wp_enqueue_script($this->plugin_name . 'bootstrap', plugin_dir_url(__FILE__) . 'js/bootstrap.bundle.min.js', array('jquery'), $this->version, false);
 		wp_enqueue_script($this->plugin_name . 'select2', plugin_dir_url(__FILE__) . 'js/select2.min.js', array('jquery'), $this->version, false);
+		wp_enqueue_script($this->plugin_name . 'datatables', plugin_dir_url(__FILE__) . 'js/datatables.min.js', array('jquery'), $this->version, false);
+		wp_enqueue_script($this->plugin_name . 'chart', plugin_dir_url(__FILE__) . 'js/chart.min.js', array('jquery'), $this->version, false);
 		wp_localize_script( $this->plugin_name, 'ajax', array(
 		    'url' => admin_url( 'admin-ajax.php' )
 		));
@@ -215,6 +218,7 @@ class Wpsipd_Public
 						and active=1", 
 				$_POST['tahun_anggaran']), ARRAY_A);
 				foreach ($data_skpd as $k => $v) {
+					$data_skpd[$k]['id_mapping'] = get_option('_crb_unit_fmis_'.$_POST['tahun_anggaran'].'_'.$v['id_skpd']);
 					$kode_skpd = explode('.', $v['kode_skpd']);
 					$bidur_1 = $kode_skpd[0].'.'.$kode_skpd[1];
 					$bidur_2 = $kode_skpd[2].'.'.$kode_skpd[3];
@@ -296,6 +300,573 @@ class Wpsipd_Public
 		die(json_encode($ret));
 	}
 
+	public function get_meta_subunit_simda(){
+		global $wpdb;
+		$ret = array(
+			'action'	=> $_POST['action'],
+			'data'	=> array()
+		);
+		if (!empty($_POST)) {
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+				$tahun_anggaran = $_POST['tahun_anggaran'];
+				$sql = $wpdb->prepare("
+					SELECT 
+						s.*,
+						j.*
+					from ta_sub_unit s
+					left join ta_sub_unit_jab j on s.tahun=j.tahun
+						and s.kd_urusan=j.kd_urusan
+						and s.kd_bidang=j.kd_bidang
+						and s.kd_unit=j.kd_unit
+						and s.kd_sub=j.kd_sub
+					where s.tahun=%d
+						and j.kd_jab=4
+					", 
+					$tahun_anggaran
+				);
+				$return['sql'] = $sql;
+				$data_sub_unit = $this->simda->CurlSimda(array(
+					'query' => $sql,
+					'debug' => 1
+				));
+				$mapping_skpd = $this->get_id_skpd_fmis(false, $tahun_anggaran);
+				foreach($data_sub_unit as $k => $sub_unit){
+					$kd_sub_unit = $sub_unit->kd_urusan.'.'.$sub_unit->kd_bidang.'.'.$sub_unit->kd_unit.'.'.$sub_unit->kd_sub;
+					$data_sub_unit[$k]->kd_sub_unit = $kd_sub_unit;
+					if(!empty($mapping_skpd['id_mapping_simda'][$kd_sub_unit])){
+						$data_sub_unit[$k]->skpd = $mapping_skpd['id_mapping_simda'][$kd_sub_unit];
+					}
+				}
+				$ret['data'] = $data_sub_unit;
+			} else {
+				$ret['status'] = 'error';
+				$ret['message'] = 'APIKEY tidak sesuai!';
+			}
+		}
+		die(json_encode($ret));
+	}
+
+	public function get_spp(){
+		global $wpdb;
+		$ret = array(
+			'action'	=> $_POST['action'],
+			'tipe'	=> $_POST['tipe'],
+			'data'	=> array()
+		);
+		if (!empty($_POST)) {
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+				$tahun_anggaran = $_POST['tahun_anggaran'];
+				$jenis = 1;
+				if($_POST['tipe'] == 'up'){
+					$jenis = 1;
+				}else if($_POST['tipe'] == 'gu'){
+					$jenis = 2;
+				}else if($_POST['tipe'] == 'ls'){
+					$jenis = 3;
+				}else if($_POST['tipe'] == 'tu'){
+					$jenis = 4;
+				}else if($_POST['tipe'] == 'nihil'){
+					$jenis = 5;
+				}
+				$id_skpd_fmis = false;
+				if(!empty($_POST['idsubunit'])){
+					$id_skpd_fmis = $_POST['idsubunit'];
+				}
+				$mapping_skpd = $this->get_id_skpd_fmis($id_skpd_fmis, $tahun_anggaran, true);
+				$kd_urusan = array();
+				$kd_bidang = array();
+				$kd_unit = array();
+				$kd_sub = array();
+				foreach($mapping_skpd['id_skpd_sipd'] as $id){
+					$kd_unit_simda_asli = get_option('_crb_unit_'.$id);
+					$kd_simda = explode('.', $kd_unit_simda_asli);
+					if(!empty($kd_simda[0])){
+						if(empty($kd_urusan[$kd_simda[0]])){
+							$kd_urusan[$kd_simda[0]] = $kd_simda[0];
+						}
+					}
+					if(!empty($kd_simda[1])){
+						if(empty($kd_bidang[$kd_simda[1]])){
+							$kd_bidang[$kd_simda[1]] = $kd_simda[1];
+						}
+					}
+					if(!empty($kd_simda[2])){
+						if(empty($kd_unit[$kd_simda[2]])){
+							$kd_unit[$kd_simda[2]] = $kd_simda[2];
+						}
+					}
+					if(!empty($kd_simda[3])){
+						if(empty($kd_sub[$kd_simda[3]])){
+							$kd_sub[$kd_simda[3]] = $kd_simda[3];
+						}
+					}
+				}
+				$sql = $wpdb->prepare("
+					SELECT 
+						*
+					from ta_spp
+					where tahun=%d
+						and jn_spp=%d
+						and kd_urusan in (".implode(',', $kd_urusan).")
+						and kd_bidang in (".implode(',', $kd_bidang).")
+						and kd_unit in (".implode(',', $kd_unit).")
+						and kd_sub in (".implode(',', $kd_sub).")
+					", 
+					$tahun_anggaran, 
+					$jenis
+				);
+				$return['sql'] = $sql;
+				$spp = $this->simda->CurlSimda(array(
+					'query' => $sql,
+					'debug' => 1
+				));
+				foreach($spp as $k => $v){
+					$kd_sub_unit = $v->kd_urusan.'.'.$v->kd_bidang.'.'.$v->kd_unit.'.'.$v->kd_sub;
+					$spp[$k]->kd_sub_unit = $kd_sub_unit;
+					if(!empty($mapping_skpd['id_mapping_simda'][$kd_sub_unit])){
+						$spp[$k]->skpd = $mapping_skpd['id_mapping_simda'][$kd_sub_unit];
+					}
+				}
+				$ret['data'] = $spp;
+			} else {
+				$ret['status'] = 'error';
+				$ret['message'] = 'APIKEY tidak sesuai!';
+			}
+		}
+		die(json_encode($ret));
+	}
+
+	public function get_spm(){
+		global $wpdb;
+		$ret = array(
+			'action'	=> $_POST['action'],
+			'tipe'	=> $_POST['tipe'],
+			'data'	=> array()
+		);
+		if (!empty($_POST)) {
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+				$tahun_anggaran = $_POST['tahun_anggaran'];
+				$jenis = 1;
+				if($_POST['tipe'] == 'up'){
+					$jenis = 1;
+				}else if($_POST['tipe'] == 'gu'){
+					$jenis = 2;
+				}else if($_POST['tipe'] == 'ls'){
+					$jenis = 3;
+				}else if($_POST['tipe'] == 'tu'){
+					$jenis = 4;
+				}else if($_POST['tipe'] == 'nihil'){
+					$jenis = 5;
+				}
+				$id_skpd_fmis = false;
+				if(!empty($_POST['idsubunit'])){
+					$id_skpd_fmis = $_POST['idsubunit'];
+				}
+				$mapping_skpd = $this->get_id_skpd_fmis($id_skpd_fmis, $tahun_anggaran, true);
+				$kd_urusan = array();
+				$kd_bidang = array();
+				$kd_unit = array();
+				$kd_sub = array();
+				foreach($mapping_skpd['id_skpd_sipd'] as $id){
+					$kd_unit_simda_asli = get_option('_crb_unit_'.$id);
+					$kd_simda = explode('.', $kd_unit_simda_asli);
+					if(!empty($kd_simda[0])){
+						if(empty($kd_urusan[$kd_simda[0]])){
+							$kd_urusan[$kd_simda[0]] = $kd_simda[0];
+						}
+					}
+					if(!empty($kd_simda[1])){
+						if(empty($kd_bidang[$kd_simda[1]])){
+							$kd_bidang[$kd_simda[1]] = $kd_simda[1];
+						}
+					}
+					if(!empty($kd_simda[2])){
+						if(empty($kd_unit[$kd_simda[2]])){
+							$kd_unit[$kd_simda[2]] = $kd_simda[2];
+						}
+					}
+					if(!empty($kd_simda[3])){
+						if(empty($kd_sub[$kd_simda[3]])){
+							$kd_sub[$kd_simda[3]] = $kd_simda[3];
+						}
+					}
+				}
+				$sql = $wpdb->prepare("
+					SELECT 
+						*
+					from ta_spm
+					where tahun=%d
+						and jn_spm=%d
+						and kd_urusan in (".implode(',', $kd_urusan).")
+						and kd_bidang in (".implode(',', $kd_bidang).")
+						and kd_unit in (".implode(',', $kd_unit).")
+						and kd_sub in (".implode(',', $kd_sub).")
+					", 
+					$tahun_anggaran, 
+					$jenis
+				);
+				$return['sql'] = $sql;
+				$spm = $this->simda->CurlSimda(array(
+					'query' => $sql,
+					'debug' => 1
+				));
+				foreach($spm as $k => $v){
+					$kd_sub_unit = $v->kd_urusan.'.'.$v->kd_bidang.'.'.$v->kd_unit.'.'.$v->kd_sub;
+					$spm[$k]->kd_sub_unit = $kd_sub_unit;
+					if(!empty($mapping_skpd['id_mapping_simda'][$kd_sub_unit])){
+						$spm[$k]->skpd = $mapping_skpd['id_mapping_simda'][$kd_sub_unit];
+					}
+				}
+				$ret['data'] = $spm;
+			} else {
+				$ret['status'] = 'error';
+				$ret['message'] = 'APIKEY tidak sesuai!';
+			}
+		}
+		die(json_encode($ret));
+	}
+
+	public function get_sp2d(){
+		global $wpdb;
+		$ret = array(
+			'action'	=> $_POST['action'],
+			'data'	=> array()
+		);
+		if (!empty($_POST)) {
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+				$tahun_anggaran = $_POST['tahun_anggaran'];
+				$spm_all = json_decode(stripslashes(html_entity_decode($_POST['spm_no'])));
+				if(!empty($spm_all)){
+					foreach($spm_all as $k => $v){
+						$spm_all[$k] = "'$v'";
+					}
+					$sql = $wpdb->prepare("
+						SELECT 
+							*
+						from ta_sp2d
+						where tahun=%d
+							and no_spm in (".implode(',', $spm_all).")
+						", 
+						$tahun_anggaran
+					);
+					$return['sql'] = $sql;
+					$sp2d = $this->simda->CurlSimda(array(
+						'query' => $sql,
+						'debug' => 1
+					));
+					$ret['data'] = $sp2d;
+				}else{
+					$ret['status'] = 'error';
+					$ret['message'] = 'No SPM tidak boleh kosong!';
+				}
+			} else {
+				$ret['status'] = 'error';
+				$ret['message'] = 'APIKEY tidak sesuai!';
+			}
+		}
+		die(json_encode($ret));
+	}
+
+	public function get_tagihan(){
+		global $wpdb;
+		$ret = array(
+			'action'	=> $_POST['action'],
+			'data'	=> array()
+		);
+		if (!empty($_POST)) {
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+				$tahun_anggaran = $_POST['tahun_anggaran'];
+				$id_skpd_fmis = false;
+				if(!empty($_POST['idsubunit'])){
+					$id_skpd_fmis = $_POST['idsubunit'];
+				}
+				$mapping_skpd = $this->get_id_skpd_fmis($id_skpd_fmis, $tahun_anggaran, true);
+				$kd_urusan = array();
+				$kd_bidang = array();
+				$kd_unit = array();
+				$kd_sub = array();
+				foreach($mapping_skpd['id_skpd_sipd'] as $id){
+					$kd_unit_simda_asli = get_option('_crb_unit_'.$id);
+					$kd_simda = explode('.', $kd_unit_simda_asli);
+					if(!empty($kd_simda[0])){
+						if(empty($kd_urusan[$kd_simda[0]])){
+							$kd_urusan[$kd_simda[0]] = $kd_simda[0];
+						}
+					}
+					if(!empty($kd_simda[1])){
+						if(empty($kd_bidang[$kd_simda[1]])){
+							$kd_bidang[$kd_simda[1]] = $kd_simda[1];
+						}
+					}
+					if(!empty($kd_simda[2])){
+						if(empty($kd_unit[$kd_simda[2]])){
+							$kd_unit[$kd_simda[2]] = $kd_simda[2];
+						}
+					}
+					if(!empty($kd_simda[3])){
+						if(empty($kd_sub[$kd_simda[3]])){
+							$kd_sub[$kd_simda[3]] = $kd_simda[3];
+						}
+					}
+				}
+				$sql = $wpdb->prepare("
+					SELECT 
+						s.*,
+						t.*
+					from ta_spp s
+						left join ta_tagihan t on s.no_tagihan=t.no_tagihan
+					where s.tahun=%d
+						and s.no_tagihan is not null
+						and s.kd_urusan in (".implode(',', $kd_urusan).")
+						and s.kd_bidang in (".implode(',', $kd_bidang).")
+						and s.kd_unit in (".implode(',', $kd_unit).")
+						and s.kd_sub in (".implode(',', $kd_sub).")
+					", 
+					$tahun_anggaran
+				);
+				$return['sql'] = $sql;
+				$spp = $this->simda->CurlSimda(array(
+					'query' => $sql,
+					'debug' => 1
+				));
+				foreach($spp as $k => $v){
+					$kd_sub_unit = $v->kd_urusan.'.'.$v->kd_bidang.'.'.$v->kd_unit.'.'.$v->kd_sub;
+					$spp[$k]->kd_sub_unit = $kd_sub_unit;
+					if(!empty($mapping_skpd['id_mapping_simda'][$kd_sub_unit])){
+						$spp[$k]->skpd = $mapping_skpd['id_mapping_simda'][$kd_sub_unit];
+					}
+				}
+				$ret['data'] = $spp;
+			} else {
+				$ret['status'] = 'error';
+				$ret['message'] = 'APIKEY tidak sesuai!';
+			}
+		}
+		die(json_encode($ret));
+	}
+
+	public function get_kontrak(){
+		global $wpdb;
+		$ret = array(
+			'action'	=> $_POST['action'],
+			'data'	=> array()
+		);
+		if (!empty($_POST)) {
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+				$tahun_anggaran = $_POST['tahun_anggaran'];
+				$id_skpd_fmis = false;
+				if(!empty($_POST['idsubunit'])){
+					$id_skpd_fmis = $_POST['idsubunit'];
+				}
+				$mapping_skpd = $this->get_id_skpd_fmis($id_skpd_fmis, $tahun_anggaran, true);
+				$kd_urusan = array();
+				$kd_bidang = array();
+				$kd_unit = array();
+				$kd_sub = array();
+				foreach($mapping_skpd['id_skpd_sipd'] as $id){
+					$kd_unit_simda_asli = get_option('_crb_unit_'.$id);
+					$kd_simda = explode('.', $kd_unit_simda_asli);
+					if(!empty($kd_simda[0])){
+						if(empty($kd_urusan[$kd_simda[0]])){
+							$kd_urusan[$kd_simda[0]] = $kd_simda[0];
+						}
+					}
+					if(!empty($kd_simda[1])){
+						if(empty($kd_bidang[$kd_simda[1]])){
+							$kd_bidang[$kd_simda[1]] = $kd_simda[1];
+						}
+					}
+					if(!empty($kd_simda[2])){
+						if(empty($kd_unit[$kd_simda[2]])){
+							$kd_unit[$kd_simda[2]] = $kd_simda[2];
+						}
+					}
+					if(!empty($kd_simda[3])){
+						if(empty($kd_sub[$kd_simda[3]])){
+							$kd_sub[$kd_simda[3]] = $kd_simda[3];
+						}
+					}
+				}
+				$sql = $wpdb->prepare("
+					SELECT 
+						s.*
+					from ta_kontrak s
+					where s.tahun=%d
+						and s.kd_urusan in (".implode(',', $kd_urusan).")
+						and s.kd_bidang in (".implode(',', $kd_bidang).")
+						and s.kd_unit in (".implode(',', $kd_unit).")
+						and s.kd_sub in (".implode(',', $kd_sub).")
+					", 
+					$tahun_anggaran
+				);
+				$ret['sql'] = $sql;
+				$program_mapping = $this->get_fmis_mapping(array(
+					'name' => '_crb_custom_mapping_program_fmis'
+				));
+				$keg_mapping = $this->get_fmis_mapping(array(
+					'name' => '_crb_custom_mapping_keg_fmis'
+				));
+				$subkeg_mapping = $this->get_fmis_mapping(array(
+					'name' => '_crb_custom_mapping_subkeg_fmis'
+				));
+				$rek_mapping = $this->get_fmis_mapping(array(
+					'name' => '_crb_custom_mapping_rekening_fmis'
+				));
+				$kontrak = $this->simda->CurlSimda(array(
+					'query' => $sql,
+					'debug' => 1
+				));
+				$prog_keg = array();
+				foreach($kontrak as $k => $v){
+					$kd_sub_unit = $v->kd_urusan.'.'.$v->kd_bidang.'.'.$v->kd_unit.'.'.$v->kd_sub;
+					$kontrak[$k]->kd_sub_unit = $kd_sub_unit;
+					if(!empty($mapping_skpd['id_mapping_simda'][$kd_sub_unit])){
+						$kontrak[$k]->skpd = $mapping_skpd['id_mapping_simda'][$kd_sub_unit];
+					}
+					$kd_urusan_asli = substr($v->id_prog, 0, 1);
+					$kd_bidang_asli = (int) substr($v->id_prog, 1);
+					$kd_keg_simda = $kd_urusan_asli.'.'.$kd_bidang_asli.'.'.$v->kd_prog.'.'.$v->kd_keg;
+					if(empty($prog_keg[$kd_keg_simda])){
+						$prog_keg[$kd_keg_simda] = array();
+						$sql = "
+							SELECT 
+								m.*
+							from ref_kegiatan_mapping m
+							where m.kd_urusan=$kd_urusan_asli
+								and m.kd_bidang=$kd_bidang_asli
+								and m.kd_prog=$v->kd_prog
+								and m.kd_keg=$v->kd_keg
+						";
+						$mapping = $this->simda->CurlSimda(array(
+							'query' => $sql,
+							'debug' => 1
+						));
+						$kd_urusan_sipd = $mapping[0]->kd_urusan90;
+						$kd_bidang_sipd = $mapping[0]->kd_bidang90;
+						if($mapping[0]->kd_program90 == 1){
+							$kd_urusan_sipd = 'X';
+							$kd_bidang_sipd = 'XX';
+						}
+						$kode_sub = $kd_urusan_sipd.'.'.$this->simda->CekNull($kd_bidang_sipd).'.'.$this->simda->CekNull($mapping[0]->kd_program90).'.'.$mapping[0]->kd_kegiatan90.'.'.$this->simda->CekNull($mapping[0]->kd_sub_kegiatan);
+						$sub = $wpdb->get_results($wpdb->prepare("
+							select
+								*
+							from data_prog_keg
+							where tahun_anggaran=%d
+								and kode_sub_giat=%s
+						", $tahun_anggaran, $kode_sub), ARRAY_A);
+
+						$sub[0]['nama_program'] = explode(' ', $sub[0]['nama_program']);
+						unset($sub[0]['nama_program'][0]);
+						$sub[0]['nama_program'] = implode(' ', $sub[0]['nama_program']);
+
+						$sub[0]['nama_giat'] = explode(' ', $sub[0]['nama_giat']);
+						unset($sub[0]['nama_giat'][0]);
+						$sub[0]['nama_giat'] = implode(' ', $sub[0]['nama_giat']);
+
+						$sub[0]['nama_sub_giat'] = explode(' ', $sub[0]['nama_sub_giat']);
+						unset($sub[0]['nama_sub_giat'][0]);
+						$sub[0]['nama_sub_giat'] = implode(' ', $sub[0]['nama_sub_giat']);
+
+						$prog_keg[$kd_keg_simda]['nama_program'] = $sub[0]['nama_program'];
+						$prog_keg[$kd_keg_simda]['nama_giat'] = $sub[0]['nama_giat'];
+						$prog_keg[$kd_keg_simda]['nama_sub_giat'] = $sub[0]['nama_sub_giat'];
+						if(!empty($program_mapping[$sub[0]['nama_program']])){
+							$prog_keg[$kd_keg_simda]['nama_program'] = $program_mapping[$sub[0]['nama_program']];
+						}
+						if(!empty($keg_mapping[$sub[0]['nama_giat']])){
+							$prog_keg[$kd_keg_simda]['nama_giat'] = $keg_mapping[$sub[0]['nama_giat']];
+						}
+						if(!empty($subkeg_mapping[$sub[0]['nama_sub_giat']])){
+							$prog_keg[$kd_keg_simda]['nama_sub_giat'] = $subkeg_mapping[$sub[0]['nama_sub_giat']];
+						}
+					}
+					$kontrak[$k]->detail = $prog_keg[$kd_keg_simda];
+				}
+				$ret['data'] = $kontrak;
+			} else {
+				$ret['status'] = 'error';
+				$ret['message'] = 'APIKEY tidak sesuai!';
+			}
+		}
+		die(json_encode($ret));
+	}
+
+	public function get_sp2b(){
+		global $wpdb;
+		$ret = array(
+			'action'	=> $_POST['action'],
+			'data'	=> array()
+		);
+		if (!empty($_POST)) {
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+				$tahun_anggaran = $_POST['tahun_anggaran'];
+				$id_skpd_fmis = false;
+				if(!empty($_POST['idsubunit'])){
+					$id_skpd_fmis = $_POST['idsubunit'];
+				}
+				$mapping_skpd = $this->get_id_skpd_fmis($id_skpd_fmis, $tahun_anggaran, true);
+				$kd_urusan = array();
+				$kd_bidang = array();
+				$kd_unit = array();
+				$kd_sub = array();
+				foreach($mapping_skpd['id_skpd_sipd'] as $id){
+					$kd_unit_simda_asli = get_option('_crb_unit_'.$id);
+					$kd_simda = explode('.', $kd_unit_simda_asli);
+					if(!empty($kd_simda[0])){
+						if(empty($kd_urusan[$kd_simda[0]])){
+							$kd_urusan[$kd_simda[0]] = $kd_simda[0];
+						}
+					}
+					if(!empty($kd_simda[1])){
+						if(empty($kd_bidang[$kd_simda[1]])){
+							$kd_bidang[$kd_simda[1]] = $kd_simda[1];
+						}
+					}
+					if(!empty($kd_simda[2])){
+						if(empty($kd_unit[$kd_simda[2]])){
+							$kd_unit[$kd_simda[2]] = $kd_simda[2];
+						}
+					}
+					if(!empty($kd_simda[3])){
+						if(empty($kd_sub[$kd_simda[3]])){
+							$kd_sub[$kd_simda[3]] = $kd_simda[3];
+						}
+					}
+				}
+				$sql = $wpdb->prepare("
+					SELECT 
+						s.*
+					from ta_sp3b s
+					where s.tahun=%d
+						and s.kd_urusan in (".implode(',', $kd_urusan).")
+						and s.kd_bidang in (".implode(',', $kd_bidang).")
+						and s.kd_unit in (".implode(',', $kd_unit).")
+						and s.kd_sub in (".implode(',', $kd_sub).")
+					", 
+					$tahun_anggaran
+				);
+				$return['sql'] = $sql;
+				$spp = $this->simda->CurlSimda(array(
+					'query' => $sql,
+					'debug' => 1
+				));
+				foreach($spp as $k => $v){
+					$kd_sub_unit = $v->kd_urusan.'.'.$v->kd_bidang.'.'.$v->kd_unit.'.'.$v->kd_sub;
+					$spp[$k]->kd_sub_unit = $kd_sub_unit;
+					if(!empty($mapping_skpd['id_mapping_simda'][$kd_sub_unit])){
+						$spp[$k]->skpd = $mapping_skpd['id_mapping_simda'][$kd_sub_unit];
+					}
+				}
+				$ret['data'] = $spp;
+			} else {
+				$ret['status'] = 'error';
+				$ret['message'] = 'APIKEY tidak sesuai!';
+			}
+		}
+		die(json_encode($ret));
+	}
+
 	public function get_ssh(){
 		global $wpdb;
 		$ret = array(
@@ -312,21 +883,296 @@ class Wpsipd_Public
 						|| $_POST['kelompok'] == 2 // HSPK
 						|| $_POST['kelompok'] == 3 // ASB
 						|| $_POST['kelompok'] == 4 // SBU
+						|| $_POST['kelompok'] == 7 // Pendapatan & Pembiayaan
+						|| $_POST['kelompok'] == 8 // RKA APBD Murni SIMDA
+						|| $_POST['kelompok'] == 9 // RKA
 					)
 				){
-					$data_ssh = $wpdb->get_results($wpdb->prepare("
-						SELECT 
-							* 
-						from data_ssh 
-						where tahun_anggaran=%d
-							and is_deleted=0
-							and kelompok=%d", 
-					$_POST['tahun_anggaran'], $_POST['kelompok']), ARRAY_A);
-					$data = array(); 
-					foreach ($data_ssh as $k => $v) {
-						// if($k >= 10){ continue; }
-						$v['rek_belanja'] = $wpdb->get_results("SELECT * from data_ssh_rek_belanja where id_standar_harga=" . $v['id_standar_harga'], ARRAY_A);
-						$data[] = $v;
+					$rek_mapping = $this->get_fmis_mapping(array(
+						'name' => '_crb_custom_mapping_rekening_fmis'
+					));
+					$type_pagu = get_option('_crb_fmis_pagu');
+					if($_POST['kelompok'] == 7){
+						$data = array();
+						$data_ssh = $wpdb->get_results($wpdb->prepare("
+							SELECT 
+								kode_akun,
+								nama_akun,
+								total,
+								nilaimurni,
+								uraian,
+								keterangan
+							from data_pendapatan 
+							where tahun_anggaran=%d
+								and active=1
+								and kode_akun!=''", 
+						$_POST['tahun_anggaran']), ARRAY_A);
+
+						// set variable ssh sesuai kebutuhan ssh di FMIS
+						foreach ($data_ssh as $k => $v) {
+							if(
+								!empty($type_pagu)
+								&& $type_pagu == 2
+							){
+								$v['total'] = $v['nilaimurni'];
+							}
+							$_kode_akun = explode('.', $v['kode_akun']);
+							$kode_akun = array();
+							foreach ($_kode_akun as $vv) {
+								$kode_akun[] = (int)$vv;
+							}
+							$kode_akun = implode('.', $kode_akun);
+							if(!empty($rek_mapping[$kode_akun])){
+								$_kode_akun = explode('.', $rek_mapping[$kode_akun]);
+								$_kode_akun[2] = $this->simda->CekNull($_kode_akun[2]);
+								$_kode_akun[3] = $this->simda->CekNull($_kode_akun[3]);
+								$_kode_akun[4] = $this->simda->CekNull($_kode_akun[4]);
+								$_kode_akun[5] = $this->simda->CekNull($_kode_akun[5], 4);
+								$v['kode_akun'] = implode('.', $_kode_akun);
+							}
+							$newdata = array();
+							$newdata['rek_belanja'] = array(
+								array(
+									'kode_akun' => $v['kode_akun'],
+									'nama_akun' => $v['nama_akun']
+								)
+							);
+							$newdata['kode_standar_harga'] = $_POST['tahun_anggaran'];
+							$newdata['nama_standar_harga'] = substr($v['total'].' Rupiah '.$v['uraian'], 0, 250);
+							$newdata['spek'] = '';
+							$newdata['satuan'] = 'Rupiah';
+							$newdata['kelompok'] = 9;
+							$newdata['harga'] = $v['total'];
+							$newdata['kode_gol_standar_harga'] = $_POST['tahun_anggaran'];
+							$newdata['kode_kel_standar_harga'] = 'Pendapatan';
+							$newdata['nama_sub_kel_standar_harga'] = substr($v['keterangan'], 0, 250);
+							$data[] = $newdata;
+						}
+
+						$data_ssh = $wpdb->get_results($wpdb->prepare("
+							SELECT 
+								type,
+								kode_akun,
+								nama_akun,
+								total,
+								nilaimurni,
+								uraian,
+								keterangan
+							from data_pembiayaan 
+							where tahun_anggaran=%d
+								and active=1
+								and kode_akun!=''", 
+						$_POST['tahun_anggaran']), ARRAY_A);
+
+						// set variable ssh sesuai kebutuhan ssh di FMIS
+						foreach ($data_ssh as $k => $v) {
+							if(
+								!empty($type_pagu)
+								&& $type_pagu == 2
+							){
+								$v['total'] = $v['nilaimurni'];
+							}
+							$_kode_akun = explode('.', $v['kode_akun']);
+							$kode_akun = array();
+							foreach ($_kode_akun as $vv) {
+								$kode_akun[] = (int)$vv;
+							}
+							$kode_akun = implode('.', $kode_akun);
+							if(!empty($rek_mapping[$kode_akun])){
+								$_kode_akun = explode('.', $rek_mapping[$kode_akun]);
+								$_kode_akun[2] = $this->simda->CekNull($_kode_akun[2]);
+								$_kode_akun[3] = $this->simda->CekNull($_kode_akun[3]);
+								$_kode_akun[4] = $this->simda->CekNull($_kode_akun[4]);
+								$_kode_akun[5] = $this->simda->CekNull($_kode_akun[5], 4);
+								$v['kode_akun'] = implode('.', $_kode_akun);
+							}
+
+							$newdata = array();
+							$newdata['rek_belanja'] = array(
+								array(
+									'kode_akun' => $v['kode_akun'],
+									'nama_akun' => $v['nama_akun']
+								)
+							);
+							$newdata['kode_standar_harga'] = $_POST['tahun_anggaran'];
+							$newdata['nama_standar_harga'] = substr($v['total'].' Rupiah '.$v['uraian'], 0, 250);
+							$newdata['spek'] = '';
+							$newdata['satuan'] = 'Rupiah';
+							$newdata['kelompok'] = 9;
+							$newdata['harga'] = $v['total'];
+							$newdata['kode_gol_standar_harga'] = $_POST['tahun_anggaran'];
+							$newdata['kode_kel_standar_harga'] = 'Pembiayaan '.$v['type'];
+							$newdata['nama_sub_kel_standar_harga'] = substr($v['keterangan'], 0, 250);
+							$data[] = $newdata;
+						}
+					}else if($_POST['kelompok'] == 8){
+						$sql = $wpdb->prepare("
+							SELECT 
+								r.kd_rek_1,
+								r.kd_rek_2,
+								r.kd_rek_3,
+								r.kd_rek_4,
+								r.kd_rek_5,
+								r.kd_rek90_1,
+								r.kd_rek90_2,
+								r.kd_rek90_3,
+								r.kd_rek90_4,
+								r.kd_rek90_5,
+								r.kd_rek90_6,
+								rr.nm_rek90_6
+							FROM ref_rek_mapping r
+								inner join ref_rek90_6 rr on r.kd_rek90_1 = rr.kd_rek90_1
+									and r.kd_rek90_2 = rr.kd_rek90_2
+									and r.kd_rek90_3 = rr.kd_rek90_3
+									and r.kd_rek90_4 = rr.kd_rek90_4
+									and r.kd_rek90_5 = rr.kd_rek90_5
+									and r.kd_rek90_6 = rr.kd_rek90_6
+						");
+						$data_rek = $this->simda->CurlSimda(array('query' => $sql));
+						$new_rek = array();
+						foreach($data_rek as $rek){
+							$keyword = $rek->kd_rek_1.$rek->kd_rek_2.$rek->kd_rek_3.$rek->kd_rek_4.$rek->kd_rek_5;
+							$keyword90 = $rek->kd_rek90_1.'.'.$rek->kd_rek90_2.'.'.$rek->kd_rek90_3.'.'.$rek->kd_rek90_4.'.'.$rek->kd_rek90_5.'.'.$rek->kd_rek90_6;
+							$new_rek[$keyword] = array(
+								'kode_akun' => $keyword90,
+								'nama_akun' => $rek->nm_rek90_6
+							);
+						}
+
+						$kd_perubahan = 4;
+						if(
+							!empty($type_pagu)
+							&& $type_pagu == 2
+						){
+							$kd_perubahan = '(SELECT max(kd_perubahan) from ta_rask_arsip where tahun='.$tahun_anggaran.')';
+						}
+						$sql = $wpdb->prepare("
+							SELECT 
+								*
+							FROM ta_rask_arsip r
+							WHERE r.tahun = %d
+								AND r.kd_perubahan = $kd_perubahan
+								AND r.kd_rek_1 = 5
+							", 
+							$_POST['tahun_anggaran']
+						);
+						$data_ssh = $this->simda->CurlSimda(array('query' => $sql));
+						$data = array(); 
+						$data1 = array(); 
+						// set rekening pada item SSH berdasarkan keyword array
+						foreach ($data_ssh as $k => $v) {
+							$keyword = $v->kd_rek_1.$v->kd_rek_2.$v->kd_rek_3.$v->kd_rek_4.$v->kd_rek_5;
+							$key = $v->keterangan.$v->nilai_rp.$v->satuan123;
+							if(empty($data1[$key])){
+								$v->rek_belanja = array($new_rek[$keyword]);
+								$data1[$key] = (array) $v;
+							}else{
+								$data1[$key]['rek_belanja'][] = $new_rek[$keyword];
+							}
+						}
+						// set variable ssh sesuai kebutuhan ssh di FMIS
+						foreach ($data1 as $k => $v) {
+							// if($k >= 10){ continue; }
+							$newdata = array();
+							$newdata['rek_belanja'] = $v['rek_belanja'];
+							$newdata['kode_standar_harga'] = $_POST['tahun_anggaran'];
+							$newdata['nama_standar_harga'] = substr($v['nilai_rp'].' '.$v['satuan123'].' '.$v['keterangan'], 0, 250);
+							$newdata['spek'] = '';
+							$newdata['satuan'] = $v['satuan123'];
+							$newdata['kelompok'] = 9;
+							$newdata['harga'] = $v['nilai_rp'];
+							$newdata['kode_gol_standar_harga'] = $_POST['tahun_anggaran'].' RKA SIMDA';
+							$newdata['kode_kel_standar_harga'] = $v['kd_urusan'].'.'.$v['kd_bidang'].'.'.$v['kd_unit'].'.'.$v['kd_sub'].'.'.$v['kd_prog'].'.'.$v['id_prog'].'.'.$v['kd_keg'];
+							$newdata['nama_sub_kel_standar_harga'] = substr($v['keterangan_rinc'], 0, 250);
+							$data[] = $newdata;
+						}
+					}else if($_POST['kelompok'] == 9){
+						$data_ssh = $wpdb->get_results($wpdb->prepare("
+							SELECT 
+								jenis_bl,
+								nama_komponen,
+								spek_komponen,
+								harga_satuan,
+								harga_satuan_murni,
+								satuan,
+								kode_akun,
+								nama_akun
+							from data_rka 
+							where tahun_anggaran=%d
+								and active=1
+								and kode_akun!=''
+							group by jenis_bl, nama_komponen, spek_komponen, harga_satuan, satuan, kode_akun, nama_akun", 
+						$_POST['tahun_anggaran'], $_POST['kelompok']), ARRAY_A);
+						$data = array(); 
+						$data1 = array();
+						foreach ($data_ssh as $k => $v) {
+							if(
+								!empty($type_pagu)
+								&& $type_pagu == 2
+							){
+								$v['harga_satuan'] = $v['harga_satuan_murni'];
+							}
+							$_kode_akun = explode('.', $v['kode_akun']);
+							$kode_akun = array();
+							foreach ($_kode_akun as $vv) {
+								$kode_akun[] = (int)$vv;
+							}
+							$kode_akun = implode('.', $kode_akun);
+							if(!empty($rek_mapping[$kode_akun])){
+								$_kode_akun = explode('.', $rek_mapping[$kode_akun]);
+								$_kode_akun[2] = $this->simda->CekNull($_kode_akun[2]);
+								$_kode_akun[3] = $this->simda->CekNull($_kode_akun[3]);
+								$_kode_akun[4] = $this->simda->CekNull($_kode_akun[4]);
+								$_kode_akun[5] = $this->simda->CekNull($_kode_akun[5], 4);
+								$v['kode_akun'] = implode('.', $_kode_akun);
+							}
+
+							$key = $v['nama_komponen'].$v['spek_komponen'].$v['harga_satuan'].$v['satuan'];
+							if(empty($data1[$key])){
+								$v['rek_belanja'] = array(
+									array(
+										'kode_akun' => $v['kode_akun'],
+										'nama_akun' => $v['nama_akun']
+									)
+								);
+								$data1[$key] = $v;
+							}else{
+								$data1[$key]['rek_belanja'][] = array(
+									'kode_akun' => $v['kode_akun'],
+									'nama_akun' => $v['nama_akun']
+								);
+							}
+						}
+						foreach ($data1 as $k => $v) {
+							// if($k >= 10){ continue; }
+							$newdata = array();
+							$newdata['rek_belanja'] = $v['rek_belanja'];
+							$newdata['kode_standar_harga'] = $_POST['tahun_anggaran'];
+							$newdata['nama_standar_harga'] = substr($v['harga_satuan'].' '.$v['satuan'].' '.$v['nama_komponen'], 0, 250);
+							$newdata['spek'] = $v['spek_komponen'];
+							$newdata['satuan'] = $v['satuan'];
+							$newdata['kelompok'] = 9;
+							$newdata['harga'] = $v['harga_satuan'];
+							$newdata['kode_gol_standar_harga'] = $_POST['tahun_anggaran'];
+							$newdata['kode_kel_standar_harga'] = $v['jenis_bl'];
+							$newdata['nama_sub_kel_standar_harga'] = substr($v['nama_komponen'], 0, 250);
+							$data[] = $newdata;
+						}
+					}else{
+						$data_ssh = $wpdb->get_results($wpdb->prepare("
+							SELECT 
+								* 
+							from data_ssh 
+							where tahun_anggaran=%d
+								and is_deleted=0
+								and kelompok=%d", 
+						$_POST['tahun_anggaran'], $_POST['kelompok']), ARRAY_A);
+						$data = array(); 
+						foreach ($data_ssh as $k => $v) {
+							// if($k >= 10){ continue; }
+							$v['rek_belanja'] = $wpdb->get_results("SELECT * from data_ssh_rek_belanja where id_standar_harga=" . $v['id_standar_harga'], ARRAY_A);
+							$data[] = $v;
+						}
 					}
 					$ret['data'] = $data;
 				}else{
@@ -1233,12 +2079,16 @@ class Wpsipd_Public
 		if (!empty($_POST)) {
 			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
 				$data = $_POST['data'];
-				$wpdb->update('data_pembiayaan', array('active' => 0), array(
-					'tahun_anggaran' => $_POST['tahun_anggaran'],
-					'id_skpd' => $_POST['id_skpd'],
-					'type' => $v['type']
-				));
+				$type = array();
 				foreach ($data as $k => $v) {
+					if(empty($type[$v['type']])){
+						$type[$v['type']] = 1;
+						$wpdb->update('data_pembiayaan', array('active' => 0), array(
+							'tahun_anggaran' => $_POST['tahun_anggaran'],
+							'id_skpd' => $_POST['id_skpd'],
+							'type' => $v['type']
+						));
+					}
 					$cek = $wpdb->get_var($wpdb->prepare("
 						SELECT id_pembiayaan 
 						from data_pembiayaan 
@@ -1889,6 +2739,199 @@ class Wpsipd_Public
 		die(json_encode($ret));
 	}
 
+	public function singkron_data_rpd()
+	{
+		global $wpdb;
+		$ret = array(
+			'status'	=> 'success',
+			'message'	=> 'Berhasil singkron RPD!'
+		);
+		if (!empty($_POST)) {
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+
+				if (!empty($_POST['tujuan'])) {
+					$tujuan = $_POST['tujuan'];
+					$wpdb->update('data_rpd_tujuan', array('active' => 0), array('active' => 1));
+					foreach ($tujuan as $k => $v) {
+						if(empty($v['id_tujuan'])){
+							continue;
+						}
+						$cek = $wpdb->get_var("SELECT id_tujuan from data_rpd_tujuan where id_unik='" . $v['id_unik']."' AND id_unik_indikator='" . $v['id_unik_indikator']."'");
+						$opsi = array(
+							'head_teks' => $v['head_teks'],
+							'id_misi_old' => $v['id_misi_old'],
+							'id_tujuan' => $v['id_tujuan'],
+							'id_unik' => $v['id_unik'],
+							'id_unik_indikator' => $v['id_unik_indikator'],
+							'indikator_teks' => $v['indikator_teks'],
+							'is_locked' => $v['is_locked'],
+							'is_locked_indikator' => $v['is_locked_indikator'],
+							'isu_teks' => $v['isu_teks'],
+							'kebijakan_teks' => $v['kebijakan_teks'],
+							'misi_lock' => $v['misi_lock'],
+							'misi_teks' => $v['misi_teks'],
+							'saspok_teks' => $v['saspok_teks'],
+							'satuan' => $v['satuan'],
+							'status' => $v['status'],
+							'target_1' => $v['target_1'],
+							'target_2' => $v['target_2'],
+							'target_3' => $v['target_3'],
+							'target_4' => $v['target_4'],
+							'target_5' => $v['target_5'],
+							'target_akhir' => $v['target_akhir'],
+							'target_awal' => $v['target_awal'],
+							'tujuan_teks' => $v['tujuan_teks'],
+							'urut_misi' => $v['urut_misi'],
+							'urut_saspok' => $v['urut_saspok'],
+							'urut_tujuan' => $v['urut_tujuan'],
+							'visi_teks' => $v['visi_teks'],
+							'active' => 1,
+							'update_at' => current_time('mysql')
+						);
+
+						if (!empty($cek)) {
+							$wpdb->update('data_rpd_tujuan', $opsi, array(
+								'id_unik' => $v['id_unik'],
+								'id_unik_indikator' => $v['id_unik_indikator']
+							));
+						} else {
+							$wpdb->insert('data_rpd_tujuan', $opsi);
+						}
+					}
+				}
+				if (!empty($_POST['sasaran'])) {
+					$sasaran = $_POST['sasaran'];
+					$wpdb->update('data_rpd_sasaran', array('active' => 0), array('active' => 1));
+					foreach ($sasaran as $k => $v) {
+						if(empty($v['id_sasaran'])){
+							continue;
+						}
+						$cek = $wpdb->get_var("SELECT id_sasaran from data_rpd_sasaran where id_unik='" . $v['id_unik']."' AND id_unik_indikator='" . $v['id_unik_indikator']."'");
+						$opsi = array(
+							'head_teks' => $v['head_teks'],
+							'id_misi_old' => $v['id_misi_old'],
+							'id_sasaran' => $v['id_sasaran'],
+							'id_unik' => $v['id_unik'],
+							'id_unik_indikator' => $v['id_unik_indikator'],
+							'indikator_teks' => $v['indikator_teks'],
+							'is_locked' => $v['is_locked'],
+							'is_locked_indikator' => $v['is_locked_indikator'],
+							'isu_teks' => $v['isu_teks'],
+							'kebijakan_teks' => $v['kebijakan_teks'],
+							'kode_tujuan' => $v['kode_tujuan'],
+							'misi_lock' => $v['misi_lock'],
+							'misi_teks' => $v['misi_teks'],
+							'sasaran_teks' => $v['sasaran_teks'],
+							'saspok_teks' => $v['saspok_teks'],
+							'satuan' => $v['satuan'],
+							'status' => $v['status'],
+							'target_1' => $v['target_1'],
+							'target_2' => $v['target_2'],
+							'target_3' => $v['target_3'],
+							'target_4' => $v['target_4'],
+							'target_5' => $v['target_5'],
+							'target_akhir' => $v['target_akhir'],
+							'target_awal' => $v['target_awal'],
+							'tujuan_lock' => $v['tujuan_lock'],
+							'tujuan_teks' => $v['tujuan_teks'],
+							'urut_misi' => $v['urut_misi'],
+							'urut_sasaran' => $v['urut_sasaran'],
+							'urut_saspok' => $v['urut_saspok'],
+							'urut_tujuan' => $v['urut_tujuan'],
+							'visi_teks' => $v['visi_teks'],
+							'active' => 1,
+							'update_at' => current_time('mysql')
+						);
+
+						if (!empty($cek)) {
+							$wpdb->update('data_rpd_sasaran', $opsi, array(
+								'id_unik' => $v['id_unik'],
+								'id_unik_indikator' => $v['id_unik_indikator']
+							));
+						} else {
+							$wpdb->insert('data_rpd_sasaran', $opsi);
+						}
+					}
+				}
+				if (!empty($_POST['program'])) {
+					$program = $_POST['program'];
+					$wpdb->update('data_rpd_program', array('active' => 0), array('active' => 1));
+					foreach ($program as $k => $v) {
+						if(empty($v['id_program'])){
+							continue;
+						}
+						$cek = $wpdb->get_var("SELECT id_program from data_rpd_program where id_unik='" . $v['id_unik']."' AND id_unik_indikator='" . $v['id_unik_indikator']."'");
+						$opsi = array(
+							'head_teks' => $v['head_teks'],
+							'id_bidur_mth' => $v['id_bidur_mth'],
+							'id_misi_old' => $v['id_misi_old'],
+							'id_program' => $v['id_program'],
+							'id_program_mth' => $v['id_program_mth'],
+							'id_unik' => $v['id_unik'],
+							'id_unik_indikator' => $v['id_unik_indikator'],
+							'id_unit' => $v['id_unit'],
+							'indikator' => $v['indikator'],
+							'is_locked' => $v['is_locked'],
+							'is_locked_indikator' => $v['is_locked_indikator'],
+							'isu_teks' => $v['isu_teks'],
+							'kebijakan_teks' => $v['kebijakan_teks'],
+							'kode_sasaran' => $v['kode_sasaran'],
+							'kode_skpd' => $v['kode_skpd'],
+							'kode_tujuan' => $v['kode_tujuan'],
+							'misi_lock' => $v['misi_lock'],
+							'misi_teks' => $v['misi_teks'],
+							'nama_program' => $v['nama_program'],
+							'nama_skpd' => $v['nama_skpd'],
+							'pagu_1' => $v['pagu_1'],
+							'pagu_2' => $v['pagu_2'],
+							'pagu_3' => $v['pagu_3'],
+							'pagu_4' => $v['pagu_4'],
+							'pagu_5' => $v['pagu_5'],
+							'program_lock' => $v['program_lock'],
+							'sasaran_lock' => $v['sasaran_lock'],
+							'sasaran_teks' => $v['sasaran_teks'],
+							'saspok_teks' => $v['saspok_teks'],
+							'satuan' => $v['satuan'],
+							'status' => $v['status'],
+							'target_1' => $v['target_1'],
+							'target_2' => $v['target_2'],
+							'target_3' => $v['target_3'],
+							'target_4' => $v['target_4'],
+							'target_5' => $v['target_5'],
+							'target_akhir' => $v['target_akhir'],
+							'target_awal' => $v['target_awal'],
+							'tujuan_lock' => $v['tujuan_lock'],
+							'tujuan_teks' => $v['tujuan_teks'],
+							'urut_misi' => $v['urut_misi'],
+							'urut_sasaran' => $v['urut_sasaran'],
+							'urut_saspok' => $v['urut_saspok'],
+							'urut_tujuan' => $v['urut_tujuan'],
+							'visi_teks' => $v['visi_teks'],
+							'active' => 1,
+							'update_at' => current_time('mysql')
+						);
+
+						if (!empty($cek)) {
+							$wpdb->update('data_rpd_program', $opsi, array(
+								'id_unik' => $v['id_unik'],
+								'id_unik_indikator' => $v['id_unik_indikator']
+							));
+						} else {
+							$wpdb->insert('data_rpd_program', $opsi);
+						}
+					}
+				}
+			} else {
+				$ret['status'] = 'error';
+				$ret['message'] = 'APIKEY tidak sesuai!';
+			}
+		} else {
+			$ret['status'] = 'error';
+			$ret['message'] = 'Format Salah!';
+		}
+		die(json_encode($ret));
+	}
+
 	public function singkron_sumber_dana()
 	{
 		global $wpdb;
@@ -1931,6 +2974,113 @@ class Wpsipd_Public
 				} else if ($ret['status'] != 'error') {
 					$ret['status'] = 'error';
 					$ret['message'] = 'Format data Salah!';
+				}
+			} else {
+				$ret['status'] = 'error';
+				$ret['message'] = 'APIKEY tidak sesuai!';
+			}
+		} else {
+			$ret['status'] = 'error';
+			$ret['message'] = 'Format Salah!';
+		}
+		die(json_encode($ret));
+	}
+
+	public function get_sumber_dana()
+	{
+		global $wpdb;
+		$ret = array(
+			'action'	=> $_POST['action'],
+			'status'	=> 'success',
+			'message'	=> 'Berhasil get data sumber dana!'
+		);
+		if (!empty($_POST)) {
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+				if(!empty($_POST['sumber_dana'])){
+					$sd_fmis = array();
+					$sumber_dana = json_decode(stripslashes(html_entity_decode($_POST['sumber_dana'])));
+					foreach($sumber_dana as $v){
+						$v = (array) $v;
+						$sd_fmis[$v['uraian']] = $v;
+					}
+					$cek_sipd_belum_ada_di_fmis = array();
+
+					$dana = $wpdb->get_results($wpdb->prepare("
+						SELECT 
+							*
+						from data_sumber_dana
+						where tahun_anggaran=%d",
+					$_POST['tahun_anggaran']), ARRAY_A);
+					foreach($dana as $v){
+						$nama = explode('] - ', $v['nama_dana']);
+						$nama = trim(str_replace(' - ', '-', $nama[1]));
+						if(empty($sd_fmis[$nama])){
+							$cek_sipd_belum_ada_di_fmis[$nama] = $v;
+						}
+					}
+
+					$dana_pendapatan = $wpdb->get_results($wpdb->prepare("
+						SELECT 
+							nama_akun as nama_dana,
+							kode_akun as kode_dana,
+							'' as iddana,
+							'pendapatan' as jenis
+						from data_pendapatan
+						where tahun_anggaran=%d
+						group by nama_akun",
+					$_POST['tahun_anggaran']), ARRAY_A);
+					foreach($dana_pendapatan as $v){
+						$nama = $v['nama_dana'];
+						$nama = trim(str_replace(' - ', '-', $nama));
+						if(empty($sd_fmis[$nama])){
+							$cek_sipd_belum_ada_di_fmis[$nama] = $v;
+						}
+					}
+
+					$dana_pembiayaan = $wpdb->get_results($wpdb->prepare("
+						SELECT 
+							nama_akun as nama_dana,
+							kode_akun as kode_dana,
+							'' as iddana,
+							type as jenis
+						from data_pembiayaan
+						where tahun_anggaran=%d
+						group by nama_akun",
+					$_POST['tahun_anggaran']), ARRAY_A);
+					foreach($dana_pembiayaan as $v){
+						$nama = $v['nama_dana'];
+						$nama = trim(str_replace(' - ', '-', $nama));
+						if(empty($sd_fmis[$nama])){
+							$cek_sipd_belum_ada_di_fmis[$nama] = $v;
+						}
+					}
+					
+					$current_mapping = get_option('_crb_custom_mapping_sumberdana_fmis');
+					$current_mapping = explode(',', $current_mapping);
+					$mapping_rek = array();
+					foreach($current_mapping as $v){
+						$rek = explode('-', $v);
+						$mapping_rek[$rek[0]] = '';
+						if(!empty($rek[1])){
+							$mapping_rek[$rek[0]] = $rek[1];
+						}
+					}
+
+					$mapping = array();
+					foreach($cek_sipd_belum_ada_di_fmis as $k => $v){
+						$k = '['.$k.']';
+						if(!empty($mapping_rek[$k])){
+							$mapping[] = $k.'-'.$mapping_rek[$k];
+						}else{
+							$mapping[] = $k.'-'.$k;
+						}
+					}
+					update_option( '_crb_custom_mapping_sumberdana_fmis', implode(',', $mapping) );
+					$ret['data'] = $cek_sipd_belum_ada_di_fmis;
+					$ret['total'] = count($dana)+count($dana_pendapatan)+count($dana_pembiayaan);
+				}else{
+					$ret['status'] = 'error';
+					$ret['message'] = 'Format salah!';
 				}
 			} else {
 				$ret['status'] = 'error';
@@ -2493,6 +3643,8 @@ class Wpsipd_Public
 	{
 		global $wpdb;
 		$ret = array(
+			'action'	=> $_POST['action'],
+			'kode_sbl'	=> $_POST['kode_sbl'],
 			'status'	=> 'success',
 			'message'	=> 'Berhasil export RKA!'
 		);
@@ -2692,168 +3844,231 @@ class Wpsipd_Public
 					$ret['message'] = 'Format data BL Salah!';
 				}
 
-				if (!empty($_POST['dataOutput']) && $ret['status'] != 'error') {
-					$dataOutput = $_POST['dataOutput'];
-					$wpdb->update('data_sub_keg_indikator', array( 'active' => 0 ), array(
-						'tahun_anggaran' => $_POST['tahun_anggaran'],
-						'kode_sbl' => $_POST['kode_sbl']
-					));
-					foreach ($dataOutput as $k => $v) {
-						$cek = $wpdb->get_var("SELECT kode_sbl from data_sub_keg_indikator where tahun_anggaran=".$_POST['tahun_anggaran']." AND kode_sbl='" . $_POST['kode_sbl'] . "' AND idoutputbl='" . $v['idoutputbl'] . "'");
-						$opsi = array(
-							'outputteks' => $v['outputteks'],
-							'targetoutput' => $v['targetoutput'],
-							'satuanoutput' => $v['satuanoutput'],
-							'idoutputbl' => $v['idoutputbl'],
-							'targetoutputteks' => $v['targetoutputteks'],
-							'kode_sbl' => $_POST['kode_sbl'],
-							'idsubbl' => $_POST['idsubbl'],
-							'active' => 1,
-							'update_at' => current_time('mysql'),
-							'tahun_anggaran' => $_POST['tahun_anggaran']
-						);
-						if (!empty($cek)) {
-							$wpdb->update('data_sub_keg_indikator', $opsi, array(
-								'kode_sbl' => $_POST['kode_sbl'],
-								'idoutputbl' => $v['idoutputbl'],
-								'tahun_anggaran' => $_POST['tahun_anggaran']
-							));
-						} else {
-							$wpdb->insert('data_sub_keg_indikator', $opsi);
-						}
-					}
-				}
-
-				if (!empty($_POST['dataHasil']) && $ret['status'] != 'error') {
-					$dataHasil = $_POST['dataHasil'];
-					$wpdb->update('data_keg_indikator_hasil', array( 'active' => 0 ), array(
-						'tahun_anggaran' => $_POST['tahun_anggaran'],
-						'kode_sbl' => $_POST['kode_sbl']
-					));
-					foreach ($dataHasil as $k => $v) {
-						$cek = $wpdb->get_var("SELECT kode_sbl from data_keg_indikator_hasil where tahun_anggaran=".$_POST['tahun_anggaran']." AND kode_sbl='" . $_POST['kode_sbl'] . "' AND hasilteks='" . $v['hasilteks'] . "'");
-						$opsi = array(
-							'hasilteks' => $v['hasilteks'],
-							'satuanhasil' => $v['satuanhasil'],
-							'targethasil' => $v['targethasil'],
-							'targethasilteks' => $v['targethasilteks'],
-							'kode_sbl' => $_POST['kode_sbl'],
-							'idsubbl' => $_POST['idsubbl'],
-							'active' => 1,
-							'update_at' => current_time('mysql'),
-							'tahun_anggaran' => $_POST['tahun_anggaran']
-						);
-						if (!empty($cek)) {
-							$wpdb->update('data_keg_indikator_hasil', $opsi, array(
-								'kode_sbl' => $_POST['kode_sbl'],
-								'hasilteks' => $v['hasilteks'],
-								'tahun_anggaran' => $_POST['tahun_anggaran']
-							));
-						} else {
-							$wpdb->insert('data_keg_indikator_hasil', $opsi);
-						}
-					}
-				}
-
-				if (!empty($_POST['dataTag']) && $ret['status'] != 'error') {
-					$dataTag = $_POST['dataTag'];
-					$wpdb->update('data_tag_sub_keg', array( 'active' => 0 ), array(
-						'tahun_anggaran' => $_POST['tahun_anggaran'],
-						'kode_sbl' => $_POST['kode_sbl']
-					));
-					foreach ($dataTag as $k => $v) {
-						$cek = $wpdb->get_var("SELECT kode_sbl from data_tag_sub_keg where tahun_anggaran=".$_POST['tahun_anggaran']." AND kode_sbl='" . $_POST['kode_sbl'] . "' AND idtagbl='" . $v['idtagbl'] . "'");
-						$opsi = array(
-							'idlabelgiat' => $v['idlabelgiat'],
-							'namalabel' => $v['namalabel'],
-							'idtagbl' => $v['idtagbl'],
-							'kode_sbl' => $_POST['kode_sbl'],
-							'idsubbl' => $_POST['idsubbl'],
-							'active' => 1,
-							'update_at' => current_time('mysql'),
-							'tahun_anggaran' => $_POST['tahun_anggaran']
-						);
-						if (!empty($cek)) {
-							$wpdb->update('data_tag_sub_keg', $opsi, array(
-								'kode_sbl' => $_POST['kode_sbl'],
-								'idtagbl' => $v['idtagbl'],
-								'tahun_anggaran' => $_POST['tahun_anggaran']
-							));
-						} else {
-							$wpdb->insert('data_tag_sub_keg', $opsi);
-						}
-					}
-				}
-
-				if (!empty($_POST['dataCapaian']) && $ret['status'] != 'error') {
-					$dataCapaian = $_POST['dataCapaian'];
-					$wpdb->update('data_capaian_prog_sub_keg', array( 'active' => 0 ), array(
-						'tahun_anggaran' => $_POST['tahun_anggaran'],
-						'kode_sbl' => $_POST['kode_sbl']
-					));
-					foreach ($dataCapaian as $k => $v) {
-						$cek = $wpdb->get_var("SELECT kode_sbl from data_capaian_prog_sub_keg where tahun_anggaran=".$_POST['tahun_anggaran']." AND kode_sbl='" . $_POST['kode_sbl'] . "' AND capaianteks='" . $v['capaianteks'] . "'");
-						$opsi = array(
-							'satuancapaian' => $v['satuancapaian'],
-							'targetcapaianteks' => $v['targetcapaianteks'],
-							'capaianteks' => $v['capaianteks'],
-							'targetcapaian' => $v['targetcapaian'],
-							'kode_sbl' => $_POST['kode_sbl'],
-							'idsubbl' => $_POST['idsubbl'],
-							'active' => 1,
-							'update_at' => current_time('mysql'),
-							'tahun_anggaran' => $_POST['tahun_anggaran']
-						);
-						if (!empty($cek)) {
-							$wpdb->update('data_capaian_prog_sub_keg', $opsi, array(
-								'kode_sbl' => $_POST['kode_sbl'],
-								'capaianteks' => $v['capaianteks'],
-								'tahun_anggaran' => $_POST['tahun_anggaran']
-							));
-						} else {
-							$wpdb->insert('data_capaian_prog_sub_keg', $opsi);
-						}
-					}
-				}
-
-				if (!empty($_POST['dataOutputGiat']) && $ret['status'] != 'error') {
-					$dataOutputGiat = $_POST['dataOutputGiat'];
-					$wpdb->update('data_output_giat_sub_keg', array( 'active' => 0 ), array(
-						'tahun_anggaran' => $_POST['tahun_anggaran'],
-						'kode_sbl' => $_POST['kode_sbl']
-					));
-					foreach ($dataOutputGiat as $k => $v) {
-						$cek = $wpdb->get_var("SELECT kode_sbl from data_output_giat_sub_keg where tahun_anggaran=".$_POST['tahun_anggaran']." AND kode_sbl='" . $_POST['kode_sbl'] . "' AND outputteks='" . $v['outputteks'] . "'");
-						$opsi = array(
-							'outputteks' => $v['outputteks'],
-							'satuanoutput' => $v['satuanoutput'],
-							'targetoutput' => $v['targetoutput'],
-							'targetoutputteks' => $v['targetoutputteks'],
-							'kode_sbl' => $_POST['kode_sbl'],
-							'idsubbl' => $_POST['idsubbl'],
-							'active' => 1,
-							'update_at' => current_time('mysql'),
-							'tahun_anggaran' => $_POST['tahun_anggaran']
-						);
-						if (!empty($cek)) {
-							$wpdb->update('data_output_giat_sub_keg', $opsi, array(
-								'kode_sbl' => $_POST['kode_sbl'],
+				if($_POST['total_page'] == $_POST['no_page']){
+					if (!empty($_POST['dataOutput']) && $ret['status'] != 'error') {
+						$dataOutput = $_POST['dataOutput'];
+						$wpdb->update('data_sub_keg_indikator', array( 'active' => 0 ), array(
+							'tahun_anggaran' => $_POST['tahun_anggaran'],
+							'kode_sbl' => $_POST['kode_sbl']
+						));
+						foreach ($dataOutput as $k => $v) {
+							$cek = $wpdb->get_var("SELECT kode_sbl from data_sub_keg_indikator where tahun_anggaran=".$_POST['tahun_anggaran']." AND kode_sbl='" . $_POST['kode_sbl'] . "' AND idoutputbl='" . $v['idoutputbl'] . "'");
+							$opsi = array(
 								'outputteks' => $v['outputteks'],
+								'targetoutput' => $v['targetoutput'],
+								'satuanoutput' => $v['satuanoutput'],
+								'idoutputbl' => $v['idoutputbl'],
+								'targetoutputteks' => $v['targetoutputteks'],
+								'kode_sbl' => $_POST['kode_sbl'],
+								'idsubbl' => $_POST['idsubbl'],
+								'active' => 1,
+								'update_at' => current_time('mysql'),
 								'tahun_anggaran' => $_POST['tahun_anggaran']
-							));
-						} else {
-							$wpdb->insert('data_output_giat_sub_keg', $opsi);
+							);
+							if (!empty($cek)) {
+								$wpdb->update('data_sub_keg_indikator', $opsi, array(
+									'kode_sbl' => $_POST['kode_sbl'],
+									'idoutputbl' => $v['idoutputbl'],
+									'tahun_anggaran' => $_POST['tahun_anggaran']
+								));
+							} else {
+								$wpdb->insert('data_sub_keg_indikator', $opsi);
+							}
+						}
+					}
+
+					if (!empty($_POST['dataHasil']) && $ret['status'] != 'error') {
+						$dataHasil = $_POST['dataHasil'];
+						$wpdb->update('data_keg_indikator_hasil', array( 'active' => 0 ), array(
+							'tahun_anggaran' => $_POST['tahun_anggaran'],
+							'kode_sbl' => $_POST['kode_sbl']
+						));
+						foreach ($dataHasil as $k => $v) {
+							$cek = $wpdb->get_var("SELECT kode_sbl from data_keg_indikator_hasil where tahun_anggaran=".$_POST['tahun_anggaran']." AND kode_sbl='" . $_POST['kode_sbl'] . "' AND hasilteks='" . $v['hasilteks'] . "'");
+							$opsi = array(
+								'hasilteks' => $v['hasilteks'],
+								'satuanhasil' => $v['satuanhasil'],
+								'targethasil' => $v['targethasil'],
+								'targethasilteks' => $v['targethasilteks'],
+								'kode_sbl' => $_POST['kode_sbl'],
+								'idsubbl' => $_POST['idsubbl'],
+								'active' => 1,
+								'update_at' => current_time('mysql'),
+								'tahun_anggaran' => $_POST['tahun_anggaran']
+							);
+							if (!empty($cek)) {
+								$wpdb->update('data_keg_indikator_hasil', $opsi, array(
+									'kode_sbl' => $_POST['kode_sbl'],
+									'hasilteks' => $v['hasilteks'],
+									'tahun_anggaran' => $_POST['tahun_anggaran']
+								));
+							} else {
+								$wpdb->insert('data_keg_indikator_hasil', $opsi);
+							}
+						}
+					}
+
+					if (!empty($_POST['dataTag']) && $ret['status'] != 'error') {
+						$dataTag = $_POST['dataTag'];
+						$wpdb->update('data_tag_sub_keg', array( 'active' => 0 ), array(
+							'tahun_anggaran' => $_POST['tahun_anggaran'],
+							'kode_sbl' => $_POST['kode_sbl']
+						));
+						foreach ($dataTag as $k => $v) {
+							$cek = $wpdb->get_var("SELECT kode_sbl from data_tag_sub_keg where tahun_anggaran=".$_POST['tahun_anggaran']." AND kode_sbl='" . $_POST['kode_sbl'] . "' AND idtagbl='" . $v['idtagbl'] . "'");
+							$opsi = array(
+								'idlabelgiat' => $v['idlabelgiat'],
+								'namalabel' => $v['namalabel'],
+								'idtagbl' => $v['idtagbl'],
+								'kode_sbl' => $_POST['kode_sbl'],
+								'idsubbl' => $_POST['idsubbl'],
+								'active' => 1,
+								'update_at' => current_time('mysql'),
+								'tahun_anggaran' => $_POST['tahun_anggaran']
+							);
+							if (!empty($cek)) {
+								$wpdb->update('data_tag_sub_keg', $opsi, array(
+									'kode_sbl' => $_POST['kode_sbl'],
+									'idtagbl' => $v['idtagbl'],
+									'tahun_anggaran' => $_POST['tahun_anggaran']
+								));
+							} else {
+								$wpdb->insert('data_tag_sub_keg', $opsi);
+							}
+						}
+					}
+
+					if (!empty($_POST['dataCapaian']) && $ret['status'] != 'error') {
+						$dataCapaian = $_POST['dataCapaian'];
+						$wpdb->update('data_capaian_prog_sub_keg', array( 'active' => 0 ), array(
+							'tahun_anggaran' => $_POST['tahun_anggaran'],
+							'kode_sbl' => $_POST['kode_sbl']
+						));
+						foreach ($dataCapaian as $k => $v) {
+							$cek = $wpdb->get_var("SELECT kode_sbl from data_capaian_prog_sub_keg where tahun_anggaran=".$_POST['tahun_anggaran']." AND kode_sbl='" . $_POST['kode_sbl'] . "' AND capaianteks='" . $v['capaianteks'] . "'");
+							$opsi = array(
+								'satuancapaian' => $v['satuancapaian'],
+								'targetcapaianteks' => $v['targetcapaianteks'],
+								'capaianteks' => $v['capaianteks'],
+								'targetcapaian' => $v['targetcapaian'],
+								'kode_sbl' => $_POST['kode_sbl'],
+								'idsubbl' => $_POST['idsubbl'],
+								'active' => 1,
+								'update_at' => current_time('mysql'),
+								'tahun_anggaran' => $_POST['tahun_anggaran']
+							);
+							if (!empty($cek)) {
+								$wpdb->update('data_capaian_prog_sub_keg', $opsi, array(
+									'kode_sbl' => $_POST['kode_sbl'],
+									'capaianteks' => $v['capaianteks'],
+									'tahun_anggaran' => $_POST['tahun_anggaran']
+								));
+							} else {
+								$wpdb->insert('data_capaian_prog_sub_keg', $opsi);
+							}
+						}
+					}
+
+					if (!empty($_POST['dataOutputGiat']) && $ret['status'] != 'error') {
+						$dataOutputGiat = $_POST['dataOutputGiat'];
+						$wpdb->update('data_output_giat_sub_keg', array( 'active' => 0 ), array(
+							'tahun_anggaran' => $_POST['tahun_anggaran'],
+							'kode_sbl' => $_POST['kode_sbl']
+						));
+						foreach ($dataOutputGiat as $k => $v) {
+							$cek = $wpdb->get_var("SELECT kode_sbl from data_output_giat_sub_keg where tahun_anggaran=".$_POST['tahun_anggaran']." AND kode_sbl='" . $_POST['kode_sbl'] . "' AND outputteks='" . $v['outputteks'] . "'");
+							$opsi = array(
+								'outputteks' => $v['outputteks'],
+								'satuanoutput' => $v['satuanoutput'],
+								'targetoutput' => $v['targetoutput'],
+								'targetoutputteks' => $v['targetoutputteks'],
+								'kode_sbl' => $_POST['kode_sbl'],
+								'idsubbl' => $_POST['idsubbl'],
+								'active' => 1,
+								'update_at' => current_time('mysql'),
+								'tahun_anggaran' => $_POST['tahun_anggaran']
+							);
+							if (!empty($cek)) {
+								$wpdb->update('data_output_giat_sub_keg', $opsi, array(
+									'kode_sbl' => $_POST['kode_sbl'],
+									'outputteks' => $v['outputteks'],
+									'tahun_anggaran' => $_POST['tahun_anggaran']
+								));
+							} else {
+								$wpdb->insert('data_output_giat_sub_keg', $opsi);
+							}
+						}
+					}
+
+					if (!empty($_POST['dataDana']) && $ret['status'] != 'error') {
+						$dataDana = $_POST['dataDana'];
+						$wpdb->update('data_dana_sub_keg', array( 'active' => 0 ), array(
+							'tahun_anggaran' => $_POST['tahun_anggaran'],
+							'kode_sbl' => $_POST['kode_sbl']
+						));
+						foreach ($dataDana as $k => $v) {
+							$cek = $wpdb->get_var("SELECT kode_sbl from data_dana_sub_keg where tahun_anggaran=".$_POST['tahun_anggaran']." AND kode_sbl='" . $_POST['kode_sbl'] . "' AND iddanasubbl='" . $v['iddanasubbl'] . "'");
+							$opsi = array(
+								'namadana' => $v['namadana'],
+								'kodedana' => $v['kodedana'],
+								'iddana' => $v['iddana'],
+								'iddanasubbl' => $v['iddanasubbl'],
+								'pagudana' => $v['pagudana'],
+								'kode_sbl' => $_POST['kode_sbl'],
+								'idsubbl' => $_POST['idsubbl'],
+								'active' => 1,
+								'update_at' => current_time('mysql'),
+								'tahun_anggaran' => $_POST['tahun_anggaran']
+							);
+							if (!empty($cek)) {
+								$wpdb->update('data_dana_sub_keg', $opsi, array(
+									'kode_sbl' => $_POST['kode_sbl'],
+									'iddanasubbl' => $v['iddanasubbl'],
+									'tahun_anggaran' => $_POST['tahun_anggaran']
+								));
+							} else {
+								$wpdb->insert('data_dana_sub_keg', $opsi);
+							}
+						}
+					}
+					if (!empty($_POST['dataLokout']) && $ret['status'] != 'error') {
+						$dataLokout = $_POST['dataLokout'];
+						$wpdb->update('data_lokasi_sub_keg', array( 'active' => 0 ), array(
+							'tahun_anggaran' => $_POST['tahun_anggaran'],
+							'kode_sbl' => $_POST['kode_sbl']
+						));
+						foreach ($dataLokout as $k => $v) {
+							$cek = $wpdb->get_var("SELECT kode_sbl from data_lokasi_sub_keg where tahun_anggaran=".$_POST['tahun_anggaran']." AND kode_sbl='" . $_POST['kode_sbl'] . "' AND iddetillokasi='" . $v['iddetillokasi'] . "'");
+							$opsi = array(
+								'camatteks' => $v['camatteks'],
+								'daerahteks' => $v['daerahteks'],
+								'idcamat' => $v['idcamat'],
+								'iddetillokasi' => $v['iddetillokasi'],
+								'idkabkota' => $v['idkabkota'],
+								'idlurah' => $v['idlurah'],
+								'lurahteks' => $v['lurahteks'],
+								'kode_sbl' => $_POST['kode_sbl'],
+								'idsubbl' => $_POST['idsubbl'],
+								'active' => 1,
+								'update_at' => current_time('mysql'),
+								'tahun_anggaran' => $_POST['tahun_anggaran']
+							);
+							if (!empty($cek)) {
+								$wpdb->update('data_lokasi_sub_keg', $opsi, array(
+									'kode_sbl' => $_POST['kode_sbl'],
+									'iddetillokasi' => $v['iddetillokasi'],
+									'tahun_anggaran' => $_POST['tahun_anggaran']
+								));
+							} else {
+								$wpdb->insert('data_lokasi_sub_keg', $opsi);
+							}
 						}
 					}
 				}
 
 				$iddana = false;
-				if (!empty($_POST['dataDana']) && $ret['status'] != 'error') {
+				if (!empty($_POST['dataDana'])) {
 					$dataDana = $_POST['dataDana'];
-					$wpdb->update('data_dana_sub_keg', array( 'active' => 0 ), array(
-						'tahun_anggaran' => $_POST['tahun_anggaran'],
-						'kode_sbl' => $_POST['kode_sbl']
-					));
 					foreach ($dataDana as $k => $v) {
 						if(
 							empty($iddana)
@@ -2861,66 +4076,10 @@ class Wpsipd_Public
 						){
 							$iddana = $v['iddana'];
 						}
-						$cek = $wpdb->get_var("SELECT kode_sbl from data_dana_sub_keg where tahun_anggaran=".$_POST['tahun_anggaran']." AND kode_sbl='" . $_POST['kode_sbl'] . "' AND iddanasubbl='" . $v['iddanasubbl'] . "'");
-						$opsi = array(
-							'namadana' => $v['namadana'],
-							'kodedana' => $v['kodedana'],
-							'iddana' => $v['iddana'],
-							'iddanasubbl' => $v['iddanasubbl'],
-							'pagudana' => $v['pagudana'],
-							'kode_sbl' => $_POST['kode_sbl'],
-							'idsubbl' => $_POST['idsubbl'],
-							'active' => 1,
-							'update_at' => current_time('mysql'),
-							'tahun_anggaran' => $_POST['tahun_anggaran']
-						);
-						if (!empty($cek)) {
-							$wpdb->update('data_dana_sub_keg', $opsi, array(
-								'kode_sbl' => $_POST['kode_sbl'],
-								'iddanasubbl' => $v['iddanasubbl'],
-								'tahun_anggaran' => $_POST['tahun_anggaran']
-							));
-						} else {
-							$wpdb->insert('data_dana_sub_keg', $opsi);
-						}
 					}
 				}
 				if(empty($iddana)){
 					$iddana = get_option('_crb_default_sumber_dana' );
-				}
-
-				if (!empty($_POST['dataLokout']) && $ret['status'] != 'error') {
-					$dataLokout = $_POST['dataLokout'];
-					$wpdb->update('data_lokasi_sub_keg', array( 'active' => 0 ), array(
-						'tahun_anggaran' => $_POST['tahun_anggaran'],
-						'kode_sbl' => $_POST['kode_sbl']
-					));
-					foreach ($dataLokout as $k => $v) {
-						$cek = $wpdb->get_var("SELECT kode_sbl from data_lokasi_sub_keg where tahun_anggaran=".$_POST['tahun_anggaran']." AND kode_sbl='" . $_POST['kode_sbl'] . "' AND iddetillokasi='" . $v['iddetillokasi'] . "'");
-						$opsi = array(
-							'camatteks' => $v['camatteks'],
-							'daerahteks' => $v['daerahteks'],
-							'idcamat' => $v['idcamat'],
-							'iddetillokasi' => $v['iddetillokasi'],
-							'idkabkota' => $v['idkabkota'],
-							'idlurah' => $v['idlurah'],
-							'lurahteks' => $v['lurahteks'],
-							'kode_sbl' => $_POST['kode_sbl'],
-							'idsubbl' => $_POST['idsubbl'],
-							'active' => 1,
-							'update_at' => current_time('mysql'),
-							'tahun_anggaran' => $_POST['tahun_anggaran']
-						);
-						if (!empty($cek)) {
-							$wpdb->update('data_lokasi_sub_keg', $opsi, array(
-								'kode_sbl' => $_POST['kode_sbl'],
-								'iddetillokasi' => $v['iddetillokasi'],
-								'tahun_anggaran' => $_POST['tahun_anggaran']
-							));
-						} else {
-							$wpdb->insert('data_lokasi_sub_keg', $opsi);
-						}
-					}
 				}
 
 				if (!empty($_POST['rka']) && $ret['status'] != 'error') {
@@ -2967,7 +4126,13 @@ class Wpsipd_Public
 							'volume' => $v['volume'],
 							'volume_murni' => $v['volume_murni'],
 							'spek' => $v['spek'],
-							'subs_bl_teks' => $v['subs_bl_teks'],
+							'subs_bl_teks' => $v['subs_bl_teks']['subs_asli'],
+							'substeks' => $v['subs_bl_teks']['substeks'],
+							'id_dana' => $v['subs_bl_teks']['sumber_dana']['id_dana'],
+							'nama_dana' => $v['subs_bl_teks']['sumber_dana']['nama_dana'],
+							'is_paket' => $v['subs_bl_teks']['sumber_dana']['is_paket'],
+							'kode_dana' => $v['subs_bl_teks']['sumber_dana']['kode_dana'],
+							'subtitle_teks' => $v['subs_bl_teks']['sumber_dana']['subtitle_teks'],
 							'total_harga' => $v['total_harga'],
 							'rincian' => $v['rincian'],
 							'rincian_murni' => $v['rincian_murni'],
@@ -2985,7 +4150,7 @@ class Wpsipd_Public
 							'kode_sbl' => $_POST['kode_sbl'],
 							'idkomponen' => $v['idkomponen'],
 							'idketerangan' => $v['idketerangan'],
-							'idsubtitle' => $v['idsubtitle'],
+							'idsubtitle' => $v['subs_bl_teks']['sumber_dana']['id_subtitle'],
 							'active' => 1,
 							'update_at' => current_time('mysql'),
 							'tahun_anggaran' => $_POST['tahun_anggaran']
@@ -3016,25 +4181,36 @@ class Wpsipd_Public
 						}
 						// print_r($opsi); print_r($wpdb->last_query);
 
-						$cek = $wpdb->get_var($wpdb->prepare('
-							select 
-								id 
-							from data_mapping_sumberdana 
-							where tahun_anggaran=%d
-								and id_rinci_sub_bl=%d 
-								and active=1', 
-							$_POST['tahun_anggaran'], $v['id_rinci_sub_bl']
-						));
-						if (empty($cek)) {
+						if(!empty($v['id_rinci_sub_bl'])){
+							$cek_id = $wpdb->get_var($wpdb->prepare('
+								select 
+									id 
+								from data_mapping_sumberdana 
+								where tahun_anggaran=%d
+									and id_rinci_sub_bl=%d 
+									and active=1', 
+								$_POST['tahun_anggaran'], $v['id_rinci_sub_bl']
+							));
 							$opsi = array(
-								'id_rinci_sub_bl' => $rinci['id_rinci_sub_bl'],
+								'id_rinci_sub_bl' => $v['id_rinci_sub_bl'],
 								'id_sumber_dana' => $iddana,
-								'user' => $current_user->display_name,
+								'user' => 'Singkron SIPD Merah',
 								'active' => 1,
 								'update_at' => current_time('mysql'),
 								'tahun_anggaran' => $_POST['tahun_anggaran']
 							);
-							$wpdb->insert('data_mapping_sumberdana', $opsi);
+							$update = false;
+							if(!empty($v['subs_bl_teks']['sumber_dana']['id_dana'])){
+								$update = true;
+								$opsi['id_sumber_dana'] = $v['subs_bl_teks']['sumber_dana']['id_dana'];
+							}
+							if (empty($cek_id)) {
+								$wpdb->insert('data_mapping_sumberdana', $opsi);
+							}else if($update) {
+								$wpdb->update('data_mapping_sumberdana', $opsi, array(
+									'id' => $cek_id
+								));
+							}
 						}
 					}
 				} else if ($ret['status'] != 'error') {
@@ -3053,6 +4229,7 @@ class Wpsipd_Public
 				if(
 					get_option('_crb_singkron_simda') == 1
 					&& get_option('_crb_tahun_anggaran_sipd') == $_POST['tahun_anggaran']
+					&& $_POST['total_page'] == $_POST['no_page']
 				){
 					$debug = false;
 					if(get_option('_crb_singkron_simda_debug') == 1){
@@ -3199,6 +4376,33 @@ class Wpsipd_Public
 		echo $table;
 	}
 
+	public function monitoring_sql_migrate($atts)
+	{
+		// untuk disable render shortcode di halaman edit page/post
+		if(!empty($_GET) && !empty($_GET['post'])){
+			return '';
+		}
+		require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/wpsipd-public-monitor-sql-migrate.php';
+	}
+
+	public function monitoring_spd_rinci($atts)
+	{
+		// untuk disable render shortcode di halaman edit page/post
+		if(!empty($_GET) && !empty($_GET['post'])){
+			return '';
+		}
+		require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/wpsipd-public-monitor-spd-rinci.php';
+	}
+
+	public function monitoring_data_spd($atts)
+	{
+		// untuk disable render shortcode di halaman edit page/post
+		if(!empty($_GET) && !empty($_GET['post'])){
+			return '';
+		}
+		require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/wpsipd-public-monitor-spd.php';
+	}
+
 	public function monitor_monev_rpjm($atts)
 	{
 		// untuk disable render shortcode di halaman edit page/post
@@ -3287,6 +4491,17 @@ class Wpsipd_Public
 		}
 		require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/wpsipd-public-monitor-update.php';
 	}
+	
+	public function monitor_satuan_harga($atts)
+	{
+		// untuk disable render shortcode di halaman edit page/post
+		if(!empty($_GET) && !empty($_GET['post'])){
+			return '';
+		}
+		if(!empty($atts['id_skpd'])){
+			require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/wpsipd-public-monitor-satuan-harga.php';
+		}
+	}
 
 	public function tampilrka($atts)
 	{
@@ -3354,6 +4569,56 @@ class Wpsipd_Public
 		if($input['lampiran'] == 99){
 			require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/wpsipd-public-apbdpenjabaran-99.php';
 		}
+	}
+
+	public function laporan_per_item_ssh($atts)
+	{
+		// untuk disable render shortcode di halaman edit page/post
+		if(!empty($_GET) && !empty($_GET['post'])){
+			return '';
+		}
+		
+		require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/wpsipd-public-laporan-per-item-ssh.php';
+	}
+
+	public function setting_penjadwalan($atts)
+	{
+		// untuk disable render shortcode di halaman edit page/post
+		if(!empty($_GET) && !empty($_GET['post'])){
+			return '';
+		}
+		
+		require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/wpsipd-public-setting-penjadwalan.php';
+	}
+
+	public function input_rpjm($atts)
+	{
+		// untuk disable render shortcode di halaman edit page/post
+		if(!empty($_GET) && !empty($_GET['post'])){
+			return '';
+		}
+		
+		require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/wpsipd-public-input-rpjm.php';
+	}
+
+	public function input_rpd($atts)
+	{
+		// untuk disable render shortcode di halaman edit page/post
+		if(!empty($_GET) && !empty($_GET['post'])){
+			return '';
+		}
+		
+		require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/wpsipd-public-input-rpd.php';
+	}
+
+	public function input_rpjpd($atts)
+	{
+		// untuk disable render shortcode di halaman edit page/post
+		if(!empty($_GET) && !empty($_GET['post'])){
+			return '';
+		}
+		
+		require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/wpsipd-public-input-rpjpd.php';
 	}
 
 	public function get_cat_url()
@@ -3693,6 +4958,375 @@ class Wpsipd_Public
 			$ret['message'] = 'Format Salah!';
 		}
 		die(json_encode($ret));
+	}
+
+	function get_kas_fmis($no_debug=false){
+		global $wpdb;
+		$ret = array(
+			'status'	=> 'success',
+			'action'	=> $_POST['action'],
+			'data'	=> array()
+		);
+		if (!empty($_POST)) {
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+				$tahun_anggaran = $_POST['tahun_anggaran'];
+				$type = $_POST['type'];
+				$id_skpd_fmis = $_POST['id_skpd_fmis'];
+				$get_id = $this->get_id_skpd_fmis($id_skpd_fmis, $tahun_anggaran);
+				$id_skpd_sipd = $get_id['id_skpd_sipd'];
+				$program_mapping = $this->get_fmis_mapping(array(
+					'name' => '_crb_custom_mapping_program_fmis'
+				));
+				$keg_mapping = $this->get_fmis_mapping(array(
+					'name' => '_crb_custom_mapping_keg_fmis'
+				));
+				$subkeg_mapping = $this->get_fmis_mapping(array(
+					'name' => '_crb_custom_mapping_subkeg_fmis'
+				));
+				$rek_mapping = $this->get_fmis_mapping(array(
+					'name' => '_crb_custom_mapping_rekening_fmis'
+				));
+				// anggaran kas belanja sipd
+				if($type == 4){
+					$kas_p = array();
+					$data_sub_keg = $wpdb->get_results($wpdb->prepare("
+						SELECT 
+							s.*,
+							u.nama_skpd as nama_skpd_data_unit
+						from data_sub_keg_bl s 
+						inner join data_unit u on s.id_sub_skpd = u.id_skpd
+							and u.tahun_anggaran = s.tahun_anggaran
+							and u.active = s.active
+						where s.tahun_anggaran=%d
+							and u.id_skpd IN (".implode(',', $id_skpd_sipd).")
+							and s.active=1", 
+					$tahun_anggaran), ARRAY_A);
+					foreach($data_sub_keg as $k => $sub){
+						$newsub = array(
+							'kode_sbl' => $sub['kode_sbl'],
+							'nama_skpd_data_unit' => $sub['nama_skpd_data_unit'],
+							'kode_sub_skpd' => $sub['kode_sub_skpd'],
+							'pagu' => $sub['pagu'],
+							'pagu_keg' => $sub['pagu_keg'],
+							'pagu_n_depan' => $sub['pagu_n_depan'],
+							'pagu_n_lalu' => $sub['pagu_n_lalu'],
+							'nama_giat' => $sub['nama_giat'],
+							'nama_program' => $sub['nama_program'],
+							'id_bidang_urusan' => $sub['id_bidang_urusan'],
+							'nama_bidang_urusan' => $sub['nama_bidang_urusan'],
+							'nama_urusan' => $sub['nama_urusan'],
+							'nama_sub_giat' => $sub['nama_sub_giat']
+						);
+						if(!empty($program_mapping[$sub['nama_program']])){
+							$newsub['nama_program'] = $program_mapping[$sub['nama_program']];
+						}
+						if(!empty($keg_mapping[$sub['nama_giat']])){
+							$newsub['nama_giat'] = $keg_mapping[$sub['nama_giat']];
+						}
+						$nama_sub_giat = explode(' ', $sub['nama_sub_giat']);
+						$kode_sub = $nama_sub_giat[0];
+						unset($nama_sub_giat[0]);
+						$nama_sub_giat = implode(' ', $nama_sub_giat);
+						if(!empty($subkeg_mapping[$nama_sub_giat])){
+							$newsub['nama_sub_giat'] = $kode_sub.' '.$subkeg_mapping[$nama_sub_giat];
+						}
+						$newsub['id_mapping'] = get_option('_crb_unit_fmis_'.$tahun_anggaran.'_'.$sub['id_sub_skpd']);
+						$kas = array();
+						$kode_sbl = explode('.', $sub['kode_sbl']);
+						$kode_sbl = $kode_sbl[1].'.'.$kode_sbl[0].'.'.$kode_sbl[1].'.'.$sub['id_bidang_urusan'].'.'.$kode_sbl[2].'.'.$kode_sbl[3].'.'.$kode_sbl[4];
+						$kas = $wpdb->get_results("
+							SELECT 
+								bulan_1, 
+								bulan_2, 
+								bulan_3, 
+								bulan_4, 
+								bulan_5, 
+								bulan_6, 
+								bulan_7, 
+								bulan_8, 
+								bulan_9, 
+								bulan_10, 
+								bulan_11, 
+								bulan_12, 
+								kode_akun,
+								nama_akun
+							from data_anggaran_kas 
+							where kode_sbl='".$kode_sbl."' 
+								AND tahun_anggaran=".$sub['tahun_anggaran']."
+								AND active=1"
+							, ARRAY_A
+						);
+						foreach($kas as $n => $v){
+							$_kode_akun = explode('.', $v['kode_akun']);
+							$kode_akun = array();
+							foreach ($_kode_akun as $vv) {
+								$kode_akun[] = (int)$vv;
+							}
+							$kode_akun = implode('.', $kode_akun);
+							if(!empty($rek_mapping[$kode_akun])){
+								$_kode_akun = explode('.', $rek_mapping[$kode_akun]);
+								$_kode_akun[2] = $this->simda->CekNull($_kode_akun[2]);
+								$_kode_akun[3] = $this->simda->CekNull($_kode_akun[3]);
+								$_kode_akun[4] = $this->simda->CekNull($_kode_akun[4]);
+								$_kode_akun[5] = $this->simda->CekNull($_kode_akun[5], 4);
+								$kas[$n]['kode_akun'] = implode('.', $_kode_akun);
+							}
+						}
+						$newsub['kas'] = $kas;
+						$ret['data'][] = $newsub;
+
+						if(empty($kas_p[$sub['id_sub_skpd']])){
+							$newsub = array(
+								'kode_sbl' => '',
+								'nama_skpd_data_unit' => $sub['nama_skpd_data_unit'],
+								'kode_sub_skpd' => $sub['kode_sub_skpd'],
+								'pagu' => 0,
+								'pagu_keg' => 0,
+								'pagu_n_depan' => 0,
+								'pagu_n_lalu' => 0,
+								'nama_giat' => 'x.x.xx.xx.xx Non Kegiatan',
+								'nama_program' => 'x.x.xx.xx.xx Non Program',
+								'id_bidang_urusan' => 0,
+								'nama_bidang_urusan' => 'PROGRAM PENUNJANG URUSAN PEMERINTAHAN DAERAH',
+								'nama_urusan' => 'PROGRAM PENUNJANG URUSAN PEMERINTAHAN DAERAH',
+								'nama_sub_giat' => 'x.x.xx.xx.xx Non Sub Kegiatan'
+							);
+							$newsub['id_mapping'] = get_option('_crb_unit_fmis_'.$tahun_anggaran.'_'.$sub['id_sub_skpd']);
+							$kas = $wpdb->get_results("
+								SELECT 
+									bulan_1, 
+									bulan_2, 
+									bulan_3, 
+									bulan_4, 
+									bulan_5, 
+									bulan_6, 
+									bulan_7, 
+									bulan_8, 
+									bulan_9, 
+									bulan_10, 
+									bulan_11, 
+									bulan_12, 
+									kode_akun,
+									nama_akun
+								from data_anggaran_kas 
+								where type IN ('pendapatan', 'pembiayaan-pengeluaran', 'pembiayaan-penerimaan') 
+									AND id_skpd = ".$sub['id_sub_skpd']."
+									AND tahun_anggaran=".$sub['tahun_anggaran']."
+									AND active=1"
+								, ARRAY_A
+							);
+							foreach($kas as $n => $v){
+								$_kode_akun = explode('.', $v['kode_akun']);
+								$kode_akun = array();
+								foreach ($_kode_akun as $vv) {
+									$kode_akun[] = (int)$vv;
+								}
+								$kode_akun = implode('.', $kode_akun);
+								if(!empty($rek_mapping[$kode_akun])){
+									$_kode_akun = explode('.', $rek_mapping[$kode_akun]);
+									$_kode_akun[2] = $this->simda->CekNull($_kode_akun[2]);
+									$_kode_akun[3] = $this->simda->CekNull($_kode_akun[3]);
+									$_kode_akun[4] = $this->simda->CekNull($_kode_akun[4]);
+									$_kode_akun[5] = $this->simda->CekNull($_kode_akun[5], 4);
+									$kas[$n]['kode_akun'] = implode('.', $_kode_akun);
+								}
+							}
+							$newsub['kas'] = $kas;
+							$ret['data'][] = $newsub;
+						}
+					}
+				// anggaran kas belanja simda
+				}else if($type == 5){
+					$data_sub_keg = $wpdb->get_results($wpdb->prepare("
+						SELECT 
+							s.*,
+							u.nama_skpd as nama_skpd_data_unit
+						from data_sub_keg_bl s 
+						inner join data_unit u on s.id_sub_skpd = u.id_skpd
+							and u.tahun_anggaran = s.tahun_anggaran
+							and u.active = s.active
+						where s.tahun_anggaran=%d
+							and u.id_skpd IN (".implode(',', $id_skpd_sipd).")
+							and s.active=1", 
+					$tahun_anggaran), ARRAY_A);
+					$kas = array();
+					$kas_p = array();
+					foreach($data_sub_keg as $k => $sub){
+						$newsub = array(
+							'kode_sbl' => $sub['kode_sbl'],
+							'nama_skpd_data_unit' => $sub['nama_skpd_data_unit'],
+							'kode_sub_skpd' => $sub['kode_sub_skpd'],
+							'pagu' => $sub['pagu'],
+							'pagu_keg' => $sub['pagu_keg'],
+							'pagu_n_depan' => $sub['pagu_n_depan'],
+							'pagu_n_lalu' => $sub['pagu_n_lalu'],
+							'nama_giat' => $sub['nama_giat'],
+							'nama_program' => $sub['nama_program'],
+							'id_bidang_urusan' => $sub['id_bidang_urusan'],
+							'nama_bidang_urusan' => $sub['nama_bidang_urusan'],
+							'nama_urusan' => $sub['nama_urusan'],
+							'nama_sub_giat' => $sub['nama_sub_giat']
+						);
+						if(!empty($program_mapping[$sub['nama_program']])){
+							$newsub['nama_program'] = $program_mapping[$sub['nama_program']];
+						}
+						if(!empty($keg_mapping[$sub['nama_giat']])){
+							$newsub['nama_giat'] = $keg_mapping[$sub['nama_giat']];
+						}
+						$nama_sub_giat = explode(' ', $sub['nama_sub_giat']);
+						$kode_sub = $nama_sub_giat[0];
+						unset($nama_sub_giat[0]);
+						$nama_sub_giat = implode(' ', $nama_sub_giat);
+						if(!empty($subkeg_mapping[$nama_sub_giat])){
+							$newsub['nama_sub_giat'] = $kode_sub.' '.$subkeg_mapping[$nama_sub_giat];
+						}
+						$newsub['id_mapping'] = get_option('_crb_unit_fmis_'.$tahun_anggaran.'_'.$sub['id_sub_skpd']);
+						$kd_unit_simda = explode('.', get_option('_crb_unit_'.$sub['id_sub_skpd']));
+						$_kd_urusan = $kd_unit_simda[0];
+						$_kd_bidang = $kd_unit_simda[1];
+						$kd_unit = $kd_unit_simda[2];
+						$kd_sub_unit = $kd_unit_simda[3];
+						$kd = explode('.', $sub['kode_sub_giat']);
+						$kd_urusan90 = (int) $kd[0];
+						$kd_bidang90 = (int) $kd[1];
+						$kd_program90 = (int) $kd[2];
+						$kd_kegiatan90 = ((int) $kd[3]).'.'.$kd[4];
+						$kd_sub_kegiatan = (int) $kd[5];
+						$nama_keg = explode(' ', $sub['nama_sub_giat']);
+				        unset($nama_keg[0]);
+				        $nama_keg = implode(' ', $nama_keg);
+						$mapping = $this->simda->cekKegiatanMapping(array(
+							'kd_urusan90' => $kd_urusan90,
+							'kd_bidang90' => $kd_bidang90,
+							'kd_program90' => $kd_program90,
+							'kd_kegiatan90' => $kd_kegiatan90,
+							'kd_sub_kegiatan' => $kd_sub_kegiatan,
+							'nama_program' => $sub['nama_giat'],
+							'nama_kegiatan' => $nama_keg
+						));
+
+						$kd_urusan = 0;
+						$kd_bidang = 0;
+						$kd_prog = 0;
+						$kd_keg = 0;
+						if(!empty($mapping[0]) && !empty($mapping[0]->kd_urusan)){
+							$kd_urusan = $mapping[0]->kd_urusan;
+							$kd_bidang = $mapping[0]->kd_bidang;
+							$kd_prog = $mapping[0]->kd_prog;
+							$kd_keg = $mapping[0]->kd_keg;
+						}
+					    foreach ($this->simda->custom_mapping as $c_map_k => $c_map_v) {
+					        if(
+					            $skpd['kode_skpd'] == $c_map_v['sipd']['kode_skpd']
+					            && $sub['kode_sub_giat'] == $c_map_v['sipd']['kode_sub_keg']
+					        ){
+					            $kd_unit_simda_map = explode('.', $c_map_v['simda']['kode_skpd']);
+					            $_kd_urusan = $kd_unit_simda_map[0];
+					            $_kd_bidang = $kd_unit_simda_map[1];
+					            $kd_unit = $kd_unit_simda_map[2];
+					            $kd_sub_unit = $kd_unit_simda_map[3];
+					            $kd_keg_simda = explode('.', $c_map_v['simda']['kode_sub_keg']);
+					            $kd_urusan = $kd_keg_simda[0];
+					            $kd_bidang = $kd_keg_simda[1];
+					            $kd_prog = $kd_keg_simda[2];
+					            $kd_keg = $kd_keg_simda[3];
+					        }
+					    }
+				        $id_prog = $kd_urusan.$this->simda->CekNull($kd_bidang);
+						$opsi = array(
+							'tahun_anggaran' => $tahun_anggaran,
+							'rak_all' => true,
+							'kd_urusan' => $_kd_urusan,
+							'kd_bidang' => $_kd_bidang,
+							'kd_unit' => $kd_unit,
+							'kd_sub' => $kd_sub_unit,
+							'kd_prog' => $kd_prog,
+							'id_prog' => $id_prog,
+							'kd_keg' => $kd_keg
+						);
+						$kas = $this->get_rak_simda($opsi);
+						foreach($kas as $n => $v){
+							$_kode_akun = explode('.', $v['kode_akun']);
+							$kode_akun = array();
+							foreach ($_kode_akun as $vv) {
+								$kode_akun[] = (int)$vv;
+							}
+							$kode_akun = implode('.', $kode_akun);
+							if(!empty($rek_mapping[$kode_akun])){
+								$_kode_akun = explode('.', $rek_mapping[$kode_akun]);
+								$_kode_akun[2] = $this->simda->CekNull($_kode_akun[2]);
+								$_kode_akun[3] = $this->simda->CekNull($_kode_akun[3]);
+								$_kode_akun[4] = $this->simda->CekNull($_kode_akun[4]);
+								$_kode_akun[5] = $this->simda->CekNull($_kode_akun[5], 4);
+								$kas[$n]['kode_akun'] = implode('.', $_kode_akun);
+							}
+						}
+						$newsub['kas'] = $kas;
+						$ret['data'][] = $newsub;
+
+						if(empty($kas_p[$sub['id_sub_skpd']])){
+							$newsub = array(
+								'kode_sbl' => '',
+								'nama_skpd_data_unit' => $sub['nama_skpd_data_unit'],
+								'kode_sub_skpd' => $sub['kode_sub_skpd'],
+								'pagu' => 0,
+								'pagu_keg' => 0,
+								'pagu_n_depan' => 0,
+								'pagu_n_lalu' => 0,
+								'nama_giat' => 'x.x.xx.xx.xx Non Kegiatan',
+								'nama_program' => 'x.x.xx.xx.xx Non Program',
+								'id_bidang_urusan' => 0,
+								'nama_bidang_urusan' => 'PROGRAM PENUNJANG URUSAN PEMERINTAHAN DAERAH',
+								'nama_urusan' => 'PROGRAM PENUNJANG URUSAN PEMERINTAHAN DAERAH',
+								'nama_sub_giat' => 'x.x.xx.xx.xx Non Sub Kegiatan'
+							);
+							$newsub['id_mapping'] = get_option('_crb_unit_fmis_'.$tahun_anggaran.'_'.$sub['id_sub_skpd']);
+							$opsi = array(
+								'tahun_anggaran' => $tahun_anggaran,
+								'rak_all' => true,
+								'kd_urusan' => $_kd_urusan,
+								'kd_bidang' => $_kd_bidang,
+								'kd_unit' => $kd_unit,
+								'kd_sub' => $kd_sub_unit,
+								'kd_prog' => 0,
+								'id_prog' => 0,
+								'kd_keg' => 0
+							);
+							$kas = $this->get_rak_simda($opsi);
+							foreach($kas as $n => $v){
+								$_kode_akun = explode('.', $v['kode_akun']);
+								$kode_akun = array();
+								foreach ($_kode_akun as $vv) {
+									$kode_akun[] = (int)$vv;
+								}
+								$kode_akun = implode('.', $kode_akun);
+								if(!empty($rek_mapping[$kode_akun])){
+									$_kode_akun = explode('.', $rek_mapping[$kode_akun]);
+									$_kode_akun[2] = $this->simda->CekNull($_kode_akun[2]);
+									$_kode_akun[3] = $this->simda->CekNull($_kode_akun[3]);
+									$_kode_akun[4] = $this->simda->CekNull($_kode_akun[4]);
+									$_kode_akun[5] = $this->simda->CekNull($_kode_akun[5], 4);
+									$kas[$n]['kode_akun'] = implode('.', $_kode_akun);
+								}
+							}
+							$newsub['kas'] = $kas;
+							$ret['data'][] = $newsub;
+						}
+					}
+				}
+			} else {
+				$ret['status'] = 'error';
+				$ret['message'] = 'APIKEY tidak sesuai!';
+			}
+		} else {
+			$ret['status'] = 'error';
+			$ret['message'] = 'Format Salah!';
+		}
+		if($no_debug){
+			return $ret;
+		}else{
+			die(json_encode($ret));
+		}
 	}
 
 	function get_kas($no_debug=false){
@@ -4326,6 +5960,17 @@ class Wpsipd_Public
 					echo '<li><a href="'.$url_monev_renstra.'" target="_blank" class="btn btn-info">MONEV INDIKATOR RENSTRA</a></li>';
 				}
 			}
+			$user_id = um_user( 'ID' );
+			$user_meta = get_userdata($user_id);
+			if(in_array("administrator", $user_meta->roles) || in_array("PLT", $user_meta->roles) || in_array("PA", $user_meta->roles) || in_array("KPA", $user_meta->roles)){
+				$nama_page_menu_ssh = 'Rekapitulasi Rincian Belanja '.$vv['nama_skpd'].' '.$vv['kode_skpd'].' | '.$tahun;
+				$custom_post = get_page_by_title($nama_page_menu_ssh, OBJECT, 'page');
+				$url_menu_ssh = $this->get_link_post($custom_post);
+
+				if(!empty($daftar_tombol_list[7])){
+					echo '<li><a href="'.$url_menu_ssh.'" target="_blank" class="btn btn-info">MENU SSH</a></li>';
+				}
+			}
 			echo '</ul>';
 
 		}else{
@@ -4799,40 +6444,105 @@ class Wpsipd_Public
             );
 		}
 
-		$sql = $wpdb->prepare("
-			SELECT 
-				sum(r.jan) as bulan_1,
-				sum(r.feb) as bulan_2,
-				sum(r.mar) as bulan_3,
-				sum(r.apr) as bulan_4,
-				sum(r.mei) as bulan_5,
-				sum(r.jun) as bulan_6,
-				sum(r.jul) as bulan_7,
-				sum(r.agt) as bulan_8,
-				sum(r.sep) as bulan_9,
-				sum(r.okt) as bulan_10,
-				sum(r.nop) as bulan_11,
-				sum(r.des) as bulan_12
-			FROM ta_rencana r
-			WHERE r.tahun = %d 
-				AND r.kd_urusan = %d
-				AND r.kd_bidang = %d
-				AND r.kd_unit = %d
-				AND r.kd_sub = %d
-				AND r.kd_prog = %d
-				AND r.id_prog = %d
-				AND r.kd_keg = %d
-			", 
-			$options['tahun_anggaran'], 
-			$kd_urusan, 
-			$kd_bidang, 
-			$kd_unit, 
-			$kd_sub, 
-			$kd_prog, 
-			$id_prog, 
-			$kd_keg
-		);
-		$rak = $this->simda->CurlSimda(array('query' => $sql.$sql_akun), false);
+		if(!empty($options['rak_all'])){
+			$sql = $wpdb->prepare("
+				SELECT 
+					m.kd_rek90_1,
+					m.kd_rek90_2,
+					m.kd_rek90_3,
+					m.kd_rek90_4,
+					m.kd_rek90_5,
+					m.kd_rek90_6,
+					r6.nm_rek90_6 as nama_akun,
+					r.jan as bulan_1,
+					r.feb as bulan_2,
+					r.mar as bulan_3,
+					r.apr as bulan_4,
+					r.mei as bulan_5,
+					r.jun as bulan_6,
+					r.jul as bulan_7,
+					r.agt as bulan_8,
+					r.sep as bulan_9,
+					r.okt as bulan_10,
+					r.nop as bulan_11,
+					r.des as bulan_12
+				FROM ta_rencana r
+					LEFT JOIN ref_rek_mapping m on m.kd_rek_1=r.kd_rek_1
+						and m.kd_rek_2=r.kd_rek_2
+						and m.kd_rek_3=r.kd_rek_3
+						and m.kd_rek_4=r.kd_rek_4
+					LEFT JOIN ref_rek90_6 r6 on m.kd_rek90_1=r6.kd_rek90_1
+						and m.kd_rek90_2=r6.kd_rek90_2
+						and m.kd_rek90_3=r6.kd_rek90_3
+						and m.kd_rek90_4=r6.kd_rek90_4
+						and m.kd_rek90_5=r6.kd_rek90_5
+						and m.kd_rek90_6=r6.kd_rek90_6
+				WHERE r.tahun = %d 
+					AND r.kd_urusan = %d
+					AND r.kd_bidang = %d
+					AND r.kd_unit = %d
+					AND r.kd_sub = %d
+					AND r.kd_prog = %d
+					AND r.id_prog = %d
+					AND r.kd_keg = %d
+				", 
+				$options['tahun_anggaran'], 
+				$kd_urusan, 
+				$kd_bidang, 
+				$kd_unit, 
+				$kd_sub, 
+				$kd_prog, 
+				$id_prog, 
+				$kd_keg
+			);
+			$rak = $this->simda->CurlSimda(array('query' => $sql.$sql_akun), false);
+			$ret = array();
+			foreach($rak as $key => $val){
+				$ret[$key] = array();
+				foreach($val as $k => $v){
+					if(!is_numeric($k)){
+						$ret[$key][$k] = $v;
+					}
+				}
+				$ret[$key]['kode_akun'] = $val->kd_rek90_1.'.'.$val->kd_rek90_2.'.'.$this->simda->CekNull($val->kd_rek90_3).'.'.$this->simda->CekNull($val->kd_rek90_4).'.'.$this->simda->CekNull($val->kd_rek90_5).'.'.$this->simda->CekNull($val->kd_rek90_6, 4);
+			}
+			return $ret;
+		}else{
+			$sql = $wpdb->prepare("
+				SELECT 
+					sum(r.jan) as bulan_1,
+					sum(r.feb) as bulan_2,
+					sum(r.mar) as bulan_3,
+					sum(r.apr) as bulan_4,
+					sum(r.mei) as bulan_5,
+					sum(r.jun) as bulan_6,
+					sum(r.jul) as bulan_7,
+					sum(r.agt) as bulan_8,
+					sum(r.sep) as bulan_9,
+					sum(r.okt) as bulan_10,
+					sum(r.nop) as bulan_11,
+					sum(r.des) as bulan_12
+				FROM ta_rencana r
+				WHERE r.tahun = %d 
+					AND r.kd_urusan = %d
+					AND r.kd_bidang = %d
+					AND r.kd_unit = %d
+					AND r.kd_sub = %d
+					AND r.kd_prog = %d
+					AND r.id_prog = %d
+					AND r.kd_keg = %d
+				", 
+				$options['tahun_anggaran'], 
+				$kd_urusan, 
+				$kd_bidang, 
+				$kd_unit, 
+				$kd_sub, 
+				$kd_prog, 
+				$id_prog, 
+				$kd_keg
+			);
+			$rak = $this->simda->CurlSimda(array('query' => $sql.$sql_akun), false);
+		}
 
 		$total_rak = 0;
 		if(empty($rak[0])){
@@ -5460,9 +7170,14 @@ class Wpsipd_Public
 		$ret['message'] = 'Berhasil singkron program RENSTRA!';
 		if (!empty($_POST)) {
 			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
-				$wpdb->update('data_renstra_program', array('active' => 0), array(
-					'tahun_anggaran' => $_POST['tahun_anggaran']
-				));
+				if(
+					empty($_POST['page']) 
+					|| $_POST['page'] == 1
+				){
+					$wpdb->update('data_renstra_program', array('active' => 0), array(
+						'tahun_anggaran' => $_POST['tahun_anggaran']
+					));
+				}
 				foreach ($_POST['program'] as $k => $v) {
 					if(empty($v['id_unik'])){
 						$v['id_unik'] = '0';
@@ -5582,9 +7297,14 @@ class Wpsipd_Public
 		$ret['message'] = 'Berhasil singkron kegiatan RENSTRA!';
 		if (!empty($_POST)) {
 			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
-				$wpdb->update('data_renstra_kegiatan', array('active' => 0), array(
-					'tahun_anggaran' => $_POST['tahun_anggaran']
-				));
+				if(
+					empty($_POST['page']) 
+					|| $_POST['page'] == 1
+				){
+					$wpdb->update('data_renstra_kegiatan', array('active' => 0), array(
+						'tahun_anggaran' => $_POST['tahun_anggaran']
+					));
+				}
 				foreach ($_POST['kegiatan'] as $k => $v) {
 					if(empty($v['id_unik'])){
 						$v['id_unik'] = '0';
@@ -6033,10 +7753,14 @@ class Wpsipd_Public
 						for($b=1; $b<=$bulan; $b++){
 							$realisasi_anggaran += $_POST['realisasi']['nilai_realisasi_bulan_'.$b];
 						}
+						$rak = 0;
+						for($b=1; $b<=$bulan; $b++){
+							$rak += $_POST['rak']['nilai_rak_bulan_'.$b];
+						}
 						$opsi = array(
 							'bulan'	=> $bulan,
 							'kode_sbl'	=> $kode_sbl,
-							'rak' => $_POST['rak']['nilai_rak_bulan_'.$bulan],
+							'rak' => $rak,
 							'realisasi_anggaran' => $realisasi_anggaran,
 							'user_edit'	=> $current_user->display_name,
 							'id_skpd'	=> $id_skpd,
@@ -7250,6 +8974,7 @@ class Wpsipd_Public
 								AND r.kd_bidang = %d
 								AND r.kd_unit = %d
 								AND r.kd_sub = %d
+								AND r.kd_rek_1 = 5
 							", 
 							$tahun_anggaran, 
 							$tahun_anggaran, 
@@ -7864,5 +9589,5972 @@ class Wpsipd_Public
 			$_post['update'] = 1;
 		}
 		return $this->get_link_post($custom_post);
+	}
+
+	public function get_sub_keg(){
+		global $wpdb;
+		$ret = array(
+			'action'	=> $_POST['action'],
+			'run'	=> $_POST['run'],
+			'status'	=> 'success',
+			'message'	=> 'Berhasil get sub kegiatan!'
+		);
+		if (!empty($_POST)) {
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+				if(!empty($_POST['idsumber'])){
+					$tahun_anggaran = $_POST['tahun_anggaran'];
+					$id_skpd_fmis = $_POST['id_skpd_fmis'];
+					$idsumber = $_POST['idsumber'];
+					$get_id = $this->get_id_skpd_fmis($id_skpd_fmis, $tahun_anggaran);
+					$id_skpd_sipd = $get_id['id_skpd_sipd'];
+					$id_mapping_simda = $get_id['id_mapping_simda'];
+					if(
+						!empty($id_skpd_sipd) 
+						&& !empty($id_skpd_fmis)
+					){
+						$program_mapping = $this->get_fmis_mapping(array(
+							'name' => '_crb_custom_mapping_program_fmis'
+						));
+						$keg_mapping = $this->get_fmis_mapping(array(
+							'name' => '_crb_custom_mapping_keg_fmis'
+						));
+						$subkeg_mapping = $this->get_fmis_mapping(array(
+							'name' => '_crb_custom_mapping_subkeg_fmis'
+						));
+						$data_sub_keg = array();
+						$type_pagu = get_option('_crb_fmis_pagu');
+						if($idsumber == 1){
+							$data_sub_keg = $wpdb->get_results($wpdb->prepare("
+								SELECT 
+									s.*,
+									u.nama_skpd as nama_skpd_data_unit
+								from data_sub_keg_bl s 
+								inner join data_unit u on s.id_sub_skpd = u.id_skpd
+									and u.tahun_anggaran = s.tahun_anggaran
+									and u.active = s.active
+								where s.tahun_anggaran=%d
+									and u.id_skpd IN (".implode(',', $id_skpd_sipd).")
+									and s.active=1", 
+							$tahun_anggaran), ARRAY_A);
+							foreach ($data_sub_keg as $k => $v) {
+								if(
+									!empty($type_pagu)
+									&& $type_pagu == 2
+								){
+									$data_sub_keg[$k]['pagu'] = $v['pagumurni'];
+									$data_sub_keg[$k]['pagu_keg'] = $v['pagumurni'];
+								}
+								if(!empty($program_mapping[$v['nama_program']])){
+									$data_sub_keg[$k]['nama_program'] = $program_mapping[$v['nama_program']];
+								}
+								if(!empty($keg_mapping[$v['nama_giat']])){
+									$data_sub_keg[$k]['nama_giat'] = $keg_mapping[$v['nama_giat']];
+								}
+								$nama_sub_giat = explode(' ', $v['nama_sub_giat']);
+								$kode_sub = $nama_sub_giat[0];
+								unset($nama_sub_giat[0]);
+								$nama_sub_giat = implode(' ', $nama_sub_giat);
+								if(!empty($subkeg_mapping[$nama_sub_giat])){
+									$data_sub_keg[$k]['nama_sub_giat'] = $kode_sub.' '.$subkeg_mapping[$nama_sub_giat];
+								}
+								$data_sub_keg[$k]['id_mapping'] = get_option('_crb_unit_fmis_'.$tahun_anggaran.'_'.$v['id_sub_skpd']);
+								$data_sub_keg[$k]['sub_keg_indikator'] = $wpdb->get_results("
+									select 
+										* 
+									from data_sub_keg_indikator 
+									where tahun_anggaran=".$v['tahun_anggaran']."
+										and kode_sbl='".$v['kode_sbl']."'
+										and active=1", ARRAY_A);
+								$data_sub_keg[$k]['sub_keg_indikator_hasil'] = $wpdb->get_results("
+									select 
+										* 
+									from data_keg_indikator_hasil 
+									where tahun_anggaran=".$v['tahun_anggaran']."
+										and kode_sbl='".$v['kode_sbl']."'
+										and active=1", ARRAY_A);
+								$data_sub_keg[$k]['tag_sub_keg'] = $wpdb->get_results("
+									select 
+										* 
+									from data_tag_sub_keg 
+									where tahun_anggaran=".$v['tahun_anggaran']."
+										and kode_sbl='".$v['kode_sbl']."'
+										and active=1", ARRAY_A);
+								$data_sub_keg[$k]['capaian_prog_sub_keg'] = $wpdb->get_results("
+									select 
+										* 
+									from data_capaian_prog_sub_keg 
+									where tahun_anggaran=".$v['tahun_anggaran']."
+										and kode_sbl='".$v['kode_sbl']."'
+										and active=1", ARRAY_A);
+								$data_sub_keg[$k]['output_giat'] = $wpdb->get_results("
+									select 
+										* 
+									from data_output_giat_sub_keg 
+									where tahun_anggaran=".$v['tahun_anggaran']."
+										and kode_sbl='".$v['kode_sbl']."'
+										and active=1", ARRAY_A);
+								$data_sub_keg[$k]['lokasi_sub_keg'] = $wpdb->get_results("
+									select 
+										* 
+									from data_lokasi_sub_keg 
+									where tahun_anggaran=".$v['tahun_anggaran']."
+										and kode_sbl='".$v['kode_sbl']."'
+										and active=1", ARRAY_A);
+							}
+						// sementara dicomment dulu karena get data dari simda belum siap
+						// }else if($idsumber == 2){
+						}else if($idsumber == 22){
+							$kd_unit_simda_asli = get_option('_crb_unit_'.$id_skpd_sipd);
+							$kd_unit_simda = explode('.', $kd_unit_simda_asli);
+							if(
+								!empty($kd_unit_simda) 
+								&& !empty($kd_unit_simda[3])
+							){
+								if(!empty($unit_simda[$kd_unit_simda_asli])){
+									unset($unit_simda[$kd_unit_simda_asli]);
+								}
+								$_kd_urusan = $kd_unit_simda[0];
+								$_kd_bidang = $kd_unit_simda[1];
+								$kd_unit = $kd_unit_simda[2];
+								$kd_sub_unit = $kd_unit_simda[3];
+								$kd_perubahan = '(SELECT max(kd_perubahan) from ta_rask_arsip where tahun='.$tahun_anggaran.')';
+								if(
+									!empty($type_pagu)
+									&& $type_pagu == 2
+								){
+									$kd_perubahan = 4;
+								}
+								$sql = $wpdb->prepare("
+									SELECT 
+										r.kd_urusan, 
+										r.kd_bidang, 
+										r.kd_unit, 
+										r.kd_sub,
+										r.kd_prog,
+										r.id_prog,
+										r.kd_keg,
+										SUM(r.total) as total
+									FROM ta_rask_arsip r
+									WHERE r.tahun = %d
+										AND r.kd_perubahan = $kd_perubahan
+										AND r.kd_urusan = %d
+										AND r.kd_bidang = %d
+										AND r.kd_unit = %d
+										AND r.kd_rek_1 = 5
+									GROUP BY r.kd_urusan, 
+										r.kd_bidang, 
+										r.kd_unit, 
+										r.kd_sub,
+										r.kd_prog,
+										r.id_prog,
+										r.kd_keg
+									", 
+									$tahun_anggaran,
+									$_kd_urusan, 
+									$_kd_bidang, 
+									$kd_unit
+								);
+								$sub_keg = $this->simda->CurlSimda(array('query' => $sql));
+								foreach($sub_keg as $k => $dpa){
+									$kd_urusan = substr($dpa->id_prog, 0, 1);
+									$kd_bidang = (int) substr($dpa->id_prog, 1, 2);
+									$sql = $wpdb->prepare("
+										SELECT
+											kd_urusan90,
+											kd_bidang90,
+											kd_program90,
+											kd_kegiatan90,
+											kd_sub_kegiatan
+										FROM ref_kegiatan_mapping
+										WHERE kd_urusan=%d
+											AND kd_bidang=%d
+											AND kd_prog=%d
+											AND kd_keg=%d
+									", $kd_urusan, $kd_bidang, $dpa->kd_prog, $dpa->kd_keg);
+									$keg90 = $this->simda->CurlSimda(array('query' => $sql));
+
+									// cek jika program penunjang urusan
+									if($keg90[0]->kd_program90 == 1){
+										$keg90[0]->kd_urusan90 = 'X';
+										$keg90[0]->kd_bidang90 = 'XX';
+									}
+									$kd_program = $keg90[0]->kd_urusan90.'.'.$this->simda->CekNull($keg90[0]->kd_bidang90).'.'.$this->simda->CekNull($keg90[0]->kd_program90);
+									$kd_keg = $kd_program.'.'.$this->simda->CekNull($keg90[0]->kd_kegiatan90);
+									$kd_sub_keg = $kd_keg.'.'.$this->simda->CekNull($keg90[0]->kd_sub_kegiatan);
+
+									$nama_program = $wpdb->get_var($wpdb->prepare("SELECT nama_program from data_prog_keg where kode_program=%s LIMIT 1", $kd_program));
+									$nama_program = explode(' ', $nama_program);
+									unset($nama_program[0]);
+									$nama_program = implode(' ', $nama_program);
+
+									$nama_keg = $wpdb->get_var($wpdb->prepare("SELECT nama_giat from data_prog_keg where kode_giat=%s LIMIT 1", $kd_keg));
+									$nama_keg = explode(' ', $nama_keg);
+									unset($nama_keg[0]);
+									$nama_keg = implode(' ', $nama_keg);
+
+									$nama_sub_keg = $wpdb->get_var($wpdb->prepare("SELECT nama_sub_giat from data_prog_keg where kode_sub_giat=%s LIMIT 1", $kd_sub_keg));
+									$nama_sub_keg = explode(' ', $nama_sub_keg);
+									unset($nama_sub_keg[0]);
+									$nama_sub_keg = implode(' ', $nama_sub_keg);
+
+									$newdata = array();
+									$newdata['keg90_simda'] = $keg90[0];
+									$newdata['keg_simda'] = $dpa;
+									$newdata['kode_program'] = $kd_program;
+									$newdata['kode_giat'] = $kd_keg;
+									$newdata['kode_sub_giat'] = $kd_sub_keg;
+									if(!empty($program_mapping[$nama_program])){
+										$newdata['nama_program'] = $program_mapping[$nama_program];
+									}else{
+										$newdata['nama_program'] = $nama_program;
+									}
+									if(!empty($keg_mapping[$nama_keg])){
+										$newdata['nama_giat'] = $keg_mapping[$nama_keg];
+									}else{
+										$newdata['nama_giat'] = $nama_keg;
+									}
+									if(!empty($subkeg_mapping[$nama_sub_keg])){
+										$newdata['nama_sub_giat'] = $kd_sub_keg.' '.$subkeg_mapping[$nama_sub_keg];
+									}else{
+										$newdata['nama_sub_giat'] = $kd_sub_keg.' '.$nama_sub_keg;
+									}
+
+									$newdata['sub_keg_indikator'] = array();
+									$newdata['sub_keg_indikator_hasil'] = array();
+									$newdata['tag_sub_keg'] = array();
+									$newdata['capaian_prog_sub_keg'] = array();
+									$newdata['output_giat'] = array();
+									$newdata['lokasi_sub_keg'] = array();
+
+									$newdata['pagu'] = $dpa->total;
+									$newdata['pagu_keg'] = $dpa->total;
+									$newdata['pagu_n_depan'] = 0;
+									$newdata['pagu_n_lalu'] = 0;
+
+									$kd_unit_simda = $dpa->kd_urusan.'.'.$dpa->kd_bidang.'.'.$dpa->kd_unit.'.'.$dpa->kd_sub;
+									$newdata['kd_unit_simda'] = $kd_unit_simda;
+									if($id_mapping_simda[$kd_unit_simda]){
+										$newdata['id_mapping'] = $id_mapping_simda[$kd_unit_simda]['id_mapping_fmis'];
+										$newdata['nama_sub_skpd'] = $id_mapping_simda[$kd_unit_simda]['nama_skpd'];
+									}else{
+										$newdata['nama_sub_skpd'] = 'Kode Unit SIMDA = '.$kd_unit_simda.', belum dimapping!';
+									}
+									$newdata['kode_sbl'] = $kd_keg;
+
+									$data_sub_keg[] = $newdata;
+								}
+							}else{
+								$ret['status'] = 'error';
+								$ret['message'] = 'SKPD SIMDA PINK belum dimapping!';
+							}
+						}
+						$ret['data'] = $data_sub_keg;
+					}else{
+						$ret['status'] = 'error';
+						$ret['message'] = 'id_skpd_fmis='.$_POST['id_skpd_fmis'].' tahun_anggaran='.$tahun_anggaran.' belum dimapping!';
+					}
+				}else{
+					$ret['status'] = 'error';
+					$ret['message'] = 'idsumber harus diisi!';
+				}
+			} else {
+				$ret['status'] = 'error';
+				$ret['message'] = 'APIKEY tidak sesuai!';
+			}
+		}
+		die(json_encode($ret));
+	}
+
+	public function get_fmis_mapping($options){
+		if($options['name'] == '_crb_custom_mapping_rekening_fmis'){
+			$mapping = get_option($options['name']);
+			$mapping = explode(',', $mapping);
+			$ret = array();
+			foreach($mapping as $map){
+				$map = explode('-', $map);
+				$ret[$map[0]] = $map[1];
+			}
+		}else{
+			$mapping = get_option($options['name']);
+			$mapping = explode('],[', $mapping);
+			$ret = array();
+			foreach($mapping as $map){
+				$map = explode(']-[', $map);
+				$ret[str_replace('[', '', $map[0])] = str_replace(']', '', $map[1]);
+			}
+		}
+		return $ret;
+	}
+
+	public function get_sub_keg_rka(){
+		global $wpdb;
+		$ret = array(
+			'action'	=> $_POST['action'],
+			'status'	=> 'success',
+			'message'	=> 'Berhasil RKA get sub kegiatan!'
+		);
+		if (!empty($_POST)) {
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+				$tahun_anggaran = $_POST['tahun_anggaran'];
+				$kode_sbl = $_POST['kode_sbl'];
+				$rka = $wpdb->get_results($wpdb->prepare("
+					SELECT 
+						*
+					FROM data_rka
+					WHERE tahun_anggaran=%d
+						AND active=1
+						AND kode_sbl=%s
+						AND kode_akun!=''
+				", $tahun_anggaran, $kode_sbl), ARRAY_A);
+				$id_sumber_dana_default = get_option('_crb_default_sumber_dana' );
+				$sumber_dana_default = $wpdb->get_results($wpdb->prepare('
+					SELECT 
+						id_dana as id_sumber_dana,
+						kode_dana,
+						nama_dana
+					FROM data_sumber_dana
+					WHERE tahun_anggaran=%d
+						AND id_dana=%d
+				', $tahun_anggaran, $id_sumber_dana_default), ARRAY_A);
+				$rek_mapping = $this->get_fmis_mapping(array(
+					'name' => '_crb_custom_mapping_rekening_fmis'
+				));
+				$type_pagu = get_option('_crb_fmis_pagu');
+				foreach ($rka as $k => $v) {
+					if(
+						!empty($type_pagu)
+						&& $type_pagu == 2
+					){
+						$rka[$k]['pajak'] = $v['pajak_murni'];
+						$rka[$k]['rincian'] = $v['rincian_murni'];
+						$rka[$k]['volume'] = $v['volume_murni'];
+						$rka[$k]['koefisien'] = $v['koefisien_murni'];
+						$rka[$k]['harga_satuan'] = $v['harga_satuan_murni'];
+					}
+					$_kode_akun = explode('.', $v['kode_akun']);
+					$kode_akun = array();
+					foreach ($_kode_akun as $vv) {
+						$kode_akun[] = (int)$vv;
+					}
+					$kode_akun = implode('.', $kode_akun);
+					if(!empty($rek_mapping[$kode_akun])){
+						$_kode_akun = explode('.', $rek_mapping[$kode_akun]);
+						$_kode_akun[2] = $this->simda->CekNull($_kode_akun[2]);
+						$_kode_akun[3] = $this->simda->CekNull($_kode_akun[3]);
+						$_kode_akun[4] = $this->simda->CekNull($_kode_akun[4]);
+						$_kode_akun[5] = $this->simda->CekNull($_kode_akun[5], 4);
+						$rka[$k]['kode_akun'] = implode('.', $_kode_akun);
+					}
+					$sumber_dana = $wpdb->get_results($wpdb->prepare('
+						SELECT 
+							m.id_sumber_dana,
+							s.kode_dana,
+							s.nama_dana
+						FROM data_mapping_sumberdana m
+						INNER JOIN data_sumber_dana s on s.id_dana=m.id_sumber_dana
+							and s.tahun_anggaran=m.tahun_anggaran
+						WHERE m.tahun_anggaran=%d
+							AND m.active=1
+							AND m.id_rinci_sub_bl=%d
+					', $tahun_anggaran, $v['id_rinci_sub_bl']), ARRAY_A);
+					if(
+						!empty($sumber_dana) 
+						&& !empty($sumber_dana[0])
+						&& !empty($sumber_dana[0]['nama_dana'])
+					){
+						$rka[$k]['sumber_dana'] = $sumber_dana;
+					}else{
+						$rka[$k]['sumber_dana'] = $sumber_dana_default;
+					}
+				}
+				$ret['data'] = $rka;
+			} else {
+				$ret['status'] = 'error';
+				$ret['message'] = 'APIKEY tidak sesuai!';
+			}
+		}
+		die(json_encode($ret));
+	}
+
+	function mapping_skpd_fmis(){
+		global $wpdb;
+		$ret = array(
+			'action'	=> $_POST['action'],
+			'status'	=> 'success',
+			'message'	=> 'Berhasil mapping SKPD!'
+		);
+		if (!empty($_POST)) {
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+				$tahun_anggaran = $_POST['tahun_anggaran'];
+				$data = json_decode(stripslashes(html_entity_decode($_POST['data'])));
+				foreach ($data as $k => $skpd) {
+					$skpd = (array) $skpd;
+					foreach ($skpd['sub_unit'] as $kk => $sub_unit) {
+						$sub_unit = (array) $sub_unit;
+						$id_skpd_sipd = $wpdb->get_var($wpdb->prepare('
+							SELECT 
+								id_skpd
+							FROM data_unit
+							WHERE nama_skpd=%s
+								AND tahun_anggaran=%d
+								AND active=1
+						', $sub_unit['name'], $tahun_anggaran));
+						if(!empty($id_skpd_sipd)){
+							update_option('_crb_unit_fmis_'.$tahun_anggaran.'_'.$id_skpd_sipd, $skpd['id'].'.'.$sub_unit['id']);
+							$ret['data_sukses_mapping'][] = $sub_unit;
+						}else{
+							$ret['data_gagal_mapping'][] = $sub_unit;
+						}
+					}
+				}
+			} else {
+				$ret['status'] = 'error';
+				$ret['message'] = 'APIKEY tidak sesuai!';
+			}
+		}
+		die(json_encode($ret));
+	}
+
+	function mapping_rek_fmis(){
+		global $wpdb;
+		$ret = array(
+			'action'	=> $_POST['action'],
+			'status'	=> 'success',
+			'message'	=> 'Berhasil cek mapping rekening!'
+		);
+		if (!empty($_POST)) {
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+				if(!empty($_POST['rek'])){
+					$rek_sipd = $wpdb->get_results($wpdb->prepare("
+						SELECT 
+							*
+						FROM
+							data_akun
+						WHERE tahun_anggaran=%d
+							and (
+								kode_akun like '4%'
+								or kode_akun like '5%'
+								or kode_akun like '6%'
+							)
+							and set_input=1
+					", $_POST['tahun_anggaran']), ARRAY_A);
+					$rek_fmis = json_decode(stripslashes(html_entity_decode($_POST['rek'])));
+					$new_rek_fmis = array();
+					foreach($rek_fmis as $rek){
+						$rek = (array) $rek;
+						$new_rek_fmis[$rek['kdrek']] = $rek;
+					}
+					$cek_sipd_belum_ada_di_fmis = array();
+					foreach($rek_sipd as $rek){
+						$_kode_akun = explode('.', $rek['kode_akun']);
+						$kode_akun = array();
+						foreach ($_kode_akun as $v) {
+							$kode_akun[] = (int)$v;
+						}
+						$kode_akun = implode('.', $kode_akun);
+						if(empty($new_rek_fmis[$kode_akun])){
+							$cek_sipd_belum_ada_di_fmis[$kode_akun] = $rek;
+						}
+					}
+					$current_mapping = get_option('_crb_custom_mapping_rekening_fmis');
+					$current_mapping = explode(',', $current_mapping);
+					$mapping_rek = array();
+					foreach($current_mapping as $v){
+						$rek = explode('-', $v);
+						$mapping_rek[$rek[0]] = '';
+						if(!empty($rek[1])){
+							$mapping_rek[$rek[0]] = $rek[1];
+						}
+					}
+
+					$mapping = array();
+					foreach($cek_sipd_belum_ada_di_fmis as $k => $v){
+						if(!empty($mapping_rek[$k])){
+							$mapping[] = $k.'-'.$mapping_rek[$k];
+						}else{
+							$mapping[] = $k.'-'.$k;
+						}
+					}
+					update_option( '_crb_custom_mapping_rekening_fmis', implode(',', $mapping) );
+					$ret['data_rek'] = $cek_sipd_belum_ada_di_fmis;
+				}else{
+					$ret['status'] = 'error';
+					$ret['message'] = 'format salah!';
+				}
+			} else {
+				$ret['status'] = 'error';
+				$ret['message'] = 'APIKEY tidak sesuai!';
+			}
+		}
+		die(json_encode($ret));
+	}
+
+	public function get_data_pendapatan(){
+		global $wpdb;
+		$ret = array(
+			'action'	=> $_POST['action'],
+			'status'	=> 'success',
+			'message'	=> 'Berhasil get data Pendapatan!'
+		);
+		if (!empty($_POST)) {
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+				$tahun_anggaran = $_POST['tahun_anggaran'];
+				$id_skpd_fmis = $_POST['id_skpd_fmis'];
+				$get_id = $this->get_id_skpd_fmis($id_skpd_fmis, $tahun_anggaran);
+				$id_skpd_sipd = $get_id['id_skpd_sipd'];
+				if(
+					!empty($id_skpd_sipd) 
+					&& !empty($id_skpd_fmis)
+				){
+					$pendapatan = $wpdb->get_results($wpdb->prepare('
+						SELECT 
+							p.*,
+							u.nama_skpd
+						FROM data_pendapatan p
+							LEFT JOIN data_unit u ON p.id_skpd=u.id_skpd
+								AND u.active=p.active
+								AND u.tahun_anggaran=p.tahun_anggaran
+						WHERE p.tahun_anggaran=%d
+							and p.id_skpd IN ('.implode(',', $id_skpd_sipd).')
+							and p.active=1
+					', $_POST['tahun_anggaran']), ARRAY_A);
+					$ret['sql'] = $wpdb->last_query;
+					$type_pagu = get_option('_crb_fmis_pagu');
+					$rek_mapping = $this->get_fmis_mapping(array(
+						'name' => '_crb_custom_mapping_rekening_fmis'
+					));
+					foreach($pendapatan as $k => $v){
+						if(
+							!empty($type_pagu)
+							&& $type_pagu == 2
+						){
+							$pendapatan[$k]['total'] = $v['nilaimurni'];
+						}
+						$_kode_akun = explode('.', $v['kode_akun']);
+						$kode_akun = array();
+						foreach ($_kode_akun as $vv) {
+							$kode_akun[] = (int)$vv;
+						}
+						$kode_akun = implode('.', $kode_akun);
+						if(!empty($rek_mapping[$kode_akun])){
+							$_kode_akun = explode('.', $rek_mapping[$kode_akun]);
+							$_kode_akun[2] = $this->simda->CekNull($_kode_akun[2]);
+							$_kode_akun[3] = $this->simda->CekNull($_kode_akun[3]);
+							$_kode_akun[4] = $this->simda->CekNull($_kode_akun[4]);
+							$_kode_akun[5] = $this->simda->CekNull($_kode_akun[5], 4);
+							$pendapatan[$k]['kode_akun'] = implode('.', $_kode_akun);
+						}
+						$pendapatan[$k]['id_mapping'] = get_option('_crb_unit_fmis_'.$tahun_anggaran.'_'.$v['id_skpd']);
+					}
+					$ret['data'] = $pendapatan;
+				}
+			} else {
+				$ret['status'] = 'error';
+				$ret['message'] = 'APIKEY tidak sesuai!';
+			}
+		} else {
+			$ret['status'] = 'error';
+			$ret['message'] = 'Format Salah!';
+		}
+		die(json_encode($ret));
+	}
+
+	public function get_id_skpd_fmis($id_skpd_fmis, $tahun_anggaran, $cek_sub_unit=false){
+		global $wpdb;
+		$id_skpd_sipd = array();
+		$kode_skpd_sipd = array();
+		$id_mapping_simda = array();
+		$id_skpd_sipds = $wpdb->get_results($wpdb->prepare('
+			SELECT 
+				id_skpd,
+				is_skpd,
+				kode_skpd,
+				nama_skpd
+			FROM data_unit
+			WHERE tahun_anggaran=%d
+				AND active=1
+		', $tahun_anggaran), ARRAY_A);
+		foreach ($id_skpd_sipds as $k => $v) {
+			$kd_unit_simda_asli = get_option('_crb_unit_'.$v['id_skpd']);
+			$id_mapping = get_option('_crb_unit_fmis_'.$tahun_anggaran.'_'.$v['id_skpd']);
+			$id_mapping_simda[$kd_unit_simda_asli] = array(
+				'id_skpd' => $v['id_skpd'],
+				'id_mapping_fmis' => $id_mapping,
+				'kode_skpd' => $v['kode_skpd'],
+				'nama_skpd' => $v['nama_skpd']
+			);
+			if(!empty($id_skpd_fmis)){
+				$id_fmis = explode('.', $id_skpd_fmis);
+				if(count($id_fmis) >= 2){
+					if($id_mapping == $id_skpd_fmis){
+						$id_skpd_sipd[] = $v['id_skpd'];
+						$kode_skpd_sipd[] = $v['kode_skpd'];
+					}
+				}else{
+					if(empty($cek_sub_unit)){
+						$id_mappings = explode('.', $id_mapping);
+						if($id_mappings[0] == $id_fmis[0]){
+							$id_skpd_sipd[] = $v['id_skpd'];
+							$kode_skpd_sipd[] = $v['kode_skpd'];
+						}
+					}else{
+						$id_mappings = explode('.', $id_mapping);
+						if($id_mappings[1] == $id_fmis[0]){
+							$id_skpd_sipd[] = $v['id_skpd'];
+							$kode_skpd_sipd[] = $v['kode_skpd'];
+						}
+					}
+				}
+			}else if(false === $id_skpd_fmis){
+				$id_skpd_sipd[] = $v['id_skpd'];
+				$kode_skpd_sipd[] = $v['kode_skpd'];
+			}
+		}
+		return array(
+			'id_skpd_sipd' => $id_skpd_sipd,
+			'id_mapping_simda' => $id_mapping_simda,
+			'kode_skpd_sipd' => $kode_skpd_sipd
+		);
+	}
+
+	public function get_data_pembiayaan(){
+		global $wpdb;
+		$ret = array(
+			'action'	=> $_POST['action'],
+			'status'	=> 'success',
+			'message'	=> 'Berhasil get data Pembiayaan!'
+		);
+		if (!empty($_POST)) {
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+				$tahun_anggaran = $_POST['tahun_anggaran'];
+				$id_skpd_fmis = $_POST['id_skpd_fmis'];
+				$get_id = $this->get_id_skpd_fmis($id_skpd_fmis, $tahun_anggaran);
+				$id_skpd_sipd = $get_id['id_skpd_sipd'];
+				if(
+					!empty($id_skpd_sipd) 
+					&& !empty($id_skpd_fmis)
+				){
+					$data_db = $wpdb->get_results($wpdb->prepare('
+						SELECT 
+							p.*,
+							u.nama_skpd
+						FROM data_pembiayaan p
+							LEFT JOIN data_unit u ON p.id_skpd=u.id_skpd
+								AND u.active=p.active
+								AND u.tahun_anggaran=p.tahun_anggaran
+						WHERE p.tahun_anggaran=%d
+							and p.id_skpd IN ('.implode(',', $id_skpd_sipd).')
+							and p.active=1
+					', $_POST['tahun_anggaran']), ARRAY_A);
+					$type_pagu = get_option('_crb_fmis_pagu');
+					$rek_mapping = $this->get_fmis_mapping(array(
+						'name' => '_crb_custom_mapping_rekening_fmis'
+					));
+					foreach($data_db as $k => $v){
+						if(
+							!empty($type_pagu)
+							&& $type_pagu == 2
+						){
+							$data_db[$k]['total'] = $v['nilaimurni'];
+						}
+						$_kode_akun = explode('.', $v['kode_akun']);
+						$kode_akun = array();
+						foreach ($_kode_akun as $vv) {
+							$kode_akun[] = (int)$vv;
+						}
+						$kode_akun = implode('.', $kode_akun);
+						if(!empty($rek_mapping[$kode_akun])){
+							$_kode_akun = explode('.', $rek_mapping[$kode_akun]);
+							$_kode_akun[2] = $this->simda->CekNull($_kode_akun[2]);
+							$_kode_akun[3] = $this->simda->CekNull($_kode_akun[3]);
+							$_kode_akun[4] = $this->simda->CekNull($_kode_akun[4]);
+							$_kode_akun[5] = $this->simda->CekNull($_kode_akun[5], 4);
+							$data_db[$k]['kode_akun'] = implode('.', $_kode_akun);
+						}
+						$data_db[$k]['id_mapping'] = get_option('_crb_unit_fmis_'.$tahun_anggaran.'_'.$v['id_skpd']);
+					}
+					$ret['sql'] = $wpdb->last_query;
+					$ret['data'] = $data_db;
+				}
+			} else {
+				$ret['status'] = 'error';
+				$ret['message'] = 'APIKEY tidak sesuai!';
+			}
+		} else {
+			$ret['status'] = 'error';
+			$ret['message'] = 'Format Salah!';
+		}
+		die(json_encode($ret));
+	}
+
+	function mapping_sub_kegiatan_fmis(){
+		global $wpdb;
+		$ret = array(
+			'action'	=> $_POST['action'],
+			'status'	=> 'success',
+			'message'	=> 'Berhasil cek mapping sub kegiatan!'
+		);
+		if (!empty($_POST)) {
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+				if(!empty($_POST['sub_kegiatan'])){
+					$sub_keg_fmis = json_decode(stripslashes(html_entity_decode($_POST['sub_kegiatan'])));
+					$new_prog_fmis = array();
+					$new_keg_fmis = array();
+					$new_sub_keg_fmis = array();
+					foreach($sub_keg_fmis as $sub){
+						$sub = (array) $sub;
+						$new_sub_keg_fmis[strtolower(trim($sub['sub_kegiatan']))] = $sub;
+						$new_keg_fmis[strtolower(trim($sub['kegiatan']))] = $sub;
+						$new_prog_fmis[strtolower(trim($sub['program']))] = $sub;
+					}
+					$sub_keg_sipd = $wpdb->get_results($wpdb->prepare("
+						SELECT 
+							*
+						FROM
+							data_prog_keg
+						WHERE tahun_anggaran=%d
+					", $_POST['tahun_anggaran']), ARRAY_A);
+					$cek_sipd_belum_ada_di_fmis = array();
+					$cek_sipd_keg_belum_ada_di_fmis = array();
+					$cek_sipd_prog_belum_ada_di_fmis = array();
+					foreach($sub_keg_sipd as $sub){
+						// cek sub kegiatan
+						$_nama_sub = explode(' ', $sub['nama_sub_giat']);
+						unset($_nama_sub[0]);
+						$nama_sub = trim(implode(' ', $_nama_sub));
+						if(empty($new_sub_keg_fmis[strtolower($nama_sub)])){
+							$cek_sipd_belum_ada_di_fmis[$nama_sub] = $sub;
+						}
+
+						// cek kegiatan
+						$_nama_giat = explode(' ', $sub['nama_giat']);
+						unset($_nama_giat[0]);
+						$nama_giat = trim(implode(' ', $_nama_giat));
+						if(empty($new_keg_fmis[strtolower($nama_giat)])){
+							$cek_sipd_keg_belum_ada_di_fmis[$nama_giat] = $sub;
+						}
+
+						// cek program
+						$_nama_program = explode(' ', $sub['nama_program']);
+						unset($_nama_program[0]);
+						$nama_program = trim(implode(' ', $_nama_program));
+						if(empty($new_prog_fmis[strtolower($nama_program)])){
+							$cek_sipd_prog_belum_ada_di_fmis[$nama_program] = $sub;
+						}
+					}
+
+					// update mapping sub kegiatan
+					$current_mapping = get_option('_crb_custom_mapping_subkeg_fmis');
+					$current_mapping = explode(',', $current_mapping);
+					$mapping_sub = array();
+					foreach($current_mapping as $v){
+						$rek = explode('-', $v);
+						$mapping_sub[$rek[0]] = '';
+						if(!empty($rek[1])){
+							$mapping_sub[$rek[0]] = $rek[1];
+						}
+					}
+					$mapping = array();
+					foreach($cek_sipd_belum_ada_di_fmis as $k => $v){
+						$k = '['.$k.']';
+						if(!empty($mapping_sub[$k])){
+							$mapping[] = $k.'-'.$mapping_sub[$k];
+						}else{
+							$mapping[] = $k.'-'.$k;
+						}
+					}
+					update_option( '_crb_custom_mapping_subkeg_fmis', implode(',', $mapping) );
+
+					// update mapping kegiatan
+					$current_mapping = get_option('_crb_custom_mapping_keg_fmis');
+					$current_mapping = explode(',', $current_mapping);
+					$mapping_keg = array();
+					foreach($current_mapping as $v){
+						$rek = explode('-', $v);
+						$mapping_keg[$rek[0]] = '';
+						if(!empty($rek[1])){
+							$mapping_keg[$rek[0]] = $rek[1];
+						}
+					}
+					$mapping = array();
+					foreach($cek_sipd_keg_belum_ada_di_fmis as $k => $v){
+						$k = '['.$k.']';
+						if(!empty($mapping_keg[$k])){
+							$mapping[] = $k.'-'.$mapping_keg[$k];
+						}else{
+							$mapping[] = $k.'-'.$k;
+						}
+					}
+					update_option( '_crb_custom_mapping_keg_fmis', implode(',', $mapping) );
+
+					// update mapping program
+					$current_mapping = get_option('_crb_custom_mapping_program_fmis');
+					$current_mapping = explode(',', $current_mapping);
+					$mapping_prog = array();
+					foreach($current_mapping as $v){
+						$rek = explode('-', $v);
+						$mapping_prog[$rek[0]] = '';
+						if(!empty($rek[1])){
+							$mapping_prog[$rek[0]] = $rek[1];
+						}
+					}
+					$mapping = array();
+					foreach($cek_sipd_prog_belum_ada_di_fmis as $k => $v){
+						$k = '['.$k.']';
+						if(!empty($mapping_prog[$k])){
+							$mapping[] = $k.'-'.$mapping_prog[$k];
+						}else{
+							$mapping[] = $k.'-'.$k;
+						}
+					}
+					update_option( '_crb_custom_mapping_program_fmis', implode(',', $mapping) );
+
+					$ret['data_prog'] = $cek_sipd_prog_belum_ada_di_fmis;
+					$ret['data_keg'] = $cek_sipd_keg_belum_ada_di_fmis;
+					$ret['data_sub'] = $cek_sipd_belum_ada_di_fmis;
+					$ret['message'] = 'Program yang perlu dimapping ada '.count($cek_sipd_prog_belum_ada_di_fmis).' program. Kegiatan yang perlu dimapping ada '.count($cek_sipd_keg_belum_ada_di_fmis).' kegiatan. Sub kegiatan yang perlu dimapping ada '.count($cek_sipd_belum_ada_di_fmis).' sub kegiatan. Informasi detail cek di WP-SIPD dashboard.';
+				}else{
+					$ret['status'] = 'error';
+					$ret['message'] = 'format salah!';
+				}
+			} else {
+				$ret['status'] = 'error';
+				$ret['message'] = 'APIKEY tidak sesuai!';
+			}
+		}
+		die(json_encode($ret));
+	}
+
+	function singkroniasi_total_sub_keg_fmis(){
+		global $wpdb;
+		$ret = array(
+			'action'	=> $_POST['action'],
+			'status'	=> 'success',
+			'message'	=> 'Berhasil edit pagu_fmis sub kegiatan SIPD!'
+		);
+		if (!empty($_POST)) {
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+				if(!empty($_POST['data'])){
+					$tahun_anggaran = $_POST['tahun_anggaran'];
+					$sub_keg_fmis = json_decode(stripslashes($_POST['data']));
+					$ret['message_rinci'] = array();
+					// cek jika sub kegiatan di mapping
+					$subkeg_mapping = $this->get_fmis_mapping(array(
+						'name' => '_crb_custom_mapping_subkeg_fmis'
+					));
+					$keg_mapping = $this->get_fmis_mapping(array(
+						'name' => '_crb_custom_mapping_keg_fmis'
+					));
+					$program_mapping = $this->get_fmis_mapping(array(
+						'name' => '_crb_custom_mapping_program_fmis'
+					));
+					$rek_mapping = $this->get_fmis_mapping(array(
+						'name' => '_crb_custom_mapping_rekening_fmis'
+					));
+					foreach($sub_keg_fmis as $fmis){
+						$data_fmis = (array) $fmis;
+						$new_rincian = array();
+						foreach($data_fmis['rincian'] as $rincian){
+							$new_rincian[] = (array) $rincian;
+						}
+						$data_fmis['rincian'] = $new_rincian;
+						$data_fmis['sub_kegiatan_asli'] = $data_fmis['sub_kegiatan'];
+						foreach($subkeg_mapping as $nama_sub_sipd => $nama_sub_fmis){
+							if($data_fmis['sub_kegiatan'] == $nama_sub_fmis){
+								$data_fmis['sub_kegiatan'] = $nama_sub_sipd;
+							}
+						}
+						$data_fmis['kegiatan_asli'] = $data_fmis['kegiatan'];
+						foreach($keg_mapping as $nama_giat_sipd => $nama_giat_fmis){
+							if($data_fmis['kegiatan'] == $nama_giat_fmis){
+								$data_fmis['kegiatan'] = $nama_giat_sipd;
+							}
+						}
+						$data_fmis['program_asli'] = $data_fmis['program'];
+						foreach($program_mapping as $nama_program_sipd => $nama_program_fmis){
+							if($data_fmis['program'] == $nama_program_fmis){
+								$data_fmis['program'] = $nama_program_sipd;
+							}
+						}
+						$id_mapping = $data_fmis['idsubunit'];
+						$get_id = $this->get_id_skpd_fmis($id_mapping, $tahun_anggaran, true);
+						$id_skpd_sipd = $get_id['id_skpd_sipd'];
+						if(!empty($id_skpd_sipd)){
+							$cek_aktivitas = array();
+							foreach($data_fmis['rincian'] as $key => $rinci){
+								foreach($rek_mapping as $rek_mapping_sipd => $rek_mapping_fmis){
+									$_kode_akun = explode('.', $rinci['kode_rekening']);
+									$_kode_akun = (int)$_kode_akun[0].'.'.(int)$_kode_akun[1].'.'.(int)$_kode_akun[2].'.'.(int)$_kode_akun[3].'.'.(int)$_kode_akun[4].'.'.(int)$_kode_akun[5];
+									if($_kode_akun == $rek_mapping_fmis){
+										$_kode_akun = explode('.', $rek_mapping_sipd);
+										$_kode_akun[2] = $this->simda->CekNull($_kode_akun[2]);
+										$_kode_akun[3] = $this->simda->CekNull($_kode_akun[3]);
+										$_kode_akun[4] = $this->simda->CekNull($_kode_akun[4]);
+										$_kode_akun[5] = $this->simda->CekNull($_kode_akun[5], 4);
+										$rinci['kode_rekening'] = implode('.', $_kode_akun);
+										$rinci['kdrek1'] = $rek_mapping_sipd[0];
+										$data_fmis['rincian'][$key] = $rinci;
+									}
+								}
+								if(empty($cek_aktivitas[$rinci['idaktivitas']])){
+									$wpdb->update('data_rincian_fmis', array(
+										'active' => 0
+									), array(
+										'idaktivitas' => $rinci['idaktivitas']
+									));
+									$cek_aktivitas[$rinci['idaktivitas']] = true;
+								}
+								$get_rinci = $wpdb->get_results($wpdb->prepare("
+									SELECT
+										id
+									FROM data_rincian_fmis
+									WHERE dt_rowid = %s
+										AND idaktivitas = %d
+										AND tahun_anggaran = %d
+								", $rinci['DT_RowId'], $rinci['idaktivitas'], $tahun_anggaran), ARRAY_A);
+								$opsi = array(
+									'idaktivitas' => $rinci['idaktivitas'],
+									'id_mapping' => $id_mapping,
+									'id_sub_skpd' => $id_skpd_sipd[0],
+									'nama_sub_giat' => $data_fmis['sub_kegiatan'],
+									'nama_giat' => $data_fmis['kegiatan'],
+									'nama_program' => $data_fmis['program'],
+									'aktivitas' => $rinci['aktivitas'],
+									'dt_rowid' => $rinci['DT_RowId'],
+									'dt_rowindex' => $rinci['DT_RowIndex'],
+									'created_id' => $rinci['created_id'],
+									'harga' => $rinci['harga'],
+									'idrkpdrenjabelanja' => $rinci['idrkpdrenjabelanja'],
+									'idsatuan1' => $rinci['idsatuan1'],
+									'idsatuan2' => $rinci['idsatuan2'],
+									'idsatuan3' => $rinci['idsatuan3'],
+									'idssh_4' => $rinci['idssh_4'],
+									'idsumberdana' => $rinci['idsumberdana'],
+									'jml_volume' => $rinci['jml_volume'],
+									'jml_volume_renja' => $rinci['jml_volume_renja'],
+									'jumlah' => $rinci['jumlah'],
+									'jumlah_renja' => $rinci['jumlah_renja'],
+									'kdrek1' => $rinci['kdrek1'],
+									'kdrek2' => $rinci['kdrek2'],
+									'kdrek3' => $rinci['kdrek3'],
+									'kdrek4' => $rinci['kdrek4'],
+									'kdrek5' => $rinci['kdrek5'],
+									'kdrek6' => $rinci['kdrek6'],
+									'kdurut' => $rinci['kdurut'],
+									'kode_rekening' => $rinci['kode_rekening'],
+									'nmrek6' => $rinci['nmrek6'],
+									'rekening_display' => $rinci['rekening_display'],
+									'satuan123' => $rinci['satuan123'],
+									'singkat_sat1' => $rinci['singkat_sat1'],
+									'singkat_sat2' => $rinci['singkat_sat2'],
+									'singkat_sat3' => $rinci['singkat_sat3'],
+									'status_data' => $rinci['status_data'],
+									'status_dokumen' => $rinci['status_dokumen'],
+									'status_pelaksanaan' => $rinci['status_pelaksanaan'],
+									'tahun' => $rinci['tahun'],
+									'uraian_belanja' => $rinci['uraian_belanja'],
+									'uraian_ssh' => $rinci['uraian_ssh'],
+									'uraian_sumberdana' => $rinci['uraian_sumberdana'],
+									'volume_1' => $rinci['volume_1'],
+									'volume_2' => $rinci['volume_2'],
+									'volume_3' => $rinci['volume_3'],
+									'volume_renja1' => $rinci['volume_renja1'],
+									'volume_renja2' => $rinci['volume_renja2'],
+									'volume_renja3' => $rinci['volume_renja3'],
+									'tahun_anggaran' => $tahun_anggaran,
+									'active' => 1,
+								);
+								if(!empty($rinci['created_at'])){
+									$opsi['created_at'] = $rinci['created_at'];
+								}
+								if(empty($get_rinci)){
+									$wpdb->insert('data_rincian_fmis', $opsi);
+								}else{
+									$wpdb->update('data_rincian_fmis', $opsi, array(
+										'id' => $get_rinci[0]['id']
+									));
+								}
+							}
+
+							// belanja
+							if($data_fmis['rincian'][0]['kdrek1'] == 5){
+								$sub_sipd = $wpdb->get_results($wpdb->prepare("
+									SELECT
+										s.id,
+										s.nama_sub_giat as nama_sub_giat_bl,
+										p.nama_program,
+										p.nama_giat,
+										p.nama_sub_giat
+									FROM data_sub_keg_bl s
+									LEFT JOIN data_prog_keg p ON p.kode_sub_giat=s.kode_sub_giat
+										AND p.status=''
+									WHERE s.tahun_anggaran = %d
+										AND s.active = 1
+										AND s.id_sub_skpd = %d
+								", $_POST['tahun_anggaran'], $id_skpd_sipd[0]), ARRAY_A);
+								$ret['sql'] = $wpdb->last_query;
+								$sub = array();
+								foreach($sub_sipd as $v){
+									// pengecekan karena sub kegiatan belum dimutakhirkan sedangkan master program kegiatan sudah dimutakhirkan
+									if(empty($v['nama_sub_giat'])){
+										$nm_sub = explode(' ', $v['nama_sub_giat_bl']);
+										$kode_sub = $nm_sub[0];
+										$bl = $wpdb->get_results("
+											SELECT
+												nama_program,
+												nama_giat,
+												nama_sub_giat
+											FROM data_prog_keg
+											where kode_sub_giat='$kode_sub'
+											order by id_sub_giat desc
+										", ARRAY_A);
+										if(!empty($bl)){
+											$new_sub = array();
+											foreach($bl as $vv){
+												$nm_sub_x = explode(' ', $vv['nama_sub_giat']);
+												unset($nm_sub_x[0]);
+												if(
+													$this->replace_text(implode(' ', $nm_sub_x)) == $this->replace_text($data_fmis['sub_kegiatan'])
+													|| $this->replace_text(implode(' ', $nm_sub_x)) == $this->replace_text($data_fmis['sub_kegiatan_asli'])
+												){
+													$new_sub = $vv;
+												}
+											}
+											if(!empty($new_sub)){
+												$v['nama_sub_giat'] = $new_sub['nama_sub_giat'];
+												$v['nama_giat'] = $new_sub['nama_giat'];
+												$v['nama_program'] = $new_sub['nama_program'];
+											}
+										}
+									}
+									$nm_sub = explode(' ', $v['nama_sub_giat']);
+									unset($nm_sub[0]);
+									$nm_giat = explode(' ', $v['nama_giat']);
+									unset($nm_giat[0]);
+									$nm_prog = explode(' ', $v['nama_program']);
+									unset($nm_prog[0]);
+									if(
+										(
+											$this->replace_text(implode(' ', $nm_sub)) == $this->replace_text($data_fmis['sub_kegiatan'])
+											|| $this->replace_text(implode(' ', $nm_sub)) == $this->replace_text($data_fmis['sub_kegiatan_asli'])
+										)
+										&& (
+											$this->replace_text(implode(' ', $nm_giat)) == $this->replace_text($data_fmis['kegiatan'])
+											|| $this->replace_text(implode(' ', $nm_giat)) == $this->replace_text($data_fmis['kegiatan_asli'])
+										)
+										&& (
+											$this->replace_text(implode(' ', $nm_prog)) == $this->replace_text($data_fmis['program'])
+											|| $this->replace_text(implode(' ', $nm_prog)) == $this->replace_text($data_fmis['program_asli'])
+										)
+									){
+										$sub = $v;
+									}
+								}
+								if(!empty($sub)){
+									$wpdb->update('data_sub_keg_bl', array(
+										'pagu_fmis' => $data_fmis['total']
+									), array(
+										'id' => $sub['id']
+									));
+								}else{
+									$ret['status'] = 'error';
+									$ret['message'] = 'Sub Kegiatan SIPD dari id_sub_skpd='.$id_skpd_sipd[0].' dan sub kegiatan="'.$data_fmis['sub_kegiatan'].'" tidak ditemukan';
+								}
+							// pendapatan
+							}else if($data_fmis['rincian'][0]['kdrek1'] == 4){
+								foreach($data_fmis['rincian'] as $rinci){
+									$uraian_belanja = $this->get_uraian_belanja_fmis($rinci['uraian_belanja']);
+									$uraian = $uraian_belanja['uraian'];
+									$keterangan = $uraian_belanja['keterangan'];
+									$sub_sipd = $wpdb->get_results($wpdb->prepare("
+										SELECT
+											id
+										FROM data_pendapatan
+										WHERE tahun_anggaran = %d
+											AND active = 1
+											AND id_skpd = %d
+											AND kode_akun = %s
+											AND uraian like %s
+											AND keterangan like %s
+									", $tahun_anggaran, $id_skpd_sipd[0], $rinci['kode_rekening'], $uraian.'%', $keterangan.'%'), ARRAY_A);
+									if(!empty($sub_sipd)){
+										$wpdb->update('data_pendapatan', array(
+											'pagu_fmis' => $rinci['jumlah']
+										), array(
+											'id' => $sub_sipd[0]['id']
+										));
+									}else{
+										$ret['message_rinci'][] = 'Rekening Pendapatan SIPD dari kode_akun='.$rinci['kode_rekening'].', id_skpd='.$id_skpd_sipd[0].' dan aktivitas="'.$rinci['aktivitas'].'" tidak ditemukan';
+									}
+								}
+							// pembiayaan
+							}else if($data_fmis['rincian'][0]['kdrek1'] == 6){
+								foreach($data_fmis['rincian'] as $rinci){
+									$uraian_belanja = $this->get_uraian_belanja_fmis($rinci['uraian_belanja']);
+									$uraian = $uraian_belanja['uraian'];
+									$keterangan = $uraian_belanja['keterangan'];
+									$sub_sipd = $wpdb->get_results($wpdb->prepare("
+										SELECT
+											id
+										FROM data_pembiayaan
+										WHERE tahun_anggaran = %d
+											AND active = 1
+											AND id_skpd = %d
+											AND kode_akun = %s
+											AND uraian like %s
+											AND keterangan like %s
+									", $tahun_anggaran, $id_skpd_sipd[0], $rinci['kode_rekening'], $uraian.'%', $keterangan.'%'), ARRAY_A);
+									if(!empty($sub_sipd)){
+										$wpdb->update('data_pembiayaan', array(
+											'pagu_fmis' => $rinci['jumlah']
+										), array(
+											'id' => $sub_sipd[0]['id']
+										));
+									}else{
+										$ret['message_rinci'][] = 'Rekening Pembiayaan SIPD dari kode_akun='.$rinci['kode_rekening'].', id_skpd='.$id_skpd_sipd[0].' dan aktivitas="'.$rinci['aktivitas'].'" tidak ditemukan';
+									}
+								}
+							}else{
+								$ret['status'] = 'error';
+								$ret['message'] = 'Jenis rincian tidak ditemukan! Bukan belanja, pendapatan dan pembiayaan.';
+							}
+						}else{
+							$ret['status'] = 'error';
+							$ret['message'] = 'Sub Unit SIPD dari id mapping '.$id_mapping.' tidak ditemukan';
+						}
+					}
+				}else{
+					$ret['status'] = 'error';
+					$ret['message'] = 'format salah!';
+				}
+			} else {
+				$ret['status'] = 'error';
+				$ret['message'] = 'APIKEY tidak sesuai!';
+			}
+		}
+		die(json_encode($ret));
+	}
+
+	function replace_text($text){
+		$text = trim(strtolower($text));
+		// echo $text.' | ';
+		return $text;
+	}
+
+	function get_uraian_belanja_fmis($uraian){
+		$ret = array(
+			'uraian' => '',
+			'keterangan' => ''
+		);
+		$uraian_belanja = explode('Rupiah ', $uraian);
+		if(count($uraian_belanja) >= 2){
+			$uraian_belanja = explode(' | ', $uraian_belanja[1]);
+			$ret['uraian'] = explode("\n", $uraian_belanja[0]);
+			$ret['uraian'] = $ret['uraian'][0];
+			if(count($uraian_belanja) >= 2){
+				$ret['keterangan'] = explode("\n", $uraian_belanja[1]);
+				$ret['keterangan'] = $ret['keterangan'][0];
+			}
+		}
+		return $ret;
+	}
+
+	public function data_ssh_usulan($atts)
+	{
+		// untuk disable render shortcode di halaman edit page/post
+		if(!empty($_GET) && !empty($_GET['post'])){
+			return '';
+		}
+		$user_id = um_user( 'ID' );
+		$user_meta = get_userdata($user_id);
+		if(empty($user_meta->roles)){
+			echo 'User ini tidak dapat akses sama sekali :)';
+		}else if(in_array("administrator", $user_meta->roles) || in_array("PLT", $user_meta->roles) || in_array("PA", $user_meta->roles) || in_array("KPA", $user_meta->roles)){
+			require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/wpsipd-public-ssh-usulan.php';
+		}
+	}
+
+	public function get_data_usulan_ssh(){
+		global $wpdb;
+		$user_id = um_user( 'ID' );
+		$user_meta = get_userdata($user_id);
+
+		$return = array(
+			'status' => 'success',
+			'data'	=> array()
+		);
+
+		if(!empty($_POST)){
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+				$params = $columns = $totalRecords = array();
+				$params = $_REQUEST;
+				$columns = array( 
+					0 =>'id_standar_harga',
+					1 =>'kode_standar_harga', 
+					2 => 'nama_standar_harga',
+					3 => 'spek',
+					4 => 'satuan',
+					5 => 'harga',
+					6 => 'status',
+					7 => 'keterangan_status',
+					8 => 'status_upload_sipd',
+					9 => 'created_user',
+					10=> 'kode_standar_harga_sipd',
+					11=> 'created_at',
+					12=> 'keterangan_lampiran',
+					13=> 'status_jenis_usulan',
+					14=> 'jenis_produk',
+					15=> 'tkdn'
+				);
+				$where = $sqlTot = $sqlRec = "";
+
+				// check search value exist
+				if( !empty($params['search']['value']) ) {
+					$where .=" AND ( kode_standar_harga LIKE ".$wpdb->prepare('%s', "%".$params['search']['value']."%");    
+					$where .=" OR nama_standar_harga LIKE ".$wpdb->prepare('%s', "%".$params['search']['value']."%");
+					$where .=" OR spek LIKE ".$wpdb->prepare('%s', "%".$params['search']['value']."%");
+					$where .=" OR id_standar_harga LIKE ".$wpdb->prepare('%s', "%".$params['search']['value']."%");
+					$where .=" OR harga LIKE ".$wpdb->prepare('%s', "%".$params['search']['value']."%")." )";
+				}
+
+				/** check filter */
+				if(!empty($_POST['filter'])){
+					if($_POST['filter'] == 'diterima'){
+						$where .=" AND status = 'approved' ";
+					}else if($_POST['filter'] == 'ditolak'){
+						$where .=" AND status = 'rejected' ";
+					}else if($_POST['filter'] == 'menunggu'){
+						$where .=" AND status = 'waiting' ";
+					}else if($_POST['filter'] == 'sudah_upload_sipd'){
+						$where .=" AND status_upload_sipd = '1' ";
+					}else if($_POST['filter'] == 'belum_upload_sipd'){
+						$where .=" AND status_upload_sipd != '1' OR status_upload_sipd IS NULL ";
+					}
+				}
+
+				/** Jika admin tampilkan semua data */
+				if(!in_array("administrator",$user_meta->roles)){
+					$this_user_meta = get_user_meta($user_id);
+					/** cari data user berdasarkan nama skpd */
+					if($this_user_meta['_crb_nama_skpd'][0] != ''){
+						$user_meta = get_users(array(
+							'meta_key' => '_crb_nama_skpd',
+							'meta_value' => $this_user_meta['_crb_nama_skpd'][0]
+						));
+						
+						$id_user_skpd = array();
+						foreach ($user_meta as $metaVal) {
+							array_push($id_user_skpd,$metaVal->data->ID);
+						}
+						$get_by_skpd = $id_user_skpd;
+					}else{
+						$get_by_skpd = array($user_id);
+					}
+					
+					/** menambahkan filter data usulan ssh berdasarkan skpd terkait */
+					if(count($get_by_skpd) >= 1){
+						foreach($get_by_skpd as $skpd_key => $skpd_val){
+							if($skpd_key == 0){
+								$where .=" AND created_user = ".$skpd_val." ";
+							}else if($skpd_key > 1){
+								$where .=" OR created_user = ".$skpd_val." ";
+							}
+						}
+					}
+				}
+
+				// getting total number records without any search
+				$sql_tot = "SELECT count(*) as jml FROM `data_ssh_usulan`";
+				$sql = "SELECT ".implode(', ', $columns)." FROM `data_ssh_usulan`";
+				$where_first = " WHERE id_standar_harga IS NOT NULL AND tahun_anggaran=".$wpdb->prepare('%d', $params['tahun_anggaran']);
+				$sqlTot .= $sql_tot.$where_first;
+				$sqlRec .= $sql.$where_first;
+				if(isset($where) && $where != '') {
+					$sqlTot .= $where;
+					$sqlRec .= $where;
+				}
+
+			 	$sqlRec .=  " ORDER BY ". $columns[$params['order'][0]['column']]."   ".$params['order'][0]['dir']."  LIMIT ".$params['start']." ,".$params['length']." ";
+
+				$queryTot = $wpdb->get_results($sqlTot, ARRAY_A);
+				$totalRecords = $queryTot[0]['jml'];
+				$queryRecords = $wpdb->get_results($sqlRec, ARRAY_A);
+
+				foreach($queryRecords as $recKey => $recVal){
+					$iconPlus 	= '<i class="dashicons dashicons-plus"></i>';
+					$akun 		= '<li><a class="btn btn-primary" href="#" onclick="return edit_akun_ssh_usulan(\''.$recVal['id_standar_harga'].'\');" title="Rekening penyusun usulan SSH">'.$iconPlus.'</a></li>';
+
+					$iconX		= '<i class="dashicons dashicons-trash"></i>';
+
+					$iconEdit 	= '<i class="dashicons dashicons-edit"></i>';
+					if($recVal['status'] == 'waiting' && $recVal['status_upload_sipd'] != 1 || in_array("administrator", $user_meta->roles) && $recVal['status_upload_sipd'] != 1){
+						$editUsulanSSH = '<li><a class="btn btn-warning" href="#" onclick="return edit_ssh_usulan(\''.$recVal['status_jenis_usulan'].'\',\''.$recVal['id_standar_harga'].'\');" title="Edit komponen usulan SSH">'.$iconEdit.'</a></li>';
+						$deleteUsulanSSH = '<li><a class="btn btn-danger" href="#" onclick="return delete_ssh_usulan(\''.$recVal['id_standar_harga'].'\');" title="Delete komponen usulan SSH">'.$iconX.'</a></li>';
+					}else{
+						$jenis = ($recVal['status_upload_sipd'] == 1) ? 'upload' : 'usulan';
+						$editUsulanSSH = '<li><a class="btn btn-warning" href="#" onclick="return cannot_change_ssh_usulan(\'ubah\',\''.$jenis.'\');" title="Edit komponen usulan SSH">'.$iconEdit.'</a></li>';
+						$deleteUsulanSSH = '<li><a class="btn btn-danger" href="#" onclick="return cannot_change_ssh_usulan(\'hapus\',\''.$jenis.'\');" title="Delete komponen usulan SSH">'.$iconX.'</a></li>';
+					}
+
+					$created_user = "";
+					if(!empty($recVal['created_user'])){
+						$created_user_data = get_userdata($recVal['created_user']);
+						$created_user_meta = get_user_meta($recVal['created_user']);
+						$pengusul = ($created_user_meta['_crb_nama_skpd'][0] == '') ? $created_user_data->display_name : $created_user_meta['_crb_nama_skpd'][0];
+
+						$created_user = '<tr><td>Pengusul: '.$pengusul.'</td></tr>';
+					}
+					$keterangan_status = "";
+					if(!empty($recVal['keterangan_status'])){
+						if(strlen($recVal['keterangan_status']) > 25){
+							$keterangan_status = '<tr><td class="in-kol-keterangan">Komentar: '.substr($recVal['keterangan_status'],0,20).'<span class="dots">...</span>';
+							$keterangan_status .= '<span class="hide more">'.substr($recVal['keterangan_status'],20).'</span>&nbsp;<span class="more-bold medium-bold" onclick="readMore(this)">more</span></td></tr>';
+						}else{
+							$keterangan_status = '<tr><td>Komentar: '.$recVal['keterangan_status'].'</td></tr>';
+						}
+					}
+
+					$created_at = "";
+					if(!empty($recVal['created_at'])){
+						$created_at = '<tr><td>Tanggal: '.date( 'd-m-Y', strtotime($recVal['created_at'])).'</td></tr>';
+					}
+
+					$keterangan_lampiran = "";
+					if(!empty($recVal['keterangan_lampiran'])){
+						if(strlen($recVal['keterangan_lampiran']) > 25){
+							$keterangan_lampiran = '<tr><td class="in-kol-keterangan">Lampiran: '.substr($recVal['keterangan_lampiran'],0,20).'<span class="dots">...</span>';
+							$keterangan_lampiran .= '<span class="hide more">'.substr($recVal['keterangan_lampiran'],20).'</span>&nbsp;<span class="more-bold medium-bold" onclick="readMore(this)">more</span></td></tr>';
+						}else{
+							$keterangan_lampiran = '<tr><td>Lampiran: '.$recVal['keterangan_lampiran'].'</td></tr>';
+						}
+					}
+
+					if($recVal['status_upload_sipd'] == 0 || $recVal['status_upload_sipd'] == NULL){
+						$queryRecords[$recKey]['status_upload_sipd'] = 'Belum';
+					}else if($recVal['status_upload_sipd'] == 1){
+						$queryRecords[$recKey]['status_upload_sipd'] = 'Sudah';
+					}
+
+					$status_verif = '';
+					if($recVal['status'] == 'approved'){
+						$status_verif = 'Disetujui';
+					}else if($recVal['status'] == 'rejected'){
+						$status_verif = 'Ditolak';
+					}else if($recVal['status'] == 'waiting'){
+						$status_verif = 'Menunggu';
+					}
+
+					if(in_array("administrator", $user_meta->roles)){
+						$iconFilter = '<i class="dashicons dashicons-yes"></i>';
+						$verify = '<li><a class="btn btn-success" href="#" onclick="return verify_ssh_usulan(\''.$recVal['id_standar_harga'].'\');" title="Verifikasi Item Usulan SSH">'.$iconFilter.'</a></li>';
+					}else{
+						$verify = '';
+					}
+					$deleteCheck = '<input type="checkbox" class="delete_check" id="delcheck_'.$recVal['id_standar_harga'].'" onclick="checkcheckbox();" value="'.$recVal['id_standar_harga'].'">';
+
+					$kode_komponen = '<table style="margin: 0;"><tr><td>Usulan: '.$recVal['kode_standar_harga'].'</td></tr>';
+					if(!empty($recVal['kode_standar_harga_sipd'])){
+						$kode_komponen .= '<tr><td>Data SIPD: '.$recVal['kode_standar_harga_sipd'].'</td></tr>';
+					}
+					$kode_komponen .= '</table>';
+
+					$arr_jenis_produk = ['dalam_negeri' => 'Dalam Negeri', 'luar_negeri' => 'Luar Negeri'];
+					$jenis_produk = ($recVal['jenis_produk'] == 'dalam_negeri' || $recVal['jenis_produk'] == 'luar_negeri') ? $arr_jenis_produk[$recVal['jenis_produk']] : '-';
+					$spek_satuan = '<table style="margin: 0;"><tr><td>Spesifikasi: '.ucwords($recVal['spek']).'</tr></td>';
+					$spek_satuan .= '<tr><td>Satuan: '.ucwords($recVal['satuan']).'</td></tr><tr><td>Jenis Produk: '.ucwords($jenis_produk).'</td></tr><tr><td>TKDN: '.$recVal['tkdn'].' %</td></tr></table>';
+
+					$show_status = '<table style="margin: 0;">';
+					$show_status .= '<tr><td>Usulan: <span class="medium-bold-2">'.$status_verif.'</span></td></tr>';
+					$show_status .= '<tr><td>Upload SIPD: <span class="medium-bold-2">'.ucwords($queryRecords[$recKey]['status_upload_sipd']).'</span></td></tr>';
+					$show_status .= '<tr><td>Jenis: <span class="medium-bold-2">'.ucwords(str_replace("_"," ",$recVal['status_jenis_usulan'])).'</span></td></tr></table>';
+
+					if($recVal['status_upload_sipd'] == 1){
+						$tombol_aksi = '<li><a class="btn btn-success" href="#" onclick="alert(\'Usulan SSH sudah diupload ke SIPD\')" title="Usulan SSH sudah diupload ke SIPD"><span class="dashicons dashicons-lock"></span></a></li>';
+					}else{
+						$tombol_aksi = $verify.$editUsulanSSH.$deleteUsulanSSH;
+					}
+
+					$queryRecords[$recKey]['aksi'] = '<ul class="td-aksi">'.$tombol_aksi.'</ul>';	
+					$queryRecords[$recKey]['deleteCheckbox'] = $deleteCheck;
+					$queryRecords[$recKey]['show_kode_komponen'] = $kode_komponen;
+					$queryRecords[$recKey]['spek_satuan'] = $spek_satuan;
+					$queryRecords[$recKey]['show_status'] = $show_status;
+					$queryRecords[$recKey]['show_keterangan'] = '<table style="margin: 0;">'.$created_user.$keterangan_status.$created_at.$keterangan_lampiran.'</table>';
+					$queryRecords[$recKey]['show_keterangan'] = $queryRecords[$recKey]['show_keterangan'] == '' ? '-' : $queryRecords[$recKey]['show_keterangan'];
+				}
+
+				$json_data = array(
+					"draw"            => intval( $params['draw'] ),   
+					"recordsTotal"    => intval( $totalRecords ),  
+					"recordsFiltered" => intval($totalRecords),
+					"data"            => $queryRecords
+				);
+
+				die(json_encode($json_data));
+			}else{
+				$return = array(
+					'status' => 'error',
+					'message'	=> 'Api Key tidak sesuai!'
+				);
+			}
+		}else{
+			$return = array(
+				'status' => 'error',
+				'message'	=> 'Format tidak sesuai!'
+			);
+		}
+		die(json_encode($return));
+	}
+
+	public function get_data_kategori_ssh($cek_return=false){
+		global $wpdb;
+		$return = array(
+			'status' => 'success',
+			'results'	=> array(),
+			'pagination'=> array(
+			    "more" => false
+			)
+		);
+
+		$table_content = '<option value="">Pilih Kategori</option>';
+		if(!empty($_POST)){
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+					$tahun_anggaran = $_POST['tahun_anggaran'];
+					$where = '';
+					if(!empty($_POST['search'])){
+						$_POST['search'] = '%'.$_POST['search'].'%';
+						$where = $wpdb->prepare('
+							AND (
+								tipe_kelompok LIKE %s
+								OR kode_kategori LIKE %s
+								OR uraian_kategori LIKE %s
+							)
+						', $_POST['search'], $_POST['search'], $_POST['search']);
+					}
+
+					$data_kategori = $wpdb->get_results($wpdb->prepare("
+						SELECT 
+							* 
+						FROM data_kelompok_satuan_harga 
+						WHERE tahun_anggaran = %d
+							$where
+						LIMIT %d, 20",
+						$tahun_anggaran,
+						$_POST['page']
+					), ARRAY_A);
+					$return['sql'] = $wpdb->last_query;
+
+					foreach ($data_kategori as $key => $value) {
+			    		$return['results'][] = array(
+			    			'id' => $value['id_kategori'],
+			    			'text' => $value['tipe_kelompok'].' '.$value['kode_kategori'].' '.$value['uraian_kategori']
+			    		);
+			    	}
+
+					if(count($return['results']) > 0){
+						$return['pagination']['more'] = true;
+					}
+			}else{
+				$return['status'] = 'error';
+				$return['message'] ='Api Key tidak sesuai!';
+			}
+		}else{
+			$return['status'] = 'error';
+			$return['message'] ='Format tidak sesuai!';
+		}
+		if($cek_return){
+			return $return;
+		}else{
+			die(json_encode($return));
+		}
+	}
+
+	public function get_data_satuan_ssh(){
+		global $wpdb;
+		$return = array(
+			'status' => 'success',
+			'data'	=> array()
+		);
+
+		$table_content = '<option value="">Pilih Satuan</option>';
+		if(!empty($_POST)){
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+					$tahun_anggaran = $_POST['tahun_anggaran'];
+					$data_satuan = $wpdb->get_results($wpdb->prepare('SELECT id_satuan,nama_satuan FROM data_satuan WHERE tahun_anggaran = %s',$tahun_anggaran), ARRAY_A);
+			    	$no = 0;
+			    	foreach ($data_satuan as $key => $value) {
+			    		$no++;
+			    		$table_content .= '<option value="'.$value['nama_satuan'].'">'.$value['nama_satuan'].'</option>';
+			    	}
+
+					$return = array(
+						'status' => 'success',
+						'table_content' => $table_content
+					);
+			}else{
+				$return = array(
+					'status' => 'error',
+					'message'	=> 'Api Key tidak sesuai!'
+				);
+			}
+		}else{
+			$return = array(
+				'status' => 'error',
+				'message'	=> 'Format tidak sesuai!'
+			);
+		}
+		die(json_encode($return));
+	}
+
+	public function get_data_akun_ssh($cek_return=false){
+		global $wpdb;
+		$return = array(
+			'status' => 'success',
+			'results'	=> array(),
+			'pagination'=> array(
+			    "more" => false
+			)
+		);
+
+		$table_content = '';
+		if(!empty($_POST)){
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+					$tahun_anggaran = $_POST['tahun_anggaran'];
+
+					$filter = array();
+					if(!empty($_POST['id_standar_harga'])){
+						$id_standar_harga = $_POST['id_standar_harga'];
+						$data_id_ssh_usulan = $wpdb->get_results($wpdb->prepare('SELECT kode_standar_harga_sipd FROM data_ssh_usulan WHERE id_standar_harga = %d',$id_standar_harga), ARRAY_A);
+						$data_akun_ssh_usulan = $wpdb->get_results($wpdb->prepare('SELECT id,id_akun,nama_akun FROM data_ssh_rek_belanja_usulan WHERE id_standar_harga = %d',$id_standar_harga), ARRAY_A);
+						if(!empty($data_id_ssh_usulan[0]['kode_standar_harga_sipd'])){
+							$data_id_ssh_existing = $wpdb->get_results($wpdb->prepare('SELECT id_standar_harga FROM data_ssh WHERE kode_standar_harga = %s', $data_id_ssh_usulan[0]['kode_standar_harga_sipd']), ARRAY_A);
+							$data_akun_ssh_existing_sipd = $wpdb->get_results($wpdb->prepare('SELECT id,id_akun,nama_akun FROM data_ssh_rek_belanja WHERE id_standar_harga = %d',$data_id_ssh_existing[0]['id_standar_harga']), ARRAY_A);
+						}
+						$filter_all = array_merge($data_akun_ssh_usulan, $data_akun_ssh_existing_sipd);
+						foreach($filter_all as $akun){
+							$filter[] = $akun['id_akun'];
+						}
+					}
+
+					$where = '';
+					if(!empty($filter)){
+						$where .= ' AND id_akun NOT IN ('.implode(',', $filter).')';
+					}
+					if(!empty($_POST['search'])){
+						$_POST['search'] = '%'.$_POST['search'].'%';
+						$where .= $wpdb->prepare('
+							AND (
+								kode_akun LIKE %s
+								OR nama_akun LIKE %s
+							)
+						', $_POST['search'], $_POST['search']);
+					}
+
+					$data_akun = $wpdb->get_results($wpdb->prepare("
+						SELECT 
+							id_akun,
+							kode_akun,
+							nama_akun 
+						FROM data_akun 
+						WHERE set_input = %d
+							AND tahun_anggaran = %d
+							AND kode_akun LIKE '5.%'
+							$where
+						LIMIT %d, 20",
+						1,
+						$tahun_anggaran,
+						$_POST['page']
+					), ARRAY_A);
+					$return['sql'] = $wpdb->last_query;
+
+					foreach ($data_akun as $key => $value) {
+			    		$return['results'][] = array(
+			    			'id' => $value['id_akun'],
+			    			'text' => $value['kode_akun'].' '.$value['nama_akun']
+			    		);
+			    	}
+
+					if(count($return['results']) > 0){
+						$return['pagination']['more'] = true;
+					}
+			}else{
+				$return['status'] = 'error';
+				$return['message'] ='Api Key tidak sesuai!';
+			}
+		}else{
+			$return['status'] = 'error';
+			$return['message'] ='Format tidak sesuai!';
+		}
+		if($cek_return){
+			return $return;
+		}else{
+			die(json_encode($return));
+		}
+	}
+
+	/** Submit data usulan SSH */
+	public function submit_usulan_ssh(){
+		global $wpdb;
+		$user_id = um_user( 'ID' );
+		$return = array(
+			'status' => 'success',
+			'data'	=> array()
+		);
+
+		$table_content = '';
+		if(!empty($_POST)){
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+				if(!empty($_POST['kategori']) && !empty($_POST['nama_komponen']) && !empty($_POST['spesifikasi']) && !empty($_POST['satuan']) && !empty($_POST['harga_satuan']) && !empty($_POST['jenis_produk']) && !empty($_POST['tkdn']) && !empty($_POST['akun']) && !empty($_POST['keterangan_lampiran'])){
+					$kategori =trim(htmlspecialchars($_POST['kategori']));
+					$nama_standar_harga = trim(htmlspecialchars($_POST['nama_komponen']));
+					$spek = trim(htmlspecialchars($_POST['spesifikasi']));
+					$satuan = trim(htmlspecialchars($_POST['satuan']));
+					$harga = trim(htmlspecialchars($_POST['harga_satuan']));
+					$akun = $_POST['akun'];
+					$tahun_anggaran = trim(htmlspecialchars($_POST['tahun_anggaran']));
+					$keterangan_lampiran = trim(htmlspecialchars($_POST['keterangan_lampiran']));
+					$jenis_produk = trim(htmlspecialchars($_POST['jenis_produk']));
+					$jenis_produk = ($jenis_produk == 'dalam_negeri' || $jenis_produk == 'luar_negeri') ? $jenis_produk : NULL;
+					$tkdn = trim(htmlspecialchars($_POST['tkdn']));
+					
+					$data_kategori = $wpdb->get_results($wpdb->prepare("SELECT * FROM data_kelompok_satuan_harga WHERE id_kategori = %d",$kategori), ARRAY_A);
+
+					$data_akun = array();
+					foreach($akun as $v_akun){
+						$data_akun[$v_akun] = $wpdb->get_results($wpdb->prepare("SELECT id_akun,kode_akun,nama_akun FROM data_akun WHERE id_akun = %d",$v_akun), ARRAY_A);
+					}
+
+					$date_now = date("Y-m-d H:i:s");
+
+					//avoid double data ssh
+					$data_avoid = $wpdb->get_results($wpdb->prepare("
+						SELECT 
+							id 
+						FROM data_ssh
+						WHERE 
+							nama_standar_harga = %s AND
+							satuan = %s AND
+							spek = %s AND
+							harga = %s AND
+							kode_kel_standar_harga = %s",
+						$nama_standar_harga,
+						$satuan,
+						$spek,
+						$harga,
+						$data_kategori[0]['kode_kategori']
+					), ARRAY_A);
+
+					//avoid double data ssh usulan
+					$data_avoid_usulan = $wpdb->get_results($wpdb->prepare("
+						SELECT 
+							id 
+						FROM data_ssh_usulan 
+						WHERE 
+							nama_standar_harga = %s AND
+							satuan = %s AND
+							spek = %s AND
+							harga = %s AND
+							kode_kel_standar_harga = %s",
+						$nama_standar_harga,
+						$satuan,
+						$spek,
+						$harga,
+						$data_kategori[0]['kode_kategori']
+					), ARRAY_A);
+
+					if(!empty($data_avoid) || !empty($data_avoid_usulan)){
+						$data_avoid = !empty($data_avoid) ? $data_avoid : $data_avoid_usulan;
+						$return = array(
+							'status' => 'error',
+							'message'	=> 'Standar Harga Sudah Ada!',
+							'opsi_ssh' => $data_avoid,
+						);
+
+						die(json_encode($return));
+					}
+
+					$last_kode_standar_harga = $wpdb->get_results($wpdb->prepare("SELECT id_standar_harga,kode_standar_harga FROM `data_ssh_usulan` WHERE kode_standar_harga=(SELECT MAX(kode_standar_harga) FROM `data_ssh_usulan` WHERE kode_kel_standar_harga = %s)",$data_kategori[0]['kode_kategori']), ARRAY_A);
+					$last_kode_standar_harga = (empty($last_kode_standar_harga[0]['kode_standar_harga'])) ? "0" : explode(".",$last_kode_standar_harga[0]['kode_standar_harga']);
+					$last_kode_standar_harga = (int) end($last_kode_standar_harga);
+					$last_kode_standar_harga = $last_kode_standar_harga+1;
+					$last_kode_standar_harga = sprintf("%05d",$last_kode_standar_harga);
+					$last_kode_standar_harga = $data_kategori[0]['kode_kategori'].'.'.$last_kode_standar_harga;
+
+					$id_standar_harga = $wpdb->get_results("SELECT id_standar_harga FROM `data_ssh_usulan` WHERE id_standar_harga=(SELECT MAX(id_standar_harga) FROM `data_ssh_usulan`) AND tahun_anggaran=2022", ARRAY_A);
+					$id_standar_harga = !empty($id_standar_harga) ? $id_standar_harga[0]['id_standar_harga'] + 1 : 1;
+
+					//insert data usulan ssh
+					$opsi_ssh = array(
+						'id_standar_harga' => $id_standar_harga,
+						'kode_standar_harga' => $last_kode_standar_harga,
+						'nama_standar_harga' => $nama_standar_harga,
+						'satuan' => $satuan,
+						'spek' => $spek,
+						'created_at' => $date_now,
+						'created_user' => $user_id,
+						'kelompok' => 1,
+						'harga' => $harga,
+						'kode_kel_standar_harga' => $data_kategori[0]['kode_kategori'],
+						'nama_kel_standar_harga' => $data_kategori[0]['uraian_kategori'],
+						'tahun_anggaran' => $tahun_anggaran,
+						'status' => 'waiting',
+						'keterangan_lampiran' => $keterangan_lampiran,
+						'status_jenis_usulan' => 'tambah_baru',
+						'jenis_produk' => $jenis_produk,
+						'tkdn' => $tkdn
+					);
+
+					$wpdb->insert('data_ssh_usulan',$opsi_ssh);
+
+					foreach($akun as $v_akun){
+						$opsi_akun[$v_akun] = array(
+							'id_akun' => $data_akun[$v_akun][0]['id_akun'],
+							'kode_akun' => $data_akun[$v_akun][0]['kode_akun'],
+							'nama_akun' => $data_akun[$v_akun][0]['kode_akun'].' '.$data_akun[$v_akun][0]['nama_akun'],
+							'id_standar_harga' => $id_standar_harga,
+							'tahun_anggaran' => $tahun_anggaran,
+						);
+		
+						$wpdb->insert('data_ssh_rek_belanja_usulan',$opsi_akun[$v_akun]);
+					}
+
+					$return = array(
+						'status' => 'success',
+						'message'	=> 'Berhasil!',
+						'opsi_ssh' => $opsi_ssh,
+					);
+				}else{
+					$return = array(
+						'status' => 'error',
+						'message'	=> 'Harap diisi semua,tidak boleh ada yang kosong!'
+					);
+				}
+			}else{
+				$return = array(
+					'status' => 'error',
+					'message'	=> 'Api Key tidak sesuai!'
+				);
+			}
+		}else{
+			$return = array(
+				'status' => 'error',
+				'message'	=> 'Format tidak sesuai!'
+			);
+		}
+		die(json_encode($return));
+	}
+
+	public function get_data_nama_ssh(){
+		global $wpdb;
+		$return = array(
+			'status' => 'success',
+			'data'	=> array()
+		);
+
+		$table_content = '';
+		if(!empty($_POST)){
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+					$tahun_anggaran = $_POST['tahun_anggaran'];
+					
+					$data_nama_ssh = $wpdb->get_results($wpdb->prepare('SELECT id_standar_harga, kode_standar_harga, nama_standar_harga FROM data_ssh_usulan WHERE tahun_anggaran = %d',$tahun_anggaran), ARRAY_A);
+
+				    ksort($data_nama_ssh);
+			    	$no = 0;
+			    	foreach ($data_nama_ssh as $key => $value) {
+			    		$no++;
+			    		$table_content .= '
+							<option value="'.$value['id_standar_harga'].'">'.$value['nama_standar_harga'].'</option>
+			    		';
+			    	}
+
+					$return = array(
+						'status' => 'success',
+						'table_content' => $table_content
+					);
+			}else{
+				$return = array(
+					'status' => 'error',
+					'message'	=> 'Api Key tidak sesuai!'
+				);
+			}
+		}else{
+			$return = array(
+				'status' => 'error',
+				'message'	=> 'Format tidak sesuai!'
+			);
+		}
+		die(json_encode($return));
+	}
+
+	public function get_data_usulan_ssh_by_komponen(){
+		global $wpdb;
+		$return = array(
+			'status' => 'success',
+			'data'	=> array()
+		);
+
+		$table_content = '';
+		if(!empty($_POST)){
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+					$id_standar_harga = $_POST['id_standar_harga'];
+					
+					$data_ssh_by_id = $wpdb->get_results($wpdb->prepare('SELECT * FROM data_ssh WHERE id_standar_harga = %d',$id_standar_harga), ARRAY_A);
+
+					$data_ssh_akun_by_id = $wpdb->get_results($wpdb->prepare('SELECT * FROM data_ssh_rek_belanja WHERE id_standar_harga = %d',$id_standar_harga), ARRAY_A);
+					
+					if(empty($data_ssh_by_id)){
+						$data_ssh_by_id = $wpdb->get_results($wpdb->prepare('SELECT * FROM data_ssh_usulan WHERE id_standar_harga = %d',$id_standar_harga), ARRAY_A);
+						$data_ssh_akun_by_id = $wpdb->get_results($wpdb->prepare('SELECT * FROM data_ssh_rek_belanja_usulan WHERE id_standar_harga = %d',$id_standar_harga), ARRAY_A);
+					}
+
+				    ksort($data_ssh_by_id);
+			    	$no = 0;
+
+					$table_content = '';
+					foreach($data_ssh_akun_by_id as $data_akun){
+						$table_content .= $data_akun['nama_akun']."&#13;&#10;";
+					}
+
+					$return = array(
+						'status' => 'success',
+						'data_ssh_usulan_by_id' => $data_ssh_by_id[0],
+						'table_content' => $table_content,
+					);
+			}else{
+				$return = array(
+					'status' => 'error',
+					'message'	=> 'Api Key tidak sesuai!'
+				);
+			}
+		}else{
+			$return = array(
+				'status' => 'error',
+				'message'	=> 'Format tidak sesuai!'
+			);
+		}
+		die(json_encode($return));
+	}
+
+	public function data_ssh_sipd($atts){
+		// untuk disable render shortcode di halaman edit page/post
+		if(!empty($_GET) && !empty($_GET['post'])){
+			return '';
+		}
+		require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/wpsipd-public-data-ssh.php';
+	}
+
+	public function jadwal_renja($atts){
+		// untuk disable render shortcode di halaman edit page/post
+		if(!empty($_GET) && !empty($_GET['post'])){
+			return '';
+		}
+
+		$tipe_perencanaan = 'renja';
+
+		require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/wpsipd-public-setting-penjadwalan.php';
+	}
+
+	public function jadwal_rpjm($atts){
+		// untuk disable render shortcode di halaman edit page/post
+		if(!empty($_GET) && !empty($_GET['post'])){
+			return '';
+		}
+
+		require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/wpsipd-public-setting-penjadwalan-rpjm.php';
+	}
+
+	public function jadwal_renstra($atts){
+		// untuk disable render shortcode di halaman edit page/post
+		if(!empty($_GET) && !empty($_GET['post'])){
+			return '';
+		}
+
+		require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/wpsipd-public-setting-penjadwalan-renstra.php';
+	}
+	
+	public function jadwal_rpjpd($atts){
+		// untuk disable render shortcode di halaman edit page/post
+		if(!empty($_GET) && !empty($_GET['post'])){
+			return '';
+		}
+
+		require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/wpsipd-public-setting-penjadwalan-rpjpd.php';
+	}
+
+	public function jadwal_rpd($atts){
+		// untuk disable render shortcode di halaman edit page/post
+		if(!empty($_GET) && !empty($_GET['post'])){
+			return '';
+		}
+
+		require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/wpsipd-public-setting-penjadwalan-rpd.php';
+	}
+
+	public function get_data_ssh_sipd(){
+		global $wpdb;
+		$return = array(
+			'status' => 'success',
+			'data'	=> array()
+		);
+
+		$table_content = '';
+		if(!empty($_POST)){
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+				$params = $columns = $totalRecords = $data = array();
+				$params = $_REQUEST;
+				$columns = array( 
+					0 => 'id_standar_harga',
+					1 => 'kode_standar_harga', 
+					2 => 'nama_standar_harga',
+					3 => 'spek',
+					4 => 'satuan',
+					5 => 'harga',
+					6 => 'kelompok'
+				);
+				$where = $sqlTot = $sqlRec = "";
+
+				// check search value exist
+				if( !empty($params['search']['value']) ) {
+					$where .=" AND ( kode_standar_harga LIKE ".$wpdb->prepare('%s', "%".$params['search']['value']."%");    
+					$where .=" OR nama_standar_harga LIKE ".$wpdb->prepare('%s', "%".$params['search']['value']."%");
+					$where .=" OR spek LIKE ".$wpdb->prepare('%s', "%".$params['search']['value']."%");
+					$where .=" OR id_standar_harga LIKE ".$wpdb->prepare('%s', "%".$params['search']['value']."%");
+					$where .=" OR harga LIKE ".$wpdb->prepare('%s', "%".$params['search']['value']."%")." )";
+				}
+
+				// getting total number records without any search
+				$sql_tot = "SELECT count(*) as jml FROM `data_ssh`";
+				$sql = "SELECT ".implode(', ', $columns)." FROM `data_ssh`";
+				$where_first = " WHERE id_standar_harga IS NOT NULL AND tahun_anggaran=".$wpdb->prepare('%d', $params['tahun_anggaran']);
+				$sqlTot .= $sql_tot.$where_first;
+				$sqlRec .= $sql.$where_first;
+				if(isset($where) && $where != '') {
+					$sqlTot .= $where;
+					$sqlRec .= $where;
+				}
+
+			 	$sqlRec .=  " ORDER BY ". $columns[$params['order'][0]['column']]."   ".$params['order'][0]['dir']."  LIMIT ".$params['start']." ,".$params['length']." ";
+
+				$queryTot = $wpdb->get_results($sqlTot, ARRAY_A);
+				$totalRecords = $queryTot[0]['jml'];
+				$queryRecords = $wpdb->get_results($sqlRec, ARRAY_A);
+
+				foreach($queryRecords as $recKey => $recVal){
+					$iconPlus = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-plus-circle" viewBox="0 0 16 16"><path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/><path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z"/></svg>';
+					$queryRecords[$recKey]['aksi'] = '<a href="#" onclick="return data_akun_ssh_sipd(\''.$recVal['id_standar_harga'].'\');" title="Melihat Data Akun">'.$iconPlus.'</a>';
+					$tipe_kelompok = ['SSH','HSPK','ASB','SBU'];
+					if(!empty($recVal['kelompok'])){
+						$queryRecords[$recKey]['show_kelompok'] = $tipe_kelompok[$recVal['kelompok']-1];
+					}else{
+						$queryRecords[$recKey]['show_kelompok'] = '-';
+					}
+				}
+
+				$json_data = array(
+					"draw"            => intval( $params['draw'] ),   
+					"recordsTotal"    => intval( $totalRecords ),  
+					"recordsFiltered" => intval($totalRecords),
+					"data"            => $queryRecords
+				);
+
+				die(json_encode($json_data));
+			}else{
+				$return = array(
+					'status' => 'error',
+					'message'	=> 'Api Key tidak sesuai!'
+				);
+			}
+		}else{
+			$return = array(
+				'status' => 'error',
+				'message'	=> 'Format tidak sesuai!'
+			);
+		}
+		die(json_encode($return));
+	}
+
+	public function get_komponen_and_id_kel_ssh($cek_return=false){
+		global $wpdb;
+		$return = array(
+			'status' => 'success',
+			'results'	=> array(),
+			'pagination'=> array(
+			    "more" => false
+			)
+		);
+
+		if(!empty($_POST)){
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+					$tahun_anggaran = $_POST['tahun_anggaran'];
+					$where = '';
+					if(!empty($_POST['search'])){
+						$_POST['search'] = '%'.$_POST['search'].'%';
+						$where = $wpdb->prepare('
+							AND (
+								kode_standar_harga LIKE %s
+								OR nama_standar_harga LIKE %s
+							)
+						', $_POST['search'], $_POST['search']);
+					}
+
+					$data_nama_ssh = $wpdb->get_results($wpdb->prepare("
+						SELECT 
+							id_standar_harga,
+							kode_standar_harga, 
+							nama_standar_harga 
+						FROM data_ssh 
+						WHERE tahun_anggaran = %d
+							$where
+						LIMIT %d, 20",
+						$tahun_anggaran,
+						$_POST['page']
+					), ARRAY_A);
+			    	$return['sql'] = $wpdb->last_query;
+
+					$data_nama_ssh_usulan = $wpdb->get_results($wpdb->prepare("
+						SELECT 
+							id_standar_harga,
+							kode_standar_harga, 
+							nama_standar_harga 
+						FROM data_ssh_usulan 
+						WHERE tahun_anggaran = %d
+							$where
+						LIMIT %d, 20",
+						$tahun_anggaran,
+						$_POST['page']
+					), ARRAY_A);
+			    	$return['sql_usulan'] = $wpdb->last_query;
+
+			    	foreach ($data_nama_ssh_usulan as $key => $value) {
+			    		$return['results'][] = array(
+			    			'id' => $value['id_standar_harga'],
+			    			'text' => 'Usulan '.$value['kode_standar_harga'].' '.$value['nama_standar_harga']
+			    		);
+			    	}
+			    	foreach ($data_nama_ssh as $key => $value) {
+			    		$return['results'][] = array(
+			    			'id' => $value['id_standar_harga'],
+			    			'text' => $value['kode_standar_harga'].' '.$value['nama_standar_harga']
+			    		);
+			    	}
+
+					if(count($return['results']) > 0){
+						$return['pagination']['more'] = true;
+					}
+			}else{
+				$return['status'] = 'error';
+				$return['message'] ='Api Key tidak sesuai!';
+			}
+		}else{
+			$return['status'] = 'error';
+			$return['message'] ='Format tidak sesuai!';
+		}
+		if($cek_return){
+			return $return;
+		}else{
+			die(json_encode($return));
+		}
+	}
+
+	/** Submit data tambah harga usulan SSH */
+	public function submit_tambah_harga_ssh(){
+		global $wpdb;
+		$user_id = um_user( 'ID' );
+		$return = array(
+			'status' => 'success',
+			'data'	=> array()
+		);
+
+		if(!empty($_POST)){
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+				if(!empty($_POST['id_standar_harga']) && !empty($_POST['harga_satuan']) && !empty($_POST['keterangan_lampiran'])){
+					$id_standar_harga = trim(htmlspecialchars($_POST['id_standar_harga']));
+					$tahun_anggaran = trim(htmlspecialchars($_POST['tahun_anggaran']));
+					$harga_satuan = trim(htmlspecialchars($_POST['harga_satuan']));
+					$keterangan_lampiran = trim(htmlspecialchars($_POST['keterangan_lampiran']));
+					
+					$data_old_ssh = $wpdb->get_results($wpdb->prepare("SELECT * FROM data_ssh WHERE id_standar_harga = %d",$id_standar_harga), ARRAY_A);
+					$data_old_ssh_akun = $wpdb->get_results($wpdb->prepare("SELECT * FROM data_ssh_rek_belanja WHERE id_standar_harga = %d",$id_standar_harga), ARRAY_A);
+					$kode_standar_harga_sipd = $data_old_ssh[0]['kode_standar_harga'];
+
+					if(empty($data_old_ssh)){
+						$data_old_ssh = $wpdb->get_results($wpdb->prepare("SELECT * FROM data_ssh_usulan WHERE id_standar_harga = %d",$id_standar_harga), ARRAY_A);
+						$data_old_ssh_akun = $wpdb->get_results($wpdb->prepare("SELECT * FROM data_ssh_rek_belanja_usulan WHERE id_standar_harga = %d",$id_standar_harga), ARRAY_A);
+						$kode_standar_harga_sipd = NULL;
+					}
+
+					if(!empty($data_old_ssh_akun)){
+						foreach($data_old_ssh_akun as $v_a_akun){
+							$data_akun[$v_a_akun['id_akun']] = $wpdb->get_results($wpdb->prepare("SELECT id_akun,kode_akun,nama_akun FROM data_akun WHERE id_akun = %d",$v_a_akun['id_akun']), ARRAY_A);
+						}
+					}
+	
+					$date_now = date("Y-m-d H:i:s");
+	
+					// //avoid double ssh
+					$data_avoid = $wpdb->get_results($wpdb->prepare("
+									SELECT 
+										id 
+									FROM data_ssh
+									WHERE 
+										nama_standar_harga = %s AND
+										satuan = %s AND
+										spek = %s AND
+										harga = %s AND
+										kode_kel_standar_harga = %s",
+									$data_old_ssh[0]['nama_standar_harga'],
+									$data_old_ssh[0]['satuan'],
+									$data_old_ssh[0]['spek'],
+									$harga_satuan,
+									$data_old_ssh[0]['kode_kel_standar_harga']
+								), ARRAY_A);
+
+					$data_avoid_usulan = $wpdb->get_results($wpdb->prepare("
+									SELECT 
+										id 
+									FROM data_ssh_usulan 
+									WHERE 
+										nama_standar_harga = %s AND
+										satuan = %s AND
+										spek = %s AND
+										harga = %s AND
+										kode_kel_standar_harga = %s",
+									$data_old_ssh[0]['nama_standar_harga'],
+									$data_old_ssh[0]['satuan'],
+									$data_old_ssh[0]['spek'],
+									$harga_satuan,
+									$data_old_ssh[0]['kode_kel_standar_harga']
+								), ARRAY_A);
+
+					if(!empty($data_avoid) || !empty($data_avoid_usulan)){
+						$data_avoid = !empty($data_avoid) ? $data_avoid : $data_avoid_usulan;
+						$return = array(
+							'status' => 'error',
+							'message'	=> 'Standar Harga Sudah Ada!',
+							'opsi_ssh' => $data_avoid,
+						);
+	
+						die(json_encode($return));
+					}
+	
+					$last_kode_standar_harga = $wpdb->get_results($wpdb->prepare("SELECT id_standar_harga,kode_standar_harga FROM `data_ssh_usulan` WHERE kode_standar_harga=(SELECT MAX(kode_standar_harga) FROM `data_ssh_usulan` WHERE kode_kel_standar_harga = %s)",$data_old_ssh[0]['kode_kel_standar_harga']), ARRAY_A);
+					$last_kode_standar_harga = (empty($last_kode_standar_harga[0]['kode_standar_harga'])) ? "0" : explode(".",$last_kode_standar_harga[0]['kode_standar_harga']);
+					$last_kode_standar_harga = (int) end($last_kode_standar_harga);
+					$last_kode_standar_harga = $last_kode_standar_harga+1;
+					$last_kode_standar_harga = sprintf("%05d",$last_kode_standar_harga);
+					$last_kode_standar_harga = $data_old_ssh[0]['kode_kel_standar_harga'].'.'.$last_kode_standar_harga;
+	
+					$id_standar_harga = $wpdb->get_results($wpdb->prepare("SELECT id_standar_harga FROM `data_ssh_usulan` WHERE id_standar_harga=(SELECT MAX(id_standar_harga) FROM `data_ssh_usulan`) AND tahun_anggaran=%d",$tahun_anggaran), ARRAY_A);
+					$id_standar_harga = !empty($id_standar_harga) ? $id_standar_harga[0]['id_standar_harga'] + 1 : 1;
+	
+					//insert data usulan ssh
+					$opsi_ssh = array(
+						'id_standar_harga' => $id_standar_harga,
+						'kode_standar_harga' => $last_kode_standar_harga,
+						'nama_standar_harga' => $data_old_ssh[0]['nama_standar_harga'],
+						'satuan' => $data_old_ssh[0]['satuan'],
+						'spek' => $data_old_ssh[0]['spek'],
+						'created_at' => $date_now,
+						'created_user' => $user_id,
+						'kelompok' => 1,
+						'harga' => $harga_satuan,
+						'kode_kel_standar_harga' => $data_old_ssh[0]['kode_kel_standar_harga'],
+						'nama_kel_standar_harga' => $data_old_ssh[0]['nama_kel_standar_harga'],
+						'tahun_anggaran' => $tahun_anggaran,
+						'status' => 'waiting',
+						'keterangan_lampiran' => $keterangan_lampiran,
+						'kode_standar_harga_sipd' => $kode_standar_harga_sipd,
+						'status_jenis_usulan' => 'tambah_harga',
+						'jenis_produk' => $data_old_ssh[0]['jenis_produk'],
+						'tkdn'	=> $data_old_ssh[0]['tkdn']
+					);
+	
+					$wpdb->insert('data_ssh_usulan',$opsi_ssh);
+	
+					$return = array(
+						'status' => 'success',
+						'message'	=> 'Berhasil!',
+						'opsi_ssh' => $opsi_ssh,
+					);
+				}else{
+					$return = array(
+						'status' => 'error',
+						'message'	=> 'Harap diisi semua, tidak boleh ada yang kosong!'
+					);
+				}
+			}else{
+				$return = array(
+					'status' => 'error',
+					'message'	=> 'Api Key tidak sesuai!'
+				);
+			}
+		}else{
+			$return = array(
+				'status' => 'error',
+				'message'	=> 'Format tidak sesuai!'
+			);
+		}
+		die(json_encode($return));
+	}
+
+	/** Tombol tambah usulan rekening */
+	public function submit_tambah_akun_ssh(){
+		global $wpdb;
+		$user_id = um_user( 'ID' );
+		$return = array(
+			'status' => 'success',
+			'data'	=> array()
+		);
+
+		if(!empty($_POST)){
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+				if(!empty($_POST['id_standar_harga']) && !empty($_POST['new_akun'])){
+					$id_standar_harga = trim(htmlspecialchars($_POST['id_standar_harga']));
+					$tahun_anggaran = trim(htmlspecialchars($_POST['tahun_anggaran']));
+					$new_akun = $_POST['new_akun'];
+					
+					$data_old_ssh = $wpdb->get_results($wpdb->prepare("SELECT * FROM data_ssh WHERE id_standar_harga = %d",$id_standar_harga), ARRAY_A);
+					$kode_standar_harga_sipd = $data_old_ssh[0]['kode_standar_harga'];
+
+					if(empty($data_old_ssh)){
+						$data_old_ssh = $wpdb->get_results($wpdb->prepare("SELECT * FROM data_ssh_usulan WHERE id_standar_harga = %d",$id_standar_harga), ARRAY_A);
+						$kode_standar_harga_sipd = NULL;
+					}
+					
+					foreach($new_akun as $v_new_akun){
+						$data_akun[$v_new_akun] = $wpdb->get_results($wpdb->prepare("SELECT id_akun,kode_akun,nama_akun FROM data_akun WHERE id_akun = %d",$v_new_akun), ARRAY_A);
+					}
+	
+					$date_now = date("Y-m-d H:i:s");
+
+					//insert data ke usulan ssh jika komponen berasal dari data existing SIPD
+					if(!empty($kode_standar_harga_sipd)){
+						$last_kode_standar_harga = $wpdb->get_results($wpdb->prepare("SELECT id_standar_harga,kode_standar_harga FROM `data_ssh_usulan` WHERE kode_standar_harga=(SELECT MAX(kode_standar_harga) FROM `data_ssh_usulan` WHERE kode_kel_standar_harga = %s)",$data_old_ssh[0]['kode_kel_standar_harga']), ARRAY_A);
+						$last_kode_standar_harga = (empty($last_kode_standar_harga[0]['kode_standar_harga'])) ? "0" : explode(".",$last_kode_standar_harga[0]['kode_standar_harga']);
+						$last_kode_standar_harga = (int) end($last_kode_standar_harga);
+						$last_kode_standar_harga = $last_kode_standar_harga+1;
+						$last_kode_standar_harga = sprintf("%05d",$last_kode_standar_harga);
+						$last_kode_standar_harga = $data_old_ssh[0]['kode_kel_standar_harga'].'.'.$last_kode_standar_harga;
+		
+						$id_standar_harga = $wpdb->get_results($wpdb->prepare("SELECT id_standar_harga FROM `data_ssh_usulan` WHERE id_standar_harga=(SELECT MAX(id_standar_harga) FROM `data_ssh_usulan`) AND tahun_anggaran=%d",$tahun_anggaran), ARRAY_A);
+						$id_standar_harga = !empty($id_standar_harga) ? $id_standar_harga[0]['id_standar_harga'] + 1 : 1;
+
+						$opsi_ssh = array(
+							'id_standar_harga' => $id_standar_harga,
+							'kode_standar_harga' => $last_kode_standar_harga,
+							'nama_standar_harga' => $data_old_ssh[0]['nama_standar_harga'],
+							'satuan' => $data_old_ssh[0]['satuan'],
+							'spek' => $data_old_ssh[0]['spek'],
+							'created_at' => $date_now,
+							'created_user' => $user_id,
+							'kelompok' => 1,
+							'harga' => $data_old_ssh[0]['harga'],
+							'kode_kel_standar_harga' => $data_old_ssh[0]['kode_kel_standar_harga'],
+							'nama_kel_standar_harga' => $data_old_ssh[0]['nama_kel_standar_harga'],
+							'tahun_anggaran' => $tahun_anggaran,
+							'status' => 'waiting',
+							'keterangan_lampiran' => NULL,
+							'kode_standar_harga_sipd' => $kode_standar_harga_sipd,
+							'status_jenis_usulan' => 'tambah_akun',
+							'jenis_produk'	=> $data_old_ssh[0]['jenis_produk'],
+							'tkdn'	=> $data_old_ssh[0]['tkdn']
+						);
+		
+						$wpdb->insert('data_ssh_usulan',$opsi_ssh);
+					}
+
+					/** Insert usulan rek akun */
+					foreach($data_akun as $k_akun => $v_akun){
+						$opsi_akun[$k_akun] = array(
+							'id_akun' => $v_akun[0]['id_akun'],
+							'kode_akun' => $v_akun[0]['kode_akun'],
+							'nama_akun' => $v_akun[0]['kode_akun'].' '.$v_akun[0]['nama_akun'],
+							'id_standar_harga' => $id_standar_harga,
+							'tahun_anggaran' => $tahun_anggaran,
+						);
+		
+						$wpdb->insert('data_ssh_rek_belanja_usulan',$opsi_akun[$k_akun]);
+					}
+	
+					$return = array(
+						'status' => 'success',
+						'message'	=> 'Berhasil!',
+						'data_akun' => $data_akun,
+					);
+				}else{
+					$return = array(
+						'status' => 'error',
+						'message'	=> 'Harap diisi semua, tidak boleh ada yang kosong!'
+					);
+				}
+			}else{
+				$return = array(
+					'status' => 'error',
+					'message'	=> 'Api Key tidak sesuai!'
+				);
+			}
+		}else{
+			$return = array(
+				'status' => 'error',
+				'message'	=> 'Format tidak sesuai!'
+			);
+		}
+		die(json_encode($return));
+	}
+
+	/** Submit verifikasi usulan SSH */
+	public function submit_verify_ssh(){
+		global $wpdb;
+		$return = array(
+			'status' => 'success',
+			'data'	=> array()
+		);
+
+		$user_id = um_user( 'ID' );
+		$user_meta = get_userdata($user_id);
+
+		$table_content = '';
+		if(!empty($_POST)){
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+				if($_POST['verify_ssh'] != '' && !empty($_POST['id_ssh_verify_ssh'])){
+					if(in_array("administrator", $user_meta->roles)){
+						if(($_POST['verify_ssh'] == 0) && empty($_POST['reason_verify_ssh'])){
+							$return = array(
+								'status' => 'error',
+								'message'	=> 'Harap diisi semua, tidak boleh ada yang kosong!'
+							);
+
+							die(json_encode($return));
+						}
+
+						$verify_ssh = trim(htmlspecialchars($_POST['verify_ssh']));
+						$reason_verify_ssh = trim(htmlspecialchars($_POST['reason_verify_ssh']));
+						$id_ssh_verify_ssh = trim(htmlspecialchars($_POST['id_ssh_verify_ssh']));
+
+						$data_ssh = $wpdb->get_results($wpdb->prepare("SELECT status_upload_sipd FROM data_ssh_usulan WHERE id_standar_harga = %d",$id_ssh_verify_ssh), ARRAY_A);
+		
+						if($data_ssh[0]['status_upload_sipd'] != 1){
+							$date_now = date("Y-m-d H:i:s");
+			
+							$status_usulan_ssh = ($verify_ssh) ? 'approved' : 'rejected';
+			
+							$keterangan_status = (!empty($reason_verify_ssh)) ? $reason_verify_ssh : NULL;
+			
+							//update status data usulan ssh
+							$opsi_ssh = array(
+								'status' => $status_usulan_ssh,
+								'keterangan_status' => $keterangan_status,
+								'update_at' => $date_now,
+							);
+			
+							$where_ssh = array(
+								'id_standar_harga' => $id_ssh_verify_ssh
+							);
+			
+							$wpdb->update('data_ssh_usulan',$opsi_ssh,$where_ssh);
+			
+							$return = array(
+								'status' => 'success',
+								'message'	=> 'Berhasil!',
+							);
+						}else{
+							$return = array(
+								'status' => 'error',
+								'message'	=> "User tidak diijinkan!\nData sudah diunggah di SIPD"
+							);	
+						}
+					}else{
+						$return = array(
+							'status' => 'error',
+							'message'	=> 'User tidak diijinkan!'
+						);
+					}
+				}else{
+					$return = array(
+						'status' => 'error',
+						'message'	=> 'Harap diisi semua, tidak boleh ada yang kosong!'
+					);
+				}
+			}else{
+				$return = array(
+					'status' => 'error',
+					'message'	=> 'Api Key tidak sesuai!'
+				);
+			}
+		}else{
+			$return = array(
+				'status' => 'error',
+				'message'	=> 'Format tidak sesuai!'
+			);
+		}
+		die(json_encode($return));
+	}
+
+	public function data_halaman_menu_ssh($atts){
+		// untuk disable render shortcode di halaman edit page/post
+		if(!empty($_GET) && !empty($_GET['post'])){
+			return '';
+		}
+		$user_id = um_user( 'ID' );
+		$user_meta = get_userdata($user_id);
+		if(empty($user_meta->roles)){
+			echo 'User ini tidak dapat akses sama sekali :)';
+		}else if(in_array("administrator", $user_meta->roles) || in_array("PLT", $user_meta->roles)){
+			require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/wpsipd-public-data-halaman-ssh.php';
+		}
+	}
+
+	public function get_data_ssh_sipd_by_id(){
+		global $wpdb;
+		$return = array(
+			'status' => 'success',
+			'data'	=> array()
+		);
+
+		if(!empty($_POST)){
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+					$id_standar_harga = $_POST['id_standar_harga'];
+					
+					$data_id_ssh = $wpdb->get_results($wpdb->prepare('SELECT * FROM data_ssh WHERE id_standar_harga = %d',$id_standar_harga), ARRAY_A);
+
+					$data_akun_ssh = $wpdb->get_results($wpdb->prepare('SELECT id_akun,nama_akun FROM data_ssh_rek_belanja WHERE id_standar_harga = %d',$id_standar_harga), ARRAY_A);
+
+
+				    ksort($data_id_ssh);
+
+					$return = array(
+						'status' => 'success',
+						'data' => $data_id_ssh[0],
+						'data_akun' => $data_akun_ssh,
+					);
+			}else{
+				$return = array(
+					'status' => 'error',
+					'message'	=> 'Api Key tidak sesuai!'
+				);
+			}
+		}else{
+			$return = array(
+				'status' => 'error',
+				'message'	=> 'Format tidak sesuai!'
+			);
+		}
+		die(json_encode($return));
+	}
+
+	public function get_data_ssh_usulan_by_id(){
+		global $wpdb;
+		$return = array(
+			'status' => 'success',
+			'data'	=> array()
+		);
+
+		if(!empty($_POST)){
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+					$id_standar_harga = $_POST['id_standar_harga'];
+					$tahun_anggaran = $_POST['tahun_anggaran'];
+					
+					$data_id_ssh_usulan = $wpdb->get_results($wpdb->prepare('SELECT * FROM data_ssh_usulan WHERE id_standar_harga = %d',$id_standar_harga), ARRAY_A);
+
+					$data_akun_ssh_usulan = $wpdb->get_results($wpdb->prepare('SELECT id,id_akun,nama_akun FROM data_ssh_rek_belanja_usulan WHERE id_standar_harga = %d',$id_standar_harga), ARRAY_A);
+
+					$data_kel_standar_harga_by_id = $wpdb->get_results($wpdb->prepare('SELECT * FROM data_kelompok_satuan_harga WHERE kode_kategori LIKE %s AND tahun_anggaran = %s',$data_id_ssh_usulan[0]['kode_kel_standar_harga'].'%',$tahun_anggaran), ARRAY_A);
+				    
+					$table_content_akun = '';
+					if(!empty($data_id_ssh_usulan[0]['kode_standar_harga_sipd'])){
+						$data_id_ssh_existing = $wpdb->get_results($wpdb->prepare('SELECT id_standar_harga FROM data_ssh WHERE kode_standar_harga = %s', $data_id_ssh_usulan[0]['kode_standar_harga_sipd']), ARRAY_A);
+						$data_akun_ssh_existing_sipd = $wpdb->get_results($wpdb->prepare('SELECT id,id_akun,nama_akun FROM data_ssh_rek_belanja WHERE id_standar_harga = %d',$data_id_ssh_existing[0]['id_standar_harga']), ARRAY_A);
+						foreach($data_akun_ssh_existing_sipd as $data_akun){
+							$table_content_akun .= $data_akun['nama_akun']."&#13;&#10;";
+						}
+					}
+					$return = array(
+						'status' 						=> 'success',
+						'data' 							=> $data_id_ssh_usulan[0],
+						'data_akun_usulan'				=> $data_akun_ssh_usulan,
+						'data_kel_standar_harga_by_id'	=> $data_kel_standar_harga_by_id[0],
+						'table_content_akun'			=> $table_content_akun
+					);
+			}else{
+				$return = array(
+					'status'	=> 'error',
+					'message'	=> 'Api Key tidak sesuai!'
+				);
+			}
+		}else{
+			$return = array(
+				'status'	=> 'error',
+				'message'	=> 'Format tidak sesuai!'
+			);
+		}
+		die(json_encode($return));
+	}
+
+	public function submit_add_new_akun_ssh_usulan(){
+		global $wpdb;
+		$return = array(
+			'status' => 'success',
+			'data'	=> array()
+		);
+
+		$user_id = um_user( 'ID' );
+		$user_meta = get_userdata($user_id);
+
+		$table_content = '';
+		if(!empty($_POST)){
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+				$akun = $_POST['data_akun'];
+				$id_standar_harga = $_POST['id_standar_harga'];
+				$tahun_anggaran = $_POST['tahun_anggaran'];
+				$data_this_id_ssh = $wpdb->get_results($wpdb->prepare('SELECT id_standar_harga,kode_kel_standar_harga,kode_standar_harga,status FROM data_ssh_usulan WHERE id_standar_harga = %d',$id_standar_harga), ARRAY_A);
+				
+				if($data_this_id_ssh[0]['status'] == 'waiting' || in_array("administrator", $user_meta->roles)){
+					foreach($akun as $v_akun){
+						$data_akun[$v_akun] = $wpdb->get_results($wpdb->prepare("SELECT id_akun,kode_akun,nama_akun FROM data_akun WHERE id_akun = %d",$v_akun), ARRAY_A);
+					}
+	
+					$date_now = date("Y-m-d H:i:s");
+					//insert data new akun usulan ssh
+	
+					foreach($akun as $v_akun){
+						$opsi_akun[$v_akun] = array(
+							'id_akun' => $data_akun[$v_akun][0]['id_akun'],
+							'kode_akun' => $data_akun[$v_akun][0]['kode_akun'],
+							'nama_akun' => $data_akun[$v_akun][0]['kode_akun'].' '.$data_akun[$v_akun][0]['nama_akun'],
+							'id_standar_harga' => $id_standar_harga,
+							'tahun_anggaran' => $tahun_anggaran,
+						);
+		
+						$wpdb->insert('data_ssh_rek_belanja_usulan',$opsi_akun[$v_akun]);
+					}
+	
+					$return = array(
+						'status' => 'success',
+						'message'	=> 'Berhasil!',
+					);
+				}else{
+					$return = array(
+						'status' => 'error',
+						'message'	=> "User tidak diijinkan!\nData sudah dalam tahap verifikasi",
+					);
+				}
+			}else{
+				$return = array(
+					'status' => 'error',
+					'message'	=> 'Api Key tidak sesuai!'
+				);
+			}
+		}else{
+			$return = array(
+				'status' => 'error',
+				'message'	=> 'Format tidak sesuai!'
+			);
+		}
+		die(json_encode($return));
+	}
+
+	public function get_data_ssh_analisis(){
+		global $wpdb;
+		$return = array(
+			'status' => 'success',
+			'data'	=> array()
+		);
+
+		$table_content = '';
+		if(!empty($_POST)){
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+				$params = $columns = $totalRecords = $data = array();
+				$params = $_REQUEST;
+				$columns = array( 
+					0 =>'nama_komponen',
+					1 =>'spek_komponen', 
+					2 => 'harga_satuan',
+					3 => 'satuan',
+					4 => 'SUM(volume) as volume',
+					5 => 'SUM(total_harga) as total',
+					6 => 'kode_bl'
+				);
+				$where = $sqlTot = $sqlRec = "";
+
+				// check search value exist
+				if( !empty($params['search']['value']) ) {
+					$where .=" AND ( nama_komponen LIKE ".$wpdb->prepare('%s', "%".$params['search']['value']."%");    
+					$where .=" OR spek_komponen LIKE ".$wpdb->prepare('%s', "%".$params['search']['value']."%");
+					$where .=" OR harga_satuan LIKE ".$wpdb->prepare('%s', "%".$params['search']['value']."%");
+					$where .=" OR satuan LIKE ".$wpdb->prepare('%s', "%".$params['search']['value']."%").")";
+				}
+
+				$current_user = wp_get_current_user();
+				$data_ssh = $wpdb->get_results("SELECT id_unit FROM `data_unit` where nipkepala=".$wpdb->prepare('%d', $current_user->user_login),ARRAY_A);
+				
+				// mengambil data per skpd
+				$sqlKodeBl = '';
+				if(!empty($data_ssh[0]['id_unit']) && $current_user->roles != 'administrator'){
+					$data_bl = array();
+					$sql = "SELECT kode_bl FROM data_sub_keg_bl WHERE id_skpd = ".$wpdb->prepare('%s', $data_ssh[0]['id_unit'])." GROUP BY id_skpd,kode_bl";
+					$run = $wpdb->get_results($sql,ARRAY_A);
+					foreach ($run as $value) {
+						array_push($data_bl,strval($value['kode_bl']));
+					}
+					$sqlKodeBl = " and kode_bl in ('".implode("','", $data_bl)."')";
+				}
+
+				// getting total number records without any search
+				$sql_tot = "SELECT count(*) as jml FROM `data_rka`";
+				$sql = "SELECT ".implode(', ', $columns)." FROM `data_rka`";
+				$where_first = " WHERE active=1 and tahun_anggaran=".$wpdb->prepare('%d', $params['tahun_anggaran']).$sqlKodeBl;
+				$sqlTot .= $sql_tot.$where_first;
+				$sqlRec .= $sql.$where_first;
+				if(isset($where) && $where != '') {
+					$sqlTot .= $where;
+					$sqlRec .= $where;
+				}
+
+			 	$sqlRec .=  " GROUP by nama_komponen, spek_komponen, harga_satuan ORDER BY total DESC, ". $columns[$params['order'][0]['column']]."   ".$params['order'][0]['dir']."  LIMIT ".$params['start']." ,".$params['length']." ";
+				$sqlTot .=  " GROUP by nama_komponen, spek_komponen, harga_satuan";
+
+				$queryTot = $wpdb->get_results($sqlTot, ARRAY_A);
+				$totalRecords = count($queryTot);
+				$queryRecords = $wpdb->get_results($sqlRec, ARRAY_A);
+
+				$title = 'Laporan Data per Item SSH';
+				$shortcode = '[laporan_per_item_ssh]';
+				$update = false;
+				$url_skpd = $this->generatePage($title, $params['tahun_anggaran'], $shortcode, $update);
+
+				foreach($queryRecords as $key => $val){
+					$queryRecords[$key]['link'] = '<a href="'.$url_skpd.'&nama_komponen='.$val['nama_komponen'].'&spek_komponen='.$val['spek_komponen'].'&harga_satuan='.$val['harga_satuan'].'&satuan='.$val['satuan'].'" target="_blank" style="text-decoration: none;">'.$val['nama_komponen'].'</a>';
+				}
+
+				$json_data = array(
+					"draw"            => intval( $params['draw'] ),   
+					"recordsTotal"    => intval( $totalRecords ),  
+					"recordsFiltered" => intval($totalRecords),
+					"data"            => $queryRecords
+				);
+
+				die(json_encode($json_data));
+			}else{
+				$return = array(
+					'status' => 'error',
+					'message'	=> 'Api Key tidak sesuai!'
+				);
+			}
+		}else{
+			$return = array(
+				'status' => 'error',
+				'message'	=> 'Format tidak sesuai!'
+			);
+		}
+		die(json_encode($return));
+	}
+
+	public function get_data_chart_ssh(){
+		global $wpdb;
+		$return = array(
+			'status' => 'success',
+			'data'	=> array()
+		);
+
+		if(!empty($_POST)){
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+				$tahun_anggaran = $_POST['tahun_anggaran'];
+				$current_user = wp_get_current_user();
+				$data_ssh = $wpdb->get_results("SELECT id_unit FROM `data_unit` where nipkepala=".$wpdb->prepare('%d', $current_user->user_login),ARRAY_A);
+				
+				// mengambil data per skpd
+				$sqlKodeBl = '';
+				if(!empty($data_ssh[0]['id_unit']) && $current_user->roles != 'administrator'){
+					$data_bl = array();
+					$sql = "SELECT kode_bl FROM data_sub_keg_bl WHERE id_skpd = ".$wpdb->prepare('%s', $data_ssh[0]['id_unit'])." GROUP BY id_skpd,kode_bl";
+					$run = $wpdb->get_results($sql,ARRAY_A);
+					foreach ($run as $value) {
+						array_push($data_bl,strval($value['kode_bl']));
+					}
+					$sqlKodeBl = " and kode_bl in ('".implode("','", $data_bl)."')";
+				}
+
+				$data_ssh = $wpdb->get_results("SELECT nama_komponen, spek_komponen, harga_satuan, satuan, volume, sum(total_harga) as total FROM `data_rka` where active=1 and tahun_anggaran=".$wpdb->prepare('%d', $tahun_anggaran).$sqlKodeBl." GROUP by nama_komponen, spek_komponen, harga_satuan order by total desc limit 20",ARRAY_A);
+
+				$return = array(
+					'status' => 'success',
+					'data' => $data_ssh
+				);
+			}else{
+				$return = array(
+					'status' => 'error',
+					'message'	=> 'Api Key tidak sesuai!'
+				);
+			}
+		}else{
+			$return = array(
+				'status' => 'error',
+				'message'	=> 'Format tidak sesuai!'
+			);
+		}
+		die(json_encode($return));
+	}
+
+	public function get_spd($cek_return = false){
+		global $wpdb;
+		$return = array(
+			'action' => $_POST['action'],
+			'status' => 'success',
+			'message' => 'Berhasil get SPD!',
+			'data'	=> array()
+		);
+
+		if(!empty($_POST)){
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+				$tahun_anggaran = $_POST['tahun_anggaran'];
+				$mapping_skpd = $this->get_id_skpd_fmis(false, $tahun_anggaran);
+				$sql = $wpdb->prepare("SELECT * FROM ta_spd where tahun=%d order by tgl_spd ASC", $tahun_anggaran);
+				$return['sql'] = $sql;
+				$data_spd = $this->simda->CurlSimda(array(
+					'query' => $sql,
+					'debug' => 1
+				));
+				foreach($data_spd as $k => $spd){
+					$kd_sub_unit = $spd->kd_urusan.'.'.$spd->kd_bidang.'.'.$spd->kd_unit.'.'.$spd->kd_sub;
+					$data_spd[$k]->kd_sub_unit = $kd_sub_unit;
+					if(!empty($mapping_skpd['id_mapping_simda'][$kd_sub_unit])){
+						$data_spd[$k]->skpd = $mapping_skpd['id_mapping_simda'][$kd_sub_unit];
+					}
+				}
+				$return['data'] = $data_spd;
+			}else{
+				$return = array(
+					'status' => 'error',
+					'message'	=> 'Api Key tidak sesuai!'
+				);
+			}
+		}else{
+			$return = array(
+				'status' => 'error',
+				'message'	=> 'Format tidak sesuai!'
+			);
+		}
+		if($cek_return){
+			return $return;
+		}else{
+			die(json_encode($return));
+		}
+	}
+
+	public function get_spd_rinci($cek_return = false){
+		global $wpdb;
+		$return = array(
+			'action' => $_POST['action'],
+			'status' => 'success',
+			'message' => 'Berhasil get SPD rinci!',
+			'data'	=> array()
+		);
+
+		if(!empty($_POST)){
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+				$tahun_anggaran = $_POST['tahun_anggaran'];
+				$sql = $wpdb->prepare("
+					SELECT 
+						s.*,
+						r.kd_rek90_1,
+						r.kd_rek90_2,
+						r.kd_rek90_3,
+						r.kd_rek90_4,
+						r.kd_rek90_5,
+						r.kd_rek90_6
+					FROM ta_spd_rinc s
+					left join ref_rek_mapping r on r.kd_rek_1=s.kd_rek_1
+						and r.kd_rek_2=s.kd_rek_2
+						and r.kd_rek_3=s.kd_rek_3
+						and r.kd_rek_4=s.kd_rek_4
+						and r.kd_rek_5=s.kd_rek_5
+					where s.tahun=%d
+						and s.no_spd=%s
+						and s.kd_urusan=%d
+						and s.kd_bidang=%d
+						and s.kd_unit=%d
+						and s.kd_sub=%d
+					", 
+					$tahun_anggaran, 
+					$_POST['no_spd'], 
+					$_POST['kd_urusan'], 
+					$_POST['kd_bidang'], 
+					$_POST['kd_unit'], 
+					$_POST['kd_sub']
+				);
+				$return['sql'] = $sql;
+				$data_spd = $this->simda->CurlSimda(array(
+					'query' => $sql,
+					'debug' => 1
+				));
+				$program_mapping = $this->get_fmis_mapping(array(
+					'name' => '_crb_custom_mapping_program_fmis'
+				));
+				$keg_mapping = $this->get_fmis_mapping(array(
+					'name' => '_crb_custom_mapping_keg_fmis'
+				));
+				$subkeg_mapping = $this->get_fmis_mapping(array(
+					'name' => '_crb_custom_mapping_subkeg_fmis'
+				));
+				$rek_mapping = $this->get_fmis_mapping(array(
+					'name' => '_crb_custom_mapping_rekening_fmis'
+				));
+				$prog_keg = array();
+				foreach($data_spd as $k => $spd){
+					$kd_urusan_asli = substr($spd->id_prog, 0, 1);
+					$kd_bidang_asli = (int) substr($spd->id_prog, 1);
+					$kd_keg_simda = $kd_urusan_asli.'.'.$kd_bidang_asli.'.'.$spd->kd_prog.'.'.$spd->kd_keg;
+					if(empty($prog_keg[$kd_keg_simda])){
+						$prog_keg[$kd_keg_simda] = array();
+						$sql = "
+							SELECT 
+								m.*
+							from ref_kegiatan_mapping m
+							where m.kd_urusan=$kd_urusan_asli
+								and m.kd_bidang=$kd_bidang_asli
+								and m.kd_prog=$spd->kd_prog
+								and m.kd_keg=$spd->kd_keg
+						";
+						$mapping = $this->simda->CurlSimda(array(
+							'query' => $sql,
+							'debug' => 1
+						));
+						$kd_urusan_sipd = $mapping[0]->kd_urusan90;
+						$kd_bidang_sipd = $mapping[0]->kd_bidang90;
+						if($mapping[0]->kd_program90 == 1){
+							$kd_urusan_sipd = 'X';
+							$kd_bidang_sipd = 'XX';
+						}
+						$kode_sub = $kd_urusan_sipd.'.'.$this->simda->CekNull($kd_bidang_sipd).'.'.$this->simda->CekNull($mapping[0]->kd_program90).'.'.$mapping[0]->kd_kegiatan90.'.'.$this->simda->CekNull($mapping[0]->kd_sub_kegiatan);
+						$sub = $wpdb->get_results($wpdb->prepare("
+							select
+								*
+							from data_prog_keg
+							where tahun_anggaran=%d
+								and kode_sub_giat=%s
+						", $tahun_anggaran, $kode_sub), ARRAY_A);
+
+						$sub[0]['nama_program'] = explode(' ', $sub[0]['nama_program']);
+						unset($sub[0]['nama_program'][0]);
+						$sub[0]['nama_program'] = implode(' ', $sub[0]['nama_program']);
+
+						$sub[0]['nama_giat'] = explode(' ', $sub[0]['nama_giat']);
+						unset($sub[0]['nama_giat'][0]);
+						$sub[0]['nama_giat'] = implode(' ', $sub[0]['nama_giat']);
+
+						$sub[0]['nama_sub_giat'] = explode(' ', $sub[0]['nama_sub_giat']);
+						unset($sub[0]['nama_sub_giat'][0]);
+						$sub[0]['nama_sub_giat'] = implode(' ', $sub[0]['nama_sub_giat']);
+
+						$prog_keg[$kd_keg_simda]['nama_program'] = $sub[0]['nama_program'];
+						$prog_keg[$kd_keg_simda]['nama_giat'] = $sub[0]['nama_giat'];
+						$prog_keg[$kd_keg_simda]['nama_sub_giat'] = $sub[0]['nama_sub_giat'];
+						if(!empty($program_mapping[$sub[0]['nama_program']])){
+							$prog_keg[$kd_keg_simda]['nama_program'] = $program_mapping[$sub[0]['nama_program']];
+						}
+						if(!empty($keg_mapping[$sub[0]['nama_giat']])){
+							$prog_keg[$kd_keg_simda]['nama_giat'] = $keg_mapping[$sub[0]['nama_giat']];
+						}
+						if(!empty($subkeg_mapping[$sub[0]['nama_sub_giat']])){
+							$prog_keg[$kd_keg_simda]['nama_sub_giat'] = $subkeg_mapping[$sub[0]['nama_sub_giat']];
+						}
+					}
+
+					$kode_akun = $spd->kd_rek90_1.'.'.$spd->kd_rek90_2.'.'.$spd->kd_rek90_3.'.'.$spd->kd_rek90_4.'.'.$spd->kd_rek90_5.'.'.$spd->kd_rek90_6;
+					$prog_keg[$kd_keg_simda]['kode_akun'] = $kode_akun;
+					if(!empty($rek_mapping[$kode_akun])){
+						$prog_keg[$kd_keg_simda]['kode_akun'] = $rek_mapping[$kode_akun];
+						$akun = explode('.', $rek_mapping[$kode_akun]);
+						$data_spd[$k]->kd_rek90_1 = $akun[0];
+						$data_spd[$k]->kd_rek90_2 = $akun[1];
+						$data_spd[$k]->kd_rek90_3 = $akun[2];
+						$data_spd[$k]->kd_rek90_4 = $akun[3];
+						$data_spd[$k]->kd_rek90_5 = $akun[4];
+						$data_spd[$k]->kd_rek90_6 = $akun[5];
+					}
+					$data_spd[$k]->detail = $prog_keg[$kd_keg_simda];
+				}
+				$return['data'] = $data_spd;
+			}else{
+				$return = array(
+					'status' => 'error',
+					'message'	=> 'Api Key tidak sesuai!'
+				);
+			}
+		}else{
+			$return = array(
+				'status' => 'error',
+				'message'	=> 'Format tidak sesuai!'
+			);
+		}
+		if($cek_return){
+			return $return;
+		}else{
+			die(json_encode($return));
+		}
+	}
+
+	public function get_spp_rinci($cek_return = false){
+		global $wpdb;
+		$return = array(
+			'action' => $_POST['action'],
+			'status' => 'success',
+			'message' => 'Berhasil get SPP rinci!',
+			'data'	=> array()
+		);
+
+		if(!empty($_POST)){
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+				$tahun_anggaran = $_POST['tahun_anggaran'];
+				$sql = $wpdb->prepare("
+					SELECT 
+						s.*,
+						r.kd_rek90_1,
+						r.kd_rek90_2,
+						r.kd_rek90_3,
+						r.kd_rek90_4,
+						r.kd_rek90_5,
+						r.kd_rek90_6
+					FROM ta_spp_rinc s
+					left join ref_rek_mapping r on r.kd_rek_1=s.kd_rek_1
+						and r.kd_rek_2=s.kd_rek_2
+						and r.kd_rek_3=s.kd_rek_3
+						and r.kd_rek_4=s.kd_rek_4
+						and r.kd_rek_5=s.kd_rek_5
+					where s.tahun=%d
+						and s.no_spp=%s
+						and s.kd_urusan=%d
+						and s.kd_bidang=%d
+						and s.kd_unit=%d
+						and s.kd_sub=%d
+					", 
+					$tahun_anggaran, 
+					$_POST['no_spp'], 
+					$_POST['kd_urusan'], 
+					$_POST['kd_bidang'], 
+					$_POST['kd_unit'], 
+					$_POST['kd_sub']
+				);
+				$return['sql'] = $sql;
+				$data_spd = $this->simda->CurlSimda(array(
+					'query' => $sql,
+					'debug' => 1
+				));
+				$program_mapping = $this->get_fmis_mapping(array(
+					'name' => '_crb_custom_mapping_program_fmis'
+				));
+				$keg_mapping = $this->get_fmis_mapping(array(
+					'name' => '_crb_custom_mapping_keg_fmis'
+				));
+				$subkeg_mapping = $this->get_fmis_mapping(array(
+					'name' => '_crb_custom_mapping_subkeg_fmis'
+				));
+				$rek_mapping = $this->get_fmis_mapping(array(
+					'name' => '_crb_custom_mapping_rekening_fmis'
+				));
+				$prog_keg = array();
+				foreach($data_spd as $k => $spd){
+					$kd_urusan_asli = substr($spd->id_prog, 0, 1);
+					$kd_bidang_asli = (int) substr($spd->id_prog, 1);
+					$kd_keg_simda = $kd_urusan_asli.'.'.$kd_bidang_asli.'.'.$spd->kd_prog.'.'.$spd->kd_keg;
+					if(empty($prog_keg[$kd_keg_simda])){
+						$prog_keg[$kd_keg_simda] = array();
+						$sql = "
+							SELECT 
+								m.*
+							from ref_kegiatan_mapping m
+							where m.kd_urusan=$kd_urusan_asli
+								and m.kd_bidang=$kd_bidang_asli
+								and m.kd_prog=$spd->kd_prog
+								and m.kd_keg=$spd->kd_keg
+						";
+						$mapping = $this->simda->CurlSimda(array(
+							'query' => $sql,
+							'debug' => 1
+						));
+						$kd_urusan_sipd = $mapping[0]->kd_urusan90;
+						$kd_bidang_sipd = $mapping[0]->kd_bidang90;
+						if($mapping[0]->kd_program90 == 1){
+							$kd_urusan_sipd = 'X';
+							$kd_bidang_sipd = 'XX';
+						}
+						$kode_sub = $kd_urusan_sipd.'.'.$this->simda->CekNull($kd_bidang_sipd).'.'.$this->simda->CekNull($mapping[0]->kd_program90).'.'.$mapping[0]->kd_kegiatan90.'.'.$this->simda->CekNull($mapping[0]->kd_sub_kegiatan);
+						$sub = $wpdb->get_results($wpdb->prepare("
+							select
+								*
+							from data_prog_keg
+							where tahun_anggaran=%d
+								and kode_sub_giat=%s
+						", $tahun_anggaran, $kode_sub), ARRAY_A);
+
+						$sub[0]['nama_program'] = explode(' ', $sub[0]['nama_program']);
+						unset($sub[0]['nama_program'][0]);
+						$sub[0]['nama_program'] = implode(' ', $sub[0]['nama_program']);
+
+						$sub[0]['nama_giat'] = explode(' ', $sub[0]['nama_giat']);
+						unset($sub[0]['nama_giat'][0]);
+						$sub[0]['nama_giat'] = implode(' ', $sub[0]['nama_giat']);
+
+						$sub[0]['nama_sub_giat'] = explode(' ', $sub[0]['nama_sub_giat']);
+						unset($sub[0]['nama_sub_giat'][0]);
+						$sub[0]['nama_sub_giat'] = implode(' ', $sub[0]['nama_sub_giat']);
+
+						$prog_keg[$kd_keg_simda]['nama_program'] = $sub[0]['nama_program'];
+						$prog_keg[$kd_keg_simda]['nama_giat'] = $sub[0]['nama_giat'];
+						$prog_keg[$kd_keg_simda]['nama_sub_giat'] = $sub[0]['nama_sub_giat'];
+						if(!empty($program_mapping[$sub[0]['nama_program']])){
+							$prog_keg[$kd_keg_simda]['nama_program'] = $program_mapping[$sub[0]['nama_program']];
+						}
+						if(!empty($keg_mapping[$sub[0]['nama_giat']])){
+							$prog_keg[$kd_keg_simda]['nama_giat'] = $keg_mapping[$sub[0]['nama_giat']];
+						}
+						if(!empty($subkeg_mapping[$sub[0]['nama_sub_giat']])){
+							$prog_keg[$kd_keg_simda]['nama_sub_giat'] = $subkeg_mapping[$sub[0]['nama_sub_giat']];
+						}
+					}
+
+					$kode_akun = $spd->kd_rek90_1.'.'.$spd->kd_rek90_2.'.'.$spd->kd_rek90_3.'.'.$spd->kd_rek90_4.'.'.$spd->kd_rek90_5.'.'.$spd->kd_rek90_6;
+					$prog_keg[$kd_keg_simda]['kode_akun'] = $kode_akun;
+					if(!empty($rek_mapping[$kode_akun])){
+						$prog_keg[$kd_keg_simda]['kode_akun'] = $rek_mapping[$kode_akun];
+						$akun = explode('.', $rek_mapping[$kode_akun]);
+						$data_spd[$k]->kd_rek90_1 = $akun[0];
+						$data_spd[$k]->kd_rek90_2 = $akun[1];
+						$data_spd[$k]->kd_rek90_3 = $akun[2];
+						$data_spd[$k]->kd_rek90_4 = $akun[3];
+						$data_spd[$k]->kd_rek90_5 = $akun[4];
+						$data_spd[$k]->kd_rek90_6 = $akun[5];
+					}
+					$data_spd[$k]->detail = $prog_keg[$kd_keg_simda];
+				}
+				$return['data'] = $data_spd;
+			}else{
+				$return = array(
+					'status' => 'error',
+					'message'	=> 'Api Key tidak sesuai!'
+				);
+			}
+		}else{
+			$return = array(
+				'status' => 'error',
+				'message'	=> 'Format tidak sesuai!'
+			);
+		}
+		if($cek_return){
+			return $return;
+		}else{
+			die(json_encode($return));
+		}
+	}
+
+	public function get_sp2b_rinci($cek_return = false){
+		global $wpdb;
+		$return = array(
+			'action' => $_POST['action'],
+			'status' => 'success',
+			'message' => 'Berhasil get SP2B rinci!',
+			'data'	=> array()
+		);
+
+		if(!empty($_POST)){
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+				$tahun_anggaran = $_POST['tahun_anggaran'];
+				$sql = $wpdb->prepare("
+					SELECT 
+						s.*,
+						r.kd_rek90_1,
+						r.kd_rek90_2,
+						r.kd_rek90_3,
+						r.kd_rek90_4,
+						r.kd_rek90_5,
+						r.kd_rek90_6
+					FROM ta_sp3b_rinc s
+					left join ref_rek_mapping r on r.kd_rek_1=s.kd_rek_1
+						and r.kd_rek_2=s.kd_rek_2
+						and r.kd_rek_3=s.kd_rek_3
+						and r.kd_rek_4=s.kd_rek_4
+						and r.kd_rek_5=s.kd_rek_5
+					where s.tahun=%d
+						and s.no_sp3b=%s
+						and s.kd_urusan=%d
+						and s.kd_bidang=%d
+						and s.kd_unit=%d
+						and s.kd_sub=%d
+					", 
+					$tahun_anggaran, 
+					$_POST['no_sp2b'], 
+					$_POST['kd_urusan'], 
+					$_POST['kd_bidang'], 
+					$_POST['kd_unit'], 
+					$_POST['kd_sub']
+				);
+				$return['sql'] = $sql;
+				$data_spd = $this->simda->CurlSimda(array(
+					'query' => $sql,
+					'debug' => 1
+				));
+				$program_mapping = $this->get_fmis_mapping(array(
+					'name' => '_crb_custom_mapping_program_fmis'
+				));
+				$keg_mapping = $this->get_fmis_mapping(array(
+					'name' => '_crb_custom_mapping_keg_fmis'
+				));
+				$subkeg_mapping = $this->get_fmis_mapping(array(
+					'name' => '_crb_custom_mapping_subkeg_fmis'
+				));
+				$rek_mapping = $this->get_fmis_mapping(array(
+					'name' => '_crb_custom_mapping_rekening_fmis'
+				));
+				$prog_keg = array();
+				foreach($data_spd as $k => $spd){
+					$kd_urusan_asli = substr($spd->id_prog, 0, 1);
+					$kd_bidang_asli = (int) substr($spd->id_prog, 1);
+					$kd_keg_simda = $kd_urusan_asli.'.'.$kd_bidang_asli.'.'.$spd->kd_prog.'.'.$spd->kd_keg;
+					if(empty($prog_keg[$kd_keg_simda])){
+						$prog_keg[$kd_keg_simda] = array();
+						$sql = "
+							SELECT 
+								m.*
+							from ref_kegiatan_mapping m
+							where m.kd_urusan=$kd_urusan_asli
+								and m.kd_bidang=$kd_bidang_asli
+								and m.kd_prog=$spd->kd_prog
+								and m.kd_keg=$spd->kd_keg
+						";
+						$mapping = $this->simda->CurlSimda(array(
+							'query' => $sql,
+							'debug' => 1
+						));
+						$kd_urusan_sipd = $mapping[0]->kd_urusan90;
+						$kd_bidang_sipd = $mapping[0]->kd_bidang90;
+						if($mapping[0]->kd_program90 == 1){
+							$kd_urusan_sipd = 'X';
+							$kd_bidang_sipd = 'XX';
+						}
+						$kode_sub = $kd_urusan_sipd.'.'.$this->simda->CekNull($kd_bidang_sipd).'.'.$this->simda->CekNull($mapping[0]->kd_program90).'.'.$mapping[0]->kd_kegiatan90.'.'.$this->simda->CekNull($mapping[0]->kd_sub_kegiatan);
+						$sub = $wpdb->get_results($wpdb->prepare("
+							select
+								*
+							from data_prog_keg
+							where tahun_anggaran=%d
+								and kode_sub_giat=%s
+						", $tahun_anggaran, $kode_sub), ARRAY_A);
+
+						$sub[0]['nama_program'] = explode(' ', $sub[0]['nama_program']);
+						unset($sub[0]['nama_program'][0]);
+						$sub[0]['nama_program'] = implode(' ', $sub[0]['nama_program']);
+
+						$sub[0]['nama_giat'] = explode(' ', $sub[0]['nama_giat']);
+						unset($sub[0]['nama_giat'][0]);
+						$sub[0]['nama_giat'] = implode(' ', $sub[0]['nama_giat']);
+
+						$sub[0]['nama_sub_giat'] = explode(' ', $sub[0]['nama_sub_giat']);
+						unset($sub[0]['nama_sub_giat'][0]);
+						$sub[0]['nama_sub_giat'] = implode(' ', $sub[0]['nama_sub_giat']);
+
+						$prog_keg[$kd_keg_simda]['nama_program'] = $sub[0]['nama_program'];
+						$prog_keg[$kd_keg_simda]['nama_giat'] = $sub[0]['nama_giat'];
+						$prog_keg[$kd_keg_simda]['nama_sub_giat'] = $sub[0]['nama_sub_giat'];
+						if(!empty($program_mapping[$sub[0]['nama_program']])){
+							$prog_keg[$kd_keg_simda]['nama_program'] = $program_mapping[$sub[0]['nama_program']];
+						}
+						if(!empty($keg_mapping[$sub[0]['nama_giat']])){
+							$prog_keg[$kd_keg_simda]['nama_giat'] = $keg_mapping[$sub[0]['nama_giat']];
+						}
+						if(!empty($subkeg_mapping[$sub[0]['nama_sub_giat']])){
+							$prog_keg[$kd_keg_simda]['nama_sub_giat'] = $subkeg_mapping[$sub[0]['nama_sub_giat']];
+						}
+					}
+
+					$kode_akun = $spd->kd_rek90_1.'.'.$spd->kd_rek90_2.'.'.$spd->kd_rek90_3.'.'.$spd->kd_rek90_4.'.'.$spd->kd_rek90_5.'.'.$spd->kd_rek90_6;
+					$prog_keg[$kd_keg_simda]['kode_akun'] = $kode_akun;
+					if(!empty($rek_mapping[$kode_akun])){
+						$prog_keg[$kd_keg_simda]['kode_akun'] = $rek_mapping[$kode_akun];
+						$akun = explode('.', $rek_mapping[$kode_akun]);
+						$data_spd[$k]->kd_rek90_1 = $akun[0];
+						$data_spd[$k]->kd_rek90_2 = $akun[1];
+						$data_spd[$k]->kd_rek90_3 = $akun[2];
+						$data_spd[$k]->kd_rek90_4 = $akun[3];
+						$data_spd[$k]->kd_rek90_5 = $akun[4];
+						$data_spd[$k]->kd_rek90_6 = $akun[5];
+					}
+					$data_spd[$k]->detail = $prog_keg[$kd_keg_simda];
+				}
+				$return['data'] = $data_spd;
+			}else{
+				$return = array(
+					'status' => 'error',
+					'message'	=> 'Api Key tidak sesuai!'
+				);
+			}
+		}else{
+			$return = array(
+				'status' => 'error',
+				'message'	=> 'Format tidak sesuai!'
+			);
+		}
+		if($cek_return){
+			return $return;
+		}else{
+			die(json_encode($return));
+		}
+	}
+
+	public function get_pegawai_simda(){
+		global $wpdb;
+		$return = array(
+			'action' => $_POST['action'],
+			'status' => 'success',
+			'message' => 'Berhasil get data Pegawai SIMDA!',
+			'data'	=> array()
+		);
+
+		if(!empty($_POST)){
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+				$tahun_anggaran = $_POST['tahun_anggaran'];
+				$sql = $wpdb->prepare("
+					SELECT 
+						p.*,
+						j.nm_jab
+					from ta_sub_unit_jab p
+					left join ref_jabatan j on p.kd_jab=j.kd_jab
+					where p.tahun=%d
+					", 
+					$tahun_anggaran
+				);
+				$return['sql'] = $sql;
+				$data_pegawai = $this->simda->CurlSimda(array(
+					'query' => $sql,
+					'debug' => 1
+				));
+				$mapping_skpd = $this->get_id_skpd_fmis(false, $tahun_anggaran);
+				foreach($data_pegawai as $k => $pegawai){
+					$kd_sub_unit = $pegawai->kd_urusan.'.'.$pegawai->kd_bidang.'.'.$pegawai->kd_unit.'.'.$pegawai->kd_sub;
+					$data_pegawai[$k]->kd_sub_unit = $kd_sub_unit;
+					if(!empty($mapping_skpd['id_mapping_simda'][$kd_sub_unit])){
+						$data_pegawai[$k]->skpd = $mapping_skpd['id_mapping_simda'][$kd_sub_unit];
+					}
+				}
+				$return['data'] = $data_pegawai;
+			}else{
+				$return = array(
+					'status' => 'error',
+					'message'	=> 'Api Key tidak sesuai!'
+				);
+			}
+		}else{
+			$return = array(
+				'status' => 'error',
+				'message'	=> 'Format tidak sesuai!'
+			);
+		}
+		die(json_encode($return));
+	}
+
+	public function cek_api_key(){
+		global $wpdb;
+		$return = array(
+			'action' => $_POST['action'],
+			'status' => 'success',
+			'api_key' => '',
+			'message' => 'Berhasil cek lisensi!'
+		);
+
+		if(!empty($_POST)){
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+				$res = $this->simda->cek_lisensi(array(
+					'api_key' => $_POST['api_key']
+				));
+				$return = array_merge($return, $res);
+			}else{
+				$return['status'] = 'error';
+				$return['message']	= 'Api Key tidak sesuai!';
+			}
+		}else{
+			$return['status'] = 'error';
+			$return['message']	= 'Format tidak sesuai!';
+		}
+		die(json_encode($return));
+	}
+
+	public function get_data_ssh_analisis_skpd(){
+		global $wpdb;
+		$return = array(
+			'status' => 'success',
+			'data'	=> array()
+		);
+
+		$table_content = '';
+		if(!empty($_POST)){
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+				$params = $columns = $totalRecords = $data = array();
+				$params = $_REQUEST;
+				$columns = array( 
+					0 =>'nama_komponen',
+					1 =>'spek_komponen', 
+					2 => 'harga_satuan',
+					3 => 'satuan',
+					4 => 'SUM(volume) as volume',
+					5 => 'SUM(total_harga) as total'
+				);
+				$where = $sqlTot = $sqlRec = "";
+
+				// check search value exist
+				if( !empty($params['search']['value']) ) {
+					$where .=" AND ( nama_komponen LIKE ".$wpdb->prepare('%s', "%".$params['search']['value']."%");    
+					$where .=" OR spek_komponen LIKE ".$wpdb->prepare('%s', "%".$params['search']['value']."%");
+					$where .=" OR harga_satuan LIKE ".$wpdb->prepare('%s', "%".$params['search']['value']."%");
+					$where .=" OR satuan LIKE ".$wpdb->prepare('%s', "%".$params['search']['value']."%").")";
+				}
+
+				// mengambil data per skpd
+				$sqlKodeBl = '';
+				if($_POST['id_skpd'] != 0){
+					$data_bl = array();
+					$sql = "SELECT kode_bl FROM data_sub_keg_bl WHERE id_skpd = ".$wpdb->prepare('%s', $_POST['id_skpd'])." GROUP BY id_skpd,kode_bl";
+					$run = $wpdb->get_results($sql,ARRAY_A);
+					foreach ($run as $value) {
+						array_push($data_bl,strval($value['kode_bl']));
+					}
+					$sqlKodeBl = " and kode_bl in ('".implode("','", $data_bl)."')";
+				}
+
+				// getting total number records without any search
+				$sql_tot = "SELECT count(*) as jml FROM `data_rka`";
+				$sql = "SELECT ".implode(', ', $columns)." FROM `data_rka`";
+				$where_first = " WHERE active=1 and tahun_anggaran=".$wpdb->prepare('%d', $params['tahun_anggaran']).$sqlKodeBl;
+				$sqlTot .= $sql_tot.$where_first;
+				$sqlRec .= $sql.$where_first;
+				if(isset($where) && $where != '') {
+					$sqlTot .= $where;
+					$sqlRec .= $where;
+				}
+
+			 	$sqlRec .=  " GROUP by nama_komponen, spek_komponen, harga_satuan ORDER BY total DESC, ". $columns[$params['order'][0]['column']]."   ".$params['order'][0]['dir']."  LIMIT ".$params['start']." ,".$params['length']." ";
+				$sqlTot .=  " GROUP by nama_komponen, spek_komponen, harga_satuan";
+
+				$queryTot = $wpdb->get_results($sqlTot, ARRAY_A);
+				$totalRecords = count($queryTot);
+				$queryRecords = $wpdb->get_results($sqlRec, ARRAY_A);
+
+				$title = 'Laporan Data per Item SSH';
+				$shortcode = '[laporan_per_item_ssh]';
+				$update = false;
+				$url_skpd = $this->generatePage($title, $params['tahun_anggaran'], $shortcode, $update);
+
+				foreach($queryRecords as $key => $val){
+					$queryRecords[$key]['nama_komponen'] = '<a href="'.$url_skpd.'&nama_komponen='.$val['nama_komponen'].'&spek_komponen='.$val['spek_komponen'].'&harga_satuan='.$val['harga_satuan'].'&satuan='.$val['satuan'].'&id_skpd='.$_POST['id_skpd'].'" target="_blank" style="text-decoration: none;">'.$val['nama_komponen'].'</a>';
+				}
+
+				$json_data = array(
+					"draw"            => intval( $params['draw'] ),   
+					"recordsTotal"    => intval( $totalRecords ),  
+					"recordsFiltered" => intval($totalRecords),
+					"data"            => $queryRecords
+				);
+
+				die(json_encode($json_data));
+			}else{
+				$return = array(
+					'status' => 'error',
+					'message'	=> 'Api Key tidak sesuai!'
+				);
+			}
+		}else{
+			$return = array(
+				'status' => 'error',
+				'message'	=> 'Format tidak sesuai!'
+			);
+		}
+		die(json_encode($return));
+	}
+
+	function singkroniasi_spd_fmis(){
+		global $wpdb;
+		$return = array(
+			'action' => $_POST['action'],
+			'status' => 'success',
+			'message' => 'Berhasil singkronisasi data SPD!'
+		);
+
+		if(!empty($_POST)){
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+				$tahun_anggaran = $_POST['tahun_anggaran'];
+				$spd = json_decode(stripslashes(html_entity_decode($_POST['data'])));
+				$cek = $wpdb->get_results($wpdb->prepare("
+						select 
+							id 
+						from data_spd 
+						where tahun_anggaran=%d and no_spd=%s
+					", $tahun_anggaran, $spd->spd_no), ARRAY_A);
+				$data_spd = array(
+				 	'no_spd' => $spd->spd_no,
+				 	'uraian' => $spd->uraian,
+				 	'id_skpd_fmis' => $spd->idunit,
+				 	'created_at' => $spd->spd_tgl+' 00:00:00',
+				 	'active' => 1,
+				 	'tahun_anggaran' => $tahun_anggaran
+				);
+				if(empty($cek)){
+					$wpdb->insert('data_spd', $data_spd);
+				}else{
+					$wpdb->update('data_spd', $data_spd, array( 'id' => $cek['id'] ) );
+				}
+				$wpdb->update('data_spd_rinci', array('active' => 0),
+					array(
+						'tahun_anggaran' => $tahun_anggaran,
+						'no_spd' => $spd->spd_no
+					)
+				);
+				foreach($spd->spd_fmis_rinci as $k => $v){
+					$cek = $wpdb->get_results($wpdb->prepare("
+						select 
+							id 
+						from data_spd_rinci 
+						where tahun_anggaran=%d 
+							and no_spd=%s
+							and kdrek1=%d
+							and kdrek2=%d
+							and kdrek3=%d
+							and kdrek4=%d
+							and kdrek5=%d
+							and kdrek6=%d
+							and idrefaktivitas=%d
+							and idsubunit=%d
+						", 
+						$tahun_anggaran, 
+						$no_spd, 
+						$v->kdrek1, 
+						$v->kdrek2, 
+						$v->kdrek3, 
+						$v->kdrek4, 
+						$v->kdrek5, 
+						$v->kdrek6, 
+						$v->idrefaktivitas, 
+						$v->idsubunit
+					), ARRAY_A);
+					$data_spd_rinci = array(
+					 	'kdurut' => $v->kdurut,
+					 	'no_spd' => $spd->spd_no,
+						'idrefaktivitas' => $v->idrefaktivitas,
+						'idsubunit' => $v->idsubunit,
+						'kdrek1' => $v->kdrek1,
+						'kdrek2' => $v->kdrek2,
+						'kdrek3' => $v->kdrek3,
+						'kdrek4' => $v->kdrek4,
+						'kdrek5' => $v->kdrek5,
+						'kdrek6' => $v->kdrek6,
+						'nilai' => $v->nilai,
+						'rekening' => $v->rekening,
+						'aktivitas_uraian' => $v->aktivitas_uraian,
+						'subkegiatan' => $v->subkegiatan,
+					 	'active' => 1,
+					 	'tahun_anggaran' => $tahun_anggaran
+					);
+					if(empty($cek)){
+						$wpdb->insert('data_spd_rinci', $data_spd_rinci);
+					}else{
+						$wpdb->update('data_spd_rinci', $data_spd_rinci, array( 'id' => $cek['id'] ) );
+					}
+				}
+			}else{
+				$return['status'] = 'error';
+				$return['message'] = 'Api Key tidak sesuai!';
+			}
+		}else{
+			$return['status'] = 'error';
+			$return['message'] = 'Format tidak sesuai!';
+		}
+		die(json_encode($return));
+	}
+
+	public function get_data_chart_ssh_skpd(){
+		global $wpdb;
+		$return = array(
+			'status' => 'success',
+			'data'	=> array()
+		);
+
+		if(!empty($_POST)){
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+				// mengambil data per skpd
+				$sqlKodeBl = '';
+				if($_POST['id_skpd'] != 0){
+					$data_bl = array();
+					$sql = "SELECT kode_bl FROM data_sub_keg_bl WHERE id_skpd = ".$wpdb->prepare('%s', $_POST['id_skpd'])." GROUP BY id_skpd,kode_bl";
+					$run = $wpdb->get_results($sql,ARRAY_A);
+					foreach ($run as $value) {
+						array_push($data_bl,strval($value['kode_bl']));
+					}
+					$sqlKodeBl = " and kode_bl in ('".implode("','", $data_bl)."')";
+				}
+
+				$data_ssh = $wpdb->get_results("SELECT nama_komponen, spek_komponen, harga_satuan, satuan, volume, sum(total_harga) as total FROM `data_rka` where active=1 and tahun_anggaran=".$wpdb->prepare('%d', $_POST['tahun_anggaran']).$sqlKodeBl." GROUP by nama_komponen, spek_komponen, harga_satuan order by total desc limit 20",ARRAY_A);
+
+				$return = array(
+					'status' => 'success',
+					'data' => $data_ssh
+				);
+			}else{
+				$return = array(
+					'status' => 'error',
+					'message'	=> 'Api Key tidak sesuai!'
+				);
+			}
+		}else{
+			$return = array(
+				'status' => 'error',
+				'message'	=> 'Format tidak sesuai!'
+			);
+		}
+		die(json_encode($return));
+	}
+
+	/** Submit edit usulan SSH */
+	public function submit_edit_usulan_ssh(){
+		global $wpdb;
+		$return = array(
+			'status' => 'success',
+			'data'	=> array()
+		);
+
+		$user_id = um_user( 'ID' );
+		$user_meta = get_userdata($user_id);
+
+		$table_content = '';
+		if(!empty($_POST)){
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+				if(!empty($_POST['kategori']) && !empty($_POST['spesifikasi']) && !empty($_POST['satuan']) && !empty($_POST['harga_satuan']) && !empty($_POST['jenis_produk']) && !empty($_POST['tkdn']) && !empty($_POST['tahun_anggaran']) && !empty($_POST['keterangan_lampiran']) && !empty($_POST['id_standar_harga'])){
+					$kategori 				= trim(htmlspecialchars($_POST['kategori']));
+					$nama_standar_harga 	= trim(htmlspecialchars($_POST['nama_komponen']));
+					$spek 					= trim(htmlspecialchars($_POST['spesifikasi']));
+					$satuan 				= trim(htmlspecialchars($_POST['satuan']));
+					$harga					= trim(htmlspecialchars($_POST['harga_satuan']));
+					$tahun_anggaran 		= trim(htmlspecialchars($_POST['tahun_anggaran']));
+					$keterangan_lampiran 	= trim(htmlspecialchars($_POST['keterangan_lampiran']));
+					$akun 					= $_POST['akun'];
+					$id_standar_harga		= trim(htmlspecialchars($_POST['id_standar_harga']));
+					$jenis_produk 			= trim(htmlspecialchars($_POST['jenis_produk']));
+					$jenis_produk 			= ($jenis_produk == 'dalam_negeri' || $jenis_produk == 'luar_negeri') ? $jenis_produk : NULL;
+					$tkdn 					= trim(htmlspecialchars($_POST['tkdn']));
+					
+					$data_kategori = $wpdb->get_results($wpdb->prepare("SELECT kode_kategori,uraian_kategori FROM data_kelompok_satuan_harga WHERE id_kategori = %d",$kategori), ARRAY_A);
+					$data_this_id_ssh = $wpdb->get_results($wpdb->prepare('SELECT id_standar_harga,kode_kel_standar_harga,kode_standar_harga,status,status_upload_sipd FROM data_ssh_usulan WHERE id_standar_harga = %d',$id_standar_harga), ARRAY_A);
+
+					if($data_this_id_ssh[0]['status'] == 'waiting' || in_array("administrator", $user_meta->roles)){
+						if($data_this_id_ssh[0]['status_upload_sipd'] != 1){
+							$date_now = date("Y-m-d H:i:s");
+	
+							//avoid double data ssh
+							$data_avoid = $wpdb->get_results($wpdb->prepare("
+								SELECT 
+									id 
+								FROM data_ssh
+								WHERE 
+									nama_standar_harga = %s AND
+									satuan = %s AND
+									spek = %s AND
+									harga = %s AND
+									kode_kel_standar_harga = %s AND
+									NOT id_standar_harga = %d",
+								$nama_standar_harga,
+								$satuan,
+								$spek,
+								$harga,
+								$data_kategori[0]['kode_kategori'],
+								$id_standar_harga
+							), ARRAY_A);
+	
+							//avoid double data ssh usulan
+							$data_avoid_usulan = $wpdb->get_results($wpdb->prepare("
+								SELECT 
+									id 
+								FROM data_ssh_usulan 
+								WHERE 
+									nama_standar_harga = %s AND
+									satuan = %s AND
+									spek = %s AND
+									harga = %s AND
+									kode_kel_standar_harga = %s AND
+									NOT id_standar_harga = %d",
+								$nama_standar_harga,
+								$satuan,
+								$spek,
+								$harga,
+								$data_kategori[0]['kode_kategori'],
+								$id_standar_harga
+							), ARRAY_A);
+	
+							if(!empty($data_avoid) || !empty($data_avoid_usulan)){
+								$data_avoid = !empty($data_avoid) ? $data_avoid : $data_avoid_usulan;
+								$return = array(
+									'status' => 'error',
+									'message'	=> 'Standar Harga Sudah Ada!',
+									'opsi_ssh' => $data_avoid,
+								);
+	
+								die(json_encode($return));
+							}
+		
+							if($data_this_id_ssh[0]['kode_kel_standar_harga'] != $data_kategori[0]['kode_kategori']){
+								$last_kode_standar_harga = $wpdb->get_results($wpdb->prepare("SELECT id_standar_harga,kode_standar_harga FROM `data_ssh_usulan` WHERE kode_standar_harga=(SELECT MAX(kode_standar_harga) FROM `data_ssh_usulan` WHERE kode_kel_standar_harga = %s)",$data_kategori[0]['kode_kategori']), ARRAY_A);
+								$last_kode_standar_harga = (empty($last_kode_standar_harga[0]['kode_standar_harga'])) ? "0" : explode(".",$last_kode_standar_harga[0]['kode_standar_harga']);
+								$last_kode_standar_harga = (int) end($last_kode_standar_harga);
+								$last_kode_standar_harga = $last_kode_standar_harga+1;
+								$last_kode_standar_harga = sprintf("%05d",$last_kode_standar_harga);
+								$last_kode_standar_harga = $data_kategori[0]['kode_kategori'].'.'.$last_kode_standar_harga;
+							}else{
+								$last_kode_standar_harga = $data_this_id_ssh[0]['kode_standar_harga'];
+							}
+	
+							//insert edit data usulan ssh
+							$opsi_edit_ssh = array(
+								'kode_standar_harga' => $last_kode_standar_harga,
+								'nama_standar_harga' => $nama_standar_harga,
+								'satuan' => $satuan,
+								'spek' => $spek,
+								'created_at' => $date_now,
+								'kelompok' => 1,
+								'harga' => $harga,
+								'kode_kel_standar_harga' => $data_kategori[0]['kode_kategori'],
+								'nama_kel_standar_harga' => $data_kategori[0]['uraian_kategori'],
+								'tahun_anggaran' => $tahun_anggaran,
+								'keterangan_lampiran' => $keterangan_lampiran,
+								'jenis_produk'	=> $jenis_produk,
+								'tkdn'	=> $tkdn
+							);
+	
+							$wpdb->update('data_ssh_usulan', $opsi_edit_ssh, array(
+								'id_standar_harga' => $id_standar_harga,
+								'tahun_anggaran' => $tahun_anggaran
+							));
+	
+							// get all data usulan akun existing
+							$akun_exist = $wpdb->get_results($wpdb->prepare("
+								SELECT
+									id, 
+									id_akun 
+								FROM data_ssh_rek_belanja_usulan 
+								WHERE id_standar_harga = %s
+									AND tahun_anggaran = %s",
+								$id_standar_harga,
+								$tahun_anggaran
+							), ARRAY_A);
+							$cek_akun = array();
+							foreach($akun_exist as $v_akun){
+								$cek_akun[$v_akun['id_akun']] = $v_akun;
+							}
+	
+							// get data detail akun
+							$data_akun = array();
+							foreach($akun as $v_akun){
+								$data_akun[$v_akun] = $wpdb->get_results($wpdb->prepare("SELECT id_akun,kode_akun,nama_akun FROM data_akun WHERE id_akun = %d",$v_akun), ARRAY_A);
+							}
+	
+							// input dan update akun
+							foreach($akun as $id_akun){
+								$opsi_akun = array(
+									'id_akun' => $data_akun[$id_akun][0]['id_akun'],
+									'kode_akun' => $data_akun[$id_akun][0]['kode_akun'],
+									'nama_akun' => $data_akun[$id_akun][0]['kode_akun'].' '.$data_akun[$id_akun][0]['nama_akun'],
+									'id_standar_harga' => $id_standar_harga,
+									'tahun_anggaran' => $tahun_anggaran,
+								);
+								if(empty($cek_akun[$id_akun])){
+									$wpdb->insert('data_ssh_rek_belanja_usulan', $opsi_akun);
+								}else{
+									$wpdb->update('data_ssh_rek_belanja_usulan', $opsi_akun, array(
+										'id' => $cek_akun[$id_akun]['id']
+									));
+									unset($cek_akun[$id_akun]);
+								}
+							}
+	
+							// hapus akun yang tidak dipakai
+							foreach($cek_akun as $v_akun){
+								$wpdb->delete('data_ssh_rek_belanja_usulan', array(
+									'id' => $v_akun['id']
+								), array('%d'));
+							}
+	
+							$return = array(
+								'status' => 'success',
+								'message'	=> 'Berhasil!',
+								'opsi_edit_ssh' => $opsi_edit_ssh,
+							);
+						}else{
+							$return = array(
+								'status' => 'error',
+								'message'	=> "User tidak diijinkan!\nData sudah diunggah di SIPD",
+							);
+						}
+					}else{
+						$return = array(
+							'status' => 'error',
+							'message'	=> "User tidak diijinkan!\nData sudah dalam tahap verifikasi",
+						);
+					}
+				}else{
+					$return = array(
+						'status' => 'error',
+						'message'	=> 'Harap diisi semua,tidak boleh ada yang kosong!'
+					);
+				}
+			}else{
+				$return = array(
+					'status' => 'error',
+					'message'	=> 'Api Key tidak sesuai!'
+				);
+			}
+		}else{
+			$return = array(
+				'status' => 'error',
+				'message'	=> 'Format tidak sesuai!'
+			);
+		}
+		die(json_encode($return));
+	}
+
+	/** Submit edit tambah harga usulan SSH */
+	public function submit_edit_tambah_harga_ssh(){
+		global $wpdb;
+		$return = array(
+			'status' => 'success',
+			'data'	=> array()
+		);
+
+		$user_id = um_user( 'ID' );
+		$user_meta = get_userdata($user_id);
+
+		$table_content = '';
+		if(!empty($_POST)){
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+				if(!empty($_POST['id_standar_harga']) && !empty($_POST['tahun_anggaran']) && !empty($_POST['harga_satuan']) && !empty($_POST['keterangan_lampiran'])){
+					$tahun_anggaran 		= trim(htmlspecialchars($_POST['tahun_anggaran']));
+					$keterangan_lampiran 	= trim(htmlspecialchars($_POST['keterangan_lampiran']));
+					$id_standar_harga		= trim(htmlspecialchars($_POST['id_standar_harga']));
+					$harga_satuan			= trim(htmlspecialchars($_POST['harga_satuan']));
+					
+					$data_this_id_ssh = $wpdb->get_results($wpdb->prepare('SELECT id_standar_harga,kode_kel_standar_harga,kode_standar_harga,nama_standar_harga,satuan,spek,harga,status,status_upload_sipd FROM data_ssh_usulan WHERE id_standar_harga = %d',$id_standar_harga), ARRAY_A);
+
+					if($data_this_id_ssh[0]['status'] == 'waiting' || in_array("administrator", $user_meta->roles)){
+						if($data_this_id_ssh[0]['status_upload_sipd'] != 1){
+							//avoid double data ssh
+							$data_avoid = $wpdb->get_results($wpdb->prepare("
+								SELECT 
+									id 
+								FROM data_ssh
+								WHERE 
+									nama_standar_harga = %s AND
+									satuan = %s AND
+									spek = %s AND
+									harga = %s AND
+									kode_kel_standar_harga = %s",
+								$data_this_id_ssh[0]['nama_standar_harga'],
+								$data_this_id_ssh[0]['satuan'],
+								$data_this_id_ssh[0]['spek'],
+								$harga_satuan,
+								$data_this_id_ssh[0]['kode_kel_standar_harga']
+							), ARRAY_A);
+	
+							//avoid double data ssh usulan
+							$data_avoid_usulan = $wpdb->get_results($wpdb->prepare("
+								SELECT 
+									id 
+								FROM data_ssh_usulan 
+								WHERE 
+									nama_standar_harga = %s AND
+									satuan = %s AND
+									spek = %s AND
+									harga = %s AND
+									kode_kel_standar_harga = %s AND
+									NOT id_standar_harga = %d",
+								$data_this_id_ssh[0]['nama_standar_harga'],
+								$data_this_id_ssh[0]['satuan'],
+								$data_this_id_ssh[0]['spek'],
+								$harga_satuan,
+								$data_this_id_ssh[0]['kode_kel_standar_harga'],
+								$id_standar_harga
+							), ARRAY_A);
+	
+							if(!empty($data_avoid) || !empty($data_avoid_usulan)){
+								$data_avoid = !empty($data_avoid) ? $data_avoid : $data_avoid_usulan;
+								$return = array(
+									'status' => 'error',
+									'message'	=> 'Standar Harga Sudah Ada!',
+									'data_avoid' => $data_avoid,
+								);
+	
+								die(json_encode($return));
+							}
+		
+	
+							//insert edit data tambah harga usulan ssh
+							$opsi_edit_ssh = array(
+								'harga' => $harga_satuan,
+								'keterangan_lampiran' => $keterangan_lampiran,
+							);
+	
+							$wpdb->update('data_ssh_usulan', $opsi_edit_ssh, array(
+								'id_standar_harga' => $id_standar_harga,
+								'tahun_anggaran' => $tahun_anggaran
+							));
+	
+							$return = array(
+								'status' => 'success',
+								'message'	=> 'Berhasil!',
+								'opsi_edit_ssh' => $opsi_edit_ssh,
+							);
+						}else{
+							$return = array(
+								'status' => 'error',
+								'message'	=> "User tidak diijinkan!\nData sudah diunggah di SIPD",
+							);
+						}
+					}else{
+						$return = array(
+							'status' => 'error',
+							'message'	=> "User tidak diijinkan!\nData sudah dalam tahap verifikasi",
+						);
+					}
+				}else{
+					$return = array(
+						'status' => 'error',
+						'message'	=> 'Harap diisi semua,tidak boleh ada yang kosong!'
+					);
+				}
+			}else{
+				$return = array(
+					'status' => 'error',
+					'message'	=> 'Api Key tidak sesuai!'
+				);
+			}
+		}else{
+			$return = array(
+				'status' => 'error',
+				'message'	=> 'Format tidak sesuai!'
+			);
+		}
+		die(json_encode($return));
+	}
+
+	/** Submit edit tambah akun usulan SSH */
+	public function submit_edit_tambah_akun_ssh(){
+		global $wpdb;
+		$return = array(
+			'status' => 'success',
+			'data'	=> array()
+		);
+
+		$user_id = um_user( 'ID' );
+		$user_meta = get_userdata($user_id);
+
+		$table_content = '';
+		if(!empty($_POST)){
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+				if(!empty($_POST['tahun_anggaran']) && !empty($_POST['id_standar_harga'])  && !empty($_POST['new_akun'])){
+					$tahun_anggaran 	= trim(htmlspecialchars($_POST['tahun_anggaran']));
+					$new_akun 			= $_POST['new_akun'];
+					$id_standar_harga	= trim(htmlspecialchars($_POST['id_standar_harga']));
+
+					$data_this_id_ssh = $wpdb->get_results($wpdb->prepare('SELECT id_standar_harga,kode_kel_standar_harga,kode_standar_harga,status,status_upload_sipd FROM data_ssh_usulan WHERE id_standar_harga = %d',$id_standar_harga), ARRAY_A);
+	
+					if($data_this_id_ssh[0]['status'] == 'waiting' || in_array("administrator", $user_meta->roles)){
+						if($data_this_id_ssh[0]['status_upload_sipd'] != 1){
+							// get all data usulan akun existing
+							$akun_exist = $wpdb->get_results($wpdb->prepare("
+								SELECT
+									id, 
+									id_akun 
+								FROM data_ssh_rek_belanja_usulan 
+								WHERE id_standar_harga = %s
+									AND tahun_anggaran = %s",
+								$id_standar_harga,
+								$tahun_anggaran
+							), ARRAY_A);
+					
+							/** get data exist akun by id */
+							$cek_akun = array();
+							foreach($akun_exist as $v_akun){
+								$cek_akun[$v_akun['id_akun']] = $v_akun;
+							}
+
+							// get data detail input new akun
+							$data_akun = array();
+							foreach($new_akun as $v_akun){
+								$data_akun[$v_akun] = $wpdb->get_results($wpdb->prepare("SELECT id_akun,kode_akun,nama_akun FROM data_akun WHERE id_akun = %d",$v_akun), ARRAY_A);
+							}
+
+							// input dan update akun
+							foreach($new_akun as $id_akun){
+								$opsi_akun = array(
+									'id_akun' => $data_akun[$id_akun][0]['id_akun'],
+									'kode_akun' => $data_akun[$id_akun][0]['kode_akun'],
+									'nama_akun' => $data_akun[$id_akun][0]['kode_akun'].' '.$data_akun[$id_akun][0]['nama_akun'],
+									'id_standar_harga' => $id_standar_harga,
+									'tahun_anggaran' => $tahun_anggaran,
+								);
+								if(empty($cek_akun[$id_akun])){
+									$wpdb->insert('data_ssh_rek_belanja_usulan', $opsi_akun);
+								}else{
+									$wpdb->update('data_ssh_rek_belanja_usulan', $opsi_akun, array(
+										'id' => $cek_akun[$id_akun]['id']
+									));
+									unset($cek_akun[$id_akun]);
+								}
+							}
+
+							// hapus akun yang tidak dipakai
+							foreach($cek_akun as $v_akun){
+								$wpdb->delete('data_ssh_rek_belanja_usulan', array(
+									'id' => $v_akun['id']
+								), array('%d'));
+							}
+
+							$return = array(
+								'status' => 'success',
+								'message'	=> 'Berhasil!',
+								'data' => $data_akun,
+							);
+						}else{
+							$return = array(
+								'status' => 'error',
+								'message'	=> "User tidak diijinkan!\nData sudah diunggah di SIPD",
+							);
+						}
+					}else{
+						$return = array(
+							'status' => 'error',
+							'message'	=> "User tidak diijinkan!\nData sudah dalam tahap verifikasi",
+						);
+					}
+				}else{
+					$return = array(
+						'status' => 'error',
+						'message'	=> 'Harap diisi semua,tidak boleh ada yang kosong!'
+					);
+				}
+			}else{
+				$return = array(
+					'status' => 'error',
+					'message'	=> 'Api Key tidak sesuai!'
+				);
+			}
+		}else{
+			$return = array(
+				'status' => 'error',
+				'message'	=> 'Format tidak sesuai!'
+			);
+		}
+		die(json_encode($return));
+	}
+
+	public function submit_delete_usulan_ssh(){
+		global $wpdb;
+		$return = array(
+			'status' => 'success',
+			'data'	=> array()
+		);
+
+		$user_id = um_user( 'ID' );
+		$user_meta = get_userdata($user_id);
+
+		$table_content = '';
+		if(!empty($_POST)){
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+				$id_standar_harga		= $_POST['id_standar_harga'];
+				$tahun_anggaran			= $_POST['tahun_anggaran'];
+
+				$data_this_id_ssh = $wpdb->get_results($wpdb->prepare('SELECT id_standar_harga,kode_kel_standar_harga,kode_standar_harga,status,status_upload_sipd FROM data_ssh_usulan WHERE id_standar_harga = %d',$id_standar_harga), ARRAY_A);
+
+				if($data_this_id_ssh[0]['status'] == 'waiting' || in_array("administrator", $user_meta->roles)){
+					if($data_this_id_ssh[0]['status_upload_sipd'] != 1){
+						$wpdb->delete('data_ssh_usulan', array(
+							'tahun_anggaran' => $tahun_anggaran,
+							'id_standar_harga' => $id_standar_harga
+						), array('%d', '%d'));
+					
+						$wpdb->delete('data_ssh_rek_belanja_usulan', array(
+							'tahun_anggaran' => $tahun_anggaran,
+							'id_standar_harga' => $id_standar_harga
+						), array('%d', '%d'));
+	
+						$return = array(
+							'status' => 'success',
+							'message'	=> 'Berhasil!',
+						);
+					}else{
+						$return = array(
+							'status' => 'error',
+							'message'	=> "User tidak diijinkan!\nData sudah diunggah di SIPD",
+						);
+					}
+				}else{
+					$return = array(
+						'status' => 'error',
+						'message'	=> "User tidak diijinkan!\nData sudah dalam tahap verifikasi",
+					);
+				}
+
+			}else{
+				$return = array(
+					'status' => 'error',
+					'message'	=> 'Api Key tidak sesuai!'
+				);
+			}
+		}else{
+			$return = array(
+				'status' => 'error',
+				'message'	=> 'Format tidak sesuai!'
+			);
+		}
+		die(json_encode($return));
+	}
+
+	public function submit_delete_akun_usulan_ssh(){
+		global $wpdb;
+		$return = array(
+			'status' => 'success',
+			'data'	=> array()
+		);
+		$user_id = um_user( 'ID' );
+		$user_meta = get_userdata($user_id);
+
+		$table_content = '';
+		if(!empty($_POST)){
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+				$id_standar_harga		= $_POST['id_standar_harga'];
+				$tahun_anggaran			= $_POST['tahun_anggaran'];
+				$id_rek_akun_usulan_ssh	= $_POST['id_rek_akun_usulan_ssh'];
+
+				$data_this_id_ssh = $wpdb->get_results($wpdb->prepare('SELECT id_standar_harga,kode_kel_standar_harga,kode_standar_harga,status FROM data_ssh_usulan WHERE id_standar_harga = %d',$id_standar_harga), ARRAY_A);
+
+				if($data_this_id_ssh[0]['status'] == 'waiting' || in_array("administrator", $user_meta->roles)){
+					$wpdb->delete('data_ssh_rek_belanja_usulan', array(
+						'id'				=> $id_rek_akun_usulan_ssh,
+						'tahun_anggaran' 	=> $tahun_anggaran,
+						'id_standar_harga' 	=> $id_standar_harga
+					), array('%d', '%d'));
+
+					$return = array(
+						'status' => 'success',
+						'message'	=> 'Berhasil!',
+					);
+				}else{
+					$return = array(
+						'status' => 'error',
+						'message'	=> "User tidak diijinkan!\nData sudah dalam tahap verifikasi",
+					);
+				}
+
+			}else{
+				$return = array(
+					'status' => 'error',
+					'message'	=> 'Api Key tidak sesuai!'
+				);
+			}
+		}else{
+			$return = array(
+				'status' => 'error',
+				'message'	=> 'Format tidak sesuai!'
+			);
+		}
+		die(json_encode($return));
+	}
+
+	/** Submit delete check multi select */
+	public function submit_delete_check_usulan_ssh(){
+		global $wpdb;
+		$return = array(
+			'status' => 'success',
+			'data'	=> array()
+		);
+
+		$user_id = um_user( 'ID' );
+		$user_meta = get_userdata($user_id);
+
+		$table_content = '';
+		if(!empty($_POST)){
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+				// $id_standar_harga		= $_POST['id_standar_harga'];
+				$tahun_anggaran			= $_POST['tahun_anggaran'];
+				$check_id_arr = $_POST['check_id_arr'];
+
+				foreach($check_id_arr as $deleteid){
+					$data_this_id_ssh = $wpdb->get_results($wpdb->prepare('SELECT id_standar_harga,kode_kel_standar_harga,kode_standar_harga,status,status_upload_sipd FROM data_ssh_usulan WHERE id_standar_harga = %d',$deleteid), ARRAY_A);
+					if($data_this_id_ssh[0]['status'] == 'waiting' || in_array("administrator", $user_meta->roles)){
+						if($data_this_id_ssh[0]['status_upload_sipd'] != 1){
+							$wpdb->delete('data_ssh_usulan', array(
+								'id_standar_harga'	=> $deleteid,
+								'tahun_anggaran' 	=> $tahun_anggaran
+							), array('%d', '%d'));
+	
+							$wpdb->delete('data_ssh_rek_belanja_usulan', array(
+								'tahun_anggaran' => $tahun_anggaran,
+								'id_standar_harga' => $deleteid
+							), array('%d', '%d'));
+						
+							$return = array(
+								'status' => 'success',
+								'message'	=> 'Berhasil!',
+							);
+						}else{
+							$return = array(
+								'status' => 'error',
+								'message'	=> "User tidak diijinkan!\nAda data yang sudah diunggah di SIPD",
+							);
+						}
+					}else{
+						$return = array(
+							'status' => 'error',
+							'message'	=> "User tidak diijinkan!\nData sudah dalam tahap verifikasi",
+						);
+					}
+				}
+			}else{
+				$return = array(
+					'status' => 'error',
+					'message'	=> 'Api Key tidak sesuai!'
+				);
+			}
+		}else{
+			$return = array(
+				'status' => 'error',
+				'message'	=> 'Format tidak sesuai!'
+			);
+		}
+		die(json_encode($return));
+	}
+
+	/** Submit approve check multi select */
+	public function submit_approve_check_usulan_ssh(){
+		global $wpdb;
+		$return = array(
+			'status' => 'success',
+			'data'	=> array()
+		);
+
+		$user_id = um_user( 'ID' );
+		$user_meta = get_userdata($user_id);
+
+		$table_content = '';
+		if(!empty($_POST)){
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+				$tahun_anggaran	= $_POST['tahun_anggaran'];
+				$check_id_arr	= $_POST['check_id_arr'];
+				$status			= $_POST['status'];
+				$alasan			= $_POST['alasan'];
+
+				if(!empty($_POST['check_id_arr']) && !empty($_POST['status'])){
+					if($status =='notapprove' && $_POST['alasan'] == ""){
+						$return = array(
+							'status' => 'error',
+							'message'	=> 'Alasan tidak boleh kosong!',
+						);
+					}else{
+						foreach($check_id_arr as $checked_id){
+							$data_this_id_ssh = $wpdb->get_results($wpdb->prepare('SELECT id_standar_harga,kode_kel_standar_harga,kode_standar_harga,status,status_upload_sipd FROM data_ssh_usulan WHERE id_standar_harga = %d',$checked_id), ARRAY_A);
+							if($data_this_id_ssh[0]['status'] == 'waiting' || in_array("administrator", $user_meta->roles)){
+								if($data_this_id_ssh[0]['status_upload_sipd'] != 1){
+									$date_now = date("Y-m-d H:i:s");
+					
+									$status_usulan_ssh = ($status == 'approve') ? 'approved' : 'rejected';
+					
+									$keterangan_status = (!empty($alasan)) ? $alasan : NULL;
+					
+									//update status data usulan ssh
+									$opsi_ssh = array(
+										'status' => $status_usulan_ssh,
+										'keterangan_status' => $keterangan_status,
+										'update_at' => $date_now,
+									);
+					
+									$where_ssh = array(
+										'id_standar_harga' => $checked_id
+									);
+					
+									$wpdb->update('data_ssh_usulan',$opsi_ssh,$where_ssh);
+									
+									$return = array(
+										'status' => 'success',
+										'message'	=> 'Berhasil!',
+									);
+								}else{
+									$return = array(
+										'status' => 'error',
+										'message'	=> "User tidak diijinkan!\nAda data yang sudah diunggah di SIPD",
+									);
+								}
+							}else{
+								$return = array(
+									'status' => 'error',
+									'message'	=> "User tidak diijinkan!\nData sudah dalam tahap verifikasi",
+								);
+							}
+						}
+					}
+				}else{
+					$return = array(
+						'status' => 'error',
+						'message'	=> 'Tidak ada data yang dipilih!'
+					);
+				}
+			}else{
+				$return = array(
+					'status' => 'error',
+					'message'	=> 'Api Key tidak sesuai!'
+				);
+			}
+		}else{
+			$return = array(
+				'status' => 'error',
+				'message'	=> 'Format tidak sesuai!'
+			);
+		}
+		die(json_encode($return));
+	}
+
+	public function singkron_kategori_ssh(){
+		global $wpdb;
+		$return = array(
+			'action' => $_POST['action'],
+			'status' => 'success',
+			'message' => 'Berhasil singkronisasi data kategori satuan harga!',
+			'data'	=> array()
+		);
+
+		if(!empty($_POST)){
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+				$kategori = $_POST['kategori'];
+				$wpdb->update('data_kelompok_satuan_harga', array('active' => 0), array(
+					'tahun_anggaran'	=> $_POST['tahun_anggaran'],
+					'tipe_kelompok' => $_POST['tipe_ssh']
+				));
+				foreach ($kategori as $k => $v) {
+					$cek = $wpdb->get_var($wpdb->prepare("
+						SELECT 
+							id 
+						from data_kelompok_satuan_harga 
+						where tahun_anggaran=%d 
+							AND id_kategori=%s
+							AND tipe_kelompok=%s",
+						$_POST['tahun_anggaran'],
+						$v['id_kategori'],
+						$v['kelompok']
+					));
+					$opsi = array(
+						'id_kategori' => $v['id_kategori'],
+						'kode_kategori' => $v['kode_kategori'],
+						'uraian_kategori' => $v['uraian_kategori'],
+						'tipe_kelompok' => $v['kelompok'],
+						'active' => 1,
+						'tahun_anggaran'	=> $_POST['tahun_anggaran']
+					);
+					if (!empty($cek)) {
+						$wpdb->update('data_kelompok_satuan_harga', $opsi, array(
+							'tahun_anggaran'	=> $_POST['tahun_anggaran'],
+							'id_kategori' => $v['id_kategori']
+						));
+					} else {
+						$wpdb->insert('data_kelompok_satuan_harga', $opsi);
+					}
+				}
+			}else{
+				$return = array(
+					'status' => 'error',
+					'message'	=> 'Api Key tidak sesuai!'
+				);
+			}
+		}else{
+			$return = array(
+				'status' => 'error',
+				'message'	=> 'Format tidak sesuai!'
+			);
+		}
+		die(json_encode($return));
+	}
+
+	public function singkron_satuan(){
+		global $wpdb;
+		$return = array(
+			'action' => $_POST['action'],
+			'status' => 'success',
+			'message' => 'Berhasil singkronisasi data kategori dan satuan!',
+			'data'	=> array()
+		);
+
+		if(!empty($_POST)){
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+				$satuan = $_POST['satuan'];
+				foreach ($satuan as $k => $v) {
+					$cek = $wpdb->get_var($wpdb->prepare("
+						SELECT 
+							id 
+						from data_satuan 
+						where tahun_anggaran=%d 
+							AND nama_satuan=%s",
+						$_POST['tahun_anggaran'],
+						$v['satuan']
+					));
+					$opsi = array(
+						'nama_satuan' => $v['satuan'],
+						'tahun_anggaran'	=> $_POST['tahun_anggaran']
+					);
+					if (!empty($cek)) {
+						$wpdb->update('data_satuan', $opsi, array(
+							'tahun_anggaran'	=> $_POST['tahun_anggaran'],
+							'nama_satuan' => $v['satuan']
+						));
+					} else {
+						$wpdb->insert('data_satuan', $opsi);
+					}
+				}
+			}else{
+				$return = array(
+					'status' => 'error',
+					'message'	=> 'Api Key tidak sesuai!'
+				);
+			}
+		}else{
+			$return = array(
+				'status' => 'error',
+				'message'	=> 'Format tidak sesuai!'
+			);
+		}
+		die(json_encode($return));
+	}
+
+	public function get_usulan_ssh_sipd(){
+		global $wpdb;
+		$return = array(
+			'action' => $_POST['action'],
+			'status' => 'success',
+			'message' => 'Berhasil get usulan SSH!',
+			'data'	=> array()
+		);
+
+		if(!empty($_POST)){
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+				$data = $wpdb->get_results($wpdb->prepare("
+					SELECT 
+						s.*
+					from data_ssh_usulan as s
+					where s.tahun_anggaran=%d
+						and s.status='approved'
+						and (
+							s.status_upload_sipd is null
+							OR s.status_upload_sipd=0
+						)
+					",
+					$_POST['tahun_anggaran']
+				), ARRAY_A);
+				foreach($data as $k => $v){
+					$data[$k]['akun'] = $wpdb->get_results($wpdb->prepare("
+						SELECT 
+							r.*
+						from data_ssh_rek_belanja_usulan r 
+						where r.id_standar_harga=%d
+							and r.tahun_anggaran=%d
+						",
+						$v['id_standar_harga'],
+						$_POST['tahun_anggaran']
+					), ARRAY_A);
+				}
+				$return['data'] = $data;
+			}else{
+				$return = array(
+					'status' => 'error',
+					'message'	=> 'Api Key tidak sesuai!'
+				);
+			}
+		}else{
+			$return = array(
+				'status' => 'error',
+				'message'	=> 'Format tidak sesuai!'
+			);
+		}
+		die(json_encode($return));
+	}
+
+	public function update_usulan_ssh_sipd(){
+		global $wpdb;
+		$return = array(
+			'action' => $_POST['action'],
+			'status' => 'success',
+			'message' => 'Berhasil update status usulan SSH!'
+		);
+
+		if(!empty($_POST)){
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+				foreach($_POST['data_id'] as $id_standar_harga){
+					$wpdb->update('data_ssh_usulan', array(
+						'status_upload_sipd' => 1
+					), array(
+						'id_standar_harga' => $id_standar_harga,
+						'tahun_anggaran' => $_POST['tahun_anggaran']
+					));
+				}
+			}else{
+				$return = array(
+					'status' => 'error',
+					'message'	=> 'Api Key tidak sesuai!'
+				);
+			}
+		}else{
+			$return = array(
+				'status' => 'error',
+				'message'	=> 'Format tidak sesuai!'
+			);
+		}
+		die(json_encode($return));
+	}
+
+	/** Ambil data penjadwalan */
+	public function get_data_penjadwalan(){
+		global $wpdb;
+		$return = array(
+			'status' => 'success',
+			'data'	=> array()
+		);
+
+		if(!empty($_POST)){
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+				if(!empty($_POST['tipe_perencanaan'])){
+					$params = $columns = $totalRecords = $data = array();
+					$params = $_REQUEST;
+					$columns = array(
+						0 => 'id_jadwal_lokal',
+						1 => 'nama',
+						2 => 'waktu_awal',
+						3 => 'waktu_akhir',
+						4 => 'status',
+						5 => 'tahun_anggaran'
+					);
+					$where = $sqlTot = $sqlRec = "";
+
+					// check search value exist
+					if( !empty($params['search']['value']) ) {
+						$where .=" AND ( nama LIKE ".$wpdb->prepare('%s', "%".$params['search']['value']."%");   
+						$where .=" OR waktu_awal LIKE ".$wpdb->prepare('%s', "%".$params['search']['value']."%");
+						$where .=" OR waktu_akhir LIKE ".$wpdb->prepare('%s', "%".$params['search']['value']."%");
+					}
+
+					/** Search id tipe */
+					$tipe_perencanaan = $_POST['tipe_perencanaan'];
+					$sqlTipe = $wpdb->get_results("SELECT * FROM `data_tipe_perencanaan` WHERE nama_tipe='".$tipe_perencanaan."'", ARRAY_A);
+
+					$time_period = array(
+						"rpjpd" 	=> 20,
+						"rpjm"		=> 5,
+						"rpd"		=> 0,
+						"renstra"	=> 5,
+						"renja"		=> 1,
+					);
+
+					if(!empty($_POST['tahun_anggaran'])){
+						$where .=" AND tahun_anggaran = ".$_POST['tahun_anggaran'];
+					}
+
+					// getting total number records without any search
+					$sqlTot = "SELECT count(*) as jml FROM `data_jadwal_lokal` WHERE id_tipe =".$sqlTipe[0]['id'];
+					$sqlRec = "SELECT ".implode(', ', $columns)." FROM `data_jadwal_lokal` WHERE id_tipe =".$sqlTipe[0]['id'];
+					if(isset($where) && $where != '') {
+						$sqlTot .= $where;
+						$sqlRec .= $where;
+					}
+
+					$sqlRec .=  " ORDER BY ". $columns[$params['order'][0]['column']]."   ".$params['order'][0]['dir']."  LIMIT ".$params['start']." ,".$params['length']." ";
+
+					$queryTot = $wpdb->get_results($sqlTot, ARRAY_A);
+					$totalRecords = $queryTot[0]['jml'];
+					$queryRecords = $wpdb->get_results($sqlRec, ARRAY_A);
+
+					foreach($queryRecords as $recKey => $recVal){
+						if($recVal['status'] == 1){
+							$lock	= '<a class="btn btn-success disabled" href="#" onclick="return cannot_change_schedule(\'kunci\');" title="Kunci data penjadwalan" aria-disabled="true"><i class="dashicons dashicons-lock"></i></a>';
+							$edit	= '';
+							$delete	= '';
+						}else{
+							$lock	= '<a class="btn btn-success mr-2" href="#" onclick="return lock_data_penjadwalan(\''.$recVal['id_jadwal_lokal'].'\');" title="Kunci data penjadwalan"><i class="dashicons dashicons-unlock"></i></a>';
+							$edit	= '<a class="btn btn-warning mr-2" href="#" onclick="return edit_data_penjadwalan(\''.$recVal['id_jadwal_lokal'].'\');" title="Edit data penjadwalan"><i class="dashicons dashicons-edit"></i></a>';
+							$delete	= '<a class="btn btn-danger" href="#" onclick="return hapus_data_penjadwalan(\''.$recVal['id_jadwal_lokal'].'\');" title="Hapus data penjadwalan"><i class="dashicons dashicons-trash"></i></a>';
+						}
+
+						$tahun_anggaran_selesai = $recVal['tahun_anggaran'] + $time_period[$tipe_perencanaan];
+					
+						$queryRecords[$recKey]['waktu_awal']	= date('d-m-Y H:i', strtotime($recVal['waktu_awal']));
+						$queryRecords[$recKey]['waktu_akhir']	= date('d-m-Y H:i', strtotime($recVal['waktu_akhir']));
+						$queryRecords[$recKey]['aksi'] = $lock.$edit.$delete;
+						$queryRecords[$recKey]['nama'] = ucfirst($recVal['nama']);
+						$queryRecords[$recKey]['status'] = $recVal['status'] == 1 ? 'dikunci' : 'terbuka';
+						$queryRecords[$recKey]['tahun_anggaran_selesai'] = $tahun_anggaran_selesai;
+					}
+
+					$json_data = array(
+						"draw"            => intval( $params['draw'] ),  
+						"recordsTotal"    => intval( $totalRecords ), 
+						"recordsFiltered" => intval( $totalRecords ),
+						"data"            => $queryRecords
+					);
+
+					die(json_encode($json_data));
+				}else{
+					$return = array(
+						'status' => 'error',
+						'message'	=> 'Harap diisi semua,tidak boleh ada yang kosong!'
+					);
+				}
+			}else{
+				$return = array(
+					'status' => 'error',
+					'message'	=> 'Api Key tidak sesuai!'
+				);
+			}
+		}else{
+			$return = array(
+				'status' => 'error',
+				'message'	=> 'Format tidak sesuai!'
+			);
+		}
+		die(json_encode($return));
+	}
+
+	/** Submit data penjadwalan */
+	public function submit_add_schedule(){
+		global $wpdb;
+		$user_id = um_user( 'ID' );
+		$user_meta = get_userdata($user_id);
+		$return = array(
+			'status' => 'success',
+			'data'	=> array()
+		);
+
+		if(!empty($_POST)){
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+				if(in_array("administrator", $user_meta->roles)){
+					if(!empty($_POST['nama']) && !empty($_POST['jadwal_mulai']) && !empty($_POST['jadwal_selesai']) && !empty($_POST['tahun_anggaran']) && !empty($_POST['tipe_perencanaan'])){
+						$nama				= trim(htmlspecialchars($_POST['nama']));
+						$jadwal_mulai		= trim(htmlspecialchars($_POST['jadwal_mulai']));
+						$jadwal_mulai		= date('Y-m-d H:i:s', strtotime($jadwal_mulai));
+						$jadwal_selesai		= trim(htmlspecialchars($_POST['jadwal_selesai']));
+						$jadwal_selesai		= date('Y-m-d H:i:s', strtotime($jadwal_selesai));
+						$tahun_anggaran		= trim(htmlspecialchars($_POST['tahun_anggaran']));
+						$tipe_perencanaan	= trim(htmlspecialchars($_POST['tipe_perencanaan']));
+
+						$id_tipe = 0;
+						$sqlTipe = $wpdb->get_results("SELECT * FROM `data_tipe_perencanaan` WHERE nama_tipe='".$tipe_perencanaan."'", ARRAY_A);
+						if(!empty($sqlTipe)){
+							$id_tipe = $sqlTipe[0]['id'];
+
+							$sqlSameTipe = $wpdb->get_results("SELECT * FROM `data_jadwal_lokal` WHERE id_tipe='".$id_tipe."' AND status = 0", ARRAY_A);
+							foreach($sqlSameTipe as $valTipe){
+								if($valTipe['status'] == 0){
+									$return = array(
+										'status' => 'error',
+										'message'	=> 'Masih ada penjadwalan yang terbuka!'
+									);
+									die(json_encode($return));
+								}
+								if($jadwal_mulai > $valTipe['waktu_awal'] && $jadwal_mulai < $valTipe['waktu_akhir'] || $jadwal_selesai > $valTipe['waktu_awal'] && $jadwal_selesai < $valTipe['waktu_akhir']){
+									$return = array(
+										'status' => 'error',
+										'message'	=> 'Waktu sudah dipakai jadwal lain!'
+									);
+									die(json_encode($return));
+								}
+							}
+
+							//insert data penjadwalan
+							$data_jadwal = array(
+								'nama' 				=> $nama,
+								'waktu_awal'		=> $jadwal_mulai,
+								'waktu_akhir'		=> $jadwal_selesai,
+								'tahun_anggaran'	=> $tahun_anggaran,
+								'status'			=> 0,
+								'tahun_anggaran'	=> $tahun_anggaran,
+								'id_tipe'			=> $id_tipe
+							);
+	
+							$wpdb->insert('data_jadwal_lokal',$data_jadwal);
+							
+							$return = array(
+								'status'		=> 'success',
+								'message'		=> 'Berhasil!',
+								'data_jadwal'	=> $data_jadwal,
+							);
+						}else{
+							$return = array(
+									'status' => 'error',
+									'message'	=> 'Tipe penjadwalan tidak diketahui!'
+							);
+						}
+					}else{
+						$return = array(
+							'status' => 'error',
+							'message'	=> 'Harap diisi semua,tidak boleh ada yang kosong!'
+						);
+					}
+				}else{
+					$return = array(
+						'status' => 'error',
+						'message'	=> "User tidak diijinkan!",
+					);
+				}
+			}else{
+				$return = array(
+					'status' => 'error',
+					'message'	=> 'Api Key tidak sesuai!'
+				);
+			}
+		}else{
+			$return = array(
+				'status' => 'error',
+				'message'	=> 'Format tidak sesuai!'
+			);
+		}
+		die(json_encode($return));
+	}
+
+	/** get data jadwal by id */
+	public function get_data_jadwal_by_id(){
+		global $wpdb;
+		$return = array(
+			'status' => 'success',
+			'data'	=> array()
+		);
+
+		if(!empty($_POST)){
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+					$id_jadwal_lokal = $_POST['id_jadwal_lokal'];
+					
+					$data_penjadwalan_by_id = $wpdb->get_results($wpdb->prepare('SELECT * FROM data_jadwal_lokal WHERE id_jadwal_lokal = %d',$id_jadwal_lokal), ARRAY_A);
+ 
+					$return = array(
+						'status' 						=> 'success',
+						'data' 							=> $data_penjadwalan_by_id[0]
+					);
+			}else{
+				$return = array(
+					'status'	=> 'error',
+					'message'	=> 'Api Key tidak sesuai!'
+				);
+			}
+		}else{
+			$return = array(
+				'status'	=> 'error',
+				'message'	=> 'Format tidak sesuai!'
+			);
+		}
+		die(json_encode($return));
+	}
+
+	/** Submit data penjadwalan */
+	public function submit_edit_schedule(){
+		global $wpdb;
+		$user_id = um_user( 'ID' );
+		$user_meta = get_userdata($user_id);
+		$return = array(
+			'status' => 'success',
+			'data'	=> array()
+		);
+
+		if(!empty($_POST)){
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+				if(in_array("administrator", $user_meta->roles)){
+					if(!empty($_POST['id_jadwal_lokal']) && !empty($_POST['nama']) && !empty($_POST['jadwal_mulai']) && !empty($_POST['jadwal_selesai']) && !empty($_POST['tahun_anggaran'])){
+						$id_jadwal_lokal= trim(htmlspecialchars($_POST['id_jadwal_lokal']));
+						$nama			= trim(htmlspecialchars($_POST['nama']));
+						$jadwal_mulai	= trim(htmlspecialchars($_POST['jadwal_mulai']));
+						$jadwal_mulai	= date('Y-m-d H:i:s', strtotime($jadwal_mulai));
+						$jadwal_selesai	= trim(htmlspecialchars($_POST['jadwal_selesai']));
+						$jadwal_selesai	= date('Y-m-d H:i:s', strtotime($jadwal_selesai));
+						$tahun_anggaran	= trim(htmlspecialchars($_POST['tahun_anggaran']));
+
+						$data_this_id = $wpdb->get_results($wpdb->prepare('SELECT * FROM data_jadwal_lokal WHERE id_jadwal_lokal = %d',$id_jadwal_lokal), ARRAY_A);
+
+						if($data_this_id[0]['status'] == 0 || $data_this_id[0]['status'] == NULL){
+							//update data penjadwalan
+							$data_jadwal = array(
+								'nama' 			=> $nama,
+								'waktu_awal'	=> $jadwal_mulai,
+								'waktu_akhir'	=> $jadwal_selesai,
+								'tahun_anggaran'=> $tahun_anggaran
+							);
+
+							$wpdb->update('data_jadwal_lokal', $data_jadwal, array(
+								'id_jadwal_lokal'	=> $id_jadwal_lokal
+							));
+							
+							$return = array(
+								'status'		=> 'success',
+								'message'		=> 'Berhasil!',
+								'data_jadwal'	=> $data_jadwal,
+							);
+						}else{
+							$return = array(
+								'status' => 'error',
+								'message'	=> "User tidak diijinkan!\nData sudah dikunci!",
+							);
+						}
+					}else{
+						$return = array(
+							'status' => 'error',
+							'message'	=> 'Harap diisi semua,tidak boleh ada yang kosong!'
+						);
+					}
+				}else{
+					$return = array(
+						'status' => 'error',
+						'message'	=> "User tidak diijinkan!",
+					);
+				}
+			}else{
+				$return = array(
+					'status' => 'error',
+					'message'	=> 'Api Key tidak sesuai!'
+				);
+			}
+		}else{
+			$return = array(
+				'status' => 'error',
+				'message'	=> 'Format tidak sesuai!'
+			);
+		}
+		die(json_encode($return));
+	}
+
+	/** Submit delete data jadwal */
+	public function submit_delete_schedule(){
+		global $wpdb;
+		$return = array(
+			'status' => 'success',
+			'data'	=> array()
+		);
+
+		$user_id = um_user( 'ID' );
+		$user_meta = get_userdata($user_id);
+
+		if(!empty($_POST)){
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+				if(!empty($_POST['id_jadwal_lokal'])){
+					if(in_array("administrator", $user_meta->roles)){
+						$id_jadwal_lokal= trim(htmlspecialchars($_POST['id_jadwal_lokal']));
+
+						$data_this_id = $wpdb->get_results($wpdb->prepare('SELECT * FROM data_jadwal_lokal WHERE id_jadwal_lokal = %d',$id_jadwal_lokal), ARRAY_A);
+
+						if($data_this_id[0]['status'] == 0 || $data_this_id[0]['status'] == NULL){
+							$wpdb->delete('data_jadwal_lokal', array(
+								'id_jadwal_lokal' => $id_jadwal_lokal
+							), array('%d'));
+
+							$return = array(
+								'status' => 'success',
+								'message'	=> 'Berhasil!',
+							);
+						}else{
+							$return = array(
+								'status' => 'error',
+								'message'	=> "User tidak diijinkan!\nData sudah dikunci!",
+							);
+						}
+					}else{
+						$return = array(
+							'status' => 'error',
+							'message'	=> "User tidak diijinkan!",
+						);
+					}
+				}else{
+					$return = array(
+						'status' => 'error',
+						'message'	=> 'Harap diisi semua,tidak boleh ada yang kosong!'
+					);
+				}
+			}else{
+				$return = array(
+					'status' => 'error',
+					'message'	=> 'Api Key tidak sesuai!'
+				);
+			}
+		}else{
+			$return = array(
+				'status' => 'error',
+				'message'	=> 'Format tidak sesuai!'
+			);
+		}
+		die(json_encode($return));
+	}
+
+	/** Submit lock data jadwal */
+	public function submit_lock_schedule(){
+		global $wpdb;
+		$return = array(
+			'status' => 'success',
+			'data'	=> array()
+		);
+
+		$user_id = um_user( 'ID' );
+		$user_meta = get_userdata($user_id);
+
+		if(!empty($_POST)){
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+				if(!empty($_POST['id_jadwal_lokal'])){
+					if(in_array("administrator", $user_meta->roles)){
+						$id_jadwal_lokal= trim(htmlspecialchars($_POST['id_jadwal_lokal']));
+
+						$data_this_id 	= $wpdb->get_results($wpdb->prepare('SELECT * FROM data_jadwal_lokal WHERE id_jadwal_lokal = %d',$id_jadwal_lokal), ARRAY_A);
+
+						date_default_timezone_set("Asia/Bangkok");
+						$dateTime = new DateTime();
+						$time_now = $dateTime->format('Y-m-d H:i:s');
+						if($time_now > $data_this_id[0]['waktu_awal']){
+							if($time_now < $data_this_id[0]['waktu_akhir']){
+								if($data_this_id[0]['status'] == 0 || $data_this_id[0]['status'] == NULL){
+									//lock data penjadwalan
+									$wpdb->update('data_jadwal_lokal', array('status' => 1), array(
+										'id_jadwal_lokal'	=> $id_jadwal_lokal
+									));
+
+									$columns_1 = array('created_user','createddate','createdtime','harga_satuan','harga_satuan_murni','id_daerah','id_rinci_sub_bl','id_standar_nfs','is_locked','jenis_bl','ket_bl_teks','kode_akun','koefisien','koefisien_murni','lokus_akun_teks','nama_akun','nama_komponen','spek_komponen','satuan','spek','sat1','sat2','sat3','sat4','volum1','volum2','volum3','volum4','volume','volume_murni','subs_bl_teks','subtitle_teks','kode_dana','is_paket','nama_dana','id_dana','substeks','total_harga','rincian','rincian_murni','totalpajak','pajak','pajak_murni','updated_user','updateddate','updatedtime','user1','user2','active','update_at','tahun_anggaran','idbl','idsubbl','kode_bl','kode_sbl','id_prop_penerima','id_camat_penerima','id_kokab_penerima','id_lurah_penerima','id_penerima','idkomponen','idketerangan','idsubtitle');
+		
+									$sql_backup_data_rka =  "INSERT INTO data_rka_history (".implode(', ', $columns_1).",id_data_rka,id_local_schedule)
+												SELECT ".implode(', ', $columns_1).",id as id_data_rka,".$data_this_id[0]['id_jadwal_lokal']."
+												FROM data_rka WHERE tahun_anggaran='".$data_this_id[0]['tahun_anggaran']."'";
+
+									$queryRecords1 = $wpdb->query($sql_backup_data_rka);
+
+									$columns_2 = array('id_sub_skpd','id_lokasi','id_label_kokab','nama_dana','no_sub_giat','kode_giat','id_program','nama_lokasi','waktu_akhir','pagu_n_lalu','id_urusan','id_unik_sub_bl','id_sub_giat','label_prov','kode_program','kode_sub_giat','no_program','kode_urusan','kode_bidang_urusan','nama_program','target_4','target_5','id_bidang_urusan','nama_bidang_urusan','target_3','no_giat','id_label_prov','waktu_awal','pagumurni','pagu','pagu_simda','output_sub_giat','sasaran','indikator','id_dana','nama_sub_giat','pagu_n_depan','satuan','id_rpjmd','id_giat','id_label_pusat','nama_giat','kode_skpd','nama_skpd','kode_sub_skpd','id_skpd','id_sub_bl','nama_sub_skpd','target_1','nama_urusan','target_2','label_kokab','label_pusat','pagu_keg','id_bl','kode_bl','kode_sbl','active','update_at','tahun_anggaran');
+
+									$sql_backup_data_sub_keg_bl =  "INSERT INTO data_sub_keg_bl_history (".implode(', ', $columns_2).",id_data_sub_keg_bl,id_local_schedule)
+												SELECT ".implode(', ', $columns_2).",id as id_data_sub_keg_bl,".$data_this_id[0]['id_jadwal_lokal']."
+												FROM data_sub_keg_bl WHERE tahun_anggaran='".$data_this_id[0]['tahun_anggaran']."'";
+
+									$queryRecords2 = $wpdb->query($sql_backup_data_sub_keg_bl);
+
+									$oclumns_3 = array('outputteks','targetoutput','satuanoutput','idoutputbl','targetoutputteks','kode_sbl','idsubbl','active','update_at','tahun_anggaran');
+
+									$sql_backup_data_sub_keg_indikator =  "INSERT INTO data_sub_keg_indikator_history (".implode(', ', $oclumns_3).",id_data_sub_keg_indikator,id_local_schedule)
+												SELECT ".implode(', ', $oclumns_3).",id as id_data_sub_keg_indikator,".$data_this_id[0]['id_jadwal_lokal']."
+												FROM data_sub_keg_indikator WHERE tahun_anggaran='".$data_this_id[0]['tahun_anggaran']."'";
+
+									$queryRecords3 = $wpdb->query($sql_backup_data_sub_keg_indikator);
+
+									$oclumns_4 = array('hasilteks','satuanhasil','targethasil','targethasilteks','kode_sbl','idsubbl','active','update_at','tahun_anggaran');
+
+									$sql_backup_data_keg_indikator_hasil =  "INSERT INTO data_keg_indikator_hasil_history (".implode(', ', $oclumns_4).",id_data_keg_indikator_hasil,id_local_schedule)
+												SELECT ".implode(', ', $oclumns_4).",id as id_data_keg_indikator_hasil,".$data_this_id[0]['id_jadwal_lokal']."
+												FROM data_keg_indikator_hasil WHERE tahun_anggaran='".$data_this_id[0]['tahun_anggaran']."'";
+
+									$queryRecords4 = $wpdb->query($sql_backup_data_keg_indikator_hasil);
+
+									$oclumns_5 = array('idlabelgiat','namalabel','idtagbl','kode_sbl','idsubbl','active','update_at','tahun_anggaran');
+
+									$sql_backup_data_tag_sub_keg =  "INSERT INTO data_tag_sub_keg_history (".implode(', ', $oclumns_5).",id_data_tag_sub_keg,id_local_schedule)
+												SELECT ".implode(', ', $oclumns_5).",id as id_data_tag_sub_keg,".$data_this_id[0]['id_jadwal_lokal']."
+												FROM data_tag_sub_keg WHERE tahun_anggaran='".$data_this_id[0]['tahun_anggaran']."'";
+
+									$queryRecords5 = $wpdb->query($sql_backup_data_tag_sub_keg);
+
+									$oclumns_6 = array('satuancapaian','targetcapaianteks','capaianteks','targetcapaian','kode_sbl','idsubbl','active','update_at','tahun_anggaran');
+
+									$sql_backup_data_capaian_prog_sub_keg =  "INSERT INTO data_capaian_prog_sub_keg_history (".implode(', ', $oclumns_6).",id_data_capaian_prog_sub_keg,id_local_schedule)
+												SELECT ".implode(', ', $oclumns_6).",id as id_data_capaian_prog_sub_keg,".$data_this_id[0]['id_jadwal_lokal']."
+												FROM data_capaian_prog_sub_keg WHERE tahun_anggaran='".$data_this_id[0]['tahun_anggaran']."'";
+
+									$queryRecords6 = $wpdb->query($sql_backup_data_capaian_prog_sub_keg);
+
+									$oclumns_7 = array('outputteks','satuanoutput','targetoutput','targetoutputteks','kode_sbl','idsubbl','active','update_at','tahun_anggaran');
+
+									$sql_backup_data_output_giat_sub_keg =  "INSERT INTO data_output_giat_sub_keg_history (".implode(', ', $oclumns_7).",id_data_output_giat_sub_keg,id_local_schedule)
+												SELECT ".implode(', ', $oclumns_7).",id as id_data_output_giat_sub_keg,".$data_this_id[0]['id_jadwal_lokal']."
+												FROM data_output_giat_sub_keg WHERE tahun_anggaran='".$data_this_id[0]['tahun_anggaran']."'";
+
+									$queryRecords7 = $wpdb->query($sql_backup_data_output_giat_sub_keg);
+
+									$oclumns_8 = array('namadana','kodedana','iddana','iddanasubbl','pagudana','kode_sbl','idsubbl','active','update_at','tahun_anggaran');
+
+									$sql_backup_data_dana_sub_keg =  "INSERT INTO data_dana_sub_keg_history (".implode(', ', $oclumns_8).",id_data_dana_sub_keg,id_local_schedule)
+												SELECT ".implode(', ', $oclumns_8).",id as id_data_dana_sub_keg,".$data_this_id[0]['id_jadwal_lokal']."
+												FROM data_dana_sub_keg WHERE tahun_anggaran='".$data_this_id[0]['tahun_anggaran']."'";
+
+									$queryRecords8 = $wpdb->query($sql_backup_data_dana_sub_keg);
+
+									$oclumns_9 = array('camatteks','daerahteks','idcamat','iddetillokasi','idkabkota','idlurah','lurahteks','kode_sbl','idsubbl','active','update_at','tahun_anggaran');
+
+									$sql_backup_data_lokasi_sub_keg =  "INSERT INTO data_lokasi_sub_keg_history (".implode(', ', $oclumns_9).",id_data_lokasi_sub_keg,id_local_schedule)
+												SELECT ".implode(', ', $oclumns_9).",id as id_data_lokasi_sub_keg,".$data_this_id[0]['id_jadwal_lokal']."
+												FROM data_lokasi_sub_keg WHERE tahun_anggaran='".$data_this_id[0]['tahun_anggaran']."'";
+
+									$queryRecords9 = $wpdb->query($sql_backup_data_lokasi_sub_keg);
+
+									$oclumns_10 = array('id_rinci_sub_bl','id_sumber_dana','user','active','update_at','tahun_anggaran');
+
+									$sql_backup_data_mapping_sumberdana =  "INSERT INTO data_mapping_sumberdana_history (".implode(', ', $oclumns_10).",id_data_mapping_sumberdana,id_local_schedule)
+												SELECT ".implode(', ', $oclumns_10).",id as id_data_mapping_sumberdana,".$data_this_id[0]['id_jadwal_lokal']."
+												FROM data_mapping_sumberdana WHERE tahun_anggaran='".$data_this_id[0]['tahun_anggaran']."'";
+
+									$queryRecords10 = $wpdb->query($sql_backup_data_mapping_sumberdana);
+
+									$return = array(
+										'status' => 'success',
+										'message'	=> 'Berhasil!',
+										'data_input' => $queryRecords1
+									);
+								}else{
+									$return = array(
+										'status' => 'error',
+										'message'	=> "User tidak diijinkan!\nData sudah dikunci!",
+									);
+								}
+							}else{
+								$return = array(
+									'status' => 'error',
+									'message'	=> "Penjadwalan sudah kadaluwarsa!",
+								);
+							}
+						}else{
+							$return = array(
+								'status' => 'error',
+								'message'	=> "Penjadwalan belum dimulai!",
+							);
+						}
+					}else{
+						$return = array(
+							'status' => 'error',
+							'message'	=> "User tidak diijinkan!",
+						);
+					}
+				}else{
+					$return = array(
+						'status' => 'error',
+						'message'	=> 'Harap diisi semua,tidak boleh ada yang kosong!'
+					);
+				}
+			}else{
+				$return = array(
+					'status' => 'error',
+					'message'	=> 'Api Key tidak sesuai!'
+				);
+			}
+		}else{
+			$return = array(
+				'status' => 'error',
+				'message'	=> 'Format tidak sesuai!'
+			);
+		}
+		die(json_encode($return));
+	}
+
+	/** Submit lock data jadwal RPJM */
+	public function submit_lock_schedule_rpjm(){
+		global $wpdb;
+		$return = array(
+			'status' => 'success',
+			'data'	=> array()
+		);
+
+		$user_id = um_user( 'ID' );
+		$user_meta = get_userdata($user_id);
+
+		if(!empty($_POST)){
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+				if(!empty($_POST['id_jadwal_lokal'])){
+					if(in_array("administrator", $user_meta->roles)){
+						$id_jadwal_lokal= trim(htmlspecialchars($_POST['id_jadwal_lokal']));
+
+						$data_this_id 	= $wpdb->get_results($wpdb->prepare('SELECT * FROM data_jadwal_lokal WHERE id_jadwal_lokal = %d',$id_jadwal_lokal), ARRAY_A);
+
+						date_default_timezone_set("Asia/Bangkok");
+						$dateTime = new DateTime();
+						$time_now = $dateTime->format('Y-m-d H:i:s');
+						if($time_now > $data_this_id[0]['waktu_awal']){
+							if($time_now < $data_this_id[0]['waktu_akhir']){
+								if($data_this_id[0]['status'] == 0 || $data_this_id[0]['status'] == NULL){
+									//lock data penjadwalan
+									$wpdb->update('data_jadwal_lokal', array('status' => 1), array(
+										'id_jadwal_lokal'	=> $id_jadwal_lokal
+									));
+
+									$columns_1 = array('id_misi','id_misi_old','id_visi','is_locked','misi_teks','status','urut_misi','visi_lock','visi_teks','update_at');
+		
+									$sql_backup_data_rpjmd_misi_lokal =  "INSERT INTO data_rpjmd_misi_lokal_history (".implode(', ', $columns_1).",id_jadwal,id_asli)
+												SELECT ".implode(', ', $columns_1).", ".$data_this_id[0]['id_jadwal_lokal'].", id as id_asli
+												FROM data_rpjmd_misi_lokal";
+
+									$queryRecords1 = $wpdb->query($sql_backup_data_rpjmd_misi_lokal);
+
+									$columns_2 = array('id_misi','id_misi_old','id_program','id_unik','id_unik_indikator','id_unit','id_visi','indikator','is_locked','is_locked_indikator','kode_sasaran','kode_skpd','kode_tujuan','misi_teks','nama_program','nama_skpd','pagu_1','pagu_2','pagu_3','pagu_4','pagu_5','program_lock','sasaran_lock','sasaran_teks','satuan','status','target_1','target_2','target_3','target_4','target_5','target_akhir','target_awal','tujuan_lock','tujuan_teks','urut_misi','urut_sasaran','urut_tujuan','visi_teks','active','update_at','tahun_anggaran');
+		
+									$sql_backup_data_rpjmd_program_lokal =  "INSERT INTO data_rpjmd_program_lokal_history (".implode(', ', $columns_2).",id_jadwal,id_asli)
+												SELECT ".implode(', ', $columns_2).", ".$data_this_id[0]['id_jadwal_lokal'].", id as id_asli
+												FROM data_rpjmd_program_lokal";
+
+									$queryRecords2 = $wpdb->query($sql_backup_data_rpjmd_program_lokal);
+
+									$columns_3 = array('id_misi','id_misi_old','id_sasaran','id_unik','id_unik_indikator','id_visi','indikator_teks','is_locked','is_locked_indikator','kode_tujuan','misi_teks','sasaran_teks','satuan','status','target_1','target_2','target_3','target_4','target_5','target_akhir','target_awal','tujuan_lock','tujuan_teks','urut_misi','urut_sasaran','urut_tujuan','visi_teks','active','update_at','tahun_anggaran');
+		
+									$sql_backup_data_rpjmd_sasaran_lokal =  "INSERT INTO data_rpjmd_sasaran_lokal_history (".implode(', ', $columns_3).",id_jadwal,id_asli)
+												SELECT ".implode(', ', $columns_3).", ".$data_this_id[0]['id_jadwal_lokal'].", id as id_asli
+												FROM data_rpjmd_sasaran_lokal";
+
+									$queryRecords3 = $wpdb->query($sql_backup_data_rpjmd_sasaran_lokal);
+
+									$columns_4 = array('id_misi','id_misi_old','id_tujuan','id_unik','id_unik_indikator','id_visi','indikator_teks','is_locked','is_locked_indikator','misi_lock','misi_teks','satuan','status','target_1','target_2','target_3','target_4','target_5','target_akhir','target_awal','tujuan_teks','urut_misi','urut_tujuan','visi_teks','active','update_at','tahun_anggaran');
+		
+									$sql_backup_data_rpjmd_tujuan_lokal =  "INSERT INTO data_rpjmd_tujuan_lokal_history (".implode(', ', $columns_4).",id_jadwal,id_asli)
+												SELECT ".implode(', ', $columns_4).", ".$data_this_id[0]['id_jadwal_lokal'].", id as id_asli
+												FROM data_rpjmd_tujuan_lokal";
+
+									$queryRecords4 = $wpdb->query($sql_backup_data_rpjmd_tujuan_lokal);
+
+									$columns_5 = array('id_visi','is_locked','status','visi_teks','update_at','active','tahun_anggaran');
+		
+									$sql_backup_data_rpjmd_visi_lokal =  "INSERT INTO data_rpjmd_visi_lokal_history (".implode(', ', $columns_5).",id_jadwal,id_asli)
+												SELECT ".implode(', ', $columns_5).", ".$data_this_id[0]['id_jadwal_lokal'].", id as id_asli
+												FROM data_rpjmd_visi_lokal";
+
+									$queryRecords5 = $wpdb->query($sql_backup_data_rpjmd_visi_lokal);
+
+									$return = array(
+										'status' => 'success',
+										'message'	=> 'Berhasil!',
+										'data_input' => $queryRecords1
+									);
+								}else{
+									$return = array(
+										'status' => 'error',
+										'message'	=> "User tidak diijinkan!\nData sudah dikunci!",
+									);
+								}
+							}else{
+								$return = array(
+									'status' => 'error',
+									'message'	=> "Penjadwalan sudah kadaluwarsa!",
+								);
+							}
+						}else{
+							$return = array(
+								'status' => 'error',
+								'message'	=> "Penjadwalan belum dimulai!",
+							);
+						}
+					}else{
+						$return = array(
+							'status' => 'error',
+							'message'	=> "User tidak diijinkan!",
+						);
+					}
+				}else{
+					$return = array(
+						'status' => 'error',
+						'message'	=> 'Harap diisi semua,tidak boleh ada yang kosong!'
+					);
+				}
+			}else{
+				$return = array(
+					'status' => 'error',
+					'message'	=> 'Api Key tidak sesuai!'
+				);
+			}
+		}else{
+			$return = array(
+				'status' => 'error',
+				'message'	=> 'Format tidak sesuai!'
+			);
+		}
+		die(json_encode($return));
+	}
+
+	/** Submit lock data jadwal RENSTRA */
+	public function submit_lock_schedule_renstra(){
+		global $wpdb;
+		$return = array(
+			'status' => 'success',
+			'data'	=> array()
+		);
+
+		$user_id = um_user( 'ID' );
+		$user_meta = get_userdata($user_id);
+
+		if(!empty($_POST)){
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+				if(!empty($_POST['id_jadwal_lokal'])){
+					if(in_array("administrator", $user_meta->roles)){
+						$id_jadwal_lokal= trim(htmlspecialchars($_POST['id_jadwal_lokal']));
+
+						$data_this_id 	= $wpdb->get_results($wpdb->prepare('SELECT * FROM data_jadwal_lokal WHERE id_jadwal_lokal = %d',$id_jadwal_lokal), ARRAY_A);
+
+						date_default_timezone_set("Asia/Bangkok");
+						$dateTime = new DateTime();
+						$time_now = $dateTime->format('Y-m-d H:i:s');
+						if($time_now > $data_this_id[0]['waktu_awal']){
+							if($time_now < $data_this_id[0]['waktu_akhir']){
+								if($data_this_id[0]['status'] == 0 || $data_this_id[0]['status'] == NULL){
+									//lock data penjadwalan
+									$wpdb->update('data_jadwal_lokal', array('status' => 1), array(
+										'id_jadwal_lokal'	=> $id_jadwal_lokal
+									));
+
+									$columns_1 = array('bidur_lock','giat_lock','id_bidang_urusan','id_giat','id_misi','id_program','id_unik','id_unik_indikator','id_unit','id_visi','indikator','is_locked','is_locked_indikator','kode_bidang_urusan','kode_giat','kode_program','kode_sasaran','kode_skpd','kode_tujuan','kode_unik_program','nama_bidang_urusan','nama_giat','nama_program','nama_skpd','pagu_1','pagu_2','pagu_3','pagu_4','pagu_5','program_lock','renstra_prog_lock','sasaran_lock','sasaran_teks','satuan','status','target_1','target_2','target_3','target_4','target_5','target_akhir','target_awal','tujuan_lock','tujuan_teks','urut_sasaran','urut_tujuan','active','update_at','tahun_anggaran');
+		
+									$sql_backup_data_renstra_kegiatan_lokal =  "INSERT INTO data_renstra_kegiatan_lokal_history (".implode(', ', $columns_1).",id_jadwal,id_asli)
+												SELECT ".implode(', ', $columns_1).", ".$data_this_id[0]['id_jadwal_lokal'].", id as id_asli
+												FROM data_renstra_kegiatan_lokal";
+
+									$queryRecords1 = $wpdb->query($sql_backup_data_renstra_kegiatan_lokal);
+
+									$columns_2 = array('bidur_lock','id_bidang_urusan','id_misi','id_program','id_unik','id_unik_indikator','id_unit','id_visi','indikator','is_locked','is_locked_indikator','kode_bidang_urusan','kode_program','kode_sasaran','kode_skpd','kode_tujuan','nama_bidang_urusan','nama_program','nama_skpd','pagu_1','pagu_2','pagu_3','pagu_4','pagu_5','program_lock','sasaran_lock','sasaran_teks','satuan','status','target_1','target_2','target_3','target_4','target_5','target_akhir','target_awal','tujuan_lock','tujuan_teks','urut_sasaran','urut_tujuan','active','update_at','tahun_anggaran');
+		
+									$sql_backup_data_renstra_program_lokal =  "INSERT INTO data_renstra_program_lokal_history (".implode(', ', $columns_2).",id_jadwal,id_asli)
+												SELECT ".implode(', ', $columns_2).", ".$data_this_id[0]['id_jadwal_lokal'].", id as id_asli
+												FROM data_renstra_program_lokal";
+
+									$queryRecords2 = $wpdb->query($sql_backup_data_renstra_program_lokal);
+
+									$columns_3 = array('bidur_lock','id_bidang_urusan','id_misi','id_unik','id_unik_indikator','id_unit','id_visi','indikator_teks','is_locked','is_locked_indikator','kode_bidang_urusan','kode_skpd','kode_tujuan','nama_bidang_urusan','nama_skpd','sasaran_teks','satuan','status','target_1','target_2','target_3','target_4','target_5','target_akhir','target_awal','tujuan_lock','tujuan_teks','urut_sasaran','urut_tujuan','active','update_at','tahun_anggaran');
+		
+									$sql_backup_data_renstra_sasaran_lokal =  "INSERT INTO data_renstra_sasaran_lokal_history (".implode(', ', $columns_3).",id_jadwal,id_asli)
+												SELECT ".implode(', ', $columns_3).", ".$data_this_id[0]['id_jadwal_lokal'].", id as id_asli
+												FROM data_renstra_sasaran_lokal";
+
+									$queryRecords3 = $wpdb->query($sql_backup_data_renstra_sasaran_lokal);
+
+									$columns_4 = array('bidur_lock','id_bidang_urusan','id_unik','id_unik_indikator','id_unit','indikator_teks','is_locked','is_locked_indikator','kode_bidang_urusan','kode_sasaran_rpjm','kode_skpd','nama_bidang_urusan','nama_skpd','satuan','status','target_1','target_2','target_3','target_4','target_5','target_akhir','target_awal','tujuan_teks','urut_tujuan','active','update_at','tahun_anggaran');
+		
+									$sql_backup_data_renstra_tujuan_lokal =  "INSERT INTO data_renstra_tujuan_lokal_history (".implode(', ', $columns_4).",id_jadwal,id_asli)
+												SELECT ".implode(', ', $columns_4).", ".$data_this_id[0]['id_jadwal_lokal'].", id as id_asli
+												FROM data_renstra_tujuan_lokal";
+
+									$queryRecords4 = $wpdb->query($sql_backup_data_renstra_tujuan_lokal);
+
+									$return = array(
+										'status' => 'success',
+										'message'	=> 'Berhasil!',
+										'data_input' => $queryRecords1
+									);
+								}else{
+									$return = array(
+										'status' => 'error',
+										'message'	=> "User tidak diijinkan!\nData sudah dikunci!",
+									);
+								}
+							}else{
+								$return = array(
+									'status' => 'error',
+									'message'	=> "Penjadwalan sudah kadaluwarsa!",
+								);
+							}
+						}else{
+							$return = array(
+								'status' => 'error',
+								'message'	=> "Penjadwalan belum dimulai!",
+							);
+						}
+					}else{
+						$return = array(
+							'status' => 'error',
+							'message'	=> "User tidak diijinkan!",
+						);
+					}
+				}else{
+					$return = array(
+						'status' => 'error',
+						'message'	=> 'Harap diisi semua,tidak boleh ada yang kosong!'
+					);
+				}
+			}else{
+				$return = array(
+					'status' => 'error',
+					'message'	=> 'Api Key tidak sesuai!'
+				);
+			}
+		}else{
+			$return = array(
+				'status' => 'error',
+				'message'	=> 'Format tidak sesuai!'
+			);
+		}
+		die(json_encode($return));
+	}
+
+	/** Submit lock data jadwal RPD */
+	public function submit_lock_schedule_rpd(){
+		global $wpdb;
+		$return = array(
+			'status' => 'success',
+			'data'	=> array()
+		);
+
+		$user_id = um_user( 'ID' );
+		$user_meta = get_userdata($user_id);
+
+		if(!empty($_POST)){
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+				if(!empty($_POST['id_jadwal_lokal'])){
+					if(in_array("administrator", $user_meta->roles)){
+						$id_jadwal_lokal= trim(htmlspecialchars($_POST['id_jadwal_lokal']));
+
+						$data_this_id 	= $wpdb->get_results($wpdb->prepare('SELECT * FROM data_jadwal_lokal WHERE id_jadwal_lokal = %d',$id_jadwal_lokal), ARRAY_A);
+
+						date_default_timezone_set("Asia/Bangkok");
+						$dateTime = new DateTime();
+						$time_now = $dateTime->format('Y-m-d H:i:s');
+						if($time_now > $data_this_id[0]['waktu_awal']){
+							if($time_now < $data_this_id[0]['waktu_akhir']){
+								if($data_this_id[0]['status'] == 0 || $data_this_id[0]['status'] == NULL){
+									//lock data penjadwalan
+									$wpdb->update('data_jadwal_lokal', array('status' => 1), array(
+										'id_jadwal_lokal'	=> $id_jadwal_lokal
+									));
+
+									$columns_1 = array('head_teks','id_misi_old','id_tujuan','id_unik','id_unik_indikator','indikator_teks','is_locked','is_locked_indikator','isu_teks','kebijakan_teks','misi_lock','misi_teks','saspok_teks','satuan','status','target_1','target_2','target_3','target_4','target_5','target_akhir','target_awal','tujuan_teks','urut_misi','urut_saspok','urut_tujuan','visi_teks','update_at');
+		
+									$sql_backup_data_rpd_tujuan_lokal =  "INSERT INTO data_rpd_tujuan_lokal_history (".implode(', ', $columns_1).",id_jadwal,id_asli)
+												SELECT ".implode(', ', $columns_1).", ".$data_this_id[0]['id_jadwal_lokal'].", id as id_asli
+												FROM data_rpd_tujuan_lokal";
+
+									$queryRecords1 = $wpdb->query($sql_backup_data_rpd_tujuan_lokal);
+
+									$columns_2 = array('head_teks','id_misi_old','id_sasaran','id_unik','id_unik_indikator','indikator_teks','is_locked','is_locked_indikator','isu_teks','kebijakan_teks','kode_tujuan','misi_lock','misi_teks','sasaran_teks','saspok_teks','satuan','status','target_1','target_2','target_3','target_4','target_5','target_akhir','target_awal','tujuan_lock','tujuan_teks','urut_misi','urut_sasaran','urut_saspok','urut_tujuan','visi_teks','update_at');
+		
+									$sql_backup_data_rpd_sasaran_lokal =  "INSERT INTO data_rpd_sasaran_lokal_history (".implode(', ', $columns_2).",id_jadwal,id_asli)
+												SELECT ".implode(', ', $columns_2).", ".$data_this_id[0]['id_jadwal_lokal'].", id as id_asli
+												FROM data_rpd_sasaran_lokal";
+
+									$queryRecords2 = $wpdb->query($sql_backup_data_rpd_sasaran_lokal);
+
+									$columns_3 = array('head_teks','id_bidur_mth','id_misi_old','id_program','id_program_mth','id_unik','id_unik_indikator','id_unit','indikator','is_locked','is_locked_indikator','isu_teks','kebijakan_teks','kode_sasaran','kode_skpd','kode_tujuan','misi_lock','misi_teks','nama_program','nama_skpd','pagu_1','pagu_2','pagu_3','pagu_4','pagu_5','program_lock','sasaran_lock','sasaran_teks','saspok_teks','satuan','status','target_1','target_2','target_3','target_4','target_5','target_akhir','target_awal','tujuan_lock','tujuan_teks','urut_misi','urut_sasaran','urut_saspok','urut_tujuan','visi_teks','update_at');
+		
+									$sql_backup_data_rpd_program_lokal =  "INSERT INTO data_rpd_program_lokal_history (".implode(', ', $columns_3).",id_jadwal,id_asli)
+												SELECT ".implode(', ', $columns_3).", ".$data_this_id[0]['id_jadwal_lokal'].", id as id_asli
+												FROM data_rpd_program_lokal";
+
+									$queryRecords3 = $wpdb->query($sql_backup_data_rpd_program_lokal);
+
+									$return = array(
+										'status' => 'success',
+										'message'	=> 'Berhasil!',
+										'data_input' => $queryRecords1
+									);
+								}else{
+									$return = array(
+										'status' => 'error',
+										'message'	=> "User tidak diijinkan!\nData sudah dikunci!",
+									);
+								}
+							}else{
+								$return = array(
+									'status' => 'error',
+									'message'	=> "Penjadwalan sudah kadaluwarsa!",
+								);
+							}
+						}else{
+							$return = array(
+								'status' => 'error',
+								'message'	=> "Penjadwalan belum dimulai!",
+							);
+						}
+					}else{
+						$return = array(
+							'status' => 'error',
+							'message'	=> "User tidak diijinkan!",
+						);
+					}
+				}else{
+					$return = array(
+						'status' => 'error',
+						'message'	=> 'Harap diisi semua,tidak boleh ada yang kosong!'
+					);
+				}
+			}else{
+				$return = array(
+					'status' => 'error',
+					'message'	=> 'Api Key tidak sesuai!'
+				);
+			}
+		}else{
+			$return = array(
+				'status' => 'error',
+				'message'	=> 'Format tidak sesuai!'
+			);
+		}
+		die(json_encode($return));
+	}
+
+	public function get_kontrak_addendum(){
+		global $wpdb;
+		$ret = array(
+			'action'	=> $_POST['action'],
+			'data'	=> array()
+		);
+		if (!empty($_POST)) {
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+				$tahun_anggaran = $_POST['tahun_anggaran'];
+				$sql = $wpdb->prepare("
+					SELECT 
+						s.*
+					from ta_kontrak_addendum s
+					where s.tahun=%d
+						and s.no_kontrak=%s
+					", 
+					$tahun_anggaran,
+					$_POST['no_kontrak']
+				);
+				$ret['sql'] = $sql;
+				$kontrak = $this->simda->CurlSimda(array(
+					'query' => $sql,
+					'debug' => 1
+				));
+				$ret['data'] = $kontrak;
+			}else{
+				$ret = array(
+					'status' => 'error',
+					'message'	=> 'Api Key tidak sesuai!'
+				);
+			}
+		}else{
+			$ret = array(
+				'status' => 'error',
+				'message'	=> 'Format tidak sesuai!'
+			);
+		}
+		die(json_encode($ret));
+	}
+
+	public function run_sql_migrate(){
+		global $wpdb;
+		$ret = array(
+			'status'	=> 'success',
+			'message'	=> 'Berhasil menjalankan SQL migrate!'
+		);
+		if (!empty($_POST)) {
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+				$file = basename($_POST['file']);
+				$ret['value'] = $file.' (tgl: '.date('Y-m-d H:i:s').')';
+				if($file == 'tabel.sql'){
+					$path = WPSIPD_PLUGIN_PATH.'/'.$file;
+				}else{
+					$path = WPSIPD_PLUGIN_PATH.'/sql-migrate/'.$file;
+				}
+				if(file_exists($path)){
+					$sql = file_get_contents($path);
+					$ret['sql'] = $sql;
+					if($file == 'tabel.sql'){
+						require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
+						$wpdb->hide_errors();
+						$rows_affected = dbDelta($sql);
+						if(empty($rows_affected)){
+							$ret['status'] = 'error';
+							$ret['message'] = $wpdb->last_error;
+						}else{
+							$ret['message'] = implode(' | ', $rows_affected);
+						}
+					}else{
+						$wpdb->hide_errors();
+						$res = $wpdb->query($sql);
+						if(empty($res)){
+							$ret['status'] = 'error';
+							$ret['message'] = $wpdb->last_error;
+						}else{
+							$ret['message'] = $res;
+						}
+					}
+					if($ret['status'] == 'success'){
+						$ret['version'] = $this->version;
+						update_option('_last_update_sql_migrate', $ret['value']);
+						update_option('_wp_sipd_db_version', $this->version);
+					}
+				}else{
+					$ret['status'] = 'error';
+					$ret['message'] = 'File '.$file.' tidak ditemukan!';
+				}
+			}else{
+				$ret = array(
+					'status' => 'error',
+					'message'	=> 'Api Key tidak sesuai!'
+				);
+			}
+		}else{
+			$ret = array(
+				'status' => 'error',
+				'message'	=> 'Format tidak sesuai!'
+			);
+		}
+		die(json_encode($ret));
+	}
+
+	public function singkron_rpjmd_sipd_lokal(){
+		global $wpdb;
+		$ret = array(
+			'status'	=> 'success',
+			'message'	=> 'Berhasil mengambil data RPJMD dari data SIPD lokal!'
+		);
+		if (!empty($_POST)) {
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+				$tahun_anggaran = $_POST['tahun_anggaran'];
+				$sql = $wpdb->prepare("
+					select 
+						* 
+					from data_rpjmd_visi
+					where tahun_anggaran=%d
+						and active=1
+				", $tahun_anggaran);
+				$visi_all = $wpdb->get_results($sql, ARRAY_A);
+				foreach ($visi_all as $visi) {
+					$table = 'data_rpjmd_visi_lokal';
+					$id_cek = $wpdb->get_var("
+						SELECT id from $table 
+						where visi_teks='{$visi['visi_teks']}'");
+					$data = array(
+						'id_visi' => $visi['id_visi'],
+					  	'is_locked' => $visi['is_locked'],
+					  	'status' => $visi['status'],
+				  		'visi_teks' => $visi['visi_teks'],
+				  		'update_at' => $visi['update_at']
+					);
+					if(!empty($id_cek)){
+						$wpdb->update($table, $data, array('id' => $id_cek));
+					}else{
+						$wpdb->insert($table, $data);
+					}
+					$sql = $wpdb->prepare("
+						select 
+							* 
+						from data_rpjmd_misi
+						where tahun_anggaran=%d
+							and id_visi=%s
+							and active=1
+					", $tahun_anggaran, $visi['id_visi']);
+					$misi_all = $wpdb->get_results($sql, ARRAY_A);
+					foreach ($misi_all as $misi) {
+						$table = 'data_rpjmd_misi_lokal';
+						$id_cek = $wpdb->get_var("
+							SELECT id from $table 
+							where misi_teks='{$misi['misi_teks']}' 
+								and visi_teks='{$misi['visi_teks']}'
+						");
+						$data = array(
+							'id_misi' => $misi['id_misi'],
+							'id_misi_old' => $misi['id_misi_old'],
+							'id_visi' => $misi['id_visi'],
+							'is_locked' => $misi['is_locked'],
+							'misi_teks' => $misi['misi_teks'],
+							'status' => $misi['status'],
+							'urut_misi' => $misi['urut_misi'],
+							'visi_lock' => $misi['visi_lock'],
+							'visi_teks' => $misi['visi_teks'],
+							'update_at' => $misi['update_at']
+						);
+						if(!empty($id_cek)){
+							$wpdb->update($table, $data, array('id' => $id_cek));
+						}else{
+							$wpdb->insert($table, $data);
+						}
+						$sql = $wpdb->prepare("
+							select 
+								* 
+							from data_rpjmd_tujuan
+							where tahun_anggaran=%d
+								and id_misi=%s
+								and active=1
+						", $tahun_anggaran, $misi['id_misi']);
+						$tujuan_all = $wpdb->get_results($sql, ARRAY_A);
+						foreach ($tujuan_all as $tujuan) {
+							$table = 'data_rpjmd_tujuan_lokal';
+							$id_cek = $wpdb->get_var("
+								SELECT id from $table 
+								where tujuan_teks='{$tujuan['tujuan_teks']}' 
+									and misi_teks='{$tujuan['misi_teks']}'
+									and indikator_teks='{$tujuan['indikator_teks']}'
+							");
+							$data = array(
+								'id_misi' => $tujuan['id_misi'],
+								'id_misi_old' => $tujuan['id_misi_old'],
+								'id_tujuan' => $tujuan['id_tujuan'],
+								'id_unik' => $tujuan['id_unik'],
+								'id_unik_indikator' => $tujuan['id_unik_indikator'],
+								'id_visi' => $tujuan['id_visi'],
+								'indikator_teks' => $tujuan['indikator_teks'],
+								'is_locked' => $tujuan['is_locked'],
+								'is_locked_indikator' => $tujuan['is_locked_indikator'],
+								'misi_lock' => $tujuan['misi_lock'],
+								'misi_teks' => $tujuan['misi_teks'],
+								'satuan' => $tujuan['satuan'],
+								'status' => $tujuan['status'],
+								'target_1' => $tujuan['target_1'],
+								'target_2' => $tujuan['target_2'],
+								'target_3' => $tujuan['target_3'],
+								'target_4' => $tujuan['target_4'],
+								'target_5' => $tujuan['target_5'],
+								'target_akhir' => $tujuan['target_akhir'],
+								'target_awal' => $tujuan['target_awal'],
+								'tujuan_teks' => $tujuan['tujuan_teks'],
+								'urut_misi' => $tujuan['urut_misi'],
+								'urut_tujuan' => $tujuan['urut_tujuan'],
+								'visi_teks' => $tujuan['visi_teks'],
+								'update_at' => $tujuan['update_at']
+							);
+							if(!empty($id_cek)){
+								$wpdb->update($table, $data, array('id' => $id_cek));
+							}else{
+								$wpdb->insert($table, $data);
+							}
+							$sql = $wpdb->prepare("
+								select 
+									* 
+								from data_rpjmd_sasaran
+								where tahun_anggaran=%d
+									and kode_tujuan=%s
+									and active=1
+							", $tahun_anggaran, $tujuan['id_unik']);
+							$sasaran_all = $wpdb->get_results($sql, ARRAY_A);
+							foreach ($sasaran_all as $sasaran) {
+								$table = 'data_rpjmd_sasaran_lokal';
+								$id_cek = $wpdb->get_var("
+									SELECT id from $table 
+									where sasaran_teks='{$sasaran['sasaran_teks']}' 
+										and tujuan_teks='{$sasaran['tujuan_teks']}'
+										and indikator_teks='{$sasaran['indikator_teks']}'
+								");
+								$data = array(
+									'id_misi' => $sasaran['id_misi'],
+									'id_misi_old'=> $sasaran['id_misi_old'],
+									'id_sasaran'=> $sasaran['id_sasaran'],
+									'id_unik'=> $sasaran['id_unik'],
+									'id_unik_indikator'=> $sasaran['id_unik_indikator'],
+									'id_visi'=> $sasaran['id_visi'],
+									'indikator_teks'=> $sasaran['indikator_teks'],
+									'is_locked'=> $sasaran['is_locked'],
+									'is_locked_indikator'=> $sasaran['is_locked_indikator'],
+									'kode_tujuan'=> $sasaran['kode_tujuan'],
+									'misi_teks'=> $sasaran['misi_teks'],
+									'sasaran_teks'=> $sasaran['sasaran_teks'],
+									'satuan'=> $sasaran['satuan'],
+									'status'=> $sasaran['status'],
+									'target_1'=> $sasaran['target_1'],
+									'target_2'=> $sasaran['target_2'],
+									'target_3'=> $sasaran['target_3'],
+									'target_4'=> $sasaran['target_4'],
+									'target_5'=> $sasaran['target_5'],
+									'target_akhir'=> $sasaran['target_akhir'],
+									'target_awal'=> $sasaran['target_awal'],
+									'tujuan_lock'=> $sasaran['tujuan_lock'],
+									'tujuan_teks'=> $sasaran['tujuan_teks'],
+									'urut_misi'=> $sasaran['urut_misi'],
+									'urut_sasaran'=> $sasaran['urut_sasaran'],
+									'urut_tujuan'=> $sasaran['urut_tujuan'],
+									'visi_teks'=> $sasaran['visi_teks'],
+									'update_at'=> $sasaran['update_at']
+								);
+								if(!empty($id_cek)){
+									$wpdb->update($table, $data, array('id' => $id_cek));
+								}else{
+									$wpdb->insert($table, $data);
+								}
+								$sql = $wpdb->prepare("
+									select 
+										* 
+									from data_rpjmd_program
+									where tahun_anggaran=%d
+										and kode_sasaran=%s
+										and active=1
+								", $tahun_anggaran, $sasaran['id_unik']);
+								$program_all = $wpdb->get_results($sql, ARRAY_A);
+								foreach ($program_all as $program) {
+									$table = 'data_rpjmd_program_lokal';
+									$id_cek = $wpdb->get_var("
+										SELECT id from $table 
+										where nama_program='{$program['nama_program']}' 
+											and sasaran_teks='{$program['sasaran_teks']}'
+											and indikator='{$program['indikator']}'
+									");
+									$data = array(
+										'id_misi' => $program['id_misi'],
+										'id_misi_old' => $program['id_misi_old'],
+										'id_program' => $program['id_program'],
+										'id_unik' => $program['id_unik'],
+										'id_unik_indikator' => $program['id_unik_indikator'],
+										'id_unit' => $program['id_unit'],
+										'id_visi' => $program['id_visi'],
+										'indikator' => $program['indikator'],
+										'is_locked' => $program['is_locked'],
+										'is_locked_indikator' => $program['is_locked_indikator'],
+										'kode_sasaran' => $program['kode_sasaran'],
+										'kode_skpd' => $program['kode_skpd'],
+										'kode_tujuan' => $program['kode_tujuan'],
+										'misi_teks' => $program['misi_teks'],
+										'nama_program' => $program['nama_program'],
+										'nama_skpd' => $program['nama_skpd'],
+										'pagu_1' => $program['pagu_1'],
+										'pagu_2' => $program['pagu_2'],
+										'pagu_3' => $program['pagu_3'],
+										'pagu_4' => $program['pagu_4'],
+										'pagu_5' => $program['pagu_5'],
+										'program_lock' => $program['program_lock'],
+										'sasaran_lock' => $program['sasaran_lock'],
+										'sasaran_teks' => $program['sasaran_teks'],
+										'satuan' => $program['satuan'],
+										'status' => $program['status'],
+										'target_1' => $program['target_1'],
+										'target_2' => $program['target_2'],
+										'target_3' => $program['target_3'],
+										'target_4' => $program['target_4'],
+										'target_5' => $program['target_5'],
+										'target_akhir' => $program['target_akhir'],
+										'target_awal' => $program['target_awal'],
+										'tujuan_lock' => $program['tujuan_lock'],
+										'tujuan_teks' => $program['tujuan_teks'],
+										'urut_misi' => $program['urut_misi'],
+										'urut_sasaran' => $program['urut_sasaran'],
+										'urut_tujuan' => $program['urut_tujuan'],
+										'visi_teks' => $program['visi_teks'],
+										'update_at' => $program['update_at']
+									);
+									if(!empty($id_cek)){
+										$wpdb->update($table, $data, array('id' => $id_cek));
+									}else{
+										$wpdb->insert($table, $data);
+									}
+								}
+							}
+						}
+					}
+				}
+			}else{
+				$ret = array(
+					'status' => 'error',
+					'message'	=> 'Api Key tidak sesuai!'
+				);
+			}
+		}else{
+			$ret = array(
+				'status' => 'error',
+				'message'	=> 'Format tidak sesuai!'
+			);
+		}
+		die(json_encode($ret));
+	}
+
+	public function singkron_rpd_sipd_lokal(){
+		global $wpdb;
+		$ret = array(
+			'status'	=> 'success',
+			'message'	=> 'Berhasil mengambil data RPD dari data SIPD lokal!'
+		);
+		if (!empty($_POST)) {
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+				$sql = "
+					select 
+						* 
+					from data_rpd_tujuan
+					where active=1
+				";
+				$tujuan_all = $wpdb->get_results($sql, ARRAY_A);
+				foreach ($tujuan_all as $tujuan) {
+					$table = 'data_rpd_tujuan_lokal';
+					$id_cek = $wpdb->get_var("
+						SELECT id from $table 
+						where tujuan_teks='{$tujuan['tujuan_teks']}' 
+							and misi_teks='{$tujuan['misi_teks']}'
+							and indikator_teks='{$tujuan['indikator_teks']}'
+					");
+					$data = array(
+						'head_teks' => $tujuan['head_teks'],
+						'id_misi_old' => $tujuan['id_misi_old'],
+						'id_tujuan' => $tujuan['id_tujuan'],
+						'id_unik' => $tujuan['id_unik'],
+						'id_unik_indikator' => $tujuan['id_unik_indikator'],
+						'indikator_teks' => $tujuan['indikator_teks'],
+						'is_locked' => $tujuan['is_locked'],
+						'is_locked_indikator' => $tujuan['is_locked_indikator'],
+						'isu_teks' => $tujuan['isu_teks'],
+						'kebijakan_teks' => $tujuan['kebijakan_teks'],
+						'misi_lock' => $tujuan['misi_lock'],
+						'misi_teks' => $tujuan['misi_teks'],
+						'saspok_teks' => $tujuan['saspok_teks'],
+						'satuan' => $tujuan['satuan'],
+						'status' => $tujuan['status'],
+						'target_1' => $tujuan['target_1'],
+						'target_2' => $tujuan['target_2'],
+						'target_3' => $tujuan['target_3'],
+						'target_4' => $tujuan['target_4'],
+						'target_5' => $tujuan['target_5'],
+						'target_akhir' => $tujuan['target_akhir'],
+						'target_awal' => $tujuan['target_awal'],
+						'tujuan_teks' => $tujuan['tujuan_teks'],
+						'urut_misi' => $tujuan['urut_misi'],
+						'urut_saspok' => $tujuan['urut_saspok'],
+						'urut_tujuan' => $tujuan['urut_tujuan'],
+						'visi_teks' => $tujuan['visi_teks'],
+						'update_at' => $tujuan['update_at']
+					);
+					if(!empty($id_cek)){
+						$wpdb->update($table, $data, array('id' => $id_cek));
+					}else{
+						$wpdb->insert($table, $data);
+					}
+					$sql = $wpdb->prepare("
+						select 
+							* 
+						from data_rpd_sasaran
+						where kode_tujuan=%s
+							and active=1
+					", $tujuan['id_unik']);
+					$sasaran_all = $wpdb->get_results($sql, ARRAY_A);
+					foreach ($sasaran_all as $sasaran) {
+						$table = 'data_rpd_sasaran_lokal';
+						$id_cek = $wpdb->get_var("
+							SELECT id from $table 
+							where sasaran_teks='{$sasaran['sasaran_teks']}' 
+								and tujuan_teks='{$sasaran['tujuan_teks']}'
+								and indikator_teks='{$sasaran['indikator_teks']}'
+						");
+						$data = array(
+							'head_teks' => $sasaran['head_teks'],
+							'id_misi_old' => $sasaran['id_misi_old'],
+							'id_sasaran' => $sasaran['id_sasaran'],
+							'id_unik' => $sasaran['id_unik'],
+							'id_unik_indikator' => $sasaran['id_unik_indikator'],
+							'indikator_teks' => $sasaran['indikator_teks'],
+							'is_locked' => $sasaran['is_locked'],
+							'is_locked_indikator' => $sasaran['is_locked_indikator'],
+							'isu_teks' => $sasaran['isu_teks'],
+							'kebijakan_teks' => $sasaran['kebijakan_teks'],
+							'kode_tujuan' => $sasaran['kode_tujuan'],
+							'misi_lock' => $sasaran['misi_lock'],
+							'misi_teks' => $sasaran['misi_teks'],
+							'sasaran_teks' => $sasaran['sasaran_teks'],
+							'saspok_teks' => $sasaran['saspok_teks'],
+							'satuan' => $sasaran['satuan'],
+							'status' => $sasaran['status'],
+							'target_1' => $sasaran['target_1'],
+							'target_2' => $sasaran['target_2'],
+							'target_3' => $sasaran['target_3'],
+							'target_4' => $sasaran['target_4'],
+							'target_5' => $sasaran['target_5'],
+							'target_akhir' => $sasaran['target_akhir'],
+							'target_awal' => $sasaran['target_awal'],
+							'tujuan_lock' => $sasaran['tujuan_lock'],
+							'tujuan_teks' => $sasaran['tujuan_teks'],
+							'urut_misi' => $sasaran['urut_misi'],
+							'urut_sasaran' => $sasaran['urut_sasaran'],
+							'urut_saspok' => $sasaran['urut_saspok'],
+							'urut_tujuan' => $sasaran['urut_tujuan'],
+							'visi_teks' => $sasaran['visi_teks'],
+							'update_at' => $sasaran['update_at']
+						);
+						if(!empty($id_cek)){
+							$wpdb->update($table, $data, array('id' => $id_cek));
+						}else{
+							$wpdb->insert($table, $data);
+						}
+						$sql = $wpdb->prepare("
+							select 
+								* 
+							from data_rpd_program
+							where kode_sasaran=%s
+								and active=1
+						", $sasaran['id_unik']);
+						$program_all = $wpdb->get_results($sql, ARRAY_A);
+						foreach ($program_all as $program) {
+							$table = 'data_rpd_program_lokal';
+							$id_cek = $wpdb->get_var("
+								SELECT id from $table 
+								where nama_program='{$program['nama_program']}' 
+									and sasaran_teks='{$program['sasaran_teks']}'
+									and indikator='{$program['indikator']}'
+							");
+							$data = array(
+								'head_teks' => $program['head_teks'],
+								'id_bidur_mth' => $program['id_bidur_mth'],
+								'id_misi_old' => $program['id_misi_old'],
+								'id_program' => $program['id_program'],
+								'id_program_mth' => $program['id_program_mth'],
+								'id_unik' => $program['id_unik'],
+								'id_unik_indikator' => $program['id_unik_indikator'],
+								'id_unit' => $program['id_unit'],
+								'indikator' => $program['indikator'],
+								'is_locked' => $program['is_locked'],
+								'is_locked_indikator' => $program['is_locked_indikator'],
+								'isu_teks' => $program['isu_teks'],
+								'kebijakan_teks' => $program['kebijakan_teks'],
+								'kode_sasaran' => $program['kode_sasaran'],
+								'kode_skpd' => $program['kode_skpd'],
+								'kode_tujuan' => $program['kode_tujuan'],
+								'misi_lock' => $program['misi_lock'],
+								'misi_teks' => $program['misi_teks'],
+								'nama_program' => $program['nama_program'],
+								'nama_skpd' => $program['nama_skpd'],
+								'pagu_1' => $program['pagu_1'],
+								'pagu_2' => $program['pagu_2'],
+								'pagu_3' => $program['pagu_3'],
+								'pagu_4' => $program['pagu_4'],
+								'pagu_5' => $program['pagu_5'],
+								'program_lock' => $program['program_lock'],
+								'sasaran_lock' => $program['sasaran_lock'],
+								'sasaran_teks' => $program['sasaran_teks'],
+								'saspok_teks' => $program['saspok_teks'],
+								'satuan' => $program['satuan'],
+								'status' => $program['status'],
+								'target_1' => $program['target_1'],
+								'target_2' => $program['target_2'],
+								'target_3' => $program['target_3'],
+								'target_4' => $program['target_4'],
+								'target_5' => $program['target_5'],
+								'target_akhir' => $program['target_akhir'],
+								'target_awal' => $program['target_awal'],
+								'tujuan_lock' => $program['tujuan_lock'],
+								'tujuan_teks' => $program['tujuan_teks'],
+								'urut_misi' => $program['urut_misi'],
+								'urut_sasaran' => $program['urut_sasaran'],
+								'urut_saspok' => $program['urut_saspok'],
+								'urut_tujuan' => $program['urut_tujuan'],
+								'visi_teks' => $program['visi_teks'],
+								'update_at' => $program['update_at']
+							);
+							if(!empty($id_cek)){
+								$wpdb->update($table, $data, array('id' => $id_cek));
+							}else{
+								$wpdb->insert($table, $data);
+							}
+						}
+					}
+				}
+			}else{
+				$ret = array(
+					'status' => 'error',
+					'message'	=> 'Api Key tidak sesuai!'
+				);
+			}
+		}else{
+			$ret = array(
+				'status' => 'error',
+				'message'	=> 'Format tidak sesuai!'
+			);
+		}
+		die(json_encode($ret));
+	}
+
+	function get_visi_rpjm(){
+		global $wpdb;
+		$ret = array(
+			'status'	=> 'success',
+			'message'	=> 'Berhasil get visi RPJM!'
+		);
+		if (!empty($_POST)) {
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+				$type = $_POST['type'];
+				if($type == 1){
+					$sql = $wpdb->prepare("
+						select 
+							* 
+						from data_rpjmd_visi_lokal
+					");
+					$ret['data'] = $wpdb->get_results($sql, ARRAY_A);
+				}else{
+					$tahun_anggaran = $_POST['tahun_anggaran'];
+					$sql = $wpdb->prepare("
+						select 
+							* 
+						from data_rpjmd_visi
+						where tahun_anggaran=%d
+							and active=1
+					", $tahun_anggaran);
+					$ret['data'] = $wpdb->get_results($sql, ARRAY_A);
+				}
+			}else{
+				$ret = array(
+					'status' => 'error',
+					'message'	=> 'Api Key tidak sesuai!'
+				);
+			}
+		}else{
+			$ret = array(
+				'status' => 'error',
+				'message'	=> 'Format tidak sesuai!'
+			);
+		}
+		die(json_encode($ret));
+	}
+
+	function get_tujuan_rpd(){
+		global $wpdb;
+		$ret = array(
+			'status'	=> 'success',
+			'message'	=> 'Berhasil get tujuan RPD!'
+		);
+		if (!empty($_POST)) {
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+				$type = $_POST['type'];
+				if($type == 1){
+					$sql = $wpdb->prepare("
+						select 
+							* 
+						from data_rpd_tujuan_lokal
+					");
+					$ret['data'] = $wpdb->get_results($sql, ARRAY_A);
+				}else{
+					$sql = $wpdb->prepare("
+						select 
+							* 
+						from data_rpd_tujuan
+						where active=1
+					");
+					$ret['data'] = $wpdb->get_results($sql, ARRAY_A);
+				}
+			}else{
+				$ret = array(
+					'status' => 'error',
+					'message'	=> 'Api Key tidak sesuai!'
+				);
+			}
+		}else{
+			$ret = array(
+				'status' => 'error',
+				'message'	=> 'Format tidak sesuai!'
+			);
+		}
+		die(json_encode($ret));
+	}
+
+	function validasi_jadwal_perencanaan($tipe_perencanaan){
+		global $wpdb;
+
+		$data_return = array(
+			'status' => 200,
+			'message' => "Berhasil"
+		);
+
+		if(!empty($tipe_perencanaan)){
+			date_default_timezone_set("Asia/Bangkok");
+			$dateTime = new DateTime();
+			$time_now = $dateTime->format('Y-m-d H:i:s');
+
+			$sql_tipe = $wpdb->get_results("SELECT * FROM `data_tipe_perencanaan` WHERE nama_tipe='".$tipe_perencanaan."'", ARRAY_A);
+
+			$sql_jadwal_lokal = $wpdb->get_results("SELECT nama,waktu_awal,waktu_akhir,status,tahun_anggaran FROM `data_jadwal_lokal` WHERE status = 0 AND (waktu_awal < '".$time_now."' AND waktu_akhir > '".$time_now."') AND id_tipe='".$sql_tipe[0]['id']."'", ARRAY_A);
+
+			if(!empty($sql_jadwal_lokal)){
+				$data_return = array(
+					'status' 	=> 'success',
+					'message'	=> "Berhasil",
+					'data'		=> $sql_jadwal_lokal
+				);
+			}else{
+				$data_return = array(
+					'status' 	=> 'error',
+					'message'	=> "Data terbuka tidak ditemukan.",
+					'data'		=> $sql_jadwal_lokal
+				);
+			}
+			
+		}else{
+			$data_return = array(
+				'status' 	=> 'error',
+				'message' 	=> "Gagal, tipe perencanaan tidak ada",
+				'data'		=> ''
+			);
+		}
+
+		return $data_return;
 	}
 }
