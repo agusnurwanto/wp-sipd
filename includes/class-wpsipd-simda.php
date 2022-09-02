@@ -1870,9 +1870,9 @@ class Wpsipd_Simda
         			$this->status_koneksi_simda = false;
             		$msg = $response.' (terkoneksi tapi gagal parsing data!)';
         			if($debug_option == 1){
-            			die($msg);
+            			// die($msg);
             		}else{
-            			return $msg;
+            			// return $msg;
             		}
             	}
             }
