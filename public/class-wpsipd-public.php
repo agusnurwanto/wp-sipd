@@ -130,6 +130,7 @@ class Wpsipd_Public
 					foreach ($ssh as $k => $v) {
 						$cek = $wpdb->get_var("SELECT id_standar_harga from data_ssh where tahun_anggaran=".$_POST['tahun_anggaran']." AND id_standar_harga=" . $v['id_standar_harga']);
 						$kelompok = explode(' ', $v['nama_kel_standar_harga']);
+						$nilai = explode(' ', $v['nilai_tkdn']);
 						$opsi = array(
 							'id_standar_harga' => $v['id_standar_harga'],
 							'kode_standar_harga' => $v['kode_standar_harga'],
@@ -148,6 +149,8 @@ class Wpsipd_Public
 							'harga_3' => $v['harga_3'],
 							'kode_kel_standar_harga' => $v['kode_kel_standar_harga'],
 							'nama_kel_standar_harga' => $kelompok[1],
+							'tkdn' => $nilai[0],
+							'jenis_produk' => $v['is_pdn'],
 							'update_at'	=> current_time('mysql'),
 							'tahun_anggaran'	=> $_POST['tahun_anggaran']
 						);
