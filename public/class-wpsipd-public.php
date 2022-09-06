@@ -4067,6 +4067,44 @@ class Wpsipd_Public
 							}
 						}
 					}
+					if (!empty($_POST['realisasi']) && $ret['status'] != 'error') {
+						$realisasi = $_POST['realisasi'];
+						$wpdb->update('data_realisasi_akun_sipd', array( 'active' => 0 ), array(
+							'tahun_anggaran' => $_POST['tahun_anggaran'],
+							'kode_sbl' => $_POST['kode_sbl']
+						));
+						foreach ($realisasi as $k => $v) {
+							$cek_id = $wpdb->get_var("SELECT kode_sbl from data_realisasi_akun_sipd where tahun_anggaran=".$_POST['tahun_anggaran']." AND kode_sbl='" . $_POST['kode_sbl'] . "' AND kode_akun='" . $v['kode_akun'] . "'");
+							$opsi = array(
+								'id_unit' => $v['id_unit'],
+								'id_skpd' => $v['id_skpd'],
+								'id_sub_skpd' => $v['id_sub_skpd'],
+								'id_program' => $v['id_program'],
+								'id_giat' => $v['id_giat'],
+								'id_sub_giat' => $v['id_sub_giat'],
+								'id_daerah' => $v['id_daerah'],
+								'lokus_akun_teks' => $v['lokus_akun_teks'],
+								'id_akun' => $v['id_akun'],
+								'kode_akun' => $v['kode_akun'],
+								'nama_akun' => $v['nama_akun'],
+								'is_locked' => $v['is_locked'],
+								'nilai' => $v['nilai'],
+								'action' => $v['action'],
+								'realisasi' => $v['realisasi'],
+								'kode_sbl' => $_POST['kode_sbl'],
+								'active' => 1,
+								'update_at' => current_time('mysql'),
+								'tahun_anggaran' => $_POST['tahun_anggaran']
+							);
+							if (!empty($cek_id)) {
+								$wpdb->update('data_realisasi_akun_sipd', $opsi, array(
+									'id' => $cek_id
+								));
+							} else {
+								$wpdb->insert('data_realisasi_akun_sipd', $opsi);
+							}
+						}
+					}
 				}
 
 				$iddana = false;
