@@ -156,67 +156,26 @@ if(empty($data_all['data']['visi_kosong']['data']['misi_kosong'])){
 		'data' => array()
 	);
 }
-
-// select visi yang belum terselect
-if(!empty($visi_ids)){
-	$sql = "
-		select 
-			* 
-		from data_rpjpd_visi
-		where id not in (".implode(',', $visi_ids).")
-	";
-}else{
-	$sql = "
-		select 
-			* 
-		from data_rpjpd_visi
-	";
+if(empty($data_all['data']['visi_kosong']['data']['misi_kosong']['data']['sasaran_kosong'])){
+	$data_all['data']['visi_kosong']['data']['misi_kosong']['data']['sasaran_kosong'] = array(
+		'nama' => '<span style="color: red">kosong</span>',
+		'detail' => array(),
+		'data' => array()
+	);
 }
-$visi_all_kosong = $wpdb->get_results($sql, ARRAY_A);
-foreach ($visi_all_kosong as $visi) {
-	if(empty($data_all['data'][$visi['id']])){
-		$data_all['data'][$visi['id']] = array(
-			'nama' => $visi['visi_teks'],
-			'detail' => array(),
-			'data' => array()
-		);
-	}
-	$data_all['data'][$visi['id']]['detail'][] = $visi;
-	$sql = $wpdb->prepare("
-		select 
-			* 
-		from data_rpjpd_misi
-		where kode_visi=%s
-	", $visi['id']);
-	$misi_all = $wpdb->get_results($sql, ARRAY_A);
-	foreach ($misi_all as $misi) {
-		$misi_ids[$misi['id']] = "'".$misi['id']."'";
-		if(empty($data_all['data'][$visi['id']]['data'][$misi['id']])){
-			$data_all['data'][$visi['id']]['data'][$misi['id']] = array(
-				'nama' => $misi['misi_teks'],
-				'detail' => array(),
-				'data' => array()
-			);
-		}
-		$data_all['data'][$visi['id']]['data'][$misi['id']]['detail'][] = $misi;
-		$sql = $wpdb->prepare("
-			select 
-				* 
-			from data_rpjpd_sasaran
-			where kode_misi=%s
-		", $misi['id']);
-		$sasaran_all = $wpdb->get_results($sql, ARRAY_A);
-		foreach ($sasaran_all as $sasaran) {
-			$sasaran_ids[$sasaran['id']] = "'".$sasaran['id']."'";
-			if(empty($data_all['data'][$visi['id']]['data'][$misi['id']]['data'][$sasaran['id']])){
-				$data_all['data'][$visi['id']]['data'][$misi['id']]['data'][$sasaran['id']] = array(
-					'nama' => $sasaran['sasaran_teks'],
-					'detail' => array(),
-					'data' => array()
-				);
-			}
-		}
-	}
+if(empty($data_all['data']['visi_kosong']['data']['misi_kosong']['data']['sasaran_kosong']['data']['kebijakan_kosong'])){
+	$data_all['data']['visi_kosong']['data']['misi_kosong']['data']['sasaran_kosong']['data']['kebijakan_kosong'] = array(
+		'nama' => '<span style="color: red">kosong</span>',
+		'detail' => array(),
+		'data' => array()
+	);
+}
+if(empty($data_all['data']['visi_kosong']['data']['misi_kosong']['data']['sasaran_kosong']['data']['kebijakan_kosong']['data']['isu_kosong'])){
+	$data_all['data']['visi_kosong']['data']['misi_kosong']['data']['sasaran_kosong']['data']['kebijakan_kosong']['data']['isu_kosong'] = array(
+		'nama' => '<span style="color: red">kosong</span>',
+		'detail' => array(),
+		'data' => array()
+	);
 }
 
 // select misi yang belum terselect
@@ -236,6 +195,7 @@ if(!empty($misi_ids)){
 }
 $misi_all_kosong = $wpdb->get_results($sql, ARRAY_A);
 foreach ($misi_all_kosong as $misi) {
+	$misi_ids[$misi['id']] = "'".$misi['id']."'";
 	if(empty($data_all['data']['visi_kosong']['data'][$misi['id']])){
 		$data_all['data']['visi_kosong']['data'][$misi['id']] = array(
 			'nama' => $misi['misi_teks'],
@@ -248,17 +208,54 @@ foreach ($misi_all_kosong as $misi) {
 		select 
 			* 
 		from data_rpjpd_sasaran
-		where kode_misi=%s
+		where id_misi=%s
 	", $misi['id']);
 	$sasaran_all = $wpdb->get_results($sql, ARRAY_A);
 	foreach ($sasaran_all as $sasaran) {
 		$sasaran_ids[$sasaran['id']] = "'".$sasaran['id']."'";
 		if(empty($data_all['data']['visi_kosong']['data'][$misi['id']]['data'][$sasaran['id']])){
 			$data_all['data']['visi_kosong']['data'][$misi['id']]['data'][$sasaran['id']] = array(
-				'nama' => $sasaran['sasaran_teks'],
+				'nama' => $sasaran['saspok_teks'],
 				'detail' => array(),
 				'data' => array()
 			);
+		}
+		$data_all['data']['visi_kosong']['data'][$misi['id']]['data'][$sasaran['id']]['detail'][] = $sasaran;
+		$sql = $wpdb->prepare("
+			select 
+				* 
+			from data_rpjpd_kebijakan
+			where id_sasaran=%s
+		", $sasaran['id']);
+		$kebijakan_all = $wpdb->get_results($sql, ARRAY_A);
+		foreach ($kebijakan_all as $kebijakan) {
+			$kebijakan_ids[$kebijakan['id']] = "'".$kebijakan['id']."'";
+			if(empty($data_all['data']['visi_kosong']['data'][$misi['id']]['data'][$sasaran['id']]['data'][$kebijakan['id']])){
+				$data_all['data']['visi_kosong']['data'][$misi['id']]['data'][$sasaran['id']]['data'][$kebijakan['id']] = array(
+					'nama' => $kebijakan['kebijakan_teks'],
+					'detail' => array(),
+					'data' => array()
+				);
+			}
+			$data_all['data']['visi_kosong']['data'][$misi['id']]['data'][$sasaran['id']]['data'][$kebijakan['id']]['detail'][] = $kebijakan;
+			$sql = $wpdb->prepare("
+				select 
+					* 
+				from data_rpjpd_isu
+				where id_kebijakan=%s
+			", $sasaran['id']);
+			$isu_all = $wpdb->get_results($sql, ARRAY_A);
+			foreach ($isu_all as $isu) {
+				$isu_ids[$isu['id']] = "'".$isu['id']."'";
+				if(empty($data_all['data']['visi_kosong']['data'][$misi['id']]['data'][$sasaran['id']]['data'][$kebijakan['id']]['data'][$isu['id']])){
+					$data_all['data']['visi_kosong']['data'][$misi['id']]['data'][$sasaran['id']]['data'][$kebijakan['id']]['data'][$isu['id']] = array(
+						'nama' => $isu['isu_teks'],
+						'detail' => array(),
+						'data' => array()
+					);
+				}
+				$data_all['data']['visi_kosong']['data'][$misi['id']]['data'][$sasaran['id']]['data'][$kebijakan['id']]['data'][$isu['id']]['detail'][] = $isu;
+			}
 		}
 	}
 }
@@ -280,20 +277,138 @@ if(!empty($sasaran_ids)){
 }
 $sasaran_all = $wpdb->get_results($sql, ARRAY_A);
 foreach ($sasaran_all as $sasaran) {
+	$sasaran_ids[$sasaran['id']] = "'".$sasaran['id']."'";
 	if(empty($data_all['data']['visi_kosong']['data']['misi_kosong']['data'][$sasaran['id']])){
 		$data_all['data']['visi_kosong']['data']['misi_kosong']['data'][$sasaran['id']] = array(
-			'nama' => $sasaran['nama_sasaran'],
+			'nama' => $sasaran['saspok_teks'],
 			'detail' => array(),
 			'data' => array()
 		);
 	}
+	$data_all['data']['visi_kosong']['data']['misi_kosong']['data'][$sasaran['id']]['detail'][] = $sasaran;
+	$sql = $wpdb->prepare("
+		select 
+			* 
+		from data_rpjpd_kebijakan
+		where id_sasaran=%s
+	", $sasaran['id']);
+	$kebijakan_all = $wpdb->get_results($sql, ARRAY_A);
+	foreach ($kebijakan_all as $kebijakan) {
+		$kebijakan_ids[$kebijakan['id']] = "'".$kebijakan['id']."'";
+		if(empty($data_all['data']['visi_kosong']['data']['misi_kosong']['data'][$sasaran['id']]['data'][$kebijakan['id']])){
+			$data_all['data']['visi_kosong']['data']['misi_kosong']['data'][$sasaran['id']]['data'][$kebijakan['id']] = array(
+				'nama' => $kebijakan['kebijakan_teks'],
+				'detail' => array(),
+				'data' => array()
+			);
+		}
+		$data_all['data']['visi_kosong']['data']['misi_kosong']['data'][$sasaran['id']]['data'][$kebijakan['id']]['detail'][] = $kebijakan;
+		$sql = $wpdb->prepare("
+			select 
+				* 
+			from data_rpjpd_isu
+			where id_kebijakan=%s
+		", $sasaran['id']);
+		$isu_all = $wpdb->get_results($sql, ARRAY_A);
+		foreach ($isu_all as $isu) {
+			$isu_ids[$isu['id']] = "'".$isu['id']."'";
+			if(empty($data_all['data']['visi_kosong']['data']['misi_kosong']['data'][$sasaran['id']]['data'][$kebijakan['id']]['data'][$isu['id']])){
+				$data_all['data']['visi_kosong']['data']['misi_kosong']['data'][$sasaran['id']]['data'][$kebijakan['id']]['data'][$isu['id']] = array(
+					'nama' => $isu['isu_teks'],
+					'detail' => array(),
+					'data' => array()
+				);
+			}
+			$data_all['data']['visi_kosong']['data']['misi_kosong']['data'][$sasaran['id']]['data'][$kebijakan['id']]['data'][$isu['id']]['detail'][] = $isu;
+		}
+	}
+}
+
+// select kebijakan yang belum terselect
+if(!empty($kebijakan_ids)){
+	$sql = "
+		select 
+			* 
+		from data_rpjpd_kebijakan
+		where id not in (".implode(',', $kebijakan_ids).")
+	";
+}else{
+	$sql = "
+		select 
+			* 
+		from data_rpjpd_kebijakan
+	";
+}
+$kebijakan_all = $wpdb->get_results($sql, ARRAY_A);
+foreach ($kebijakan_all as $kebijakan) {
+	$kebijakan_ids[$kebijakan['id']] = "'".$kebijakan['id']."'";
+	if(empty($data_all['data']['visi_kosong']['data']['misi_kosong']['data']['sasaran_kosong']['data'][$kebijakan['id']])){
+		$data_all['data']['visi_kosong']['data']['misi_kosong']['data']['sasaran_kosong']['data'][$kebijakan['id']] = array(
+			'nama' => $kebijakan['kebijakan_teks'],
+			'detail' => array(),
+			'data' => array()
+		);
+	}
+	$data_all['data']['visi_kosong']['data']['misi_kosong']['data']['sasaran_kosong']['data'][$kebijakan['id']]['detail'][] = $kebijakan;
+	$sql = $wpdb->prepare("
+		select 
+			* 
+		from data_rpjpd_isu
+		where id_kebijakan=%s
+	", 'sasaran_kosong');
+	$isu_all = $wpdb->get_results($sql, ARRAY_A);
+	foreach ($isu_all as $isu) {
+		$isu_ids[$isu['id']] = "'".$isu['id']."'";
+		if(empty($data_all['data']['visi_kosong']['data']['misi_kosong']['data']['sasaran_kosong']['data']['kebijakan_kosong']['data'][$isu['id']])){
+			$data_all['data']['visi_kosong']['data']['misi_kosong']['data']['sasaran_kosong']['data']['kebijakan_kosong']['data'][$isu['id']] = array(
+				'nama' => $isu['isu_teks'],
+				'detail' => array(),
+				'data' => array()
+			);
+		}
+		$data_all['data']['visi_kosong']['data']['misi_kosong']['data']['sasaran_kosong']['data']['kebijakan_kosong']['data'][$isu['id']]['detail'][] = $isu;
+	}
+}
+
+// select isu yang belum terselect
+if(!empty($isu_ids)){
+	$sql = "
+		select 
+			* 
+		from data_rpjpd_isu
+		where id not in (".implode(',', $isu_ids).")
+	";
+}else{
+	$sql = "
+		select 
+			* 
+		from data_rpjpd_isu
+	";
+}
+$isu_all = $wpdb->get_results($sql, ARRAY_A);
+foreach ($isu_all as $isu) {
+	$isu_ids[$isu['id']] = "'".$isu['id']."'";
+	if(empty($data_all['data']['visi_kosong']['data']['misi_kosong']['data']['sasaran_kosong']['data']['kebijakan_kosong']['data'][$isu['id']])){
+		$data_all['data']['visi_kosong']['data']['misi_kosong']['data']['sasaran_kosong']['data']['kebijakan_kosong']['data'][$isu['id']] = array(
+			'nama' => $isu['isu_teks'],
+			'detail' => array(),
+			'data' => array()
+		);
+	}
+	$data_all['data']['visi_kosong']['data']['misi_kosong']['data']['sasaran_kosong']['data']['kebijakan_kosong']['data'][$isu['id']]['detail'][] = $isu;
 }
 
 // hapus array jika data dengan key kosong tidak ada datanya
-if(empty($data_all['data']['visi_kosong']['data']['misi_kosong']['data'])){
+if(empty($data_all['data']['visi_kosong']['data']['misi_kosong']['data']['sasaran_kosong']['data']['kebijakan_kosong']['detail'])){
+	unset($data_all['data']['visi_kosong']['data']['misi_kosong']['data']['sasaran_kosong']['data']['kebijakan_kosong']);
+}
+if(empty($data_all['data']['visi_kosong']['data']['misi_kosong']['data']['sasaran_kosong']['detail'])){
+	unset($data_all['data']['visi_kosong']['data']['misi_kosong']['data']['sasaran_kosong']);
+}
+if(empty($data_all['data']['visi_kosong']['data']['misi_kosong']['detail'])){
 	unset($data_all['data']['visi_kosong']['data']['misi_kosong']);
 }
-if(empty($data_all['data']['visi_kosong']['data'])){
+if(empty($data_all['data']['visi_kosong']['detail'])){
 	unset($data_all['data']['visi_kosong']);
 }
 
@@ -301,62 +416,76 @@ $body = '';
 $no_visi = 0;
 foreach ($data_all['data'] as $visi) {
 	$no_visi++;
-	$indikator_visi = '';
-	foreach($visi['detail'] as $k => $v){
-		if(!empty($v['indikator_teks'])){
-			$indikator_visi .= '<div class="indikator_sasaran">'.$v['indikator_teks'].'</div>';
-		}
-	}
 	$body .= '
 		<tr class="tr-visi">
 			<td class="kiri atas kanan bawah">'.$no_visi.'</td>
-			<td class="atas kanan bawah">'.parsing_nama_kode($visi['nama']).'</td>
+			<td class="atas kanan bawah">'.$visi['nama'].'</td>
 			<td class="atas kanan bawah"></td>
 			<td class="atas kanan bawah"></td>
-			<td class="atas kanan bawah">'.$indikator_visi.'</td>
+			<td class="atas kanan bawah"></td>
 			<td class="atas kanan bawah"></td>
 		</tr>
 	';
 	$no_misi = 0;
 	foreach ($visi['data'] as $misi) {
 		$no_misi++;
-		$indikator_misi = '';
-		foreach($misi['detail'] as $k => $v){
-			if(!empty($v['indikator_teks'])){
-				$indikator_misi .= '<div class="indikator_sasaran">'.$v['indikator_teks'].'</div>';
-			}
-		}
 		$body .= '
 			<tr class="tr-misi">
 				<td class="kiri atas kanan bawah">'.$no_visi.'.'.$no_misi.'</td>
 				<td class="atas kanan bawah"><span class="debug-visi">'.$visi['nama'].'</span></td>
-				<td class="atas kanan bawah">'.parsing_nama_kode($misi['nama']).'</td>
+				<td class="atas kanan bawah">'.$misi['nama'].'</td>
 				<td class="atas kanan bawah"></td>
-				<td class="atas kanan bawah">'.$indikator_misi.'</td>
+				<td class="atas kanan bawah"></td>
 				<td class="atas kanan bawah"></td>
 			</tr>
 		';
 		$no_sasaran = 0;
 		foreach ($misi['data'] as $sasaran) {
 			$no_sasaran++;
-			$text_indikator = array();
-			$text_indikator = implode('', $text_indikator);
 			$body .= '
-				<tr class="tr-sasaran" data-kode-skpd="'.$sasaran['kode_skpd'].'">
+				<tr class="tr-sasaran">
 					<td class="kiri atas kanan bawah">'.$no_visi.'.'.$no_misi.'.'.$no_sasaran.'</td>
 					<td class="atas kanan bawah"><span class="debug-visi">'.$visi['nama'].'</span></td>
 					<td class="atas kanan bawah"><span class="debug-misi">'.$misi['nama'].'</span></td>
-					<td class="atas kanan bawah">'.parsing_nama_kode($sasaran['nama']).'</td>
-					<td class="atas kanan bawah">'.$text_indikator.'</td>
-					<td class="atas kanan bawah">'.$sasaran['kode_skpd'].' '.$sasaran['nama_skpd'].'</td>
+					<td class="atas kanan bawah">'.$sasaran['nama'].'</td>
+					<td class="atas kanan bawah"></td>
+					<td class="atas kanan bawah"></td>
 				</tr>
 			';
+			$no_kebijakan = 0;
+			foreach ($sasaran['data'] as $kebijakan) {
+				$no_kebijakan++;
+				$body .= '
+					<tr class="tr-kebijakan">
+						<td class="kiri atas kanan bawah">'.$no_visi.'.'.$no_misi.'.'.$no_sasaran.'.'.$no_kebijakan.'</td>
+						<td class="atas kanan bawah"><span class="debug-visi">'.$visi['nama'].'</span></td>
+						<td class="atas kanan bawah"><span class="debug-misi">'.$misi['nama'].'</span></td>
+						<td class="atas kanan bawah"><span class="debug-sasaran">'.$sasaran['nama'].'</span></td>
+						<td class="atas kanan bawah">'.$kebijakan['nama'].'</td>
+						<td class="atas kanan bawah"></td>
+					</tr>
+				';
+				$no_isu = 0;
+				foreach ($kebijakan['data'] as $isu) {
+					$no_isu++;
+					$body .= '
+						<tr class="tr-isu">
+							<td class="kiri atas kanan bawah">'.$no_visi.'.'.$no_misi.'.'.$no_sasaran.'.'.$no_kebijakan.'.'.$no_isu.'</td>
+							<td class="atas kanan bawah"><span class="debug-visi">'.$visi['nama'].'</span></td>
+							<td class="atas kanan bawah"><span class="debug-misi">'.$misi['nama'].'</span></td>
+							<td class="atas kanan bawah"><span class="debug-sasaran">'.$sasaran['nama'].'</span></td>
+							<td class="atas kanan bawah"><span class="debug-kebijakan">'.$kebijakan['nama'].'</span></td>
+							<td class="atas kanan bawah">'.$isu['nama'].'</td>
+						</tr>
+					';
+				}
+			}
 		}
 	}
 }
 ?>
 <style type="text/css">
-	.debug-visi, .debug-misi, .debug-visi, .debug-misi, .debug-kode { display: none; }
+	.debug-visi, .debug-misi, .debug-sasaran, .debug-kebijakan, .debug-isu { display: none; }
 	.indikator_sasaran { min-height: 40px; }
 </style>
 <h4 style="text-align: center; margin: 0; font-weight: bold;">Monitoring dan Evaluasi RPJPD (Rencana Pembangunan Jangka Panjang Daerah) <br><?php echo $nama_pemda; ?></h4>
@@ -431,6 +560,8 @@ foreach ($data_all['data'] as $visi) {
 				+'<option value="">Pilih Baris</option>'
 				+'<option value="tr-misi">misi</option>'
 				+'<option value="tr-sasaran">sasaran</option>'
+				+'<option value="tr-kebijakan">kebijakan</option>'
+				+'<option value="tr-isu">isu</option>'
 			+'</select>'
 		+'</label>';
 	jQuery('#action-sipd').append(aksi);
@@ -448,39 +579,41 @@ foreach ($data_all['data'] as $visi) {
 		var val = jQuery(that).val();
 		var tr_misi = jQuery('.tr-misi');
 		var tr_sasaran = jQuery('.tr-sasaran');
-		tr_misi.show();
-		tr_visi.show();
+		var tr_kebijakan = jQuery('.tr-kebijakan');
+		var tr_isu = jQuery('.tr-isu');
 		tr_misi.show();
 		tr_sasaran.show();
+		tr_kebijakan.show();
+		tr_isu.show();
 		if(val == 'tr-misi'){
 			tr_misi.hide();
-			tr_visi.hide();
-			tr_misi.hide();
 			tr_sasaran.hide();
-		}else if(val == 'tr-visi'){
-			tr_visi.hide();
-			tr_misi.hide();
-			tr_sasaran.hide();
-		}else if(val == 'tr-misi'){
-			tr_misi.hide();
-			tr_sasaran.hide();
+			tr_kebijakan.hide();
+			tr_isu.hide();
 		}else if(val == 'tr-sasaran'){
 			tr_sasaran.hide();
+			tr_kebijakan.hide();
+			tr_isu.hide();
+		}else if(val == 'tr-kebijakan'){
+			tr_kebijakan.hide();
+			tr_isu.hide();
+		}else if(val == 'tr-isu'){
+			tr_isu.hide();
 		}
 	}
 	function show_debug(that){
 		if(jQuery(that).is(':checked')){
 			jQuery('.debug-visi').show();
 			jQuery('.debug-misi').show();
-			jQuery('.debug-visi').show();
-			jQuery('.debug-misi').show();
-			jQuery('.debug-kode').show();
+			jQuery('.debug-sasaran').show();
+			jQuery('.debug-kebijakan').show();
+			jQuery('.debug-isu').show();
 		}else{
 			jQuery('.debug-visi').hide();
 			jQuery('.debug-misi').hide();
-			jQuery('.debug-visi').hide();
-			jQuery('.debug-misi').hide();
-			jQuery('.debug-kode').hide();
+			jQuery('.debug-sasaran').hide();
+			jQuery('.debug-kebijakan').hide();
+			jQuery('.debug-isu').hide();
 		}
 	}
 	function tampilkan_edit(that){
