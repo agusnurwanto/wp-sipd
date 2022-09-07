@@ -3559,7 +3559,7 @@ CREATE TABLE `data_rpjpd_kebijakan` (
   PRIMARY KEY  (id)
 );
 
-CREATE TABLE `data_rpjpd_sasaran` (
+CREATE TABLE `data_rpjpd_isu` (
   `id` int(11) NOT NULL auto_increment,
   `id_kebijakan` int(11) DEFAULT NULL,
   `isu_teks` text DEFAULT NULL,
@@ -3610,7 +3610,7 @@ CREATE TABLE `data_rpjpd_kebijakan_history` (
   PRIMARY KEY  (id)
 );
 
-CREATE TABLE `data_rpjpd_sasaran_history` (
+CREATE TABLE `data_rpjpd_isu_history` (
   `id` int(11) NOT NULL auto_increment,
   `id_kebijakan` int(11) DEFAULT NULL,
   `isu_teks` text DEFAULT NULL,

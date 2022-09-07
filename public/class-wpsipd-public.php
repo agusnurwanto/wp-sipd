@@ -20,7 +20,10 @@
  * @subpackage Wpsipd/public
  * @author     Agus Nurwanto <agusnurwantomuslim@gmail.com>
  */
-class Wpsipd_Public
+
+require_once WPSIPD_PLUGIN_PATH."/public/class-wpsipd-public-base-1.php";
+
+class Wpsipd_Public extends Wpsipd_Public_Base_1
 {
 
 	/**
