@@ -308,3 +308,62 @@ function onlyNumber(e){
 		e.preventDefault()
 	};
 }
+
+function penjadwalanHitungMundur(nama='Penjadwalan',mulaiJadwal = '2022-08-12 16:00:00', selesaiJadwal = '2022-09-12 16:00:00') {
+	var jadwal = '<div id="penjadwalanHitungMundur">'
+		+'<label id="titles"><span class="dashicons dashicons-clock"></span>&nbsp;'+nama+'</label>'
+		+'<div id="days" style="margin-left:10px">0 <span>Hari</span></div>'
+		+'<div id="hours">00 <span>Jam</span></div>'
+		+'<div id="minutes">00 <span>Menit</span></div>'
+		+'<div id="seconds">00 <span>Detik</span></div>'
+		+'</div>';
+
+	jQuery('body').prepend(jadwal);
+
+	function makeTimer() {
+		var endTime = new Date(selesaiJadwal);			
+			endTime = (Date.parse(endTime) / 1000);
+
+			var now = new Date();
+			now = (Date.parse(now) / 1000);
+
+			var timeLeft = endTime - now;
+
+			var days = Math.floor(timeLeft / 86400); 
+			var hours = Math.floor((timeLeft - (days * 86400)) / 3600);
+			var minutes = Math.floor((timeLeft - (days * 86400) - (hours * 3600 )) / 60);
+			var seconds = Math.floor((timeLeft - (days * 86400) - (hours * 3600) - (minutes * 60)));
+	
+			if (hours < "10") { hours = "0" + hours; }
+			if (minutes < "10") { minutes = "0" + minutes; }
+			if (seconds < "10") { seconds = "0" + seconds; }
+
+			jQuery("#days").html(days + "<span>Hari</span>");
+			jQuery("#hours").html(hours + "<span>Jam</span>");
+			jQuery("#minutes").html(minutes + "<span>Menit</span>");
+			jQuery("#seconds").html(seconds + "<span>Detik</span>");
+			
+			if (timeLeft < 0) {
+				clearInterval(wpsipdTimer);
+				jQuery("#days").html("0 <span>Hari</span>");
+				jQuery("#hours").html("00 <span>Jam</span>");
+				jQuery("#minutes").html("00 <span>Menit</span>");
+				jQuery("#seconds").html("00 <span>Detik</span>");
+			}
+
+	}
+
+	var mulaiJadwal = new Date(mulaiJadwal);	
+	mulaiJadwal = Date.parse(mulaiJadwal);
+
+	var now = new Date();
+	now = Date.parse(now);
+	if(now > mulaiJadwal ){
+		var wpsipdTimer = setInterval(function() { makeTimer(); }, 1000);
+	}else{
+		jQuery("#days").html("0 <span>Hari</span>");
+		jQuery("#hours").html("00 <span>Jam</span>");
+		jQuery("#minutes").html("00 <span>Menit</span>");
+		jQuery("#seconds").html("00 <span>Detik</span>");
+	}
+}

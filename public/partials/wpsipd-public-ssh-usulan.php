@@ -159,9 +159,9 @@ $body = '';
 				<div>
 					<label for='tambah_harga_komp_jenis_produk' style='display:inline-block'>Jenis Produk</label>
 					<div>
-						<input type='radio' id='tambah_harga_komp_jenis_produk_dalam_negeri' name='tambah_harga_komp_jenis_produk' value='dalam_negeri' disabled>
+						<input type='radio' id='tambah_harga_komp_jenis_produk_dalam_negeri' name='tambah_harga_komp_jenis_produk' value='1' disabled>
 						<label class='mr-4' for='tambah_harga_komp_jenis_produk_dalam_negeri'>Produk Dalam Negeri</label>
-						<input type='radio' id='tambah_harga_komp_jenis_produk_luar_negeri' name='tambah_harga_komp_jenis_produk' value='luar_negeri' disabled>
+						<input type='radio' id='tambah_harga_komp_jenis_produk_luar_negeri' name='tambah_harga_komp_jenis_produk' value='0' disabled>
 						<label for='tambah_harga_komp_jenis_produk_luar_negeri'>Produk Luar Negeri</label>
 					</div>
 				</div>
@@ -219,9 +219,9 @@ $body = '';
 				<div>
 					<label for='tambah_akun_komp_jenis_produk' style='display:inline-block'>Jenis Produk</label>
 					<div>
-						<input type='radio' id='tambah_akun_komp_jenis_produk_dalam_negeri' name='tambah_akun_komp_jenis_produk' value='dalam_negeri' disabled>
+						<input type='radio' id='tambah_akun_komp_jenis_produk_dalam_negeri' name='tambah_akun_komp_jenis_produk' value='1' disabled>
 						<label class='mr-4' for='tambah_akun_komp_jenis_produk_dalam_negeri'>Produk Dalam Negeri</label>
-						<input type='radio' id='tambah_akun_komp_jenis_produk_luar_negeri' name='tambah_akun_komp_jenis_produk' value='luar_negeri' disabled>
+						<input type='radio' id='tambah_akun_komp_jenis_produk_luar_negeri' name='tambah_akun_komp_jenis_produk' value='0' disabled>
 						<label for='tambah_akun_komp_jenis_produk_luar_negeri'>Produk Luar Negeri</label>
 					</div>
 				</div>
@@ -283,9 +283,9 @@ $body = '';
 				<div>
 					<label for='u_jenis_produk' style='display:inline-block'>Jenis Produk</label>
 					<div>
-						<input type='radio' id='u_jenis_produk_dalam_negeri' name='u_jenis_produk' value='dalam_negeri'>
+						<input type='radio' id='u_jenis_produk_dalam_negeri' name='u_jenis_produk' value='1'>
 						<label class='mr-4' for='u_jenis_produk_dalam_negeri'>Produk Dalam Negeri</label>
-						<input type='radio' id='u_jenis_produk_luar_negeri' name='u_jenis_produk' value='luar_negeri'>
+						<input type='radio' id='u_jenis_produk_luar_negeri' name='u_jenis_produk' value='0'>
 						<label for='u_jenis_produk_luar_negeri'>Produk Luar Negeri</label>
 					</div>
 				</div>

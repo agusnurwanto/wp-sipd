@@ -10958,10 +10958,10 @@ class Wpsipd_Public
 					}
 					$kode_komponen .= '</table>';
 
-					$arr_jenis_produk = ['dalam_negeri' => 'Dalam Negeri', 'luar_negeri' => 'Luar Negeri'];
-					$jenis_produk = ($recVal['jenis_produk'] == 'dalam_negeri' || $recVal['jenis_produk'] == 'luar_negeri') ? $arr_jenis_produk[$recVal['jenis_produk']] : '-';
+					$arr_jenis_produk = [0 => 'Luar Negeri', 1 => 'Dalam Negeri'];
+					$jenis_produk = ($recVal['jenis_produk'] == 0 || $recVal['jenis_produk'] == 1) ? $arr_jenis_produk[$recVal['jenis_produk']] : '-';
 					$spek_satuan = '<table style="margin: 0;"><tr><td>Spesifikasi: '.ucwords($recVal['spek']).'</tr></td>';
-					$spek_satuan .= '<tr><td>Satuan: '.ucwords($recVal['satuan']).'</td></tr><tr><td>Jenis Produk: '.ucwords($jenis_produk).'</td></tr><tr><td>TKDN: '.$recVal['tkdn'].' %</td></tr></table>';
+					$spek_satuan .= '<tr><td>Satuan: '.ucwords($recVal['satuan']).'</td></tr><tr><td>Jenis Produk: '.$jenis_produk.'</td></tr><tr><td>TKDN: '.$recVal['tkdn'].' %</td></tr></table>';
 
 					$show_status = '<table style="margin: 0;">';
 					$show_status .= '<tr><td>Usulan: <span class="medium-bold-2">'.$status_verif.'</span></td></tr>';
@@ -11204,7 +11204,7 @@ class Wpsipd_Public
 		$table_content = '';
 		if(!empty($_POST)){
 			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
-				if(!empty($_POST['kategori']) && !empty($_POST['nama_komponen']) && !empty($_POST['spesifikasi']) && !empty($_POST['satuan']) && !empty($_POST['harga_satuan']) && !empty($_POST['jenis_produk']) && !empty($_POST['tkdn']) && !empty($_POST['akun']) && !empty($_POST['keterangan_lampiran'])){
+				if(!empty($_POST['kategori']) && !empty($_POST['nama_komponen']) && !empty($_POST['spesifikasi']) && !empty($_POST['satuan']) && !empty($_POST['harga_satuan']) && !empty($_POST['akun']) && !empty($_POST['keterangan_lampiran'])){
 					$kategori =trim(htmlspecialchars($_POST['kategori']));
 					$nama_standar_harga = trim(htmlspecialchars($_POST['nama_komponen']));
 					$spek = trim(htmlspecialchars($_POST['spesifikasi']));
@@ -11214,8 +11214,9 @@ class Wpsipd_Public
 					$tahun_anggaran = trim(htmlspecialchars($_POST['tahun_anggaran']));
 					$keterangan_lampiran = trim(htmlspecialchars($_POST['keterangan_lampiran']));
 					$jenis_produk = trim(htmlspecialchars($_POST['jenis_produk']));
-					$jenis_produk = ($jenis_produk == 'dalam_negeri' || $jenis_produk == 'luar_negeri') ? $jenis_produk : NULL;
+					$jenis_produk = ($jenis_produk == 0 || $jenis_produk == 1) ? $jenis_produk : NULL;
 					$tkdn = trim(htmlspecialchars($_POST['tkdn']));
+					$tkdn = ($tkdn >= 0) ? $tkdn : NULL;
 					
 					$data_kategori = $wpdb->get_results($wpdb->prepare("SELECT * FROM data_kelompok_satuan_harga WHERE id_kategori = %d",$kategori), ARRAY_A);
 
@@ -13124,7 +13125,7 @@ class Wpsipd_Public
 		$table_content = '';
 		if(!empty($_POST)){
 			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
-				if(!empty($_POST['kategori']) && !empty($_POST['spesifikasi']) && !empty($_POST['satuan']) && !empty($_POST['harga_satuan']) && !empty($_POST['jenis_produk']) && !empty($_POST['tkdn']) && !empty($_POST['tahun_anggaran']) && !empty($_POST['keterangan_lampiran']) && !empty($_POST['id_standar_harga'])){
+				if(!empty($_POST['kategori']) && !empty($_POST['spesifikasi']) && !empty($_POST['satuan']) && !empty($_POST['harga_satuan']) && !empty($_POST['tahun_anggaran']) && !empty($_POST['keterangan_lampiran']) && !empty($_POST['id_standar_harga'])){
 					$kategori 				= trim(htmlspecialchars($_POST['kategori']));
 					$nama_standar_harga 	= trim(htmlspecialchars($_POST['nama_komponen']));
 					$spek 					= trim(htmlspecialchars($_POST['spesifikasi']));
@@ -13135,8 +13136,9 @@ class Wpsipd_Public
 					$akun 					= $_POST['akun'];
 					$id_standar_harga		= trim(htmlspecialchars($_POST['id_standar_harga']));
 					$jenis_produk 			= trim(htmlspecialchars($_POST['jenis_produk']));
-					$jenis_produk 			= ($jenis_produk == 'dalam_negeri' || $jenis_produk == 'luar_negeri') ? $jenis_produk : NULL;
+					$jenis_produk 			= ($jenis_produk == 0 || $jenis_produk == 1) ? $jenis_produk : NULL;
 					$tkdn 					= trim(htmlspecialchars($_POST['tkdn']));
+					$tkdn					= ($tkdn >= 0) ? $tkdn : NULL;
 					
 					$data_kategori = $wpdb->get_results($wpdb->prepare("SELECT kode_kategori,uraian_kategori FROM data_kelompok_satuan_harga WHERE id_kategori = %d",$kategori), ARRAY_A);
 					$data_this_id_ssh = $wpdb->get_results($wpdb->prepare('SELECT id_standar_harga,kode_kel_standar_harga,kode_standar_harga,status,status_upload_sipd FROM data_ssh_usulan WHERE id_standar_harga = %d',$id_standar_harga), ARRAY_A);
@@ -14410,7 +14412,7 @@ class Wpsipd_Public
 							if($time_now < $data_this_id[0]['waktu_akhir']){
 								if($data_this_id[0]['status'] == 0 || $data_this_id[0]['status'] == NULL){
 									//lock data penjadwalan
-									$wpdb->update('data_jadwal_lokal', array('status' => 1), array(
+									$wpdb->update('data_jadwal_lokal', array('waktu_akhir' => $time_now,'status' => 1), array(
 										'id_jadwal_lokal'	=> $id_jadwal_lokal
 									));
 
@@ -14570,7 +14572,7 @@ class Wpsipd_Public
 							if($time_now < $data_this_id[0]['waktu_akhir']){
 								if($data_this_id[0]['status'] == 0 || $data_this_id[0]['status'] == NULL){
 									//lock data penjadwalan
-									$wpdb->update('data_jadwal_lokal', array('status' => 1), array(
+									$wpdb->update('data_jadwal_lokal', array('waktu_akhir' => $time_now,'status' => 1), array(
 										'id_jadwal_lokal'	=> $id_jadwal_lokal
 									));
 
@@ -14690,7 +14692,7 @@ class Wpsipd_Public
 							if($time_now < $data_this_id[0]['waktu_akhir']){
 								if($data_this_id[0]['status'] == 0 || $data_this_id[0]['status'] == NULL){
 									//lock data penjadwalan
-									$wpdb->update('data_jadwal_lokal', array('status' => 1), array(
+									$wpdb->update('data_jadwal_lokal', array('waktu_akhir' => $time_now,'status' => 1), array(
 										'id_jadwal_lokal'	=> $id_jadwal_lokal
 									));
 
@@ -14802,7 +14804,7 @@ class Wpsipd_Public
 							if($time_now < $data_this_id[0]['waktu_akhir']){
 								if($data_this_id[0]['status'] == 0 || $data_this_id[0]['status'] == NULL){
 									//lock data penjadwalan
-									$wpdb->update('data_jadwal_lokal', array('status' => 1), array(
+									$wpdb->update('data_jadwal_lokal', array('waktu_akhir' => $time_now,'status' => 1), array(
 										'id_jadwal_lokal'	=> $id_jadwal_lokal
 									));
 
