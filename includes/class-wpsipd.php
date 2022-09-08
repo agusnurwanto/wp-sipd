@@ -490,6 +490,7 @@ class Wpsipd
 		$this->loader->add_action('wp_ajax_run_sql_migrate',  $plugin_public, 'run_sql_migrate');
 		$this->loader->add_action('wp_ajax_singkron_rpjmd_sipd_lokal',  $plugin_public, 'singkron_rpjmd_sipd_lokal');
 		$this->loader->add_action('wp_ajax_singkron_rpd_sipd_lokal',  $plugin_public, 'singkron_rpd_sipd_lokal');
+		$this->loader->add_action('wp_ajax_singkron_rpjpd_sipd_lokal',  $plugin_public, 'singkron_rpjpd_sipd_lokal');
 		$this->loader->add_action('wp_ajax_submit_lock_schedule_rpjm',  $plugin_public, 'submit_lock_schedule_rpjm');
 		$this->loader->add_action('wp_ajax_submit_lock_schedule_renstra',  $plugin_public, 'submit_lock_schedule_renstra');
 		$this->loader->add_action('wp_ajax_submit_lock_schedule_rpd',  $plugin_public, 'submit_lock_schedule_rpd');
