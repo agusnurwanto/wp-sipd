@@ -957,7 +957,18 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
           							+'<th>Aksi</th>'
           						+'<tr>'
           					+'</thead>'
-          					+'<tbody><tbody>'
+          					+'<tbody>';
+
+          						let k = 1;
+          						res.data.tujuan.map(function(value, index){
+          							tujuan +='<tr>'
+			          							+'<td>'+k+'.</td>'
+			          							+'<td>'+value.tujuan_teks+'</td>'
+			          							+'<td><a href="javascript:void(0)" data-id="'+value.id+'" class="btn btn-sm btn-success btn-edit-tujuan">Edit</a> <a href="javascript:void(0)" data-id="'+value.id+'" class="btn btn-sm btn-warning">Hapus</a></td>'
+			          						+'</tr>';
+			          				j++;
+          						})
+          					tujuan +='<tbody>'
           				+'</table>';
 
           		let sasaran = ''
@@ -1216,13 +1227,25 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
 
 	});
 
+	jQuery(document).on('click', '.btn-edit-tujuan', function(){
+		alert('edit tujuan');
+	});
+
 	jQuery(document).on('click', '.btn-tambah-sasaran', function(){
 		alert('add sasaran');
 	})
 
+	jQuery(document).on('click', '.btn-edit-sasaran', function(){
+		alert('edit sasaran');
+	});
+
 	jQuery(document).on('click', '.btn-tambah-program', function(){
 		alert('add program');
 	})
+
+	jQuery(document).on('click', '.btn-edit-program', function(){
+		alert('edit program');
+	});
 
 	jQuery(document).on('click', '#btn-simpan-data-rpjm-lokal', function(){
 		
