@@ -916,7 +916,7 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
           							visi +='<tr>'
 			          							+'<td>'+i+'.</td>'
 			          							+'<td>'+value.visi_teks+'</td>'
-			          							+'<td><a href="javascript:void(0)" class="btn btn-sm btn-success">Edit</a> <a href="javascript:void(0)" class="btn btn-sm btn-warning">Hapus</a></td>'
+			          							+'<td><a href="javascript:void(0)" data-id="'+value.id+'" class="btn btn-sm btn-success btn-edit-visi">Edit</a> <a href="javascript:void(0)" data-id="'+value.id+'" class="btn btn-sm btn-warning btn-hapus-visi">Hapus</a></td>'
 			          						+'</tr>';
 			          				i++;
           						})
@@ -940,7 +940,7 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
           							misi +='<tr>'
 			          							+'<td>'+j+'.</td>'
 			          							+'<td>'+value.misi_teks+'</td>'
-			          							+'<td><a href="javascript:void(0)" class="btn btn-sm btn-success">Edit</a> <a href="javascript:void(0)" class="btn btn-sm btn-warning">Hapus</a></td>'
+			          							+'<td><a href="javascript:void(0)" data-id="'+value.id+'" class="btn btn-sm btn-success">Edit</a> <a href="javascript:void(0)" data-id="'+value.id+'" class="btn btn-sm btn-warning">Hapus</a></td>'
 			          						+'</tr>';
 			          				i++;
           						})
@@ -1009,6 +1009,36 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
 		visiModal.modal('show');
 
 	});
+
+	jQuery(document).on('click', '.btn-edit-visi', function(){
+		let visiModal = jQuery("#modal-crud-rpjm");
+
+		jQuery.ajax({
+			method:'POST',
+			url:ajax.url,
+			dataType:'json',
+			data:{
+				'action': 'get_visi_rpjm_by_id',
+	          	'api_key': '<?php echo $api_key; ?>',
+				'id': jQuery(this).data('id')
+			},
+			success:function(response){
+				jQuery('#wrap-loading').hide();
+
+				let html = '<form id="form-rpjm">'
+								+'<input type="hidden" name="id_visi" value="'+response.data.id+'">'
+								+'<textarea class="form-class" name="visi_teks">'+response.data.visi_teks+'</textarea>'
+							+'</form>';
+
+				visiModal.find('.modal-title').html('Edit Visi');
+				visiModal.find('.modal-body').html(html);
+				visiModal.find('.modal-footer').html('<button type="button" class="btn btn-warning" data-dismiss="modal">Tutup</button><button type="button" class="btn btn-primary" id="btn-simpan-data-rpjm-lokal" data-action="update_visi_rpjm">Simpan</button>');
+				visiModal.modal('show');
+
+			}
+		})
+
+	})
 
 	jQuery(document).on('click', '.btn-tambah-misi', function(){
 		jQuery('#wrap-loading').show();

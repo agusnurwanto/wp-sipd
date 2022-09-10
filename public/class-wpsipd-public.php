@@ -15564,6 +15564,34 @@ class Wpsipd_Public
 		return $data_return;
 	}
 
+	function get_visi_rpjm_by_id(){
+		global $wpdb;
+		if (!empty($_POST)) {
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+
+				$visi = $wpdb->get_row("
+					SELECT * FROM data_rpjmd_visi_lokal
+						WHERE id=".$_POST['id']);
+
+				echo json_encode([
+					'status' => true,
+					'data' => $visi,
+					'message' => 'Sukses get visi by id'
+				]);exit;
+			}
+
+			echo json_encode([
+				'status' => false,
+				'message' => 'Api key tidak sesuai'
+			]);exit;
+		}
+
+		echo json_encode([
+			'status' => false,
+			'message' => 'Format tidak sesuai'
+		]);exit;
+	}
+
 	function submit_visi_rpjm(){
 
 		global $wpdb;
@@ -15604,6 +15632,61 @@ class Wpsipd_Public
 				echo json_encode([
 					'status' => true,
 					'message' => 'Sukses simpan visi'
+				]);exit;
+			}
+
+			echo json_encode([
+				'status' => false,
+				'message' => 'Api key tidak sesuai'
+			]);exit;
+		}
+
+		echo json_encode([
+			'status' => false,
+			'message' => 'Format tidak sesuai'
+		]);exit;
+	}
+
+	function update_visi_rpjm(){
+
+		global $wpdb;
+		if (!empty($_POST)) {
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+
+				$data = json_decode(stripslashes($_POST['data']), true);
+				
+				if(empty($data['visi_teks'])){
+					echo json_encode([
+						'status' => false,
+						'message' => 'Visi tidak boleh kosong!'
+					]);exit;
+				}
+				
+				$id_cek = $wpdb->get_var("
+					SELECT id FROM data_rpjmd_visi_lokal
+						WHERE visi_teks LIKE '%".$data['visi_teks']."%'
+									AND id != ".$data['id_visi']."
+									AND is_locked=0
+									AND status=1
+									AND active=1
+							");
+
+				if(!empty($id_cek)){
+					echo json_encode([
+						'status' => false,
+						'message' => 'Visi : '.$data['visi_teks'].' sudah ada!'
+					]);exit;
+				}
+
+				$wpdb->update('data_rpjmd_visi_lokal', [
+					'visi_teks' => $data['visi_teks']
+				], [
+					'id' => $data['id_visi']
+				]);
+
+				echo json_encode([
+					'status' => true,
+					'message' => 'Sukses ubah visi'
 				]);exit;
 			}
 
