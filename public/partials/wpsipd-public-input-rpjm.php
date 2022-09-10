@@ -744,31 +744,11 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
 				  	</div>
 				</nav>
 				<div class="tab-content" id="nav-tabContent">
-				  	<div class="tab-pane fade show active" id="nav-visi" role="tabpanel" aria-labelledby="nav-visi-tab">
-				  		<div class="text-right" style="padding-top:10px">
-				  			<button type="button" class="btn btn-primary mb-2 btn-tambah-visi">Tambah Visi</button>
-				  		</div>
-				  	</div>
-				  	<div class="tab-pane fade" id="nav-misi" role="tabpanel" aria-labelledby="nav-misi-tab">
-				  		<div class="text-right" style="padding-top:10px">
-					  		<button type="button" class="btn btn-primary mb-2 btn-tambah-misi">Tambah Misi</button>
-					  	</div>
-				  	</div>
-				  	<div class="tab-pane fade" id="nav-tujuan" role="tabpanel" aria-labelledby="nav-tujuan-tab">
-				  		<div class="text-right" style="padding-top:10px">
-					  		<button type="button" class="btn btn-primary mb-2 btn-tambah-tujuan">Tambah Tujuan</button>
-					  	</div>
-				  	</div>
-				  	<div class="tab-pane fade" id="nav-sasaran" role="tabpanel" aria-labelledby="nav-sasaran-tab">.
-				  		<div class="text-right" style="padding-top:10px">
-					  		<button type="button" class="btn btn-primary mb-2 btn-tambah-sasaran">Tambah Sasaran</button>
-					  	</div>
-				  	</div>
-				  	<div class="tab-pane fade" id="nav-program" role="tabpanel" aria-labelledby="nav-program-tab">
-				  		<div class="text-right" style="padding-top:10px">
-					  		<button type="button" class="btn btn-primary mb-2 btn-tambah-program">Tambah Program</button>
-					  	</div>
-				  	</div>
+				  	<div class="tab-pane fade show active" id="nav-visi" role="tabpanel" aria-labelledby="nav-visi-tab"></div>
+				  	<div class="tab-pane fade" id="nav-misi" role="tabpanel" aria-labelledby="nav-misi-tab"></div>
+				  	<div class="tab-pane fade" id="nav-tujuan" role="tabpanel" aria-labelledby="nav-tujuan-tab"></div>
+				  	<div class="tab-pane fade" id="nav-sasaran" role="tabpanel" aria-labelledby="nav-sasaran-tab"></div>
+				  	<div class="tab-pane fade" id="nav-program" role="tabpanel" aria-labelledby="nav-program-tab"></div>
 				</div>
             </div>
             <div class="modal-footer">
@@ -905,10 +885,115 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
 	});
 
 	jQuery('#tambah-data').on('click', function(){
+		jQuery('#wrap-loading').show();
 
-		// load semua data dari visi sampe program lalu di-append ke masing-masing tab 
+		jQuery.ajax({
+			url: ajax.url,
+          	type: "post",
+          	data: {
+          		"action": "get_data_rpjm_all",
+          		"api_key": "<?php echo $api_key; ?>",
+          		"type": 1
+          	},
+          	dataType: "json",
+          	success: function(res){
+          		jQuery('#wrap-loading').hide();
 
-		jQuery('#modal-monev').modal('show');
+          		let visi = ''
+          				+'<br><button type="button" class="btn btn-sm btn-primary mb-2 btn-tambah-visi">Tambah Visi</button>'
+          				+'<table class="table">'
+          					+'<thead>'
+          						+'<tr>'
+          							+'<th style="min-width:20px">No.</th>'
+          							+'<th style="min-width:400px">Visi</th>'
+          							+'<th>Aksi</th>'
+          						+'<tr>'
+          					+'</thead>'
+          					+'<tbody>';
+
+          						let i = 1;
+          						res.data.visi.map(function(value, index){
+          							visi +='<tr>'
+			          							+'<td>'+i+'.</td>'
+			          							+'<td>'+value.visi_teks+'</td>'
+			          							+'<td><a href="javascript:void(0)" class="btn btn-sm btn-success">Edit</a> <a href="javascript:void(0)" class="btn btn-sm btn-warning">Hapus</a></td>'
+			          						+'</tr>';
+			          				i++;
+          						})
+          					visi +='<tbody>'
+          				+'</table>';
+
+          		let misi = ''
+          				+'<br><button type="button" class="btn btn-sm btn-primary mb-2 btn-tambah-misi">Tambah Misi</button>'
+          				+'<table class="table">'
+          					+'<thead>'
+          						+'<tr>'
+          							+'<th style="min-width:20px">No.</th>'
+          							+'<th style="min-width:400px">Misi</th>'
+          							+'<th>Aksi</th>'
+          						+'<tr>'
+          					+'</thead>'
+          					+'<tbody>';
+
+          						let j = 1;
+          						res.data.misi.map(function(value, index){
+          							misi +='<tr>'
+			          							+'<td>'+j+'.</td>'
+			          							+'<td>'+value.misi_teks+'</td>'
+			          							+'<td><a href="javascript:void(0)" class="btn btn-sm btn-success">Edit</a> <a href="javascript:void(0)" class="btn btn-sm btn-warning">Hapus</a></td>'
+			          						+'</tr>';
+			          				i++;
+          						})
+          					misi +='<tbody>'
+          				+'</table>';
+
+          		let tujuan = ''
+          				+'<br><button type="button" class="btn btn-sm btn-primary mb-2 btn-tambah-tujuan">Tambah Tujuan</button>'
+          				+'<table class="table">'
+          					+'<thead>'
+          						+'<tr>'
+          							+'<th style="min-width:20px">No.</th>'
+          							+'<th style="min-width:400px">Tujuan</th>'
+          							+'<th>Aksi</th>'
+          						+'<tr>'
+          					+'</thead>'
+          					+'<tbody><tbody>'
+          				+'</table>';
+
+          		let sasaran = ''
+          				+'<br><button type="button" class="btn btn-sm btn-primary mb-2 btn-tambah-sasaran">Tambah Sasaran</button>'
+          				+'<table class="table">'
+          					+'<thead>'
+          						+'<tr>'
+          							+'<th style="min-width:20px">No.</th>'
+          							+'<th style="min-width:400px">Sasaran</th>'
+          							+'<th>Aksi</th>'
+          						+'<tr>'
+          					+'</thead>'
+          					+'<tbody><tbody>'
+          				+'</table>';
+
+          		let program = ''
+          				+'<br><button type="button" class="btn btn-sm btn-primary mb-2 btn-tambah-program">Tambah Program</button>'
+          				+'<table class="table">'
+          					+'<thead>'
+          						+'<tr>'
+          							+'<th style="min-width:20px">No.</th>'
+          							+'<th style="min-width:400px">Program</th>'
+          							+'<th>Aksi</th>'
+          						+'<tr>'
+          					+'</thead>'
+          					+'<tbody><tbody>'
+          				+'</table>';
+
+          		jQuery("#modal-monev").find("#nav-visi").html(visi);
+          		jQuery("#modal-monev").find("#nav-misi").html(misi);
+          		jQuery("#modal-monev").find("#nav-tujuan").html(tujuan);
+          		jQuery("#modal-monev").find("#nav-sasaran").html(sasaran);
+          		jQuery("#modal-monev").find("#nav-program").html(program);
+				jQuery('#modal-monev').modal('show');
+          	}
+        })
 	});
 
 	jQuery(document).on('click', '.btn-tambah-visi', function(){
@@ -1044,7 +1129,7 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
 
 		        misiModal.find('.modal-title').html('Tambah Misi');
 				misiModal.find('.modal-body').html(html);
-				misiModal.find('.modal-footer').html('<button type="button" class="btn btn-warning" data-dismiss="modal">Tutup</button><button type="button" class="btn btn-primary" id="btn-simpan-data-rpjm-lokal" data-action="submit_tujuan_rpjm">Simpan</button>');
+				misiModal.find('.modal-footer').html('<button type="button" class="btn btn-sm btn-warning" data-dismiss="modal">Tutup</button><button type="button" class="btn btn-sm btn-success" id="btn-simpan-data-rpjm-lokal" data-action="submit_tujuan_rpjm">Simpan</button>');
 				misiModal.modal('show');
           	}
         });

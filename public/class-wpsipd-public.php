@@ -15859,4 +15859,66 @@ class Wpsipd_Public
 			]);exit;
 		}
 	}
+
+	function get_data_rpjm_all(){
+		
+		global $wpdb;
+		
+		$ret = array(
+			'status'	=> 'success',
+			'message'	=> 'Berhasil get data RPJM!'
+		);
+		if (!empty($_POST)) {
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+			$type = $_POST['type'];
+				if($type == 1){
+					$sql = $wpdb->prepare("
+						select 
+							* 
+						from data_rpjmd_visi_lokal
+					");
+					$ret['data']['visi'] = $wpdb->get_results($sql, ARRAY_A);
+					
+					$sql = $wpdb->prepare("
+						select 
+							* 
+						from data_rpjmd_misi_lokal
+						where is_locked=0
+							AND status=1
+							AND active=1
+					");
+					$ret['data']['misi'] = $wpdb->get_results($sql, ARRAY_A);
+				}else{
+					$sql = $wpdb->prepare("
+						select 
+							* 
+						from data_rpd_tujuan
+						where active=1
+					");
+					$ret['data']['visi'] = $wpdb->get_results($sql, ARRAY_A);
+
+					$tahun_anggaran = $_POST['tahun_anggaran'];
+					$sql = $wpdb->prepare("
+						select 
+							* 
+						from data_rpjmd_misi
+						where tahun_anggaran=%d
+							and active=1
+					", $tahun_anggaran);
+					$ret['data']['misi'] = $wpdb->get_results($sql, ARRAY_A);
+				}
+			}else{
+				$ret = array(
+					'status' => 'error',
+					'message'	=> 'Api Key tidak sesuai!'
+				);
+			}
+		}else{
+			$ret = array(
+				'status' => 'error',
+				'message'	=> 'Format tidak sesuai!'
+			);
+		}
+		die(json_encode($ret));
+	}
 }

@@ -497,6 +497,7 @@ class Wpsipd
 		$this->loader->add_action('wp_ajax_submit_misi_rpjm',  $plugin_public, 'submit_misi_rpjm');
 		$this->loader->add_action('wp_ajax_get_misi_rpjm',  $plugin_public, 'get_misi_rpjm');
 		$this->loader->add_action('wp_ajax_submit_tujuan_rpjm',  $plugin_public, 'submit_tujuan_rpjm');
+		$this->loader->add_action('wp_ajax_get_data_rpjm_all',  $plugin_public, 'get_data_rpjm_all');
 		
 
 		add_shortcode('menu_monev',  array($plugin_public, 'menu_monev'));
