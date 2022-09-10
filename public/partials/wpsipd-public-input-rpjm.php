@@ -905,6 +905,9 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
 	});
 
 	jQuery('#tambah-data').on('click', function(){
+
+		// load semua data dari visi sampe program lalu di-append ke masing-masing tab 
+
 		jQuery('#modal-monev').modal('show');
 	});
 
@@ -967,7 +970,7 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
 
 	});
 
-		jQuery(document).on('click', '.btn-tambah-tujuan', function(){
+	jQuery(document).on('click', '.btn-tambah-tujuan', function(){
 		jQuery('#wrap-loading').show();
 
 		let misiModal = jQuery("#modal-crud-rpjm");
@@ -1047,6 +1050,14 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
         });
 
 	});
+
+	jQuery(document).on('click', '.btn-tambah-sasaran', function(){
+		alert('add sasaran');
+	})
+
+	jQuery(document).on('click', '.btn-tambah-program', function(){
+		alert('add program');
+	})
 
 	jQuery(document).on('click', '#btn-simpan-data-rpjm-lokal', function(){
 		

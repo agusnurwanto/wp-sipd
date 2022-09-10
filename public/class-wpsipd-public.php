@@ -15451,6 +15451,9 @@ class Wpsipd_Public
 						select 
 							* 
 						from data_rpjmd_visi_lokal
+						where is_locked=0
+							AND status=1
+							AND active=1
 					");
 					$ret['data'] = $wpdb->get_results($sql, ARRAY_A);
 				}else{
@@ -15701,6 +15704,9 @@ class Wpsipd_Public
 						select 
 							* 
 						from data_rpjmd_misi_lokal
+						where is_locked=0
+							AND status=1
+							AND active=1
 					");
 					$ret['data'] = $wpdb->get_results($sql, ARRAY_A);
 				}else{
