@@ -32,7 +32,19 @@ function parsing_nama_kode($nama_kode){
 
 $api_key = get_option('_crb_api_key_extension' );
 
-$rumus_indikator_db = $wpdb->get_results("SELECT * from data_rumus_indikator where active=1 and tahun_anggaran=".$input['tahun_anggaran'], ARRAY_A);
+$jadwal_lokal = $wpdb->get_results("SELECT * from data_jadwal_lokal where id_jadwal_lokal = (select max(id_jadwal_lokal) from data_jadwal_lokal where id_tipe=2)", ARRAY_A);
+if(!empty($jadwal_lokal)){
+	$tahun_anggaran = $jadwal_lokal[0]['tahun_anggaran'];
+	$namaJadwal = $jadwal_lokal[0]['nama'];
+	$mulaiJadwal = $jadwal_lokal[0]['waktu_awal'];
+	$selesaiJadwal = $jadwal_lokal[0]['waktu_akhir'];
+}else{
+	$tahun_anggaran = '2022';
+	$namaJadwal = '-';
+	$mulaiJadwal = '-';
+	$selesaiJadwal = '-';
+}
+$rumus_indikator_db = $wpdb->get_results("SELECT * from data_rumus_indikator where active=1 and tahun_anggaran=".$tahun_anggaran, ARRAY_A);
 $rumus_indikator = '';
 foreach ($rumus_indikator_db as $k => $v){
 	$rumus_indikator .= '<option value="'.$v['id'].'">'.$v['rumus'].'</option>';
@@ -51,7 +63,7 @@ $sql = $wpdb->prepare("
 		".$where_skpd."
 		and active=1
 	order by id_skpd ASC
-", $input['tahun_anggaran']);
+", $tahun_anggaran);
 $unit = $wpdb->get_results($sql, ARRAY_A);
 
 $judul_skpd = '';
@@ -64,7 +76,7 @@ $pengaturan = $wpdb->get_results($wpdb->prepare("
 		* 
 	from data_pengaturan_sipd 
 	where tahun_anggaran=%d
-", $input['tahun_anggaran']), ARRAY_A);
+", $tahun_anggaran), ARRAY_A);
 
 $awal_rpjmd = 2018;
 $akhir_rpjmd = 2023;
@@ -72,7 +84,7 @@ if(!empty($pengaturan)){
 	$awal_rpjmd = $pengaturan[0]['awal_rpjmd'];
 	$akhir_rpjmd = $pengaturan[0]['akhir_rpjmd'];
 }
-$urut = $input['tahun_anggaran']-$awal_rpjmd;
+$urut = $tahun_anggaran-$awal_rpjmd;
 $nama_pemda = get_option('_crb_daerah');
 
 $current_user = wp_get_current_user();
@@ -675,12 +687,14 @@ $skpd_filter_html = '<option value="">Pilih SKPD</option>';
 foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
 	$skpd_filter_html .= '<option value="'.$kode_skpd.'">'.$kode_skpd.' '.$nama_skpd.'</option>';
 }
+
+$tahun_selesai = (!empty($tahun_anggaran)) ? $tahun_anggaran + 5 : '-';
 ?>
 <style type="text/css">
 	.debug-visi, .debug-misi, .debug-tujuan, .debug-sasaran, .debug-kode { display: none; }
 	.indikator_program { min-height: 40px; }
 </style>
-<h4 style="text-align: center; margin: 0; font-weight: bold;">Monitoring dan Evaluasi RPJMD (Rencana Pembangunan Jangka Menengah Daerah) <br><?php echo $judul_skpd.'Tahun '.$input['tahun_anggaran'].' '.$nama_pemda; ?></h4>
+<h4 style="text-align: center; margin: 0; font-weight: bold;">Monitoring dan Evaluasi RPJMD (Rencana Pembangunan Jangka Menengah Daerah) <br><?php echo $judul_skpd.'Tahun '.$tahun_anggaran.' - '.$tahun_selesai.' '.$nama_pemda; ?></h4>
 <div id="cetak" title="Laporan MONEV RENJA" style="padding: 5px; overflow: auto; height: 80vh;">
 	<table cellpadding="2" cellspacing="0" style="font-family:\'Open Sans\',-apple-system,BlinkMacSystemFont,\'Segoe UI\',sans-serif; border-collapse: collapse; font-size: 70%; border: 0; table-layout: fixed;" contenteditable="false">
 		<thead>
@@ -778,6 +792,16 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
 	run_download_excel();
 	let data_all = <?php echo json_encode($data_all); ?>;
 
+	var mySpace = '<div style="padding:3rem;"></div>';
+	
+	jQuery('body').prepend(mySpace);
+
+	namaJadwal = '<?php echo ucwords($namaJadwal)  ?>';
+	mulaiJadwal = '<?php echo $mulaiJadwal  ?>';
+	selesaiJadwal = '<?php echo $selesaiJadwal  ?>';
+
+	penjadwalanHitungMundur(namaJadwal,mulaiJadwal,selesaiJadwal);
+
 	var aksi = ''
 		+'<a style="margin-left: 10px;" id="singkron-sipd" onclick="return false;" href="#" class="btn btn-danger">Ambil data dari SIPD lokal</a>'
 		+'<a style="margin-left: 10px;" id="tambah-data" onclick="return false;" href="#" class="btn btn-success">Tambah Data RPJM</a>'
@@ -873,7 +897,7 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
 	          	data: {
 	          		"action": "singkron_rpjmd_sipd_lokal",
 	          		"api_key": "<?php echo $api_key; ?>",
-	      			"tahun_anggaran": <?php echo $input['tahun_anggaran']; ?>,
+	      			"tahun_anggaran": <?php echo $tahun_anggaran; ?>,
 	          		"user": "<?php echo $current_user->display_name; ?>"
 	          	},
 	          	dataType: "json",

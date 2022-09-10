@@ -181,3 +181,65 @@ td[contenteditable="true"] {
     display: inline-block;
     margin: 10px;
 }
+
+#penjadwalanHitungMundur{
+    text-align: center;
+    padding-bottom: 80px;
+    width: 250px !important;
+    position: fixed;
+    height: 70px;
+    left: 0;
+    right: 0;
+    margin: 0 auto;
+    z-index: 1001;
+    background-color: #222;
+    border-bottom-left-radius: 0.6em;
+    border-bottom-right-radius: 0.6em;
+}
+#penjadwalanHitungMundur span{
+    display: block;
+    font-size: 13px;
+    color: white;
+}
+#penjadwalanHitungMundur #titles span{
+    display: inline-block !important;
+    font-size: 15px !important;
+}
+#penjadwalanHitungMundur div{
+    display: inline-block;
+    line-height: 1;
+    padding: 0;
+    margin: 0;
+    width: 20%;
+    height: 40px;
+}
+#penjadwalanHitungMundur #titles{
+    display: block;
+    font-size: 15px;
+    color: white;
+    padding: 2px 2px 10px;
+    margin: 0;
+    text-align: center;
+    line-height: 1;
+}
+#penjadwalanHitungMundur #days{
+    font-size: 20px;
+    color: #db4844;
+    text-align: center;
+}
+#penjadwalanHitungMundur #hours{
+    font-size: 20px;
+    color: #f07c22;
+    text-align: center;
+}
+#penjadwalanHitungMundur #minutes{
+    font-size: 20px;
+    color: #f6da74;
+    text-align: center;
+}
+
+#penjadwalanHitungMundur #seconds{
+    font-size: 20px;
+    color: #abcd58;
+    text-align: center;
+}

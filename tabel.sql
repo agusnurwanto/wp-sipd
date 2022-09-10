@@ -3559,7 +3559,7 @@ CREATE TABLE `data_rpjpd_kebijakan` (
   PRIMARY KEY  (id)
 );
 
-CREATE TABLE `data_rpjpd_sasaran` (
+CREATE TABLE `data_rpjpd_isu` (
   `id` int(11) NOT NULL auto_increment,
   `id_kebijakan` int(11) DEFAULT NULL,
   `isu_teks` text DEFAULT NULL,
@@ -3610,7 +3610,7 @@ CREATE TABLE `data_rpjpd_kebijakan_history` (
   PRIMARY KEY  (id)
 );
 
-CREATE TABLE `data_rpjpd_sasaran_history` (
+CREATE TABLE `data_rpjpd_isu_history` (
   `id` int(11) NOT NULL auto_increment,
   `id_kebijakan` int(11) DEFAULT NULL,
   `isu_teks` text DEFAULT NULL,
@@ -3618,6 +3618,30 @@ CREATE TABLE `data_rpjpd_sasaran_history` (
   `update_at` datetime NOT NULL,
   `id_jadwal` int(11) NOT NULL,
   `id_asli` int(11) NOT NULL,
+  PRIMARY KEY  (id)
+);
+
+CREATE TABLE `data_realisasi_akun_sipd` (
+  `id` int(11) NOT NULL auto_increment,
+  `id_unit` int(11) DEFAULT NULL,
+  `id_skpd` int(11) DEFAULT NULL,
+  `id_sub_skpd` int(11) DEFAULT NULL,
+  `id_program` int(11) DEFAULT NULL,
+  `id_giat` int(11) DEFAULT NULL,
+  `id_sub_giat` int(11) DEFAULT NULL,
+  `id_daerah` int(11) DEFAULT NULL,
+  `lokus_akun_teks` text DEFAULT NULL,
+  `id_akun` int(11) DEFAULT NULL,
+  `kode_akun` text DEFAULT NULL,
+  `nama_akun` text DEFAULT NULL,
+  `is_locked` tinyint(4) DEFAULT NULL,
+  `nilai` double(20,0) DEFAULT NULL,
+  `action` int(11) DEFAULT NULL,
+  `realisasi` double(20,0) DEFAULT NULL,
+  `kode_sbl` varchar(50) NOT NULL,
+  `active` tinyint(4) NOT NULL,
+  `update_at` datetime NOT NULL,
+  `tahun_anggaran` year(4) NOT NULL,
   PRIMARY KEY  (id)
 );
 
