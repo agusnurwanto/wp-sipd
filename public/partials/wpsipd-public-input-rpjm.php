@@ -1011,6 +1011,8 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
 	});
 
 	jQuery(document).on('click', '.btn-edit-visi', function(){
+		jQuery('#wrap-loading').show();
+
 		let visiModal = jQuery("#modal-crud-rpjm");
 
 		jQuery.ajax({
