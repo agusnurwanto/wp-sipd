@@ -15892,7 +15892,7 @@ class Wpsipd_Public
 					$sql = $wpdb->prepare("
 						select 
 							* 
-						from data_rpd_tujuan
+						from data_rpjmd_visi
 						where active=1
 					");
 					$ret['data']['visi'] = $wpdb->get_results($sql, ARRAY_A);
