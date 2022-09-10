@@ -15664,7 +15664,7 @@ class Wpsipd_Public
 				
 				$id_cek = $wpdb->get_var("
 					SELECT id FROM data_rpjmd_visi_lokal
-						WHERE visi_teks LIKE '%".$data['visi_teks']."%'
+						WHERE visi_teks='".$data['visi_teks']."'
 									AND id != ".$data['id_visi']."
 									AND is_locked=0
 									AND status=1
@@ -15687,6 +15687,44 @@ class Wpsipd_Public
 				echo json_encode([
 					'status' => true,
 					'message' => 'Sukses ubah visi'
+				]);exit;
+			}
+
+			echo json_encode([
+				'status' => false,
+				'message' => 'Api key tidak sesuai'
+			]);exit;
+		}
+
+		echo json_encode([
+			'status' => false,
+			'message' => 'Format tidak sesuai'
+		]);exit;
+	}
+
+	function get_misi_rpjm_by_id(){
+		global $wpdb;
+		if (!empty($_POST)) {
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+
+				$visi = $wpdb->get_results("
+						select 
+							* 
+						from data_rpjmd_visi_lokal
+						where is_locked=0
+									AND status=1
+									AND active=1
+					", ARRAY_A);
+
+				$misi = $wpdb->get_row("
+					SELECT * FROM data_rpjmd_misi_lokal
+						WHERE id=".$_POST['id']);
+
+				echo json_encode([
+					'status' => true,
+					'visi' => $visi,
+					'misi' => $misi,
+					'message' => 'Sukses get misi by id'
 				]);exit;
 			}
 
@@ -15771,6 +15809,77 @@ class Wpsipd_Public
 				'message' => $e->getMessage()
 			]);exit;
 		}	
+	}
+
+	function update_misi_rpjm(){
+		global $wpdb;
+
+		try{
+			if (!empty($_POST)) {
+				if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+					
+					$data = json_decode(stripslashes($_POST['data']), true);
+
+					if(empty($data['id_visi'])){
+						throw new Exception('Visi wajib dipilih!');
+					}
+
+					if(empty($data['misi_teks'])){
+						throw new Exception('Misi tidak boleh kosong!');
+					}
+
+					if(empty($data['urut_misi'])){
+						throw new Exception('Urut misi tidak boleh kosong!');
+					}
+
+					$id_cek = $wpdb->get_var("
+						SELECT id FROM data_rpjmd_misi_lokal
+							WHERE misi_teks='".$data['misi_teks']."' 
+									AND id!=".$data['id_misi']."
+									AND is_locked=0
+									AND status=1
+									AND active=1");
+					
+					if(!empty($id_cek)){
+						throw new Exception('Misi : '.$data['misi_teks'].' sudah ada!');
+					}
+
+					$dataVisi = $wpdb->get_row("SELECT id AS id_visi, visi_teks, is_locked AS visi_lock FROM data_rpjmd_visi_lokal WHERE id=".$data['id_visi'] . " AND is_locked=0 AND status=1 AND active=1");
+
+					if(empty($dataVisi)){
+						throw new Exception('Visi yang dipilih tidak ditemukan!');
+					}
+
+					$wpdb->update('data_rpjmd_misi_lokal', [
+						'id_visi' => $dataVisi->id_visi,
+						'visi_lock' => $dataVisi->visi_lock,
+						'visi_teks' => $dataVisi->visi_teks,
+						'misi_teks' => $data['misi_teks'],
+						'urut_misi' => $data['urut_misi'],
+						'is_locked' => 0,
+						'status' => 1,
+						'active' => 1
+					], [
+						'id' => $data['id_misi']
+					]);
+
+					echo json_encode([
+						'status' => true,
+						'message' => 'Sukses ubah misi'
+					]);exit;
+
+				}else{
+					throw new Exception('Api key tidak sesuai');
+				}
+			}else{
+				throw new Exception('Format tidak sesuai');
+			}
+		}catch(Exception $e){
+			echo json_encode([
+				'status' => false,
+				'message' => $e->getMessage()
+			]);exit;
+		}
 	}
 
 	function get_misi_rpjm(){
