@@ -1683,7 +1683,7 @@ CREATE TABLE `data_ssh_usulan` (
   `keterangan_lampiran` text,
   `kode_standar_harga_sipd` varchar(30) DEFAULT NULL,
   `status_jenis_usulan` varchar(30) DEFAULT NULL,
-  `jenis_produk` varchar(32) DEFAULT NULL,
+  `jenis_produk` tinyint(4) DEFAULT NULL,
   `tkdn` int(11) DEFAULT NULL
   PRIMARY KEY  (id)
 );

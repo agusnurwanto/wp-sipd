@@ -309,7 +309,19 @@ function onlyNumber(e){
 	};
 }
 
-function penjadwalanHitungMundur(nama='Penjadwalan',mulaiJadwal = '2022-08-12 16:00:00', selesaiJadwal = '2022-09-12 16:00:00') {
+function penjadwalanHitungMundur(dataHitungMundur = {}) {
+	nama = (dataHitungMundur['namaJadwal'] == '') ? 'Penjadwalan' : dataHitungMundur['namaJadwal'];
+	mulaiJadwal = (dataHitungMundur['mulaiJadwal'] == '') ? '2022-08-12 16:00:00' : dataHitungMundur['mulaiJadwal'];
+	selesaiJadwal = (dataHitungMundur['selesaiJadwal'] == '') ? '2022-09-12 16:00:00' : dataHitungMundur['selesaiJadwal'];
+	thisTimeZone = (dataHitungMundur['thisTimeZone'] == '') ? 'Asia/Jakarta' : dataHitungMundur['thisTimeZone'];
+
+	cekTimeZone = thisTimeZone.includes('Asia/');
+
+	if(cekTimeZone == false){
+		console.log('Pengaturan timezone salah')
+		console.log('Pilih salah satu kota di zona waktu yang sama dengan anda, antara lain:  \'Jakarta\',\'Makasar\',\'Jayapura\'')
+	}
+
 	var jadwal = '<div id="penjadwalanHitungMundur">'
 		+'<label id="titles"><span class="dashicons dashicons-clock"></span>&nbsp;'+nama+'</label>'
 		+'<div id="days" style="margin-left:10px">0 <span>Hari</span></div>'
@@ -325,6 +337,9 @@ function penjadwalanHitungMundur(nama='Penjadwalan',mulaiJadwal = '2022-08-12 16
 			endTime = (Date.parse(endTime) / 1000);
 
 			var now = new Date();
+
+			now = new Date(now.toLocaleString('en-US', {timeZone : thisTimeZone,}),);
+
 			now = (Date.parse(now) / 1000);
 
 			var timeLeft = endTime - now;
@@ -353,10 +368,11 @@ function penjadwalanHitungMundur(nama='Penjadwalan',mulaiJadwal = '2022-08-12 16
 
 	}
 
-	var mulaiJadwal = new Date(mulaiJadwal);	
+	var mulaiJadwal = new Date(mulaiJadwal);
 	mulaiJadwal = Date.parse(mulaiJadwal);
 
 	var now = new Date();
+	now = new Date(now.toLocaleString('en-US', {timeZone : thisTimeZone,}),);
 	now = Date.parse(now);
 	if(now > mulaiJadwal ){
 		var wpsipdTimer = setInterval(function() { makeTimer(); }, 1000);

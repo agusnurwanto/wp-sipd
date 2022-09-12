@@ -14449,7 +14449,17 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 
 						$data_this_id 	= $wpdb->get_results($wpdb->prepare('SELECT * FROM data_jadwal_lokal WHERE id_jadwal_lokal = %d',$id_jadwal_lokal), ARRAY_A);
 
-						date_default_timezone_set("Asia/Bangkok");
+						$timezone = get_option('timezone_string');
+						if(preg_match("/Asia/i", $timezone)){
+							date_default_timezone_set($timezone);
+						}else{
+							$return = array(
+								'status' => 'error',
+								'message'	=> "Pengaturan timezone salah. Pilih salah satu kota di zona waktu yang sama dengan anda, antara lain:  \'Jakarta\',\'Makasar\',\'Jayapura\'",
+							);
+							die(json_encode($return));
+						}
+
 						$dateTime = new DateTime();
 						$time_now = $dateTime->format('Y-m-d H:i:s');
 						if($time_now > $data_this_id[0]['waktu_awal']){
@@ -14608,8 +14618,18 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						$id_jadwal_lokal= trim(htmlspecialchars($_POST['id_jadwal_lokal']));
 
 						$data_this_id 	= $wpdb->get_results($wpdb->prepare('SELECT * FROM data_jadwal_lokal WHERE id_jadwal_lokal = %d',$id_jadwal_lokal), ARRAY_A);
+						
+						$timezone = get_option('timezone_string');
+						if(preg_match("/Asia/i", $timezone)){
+							date_default_timezone_set($timezone);
+						}else{
+							$return = array(
+								'status' => 'error',
+								'message'	=> "Pengaturan timezone salah. Pilih salah satu kota di zona waktu yang sama dengan anda, antara lain:  \'Jakarta\',\'Makasar\',\'Jayapura\'",
+							);
+							die(json_encode($return));
+						}
 
-						date_default_timezone_set("Asia/Bangkok");
 						$dateTime = new DateTime();
 						$time_now = $dateTime->format('Y-m-d H:i:s');
 						if($time_now > $data_this_id[0]['waktu_awal']){
@@ -14729,7 +14749,17 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 
 						$data_this_id 	= $wpdb->get_results($wpdb->prepare('SELECT * FROM data_jadwal_lokal WHERE id_jadwal_lokal = %d',$id_jadwal_lokal), ARRAY_A);
 
-						date_default_timezone_set("Asia/Bangkok");
+						$timezone = get_option('timezone_string');
+						if(preg_match("/Asia/i", $timezone)){
+							date_default_timezone_set($timezone);
+						}else{
+							$return = array(
+								'status' => 'error',
+								'message'	=> "Pengaturan timezone salah. Pilih salah satu kota di zona waktu yang sama dengan anda, antara lain:  \'Jakarta\',\'Makasar\',\'Jayapura\'",
+							);
+							die(json_encode($return));
+						}
+
 						$dateTime = new DateTime();
 						$time_now = $dateTime->format('Y-m-d H:i:s');
 						if($time_now > $data_this_id[0]['waktu_awal']){
@@ -14841,7 +14871,17 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 
 						$data_this_id 	= $wpdb->get_results($wpdb->prepare('SELECT * FROM data_jadwal_lokal WHERE id_jadwal_lokal = %d',$id_jadwal_lokal), ARRAY_A);
 
-						date_default_timezone_set("Asia/Bangkok");
+						$timezone = get_option('timezone_string');
+						if(preg_match("/Asia/i", $timezone)){
+							date_default_timezone_set($timezone);
+						}else{
+							$return = array(
+								'status' => 'error',
+								'message'	=> "Pengaturan timezone salah. Pilih salah satu kota di zona waktu yang sama dengan anda, antara lain:  \'Jakarta\',\'Makasar\',\'Jayapura\'",
+							);
+							die(json_encode($return));
+						}
+
 						$dateTime = new DateTime();
 						$time_now = $dateTime->format('Y-m-d H:i:s');
 						if($time_now > $data_this_id[0]['waktu_awal']){
