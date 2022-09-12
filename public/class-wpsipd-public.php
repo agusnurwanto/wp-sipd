@@ -16055,6 +16055,8 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 
 					$wpdb->insert('data_rpjmd_tujuan_lokal', [
 						'id_misi' => $dataMisi->id_misi,
+						'id_unik' => $this->generateRandomString(), // kode_tujuan
+						'id_unik_indikator' => $this->generateRandomString(),
 						'id_visi' => $dataMisi->id_visi,
 						'indikator_teks' => $data['indikator_teks'],
 						'misi_lock' => $dataMisi->misi_lock,
@@ -16079,6 +16081,130 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 					echo json_encode([
 						'status' => true,
 						'message' => 'Sukses simpan tujuan dan indikator'
+					]);exit;
+
+				}else{
+					throw new Exception('Api key tidak sesuai');
+				}
+			}else{
+				throw new Exception('Format tidak sesuai');
+			}
+		}catch(Exception $e){
+			echo json_encode([
+				'status' => false,
+				'message' => $e->getMessage()
+			]);exit;
+		}
+	}
+
+	function update_tujuan_rpjm(){
+		global $wpdb;
+
+		try{
+			if (!empty($_POST)) {
+				if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+					
+					$data = json_decode(stripslashes($_POST['data']), true);
+
+					if(empty($data['id_misi'])){
+						throw new Exception('Misi wajib dipilih!');
+					}
+
+					if(empty($data['tujuan_teks'])){
+						throw new Exception('Tujuan tidak boleh kosong!');
+					}
+
+					if(empty($data['urut_tujuan'])){
+						throw new Exception('Urut tujuan tidak boleh kosong!');
+					}
+
+					if(empty($data['indikator_teks'])){
+						throw new Exception('Indikator tujuan tidak boleh kosong!');
+					}
+
+					if(empty($data['satuan'])){
+						throw new Exception('Satuan indikator tujuan tidak boleh kosong!');
+					}
+
+					if(empty($data['target_1'])){
+						throw new Exception('Target Indikator tujuan tahun ke-1 tidak boleh kosong!');
+					}
+
+					if(empty($data['target_2'])){
+						throw new Exception('Target Indikator tujuan tahun ke-2 tidak boleh kosong!');
+					}
+
+					if(empty($data['target_3'])){
+						throw new Exception('Target Indikator tujuan tahun ke-3 tidak boleh kosong!');
+					}
+
+					if(empty($data['target_4'])){
+						throw new Exception('Target Indikator tujuan tahun ke-4 tidak boleh kosong!');
+					}
+
+					if(empty($data['target_5'])){
+						throw new Exception('Target Indikator tujuan tahun ke-5 tidak boleh kosong!');
+					}
+
+					if(empty($data['target_awal'])){
+						throw new Exception('Target awal Indikator tujuan tidak boleh kosong!');
+					}
+
+					if(empty($data['target_akhir'])){
+						throw new Exception('Target akhir Indikator tujuan tidak boleh kosong!');
+					}
+
+					$id_cek = $wpdb->get_var("
+						SELECT id FROM data_rpjmd_tujuan_lokal
+							WHERE tujuan_teks='".$data['tujuan_teks']."'
+										AND indikator_teks ='".$data['indikator_teks']."' 
+										AND id!=".$data['id_tujuan']."
+										AND is_locked=0
+										AND status=1
+										AND active=1
+								");
+					
+					if(!empty($id_cek)){
+						throw new Exception('Tujuan & indikator : '.$data['tujuan_teks'].' & '.$data['indikator_teks'].' sudah ada!');
+					}
+
+					$dataMisi = $wpdb->get_row("SELECT id AS id_misi, misi_teks, is_locked AS misi_lock, id_visi, urut_misi FROM data_rpjmd_misi_lokal WHERE id=".$data['id_misi'] . " AND is_locked=0 AND status=1 AND active=1");
+
+					if(empty($dataMisi)){
+						throw new Exception('Misi yang dipilih tidak ditemukan!');
+					}
+
+					$dataVisi = $wpdb->get_row("SELECT id AS id_visi, visi_teks, is_locked AS visi_lock FROM data_rpjmd_visi_lokal WHERE id=".$dataMisi->id_visi . " AND is_locked=0 AND status=1 AND active=1");
+
+					if(empty($dataVisi)){
+						throw new Exception('Visi dari misi yang dipilih tidak ditemukan!');
+					}
+
+					$wpdb->update('data_rpjmd_tujuan_lokal', [
+						'id_misi' => $dataMisi->id_misi,
+						'id_visi' => $dataMisi->id_visi,
+						'indikator_teks' => $data['indikator_teks'],
+						'misi_lock' => $dataMisi->misi_lock,
+						'misi_teks' => $dataMisi->misi_teks,
+						'satuan' => $data['satuan'],
+						'target_1' => $data['target_1'],
+						'target_2' => $data['target_2'],
+						'target_3' => $data['target_3'],
+						'target_4' => $data['target_4'],
+						'target_5' => $data['target_5'],
+						'target_awal' => $data['target_awal'],
+						'target_akhir' => $data['target_akhir'],
+						'tujuan_teks' => $data['tujuan_teks'],
+						'urut_misi' => $dataMisi->urut_misi,
+						'urut_tujuan' => $data['urut_tujuan'],
+						'visi_teks' => $dataVisi->visi_teks
+					],[
+						'id' => $data['id_tujuan']
+					]);
+
+					echo json_encode([
+						'status' => true,
+						'message' => 'Sukses ubah tujuan dan indikator rpjm'
 					]);exit;
 
 				}else{
@@ -16168,5 +16294,53 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 			);
 		}
 		die(json_encode($ret));
+	}
+
+	function get_tujuan_rpjm_by_id(){
+		global $wpdb;
+		if (!empty($_POST)) {
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+
+				$misi = $wpdb->get_results("
+						select 
+							* 
+						from data_rpjmd_misi_lokal
+						where is_locked=0
+									AND status=1
+									AND active=1
+					", ARRAY_A);
+
+				$tujuan = $wpdb->get_row("
+					SELECT * FROM data_rpjmd_tujuan_lokal
+						WHERE id=".$_POST['id']);
+
+				echo json_encode([
+					'status' => true,
+					'misi' => $misi,
+					'tujuan' => $tujuan,
+					'message' => 'Sukses get tujuan by id'
+				]);exit;
+			}
+
+			echo json_encode([
+				'status' => false,
+				'message' => 'Api key tidak sesuai'
+			]);exit;
+		}
+
+		echo json_encode([
+			'status' => false,
+			'message' => 'Format tidak sesuai'
+		]);exit;
+	}
+
+	public function generateRandomString($length = 10) {
+	    $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+	    $charactersLength = strlen($characters);
+	    $randomString = '';
+	    for ($i = 0; $i < $length; $i++) {
+	        $randomString .= $characters[rand(0, $charactersLength - 1)];
+	    }
+	    return $randomString;
 	}
 }

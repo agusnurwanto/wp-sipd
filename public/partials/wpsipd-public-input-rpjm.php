@@ -1160,7 +1160,7 @@ $tahun_selesai = (!empty($tahun_anggaran)) ? $tahun_anggaran + 5 : '-';
 								+'</div>'
 							+'</form>';
 
-		        misiModal.find('.modal-title').html('Tambah Misi');
+		        misiModal.find('.modal-title').html('Edit Misi');
 				misiModal.find('.modal-body').html(html);
 				misiModal.find('.modal-footer').html('<button type="button" class="btn btn-warning" data-dismiss="modal">Tutup</button><button type="button" class="btn btn-primary" id="btn-simpan-data-rpjm-lokal" data-action="update_misi_rpjm">Simpan</button>');
 				misiModal.modal('show');
@@ -1173,7 +1173,7 @@ $tahun_selesai = (!empty($tahun_anggaran)) ? $tahun_anggaran + 5 : '-';
 	jQuery(document).on('click', '.btn-tambah-tujuan', function(){
 		jQuery('#wrap-loading').show();
 
-		let misiModal = jQuery("#modal-crud-rpjm");
+		let tujuanModal = jQuery("#modal-crud-rpjm");
 		jQuery.ajax({
 			url: ajax.url,
           	type: "post",
@@ -1242,17 +1242,99 @@ $tahun_selesai = (!empty($tahun_anggaran)) ? $tahun_anggaran + 5 : '-';
 								+'</div>'
 							+'</form>';
 
-		        misiModal.find('.modal-title').html('Tambah Misi');
-				misiModal.find('.modal-body').html(html);
-				misiModal.find('.modal-footer').html('<button type="button" class="btn btn-sm btn-warning" data-dismiss="modal">Tutup</button><button type="button" class="btn btn-sm btn-success" id="btn-simpan-data-rpjm-lokal" data-action="submit_tujuan_rpjm">Simpan</button>');
-				misiModal.modal('show');
+		        tujuanModal.find('.modal-title').html('Tambah Tujuan dan Indikator');
+				tujuanModal.find('.modal-body').html(html);
+				tujuanModal.find('.modal-footer').html('<button type="button" class="btn btn-sm btn-warning" data-dismiss="modal">Tutup</button><button type="button" class="btn btn-sm btn-success" id="btn-simpan-data-rpjm-lokal" data-action="submit_tujuan_rpjm">Simpan</button>');
+				tujuanModal.find('.modal-dialog').css('maxWidth','950px');
+				tujuanModal.find('.modal-dialog').css('width','100%');
+				tujuanModal.modal('show');
           	}
         });
 
 	});
 
 	jQuery(document).on('click', '.btn-edit-tujuan', function(){
-		alert('edit tujuan');
+		jQuery('#wrap-loading').show();
+
+		let tujuanModal = jQuery("#modal-crud-rpjm");
+		jQuery.ajax({
+			url: ajax.url,
+          	type: "post",
+          	data: {
+          		"action": "get_tujuan_rpjm_by_id",
+          		"api_key": "<?php echo $api_key; ?>",
+				'id': jQuery(this).data('id')
+          	},
+          	dataType: "json",
+          	success: function(response){
+          		console.log(response);
+				jQuery('#wrap-loading').hide();
+				let html = '<form id="form-rpjm">'
+								+'<input type="hidden" name="id_tujuan" value="'+response.tujuan.id+'" />'
+								+'<div class="form-group">'
+									+'<label for="visi">Pilih misi</label>'
+									+'<select class="form-control" name="id_misi" id="id_misi">'
+										+'<option value="" selected>Pilih misi...</option>';
+										response.misi.map(function(value, index){
+											html +='<option value="'+value.id+'">'+value.misi_teks+'</option>';
+										});
+									html+='</select>'
+								+'</div>'
+								+'<div class="form-group">'
+									+'<label for="tujuan">Tujuan</label>'
+	  								+'<textarea class="form-control" name="tujuan_teks">'+response.tujuan.tujuan_teks+'</textarea>'
+								+'</div>'
+								+'<div class="form-group">'
+									+'<label for="urut_tujuan">Urut Tujuan</label>'
+	  								+'<input type="number" class="form-control" name="urut_tujuan" value="'+response.tujuan.urut_tujuan+'" />'
+								+'</div>'
+								+'<div class="form-group">'
+									+'<label for="indikator_teks">Indikator</label>'
+	  								+'<textarea class="form-control" name="indikator_teks">'+response.tujuan.indikator_teks+'</textarea>'
+								+'</div>'
+								+'<div class="form-group">'
+									+'<label for="satuan">Satuan</label>'
+	  								+'<input type="text" class="form-control" name="satuan" value="'+response.tujuan.satuan+'"/>'
+								+'</div>'
+								+'<div class="form-group">'
+									+'<label for="target_1">Target tahun ke-1</label>'
+	  								+'<input type="text" class="form-control" name="target_1" value="'+response.tujuan.target_1+'"/>'
+								+'</div>'
+								+'<div class="form-group">'
+									+'<label for="target_2">Target tahun ke-2</label>'
+	  								+'<input type="text" class="form-control" name="target_2" value="'+response.tujuan.target_2+'"/>'
+								+'</div>'
+								+'<div class="form-group">'
+									+'<label for="target_3">Target tahun ke-3</label>'
+	  								+'<input type="text" class="form-control" name="target_3" value="'+response.tujuan.target_3+'"/>'
+								+'</div>'
+								+'<div class="form-group">'
+									+'<label for="target_4">Target tahun ke-4</label>'
+	  								+'<input type="text" class="form-control" name="target_4" value="'+response.tujuan.target_4+'"/>'
+								+'</div>'
+								+'<div class="form-group">'
+									+'<label for="target_5">Target tahun ke-5</label>'
+	  								+'<input type="text" class="form-control" name="target_5" value="'+response.tujuan.target_5+'"/>'
+								+'</div>'
+								+'<div class="form-group">'
+									+'<label for="target_awal">Target awal</label>'
+	  								+'<input type="text" class="form-control" name="target_awal" value="'+response.tujuan.target_awal+'"/>'
+								+'</div>'
+								+'<div class="form-group">'
+									+'<label for="target_akhir">Target akhir</label>'
+	  								+'<input type="text" class="form-control" name="target_akhir" value="'+response.tujuan.target_akhir+'"/>'
+								+'</div>'
+							+'</form>';
+
+		        tujuanModal.find('.modal-title').html('Edit Tujuan dan Indikator');
+				tujuanModal.find('.modal-body').html(html);
+				tujuanModal.find('.modal-footer').html('<button type="button" class="btn btn-sm btn-warning" data-dismiss="modal">Tutup</button><button type="button" class="btn btn-sm btn-success" id="btn-simpan-data-rpjm-lokal" data-action="update_tujuan_rpjm">Simpan</button>');
+				tujuanModal.find('.modal-dialog').css('maxWidth','950px');
+				tujuanModal.find('.modal-dialog').css('width','100%');
+				tujuanModal.modal('show');
+				jQuery("#id_misi").val(response.tujuan.id_misi);
+          	}
+        });
 	});
 
 	jQuery(document).on('click', '.btn-tambah-sasaran', function(){
