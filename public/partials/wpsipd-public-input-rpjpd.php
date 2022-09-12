@@ -654,13 +654,22 @@ foreach ($data_all['data'] as $visi) {
 			url: ajax.url,
           	type: "post",
           	data: {
-          		"action": "get_visi_rpjpd",
+          		"action": "get_rpjpd",
           		"api_key": "<?php echo $api_key; ?>",
-          		"type": 1
+          		"table": 'data_rpjpd_visi'
           	},
           	dataType: "json",
           	success: function(res){
 				jQuery('#wrap-loading').hide();
+				var data = "<table>";
+				res.data.map(function(b, i){
+					data += ''
+					+'<tr>'
+						+'<td>'+b.visi_text+'</td>'
+					+'</tr>';
+				});
+				data += "</table>";
+				jQuery('#nav-visi').html(data)
           	}
         });
 	});
