@@ -44,6 +44,9 @@ if(!empty($jadwal_lokal)){
 	$mulaiJadwal = '-';
 	$selesaiJadwal = '-';
 }
+
+$timezone = get_option('timezone_string');
+
 $rumus_indikator_db = $wpdb->get_results("SELECT * from data_rumus_indikator where active=1 and tahun_anggaran=".$tahun_anggaran, ARRAY_A);
 $rumus_indikator = '';
 foreach ($rumus_indikator_db as $k => $v){
@@ -109,6 +112,7 @@ $sql = "
 	from data_rpjmd_visi_lokal
 ";
 $visi_all = $wpdb->get_results($sql, ARRAY_A);
+
 foreach ($visi_all as $visi) {
 	if(empty($data_all['data'][$visi['id_visi']])){
 		$data_all['data'][$visi['id_visi']] = array(
@@ -125,6 +129,7 @@ foreach ($visi_all as $visi) {
 		where id_visi=%s
 	", $visi['id_visi']);
 	$misi_all = $wpdb->get_results($sql, ARRAY_A);
+
 	foreach ($misi_all as $misi) {
 		if(empty($data_all['data'][$visi['id_visi']]['data'][$misi['id_misi']])){
 			$data_all['data'][$visi['id_visi']]['data'][$misi['id_misi']] = array(
@@ -756,11 +761,11 @@ $tahun_selesai = (!empty($tahun_anggaran)) ? $tahun_anggaran + 5 : '-';
 				  	</div>
 				</nav>
 				<div class="tab-content" id="nav-tabContent">
-				  	<div class="tab-pane fade show active" id="nav-visi" role="tabpanel" aria-labelledby="nav-visi-tab">...</div>
-				  	<div class="tab-pane fade" id="nav-misi" role="tabpanel" aria-labelledby="nav-misi-tab">...</div>
-				  	<div class="tab-pane fade" id="nav-tujuan" role="tabpanel" aria-labelledby="nav-tujuan-tab">...</div>
-				  	<div class="tab-pane fade" id="nav-sasaran" role="tabpanel" aria-labelledby="nav-sasaran-tab">...</div>
-				  	<div class="tab-pane fade" id="nav-program" role="tabpanel" aria-labelledby="nav-program-tab">...</div>
+				  	<div class="tab-pane fade show active" id="nav-visi" role="tabpanel" aria-labelledby="nav-visi-tab"></div>
+				  	<div class="tab-pane fade" id="nav-misi" role="tabpanel" aria-labelledby="nav-misi-tab"></div>
+				  	<div class="tab-pane fade" id="nav-tujuan" role="tabpanel" aria-labelledby="nav-tujuan-tab"></div>
+				  	<div class="tab-pane fade" id="nav-sasaran" role="tabpanel" aria-labelledby="nav-sasaran-tab"></div>
+				  	<div class="tab-pane fade" id="nav-program" role="tabpanel" aria-labelledby="nav-program-tab"></div>
 				</div>
             </div>
             <div class="modal-footer">
@@ -768,6 +773,24 @@ $tahun_selesai = (!empty($tahun_anggaran)) ? $tahun_anggaran + 5 : '-';
         </div>
     </div>
 </div>
+
+<!-- Modal crud rpjmd -->
+<div class="modal fade" id="modal-crud-rpjm" tabindex="-1" role="dialog" aria-labelledby="modal-crud-rpjm-label" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Modal title</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+      </div>
+      <div class="modal-footer"></div>
+    </div>
+  </div>
+</div>
+
 <script type="text/javascript">
 	run_download_excel();
 	let data_all = <?php echo json_encode($data_all); ?>;
@@ -776,11 +799,14 @@ $tahun_selesai = (!empty($tahun_anggaran)) ? $tahun_anggaran + 5 : '-';
 	
 	jQuery('body').prepend(mySpace);
 
-	namaJadwal = '<?php echo ucwords($namaJadwal)  ?>';
-	mulaiJadwal = '<?php echo $mulaiJadwal  ?>';
-	selesaiJadwal = '<?php echo $selesaiJadwal  ?>';
+	var dataHitungMundur = {
+		'namaJadwal' : '<?php echo ucwords($namaJadwal)  ?>',
+		'mulaiJadwal' : '<?php echo $mulaiJadwal  ?>',
+		'selesaiJadwal' : '<?php echo $selesaiJadwal  ?>',
+		'thisTimeZone' : '<?php echo $timezone ?>'
+	}
 
-	penjadwalanHitungMundur(namaJadwal,mulaiJadwal,selesaiJadwal);
+	penjadwalanHitungMundur(dataHitungMundur);
 
 	var aksi = ''
 		+'<a style="margin-left: 10px;" id="singkron-sipd" onclick="return false;" href="#" class="btn btn-danger">Ambil data dari SIPD lokal</a>'
@@ -887,9 +913,180 @@ $tahun_selesai = (!empty($tahun_anggaran)) ? $tahun_anggaran + 5 : '-';
 	        });
 		}
 	});
+
 	jQuery('#tambah-data').on('click', function(){
 		jQuery('#wrap-loading').show();
-		jQuery('#modal-monev').modal('show');
+
+		jQuery.ajax({
+			url: ajax.url,
+          	type: "post",
+          	data: {
+          		"action": "get_data_rpjm_all",
+          		"api_key": "<?php echo $api_key; ?>",
+          		"type": 1
+          	},
+          	dataType: "json",
+          	success: function(res){
+          		jQuery('#wrap-loading').hide();
+
+          		let visi = ''
+          				+'<br><button type="button" class="btn btn-sm btn-primary mb-2 btn-tambah-visi">Tambah Visi</button>'
+          				+'<table class="table">'
+          					+'<thead>'
+          						+'<tr>'
+          							+'<th style="min-width:20px">No.</th>'
+          							+'<th style="min-width:400px">Visi</th>'
+          							+'<th>Aksi</th>'
+          						+'<tr>'
+          					+'</thead>'
+          					+'<tbody>';
+
+          						let i = 1;
+          						res.data.visi.map(function(value, index){
+          							visi +='<tr>'
+			          							+'<td>'+i+'.</td>'
+			          							+'<td>'+value.visi_teks+'</td>'
+			          							+'<td><a href="javascript:void(0)" data-id="'+value.id+'" class="btn btn-sm btn-success btn-edit-visi">Edit</a> <a href="javascript:void(0)" data-id="'+value.id+'" class="btn btn-sm btn-warning btn-hapus-visi">Hapus</a></td>'
+			          						+'</tr>';
+			          				i++;
+          						})
+          					visi +='<tbody>'
+          				+'</table>';
+
+          		let misi = ''
+          				+'<br><button type="button" class="btn btn-sm btn-primary mb-2 btn-tambah-misi">Tambah Misi</button>'
+          				+'<table class="table">'
+          					+'<thead>'
+          						+'<tr>'
+          							+'<th style="min-width:20px">No.</th>'
+          							+'<th style="min-width:400px">Misi</th>'
+          							+'<th>Aksi</th>'
+          						+'<tr>'
+          					+'</thead>'
+          					+'<tbody>';
+
+          						let j = 1;
+          						res.data.misi.map(function(value, index){
+          							misi +='<tr>'
+			          							+'<td>'+j+'.</td>'
+			          							+'<td>'+value.misi_teks+'</td>'
+			          							+'<td><a href="javascript:void(0)" data-id="'+value.id+'" class="btn btn-sm btn-success btn-edit-misi">Edit</a> <a href="javascript:void(0)" data-id="'+value.id+'" class="btn btn-sm btn-warning">Hapus</a></td>'
+			          						+'</tr>';
+			          				j++;
+          						})
+          					misi +='<tbody>'
+          				+'</table>';
+
+          		let tujuan = ''
+          				+'<br><button type="button" class="btn btn-sm btn-primary mb-2 btn-tambah-tujuan">Tambah Tujuan</button>'
+          				+'<table class="table">'
+          					+'<thead>'
+          						+'<tr>'
+          							+'<th style="min-width:20px">No.</th>'
+          							+'<th style="min-width:400px">Tujuan</th>'
+          							+'<th>Aksi</th>'
+          						+'<tr>'
+          					+'</thead>'
+          					+'<tbody>';
+
+          						let k = 1;
+          						res.data.tujuan.map(function(value, index){
+          							tujuan +='<tr>'
+			          							+'<td>'+k+'.</td>'
+			          							+'<td>'+value.tujuan_teks+'</td>'
+			          							+'<td><a href="javascript:void(0)" data-id="'+value.id+'" class="btn btn-sm btn-success btn-edit-tujuan">Edit</a> <a href="javascript:void(0)" data-id="'+value.id+'" class="btn btn-sm btn-warning">Hapus</a></td>'
+			          						+'</tr>';
+			          				j++;
+          						})
+          					tujuan +='<tbody>'
+          				+'</table>';
+
+          		let sasaran = ''
+          				+'<br><button type="button" class="btn btn-sm btn-primary mb-2 btn-tambah-sasaran">Tambah Sasaran</button>'
+          				+'<table class="table">'
+          					+'<thead>'
+          						+'<tr>'
+          							+'<th style="min-width:20px">No.</th>'
+          							+'<th style="min-width:400px">Sasaran</th>'
+          							+'<th>Aksi</th>'
+          						+'<tr>'
+          					+'</thead>'
+          					+'<tbody><tbody>'
+          				+'</table>';
+
+          		let program = ''
+          				+'<br><button type="button" class="btn btn-sm btn-primary mb-2 btn-tambah-program">Tambah Program</button>'
+          				+'<table class="table">'
+          					+'<thead>'
+          						+'<tr>'
+          							+'<th style="min-width:20px">No.</th>'
+          							+'<th style="min-width:400px">Program</th>'
+          							+'<th>Aksi</th>'
+          						+'<tr>'
+          					+'</thead>'
+          					+'<tbody><tbody>'
+          				+'</table>';
+
+          		jQuery("#modal-monev").find("#nav-visi").html(visi);
+          		jQuery("#modal-monev").find("#nav-misi").html(misi);
+          		jQuery("#modal-monev").find("#nav-tujuan").html(tujuan);
+          		jQuery("#modal-monev").find("#nav-sasaran").html(sasaran);
+          		jQuery("#modal-monev").find("#nav-program").html(program);
+				jQuery('#modal-monev').modal('show');
+          	}
+        })
+	});
+
+	jQuery(document).on('click', '.btn-tambah-visi', function(){
+
+		let visiModal = jQuery("#modal-crud-rpjm");
+		let html = '<form id="form-rpjm">'
+						+'<textarea class="form-class" name="visi_teks"></textarea>'
+					+'</form>';
+
+		visiModal.find('.modal-title').html('Tambah Visi');
+		visiModal.find('.modal-body').html(html);
+		visiModal.find('.modal-footer').html('<button type="button" class="btn btn-warning" data-dismiss="modal">Tutup</button><button type="button" class="btn btn-primary" id="btn-simpan-data-rpjm-lokal" data-action="submit_visi_rpjm">Simpan</button>');
+		visiModal.modal('show');
+
+	});
+
+	jQuery(document).on('click', '.btn-edit-visi', function(){
+		jQuery('#wrap-loading').show();
+
+		let visiModal = jQuery("#modal-crud-rpjm");
+
+		jQuery.ajax({
+			method:'POST',
+			url:ajax.url,
+			dataType:'json',
+			data:{
+				'action': 'get_visi_rpjm_by_id',
+	          	'api_key': '<?php echo $api_key; ?>',
+				'id': jQuery(this).data('id')
+			},
+			success:function(response){
+				jQuery('#wrap-loading').hide();
+
+				let html = '<form id="form-rpjm">'
+								+'<input type="hidden" name="id_visi" value="'+response.data.id+'">'
+								+'<textarea class="form-class" name="visi_teks">'+response.data.visi_teks+'</textarea>'
+							+'</form>';
+
+				visiModal.find('.modal-title').html('Edit Visi');
+				visiModal.find('.modal-body').html(html);
+				visiModal.find('.modal-footer').html('<button type="button" class="btn btn-warning" data-dismiss="modal">Tutup</button><button type="button" class="btn btn-primary" id="btn-simpan-data-rpjm-lokal" data-action="update_visi_rpjm">Simpan</button>');
+				visiModal.modal('show');
+
+			}
+		})
+
+	})
+
+	jQuery(document).on('click', '.btn-tambah-misi', function(){
+		jQuery('#wrap-loading').show();
+
+		let misiModal = jQuery("#modal-crud-rpjm");
 		jQuery.ajax({
 			url: ajax.url,
           	type: "post",
@@ -900,8 +1097,221 @@ $tahun_selesai = (!empty($tahun_anggaran)) ? $tahun_anggaran + 5 : '-';
           	},
           	dataType: "json",
           	success: function(res){
+
 				jQuery('#wrap-loading').hide();
+				let html = '<form id="form-rpjm">'
+								+'<div class="form-group">'
+									+'<label for="visi">Pilih visi</label>'
+									+'<select class="form-control" name="id_visi">'
+										+'<option value="" selected>Pilih visi...</option>';
+										res.data.map(function(value, index){
+											html +='<option value="'+value.id+'">'+value.visi_teks+'</option>';
+										});
+									html+='</select>'
+								+'</div>'
+								+'<div class="form-group">'
+									+'<label for="misi">Misi</label>'
+	  								+'<textarea class="form-control" name="misi_teks"></textarea>'
+								+'</div>'
+								+'<div class="form-group">'
+									+'<label for="misi">Urut Misi</label>'
+	  								+'<input type="number" class="form-control" name="urut_misi"/>'
+								+'</div>'
+							+'</form>';
+
+		        misiModal.find('.modal-title').html('Tambah Misi');
+				misiModal.find('.modal-body').html(html);
+				misiModal.find('.modal-footer').html('<button type="button" class="btn btn-warning" data-dismiss="modal">Tutup</button><button type="button" class="btn btn-primary" id="btn-simpan-data-rpjm-lokal" data-action="submit_misi_rpjm">Simpan</button>');
+				misiModal.modal('show');
           	}
         });
+
 	});
+
+	jQuery(document).on('click', '.btn-edit-misi', function(){
+		jQuery('#wrap-loading').show();
+		
+		let misiModal = jQuery("#modal-crud-rpjm");
+		
+		jQuery.ajax({
+			method:'POST',
+			url:ajax.url,
+			dataType:'json',
+			data:{
+				'action': 'get_misi_rpjm_by_id',
+	          	'api_key': '<?php echo $api_key; ?>',
+				'id': jQuery(this).data('id')
+			},
+			success:function(response){
+
+				jQuery('#wrap-loading').hide();
+				let html = '<form id="form-rpjm">'
+								+'<input type="hidden" name="id_misi" value="'+response.misi.id+'" />'
+								+'<div class="form-group">'
+									+'<label for="visi">Pilih visi</label>'
+									+'<select class="form-control" name="id_visi" id="id_visi">'
+										+'<option value="" selected>Pilih visi...</option>';
+										response.visi.map(function(value, index){
+											html +='<option value="'+value.id+'">'+value.visi_teks+'</option>';
+										});
+									html+='</select>'
+								+'</div>'
+								+'<div class="form-group">'
+									+'<label for="misi">Misi</label>'
+	  								+'<textarea class="form-control" name="misi_teks">'+response.misi.misi_teks+'</textarea>'
+								+'</div>'
+								+'<div class="form-group">'
+									+'<label for="misi">Urut Misi</label>'
+	  								+'<input type="number" class="form-control" name="urut_misi" value="'+response.misi.urut_misi+'"/>'
+								+'</div>'
+							+'</form>';
+
+		        misiModal.find('.modal-title').html('Tambah Misi');
+				misiModal.find('.modal-body').html(html);
+				misiModal.find('.modal-footer').html('<button type="button" class="btn btn-warning" data-dismiss="modal">Tutup</button><button type="button" class="btn btn-primary" id="btn-simpan-data-rpjm-lokal" data-action="update_misi_rpjm">Simpan</button>');
+				misiModal.modal('show');
+				jQuery("#id_visi").val(response.misi.id_visi);
+			}
+		})
+
+	})
+
+	jQuery(document).on('click', '.btn-tambah-tujuan', function(){
+		jQuery('#wrap-loading').show();
+
+		let misiModal = jQuery("#modal-crud-rpjm");
+		jQuery.ajax({
+			url: ajax.url,
+          	type: "post",
+          	data: {
+          		"action": "get_misi_rpjm",
+          		"api_key": "<?php echo $api_key; ?>",
+          		"type": 1
+          	},
+          	dataType: "json",
+          	success: function(res){
+          		console.log(res);
+				jQuery('#wrap-loading').hide();
+				let html = '<form id="form-rpjm">'
+								+'<div class="form-group">'
+									+'<label for="visi">Pilih misi</label>'
+									+'<select class="form-control" name="id_misi">'
+										+'<option value="" selected>Pilih misi...</option>';
+										res.data.map(function(value, index){
+											html +='<option value="'+value.id+'">'+value.misi_teks+'</option>';
+										});
+									html+='</select>'
+								+'</div>'
+								+'<div class="form-group">'
+									+'<label for="tujuan">Tujuan</label>'
+	  								+'<textarea class="form-control" name="tujuan_teks"></textarea>'
+								+'</div>'
+								+'<div class="form-group">'
+									+'<label for="urut_tujuan">Urut Tujuan</label>'
+	  								+'<input type="number" class="form-control" name="urut_tujuan"/>'
+								+'</div>'
+								+'<div class="form-group">'
+									+'<label for="indikator_teks">Indikator</label>'
+	  								+'<textarea class="form-control" name="indikator_teks"></textarea>'
+								+'</div>'
+								+'<div class="form-group">'
+									+'<label for="satuan">Satuan</label>'
+	  								+'<input type="text" class="form-control" name="satuan"/>'
+								+'</div>'
+								+'<div class="form-group">'
+									+'<label for="target_1">Target tahun ke-1</label>'
+	  								+'<input type="text" class="form-control" name="target_1"/>'
+								+'</div>'
+								+'<div class="form-group">'
+									+'<label for="target_2">Target tahun ke-2</label>'
+	  								+'<input type="text" class="form-control" name="target_2"/>'
+								+'</div>'
+								+'<div class="form-group">'
+									+'<label for="target_3">Target tahun ke-3</label>'
+	  								+'<input type="text" class="form-control" name="target_3"/>'
+								+'</div>'
+								+'<div class="form-group">'
+									+'<label for="target_4">Target tahun ke-4</label>'
+	  								+'<input type="text" class="form-control" name="target_4"/>'
+								+'</div>'
+								+'<div class="form-group">'
+									+'<label for="target_5">Target tahun ke-5</label>'
+	  								+'<input type="text" class="form-control" name="target_5"/>'
+								+'</div>'
+								+'<div class="form-group">'
+									+'<label for="target_awal">Target awal</label>'
+	  								+'<input type="text" class="form-control" name="target_awal"/>'
+								+'</div>'
+								+'<div class="form-group">'
+									+'<label for="target_akhir">Target akhir</label>'
+	  								+'<input type="text" class="form-control" name="target_akhir"/>'
+								+'</div>'
+							+'</form>';
+
+		        misiModal.find('.modal-title').html('Tambah Misi');
+				misiModal.find('.modal-body').html(html);
+				misiModal.find('.modal-footer').html('<button type="button" class="btn btn-sm btn-warning" data-dismiss="modal">Tutup</button><button type="button" class="btn btn-sm btn-success" id="btn-simpan-data-rpjm-lokal" data-action="submit_tujuan_rpjm">Simpan</button>');
+				misiModal.modal('show');
+          	}
+        });
+
+	});
+
+	jQuery(document).on('click', '.btn-edit-tujuan', function(){
+		alert('edit tujuan');
+	});
+
+	jQuery(document).on('click', '.btn-tambah-sasaran', function(){
+		alert('add sasaran');
+	})
+
+	jQuery(document).on('click', '.btn-edit-sasaran', function(){
+		alert('edit sasaran');
+	});
+
+	jQuery(document).on('click', '.btn-tambah-program', function(){
+		alert('add program');
+	})
+
+	jQuery(document).on('click', '.btn-edit-program', function(){
+		alert('edit program');
+	});
+
+	jQuery(document).on('click', '#btn-simpan-data-rpjm-lokal', function(){
+		
+		jQuery('#wrap-loading').show();
+		let rpjmModal = jQuery("#modal-crud-rpjm");
+		let action = jQuery(this).data('action');
+		let form = getFormData(jQuery("#form-rpjm"));
+		
+		console.log(form, action);
+		jQuery.ajax({
+			method:'POST',
+			url:ajax.url,
+			dataType:'json',
+			data:{
+				'action': action,
+	          	'api_key': '<?php echo $api_key; ?>',
+				'data': JSON.stringify(form),
+			},
+			success:function(response){
+				jQuery('#wrap-loading').hide();
+				alert(response.message);
+				if(response.status){
+					window.location.reload();
+				}
+			}
+		})
+	})
+
+	function getFormData($form) {
+	    let unindexed_array = $form.serializeArray();
+	    let indexed_array = {};
+
+	    jQuery.map(unindexed_array, function (n, i) {
+	        indexed_array[n['name']] = n['value'];
+	    });
+
+	    return indexed_array;
+	}
 </script>

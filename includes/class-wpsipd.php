@@ -497,6 +497,16 @@ class Wpsipd
 		$this->loader->add_action('wp_ajax_submit_lock_schedule_rpjm',  $plugin_public, 'submit_lock_schedule_rpjm');
 		$this->loader->add_action('wp_ajax_submit_lock_schedule_renstra',  $plugin_public, 'submit_lock_schedule_renstra');
 		$this->loader->add_action('wp_ajax_submit_lock_schedule_rpd',  $plugin_public, 'submit_lock_schedule_rpd');
+		$this->loader->add_action('wp_ajax_submit_visi_rpjm',  $plugin_public, 'submit_visi_rpjm');
+		$this->loader->add_action('wp_ajax_submit_misi_rpjm',  $plugin_public, 'submit_misi_rpjm');
+		$this->loader->add_action('wp_ajax_get_misi_rpjm',  $plugin_public, 'get_misi_rpjm');
+		$this->loader->add_action('wp_ajax_submit_tujuan_rpjm',  $plugin_public, 'submit_tujuan_rpjm');
+		$this->loader->add_action('wp_ajax_get_data_rpjm_all',  $plugin_public, 'get_data_rpjm_all');
+		$this->loader->add_action('wp_ajax_get_visi_rpjm_by_id',  $plugin_public, 'get_visi_rpjm_by_id');
+		$this->loader->add_action('wp_ajax_update_visi_rpjm',  $plugin_public, 'update_visi_rpjm');
+		$this->loader->add_action('wp_ajax_get_misi_rpjm_by_id',  $plugin_public, 'get_misi_rpjm_by_id');
+		$this->loader->add_action('wp_ajax_update_misi_rpjm',  $plugin_public, 'update_misi_rpjm');
+		
 
 		add_shortcode('menu_monev',  array($plugin_public, 'menu_monev'));
 		add_shortcode('datassh', array($plugin_public, 'datassh'));
