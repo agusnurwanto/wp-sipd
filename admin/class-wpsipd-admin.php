@@ -599,6 +599,13 @@ class Wpsipd_Admin {
 		    ) )
         	->set_default_value('1')
         	->set_help_text('Pilihan ini untuk opsi yang dipakai saat penarikan data dijadwal pergeseran atau perubahan. Jika masih jadwal APBD Murni maka pilih <b>Nilai Terakhir</b>.');
+        $mapping_unit[] = Field::make( 'radio', 'crb_backup_rincian_fmis', __( 'Apakah nilai rincian FMIS akan ikut di backup ke database lokal saat melakukan singkronisasi data?' ) )
+		    ->add_options( array(
+		        '1' => __( 'Iya' ),
+		        '2' => __( 'Tidak' )
+		    ) )
+        	->set_default_value('2')
+        	->set_help_text('Jika Iya, maka data rincian FMIS akan disimpan di tabel <b>data_rincian_fmis</b>. Hal ini akan berpengaruh kepada lama tidak nya proses singkornisasi data dari wp-sipd ke FMIS. Jika dipilih Tidak, proses singkronisasi data akan lebih cepat.');
 		foreach ($unit as $k => $v) {
 			$mapping_unit[] = Field::make( 'text', 'crb_unit_fmis_'.$tahun_anggaran.'_'.$v['id_skpd'], ($k+1).'. Kode Sub Unit FMIS untuk '.$v['kode_skpd'].' '.$v['nama_skpd'] );
 		}
