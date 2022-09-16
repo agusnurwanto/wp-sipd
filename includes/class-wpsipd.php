@@ -180,6 +180,9 @@ class Wpsipd
 		$this->loader->add_action('wp_ajax_sumberdana_wp_sipd_ke_rka_simda',  $plugin_admin, 'sumberdana_wp_sipd_ke_rka_simda');
 		$this->loader->add_action('wp_ajax_generate_lisensi',  $plugin_admin, 'generate_lisensi');
 		$this->loader->add_action('admin_notices',  $plugin_admin, 'wp_sipd_admin_notice');
+		$this->loader->add_action('wp_ajax_get_api_modul_migrasi_data',  $plugin_admin, 'get_api_modul_migrasi_data');
+		$this->loader->add_action('wp_ajax_nopriv_get_api_modul_migrasi_data',  $plugin_admin, 'get_api_modul_migrasi_data');
+		$this->loader->add_action('wp_ajax_get_sinkron_modul_migrasi_data',  $plugin_admin, 'get_sinkron_modul_migrasi_data');
 	}
 
 	/**
