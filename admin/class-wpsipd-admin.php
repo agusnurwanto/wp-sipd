@@ -719,7 +719,8 @@ class Wpsipd_Admin {
             Field::make( 'text', 'crb_apikey_server_modul_migrasi_data', 'APIKEY Server Modul Migrasi Data' )
 				->set_default_value(get_option('_crb_api_key_extension' )),
 			Field::make( 'html', 'crb_html_get_sinkron_modul_migrasi_data' )
-            	->set_html( '<a onclick="get_sinkron_modul_migrasi_data(); return false;" href="#" class="button button-primary">Sinkron Migrasi Data</a>' ),
+            	->set_html( '<a onclick="get_sinkron_modul_migrasi_data(); return false;" href="#" class="button button-primary">Sinkron data dari server migrasi data</a>' )
+				->set_help_text($this->last_sinkron_api_setting()),
             Field::make( 'text', 'crb_url_server_modul_rfk', 'URL Server Modul RFK' )
 				->set_default_value(admin_url('admin-ajax.php')),
             Field::make( 'text', 'crb_apikey_server_modul_rfk', 'APIKEY Server Modul RFK' )
@@ -2396,7 +2397,7 @@ class Wpsipd_Admin {
 		die();
 	}
 
-	public static function get_sinkron_modul_migrasi_data(){
+	function get_sinkron_modul_migrasi_data(){
 		global $wpdb;
 		// data to send in our API request
 		$api_params = array(
@@ -2515,8 +2516,21 @@ class Wpsipd_Admin {
 					$wpdb->insert('data_unit', $opsi);
 				}
 			}
+
+			$timezone = get_option('timezone_string');
+			if(preg_match("/Asia/i", $timezone)){
+				date_default_timezone_set($timezone);
+			}
+
+			$dateTime = new DateTime();
+			$time_now = $dateTime->format('d-m-Y H:i:s');
+			update_option('last_sinkron_api_setting',$time_now);
 		}
 		
 		die($response);
+	}
+
+	public function last_sinkron_api_setting(){
+		return "Terakhir sinkron data: ".get_option('last_sinkron_api_setting');
 	}
 }
