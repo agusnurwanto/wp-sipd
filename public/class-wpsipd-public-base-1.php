@@ -116,4 +116,37 @@ class Wpsipd_Public_Base_1{
         }
         die(json_encode($ret));
     }
+
+    public function get_rpjpd(){
+        global $wpdb;
+        $ret = array(
+            'status'    => 'success',
+            'message'   => 'Berhasil mengambil data RPJPD dari data SIPD lokal!'
+        );
+        if (!empty($_POST)) {
+            if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+                $table = '';
+                if($_POST['table'] == 'data_rpjpd_visi'){
+                    $table = 'data_rpjpd_visi';
+                }
+                $sql = "
+                    select 
+                        * 
+                    from $table
+                ";
+                $ret['data'] = $wpdb->get_results($sql, ARRAY_A);
+            }else{
+                $ret = array(
+                    'status' => 'error',
+                    'message'   => 'Api Key tidak sesuai!'
+                );
+            }
+        }else{
+            $ret = array(
+                'status' => 'error',
+                'message'   => 'Format tidak sesuai!'
+            );
+        }
+        die(json_encode($ret));
+    }
 }
