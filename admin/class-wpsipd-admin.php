@@ -213,6 +213,10 @@ class Wpsipd_Admin {
 		    ->set_page_parent( $basic_options_container )
 		    ->add_fields( $this->get_setting_fmis() );
 
+		Container::make( 'theme_options', __( 'API Setting' ) )
+		    ->set_page_parent( $basic_options_container )
+		    ->add_fields( $this->get_api_setting() );
+
 	    $monev = Container::make( 'theme_options', __( 'MONEV SIPD' ) )
 			->set_page_menu_position( 4 )
 		    ->add_fields( $this->get_ajax_field(array('type' => 'rfk')) );
@@ -692,6 +696,29 @@ class Wpsipd_Admin {
 			}
 			$mapping_unit[] = Field::make( 'text', 'crb_unit_'.$v['id_skpd'], ($k+1).'. Kode Sub Unit SIMDA untuk '.$v['kode_skpd'].' '.$v['nama_skpd'] );
 		}
+		return $mapping_unit;
+	}
+
+	public function get_api_setting(){
+		global $wpdb;
+		$unit = array();
+		$tahun_anggaran = get_option('_crb_tahun_anggaran_sipd');
+		if(empty(!$tahun_anggaran)){
+			$unit = $wpdb->get_results("SELECT nama_skpd, id_skpd, kode_skpd from data_unit where active=1 and tahun_anggaran=".$tahun_anggaran.' order by id_skpd ASC', ARRAY_A);
+		}
+		$mapping_unit = array(
+            Field::make( 'text', 'crb_url_server_modul_migrasi_data', 'URL Server Modul Migrasi Data' )
+				->set_default_value(admin_url('admin-ajax.php')),
+            Field::make( 'text', 'crb_apikey_server_modul_migrasi_data', 'APIKEY Server Modul Migrasi Data' )
+				->set_default_value(get_option('_crb_api_key_extension' )),
+			Field::make( 'html', 'crb_html_get_sinkron_modul_migrasi_data' )
+            	->set_html( '<a onclick="get_sinkron_modul_migrasi_data(); return false;" href="#" class="button button-primary">Sinkron Migrasi Data</a>' ),
+            Field::make( 'text', 'crb_url_server_modul_rfk', 'URL Server Modul RFK' )
+				->set_default_value(admin_url('admin-ajax.php')),
+            Field::make( 'text', 'crb_apikey_server_modul_rfk', 'APIKEY Server Modul RFK' )
+				->set_default_value(get_option('_crb_api_key_extension' ))
+			);
+
 		return $mapping_unit;
 	}
 
@@ -2311,4 +2338,178 @@ class Wpsipd_Admin {
 			'response' => $ret
 		)));
     }
+
+	function get_api_modul_migrasi_data(){
+		global $wpdb;
+		$cek = true;
+		$unit = array();
+		$api_key_server = get_option('_crb_apikey_server_modul_migrasi_data');
+		$api_key_param = $_POST['api_key'];
+		if(empty($api_key_param)){
+			$cek = false;
+			$pesan = 'API KEY server modul migrasi data wajib diisi!';
+		}
+		if(true == $cek){
+			$tahun_anggaran = get_option('_crb_tahun_anggaran_sipd');
+
+			if($api_key_server === $api_key_param){
+				if(empty(!$tahun_anggaran)){
+					$unit = $wpdb->get_results("SELECT * from data_unit where active=1 and tahun_anggaran=".$tahun_anggaran.' order by id_skpd ASC', ARRAY_A);
+				}
+				if(!empty($unit)){
+					$ret = array(
+						'status' => 'success',
+						'message' => 'Data berhasil ditemukan',
+						'data'	=> $unit
+					);
+				}else{
+					$ret = array(
+						'status' => 'error',
+						'message' => 'Data tidak ditemukan',
+						'data'	=> $unit
+					);
+				}
+			}else{
+				$ret = array(
+					'status' => 'error',
+					'message' => 'APIKEY tidak valid',
+					'data'	=> $unit
+				);
+			}
+	    }else{
+	    	$ret = array(
+        		'status' => 'error',
+        		'message' => $pesan,
+				'data'	=> $unit
+        	);
+	    }
+
+		echo json_encode($ret);
+
+		die();
+	}
+
+	public static function get_sinkron_modul_migrasi_data(){
+		global $wpdb;
+		// data to send in our API request
+		$api_params = array(
+			'action' => 'get_api_modul_migrasi_data',
+			'api_key'	=> $_POST['api_key']
+		);
+
+		$response = wp_remote_post($_POST['server'], array('timeout' => 10, 'sslverify' => false, 'body' => $api_params));
+
+		$response = wp_remote_retrieve_body($response);
+
+		$data = json_decode($response);
+
+		$data_unit = $data->data;
+
+		if($data->status == 'success' && !empty($data_unit)){
+			foreach($data_unit as $vdata){
+				$cek = $wpdb->get_var($wpdb->prepare('
+					select 
+						id 
+					from data_unit 
+					where id_setup_unit = %d
+						and id_unit = %d
+						and is_skpd = %d
+						and kode_skpd = %s
+						and kunci_skpd = %d
+						and nama_skpd = %s
+						and posisi = %s
+						and status = %s
+						and id_skpd = %d
+						and bidur_1 = %d
+						and bidur_2 = %d
+						and bidur_3 = %d
+						and idinduk = %d
+						and ispendapatan = %d
+						and isskpd = %d
+						and kode_skpd_1 = %s
+						and kode_skpd_2 = %s
+						and kodeunit = %s
+						and komisi = %d
+						and namabendahara = %s
+						and namakepala = %s
+						and namaunit = %s
+						and nipbendahara = %s
+						and nipkepala = %s
+						and pangkatkepala = %s
+						and setupunit = %d
+						and statuskepala = %s
+						and update_at = %s
+						and tahun_anggaran = %d
+						and active =  %d',
+					$vdata->id_setup_unit,
+					$vdata->id_unit,
+					$vdata->is_skpd,
+					$vdata->kode_skpd,
+					$vdata->kunci_skpd,
+					$vdata->nama_skpd,
+					$vdata->posisi,
+					$vdata->status,
+					$vdata->id_skpd,
+					$vdata->bidur_1,
+					$vdata->bidur_2,
+					$vdata->bidur_3,
+					$vdata->idinduk,
+					$vdata->ispendapatan,
+					$vdata->isskpd,
+					$vdata->kode_skpd_1,
+					$vdata->kode_skpd_2,
+					$vdata->kodeunit,
+					$vdata->komisi,
+					$vdata->namabendahara,
+					$vdata->namakepala,
+					$vdata->namaunit,
+					$vdata->nipbendahara,
+					$vdata->nipkepala,
+					$vdata->pangkatkepala,
+					$vdata->setupunit,
+					$vdata->statuskepala,
+					$vdata->update_at,
+					$vdata->tahun_anggaran,
+					$vdata->active
+				));
+				$opsi = array(
+					'id_setup_unit' => $vdata->id_setup_unit,
+					'id_unit' => $vdata->id_unit,
+					'is_skpd' => $vdata->is_skpd,
+					'kode_skpd' => $vdata->kode_skpd,
+					'kunci_skpd' => $vdata->kunci_skpd,
+					'nama_skpd' => $vdata->nama_skpd,
+					'posisi' => $vdata->posisi,
+					'status' => $vdata->status,
+					'id_skpd' => $vdata->id_skpd,
+					'bidur_1' => $vdata->bidur_1,
+					'bidur_2' => $vdata->bidur_2,
+					'bidur_3' => $vdata->bidur_3,
+					'idinduk' => $vdata->idinduk,
+					'ispendapatan' => $vdata->ispendapatan,
+					'isskpd' => $vdata->isskpd,
+					'kode_skpd_1' => $vdata->kode_skpd_1,
+					'kode_skpd_2' => $vdata->kode_skpd_2,
+					'kodeunit' => $vdata->kodeunit,
+					'komisi' => $vdata->komisi,
+					'namabendahara' => $vdata->namabendahara,
+					'namakepala' => $vdata->namakepala,
+					'namaunit' => $vdata->namaunit,
+					'nipbendahara' => $vdata->nipbendahara,
+					'nipkepala' => $vdata->nipkepala,
+					'pangkatkepala' => $vdata->pangkatkepala,
+					'setupunit' => $vdata->setupunit,
+					'statuskepala' => $vdata->statuskepala,
+					'update_at' => $vdata->update_at,
+					'tahun_anggaran' => $vdata->tahun_anggaran,
+					'active' => $vdata->active
+				);
+				if (empty($cek)) {
+					$wpdb->insert('data_unit', $opsi);
+				}
+			}
+		}
+		
+		die($response);
+	}
 }
