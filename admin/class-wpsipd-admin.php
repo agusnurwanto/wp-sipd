@@ -263,29 +263,13 @@ class Wpsipd_Admin {
 	    Container::make( 'theme_options', __( 'RPJM & RENSTRA' ) )
 		    ->set_page_parent( $laporan );
 
-	    $input_perencanaan = Container::make( 'theme_options', __( 'Input Perencanaan SIPD' ) )
+	    $input_perencanaan = Container::make( 'theme_options', __( 'Input Perencanaan' ) )
 			->set_page_menu_position( 4 )
 		    ->add_fields( $this->generate_jadwal_perencanaan() );
 
-	    Container::make( 'theme_options', __( 'Jadwal Perencanaan' ) )
+	    Container::make( 'theme_options', __( 'Jadwal & Input Perencanaan' ) )
 		    ->set_page_parent( $input_perencanaan )
 		    ->add_fields( $this->generate_jadwal_perencanaan() );
-
-	    Container::make( 'theme_options', __( 'Input RPJPD' ) )
-		    ->set_page_parent( $input_perencanaan )
-		    ->add_fields( $this->generate_input_rpjpd() );
-
-	    Container::make( 'theme_options', __( 'Input RPJM' ) )
-		    ->set_page_parent( $input_perencanaan )
-		    ->add_fields( $this->generate_input_rpjm() );
-
-	    Container::make( 'theme_options', __( 'Input RPD' ) )
-		    ->set_page_parent( $input_perencanaan )
-		    ->add_fields( $this->generate_input_rpd() );
-
-	    Container::make( 'theme_options', __( 'Input RENSTRA' ) )
-		    ->set_page_parent( $input_perencanaan )
-		    ->add_fields( $this->generate_input_renstra() );
 
 	    Container::make( 'theme_options', __( 'Input RENJA' ) )
 		    ->set_page_parent( $input_perencanaan )
@@ -1233,8 +1217,20 @@ class Wpsipd_Admin {
 		$page_url = $this->generatePage($title, false, $shortcode, $update);
 		$list_data .= '<li><a href="'.$page_url.'" target="_blank">'.$title.'</a></li>';
 
+		$title = 'Input Perencanaan RPJPD';
+		$shortcode = '[input_rpjpd]';
+		$update = false;
+		$page_url = $this->generatePage($title, false, $shortcode, $update);
+		$list_data .= '<li><a href="'.$page_url.'" target="_blank">'.$title.'</a></li>';
+
 		$title = 'Jadwal Input Perencanaan RPJM';
 		$shortcode = '[jadwal_rpjm]';
+		$update = false;
+		$page_url = $this->generatePage($title, false, $shortcode, $update);
+		$list_data .= '<li><a href="'.$page_url.'" target="_blank">'.$title.'</a></li>';
+
+		$title = 'Input Perencanaan RPJM';
+		$shortcode = '[input_rpjm]';
 		$update = false;
 		$page_url = $this->generatePage($title, false, $shortcode, $update);
 		$list_data .= '<li><a href="'.$page_url.'" target="_blank">'.$title.'</a></li>';
@@ -1245,8 +1241,20 @@ class Wpsipd_Admin {
 		$page_url = $this->generatePage($title, false, $shortcode, $update);
 		$list_data .= '<li><a href="'.$page_url.'" target="_blank">'.$title.'</a></li>';
 
+		$title = 'Input Perencanaan RPD';
+		$shortcode = '[input_rpd]';
+		$update = false;
+		$page_url = $this->generatePage($title, false, $shortcode, $update);
+		$list_data .= '<li><a href="'.$page_url.'" target="_blank">'.$title.'</a></li>';
+
 		$title = 'Jadwal Input Perencanaan RENSTRA';
 		$shortcode = '[jadwal_renstra]';
+		$update = false;
+		$page_url = $this->generatePage($title, false, $shortcode, $update);
+		$list_data .= '<li><a href="'.$page_url.'" target="_blank">'.$title.'</a></li>';
+
+		$title = 'Input Perencanaan RENSTRA';
+		$shortcode = '[input_renstra]';
 		$update = false;
 		$page_url = $this->generatePage($title, false, $shortcode, $update);
 		$list_data .= '<li><a href="'.$page_url.'" target="_blank">'.$title.'</a></li>';
@@ -1261,70 +1269,6 @@ class Wpsipd_Admin {
 		}
 		$label = array(
 			Field::make( 'html', 'crb_jadwal_perencanaan' )
-            	->set_html( '
-            		<ul>'.$list_data.'</ul>
-            	' )
-        );
-        return $label;
-	}
-
-	public function generate_input_rpjpd(){
-		global $wpdb;
-		$title = 'Input Perencanaan RPJPD';
-		$shortcode = '[input_rpjpd]';
-		$update = false;
-		$page_url = $this->generatePage($title, false, $shortcode, $update);
-		$list_data = '<li><a href="'.$page_url.'" target="_blank">'.$title.'</a></li>';
-		$label = array(
-			Field::make( 'html', 'crb_input_rpjpd' )
-            	->set_html( '
-            		<ul>'.$list_data.'</ul>
-            	' )
-        );
-        return $label;
-	}
-
-	public function generate_input_rpjm(){
-		global $wpdb;
-		$title = 'Input Perencanaan RPJM';
-		$shortcode = '[input_rpjm]';
-		$update = false;
-		$page_url = $this->generatePage($title, false, $shortcode, $update);
-		$list_data = '<li><a href="'.$page_url.'" target="_blank">'.$title.'</a></li>';
-		$label = array(
-			Field::make( 'html', 'crb_input_rpjm' )
-            	->set_html( '
-            		<ul>'.$list_data.'</ul>
-            	' )
-        );
-        return $label;
-	}
-
-	public function generate_input_rpd(){
-		global $wpdb;
-		$title = 'Input Perencanaan RPD';
-		$shortcode = '[input_rpd]';
-		$update = false;
-		$page_url = $this->generatePage($title, false, $shortcode, $update);
-		$list_data = '<li><a href="'.$page_url.'" target="_blank">'.$title.'</a></li>';
-		$label = array(
-			Field::make( 'html', 'crb_input_rpd' )
-            	->set_html( '
-            		<ul>'.$list_data.'</ul>
-            	' )
-        );
-        return $label;
-	}
-
-	public function generate_input_renstra(){
-		global $wpdb;
-		$title = 'Input Perencanaan RENSTRA';
-		$shortcode = '[input_renstra]';
-		$update = false;
-		$page_url = $this->generatePage($title, false, $shortcode, $update);
-		$list_data = '<li><a href="'.$page_url.'" target="_blank">'.$title.'</a></li>';
-		$label = array(
-			Field::make( 'html', 'crb_input_renstra' )
             	->set_html( '
             		<ul>'.$list_data.'</ul>
             	' )

@@ -500,8 +500,15 @@ foreach ($data_all['data'] as $visi) {
 }
 ?>
 <style type="text/css">
-	.debug-visi, .debug-misi, .debug-sasaran, .debug-kebijakan, .debug-isu { display: none; }
-	.indikator_sasaran { min-height: 40px; }
+	.debug-visi, .debug-misi, .debug-sasaran, .debug-kebijakan, .debug-isu { 
+		display: none; 
+	}
+	.indikator_sasaran { 
+		min-height: 40px; 
+	}
+	.aksi button {
+		margin: 3px;
+	}
 </style>
 <h4 style="text-align: center; margin: 0; font-weight: bold;">Monitoring dan Evaluasi RPJPD (Rencana Pembangunan Jangka Panjang Daerah) <br><?php echo $nama_pemda; ?></h4>
 <div id="cetak" title="Laporan MONEV RENJA" style="padding: 5px; overflow: auto; height: 80vh;">
@@ -530,7 +537,7 @@ foreach ($data_all['data'] as $visi) {
 	</table>
 </div>
 <div class="modal fade" id="modal-monev" tabindex="-1" role="dialog" data-backdrop="static" aria-hidden="true">'
-    <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-dialog modal-xl" role="document">
         <div class="modal-content">
             <div class="modal-header bgpanel-theme">
                 <h4 style="margin: 0;" class="modal-title" id="">Data RPJPD</h4>
@@ -539,7 +546,7 @@ foreach ($data_all['data'] as $visi) {
             <div class="modal-body">
             	<nav>
 				  	<div class="nav nav-tabs" id="nav-tab" role="tablist">
-					    <a class="nav-item nav-link active" id="nav-visi-tab" data-toggle="tab" href="#nav-visi" role="tab" aria-controls="nav-visi" aria-selected="false">visi</a>
+					    <a class="nav-item nav-link" id="nav-visi-tab" data-toggle="tab" href="#nav-visi" role="tab" aria-controls="nav-visi" aria-selected="false">visi</a>
 					    <a class="nav-item nav-link" id="nav-misi-tab" data-toggle="tab" href="#nav-misi" role="tab" aria-controls="nav-misi" aria-selected="false">misi</a>
 					    <a class="nav-item nav-link" id="nav-sasaran-tab" data-toggle="tab" href="#nav-sasaran" role="tab" aria-controls="nav-sasaran" aria-selected="false">sasaran</a>
 					    <a class="nav-item nav-link" id="nav-kebijakan-tab" data-toggle="tab" href="#nav-kebijakan" role="tab" aria-controls="nav-kebijakan" aria-selected="false">kebijakan</a>
@@ -688,17 +695,40 @@ foreach ($data_all['data'] as $visi) {
           	},
           	dataType: "json",
           	success: function(res){
+          		console.log('res', res);
 				jQuery('#wrap-loading').hide();
-				var data = "<table>";
+				var data_html = ""
+					+'<button class="btn-sm btn-primary" style="margin-top: 10px;" onclick="tambah_visi();"><i class="dashicons dashicons-plus" style="margin-top: 3px;"></i> Tambah Visi</button>'
+					+"<table class='table table-bordered' style='margin: 10px 0;'>"
+						+"<thead>"
+							+"<tr>"
+								+"<th class='text-center' style='width: 45px;'>No</th>"
+								+"<th class='text-center'>Visi</th>"
+								+"<th class='text-center' style='width: 160px;'>Aksi</th>"
+							+"</tr>"
+						+"</thead>"
+						+"<tbody>";
 				res.data.map(function(b, i){
-					data += ''
+					data_html += ''
 					+'<tr>'
-						+'<td>'+b.visi_text+'</td>'
+						+'<td class="text-center">'+(i+1)+'</td>'
+						+'<td>'+b.visi_teks+'</td>'
+						+'<td class="text-center aksi">'
+							+'<button class="btn-sm btn-primary"><i class="dashicons dashicons-search"></i></button>'
+							+'<button class="btn-sm btn-warning"><i class="dashicons dashicons-edit"></i></button>'
+							+'<button class="btn-sm btn-danger"><i class="dashicons dashicons-trash"></i></button>'
+						+'</td>'
 					+'</tr>';
 				});
-				data += "</table>";
-				jQuery('#nav-visi').html(data)
+				data_html += ""
+						+"</tbody>";
+					+"</table>";
+				jQuery('#nav-visi').html(data_html)
+          		jQuery('.nav-tabs a[href="#nav-visi"]').tab('show');
           	}
         });
 	});
+	function tambah_visi(){
+		
+	}
 </script>
