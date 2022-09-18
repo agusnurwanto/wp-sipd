@@ -14553,6 +14553,22 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 
 									$queryRecords10 = $wpdb->query($sql_backup_data_mapping_sumberdana);
 
+									$oclumns_11 = array('created_user','createddate','createdtime','id_pendapatan','keterangan','kode_akun','nama_akun','nilaimurni','program_koordinator','rekening','skpd_koordinator','total','pagu_fmis','updated_user','updateddate','updatedtime','uraian','urusan_koordinator','user1','user2','id_skpd','active','update_at','tahun_anggaran');
+
+									$sql_backup_data_pendapatan =  "INSERT INTO data_pendapatan_history (".implode(', ', $oclumns_11).",id_jadwal,id_asli)
+												SELECT ".implode(', ', $oclumns_11).",".$data_this_id[0]['id_jadwal_lokal'].",id as id_asli
+												FROM data_pendapatan WHERE tahun_anggaran='".$data_this_id[0]['tahun_anggaran']."'";
+
+									$queryRecords11 = $wpdb->query($sql_backup_data_pendapatan);
+
+									$oclumns_12 = array('created_user','createddate','createdtime','id_pembiayaan','keterangan','kode_akun','nama_akun','nilaimurni','program_koordinator','rekening','skpd_koordinator','total','pagu_fmis','updated_user','updateddate','updatedtime','uraian','urusan_koordinator','type','user1','user2','id_skpd','active','update_at','tahun_anggaran');
+
+									$sql_backup_data_pembiayaan =  "INSERT INTO data_pembiayaan_history (".implode(', ', $oclumns_12).",id_jadwal,id_asli)
+												SELECT ".implode(', ', $oclumns_12).",".$data_this_id[0]['id_jadwal_lokal'].",id as id_asli
+												FROM data_pembiayaan WHERE tahun_anggaran='".$data_this_id[0]['tahun_anggaran']."'";
+
+									$queryRecords12 = $wpdb->query($sql_backup_data_pembiayaan);
+
 									$return = array(
 										'status' => 'success',
 										'message'	=> 'Berhasil!',

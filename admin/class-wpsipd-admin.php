@@ -713,18 +713,26 @@ class Wpsipd_Admin {
 		if(empty(!$tahun_anggaran)){
 			$unit = $wpdb->get_results("SELECT nama_skpd, id_skpd, kode_skpd from data_unit where active=1 and tahun_anggaran=".$tahun_anggaran.' order by id_skpd ASC', ARRAY_A);
 		}
+
+		$disabled = 'onclick="get_sinkron_modul_migrasi_data(); return false;"';
+		if(get_option('_crb_url_server_modul_migrasi_data') == admin_url('admin-ajax.php')){
+			$disabled = 'disabled';
+		}
+
 		$mapping_unit = array(
+			Field::make('html', 'crb_url_tahun_anggaran_moduld_migrasi_data')
+				->set_html('<h3>Tahun Anggaran: '.$tahun_anggaran.'</h3>'),
             Field::make( 'text', 'crb_url_server_modul_migrasi_data', 'URL Server Modul Migrasi Data' )
 				->set_default_value(admin_url('admin-ajax.php')),
             Field::make( 'text', 'crb_apikey_server_modul_migrasi_data', 'APIKEY Server Modul Migrasi Data' )
 				->set_default_value(get_option('_crb_api_key_extension' )),
 			Field::make( 'html', 'crb_html_get_sinkron_modul_migrasi_data' )
-            	->set_html( '<a onclick="get_sinkron_modul_migrasi_data(); return false;" href="#" class="button button-primary">Sinkron data dari server migrasi data</a>' )
+            	->set_html( '<a href="#" class="button button-primary" '.$disabled.'>Sinkron data dari server migrasi data</a>' )
 				->set_help_text($this->last_sinkron_api_setting()),
-            Field::make( 'text', 'crb_url_server_modul_rfk', 'URL Server Modul RFK' )
-				->set_default_value(admin_url('admin-ajax.php')),
-            Field::make( 'text', 'crb_apikey_server_modul_rfk', 'APIKEY Server Modul RFK' )
-				->set_default_value(get_option('_crb_api_key_extension' ))
+            // Field::make( 'text', 'crb_url_server_modul_rfk', 'URL Server Modul RFK' )
+			// 	->set_default_value(admin_url('admin-ajax.php')),
+            // Field::make( 'text', 'crb_apikey_server_modul_rfk', 'APIKEY Server Modul RFK' )
+			// 	->set_default_value(get_option('_crb_api_key_extension' ))
 			);
 
 		return $mapping_unit;
@@ -2353,17 +2361,28 @@ class Wpsipd_Admin {
 		$unit = array();
 		$api_key_server = get_option('_crb_apikey_server_modul_migrasi_data');
 		$api_key_param = $_POST['api_key'];
+		$tahun_anggaran = $_POST['tahun_anggaran'];
 		if(empty($api_key_param)){
 			$cek = false;
 			$pesan = 'API KEY server modul migrasi data wajib diisi!';
 		}
+		if(empty($tahun_anggaran)){
+			$cek = false;
+			$pesan = 'tahun anggaran wajib diisi!';
+		}
 		if(true == $cek){
-			$tahun_anggaran = get_option('_crb_tahun_anggaran_sipd');
-
 			if($api_key_server === $api_key_param){
-				if(empty(!$tahun_anggaran)){
-					$unit = $wpdb->get_results("SELECT * from data_unit where active=1 and tahun_anggaran=".$tahun_anggaran.' order by id_skpd ASC', ARRAY_A);
+				if(!empty($tahun_anggaran)){
+					$unit = $wpdb->get_results($wpdb->prepare('
+					SELECT 
+					* 
+					from data_unit 
+					where active=1 
+						and tahun_anggaran=%d 
+					order by id_skpd ASC',
+					$tahun_anggaran), ARRAY_A);
 				}
+
 				if(!empty($unit)){
 					$ret = array(
 						'status' => 'success',
@@ -2399,10 +2418,24 @@ class Wpsipd_Admin {
 
 	function get_sinkron_modul_migrasi_data(){
 		global $wpdb;
+
+		if(get_option('_crb_url_server_modul_migrasi_data') == admin_url('admin-ajax.php')){
+			$data = array(
+				'status' => 'error',
+				'message' => 'URL server modul migrasi data tidak boleh sama dengan url server RFK',
+				'last_sinkron' => ''
+			);
+
+			$response = json_encode($data);
+
+			die($response);
+		}
+
 		// data to send in our API request
 		$api_params = array(
 			'action' => 'get_api_modul_migrasi_data',
-			'api_key'	=> $_POST['api_key']
+			'api_key'	=> $_POST['api_key'],
+			'tahun_anggaran' => get_option('_crb_tahun_anggaran_sipd')
 		);
 
 		$response = wp_remote_post($_POST['server'], array('timeout' => 10, 'sslverify' => false, 'body' => $api_params));
@@ -2411,74 +2444,21 @@ class Wpsipd_Admin {
 
 		$data = json_decode($response);
 
+		$data->last_sinkron = '';
+
 		$data_unit = $data->data;
 
 		if($data->status == 'success' && !empty($data_unit)){
+			$wpdb->update('data_unit', array('active' => 0),array('tahun_anggaran' => $api_params['tahun_anggaran']));
 			foreach($data_unit as $vdata){
 				$cek = $wpdb->get_var($wpdb->prepare('
 					select 
 						id 
 					from data_unit 
-					where id_setup_unit = %d
-						and id_unit = %d
-						and is_skpd = %d
-						and kode_skpd = %s
-						and kunci_skpd = %d
-						and nama_skpd = %s
-						and posisi = %s
-						and status = %s
-						and id_skpd = %d
-						and bidur_1 = %d
-						and bidur_2 = %d
-						and bidur_3 = %d
-						and idinduk = %d
-						and ispendapatan = %d
-						and isskpd = %d
-						and kode_skpd_1 = %s
-						and kode_skpd_2 = %s
-						and kodeunit = %s
-						and komisi = %d
-						and namabendahara = %s
-						and namakepala = %s
-						and namaunit = %s
-						and nipbendahara = %s
-						and nipkepala = %s
-						and pangkatkepala = %s
-						and setupunit = %d
-						and statuskepala = %s
-						and update_at = %s
-						and tahun_anggaran = %d
-						and active =  %d',
-					$vdata->id_setup_unit,
-					$vdata->id_unit,
-					$vdata->is_skpd,
-					$vdata->kode_skpd,
-					$vdata->kunci_skpd,
-					$vdata->nama_skpd,
-					$vdata->posisi,
-					$vdata->status,
+					where id_skpd = %d
+						and tahun_anggaran = %d',
 					$vdata->id_skpd,
-					$vdata->bidur_1,
-					$vdata->bidur_2,
-					$vdata->bidur_3,
-					$vdata->idinduk,
-					$vdata->ispendapatan,
-					$vdata->isskpd,
-					$vdata->kode_skpd_1,
-					$vdata->kode_skpd_2,
-					$vdata->kodeunit,
-					$vdata->komisi,
-					$vdata->namabendahara,
-					$vdata->namakepala,
-					$vdata->namaunit,
-					$vdata->nipbendahara,
-					$vdata->nipkepala,
-					$vdata->pangkatkepala,
-					$vdata->setupunit,
-					$vdata->statuskepala,
-					$vdata->update_at,
-					$vdata->tahun_anggaran,
-					$vdata->active
+					$vdata->tahun_anggaran
 				));
 				$opsi = array(
 					'id_setup_unit' => $vdata->id_setup_unit,
@@ -2514,6 +2494,8 @@ class Wpsipd_Admin {
 				);
 				if (empty($cek)) {
 					$wpdb->insert('data_unit', $opsi);
+				}else{
+					$wpdb->update('data_unit',$opsi,array('id' => $cek));
 				}
 			}
 
@@ -2525,12 +2507,13 @@ class Wpsipd_Admin {
 			$dateTime = new DateTime();
 			$time_now = $dateTime->format('d-m-Y H:i:s');
 			update_option('last_sinkron_api_setting',$time_now);
+			$data->last_sinkron = 'Terakhir sinkron data: '.get_option('last_sinkron_api_setting');
 		}
 		
 		die($response);
 	}
 
 	public function last_sinkron_api_setting(){
-		return "Terakhir sinkron data: ".get_option('last_sinkron_api_setting');
+		return "<span id='last_sinkron'>Terakhir sinkron data: ".get_option('last_sinkron_api_setting')."</span>";
 	}
 }
