@@ -16077,7 +16077,9 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 
 				$tujuan = $wpdb->get_results("
 					SELECT * FROM data_rpjmd_tujuan_lokal
-						WHERE id_misi=".$_POST['id_misi']." AND 
+						WHERE id_misi=".$_POST['id_misi']." AND
+							id_unik is not null and
+							id_unik_indikator is null and
 							status=1 AND 
 							is_locked=0 AND 
 							active=1 ORDER BY id", ARRAY_A);
@@ -16371,7 +16373,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 				if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
 					
 					// ambil data indikator
-					$indikators = $wpdb->get_results("select * from data_rpjmd_tujuan_lokal where id_tujuan=".$_POST['id_tujuan']. " and id_unik_indikator is not null and is_locked_indikator=0 and status=1 and active=1", ARRAY_A);
+					$indikators = $wpdb->get_results("select * from data_rpjmd_tujuan_lokal where id_tujuan=".$_POST['id_tujuan']. " and id_unik is not null and id_unik_indikator is not null and is_locked_indikator=0 and status=1 and active=1", ARRAY_A);
 
 					if(empty($indikators)){
 						// ambil data tujuan
