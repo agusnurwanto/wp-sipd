@@ -495,26 +495,36 @@ class Wpsipd
 		$this->loader->add_action('wp_ajax_submit_lock_schedule_renstra',  $plugin_public, 'submit_lock_schedule_renstra');
 		$this->loader->add_action('wp_ajax_submit_lock_schedule_rpd',  $plugin_public, 'submit_lock_schedule_rpd');
 		
-		$this->loader->add_action('wp_ajax_get_data_rpjm_all',  $plugin_public, 'get_data_rpjm_all');
+		$this->loader->add_action('wp_ajax_submit_visi_rpjm',  $plugin_public, 'submit_visi_rpjm'); // ok
+		$this->loader->add_action('wp_ajax_edit_visi_rpjm',  $plugin_public, 'edit_visi_rpjm'); // ok
+		$this->loader->add_action('wp_ajax_update_visi_rpjm',  $plugin_public, 'update_visi_rpjm'); // ok
+		$this->loader->add_action('wp_ajax_visi_detail',  $plugin_public, 'visi_detail'); //
+		$this->loader->add_action('wp_ajax_delete_visi_rpjm',  $plugin_public, 'delete_visi_rpjm'); //
 		
-		$this->loader->add_action('wp_ajax_get_visi_rpjm_by_id',  $plugin_public, 'get_visi_rpjm_by_id');
-		$this->loader->add_action('wp_ajax_submit_visi_rpjm',  $plugin_public, 'submit_visi_rpjm');
-		$this->loader->add_action('wp_ajax_update_visi_rpjm',  $plugin_public, 'update_visi_rpjm');
+		$this->loader->add_action('wp_ajax_submit_misi_rpjm',  $plugin_public, 'submit_misi_rpjm'); // ok
+		$this->loader->add_action('wp_ajax_edit_misi_rpjm',  $plugin_public, 'edit_misi_rpjm'); // ok
+		$this->loader->add_action('wp_ajax_update_misi_rpjm',  $plugin_public, 'update_misi_rpjm'); // ok
+		$this->loader->add_action('wp_ajax_misi_detail',  $plugin_public, 'misi_detail'); // ok
+		$this->loader->add_action('wp_ajax_delete_misi_rpjm',  $plugin_public, 'delete_misi_rpjm'); //
 		
-		$this->loader->add_action('wp_ajax_get_misi_rpjm',  $plugin_public, 'get_misi_rpjm');
-		$this->loader->add_action('wp_ajax_get_misi_rpjm_by_id',  $plugin_public, 'get_misi_rpjm_by_id');
-		$this->loader->add_action('wp_ajax_submit_misi_rpjm',  $plugin_public, 'submit_misi_rpjm');
-		$this->loader->add_action('wp_ajax_update_misi_rpjm',  $plugin_public, 'update_misi_rpjm');
+		$this->loader->add_action('wp_ajax_submit_tujuan_rpjm',  $plugin_public, 'submit_tujuan_rpjm'); // ok
+		$this->loader->add_action('wp_ajax_edit_tujuan_rpjm',  $plugin_public, 'edit_tujuan_rpjm'); // ok
+		$this->loader->add_action('wp_ajax_update_tujuan_rpjm',  $plugin_public, 'update_tujuan_rpjm'); // ok
+		$this->loader->add_action('wp_ajax_delete_tujuan_rpjm',  $plugin_public, 'delete_tujuan_rpjm');
 		
-		$this->loader->add_action('wp_ajax_get_tujuan_rpjm',  $plugin_public, 'get_tujuan_rpjm');
-		$this->loader->add_action('wp_ajax_get_tujuan_rpjm_by_id',  $plugin_public, 'get_tujuan_rpjm_by_id');
-		$this->loader->add_action('wp_ajax_submit_tujuan_rpjm',  $plugin_public, 'submit_tujuan_rpjm');
-		$this->loader->add_action('wp_ajax_update_tujuan_rpjm',  $plugin_public, 'update_tujuan_rpjm');
+		$this->loader->add_action('wp_ajax_kelola_indikator_tujuan_rpjm',  $plugin_public, 'kelola_indikator_tujuan_rpjm'); // ok
+		$this->loader->add_action('wp_ajax_submit_indikator_tujuan_rpjm',  $plugin_public, 'submit_indikator_tujuan_rpjm'); // ok
 		
 		$this->loader->add_action('wp_ajax_get_sasaran_rpjm',  $plugin_public, 'get_sasaran_rpjm');
 		$this->loader->add_action('wp_ajax_get_sasaran_rpjm_by_id',  $plugin_public, 'get_sasaran_rpjm_by_id');
 		$this->loader->add_action('wp_ajax_submit_sasaran_rpjm',  $plugin_public, 'submit_sasaran_rpjm');
 		$this->loader->add_action('wp_ajax_update_sasaran_rpjm',  $plugin_public, 'update_sasaran_rpjm');
+
+		$this->loader->add_action('wp_ajax_add_program_rpjm',  $plugin_public, 'add_program_rpjm');
+		$this->loader->add_action('wp_ajax_edit_program_rpjm',  $plugin_public, 'edit_program_rpjm');
+		$this->loader->add_action('wp_ajax_submit_program_rpjm',  $plugin_public, 'submit_program_rpjm');
+		$this->loader->add_action('wp_ajax_update_program_rpjm',  $plugin_public, 'update_program_rpjm');
+		$this->loader->add_action('wp_ajax_delete_program_rpjm',  $plugin_public, 'delete_program_rpjm');
 		
 
 		add_shortcode('menu_monev',  array($plugin_public, 'menu_monev'));
