@@ -516,10 +516,9 @@ class Wpsipd
 		$this->loader->add_action('wp_ajax_submit_indikator_tujuan_rpjm',  $plugin_public, 'submit_indikator_tujuan_rpjm'); // ok
 		$this->loader->add_action('wp_ajax_edit_indikator_tujuan_rpjm',  $plugin_public, 'edit_indikator_tujuan_rpjm'); // ok
 		$this->loader->add_action('wp_ajax_update_indikator_tujuan_rpjm',  $plugin_public, 'update_indikator_tujuan_rpjm'); // ok
-		
-		$this->loader->add_action('wp_ajax_get_sasaran_rpjm',  $plugin_public, 'get_sasaran_rpjm');
-		$this->loader->add_action('wp_ajax_get_sasaran_rpjm_by_id',  $plugin_public, 'get_sasaran_rpjm_by_id');
-		$this->loader->add_action('wp_ajax_submit_sasaran_rpjm',  $plugin_public, 'submit_sasaran_rpjm');
+
+		$this->loader->add_action('wp_ajax_tujuan_detail',  $plugin_public, 'tujuan_detail'); // ok
+		$this->loader->add_action('wp_ajax_submit_sasaran_rpjm',  $plugin_public, 'submit_sasaran_rpjm'); //
 		$this->loader->add_action('wp_ajax_update_sasaran_rpjm',  $plugin_public, 'update_sasaran_rpjm');
 
 		$this->loader->add_action('wp_ajax_add_program_rpjm',  $plugin_public, 'add_program_rpjm');

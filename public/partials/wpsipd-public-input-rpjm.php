@@ -1165,15 +1165,6 @@ $tahun_selesai = (!empty($tahun_anggaran)) ? $tahun_anggaran + 5 : '-';
 				let html = '<form id="form-rpjm">'
 								+'<input type="hidden" name="id_misi" value="'+response.misi.id+'" />'
 								+'<input type="hidden" name="id_visi" value="'+response.misi.id_visi+'" />'
-								// +'<div class="form-group">'
-								// 	+'<label for="visi">Pilih visi</label>'
-								// 	+'<select class="form-control" name="id_visi" id="id_visi">'
-								// 		+'<option value="" selected>Pilih visi...</option>';
-								// 		response.visi.map(function(value, index){
-								// 			html +='<option value="'+value.id+'">'+value.visi_teks+'</option>';
-								// 		});
-								// 	html+='</select>'
-								// +'</div>'
 								+'<div class="form-group">'
 									+'<label for="misi">Misi</label>'
 	  								+'<textarea class="form-control" name="misi_teks">'+response.misi.misi_teks+'</textarea>'
@@ -1188,7 +1179,6 @@ $tahun_selesai = (!empty($tahun_anggaran)) ? $tahun_anggaran + 5 : '-';
 				misiModal.find('.modal-body').html(html);
 				misiModal.find('.modal-footer').html('<button type="button" class="btn btn-sm btn-warning" data-dismiss="modal">Tutup</button><button type="button" class="btn btn-sm btn-success" id="btn-simpan-data-rpjm-lokal" data-action="update_misi_rpjm" data-target="dataMisi">Simpan</button>');
 				misiModal.modal('show');
-				// jQuery("#id_visi").val(response.misi.id_visi);
 			}
 		})
 
@@ -1252,7 +1242,7 @@ $tahun_selesai = (!empty($tahun_anggaran)) ? $tahun_anggaran + 5 : '-';
 			          							+'<td>'+value.tujuan_teks+'</td>'
 			          							+'<td>'
 			          								+'<a href="javascript:void(0)" data-idtujuan="'+value.id+'" class="btn btn-sm btn-warning btn-kelola-indikator-tujuan">Kelola Indikator</a>&nbsp;'
-			          								+'<a href="javascript:void(0)" data-id="'+value.id+'" class="btn btn-sm btn-primary btn-detail-tujuan">Detail</a>&nbsp;'
+			          								+'<a href="javascript:void(0)" data-kode="'+value.id_unik+'" class="btn btn-sm btn-primary btn-detail-tujuan">Detail</a>&nbsp;'
 			          								+'<a href="javascript:void(0)" data-id="'+value.id+'" class="btn btn-sm btn-success btn-edit-tujuan">Edit</a>&nbsp;'
 			          								+'<a href="javascript:void(0)" data-id="'+value.id+'" class="btn btn-sm btn-danger">Hapus</a></td>'
 			          						+'</tr>';
@@ -1477,86 +1467,117 @@ $tahun_selesai = (!empty($tahun_anggaran)) ? $tahun_anggaran + 5 : '-';
 		})			
 	});
 
-	jQuery(document).on('click', '.btn-tambah-sasaran', function(){
-		jQuery('#wrap-loading').show();
+	jQuery(document).on('click', '.btn-detail-tujuan', function(){
+		
+        jQuery('#wrap-loading').show();
+		let kode_tujuan = jQuery(this).data('kode');
 
-		let sasaranModal = jQuery("#modal-crud-rpjm");
 		jQuery.ajax({
-			url: ajax.url,
-          	type: "post",
-          	data: {
-          		"action": "get_tujuan_rpjm",
-          		"api_key": "<?php echo $api_key; ?>",
-          		"type": 1
-          	},
-          	dataType: "json",
-          	success: function(res){
-          		console.log(res);
-				jQuery('#wrap-loading').hide();
-				let html = '<form id="form-rpjm">'
-								+'<div class="form-group">'
-									+'<label for="visi">Pilih tujuan</label>'
-									+'<select class="form-control" name="kode_tujuan">'
-										+'<option value="" selected>Pilih tujuan...</option>';
-										res.data.map(function(value, index){
-											html +='<option value="'+value.id_unik+'">'+value.tujuan_teks+'</option>';
-										});
-									html+='</select>'
-								+'</div>'
-								+'<div class="form-group">'
-									+'<label for="sasaran">Sasaran</label>'
-	  								+'<textarea class="form-control" name="sasaran_teks"></textarea>'
-								+'</div>'
-								+'<div class="form-group">'
-									+'<label for="urut_sasaran">Urut Sasaran</label>'
-	  								+'<input type="number" class="form-control" name="urut_sasaran"/>'
-								+'</div>'
-								+'<div class="form-group">'
-									+'<label for="indikator_teks">Indikator</label>'
-	  								+'<textarea class="form-control" name="indikator_teks"></textarea>'
-								+'</div>'
-								+'<div class="form-group">'
-									+'<label for="satuan">Satuan</label>'
-	  								+'<input type="text" class="form-control" name="satuan"/>'
-								+'</div>'
-								+'<div class="form-group">'
-									+'<label for="target_1">Target tahun ke-1</label>'
-	  								+'<input type="text" class="form-control" name="target_1"/>'
-								+'</div>'
-								+'<div class="form-group">'
-									+'<label for="target_2">Target tahun ke-2</label>'
-	  								+'<input type="text" class="form-control" name="target_2"/>'
-								+'</div>'
-								+'<div class="form-group">'
-									+'<label for="target_3">Target tahun ke-3</label>'
-	  								+'<input type="text" class="form-control" name="target_3"/>'
-								+'</div>'
-								+'<div class="form-group">'
-									+'<label for="target_4">Target tahun ke-4</label>'
-	  								+'<input type="text" class="form-control" name="target_4"/>'
-								+'</div>'
-								+'<div class="form-group">'
-									+'<label for="target_5">Target tahun ke-5</label>'
-	  								+'<input type="text" class="form-control" name="target_5"/>'
-								+'</div>'
-								+'<div class="form-group">'
-									+'<label for="target_awal">Target awal</label>'
-	  								+'<input type="text" class="form-control" name="target_awal"/>'
-								+'</div>'
-								+'<div class="form-group">'
-									+'<label for="target_akhir">Target akhir</label>'
-	  								+'<input type="text" class="form-control" name="target_akhir"/>'
-								+'</div>'
-							+'</form>';
+			method:'POST',
+			url:ajax.url,
+			dataType:'json',
+			data:{
+				'action': 'tujuan_detail',
+	          	'api_key': '<?php echo $api_key; ?>',
+				'kode_tujuan': kode_tujuan
+			},
+			success:function(response){
 
-		        sasaranModal.find('.modal-title').html('Tambah Sasaran dan Indikator');
-				sasaranModal.find('.modal-body').html(html);
-				sasaranModal.find('.modal-footer').html('<button type="button" class="btn btn-sm btn-warning" data-dismiss="modal">Tutup</button><button type="button" class="btn btn-sm btn-success" id="btn-simpan-data-rpjm-lokal" data-action="submit_sasaran_rpjm">Simpan</button>');
-				sasaranModal.find('.modal-dialog').css('maxWidth','950px');
-				sasaranModal.find('.modal-dialog').css('width','100%');
-				sasaranModal.modal('show');
-          	}
-        });
+          		jQuery('#wrap-loading').hide();
+          		
+          		let sasaran = ''
+          				+'<br><button type="button" class="btn btn-sm btn-primary mb-2 btn-tambah-sasaran" data-kodetujuan="'+kode_tujuan+'">Tambah Sasaran</button>'
+          				+'<table class="table">'
+          					+'<thead>'
+          						+'<tr>'
+          							+'<th style="min-width:20px">No.</th>'
+          							+'<th style="min-width:400px">Sasaran</th>'
+          							+'<th>Aksi</th>'
+          						+'<tr>'
+          					+'</thead>'
+          					+'<tbody id="dataSasaran">';
+
+          						let k = 1;
+
+          						response.data.map(function(value, index){
+          							sasaran +='<tr>'
+			          							+'<td>'+k+'.</td>'
+			          							+'<td>'+value.sasaran_teks+'</td>'
+			          							+'<td>'
+			          								+'<a href="javascript:void(0)" data-idsasaran="'+value.id+'" class="btn btn-sm btn-warning btn-kelola-indikator-sasaran">Kelola Indikator</a>&nbsp;'
+			          								+'<a href="javascript:void(0)" data-kode="'+value.id_unik+'" class="btn btn-sm btn-primary btn-detail-sasaran">Detail</a>&nbsp;'
+			          								+'<a href="javascript:void(0)" data-id="'+value.id+'" class="btn btn-sm btn-success btn-edit-sasaran">Edit</a>&nbsp;'
+			          								+'<a href="javascript:void(0)" data-id="'+value.id+'" class="btn btn-sm btn-danger">Hapus</a></td>'
+			          						+'</tr>';
+			          				k++;
+          						})
+          					sasaran +='<tbody>'
+          				+'</table>';
+
+			    jQuery("#nav-sasaran").html(sasaran);
+			 	setActive("nav-tujuan", "nav-sasaran");
+			}
+		})
+	})
+
+	jQuery(document).on('click', '.btn-tambah-sasaran', function(){
+		
+		let sasaranModal = jQuery("#modal-crud-rpjm");
+		
+		let kode_tujuan = jQuery(this).data('kodetujuan');
+
+		let html = '<form id="form-rpjm">'
+						+'<input type="hidden" name="kode_tujuan" value="'+kode_tujuan+'">'
+						+'<div class="form-group">'
+							+'<label for="sasaran">Sasaran</label>'
+	  						+'<textarea class="form-control" name="sasaran_teks"></textarea>'
+						+'</div>'
+						+'<div class="form-group">'
+							+'<label for="urut_sasaran">Urut Sasaran</label>'
+	  						+'<input type="number" class="form-control" name="urut_sasaran"/>'
+						+'</div>'
+						// +'<div class="form-group">'
+						// 	+'<label for="indikator_teks">Indikator</label>'
+	  			// 			+'<textarea class="form-control" name="indikator_teks"></textarea>'
+						// +'</div>'
+						// +'<div class="form-group">'
+						// 	+'<label for="satuan">Satuan</label>'
+	  			// 			+'<input type="text" class="form-control" name="satuan"/>'
+						// +'</div>'
+						// +'<div class="form-group">'
+						// 	+'<label for="target_1">Target tahun ke-1</label>'
+	  			// 			+'<input type="text" class="form-control" name="target_1"/>'
+						// +'</div>'
+						// +'<div class="form-group">'
+						// 	+'<label for="target_2">Target tahun ke-2</label>'
+	  			// 			+'<input type="text" class="form-control" name="target_2"/>'
+						// +'</div>'
+						// +'<div class="form-group">'
+						// 	+'<label for="target_3">Target tahun ke-3</label>'
+	  			// 			+'<input type="text" class="form-control" name="target_3"/>'
+						// +'</div>'
+						// +'<div class="form-group">'
+						// 	+'<label for="target_4">Target tahun ke-4</label>'
+	  			// 			+'<input type="text" class="form-control" name="target_4"/>'
+						// +'</div>'
+						// +'<div class="form-group">'
+						// 	+'<label for="target_5">Target tahun ke-5</label>'
+	  			// 			+'<input type="text" class="form-control" name="target_5"/>'
+						// +'</div>'
+						// +'<div class="form-group">'
+						// 	+'<label for="target_awal">Target awal</label>'
+	  			// 			+'<input type="text" class="form-control" name="target_awal"/>'
+						// +'</div>'
+						// +'<div class="form-group">'
+						// 	+'<label for="target_akhir">Target akhir</label>'
+	  			// 			+'<input type="text" class="form-control" name="target_akhir"/>'
+						// +'</div>'
+					+'</form>';
+
+		sasaranModal.find('.modal-title').html('Tambah Sasaran');
+		sasaranModal.find('.modal-body').html(html);
+		sasaranModal.find('.modal-footer').html('<button type="button" class="btn btn-sm btn-warning" data-dismiss="modal">Tutup</button><button type="button" class="btn btn-sm btn-success" id="btn-simpan-data-rpjm-lokal" data-action="submit_sasaran_rpjm" data-target="dataSasaran">Simpan</button>');
+		sasaranModal.modal('show');
 	})
 
 	jQuery(document).on('click', '.btn-edit-sasaran', function(){
