@@ -1536,42 +1536,6 @@ $tahun_selesai = (!empty($tahun_anggaran)) ? $tahun_anggaran + 5 : '-';
 							+'<label for="urut_sasaran">Urut Sasaran</label>'
 	  						+'<input type="number" class="form-control" name="urut_sasaran"/>'
 						+'</div>'
-						// +'<div class="form-group">'
-						// 	+'<label for="indikator_teks">Indikator</label>'
-	  			// 			+'<textarea class="form-control" name="indikator_teks"></textarea>'
-						// +'</div>'
-						// +'<div class="form-group">'
-						// 	+'<label for="satuan">Satuan</label>'
-	  			// 			+'<input type="text" class="form-control" name="satuan"/>'
-						// +'</div>'
-						// +'<div class="form-group">'
-						// 	+'<label for="target_1">Target tahun ke-1</label>'
-	  			// 			+'<input type="text" class="form-control" name="target_1"/>'
-						// +'</div>'
-						// +'<div class="form-group">'
-						// 	+'<label for="target_2">Target tahun ke-2</label>'
-	  			// 			+'<input type="text" class="form-control" name="target_2"/>'
-						// +'</div>'
-						// +'<div class="form-group">'
-						// 	+'<label for="target_3">Target tahun ke-3</label>'
-	  			// 			+'<input type="text" class="form-control" name="target_3"/>'
-						// +'</div>'
-						// +'<div class="form-group">'
-						// 	+'<label for="target_4">Target tahun ke-4</label>'
-	  			// 			+'<input type="text" class="form-control" name="target_4"/>'
-						// +'</div>'
-						// +'<div class="form-group">'
-						// 	+'<label for="target_5">Target tahun ke-5</label>'
-	  			// 			+'<input type="text" class="form-control" name="target_5"/>'
-						// +'</div>'
-						// +'<div class="form-group">'
-						// 	+'<label for="target_awal">Target awal</label>'
-	  			// 			+'<input type="text" class="form-control" name="target_awal"/>'
-						// +'</div>'
-						// +'<div class="form-group">'
-						// 	+'<label for="target_akhir">Target akhir</label>'
-	  			// 			+'<input type="text" class="form-control" name="target_akhir"/>'
-						// +'</div>'
 					+'</form>';
 
 		sasaranModal.find('.modal-title').html('Tambah Sasaran');
@@ -1609,42 +1573,6 @@ $tahun_selesai = (!empty($tahun_anggaran)) ? $tahun_anggaran + 5 : '-';
 									+'<label for="urut_sasaran">Urut Sasaran</label>'
 	  								+'<input type="number" class="form-control" name="urut_sasaran" value="'+response.data.urut_sasaran+'"/>'
 								+'</div>'
-								// +'<div class="form-group">'
-								// 	+'<label for="indikator_teks">Indikator</label>'
-	  					// 			+'<textarea class="form-control" name="indikator_teks">'+response.sasaran.indikator_teks+'</textarea>'
-								// +'</div>'
-								// +'<div class="form-group">'
-								// 	+'<label for="satuan">Satuan</label>'
-	  					// 			+'<input type="text" class="form-control" name="satuan" value="'+response.sasaran.satuan+'"/>'
-								// +'</div>'
-								// +'<div class="form-group">'
-								// 	+'<label for="target_1">Target tahun ke-1</label>'
-	  					// 			+'<input type="text" class="form-control" name="target_1" value="'+response.sasaran.target_1+'"/>'
-								// +'</div>'
-								// +'<div class="form-group">'
-								// 	+'<label for="target_2">Target tahun ke-2</label>'
-	  					// 			+'<input type="text" class="form-control" name="target_2" value="'+response.sasaran.target_2+'"/>'
-								// +'</div>'
-								// +'<div class="form-group">'
-								// 	+'<label for="target_3">Target tahun ke-3</label>'
-	  					// 			+'<input type="text" class="form-control" name="target_3" value="'+response.sasaran.target_3+'"/>'
-								// +'</div>'
-								// +'<div class="form-group">'
-								// 	+'<label for="target_4">Target tahun ke-4</label>'
-	  					// 			+'<input type="text" class="form-control" name="target_4" value="'+response.sasaran.target_4+'"/>'
-								// +'</div>'
-								// +'<div class="form-group">'
-								// 	+'<label for="target_5">Target tahun ke-5</label>'
-	  					// 			+'<input type="text" class="form-control" name="target_5" value="'+response.sasaran.target_5+'"/>'
-								// +'</div>'
-								// +'<div class="form-group">'
-								// 	+'<label for="target_awal">Target awal</label>'
-	  					// 			+'<input type="text" class="form-control" name="target_awal" value="'+response.sasaran.target_awal+'"/>'
-								// +'</div>'
-								// +'<div class="form-group">'
-								// 	+'<label for="target_akhir">Target akhir</label>'
-	  					// 			+'<input type="text" class="form-control" name="target_akhir" value="'+response.sasaran.target_akhir+'"/>'
-								// +'</div>'
 							+'</form>';
 
 		        sasaranModal.find('.modal-title').html('Edit Sasaran');
@@ -1653,6 +1581,154 @@ $tahun_selesai = (!empty($tahun_anggaran)) ? $tahun_anggaran + 5 : '-';
 				sasaranModal.modal('show');
           	}
         });
+	});
+
+	jQuery(document).on('click', '.btn-kelola-indikator-sasaran', function(){
+
+		jQuery('#wrap-loading').show();
+
+		let indikatorSasaranModal = jQuery("#modal-indikator-rpjm");
+
+		jQuery.ajax({
+			url: ajax.url,
+          	type: "post",
+          	data: {
+          		"action": "kelola_indikator_sasaran_rpjm",
+          		"api_key": "<?php echo $api_key; ?>",
+				'id_sasaran': jQuery(this).data('idsasaran')
+          	},
+          	dataType: "json",
+          	success: function(response){
+          		jQuery('#wrap-loading').hide();
+          		indikatorSasaranModal.find('.modal-title').html('Kelola Indikator Sasaran');
+				indikatorSasaranModal.find('.modal-body').html(response.data);
+				indikatorSasaranModal.find('.modal-dialog').css('maxWidth','1250px');
+				indikatorSasaranModal.find('.modal-dialog').css('width','100%');
+				indikatorSasaranModal.modal('show');
+          	}
+		})
+	})
+
+	jQuery(document).on('click', '.btn-add-indikator-sasaran', function(){
+
+		let indikatorSasaranModal = jQuery("#modal-crud-rpjm");
+		let id_sasaran = jQuery(this).data('idsasaran');
+		let html = '<form id="form-rpjm">'
+					+'<input type="hidden" name="id_sasaran" value="'+id_sasaran+'">'
+					+'<div class="form-group">'
+						+'<label for="indikator_teks">Indikator</label>'
+		  				+'<textarea class="form-control" name="indikator_teks"></textarea>'
+					+'</div>'
+					+'<div class="form-group">'
+						+'<label for="satuan">Satuan</label>'
+		  				+'<input type="text" class="form-control" name="satuan"/>'
+					+'</div>'
+					+'<div class="form-group">'
+						+'<label for="target_1">Target tahun ke-1</label>'
+		  				+'<input type="text" class="form-control" name="target_1"/>'
+					+'</div>'
+					+'<div class="form-group">'
+						+'<label for="target_2">Target tahun ke-2</label>'
+		  				+'<input type="text" class="form-control" name="target_2"/>'
+					+'</div>'
+					+'<div class="form-group">'
+						+'<label for="target_3">Target tahun ke-3</label>'
+		  				+'<input type="text" class="form-control" name="target_3"/>'
+					+'</div>'
+					+'<div class="form-group">'
+						+'<label for="target_4">Target tahun ke-4</label>'
+		  				+'<input type="text" class="form-control" name="target_4"/>'
+					+'</div>'
+					+'<div class="form-group">'
+						+'<label for="target_5">Target tahun ke-5</label>'
+		  				+'<input type="text" class="form-control" name="target_5"/>'
+					+'</div>'
+					+'<div class="form-group">'
+						+'<label for="target_awal">Target awal</label>'
+		  				+'<input type="text" class="form-control" name="target_awal"/>'
+					+'</div>'
+					+'<div class="form-group">'
+						+'<label for="target_akhir">Target akhir</label>'
+		  				+'<input type="text" class="form-control" name="target_akhir"/>'
+					+'</div>'
+					+'</form>';
+
+			indikatorSasaranModal.find('.modal-title').html('Tambah Indikator');
+			indikatorSasaranModal.find('.modal-body').html(html);
+			indikatorSasaranModal.find('.modal-footer').html('<button type="button" class="btn btn-sm btn-warning" data-dismiss="modal">Tutup</button><button type="button" class="btn btn-sm btn-success" id="btn-simpan-data-rpjm-lokal" data-action="submit_indikator_sasaran_rpjm" data-target="indikator_sasaran">Simpan</button>');
+			indikatorSasaranModal.modal('show');
+	});
+
+	jQuery(document).on('click', '.btn-edit-indikator-sasaran', function(){
+
+		jQuery('#wrap-loading').show();
+
+		let indikatorSasaranModal = jQuery("#modal-crud-rpjm");
+
+		let id = jQuery(this).data('id');
+
+		let id_sasaran = jQuery(this).data('idsasaran');
+
+		jQuery.ajax({
+			url: ajax.url,
+          	type: "post",
+          	data: {
+          		"action": "edit_indikator_sasaran_rpjm",
+          		"api_key": "<?php echo $api_key; ?>",
+				'id': id,
+				'id_sasaran': id_sasaran
+          	},
+          	dataType: "json",
+          	success: function(response){
+          		jQuery('#wrap-loading').hide();
+
+          		let html = '<form id="form-rpjm">'
+					+'<input type="hidden" name="id" value="'+id+'">'
+					+'<input type="hidden" name="id_sasaran" value="'+id_sasaran+'">'
+					+'<div class="form-group">'
+						+'<label for="indikator_teks">Indikator</label>'
+	  					+'<textarea class="form-control" name="indikator_teks">'+response.data.indikator_teks+'</textarea>'
+					+'</div>'
+					+'<div class="form-group">'
+						+'<label for="satuan">Satuan</label>'
+	  					+'<input type="text" class="form-control" name="satuan" value="'+response.data.satuan+'"/>'
+					+'</div>'
+					+'<div class="form-group">'
+						+'<label for="target_1">Target tahun ke-1</label>'
+	  					+'<input type="text" class="form-control" name="target_1" value="'+response.data.target_1+'"/>'
+					+'</div>'
+					+'<div class="form-group">'
+						+'<label for="target_2">Target tahun ke-2</label>'
+	  					+'<input type="text" class="form-control" name="target_2" value="'+response.data.target_2+'"/>'
+					+'</div>'
+					+'<div class="form-group">'
+						+'<label for="target_3">Target tahun ke-3</label>'
+	  					+'<input type="text" class="form-control" name="target_3" value="'+response.data.target_3+'"/>'
+					+'</div>'
+					+'<div class="form-group">'
+						+'<label for="target_4">Target tahun ke-4</label>'
+	  					+'<input type="text" class="form-control" name="target_4" value="'+response.data.target_4+'"/>'
+					+'</div>'
+					+'<div class="form-group">'
+						+'<label for="target_5">Target tahun ke-5</label>'
+	  					+'<input type="text" class="form-control" name="target_5" value="'+response.data.target_5+'"/>'
+					+'</div>'
+					+'<div class="form-group">'
+						+'<label for="target_awal">Target awal</label>'
+	  					+'<input type="text" class="form-control" name="target_awal" value="'+response.data.target_awal+'"/>'
+					+'</div>'
+					+'<div class="form-group">'
+					+'<label for="target_akhir">Target akhir</label>'
+	  					+'<input type="text" class="form-control" name="target_akhir" value="'+response.data.target_akhir+'"/>'
+					+'</div>'
+				  +'</form>';
+
+				indikatorSasaranModal.find('.modal-title').html('Edit Indikator Sasaran');
+				indikatorSasaranModal.find('.modal-body').html(html);
+				indikatorSasaranModal.find('.modal-footer').html('<button type="button" class="btn btn-sm btn-warning" data-dismiss="modal">Tutup</button><button type="button" class="btn btn-sm btn-success" id="btn-simpan-data-rpjm-lokal" data-action="update_indikator_sasaran_rpjm" data-target="indikator_sasaran">Simpan</button>');
+				indikatorSasaranModal.modal('show');
+          	}
+		})			
 	});
 
 	jQuery(document).on('click', '.btn-tambah-program', function(){
