@@ -151,6 +151,34 @@ function get_sinkron_modul_migrasi_data(){
 	});
 }
 
+function get_sinkron_data_sirup(){
+	jQuery('#wrap-loading').show();
+	jQuery.ajax({
+		url: ajaxurl,
+		type: "post",
+		dataType: "json",
+      	data: {
+      		"action": "get_sinkron_data_sirup",
+			"id_lokasi": jQuery('input[name="carbon_fields_compact_input[_crb_id_lokasi_sirup]"]').val()
+      	},
+      	success: function(data){
+			jQuery('#wrap-loading').hide();
+			console.log(data)
+			if(data.status == 'success'){
+				alert('Data berhasil disinkron');
+				jQuery('#load_ajax_carbon').html(data.message);
+				jQuery("#last_sinkron_data_sirup").html(data.last_sinkron);
+			}else{
+				alert(data.message);
+			}
+		},
+		error: function(e) {
+			console.log(e);
+			return alert(e);
+		}
+	});
+}
+
 jQuery(document).ready(function(){
 	window.options_skpd = {};
 	var loading = ''

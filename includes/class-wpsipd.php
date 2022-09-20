@@ -183,6 +183,7 @@ class Wpsipd
 		$this->loader->add_action('wp_ajax_get_api_modul_migrasi_data',  $plugin_admin, 'get_api_modul_migrasi_data');
 		$this->loader->add_action('wp_ajax_nopriv_get_api_modul_migrasi_data',  $plugin_admin, 'get_api_modul_migrasi_data');
 		$this->loader->add_action('wp_ajax_get_sinkron_modul_migrasi_data',  $plugin_admin, 'get_sinkron_modul_migrasi_data');
+		$this->loader->add_action('wp_ajax_get_sinkron_data_sirup',  $plugin_admin, 'get_sinkron_data_sirup');
 	}
 
 	/**

@@ -729,10 +729,12 @@ class Wpsipd_Admin {
 			Field::make( 'html', 'crb_html_get_sinkron_modul_migrasi_data' )
             	->set_html( '<a href="#" class="button button-primary" '.$disabled.'>Sinkron data dari server migrasi data</a>' )
 				->set_help_text($this->last_sinkron_api_setting()),
-            // Field::make( 'text', 'crb_url_server_modul_rfk', 'URL Server Modul RFK' )
-			// 	->set_default_value(admin_url('admin-ajax.php')),
-            // Field::make( 'text', 'crb_apikey_server_modul_rfk', 'APIKEY Server Modul RFK' )
-			// 	->set_default_value(get_option('_crb_api_key_extension' ))
+            Field::make( 'text', 'crb_id_lokasi_sirup', 'ID lokasi' )
+				->set_default_value(0)
+				->set_help_text('Cara mendapatkan id lokasi ada <a href="https://sirup.lkpp.go.id/sirup/ro/caripaket2" target="_blank">disni</a>'),
+			Field::make( 'html', 'crb_html_get_sinkron_data_sirup' )
+            	->set_html( '<a href="#" class="button button-primary" onclick="get_sinkron_data_sirup(); return false;">Sinkron data dari server SIRUP</a>' )
+				->set_help_text($this->last_sinkron_data_sirup())
 			);
 
 		return $mapping_unit;
@@ -2510,10 +2512,141 @@ class Wpsipd_Admin {
 			$data->last_sinkron = 'Terakhir sinkron data: '.get_option('last_sinkron_api_setting');
 		}
 		
+		$response = json_encode($data);
+
 		die($response);
 	}
 
 	public function last_sinkron_api_setting(){
 		return "<span id='last_sinkron'>Terakhir sinkron data: ".get_option('last_sinkron_api_setting')."</span>";
+	}
+
+	function get_sinkron_data_sirup(){
+		global $wpdb;
+
+		if(!empty($_POST['id_lokasi'])){
+			$id_lokasi = $_POST['id_lokasi'];
+			$tahun_anggaran = get_option('_crb_tahun_anggaran_sipd');
+	
+			$url = 'https://sirup.lkpp.go.id/sirup/ro/caripaket2/search?tahunAnggaran='.$tahun_anggaran.'&jenisPengadaan=&metodePengadaan=&minPagu=&maxPagu=&bulan=&lokasi='.$id_lokasi.'&kldi=&pdn=&ukm=&draw=1&columns[0][data]=&columns[0][name]=&columns[0][searchable]=false&columns[0][orderable]=false&columns[0][search][value]=&columns[0][search][regex]=false&columns[1][data]=paket&columns[1][name]=&columns[1][searchable]=true&columns[1][orderable]=true&columns[1][search][value]=&columns[1][search][regex]=false&columns[2][data]=pagu&columns[2][name]=&columns[2][searchable]=true&columns[2][orderable]=true&columns[2][search][value]=&columns[2][search][regex]=false&columns[3][data]=jenisPengadaan&columns[3][name]=&columns[3][searchable]=true&columns[3][orderable]=true&columns[3][search][value]=&columns[3][search][regex]=false&columns[4][data]=isPDN&columns[4][name]=&columns[4][searchable]=true&columns[4][orderable]=true&columns[4][search][value]=&columns[4][search][regex]=false&columns[5][data]=isUMK&columns[5][name]=&columns[5][searchable]=true&columns[5][orderable]=true&columns[5][search][value]=&columns[5][search][regex]=false&columns[6][data]=metode&columns[6][name]=&columns[6][searchable]=true&columns[6][orderable]=true&columns[6][search][value]=&columns[6][search][regex]=false&columns[7][data]=pemilihan&columns[7][name]=&columns[7][searchable]=true&columns[7][orderable]=true&columns[7][search][value]=&columns[7][search][regex]=false&columns[8][data]=kldi&columns[8][name]=&columns[8][searchable]=true&columns[8][orderable]=true&columns[8][search][value]=&columns[8][search][regex]=false&columns[9][data]=satuanKerja&columns[9][name]=&columns[9][searchable]=true&columns[9][orderable]=true&columns[9][search][value]=&columns[9][search][regex]=false&columns[10][data]=lokasi&columns[10][name]=&columns[10][searchable]=true&columns[10][orderable]=true&columns[10][search][value]=&columns[10][search][regex]=false&columns[11][data]=id&columns[11][name]=&columns[11][searchable]=true&columns[11][orderable]=true&columns[11][search][value]=&columns[11][search][regex]=false&order[0][column]=5&order[0][dir]=DESC&start=0&length=100&search[value]=&search[regex]=false&_=1663641619826';
+
+			do{
+				$get_data_api_sirup = $this->get_data_api_sirup($url);
+				$data = json_decode($get_data_api_sirup);
+				
+				$data_sirup = $data->data;
+				if(!empty($data_sirup)){
+					foreach($data_sirup as $v_sirup) {
+						$cek = $wpdb->get_var($wpdb->prepare('
+							select 
+								idSirup
+							from data_sirup_lokal 
+							where idSirup = %d',
+							$v_sirup->id
+						));
+	
+						$opsi = array(
+							'idSirup' => $v_sirup->id,
+							'idBulan' => $v_sirup->idBulan,
+							'idJenisPengadaan' => $v_sirup->idJenisPengadaan,
+							'idKldi' => $v_sirup->idKldi,
+							'idMetode' => $v_sirup->idMetode,
+							'id_referensi' => $v_sirup->id_referensi,
+							'idlokasi' => $v_sirup->idlokasi,
+							'isPDN' => $v_sirup->isPDN,
+							'isUMK' => $v_sirup->isUMK,
+							'jenisPengadaan' => $v_sirup->jenisPengadaan,
+							'kldi' => $v_sirup->kldi,
+							'metode' => $v_sirup->metode,
+							'pagu' => $v_sirup->pagu,
+							'paket' => $v_sirup->paket,
+							'pemilihan' => $v_sirup->pemilihan,
+							'satuanKerja' => $v_sirup->satuanKerja,
+							'tahun_anggaran' => $tahun_anggaran
+						);
+						
+						if (empty($cek)) {
+							$wpdb->insert('data_sirup_lokal', $opsi);
+						}else{
+							$wpdb->update('data_sirup_lokal',$opsi,array('idSirup' => $cek));
+						}
+					}
+				}
+
+				$timezone = get_option('timezone_string');
+				if(preg_match("/Asia/i", $timezone)){
+					date_default_timezone_set($timezone);
+				}
+
+				$dateTime = new DateTime();
+				$time_now = $dateTime->format('d-m-Y H:i:s');
+				update_option('last_sinkron_data_sirup',$time_now);
+				$data->last_sinkron = 'Terakhir sinkron data: '.get_option('last_sinkron_data_sirup');
+				$data->status = 'success';
+				$data->message = 'data berhasil disinkron';
+				
+				$url_pecahan = explode("&",$url);
+				
+				$int_start = 0;
+				$len_start = 0;
+				$int_length = 0;
+				foreach($url_pecahan as $val_url){
+					if(strpos($val_url,"start=") !== false){
+						$int_start = substr($val_url,6);
+						$len_start = strlen($int_start);
+					}
+					if(strpos($val_url,"length=") !== false){
+						$int_length = substr($val_url,7);
+					}
+				}
+				
+				$idx = strpos($url,"start=");
+				$idy = $idx+6;
+				
+				$idplus = $int_start+$int_length;	
+				$url = substr_replace($url, $idplus, $idy, $len_start);
+			}while(!empty($data_sirup));
+		}else{
+			$data = array(
+				'status' => 'error',
+				'message' => 'Id lokasi SIRUP tidak boleh kosong',
+				'last_sinkron' => ''
+			);
+		}
+
+		$response = json_encode($data);
+
+		die($response);
+	}
+
+	public function get_data_api_sirup($url){
+		$curl = curl_init();
+		curl_setopt_array($curl, array(
+			CURLOPT_URL => $url,
+			CURLOPT_RETURNTRANSFER => true,
+			CURLOPT_ENCODING => "",
+			CURLOPT_MAXREDIRS => 10,
+			CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+			CURLOPT_SSL_VERIFYPEER => false,
+			CURLOPT_SSL_VERIFYHOST => false,
+			CURLOPT_NOSIGNAL => 1,
+			CURLOPT_CONNECTTIMEOUT => -1,
+			CURLOPT_TIMEOUT => -1
+		));
+		$response = curl_exec($curl);
+
+		$err = curl_error($curl);
+
+		curl_close($curl);
+
+		if(!empty($err)){
+			$response = $err;
+		}
+
+		return $response;
+	}
+	
+	public function last_sinkron_data_sirup(){
+		return "<span id='last_sinkron_data_sirup'>Terakhir sinkron data: ".get_option('last_sinkron_data_sirup')."</span>";
 	}
 }
