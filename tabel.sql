@@ -3707,6 +3707,29 @@ CREATE TABLE `data_realisasi_akun_sipd` (
   PRIMARY KEY  (id)
 );
 
+CREATE TABLE `data_sirup_lokal` (
+  `id` int(11) NOT NULL auto_increment,
+  `idSirup` int(11) NOT NULL,
+  `idBulan` int(11) NOT NULL,
+  `idJenisPengadaan` int(11) NOT NULL,
+  `idKldi` tinytext NOT NULL,
+  `idMetode` int(11) NOT NULL,
+  `id_referensi` int(11) NOT NULL,
+  `idlokasi` int(11) NOT NULL,
+  `isPDN` tinytext NOT NULL,
+  `isUMK` tinytext NOT NULL,
+  `jenisPengadaan` varchar(250) NOT NULL,
+  `kldi` varchar(250) NOT NULL,
+  `lokasi` varchar(250) NOT NULL,
+  `metode` varchar(250) NOT NULL,
+  `pagu` int(11) NOT NULL,
+  `paket` varchar(250) NOT NULL,
+  `pemilihan` varchar(250) NOT NULL,
+  `satuanKerja` varchar(250) NOT NULL,
+  `tahun_anggaran` year(4) NOT NULL,
+  PRIMARY KEY  (id)
+);
+
 INSERT INTO `data_label_komponen` (`id`, `nama`, `keterangan`, `id_skpd`, `user`, `active`, `update_at`, `tahun_anggaran`) VALUES
 (1, 'Penanganan Covid 19', 'Laporan Monev Penanganan Covid 19', 0, 'Admin SIPD', 1, '2021-08-02 16:25:51', 2021),
 (4, 'Alokasi Dana Pendidikan', 'Alokasi anggaran pendidikan sebesar 20% dari APBD sesuai amanat UUD 1945 pasal 31 ayat (4) dan UU No. 20 tahun 2003 tentang Sistem Pendidikan Nasional pasal 49 ayat (1). http://www.djpk.kemenkeu.go.id/?ufaq=apakah-yang-disebut-dengan-mandatory-spending', 0, 'Admin SIPD', 1, '2021-10-22 13:49:18', 2021),
