@@ -139,6 +139,7 @@ function get_sinkron_modul_migrasi_data(){
 			if(data.status == 'success'){
 				alert('Data berhasil disinkron');
 				jQuery('#load_ajax_carbon').html(data.message);
+				jQuery("#last_sinkron").html(data.last_sinkron);
 			}else{
 				alert(data.message);
 			}
