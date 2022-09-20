@@ -15926,7 +15926,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						<td>
 							<a href="javascript:void(0)" data-id="'.$value['id'].'" class="btn btn-sm btn-primary btn-detail-misi">Detail</a>&nbsp;
 							<a href="javascript:void(0)" data-id="'.$value['id'].'" class="btn btn-sm btn-success btn-edit-misi">Edit</a>&nbsp;
-							<a href="javascript:void(0)" data-id="'.$value['id'].'" class="btn btn-sm btn-warning">Hapus</a>
+							<a href="javascript:void(0)" data-id="'.$value['id'].'" data-idvisi="'.$value['id_visi'].'" class="btn btn-sm btn-danger btn-hapus-misi">Hapus</a>
 						</td>
 					</tr>';
 			$i++;
@@ -16120,6 +16120,45 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 				}
 			}else{
 				throw new Exception('Format tidak sesuai');
+			}
+		}catch(Exception $e){
+			echo json_encode([
+				'status' => false,
+				'message' => $e->getMessage()
+			]);exit;
+		}
+	}
+
+	function delete_misi_rpjm(){
+		global $wpdb;
+		try{
+			if (!empty($_POST)) {
+				if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+					
+					$id_cek = $wpdb->get_var("select * from data_rpjmd_tujuan_lokal where id_misi=".$_POST['id_misi']. " and is_locked=0 and status=1 and active=1");
+
+					if(!empty($id_cek)){
+						throw new Exception("Misi sudah digunakan oleh tujuan", 1);
+					}
+
+					$wpdb->get_results("delete from data_rpjmd_misi_lokal where id=".$_POST['id_misi']);
+
+					$data = $this->get_misi_rpjm([
+						'type' => 1,
+						'id_visi' => $_POST['id_visi']
+					]);
+
+					echo json_encode([
+						'status' => true,
+						'message' => 'Sukses hapus visi',
+						'data' => $data['html']
+					]);exit;
+
+				}else{
+					throw new Exception("Api key tidak sesuai", 1);
+				}
+			}else{
+				throw new Exception("Format tidak sesuai", 1);
 			}
 		}catch(Exception $e){
 			echo json_encode([
