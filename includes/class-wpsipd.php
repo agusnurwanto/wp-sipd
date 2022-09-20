@@ -495,11 +495,11 @@ class Wpsipd
 		$this->loader->add_action('wp_ajax_submit_lock_schedule_renstra',  $plugin_public, 'submit_lock_schedule_renstra');
 		$this->loader->add_action('wp_ajax_submit_lock_schedule_rpd',  $plugin_public, 'submit_lock_schedule_rpd');
 		
-		$this->loader->add_action('wp_ajax_submit_visi_rpjm',  $plugin_public, 'submit_visi_rpjm'); // ok
-		$this->loader->add_action('wp_ajax_edit_visi_rpjm',  $plugin_public, 'edit_visi_rpjm'); // ok
-		$this->loader->add_action('wp_ajax_update_visi_rpjm',  $plugin_public, 'update_visi_rpjm'); // ok
-		$this->loader->add_action('wp_ajax_visi_detail',  $plugin_public, 'visi_detail'); //
-		$this->loader->add_action('wp_ajax_delete_visi_rpjm',  $plugin_public, 'delete_visi_rpjm'); //
+		$this->loader->add_action('wp_ajax_submit_visi_rpjm',  $plugin_public, 'submit_visi_rpjm');
+		$this->loader->add_action('wp_ajax_edit_visi_rpjm',  $plugin_public, 'edit_visi_rpjm');
+		$this->loader->add_action('wp_ajax_update_visi_rpjm',  $plugin_public, 'update_visi_rpjm');
+		$this->loader->add_action('wp_ajax_delete_visi_rpjm',  $plugin_public, 'delete_visi_rpjm');
+		$this->loader->add_action('wp_ajax_visi_detail',  $plugin_public, 'visi_detail');
 		
 		$this->loader->add_action('wp_ajax_submit_misi_rpjm',  $plugin_public, 'submit_misi_rpjm'); // ok
 		$this->loader->add_action('wp_ajax_edit_misi_rpjm',  $plugin_public, 'edit_misi_rpjm'); // ok

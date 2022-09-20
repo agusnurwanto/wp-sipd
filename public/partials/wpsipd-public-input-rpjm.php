@@ -1068,7 +1068,32 @@ $tahun_selesai = (!empty($tahun_anggaran)) ? $tahun_anggaran + 5 : '-';
 
 			}
 		})
+	})
 
+	jQuery(document).on('click', '.btn-hapus-visi', function(){
+		
+		if(confirm('Data akan dihapus, lanjut?')){
+
+	        jQuery('#wrap-loading').show();
+
+			let id_visi = jQuery(this).data('id');
+
+			jQuery.ajax({
+				method:'POST',
+				url:ajax.url,
+				dataType:'json',
+				data:{
+					'action':'delete_visi_rpjm',
+					'api_key':'<?php echo $api_key; ?>',
+					'id_visi':id_visi
+				},
+				success:function(response){
+					jQuery('#wrap-loading').hide();
+					alert(response.message);
+					jQuery('#dataVisi').html(response.data);
+				}
+			})
+		}
 	})
 
 	jQuery(document).on('click', '.btn-detail-visi', function(){
@@ -1142,7 +1167,6 @@ $tahun_selesai = (!empty($tahun_anggaran)) ? $tahun_anggaran + 5 : '-';
 		misiModal.find('.modal-body').html(html);
 		misiModal.find('.modal-footer').html('<button type="button" class="btn btn-sm btn-warning" data-dismiss="modal">Tutup</button><button type="button" class="btn btn-sm btn-success" id="btn-simpan-data-rpjm-lokal" data-action="submit_misi_rpjm" data-target="dataMisi">Simpan</button>');
 		misiModal.modal('show');
-
 	});
 
 	jQuery(document).on('click', '.btn-edit-misi', function(){

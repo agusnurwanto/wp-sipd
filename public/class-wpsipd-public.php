@@ -15798,6 +15798,65 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		]);exit;
 	}
 
+	function delete_visi_rpjm(){
+		global $wpdb;
+		try{
+			if (!empty($_POST)) {
+				if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+					
+					$id_cek = $wpdb->get_var("select * from data_rpjmd_misi_lokal where id_visi=".$_POST['id_visi']. " and is_locked=0 and status=1 and active=1");
+
+					if(!empty($id_cek)){
+						throw new Exception("Visi sudah digunakan oleh misi", 1);
+					}
+
+					$wpdb->get_results("delete from data_rpjmd_visi_lokal where id=".$_POST['id_visi']);
+
+					// perlu koordinasi apakah hanya untuk rpjmd manual
+					$dataVisi = $wpdb->get_results("
+							select 
+								* 
+							from data_rpjmd_visi_lokal
+							where is_locked=0
+								AND status=1
+								AND active=1
+						", ARRAY_A);
+
+					$i=1;
+					$html = "";
+					foreach ($dataVisi as $key => $value) {
+						$html.='<tr>
+									<td>'.$i.'.</td>
+									<td>'.$value['visi_teks'].'</td>
+									<td>
+										<a href="javascript:void(0)" data-id="'.$value['id'].'" class="btn btn-sm btn-primary btn-detail-visi">Detail</a>&nbsp;
+										<a href="javascript:void(0)" data-id="'.$value['id'].'" class="btn btn-sm btn-success btn-edit-visi">Edit</a>&nbsp;
+										<a href="javascript:void(0)" data-id="'.$value['id'].'" class="btn btn-sm btn-warning">Hapus</a>
+									</td>
+								</tr>';
+						$i++;
+					}
+
+					echo json_encode([
+						'status' => true,
+						'message' => 'Sukses hapus visi',
+						'data' => $html
+					]);exit;
+
+				}else{
+					throw new Exception("Api key tidak sesuai", 1);
+				}
+			}else{
+				throw new Exception("Format tidak sesuai", 1);
+			}
+		}catch(Exception $e){
+			echo json_encode([
+				'status' => false,
+				'message' => $e->getMessage()
+			]);exit;
+		}
+	}
+
 	function visi_detail(){
 		global $wpdb;
 		if (!empty($_POST)) {
