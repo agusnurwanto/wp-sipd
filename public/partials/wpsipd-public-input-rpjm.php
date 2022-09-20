@@ -1588,78 +1588,69 @@ $tahun_selesai = (!empty($tahun_anggaran)) ? $tahun_anggaran + 5 : '-';
 			url: ajax.url,
           	type: "post",
           	data: {
-          		"action": "get_sasaran_rpjm_by_id",
+          		"action": "edit_sasaran_rpjm",
           		"api_key": "<?php echo $api_key; ?>",
 				'id': jQuery(this).data('id')
           	},
           	dataType: "json",
           	success: function(response){
+          		
           		console.log(response);
+				
 				jQuery('#wrap-loading').hide();
 				let html = '<form id="form-rpjm">'
-								+'<input type="hidden" name="id_sasaran" value="'+response.sasaran.id+'" />'
-								+'<div class="form-group">'
-									+'<label for="visi">Pilih tujuan</label>'
-									+'<select class="form-control" name="kode_tujuan" id="kode_tujuan">'
-										+'<option value="" selected>Pilih tujuan...</option>';
-										response.tujuan.map(function(value, index){
-											html +='<option value="'+value.id_unik+'">'+value.tujuan_teks+'</option>';
-										});
-									html+='</select>'
-								+'</div>'
+								+'<input type="hidden" name="kode_tujuan" value="'+response.data.kode_tujuan+'" />'
+								+'<input type="hidden" name="id_sasaran" value="'+response.data.id+'" />'
 								+'<div class="form-group">'
 									+'<label for="sasaran">Sasaran</label>'
-	  								+'<textarea class="form-control" name="sasaran_teks">'+response.sasaran.sasaran_teks+'</textarea>'
+	  								+'<textarea class="form-control" name="sasaran_teks">'+response.data.sasaran_teks+'</textarea>'
 								+'</div>'
 								+'<div class="form-group">'
 									+'<label for="urut_sasaran">Urut Sasaran</label>'
-	  								+'<input type="number" class="form-control" name="urut_sasaran" value="'+response.sasaran.urut_sasaran+'"/>'
+	  								+'<input type="number" class="form-control" name="urut_sasaran" value="'+response.data.urut_sasaran+'"/>'
 								+'</div>'
-								+'<div class="form-group">'
-									+'<label for="indikator_teks">Indikator</label>'
-	  								+'<textarea class="form-control" name="indikator_teks">'+response.sasaran.indikator_teks+'</textarea>'
-								+'</div>'
-								+'<div class="form-group">'
-									+'<label for="satuan">Satuan</label>'
-	  								+'<input type="text" class="form-control" name="satuan" value="'+response.sasaran.satuan+'"/>'
-								+'</div>'
-								+'<div class="form-group">'
-									+'<label for="target_1">Target tahun ke-1</label>'
-	  								+'<input type="text" class="form-control" name="target_1" value="'+response.sasaran.target_1+'"/>'
-								+'</div>'
-								+'<div class="form-group">'
-									+'<label for="target_2">Target tahun ke-2</label>'
-	  								+'<input type="text" class="form-control" name="target_2" value="'+response.sasaran.target_2+'"/>'
-								+'</div>'
-								+'<div class="form-group">'
-									+'<label for="target_3">Target tahun ke-3</label>'
-	  								+'<input type="text" class="form-control" name="target_3" value="'+response.sasaran.target_3+'"/>'
-								+'</div>'
-								+'<div class="form-group">'
-									+'<label for="target_4">Target tahun ke-4</label>'
-	  								+'<input type="text" class="form-control" name="target_4" value="'+response.sasaran.target_4+'"/>'
-								+'</div>'
-								+'<div class="form-group">'
-									+'<label for="target_5">Target tahun ke-5</label>'
-	  								+'<input type="text" class="form-control" name="target_5" value="'+response.sasaran.target_5+'"/>'
-								+'</div>'
-								+'<div class="form-group">'
-									+'<label for="target_awal">Target awal</label>'
-	  								+'<input type="text" class="form-control" name="target_awal" value="'+response.sasaran.target_awal+'"/>'
-								+'</div>'
-								+'<div class="form-group">'
-									+'<label for="target_akhir">Target akhir</label>'
-	  								+'<input type="text" class="form-control" name="target_akhir" value="'+response.sasaran.target_akhir+'"/>'
-								+'</div>'
+								// +'<div class="form-group">'
+								// 	+'<label for="indikator_teks">Indikator</label>'
+	  					// 			+'<textarea class="form-control" name="indikator_teks">'+response.sasaran.indikator_teks+'</textarea>'
+								// +'</div>'
+								// +'<div class="form-group">'
+								// 	+'<label for="satuan">Satuan</label>'
+	  					// 			+'<input type="text" class="form-control" name="satuan" value="'+response.sasaran.satuan+'"/>'
+								// +'</div>'
+								// +'<div class="form-group">'
+								// 	+'<label for="target_1">Target tahun ke-1</label>'
+	  					// 			+'<input type="text" class="form-control" name="target_1" value="'+response.sasaran.target_1+'"/>'
+								// +'</div>'
+								// +'<div class="form-group">'
+								// 	+'<label for="target_2">Target tahun ke-2</label>'
+	  					// 			+'<input type="text" class="form-control" name="target_2" value="'+response.sasaran.target_2+'"/>'
+								// +'</div>'
+								// +'<div class="form-group">'
+								// 	+'<label for="target_3">Target tahun ke-3</label>'
+	  					// 			+'<input type="text" class="form-control" name="target_3" value="'+response.sasaran.target_3+'"/>'
+								// +'</div>'
+								// +'<div class="form-group">'
+								// 	+'<label for="target_4">Target tahun ke-4</label>'
+	  					// 			+'<input type="text" class="form-control" name="target_4" value="'+response.sasaran.target_4+'"/>'
+								// +'</div>'
+								// +'<div class="form-group">'
+								// 	+'<label for="target_5">Target tahun ke-5</label>'
+	  					// 			+'<input type="text" class="form-control" name="target_5" value="'+response.sasaran.target_5+'"/>'
+								// +'</div>'
+								// +'<div class="form-group">'
+								// 	+'<label for="target_awal">Target awal</label>'
+	  					// 			+'<input type="text" class="form-control" name="target_awal" value="'+response.sasaran.target_awal+'"/>'
+								// +'</div>'
+								// +'<div class="form-group">'
+								// 	+'<label for="target_akhir">Target akhir</label>'
+	  					// 			+'<input type="text" class="form-control" name="target_akhir" value="'+response.sasaran.target_akhir+'"/>'
+								// +'</div>'
 							+'</form>';
 
-		        sasaranModal.find('.modal-title').html('Edit Sasaran dan Indikator');
+		        sasaranModal.find('.modal-title').html('Edit Sasaran');
 				sasaranModal.find('.modal-body').html(html);
-				sasaranModal.find('.modal-footer').html('<button type="button" class="btn btn-sm btn-warning" data-dismiss="modal">Tutup</button><button type="button" class="btn btn-sm btn-success" id="btn-simpan-data-rpjm-lokal" data-action="update_sasaran_rpjm">Simpan</button>');
-				sasaranModal.find('.modal-dialog').css('maxWidth','950px');
-				sasaranModal.find('.modal-dialog').css('width','100%');
+				sasaranModal.find('.modal-footer').html('<button type="button" class="btn btn-sm btn-warning" data-dismiss="modal">Tutup</button><button type="button" class="btn btn-sm btn-success" id="btn-simpan-data-rpjm-lokal" data-action="update_sasaran_rpjm" data-target="dataSasaran">Simpan</button>');
 				sasaranModal.modal('show');
-				jQuery("#kode_tujuan").val(response.sasaran.kode_tujuan);
           	}
         });
 	});
