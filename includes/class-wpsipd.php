@@ -505,11 +505,11 @@ class Wpsipd
 		$this->loader->add_action('wp_ajax_edit_misi_rpjm',  $plugin_public, 'edit_misi_rpjm');
 		$this->loader->add_action('wp_ajax_update_misi_rpjm',  $plugin_public, 'update_misi_rpjm');
 		$this->loader->add_action('wp_ajax_misi_detail',  $plugin_public, 'misi_detail');
-		$this->loader->add_action('wp_ajax_delete_misi_rpjm',  $plugin_public, 'delete_misi_rpjm'); //
+		$this->loader->add_action('wp_ajax_delete_misi_rpjm',  $plugin_public, 'delete_misi_rpjm');
 		
-		$this->loader->add_action('wp_ajax_submit_tujuan_rpjm',  $plugin_public, 'submit_tujuan_rpjm'); // ok
-		$this->loader->add_action('wp_ajax_edit_tujuan_rpjm',  $plugin_public, 'edit_tujuan_rpjm'); // ok
-		$this->loader->add_action('wp_ajax_update_tujuan_rpjm',  $plugin_public, 'update_tujuan_rpjm'); // ok
+		$this->loader->add_action('wp_ajax_submit_tujuan_rpjm',  $plugin_public, 'submit_tujuan_rpjm');
+		$this->loader->add_action('wp_ajax_edit_tujuan_rpjm',  $plugin_public, 'edit_tujuan_rpjm');
+		$this->loader->add_action('wp_ajax_update_tujuan_rpjm',  $plugin_public, 'update_tujuan_rpjm');
 		$this->loader->add_action('wp_ajax_delete_tujuan_rpjm',  $plugin_public, 'delete_tujuan_rpjm');
 		
 		$this->loader->add_action('wp_ajax_kelola_indikator_tujuan_rpjm',  $plugin_public, 'kelola_indikator_tujuan_rpjm'); // ok

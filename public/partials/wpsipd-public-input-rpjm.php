@@ -1297,7 +1297,7 @@ $tahun_selesai = (!empty($tahun_anggaran)) ? $tahun_anggaran + 5 : '-';
 			          								+'<a href="javascript:void(0)" data-idtujuan="'+value.id+'" class="btn btn-sm btn-warning btn-kelola-indikator-tujuan">Kelola Indikator</a>&nbsp;'
 			          								+'<a href="javascript:void(0)" data-kode="'+value.id_unik+'" class="btn btn-sm btn-primary btn-detail-tujuan">Detail</a>&nbsp;'
 			          								+'<a href="javascript:void(0)" data-id="'+value.id+'" class="btn btn-sm btn-success btn-edit-tujuan">Edit</a>&nbsp;'
-			          								+'<a href="javascript:void(0)" data-id="'+value.id+'" class="btn btn-sm btn-danger">Hapus</a></td>'
+			          								+'<a href="javascript:void(0)" data-id="'+value.id+'" data-idmisi="'+value.id_misi+'" data-kodetujuan="'+value.id_unik+'" class="btn btn-sm btn-danger btn-hapus-tujuan">Hapus</a></td>'
 			          						+'</tr>';
 			          				k++;
           						})
@@ -1371,6 +1371,38 @@ $tahun_selesai = (!empty($tahun_anggaran)) ? $tahun_anggaran + 5 : '-';
           	}
         });
 	});
+
+	jQuery(document).on('click', '.btn-hapus-tujuan', function(){
+		
+		if(confirm('Data akan dihapus, lanjut?')){
+
+	        jQuery('#wrap-loading').show();
+
+			let id_tujuan = jQuery(this).data('id');
+
+			let id_misi = jQuery(this).data('idmisi');
+
+			let kode_tujuan = jQuery(this).data('kodetujuan');
+
+			jQuery.ajax({
+				method:'POST',
+				url:ajax.url,
+				dataType:'json',
+				data:{
+					'action':'delete_tujuan_rpjm',
+					'api_key':'<?php echo $api_key; ?>',
+					'id_misi':id_misi,
+					'id_tujuan':id_tujuan,
+					'kode_tujuan':kode_tujuan,
+				},
+				success:function(response){
+					jQuery('#wrap-loading').hide();
+					alert(response.message);
+					jQuery('#dataTujuan').html(response.data);
+				}
+			})
+		}
+	})
 
 	jQuery(document).on('click', '.btn-kelola-indikator-tujuan', function(){
 

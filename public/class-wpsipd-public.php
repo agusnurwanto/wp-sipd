@@ -16242,10 +16242,10 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						<td>'.$i.'.</td>
 						<td>'.$value['tujuan_teks'].'</td>
 						<td>
-							<a href="javascript:void(0)" data-id="'.$value['id'].'" class="btn btn-sm btn-primary btn-add-indikator-tujuan">Tambah Indikator</a>&nbsp;
+							<a href="javascript:void(0)" data-id="'.$value['id'].'" class="btn btn-sm btn-warning btn-add-indikator-tujuan">Tambah Indikator</a>&nbsp;
 							<a href="javascript:void(0)" data-id="'.$value['id'].'" class="btn btn-sm btn-primary btn-detail-tujuan">Detail</a>&nbsp;
 							<a href="javascript:void(0)" data-id="'.$value['id'].'" class="btn btn-sm btn-success btn-edit-tujuan">Edit</a>&nbsp;
-							<a href="javascript:void(0)" data-id="'.$value['id'].'" class="btn btn-sm btn-warning">Hapus</a>
+							<a href="javascript:void(0)" data-id="'.$value['id'].'" data-idmisi="'.$value['id_misi'].'" data-kodetujuan="'.$value['id_unik'].'" class="btn btn-sm btn-danger btn-hapus-tujuan">Hapus</a>
 						</td>
 					</tr>';
 			$i++;
@@ -16454,6 +16454,51 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 				}
 			}else{
 				throw new Exception('Format tidak sesuai');
+			}
+		}catch(Exception $e){
+			echo json_encode([
+				'status' => false,
+				'message' => $e->getMessage()
+			]);exit;
+		}
+	}
+
+	function delete_tujuan_rpjm(){
+		global $wpdb;
+		try{
+			if (!empty($_POST)) {
+				if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+					
+					$id_cek = $wpdb->get_var("select * from data_rpjmd_sasaran_lokal where kode_tujuan='".$_POST['kode_tujuan']. "' and is_locked=0 and status=1 and active=1");
+
+					if(!empty($id_cek)){
+						throw new Exception("Tujuan sudah digunakan oleh sasaran", 1);
+					}
+
+					$id_cek = $wpdb->get_var("select * from data_rpjmd_tujuan_lokal where id_tujuan=".$_POST['id_tujuan']. " and id_unik is not null and id_unik_indikator is not null and is_locked=0 and status=1 and active=1");
+
+					if(!empty($id_cek)){
+						throw new Exception("Tujuan sudah digunakan oleh indikator tujuan", 1);
+					}
+
+					$wpdb->get_results("delete from data_rpjmd_tujuan_lokal where id=".$_POST['id_tujuan']);
+
+					$data = $this->get_tujuan_rpjm([
+						'type' => 1,
+						'id_misi' => $_POST['id_misi']
+					]);
+
+					echo json_encode([
+						'status' => true,
+						'message' => 'Sukses hapus tujuan',
+						'data' => $data['html']
+					]);exit;
+
+				}else{
+					throw new Exception("Api key tidak sesuai", 1);
+				}
+			}else{
+				throw new Exception("Format tidak sesuai", 1);
 			}
 		}catch(Exception $e){
 			echo json_encode([
