@@ -32,6 +32,7 @@ if ( ! defined( 'WPINC' ) ) {
 
 define( 'WPSIPD_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
 define( 'WPSIPD_PLUGIN_PATH', plugin_dir_path(__FILE__) );
+define( 'WPSIPD_API_KEY', '_crb_api_key_extension' );
 
 // ============== https://carbonfields.net/ ================
 if(!defined('Carbon_Fields_Plugin\PLUGIN_FILE')){

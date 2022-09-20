@@ -510,6 +510,8 @@ class Wpsipd
 		$this->loader->add_action('wp_ajax_update_visi_rpjm',  $plugin_public, 'update_visi_rpjm');
 		$this->loader->add_action('wp_ajax_get_misi_rpjm_by_id',  $plugin_public, 'get_misi_rpjm_by_id');
 		$this->loader->add_action('wp_ajax_update_misi_rpjm',  $plugin_public, 'update_misi_rpjm');
+		$this->loader->add_action('wp_ajax_simpan_rpjpd',  $plugin_public, 'simpan_rpjpd');
+		$this->loader->add_action('wp_ajax_hapus_rpjpd',  $plugin_public, 'hapus_rpjpd');
 		
 
 		add_shortcode('menu_monev',  array($plugin_public, 'menu_monev'));
