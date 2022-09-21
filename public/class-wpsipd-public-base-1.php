@@ -254,6 +254,64 @@ class Wpsipd_Public_Base_1{
                         $ret['status'] = 'error';
                         $ret['message'] = 'ID misi tidak boleh kosong!';
                     }
+                }else if($_POST['table'] == 'data_rpjpd_kebijakan'){
+                    if(!empty($_POST['id_saspok'])){
+                        $table = $_POST['table'];
+                        $data = array(
+                            'id_saspok' => $_POST['id_saspok'],
+                            'kebijakan_teks' => $_POST['data'],
+                            'update_at' => date('Y-m-d H:i:s')
+                        );
+                        if(!empty($_POST['id'])){
+                            $wpdb->update($table, $data, array( "id" => $_POST['id'] ));
+                            $ret['message'] = 'Berhasil update data RPJPD!';
+                        }else{
+                            $cek_id = $wpdb->get_var($wpdb->prepare("
+                                select 
+                                    id 
+                                from $table
+                                where kebijakan_teks=%s
+                            ", $_POST['data']));
+                            if(!empty($cek_id)){
+                                $ret['status'] = 'error';
+                                $ret['message'] = 'Kebijakan teks sudah ada!';
+                            }else{
+                                $wpdb->insert($table, $data);
+                            }
+                        }
+                    }else{
+                        $ret['status'] = 'error';
+                        $ret['message'] = 'ID sasaran tidak boleh kosong!';
+                    }
+                }else if($_POST['table'] == 'data_rpjpd_isu'){
+                    if(!empty($_POST['id_kebijakan'])){
+                        $table = $_POST['table'];
+                        $data = array(
+                            'id_kebijakan' => $_POST['id_kebijakan'],
+                            'isu_teks' => $_POST['data'],
+                            'update_at' => date('Y-m-d H:i:s')
+                        );
+                        if(!empty($_POST['id'])){
+                            $wpdb->update($table, $data, array( "id" => $_POST['id'] ));
+                            $ret['message'] = 'Berhasil update data RPJPD!';
+                        }else{
+                            $cek_id = $wpdb->get_var($wpdb->prepare("
+                                select 
+                                    id 
+                                from $table
+                                where isu_teks=%s
+                            ", $_POST['data']));
+                            if(!empty($cek_id)){
+                                $ret['status'] = 'error';
+                                $ret['message'] = 'Isu teks sudah ada!';
+                            }else{
+                                $wpdb->insert($table, $data);
+                            }
+                        }
+                    }else{
+                        $ret['status'] = 'error';
+                        $ret['message'] = 'ID kebijakan tidak boleh kosong!';
+                    }
                 }
             }else{
                 $ret = array(
@@ -286,6 +344,12 @@ class Wpsipd_Public_Base_1{
                     $table = $_POST['table'];
                     $wpdb->delete($table, array('id' => $_POST['id']));
                 }else if($_POST['table'] == 'data_rpjpd_sasaran'){
+                    $table = $_POST['table'];
+                    $wpdb->delete($table, array('id' => $_POST['id']));
+                }else if($_POST['table'] == 'data_rpjpd_kebijakan'){
+                    $table = $_POST['table'];
+                    $wpdb->delete($table, array('id' => $_POST['id']));
+                }else if($_POST['table'] == 'data_rpjpd_isu'){
                     $table = $_POST['table'];
                     $wpdb->delete($table, array('id' => $_POST['id']));
                 }

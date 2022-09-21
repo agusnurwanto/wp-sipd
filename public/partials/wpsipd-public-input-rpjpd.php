@@ -666,7 +666,7 @@ foreach ($data_all['data'] as $visi) {
 				  	</div>
 				  	<div class="form-group">
 				    	<label>Sasaran Teks</label>
-				    	<textarea class="form-control" id="sasaran-teks-kebijakan"></textarea>
+				    	<textarea class="form-control" id="sasaran-teks-kebijakan" disabled></textarea>
 				  	</div>
 				  	<div class="form-group">
 				    	<label>Kebijakan Teks</label>
@@ -701,11 +701,11 @@ foreach ($data_all['data'] as $visi) {
 				  	</div>
 				  	<div class="form-group">
 				    	<label>Sasaran Teks</label>
-				    	<textarea class="form-control" id="sasaran-teks-isu"></textarea>
+				    	<textarea class="form-control" id="sasaran-teks-isu" disabled></textarea>
 				  	</div>
 				  	<div class="form-group">
 				    	<label>Kebijakan Teks</label>
-				    	<textarea class="form-control" id="kebijakan-teks-isu"></textarea>
+				    	<textarea class="form-control" id="kebijakan-teks-isu" disabled></textarea>
 				  	</div>
 				  	<div class="form-group">
 				    	<label>Isu Teks</label>
@@ -914,6 +914,32 @@ foreach ($data_all['data'] as $visi) {
 		jQuery('#sasaran-teks').val('');
 	}
 
+	function tambah_kebijakan(){
+		jQuery('#modal-kebijakan').attr('data-id', '');
+		jQuery('#modal-kebijakan').modal('show');
+		var visi_teks = jQuery('tr[id-visi="'+jQuery('#nav-misi .tambah-data').attr('id-visi')+'"]').find('td').eq(1).text();
+		jQuery('#visi-teks-kebijakan').val(visi_teks);
+		var misi_teks = jQuery('tr[id-misi="'+jQuery('#nav-sasaran .tambah-data').attr('id-misi')+'"]').find('td').eq(1).text();
+		jQuery('#misi-teks-kebijakan').val(misi_teks);
+		var sasaran_teks = jQuery('tr[id-saspok="'+jQuery('#nav-kebijakan .tambah-data').attr('id-saspok')+'"]').find('td').eq(1).text();
+		jQuery('#sasaran-teks-kebijakan').val(sasaran_teks);
+		jQuery('#kebijakan-teks').val('');
+	}
+
+	function tambah_isu(){
+		jQuery('#modal-isu').attr('data-id', '');
+		jQuery('#modal-isu').modal('show');
+		var visi_teks = jQuery('tr[id-visi="'+jQuery('#nav-misi .tambah-data').attr('id-visi')+'"]').find('td').eq(1).text();
+		jQuery('#visi-teks-isu').val(visi_teks);
+		var misi_teks = jQuery('tr[id-misi="'+jQuery('#nav-sasaran .tambah-data').attr('id-misi')+'"]').find('td').eq(1).text();
+		jQuery('#misi-teks-isu').val(misi_teks);
+		var sasaran_teks = jQuery('tr[id-saspok="'+jQuery('#nav-kebijakan .tambah-data').attr('id-saspok')+'"]').find('td').eq(1).text();
+		jQuery('#sasaran-teks-isu').val(sasaran_teks);
+		var kebijakan_teks = jQuery('tr[id-kebijakan="'+jQuery('#nav-isu .tambah-data').attr('id-kebijakan')+'"]').find('td').eq(1).text();
+		jQuery('#kebijakan-teks-isu').val(kebijakan_teks);
+		jQuery('#isu-teks').val('');
+	}
+
 	function edit_visi(id_visi){
 		jQuery('#modal-visi').modal('show');
 		jQuery('#modal-visi').attr('data-id', id_visi);
@@ -933,9 +959,35 @@ foreach ($data_all['data'] as $visi) {
 		jQuery('#modal-saspok').attr('data-id', id_sasaran);
 		var visi_teks = jQuery('tr[id-visi="'+jQuery('#nav-misi .tambah-data').attr('id-visi')+'"]').find('td').eq(1).text();
 		jQuery('#visi-teks-sasaran').val(visi_teks);
-		var misi_teks = jQuery('tr[id-visi="'+jQuery('#nav-sasaran .tambah-data').attr('id-misi')+'"]').find('td').eq(1).text();
-		jQuery('#misi-teks-sasaran').val(visi_teks);
+		var misi_teks = jQuery('tr[id-misi="'+jQuery('#nav-sasaran .tambah-data').attr('id-misi')+'"]').find('td').eq(1).text();
+		jQuery('#misi-teks-sasaran').val(misi_teks);
 		jQuery('#sasaran-teks').val(jQuery('tr[id-saspok="'+id_sasaran+'"]').find('td').eq(1).text());
+	}
+
+	function edit_kebijakan(id_kebijakan){
+		jQuery('#modal-kebijakan').modal('show');
+		jQuery('#modal-kebijakan').attr('data-id', id_kebijakan);
+		var visi_teks = jQuery('tr[id-visi="'+jQuery('#nav-misi .tambah-data').attr('id-visi')+'"]').find('td').eq(1).text();
+		jQuery('#visi-teks-kebijakan').val(visi_teks);
+		var misi_teks = jQuery('tr[id-misi="'+jQuery('#nav-sasaran .tambah-data').attr('id-misi')+'"]').find('td').eq(1).text();
+		jQuery('#misi-teks-kebijakan').val(misi_teks);
+		var sasaran_teks = jQuery('tr[id-visi="'+jQuery('#nav-kebijakan .tambah-data').attr('id-saspok')+'"]').find('td').eq(1).text();
+		jQuery('#sasaran-teks-kebijakan').val(sasaran_teks);
+		jQuery('#kebijakan-teks').val(jQuery('tr[id-kebijakan="'+id_kebijakan+'"]').find('td').eq(1).text());
+	}
+
+	function edit_isu(id_isu){
+		jQuery('#modal-isu').modal('show');
+		jQuery('#modal-isu').attr('data-id', id_isu);
+		var visi_teks = jQuery('tr[id-visi="'+jQuery('#nav-misi .tambah-data').attr('id-visi')+'"]').find('td').eq(1).text();
+		jQuery('#visi-teks-isu').val(visi_teks);
+		var misi_teks = jQuery('tr[id-misi="'+jQuery('#nav-sasaran .tambah-data').attr('id-misi')+'"]').find('td').eq(1).text();
+		jQuery('#misi-teks-isu').val(misi_teks);
+		var sasaran_teks = jQuery('tr[id-saspok="'+jQuery('#nav-kebijakan .tambah-data').attr('id-saspok')+'"]').find('td').eq(1).text();
+		jQuery('#sasaran-teks-isu').val(sasaran_teks);
+		var kebijakan_teks = jQuery('tr[id-kebijakan="'+jQuery('#nav-isu .tambah-data').attr('id-kebijakan')+'"]').find('td').eq(1).text();
+		jQuery('#kebijakan-teks-isu').val(kebijakan_teks);
+		jQuery('#isu-teks').val(jQuery('tr[id-isu="'+id_isu+'"]').find('td').eq(1).text());
 	}
 
 	function simpan_visi(){
@@ -1041,6 +1093,78 @@ foreach ($data_all['data'] as $visi) {
 		}
 	}
 
+	function simpan_kebijakan(){
+		if(confirm('Apakah anda yakin untuk menyimpan data ini?')){
+			jQuery('#wrap-loading').show();
+			var kebijakan_teks = jQuery('#kebijakan-teks').val();
+			if(kebijakan_teks == ''){
+				return alert('Kebijakan tidak boleh kosong!');
+			}
+			var id_saspok = jQuery('#nav-kebijakan .tambah-data').attr('id-saspok');
+			if(id_saspok == ''){
+				return alert('ID sasaran tidak boleh kosong!');
+			}
+			var id_kebijakan = jQuery('#modal-kebijakan').attr('data-id');
+			jQuery.ajax({
+				url: ajax.url,
+	          	type: "post",
+	          	data: {
+	          		"action": "simpan_rpjpd",
+	          		"api_key": "<?php echo $api_key; ?>",
+	          		"table": 'data_rpjpd_kebijakan',
+	          		"data": kebijakan_teks,
+	          		"id_saspok": id_saspok,
+	          		"id": id_kebijakan
+	          	},
+	          	dataType: "json",
+	          	success: function(res){
+					jQuery('#wrap-loading').hide();
+					if(res.status == 'success'){
+						jQuery('#modal-kebijakan').modal('hide');
+						detail_saspok(id_saspok);
+					}
+					alert(res.message);
+	          	}
+	        });
+		}
+	}
+
+	function simpan_isu(){
+		if(confirm('Apakah anda yakin untuk menyimpan data ini?')){
+			jQuery('#wrap-loading').show();
+			var isu_teks = jQuery('#isu-teks').val();
+			if(isu_teks == ''){
+				return alert('Isu tidak boleh kosong!');
+			}
+			var id_kebijakan = jQuery('#nav-isu .tambah-data').attr('id-kebijakan');
+			if(id_kebijakan == ''){
+				return alert('ID kebijakan tidak boleh kosong!');
+			}
+			var id_isu = jQuery('#modal-isu').attr('data-id');
+			jQuery.ajax({
+				url: ajax.url,
+	          	type: "post",
+	          	data: {
+	          		"action": "simpan_rpjpd",
+	          		"api_key": "<?php echo $api_key; ?>",
+	          		"table": 'data_rpjpd_isu',
+	          		"data": isu_teks,
+	          		"id_kebijakan": id_kebijakan,
+	          		"id": id_isu
+	          	},
+	          	dataType: "json",
+	          	success: function(res){
+					jQuery('#wrap-loading').hide();
+					if(res.status == 'success'){
+						jQuery('#modal-isu').modal('hide');
+						detail_kebijakan(id_kebijakan);
+					}
+					alert(res.message);
+	          	}
+	        });
+		}
+	}
+
 	function hapus_visi(id_visi){
 		if(confirm('Apakah anda yakin untuk menghapus data ini?')){
 			jQuery('#wrap-loading').show();
@@ -1108,6 +1232,56 @@ foreach ($data_all['data'] as $visi) {
 					if(res.status == 'success'){
 						var id_misi = jQuery('#nav-sasaran .tambah-data').attr('id-misi');
 						detail_misi(id_misi);
+					}
+					alert(res.message);
+	          	}
+	        });
+		}
+	}
+
+	function hapus_kebijakan(id_kebijakan){
+		if(confirm('Apakah anda yakin untuk menghapus data ini?')){
+			jQuery('#wrap-loading').show();
+			jQuery.ajax({
+				url: ajax.url,
+	          	type: "post",
+	          	data: {
+	          		"action": "hapus_rpjpd",
+	          		"api_key": "<?php echo $api_key; ?>",
+	          		"table": 'data_rpjpd_kebijakan',
+	          		"id": id_kebijakan
+	          	},
+	          	dataType: "json",
+	          	success: function(res){
+					jQuery('#wrap-loading').hide();
+					if(res.status == 'success'){
+						var id_saspok = jQuery('#nav-kebijakan .tambah-data').attr('id-saspok');
+						detail_saspok(id_saspok);
+					}
+					alert(res.message);
+	          	}
+	        });
+		}
+	}
+
+	function hapus_isu(id_isu){
+		if(confirm('Apakah anda yakin untuk menghapus data ini?')){
+			jQuery('#wrap-loading').show();
+			jQuery.ajax({
+				url: ajax.url,
+	          	type: "post",
+	          	data: {
+	          		"action": "hapus_rpjpd",
+	          		"api_key": "<?php echo $api_key; ?>",
+	          		"table": 'data_rpjpd_isu',
+	          		"id": id_isu
+	          	},
+	          	dataType: "json",
+	          	success: function(res){
+					jQuery('#wrap-loading').hide();
+					if(res.status == 'success'){
+						var id_kebijakan = jQuery('#nav-isu .tambah-data').attr('id-kebijakan');
+						detail_kebijakan(id_kebijakan);
 					}
 					alert(res.message);
 	          	}
@@ -1245,7 +1419,7 @@ foreach ($data_all['data'] as $visi) {
           		console.log('res', res);
 				jQuery('#wrap-loading').hide();
 				var data_html = ""
-					+'<button class="btn-sm btn-primary tambah-data" style="margin-top: 10px;" id-saspok="'+id_saspok+'" onclick="tambah_kebijakan('+id_saspok+');"><i class="dashicons dashicons-plus" style="margin-top: 3px;"></i> Tambah Sasaran</button>'
+					+'<button class="btn-sm btn-primary tambah-data" style="margin-top: 10px;" id-saspok="'+id_saspok+'" onclick="tambah_kebijakan('+id_saspok+');"><i class="dashicons dashicons-plus" style="margin-top: 3px;"></i> Tambah Kebijakan</button>'
 					+"<table class='table table-bordered' style='margin: 10px 0;'>"
 						+"<tbody>"
 							+"<tr>"
@@ -1308,7 +1482,7 @@ foreach ($data_all['data'] as $visi) {
           		console.log('res', res);
 				jQuery('#wrap-loading').hide();
 				var data_html = ""
-					+'<button class="btn-sm btn-primary tambah-data" style="margin-top: 10px;" id-saspok="'+id_kebijakan+'" onclick="tambah_kebijakan('+id_kebijakan+');"><i class="dashicons dashicons-plus" style="margin-top: 3px;"></i> Tambah Sasaran</button>'
+					+'<button class="btn-sm btn-primary tambah-data" style="margin-top: 10px;" id-kebijakan="'+id_kebijakan+'" onclick="tambah_isu('+id_kebijakan+');"><i class="dashicons dashicons-plus" style="margin-top: 3px;"></i> Tambah Isu</button>'
 					+"<table class='table table-bordered' style='margin: 10px 0;'>"
 						+"<tbody>"
 							+"<tr>"
@@ -1325,7 +1499,7 @@ foreach ($data_all['data'] as $visi) {
 							+"</tr>"
 							+"<tr>"
 								+"<th class='text-center' style='width: 160px;'>Kebijakan</th>"
-								+"<th>"+jQuery('tr[id-saspok="'+id_kebijakan+'"]').find('td').eq(1).text()+"</th>"
+								+"<th>"+jQuery('tr[id-kebijakan="'+id_kebijakan+'"]').find('td').eq(1).text()+"</th>"
 							+"</tr>"
 						+"</tbody>"
 					+"</table>"
