@@ -1625,7 +1625,7 @@ $tahun_selesai = (!empty($tahun_anggaran)) ? $tahun_anggaran + 5 : '-';
 			          								+'<a href="javascript:void(0)" data-idsasaran="'+value.id+'" class="btn btn-sm btn-warning btn-kelola-indikator-sasaran">Kelola Indikator</a>&nbsp;'
 			          								+'<a href="javascript:void(0)" data-kode="'+value.id_unik+'" class="btn btn-sm btn-primary btn-detail-sasaran">Detail</a>&nbsp;'
 			          								+'<a href="javascript:void(0)" data-id="'+value.id+'" class="btn btn-sm btn-success btn-edit-sasaran">Edit</a>&nbsp;'
-			          								+'<a href="javascript:void(0)" data-id="'+value.id+'" class="btn btn-sm btn-danger">Hapus</a></td>'
+			          								+'<a href="javascript:void(0)" data-id="'+value.id+'" data-kodesasaran="'+value.id_unik+'" data-kodetujuan="'+value.kode_tujuan+'" class="btn btn-sm btn-danger btn-hapus-sasaran">Hapus</a></td>'
 			          						+'</tr>';
 			          				k++;
           						})
@@ -1699,6 +1699,43 @@ $tahun_selesai = (!empty($tahun_anggaran)) ? $tahun_anggaran + 5 : '-';
 				sasaranModal.modal('show');
           	}
         });
+	});
+
+	jQuery(document).on('click', '.btn-hapus-sasaran', function(){
+
+		if(confirm('Data akan dihapus, lanjut?')){
+			
+			jQuery('#wrap-loading').show();
+			
+			let id_sasaran = jQuery(this).data('id');
+			
+			let kode_sasaran = jQuery(this).data('kodesasaran');
+			
+			let kode_tujuan = jQuery(this).data('kodetujuan');
+
+			jQuery.ajax({
+				method:'POST',
+				url:ajax.url,
+				dataType:'json',
+				data:{
+					'action': 'delete_sasaran_rpjm',
+		          	'api_key': '<?php echo $api_key; ?>',
+					'id_sasaran': id_sasaran,
+					'kode_sasaran': kode_sasaran,
+					'kode_tujuan': kode_tujuan,
+				},
+				success:function(response){
+
+					jQuery('#wrap-loading').hide();
+
+					alert(response.message);
+
+					jQuery("#dataSasaran").html(response.data);
+
+				}
+			})
+		}
+		
 	});
 
 	jQuery(document).on('click', '.btn-kelola-indikator-sasaran', function(){

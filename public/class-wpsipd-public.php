@@ -17022,7 +17022,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 							<a href="javascript:void(0)" data-idsasaran="'.$value['id'].'" class="btn btn-sm btn-warning btn-add-indikator-sasaran">Kelola Indikator</a>&nbsp;
 							<a href="javascript:void(0)" data-kode="'.$value['id_unik'].'" class="btn btn-sm btn-primary btn-detail-sasaran">Detail</a>&nbsp;
 							<a href="javascript:void(0)" data-id="'.$value['id'].'" class="btn btn-sm btn-success btn-edit-sasaran">Edit</a>&nbsp;
-							<a href="javascript:void(0)" data-id="'.$value['id'].'" class="btn btn-sm btn-danger">Hapus</a>
+							<a href="javascript:void(0)" data-id="'.$value['id'].'" data-kodesasaran="'.$value['id_unik'].'" data-kodetujuan="'.$value['kode_tujuan'].'" class="btn btn-sm btn-danger btn-hapus-sasaran btn-hapus-sasaran">Hapus</a>
 						</td>
 					</tr>';
 			$i++;
@@ -17249,6 +17249,51 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 				}
 			}else{
 				throw new Exception('Format tidak sesuai');
+			}
+		}catch(Exception $e){
+			echo json_encode([
+				'status' => false,
+				'message' => $e->getMessage()
+			]);exit;
+		}
+	}
+
+	function delete_sasaran_rpjm(){
+		global $wpdb;
+		try{
+			if (!empty($_POST)) {
+				if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+					
+					$id_cek = $wpdb->get_var("select * from data_rpjmd_program_lokal where kode_sasaran='".$_POST['kode_sasaran']. "' and is_locked=0 and status=1 and active=1");
+
+					if(!empty($id_cek)){
+						throw new Exception("Sasaran sudah digunakan oleh program", 1);
+					}
+
+					$id_cek = $wpdb->get_var("select * from data_rpjmd_sasaran_lokal where id_sasaran=".$_POST['id_sasaran']. " and id_unik is not null and id_unik_indikator is not null and is_locked=0 and status=1 and active=1");
+
+					if(!empty($id_cek)){
+						throw new Exception("Sasaran sudah digunakan oleh indikator sasaran", 1);
+					}
+
+					$wpdb->get_results("delete from data_rpjmd_sasaran_lokal where id=".$_POST['id_sasaran']);
+
+					$data = $this->get_sasaran_rpjm([
+						'type' => 1,
+						'kode_tujuan' => $_POST['kode_tujuan']
+					]);
+
+					echo json_encode([
+						'status' => true,
+						'message' => 'Sukses hapus sasaran',
+						'data' => $data['html']
+					]);exit;
+
+				}else{
+					throw new Exception("Api key tidak sesuai", 1);
+				}
+			}else{
+				throw new Exception("Format tidak sesuai", 1);
 			}
 		}catch(Exception $e){
 			echo json_encode([
