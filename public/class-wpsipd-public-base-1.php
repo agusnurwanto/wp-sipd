@@ -225,6 +225,35 @@ class Wpsipd_Public_Base_1{
                         $ret['status'] = 'error';
                         $ret['message'] = 'ID visi tidak boleh kosong!';
                     }
+                }else if($_POST['table'] == 'data_rpjpd_sasaran'){
+                    if(!empty($_POST['id_misi'])){
+                        $table = $_POST['table'];
+                        $data = array(
+                            'id_misi' => $_POST['id_misi'],
+                            'saspok_teks' => $_POST['data'],
+                            'update_at' => date('Y-m-d H:i:s')
+                        );
+                        if(!empty($_POST['id'])){
+                            $wpdb->update($table, $data, array( "id" => $_POST['id'] ));
+                            $ret['message'] = 'Berhasil update data RPJPD!';
+                        }else{
+                            $cek_id = $wpdb->get_var($wpdb->prepare("
+                                select 
+                                    id 
+                                from $table
+                                where saspok_teks=%s
+                            ", $_POST['data']));
+                            if(!empty($cek_id)){
+                                $ret['status'] = 'error';
+                                $ret['message'] = 'Sasaran teks sudah ada!';
+                            }else{
+                                $wpdb->insert($table, $data);
+                            }
+                        }
+                    }else{
+                        $ret['status'] = 'error';
+                        $ret['message'] = 'ID misi tidak boleh kosong!';
+                    }
                 }
             }else{
                 $ret = array(
@@ -254,6 +283,9 @@ class Wpsipd_Public_Base_1{
                     $table = $_POST['table'];
                     $wpdb->delete($table, array('id' => $_POST['id']));
                 }else if($_POST['table'] == 'data_rpjpd_misi'){
+                    $table = $_POST['table'];
+                    $wpdb->delete($table, array('id' => $_POST['id']));
+                }else if($_POST['table'] == 'data_rpjpd_sasaran'){
                     $table = $_POST['table'];
                     $wpdb->delete($table, array('id' => $_POST['id']));
                 }
