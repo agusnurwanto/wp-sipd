@@ -16839,6 +16839,39 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		}
 	}
 
+	function delete_indikator_tujuan_rpjm(){
+		global $wpdb;
+		try{
+			if (!empty($_POST)) {
+				if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+					
+					$wpdb->get_results("delete from data_rpjmd_tujuan_lokal where id=".$_POST['id'] . " and id_unik_indikator is not null and active=1 and status=1");
+
+					$data = $this->get_indikator_tujuan_rpjm([
+						'type' => 1,
+						'id_tujuan' => $_POST['id_tujuan']
+					]);
+
+					echo json_encode([
+						'status' => true,
+						'message' => 'Sukses hapus tujuan',
+						'data' => $data['html']
+					]);exit;
+
+				}else{
+					throw new Exception("Api key tidak sesuai", 1);
+				}
+			}else{
+				throw new Exception("Format tidak sesuai", 1);
+			}
+		}catch(Exception $e){
+			echo json_encode([
+				'status' => false,
+				'message' => $e->getMessage()
+			]);exit;
+		}
+	}
+
 	function verify_indikator_tujuan_rpjm(array $data){
 		if(empty($data['id_tujuan'])){
 			throw new Exception('Tujuan wajib dipilih!');

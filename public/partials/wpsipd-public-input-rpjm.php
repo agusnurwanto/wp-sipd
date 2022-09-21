@@ -1552,6 +1552,39 @@ $tahun_selesai = (!empty($tahun_anggaran)) ? $tahun_anggaran + 5 : '-';
 		})			
 	});
 
+	jQuery(document).on('click', '.btn-delete-indikator-tujuan', function(){
+
+		if(confirm('Data akan dihapus, lanjut?')){
+			jQuery('#wrap-loading').show();
+			
+			let id = jQuery(this).data('id');
+			
+			let id_tujuan = jQuery(this).data('idtujuan');
+
+			jQuery.ajax({
+				method:'POST',
+				url:ajax.url,
+				dataType:'json',
+				data:{
+					'action': 'delete_indikator_tujuan_rpjm',
+		          	'api_key': '<?php echo $api_key; ?>',
+					'id': id,
+					'id_tujuan': id_tujuan,
+				},
+				success:function(response){
+
+					jQuery('#wrap-loading').hide();
+
+					alert(response.message);
+
+					jQuery("#indikator_tujuan").html(response.data);
+
+				}
+			})
+		}
+		
+	});
+
 	jQuery(document).on('click', '.btn-detail-tujuan', function(){
 		
         jQuery('#wrap-loading').show();
