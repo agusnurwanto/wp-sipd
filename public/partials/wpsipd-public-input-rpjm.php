@@ -1582,7 +1582,6 @@ $tahun_selesai = (!empty($tahun_anggaran)) ? $tahun_anggaran + 5 : '-';
 				}
 			})
 		}
-		
 	});
 
 	jQuery(document).on('click', '.btn-detail-tujuan', function(){
@@ -1735,7 +1734,6 @@ $tahun_selesai = (!empty($tahun_anggaran)) ? $tahun_anggaran + 5 : '-';
 				}
 			})
 		}
-		
 	});
 
 	jQuery(document).on('click', '.btn-kelola-indikator-sasaran', function(){
@@ -1884,6 +1882,38 @@ $tahun_selesai = (!empty($tahun_anggaran)) ? $tahun_anggaran + 5 : '-';
 				indikatorSasaranModal.modal('show');
           	}
 		})			
+	});
+
+	jQuery(document).on('click', '.btn-delete-indikator-sasaran', function(){
+
+		if(confirm('Data akan dihapus, lanjut?')){
+			jQuery('#wrap-loading').show();
+			
+			let id = jQuery(this).data('id');
+			
+			let id_sasaran = jQuery(this).data('idsasaran');
+
+			jQuery.ajax({
+				method:'POST',
+				url:ajax.url,
+				dataType:'json',
+				data:{
+					'action': 'delete_indikator_sasaran_rpjm',
+		          	'api_key': '<?php echo $api_key; ?>',
+					'id': id,
+					'id_sasaran': id_sasaran,
+				},
+				success:function(response){
+
+					jQuery('#wrap-loading').hide();
+
+					alert(response.message);
+
+					jQuery("#indikator_sasaran").html(response.data);
+
+				}
+			})
+		}
 	});
 
 	jQuery(document).on('click', '.btn-tambah-program', function(){
