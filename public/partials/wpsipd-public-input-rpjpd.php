@@ -576,7 +576,7 @@ foreach ($data_all['data'] as $visi) {
             <div class="modal-body">
             	<form>
 				  	<div class="form-group">
-				    	<label for="exampleInputEmail1">Visi Teks</label>
+				    	<label>Visi Teks</label>
 				    	<textarea type="email" class="form-control" id="visi-teks"></textarea>
 				    	<small class="form-text text-muted">Input teks visi RPJPD.</small>
 				  	</div>
@@ -584,6 +584,33 @@ foreach ($data_all['data'] as $visi) {
             </div>
             <div class="modal-footer">
             	<button class="btn btn-primary" onclick="simpan_visi();">Simpan</button>
+            	<button class="btn btn-default" data-dismiss="modal">Tutup</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="modal-misi" tabindex="-1" role="dialog" data-backdrop="static" aria-hidden="true">'
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header bgpanel-theme">
+                <h4 style="margin: 0;" class="modal-title" id="">Data RPJPD Misi</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span><i class="dashicons dashicons-dismiss"></i></span></button>
+            </div>
+            <div class="modal-body">
+            	<form>
+				  	<div class="form-group">
+				    	<label>Visi Teks</label>
+				    	<textarea type="email" class="form-control" id="visi-teks-misi" disabled></textarea>
+				  	</div>
+				  	<div class="form-group">
+				    	<label>Misi Teks</label>
+				    	<textarea type="email" class="form-control" id="misi-teks"></textarea>
+				    	<small class="form-text text-muted">Input teks misi RPJPD.</small>
+				  	</div>
+				</form>
+            </div>
+            <div class="modal-footer">
+            	<button class="btn btn-primary" onclick="simpan_misi();">Simpan</button>
             	<button class="btn btn-default" data-dismiss="modal">Tutup</button>
             </div>
         </div>
@@ -764,10 +791,26 @@ foreach ($data_all['data'] as $visi) {
 		jQuery('#visi-teks').val('');
 	}
 
+	function tambah_misi(){
+		jQuery('#modal-misi').attr('data-id', '');
+		jQuery('#modal-misi').modal('show');
+		var visi_teks = jQuery('tr[id-visi="'+jQuery('#nav-misi .tambah-data').attr('id-visi')+'"]').find('td').eq(1).text();
+		jQuery('#visi-teks-misi').val(visi_teks);
+		jQuery('#misi-teks').val('');
+	}
+
 	function edit_visi(id_visi){
 		jQuery('#modal-visi').modal('show');
 		jQuery('#modal-visi').attr('data-id', id_visi);
 		jQuery('#visi-teks').val(jQuery('tr[id-visi="'+id_visi+'"]').find('td').eq(1).text());
+	}
+
+	function edit_misi(id_misi){
+		jQuery('#modal-misi').modal('show');
+		jQuery('#modal-misi').attr('data-id', id_misi);
+		var visi_teks = jQuery('tr[id-visi="'+jQuery('#nav-misi .tambah-data').attr('id-visi')+'"]').find('td').eq(1).text();
+		jQuery('#visi-teks-misi').val(visi_teks);
+		jQuery('#misi-teks').val(jQuery('tr[id-misi="'+id_misi+'"]').find('td').eq(1).text());
 	}
 
 	function simpan_visi(){
@@ -801,6 +844,42 @@ foreach ($data_all['data'] as $visi) {
 		}
 	}
 
+	function simpan_misi(){
+		if(confirm('Apakah anda yakin untuk menyimpan data ini?')){
+			jQuery('#wrap-loading').show();
+			var misi_teks = jQuery('#misi-teks').val();
+			if(misi_teks == ''){
+				return alert('Misi tidak boleh kosong!');
+			}
+			var id_visi = jQuery('#nav-misi .tambah-data').attr('id-visi');
+			if(id_visi == ''){
+				return alert('ID visi tidak boleh kosong!');
+			}
+			var id_misi = jQuery('#modal-misi').attr('data-id');
+			jQuery.ajax({
+				url: ajax.url,
+	          	type: "post",
+	          	data: {
+	          		"action": "simpan_rpjpd",
+	          		"api_key": "<?php echo $api_key; ?>",
+	          		"table": 'data_rpjpd_misi',
+	          		"data": misi_teks,
+	          		"id_visi": id_visi,
+	          		"id": id_misi
+	          	},
+	          	dataType: "json",
+	          	success: function(res){
+					jQuery('#wrap-loading').hide();
+					if(res.status == 'success'){
+						jQuery('#modal-misi').modal('hide');
+						detail_visi(id_visi);
+					}
+					alert(res.message);
+	          	}
+	        });
+		}
+	}
+
 	function hapus_visi(id_visi){
 		if(confirm('Apakah anda yakin untuk menghapus data ini?')){
 			jQuery('#wrap-loading').show();
@@ -818,6 +897,31 @@ foreach ($data_all['data'] as $visi) {
 					jQuery('#wrap-loading').hide();
 					if(res.status == 'success'){
 						jQuery('#tambah-data').click();
+					}
+					alert(res.message);
+	          	}
+	        });
+		}
+	}
+
+	function hapus_misi(id_misi){
+		if(confirm('Apakah anda yakin untuk menghapus data ini?')){
+			jQuery('#wrap-loading').show();
+			jQuery.ajax({
+				url: ajax.url,
+	          	type: "post",
+	          	data: {
+	          		"action": "hapus_rpjpd",
+	          		"api_key": "<?php echo $api_key; ?>",
+	          		"table": 'data_rpjpd_misi',
+	          		"id": id_misi
+	          	},
+	          	dataType: "json",
+	          	success: function(res){
+					jQuery('#wrap-loading').hide();
+					if(res.status == 'success'){
+						var id_visi = jQuery('#nav-misi .tambah-data').attr('id-visi');
+						detail_visi(id_visi);
 					}
 					alert(res.message);
 	          	}
