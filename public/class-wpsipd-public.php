@@ -14274,14 +14274,14 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 
 		if(!empty($_POST)){
 			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
-					$id_jadwal_lokal = $_POST['id_jadwal_lokal'];
-					
-					$data_penjadwalan_by_id = $wpdb->get_results($wpdb->prepare('SELECT * FROM data_jadwal_lokal WHERE id_jadwal_lokal = %d',$id_jadwal_lokal), ARRAY_A);
- 
-					$return = array(
-						'status' 						=> 'success',
-						'data' 							=> $data_penjadwalan_by_id[0]
-					);
+				$id_jadwal_lokal = $_POST['id_jadwal_lokal'];
+				
+				$data_penjadwalan_by_id = $wpdb->get_results($wpdb->prepare('SELECT * FROM data_jadwal_lokal WHERE id_jadwal_lokal = %d',$id_jadwal_lokal), ARRAY_A);
+
+				$return = array(
+					'status' 						=> 'success',
+					'data' 							=> $data_penjadwalan_by_id[0]
+				);
 			}else{
 				$return = array(
 					'status'	=> 'error',

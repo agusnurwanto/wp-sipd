@@ -10,23 +10,9 @@ function button_edit_monev($class=false){
 	return $ret;
 }
 
-function get_target($target, $satuan){
-	if(empty($satuan)){
-		return $target;
-	}else{
-		$target = explode($satuan, $target);
-		return $target[0];
-	}
-}
-
-function parsing_nama_kode($nama_kode){
-	$nama_kodes = explode('||', $nama_kode);
-	$nama = $nama_kodes[0];
-	unset($nama_kodes[0]);
-	return $nama.'<span class="debug-kode">||'.implode('||', $nama_kodes).'</span>';
-}
-
 $api_key = get_option('_crb_api_key_extension' );
+
+$cek_jadwal = $this->validasi_jadwal_perencanaan('rpjpd');
 
 $jadwal_lokal = $wpdb->get_results("SELECT * from data_jadwal_lokal where id_jadwal_lokal = (select max(id_jadwal_lokal) from data_jadwal_lokal where id_tipe=1)", ARRAY_A);
 if(!empty($jadwal_lokal)){
@@ -35,7 +21,7 @@ if(!empty($jadwal_lokal)){
 	$mulaiJadwal = $jadwal_lokal[0]['waktu_awal'];
 	$selesaiJadwal = $jadwal_lokal[0]['waktu_akhir'];
 }else{
-	$tahun_anggaran = '2022';
+	$tahun_anggaran = '2005';
 	$namaJadwal = '-';
 	$mulaiJadwal = '-';
 	$selesaiJadwal = '-';
@@ -43,7 +29,7 @@ if(!empty($jadwal_lokal)){
 
 $timezone = get_option('timezone_string');
 
-$awal_rpjpd = 2018;
+$awal_rpjpd = $tahun_anggaran;
 $akhir_rpjpd = $awal_rpjpd+20;
 $nama_pemda = get_option('_crb_daerah');
 
@@ -434,7 +420,7 @@ foreach ($data_all['data'] as $visi) {
 	$body .= '
 		<tr class="tr-visi">
 			<td class="kiri atas kanan bawah">'.$no_visi.'</td>
-			<td class="atas kanan bawah">'.$visi['nama'].'</td>
+			<td class="atas kanan bawah">'.$visi['nama'].button_edit_monev($visi['detail'][0]['id']).'</td>
 			<td class="atas kanan bawah"></td>
 			<td class="atas kanan bawah"></td>
 			<td class="atas kanan bawah"></td>
@@ -448,7 +434,7 @@ foreach ($data_all['data'] as $visi) {
 			<tr class="tr-misi">
 				<td class="kiri atas kanan bawah">'.$no_visi.'.'.$no_misi.'</td>
 				<td class="atas kanan bawah"><span class="debug-visi">'.$visi['nama'].'</span></td>
-				<td class="atas kanan bawah">'.$misi['nama'].'</td>
+				<td class="atas kanan bawah">'.$misi['nama'].button_edit_monev($visi['detail'][0]['id'].'-'.$misi['detail'][0]['id']).'</td>
 				<td class="atas kanan bawah"></td>
 				<td class="atas kanan bawah"></td>
 				<td class="atas kanan bawah"></td>
@@ -462,7 +448,7 @@ foreach ($data_all['data'] as $visi) {
 					<td class="kiri atas kanan bawah">'.$no_visi.'.'.$no_misi.'.'.$no_sasaran.'</td>
 					<td class="atas kanan bawah"><span class="debug-visi">'.$visi['nama'].'</span></td>
 					<td class="atas kanan bawah"><span class="debug-misi">'.$misi['nama'].'</span></td>
-					<td class="atas kanan bawah">'.$sasaran['nama'].'</td>
+					<td class="atas kanan bawah">'.$sasaran['nama'].button_edit_monev($visi['detail'][0]['id'].'-'.$misi['detail'][0]['id'].'-'.$sasaran['detail'][0]['id']).'</td>
 					<td class="atas kanan bawah"></td>
 					<td class="atas kanan bawah"></td>
 				</tr>
@@ -476,7 +462,7 @@ foreach ($data_all['data'] as $visi) {
 						<td class="atas kanan bawah"><span class="debug-visi">'.$visi['nama'].'</span></td>
 						<td class="atas kanan bawah"><span class="debug-misi">'.$misi['nama'].'</span></td>
 						<td class="atas kanan bawah"><span class="debug-sasaran">'.$sasaran['nama'].'</span></td>
-						<td class="atas kanan bawah">'.$kebijakan['nama'].'</td>
+						<td class="atas kanan bawah">'.$kebijakan['nama'].button_edit_monev($visi['detail'][0]['id'].'-'.$misi['detail'][0]['id'].'-'.$sasaran['detail'][0]['id'].'-'.$kebijakan['detail'][0]['id']).'</td>
 						<td class="atas kanan bawah"></td>
 					</tr>
 				';
@@ -490,7 +476,7 @@ foreach ($data_all['data'] as $visi) {
 							<td class="atas kanan bawah"><span class="debug-misi">'.$misi['nama'].'</span></td>
 							<td class="atas kanan bawah"><span class="debug-sasaran">'.$sasaran['nama'].'</span></td>
 							<td class="atas kanan bawah"><span class="debug-kebijakan">'.$kebijakan['nama'].'</span></td>
-							<td class="atas kanan bawah">'.$isu['nama'].'</td>
+							<td class="atas kanan bawah">'.$isu['nama'].button_edit_monev($visi['detail'][0]['id'].'-'.$misi['detail'][0]['id'].'-'.$sasaran['detail'][0]['id'].'-'.$kebijakan['detail'][0]['id'].'-'.$isu['detail'][0]['id']).'</td>
 						</tr>
 					';
 				}
@@ -510,8 +496,8 @@ foreach ($data_all['data'] as $visi) {
 		margin: 3px;
 	}
 </style>
-<h4 style="text-align: center; margin: 0; font-weight: bold;">Monitoring dan Evaluasi RPJPD (Rencana Pembangunan Jangka Panjang Daerah) <br><?php echo $nama_pemda; ?></h4>
-<div id="cetak" title="Laporan MONEV RENJA" style="padding: 5px; overflow: auto; height: 80vh;">
+<h4 style="text-align: center; margin: 0; font-weight: bold;">Monitoring dan Evaluasi RPJPD (Rencana Pembangunan Jangka Panjang Daerah) <br><?php echo $nama_pemda; ?><br> Tahun <?php echo $awal_rpjpd.' - '.$akhir_rpjpd; ?></h4>
+<div id="cetak" title="Laporan RPJPD" style="padding: 5px; overflow: auto; height: 80vh;">
 	<table cellpadding="2" cellspacing="0" style="font-family:\'Open Sans\',-apple-system,BlinkMacSystemFont,\'Segoe UI\',sans-serif; border-collapse: collapse; font-size: 70%; border: 0; table-layout: fixed;" contenteditable="false">
 		<thead>
 			<tr>
@@ -739,10 +725,10 @@ foreach ($data_all['data'] as $visi) {
 	penjadwalanHitungMundur(dataHitungMundur);
 
 	var aksi = ''
-		+'<a style="margin-left: 10px;" id="singkron-sipd" onclick="return false;" href="#" class="btn btn-danger">Ambil data dari SIPD lokal</a>'
-		+'<a style="margin-left: 10px;" id="tambah-data" onclick="return false;" href="#" class="btn btn-success">Tambah Data RPJPD</a>'
+		+'<?php if($cek_jadwal['status'] == 'success'): ?><a style="margin-left: 10px;" id="singkron-sipd" onclick="return false;" href="#" class="btn btn-danger">Ambil data dari SIPD lokal</a><?php endif; ?>'
+		+'<?php if($cek_jadwal['status'] == 'success'): ?><a style="margin-left: 10px;" id="tambah-data" onclick="return false;" href="#" class="btn btn-success">Tambah Data RPJPD</a><?php endif; ?>'
 		+'<h3 style="margin-top: 20px;">SETTING</h3>'
-		+'<label><input type="checkbox" onclick="tampilkan_edit(this);"> Edit Data RPJPD</label>'
+		+'<?php if($cek_jadwal['status'] == 'success'): ?><label><input type="checkbox" onclick="tampilkan_edit(this);"> Edit Data RPJPD</label><?php endif; ?>'
 		+'<label style="margin-left: 20px;"><input type="checkbox" onclick="show_debug(this);"> Debug Cascading RPJPD</label>'
 		+'<label style="margin-left: 20px;">'
 			+'Sembunyikan Baris '
@@ -817,10 +803,53 @@ foreach ($data_all['data'] as $visi) {
 		}
 	}
 
+	jQuery('#modal-monev').on('hidden.bs.modal', function () {
+	    window.location = "";
+	});
+
 	jQuery('.edit-monev').on('click', function(){
-		jQuery('#wrap-loading').show();
-		jQuery('#mod-monev').modal('show');
-		jQuery('#wrap-loading').hide();
+		var ids = jQuery(this).attr('data-id').split('-');
+		if(ids[4]){
+			tampil_detail_popup( function(){ 
+				detail_visi(ids[0], function(){  
+					detail_misi(ids[1], function(){ 
+						detail_saspok(ids[2], function(){ 
+							detail_kebijakan(ids[3], function(){ 
+								edit_isu(ids[4])
+							})
+						})
+					})
+				})
+			});
+		}else if(ids[3]){
+			tampil_detail_popup(function(){
+				detail_visi(ids[0], function(){
+					detail_misi(ids[1], function(){
+						detail_saspok(ids[2], function(){
+							edit_kebijakan(ids[3])
+						})
+					})
+				})
+			});
+		}else if(ids[2]){
+			tampil_detail_popup(function(){
+				detail_visi(ids[0], function(){
+					detail_misi(ids[1], function(){
+						edit_saspok(ids[2])
+					})
+				})
+			});
+		}else if(ids[1]){
+			tampil_detail_popup(function(){
+				detail_visi(ids[0], function(){
+					edit_misi(ids[1])
+				})
+			});
+		}else if(ids[0]){
+			tampil_detail_popup(function(){
+				edit_visi(ids[0])
+			});
+		}
 	});
 
 	jQuery('#singkron-sipd').on('click', function(){
@@ -844,6 +873,10 @@ foreach ($data_all['data'] as $visi) {
 	});
 
 	jQuery('#tambah-data').on('click', function(){
+		tampil_detail_popup();
+	});
+
+	function tampil_detail_popup(cb){
 		jQuery('#wrap-loading').show();
 		jQuery('#modal-monev').modal('show');
 		jQuery.ajax({
@@ -886,9 +919,12 @@ foreach ($data_all['data'] as $visi) {
 					+"</table>";
 				jQuery('#nav-visi').html(data_html)
           		jQuery('.nav-tabs a[href="#nav-visi"]').tab('show');
+		        if(typeof cb == 'function'){
+		        	cb();
+		        }
           	}
         });
-	});
+	}
 
 	function tambah_visi(){
 		jQuery('#modal-visi').attr('data-id', '');
@@ -1289,7 +1325,7 @@ foreach ($data_all['data'] as $visi) {
 		}
 	}
 
-	function detail_visi(id_visi){
+	function detail_visi(id_visi, cb){
 		jQuery('#wrap-loading').show();
 		jQuery.ajax({
 			url: ajax.url,
@@ -1338,13 +1374,19 @@ foreach ($data_all['data'] as $visi) {
 				data_html += ""
 						+"</tbody>";
 					+"</table>";
-				jQuery('#nav-misi').html(data_html)
+				jQuery('#nav-misi').html(data_html);
+				jQuery('#nav-sasaran').html('');
+				jQuery('#nav-kebijakan').html('');
+				jQuery('#nav-isu').html('');
           		jQuery('.nav-tabs a[href="#nav-misi"]').tab('show');
+          		if(typeof cb == 'function'){
+          			cb();
+          		}
           	}
         });
 	}
 
-	function detail_misi(id_misi){
+	function detail_misi(id_misi, cb){
 		jQuery('#wrap-loading').show();
 		jQuery.ajax({
 			url: ajax.url,
@@ -1397,13 +1439,18 @@ foreach ($data_all['data'] as $visi) {
 				data_html += ""
 						+"</tbody>";
 					+"</table>";
-				jQuery('#nav-sasaran').html(data_html)
+				jQuery('#nav-sasaran').html(data_html);
+				jQuery('#nav-kebijakan').html('');
+				jQuery('#nav-isu').html('');
           		jQuery('.nav-tabs a[href="#nav-sasaran"]').tab('show');
+          		if(typeof cb == 'function'){
+          			cb();
+          		}
           	}
         });
 	}
 
-	function detail_saspok(id_saspok){
+	function detail_saspok(id_saspok, cb){
 		jQuery('#wrap-loading').show();
 		jQuery.ajax({
 			url: ajax.url,
@@ -1460,13 +1507,17 @@ foreach ($data_all['data'] as $visi) {
 				data_html += ""
 						+"</tbody>";
 					+"</table>";
-				jQuery('#nav-kebijakan').html(data_html)
+				jQuery('#nav-kebijakan').html(data_html);
+				jQuery('#nav-isu').html('');
           		jQuery('.nav-tabs a[href="#nav-kebijakan"]').tab('show');
+          		if(typeof cb == 'function'){
+          			cb();
+          		}
           	}
         });
 	}
 
-	function detail_kebijakan(id_kebijakan){
+	function detail_kebijakan(id_kebijakan, cb){
 		jQuery('#wrap-loading').show();
 		jQuery.ajax({
 			url: ajax.url,
@@ -1528,6 +1579,9 @@ foreach ($data_all['data'] as $visi) {
 					+"</table>";
 				jQuery('#nav-isu').html(data_html)
           		jQuery('.nav-tabs a[href="#nav-isu"]').tab('show');
+          		if(typeof cb == 'function'){
+          			cb();
+          		}
           	}
         });
 	}
