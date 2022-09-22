@@ -175,7 +175,7 @@ class Wpsipd_Public_Base_1 extends Wpsipd_Public_Base_2{
             if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( WPSIPD_API_KEY )) {
                 $table = '';
                 if($_POST['table'] == 'data_rpjpd_visi'){
-                    $table = 'data_rpjpd_visi';
+                    $table = $_POST['table'];
                     $data = array(
                         'visi_teks' => $_POST['data'],
                         'update_at' => date('Y-m-d H:i:s')
@@ -196,6 +196,122 @@ class Wpsipd_Public_Base_1 extends Wpsipd_Public_Base_2{
                         }else{
                             $wpdb->insert($table, $data);
                         }
+                    }
+                }else if($_POST['table'] == 'data_rpjpd_misi'){
+                    if(!empty($_POST['id_visi'])){
+                        $table = $_POST['table'];
+                        $data = array(
+                            'id_visi' => $_POST['id_visi'],
+                            'misi_teks' => $_POST['data'],
+                            'update_at' => date('Y-m-d H:i:s')
+                        );
+                        if(!empty($_POST['id'])){
+                            $wpdb->update($table, $data, array( "id" => $_POST['id'] ));
+                            $ret['message'] = 'Berhasil update data RPJPD!';
+                        }else{
+                            $cek_id = $wpdb->get_var($wpdb->prepare("
+                                select 
+                                    id 
+                                from $table
+                                where misi_teks=%s
+                            ", $_POST['data']));
+                            if(!empty($cek_id)){
+                                $ret['status'] = 'error';
+                                $ret['message'] = 'Misi teks sudah ada!';
+                            }else{
+                                $wpdb->insert($table, $data);
+                            }
+                        }
+                    }else{
+                        $ret['status'] = 'error';
+                        $ret['message'] = 'ID visi tidak boleh kosong!';
+                    }
+                }else if($_POST['table'] == 'data_rpjpd_sasaran'){
+                    if(!empty($_POST['id_misi'])){
+                        $table = $_POST['table'];
+                        $data = array(
+                            'id_misi' => $_POST['id_misi'],
+                            'saspok_teks' => $_POST['data'],
+                            'update_at' => date('Y-m-d H:i:s')
+                        );
+                        if(!empty($_POST['id'])){
+                            $wpdb->update($table, $data, array( "id" => $_POST['id'] ));
+                            $ret['message'] = 'Berhasil update data RPJPD!';
+                        }else{
+                            $cek_id = $wpdb->get_var($wpdb->prepare("
+                                select 
+                                    id 
+                                from $table
+                                where saspok_teks=%s
+                            ", $_POST['data']));
+                            if(!empty($cek_id)){
+                                $ret['status'] = 'error';
+                                $ret['message'] = 'Sasaran teks sudah ada!';
+                            }else{
+                                $wpdb->insert($table, $data);
+                            }
+                        }
+                    }else{
+                        $ret['status'] = 'error';
+                        $ret['message'] = 'ID misi tidak boleh kosong!';
+                    }
+                }else if($_POST['table'] == 'data_rpjpd_kebijakan'){
+                    if(!empty($_POST['id_saspok'])){
+                        $table = $_POST['table'];
+                        $data = array(
+                            'id_saspok' => $_POST['id_saspok'],
+                            'kebijakan_teks' => $_POST['data'],
+                            'update_at' => date('Y-m-d H:i:s')
+                        );
+                        if(!empty($_POST['id'])){
+                            $wpdb->update($table, $data, array( "id" => $_POST['id'] ));
+                            $ret['message'] = 'Berhasil update data RPJPD!';
+                        }else{
+                            $cek_id = $wpdb->get_var($wpdb->prepare("
+                                select 
+                                    id 
+                                from $table
+                                where kebijakan_teks=%s
+                            ", $_POST['data']));
+                            if(!empty($cek_id)){
+                                $ret['status'] = 'error';
+                                $ret['message'] = 'Kebijakan teks sudah ada!';
+                            }else{
+                                $wpdb->insert($table, $data);
+                            }
+                        }
+                    }else{
+                        $ret['status'] = 'error';
+                        $ret['message'] = 'ID sasaran tidak boleh kosong!';
+                    }
+                }else if($_POST['table'] == 'data_rpjpd_isu'){
+                    if(!empty($_POST['id_kebijakan'])){
+                        $table = $_POST['table'];
+                        $data = array(
+                            'id_kebijakan' => $_POST['id_kebijakan'],
+                            'isu_teks' => $_POST['data'],
+                            'update_at' => date('Y-m-d H:i:s')
+                        );
+                        if(!empty($_POST['id'])){
+                            $wpdb->update($table, $data, array( "id" => $_POST['id'] ));
+                            $ret['message'] = 'Berhasil update data RPJPD!';
+                        }else{
+                            $cek_id = $wpdb->get_var($wpdb->prepare("
+                                select 
+                                    id 
+                                from $table
+                                where isu_teks=%s
+                            ", $_POST['data']));
+                            if(!empty($cek_id)){
+                                $ret['status'] = 'error';
+                                $ret['message'] = 'Isu teks sudah ada!';
+                            }else{
+                                $wpdb->insert($table, $data);
+                            }
+                        }
+                    }else{
+                        $ret['status'] = 'error';
+                        $ret['message'] = 'ID kebijakan tidak boleh kosong!';
                     }
                 }
             }else{
@@ -223,7 +339,19 @@ class Wpsipd_Public_Base_1 extends Wpsipd_Public_Base_2{
             if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( WPSIPD_API_KEY )) {
                 $table = '';
                 if($_POST['table'] == 'data_rpjpd_visi'){
-                    $table = 'data_rpjpd_visi';
+                    $table = $_POST['table'];
+                    $wpdb->delete($table, array('id' => $_POST['id']));
+                }else if($_POST['table'] == 'data_rpjpd_misi'){
+                    $table = $_POST['table'];
+                    $wpdb->delete($table, array('id' => $_POST['id']));
+                }else if($_POST['table'] == 'data_rpjpd_sasaran'){
+                    $table = $_POST['table'];
+                    $wpdb->delete($table, array('id' => $_POST['id']));
+                }else if($_POST['table'] == 'data_rpjpd_kebijakan'){
+                    $table = $_POST['table'];
+                    $wpdb->delete($table, array('id' => $_POST['id']));
+                }else if($_POST['table'] == 'data_rpjpd_isu'){
+                    $table = $_POST['table'];
                     $wpdb->delete($table, array('id' => $_POST['id']));
                 }
             }else{
