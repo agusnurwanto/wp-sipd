@@ -1,6 +1,7 @@
 <?php
 
-class Wpsipd_Public_Base_1{
+require_once WPSIPD_PLUGIN_PATH."/public/class-wpsipd-public-base-2.php";
+class Wpsipd_Public_Base_1 extends Wpsipd_Public_Base_2{
     public function singkron_rpjpd_sipd_lokal(){
         global $wpdb;
         $ret = array(

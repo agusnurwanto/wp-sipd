@@ -512,6 +512,7 @@ class Wpsipd
 		$this->loader->add_action('wp_ajax_update_misi_rpjm',  $plugin_public, 'update_misi_rpjm');
 		$this->loader->add_action('wp_ajax_simpan_rpjpd',  $plugin_public, 'simpan_rpjpd');
 		$this->loader->add_action('wp_ajax_hapus_rpjpd',  $plugin_public, 'hapus_rpjpd');
+		$this->loader->add_action('wp_ajax_get_data_monitoring_rup',  $plugin_public, 'get_data_monitoring_rup');
 		
 
 		add_shortcode('menu_monev',  array($plugin_public, 'menu_monev'));
@@ -546,6 +547,7 @@ class Wpsipd
 		add_shortcode('input_rpjpd', array($plugin_public, 'input_rpjpd'));
 		add_shortcode('jadwal_rpjpd', array($plugin_public, 'jadwal_rpjpd'));
 		add_shortcode('jadwal_rpd', array($plugin_public, 'jadwal_rpd'));
+		add_shortcode('monitoring_rup', array($plugin_public, 'monitoring_rup'));
 	}
 
 	/**
