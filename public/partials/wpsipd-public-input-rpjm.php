@@ -1118,6 +1118,14 @@ $tahun_selesai = (!empty($tahun_anggaran)) ? $tahun_anggaran + 5 : '-';
           				+'<br><button type="button" class="btn btn-sm btn-primary mb-2 btn-tambah-misi" data-idvisi="'+id_visi+'">Tambah Misi</button>'
           				+'<table class="table">'
           					+'<thead>'
+	          					+'<tr>'
+	          						+'<th style="max-width:25px">Visi</th>'
+	          						+'<th>'+response.visi_teks+'</th>'
+	          					+'</tr>'
+          					+'</thead>'
+          				+'</table>'
+          				+'<table class="table">'
+          					+'<thead>'
           						+'<tr>'
           							+'<th style="min-width:20px">No.</th>'
           							+'<th style="min-width:400px">Misi</th>'
@@ -1257,6 +1265,14 @@ $tahun_selesai = (!empty($tahun_anggaran)) ? $tahun_anggaran + 5 : '-';
           		
           		let tujuan = ''
           				+'<br><button type="button" class="btn btn-sm btn-primary mb-2 btn-tambah-tujuan" data-idmisi="'+id_misi+'">Tambah Tujuan</button>'
+          				+'<table class="table">'
+	          				+'<thead>'
+	          					+'<tr>'
+	          						+'<th style="max-width:25px">Misi</th>'
+	          						+'<th>'+response.misi_teks+'</th>'
+	          					+'</tr>'
+	          				+'</thead>'
+          				+'</table>'
           				+'<table class="table">'
           					+'<thead>'
           						+'<tr>'
@@ -1606,6 +1622,15 @@ $tahun_selesai = (!empty($tahun_anggaran)) ? $tahun_anggaran + 5 : '-';
           				+'<br><button type="button" class="btn btn-sm btn-primary mb-2 btn-tambah-sasaran" data-kodetujuan="'+kode_tujuan+'">Tambah Sasaran</button>'
           				+'<table class="table">'
           					+'<thead>'
+	          					+'<tr>'
+	          						+'<th style="max-width:25px">Tujuan</th>'
+	          						+'<th>'+response.tujuan_teks+'</th>'
+	          					+'</tr>'
+          					+'</thead>'
+          				+'</table>'
+          				
+          				+'<table class="table">'
+          					+'<thead>'
           						+'<tr>'
           							+'<th style="min-width:20px">No.</th>'
           							+'<th style="min-width:400px">Sasaran</th>'
@@ -1915,6 +1940,68 @@ $tahun_selesai = (!empty($tahun_anggaran)) ? $tahun_anggaran + 5 : '-';
 			})
 		}
 	});
+
+	jQuery(document).on('click', '.btn-detail-sasaran', function(){
+
+		jQuery('#wrap-loading').show();
+		let kode_sasaran = jQuery(this).data('kode');
+
+		jQuery.ajax({
+			method:'POST',
+			url:ajax.url,
+			dataType:'json',
+			data:{
+				'action': 'sasaran_detail',
+	          	'api_key': '<?php echo $api_key; ?>',
+				'kode_sasaran': kode_sasaran
+			},
+			success:function(response){
+
+          		jQuery('#wrap-loading').hide();
+          		
+          		let program = ''
+          				+'<br><button type="button" class="btn btn-sm btn-primary mb-2 btn-tambah-program" data-kodesasaran="'+kode_sasaran+'">Tambah Program</button>'
+          				+'<table class="table">'
+          					+'<thead>'
+	          					+'<tr>'
+	          						+'<th style="max-width:30px">Sasaran</th>'
+	          						+'<th>'+response.sasaran_teks+'</th>'
+	          					+'</tr>'
+          					+'</thead>'
+          				+'</table>'
+          				
+          				+'<table class="table">'
+          					+'<thead>'
+          						+'<tr>'
+          							+'<th style="min-width:20px">No.</th>'
+          							+'<th style="min-width:400px">Program</th>'
+          							+'<th>Aksi</th>'
+          						+'<tr>'
+          					+'</thead>'
+          					+'<tbody id="dataProgram">';
+
+          						let k = 1;
+
+          						response.data.map(function(value, index){
+          							program +='<tr>'
+			          							+'<td>'+k+'.</td>'
+			          							+'<td>'+value.program+'</td>'
+			          							+'<td>'
+			          								+'<a href="javascript:void(0)" data-idprogram="'+value.id+'" class="btn btn-sm btn-warning btn-kelola-indikator-program">Kelola Indikator</a>&nbsp;'
+			          								+'<a href="javascript:void(0)" data-kode="'+value.id_unik+'" class="btn btn-sm btn-primary btn-detail-program">Detail</a>&nbsp;'
+			          								+'<a href="javascript:void(0)" data-id="'+value.id+'" class="btn btn-sm btn-success btn-edit-program">Edit</a>&nbsp;'
+			          								+'<a href="javascript:void(0)" data-id="'+value.id+'" data-kodeprogram="'+value.id_unik+'" data-kodetujuan="'+value.kode_tujuan+'" class="btn btn-sm btn-danger btn-hapus-program">Hapus</a></td>'
+			          						+'</tr>';
+			          				k++;
+          						})
+          					program +='<tbody>'
+          				+'</table>';
+
+			    jQuery("#nav-program").html(program);
+			 	setActive("nav-sasaran", "nav-program");
+			}
+		})
+	})
 
 	jQuery(document).on('click', '.btn-tambah-program', function(){
 		jQuery('#wrap-loading').show();

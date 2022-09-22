@@ -523,6 +523,7 @@ class Wpsipd
 		$this->loader->add_action('wp_ajax_edit_sasaran_rpjm',  $plugin_public, 'edit_sasaran_rpjm');
 		$this->loader->add_action('wp_ajax_update_sasaran_rpjm',  $plugin_public, 'update_sasaran_rpjm');
 		$this->loader->add_action('wp_ajax_delete_sasaran_rpjm',  $plugin_public, 'delete_sasaran_rpjm');
+		$this->loader->add_action('wp_ajax_sasaran_detail',  $plugin_public, 'sasaran_detail');
 
 		$this->loader->add_action('wp_ajax_kelola_indikator_sasaran_rpjm',  $plugin_public, 'kelola_indikator_sasaran_rpjm');
 		$this->loader->add_action('wp_ajax_submit_indikator_sasaran_rpjm',  $plugin_public, 'submit_indikator_sasaran_rpjm');

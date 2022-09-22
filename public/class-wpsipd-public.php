@@ -15862,12 +15862,17 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		if (!empty($_POST)) {
 			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
 
+				$visi = $wpdb->get_row("
+					SELECT * FROM data_rpjmd_visi_lokal
+						WHERE id=".$_POST['id_visi']);
+
 				$misi = $wpdb->get_results("
 					SELECT * FROM data_rpjmd_misi_lokal
 						WHERE id_visi=".$_POST['id_visi'], ARRAY_A);
 
 				echo json_encode([
 					'status' => true,
+					'visi_teks' => $visi->visi_teks,
 					'data' => $misi,
 					'message' => 'Sukses get detail visi dg data misi by id_visi'
 				]);exit;
@@ -16173,6 +16178,10 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		if (!empty($_POST)) {
 			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
 
+				$misi = $wpdb->get_row("
+					SELECT * FROM data_rpjmd_misi_lokal
+						WHERE id=".$_POST['id_misi']);
+
 				$tujuan = $wpdb->get_results("
 					SELECT * FROM data_rpjmd_tujuan_lokal
 						WHERE id_misi=".$_POST['id_misi']." AND
@@ -16184,6 +16193,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 
 				echo json_encode([
 					'status' => true,
+					'misi_teks' => $misi->misi_teks,
 					'data' => $tujuan,
 					'message' => 'Sukses get detail visi dg data tujuan by id_misi'
 				]);exit;
@@ -16954,6 +16964,10 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		if (!empty($_POST)) {
 			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
 
+				$tujuan = $wpdb->get_row("
+					SELECT * FROM data_rpjmd_tujuan_lokal
+						WHERE id_unik='".$_POST['kode_tujuan']."'");
+
 				$sasaran = $wpdb->get_results("
 					SELECT * FROM data_rpjmd_sasaran_lokal
 						WHERE kode_tujuan='".$_POST['kode_tujuan']."' AND
@@ -16965,6 +16979,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 
 				echo json_encode([
 					'status' => true,
+					'tujuan_teks' => $tujuan->tujuan_teks,
 					'data' => $sasaran,
 					'message' => 'Sukses get sasaran by tujuan'
 				]);exit;
@@ -17759,6 +17774,44 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		if(empty($data['target_akhir'])){
 			throw new Exception('Target akhir Indikator sasaran tidak boleh kosong!');
 		}		
+	}
+
+	function sasaran_detail(){
+		global $wpdb;
+		if (!empty($_POST)) {
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+
+				$sasaran = $wpdb->get_row("
+					SELECT * FROM data_rpjmd_sasaran_lokal
+						WHERE id_unik='".$_POST['kode_sasaran']."'");
+
+				$program = $wpdb->get_results("
+					SELECT * FROM data_rpjmd_program_lokal
+						WHERE kode_sasaran='".$_POST['kode_sasaran']."' AND
+							id_unik is not null and
+							id_unik_indikator is null and
+							status=1 AND 
+							is_locked=0 AND 
+							active=1 ORDER BY id", ARRAY_A);
+
+				echo json_encode([
+					'status' => true,
+					'sasaran_teks' => $sasaran->sasaran_teks,
+					'data' => $program,
+					'message' => 'Sukses get program by sasaran'
+				]);exit;
+			}
+
+			echo json_encode([
+				'status' => false,
+				'message' => 'Api key tidak sesuai'
+			]);exit;
+		}
+
+		echo json_encode([
+			'status' => false,
+			'message' => 'Format tidak sesuai'
+		]);exit;		
 	}
 
 	function add_program_rpjm(){
