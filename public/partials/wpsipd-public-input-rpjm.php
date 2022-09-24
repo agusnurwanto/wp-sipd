@@ -1,3 +1,6 @@
+
+<link href="https://cdnjs.cloudflare.com/ajax/libs/slim-select/1.27.1/slimselect.min.css" rel="stylesheet">
+
 <?php
 // If this file is called directly, abort.
 if ( ! defined( 'WPINC' ) ) {
@@ -805,6 +808,8 @@ $tahun_selesai = (!empty($tahun_anggaran)) ? $tahun_anggaran + 5 : '-';
   </div>
 </div>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/slim-select/1.27.1/slimselect.min.js"></script>
+
 <script type="text/javascript">
 	run_download_excel();
 	let data_all = <?php echo json_encode($data_all); ?>;
@@ -969,56 +974,6 @@ $tahun_selesai = (!empty($tahun_anggaran)) ? $tahun_anggaran + 5 : '-';
           						})
           					visi +='<tbody>'
           				+'</table>';
-
-          		// let sasaran = ''
-          		// 		+'<br><button type="button" class="btn btn-sm btn-primary mb-2 btn-tambah-sasaran">Tambah Sasaran</button>'
-          		// 		+'<table class="table">'
-          		// 			+'<thead>'
-          		// 				+'<tr>'
-          		// 					+'<th style="min-width:20px">No.</th>'
-          		// 					+'<th style="min-width:400px">Sasaran</th>'
-          		// 					+'<th>Aksi</th>'
-          		// 				+'<tr>'
-          		// 			+'</thead>'
-          		// 			+'<tbody>';
-
-          		// 				let l = 1;
-          		// 				res.data.sasaran.map(function(value, index){
-          		// 					sasaran +='<tr>'
-			         //  							+'<td>'+l+'.</td>'
-			         //  							+'<td>'+value.sasaran_teks+'</td>'
-			         //  							+'<td><a href="javascript:void(0)" data-id="'+value.id+'" class="btn btn-sm btn-success btn-edit-sasaran">Edit</a> <a href="javascript:void(0)" data-id="'+value.id+'" class="btn btn-sm btn-warning">Hapus</a></td>'
-			         //  						+'</tr>';
-			         //  				l++;
-          		// 				})
-
-          		// 			sasaran+='<tbody>'
-          		// 		+'</table>';
-
-          		// let program = ''
-          		// 		+'<br><button type="button" class="btn btn-sm btn-primary mb-2 btn-tambah-program">Tambah Program</button>'
-          		// 		+'<table class="table">'
-          		// 			+'<thead>'
-          		// 				+'<tr>'
-          		// 					+'<th style="min-width:20px">No.</th>'
-          		// 					+'<th style="min-width:400px">Program</th>'
-          		// 					+'<th>Aksi</th>'
-          		// 				+'<tr>'
-          		// 			+'</thead>'
-          		// 			+'<tbody>';
-
-          		// 				let m = 1;
-          		// 				res.data.program.map(function(value, index){
-          		// 					program +='<tr>'
-			         //  							+'<td>'+m+'.</td>'
-			         //  							+'<td>'+value.nama_program+'</td>'
-			         //  							+'<td><a href="javascript:void(0)" data-id="'+value.id+'" class="btn btn-sm btn-success btn-edit-program">Edit</a> <a href="javascript:void(0)" data-id="'+value.id+'" class="btn btn-sm btn-warning">Hapus</a></td>'
-			         //  						+'</tr>';
-			         //  				m++;
-          		// 				})
-
-          		// 			program+='<tbody>'
-          		// 		+'</table>';
 
           		jQuery("#modal-monev").find("#nav-visi").html(visi);
 				jQuery('#modal-monev').modal('show');
@@ -1284,26 +1239,6 @@ $tahun_selesai = (!empty($tahun_anggaran)) ? $tahun_anggaran + 5 : '-';
           					+'<tbody id="dataTujuan">';
 
           						let k = 1;
-
-          						// Object.keys(response.data).forEach(key => {
-
-          						// 	indikator = (Object.keys(response.data[key]['indikator']).length > 0) ? '<a href="#" class="lihat-indikator" data-target="rowTujuan'+response.data[key]['id']+'">+</a>' : '';
-
-          						// 	tujuan +='<tr id="rowTujuan'+response.data[key]['id']+'">'
-			          			// 				+'<td>'+k+'.</td>'
-			          			// 				+'<td>'
-			          			// 					+response.data[key]['tujuan_teks']
-			          			// 					+'<span id=tujuan'+response.data[key]['id']+'>'+indikator+'<span>'
-			          			// 				+'</td>'
-			          			// 				+'<td>'
-			          			// 					+'<a href="javascript:void(0)" data-idtujuan="'+response.data[key]['id']+'" class="btn btn-sm btn-warning btn-add-indikator-tujuan">Tambah Indikator</a>&nbsp;'
-			          			// 					+'<a href="javascript:void(0)" data-id="'+response.data[key]['id']+'" class="btn btn-sm btn-primary btn-detail-tujuan">Detail</a>&nbsp;'
-			          			// 					+'<a href="javascript:void(0)" data-id="'+response.data[key]['id']+'" class="btn btn-sm btn-success btn-edit-tujuan">Edit</a>&nbsp;'
-			          			// 					+'<a href="javascript:void(0)" data-id="'+response.data[key]['id']+'" class="btn btn-sm btn-danger">Hapus</a>'
-			          			// 				+'</td>'
-			          			// 			+'</tr>';
-			          			// 	k++;
-          						// })
 
           						response.data.map(function(value, index){
           							tujuan +='<tr>'
@@ -1982,18 +1917,19 @@ $tahun_selesai = (!empty($tahun_anggaran)) ? $tahun_anggaran + 5 : '-';
 
           						let k = 1;
 
-          						response.data.map(function(value, index){
-          							program +='<tr>'
+          						Object.keys(response.data).forEach(key => {
+
+			          				program +='<tr>'
 			          							+'<td>'+k+'.</td>'
-			          							+'<td>'+value.program+'</td>'
+			          							+'<td>'+response.data[key]['program_teks']+'</td>'
 			          							+'<td>'
-			          								+'<a href="javascript:void(0)" data-idprogram="'+value.id+'" class="btn btn-sm btn-warning btn-kelola-indikator-program">Kelola Indikator</a>&nbsp;'
-			          								+'<a href="javascript:void(0)" data-kode="'+value.id_unik+'" class="btn btn-sm btn-primary btn-detail-program">Detail</a>&nbsp;'
-			          								+'<a href="javascript:void(0)" data-id="'+value.id+'" class="btn btn-sm btn-success btn-edit-program">Edit</a>&nbsp;'
-			          								+'<a href="javascript:void(0)" data-id="'+value.id+'" data-kodeprogram="'+value.id_unik+'" data-kodetujuan="'+value.kode_tujuan+'" class="btn btn-sm btn-danger btn-hapus-program">Hapus</a></td>'
+			          								+'<a href="javascript:void(0)" data-kode="'+response.data[key]['id_unik']+'" class="btn btn-sm btn-warning btn-kelola-indikator-program">Kelola Indikator</a>&nbsp;'
+			          								+'<a href="javascript:void(0)" data-kode="'+response.data[key]['id_unik']+'" class="btn btn-sm btn-success btn-edit-program">Edit</a>&nbsp;'
+			          								+'<a href="javascript:void(0)" data-kode="'+response.data[key]['id_unik']+'" data-kodesasaran="'+response.data[key]['kode_sasaran']+'" class="btn btn-sm btn-danger btn-hapus-program">Hapus</a></td>'
 			          						+'</tr>';
 			          				k++;
           						})
+
           					program +='<tbody>'
           				+'</table>';
 
@@ -2004,9 +1940,13 @@ $tahun_selesai = (!empty($tahun_anggaran)) ? $tahun_anggaran + 5 : '-';
 	})
 
 	jQuery(document).on('click', '.btn-tambah-program', function(){
+
 		jQuery('#wrap-loading').show();
 
 		let programModal = jQuery("#modal-crud-rpjm");
+
+		let kode_sasaran = jQuery(this).data('kodesasaran');
+
 		jQuery.ajax({
 			url: ajax.url,
           	type: "post",
@@ -2018,120 +1958,60 @@ $tahun_selesai = (!empty($tahun_anggaran)) ? $tahun_anggaran + 5 : '-';
           	},
           	dataType: "json",
           	success: function(res){
+          		
           		console.log(res);
+				
 				jQuery('#wrap-loading').hide();
 				let html = '<form id="form-rpjm">'
-								+'<div class="row">'
-									+'<div class="col-lg-12">'
-										+'<div class="card border-primary mb-3">'
-										  +'<div class="card-header bg-primary text-white">Program RPJMD</div>'
-										  +'<div class="card-body">'
-										    	+'<div class="form-group">'
-								                  +'<label for="visi">Pilih sasaran</label>'
-								                  +'<select class="form-control" name="kode_sasaran">'
-								                    +'<option value="" selected>Pilih sasaran...</option>';
-								                    res.sasaran.map(function(value, index){
-								                      html +='<option value="'+value.id_unik+'">'+value.sasaran_teks+'</option>';
-								                    });
-								                  html+='</select>'
-								                +'</div>'
-								                +'<div class="form-group">'
-								                  +'<label for="program">Program</label>'
-								                    +'<textarea class="form-control" name="program_teks"></textarea>'
-								                +'</div>'
-								                +'<div class="form-group">'
-								                  +'<label for="unit_kerja">Unit Kerja</label>'
-								                    +'<select class="form-control" name="id_unit">'
-									                    +'<option value="" selected>Pilih unit kerja...</option>';
-									                    res.units.map(function(value, index){
-									                      html +='<option value="'+value.id_unit+'">'+value.nama_skpd+'</option>';
-									                    });
-								                  html+='</select>'
-								                +'</div>'
-										  +'</div>'
-										+'</div>'
-									+'</div>'
+								+'<input type="hidden" name="kode_sasaran" value="'+kode_sasaran+'"/>'
+								+'<div class="form-group">'
+									+'<label for="program">Program</label>'
+								    +'<input type="text" class="form-control" name="program_teks"/>'
 								+'</div>'
-								+'<div class="row">'
-									+'<div class="col-lg-6">'
-										+'<div class="card border-primary mb-3">'
-											+'<div class="card-header bg-primary text-white">Indikator Program RPJMD</div>'
-										  	+'<div class="card-body">'
-										  		+'<div class="form-group">'
-								                  +'<label for="indikator_teks">Indikator</label>'
-								                    +'<textarea class="form-control" name="indikator_teks"></textarea>'
-								                +'</div>'
-								                +'<div class="form-group">'
-								                  +'<label for="satuan">Satuan</label>'
-								                    +'<input type="text" class="form-control" name="satuan"/>'
-								                +'</div>'
-								                +'<div class="form-group">'
-								                  +'<label for="target_1">Target tahun ke-1</label>'
-								                    +'<input type="text" class="form-control" name="target_1"/>'
-								                +'</div>'
-								                +'<div class="form-group">'
-								                  +'<label for="target_2">Target tahun ke-2</label>'
-								                    +'<input type="text" class="form-control" name="target_2"/>'
-								                +'</div>'
-								                +'<div class="form-group">'
-								                  +'<label for="target_3">Target tahun ke-3</label>'
-								                    +'<input type="text" class="form-control" name="target_3"/>'
-								                +'</div>'
-								                +'<div class="form-group">'
-								                  +'<label for="target_4">Target tahun ke-4</label>'
-								                    +'<input type="text" class="form-control" name="target_4"/>'
-								                +'</div>'
-								                +'<div class="form-group">'
-								                  +'<label for="target_5">Target tahun ke-5</label>'
-								                    +'<input type="text" class="form-control" name="target_5"/>'
-								                +'</div>'
-								                +'<div class="form-group">'
-								                  +'<label for="target_awal">Target awal</label>'
-								                    +'<input type="text" class="form-control" name="target_awal"/>'
-								                +'</div>'
-								                +'<div class="form-group">'
-								                  +'<label for="target_akhir">Target akhir</label>'
-								                    +'<input type="text" class="form-control" name="target_akhir"/>'
-								                +'</div>'
-										  	+'</div>'
-										+'</div>'
-									+'</div>'
-									+'<div class="col-lg-6">'
-										+'<div class="card border-primary mb-3">'
-											+'<div class="card-header bg-primary text-white">Pagu Program RPJMD</div>'
-										  	+'<div class="card-body">'
-								                +'<div class="form-group">'
-								                  +'<label for="pagu_1">Pagu tahun ke-1</label>'
-								                    +'<input type="number" class="form-control" name="pagu_1"/>'
-								                +'</div>'
-								                +'<div class="form-group">'
-								                  +'<label for="pagu_2">Pagu tahun ke-2</label>'
-								                    +'<input type="number" class="form-control" name="pagu_2"/>'
-								                +'</div>'
-								                +'<div class="form-group">'
-								                  +'<label for="pagu_3">Pagu tahun ke-3</label>'
-								                    +'<input type="number" class="form-control" name="pagu_3"/>'
-								                +'</div>'
-								                +'<div class="form-group">'
-								                  +'<label for="pagu_4">Pagu tahun ke-4</label>'
-								                    +'<input type="number" class="form-control" name="pagu_4"/>'
-								                +'</div>'
-								                +'<div class="form-group">'
-								                  +'<label for="pagu_5">Pagu tahun ke-5</label>'
-								                    +'<input type="number" class="form-control" name="pagu_5"/>'
-								                +'</div>'
-										  	+'</div>'
-										+'</div>'
-									+'</div>'
+								+'<div class="form-group">'
+									+'<label for="unit_kerja">Unit Kerja</label>'
+									+'<select id="id_unit" name="id_unit" multiple>'
+										res.units.map(function(value, index){
+									    		html +='<option value="'+value.id_unit+'">'+value.nama_skpd+'</option>';
+									    });
+								    html+='</select>'
+								+'</div>'
+								+'<div class="form-group">'
+									+'<label for="urut_program">Urut Program</label>'
+									+'<input type="number" class="form-control" name="urut_program"/>'
+								+'</div>'
+								+'<div class="form-group">'
+									+'<label for="pagu_1">Pagu tahun ke-1</label>'
+									+'<input type="number" class="form-control" name="pagu_1"/>'
+								+'</div>'
+								+'<div class="form-group">'
+									+'<label for="pagu_2">Pagu tahun ke-2</label>'
+									+'<input type="number" class="form-control" name="pagu_2"/>'
+								+'</div>'
+								+'<div class="form-group">'
+									+'<label for="pagu_3">Pagu tahun ke-3</label>'
+									+'<input type="number" class="form-control" name="pagu_3"/>'
+								+'</div>'
+								+'<div class="form-group">'
+									+'<label for="pagu_4">Pagu tahun ke-4</label>'
+									+'<input type="number" class="form-control" name="pagu_4"/>'
+								+'</div>'
+								+'<div class="form-group">'
+									+'<label for="pagu_5">Pagu tahun ke-5</label>'
+									+'<input type="number" class="form-control" name="pagu_5"/>'
 								+'</div>'
 							+'</form>';
 
-		        programModal.find('.modal-title').html('Tambah Program dan Indikator');
+		        programModal.find('.modal-title').html('Tambah Program');
 				programModal.find('.modal-body').html(html);
-				programModal.find('.modal-footer').html('<button type="button" class="btn btn-sm btn-warning" data-dismiss="modal">Tutup</button><button type="button" class="btn btn-sm btn-success" id="btn-simpan-data-rpjm-lokal" data-action="submit_program_rpjm">Simpan</button>');
-				programModal.find('.modal-dialog').css('maxWidth','950px');
-				programModal.find('.modal-dialog').css('width','100%');
+				programModal.find('.modal-footer').html('<button type="button" class="btn btn-sm btn-warning" data-dismiss="modal">Tutup</button><button type="button" class="btn btn-sm btn-success" id="btn-simpan-data-rpjm-lokal" data-action="submit_program_rpjm" data-target="dataProgram" data-withunit="true">Simpan</button>');
+				// programModal.find('.modal-dialog').css('maxWidth','950px');
+				// programModal.find('.modal-dialog').css('width','100%');
 				programModal.modal('show');
+
+				new SlimSelect({
+					select: '#id_unit'
+				})
           	}
         });
 	})
@@ -2277,7 +2157,12 @@ $tahun_selesai = (!empty($tahun_anggaran)) ? $tahun_anggaran + 5 : '-';
 		let rpjmModal = jQuery("#modal-crud-rpjm");
 		let action = jQuery(this).data('action');
 		let target = jQuery(this).data('target');
+		let withunit = jQuery(this).data('withunit');
 		let form = getFormData(jQuery("#form-rpjm"));
+
+		if(withunit){
+			form['id_unit'] = Object.assign({}, jQuery('select[name=id_unit]').val());
+		}
 		
 		console.log(form, action, target);
 		jQuery.ajax({
@@ -2290,7 +2175,7 @@ $tahun_selesai = (!empty($tahun_anggaran)) ? $tahun_anggaran + 5 : '-';
 				'data': JSON.stringify(form),
 			},
 			success:function(response){
-				console.log(response);
+				// console.log(response);
 				jQuery('#wrap-loading').hide();
 				alert(response.message);
 				if(response.status){
@@ -2318,7 +2203,7 @@ $tahun_selesai = (!empty($tahun_anggaran)) ? $tahun_anggaran + 5 : '-';
 	    let indexed_array = {};
 
 	    jQuery.map(unindexed_array, function (n, i) {
-	        indexed_array[n['name']] = n['value'];
+	    	indexed_array[n['name']] = n['value'];
 	    });
 
 	    return indexed_array;

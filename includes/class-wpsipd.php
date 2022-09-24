@@ -532,8 +532,8 @@ class Wpsipd
 		$this->loader->add_action('wp_ajax_delete_indikator_sasaran_rpjm',  $plugin_public, 'delete_indikator_sasaran_rpjm');
 
 		$this->loader->add_action('wp_ajax_add_program_rpjm',  $plugin_public, 'add_program_rpjm');
-		$this->loader->add_action('wp_ajax_edit_program_rpjm',  $plugin_public, 'edit_program_rpjm');
 		$this->loader->add_action('wp_ajax_submit_program_rpjm',  $plugin_public, 'submit_program_rpjm');
+		$this->loader->add_action('wp_ajax_edit_program_rpjm',  $plugin_public, 'edit_program_rpjm');
 		$this->loader->add_action('wp_ajax_update_program_rpjm',  $plugin_public, 'update_program_rpjm');
 		$this->loader->add_action('wp_ajax_delete_program_rpjm',  $plugin_public, 'delete_program_rpjm');
 		
