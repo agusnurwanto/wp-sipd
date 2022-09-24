@@ -1959,9 +1959,8 @@ $tahun_selesai = (!empty($tahun_anggaran)) ? $tahun_anggaran + 5 : '-';
           	dataType: "json",
           	success: function(res){
           		
-          		console.log(res);
+          		jQuery('#wrap-loading').hide();
 				
-				jQuery('#wrap-loading').hide();
 				let html = '<form id="form-rpjm">'
 								+'<input type="hidden" name="kode_sasaran" value="'+kode_sasaran+'"/>'
 								+'<div class="form-group">'
@@ -1975,10 +1974,6 @@ $tahun_selesai = (!empty($tahun_anggaran)) ? $tahun_anggaran + 5 : '-';
 									    		html +='<option value="'+value.id_unit+'">'+value.nama_skpd+'</option>';
 									    });
 								    html+='</select>'
-								+'</div>'
-								+'<div class="form-group">'
-									+'<label for="urut_program">Urut Program</label>'
-									+'<input type="number" class="form-control" name="urut_program"/>'
 								+'</div>'
 								+'<div class="form-group">'
 									+'<label for="pagu_1">Pagu tahun ke-1</label>'
@@ -2017,136 +2012,72 @@ $tahun_selesai = (!empty($tahun_anggaran)) ? $tahun_anggaran + 5 : '-';
 	})
 
 	jQuery(document).on('click', '.btn-edit-program', function(){
+		
 		jQuery('#wrap-loading').show();
 
 		let programModal = jQuery("#modal-crud-rpjm");
+		
 		jQuery.ajax({
 			url: ajax.url,
           	type: "post",
           	data: {
           		"action": "edit_program_rpjm",
           		"api_key": "<?php echo $api_key; ?>",
-				'id': jQuery(this).data('id')
+				'id_unik': jQuery(this).data('kode')
           	},
           	dataType: "json",
           	success: function(res){
-          		console.log(res);
-				jQuery('#wrap-loading').hide();
+        
+          		jQuery('#wrap-loading').hide();
+				
 				let html = '<form id="form-rpjm">'
-								+'<input type="hidden" value="'+res.program.id+'" name="id_program">'
-								+'<div class="row">'
-									+'<div class="col-lg-12">'
-										+'<div class="card border-primary mb-3">'
-										  +'<div class="card-header bg-primary text-white">Program RPJMD</div>'
-										  +'<div class="card-body">'
-										    	+'<div class="form-group">'
-								                  +'<label for="visi">Pilih sasaran</label>'
-								                  +'<select class="form-control" name="kode_sasaran" id="kode_sasaran">'
-								                    +'<option value="" selected>Pilih sasaran...</option>';
-								                    res.sasaran.map(function(value, index){
-								                      html +='<option value="'+value.id_unik+'">'+value.sasaran_teks+'</option>';
-								                    });
-								                  html+='</select>'
-								                +'</div>'
-								                +'<div class="form-group">'
-								                  +'<label for="program">Program</label>'
-								                    +'<textarea class="form-control" name="program_teks">'+res.program.nama_program+'</textarea>'
-								                +'</div>'
-								                +'<div class="form-group">'
-								                  +'<label for="unit_kerja">Unit Kerja</label>'
-								                    +'<select class="form-control" name="id_unit">'
-									                    +'<option value="" selected>Pilih unit kerja...</option>';
-									                    res.units.map(function(value, index){
-									                      html +='<option value="'+value.id_unit+'">'+value.nama_skpd+'</option>';
-									                    });
-								                  html+='</select>'
-								                +'</div>'
-										  +'</div>'
-										+'</div>'
-									+'</div>'
+								+'<input type="hidden" name="id_unik" value="'+res.data.id_unik+'"/>'
+								+'<input type="hidden" name="kode_sasaran" value="'+res.data.kode_sasaran+'"/>'
+								+'<div class="form-group">'
+									+'<label for="program">Program</label>'
+								    +'<input type="text" class="form-control" name="program_teks" value="'+res.data.program_teks+'"/>'
 								+'</div>'
-								+'<div class="row">'
-									+'<div class="col-lg-6">'
-										+'<div class="card border-primary mb-3">'
-											+'<div class="card-header bg-primary text-white">Indikator Program RPJMD</div>'
-										  	+'<div class="card-body">'
-										  		+'<div class="form-group">'
-								                  +'<label for="indikator_teks">Indikator</label>'
-								                    +'<textarea class="form-control" name="indikator_teks">'+res.program.indikator+'</textarea>'
-								                +'</div>'
-								                +'<div class="form-group">'
-								                  +'<label for="satuan">Satuan</label>'
-								                    +'<input type="text" class="form-control" name="satuan" value="'+res.program.satuan+'"/>'
-								                +'</div>'
-								                +'<div class="form-group">'
-								                  +'<label for="target_1">Target tahun ke-1</label>'
-								                    +'<input type="text" class="form-control" name="target_1" value="'+res.program.target_1+'"/>'
-								                +'</div>'
-								                +'<div class="form-group">'
-								                  +'<label for="target_2">Target tahun ke-2</label>'
-								                    +'<input type="text" class="form-control" name="target_2" value="'+res.program.target_2+'"/>'
-								                +'</div>'
-								                +'<div class="form-group">'
-								                  +'<label for="target_3">Target tahun ke-3</label>'
-								                    +'<input type="text" class="form-control" name="target_3" value="'+res.program.target_3+'"/>'
-								                +'</div>'
-								                +'<div class="form-group">'
-								                  +'<label for="target_4">Target tahun ke-4</label>'
-								                    +'<input type="text" class="form-control" name="target_4" value="'+res.program.target_4+'"/>'
-								                +'</div>'
-								                +'<div class="form-group">'
-								                  +'<label for="target_5">Target tahun ke-5</label>'
-								                    +'<input type="text" class="form-control" name="target_5" value="'+res.program.target_5+'"/>'
-								                +'</div>'
-								                +'<div class="form-group">'
-								                  +'<label for="target_awal">Target awal</label>'
-								                    +'<input type="text" class="form-control" name="target_awal" value="'+res.program.target_awal+'"/>'
-								                +'</div>'
-								                +'<div class="form-group">'
-								                  +'<label for="target_akhir">Target akhir</label>'
-								                    +'<input type="text" class="form-control" name="target_akhir" value="'+res.program.target_akhir+'"/>'
-								                +'</div>'
-										  	+'</div>'
-										+'</div>'
-									+'</div>'
-									+'<div class="col-lg-6">'
-										+'<div class="card border-primary mb-3">'
-											+'<div class="card-header bg-primary text-white">Pagu Program RPJMD</div>'
-										  	+'<div class="card-body">'
-								                +'<div class="form-group">'
-								                  +'<label for="pagu_1">Pagu tahun ke-1</label>'
-								                    +'<input type="number" class="form-control" name="pagu_1" value="'+res.program.pagu_1+'"/>'
-								                +'</div>'
-								                +'<div class="form-group">'
-								                  +'<label for="pagu_2">Pagu tahun ke-2</label>'
-								                    +'<input type="number" class="form-control" name="pagu_2" value="'+res.program.pagu_2+'"/>'
-								                +'</div>'
-								                +'<div class="form-group">'
-								                  +'<label for="pagu_3">Pagu tahun ke-3</label>'
-								                    +'<input type="number" class="form-control" name="pagu_3" value="'+res.program.pagu_3+'"/>'
-								                +'</div>'
-								                +'<div class="form-group">'
-								                  +'<label for="pagu_4">Pagu tahun ke-4</label>'
-								                    +'<input type="number" class="form-control" name="pagu_4" value="'+res.program.pagu_4+'"/>'
-								                +'</div>'
-								                +'<div class="form-group">'
-								                  +'<label for="pagu_5">Pagu tahun ke-5</label>'
-								                    +'<input type="number" class="form-control" name="pagu_5" value="'+res.program.pagu_5+'"/>'
-								                +'</div>'
-										  	+'</div>'
-										+'</div>'
-									+'</div>'
+								+'<div class="form-group">'
+									+'<label for="unit_kerja">Unit Kerja</label>'
+									+'<select id="id_unit" name="id_unit" multiple>'
+										res.units.map(function(value, index){
+									    		html +='<option value="'+value.id_unit+'">'+value.nama_skpd+'</option>';
+									    });
+								    html+='</select>'
+								+'</div>'
+								+'<div class="form-group">'
+									+'<label for="pagu_1">Pagu tahun ke-1</label>'
+									+'<input type="number" class="form-control" name="pagu_1" value="'+res.data.pagu_1+'"/>'
+								+'</div>'
+								+'<div class="form-group">'
+									+'<label for="pagu_2">Pagu tahun ke-2</label>'
+									+'<input type="number" class="form-control" name="pagu_2" value="'+res.data.pagu_2+'"/>'
+								+'</div>'
+								+'<div class="form-group">'
+									+'<label for="pagu_3">Pagu tahun ke-3</label>'
+									+'<input type="number" class="form-control" name="pagu_3" value="'+res.data.pagu_3+'"/>'
+								+'</div>'
+								+'<div class="form-group">'
+									+'<label for="pagu_4">Pagu tahun ke-4</label>'
+									+'<input type="number" class="form-control" name="pagu_4" value="'+res.data.pagu_4+'"/>'
+								+'</div>'
+								+'<div class="form-group">'
+									+'<label for="pagu_5">Pagu tahun ke-5</label>'
+									+'<input type="number" class="form-control" name="pagu_5" value="'+res.data.pagu_5+'"/>'
 								+'</div>'
 							+'</form>';
 
-		        programModal.find('.modal-title').html('Edit Program dan Indikator');
+		        programModal.find('.modal-title').html('Edit Program');
 				programModal.find('.modal-body').html(html);
-				programModal.find('.modal-footer').html('<button type="button" class="btn btn-sm btn-warning" data-dismiss="modal">Tutup</button><button type="button" class="btn btn-sm btn-success" id="btn-simpan-data-rpjm-lokal" data-action="update_program_rpjm">Simpan</button>');
-				programModal.find('.modal-dialog').css('maxWidth','950px');
-				programModal.find('.modal-dialog').css('width','100%');
+				programModal.find('.modal-footer').html('<button type="button" class="btn btn-sm btn-warning" data-dismiss="modal">Tutup</button><button type="button" class="btn btn-sm btn-success" id="btn-simpan-data-rpjm-lokal" data-action="update_program_rpjm" data-target="dataProgram" data-withunit="true">Simpan</button>');
 				programModal.modal('show');
-				jQuery("#kode_sasaran").val(res.program.kode_sasaran);
-				jQuery("#id_unit").val(res.program.id_unit);
+
+				const displaySelect = new SlimSelect({
+					select: '#id_unit'
+				});
+
+				displaySelect.set(res.selectedUnit);
+
           	}
         });
 	});
