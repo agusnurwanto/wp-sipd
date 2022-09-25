@@ -17962,7 +17962,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						<td>
 							<a href="javascript:void(0)" data-kode="'.$value['id_unik'].'" class="btn btn-sm btn-warning btn-add-indikator-program">Kelola Indikator</a>&nbsp;
 							<a href="javascript:void(0)" data-kode="'.$value['id_unik'].'" class="btn btn-sm btn-success btn-edit-program">Edit</a>&nbsp;
-							<a href="javascript:void(0)" data-kode="'.$value['id_unik'].'" data-kodesasaran="'.$value['kode_sasaran'].'" class="btn btn-sm btn-danger btn-hapus-program btn-hapus-program">Hapus</a>
+							<a href="javascript:void(0)" data-kode="'.$value['id_unik'].'" data-kodesasaran="'.$value['kode_sasaran'].'" class="btn btn-sm btn-danger btn-hapus-program">Hapus</a>
 						</td>
 					</tr>';
 			$i++;
@@ -18283,6 +18283,45 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 				}
 			}else{
 				throw new Exception('Format tidak sesuai');
+			}
+		}catch(Exception $e){
+			echo json_encode([
+				'status' => false,
+				'message' => $e->getMessage()
+			]);exit;
+		}
+	}
+
+	function delete_program_rpjm(){
+		global $wpdb;
+		try{
+			if (!empty($_POST)) {
+				if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+					
+					$id_cek = $wpdb->get_var("select * from data_rpjmd_program_lokal where id_unik='" .$_POST['kode_program']. "' and id_unik is not null and id_unik_indikator is not null and is_locked=0 and status=1 and active=1");
+
+					if(!empty($id_cek)){
+						throw new Exception("Program sudah digunakan oleh indikator program", 1);
+					}
+
+					$wpdb->get_results("delete from data_rpjmd_program_lokal where id_unik='".$_POST['kode_program']."'");
+
+					$data = $this->get_program_rpjm([
+						'type' => 1,
+						'kode_sasaran' => $_POST['kode_sasaran']
+					]);
+
+					echo json_encode([
+						'status' => true,
+						'message' => 'Sukses hapus program',
+						'data' => $data['html']
+					]);exit;
+
+				}else{
+					throw new Exception("Api key tidak sesuai", 1);
+				}
+			}else{
+				throw new Exception("Format tidak sesuai", 1);
 			}
 		}catch(Exception $e){
 			echo json_encode([

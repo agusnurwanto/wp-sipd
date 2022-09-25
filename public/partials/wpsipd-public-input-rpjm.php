@@ -2082,6 +2082,39 @@ $tahun_selesai = (!empty($tahun_anggaran)) ? $tahun_anggaran + 5 : '-';
         });
 	});
 
+	jQuery(document).on('click', '.btn-hapus-program', function(){
+
+		if(confirm('Data akan dihapus, lanjut?')){
+			
+			jQuery('#wrap-loading').show();
+			
+			let kode_program = jQuery(this).data('kode');
+			
+			let kode_sasaran = jQuery(this).data('kodesasaran');
+
+			jQuery.ajax({
+				method:'POST',
+				url:ajax.url,
+				dataType:'json',
+				data:{
+					'action': 'delete_program_rpjm',
+		          	'api_key': '<?php echo $api_key; ?>',
+					'kode_program': kode_program,
+					'kode_sasaran': kode_sasaran,
+				},
+				success:function(response){
+
+					jQuery('#wrap-loading').hide();
+
+					alert(response.message);
+
+					jQuery("#dataProgram").html(response.data);
+
+				}
+			})
+		}
+	});
+
 	jQuery(document).on('click', '#btn-simpan-data-rpjm-lokal', function(){
 		
 		jQuery('#wrap-loading').show();
