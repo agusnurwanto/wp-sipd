@@ -537,6 +537,8 @@ class Wpsipd
 		$this->loader->add_action('wp_ajax_update_program_rpjm',  $plugin_public, 'update_program_rpjm');
 		$this->loader->add_action('wp_ajax_delete_program_rpjm',  $plugin_public, 'delete_program_rpjm');
 		
+		$this->loader->add_action('wp_ajax_kelola_indikator_program_rpjm',  $plugin_public, 'kelola_indikator_program_rpjm');
+		$this->loader->add_action('wp_ajax_submit_indikator_program_rpjm',  $plugin_public, 'submit_indikator_program_rpjm');
 
 		add_shortcode('menu_monev',  array($plugin_public, 'menu_monev'));
 		add_shortcode('datassh', array($plugin_public, 'datassh'));

@@ -18042,12 +18042,10 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 							$wpdb->insert('data_rpjmd_program_lokal', [
 								'id_misi' => $dataMisi->id_misi,
 								'id_unik' => $id_unik, // kode_program
-								// 'id_unik_indikator' => $this->generateRandomString(),
 								'id_unit' => $unit->id_unit,
 								'id_visi' => $dataMisi->id_visi,
 								'is_locked' => 0,
 								'is_locked_indikator' => 0,
-								// 'indikator' => $data['indikator_teks'],
 								'kode_sasaran' => $data['kode_sasaran'],
 								'kode_skpd' => $unit->kode_skpd,
 								'kode_tujuan' => $dataTujuan->id_unik,
@@ -18062,15 +18060,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 								'program_lock' => 0,
 								'sasaran_lock' => $dataSasaran->sasaran_lock,
 								'sasaran_teks' => $dataSasaran->sasaran_teks,
-								// 'satuan' => $data['satuan'],
 								'status' => 1,
-								// 'target_1' => $data['target_1'],
-								// 'target_2' => $data['target_2'],
-								// 'target_3' => $data['target_3'],
-								// 'target_4' => $data['target_4'],
-								// 'target_5' => $data['target_5'],
-								// 'target_awal' => $data['target_awal'],
-								// 'target_akhir' => $data['target_akhir'],
 								'tujuan_lock' => $dataTujuan->tujuan_lock,
 								'tujuan_teks' => $dataTujuan->tujuan_teks,
 								'urut_misi' => $dataMisi->urut_misi,
@@ -18343,42 +18333,6 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		if(empty($data['id_unit'])){
 			throw new Exception('Unit kerja wajib dipilih!');
 		}
-		
-		// if(empty($data['indikator_teks'])){
-		// 	throw new Exception('Indikator program tidak boleh kosong!');
-		// }
-
-		// if(empty($data['satuan'])){
-		// 	throw new Exception('Satuan indikator program tidak boleh kosong!');
-		// }
-
-		// if(empty($data['target_1'])){
-		// 	throw new Exception('Target Indikator program tahun ke-1 tidak boleh kosong!');
-		// }
-
-		// if(empty($data['target_2'])){
-		// 	throw new Exception('Target Indikator program tahun ke-2 tidak boleh kosong!');
-		// }
-
-		// if(empty($data['target_3'])){
-		// 	throw new Exception('Target Indikator program tahun ke-3 tidak boleh kosong!');
-		// }
-
-		// if(empty($data['target_4'])){
-		// 	throw new Exception('Target Indikator program tahun ke-4 tidak boleh kosong!');
-		// }
-
-		// if(empty($data['target_5'])){
-		// 	throw new Exception('Target Indikator program tahun ke-5 tidak boleh kosong!');
-		// }
-
-		// if(empty($data['target_awal'])){
-		// 	throw new Exception('Target awal Indikator program tidak boleh kosong!');
-		// }
-
-		// if(empty($data['target_akhir'])){
-		// 	throw new Exception('Target akhir Indikator program tidak boleh kosong!');
-		// }
 
 		if(empty($data['pagu_1'])){
 			throw new Exception('Pagu program tahun ke-1 tidak boleh kosong!');
@@ -18398,6 +18352,311 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 
 		if(empty($data['pagu_5'])){
 			throw new Exception('Pagu program tahun ke-5 tidak boleh kosong!');
+		}
+	}
+
+	function kelola_indikator_program_rpjm(){
+		global $wpdb;
+
+		try{
+			if (!empty($_POST)) {
+				if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+					
+					// ambil data indikator
+					$indikators = $wpdb->get_results("select * from data_rpjmd_program_lokal where id_unik='".$_POST['kode_program']."' and id_unik is not null and id_unik_indikator is not null and is_locked_indikator=0 and status=1 and active=1", ARRAY_A);
+
+					if(empty($indikators)){
+						// ambil data program
+						$indikators = $wpdb->get_results("select * from data_rpjmd_program_lokal where id_unik='".$_POST['kode_program']."' and id_unik is not null and id_unik_indikator is null and is_locked_indikator=0 and status=1 and active=1", ARRAY_A);
+					}
+
+					$data = [];
+					foreach ($indikators as $key => $value) {
+
+						if(empty($data[$value['id_unik']])){
+							$data[$value['id_unik']] = [
+								'id_unik' => $value['id_unik'],
+								'program_teks' => $value['nama_program'],
+								'indikator'=> []
+							];
+						}
+
+						if(!is_null($value['id_unik_indikator'])){
+							if(empty($data[$value['id_unik']]['indikator'][$value['id_unik_indikator']])){
+								$data[$value['id_unik']]['indikator'][$value['id_unik_indikator']] = [
+									'id' => $value['id'],
+									'id_unik' => $value['id_unik'],
+									'id_unik_indikator' => $value['id_unik_indikator'],
+									'indikator_teks' => $value['indikator'],
+									'satuan' => $value['satuan'],
+									'target_1' => $value['target_1'],
+									'target_2' => $value['target_2'],
+									'target_3' => $value['target_3'],
+									'target_4' => $value['target_4'],
+									'target_5' => $value['target_5'],
+									'target_awal' => $value['target_awal'],
+									'target_akhir' => $value['target_akhir'],
+								];
+							}
+						}
+					}
+			
+
+					$html = '';
+					foreach ($data as $key => $program) {
+						$html.="
+							<div class='row'>
+								<div class='col-lg-10'><h5>".$program['program_teks']."</h5></div>
+								<div class='col-lg-2 text-right'><button type=\"button\" class=\"btn btn-sm btn-primary mb-2 btn-add-indikator-program\" data-kode=\"'".$_POST['kode_program']."'\">Tambah Indikator</button></div>
+							</div>
+							<table class='table'>
+								<thead>
+									<tr>
+										<td>No.</td>
+										<td>Indikator</td>
+										<td>Satuan</td>
+										<td>Target 1</td>
+										<td>Target 2</td>
+										<td>Target 3</td>
+										<td>Target 4</td>
+										<td>Target 5</td>
+										<td>Target Awal</td>
+										<td>Target Akhir</td>
+										<td>Aksi</td>
+									</tr>
+								</thead>
+								<tbody id='indikator_program'>
+						";
+
+						$j=1;
+						foreach ($program['indikator'] as $key => $indikator) {
+							$html.="
+								<tr>
+									<td>{$j}.</td>
+									<td>".$indikator['indikator_teks']."</td>
+									<td>".$indikator['satuan']."</td>
+									<td>".$indikator['target_1']."</td>
+									<td>".$indikator['target_2']."</td>
+									<td>".$indikator['target_3']."</td>
+									<td>".$indikator['target_4']."</td>
+									<td>".$indikator['target_5']."</td>
+									<td>".$indikator['target_awal']."</td>
+									<td>".$indikator['target_akhir']."</td>
+									<td>
+										<a href='#' class='btn btn-sm btn-success btn-edit-indikator-program' data-kode='".$indikator['id_unik']."' data-id='".$indikator['id']."'>Edit</a>&nbsp;
+										<a href='#' class='btn btn-sm btn-danger btn-delete-indikator-program' data-kode='".$indikator['id_unik']."' data-id='".$indikator['id']."'>Hapus</a>&nbsp;
+									</td>
+								</tr>
+							";
+							$j++;
+						}
+					}
+					$html .= "</tbody></table>";
+
+					echo json_encode([
+						'status' => true,
+						'data' => $html
+					]);exit;
+
+				}else{
+					throw new Exception('Api key tidak sesuai');
+				}
+			}else{
+				throw new Exception('Format tidak sesuai');
+			}
+		}catch(Exception $e){
+			echo json_encode([
+				'status' => false,
+				'message' => $e->getMessage()
+			]);exit;
+		}
+	}
+
+	function get_indikator_program_rpjm(array $input){
+		global $wpdb;
+
+		$data = $wpdb->get_results("select * from data_rpjmd_program_lokal where id_unik='".$input['kode_program']."' and id_unik_indikator is not null and active=1 and is_locked_indikator=0 and status=1 order by id", ARRAY_A);
+
+		$html = "";
+		$j=1;
+		foreach ($data as $key => $indikator) {
+			$html.="
+					<tr>
+						<td>{$j}.</td>
+						<td>".$indikator['indikator']."</td>
+						<td>".$indikator['satuan']."</td>
+						<td>".$indikator['target_1']."</td>
+						<td>".$indikator['target_2']."</td>
+						<td>".$indikator['target_3']."</td>
+						<td>".$indikator['target_4']."</td>
+						<td>".$indikator['target_5']."</td>
+						<td>".$indikator['target_awal']."</td>
+						<td>".$indikator['target_akhir']."</td>
+						<td>
+							<a href='#' class='btn btn-sm btn-success btn-edit-indikator-program' data-kode='".$indikator['id_unik']."' data-id='".$indikator['id']."'>Edit</a>&nbsp;
+							<a href='#' class='btn btn-sm btn-danger btn-delete-indikator-program' data-kode='".$indikator['id_unik']."' data-id='".$indikator['id']."'>Hapus</a>&nbsp;
+						</td>
+					</tr>";
+			$j++;
+		}
+
+		return [
+			'data' => $data,
+			'html' => $html,
+		];
+	}
+
+	function submit_indikator_program_rpjm(){
+		global $wpdb;
+
+		try{
+			if (!empty($_POST)) {
+				if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+					
+					$data = json_decode(stripslashes($_POST['data']), true);
+
+					$this->verify_indikator_program_rpjm($data);
+
+					$id_cek = $wpdb->get_var("
+						SELECT id FROM data_rpjmd_program_lokal
+							WHERE indikator='".$data['indikator_teks']."'
+										AND id_unik='".$data['kode_program']."'
+										AND id_unik_indikator is not null
+										AND is_locked_indikator=0
+										AND status=1
+										AND active=1
+								");
+					
+					if(!empty($id_cek)){
+						throw new Exception('Indikator : '.$data['indikator_teks'].' sudah ada!');
+					}
+
+					$dataProgram = $wpdb->get_row("SELECT * FROM data_rpjmd_program_lokal WHERE id_unik='".$data['kode_program'] ."' AND is_locked=0 AND status=1 AND active=1 AND id_unik IS NOT NULL AND id_unik_indikator IS NULL");
+
+					if (empty($dataProgram)) {
+						throw new Exception('Program yang dipilih tidak ditemukan!');
+					}
+
+					$dataSasaran = $wpdb->get_row("SELECT id_unik, sasaran_teks, is_locked AS sasaran_lock, urut_sasaran, kode_tujuan FROM data_rpjmd_sasaran_lokal WHERE id_unik='".$dataProgram->kode_sasaran . "' AND is_locked=0 AND status=1 AND active=1");
+
+					if(empty($dataSasaran)){
+						throw new Exception('Sasaran belum dipilih!');
+					}
+
+					$dataTujuan = $wpdb->get_row("SELECT id_unik, tujuan_teks, is_locked AS tujuan_lock, id_misi, urut_tujuan FROM data_rpjmd_tujuan_lokal WHERE id_unik='".$dataSasaran->kode_tujuan . "' AND is_locked=0 AND status=1 AND active=1");
+
+					if(empty($dataTujuan)){
+						throw new Exception('Sasaran tidak terkoneksi dengan tujuan, cek Sasaran!');
+					}
+
+					$dataMisi = $wpdb->get_row("SELECT id AS id_misi, misi_teks, is_locked AS misi_lock, id_visi, urut_misi FROM data_rpjmd_misi_lokal WHERE id=".$dataTujuan->id_misi . " AND is_locked=0 AND status=1 AND active=1");
+
+					if(empty($dataMisi)){
+						throw new Exception('Misi tidak terkoneksi dengan tujuan, cek Tujuan!');
+					}
+
+					$dataVisi = $wpdb->get_row("SELECT id AS id_visi, visi_teks, is_locked AS visi_lock FROM data_rpjmd_visi_lokal WHERE id=".$dataMisi->id_visi . " AND is_locked=0 AND status=1 AND active=1");
+
+					if(empty($dataVisi)){
+						throw new Exception('Visi tidak terkoneksi dengan misi, cek Misi!');
+					}
+
+						$wpdb->insert('data_rpjmd_program_lokal', [
+								'id_misi' => $dataMisi->id_misi,
+								'id_unik' => $data['kode_program'], // kode_program
+								'id_unik_indikator' => $this->generateRandomString(),
+								'id_visi' => $dataMisi->id_visi,
+								'is_locked' => 0,
+								'is_locked_indikator' => 0,
+								'indikator' => $data['indikator_teks'],
+								'kode_sasaran' => $dataProgram->kode_sasaran,
+								'kode_tujuan' => $dataTujuan->id_unik,
+								'misi_teks' => $dataMisi->misi_teks,
+								'nama_program' => $dataProgram->nama_program,
+								'program_lock' => 0,
+								'sasaran_lock' => $dataSasaran->sasaran_lock,
+								'sasaran_teks' => $dataSasaran->sasaran_teks,
+								'satuan' => $data['satuan'],
+								'status' => 1,
+								'target_1' => $data['target_1'],
+								'target_2' => $data['target_2'],
+								'target_3' => $data['target_3'],
+								'target_4' => $data['target_4'],
+								'target_5' => $data['target_5'],
+								'target_awal' => $data['target_awal'],
+								'target_akhir' => $data['target_akhir'],
+								'tujuan_lock' => $dataTujuan->tujuan_lock,
+								'tujuan_teks' => $dataTujuan->tujuan_teks,
+								'urut_misi' => $dataMisi->urut_misi,
+								'urut_sasaran' => $dataSasaran->urut_sasaran,
+								'urut_tujuan' => $dataTujuan->urut_tujuan,
+								'visi_teks' => $dataVisi->visi_teks,
+								'active' => 1
+							]);
+						
+						$data['type'] = 1;
+
+						$dataIndikatorProgram = $this->get_indikator_program_rpjm($data);
+
+						echo json_encode([
+							'status' => true,
+							'data' => $dataIndikatorProgram['html'],
+							'message' => 'Sukses simpan indikator program'
+						]);exit;
+
+				}else{
+					throw new Exception('Api key tidak sesuai');
+				}
+			}else{
+				throw new Exception('Format tidak sesuai');
+			}
+		}catch(Exception $e){
+			echo json_encode([
+				'status' => false,
+				'message' => $e->getMessage()
+			]);exit;
+		}
+	}
+
+	function verify_indikator_program_rpjm(array $data){
+		if(empty($data['kode_program'])){
+			throw new Exception('Program wajib dipilih!');
+		}
+
+		if(empty($data['indikator_teks'])){
+			throw new Exception('Indikator program tidak boleh kosong!');
+		}
+
+		if(empty($data['satuan'])){
+			throw new Exception('Satuan indikator program tidak boleh kosong!');
+		}
+
+		if(empty($data['target_1'])){
+			throw new Exception('Target Indikator program tahun ke-1 tidak boleh kosong!');
+		}
+
+		if(empty($data['target_2'])){
+			throw new Exception('Target Indikator program tahun ke-2 tidak boleh kosong!');
+		}
+
+		if(empty($data['target_3'])){
+			throw new Exception('Target Indikator program tahun ke-3 tidak boleh kosong!');
+		}
+
+		if(empty($data['target_4'])){
+			throw new Exception('Target Indikator program tahun ke-4 tidak boleh kosong!');
+		}
+
+		if(empty($data['target_5'])){
+			throw new Exception('Target Indikator program tahun ke-5 tidak boleh kosong!');
+		}
+
+		if(empty($data['target_awal'])){
+			throw new Exception('Target awal Indikator program tidak boleh kosong!');
+		}
+
+		if(empty($data['target_akhir'])){
+			throw new Exception('Target akhir Indikator program tidak boleh kosong!');
 		}
 	}
 
