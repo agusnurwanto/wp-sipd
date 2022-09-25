@@ -2191,6 +2191,79 @@ $tahun_selesai = (!empty($tahun_anggaran)) ? $tahun_anggaran + 5 : '-';
 			indikatorProgramModal.modal('show');
 	});
 
+	jQuery(document).on('click', '.btn-edit-indikator-program', function(){
+
+		jQuery('#wrap-loading').show();
+
+		let indikatorProgramModal = jQuery("#modal-crud-rpjm");
+
+		let id = jQuery(this).data('id');
+
+		let kode_program = jQuery(this).data('kode');
+
+		jQuery.ajax({
+			url: ajax.url,
+          	type: "post",
+          	data: {
+          		"action": "edit_indikator_program_rpjm",
+          		"api_key": "<?php echo $api_key; ?>",
+				'id': id,
+				'kode_program': kode_program
+          	},
+          	dataType: "json",
+          	success: function(response){
+
+          		jQuery('#wrap-loading').hide();
+
+          		let html = '<form id="form-rpjm">'
+					+'<input type="hidden" name="id" value="'+id+'">'
+					+'<input type="hidden" name="kode_program" value="'+kode_program+'">'
+					+'<div class="form-group">'
+						+'<label for="indikator_teks">Indikator</label>'
+	  					+'<textarea class="form-control" name="indikator_teks">'+response.data.indikator+'</textarea>'
+					+'</div>'
+					+'<div class="form-group">'
+						+'<label for="satuan">Satuan</label>'
+	  					+'<input type="text" class="form-control" name="satuan" value="'+response.data.satuan+'"/>'
+					+'</div>'
+					+'<div class="form-group">'
+						+'<label for="target_1">Target tahun ke-1</label>'
+	  					+'<input type="text" class="form-control" name="target_1" value="'+response.data.target_1+'"/>'
+					+'</div>'
+					+'<div class="form-group">'
+						+'<label for="target_2">Target tahun ke-2</label>'
+	  					+'<input type="text" class="form-control" name="target_2" value="'+response.data.target_2+'"/>'
+					+'</div>'
+					+'<div class="form-group">'
+						+'<label for="target_3">Target tahun ke-3</label>'
+	  					+'<input type="text" class="form-control" name="target_3" value="'+response.data.target_3+'"/>'
+					+'</div>'
+					+'<div class="form-group">'
+						+'<label for="target_4">Target tahun ke-4</label>'
+	  					+'<input type="text" class="form-control" name="target_4" value="'+response.data.target_4+'"/>'
+					+'</div>'
+					+'<div class="form-group">'
+						+'<label for="target_5">Target tahun ke-5</label>'
+	  					+'<input type="text" class="form-control" name="target_5" value="'+response.data.target_5+'"/>'
+					+'</div>'
+					+'<div class="form-group">'
+						+'<label for="target_awal">Target awal</label>'
+	  					+'<input type="text" class="form-control" name="target_awal" value="'+response.data.target_awal+'"/>'
+					+'</div>'
+					+'<div class="form-group">'
+					+'<label for="target_akhir">Target akhir</label>'
+	  					+'<input type="text" class="form-control" name="target_akhir" value="'+response.data.target_akhir+'"/>'
+					+'</div>'
+				  +'</form>';
+
+				indikatorProgramModal.find('.modal-title').html('Edit Indikator Program');
+				indikatorProgramModal.find('.modal-body').html(html);
+				indikatorProgramModal.find('.modal-footer').html('<button type="button" class="btn btn-sm btn-warning" data-dismiss="modal">Tutup</button><button type="button" class="btn btn-sm btn-success" id="btn-simpan-data-rpjm-lokal" data-action="update_indikator_program_rpjm" data-target="indikator_program">Simpan</button>');
+				indikatorProgramModal.modal('show');
+          	}
+		})	
+	})
+
 	jQuery(document).on('click', '#btn-simpan-data-rpjm-lokal', function(){
 		
 		jQuery('#wrap-loading').show();

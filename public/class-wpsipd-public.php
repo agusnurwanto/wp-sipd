@@ -18660,6 +18660,143 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		}
 	}
 
+	function edit_indikator_program_rpjm(){
+		global $wpdb;
+
+		try{
+			if (!empty($_POST)) {
+				if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+					
+					$indikator = $wpdb->get_row("select * from data_rpjmd_program_lokal where id=".$_POST['id']." and id_unik='".$_POST['kode_program']. "' and id_unik_indikator is not null and is_locked_indikator=0 and status=1 and active=1");
+
+					echo json_encode([
+						'status' => true,
+						'data' => $indikator
+					]);exit;
+
+				}else{
+					throw new Exception('Api key tidak sesuai');
+				}
+			}else{
+				throw new Exception('Format tidak sesuai');
+			}
+		}catch(Exception $e){
+			echo json_encode([
+				'status' => false,
+				'message' => $e->getMessage()
+			]);exit;
+		}
+	}
+
+	function update_indikator_program_rpjm(){
+		global $wpdb;
+
+		try{
+			if (!empty($_POST)) {
+				if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+					
+					$data = json_decode(stripslashes($_POST['data']), true);
+
+					$this->verify_indikator_program_rpjm($data);
+
+					$id_cek = $wpdb->get_var("
+						SELECT id FROM data_rpjmd_program_lokal
+							WHERE indikator='".$data['indikator_teks']."'
+										AND id!='".$data['id']."'
+										AND id_unik='".$data['kode_program']."'
+										AND id_unik_indikator is not null
+										AND is_locked_indikator=0
+										AND status=1
+										AND active=1
+								");
+					
+					if(!empty($id_cek)){
+						throw new Exception('Indikator : '.$data['indikator_teks'].' sudah ada!');
+					}
+
+					$dataProgram = $wpdb->get_row("SELECT * FROM data_rpjmd_program_lokal WHERE id_unik='".$data['kode_program'] ."' AND is_locked=0 AND status=1 AND active=1 AND id_unik IS NOT NULL AND id_unik_indikator IS NULL");
+
+					if (empty($dataProgram)) {
+						throw new Exception('Program yang dipilih tidak ditemukan!');
+					}
+
+					$dataSasaran = $wpdb->get_row("SELECT id_unik, sasaran_teks, is_locked AS sasaran_lock, urut_sasaran, kode_tujuan FROM data_rpjmd_sasaran_lokal WHERE id_unik='".$dataProgram->kode_sasaran . "' AND is_locked=0 AND status=1 AND active=1");
+
+					if(empty($dataSasaran)){
+						throw new Exception('Sasaran belum dipilih!');
+					}
+
+					$dataTujuan = $wpdb->get_row("SELECT id_unik, tujuan_teks, is_locked AS tujuan_lock, id_misi, urut_tujuan FROM data_rpjmd_tujuan_lokal WHERE id_unik='".$dataSasaran->kode_tujuan . "' AND is_locked=0 AND status=1 AND active=1");
+
+					if(empty($dataTujuan)){
+						throw new Exception('Sasaran tidak terkoneksi dengan tujuan, cek Sasaran!');
+					}
+
+					$dataMisi = $wpdb->get_row("SELECT id AS id_misi, misi_teks, is_locked AS misi_lock, id_visi, urut_misi FROM data_rpjmd_misi_lokal WHERE id=".$dataTujuan->id_misi . " AND is_locked=0 AND status=1 AND active=1");
+
+					if(empty($dataMisi)){
+						throw new Exception('Misi tidak terkoneksi dengan tujuan, cek Tujuan!');
+					}
+
+					$dataVisi = $wpdb->get_row("SELECT id AS id_visi, visi_teks, is_locked AS visi_lock FROM data_rpjmd_visi_lokal WHERE id=".$dataMisi->id_visi . " AND is_locked=0 AND status=1 AND active=1");
+
+					if(empty($dataVisi)){
+						throw new Exception('Visi tidak terkoneksi dengan misi, cek Misi!');
+					}
+
+						$wpdb->update('data_rpjmd_program_lokal', [
+								'id_misi' => $dataMisi->id_misi,
+								'id_visi' => $dataMisi->id_visi,
+								'indikator' => $data['indikator_teks'],
+								'kode_sasaran' => $dataProgram->kode_sasaran,
+								'kode_tujuan' => $dataTujuan->id_unik,
+								'misi_teks' => $dataMisi->misi_teks,
+								'nama_program' => $dataProgram->nama_program,
+								'sasaran_lock' => $dataSasaran->sasaran_lock,
+								'sasaran_teks' => $dataSasaran->sasaran_teks,
+								'satuan' => $data['satuan'],
+								'target_1' => $data['target_1'],
+								'target_2' => $data['target_2'],
+								'target_3' => $data['target_3'],
+								'target_4' => $data['target_4'],
+								'target_5' => $data['target_5'],
+								'target_awal' => $data['target_awal'],
+								'target_akhir' => $data['target_akhir'],
+								'tujuan_lock' => $dataTujuan->tujuan_lock,
+								'tujuan_teks' => $dataTujuan->tujuan_teks,
+								'urut_misi' => $dataMisi->urut_misi,
+								'urut_sasaran' => $dataSasaran->urut_sasaran,
+								'urut_tujuan' => $dataTujuan->urut_tujuan,
+								'visi_teks' => $dataVisi->visi_teks,
+								'active' => 1
+							], [
+								'id' => $data['id']
+							]);
+						
+						$data['type'] = 1;
+
+						$dataIndikatorProgram = $this->get_indikator_program_rpjm($data);
+
+						echo json_encode([
+							'status' => true,
+							'data' => $dataIndikatorProgram['html'],
+							'message' => 'Sukses simpan indikator program'
+						]);exit;
+
+				}else{
+					throw new Exception('Api key tidak sesuai');
+				}
+			}else{
+				throw new Exception('Format tidak sesuai');
+			}
+		}catch(Exception $e){
+			echo json_encode([
+				'status' => false,
+				'message' => $e->getMessage()
+			]);exit;
+		}
+	}
+
 	public function generateRandomString($length = 10) {
 	    $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
 	    $charactersLength = strlen($characters);
