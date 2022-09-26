@@ -16311,10 +16311,10 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						<td>'.$i.'.</td>
 						<td>'.$value['tujuan_teks'].'</td>
 						<td>
-							<a href="javascript:void(0)" data-id="'.$value['id'].'" class="btn btn-sm btn-warning btn-add-indikator-tujuan">Tambah Indikator</a>&nbsp;
-							<a href="javascript:void(0)" data-id="'.$value['id'].'" class="btn btn-sm btn-primary btn-detail-tujuan">Detail</a>&nbsp;
-							<a href="javascript:void(0)" data-id="'.$value['id'].'" class="btn btn-sm btn-success btn-edit-tujuan">Edit</a>&nbsp;
-							<a href="javascript:void(0)" data-id="'.$value['id'].'" data-idmisi="'.$value['id_misi'].'" data-kodetujuan="'.$value['id_unik'].'" class="btn btn-sm btn-danger btn-hapus-tujuan">Hapus</a>
+							<a href="javascript:void(0)" data-idtujuan="'.$value['id'].'" class="btn btn-sm btn-warning btn-kelola-indikator-tujuan"><i class="dashicons dashicons-arrow-up-alt" style="margin-top: 3px;"></i> Indikator</a>&nbsp;
+							<a href="javascript:void(0)" data-kode="'.$value['id_unik'].'" class="btn btn-sm btn-primary btn-detail-tujuan"><i class="dashicons dashicons-search" style="margin-top: 3px;"></i></a>&nbsp;
+							<a href="javascript:void(0)" data-id="'.$value['id'].'" class="btn btn-sm btn-success btn-edit-tujuan"><i class="dashicons dashicons-edit" style="margin-top: 3px;"></i></a>&nbsp;
+							<a href="javascript:void(0)" data-id="'.$value['id'].'" data-idmisi="'.$value['id_misi'].'" data-kodetujuan="'.$value['id_unik'].'" class="btn btn-sm btn-danger btn-hapus-tujuan"><i class="dashicons dashicons-trash" style="margin-top: 3px;"></i></a>
 						</td>
 					</tr>';
 			$i++;
@@ -16629,7 +16629,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						$html.="
 							<div class='row'>
 								<div class='col-lg-10'><h5>".$tujuan['tujuan_teks']."</h5></div>
-								<div class='col-lg-2 text-right'><button type=\"button\" class=\"btn btn-sm btn-primary mb-2 btn-add-indikator-tujuan\" data-idtujuan=\"'".$_POST['id_tujuan']."'\">Tambah Indikator</button></div>
+								<div class='col-lg-2 text-right'><button type=\"button\" class=\"btn btn-sm btn-primary mb-2 btn-add-indikator-tujuan\" data-idtujuan=\"'".$_POST['id_tujuan']."'\"><i class=\"dashicons dashicons-plus\" style=\"margin-top: 3px;\"></i> Tambah Indikator</button></div>
 							</div>
 							<table class='table'>
 								<thead>
@@ -16665,8 +16665,8 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 									<td>".$indikator['target_awal']."</td>
 									<td>".$indikator['target_akhir']."</td>
 									<td>
-										<a href='#' class='btn btn-sm btn-success btn-edit-indikator-tujuan' data-idtujuan='".$indikator['id_tujuan']."' data-id='".$indikator['id']."'>Edit</a>&nbsp;
-										<a href='#' class='btn btn-sm btn-danger btn-delete-indikator-tujuan' data-idtujuan='".$indikator['id_tujuan']."' data-id='".$indikator['id']."'>Hapus</a>&nbsp;
+										<a href='#' class='btn btn-sm btn-success btn-edit-indikator-tujuan' data-idtujuan='".$indikator['id_tujuan']."' data-id='".$indikator['id']."'><i class=\"dashicons dashicons-edit\" style=\"margin-top: 3px;\"></i></a>&nbsp;
+										<a href='#' class='btn btn-sm btn-danger btn-delete-indikator-tujuan' data-idtujuan='".$indikator['id_tujuan']."' data-id='".$indikator['id']."'><i class=\"dashicons dashicons-trash\" style=\"margin-top: 3px;\"></i></a>&nbsp;
 									</td>
 								</tr>
 							";
@@ -17005,8 +17005,8 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						<td>".$indikator['target_awal']."</td>
 						<td>".$indikator['target_akhir']."</td>
 						<td>
-							<a href='#' class='btn btn-sm btn-success btn-edit-indikator-tujuan' data-idtujuan='".$indikator['id_tujuan']."' data-id='".$indikator['id']."'>Edit</a>&nbsp;
-							<a href='#' class='btn btn-sm btn-danger btn-delete-indikator-tujuan' data-idtujuan='".$indikator['id_tujuan']."' data-id='".$indikator['id']."'>Hapus</a>&nbsp;
+							<a href='#' class='btn btn-sm btn-success btn-edit-indikator-tujuan' data-idtujuan='".$indikator['id_tujuan']."' data-id='".$indikator['id']."'><i class=\"dashicons dashicons-edit\" style=\"margin-top: 3px;\"></i></a>&nbsp;
+							<a href='#' class='btn btn-sm btn-danger btn-delete-indikator-tujuan' data-idtujuan='".$indikator['id_tujuan']."' data-id='".$indikator['id']."'><i class=\"dashicons dashicons-trash\" style=\"margin-top: 3px;\"></i></a>&nbsp;
 						</td>
 					</tr>";
 			$j++;
@@ -17093,10 +17093,10 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						<td>'.$i.'.</td>
 						<td>'.$value['sasaran_teks'].'</td>
 						<td>
-							<a href="javascript:void(0)" data-idsasaran="'.$value['id'].'" class="btn btn-sm btn-warning btn-add-indikator-sasaran">Kelola Indikator</a>&nbsp;
-							<a href="javascript:void(0)" data-kode="'.$value['id_unik'].'" class="btn btn-sm btn-primary btn-detail-sasaran">Detail</a>&nbsp;
-							<a href="javascript:void(0)" data-id="'.$value['id'].'" class="btn btn-sm btn-success btn-edit-sasaran">Edit</a>&nbsp;
-							<a href="javascript:void(0)" data-id="'.$value['id'].'" data-kodesasaran="'.$value['id_unik'].'" data-kodetujuan="'.$value['kode_tujuan'].'" class="btn btn-sm btn-danger btn-hapus-sasaran btn-hapus-sasaran">Hapus</a>
+							<a href="javascript:void(0)" data-idsasaran="'.$value['id'].'" class="btn btn-sm btn-warning btn-add-indikator-sasaran"><i class="dashicons dashicons-arrow-up-alt" style="margin-top: 3px;"></i> Indikator</a>&nbsp;
+							<a href="javascript:void(0)" data-kode="'.$value['id_unik'].'" class="btn btn-sm btn-primary btn-detail-sasaran"><i class="dashicons dashicons-search" style="margin-top: 3px;"></i></a>&nbsp;
+							<a href="javascript:void(0)" data-id="'.$value['id'].'" class="btn btn-sm btn-success btn-edit-sasaran"><i class="dashicons dashicons-edit" style="margin-top: 3px;"></i></a>&nbsp;
+							<a href="javascript:void(0)" data-id="'.$value['id'].'" data-kodesasaran="'.$value['id_unik'].'" data-kodetujuan="'.$value['kode_tujuan'].'" class="btn btn-sm btn-danger btn-hapus-sasaran btn-hapus-sasaran"><i class="dashicons dashicons-trash" style="margin-top: 3px;"></i></a>
 						</td>
 					</tr>';
 			$i++;
@@ -17429,7 +17429,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						$html.="
 							<div class='row'>
 								<div class='col-lg-10'><h5>".$sasaran['sasaran_teks']."</h5></div>
-								<div class='col-lg-2 text-right'><button type=\"button\" class=\"btn btn-sm btn-primary mb-2 btn-add-indikator-sasaran\" data-idsasaran=\"'".$_POST['id_sasaran']."'\">Tambah Indikator</button></div>
+								<div class='col-lg-2 text-right'><button type=\"button\" class=\"btn btn-sm btn-primary mb-2 btn-add-indikator-sasaran\" data-idsasaran=\"'".$_POST['id_sasaran']."'\"><i class=\"dashicons dashicons-plus\" style=\"margin-top: 3px;\"></i> Tambah Indikator</button></div>
 							</div>
 							<table class='table'>
 								<thead>
@@ -17465,8 +17465,8 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 									<td>".$indikator['target_awal']."</td>
 									<td>".$indikator['target_akhir']."</td>
 									<td>
-										<a href='#' class='btn btn-sm btn-success btn-edit-indikator-sasaran' data-idsasaran='".$indikator['id_sasaran']."' data-id='".$indikator['id']."'>Edit</a>&nbsp;
-										<a href='#' class='btn btn-sm btn-danger btn-delete-indikator-sasaran' data-idsasaran='".$indikator['id_sasaran']."' data-id='".$indikator['id']."'>Hapus</a>&nbsp;
+										<a href='#' class='btn btn-sm btn-success btn-edit-indikator-sasaran' data-idsasaran='".$indikator['id_sasaran']."' data-id='".$indikator['id']."'><i class=\"dashicons dashicons-edit\" style=\"margin-top: 3px;\"></i></a>&nbsp;
+										<a href='#' class='btn btn-sm btn-danger btn-delete-indikator-sasaran' data-idsasaran='".$indikator['id_sasaran']."' data-id='".$indikator['id']."'><i class=\"dashicons dashicons-trash\" style=\"margin-top: 3px;\"></i></a>&nbsp;
 									</td>
 								</tr>
 							";
@@ -17515,8 +17515,8 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						<td>".$indikator['target_awal']."</td>
 						<td>".$indikator['target_akhir']."</td>
 						<td>
-							<a href='#' class='btn btn-sm btn-success btn-edit-indikator-sasaran' data-idsasaran='".$indikator['id_sasaran']."' data-id='".$indikator['id']."'>Edit</a>&nbsp;
-							<a href='#' class='btn btn-sm btn-danger btn-delete-indikator-sasaran' data-idsasaran='".$indikator['id_sasaran']."' data-id='".$indikator['id']."'>Hapus</a>&nbsp;
+							<a href='#' class='btn btn-sm btn-success btn-edit-indikator-sasaran' data-idsasaran='".$indikator['id_sasaran']."' data-id='".$indikator['id']."'><i class=\"dashicons dashicons-edit\" style=\"margin-top: 3px;\"></i></a>&nbsp;
+							<a href='#' class='btn btn-sm btn-danger btn-delete-indikator-sasaran' data-idsasaran='".$indikator['id_sasaran']."' data-id='".$indikator['id']."'><i class=\"dashicons dashicons-trash\" style=\"margin-top: 3px;\"></i></a>&nbsp;
 						</td>
 					</tr>";
 			$j++;
@@ -18019,9 +18019,9 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						<td>'.$i.'.</td>
 						<td>'.$value['program_teks'].'</td>
 						<td>
-							<a href="javascript:void(0)" data-kode="'.$value['id_unik'].'" class="btn btn-sm btn-warning btn-add-indikator-program">Kelola Indikator</a>&nbsp;
-							<a href="javascript:void(0)" data-kode="'.$value['id_unik'].'" class="btn btn-sm btn-success btn-edit-program">Edit</a>&nbsp;
-							<a href="javascript:void(0)" data-kode="'.$value['id_unik'].'" data-kodesasaran="'.$value['kode_sasaran'].'" class="btn btn-sm btn-danger btn-hapus-program">Hapus</a>
+							<a href="javascript:void(0)" data-kode="'.$value['id_unik'].'" class="btn btn-sm btn-warning btn-add-indikator-program"><i class="dashicons dashicons-arrow-up-alt" style="margin-top: 3px;"></i> Indikator</a>&nbsp;
+							<a href="javascript:void(0)" data-kode="'.$value['id_unik'].'" class="btn btn-sm btn-success btn-edit-program"><i class="dashicons dashicons-edit" style="margin-top: 3px;"></i></a>&nbsp;
+							<a href="javascript:void(0)" data-kode="'.$value['id_unik'].'" data-kodesasaran="'.$value['kode_sasaran'].'" class="btn btn-sm btn-danger btn-hapus-program"><i class="dashicons dashicons-trash" style="margin-top: 3px;"></i></a>
 						</td>
 					</tr>';
 			$i++;
@@ -18466,7 +18466,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						$html.="
 							<div class='row'>
 								<div class='col-lg-10'><h5>".$program['program_teks']."</h5></div>
-								<div class='col-lg-2 text-right'><button type=\"button\" class=\"btn btn-sm btn-primary mb-2 btn-add-indikator-program\" data-kode=\"'".$_POST['kode_program']."'\">Tambah Indikator</button></div>
+								<div class='col-lg-2 text-right'><button type=\"button\" class=\"btn btn-sm btn-primary mb-2 btn-add-indikator-program\" data-kode=\"'".$_POST['kode_program']."'\"><i class=\"dashicons dashicons-plus\" style=\"margin-top: 3px;\"></i> Tambah Indikator</button></div>
 							</div>
 							<table class='table'>
 								<thead>
@@ -18502,8 +18502,8 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 									<td>".$indikator['target_awal']."</td>
 									<td>".$indikator['target_akhir']."</td>
 									<td>
-										<a href='#' class='btn btn-sm btn-success btn-edit-indikator-program' data-kode='".$indikator['id_unik']."' data-id='".$indikator['id']."'>Edit</a>&nbsp;
-										<a href='#' class='btn btn-sm btn-danger btn-delete-indikator-program' data-kode='".$indikator['id_unik']."' data-id='".$indikator['id']."'>Hapus</a>&nbsp;
+										<a href='#' class='btn btn-sm btn-success btn-edit-indikator-program' data-kode='".$indikator['id_unik']."' data-id='".$indikator['id']."'><i class=\"dashicons dashicons-edit\" style=\"margin-top: 3px;\"></i></a>&nbsp;
+										<a href='#' class='btn btn-sm btn-danger btn-delete-indikator-program' data-kode='".$indikator['id_unik']."' data-id='".$indikator['id']."'><i class=\"dashicons dashicons-trash\" style=\"margin-top: 3px;\"></i></a>&nbsp;
 									</td>
 								</tr>
 							";
@@ -18552,8 +18552,8 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						<td>".$indikator['target_awal']."</td>
 						<td>".$indikator['target_akhir']."</td>
 						<td>
-							<a href='#' class='btn btn-sm btn-success btn-edit-indikator-program' data-kode='".$indikator['id_unik']."' data-id='".$indikator['id']."'>Edit</a>&nbsp;
-							<a href='#' class='btn btn-sm btn-danger btn-delete-indikator-program' data-kode='".$indikator['id_unik']."' data-id='".$indikator['id']."'>Hapus</a>&nbsp;
+							<a href='#' class='btn btn-sm btn-success btn-edit-indikator-program' data-kode='".$indikator['id_unik']."' data-id='".$indikator['id']."'><i class=\"dashicons dashicons-edit\" style=\"margin-top: 3px;\"></i></a>&nbsp;
+							<a href='#' class='btn btn-sm btn-danger btn-delete-indikator-program' data-kode='".$indikator['id_unik']."' data-id='".$indikator['id']."'><i class=\"dashicons dashicons-trash\" style=\"margin-top: 3px;\"></i></a>&nbsp;
 						</td>
 					</tr>";
 			$j++;

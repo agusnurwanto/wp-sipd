@@ -117,47 +117,47 @@ $sql = "
 $visi_all = $wpdb->get_results($sql, ARRAY_A);
 
 foreach ($visi_all as $visi) {
-	if(empty($data_all['data'][$visi['id_visi']])){
-		$data_all['data'][$visi['id_visi']] = array(
+	if(empty($data_all['data'][$visi['id']])){
+		$data_all['data'][$visi['id']] = array(
 			'nama' => $visi['visi_teks'],
 			'data' => array()
 		);
 	}
 
-	$visi_ids[$visi['id_visi']] = "'".$visi['id_visi']."'";
+	$visi_ids[$visi['id']] = "'".$visi['id']."'";
 	$sql = $wpdb->prepare("
 		select 
 			* 
 		from data_rpjmd_misi_lokal
 		where id_visi=%s
-	", $visi['id_visi']);
+	", $visi['id']);
 	$misi_all = $wpdb->get_results($sql, ARRAY_A);
 
 	foreach ($misi_all as $misi) {
-		if(empty($data_all['data'][$visi['id_visi']]['data'][$misi['id_misi']])){
-			$data_all['data'][$visi['id_visi']]['data'][$misi['id_misi']] = array(
+		if(empty($data_all['data'][$visi['id']]['data'][$misi['id']])){
+			$data_all['data'][$visi['id']]['data'][$misi['id']] = array(
 				'nama' => $misi['misi_teks'],
 				'data' => array()
 			);
 		}
 
-		$misi_ids[$misi['id_misi']] = "'".$misi['id_misi']."'";
+		$misi_ids[$misi['id']] = "'".$misi['id']."'";
 		$sql = $wpdb->prepare("
 			select 
 				* 
 			from data_rpjmd_tujuan_lokal
 			where id_misi=%s
-		", $misi['id_misi']);
+		", $misi['id']);
 		$tujuan_all = $wpdb->get_results($sql, ARRAY_A);
 		foreach ($tujuan_all as $tujuan) {
-			if(empty($data_all['data'][$visi['id_visi']]['data'][$misi['id_misi']]['data'][$tujuan['id_unik']])){
-				$data_all['data'][$visi['id_visi']]['data'][$misi['id_misi']]['data'][$tujuan['id_unik']] = array(
+			if(empty($data_all['data'][$visi['id']]['data'][$misi['id']]['data'][$tujuan['id_unik']])){
+				$data_all['data'][$visi['id']]['data'][$misi['id']]['data'][$tujuan['id_unik']] = array(
 					'nama' => $tujuan['tujuan_teks'],
 					'detail' => array(),
 					'data' => array()
 				);
 			}
-			$data_all['data'][$visi['id_visi']]['data'][$misi['id_misi']]['data'][$tujuan['id_unik']]['detail'][] = $tujuan;
+			$data_all['data'][$visi['id']]['data'][$misi['id']]['data'][$tujuan['id_unik']]['detail'][] = $tujuan;
 
 			$tujuan_ids[$tujuan['id_unik']] = "'".$tujuan['id_unik']."'";
 			$sql = $wpdb->prepare("
@@ -168,14 +168,14 @@ foreach ($visi_all as $visi) {
 			", $tujuan['id_unik']);
 			$sasaran_all = $wpdb->get_results($sql, ARRAY_A);
 			foreach ($sasaran_all as $sasaran) {
-				if(empty($data_all['data'][$visi['id_visi']]['data'][$misi['id_misi']]['data'][$tujuan['id_unik']]['data'][$sasaran['id_unik']])){
-					$data_all['data'][$visi['id_visi']]['data'][$misi['id_misi']]['data'][$tujuan['id_unik']]['data'][$sasaran['id_unik']] = array(
+				if(empty($data_all['data'][$visi['id']]['data'][$misi['id']]['data'][$tujuan['id_unik']]['data'][$sasaran['id_unik']])){
+					$data_all['data'][$visi['id']]['data'][$misi['id']]['data'][$tujuan['id_unik']]['data'][$sasaran['id_unik']] = array(
 						'nama' => $sasaran['sasaran_teks'],
 						'detail' => array(),
 						'data' => array()
 					);
 				}
-				$data_all['data'][$visi['id_visi']]['data'][$misi['id_misi']]['data'][$tujuan['id_unik']]['data'][$sasaran['id_unik']]['detail'][] = $sasaran;
+				$data_all['data'][$visi['id']]['data'][$misi['id']]['data'][$tujuan['id_unik']]['data'][$sasaran['id_unik']]['detail'][] = $sasaran;
 
 				$sasaran_ids[$sasaran['id_unik']] = "'".$sasaran['id_unik']."'";
 				$sql = $wpdb->prepare("
@@ -192,16 +192,16 @@ foreach ($visi_all as $visi) {
 						$program['nama_skpd'] = 'SKPD Kosong';
 					}
 					$skpd_filter[$program['kode_skpd']] = $program['nama_skpd'];
-					if(empty($data_all['data'][$visi['id_visi']]['data'][$misi['id_misi']]['data'][$tujuan['id_unik']]['data'][$sasaran['id_unik']]['data'][$program['id_unik']])){
-						$data_all['data'][$visi['id_visi']]['data'][$misi['id_misi']]['data'][$tujuan['id_unik']]['data'][$sasaran['id_unik']]['data'][$program['id_unik']] = array(
+					if(empty($data_all['data'][$visi['id']]['data'][$misi['id']]['data'][$tujuan['id_unik']]['data'][$sasaran['id_unik']]['data'][$program['id_unik']])){
+						$data_all['data'][$visi['id']]['data'][$misi['id']]['data'][$tujuan['id_unik']]['data'][$sasaran['id_unik']]['data'][$program['id_unik']] = array(
 							'nama' => $program['nama_program'],
 							'kode_skpd' => $program['kode_skpd'],
 							'nama_skpd' => $program['nama_skpd'],
 							'data' => array()
 						);
 					}
-					if(empty($data_all['data'][$visi['id_visi']]['data'][$misi['id_misi']]['data'][$tujuan['id_unik']]['data'][$sasaran['id_unik']]['data'][$program['id_unik']]['data'][$program['id_unik_indikator']])){
-						$data_all['data'][$visi['id_visi']]['data'][$misi['id_misi']]['data'][$tujuan['id_unik']]['data'][$sasaran['id_unik']]['data'][$program['id_unik']]['data'][$program['id_unik_indikator']] = array(
+					if(empty($data_all['data'][$visi['id']]['data'][$misi['id']]['data'][$tujuan['id_unik']]['data'][$sasaran['id_unik']]['data'][$program['id_unik']]['data'][$program['id_unik_indikator']])){
+						$data_all['data'][$visi['id']]['data'][$misi['id']]['data'][$tujuan['id_unik']]['data'][$sasaran['id_unik']]['data'][$program['id_unik']]['data'][$program['id_unik_indikator']] = array(
 							'nama' => $program['indikator'],
 							'data' => $program
 						);
@@ -246,7 +246,7 @@ if(!empty($misi_ids)){
 		select 
 			* 
 		from data_rpjmd_misi_lokal
-		where id_misi not in (".implode(',', $misi_ids).")
+		where id not in (".implode(',', $misi_ids).")
 	";
 }else{
 	$sql = "
@@ -257,8 +257,8 @@ if(!empty($misi_ids)){
 }
 $misi_all_kosong = $wpdb->get_results($sql, ARRAY_A);
 foreach ($misi_all_kosong as $misi) {
-	if(empty($data_all['data']['visi_kosong']['data'][$misi['id_misi']])){
-		$data_all['data']['visi_kosong']['data'][$misi['id_misi']]['data'] = array(
+	if(empty($data_all['data']['visi_kosong']['data'][$misi['id']])){
+		$data_all['data']['visi_kosong']['data'][$misi['id']]['data'] = array(
 			'nama' => $misi['misi_teks'],
 			'data' => array()
 		);
@@ -267,19 +267,19 @@ foreach ($misi_all_kosong as $misi) {
 		select 
 			* 
 		from data_rpjmd_tujuan_lokal
-		where id_misi=%s
-	", $misi['id_misi']);
+		where id=%s
+	", $misi['id']);
 	$tujuan_all_kosong = $wpdb->get_results($sql, ARRAY_A);
 	foreach ($tujuan_all_kosong as $tujuan) {
 		$tujuan_ids[$tujuan['id_unik']] = "'".$tujuan['id_unik']."'";
-		if(empty($data_all['data']['visi_kosong']['data'][$misi['id_misi']]['data'][$tujuan['id_unik']])){
-			$data_all['data']['visi_kosong']['data'][$misi['id_misi']]['data'][$tujuan['id_unik']] = array(
+		if(empty($data_all['data']['visi_kosong']['data'][$misi['id']]['data'][$tujuan['id_unik']])){
+			$data_all['data']['visi_kosong']['data'][$misi['id']]['data'][$tujuan['id_unik']] = array(
 				'nama' => $tujuan['sasaran_teks'],
 				'detail' => array(),
 				'data' => array()
 			);
 		}
-		$data_all['data']['visi_kosong']['data'][$misi['id_misi']]['data'][$tujuan['id_unik']]['detail'][] = $tujuan;
+		$data_all['data']['visi_kosong']['data'][$misi['id']]['data'][$tujuan['id_unik']]['detail'][] = $tujuan;
 		$sql = $wpdb->prepare("
 			select 
 				* 
@@ -289,14 +289,14 @@ foreach ($misi_all_kosong as $misi) {
 		$sasaran_all = $wpdb->get_results($sql, ARRAY_A);
 		foreach ($sasaran_all as $sasaran) {
 			$sasaran_ids[$sasaran['id_unik']] = "'".$sasaran['id_unik']."'";
-			if(empty($data_all['data']['visi_kosong']['data'][$misi['id_misi']]['data'][$tujuan['id_unik']]['data'][$sasaran['id_unik']])){
-				$data_all['data']['visi_kosong']['data'][$misi['id_misi']]['data'][$tujuan['id_unik']]['data'][$sasaran['id_unik']] = array(
+			if(empty($data_all['data']['visi_kosong']['data'][$misi['id']]['data'][$tujuan['id_unik']]['data'][$sasaran['id_unik']])){
+				$data_all['data']['visi_kosong']['data'][$misi['id']]['data'][$tujuan['id_unik']]['data'][$sasaran['id_unik']] = array(
 					'nama' => $sasaran['sasaran_teks'],
 					'detail' => array(),
 					'data' => array()
 				);
 			}
-			$data_all['data']['visi_kosong']['data'][$misi['id_misi']]['data'][$tujuan['id_unik']]['data'][$sasaran['id_unik']]['detail'][] = $sasaran;
+			$data_all['data']['visi_kosong']['data'][$misi['id']]['data'][$tujuan['id_unik']]['data'][$sasaran['id_unik']]['detail'][] = $sasaran;
 			$sql = $wpdb->prepare("
 				select 
 					* 
@@ -306,16 +306,16 @@ foreach ($misi_all_kosong as $misi) {
 			$program_all = $wpdb->get_results($sql, ARRAY_A);
 			foreach ($program_all as $program) {
 				$program_ids[$program['id_unik']] = "'".$program['id_unik']."'";
-				if(empty($data_all['data']['visi_kosong']['data'][$misi['id_misi']]['data'][$tujuan['id_unik']]['data'][$sasaran['id_unik']]['data'][$program['id_unik']])){
-					$data_all['data']['visi_kosong']['data'][$misi['id_misi']]['data'][$tujuan['id_unik']]['data'][$sasaran['id_unik']]['data'][$program['id_unik']] = array(
+				if(empty($data_all['data']['visi_kosong']['data'][$misi['id']]['data'][$tujuan['id_unik']]['data'][$sasaran['id_unik']]['data'][$program['id_unik']])){
+					$data_all['data']['visi_kosong']['data'][$misi['id']]['data'][$tujuan['id_unik']]['data'][$sasaran['id_unik']]['data'][$program['id_unik']] = array(
 						'nama' => $program['nama_program'],
 						'kode_skpd' => $program['kode_skpd'],
 						'nama_skpd' => $program['nama_skpd'],
 						'data' => array()
 					);
 				}
-				if(empty($data_all['data']['visi_kosong']['data'][$misi['id_misi']]['data'][$tujuan['id_unik']]['data'][$sasaran['id_unik']]['data'][$program['id_unik']]['data'][$program['id_unik_indikator']])){
-					$data_all['data']['visi_kosong']['data'][$misi['id_misi']]['data'][$tujuan['id_unik']]['data'][$sasaran['id_unik']]['data'][$program['id_unik']]['data'][$program['id_unik_indikator']] = array(
+				if(empty($data_all['data']['visi_kosong']['data'][$misi['id']]['data'][$tujuan['id_unik']]['data'][$sasaran['id_unik']]['data'][$program['id_unik']]['data'][$program['id_unik_indikator']])){
+					$data_all['data']['visi_kosong']['data'][$misi['id']]['data'][$tujuan['id_unik']]['data'][$sasaran['id_unik']]['data'][$program['id_unik']]['data'][$program['id_unik_indikator']] = array(
 						'nama' => $program['indikator'],
 						'data' => array()
 					);
@@ -491,6 +491,11 @@ if(empty($data_all['data']['visi_kosong']['data']['misi_kosong']['data'])){
 if(empty($data_all['data']['visi_kosong']['data'])){
 	unset($data_all['data']['visi_kosong']);
 }
+
+// echo '<pre>';
+// print_r($data_all['data']);
+// echo '</pre>';
+// die();
 
 $body = '';
 $no_visi = 0;
@@ -955,7 +960,7 @@ $tahun_selesai = (!empty($tahun_anggaran)) ? $tahun_anggaran + 5 : '-';
           		jQuery('#wrap-loading').hide();
 
           		let visi = ''
-          				+'<br><button type="button" class="btn btn-sm btn-primary mb-2 btn-tambah-visi">Tambah Visi</button>'
+          				+'<br><button type="button" class="btn btn-sm btn-primary mb-2 btn-tambah-visi"><i class="dashicons dashicons-plus" style="margin-top: 3px;"></i> Tambah Visi</button>'
           				+'<table class="table">'
           					+'<thead>'
           						+'<tr>'
@@ -971,9 +976,9 @@ $tahun_selesai = (!empty($tahun_anggaran)) ? $tahun_anggaran + 5 : '-';
 			          							+'<td>'+i+'.</td>'
 			          							+'<td>'+value.visi_teks+'</td>'
 			          							+'<td>'
-			          								+'<a href="javascript:void(0)" data-id="'+value.id+'" class="btn btn-sm btn-primary btn-detail-visi">Detail</a>&nbsp;'
-			          								+'<a href="javascript:void(0)" data-id="'+value.id+'" class="btn btn-sm btn-success btn-edit-visi">Edit</a>&nbsp;'
-			          								+'<a href="javascript:void(0)" data-id="'+value.id+'" class="btn btn-sm btn-danger btn-hapus-visi">Hapus</a>'
+			          								+'<a href="javascript:void(0)" data-id="'+value.id+'" class="btn btn-sm btn-primary btn-detail-visi"><i class="dashicons dashicons-search"></i></a>&nbsp;'
+			          								+'<a href="javascript:void(0)" data-id="'+value.id+'" class="btn btn-sm btn-success btn-edit-visi"><i class="dashicons dashicons-edit"></i></a>&nbsp;'
+			          								+'<a href="javascript:void(0)" data-id="'+value.id+'" class="btn btn-sm btn-danger btn-hapus-visi"><i class="dashicons dashicons-trash"></i></a>'
 			          							+'</td>'
 			          						+'</tr>';
 			          				i++;
@@ -995,7 +1000,7 @@ $tahun_selesai = (!empty($tahun_anggaran)) ? $tahun_anggaran + 5 : '-';
 
 		visiModal.find('.modal-title').html('Tambah Visi');
 		visiModal.find('.modal-body').html(html);
-		visiModal.find('.modal-footer').html('<button type="button" class="btn btn-sm btn-warning" data-dismiss="modal">Tutup</button><button type="button" class="btn btn-sm btn-success" id="btn-simpan-data-rpjm-lokal" data-action="submit_visi_rpjm" data-target="dataVisi">Simpan</button>');
+		visiModal.find('.modal-footer').html('<button type="button" class="btn btn-sm btn-warning" data-dismiss="modal"><i class="dashicons dashicons-no" style="margin-top: 3px;"></i> Tutup</button><button type="button" class="btn btn-sm btn-success" id="btn-simpan-data-rpjm-lokal" data-action="submit_visi_rpjm" data-target="dataVisi"><i class="dashicons dashicons-yes" style="margin-top: 3px;"></i> Simpan</button>');
 		visiModal.modal('show');
 	});
 
@@ -1024,9 +1029,8 @@ $tahun_selesai = (!empty($tahun_anggaran)) ? $tahun_anggaran + 5 : '-';
 
 				visiModal.find('.modal-title').html('Edit Visi');
 				visiModal.find('.modal-body').html(html);
-				visiModal.find('.modal-footer').html('<button type="button" class="btn btn-sm btn-warning" data-dismiss="modal">Tutup</button><button type="button" class="btn btn-sm btn-success" id="btn-simpan-data-rpjm-lokal" data-action="update_visi_rpjm" data-target="dataVisi">Simpan</button>');
+				visiModal.find('.modal-footer').html('<button type="button" class="btn btn-sm btn-warning" data-dismiss="modal"><i class="dashicons dashicons-no" style="margin-top: 3px;"></i> Tutup</button><button type="button" class="btn btn-sm btn-success" id="btn-simpan-data-rpjm-lokal" data-action="update_visi_rpjm" data-target="dataVisi"><i class="dashicons dashicons-yes" style="margin-top: 3px;"></i> Simpan</button>');
 				visiModal.modal('show');
-
 			}
 		})
 	});
@@ -1076,7 +1080,7 @@ $tahun_selesai = (!empty($tahun_anggaran)) ? $tahun_anggaran + 5 : '-';
           		jQuery('#wrap-loading').hide();
           		
           		let misi = ''
-          				+'<br><button type="button" class="btn btn-sm btn-primary mb-2 btn-tambah-misi" data-idvisi="'+id_visi+'">Tambah Misi</button>'
+          				+'<br><button type="button" class="btn btn-sm btn-primary mb-2 btn-tambah-misi" data-idvisi="'+id_visi+'"><i class="dashicons dashicons-plus" style="margin-top: 3px;"></i> Tambah Misi</button>'
           				+'<table class="table">'
           					+'<thead>'
 	          					+'<tr>'
@@ -1101,9 +1105,9 @@ $tahun_selesai = (!empty($tahun_anggaran)) ? $tahun_anggaran + 5 : '-';
 			          							+'<td>'+j+'.</td>'
 			          							+'<td>'+value.misi_teks+'</td>'
 			          							+'<td>'
-			          								+'<a href="javascript:void(0)" data-id="'+value.id+'" class="btn btn-sm btn-primary btn-detail-misi">Detail</a>&nbsp;'
-			          								+'<a href="javascript:void(0)" data-id="'+value.id+'" class="btn btn-sm btn-success btn-edit-misi">Edit</a>&nbsp;'
-			          								+'<a href="javascript:void(0)" data-id="'+value.id+'" data-idvisi="'+value.id_visi+'" class="btn btn-sm btn-danger btn-hapus-misi">Hapus</a></td>'
+			          								+'<a href="javascript:void(0)" data-id="'+value.id+'" class="btn btn-sm btn-primary btn-detail-misi"><i class="dashicons dashicons-search" style="margin-top: 3px;"></i></a>&nbsp;'
+			          								+'<a href="javascript:void(0)" data-id="'+value.id+'" class="btn btn-sm btn-success btn-edit-misi"><i class="dashicons dashicons-edit" style="margin-top: 3px;"></i></a>&nbsp;'
+			          								+'<a href="javascript:void(0)" data-id="'+value.id+'" data-idvisi="'+value.id_visi+'" class="btn btn-sm btn-danger btn-hapus-misi"><i class="dashicons dashicons-trash" style="margin-top: 3px;"></i></a></td>'
 			          						+'</tr>';
 			          				j++;
           						})
@@ -1134,7 +1138,7 @@ $tahun_selesai = (!empty($tahun_anggaran)) ? $tahun_anggaran + 5 : '-';
 
 		misiModal.find('.modal-title').html('Tambah Misi');
 		misiModal.find('.modal-body').html(html);
-		misiModal.find('.modal-footer').html('<button type="button" class="btn btn-sm btn-warning" data-dismiss="modal">Tutup</button><button type="button" class="btn btn-sm btn-success" id="btn-simpan-data-rpjm-lokal" data-action="submit_misi_rpjm" data-target="dataMisi">Simpan</button>');
+		misiModal.find('.modal-footer').html('<button type="button" class="btn btn-sm btn-warning" data-dismiss="modal"><i class="dashicons dashicons-no" style="margin-top: 3px;"></i> Tutup</button><button type="button" class="btn btn-sm btn-success" id="btn-simpan-data-rpjm-lokal" data-action="submit_misi_rpjm" data-target="dataMisi"><i class="dashicons dashicons-yes" style="margin-top: 3px;"></i> Simpan</button>');
 		misiModal.modal('show');
 	});
 
@@ -1172,7 +1176,7 @@ $tahun_selesai = (!empty($tahun_anggaran)) ? $tahun_anggaran + 5 : '-';
 
 		        misiModal.find('.modal-title').html('Edit Misi');
 				misiModal.find('.modal-body').html(html);
-				misiModal.find('.modal-footer').html('<button type="button" class="btn btn-sm btn-warning" data-dismiss="modal">Tutup</button><button type="button" class="btn btn-sm btn-success" id="btn-simpan-data-rpjm-lokal" data-action="update_misi_rpjm" data-target="dataMisi">Simpan</button>');
+				misiModal.find('.modal-footer').html('<button type="button" class="btn btn-sm btn-warning" data-dismiss="modal"><i class="dashicons dashicons-no" style="margin-top: 3px;"></i> Tutup</button><button type="button" class="btn btn-sm btn-success" id="btn-simpan-data-rpjm-lokal" data-action="update_misi_rpjm" data-target="dataMisi"><i class="dashicons dashicons-yes" style="margin-top: 3px;"></i> Simpan</button>');
 				misiModal.modal('show');
 			}
 		})
@@ -1227,7 +1231,7 @@ $tahun_selesai = (!empty($tahun_anggaran)) ? $tahun_anggaran + 5 : '-';
           		jQuery('#wrap-loading').hide();
           		
           		let tujuan = ''
-          				+'<br><button type="button" class="btn btn-sm btn-primary mb-2 btn-tambah-tujuan" data-idmisi="'+id_misi+'">Tambah Tujuan</button>'
+          				+'<br><button type="button" class="btn btn-sm btn-primary mb-2 btn-tambah-tujuan" data-idmisi="'+id_misi+'"><i class="dashicons dashicons-plus" style="margin-top: 3px;"></i> Tambah Tujuan</button>'
           				+'<table class="table">'
 	          				+'<thead>'
 	          					+'<tr>'
@@ -1253,10 +1257,10 @@ $tahun_selesai = (!empty($tahun_anggaran)) ? $tahun_anggaran + 5 : '-';
 			          							+'<td>'+k+'.</td>'
 			          							+'<td>'+value.tujuan_teks+'</td>'
 			          							+'<td>'
-			          								+'<a href="javascript:void(0)" data-idtujuan="'+value.id+'" class="btn btn-sm btn-warning btn-kelola-indikator-tujuan">Kelola Indikator</a>&nbsp;'
-			          								+'<a href="javascript:void(0)" data-kode="'+value.id_unik+'" class="btn btn-sm btn-primary btn-detail-tujuan">Detail</a>&nbsp;'
-			          								+'<a href="javascript:void(0)" data-id="'+value.id+'" class="btn btn-sm btn-success btn-edit-tujuan">Edit</a>&nbsp;'
-			          								+'<a href="javascript:void(0)" data-id="'+value.id+'" data-idmisi="'+value.id_misi+'" data-kodetujuan="'+value.id_unik+'" class="btn btn-sm btn-danger btn-hapus-tujuan">Hapus</a></td>'
+			          								+'<a href="javascript:void(0)" data-idtujuan="'+value.id+'" class="btn btn-sm btn-warning btn-kelola-indikator-tujuan"><i class="dashicons dashicons-arrow-up-alt" style="margin-top: 3px;"></i> Indikator</a>&nbsp;'
+			          								+'<a href="javascript:void(0)" data-kode="'+value.id_unik+'" class="btn btn-sm btn-primary btn-detail-tujuan"><i class="dashicons dashicons-search" style="margin-top: 3px;"></i></a>&nbsp;'
+			          								+'<a href="javascript:void(0)" data-id="'+value.id+'" class="btn btn-sm btn-success btn-edit-tujuan"><i class="dashicons dashicons-edit" style="margin-top: 3px;"></i></a>&nbsp;'
+			          								+'<a href="javascript:void(0)" data-id="'+value.id+'" data-idmisi="'+value.id_misi+'" data-kodetujuan="'+value.id_unik+'" class="btn btn-sm btn-danger btn-hapus-tujuan"><i class="dashicons dashicons-trash" style="margin-top: 3px;"></i></a></td>'
 			          						+'</tr>';
 			          				k++;
           						})
@@ -1287,7 +1291,7 @@ $tahun_selesai = (!empty($tahun_anggaran)) ? $tahun_anggaran + 5 : '-';
 
 		tujuanModal.find('.modal-title').html('Tambah Tujuan');
 		tujuanModal.find('.modal-body').html(html);
-		tujuanModal.find('.modal-footer').html('<button type="button" class="btn btn-sm btn-warning" data-dismiss="modal">Tutup</button><button type="button" class="btn btn-sm btn-success" id="btn-simpan-data-rpjm-lokal" data-action="submit_tujuan_rpjm" data-target="dataTujuan">Simpan</button>');
+		tujuanModal.find('.modal-footer').html('<button type="button" class="btn btn-sm btn-warning" data-dismiss="modal"><i class="dashicons dashicons-no" style="margin-top: 3px;"></i> Tutup</button><button type="button" class="btn btn-sm btn-success" id="btn-simpan-data-rpjm-lokal" data-action="submit_tujuan_rpjm" data-target="dataTujuan"><i class="dashicons dashicons-yes" style="margin-top: 3px;"></i> Simpan</button>');
 		tujuanModal.find('.modal-dialog').css('maxWidth','950px');
 		tujuanModal.find('.modal-dialog').css('width','100%');
 		tujuanModal.modal('show');
@@ -1323,7 +1327,7 @@ $tahun_selesai = (!empty($tahun_anggaran)) ? $tahun_anggaran + 5 : '-';
 
 		        tujuanModal.find('.modal-title').html('Edit Tujuan');
 				tujuanModal.find('.modal-body').html(html);
-				tujuanModal.find('.modal-footer').html('<button type="button" class="btn btn-sm btn-warning" data-dismiss="modal">Tutup</button><button type="button" class="btn btn-sm btn-success" id="btn-simpan-data-rpjm-lokal" data-action="update_tujuan_rpjm" data-target="dataTujuan">Simpan</button>');
+				tujuanModal.find('.modal-footer').html('<button type="button" class="btn btn-sm btn-warning" data-dismiss="modal"><i class="dashicons dashicons-no" style="margin-top: 3px;"></i> Tutup</button><button type="button" class="btn btn-sm btn-success" id="btn-simpan-data-rpjm-lokal" data-action="update_tujuan_rpjm" data-target="dataTujuan"><i class="dashicons dashicons-yes" style="margin-top: 3px;"></i> Simpan</button>');
 				tujuanModal.find('.modal-dialog').css('maxWidth','950px');
 				tujuanModal.find('.modal-dialog').css('width','100%');
 				tujuanModal.modal('show');
@@ -1435,7 +1439,7 @@ $tahun_selesai = (!empty($tahun_anggaran)) ? $tahun_anggaran + 5 : '-';
 
 			indikatorTujuanModal.find('.modal-title').html('Tambah Indikator');
 			indikatorTujuanModal.find('.modal-body').html(html);
-			indikatorTujuanModal.find('.modal-footer').html('<button type="button" class="btn btn-sm btn-warning" data-dismiss="modal">Tutup</button><button type="button" class="btn btn-sm btn-success" id="btn-simpan-data-rpjm-lokal" data-action="submit_indikator_tujuan_rpjm" data-target="indikator_tujuan">Simpan</button>');
+			indikatorTujuanModal.find('.modal-footer').html('<button type="button" class="btn btn-sm btn-warning" data-dismiss="modal"><i class="dashicons dashicons-no" style="margin-top: 3px;"></i> Tutup</button><button type="button" class="btn btn-sm btn-success" id="btn-simpan-data-rpjm-lokal" data-action="submit_indikator_tujuan_rpjm" data-target="indikator_tujuan"><i class="dashicons dashicons-yes" style="margin-top: 3px;"></i> Simpan</button>');
 			indikatorTujuanModal.modal('show');
 	});
 
@@ -1505,7 +1509,7 @@ $tahun_selesai = (!empty($tahun_anggaran)) ? $tahun_anggaran + 5 : '-';
 
 				indikatorTujuanModal.find('.modal-title').html('Edit Indikator Tujuan');
 				indikatorTujuanModal.find('.modal-body').html(html);
-				indikatorTujuanModal.find('.modal-footer').html('<button type="button" class="btn btn-sm btn-warning" data-dismiss="modal">Tutup</button><button type="button" class="btn btn-sm btn-success" id="btn-simpan-data-rpjm-lokal" data-action="update_indikator_tujuan_rpjm" data-target="indikator_tujuan">Simpan</button>');
+				indikatorTujuanModal.find('.modal-footer').html('<button type="button" class="btn btn-sm btn-warning" data-dismiss="modal"><i class="dashicons dashicons-no" style="margin-top: 3px;"></i> Tutup</button><button type="button" class="btn btn-sm btn-success" id="btn-simpan-data-rpjm-lokal" data-action="update_indikator_tujuan_rpjm" data-target="indikator_tujuan"><i class="dashicons dashicons-yes" style="margin-top: 3px;"></i> Simpan</button>');
 				indikatorTujuanModal.modal('show');
           	}
 		})			
@@ -1562,7 +1566,7 @@ $tahun_selesai = (!empty($tahun_anggaran)) ? $tahun_anggaran + 5 : '-';
           		jQuery('#wrap-loading').hide();
           		
           		let sasaran = ''
-          				+'<br><button type="button" class="btn btn-sm btn-primary mb-2 btn-tambah-sasaran" data-kodetujuan="'+kode_tujuan+'">Tambah Sasaran</button>'
+          				+'<br><button type="button" class="btn btn-sm btn-primary mb-2 btn-tambah-sasaran" data-kodetujuan="'+kode_tujuan+'"><i class="dashicons dashicons-plus" style="margin-top: 3px;"></i> Tambah Sasaran</button>'
           				+'<table class="table">'
           					+'<thead>'
 	          					+'<tr>'
@@ -1589,10 +1593,10 @@ $tahun_selesai = (!empty($tahun_anggaran)) ? $tahun_anggaran + 5 : '-';
 			          							+'<td>'+k+'.</td>'
 			          							+'<td>'+value.sasaran_teks+'</td>'
 			          							+'<td>'
-			          								+'<a href="javascript:void(0)" data-idsasaran="'+value.id+'" class="btn btn-sm btn-warning btn-kelola-indikator-sasaran">Kelola Indikator</a>&nbsp;'
-			          								+'<a href="javascript:void(0)" data-kode="'+value.id_unik+'" class="btn btn-sm btn-primary btn-detail-sasaran">Detail</a>&nbsp;'
-			          								+'<a href="javascript:void(0)" data-id="'+value.id+'" class="btn btn-sm btn-success btn-edit-sasaran">Edit</a>&nbsp;'
-			          								+'<a href="javascript:void(0)" data-id="'+value.id+'" data-kodesasaran="'+value.id_unik+'" data-kodetujuan="'+value.kode_tujuan+'" class="btn btn-sm btn-danger btn-hapus-sasaran">Hapus</a></td>'
+			          								+'<a href="javascript:void(0)" data-idsasaran="'+value.id+'" class="btn btn-sm btn-warning btn-kelola-indikator-sasaran"><i class="dashicons dashicons-arrow-up-alt" style="margin-top: 3px;"></i> Indikator</a>&nbsp;'
+			          								+'<a href="javascript:void(0)" data-kode="'+value.id_unik+'" class="btn btn-sm btn-primary btn-detail-sasaran"><i class="dashicons dashicons-search" style="margin-top: 3px;"></i></a>&nbsp;'
+			          								+'<a href="javascript:void(0)" data-id="'+value.id+'" class="btn btn-sm btn-success btn-edit-sasaran"><i class="dashicons dashicons-edit" style="margin-top: 3px;"></i></a>&nbsp;'
+			          								+'<a href="javascript:void(0)" data-id="'+value.id+'" data-kodesasaran="'+value.id_unik+'" data-kodetujuan="'+value.kode_tujuan+'" class="btn btn-sm btn-danger btn-hapus-sasaran"><i class="dashicons dashicons-trash" style="margin-top: 3px;"></i></a></td>'
 			          						+'</tr>';
 			          				k++;
           						})
@@ -1625,7 +1629,7 @@ $tahun_selesai = (!empty($tahun_anggaran)) ? $tahun_anggaran + 5 : '-';
 
 		sasaranModal.find('.modal-title').html('Tambah Sasaran');
 		sasaranModal.find('.modal-body').html(html);
-		sasaranModal.find('.modal-footer').html('<button type="button" class="btn btn-sm btn-warning" data-dismiss="modal">Tutup</button><button type="button" class="btn btn-sm btn-success" id="btn-simpan-data-rpjm-lokal" data-action="submit_sasaran_rpjm" data-target="dataSasaran">Simpan</button>');
+		sasaranModal.find('.modal-footer').html('<button type="button" class="btn btn-sm btn-warning" data-dismiss="modal"><i class="dashicons dashicons-no" style="margin-top: 3px;"></i> Tutup</button><button type="button" class="btn btn-sm btn-success" id="btn-simpan-data-rpjm-lokal" data-action="submit_sasaran_rpjm" data-target="dataSasaran"><i class="dashicons dashicons-yes" style="margin-top: 3px;"></i> Simpan</button>');
 		sasaranModal.modal('show');
 	});
 
@@ -1662,7 +1666,7 @@ $tahun_selesai = (!empty($tahun_anggaran)) ? $tahun_anggaran + 5 : '-';
 
 		        sasaranModal.find('.modal-title').html('Edit Sasaran');
 				sasaranModal.find('.modal-body').html(html);
-				sasaranModal.find('.modal-footer').html('<button type="button" class="btn btn-sm btn-warning" data-dismiss="modal">Tutup</button><button type="button" class="btn btn-sm btn-success" id="btn-simpan-data-rpjm-lokal" data-action="update_sasaran_rpjm" data-target="dataSasaran">Simpan</button>');
+				sasaranModal.find('.modal-footer').html('<button type="button" class="btn btn-sm btn-warning" data-dismiss="modal"><i class="dashicons dashicons-no" style="margin-top: 3px;"></i> Tutup</button><button type="button" class="btn btn-sm btn-success" id="btn-simpan-data-rpjm-lokal" data-action="update_sasaran_rpjm" data-target="dataSasaran"><i class="dashicons dashicons-yes" style="margin-top: 3px;"></i> Simpan</button>');
 				sasaranModal.modal('show');
           	}
         });
@@ -1776,7 +1780,7 @@ $tahun_selesai = (!empty($tahun_anggaran)) ? $tahun_anggaran + 5 : '-';
 
 			indikatorSasaranModal.find('.modal-title').html('Tambah Indikator');
 			indikatorSasaranModal.find('.modal-body').html(html);
-			indikatorSasaranModal.find('.modal-footer').html('<button type="button" class="btn btn-sm btn-warning" data-dismiss="modal">Tutup</button><button type="button" class="btn btn-sm btn-success" id="btn-simpan-data-rpjm-lokal" data-action="submit_indikator_sasaran_rpjm" data-target="indikator_sasaran">Simpan</button>');
+			indikatorSasaranModal.find('.modal-footer').html('<button type="button" class="btn btn-sm btn-warning" data-dismiss="modal"><i class="dashicons dashicons-no" style="margin-top: 3px;"></i> Tutup</button><button type="button" class="btn btn-sm btn-success" id="btn-simpan-data-rpjm-lokal" data-action="submit_indikator_sasaran_rpjm" data-target="indikator_sasaran"><i class="dashicons dashicons-yes" style="margin-top: 3px;"></i> Simpan</button>');
 			indikatorSasaranModal.modal('show');
 	});
 
@@ -1846,7 +1850,7 @@ $tahun_selesai = (!empty($tahun_anggaran)) ? $tahun_anggaran + 5 : '-';
 
 				indikatorSasaranModal.find('.modal-title').html('Edit Indikator Sasaran');
 				indikatorSasaranModal.find('.modal-body').html(html);
-				indikatorSasaranModal.find('.modal-footer').html('<button type="button" class="btn btn-sm btn-warning" data-dismiss="modal">Tutup</button><button type="button" class="btn btn-sm btn-success" id="btn-simpan-data-rpjm-lokal" data-action="update_indikator_sasaran_rpjm" data-target="indikator_sasaran">Simpan</button>');
+				indikatorSasaranModal.find('.modal-footer').html('<button type="button" class="btn btn-sm btn-warning" data-dismiss="modal"><i class="dashicons dashicons-no" style="margin-top: 3px;"></i> Tutup</button><button type="button" class="btn btn-sm btn-success" id="btn-simpan-data-rpjm-lokal" data-action="update_indikator_sasaran_rpjm" data-target="indikator_sasaran"><i class="dashicons dashicons-yes" style="margin-top: 3px;"></i> Simpan</button>');
 				indikatorSasaranModal.modal('show');
           	}
 		})			
@@ -1903,7 +1907,7 @@ $tahun_selesai = (!empty($tahun_anggaran)) ? $tahun_anggaran + 5 : '-';
           		jQuery('#wrap-loading').hide();
           		
           		let program = ''
-          				+'<br><button type="button" class="btn btn-sm btn-primary mb-2 btn-tambah-program" data-kodesasaran="'+kode_sasaran+'">Tambah Program</button>'
+          				+'<br><button type="button" class="btn btn-sm btn-primary mb-2 btn-tambah-program" data-kodesasaran="'+kode_sasaran+'"><i class="dashicons dashicons-plus" style="margin-top: 3px;"></i> Tambah Program</button>'
           				+'<table class="table">'
           					+'<thead>'
 	          					+'<tr>'
@@ -1931,9 +1935,9 @@ $tahun_selesai = (!empty($tahun_anggaran)) ? $tahun_anggaran + 5 : '-';
 			          							+'<td>'+k+'.</td>'
 			          							+'<td>'+response.data[key]['program_teks']+'</td>'
 			          							+'<td>'
-			          								+'<a href="javascript:void(0)" data-kode="'+response.data[key]['id_unik']+'" class="btn btn-sm btn-warning btn-kelola-indikator-program">Kelola Indikator</a>&nbsp;'
-			          								+'<a href="javascript:void(0)" data-kode="'+response.data[key]['id_unik']+'" class="btn btn-sm btn-success btn-edit-program">Edit</a>&nbsp;'
-			          								+'<a href="javascript:void(0)" data-kode="'+response.data[key]['id_unik']+'" data-kodesasaran="'+response.data[key]['kode_sasaran']+'" class="btn btn-sm btn-danger btn-hapus-program">Hapus</a></td>'
+			          								+'<a href="javascript:void(0)" data-kode="'+response.data[key]['id_unik']+'" class="btn btn-sm btn-warning btn-kelola-indikator-program"><i class="dashicons dashicons-arrow-up-alt" style="margin-top: 3px;"></i> Indikator</a>&nbsp;'
+			          								+'<a href="javascript:void(0)" data-kode="'+response.data[key]['id_unik']+'" class="btn btn-sm btn-success btn-edit-program"><i class="dashicons dashicons-edit" style="margin-top: 3px;"></i></a>&nbsp;'
+			          								+'<a href="javascript:void(0)" data-kode="'+response.data[key]['id_unik']+'" data-kodesasaran="'+response.data[key]['kode_sasaran']+'" class="btn btn-sm btn-danger btn-hapus-program"><i class="dashicons dashicons-trash" style="margin-top: 3px;"></i></a></td>'
 			          						+'</tr>';
 			          				k++;
           						})
@@ -2007,7 +2011,7 @@ $tahun_selesai = (!empty($tahun_anggaran)) ? $tahun_anggaran + 5 : '-';
 
 		        programModal.find('.modal-title').html('Tambah Program');
 				programModal.find('.modal-body').html(html);
-				programModal.find('.modal-footer').html('<button type="button" class="btn btn-sm btn-warning" data-dismiss="modal">Tutup</button><button type="button" class="btn btn-sm btn-success" id="btn-simpan-data-rpjm-lokal" data-action="submit_program_rpjm" data-target="dataProgram" data-withunit="true">Simpan</button>');
+				programModal.find('.modal-footer').html('<button type="button" class="btn btn-sm btn-warning" data-dismiss="modal"><i class="dashicons dashicons-no" style="margin-top: 3px;"></i> Tutup</button><button type="button" class="btn btn-sm btn-success" id="btn-simpan-data-rpjm-lokal" data-action="submit_program_rpjm" data-target="dataProgram" data-withunit="true"><i class="dashicons dashicons-yes" style="margin-top: 3px;"></i> Simpan</button>');
 				// programModal.find('.modal-dialog').css('maxWidth','950px');
 				// programModal.find('.modal-dialog').css('width','100%');
 				programModal.modal('show');
@@ -2077,7 +2081,7 @@ $tahun_selesai = (!empty($tahun_anggaran)) ? $tahun_anggaran + 5 : '-';
 
 		        programModal.find('.modal-title').html('Edit Program');
 				programModal.find('.modal-body').html(html);
-				programModal.find('.modal-footer').html('<button type="button" class="btn btn-sm btn-warning" data-dismiss="modal">Tutup</button><button type="button" class="btn btn-sm btn-success" id="btn-simpan-data-rpjm-lokal" data-action="update_program_rpjm" data-target="dataProgram" data-withunit="true">Simpan</button>');
+				programModal.find('.modal-footer').html('<button type="button" class="btn btn-sm btn-warning" data-dismiss="modal"><i class="dashicons dashicons-no" style="margin-top: 3px;"></i> Tutup</button><button type="button" class="btn btn-sm btn-success" id="btn-simpan-data-rpjm-lokal" data-action="update_program_rpjm" data-target="dataProgram" data-withunit="true"><i class="dashicons dashicons-yes" style="margin-top: 3px;"></i> Simpan</button>');
 				programModal.modal('show');
 
 				const displaySelect = new SlimSelect({
@@ -2195,7 +2199,7 @@ $tahun_selesai = (!empty($tahun_anggaran)) ? $tahun_anggaran + 5 : '-';
 
 			indikatorProgramModal.find('.modal-title').html('Tambah Indikator');
 			indikatorProgramModal.find('.modal-body').html(html);
-			indikatorProgramModal.find('.modal-footer').html('<button type="button" class="btn btn-sm btn-warning" data-dismiss="modal">Tutup</button><button type="button" class="btn btn-sm btn-success" id="btn-simpan-data-rpjm-lokal" data-action="submit_indikator_program_rpjm" data-target="indikator_program">Simpan</button>');
+			indikatorProgramModal.find('.modal-footer').html('<button type="button" class="btn btn-sm btn-warning" data-dismiss="modal"><i class="dashicons dashicons-no" style="margin-top: 3px;"></i> Tutup</button><button type="button" class="btn btn-sm btn-success" id="btn-simpan-data-rpjm-lokal" data-action="submit_indikator_program_rpjm" data-target="indikator_program"><i class="dashicons dashicons-yes" style="margin-top: 3px;"></i> Simpan</button>');
 			indikatorProgramModal.modal('show');
 	});
 
@@ -2266,7 +2270,7 @@ $tahun_selesai = (!empty($tahun_anggaran)) ? $tahun_anggaran + 5 : '-';
 
 				indikatorProgramModal.find('.modal-title').html('Edit Indikator Program');
 				indikatorProgramModal.find('.modal-body').html(html);
-				indikatorProgramModal.find('.modal-footer').html('<button type="button" class="btn btn-sm btn-warning" data-dismiss="modal">Tutup</button><button type="button" class="btn btn-sm btn-success" id="btn-simpan-data-rpjm-lokal" data-action="update_indikator_program_rpjm" data-target="indikator_program">Simpan</button>');
+				indikatorProgramModal.find('.modal-footer').html('<button type="button" class="btn btn-sm btn-warning" data-dismiss="modal"><i class="dashicons dashicons-no" style="margin-top: 3px;"></i> Tutup</button><button type="button" class="btn btn-sm btn-success" id="btn-simpan-data-rpjm-lokal" data-action="update_indikator_program_rpjm" data-target="indikator_program"><i class="dashicons dashicons-yes" style="margin-top: 3px;"></i> Simpan</button>');
 				indikatorProgramModal.modal('show');
           	}
 		})	
