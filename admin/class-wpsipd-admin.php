@@ -2487,9 +2487,12 @@ class Wpsipd_Admin {
 			$id_lokasi = $_POST['id_lokasi'];
 			$tahun_anggaran = get_option('_crb_tahun_anggaran_sipd');
 	
-			$url = 'https://sirup.lkpp.go.id/sirup/ro/caripaket2/search?tahunAnggaran='.$tahun_anggaran.'&jenisPengadaan=&metodePengadaan=&minPagu=&maxPagu=&bulan=&lokasi='.$id_lokasi.'&kldi=&pdn=&ukm=&draw=1&columns[0][data]=&columns[0][name]=&columns[0][searchable]=false&columns[0][orderable]=false&columns[0][search][value]=&columns[0][search][regex]=false&columns[1][data]=paket&columns[1][name]=&columns[1][searchable]=true&columns[1][orderable]=true&columns[1][search][value]=&columns[1][search][regex]=false&columns[2][data]=pagu&columns[2][name]=&columns[2][searchable]=true&columns[2][orderable]=true&columns[2][search][value]=&columns[2][search][regex]=false&columns[3][data]=jenisPengadaan&columns[3][name]=&columns[3][searchable]=true&columns[3][orderable]=true&columns[3][search][value]=&columns[3][search][regex]=false&columns[4][data]=isPDN&columns[4][name]=&columns[4][searchable]=true&columns[4][orderable]=true&columns[4][search][value]=&columns[4][search][regex]=false&columns[5][data]=isUMK&columns[5][name]=&columns[5][searchable]=true&columns[5][orderable]=true&columns[5][search][value]=&columns[5][search][regex]=false&columns[6][data]=metode&columns[6][name]=&columns[6][searchable]=true&columns[6][orderable]=true&columns[6][search][value]=&columns[6][search][regex]=false&columns[7][data]=pemilihan&columns[7][name]=&columns[7][searchable]=true&columns[7][orderable]=true&columns[7][search][value]=&columns[7][search][regex]=false&columns[8][data]=kldi&columns[8][name]=&columns[8][searchable]=true&columns[8][orderable]=true&columns[8][search][value]=&columns[8][search][regex]=false&columns[9][data]=satuanKerja&columns[9][name]=&columns[9][searchable]=true&columns[9][orderable]=true&columns[9][search][value]=&columns[9][search][regex]=false&columns[10][data]=lokasi&columns[10][name]=&columns[10][searchable]=true&columns[10][orderable]=true&columns[10][search][value]=&columns[10][search][regex]=false&columns[11][data]=id&columns[11][name]=&columns[11][searchable]=true&columns[11][orderable]=true&columns[11][search][value]=&columns[11][search][regex]=false&order[0][column]=5&order[0][dir]=DESC&start=0&length=100&search[value]=&search[regex]=false&_=1663641619826';
+			$url = 'https://sirup.lkpp.go.id/sirup/ro/caripaket2/search?tahunAnggaran='.$tahun_anggaran.'&jenisPengadaan=&metodePengadaan=&minPagu=&maxPagu=&bulan=&lokasi='.$id_lokasi.'&kldi=&pdn=&ukm=&draw=1&columns[0][data]=&columns[0][name]=&columns[0][searchable]=false&columns[0][orderable]=false&columns[0][search][value]=&columns[0][search][regex]=false&columns[1][data]=paket&columns[1][name]=&columns[1][searchable]=true&columns[1][orderable]=true&columns[1][search][value]=&columns[1][search][regex]=false&columns[2][data]=pagu&columns[2][name]=&columns[2][searchable]=true&columns[2][orderable]=true&columns[2][search][value]=&columns[2][search][regex]=false&columns[3][data]=jenisPengadaan&columns[3][name]=&columns[3][searchable]=true&columns[3][orderable]=true&columns[3][search][value]=&columns[3][search][regex]=false&columns[4][data]=isPDN&columns[4][name]=&columns[4][searchable]=true&columns[4][orderable]=true&columns[4][search][value]=&columns[4][search][regex]=false&columns[5][data]=isUMK&columns[5][name]=&columns[5][searchable]=true&columns[5][orderable]=true&columns[5][search][value]=&columns[5][search][regex]=false&columns[6][data]=metode&columns[6][name]=&columns[6][searchable]=true&columns[6][orderable]=true&columns[6][search][value]=&columns[6][search][regex]=false&columns[7][data]=pemilihan&columns[7][name]=&columns[7][searchable]=true&columns[7][orderable]=true&columns[7][search][value]=&columns[7][search][regex]=false&columns[8][data]=kldi&columns[8][name]=&columns[8][searchable]=true&columns[8][orderable]=true&columns[8][search][value]=&columns[8][search][regex]=false&columns[9][data]=satuanKerja&columns[9][name]=&columns[9][searchable]=true&columns[9][orderable]=true&columns[9][search][value]=&columns[9][search][regex]=false&columns[10][data]=lokasi&columns[10][name]=&columns[10][searchable]=true&columns[10][orderable]=true&columns[10][search][value]=&columns[10][search][regex]=false&columns[11][data]=id&columns[11][name]=&columns[11][searchable]=true&columns[11][orderable]=true&columns[11][search][value]=&columns[11][search][regex]=false&order[0][column]=5&order[0][dir]=DESC&start=0&length=1000&search[value]=&search[regex]=false&_=1663641619826';
 
 			$total_insert = 0;
+
+			$wpdb->update('data_sirup_lokal', array('active' => 0),array('tahun_anggaran' => $tahun_anggaran));
+
 			do{
 				$get_data_api_sirup = $this->get_data_api_sirup($url);
 				$data = json_decode($get_data_api_sirup);
@@ -2522,13 +2525,17 @@ class Wpsipd_Admin {
 							'paket' => $v_sirup->paket,
 							'pemilihan' => $v_sirup->pemilihan,
 							'satuanKerja' => $v_sirup->satuanKerja,
-							'tahun_anggaran' => $tahun_anggaran
+							'tahun_anggaran' => $tahun_anggaran,
+							'active' => 1,
+							'update_at' =>  current_time('mysql')
 						);
 						
 						if (empty($cek)) {
 							$cek_insert = $wpdb->insert('data_sirup_lokal', $opsi);
 						}else{
-							$cek_insert = $wpdb->update('data_sirup_lokal',$opsi,array('idSirup' => $cek));
+							$cek_insert = $wpdb->update('data_sirup_lokal',$opsi,array(
+								'idSirup' => $cek
+							));
 						}
 						if($cek_insert == 1){
 							$total_insert++;

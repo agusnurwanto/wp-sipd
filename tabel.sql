@@ -3722,11 +3722,13 @@ CREATE TABLE `data_sirup_lokal` (
   `kldi` varchar(250) NOT NULL,
   `lokasi` varchar(250) NOT NULL,
   `metode` varchar(250) NOT NULL,
-  `pagu` int(11) NOT NULL,
-  `paket` varchar(250) NOT NULL,
+  `pagu` double(20,0) NOT NULL,
+  `paket` text NOT NULL,
   `pemilihan` varchar(250) NOT NULL,
   `satuanKerja` varchar(250) NOT NULL,
   `tahun_anggaran` year(4) NOT NULL,
+  `active` tinyint(4) DEFAULT NULL,
+  `update_at` datetime DEFAULT NULL,
   PRIMARY KEY  (id)
 );
 

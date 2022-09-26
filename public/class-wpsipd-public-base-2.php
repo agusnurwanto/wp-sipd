@@ -61,6 +61,8 @@ class Wpsipd_Public_Base_2
 
 						$where_sirup = '
 							tahun_anggaran='.$_POST['tahun_anggaran'].'
+							and active=1
+							and idlokasi='.$_POST['id_lokasi'].'
 							and satuanKerja="'.$opd['nama_skpd'].'"
 						';
 						$data_total_pagu_sirup = $wpdb->get_row('
