@@ -18412,17 +18412,17 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 							<table class='table'>
 								<thead>
 									<tr>
-										<td>No.</td>
-										<td>Indikator</td>
-										<td>Satuan</td>
-										<td>Target 1</td>
-										<td>Target 2</td>
-										<td>Target 3</td>
-										<td>Target 4</td>
-										<td>Target 5</td>
-										<td>Target Awal</td>
-										<td>Target Akhir</td>
-										<td>Aksi</td>
+										<th>No.</th>
+										<th>Indikator</th>
+										<th>Satuan</th>
+										<th>Target 1</th>
+										<th>Target 2</th>
+										<th>Target 3</th>
+										<th>Target 4</th>
+										<th>Target 5</th>
+										<th>Target Awal</th>
+										<th>Target Akhir</th>
+										<th>Aksi</th>
 									</tr>
 								</thead>
 								<tbody id='indikator_program'>
@@ -18788,6 +18788,39 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 				}
 			}else{
 				throw new Exception('Format tidak sesuai');
+			}
+		}catch(Exception $e){
+			echo json_encode([
+				'status' => false,
+				'message' => $e->getMessage()
+			]);exit;
+		}
+	}
+
+	function delete_indikator_program_rpjm(){
+		global $wpdb;
+		try{
+			if (!empty($_POST)) {
+				if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+					
+					$wpdb->get_results("delete from data_rpjmd_program_lokal where id=".$_POST['id'] . " and id_unik_indikator is not null and active=1 and status=1");
+
+					$data = $this->get_indikator_program_rpjm([
+						'type' => 1,
+						'kode_program' => $_POST['kode_program']
+					]);
+
+					echo json_encode([
+						'status' => true,
+						'message' => 'Sukses hapus indikator program',
+						'data' => $data['html']
+					]);exit;
+
+				}else{
+					throw new Exception("Api key tidak sesuai", 1);
+				}
+			}else{
+				throw new Exception("Format tidak sesuai", 1);
 			}
 		}catch(Exception $e){
 			echo json_encode([

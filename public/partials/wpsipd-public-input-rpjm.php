@@ -944,7 +944,7 @@ $tahun_selesai = (!empty($tahun_anggaran)) ? $tahun_anggaran + 5 : '-';
           	dataType: "json",
           	success: function(res){
 
-          		console.log(res);
+          		// console.log(res);
           		
           		jQuery('#wrap-loading').hide();
 
@@ -991,7 +991,6 @@ $tahun_selesai = (!empty($tahun_anggaran)) ? $tahun_anggaran + 5 : '-';
 		visiModal.find('.modal-body').html(html);
 		visiModal.find('.modal-footer').html('<button type="button" class="btn btn-sm btn-warning" data-dismiss="modal">Tutup</button><button type="button" class="btn btn-sm btn-success" id="btn-simpan-data-rpjm-lokal" data-action="submit_visi_rpjm" data-target="dataVisi">Simpan</button>');
 		visiModal.modal('show');
-
 	});
 
 	jQuery(document).on('click', '.btn-edit-visi', function(){
@@ -1009,6 +1008,7 @@ $tahun_selesai = (!empty($tahun_anggaran)) ? $tahun_anggaran + 5 : '-';
 				'id': jQuery(this).data('id')
 			},
 			success:function(response){
+
 				jQuery('#wrap-loading').hide();
 
 				let html = '<form id="form-rpjm">'
@@ -1023,7 +1023,7 @@ $tahun_selesai = (!empty($tahun_anggaran)) ? $tahun_anggaran + 5 : '-';
 
 			}
 		})
-	})
+	});
 
 	jQuery(document).on('click', '.btn-hapus-visi', function(){
 		
@@ -1049,7 +1049,7 @@ $tahun_selesai = (!empty($tahun_anggaran)) ? $tahun_anggaran + 5 : '-';
 				}
 			})
 		}
-	})
+	});
 
 	jQuery(document).on('click', '.btn-detail-visi', function(){
 		
@@ -1108,7 +1108,7 @@ $tahun_selesai = (!empty($tahun_anggaran)) ? $tahun_anggaran + 5 : '-';
 			 		setActive("nav-visi", "nav-misi");
 			}
 		})
-	})
+	});
 
 	jQuery(document).on('click', '.btn-tambah-misi', function(){
 
@@ -1150,6 +1150,7 @@ $tahun_selesai = (!empty($tahun_anggaran)) ? $tahun_anggaran + 5 : '-';
 			success:function(response){
 
 				jQuery('#wrap-loading').hide();
+
 				let html = '<form id="form-rpjm">'
 								+'<input type="hidden" name="id_misi" value="'+response.misi.id+'" />'
 								+'<input type="hidden" name="id_visi" value="'+response.misi.id_visi+'" />'
@@ -1169,7 +1170,7 @@ $tahun_selesai = (!empty($tahun_anggaran)) ? $tahun_anggaran + 5 : '-';
 				misiModal.modal('show');
 			}
 		})
-	})
+	});
 
 	jQuery(document).on('click', '.btn-hapus-misi', function(){
 		
@@ -1198,11 +1199,12 @@ $tahun_selesai = (!empty($tahun_anggaran)) ? $tahun_anggaran + 5 : '-';
 				}
 			})
 		}
-	})
+	});
 
 	jQuery(document).on('click', '.btn-detail-misi', function(){
 		
         jQuery('#wrap-loading').show();
+        
 		let id_misi = jQuery(this).data('id');
 
 		jQuery.ajax({
@@ -1259,7 +1261,7 @@ $tahun_selesai = (!empty($tahun_anggaran)) ? $tahun_anggaran + 5 : '-';
 			 	setActive("nav-misi", "nav-tujuan");
 			}
 		})
-	})
+	});
 
 	jQuery(document).on('click', '.btn-tambah-tujuan', function(){
 
@@ -1353,7 +1355,7 @@ $tahun_selesai = (!empty($tahun_anggaran)) ? $tahun_anggaran + 5 : '-';
 				}
 			})
 		}
-	})
+	});
 
 	jQuery(document).on('click', '.btn-kelola-indikator-tujuan', function(){
 
@@ -1379,7 +1381,7 @@ $tahun_selesai = (!empty($tahun_anggaran)) ? $tahun_anggaran + 5 : '-';
 				indikatorTujuanModal.modal('show');
           	}
 		})
-	})
+	});
 
 	jQuery(document).on('click', '.btn-add-indikator-tujuan', function(){
 
@@ -1595,7 +1597,7 @@ $tahun_selesai = (!empty($tahun_anggaran)) ? $tahun_anggaran + 5 : '-';
 			 	setActive("nav-tujuan", "nav-sasaran");
 			}
 		})
-	})
+	});
 
 	jQuery(document).on('click', '.btn-tambah-sasaran', function(){
 		
@@ -1619,7 +1621,7 @@ $tahun_selesai = (!empty($tahun_anggaran)) ? $tahun_anggaran + 5 : '-';
 		sasaranModal.find('.modal-body').html(html);
 		sasaranModal.find('.modal-footer').html('<button type="button" class="btn btn-sm btn-warning" data-dismiss="modal">Tutup</button><button type="button" class="btn btn-sm btn-success" id="btn-simpan-data-rpjm-lokal" data-action="submit_sasaran_rpjm" data-target="dataSasaran">Simpan</button>');
 		sasaranModal.modal('show');
-	})
+	});
 
 	jQuery(document).on('click', '.btn-edit-sasaran', function(){
 		jQuery('#wrap-loading').show();
@@ -1720,7 +1722,7 @@ $tahun_selesai = (!empty($tahun_anggaran)) ? $tahun_anggaran + 5 : '-';
 				indikatorSasaranModal.modal('show');
           	}
 		})
-	})
+	});
 
 	jQuery(document).on('click', '.btn-add-indikator-sasaran', function(){
 
@@ -1937,7 +1939,7 @@ $tahun_selesai = (!empty($tahun_anggaran)) ? $tahun_anggaran + 5 : '-';
 			 	setActive("nav-sasaran", "nav-program");
 			}
 		})
-	})
+	});
 
 	jQuery(document).on('click', '.btn-tambah-program', function(){
 
@@ -2009,7 +2011,7 @@ $tahun_selesai = (!empty($tahun_anggaran)) ? $tahun_anggaran + 5 : '-';
 				})
           	}
         });
-	})
+	});
 
 	jQuery(document).on('click', '.btn-edit-program', function(){
 		
@@ -2262,7 +2264,40 @@ $tahun_selesai = (!empty($tahun_anggaran)) ? $tahun_anggaran + 5 : '-';
 				indikatorProgramModal.modal('show');
           	}
 		})	
-	})
+	});
+
+	jQuery(document).on('click', '.btn-delete-indikator-program', function(){
+
+		if(confirm('Data akan dihapus, lanjut?')){
+
+			jQuery('#wrap-loading').show();
+			
+			let id = jQuery(this).data('id');
+			
+			let kode_program = jQuery(this).data('kode');
+
+			jQuery.ajax({
+				method:'POST',
+				url:ajax.url,
+				dataType:'json',
+				data:{
+					'action': 'delete_indikator_program_rpjm',
+		          	'api_key': '<?php echo $api_key; ?>',
+					'id': id,
+					'kode_program': kode_program,
+				},
+				success:function(response){
+
+					jQuery('#wrap-loading').hide();
+
+					alert(response.message);
+
+					jQuery("#indikator_program").html(response.data);
+
+				}
+			})
+		}
+	});
 
 	jQuery(document).on('click', '#btn-simpan-data-rpjm-lokal', function(){
 		
@@ -2277,7 +2312,7 @@ $tahun_selesai = (!empty($tahun_anggaran)) ? $tahun_anggaran + 5 : '-';
 			form['id_unit'] = Object.assign({}, jQuery('select[name=id_unit]').val());
 		}
 		
-		console.log(form, action, target);
+		// console.log(form, action, target);
 		jQuery.ajax({
 			method:'POST',
 			url:ajax.url,
@@ -2297,7 +2332,7 @@ $tahun_selesai = (!empty($tahun_anggaran)) ? $tahun_anggaran + 5 : '-';
 				}
 			}
 		})
-	})
+	});
 
 	function setActive(prev, next){
 		jQuery('#'+next+'-tab').addClass('active');
