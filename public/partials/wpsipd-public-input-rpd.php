@@ -28,6 +28,21 @@ function parsing_nama_kode($nama_kode){
 
 $api_key = get_option('_crb_api_key_extension' );
 
+$jadwal_lokal = $wpdb->get_results("SELECT * from data_jadwal_lokal where id_jadwal_lokal = (select max(id_jadwal_lokal) from data_jadwal_lokal where id_tipe=3)", ARRAY_A);
+if(!empty($jadwal_lokal)){
+	$tahun_anggaran = $jadwal_lokal[0]['tahun_anggaran'];
+	$namaJadwal = $jadwal_lokal[0]['nama'];
+	$mulaiJadwal = $jadwal_lokal[0]['waktu_awal'];
+	$selesaiJadwal = $jadwal_lokal[0]['waktu_akhir'];
+}else{
+	$tahun_anggaran = '2022';
+	$namaJadwal = '-';
+	$mulaiJadwal = '-';
+	$selesaiJadwal = '-';
+}
+
+$timezone = get_option('timezone_string');
+
 $awal_rpd = 2018;
 $akhir_rpd = $awal_rpd+5;
 $nama_pemda = get_option('_crb_daerah');
@@ -512,6 +527,19 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
 <script type="text/javascript">
 	run_download_excel();
 	let data_all = <?php echo json_encode($data_all); ?>;
+
+	var mySpace = '<div style="padding:3rem;"></div>';
+	
+	jQuery('body').prepend(mySpace);
+
+	var dataHitungMundur = {
+		'namaJadwal' : '<?php echo ucwords($namaJadwal)  ?>',
+		'mulaiJadwal' : '<?php echo $mulaiJadwal  ?>',
+		'selesaiJadwal' : '<?php echo $selesaiJadwal  ?>',
+		'thisTimeZone' : '<?php echo $timezone ?>'
+	}
+
+	penjadwalanHitungMundur(dataHitungMundur);
 
 	var aksi = ''
 		+'<a style="margin-left: 10px;" id="singkron-sipd" onclick="return false;" href="#" class="btn btn-danger">Ambil data dari SIPD lokal</a>'

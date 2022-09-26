@@ -47,6 +47,9 @@ if(!empty($jadwal_lokal)){
 	$mulaiJadwal = '-';
 	$selesaiJadwal = '-';
 }
+
+$timezone = get_option('timezone_string');
+
 $rumus_indikator_db = $wpdb->get_results("SELECT * from data_rumus_indikator where active=1 and tahun_anggaran=".$tahun_anggaran, ARRAY_A);
 $rumus_indikator = '';
 foreach ($rumus_indikator_db as $k => $v){
@@ -818,11 +821,14 @@ $tahun_selesai = (!empty($tahun_anggaran)) ? $tahun_anggaran + 5 : '-';
 	
 	jQuery('body').prepend(mySpace);
 
-	namaJadwal = '<?php echo ucwords($namaJadwal)  ?>';
-	mulaiJadwal = '<?php echo $mulaiJadwal  ?>';
-	selesaiJadwal = '<?php echo $selesaiJadwal  ?>';
+	var dataHitungMundur = {
+		'namaJadwal' : '<?php echo ucwords($namaJadwal)  ?>',
+		'mulaiJadwal' : '<?php echo $mulaiJadwal  ?>',
+		'selesaiJadwal' : '<?php echo $selesaiJadwal  ?>',
+		'thisTimeZone' : '<?php echo $timezone ?>'
+	}
 
-	penjadwalanHitungMundur(namaJadwal,mulaiJadwal,selesaiJadwal);
+	penjadwalanHitungMundur(dataHitungMundur);
 
 	var aksi = ''
 		+'<a style="margin-left: 10px;" id="singkron-sipd" onclick="return false;" href="#" class="btn btn-danger">Ambil data dari SIPD lokal</a>'

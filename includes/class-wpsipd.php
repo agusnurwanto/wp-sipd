@@ -180,6 +180,10 @@ class Wpsipd
 		$this->loader->add_action('wp_ajax_sumberdana_wp_sipd_ke_rka_simda',  $plugin_admin, 'sumberdana_wp_sipd_ke_rka_simda');
 		$this->loader->add_action('wp_ajax_generate_lisensi',  $plugin_admin, 'generate_lisensi');
 		$this->loader->add_action('admin_notices',  $plugin_admin, 'wp_sipd_admin_notice');
+		$this->loader->add_action('wp_ajax_get_api_modul_migrasi_data',  $plugin_admin, 'get_api_modul_migrasi_data');
+		$this->loader->add_action('wp_ajax_nopriv_get_api_modul_migrasi_data',  $plugin_admin, 'get_api_modul_migrasi_data');
+		$this->loader->add_action('wp_ajax_get_sinkron_modul_migrasi_data',  $plugin_admin, 'get_sinkron_modul_migrasi_data');
+		$this->loader->add_action('wp_ajax_get_sinkron_data_sirup',  $plugin_admin, 'get_sinkron_data_sirup');
 	}
 
 	/**
@@ -440,6 +444,9 @@ class Wpsipd
 		$this->loader->add_action('wp_ajax_get_tujuan_rpd',  $plugin_public, 'get_tujuan_rpd');
 		$this->loader->add_action('wp_ajax_nopriv_get_tujuan_rpd',  $plugin_public, 'get_tujuan_rpd');
 
+		$this->loader->add_action('wp_ajax_get_rpjpd',  $plugin_public, 'get_rpjpd');
+		$this->loader->add_action('wp_ajax_nopriv_get_rpjpd',  $plugin_public, 'get_rpjpd');
+
 		$this->loader->add_action('wp_ajax_simpan_rfk',  $plugin_public, 'simpan_rfk');
 		$this->loader->add_action('wp_ajax_reset_rfk',  $plugin_public, 'reset_rfk');
 		$this->loader->add_action('wp_ajax_reset_catatan_verifkator_rfk',  $plugin_public, 'reset_catatan_verifkator_rfk');
@@ -494,6 +501,10 @@ class Wpsipd
 		$this->loader->add_action('wp_ajax_submit_lock_schedule_rpjm',  $plugin_public, 'submit_lock_schedule_rpjm');
 		$this->loader->add_action('wp_ajax_submit_lock_schedule_renstra',  $plugin_public, 'submit_lock_schedule_renstra');
 		$this->loader->add_action('wp_ajax_submit_lock_schedule_rpd',  $plugin_public, 'submit_lock_schedule_rpd');
+
+		$this->loader->add_action('wp_ajax_simpan_rpjpd',  $plugin_public, 'simpan_rpjpd');
+		$this->loader->add_action('wp_ajax_hapus_rpjpd',  $plugin_public, 'hapus_rpjpd');
+		$this->loader->add_action('wp_ajax_get_data_monitoring_rup',  $plugin_public, 'get_data_monitoring_rup');
 		
 		$this->loader->add_action('wp_ajax_submit_visi_rpjm',  $plugin_public, 'submit_visi_rpjm');
 		$this->loader->add_action('wp_ajax_edit_visi_rpjm',  $plugin_public, 'edit_visi_rpjm');
@@ -575,6 +586,7 @@ class Wpsipd
 		add_shortcode('input_rpjpd', array($plugin_public, 'input_rpjpd'));
 		add_shortcode('jadwal_rpjpd', array($plugin_public, 'jadwal_rpjpd'));
 		add_shortcode('jadwal_rpd', array($plugin_public, 'jadwal_rpd'));
+		add_shortcode('monitoring_rup', array($plugin_public, 'monitoring_rup'));
 	}
 
 	/**

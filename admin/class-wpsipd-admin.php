@@ -213,6 +213,10 @@ class Wpsipd_Admin {
 		    ->set_page_parent( $basic_options_container )
 		    ->add_fields( $this->get_setting_fmis() );
 
+		Container::make( 'theme_options', __( 'API Setting' ) )
+		    ->set_page_parent( $basic_options_container )
+		    ->add_fields( $this->get_api_setting() );
+
 	    $monev = Container::make( 'theme_options', __( 'MONEV SIPD' ) )
 			->set_page_menu_position( 4 )
 		    ->add_fields( $this->get_ajax_field(array('type' => 'rfk')) );
@@ -263,29 +267,13 @@ class Wpsipd_Admin {
 	    Container::make( 'theme_options', __( 'RPJM & RENSTRA' ) )
 		    ->set_page_parent( $laporan );
 
-	    $input_perencanaan = Container::make( 'theme_options', __( 'Input Perencanaan SIPD' ) )
+	    $input_perencanaan = Container::make( 'theme_options', __( 'Input Perencanaan' ) )
 			->set_page_menu_position( 4 )
 		    ->add_fields( $this->generate_jadwal_perencanaan() );
 
-	    Container::make( 'theme_options', __( 'Jadwal Perencanaan' ) )
+	    Container::make( 'theme_options', __( 'Jadwal & Input Perencanaan' ) )
 		    ->set_page_parent( $input_perencanaan )
 		    ->add_fields( $this->generate_jadwal_perencanaan() );
-
-	    Container::make( 'theme_options', __( 'Input RPJPD' ) )
-		    ->set_page_parent( $input_perencanaan )
-		    ->add_fields( $this->generate_input_rpjpd() );
-
-	    Container::make( 'theme_options', __( 'Input RPJM' ) )
-		    ->set_page_parent( $input_perencanaan )
-		    ->add_fields( $this->generate_input_rpjm() );
-
-	    Container::make( 'theme_options', __( 'Input RPD' ) )
-		    ->set_page_parent( $input_perencanaan )
-		    ->add_fields( $this->generate_input_rpd() );
-
-	    Container::make( 'theme_options', __( 'Input RENSTRA' ) )
-		    ->set_page_parent( $input_perencanaan )
-		    ->add_fields( $this->generate_input_renstra() );
 
 	    Container::make( 'theme_options', __( 'Input RENJA' ) )
 		    ->set_page_parent( $input_perencanaan )
@@ -423,6 +411,9 @@ class Wpsipd_Admin {
 			$url = $this->generatePage('Setting penjadwalan | '.$v['tahun_anggaran'], $v['tahun_anggaran'], '[setting_penjadwalan tahun_anggaran="'.$v['tahun_anggaran'].'"]');
 			$options_basic[] = Field::make( 'html', 'crb_penjadwalan_'.$k )
 				->set_html( '<a target="_blank" href="'.$url.'">Halaman Pengaturan Penjadwalan '.$v['tahun_anggaran'].'</a>' );
+			$url_monitoring_rup = $this->generatePage('Monitoring RUP | '.$v['tahun_anggaran'], $v['tahun_anggaran'], '[monitoring_rup tahun_anggaran="'.$v['tahun_anggaran'].'"]');
+			$options_basic[] = Field::make( 'html', 'crb_monitoring_rup_'.$k )
+				->set_html( '<a target="_blank" href="'.$url_monitoring_rup.'">Halaman Monitoring RUP '.$v['tahun_anggaran'].'</a>' );
 		}
         return $options_basic;
 	}
@@ -599,6 +590,13 @@ class Wpsipd_Admin {
 		    ) )
         	->set_default_value('1')
         	->set_help_text('Pilihan ini untuk opsi yang dipakai saat penarikan data dijadwal pergeseran atau perubahan. Jika masih jadwal APBD Murni maka pilih <b>Nilai Terakhir</b>.');
+        $mapping_unit[] = Field::make( 'radio', 'crb_backup_rincian_fmis', __( 'Apakah nilai rincian FMIS akan ikut di backup ke database lokal saat melakukan singkronisasi data?' ) )
+		    ->add_options( array(
+		        '1' => __( 'Iya' ),
+		        '2' => __( 'Tidak' )
+		    ) )
+        	->set_default_value('2')
+        	->set_help_text('Jika Iya, maka data rincian FMIS akan disimpan di tabel <b>data_rincian_fmis</b>. Hal ini akan berpengaruh kepada lama tidak nya proses singkornisasi data dari wp-sipd ke FMIS. Jika dipilih Tidak, proses singkronisasi data akan lebih cepat.');
 		foreach ($unit as $k => $v) {
 			$mapping_unit[] = Field::make( 'text', 'crb_unit_fmis_'.$tahun_anggaran.'_'.$v['id_skpd'], ($k+1).'. Kode Sub Unit FMIS untuk '.$v['kode_skpd'].' '.$v['nama_skpd'] );
 		}
@@ -692,6 +690,45 @@ class Wpsipd_Admin {
 			}
 			$mapping_unit[] = Field::make( 'text', 'crb_unit_'.$v['id_skpd'], ($k+1).'. Kode Sub Unit SIMDA untuk '.$v['kode_skpd'].' '.$v['nama_skpd'] );
 		}
+		return $mapping_unit;
+	}
+
+	public function get_api_setting(){
+		global $wpdb;
+		$unit = array();
+		$tahun_anggaran = get_option('_crb_tahun_anggaran_sipd');
+		if(empty(!$tahun_anggaran)){
+			$unit = $wpdb->get_results("SELECT nama_skpd, id_skpd, kode_skpd from data_unit where active=1 and tahun_anggaran=".$tahun_anggaran.' order by id_skpd ASC', ARRAY_A);
+		}
+
+		$disabled = 'onclick="get_sinkron_modul_migrasi_data(); return false;"';
+		if(get_option('_crb_url_server_modul_migrasi_data') == admin_url('admin-ajax.php' || empty(get_option('_crb_url_server_modul_migrasi_data')))){
+			$disabled = 'disabled';
+		}
+
+		$disabled_sirup = 'onclick="get_sinkron_data_sirup(); return false;"';
+		if(get_option('_crb_id_lokasi_sirup') == 0 || empty(get_option('_crb_id_lokasi_sirup'))){
+			$disabled_sirup = 'disabled';
+		}
+
+		$mapping_unit = array(
+			Field::make('html', 'crb_url_tahun_anggaran_moduld_migrasi_data')
+				->set_html('<h3>Tahun Anggaran: '.$tahun_anggaran.'</h3>'),
+            Field::make( 'text', 'crb_url_server_modul_migrasi_data', 'URL Server Modul Migrasi Data' )
+				->set_default_value(admin_url('admin-ajax.php')),
+            Field::make( 'text', 'crb_apikey_server_modul_migrasi_data', 'APIKEY Server Modul Migrasi Data' )
+				->set_default_value(get_option('_crb_api_key_extension' )),
+			Field::make( 'html', 'crb_html_get_sinkron_modul_migrasi_data' )
+            	->set_html( '<a href="#" class="button button-primary" '.$disabled.'>Sinkron data dari server migrasi data</a>' )
+				->set_help_text($this->last_sinkron_api_setting()),
+            Field::make( 'text', 'crb_id_lokasi_sirup', 'ID lokasi' )
+				->set_default_value(0)
+				->set_help_text('Cara mendapatkan id lokasi ada <a href="https://sirup.lkpp.go.id/sirup/ro/caripaket2" target="_blank">disni</a>'),
+			Field::make( 'html', 'crb_html_get_sinkron_data_sirup' )
+            	->set_html( '<a href="#" class="button button-primary" '.$disabled_sirup.'>Sinkron data dari server SIRUP</a>' )
+				->set_help_text($this->last_sinkron_data_sirup())
+			);
+
 		return $mapping_unit;
 	}
 
@@ -1226,8 +1263,20 @@ class Wpsipd_Admin {
 		$page_url = $this->generatePage($title, false, $shortcode, $update);
 		$list_data .= '<li><a href="'.$page_url.'" target="_blank">'.$title.'</a></li>';
 
+		$title = 'Input Perencanaan RPJPD';
+		$shortcode = '[input_rpjpd]';
+		$update = false;
+		$page_url = $this->generatePage($title, false, $shortcode, $update);
+		$list_data .= '<li><a href="'.$page_url.'" target="_blank">'.$title.'</a></li>';
+
 		$title = 'Jadwal Input Perencanaan RPJM';
 		$shortcode = '[jadwal_rpjm]';
+		$update = false;
+		$page_url = $this->generatePage($title, false, $shortcode, $update);
+		$list_data .= '<li><a href="'.$page_url.'" target="_blank">'.$title.'</a></li>';
+
+		$title = 'Input Perencanaan RPJM';
+		$shortcode = '[input_rpjm]';
 		$update = false;
 		$page_url = $this->generatePage($title, false, $shortcode, $update);
 		$list_data .= '<li><a href="'.$page_url.'" target="_blank">'.$title.'</a></li>';
@@ -1238,8 +1287,20 @@ class Wpsipd_Admin {
 		$page_url = $this->generatePage($title, false, $shortcode, $update);
 		$list_data .= '<li><a href="'.$page_url.'" target="_blank">'.$title.'</a></li>';
 
+		$title = 'Input Perencanaan RPD';
+		$shortcode = '[input_rpd]';
+		$update = false;
+		$page_url = $this->generatePage($title, false, $shortcode, $update);
+		$list_data .= '<li><a href="'.$page_url.'" target="_blank">'.$title.'</a></li>';
+
 		$title = 'Jadwal Input Perencanaan RENSTRA';
 		$shortcode = '[jadwal_renstra]';
+		$update = false;
+		$page_url = $this->generatePage($title, false, $shortcode, $update);
+		$list_data .= '<li><a href="'.$page_url.'" target="_blank">'.$title.'</a></li>';
+
+		$title = 'Input Perencanaan RENSTRA';
+		$shortcode = '[input_renstra]';
 		$update = false;
 		$page_url = $this->generatePage($title, false, $shortcode, $update);
 		$list_data .= '<li><a href="'.$page_url.'" target="_blank">'.$title.'</a></li>';
@@ -1254,70 +1315,6 @@ class Wpsipd_Admin {
 		}
 		$label = array(
 			Field::make( 'html', 'crb_jadwal_perencanaan' )
-            	->set_html( '
-            		<ul>'.$list_data.'</ul>
-            	' )
-        );
-        return $label;
-	}
-
-	public function generate_input_rpjpd(){
-		global $wpdb;
-		$title = 'Input Perencanaan RPJPD';
-		$shortcode = '[input_rpjpd]';
-		$update = false;
-		$page_url = $this->generatePage($title, false, $shortcode, $update);
-		$list_data = '<li><a href="'.$page_url.'" target="_blank">'.$title.'</a></li>';
-		$label = array(
-			Field::make( 'html', 'crb_input_rpjpd' )
-            	->set_html( '
-            		<ul>'.$list_data.'</ul>
-            	' )
-        );
-        return $label;
-	}
-
-	public function generate_input_rpjm(){
-		global $wpdb;
-		$title = 'Input Perencanaan RPJM';
-		$shortcode = '[input_rpjm]';
-		$update = false;
-		$page_url = $this->generatePage($title, false, $shortcode, $update);
-		$list_data = '<li><a href="'.$page_url.'" target="_blank">'.$title.'</a></li>';
-		$label = array(
-			Field::make( 'html', 'crb_input_rpjm' )
-            	->set_html( '
-            		<ul>'.$list_data.'</ul>
-            	' )
-        );
-        return $label;
-	}
-
-	public function generate_input_rpd(){
-		global $wpdb;
-		$title = 'Input Perencanaan RPD';
-		$shortcode = '[input_rpd]';
-		$update = false;
-		$page_url = $this->generatePage($title, false, $shortcode, $update);
-		$list_data = '<li><a href="'.$page_url.'" target="_blank">'.$title.'</a></li>';
-		$label = array(
-			Field::make( 'html', 'crb_input_rpd' )
-            	->set_html( '
-            		<ul>'.$list_data.'</ul>
-            	' )
-        );
-        return $label;
-	}
-
-	public function generate_input_renstra(){
-		global $wpdb;
-		$title = 'Input Perencanaan RENSTRA';
-		$shortcode = '[input_renstra]';
-		$update = false;
-		$page_url = $this->generatePage($title, false, $shortcode, $update);
-		$list_data = '<li><a href="'.$page_url.'" target="_blank">'.$title.'</a></li>';
-		$label = array(
-			Field::make( 'html', 'crb_input_renstra' )
             	->set_html( '
             		<ul>'.$list_data.'</ul>
             	' )
@@ -2311,4 +2308,316 @@ class Wpsipd_Admin {
 			'response' => $ret
 		)));
     }
+
+	function get_api_modul_migrasi_data(){
+		global $wpdb;
+		$cek = true;
+		$unit = array();
+		$api_key_server = get_option('_crb_apikey_server_modul_migrasi_data');
+		$api_key_param = $_POST['api_key'];
+		$tahun_anggaran = $_POST['tahun_anggaran'];
+		if(empty($api_key_param)){
+			$cek = false;
+			$pesan = 'API KEY server modul migrasi data wajib diisi!';
+		}
+		if(empty($tahun_anggaran)){
+			$cek = false;
+			$pesan = 'tahun anggaran wajib diisi!';
+		}
+		if(true == $cek){
+			if($api_key_server === $api_key_param){
+				if(!empty($tahun_anggaran)){
+					$unit = $wpdb->get_results($wpdb->prepare('
+					SELECT 
+					* 
+					from data_unit 
+					where active=1 
+						and tahun_anggaran=%d 
+					order by id_skpd ASC',
+					$tahun_anggaran), ARRAY_A);
+				}
+
+				if(!empty($unit)){
+					$ret = array(
+						'status' => 'success',
+						'message' => 'Data berhasil ditemukan',
+						'data'	=> $unit
+					);
+				}else{
+					$ret = array(
+						'status' => 'error',
+						'message' => 'Data tidak ditemukan',
+						'data'	=> $unit
+					);
+				}
+			}else{
+				$ret = array(
+					'status' => 'error',
+					'message' => 'APIKEY tidak valid',
+					'data'	=> $unit
+				);
+			}
+	    }else{
+	    	$ret = array(
+        		'status' => 'error',
+        		'message' => $pesan,
+				'data'	=> $unit
+        	);
+	    }
+
+		echo json_encode($ret);
+
+		die();
+	}
+
+	function get_sinkron_modul_migrasi_data(){
+		global $wpdb;
+		
+		if(empty(get_option('_crb_url_server_modul_migrasi_data'))){
+			$data = array(
+				'status' => 'error',
+				'message' => 'URL server modul migrasi data tidak boleh kosong',
+				'last_sinkron' => ''
+			);
+			if(get_option('_crb_url_server_modul_migrasi_data') == admin_url('admin-ajax.php')){
+				$data = array(
+					'status' => 'error',
+					'message' => 'URL server modul migrasi data tidak boleh sama dengan url server RFK',
+					'last_sinkron' => ''
+				);
+			}
+
+			$response = json_encode($data);
+
+			die($response);
+		}
+
+		// data to send in our API request
+		$api_params = array(
+			'action' => 'get_api_modul_migrasi_data',
+			'api_key'	=> $_POST['api_key'],
+			'tahun_anggaran' => get_option('_crb_tahun_anggaran_sipd')
+		);
+
+		$response = wp_remote_post($_POST['server'], array('timeout' => 10, 'sslverify' => false, 'body' => $api_params));
+
+		$response = wp_remote_retrieve_body($response);
+
+		$data = json_decode($response);
+
+		$data->last_sinkron = '';
+
+		$data_unit = $data->data;
+
+		if($data->status == 'success' && !empty($data_unit)){
+			$wpdb->update('data_unit', array('active' => 0),array('tahun_anggaran' => $api_params['tahun_anggaran']));
+			foreach($data_unit as $vdata){
+				$cek = $wpdb->get_var($wpdb->prepare('
+					select 
+						id 
+					from data_unit 
+					where id_skpd = %d
+						and tahun_anggaran = %d',
+					$vdata->id_skpd,
+					$vdata->tahun_anggaran
+				));
+				$opsi = array(
+					'id_setup_unit' => $vdata->id_setup_unit,
+					'id_unit' => $vdata->id_unit,
+					'is_skpd' => $vdata->is_skpd,
+					'kode_skpd' => $vdata->kode_skpd,
+					'kunci_skpd' => $vdata->kunci_skpd,
+					'nama_skpd' => $vdata->nama_skpd,
+					'posisi' => $vdata->posisi,
+					'status' => $vdata->status,
+					'id_skpd' => $vdata->id_skpd,
+					'bidur_1' => $vdata->bidur_1,
+					'bidur_2' => $vdata->bidur_2,
+					'bidur_3' => $vdata->bidur_3,
+					'idinduk' => $vdata->idinduk,
+					'ispendapatan' => $vdata->ispendapatan,
+					'isskpd' => $vdata->isskpd,
+					'kode_skpd_1' => $vdata->kode_skpd_1,
+					'kode_skpd_2' => $vdata->kode_skpd_2,
+					'kodeunit' => $vdata->kodeunit,
+					'komisi' => $vdata->komisi,
+					'namabendahara' => $vdata->namabendahara,
+					'namakepala' => $vdata->namakepala,
+					'namaunit' => $vdata->namaunit,
+					'nipbendahara' => $vdata->nipbendahara,
+					'nipkepala' => $vdata->nipkepala,
+					'pangkatkepala' => $vdata->pangkatkepala,
+					'setupunit' => $vdata->setupunit,
+					'statuskepala' => $vdata->statuskepala,
+					'update_at' => $vdata->update_at,
+					'tahun_anggaran' => $vdata->tahun_anggaran,
+					'active' => $vdata->active
+				);
+				if (empty($cek)) {
+					$wpdb->insert('data_unit', $opsi);
+				}else{
+					$wpdb->update('data_unit',$opsi,array('id' => $cek));
+				}
+			}
+
+			$timezone = get_option('timezone_string');
+			if(preg_match("/Asia/i", $timezone)){
+				date_default_timezone_set($timezone);
+			}
+
+			$dateTime = new DateTime();
+			$time_now = $dateTime->format('d-m-Y H:i:s');
+			update_option('last_sinkron_api_setting',$time_now);
+			$data->last_sinkron = 'Terakhir sinkron data: '.get_option('last_sinkron_api_setting');
+		}
+		
+		$response = json_encode($data);
+
+		die($response);
+	}
+
+	public function last_sinkron_api_setting(){
+		return "<span id='last_sinkron'>Terakhir sinkron data: ".get_option('last_sinkron_api_setting')."</span>";
+	}
+
+	function get_sinkron_data_sirup(){
+		global $wpdb;
+
+		if(!empty($_POST['id_lokasi']) || $_POST['id_lokasi'] != 0){
+			$id_lokasi = $_POST['id_lokasi'];
+			$tahun_anggaran = get_option('_crb_tahun_anggaran_sipd');
+	
+			$url = 'https://sirup.lkpp.go.id/sirup/ro/caripaket2/search?tahunAnggaran='.$tahun_anggaran.'&jenisPengadaan=&metodePengadaan=&minPagu=&maxPagu=&bulan=&lokasi='.$id_lokasi.'&kldi=&pdn=&ukm=&draw=1&columns[0][data]=&columns[0][name]=&columns[0][searchable]=false&columns[0][orderable]=false&columns[0][search][value]=&columns[0][search][regex]=false&columns[1][data]=paket&columns[1][name]=&columns[1][searchable]=true&columns[1][orderable]=true&columns[1][search][value]=&columns[1][search][regex]=false&columns[2][data]=pagu&columns[2][name]=&columns[2][searchable]=true&columns[2][orderable]=true&columns[2][search][value]=&columns[2][search][regex]=false&columns[3][data]=jenisPengadaan&columns[3][name]=&columns[3][searchable]=true&columns[3][orderable]=true&columns[3][search][value]=&columns[3][search][regex]=false&columns[4][data]=isPDN&columns[4][name]=&columns[4][searchable]=true&columns[4][orderable]=true&columns[4][search][value]=&columns[4][search][regex]=false&columns[5][data]=isUMK&columns[5][name]=&columns[5][searchable]=true&columns[5][orderable]=true&columns[5][search][value]=&columns[5][search][regex]=false&columns[6][data]=metode&columns[6][name]=&columns[6][searchable]=true&columns[6][orderable]=true&columns[6][search][value]=&columns[6][search][regex]=false&columns[7][data]=pemilihan&columns[7][name]=&columns[7][searchable]=true&columns[7][orderable]=true&columns[7][search][value]=&columns[7][search][regex]=false&columns[8][data]=kldi&columns[8][name]=&columns[8][searchable]=true&columns[8][orderable]=true&columns[8][search][value]=&columns[8][search][regex]=false&columns[9][data]=satuanKerja&columns[9][name]=&columns[9][searchable]=true&columns[9][orderable]=true&columns[9][search][value]=&columns[9][search][regex]=false&columns[10][data]=lokasi&columns[10][name]=&columns[10][searchable]=true&columns[10][orderable]=true&columns[10][search][value]=&columns[10][search][regex]=false&columns[11][data]=id&columns[11][name]=&columns[11][searchable]=true&columns[11][orderable]=true&columns[11][search][value]=&columns[11][search][regex]=false&order[0][column]=5&order[0][dir]=DESC&start=0&length=1000&search[value]=&search[regex]=false&_=1663641619826';
+
+			$total_insert = 0;
+
+			$wpdb->update('data_sirup_lokal', array('active' => 0),array('tahun_anggaran' => $tahun_anggaran));
+
+			do{
+				$get_data_api_sirup = $this->get_data_api_sirup($url);
+				$data = json_decode($get_data_api_sirup);
+				
+				$data_sirup = $data->data;
+				if(!empty($data_sirup)){
+					foreach($data_sirup as $v_sirup) {
+						$cek = $wpdb->get_var($wpdb->prepare('
+							select 
+								idSirup
+							from data_sirup_lokal 
+							where idSirup = %d',
+							$v_sirup->id
+						));
+	
+						$opsi = array(
+							'idSirup' => $v_sirup->id,
+							'idBulan' => $v_sirup->idBulan,
+							'idJenisPengadaan' => $v_sirup->idJenisPengadaan,
+							'idKldi' => $v_sirup->idKldi,
+							'idMetode' => $v_sirup->idMetode,
+							'id_referensi' => $v_sirup->id_referensi,
+							'idlokasi' => $v_sirup->idlokasi,
+							'isPDN' => $v_sirup->isPDN,
+							'isUMK' => $v_sirup->isUMK,
+							'jenisPengadaan' => $v_sirup->jenisPengadaan,
+							'kldi' => $v_sirup->kldi,
+							'metode' => $v_sirup->metode,
+							'pagu' => $v_sirup->pagu,
+							'paket' => $v_sirup->paket,
+							'pemilihan' => $v_sirup->pemilihan,
+							'satuanKerja' => $v_sirup->satuanKerja,
+							'tahun_anggaran' => $tahun_anggaran,
+							'active' => 1,
+							'update_at' =>  current_time('mysql')
+						);
+						
+						if (empty($cek)) {
+							$cek_insert = $wpdb->insert('data_sirup_lokal', $opsi);
+						}else{
+							$cek_insert = $wpdb->update('data_sirup_lokal',$opsi,array(
+								'idSirup' => $cek
+							));
+						}
+						if($cek_insert == 1){
+							$total_insert++;
+						}
+					}
+				}
+
+				$timezone = get_option('timezone_string');
+				if(preg_match("/Asia/i", $timezone)){
+					date_default_timezone_set($timezone);
+				}
+
+				$dateTime = new DateTime();
+				$time_now = $dateTime->format('d-m-Y H:i:s');
+				update_option('last_sinkron_data_sirup',$time_now);
+				$data->last_sinkron = 'Terakhir sinkron data: '.get_option('last_sinkron_data_sirup');
+				$data->status = 'success';
+				$data->message = 'data berhasil disinkron';
+				$data->insert_succeed = $total_insert;
+				
+				$url_pecahan = explode("&",$url);
+				
+				$int_start = 0;
+				$len_start = 0;
+				$int_length = 0;
+				foreach($url_pecahan as $val_url){
+					if(strpos($val_url,"start=") !== false){
+						$int_start = substr($val_url,6);
+						$len_start = strlen($int_start);
+					}
+					if(strpos($val_url,"length=") !== false){
+						$int_length = substr($val_url,7);
+					}
+				}
+				
+				$idx = strpos($url,"start=");
+				$idy = $idx+6;
+				
+				$idplus = $int_start+$int_length;	
+				$url = substr_replace($url, $idplus, $idy, $len_start);
+			}while(!empty($data_sirup));
+		}else{
+			$data = array(
+				'status' => 'error',
+				'message' => 'Id lokasi SIRUP tidak valid',
+				'last_sinkron' => ''
+			);
+		}
+
+		$response = json_encode($data);
+
+		die($response);
+	}
+
+	public function get_data_api_sirup($url){
+		$curl = curl_init();
+		curl_setopt_array($curl, array(
+			CURLOPT_URL => $url,
+			CURLOPT_RETURNTRANSFER => true,
+			CURLOPT_ENCODING => "",
+			CURLOPT_MAXREDIRS => 10,
+			CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+			CURLOPT_SSL_VERIFYPEER => false,
+			CURLOPT_SSL_VERIFYHOST => false,
+			CURLOPT_NOSIGNAL => 1,
+			CURLOPT_CONNECTTIMEOUT => -1,
+			CURLOPT_TIMEOUT => -1
+		));
+		$response = curl_exec($curl);
+
+		$err = curl_error($curl);
+
+		curl_close($curl);
+
+		if(!empty($err)){
+			$response = $err;
+		}
+
+		return $response;
+	}
+	
+	public function last_sinkron_data_sirup(){
+		return "<span id='last_sinkron_data_sirup'>Terakhir sinkron data: ".get_option('last_sinkron_data_sirup')."</span>";
+	}
 }

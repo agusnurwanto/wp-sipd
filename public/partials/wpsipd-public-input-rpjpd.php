@@ -10,25 +10,26 @@ function button_edit_monev($class=false){
 	return $ret;
 }
 
-function get_target($target, $satuan){
-	if(empty($satuan)){
-		return $target;
-	}else{
-		$target = explode($satuan, $target);
-		return $target[0];
-	}
-}
-
-function parsing_nama_kode($nama_kode){
-	$nama_kodes = explode('||', $nama_kode);
-	$nama = $nama_kodes[0];
-	unset($nama_kodes[0]);
-	return $nama.'<span class="debug-kode">||'.implode('||', $nama_kodes).'</span>';
-}
-
 $api_key = get_option('_crb_api_key_extension' );
 
-$awal_rpjpd = 2018;
+$cek_jadwal = $this->validasi_jadwal_perencanaan('rpjpd');
+
+$jadwal_lokal = $wpdb->get_results("SELECT * from data_jadwal_lokal where id_jadwal_lokal = (select max(id_jadwal_lokal) from data_jadwal_lokal where id_tipe=1)", ARRAY_A);
+if(!empty($jadwal_lokal)){
+	$tahun_anggaran = $jadwal_lokal[0]['tahun_anggaran'];
+	$namaJadwal = $jadwal_lokal[0]['nama'];
+	$mulaiJadwal = $jadwal_lokal[0]['waktu_awal'];
+	$selesaiJadwal = $jadwal_lokal[0]['waktu_akhir'];
+}else{
+	$tahun_anggaran = '2005';
+	$namaJadwal = '-';
+	$mulaiJadwal = '-';
+	$selesaiJadwal = '-';
+}
+
+$timezone = get_option('timezone_string');
+
+$awal_rpjpd = $tahun_anggaran;
 $akhir_rpjpd = $awal_rpjpd+20;
 $nama_pemda = get_option('_crb_daerah');
 
@@ -419,7 +420,7 @@ foreach ($data_all['data'] as $visi) {
 	$body .= '
 		<tr class="tr-visi">
 			<td class="kiri atas kanan bawah">'.$no_visi.'</td>
-			<td class="atas kanan bawah">'.$visi['nama'].'</td>
+			<td class="atas kanan bawah">'.$visi['nama'].button_edit_monev($visi['detail'][0]['id']).'</td>
 			<td class="atas kanan bawah"></td>
 			<td class="atas kanan bawah"></td>
 			<td class="atas kanan bawah"></td>
@@ -433,7 +434,7 @@ foreach ($data_all['data'] as $visi) {
 			<tr class="tr-misi">
 				<td class="kiri atas kanan bawah">'.$no_visi.'.'.$no_misi.'</td>
 				<td class="atas kanan bawah"><span class="debug-visi">'.$visi['nama'].'</span></td>
-				<td class="atas kanan bawah">'.$misi['nama'].'</td>
+				<td class="atas kanan bawah">'.$misi['nama'].button_edit_monev($visi['detail'][0]['id'].'-'.$misi['detail'][0]['id']).'</td>
 				<td class="atas kanan bawah"></td>
 				<td class="atas kanan bawah"></td>
 				<td class="atas kanan bawah"></td>
@@ -447,7 +448,7 @@ foreach ($data_all['data'] as $visi) {
 					<td class="kiri atas kanan bawah">'.$no_visi.'.'.$no_misi.'.'.$no_sasaran.'</td>
 					<td class="atas kanan bawah"><span class="debug-visi">'.$visi['nama'].'</span></td>
 					<td class="atas kanan bawah"><span class="debug-misi">'.$misi['nama'].'</span></td>
-					<td class="atas kanan bawah">'.$sasaran['nama'].'</td>
+					<td class="atas kanan bawah">'.$sasaran['nama'].button_edit_monev($visi['detail'][0]['id'].'-'.$misi['detail'][0]['id'].'-'.$sasaran['detail'][0]['id']).'</td>
 					<td class="atas kanan bawah"></td>
 					<td class="atas kanan bawah"></td>
 				</tr>
@@ -461,7 +462,7 @@ foreach ($data_all['data'] as $visi) {
 						<td class="atas kanan bawah"><span class="debug-visi">'.$visi['nama'].'</span></td>
 						<td class="atas kanan bawah"><span class="debug-misi">'.$misi['nama'].'</span></td>
 						<td class="atas kanan bawah"><span class="debug-sasaran">'.$sasaran['nama'].'</span></td>
-						<td class="atas kanan bawah">'.$kebijakan['nama'].'</td>
+						<td class="atas kanan bawah">'.$kebijakan['nama'].button_edit_monev($visi['detail'][0]['id'].'-'.$misi['detail'][0]['id'].'-'.$sasaran['detail'][0]['id'].'-'.$kebijakan['detail'][0]['id']).'</td>
 						<td class="atas kanan bawah"></td>
 					</tr>
 				';
@@ -475,7 +476,7 @@ foreach ($data_all['data'] as $visi) {
 							<td class="atas kanan bawah"><span class="debug-misi">'.$misi['nama'].'</span></td>
 							<td class="atas kanan bawah"><span class="debug-sasaran">'.$sasaran['nama'].'</span></td>
 							<td class="atas kanan bawah"><span class="debug-kebijakan">'.$kebijakan['nama'].'</span></td>
-							<td class="atas kanan bawah">'.$isu['nama'].'</td>
+							<td class="atas kanan bawah">'.$isu['nama'].button_edit_monev($visi['detail'][0]['id'].'-'.$misi['detail'][0]['id'].'-'.$sasaran['detail'][0]['id'].'-'.$kebijakan['detail'][0]['id'].'-'.$isu['detail'][0]['id']).'</td>
 						</tr>
 					';
 				}
@@ -485,11 +486,18 @@ foreach ($data_all['data'] as $visi) {
 }
 ?>
 <style type="text/css">
-	.debug-visi, .debug-misi, .debug-sasaran, .debug-kebijakan, .debug-isu { display: none; }
-	.indikator_sasaran { min-height: 40px; }
+	.debug-visi, .debug-misi, .debug-sasaran, .debug-kebijakan, .debug-isu { 
+		display: none; 
+	}
+	.indikator_sasaran { 
+		min-height: 40px; 
+	}
+	.aksi button {
+		margin: 3px;
+	}
 </style>
-<h4 style="text-align: center; margin: 0; font-weight: bold;">Monitoring dan Evaluasi RPJPD (Rencana Pembangunan Jangka Panjang Daerah) <br><?php echo $nama_pemda; ?></h4>
-<div id="cetak" title="Laporan MONEV RENJA" style="padding: 5px; overflow: auto; height: 80vh;">
+<h4 style="text-align: center; margin: 0; font-weight: bold;">Monitoring dan Evaluasi RPJPD (Rencana Pembangunan Jangka Panjang Daerah) <br><?php echo $nama_pemda; ?><br> Tahun <?php echo $awal_rpjpd.' - '.$akhir_rpjpd; ?></h4>
+<div id="cetak" title="Laporan RPJPD" style="padding: 5px; overflow: auto; height: 80vh;">
 	<table cellpadding="2" cellspacing="0" style="font-family:\'Open Sans\',-apple-system,BlinkMacSystemFont,\'Segoe UI\',sans-serif; border-collapse: collapse; font-size: 70%; border: 0; table-layout: fixed;" contenteditable="false">
 		<thead>
 			<tr>
@@ -515,7 +523,7 @@ foreach ($data_all['data'] as $visi) {
 	</table>
 </div>
 <div class="modal fade" id="modal-monev" tabindex="-1" role="dialog" data-backdrop="static" aria-hidden="true">'
-    <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-dialog modal-xl" role="document">
         <div class="modal-content">
             <div class="modal-header bgpanel-theme">
                 <h4 style="margin: 0;" class="modal-title" id="">Data RPJPD</h4>
@@ -524,7 +532,7 @@ foreach ($data_all['data'] as $visi) {
             <div class="modal-body">
             	<nav>
 				  	<div class="nav nav-tabs" id="nav-tab" role="tablist">
-					    <a class="nav-item nav-link active" id="nav-visi-tab" data-toggle="tab" href="#nav-visi" role="tab" aria-controls="nav-visi" aria-selected="false">visi</a>
+					    <a class="nav-item nav-link" id="nav-visi-tab" data-toggle="tab" href="#nav-visi" role="tab" aria-controls="nav-visi" aria-selected="false">visi</a>
 					    <a class="nav-item nav-link" id="nav-misi-tab" data-toggle="tab" href="#nav-misi" role="tab" aria-controls="nav-misi" aria-selected="false">misi</a>
 					    <a class="nav-item nav-link" id="nav-sasaran-tab" data-toggle="tab" href="#nav-sasaran" role="tab" aria-controls="nav-sasaran" aria-selected="false">sasaran</a>
 					    <a class="nav-item nav-link" id="nav-kebijakan-tab" data-toggle="tab" href="#nav-kebijakan" role="tab" aria-controls="nav-kebijakan" aria-selected="false">kebijakan</a>
@@ -544,15 +552,183 @@ foreach ($data_all['data'] as $visi) {
         </div>
     </div>
 </div>
+<div class="modal fade" id="modal-visi" tabindex="-1" role="dialog" data-backdrop="static" aria-hidden="true">'
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header bgpanel-theme">
+                <h4 style="margin: 0;" class="modal-title" id="">Data RPJPD Visi</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span><i class="dashicons dashicons-dismiss"></i></span></button>
+            </div>
+            <div class="modal-body">
+            	<form>
+				  	<div class="form-group">
+				    	<label>Visi Teks</label>
+				    	<textarea class="form-control" id="visi-teks"></textarea>
+				    	<small class="form-text text-muted">Input teks visi RPJPD.</small>
+				  	</div>
+				</form>
+            </div>
+            <div class="modal-footer">
+            	<button class="btn btn-primary" onclick="simpan_visi();">Simpan</button>
+            	<button class="btn btn-default" data-dismiss="modal">Tutup</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="modal-misi" tabindex="-1" role="dialog" data-backdrop="static" aria-hidden="true">'
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header bgpanel-theme">
+                <h4 style="margin: 0;" class="modal-title" id="">Data RPJPD Misi</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span><i class="dashicons dashicons-dismiss"></i></span></button>
+            </div>
+            <div class="modal-body">
+            	<form>
+				  	<div class="form-group">
+				    	<label>Visi Teks</label>
+				    	<textarea class="form-control" id="visi-teks-misi" disabled></textarea>
+				  	</div>
+				  	<div class="form-group">
+				    	<label>Misi Teks</label>
+				    	<textarea class="form-control" id="misi-teks"></textarea>
+				    	<small class="form-text text-muted">Input teks misi RPJPD.</small>
+				  	</div>
+				</form>
+            </div>
+            <div class="modal-footer">
+            	<button class="btn btn-primary" onclick="simpan_misi();">Simpan</button>
+            	<button class="btn btn-default" data-dismiss="modal">Tutup</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="modal-saspok" tabindex="-1" role="dialog" data-backdrop="static" aria-hidden="true">'
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header bgpanel-theme">
+                <h4 style="margin: 0;" class="modal-title" id="">Data RPJPD Sasaran</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span><i class="dashicons dashicons-dismiss"></i></span></button>
+            </div>
+            <div class="modal-body">
+            	<form>
+				  	<div class="form-group">
+				    	<label>Visi Teks</label>
+				    	<textarea class="form-control" id="visi-teks-sasaran" disabled></textarea>
+				  	</div>
+				  	<div class="form-group">
+				    	<label>Misi Teks</label>
+				    	<textarea class="form-control" id="misi-teks-sasaran" disabled></textarea>
+				  	</div>
+				  	<div class="form-group">
+				    	<label>Sasaran Teks</label>
+				    	<textarea class="form-control" id="sasaran-teks"></textarea>
+				    	<small class="form-text text-muted">Input teks sasaran RPJPD.</small>
+				  	</div>
+				</form>
+            </div>
+            <div class="modal-footer">
+            	<button class="btn btn-primary" onclick="simpan_saspok();">Simpan</button>
+            	<button class="btn btn-default" data-dismiss="modal">Tutup</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="modal-kebijakan" tabindex="-1" role="dialog" data-backdrop="static" aria-hidden="true">'
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header bgpanel-theme">
+                <h4 style="margin: 0;" class="modal-title" id="">Data RPJPD Kebijakan</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span><i class="dashicons dashicons-dismiss"></i></span></button>
+            </div>
+            <div class="modal-body">
+            	<form>
+				  	<div class="form-group">
+				    	<label>Visi Teks</label>
+				    	<textarea class="form-control" id="visi-teks-kebijakan" disabled></textarea>
+				  	</div>
+				  	<div class="form-group">
+				    	<label>Misi Teks</label>
+				    	<textarea class="form-control" id="misi-teks-kebijakan" disabled></textarea>
+				  	</div>
+				  	<div class="form-group">
+				    	<label>Sasaran Teks</label>
+				    	<textarea class="form-control" id="sasaran-teks-kebijakan" disabled></textarea>
+				  	</div>
+				  	<div class="form-group">
+				    	<label>Kebijakan Teks</label>
+				    	<textarea class="form-control" id="kebijakan-teks"></textarea>
+				    	<small class="form-text text-muted">Input teks kebijakan RPJPD.</small>
+				  	</div>
+				</form>
+            </div>
+            <div class="modal-footer">
+            	<button class="btn btn-primary" onclick="simpan_kebijakan();">Simpan</button>
+            	<button class="btn btn-default" data-dismiss="modal">Tutup</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="modal-isu" tabindex="-1" role="dialog" data-backdrop="static" aria-hidden="true">'
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header bgpanel-theme">
+                <h4 style="margin: 0;" class="modal-title" id="">Data RPJPD Isu</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span><i class="dashicons dashicons-dismiss"></i></span></button>
+            </div>
+            <div class="modal-body">
+            	<form>
+				  	<div class="form-group">
+				    	<label>Visi Teks</label>
+				    	<textarea class="form-control" id="visi-teks-isu" disabled></textarea>
+				  	</div>
+				  	<div class="form-group">
+				    	<label>Misi Teks</label>
+				    	<textarea class="form-control" id="misi-teks-isu" disabled></textarea>
+				  	</div>
+				  	<div class="form-group">
+				    	<label>Sasaran Teks</label>
+				    	<textarea class="form-control" id="sasaran-teks-isu" disabled></textarea>
+				  	</div>
+				  	<div class="form-group">
+				    	<label>Kebijakan Teks</label>
+				    	<textarea class="form-control" id="kebijakan-teks-isu" disabled></textarea>
+				  	</div>
+				  	<div class="form-group">
+				    	<label>Isu Teks</label>
+				    	<textarea class="form-control" id="isu-teks"></textarea>
+				    	<small class="form-text text-muted">Input teks isu RPJPD.</small>
+				  	</div>
+				</form>
+            </div>
+            <div class="modal-footer">
+            	<button class="btn btn-primary" onclick="simpan_isu();">Simpan</button>
+            	<button class="btn btn-default" data-dismiss="modal">Tutup</button>
+            </div>
+        </div>
+    </div>
+</div>
 <script type="text/javascript">
 	run_download_excel();
 	let data_all = <?php echo json_encode($data_all); ?>;
 
+	var mySpace = '<div style="padding:3rem;"></div>';
+	
+	jQuery('body').prepend(mySpace);
+
+	var dataHitungMundur = {
+		'namaJadwal' : '<?php echo ucwords($namaJadwal)  ?>',
+		'mulaiJadwal' : '<?php echo $mulaiJadwal  ?>',
+		'selesaiJadwal' : '<?php echo $selesaiJadwal  ?>',
+		'thisTimeZone' : '<?php echo $timezone ?>'
+	}
+
+	penjadwalanHitungMundur(dataHitungMundur);
+
 	var aksi = ''
-		+'<a style="margin-left: 10px;" id="singkron-sipd" onclick="return false;" href="#" class="btn btn-danger">Ambil data dari SIPD lokal</a>'
-		+'<a style="margin-left: 10px;" id="tambah-data" onclick="return false;" href="#" class="btn btn-success">Tambah Data RPJPD</a>'
+		+'<?php if($cek_jadwal['status'] == 'success'): ?><a style="margin-left: 10px;" id="singkron-sipd" onclick="return false;" href="#" class="btn btn-danger">Ambil data dari SIPD lokal</a><?php endif; ?>'
+		+'<?php if($cek_jadwal['status'] == 'success'): ?><a style="margin-left: 10px;" id="tambah-data" onclick="return false;" href="#" class="btn btn-success">Tambah Data RPJPD</a><?php endif; ?>'
 		+'<h3 style="margin-top: 20px;">SETTING</h3>'
-		+'<label><input type="checkbox" onclick="tampilkan_edit(this);"> Edit Data RPJPD</label>'
+		+'<?php if($cek_jadwal['status'] == 'success'): ?><label><input type="checkbox" onclick="tampilkan_edit(this);"> Edit Data RPJPD</label><?php endif; ?>'
 		+'<label style="margin-left: 20px;"><input type="checkbox" onclick="show_debug(this);"> Debug Cascading RPJPD</label>'
 		+'<label style="margin-left: 20px;">'
 			+'Sembunyikan Baris '
@@ -575,6 +751,7 @@ foreach ($data_all['data'] as $visi) {
 			jQuery('.tr-sasaran[data-kode-skpd="'+val+'"]').show();
 		}
 	}
+
 	function sembunyikan_baris(that){
 		var val = jQuery(that).val();
 		var tr_misi = jQuery('.tr-misi');
@@ -601,6 +778,7 @@ foreach ($data_all['data'] as $visi) {
 			tr_isu.hide();
 		}
 	}
+
 	function show_debug(that){
 		if(jQuery(that).is(':checked')){
 			jQuery('.debug-visi').show();
@@ -616,6 +794,7 @@ foreach ($data_all['data'] as $visi) {
 			jQuery('.debug-isu').hide();
 		}
 	}
+
 	function tampilkan_edit(that){
 		if(jQuery(that).is(':checked')){
 			jQuery('.edit-monev').show();
@@ -623,11 +802,56 @@ foreach ($data_all['data'] as $visi) {
 			jQuery('.edit-monev').hide();
 		}
 	}
-	jQuery('.edit-monev').on('click', function(){
-		jQuery('#wrap-loading').show();
-		jQuery('#mod-monev').modal('show');
-		jQuery('#wrap-loading').hide();
+
+	jQuery('#modal-monev').on('hidden.bs.modal', function () {
+	    window.location = "";
 	});
+
+	jQuery('.edit-monev').on('click', function(){
+		var ids = jQuery(this).attr('data-id').split('-');
+		if(ids[4]){
+			tampil_detail_popup( function(){ 
+				detail_visi(ids[0], function(){  
+					detail_misi(ids[1], function(){ 
+						detail_saspok(ids[2], function(){ 
+							detail_kebijakan(ids[3], function(){ 
+								edit_isu(ids[4])
+							})
+						})
+					})
+				})
+			});
+		}else if(ids[3]){
+			tampil_detail_popup(function(){
+				detail_visi(ids[0], function(){
+					detail_misi(ids[1], function(){
+						detail_saspok(ids[2], function(){
+							edit_kebijakan(ids[3])
+						})
+					})
+				})
+			});
+		}else if(ids[2]){
+			tampil_detail_popup(function(){
+				detail_visi(ids[0], function(){
+					detail_misi(ids[1], function(){
+						edit_saspok(ids[2])
+					})
+				})
+			});
+		}else if(ids[1]){
+			tampil_detail_popup(function(){
+				detail_visi(ids[0], function(){
+					edit_misi(ids[1])
+				})
+			});
+		}else if(ids[0]){
+			tampil_detail_popup(function(){
+				edit_visi(ids[0])
+			});
+		}
+	});
+
 	jQuery('#singkron-sipd').on('click', function(){
 		if(confirm('Apakah anda yakin untuk mengambil data dari SIPD lokal? data lama akan diupdate!')){
 			jQuery('#wrap-loading').show();
@@ -647,21 +871,718 @@ foreach ($data_all['data'] as $visi) {
 	        });
 		}
 	});
+
 	jQuery('#tambah-data').on('click', function(){
+		tampil_detail_popup();
+	});
+
+	function tampil_detail_popup(cb){
 		jQuery('#wrap-loading').show();
 		jQuery('#modal-monev').modal('show');
 		jQuery.ajax({
 			url: ajax.url,
           	type: "post",
           	data: {
-          		"action": "get_visi_rpjpd",
+          		"action": "get_rpjpd",
           		"api_key": "<?php echo $api_key; ?>",
-          		"type": 1
+          		"table": 'data_rpjpd_visi'
           	},
           	dataType: "json",
           	success: function(res){
+          		console.log('res', res);
 				jQuery('#wrap-loading').hide();
+				var data_html = ""
+					+'<button class="btn-sm btn-primary" style="margin-top: 10px;" onclick="tambah_visi();"><i class="dashicons dashicons-plus" style="margin-top: 3px;"></i> Tambah Visi</button>'
+					+"<table class='table table-bordered' style='margin: 10px 0;'>"
+						+"<thead>"
+							+"<tr>"
+								+"<th class='text-center' style='width: 45px;'>No</th>"
+								+"<th class='text-center'>Visi</th>"
+								+"<th class='text-center' style='width: 160px;'>Aksi</th>"
+							+"</tr>"
+						+"</thead>"
+						+"<tbody>";
+				res.data.map(function(b, i){
+					data_html += ''
+					+'<tr id-visi="'+b.id+'">'
+						+'<td class="text-center">'+(i+1)+'</td>'
+						+'<td>'+b.visi_teks+'</td>'
+						+'<td class="text-center aksi">'
+							+'<button class="btn-sm btn-primary" onclick="detail_visi('+b.id+');"><i class="dashicons dashicons-search"></i></button>'
+							+'<button class="btn-sm btn-warning" onclick="edit_visi('+b.id+');"><i class="dashicons dashicons-edit"></i></button>'
+							+'<button class="btn-sm btn-danger" onclick="hapus_visi('+b.id+');"><i class="dashicons dashicons-trash"></i></button>'
+						+'</td>'
+					+'</tr>';
+				});
+				data_html += ""
+						+"</tbody>";
+					+"</table>";
+				jQuery('#nav-visi').html(data_html)
+          		jQuery('.nav-tabs a[href="#nav-visi"]').tab('show');
+		        if(typeof cb == 'function'){
+		        	cb();
+		        }
           	}
         });
-	});
+	}
+
+	function tambah_visi(){
+		jQuery('#modal-visi').attr('data-id', '');
+		jQuery('#modal-visi').modal('show');
+		jQuery('#visi-teks').val('');
+	}
+
+	function tambah_misi(){
+		jQuery('#modal-misi').attr('data-id', '');
+		jQuery('#modal-misi').modal('show');
+		var visi_teks = jQuery('tr[id-visi="'+jQuery('#nav-misi .tambah-data').attr('id-visi')+'"]').find('td').eq(1).text();
+		jQuery('#visi-teks-misi').val(visi_teks);
+		jQuery('#misi-teks').val('');
+	}
+
+	function tambah_saspok(){
+		jQuery('#modal-saspok').attr('data-id', '');
+		jQuery('#modal-saspok').modal('show');
+		var visi_teks = jQuery('tr[id-visi="'+jQuery('#nav-misi .tambah-data').attr('id-visi')+'"]').find('td').eq(1).text();
+		jQuery('#visi-teks-sasaran').val(visi_teks);
+		var misi_teks = jQuery('tr[id-misi="'+jQuery('#nav-sasaran .tambah-data').attr('id-misi')+'"]').find('td').eq(1).text();
+		jQuery('#misi-teks-sasaran').val(misi_teks);
+		jQuery('#sasaran-teks').val('');
+	}
+
+	function tambah_kebijakan(){
+		jQuery('#modal-kebijakan').attr('data-id', '');
+		jQuery('#modal-kebijakan').modal('show');
+		var visi_teks = jQuery('tr[id-visi="'+jQuery('#nav-misi .tambah-data').attr('id-visi')+'"]').find('td').eq(1).text();
+		jQuery('#visi-teks-kebijakan').val(visi_teks);
+		var misi_teks = jQuery('tr[id-misi="'+jQuery('#nav-sasaran .tambah-data').attr('id-misi')+'"]').find('td').eq(1).text();
+		jQuery('#misi-teks-kebijakan').val(misi_teks);
+		var sasaran_teks = jQuery('tr[id-saspok="'+jQuery('#nav-kebijakan .tambah-data').attr('id-saspok')+'"]').find('td').eq(1).text();
+		jQuery('#sasaran-teks-kebijakan').val(sasaran_teks);
+		jQuery('#kebijakan-teks').val('');
+	}
+
+	function tambah_isu(){
+		jQuery('#modal-isu').attr('data-id', '');
+		jQuery('#modal-isu').modal('show');
+		var visi_teks = jQuery('tr[id-visi="'+jQuery('#nav-misi .tambah-data').attr('id-visi')+'"]').find('td').eq(1).text();
+		jQuery('#visi-teks-isu').val(visi_teks);
+		var misi_teks = jQuery('tr[id-misi="'+jQuery('#nav-sasaran .tambah-data').attr('id-misi')+'"]').find('td').eq(1).text();
+		jQuery('#misi-teks-isu').val(misi_teks);
+		var sasaran_teks = jQuery('tr[id-saspok="'+jQuery('#nav-kebijakan .tambah-data').attr('id-saspok')+'"]').find('td').eq(1).text();
+		jQuery('#sasaran-teks-isu').val(sasaran_teks);
+		var kebijakan_teks = jQuery('tr[id-kebijakan="'+jQuery('#nav-isu .tambah-data').attr('id-kebijakan')+'"]').find('td').eq(1).text();
+		jQuery('#kebijakan-teks-isu').val(kebijakan_teks);
+		jQuery('#isu-teks').val('');
+	}
+
+	function edit_visi(id_visi){
+		jQuery('#modal-visi').modal('show');
+		jQuery('#modal-visi').attr('data-id', id_visi);
+		jQuery('#visi-teks').val(jQuery('tr[id-visi="'+id_visi+'"]').find('td').eq(1).text());
+	}
+
+	function edit_misi(id_misi){
+		jQuery('#modal-misi').modal('show');
+		jQuery('#modal-misi').attr('data-id', id_misi);
+		var visi_teks = jQuery('tr[id-visi="'+jQuery('#nav-misi .tambah-data').attr('id-visi')+'"]').find('td').eq(1).text();
+		jQuery('#visi-teks-misi').val(visi_teks);
+		jQuery('#misi-teks').val(jQuery('tr[id-misi="'+id_misi+'"]').find('td').eq(1).text());
+	}
+
+	function edit_saspok(id_sasaran){
+		jQuery('#modal-saspok').modal('show');
+		jQuery('#modal-saspok').attr('data-id', id_sasaran);
+		var visi_teks = jQuery('tr[id-visi="'+jQuery('#nav-misi .tambah-data').attr('id-visi')+'"]').find('td').eq(1).text();
+		jQuery('#visi-teks-sasaran').val(visi_teks);
+		var misi_teks = jQuery('tr[id-misi="'+jQuery('#nav-sasaran .tambah-data').attr('id-misi')+'"]').find('td').eq(1).text();
+		jQuery('#misi-teks-sasaran').val(misi_teks);
+		jQuery('#sasaran-teks').val(jQuery('tr[id-saspok="'+id_sasaran+'"]').find('td').eq(1).text());
+	}
+
+	function edit_kebijakan(id_kebijakan){
+		jQuery('#modal-kebijakan').modal('show');
+		jQuery('#modal-kebijakan').attr('data-id', id_kebijakan);
+		var visi_teks = jQuery('tr[id-visi="'+jQuery('#nav-misi .tambah-data').attr('id-visi')+'"]').find('td').eq(1).text();
+		jQuery('#visi-teks-kebijakan').val(visi_teks);
+		var misi_teks = jQuery('tr[id-misi="'+jQuery('#nav-sasaran .tambah-data').attr('id-misi')+'"]').find('td').eq(1).text();
+		jQuery('#misi-teks-kebijakan').val(misi_teks);
+		var sasaran_teks = jQuery('tr[id-visi="'+jQuery('#nav-kebijakan .tambah-data').attr('id-saspok')+'"]').find('td').eq(1).text();
+		jQuery('#sasaran-teks-kebijakan').val(sasaran_teks);
+		jQuery('#kebijakan-teks').val(jQuery('tr[id-kebijakan="'+id_kebijakan+'"]').find('td').eq(1).text());
+	}
+
+	function edit_isu(id_isu){
+		jQuery('#modal-isu').modal('show');
+		jQuery('#modal-isu').attr('data-id', id_isu);
+		var visi_teks = jQuery('tr[id-visi="'+jQuery('#nav-misi .tambah-data').attr('id-visi')+'"]').find('td').eq(1).text();
+		jQuery('#visi-teks-isu').val(visi_teks);
+		var misi_teks = jQuery('tr[id-misi="'+jQuery('#nav-sasaran .tambah-data').attr('id-misi')+'"]').find('td').eq(1).text();
+		jQuery('#misi-teks-isu').val(misi_teks);
+		var sasaran_teks = jQuery('tr[id-saspok="'+jQuery('#nav-kebijakan .tambah-data').attr('id-saspok')+'"]').find('td').eq(1).text();
+		jQuery('#sasaran-teks-isu').val(sasaran_teks);
+		var kebijakan_teks = jQuery('tr[id-kebijakan="'+jQuery('#nav-isu .tambah-data').attr('id-kebijakan')+'"]').find('td').eq(1).text();
+		jQuery('#kebijakan-teks-isu').val(kebijakan_teks);
+		jQuery('#isu-teks').val(jQuery('tr[id-isu="'+id_isu+'"]').find('td').eq(1).text());
+	}
+
+	function simpan_visi(){
+		if(confirm('Apakah anda yakin untuk menyimpan data ini?')){
+			jQuery('#wrap-loading').show();
+			var visi_teks = jQuery('#visi-teks').val();
+			if(visi_teks == ''){
+				return alert('Visi tidak boleh kosong!');
+			}
+			var id_visi = jQuery('#modal-visi').attr('data-id');
+			jQuery.ajax({
+				url: ajax.url,
+	          	type: "post",
+	          	data: {
+	          		"action": "simpan_rpjpd",
+	          		"api_key": "<?php echo $api_key; ?>",
+	          		"table": 'data_rpjpd_visi',
+	          		"data": visi_teks,
+	          		"id": id_visi
+	          	},
+	          	dataType: "json",
+	          	success: function(res){
+					jQuery('#wrap-loading').hide();
+					if(res.status == 'success'){
+						jQuery('#modal-visi').modal('hide');
+						jQuery('#tambah-data').click();
+					}
+					alert(res.message);
+	          	}
+	        });
+		}
+	}
+
+	function simpan_misi(){
+		if(confirm('Apakah anda yakin untuk menyimpan data ini?')){
+			jQuery('#wrap-loading').show();
+			var misi_teks = jQuery('#misi-teks').val();
+			if(misi_teks == ''){
+				return alert('Misi tidak boleh kosong!');
+			}
+			var id_visi = jQuery('#nav-misi .tambah-data').attr('id-visi');
+			if(id_visi == ''){
+				return alert('ID visi tidak boleh kosong!');
+			}
+			var id_misi = jQuery('#modal-misi').attr('data-id');
+			jQuery.ajax({
+				url: ajax.url,
+	          	type: "post",
+	          	data: {
+	          		"action": "simpan_rpjpd",
+	          		"api_key": "<?php echo $api_key; ?>",
+	          		"table": 'data_rpjpd_misi',
+	          		"data": misi_teks,
+	          		"id_visi": id_visi,
+	          		"id": id_misi
+	          	},
+	          	dataType: "json",
+	          	success: function(res){
+					jQuery('#wrap-loading').hide();
+					if(res.status == 'success'){
+						jQuery('#modal-misi').modal('hide');
+						detail_visi(id_visi);
+					}
+					alert(res.message);
+	          	}
+	        });
+		}
+	}
+
+	function simpan_saspok(){
+		if(confirm('Apakah anda yakin untuk menyimpan data ini?')){
+			jQuery('#wrap-loading').show();
+			var sasaran_teks = jQuery('#sasaran-teks').val();
+			if(sasaran_teks == ''){
+				return alert('Sasaran tidak boleh kosong!');
+			}
+			var id_misi = jQuery('#nav-sasaran .tambah-data').attr('id-misi');
+			if(id_misi == ''){
+				return alert('ID misi tidak boleh kosong!');
+			}
+			var id_sasaran = jQuery('#modal-saspok').attr('data-id');
+			jQuery.ajax({
+				url: ajax.url,
+	          	type: "post",
+	          	data: {
+	          		"action": "simpan_rpjpd",
+	          		"api_key": "<?php echo $api_key; ?>",
+	          		"table": 'data_rpjpd_sasaran',
+	          		"data": sasaran_teks,
+	          		"id_misi": id_misi,
+	          		"id": id_sasaran
+	          	},
+	          	dataType: "json",
+	          	success: function(res){
+					jQuery('#wrap-loading').hide();
+					if(res.status == 'success'){
+						jQuery('#modal-saspok').modal('hide');
+						detail_misi(id_misi);
+					}
+					alert(res.message);
+	          	}
+	        });
+		}
+	}
+
+	function simpan_kebijakan(){
+		if(confirm('Apakah anda yakin untuk menyimpan data ini?')){
+			jQuery('#wrap-loading').show();
+			var kebijakan_teks = jQuery('#kebijakan-teks').val();
+			if(kebijakan_teks == ''){
+				return alert('Kebijakan tidak boleh kosong!');
+			}
+			var id_saspok = jQuery('#nav-kebijakan .tambah-data').attr('id-saspok');
+			if(id_saspok == ''){
+				return alert('ID sasaran tidak boleh kosong!');
+			}
+			var id_kebijakan = jQuery('#modal-kebijakan').attr('data-id');
+			jQuery.ajax({
+				url: ajax.url,
+	          	type: "post",
+	          	data: {
+	          		"action": "simpan_rpjpd",
+	          		"api_key": "<?php echo $api_key; ?>",
+	          		"table": 'data_rpjpd_kebijakan',
+	          		"data": kebijakan_teks,
+	          		"id_saspok": id_saspok,
+	          		"id": id_kebijakan
+	          	},
+	          	dataType: "json",
+	          	success: function(res){
+					jQuery('#wrap-loading').hide();
+					if(res.status == 'success'){
+						jQuery('#modal-kebijakan').modal('hide');
+						detail_saspok(id_saspok);
+					}
+					alert(res.message);
+	          	}
+	        });
+		}
+	}
+
+	function simpan_isu(){
+		if(confirm('Apakah anda yakin untuk menyimpan data ini?')){
+			jQuery('#wrap-loading').show();
+			var isu_teks = jQuery('#isu-teks').val();
+			if(isu_teks == ''){
+				return alert('Isu tidak boleh kosong!');
+			}
+			var id_kebijakan = jQuery('#nav-isu .tambah-data').attr('id-kebijakan');
+			if(id_kebijakan == ''){
+				return alert('ID kebijakan tidak boleh kosong!');
+			}
+			var id_isu = jQuery('#modal-isu').attr('data-id');
+			jQuery.ajax({
+				url: ajax.url,
+	          	type: "post",
+	          	data: {
+	          		"action": "simpan_rpjpd",
+	          		"api_key": "<?php echo $api_key; ?>",
+	          		"table": 'data_rpjpd_isu',
+	          		"data": isu_teks,
+	          		"id_kebijakan": id_kebijakan,
+	          		"id": id_isu
+	          	},
+	          	dataType: "json",
+	          	success: function(res){
+					jQuery('#wrap-loading').hide();
+					if(res.status == 'success'){
+						jQuery('#modal-isu').modal('hide');
+						detail_kebijakan(id_kebijakan);
+					}
+					alert(res.message);
+	          	}
+	        });
+		}
+	}
+
+	function hapus_visi(id_visi){
+		if(confirm('Apakah anda yakin untuk menghapus data ini?')){
+			jQuery('#wrap-loading').show();
+			jQuery.ajax({
+				url: ajax.url,
+	          	type: "post",
+	          	data: {
+	          		"action": "hapus_rpjpd",
+	          		"api_key": "<?php echo $api_key; ?>",
+	          		"table": 'data_rpjpd_visi',
+	          		"id": id_visi
+	          	},
+	          	dataType: "json",
+	          	success: function(res){
+					jQuery('#wrap-loading').hide();
+					if(res.status == 'success'){
+						jQuery('#tambah-data').click();
+					}
+					alert(res.message);
+	          	}
+	        });
+		}
+	}
+
+	function hapus_misi(id_misi){
+		if(confirm('Apakah anda yakin untuk menghapus data ini?')){
+			jQuery('#wrap-loading').show();
+			jQuery.ajax({
+				url: ajax.url,
+	          	type: "post",
+	          	data: {
+	          		"action": "hapus_rpjpd",
+	          		"api_key": "<?php echo $api_key; ?>",
+	          		"table": 'data_rpjpd_misi',
+	          		"id": id_misi
+	          	},
+	          	dataType: "json",
+	          	success: function(res){
+					jQuery('#wrap-loading').hide();
+					if(res.status == 'success'){
+						var id_visi = jQuery('#nav-misi .tambah-data').attr('id-visi');
+						detail_visi(id_visi);
+					}
+					alert(res.message);
+	          	}
+	        });
+		}
+	}
+
+	function hapus_saspok(id_sasaran){
+		if(confirm('Apakah anda yakin untuk menghapus data ini?')){
+			jQuery('#wrap-loading').show();
+			jQuery.ajax({
+				url: ajax.url,
+	          	type: "post",
+	          	data: {
+	          		"action": "hapus_rpjpd",
+	          		"api_key": "<?php echo $api_key; ?>",
+	          		"table": 'data_rpjpd_sasaran',
+	          		"id": id_sasaran
+	          	},
+	          	dataType: "json",
+	          	success: function(res){
+					jQuery('#wrap-loading').hide();
+					if(res.status == 'success'){
+						var id_misi = jQuery('#nav-sasaran .tambah-data').attr('id-misi');
+						detail_misi(id_misi);
+					}
+					alert(res.message);
+	          	}
+	        });
+		}
+	}
+
+	function hapus_kebijakan(id_kebijakan){
+		if(confirm('Apakah anda yakin untuk menghapus data ini?')){
+			jQuery('#wrap-loading').show();
+			jQuery.ajax({
+				url: ajax.url,
+	          	type: "post",
+	          	data: {
+	          		"action": "hapus_rpjpd",
+	          		"api_key": "<?php echo $api_key; ?>",
+	          		"table": 'data_rpjpd_kebijakan',
+	          		"id": id_kebijakan
+	          	},
+	          	dataType: "json",
+	          	success: function(res){
+					jQuery('#wrap-loading').hide();
+					if(res.status == 'success'){
+						var id_saspok = jQuery('#nav-kebijakan .tambah-data').attr('id-saspok');
+						detail_saspok(id_saspok);
+					}
+					alert(res.message);
+	          	}
+	        });
+		}
+	}
+
+	function hapus_isu(id_isu){
+		if(confirm('Apakah anda yakin untuk menghapus data ini?')){
+			jQuery('#wrap-loading').show();
+			jQuery.ajax({
+				url: ajax.url,
+	          	type: "post",
+	          	data: {
+	          		"action": "hapus_rpjpd",
+	          		"api_key": "<?php echo $api_key; ?>",
+	          		"table": 'data_rpjpd_isu',
+	          		"id": id_isu
+	          	},
+	          	dataType: "json",
+	          	success: function(res){
+					jQuery('#wrap-loading').hide();
+					if(res.status == 'success'){
+						var id_kebijakan = jQuery('#nav-isu .tambah-data').attr('id-kebijakan');
+						detail_kebijakan(id_kebijakan);
+					}
+					alert(res.message);
+	          	}
+	        });
+		}
+	}
+
+	function detail_visi(id_visi, cb){
+		jQuery('#wrap-loading').show();
+		jQuery.ajax({
+			url: ajax.url,
+          	type: "post",
+          	data: {
+          		"action": "get_rpjpd",
+          		"api_key": "<?php echo $api_key; ?>",
+          		"table": 'data_rpjpd_misi',
+          		"id": id_visi
+          	},
+          	dataType: "json",
+          	success: function(res){
+          		console.log('res', res);
+				jQuery('#wrap-loading').hide();
+				var data_html = ""
+					+'<button class="btn-sm btn-primary tambah-data" style="margin-top: 10px;" id-visi="'+id_visi+'" onclick="tambah_misi('+id_visi+');"><i class="dashicons dashicons-plus" style="margin-top: 3px;"></i> Tambah Misi</button>'
+					+"<table class='table table-bordered' style='margin: 10px 0;'>"
+						+"<tbody>"
+							+"<tr>"
+								+"<th class='text-center' style='width: 160px;'>Visi</th>"
+								+"<th>"+jQuery('tr[id-visi="'+id_visi+'"]').find('td').eq(1).text()+"</th>"
+							+"</tr>"
+						+"</tbody>"
+					+"</table>"
+					+"<table class='table table-bordered' style='margin: 10px 0;'>"
+						+"<thead>"
+							+"<tr>"
+								+"<th class='text-center' style='width: 45px;'>No</th>"
+								+"<th class='text-center'>Misi</th>"
+								+"<th class='text-center' style='width: 160px;'>Aksi</th>"
+							+"</tr>"
+						+"</thead>"
+						+"<tbody>";
+				res.data.map(function(b, i){
+					data_html += ''
+					+'<tr id-misi="'+b.id+'">'
+						+'<td class="text-center">'+(i+1)+'</td>'
+						+'<td>'+b.misi_teks+'</td>'
+						+'<td class="text-center aksi">'
+							+'<button class="btn-sm btn-primary" onclick="detail_misi('+b.id+');"><i class="dashicons dashicons-search"></i></button>'
+							+'<button class="btn-sm btn-warning" onclick="edit_misi('+b.id+');"><i class="dashicons dashicons-edit"></i></button>'
+							+'<button class="btn-sm btn-danger" onclick="hapus_misi('+b.id+');"><i class="dashicons dashicons-trash"></i></button>'
+						+'</td>'
+					+'</tr>';
+				});
+				data_html += ""
+						+"</tbody>";
+					+"</table>";
+				jQuery('#nav-misi').html(data_html);
+				jQuery('#nav-sasaran').html('');
+				jQuery('#nav-kebijakan').html('');
+				jQuery('#nav-isu').html('');
+          		jQuery('.nav-tabs a[href="#nav-misi"]').tab('show');
+          		if(typeof cb == 'function'){
+          			cb();
+          		}
+          	}
+        });
+	}
+
+	function detail_misi(id_misi, cb){
+		jQuery('#wrap-loading').show();
+		jQuery.ajax({
+			url: ajax.url,
+          	type: "post",
+          	data: {
+          		"action": "get_rpjpd",
+          		"api_key": "<?php echo $api_key; ?>",
+          		"table": 'data_rpjpd_sasaran',
+          		"id": id_misi
+          	},
+          	dataType: "json",
+          	success: function(res){
+          		console.log('res', res);
+				jQuery('#wrap-loading').hide();
+				var data_html = ""
+					+'<button class="btn-sm btn-primary tambah-data" style="margin-top: 10px;" id-misi="'+id_misi+'" onclick="tambah_saspok('+id_misi+');"><i class="dashicons dashicons-plus" style="margin-top: 3px;"></i> Tambah Sasaran</button>'
+					+"<table class='table table-bordered' style='margin: 10px 0;'>"
+						+"<tbody>"
+							+"<tr>"
+								+"<th class='text-center' style='width: 160px;'>Visi</th>"
+								+"<th>"+jQuery('tr[id-visi="'+jQuery('#nav-misi .tambah-data').attr('id-visi')+'"]').find('td').eq(1).text()+"</th>"
+							+"</tr>"
+							+"<tr>"
+								+"<th class='text-center' style='width: 160px;'>Misi</th>"
+								+"<th>"+jQuery('tr[id-misi="'+id_misi+'"]').find('td').eq(1).text()+"</th>"
+							+"</tr>"
+						+"</tbody>"
+					+"</table>"
+					+"<table class='table table-bordered' style='margin: 10px 0;'>"
+						+"<thead>"
+							+"<tr>"
+								+"<th class='text-center' style='width: 45px;'>No</th>"
+								+"<th class='text-center'>Sasaran</th>"
+								+"<th class='text-center' style='width: 160px;'>Aksi</th>"
+							+"</tr>"
+						+"</thead>"
+						+"<tbody>";
+				res.data.map(function(b, i){
+					data_html += ''
+					+'<tr id-saspok="'+b.id+'">'
+						+'<td class="text-center">'+(i+1)+'</td>'
+						+'<td>'+b.saspok_teks+'</td>'
+						+'<td class="text-center aksi">'
+							+'<button class="btn-sm btn-primary" onclick="detail_saspok('+b.id+');"><i class="dashicons dashicons-search"></i></button>'
+							+'<button class="btn-sm btn-warning" onclick="edit_saspok('+b.id+');"><i class="dashicons dashicons-edit"></i></button>'
+							+'<button class="btn-sm btn-danger" onclick="hapus_saspok('+b.id+');"><i class="dashicons dashicons-trash"></i></button>'
+						+'</td>'
+					+'</tr>';
+				});
+				data_html += ""
+						+"</tbody>";
+					+"</table>";
+				jQuery('#nav-sasaran').html(data_html);
+				jQuery('#nav-kebijakan').html('');
+				jQuery('#nav-isu').html('');
+          		jQuery('.nav-tabs a[href="#nav-sasaran"]').tab('show');
+          		if(typeof cb == 'function'){
+          			cb();
+          		}
+          	}
+        });
+	}
+
+	function detail_saspok(id_saspok, cb){
+		jQuery('#wrap-loading').show();
+		jQuery.ajax({
+			url: ajax.url,
+          	type: "post",
+          	data: {
+          		"action": "get_rpjpd",
+          		"api_key": "<?php echo $api_key; ?>",
+          		"table": 'data_rpjpd_kebijakan',
+          		"id": id_saspok
+          	},
+          	dataType: "json",
+          	success: function(res){
+          		console.log('res', res);
+				jQuery('#wrap-loading').hide();
+				var data_html = ""
+					+'<button class="btn-sm btn-primary tambah-data" style="margin-top: 10px;" id-saspok="'+id_saspok+'" onclick="tambah_kebijakan('+id_saspok+');"><i class="dashicons dashicons-plus" style="margin-top: 3px;"></i> Tambah Kebijakan</button>'
+					+"<table class='table table-bordered' style='margin: 10px 0;'>"
+						+"<tbody>"
+							+"<tr>"
+								+"<th class='text-center' style='width: 160px;'>Visi</th>"
+								+"<th>"+jQuery('tr[id-visi="'+jQuery('#nav-misi .tambah-data').attr('id-visi')+'"]').find('td').eq(1).text()+"</th>"
+							+"</tr>"
+							+"<tr>"
+								+"<th class='text-center' style='width: 160px;'>Misi</th>"
+								+"<th>"+jQuery('tr[id-misi="'+jQuery('#nav-sasaran .tambah-data').attr('id-misi')+'"]').find('td').eq(1).text()+"</th>"
+							+"</tr>"
+							+"<tr>"
+								+"<th class='text-center' style='width: 160px;'>Sasaran</th>"
+								+"<th>"+jQuery('tr[id-saspok="'+id_saspok+'"]').find('td').eq(1).text()+"</th>"
+							+"</tr>"
+						+"</tbody>"
+					+"</table>"
+					+"<table class='table table-bordered' style='margin: 10px 0;'>"
+						+"<thead>"
+							+"<tr>"
+								+"<th class='text-center' style='width: 45px;'>No</th>"
+								+"<th class='text-center'>Kebijakan</th>"
+								+"<th class='text-center' style='width: 160px;'>Aksi</th>"
+							+"</tr>"
+						+"</thead>"
+						+"<tbody>";
+				res.data.map(function(b, i){
+					data_html += ''
+					+'<tr id-kebijakan="'+b.id+'">'
+						+'<td class="text-center">'+(i+1)+'</td>'
+						+'<td>'+b.kebijakan_teks+'</td>'
+						+'<td class="text-center aksi">'
+							+'<button class="btn-sm btn-primary" onclick="detail_kebijakan('+b.id+');"><i class="dashicons dashicons-search"></i></button>'
+							+'<button class="btn-sm btn-warning" onclick="edit_kebijakan('+b.id+');"><i class="dashicons dashicons-edit"></i></button>'
+							+'<button class="btn-sm btn-danger" onclick="hapus_kebijakan('+b.id+');"><i class="dashicons dashicons-trash"></i></button>'
+						+'</td>'
+					+'</tr>';
+				});
+				data_html += ""
+						+"</tbody>";
+					+"</table>";
+				jQuery('#nav-kebijakan').html(data_html);
+				jQuery('#nav-isu').html('');
+          		jQuery('.nav-tabs a[href="#nav-kebijakan"]').tab('show');
+          		if(typeof cb == 'function'){
+          			cb();
+          		}
+          	}
+        });
+	}
+
+	function detail_kebijakan(id_kebijakan, cb){
+		jQuery('#wrap-loading').show();
+		jQuery.ajax({
+			url: ajax.url,
+          	type: "post",
+          	data: {
+          		"action": "get_rpjpd",
+          		"api_key": "<?php echo $api_key; ?>",
+          		"table": 'data_rpjpd_isu',
+          		"id": id_kebijakan
+          	},
+          	dataType: "json",
+          	success: function(res){
+          		console.log('res', res);
+				jQuery('#wrap-loading').hide();
+				var data_html = ""
+					+'<button class="btn-sm btn-primary tambah-data" style="margin-top: 10px;" id-kebijakan="'+id_kebijakan+'" onclick="tambah_isu('+id_kebijakan+');"><i class="dashicons dashicons-plus" style="margin-top: 3px;"></i> Tambah Isu</button>'
+					+"<table class='table table-bordered' style='margin: 10px 0;'>"
+						+"<tbody>"
+							+"<tr>"
+								+"<th class='text-center' style='width: 160px;'>Visi</th>"
+								+"<th>"+jQuery('tr[id-visi="'+jQuery('#nav-misi .tambah-data').attr('id-visi')+'"]').find('td').eq(1).text()+"</th>"
+							+"</tr>"
+							+"<tr>"
+								+"<th class='text-center' style='width: 160px;'>Misi</th>"
+								+"<th>"+jQuery('tr[id-misi="'+jQuery('#nav-sasaran .tambah-data').attr('id-misi')+'"]').find('td').eq(1).text()+"</th>"
+							+"</tr>"
+							+"<tr>"
+								+"<th class='text-center' style='width: 160px;'>Sasaran</th>"
+								+"<th>"+jQuery('tr[id-saspok="'+jQuery('#nav-kebijakan .tambah-data').attr('id-saspok')+'"]').find('td').eq(1).text()+"</th>"
+							+"</tr>"
+							+"<tr>"
+								+"<th class='text-center' style='width: 160px;'>Kebijakan</th>"
+								+"<th>"+jQuery('tr[id-kebijakan="'+id_kebijakan+'"]').find('td').eq(1).text()+"</th>"
+							+"</tr>"
+						+"</tbody>"
+					+"</table>"
+					+"<table class='table table-bordered' style='margin: 10px 0;'>"
+						+"<thead>"
+							+"<tr>"
+								+"<th class='text-center' style='width: 45px;'>No</th>"
+								+"<th class='text-center'>Kebijakan</th>"
+								+"<th class='text-center' style='width: 160px;'>Aksi</th>"
+							+"</tr>"
+						+"</thead>"
+						+"<tbody>";
+				res.data.map(function(b, i){
+					data_html += ''
+					+'<tr id-isu="'+b.id+'">'
+						+'<td class="text-center">'+(i+1)+'</td>'
+						+'<td>'+b.isu_teks+'</td>'
+						+'<td class="text-center aksi">'
+							+'<button class="btn-sm btn-warning" onclick="edit_isu('+b.id+');"><i class="dashicons dashicons-edit"></i></button>'
+							+'<button class="btn-sm btn-danger" onclick="hapus_isu('+b.id+');"><i class="dashicons dashicons-trash"></i></button>'
+						+'</td>'
+					+'</tr>';
+				});
+				data_html += ""
+						+"</tbody>";
+					+"</table>";
+				jQuery('#nav-isu').html(data_html)
+          		jQuery('.nav-tabs a[href="#nav-isu"]').tab('show');
+          		if(typeof cb == 'function'){
+          			cb();
+          		}
+          	}
+        });
+	}
 </script>

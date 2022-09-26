@@ -10525,98 +10525,101 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						$id_skpd_sipd = $get_id['id_skpd_sipd'];
 						if(!empty($id_skpd_sipd)){
 							$cek_aktivitas = array();
-							foreach($data_fmis['rincian'] as $key => $rinci){
-								foreach($rek_mapping as $rek_mapping_sipd => $rek_mapping_fmis){
-									$_kode_akun = explode('.', $rinci['kode_rekening']);
-									$_kode_akun = (int)$_kode_akun[0].'.'.(int)$_kode_akun[1].'.'.(int)$_kode_akun[2].'.'.(int)$_kode_akun[3].'.'.(int)$_kode_akun[4].'.'.(int)$_kode_akun[5];
-									if($_kode_akun == $rek_mapping_fmis){
-										$_kode_akun = explode('.', $rek_mapping_sipd);
-										$_kode_akun[2] = $this->simda->CekNull($_kode_akun[2]);
-										$_kode_akun[3] = $this->simda->CekNull($_kode_akun[3]);
-										$_kode_akun[4] = $this->simda->CekNull($_kode_akun[4]);
-										$_kode_akun[5] = $this->simda->CekNull($_kode_akun[5], 4);
-										$rinci['kode_rekening'] = implode('.', $_kode_akun);
-										$rinci['kdrek1'] = $rek_mapping_sipd[0];
-										$data_fmis['rincian'][$key] = $rinci;
+							$singkron_rincian_fmis = get_option( '_crb_backup_rincian_fmis' );
+							if($singkron_rincian_fmis == 1){
+								foreach($data_fmis['rincian'] as $key => $rinci){
+									foreach($rek_mapping as $rek_mapping_sipd => $rek_mapping_fmis){
+										$_kode_akun = explode('.', $rinci['kode_rekening']);
+										$_kode_akun = (int)$_kode_akun[0].'.'.(int)$_kode_akun[1].'.'.(int)$_kode_akun[2].'.'.(int)$_kode_akun[3].'.'.(int)$_kode_akun[4].'.'.(int)$_kode_akun[5];
+										if($_kode_akun == $rek_mapping_fmis){
+											$_kode_akun = explode('.', $rek_mapping_sipd);
+											$_kode_akun[2] = $this->simda->CekNull($_kode_akun[2]);
+											$_kode_akun[3] = $this->simda->CekNull($_kode_akun[3]);
+											$_kode_akun[4] = $this->simda->CekNull($_kode_akun[4]);
+											$_kode_akun[5] = $this->simda->CekNull($_kode_akun[5], 4);
+											$rinci['kode_rekening'] = implode('.', $_kode_akun);
+											$rinci['kdrek1'] = $rek_mapping_sipd[0];
+											$data_fmis['rincian'][$key] = $rinci;
+										}
 									}
-								}
-								if(empty($cek_aktivitas[$rinci['idaktivitas']])){
-									$wpdb->update('data_rincian_fmis', array(
-										'active' => 0
-									), array(
-										'idaktivitas' => $rinci['idaktivitas']
-									));
-									$cek_aktivitas[$rinci['idaktivitas']] = true;
-								}
-								$get_rinci = $wpdb->get_results($wpdb->prepare("
-									SELECT
-										id
-									FROM data_rincian_fmis
-									WHERE dt_rowid = %s
-										AND idaktivitas = %d
-										AND tahun_anggaran = %d
-								", $rinci['DT_RowId'], $rinci['idaktivitas'], $tahun_anggaran), ARRAY_A);
-								$opsi = array(
-									'idaktivitas' => $rinci['idaktivitas'],
-									'id_mapping' => $id_mapping,
-									'id_sub_skpd' => $id_skpd_sipd[0],
-									'nama_sub_giat' => $data_fmis['sub_kegiatan'],
-									'nama_giat' => $data_fmis['kegiatan'],
-									'nama_program' => $data_fmis['program'],
-									'aktivitas' => $rinci['aktivitas'],
-									'dt_rowid' => $rinci['DT_RowId'],
-									'dt_rowindex' => $rinci['DT_RowIndex'],
-									'created_id' => $rinci['created_id'],
-									'harga' => $rinci['harga'],
-									'idrkpdrenjabelanja' => $rinci['idrkpdrenjabelanja'],
-									'idsatuan1' => $rinci['idsatuan1'],
-									'idsatuan2' => $rinci['idsatuan2'],
-									'idsatuan3' => $rinci['idsatuan3'],
-									'idssh_4' => $rinci['idssh_4'],
-									'idsumberdana' => $rinci['idsumberdana'],
-									'jml_volume' => $rinci['jml_volume'],
-									'jml_volume_renja' => $rinci['jml_volume_renja'],
-									'jumlah' => $rinci['jumlah'],
-									'jumlah_renja' => $rinci['jumlah_renja'],
-									'kdrek1' => $rinci['kdrek1'],
-									'kdrek2' => $rinci['kdrek2'],
-									'kdrek3' => $rinci['kdrek3'],
-									'kdrek4' => $rinci['kdrek4'],
-									'kdrek5' => $rinci['kdrek5'],
-									'kdrek6' => $rinci['kdrek6'],
-									'kdurut' => $rinci['kdurut'],
-									'kode_rekening' => $rinci['kode_rekening'],
-									'nmrek6' => $rinci['nmrek6'],
-									'rekening_display' => $rinci['rekening_display'],
-									'satuan123' => $rinci['satuan123'],
-									'singkat_sat1' => $rinci['singkat_sat1'],
-									'singkat_sat2' => $rinci['singkat_sat2'],
-									'singkat_sat3' => $rinci['singkat_sat3'],
-									'status_data' => $rinci['status_data'],
-									'status_dokumen' => $rinci['status_dokumen'],
-									'status_pelaksanaan' => $rinci['status_pelaksanaan'],
-									'tahun' => $rinci['tahun'],
-									'uraian_belanja' => $rinci['uraian_belanja'],
-									'uraian_ssh' => $rinci['uraian_ssh'],
-									'uraian_sumberdana' => $rinci['uraian_sumberdana'],
-									'volume_1' => $rinci['volume_1'],
-									'volume_2' => $rinci['volume_2'],
-									'volume_3' => $rinci['volume_3'],
-									'volume_renja1' => $rinci['volume_renja1'],
-									'volume_renja2' => $rinci['volume_renja2'],
-									'volume_renja3' => $rinci['volume_renja3'],
-									'tahun_anggaran' => $tahun_anggaran,
-									'active' => 1,
-								);
-								if(!empty($rinci['created_at'])){
-									$opsi['created_at'] = $rinci['created_at'];
-								}
-								if(empty($get_rinci)){
-									$wpdb->insert('data_rincian_fmis', $opsi);
-								}else{
-									$wpdb->update('data_rincian_fmis', $opsi, array(
-										'id' => $get_rinci[0]['id']
-									));
+									if(empty($cek_aktivitas[$rinci['idaktivitas']])){
+										$wpdb->update('data_rincian_fmis', array(
+											'active' => 0
+										), array(
+											'idaktivitas' => $rinci['idaktivitas']
+										));
+										$cek_aktivitas[$rinci['idaktivitas']] = true;
+									}
+									$get_rinci = $wpdb->get_results($wpdb->prepare("
+										SELECT
+											id
+										FROM data_rincian_fmis
+										WHERE dt_rowid = %s
+											AND idaktivitas = %d
+											AND tahun_anggaran = %d
+									", $rinci['DT_RowId'], $rinci['idaktivitas'], $tahun_anggaran), ARRAY_A);
+									$opsi = array(
+										'idaktivitas' => $rinci['idaktivitas'],
+										'id_mapping' => $id_mapping,
+										'id_sub_skpd' => $id_skpd_sipd[0],
+										'nama_sub_giat' => $data_fmis['sub_kegiatan'],
+										'nama_giat' => $data_fmis['kegiatan'],
+										'nama_program' => $data_fmis['program'],
+										'aktivitas' => $rinci['aktivitas'],
+										'dt_rowid' => $rinci['DT_RowId'],
+										'dt_rowindex' => $rinci['DT_RowIndex'],
+										'created_id' => $rinci['created_id'],
+										'harga' => $rinci['harga'],
+										'idrkpdrenjabelanja' => $rinci['idrkpdrenjabelanja'],
+										'idsatuan1' => $rinci['idsatuan1'],
+										'idsatuan2' => $rinci['idsatuan2'],
+										'idsatuan3' => $rinci['idsatuan3'],
+										'idssh_4' => $rinci['idssh_4'],
+										'idsumberdana' => $rinci['idsumberdana'],
+										'jml_volume' => $rinci['jml_volume'],
+										'jml_volume_renja' => $rinci['jml_volume_renja'],
+										'jumlah' => $rinci['jumlah'],
+										'jumlah_renja' => $rinci['jumlah_renja'],
+										'kdrek1' => $rinci['kdrek1'],
+										'kdrek2' => $rinci['kdrek2'],
+										'kdrek3' => $rinci['kdrek3'],
+										'kdrek4' => $rinci['kdrek4'],
+										'kdrek5' => $rinci['kdrek5'],
+										'kdrek6' => $rinci['kdrek6'],
+										'kdurut' => $rinci['kdurut'],
+										'kode_rekening' => $rinci['kode_rekening'],
+										'nmrek6' => $rinci['nmrek6'],
+										'rekening_display' => $rinci['rekening_display'],
+										'satuan123' => $rinci['satuan123'],
+										'singkat_sat1' => $rinci['singkat_sat1'],
+										'singkat_sat2' => $rinci['singkat_sat2'],
+										'singkat_sat3' => $rinci['singkat_sat3'],
+										'status_data' => $rinci['status_data'],
+										'status_dokumen' => $rinci['status_dokumen'],
+										'status_pelaksanaan' => $rinci['status_pelaksanaan'],
+										'tahun' => $rinci['tahun'],
+										'uraian_belanja' => $rinci['uraian_belanja'],
+										'uraian_ssh' => $rinci['uraian_ssh'],
+										'uraian_sumberdana' => $rinci['uraian_sumberdana'],
+										'volume_1' => $rinci['volume_1'],
+										'volume_2' => $rinci['volume_2'],
+										'volume_3' => $rinci['volume_3'],
+										'volume_renja1' => $rinci['volume_renja1'],
+										'volume_renja2' => $rinci['volume_renja2'],
+										'volume_renja3' => $rinci['volume_renja3'],
+										'tahun_anggaran' => $tahun_anggaran,
+										'active' => 1,
+									);
+									if(!empty($rinci['created_at'])){
+										$opsi['created_at'] = $rinci['created_at'];
+									}
+									if(empty($get_rinci)){
+										$wpdb->insert('data_rincian_fmis', $opsi);
+									}else{
+										$wpdb->update('data_rincian_fmis', $opsi, array(
+											'id' => $get_rinci[0]['id']
+										));
+									}
 								}
 							}
 
@@ -14271,14 +14274,14 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 
 		if(!empty($_POST)){
 			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
-					$id_jadwal_lokal = $_POST['id_jadwal_lokal'];
-					
-					$data_penjadwalan_by_id = $wpdb->get_results($wpdb->prepare('SELECT * FROM data_jadwal_lokal WHERE id_jadwal_lokal = %d',$id_jadwal_lokal), ARRAY_A);
- 
-					$return = array(
-						'status' 						=> 'success',
-						'data' 							=> $data_penjadwalan_by_id[0]
-					);
+				$id_jadwal_lokal = $_POST['id_jadwal_lokal'];
+				
+				$data_penjadwalan_by_id = $wpdb->get_results($wpdb->prepare('SELECT * FROM data_jadwal_lokal WHERE id_jadwal_lokal = %d',$id_jadwal_lokal), ARRAY_A);
+
+				$return = array(
+					'status' 						=> 'success',
+					'data' 							=> $data_penjadwalan_by_id[0]
+				);
 			}else{
 				$return = array(
 					'status'	=> 'error',
@@ -14449,7 +14452,17 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 
 						$data_this_id 	= $wpdb->get_results($wpdb->prepare('SELECT * FROM data_jadwal_lokal WHERE id_jadwal_lokal = %d',$id_jadwal_lokal), ARRAY_A);
 
-						date_default_timezone_set("Asia/Bangkok");
+						$timezone = get_option('timezone_string');
+						if(preg_match("/Asia/i", $timezone)){
+							date_default_timezone_set($timezone);
+						}else{
+							$return = array(
+								'status' => 'error',
+								'message'	=> "Pengaturan timezone salah. Pilih salah satu kota di zona waktu yang sama dengan anda, antara lain:  \'Jakarta\',\'Makasar\',\'Jayapura\'",
+							);
+							die(json_encode($return));
+						}
+
 						$dateTime = new DateTime();
 						$time_now = $dateTime->format('Y-m-d H:i:s');
 						if($time_now > $data_this_id[0]['waktu_awal']){
@@ -14540,6 +14553,22 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 
 									$queryRecords10 = $wpdb->query($sql_backup_data_mapping_sumberdana);
 
+									$oclumns_11 = array('created_user','createddate','createdtime','id_pendapatan','keterangan','kode_akun','nama_akun','nilaimurni','program_koordinator','rekening','skpd_koordinator','total','pagu_fmis','updated_user','updateddate','updatedtime','uraian','urusan_koordinator','user1','user2','id_skpd','active','update_at','tahun_anggaran');
+
+									$sql_backup_data_pendapatan =  "INSERT INTO data_pendapatan_history (".implode(', ', $oclumns_11).",id_jadwal,id_asli)
+												SELECT ".implode(', ', $oclumns_11).",".$data_this_id[0]['id_jadwal_lokal'].",id as id_asli
+												FROM data_pendapatan WHERE tahun_anggaran='".$data_this_id[0]['tahun_anggaran']."'";
+
+									$queryRecords11 = $wpdb->query($sql_backup_data_pendapatan);
+
+									$oclumns_12 = array('created_user','createddate','createdtime','id_pembiayaan','keterangan','kode_akun','nama_akun','nilaimurni','program_koordinator','rekening','skpd_koordinator','total','pagu_fmis','updated_user','updateddate','updatedtime','uraian','urusan_koordinator','type','user1','user2','id_skpd','active','update_at','tahun_anggaran');
+
+									$sql_backup_data_pembiayaan =  "INSERT INTO data_pembiayaan_history (".implode(', ', $oclumns_12).",id_jadwal,id_asli)
+												SELECT ".implode(', ', $oclumns_12).",".$data_this_id[0]['id_jadwal_lokal'].",id as id_asli
+												FROM data_pembiayaan WHERE tahun_anggaran='".$data_this_id[0]['tahun_anggaran']."'";
+
+									$queryRecords12 = $wpdb->query($sql_backup_data_pembiayaan);
+
 									$return = array(
 										'status' => 'success',
 										'message'	=> 'Berhasil!',
@@ -14608,8 +14637,18 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						$id_jadwal_lokal= trim(htmlspecialchars($_POST['id_jadwal_lokal']));
 
 						$data_this_id 	= $wpdb->get_results($wpdb->prepare('SELECT * FROM data_jadwal_lokal WHERE id_jadwal_lokal = %d',$id_jadwal_lokal), ARRAY_A);
+						
+						$timezone = get_option('timezone_string');
+						if(preg_match("/Asia/i", $timezone)){
+							date_default_timezone_set($timezone);
+						}else{
+							$return = array(
+								'status' => 'error',
+								'message'	=> "Pengaturan timezone salah. Pilih salah satu kota di zona waktu yang sama dengan anda, antara lain:  \'Jakarta\',\'Makasar\',\'Jayapura\'",
+							);
+							die(json_encode($return));
+						}
 
-						date_default_timezone_set("Asia/Bangkok");
 						$dateTime = new DateTime();
 						$time_now = $dateTime->format('Y-m-d H:i:s');
 						if($time_now > $data_this_id[0]['waktu_awal']){
@@ -14729,7 +14768,17 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 
 						$data_this_id 	= $wpdb->get_results($wpdb->prepare('SELECT * FROM data_jadwal_lokal WHERE id_jadwal_lokal = %d',$id_jadwal_lokal), ARRAY_A);
 
-						date_default_timezone_set("Asia/Bangkok");
+						$timezone = get_option('timezone_string');
+						if(preg_match("/Asia/i", $timezone)){
+							date_default_timezone_set($timezone);
+						}else{
+							$return = array(
+								'status' => 'error',
+								'message'	=> "Pengaturan timezone salah. Pilih salah satu kota di zona waktu yang sama dengan anda, antara lain:  \'Jakarta\',\'Makasar\',\'Jayapura\'",
+							);
+							die(json_encode($return));
+						}
+
 						$dateTime = new DateTime();
 						$time_now = $dateTime->format('Y-m-d H:i:s');
 						if($time_now > $data_this_id[0]['waktu_awal']){
@@ -14841,7 +14890,17 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 
 						$data_this_id 	= $wpdb->get_results($wpdb->prepare('SELECT * FROM data_jadwal_lokal WHERE id_jadwal_lokal = %d',$id_jadwal_lokal), ARRAY_A);
 
-						date_default_timezone_set("Asia/Bangkok");
+						$timezone = get_option('timezone_string');
+						if(preg_match("/Asia/i", $timezone)){
+							date_default_timezone_set($timezone);
+						}else{
+							$return = array(
+								'status' => 'error',
+								'message'	=> "Pengaturan timezone salah. Pilih salah satu kota di zona waktu yang sama dengan anda, antara lain:  \'Jakarta\',\'Makasar\',\'Jayapura\'",
+							);
+							die(json_encode($return));
+						}
+
 						$dateTime = new DateTime();
 						$time_now = $dateTime->format('Y-m-d H:i:s');
 						if($time_now > $data_this_id[0]['waktu_awal']){
