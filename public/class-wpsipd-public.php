@@ -16575,17 +16575,17 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 							<table class='table'>
 								<thead>
 									<tr>
-										<td>No.</td>
-										<td>Indikator</td>
-										<td>Satuan</td>
-										<td>Target 1</td>
-										<td>Target 2</td>
-										<td>Target 3</td>
-										<td>Target 4</td>
-										<td>Target 5</td>
-										<td>Target Awal</td>
-										<td>Target Akhir</td>
-										<td>Aksi</td>
+										<th>No.</th>
+										<th>Indikator</th>
+										<th>Satuan</th>
+										<th>Target 1</th>
+										<th>Target 2</th>
+										<th>Target 3</th>
+										<th>Target 4</th>
+										<th>Target 5</th>
+										<th>Target Awal</th>
+										<th>Target Akhir</th>
+										<th>Aksi</th>
 									</tr>
 								</thead>
 								<tbody id='indikator_tujuan'>
@@ -17375,17 +17375,17 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 							<table class='table'>
 								<thead>
 									<tr>
-										<td>No.</td>
-										<td>Indikator</td>
-										<td>Satuan</td>
-										<td>Target 1</td>
-										<td>Target 2</td>
-										<td>Target 3</td>
-										<td>Target 4</td>
-										<td>Target 5</td>
-										<td>Target Awal</td>
-										<td>Target Akhir</td>
-										<td>Aksi</td>
+										<th>No.</th>
+										<th>Indikator</th>
+										<th>Satuan</th>
+										<th>Target 1</th>
+										<th>Target 2</th>
+										<th>Target 3</th>
+										<th>Target 4</th>
+										<th>Target 5</th>
+										<th>Target Awal</th>
+										<th>Target Akhir</th>
+										<th>Aksi</th>
 									</tr>
 								</thead>
 								<tbody id='indikator_sasaran'>
