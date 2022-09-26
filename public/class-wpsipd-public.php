@@ -14104,6 +14104,23 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						$where .=" AND tahun_anggaran = ".$_POST['tahun_anggaran'];
 					}
 
+					/** Setting update status */
+					$data_expired = $wpdb->get_results(
+						"select
+						id_jadwal_lokal
+						from data_jadwal_lokal
+						where id_tipe=".$sqlTipe[0]['id']."
+						and status=0
+						and waktu_akhir<'".current_time('mysql')."'"
+					,ARRAY_A);
+
+					if(!empty($data_expired)){
+						foreach($data_expired as $val_data_expired){
+							$wpdb->update('data_jadwal_lokal', array('status' => 1),array('id_jadwal_lokal' => $val_data_expired['id_jadwal_lokal']));
+						}
+					}
+					////
+
 					// getting total number records without any search
 					$sqlTot = "SELECT count(*) as jml FROM `data_jadwal_lokal` WHERE id_tipe =".$sqlTipe[0]['id'];
 					$sqlRec = "SELECT ".implode(', ', $columns)." FROM `data_jadwal_lokal` WHERE id_tipe =".$sqlTipe[0]['id'];

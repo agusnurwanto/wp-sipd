@@ -59,6 +59,21 @@ class Wpsipd_Public_Base_2
 						, ARRAY_A);
 						$skpd[$k]['total_pagu_sipd'] = (!empty($data_total_pagu_sipd['total_sipd'])) ? number_format($data_total_pagu_sipd['total_sipd'],0,",",".") : '-' ;
 
+						$where_non_pengadaan = 'a.kode_akun LIKE "5.1.01.03%"
+												and a.active=1
+												and b.id_sub_skpd='.$opd['id_skpd'].' 
+												and b.tahun_anggaran='.$_POST['tahun_anggaran'].' 
+												and b.active=1 
+												';
+						$data_total_pagu_non_pengadaan = $wpdb->get_row('
+							select sum(a.total_harga) as total_non_pengadaan
+							from data_rka as a 
+							join data_sub_keg_bl as b 
+							on a.kode_sbl = b.kode_sbl
+							where '.$where_non_pengadaan
+						, ARRAY_A);
+						$skpd[$k]['total_pagu_non_pengadaan'] = (!empty($data_total_pagu_non_pengadaan['total_non_pengadaan'])) ? number_format($data_total_pagu_non_pengadaan['total_non_pengadaan'],0,",",".") : '-' ;
+
 						$where_sirup = '
 							tahun_anggaran='.$_POST['tahun_anggaran'].'
 							and active=1
@@ -72,7 +87,7 @@ class Wpsipd_Public_Base_2
 							where '.$where_sirup
 						, ARRAY_A);
 						$skpd[$k]['total_pagu_sirup'] = (!empty($data_total_pagu_sirup['total_sirup'])) ? number_format($data_total_pagu_sirup['total_sirup'],0,",",".") : '-';
-						$skpd[$k]['selisih_pagu'] = $data_total_pagu_sipd['total_sipd'] - $data_total_pagu_sirup['total_sirup'];
+						$skpd[$k]['selisih_pagu'] = $data_total_pagu_sipd['total_sipd'] - $data_total_pagu_non_pengadaan['total_non_pengadaan'] - $data_total_pagu_sirup['total_sirup'];
 						$skpd[$k]['selisih_pagu'] = number_format($skpd[$k]['selisih_pagu'],0,",",".");
 						$skpd[$k]['keterangan'] = '-';
 					}
