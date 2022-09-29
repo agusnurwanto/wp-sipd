@@ -15730,35 +15730,9 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 					'active' => 1
 				]);
 
-				// perlu koordinasi apakah hanya untuk rpjmd manual
-				$dataVisi = $wpdb->get_results("
-						select 
-							* 
-						from data_rpjmd_visi_lokal
-						where is_locked=0
-							AND status=1
-							AND active=1
-					", ARRAY_A);
-
-				$i=1;
-				$html = "";
-				foreach ($dataVisi as $key => $value) {
-					$html.='<tr>
-								<td>'.$i.'.</td>
-								<td>'.$value['visi_teks'].'</td>
-								<td>
-									<a href="javascript:void(0)" data-id="'.$value['id'].'" class="btn btn-sm btn-primary btn-detail-visi">Detail</a>&nbsp;
-									<a href="javascript:void(0)" data-id="'.$value['id'].'" class="btn btn-sm btn-success btn-edit-visi">Edit</a>&nbsp;
-									<a href="javascript:void(0)" data-id="'.$value['id'].'" class="btn btn-sm btn-warning">Hapus</a>
-								</td>
-							</tr>';
-					$i++;
-				}
-
 				echo json_encode([
 					'status' => true,
-					'message' => 'Sukses simpan visi',
-					'data' => $html
+					'message' => 'Sukses simpan visi'
 				]);exit;
 			}
 
@@ -15813,35 +15787,9 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 					'id' => $data['id_visi']
 				]);
 
-				// perlu koordinasi apakah hanya untuk rpjmd manual
-				$dataVisi = $wpdb->get_results("
-						select 
-							* 
-						from data_rpjmd_visi_lokal
-						where is_locked=0
-							AND status=1
-							AND active=1
-					", ARRAY_A);
-
-				$i=1;
-				$html = "";
-				foreach ($dataVisi as $key => $value) {
-					$html.='<tr>
-								<td>'.$i.'.</td>
-								<td>'.$value['visi_teks'].'</td>
-								<td>
-									<a href="javascript:void(0)" data-id="'.$value['id'].'" class="btn btn-sm btn-primary btn-detail-visi">Detail</a>&nbsp;
-									<a href="javascript:void(0)" data-id="'.$value['id'].'" class="btn btn-sm btn-success btn-edit-visi">Edit</a>&nbsp;
-									<a href="javascript:void(0)" data-id="'.$value['id'].'" class="btn btn-sm btn-warning">Hapus</a>
-								</td>
-							</tr>';
-					$i++;
-				}
-
 				echo json_encode([
 					'status' => true,
-					'message' => 'Sukses ubah visi',
-					'data' => $html,
+					'message' => 'Sukses ubah visi'
 				]);exit;
 			}
 
@@ -15871,35 +15819,9 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 
 					$wpdb->get_results("delete from data_rpjmd_visi_lokal where id=".$_POST['id_visi']);
 
-					// perlu koordinasi apakah hanya untuk rpjmd manual
-					$dataVisi = $wpdb->get_results("
-							select 
-								* 
-							from data_rpjmd_visi_lokal
-							where is_locked=0
-								AND status=1
-								AND active=1
-						", ARRAY_A);
-
-					$i=1;
-					$html = "";
-					foreach ($dataVisi as $key => $value) {
-						$html.='<tr>
-									<td>'.$i.'.</td>
-									<td>'.$value['visi_teks'].'</td>
-									<td>
-										<a href="javascript:void(0)" data-id="'.$value['id'].'" class="btn btn-sm btn-primary btn-detail-visi">Detail</a>&nbsp;
-										<a href="javascript:void(0)" data-id="'.$value['id'].'" class="btn btn-sm btn-success btn-edit-visi">Edit</a>&nbsp;
-										<a href="javascript:void(0)" data-id="'.$value['id'].'" class="btn btn-sm btn-warning">Hapus</a>
-									</td>
-								</tr>';
-						$i++;
-					}
-
 					echo json_encode([
 						'status' => true,
-						'message' => 'Sukses hapus visi',
-						'data' => $html
+						'message' => 'Sukses hapus visi'
 					]);exit;
 
 				}else{
@@ -15916,123 +15838,45 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		}
 	}
 
-	function visi_detail(){
+	function get_misi_rpjm(){
 		global $wpdb;
 		if (!empty($_POST)) {
 			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
 
-				$visi = $wpdb->get_row("
-					SELECT * FROM data_rpjmd_visi_lokal
-						WHERE id=".$_POST['id_visi']);
+				if($_POST['type'] == 1){
 
-				$misi = $wpdb->get_results("
-					SELECT * FROM data_rpjmd_misi_lokal
-						WHERE id_visi=".$_POST['id_visi'], ARRAY_A);
+					$sql = $wpdb->prepare("
+						SELECT * FROM data_rpjmd_misi_lokal
+							WHERE id_visi=%d and active=1 ORDER BY urut_misi", $_POST['id_visi']);
+					$misi = $wpdb->get_results($sql, ARRAY_A);
+
+				}else{
+
+					$tahun_anggaran = $_POST['tahun_anggaran'];
+
+					$sql = $wpdb->prepare("
+						select 
+							* 
+						from data_rpjmd_misi
+						where tahun_anggaran=%d
+								and id_visi=%d
+								and active=1
+						ORDER BY urut_misi
+						", $tahun_anggaran, $_POST['id_visi']);
+					$misi = $wpdb->get_results($sql, ARRAY_A);
+				}
 
 				echo json_encode([
 					'status' => true,
-					'visi_teks' => $visi->visi_teks,
 					'data' => $misi,
 					'message' => 'Sukses get detail visi dg data misi by id_visi'
 				]);exit;
 			}
-
 			echo json_encode([
 				'status' => false,
 				'message' => 'Api key tidak sesuai'
 			]);exit;
 		}
-
-		echo json_encode([
-			'status' => false,
-			'message' => 'Format tidak sesuai'
-		]);exit;
-	}
-
-	function get_misi_rpjm(array $input){
-		global $wpdb;
-
-		if(!empty($input)){
-
-			$type = $input['type'];
-			if($type == 1){
-				$sql = $wpdb->prepare("
-					select 
-						* 
-					from data_rpjmd_misi_lokal
-					where id_visi = ".$input['id_visi']."
-						AND is_locked=0
-						AND status=1
-						AND active=1
-					ORDER BY urut_misi
-				");
-				$data = $wpdb->get_results($sql, ARRAY_A);
-			}else{
-				$tahun_anggaran = $input['tahun_anggaran'];
-				$sql = $wpdb->prepare("
-					select 
-						* 
-					from data_rpjmd_misi
-					where tahun_anggaran=%d
-							and active=1
-					ORDER BY urut_misi
-					", $tahun_anggaran);
-				$data = $wpdb->get_results($sql, ARRAY_A);
-			}
-		}
-
-		$i=1;
-		$html = "";
-		foreach($data as $key => $value){
-			$html.='<tr>
-						<td>'.$i.'.</td>
-						<td>'.$value['misi_teks'].'</td>
-						<td>
-							<a href="javascript:void(0)" data-id="'.$value['id'].'" class="btn btn-sm btn-primary btn-detail-misi">Detail</a>&nbsp;
-							<a href="javascript:void(0)" data-id="'.$value['id'].'" class="btn btn-sm btn-success btn-edit-misi">Edit</a>&nbsp;
-							<a href="javascript:void(0)" data-id="'.$value['id'].'" data-idvisi="'.$value['id_visi'].'" class="btn btn-sm btn-danger btn-hapus-misi">Hapus</a>
-						</td>
-					</tr>';
-			$i++;
-		}
-		return [
-			'html' => $html,
-			'sql' => $sql
-		];
-	}
-
-	function edit_misi_rpjm(){
-		global $wpdb;
-		if (!empty($_POST)) {
-			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
-
-				// $visi = $wpdb->get_results("
-				// 		select 
-				// 			* 
-				// 		from data_rpjmd_visi_lokal
-				// 		where is_locked=0
-				// 					AND status=1
-				// 					AND active=1
-				// 	", ARRAY_A);
-
-				$misi = $wpdb->get_row("
-					SELECT * FROM data_rpjmd_misi_lokal
-						WHERE id=".$_POST['id']);
-
-				echo json_encode([
-					'status' => true,
-					// 'visi' => $visi,
-					'misi' => $misi,
-					'message' => 'Sukses get misi by id'
-				]);exit;
-			}
-
-			echo json_encode([
-				'status' => false,
-				'message' => 'Api key tidak sesuai'
-			]);exit;
-		}
-
 		echo json_encode([
 			'status' => false,
 			'message' => 'Format tidak sesuai'
@@ -16093,13 +15937,9 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						'active' => 1
 					]);
 
-					$dataMisi = $this->get_misi_rpjm($data);
-
 					echo json_encode([
 						'status' => true,
 						'message' => 'Sukses simpan misi',
-						'data' => $dataMisi['html'],
-						'sql' => $dataMisi['sql']
 					]);exit;
 
 				}else{
@@ -16114,6 +15954,34 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 				'message' => $e->getMessage()
 			]);exit;
 		}	
+	}
+
+	function edit_misi_rpjm(){
+		global $wpdb;
+		if (!empty($_POST)) {
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+
+				$misi = $wpdb->get_row("
+					SELECT * FROM data_rpjmd_misi_lokal
+						WHERE id=".$_POST['id']);
+
+				echo json_encode([
+					'status' => true,
+					'misi' => $misi,
+					'message' => 'Sukses get misi by id'
+				]);exit;
+			}
+
+			echo json_encode([
+				'status' => false,
+				'message' => 'Api key tidak sesuai'
+			]);exit;
+		}
+
+		echo json_encode([
+			'status' => false,
+			'message' => 'Format tidak sesuai'
+		]);exit;
 	}
 
 	function update_misi_rpjm(){
@@ -16170,13 +16038,9 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						'id' => $data['id_misi']
 					]);
 
-					$dataMisi = $this->get_misi_rpjm($data);
-
 					echo json_encode([
 						'status' => true,
 						'message' => 'Sukses ubah misi',
-						'data' => $dataMisi['html'],
-						'sql' => $dataMisi['sql']
 					]);exit;
 
 				}else{
@@ -16207,15 +16071,9 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 
 					$wpdb->get_results("delete from data_rpjmd_misi_lokal where id=".$_POST['id_misi']);
 
-					$data = $this->get_misi_rpjm([
-						'type' => 1,
-						'id_visi' => $_POST['id_visi']
-					]);
-
 					echo json_encode([
 						'status' => true,
-						'message' => 'Sukses hapus visi',
-						'data' => $data['html']
+						'message' => 'Sukses hapus misi'
 					]);exit;
 
 				}else{
@@ -16232,27 +16090,41 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		}
 	}
 
-	function misi_detail(){
+	function get_tujuan_rpjm(){
 		global $wpdb;
 		if (!empty($_POST)) {
 			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
 
-				$misi = $wpdb->get_row("
-					SELECT * FROM data_rpjmd_misi_lokal
-						WHERE id=".$_POST['id_misi']);
+				if($_POST['type'] == 1){
 
-				$tujuan = $wpdb->get_results("
-					SELECT * FROM data_rpjmd_tujuan_lokal
-						WHERE id_misi=".$_POST['id_misi']." AND
-							id_unik is not null and
-							id_unik_indikator is null and
-							status=1 AND 
-							is_locked=0 AND 
-							active=1 ORDER BY id", ARRAY_A);
+					$sql = $wpdb->prepare("
+						SELECT * FROM data_rpjmd_tujuan_lokal
+							WHERE id_misi=%d AND
+								id_unik IS NOT NULL AND
+								id_unik_indikator IS NULL AND
+								status=1 AND 
+								is_locked=0 AND 
+								active=1 ORDER BY id", $_POST['id_misi']);
+					$tujuan = $wpdb->get_results($sql, ARRAY_A);
+
+				}else{
+
+					$tahun_anggaran = $input['tahun_anggaran'];
+
+					$sql = $wpdb->prepare("
+						select 
+							* 
+						from data_rpjmd_tujuan
+						where tahun_anggaran=%d
+								and id_misi=%d
+								and active=1
+						ORDER BY urut_tujuan
+						", $tahun_anggaran, $_POST['id_misi']);
+					$tujuan = $wpdb->get_results($sql, ARRAY_A);
+				}
 
 				echo json_encode([
 					'status' => true,
-					'misi_teks' => $misi->misi_teks,
 					'data' => $tujuan,
 					'message' => 'Sukses get detail visi dg data tujuan by id_misi'
 				]);exit;
@@ -16270,61 +16142,6 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		]);exit;		
 	}
 
-	function get_tujuan_rpjm(array $input){
-		global $wpdb;
-
-		if(!empty($input)){
-
-			$type = $input['type'];
-			if($type == 1){
-				$sql = $wpdb->prepare("
-					select 
-						* 
-					from data_rpjmd_tujuan_lokal
-					where id_misi = ".$input['id_misi']."
-						AND id_unik IS NOT NULL
-						AND id_unik_indikator IS NULL
-						AND is_locked=0
-						AND status=1
-						AND active=1
-					ORDER BY urut_tujuan
-				");
-				$data = $wpdb->get_results($sql, ARRAY_A);
-			}else{
-				$tahun_anggaran = $input['tahun_anggaran'];
-				$sql = $wpdb->prepare("
-					select 
-						* 
-					from data_rpjmd_tujuan
-					where tahun_anggaran=%d
-							and active=1
-					ORDER BY urut_tujuan
-					", $tahun_anggaran);
-				$data = $wpdb->get_results($sql, ARRAY_A);
-			}
-		}
-
-		$i=1;
-		$html = "";
-		foreach($data as $key => $value){
-			$html.='<tr>
-						<td>'.$i.'.</td>
-						<td>'.$value['tujuan_teks'].'</td>
-						<td>
-							<a href="javascript:void(0)" data-idtujuan="'.$value['id'].'" class="btn btn-sm btn-warning btn-kelola-indikator-tujuan"><i class="dashicons dashicons-arrow-up-alt" style="margin-top: 3px;"></i> Indikator</a>&nbsp;
-							<a href="javascript:void(0)" data-kode="'.$value['id_unik'].'" class="btn btn-sm btn-primary btn-detail-tujuan"><i class="dashicons dashicons-search" style="margin-top: 3px;"></i></a>&nbsp;
-							<a href="javascript:void(0)" data-id="'.$value['id'].'" class="btn btn-sm btn-success btn-edit-tujuan"><i class="dashicons dashicons-edit" style="margin-top: 3px;"></i></a>&nbsp;
-							<a href="javascript:void(0)" data-id="'.$value['id'].'" data-idmisi="'.$value['id_misi'].'" data-kodetujuan="'.$value['id_unik'].'" class="btn btn-sm btn-danger btn-hapus-tujuan"><i class="dashicons dashicons-trash" style="margin-top: 3px;"></i></a>
-						</td>
-					</tr>';
-			$i++;
-		}
-		return [
-			'html' => $html,
-			'sql' => $sql
-		];
-	}
-
 	function edit_tujuan_rpjm(){
 		global $wpdb;
 		if (!empty($_POST)) {
@@ -16332,7 +16149,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 
 				$tujuan = $wpdb->get_row("
 					SELECT * FROM data_rpjmd_tujuan_lokal
-						WHERE id=".$_POST['id']);
+						WHERE id=".$_POST['id_tujuan']);
 
 				echo json_encode([
 					'status' => true,
@@ -16362,8 +16179,6 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 					
 					$data = json_decode(stripslashes($_POST['data']), true);
 
-					$data['type'] = 1;
-
 					if(empty($data['id_misi'])){
 						throw new Exception('Misi wajib dipilih!');
 					}
@@ -16380,6 +16195,8 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						SELECT id FROM data_rpjmd_tujuan_lokal
 							WHERE tujuan_teks='".trim($data['tujuan_teks'])."'
 										AND id_misi=".$data['id_misi']."
+										AND id_unik is not null
+										AND id_unik_indikator is null
 										AND is_locked=0
 										AND status=1
 										AND active=1
@@ -16421,13 +16238,9 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						throw new Exception('Terjadi kesalahan saat simpan data, harap hubungi admin!');
 					}
 
-					$dataTujuan = $this->get_tujuan_rpjm($data);
-
 					echo json_encode([
 						'status' => true,
 						'message' => 'Sukses simpan tujuan',
-						'data' => $dataTujuan['html'],
-						'sql' => $dataTujuan['sql'],
 					]);exit;
 
 				}else{
@@ -16453,8 +16266,6 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 					
 					$data = json_decode(stripslashes($_POST['data']), true);
 
-					$data['type'] = 1;
-
 					if(empty($data['id_misi'])){
 						throw new Exception('Misi wajib dipilih!');
 					}
@@ -16471,6 +16282,9 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						SELECT id FROM data_rpjmd_tujuan_lokal
 							WHERE tujuan_teks='".trim($data['tujuan_teks'])."'
 										AND id!=".$data['id_tujuan']."
+										AND id_misi=".$data['id_misi']."
+										AND id_unik is not null
+										AND id_unik_indikator is null
 										AND is_locked=0
 										AND status=1
 										AND active=1
@@ -16492,7 +16306,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						throw new Exception('Visi dari misi yang dipilih tidak ditemukan!');
 					}
 
-					$status = $wpdb->update('data_rpjmd_tujuan_lokal', [
+					$dataTujuan = [
 						'id_misi' => $dataMisi->id_misi,
 						'id_visi' => $dataMisi->id_visi,
 						'misi_lock' => $dataMisi->misi_lock,
@@ -16501,21 +16315,21 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						'urut_misi' => $dataMisi->urut_misi,
 						'urut_tujuan' => $data['urut_tujuan'],
 						'visi_teks' => $dataVisi->visi_teks
-					],[
+					];
+
+					// update tujuan
+					$wpdb->update('data_rpjmd_tujuan_lokal', $dataTujuan, [
 						'id' => $data['id_tujuan']
 					]);
 
-					if(!$status){
-						throw new Exception('Terjadi kesalahan update data, hubungi admin');
-					}
-
-					$dataTujuan = $this->get_tujuan_rpjm($data);
+					// update tujuan di row indikator
+					$wpdb->update('data_rpjmd_tujuan_lokal', $dataTujuan, [
+						'id_tujuan' => $data['id_tujuan']
+					]);
 
 					echo json_encode([
 						'status' => true,
 						'message' => 'Sukses ubah tujuan rpjm',
-						'data' => $dataTujuan['html'],
-						'sql' => $dataTujuan['sql'],
 					]);exit;
 
 				}else{
@@ -16552,15 +16366,9 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 
 					$wpdb->get_results("delete from data_rpjmd_tujuan_lokal where id=".$_POST['id_tujuan']);
 
-					$data = $this->get_tujuan_rpjm([
-						'type' => 1,
-						'id_misi' => $_POST['id_misi']
-					]);
-
 					echo json_encode([
 						'status' => true,
-						'message' => 'Sukses hapus tujuan',
-						'data' => $data['html']
+						'message' => 'Sukses hapus tujuan'
 					]);exit;
 
 				}else{
@@ -16577,107 +16385,46 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		}
 	}
 
-	function kelola_indikator_tujuan_rpjm(){
+	function get_indikator_tujuan_rpjm(){
 		global $wpdb;
 
 		try{
 			if (!empty($_POST)) {
 				if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
 					
-					// ambil data indikator
-					$indikators = $wpdb->get_results("select * from data_rpjmd_tujuan_lokal where id_tujuan=".$_POST['id_tujuan']. " and id_unik is not null and id_unik_indikator is not null and is_locked_indikator=0 and status=1 and active=1", ARRAY_A);
+					if($_POST['type']==1){
+						$sql = $wpdb->prepare("
+							SELECT * FROM data_rpjmd_tujuan_lokal 
+								WHERE 
+									id_tujuan=%d AND 
+									id_unik IS NOT NULL AND 
+									id_unik_indikator IS NOT NULL AND 
+									is_locked_indikator=0 AND 
+									status=1 AND 
+									active=1", $_POST['id_tujuan']);
+						$indikator = $wpdb->get_results($sql, ARRAY_A);
+					}else{
 
-					if(empty($indikators)){
-						// ambil data tujuan
-						$indikators = $wpdb->get_results("select * from data_rpjmd_tujuan_lokal where id=".$_POST['id_tujuan']. " and id_unik is not null and id_unik_indikator is null and is_locked_indikator=0 and status=1 and active=1", ARRAY_A);
+						$tahun_anggaran = $_POST['tahun_anggaran'];
+						$sql = $wpdb->prepare("
+							SELECT 
+								* 
+							FROM data_rpjmd_tujuan
+							WHERE tahun_anggaran=%d AND 
+									id_tujuan=%d
+									id_unik IS NOT NULL AND 
+									id_unik_indikator IS NOT NULL AND 
+									is_locked_indikator=0 AND
+									active=1
+							ORDER BY urut_tujuan
+							", $tahun_anggaran, $_POST['id_tujuan']);
+						$indikator = $wpdb->get_results($sql, ARRAY_A);
 					}
-
-					$data = [];
-					foreach ($indikators as $key => $value) {
-						
-						if(empty($data[$value['id_unik']])){
-							$data[$value['id_unik']] = [
-								'id' => $value['id'],
-								'id_unik' => $value['id_unik'],
-								'tujuan_teks' => $value['tujuan_teks'],
-								'indikator'=> []
-							];
-						}
-
-						if(!is_null($value['id_unik_indikator'])){
-							if(empty($data[$value['id_unik']]['indikator'][$value['id_unik_indikator']])){
-								$data[$value['id_unik']]['indikator'][$value['id_unik_indikator']] = [
-									'id' => $value['id'],
-									'id_tujuan' => $value['id_tujuan'],
-									'id_unik_indikator' => $value['id_unik_indikator'],
-									'indikator_teks' => $value['indikator_teks'],
-									'satuan' => $value['satuan'],
-									'target_1' => $value['target_1'],
-									'target_2' => $value['target_2'],
-									'target_3' => $value['target_3'],
-									'target_4' => $value['target_4'],
-									'target_5' => $value['target_5'],
-									'target_awal' => $value['target_awal'],
-									'target_akhir' => $value['target_akhir'],
-								];
-							}
-						}
-					}
-
-					$html = '';
-					foreach ($data as $key => $tujuan) {
-						$html.="
-							<div class='row'>
-								<div class='col-lg-10'><h5>".$tujuan['tujuan_teks']."</h5></div>
-								<div class='col-lg-2 text-right'><button type=\"button\" class=\"btn btn-sm btn-primary mb-2 btn-add-indikator-tujuan\" data-idtujuan=\"'".$_POST['id_tujuan']."'\"><i class=\"dashicons dashicons-plus\" style=\"margin-top: 3px;\"></i> Tambah Indikator</button></div>
-							</div>
-							<table class='table'>
-								<thead>
-									<tr>
-										<th>No.</th>
-										<th>Indikator</th>
-										<th>Satuan</th>
-										<th>Target 1</th>
-										<th>Target 2</th>
-										<th>Target 3</th>
-										<th>Target 4</th>
-										<th>Target 5</th>
-										<th>Target Awal</th>
-										<th>Target Akhir</th>
-										<th>Aksi</th>
-									</tr>
-								</thead>
-								<tbody id='indikator_tujuan'>
-						";
-
-						$j=1;
-						foreach ($tujuan['indikator'] as $key => $indikator) {
-							$html.="
-								<tr>
-									<td>{$j}.</td>
-									<td>".$indikator['indikator_teks']."</td>
-									<td>".$indikator['satuan']."</td>
-									<td>".$indikator['target_1']."</td>
-									<td>".$indikator['target_2']."</td>
-									<td>".$indikator['target_3']."</td>
-									<td>".$indikator['target_4']."</td>
-									<td>".$indikator['target_5']."</td>
-									<td>".$indikator['target_awal']."</td>
-									<td>".$indikator['target_akhir']."</td>
-									<td>
-										<a href='#' class='btn btn-sm btn-success btn-edit-indikator-tujuan' data-idtujuan='".$indikator['id_tujuan']."' data-id='".$indikator['id']."'><i class=\"dashicons dashicons-edit\" style=\"margin-top: 3px;\"></i></a>&nbsp;
-										<a href='#' class='btn btn-sm btn-danger btn-delete-indikator-tujuan' data-idtujuan='".$indikator['id_tujuan']."' data-id='".$indikator['id']."'><i class=\"dashicons dashicons-trash\" style=\"margin-top: 3px;\"></i></a>&nbsp;
-									</td>
-								</tr>
-							";
-							$j++;
-						}
-					}
-					$html .= "</tbody></table>";
 
 					echo json_encode([
 						'status' => true,
-						'data' => $html
+						'data' => $indikator,
+						'message' => 'Sukses get indikator tujuan'
 					]);exit;
 
 				}else{
@@ -16702,8 +16449,6 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 				if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
 					
 					$data = json_decode(stripslashes($_POST['data']), true);
-
-					// $data['type'] = 1;
 
 					$this->verify_indikator_tujuan_rpjm($data);
 
@@ -16769,12 +16514,9 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						throw new Exception('Terjadi kesalahan saat simpan data, harap hubungi admin!');
 					}
 
-					$dataIndikatorTujuan = $this->get_indikator_tujuan_rpjm($data);
-
 					echo json_encode([
 						'status' => true,
-						'message' => 'Sukses simpan indikator tujuan',
-						'data' => $dataIndikatorTujuan['html'],
+						'message' => 'Sukses simpan indikator tujuan'
 					]);exit;
 
 				}else{
@@ -16886,12 +16628,9 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						throw new Exception('Terjadi kesalahan saat simpan data, harap hubungi admin!');
 					}
 
-					$dataIndikatorTujuan = $this->get_indikator_tujuan_rpjm($data);
-
 					echo json_encode([
 						'status' => true,
-						'message' => 'Sukses ubah indikator tujuan',
-						'data' => $dataIndikatorTujuan['html'],
+						'message' => 'Sukses ubah indikator tujuan'
 					]);exit;
 
 				}else{
@@ -16916,15 +16655,9 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 					
 					$wpdb->get_results("delete from data_rpjmd_tujuan_lokal where id=".$_POST['id'] . " and id_unik_indikator is not null and active=1 and status=1");
 
-					$data = $this->get_indikator_tujuan_rpjm([
-						'type' => 1,
-						'id_tujuan' => $_POST['id_tujuan']
-					]);
-
 					echo json_encode([
 						'status' => true,
-						'message' => 'Sukses hapus tujuan',
-						'data' => $data['html']
+						'message' => 'Sukses hapus tujuan'
 					]);exit;
 
 				}else{
@@ -16983,62 +16716,40 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		}		
 	}
 
-	function get_indikator_tujuan_rpjm(array $input){
-		
-		global $wpdb;
-
-		$data = $wpdb->get_results("select * from data_rpjmd_tujuan_lokal where id_tujuan=".$input['id_tujuan']." and id_unik_indikator is not null  and active=1 and is_locked_indikator=0 and status=1 order by id", ARRAY_A);
-
-		$html = "";
-		$j=1;
-		foreach ($data as $key => $indikator) {
-			$html.="
-					<tr>
-						<td>{$j}.</td>
-						<td>".$indikator['indikator_teks']."</td>
-						<td>".$indikator['satuan']."</td>
-						<td>".$indikator['target_1']."</td>
-						<td>".$indikator['target_2']."</td>
-						<td>".$indikator['target_3']."</td>
-						<td>".$indikator['target_4']."</td>
-						<td>".$indikator['target_5']."</td>
-						<td>".$indikator['target_awal']."</td>
-						<td>".$indikator['target_akhir']."</td>
-						<td>
-							<a href='#' class='btn btn-sm btn-success btn-edit-indikator-tujuan' data-idtujuan='".$indikator['id_tujuan']."' data-id='".$indikator['id']."'><i class=\"dashicons dashicons-edit\" style=\"margin-top: 3px;\"></i></a>&nbsp;
-							<a href='#' class='btn btn-sm btn-danger btn-delete-indikator-tujuan' data-idtujuan='".$indikator['id_tujuan']."' data-id='".$indikator['id']."'><i class=\"dashicons dashicons-trash\" style=\"margin-top: 3px;\"></i></a>&nbsp;
-						</td>
-					</tr>";
-			$j++;
-		}
-
-		return [
-			'data' => $data,
-			'html' => $html,
-		];
-	}
-
-	function tujuan_detail(){
+	function get_sasaran_rpjm(){
 		global $wpdb;
 		if (!empty($_POST)) {
 			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
 
-				$tujuan = $wpdb->get_row("
-					SELECT * FROM data_rpjmd_tujuan_lokal
-						WHERE id_unik='".$_POST['kode_tujuan']."'");
-
-				$sasaran = $wpdb->get_results("
-					SELECT * FROM data_rpjmd_sasaran_lokal
-						WHERE kode_tujuan='".$_POST['kode_tujuan']."' AND
-							id_unik is not null and
-							id_unik_indikator is null and
-							status=1 AND 
-							is_locked=0 AND 
-							active=1 ORDER BY id", ARRAY_A);
+				if($_POST['type'] == 1){
+					$sql = $wpdb->prepare("
+						select 
+							* 
+						from data_rpjmd_sasaran_lokal
+						where is_locked=0
+							AND kode_tujuan='".$_POST['kode_tujuan']."'
+							AND id_unik IS NOT NULL
+							AND id_unik_indikator IS NULL
+							AND is_locked=0
+							AND status=1
+							AND active=1
+					");
+					$sasaran = $wpdb->get_results($sql, ARRAY_A);
+				}else{
+					$tahun_anggaran = $_POST['tahun_anggaran'];
+					$sql = $wpdb->prepare("
+								select 
+									* 
+								from data_rpjmd_sasaran
+								where tahun_anggaran=%d
+									and kode_tujuan=%s
+									and active=1
+							", $tahun_anggaran, $_POST['kode_tujuan']);
+					$sasaran = $wpdb->get_results($sql, ARRAY_A);
+				}
 
 				echo json_encode([
 					'status' => true,
-					'tujuan_teks' => $tujuan->tujuan_teks,
 					'data' => $sasaran,
 					'message' => 'Sukses get sasaran by tujuan'
 				]);exit;
@@ -17056,57 +16767,6 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		]);exit;		
 	}
 
-	function get_sasaran_rpjm(array $input){
-		global $wpdb;
-		
-		$type = $input['type'];
-		if($type == 1){
-					$sql = $wpdb->prepare("
-						select 
-							* 
-						from data_rpjmd_sasaran_lokal
-						where is_locked=0
-							AND kode_tujuan='".$input['kode_tujuan']."'
-							AND id_unik IS NOT NULL
-							AND id_unik_indikator IS NULL
-							AND is_locked=0
-							AND status=1
-							AND active=1
-					");
-			$data = $wpdb->get_results($sql, ARRAY_A);
-		}else{
-			$tahun_anggaran = $input['tahun_anggaran'];
-			$sql = $wpdb->prepare("
-						select 
-							* 
-						from data_rpjmd_sasaran
-						where tahun_anggaran=%d
-							and active=1
-					", $tahun_anggaran);
-			$data = $wpdb->get_results($sql, ARRAY_A);
-		}
-
-		$i=1;
-		$html = "";
-		foreach($data as $key => $value){
-			$html.='<tr>
-						<td>'.$i.'.</td>
-						<td>'.$value['sasaran_teks'].'</td>
-						<td>
-							<a href="javascript:void(0)" data-idsasaran="'.$value['id'].'" class="btn btn-sm btn-warning btn-add-indikator-sasaran"><i class="dashicons dashicons-arrow-up-alt" style="margin-top: 3px;"></i> Indikator</a>&nbsp;
-							<a href="javascript:void(0)" data-kode="'.$value['id_unik'].'" class="btn btn-sm btn-primary btn-detail-sasaran"><i class="dashicons dashicons-search" style="margin-top: 3px;"></i></a>&nbsp;
-							<a href="javascript:void(0)" data-id="'.$value['id'].'" class="btn btn-sm btn-success btn-edit-sasaran"><i class="dashicons dashicons-edit" style="margin-top: 3px;"></i></a>&nbsp;
-							<a href="javascript:void(0)" data-id="'.$value['id'].'" data-kodesasaran="'.$value['id_unik'].'" data-kodetujuan="'.$value['kode_tujuan'].'" class="btn btn-sm btn-danger btn-hapus-sasaran btn-hapus-sasaran"><i class="dashicons dashicons-trash" style="margin-top: 3px;"></i></a>
-						</td>
-					</tr>';
-			$i++;
-		}
-		return [
-			'html' => $html,
-			'sql' => $sql
-		];
-	}
-
 	function submit_sasaran_rpjm(){
 		global $wpdb;
 
@@ -17115,8 +16775,6 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 				if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
 					
 					$data = json_decode(stripslashes($_POST['data']), true);
-
-					$data['type'] = 1;
 
 					if(empty($data['kode_tujuan'])){
 						throw new Exception('Tujuan wajib dipilih!');
@@ -17184,11 +16842,8 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						throw new Exception('Terjadi kesalahan saat simpan data, harap hubungi admin!');
 					}
 
-					$dataSasaran = $this->get_sasaran_rpjm($data);
-
 					echo json_encode([
 						'status' => true,
-						'data' => $dataSasaran['html'],
 						'message' => 'Sukses simpan sasaran'
 					]);exit;
 
@@ -17212,8 +16867,8 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
 
 				$sasaran = $wpdb->get_row("
-					SELECT * FROM data_rpjmd_sasaran_lokal
-						WHERE id=".$_POST['id']."
+					SELECT *, (SELECT id FROM data_rpjmd_tujuan_lokal WHERE id_unik=data_rpjmd_sasaran_lokal.kode_tujuan AND id_unik_indikator is null and active=1 and status=1) id_tujuan FROM data_rpjmd_sasaran_lokal
+						WHERE id=".$_POST['id_sasaran']."
 							AND id_unik IS NOT NULL
 							AND id_unik_indikator IS NULL
 							AND is_locked=0
@@ -17248,8 +16903,6 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 				if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
 					
 					$data = json_decode(stripslashes($_POST['data']), true);
-
-					$data['type'] = 1;
 
 					if(empty($data['kode_tujuan'])){
 						throw new Exception('Tujuan wajib dipilih!');
@@ -17297,7 +16950,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						throw new Exception('Sasaran tidak terhubung ke Visi, mohon cek relasi antara tujuan dan misi Rpjm');
 					}
 
-					$status = $wpdb->update('data_rpjmd_sasaran_lokal', [
+					$dataSasaran = [
 						'misi_teks' => $dataMisi->misi_teks,
 						'sasaran_teks' => $data['sasaran_teks'],
 						'tujuan_lock' => $dataTujuan->tujuan_lock,
@@ -17306,15 +16959,20 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						'urut_sasaran' => $data['urut_sasaran'],
 						'urut_tujuan' => $dataTujuan->urut_tujuan,
 						'visi_teks' => $dataVisi->visi_teks
-					], [
+					];
+
+					// ubah sasaran
+					$wpdb->update('data_rpjmd_sasaran_lokal', $dataSasaran, [
 						'id' => $data['id_sasaran']
 					]);
 
-					$dataSasaran = $this->get_sasaran_rpjm($data);
+					// ubah sasaran di row indikator
+					$wpdb->update('data_rpjmd_sasaran_lokal', $dataSasaran, [
+						'id_sasaran' => $data['id_sasaran']
+					]);
 
 					echo json_encode([
 						'status' => true,
-						'data' => $dataSasaran['html'],
 						'message' => 'Sukses ubah sasaran'
 					]);exit;
 
@@ -17352,15 +17010,10 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 
 					$wpdb->get_results("delete from data_rpjmd_sasaran_lokal where id=".$_POST['id_sasaran']);
 
-					$data = $this->get_sasaran_rpjm([
-						'type' => 1,
-						'kode_tujuan' => $_POST['kode_tujuan']
-					]);
 
 					echo json_encode([
 						'status' => true,
-						'message' => 'Sukses hapus sasaran',
-						'data' => $data['html']
+						'message' => 'Sukses hapus sasaran'
 					]);exit;
 
 				}else{
@@ -17377,107 +17030,45 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		}
 	}
 
-	function kelola_indikator_sasaran_rpjm(){
+	function get_indikator_sasaran_rpjm(){
 		global $wpdb;
 
 		try{
 			if (!empty($_POST)) {
 				if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
 					
-					// ambil data indikator
-					$indikators = $wpdb->get_results("select * from data_rpjmd_sasaran_lokal where id_sasaran=".$_POST['id_sasaran']. " and id_unik is not null and id_unik_indikator is not null and is_locked_indikator=0 and status=1 and active=1", ARRAY_A);
-
-					if(empty($indikators)){
-						// ambil data sasaran
-						$indikators = $wpdb->get_results("select * from data_rpjmd_sasaran_lokal where id=".$_POST['id_sasaran']. " and id_unik is not null and id_unik_indikator is null and is_locked_indikator=0 and status=1 and active=1", ARRAY_A);
+					if($_POST['type'] == 1){
+						$sql = $wpdb->prepare("
+							SELECT * FROM data_rpjmd_sasaran_lokal 
+								WHERE 
+									id_sasaran=%d AND 
+									id_unik IS NOT NULL AND 
+									id_unik_indikator IS NOT NULL AND 
+									is_locked_indikator=0 AND 
+									status=1 AND 
+									active=1", $_POST['id_sasaran']);
+						$indikator = $wpdb->get_results($sql, ARRAY_A);
+					}else{
+						$tahun_anggaran = $_POST['tahun_anggaran'];
+						$sql = $wpdb->prepare("
+							SELECT 
+								* 
+							FROM data_rpjmd_sasaran
+							WHERE tahun_anggaran=%d AND 
+									id_sasaran=%d
+									id_unik IS NOT NULL AND 
+									id_unik_indikator IS NOT NULL AND 
+									is_locked_indikator=0 AND
+									active=1
+							ORDER BY urut_sasaran
+							", $tahun_anggaran, $_POST['id_sasaran']);
+						$indikator = $wpdb->get_results($sql, ARRAY_A);
 					}
-
-					$data = [];
-					foreach ($indikators as $key => $value) {
-						
-						if(empty($data[$value['id_unik']])){
-							$data[$value['id_unik']] = [
-								'id' => $value['id'],
-								'id_unik' => $value['id_unik'],
-								'sasaran_teks' => $value['sasaran_teks'],
-								'indikator'=> []
-							];
-						}
-
-						if(!is_null($value['id_unik_indikator'])){
-							if(empty($data[$value['id_unik']]['indikator'][$value['id_unik_indikator']])){
-								$data[$value['id_unik']]['indikator'][$value['id_unik_indikator']] = [
-									'id' => $value['id'],
-									'id_sasaran' => $value['id_sasaran'],
-									'id_unik_indikator' => $value['id_unik_indikator'],
-									'indikator_teks' => $value['indikator_teks'],
-									'satuan' => $value['satuan'],
-									'target_1' => $value['target_1'],
-									'target_2' => $value['target_2'],
-									'target_3' => $value['target_3'],
-									'target_4' => $value['target_4'],
-									'target_5' => $value['target_5'],
-									'target_awal' => $value['target_awal'],
-									'target_akhir' => $value['target_akhir'],
-								];
-							}
-						}
-					}
-
-					$html = '';
-					foreach ($data as $key => $sasaran) {
-						$html.="
-							<div class='row'>
-								<div class='col-lg-10'><h5>".$sasaran['sasaran_teks']."</h5></div>
-								<div class='col-lg-2 text-right'><button type=\"button\" class=\"btn btn-sm btn-primary mb-2 btn-add-indikator-sasaran\" data-idsasaran=\"'".$_POST['id_sasaran']."'\"><i class=\"dashicons dashicons-plus\" style=\"margin-top: 3px;\"></i> Tambah Indikator</button></div>
-							</div>
-							<table class='table'>
-								<thead>
-									<tr>
-										<th>No.</th>
-										<th>Indikator</th>
-										<th>Satuan</th>
-										<th>Target 1</th>
-										<th>Target 2</th>
-										<th>Target 3</th>
-										<th>Target 4</th>
-										<th>Target 5</th>
-										<th>Target Awal</th>
-										<th>Target Akhir</th>
-										<th>Aksi</th>
-									</tr>
-								</thead>
-								<tbody id='indikator_sasaran'>
-						";
-
-						$j=1;
-						foreach ($sasaran['indikator'] as $key => $indikator) {
-							$html.="
-								<tr>
-									<td>{$j}.</td>
-									<td>".$indikator['indikator_teks']."</td>
-									<td>".$indikator['satuan']."</td>
-									<td>".$indikator['target_1']."</td>
-									<td>".$indikator['target_2']."</td>
-									<td>".$indikator['target_3']."</td>
-									<td>".$indikator['target_4']."</td>
-									<td>".$indikator['target_5']."</td>
-									<td>".$indikator['target_awal']."</td>
-									<td>".$indikator['target_akhir']."</td>
-									<td>
-										<a href='#' class='btn btn-sm btn-success btn-edit-indikator-sasaran' data-idsasaran='".$indikator['id_sasaran']."' data-id='".$indikator['id']."'><i class=\"dashicons dashicons-edit\" style=\"margin-top: 3px;\"></i></a>&nbsp;
-										<a href='#' class='btn btn-sm btn-danger btn-delete-indikator-sasaran' data-idsasaran='".$indikator['id_sasaran']."' data-id='".$indikator['id']."'><i class=\"dashicons dashicons-trash\" style=\"margin-top: 3px;\"></i></a>&nbsp;
-									</td>
-								</tr>
-							";
-							$j++;
-						}
-					}
-					$html .= "</tbody></table>";
 
 					echo json_encode([
 						'status' => true,
-						'data' => $html
+						'data' => $indikator,
+						'message' => 'Sukses get indikator sasaran'
 					]);exit;
 
 				}else{
@@ -17492,40 +17083,6 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 				'message' => $e->getMessage()
 			]);exit;
 		}
-	}
-
-	function get_indikator_sasaran_rpjm(array $input){
-		global $wpdb;
-
-		$data = $wpdb->get_results("select * from data_rpjmd_sasaran_lokal where id_sasaran=".$input['id_sasaran']." and id_unik_indikator is not null and active=1 and is_locked_indikator=0 and status=1 order by id", ARRAY_A);
-
-		$html = "";
-		$j=1;
-		foreach ($data as $key => $indikator) {
-			$html.="
-					<tr>
-						<td>{$j}.</td>
-						<td>".$indikator['indikator_teks']."</td>
-						<td>".$indikator['satuan']."</td>
-						<td>".$indikator['target_1']."</td>
-						<td>".$indikator['target_2']."</td>
-						<td>".$indikator['target_3']."</td>
-						<td>".$indikator['target_4']."</td>
-						<td>".$indikator['target_5']."</td>
-						<td>".$indikator['target_awal']."</td>
-						<td>".$indikator['target_akhir']."</td>
-						<td>
-							<a href='#' class='btn btn-sm btn-success btn-edit-indikator-sasaran' data-idsasaran='".$indikator['id_sasaran']."' data-id='".$indikator['id']."'><i class=\"dashicons dashicons-edit\" style=\"margin-top: 3px;\"></i></a>&nbsp;
-							<a href='#' class='btn btn-sm btn-danger btn-delete-indikator-sasaran' data-idsasaran='".$indikator['id_sasaran']."' data-id='".$indikator['id']."'><i class=\"dashicons dashicons-trash\" style=\"margin-top: 3px;\"></i></a>&nbsp;
-						</td>
-					</tr>";
-			$j++;
-		}
-
-		return [
-			'data' => $data,
-			'html' => $html,
-		];
 	}
 
 	function submit_indikator_sasaran_rpjm(){
@@ -17612,12 +17169,9 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						throw new Exception('Terjadi kesalahan saat simpan data, harap hubungi admin!');
 					}
 
-					$dataIndikatorSasaran = $this->get_indikator_sasaran_rpjm($data);
-
 					echo json_encode([
 						'status' => true,
-						'message' => 'Sukses simpan indikator sasaran',
-						'data' => $dataIndikatorSasaran['html'],
+						'message' => 'Sukses simpan indikator sasaran'
 					]);exit;
 
 				}else{
@@ -17738,12 +17292,9 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						throw new Exception('Terjadi kesalahan saat simpan data, harap hubungi admin!');
 					}
 
-					$dataIndikatorSasaran = $this->get_indikator_sasaran_rpjm($data);
-
 					echo json_encode([
 						'status' => true,
-						'message' => 'Sukses ubah indikator sasaran',
-						'data' => $dataIndikatorSasaran['html'],
+						'message' => 'Sukses ubah indikator sasaran'
 					]);exit;
 
 				}else{
@@ -17768,15 +17319,9 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 					
 					$wpdb->get_results("delete from data_rpjmd_sasaran_lokal where id=".$_POST['id'] . " and id_unik_indikator is not null and active=1 and status=1");
 
-					$data = $this->get_indikator_sasaran_rpjm([
-						'type' => 1,
-						'id_sasaran' => $_POST['id_sasaran']
-					]);
-
 					echo json_encode([
 						'status' => true,
-						'message' => 'Sukses hapus indikator sasaran',
-						'data' => $data['html']
+						'message' => 'Sukses hapus indikator sasaran'
 					]);exit;
 
 				}else{
@@ -17835,126 +17380,43 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		}		
 	}
 
-	function sasaran_detail(){
+	function get_program_rpjm(){
+
 		global $wpdb;
 		if (!empty($_POST)) {
 			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
-
-				$sasaran = $wpdb->get_row("
-					SELECT * FROM data_rpjmd_sasaran_lokal
-						WHERE id_unik='".$_POST['kode_sasaran']."'");
-
-				$program = $wpdb->get_results("
-					SELECT * FROM data_rpjmd_program_lokal
-						WHERE kode_sasaran='".$_POST['kode_sasaran']."' AND
-							id_unik is not null and
-							id_unik_indikator is null and
-							status=1 AND 
-							is_locked=0 AND 
-							active=1 ORDER BY id", ARRAY_A);
-
-				$data = [];
-				foreach($program as $key => $value){
-					
-					if(empty($data[$value['id_unik']])){
-						$data[$value['id_unik']] = [
-							'kode_sasaran' => $value['kode_sasaran'],
-							'id_unik' => $value['id_unik'],
-							'program_teks' => $value['nama_program'],
-						];
-					}
+				if($_POST['type'] == 1){
+					$sql = $wpdb->prepare("
+						SELECT * FROM data_rpjmd_program_lokal
+							WHERE kode_sasaran='".$_POST['kode_sasaran']."' AND
+								id_unik is not null and
+								id_unik_indikator is null and
+								status=1 AND 
+								is_locked=0 AND 
+								active=1 ORDER BY id
+						");
+					$program = $wpdb->get_results($sql, ARRAY_A);
+				}else{
+					$tahun_anggaran = $_POST['tahun_anggaran'];
+					$sql = $wpdb->prepare("
+								select 
+									* 
+								from data_rpjmd_program
+								where tahun_anggaran=%d
+									kode_sasaran=%s
+									id_unik IS NOT NULL AND
+									id_unik_indikator IS NULL AND
+									status=1 AND 
+									is_locked=0 AND
+									active=1
+							", $tahun_anggaran, $_POST['kode_sasaran']);
+					$program = $wpdb->get_results($sql, ARRAY_A);
 				}
 
 				echo json_encode([
 					'status' => true,
-					'sasaran_teks' => $sasaran->sasaran_teks,
-					'data' => $data,
+					'data' => $program,
 					'message' => 'Sukses get program by sasaran'
-				]);exit;
-			}
-
-			echo json_encode([
-				'status' => false,
-				'message' => 'Api key tidak sesuai'
-			]);exit;
-		}
-
-		echo json_encode([
-			'status' => false,
-			'message' => 'Format tidak sesuai'
-		]);exit;		
-	}
-
-	function add_program_rpjm(){
-		global $wpdb;
-		$ret = array(
-			'status'	=> 'success',
-			'message'	=> 'Add program RPJM!'
-		);
-		if (!empty($_POST)) {
-			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
-				
-				$tahun_anggaran = $_POST['tahun_anggaran'] ?? date('Y');
-				$ret['units'] = $wpdb->get_results("SELECT * FROM data_unit WHERE tahun_anggaran=".$tahun_anggaran." and active=1 and is_skpd=1 order by id_skpd ASC;", ARRAY_A);
-			}else{
-				$ret = array(
-					'status' => 'error',
-					'message'	=> 'Api Key tidak sesuai!'
-				);
-			}
-		}else{
-			$ret = array(
-				'status' => 'error',
-				'message'	=> 'Format tidak sesuai!'
-			);
-		}
-		die(json_encode($ret));
-	}
-
-	function edit_program_rpjm(){
-		global $wpdb;
-		if (!empty($_POST)) {
-			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
-
-				$units = $wpdb->get_results("SELECT * FROM data_unit WHERE tahun_anggaran=".date('Y')." and active=1 and is_skpd=1 order by id_skpd ASC;", ARRAY_A);
-
-				$dataRaw = $wpdb->get_results("
-					SELECT * FROM data_rpjmd_program_lokal
-						WHERE id_unik='".$_POST['id_unik']."'
-							AND id_unik_indikator IS NULL
-							AND is_locked=0
-							AND active=1
-							AND status=1
-						", ARRAY_A);
-
-				$data = [];
-				$selectedUnit = [];
-				foreach ($dataRaw as $key => $value) {
-					
-					if(empty($data[$value['id_unik']])){
-
-						$data[$value['id_unik']] = [
-							'kode_sasaran' => $value['kode_sasaran'],
-							'id_unik' => $value['id_unik'], // kode_program
-							'program_teks' => $value['nama_program'],
-							'pagu_1' => $value['pagu_1'],
-							'pagu_2' => $value['pagu_2'],
-							'pagu_3' => $value['pagu_3'],
-							'pagu_4' => $value['pagu_4'],
-							'pagu_5' => $value['pagu_5']
-						];
-					}
-					$selectedUnit[] = $value['id_unit'];
-				}
-
-				$data = array_values($data);
-
-				echo json_encode([
-					'status' => true,
-					'data' => $data[0],
-					'units' => $units,
-					'selectedUnit' => $selectedUnit,
-					'message' => 'Sukses get program by id_unik'
 				]);exit;
 			}
 
@@ -17970,67 +17432,29 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		]);exit;
 	}
 
-	function get_program_rpjm(array $input){
+	function add_program_rpjm(){
 		global $wpdb;
-		
-		$type = $input['type'];
-		if($type == 1){
-					$sql = $wpdb->prepare("
-						select 
-							* 
-						from data_rpjmd_program_lokal
-						where is_locked=0
-							AND kode_sasaran='".$input['kode_sasaran']."'
-							AND id_unik IS NOT NULL
-							AND id_unik_indikator IS NULL
-							AND is_locked=0
-							AND status=1
-							AND active=1
-					");
-			$dataRaw = $wpdb->get_results($sql, ARRAY_A);
-		}else{
-			$tahun_anggaran = $input['tahun_anggaran'];
-			$sql = $wpdb->prepare("
-						select 
-							* 
-						from data_rpjmd_program
-						where tahun_anggaran=%d
-							and active=1
-					", $tahun_anggaran);
-			$dataRaw = $wpdb->get_results($sql, ARRAY_A);
-		}
-
-		$data = [];
-		foreach($dataRaw as $key => $value){
-			
-			if(empty($data[$value['id_unik']])){
-				$data[$value['id_unik']] = [
-					'kode_sasaran' => $value['kode_sasaran'],
-					'id_unik' => $value['id_unik'],
-					'program_teks' => $value['nama_program'],
-				];
+		$ret = array(
+			'status'	=> 'success',
+			'message'	=> 'Add program RPJM!'
+		);
+		if (!empty($_POST)) {
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+				
+				$ret['units'] = $wpdb->get_results("SELECT * FROM data_unit WHERE tahun_anggaran=".get_option('_crb_tahun_anggaran_sipd')." and active=1 and is_skpd=1 order by id_skpd ASC;", ARRAY_A);
+			}else{
+				$ret = array(
+					'status' => 'error',
+					'message'	=> 'Api Key tidak sesuai!'
+				);
 			}
+		}else{
+			$ret = array(
+				'status' => 'error',
+				'message'	=> 'Format tidak sesuai!'
+			);
 		}
-
-		$i=1;
-		$html = "";
-		foreach ($data as $key => $value) {
-			$html.='<tr>
-						<td>'.$i.'.</td>
-						<td>'.$value['program_teks'].'</td>
-						<td>
-							<a href="javascript:void(0)" data-kode="'.$value['id_unik'].'" class="btn btn-sm btn-warning btn-add-indikator-program"><i class="dashicons dashicons-arrow-up-alt" style="margin-top: 3px;"></i> Indikator</a>&nbsp;
-							<a href="javascript:void(0)" data-kode="'.$value['id_unik'].'" class="btn btn-sm btn-success btn-edit-program"><i class="dashicons dashicons-edit" style="margin-top: 3px;"></i></a>&nbsp;
-							<a href="javascript:void(0)" data-kode="'.$value['id_unik'].'" data-kodesasaran="'.$value['kode_sasaran'].'" class="btn btn-sm btn-danger btn-hapus-program"><i class="dashicons dashicons-trash" style="margin-top: 3px;"></i></a>
-						</td>
-					</tr>';
-			$i++;
-		}
-
-		return [
-			'html' => $html,
-			'sql' => $sql
-		];
+		die(json_encode($ret));
 	}
 
 	function submit_program_rpjm(){
@@ -18045,9 +17469,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 
 					$this->verify_program_rpjm($data);
 
-					// tahunnya perlu di otomatiskan
-					$dataUnit = $wpdb->get_results("SELECT * FROM data_unit WHERE id_unit in (".implode(",", $data['id_unit']).") and tahun_anggaran=".date('Y')." and active=1 and is_skpd=1 order by id_skpd ASC;");
-
+					$dataUnit = $wpdb->get_results("SELECT * FROM data_unit WHERE id_unit in (".implode(",", $data['id_unit']).") and tahun_anggaran=".get_option('_crb_tahun_anggaran_sipd')." and active=1 and is_skpd=1 order by id_skpd ASC;");
 
 					if(empty($dataUnit)){
 						throw new Exception("Unit kerja yang dipilih tidak ada di tahun anggaran ".date('Y'), 1);
@@ -18132,13 +17554,8 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 
 						$wpdb->query('COMMIT');
 
-						$data['type'] = 1;
-
-						$dataProgram = $this->get_program_rpjm($data);
-
 						echo json_encode([
 							'status' => true,
-							'data' => $dataProgram['html'],
 							'message' => 'Sukses simpan program'
 						]);exit;
 
@@ -18161,6 +17578,65 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 				'message' => $e->getMessage()
 			]);exit;
 		}
+	}
+
+	function edit_program_rpjm(){
+		global $wpdb;
+		if (!empty($_POST)) {
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+
+				$units = $wpdb->get_results("SELECT * FROM data_unit WHERE tahun_anggaran=".date('Y')." and active=1 and is_skpd=1 order by id_skpd ASC;", ARRAY_A);
+
+				$dataRaw = $wpdb->get_results("
+					SELECT * FROM data_rpjmd_program_lokal
+						WHERE id_unik='".$_POST['id_unik']."'
+							AND id_unik_indikator IS NULL
+							AND is_locked=0
+							AND active=1
+							AND status=1
+						", ARRAY_A);
+
+				$data = [];
+				$selectedUnit = [];
+				foreach ($dataRaw as $key => $value) {
+					
+					if(empty($data[$value['id_unik']])){
+
+						$data[$value['id_unik']] = [
+							'kode_sasaran' => $value['kode_sasaran'],
+							'id_unik' => $value['id_unik'], // kode_program
+							'program_teks' => $value['nama_program'],
+							'pagu_1' => $value['pagu_1'],
+							'pagu_2' => $value['pagu_2'],
+							'pagu_3' => $value['pagu_3'],
+							'pagu_4' => $value['pagu_4'],
+							'pagu_5' => $value['pagu_5']
+						];
+					}
+					$selectedUnit[] = $value['id_unit'];
+				}
+
+				$data = array_values($data);
+
+				echo json_encode([
+					'status' => true,
+					'data' => $data[0],
+					'units' => $units,
+					'selectedUnit' => $selectedUnit,
+					'message' => 'Sukses get program by id_unik'
+				]);exit;
+			}
+
+			echo json_encode([
+				'status' => false,
+				'message' => 'Api key tidak sesuai'
+			]);exit;
+		}
+
+		echo json_encode([
+			'status' => false,
+			'message' => 'Format tidak sesuai'
+		]);exit;
 	}
 
 	function update_program_rpjm(){
@@ -18222,7 +17698,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 
 						$wpdb->query('START TRANSACTION');
 
-						$dataUnitDb = $wpdb->get_results("select id_unit from data_rpjmd_program_lokal where id_unik='".$data['id_unik']."'");
+						$dataUnitDb = $wpdb->get_results("select id_unit from data_rpjmd_program_lokal where id_unik='".$data['id_unik']."' and id_unik_indikator is null and status=1 and active=1 and is_locked=0 and is_locked_indikator=0");
 
 						$unitDb = [];
 						foreach ($dataUnitDb as $key => $value) {
@@ -18305,13 +17781,8 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 
 						$wpdb->query('COMMIT');
 
-						$data['type'] = 1;
-
-						$dataProgram = $this->get_program_rpjm($data);
-
 						echo json_encode([
 							'status' => true,
-							'data' => $dataProgram['html'],
 							'message' => 'Sukses simpan program'
 						]);exit;
 
@@ -18355,15 +17826,9 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 
 					$wpdb->get_results("delete from data_rpjmd_program_lokal where id_unik='".$_POST['kode_program']."'");
 
-					$data = $this->get_program_rpjm([
-						'type' => 1,
-						'kode_sasaran' => $_POST['kode_sasaran']
-					]);
-
 					echo json_encode([
 						'status' => true,
-						'message' => 'Sukses hapus program',
-						'data' => $data['html']
+						'message' => 'Sukses hapus program'
 					]);exit;
 
 				}else{
@@ -18414,107 +17879,44 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		}
 	}
 
-	function kelola_indikator_program_rpjm(){
+	function get_indikator_program_rpjm(){
+		
 		global $wpdb;
 
 		try{
 			if (!empty($_POST)) {
 				if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
-					
-					// ambil data indikator
-					$indikators = $wpdb->get_results("select * from data_rpjmd_program_lokal where id_unik='".$_POST['kode_program']."' and id_unik is not null and id_unik_indikator is not null and is_locked_indikator=0 and status=1 and active=1", ARRAY_A);
 
-					if(empty($indikators)){
-						// ambil data program
-						$indikators = $wpdb->get_results("select * from data_rpjmd_program_lokal where id_unik='".$_POST['kode_program']."' and id_unik is not null and id_unik_indikator is null and is_locked_indikator=0 and status=1 and active=1", ARRAY_A);
+					if($_POST['type'] == 1){
+						$sql = $wpdb->prepare("
+							SELECT * FROM data_rpjmd_program_lokal 
+								WHERE 
+									id_unik=%s AND 
+									id_unik_indikator IS NOT NULL AND 
+									is_locked_indikator=0 AND 
+									status=1 AND 
+									active=1", $_POST['kode_program']);
+						$indikator = $wpdb->get_results($sql, ARRAY_A);
+					}else{
+						$tahun_anggaran = $_POST['tahun_anggaran'];
+						$sql = $wpdb->prepare("
+							SELECT 
+								* 
+							FROM data_rpjmd_program
+							WHERE tahun_anggaran=%d AND 
+									id_unik=%s
+									id_unik_indikator IS NOT NULL AND 
+									is_locked_indikator=0 AND
+									active=1
+							ORDER BY urut_sasaran
+							", $tahun_anggaran, $_POST['kode_program']);
+						$indikator = $wpdb->get_results($sql, ARRAY_A);
 					}
-
-					$data = [];
-					foreach ($indikators as $key => $value) {
-
-						if(empty($data[$value['id_unik']])){
-							$data[$value['id_unik']] = [
-								'id_unik' => $value['id_unik'],
-								'program_teks' => $value['nama_program'],
-								'indikator'=> []
-							];
-						}
-
-						if(!is_null($value['id_unik_indikator'])){
-							if(empty($data[$value['id_unik']]['indikator'][$value['id_unik_indikator']])){
-								$data[$value['id_unik']]['indikator'][$value['id_unik_indikator']] = [
-									'id' => $value['id'],
-									'id_unik' => $value['id_unik'],
-									'id_unik_indikator' => $value['id_unik_indikator'],
-									'indikator_teks' => $value['indikator'],
-									'satuan' => $value['satuan'],
-									'target_1' => $value['target_1'],
-									'target_2' => $value['target_2'],
-									'target_3' => $value['target_3'],
-									'target_4' => $value['target_4'],
-									'target_5' => $value['target_5'],
-									'target_awal' => $value['target_awal'],
-									'target_akhir' => $value['target_akhir'],
-								];
-							}
-						}
-					}
-			
-
-					$html = '';
-					foreach ($data as $key => $program) {
-						$html.="
-							<div class='row'>
-								<div class='col-lg-10'><h5>".$program['program_teks']."</h5></div>
-								<div class='col-lg-2 text-right'><button type=\"button\" class=\"btn btn-sm btn-primary mb-2 btn-add-indikator-program\" data-kode=\"'".$_POST['kode_program']."'\"><i class=\"dashicons dashicons-plus\" style=\"margin-top: 3px;\"></i> Tambah Indikator</button></div>
-							</div>
-							<table class='table'>
-								<thead>
-									<tr>
-										<th>No.</th>
-										<th>Indikator</th>
-										<th>Satuan</th>
-										<th>Target 1</th>
-										<th>Target 2</th>
-										<th>Target 3</th>
-										<th>Target 4</th>
-										<th>Target 5</th>
-										<th>Target Awal</th>
-										<th>Target Akhir</th>
-										<th>Aksi</th>
-									</tr>
-								</thead>
-								<tbody id='indikator_program'>
-						";
-
-						$j=1;
-						foreach ($program['indikator'] as $key => $indikator) {
-							$html.="
-								<tr>
-									<td>{$j}.</td>
-									<td>".$indikator['indikator_teks']."</td>
-									<td>".$indikator['satuan']."</td>
-									<td>".$indikator['target_1']."</td>
-									<td>".$indikator['target_2']."</td>
-									<td>".$indikator['target_3']."</td>
-									<td>".$indikator['target_4']."</td>
-									<td>".$indikator['target_5']."</td>
-									<td>".$indikator['target_awal']."</td>
-									<td>".$indikator['target_akhir']."</td>
-									<td>
-										<a href='#' class='btn btn-sm btn-success btn-edit-indikator-program' data-kode='".$indikator['id_unik']."' data-id='".$indikator['id']."'><i class=\"dashicons dashicons-edit\" style=\"margin-top: 3px;\"></i></a>&nbsp;
-										<a href='#' class='btn btn-sm btn-danger btn-delete-indikator-program' data-kode='".$indikator['id_unik']."' data-id='".$indikator['id']."'><i class=\"dashicons dashicons-trash\" style=\"margin-top: 3px;\"></i></a>&nbsp;
-									</td>
-								</tr>
-							";
-							$j++;
-						}
-					}
-					$html .= "</tbody></table>";
 
 					echo json_encode([
 						'status' => true,
-						'data' => $html
+						'data' => $indikator,
+						'message' => 'Sukses get indikator program'
 					]);exit;
 
 				}else{
@@ -18529,40 +17931,6 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 				'message' => $e->getMessage()
 			]);exit;
 		}
-	}
-
-	function get_indikator_program_rpjm(array $input){
-		global $wpdb;
-
-		$data = $wpdb->get_results("select * from data_rpjmd_program_lokal where id_unik='".$input['kode_program']."' and id_unik_indikator is not null and active=1 and is_locked_indikator=0 and status=1 order by id", ARRAY_A);
-
-		$html = "";
-		$j=1;
-		foreach ($data as $key => $indikator) {
-			$html.="
-					<tr>
-						<td>{$j}.</td>
-						<td>".$indikator['indikator']."</td>
-						<td>".$indikator['satuan']."</td>
-						<td>".$indikator['target_1']."</td>
-						<td>".$indikator['target_2']."</td>
-						<td>".$indikator['target_3']."</td>
-						<td>".$indikator['target_4']."</td>
-						<td>".$indikator['target_5']."</td>
-						<td>".$indikator['target_awal']."</td>
-						<td>".$indikator['target_akhir']."</td>
-						<td>
-							<a href='#' class='btn btn-sm btn-success btn-edit-indikator-program' data-kode='".$indikator['id_unik']."' data-id='".$indikator['id']."'><i class=\"dashicons dashicons-edit\" style=\"margin-top: 3px;\"></i></a>&nbsp;
-							<a href='#' class='btn btn-sm btn-danger btn-delete-indikator-program' data-kode='".$indikator['id_unik']."' data-id='".$indikator['id']."'><i class=\"dashicons dashicons-trash\" style=\"margin-top: 3px;\"></i></a>&nbsp;
-						</td>
-					</tr>";
-			$j++;
-		}
-
-		return [
-			'data' => $data,
-			'html' => $html,
-		];
 	}
 
 	function submit_indikator_program_rpjm(){
@@ -18652,14 +18020,9 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 								'visi_teks' => $dataVisi->visi_teks,
 								'active' => 1
 							]);
-						
-						$data['type'] = 1;
-
-						$dataIndikatorProgram = $this->get_indikator_program_rpjm($data);
 
 						echo json_encode([
 							'status' => true,
-							'data' => $dataIndikatorProgram['html'],
 							'message' => 'Sukses simpan indikator program'
 						]);exit;
 
@@ -18674,48 +18037,6 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 				'status' => false,
 				'message' => $e->getMessage()
 			]);exit;
-		}
-	}
-
-	function verify_indikator_program_rpjm(array $data){
-		if(empty($data['kode_program'])){
-			throw new Exception('Program wajib dipilih!');
-		}
-
-		if(empty($data['indikator_teks'])){
-			throw new Exception('Indikator program tidak boleh kosong!');
-		}
-
-		if(empty($data['satuan'])){
-			throw new Exception('Satuan indikator program tidak boleh kosong!');
-		}
-
-		if(empty($data['target_1'])){
-			throw new Exception('Target Indikator program tahun ke-1 tidak boleh kosong!');
-		}
-
-		if(empty($data['target_2'])){
-			throw new Exception('Target Indikator program tahun ke-2 tidak boleh kosong!');
-		}
-
-		if(empty($data['target_3'])){
-			throw new Exception('Target Indikator program tahun ke-3 tidak boleh kosong!');
-		}
-
-		if(empty($data['target_4'])){
-			throw new Exception('Target Indikator program tahun ke-4 tidak boleh kosong!');
-		}
-
-		if(empty($data['target_5'])){
-			throw new Exception('Target Indikator program tahun ke-5 tidak boleh kosong!');
-		}
-
-		if(empty($data['target_awal'])){
-			throw new Exception('Target awal Indikator program tidak boleh kosong!');
-		}
-
-		if(empty($data['target_akhir'])){
-			throw new Exception('Target akhir Indikator program tidak boleh kosong!');
 		}
 	}
 
@@ -18831,14 +18152,9 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 							], [
 								'id' => $data['id']
 							]);
-						
-						$data['type'] = 1;
-
-						$dataIndikatorProgram = $this->get_indikator_program_rpjm($data);
 
 						echo json_encode([
 							'status' => true,
-							'data' => $dataIndikatorProgram['html'],
 							'message' => 'Sukses simpan indikator program'
 						]);exit;
 
@@ -18864,15 +18180,9 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 					
 					$wpdb->get_results("delete from data_rpjmd_program_lokal where id=".$_POST['id'] . " and id_unik_indikator is not null and active=1 and status=1");
 
-					$data = $this->get_indikator_program_rpjm([
-						'type' => 1,
-						'kode_program' => $_POST['kode_program']
-					]);
-
 					echo json_encode([
 						'status' => true,
 						'message' => 'Sukses hapus indikator program',
-						'data' => $data['html']
 					]);exit;
 
 				}else{
@@ -18886,6 +18196,48 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 				'status' => false,
 				'message' => $e->getMessage()
 			]);exit;
+		}
+	}
+
+	function verify_indikator_program_rpjm(array $data){
+		if(empty($data['kode_program'])){
+			throw new Exception('Program wajib dipilih!');
+		}
+
+		if(empty($data['indikator_teks'])){
+			throw new Exception('Indikator program tidak boleh kosong!');
+		}
+
+		if(empty($data['satuan'])){
+			throw new Exception('Satuan indikator program tidak boleh kosong!');
+		}
+
+		if(empty($data['target_1'])){
+			throw new Exception('Target Indikator program tahun ke-1 tidak boleh kosong!');
+		}
+
+		if(empty($data['target_2'])){
+			throw new Exception('Target Indikator program tahun ke-2 tidak boleh kosong!');
+		}
+
+		if(empty($data['target_3'])){
+			throw new Exception('Target Indikator program tahun ke-3 tidak boleh kosong!');
+		}
+
+		if(empty($data['target_4'])){
+			throw new Exception('Target Indikator program tahun ke-4 tidak boleh kosong!');
+		}
+
+		if(empty($data['target_5'])){
+			throw new Exception('Target Indikator program tahun ke-5 tidak boleh kosong!');
+		}
+
+		if(empty($data['target_awal'])){
+			throw new Exception('Target awal Indikator program tidak boleh kosong!');
+		}
+
+		if(empty($data['target_akhir'])){
+			throw new Exception('Target akhir Indikator program tidak boleh kosong!');
 		}
 	}
 
