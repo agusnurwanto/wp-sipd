@@ -14116,7 +14116,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 
 					if(!empty($data_expired)){
 						foreach($data_expired as $val_data_expired){
-							$wpdb->update('data_jadwal_lokal', array('status' => 1),array('id_jadwal_lokal' => $val_data_expired['id_jadwal_lokal']));
+							$wpdb->update('data_jadwal_lokal', array('status' => 2),array('id_jadwal_lokal' => $val_data_expired['id_jadwal_lokal']));
 						}
 					}
 					////
@@ -14146,13 +14146,19 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 							$delete	= '<a class="btn btn-danger" href="#" onclick="return hapus_data_penjadwalan(\''.$recVal['id_jadwal_lokal'].'\');" title="Hapus data penjadwalan"><i class="dashicons dashicons-trash"></i></a>';
 						}
 
+						$status = array(
+							0 => 'terbuka',
+							1 => 'dikunci',
+							2 => 'selesai'
+						);
+
 						$tahun_anggaran_selesai = $recVal['tahun_anggaran'] + $time_period[$tipe_perencanaan];
 					
 						$queryRecords[$recKey]['waktu_awal']	= date('d-m-Y H:i', strtotime($recVal['waktu_awal']));
 						$queryRecords[$recKey]['waktu_akhir']	= date('d-m-Y H:i', strtotime($recVal['waktu_akhir']));
 						$queryRecords[$recKey]['aksi'] = $lock.$edit.$delete;
 						$queryRecords[$recKey]['nama'] = ucfirst($recVal['nama']);
-						$queryRecords[$recKey]['status'] = $recVal['status'] == 1 ? 'dikunci' : 'terbuka';
+						$queryRecords[$recKey]['status'] = $status[$recVal['status']];
 						$queryRecords[$recKey]['tahun_anggaran_selesai'] = $tahun_anggaran_selesai;
 					}
 
