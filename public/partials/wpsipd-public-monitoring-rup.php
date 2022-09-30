@@ -30,6 +30,7 @@ $body = '';
 				<tr>
 					<th class="text-center">Nama OPD</th>
 					<th class="text-center">Pagu SIPD</th>
+					<th class="text-center">Total Pagu Non Pengadaan</th>
 					<th class="text-center">Pagu Sirup</th>
 					<th class="text-center">Selisih</th>
 					<th class="text-center">Keterangann</th>
@@ -76,6 +77,12 @@ $body = '';
 				},
 				{ 
 					"data": "total_pagu_sipd",
+					className: "text-right",
+					"targets": "no-sort",
+					"orderable": false
+				},
+				{
+					"data":"total_pagu_non_pengadaan",
 					className: "text-right",
 					"targets": "no-sort",
 					"orderable": false

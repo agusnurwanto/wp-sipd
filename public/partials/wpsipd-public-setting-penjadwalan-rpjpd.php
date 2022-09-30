@@ -32,7 +32,7 @@ $body = '';
 					<th class="text-center">Jadwal Selesai</th>
 					<th class="text-center">Tahun Mulai Anggaran</th>
 					<th class="text-center">Tahun Selesai Anggaran</th>
-					<th class="text-center">Aksi</th>
+					<th class="text-center" style="width: 150px;">Aksi</th>
 				</tr>
 			</thead>
 			<tbody id="data_body">
