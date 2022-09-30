@@ -16340,20 +16340,33 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						'visi_teks' => $dataVisi->visi_teks
 					];
 
-					// update tujuan
-					$wpdb->update('data_rpjmd_tujuan_lokal', $dataTujuan, [
-						'id' => $data['id_tujuan']
-					]);
+					try {
 
-					// update tujuan di row indikator
-					$wpdb->update('data_rpjmd_tujuan_lokal', $dataTujuan, [
-						'id_tujuan' => $data['id_tujuan']
-					]);
+						$wpdb->query('START TRANSACTION');
+						
+						// update tujuan
+						$wpdb->update('data_rpjmd_tujuan_lokal', $dataTujuan, [
+							'id' => $data['id_tujuan']
+						]);
 
-					echo json_encode([
-						'status' => true,
-						'message' => 'Sukses ubah tujuan rpjm',
-					]);exit;
+						// update tujuan di row indikator
+						$wpdb->update('data_rpjmd_tujuan_lokal', $dataTujuan, [
+							'id_tujuan' => $data['id_tujuan']
+						]);
+
+						$wpdb->query('COMMIT');
+
+						echo json_encode([
+							'status' => true,
+							'message' => 'Sukses ubah tujuan rpjm',
+						]);exit;
+
+					} catch (Exception $e) {
+
+						$wpdb->query('ROLLBACK');
+						
+						throw $e; 
+					}
 
 				}else{
 					throw new Exception('Api key tidak sesuai');
@@ -16984,21 +16997,32 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						'visi_teks' => $dataVisi->visi_teks
 					];
 
-					// ubah sasaran
-					$wpdb->update('data_rpjmd_sasaran_lokal', $dataSasaran, [
-						'id' => $data['id_sasaran']
-					]);
+					try {
+						$wpdb->query('START TRANSACTION');
 
-					// ubah sasaran di row indikator
-					$wpdb->update('data_rpjmd_sasaran_lokal', $dataSasaran, [
-						'id_sasaran' => $data['id_sasaran']
-					]);
+						// ubah sasaran
+						$wpdb->update('data_rpjmd_sasaran_lokal', $dataSasaran, [
+							'id' => $data['id_sasaran']
+						]);
 
-					echo json_encode([
-						'status' => true,
-						'message' => 'Sukses ubah sasaran'
-					]);exit;
+						// ubah sasaran di row indikator
+						$wpdb->update('data_rpjmd_sasaran_lokal', $dataSasaran, [
+							'id_sasaran' => $data['id_sasaran']
+						]);
 
+						$wpdb->query('COMMIT');
+
+						echo json_encode([
+							'status' => true,
+							'message' => 'Sukses ubah sasaran'
+						]);exit;
+
+					} catch (Exception $e) {
+
+						$wpdb->query('ROLLBACK');
+
+						throw $e;	
+					}
 				}else{
 					throw new Exception('Api key tidak sesuai');
 				}
@@ -17493,7 +17517,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 					$dataUnit = $wpdb->get_results("SELECT * FROM data_unit WHERE id_unit in (".implode(",", $data['id_unit']).") and tahun_anggaran=".get_option('_crb_tahun_anggaran_sipd')." and active=1 and is_skpd=1 order by id_skpd ASC;");
 
 					if(empty($dataUnit)){
-						throw new Exception("Unit kerja yang dipilih tidak ada di tahun anggaran ".date('Y'), 1);
+						throw new Exception("Unit kerja yang dipilih tidak ada di tahun anggaran ".get_option('_crb_tahun_anggaran_sipd'), 1);
 					}
 
 					$id_cek = $wpdb->get_var("
@@ -17671,11 +17695,10 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 
 					$this->verify_program_rpjm($data);
 
-					// tahunnya perlu di otomatiskan
-					$dataUnit = $wpdb->get_results("SELECT * FROM data_unit WHERE id_unit in (".implode(",", $data['id_unit']).") and tahun_anggaran=".date('Y')." and active=1 and is_skpd=1 order by id_skpd ASC;");
+					$dataUnit = $wpdb->get_results("SELECT * FROM data_unit WHERE id_unit in (".implode(",", $data['id_unit']).") and tahun_anggaran=".get_option('_crb_tahun_anggaran_sipd')." and active=1 and is_skpd=1 order by id_skpd ASC;");
 
 					if(empty($dataUnit)){
-						throw new Exception("Unit kerja yang dipilih tidak ada di tahun anggaran ".date('Y'), 1);
+						throw new Exception("Unit kerja yang dipilih tidak ada di tahun anggaran ".get_option('_crb_tahun_anggaran_sipd'), 1);
 					}
 
 					$id_cek = $wpdb->get_var("
