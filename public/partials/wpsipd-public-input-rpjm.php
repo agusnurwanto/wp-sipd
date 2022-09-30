@@ -1,6 +1,3 @@
-
-<link href="https://cdnjs.cloudflare.com/ajax/libs/slim-select/1.27.1/slimselect.min.css" rel="stylesheet">
-
 <?php
 // If this file is called directly, abort.
 if ( ! defined( 'WPINC' ) ) {
@@ -146,7 +143,7 @@ foreach ($visi_all as $visi) {
 			select 
 				* 
 			from data_rpjmd_tujuan_lokal
-			where id_misi=%s
+			where id_misi=%s and id_unik_indikator is null
 		", $misi['id']);
 		$tujuan_all = $wpdb->get_results($sql, ARRAY_A);
 		foreach ($tujuan_all as $tujuan) {
@@ -157,15 +154,26 @@ foreach ($visi_all as $visi) {
 					'data' => array()
 				);
 			}
-			$data_all['data'][$visi['id']]['data'][$misi['id']]['data'][$tujuan['id_unik']]['detail'][] = $tujuan;
+
+			$sql = $wpdb->prepare("
+				select 
+					* 
+				from data_rpjmd_tujuan_lokal
+				where id_tujuan=%s
+			", $tujuan['id']);
+			$tujuan_indikator_all = $wpdb->get_results($sql, ARRAY_A);
+			foreach ($tujuan_indikator_all as $tujuan_indikator) {
+				$data_all['data'][$visi['id']]['data'][$misi['id']]['data'][$tujuan['id_unik']]['detail'][] = $tujuan_indikator;
+			}
 
 			$tujuan_ids[$tujuan['id_unik']] = "'".$tujuan['id_unik']."'";
 			$sql = $wpdb->prepare("
 				select 
 					* 
 				from data_rpjmd_sasaran_lokal
-				where kode_tujuan=%s
+				where kode_tujuan=%s and id_unik_indikator is null
 			", $tujuan['id_unik']);
+
 			$sasaran_all = $wpdb->get_results($sql, ARRAY_A);
 			foreach ($sasaran_all as $sasaran) {
 				if(empty($data_all['data'][$visi['id']]['data'][$misi['id']]['data'][$tujuan['id_unik']]['data'][$sasaran['id_unik']])){
@@ -175,14 +183,24 @@ foreach ($visi_all as $visi) {
 						'data' => array()
 					);
 				}
-				$data_all['data'][$visi['id']]['data'][$misi['id']]['data'][$tujuan['id_unik']]['data'][$sasaran['id_unik']]['detail'][] = $sasaran;
+
+				$sql = $wpdb->prepare("
+					select 
+						* 
+					from data_rpjmd_sasaran_lokal
+					where id_sasaran=%s
+				", $sasaran['id']);
+				$sasaran_indikator_all = $wpdb->get_results($sql, ARRAY_A);
+				foreach ($sasaran_indikator_all as $sasaran_indikator) {
+					$data_all['data'][$visi['id']]['data'][$misi['id']]['data'][$tujuan['id_unik']]['data'][$sasaran['id_unik']]['detail'][] = $sasaran_indikator;
+				}				
 
 				$sasaran_ids[$sasaran['id_unik']] = "'".$sasaran['id_unik']."'";
 				$sql = $wpdb->prepare("
 					select 
 						* 
 					from data_rpjmd_program_lokal
-					where kode_sasaran=%s
+					where kode_sasaran=%s and id_unik_indikator is null
 				", $sasaran['id_unik']);
 				$program_all = $wpdb->get_results($sql, ARRAY_A);
 				foreach ($program_all as $program) {
@@ -200,11 +218,21 @@ foreach ($visi_all as $visi) {
 							'data' => array()
 						);
 					}
-					if(empty($data_all['data'][$visi['id']]['data'][$misi['id']]['data'][$tujuan['id_unik']]['data'][$sasaran['id_unik']]['data'][$program['id_unik']]['data'][$program['id_unik_indikator']])){
-						$data_all['data'][$visi['id']]['data'][$misi['id']]['data'][$tujuan['id_unik']]['data'][$sasaran['id_unik']]['data'][$program['id_unik']]['data'][$program['id_unik_indikator']] = array(
-							'nama' => $program['indikator'],
-							'data' => $program
-						);
+					
+					$sql = $wpdb->prepare("
+						select 
+							* 
+						from data_rpjmd_program_lokal
+						where id_unik=%s and id_unik_indikator is not null
+					", $program['id_unik']);
+					$program_indikator_all = $wpdb->get_results($sql, ARRAY_A);
+					foreach ($program_indikator_all as $program_indikator) {
+						if(empty($data_all['data'][$visi['id']]['data'][$misi['id']]['data'][$tujuan['id_unik']]['data'][$sasaran['id_unik']]['data'][$program['id_unik']]['data'][$program_indikator['id_unik_indikator']])){
+							$data_all['data'][$visi['id']]['data'][$misi['id']]['data'][$tujuan['id_unik']]['data'][$sasaran['id_unik']]['data'][$program['id_unik']]['data'][$program_indikator['id_unik_indikator']] = array(
+								'nama' => $program_indikator['indikator'],
+								'data' => $program_indikator
+							);
+						}
 					}
 				}
 			}
@@ -279,7 +307,17 @@ foreach ($misi_all_kosong as $misi) {
 				'data' => array()
 			);
 		}
-		$data_all['data']['visi_kosong']['data'][$misi['id']]['data'][$tujuan['id_unik']]['detail'][] = $tujuan;
+		$sql = $wpdb->prepare("
+				select 
+					* 
+				from data_rpjmd_tujuan_lokal
+				where id_tujuan=%s
+			", $tujuan['id']);
+		$tujuan_indikator_all = $wpdb->get_results($sql, ARRAY_A);
+		foreach ($tujuan_indikator_all as $tujuan_indikator) {
+			$data_all['data']['visi_kosong']['data'][$misi['id']]['data'][$tujuan['id_unik']]['detail'][] = $tujuan_indikator;
+		}
+
 		$sql = $wpdb->prepare("
 			select 
 				* 
@@ -296,7 +334,18 @@ foreach ($misi_all_kosong as $misi) {
 					'data' => array()
 				);
 			}
-			$data_all['data']['visi_kosong']['data'][$misi['id']]['data'][$tujuan['id_unik']]['data'][$sasaran['id_unik']]['detail'][] = $sasaran;
+
+			$sql = $wpdb->prepare("
+					select 
+						* 
+					from data_rpjmd_sasaran_lokal
+					where id_sasaran=%s
+				", $sasaran['id']);
+			$sasaran_indikator_all = $wpdb->get_results($sql, ARRAY_A);
+			foreach ($sasaran_indikator_all as $sasaran_indikator) {
+				$data_all['data']['visi_kosong']['data'][$misi['id']]['data'][$tujuan['id_unik']]['data'][$sasaran['id_unik']]['detail'][] = $sasaran_indikator;
+			}
+
 			$sql = $wpdb->prepare("
 				select 
 					* 
@@ -314,11 +363,21 @@ foreach ($misi_all_kosong as $misi) {
 						'data' => array()
 					);
 				}
-				if(empty($data_all['data']['visi_kosong']['data'][$misi['id']]['data'][$tujuan['id_unik']]['data'][$sasaran['id_unik']]['data'][$program['id_unik']]['data'][$program['id_unik_indikator']])){
-					$data_all['data']['visi_kosong']['data'][$misi['id']]['data'][$tujuan['id_unik']]['data'][$sasaran['id_unik']]['data'][$program['id_unik']]['data'][$program['id_unik_indikator']] = array(
-						'nama' => $program['indikator'],
-						'data' => array()
-					);
+
+				$sql = $wpdb->prepare("
+						select 
+							* 
+						from data_rpjmd_program_lokal
+						where id_unik=%s and id_unik_indikator is not null
+					", $program['id_unik']);
+				$program_indikator_all = $wpdb->get_results($sql, ARRAY_A);
+				foreach ($program_indikator_all as $program_indikator) {
+					if(empty($data_all['data']['visi_kosong']['data'][$misi['id']]['data'][$tujuan['id_unik']]['data'][$sasaran['id_unik']]['data'][$program['id_unik']]['data'][$program_indikator['id_unik_indikator']])){
+						$data_all['data']['visi_kosong']['data'][$misi['id']]['data'][$tujuan['id_unik']]['data'][$sasaran['id_unik']]['data'][$program['id_unik']]['data'][$program_indikator['id_unik_indikator']] = array(
+							'nama' => $program_indikator['indikator'],
+							'data' => $program_indikator
+						);
+					}
 				}
 			}
 		}
@@ -349,7 +408,18 @@ foreach ($tujuan_all_kosong as $tujuan) {
 			'data' => array()
 		);
 	}
-	$data_all['data']['visi_kosong']['data']['misi_kosong']['data'][$tujuan['id_unik']]['detail'][] = $tujuan;
+
+	$sql = $wpdb->prepare("
+				select 
+					* 
+				from data_rpjmd_tujuan_lokal
+				where id_tujuan=%s
+			", $tujuan['id']);
+	$tujuan_indikator_all = $wpdb->get_results($sql, ARRAY_A);
+	foreach ($tujuan_indikator_all as $tujuan_indikator) {
+		$data_all['data']['visi_kosong']['data']['misi_kosong']['data'][$tujuan['id_unik']]['detail'][] = $tujuan_indikator;
+	}
+
 	$sql = $wpdb->prepare("
 		select 
 			* 
@@ -366,7 +436,18 @@ foreach ($tujuan_all_kosong as $tujuan) {
 				'data' => array()
 			);
 		}
-		$data_all['data']['visi_kosong']['data']['misi_kosong']['data'][$tujuan['id_unik']]['data'][$sasaran['id_unik']]['detail'][] = $sasaran;
+
+		$sql = $wpdb->prepare("
+					select 
+						* 
+					from data_rpjmd_sasaran_lokal
+					where id_sasaran=%s
+				", $sasaran['id']);
+		$sasaran_indikator_all = $wpdb->get_results($sql, ARRAY_A);
+		foreach ($sasaran_indikator_all as $sasaran_indikator) {
+			$data_all['data']['visi_kosong']['data']['misi_kosong']['data'][$tujuan['id_unik']]['data'][$sasaran['id_unik']]['detail'][] = $sasaran_indikator;
+		}
+
 		$sql = $wpdb->prepare("
 			select 
 				* 
@@ -384,11 +465,21 @@ foreach ($tujuan_all_kosong as $tujuan) {
 					'data' => array()
 				);
 			}
-			if(empty($data_all['data']['visi_kosong']['data']['misi_kosong']['data'][$tujuan['id_unik']]['data'][$sasaran['id_unik']]['data'][$program['id_unik']]['data'][$program['id_unik_indikator']])){
-				$data_all['data']['visi_kosong']['data']['misi_kosong']['data'][$tujuan['id_unik']]['data'][$sasaran['id_unik']]['data'][$program['id_unik']]['data'][$program['id_unik_indikator']] = array(
-					'nama' => $program['indikator'],
-					'data' => array()
-				);
+
+			$sql = $wpdb->prepare("
+						select 
+							* 
+						from data_rpjmd_program_lokal
+						where id_unik=%s and id_unik_indikator is not null
+					", $program['id_unik']);
+			$program_indikator_all = $wpdb->get_results($sql, ARRAY_A);
+			foreach ($program_indikator_all as $program_indikator) {
+				if(empty($data_all['data']['visi_kosong']['data']['misi_kosong']['data'][$tujuan['id_unik']]['data'][$sasaran['id_unik']]['data'][$program['id_unik']]['data'][$program_indikator['id_unik_indikator']])){
+					$data_all['data']['visi_kosong']['data']['misi_kosong']['data'][$tujuan['id_unik']]['data'][$sasaran['id_unik']]['data'][$program['id_unik']]['data'][$program_indikator['id_unik_indikator']] = array(
+						'nama' => $program_indikator['indikator'],
+						'data' => $program_indikator
+					);
+				}
 			}
 		}
 	}
@@ -410,6 +501,7 @@ if(!empty($sasaran_ids)){
 	";
 }
 $sasaran_all_kosong = $wpdb->get_results($sql, ARRAY_A);
+
 foreach ($sasaran_all_kosong as $sasaran) {
 	if(empty($data_all['data']['visi_kosong']['data']['misi_kosong']['data']['tujuan_kosong']['data'][$sasaran['id_unik']])){
 		$data_all['data']['visi_kosong']['data']['misi_kosong']['data']['tujuan_kosong']['data'][$sasaran['id_unik']] = array(
@@ -418,7 +510,18 @@ foreach ($sasaran_all_kosong as $sasaran) {
 			'data' => array()
 		);
 	}
-	$data_all['data']['visi_kosong']['data']['misi_kosong']['data']['tujuan_kosong']['data'][$sasaran['id_unik']]['detail'][] = $sasaran;
+
+	$sql = $wpdb->prepare("
+					select 
+						* 
+					from data_rpjmd_sasaran_lokal
+					where id_sasaran=%s
+				", $sasaran['id']);
+	$sasaran_indikator_all = $wpdb->get_results($sql, ARRAY_A);
+	foreach ($sasaran_indikator_all as $sasaran_indikator) {
+		$data_all['data']['visi_kosong']['data']['misi_kosong']['data']['tujuan_kosong']['data'][$sasaran['id_unik']]['detail'][] = $sasaran_indikator;
+	}
+
 	$sql = $wpdb->prepare("
 		select 
 			* 
@@ -441,6 +544,22 @@ foreach ($sasaran_all_kosong as $sasaran) {
 				'nama' => $program['indikator'],
 				'data' => array()
 			);
+		}
+
+		$sql = $wpdb->prepare("
+					select 
+						* 
+					from data_rpjmd_program_lokal
+					where id_unik=%s and id_unik_indikator is not null
+				", $program['id_unik']);
+		$program_indikator_all = $wpdb->get_results($sql, ARRAY_A);
+		foreach ($program_indikator_all as $program_indikator) {
+			if(empty($data_all['data']['visi_kosong']['data']['misi_kosong']['data']['tujuan_kosong']['data'][$sasaran['id_unik']]['data'][$program['id_unik']]['data'][$program_indikator['id_unik_indikator']])){
+				$data_all['data']['visi_kosong']['data']['misi_kosong']['data']['tujuan_kosong']['data'][$sasaran['id_unik']]['data'][$program['id_unik']]['data'][$program_indikator['id_unik_indikator']] = array(
+					'nama' => $program_indikator['indikator'],
+					'data' => $program_indikator
+				);
+			}
 		}
 	}
 }
@@ -470,11 +589,21 @@ foreach ($program_all as $program) {
 			'data' => array()
 		);
 	}
-	if(empty($data_all['data']['visi_kosong']['data']['misi_kosong']['data']['tujuan_kosong']['data']['sasaran_kosong']['data'][$program['id_unik']]['data'][$program['id_unik_indikator']])){
-		$data_all['data']['visi_kosong']['data']['misi_kosong']['data']['tujuan_kosong']['data']['sasaran_kosong']['data'][$program['id_unik']]['data'][$program['id_unik_indikator']] = array(
-			'nama' => $program['indikator'],
-			'data' => array()
-		);
+
+	$sql = $wpdb->prepare("
+					select 
+						* 
+					from data_rpjmd_program_lokal
+					where id_unik=%s and id_unik_indikator is not null
+			", $program['id_unik']);
+	$program_indikator_all = $wpdb->get_results($sql, ARRAY_A);
+	foreach ($program_indikator_all as $program_indikator) {
+		if(empty($data_all['data']['visi_kosong']['data']['misi_kosong']['data']['tujuan_kosong']['data']['sasaran_kosong']['data'][$program['id_unik']]['data'][$program_indikator['id_unik_indikator']])){
+			$data_all['data']['visi_kosong']['data']['misi_kosong']['data']['tujuan_kosong']['data']['sasaran_kosong']['data'][$program['id_unik']]['data'][$program_indikator['id_unik_indikator']] = array(
+				'nama' => $program_indikator['indikator'],
+				'data' => $program_indikator
+			);
+		}
 	}
 }
 
@@ -491,11 +620,6 @@ if(empty($data_all['data']['visi_kosong']['data']['misi_kosong']['data'])){
 if(empty($data_all['data']['visi_kosong']['data'])){
 	unset($data_all['data']['visi_kosong']);
 }
-
-// echo '<pre>';
-// print_r($data_all['data']);
-// echo '</pre>';
-// die();
 
 $body = '';
 $no_visi = 0;
@@ -575,7 +699,7 @@ foreach ($data_all['data'] as $visi) {
 					<td class="kiri atas kanan bawah">'.$no_visi.'.'.$no_misi.'.'.$no_tujuan.'</td>
 					<td class="atas kanan bawah"><span class="debug-visi">'.$visi['nama'].'</span></td>
 					<td class="atas kanan bawah"><span class="debug-misi">'.$misi['nama'].'</span></td>
-					<td class="atas kanan bawah">'.parsing_nama_kode($tujuan['nama']).$indikator_tujuan.'</td>
+					<td class="atas kanan bawah">'.parsing_nama_kode($tujuan['nama']).'</td>
 					<td class="atas kanan bawah"></td>
 					<td class="atas kanan bawah"></td>
 					<td class="atas kanan bawah">'.$indikator_tujuan.'</td>
@@ -701,6 +825,7 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
 
 $tahun_selesai = (!empty($tahun_anggaran)) ? $tahun_anggaran + 5 : '-';
 ?>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/slim-select/1.27.1/slimselect.min.css" rel="stylesheet">
 <style type="text/css">
 	.debug-visi, .debug-misi, .debug-tujuan, .debug-sasaran, .debug-kode { display: none; }
 	.indikator_program { min-height: 40px; }
@@ -752,7 +877,7 @@ $tahun_selesai = (!empty($tahun_anggaran)) ? $tahun_anggaran + 5 : '-';
 	</table>
 </div>
 <div class="modal fade" id="modal-monev" tabindex="-1" role="dialog" data-backdrop="static" aria-hidden="true">'
-    <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-dialog modal-xl" role="document">
         <div class="modal-content">
             <div class="modal-header bgpanel-theme">
                 <h4 style="margin: 0;" class="modal-title" id="">Data RPJM</h4>
@@ -817,7 +942,6 @@ $tahun_selesai = (!empty($tahun_anggaran)) ? $tahun_anggaran + 5 : '-';
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/slim-select/1.27.1/slimselect.min.js"></script>
-
 <script type="text/javascript">
 	run_download_excel();
 	let data_all = <?php echo json_encode($data_all); ?>;
@@ -1125,6 +1249,7 @@ $tahun_selesai = (!empty($tahun_anggaran)) ? $tahun_anggaran + 5 : '-';
 	        jQuery('#wrap-loading').show();
 
 			let id_misi = jQuery(this).data('id');
+			let id_visi = jQuery(this).data('idvisi');
 
 			jQuery.ajax({
 				method:'POST',
@@ -2185,19 +2310,19 @@ $tahun_selesai = (!empty($tahun_anggaran)) ? $tahun_anggaran + 5 : '-';
 	          				+'<tr>'
 	          			+'</thead>'
 	          			+'<tbody>';
-
-          		res.data.map(function(value, index){
-          			visi +='<tr idvisi="'+value.id+'">'
-			          			+'<td>'+(index+1)+'.</td>'
-			          			+'<td>'+value.visi_teks+'</td>'
-			          			+'<td>'
-			          					+'<a href="javascript:void(0)" data-id="'+value.id+'" class="btn btn-sm btn-primary btn-detail-visi"><i class="dashicons dashicons-search"></i></a>&nbsp;'
-			          					+'<a href="javascript:void(0)" data-id="'+value.id+'" class="btn btn-sm btn-success btn-edit-visi"><i class="dashicons dashicons-edit"></i></a>&nbsp;'
-			          					+'<a href="javascript:void(0)" data-id="'+value.id+'" class="btn btn-sm btn-danger btn-hapus-visi"><i class="dashicons dashicons-trash"></i></a>'
-			          			+'</td>'
-			          		+'</tr>';
-          		})
-          		visi+='<tbody></table>';
+			          		res.data.map(function(value, index){
+			          			visi +='<tr idvisi="'+value.id+'">'
+						          			+'<td>'+(index+1)+'.</td>'
+						          			+'<td>'+value.visi_teks+'</td>'
+						          			+'<td>'
+						          					+'<a href="javascript:void(0)" data-id="'+value.id+'" class="btn btn-sm btn-primary btn-detail-visi"><i class="dashicons dashicons-search"></i></a>&nbsp;'
+						          					+'<a href="javascript:void(0)" data-id="'+value.id+'" class="btn btn-sm btn-success btn-edit-visi"><i class="dashicons dashicons-edit"></i></a>&nbsp;'
+						          					+'<a href="javascript:void(0)" data-id="'+value.id+'" class="btn btn-sm btn-danger btn-hapus-visi"><i class="dashicons dashicons-trash"></i></a>'
+						          			+'</td>'
+						          		+'</tr>';
+			          		})
+          			visi+='<tbody>'
+          			+'</table>';
 
           		jQuery("#nav-visi").html(visi);
 				jQuery('.nav-tabs a[href="#nav-visi"]').tab('show');
@@ -2284,11 +2409,11 @@ $tahun_selesai = (!empty($tahun_anggaran)) ? $tahun_anggaran + 5 : '-';
           				+'<table class="table">'
 	          				+'<thead>'
 	          					+'<tr>'
-	          						+'<th style="max-width:25px">Visi</th>'
+	          						+'<th class="text-center" style="width: 160px;">Visi</th>'
 	          						+'<th>'+jQuery('#nav-visi tr[idvisi="'+jQuery("#nav-misi .btn-tambah-misi").data("idvisi")+'"]').find('td').eq(1).text()+'</th>'
 	          					+'</tr>'
 	          					+'<tr>'
-	          						+'<th style="max-width:25px">Misi</th>'
+	          						+'<th class="text-center" style="width: 160px;">Misi</th>'
 	          						+'<th>'+jQuery('#nav-misi tr[idmisi="'+params.id_misi+'"]').find('td').eq(1).text()+'</th>'
 	          					+'</tr>'
 	          				+'</thead>'
@@ -2417,15 +2542,15 @@ $tahun_selesai = (!empty($tahun_anggaran)) ? $tahun_anggaran + 5 : '-';
           				+'<table class="table">'
           					+'<thead>'
 	          					+'<tr>'
-	          						+'<th style="max-width:25px">Visi</th>'
+	          						+'<th class="text-center" style="width: 160px;">Visi</th>'
 	          						+'<th>'+jQuery('#nav-visi tr[idvisi="'+jQuery("#nav-misi .btn-tambah-misi").data("idvisi")+'"]').find('td').eq(1).text()+'</th>'
 	          					+'</tr>'
 	          					+'<tr>'
-	          						+'<th style="max-width:25px">Misi</th>'
+	          						+'<th class="text-center" style="width: 160px;">Misi</th>'
 	          						+'<th>'+jQuery('#nav-misi tr[idmisi="'+jQuery("#nav-tujuan .btn-tambah-tujuan").data("idmisi")+'"]').find('td').eq(1).text()+'</th>'
 	          					+'</tr>'
 	          					+'<tr>'
-	          						+'<th style="max-width:25px">Tujuan</th>'
+	          						+'<th class="text-center" style="width: 160px;">Tujuan</th>'
 	          						+'<th>'+jQuery('#nav-tujuan tr[kodetujuan="'+params.kode_tujuan+'"]').find('td').eq(1).text()+'</th>'
 	          					+'</tr>'
           					+'</thead>'
@@ -2556,19 +2681,19 @@ $tahun_selesai = (!empty($tahun_anggaran)) ? $tahun_anggaran + 5 : '-';
           				+'<table class="table">'
           					+'<thead>'
 	          					+'<tr>'
-	          						+'<th style="max-width:25px">Visi</th>'
+	          						+'<th class="text-center" style="width: 160px;">Visi</th>'
 	          						+'<th>'+jQuery('#nav-visi tr[idvisi="'+jQuery("#nav-misi .btn-tambah-misi").data("idvisi")+'"]').find('td').eq(1).text()+'</th>'
 	          					+'</tr>'
 	          					+'<tr>'
-	          						+'<th style="max-width:25px">Misi</th>'
+	          						+'<th class="text-center" style="width: 160px;">Misi</th>'
 	          						+'<th>'+jQuery('#nav-misi tr[idmisi="'+jQuery("#nav-tujuan .btn-tambah-tujuan").data("idmisi")+'"]').find('td').eq(1).text()+'</th>'
 	          					+'</tr>'
 	          					+'<tr>'
-	          						+'<th style="max-width:25px">Tujuan</th>'
+	          						+'<th class="text-center" style="width: 160px;">Tujuan</th>'
 	          						+'<th>'+jQuery('#nav-tujuan tr[kodetujuan="'+jQuery("#nav-sasaran .btn-tambah-sasaran").data("kodetujuan")+'"]').find('td').eq(1).text()+'</th>'
 	          					+'</tr>'
 	          					+'<tr>'
-	          						+'<th style="max-width:25px">Sasaran</th>'
+	          						+'<th class="text-center" style="width: 160px;">Sasaran</th>'
 	          						+'<th>'+jQuery('#nav-sasaran tr[kodesasaran="'+params.kode_sasaran+'"]').find('td').eq(1).text()+'</th>'
 	          					+'</tr>'
           					+'</thead>'

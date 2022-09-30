@@ -17133,8 +17133,6 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						throw new Exception('Visi dari misi yang dipilih tidak ditemukan!');
 					}
 
-					$data['id_sasaran'] = 3;
-
 					$status = $wpdb->insert('data_rpjmd_sasaran_lokal', [
 						'id_misi' => $dataMisi->id_misi,
 						'id_sasaran' => $data['id_sasaran'],
