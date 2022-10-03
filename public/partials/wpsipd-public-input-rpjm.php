@@ -2466,14 +2466,19 @@ $tahun_selesai = (!empty($tahun_anggaran)) ? $tahun_anggaran + 5 : '-';
           		jQuery('#wrap-loading').hide();
 
           		let html=""
-					+"<div class='row'>"
-						+"<div class='col-lg-10'><h5>"+jQuery('#nav-tujuan tr[idtujuan="'+params.id_tujuan+'"]').find('td').eq(1).text()+"</h5></div>"
-						+"<div class='col-lg-2 text-right'>"
-							+"<button type=\"button\" class=\"btn btn-sm btn-primary mb-2 btn-add-indikator-tujuan\" data-idtujuan=\""+params.id_tujuan+"\">"
+					+'<div style="margin-top:10px">'
+						+"<button type=\"button\" class=\"btn btn-sm btn-primary mb-2 btn-add-indikator-tujuan\" data-idtujuan=\""+params.id_tujuan+"\">"
 								+"<i class=\"dashicons dashicons-plus\" style=\"margin-top: 3px;\"></i> Tambah Indikator"
-							+"</button>"
-						+"</div>"
-					+"</div>"
+						+"</button>"
+					+'</div>'
+          			+'<table class="table">'
+	          			+'<thead>'
+	          				+'<tr>'
+	          					+'<th class="text-center" style="width: 160px;">Tujuan</th>'
+	          					+'<th>'+jQuery('#nav-tujuan tr[idtujuan="'+params.id_tujuan+'"]').find('td').eq(1).text()+'</th>'
+	          				+'</tr>'
+	          			+'</thead>'
+          			+'</table>'
 					+"<table class='table'>"
 						+"<thead>"
 							+"<tr>"
@@ -2605,14 +2610,19 @@ $tahun_selesai = (!empty($tahun_anggaran)) ? $tahun_anggaran + 5 : '-';
           		jQuery('#wrap-loading').hide();
           		
           		let html=""
-					+"<div class='row'>"
-						+"<div class='col-lg-10'><h5>"+jQuery('#nav-sasaran tr[idsasaran="'+params.id_sasaran+'"]').find('td').eq(1).text()+"</h5></div>"
-						+"<div class='col-lg-2 text-right'>"
-							+"<button type=\"button\" class=\"btn btn-sm btn-primary mb-2 btn-add-indikator-sasaran\" data-idsasaran=\""+params.id_sasaran+"\">"
+					+'<div style="margin-top:10px">'
+						+"<button type=\"button\" class=\"btn btn-sm btn-primary mb-2 btn-add-indikator-sasaran\" data-idsasaran=\""+params.id_sasaran+"\">"
 								+"<i class=\"dashicons dashicons-plus\" style=\"margin-top: 3px;\"></i> Tambah Indikator"
 							+"</button>"
-						+"</div>"
-					+"</div>"
+					+'</div>'
+          			+'<table class="table">'
+	          			+'<thead>'
+	          				+'<tr>'
+	          					+'<th class="text-center" style="width: 160px;">Sasaran</th>'
+	          					+'<th>'+jQuery('#nav-sasaran tr[idsasaran="'+params.id_sasaran+'"]').find('td').eq(1).text()+'</th>'
+	          				+'</tr>'
+	          			+'</thead>'
+          			+'</table>'
 					+"<table class='table'>"
 						+"<thead>"
 							+"<tr>"
@@ -2749,14 +2759,21 @@ $tahun_selesai = (!empty($tahun_anggaran)) ? $tahun_anggaran + 5 : '-';
           		jQuery('#wrap-loading').hide();
           		
           		let html=""
-					+"<div class='row'>"
-						+"<div class='col-lg-10'><h5>"+jQuery('#nav-program tr[kodeprogram="'+params.kode_program+'"]').find('td').eq(1).text()+"</h5></div>"
-						+"<div class='col-lg-2 text-right'>"
-							+"<button type=\"button\" class=\"btn btn-sm btn-primary mb-2 btn-add-indikator-program\" data-kodeprogram=\""+params.kode_program+"\">"
+
+					+'<div style="margin-top:10px">'
+						+"<button type=\"button\" class=\"btn btn-sm btn-primary mb-2 btn-add-indikator-program\" data-kodeprogram=\""+params.kode_program+"\">"
 								+"<i class=\"dashicons dashicons-plus\" style=\"margin-top: 3px;\"></i> Tambah Indikator"
-							+"</button>"
-						+"</div>"
-					+"</div>"
+						+"</button>"
+					+'</div>'
+          			+'<table class="table">'
+	          			+'<thead>'
+	          				+'<tr>'
+	          					+'<th class="text-center" style="width: 160px;">Program</th>'
+	          					+'<th>'+jQuery('#nav-program tr[kodeprogram="'+params.kode_program+'"]').find('td').eq(1).text()+'</th>'
+	          				+'</tr>'
+	          			+'</thead>'
+          			+'</table>'
+
 					+"<table class='table'>"
 						+"<thead>"
 							+"<tr>"
