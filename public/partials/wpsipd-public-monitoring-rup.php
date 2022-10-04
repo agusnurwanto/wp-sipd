@@ -30,6 +30,7 @@ $body = '';
 				<tr>
 					<th class="text-center">Nama OPD</th>
 					<th class="text-center">Pagu SIPD</th>
+					<th class="text-center">Total Pagu Non Pengadaan</th>
 					<th class="text-center">Pagu Sirup</th>
 					<th class="text-center">Selisih</th>
 					<th class="text-center">Keterangann</th>
@@ -45,6 +46,7 @@ $body = '';
 	jQuery(document).ready(function(){
 		globalThis.tahun_anggaran = <?php echo $input['tahun_anggaran']; ?>;
 		globalThis.thisAjaxUrl = "<?php echo admin_url('admin-ajax.php'); ?>"
+		globalThis.id_lokasi = "<?php echo get_option('_crb_id_lokasi_sirup'); ?>"
 
 		get_data_monitoring_rup();
 	});
@@ -61,7 +63,8 @@ $body = '';
 				data:{
 					'action' 		: "get_data_monitoring_rup",
 					'api_key' 		: jQuery("#api_key").val(),
-					'tahun_anggaran': tahun_anggaran
+					'tahun_anggaran': tahun_anggaran,
+					'id_lokasi'		: id_lokasi
 				}
 			},
 			"initComplete":function( settings, json){
@@ -70,23 +73,29 @@ $body = '';
 			"columns": [
 				{ 
 					"data": "nama_skpd",
-					className: "text-center"
+					className: "text-left"
 				},
 				{ 
 					"data": "total_pagu_sipd",
-					className: "text-center",
+					className: "text-right",
+					"targets": "no-sort",
+					"orderable": false
+				},
+				{
+					"data":"total_pagu_non_pengadaan",
+					className: "text-right",
 					"targets": "no-sort",
 					"orderable": false
 				},
 				{ 
 					"data": "total_pagu_sirup",
-					className: "text-center",
+					className: "text-right",
 					"targets": "no-sort",
 					"orderable": false
 				},
 				{ 
 					"data": "selisih_pagu",
-					className: "text-center",
+					className: "text-right",
 					"targets": "no-sort",
 					"orderable": false
 				},

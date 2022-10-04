@@ -56,7 +56,7 @@ $body = '';
 					<th class="text-center">Jadwal Mulai</th>
 					<th class="text-center">Jadwal Selesai</th>
 					<th class="text-center">Tahun Anggaran</th>
-					<th class="text-center">Aksi</th>
+					<th class="text-center" style="width: 150px;">Aksi</th>
 				</tr>
 			</thead>
 			<tbody id="data_body">
