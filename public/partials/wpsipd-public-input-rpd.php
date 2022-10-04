@@ -453,8 +453,15 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
 }
 ?>
 <style type="text/css">
-	.debug-visi, .debug-misi, .debug-tujuan, .debug-sasaran, .debug-kode { display: none; }
-	.indikator_program { min-height: 40px; }
+	.debug-visi, .debug-misi, .debug-tujuan, .debug-sasaran, .debug-kode { 
+		display: none; 
+	}
+	.indikator_program { 
+		min-height: 40px; 
+	}
+	.aksi button {
+		margin: 3px;
+	}
 </style>
 <h4 style="text-align: center; margin: 0; font-weight: bold;">Monitoring dan Evaluasi RPD (Rencana Pembangunan Daerah) <br><?php echo $nama_pemda; ?></h4>
 <div id="cetak" title="Laporan MONEV RENJA" style="padding: 5px; overflow: auto; height: 80vh;">
@@ -499,7 +506,7 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
 	</table>
 </div>
 <div class="modal fade" id="modal-monev" tabindex="-1" role="dialog" data-backdrop="static" aria-hidden="true">'
-    <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-dialog modal-xl" role="document">
         <div class="modal-content">
             <div class="modal-header bgpanel-theme">
                 <h4 style="margin: 0;" class="modal-title" id="">Data RPD</h4>
@@ -508,7 +515,7 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
             <div class="modal-body">
             	<nav>
 				  	<div class="nav nav-tabs" id="nav-tab" role="tablist">
-					    <a class="nav-item nav-link active" id="nav-tujuan-tab" data-toggle="tab" href="#nav-tujuan" role="tab" aria-controls="nav-tujuan" aria-selected="false">Tujuan</a>
+					    <a class="nav-item nav-link" id="nav-tujuan-tab" data-toggle="tab" href="#nav-tujuan" role="tab" aria-controls="nav-tujuan" aria-selected="false">Tujuan</a>
 					    <a class="nav-item nav-link" id="nav-sasaran-tab" data-toggle="tab" href="#nav-sasaran" role="tab" aria-controls="nav-sasaran" aria-selected="false">Sasaran</a>
 					    <a class="nav-item nav-link" id="nav-program-tab" data-toggle="tab" href="#nav-program" role="tab" aria-controls="nav-program" aria-selected="false">Program</a>
 				  	</div>
@@ -520,6 +527,175 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
 				</div>
             </div>
             <div class="modal-footer">
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="modal-tujuan" tabindex="-1" role="dialog" data-backdrop="static" aria-hidden="true">'
+    <div class="modal-dialog modal-xl" role="document">
+        <div class="modal-content">
+            <div class="modal-header bgpanel-theme">
+                <h4 style="margin: 0;" class="modal-title" id="">Data RPD Tujuan</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span><i class="dashicons dashicons-dismiss"></i></span></button>
+            </div>
+            <div class="modal-body">
+            	<form>
+				  	<div class="form-group">
+				    	<label>Visi RPJPD</label>
+				    	<select class="form-control" id="visi-teks"></select>
+				  	</div>
+				  	<div class="form-group">
+				    	<label>Misi RPJPD</label>
+				    	<select class="form-control" id="misi-teks"></select>
+				  	</div>
+				  	<div class="form-group">
+				    	<label>Sasaran Pokok RPJPD</label>
+				    	<select class="form-control" id="saspok-teks"></select>
+				  	</div>
+				  	<div class="form-group">
+				    	<label>Kebijakan RPJPD</label>
+				    	<select class="form-control" id="kebijakan-teks"></select>
+				  	</div>
+				  	<div class="form-group">
+				    	<label>Isu RPJPD</label>
+				    	<select class="form-control" id="isu-teks"></select>
+				  	</div>
+				  	<div class="form-group">
+				    	<label>Tujuan Teks</label>
+				    	<textarea class="form-control" id="tujuan-teks"></textarea>
+				    	<small class="form-text text-muted">Input teks tujuan RPJPD.</small>
+				  	</div>
+				</form>
+            </div>
+            <div class="modal-footer">
+            	<button class="btn btn-primary" onclick="simpan_tujuan();">Simpan</button>
+            	<button class="btn btn-default" data-dismiss="modal">Tutup</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="modal-tujuan-indikator" tabindex="-1" role="dialog" data-backdrop="static" aria-hidden="true">'
+    <div class="modal-dialog modal-xl" role="document">
+        <div class="modal-content">
+            <div class="modal-header bgpanel-theme">
+                <h4 style="margin: 0;" class="modal-title" id="">Data RPD Indikator Tujuan</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span><i class="dashicons dashicons-dismiss"></i></span></button>
+            </div>
+            <div class="modal-body">
+            	<table class="table table-bordered">
+            		<tbody>
+            			<tr>
+            				<th style="width: 175px;">Visi RPJPD</th>
+            				<td class="text-center">:</td>
+            				<td id="visi-teks-indikator"></td>
+            			</tr>
+            			<tr>
+            				<th>Misi RPJPD</th>
+            				<td class="text-center">:</td>
+            				<td id="misi-teks-indikator"></td>
+            			</tr>
+            			<tr>
+            				<th>Sasaran Pokok RPJPD</th>
+            				<td class="text-center">:</td>
+            				<td id="saspok-teks-indikator"></td>
+            			</tr>
+            			<tr>
+            				<th>Kebijakan RPJPD</th>
+            				<td class="text-center">:</td>
+            				<td id="kebijakan-teks-indikator"></td>
+            			</tr>
+            			<tr>
+            				<th>Isu RPJPD</th>
+            				<td class="text-center">:</td>
+            				<td id="isu-teks-indikator"></td>
+            			</tr>
+            			<tr>
+            				<th>Tujuan RPD</th>
+            				<td class="text-center">:</td>
+            				<td id="tujuan-teks-indikator"></td>
+            			</tr>
+            		</tbody>
+            	</table>
+            	<form>
+				  	<div class="form-group">
+				    	<label>Indikator Teks</label>
+				    	<input class="form-control" id="indikator-teks-tujuan" type="text">
+				  	</div>
+				  	<div class="form-row">
+					  	<div class="form-group col-md-6">
+					    	<label>Target Awal</label>
+					    	<input class="form-control" id="indikator-teks-tujuan-satuan-awal" type="text">
+					  	</div>
+					  	<div class="form-group col-md-6">
+					    	<label>Satuan</label>
+					    	<input class="form-control" id="indikator-teks-tujuan-satuan-awal" type="text">
+					  	</div>
+					</div>
+				  	<div class="form-row">
+					  	<div class="form-group col-md-6">
+					    	<label>Target 1</label>
+					    	<input class="form-control" id="indikator-teks-tujuan-satuan-1" type="text">
+					  	</div>
+					  	<div class="form-group col-md-6">
+					    	<label>Satuan</label>
+					    	<input class="form-control" id="indikator-teks-tujuan-satuan-1" type="text">
+					  	</div>
+					</div>
+				  	<div class="form-row">
+					  	<div class="form-group col-md-6">
+					    	<label>Target 2</label>
+					    	<input class="form-control" id="indikator-teks-tujuan-satuan-2" type="text">
+					  	</div>
+					  	<div class="form-group col-md-6">
+					    	<label>Satuan</label>
+					    	<input class="form-control" id="indikator-teks-tujuan-satuan-2" type="text">
+					  	</div>
+					</div>
+				  	<div class="form-row">
+					  	<div class="form-group col-md-6">
+					    	<label>Target 3</label>
+					    	<input class="form-control" id="indikator-teks-tujuan-satuan-3" type="text">
+					  	</div>
+					  	<div class="form-group col-md-6">
+					    	<label>Satuan</label>
+					    	<input class="form-control" id="indikator-teks-tujuan-satuan-3" type="text">
+					  	</div>
+					</div>
+				  	<div class="form-row">
+					  	<div class="form-group col-md-6">
+					    	<label>Target 4</label>
+					    	<input class="form-control" id="indikator-teks-tujuan-satuan-4" type="text">
+					  	</div>
+					  	<div class="form-group col-md-6">
+					    	<label>Satuan</label>
+					    	<input class="form-control" id="indikator-teks-tujuan-satuan-4" type="text">
+					  	</div>
+					</div>
+				  	<div class="form-row">
+					  	<div class="form-group col-md-6">
+					    	<label>Target 5</label>
+					    	<input class="form-control" id="indikator-teks-tujuan-satuan-5" type="text">
+					  	</div>
+					  	<div class="form-group col-md-6">
+					    	<label>Satuan</label>
+					    	<input class="form-control" id="indikator-teks-tujuan-satuan-5" type="text">
+					  	</div>
+					</div>
+				  	<div class="form-row">
+					  	<div class="form-group col-md-6">
+					    	<label>Target Akhir</label>
+					    	<input class="form-control" id="indikator-teks-tujuan-satuan-akhir" type="text">
+					  	</div>
+					  	<div class="form-group col-md-6">
+					    	<label>Satuan</label>
+					    	<input class="form-control" id="indikator-teks-tujuan-satuan-akhir" type="text">
+					  	</div>
+					</div>
+				</form>
+            </div>
+            <div class="modal-footer">
+            	<button class="btn btn-primary" onclick="simpan_tujuan_indikator();">Simpan</button>
+            	<button class="btn btn-default" data-dismiss="modal">Tutup</button>
             </div>
         </div>
     </div>
@@ -643,20 +819,321 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
 		}
 	});
 	jQuery('#tambah-data').on('click', function(){
+		tampil_detail_popup();
+	});
+
+	function tampil_detail_popup(cb){
 		jQuery('#wrap-loading').show();
 		jQuery('#modal-monev').modal('show');
 		jQuery.ajax({
 			url: ajax.url,
           	type: "post",
           	data: {
-          		"action": "get_tujuan_rpd",
+          		"action": "get_rpd",
           		"api_key": "<?php echo $api_key; ?>",
+          		"table": "data_rpd_tujuan_lokal",
           		"type": 1
           	},
           	dataType: "json",
           	success: function(res){
+				console.log('res', res);
 				jQuery('#wrap-loading').hide();
+				var data_html = ""
+					+'<button class="btn-sm btn-primary" style="margin-top: 10px;" onclick="tambah_tujuan();"><i class="dashicons dashicons-plus" style="margin-top: 3px;"></i> Tambah tujuan</button>'
+					+"<table class='table table-bordered' style='margin: 10px 0;'>"
+						+"<thead>"
+							+"<tr>"
+								+"<th class='text-center' style='width: 45px;'>No</th>"
+								+"<th class='text-center'>Tujuan</th>"
+								+"<th class='text-center' style='width: 195px;'>Aksi</th>"
+							+"</tr>"
+						+"</thead>"
+						+"<tbody>";
+				var no = 0;
+				for(var b in res.data_all){
+					no++;
+					data_html += ''
+					+'<tr id-tujuan="'+res.data_all[b].id_unik+'">'
+						+'<td class="text-center">'+(no)+'</td>'
+						+'<td>'+res.data_all[b].nama+'</td>'
+						+'<td class="text-center aksi">'
+							+'<button class="btn-sm btn-primary" onclick="detail_tujuan(\''+res.data_all[b].id_unik+'\');"><i class="dashicons dashicons-search"></i></button>'
+							+'<button class="btn-sm btn-primary" onclick="tambah_tujuan_indikator(\''+res.data_all[b].id_unik+'\');"><i class="dashicons dashicons-plus"></i></button>'
+							+'<button class="btn-sm btn-warning" onclick="edit_tujuan(\''+res.data_all[b].id_unik+'\');"><i class="dashicons dashicons-edit"></i></button>'
+							+'<button class="btn-sm btn-danger" onclick="hapus_tujuan(\''+res.data_all[b].id_unik+'\');"><i class="dashicons dashicons-trash"></i></button>'
+						+'</td>'
+					+'</tr>';
+
+					res.data_all[b].detail.map(function(bb, i){
+						data_html += ''
+						+'<tr id-tujuan-indikator="'+bb.id_unik_indikator+'" style="background: #8000001f;">'
+							+'<td class="text-center">'+no+'.'+(i+1)+'</td>'
+							+'<td>'+bb.indikator_teks+'</td>'
+							+'<td class="text-center aksi">'
+								+'<button class="btn-sm btn-warning" onclick="edit_tujuan_indikator(\''+bb.id_unik_indikator+'\');"><i class="dashicons dashicons-edit"></i></button>'
+								+'<button class="btn-sm btn-danger" onclick="hapus_tujuan_indikator(\''+bb.id_unik_indikator+'\');"><i class="dashicons dashicons-trash"></i></button>'
+							+'</td>'
+						+'</tr>';
+					});
+				};
+				data_html += ""
+						+"</tbody>";
+					+"</table>";
+				jQuery('#nav-tujuan').html(data_html);
+          		jQuery('.nav-tabs a[href="#nav-tujuan"]').tab('show');
+		        if(typeof cb == 'function'){
+		        	cb();
+		        }
           	}
         });
+	}
+
+	function tambah_tujuan_indikator(id_tujuan){
+		jQuery('#modal-tujuan-indikator').modal('show');
+	}
+
+	function tambah_tujuan(){
+  		get_rpjpd('data_rpjpd_visi')
+  		.then(function(visi){
+  			var visi_html = '<option value="">Pilih visi RPJPD</option>';
+  			visi.map(function(b, i){
+  				visi_html += '<option value="'+b.id+'">'+b.visi_teks+'</option>';
+  			});
+  			jQuery('#visi-teks').html(visi_html);
+  			jQuery('#misi-teks').html('');
+  			jQuery('#saspok-teks').html('');
+  			jQuery('#kebijakan-teks').html('');
+  			jQuery('#isu-teks').html('');
+			jQuery('#modal-tujuan').attr('data-id', '');
+			jQuery('#modal-tujuan').modal('show');
+			jQuery('#tujuan-teks').val('');
+		});
+	}
+
+	function edit_tujuan(id_unik_tujuan){
+		jQuery('#wrap-loading').show();
+  		jQuery.ajax({
+			url: ajax.url,
+          	type: "post",
+          	data: {
+          		"action": "get_rpd",
+          		"api_key": "<?php echo $api_key; ?>",
+          		"table": "data_rpd_tujuan_lokal",
+          		"id_unik_tujuan": id_unik_tujuan,
+          		"type": 1
+          	},
+          	dataType: "json",
+          	success: function(res){
+          		jQuery('#wrap-loading').hide();
+          		for(var b in res.data_all){
+          			var visi_html = '<option value="">Pilih visi RPJPD</option>';
+          			res.data_all[b].rpjpd.visi.data.data.map(function(bb, ii){
+          				var selected = '';
+          				if(bb.id == res.data_all[b].rpjpd.visi.id){
+          					selected = 'selected';
+          				}
+		  				visi_html += '<option '+selected+' value="'+bb.id+'">'+bb.visi_teks+'</option>';
+          			});
+		  			jQuery('#visi-teks').html(visi_html);
+
+          			var misi_html = '<option value="">Pilih misi RPJPD</option>';
+		  			res.data_all[b].rpjpd.misi.data.data.map(function(bb, ii){
+		  				var selected = '';
+		  				if(bb.id == res.data_all[b].rpjpd.misi.id){
+		  					selected = 'selected';
+		  				}
+		  				misi_html += '<option '+selected+' value="'+bb.id+'">'+bb.misi_teks+'</option>';
+		  			});
+		  			jQuery('#misi-teks').html(misi_html);
+
+          			var saspok_html = '<option value="">Pilih sasaran RPJPD</option>';
+		  			res.data_all[b].rpjpd.sasaran.data.data.map(function(bb, ii){
+		  				var selected = '';
+		  				if(bb.id == res.data_all[b].rpjpd.sasaran.id){
+		  					selected = 'selected';
+		  				}
+		  				saspok_html += '<option '+selected+' value="'+bb.id+'">'+bb.saspok_teks+'</option>';
+		  			});
+		  			jQuery('#saspok-teks').html(saspok_html);
+
+          			var kebijakan_html = '<option value="">Pilih kebijakan RPJPD</option>';
+		  			res.data_all[b].rpjpd.kebijakan.data.data.map(function(bb, ii){
+		  				var selected = '';
+		  				if(bb.id == res.data_all[b].rpjpd.kebijakan.id){
+		  					selected = 'selected';
+		  				}
+		  				kebijakan_html += '<option '+selected+' value="'+bb.id+'">'+bb.kebijakan_teks+'</option>';
+		  			});
+		  			jQuery('#kebijakan-teks').html(kebijakan_html);
+
+          			var isu_html = '<option value="">Pilih isu RPJPD</option>';
+		  			res.data_all[b].rpjpd.isu.data.data.map(function(bb, ii){
+		  				var selected = '';
+		  				if(bb.id == res.data_all[b].rpjpd.isu.id){
+		  					selected = 'selected';
+		  				}
+		  				isu_html += '<option '+selected+' value="'+bb.id+'">'+bb.isu_teks+'</option>';
+		  			});
+		  			jQuery('#isu-teks').html(isu_html);
+
+					jQuery('#tujuan-teks').val(res.data_all[b].nama);
+		  		}
+				jQuery('#modal-tujuan').attr('data-id', id_unik_tujuan);
+				jQuery('#modal-tujuan').modal('show');
+			}
+		});
+	}
+
+	function simpan_tujuan(){
+		if(confirm('Apakah anda yakin untuk menyimpan data ini?')){
+			jQuery('#wrap-loading').show();
+			var tujuan_teks = jQuery('#tujuan-teks').val();
+			if(tujuan_teks == ''){
+				return alert('Tujuan tidak boleh kosong!');
+			}
+			var id_isu = jQuery('#isu-teks').val();
+			if(id_isu == ''){
+				return alert('Isu RPJPD tidak boleh kosong!');
+			}
+			var id_tujuan = jQuery('#modal-tujuan').attr('data-id');
+			jQuery.ajax({
+				url: ajax.url,
+	          	type: "post",
+	          	data: {
+	          		"action": "simpan_rpd",
+	          		"api_key": "<?php echo $api_key; ?>",
+	          		"table": 'data_rpd_tujuan_lokal',
+	          		"data": tujuan_teks,
+	          		"id_isu": id_isu,
+	          		"id": id_tujuan
+	          	},
+	          	dataType: "json",
+	          	success: function(res){
+					jQuery('#wrap-loading').hide();
+					if(res.status == 'success'){
+						jQuery('#modal-tujuan').modal('hide');
+						jQuery('#tambah-data').click();
+					}
+					alert(res.message);
+	          	}
+	        });
+		}
+	}
+
+	function hapus_tujuan(id_tujuan_unik){
+		if(confirm('Apakah anda yakin untuk menghapus data ini?')){
+			jQuery('#wrap-loading').show();
+			jQuery.ajax({
+				url: ajax.url,
+	          	type: "post",
+	          	data: {
+	          		"action": "hapus_rpd",
+	          		"api_key": "<?php echo $api_key; ?>",
+	          		"table": 'data_rpd_tujuan_lokal',
+	          		"id": id_tujuan_unik
+	          	},
+	          	dataType: "json",
+	          	success: function(res){
+					jQuery('#wrap-loading').hide();
+					if(res.status == 'success'){
+						jQuery('#modal-tujuan').modal('hide');
+						jQuery('#tambah-data').click();
+					}
+					alert(res.message);
+	          	}
+	        });
+		}
+	}
+
+	function get_rpjpd(table, id){
+		jQuery('#wrap-loading').show();
+		return new Promise(function(resolve, reject){
+			jQuery.ajax({
+				url: ajax.url,
+	          	type: "post",
+	          	data: {
+	          		"action": "get_rpjpd",
+	          		"api_key": "<?php echo $api_key; ?>",
+	          		"table": table,
+	          		"id": id
+	          	},
+	          	dataType: "json",
+	          	success: function(res){
+	          		jQuery('#wrap-loading').hide();
+	          		resolve(res.data);
+	          	}
+	        });
+		});
+	}
+
+	jQuery('#visi-teks').on('change', function(){
+		var id_visi = jQuery(this).val();
+		if(id_visi){
+			get_rpjpd('data_rpjpd_misi', id_visi)
+	  		.then(function(data){
+	  			var html = '<option value="">Pilih misi RPJPD</option>';
+	  			data.map(function(b, i){
+	  				html += '<option value="'+b.id+'">'+b.misi_teks+'</option>';
+	  			});
+	  			jQuery('#misi-teks').html(html);
+	  			jQuery('#saspok-teks').html('');
+	  			jQuery('#kebijakan-teks').html('');
+	  			jQuery('#isu-teks').html('');
+	  		});
+	  	}else{
+  			jQuery('#saspok-teks').html('');
+  			jQuery('#kebijakan-teks').html('');
+	  		jQuery('#isu-teks').html('');
+	  	}
+	});
+
+	jQuery('#misi-teks').on('change', function(){
+		var id_misi = jQuery(this).val();
+		if(id_misi){
+			get_rpjpd('data_rpjpd_sasaran', id_misi)
+	  		.then(function(data){
+	  			var html = '<option value="">Pilih sasaran pokok RPJPD</option>';
+	  			data.map(function(b, i){
+	  				html += '<option value="'+b.id+'">'+b.saspok_teks+'</option>';
+	  			});
+	  			jQuery('#saspok-teks').html(html);
+	  			jQuery('#kebijakan-teks').html('');
+	  			jQuery('#isu-teks').html('');
+	  		});
+	  	}else{
+	  		jQuery('#kebijakan-teks').html('');
+	  		jQuery('#isu-teks').html('');
+	  	}
+	});
+
+	jQuery('#saspok-teks').on('change', function(){
+		var id_saspok = jQuery(this).val();
+		if(id_saspok){
+			get_rpjpd('data_rpjpd_kebijakan', id_saspok)
+	  		.then(function(data){
+	  			var html = '<option value="">Pilih kebijakan RPJPD</option>';
+	  			data.map(function(b, i){
+	  				html += '<option value="'+b.id+'">'+b.kebijakan_teks+'</option>';
+	  			});
+	  			jQuery('#kebijakan-teks').html(html);
+	  			jQuery('#isu-teks').html('');
+	  		});
+	  	}else{
+	  		jQuery('#isu-teks').html('');
+	  	}
+	});
+
+	jQuery('#kebijakan-teks').on('change', function(){
+		var id_kebijakan = jQuery(this).val();
+		if(id_kebijakan){
+			get_rpjpd('data_rpjpd_isu', id_kebijakan)
+	  		.then(function(data){
+	  			var html = '<option value="">Pilih isu RPJPD</option>';
+	  			data.map(function(b, i){
+	  				html += '<option value="'+b.id+'">'+b.isu_teks+'</option>';
+	  			});
+	  			jQuery('#isu-teks').html(html);
+	  		});
+	  	}
 	});
 </script>
