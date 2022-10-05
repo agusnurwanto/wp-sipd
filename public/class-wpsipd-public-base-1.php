@@ -533,28 +533,75 @@ class Wpsipd_Public_Base_1 extends Wpsipd_Public_Base_2{
                     $table = '';
                     if($_POST['table'] == 'data_rpd_tujuan_lokal'){
                         $table = $_POST['table'];
-                        $data = array(
-                            'id_isu' => $_POST['id_isu'],
-                            'tujuan_teks' => $_POST['data'],
-                            'update_at' => date('Y-m-d H:i:s')
-                        );
-                        if(!empty($_POST['id'])){
-                            $data['id_unik'] = $_POST['id'];
-                            $wpdb->update($table, $data, array( "id_unik" => $_POST['id'] ));
-                            $ret['message'] = 'Berhasil update data RPD!';
-                        }else{
-                            $data['id_unik'] = time().'-'.$this->generateRandomString(5);
-                            $cek_id = $wpdb->get_var($wpdb->prepare("
-                                select 
-                                    id 
+                        // simpan atau edit indikator tujuan
+                        if(!empty($_POST['id_tujuan'])){
+                            $tujuan = $wpdb->get_results($wpdb->prepare("
+                                select
+                                    id_isu,
+                                    tujuan_teks,
+                                    id_unik
                                 from $table
-                                where tujuan_teks=%s
-                            ", $_POST['data']));
-                            if(!empty($cek_id)){
-                                $ret['status'] = 'error';
-                                $ret['message'] = 'Tujuan teks sudah ada!';
+                                where id_unik=%s
+                            ", $_POST['id_tujuan']), ARRAY_A);
+                            $data = array(
+                                'id_isu' => $tujuan[0]['id_isu'],
+                                'tujuan_teks' => $tujuan[0]['tujuan_teks'],
+                                'id_unik' => $tujuan[0]['id_unik'],
+                                'indikator_teks' => $_POST['data'],
+                                'target_awal' => $_POST['vol_awal'].' '.$_POST['satuan_awal'],
+                                'target_1' => $_POST['vol_1'].' '.$_POST['satuan_1'],
+                                'target_2' => $_POST['vol_2'].' '.$_POST['satuan_2'],
+                                'target_3' => $_POST['vol_3'].' '.$_POST['satuan_3'],
+                                'target_4' => $_POST['vol_4'].' '.$_POST['satuan_4'],
+                                'target_5' => $_POST['vol_5'].' '.$_POST['satuan_5'],
+                                'target_akhir' => $_POST['vol_akhir'].' '.$_POST['satuan_akhir'],
+                                'update_at' => date('Y-m-d H:i:s')
+                            );
+                            if(!empty($_POST['id'])){
+                                $data['id_unik_indikator'] = $_POST['id'];
+                                $wpdb->update($table, $data, array( "id_unik_indikator" => $_POST['id'] ));
+                                $ret['message'] = 'Berhasil update data RPD!';
                             }else{
-                                $wpdb->insert($table, $data);
+                                $data['id_unik_indikator'] = time().'-'.$this->generateRandomString(5);
+                                $cek_id = $wpdb->get_var($wpdb->prepare("
+                                    select 
+                                        id 
+                                    from $table
+                                    where indikator_teks=%s
+                                        and id_unik=%s
+                                ", $_POST['data'], $_POST['id_tujuan']));
+                                if(!empty($cek_id)){
+                                    $ret['status'] = 'error';
+                                    $ret['message'] = 'Indikator tujuan teks sudah ada!';
+                                }else{
+                                    $wpdb->insert($table, $data);
+                                }
+                            }
+                        // simpan atau edit tujuan
+                        }else{
+                            $data = array(
+                                'id_isu' => $_POST['id_isu'],
+                                'tujuan_teks' => $_POST['data'],
+                                'update_at' => date('Y-m-d H:i:s')
+                            );
+                            if(!empty($_POST['id'])){
+                                $data['id_unik'] = $_POST['id'];
+                                $wpdb->update($table, $data, array( "id_unik" => $_POST['id'] ));
+                                $ret['message'] = 'Berhasil update data RPD!';
+                            }else{
+                                $data['id_unik'] = time().'-'.$this->generateRandomString(5);
+                                $cek_id = $wpdb->get_var($wpdb->prepare("
+                                    select 
+                                        id 
+                                    from $table
+                                    where tujuan_teks=%s
+                                ", $_POST['data']));
+                                if(!empty($cek_id)){
+                                    $ret['status'] = 'error';
+                                    $ret['message'] = 'Tujuan teks sudah ada!';
+                                }else{
+                                    $wpdb->insert($table, $data);
+                                }
                             }
                         }
                     }

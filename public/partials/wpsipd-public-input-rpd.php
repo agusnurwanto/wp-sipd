@@ -624,7 +624,7 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
 				  	<div class="form-row">
 					  	<div class="form-group col-md-6">
 					    	<label>Target Awal</label>
-					    	<input class="form-control" id="indikator-teks-tujuan-satuan-awal" type="text">
+					    	<input class="form-control" id="indikator-teks-tujuan-vol-awal" type="text">
 					  	</div>
 					  	<div class="form-group col-md-6">
 					    	<label>Satuan</label>
@@ -634,7 +634,7 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
 				  	<div class="form-row">
 					  	<div class="form-group col-md-6">
 					    	<label>Target 1</label>
-					    	<input class="form-control" id="indikator-teks-tujuan-satuan-1" type="text">
+					    	<input class="form-control" id="indikator-teks-tujuan-vol-1" type="text">
 					  	</div>
 					  	<div class="form-group col-md-6">
 					    	<label>Satuan</label>
@@ -644,7 +644,7 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
 				  	<div class="form-row">
 					  	<div class="form-group col-md-6">
 					    	<label>Target 2</label>
-					    	<input class="form-control" id="indikator-teks-tujuan-satuan-2" type="text">
+					    	<input class="form-control" id="indikator-teks-tujuan-vol-2" type="text">
 					  	</div>
 					  	<div class="form-group col-md-6">
 					    	<label>Satuan</label>
@@ -654,7 +654,7 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
 				  	<div class="form-row">
 					  	<div class="form-group col-md-6">
 					    	<label>Target 3</label>
-					    	<input class="form-control" id="indikator-teks-tujuan-satuan-3" type="text">
+					    	<input class="form-control" id="indikator-teks-tujuan-vol-3" type="text">
 					  	</div>
 					  	<div class="form-group col-md-6">
 					    	<label>Satuan</label>
@@ -664,7 +664,7 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
 				  	<div class="form-row">
 					  	<div class="form-group col-md-6">
 					    	<label>Target 4</label>
-					    	<input class="form-control" id="indikator-teks-tujuan-satuan-4" type="text">
+					    	<input class="form-control" id="indikator-teks-tujuan-vol-4" type="text">
 					  	</div>
 					  	<div class="form-group col-md-6">
 					    	<label>Satuan</label>
@@ -674,7 +674,7 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
 				  	<div class="form-row">
 					  	<div class="form-group col-md-6">
 					    	<label>Target 5</label>
-					    	<input class="form-control" id="indikator-teks-tujuan-satuan-5" type="text">
+					    	<input class="form-control" id="indikator-teks-tujuan-vol-5" type="text">
 					  	</div>
 					  	<div class="form-group col-md-6">
 					    	<label>Satuan</label>
@@ -684,7 +684,7 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
 				  	<div class="form-row">
 					  	<div class="form-group col-md-6">
 					    	<label>Target Akhir</label>
-					    	<input class="form-control" id="indikator-teks-tujuan-satuan-akhir" type="text">
+					    	<input class="form-control" id="indikator-teks-tujuan-vol-akhir" type="text">
 					  	</div>
 					  	<div class="form-group col-md-6">
 					    	<label>Satuan</label>
@@ -889,7 +889,63 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
 	}
 
 	function tambah_tujuan_indikator(id_tujuan){
-		jQuery('#modal-tujuan-indikator').modal('show');
+		jQuery('#wrap-loading').show();
+  		jQuery.ajax({
+			url: ajax.url,
+          	type: "post",
+          	data: {
+          		"action": "get_rpd",
+          		"api_key": "<?php echo $api_key; ?>",
+          		"table": "data_rpd_tujuan_lokal",
+          		"id_unik_tujuan": id_tujuan,
+          		"type": 1
+          	},
+          	dataType: "json",
+          	success: function(res){
+      			jQuery('#visi-teks-indikator').html('');
+      			jQuery('#misi-teks-indikator').html('');
+	  			jQuery('#saspok-teks-indikator').html('');
+	  			jQuery('#kebijakan-teks-indikator').html('');
+	  			jQuery('#isu-teks-indikator').html('');
+				jQuery('#modal-tujuan-indikator').modal('show');
+				for(var b in res.data_all){
+          			res.data_all[b].rpjpd.visi.data.data.map(function(bb, ii){
+          				if(bb.id == res.data_all[b].rpjpd.visi.id){
+          					jQuery('#visi-teks-indikator').html(bb.visi_teks);
+          				}
+          			});
+
+		  			res.data_all[b].rpjpd.misi.data.data.map(function(bb, ii){
+		  				if(bb.id == res.data_all[b].rpjpd.misi.id){
+          					jQuery('#misi-teks-indikator').html(bb.misi_teks);
+		  				}
+		  			});
+
+		  			res.data_all[b].rpjpd.sasaran.data.data.map(function(bb, ii){
+		  				if(bb.id == res.data_all[b].rpjpd.sasaran.id){
+		  					jQuery('#saspok-teks-indikator').html(bb.saspok_teks);
+		  				}
+		  			});
+
+		  			res.data_all[b].rpjpd.kebijakan.data.data.map(function(bb, ii){
+		  				var selected = '';
+		  				if(bb.id == res.data_all[b].rpjpd.kebijakan.id){
+		  					jQuery('#kebijakan-teks-indikator').html(bb.kebijakan_teks);
+		  				}
+		  			});
+
+		  			res.data_all[b].rpjpd.isu.data.data.map(function(bb, ii){
+		  				if(bb.id == res.data_all[b].rpjpd.isu.id){
+		  					jQuery('#isu-teks-indikator').html(bb.isu_teks);
+		  				}
+		  			});
+
+					jQuery('#tujuan-teks-indikator').html(res.data_all[b].nama);
+					jQuery('#modal-tujuan-indikator').attr('id-tujuan', res.data_all[b].id_unik);
+				}
+				jQuery('#wrap-loading').hide();
+			}
+		});
 	}
 
 	function tambah_tujuan(){
@@ -1037,6 +1093,112 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
 					jQuery('#wrap-loading').hide();
 					if(res.status == 'success'){
 						jQuery('#modal-tujuan').modal('hide');
+						jQuery('#tambah-data').click();
+					}
+					alert(res.message);
+	          	}
+	        });
+		}
+	}
+
+	function simpan_tujuan_indikator() {
+		var id_tujuan = jQuery('#modal-tujuan-indikator').attr('id-tujuan');
+		if(id_tujuan == ''){
+			return alert('ID tujuan tidak ditemukan!');
+		}
+		var tujuan_teks_indikator = jQuery('#indikator-teks-tujuan').val();
+		if(tujuan_teks_indikator == ''){
+			return alert('Indikator tujuan tidak boleh kosong!');
+		}
+		var vol_awal = jQuery('#indikator-teks-tujuan-vol-awal').val();
+		if(vol_awal == ''){
+			return alert('Volume awal indikator tujuan tidak boleh kosong!');
+		}
+		var satuan_awal = jQuery('#indikator-teks-tujuan-satuan-awal').val();
+		if(satuan_awal == ''){
+			return alert('Satuan awal indikator tujuan tidak boleh kosong!');
+		}
+		var vol_1 = jQuery('#indikator-teks-tujuan-vol-1').val();
+		if(vol_1 == ''){
+			return alert('Volume 1 indikator tujuan tidak boleh kosong!');
+		}
+		var satuan_1 = jQuery('#indikator-teks-tujuan-satuan-1').val();
+		if(satuan_1 == ''){
+			return alert('Satuan 1 indikator tujuan tidak boleh kosong!');
+		}
+		var vol_2 = jQuery('#indikator-teks-tujuan-vol-2').val();
+		if(vol_2 == ''){
+			return alert('Volume 2 indikator tujuan tidak boleh kosong!');
+		}
+		var satuan_2 = jQuery('#indikator-teks-tujuan-satuan-2').val();
+		if(satuan_2 == ''){
+			return alert('Satuan 2 indikator tujuan tidak boleh kosong!');
+		}
+		var vol_3 = jQuery('#indikator-teks-tujuan-vol-3').val();
+		if(vol_3 == ''){
+			return alert('Volume 3 indikator tujuan tidak boleh kosong!');
+		}
+		var satuan_3 = jQuery('#indikator-teks-tujuan-satuan-3').val();
+		if(satuan_3 == ''){
+			return alert('Satuan 3 indikator tujuan tidak boleh kosong!');
+		}
+		var vol_4 = jQuery('#indikator-teks-tujuan-vol-4').val();
+		if(vol_4 == ''){
+			return alert('Volume 4 indikator tujuan tidak boleh kosong!');
+		}
+		var satuan_4 = jQuery('#indikator-teks-tujuan-satuan-4').val();
+		if(satuan_4 == ''){
+			return alert('Satuan 4 indikator tujuan tidak boleh kosong!');
+		}
+		var vol_5 = jQuery('#indikator-teks-tujuan-vol-5').val();
+		if(vol_5 == ''){
+			return alert('Volume 5 indikator tujuan tidak boleh kosong!');
+		}
+		var satuan_5 = jQuery('#indikator-teks-tujuan-satuan-5').val();
+		if(satuan_5 == ''){
+			return alert('Satuan 5 indikator tujuan tidak boleh kosong!');
+		}
+		var vol_akhir = jQuery('#indikator-teks-tujuan-vol-akhir').val();
+		if(vol_akhir == ''){
+			return alert('Volume akhir indikator tujuan tidak boleh kosong!');
+		}
+		var satuan_akhir = jQuery('#indikator-teks-tujuan-satuan-akhir').val();
+		if(satuan_akhir == ''){
+			return alert('Satuan akhir indikator tujuan tidak boleh kosong!');
+		}
+		var id_indikator = jQuery('#modal-tujuan-indikator').attr('data-id');
+		if(confirm('Apakah anda yakin untuk menyimpan data ini?')){
+			jQuery('#wrap-loading').show();
+			jQuery.ajax({
+				url: ajax.url,
+	          	type: "post",
+	          	data: {
+	          		"action": "simpan_rpd",
+	          		"api_key": "<?php echo $api_key; ?>",
+	          		"table": 'data_rpd_tujuan_lokal',
+	          		"data": tujuan_teks_indikator,
+	          		"id_tujuan": id_tujuan,
+	          		"vol_awal": vol_awal,
+	          		"satuan_awal": satuan_awal,
+	          		"vol_1": vol_1,
+	          		"satuan_1": satuan_1,
+	          		"vol_2": vol_2,
+	          		"satuan_2": satuan_2,
+	          		"vol_3": vol_3,
+	          		"satuan_3": satuan_3,
+	          		"vol_4": vol_4,
+	          		"satuan_4": satuan_4,
+	          		"vol_5": vol_5,
+	          		"satuan_5": satuan_5,
+	          		"vol_akhir": vol_akhir,
+	          		"satuan_akhir": satuan_akhir,
+	          		"id": id_indikator
+	          	},
+	          	dataType: "json",
+	          	success: function(res){
+					jQuery('#wrap-loading').hide();
+					if(res.status == 'success'){
+						jQuery('#modal-tujuan-indikator').modal('hide');
 						jQuery('#tambah-data').click();
 					}
 					alert(res.message);
