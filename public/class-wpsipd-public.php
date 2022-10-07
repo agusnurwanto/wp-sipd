@@ -14677,10 +14677,32 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						if($time_now > $data_this_id[0]['waktu_awal']){
 							if($time_now < $data_this_id[0]['waktu_akhir']){
 								if($data_this_id[0]['status'] == 0 || $data_this_id[0]['status'] == NULL){
+
+									$wpdb->query("START TRANSACTION");
+
 									//lock data penjadwalan
 									$wpdb->update('data_jadwal_lokal', array('waktu_akhir' => $time_now,'status' => 1), array(
 										'id_jadwal_lokal'	=> $id_jadwal_lokal
 									));
+
+									$visi = $wpdb->get_results("SELECT * FROM data_rpjmd_visi_lokal WHERE status=1 AND active=1 AND is_locked=0 ORDER BY id");
+
+									if(!empty($visi)){
+
+										$columns_0 = array('id_visi','is_locked','status','visi_teks','update_at','active','tahun_anggaran');
+		
+										$sql_backup_data_rpjmd_visi_lokal =  "INSERT INTO data_rpjmd_visi_lokal_history (".implode(', ', $columns_0).",id_jadwal,id_asli)
+													SELECT ".implode(', ', $columns_0).", ".$data_this_id[0]['id_jadwal_lokal'].", id as id_asli
+													FROM data_rpjmd_misi_lokal";
+
+										die($sql_backup_data_rpjmd_visi_lokal);
+
+										$queryRecords0 = $wpdb->query($sql_backup_data_rpjmd_visi_lokal);
+
+										foreach ($visi as $keyVisi => $valueVisi) {
+											// code...
+										}
+									}
 
 									$columns_1 = array('id_misi','id_misi_old','id_visi','is_locked','misi_teks','status','urut_misi','visi_lock','visi_teks','update_at');
 		
