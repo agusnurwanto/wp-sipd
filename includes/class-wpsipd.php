@@ -441,8 +441,8 @@ class Wpsipd
 		$this->loader->add_action('wp_ajax_singkron_data_rpd',  $plugin_public, 'singkron_data_rpd');
 		$this->loader->add_action('wp_ajax_nopriv_singkron_data_rpd',  $plugin_public, 'singkron_data_rpd');
 
-		$this->loader->add_action('wp_ajax_get_tujuan_rpd',  $plugin_public, 'get_tujuan_rpd');
-		$this->loader->add_action('wp_ajax_nopriv_get_tujuan_rpd',  $plugin_public, 'get_tujuan_rpd');
+		$this->loader->add_action('wp_ajax_get_rpd',  $plugin_public, 'get_rpd');
+		$this->loader->add_action('wp_ajax_nopriv_get_rpd',  $plugin_public, 'get_rpd');
 
 		$this->loader->add_action('wp_ajax_get_rpjpd',  $plugin_public, 'get_rpjpd');
 		$this->loader->add_action('wp_ajax_nopriv_get_rpjpd',  $plugin_public, 'get_rpjpd');
@@ -503,7 +503,9 @@ class Wpsipd
 		$this->loader->add_action('wp_ajax_submit_lock_schedule_rpd',  $plugin_public, 'submit_lock_schedule_rpd');
 
 		$this->loader->add_action('wp_ajax_simpan_rpjpd',  $plugin_public, 'simpan_rpjpd');
+		$this->loader->add_action('wp_ajax_simpan_rpd',  $plugin_public, 'simpan_rpd');
 		$this->loader->add_action('wp_ajax_hapus_rpjpd',  $plugin_public, 'hapus_rpjpd');
+		$this->loader->add_action('wp_ajax_hapus_rpd',  $plugin_public, 'hapus_rpd');
 		$this->loader->add_action('wp_ajax_get_data_monitoring_rup',  $plugin_public, 'get_data_monitoring_rup');
 		
 		$this->loader->add_action('wp_ajax_submit_visi_rpjm',  $plugin_public, 'submit_visi_rpjm');

@@ -3176,6 +3176,7 @@ CREATE TABLE `data_rpd_tujuan_lokal` (
   `urut_saspok` tinyint(4) DEFAULT NULL,
   `urut_tujuan` tinyint(4) DEFAULT NULL,
   `visi_teks` text DEFAULT NULL,
+  `id_isu` int(11) DEFAULT NULL,
   `update_at` datetime NOT NULL,
   PRIMARY KEY  (id)
 );

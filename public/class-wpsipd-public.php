@@ -15629,46 +15629,6 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		die(json_encode($ret));
 	}
 
-	function get_tujuan_rpd(){
-		global $wpdb;
-		$ret = array(
-			'status'	=> 'success',
-			'message'	=> 'Berhasil get tujuan RPD!'
-		);
-		if (!empty($_POST)) {
-			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
-				$type = $_POST['type'];
-				if($type == 1){
-					$sql = $wpdb->prepare("
-						select 
-							* 
-						from data_rpd_tujuan_lokal
-					");
-					$ret['data'] = $wpdb->get_results($sql, ARRAY_A);
-				}else{
-					$sql = $wpdb->prepare("
-						select 
-							* 
-						from data_rpd_tujuan
-						where active=1
-					");
-					$ret['data'] = $wpdb->get_results($sql, ARRAY_A);
-				}
-			}else{
-				$ret = array(
-					'status' => 'error',
-					'message'	=> 'Api Key tidak sesuai!'
-				);
-			}
-		}else{
-			$ret = array(
-				'status' => 'error',
-				'message'	=> 'Format tidak sesuai!'
-			);
-		}
-		die(json_encode($ret));
-	}
-
 	function validasi_jadwal_perencanaan($tipe_perencanaan){
 		global $wpdb;
 
