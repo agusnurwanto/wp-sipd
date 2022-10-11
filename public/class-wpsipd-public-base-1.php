@@ -435,6 +435,8 @@ class Wpsipd_Public_Base_1 extends Wpsipd_Public_Base_2{
                     $table = $_POST['table'];
                     if(!empty($_POST['id_unik_tujuan'])){
                         $where .= $wpdb->prepare(' and id_unik=%s', $_POST['id_unik_tujuan']);
+                    }else if(!empty($_POST['id_unik_tujuan_indikator'])){
+                        $where .= $wpdb->prepare(' and id_unik_indikator=%s', $_POST['id_unik_tujuan_indikator']);
                     }
                 }else if($_POST['table'] == 'data_rpd_tujuan'){
                     $table = $_POST['table'];
@@ -451,6 +453,9 @@ class Wpsipd_Public_Base_1 extends Wpsipd_Public_Base_2{
                     if($_POST['table'] == 'data_rpd_tujuan_lokal'){
                         foreach ($ret['data'] as $tujuan) {
                             if(empty($data_all[$tujuan['id_unik']])){
+                                if(!empty($_POST['id_unik_tujuan_indikator'])){
+                                    $_POST['id_unik_tujuan'] = $tujuan['id_unik'];
+                                }
                                 $data_all[$tujuan['id_unik']] = array(
                                     'id' => $tujuan['id'],
                                     'id_unik' => $tujuan['id_unik'],
@@ -637,7 +642,11 @@ class Wpsipd_Public_Base_1 extends Wpsipd_Public_Base_2{
                     $table = '';
                     if($_POST['table'] == 'data_rpd_tujuan_lokal'){
                         $table = $_POST['table'];
-                        $wpdb->delete($table, array('id_unik' => $_POST['id']));
+                        if(!empty($_POST['id_unik_tujuan_indikator'])){
+                            $wpdb->delete($table, array('id_unik_indikator' => $_POST['id_unik_tujuan_indikator']));
+                        }else{
+                            $wpdb->delete($table, array('id_unik' => $_POST['id']));
+                        }
                     }else{
                         $ret['status'] = 'error';
                         $ret['message'] = 'Param table tidak tidak boleh kosong!';
