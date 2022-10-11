@@ -563,7 +563,7 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
 				  	<div class="form-group">
 				    	<label>Tujuan Teks</label>
 				    	<textarea class="form-control" id="tujuan-teks"></textarea>
-				    	<small class="form-text text-muted">Input teks tujuan RPJPD.</small>
+				    	<small class="form-text text-muted">Input teks tujuan RPD.</small>
 				  	</div>
 				</form>
             </div>
@@ -695,6 +695,143 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
             </div>
             <div class="modal-footer">
             	<button class="btn btn-primary" onclick="simpan_tujuan_indikator();">Simpan</button>
+            	<button class="btn btn-default" data-dismiss="modal">Tutup</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="modal-sasaran" tabindex="-1" role="dialog" data-backdrop="static" aria-hidden="true">'
+    <div class="modal-dialog modal-xl" role="document">
+        <div class="modal-content">
+            <div class="modal-header bgpanel-theme">
+                <h4 style="margin: 0;" class="modal-title" id="">Data RPD Sasaran</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span><i class="dashicons dashicons-dismiss"></i></span></button>
+            </div>
+            <div class="modal-body">
+            	<table class="table table-bordered">
+            		<tbody>
+            			<tr>
+            				<th style="width: 175px;">Tujuan RPD</th>
+            				<td id="tujuan-sasaran-teks"></td>
+            			</tr>
+            		</tbody>
+            	</table>
+            	<form>
+				  	<div class="form-group">
+				    	<label>Sasaran Teks</label>
+				    	<textarea class="form-control" id="sasaran-teks"></textarea>
+				    	<small class="form-text text-muted">Input teks sasaran RPD.</small>
+				  	</div>
+				</form>
+            </div>
+            <div class="modal-footer">
+            	<button class="btn btn-primary" onclick="simpan_sasaran();">Simpan</button>
+            	<button class="btn btn-default" data-dismiss="modal">Tutup</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="modal-sasaran-indikator" tabindex="-1" role="dialog" data-backdrop="static" aria-hidden="true">'
+    <div class="modal-dialog modal-xl" role="document">
+        <div class="modal-content">
+            <div class="modal-header bgpanel-theme">
+                <h4 style="margin: 0;" class="modal-title" id="">Data RPD Indikator Sasaran</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span><i class="dashicons dashicons-dismiss"></i></span></button>
+            </div>
+            <div class="modal-body">
+            	<table class="table table-bordered">
+            		<tbody>
+            			<tr>
+            				<th style="width: 175px;">Tujuan RPD</th>
+            				<td class="text-center">:</td>
+            				<td id="tujuan-sasaran-teks-indikator"></td>
+            			</tr>
+            			<tr>
+            				<th>Sasaran RPD</th>
+            				<td class="text-center">:</td>
+            				<td id="sasaran-teks-indikator"></td>
+            			</tr>
+            		</tbody>
+            	</table>
+            	<form>
+				  	<div class="form-group">
+				    	<label>Indikator Teks</label>
+				    	<input class="form-control" id="indikator-teks-sasaran" type="text">
+				  	</div>
+				  	<div class="form-row">
+					  	<div class="form-group col-md-6">
+					    	<label>Target Awal</label>
+					    	<input class="form-control" id="indikator-teks-sasaran-vol-awal" type="number">
+					  	</div>
+					  	<div class="form-group col-md-6">
+					    	<label>Satuan</label>
+					    	<input class="form-control" id="indikator-teks-sasaran-satuan-awal" type="text">
+					  	</div>
+					</div>
+				  	<div class="form-row">
+					  	<div class="form-group col-md-6">
+					    	<label>Target 1</label>
+					    	<input class="form-control" id="indikator-teks-sasaran-vol-1" type="number">
+					  	</div>
+					  	<div class="form-group col-md-6">
+					    	<label>Satuan</label>
+					    	<input class="form-control" id="indikator-teks-sasaran-satuan-1" type="text">
+					  	</div>
+					</div>
+				  	<div class="form-row">
+					  	<div class="form-group col-md-6">
+					    	<label>Target 2</label>
+					    	<input class="form-control" id="indikator-teks-sasaran-vol-2" type="number">
+					  	</div>
+					  	<div class="form-group col-md-6">
+					    	<label>Satuan</label>
+					    	<input class="form-control" id="indikator-teks-sasaran-satuan-2" type="text">
+					  	</div>
+					</div>
+				  	<div class="form-row">
+					  	<div class="form-group col-md-6">
+					    	<label>Target 3</label>
+					    	<input class="form-control" id="indikator-teks-sasaran-vol-3" type="number">
+					  	</div>
+					  	<div class="form-group col-md-6">
+					    	<label>Satuan</label>
+					    	<input class="form-control" id="indikator-teks-sasaran-satuan-3" type="text">
+					  	</div>
+					</div>
+				  	<div class="form-row">
+					  	<div class="form-group col-md-6">
+					    	<label>Target 4</label>
+					    	<input class="form-control" id="indikator-teks-sasaran-vol-4" type="number">
+					  	</div>
+					  	<div class="form-group col-md-6">
+					    	<label>Satuan</label>
+					    	<input class="form-control" id="indikator-teks-sasaran-satuan-4" type="text">
+					  	</div>
+					</div>
+				  	<div class="form-row">
+					  	<div class="form-group col-md-6">
+					    	<label>Target 5</label>
+					    	<input class="form-control" id="indikator-teks-sasaran-vol-5" type="number">
+					  	</div>
+					  	<div class="form-group col-md-6">
+					    	<label>Satuan</label>
+					    	<input class="form-control" id="indikator-teks-sasaran-satuan-5" type="text">
+					  	</div>
+					</div>
+				  	<div class="form-row">
+					  	<div class="form-group col-md-6">
+					    	<label>Target Akhir</label>
+					    	<input class="form-control" id="indikator-teks-sasaran-vol-akhir" type="number">
+					  	</div>
+					  	<div class="form-group col-md-6">
+					    	<label>Satuan</label>
+					    	<input class="form-control" id="indikator-teks-sasaran-satuan-akhir" type="text">
+					  	</div>
+					</div>
+				</form>
+            </div>
+            <div class="modal-footer">
+            	<button class="btn btn-primary" onclick="simpan_sasaran_indikator();">Simpan</button>
             	<button class="btn btn-default" data-dismiss="modal">Tutup</button>
             </div>
         </div>
@@ -921,6 +1058,114 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
         });
 	}
 
+	function detail_tujuan(id_unik_tujuan, cb){
+		jQuery('#wrap-loading').show();
+		jQuery('#modal-monev').modal('show');
+		jQuery.ajax({
+			url: ajax.url,
+          	type: "post",
+          	data: {
+          		"action": "get_rpd",
+          		"api_key": "<?php echo $api_key; ?>",
+          		"table": "data_rpd_sasaran_lokal",
+          		"id_unik_tujuan": id_unik_tujuan,
+          		"type": 1
+          	},
+          	dataType: "json",
+          	success: function(res){
+				console.log('res', res);
+				jQuery('#wrap-loading').hide();
+				var data_html = ""
+					+"<table class='table table-bordered' style='margin: 10px 0;'>"
+						+"<tbody>"
+							+"<tr>"
+								+"<th class='text-center' style='width:175px;'>Tujuan</th>"
+								+"<td>"+jQuery('tr[id-tujuan="'+id_unik_tujuan+'"] td').eq(1).html()+"</td>"
+							+"</tr>"
+						+"</tbody>"
+					+"</table>"
+					+'<button class="btn-sm btn-primary" style="margin-top: 10px;" onclick="tambah_sasaran(\''+id_unik_tujuan+'\');" id-tujuan="'+id_unik_tujuan+'" id="tambah-data-sasaran"><i class="dashicons dashicons-plus" style="margin-top: 3px;"></i> Tambah sasaran</button>'
+					+"<table class='table table-bordered' style='margin: 10px 0;'>"
+						+"<thead>"
+							+"<tr>"
+								+"<th class='text-center' style='width: 45px;'>No</th>"
+								+"<th class='text-center'>Sasaran</th>"
+								+"<th class='text-center' style='width: 195px;'>Aksi</th>"
+							+"</tr>"
+						+"</thead>"
+						+"<tbody>";
+				var no = 0;
+				for(var b in res.data_all){
+					no++;
+					data_html += ''
+					+'<tr id-tujuan="'+res.data_all[b].id_unik+'">'
+						+'<td class="text-center">'+(no)+'</td>'
+						+'<td>'+res.data_all[b].nama+'</td>'
+						+'<td class="text-center aksi">'
+							+'<button class="btn-sm btn-primary" onclick="detail_sasaran(\''+res.data_all[b].id_unik+'\');"><i class="dashicons dashicons-search"></i></button>'
+							+'<button class="btn-sm btn-primary" onclick="tambah_sasaran_indikator(\''+res.data_all[b].id_unik+'\');"><i class="dashicons dashicons-plus"></i></button>'
+							+'<button class="btn-sm btn-warning" onclick="edit_sasaran(\''+res.data_all[b].id_unik+'\');"><i class="dashicons dashicons-edit"></i></button>'
+							+'<button class="btn-sm btn-danger" onclick="hapus_sasaran(\''+res.data_all[b].id_unik+'\');"><i class="dashicons dashicons-trash"></i></button>'
+						+'</td>'
+					+'</tr>';
+
+					if(res.data_all[b].detail.length > 0){
+						data_html += ''
+						+'<tr style="background: #80000014;">'
+							+'<td colspan="3" style="padding: 0;">'
+								+"<table class='table table-bordered'>"
+									+"<thead>"
+										+"<tr>"
+											+"<th class='text-center' style='width: 45px;'></th>"
+											+"<th class='text-center'>Indikator</th>"
+											+"<th class='text-center'>Awal</th>"
+											+"<th class='text-center'>Tahun 1</th>"
+											+"<th class='text-center'>Tahun 2</th>"
+											+"<th class='text-center'>Tahun 3</th>"
+											+"<th class='text-center'>Tahun 4</th>"
+											+"<th class='text-center'>Tahun 5</th>"
+											+"<th class='text-center'>Akhir</th>"
+											+"<th class='text-center' style='width: 110px;'>Aksi</th>"
+										+"</tr>"
+									+"</thead>"
+									+"<tbody>";
+						res.data_all[b].detail.map(function(bb, i){
+							data_html += ''
+							+'<tr id-sasaran-indikator="'+bb.id_unik_indikator+'">'
+								+'<td class="text-center">'+no+'.'+(i+1)+'</td>'
+								+'<td>'+bb.indikator_teks+'</td>'
+								+'<td class="text-center">'+bb.target_awal+'</td>'
+								+'<td class="text-center">'+bb.target_1+'</td>'
+								+'<td class="text-center">'+bb.target_2+'</td>'
+								+'<td class="text-center">'+bb.target_3+'</td>'
+								+'<td class="text-center">'+bb.target_4+'</td>'
+								+'<td class="text-center">'+bb.target_5+'</td>'
+								+'<td class="text-center">'+bb.target_akhir+'</td>'
+								+'<td class="text-center aksi">'
+									+'<button class="btn-sm btn-warning" onclick="edit_sasaran_indikator(\''+bb.id_unik_indikator+'\');"><i class="dashicons dashicons-edit"></i></button>'
+									+'<button class="btn-sm btn-danger" onclick="hapus_sasaran_indikator(\''+bb.id_unik_indikator+'\');"><i class="dashicons dashicons-trash"></i></button>'
+								+'</td>'
+							+'</tr>';
+						});
+						data_html += ""
+									+"</tbody>"
+								+"</table>"
+							+"</td>"
+						+"</tr>";
+					}
+				};
+				data_html += ""
+						+"</tbody>"
+					+"</table>";
+				jQuery('#nav-sasaran').html(data_html);
+          		jQuery('.nav-tabs a[href="#nav-sasaran"]').tab('show');
+		        if(typeof cb == 'function'){
+		        	cb();
+		        }
+          	}
+        });
+	}
+
 	function tambah_tujuan_indikator(id_tujuan){
 		jQuery('#wrap-loading').show();
   		jQuery.ajax({
@@ -996,6 +1241,44 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
 		});
 	}
 
+	function tambah_sasaran_indikator(id_sasaran){
+		jQuery('#wrap-loading').show();
+  		jQuery.ajax({
+			url: ajax.url,
+          	type: "post",
+          	data: {
+          		"action": "get_rpd",
+          		"api_key": "<?php echo $api_key; ?>",
+          		"table": "data_rpd_sasaran_lokal",
+          		"id_unik_sasaran": id_sasaran,
+          		"type": 1
+          	},
+          	dataType: "json",
+          	success: function(res){
+	  			jQuery('#tujuan-sasaran-teks-indikator').html(jQuery('tr[id-tujuan="'+jQuery('#tambah-data-sasaran').attr('id-tujuan')+'"] td').eq(1).html());
+				jQuery('#sasaran-teks-indikator').html(res.data[0].sasaran_teks);
+				jQuery('#indikator-teks-sasaran').val('');
+				jQuery('#indikator-teks-sasaran-vol-awal').val('');
+				jQuery('#indikator-teks-sasaran-satuan-awal').val('');
+				jQuery('#indikator-teks-sasaran-vol-1').val('');
+				jQuery('#indikator-teks-sasaran-satuan-1').val('');
+				jQuery('#indikator-teks-sasaran-vol-2').val('');
+				jQuery('#indikator-teks-sasaran-satuan-2').val('');
+				jQuery('#indikator-teks-sasaran-vol-3').val('');
+				jQuery('#indikator-teks-sasaran-satuan-3').val('');
+				jQuery('#indikator-teks-sasaran-vol-4').val('');
+				jQuery('#indikator-teks-sasaran-satuan-4').val('');
+				jQuery('#indikator-teks-sasaran-vol-5').val('');
+				jQuery('#indikator-teks-sasaran-satuan-5').val('');
+				jQuery('#indikator-teks-sasaran-vol-akhir').val('');
+				jQuery('#indikator-teks-sasaran-satuan-akhir').val('');
+				jQuery('#modal-sasaran-indikator').attr('id-sasaran', id_sasaran);
+				jQuery('#modal-sasaran-indikator').modal('show');
+				jQuery('#wrap-loading').hide();
+			}
+		});
+	}
+
 	function tambah_tujuan(){
   		get_rpjpd('data_rpjpd_visi')
   		.then(function(visi){
@@ -1012,6 +1295,13 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
 			jQuery('#modal-tujuan').modal('show');
 			jQuery('#tujuan-teks').val('');
 		});
+	}
+
+	function tambah_sasaran(id_unik_tujuan){
+		jQuery('#tujuan-sasaran-teks').html(jQuery('tr[id-tujuan="'+id_unik_tujuan+'"] td').eq(1).html());
+		jQuery('#modal-sasaran').attr('id-tujuan', id_unik_tujuan);
+		jQuery('#sasaran-teks').val('');
+		jQuery('#modal-sasaran').modal('show');
 	}
 
 	function edit_tujuan(id_unik_tujuan){
@@ -1084,6 +1374,32 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
 		  		}
 				jQuery('#modal-tujuan').attr('data-id', id_unik_tujuan);
 				jQuery('#modal-tujuan').modal('show');
+			}
+		});
+	}
+
+	function edit_sasaran(id_unik_sasaran){
+		jQuery('#wrap-loading').show();
+  		jQuery.ajax({
+			url: ajax.url,
+          	type: "post",
+          	data: {
+          		"action": "get_rpd",
+          		"api_key": "<?php echo $api_key; ?>",
+          		"table": "data_rpd_sasaran_lokal",
+          		"id_unik_sasaran": id_unik_sasaran,
+          		"type": 1
+          	},
+          	dataType: "json",
+          	success: function(res){
+          		jQuery('#wrap-loading').hide();
+				jQuery('#tujuan-sasaran-teks').html(jQuery('tr[id-tujuan="'+res.data[0].kode_tujuan+'"] td').eq(1).html());
+          		for(var b in res.data_all){
+					jQuery('#sasaran-teks').val(res.data_all[b].nama);
+		  		}
+				jQuery('#modal-sasaran').attr('id-tujuan', res.data[0].kode_tujuan);
+				jQuery('#modal-sasaran').attr('data-id', id_unik_sasaran);
+				jQuery('#modal-sasaran').modal('show');
 			}
 		});
 	}
@@ -1165,6 +1481,46 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
 		});
 	}
 
+	function edit_sasaran_indikator(id_unik_sasaran_indikator){
+		jQuery('#wrap-loading').show();
+  		jQuery.ajax({
+			url: ajax.url,
+          	type: "post",
+          	data: {
+          		"action": "get_rpd",
+          		"api_key": "<?php echo $api_key; ?>",
+          		"table": "data_rpd_sasaran_lokal",
+          		"id_unik_sasaran_indikator": id_unik_sasaran_indikator,
+          		"type": 1
+          	},
+          	dataType: "json",
+          	success: function(res){
+          		for(var b in res.data_all){
+					jQuery('#sasaran-teks-indikator').html(res.data_all[b].nama);
+					jQuery('#modal-sasaran-indikator').attr('id-sasaran', res.data_all[b].id_unik);
+		  			jQuery('#indikator-teks-sasaran').val(res.data_all[b].detail[0].indikator_teks);
+					jQuery('#indikator-teks-sasaran-vol-awal').val(get_vol(res.data_all[b].detail[0].target_awal));
+					jQuery('#indikator-teks-sasaran-satuan-awal').val(get_sat(res.data_all[b].detail[0].target_awal));
+					jQuery('#indikator-teks-sasaran-vol-1').val(get_vol(res.data_all[b].detail[0].target_1));
+					jQuery('#indikator-teks-sasaran-satuan-1').val(get_sat(res.data_all[b].detail[0].target_1));
+					jQuery('#indikator-teks-sasaran-vol-2').val(get_vol(res.data_all[b].detail[0].target_2));
+					jQuery('#indikator-teks-sasaran-satuan-2').val(get_sat(res.data_all[b].detail[0].target_2));
+					jQuery('#indikator-teks-sasaran-vol-3').val(get_vol(res.data_all[b].detail[0].target_3));
+					jQuery('#indikator-teks-sasaran-satuan-3').val(get_sat(res.data_all[b].detail[0].target_3));
+					jQuery('#indikator-teks-sasaran-vol-4').val(get_vol(res.data_all[b].detail[0].target_4));
+					jQuery('#indikator-teks-sasaran-satuan-4').val(get_sat(res.data_all[b].detail[0].target_4));
+					jQuery('#indikator-teks-sasaran-vol-5').val(get_vol(res.data_all[b].detail[0].target_5));
+					jQuery('#indikator-teks-sasaran-satuan-5').val(get_sat(res.data_all[b].detail[0].target_5));
+					jQuery('#indikator-teks-sasaran-vol-akhir').val(get_vol(res.data_all[b].detail[0].target_akhir));
+					jQuery('#indikator-teks-sasaran-satuan-akhir').val(get_sat(res.data_all[b].detail[0].target_akhir));
+				}
+				jQuery('#wrap-loading').hide();
+				jQuery('#modal-sasaran-indikator').attr('data-id', id_unik_sasaran_indikator);
+				jQuery('#modal-sasaran-indikator').modal('show');
+			}
+		});
+	}
+
 	function get_vol(text){
 		return text.split(' ')[0];
 	}
@@ -1209,6 +1565,42 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
 		}
 	}
 
+	function simpan_sasaran(){
+		if(confirm('Apakah anda yakin untuk menyimpan data ini?')){
+			jQuery('#wrap-loading').show();
+			var sasaran_teks = jQuery('#sasaran-teks').val();
+			if(sasaran_teks == ''){
+				return alert('Sasaran tidak boleh kosong!');
+			}
+			var id_unik_tujuan = jQuery('#modal-sasaran').attr('id-tujuan');
+			if(id_unik_tujuan == ''){
+				return alert('Id tujuan tidak boleh kosong!');
+			}
+			var id_sasaran = jQuery('#modal-sasaran').attr('data-id');
+			jQuery.ajax({
+				url: ajax.url,
+	          	type: "post",
+	          	data: {
+	          		"action": "simpan_rpd",
+	          		"api_key": "<?php echo $api_key; ?>",
+	          		"table": 'data_rpd_sasaran_lokal',
+	          		"data": sasaran_teks,
+	          		"id_tujuan": id_unik_tujuan,
+	          		"id": id_sasaran
+	          	},
+	          	dataType: "json",
+	          	success: function(res){
+					jQuery('#wrap-loading').hide();
+					if(res.status == 'success'){
+						jQuery('#modal-sasaran').modal('hide');
+						detail_tujuan(id_unik_tujuan);
+					}
+					alert(res.message);
+	          	}
+	        });
+		}
+	}
+
 	function hapus_tujuan(id_tujuan_unik){
 		if(confirm('Apakah anda yakin untuk menghapus data ini?')){
 			jQuery('#wrap-loading').show();
@@ -1234,6 +1626,31 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
 		}
 	}
 
+	function hapus_sasaran(id_sasaran_unik){
+		if(confirm('Apakah anda yakin untuk menghapus data ini?')){
+			jQuery('#wrap-loading').show();
+			jQuery.ajax({
+				url: ajax.url,
+	          	type: "post",
+	          	data: {
+	          		"action": "hapus_rpd",
+	          		"api_key": "<?php echo $api_key; ?>",
+	          		"table": 'data_rpd_sasaran_lokal',
+	          		"id": id_sasaran_unik
+	          	},
+	          	dataType: "json",
+	          	success: function(res){
+					jQuery('#wrap-loading').hide();
+					if(res.status == 'success'){
+						jQuery('#modal-sasaran').modal('hide');
+						detail_tujuan(jQuery('#tambah-data-sasaran').attr('id-tujuan'));
+					}
+					alert(res.message);
+	          	}
+	        });
+		}
+	}
+
 	function hapus_tujuan_indikator(id_unik_tujuan_indikator){
 		if(confirm('Apakah anda yakin untuk menghapus data ini?')){
 			jQuery('#wrap-loading').show();
@@ -1252,6 +1669,31 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
 					if(res.status == 'success'){
 						jQuery('#modal-tujuan').modal('hide');
 						jQuery('#tambah-data').click();
+					}
+					alert(res.message);
+	          	}
+	        });
+		}
+	}
+
+	function hapus_sasaran_indikator(id_unik_sasaran_indikator){
+		if(confirm('Apakah anda yakin untuk menghapus data ini?')){
+			jQuery('#wrap-loading').show();
+			jQuery.ajax({
+				url: ajax.url,
+	          	type: "post",
+	          	data: {
+	          		"action": "hapus_rpd",
+	          		"api_key": "<?php echo $api_key; ?>",
+	          		"table": 'data_rpd_sasaran_lokal',
+	          		"id_unik_sasaran_indikator": id_unik_sasaran_indikator
+	          	},
+	          	dataType: "json",
+	          	success: function(res){
+					jQuery('#wrap-loading').hide();
+					if(res.status == 'success'){
+						jQuery('#modal-sasaran').modal('hide');
+						detail_tujuan(jQuery('#tambah-data-sasaran').attr('id-tujuan'));
 					}
 					alert(res.message);
 	          	}
@@ -1358,6 +1800,112 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
 					if(res.status == 'success'){
 						jQuery('#modal-tujuan-indikator').modal('hide');
 						jQuery('#tambah-data').click();
+					}
+					alert(res.message);
+	          	}
+	        });
+		}
+	}
+
+	function simpan_sasaran_indikator() {
+		var id_sasaran = jQuery('#modal-sasaran-indikator').attr('id-sasaran');
+		if(id_sasaran == ''){
+			return alert('ID sasaran tidak ditemukan!');
+		}
+		var sasaran_teks_indikator = jQuery('#indikator-teks-sasaran').val();
+		if(sasaran_teks_indikator == ''){
+			return alert('Indikator sasaran tidak boleh kosong!');
+		}
+		var vol_awal = jQuery('#indikator-teks-sasaran-vol-awal').val();
+		if(vol_awal == ''){
+			return alert('Volume awal indikator sasaran tidak boleh kosong!');
+		}
+		var satuan_awal = jQuery('#indikator-teks-sasaran-satuan-awal').val();
+		if(satuan_awal == ''){
+			return alert('Satuan awal indikator sasaran tidak boleh kosong!');
+		}
+		var vol_1 = jQuery('#indikator-teks-sasaran-vol-1').val();
+		if(vol_1 == ''){
+			return alert('Volume 1 indikator sasaran tidak boleh kosong!');
+		}
+		var satuan_1 = jQuery('#indikator-teks-sasaran-satuan-1').val();
+		if(satuan_1 == ''){
+			return alert('Satuan 1 indikator sasaran tidak boleh kosong!');
+		}
+		var vol_2 = jQuery('#indikator-teks-sasaran-vol-2').val();
+		if(vol_2 == ''){
+			return alert('Volume 2 indikator sasaran tidak boleh kosong!');
+		}
+		var satuan_2 = jQuery('#indikator-teks-sasaran-satuan-2').val();
+		if(satuan_2 == ''){
+			return alert('Satuan 2 indikator sasaran tidak boleh kosong!');
+		}
+		var vol_3 = jQuery('#indikator-teks-sasaran-vol-3').val();
+		if(vol_3 == ''){
+			return alert('Volume 3 indikator sasaran tidak boleh kosong!');
+		}
+		var satuan_3 = jQuery('#indikator-teks-sasaran-satuan-3').val();
+		if(satuan_3 == ''){
+			return alert('Satuan 3 indikator sasaran tidak boleh kosong!');
+		}
+		var vol_4 = jQuery('#indikator-teks-sasaran-vol-4').val();
+		if(vol_4 == ''){
+			return alert('Volume 4 indikator sasaran tidak boleh kosong!');
+		}
+		var satuan_4 = jQuery('#indikator-teks-sasaran-satuan-4').val();
+		if(satuan_4 == ''){
+			return alert('Satuan 4 indikator sasaran tidak boleh kosong!');
+		}
+		var vol_5 = jQuery('#indikator-teks-sasaran-vol-5').val();
+		if(vol_5 == ''){
+			return alert('Volume 5 indikator sasaran tidak boleh kosong!');
+		}
+		var satuan_5 = jQuery('#indikator-teks-sasaran-satuan-5').val();
+		if(satuan_5 == ''){
+			return alert('Satuan 5 indikator sasaran tidak boleh kosong!');
+		}
+		var vol_akhir = jQuery('#indikator-teks-sasaran-vol-akhir').val();
+		if(vol_akhir == ''){
+			return alert('Volume akhir indikator sasaran tidak boleh kosong!');
+		}
+		var satuan_akhir = jQuery('#indikator-teks-sasaran-satuan-akhir').val();
+		if(satuan_akhir == ''){
+			return alert('Satuan akhir indikator sasaran tidak boleh kosong!');
+		}
+		var id_indikator = jQuery('#modal-sasaran-indikator').attr('data-id');
+		if(confirm('Apakah anda yakin untuk menyimpan data ini?')){
+			jQuery('#wrap-loading').show();
+			jQuery.ajax({
+				url: ajax.url,
+	          	type: "post",
+	          	data: {
+	          		"action": "simpan_rpd",
+	          		"api_key": "<?php echo $api_key; ?>",
+	          		"table": 'data_rpd_sasaran_lokal',
+	          		"data": sasaran_teks_indikator,
+	          		"id_sasaran": id_sasaran,
+	          		"vol_awal": vol_awal,
+	          		"satuan_awal": satuan_awal,
+	          		"vol_1": vol_1,
+	          		"satuan_1": satuan_1,
+	          		"vol_2": vol_2,
+	          		"satuan_2": satuan_2,
+	          		"vol_3": vol_3,
+	          		"satuan_3": satuan_3,
+	          		"vol_4": vol_4,
+	          		"satuan_4": satuan_4,
+	          		"vol_5": vol_5,
+	          		"satuan_5": satuan_5,
+	          		"vol_akhir": vol_akhir,
+	          		"satuan_akhir": satuan_akhir,
+	          		"id": id_indikator
+	          	},
+	          	dataType: "json",
+	          	success: function(res){
+					jQuery('#wrap-loading').hide();
+					if(res.status == 'success'){
+						jQuery('#modal-sasaran-indikator').modal('hide');
+						detail_tujuan(jQuery('#tambah-data-sasaran').attr('id-tujuan'));
 					}
 					alert(res.message);
 	          	}
