@@ -624,7 +624,7 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
 				  	<div class="form-row">
 					  	<div class="form-group col-md-6">
 					    	<label>Target Awal</label>
-					    	<input class="form-control" id="indikator-teks-tujuan-vol-awal" type="text">
+					    	<input class="form-control" id="indikator-teks-tujuan-vol-awal" type="number">
 					  	</div>
 					  	<div class="form-group col-md-6">
 					    	<label>Satuan</label>
@@ -634,7 +634,7 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
 				  	<div class="form-row">
 					  	<div class="form-group col-md-6">
 					    	<label>Target 1</label>
-					    	<input class="form-control" id="indikator-teks-tujuan-vol-1" type="text">
+					    	<input class="form-control" id="indikator-teks-tujuan-vol-1" type="number">
 					  	</div>
 					  	<div class="form-group col-md-6">
 					    	<label>Satuan</label>
@@ -644,7 +644,7 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
 				  	<div class="form-row">
 					  	<div class="form-group col-md-6">
 					    	<label>Target 2</label>
-					    	<input class="form-control" id="indikator-teks-tujuan-vol-2" type="text">
+					    	<input class="form-control" id="indikator-teks-tujuan-vol-2" type="number">
 					  	</div>
 					  	<div class="form-group col-md-6">
 					    	<label>Satuan</label>
@@ -654,7 +654,7 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
 				  	<div class="form-row">
 					  	<div class="form-group col-md-6">
 					    	<label>Target 3</label>
-					    	<input class="form-control" id="indikator-teks-tujuan-vol-3" type="text">
+					    	<input class="form-control" id="indikator-teks-tujuan-vol-3" type="number">
 					  	</div>
 					  	<div class="form-group col-md-6">
 					    	<label>Satuan</label>
@@ -664,7 +664,7 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
 				  	<div class="form-row">
 					  	<div class="form-group col-md-6">
 					    	<label>Target 4</label>
-					    	<input class="form-control" id="indikator-teks-tujuan-vol-4" type="text">
+					    	<input class="form-control" id="indikator-teks-tujuan-vol-4" type="number">
 					  	</div>
 					  	<div class="form-group col-md-6">
 					    	<label>Satuan</label>
@@ -674,7 +674,7 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
 				  	<div class="form-row">
 					  	<div class="form-group col-md-6">
 					    	<label>Target 5</label>
-					    	<input class="form-control" id="indikator-teks-tujuan-vol-5" type="text">
+					    	<input class="form-control" id="indikator-teks-tujuan-vol-5" type="number">
 					  	</div>
 					  	<div class="form-group col-md-6">
 					    	<label>Satuan</label>
@@ -684,7 +684,7 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
 				  	<div class="form-row">
 					  	<div class="form-group col-md-6">
 					    	<label>Target Akhir</label>
-					    	<input class="form-control" id="indikator-teks-tujuan-vol-akhir" type="text">
+					    	<input class="form-control" id="indikator-teks-tujuan-vol-akhir" type="number">
 					  	</div>
 					  	<div class="form-group col-md-6">
 					    	<label>Satuan</label>
@@ -864,20 +864,53 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
 						+'</td>'
 					+'</tr>';
 
-					res.data_all[b].detail.map(function(bb, i){
+					if(res.data_all[b].detail.length > 0){
 						data_html += ''
-						+'<tr id-tujuan-indikator="'+bb.id_unik_indikator+'" style="background: #8000001f;">'
-							+'<td class="text-center">'+no+'.'+(i+1)+'</td>'
-							+'<td>'+bb.indikator_teks+'</td>'
-							+'<td class="text-center aksi">'
-								+'<button class="btn-sm btn-warning" onclick="edit_tujuan_indikator(\''+bb.id_unik_indikator+'\');"><i class="dashicons dashicons-edit"></i></button>'
-								+'<button class="btn-sm btn-danger" onclick="hapus_tujuan_indikator(\''+bb.id_unik_indikator+'\');"><i class="dashicons dashicons-trash"></i></button>'
-							+'</td>'
-						+'</tr>';
-					});
+						+'<tr style="background: #80000014;">'
+							+'<td colspan="3" style="padding: 0;">'
+								+"<table class='table table-bordered'>"
+									+"<thead>"
+										+"<tr>"
+											+"<th class='text-center' style='width: 45px;'></th>"
+											+"<th class='text-center'>Indikator</th>"
+											+"<th class='text-center'>Awal</th>"
+											+"<th class='text-center'>Tahun 1</th>"
+											+"<th class='text-center'>Tahun 2</th>"
+											+"<th class='text-center'>Tahun 3</th>"
+											+"<th class='text-center'>Tahun 4</th>"
+											+"<th class='text-center'>Tahun 5</th>"
+											+"<th class='text-center'>Akhir</th>"
+											+"<th class='text-center' style='width: 110px;'>Aksi</th>"
+										+"</tr>"
+									+"</thead>"
+									+"<tbody>";
+						res.data_all[b].detail.map(function(bb, i){
+							data_html += ''
+							+'<tr id-tujuan-indikator="'+bb.id_unik_indikator+'">'
+								+'<td class="text-center">'+no+'.'+(i+1)+'</td>'
+								+'<td>'+bb.indikator_teks+'</td>'
+								+'<td class="text-center">'+bb.target_awal+'</td>'
+								+'<td class="text-center">'+bb.target_1+'</td>'
+								+'<td class="text-center">'+bb.target_2+'</td>'
+								+'<td class="text-center">'+bb.target_3+'</td>'
+								+'<td class="text-center">'+bb.target_4+'</td>'
+								+'<td class="text-center">'+bb.target_5+'</td>'
+								+'<td class="text-center">'+bb.target_akhir+'</td>'
+								+'<td class="text-center aksi">'
+									+'<button class="btn-sm btn-warning" onclick="edit_tujuan_indikator(\''+bb.id_unik_indikator+'\');"><i class="dashicons dashicons-edit"></i></button>'
+									+'<button class="btn-sm btn-danger" onclick="hapus_tujuan_indikator(\''+bb.id_unik_indikator+'\');"><i class="dashicons dashicons-trash"></i></button>'
+								+'</td>'
+							+'</tr>';
+						});
+						data_html += ""
+									+"</tbody>"
+								+"</table>"
+							+"</td>"
+						+"</tr>";
+					}
 				};
 				data_html += ""
-						+"</tbody>";
+						+"</tbody>"
 					+"</table>";
 				jQuery('#nav-tujuan').html(data_html);
           		jQuery('.nav-tabs a[href="#nav-tujuan"]').tab('show');
@@ -907,6 +940,21 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
 	  			jQuery('#saspok-teks-indikator').html('');
 	  			jQuery('#kebijakan-teks-indikator').html('');
 	  			jQuery('#isu-teks-indikator').html('');
+	  			jQuery('#indikator-teks-tujuan').val('');
+				jQuery('#indikator-teks-tujuan-vol-awal').val('');
+				jQuery('#indikator-teks-tujuan-satuan-awal').val('');
+				jQuery('#indikator-teks-tujuan-vol-1').val('');
+				jQuery('#indikator-teks-tujuan-satuan-1').val('');
+				jQuery('#indikator-teks-tujuan-vol-2').val('');
+				jQuery('#indikator-teks-tujuan-satuan-2').val('');
+				jQuery('#indikator-teks-tujuan-vol-3').val('');
+				jQuery('#indikator-teks-tujuan-satuan-3').val('');
+				jQuery('#indikator-teks-tujuan-vol-4').val('');
+				jQuery('#indikator-teks-tujuan-satuan-4').val('');
+				jQuery('#indikator-teks-tujuan-vol-5').val('');
+				jQuery('#indikator-teks-tujuan-satuan-5').val('');
+				jQuery('#indikator-teks-tujuan-vol-akhir').val('');
+				jQuery('#indikator-teks-tujuan-satuan-akhir').val('');
 				jQuery('#modal-tujuan-indikator').modal('show');
 				for(var b in res.data_all){
           			res.data_all[b].rpjpd.visi.data.data.map(function(bb, ii){
@@ -1040,6 +1088,91 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
 		});
 	}
 
+	function edit_tujuan_indikator(id_unik_tujuan_indikator){
+		jQuery('#wrap-loading').show();
+  		jQuery.ajax({
+			url: ajax.url,
+          	type: "post",
+          	data: {
+          		"action": "get_rpd",
+          		"api_key": "<?php echo $api_key; ?>",
+          		"table": "data_rpd_tujuan_lokal",
+          		"id_unik_tujuan_indikator": id_unik_tujuan_indikator,
+          		"type": 1
+          	},
+          	dataType: "json",
+          	success: function(res){
+          		jQuery('#visi-teks-indikator').html('');
+      			jQuery('#misi-teks-indikator').html('');
+	  			jQuery('#saspok-teks-indikator').html('');
+	  			jQuery('#kebijakan-teks-indikator').html('');
+	  			jQuery('#isu-teks-indikator').html('');
+				for(var b in res.data_all){
+          			res.data_all[b].rpjpd.visi.data.data.map(function(bb, ii){
+          				if(bb.id == res.data_all[b].rpjpd.visi.id){
+          					jQuery('#visi-teks-indikator').html(bb.visi_teks);
+          				}
+          			});
+
+		  			res.data_all[b].rpjpd.misi.data.data.map(function(bb, ii){
+		  				if(bb.id == res.data_all[b].rpjpd.misi.id){
+          					jQuery('#misi-teks-indikator').html(bb.misi_teks);
+		  				}
+		  			});
+
+		  			res.data_all[b].rpjpd.sasaran.data.data.map(function(bb, ii){
+		  				if(bb.id == res.data_all[b].rpjpd.sasaran.id){
+		  					jQuery('#saspok-teks-indikator').html(bb.saspok_teks);
+		  				}
+		  			});
+
+		  			res.data_all[b].rpjpd.kebijakan.data.data.map(function(bb, ii){
+		  				var selected = '';
+		  				if(bb.id == res.data_all[b].rpjpd.kebijakan.id){
+		  					jQuery('#kebijakan-teks-indikator').html(bb.kebijakan_teks);
+		  				}
+		  			});
+
+		  			res.data_all[b].rpjpd.isu.data.data.map(function(bb, ii){
+		  				if(bb.id == res.data_all[b].rpjpd.isu.id){
+		  					jQuery('#isu-teks-indikator').html(bb.isu_teks);
+		  				}
+		  			});
+
+					jQuery('#tujuan-teks-indikator').html(res.data_all[b].nama);
+					jQuery('#modal-tujuan-indikator').attr('id-tujuan', res.data_all[b].id_unik);
+
+		  			jQuery('#indikator-teks-tujuan').val(res.data_all[b].detail[0].indikator_teks);
+					jQuery('#indikator-teks-tujuan-vol-awal').val(get_vol(res.data_all[b].detail[0].target_awal));
+					jQuery('#indikator-teks-tujuan-satuan-awal').val(get_sat(res.data_all[b].detail[0].target_awal));
+					jQuery('#indikator-teks-tujuan-vol-1').val(get_vol(res.data_all[b].detail[0].target_1));
+					jQuery('#indikator-teks-tujuan-satuan-1').val(get_sat(res.data_all[b].detail[0].target_1));
+					jQuery('#indikator-teks-tujuan-vol-2').val(get_vol(res.data_all[b].detail[0].target_2));
+					jQuery('#indikator-teks-tujuan-satuan-2').val(get_sat(res.data_all[b].detail[0].target_2));
+					jQuery('#indikator-teks-tujuan-vol-3').val(get_vol(res.data_all[b].detail[0].target_3));
+					jQuery('#indikator-teks-tujuan-satuan-3').val(get_sat(res.data_all[b].detail[0].target_3));
+					jQuery('#indikator-teks-tujuan-vol-4').val(get_vol(res.data_all[b].detail[0].target_4));
+					jQuery('#indikator-teks-tujuan-satuan-4').val(get_sat(res.data_all[b].detail[0].target_4));
+					jQuery('#indikator-teks-tujuan-vol-5').val(get_vol(res.data_all[b].detail[0].target_5));
+					jQuery('#indikator-teks-tujuan-satuan-5').val(get_sat(res.data_all[b].detail[0].target_5));
+					jQuery('#indikator-teks-tujuan-vol-akhir').val(get_vol(res.data_all[b].detail[0].target_akhir));
+					jQuery('#indikator-teks-tujuan-satuan-akhir').val(get_sat(res.data_all[b].detail[0].target_akhir));
+				}
+				jQuery('#wrap-loading').hide();
+				jQuery('#modal-tujuan-indikator').attr('data-id', id_unik_tujuan_indikator);
+				jQuery('#modal-tujuan-indikator').modal('show');
+			}
+		});
+	}
+
+	function get_vol(text){
+		return text.split(' ')[0];
+	}
+
+	function get_sat(text){
+		return text.split(' ')[1];
+	}
+
 	function simpan_tujuan(){
 		if(confirm('Apakah anda yakin untuk menyimpan data ini?')){
 			jQuery('#wrap-loading').show();
@@ -1087,6 +1220,31 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
 	          		"api_key": "<?php echo $api_key; ?>",
 	          		"table": 'data_rpd_tujuan_lokal',
 	          		"id": id_tujuan_unik
+	          	},
+	          	dataType: "json",
+	          	success: function(res){
+					jQuery('#wrap-loading').hide();
+					if(res.status == 'success'){
+						jQuery('#modal-tujuan').modal('hide');
+						jQuery('#tambah-data').click();
+					}
+					alert(res.message);
+	          	}
+	        });
+		}
+	}
+
+	function hapus_tujuan_indikator(id_unik_tujuan_indikator){
+		if(confirm('Apakah anda yakin untuk menghapus data ini?')){
+			jQuery('#wrap-loading').show();
+			jQuery.ajax({
+				url: ajax.url,
+	          	type: "post",
+	          	data: {
+	          		"action": "hapus_rpd",
+	          		"api_key": "<?php echo $api_key; ?>",
+	          		"table": 'data_rpd_tujuan_lokal',
+	          		"id_unik_tujuan_indikator": id_unik_tujuan_indikator
 	          	},
 	          	dataType: "json",
 	          	success: function(res){
