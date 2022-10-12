@@ -159,7 +159,8 @@ function get_sinkron_data_sirup(){
 		dataType: "json",
       	data: {
       		"action": "get_sinkron_data_sirup",
-			"id_lokasi": jQuery('input[name="carbon_fields_compact_input[_crb_id_lokasi_sirup]"]').val()
+			"id_lokasi": jQuery('input[name="carbon_fields_compact_input[_crb_id_lokasi_sirup]"]').val(),
+			"id_kldi": jQuery('input[name="carbon_fields_compact_input[_crb_id_kldi_sirup]"]').val()
       	},
       	success: function(data){
 			jQuery('#wrap-loading').hide();
