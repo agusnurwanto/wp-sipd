@@ -506,7 +506,7 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
 	</table>
 </div>
 <div class="modal fade" id="modal-monev" tabindex="-1" role="dialog" data-backdrop="static" aria-hidden="true">'
-    <div class="modal-dialog modal-xl" role="document">
+    <div class="modal-dialog" style="max-width: 1500px;" role="document">
         <div class="modal-content">
             <div class="modal-header bgpanel-theme">
                 <h4 style="margin: 0;" class="modal-title" id="">Data RPD</h4>
@@ -837,6 +837,160 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
         </div>
     </div>
 </div>
+<div class="modal fade" id="modal-program" tabindex="-1" role="dialog" data-backdrop="static" aria-hidden="true">'
+    <div class="modal-dialog modal-xl" role="document">
+        <div class="modal-content">
+            <div class="modal-header bgpanel-theme">
+                <h4 style="margin: 0;" class="modal-title" id="">Data RPD Program</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span><i class="dashicons dashicons-dismiss"></i></span></button>
+            </div>
+            <div class="modal-body">
+            	<table class="table table-bordered">
+            		<tbody>
+            			<tr>
+            				<th style="width: 175px;">Tujuan RPD</th>
+            				<td id="tujuan-program-teks"></td>
+            			</tr>
+            			<tr>
+            				<th>Sasaran RPD</th>
+            				<td id="sasaran-program-teks"></td>
+            			</tr>
+            		</tbody>
+            	</table>
+            	<form>
+				  	<div class="form-group">
+				    	<label>Pilih Urusan</label>
+				    	<select class="form-control" id="urusan-teks"></select>
+				  	</div>
+				  	<div class="form-group">
+				    	<label>Pilih Bidang</label>
+				    	<select class="form-control" id="bidang-teks"></select>
+				  	</div>
+				  	<div class="form-group">
+				    	<label>Pilih Program</label>
+				    	<select class="form-control" id="program-teks"></select>
+				  	</div>
+				</form>
+            </div>
+            <div class="modal-footer">
+            	<button class="btn btn-primary" onclick="simpan_program();">Simpan</button>
+            	<button class="btn btn-default" data-dismiss="modal">Tutup</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="modal-program-indikator" tabindex="-1" role="dialog" data-backdrop="static" aria-hidden="true">'
+    <div class="modal-dialog modal-xl" role="document">
+        <div class="modal-content">
+            <div class="modal-header bgpanel-theme">
+                <h4 style="margin: 0;" class="modal-title" id="">Data RPD Indikator Program</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span><i class="dashicons dashicons-dismiss"></i></span></button>
+            </div>
+            <div class="modal-body">
+            	<table class="table table-bordered">
+            		<tbody>
+            			<tr>
+            				<th style="width: 175px;">Tujuan RPD</th>
+            				<td id="program-tujuan-teks-indikator"></td>
+            			</tr>
+            			<tr>
+            				<th>Sasaran RPD</th>
+            				<td id="program-sasaran-teks-indikator"></td>
+            			</tr>
+            			<tr>
+            				<th>Program RPD</th>
+            				<td id="program-teks-indikator"></td>
+            			</tr>
+            		</tbody>
+            	</table>
+            	<form>
+				  	<div class="form-group">
+				    	<label>Pilih SKPD</label>
+				    	<select class="form-control" id="skpd-teks"></select>
+				  	</div>
+				  	<div class="form-group">
+				    	<label>Indikator Teks</label>
+				    	<input class="form-control" id="indikator-teks-program" type="text">
+				  	</div>
+				  	<div class="form-row">
+					  	<div class="form-group col-md-6">
+					    	<label>Target Awal</label>
+					    	<input class="form-control" id="indikator-teks-program-vol-awal" type="number">
+					  	</div>
+					  	<div class="form-group col-md-6">
+					    	<label>Satuan</label>
+					    	<input class="form-control" id="indikator-teks-program-satuan-awal" type="text">
+					  	</div>
+					</div>
+				  	<div class="form-row">
+					  	<div class="form-group col-md-6">
+					    	<label>Target 1</label>
+					    	<input class="form-control" id="indikator-teks-program-vol-1" type="number">
+					  	</div>
+					  	<div class="form-group col-md-6">
+					    	<label>Satuan</label>
+					    	<input class="form-control" id="indikator-teks-program-satuan-1" type="text">
+					  	</div>
+					</div>
+				  	<div class="form-row">
+					  	<div class="form-group col-md-6">
+					    	<label>Target 2</label>
+					    	<input class="form-control" id="indikator-teks-program-vol-2" type="number">
+					  	</div>
+					  	<div class="form-group col-md-6">
+					    	<label>Satuan</label>
+					    	<input class="form-control" id="indikator-teks-program-satuan-2" type="text">
+					  	</div>
+					</div>
+				  	<div class="form-row">
+					  	<div class="form-group col-md-6">
+					    	<label>Target 3</label>
+					    	<input class="form-control" id="indikator-teks-program-vol-3" type="number">
+					  	</div>
+					  	<div class="form-group col-md-6">
+					    	<label>Satuan</label>
+					    	<input class="form-control" id="indikator-teks-program-satuan-3" type="text">
+					  	</div>
+					</div>
+				  	<div class="form-row">
+					  	<div class="form-group col-md-6">
+					    	<label>Target 4</label>
+					    	<input class="form-control" id="indikator-teks-program-vol-4" type="number">
+					  	</div>
+					  	<div class="form-group col-md-6">
+					    	<label>Satuan</label>
+					    	<input class="form-control" id="indikator-teks-program-satuan-4" type="text">
+					  	</div>
+					</div>
+				  	<div class="form-row">
+					  	<div class="form-group col-md-6">
+					    	<label>Target 5</label>
+					    	<input class="form-control" id="indikator-teks-program-vol-5" type="number">
+					  	</div>
+					  	<div class="form-group col-md-6">
+					    	<label>Satuan</label>
+					    	<input class="form-control" id="indikator-teks-program-satuan-5" type="text">
+					  	</div>
+					</div>
+				  	<div class="form-row">
+					  	<div class="form-group col-md-6">
+					    	<label>Target Akhir</label>
+					    	<input class="form-control" id="indikator-teks-program-vol-akhir" type="number">
+					  	</div>
+					  	<div class="form-group col-md-6">
+					    	<label>Satuan</label>
+					    	<input class="form-control" id="indikator-teks-program-satuan-akhir" type="text">
+					  	</div>
+					</div>
+				</form>
+            </div>
+            <div class="modal-footer">
+            	<button class="btn btn-primary" onclick="simpan_program_indikator();">Simpan</button>
+            	<button class="btn btn-default" data-dismiss="modal">Tutup</button>
+            </div>
+        </div>
+    </div>
+</div>
 <script type="text/javascript">
 	run_download_excel();
 	let data_all = <?php echo json_encode($data_all); ?>;
@@ -1098,7 +1252,7 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
 				for(var b in res.data_all){
 					no++;
 					data_html += ''
-					+'<tr id-tujuan="'+res.data_all[b].id_unik+'">'
+					+'<tr id-sasaran="'+res.data_all[b].id_unik+'">'
 						+'<td class="text-center">'+(no)+'</td>'
 						+'<td>'+res.data_all[b].nama+'</td>'
 						+'<td class="text-center aksi">'
@@ -1159,6 +1313,119 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
 					+"</table>";
 				jQuery('#nav-sasaran').html(data_html);
           		jQuery('.nav-tabs a[href="#nav-sasaran"]').tab('show');
+		        if(typeof cb == 'function'){
+		        	cb();
+		        }
+          	}
+        });
+	}
+
+	function detail_sasaran(id_unik_sasaran, cb){
+		jQuery('#wrap-loading').show();
+		jQuery('#modal-monev').modal('show');
+		jQuery.ajax({
+			url: ajax.url,
+          	type: "post",
+          	data: {
+          		"action": "get_rpd",
+          		"api_key": "<?php echo $api_key; ?>",
+          		"table": "data_rpd_program_lokal",
+          		"id_unik_sasaran": id_unik_sasaran,
+          		"type": 1
+          	},
+          	dataType: "json",
+          	success: function(res){
+				console.log('res', res);
+				jQuery('#wrap-loading').hide();
+				var data_html = ""
+					+"<table class='table table-bordered' style='margin: 10px 0;'>"
+						+"<tbody>"
+							+"<tr>"
+								+"<th class='text-center' style='width:175px;'>Tujuan</th>"
+								+"<td>"+jQuery('tr[id-tujuan="'+jQuery('#tambah-data-sasaran').attr('id-tujuan')+'"] td').eq(1).html()+"</td>"
+							+"</tr>"
+							+"<tr>"
+								+"<th class='text-center'>Sasaran</th>"
+								+"<td>"+jQuery('tr[id-sasaran="'+id_unik_sasaran+'"] td').eq(1).html()+"</td>"
+							+"</tr>"
+						+"</tbody>"
+					+"</table>"
+					+'<button class="btn-sm btn-primary" style="margin-top: 10px;" onclick="tambah_program(\''+id_unik_sasaran+'\');" id-sasaran="'+id_unik_sasaran+'" id="tambah-data-program"><i class="dashicons dashicons-plus" style="margin-top: 3px;"></i> Tambah proram</button>'
+					+"<table class='table table-bordered' style='margin: 10px 0;'>"
+						+"<thead>"
+							+"<tr>"
+								+"<th class='text-center' style='width: 45px;'>No</th>"
+								+"<th class='text-center'>Program</th>"
+								+"<th class='text-center' style='width: 150px;'>Aksi</th>"
+							+"</tr>"
+						+"</thead>"
+						+"<tbody>";
+				var no = 0;
+				for(var b in res.data_all){
+					no++;
+					data_html += ''
+					+'<tr id-program="'+res.data_all[b].id_unik+'" id-program-master="'+res.data_all[b].id_program+'">'
+						+'<td class="text-center">'+(no)+'</td>'
+						+'<td>'+res.data_all[b].nama+'</td>'
+						+'<td class="text-center aksi">'
+							+'<button class="btn-sm btn-primary" onclick="tambah_program_indikator(\''+res.data_all[b].id_unik+'\');"><i class="dashicons dashicons-plus"></i></button>'
+							+'<button class="btn-sm btn-warning" onclick="edit_program(\''+res.data_all[b].id_unik+'\');"><i class="dashicons dashicons-edit"></i></button>'
+							+'<button class="btn-sm btn-danger" onclick="hapus_program(\''+res.data_all[b].id_unik+'\');"><i class="dashicons dashicons-trash"></i></button>'
+						+'</td>'
+					+'</tr>';
+
+					if(res.data_all[b].detail.length > 0){
+						data_html += ''
+						+'<tr style="background: #80000014;">'
+							+'<td colspan="3" style="padding: 0;">'
+								+"<table class='table table-bordered'>"
+									+"<thead>"
+										+"<tr>"
+											+"<th class='text-center' style='width: 45px;'></th>"
+											+"<th class='text-center'>Indikator</th>"
+											+"<th class='text-center'>Awal</th>"
+											+"<th class='text-center'>Tahun 1</th>"
+											+"<th class='text-center'>Tahun 2</th>"
+											+"<th class='text-center'>Tahun 3</th>"
+											+"<th class='text-center'>Tahun 4</th>"
+											+"<th class='text-center'>Tahun 5</th>"
+											+"<th class='text-center'>Akhir</th>"
+											+"<th class='text-center'>SKPD</th>"
+											+"<th class='text-center' style='width: 110px;'>Aksi</th>"
+										+"</tr>"
+									+"</thead>"
+									+"<tbody>";
+						res.data_all[b].detail.map(function(bb, i){
+							data_html += ''
+							+'<tr id-program-indikator="'+bb.id_unik_indikator+'">'
+								+'<td class="text-center">'+no+'.'+(i+1)+'</td>'
+								+'<td>'+bb.indikator+'</td>'
+								+'<td class="text-center">'+bb.target_awal+'</td>'
+								+'<td class="text-center">'+bb.target_1+'</td>'
+								+'<td class="text-center">'+bb.target_2+'</td>'
+								+'<td class="text-center">'+bb.target_3+'</td>'
+								+'<td class="text-center">'+bb.target_4+'</td>'
+								+'<td class="text-center">'+bb.target_5+'</td>'
+								+'<td class="text-center">'+bb.target_akhir+'</td>'
+								+'<td>'+bb.kode_skpd+' '+bb.nama_skpd+'</td>'
+								+'<td class="text-center aksi">'
+									+'<button class="btn-sm btn-warning" onclick="edit_program_indikator(\''+bb.id_unik_indikator+'\');"><i class="dashicons dashicons-edit"></i></button>'
+									+'<button class="btn-sm btn-danger" onclick="hapus_program_indikator(\''+bb.id_unik_indikator+'\');"><i class="dashicons dashicons-trash"></i></button>'
+								+'</td>'
+							+'</tr>';
+						});
+						data_html += ""
+									+"</tbody>"
+								+"</table>"
+							+"</td>"
+						+"</tr>";
+					}
+				};
+				data_html += ""
+						+"</tbody>"
+					+"</table>";
+				jQuery('#nav-program').html(data_html);
+          		jQuery('.nav-tabs a[href="#nav-program"]').tab('show');
 		        if(typeof cb == 'function'){
 		        	cb();
 		        }
@@ -1279,6 +1546,64 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
 		});
 	}
 
+	function tambah_program_indikator(id_program){
+		jQuery('#wrap-loading').show();
+  		jQuery.ajax({
+			url: ajax.url,
+          	type: "post",
+          	data: {
+          		"action": "get_rpd",
+          		"api_key": "<?php echo $api_key; ?>",
+          		"table": "data_rpd_program_lokal",
+          		"id_unik_program": id_program,
+          		"type": 1
+          	},
+          	dataType: "json",
+          	success: function(res){
+	  			jQuery('#program-tujuan-teks-indikator').html(jQuery('tr[id-tujuan="'+jQuery('#tambah-data-sasaran').attr('id-tujuan')+'"] td').eq(1).html());
+	  			jQuery('#program-sasaran-teks-indikator').html(jQuery('tr[id-sasaran="'+jQuery('#tambah-data-program').attr('id-sasaran')+'"] td').eq(1).html());
+				jQuery('#program-teks-indikator').html(res.data[0].nama_program);
+				get_bidang_urusan(true).then(function(){
+					get_skpd();
+					jQuery('#indikator-teks-program').val('');
+					jQuery('#indikator-teks-program-vol-awal').val('');
+					jQuery('#indikator-teks-program-satuan-awal').val('');
+					jQuery('#indikator-teks-program-vol-1').val('');
+					jQuery('#indikator-teks-program-satuan-1').val('');
+					jQuery('#indikator-teks-program-vol-2').val('');
+					jQuery('#indikator-teks-program-satuan-2').val('');
+					jQuery('#indikator-teks-program-vol-3').val('');
+					jQuery('#indikator-teks-program-satuan-3').val('');
+					jQuery('#indikator-teks-program-vol-4').val('');
+					jQuery('#indikator-teks-program-satuan-4').val('');
+					jQuery('#indikator-teks-program-vol-5').val('');
+					jQuery('#indikator-teks-program-satuan-5').val('');
+					jQuery('#indikator-teks-program-vol-akhir').val('');
+					jQuery('#indikator-teks-program-satuan-akhir').val('');
+					jQuery('#modal-program-indikator').attr('id-program', id_program);
+					jQuery('#modal-program-indikator').modal('show');
+					jQuery('#wrap-loading').hide();
+				});
+			}
+		});
+	}
+
+	function get_skpd(current_id_skpd){
+		var html = "<option value=''>Pilih SKPD</option>";
+		for(var nm_urusan in all_skpd){
+			for(var nm_bidang in all_skpd[nm_urusan]){
+				for(var nm_skpd in all_skpd[nm_urusan][nm_bidang]){
+					var selected = '';
+					if(current_id_skpd == all_skpd[nm_urusan][nm_bidang][nm_skpd].id_skpd){
+						selected = 'selected';
+					}
+					html += "<option "+selected+" value='"+all_skpd[nm_urusan][nm_bidang][nm_skpd].id_skpd+"' data-kode='"+all_skpd[nm_urusan][nm_bidang][nm_skpd].kode_skpd+"'>"+nm_skpd+"</option>";
+				}
+			}
+		}
+		jQuery('#skpd-teks').html(html);
+	}
+
 	function tambah_tujuan(){
   		get_rpjpd('data_rpjpd_visi')
   		.then(function(visi){
@@ -1302,6 +1627,106 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
 		jQuery('#modal-sasaran').attr('id-tujuan', id_unik_tujuan);
 		jQuery('#sasaran-teks').val('');
 		jQuery('#modal-sasaran').modal('show');
+	}
+
+	function tambah_program(id_unik_sasaran){
+		jQuery('#wrap-loading').show();
+  		get_bidang_urusan().then(function(){
+			jQuery('#tujuan-program-teks').html(jQuery('tr[id-tujuan="'+jQuery('#tambah-data-sasaran').attr('id-tujuan')+'"] td').eq(1).html());
+			jQuery('#sasaran-program-teks').html(jQuery('tr[id-sasaran="'+id_unik_sasaran+'"] td').eq(1).html());
+			jQuery('#modal-program').attr('id-sasaran', id_unik_sasaran);
+			get_urusan()
+			get_bidang();
+			get_program();
+			jQuery('#modal-program').modal('show');
+			jQuery('#wrap-loading').hide();
+		});
+	}
+
+	jQuery('#urusan-teks').on('change', function(){
+		get_bidang(jQuery(this).val());
+		get_program();
+	});
+
+	jQuery('#bidang-teks').on('change', function(){
+		get_program(jQuery(this).val());
+	});
+
+	function get_urusan() {
+		var html = '<option value="">Pilih Urusan</option>';
+		for(var nm_urusan in all_program){
+			html += '<option>'+nm_urusan+'</option>';
+		}
+		jQuery('#urusan-teks').html(html);
+	}
+
+	function get_bidang(nm_urusan) {
+		var html = '<option value="">Pilih Bidang</option>';
+		if(nm_urusan){
+			for(var nm_bidang in all_program[nm_urusan]){
+				html += '<option>'+nm_bidang+'</option>';
+			}
+		}else{
+			for(var nm_urusan in all_program){
+				for(var nm_bidang in all_program[nm_urusan]){
+					html += '<option>'+nm_bidang+'</option>';
+				}
+			}
+		}
+		jQuery('#bidang-teks').html(html);
+	}
+
+	function get_program(nm_bidang, val) {
+		var html = '<option value="">Pilih Program</option>';
+		var current_nm_urusan = jQuery('#urusan-teks').val();
+		if(current_nm_urusan){
+			if(nm_bidang){
+				for(var nm_program in all_program[current_nm_urusan][nm_bidang]){
+					var selected = '';
+					if(val && val == all_program[current_nm_urusan][nm_bidang][nm_program].id_program){
+						selected = 'selected';
+					}
+					html += '<option '+selected+' value="'+all_program[current_nm_urusan][nm_bidang][nm_program].id_program+'">'+nm_program+'</option>';
+				}
+			}else{
+				for(var nm_bidang in all_program[current_nm_urusan]){
+					for(var nm_program in all_program[current_nm_urusan][nm_bidang]){
+						var selected = '';
+						if(val && val == all_program[current_nm_urusan][nm_bidang][nm_program].id_program){
+							selected = 'selected';
+						}
+						html += '<option '+selected+' value="'+all_program[current_nm_urusan][nm_bidang][nm_program].id_program+'">'+nm_program+'</option>';
+					}
+				}
+			}
+		}else{
+			if(nm_bidang){
+				for(var nm_urusan in all_program){
+					if(all_program[nm_urusan][nm_bidang]){
+						for(var nm_program in all_program[nm_urusan][nm_bidang]){
+							var selected = '';
+							if(val && val == all_program[nm_urusan][nm_bidang][nm_program].id_program){
+								selected = 'selected';
+							}
+							html += '<option '+selected+' value="'+all_program[nm_urusan][nm_bidang][nm_program].id_program+'">'+nm_program+'</option>';
+						}
+					}
+				}
+			}else{
+				for(var nm_urusan in all_program){
+					for(var nm_bidang in all_program[nm_urusan]){
+						for(var nm_program in all_program[nm_urusan][nm_bidang]){
+							var selected = '';
+							if(val && val == all_program[nm_urusan][nm_bidang][nm_program].id_program){
+								selected = 'selected';
+							}
+							html += '<option '+selected+' value="'+all_program[nm_urusan][nm_bidang][nm_program].id_program+'">'+nm_program+'</option>';
+						}
+					}
+				}
+			}
+		}
+		jQuery('#program-teks').html(html);
 	}
 
 	function edit_tujuan(id_unik_tujuan){
@@ -1400,6 +1825,102 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
 				jQuery('#modal-sasaran').attr('id-tujuan', res.data[0].kode_tujuan);
 				jQuery('#modal-sasaran').attr('data-id', id_unik_sasaran);
 				jQuery('#modal-sasaran').modal('show');
+			}
+		});
+	}
+
+	function get_bidang_urusan(skpd){
+		return new Promise(function(resolve, reject){
+			if(!skpd){
+				if(typeof all_program == 'undefined'){
+					jQuery.ajax({
+						url: ajax.url,
+			          	type: "post",
+			          	data: {
+			          		"action": "get_bidang_urusan",
+			          		"api_key": "<?php echo $api_key; ?>",
+			          		"type": 1
+			          	},
+			          	dataType: "json",
+			          	success: function(res){
+							window.all_program = {};
+							res.data.map(function(b, i){
+								if(!all_program[b.nama_urusan]){
+									all_program[b.nama_urusan] = {};
+								}
+								if(!all_program[b.nama_urusan][b.nama_bidang_urusan]){
+									all_program[b.nama_urusan][b.nama_bidang_urusan] = {};
+								}
+								if(!all_program[b.nama_urusan][b.nama_bidang_urusan][b.nama_program]){
+									all_program[b.nama_urusan][b.nama_bidang_urusan][b.nama_program] = b;
+								}
+							});
+							resolve();
+			          	}
+		          });
+				}else{
+					resolve();
+				}
+			}else{
+				if(typeof all_program == 'undefined'){
+					jQuery.ajax({
+						url: ajax.url,
+			          	type: "post",
+			          	data: {
+			          		"action": "get_bidang_urusan",
+			          		"api_key": "<?php echo $api_key; ?>",
+			          		"type": 0
+			          	},
+			          	dataType: "json",
+			          	success: function(res){
+							window.all_skpd = {};
+							res.data.map(function(b, i){
+								if(!all_skpd[b.nama_urusan]){
+									all_skpd[b.nama_urusan] = {};
+								}
+								if(!all_skpd[b.nama_urusan][b.nama_bidang_urusan]){
+									all_skpd[b.nama_urusan][b.nama_bidang_urusan] = {};
+								}
+								if(!all_skpd[b.nama_urusan][b.nama_bidang_urusan][b.nama_skpd]){
+									all_skpd[b.nama_urusan][b.nama_bidang_urusan][b.nama_skpd] = b;
+								}
+							});
+							resolve();
+			          	}
+		          });
+				}else{
+					resolve();
+				}
+			}
+		});
+	}
+
+	function edit_program(id_unik_program){
+		jQuery('#wrap-loading').show();
+  		jQuery.ajax({
+			url: ajax.url,
+          	type: "post",
+          	data: {
+          		"action": "get_rpd",
+          		"api_key": "<?php echo $api_key; ?>",
+          		"table": "data_rpd_program_lokal",
+          		"id_unik_program": id_unik_program,
+          		"type": 1
+          	},
+          	dataType: "json",
+          	success: function(res){
+		  		get_bidang_urusan().then(function(){
+					jQuery('#tujuan-program-teks').html(jQuery('tr[id-tujuan="'+jQuery('#tambah-data-sasaran').attr('id-tujuan')+'"] td').eq(1).html());
+					jQuery('#sasaran-program-teks').html(jQuery('tr[id-sasaran="'+jQuery('#tambah-data-program').attr('id-sasaran')+'"] td').eq(1).html());
+					jQuery('#modal-program').attr('id-sasaran', jQuery('#tambah-data-program').attr('id-sasaran'));
+					jQuery('#modal-program').attr('data-id', id_unik_program);
+					var id_program_master = jQuery('tr[id-program="'+id_unik_program+'"]').attr('id-program-master');
+					get_urusan();
+					get_bidang();
+					get_program(false, id_program_master);
+					jQuery('#modal-program').modal('show');
+					jQuery('#wrap-loading').hide();
+				});
 			}
 		});
 	}
@@ -1521,6 +2042,52 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
 		});
 	}
 
+	function edit_program_indikator(id_unik_program_indikator){
+		jQuery('#wrap-loading').show();
+  		jQuery.ajax({
+			url: ajax.url,
+          	type: "post",
+          	data: {
+          		"action": "get_rpd",
+          		"api_key": "<?php echo $api_key; ?>",
+          		"table": "data_rpd_program_lokal",
+          		"id_unik_program_indikator": id_unik_program_indikator,
+          		"type": 1
+          	},
+          	dataType: "json",
+          	success: function(res){
+	  			jQuery('#program-tujuan-teks-indikator').html(jQuery('tr[id-tujuan="'+jQuery('#tambah-data-sasaran').attr('id-tujuan')+'"] td').eq(1).html());
+	  			jQuery('#program-sasaran-teks-indikator').html(jQuery('tr[id-sasaran="'+jQuery('#tambah-data-program').attr('id-sasaran')+'"] td').eq(1).html());
+				jQuery('#program-teks-indikator').html(res.data[0].nama_program);
+          		get_bidang_urusan(true).then(function(){
+	          		for(var b in res.data_all){
+	          			get_skpd(res.data_all[b].detail[0].id_unit);
+						jQuery('#program-teks-indikator').html(res.data_all[b].nama);
+						jQuery('#modal-program-indikator').attr('id-program', res.data_all[b].id_unik);
+			  			jQuery('#indikator-teks-program').val(res.data_all[b].detail[0].indikator);
+						jQuery('#indikator-teks-program-vol-awal').val(get_vol(res.data_all[b].detail[0].target_awal));
+						jQuery('#indikator-teks-program-satuan-awal').val(get_sat(res.data_all[b].detail[0].target_awal));
+						jQuery('#indikator-teks-program-vol-1').val(get_vol(res.data_all[b].detail[0].target_1));
+						jQuery('#indikator-teks-program-satuan-1').val(get_sat(res.data_all[b].detail[0].target_1));
+						jQuery('#indikator-teks-program-vol-2').val(get_vol(res.data_all[b].detail[0].target_2));
+						jQuery('#indikator-teks-program-satuan-2').val(get_sat(res.data_all[b].detail[0].target_2));
+						jQuery('#indikator-teks-program-vol-3').val(get_vol(res.data_all[b].detail[0].target_3));
+						jQuery('#indikator-teks-program-satuan-3').val(get_sat(res.data_all[b].detail[0].target_3));
+						jQuery('#indikator-teks-program-vol-4').val(get_vol(res.data_all[b].detail[0].target_4));
+						jQuery('#indikator-teks-program-satuan-4').val(get_sat(res.data_all[b].detail[0].target_4));
+						jQuery('#indikator-teks-program-vol-5').val(get_vol(res.data_all[b].detail[0].target_5));
+						jQuery('#indikator-teks-program-satuan-5').val(get_sat(res.data_all[b].detail[0].target_5));
+						jQuery('#indikator-teks-program-vol-akhir').val(get_vol(res.data_all[b].detail[0].target_akhir));
+						jQuery('#indikator-teks-program-satuan-akhir').val(get_sat(res.data_all[b].detail[0].target_akhir));
+					}
+					jQuery('#wrap-loading').hide();
+					jQuery('#modal-program-indikator').attr('data-id', id_unik_program_indikator);
+					jQuery('#modal-program-indikator').modal('show');          			
+          		})
+			}
+		});
+	}
+
 	function get_vol(text){
 		return text.split(' ')[0];
 	}
@@ -1601,6 +2168,46 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
 		}
 	}
 
+	function simpan_program(){
+		if(confirm('Apakah anda yakin untuk menyimpan data ini?')){
+			jQuery('#wrap-loading').show();
+			var id_program_master = jQuery('#program-teks').val();
+			if(id_program_master == ''){
+				return alert('Program tidak boleh kosong!');
+			}
+			var program_teks = jQuery('#program-teks option:selected').text().split(' ');
+			program_teks.shift();
+			program_teks = program_teks.join(' ');
+			var id_unik_sasaran = jQuery('#modal-program').attr('id-sasaran');
+			if(id_unik_sasaran == ''){
+				return alert('Id sasaran tidak boleh kosong!');
+			}
+			var id_program = jQuery('#modal-program').attr('data-id');
+			jQuery.ajax({
+				url: ajax.url,
+	          	type: "post",
+	          	data: {
+	          		"action": "simpan_rpd",
+	          		"api_key": "<?php echo $api_key; ?>",
+	          		"table": 'data_rpd_program_lokal',
+	          		"data": id_program_master,
+	          		"nama_program": program_teks,
+	          		"id_sasaran": id_unik_sasaran,
+	          		"id": id_program
+	          	},
+	          	dataType: "json",
+	          	success: function(res){
+					jQuery('#wrap-loading').hide();
+					if(res.status == 'success'){
+						jQuery('#modal-program').modal('hide');
+						detail_sasaran(id_unik_sasaran);
+					}
+					alert(res.message);
+	          	}
+	        });
+		}
+	}
+
 	function hapus_tujuan(id_tujuan_unik){
 		if(confirm('Apakah anda yakin untuk menghapus data ini?')){
 			jQuery('#wrap-loading').show();
@@ -1651,6 +2258,31 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
 		}
 	}
 
+	function hapus_program(id_program_unik){
+		if(confirm('Apakah anda yakin untuk menghapus data ini?')){
+			jQuery('#wrap-loading').show();
+			jQuery.ajax({
+				url: ajax.url,
+	          	type: "post",
+	          	data: {
+	          		"action": "hapus_rpd",
+	          		"api_key": "<?php echo $api_key; ?>",
+	          		"table": 'data_rpd_program_lokal',
+	          		"id": id_program_unik
+	          	},
+	          	dataType: "json",
+	          	success: function(res){
+					jQuery('#wrap-loading').hide();
+					if(res.status == 'success'){
+						jQuery('#modal-program').modal('hide');
+						detail_sasaran(jQuery('#tambah-data-program').attr('id-sasaran'));
+					}
+					alert(res.message);
+	          	}
+	        });
+		}
+	}
+
 	function hapus_tujuan_indikator(id_unik_tujuan_indikator){
 		if(confirm('Apakah anda yakin untuk menghapus data ini?')){
 			jQuery('#wrap-loading').show();
@@ -1694,6 +2326,31 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
 					if(res.status == 'success'){
 						jQuery('#modal-sasaran').modal('hide');
 						detail_tujuan(jQuery('#tambah-data-sasaran').attr('id-tujuan'));
+					}
+					alert(res.message);
+	          	}
+	        });
+		}
+	}
+
+	function hapus_program_indikator(id_unik_program_indikator){
+		if(confirm('Apakah anda yakin untuk menghapus data ini?')){
+			jQuery('#wrap-loading').show();
+			jQuery.ajax({
+				url: ajax.url,
+	          	type: "post",
+	          	data: {
+	          		"action": "hapus_rpd",
+	          		"api_key": "<?php echo $api_key; ?>",
+	          		"table": 'data_rpd_program_lokal',
+	          		"id_unik_program_indikator": id_unik_program_indikator
+	          	},
+	          	dataType: "json",
+	          	success: function(res){
+					jQuery('#wrap-loading').hide();
+					if(res.status == 'success'){
+						jQuery('#modal-program').modal('hide');
+						detail_sasaran(jQuery('#tambah-data-program').attr('id-sasaran'));
 					}
 					alert(res.message);
 	          	}
@@ -1906,6 +2563,121 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
 					if(res.status == 'success'){
 						jQuery('#modal-sasaran-indikator').modal('hide');
 						detail_tujuan(jQuery('#tambah-data-sasaran').attr('id-tujuan'));
+					}
+					alert(res.message);
+	          	}
+	        });
+		}
+	}
+
+	function simpan_program_indikator() {
+		var id_program = jQuery('#modal-program-indikator').attr('id-program');
+		if(id_program == ''){
+			return alert('ID program tidak ditemukan!');
+		}
+		var id_skpd = jQuery('#skpd-teks').val();
+		if(id_skpd == ''){
+			return alert('SKPD tidak boleh kosong!');
+		}
+		var nama_skpd = jQuery('#skpd-teks option:selected').text();
+		var kode_skpd = jQuery('#skpd-teks option:selected').attr('data-kode');
+		var program_teks_indikator = jQuery('#indikator-teks-program').val();
+		if(program_teks_indikator == ''){
+			return alert('Indikator program tidak boleh kosong!');
+		}
+		var vol_awal = jQuery('#indikator-teks-program-vol-awal').val();
+		if(vol_awal == ''){
+			return alert('Volume awal indikator program tidak boleh kosong!');
+		}
+		var satuan_awal = jQuery('#indikator-teks-program-satuan-awal').val();
+		if(satuan_awal == ''){
+			return alert('Satuan awal indikator program tidak boleh kosong!');
+		}
+		var vol_1 = jQuery('#indikator-teks-program-vol-1').val();
+		if(vol_1 == ''){
+			return alert('Volume 1 indikator program tidak boleh kosong!');
+		}
+		var satuan_1 = jQuery('#indikator-teks-program-satuan-1').val();
+		if(satuan_1 == ''){
+			return alert('Satuan 1 indikator program tidak boleh kosong!');
+		}
+		var vol_2 = jQuery('#indikator-teks-program-vol-2').val();
+		if(vol_2 == ''){
+			return alert('Volume 2 indikator program tidak boleh kosong!');
+		}
+		var satuan_2 = jQuery('#indikator-teks-program-satuan-2').val();
+		if(satuan_2 == ''){
+			return alert('Satuan 2 indikator program tidak boleh kosong!');
+		}
+		var vol_3 = jQuery('#indikator-teks-program-vol-3').val();
+		if(vol_3 == ''){
+			return alert('Volume 3 indikator program tidak boleh kosong!');
+		}
+		var satuan_3 = jQuery('#indikator-teks-program-satuan-3').val();
+		if(satuan_3 == ''){
+			return alert('Satuan 3 indikator program tidak boleh kosong!');
+		}
+		var vol_4 = jQuery('#indikator-teks-program-vol-4').val();
+		if(vol_4 == ''){
+			return alert('Volume 4 indikator program tidak boleh kosong!');
+		}
+		var satuan_4 = jQuery('#indikator-teks-program-satuan-4').val();
+		if(satuan_4 == ''){
+			return alert('Satuan 4 indikator program tidak boleh kosong!');
+		}
+		var vol_5 = jQuery('#indikator-teks-program-vol-5').val();
+		if(vol_5 == ''){
+			return alert('Volume 5 indikator program tidak boleh kosong!');
+		}
+		var satuan_5 = jQuery('#indikator-teks-program-satuan-5').val();
+		if(satuan_5 == ''){
+			return alert('Satuan 5 indikator program tidak boleh kosong!');
+		}
+		var vol_akhir = jQuery('#indikator-teks-program-vol-akhir').val();
+		if(vol_akhir == ''){
+			return alert('Volume akhir indikator program tidak boleh kosong!');
+		}
+		var satuan_akhir = jQuery('#indikator-teks-program-satuan-akhir').val();
+		if(satuan_akhir == ''){
+			return alert('Satuan akhir indikator program tidak boleh kosong!');
+		}
+		var id_indikator = jQuery('#modal-program-indikator').attr('data-id');
+		if(confirm('Apakah anda yakin untuk menyimpan data ini?')){
+			jQuery('#wrap-loading').show();
+			jQuery.ajax({
+				url: ajax.url,
+	          	type: "post",
+	          	data: {
+	          		"action": "simpan_rpd",
+	          		"api_key": "<?php echo $api_key; ?>",
+	          		"table": 'data_rpd_program_lokal',
+	          		"data": program_teks_indikator,
+	          		"id_program": id_program,
+	          		"id_skpd": id_skpd,
+	          		"kode_skpd": kode_skpd,
+	          		"nama_skpd": nama_skpd,
+	          		"vol_awal": vol_awal,
+	          		"satuan_awal": satuan_awal,
+	          		"vol_1": vol_1,
+	          		"satuan_1": satuan_1,
+	          		"vol_2": vol_2,
+	          		"satuan_2": satuan_2,
+	          		"vol_3": vol_3,
+	          		"satuan_3": satuan_3,
+	          		"vol_4": vol_4,
+	          		"satuan_4": satuan_4,
+	          		"vol_5": vol_5,
+	          		"satuan_5": satuan_5,
+	          		"vol_akhir": vol_akhir,
+	          		"satuan_akhir": satuan_akhir,
+	          		"id": id_indikator
+	          	},
+	          	dataType: "json",
+	          	success: function(res){
+					jQuery('#wrap-loading').hide();
+					if(res.status == 'success'){
+						jQuery('#modal-program-indikator').modal('hide');
+						detail_sasaran(jQuery('#tambah-data-program').attr('id-sasaran'));
 					}
 					alert(res.message);
 	          	}

@@ -421,7 +421,7 @@ class Wpsipd_Public_Base_1 extends Wpsipd_Public_Base_2{
         global $wpdb;
         $ret = array(
             'status'    => 'success',
-            'message'   => 'Berhasil get tujuan RPD!'
+            'message'   => 'Berhasil get data RPD!'
         );
         if (!empty($_POST)) {
             if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
@@ -446,6 +446,15 @@ class Wpsipd_Public_Base_1 extends Wpsipd_Public_Base_2{
                         $where .= $wpdb->prepare(' and id_unik=%s', $_POST['id_unik_sasaran']);
                     }else if(!empty($_POST['id_unik_sasaran_indikator'])){
                         $where .= $wpdb->prepare(' and id_unik_indikator=%s', $_POST['id_unik_sasaran_indikator']);
+                    }
+                }else if($_POST['table'] == 'data_rpd_program_lokal'){
+                    $table = $_POST['table'];
+                    if(!empty($_POST['id_unik_sasaran'])){
+                        $where .= $wpdb->prepare(' and kode_sasaran=%s', $_POST['id_unik_sasaran']);
+                    }else if(!empty($_POST['id_unik_program'])){
+                        $where .= $wpdb->prepare(' and id_unik=%s', $_POST['id_unik_program']);
+                    }else if(!empty($_POST['id_unik_program_indikator'])){
+                        $where .= $wpdb->prepare(' and id_unik_indikator=%s', $_POST['id_unik_program_indikator']);
                     }
                 }else if($_POST['table'] == 'data_rpd_tujuan'){
                     $table = $_POST['table'];
@@ -525,6 +534,21 @@ class Wpsipd_Public_Base_1 extends Wpsipd_Public_Base_2{
                             }
                             if(!empty($sasaran['id_unik_indikator'])){
                                 $data_all[$sasaran['id_unik']]['detail'][] = $sasaran;
+                            }
+                        }
+                    }else if($_POST['table'] == 'data_rpd_program_lokal'){
+                        foreach ($ret['data'] as $program) {
+                            if(empty($data_all[$program['id_unik']])){
+                                $data_all[$program['id_unik']] = array(
+                                    'id' => $program['id'],
+                                    'id_unik' => $program['id_unik'],
+                                    'id_program' => $program['id_program'],
+                                    'nama' => $program['nama_program'],
+                                    'detail' => array()
+                                );
+                            }
+                            if(!empty($program['id_unik_indikator'])){
+                                $data_all[$program['id_unik']]['detail'][] = $program;
                             }
                         }
                     }
@@ -709,6 +733,85 @@ class Wpsipd_Public_Base_1 extends Wpsipd_Public_Base_2{
                                 }
                             }
                         }
+                    }else if($_POST['table'] == 'data_rpd_program_lokal'){
+                        $table = $_POST['table'];
+                        // simpan atau edit indikator program
+                        if(!empty($_POST['id_program'])){
+                            $program = $wpdb->get_results($wpdb->prepare("
+                                select
+                                    kode_sasaran,
+                                    nama_program,
+                                    id_program,
+                                    id_unik
+                                from $table
+                                where id_unik=%s
+                            ", $_POST['id_program']), ARRAY_A);
+                            $data = array(
+                                'kode_sasaran' => $program[0]['kode_sasaran'],
+                                'nama_program' => $program[0]['nama_program'],
+                                'id_program' => $program[0]['id_program'],
+                                'id_unik' => $program[0]['id_unik'],
+                                'id_unit' => $_POST['id_skpd'],
+                                'kode_skpd' => $_POST['kode_skpd'],
+                                'nama_skpd' => $_POST['nama_skpd'],
+                                'indikator' => $_POST['data'],
+                                'target_awal' => $_POST['vol_awal'].' '.$_POST['satuan_awal'],
+                                'target_1' => $_POST['vol_1'].' '.$_POST['satuan_1'],
+                                'target_2' => $_POST['vol_2'].' '.$_POST['satuan_2'],
+                                'target_3' => $_POST['vol_3'].' '.$_POST['satuan_3'],
+                                'target_4' => $_POST['vol_4'].' '.$_POST['satuan_4'],
+                                'target_5' => $_POST['vol_5'].' '.$_POST['satuan_5'],
+                                'target_akhir' => $_POST['vol_akhir'].' '.$_POST['satuan_akhir'],
+                                'update_at' => date('Y-m-d H:i:s')
+                            );
+                            if(!empty($_POST['id'])){
+                                $data['id_unik_indikator'] = $_POST['id'];
+                                $wpdb->update($table, $data, array( "id_unik_indikator" => $_POST['id'] ));
+                                $ret['message'] = 'Berhasil update data RPD!';
+                            }else{
+                                $data['id_unik_indikator'] = time().'-'.$this->generateRandomString(5);
+                                $cek_id = $wpdb->get_var($wpdb->prepare("
+                                    select 
+                                        id 
+                                    from $table
+                                    where indikator=%s
+                                        and id_unik=%s
+                                ", $_POST['data'], $_POST['id_program']));
+                                if(!empty($cek_id)){
+                                    $ret['status'] = 'error';
+                                    $ret['message'] = 'Indikator program sudah ada!';
+                                }else{
+                                    $wpdb->insert($table, $data);
+                                }
+                            }
+                        // simpan atau edit program
+                        }else{
+                            $data = array(
+                                'kode_sasaran' => $_POST['id_sasaran'],
+                                'nama_program' => $_POST['nama_program'],
+                                'id_program' => $_POST['data'],
+                                'update_at' => date('Y-m-d H:i:s')
+                            );
+                            if(!empty($_POST['id'])){
+                                $data['id_unik'] = $_POST['id'];
+                                $wpdb->update($table, $data, array( "id_unik" => $_POST['id'] ));
+                                $ret['message'] = 'Berhasil update data RPD!';
+                            }else{
+                                $data['id_unik'] = time().'-'.$this->generateRandomString(5);
+                                $cek_id = $wpdb->get_var($wpdb->prepare("
+                                    select 
+                                        id 
+                                    from $table
+                                    where nama_program=%s
+                                ", $_POST['nama_program']));
+                                if(!empty($cek_id)){
+                                    $ret['status'] = 'error';
+                                    $ret['message'] = 'Program teks sudah ada!';
+                                }else{
+                                    $wpdb->insert($table, $data);
+                                }
+                            }
+                        }
                     }
                 }else{
                     $ret['status'] = 'error';
@@ -754,6 +857,13 @@ class Wpsipd_Public_Base_1 extends Wpsipd_Public_Base_2{
                         }else{
                             $wpdb->delete($table, array('id_unik' => $_POST['id']));
                         }
+                    }else if($_POST['table'] == 'data_rpd_program_lokal'){
+                        $table = $_POST['table'];
+                        if(!empty($_POST['id_unik_program_indikator'])){
+                            $wpdb->delete($table, array('id_unik_indikator' => $_POST['id_unik_program_indikator']));
+                        }else{
+                            $wpdb->delete($table, array('id_unik' => $_POST['id']));
+                        }
                     }else{
                         $ret['status'] = 'error';
                         $ret['message'] = 'Param table tidak tidak boleh kosong!';
@@ -762,6 +872,61 @@ class Wpsipd_Public_Base_1 extends Wpsipd_Public_Base_2{
                     $ret['status'] = 'error';
                     $ret['message'] = 'Jadwal belum dimulai!';
                 }
+            }else{
+                $ret = array(
+                    'status' => 'error',
+                    'message'   => 'Api Key tidak sesuai!'
+                );
+            }
+        }else{
+            $ret = array(
+                'status' => 'error',
+                'message'   => 'Format tidak sesuai!'
+            );
+        }
+        die(json_encode($ret));
+    }
+
+    public function get_bidang_urusan(){
+        global $wpdb;
+        $ret = array(
+            'status'    => 'success',
+            'message'   => 'Berhasil get data bidang urusan!'
+        );
+        if (!empty($_POST)) {
+            if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( WPSIPD_API_KEY )) {
+                $tahun_anggaran = get_option('_crb_tahun_anggaran_sipd');
+                if(!empty($_POST['type']) && $_POST['type'] == 1){
+                    $data = $wpdb->get_results("
+                        SELECT
+                            u.nama_urusan,
+                            u.nama_bidang_urusan,
+                            u.nama_program,
+                            u.id_program
+                        FROM data_prog_keg as u 
+                        WHERE u.tahun_anggaran=$tahun_anggaran
+                        GROUP BY u.kode_program
+                        ORDER BY u.kode_program ASC 
+                    ");
+                }else{
+                    $data = $wpdb->get_results("
+                        SELECT
+                            s.id_skpd,
+                            s.kode_skpd,
+                            s.nama_skpd,
+                            u.nama_urusan,
+                            u.nama_bidang_urusan
+                        FROM data_prog_keg as u 
+                        LEFT JOIN data_unit as s on s.kode_skpd like CONCAT('%',u.kode_bidang_urusan,'%')
+                            and s.active=1
+                            and s.is_skpd=1
+                            and s.tahun_anggaran=u.tahun_anggaran
+                        WHERE u.tahun_anggaran=$tahun_anggaran
+                        GROUP BY u.nama_bidang_urusan, s.kode_skpd
+                        ORDER BY u.nama_bidang_urusan ASC, s.kode_skpd ASC 
+                    ");
+                }
+                $ret['data'] = $data;
             }else{
                 $ret = array(
                     'status' => 'error',
