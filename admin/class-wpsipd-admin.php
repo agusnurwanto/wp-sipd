@@ -312,6 +312,10 @@ class Wpsipd_Admin {
 		foreach ($sumber_dana as $k => $v) {
 			$sumber_dana_all[$v['id_dana']] = $v['kode_dana'].' '.$v['nama_dana'].' ['.$v['id_dana'].']';
 		}
+		$nama_pemda = get_option('_crb_daerah' );
+		if(empty($nama_pemda) || $nama_pemda == 'false'){
+			$nama_pemda = '';
+		}
 		$options_basic = array(
 			Field::make( 'text', 'crb_server_wp_sipd', 'Server WP-SIPD' )
             	->set_attribute('placeholder', 'https://wpsipd.qodrbee.com/wp-admin/admin-ajax.php')
@@ -329,7 +333,7 @@ class Wpsipd_Admin {
             	->set_required( true )
 				->set_help_text('Nomor whatsapp untuk menerima pesan dari server WP-SIPD. Format nomor diawali dengan 62xxxxxxxxxx tanpa perlu ada + di depan nomor.'),
             Field::make( 'text', 'crb_daerah', 'Nama Pemda' )
-            	->set_default_value(get_option('_crb_daerah' ))
+            	->set_default_value($nama_pemda)
             	->set_required( true ),
             Field::make( 'text', 'crb_api_key_extension', 'Lisensi key chrome extension' )
             	->set_required( true )
