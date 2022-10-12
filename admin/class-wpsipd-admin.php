@@ -217,6 +217,10 @@ class Wpsipd_Admin {
 		    ->set_page_parent( $basic_options_container )
 		    ->add_fields( $this->get_api_setting() );
 
+		Container::make( 'theme_options', __( 'SIRUP Setting' ) )
+		    ->set_page_parent( $basic_options_container )
+		    ->add_fields( $this->get_sirup_setting() );
+
 	    $monev = Container::make( 'theme_options', __( 'MONEV SIPD' ) )
 			->set_page_menu_position( 4 )
 		    ->add_fields( $this->get_ajax_field(array('type' => 'rfk')) );
@@ -724,9 +728,30 @@ class Wpsipd_Admin {
             Field::make( 'text', 'crb_id_lokasi_sirup', 'ID lokasi' )
 				->set_default_value(0)
 				->set_help_text('Cara mendapatkan id lokasi ada <a href="https://sirup.lkpp.go.id/sirup/ro/caripaket2" target="_blank">disni</a>'),
+            Field::make( 'text', 'crb_id_kldi_sirup', 'ID K/L/D/I' )
+				->set_default_value(0)
+				->set_help_text('Cara mendapatkan id k/l/d/i ada <a href="https://sirup.lkpp.go.id/sirup/ro/caripaket2" target="_blank">disni</a>'),
 			Field::make( 'html', 'crb_html_get_sinkron_data_sirup' )
             	->set_html( '<a href="#" class="button button-primary" '.$disabled_sirup.'>Sinkron data dari server SIRUP</a>' )
 				->set_help_text($this->last_sinkron_data_sirup())
+			);
+
+		return $mapping_unit;
+	}
+
+	public function get_sirup_setting(){
+		global $wpdb;
+		$unit = array();
+		$tahun_anggaran = get_option('_crb_tahun_anggaran_sipd');
+		if(empty(!$tahun_anggaran)){
+			$unit = $wpdb->get_results("SELECT nama_skpd, id_skpd, kode_skpd from data_unit where active=1 and tahun_anggaran=".$tahun_anggaran.' order by id_skpd ASC', ARRAY_A);
+		}
+
+		$mapping_unit = array(
+			Field::make('html', 'crb_url_tahun_anggaran_sirup')
+				->set_html('<h3>Tahun Anggaran: '.$tahun_anggaran.'</h3>'),
+			Field::make( 'textarea', 'crb_custom_mapping_satuan_kerja_sirup', 'Custom Mapping Satuan Kerja SIPD dan SIRUP' )
+            	->set_help_text('Data ini untuk mengakomodir perbedaan nama satuan kerja yang ada di SIPD dan SIRUP. Contoh pengisian data sebagai berikut [nama_satuan_kerja]-[nama_satuan_kerja] data dipisah dengan pemisah "," (koma).')
 			);
 
 		return $mapping_unit;
@@ -2483,15 +2508,18 @@ class Wpsipd_Admin {
 	function get_sinkron_data_sirup(){
 		global $wpdb;
 
-		if(!empty($_POST['id_lokasi']) || $_POST['id_lokasi'] != 0){
+		if(!empty($_POST['id_lokasi']) || $_POST['id_lokasi'] != 0 && !empty($_POST['id_kldi']) || $_POST['id_kldi'] != 0){
 			$id_lokasi = $_POST['id_lokasi'];
+			$id_kldi = $_POST['id_kldi'];
 			$tahun_anggaran = get_option('_crb_tahun_anggaran_sipd');
 	
 			$url = 'https://sirup.lkpp.go.id/sirup/ro/caripaket2/search?tahunAnggaran='.$tahun_anggaran.'&jenisPengadaan=&metodePengadaan=&minPagu=&maxPagu=&bulan=&lokasi='.$id_lokasi.'&kldi=&pdn=&ukm=&draw=1&columns[0][data]=&columns[0][name]=&columns[0][searchable]=false&columns[0][orderable]=false&columns[0][search][value]=&columns[0][search][regex]=false&columns[1][data]=paket&columns[1][name]=&columns[1][searchable]=true&columns[1][orderable]=true&columns[1][search][value]=&columns[1][search][regex]=false&columns[2][data]=pagu&columns[2][name]=&columns[2][searchable]=true&columns[2][orderable]=true&columns[2][search][value]=&columns[2][search][regex]=false&columns[3][data]=jenisPengadaan&columns[3][name]=&columns[3][searchable]=true&columns[3][orderable]=true&columns[3][search][value]=&columns[3][search][regex]=false&columns[4][data]=isPDN&columns[4][name]=&columns[4][searchable]=true&columns[4][orderable]=true&columns[4][search][value]=&columns[4][search][regex]=false&columns[5][data]=isUMK&columns[5][name]=&columns[5][searchable]=true&columns[5][orderable]=true&columns[5][search][value]=&columns[5][search][regex]=false&columns[6][data]=metode&columns[6][name]=&columns[6][searchable]=true&columns[6][orderable]=true&columns[6][search][value]=&columns[6][search][regex]=false&columns[7][data]=pemilihan&columns[7][name]=&columns[7][searchable]=true&columns[7][orderable]=true&columns[7][search][value]=&columns[7][search][regex]=false&columns[8][data]=kldi&columns[8][name]=&columns[8][searchable]=true&columns[8][orderable]=true&columns[8][search][value]=&columns[8][search][regex]=false&columns[9][data]=satuanKerja&columns[9][name]=&columns[9][searchable]=true&columns[9][orderable]=true&columns[9][search][value]=&columns[9][search][regex]=false&columns[10][data]=lokasi&columns[10][name]=&columns[10][searchable]=true&columns[10][orderable]=true&columns[10][search][value]=&columns[10][search][regex]=false&columns[11][data]=id&columns[11][name]=&columns[11][searchable]=true&columns[11][orderable]=true&columns[11][search][value]=&columns[11][search][regex]=false&order[0][column]=5&order[0][dir]=DESC&start=0&length=1000&search[value]=&search[regex]=false&_=1663641619826';
+			$url_skpd = 'https://sirup.lkpp.go.id/sirup/datatablectr/datatableruprekapkldi?idKldi='.$id_kldi.'&tahun='.$tahun_anggaran.'&sEcho=1&iColumns=10&sColumns=,satker,jumPenyedia,,jumSwakelola,,jumPenyediaSwakelola,,jumSwakelolaPenyedia,&iDisplayStart=0&iDisplayLength=100&sSearch=&bRegex=false&iSortCol_0=0&sSortDir_0=asc&iSortingCols=1&_=1665357280414';
 
 			$total_insert = 0;
 
 			$wpdb->update('data_sirup_lokal', array('active' => 0),array('tahun_anggaran' => $tahun_anggaran));
+			$wpdb->update('data_skpd_sirup', array('active' => 0),array('tahun_anggaran' => $tahun_anggaran));
 
 			do{
 				$get_data_api_sirup = $this->get_data_api_sirup($url);
@@ -2577,10 +2605,51 @@ class Wpsipd_Admin {
 				$idplus = $int_start+$int_length;	
 				$url = substr_replace($url, $idplus, $idy, $len_start);
 			}while(!empty($data_sirup));
+
+			$get_data_skpd_api_sirup = $this->get_data_api_sirup($url_skpd);
+			$data_skpd = json_decode($get_data_skpd_api_sirup);
+			$data_skpd_sirup = $data_skpd->aaData;
+
+			if(!empty($data_skpd_sirup)){
+				foreach($data_skpd_sirup as $v_skpd) {
+					$cek = $wpdb->get_var($wpdb->prepare('
+						select 
+							id_satuan_kerja
+						from data_skpd_sirup 
+						where id_satuan_kerja = %d',
+						$v_skpd[0]
+					));
+
+					$opsi = array(
+						'id_satuan_kerja' => $v_skpd[0],
+						'satuan_kerja' => $v_skpd[1],
+						'paket_penyedia' => $v_skpd[2],
+						'pagu_penyedia' => $v_skpd[3],
+						'paket_swakelola' => $v_skpd[4],
+						'pagu_swakelola' => $v_skpd[5],
+						'paket_pd_swakelola' => $v_skpd[6],
+						'pagu_pd_swakelola' => $v_skpd[7],
+						'total_paket' => $v_skpd[8],
+						'total_pagu' => $v_skpd[9],
+						'tahun_anggaran' => $tahun_anggaran,
+						'active' => 1,
+						'update_at' =>  current_time('mysql')
+					);
+					
+					if (empty($cek)) {
+						$cek_insert_skpd = $wpdb->insert('data_skpd_sirup', $opsi);
+					}else{
+						$cek_insert_skpd = $wpdb->update('data_skpd_sirup',$opsi,array(
+							'id_satuan_kerja' => $cek
+						));
+					}
+					$data->skpd = $cek_insert_skpd;
+				}
+			}
 		}else{
 			$data = array(
 				'status' => 'error',
-				'message' => 'Id lokasi SIRUP tidak valid',
+				'message' => 'Id lokasi SIRUP atau Id k/l/d/i tidak valid',
 				'last_sinkron' => ''
 			);
 		}
