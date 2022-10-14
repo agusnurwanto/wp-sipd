@@ -63,8 +63,10 @@ $skpd_filter = array();
 
 $sql = "
 	select 
-		* 
-	from data_rpd_tujuan_lokal
+		t.*,
+		i.isu_teks 
+	from data_rpd_tujuan_lokal t
+	left join data_rpjpd_isu i on t.id_isu = i.id
 ";
 $tujuan_all = $wpdb->get_results($sql, ARRAY_A);
 foreach ($tujuan_all as $tujuan) {
@@ -74,72 +76,86 @@ foreach ($tujuan_all as $tujuan) {
 			'detail' => array(),
 			'data' => array()
 		);
-	}
-	$data_all['data'][$tujuan['id_unik']]['detail'][] = $tujuan;
-
-	$tujuan_ids[$tujuan['id_unik']] = "'".$tujuan['id_unik']."'";
-	$sql = $wpdb->prepare("
-		select 
-			* 
-		from data_rpd_sasaran_lokal
-		where kode_tujuan=%s
-	", $tujuan['id_unik']);
-	$sasaran_all = $wpdb->get_results($sql, ARRAY_A);
-	foreach ($sasaran_all as $sasaran) {
-		if(empty($data_all['data'][$tujuan['id_unik']]['data'][$sasaran['id_unik']])){
-			$data_all['data'][$tujuan['id_unik']]['data'][$sasaran['id_unik']] = array(
-				'nama' => $sasaran['sasaran_teks'],
-				'detail' => array(),
-				'data' => array()
-			);
-		}
-		$data_all['data'][$tujuan['id_unik']]['data'][$sasaran['id_unik']]['detail'][] = $sasaran;
-
-		$sasaran_ids[$sasaran['id_unik']] = "'".$sasaran['id_unik']."'";
+		$tujuan_ids[$tujuan['id_unik']] = "'".$tujuan['id_unik']."'";
 		$sql = $wpdb->prepare("
 			select 
 				* 
-			from data_rpd_program_lokal
-			where kode_sasaran=%s
-		", $sasaran['id_unik']);
-		$program_all = $wpdb->get_results($sql, ARRAY_A);
-		foreach ($program_all as $program) {
-			$program_ids[$program['id_unik']] = "'".$program['id_unik']."'";
-			if(empty($program['kode_skpd'])){
-				$program['kode_skpd'] = '00';
-				$program['nama_skpd'] = 'SKPD Kosong';
-			}
-			$skpd_filter[$program['kode_skpd']] = $program['nama_skpd'];
-			if(empty($data_all['data'][$tujuan['id_unik']]['data'][$sasaran['id_unik']]['data'][$program['id_unik']])){
-				$data_all['data'][$tujuan['id_unik']]['data'][$sasaran['id_unik']]['data'][$program['id_unik']] = array(
-					'nama' => $program['nama_program'],
-					'kode_skpd' => $program['kode_skpd'],
-					'nama_skpd' => $program['nama_skpd'],
+			from data_rpd_sasaran_lokal
+			where kode_tujuan=%s
+		", $tujuan['id_unik']);
+		$sasaran_all = $wpdb->get_results($sql, ARRAY_A);
+		foreach ($sasaran_all as $sasaran) {
+			if(empty($data_all['data'][$tujuan['id_unik']]['data'][$sasaran['id_unik']])){
+				$data_all['data'][$tujuan['id_unik']]['data'][$sasaran['id_unik']] = array(
+					'nama' => $sasaran['sasaran_teks'],
+					'detail' => array(),
 					'data' => array()
 				);
+				$sasaran_ids[$sasaran['id_unik']] = "'".$sasaran['id_unik']."'";
+				$sql = $wpdb->prepare("
+					select 
+						* 
+					from data_rpd_program_lokal
+					where kode_sasaran=%s
+				", $sasaran['id_unik']);
+				$program_all = $wpdb->get_results($sql, ARRAY_A);
+				foreach ($program_all as $program) {
+					$program_ids[$program['id_unik']] = "'".$program['id_unik']."'";
+					if(empty($program['kode_skpd'])){
+						$program['kode_skpd'] = '00';
+						$program['nama_skpd'] = 'SKPD Kosong';
+					}
+					$skpd_filter[$program['kode_skpd']] = $program['nama_skpd'];
+					if(empty($data_all['data'][$tujuan['id_unik']]['data'][$sasaran['id_unik']]['data'][$program['id_unik']])){
+						$data_all['data'][$tujuan['id_unik']]['data'][$sasaran['id_unik']]['data'][$program['id_unik']] = array(
+							'nama' => $program['nama_program'],
+							'kode_skpd' => $program['kode_skpd'],
+							'nama_skpd' => $program['nama_skpd'],
+							'detail' => array(),
+							'data' => array()
+						);
+					}
+					$data_all['data'][$tujuan['id_unik']]['data'][$sasaran['id_unik']]['data'][$program['id_unik']]['detail'][] = $program;
+					if(
+						!empty($program['id_unik_indikator']) 
+						&& empty($data_all['data'][$tujuan['id_unik']]['data'][$sasaran['id_unik']]['data'][$program['id_unik']]['data'][$program['id_unik_indikator']])
+					){
+						$data_all['data'][$tujuan['id_unik']]['data'][$sasaran['id_unik']]['data'][$program['id_unik']]['data'][$program['id_unik_indikator']] = array(
+							'nama' => $program['indikator'],
+							'data' => $program
+						);
+					}
+				}
 			}
-			if(empty($data_all['data'][$tujuan['id_unik']]['data'][$sasaran['id_unik']]['data'][$program['id_unik']]['data'][$program['id_unik_indikator']])){
-				$data_all['data'][$tujuan['id_unik']]['data'][$sasaran['id_unik']]['data'][$program['id_unik']]['data'][$program['id_unik_indikator']] = array(
-					'nama' => $program['indikator'],
-					'data' => $program
-				);
-			}
+			$data_all['data'][$tujuan['id_unik']]['data'][$sasaran['id_unik']]['detail'][] = $sasaran;
 		}
 	}
+	$data_all['data'][$tujuan['id_unik']]['detail'][] = $tujuan;
+
 }
 
 // buat array data kosong
 if(empty($data_all['data']['tujuan_kosong'])){
 	$data_all['data']['tujuan_kosong'] = array(
 		'nama' => '<span style="color: red">kosong</span>',
-		'detail' => array(),
+		'detail' => array(
+			array(
+				'id_unik' => 'kosong',
+				'isu_teks' => ''
+			)
+		),
 		'data' => array()
 	);
 }
 if(empty($data_all['data']['tujuan_kosong']['data']['sasaran_kosong'])){
 	$data_all['data']['tujuan_kosong']['data']['sasaran_kosong'] = array(
 		'nama' => '<span style="color: red">kosong</span>',
-		'detail' => array(),
+		'detail' => array(
+			array(
+				'id_unik' => 'kosong',
+				'isu_teks' => ''
+			)
+		),
 		'data' => array()
 	);
 }
@@ -148,15 +164,19 @@ if(empty($data_all['data']['tujuan_kosong']['data']['sasaran_kosong'])){
 if(!empty($tujuan_ids)){
 	$sql = "
 		select 
-			* 
-		from data_rpd_tujuan_lokal
-		where id_unik not in (".implode(',', $tujuan_ids).")
+			t.*,
+			i.isu_teks 
+		from data_rpd_tujuan_lokal t
+		left join data_rpjpd_isu i on t.id_isu = i.id
+		where t.id_unik not in (".implode(',', $tujuan_ids).")
 	";
 }else{
 	$sql = "
 		select 
-			* 
-		from data_rpd_tujuan_lokal
+			t.*,
+			i.isu_teks 
+		from data_rpd_tujuan_lokal t
+		left join data_rpjpd_isu i on t.id_isu = i.id
 	";
 }
 $tujuan_all_kosong = $wpdb->get_results($sql, ARRAY_A);
@@ -200,10 +220,15 @@ foreach ($tujuan_all_kosong as $tujuan) {
 					'nama' => $program['nama_program'],
 					'kode_skpd' => $program['kode_skpd'],
 					'nama_skpd' => $program['nama_skpd'],
+					'detail' => array(),
 					'data' => array()
 				);
 			}
-			if(empty($data_all['data'][$tujuan['id_unik']]['data'][$sasaran['id_unik']]['data'][$program['id_unik']]['data'][$program['id_unik_indikator']])){
+			$data_all['data'][$tujuan['id_unik']]['data'][$sasaran['id_unik']]['data'][$program['id_unik']]['detail'][] = $program;
+			if(
+				!empty($program['id_unik_indikator']) 
+				&& empty($data_all['data'][$tujuan['id_unik']]['data'][$sasaran['id_unik']]['data'][$program['id_unik']]['data'][$program['id_unik_indikator']])
+			){
 				$data_all['data'][$tujuan['id_unik']]['data'][$sasaran['id_unik']]['data'][$program['id_unik']]['data'][$program['id_unik_indikator']] = array(
 					'nama' => $program['indikator'],
 					'data' => array()
@@ -252,10 +277,15 @@ foreach ($sasaran_all_kosong as $sasaran) {
 				'nama' => $program['nama_program'],
 				'kode_skpd' => $program['kode_skpd'],
 				'nama_skpd' => $program['nama_skpd'],
+				'detail' => array(),
 				'data' => array()
 			);
 		}
-		if(empty($data_all['data']['tujuan_kosong']['data'][$sasaran['id_unik']]['data'][$program['id_unik']]['data'][$program['id_unik_indikator']])){
+		$data_all['data']['tujuan_kosong']['data'][$sasaran['id_unik']]['data'][$program['id_unik']]['detail'][] = $program;
+		if(
+			!empty($program['id_unik_indikator']) 
+			&& empty($data_all['data']['tujuan_kosong']['data'][$sasaran['id_unik']]['data'][$program['id_unik']]['data'][$program['id_unik_indikator']])
+		){
 			$data_all['data']['tujuan_kosong']['data'][$sasaran['id_unik']]['data'][$program['id_unik']]['data'][$program['id_unik_indikator']] = array(
 				'nama' => $program['indikator'],
 				'data' => array()
@@ -286,9 +316,11 @@ foreach ($program_all as $program) {
 			'nama' => $program['nama_program'],
 			'kode_skpd' => $program['kode_skpd'],
 			'nama_skpd' => $program['nama_skpd'],
+			'detail' => array(),
 			'data' => array()
 		);
 	}
+	$data_all['data']['tujuan_kosong']['data']['sasaran_kosong']['data'][$program['id_unik']]['detail'][] = $program;
 	if(empty($data_all['data']['tujuan_kosong']['data']['sasaran_kosong']['data'][$program['id_unik']]['data'][$program['id_unik_indikator']])){
 		$data_all['data']['tujuan_kosong']['data']['sasaran_kosong']['data'][$program['id_unik']]['data'][$program['id_unik_indikator']] = array(
 			'nama' => $program['indikator'],
@@ -305,6 +337,8 @@ if(empty($data_all['data']['tujuan_kosong']['data'])){
 	unset($data_all['data']['tujuan_kosong']);
 }
 
+// print_r($data_all);
+
 $body = '';
 $no_tujuan = 0;
 foreach ($data_all['data'] as $tujuan) {
@@ -320,7 +354,7 @@ foreach ($data_all['data'] as $tujuan) {
 	$satuan = '';
 	foreach($tujuan['detail'] as $k => $v){
 		if(!empty($v['indikator_teks'])){
-			$indikator_tujuan .= '<div class="indikator_program">'.$v['indikator_teks'].'</div>';
+			$indikator_tujuan .= '<div class="indikator_program">'.$v['indikator_teks'].button_edit_monev($v['id_unik'].'|'.$v['id_unik_indikator']).'</div>';
 			$target_awal .= '<div class="indikator_program">'.$v['target_awal'].'</div>';
 			$target_1 .= '<div class="indikator_program">'.$v['target_1'].'</div>';
 			$target_2 .= '<div class="indikator_program">'.$v['target_2'].'</div>';
@@ -334,7 +368,8 @@ foreach ($data_all['data'] as $tujuan) {
 	$body .= '
 		<tr class="tr-tujuan">
 			<td class="kiri atas kanan bawah">'.$no_tujuan.'</td>
-			<td class="atas kanan bawah">'.parsing_nama_kode($tujuan['nama']).'</td>
+			<td class="atas kanan bawah">'.$tujuan['detail'][0]['isu_teks'].'</td>
+			<td class="atas kanan bawah">'.parsing_nama_kode($tujuan['nama']).button_edit_monev($tujuan['detail'][0]['id_unik']).'</td>
 			<td class="atas kanan bawah"></td>
 			<td class="atas kanan bawah"></td>
 			<td class="atas kanan bawah">'.$indikator_tujuan.'</td>
@@ -363,7 +398,7 @@ foreach ($data_all['data'] as $tujuan) {
 		$satuan = '';
 		foreach($sasaran['detail'] as $k => $v){
 			if(!empty($v['indikator_teks'])){
-				$indikator_sasaran .= '<div class="indikator_program">'.$v['indikator_teks'].'</div>';
+				$indikator_sasaran .= '<div class="indikator_program">'.$v['indikator_teks'].button_edit_monev($tujuan['detail'][0]['id_unik'].'||'.$v['id_unik'].'|'.$v['id_unik_indikator']).'</div>';
 				$target_awal .= '<div class="indikator_program">'.$v['target_awal'].'</div>';
 				$target_1 .= '<div class="indikator_program">'.$v['target_1'].'</div>';
 				$target_2 .= '<div class="indikator_program">'.$v['target_2'].'</div>';
@@ -377,8 +412,9 @@ foreach ($data_all['data'] as $tujuan) {
 		$body .= '
 			<tr class="tr-sasaran">
 				<td class="kiri atas kanan bawah">'.$no_tujuan.'.'.$no_sasaran.'</td>
+				<td class="atas kanan bawah"><span class="debug-tujuan">'.$tujuan['detail'][0]['isu_teks'].'</span></td>
 				<td class="atas kanan bawah"><span class="debug-tujuan">'.$tujuan['nama'].'</span></td>
-				<td class="atas kanan bawah">'.parsing_nama_kode($sasaran['nama']).'</td>
+				<td class="atas kanan bawah">'.parsing_nama_kode($sasaran['nama']).button_edit_monev($tujuan['detail'][0]['id_unik'].'||'.$sasaran['detail'][0]['id_unik']).'</td>
 				<td class="atas kanan bawah"></td>
 				<td class="atas kanan bawah">'.$indikator_sasaran.'</td>
 				<td class="atas kanan bawah">'.$target_awal.'</td>
@@ -405,7 +441,7 @@ foreach ($data_all['data'] as $tujuan) {
 			$target_akhir = array();
 			$satuan = array();
 			foreach ($program['data'] as $indikator_program) {
-				$text_indikator[] = '<div class="indikator_program">'.$indikator_program['nama'].'</div>';
+				$text_indikator[] = '<div class="indikator_program">'.$indikator_program['nama'].button_edit_monev($tujuan['detail'][0]['id_unik'].'||'.$sasaran['detail'][0]['id_unik'].'||'.$indikator_program['data']['id_unik'].'|'.$indikator_program['data']['id_unik_indikator']).'</div>';
 				$target_awal[] = '<div class="indikator_program">'.get_target($indikator_program['data']['target_awal'], $indikator_program['data']['satuan']).'</div>';
 				$target_1[] = '<div class="indikator_program">'.get_target($indikator_program['data']['target_1'], $indikator_program['data']['satuan']).'</div>';
 				$target_2[] = '<div class="indikator_program">'.get_target($indikator_program['data']['target_2'], $indikator_program['data']['satuan']).'</div>';
@@ -427,9 +463,10 @@ foreach ($data_all['data'] as $tujuan) {
 			$body .= '
 				<tr class="tr-program" data-kode-skpd="'.$program['kode_skpd'].'">
 					<td class="kiri atas kanan bawah">'.$no_tujuan.'.'.$no_sasaran.'.'.$no_program.'</td>
+					<td class="atas kanan bawah"><span class="debug-tujuan">'.$tujuan['detail'][0]['isu_teks'].'</span></td>
 					<td class="atas kanan bawah"><span class="debug-tujuan">'.$tujuan['nama'].'</span></td>
 					<td class="atas kanan bawah"><span class="debug-sasaran">'.$sasaran['nama'].'</span></td>
-					<td class="atas kanan bawah">'.parsing_nama_kode($program['nama']).'</td>
+					<td class="atas kanan bawah">'.parsing_nama_kode($program['nama']).button_edit_monev($tujuan['detail'][0]['id_unik'].'||'.$sasaran['detail'][0]['id_unik'].'||'.$program['detail'][0]['id_unik']).'</td>
 					<td class="atas kanan bawah">'.$text_indikator.'</td>
 					<td class="atas kanan bawah text_tengah">'.$target_awal.'</td>
 					<td class="atas kanan bawah text_tengah">'.$target_1.'</td>
@@ -469,6 +506,7 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
 		<thead>
 			<tr>
 				<th style="width: 85px;" class="atas kiri kanan bawah text_tengah text_blok">No</th>
+				<th style="width: 200px;" class="atas kanan bawah text_tengah text_blok">Isu RPJPD</th>
 				<th style="width: 200px;" class="atas kanan bawah text_tengah text_blok">Tujuan</th>
 				<th style="width: 200px;" class="atas kanan bawah text_tengah text_blok">Sasaran</th>
 				<th style="width: 200px;" class="atas kanan bawah text_tengah text_blok">Program</th>
@@ -498,6 +536,7 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
 				<th class='atas kanan bawah text_tengah text_blok'>11</th>
 				<th class='atas kanan bawah text_tengah text_blok'>12</th>
 				<th class='atas kanan bawah text_tengah text_blok'>13</th>
+				<th class='atas kanan bawah text_tengah text_blok'>14</th>
 			</tr>
 		</thead>
 		<tbody>
@@ -1086,9 +1125,41 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
 		}
 	}
 	jQuery('.edit-monev').on('click', function(){
-		jQuery('#wrap-loading').show();
-		jQuery('#mod-monev').modal('show');
-		jQuery('#wrap-loading').hide();
+		var data_id = jQuery(this).attr('data-id').split('||');
+		if(data_id[2]){
+			tampil_detail_popup(function(){
+				detail_tujuan(data_id[0], function(){
+					detail_sasaran(data_id[1], function(){
+						var program = data_id[2].split('|');
+						if(program[1]){
+							edit_program_indikator(program[1]);
+						}else{
+							edit_program(program[0]);
+						}
+					});
+				});
+			});
+		}else if(data_id[1]){
+			tampil_detail_popup(function(){
+				detail_tujuan(data_id[0], function(){
+					var sasaran = data_id[1].split('|');
+					if(sasaran[1]){
+						edit_sasaran_indikator(sasaran[1]);
+					}else{
+						edit_sasaran(sasaran[0]);
+					}
+				});
+			});
+		}else if(data_id[0]){
+			tampil_detail_popup(function(){
+				var tujuan = data_id[0].split('|');
+				if(tujuan[1]){
+					edit_tujuan_indikator(tujuan[1]);
+				}else{
+					edit_tujuan(tujuan[0]);
+				}
+			});
+		}
 	});
 	jQuery('#singkron-sipd').on('click', function(){
 		if(confirm('Apakah anda yakin untuk mengambil data dari SIPD lokal? data lama akan diupdate!')){
@@ -1502,6 +1573,7 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
 
 					jQuery('#tujuan-teks-indikator').html(res.data_all[b].nama);
 					jQuery('#modal-tujuan-indikator').attr('id-tujuan', res.data_all[b].id_unik);
+					jQuery('#modal-tujuan-indikator').attr('data-id', '');
 				}
 				jQuery('#wrap-loading').hide();
 			}
@@ -1540,6 +1612,7 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
 				jQuery('#indikator-teks-sasaran-vol-akhir').val('');
 				jQuery('#indikator-teks-sasaran-satuan-akhir').val('');
 				jQuery('#modal-sasaran-indikator').attr('id-sasaran', id_sasaran);
+				jQuery('#modal-sasaran-indikator').attr('data-id', '');
 				jQuery('#modal-sasaran-indikator').modal('show');
 				jQuery('#wrap-loading').hide();
 			}
@@ -1581,6 +1654,7 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
 					jQuery('#indikator-teks-program-vol-akhir').val('');
 					jQuery('#indikator-teks-program-satuan-akhir').val('');
 					jQuery('#modal-program-indikator').attr('id-program', id_program);
+					jQuery('#modal-program-indikator').attr('data-id', '');
 					jQuery('#modal-program-indikator').modal('show');
 					jQuery('#wrap-loading').hide();
 				});
@@ -1625,6 +1699,7 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
 	function tambah_sasaran(id_unik_tujuan){
 		jQuery('#tujuan-sasaran-teks').html(jQuery('tr[id-tujuan="'+id_unik_tujuan+'"] td').eq(1).html());
 		jQuery('#modal-sasaran').attr('id-tujuan', id_unik_tujuan);
+		jQuery('#modal-sasaran').attr('data-id', '');
 		jQuery('#sasaran-teks').val('');
 		jQuery('#modal-sasaran').modal('show');
 	}
@@ -1635,6 +1710,7 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
 			jQuery('#tujuan-program-teks').html(jQuery('tr[id-tujuan="'+jQuery('#tambah-data-sasaran').attr('id-tujuan')+'"] td').eq(1).html());
 			jQuery('#sasaran-program-teks').html(jQuery('tr[id-sasaran="'+id_unik_sasaran+'"] td').eq(1).html());
 			jQuery('#modal-program').attr('id-sasaran', id_unik_sasaran);
+			jQuery('#modal-program').attr('data-id', '');
 			get_urusan()
 			get_bidang();
 			get_program();
@@ -2017,6 +2093,7 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
           	dataType: "json",
           	success: function(res){
           		for(var b in res.data_all){
+					jQuery('#tujuan-sasaran-teks-indikator').html(jQuery('tr[id-tujuan="'+jQuery('#tambah-data-sasaran').attr('id-tujuan')+'"] td').eq(1).html());
 					jQuery('#sasaran-teks-indikator').html(res.data_all[b].nama);
 					jQuery('#modal-sasaran-indikator').attr('id-sasaran', res.data_all[b].id_unik);
 		  			jQuery('#indikator-teks-sasaran').val(res.data_all[b].detail[0].indikator_teks);
@@ -2775,5 +2852,9 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
 	  			jQuery('#isu-teks').html(html);
 	  		});
 	  	}
+	});
+
+	jQuery('#modal-monev').on('hidden.bs.modal', function () {
+	    window.location = "";
 	});
 </script>
