@@ -1881,53 +1881,56 @@ $tahun_selesai = (!empty($tahun_anggaran)) ? $tahun_anggaran + 5 : '-';
 		let programModal = jQuery("#modal-crud-rpjm");
 		let kode_sasaran = jQuery(this).data('kodesasaran');
 
-		jQuery.ajax({
-			url: ajax.url,
-          	type: "post",
-          	data: {
-          		"action": "add_program_rpjm",
-          		"api_key": "<?php echo $api_key; ?>",
-          		"type": 1
-          	},
-          	dataType: "json",
-          	success: function(res){
-          		
-          		jQuery('#wrap-loading').hide();
-				
+  		get_bidang_urusan().then(function(){
+
+  				jQuery('#wrap-loading').hide();
+  				
 				let html = '<form id="form-rpjm">'
 								+'<input type="hidden" name="kode_sasaran" value="'+kode_sasaran+'"/>'
 								+'<div class="form-group">'
-									+'<label for="program">Program</label>'
-								    +'<input type="text" class="form-control" name="program_teks"/>'
-								+'</div>'
-								+'<div class="form-group">'
-									+'<label for="unit_kerja">Unit Kerja</label>'
-									+'<select id="id_unit" name="id_unit" multiple>'
-										res.units.map(function(value, index){
-									    		html +='<option value="'+value.id_unit+'">'+value.nama_skpd+'</option>';
-									    });
-								    html+='</select>'
-								+'</div>'
-								+'<div class="form-group">'
-									+'<label for="pagu_1">Pagu tahun ke-1</label>'
-									+'<input type="number" class="form-control" name="pagu_1"/>'
-								+'</div>'
-								+'<div class="form-group">'
-									+'<label for="pagu_2">Pagu tahun ke-2</label>'
-									+'<input type="number" class="form-control" name="pagu_2"/>'
-								+'</div>'
-								+'<div class="form-group">'
-									+'<label for="pagu_3">Pagu tahun ke-3</label>'
-									+'<input type="number" class="form-control" name="pagu_3"/>'
-								+'</div>'
-								+'<div class="form-group">'
-									+'<label for="pagu_4">Pagu tahun ke-4</label>'
-									+'<input type="number" class="form-control" name="pagu_4"/>'
-								+'</div>'
-								+'<div class="form-group">'
-									+'<label for="pagu_5">Pagu tahun ke-5</label>'
-									+'<input type="number" class="form-control" name="pagu_5"/>'
-								+'</div>'
+							    	+'<label>Pilih Urusan</label>'
+							    	+'<select class="form-control" name="id_urusan" id="urusan-teks"></select>'
+							  	+'</div>'
+							  	+'<div class="form-group">'
+							    	+'<label>Pilih Bidang</label>'
+							    	+'<select class="form-control" name="id_bidang" id="bidang-teks"></select>'
+							  	+'</div>'
+							  	+'<div class="form-group">'
+							    	+'<label>Pilih Program</label>'
+							    	+'<select class="form-control" name="id_program" id="program-teks"></select>'
+							  	+'</div>'
+								// +'<div class="form-group">'
+								// 	+'<label for="program">Program</label>'
+								//     +'<input type="text" class="form-control" name="program_teks" id="program-teks"/>'
+								// +'</div>'
+								// +'<div class="form-group">'
+								// 	+'<label for="unit_kerja">Unit Kerja</label>'
+								// 	+'<select id="id_unit" name="id_unit" multiple>'
+								// 		res.units.map(function(value, index){
+								// 	    		html +='<option value="'+value.id_unit+'">'+value.nama_skpd+'</option>';
+								// 	    });
+								//     html+='</select>'
+								// +'</div>'
+								// +'<div class="form-group">'
+								// 	+'<label for="pagu_1">Pagu tahun ke-1</label>'
+								// 	+'<input type="number" class="form-control" name="pagu_1"/>'
+								// +'</div>'
+								// +'<div class="form-group">'
+								// 	+'<label for="pagu_2">Pagu tahun ke-2</label>'
+								// 	+'<input type="number" class="form-control" name="pagu_2"/>'
+								// +'</div>'
+								// +'<div class="form-group">'
+								// 	+'<label for="pagu_3">Pagu tahun ke-3</label>'
+								// 	+'<input type="number" class="form-control" name="pagu_3"/>'
+								// +'</div>'
+								// +'<div class="form-group">'
+								// 	+'<label for="pagu_4">Pagu tahun ke-4</label>'
+								// 	+'<input type="number" class="form-control" name="pagu_4"/>'
+								// +'</div>'
+								// +'<div class="form-group">'
+								// 	+'<label for="pagu_5">Pagu tahun ke-5</label>'
+								// 	+'<input type="number" class="form-control" name="pagu_5"/>'
+								// +'</div>'
 							+'</form>';
 
 		        programModal.find('.modal-title').html('Tambah Program');
@@ -1939,19 +1942,21 @@ $tahun_selesai = (!empty($tahun_anggaran)) ? $tahun_anggaran + 5 : '-';
 					+'<button type="button" class="btn btn-sm btn-success" id="btn-simpan-data-rpjm-lokal" '
 						+'data-action="submit_program_rpjm" '
 						+'data-view="programRpjm" '
-						+'data-withunit="true"'
+						// +'data-withunit="true"'
 					+'>'
 						+'<i class="dashicons dashicons-yes" style="margin-top: 3px;"></i> Simpan'
 					+'</button>');
-				// programModal.find('.modal-dialog').css('maxWidth','950px');
-				// programModal.find('.modal-dialog').css('width','100%');
+
+				get_urusan();
+				get_bidang();
+				get_program();
+
 				programModal.modal('show');
 
-				new SlimSelect({
-					select: '#id_unit'
-				})
-          	}
-        });
+				// new SlimSelect({
+				// 	select: '#id_unit'
+				// })
+  		});	
 	});
 
 	jQuery(document).on('click', '.btn-edit-program', function(){
@@ -1970,66 +1975,89 @@ $tahun_selesai = (!empty($tahun_anggaran)) ? $tahun_anggaran + 5 : '-';
           	},
           	dataType: "json",
           	success: function(res){
-        
-          		jQuery('#wrap-loading').hide();
+
+          		let id_program = res.data.id_program;
+
+          		get_bidang_urusan().then(function(){
+
+          			jQuery('#wrap-loading').hide();
 				
-				let html = '<form id="form-rpjm">'
-								+'<input type="hidden" name="id_unik" value="'+res.data.id_unik+'"/>'
-								+'<input type="hidden" name="kode_sasaran" value="'+res.data.kode_sasaran+'"/>'
-								+'<div class="form-group">'
-									+'<label for="program">Program</label>'
-								    +'<input type="text" class="form-control" name="program_teks" value="'+res.data.program_teks+'"/>'
-								+'</div>'
-								+'<div class="form-group">'
-									+'<label for="unit_kerja">Unit Kerja</label>'
-									+'<select id="id_unit" name="id_unit" multiple>'
-										res.units.map(function(value, index){
-									    		html +='<option value="'+value.id_unit+'">'+value.nama_skpd+'</option>';
-									    });
-								    html+='</select>'
-								+'</div>'
-								+'<div class="form-group">'
-									+'<label for="pagu_1">Pagu tahun ke-1</label>'
-									+'<input type="number" class="form-control" name="pagu_1" value="'+res.data.pagu_1+'"/>'
-								+'</div>'
-								+'<div class="form-group">'
-									+'<label for="pagu_2">Pagu tahun ke-2</label>'
-									+'<input type="number" class="form-control" name="pagu_2" value="'+res.data.pagu_2+'"/>'
-								+'</div>'
-								+'<div class="form-group">'
-									+'<label for="pagu_3">Pagu tahun ke-3</label>'
-									+'<input type="number" class="form-control" name="pagu_3" value="'+res.data.pagu_3+'"/>'
-								+'</div>'
-								+'<div class="form-group">'
-									+'<label for="pagu_4">Pagu tahun ke-4</label>'
-									+'<input type="number" class="form-control" name="pagu_4" value="'+res.data.pagu_4+'"/>'
-								+'</div>'
-								+'<div class="form-group">'
-									+'<label for="pagu_5">Pagu tahun ke-5</label>'
-									+'<input type="number" class="form-control" name="pagu_5" value="'+res.data.pagu_5+'"/>'
-								+'</div>'
-							+'</form>';
+					let html = '<form id="form-rpjm">'
+									+'<input type="hidden" name="id_unik" value="'+res.data.id_unik+'"/>'
+									+'<input type="hidden" name="kode_sasaran" value="'+res.data.kode_sasaran+'"/>'
+									+'<div class="form-group">'
+								    	+'<label>Pilih Urusan</label>'
+								    	+'<select class="form-control" name="id_urusan" id="urusan-teks"></select>'
+								  	+'</div>'
+								  	+'<div class="form-group">'
+								    	+'<label>Pilih Bidang</label>'
+								    	+'<select class="form-control" name="id_bidang" id="bidang-teks"></select>'
+								  	+'</div>'
+								  	+'<div class="form-group">'
+								    	+'<label>Pilih Program</label>'
+								    	+'<select class="form-control" name="id_program" id="program-teks"></select>'
+								  	+'</div>'
+									// +'<div class="form-group">'
+									// 	+'<label for="program">Program</label>'
+									//     +'<input type="text" class="form-control" name="program_teks" value="'+res.data.program_teks+'"/>'
+									// +'</div>'
+									// +'<div class="form-group">'
+									// 	+'<label for="unit_kerja">Unit Kerja</label>'
+									// 	+'<select id="id_unit" name="id_unit" multiple>'
+									// 		res.units.map(function(value, index){
+									// 	    		html +='<option value="'+value.id_unit+'">'+value.nama_skpd+'</option>';
+									// 	    });
+									//     html+='</select>'
+									// +'</div>'
+									// +'<div class="form-group">'
+									// 	+'<label for="pagu_1">Pagu tahun ke-1</label>'
+									// 	+'<input type="number" class="form-control" name="pagu_1" value="'+res.data.pagu_1+'"/>'
+									// +'</div>'
+									// +'<div class="form-group">'
+									// 	+'<label for="pagu_2">Pagu tahun ke-2</label>'
+									// 	+'<input type="number" class="form-control" name="pagu_2" value="'+res.data.pagu_2+'"/>'
+									// +'</div>'
+									// +'<div class="form-group">'
+									// 	+'<label for="pagu_3">Pagu tahun ke-3</label>'
+									// 	+'<input type="number" class="form-control" name="pagu_3" value="'+res.data.pagu_3+'"/>'
+									// +'</div>'
+									// +'<div class="form-group">'
+									// 	+'<label for="pagu_4">Pagu tahun ke-4</label>'
+									// 	+'<input type="number" class="form-control" name="pagu_4" value="'+res.data.pagu_4+'"/>'
+									// +'</div>'
+									// +'<div class="form-group">'
+									// 	+'<label for="pagu_5">Pagu tahun ke-5</label>'
+									// 	+'<input type="number" class="form-control" name="pagu_5" value="'+res.data.pagu_5+'"/>'
+									// +'</div>'
+								+'</form>';
 
-		        programModal.find('.modal-title').html('Edit Program');
-				programModal.find('.modal-body').html(html);
-				programModal.find('.modal-footer').html(''
-					+'<button type="button" class="btn btn-sm btn-warning" data-dismiss="modal">'
-						+'<i class="dashicons dashicons-no" style="margin-top: 3px;"></i> Tutup'
-					+'</button>'
-					+'<button type="button" class="btn btn-sm btn-success" id="btn-simpan-data-rpjm-lokal" '
-						+'data-action="update_program_rpjm" '
-						+'data-view="programRpjm" '
-						+'data-withunit="true"'
-					+'>'
-						+'<i class="dashicons dashicons-yes" style="margin-top: 3px;"></i> Simpan'
-					+'</button>');
-				programModal.modal('show');
+			        programModal.find('.modal-title').html('Edit Program');
+					programModal.find('.modal-body').html(html);
+					programModal.find('.modal-footer').html(''
+						+'<button type="button" class="btn btn-sm btn-warning" data-dismiss="modal">'
+							+'<i class="dashicons dashicons-no" style="margin-top: 3px;"></i> Tutup'
+						+'</button>'
+						+'<button type="button" class="btn btn-sm btn-success" id="btn-simpan-data-rpjm-lokal" '
+							+'data-action="update_program_rpjm" '
+							+'data-view="programRpjm" '
+							// +'data-withunit="true"'
+						+'>'
+							+'<i class="dashicons dashicons-yes" style="margin-top: 3px;"></i> Simpan'
+						+'</button>');
 
-				const displaySelect = new SlimSelect({
-					select: '#id_unit'
-				});
+					get_urusan();
+					get_bidang();
+					get_program(false, id_program);
 
-				displaySelect.set(res.selectedUnit);
+					programModal.modal('show');
+
+          		});
+        
+          		// const displaySelect = new SlimSelect({
+				// 	select: '#id_unit'
+				// });
+
+				// displaySelect.set(res.selectedUnit);
 
           	}
         });
@@ -2278,6 +2306,15 @@ $tahun_selesai = (!empty($tahun_anggaran)) ? $tahun_anggaran + 5 : '-';
 		})
 	});
 
+	jQuery(document).on('change', '#urusan-teks', function(){
+		get_bidang(jQuery(this).val());
+		get_program();
+	});
+
+	jQuery(document).on('change', '#bidang-teks', function(){
+		get_program(jQuery(this).val());
+	});
+
 	function visiRpjm(){
 		
 		jQuery('#wrap-loading').show();
@@ -2433,7 +2470,7 @@ $tahun_selesai = (!empty($tahun_anggaran)) ? $tahun_anggaran + 5 : '-';
 			          							+'<td>'+(index+1)+'.</td>'
 			          							+'<td>'+value.tujuan_teks+'</td>'
 			          							+'<td>'
-			          								+'<a href="javascript:void(0)" data-idtujuan="'+value.id+'" class="btn btn-sm btn-warning btn-kelola-indikator-tujuan"><i class="dashicons dashicons-arrow-up-alt" style="margin-top: 3px;"></i> Indikator</a>&nbsp;'
+			          								+'<a href="javascript:void(0)" data-idtujuan="'+value.id+'" class="btn btn-sm btn-warning btn-kelola-indikator-tujuan"><i class="dashicons dashicons-menu-alt" style="margin-top: 3px;"></i></a>&nbsp;'
 			          								+'<a href="javascript:void(0)" data-idtujuan="'+value.id+'" data-kode="'+value.id_unik+'" class="btn btn-sm btn-primary btn-detail-tujuan"><i class="dashicons dashicons-search" style="margin-top: 3px;"></i></a>&nbsp;'
 			          								+'<a href="javascript:void(0)" data-idtujuan="'+value.id+'" class="btn btn-sm btn-success btn-edit-tujuan"><i class="dashicons dashicons-edit" style="margin-top: 3px;"></i></a>&nbsp;'
 			          								+'<a href="javascript:void(0)" data-idtujuan="'+value.id+'" data-kodetujuan="'+value.id_unik+'" data-idmisi="'+value.id_misi+'" class="btn btn-sm btn-danger btn-hapus-tujuan"><i class="dashicons dashicons-trash" style="margin-top: 3px;"></i></a></td>'
@@ -2577,7 +2614,7 @@ $tahun_selesai = (!empty($tahun_anggaran)) ? $tahun_anggaran + 5 : '-';
 			          							+'<td>'+(index+1)+'.</td>'
 			          							+'<td>'+value.sasaran_teks+'</td>'
 			          							+'<td>'
-			          								+'<a href="javascript:void(0)" data-idsasaran="'+value.id+'" class="btn btn-sm btn-warning btn-kelola-indikator-sasaran"><i class="dashicons dashicons-arrow-up-alt" style="margin-top: 3px;"></i> Indikator</a>&nbsp;'
+			          								+'<a href="javascript:void(0)" data-idsasaran="'+value.id+'" class="btn btn-sm btn-warning btn-kelola-indikator-sasaran"><i class="dashicons dashicons-menu-alt" style="margin-top: 3px;"></i></a>&nbsp;'
 			          								+'<a href="javascript:void(0)" data-kodesasaran="'+value.id_unik+'" class="btn btn-sm btn-primary btn-detail-sasaran"><i class="dashicons dashicons-search" style="margin-top: 3px;"></i></a>&nbsp;'
 			          								+'<a href="javascript:void(0)" data-idsasaran="'+value.id+'" class="btn btn-sm btn-success btn-edit-sasaran"><i class="dashicons dashicons-edit" style="margin-top: 3px;"></i></a>&nbsp;'
 			          								+'<a href="javascript:void(0)" data-idsasaran="'+value.id+'" data-kodesasaran="'+value.id_unik+'" data-kodetujuan="'+value.kode_tujuan+'" class="btn btn-sm btn-danger btn-hapus-sasaran"><i class="dashicons dashicons-trash" style="margin-top: 3px;"></i></a></td>'
@@ -2725,7 +2762,7 @@ $tahun_selesai = (!empty($tahun_anggaran)) ? $tahun_anggaran + 5 : '-';
 			          							+'<td>'+(index+1)+'.</td>'
 			          							+'<td>'+value.nama_program+'</td>'
 			          							+'<td>'
-			          								+'<a href="javascript:void(0)" data-kodeprogram="'+value.id_unik+'" class="btn btn-sm btn-warning btn-kelola-indikator-program"><i class="dashicons dashicons-arrow-up-alt" style="margin-top: 3px;"></i> Indikator</a>&nbsp;'
+			          								+'<a href="javascript:void(0)" data-kodeprogram="'+value.id_unik+'" class="btn btn-sm btn-warning btn-kelola-indikator-program"><i class="dashicons dashicons-menu-alt" style="margin-top: 3px;"></i></a>&nbsp;'
 			          								+'<a href="javascript:void(0)" data-kodeprogram="'+value.id_unik+'" class="btn btn-sm btn-success btn-edit-program"><i class="dashicons dashicons-edit" style="margin-top: 3px;"></i></a>&nbsp;'
 			          								+'<a href="javascript:void(0)" data-kodeprogram="'+value.id_unik+'" data-kodesasaran="'+value.kode_sasaran+'" class="btn btn-sm btn-danger btn-hapus-program"><i class="dashicons dashicons-trash" style="margin-top: 3px;"></i></a></td>'
 			          						+'</tr>';
@@ -2816,6 +2853,149 @@ $tahun_selesai = (!empty($tahun_anggaran)) ? $tahun_anggaran + 5 : '-';
 				jQuery("#modal-indikator-rpjm").find('.modal-dialog').css('maxWidth','1250px');
 				jQuery("#modal-indikator-rpjm").find('.modal-dialog').css('width','100%');
 				jQuery("#modal-indikator-rpjm").modal('show');
+			}
+		});
+	}
+
+	function get_urusan() {
+		var html = '<option value="">Pilih Urusan</option>';
+		for(var nm_urusan in all_program){
+			html += '<option>'+nm_urusan+'</option>';
+		}
+		jQuery('#urusan-teks').html(html);
+	}
+
+	function get_bidang(nm_urusan) {
+		var html = '<option value="">Pilih Bidang</option>';
+		if(nm_urusan){
+			for(var nm_bidang in all_program[nm_urusan]){
+				html += '<option>'+nm_bidang+'</option>';
+			}
+		}else{
+			for(var nm_urusan in all_program){
+				for(var nm_bidang in all_program[nm_urusan]){
+					html += '<option>'+nm_bidang+'</option>';
+				}
+			}
+		}
+		jQuery('#bidang-teks').html(html);
+	}
+
+	function get_program(nm_bidang, val) {
+		var html = '<option value="">Pilih Program</option>';
+		var current_nm_urusan = jQuery('#urusan-teks').val();
+		if(current_nm_urusan){
+			if(nm_bidang){
+				for(var nm_program in all_program[current_nm_urusan][nm_bidang]){
+					var selected = '';
+					if(val && val == all_program[current_nm_urusan][nm_bidang][nm_program].id_program){
+						selected = 'selected';
+					}
+					html += '<option '+selected+' value="'+all_program[current_nm_urusan][nm_bidang][nm_program].id_program+'">'+nm_program+'</option>';
+				}
+			}else{
+				for(var nm_bidang in all_program[current_nm_urusan]){
+					for(var nm_program in all_program[current_nm_urusan][nm_bidang]){
+						var selected = '';
+						if(val && val == all_program[current_nm_urusan][nm_bidang][nm_program].id_program){
+							selected = 'selected';
+						}
+						html += '<option '+selected+' value="'+all_program[current_nm_urusan][nm_bidang][nm_program].id_program+'">'+nm_program+'</option>';
+					}
+				}
+			}
+		}else{
+			if(nm_bidang){
+				for(var nm_urusan in all_program){
+					if(all_program[nm_urusan][nm_bidang]){
+						for(var nm_program in all_program[nm_urusan][nm_bidang]){
+							var selected = '';
+							if(val && val == all_program[nm_urusan][nm_bidang][nm_program].id_program){
+								selected = 'selected';
+							}
+							html += '<option '+selected+' value="'+all_program[nm_urusan][nm_bidang][nm_program].id_program+'">'+nm_program+'</option>';
+						}
+					}
+				}
+			}else{
+				for(var nm_urusan in all_program){
+					for(var nm_bidang in all_program[nm_urusan]){
+						for(var nm_program in all_program[nm_urusan][nm_bidang]){
+							var selected = '';
+							if(val && val == all_program[nm_urusan][nm_bidang][nm_program].id_program){
+								selected = 'selected';
+							}
+							html += '<option '+selected+' value="'+all_program[nm_urusan][nm_bidang][nm_program].id_program+'">'+nm_program+'</option>';
+						}
+					}
+				}
+			}
+		}
+		jQuery('#program-teks').html(html);
+	}
+
+	function get_bidang_urusan(skpd){
+		return new Promise(function(resolve, reject){
+			if(!skpd){
+				if(typeof all_program == 'undefined'){
+					jQuery.ajax({
+						url: ajax.url,
+			          	type: "post",
+			          	data: {
+			          		"action": "get_bidang_urusan",
+			          		"api_key": "<?php echo $api_key; ?>",
+			          		"type": 1
+			          	},
+			          	dataType: "json",
+			          	success: function(res){
+							window.all_program = {};
+							res.data.map(function(b, i){
+								if(!all_program[b.nama_urusan]){
+									all_program[b.nama_urusan] = {};
+								}
+								if(!all_program[b.nama_urusan][b.nama_bidang_urusan]){
+									all_program[b.nama_urusan][b.nama_bidang_urusan] = {};
+								}
+								if(!all_program[b.nama_urusan][b.nama_bidang_urusan][b.nama_program]){
+									all_program[b.nama_urusan][b.nama_bidang_urusan][b.nama_program] = b;
+								}
+							});
+							resolve();
+			          	}
+		          });
+				}else{
+					resolve();
+				}
+			}else{
+				if(typeof all_program == 'undefined'){
+					jQuery.ajax({
+						url: ajax.url,
+			          	type: "post",
+			          	data: {
+			          		"action": "get_bidang_urusan",
+			          		"api_key": "<?php echo $api_key; ?>",
+			          		"type": 0
+			          	},
+			          	dataType: "json",
+			          	success: function(res){
+							window.all_skpd = {};
+							res.data.map(function(b, i){
+								if(!all_skpd[b.nama_urusan]){
+									all_skpd[b.nama_urusan] = {};
+								}
+								if(!all_skpd[b.nama_urusan][b.nama_bidang_urusan]){
+									all_skpd[b.nama_urusan][b.nama_bidang_urusan] = {};
+								}
+								if(!all_skpd[b.nama_urusan][b.nama_bidang_urusan][b.nama_skpd]){
+									all_skpd[b.nama_urusan][b.nama_bidang_urusan][b.nama_skpd] = b;
+								}
+							});
+							resolve();
+			          	}
+		          });
+				}else{
+					resolve();
+				}
 			}
 		});
 	}
