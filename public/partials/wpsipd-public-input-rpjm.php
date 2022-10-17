@@ -205,16 +205,9 @@ foreach ($visi_all as $visi) {
 				$program_all = $wpdb->get_results($sql, ARRAY_A);
 				foreach ($program_all as $program) {
 					$program_ids[$program['id_unik']] = "'".$program['id_unik']."'";
-					if(empty($program['kode_skpd'])){
-						$program['kode_skpd'] = '00';
-						$program['nama_skpd'] = 'SKPD Kosong';
-					}
-					$skpd_filter[$program['kode_skpd']] = $program['nama_skpd'];
 					if(empty($data_all['data'][$visi['id']]['data'][$misi['id']]['data'][$tujuan['id_unik']]['data'][$sasaran['id_unik']]['data'][$program['id_unik']])){
 						$data_all['data'][$visi['id']]['data'][$misi['id']]['data'][$tujuan['id_unik']]['data'][$sasaran['id_unik']]['data'][$program['id_unik']] = array(
 							'nama' => $program['nama_program'],
-							'kode_skpd' => $program['kode_skpd'],
-							'nama_skpd' => $program['nama_skpd'],
 							'data' => array()
 						);
 					}
@@ -227,6 +220,15 @@ foreach ($visi_all as $visi) {
 					", $program['id_unik']);
 					$program_indikator_all = $wpdb->get_results($sql, ARRAY_A);
 					foreach ($program_indikator_all as $program_indikator) {
+						if(empty($program_indikator['kode_skpd'])){
+							$program_indikator['kode_skpd'] = '00';
+							$program_indikator['nama_skpd'] = 'SKPD Kosong';
+						}
+
+						if(empty($skpd_filter[$program_indikator['kode_skpd']])){
+							$skpd_filter[$program_indikator['kode_skpd']] = $program_indikator['nama_skpd'];
+						}
+
 						if(empty($data_all['data'][$visi['id']]['data'][$misi['id']]['data'][$tujuan['id_unik']]['data'][$sasaran['id_unik']]['data'][$program['id_unik']]['data'][$program_indikator['id_unik_indikator']])){
 							$data_all['data'][$visi['id']]['data'][$misi['id']]['data'][$tujuan['id_unik']]['data'][$sasaran['id_unik']]['data'][$program['id_unik']]['data'][$program_indikator['id_unik_indikator']] = array(
 								'nama' => $program_indikator['indikator'],
@@ -358,8 +360,6 @@ foreach ($misi_all_kosong as $misi) {
 				if(empty($data_all['data']['visi_kosong']['data'][$misi['id']]['data'][$tujuan['id_unik']]['data'][$sasaran['id_unik']]['data'][$program['id_unik']])){
 					$data_all['data']['visi_kosong']['data'][$misi['id']]['data'][$tujuan['id_unik']]['data'][$sasaran['id_unik']]['data'][$program['id_unik']] = array(
 						'nama' => $program['nama_program'],
-						'kode_skpd' => $program['kode_skpd'],
-						'nama_skpd' => $program['nama_skpd'],
 						'data' => array()
 					);
 				}
@@ -460,8 +460,6 @@ foreach ($tujuan_all_kosong as $tujuan) {
 			if(empty($data_all['data']['visi_kosong']['data']['misi_kosong']['data'][$tujuan['id_unik']]['data'][$sasaran['id_unik']]['data'][$program['id_unik']])){
 				$data_all['data']['visi_kosong']['data']['misi_kosong']['data'][$tujuan['id_unik']]['data'][$sasaran['id_unik']]['data'][$program['id_unik']] = array(
 					'nama' => $program['nama_program'],
-					'kode_skpd' => $program['kode_skpd'],
-					'nama_skpd' => $program['nama_skpd'],
 					'data' => array()
 				);
 			}
@@ -534,8 +532,6 @@ foreach ($sasaran_all_kosong as $sasaran) {
 		if(empty($data_all['data']['visi_kosong']['data']['misi_kosong']['data']['tujuan_kosong']['data'][$sasaran['id_unik']]['data'][$program['id_unik']])){
 			$data_all['data']['visi_kosong']['data']['misi_kosong']['data']['tujuan_kosong']['data'][$sasaran['id_unik']]['data'][$program['id_unik']] = array(
 				'nama' => $program['nama_program'],
-				'kode_skpd' => $program['kode_skpd'],
-				'nama_skpd' => $program['nama_skpd'],
 				'data' => array()
 			);
 		}
@@ -771,6 +767,7 @@ foreach ($data_all['data'] as $visi) {
 					$target_5 = array();
 					$target_akhir = array();
 					$satuan = array();
+					$skpd = array();
 					foreach ($program['data'] as $indikator_program) {
 						$text_indikator[] = '<div class="indikator_program">'.$indikator_program['nama'].'</div>';
 						$target_awal[] = '<div class="indikator_program">'.get_target($indikator_program['data']['target_awal'], $indikator_program['data']['satuan']).'</div>';
@@ -781,6 +778,7 @@ foreach ($data_all['data'] as $visi) {
 						$target_5[] = '<div class="indikator_program">'.get_target($indikator_program['data']['target_5'], $indikator_program['data']['satuan']).'</div>';
 						$target_akhir[] = '<div class="indikator_program">'.get_target($indikator_program['data']['target_akhir'], $indikator_program['data']['satuan']).'</div>';
 						$satuan[] = '<div class="indikator_program">'.$indikator_program['data']['satuan'].'</div>';
+						$skpd[] = $indikator_program['data']['kode_skpd'].' '.$indikator_program['data']['nama_skpd'];
 					}
 					$text_indikator = implode('', $text_indikator);
 					$target_awal = implode('', $target_awal);
@@ -791,8 +789,9 @@ foreach ($data_all['data'] as $visi) {
 					$target_5 = implode('', $target_5);
 					$target_akhir = implode('', $target_akhir);
 					$satuan = implode('', $satuan);
+					$skpd = implode('', $skpd);
 					$body .= '
-						<tr class="tr-program" data-kode-skpd="'.$program['kode_skpd'].'">
+						<tr class="tr-program">
 							<td class="kiri atas kanan bawah">'.$no_visi.'.'.$no_misi.'.'.$no_tujuan.'.'.$no_sasaran.'.'.$no_program.'</td>
 							<td class="atas kanan bawah"><span class="debug-visi">'.$visi['nama'].'</span></td>
 							<td class="atas kanan bawah"><span class="debug-misi">'.$misi['nama'].'</span></td>
@@ -808,7 +807,7 @@ foreach ($data_all['data'] as $visi) {
 							<td class="atas kanan bawah text_tengah">'.$target_5.'</td>
 							<td class="atas kanan bawah text_tengah">'.$target_akhir.'</td>
 							<td class="atas kanan bawah text_tengah">'.$satuan.'</td>
-							<td class="atas kanan bawah">'.$program['kode_skpd'].' '.$program['nama_skpd'].'</td>
+							<td class="atas kanan bawah">'.$skpd.'</td>
 						</tr>
 					';
 				}
