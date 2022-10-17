@@ -226,7 +226,7 @@ CREATE TABLE `data_ssh` (
   `update_at` datetime DEFAULT NULL,
   `tahun_anggaran` year(4) NOT NULL DEFAULT '2020',
   `jenis_produk` varchar(32) DEFAULT NULL,
-  `tkdn` int(11) DEFAULT NULL
+  `tkdn` int(11) DEFAULT NULL,
   PRIMARY KEY  (id),
   KEY `id_standar_harga` (`id_standar_harga`)
 );
@@ -1684,7 +1684,7 @@ CREATE TABLE `data_ssh_usulan` (
   `kode_standar_harga_sipd` varchar(30) DEFAULT NULL,
   `status_jenis_usulan` varchar(30) DEFAULT NULL,
   `jenis_produk` tinyint(4) DEFAULT NULL,
-  `tkdn` int(11) DEFAULT NULL
+  `tkdn` int(11) DEFAULT NULL,
   PRIMARY KEY  (id)
 );
 
