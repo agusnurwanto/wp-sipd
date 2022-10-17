@@ -1899,38 +1899,6 @@ $tahun_selesai = (!empty($tahun_anggaran)) ? $tahun_anggaran + 5 : '-';
 							    	+'<label>Pilih Program</label>'
 							    	+'<select class="form-control" name="id_program" id="program-teks"></select>'
 							  	+'</div>'
-								// +'<div class="form-group">'
-								// 	+'<label for="program">Program</label>'
-								//     +'<input type="text" class="form-control" name="program_teks" id="program-teks"/>'
-								// +'</div>'
-								// +'<div class="form-group">'
-								// 	+'<label for="unit_kerja">Unit Kerja</label>'
-								// 	+'<select id="id_unit" name="id_unit" multiple>'
-								// 		res.units.map(function(value, index){
-								// 	    		html +='<option value="'+value.id_unit+'">'+value.nama_skpd+'</option>';
-								// 	    });
-								//     html+='</select>'
-								// +'</div>'
-								// +'<div class="form-group">'
-								// 	+'<label for="pagu_1">Pagu tahun ke-1</label>'
-								// 	+'<input type="number" class="form-control" name="pagu_1"/>'
-								// +'</div>'
-								// +'<div class="form-group">'
-								// 	+'<label for="pagu_2">Pagu tahun ke-2</label>'
-								// 	+'<input type="number" class="form-control" name="pagu_2"/>'
-								// +'</div>'
-								// +'<div class="form-group">'
-								// 	+'<label for="pagu_3">Pagu tahun ke-3</label>'
-								// 	+'<input type="number" class="form-control" name="pagu_3"/>'
-								// +'</div>'
-								// +'<div class="form-group">'
-								// 	+'<label for="pagu_4">Pagu tahun ke-4</label>'
-								// 	+'<input type="number" class="form-control" name="pagu_4"/>'
-								// +'</div>'
-								// +'<div class="form-group">'
-								// 	+'<label for="pagu_5">Pagu tahun ke-5</label>'
-								// 	+'<input type="number" class="form-control" name="pagu_5"/>'
-								// +'</div>'
 							+'</form>';
 
 		        programModal.find('.modal-title').html('Tambah Program');
@@ -1941,8 +1909,7 @@ $tahun_selesai = (!empty($tahun_anggaran)) ? $tahun_anggaran + 5 : '-';
 					+'</button>'
 					+'<button type="button" class="btn btn-sm btn-success" id="btn-simpan-data-rpjm-lokal" '
 						+'data-action="submit_program_rpjm" '
-						+'data-view="programRpjm" '
-						// +'data-withunit="true"'
+						+'data-view="programRpjm"'
 					+'>'
 						+'<i class="dashicons dashicons-yes" style="margin-top: 3px;"></i> Simpan'
 					+'</button>');
@@ -1952,10 +1919,6 @@ $tahun_selesai = (!empty($tahun_anggaran)) ? $tahun_anggaran + 5 : '-';
 				get_program();
 
 				programModal.modal('show');
-
-				// new SlimSelect({
-				// 	select: '#id_unit'
-				// })
   		});	
 	});
 
@@ -1997,38 +1960,6 @@ $tahun_selesai = (!empty($tahun_anggaran)) ? $tahun_anggaran + 5 : '-';
 								    	+'<label>Pilih Program</label>'
 								    	+'<select class="form-control" name="id_program" id="program-teks"></select>'
 								  	+'</div>'
-									// +'<div class="form-group">'
-									// 	+'<label for="program">Program</label>'
-									//     +'<input type="text" class="form-control" name="program_teks" value="'+res.data.program_teks+'"/>'
-									// +'</div>'
-									// +'<div class="form-group">'
-									// 	+'<label for="unit_kerja">Unit Kerja</label>'
-									// 	+'<select id="id_unit" name="id_unit" multiple>'
-									// 		res.units.map(function(value, index){
-									// 	    		html +='<option value="'+value.id_unit+'">'+value.nama_skpd+'</option>';
-									// 	    });
-									//     html+='</select>'
-									// +'</div>'
-									// +'<div class="form-group">'
-									// 	+'<label for="pagu_1">Pagu tahun ke-1</label>'
-									// 	+'<input type="number" class="form-control" name="pagu_1" value="'+res.data.pagu_1+'"/>'
-									// +'</div>'
-									// +'<div class="form-group">'
-									// 	+'<label for="pagu_2">Pagu tahun ke-2</label>'
-									// 	+'<input type="number" class="form-control" name="pagu_2" value="'+res.data.pagu_2+'"/>'
-									// +'</div>'
-									// +'<div class="form-group">'
-									// 	+'<label for="pagu_3">Pagu tahun ke-3</label>'
-									// 	+'<input type="number" class="form-control" name="pagu_3" value="'+res.data.pagu_3+'"/>'
-									// +'</div>'
-									// +'<div class="form-group">'
-									// 	+'<label for="pagu_4">Pagu tahun ke-4</label>'
-									// 	+'<input type="number" class="form-control" name="pagu_4" value="'+res.data.pagu_4+'"/>'
-									// +'</div>'
-									// +'<div class="form-group">'
-									// 	+'<label for="pagu_5">Pagu tahun ke-5</label>'
-									// 	+'<input type="number" class="form-control" name="pagu_5" value="'+res.data.pagu_5+'"/>'
-									// +'</div>'
 								+'</form>';
 
 			        programModal.find('.modal-title').html('Edit Program');
@@ -2039,8 +1970,7 @@ $tahun_selesai = (!empty($tahun_anggaran)) ? $tahun_anggaran + 5 : '-';
 						+'</button>'
 						+'<button type="button" class="btn btn-sm btn-success" id="btn-simpan-data-rpjm-lokal" '
 							+'data-action="update_program_rpjm" '
-							+'data-view="programRpjm" '
-							// +'data-withunit="true"'
+							+'data-view="programRpjm"'
 						+'>'
 							+'<i class="dashicons dashicons-yes" style="margin-top: 3px;"></i> Simpan'
 						+'</button>');
@@ -2052,12 +1982,6 @@ $tahun_selesai = (!empty($tahun_anggaran)) ? $tahun_anggaran + 5 : '-';
 					programModal.modal('show');
 
           		});
-        
-          		// const displaySelect = new SlimSelect({
-				// 	select: '#id_unit'
-				// });
-
-				// displaySelect.set(res.selectedUnit);
 
           	}
         });
@@ -2102,62 +2026,122 @@ $tahun_selesai = (!empty($tahun_anggaran)) ? $tahun_anggaran + 5 : '-';
 	})
 
 	jQuery(document).on('click', '.btn-add-indikator-program', function(){
-
-		let indikatorProgramModal = jQuery("#modal-crud-rpjm");
+		
+		jQuery('#wrap-loading').show();
+		
 		let kode_program = jQuery(this).data('kodeprogram');
-		let html = '<form id="form-rpjm">'
-					+'<input type="hidden" name="kode_program" value='+kode_program+'>'
-					+'<div class="form-group">'
-						+'<label for="indikator_teks">Indikator</label>'
-		  				+'<textarea class="form-control" name="indikator_teks"></textarea>'
-					+'</div>'
-					+'<div class="form-group">'
-						+'<label for="satuan">Satuan</label>'
-		  				+'<input type="text" class="form-control" name="satuan"/>'
-					+'</div>'
-					+'<div class="form-group">'
-						+'<label for="target_1">Target tahun ke-1</label>'
-		  				+'<input type="text" class="form-control" name="target_1"/>'
-					+'</div>'
-					+'<div class="form-group">'
-						+'<label for="target_2">Target tahun ke-2</label>'
-		  				+'<input type="text" class="form-control" name="target_2"/>'
-					+'</div>'
-					+'<div class="form-group">'
-						+'<label for="target_3">Target tahun ke-3</label>'
-		  				+'<input type="text" class="form-control" name="target_3"/>'
-					+'</div>'
-					+'<div class="form-group">'
-						+'<label for="target_4">Target tahun ke-4</label>'
-		  				+'<input type="text" class="form-control" name="target_4"/>'
-					+'</div>'
-					+'<div class="form-group">'
-						+'<label for="target_5">Target tahun ke-5</label>'
-		  				+'<input type="text" class="form-control" name="target_5"/>'
-					+'</div>'
-					+'<div class="form-group">'
-						+'<label for="target_awal">Target awal</label>'
-		  				+'<input type="text" class="form-control" name="target_awal"/>'
-					+'</div>'
-					+'<div class="form-group">'
-						+'<label for="target_akhir">Target akhir</label>'
-		  				+'<input type="text" class="form-control" name="target_akhir"/>'
-					+'</div>'
-					+'</form>';
+		
+		let html = '';
 
-			indikatorProgramModal.find('.modal-title').html('Tambah Indikator');
-			indikatorProgramModal.find('.modal-body').html(html);
-			indikatorProgramModal.find('.modal-footer').html(''
-				+'<button type="button" class="btn btn-sm btn-warning" data-dismiss="modal">'
-					+'<i class="dashicons dashicons-no" style="margin-top: 3px;"></i> Tutup'
-				+'</button>'
-				+'<button type="button" class="btn btn-sm btn-success" id="btn-simpan-data-rpjm-lokal" '
-					+'data-action="submit_indikator_program_rpjm" '
-					+'data-view="indikatorProgramRpjm"'
-				+'>'
-					+'<i class="dashicons dashicons-yes" style="margin-top: 3px;"></i> Simpan'
-				+'</button>');
-			indikatorProgramModal.modal('show');
+		get_bidang_urusan(true).then(function(){
+			
+			jQuery('#wrap-loading').hide();
+
+			html += '<form id="form-rpjm">'
+						+'<input type="hidden" name="kode_program" value='+kode_program+'>'
+						+'<div class="form-group">'
+							+'<label for="indikator_teks">Indikator</label>'
+			  				+'<textarea class="form-control" name="indikator_teks"></textarea>'
+						+'</div>'
+						+'<div class="form-group">'
+							+'<label for="satuan">Satuan</label>'
+			  				+'<input type="text" class="form-control" name="satuan"/>'
+						+'</div>'
+						+'<div class="form-group">'
+							+'<div class="row">'
+								+'<div class="col-md-6">'
+									+'<label for="target_1">Target tahun ke-1</label>'
+			  						+'<input type="text" class="form-control" name="target_1"/>'
+								+'</div>'
+								+'<div class="col-md-6">'
+									+'<label for="pagu_1">Pagu</label>'
+			  						+'<input type="number" class="form-control" name="pagu_1"/>'
+								+'</div>'
+							+'</div>'
+						+'</div>'
+						+'<div class="form-group">'
+							+'<div class="row">'
+								+'<div class="col-md-6">'
+									+'<label for="target_2">Target tahun ke-2</label>'
+			  						+'<input type="text" class="form-control" name="target_2"/>'
+								+'</div>'
+								+'<div class="col-md-6">'
+									+'<label for="pagu_2">Pagu</label>'
+			  						+'<input type="number" class="form-control" name="pagu_2"/>'
+								+'</div>'
+							+'</div>'
+						+'</div>'
+						+'<div class="form-group">'
+							+'<div class="row">'
+								+'<div class="col-md-6">'
+									+'<label for="target_3">Target tahun ke-3</label>'
+					  				+'<input type="text" class="form-control" name="target_3"/>'
+								+'</div>'
+								+'<div class="col-md-6">'
+			  						+'<label for="pagu_3">Pagu</label>'
+			  						+'<input type="number" class="form-control" name="pagu_3"/>'
+								+'</div>'
+							+'</div>'
+						+'</div>'
+						+'<div class="form-group">'
+							+'<div class="row">'
+								+'<div class="col-md-6">'
+									+'<label for="target_4">Target tahun ke-4</label>'
+					  				+'<input type="text" class="form-control" name="target_4"/>'
+								+'</div>'
+								+'<div class="col-md-6">'
+			  						+'<label for="pagu_4">Pagu</label>'
+			  						+'<input type="number" class="form-control" name="pagu_4"/>'
+								+'</div>'
+							+'</div>'
+						+'</div>'
+						+'<div class="form-group">'
+							+'<div class="row">'
+								+'<div class="col-md-6">'
+									+'<label for="target_5">Target tahun ke-5</label>'
+					  				+'<input type="text" class="form-control" name="target_5"/>'
+								+'</div>'
+								+'<div class="col-md-6">'
+			  						+'<label for="pagu_5">Pagu</label>'
+			  						+'<input type="number" class="form-control" name="pagu_5"/>'
+								+'</div>'
+							+'</div>'	
+						+'</div>'
+						+'<div class="form-group">'
+							+'<label for="target_awal">Target awal</label>'
+			  				+'<input type="text" class="form-control" name="target_awal"/>'
+						+'</div>'
+						+'<div class="form-group">'
+							+'<label for="target_akhir">Target akhir</label>'
+			  				+'<input type="text" class="form-control" name="target_akhir"/>'
+						+'</div>'
+						+'<div class="form-group">'
+							+'<label for="unit_kerja">Unit Kerja</label>'
+							+'<select id="skpd-teks" name="id_unit"></select>'
+						+'</div>'
+					+'</form>';
+				
+				jQuery("#modal-crud-rpjm").find('.modal-title').html('Tambah Indikator');
+				jQuery("#modal-crud-rpjm").find('.modal-body').html(html);
+				jQuery("#modal-crud-rpjm").find('.modal-footer').html(''
+					+'<button type="button" class="btn btn-sm btn-warning" data-dismiss="modal">'
+						+'<i class="dashicons dashicons-no" style="margin-top: 3px;"></i> Tutup'
+					+'</button>'
+					+'<button type="button" class="btn btn-sm btn-success" id="btn-simpan-data-rpjm-lokal" '
+						+'data-action="submit_indikator_program_rpjm" '
+						+'data-view="indikatorProgramRpjm"'
+					+'>'
+						+'<i class="dashicons dashicons-yes" style="margin-top: 3px;"></i> Simpan'
+					+'</button>');
+
+				get_skpd('null');
+
+				jQuery("#modal-crud-rpjm").modal('show');
+
+				new SlimSelect({
+					select: '#skpd-teks'
+				});
+			}); 
 	});
 
 	jQuery(document).on('click', '.btn-edit-indikator-program', function(){
@@ -2166,7 +2150,6 @@ $tahun_selesai = (!empty($tahun_anggaran)) ? $tahun_anggaran + 5 : '-';
 
 		let id = jQuery(this).data('id');
 		let kode_program = jQuery(this).data('kodeprogram');
-		let indikatorProgramModal = jQuery("#modal-crud-rpjm");
 
 		jQuery.ajax({
 			url: ajax.url,
@@ -2182,59 +2165,113 @@ $tahun_selesai = (!empty($tahun_anggaran)) ? $tahun_anggaran + 5 : '-';
 
           		jQuery('#wrap-loading').hide();
 
-          		let html = '<form id="form-rpjm">'
-					+'<input type="hidden" name="id" value="'+id+'">'
-					+'<input type="hidden" name="kode_program" value="'+kode_program+'">'
-					+'<div class="form-group">'
-						+'<label for="indikator_teks">Indikator</label>'
-	  					+'<textarea class="form-control" name="indikator_teks">'+response.data.indikator+'</textarea>'
-					+'</div>'
-					+'<div class="form-group">'
-						+'<label for="satuan">Satuan</label>'
-	  					+'<input type="text" class="form-control" name="satuan" value="'+response.data.satuan+'"/>'
-					+'</div>'
-					+'<div class="form-group">'
-						+'<label for="target_1">Target tahun ke-1</label>'
-	  					+'<input type="text" class="form-control" name="target_1" value="'+response.data.target_1+'"/>'
-					+'</div>'
-					+'<div class="form-group">'
-						+'<label for="target_2">Target tahun ke-2</label>'
-	  					+'<input type="text" class="form-control" name="target_2" value="'+response.data.target_2+'"/>'
-					+'</div>'
-					+'<div class="form-group">'
-						+'<label for="target_3">Target tahun ke-3</label>'
-	  					+'<input type="text" class="form-control" name="target_3" value="'+response.data.target_3+'"/>'
-					+'</div>'
-					+'<div class="form-group">'
-						+'<label for="target_4">Target tahun ke-4</label>'
-	  					+'<input type="text" class="form-control" name="target_4" value="'+response.data.target_4+'"/>'
-					+'</div>'
-					+'<div class="form-group">'
-						+'<label for="target_5">Target tahun ke-5</label>'
-	  					+'<input type="text" class="form-control" name="target_5" value="'+response.data.target_5+'"/>'
-					+'</div>'
-					+'<div class="form-group">'
-						+'<label for="target_awal">Target awal</label>'
-	  					+'<input type="text" class="form-control" name="target_awal" value="'+response.data.target_awal+'"/>'
-					+'</div>'
-					+'<div class="form-group">'
-					+'<label for="target_akhir">Target akhir</label>'
-	  					+'<input type="text" class="form-control" name="target_akhir" value="'+response.data.target_akhir+'"/>'
-					+'</div>'
-				  +'</form>';
+          		get_bidang_urusan(true).then(function(){
+          			let html = '<form id="form-rpjm">'
+						+'<input type="hidden" name="id" value="'+id+'">'
+						+'<input type="hidden" name="kode_program" value="'+kode_program+'">'
+						+'<div class="form-group">'
+							+'<label for="indikator_teks">Indikator</label>'
+		  					+'<textarea class="form-control" name="indikator_teks">'+response.data.indikator+'</textarea>'
+						+'</div>'
+						+'<div class="form-group">'
+							+'<label for="satuan">Satuan</label>'
+		  					+'<input type="text" class="form-control" name="satuan" value="'+response.data.satuan+'"/>'
+						+'</div>'
+						+'<div class="form-group">'
+							+'<div class="row">'
+								+'<div class="col-md-6">'
+									+'<label for="target_1">Target tahun ke-1</label>'
+				  					+'<input type="text" class="form-control" name="target_1" value="'+response.data.target_1+'"/>'
+				  				+'</div>'
+				  				+'<div class="col-md-6">'
+				  					+'<label for="pagu_1">Pagu</label>'
+				  					+'<input type="number" class="form-control" name="pagu_1" value="'+response.data.pagu_1+'"/>'
+				  				+'</div>'
+				  			+'</div>'
+						+'</div>'
+						+'<div class="form-group">'
+							+'<div class="row">'
+								+'<div class="col-md-6">'
+									+'<label for="target_2">Target tahun ke-2</label>'
+					  				+'<input type="text" class="form-control" name="target_2" value="'+response.data.target_2+'"/>'
+					  			+'</div>'
+					  			+'<div class="col-md-6">'
+				  					+'<label for="pagu_2">Pagu</label>'
+				  					+'<input type="number" class="form-control" name="pagu_2" value="'+response.data.pagu_2+'"/>'
+				  				+'</div>'
+						+'</div>'
+						+'<div class="form-group">'
+							+'<div class="row">'
+								+'<div class="col-md-6">'
+									+'<label for="target_3">Target tahun ke-3</label>'
+				  					+'<input type="text" class="form-control" name="target_3" value="'+response.data.target_3+'"/>'
+				  				+'</div>'
+					  			+'<div class="col-md-6">'
+					  				+'<label for="pagu_3">Pagu</label>'
+					  				+'<input type="number" class="form-control" name="pagu_3" value="'+response.data.pagu_3+'"/>'
+					  			+'</div>'
+				  			+'</div>'
+						+'</div>'
+						+'<div class="form-group">'
+							+'<div class="row">'
+								+'<div class="col-md-6">'
+									+'<label for="target_4">Target tahun ke-4</label>'
+				  					+'<input type="text" class="form-control" name="target_4" value="'+response.data.target_4+'"/>'
+								+'</div>'
+								+'<div class="col-md-6">'
+				  					+'<label for="pagu_4">Pagu</label>'
+				  					+'<input type="number" class="form-control" name="pagu_4" value="'+response.data.pagu_4+'"/>'
+				  				+'</div>'
+							+'</div>'
+						+'</div>'
+						+'<div class="form-group">'
+							+'<div class="row">'
+								+'<div class="col-md-6">'
+									+'<label for="target_5">Target tahun ke-5</label>'
+				  					+'<input type="text" class="form-control" name="target_5" value="'+response.data.target_5+'"/>'
+								+'</div>'
+								+'<div class="col-md-6">'
+				  					+'<label for="pagu_5">Pagu</label>'
+				  					+'<input type="number" class="form-control" name="pagu_5" value="'+response.data.pagu_5+'"/>'
+				  				+'</div>'
+							+'</div>'
+						+'</div>'
+						+'<div class="form-group">'
+							+'<label for="target_awal">Target awal</label>'
+		  					+'<input type="text" class="form-control" name="target_awal" value="'+response.data.target_awal+'"/>'
+						+'</div>'
+						+'<div class="form-group">'
+						+'<label for="target_akhir">Target akhir</label>'
+		  					+'<input type="text" class="form-control" name="target_akhir" value="'+response.data.target_akhir+'"/>'
+						+'</div>'
+						+'<div class="form-group">'
+							+'<label for="unit_kerja">Unit Kerja</label>'
+							+'<select id="skpd-teks" name="id_unit"></select>'
+						+'</div>'
+					  +'</form>';
 
-				indikatorProgramModal.find('.modal-title').html('Edit Indikator Program');
-				indikatorProgramModal.find('.modal-body').html(html);
-				indikatorProgramModal.find('.modal-footer').html(''
-					+'<button type="button" class="btn btn-sm btn-warning" data-dismiss="modal">'
-						+'<i class="dashicons dashicons-no" style="margin-top: 3px;"></i> Tutup'
-					+'</button><button type="button" class="btn btn-sm btn-success" id="btn-simpan-data-rpjm-lokal" '
-						+'data-action="update_indikator_program_rpjm" '
-						+'data-view="indikatorProgramRpjm"'
-					+'>'
-						+'<i class="dashicons dashicons-yes" style="margin-top: 3px;"></i> Simpan'
-					+'</button>');
-				indikatorProgramModal.modal('show');
+					jQuery("#modal-crud-rpjm").find('.modal-title').html('Edit Indikator Program');
+					jQuery("#modal-crud-rpjm").find('.modal-body').html(html);
+					jQuery("#modal-crud-rpjm").find('.modal-footer').html(''
+						+'<button type="button" class="btn btn-sm btn-warning" data-dismiss="modal">'
+							+'<i class="dashicons dashicons-no" style="margin-top: 3px;"></i> Tutup'
+						+'</button><button type="button" class="btn btn-sm btn-success" id="btn-simpan-data-rpjm-lokal" '
+							+'data-action="update_indikator_program_rpjm" '
+							+'data-view="indikatorProgramRpjm"'
+						+'>'
+							+'<i class="dashicons dashicons-yes" style="margin-top: 3px;"></i> Simpan'
+						+'</button>');
+
+					get_skpd('null');
+
+					jQuery("#skpd-teks").val(response.data.id_unit);
+
+					jQuery("#modal-crud-rpjm").modal('show');
+
+					new SlimSelect({
+						select: '#skpd-teks'
+					});
+          		});         		
           	}
 		})	
 	});
@@ -2998,6 +3035,22 @@ $tahun_selesai = (!empty($tahun_anggaran)) ? $tahun_anggaran + 5 : '-';
 				}
 			}
 		});
+	}
+
+	function get_skpd(current_id_skpd){
+		var html = "<option value=''>Pilih SKPD</option>";
+		for(var nm_urusan in all_skpd){
+			for(var nm_bidang in all_skpd[nm_urusan]){
+				for(var nm_skpd in all_skpd[nm_urusan][nm_bidang]){
+					var selected = '';
+					if(current_id_skpd!='null' && current_id_skpd == all_skpd[nm_urusan][nm_bidang][nm_skpd].id_skpd){
+						selected = 'selected';
+					}
+					html += "<option "+selected+" value='"+all_skpd[nm_urusan][nm_bidang][nm_skpd].id_skpd+"' data-kode='"+all_skpd[nm_urusan][nm_bidang][nm_skpd].kode_skpd+"'>"+nm_skpd+"</option>";
+				}
+			}
+		}
+		jQuery('#skpd-teks').html(html);
 	}
 
 	function getFormData($form) {

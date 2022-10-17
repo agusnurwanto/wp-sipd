@@ -17459,31 +17459,6 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		]);exit;
 	}
 
-	function add_program_rpjm(){
-		global $wpdb;
-		$ret = array(
-			'status'	=> 'success',
-			'message'	=> 'Add program RPJM!'
-		);
-		if (!empty($_POST)) {
-			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
-				
-				$ret['units'] = $wpdb->get_results("SELECT * FROM data_unit WHERE tahun_anggaran=".get_option('_crb_tahun_anggaran_sipd')." and active=1 and is_skpd=1 order by id_skpd ASC;", ARRAY_A);
-			}else{
-				$ret = array(
-					'status' => 'error',
-					'message'	=> 'Api Key tidak sesuai!'
-				);
-			}
-		}else{
-			$ret = array(
-				'status' => 'error',
-				'message'	=> 'Format tidak sesuai!'
-			);
-		}
-		die(json_encode($ret));
-	}
-
 	function submit_program_rpjm(){
 		
 		global $wpdb;
@@ -17495,14 +17470,6 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 					$data = json_decode(stripslashes($_POST['data']), true);
 
 					$this->verify_program_rpjm($data);
-
-					// die('1');
-
-					// $dataUnit = $wpdb->get_results("SELECT * FROM data_unit WHERE id_unit in (".implode(",", $data['id_unit']).") and tahun_anggaran=".get_option('_crb_tahun_anggaran_sipd')." and active=1 and is_skpd=1 order by id_skpd ASC;");
-
-					// if(empty($dataUnit)){
-					// 	throw new Exception("Unit kerja yang dipilih tidak ada di tahun anggaran ".get_option('_crb_tahun_anggaran_sipd'), 1);
-					// }
 
 					$id_cek = $wpdb->get_var("
 						SELECT id FROM data_rpjmd_program_lokal
@@ -17558,30 +17525,17 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 					}
 
 					try {
-
-						// $wpdb->query('START TRANSACTION');
-						
-						// foreach ($dataUnit as $key => $unit) {
-
 							$wpdb->insert('data_rpjmd_program_lokal', [
 								'id_misi' => $dataMisi->id_misi,
 								'id_unik' => $this->generateRandomString(), // kode_program
-								// 'id_unit' => $unit->id_unit,
 								'id_visi' => $dataMisi->id_visi,
 								'is_locked' => 0,
 								'is_locked_indikator' => 0,
 								'kode_sasaran' => $data['kode_sasaran'],
-								// 'kode_skpd' => $unit->kode_skpd,
 								'kode_tujuan' => $dataTujuan->id_unik,
 								'misi_teks' => $dataMisi->misi_teks,
 								'id_program' => $dataProgram->id_program,
 								'nama_program' => $dataProgram->nama_program,
-								// 'nama_skpd' => $unit->nama_skpd,
-								// 'pagu_1' => $data['pagu_1'],
-								// 'pagu_2' => $data['pagu_2'],
-								// 'pagu_3' => $data['pagu_3'],
-								// 'pagu_4' => $data['pagu_4'],
-								// 'pagu_5' => $data['pagu_5'],
 								'program_lock' => 0,
 								'sasaran_lock' => $dataSasaran->sasaran_lock,
 								'sasaran_teks' => $dataSasaran->sasaran_teks,
@@ -17594,9 +17548,6 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 								'visi_teks' => $dataVisi->visi_teks,
 								'active' => 1
 							]);
-						// }
-
-						// $wpdb->query('COMMIT');
 
 						echo json_encode([
 							'status' => true,
@@ -17604,9 +17555,6 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						]);exit;
 
 					} catch (Exception $e) {
-
-						// $wpdb->query('ROLLBACK');
-						
 						throw $e;										
 					}
 
@@ -17629,8 +17577,6 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		if (!empty($_POST)) {
 			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
 
-				// $units = $wpdb->get_results("SELECT * FROM data_unit WHERE tahun_anggaran=".date('Y')." and active=1 and is_skpd=1 order by id_skpd ASC;", ARRAY_A);
-
 				$data = $wpdb->get_row("
 					SELECT * FROM data_rpjmd_program_lokal
 						WHERE id_unik='".$_POST['id_unik']."'
@@ -17640,32 +17586,9 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 							AND status=1
 						", ARRAY_A);
 
-				// $data = [];
-				// $selectedUnit = [];
-				// foreach ($dataRaw as $key => $value) {
-					
-					// if(empty($data[$value['id_unik']])){
-					// 	$data[$value['id_unik']] = [
-					// 		'kode_sasaran' => $value['kode_sasaran'],
-					// 		'id_unik' => $value['id_unik'], // kode_program
-					// 		'id_program' => $value['id_program'],
-					// 		// 'pagu_1' => $value['pagu_1'],
-					// 		// 'pagu_2' => $value['pagu_2'],
-					// 		// 'pagu_3' => $value['pagu_3'],
-					// 		// 'pagu_4' => $value['pagu_4'],
-					// 		// 'pagu_5' => $value['pagu_5']
-					// 	];
-					// }
-					// $selectedUnit[] = $value['id_unit'];
-				// }
-
-				// $data = array_values($data);
-
 				echo json_encode([
 					'status' => true,
 					'data' => $data,
-					// 'units' => $units,
-					// 'selectedUnit' => $selectedUnit,
 					'message' => 'Sukses get program by id_unik'
 				]);exit;
 			}
@@ -17692,12 +17615,6 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 					$data = json_decode(stripslashes($_POST['data']), true);
 
 					$this->verify_program_rpjm($data);
-
-					// $dataUnit = $wpdb->get_results("SELECT * FROM data_unit WHERE id_unit in (".implode(",", $data['id_unit']).") and tahun_anggaran=".get_option('_crb_tahun_anggaran_sipd')." and active=1 and is_skpd=1 order by id_skpd ASC;");
-
-					// if(empty($dataUnit)){
-					// 	throw new Exception("Unit kerja yang dipilih tidak ada di tahun anggaran ".get_option('_crb_tahun_anggaran_sipd'), 1);
-					// }
 
 					$id_cek = $wpdb->get_var("
 						SELECT id FROM data_rpjmd_program_lokal
@@ -17753,36 +17670,15 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 					}
 
 					try {
-
-						// $wpdb->query('START TRANSACTION');
-
-						// $dataUnitDb = $wpdb->get_results("select id_unit from data_rpjmd_program_lokal where id_unik='".$data['id_unik']."' and id_unik_indikator is null and status=1 and active=1 and is_locked=0 and is_locked_indikator=0");
-
-						// $unitDb = [];
-						// foreach ($dataUnitDb as $key => $value) {
-						// 	$unitDb[]=$value->id_unit;
-						// }
-						
-						// foreach ($dataUnit as $key => $unit) {
-
-						// 	if(in_array($unit->id_unit, $unitDb)){
-								
-								// update
-								$wpdb->update('data_rpjmd_program_lokal', [
+							// update program
+							$wpdb->update('data_rpjmd_program_lokal', [
 									'id_misi' => $dataMisi->id_misi,
 									'id_visi' => $dataMisi->id_visi,
 									'kode_sasaran' => $data['kode_sasaran'],
-									// 'kode_skpd' => $dataUnit->kode_skpd,
 									'kode_tujuan' => $dataTujuan->id_unik,
 									'misi_teks' => $dataMisi->misi_teks,
 									'id_program' => $dataProgram->id_program,
 									'nama_program' => $dataProgram->nama_program,
-									// 'nama_skpd' => $unit->nama_skpd,
-									// 'pagu_1' => $data['pagu_1'],
-									// 'pagu_2' => $data['pagu_2'],
-									// 'pagu_3' => $data['pagu_3'],
-									// 'pagu_4' => $data['pagu_4'],
-									// 'pagu_5' => $data['pagu_5'],
 									'sasaran_lock' => $dataSasaran->sasaran_lock,
 									'sasaran_teks' => $dataSasaran->sasaran_teks,
 									'tujuan_lock' => $dataTujuan->tujuan_lock,
@@ -17795,60 +17691,12 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 									'id_unik' => $data['id_unik']
 								]);
 
-							// }else{
-								
-							// 	// insert untuk unit yang baru ditambahkan via update
-							// 	$wpdb->insert('data_rpjmd_program_lokal', [
-							// 		'id_misi' => $dataMisi->id_misi,
-							// 		'id_unik' => $data['id_unik'],
-							// 		'id_unit' => $unit->id_unit,
-							// 		'id_visi' => $dataMisi->id_visi,
-							// 		'is_locked' => 0,
-							// 		'is_locked_indikator' => 0,
-							// 		'kode_sasaran' => $data['kode_sasaran'],
-							// 		'kode_skpd' => $unit->kode_skpd,
-							// 		'kode_tujuan' => $dataTujuan->id_unik,
-							// 		'misi_teks' => $dataMisi->misi_teks,
-							// 		'nama_program' => $data['program_teks'],
-							// 		'nama_skpd' => $unit->nama_skpd,
-							// 		'pagu_1' => $data['pagu_1'],
-							// 		'pagu_2' => $data['pagu_2'],
-							// 		'pagu_3' => $data['pagu_3'],
-							// 		'pagu_4' => $data['pagu_4'],
-							// 		'pagu_5' => $data['pagu_5'],
-							// 		'program_lock' => 0,
-							// 		'sasaran_lock' => $dataSasaran->sasaran_lock,
-							// 		'sasaran_teks' => $dataSasaran->sasaran_teks,
-							// 		'status' => 1,
-							// 		'tujuan_lock' => $dataTujuan->tujuan_lock,
-							// 		'tujuan_teks' => $dataTujuan->tujuan_teks,
-							// 		'urut_misi' => $dataMisi->urut_misi,
-							// 		'urut_sasaran' => $dataSasaran->urut_sasaran,
-							// 		'urut_tujuan' => $dataTujuan->urut_tujuan,
-							// 		'visi_teks' => $dataVisi->visi_teks,
-							// 		'active' => 1
-							// 	]);
-							// }
-						// }
-
-						// hapus jika ada unit kerja yang dihilangkan
-						// foreach ($dataUnitDb as $key => $unit) {
-						// 	if(!in_array($unit->id_unit, $data['id_unit'])){
-						// 		$wpdb->query("delete from data_rpjmd_program_lokal where id_unik='".$data['id_unik']."' and id_unit=".$unit->id_unit." and id_unik_indikator is null");
-						// 	}
-						// }
-
-						// $wpdb->query('COMMIT');
-
 						echo json_encode([
 							'status' => true,
 							'message' => 'Sukses simpan program'
 						]);exit;
 
 					} catch (Exception $e) {
-
-						// $wpdb->query('ROLLBACK');
-						
 						throw $e;										
 					}
 
@@ -17921,25 +17769,6 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 			throw new Exception('Program wajib dipilih');
 		}
 
-		// if(empty($data['pagu_1'])){
-		// 	throw new Exception('Pagu program tahun ke-1 tidak boleh kosong!');
-		// }
-
-		// if(empty($data['pagu_2'])){
-		// 	throw new Exception('Pagu program tahun ke-2 tidak boleh kosong!');
-		// }
-
-		// if(empty($data['pagu_3'])){
-		// 	throw new Exception('Pagu program tahun ke-3 tidak boleh kosong!');
-		// }
-
-		// if(empty($data['pagu_4'])){
-		// 	throw new Exception('Pagu program tahun ke-4 tidak boleh kosong!');
-		// }
-
-		// if(empty($data['pagu_5'])){
-		// 	throw new Exception('Pagu program tahun ke-5 tidak boleh kosong!');
-		// }
 	}
 
 	function get_indikator_program_rpjm(){
@@ -18011,7 +17840,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						SELECT id FROM data_rpjmd_program_lokal
 							WHERE indikator='".$data['indikator_teks']."'
 										AND id_unik='".$data['kode_program']."'
-										AND id_unik_indikator is not null
+										AND id_unik_indikator IS NOT NULL
 										AND is_locked_indikator=0
 										AND status=1
 										AND active=1
@@ -18051,18 +17880,33 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						throw new Exception('Visi tidak terkoneksi dengan misi, cek Misi!');
 					}
 
-						$wpdb->insert('data_rpjmd_program_lokal', [
+					$dataUnit = $wpdb->get_row("SELECT * FROM data_unit WHERE id_unit=".$data['id_unit']." AND tahun_anggaran=".get_option('_crb_tahun_anggaran_sipd')." AND active=1 AND is_skpd=1 order by id_skpd ASC;");
+
+					if(empty($dataUnit)){
+						throw new Exception('Unit kerja tidak ditemukan!');
+					}
+
+					$wpdb->insert('data_rpjmd_program_lokal', [
 								'id_misi' => $dataMisi->id_misi,
+								'id_program' => $dataProgram->id_program,
 								'id_unik' => $data['kode_program'], // kode_program
 								'id_unik_indikator' => $this->generateRandomString(),
+								'id_unit' => $dataUnit->id_unit,
 								'id_visi' => $dataMisi->id_visi,
 								'is_locked' => 0,
 								'is_locked_indikator' => 0,
 								'indikator' => $data['indikator_teks'],
 								'kode_sasaran' => $dataProgram->kode_sasaran,
+								'kode_skpd' => $dataUnit->kode_skpd,
 								'kode_tujuan' => $dataTujuan->id_unik,
 								'misi_teks' => $dataMisi->misi_teks,
 								'nama_program' => $dataProgram->nama_program,
+								'nama_skpd' => $dataUnit->nama_skpd,
+								'pagu_1' => $data['pagu_1'],
+								'pagu_2' => $data['pagu_2'],
+								'pagu_3' => $data['pagu_3'],
+								'pagu_4' => $data['pagu_4'],
+								'pagu_5' => $data['pagu_5'],
 								'program_lock' => 0,
 								'sasaran_lock' => $dataSasaran->sasaran_lock,
 								'sasaran_teks' => $dataSasaran->sasaran_teks,
@@ -18110,7 +17954,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 			if (!empty($_POST)) {
 				if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
 					
-					$indikator = $wpdb->get_row("select * from data_rpjmd_program_lokal where id=".$_POST['id']." and id_unik='".$_POST['kode_program']. "' and id_unik_indikator is not null and is_locked_indikator=0 and status=1 and active=1");
+					$indikator = $wpdb->get_row("SELECT * FROM data_rpjmd_program_lokal WHERE id=".$_POST['id']." AND id_unik='".$_POST['kode_program']. "' AND id_unik_indikator is not null AND is_locked_indikator=0 AND status=1 AND active=1");
 
 					echo json_encode([
 						'status' => true,
@@ -18187,14 +18031,29 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						throw new Exception('Visi tidak terkoneksi dengan misi, cek Misi!');
 					}
 
-						$wpdb->update('data_rpjmd_program_lokal', [
+					$dataUnit = $wpdb->get_row("SELECT * FROM data_unit WHERE id_unit=".$data['id_unit']." AND tahun_anggaran=".get_option('_crb_tahun_anggaran_sipd')." AND active=1 AND is_skpd=1 order by id_skpd ASC;");
+
+					if(empty($dataUnit)){
+						throw new Exception('Unit kerja tidak ditemukan!');
+					}
+
+					$wpdb->update('data_rpjmd_program_lokal', [
 								'id_misi' => $dataMisi->id_misi,
 								'id_visi' => $dataMisi->id_visi,
+								'id_program' => $dataProgram->id_program,
+								'id_unit' => $dataUnit->id_unit,
 								'indikator' => $data['indikator_teks'],
 								'kode_sasaran' => $dataProgram->kode_sasaran,
+								'kode_skpd' => $dataUnit->kode_skpd,
 								'kode_tujuan' => $dataTujuan->id_unik,
 								'misi_teks' => $dataMisi->misi_teks,
 								'nama_program' => $dataProgram->nama_program,
+								'nama_skpd' => $dataUnit->nama_skpd,
+								'pagu_1' => $data['pagu_1'],
+								'pagu_2' => $data['pagu_2'],
+								'pagu_3' => $data['pagu_3'],
+								'pagu_4' => $data['pagu_4'],
+								'pagu_5' => $data['pagu_5'],
 								'sasaran_lock' => $dataSasaran->sasaran_lock,
 								'sasaran_teks' => $dataSasaran->sasaran_teks,
 								'satuan' => $data['satuan'],
@@ -18279,20 +18138,40 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 			throw new Exception('Target Indikator program tahun ke-1 tidak boleh kosong!');
 		}
 
+		if(empty($data['pagu_1'])){
+			throw new Exception('Pagu indikator program tahun ke-1 tidak boleh kosong!');
+		}
+
 		if(empty($data['target_2'])){
 			throw new Exception('Target Indikator program tahun ke-2 tidak boleh kosong!');
+		}
+
+		if(empty($data['pagu_2'])){
+			throw new Exception('Pagu indikator program tahun ke-2 tidak boleh kosong!');
 		}
 
 		if(empty($data['target_3'])){
 			throw new Exception('Target Indikator program tahun ke-3 tidak boleh kosong!');
 		}
 
+		if(empty($data['pagu_3'])){
+			throw new Exception('Pagu indikator program tahun ke-3 tidak boleh kosong!');
+		}
+
 		if(empty($data['target_4'])){
 			throw new Exception('Target Indikator program tahun ke-4 tidak boleh kosong!');
 		}
 
+		if(empty($data['pagu_4'])){
+			throw new Exception('Pagu indikator program tahun ke-4 tidak boleh kosong!');
+		}
+
 		if(empty($data['target_5'])){
 			throw new Exception('Target Indikator program tahun ke-5 tidak boleh kosong!');
+		}
+
+		if(empty($data['pagu_5'])){
+			throw new Exception('Pagu indikator program tahun ke-5 tidak boleh kosong!');
 		}
 
 		if(empty($data['target_awal'])){
@@ -18301,6 +18180,10 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 
 		if(empty($data['target_akhir'])){
 			throw new Exception('Target akhir Indikator program tidak boleh kosong!');
+		}
+
+		if(empty($data['id_unit'])){
+			throw new Exception('Unit kerja wajib dipilih!');
 		}
 	}
 
