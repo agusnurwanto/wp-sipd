@@ -205,16 +205,9 @@ foreach ($visi_all as $visi) {
 				$program_all = $wpdb->get_results($sql, ARRAY_A);
 				foreach ($program_all as $program) {
 					$program_ids[$program['id_unik']] = "'".$program['id_unik']."'";
-					if(empty($program['kode_skpd'])){
-						$program['kode_skpd'] = '00';
-						$program['nama_skpd'] = 'SKPD Kosong';
-					}
-					$skpd_filter[$program['kode_skpd']] = $program['nama_skpd'];
 					if(empty($data_all['data'][$visi['id']]['data'][$misi['id']]['data'][$tujuan['id_unik']]['data'][$sasaran['id_unik']]['data'][$program['id_unik']])){
 						$data_all['data'][$visi['id']]['data'][$misi['id']]['data'][$tujuan['id_unik']]['data'][$sasaran['id_unik']]['data'][$program['id_unik']] = array(
 							'nama' => $program['nama_program'],
-							'kode_skpd' => $program['kode_skpd'],
-							'nama_skpd' => $program['nama_skpd'],
 							'data' => array()
 						);
 					}
@@ -227,6 +220,15 @@ foreach ($visi_all as $visi) {
 					", $program['id_unik']);
 					$program_indikator_all = $wpdb->get_results($sql, ARRAY_A);
 					foreach ($program_indikator_all as $program_indikator) {
+						if(empty($program_indikator['kode_skpd'])){
+							$program_indikator['kode_skpd'] = '00';
+							$program_indikator['nama_skpd'] = 'SKPD Kosong';
+						}
+
+						if(empty($skpd_filter[$program_indikator['kode_skpd']])){
+							$skpd_filter[$program_indikator['kode_skpd']] = $program_indikator['nama_skpd'];
+						}
+
 						if(empty($data_all['data'][$visi['id']]['data'][$misi['id']]['data'][$tujuan['id_unik']]['data'][$sasaran['id_unik']]['data'][$program['id_unik']]['data'][$program_indikator['id_unik_indikator']])){
 							$data_all['data'][$visi['id']]['data'][$misi['id']]['data'][$tujuan['id_unik']]['data'][$sasaran['id_unik']]['data'][$program['id_unik']]['data'][$program_indikator['id_unik_indikator']] = array(
 								'nama' => $program_indikator['indikator'],
@@ -358,8 +360,6 @@ foreach ($misi_all_kosong as $misi) {
 				if(empty($data_all['data']['visi_kosong']['data'][$misi['id']]['data'][$tujuan['id_unik']]['data'][$sasaran['id_unik']]['data'][$program['id_unik']])){
 					$data_all['data']['visi_kosong']['data'][$misi['id']]['data'][$tujuan['id_unik']]['data'][$sasaran['id_unik']]['data'][$program['id_unik']] = array(
 						'nama' => $program['nama_program'],
-						'kode_skpd' => $program['kode_skpd'],
-						'nama_skpd' => $program['nama_skpd'],
 						'data' => array()
 					);
 				}
@@ -460,8 +460,6 @@ foreach ($tujuan_all_kosong as $tujuan) {
 			if(empty($data_all['data']['visi_kosong']['data']['misi_kosong']['data'][$tujuan['id_unik']]['data'][$sasaran['id_unik']]['data'][$program['id_unik']])){
 				$data_all['data']['visi_kosong']['data']['misi_kosong']['data'][$tujuan['id_unik']]['data'][$sasaran['id_unik']]['data'][$program['id_unik']] = array(
 					'nama' => $program['nama_program'],
-					'kode_skpd' => $program['kode_skpd'],
-					'nama_skpd' => $program['nama_skpd'],
 					'data' => array()
 				);
 			}
@@ -534,8 +532,6 @@ foreach ($sasaran_all_kosong as $sasaran) {
 		if(empty($data_all['data']['visi_kosong']['data']['misi_kosong']['data']['tujuan_kosong']['data'][$sasaran['id_unik']]['data'][$program['id_unik']])){
 			$data_all['data']['visi_kosong']['data']['misi_kosong']['data']['tujuan_kosong']['data'][$sasaran['id_unik']]['data'][$program['id_unik']] = array(
 				'nama' => $program['nama_program'],
-				'kode_skpd' => $program['kode_skpd'],
-				'nama_skpd' => $program['nama_skpd'],
 				'data' => array()
 			);
 		}
@@ -771,6 +767,7 @@ foreach ($data_all['data'] as $visi) {
 					$target_5 = array();
 					$target_akhir = array();
 					$satuan = array();
+					$skpd = array();
 					foreach ($program['data'] as $indikator_program) {
 						$text_indikator[] = '<div class="indikator_program">'.$indikator_program['nama'].'</div>';
 						$target_awal[] = '<div class="indikator_program">'.get_target($indikator_program['data']['target_awal'], $indikator_program['data']['satuan']).'</div>';
@@ -781,6 +778,7 @@ foreach ($data_all['data'] as $visi) {
 						$target_5[] = '<div class="indikator_program">'.get_target($indikator_program['data']['target_5'], $indikator_program['data']['satuan']).'</div>';
 						$target_akhir[] = '<div class="indikator_program">'.get_target($indikator_program['data']['target_akhir'], $indikator_program['data']['satuan']).'</div>';
 						$satuan[] = '<div class="indikator_program">'.$indikator_program['data']['satuan'].'</div>';
+						$skpd[] = $indikator_program['data']['kode_skpd'].' '.$indikator_program['data']['nama_skpd'];
 					}
 					$text_indikator = implode('', $text_indikator);
 					$target_awal = implode('', $target_awal);
@@ -791,8 +789,9 @@ foreach ($data_all['data'] as $visi) {
 					$target_5 = implode('', $target_5);
 					$target_akhir = implode('', $target_akhir);
 					$satuan = implode('', $satuan);
+					$skpd = implode('', $skpd);
 					$body .= '
-						<tr class="tr-program" data-kode-skpd="'.$program['kode_skpd'].'">
+						<tr class="tr-program">
 							<td class="kiri atas kanan bawah">'.$no_visi.'.'.$no_misi.'.'.$no_tujuan.'.'.$no_sasaran.'.'.$no_program.'</td>
 							<td class="atas kanan bawah"><span class="debug-visi">'.$visi['nama'].'</span></td>
 							<td class="atas kanan bawah"><span class="debug-misi">'.$misi['nama'].'</span></td>
@@ -808,7 +807,7 @@ foreach ($data_all['data'] as $visi) {
 							<td class="atas kanan bawah text_tengah">'.$target_5.'</td>
 							<td class="atas kanan bawah text_tengah">'.$target_akhir.'</td>
 							<td class="atas kanan bawah text_tengah">'.$satuan.'</td>
-							<td class="atas kanan bawah">'.$program['kode_skpd'].' '.$program['nama_skpd'].'</td>
+							<td class="atas kanan bawah">'.$skpd.'</td>
 						</tr>
 					';
 				}
@@ -1881,53 +1880,24 @@ $tahun_selesai = (!empty($tahun_anggaran)) ? $tahun_anggaran + 5 : '-';
 		let programModal = jQuery("#modal-crud-rpjm");
 		let kode_sasaran = jQuery(this).data('kodesasaran');
 
-		jQuery.ajax({
-			url: ajax.url,
-          	type: "post",
-          	data: {
-          		"action": "add_program_rpjm",
-          		"api_key": "<?php echo $api_key; ?>",
-          		"type": 1
-          	},
-          	dataType: "json",
-          	success: function(res){
-          		
-          		jQuery('#wrap-loading').hide();
-				
+  		get_bidang_urusan().then(function(){
+
+  				jQuery('#wrap-loading').hide();
+  				
 				let html = '<form id="form-rpjm">'
 								+'<input type="hidden" name="kode_sasaran" value="'+kode_sasaran+'"/>'
 								+'<div class="form-group">'
-									+'<label for="program">Program</label>'
-								    +'<input type="text" class="form-control" name="program_teks"/>'
-								+'</div>'
-								+'<div class="form-group">'
-									+'<label for="unit_kerja">Unit Kerja</label>'
-									+'<select id="id_unit" name="id_unit" multiple>'
-										res.units.map(function(value, index){
-									    		html +='<option value="'+value.id_unit+'">'+value.nama_skpd+'</option>';
-									    });
-								    html+='</select>'
-								+'</div>'
-								+'<div class="form-group">'
-									+'<label for="pagu_1">Pagu tahun ke-1</label>'
-									+'<input type="number" class="form-control" name="pagu_1"/>'
-								+'</div>'
-								+'<div class="form-group">'
-									+'<label for="pagu_2">Pagu tahun ke-2</label>'
-									+'<input type="number" class="form-control" name="pagu_2"/>'
-								+'</div>'
-								+'<div class="form-group">'
-									+'<label for="pagu_3">Pagu tahun ke-3</label>'
-									+'<input type="number" class="form-control" name="pagu_3"/>'
-								+'</div>'
-								+'<div class="form-group">'
-									+'<label for="pagu_4">Pagu tahun ke-4</label>'
-									+'<input type="number" class="form-control" name="pagu_4"/>'
-								+'</div>'
-								+'<div class="form-group">'
-									+'<label for="pagu_5">Pagu tahun ke-5</label>'
-									+'<input type="number" class="form-control" name="pagu_5"/>'
-								+'</div>'
+							    	+'<label>Pilih Urusan</label>'
+							    	+'<select class="form-control" name="id_urusan" id="urusan-teks"></select>'
+							  	+'</div>'
+							  	+'<div class="form-group">'
+							    	+'<label>Pilih Bidang</label>'
+							    	+'<select class="form-control" name="id_bidang" id="bidang-teks"></select>'
+							  	+'</div>'
+							  	+'<div class="form-group">'
+							    	+'<label>Pilih Program</label>'
+							    	+'<select class="form-control" name="id_program" id="program-teks"></select>'
+							  	+'</div>'
 							+'</form>';
 
 		        programModal.find('.modal-title').html('Tambah Program');
@@ -1938,20 +1908,17 @@ $tahun_selesai = (!empty($tahun_anggaran)) ? $tahun_anggaran + 5 : '-';
 					+'</button>'
 					+'<button type="button" class="btn btn-sm btn-success" id="btn-simpan-data-rpjm-lokal" '
 						+'data-action="submit_program_rpjm" '
-						+'data-view="programRpjm" '
-						+'data-withunit="true"'
+						+'data-view="programRpjm"'
 					+'>'
 						+'<i class="dashicons dashicons-yes" style="margin-top: 3px;"></i> Simpan'
 					+'</button>');
-				// programModal.find('.modal-dialog').css('maxWidth','950px');
-				// programModal.find('.modal-dialog').css('width','100%');
-				programModal.modal('show');
 
-				new SlimSelect({
-					select: '#id_unit'
-				})
-          	}
-        });
+				get_urusan();
+				get_bidang();
+				get_program();
+
+				programModal.modal('show');
+  		});	
 	});
 
 	jQuery(document).on('click', '.btn-edit-program', function(){
@@ -1970,66 +1937,50 @@ $tahun_selesai = (!empty($tahun_anggaran)) ? $tahun_anggaran + 5 : '-';
           	},
           	dataType: "json",
           	success: function(res){
-        
-          		jQuery('#wrap-loading').hide();
+
+          		let id_program = res.data.id_program;
+
+          		get_bidang_urusan().then(function(){
+
+          			jQuery('#wrap-loading').hide();
 				
-				let html = '<form id="form-rpjm">'
-								+'<input type="hidden" name="id_unik" value="'+res.data.id_unik+'"/>'
-								+'<input type="hidden" name="kode_sasaran" value="'+res.data.kode_sasaran+'"/>'
-								+'<div class="form-group">'
-									+'<label for="program">Program</label>'
-								    +'<input type="text" class="form-control" name="program_teks" value="'+res.data.program_teks+'"/>'
-								+'</div>'
-								+'<div class="form-group">'
-									+'<label for="unit_kerja">Unit Kerja</label>'
-									+'<select id="id_unit" name="id_unit" multiple>'
-										res.units.map(function(value, index){
-									    		html +='<option value="'+value.id_unit+'">'+value.nama_skpd+'</option>';
-									    });
-								    html+='</select>'
-								+'</div>'
-								+'<div class="form-group">'
-									+'<label for="pagu_1">Pagu tahun ke-1</label>'
-									+'<input type="number" class="form-control" name="pagu_1" value="'+res.data.pagu_1+'"/>'
-								+'</div>'
-								+'<div class="form-group">'
-									+'<label for="pagu_2">Pagu tahun ke-2</label>'
-									+'<input type="number" class="form-control" name="pagu_2" value="'+res.data.pagu_2+'"/>'
-								+'</div>'
-								+'<div class="form-group">'
-									+'<label for="pagu_3">Pagu tahun ke-3</label>'
-									+'<input type="number" class="form-control" name="pagu_3" value="'+res.data.pagu_3+'"/>'
-								+'</div>'
-								+'<div class="form-group">'
-									+'<label for="pagu_4">Pagu tahun ke-4</label>'
-									+'<input type="number" class="form-control" name="pagu_4" value="'+res.data.pagu_4+'"/>'
-								+'</div>'
-								+'<div class="form-group">'
-									+'<label for="pagu_5">Pagu tahun ke-5</label>'
-									+'<input type="number" class="form-control" name="pagu_5" value="'+res.data.pagu_5+'"/>'
-								+'</div>'
-							+'</form>';
+					let html = '<form id="form-rpjm">'
+									+'<input type="hidden" name="id_unik" value="'+res.data.id_unik+'"/>'
+									+'<input type="hidden" name="kode_sasaran" value="'+res.data.kode_sasaran+'"/>'
+									+'<div class="form-group">'
+								    	+'<label>Pilih Urusan</label>'
+								    	+'<select class="form-control" name="id_urusan" id="urusan-teks"></select>'
+								  	+'</div>'
+								  	+'<div class="form-group">'
+								    	+'<label>Pilih Bidang</label>'
+								    	+'<select class="form-control" name="id_bidang" id="bidang-teks"></select>'
+								  	+'</div>'
+								  	+'<div class="form-group">'
+								    	+'<label>Pilih Program</label>'
+								    	+'<select class="form-control" name="id_program" id="program-teks"></select>'
+								  	+'</div>'
+								+'</form>';
 
-		        programModal.find('.modal-title').html('Edit Program');
-				programModal.find('.modal-body').html(html);
-				programModal.find('.modal-footer').html(''
-					+'<button type="button" class="btn btn-sm btn-warning" data-dismiss="modal">'
-						+'<i class="dashicons dashicons-no" style="margin-top: 3px;"></i> Tutup'
-					+'</button>'
-					+'<button type="button" class="btn btn-sm btn-success" id="btn-simpan-data-rpjm-lokal" '
-						+'data-action="update_program_rpjm" '
-						+'data-view="programRpjm" '
-						+'data-withunit="true"'
-					+'>'
-						+'<i class="dashicons dashicons-yes" style="margin-top: 3px;"></i> Simpan'
-					+'</button>');
-				programModal.modal('show');
+			        programModal.find('.modal-title').html('Edit Program');
+					programModal.find('.modal-body').html(html);
+					programModal.find('.modal-footer').html(''
+						+'<button type="button" class="btn btn-sm btn-warning" data-dismiss="modal">'
+							+'<i class="dashicons dashicons-no" style="margin-top: 3px;"></i> Tutup'
+						+'</button>'
+						+'<button type="button" class="btn btn-sm btn-success" id="btn-simpan-data-rpjm-lokal" '
+							+'data-action="update_program_rpjm" '
+							+'data-view="programRpjm"'
+						+'>'
+							+'<i class="dashicons dashicons-yes" style="margin-top: 3px;"></i> Simpan'
+						+'</button>');
 
-				const displaySelect = new SlimSelect({
-					select: '#id_unit'
-				});
+					get_urusan();
+					get_bidang();
+					get_program(false, id_program);
 
-				displaySelect.set(res.selectedUnit);
+					programModal.modal('show');
+
+          		});
 
           	}
         });
@@ -2074,62 +2025,122 @@ $tahun_selesai = (!empty($tahun_anggaran)) ? $tahun_anggaran + 5 : '-';
 	})
 
 	jQuery(document).on('click', '.btn-add-indikator-program', function(){
-
-		let indikatorProgramModal = jQuery("#modal-crud-rpjm");
+		
+		jQuery('#wrap-loading').show();
+		
 		let kode_program = jQuery(this).data('kodeprogram');
-		let html = '<form id="form-rpjm">'
-					+'<input type="hidden" name="kode_program" value='+kode_program+'>'
-					+'<div class="form-group">'
-						+'<label for="indikator_teks">Indikator</label>'
-		  				+'<textarea class="form-control" name="indikator_teks"></textarea>'
-					+'</div>'
-					+'<div class="form-group">'
-						+'<label for="satuan">Satuan</label>'
-		  				+'<input type="text" class="form-control" name="satuan"/>'
-					+'</div>'
-					+'<div class="form-group">'
-						+'<label for="target_1">Target tahun ke-1</label>'
-		  				+'<input type="text" class="form-control" name="target_1"/>'
-					+'</div>'
-					+'<div class="form-group">'
-						+'<label for="target_2">Target tahun ke-2</label>'
-		  				+'<input type="text" class="form-control" name="target_2"/>'
-					+'</div>'
-					+'<div class="form-group">'
-						+'<label for="target_3">Target tahun ke-3</label>'
-		  				+'<input type="text" class="form-control" name="target_3"/>'
-					+'</div>'
-					+'<div class="form-group">'
-						+'<label for="target_4">Target tahun ke-4</label>'
-		  				+'<input type="text" class="form-control" name="target_4"/>'
-					+'</div>'
-					+'<div class="form-group">'
-						+'<label for="target_5">Target tahun ke-5</label>'
-		  				+'<input type="text" class="form-control" name="target_5"/>'
-					+'</div>'
-					+'<div class="form-group">'
-						+'<label for="target_awal">Target awal</label>'
-		  				+'<input type="text" class="form-control" name="target_awal"/>'
-					+'</div>'
-					+'<div class="form-group">'
-						+'<label for="target_akhir">Target akhir</label>'
-		  				+'<input type="text" class="form-control" name="target_akhir"/>'
-					+'</div>'
-					+'</form>';
+		
+		let html = '';
 
-			indikatorProgramModal.find('.modal-title').html('Tambah Indikator');
-			indikatorProgramModal.find('.modal-body').html(html);
-			indikatorProgramModal.find('.modal-footer').html(''
-				+'<button type="button" class="btn btn-sm btn-warning" data-dismiss="modal">'
-					+'<i class="dashicons dashicons-no" style="margin-top: 3px;"></i> Tutup'
-				+'</button>'
-				+'<button type="button" class="btn btn-sm btn-success" id="btn-simpan-data-rpjm-lokal" '
-					+'data-action="submit_indikator_program_rpjm" '
-					+'data-view="indikatorProgramRpjm"'
-				+'>'
-					+'<i class="dashicons dashicons-yes" style="margin-top: 3px;"></i> Simpan'
-				+'</button>');
-			indikatorProgramModal.modal('show');
+		get_bidang_urusan(true).then(function(){
+			
+			jQuery('#wrap-loading').hide();
+
+			html += '<form id="form-rpjm">'
+						+'<input type="hidden" name="kode_program" value='+kode_program+'>'
+						+'<div class="form-group">'
+							+'<label for="indikator_teks">Indikator</label>'
+			  				+'<textarea class="form-control" name="indikator_teks"></textarea>'
+						+'</div>'
+						+'<div class="form-group">'
+							+'<label for="satuan">Satuan</label>'
+			  				+'<input type="text" class="form-control" name="satuan"/>'
+						+'</div>'
+						+'<div class="form-group">'
+							+'<div class="row">'
+								+'<div class="col-md-6">'
+									+'<label for="target_1">Target tahun ke-1</label>'
+			  						+'<input type="text" class="form-control" name="target_1"/>'
+								+'</div>'
+								+'<div class="col-md-6">'
+									+'<label for="pagu_1">Pagu</label>'
+			  						+'<input type="number" class="form-control" name="pagu_1"/>'
+								+'</div>'
+							+'</div>'
+						+'</div>'
+						+'<div class="form-group">'
+							+'<div class="row">'
+								+'<div class="col-md-6">'
+									+'<label for="target_2">Target tahun ke-2</label>'
+			  						+'<input type="text" class="form-control" name="target_2"/>'
+								+'</div>'
+								+'<div class="col-md-6">'
+									+'<label for="pagu_2">Pagu</label>'
+			  						+'<input type="number" class="form-control" name="pagu_2"/>'
+								+'</div>'
+							+'</div>'
+						+'</div>'
+						+'<div class="form-group">'
+							+'<div class="row">'
+								+'<div class="col-md-6">'
+									+'<label for="target_3">Target tahun ke-3</label>'
+					  				+'<input type="text" class="form-control" name="target_3"/>'
+								+'</div>'
+								+'<div class="col-md-6">'
+			  						+'<label for="pagu_3">Pagu</label>'
+			  						+'<input type="number" class="form-control" name="pagu_3"/>'
+								+'</div>'
+							+'</div>'
+						+'</div>'
+						+'<div class="form-group">'
+							+'<div class="row">'
+								+'<div class="col-md-6">'
+									+'<label for="target_4">Target tahun ke-4</label>'
+					  				+'<input type="text" class="form-control" name="target_4"/>'
+								+'</div>'
+								+'<div class="col-md-6">'
+			  						+'<label for="pagu_4">Pagu</label>'
+			  						+'<input type="number" class="form-control" name="pagu_4"/>'
+								+'</div>'
+							+'</div>'
+						+'</div>'
+						+'<div class="form-group">'
+							+'<div class="row">'
+								+'<div class="col-md-6">'
+									+'<label for="target_5">Target tahun ke-5</label>'
+					  				+'<input type="text" class="form-control" name="target_5"/>'
+								+'</div>'
+								+'<div class="col-md-6">'
+			  						+'<label for="pagu_5">Pagu</label>'
+			  						+'<input type="number" class="form-control" name="pagu_5"/>'
+								+'</div>'
+							+'</div>'	
+						+'</div>'
+						+'<div class="form-group">'
+							+'<label for="target_awal">Target awal</label>'
+			  				+'<input type="text" class="form-control" name="target_awal"/>'
+						+'</div>'
+						+'<div class="form-group">'
+							+'<label for="target_akhir">Target akhir</label>'
+			  				+'<input type="text" class="form-control" name="target_akhir"/>'
+						+'</div>'
+						+'<div class="form-group">'
+							+'<label for="unit_kerja">Unit Kerja</label>'
+							+'<select id="skpd-teks" name="id_unit"></select>'
+						+'</div>'
+					+'</form>';
+				
+				jQuery("#modal-crud-rpjm").find('.modal-title').html('Tambah Indikator');
+				jQuery("#modal-crud-rpjm").find('.modal-body').html(html);
+				jQuery("#modal-crud-rpjm").find('.modal-footer').html(''
+					+'<button type="button" class="btn btn-sm btn-warning" data-dismiss="modal">'
+						+'<i class="dashicons dashicons-no" style="margin-top: 3px;"></i> Tutup'
+					+'</button>'
+					+'<button type="button" class="btn btn-sm btn-success" id="btn-simpan-data-rpjm-lokal" '
+						+'data-action="submit_indikator_program_rpjm" '
+						+'data-view="indikatorProgramRpjm"'
+					+'>'
+						+'<i class="dashicons dashicons-yes" style="margin-top: 3px;"></i> Simpan'
+					+'</button>');
+
+				get_skpd('null');
+
+				jQuery("#modal-crud-rpjm").modal('show');
+
+				new SlimSelect({
+					select: '#skpd-teks'
+				});
+			}); 
 	});
 
 	jQuery(document).on('click', '.btn-edit-indikator-program', function(){
@@ -2138,7 +2149,6 @@ $tahun_selesai = (!empty($tahun_anggaran)) ? $tahun_anggaran + 5 : '-';
 
 		let id = jQuery(this).data('id');
 		let kode_program = jQuery(this).data('kodeprogram');
-		let indikatorProgramModal = jQuery("#modal-crud-rpjm");
 
 		jQuery.ajax({
 			url: ajax.url,
@@ -2154,59 +2164,113 @@ $tahun_selesai = (!empty($tahun_anggaran)) ? $tahun_anggaran + 5 : '-';
 
           		jQuery('#wrap-loading').hide();
 
-          		let html = '<form id="form-rpjm">'
-					+'<input type="hidden" name="id" value="'+id+'">'
-					+'<input type="hidden" name="kode_program" value="'+kode_program+'">'
-					+'<div class="form-group">'
-						+'<label for="indikator_teks">Indikator</label>'
-	  					+'<textarea class="form-control" name="indikator_teks">'+response.data.indikator+'</textarea>'
-					+'</div>'
-					+'<div class="form-group">'
-						+'<label for="satuan">Satuan</label>'
-	  					+'<input type="text" class="form-control" name="satuan" value="'+response.data.satuan+'"/>'
-					+'</div>'
-					+'<div class="form-group">'
-						+'<label for="target_1">Target tahun ke-1</label>'
-	  					+'<input type="text" class="form-control" name="target_1" value="'+response.data.target_1+'"/>'
-					+'</div>'
-					+'<div class="form-group">'
-						+'<label for="target_2">Target tahun ke-2</label>'
-	  					+'<input type="text" class="form-control" name="target_2" value="'+response.data.target_2+'"/>'
-					+'</div>'
-					+'<div class="form-group">'
-						+'<label for="target_3">Target tahun ke-3</label>'
-	  					+'<input type="text" class="form-control" name="target_3" value="'+response.data.target_3+'"/>'
-					+'</div>'
-					+'<div class="form-group">'
-						+'<label for="target_4">Target tahun ke-4</label>'
-	  					+'<input type="text" class="form-control" name="target_4" value="'+response.data.target_4+'"/>'
-					+'</div>'
-					+'<div class="form-group">'
-						+'<label for="target_5">Target tahun ke-5</label>'
-	  					+'<input type="text" class="form-control" name="target_5" value="'+response.data.target_5+'"/>'
-					+'</div>'
-					+'<div class="form-group">'
-						+'<label for="target_awal">Target awal</label>'
-	  					+'<input type="text" class="form-control" name="target_awal" value="'+response.data.target_awal+'"/>'
-					+'</div>'
-					+'<div class="form-group">'
-					+'<label for="target_akhir">Target akhir</label>'
-	  					+'<input type="text" class="form-control" name="target_akhir" value="'+response.data.target_akhir+'"/>'
-					+'</div>'
-				  +'</form>';
+          		get_bidang_urusan(true).then(function(){
+          			let html = '<form id="form-rpjm">'
+						+'<input type="hidden" name="id" value="'+id+'">'
+						+'<input type="hidden" name="kode_program" value="'+kode_program+'">'
+						+'<div class="form-group">'
+							+'<label for="indikator_teks">Indikator</label>'
+		  					+'<textarea class="form-control" name="indikator_teks">'+response.data.indikator+'</textarea>'
+						+'</div>'
+						+'<div class="form-group">'
+							+'<label for="satuan">Satuan</label>'
+		  					+'<input type="text" class="form-control" name="satuan" value="'+response.data.satuan+'"/>'
+						+'</div>'
+						+'<div class="form-group">'
+							+'<div class="row">'
+								+'<div class="col-md-6">'
+									+'<label for="target_1">Target tahun ke-1</label>'
+				  					+'<input type="text" class="form-control" name="target_1" value="'+response.data.target_1+'"/>'
+				  				+'</div>'
+				  				+'<div class="col-md-6">'
+				  					+'<label for="pagu_1">Pagu</label>'
+				  					+'<input type="number" class="form-control" name="pagu_1" value="'+response.data.pagu_1+'"/>'
+				  				+'</div>'
+				  			+'</div>'
+						+'</div>'
+						+'<div class="form-group">'
+							+'<div class="row">'
+								+'<div class="col-md-6">'
+									+'<label for="target_2">Target tahun ke-2</label>'
+					  				+'<input type="text" class="form-control" name="target_2" value="'+response.data.target_2+'"/>'
+					  			+'</div>'
+					  			+'<div class="col-md-6">'
+				  					+'<label for="pagu_2">Pagu</label>'
+				  					+'<input type="number" class="form-control" name="pagu_2" value="'+response.data.pagu_2+'"/>'
+				  				+'</div>'
+						+'</div>'
+						+'<div class="form-group">'
+							+'<div class="row">'
+								+'<div class="col-md-6">'
+									+'<label for="target_3">Target tahun ke-3</label>'
+				  					+'<input type="text" class="form-control" name="target_3" value="'+response.data.target_3+'"/>'
+				  				+'</div>'
+					  			+'<div class="col-md-6">'
+					  				+'<label for="pagu_3">Pagu</label>'
+					  				+'<input type="number" class="form-control" name="pagu_3" value="'+response.data.pagu_3+'"/>'
+					  			+'</div>'
+				  			+'</div>'
+						+'</div>'
+						+'<div class="form-group">'
+							+'<div class="row">'
+								+'<div class="col-md-6">'
+									+'<label for="target_4">Target tahun ke-4</label>'
+				  					+'<input type="text" class="form-control" name="target_4" value="'+response.data.target_4+'"/>'
+								+'</div>'
+								+'<div class="col-md-6">'
+				  					+'<label for="pagu_4">Pagu</label>'
+				  					+'<input type="number" class="form-control" name="pagu_4" value="'+response.data.pagu_4+'"/>'
+				  				+'</div>'
+							+'</div>'
+						+'</div>'
+						+'<div class="form-group">'
+							+'<div class="row">'
+								+'<div class="col-md-6">'
+									+'<label for="target_5">Target tahun ke-5</label>'
+				  					+'<input type="text" class="form-control" name="target_5" value="'+response.data.target_5+'"/>'
+								+'</div>'
+								+'<div class="col-md-6">'
+				  					+'<label for="pagu_5">Pagu</label>'
+				  					+'<input type="number" class="form-control" name="pagu_5" value="'+response.data.pagu_5+'"/>'
+				  				+'</div>'
+							+'</div>'
+						+'</div>'
+						+'<div class="form-group">'
+							+'<label for="target_awal">Target awal</label>'
+		  					+'<input type="text" class="form-control" name="target_awal" value="'+response.data.target_awal+'"/>'
+						+'</div>'
+						+'<div class="form-group">'
+						+'<label for="target_akhir">Target akhir</label>'
+		  					+'<input type="text" class="form-control" name="target_akhir" value="'+response.data.target_akhir+'"/>'
+						+'</div>'
+						+'<div class="form-group">'
+							+'<label for="unit_kerja">Unit Kerja</label>'
+							+'<select id="skpd-teks" name="id_unit"></select>'
+						+'</div>'
+					  +'</form>';
 
-				indikatorProgramModal.find('.modal-title').html('Edit Indikator Program');
-				indikatorProgramModal.find('.modal-body').html(html);
-				indikatorProgramModal.find('.modal-footer').html(''
-					+'<button type="button" class="btn btn-sm btn-warning" data-dismiss="modal">'
-						+'<i class="dashicons dashicons-no" style="margin-top: 3px;"></i> Tutup'
-					+'</button><button type="button" class="btn btn-sm btn-success" id="btn-simpan-data-rpjm-lokal" '
-						+'data-action="update_indikator_program_rpjm" '
-						+'data-view="indikatorProgramRpjm"'
-					+'>'
-						+'<i class="dashicons dashicons-yes" style="margin-top: 3px;"></i> Simpan'
-					+'</button>');
-				indikatorProgramModal.modal('show');
+					jQuery("#modal-crud-rpjm").find('.modal-title').html('Edit Indikator Program');
+					jQuery("#modal-crud-rpjm").find('.modal-body').html(html);
+					jQuery("#modal-crud-rpjm").find('.modal-footer').html(''
+						+'<button type="button" class="btn btn-sm btn-warning" data-dismiss="modal">'
+							+'<i class="dashicons dashicons-no" style="margin-top: 3px;"></i> Tutup'
+						+'</button><button type="button" class="btn btn-sm btn-success" id="btn-simpan-data-rpjm-lokal" '
+							+'data-action="update_indikator_program_rpjm" '
+							+'data-view="indikatorProgramRpjm"'
+						+'>'
+							+'<i class="dashicons dashicons-yes" style="margin-top: 3px;"></i> Simpan'
+						+'</button>');
+
+					get_skpd('null');
+
+					jQuery("#skpd-teks").val(response.data.id_unit);
+
+					jQuery("#modal-crud-rpjm").modal('show');
+
+					new SlimSelect({
+						select: '#skpd-teks'
+					});
+          		});         		
           	}
 		})	
 	});
@@ -2276,6 +2340,15 @@ $tahun_selesai = (!empty($tahun_anggaran)) ? $tahun_anggaran + 5 : '-';
 				}
 			}
 		})
+	});
+
+	jQuery(document).on('change', '#urusan-teks', function(){
+		get_bidang(jQuery(this).val());
+		get_program();
+	});
+
+	jQuery(document).on('change', '#bidang-teks', function(){
+		get_program(jQuery(this).val());
 	});
 
 	function visiRpjm(){
@@ -2433,7 +2506,7 @@ $tahun_selesai = (!empty($tahun_anggaran)) ? $tahun_anggaran + 5 : '-';
 			          							+'<td>'+(index+1)+'.</td>'
 			          							+'<td>'+value.tujuan_teks+'</td>'
 			          							+'<td>'
-			          								+'<a href="javascript:void(0)" data-idtujuan="'+value.id+'" class="btn btn-sm btn-warning btn-kelola-indikator-tujuan"><i class="dashicons dashicons-arrow-up-alt" style="margin-top: 3px;"></i> Indikator</a>&nbsp;'
+			          								+'<a href="javascript:void(0)" data-idtujuan="'+value.id+'" class="btn btn-sm btn-warning btn-kelola-indikator-tujuan"><i class="dashicons dashicons-menu-alt" style="margin-top: 3px;"></i></a>&nbsp;'
 			          								+'<a href="javascript:void(0)" data-idtujuan="'+value.id+'" data-kode="'+value.id_unik+'" class="btn btn-sm btn-primary btn-detail-tujuan"><i class="dashicons dashicons-search" style="margin-top: 3px;"></i></a>&nbsp;'
 			          								+'<a href="javascript:void(0)" data-idtujuan="'+value.id+'" class="btn btn-sm btn-success btn-edit-tujuan"><i class="dashicons dashicons-edit" style="margin-top: 3px;"></i></a>&nbsp;'
 			          								+'<a href="javascript:void(0)" data-idtujuan="'+value.id+'" data-kodetujuan="'+value.id_unik+'" data-idmisi="'+value.id_misi+'" class="btn btn-sm btn-danger btn-hapus-tujuan"><i class="dashicons dashicons-trash" style="margin-top: 3px;"></i></a></td>'
@@ -2577,7 +2650,7 @@ $tahun_selesai = (!empty($tahun_anggaran)) ? $tahun_anggaran + 5 : '-';
 			          							+'<td>'+(index+1)+'.</td>'
 			          							+'<td>'+value.sasaran_teks+'</td>'
 			          							+'<td>'
-			          								+'<a href="javascript:void(0)" data-idsasaran="'+value.id+'" class="btn btn-sm btn-warning btn-kelola-indikator-sasaran"><i class="dashicons dashicons-arrow-up-alt" style="margin-top: 3px;"></i> Indikator</a>&nbsp;'
+			          								+'<a href="javascript:void(0)" data-idsasaran="'+value.id+'" class="btn btn-sm btn-warning btn-kelola-indikator-sasaran"><i class="dashicons dashicons-menu-alt" style="margin-top: 3px;"></i></a>&nbsp;'
 			          								+'<a href="javascript:void(0)" data-kodesasaran="'+value.id_unik+'" class="btn btn-sm btn-primary btn-detail-sasaran"><i class="dashicons dashicons-search" style="margin-top: 3px;"></i></a>&nbsp;'
 			          								+'<a href="javascript:void(0)" data-idsasaran="'+value.id+'" class="btn btn-sm btn-success btn-edit-sasaran"><i class="dashicons dashicons-edit" style="margin-top: 3px;"></i></a>&nbsp;'
 			          								+'<a href="javascript:void(0)" data-idsasaran="'+value.id+'" data-kodesasaran="'+value.id_unik+'" data-kodetujuan="'+value.kode_tujuan+'" class="btn btn-sm btn-danger btn-hapus-sasaran"><i class="dashicons dashicons-trash" style="margin-top: 3px;"></i></a></td>'
@@ -2725,7 +2798,7 @@ $tahun_selesai = (!empty($tahun_anggaran)) ? $tahun_anggaran + 5 : '-';
 			          							+'<td>'+(index+1)+'.</td>'
 			          							+'<td>'+value.nama_program+'</td>'
 			          							+'<td>'
-			          								+'<a href="javascript:void(0)" data-kodeprogram="'+value.id_unik+'" class="btn btn-sm btn-warning btn-kelola-indikator-program"><i class="dashicons dashicons-arrow-up-alt" style="margin-top: 3px;"></i> Indikator</a>&nbsp;'
+			          								+'<a href="javascript:void(0)" data-kodeprogram="'+value.id_unik+'" class="btn btn-sm btn-warning btn-kelola-indikator-program"><i class="dashicons dashicons-menu-alt" style="margin-top: 3px;"></i></a>&nbsp;'
 			          								+'<a href="javascript:void(0)" data-kodeprogram="'+value.id_unik+'" class="btn btn-sm btn-success btn-edit-program"><i class="dashicons dashicons-edit" style="margin-top: 3px;"></i></a>&nbsp;'
 			          								+'<a href="javascript:void(0)" data-kodeprogram="'+value.id_unik+'" data-kodesasaran="'+value.kode_sasaran+'" class="btn btn-sm btn-danger btn-hapus-program"><i class="dashicons dashicons-trash" style="margin-top: 3px;"></i></a></td>'
 			          						+'</tr>';
@@ -2818,6 +2891,165 @@ $tahun_selesai = (!empty($tahun_anggaran)) ? $tahun_anggaran + 5 : '-';
 				jQuery("#modal-indikator-rpjm").modal('show');
 			}
 		});
+	}
+
+	function get_urusan() {
+		var html = '<option value="">Pilih Urusan</option>';
+		for(var nm_urusan in all_program){
+			html += '<option>'+nm_urusan+'</option>';
+		}
+		jQuery('#urusan-teks').html(html);
+	}
+
+	function get_bidang(nm_urusan) {
+		var html = '<option value="">Pilih Bidang</option>';
+		if(nm_urusan){
+			for(var nm_bidang in all_program[nm_urusan]){
+				html += '<option>'+nm_bidang+'</option>';
+			}
+		}else{
+			for(var nm_urusan in all_program){
+				for(var nm_bidang in all_program[nm_urusan]){
+					html += '<option>'+nm_bidang+'</option>';
+				}
+			}
+		}
+		jQuery('#bidang-teks').html(html);
+	}
+
+	function get_program(nm_bidang, val) {
+		var html = '<option value="">Pilih Program</option>';
+		var current_nm_urusan = jQuery('#urusan-teks').val();
+		if(current_nm_urusan){
+			if(nm_bidang){
+				for(var nm_program in all_program[current_nm_urusan][nm_bidang]){
+					var selected = '';
+					if(val && val == all_program[current_nm_urusan][nm_bidang][nm_program].id_program){
+						selected = 'selected';
+					}
+					html += '<option '+selected+' value="'+all_program[current_nm_urusan][nm_bidang][nm_program].id_program+'">'+nm_program+'</option>';
+				}
+			}else{
+				for(var nm_bidang in all_program[current_nm_urusan]){
+					for(var nm_program in all_program[current_nm_urusan][nm_bidang]){
+						var selected = '';
+						if(val && val == all_program[current_nm_urusan][nm_bidang][nm_program].id_program){
+							selected = 'selected';
+						}
+						html += '<option '+selected+' value="'+all_program[current_nm_urusan][nm_bidang][nm_program].id_program+'">'+nm_program+'</option>';
+					}
+				}
+			}
+		}else{
+			if(nm_bidang){
+				for(var nm_urusan in all_program){
+					if(all_program[nm_urusan][nm_bidang]){
+						for(var nm_program in all_program[nm_urusan][nm_bidang]){
+							var selected = '';
+							if(val && val == all_program[nm_urusan][nm_bidang][nm_program].id_program){
+								selected = 'selected';
+							}
+							html += '<option '+selected+' value="'+all_program[nm_urusan][nm_bidang][nm_program].id_program+'">'+nm_program+'</option>';
+						}
+					}
+				}
+			}else{
+				for(var nm_urusan in all_program){
+					for(var nm_bidang in all_program[nm_urusan]){
+						for(var nm_program in all_program[nm_urusan][nm_bidang]){
+							var selected = '';
+							if(val && val == all_program[nm_urusan][nm_bidang][nm_program].id_program){
+								selected = 'selected';
+							}
+							html += '<option '+selected+' value="'+all_program[nm_urusan][nm_bidang][nm_program].id_program+'">'+nm_program+'</option>';
+						}
+					}
+				}
+			}
+		}
+		jQuery('#program-teks').html(html);
+	}
+
+	function get_bidang_urusan(skpd){
+		return new Promise(function(resolve, reject){
+			if(!skpd){
+				if(typeof all_program == 'undefined'){
+					jQuery.ajax({
+						url: ajax.url,
+			          	type: "post",
+			          	data: {
+			          		"action": "get_bidang_urusan",
+			          		"api_key": "<?php echo $api_key; ?>",
+			          		"type": 1
+			          	},
+			          	dataType: "json",
+			          	success: function(res){
+							window.all_program = {};
+							res.data.map(function(b, i){
+								if(!all_program[b.nama_urusan]){
+									all_program[b.nama_urusan] = {};
+								}
+								if(!all_program[b.nama_urusan][b.nama_bidang_urusan]){
+									all_program[b.nama_urusan][b.nama_bidang_urusan] = {};
+								}
+								if(!all_program[b.nama_urusan][b.nama_bidang_urusan][b.nama_program]){
+									all_program[b.nama_urusan][b.nama_bidang_urusan][b.nama_program] = b;
+								}
+							});
+							resolve();
+			          	}
+		          });
+				}else{
+					resolve();
+				}
+			}else{
+				if(typeof all_program == 'undefined'){
+					jQuery.ajax({
+						url: ajax.url,
+			          	type: "post",
+			          	data: {
+			          		"action": "get_bidang_urusan",
+			          		"api_key": "<?php echo $api_key; ?>",
+			          		"type": 0
+			          	},
+			          	dataType: "json",
+			          	success: function(res){
+							window.all_skpd = {};
+							res.data.map(function(b, i){
+								if(!all_skpd[b.nama_urusan]){
+									all_skpd[b.nama_urusan] = {};
+								}
+								if(!all_skpd[b.nama_urusan][b.nama_bidang_urusan]){
+									all_skpd[b.nama_urusan][b.nama_bidang_urusan] = {};
+								}
+								if(!all_skpd[b.nama_urusan][b.nama_bidang_urusan][b.nama_skpd]){
+									all_skpd[b.nama_urusan][b.nama_bidang_urusan][b.nama_skpd] = b;
+								}
+							});
+							resolve();
+			          	}
+		          });
+				}else{
+					resolve();
+				}
+			}
+		});
+	}
+
+	function get_skpd(current_id_skpd){
+		var html = "<option value=''>Pilih SKPD</option>";
+		for(var nm_urusan in all_skpd){
+			for(var nm_bidang in all_skpd[nm_urusan]){
+				for(var nm_skpd in all_skpd[nm_urusan][nm_bidang]){
+					var selected = '';
+					if(current_id_skpd!='null' && current_id_skpd == all_skpd[nm_urusan][nm_bidang][nm_skpd].id_skpd){
+						selected = 'selected';
+					}
+					html += "<option "+selected+" value='"+all_skpd[nm_urusan][nm_bidang][nm_skpd].id_skpd+"' data-kode='"+all_skpd[nm_urusan][nm_bidang][nm_skpd].kode_skpd+"'>"+nm_skpd+"</option>";
+				}
+			}
+		}
+		jQuery('#skpd-teks').html(html);
 	}
 
 	function getFormData($form) {
