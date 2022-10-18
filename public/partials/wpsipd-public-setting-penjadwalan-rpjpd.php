@@ -287,8 +287,30 @@ $body = '';
 	}
 
 	function lock_data_penjadwalan(id_jadwal_lokal){
-	// 	let confirmLocked = confirm("Apakah anda yakin akan mengunci penjadwalan?");
-	console.log("sementara belum bisa digunakan")
+		console.log("Sementera kunci jadwal belum bisa dilakukan");
+		// let confirmLocked = confirm("Apakah anda yakin akan mengunci penjadwalan?");
+		// if(confirmLocked){
+		// 	jQuery('#wrap-loading').show();
+		// 	jQuery.ajax({
+		// 		url: thisAjaxUrl,
+		// 		type:'post',
+		// 		data:{
+		// 			'action' 				: 'submit_lock_schedule_rpjpd',
+		// 			'api_key'				: jQuery("#api_key").val(),
+		// 			'id_jadwal_lokal'		: id_jadwal_lokal
+		// 		},
+		// 		dataType: 'json',
+		// 		success:function(response){
+		// 			jQuery('#wrap-loading').hide();
+		// 			if(response.status == 'success'){
+		// 				alert('Data berhasil dikunci!.');
+		// 				penjadwalanTable.ajax.reload();
+		// 			}else{
+		// 				alert(`GAGAL! \n${response.message}`);
+		// 			}
+		// 		}
+		// 	});
+		// }
 	}
 
 	jQuery(function() {

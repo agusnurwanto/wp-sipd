@@ -31,7 +31,11 @@ $body = '';
 					<th class="text-center">Nama OPD</th>
 					<th class="text-center">Pagu SIPD</th>
 					<th class="text-center">Total Pagu Non Pengadaan</th>
-					<th class="text-center">Pagu Sirup</th>
+					<th class="text-center">Pagu Paket Penyedia Sirup</th>
+					<th class="text-center">Total Paket Penyedia Sirup</th>
+					<th class="text-center">Pagu Rekap Penyedia Sirup</th>
+					<th class="text-center">Total Paket Rekap Penyedia Sirup</th>
+					<th class="text-center">Pagu Rekap Sirup</th>
 					<th class="text-center">Selisih</th>
 					<th class="text-center">Keterangann</th>
 				</tr>
@@ -89,6 +93,30 @@ $body = '';
 				},
 				{ 
 					"data": "total_pagu_sirup",
+					className: "text-right",
+					"targets": "no-sort",
+					"orderable": false
+				},
+				{ 
+					"data": "total_paket_penyedia_sirup",
+					className: "text-right",
+					"targets": "no-sort",
+					"orderable": false
+				},
+				{ 
+					"data": "total_pagu_rekap_penyedia_sirup",
+					className: "text-right",
+					"targets": "no-sort",
+					"orderable": false
+				},
+				{ 
+					"data": "total_paket_rekap_penyedia_sirup",
+					className: "text-right",
+					"targets": "no-sort",
+					"orderable": false
+				},
+				{ 
+					"data": "total_pagu_rekap_sirup",
 					className: "text-right",
 					"targets": "no-sort",
 					"orderable": false
