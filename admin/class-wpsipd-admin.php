@@ -714,11 +714,6 @@ class Wpsipd_Admin {
 			$disabled = 'disabled';
 		}
 
-		$disabled_sirup = 'onclick="get_sinkron_data_sirup(); return false;"';
-		if(get_option('_crb_id_lokasi_sirup') == 0 || empty(get_option('_crb_id_lokasi_sirup'))){
-			$disabled_sirup = 'disabled';
-		}
-
 		$mapping_unit = array(
 			Field::make('html', 'crb_url_tahun_anggaran_moduld_migrasi_data')
 				->set_html('<h3>Tahun Anggaran: '.$tahun_anggaran.'</h3>'),
@@ -728,16 +723,7 @@ class Wpsipd_Admin {
 				->set_default_value(get_option('_crb_api_key_extension' )),
 			Field::make( 'html', 'crb_html_get_sinkron_modul_migrasi_data' )
             	->set_html( '<a href="#" class="button button-primary" '.$disabled.'>Sinkron data dari server migrasi data</a>' )
-				->set_help_text($this->last_sinkron_api_setting()),
-            Field::make( 'text', 'crb_id_lokasi_sirup', 'ID lokasi' )
-				->set_default_value(0)
-				->set_help_text('Cara mendapatkan id lokasi ada <a href="https://sirup.lkpp.go.id/sirup/ro/caripaket2" target="_blank">disni</a>'),
-            Field::make( 'text', 'crb_id_kldi_sirup', 'ID K/L/D/I' )
-				->set_default_value(0)
-				->set_help_text('Cara mendapatkan id k/l/d/i ada <a href="https://sirup.lkpp.go.id/sirup/ro/caripaket2" target="_blank">disni</a>'),
-			Field::make( 'html', 'crb_html_get_sinkron_data_sirup' )
-            	->set_html( '<a href="#" class="button button-primary" '.$disabled_sirup.'>Sinkron data dari server SIRUP</a>' )
-				->set_help_text($this->last_sinkron_data_sirup())
+				->set_help_text($this->last_sinkron_api_setting())
 			);
 
 		return $mapping_unit;
@@ -748,15 +734,38 @@ class Wpsipd_Admin {
 		$unit = array();
 		$tahun_anggaran = get_option('_crb_tahun_anggaran_sipd');
 		if(empty(!$tahun_anggaran)){
-			$unit = $wpdb->get_results("SELECT nama_skpd, id_skpd, kode_skpd from data_unit where active=1 and tahun_anggaran=".$tahun_anggaran.' order by id_skpd ASC', ARRAY_A);
+			$unit = $wpdb->get_results("SELECT nama_skpd, id_skpd, kode_skpd from data_unit where active=1 and tahun_anggaran=".$tahun_anggaran.' and is_skpd=1 order by id_skpd ASC', ARRAY_A);
+		}
+
+		$disabled_sirup = 'onclick="get_sinkron_data_sirup(); return false;"';
+		if(get_option('_crb_id_lokasi_sirup') == 0 || empty(get_option('_crb_id_lokasi_sirup'))){
+			$disabled_sirup = 'disabled';
 		}
 
 		$mapping_unit = array(
 			Field::make('html', 'crb_url_tahun_anggaran_sirup')
 				->set_html('<h3>Tahun Anggaran: '.$tahun_anggaran.'</h3>'),
-			Field::make( 'textarea', 'crb_custom_mapping_satuan_kerja_sirup', 'Custom Mapping Satuan Kerja SIPD dan SIRUP' )
-            	->set_help_text('Data ini untuk mengakomodir perbedaan nama satuan kerja yang ada di SIPD dan SIRUP. Contoh pengisian data sebagai berikut [nama_satuan_kerja]-[nama_satuan_kerja] data dipisah dengan pemisah "," (koma).')
-			);
+			Field::make( 'text', 'crb_id_lokasi_sirup', 'ID lokasi' )
+				->set_default_value(0)
+				->set_help_text('Cara mendapatkan id lokasi ada <a href="https://sirup.lkpp.go.id/sirup/ro/caripaket2" target="_blank">disni</a>'),
+            Field::make( 'text', 'crb_id_kldi_sirup', 'ID K/L/D/I' )
+				->set_default_value(0)
+				->set_help_text('Cara mendapatkan id k/l/d/i ada <a href="https://sirup.lkpp.go.id/sirup/ro/caripaket2" target="_blank">disni</a>'),
+			Field::make( 'html', 'crb_html_get_sinkron_data_sirup' )
+            	->set_html( '<a href="#" class="button button-primary" '.$disabled_sirup.'>Sinkron data dari server SIRUP</a>' )
+				->set_help_text($this->last_sinkron_data_sirup())
+		);
+
+		foreach ($unit as $k => $v) {
+			$unit_sirup = get_option('_crb_unit_sirup_'.$v['id_skpd']);
+			// if(empty($unit_sirup) || $unit_sirup == '.'){
+				$id = $wpdb->get_var("select id_satuan_kerja from data_skpd_sirup where active=1 and tahun_anggaran=".$tahun_anggaran." and satuan_kerja='".strtoupper($v['nama_skpd'])."'");
+				if(!empty($id)){
+					update_option( '_crb_unit_sirup_'.$v['id_skpd'], $id );
+				}
+			// }
+			$mapping_unit[] = Field::make( 'text', 'crb_unit_sirup_'.$v['id_skpd'], ($k+1).'. ID Saker SIRUP untuk '.$v['kode_skpd'].' '.$v['nama_skpd'] );
+		}
 
 		return $mapping_unit;
 	}

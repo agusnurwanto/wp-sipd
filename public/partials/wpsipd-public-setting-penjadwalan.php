@@ -31,6 +31,35 @@ foreach($tahun as $tahun_value){
 	$select_tahun .= "<option value='".$url_data_ssh."' ".$select.">Setting penjadwalan | ".$tahun_value['tahun_anggaran']."</option>";
 }
 
+$select_renstra = '';
+
+$sqlTipe = $wpdb->get_results($wpdb->prepare("
+				SELECT 
+					* 
+				FROM 
+					`data_tipe_perencanaan` 
+				WHERE 
+					nama_tipe=%s",
+					'renstra'
+				), ARRAY_A);
+$data_renstra = $wpdb->get_results($wpdb->prepare('
+				SELECT
+					id_jadwal_lokal,
+					nama
+				FROM
+					data_jadwal_lokal
+				WHERE
+					status=1
+					and id_tipe=%d',
+					$sqlTipe[0]['id']
+				),ARRAY_A);
+				
+if(!empty($data_renstra)){
+	foreach($data_renstra as $val_renstra){
+		$select_renstra .= '<option value="'.$val_renstra['id_jadwal_lokal'].'">'.$val_renstra['nama'].'</option>';
+	}
+}
+
 $body = '';
 ?>
 <style>
@@ -56,6 +85,7 @@ $body = '';
 					<th class="text-center">Jadwal Mulai</th>
 					<th class="text-center">Jadwal Selesai</th>
 					<th class="text-center">Tahun Anggaran</th>
+					<th class="text-center">Jadwal RENSTRA</th>
 					<th class="text-center" style="width: 150px;">Aksi</th>
 				</tr>
 			</thead>
@@ -82,6 +112,13 @@ $body = '';
 				<div>
 					<label for='jadwal_tanggal' style='display:inline-block'>Jadwal Pelaksanaan</label>
 					<input type="text" id='jadwal_tanggal' name="datetimes" style='display:block;width:100%;'/>
+				</div>
+				<div>
+					<label for="link_renstra" style='display:inline-block'>Pilih Jadwal RENSTRA</label>
+					<select id="link_renstra" style='display:block;width: 100%;'>
+						<option value="">Pilih RENSTRA</option>
+						<?php echo $select_renstra; ?>
+					</select>
 				</div>
 			</div> 
 			<div class="modal-footer">
@@ -158,6 +195,10 @@ $body = '';
 					className: "text-center"
 				},
 				{ 
+					"data": "relasi_perencanaan",
+					className: "text-center"
+				},
+				{ 
 					"data": "aksi",
 					className: "text-center"
 				}
@@ -182,7 +223,8 @@ $body = '';
 		let jadwalMulai = jQuery("#jadwal_tanggal").data('daterangepicker').startDate.format('YYYY-MM-DD HH:mm:ss')
 		let jadwalSelesai = jQuery("#jadwal_tanggal").data('daterangepicker').endDate.format('YYYY-MM-DD HH:mm:ss')
 		let this_tahun_anggaran = tahun_anggaran
-		if(nama.trim() == '' || jadwalMulai == '' || jadwalSelesai == ''){
+		let relasi_perencanaan = jQuery("#link_renstra").val()
+		if(nama.trim() == '' || jadwalMulai == '' || jadwalSelesai == '' || relasi_perencanaan == ''){
 			jQuery("#wrap-loading").hide()
 			alert("Ada yang kosong, Harap diisi semua")
 			return false
@@ -198,7 +240,8 @@ $body = '';
 					'jadwal_mulai'		: jadwalMulai,
 					'jadwal_selesai'	: jadwalSelesai,
 					'tahun_anggaran'	: this_tahun_anggaran,
-					'tipe_perencanaan'	: tipe_perencanaan
+					'tipe_perencanaan'	: tipe_perencanaan,
+					'relasi_perencanaan': relasi_perencanaan
 				},
 				beforeSend: function() {
 					jQuery('.submitBtn').attr('disabled','disabled')
@@ -212,6 +255,8 @@ $body = '';
 					}else{
 						alert(response.message)
 					}
+					jQuery('#jadwal_nama').val('')
+					jQuery("#link_renstra").val('')
 				}
 			})
 		}
@@ -240,6 +285,7 @@ $body = '';
 				jQuery("#jadwal_nama").val(response.data.nama);
 				jQuery('#jadwal_tanggal').data('daterangepicker').setStartDate(moment(response.data.waktu_awal).format('DD-MM-YYYY HH:mm'));
 				jQuery('#jadwal_tanggal').data('daterangepicker').setEndDate(moment(response.data.waktu_akhir).format('DD-MM-YYYY HH:mm'));
+				jQuery("#link_renstra").val(response.data.relasi_perencanaan).change();
 			}
 		})
 	}
@@ -250,7 +296,8 @@ $body = '';
 		let jadwalMulai = jQuery("#jadwal_tanggal").data('daterangepicker').startDate.format('YYYY-MM-DD HH:mm:ss')
 		let jadwalSelesai = jQuery("#jadwal_tanggal").data('daterangepicker').endDate.format('YYYY-MM-DD HH:mm:ss')
 		let this_tahun_anggaran = tahun_anggaran
-		if(nama.trim() == '' || jadwalMulai == '' || jadwalSelesai == ''){
+		let relasi_perencanaan = jQuery("#link_renstra").val()
+		if(nama.trim() == '' || jadwalMulai == '' || jadwalSelesai == '' || relasi_perencanaan == ''){
 			jQuery("#wrap-loading").hide()
 			alert("Ada yang kosong, Harap diisi semua")
 			return false
@@ -267,7 +314,8 @@ $body = '';
 					'jadwal_selesai'	: jadwalSelesai,
 					'id_jadwal_lokal'	: id_jadwal_lokal,
 					'tahun_anggaran'	: this_tahun_anggaran,
-					'tipe_perencanaan'	: tipe_perencanaan
+					'tipe_perencanaan'	: tipe_perencanaan,
+					'relasi_perencanaan': relasi_perencanaan
 				},
 				beforeSend: function() {
 					jQuery('.submitBtn').attr('disabled','disabled')
@@ -281,6 +329,8 @@ $body = '';
 					}else{
 						alert(`GAGAL! \n${response.message}`)
 					}
+					jQuery('#jadwal_nama').val('')
+					jQuery("#link_renstra").val('')
 				}
 			})
 		}

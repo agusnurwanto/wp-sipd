@@ -1769,6 +1769,7 @@ CREATE TABLE `data_jadwal_lokal` (
   `status` int(11) NOT NULL DEFAULT '0',
   `tahun_anggaran` year(4) NOT NULL DEFAULT '2022',
   `id_tipe` int(11) NOT NULL,
+  `relasi_perencanaan` int(11) DEFAULT NULL,
   PRIMARY KEY  (id_jadwal_lokal)
 );
 
@@ -3748,5 +3749,101 @@ CREATE TABLE `data_skpd_sirup` (
   `tahun_anggaran` year(4) NOT NULL,
   `active` tinyint(4) NOT NULL,
   `update_at` datetime NOT NULL,
+  PRIMARY KEY  (id)
+);
+
+CREATE TABLE `data_rpjpd_visi_lokal` (
+  `id` int(11) NOT NULL auto_increment,
+  `visi_teks` text DEFAULT NULL,
+  `update_at` datetime NOT NULL,
+  PRIMARY KEY  (id)
+);
+
+CREATE TABLE `data_rpjpd_misi_lokal` (
+  `id` int(11) NOT NULL auto_increment,
+  `id_visi` int(11) DEFAULT NULL,
+  `misi_teks` text DEFAULT NULL,
+  `urut_misi` tinyint(4) DEFAULT NULL,
+  `update_at` datetime NOT NULL,
+  PRIMARY KEY  (id)
+);
+
+CREATE TABLE `data_rpjpd_sasaran_lokal` (
+  `id` int(11) NOT NULL auto_increment,
+  `id_misi` int(11) DEFAULT NULL,
+  `saspok_teks` text DEFAULT NULL,
+  `urut_saspok` tinyint(4) DEFAULT NULL,
+  `update_at` datetime NOT NULL,
+  PRIMARY KEY  (id)
+);
+
+CREATE TABLE `data_rpjpd_kebijakan_lokal` (
+  `id` int(11) NOT NULL auto_increment,
+  `id_saspok` int(11) DEFAULT NULL,
+  `kebijakan_teks` text DEFAULT NULL,
+  `urut_kebijakan` tinyint(4) DEFAULT NULL,
+  `update_at` datetime NOT NULL,
+  PRIMARY KEY  (id)
+);
+
+CREATE TABLE `data_rpjpd_isu_lokal` (
+  `id` int(11) NOT NULL auto_increment,
+  `id_kebijakan` int(11) DEFAULT NULL,
+  `isu_teks` text DEFAULT NULL,
+  `urut_isu` tinyint(4) DEFAULT NULL,
+  `update_at` datetime NOT NULL,
+  PRIMARY KEY  (id)
+);
+
+CREATE TABLE `data_rpjpd_visi_lokal_history` (
+  `id` int(11) NOT NULL auto_increment,
+  `visi_teks` text DEFAULT NULL,
+  `update_at` datetime NOT NULL,
+  `id_jadwal` int(11) NOT NULL,
+  `id_asli` int(11) NOT NULL,
+  PRIMARY KEY  (id)
+);
+
+CREATE TABLE `data_rpjpd_misi_lokal_history` (
+  `id` int(11) NOT NULL auto_increment,
+  `id_visi` int(11) DEFAULT NULL,
+  `misi_teks` text DEFAULT NULL,
+  `urut_misi` tinyint(4) DEFAULT NULL,
+  `update_at` datetime NOT NULL,
+  `id_jadwal` int(11) NOT NULL,
+  `id_asli` int(11) NOT NULL,
+  PRIMARY KEY  (id)
+);
+
+CREATE TABLE `data_rpjpd_sasaran_lokal_history` (
+  `id` int(11) NOT NULL auto_increment,
+  `id_misi` int(11) DEFAULT NULL,
+  `saspok_teks` text DEFAULT NULL,
+  `urut_saspok` tinyint(4) DEFAULT NULL,
+  `update_at` datetime NOT NULL,
+  `id_jadwal` int(11) NOT NULL,
+  `id_asli` int(11) NOT NULL,
+  PRIMARY KEY  (id)
+);
+
+CREATE TABLE `data_rpjpd_kebijakan_lokal_history` (
+  `id` int(11) NOT NULL auto_increment,
+  `id_saspok` int(11) DEFAULT NULL,
+  `kebijakan_teks` text DEFAULT NULL,
+  `urut_kebijakan` tinyint(4) DEFAULT NULL,
+  `update_at` datetime NOT NULL,
+  `id_jadwal` int(11) NOT NULL,
+  `id_asli` int(11) NOT NULL,
+  PRIMARY KEY  (id)
+);
+
+CREATE TABLE `data_rpjpd_isu_lokal_history` (
+  `id` int(11) NOT NULL auto_increment,
+  `id_kebijakan` int(11) DEFAULT NULL,
+  `isu_teks` text DEFAULT NULL,
+  `urut_isu` tinyint(4) DEFAULT NULL,
+  `update_at` datetime NOT NULL,
+  `id_jadwal` int(11) NOT NULL,
+  `id_asli` int(11) NOT NULL,
   PRIMARY KEY  (id)
 );

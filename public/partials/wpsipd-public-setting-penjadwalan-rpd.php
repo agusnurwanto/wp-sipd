@@ -6,6 +6,35 @@ if ( ! defined( 'WPINC' ) ) {
 
 global $wpdb;
 
+$select_rpjpd = '';
+
+$sqlTipe = $wpdb->get_results($wpdb->prepare("
+				SELECT 
+					* 
+				FROM 
+					`data_tipe_perencanaan` 
+				WHERE 
+					nama_tipe=%s",
+					'rpjpd'
+				), ARRAY_A);
+$data_rpjpd = $wpdb->get_results($wpdb->prepare('
+				SELECT
+					id_jadwal_lokal,
+					nama
+				FROM
+					data_jadwal_lokal
+				WHERE
+					status=1
+					and id_tipe=%d',
+					$sqlTipe[0]['id']
+				),ARRAY_A);
+				
+if(!empty($data_rpjpd)){
+	foreach($data_rpjpd as $val_rpjpd){
+		$select_rpjpd .= '<option value="'.$val_rpjpd['id_jadwal_lokal'].'">'.$val_rpjpd['nama'].'</option>';
+	}
+}
+
 $body = '';
 ?>
 <style>
@@ -32,6 +61,7 @@ $body = '';
 					<th class="text-center">Jadwal Selesai</th>
 					<th class="text-center">Tahun Mulai Anggaran</th>
 					<th class="text-center">Tahun Selesai Anggaran</th>
+					<th class="text-center">Jadwal RPJPD</th>
 					<th class="text-center" style="width: 150px;">Aksi</th>
 				</tr>
 			</thead>
@@ -62,6 +92,13 @@ $body = '';
 				<div>
 					<label for='jadwal_tanggal' style='display:inline-block'>Jadwal Pelaksanaan</label>
 					<input type="text" id='jadwal_tanggal' name="datetimes" style='display:block;width:100%;'/>
+				</div>
+				<div>
+					<label for="link_rpjpd" style='display:inline-block'>Pilih Jadwal RPJPD</label>
+					<select id="link_rpjpd" style='display:block;width: 100%;'>
+						<option value="">Pilih RPJPD</option>
+						<?php echo $select_rpjpd; ?>
+					</select>
 				</div>
 			</div> 
 			<div class="modal-footer">
@@ -128,6 +165,10 @@ $body = '';
 					className: "text-center"
 				},
 				{ 
+					"data": "relasi_perencanaan",
+					className: "text-center"
+				},
+				{ 
 					"data": "aksi",
 					className: "text-center"
 				}
@@ -152,7 +193,8 @@ $body = '';
 		let jadwalMulai = jQuery("#jadwal_tanggal").data('daterangepicker').startDate.format('YYYY-MM-DD HH:mm:ss')
 		let jadwalSelesai = jQuery("#jadwal_tanggal").data('daterangepicker').endDate.format('YYYY-MM-DD HH:mm:ss')
 		let this_tahun_anggaran = jQuery("#tahun_mulai_anggaran").val()
-		if(nama.trim() == '' || jadwalMulai == '' || jadwalSelesai == ''){
+		let relasi_perencanaan = jQuery("#link_rpjpd").val()
+		if(nama.trim() == '' || jadwalMulai == '' || jadwalSelesai == '' || relasi_perencanaan == ''){
 			jQuery("#wrap-loading").hide()
 			alert("Ada yang kosong, Harap diisi semua")
 			return false
@@ -168,7 +210,8 @@ $body = '';
 					'jadwal_mulai'		: jadwalMulai,
 					'jadwal_selesai'	: jadwalSelesai,
 					'tahun_anggaran'	: this_tahun_anggaran,
-					'tipe_perencanaan'	: tipePerencanaan
+					'tipe_perencanaan'	: tipePerencanaan,
+					'relasi_perencanaan': relasi_perencanaan
 				},
 				beforeSend: function() {
 					jQuery('.submitBtn').attr('disabled','disabled')
@@ -183,6 +226,9 @@ $body = '';
 					}else{
 						alert(response.message)
 					}
+					jQuery('#jadwal_nama').val('')
+					jQuery("#tahun_mulai_anggaran").val('')
+					jQuery("#link_rpjpd").val('')
 				}
 			})
 		}
@@ -212,6 +258,7 @@ $body = '';
 				jQuery("#tahun_mulai_anggaran").val(response.data.tahun_anggaran);
 				jQuery('#jadwal_tanggal').data('daterangepicker').setStartDate(moment(response.data.waktu_awal).format('DD-MM-YYYY HH:mm'));
 				jQuery('#jadwal_tanggal').data('daterangepicker').setEndDate(moment(response.data.waktu_akhir).format('DD-MM-YYYY HH:mm'));
+				jQuery("#link_rpjpd").val(response.data.relasi_perencanaan).change();
 			}
 		})
 	}
@@ -222,7 +269,8 @@ $body = '';
 		let jadwalMulai = jQuery("#jadwal_tanggal").data('daterangepicker').startDate.format('YYYY-MM-DD HH:mm:ss')
 		let jadwalSelesai = jQuery("#jadwal_tanggal").data('daterangepicker').endDate.format('YYYY-MM-DD HH:mm:ss')
 		let this_tahun_anggaran = jQuery("#tahun_mulai_anggaran").val()
-		if(nama.trim() == '' || jadwalMulai == '' || jadwalSelesai == ''){
+		let relasi_perencanaan = jQuery("#link_rpjpd").val()
+		if(nama.trim() == '' || jadwalMulai == '' || jadwalSelesai == '' || relasi_perencanaan == ''){
 			jQuery("#wrap-loading").hide()
 			alert("Ada yang kosong, Harap diisi semua")
 			return false
@@ -239,7 +287,8 @@ $body = '';
 					'jadwal_selesai'	: jadwalSelesai,
 					'id_jadwal_lokal'	: id_jadwal_lokal,
 					'tahun_anggaran'	: this_tahun_anggaran,
-					'tipe_perencanaan'	: tipePerencanaan
+					'tipe_perencanaan'	: tipePerencanaan,
+					'relasi_perencanaan': relasi_perencanaan
 				},
 				beforeSend: function() {
 					jQuery('.submitBtn').attr('disabled','disabled')
@@ -254,6 +303,9 @@ $body = '';
 					}else{
 						alert(`GAGAL! \n${response.message}`)
 					}
+					jQuery('#jadwal_nama').val('')
+					jQuery("#tahun_mulai_anggaran").val('')
+					jQuery("#link_rpjpd").val('')
 				}
 			})
 		}
@@ -289,28 +341,28 @@ $body = '';
 	function lock_data_penjadwalan(id_jadwal_lokal){
 		let confirmLocked = confirm("Apakah anda yakin akan mengunci penjadwalan?");
 		if(confirmLocked){
-				jQuery('#wrap-loading').show();
-				jQuery.ajax({
-					url: thisAjaxUrl,
-					type:'post',
-					data:{
-						'action' 				: 'submit_lock_schedule_rpd',
-						'api_key'				: jQuery("#api_key").val(),
-						'id_jadwal_lokal'		: id_jadwal_lokal
-					},
-					dataType: 'json',
-					success:function(response){
-						jQuery('#wrap-loading').hide();
-						if(response.status == 'success'){
-							alert('Data berhasil dikunci!.');
-							penjadwalanTable.ajax.reload();
-						}else{
-							alert(`GAGAL! \n${response.message}`);
-						}
+			jQuery('#wrap-loading').show();
+			jQuery.ajax({
+				url: thisAjaxUrl,
+				type:'post',
+				data:{
+					'action' 				: 'submit_lock_schedule_rpd',
+					'api_key'				: jQuery("#api_key").val(),
+					'id_jadwal_lokal'		: id_jadwal_lokal
+				},
+				dataType: 'json',
+				success:function(response){
+					jQuery('#wrap-loading').hide();
+					if(response.status == 'success'){
+						alert('Data berhasil dikunci!.');
+						penjadwalanTable.ajax.reload();
+					}else{
+						alert(`GAGAL! \n${response.message}`);
 					}
-				});
-			}
+				}
+			});
 		}
+	}
 
 	jQuery(function() {
 		jQuery('#jadwal_tanggal').daterangepicker({
