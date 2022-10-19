@@ -86,19 +86,19 @@ $body = '';
 					<input type='text' id='jadwal_nama' style='display:block;width:100%;' placeholder='Nama Tahapan'>
 				</div>
 				<div>
-					<label for="link_rpjpd" style='display:inline-block'>Pilih Jadwal RPJPD</label>
-					<select id="link_rpjpd" style='display:block;width: 100%;'>
-						<option value="">Pilih RPJPD</option>
-						<?php echo $select_rpjpd; ?>
-					</select>
-				</div>
-				<div>
 					<label for='tahun_mulai_anggaran' style='display:inline-block'>Tahun Mulai Anggaran</label>
 					<input type="number" id='tahun_mulai_anggaran' name="tahun_mulai_anggaran" style='display:block;width:100%;' placeholder="Tahun Mulai Anggaran"/>
 				</div>
 				<div>
 					<label for='jadwal_tanggal' style='display:inline-block'>Jadwal Pelaksanaan</label>
 					<input type="text" id='jadwal_tanggal' name="datetimes" style='display:block;width:100%;'/>
+				</div>
+				<div>
+					<label for="link_rpjpd" style='display:inline-block'>Pilih Jadwal RPJPD</label>
+					<select id="link_rpjpd" style='display:block;width: 100%;'>
+						<option value="">Pilih RPJPD</option>
+						<?php echo $select_rpjpd; ?>
+					</select>
 				</div>
 			</div> 
 			<div class="modal-footer">

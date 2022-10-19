@@ -207,4 +207,141 @@ class Wpsipd_Public_Base_2
 		}
 		die(json_encode($return));
 	}
+
+		/** Submit lock data jadwal RPJPD */
+	public function submit_lock_schedule_rpjpd(){
+		global $wpdb;
+		$return = array(
+			'status' => 'success',
+			'data'	=> array()
+		);
+
+		$user_id = um_user( 'ID' );
+		$user_meta = get_userdata($user_id);
+
+		if(!empty($_POST)){
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+				if(!empty($_POST['id_jadwal_lokal'])){
+					if(in_array("administrator", $user_meta->roles)){
+						$id_jadwal_lokal= trim(htmlspecialchars($_POST['id_jadwal_lokal']));
+
+						$data_this_id 	= $wpdb->get_results($wpdb->prepare('SELECT * FROM data_jadwal_lokal WHERE id_jadwal_lokal = %d',$id_jadwal_lokal), ARRAY_A);
+
+						$timezone = get_option('timezone_string');
+						if(preg_match("/Asia/i", $timezone)){
+							date_default_timezone_set($timezone);
+						}else{
+							$return = array(
+								'status' => 'error',
+								'message'	=> "Pengaturan timezone salah. Pilih salah satu kota di zona waktu yang sama dengan anda, antara lain:  \'Jakarta\',\'Makasar\',\'Jayapura\'",
+							);
+							die(json_encode($return));
+						}
+
+						$dateTime = new DateTime();
+						$time_now = $dateTime->format('Y-m-d H:i:s');
+						if(!empty($data_this_id[0])){
+							if($time_now > $data_this_id[0]['waktu_awal']){
+								if($time_now < $data_this_id[0]['waktu_akhir']){
+									if($data_this_id[0]['status'] == 0 || $data_this_id[0]['status'] == NULL){
+										//lock data penjadwalan
+										$wpdb->update('data_jadwal_lokal', array('waktu_akhir' => $time_now,'status' => 1), array(
+											'id_jadwal_lokal'	=> $id_jadwal_lokal
+										));
+
+										$columns_1 = array('visi_teks','update_at');
+			
+										$sql_backup_data_rpjpd_visi_lokal =  "INSERT INTO data_rpjpd_visi_lokal_history (".implode(', ', $columns_1).",id_jadwal,id_asli)
+													SELECT ".implode(', ', $columns_1).", ".$data_this_id[0]['id_jadwal_lokal'].", id as id_asli
+													FROM data_rpjpd_visi_lokal";
+
+										$queryRecords1 = $wpdb->query($sql_backup_data_rpjpd_visi_lokal);
+
+										$columns_2 = array('id_visi','misi_teks','urut_misi','update_at');
+			
+										$sql_backup_data_rpjpd_misi_lokal =  "INSERT INTO data_rpjpd_misi_lokal_history (".implode(', ', $columns_2).",id_jadwal,id_asli)
+													SELECT ".implode(', ', $columns_2).", ".$data_this_id[0]['id_jadwal_lokal'].", id as id_asli
+													FROM data_rpjpd_misi_lokal";
+
+										$queryRecords2 = $wpdb->query($sql_backup_data_rpjpd_misi_lokal);
+
+										$columns_3 = array('id_misi','saspok_teks','urut_saspok','update_at');
+			
+										$sql_backup_data_rpjpd_sasaran_lokal =  "INSERT INTO data_rpjpd_sasaran_lokal_history (".implode(', ', $columns_3).",id_jadwal,id_asli)
+													SELECT ".implode(', ', $columns_3).", ".$data_this_id[0]['id_jadwal_lokal'].", id as id_asli
+													FROM data_rpjpd_sasaran_lokal";
+
+										$queryRecords3 = $wpdb->query($sql_backup_data_rpjpd_sasaran_lokal);
+
+										$columns_4 = array('id_saspok','kebijakan_teks','urut_kebijakan','update_at');
+			
+										$sql_backup_data_rpjpd_kebijakan_lokal =  "INSERT INTO data_rpjpd_kebijakan_lokal_history (".implode(', ', $columns_4).",id_jadwal,id_asli)
+													SELECT ".implode(', ', $columns_4).", ".$data_this_id[0]['id_jadwal_lokal'].", id as id_asli
+													FROM data_rpjpd_kebijakan_lokal";
+
+										$queryRecords4 = $wpdb->query($sql_backup_data_rpjpd_kebijakan_lokal);
+
+										$columns_5 = array('id_kebijakan','isu_teks','urut_isu','update_at',);
+			
+										$sql_backup_data_rpjpd_isu_lokal =  "INSERT INTO data_rpjpd_isu_lokal_history (".implode(', ', $columns_5).",id_jadwal,id_asli)
+													SELECT ".implode(', ', $columns_5).", ".$data_this_id[0]['id_jadwal_lokal'].", id as id_asli
+													FROM data_rpjpd_isu_lokal";
+
+										$queryRecords5 = $wpdb->query($sql_backup_data_rpjpd_isu_lokal);
+
+										$return = array(
+											'status' => 'success',
+											'message'	=> 'Berhasil!',
+											'data_input' => $queryRecords1
+										);
+									}else{
+										$return = array(
+											'status' => 'error',
+											'message'	=> "User tidak diijinkan!\nData sudah dikunci!",
+										);
+									}
+								}else{
+									$return = array(
+										'status' => 'error',
+										'message'	=> "Penjadwalan sudah kadaluwarsa!",
+									);
+								}
+							}else{
+								$return = array(
+									'status' => 'error',
+									'message'	=> "Penjadwalan belum dimulai!",
+								);
+							}
+						}else{
+							$return = array(
+								'status' => 'error',
+								'message'	=> "Penjadwalan tidak ditemukan!",
+							);
+						}
+					}else{
+						$return = array(
+							'status' => 'error',
+							'message'	=> "User tidak diijinkan!",
+						);
+					}
+				}else{
+					$return = array(
+						'status' => 'error',
+						'message'	=> 'Harap diisi semua,tidak boleh ada yang kosong!'
+					);
+				}
+			}else{
+				$return = array(
+					'status' => 'error',
+					'message'	=> 'Api Key tidak sesuai!'
+				);
+			}
+		}else{
+			$return = array(
+				'status' => 'error',
+				'message'	=> 'Format tidak sesuai!'
+			);
+		}
+		die(json_encode($return));
+	}
 }

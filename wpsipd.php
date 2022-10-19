@@ -16,7 +16,7 @@
  * Plugin Name:       WP SIPD
  * Plugin URI:        https://github.com/agusnurwanto/wp-sipd
  * Description:       Aplikasi Open Source untuk backup data SIPD lokal
- * Version:           1.0.9
+ * Version:           1.0.10
  * Author:            Agus Nurwanto
  * Author URI:        https://github.com/agusnurwanto
  * License:           GPL-2.0+
@@ -59,7 +59,7 @@ if(!function_exists('carbon_fields_boot_plugin')){
  * Start at version 1.0.0 and use SemVer - https://semver.org
  * Rename this for your plugin and update it as you release new versions.
  */
-define( 'WPSIPD_VERSION', '1.0.9' );
+define( 'WPSIPD_VERSION', '1.0.10' );
 
 /**
  * The code that runs during plugin activation.

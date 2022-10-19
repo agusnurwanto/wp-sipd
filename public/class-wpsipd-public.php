@@ -14154,6 +14154,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						);
 
 						$relasi_perencanaan = '-';
+						$relasi_perencanaan_renstra = '-';
 						if(!empty($recVal['relasi_perencanaan'])){
 							$data_relasi_perencanaan = $wpdb->get_results($wpdb->prepare(
 								'SELECT 
@@ -14167,6 +14168,17 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 
 							if(!empty($data_relasi_perencanaan)){
 								$relasi_perencanaan = $data_relasi_perencanaan[0]['nama'];
+
+								$nama_tipe = $wpdb->get_results($wpdb->prepare('
+									SELECT
+										*
+									FROM
+										data_tipe_perencanaan
+									WHERE
+										id=%d',
+										$data_relasi_perencanaan[0]['id_tipe']
+								), ARRAY_A);
+								$relasi_perencanaan_renstra = (!empty($nama_tipe)) ? strtoupper($nama_tipe[0]['nama_tipe']) .' | '.$relasi_perencanaan : '-';
 							}
 						}
 
@@ -14179,6 +14191,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						$queryRecords[$recKey]['status'] = $status[$recVal['status']];
 						$queryRecords[$recKey]['tahun_anggaran_selesai'] = $tahun_anggaran_selesai;
 						$queryRecords[$recKey]['relasi_perencanaan'] = $relasi_perencanaan;
+						$queryRecords[$recKey]['relasi_perencanaan_renstra'] = $relasi_perencanaan_renstra;
 					}
 
 					$json_data = array(
