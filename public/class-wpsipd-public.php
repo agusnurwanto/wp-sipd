@@ -14094,9 +14094,9 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 					$sqlTipe = $wpdb->get_results("SELECT * FROM `data_tipe_perencanaan` WHERE nama_tipe='".$tipe_perencanaan."'", ARRAY_A);
 
 					$time_period = array(
-						"rpjpd" 	=> 20,
+						"rpjpd" 	=> 15,
 						"rpjm"		=> 5,
-						"rpd"		=> 0,
+						"rpd"		=> 5,
 						"renstra"	=> 5,
 						"renja"		=> 1,
 					);
