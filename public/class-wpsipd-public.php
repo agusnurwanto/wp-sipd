@@ -10782,9 +10782,11 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		die(json_encode($ret));
 	}
 
-	function replace_text($text){
-		$text = trim(strtolower($text));
-		// echo $text.' | ';
+	function replace_text($text, $debug=false){
+		$text = strtolower(trim(html_entity_decode($text), " \t\n\r\0\x0B\xC2\xA0"));
+		if($debug){
+			echo $text.' | ';
+		}
 		return $text;
 	}
 
