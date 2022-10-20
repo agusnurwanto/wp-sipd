@@ -86,6 +86,11 @@ if(empty($units)){
 
 $current_user = wp_get_current_user();
 
+// $singkron_simda = get_option('_crb_singkron_simda');
+$singkron_simda = 1;
+if($cek_pagu_dpa == 'fmis'){
+	$singkron_simda = 2;
+}
 foreach ($units as $k => $unit): 
 	$kd_unit_simda = explode('.', get_option('_crb_unit_'.$unit['id_skpd']));
 
@@ -155,6 +160,7 @@ foreach ($units as $k => $unit):
 		'deviasi' => 0,
 		'data' => array()
 	);
+
 	foreach ($subkeg as $kk => $sub) {
 		if(empty($kd_unit_simda) || empty($kd_unit_simda[3])){
 			$kd_unit_simda = array(0, 0, 0, 0);
@@ -163,55 +169,58 @@ foreach ($units as $k => $unit):
 		$_kd_bidang = $kd_unit_simda[1];
 		$kd_unit = $kd_unit_simda[2];
 		$kd_sub_unit = $kd_unit_simda[3];
-
-		$kd = explode('.', $sub['kode_sub_giat']);
-		$kd_urusan90 = (int) $kd[0];
-		$kd_bidang90 = (int) $kd[1];
-		$kd_program90 = (int) $kd[2];
-		$kd_kegiatan90 = ((int) $kd[3]).'.'.$kd[4];
-		$kd_sub_kegiatan = (int) $kd[5];
-		$nama_keg = explode(' ', $sub['nama_sub_giat']);
-        unset($nama_keg[0]);
-        $nama_keg = implode(' ', $nama_keg);
-		$mapping = $this->simda->cekKegiatanMapping(array(
-			'kd_urusan90' => $kd_urusan90,
-			'kd_bidang90' => $kd_bidang90,
-			'kd_program90' => $kd_program90,
-			'kd_kegiatan90' => $kd_kegiatan90,
-			'kd_sub_kegiatan' => $kd_sub_kegiatan,
-			'nama_program' => $sub['nama_giat'],
-			'nama_kegiatan' => $nama_keg,
-		));
-
 		$kd_urusan = 0;
 		$kd_bidang = 0;
 		$kd_prog = 0;
 		$kd_keg = 0;
-		if(!empty($mapping[0]) && !empty($mapping[0]->kd_urusan)){
-			$kd_urusan = $mapping[0]->kd_urusan;
-			$kd_bidang = $mapping[0]->kd_bidang;
-			$kd_prog = $mapping[0]->kd_prog;
-			$kd_keg = $mapping[0]->kd_keg;
-		}
-		foreach ($this->simda->custom_mapping as $c_map_k => $c_map_v) {
-			if(
-				$unit['kode_skpd'] == $c_map_v['sipd']['kode_skpd']
-				&& $sub['kode_sub_giat'] == $c_map_v['sipd']['kode_sub_keg']
-			){
-				$kd_unit_simda_map = explode('.', $c_map_v['simda']['kode_skpd']);
-				$_kd_urusan = $kd_unit_simda_map[0];
-				$_kd_bidang = $kd_unit_simda_map[1];
-				$kd_unit = $kd_unit_simda_map[2];
-				$kd_sub_unit = $kd_unit_simda_map[3];
-				$kd_keg_simda = explode('.', $c_map_v['simda']['kode_sub_keg']);
-				$kd_urusan = $kd_keg_simda[0];
-				$kd_bidang = $kd_keg_simda[1];
-				$kd_prog = $kd_keg_simda[2];
-				$kd_keg = $kd_keg_simda[3];
+		$id_prog = 0;
+		if($singkron_simda == '1'){
+
+			$kd = explode('.', $sub['kode_sub_giat']);
+			$kd_urusan90 = (int) $kd[0];
+			$kd_bidang90 = (int) $kd[1];
+			$kd_program90 = (int) $kd[2];
+			$kd_kegiatan90 = ((int) $kd[3]).'.'.$kd[4];
+			$kd_sub_kegiatan = (int) $kd[5];
+			$nama_keg = explode(' ', $sub['nama_sub_giat']);
+	        unset($nama_keg[0]);
+	        $nama_keg = implode(' ', $nama_keg);
+			$mapping = $this->simda->cekKegiatanMapping(array(
+				'kd_urusan90' => $kd_urusan90,
+				'kd_bidang90' => $kd_bidang90,
+				'kd_program90' => $kd_program90,
+				'kd_kegiatan90' => $kd_kegiatan90,
+				'kd_sub_kegiatan' => $kd_sub_kegiatan,
+				'nama_program' => $sub['nama_giat'],
+				'nama_kegiatan' => $nama_keg,
+			)); die();
+
+			if(!empty($mapping[0]) && !empty($mapping[0]->kd_urusan)){
+				$kd_urusan = $mapping[0]->kd_urusan;
+				$kd_bidang = $mapping[0]->kd_bidang;
+				$kd_prog = $mapping[0]->kd_prog;
+				$kd_keg = $mapping[0]->kd_keg;
 			}
+			foreach ($this->simda->custom_mapping as $c_map_k => $c_map_v) {
+				if(
+					$unit['kode_skpd'] == $c_map_v['sipd']['kode_skpd']
+					&& $sub['kode_sub_giat'] == $c_map_v['sipd']['kode_sub_keg']
+				){
+					$kd_unit_simda_map = explode('.', $c_map_v['simda']['kode_skpd']);
+					$_kd_urusan = $kd_unit_simda_map[0];
+					$_kd_bidang = $kd_unit_simda_map[1];
+					$kd_unit = $kd_unit_simda_map[2];
+					$kd_sub_unit = $kd_unit_simda_map[3];
+					$kd_keg_simda = explode('.', $c_map_v['simda']['kode_sub_keg']);
+					$kd_urusan = $kd_keg_simda[0];
+					$kd_bidang = $kd_keg_simda[1];
+					$kd_prog = $kd_keg_simda[2];
+					$kd_keg = $kd_keg_simda[3];
+				}
+			}
+        	$id_prog = $kd_urusan.$this->simda->CekNull($kd_bidang);
 		}
 
-        $id_prog = $kd_urusan.$this->simda->CekNull($kd_bidang);
 		$total_pagu = 0;
 		$total_fmis = $sub['pagu_fmis'];
 		if(empty($total_fmis)){
@@ -238,9 +247,43 @@ foreach ($units as $k => $unit):
 			|| $sumber_pagu == 5
 			|| $sumber_pagu == 6
 		){
-			$total_pagu = $this->get_pagu_simda(array(
+			if($singkron_simda == '1'){
+				$total_pagu = $this->get_pagu_simda(array(
+					'tahun_anggaran' => $input['tahun_anggaran'],
+					'sumber_pagu' => $sumber_pagu,
+					'kd_urusan' => $_kd_urusan,
+					'kd_bidang' => $_kd_bidang,
+					'kd_unit' => $kd_unit,
+					'kd_sub' => $kd_sub_unit,
+					'kd_prog' => $kd_prog,
+					'id_prog' => $id_prog,
+					'kd_keg' => $kd_keg
+				));
+			}
+		}
+
+		$total_simda = 0;
+		if($singkron_simda == '1'){
+			$total_simda = $this->get_pagu_simda_last(array(
 				'tahun_anggaran' => $input['tahun_anggaran'],
-				'sumber_pagu' => $sumber_pagu,
+				'pagu_simda' => $sub['pagu_simda'],
+				'id_sub_keg' => $sub['id_sub_keg'],
+				'kd_urusan' => $_kd_urusan,
+				'kd_bidang' => $_kd_bidang,
+				'kd_unit' => $kd_unit,
+				'kd_sub' => $kd_sub_unit,
+				'kd_prog' => $kd_prog,
+				'id_prog' => $id_prog,
+				'kd_keg' => $kd_keg
+			));
+			$total_rak_simda = $this->get_rak_simda(array(
+				'user' => $current_user->display_name,
+				'id_skpd' => $input['id_skpd'],
+				'kode_sbl' => $sub['kode_sbl'],
+				'tahun_anggaran' => $input['tahun_anggaran'],
+				'rak' => $sub['rak'],
+				'id_rfk' => $sub['id_rfk'],
+				'bulan' => $bulan,
 				'kd_urusan' => $_kd_urusan,
 				'kd_bidang' => $_kd_bidang,
 				'kd_unit' => $kd_unit,
@@ -250,53 +293,29 @@ foreach ($units as $k => $unit):
 				'kd_keg' => $kd_keg
 			));
 		}
-		$total_simda = $this->get_pagu_simda_last(array(
-			'tahun_anggaran' => $input['tahun_anggaran'],
-			'pagu_simda' => $sub['pagu_simda'],
-			'id_sub_keg' => $sub['id_sub_keg'],
-			'kd_urusan' => $_kd_urusan,
-			'kd_bidang' => $_kd_bidang,
-			'kd_unit' => $kd_unit,
-			'kd_sub' => $kd_sub_unit,
-			'kd_prog' => $kd_prog,
-			'id_prog' => $id_prog,
-			'kd_keg' => $kd_keg
-		));
-		$total_rak_simda = $this->get_rak_simda(array(
-			'user' => $current_user->display_name,
-			'id_skpd' => $input['id_skpd'],
-			'kode_sbl' => $sub['kode_sbl'],
-			'tahun_anggaran' => $input['tahun_anggaran'],
-			'rak' => $sub['rak'],
-			'id_rfk' => $sub['id_rfk'],
-			'bulan' => $bulan,
-			'kd_urusan' => $_kd_urusan,
-			'kd_bidang' => $_kd_bidang,
-			'kd_unit' => $kd_unit,
-			'kd_sub' => $kd_sub_unit,
-			'kd_prog' => $kd_prog,
-			'id_prog' => $id_prog,
-			'kd_keg' => $kd_keg
-		));
 		if($total_simda == 0){
 			$total_rak_simda = 0;
 		}
-		$realisasi = $this->get_realisasi_simda(array(
-			'user' => $current_user->display_name,
-			'id_skpd' => $input['id_skpd'],
-			'kode_sbl' => $sub['kode_sbl'],
-			'tahun_anggaran' => $input['tahun_anggaran'],
-			'realisasi_anggaran' => $sub['realisasi_anggaran'],
-			'id_rfk' => $sub['id_rfk'],
-			'bulan' => $bulan,
-			'kd_urusan' => $_kd_urusan,
-			'kd_bidang' => $_kd_bidang,
-			'kd_unit' => $kd_unit,
-			'kd_sub' => $kd_sub_unit,
-			'kd_prog' => $kd_prog,
-			'id_prog' => $id_prog,
-			'kd_keg' => $kd_keg
-		));
+
+		$realisasi = 0;
+		if($singkron_simda == '1'){
+			$realisasi = $this->get_realisasi_simda(array(
+				'user' => $current_user->display_name,
+				'id_skpd' => $input['id_skpd'],
+				'kode_sbl' => $sub['kode_sbl'],
+				'tahun_anggaran' => $input['tahun_anggaran'],
+				'realisasi_anggaran' => $sub['realisasi_anggaran'],
+				'id_rfk' => $sub['id_rfk'],
+				'bulan' => $bulan,
+				'kd_urusan' => $_kd_urusan,
+				'kd_bidang' => $_kd_bidang,
+				'kd_unit' => $kd_unit,
+				'kd_sub' => $kd_sub_unit,
+				'kd_prog' => $kd_prog,
+				'id_prog' => $id_prog,
+				'kd_keg' => $kd_keg
+			));
+		}
 
 		if(empty($data_all['data'][$sub['kode_urusan']])){
 			$data_all['data'][$sub['kode_urusan']] = array(
@@ -624,8 +643,12 @@ foreach ($units as $k => $unit):
 						if($cek_pagu_dpa == 'fmis'){
 							$sub_keg_dpa = $sub_giat['total_fmis'];
 						}
+						$cek_fmis = '';
+						if($sub_keg_dpa != $sub_giat['total']){
+							$cek_fmis = 'background: #ffbc0057;';
+						}
 						$body .= '
-					        <tr data-kode="'.$kd_sub_giat1.'" data-kdsbl="'.$sub_giat['data']['kode_sbl'].'" data-idskpd="'.$sub_giat['data']['id_sub_skpd'].'" data-pagu="'.$sub_giat['total'].'">
+					        <tr style="'.$cek_fmis.'" data-kode="'.$kd_sub_giat1.'" data-kdsbl="'.$sub_giat['data']['kode_sbl'].'" data-idskpd="'.$sub_giat['data']['id_sub_skpd'].'" data-pagu="'.$sub_giat['total'].'">
 					            <td class="kiri kanan bawah">'.$kd_urusan.'</td>
 					            <td class="kanan bawah">'.$kd_bidang.'</td>
 					            <td class="kanan bawah">'.$kd_program.'</td>
@@ -801,6 +824,7 @@ if(!current_user_can('administrator')){
 		<li>Tombol <b>SIMPAN</b> berwarna merah pada sub kegiatan akan muncul, jika ada data yang belum disimpan oleh user SKPD ataupun user verifikator</li>
 		<li style="display: none;">Perhitungan <b>total realisasi fisik</b> adalah akumulasi realiasi fisik seluruh sub kegiatan dibagi jumlah sub kegiatan yang ada nilai pagu simdanya</li>
 		<li style="display: none;">Untuk menampilkan detail akumulasi realisasi fisik per kegiatan, program dan bidang urusan klik pada kotak checkbox <b>Tampilkan Detail Realisasi Fisik</b>. Secara default akumulasi tidak ditampilkan agar tidak membuat bingung user dalam memahami nilai total realisasi fisik.</li>
+		<li>Baris dengan background kuning menandakan ada yang tidak sama antara pagu sub kegiatan DPA dengan pagu sub kegiatan di SIPD</li>
 	</ul>
 </div>
 <script type="text/javascript">
