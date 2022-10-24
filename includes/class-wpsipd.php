@@ -595,6 +595,7 @@ class Wpsipd
 		add_shortcode('jadwal_rpjpd', array($plugin_public, 'jadwal_rpjpd'));
 		add_shortcode('jadwal_rpd', array($plugin_public, 'jadwal_rpd'));
 		add_shortcode('monitoring_rup', array($plugin_public, 'monitoring_rup'));
+		add_shortcode('input_renstra', array($plugin_public, 'input_renstra'));
 	}
 
 	/**
