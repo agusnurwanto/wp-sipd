@@ -6,6 +6,47 @@ if ( ! defined( 'WPINC' ) ) {
 
 global $wpdb;
 
+$select_rpd_rpjm = '';
+
+$sqlTipe = $wpdb->get_results($wpdb->prepare("
+				SELECT 
+					* 
+				FROM 
+					`data_tipe_perencanaan` 
+				WHERE 
+					nama_tipe=%s
+				OR 
+					nama_tipe=%s",
+					'rpd',
+					'rpjm'
+				), ARRAY_A);
+$data_rpd_rpjm = $wpdb->get_results($wpdb->prepare('
+				SELECT
+					id_jadwal_lokal,
+					nama,
+					id_tipe
+				FROM
+					data_jadwal_lokal
+				WHERE
+					status=1
+					and id_tipe=%d
+				OR 
+					status=1
+					and id_tipe=%d',
+					$sqlTipe[0]['id'],
+					$sqlTipe[1]['id']
+				),ARRAY_A);
+				
+if(!empty($data_rpd_rpjm)){
+	foreach($data_rpd_rpjm as $val_rpd_rpjm){
+		$tipe = [];
+		foreach ($sqlTipe as $val_tipe) {
+			$tipe[$val_tipe['id']] = strtoupper($val_tipe['nama_tipe']);
+		}
+		$select_rpd_rpjm .= '<option value="'.$val_rpd_rpjm['id_jadwal_lokal'].'">'.$tipe[$val_rpd_rpjm['id_tipe']].' | '.$val_rpd_rpjm['nama'].'</option>';
+	}
+}
+
 $body = '';
 ?>
 <style>
@@ -32,6 +73,7 @@ $body = '';
 					<th class="text-center">Jadwal Selesai</th>
 					<th class="text-center">Tahun Mulai Anggaran</th>
 					<th class="text-center">Tahun Selesai Anggaran</th>
+					<th class="text-center">Jadwal RPD/RPJM</th>
 					<th class="text-center" style="width: 150px;">Aksi</th>
 				</tr>
 			</thead>
@@ -62,6 +104,13 @@ $body = '';
 				<div>
 					<label for='jadwal_tanggal' style='display:inline-block'>Jadwal Pelaksanaan</label>
 					<input type="text" id='jadwal_tanggal' name="datetimes" style='display:block;width:100%;'/>
+				</div>
+				<div>
+					<label for="link_rpd_rpjm" style='display:inline-block'>Pilih Jadwal RPD atau RPJM</label>
+					<select id="link_rpd_rpjm" style='display:block;width: 100%;'>
+						<option value="">Pilih RPD atau RPJM</option>
+						<?php echo $select_rpd_rpjm; ?>
+					</select>
 				</div>
 			</div> 
 			<div class="modal-footer">
@@ -128,6 +177,10 @@ $body = '';
 					className: "text-center"
 				},
 				{ 
+					"data": "relasi_perencanaan_renstra",
+					className: "text-center"
+				},
+				{ 
 					"data": "aksi",
 					className: "text-center"
 				}
@@ -152,6 +205,7 @@ $body = '';
 		let jadwalMulai = jQuery("#jadwal_tanggal").data('daterangepicker').startDate.format('YYYY-MM-DD HH:mm:ss')
 		let jadwalSelesai = jQuery("#jadwal_tanggal").data('daterangepicker').endDate.format('YYYY-MM-DD HH:mm:ss')
 		let this_tahun_anggaran = jQuery("#tahun_mulai_anggaran").val()
+		let relasi_perencanaan = jQuery("#link_rpd_rpjm").val()
 		if(nama.trim() == '' || jadwalMulai == '' || jadwalSelesai == ''){
 			jQuery("#wrap-loading").hide()
 			alert("Ada yang kosong, Harap diisi semua")
@@ -168,7 +222,8 @@ $body = '';
 					'jadwal_mulai'		: jadwalMulai,
 					'jadwal_selesai'	: jadwalSelesai,
 					'tahun_anggaran'	: this_tahun_anggaran,
-					'tipe_perencanaan'	: tipePerencanaan
+					'tipe_perencanaan'	: tipePerencanaan,
+					'relasi_perencanaan': relasi_perencanaan
 				},
 				beforeSend: function() {
 					jQuery('.submitBtn').attr('disabled','disabled')
@@ -183,6 +238,9 @@ $body = '';
 					}else{
 						alert(response.message)
 					}
+					jQuery('#jadwal_nama').val('')
+					jQuery("#tahun_mulai_anggaran").val('')
+					jQuery("#link_rpd_rpjm").val('')
 				}
 			})
 		}
@@ -212,6 +270,7 @@ $body = '';
 				jQuery("#tahun_mulai_anggaran").val(response.data.tahun_anggaran);
 				jQuery('#jadwal_tanggal').data('daterangepicker').setStartDate(moment(response.data.waktu_awal).format('DD-MM-YYYY HH:mm'));
 				jQuery('#jadwal_tanggal').data('daterangepicker').setEndDate(moment(response.data.waktu_akhir).format('DD-MM-YYYY HH:mm'));
+				jQuery("#link_rpd_rpjm").val(response.data.relasi_perencanaan).change();
 			}
 		})
 	}
@@ -222,6 +281,7 @@ $body = '';
 		let jadwalMulai = jQuery("#jadwal_tanggal").data('daterangepicker').startDate.format('YYYY-MM-DD HH:mm:ss')
 		let jadwalSelesai = jQuery("#jadwal_tanggal").data('daterangepicker').endDate.format('YYYY-MM-DD HH:mm:ss')
 		let this_tahun_anggaran = jQuery("#tahun_mulai_anggaran").val()
+		let relasi_perencanaan = jQuery("#link_rpd_rpjm").val()
 		if(nama.trim() == '' || jadwalMulai == '' || jadwalSelesai == ''){
 			jQuery("#wrap-loading").hide()
 			alert("Ada yang kosong, Harap diisi semua")
@@ -239,7 +299,8 @@ $body = '';
 					'jadwal_selesai'	: jadwalSelesai,
 					'id_jadwal_lokal'	: id_jadwal_lokal,
 					'tahun_anggaran'	: this_tahun_anggaran,
-					'tipe_perencanaan'	: tipePerencanaan
+					'tipe_perencanaan'	: tipePerencanaan,
+					'relasi_perencanaan': relasi_perencanaan
 				},
 				beforeSend: function() {
 					jQuery('.submitBtn').attr('disabled','disabled')
@@ -254,6 +315,9 @@ $body = '';
 					}else{
 						alert(`GAGAL! \n${response.message}`)
 					}
+					jQuery('#jadwal_nama').val('')
+					jQuery("#tahun_mulai_anggaran").val('')
+					jQuery("#link_rpd_rpjm").val('')
 				}
 			})
 		}

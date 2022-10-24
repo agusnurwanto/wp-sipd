@@ -25,6 +25,8 @@ if(!empty($input['kode_rek'])){
 	);
 }
 
+$dpa_rfk = get_option('_crb_default_sumber_pagu_dpa');
+
 $skpd = $wpdb->get_results('select * from data_unit where tahun_anggaran='.$input['tahun_anggaran'].' and active=1', 
 	ARRAY_A);
 $data_body = array();
@@ -208,6 +210,9 @@ foreach ($data_body as $k => $data) {
 	$nama_page = 'RFK '.$data['skpd'].' '.$data['kode_skpd'].' | '.$input['tahun_anggaran'];
 	$custom_post = get_page_by_title($nama_page, OBJECT, 'page');
 	$link = $this->get_link_post($custom_post);
+	if($dpa_rfk == 2){
+		$link .= '&pagu_dpa=fmis';
+	}
 	$warning = '';
 	if(!empty($data['warning'])){
 		$warning = 'background: #ff00002e;';

@@ -915,15 +915,18 @@ class Wpsipd_Public_Base_1 extends Wpsipd_Public_Base_2{
                             s.kode_skpd,
                             s.nama_skpd,
                             u.nama_urusan,
+                            u.nama_program,
+                            u.kode_program,
+                            u.id_program,
                             u.nama_bidang_urusan
                         FROM data_prog_keg as u 
-                        LEFT JOIN data_unit as s on s.kode_skpd like CONCAT('%',u.kode_bidang_urusan,'%')
+                        INNER JOIN data_unit as s on s.kode_skpd like CONCAT('%',u.kode_bidang_urusan,'%')
                             and s.active=1
                             and s.is_skpd=1
                             and s.tahun_anggaran=u.tahun_anggaran
                         WHERE u.tahun_anggaran=$tahun_anggaran
-                        GROUP BY u.nama_bidang_urusan, s.kode_skpd
-                        ORDER BY u.nama_bidang_urusan ASC, s.kode_skpd ASC 
+                        GROUP BY u.kode_program, s.kode_skpd
+                        ORDER BY u.kode_program ASC, s.kode_skpd ASC 
                     ");
                 }
                 $ret['data'] = $data;

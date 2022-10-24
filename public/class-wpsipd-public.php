@@ -10792,9 +10792,11 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		die(json_encode($ret));
 	}
 
-	function replace_text($text){
-		$text = trim(strtolower($text));
-		// echo $text.' | ';
+	function replace_text($text, $debug=false){
+		$text = strtolower(trim(html_entity_decode($text), " \t\n\r\0\x0B\xC2\xA0"));
+		if($debug){
+			echo $text.' | ';
+		}
 		return $text;
 	}
 
@@ -14087,7 +14089,8 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						2 => 'waktu_awal',
 						3 => 'waktu_akhir',
 						4 => 'status',
-						5 => 'tahun_anggaran'
+						5 => 'tahun_anggaran',
+						6 => 'relasi_perencanaan'
 					);
 					$where = $sqlTot = $sqlRec = "";
 
@@ -14103,9 +14106,9 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 					$sqlTipe = $wpdb->get_results("SELECT * FROM `data_tipe_perencanaan` WHERE nama_tipe='".$tipe_perencanaan."'", ARRAY_A);
 
 					$time_period = array(
-						"rpjpd" 	=> 20,
+						"rpjpd" 	=> 15,
 						"rpjm"		=> 5,
-						"rpd"		=> 0,
+						"rpd"		=> 5,
 						"renstra"	=> 5,
 						"renja"		=> 1,
 					);
@@ -14162,6 +14165,35 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 							2 => 'selesai'
 						);
 
+						$relasi_perencanaan = '-';
+						$relasi_perencanaan_renstra = '-';
+						if(!empty($recVal['relasi_perencanaan'])){
+							$data_relasi_perencanaan = $wpdb->get_results($wpdb->prepare(
+								'SELECT 
+									* 
+								FROM 
+									data_jadwal_lokal
+								WHERE 
+									id_jadwal_lokal=%d',
+								$recVal['relasi_perencanaan']
+							),ARRAY_A);
+
+							if(!empty($data_relasi_perencanaan)){
+								$relasi_perencanaan = $data_relasi_perencanaan[0]['nama'];
+
+								$nama_tipe = $wpdb->get_results($wpdb->prepare('
+									SELECT
+										*
+									FROM
+										data_tipe_perencanaan
+									WHERE
+										id=%d',
+										$data_relasi_perencanaan[0]['id_tipe']
+								), ARRAY_A);
+								$relasi_perencanaan_renstra = (!empty($nama_tipe)) ? strtoupper($nama_tipe[0]['nama_tipe']) .' | '.$relasi_perencanaan : '-';
+							}
+						}
+
 						$tahun_anggaran_selesai = $recVal['tahun_anggaran'] + $time_period[$tipe_perencanaan];
 					
 						$queryRecords[$recKey]['waktu_awal']	= date('d-m-Y H:i', strtotime($recVal['waktu_awal']));
@@ -14170,6 +14202,8 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						$queryRecords[$recKey]['nama'] = ucfirst($recVal['nama']);
 						$queryRecords[$recKey]['status'] = $status[$recVal['status']];
 						$queryRecords[$recKey]['tahun_anggaran_selesai'] = $tahun_anggaran_selesai;
+						$queryRecords[$recKey]['relasi_perencanaan'] = $relasi_perencanaan;
+						$queryRecords[$recKey]['relasi_perencanaan_renstra'] = $relasi_perencanaan_renstra;
 					}
 
 					$json_data = array(
@@ -14222,6 +14256,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						$jadwal_selesai		= date('Y-m-d H:i:s', strtotime($jadwal_selesai));
 						$tahun_anggaran		= trim(htmlspecialchars($_POST['tahun_anggaran']));
 						$tipe_perencanaan	= trim(htmlspecialchars($_POST['tipe_perencanaan']));
+						$relasi_perencanaan = (!empty($_POST['relasi_perencanaan'])) ? trim(htmlspecialchars($_POST['relasi_perencanaan'])) : NULL;
 
 						$id_tipe = 0;
 						$sqlTipe = $wpdb->get_results("SELECT * FROM `data_tipe_perencanaan` WHERE nama_tipe='".$tipe_perencanaan."'", ARRAY_A);
@@ -14254,7 +14289,8 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 								'tahun_anggaran'	=> $tahun_anggaran,
 								'status'			=> 0,
 								'tahun_anggaran'	=> $tahun_anggaran,
-								'id_tipe'			=> $id_tipe
+								'id_tipe'			=> $id_tipe,
+								'relasi_perencanaan'=> $relasi_perencanaan
 							);
 	
 							$wpdb->insert('data_jadwal_lokal',$data_jadwal);
@@ -14351,16 +14387,18 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						$jadwal_selesai	= trim(htmlspecialchars($_POST['jadwal_selesai']));
 						$jadwal_selesai	= date('Y-m-d H:i:s', strtotime($jadwal_selesai));
 						$tahun_anggaran	= trim(htmlspecialchars($_POST['tahun_anggaran']));
+						$relasi_perencanaan = (!empty($_POST['relasi_perencanaan'])) ? trim(htmlspecialchars($_POST['relasi_perencanaan'])) : NULL;
 
 						$data_this_id = $wpdb->get_results($wpdb->prepare('SELECT * FROM data_jadwal_lokal WHERE id_jadwal_lokal = %d',$id_jadwal_lokal), ARRAY_A);
 
 						if($data_this_id[0]['status'] == 0 || $data_this_id[0]['status'] == NULL){
 							//update data penjadwalan
 							$data_jadwal = array(
-								'nama' 			=> $nama,
-								'waktu_awal'	=> $jadwal_mulai,
-								'waktu_akhir'	=> $jadwal_selesai,
-								'tahun_anggaran'=> $tahun_anggaran
+								'nama' 					=> $nama,
+								'waktu_awal'			=> $jadwal_mulai,
+								'waktu_akhir'			=> $jadwal_selesai,
+								'tahun_anggaran'		=> $tahun_anggaran,
+								'relasi_perencanaan' 	=> $relasi_perencanaan
 							);
 
 							$wpdb->update('data_jadwal_lokal', $data_jadwal, array(
