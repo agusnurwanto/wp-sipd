@@ -242,68 +242,62 @@ class Wpsipd_Public_Base_2
 						$time_now = $dateTime->format('Y-m-d H:i:s');
 						if(!empty($data_this_id[0])){
 							if($time_now > $data_this_id[0]['waktu_awal']){
-								if($time_now < $data_this_id[0]['waktu_akhir']){
-									if($data_this_id[0]['status'] == 0 || $data_this_id[0]['status'] == NULL){
-										//lock data penjadwalan
-										$wpdb->update('data_jadwal_lokal', array('waktu_akhir' => $time_now,'status' => 1), array(
-											'id_jadwal_lokal'	=> $id_jadwal_lokal
-										));
+								$status_check = array(0,NULL,2);
+								if(in_array($data_this_id[0]['status'],$status_check)){
+									//lock data penjadwalan
+									$wpdb->update('data_jadwal_lokal', array('waktu_akhir' => $time_now,'status' => 1), array(
+										'id_jadwal_lokal'	=> $id_jadwal_lokal
+									));
 
-										$columns_1 = array('visi_teks','update_at');
-			
-										$sql_backup_data_rpjpd_visi =  "INSERT INTO data_rpjpd_visi_history (".implode(', ', $columns_1).",id_jadwal,id_asli)
-													SELECT ".implode(', ', $columns_1).", ".$data_this_id[0]['id_jadwal_lokal'].", id as id_asli
-													FROM data_rpjpd_visi";
+									$columns_1 = array('visi_teks','update_at');
+		
+									$sql_backup_data_rpjpd_visi =  "INSERT INTO data_rpjpd_visi_history (".implode(', ', $columns_1).",id_jadwal,id_asli)
+												SELECT ".implode(', ', $columns_1).", ".$data_this_id[0]['id_jadwal_lokal'].", id as id_asli
+												FROM data_rpjpd_visi";
 
-										$queryRecords1 = $wpdb->query($sql_backup_data_rpjpd_visi);
+									$queryRecords1 = $wpdb->query($sql_backup_data_rpjpd_visi);
 
-										$columns_2 = array('id_visi','misi_teks','urut_misi','update_at');
-			
-										$sql_backup_data_rpjpd_misi =  "INSERT INTO data_rpjpd_misi_history (".implode(', ', $columns_2).",id_jadwal,id_asli)
-													SELECT ".implode(', ', $columns_2).", ".$data_this_id[0]['id_jadwal_lokal'].", id as id_asli
-													FROM data_rpjpd_misi";
+									$columns_2 = array('id_visi','misi_teks','urut_misi','update_at');
+		
+									$sql_backup_data_rpjpd_misi =  "INSERT INTO data_rpjpd_misi_history (".implode(', ', $columns_2).",id_jadwal,id_asli)
+												SELECT ".implode(', ', $columns_2).", ".$data_this_id[0]['id_jadwal_lokal'].", id as id_asli
+												FROM data_rpjpd_misi";
 
-										$queryRecords2 = $wpdb->query($sql_backup_data_rpjpd_misi);
+									$queryRecords2 = $wpdb->query($sql_backup_data_rpjpd_misi);
 
-										$columns_3 = array('id_misi','saspok_teks','urut_saspok','update_at');
-			
-										$sql_backup_data_rpjpd_sasaran =  "INSERT INTO data_rpjpd_sasaran_history (".implode(', ', $columns_3).",id_jadwal,id_asli)
-													SELECT ".implode(', ', $columns_3).", ".$data_this_id[0]['id_jadwal_lokal'].", id as id_asli
-													FROM data_rpjpd_sasaran";
+									$columns_3 = array('id_misi','saspok_teks','urut_saspok','update_at');
+		
+									$sql_backup_data_rpjpd_sasaran =  "INSERT INTO data_rpjpd_sasaran_history (".implode(', ', $columns_3).",id_jadwal,id_asli)
+												SELECT ".implode(', ', $columns_3).", ".$data_this_id[0]['id_jadwal_lokal'].", id as id_asli
+												FROM data_rpjpd_sasaran";
 
-										$queryRecords3 = $wpdb->query($sql_backup_data_rpjpd_sasaran);
+									$queryRecords3 = $wpdb->query($sql_backup_data_rpjpd_sasaran);
 
-										$columns_4 = array('id_saspok','kebijakan_teks','urut_kebijakan','update_at');
-			
-										$sql_backup_data_rpjpd_kebijakan =  "INSERT INTO data_rpjpd_kebijakan_history (".implode(', ', $columns_4).",id_jadwal,id_asli)
-													SELECT ".implode(', ', $columns_4).", ".$data_this_id[0]['id_jadwal_lokal'].", id as id_asli
-													FROM data_rpjpd_kebijakan";
+									$columns_4 = array('id_saspok','kebijakan_teks','urut_kebijakan','update_at');
+		
+									$sql_backup_data_rpjpd_kebijakan =  "INSERT INTO data_rpjpd_kebijakan_history (".implode(', ', $columns_4).",id_jadwal,id_asli)
+												SELECT ".implode(', ', $columns_4).", ".$data_this_id[0]['id_jadwal_lokal'].", id as id_asli
+												FROM data_rpjpd_kebijakan";
 
-										$queryRecords4 = $wpdb->query($sql_backup_data_rpjpd_kebijakan);
+									$queryRecords4 = $wpdb->query($sql_backup_data_rpjpd_kebijakan);
 
-										$columns_5 = array('id_kebijakan','isu_teks','urut_isu','update_at',);
-			
-										$sql_backup_data_rpjpd_isu =  "INSERT INTO data_rpjpd_isu_history (".implode(', ', $columns_5).",id_jadwal,id_asli)
-													SELECT ".implode(', ', $columns_5).", ".$data_this_id[0]['id_jadwal_lokal'].", id as id_asli
-													FROM data_rpjpd_isu";
+									$columns_5 = array('id_kebijakan','isu_teks','urut_isu','update_at',);
+		
+									$sql_backup_data_rpjpd_isu =  "INSERT INTO data_rpjpd_isu_history (".implode(', ', $columns_5).",id_jadwal,id_asli)
+												SELECT ".implode(', ', $columns_5).", ".$data_this_id[0]['id_jadwal_lokal'].", id as id_asli
+												FROM data_rpjpd_isu";
 
-										$queryRecords5 = $wpdb->query($sql_backup_data_rpjpd_isu);
+									$queryRecords5 = $wpdb->query($sql_backup_data_rpjpd_isu);
 
-										$return = array(
-											'status' => 'success',
-											'message'	=> 'Berhasil!',
-											'data_input' => $queryRecords1
-										);
-									}else{
-										$return = array(
-											'status' => 'error',
-											'message'	=> "User tidak diijinkan!\nData sudah dikunci!",
-										);
-									}
+									$return = array(
+										'status' => 'success',
+										'message'	=> 'Berhasil!',
+										'data_input' => $queryRecords1
+									);
 								}else{
 									$return = array(
 										'status' => 'error',
-										'message'	=> "Penjadwalan sudah kadaluwarsa!",
+										'message'	=> "User tidak diijinkan!\nData sudah dikunci!",
 									);
 								}
 							}else{
@@ -343,5 +337,15 @@ class Wpsipd_Public_Base_2
 			);
 		}
 		die(json_encode($return));
+	}
+
+	public function input_renja($atts)
+	{
+		// untuk disable render shortcode di halaman edit page/post
+		if(!empty($_GET) && !empty($_GET['post'])){
+			return '';
+		}
+		
+		require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/wpsipd-public-input-renja.php';
 	}
 }
