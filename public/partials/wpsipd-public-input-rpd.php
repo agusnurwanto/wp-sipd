@@ -29,11 +29,13 @@ function parsing_nama_kode($nama_kode){
 $api_key = get_option('_crb_api_key_extension' );
 
 $jadwal_lokal = $wpdb->get_results("SELECT * from data_jadwal_lokal where id_jadwal_lokal = (select max(id_jadwal_lokal) from data_jadwal_lokal where id_tipe=3)", ARRAY_A);
+$id_jadwal_rpjpd = "";
 if(!empty($jadwal_lokal)){
 	$tahun_anggaran = $jadwal_lokal[0]['tahun_anggaran'];
 	$namaJadwal = $jadwal_lokal[0]['nama'];
 	$mulaiJadwal = $jadwal_lokal[0]['waktu_awal'];
 	$selesaiJadwal = $jadwal_lokal[0]['waktu_akhir'];
+    $id_jadwal_rpjpd = $jadwal_lokal[0]['relasi_perencanaan'];
 }else{
 	$tahun_anggaran = '2022';
 	$namaJadwal = '-';
@@ -68,6 +70,15 @@ $sql = "
 	from data_rpd_tujuan_lokal t
 	left join data_rpjpd_isu i on t.id_isu = i.id
 ";
+if(!empty($id_jadwal_rpjpd)){
+	$sql = "
+		select 
+			t.*,
+			i.isu_teks 
+		from data_rpd_tujuan_lokal t
+		left join data_rpjpd_isu_history i on t.id_isu = i.id_asli
+	";
+}
 $tujuan_all = $wpdb->get_results($sql, ARRAY_A);
 foreach ($tujuan_all as $tujuan) {
 	if(empty($data_all['data'][$tujuan['id_unik']])){
@@ -170,6 +181,16 @@ if(!empty($tujuan_ids)){
 		left join data_rpjpd_isu i on t.id_isu = i.id
 		where t.id_unik not in (".implode(',', $tujuan_ids).")
 	";
+	if(!empty($id_jadwal_rpjpd)){
+		$sql = "
+			select 
+				t.*,
+				i.isu_teks 
+			from data_rpd_tujuan_lokal t
+			left join data_rpjpd_isu_history i on t.id_isu = i.id_asli
+			where t.id_unik not in (".implode(',', $tujuan_ids).")
+		";
+	}
 }else{
 	$sql = "
 		select 
@@ -178,6 +199,15 @@ if(!empty($tujuan_ids)){
 		from data_rpd_tujuan_lokal t
 		left join data_rpjpd_isu i on t.id_isu = i.id
 	";
+	if(!empty($id_jadwal_rpjpd)){
+		$sql = "
+			select 
+				t.*,
+				i.isu_teks 
+			from data_rpd_tujuan_lokal t
+			left join data_rpjpd_isu_history i on t.id_isu = i.id_asli
+		";
+	}
 }
 $tujuan_all_kosong = $wpdb->get_results($sql, ARRAY_A);
 foreach ($tujuan_all_kosong as $tujuan) {
