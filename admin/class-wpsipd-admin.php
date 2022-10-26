@@ -282,6 +282,10 @@ class Wpsipd_Admin {
 	    Container::make( 'theme_options', __( 'Input RENJA' ) )
 		    ->set_page_parent( $input_perencanaan )
 		    ->add_fields( $this->generate_input_renja() );
+
+	    Container::make( 'theme_options', __( 'Input RENSTRA' ) )
+		    ->set_page_parent( $input_perencanaan )
+		    ->add_fields( $this->generate_input_renstra() );
 	}
 
 	public function options_basic(){
@@ -454,6 +458,7 @@ class Wpsipd_Admin {
 					$url_nilai_dpa = '&pagu_dpa=fmis';
 				}
 				$body_all = '';
+				$unit_renstra = [];
 				$tahun = $wpdb->get_results('select tahun_anggaran from data_unit group by tahun_anggaran order by tahun_anggaran ASC', ARRAY_A);
 				foreach ($tahun as $k => $v) {
 		            $unit = $wpdb->get_results("SELECT nama_skpd, id_skpd, kode_skpd, nipkepala from data_unit where active=1 and tahun_anggaran=".$v['tahun_anggaran'].' and is_skpd=1 order by kode_skpd ASC', ARRAY_A);
@@ -483,6 +488,12 @@ class Wpsipd_Admin {
 						}else if($_POST['type'] == 'input_renja'){
 							$url_skpd = $this->generatePage('Input RENJA '.$vv['nama_skpd'].' '.$vv['kode_skpd'].' | '.$v['tahun_anggaran'], $v['tahun_anggaran'], '[input_renja tahun_anggaran="'.$v['tahun_anggaran'].'" id_skpd="'.$vv['id_skpd'].'"]');
 		            		$body_pemda .= '<li><a target="_blank" href="'.$url_skpd.'">Halaman Input RENJA '.$vv['kode_skpd'].' '.$vv['nama_skpd'].' '.$v['tahun_anggaran'].'</a> (NIP: '.$vv['nipkepala'].')';
+						}else if($_POST['type'] == 'input_renstra'){
+							if(empty($unit_renstra[$vv['kode_skpd']])){
+								$unit_renstra[$vv['kode_skpd']] = $vv['kode_skpd'];
+								$url_skpd = $this->generatePage('Input RENSTRA '.$vv['nama_skpd'].' '.$vv['kode_skpd'], null, '[input_renstra id_skpd="'.$vv['id_skpd'].'"]');
+			            		$body_pemda .= '<li><a target="_blank" href="'.$url_skpd.'">Halaman Input RENSTRA '.$vv['kode_skpd'].' '.$vv['nama_skpd'].'</a> (NIP: '.$vv['nipkepala'].')';
+							}
 						}
 
 		            	if(!empty($subunit)){
@@ -551,6 +562,8 @@ class Wpsipd_Admin {
 						$body_all .= '<div style="padding:.75rem 0 0 .75rem;"><a style="font-weight: bold;" target="_blank" href="'.$url_add_new_ssh.'">Halaman Data Usulan SSH '.$v['tahun_anggaran'].'</a></div>'.$body_pemda;
 			        }else if($_POST['type'] == 'input_renja'){
 			        	$body_all .= $body_pemda;
+					}else if($_POST['type'] == 'input_renstra'){
+			        	$body_all .= $body_pemda;
 					}
 				}
 				if(
@@ -561,6 +574,7 @@ class Wpsipd_Admin {
 					|| $_POST['type'] == 'apbdpenjabaran'
 					|| $_POST['type'] == 'monev_satuan_harga'
 					|| $_POST['type'] == 'input_renja'
+					|| $_POST['type'] == 'input_renstra'
 				){
 					$ret['message'] = $body_all;
 				}
@@ -1363,6 +1377,12 @@ class Wpsipd_Admin {
 	public function generate_input_renja(){
 		global $wpdb;
 		$label = $this->get_ajax_field(array('type' => 'input_renja'));
+        return $label;
+	}
+
+	public function generate_input_renstra(){
+		global $wpdb;
+		$label = $this->get_ajax_field(array('type' => 'input_renstra'));
         return $label;
 	}
 
