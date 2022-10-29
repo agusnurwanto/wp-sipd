@@ -563,6 +563,12 @@ class Wpsipd
 		$this->loader->add_action('wp_ajax_update_indikator_program_rpjm',  $plugin_public, 'update_indikator_program_rpjm');
 		$this->loader->add_action('wp_ajax_delete_indikator_program_rpjm',  $plugin_public, 'delete_indikator_program_rpjm');
 
+		$this->loader->add_action('wp_ajax_get_data_jadwal_lokal',  $plugin_public, 'get_data_jadwal_lokal');
+		$this->loader->add_action('wp_ajax_get_sasaran_rpjm_history',  $plugin_public, 'get_sasaran_rpjm_history');
+		
+		$this->loader->add_action('wp_ajax_get_tujuan_renstra',  $plugin_public, 'get_tujuan_renstra');
+		$this->loader->add_action('wp_ajax_submit_tujuan_renstra',  $plugin_public, 'submit_tujuan_renstra');
+
 		add_shortcode('menu_monev',  array($plugin_public, 'menu_monev'));
 		add_shortcode('datassh', array($plugin_public, 'datassh'));
 		add_shortcode('rekbelanja', array($plugin_public, 'rekbelanja'));
