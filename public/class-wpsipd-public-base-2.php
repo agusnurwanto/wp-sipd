@@ -406,11 +406,55 @@ class Wpsipd_Public_Base_2
 	}
 
 	public function get_tujuan_renstra(){
-		$return = array(
-				'status' => 'success',
-				'data' => []
-			);
-		die(json_encode($return));
+
+		global $wpdb;
+
+		if (!empty($_POST)) {
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+
+				if($_POST['type'] == 1){
+					$sql = $wpdb->prepare("
+						SELECT * FROM data_renstra_tujuan_lokal
+							WHERE id_unik IS NOT NULL AND
+								id_unik_indikator IS NULL AND
+								status=1 AND 
+								is_locked=0 AND 
+								active=1 ORDER BY id");
+					$tujuan = $wpdb->get_results($sql, ARRAY_A);
+
+				}else{
+
+					$tahun_anggaran = $input['tahun_anggaran'];
+
+					$sql = $wpdb->prepare("
+						select 
+							* 
+						from data_renstra_tujuan
+						where tahun_anggaran=%d
+								and id_misi=%d
+								and active=1
+						ORDER BY urut_tujuan
+						", $tahun_anggaran, $_POST['id_misi']);
+					$tujuan = $wpdb->get_results($sql, ARRAY_A);
+				}
+
+				echo json_encode([
+					'status' => true,
+					'data' => $tujuan,
+					'message' => 'Sukses get detail visi dg data tujuan by id_misi'
+				]);exit;
+			}
+
+			echo json_encode([
+				'status' => false,
+				'message' => 'Api key tidak sesuai'
+			]);exit;
+		}
+
+		echo json_encode([
+			'status' => false,
+			'message' => 'Format tidak sesuai'
+		]);exit;
 	}
 
 	function submit_tujuan_renstra(){
@@ -420,9 +464,7 @@ class Wpsipd_Public_Base_2
 			if (!empty($_POST)) {
 				if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
 
-					
 					$data = json_decode(stripslashes($_POST['data']), true);
-
 
 					if(empty($data['sasaran_rpjm'])){
 						throw new Exception('Sasaran RPJM wajib dipilih!');
@@ -479,8 +521,7 @@ class Wpsipd_Public_Base_2
 						'status' => 1,
 						'tujuan_teks' => $data['tujuan_teks'],
 						'urut_tujuan' => $data['urut_tujuan'],
-						'active' => 1,
-						'tahun_anggaran' => get_option('_crb_tahun_anggaran_sipd')
+						'active' => 1
 					]);
 
 					if(!$status){
