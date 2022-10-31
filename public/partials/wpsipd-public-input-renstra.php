@@ -280,7 +280,7 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
 						jQuery('#wrap-loading').hide();
 						let tujuanModal = jQuery("#modal-crud-renstra");
 						let html = '<form id="form-renstra">'
-										+'<input type="hidden" name="id_unit" value="'+<?php echo $input['id_skpd']; ?>+'">'		
+										+'<input type="hidden" name="id_unit" value="'+<?php echo $input['id_skpd']; ?>+'">'
 										+'<div class="form-group">'
 											+'<label for="tujuan_teks">Jadwal Rpjmd</label>'
 											+'<select class="form-control" id="jadwal-lokal" onchange="pilihJadwal(this)">'
@@ -320,6 +320,104 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
 				}
 			});
 	});
+
+	jQuery(document).on('click', '.btn-edit-tujuan', function(){
+		jQuery('#wrap-loading').show();
+
+		let tujuanModal = jQuery("#modal-crud-renstra");
+		let idtujuan = jQuery(this).data('id');
+		jQuery.ajax({
+			url: ajax.url,
+          	type: "post",
+          	data: {
+          		"action": "edit_tujuan_renstra",
+          		"api_key": "<?php echo $api_key; ?>",
+				'id_tujuan': idtujuan, 
+		        'id_unit': '<?php echo $input['id_skpd'] ?>',
+          	},
+          	dataType: "json",
+          	success: function(response){
+          		jQuery('#wrap-loading').hide();
+
+				let html = '<form id="form-renstra">'
+										+'<input type="hidden" name="id" value="'+response.tujuan.id+'">'
+										+'<input type="hidden" name="id_unit" value="'+<?php echo $input['id_skpd']; ?>+'">'
+										+'<div class="form-group">'
+											+'<label for="tujuan_teks">Jadwal Rpjmd</label>'
+											+'<select class="form-control" id="jadwal-lokal" onchange="pilihJadwal(this)">'
+												+'<option value="">Pilih jadwal</option>';
+												response.jadwal.map(function(value, index){
+													html +='<option value="'+value.id_jadwal_lokal+'">'+value.nama+'</option>'
+												})
+											html+='</select>'
+										+'</div>'
+										+'<div class="form-group">'
+											+'<label for="tujuan_teks">Sasaran Rpjm</label>'
+											+'<select class="form-control" id="sasaran-rpjm" name="sasaran_rpjm" onchange="pilihSasaranRpjm(this)">';
+												response.sasaran_rpjm_history.map(function(value, index){
+													html +='<option value="'+value.id_unik+'|'+value.id_program+'">'+value.sasaran_teks+'</option>'
+												})
+											html+='</select>'
+										+'</div>'
+										+'<div class="form-group">'
+											+'<label for="tujuan_teks">Tujuan Renstra</label>'
+							  				+'<textarea class="form-control" id="tujuan_teks" name="tujuan_teks">'+response.tujuan.tujuan_teks+'</textarea>'
+										+'</div>'
+										+'<div class="form-group">'
+											+'<label for="tujuan_teks">Urut Tujuan</label>'
+							  				+'<input type="number" class="form-control" name="urut_tujuan" value="'+response.tujuan.urut_tujuan+'" />'
+										+'</div>'
+									+'</form>';
+
+		        tujuanModal.find('.modal-title').html('Edit Tujuan');
+				tujuanModal.find('.modal-body').html(html);
+				tujuanModal.find('.modal-footer').html(''
+					+'<button type="button" class="btn btn-sm btn-warning" data-dismiss="modal">'
+						+'<i class="dashicons dashicons-no" style="margin-top: 3px;"></i> Tutup'
+					+'</button>'
+					+'<button type="button" class="btn btn-sm btn-success" id="btn-simpan-data-renstra-lokal" '
+						+'data-action="update_tujuan_renstra" '
+						+'data-view="tujuanRenstra"'
+					+'>'
+						+'<i class="dashicons dashicons-yes" style="margin-top: 3px;"></i> Simpan'
+					+'</button>');
+				tujuanModal.find('.modal-dialog').css('maxWidth','950px');
+				tujuanModal.find('.modal-dialog').css('width','100%');
+				tujuanModal.modal('show');
+          	}
+        });
+	});
+
+	jQuery(document).on('click', '.btn-hapus-tujuan', function(){
+		
+		if(confirm('Data akan dihapus, lanjut?')){
+
+	        jQuery('#wrap-loading').show();
+
+			let id_tujuan = jQuery(this).data('idtujuan');
+
+			jQuery.ajax({
+				method:'POST',
+				url:ajax.url,
+				dataType:'json',
+				data:{
+					'action':'delete_tujuan_rpjm',
+					'api_key':'<?php echo $api_key; ?>',
+					'id_tujuan':id_tujuan,
+				},
+				success:function(response){
+					alert(response.message);
+					if(response.status){
+						tujuanRpjm({
+							'id_misi': id_misi
+						});
+					}
+					jQuery('#wrap-loading').hide();
+				}
+			})
+		}
+	});
+
 
 	jQuery(document).on('click', '#btn-simpan-data-renstra-lokal', function(){
 		

@@ -546,4 +546,123 @@ class Wpsipd_Public_Base_2
 			]);exit;
 		}
 	}
+
+	function edit_tujuan_renstra(){
+		global $wpdb;
+		if (!empty($_POST)) {
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+
+				$data_jadwal = $wpdb->get_results("SELECT * FROM data_jadwal_lokal WHERE status=1 ORDER BY id_jadwal_lokal");
+
+				$tujuan = $wpdb->get_row("
+					SELECT * FROM data_renstra_tujuan_lokal
+						WHERE id=".$_POST['id_tujuan']);
+				
+				$sasaran_rpjm_history = $wpdb->get_results("SELECT a.id_unik, a.sasaran_teks, b.id_program FROM data_rpjmd_sasaran_lokal_history a INNER JOIN data_rpjmd_program_lokal_history b ON a.id_unik=b.kode_sasaran WHERE b.id_unit=".$_POST['id_unit']." AND a.id_unik='".$tujuan->kode_sasaran_rpjm."' AND a.status=1;");
+
+				echo json_encode([
+					'status' => true,
+					'tujuan' => $tujuan,
+					'jadwal' => $data_jadwal,
+					'sasaran_rpjm_history' => $sasaran_rpjm_history,
+					'message' => 'Sukses get tujuan by id'
+				]);exit;
+			}
+
+			echo json_encode([
+				'status' => false,
+				'message' => 'Api key tidak sesuai'
+			]);exit;
+		}
+
+		echo json_encode([
+			'status' => false,
+			'message' => 'Format tidak sesuai'
+		]);exit;
+	}
+
+	function update_tujuan_renstra(){
+		global $wpdb;
+
+		try{
+			if (!empty($_POST)) {
+				if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+					
+						$data = json_decode(stripslashes($_POST['data']), true);
+
+						if(empty($data['sasaran_rpjm'])){
+							throw new Exception('Sasaran RPJM wajib dipilih!');
+						}
+
+						if(empty($data['tujuan_teks'])){
+							throw new Exception('Tujuan tidak boleh kosong!');
+						}
+
+						if(empty($data['urut_tujuan'])){
+							throw new Exception('Urut tujuan tidak boleh kosong!');
+						}
+
+						$raw_sasaran_program = explode("|", $data['sasaran_rpjm']);
+
+						$id_cek = $wpdb->get_var("
+							SELECT id FROM data_renstra_tujuan_lokal
+								WHERE tujuan_teks='".trim($data['tujuan_teks'])."'
+											AND kode_sasaran_rpjm!='".$raw_sasaran_program[0]."'
+											AND id_unik is not null
+											AND id_unik_indikator is null
+											AND is_locked=0
+											AND status=1
+											AND active=1
+									");
+						
+						if(!empty($id_cek)){
+							throw new Exception('Tujuan : '.$data['tujuan_teks'].' sudah ada!');
+						}
+
+						$dataBidangUrusan = $wpdb->get_row("SELECT DISTINCT id_bidang_urusan, kode_bidang_urusan, nama_bidang_urusan FROM data_prog_keg WHERE id_program=".$raw_sasaran_program[1]);
+
+						if(empty($dataBidangUrusan)){
+							throw new Exception('Bidang urusan tidak ditemukan!');
+						}
+
+						$dataUnit = $wpdb->get_row("SELECT * FROM data_unit WHERE id_unit=".$data['id_unit']." AND tahun_anggaran=".get_option('_crb_tahun_anggaran_sipd')." AND active=1 AND is_skpd=1 order by id_skpd ASC;");
+
+						if(empty($dataUnit)){
+							throw new Exception('Unit kerja tidak ditemukan!');
+						}
+
+						$status = $wpdb->update('data_renstra_tujuan_lokal', [
+							'id_bidang_urusan' => $dataBidangUrusan->id_bidang_urusan,
+							'id_unit' => $dataUnit->id_unit,
+							'kode_bidang_urusan' => $dataBidangUrusan->kode_bidang_urusan,
+							'kode_sasaran_rpjm' => $raw_sasaran_program[0],
+							'kode_skpd' => $dataUnit->kode_skpd,
+							'nama_bidang_urusan' => $dataBidangUrusan->nama_bidang_urusan,
+							'nama_skpd' => $dataUnit->nama_skpd,
+							'tujuan_teks' => $data['tujuan_teks'],
+							'urut_tujuan' => $data['urut_tujuan'],
+						], ['id' => $data['id']]);
+
+						if(!$status){
+							throw new Exception('Terjadi kesalahan saat ubah data, harap hubungi admin!');
+						}
+
+						echo json_encode([
+							'status' => true,
+							'message' => 'Sukses ubah tujuan',
+						]);exit;
+
+				}else{
+					throw new Exception('Api key tidak sesuai');
+				}
+			}else{
+				throw new Exception('Format tidak sesuai');
+			}
+		}catch(Exception $e){
+			echo json_encode([
+				'status' => false,
+				'message' => $e->getMessage()
+			]);exit;
+		}
+	}
 }
