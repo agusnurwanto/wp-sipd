@@ -457,6 +457,54 @@ class Wpsipd_Public_Base_2
 		]);exit;
 	}
 
+	function add_tujuan_renstra(){
+		global $wpdb;
+
+		try{
+			if (!empty($_POST)) {
+				if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+
+					$jadwal_renstra = $wpdb->get_row("SELECT a.*, (SELECT id_tipe FROM data_jadwal_lokal WHERE id_jadwal_lokal=a.relasi_perencanaan) id_tipe_relasi FROM data_jadwal_lokal a WHERE DATE_ADD(NOW(), INTERVAL 1 HOUR) > a.waktu_awal AND DATE_ADD(NOW(), INTERVAL 1 HOUR) < a.waktu_akhir AND a.id_tipe=4 AND a.status=0");
+
+					if(empty($jadwal_renstra->relasi_perencanaan)){
+						throw new Exception("Relasi perencanaan jadwal renstra belum diatur", 1);
+					}
+
+					switch ($jadwal_renstra->id_tipe_relasi) {
+						case '2': // rpjm
+							$data = $wpdb->get_results("SELECT a.id_unik, a.sasaran_teks, b.id_program FROM data_rpjmd_sasaran_lokal_history a INNER JOIN data_rpjmd_program_lokal_history b ON a.id_unik=b.kode_sasaran WHERE b.id_unit=".$_POST['id_unit']." AND a.id_jadwal=".$jadwal_renstra->relasi_perencanaan." AND a.status=1;");
+							break;
+						
+						case '3': // rpd
+							$data = $wpdb->get_results("SELECT a.id_unik, a.sasaran_teks, b.id_program FROM data_rpd_sasaran_lokal_history a INNER JOIN data_rpd_program_lokal_history b ON a.id_unik=b.kode_sasaran WHERE b.id_unit=".$_POST['id_unit']." AND a.id_jadwal=".$jadwal_renstra->relasi_perencanaan." AND a.status=1;");
+							break;
+
+						default:
+
+							throw new Exception("Relasi perencanaan tidak diketahui", 1);
+							
+							break;
+					}
+
+					echo json_encode([
+						'status' => true,
+						'data' => $data
+					]);exit;
+
+				}else{
+					throw new Exception('Api key tidak sesuai');
+				}
+			}else{
+				throw new Exception('Format tidak sesuai');
+			}
+		}catch(Exception $e){
+			echo json_encode([
+				'status' => false,
+				'message' => $e->getMessage()
+			]);exit;
+		}
+	}
+
 	function submit_tujuan_renstra(){
 		global $wpdb;
 
@@ -466,8 +514,8 @@ class Wpsipd_Public_Base_2
 
 					$data = json_decode(stripslashes($_POST['data']), true);
 
-					if(empty($data['sasaran_rpjm'])){
-						throw new Exception('Sasaran RPJM wajib dipilih!');
+					if(empty($data['sasaran_parent'])){
+						throw new Exception('Sasaran RPJM/RPD wajib dipilih!');
 					}
 
 					if(empty($data['tujuan_teks'])){
@@ -478,12 +526,12 @@ class Wpsipd_Public_Base_2
 						throw new Exception('Urut tujuan tidak boleh kosong!');
 					}
 
-					$raw_sasaran_program = explode("|", $data['sasaran_rpjm']);
+					$raw_sasaran_parent = explode("|", $data['sasaran_parent']);
 
 					$id_cek = $wpdb->get_var("
 						SELECT id FROM data_renstra_tujuan_lokal
 							WHERE tujuan_teks='".trim($data['tujuan_teks'])."'
-										AND kode_sasaran_rpjm='".$raw_sasaran_program[0]."'
+										AND kode_sasaran_rpjm='".$raw_sasaran_parent[0]."'
 										AND id_unik is not null
 										AND id_unik_indikator is null
 										AND is_locked=0
@@ -495,7 +543,7 @@ class Wpsipd_Public_Base_2
 						throw new Exception('Tujuan : '.$data['tujuan_teks'].' sudah ada!');
 					}
 
-					$dataBidangUrusan = $wpdb->get_row("SELECT DISTINCT id_bidang_urusan, kode_bidang_urusan, nama_bidang_urusan FROM data_prog_keg WHERE id_program=".$raw_sasaran_program[1]);
+					$dataBidangUrusan = $wpdb->get_row("SELECT DISTINCT id_bidang_urusan, kode_bidang_urusan, nama_bidang_urusan FROM data_prog_keg WHERE id_program=".$raw_sasaran_parent[1]);
 
 					if(empty($dataBidangUrusan)){
 						throw new Exception('Bidang urusan tidak ditemukan!');
@@ -514,7 +562,7 @@ class Wpsipd_Public_Base_2
 						'is_locked' => 0,
 						'is_locked_indikator' => 0,
 						'kode_bidang_urusan' => $dataBidangUrusan->kode_bidang_urusan,
-						'kode_sasaran_rpjm' => $raw_sasaran_program[0],
+						'kode_sasaran_rpjm' => $raw_sasaran_parent[0],
 						'kode_skpd' => $dataUnit->kode_skpd,
 						'nama_bidang_urusan' => $dataBidangUrusan->nama_bidang_urusan,
 						'nama_skpd' => $dataUnit->nama_skpd,
@@ -549,36 +597,55 @@ class Wpsipd_Public_Base_2
 
 	function edit_tujuan_renstra(){
 		global $wpdb;
-		if (!empty($_POST)) {
-			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
 
-				$data_jadwal = $wpdb->get_results("SELECT * FROM data_jadwal_lokal WHERE status=1 ORDER BY id_jadwal_lokal");
+		try {
+			if (!empty($_POST)) {
+				if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+					
+					$jadwal_renstra = $wpdb->get_row("SELECT a.*, (SELECT id_tipe FROM data_jadwal_lokal WHERE id_jadwal_lokal=a.relasi_perencanaan) id_tipe_relasi FROM data_jadwal_lokal a WHERE DATE_ADD(NOW(), INTERVAL 1 HOUR) > a.waktu_awal AND DATE_ADD(NOW(), INTERVAL 1 HOUR) < a.waktu_akhir AND a.id_tipe=4 AND a.status=0");
 
-				$tujuan = $wpdb->get_row("
-					SELECT * FROM data_renstra_tujuan_lokal
-						WHERE id=".$_POST['id_tujuan']);
+					if(empty($jadwal_renstra->relasi_perencanaan)){
+						throw new Exception("Relasi perencanaan jadwal renstra belum diatur", 1);
+					}
+
+					switch ($jadwal_renstra->id_tipe_relasi) {
+						case '2': // rpjm
+							$sasaran_parent = $wpdb->get_results("SELECT a.id_unik, a.sasaran_teks, b.id_program FROM data_rpjmd_sasaran_lokal_history a INNER JOIN data_rpjmd_program_lokal_history b ON a.id_unik=b.kode_sasaran WHERE b.id_unit=".$_POST['id_unit']." AND a.id_jadwal=".$jadwal_renstra->relasi_perencanaan." AND a.status=1;");
+						break;
+							
+						case '3': // rpd
+							$sasaran_parent = $wpdb->get_results("SELECT a.id_unik, a.sasaran_teks, b.id_program FROM data_rpd_sasaran_lokal_history a INNER JOIN data_rpd_program_lokal_history b ON a.id_unik=b.kode_sasaran WHERE b.id_unit=".$_POST['id_unit']." AND a.id_jadwal=".$jadwal_renstra->relasi_perencanaan." AND a.status=1;");
+							break;
+
+						default:
+							throw new Exception("Relasi perencanaan tidak diketahui", 1);
+								
+						break;
+					}
+
+					$tujuan = $wpdb->get_row("SELECT a.* FROM data_renstra_tujuan_lokal a WHERE a.id=".$_POST['id_tujuan']);
+
+					echo json_encode([
+						'status' => true,
+						'tujuan' => $tujuan,
+						'sasaran_parent' => $sasaran_parent,
+						'message' => 'Sukses get tujuan by id'
+					]);exit;
+
+				}else{
+					throw new Exception("'Api key tidak sesuai'", 1);
+					
+				}
+			}else{
+				throw new Exception("Format tidak sesuai", 1);
 				
-				$sasaran_rpjm_history = $wpdb->get_results("SELECT a.id_unik, a.sasaran_teks, b.id_program FROM data_rpjmd_sasaran_lokal_history a INNER JOIN data_rpjmd_program_lokal_history b ON a.id_unik=b.kode_sasaran WHERE b.id_unit=".$_POST['id_unit']." AND a.id_unik='".$tujuan->kode_sasaran_rpjm."' AND a.status=1;");
-
-				echo json_encode([
-					'status' => true,
-					'tujuan' => $tujuan,
-					'jadwal' => $data_jadwal,
-					'sasaran_rpjm_history' => $sasaran_rpjm_history,
-					'message' => 'Sukses get tujuan by id'
-				]);exit;
 			}
-
+		} catch (Exception $e) {
 			echo json_encode([
 				'status' => false,
-				'message' => 'Api key tidak sesuai'
-			]);exit;
+				'message' => $e->getMessage()
+			]);exit;		
 		}
-
-		echo json_encode([
-			'status' => false,
-			'message' => 'Format tidak sesuai'
-		]);exit;
 	}
 
 	function update_tujuan_renstra(){
@@ -590,8 +657,8 @@ class Wpsipd_Public_Base_2
 					
 						$data = json_decode(stripslashes($_POST['data']), true);
 
-						if(empty($data['sasaran_rpjm'])){
-							throw new Exception('Sasaran RPJM wajib dipilih!');
+						if(empty($data['sasaran_parent'])){
+							throw new Exception('Sasaran RPJM/RPD wajib dipilih!');
 						}
 
 						if(empty($data['tujuan_teks'])){
@@ -602,12 +669,12 @@ class Wpsipd_Public_Base_2
 							throw new Exception('Urut tujuan tidak boleh kosong!');
 						}
 
-						$raw_sasaran_program = explode("|", $data['sasaran_rpjm']);
+						$raw_sasaran_parent = explode("|", $data['sasaran_parent']);
 
 						$id_cek = $wpdb->get_var("
 							SELECT id FROM data_renstra_tujuan_lokal
 								WHERE tujuan_teks='".trim($data['tujuan_teks'])."'
-											AND kode_sasaran_rpjm!='".$raw_sasaran_program[0]."'
+											AND kode_sasaran_rpjm!='".$raw_sasaran_parent[0]."'
 											AND id_unik is not null
 											AND id_unik_indikator is null
 											AND is_locked=0
@@ -619,7 +686,7 @@ class Wpsipd_Public_Base_2
 							throw new Exception('Tujuan : '.$data['tujuan_teks'].' sudah ada!');
 						}
 
-						$dataBidangUrusan = $wpdb->get_row("SELECT DISTINCT id_bidang_urusan, kode_bidang_urusan, nama_bidang_urusan FROM data_prog_keg WHERE id_program=".$raw_sasaran_program[1]);
+						$dataBidangUrusan = $wpdb->get_row("SELECT DISTINCT id_bidang_urusan, kode_bidang_urusan, nama_bidang_urusan FROM data_prog_keg WHERE id_program=".$raw_sasaran_parent[1]);
 
 						if(empty($dataBidangUrusan)){
 							throw new Exception('Bidang urusan tidak ditemukan!');
@@ -635,7 +702,7 @@ class Wpsipd_Public_Base_2
 							'id_bidang_urusan' => $dataBidangUrusan->id_bidang_urusan,
 							'id_unit' => $dataUnit->id_unit,
 							'kode_bidang_urusan' => $dataBidangUrusan->kode_bidang_urusan,
-							'kode_sasaran_rpjm' => $raw_sasaran_program[0],
+							'kode_sasaran_rpjm' => $raw_sasaran_parent[0],
 							'kode_skpd' => $dataUnit->kode_skpd,
 							'nama_bidang_urusan' => $dataBidangUrusan->nama_bidang_urusan,
 							'nama_skpd' => $dataUnit->nama_skpd,

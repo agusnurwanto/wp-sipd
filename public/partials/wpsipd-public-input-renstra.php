@@ -273,8 +273,9 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
 				url:ajax.url,
 				dataType:'json',
 				data:{
-					'action': 'get_data_jadwal_lokal',
-		          	'api_key': '<?php echo $api_key; ?>'
+					'action': 'add_tujuan_renstra',
+		          	'api_key': '<?php echo $api_key; ?>',
+		          	'id_unit': '<?php echo $input['id_skpd']; ?>'
 				},
 				success:function(response){
 						jQuery('#wrap-loading').hide();
@@ -282,17 +283,13 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
 						let html = '<form id="form-renstra">'
 										+'<input type="hidden" name="id_unit" value="'+<?php echo $input['id_skpd']; ?>+'">'
 										+'<div class="form-group">'
-											+'<label for="tujuan_teks">Jadwal Rpjmd</label>'
-											+'<select class="form-control" id="jadwal-lokal" onchange="pilihJadwal(this)">'
-												+'<option value="">Pilih jadwal</option>';
+											+'<label for="tujuan_teks">Sasaran Rpjm/Rpd</label>'
+											+'<select class="form-control" id="sasaran-parent" name="sasaran_parent" onchange="pilihSasaranParent(this)">';
+												html+='<option value="">Pilih Sasaran</option>';
 												response.data.map(function(value, index){
-													html +='<option value="'+value.id_jadwal_lokal+'">'+value.nama+'</option>'
+													html +='<option value="'+value.id_unik+'|'+value.id_program+'">'+value.sasaran_teks+'</option>';
 												})
 											html+='</select>'
-										+'</div>'
-										+'<div class="form-group">'
-											+'<label for="tujuan_teks">Sasaran Rpjm</label>'
-											+'<select class="form-control" id="sasaran-rpjm" name="sasaran_rpjm" onchange="pilihSasaranRpjm(this)"></select>'
 										+'</div>'
 										+'<div class="form-group">'
 											+'<label for="tujuan_teks">Tujuan Renstra</label>'
@@ -343,19 +340,11 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
 										+'<input type="hidden" name="id" value="'+response.tujuan.id+'">'
 										+'<input type="hidden" name="id_unit" value="'+<?php echo $input['id_skpd']; ?>+'">'
 										+'<div class="form-group">'
-											+'<label for="tujuan_teks">Jadwal Rpjmd</label>'
-											+'<select class="form-control" id="jadwal-lokal" onchange="pilihJadwal(this)">'
-												+'<option value="">Pilih jadwal</option>';
-												response.jadwal.map(function(value, index){
-													html +='<option value="'+value.id_jadwal_lokal+'">'+value.nama+'</option>'
-												})
-											html+='</select>'
-										+'</div>'
-										+'<div class="form-group">'
-											+'<label for="tujuan_teks">Sasaran Rpjm</label>'
-											+'<select class="form-control" id="sasaran-rpjm" name="sasaran_rpjm" onchange="pilihSasaranRpjm(this)">';
-												response.sasaran_rpjm_history.map(function(value, index){
-													html +='<option value="'+value.id_unik+'|'+value.id_program+'">'+value.sasaran_teks+'</option>'
+											+'<label for="tujuan_teks">Sasaran Rpjm/Rpd</label>'
+											+'<select class="form-control" id="sasaran-parent" name="sasaran_parent" onchange="pilihSasaranParent(this)">';
+												html+='<option value="" selected>Pilih Sasaran</option>';
+												response.sasaran_parent.map(function(value, index){
+													html +='<option value="'+value.id_unik+'|'+value.id_program+'">'+value.sasaran_teks+'</option>';
 												})
 											html+='</select>'
 										+'</div>'
@@ -381,9 +370,8 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
 					+'>'
 						+'<i class="dashicons dashicons-yes" style="margin-top: 3px;"></i> Simpan'
 					+'</button>');
-				tujuanModal.find('.modal-dialog').css('maxWidth','950px');
-				tujuanModal.find('.modal-dialog').css('width','100%');
 				tujuanModal.modal('show');
+				jQuery("#sasaran-parent").val(response.tujuan.kode_sasaran_rpjm+"|"+response.tujuan.id_program);
           	}
         });
 	});
@@ -417,7 +405,6 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
 			})
 		}
 	});
-
 
 	jQuery(document).on('click', '#btn-simpan-data-renstra-lokal', function(){
 		
@@ -471,15 +458,15 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
 					response.data.map(function(value, index){
 						html +='<option value="'+value.id_unik+'|'+value.id_program+'">'+value.sasaran_teks+'</option>'
 					});
-					jQuery("#sasaran-rpjm").html(html);
+					jQuery("#sasaran-parent").html(html);
 				}
 			});
 		}
 	}
 
-	function pilihSasaranRpjm(that){
+	function pilihSasaranParent(that){
 		if(that.value !=""){
-			jQuery("#tujuan_teks").val(jQuery("#sasaran-rpjm").find(':selected').text());
+			jQuery("#tujuan_teks").val(jQuery("#sasaran-parent").find(':selected').text());
 		}
 	}
 
@@ -533,29 +520,6 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
 				jQuery('.nav-tabs a[href="#nav-tujuan"]').tab('show');
 				jQuery('#modal-monev').modal('show');
         	}
-		})
-	}
-
-	function get_data_jadwal_lokal(){
-		return new Promise(function(resolve, reject){
-			jQuery.ajax({
-				method:'POST',
-				url:ajax.url,
-				dataType:'json',
-				data:{
-					'action': 'get_data_jadwal_lokal',
-		          	'api_key': '<?php echo $api_key; ?>'
-				},
-				success:function(response){
-					response.data.map(function(value, index){
-						window.all_jadwal_lokal = {};
-						if(!all_jadwal_lokal[value.nama]){
-							all_jadwal_lokal[value.nama] = {};
-						}
-					});
-				}
-			});
-			resolve();
 		})
 	}
 

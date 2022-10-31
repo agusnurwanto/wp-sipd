@@ -567,6 +567,7 @@ class Wpsipd
 		$this->loader->add_action('wp_ajax_get_sasaran_rpjm_history',  $plugin_public, 'get_sasaran_rpjm_history');
 		
 		$this->loader->add_action('wp_ajax_get_tujuan_renstra',  $plugin_public, 'get_tujuan_renstra');
+		$this->loader->add_action('wp_ajax_add_tujuan_renstra',  $plugin_public, 'add_tujuan_renstra');
 		$this->loader->add_action('wp_ajax_submit_tujuan_renstra',  $plugin_public, 'submit_tujuan_renstra');
 		$this->loader->add_action('wp_ajax_edit_tujuan_renstra',  $plugin_public, 'edit_tujuan_renstra');
 		$this->loader->add_action('wp_ajax_update_tujuan_renstra',  $plugin_public, 'update_tujuan_renstra');
