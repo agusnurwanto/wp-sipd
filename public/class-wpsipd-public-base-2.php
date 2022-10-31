@@ -665,4 +665,44 @@ class Wpsipd_Public_Base_2
 			]);exit;
 		}
 	}
+
+	function delete_tujuan_renstra(){
+		global $wpdb;
+		try{
+			if (!empty($_POST)) {
+				if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+
+					
+					$id_cek = $wpdb->get_var("SELECT * FROM data_renstra_sasaran_lokal WHERE kode_tujuan='" . $_POST['id_unik'] . "' AND is_locked=0 AND status=1 AND active=1");
+
+					if(!empty($id_cek)){
+						throw new Exception("Tujuan sudah digunakan oleh sasaran", 1);
+					}
+
+					$id_cek = $wpdb->get_var("SELECT * FROM data_renstra_tujuan_lokal WHERE id_unik='" . $_POST['id_unik']. "' AND id_unik_indikator IS NOT NULL AND is_locked=0 AND status=1 AND active=1");
+
+					if(!empty($id_cek)){
+						throw new Exception("Tujuan sudah digunakan oleh indikator tujuan", 1);
+					}
+					
+					$wpdb->get_results("DELETE FROM data_renstra_tujuan_lokal WHERE id=".$_POST['id_tujuan']);
+
+					echo json_encode([
+						'status' => true,
+						'message' => 'Sukses hapus tujuan'
+					]);exit;
+
+				}else{
+					throw new Exception("Api key tidak sesuai", 1);
+				}
+			}else{
+				throw new Exception("Format tidak sesuai", 1);
+			}
+		}catch(Exception $e){
+			echo json_encode([
+				'status' => false,
+				'message' => $e->getMessage()
+			]);exit;
+		}
+	}
 }

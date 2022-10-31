@@ -394,23 +394,23 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
 
 	        jQuery('#wrap-loading').show();
 
-			let id_tujuan = jQuery(this).data('idtujuan');
+			let id_tujuan = jQuery(this).data('id');
+			let id_unik = jQuery(this).data('idunik');
 
 			jQuery.ajax({
 				method:'POST',
 				url:ajax.url,
 				dataType:'json',
 				data:{
-					'action':'delete_tujuan_rpjm',
+					'action':'delete_tujuan_renstra',
 					'api_key':'<?php echo $api_key; ?>',
 					'id_tujuan':id_tujuan,
+					'id_unik':id_unik,
 				},
 				success:function(response){
 					alert(response.message);
 					if(response.status){
-						tujuanRpjm({
-							'id_misi': id_misi
-						});
+						tujuanRenstra();
 					}
 					jQuery('#wrap-loading').hide();
 				}
@@ -522,7 +522,7 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
 						          			+'<td>'
 						          					+'<a href="javascript:void(0)" data-id="'+value.id+'" class="btn btn-sm btn-primary btn-detail-tujuan"><i class="dashicons dashicons-search"></i></a>&nbsp;'
 						          					+'<a href="javascript:void(0)" data-id="'+value.id+'" class="btn btn-sm btn-success btn-edit-tujuan"><i class="dashicons dashicons-edit"></i></a>&nbsp;'
-						          					+'<a href="javascript:void(0)" data-id="'+value.id+'" class="btn btn-sm btn-danger btn-hapus-tujuan"><i class="dashicons dashicons-trash"></i></a>'
+						          					+'<a href="javascript:void(0)" data-id="'+value.id+'" data-idunik="'+value.id_unik+'" class="btn btn-sm btn-danger btn-hapus-tujuan"><i class="dashicons dashicons-trash"></i></a>'
 						          			+'</td>'
 						          		+'</tr>';
 			          		})

@@ -570,6 +570,7 @@ class Wpsipd
 		$this->loader->add_action('wp_ajax_submit_tujuan_renstra',  $plugin_public, 'submit_tujuan_renstra');
 		$this->loader->add_action('wp_ajax_edit_tujuan_renstra',  $plugin_public, 'edit_tujuan_renstra');
 		$this->loader->add_action('wp_ajax_update_tujuan_renstra',  $plugin_public, 'update_tujuan_renstra');
+		$this->loader->add_action('wp_ajax_delete_tujuan_renstra',  $plugin_public, 'delete_tujuan_renstra');
 
 		add_shortcode('menu_monev',  array($plugin_public, 'menu_monev'));
 		add_shortcode('datassh', array($plugin_public, 'datassh'));
