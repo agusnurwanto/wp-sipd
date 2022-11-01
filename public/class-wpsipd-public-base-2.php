@@ -719,7 +719,12 @@ class Wpsipd_Public_Base_2
 							'nama_skpd' => $dataUnit->nama_skpd,
 							'tujuan_teks' => $data['tujuan_teks'],
 							'urut_tujuan' => $data['urut_tujuan'],
-						], ['id' => $data['id']]);
+							'update_at' => date('Y-m-d H:i:s')
+						], [
+							'id_unik' => $data['id_unik'],
+							'status' => 1,
+							'active' => 1,
+						]);
 
 						if(!$status){
 							throw new Exception('Terjadi kesalahan saat ubah data, harap hubungi admin!');
@@ -1037,7 +1042,8 @@ class Wpsipd_Public_Base_2
 						'target_awal' => $data['target_awal'],
 						'target_akhir' => $data['target_akhir'],
 						'tujuan_teks' => $dataTujuan->tujuan_teks,
-						'urut_tujuan' => $dataTujuan->urut_tujuan
+						'urut_tujuan' => $dataTujuan->urut_tujuan,
+						'update_at' => date('Y-m-d H:i:s')
 					], [
 						'id' => $data['id']
 					]);

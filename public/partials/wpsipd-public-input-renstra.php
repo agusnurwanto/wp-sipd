@@ -339,6 +339,7 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
 
 				let html = '<form id="form-renstra">'
 										+'<input type="hidden" name="id" value="'+response.tujuan.id+'">'
+										+'<input type="hidden" name="id_unik" value="'+response.tujuan.id_unik+'">'
 										+'<input type="hidden" name="id_unit" value="'+<?php echo $input['id_skpd']; ?>+'">'
 										+'<div class="form-group">'
 											+'<label for="tujuan_teks">Sasaran Rpjm/Rpd</label>'
