@@ -6,7 +6,7 @@ if ( ! defined( 'WPINC' ) ) {
 global $wpdb;
 $input = shortcode_atts( array(
 	'id_skpd' => '',
-	'tahun_anggaran' => '2022'
+	'tahun_anggaran' => get_option('_crb_tahun_anggaran_sipd')
 ), $atts );
 
 function button_edit_monev($class=false){
@@ -31,19 +31,23 @@ function parsing_nama_kode($nama_kode){
 }
 
 $api_key = get_option('_crb_api_key_extension' );
+$tahun_anggaran = $input['tahun_anggaran'];
+
+$awal_renstra = 0;
+$namaJadwal = '-';
+$mulaiJadwal = '-';
+$selesaiJadwal = '-';
 
 $jadwal_lokal = $wpdb->get_results("SELECT * from data_jadwal_lokal where id_jadwal_lokal = (select max(id_jadwal_lokal) from data_jadwal_lokal where id_tipe=2)", ARRAY_A);
 if(!empty($jadwal_lokal)){
-	$tahun_anggaran = $jadwal_lokal[0]['tahun_anggaran'];
+	$awal_renstra = $jadwal_lokal[0]['tahun_anggaran'];
 	$namaJadwal = $jadwal_lokal[0]['nama'];
 	$mulaiJadwal = $jadwal_lokal[0]['waktu_awal'];
 	$selesaiJadwal = $jadwal_lokal[0]['waktu_akhir'];
-}else{
-	$tahun_anggaran = '2022';
-	$namaJadwal = '-';
-	$mulaiJadwal = '-';
-	$selesaiJadwal = '-';
 }
+
+$akhir_renstra = $awal_renstra+5;
+$urut = $tahun_anggaran-$awal_renstra;
 
 $timezone = get_option('timezone_string');
 
@@ -67,26 +71,13 @@ $sql = $wpdb->prepare("
 		and active=1
 	order by id_skpd ASC
 ", $tahun_anggaran);
+
 $unit = $wpdb->get_results($sql, ARRAY_A);
 
 $judul_skpd = '';
 if(!empty($input['id_skpd'])){
 	$judul_skpd = $unit[0]['kode_skpd'].'&nbsp;'.$unit[0]['nama_skpd'].'<br>';
 }
-$pengaturan = $wpdb->get_results($wpdb->prepare("
-	select 
-		* 
-	from data_pengaturan_sipd 
-	where tahun_anggaran=%d
-", $tahun_anggaran), ARRAY_A);
-
-$awal_rpjmd = 2018;
-$akhir_rpjmd = 2023;
-if(!empty($pengaturan)){
-	$awal_rpjmd = $pengaturan[0]['awal_rpjmd'];
-	$akhir_rpjmd = $pengaturan[0]['akhir_rpjmd'];
-}
-$urut = $tahun_anggaran-$awal_rpjmd;
 $nama_pemda = get_option('_crb_daerah');
 
 $current_user = wp_get_current_user();
@@ -110,16 +101,15 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
 	$skpd_filter_html .= '<option value="'.$kode_skpd.'">'.$kode_skpd.' '.$nama_skpd.'</option>';
 }
 
-$tahun_selesai = (!empty($tahun_anggaran)) ? $tahun_anggaran + 5 : '-';
-
 ?>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/slim-select/1.27.1/slimselect.min.css" rel="stylesheet">
 <style type="text/css">
 	.debug-tujuan, .debug-sasaran, .debug-program, .debug-kegiatan, .debug-kode { display: none; }
 	.indikator_program { min-height: 40px; }
 	.indikator_kegiatan { min-height: 40px; }
 	.modal {overflow-y:auto;}
 </style>
-<h4 style="text-align: center; margin: 0; font-weight: bold;">Monitoring dan Evaluasi RENSTRA (Rencana Strategis) <br><?php echo $judul_skpd.'Tahun '.$tahun_anggaran.' - '.$tahun_selesai.' '.$nama_pemda; ?></h4>
+<h4 style="text-align: center; margin: 0; font-weight: bold;">Monitoring dan Evaluasi RENSTRA (Rencana Strategis) <br><?php echo $judul_skpd.'Tahun '.$awal_renstra.' - '.$akhir_renstra.' '.$nama_pemda; ?></h4>
 <div id="cetak" title="Laporan MONEV RENSTRA" style="padding: 5px; overflow: auto; height: 80vh;">
 	<table cellpadding="2" cellspacing="0" style="font-family:\'Open Sans\',-apple-system,BlinkMacSystemFont,\'Segoe UI\',sans-serif; border-collapse: collapse; font-size: 70%; border: 0; table-layout: fixed;" contenteditable="false">
 		<thead>
@@ -166,6 +156,70 @@ $tahun_selesai = (!empty($tahun_anggaran)) ? $tahun_anggaran + 5 : '-';
 	</table>
 </div>
 
+<div class="modal fade" id="modal-monev" tabindex="-1" role="dialog" data-backdrop="static" aria-hidden="true">'
+    <div class="modal-dialog modal-xl" role="document">
+        <div class="modal-content">
+            <div class="modal-header bgpanel-theme">
+                <h4 style="margin: 0;" class="modal-title" id="">Data Renstra</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span><i class="dashicons dashicons-dismiss"></i></span></button>
+            </div>
+            <div class="modal-body">
+            	<nav>
+				  	<div class="nav nav-tabs" id="nav-tab" role="tablist">
+					    <a class="nav-item nav-link" id="nav-tujuan-tab" data-toggle="tab" href="#nav-tujuan" role="tab" aria-controls="nav-tujuan" aria-selected="false">Tujuan</a>
+					    <a class="nav-item nav-link" id="nav-sasaran-tab" data-toggle="tab" href="#nav-sasaran" role="tab" aria-controls="nav-sasaran" aria-selected="false">Sasaran</a>
+					    <a class="nav-item nav-link" id="nav-program-tab" data-toggle="tab" href="#nav-program" role="tab" aria-controls="nav-program" aria-selected="false">Program</a>
+					    <a class="nav-item nav-link" id="nav-kegiatan-tab" data-toggle="tab" href="#nav-kegiatan" role="tab" aria-controls="nav-kegiatan" aria-selected="false">Kegiatan</a>
+				  	</div>
+				</nav>
+				<div class="tab-content" id="nav-tabContent">
+				  	<div class="tab-pane fade show active" id="nav-tujuan" role="tabpanel" aria-labelledby="nav-tujuan-tab"></div>
+				  	<div class="tab-pane fade" id="nav-sasaran" role="tabpanel" aria-labelledby="nav-sasaran-tab"></div>
+				  	<div class="tab-pane fade" id="nav-program" role="tabpanel" aria-labelledby="nav-program-tab"></div>
+				  	<div class="tab-pane fade" id="nav-kegiatan" role="tabpanel" aria-labelledby="nav-kegiatan-tab"></div>
+				</div>
+            </div>
+            <div class="modal-footer">
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal indikator renstra -->
+<div class="modal fade" id="modal-indikator-renstra" tabindex="-1" role="dialog" aria-labelledby="modal-indikator-renstra-label" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Modal title</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+      </div>
+      <div class="modal-footer"></div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal crud renstra -->
+<div class="modal fade" id="modal-crud-renstra" tabindex="-2" role="dialog" aria-labelledby="modal-crud-renstra-label" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Modal title</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+      </div>
+      <div class="modal-footer"></div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/slim-select/1.27.1/slimselect.min.js"></script>
 <script type="text/javascript">
 	run_download_excel();
 	let data_all = <?php echo json_encode($data_all); ?>;
@@ -195,7 +249,7 @@ $tahun_selesai = (!empty($tahun_anggaran)) ? $tahun_anggaran + 5 : '-';
 				+'<option value="">Pilih Baris</option>'
 				+'<option value="tr-sasaran">Sasaran</option>'
 				+'<option value="tr-program">Program</option>'
-				+'<option value="tr-kegiatan">Misi</option>'
+				+'<option value="tr-kegiatan">Kegiatan</option>'
 			+'</select>'
 		+'</label>'
 		+'<label style="margin-left: 20px;">'
@@ -205,4 +259,331 @@ $tahun_selesai = (!empty($tahun_anggaran)) ? $tahun_anggaran + 5 : '-';
 			+'</select>'
 		+'</label>';
 	jQuery('#action-sipd').append(aksi);
+
+	jQuery('#tambah-data').on('click', function(){
+        tujuanRenstra();
+	});
+
+	jQuery(document).on('click', '.btn-tambah-tujuan', function(){
+
+		jQuery('#wrap-loading').show();
+
+		jQuery.ajax({
+				method:'POST',
+				url:ajax.url,
+				dataType:'json',
+				data:{
+					'action': 'get_data_jadwal_lokal',
+		          	'api_key': '<?php echo $api_key; ?>'
+				},
+				success:function(response){
+						jQuery('#wrap-loading').hide();
+						let tujuanModal = jQuery("#modal-crud-renstra");
+						let html = '<form id="form-renstra">'
+										+'<input type="hidden" name="id_unit" value="'+<?php echo $input['id_skpd']; ?>+'">'
+										+'<div class="form-group">'
+											+'<label for="tujuan_teks">Jadwal Rpjmd</label>'
+											+'<select class="form-control" id="jadwal-lokal" onchange="pilihJadwal(this)">'
+												+'<option value="">Pilih jadwal</option>';
+												response.data.map(function(value, index){
+													html +='<option value="'+value.id_jadwal_lokal+'">'+value.nama+'</option>'
+												})
+											html+='</select>'
+										+'</div>'
+										+'<div class="form-group">'
+											+'<label for="tujuan_teks">Sasaran Rpjm</label>'
+											+'<select class="form-control" id="sasaran-rpjm" name="sasaran_rpjm" onchange="pilihSasaranRpjm(this)"></select>'
+										+'</div>'
+										+'<div class="form-group">'
+											+'<label for="tujuan_teks">Tujuan Renstra</label>'
+							  				+'<textarea class="form-control" id="tujuan_teks" name="tujuan_teks"></textarea>'
+										+'</div>'
+										+'<div class="form-group">'
+											+'<label for="tujuan_teks">Urut Tujuan</label>'
+							  				+'<input type="number" class="form-control" name="urut_tujuan" />'
+										+'</div>'
+									+'</form>';
+
+						tujuanModal.find('.modal-title').html('Tambah Tujuan');
+						tujuanModal.find('.modal-body').html(html);
+						tujuanModal.find('.modal-footer').html(''
+							+'<button type="button" class="btn btn-sm btn-warning" data-dismiss="modal">'
+								+'<i class="dashicons dashicons-no" style="margin-top: 3px;"></i> Tutup'
+							+'</button>'
+							+'<button type="button" class="btn btn-sm btn-success" id="btn-simpan-data-renstra-lokal" '
+								+'data-action="submit_tujuan_renstra" '
+								+'data-view="tujuanRenstra"'
+							+'>'
+								+'<i class="dashicons dashicons-yes" style="margin-top: 3px;"></i> Simpan'
+							+'</button>');
+						tujuanModal.modal('show');
+				}
+			});
+	});
+
+	jQuery(document).on('click', '.btn-edit-tujuan', function(){
+		jQuery('#wrap-loading').show();
+
+		let tujuanModal = jQuery("#modal-crud-renstra");
+		let idtujuan = jQuery(this).data('id');
+		jQuery.ajax({
+			url: ajax.url,
+          	type: "post",
+          	data: {
+          		"action": "edit_tujuan_renstra",
+          		"api_key": "<?php echo $api_key; ?>",
+				'id_tujuan': idtujuan, 
+		        'id_unit': '<?php echo $input['id_skpd'] ?>',
+          	},
+          	dataType: "json",
+          	success: function(response){
+          		jQuery('#wrap-loading').hide();
+
+				let html = '<form id="form-renstra">'
+										+'<input type="hidden" name="id" value="'+response.tujuan.id+'">'
+										+'<input type="hidden" name="id_unit" value="'+<?php echo $input['id_skpd']; ?>+'">'
+										+'<div class="form-group">'
+											+'<label for="tujuan_teks">Jadwal Rpjmd</label>'
+											+'<select class="form-control" id="jadwal-lokal" onchange="pilihJadwal(this)">'
+												+'<option value="">Pilih jadwal</option>';
+												response.jadwal.map(function(value, index){
+													html +='<option value="'+value.id_jadwal_lokal+'">'+value.nama+'</option>'
+												})
+											html+='</select>'
+										+'</div>'
+										+'<div class="form-group">'
+											+'<label for="tujuan_teks">Sasaran Rpjm</label>'
+											+'<select class="form-control" id="sasaran-rpjm" name="sasaran_rpjm" onchange="pilihSasaranRpjm(this)">';
+												response.sasaran_rpjm_history.map(function(value, index){
+													html +='<option value="'+value.id_unik+'|'+value.id_program+'">'+value.sasaran_teks+'</option>'
+												})
+											html+='</select>'
+										+'</div>'
+										+'<div class="form-group">'
+											+'<label for="tujuan_teks">Tujuan Renstra</label>'
+							  				+'<textarea class="form-control" id="tujuan_teks" name="tujuan_teks">'+response.tujuan.tujuan_teks+'</textarea>'
+										+'</div>'
+										+'<div class="form-group">'
+											+'<label for="tujuan_teks">Urut Tujuan</label>'
+							  				+'<input type="number" class="form-control" name="urut_tujuan" value="'+response.tujuan.urut_tujuan+'" />'
+										+'</div>'
+									+'</form>';
+
+		        tujuanModal.find('.modal-title').html('Edit Tujuan');
+				tujuanModal.find('.modal-body').html(html);
+				tujuanModal.find('.modal-footer').html(''
+					+'<button type="button" class="btn btn-sm btn-warning" data-dismiss="modal">'
+						+'<i class="dashicons dashicons-no" style="margin-top: 3px;"></i> Tutup'
+					+'</button>'
+					+'<button type="button" class="btn btn-sm btn-success" id="btn-simpan-data-renstra-lokal" '
+						+'data-action="update_tujuan_renstra" '
+						+'data-view="tujuanRenstra"'
+					+'>'
+						+'<i class="dashicons dashicons-yes" style="margin-top: 3px;"></i> Simpan'
+					+'</button>');
+				tujuanModal.find('.modal-dialog').css('maxWidth','950px');
+				tujuanModal.find('.modal-dialog').css('width','100%');
+				tujuanModal.modal('show');
+          	}
+        });
+	});
+
+	jQuery(document).on('click', '.btn-hapus-tujuan', function(){
+		
+		if(confirm('Data akan dihapus, lanjut?')){
+
+	        jQuery('#wrap-loading').show();
+
+			let id_tujuan = jQuery(this).data('id');
+			let id_unik = jQuery(this).data('idunik');
+
+			jQuery.ajax({
+				method:'POST',
+				url:ajax.url,
+				dataType:'json',
+				data:{
+					'action':'delete_tujuan_renstra',
+					'api_key':'<?php echo $api_key; ?>',
+					'id_tujuan':id_tujuan,
+					'id_unik':id_unik,
+				},
+				success:function(response){
+					alert(response.message);
+					if(response.status){
+						tujuanRenstra();
+					}
+					jQuery('#wrap-loading').hide();
+				}
+			})
+		}
+	});
+
+
+	jQuery(document).on('click', '#btn-simpan-data-renstra-lokal', function(){
+		
+		jQuery('#wrap-loading').show();
+		let renstraModal = jQuery("#modal-crud-renstra");
+		let action = jQuery(this).data('action');
+		let view = jQuery(this).data('view');
+		let form = getFormData(jQuery("#form-renstra"));
+
+		// let withunit = jQuery(this).data('withunit');
+		// if(withunit){
+		// 	form['id_unit'] = Object.assign({}, jQuery('select[name=id_unit]').val());
+		// }
+		
+		jQuery.ajax({
+			method:'POST',
+			url:ajax.url,
+			dataType:'json',
+			data:{
+				'action': action,
+	          	'api_key': '<?php echo $api_key; ?>',
+				'data': JSON.stringify(form),
+			},
+			success:function(response){
+				jQuery('#wrap-loading').hide();
+				alert(response.message);
+				if(response.status){
+					runFunction(view, [form])
+					renstraModal.modal('hide');
+				}
+			}
+		})
+	});
+
+	function pilihJadwal(that){
+		jQuery("#wrap-loading").show();
+		if(that.value != ''){
+			jQuery.ajax({
+				method:'POST',
+				url:ajax.url,
+				dataType:'json',
+				data:{
+					'action': 'get_sasaran_rpjm_history',
+		          	'api_key': '<?php echo $api_key; ?>',
+		          	'id_jadwal': that.value,
+		          	'id_unit': '<?php echo $input['id_skpd'] ?>',
+				},
+				success:function(response){
+					jQuery("#wrap-loading").hide();
+					let html = '<option value="">Pilih Sasaran Rpjm</option>';
+					response.data.map(function(value, index){
+						html +='<option value="'+value.id_unik+'|'+value.id_program+'">'+value.sasaran_teks+'</option>'
+					});
+					jQuery("#sasaran-rpjm").html(html);
+				}
+			});
+		}
+	}
+
+	function pilihSasaranRpjm(that){
+		if(that.value !=""){
+			jQuery("#tujuan_teks").val(jQuery("#sasaran-rpjm").find(':selected').text());
+		}
+	}
+
+	function tujuanRenstra(){
+		
+		jQuery('#wrap-loading').show();
+		jQuery('#nav-tujuan').html('');
+		jQuery('#nav-sasaran').html('');
+		jQuery('#nav-program').html('');
+		jQuery('#nav-kegiatan').html('');
+
+		jQuery.ajax({
+			url: ajax.url,
+          	type: "post",
+          	data: {
+          		"action": "get_tujuan_renstra", // wpsipd-public-base-2
+          		"api_key": "<?php echo $api_key; ?>",
+          		"type": 1
+          	},
+          	dataType: "json",
+          	success: function(res){
+          		jQuery('#wrap-loading').hide();
+
+          		let tujuan = ''
+	          		+'<div style="margin-top:10px"><button type="button" class="btn btn-sm btn-primary mb-2 btn-tambah-tujuan"><i class="dashicons dashicons-plus" style="margin-top: 3px;"></i> Tambah Tujuan</button>'
+	          		+'</div>'
+	          		+'<table class="table">'
+	          			+'<thead>'
+	          				+'<tr>'
+	          					+'<th style="width:5%">No.</th>'
+	          					+'<th style="width:80%">Tujuan</th>'
+	          					+'<th style="width:20%">Aksi</th>'
+	          				+'<tr>'
+	          			+'</thead>'
+	          			+'<tbody>';
+			          		res.data.map(function(value, index){
+			          			tujuan +='<tr idvisi="'+value.id+'">'
+						          			+'<td>'+(index+1)+'.</td>'
+						          			+'<td>'+value.tujuan_teks+'</td>'
+						          			+'<td>'
+						          					+'<a href="javascript:void(0)" data-id="'+value.id+'" class="btn btn-sm btn-primary btn-detail-tujuan"><i class="dashicons dashicons-search"></i></a>&nbsp;'
+						          					+'<a href="javascript:void(0)" data-id="'+value.id+'" class="btn btn-sm btn-success btn-edit-tujuan"><i class="dashicons dashicons-edit"></i></a>&nbsp;'
+						          					+'<a href="javascript:void(0)" data-id="'+value.id+'" data-idunik="'+value.id_unik+'" class="btn btn-sm btn-danger btn-hapus-tujuan"><i class="dashicons dashicons-trash"></i></a>'
+						          			+'</td>'
+						          		+'</tr>';
+			          		})
+          			tujuan+='<tbody>'
+          			+'</table>';
+
+          		jQuery("#nav-tujuan").html(tujuan);
+				jQuery('.nav-tabs a[href="#nav-tujuan"]').tab('show');
+				jQuery('#modal-monev').modal('show');
+        	}
+		})
+	}
+
+	function get_data_jadwal_lokal(){
+		return new Promise(function(resolve, reject){
+			jQuery.ajax({
+				method:'POST',
+				url:ajax.url,
+				dataType:'json',
+				data:{
+					'action': 'get_data_jadwal_lokal',
+		          	'api_key': '<?php echo $api_key; ?>'
+				},
+				success:function(response){
+					response.data.map(function(value, index){
+						window.all_jadwal_lokal = {};
+						if(!all_jadwal_lokal[value.nama]){
+							all_jadwal_lokal[value.nama] = {};
+						}
+					});
+				}
+			});
+			resolve();
+		})
+	}
+
+	function set_data_jadwal_lokal() {
+		var html = '<option value="">Pilih Jadwal</option>';
+		for(var jadwal_lokal in all_jadwal_lokal){
+			html += '<option value="'+jadwal_lokal.id_jadwal_lokal+'">'+jadwal_lokal.nama+'</option>';
+		}
+		jQuery('#jadwal_lokal').html(html);
+	}
+
+	function getFormData($form) {
+	    let unindexed_array = $form.serializeArray();
+	    let indexed_array = {};
+
+	    jQuery.map(unindexed_array, function (n, i) {
+	    	indexed_array[n['name']] = n['value'];
+	    });
+
+	    return indexed_array;
+	}
+
+	function runFunction(name, arguments)
+	{
+	    var fn = window[name];
+	    if(typeof fn !== 'function')
+	        return;
+
+	    fn.apply(window, arguments);
+	}
 </script>

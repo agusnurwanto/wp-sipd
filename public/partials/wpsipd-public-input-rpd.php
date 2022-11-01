@@ -29,11 +29,13 @@ function parsing_nama_kode($nama_kode){
 $api_key = get_option('_crb_api_key_extension' );
 
 $jadwal_lokal = $wpdb->get_results("SELECT * from data_jadwal_lokal where id_jadwal_lokal = (select max(id_jadwal_lokal) from data_jadwal_lokal where id_tipe=3)", ARRAY_A);
+$id_jadwal_rpjpd = "";
 if(!empty($jadwal_lokal)){
 	$tahun_anggaran = $jadwal_lokal[0]['tahun_anggaran'];
 	$namaJadwal = $jadwal_lokal[0]['nama'];
 	$mulaiJadwal = $jadwal_lokal[0]['waktu_awal'];
 	$selesaiJadwal = $jadwal_lokal[0]['waktu_akhir'];
+    $id_jadwal_rpjpd = $jadwal_lokal[0]['relasi_perencanaan'];
 }else{
 	$tahun_anggaran = '2022';
 	$namaJadwal = '-';
@@ -68,6 +70,15 @@ $sql = "
 	from data_rpd_tujuan_lokal t
 	left join data_rpjpd_isu i on t.id_isu = i.id
 ";
+if(!empty($id_jadwal_rpjpd)){
+	$sql = "
+		select 
+			t.*,
+			i.isu_teks 
+		from data_rpd_tujuan_lokal t
+		left join data_rpjpd_isu_history i on t.id_isu = i.id_asli
+	";
+}
 $tujuan_all = $wpdb->get_results($sql, ARRAY_A);
 foreach ($tujuan_all as $tujuan) {
 	if(empty($data_all['data'][$tujuan['id_unik']])){
@@ -101,9 +112,9 @@ foreach ($tujuan_all as $tujuan) {
 				$program_all = $wpdb->get_results($sql, ARRAY_A);
 				foreach ($program_all as $program) {
 					$program_ids[$program['id_unik']] = "'".$program['id_unik']."'";
-					if(empty($program['kode_skpd'])){
-						$program['kode_skpd'] = '00';
-						$program['nama_skpd'] = 'SKPD Kosong';
+					if(empty($program['kode_skpd']) && empty($program['nama_skpd'])){
+						$program['kode_skpd'] = '';
+						$program['nama_skpd'] = 'Semua Perangkat Daerah';
 					}
 					$skpd_filter[$program['kode_skpd']] = $program['nama_skpd'];
 					if(empty($data_all['data'][$tujuan['id_unik']]['data'][$sasaran['id_unik']]['data'][$program['id_unik']])){
@@ -170,6 +181,16 @@ if(!empty($tujuan_ids)){
 		left join data_rpjpd_isu i on t.id_isu = i.id
 		where t.id_unik not in (".implode(',', $tujuan_ids).")
 	";
+	if(!empty($id_jadwal_rpjpd)){
+		$sql = "
+			select 
+				t.*,
+				i.isu_teks 
+			from data_rpd_tujuan_lokal t
+			left join data_rpjpd_isu_history i on t.id_isu = i.id_asli
+			where t.id_unik not in (".implode(',', $tujuan_ids).")
+		";
+	}
 }else{
 	$sql = "
 		select 
@@ -178,6 +199,15 @@ if(!empty($tujuan_ids)){
 		from data_rpd_tujuan_lokal t
 		left join data_rpjpd_isu i on t.id_isu = i.id
 	";
+	if(!empty($id_jadwal_rpjpd)){
+		$sql = "
+			select 
+				t.*,
+				i.isu_teks 
+			from data_rpd_tujuan_lokal t
+			left join data_rpjpd_isu_history i on t.id_isu = i.id_asli
+		";
+	}
 }
 $tujuan_all_kosong = $wpdb->get_results($sql, ARRAY_A);
 foreach ($tujuan_all_kosong as $tujuan) {
@@ -231,7 +261,7 @@ foreach ($tujuan_all_kosong as $tujuan) {
 			){
 				$data_all['data'][$tujuan['id_unik']]['data'][$sasaran['id_unik']]['data'][$program['id_unik']]['data'][$program['id_unik_indikator']] = array(
 					'nama' => $program['indikator'],
-					'data' => array()
+					'data' => $program
 				);
 			}
 		}
@@ -288,7 +318,7 @@ foreach ($sasaran_all_kosong as $sasaran) {
 		){
 			$data_all['data']['tujuan_kosong']['data'][$sasaran['id_unik']]['data'][$program['id_unik']]['data'][$program['id_unik_indikator']] = array(
 				'nama' => $program['indikator'],
-				'data' => array()
+				'data' => $program
 			);
 		}
 	}
@@ -324,7 +354,7 @@ foreach ($program_all as $program) {
 	if(empty($data_all['data']['tujuan_kosong']['data']['sasaran_kosong']['data'][$program['id_unik']]['data'][$program['id_unik_indikator']])){
 		$data_all['data']['tujuan_kosong']['data']['sasaran_kosong']['data'][$program['id_unik']]['data'][$program['id_unik_indikator']] = array(
 			'nama' => $program['indikator'],
-			'data' => array()
+			'data' => $program
 		);
 	}
 }
@@ -373,13 +403,13 @@ foreach ($data_all['data'] as $tujuan) {
 			<td class="atas kanan bawah"></td>
 			<td class="atas kanan bawah"></td>
 			<td class="atas kanan bawah">'.$indikator_tujuan.'</td>
-			<td class="atas kanan bawah">'.$target_awal.'</td>
-			<td class="atas kanan bawah">'.$target_1.'</td>
-			<td class="atas kanan bawah">'.$target_2.'</td>
-			<td class="atas kanan bawah">'.$target_3.'</td>
-			<td class="atas kanan bawah">'.$target_4.'</td>
-			<td class="atas kanan bawah">'.$target_5.'</td>
-			<td class="atas kanan bawah">'.$target_akhir.'</td>
+			<td class="atas kanan bawah text_tengah">'.$target_awal.'</td>
+			<td class="atas kanan bawah text_tengah">'.$target_1.'</td>
+			<td class="atas kanan bawah text_tengah">'.$target_2.'</td>
+			<td class="atas kanan bawah text_tengah">'.$target_3.'</td>
+			<td class="atas kanan bawah text_tengah">'.$target_4.'</td>
+			<td class="atas kanan bawah text_tengah">'.$target_5.'</td>
+			<td class="atas kanan bawah text_tengah">'.$target_akhir.'</td>
 			<td class="atas kanan bawah">'.$satuan.'</td>
 			<td class="atas kanan bawah"></td>
 		</tr>
@@ -417,13 +447,13 @@ foreach ($data_all['data'] as $tujuan) {
 				<td class="atas kanan bawah">'.parsing_nama_kode($sasaran['nama']).button_edit_monev($tujuan['detail'][0]['id_unik'].'||'.$sasaran['detail'][0]['id_unik']).'</td>
 				<td class="atas kanan bawah"></td>
 				<td class="atas kanan bawah">'.$indikator_sasaran.'</td>
-				<td class="atas kanan bawah">'.$target_awal.'</td>
-				<td class="atas kanan bawah">'.$target_1.'</td>
-				<td class="atas kanan bawah">'.$target_2.'</td>
-				<td class="atas kanan bawah">'.$target_3.'</td>
-				<td class="atas kanan bawah">'.$target_4.'</td>
-				<td class="atas kanan bawah">'.$target_5.'</td>
-				<td class="atas kanan bawah">'.$target_akhir.'</td>
+				<td class="atas kanan bawah text_tengah">'.$target_awal.'</td>
+				<td class="atas kanan bawah text_tengah">'.$target_1.'</td>
+				<td class="atas kanan bawah text_tengah">'.$target_2.'</td>
+				<td class="atas kanan bawah text_tengah">'.$target_3.'</td>
+				<td class="atas kanan bawah text_tengah">'.$target_4.'</td>
+				<td class="atas kanan bawah text_tengah">'.$target_5.'</td>
+				<td class="atas kanan bawah text_tengah">'.$target_akhir.'</td>
 				<td class="atas kanan bawah">'.$satuan.'</td>
 				<td class="atas kanan bawah"></td>
 			</tr>
@@ -442,13 +472,13 @@ foreach ($data_all['data'] as $tujuan) {
 			$satuan = array();
 			foreach ($program['data'] as $indikator_program) {
 				$text_indikator[] = '<div class="indikator_program">'.$indikator_program['nama'].button_edit_monev($tujuan['detail'][0]['id_unik'].'||'.$sasaran['detail'][0]['id_unik'].'||'.$indikator_program['data']['id_unik'].'|'.$indikator_program['data']['id_unik_indikator']).'</div>';
-				$target_awal[] = '<div class="indikator_program">'.get_target($indikator_program['data']['target_awal'], $indikator_program['data']['satuan']).'</div>';
-				$target_1[] = '<div class="indikator_program">'.get_target($indikator_program['data']['target_1'], $indikator_program['data']['satuan']).'</div>';
-				$target_2[] = '<div class="indikator_program">'.get_target($indikator_program['data']['target_2'], $indikator_program['data']['satuan']).'</div>';
-				$target_3[] = '<div class="indikator_program">'.get_target($indikator_program['data']['target_3'], $indikator_program['data']['satuan']).'</div>';
-				$target_4[] = '<div class="indikator_program">'.get_target($indikator_program['data']['target_4'], $indikator_program['data']['satuan']).'</div>';
-				$target_5[] = '<div class="indikator_program">'.get_target($indikator_program['data']['target_5'], $indikator_program['data']['satuan']).'</div>';
-				$target_akhir[] = '<div class="indikator_program">'.get_target($indikator_program['data']['target_akhir'], $indikator_program['data']['satuan']).'</div>';
+				$target_awal[] = '<div class="indikator_program">'.$indikator_program['data']['target_awal'].'</div>';
+				$target_1[] = '<div class="indikator_program">'.$indikator_program['data']['target_1'].'</div>'.number_format($indikator_program['data']['pagu_1'],0,",",".");
+				$target_2[] = '<div class="indikator_program">'.$indikator_program['data']['target_2'].'</div>'.number_format($indikator_program['data']['pagu_2'],0,",",".");
+				$target_3[] = '<div class="indikator_program">'.$indikator_program['data']['target_3'].'</div>'.number_format($indikator_program['data']['pagu_3'],0,",",".");
+				$target_4[] = '<div class="indikator_program">'.$indikator_program['data']['target_4'].'</div>'.number_format($indikator_program['data']['pagu_4'],0,",",".");
+				$target_5[] = '<div class="indikator_program">'.$indikator_program['data']['target_5'].'</div>'.number_format($indikator_program['data']['pagu_5'],0,",",".");
+				$target_akhir[] = '<div class="indikator_program">'.$indikator_program['data']['target_akhir'].'</div>';
 				$satuan[] = '<div class="indikator_program">'.$indikator_program['data']['satuan'].'</div>';
 			}
 			$text_indikator = implode('', $text_indikator);
@@ -962,53 +992,73 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
 					  	</div>
 					</div>
 				  	<div class="form-row">
-					  	<div class="form-group col-md-6">
+					  	<div class="form-group col-md-4">
 					    	<label>Target 1</label>
 					    	<input class="form-control" id="indikator-teks-program-vol-1" type="number">
 					  	</div>
-					  	<div class="form-group col-md-6">
+					  	<div class="form-group col-md-4">
 					    	<label>Satuan</label>
 					    	<input class="form-control" id="indikator-teks-program-satuan-1" type="text">
 					  	</div>
+					  	<div class="form-group col-md-4">
+					    	<label>Pagu 1</label>
+					    	<input class="form-control" id="indikator-teks-program-pagu-1" type="number">
+					  	</div>
 					</div>
 				  	<div class="form-row">
-					  	<div class="form-group col-md-6">
+					  	<div class="form-group col-md-4">
 					    	<label>Target 2</label>
 					    	<input class="form-control" id="indikator-teks-program-vol-2" type="number">
 					  	</div>
-					  	<div class="form-group col-md-6">
+					  	<div class="form-group col-md-4">
 					    	<label>Satuan</label>
 					    	<input class="form-control" id="indikator-teks-program-satuan-2" type="text">
 					  	</div>
+					  	<div class="form-group col-md-4">
+					    	<label>Pagu 2</label>
+					    	<input class="form-control" id="indikator-teks-program-pagu-2" type="number">
+					  	</div>
 					</div>
 				  	<div class="form-row">
-					  	<div class="form-group col-md-6">
+					  	<div class="form-group col-md-4">
 					    	<label>Target 3</label>
 					    	<input class="form-control" id="indikator-teks-program-vol-3" type="number">
 					  	</div>
-					  	<div class="form-group col-md-6">
+					  	<div class="form-group col-md-4">
 					    	<label>Satuan</label>
 					    	<input class="form-control" id="indikator-teks-program-satuan-3" type="text">
 					  	</div>
+					  	<div class="form-group col-md-4">
+					    	<label>Pagu 3</label>
+					    	<input class="form-control" id="indikator-teks-program-pagu-3" type="number">
+					  	</div>
 					</div>
 				  	<div class="form-row">
-					  	<div class="form-group col-md-6">
+					  	<div class="form-group col-md-4">
 					    	<label>Target 4</label>
 					    	<input class="form-control" id="indikator-teks-program-vol-4" type="number">
 					  	</div>
-					  	<div class="form-group col-md-6">
+					  	<div class="form-group col-md-4">
 					    	<label>Satuan</label>
 					    	<input class="form-control" id="indikator-teks-program-satuan-4" type="text">
 					  	</div>
+					  	<div class="form-group col-md-4">
+					    	<label>Pagu 4</label>
+					    	<input class="form-control" id="indikator-teks-program-pagu-4" type="number">
+					  	</div>
 					</div>
 				  	<div class="form-row">
-					  	<div class="form-group col-md-6">
+					  	<div class="form-group col-md-4">
 					    	<label>Target 5</label>
 					    	<input class="form-control" id="indikator-teks-program-vol-5" type="number">
 					  	</div>
-					  	<div class="form-group col-md-6">
+					  	<div class="form-group col-md-4">
 					    	<label>Satuan</label>
 					    	<input class="form-control" id="indikator-teks-program-satuan-5" type="text">
+					  	</div>
+					  	<div class="form-group col-md-4">
+					    	<label>Pagu 5</label>
+					    	<input class="form-control" id="indikator-teks-program-pagu-5" type="number">
 					  	</div>
 					</div>
 				  	<div class="form-row">
@@ -1450,7 +1500,7 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
 						data_html += ''
 						+'<tr style="background: #80000014;">'
 							+'<td colspan="3" style="padding: 0;">'
-								+"<table class='table table-bordered'>"
+								+"<table class='table table-bordered' style='margin: 0;'>"
 									+"<thead>"
 										+"<tr>"
 											+"<th class='text-center' style='width: 45px;'></th>"
@@ -1473,11 +1523,11 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
 								+'<td class="text-center">'+no+'.'+(i+1)+'</td>'
 								+'<td>'+bb.indikator+'</td>'
 								+'<td class="text-center">'+bb.target_awal+'</td>'
-								+'<td class="text-center">'+bb.target_1+'</td>'
-								+'<td class="text-center">'+bb.target_2+'</td>'
-								+'<td class="text-center">'+bb.target_3+'</td>'
-								+'<td class="text-center">'+bb.target_4+'</td>'
-								+'<td class="text-center">'+bb.target_5+'</td>'
+								+'<td class="text-center">'+bb.target_1+'<br>'+formatRupiah(bb.pagu_1)+'</td>'
+								+'<td class="text-center">'+bb.target_2+'<br>'+formatRupiah(bb.pagu_2)+'</td>'
+								+'<td class="text-center">'+bb.target_3+'<br>'+formatRupiah(bb.pagu_3)+'</td>'
+								+'<td class="text-center">'+bb.target_4+'<br>'+formatRupiah(bb.pagu_4)+'</td>'
+								+'<td class="text-center">'+bb.target_5+'<br>'+formatRupiah(bb.pagu_5)+'</td>'
 								+'<td class="text-center">'+bb.target_akhir+'</td>'
 								+'<td>'+bb.kode_skpd+' '+bb.nama_skpd+'</td>'
 								+'<td class="text-center aksi">'
@@ -1644,14 +1694,19 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
 					jQuery('#indikator-teks-program-satuan-awal').val('');
 					jQuery('#indikator-teks-program-vol-1').val('');
 					jQuery('#indikator-teks-program-satuan-1').val('');
+					jQuery('#indikator-teks-program-pagu-1').val('');
 					jQuery('#indikator-teks-program-vol-2').val('');
 					jQuery('#indikator-teks-program-satuan-2').val('');
+					jQuery('#indikator-teks-program-pagu-2').val('');
 					jQuery('#indikator-teks-program-vol-3').val('');
 					jQuery('#indikator-teks-program-satuan-3').val('');
+					jQuery('#indikator-teks-program-pagu-3').val('');
 					jQuery('#indikator-teks-program-vol-4').val('');
 					jQuery('#indikator-teks-program-satuan-4').val('');
+					jQuery('#indikator-teks-program-pagu-4').val('');
 					jQuery('#indikator-teks-program-vol-5').val('');
 					jQuery('#indikator-teks-program-satuan-5').val('');
+					jQuery('#indikator-teks-program-pagu-5').val('');
 					jQuery('#indikator-teks-program-vol-akhir').val('');
 					jQuery('#indikator-teks-program-satuan-akhir').val('');
 					jQuery('#modal-program-indikator').attr('id-program', id_program);
@@ -1671,7 +1726,7 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
 		var html = ""
 			+"<option value=''>Pilih SKPD</option>"
 			+"<option "+selected+" data-kode='' value='*'>Semua Perangkat Daerah</option>";
-		if(current_id_program){
+		if(current_id_program && all_skpd_program[current_id_program]){
 			all_skpd_program[current_id_program].map(function(program){
 				var selected = '';
 				if(current_id_skpd == program.id_skpd){
@@ -2156,14 +2211,19 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
 						jQuery('#indikator-teks-program-satuan-awal').val(get_sat(res.data_all[b].detail[0].target_awal));
 						jQuery('#indikator-teks-program-vol-1').val(get_vol(res.data_all[b].detail[0].target_1));
 						jQuery('#indikator-teks-program-satuan-1').val(get_sat(res.data_all[b].detail[0].target_1));
+						jQuery('#indikator-teks-program-pagu-1').val(res.data_all[b].detail[0].pagu_1);
 						jQuery('#indikator-teks-program-vol-2').val(get_vol(res.data_all[b].detail[0].target_2));
 						jQuery('#indikator-teks-program-satuan-2').val(get_sat(res.data_all[b].detail[0].target_2));
+						jQuery('#indikator-teks-program-pagu-2').val(res.data_all[b].detail[0].pagu_2);
 						jQuery('#indikator-teks-program-vol-3').val(get_vol(res.data_all[b].detail[0].target_3));
 						jQuery('#indikator-teks-program-satuan-3').val(get_sat(res.data_all[b].detail[0].target_3));
+						jQuery('#indikator-teks-program-pagu-3').val(res.data_all[b].detail[0].pagu_3);
 						jQuery('#indikator-teks-program-vol-4').val(get_vol(res.data_all[b].detail[0].target_4));
 						jQuery('#indikator-teks-program-satuan-4').val(get_sat(res.data_all[b].detail[0].target_4));
+						jQuery('#indikator-teks-program-pagu-4').val(res.data_all[b].detail[0].pagu_4);
 						jQuery('#indikator-teks-program-vol-5').val(get_vol(res.data_all[b].detail[0].target_5));
 						jQuery('#indikator-teks-program-satuan-5').val(get_sat(res.data_all[b].detail[0].target_5));
+						jQuery('#indikator-teks-program-pagu-5').val(res.data_all[b].detail[0].pagu_5);
 						jQuery('#indikator-teks-program-vol-akhir').val(get_vol(res.data_all[b].detail[0].target_akhir));
 						jQuery('#indikator-teks-program-satuan-akhir').val(get_sat(res.data_all[b].detail[0].target_akhir));
 					}
@@ -2695,6 +2755,7 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
 		if(vol_1 == ''){
 			return alert('Volume 1 indikator program tidak boleh kosong!');
 		}
+		var pagu_1 = jQuery('#indikator-teks-program-pagu-1').val();
 		var satuan_1 = jQuery('#indikator-teks-program-satuan-1').val();
 		if(satuan_1 == ''){
 			return alert('Satuan 1 indikator program tidak boleh kosong!');
@@ -2703,6 +2764,7 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
 		if(vol_2 == ''){
 			return alert('Volume 2 indikator program tidak boleh kosong!');
 		}
+		var pagu_2 = jQuery('#indikator-teks-program-pagu-2').val();
 		var satuan_2 = jQuery('#indikator-teks-program-satuan-2').val();
 		if(satuan_2 == ''){
 			return alert('Satuan 2 indikator program tidak boleh kosong!');
@@ -2711,6 +2773,7 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
 		if(vol_3 == ''){
 			return alert('Volume 3 indikator program tidak boleh kosong!');
 		}
+		var pagu_3 = jQuery('#indikator-teks-program-pagu-3').val();
 		var satuan_3 = jQuery('#indikator-teks-program-satuan-3').val();
 		if(satuan_3 == ''){
 			return alert('Satuan 3 indikator program tidak boleh kosong!');
@@ -2719,6 +2782,7 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
 		if(vol_4 == ''){
 			return alert('Volume 4 indikator program tidak boleh kosong!');
 		}
+		var pagu_4 = jQuery('#indikator-teks-program-pagu-4').val();
 		var satuan_4 = jQuery('#indikator-teks-program-satuan-4').val();
 		if(satuan_4 == ''){
 			return alert('Satuan 4 indikator program tidak boleh kosong!');
@@ -2727,6 +2791,7 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
 		if(vol_5 == ''){
 			return alert('Volume 5 indikator program tidak boleh kosong!');
 		}
+		var pagu_5 = jQuery('#indikator-teks-program-pagu-5').val();
 		var satuan_5 = jQuery('#indikator-teks-program-satuan-5').val();
 		if(satuan_5 == ''){
 			return alert('Satuan 5 indikator program tidak boleh kosong!');
@@ -2758,14 +2823,19 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
 	          		"satuan_awal": satuan_awal,
 	          		"vol_1": vol_1,
 	          		"satuan_1": satuan_1,
+	          		"pagu_1": pagu_1,
 	          		"vol_2": vol_2,
 	          		"satuan_2": satuan_2,
+	          		"pagu_2": pagu_2,
 	          		"vol_3": vol_3,
 	          		"satuan_3": satuan_3,
+	          		"pagu_3": pagu_3,
 	          		"vol_4": vol_4,
 	          		"satuan_4": satuan_4,
+	          		"pagu_4": pagu_4,
 	          		"vol_5": vol_5,
 	          		"satuan_5": satuan_5,
+	          		"pagu_5": pagu_5,
 	          		"vol_akhir": vol_akhir,
 	          		"satuan_akhir": satuan_akhir,
 	          		"id": id_indikator
