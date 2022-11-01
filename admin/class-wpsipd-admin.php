@@ -253,6 +253,10 @@ class Wpsipd_Admin {
 		    ->set_page_parent( $monev )
 		    ->add_fields( $this->get_ajax_field(array('type' => 'monev_satuan_harga')) );
 
+		Container::make( 'theme_options', __( 'Monev RAK' ) )
+		    ->set_page_parent( $monev )
+		    ->add_fields( $this->get_ajax_field(array('type' => 'monev_rak')) );
+
 	    $laporan = Container::make( 'theme_options', __( 'LAPORAN SIPD' ) )
 			->set_page_menu_position( 4 )
 		    ->add_fields( $this->generate_tag_sipd() );
@@ -483,6 +487,9 @@ class Wpsipd_Admin {
 						}else if($_POST['type'] == 'input_renja'){
 							$url_skpd = $this->generatePage('Input RENJA '.$vv['nama_skpd'].' '.$vv['kode_skpd'].' | '.$v['tahun_anggaran'], $v['tahun_anggaran'], '[input_renja tahun_anggaran="'.$v['tahun_anggaran'].'" id_skpd="'.$vv['id_skpd'].'"]');
 		            		$body_pemda .= '<li><a target="_blank" href="'.$url_skpd.'">Halaman Input RENJA '.$vv['kode_skpd'].' '.$vv['nama_skpd'].' '.$v['tahun_anggaran'].'</a> (NIP: '.$vv['nipkepala'].')';
+						}else if($_POST['type'] == 'monev_rak'){
+							$url_skpd = $this->generatePage('Rencana Anggaran Kas '.$vv['nama_skpd'].' '.$vv['kode_skpd'].' | '.$v['tahun_anggaran'], $v['tahun_anggaran'], '[monitor_rak tahun_anggaran="'.$v['tahun_anggaran'].'" id_skpd="'.$vv['id_skpd'].'"]');
+		            		$body_pemda .= '<li><a target="_blank" href="'.$url_skpd.'">Halaman RAK '.$vv['kode_skpd'].' '.$vv['nama_skpd'].' '.$v['tahun_anggaran'].'</a> (NIP: '.$vv['nipkepala'].')';
 						}
 
 		            	if(!empty($subunit)){
@@ -511,6 +518,9 @@ class Wpsipd_Admin {
 							}else if($_POST['type'] == 'input_renja'){
 								$url_skpd = $this->generatePage('Input RENJA '.$vvv['nama_skpd'].' '.$vvv['kode_skpd'].' | '.$v['tahun_anggaran'], $v['tahun_anggaran'], '[input_renja tahun_anggaran="'.$v['tahun_anggaran'].'" id_skpd="'.$vvv['id_skpd'].'"]');
 								$body_pemda .= '<li><a target="_blank" href="'.$url_skpd.'">Halaman Input RENJA '.$vvv['kode_skpd'].' '.$vvv['nama_skpd'].' '.$v['tahun_anggaran'].'</a> (NIP: '.$vvv['nipkepala'].')';
+							}else if($_POST['type'] == 'monev_rak'){
+								$url_skpd = $this->generatePage('Rencana Anggaran Kas '.$vvv['nama_skpd'].' '.$vvv['kode_skpd'].' | '.$v['tahun_anggaran'], $v['tahun_anggaran'], '[monitor_rak tahun_anggaran="'.$v['tahun_anggaran'].'" id_skpd="'.$vvv['id_skpd'].'"]');
+								$body_pemda .= '<li><a target="_blank" href="'.$url_skpd.'">Halaman RAK '.$vvv['kode_skpd'].' '.$vvv['nama_skpd'].' '.$v['tahun_anggaran'].'</a> (NIP: '.$vvv['nipkepala'].')';
 							}
 		            	}
 		            	if(!empty($subunit)){
@@ -551,6 +561,8 @@ class Wpsipd_Admin {
 						$body_all .= '<div style="padding:.75rem 0 0 .75rem;"><a style="font-weight: bold;" target="_blank" href="'.$url_add_new_ssh.'">Halaman Data Usulan SSH '.$v['tahun_anggaran'].'</a></div>'.$body_pemda;
 			        }else if($_POST['type'] == 'input_renja'){
 			        	$body_all .= $body_pemda;
+					}else if($_POST['type'] == 'monev_rak'){
+						$body_all .= $body_pemda;
 					}
 				}
 				if(
@@ -561,6 +573,7 @@ class Wpsipd_Admin {
 					|| $_POST['type'] == 'apbdpenjabaran'
 					|| $_POST['type'] == 'monev_satuan_harga'
 					|| $_POST['type'] == 'input_renja'
+					|| $_POST['type'] == 'monev_rak'
 				){
 					$ret['message'] = $body_all;
 				}

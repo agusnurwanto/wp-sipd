@@ -348,4 +348,15 @@ class Wpsipd_Public_Base_2
 		
 		require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/wpsipd-public-input-renja.php';
 	}
+
+	public function monitor_rak($atts)
+	{
+		// untuk disable render shortcode di halaman edit page/post
+		if(!empty($_GET) && !empty($_GET['post'])){
+			return '';
+		}
+		if(!empty($atts['id_skpd'])){
+			require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/wpsipd-public-monitor-rak.php';
+		}
+	}
 }
