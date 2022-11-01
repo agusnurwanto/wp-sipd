@@ -457,7 +457,7 @@ class Wpsipd_Public_Base_2
 		]);exit;
 	}
 
-	function add_tujuan_renstra(){
+	public function add_tujuan_renstra(){
 		global $wpdb;
 
 		try{
@@ -505,7 +505,7 @@ class Wpsipd_Public_Base_2
 		}
 	}
 
-	function submit_tujuan_renstra(){
+	public function submit_tujuan_renstra(){
 		global $wpdb;
 
 		try{
@@ -595,7 +595,7 @@ class Wpsipd_Public_Base_2
 		}
 	}
 
-	function edit_tujuan_renstra(){
+	public function edit_tujuan_renstra(){
 		global $wpdb;
 
 		try {
@@ -648,7 +648,7 @@ class Wpsipd_Public_Base_2
 		}
 	}
 
-	function update_tujuan_renstra(){
+	public function update_tujuan_renstra(){
 		global $wpdb;
 
 		try{
@@ -733,7 +733,7 @@ class Wpsipd_Public_Base_2
 		}
 	}
 
-	function delete_tujuan_renstra(){
+	public function delete_tujuan_renstra(){
 		global $wpdb;
 		try{
 			if (!empty($_POST)) {
@@ -772,4 +772,182 @@ class Wpsipd_Public_Base_2
 			]);exit;
 		}
 	}
+
+	public function get_indikator_tujuan_renstra(){
+		global $wpdb;
+
+		try{
+			if (!empty($_POST)) {
+				if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+					
+					if($_POST['type']==1){
+						$sql = $wpdb->prepare("
+							SELECT * FROM data_renstra_tujuan_lokal 
+								WHERE 
+									id_unik=%s AND 
+									id_unik_indikator IS NOT NULL AND 
+									is_locked_indikator=0 AND 
+									status=1 AND 
+									active=1", $_POST['id_unik']);
+						$indikator = $wpdb->get_results($sql, ARRAY_A);
+					}else{
+
+						$tahun_anggaran = $_POST['tahun_anggaran'];
+						$sql = $wpdb->prepare("
+							SELECT 
+								* 
+							FROM data_renstra_tujuan
+							WHERE tahun_anggaran=%d AND 
+									id_unik=%s
+									id_unik_indikator IS NOT NULL AND 
+									is_locked_indikator=0 AND
+									active=1
+							ORDER BY urut_tujuan
+							", $tahun_anggaran, $_POST['id_unik']);
+						$indikator = $wpdb->get_results($sql, ARRAY_A);
+					}
+
+					echo json_encode([
+						'status' => true,
+						'data' => $indikator,
+						'message' => 'Sukses get indikator tujuan'
+					]);exit;
+
+				}else{
+					throw new Exception('Api key tidak sesuai');
+				}
+			}else{
+				throw new Exception('Format tidak sesuai');
+			}
+		}catch(Exception $e){
+			echo json_encode([
+				'status' => false,
+				'message' => $e->getMessage()
+			]);exit;
+		}
+	}
+
+	public function submit_indikator_tujuan_renstra(){
+		global $wpdb;
+
+		try{
+			if (!empty($_POST)) {
+				if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+					
+					$data = json_decode(stripslashes($_POST['data']), true);
+
+					$this->verify_indikator_tujuan_renstra($data);
+
+					$id_cek = $wpdb->get_var("
+						SELECT id FROM data_rpjmd_tujuan_lokal
+							WHERE indikator_teks='".$data['indikator_teks']."'
+										AND id_unik='".$data['id_unik']."'
+										AND is_locked_indikator=0
+										AND status=1
+										AND active=1
+								");
+					
+					if(!empty($id_cek)){
+						throw new Exception('Indikator : '.$data['indikator_teks'].' sudah ada!');
+					}
+
+					$dataTujuan = $wpdb->get_row("SELECT * FROM data_renstra_tujuan_lokal WHERE id_unik='" . $data['id_unik'] . "' AND is_locked=0 AND status=1 AND active=1 AND id_unik_indikator IS NULL");
+
+					if (empty($dataTujuan)) {
+						throw new Exception('Tujuan yang dipilih tidak ditemukan!');
+					}
+
+					$status = $wpdb->insert('data_renstra_tujuan_lokal', [
+						'id_bidang_urusan' => $dataTujuan->id_bidang_urusan,
+						'id_unik' => $dataTujuan->id_unik, // kode_tujuan
+						'id_unik_indikator' => $this->generateRandomString(),
+						'id_unit' => $dataTujuan->id_unit,
+						'indikator_teks' => $data['indikator_teks'],
+						'is_locked' => 0,
+						'is_locked_indikator' => 0,
+						'kode_bidang_urusan' => $dataTujuan->kode_bidang_urusan,
+						'kode_sasaran_rpjm' => $dataTujuan->kode_sasaran_rpjm,
+						'kode_skpd' => $dataTujuan->kode_skpd,
+						'nama_bidang_urusan' => $dataTujuan->nama_bidang_urusan,
+						'nama_skpd' => $dataTujuan->nama_skpd,
+						'satuan' => $data['satuan'],
+						'status' => 1,
+						'target_1' => $data['target_1'],
+						'target_2' => $data['target_2'],
+						'target_3' => $data['target_3'],
+						'target_4' => $data['target_4'],
+						'target_5' => $data['target_5'],
+						'target_awal' => $data['target_awal'],
+						'target_akhir' => $data['target_akhir'],
+						'tujuan_teks' => $dataTujuan->tujuan_teks,
+						'urut_tujuan' => $dataTujuan->urut_tujuan,
+						'active' => 1
+					]);
+
+					if(!$status){
+						throw new Exception('Terjadi kesalahan saat simpan data, harap hubungi admin!');
+					}
+
+					echo json_encode([
+						'status' => true,
+						'message' => 'Sukses simpan indikator tujuan'
+					]);exit;
+
+				}else{
+					throw new Exception('Api key tidak sesuai');
+				}
+			}else{
+				throw new Exception('Format tidak sesuai');
+			}
+		}catch(Exception $e){
+			echo json_encode([
+				'status' => false,
+				'message' => $e->getMessage()
+			]);exit;
+		}
+	}
+
+	function verify_indikator_tujuan_renstra(array $data){
+		if(empty($data['id_unik'])){
+			throw new Exception('Tujuan wajib dipilih!');
+		}
+
+		if(empty($data['indikator_teks'])){
+			throw new Exception('Indikator tujuan tidak boleh kosong!');
+		}
+
+		if(empty($data['satuan'])){
+			throw new Exception('Satuan indikator tujuan tidak boleh kosong!');
+		}
+
+		if(empty($data['target_1'])){
+			throw new Exception('Target Indikator tujuan tahun ke-1 tidak boleh kosong!');
+		}
+
+		if(empty($data['target_2'])){
+			throw new Exception('Target Indikator tujuan tahun ke-2 tidak boleh kosong!');
+		}
+
+		if(empty($data['target_3'])){
+			throw new Exception('Target Indikator tujuan tahun ke-3 tidak boleh kosong!');
+		}
+
+		if(empty($data['target_4'])){
+			throw new Exception('Target Indikator tujuan tahun ke-4 tidak boleh kosong!');
+		}
+
+		if(empty($data['target_5'])){
+			throw new Exception('Target Indikator tujuan tahun ke-5 tidak boleh kosong!');
+		}
+
+		if(empty($data['target_awal'])){
+			throw new Exception('Target awal Indikator tujuan tidak boleh kosong!');
+		}
+
+		if(empty($data['target_akhir'])){
+			throw new Exception('Target akhir Indikator tujuan tidak boleh kosong!');
+		}		
+	}
+
+
 }

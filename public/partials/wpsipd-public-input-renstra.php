@@ -38,7 +38,8 @@ $namaJadwal = '-';
 $mulaiJadwal = '-';
 $selesaiJadwal = '-';
 
-$jadwal_lokal = $wpdb->get_results("SELECT * from data_jadwal_lokal where id_jadwal_lokal = (select max(id_jadwal_lokal) from data_jadwal_lokal where id_tipe=2)", ARRAY_A);
+$jadwal_lokal = $wpdb->get_results("SELECT * from data_jadwal_lokal where id_jadwal_lokal = (select max(id_jadwal_lokal) from data_jadwal_lokal where id_tipe=4)", ARRAY_A);
+
 if(!empty($jadwal_lokal)){
 	$awal_renstra = $jadwal_lokal[0]['tahun_anggaran'];
 	$namaJadwal = $jadwal_lokal[0]['nama'];
@@ -371,7 +372,6 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
 						+'<i class="dashicons dashicons-yes" style="margin-top: 3px;"></i> Simpan'
 					+'</button>');
 				tujuanModal.modal('show');
-				jQuery("#sasaran-parent").val(response.tujuan.kode_sasaran_rpjm+"|"+response.tujuan.id_program);
           	}
         });
 	});
@@ -404,6 +404,70 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
 				}
 			})
 		}
+	});
+
+	jQuery(document).on('click', '.btn-kelola-indikator-tujuan', function(){
+        jQuery("#modal-indikator-renstra").find('.modal-body').html('');
+		indikatorTujuanRenstra({'id_unik':jQuery(this).data('idunik'),'id_tujuan':jQuery(this).data('idtujuan')});
+	});
+
+	jQuery(document).on('click', '.btn-add-indikator-tujuan', function(){
+
+		let indikatorTujuanModal = jQuery("#modal-crud-renstra");
+		let id_unik = jQuery(this).data('idunik');
+		let html = '<form id="form-renstra">'
+					+'<input type="hidden" name="id_unik" value="'+id_unik+'">'
+					+'<div class="form-group">'
+						+'<label for="indikator_teks">Indikator</label>'
+		  				+'<textarea class="form-control" name="indikator_teks"></textarea>'
+					+'</div>'
+					+'<div class="form-group">'
+						+'<label for="satuan">Satuan</label>'
+		  				+'<input type="text" class="form-control" name="satuan"/>'
+					+'</div>'
+					+'<div class="form-group">'
+						+'<label for="target_1">Target tahun ke-1</label>'
+		  				+'<input type="text" class="form-control" name="target_1"/>'
+					+'</div>'
+					+'<div class="form-group">'
+						+'<label for="target_2">Target tahun ke-2</label>'
+		  				+'<input type="text" class="form-control" name="target_2"/>'
+					+'</div>'
+					+'<div class="form-group">'
+						+'<label for="target_3">Target tahun ke-3</label>'
+		  				+'<input type="text" class="form-control" name="target_3"/>'
+					+'</div>'
+					+'<div class="form-group">'
+						+'<label for="target_4">Target tahun ke-4</label>'
+		  				+'<input type="text" class="form-control" name="target_4"/>'
+					+'</div>'
+					+'<div class="form-group">'
+						+'<label for="target_5">Target tahun ke-5</label>'
+		  				+'<input type="text" class="form-control" name="target_5"/>'
+					+'</div>'
+					+'<div class="form-group">'
+						+'<label for="target_awal">Target awal</label>'
+		  				+'<input type="text" class="form-control" name="target_awal"/>'
+					+'</div>'
+					+'<div class="form-group">'
+						+'<label for="target_akhir">Target akhir</label>'
+		  				+'<input type="text" class="form-control" name="target_akhir"/>'
+					+'</div>'
+					+'</form>';
+
+			indikatorTujuanModal.find('.modal-title').html('Tambah Indikator');
+			indikatorTujuanModal.find('.modal-body').html(html);
+			indikatorTujuanModal.find('.modal-footer').html(''
+				+'<button type="button" class="btn btn-sm btn-warning" data-dismiss="modal">'
+					+'<i class="dashicons dashicons-no" style="margin-top: 3px;"></i> Tutup'
+				+'</button>'
+				+'<button type="button" class="btn btn-sm btn-success" id="btn-simpan-data-renstra-lokal" '
+					+'data-action="submit_indikator_tujuan_renstra" '
+					+'data-view="indikatorTujuanRenstra"'
+				+'>'
+					+'<i class="dashicons dashicons-yes" style="margin-top: 3px;"></i> Simpan'
+				+'</button>');
+			indikatorTujuanModal.modal('show');
 	});
 
 	jQuery(document).on('click', '#btn-simpan-data-renstra-lokal', function(){
@@ -497,16 +561,17 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
 	          			+'<thead>'
 	          				+'<tr>'
 	          					+'<th style="width:5%">No.</th>'
-	          					+'<th style="width:80%">Tujuan</th>'
-	          					+'<th style="width:20%">Aksi</th>'
+	          					+'<th style="width:75%">Tujuan</th>'
+	          					+'<th style="width:25%">Aksi</th>'
 	          				+'<tr>'
 	          			+'</thead>'
 	          			+'<tbody>';
 			          		res.data.map(function(value, index){
-			          			tujuan +='<tr idvisi="'+value.id+'">'
+			          			tujuan +='<tr idtujuan="'+value.id+'">'
 						          			+'<td>'+(index+1)+'.</td>'
 						          			+'<td>'+value.tujuan_teks+'</td>'
 						          			+'<td>'
+						          					+'<a href="javascript:void(0)" data-idtujuan="'+value.id+'" data-idunik="'+value.id_unik+'" class="btn btn-sm btn-warning btn-kelola-indikator-tujuan"><i class="dashicons dashicons-menu-alt" style="margin-top: 3px;"></i></a>&nbsp;'
 						          					+'<a href="javascript:void(0)" data-id="'+value.id+'" class="btn btn-sm btn-primary btn-detail-tujuan"><i class="dashicons dashicons-search"></i></a>&nbsp;'
 						          					+'<a href="javascript:void(0)" data-id="'+value.id+'" class="btn btn-sm btn-success btn-edit-tujuan"><i class="dashicons dashicons-edit"></i></a>&nbsp;'
 						          					+'<a href="javascript:void(0)" data-id="'+value.id+'" data-idunik="'+value.id_unik+'" class="btn btn-sm btn-danger btn-hapus-tujuan"><i class="dashicons dashicons-trash"></i></a>'
@@ -520,6 +585,83 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
 				jQuery('.nav-tabs a[href="#nav-tujuan"]').tab('show');
 				jQuery('#modal-monev').modal('show');
         	}
+		})
+	}
+
+	function indikatorTujuanRenstra(params){
+		
+		jQuery('#wrap-loading').show();
+
+		jQuery.ajax({
+			url: ajax.url,
+          	type: "post",
+          	data: {
+          		"action": "get_indikator_tujuan_renstra",
+          		"api_key": "<?php echo $api_key; ?>",
+				'id_unik': params.id_unik,
+				'type':1
+          	},
+          	dataType: "json",
+          	success: function(response){
+          		jQuery('#wrap-loading').hide();
+
+          		let html=""
+					+'<div style="margin-top:10px">'
+						+"<button type=\"button\" class=\"btn btn-sm btn-primary mb-2 btn-add-indikator-tujuan\" data-idunik=\""+params.id_unik+"\">"
+								+"<i class=\"dashicons dashicons-plus\" style=\"margin-top: 3px;\"></i> Tambah Indikator"
+						+"</button>"
+					+'</div>'
+          			+'<table class="table">'
+	          			+'<thead>'
+	          				+'<tr>'
+	          					+'<th class="text-center" style="width: 160px;">Tujuan</th>'
+	          					+'<th>'+jQuery('#nav-tujuan tr[idtujuan="'+params.id_tujuan+'"]').find('td').eq(1).text()+'</th>'
+	          				+'</tr>'
+	          			+'</thead>'
+          			+'</table>'
+					+"<table class='table'>"
+						+"<thead>"
+							+"<tr>"
+								+"<th>No.</th>"
+								+"<th>Indikator</th>"
+								+"<th>Satuan</th>"
+								+"<th>Target 1</th>"
+								+"<th>Target 2</th>"
+								+"<th>Target 3</th>"
+								+"<th>Target 4</th>"
+								+"<th>Target 5</th>"
+								+"<th>Target Awal</th>"
+								+"<th>Target Akhir</th>"
+								+"<th>Aksi</th>"
+							+"</tr>"
+						+"</thead>"
+						+"<tbody id='indikator_tujuan'>";
+						response.data.map(function(value, index){
+			          			html +="<tr>"
+						          		+"<td>"+(index+1)+".</td>"
+						          		+"<td>"+value.indikator_teks+"</td>"
+						          		+"<td>"+value.satuan+"</td>"
+						          		+"<td>"+value.target_1+"</td>"
+						          		+"<td>"+value.target_2+"</td>"
+						          		+"<td>"+value.target_3+"</td>"
+						          		+"<td>"+value.target_4+"</td>"
+						          		+"<td>"+value.target_5+"</td>"
+						          		+"<td>"+value.target_awal+"</td>"
+						          		+"<td>"+value.target_akhir+"</td>"
+						          		+"<td>"
+						          			+"<a href='#' class='btn btn-sm btn-success btn-edit-indikator-tujuan' data-id='"+value.id+"'><i class='dashicons dashicons-edit' style='margin-top: 3px;'></i></a>&nbsp"
+											+"<a href='#' class='btn btn-sm btn-danger btn-delete-indikator-tujuan' data-id='"+value.id+"'><i class='dashicons dashicons-trash' style='margin-top: 3px;'></i></a>&nbsp;"
+						          		+"</td>"
+						          	+"</tr>";
+			          		});
+		          	html+='</tbody></table>';
+
+		          	jQuery("#modal-indikator-renstra").find('.modal-title').html('Indikator Tujuan');
+		          	jQuery("#modal-indikator-renstra").find('.modal-body').html(html)
+					jQuery("#modal-indikator-renstra").find('.modal-dialog').css('maxWidth','1250px');
+					jQuery("#modal-indikator-renstra").find('.modal-dialog').css('width','100%');
+					jQuery("#modal-indikator-renstra").modal('show');
+          	}  	
 		})
 	}
 
