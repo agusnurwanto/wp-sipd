@@ -842,10 +842,15 @@ class Wpsipd_Public_Base_1 extends Wpsipd_Public_Base_2{
                                 'indikator' => $_POST['data'],
                                 'target_awal' => $_POST['vol_awal'].' '.$_POST['satuan_awal'],
                                 'target_1' => $_POST['vol_1'].' '.$_POST['satuan_1'],
+                                'pagu_1' => $_POST['pagu_1'],
                                 'target_2' => $_POST['vol_2'].' '.$_POST['satuan_2'],
+                                'pagu_2' => $_POST['pagu_2'],
                                 'target_3' => $_POST['vol_3'].' '.$_POST['satuan_3'],
+                                'pagu_3' => $_POST['pagu_3'],
                                 'target_4' => $_POST['vol_4'].' '.$_POST['satuan_4'],
+                                'pagu_4' => $_POST['pagu_4'],
                                 'target_5' => $_POST['vol_5'].' '.$_POST['satuan_5'],
+                                'pagu_5' => $_POST['pagu_5'],
                                 'target_akhir' => $_POST['vol_akhir'].' '.$_POST['satuan_akhir'],
                                 'update_at' => date('Y-m-d H:i:s')
                             );
