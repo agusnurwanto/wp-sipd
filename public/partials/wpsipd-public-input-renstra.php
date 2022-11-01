@@ -408,7 +408,7 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
 
 	jQuery(document).on('click', '.btn-kelola-indikator-tujuan', function(){
         jQuery("#modal-indikator-renstra").find('.modal-body').html('');
-		indikatorTujuanRenstra({'id_unik':jQuery(this).data('idunik'),'id_tujuan':jQuery(this).data('idtujuan')});
+		indikatorTujuanRenstra({'id_unik':jQuery(this).data('idunik')});
 	});
 
 	jQuery(document).on('click', '.btn-add-indikator-tujuan', function(){
@@ -468,6 +468,119 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
 					+'<i class="dashicons dashicons-yes" style="margin-top: 3px;"></i> Simpan'
 				+'</button>');
 			indikatorTujuanModal.modal('show');
+	});
+
+	jQuery(document).on('click', '.btn-edit-indikator-tujuan', function(){
+
+		jQuery('#wrap-loading').show();
+
+		let indikatorTujuanModal = jQuery("#modal-crud-renstra");
+
+		let id = jQuery(this).data('id');
+
+		let id_unik = jQuery(this).data('idunik');
+
+		jQuery.ajax({
+			url: ajax.url,
+          	type: "post",
+          	data: {
+          		"action": "edit_indikator_tujuan_renstra",
+          		"api_key": "<?php echo $api_key; ?>",
+				'id': id
+          	},
+          	dataType: "json",
+          	success: function(response){
+          		jQuery('#wrap-loading').hide();
+
+          		let html = '<form id="form-renstra">'
+					+'<input type="hidden" name="id" value="'+id+'">'
+					+'<input type="hidden" name="id_unik" value="'+id_unik+'">'
+					+'<div class="form-group">'
+						+'<label for="indikator_teks">Indikator</label>'
+	  					+'<textarea class="form-control" name="indikator_teks">'+response.data.indikator_teks+'</textarea>'
+					+'</div>'
+					+'<div class="form-group">'
+						+'<label for="satuan">Satuan</label>'
+	  					+'<input type="text" class="form-control" name="satuan" value="'+response.data.satuan+'"/>'
+					+'</div>'
+					+'<div class="form-group">'
+						+'<label for="target_1">Target tahun ke-1</label>'
+	  					+'<input type="text" class="form-control" name="target_1" value="'+response.data.target_1+'"/>'
+					+'</div>'
+					+'<div class="form-group">'
+						+'<label for="target_2">Target tahun ke-2</label>'
+	  					+'<input type="text" class="form-control" name="target_2" value="'+response.data.target_2+'"/>'
+					+'</div>'
+					+'<div class="form-group">'
+						+'<label for="target_3">Target tahun ke-3</label>'
+	  					+'<input type="text" class="form-control" name="target_3" value="'+response.data.target_3+'"/>'
+					+'</div>'
+					+'<div class="form-group">'
+						+'<label for="target_4">Target tahun ke-4</label>'
+	  					+'<input type="text" class="form-control" name="target_4" value="'+response.data.target_4+'"/>'
+					+'</div>'
+					+'<div class="form-group">'
+						+'<label for="target_5">Target tahun ke-5</label>'
+	  					+'<input type="text" class="form-control" name="target_5" value="'+response.data.target_5+'"/>'
+					+'</div>'
+					+'<div class="form-group">'
+						+'<label for="target_awal">Target awal</label>'
+	  					+'<input type="text" class="form-control" name="target_awal" value="'+response.data.target_awal+'"/>'
+					+'</div>'
+					+'<div class="form-group">'
+					+'<label for="target_akhir">Target akhir</label>'
+	  					+'<input type="text" class="form-control" name="target_akhir" value="'+response.data.target_akhir+'"/>'
+					+'</div>'
+				  +'</form>';
+
+				indikatorTujuanModal.find('.modal-title').html('Edit Indikator Tujuan');
+				indikatorTujuanModal.find('.modal-body').html(html);
+				indikatorTujuanModal.find('.modal-footer').html(''
+					+'<button type="button" class="btn btn-sm btn-warning" data-dismiss="modal">'
+						+'<i class="dashicons dashicons-no" style="margin-top: 3px;"></i> Tutup'
+					+'</button>'
+					+'<button type="button" class="btn btn-sm btn-success" id="btn-simpan-data-renstra-lokal" '
+						+'data-action="update_indikator_tujuan_renstra" '
+						+'data-view="indikatorTujuanRenstra"'
+					+'>'
+						+'<i class="dashicons dashicons-yes" style="margin-top: 3px;"></i> Simpan'
+					+'</button>');
+				indikatorTujuanModal.modal('show');
+          	}
+		})			
+	});
+
+	jQuery(document).on('click', '.btn-delete-indikator-tujuan', function(){
+
+		if(confirm('Data akan dihapus, lanjut?')){
+			jQuery('#wrap-loading').show();
+			
+			let id = jQuery(this).data('id');
+			
+			let id_unik = jQuery(this).data('idunik');
+
+			jQuery.ajax({
+				method:'POST',
+				url:ajax.url,
+				dataType:'json',
+				data:{
+					'action': 'delete_indikator_tujuan_renstra',
+		          	'api_key': '<?php echo $api_key; ?>',
+					'id': id
+				},
+				success:function(response){
+
+					alert(response.message);
+					if(response.status){
+						indikatorTujuanRenstra({
+							'id_unik': id_unik
+						});
+					}
+					jQuery('#wrap-loading').hide();
+
+				}
+			})
+		}
 	});
 
 	jQuery(document).on('click', '#btn-simpan-data-renstra-lokal', function(){
@@ -567,7 +680,7 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
 	          			+'</thead>'
 	          			+'<tbody>';
 			          		res.data.map(function(value, index){
-			          			tujuan +='<tr idtujuan="'+value.id+'">'
+			          			tujuan +='<tr idunik="'+value.id_unik+'">'
 						          			+'<td>'+(index+1)+'.</td>'
 						          			+'<td>'+value.tujuan_teks+'</td>'
 						          			+'<td>'
@@ -615,7 +728,7 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
 	          			+'<thead>'
 	          				+'<tr>'
 	          					+'<th class="text-center" style="width: 160px;">Tujuan</th>'
-	          					+'<th>'+jQuery('#nav-tujuan tr[idtujuan="'+params.id_tujuan+'"]').find('td').eq(1).text()+'</th>'
+	          					+'<th>'+jQuery('#nav-tujuan tr[idunik="'+params.id_unik+'"]').find('td').eq(1).text()+'</th>'
 	          				+'</tr>'
 	          			+'</thead>'
           			+'</table>'
@@ -649,8 +762,8 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
 						          		+"<td>"+value.target_awal+"</td>"
 						          		+"<td>"+value.target_akhir+"</td>"
 						          		+"<td>"
-						          			+"<a href='#' class='btn btn-sm btn-success btn-edit-indikator-tujuan' data-id='"+value.id+"'><i class='dashicons dashicons-edit' style='margin-top: 3px;'></i></a>&nbsp"
-											+"<a href='#' class='btn btn-sm btn-danger btn-delete-indikator-tujuan' data-id='"+value.id+"'><i class='dashicons dashicons-trash' style='margin-top: 3px;'></i></a>&nbsp;"
+						          			+"<a href='#' class='btn btn-sm btn-success btn-edit-indikator-tujuan' data-id='"+value.id+"' data-idunik='"+value.id_unik+"'><i class='dashicons dashicons-edit' style='margin-top: 3px;'></i></a>&nbsp"
+											+"<a href='#' class='btn btn-sm btn-danger btn-delete-indikator-tujuan' data-id='"+value.id+"' data-idunik='"+value.id_unik+"'><i class='dashicons dashicons-trash' style='margin-top: 3px;'></i></a>&nbsp;"
 						          		+"</td>"
 						          	+"</tr>";
 			          		});

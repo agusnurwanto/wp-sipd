@@ -16688,11 +16688,11 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 			if (!empty($_POST)) {
 				if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
 					
-					$wpdb->get_results("delete from data_rpjmd_tujuan_lokal where id=".$_POST['id'] . " and id_unik_indikator is not null and active=1 and status=1");
+					$wpdb->get_results("DELETE FROM data_rpjmd_tujuan_lokal WHERE id=" . $_POST['id'] . " AND id_unik_indikator IS NOT NULL AND active=1 AND status=1");
 
 					echo json_encode([
 						'status' => true,
-						'message' => 'Sukses hapus tujuan'
+						'message' => 'Sukses hapus indikator tujuan'
 					]);exit;
 
 				}else{
