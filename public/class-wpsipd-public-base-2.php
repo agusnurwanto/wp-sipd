@@ -475,19 +475,17 @@ class Wpsipd_Public_Base_2
 			if (!empty($_POST)) {
 				if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
 
-					$jadwal_renstra = $wpdb->get_row("SELECT a.*, (SELECT id_tipe FROM data_jadwal_lokal WHERE id_jadwal_lokal=a.relasi_perencanaan) id_tipe_relasi FROM data_jadwal_lokal a WHERE DATE_ADD(NOW(), INTERVAL 1 HOUR) > a.waktu_awal AND DATE_ADD(NOW(), INTERVAL 1 HOUR) < a.waktu_akhir AND a.id_tipe=4 AND a.status=0");
-
-					if(empty($jadwal_renstra->relasi_perencanaan)){
+					if(empty($_POST['relasi_perencanaan'])){
 						throw new Exception("Relasi perencanaan jadwal renstra belum diatur", 1);
 					}
 
-					switch ($jadwal_renstra->id_tipe_relasi) {
+					switch ($_POST['id_tipe_relasi']) {
 						case '2': // rpjm
-							$data = $wpdb->get_results("SELECT a.id_unik, a.sasaran_teks, b.id_program FROM data_rpjmd_sasaran_lokal_history a INNER JOIN data_rpjmd_program_lokal_history b ON a.id_unik=b.kode_sasaran WHERE b.id_unit=".$_POST['id_unit']." AND a.id_jadwal=".$jadwal_renstra->relasi_perencanaan." AND a.status=1;");
+							$data = $wpdb->get_results("SELECT a.id_unik, a.sasaran_teks, b.id_program FROM data_rpjmd_sasaran_lokal_history a INNER JOIN data_rpjmd_program_lokal_history b ON a.id_unik=b.kode_sasaran WHERE b.id_unit=".$_POST['id_unit']." AND a.id_jadwal=".$_POST['relasi_perencanaan']." AND a.status=1;");
 							break;
 						
 						case '3': // rpd
-							$data = $wpdb->get_results("SELECT a.id_unik, a.sasaran_teks, b.id_program FROM data_rpd_sasaran_lokal_history a INNER JOIN data_rpd_program_lokal_history b ON a.id_unik=b.kode_sasaran WHERE b.id_unit=".$_POST['id_unit']." AND a.id_jadwal=".$jadwal_renstra->relasi_perencanaan." AND a.status=1;");
+							$data = $wpdb->get_results("SELECT a.id_unik, a.sasaran_teks, b.id_program FROM data_rpd_sasaran_lokal_history a INNER JOIN data_rpd_program_lokal_history b ON a.id_unik=b.kode_sasaran WHERE b.id_unit=".$_POST['id_unit']." AND a.id_jadwal=".$_POST['relasi_perencanaan']." AND a.status=1;");
 							break;
 
 						default:
@@ -613,19 +611,17 @@ class Wpsipd_Public_Base_2
 			if (!empty($_POST)) {
 				if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
 					
-					$jadwal_renstra = $wpdb->get_row("SELECT a.*, (SELECT id_tipe FROM data_jadwal_lokal WHERE id_jadwal_lokal=a.relasi_perencanaan) id_tipe_relasi FROM data_jadwal_lokal a WHERE DATE_ADD(NOW(), INTERVAL 1 HOUR) > a.waktu_awal AND DATE_ADD(NOW(), INTERVAL 1 HOUR) < a.waktu_akhir AND a.id_tipe=4 AND a.status=0");
-
-					if(empty($jadwal_renstra->relasi_perencanaan)){
+					if(empty($_POST['relasi_perencanaan'])){
 						throw new Exception("Relasi perencanaan jadwal renstra belum diatur", 1);
 					}
 
-					switch ($jadwal_renstra->id_tipe_relasi) {
+					switch ($_POST['id_tipe_relasi']) {
 						case '2': // rpjm
-							$sasaran_parent = $wpdb->get_results("SELECT a.id_unik, a.sasaran_teks, b.id_program FROM data_rpjmd_sasaran_lokal_history a INNER JOIN data_rpjmd_program_lokal_history b ON a.id_unik=b.kode_sasaran WHERE b.id_unit=".$_POST['id_unit']." AND a.id_jadwal=".$jadwal_renstra->relasi_perencanaan." AND a.status=1;");
+							$sasaran_parent = $wpdb->get_results("SELECT a.id_unik, a.sasaran_teks, b.id_program FROM data_rpjmd_sasaran_lokal_history a INNER JOIN data_rpjmd_program_lokal_history b ON a.id_unik=b.kode_sasaran WHERE b.id_unit=".$_POST['id_unit']." AND a.id_jadwal=".$_POST['relasi_perencanaan']." AND a.status=1;");
 						break;
 							
 						case '3': // rpd
-							$sasaran_parent = $wpdb->get_results("SELECT a.id_unik, a.sasaran_teks, b.id_program FROM data_rpd_sasaran_lokal_history a INNER JOIN data_rpd_program_lokal_history b ON a.id_unik=b.kode_sasaran WHERE b.id_unit=".$_POST['id_unit']." AND a.id_jadwal=".$jadwal_renstra->relasi_perencanaan." AND a.status=1;");
+							$sasaran_parent = $wpdb->get_results("SELECT a.id_unik, a.sasaran_teks, b.id_program FROM data_rpd_sasaran_lokal_history a INNER JOIN data_rpd_program_lokal_history b ON a.id_unik=b.kode_sasaran WHERE b.id_unit=".$_POST['id_unit']." AND a.id_jadwal=".$_POST['relasi_perencanaan']." AND a.status=1;");
 							break;
 
 						default:

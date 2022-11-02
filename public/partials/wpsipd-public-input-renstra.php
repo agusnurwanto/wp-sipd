@@ -37,14 +37,19 @@ $awal_renstra = 0;
 $namaJadwal = '-';
 $mulaiJadwal = '-';
 $selesaiJadwal = '-';
+$relasi_perencanaan = null;
+$id_tipe_relasi = null;
 
-$jadwal_lokal = $wpdb->get_results("SELECT * from data_jadwal_lokal where id_jadwal_lokal = (select max(id_jadwal_lokal) from data_jadwal_lokal where id_tipe=4)", ARRAY_A);
+$jadwal_lokal = $wpdb->get_results("SELECT a.*, (SELECT id_tipe FROM data_jadwal_lokal WHERE id_jadwal_lokal=a.relasi_perencanaan) id_tipe_relasi from data_jadwal_lokal a WHERE a.id_jadwal_lokal = (SELECT MAX(id_jadwal_lokal) FROM data_jadwal_lokal a WHERE a.id_tipe=4)", ARRAY_A);
 
 if(!empty($jadwal_lokal)){
 	$awal_renstra = $jadwal_lokal[0]['tahun_anggaran'];
 	$namaJadwal = $jadwal_lokal[0]['nama'];
 	$mulaiJadwal = $jadwal_lokal[0]['waktu_awal'];
 	$selesaiJadwal = $jadwal_lokal[0]['waktu_akhir'];
+	$selesaiJadwal = $jadwal_lokal[0]['waktu_akhir'];
+	$relasi_perencanaan = $jadwal_lokal[0]['relasi_perencanaan'];
+	$id_tipe_relasi = $jadwal_lokal[0]['id_tipe_relasi'];
 }
 
 $akhir_renstra = $awal_renstra+5;
@@ -276,45 +281,51 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
 				data:{
 					'action': 'add_tujuan_renstra',
 		          	'api_key': '<?php echo $api_key; ?>',
-		          	'id_unit': '<?php echo $input['id_skpd']; ?>'
+		          	'id_unit': '<?php echo $input['id_skpd']; ?>',
+		          	'relasi_perencanaan': '<?php echo $relasi_perencanaan; ?>',
+		          	'id_tipe_relasi': '<?php echo $id_tipe_relasi; ?>',
 				},
 				success:function(response){
 						jQuery('#wrap-loading').hide();
-						let tujuanModal = jQuery("#modal-crud-renstra");
-						let html = '<form id="form-renstra">'
-										+'<input type="hidden" name="id_unit" value="'+<?php echo $input['id_skpd']; ?>+'">'
-										+'<div class="form-group">'
-											+'<label for="tujuan_teks">Sasaran Rpjm/Rpd</label>'
-											+'<select class="form-control" id="sasaran-parent" name="sasaran_parent" onchange="pilihSasaranParent(this)">';
-												html+='<option value="">Pilih Sasaran</option>';
-												response.data.map(function(value, index){
-													html +='<option value="'+value.id_unik+'|'+value.id_program+'">'+value.sasaran_teks+'</option>';
-												})
-											html+='</select>'
-										+'</div>'
-										+'<div class="form-group">'
-											+'<label for="tujuan_teks">Tujuan Renstra</label>'
-							  				+'<textarea class="form-control" id="tujuan_teks" name="tujuan_teks"></textarea>'
-										+'</div>'
-										+'<div class="form-group">'
-											+'<label for="tujuan_teks">Urut Tujuan</label>'
-							  				+'<input type="number" class="form-control" name="urut_tujuan" />'
-										+'</div>'
-									+'</form>';
+						if(response.status){
+							let tujuanModal = jQuery("#modal-crud-renstra");
+							let html = '<form id="form-renstra">'
+											+'<input type="hidden" name="id_unit" value="'+<?php echo $input['id_skpd']; ?>+'">'
+											+'<div class="form-group">'
+												+'<label for="tujuan_teks">Sasaran Rpjm/Rpd</label>'
+												+'<select class="form-control" id="sasaran-parent" name="sasaran_parent" onchange="pilihSasaranParent(this)">';
+													html+='<option value="">Pilih Sasaran</option>';
+													response.data.map(function(value, index){
+														html +='<option value="'+value.id_unik+'|'+value.id_program+'">'+value.sasaran_teks+'</option>';
+													})
+												html+='</select>'
+											+'</div>'
+											+'<div class="form-group">'
+												+'<label for="tujuan_teks">Tujuan Renstra</label>'
+								  				+'<textarea class="form-control" id="tujuan_teks" name="tujuan_teks"></textarea>'
+											+'</div>'
+											+'<div class="form-group">'
+												+'<label for="tujuan_teks">Urut Tujuan</label>'
+								  				+'<input type="number" class="form-control" name="urut_tujuan" />'
+											+'</div>'
+										+'</form>';
 
-						tujuanModal.find('.modal-title').html('Tambah Tujuan');
-						tujuanModal.find('.modal-body').html(html);
-						tujuanModal.find('.modal-footer').html(''
-							+'<button type="button" class="btn btn-sm btn-warning" data-dismiss="modal">'
-								+'<i class="dashicons dashicons-no" style="margin-top: 3px;"></i> Tutup'
-							+'</button>'
-							+'<button type="button" class="btn btn-sm btn-success" id="btn-simpan-data-renstra-lokal" '
-								+'data-action="submit_tujuan_renstra" '
-								+'data-view="tujuanRenstra"'
-							+'>'
-								+'<i class="dashicons dashicons-yes" style="margin-top: 3px;"></i> Simpan'
-							+'</button>');
-						tujuanModal.modal('show');
+							tujuanModal.find('.modal-title').html('Tambah Tujuan');
+							tujuanModal.find('.modal-body').html(html);
+							tujuanModal.find('.modal-footer').html(''
+								+'<button type="button" class="btn btn-sm btn-warning" data-dismiss="modal">'
+									+'<i class="dashicons dashicons-no" style="margin-top: 3px;"></i> Tutup'
+								+'</button>'
+								+'<button type="button" class="btn btn-sm btn-success" id="btn-simpan-data-renstra-lokal" '
+									+'data-action="submit_tujuan_renstra" '
+									+'data-view="tujuanRenstra"'
+								+'>'
+									+'<i class="dashicons dashicons-yes" style="margin-top: 3px;"></i> Simpan'
+								+'</button>');
+							tujuanModal.modal('show');
+						}else{
+							alert(response.message);
+						}
 				}
 			});
 	});
@@ -332,47 +343,52 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
           		"api_key": "<?php echo $api_key; ?>",
 				'id_tujuan': idtujuan, 
 		        'id_unit': '<?php echo $input['id_skpd'] ?>',
+		        'relasi_perencanaan': '<?php echo $relasi_perencanaan; ?>',
+		        'id_tipe_relasi': '<?php echo $id_tipe_relasi; ?>',
           	},
           	dataType: "json",
           	success: function(response){
-          		jQuery('#wrap-loading').hide();
+				jQuery('#wrap-loading').hide();
+				if(response.status){
+					let html = '<form id="form-renstra">'
+											+'<input type="hidden" name="id" value="'+response.tujuan.id+'">'
+											+'<input type="hidden" name="id_unik" value="'+response.tujuan.id_unik+'">'
+											+'<input type="hidden" name="id_unit" value="'+<?php echo $input['id_skpd']; ?>+'">'
+											+'<div class="form-group">'
+												+'<label for="tujuan_teks">Sasaran Rpjm/Rpd</label>'
+												+'<select class="form-control" id="sasaran-parent" name="sasaran_parent" onchange="pilihSasaranParent(this)">';
+													html+='<option value="" selected>Pilih Sasaran</option>';
+													response.sasaran_parent.map(function(value, index){
+														html +='<option value="'+value.id_unik+'|'+value.id_program+'">'+value.sasaran_teks+'</option>';
+													})
+												html+='</select>'
+											+'</div>'
+											+'<div class="form-group">'
+												+'<label for="tujuan_teks">Tujuan Renstra</label>'
+								  				+'<textarea class="form-control" id="tujuan_teks" name="tujuan_teks">'+response.tujuan.tujuan_teks+'</textarea>'
+											+'</div>'
+											+'<div class="form-group">'
+												+'<label for="tujuan_teks">Urut Tujuan</label>'
+								  				+'<input type="number" class="form-control" name="urut_tujuan" value="'+response.tujuan.urut_tujuan+'" />'
+											+'</div>'
+										+'</form>';
 
-				let html = '<form id="form-renstra">'
-										+'<input type="hidden" name="id" value="'+response.tujuan.id+'">'
-										+'<input type="hidden" name="id_unik" value="'+response.tujuan.id_unik+'">'
-										+'<input type="hidden" name="id_unit" value="'+<?php echo $input['id_skpd']; ?>+'">'
-										+'<div class="form-group">'
-											+'<label for="tujuan_teks">Sasaran Rpjm/Rpd</label>'
-											+'<select class="form-control" id="sasaran-parent" name="sasaran_parent" onchange="pilihSasaranParent(this)">';
-												html+='<option value="" selected>Pilih Sasaran</option>';
-												response.sasaran_parent.map(function(value, index){
-													html +='<option value="'+value.id_unik+'|'+value.id_program+'">'+value.sasaran_teks+'</option>';
-												})
-											html+='</select>'
-										+'</div>'
-										+'<div class="form-group">'
-											+'<label for="tujuan_teks">Tujuan Renstra</label>'
-							  				+'<textarea class="form-control" id="tujuan_teks" name="tujuan_teks">'+response.tujuan.tujuan_teks+'</textarea>'
-										+'</div>'
-										+'<div class="form-group">'
-											+'<label for="tujuan_teks">Urut Tujuan</label>'
-							  				+'<input type="number" class="form-control" name="urut_tujuan" value="'+response.tujuan.urut_tujuan+'" />'
-										+'</div>'
-									+'</form>';
-
-		        tujuanModal.find('.modal-title').html('Edit Tujuan');
-				tujuanModal.find('.modal-body').html(html);
-				tujuanModal.find('.modal-footer').html(''
-					+'<button type="button" class="btn btn-sm btn-warning" data-dismiss="modal">'
-						+'<i class="dashicons dashicons-no" style="margin-top: 3px;"></i> Tutup'
-					+'</button>'
-					+'<button type="button" class="btn btn-sm btn-success" id="btn-simpan-data-renstra-lokal" '
-						+'data-action="update_tujuan_renstra" '
-						+'data-view="tujuanRenstra"'
-					+'>'
-						+'<i class="dashicons dashicons-yes" style="margin-top: 3px;"></i> Simpan'
-					+'</button>');
-				tujuanModal.modal('show');
+			        tujuanModal.find('.modal-title').html('Edit Tujuan');
+					tujuanModal.find('.modal-body').html(html);
+					tujuanModal.find('.modal-footer').html(''
+						+'<button type="button" class="btn btn-sm btn-warning" data-dismiss="modal">'
+							+'<i class="dashicons dashicons-no" style="margin-top: 3px;"></i> Tutup'
+						+'</button>'
+						+'<button type="button" class="btn btn-sm btn-success" id="btn-simpan-data-renstra-lokal" '
+							+'data-action="update_tujuan_renstra" '
+							+'data-view="tujuanRenstra"'
+						+'>'
+							+'<i class="dashicons dashicons-yes" style="margin-top: 3px;"></i> Simpan'
+						+'</button>');
+					tujuanModal.modal('show');
+				}else{
+					alert(response.message);
+				}
           	}
         });
 	});

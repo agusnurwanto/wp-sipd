@@ -193,7 +193,7 @@ foreach ($units as $k => $unit):
 				'kd_sub_kegiatan' => $kd_sub_kegiatan,
 				'nama_program' => $sub['nama_giat'],
 				'nama_kegiatan' => $nama_keg,
-			)); die();
+			));
 
 			if(!empty($mapping[0]) && !empty($mapping[0]->kd_urusan)){
 				$kd_urusan = $mapping[0]->kd_urusan;
