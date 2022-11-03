@@ -1363,12 +1363,6 @@ class Wpsipd_Admin {
 		$update = false;
 		$page_url = $this->generatePage($title, false, $shortcode, $update);
 		$list_data .= '<li><a href="'.$page_url.'" target="_blank">'.$title.'</a></li>';
-
-		$title = 'Input Perencanaan RENSTRA';
-		$shortcode = '[input_renstra]';
-		$update = false;
-		$page_url = $this->generatePage($title, false, $shortcode, $update);
-		$list_data .= '<li><a href="'.$page_url.'" target="_blank">'.$title.'</a></li>';
 		
 		$no = 0;
 		foreach ($tahun as $k => $v) {
@@ -1381,7 +1375,7 @@ class Wpsipd_Admin {
 		$label = array(
 			Field::make( 'html', 'crb_jadwal_perencanaan' )
             	->set_html( '
-            		<ul>'.$list_data.'</ul>
+            		<ol>'.$list_data.'</ol>
             	' )
         );
         return $label;

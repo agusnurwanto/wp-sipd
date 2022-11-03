@@ -10741,7 +10741,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 											'id' => $sub_sipd[0]['id']
 										));
 									}else{
-										$ret['message_rinci'][] = 'Rekening Pendapatan SIPD dari kode_akun='.$rinci['kode_rekening'].', id_skpd='.$id_skpd_sipd[0].' dan aktivitas="'.$rinci['aktivitas'].'" tidak ditemukan';
+										$ret['message_rinci'][] = 'Rekening Pendapatan SIPD dari kode_akun='.$rinci['kode_rekening'].', id_skpd='.$id_skpd_sipd[0].' dan aktivitas="'.$rinci['aktivitas'].'" tidak ditemukan | '.$wpdb->last_query;
 									}
 								}
 							// pembiayaan
@@ -10768,7 +10768,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 											'id' => $sub_sipd[0]['id']
 										));
 									}else{
-										$ret['message_rinci'][] = 'Rekening Pembiayaan SIPD dari kode_akun='.$rinci['kode_rekening'].', id_skpd='.$id_skpd_sipd[0].' dan aktivitas="'.$rinci['aktivitas'].'" tidak ditemukan';
+										$ret['message_rinci'][] = 'Rekening Pembiayaan SIPD dari kode_akun='.$rinci['kode_rekening'].', id_skpd='.$id_skpd_sipd[0].' dan aktivitas="'.$rinci['aktivitas'].'" tidak ditemukan | '.$wpdb->last_query;
 									}
 								}
 							}else{
@@ -10809,9 +10809,13 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		if(count($uraian_belanja) >= 2){
 			$uraian_belanja = explode(' | ', $uraian_belanja[1]);
 			$ret['uraian'] = explode("\n", $uraian_belanja[0]);
+			$ret['uraian'] = explode("\t", $ret['uraian'][0]);
+			$ret['uraian'] = explode("  ", $ret['uraian'][0]);
 			$ret['uraian'] = $ret['uraian'][0];
 			if(count($uraian_belanja) >= 2){
 				$ret['keterangan'] = explode("\n", $uraian_belanja[1]);
+				$ret['keterangan'] = explode("\t", $ret['keterangan'][0]);
+				$ret['keterangan'] = explode("  ", $ret['keterangan'][0]);
 				$ret['keterangan'] = $ret['keterangan'][0];
 			}
 		}

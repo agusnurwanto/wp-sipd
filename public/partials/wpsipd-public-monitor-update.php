@@ -161,6 +161,11 @@ foreach ($kode_rek as $rek) {
 					and active=1 
 					and id_skpd='.$opd['id_skpd'].'
 			';
+			if($type_belanja == 'Pembiayaan Pengeluaran'){
+				$where .= " and type='pengeluaran'";
+			}else if($type_belanja == 'Pembiayaan Penerimaan'){
+				$where .= " and type='penerimaan'";
+			}
 			$data = $wpdb->get_row('
 				select 
 					sum(nilaimurni) as total_murni, 
@@ -230,9 +235,9 @@ foreach ($data_body as $k => $data) {
 			<td class="text-center">'.$data['type_belanja'].'</td>
 			<td><a href="'.$link.'" target="_blank">'.$data['skpd'].'</a></td>
 			<td class="text-center">'.$data['update_at'].'</td>
-			<td class="text-right" style="'.$warning_fmis.'">'.number_format($data['total_fmis'],0,",",".").'</td>
-			<td class="text-right">'.number_format($data['total_murni'],0,",",".").'</td>
-			<td class="text-right pagu_total" style="'.$warning.'">'.number_format($data['total'],0,",",".").'</td>
+			<td class="text-right" style="'.$warning_fmis.'">'.number_format($data['total_fmis'],2,",",".").'</td>
+			<td class="text-right">'.number_format($data['total_murni'],2,",",".").'</td>
+			<td class="text-right pagu_total" style="'.$warning.'">'.number_format($data['total'],2,",",".").'</td>
 			<td class="text-right rka_simda" style="display: none;"></td>
 			<td class="text-right dpa_simda" style="display: none;"></td>
 		</tr>
