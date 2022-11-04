@@ -14,16 +14,31 @@ $nama_pemda = get_option('_crb_daerah');
 
 $sql_unit = $wpdb->prepare("
 	SELECT 
-		* 
-	FROM 
-        data_unit 
+		*
+	FROM data_unit 
 	WHERE 
         tahun_anggaran=%d
-		AND id_skpd =".$input['id_skpd']."
+		AND id_skpd =%d
 		AND active=1
 	order by id_skpd ASC
-    ", $input['tahun_anggaran']);
+    ", $input['tahun_anggaran'], $input['id_skpd']);
 $unit = $wpdb->get_results($sql_unit, ARRAY_A);
+
+$unit_utama = $unit;
+if($unit[0]['id_unit'] != $unit[0]['id_skpd']){
+    $sql_unit_utama = $wpdb->prepare("
+        SELECT 
+            *
+        FROM data_unit
+        WHERE 
+            tahun_anggaran=%d
+            AND id_skpd=%d
+            AND active=1
+        order by id_skpd ASC
+        ", $input['tahun_anggaran'], $unit[0]['id_unit']);
+    $unit_utama = $wpdb->get_results($sql_unit_utama, ARRAY_A);
+}
+
 $unit = (!empty($unit)) ? $unit : array();
 $nama_skpd = (!empty($unit[0]['nama_skpd'])) ? $unit[0]['nama_skpd'] : '-';
 
@@ -33,6 +48,7 @@ $sql_anggaran = $wpdb->prepare("
     FROM data_anggaran_kas
     WHERE
         tahun_anggaran=%d
+        AND type='belanja'
         AND active=1
         AND id_unit=%d
     ",$input["tahun_anggaran"], $input['id_skpd']);
@@ -53,11 +69,17 @@ $total_bulan_9 = 0;
 $total_bulan_10 = 0;
 $total_bulan_11 = 0;
 $total_bulan_12 = 0;
-$no = 0;
+$no = 1;
 if(!empty($data_anggaran)){
     foreach ($data_anggaran as $v_anggaran) {
         $kode_sbl = explode('.', $v_anggaran['kode_sbl']);
-        $kode_sbl = $kode_sbl[0].'.'.$kode_sbl[1].'.'.$kode_sbl[3].'.'.$kode_sbl[4].'.'.$kode_sbl[5];
+        if(!empty($kode_sbl[6])){
+            $kode_sbl = $kode_sbl[1].'.'.$kode_sbl[2].'.'.$kode_sbl[4].'.'.$kode_sbl[5].'.'.$kode_sbl[6];
+        }else if(!empty($kode_sbl[5])){
+            $kode_sbl = $kode_sbl[0].'.'.$kode_sbl[1].'.'.$kode_sbl[3].'.'.$kode_sbl[4].'.'.$kode_sbl[5];
+        }else{
+            $kode_sbl = $v_anggaran['kode_sbl'];
+        }
         $sql_keg = $wpdb->prepare("
             SELECT
                 k.*,
@@ -76,6 +98,7 @@ if(!empty($data_anggaran)){
                 AND k.kode_sbl=%s
                 AND r.kode_akun=%s
             ",$input["tahun_anggaran"], $kode_sbl, $v_anggaran['kode_akun']);
+        // die($sql_keg);
         $data_sub_keg = $wpdb->get_results($sql_keg, ARRAY_A);
         $warning = '';
         if($data_sub_keg[0]['total_akun'] != $v_anggaran['total_rincian']){
@@ -91,10 +114,10 @@ if(!empty($data_anggaran)){
 				<td class="atas kanan bawah">'.$data_sub_keg[0]['nama_urusan'].'</td>
 				<td class="atas kanan bawah text_tengah">'.$data_sub_keg[0]['kode_bidang_urusan'].'</td>
 				<td class="atas kanan bawah">'.$data_sub_keg[0]['nama_bidang_urusan'].'</td>
-				<td class="atas kanan bawah text_tengah">'.$unit[0]['kode_skpd'].'</td>
+				<td class="atas kanan bawah text_tengah">'.$unit_utama[0]['kode_skpd'].'</td>
+                <td class="atas kanan bawah">'.$unit_utama[0]['nama_skpd'].'</td>
+                <td class="atas kanan bawah text_tengah">'.$unit[0]['kode_skpd'].'</td>
                 <td class="atas kanan bawah">'.$unit[0]['nama_skpd'].'</td>
-                <td class="atas kanan bawah text_tengah">'.$data_sub_keg[0]['kode_sub_skpd'].'</td>
-                <td class="atas kanan bawah">'.$data_sub_keg[0]['nama_sub_skpd'].'</td>
                 <td class="atas kanan bawah text_tengah">'.$data_sub_keg[0]['kode_program'].'</td>
                 <td class="atas kanan bawah">'.$data_sub_keg[0]['nama_program'].'</td>
                 <td class="atas kanan bawah text_tengah">'.$data_sub_keg[0]['kode_giat'].'</td>
