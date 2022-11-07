@@ -148,7 +148,7 @@ foreach ($units as $k => $unit):
 			order by kode_sub_giat ASC
 		", $bulan, $input['tahun_anggaran'], $unit['id_skpd']), ARRAY_A);
 	}
-	// echo $wpdb->last_query.'<br>';
+	// echo $wpdb->last_query.'<br>';die();
 
 	$data_all = array(
 		'jml_sub_keg' => 0,

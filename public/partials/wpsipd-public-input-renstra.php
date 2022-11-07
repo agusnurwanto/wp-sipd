@@ -37,19 +37,27 @@ $awal_renstra = 0;
 $namaJadwal = '-';
 $mulaiJadwal = '-';
 $selesaiJadwal = '-';
-$relasi_perencanaan = null;
-$id_tipe_relasi = null;
+$relasi_perencanaan = '-';
+$id_tipe_relasi = '-';
 
 $jadwal_lokal = $wpdb->get_results("SELECT a.*, (SELECT id_tipe FROM data_jadwal_lokal WHERE id_jadwal_lokal=a.relasi_perencanaan) id_tipe_relasi from data_jadwal_lokal a WHERE a.id_jadwal_lokal = (SELECT MAX(id_jadwal_lokal) FROM data_jadwal_lokal a WHERE a.id_tipe=4)", ARRAY_A);
 
+$add_renstra = '';
 if(!empty($jadwal_lokal)){
 	$awal_renstra = $jadwal_lokal[0]['tahun_anggaran'];
 	$namaJadwal = $jadwal_lokal[0]['nama'];
 	$mulaiJadwal = $jadwal_lokal[0]['waktu_awal'];
 	$selesaiJadwal = $jadwal_lokal[0]['waktu_akhir'];
-	$selesaiJadwal = $jadwal_lokal[0]['waktu_akhir'];
-	$relasi_perencanaan = $jadwal_lokal[0]['relasi_perencanaan'];
-	$id_tipe_relasi = $jadwal_lokal[0]['id_tipe_relasi'];
+	$relasi_perencanaan = $jadwal_lokal[0]['relasi_perencanaan'] ?? '-';
+	$id_tipe_relasi = $jadwal_lokal[0]['id_tipe_relasi'] ?? '-';
+
+	$awal = new DateTime($mulaiJadwal);
+	$akhir = new DateTime($selesaiJadwal);
+	$now = new DateTime(date('Y-m-d H:i:s'));
+
+	if($now >= $awal && $now <= $akhir){
+		$add_renstra = '<a style="margin-left: 10px;" id="tambah-data" onclick="return false;" href="#" class="btn btn-success">Tambah Data RENSTRA</a>';
+	}
 }
 
 $akhir_renstra = $awal_renstra+5;
@@ -245,7 +253,7 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
 
 	var aksi = ''
 		+'<a style="margin-left: 10px;" id="singkron-sipd" onclick="return false;" href="#" class="btn btn-danger">Ambil data dari SIPD lokal</a>'
-		+'<a style="margin-left: 10px;" id="tambah-data" onclick="return false;" href="#" class="btn btn-success">Tambah Data RENSTRA</a>'
+		+'<?php echo $add_renstra; ?>'
 		+'<h3 style="margin-top: 20px;">SETTING</h3>'
 		+'<label><input type="checkbox" onclick="tampilkan_edit(this);"> Edit Data RENSTRA</label>'
 		+'<label style="margin-left: 20px;"><input type="checkbox" onclick="show_debug(this);"> Debug Cascading RPJM</label>'
@@ -600,6 +608,49 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
 		}
 	});
 
+	jQuery(document).on('click', '.btn-detail-tujuan', function(){
+		sasaranRenstra({
+			'kode_tujuan':jQuery(this).data('kodetujuan')
+		});
+	});
+
+	jQuery(document).on('click', '.btn-tambah-sasaran', function(){
+		let relasi_perencanaan = '<?php echo $relasi_perencanaan; ?>';
+		let id_tipe_relasi = '<?php echo $id_tipe_relasi; ?>';
+		let id_unit = '<?php echo $input['id_skpd']; ?>';
+
+		let sasaranModal = jQuery("#modal-crud-renstra");
+		let kode_tujuan = jQuery(this).data('kodetujuan');
+		let html = '<form id="form-renstra">'
+						+'<input type="hidden" name="kode_tujuan" value="'+kode_tujuan+'">'
+						+'<input type="hidden" name="relasi_perencanaan" value="'+relasi_perencanaan+'">'
+						+'<input type="hidden" name="id_tipe_relasi" value="'+id_tipe_relasi+'">'
+						+'<input type="hidden" name="id_unit" value="'+id_unit+'">'
+						+'<div class="form-group">'
+							+'<label for="sasaran">Sasaran</label>'
+	  						+'<textarea class="form-control" name="sasaran_teks"></textarea>'
+						+'</div>'
+						+'<div class="form-group">'
+							+'<label for="urut_sasaran">Urut Sasaran</label>'
+	  						+'<input type="number" class="form-control" name="urut_sasaran"/>'
+						+'</div>'
+					+'</form>';
+
+		sasaranModal.find('.modal-title').html('Tambah Sasaran');
+		sasaranModal.find('.modal-body').html(html);
+		sasaranModal.find('.modal-footer').html(''
+			+'<button type="button" class="btn btn-sm btn-warning" data-dismiss="modal">'
+				+'<i class="dashicons dashicons-no" style="margin-top: 3px;"></i> Tutup'
+			+'</button>'
+			+'<button type="button" class="btn btn-sm btn-success" id="btn-simpan-data-renstra-lokal" '
+				+'data-action="submit_sasaran_renstra" '
+				+'data-view="sasaranRenstra"'
+			+'>'
+				+'<i class="dashicons dashicons-yes" style="margin-top: 3px;"></i> Simpan'
+			+'</button>');
+		sasaranModal.modal('show');
+	});
+
 	jQuery(document).on('click', '#btn-simpan-data-renstra-lokal', function(){
 		
 		jQuery('#wrap-loading').show();
@@ -697,12 +748,12 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
 	          			+'</thead>'
 	          			+'<tbody>';
 			          		res.data.map(function(value, index){
-			          			tujuan +='<tr idunik="'+value.id_unik+'">'
+			          			tujuan +='<tr kodetujuan="'+value.id_unik+'">'
 						          			+'<td>'+(index+1)+'.</td>'
 						          			+'<td>'+value.tujuan_teks+'</td>'
 						          			+'<td>'
 						          					+'<a href="javascript:void(0)" data-idtujuan="'+value.id+'" data-idunik="'+value.id_unik+'" class="btn btn-sm btn-warning btn-kelola-indikator-tujuan"><i class="dashicons dashicons-menu-alt" style="margin-top: 3px;"></i></a>&nbsp;'
-						          					+'<a href="javascript:void(0)" data-id="'+value.id+'" class="btn btn-sm btn-primary btn-detail-tujuan"><i class="dashicons dashicons-search"></i></a>&nbsp;'
+						          					+'<a href="javascript:void(0)" data-kodetujuan="'+value.id_unik+'" class="btn btn-sm btn-primary btn-detail-tujuan"><i class="dashicons dashicons-search"></i></a>&nbsp;'
 						          					+'<a href="javascript:void(0)" data-id="'+value.id+'" class="btn btn-sm btn-success btn-edit-tujuan"><i class="dashicons dashicons-edit"></i></a>&nbsp;'
 						          					+'<a href="javascript:void(0)" data-id="'+value.id+'" data-idunik="'+value.id_unik+'" class="btn btn-sm btn-danger btn-hapus-tujuan"><i class="dashicons dashicons-trash"></i></a>'
 						          			+'</td>'
@@ -745,7 +796,7 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
 	          			+'<thead>'
 	          				+'<tr>'
 	          					+'<th class="text-center" style="width: 160px;">Tujuan</th>'
-	          					+'<th>'+jQuery('#nav-tujuan tr[idunik="'+params.id_unik+'"]').find('td').eq(1).text()+'</th>'
+	          					+'<th>'+jQuery('#nav-tujuan tr[kodetujuan="'+params.id_unik+'"]').find('td').eq(1).text()+'</th>'
 	          				+'</tr>'
 	          			+'</thead>'
           			+'</table>'
@@ -792,6 +843,65 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
 					jQuery("#modal-indikator-renstra").find('.modal-dialog').css('width','100%');
 					jQuery("#modal-indikator-renstra").modal('show');
           	}  	
+		})
+	}
+
+	function sasaranRenstra(params){
+
+		jQuery('#wrap-loading').show();
+		
+		jQuery.ajax({
+			method:'POST',
+			url:ajax.url,
+			dataType:'json',
+			data:{
+				'action': 'get_sasaran_renstra',
+	          	'api_key': '<?php echo $api_key; ?>',
+				'kode_tujuan': params.kode_tujuan,
+				'type':1
+			},
+			success:function(response){
+
+          		jQuery('#wrap-loading').hide();
+          		
+          		let sasaran = ''
+          				+'<div style="margin-top:10px"><button type="button" class="btn btn-sm btn-primary mb-2 btn-tambah-sasaran" data-kodetujuan="'+params.kode_tujuan+'"><i class="dashicons dashicons-plus" style="margin-top: 3px;"></i> Tambah Sasaran</button></div>'
+          				+'<table class="table">'
+          					+'<thead>'
+	          					+'<tr>'
+	          						+'<th class="text-center" style="width: 160px;">Tujuan</th>'
+	          						+'<th>'+jQuery('#nav-tujuan tr[kodetujuan="'+params.kode_tujuan+'"]').find('td').eq(1).text()+'</th>'
+	          					+'</tr>'
+          					+'</thead>'
+          				+'</table>'
+          				
+          				+'<table class="table">'
+          					+'<thead>'
+          						+'<tr>'
+          							+'<th style="width:5%">No.</th>'
+          							+'<th style="width:75%">Sasaran</th>'
+          							+'<th style="width:25%">Aksi</th>'
+          						+'<tr>'
+          					+'</thead>'
+          					+'<tbody>';
+
+          						response.data.map(function(value, index){
+          							sasaran +='<tr kodesasaran="'+value.id_unik+'">'
+			          							+'<td>'+(index+1)+'.</td>'
+			          							+'<td>'+value.sasaran_teks+'</td>'
+			          							+'<td>'
+			          								+'<a href="javascript:void(0)" data-idsasaran="'+value.id+'" data-kodesasaran="'+value.id_unik+'" class="btn btn-sm btn-warning btn-kelola-indikator-sasaran"><i class="dashicons dashicons-menu-alt" style="margin-top: 3px;"></i></a>&nbsp;'
+			          								+'<a href="javascript:void(0)" data-kodesasaran="'+value.id_unik+'" class="btn btn-sm btn-primary btn-detail-sasaran"><i class="dashicons dashicons-search" style="margin-top: 3px;"></i></a>&nbsp;'
+			          								+'<a href="javascript:void(0)" data-idsasaran="'+value.id+'" class="btn btn-sm btn-success btn-edit-sasaran"><i class="dashicons dashicons-edit" style="margin-top: 3px;"></i></a>&nbsp;'
+			          								+'<a href="javascript:void(0)" data-idsasaran="'+value.id+'" data-kodesasaran="'+value.id_unik+'" data-kodetujuan="'+value.kode_tujuan+'" class="btn btn-sm btn-danger btn-hapus-sasaran"><i class="dashicons dashicons-trash" style="margin-top: 3px;"></i></a></td>'
+			          						+'</tr>';
+          						})
+          					sasaran +='<tbody>'
+          				+'</table>';
+
+			    jQuery("#nav-sasaran").html(sasaran);
+			 	jQuery('.nav-tabs a[href="#nav-sasaran"]').tab('show');
+			}
 		})
 	}
 
