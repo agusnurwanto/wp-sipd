@@ -651,6 +651,61 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
 		sasaranModal.modal('show');
 	});
 
+	jQuery(document).on('click', '.btn-edit-sasaran', function(){
+
+		jQuery('#wrap-loading').show();
+
+		let relasi_perencanaan = '<?php echo $relasi_perencanaan; ?>';
+		let id_tipe_relasi = '<?php echo $id_tipe_relasi; ?>';
+		let id_unit = '<?php echo $input['id_skpd']; ?>';
+		let id_sasaran = jQuery(this).data('idsasaran');
+		let sasaranModal = jQuery("#modal-crud-renstra");
+
+		jQuery.ajax({
+			url: ajax.url,
+          	type: "post",
+          	data: {
+          		"action": "edit_sasaran_renstra",
+          		"api_key": "<?php echo $api_key; ?>",
+							'id_sasaran': id_sasaran
+          	},
+          	dataType: "json",
+          	success: function(response){
+
+          		jQuery('#wrap-loading').hide();
+							let html = '<form id="form-renstra">'
+											+'<input type="hidden" name="relasi_perencanaan" value="'+relasi_perencanaan+'">'
+											+'<input type="hidden" name="id_tipe_relasi" value="'+id_tipe_relasi+'">'
+											+'<input type="hidden" name="id_unit" value="'+id_unit+'">'
+											+'<input type="hidden" name="kode_tujuan" value="'+response.data.kode_tujuan+'" />'
+											+'<input type="hidden" name="kode_sasaran" value="'+response.data.id_unik+'" />'
+											+'<div class="form-group">'
+												+'<label for="sasaran">Sasaran</label>'
+				  								+'<textarea class="form-control" name="sasaran_teks">'+response.data.sasaran_teks+'</textarea>'
+											+'</div>'
+											+'<div class="form-group">'
+												+'<label for="urut_sasaran">Urut Sasaran</label>'
+				  								+'<input type="number" class="form-control" name="urut_sasaran" value="'+response.data.urut_sasaran+'"/>'
+											+'</div>'
+										+'</form>';
+
+					        sasaranModal.find('.modal-title').html('Edit Sasaran');
+									sasaranModal.find('.modal-body').html(html);
+									sasaranModal.find('.modal-footer').html(''
+										+'<button type="button" class="btn btn-sm btn-warning" data-dismiss="modal">'
+											+'<i class="dashicons dashicons-no" style="margin-top: 3px;"></i> Tutup'
+										+'</button>'
+										+'<button type="button" class="btn btn-sm btn-success" id="btn-simpan-data-renstra-lokal" '
+											+'data-action="update_sasaran_renstra" '
+											+'data-view="sasaranRenstra"'
+										+'>'
+											+'<i class="dashicons dashicons-yes" style="margin-top: 3px;"></i> Simpan'
+										+'</button>');
+									sasaranModal.modal('show');
+          	}
+        });
+	});
+
 	jQuery(document).on('click', '#btn-simpan-data-renstra-lokal', function(){
 		
 		jQuery('#wrap-loading').show();
@@ -856,7 +911,7 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
 			dataType:'json',
 			data:{
 				'action': 'get_sasaran_renstra',
-	          	'api_key': '<?php echo $api_key; ?>',
+	      'api_key': '<?php echo $api_key; ?>',
 				'kode_tujuan': params.kode_tujuan,
 				'type':1
 			},
