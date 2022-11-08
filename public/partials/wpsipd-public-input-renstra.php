@@ -706,6 +706,40 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
         });
 	});
 
+	jQuery(document).on('click', '.btn-hapus-sasaran', function(){
+
+		if(confirm('Data akan dihapus, lanjut?')){
+			
+			jQuery('#wrap-loading').show();
+			let id_sasaran = jQuery(this).data('idsasaran');
+			let kode_sasaran = jQuery(this).data('kodesasaran');
+			let kode_tujuan = jQuery(this).data('kodetujuan');
+
+			jQuery.ajax({
+				method:'POST',
+				url:ajax.url,
+				dataType:'json',
+				data:{
+					'action': 'delete_sasaran_renstra',
+		      'api_key': '<?php echo $api_key; ?>',
+					'id_sasaran': id_sasaran,
+					'kode_sasaran': kode_sasaran,
+				},
+				success:function(response){
+
+					alert(response.message);
+					if(response.status){
+						sasaranRenstra({
+							'kode_tujuan': kode_tujuan
+						});
+					}
+					jQuery('#wrap-loading').hide();
+
+				}
+			})
+		}
+	});
+
 	jQuery(document).on('click', '#btn-simpan-data-renstra-lokal', function(){
 		
 		jQuery('#wrap-loading').show();
@@ -948,7 +982,8 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
 			          								+'<a href="javascript:void(0)" data-idsasaran="'+value.id+'" data-kodesasaran="'+value.id_unik+'" class="btn btn-sm btn-warning btn-kelola-indikator-sasaran"><i class="dashicons dashicons-menu-alt" style="margin-top: 3px;"></i></a>&nbsp;'
 			          								+'<a href="javascript:void(0)" data-kodesasaran="'+value.id_unik+'" class="btn btn-sm btn-primary btn-detail-sasaran"><i class="dashicons dashicons-search" style="margin-top: 3px;"></i></a>&nbsp;'
 			          								+'<a href="javascript:void(0)" data-idsasaran="'+value.id+'" class="btn btn-sm btn-success btn-edit-sasaran"><i class="dashicons dashicons-edit" style="margin-top: 3px;"></i></a>&nbsp;'
-			          								+'<a href="javascript:void(0)" data-idsasaran="'+value.id+'" data-kodesasaran="'+value.id_unik+'" data-kodetujuan="'+value.kode_tujuan+'" class="btn btn-sm btn-danger btn-hapus-sasaran"><i class="dashicons dashicons-trash" style="margin-top: 3px;"></i></a></td>'
+			          								+'<a href="javascript:void(0)" data-idsasaran="'+value.id+'" data-kodesasaran="'+value.id_unik+'" data-kodetujuan="'+value.kode_tujuan+'" class="btn btn-sm btn-danger btn-hapus-sasaran"><i class="dashicons dashicons-trash" style="margin-top: 3px;"></i></a>'
+			          							+'</td>'
 			          						+'</tr>';
           						})
           					sasaran +='<tbody>'

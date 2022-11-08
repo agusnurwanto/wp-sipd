@@ -1087,6 +1087,45 @@ class Wpsipd_Public_Base_3
 		}
 	}
 
+	public function delete_sasaran_renstra(){
+		global $wpdb;
+		try{
+			if (!empty($_POST)) {
+				if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+					
+					$id_cek = $wpdb->get_var("SELECT * FROM data_renstra_program_lokal WHERE kode_sasaran='" . $_POST['kode_sasaran'] . "' AND is_locked=0 AND status=1 AND active=1");
+
+					if(!empty($id_cek)){
+						throw new Exception("Sasaran sudah digunakan oleh program", 1);
+					}
+
+					$id_cek = $wpdb->get_var("SELECT * FROM data_renstra_sasaran_lokal WHERE id_unik='" . $_POST['kode_sasaran'] . "' AND id_unik_indikator IS NOT NULL AND is_locked=0 AND status=1 AND active=1");
+
+					if(!empty($id_cek)){
+						throw new Exception("Sasaran sudah digunakan oleh indikator sasaran", 1);
+					}
+
+					$wpdb->get_results("DELETE FROM data_renstra_sasaran_lokal WHERE id=".$_POST['id_sasaran']);
+
+					echo json_encode([
+						'status' => true,
+						'message' => 'Sukses hapus sasaran'
+					]);exit;
+
+				}else{
+					throw new Exception("Api key tidak sesuai", 1);
+				}
+			}else{
+				throw new Exception("Format tidak sesuai", 1);
+			}
+		}catch(Exception $e){
+			echo json_encode([
+				'status' => false,
+				'message' => $e->getMessage()
+			]);exit;
+		}
+	}
+
 	private function verify_sasaran_renstra($data){
 		if(empty($data['kode_tujuan'])){
 			throw new Exception('Tujuan wajib dipilih!');
