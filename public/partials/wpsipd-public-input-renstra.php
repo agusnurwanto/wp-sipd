@@ -349,10 +349,10 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
           	data: {
           		"action": "edit_tujuan_renstra",
           		"api_key": "<?php echo $api_key; ?>",
-				'id_tujuan': idtujuan, 
-		        'id_unit': '<?php echo $input['id_skpd'] ?>',
-		        'relasi_perencanaan': '<?php echo $relasi_perencanaan; ?>',
-		        'id_tipe_relasi': '<?php echo $id_tipe_relasi; ?>',
+							'id_tujuan': idtujuan, 
+			        'id_unit': '<?php echo $input['id_skpd'] ?>',
+			        'relasi_perencanaan': '<?php echo $relasi_perencanaan; ?>',
+			        'id_tipe_relasi': '<?php echo $id_tipe_relasi; ?>',
           	},
           	dataType: "json",
           	success: function(response){
@@ -433,13 +433,13 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
 
 	jQuery(document).on('click', '.btn-kelola-indikator-tujuan', function(){
         jQuery("#modal-indikator-renstra").find('.modal-body').html('');
-		indikatorTujuanRenstra({'id_unik':jQuery(this).data('idunik')});
+				indikatorTujuanRenstra({'id_unik':jQuery(this).data('idunik')});
 	});
 
 	jQuery(document).on('click', '.btn-add-indikator-tujuan', function(){
 
 		let indikatorTujuanModal = jQuery("#modal-crud-renstra");
-		let id_unik = jQuery(this).data('idunik');
+		let id_unik = jQuery(this).data('kodetujuan');
 		let html = '<form id="form-renstra">'
 					+'<input type="hidden" name="id_unik" value="'+id_unik+'">'
 					+'<div class="form-group">'
@@ -745,6 +745,65 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
 		indikatorSasaranRenstra({'id_unik':jQuery(this).data('kodesasaran')});
 	});
 
+	jQuery(document).on('click', '.btn-add-indikator-sasaran', function(){
+
+		let indikatorSasaranModal = jQuery("#modal-crud-renstra");
+		let id_unik = jQuery(this).data('kodesasaran');
+		let html = '<form id="form-renstra">'
+					+'<input type="hidden" name="id_unik" value="'+id_unik+'">'
+					+'<div class="form-group">'
+						+'<label for="indikator_teks">Indikator</label>'
+		  				+'<textarea class="form-control" name="indikator_teks"></textarea>'
+					+'</div>'
+					+'<div class="form-group">'
+						+'<label for="satuan">Satuan</label>'
+		  				+'<input type="text" class="form-control" name="satuan"/>'
+					+'</div>'
+					+'<div class="form-group">'
+						+'<label for="target_1">Target tahun ke-1</label>'
+		  				+'<input type="text" class="form-control" name="target_1"/>'
+					+'</div>'
+					+'<div class="form-group">'
+						+'<label for="target_2">Target tahun ke-2</label>'
+		  				+'<input type="text" class="form-control" name="target_2"/>'
+					+'</div>'
+					+'<div class="form-group">'
+						+'<label for="target_3">Target tahun ke-3</label>'
+		  				+'<input type="text" class="form-control" name="target_3"/>'
+					+'</div>'
+					+'<div class="form-group">'
+						+'<label for="target_4">Target tahun ke-4</label>'
+		  				+'<input type="text" class="form-control" name="target_4"/>'
+					+'</div>'
+					+'<div class="form-group">'
+						+'<label for="target_5">Target tahun ke-5</label>'
+		  				+'<input type="text" class="form-control" name="target_5"/>'
+					+'</div>'
+					+'<div class="form-group">'
+						+'<label for="target_awal">Target awal</label>'
+		  				+'<input type="text" class="form-control" name="target_awal"/>'
+					+'</div>'
+					+'<div class="form-group">'
+						+'<label for="target_akhir">Target akhir</label>'
+		  				+'<input type="text" class="form-control" name="target_akhir"/>'
+					+'</div>'
+					+'</form>';
+
+			indikatorSasaranModal.find('.modal-title').html('Tambah Indikator');
+			indikatorSasaranModal.find('.modal-body').html(html);
+			indikatorSasaranModal.find('.modal-footer').html(''
+				+'<button type="button" class="btn btn-sm btn-warning" data-dismiss="modal">'
+					+'<i class="dashicons dashicons-no" style="margin-top: 3px;"></i> Tutup'
+				+'</button>'
+				+'<button type="button" class="btn btn-sm btn-success" id="btn-simpan-data-renstra-lokal" '
+					+'data-action="submit_indikator_sasaran_renstra" '
+					+'data-view="indikatorSasaranRenstra"'
+				+'>'
+					+'<i class="dashicons dashicons-yes" style="margin-top: 3px;"></i> Simpan'
+				+'</button>');
+			indikatorSasaranModal.modal('show');
+	});
+
 	jQuery(document).on('click', '#btn-simpan-data-renstra-lokal', function(){
 		
 		jQuery('#wrap-loading').show();
@@ -882,7 +941,7 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
 
           		let html=""
 					+'<div style="margin-top:10px">'
-						+"<button type=\"button\" class=\"btn btn-sm btn-primary mb-2 btn-add-indikator-tujuan\" data-idunik=\""+params.id_unik+"\">"
+						+"<button type=\"button\" class=\"btn btn-sm btn-primary mb-2 btn-add-indikator-tujuan\" data-kodetujuan=\""+params.id_unik+"\">"
 								+"<i class=\"dashicons dashicons-plus\" style=\"margin-top: 3px;\"></i> Tambah Indikator"
 						+"</button>"
 					+'</div>'
