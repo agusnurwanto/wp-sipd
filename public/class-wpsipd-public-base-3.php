@@ -1061,7 +1061,7 @@ class Wpsipd_Public_Base_3
 						'urut_sasaran' => $data['urut_sasaran'],
 						'urut_tujuan' => $dataTujuan->urut_tujuan,
 					], [
-						'id_unik' => $data['kode_sasaran']
+						'id_unik' => $data['kode_sasaran'] // pake id_unik biar teks sasaran di row indikator sasaran ikut terupdate
 					]);
 
 					if(!$status){
@@ -1137,6 +1137,59 @@ class Wpsipd_Public_Base_3
 
 		if(empty($data['urut_sasaran'])){
 			throw new Exception('Urut sasaran tidak boleh kosong!');
+		}
+	}
+
+	public function get_indikator_sasaran_renstra(){
+		global $wpdb;
+
+		try{
+			if (!empty($_POST)) {
+				if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+					
+					if($_POST['type'] == 1){
+						$sql = $wpdb->prepare("
+							SELECT * FROM data_renstra_sasaran_lokal 
+								WHERE 
+									id_unik=%d AND 
+									id_unik_indikator IS NOT NULL AND 
+									is_locked_indikator=0 AND 
+									status=1 AND 
+									active=1", $_POST['id_unik']);
+						$indikator = $wpdb->get_results($sql, ARRAY_A);
+					}else{
+						$tahun_anggaran = $_POST['tahun_anggaran'];
+						$sql = $wpdb->prepare("
+							SELECT 
+								* 
+							FROM data_renstra_sasaran
+							WHERE tahun_anggaran=%d AND 
+									id_unik=%d
+									id_unik_indikator IS NOT NULL AND 
+									is_locked_indikator=0 AND
+									active=1
+							ORDER BY urut_sasaran
+							", $tahun_anggaran, $_POST['id_unik']);
+						$indikator = $wpdb->get_results($sql, ARRAY_A);
+					}
+
+					echo json_encode([
+						'status' => true,
+						'data' => $indikator,
+						'message' => 'Sukses get indikator sasaran'
+					]);exit;
+
+				}else{
+					throw new Exception('Api key tidak sesuai');
+				}
+			}else{
+				throw new Exception('Format tidak sesuai');
+			}
+		}catch(Exception $e){
+			echo json_encode([
+				'status' => false,
+				'message' => $e->getMessage()
+			]);exit;
 		}
 	}
 

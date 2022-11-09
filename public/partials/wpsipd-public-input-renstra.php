@@ -740,6 +740,11 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
 		}
 	});
 
+	jQuery(document).on('click', '.btn-kelola-indikator-sasaran', function(){
+		jQuery("#modal-indikator-renstra").find('.modal-body').html('');
+		indikatorSasaranRenstra({'id_unik':jQuery(this).data('kodesasaran')});
+	});
+
 	jQuery(document).on('click', '#btn-simpan-data-renstra-lokal', function(){
 		
 		jQuery('#wrap-loading').show();
@@ -868,8 +873,8 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
           	data: {
           		"action": "get_indikator_tujuan_renstra",
           		"api_key": "<?php echo $api_key; ?>",
-				'id_unik': params.id_unik,
-				'type':1
+							'id_unik': params.id_unik,
+							'type':1
           	},
           	dataType: "json",
           	success: function(response){
@@ -992,6 +997,83 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
 			    jQuery("#nav-sasaran").html(sasaran);
 			 	jQuery('.nav-tabs a[href="#nav-sasaran"]').tab('show');
 			}
+		})
+	}
+
+	function indikatorSasaranRenstra(params){
+
+		jQuery('#wrap-loading').show();
+
+		jQuery.ajax({
+			url: ajax.url,
+          	type: "post",
+          	data: {
+          		"action": "get_indikator_sasaran_renstra",
+          		"api_key": "<?php echo $api_key; ?>",
+							'id_unik': params.id_unik,
+							"type": 1
+          	},
+          	dataType: "json",
+          	success: function(response){
+          		jQuery('#wrap-loading').hide();
+          		
+          		let html=""
+									+'<div style="margin-top:10px">'
+										+"<button type=\"button\" class=\"btn btn-sm btn-primary mb-2 btn-add-indikator-sasaran\" data-kodesasaran=\""+params.id_unik+"\">"
+												+"<i class=\"dashicons dashicons-plus\" style=\"margin-top: 3px;\"></i> Tambah Indikator"
+											+"</button>"
+									+'</div>'
+				          			+'<table class="table">'
+					          			+'<thead>'
+					          				+'<tr>'
+					          					+'<th class="text-center" style="width: 160px;">Sasaran</th>'
+					          					+'<th>'+jQuery('#nav-sasaran tr[kodesasaran="'+params.id_unik+'"]').find('td').eq(1).text()+'</th>'
+					          				+'</tr>'
+					          			+'</thead>'
+				          			+'</table>'
+									+"<table class='table'>"
+										+"<thead>"
+											+"<tr>"
+												+"<th>No.</th>"
+												+"<th>Indikator</th>"
+												+"<th>Satuan</th>"
+												+"<th>Target 1</th>"
+												+"<th>Target 2</th>"
+												+"<th>Target 3</th>"
+												+"<th>Target 4</th>"
+												+"<th>Target 5</th>"
+												+"<th>Target Awal</th>"
+												+"<th>Target Akhir</th>"
+												+"<th>Aksi</th>"
+											+"</tr>"
+										+"</thead>"
+										+"<tbody id='indikator_tujuan'>";
+										response.data.map(function(value, index){
+							          			html +="<tr>"
+										          		+"<td>"+(index+1)+".</td>"
+										          		+"<td>"+value.indikator_teks+"</td>"
+										          		+"<td>"+value.satuan+"</td>"
+										          		+"<td>"+value.target_1+"</td>"
+										          		+"<td>"+value.target_2+"</td>"
+										          		+"<td>"+value.target_3+"</td>"
+										          		+"<td>"+value.target_4+"</td>"
+										          		+"<td>"+value.target_5+"</td>"
+										          		+"<td>"+value.target_awal+"</td>"
+										          		+"<td>"+value.target_akhir+"</td>"
+										          		+"<td>"
+										          			+"<a href='#' class='btn btn-sm btn-success btn-edit-indikator-sasaran' data-id='"+value.id+"' data-idunik='"+value.id_unik+"' ><i class='dashicons dashicons-edit' style='margin-top: 3px;'></i></a>&nbsp"
+																		+"<a href='#' class='btn btn-sm btn-danger btn-delete-indikator-sasaran' data-id='"+value.id+"' data-idunik='"+value.id_unik+"' ><i class='dashicons dashicons-trash' style='margin-top: 3px;'></i></a>&nbsp;"
+										          		+"</td>"
+										          	+"</tr>";
+							          		});
+						          	html+='</tbody></table>';
+
+								jQuery("#modal-indikator-renstra").find('.modal-title').html('Indikator Sasaran');
+						        jQuery("#modal-indikator-renstra").find('.modal-body').html(html);
+								jQuery("#modal-indikator-renstra").find('.modal-dialog').css('maxWidth','1250px');
+								jQuery("#modal-indikator-renstra").find('.modal-dialog').css('width','100%');
+								jQuery("#modal-indikator-renstra").modal('show');
+          	}
 		})
 	}
 
