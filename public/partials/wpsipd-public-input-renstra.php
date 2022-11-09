@@ -804,6 +804,84 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
 			indikatorSasaranModal.modal('show');
 	});
 
+	jQuery(document).on('click', '.btn-edit-indikator-sasaran', function(){
+
+		jQuery('#wrap-loading').show();
+
+		let id = jQuery(this).data('id');
+		let id_unik = jQuery(this).data('idunik');
+		let indikatorSasaranModal = jQuery("#modal-crud-renstra");
+
+		jQuery.ajax({
+			url: ajax.url,
+          	type: "post",
+          	data: {
+          		"action": "edit_indikator_sasaran_renstra",
+          		"api_key": "<?php echo $api_key; ?>",
+							'id': id
+          	},
+          	dataType: "json",
+          	success: function(response){
+          		jQuery('#wrap-loading').hide();
+
+          		let html = '<form id="form-renstra">'
+								+'<input type="hidden" name="id" value="'+id+'">'
+								+'<input type="hidden" name="id_unik" value="'+id_unik+'">'
+								+'<div class="form-group">'
+									+'<label for="indikator_teks">Indikator</label>'
+				  					+'<textarea class="form-control" name="indikator_teks">'+response.data.indikator_teks+'</textarea>'
+								+'</div>'
+								+'<div class="form-group">'
+									+'<label for="satuan">Satuan</label>'
+				  					+'<input type="text" class="form-control" name="satuan" value="'+response.data.satuan+'"/>'
+								+'</div>'
+								+'<div class="form-group">'
+									+'<label for="target_1">Target tahun ke-1</label>'
+				  					+'<input type="text" class="form-control" name="target_1" value="'+response.data.target_1+'"/>'
+								+'</div>'
+								+'<div class="form-group">'
+									+'<label for="target_2">Target tahun ke-2</label>'
+				  					+'<input type="text" class="form-control" name="target_2" value="'+response.data.target_2+'"/>'
+								+'</div>'
+								+'<div class="form-group">'
+									+'<label for="target_3">Target tahun ke-3</label>'
+				  					+'<input type="text" class="form-control" name="target_3" value="'+response.data.target_3+'"/>'
+								+'</div>'
+								+'<div class="form-group">'
+									+'<label for="target_4">Target tahun ke-4</label>'
+				  					+'<input type="text" class="form-control" name="target_4" value="'+response.data.target_4+'"/>'
+								+'</div>'
+								+'<div class="form-group">'
+									+'<label for="target_5">Target tahun ke-5</label>'
+				  					+'<input type="text" class="form-control" name="target_5" value="'+response.data.target_5+'"/>'
+								+'</div>'
+								+'<div class="form-group">'
+									+'<label for="target_awal">Target awal</label>'
+				  					+'<input type="text" class="form-control" name="target_awal" value="'+response.data.target_awal+'"/>'
+								+'</div>'
+								+'<div class="form-group">'
+								+'<label for="target_akhir">Target akhir</label>'
+				  					+'<input type="text" class="form-control" name="target_akhir" value="'+response.data.target_akhir+'"/>'
+								+'</div>'
+							  +'</form>';
+
+							indikatorSasaranModal.find('.modal-title').html('Edit Indikator Sasaran');
+							indikatorSasaranModal.find('.modal-body').html(html);
+							indikatorSasaranModal.find('.modal-footer').html(''
+								+'<button type="button" class="btn btn-sm btn-warning" data-dismiss="modal">'
+									+'<i class="dashicons dashicons-no" style="margin-top: 3px;"></i> Tutup'
+								+'</button>'
+								+'<button type="button" class="btn btn-sm btn-success" id="btn-simpan-data-renstra-lokal" '
+									+'data-action="update_indikator_sasaran_renstra" '
+									+'data-view="indikatorSasaranRenstra"'
+								+'>'
+									+'<i class="dashicons dashicons-yes" style="margin-top: 3px;"></i> Simpan'
+								+'</button>');
+							indikatorSasaranModal.modal('show');
+          	}
+		})			
+	});
+
 	jQuery(document).on('click', '#btn-simpan-data-renstra-lokal', function(){
 		
 		jQuery('#wrap-loading').show();
@@ -1128,7 +1206,7 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
 						          	html+='</tbody></table>';
 
 								jQuery("#modal-indikator-renstra").find('.modal-title').html('Indikator Sasaran');
-						        jQuery("#modal-indikator-renstra").find('.modal-body').html(html);
+						    jQuery("#modal-indikator-renstra").find('.modal-body').html(html);
 								jQuery("#modal-indikator-renstra").find('.modal-dialog').css('maxWidth','1250px');
 								jQuery("#modal-indikator-renstra").find('.modal-dialog').css('width','100%');
 								jQuery("#modal-indikator-renstra").modal('show');

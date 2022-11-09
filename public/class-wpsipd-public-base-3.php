@@ -1286,6 +1286,131 @@ class Wpsipd_Public_Base_3
 		}
 	}
 
+	public function edit_indikator_sasaran_renstra(){
+		global $wpdb;
+
+		try{
+			if (!empty($_POST)) {
+				if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+					
+					$indikator = $wpdb->get_row("
+						SELECT * FROM data_renstra_sasaran_lokal 
+							WHERE 
+								id=".$_POST['id']." AND 
+								id_unik IS NOT NULL AND 
+								id_unik_indikator IS NOT NULL AND 
+								is_locked_indikator=0 AND 
+								status=1 AND 
+								active=1");
+
+					echo json_encode([
+						'status' => true,
+						'data' => $indikator
+					]);exit;
+
+				}else{
+					throw new Exception('Api key tidak sesuai');
+				}
+			}else{
+				throw new Exception('Format tidak sesuai');
+			}
+		}catch(Exception $e){
+			echo json_encode([
+				'status' => false,
+				'message' => $e->getMessage()
+			]);exit;
+		}
+	}
+
+	public function update_indikator_sasaran_renstra(){
+		global $wpdb;
+
+		try{
+			if (!empty($_POST)) {
+				if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+					
+					$data = json_decode(stripslashes($_POST['data']), true);
+
+					$this->verify_indikator_sasaran_renstra($data);
+
+					$id_cek = $wpdb->get_var("
+						SELECT id FROM data_renstra_sasaran_lokal
+							WHERE indikator_teks='".$data['indikator_teks']."'
+										AND id!=".$data['id']."
+										AND is_locked_indikator=0
+										AND status=1
+										AND active=1
+								");
+					
+					if(!empty($id_cek)){
+						throw new Exception('Indikator : '.$data['indikator_teks'].' sudah ada!');
+					}
+
+					$dataSasaran = $wpdb->get_row("
+						SELECT * FROM data_renstra_sasaran_lokal 
+							WHERE 
+								id_unik='".$data['id_unik']."' AND 
+								id_unik_indikator IS NULL AND 
+								is_locked=0 AND 
+								status=1 AND 
+								active=1");
+
+					if (empty($dataSasaran)) {
+						throw new Exception('Sasaran yang dipilih tidak ditemukan!');
+					}
+
+					$status = $wpdb->update('data_renstra_sasaran_lokal', [
+						'id_bidang_urusan' => $dataSasaran->id_bidang_urusan,
+						'id_misi' => $dataSasaran->id_misi,
+						'id_unik' => $dataSasaran->id_unik,
+						'id_unit' => $dataSasaran->id_unit,
+						'id_visi' => $dataSasaran->id_visi,
+						'indikator_teks' => $data['indikator_teks'],
+						'kode_bidang_urusan' => $dataSasaran->kode_bidang_urusan,
+						'kode_skpd' => $dataSasaran->kode_skpd,
+						'kode_tujuan' => $dataSasaran->kode_tujuan,
+						'nama_bidang_urusan' => $dataSasaran->nama_bidang_urusan,
+						'nama_skpd' => $dataSasaran->nama_skpd,
+						'sasaran_teks' => $dataSasaran->sasaran_teks,
+						'satuan' => $data['satuan'],
+						'target_1' => $data['target_1'],
+						'target_2' => $data['target_2'],
+						'target_3' => $data['target_3'],
+						'target_4' => $data['target_4'],
+						'target_5' => $data['target_5'],
+						'target_awal' => $data['target_awal'],
+						'target_akhir' => $data['target_akhir'],
+						'tujuan_lock' => $dataSasaran->tujuan_lock,
+						'tujuan_teks' => $dataSasaran->tujuan_teks,
+						'urut_sasaran' => $dataSasaran->urut_sasaran,
+						'urut_tujuan' => $dataSasaran->urut_tujuan
+					], [
+						'id' => $data['id']
+					]);
+
+					if(!$status){
+						throw new Exception('Terjadi kesalahan saat simpan data, harap hubungi admin!');
+					}
+
+					echo json_encode([
+						'status' => true,
+						'message' => 'Sukses ubah indikator sasaran'
+					]);exit;
+
+				}else{
+					throw new Exception('Api key tidak sesuai');
+				}
+			}else{
+				throw new Exception('Format tidak sesuai');
+			}
+		}catch(Exception $e){
+			echo json_encode([
+				'status' => false,
+				'message' => $e->getMessage()
+			]);exit;
+		}
+	}
+
 	private function verify_indikator_sasaran_renstra(array $data){
 		if(empty($data['id_unik'])){
 			throw new Exception('Sasaran wajib dipilih!');
