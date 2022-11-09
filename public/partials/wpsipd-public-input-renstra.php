@@ -882,6 +882,39 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
 		})			
 	});
 
+	jQuery(document).on('click', '.btn-delete-indikator-sasaran', function(){
+
+		if(confirm('Data akan dihapus, lanjut?')){
+	
+			jQuery('#wrap-loading').show();
+
+			let id = jQuery(this).data('id');
+			let id_unik = jQuery(this).data('idunik');
+
+			jQuery.ajax({
+				method:'POST',
+				url:ajax.url,
+				dataType:'json',
+				data:{
+					'action': 'delete_indikator_sasaran_renstra',
+		      'api_key': '<?php echo $api_key; ?>',
+					'id': id
+				},
+				success:function(response){
+
+					alert(response.message);
+					if(response.status){
+						indikatorSasaranRenstra({
+							'id_unik': id_unik
+						});
+					}
+					jQuery('#wrap-loading').hide();
+
+				}
+			})
+		}
+	});
+
 	jQuery(document).on('click', '#btn-simpan-data-renstra-lokal', function(){
 		
 		jQuery('#wrap-loading').show();
