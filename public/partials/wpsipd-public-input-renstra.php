@@ -55,9 +55,9 @@ if(!empty($jadwal_lokal)){
 	$akhir = new DateTime($selesaiJadwal);
 	$now = new DateTime(date('Y-m-d H:i:s'));
 
-	if($now >= $awal && $now <= $akhir){
+	// if($now >= $awal && $now <= $akhir){
 		$add_renstra = '<a style="margin-left: 10px;" id="tambah-data" onclick="return false;" href="#" class="btn btn-success">Tambah Data RENSTRA</a>';
-	}
+	// }
 }
 
 $akhir_renstra = $awal_renstra+5;
@@ -915,6 +915,60 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
 		}
 	});
 
+	jQuery(document).on('click', '.btn-detail-sasaran', function(){
+		programRenstra({
+			'kode_sasaran':jQuery(this).data('kodesasaran')
+		});
+	});
+
+	jQuery(document).on('click', '.btn-tambah-program', function(){
+
+		jQuery('#wrap-loading').show();
+
+		let programModal = jQuery("#modal-crud-renstra");
+		let kode_sasaran = jQuery(this).data('kodesasaran');
+
+  				get_bidang_urusan().then(function(){
+
+		  			jQuery('#wrap-loading').hide();
+		  				
+						let html = '<form id="form-renstra">'
+										+'<input type="hidden" name="kode_sasaran" value="'+kode_sasaran+'"/>'
+										+'<div class="form-group">'
+									    	+'<label>Pilih Urusan</label>'
+									    	+'<select class="form-control" name="id_urusan" id="urusan-teks"></select>'
+									  	+'</div>'
+									  	+'<div class="form-group">'
+									    	+'<label>Pilih Bidang</label>'
+									    	+'<select class="form-control" name="id_bidang" id="bidang-teks"></select>'
+									  	+'</div>'
+									  	+'<div class="form-group">'
+									    	+'<label>Pilih Program</label>'
+									    	+'<select class="form-control" name="id_program" id="program-teks"></select>'
+									  	+'</div>'
+									+'</form>';
+
+				    programModal.find('.modal-title').html('Tambah Program');
+						programModal.find('.modal-body').html(html);
+						programModal.find('.modal-footer').html(''
+							+'<button type="button" class="btn btn-sm btn-warning" data-dismiss="modal">'
+								+'<i class="dashicons dashicons-no" style="margin-top: 3px;"></i> Tutup'
+							+'</button>'
+							+'<button type="button" class="btn btn-sm btn-success" id="btn-simpan-data-renstra-lokal" '
+								+'data-action="submit_program_renstra" '
+								+'data-view="programRenstra"'
+							+'>'
+								+'<i class="dashicons dashicons-yes" style="margin-top: 3px;"></i> Simpan'
+							+'</button>');
+
+						get_urusan();
+						get_bidang();
+						get_program();
+
+						programModal.modal('show');
+  		});	
+	});
+
 	jQuery(document).on('click', '#btn-simpan-data-renstra-lokal', function(){
 		
 		jQuery('#wrap-loading').show();
@@ -946,6 +1000,15 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
 				}
 			}
 		})
+	});
+
+	jQuery(document).on('change', '#urusan-teks', function(){
+		get_bidang(jQuery(this).val());
+		get_program();
+	});
+
+	jQuery(document).on('change', '#bidang-teks', function(){
+		get_program(jQuery(this).val());
 	});
 
 	function pilihJadwal(that){
@@ -1245,6 +1308,212 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
 								jQuery("#modal-indikator-renstra").modal('show');
           	}
 		})
+	}
+
+	function programRenstra(params){
+
+		jQuery('#wrap-loading').show();
+
+		jQuery.ajax({
+			method:'POST',
+			url:ajax.url,
+			dataType:'json',
+			data:{
+				'action': 'get_program_renstra',
+	      'api_key': '<?php echo $api_key; ?>',
+				'kode_sasaran': params.kode_sasaran,
+				'type':1
+			},
+			success:function(response){
+
+          		jQuery('#wrap-loading').hide();
+          		
+          		let program = ''
+          				+'<div style="margin-top:10px"><button type="button" class="btn btn-sm btn-primary mb-2 btn-tambah-program" data-kodesasaran="'+params.kode_sasaran+'"><i class="dashicons dashicons-plus" style="margin-top: 3px;"></i> Tambah Program</button></div>'
+          				+'<table class="table">'
+          					+'<thead>'
+	          					+'<tr>'
+	          						+'<th class="text-center" style="width: 160px;">Tujuan</th>'
+	          						+'<th>'+jQuery('#nav-tujuan tr[kodetujuan="'+jQuery("#nav-sasaran .btn-tambah-sasaran").data("kodetujuan")+'"]').find('td').eq(1).text()+'</th>'
+	          					+'</tr>'
+	          					+'<tr>'
+	          						+'<th class="text-center" style="width: 160px;">Sasaran</th>'
+	          						+'<th>'+jQuery('#nav-sasaran tr[kodesasaran="'+params.kode_sasaran+'"]').find('td').eq(1).text()+'</th>'
+	          					+'</tr>'
+          					+'</thead>'
+          				+'</table>'
+          				
+          				+'<table class="table">'
+          					+'<thead>'
+          						+'<tr>'
+          							+'<th style="width:5%">No.</th>'
+          							+'<th style="width:75%">Program</th>'
+          							+'<th style="width:25%">Aksi</th>'
+          						+'<tr>'
+          					+'</thead>'
+          					+'<tbody>';
+
+          						response.data.map(function(value, index){
+          							program +='<tr kodeprogram="'+value.id_unik+'">'
+			          							+'<td>'+(index+1)+'.</td>'
+			          							+'<td>'+value.nama_program+'</td>'
+			          							+'<td>'
+			          								+'<a href="javascript:void(0)" data-kodeprogram="'+value.id_unik+'" class="btn btn-sm btn-warning btn-kelola-indikator-program"><i class="dashicons dashicons-menu-alt" style="margin-top: 3px;"></i></a>&nbsp;'
+			          								+'<a href="javascript:void(0)" data-id="'+value.id+'" data-kodeprogram="'+value.id_unik+'" class="btn btn-sm btn-success btn-edit-program"><i class="dashicons dashicons-edit" style="margin-top: 3px;"></i></a>&nbsp;'
+			          								+'<a href="javascript:void(0)" data-id="'+value.id+'" data-kodeprogram="'+value.id_unik+'" data-kodesasaran="'+value.kode_sasaran+'" class="btn btn-sm btn-danger btn-hapus-program"><i class="dashicons dashicons-trash" style="margin-top: 3px;"></i></a></td>'
+			          						+'</tr>';
+          						})
+
+          					program +='<tbody>'
+          				+'</table>';
+
+			    jQuery("#nav-program").html(program);
+			 	jQuery('.nav-tabs a[href="#nav-program"]').tab('show');
+			}
+		})
+	}
+
+	function get_urusan() {
+		var html = '<option value="">Pilih Urusan</option>';
+		for(var nm_urusan in all_program){
+			html += '<option>'+nm_urusan+'</option>';
+		}
+		jQuery('#urusan-teks').html(html);
+	}
+
+	function get_bidang(nm_urusan) {
+		var html = '<option value="">Pilih Bidang</option>';
+		if(nm_urusan){
+			for(var nm_bidang in all_program[nm_urusan]){
+				html += '<option>'+nm_bidang+'</option>';
+			}
+		}else{
+			for(var nm_urusan in all_program){
+				for(var nm_bidang in all_program[nm_urusan]){
+					html += '<option>'+nm_bidang+'</option>';
+				}
+			}
+		}
+		jQuery('#bidang-teks').html(html);
+	}
+
+	function get_program(nm_bidang, val) {
+		var html = '<option value="">Pilih Program</option>';
+		var current_nm_urusan = jQuery('#urusan-teks').val();
+		if(current_nm_urusan){
+			if(nm_bidang){
+				for(var nm_program in all_program[current_nm_urusan][nm_bidang]){
+					var selected = '';
+					if(val && val == all_program[current_nm_urusan][nm_bidang][nm_program].id_program){
+						selected = 'selected';
+					}
+					html += '<option '+selected+' value="'+all_program[current_nm_urusan][nm_bidang][nm_program].id_program+'">'+nm_program+'</option>';
+				}
+			}else{
+				for(var nm_bidang in all_program[current_nm_urusan]){
+					for(var nm_program in all_program[current_nm_urusan][nm_bidang]){
+						var selected = '';
+						if(val && val == all_program[current_nm_urusan][nm_bidang][nm_program].id_program){
+							selected = 'selected';
+						}
+						html += '<option '+selected+' value="'+all_program[current_nm_urusan][nm_bidang][nm_program].id_program+'">'+nm_program+'</option>';
+					}
+				}
+			}
+		}else{
+			if(nm_bidang){
+				for(var nm_urusan in all_program){
+					if(all_program[nm_urusan][nm_bidang]){
+						for(var nm_program in all_program[nm_urusan][nm_bidang]){
+							var selected = '';
+							if(val && val == all_program[nm_urusan][nm_bidang][nm_program].id_program){
+								selected = 'selected';
+							}
+							html += '<option '+selected+' value="'+all_program[nm_urusan][nm_bidang][nm_program].id_program+'">'+nm_program+'</option>';
+						}
+					}
+				}
+			}else{
+				for(var nm_urusan in all_program){
+					for(var nm_bidang in all_program[nm_urusan]){
+						for(var nm_program in all_program[nm_urusan][nm_bidang]){
+							var selected = '';
+							if(val && val == all_program[nm_urusan][nm_bidang][nm_program].id_program){
+								selected = 'selected';
+							}
+							html += '<option '+selected+' value="'+all_program[nm_urusan][nm_bidang][nm_program].id_program+'">'+nm_program+'</option>';
+						}
+					}
+				}
+			}
+		}
+		jQuery('#program-teks').html(html);
+	}
+
+	function get_bidang_urusan(skpd){
+		return new Promise(function(resolve, reject){
+			if(!skpd){
+				if(typeof all_program == 'undefined'){
+					jQuery.ajax({
+						url: ajax.url,
+			          	type: "post",
+			          	data: {
+			          		"action": "get_bidang_urusan",
+			          		"api_key": "<?php echo $api_key; ?>",
+			          		"type": 1
+			          	},
+			          	dataType: "json",
+			          	success: function(res){
+							window.all_program = {};
+							res.data.map(function(b, i){
+								if(!all_program[b.nama_urusan]){
+									all_program[b.nama_urusan] = {};
+								}
+								if(!all_program[b.nama_urusan][b.nama_bidang_urusan]){
+									all_program[b.nama_urusan][b.nama_bidang_urusan] = {};
+								}
+								if(!all_program[b.nama_urusan][b.nama_bidang_urusan][b.nama_program]){
+									all_program[b.nama_urusan][b.nama_bidang_urusan][b.nama_program] = b;
+								}
+							});
+							resolve();
+			          	}
+		          });
+				}else{
+					resolve();
+				}
+			}else{
+				if(typeof all_program == 'undefined'){
+					jQuery.ajax({
+						url: ajax.url,
+			          	type: "post",
+			          	data: {
+			          		"action": "get_bidang_urusan",
+			          		"api_key": "<?php echo $api_key; ?>",
+			          		"type": 0
+			          	},
+			          	dataType: "json",
+			          	success: function(res){
+							window.all_skpd = {};
+							res.data.map(function(b, i){
+								if(!all_skpd[b.nama_urusan]){
+									all_skpd[b.nama_urusan] = {};
+								}
+								if(!all_skpd[b.nama_urusan][b.nama_bidang_urusan]){
+									all_skpd[b.nama_urusan][b.nama_bidang_urusan] = {};
+								}
+								if(!all_skpd[b.nama_urusan][b.nama_bidang_urusan][b.nama_skpd]){
+									all_skpd[b.nama_urusan][b.nama_bidang_urusan][b.nama_skpd] = b;
+								}
+							});
+							resolve();
+			          	}
+		          });
+				}else{
+					resolve();
+				}
+			}
+		});
 	}
 
 	function set_data_jadwal_lokal() {
