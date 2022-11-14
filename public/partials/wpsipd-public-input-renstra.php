@@ -969,6 +969,71 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
   		});	
 	});
 
+	jQuery(document).on('click', '.btn-edit-program', function(){
+		
+		jQuery('#wrap-loading').show();
+
+		let programModal = jQuery("#modal-crud-renstra");
+		
+		jQuery.ajax({
+			url: ajax.url,
+          	type: "post",
+          	data: {
+          		"action": "edit_program_renstra",
+          		"api_key": "<?php echo $api_key; ?>",
+							'id_unik': jQuery(this).data('kodeprogram')
+          	},
+          	dataType: "json",
+          	success: function(res){
+
+          		let id_program = res.data.id_program;
+
+          		get_bidang_urusan().then(function(){
+
+			          			jQuery('#wrap-loading').hide();
+							
+											let html = '<form id="form-renstra">'
+															+'<input type="hidden" name="id_unik" value="'+res.data.id_unik+'"/>'
+															+'<input type="hidden" name="kode_sasaran" value="'+res.data.kode_sasaran+'"/>'
+															+'<div class="form-group">'
+														    	+'<label>Pilih Urusan</label>'
+														    	+'<select class="form-control" name="id_urusan" id="urusan-teks"></select>'
+														  	+'</div>'
+														  	+'<div class="form-group">'
+														    	+'<label>Pilih Bidang</label>'
+														    	+'<select class="form-control" name="id_bidang" id="bidang-teks"></select>'
+														  	+'</div>'
+														  	+'<div class="form-group">'
+														    	+'<label>Pilih Program</label>'
+														    	+'<select class="form-control" name="id_program" id="program-teks"></select>'
+														  	+'</div>'
+														+'</form>';
+
+									    programModal.find('.modal-title').html('Edit Program');
+											programModal.find('.modal-body').html(html);
+											programModal.find('.modal-footer').html(''
+												+'<button type="button" class="btn btn-sm btn-warning" data-dismiss="modal">'
+													+'<i class="dashicons dashicons-no" style="margin-top: 3px;"></i> Tutup'
+												+'</button>'
+												+'<button type="button" class="btn btn-sm btn-success" id="btn-simpan-data-renstra-lokal" '
+													+'data-action="update_program_renstra" '
+													+'data-view="programRenstra"'
+												+'>'
+													+'<i class="dashicons dashicons-yes" style="margin-top: 3px;"></i> Simpan'
+												+'</button>');
+
+											get_urusan();
+											get_bidang();
+											get_program(false, id_program);
+
+											programModal.modal('show');
+
+			          		});
+
+          	}
+        });
+	});
+
 	jQuery(document).on('click', '#btn-simpan-data-renstra-lokal', function(){
 		
 		jQuery('#wrap-loading').show();
