@@ -1034,6 +1034,39 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
         });
 	});
 
+	jQuery(document).on('click', '.btn-hapus-program', function(){
+
+		if(confirm('Data akan dihapus, lanjut?')){
+			
+			jQuery('#wrap-loading').show();
+			
+			let kode_program = jQuery(this).data('kodeprogram');
+			let kode_sasaran = jQuery(this).data('kodesasaran');
+
+			jQuery.ajax({
+				method:'POST',
+				url:ajax.url,
+				dataType:'json',
+				data:{
+					'action': 'delete_program_renstra',
+		      'api_key': '<?php echo $api_key; ?>',
+					'kode_program': kode_program,
+				},
+				success:function(response){
+
+					alert(response.message);
+					if(response.status){
+						programRenstra({
+							'kode_sasaran': kode_sasaran
+						});
+					}
+					jQuery('#wrap-loading').hide();
+
+				}
+			})
+		}
+	});
+
 	jQuery(document).on('click', '#btn-simpan-data-renstra-lokal', function(){
 		
 		jQuery('#wrap-loading').show();
