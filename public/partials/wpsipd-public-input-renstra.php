@@ -1294,9 +1294,58 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
 													})
 												html+='</select>'
 											+'</div>'
-											+'<div class="form-group">'
-												+'<label for="urut_kegiatan">Urut Kegiatan</label>'
-								  				+'<input type="number" class="form-control" name="urut_kegiatan" />'
+									+'</form>';
+
+				    kegiatanModal.find('.modal-title').html('Tambah Kegiatan');
+						kegiatanModal.find('.modal-body').html(html);
+						kegiatanModal.find('.modal-footer').html(''
+							+'<button type="button" class="btn btn-sm btn-warning" data-dismiss="modal">'
+								+'<i class="dashicons dashicons-no" style="margin-top: 3px;"></i> Tutup'
+							+'</button>'
+							+'<button type="button" class="btn btn-sm btn-success" id="btn-simpan-data-renstra-lokal" '
+								+'data-action="submit_kegiatan_renstra" '
+								+'data-view="kegiatanRenstra"'
+							+'>'
+								+'<i class="dashicons dashicons-yes" style="margin-top: 3px;"></i> Simpan'
+							+'</button>');
+
+						kegiatanModal.modal('show');
+
+				}
+		});	
+	});
+
+	jQuery(document).on('click', '.btn-edit-kegiatan', function(){
+		jQuery('#wrap-loading').show();
+
+		let kegiatanModal = jQuery("#modal-crud-renstra");
+		let id_program = jQuery(this).data('idprogram');
+		let id_kegiatan = jQuery(this).data('id');
+
+		jQuery.ajax({
+				method:'POST',
+				url:ajax.url,
+				dataType:'json',
+				data:{
+					'action': 'edit_kegiatan_renstra',
+		      'api_key': '<?php echo $api_key; ?>',
+					'id_program': id_program,
+					'id_kegiatan': id_kegiatan,
+				},
+				success:function(response){
+
+					jQuery('#wrap-loading').hide();
+		  				
+						let html = '<form id="form-renstra">'
+										+'<input type="hidden" name="kegiatan_teks" id="kegiatan_teks"/>'
+									  +'<div class="form-group">'
+												+'<label for="kegiatan_teks">Kegiatan</label>'
+												+'<select class="form-control" id="id_kegiatan" name="id_kegiatan" onchange="pilihKegiatan(this)">';
+													html+='<option value="">Pilih Kegiatan</option>';
+													response.data.map(function(value, index){
+														html +='<option value="'+value.id+'">'+value.kegiatan_teks+'</option>';
+													})
+												html+='</select>'
 											+'</div>'
 									+'</form>';
 
@@ -1314,6 +1363,8 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
 							+'</button>');
 
 						kegiatanModal.modal('show');
+
+						jQuery("#id_kegiatan").val(response.kegiatan.id_giat);
 
 				}
 		});	
@@ -1858,7 +1909,7 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
 			          							+'<td>'+value.nama_giat+'</td>'
 			          							+'<td>'
 			          								+'<a href="javascript:void(0)" data-kodekegiatan="'+value.id_unik+'" class="btn btn-sm btn-warning btn-kelola-indikator-kegiatan"><i class="dashicons dashicons-menu-alt" style="margin-top: 3px;"></i></a>&nbsp;'	
-			          								+'<a href="javascript:void(0)" data-id="'+value.id+'" data-kodekegiatan="'+value.id_unik+'" class="btn btn-sm btn-success btn-edit-kegiatan"><i class="dashicons dashicons-edit" style="margin-top: 3px;"></i></a>&nbsp;'
+			          								+'<a href="javascript:void(0)" data-id="'+value.id+'" data-kodekegiatan="'+value.id_unik+'" data-idprogram="'+value.id_program+'" class="btn btn-sm btn-success btn-edit-kegiatan"><i class="dashicons dashicons-edit" style="margin-top: 3px;"></i></a>&nbsp;'
 			          								+'<a href="javascript:void(0)" data-id="'+value.id+'" data-kodekegiatan="'+value.id_unik+'" data-kodesasaran="'+value.kode_sasaran+'" class="btn btn-sm btn-danger btn-hapus-kegiatan"><i class="dashicons dashicons-trash" style="margin-top: 3px;"></i></a></td>'
 			          						+'</tr>';
           						})

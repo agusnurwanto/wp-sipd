@@ -1545,7 +1545,7 @@ class Wpsipd_Public_Base_3
 						throw new Exception('Program : '.$data['program_teks'].' sudah ada!');
 					}
 
-					$dataSasaran = $wpdb->get_row("SELECT id_unik, sasaran_teks, is_locked AS sasaran_lock, urut_sasaran, kode_tujuan FROM data_renstra_sasaran_lokal WHERE id_unik='".$data['kode_sasaran'] . "' AND is_locked=0 AND status=1 AND active=1");
+					$dataSasaran = $wpdb->get_row("SELECT * FROM data_renstra_sasaran_lokal WHERE id_unik='".$data['kode_sasaran'] . "' AND is_locked=0 AND status=1 AND active=1");
 
 					if(empty($dataSasaran)){
 						throw new Exception('Sasaran belum dipilih!');
@@ -1587,7 +1587,7 @@ class Wpsipd_Public_Base_3
 								'nama_program' => $dataProgram->nama_program,
 								'nama_skpd' => $dataSasaran->nama_skpd,
 								'program_lock' => 0,
-								'sasaran_lock' => $dataSasaran->sasaran_lock,
+								'sasaran_lock' => $dataSasaran->is_locked,
 								'sasaran_teks' => $dataSasaran->sasaran_teks,
 								'status' => 1,
 								'tujuan_lock' => $dataSasaran->tujuan_lock,
@@ -1679,11 +1679,7 @@ class Wpsipd_Public_Base_3
 
 					$dataSasaran = $wpdb->get_row("
 						SELECT 
-							id_unik, 
-							sasaran_teks, 
-							is_locked AS sasaran_lock, 
-							urut_sasaran, 
-							kode_tujuan 
+							* 
 						FROM data_renstra_sasaran_lokal 
 						WHERE 
 							id_unik='".$data['kode_sasaran'] . "' AND 
@@ -1728,7 +1724,7 @@ class Wpsipd_Public_Base_3
 									'nama_bidang_urusan' => $dataSasaran->nama_bidang_urusan,
 									'nama_program' => $dataProgram->nama_program,
 									'nama_skpd' => $dataSasaran->nama_skpd,
-									'sasaran_lock' => $dataSasaran->sasaran_lock,
+									'sasaran_lock' => $dataSasaran->is_locked,
 									'sasaran_teks' => $dataSasaran->sasaran_teks,
 									'tujuan_lock' => $dataSasaran->tujuan_lock,
 									'tujuan_teks' => $dataSasaran->tujuan_teks,
@@ -2334,13 +2330,62 @@ class Wpsipd_Public_Base_3
 		}
 	}
 
+	public function edit_kegiatan_renstra(){
+		global $wpdb;
+
+		try{
+			if (!empty($_POST)) {
+				if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+
+					$sql = $wpdb->prepare("
+								SELECT 
+									* 
+								FROM data_prog_keg
+								WHERE id_program=%d
+							", $_POST['id_program']);
+					$data = $wpdb->get_results($sql, ARRAY_A);
+
+					$kegiatan = [];
+					foreach ($data as $key => $value) {
+						if(empty($kegiatan[$value['kode_giat']])){
+							$kegiatan[$value['kode_giat']] = [
+								'id' => $value['id'],
+								'kegiatan_teks' => $value['nama_giat']
+							];
+						}
+					}
+
+					$dataKegiatan = $wpdb->get_row("
+								SELECT 
+									* 
+								FROM data_renstra_kegiatan_lokal
+								WHERE id=".$_POST['id_kegiatan']."
+							");
+
+					echo json_encode([
+						'status' => true,
+						'kegiatan' => $dataKegiatan,
+						'data' => array_values($kegiatan)
+					]);exit;
+
+				}else{
+					throw new Exception('Api key tidak sesuai');
+				}
+			}else{
+				throw new Exception('Format tidak sesuai');
+			}
+		}catch(Exception $e){
+			echo json_encode([
+				'status' => false,
+				'message' => $e->getMessage()
+			]);exit;
+		}
+	}
+
+
 	private function verify_kegiatan_renstra(array $data){
 		if(empty($data['id_kegiatan'])){
 			throw new Exception('Kegiatan wajib dipilih!');
-		}
-
-		if(empty($data['urut_kegiatan'])){
-			throw new Exception('Urut kegiatan tidak boleh kosong!');
 		}
 	}
 
