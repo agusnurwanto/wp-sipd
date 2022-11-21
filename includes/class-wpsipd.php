@@ -592,11 +592,24 @@ class Wpsipd
 		$this->loader->add_action('wp_ajax_update_indikator_sasaran_renstra',  $plugin_public, 'update_indikator_sasaran_renstra');
 		$this->loader->add_action('wp_ajax_delete_indikator_sasaran_renstra',  $plugin_public, 'delete_indikator_sasaran_renstra');
 
+		$this->loader->add_action('wp_ajax_get_bidang_urusan_renstra',  $plugin_public, 'get_bidang_urusan_renstra');
 		$this->loader->add_action('wp_ajax_get_program_renstra',  $plugin_public, 'get_program_renstra');
 		$this->loader->add_action('wp_ajax_submit_program_renstra',  $plugin_public, 'submit_program_renstra');
 		$this->loader->add_action('wp_ajax_edit_program_renstra',  $plugin_public, 'edit_program_renstra');
 		$this->loader->add_action('wp_ajax_update_program_renstra',  $plugin_public, 'update_program_renstra');
 		$this->loader->add_action('wp_ajax_delete_program_renstra',  $plugin_public, 'delete_program_renstra');
+
+		$this->loader->add_action('wp_ajax_get_indikator_program_renstra',  $plugin_public, 'get_indikator_program_renstra');
+		$this->loader->add_action('wp_ajax_submit_indikator_program_renstra',  $plugin_public, 'submit_indikator_program_renstra');
+		$this->loader->add_action('wp_ajax_edit_indikator_program_renstra',  $plugin_public, 'edit_indikator_program_renstra');
+		$this->loader->add_action('wp_ajax_update_indikator_program_renstra',  $plugin_public, 'update_indikator_program_renstra');
+		$this->loader->add_action('wp_ajax_delete_indikator_program_renstra',  $plugin_public, 'delete_indikator_program_renstra');
+
+		$this->loader->add_action('wp_ajax_get_kegiatan_renstra',  $plugin_public, 'get_kegiatan_renstra');
+		$this->loader->add_action('wp_ajax_submit_kegiatan_renstra',  $plugin_public, 'submit_kegiatan_renstra');
+		$this->loader->add_action('wp_ajax_edit_kegiatan_renstra',  $plugin_public, 'edit_kegiatan_renstra');
+		$this->loader->add_action('wp_ajax_update_kegiatan_renstra',  $plugin_public, 'update_kegiatan_renstra');
+		$this->loader->add_action('wp_ajax_delete_kegiatan_renstra',  $plugin_public, 'delete_kegiatan_renstra');
 		
 		add_shortcode('menu_monev',  array($plugin_public, 'menu_monev'));
 		add_shortcode('datassh', array($plugin_public, 'datassh'));
