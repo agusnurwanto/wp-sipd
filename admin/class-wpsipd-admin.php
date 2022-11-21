@@ -266,7 +266,8 @@ class Wpsipd_Admin {
 		    ->add_fields( $this->generate_tag_sipd() );
 
 	    Container::make( 'theme_options', __( 'RKPD & RENJA' ) )
-		    ->set_page_parent( $laporan );
+		    ->set_page_parent( $laporan )
+			->add_fields( $this->get_ajax_field(array('type' => 'rkpd_renja')) );
 
 	    Container::make( 'theme_options', __( 'APBD Penjabaran' ) )
 		    ->set_page_parent( $laporan )
@@ -501,6 +502,9 @@ class Wpsipd_Admin {
 								$url_skpd = $this->generatePage('Input RENSTRA '.$vv['nama_skpd'].' '.$vv['kode_skpd'], null, '[input_renstra id_skpd="'.$vv['id_skpd'].'"]');
 			            		$body_pemda .= '<li><a target="_blank" href="'.$url_skpd.'">Halaman Input RENSTRA '.$vv['kode_skpd'].' '.$vv['nama_skpd'].'</a> (NIP: '.$vv['nipkepala'].')';
 							}
+						}else if($_POST['type'] == 'rkpd_renja'){
+							$url_skpd = $this->generatePage('RKPD & RENJA '.$vv['nama_skpd'].' '.$vv['kode_skpd'].' | '.$v['tahun_anggaran'], $v['tahun_anggaran'], '[monitor_rkpd_renja tahun_anggaran="'.$v['tahun_anggaran'].'" id_skpd="'.$vv['id_skpd'].'"]');
+		            		$body_pemda .= '<li><a target="_blank" href="'.$url_skpd.'">Halaman RKPD & RENJA '.$vv['kode_skpd'].' '.$vv['nama_skpd'].' '.$v['tahun_anggaran'].'</a> (NIP: '.$vv['nipkepala'].')';
 						}
 
 		            	if(!empty($subunit)){
@@ -532,6 +536,9 @@ class Wpsipd_Admin {
 							}else if($_POST['type'] == 'monev_rak'){
 								$url_skpd = $this->generatePage('Rencana Anggaran Kas '.$vvv['nama_skpd'].' '.$vvv['kode_skpd'].' | '.$v['tahun_anggaran'], $v['tahun_anggaran'], '[monitor_rak tahun_anggaran="'.$v['tahun_anggaran'].'" id_skpd="'.$vvv['id_skpd'].'"]');
 								$body_pemda .= '<li><a target="_blank" href="'.$url_skpd.'">Halaman RAK '.$vvv['kode_skpd'].' '.$vvv['nama_skpd'].' '.$v['tahun_anggaran'].'</a> (NIP: '.$vvv['nipkepala'].')';
+							}else if($_POST['type'] == 'rkpd_renja'){
+								$url_skpd = $this->generatePage('RKPD & RENJA '.$vvv['nama_skpd'].' '.$vvv['kode_skpd'].' | '.$v['tahun_anggaran'], $v['tahun_anggaran'], '[monitor_rkpd_renja tahun_anggaran="'.$v['tahun_anggaran'].'" id_skpd="'.$vvv['id_skpd'].'"]');
+			            		$body_pemda .= '<li><a target="_blank" href="'.$url_skpd.'">Halaman RKPD & RENJA '.$vvv['kode_skpd'].' '.$vvv['nama_skpd'].' '.$v['tahun_anggaran'].'</a> (NIP: '.$vvv['nipkepala'].')</li>';
 							}
 		            	}
 		            	if(!empty($subunit)){
@@ -576,6 +583,8 @@ class Wpsipd_Admin {
 						$body_all .= $body_pemda;
 					}else if($_POST['type'] == 'input_renstra'){
 			        	$body_all .= $body_pemda;
+					}else if($_POST['type'] == 'rkpd_renja'){
+			        	$body_all .= $body_pemda;
 					}
 				}
 				if(
@@ -588,6 +597,7 @@ class Wpsipd_Admin {
 					|| $_POST['type'] == 'input_renja'
 					|| $_POST['type'] == 'monev_rak'
 					|| $_POST['type'] == 'input_renstra'
+					|| $_POST['type'] == 'rkpd_renja'
 				){
 					$ret['message'] = $body_all;
 				}

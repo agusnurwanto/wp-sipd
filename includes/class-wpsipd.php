@@ -634,6 +634,7 @@ class Wpsipd
 		add_shortcode('input_renstra', array($plugin_public, 'input_renstra'));
 		add_shortcode('input_renja', array($plugin_public, 'input_renja'));
 		add_shortcode('monitor_rak', array($plugin_public, 'monitor_rak'));
+		add_shortcode('monitor_rkpd_renja', array($plugin_public, 'monitor_rkpd_renja'));
 	}
 
 	/**

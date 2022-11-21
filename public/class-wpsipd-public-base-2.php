@@ -362,4 +362,19 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 		}
 	}
 
+	public function monitor_rkpd_renja($atts)
+	{
+		// untuk disable render shortcode di halaman edit page/post
+		if(!empty($_GET) && !empty($_GET['post'])){
+			return '';
+		}
+
+		$input = shortcode_atts( array(
+			'id_skpd' => false,
+			'tahun_anggaran' => '2022',
+		), $atts );
+
+		require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/wpsipd-public-monitor-rkpd-renja.php';
+	}
+
 }
