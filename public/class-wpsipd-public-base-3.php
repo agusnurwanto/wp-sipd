@@ -1485,4 +1485,355 @@ class Wpsipd_Public_Base_3
 		}		
 	}
 
+	public function get_program_renstra(){
+
+		global $wpdb;
+		if (!empty($_POST)) {
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+				if($_POST['type'] == 1){
+					$sql = $wpdb->prepare("
+						SELECT * FROM data_renstra_program_lokal
+							WHERE kode_sasaran='".$_POST['kode_sasaran']."' AND
+								id_unik IS NOT NULL and
+								id_unik_indikator IS NULL and
+								status=1 AND 
+								is_locked=0 AND 
+								active=1 ORDER BY id
+						");
+					$program = $wpdb->get_results($sql, ARRAY_A);
+				}else{
+					$tahun_anggaran = $_POST['tahun_anggaran'];
+					$sql = $wpdb->prepare("
+								select 
+									* 
+								from data_renstra_program
+								where tahun_anggaran=%d
+									kode_sasaran=%s
+									id_unik IS NOT NULL AND
+									id_unik_indikator IS NULL AND
+									status=1 AND 
+									is_locked=0 AND
+									active=1
+							", $tahun_anggaran, $_POST['kode_sasaran']);
+					$program = $wpdb->get_results($sql, ARRAY_A);
+				}
+
+				echo json_encode([
+					'status' => true,
+					'data' => $program,
+					'message' => 'Sukses get program by sasaran'
+				]);exit;
+			}
+
+			echo json_encode([
+				'status' => false,
+				'message' => 'Api key tidak sesuai'
+			]);exit;
+		}
+
+		echo json_encode([
+			'status' => false,
+			'message' => 'Format tidak sesuai'
+		]);exit;
+	}
+
+	public function submit_program_renstra(){
+		
+		global $wpdb;
+
+		try{
+			if (!empty($_POST)) {
+				if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+					
+					$data = json_decode(stripslashes($_POST['data']), true);
+
+					$this->verify_program_renstra($data);
+
+					$id_cek = $wpdb->get_var("
+						SELECT id FROM data_renstra_program_lokal
+							WHERE nama_program ='".trim($data['program_teks'])."'
+								AND kode_sasaran='".$data['kode_sasaran']."'
+								AND program_lock=0
+								AND status=1
+								AND active=1
+					");
+
+					if(!empty($id_cek)){
+						throw new Exception('Program : '.$data['program_teks'].' sudah ada!');
+					}
+
+					$dataSasaran = $wpdb->get_row("SELECT id_unik, sasaran_teks, is_locked AS sasaran_lock, urut_sasaran, kode_tujuan FROM data_renstra_sasaran_lokal WHERE id_unik='".$data['kode_sasaran'] . "' AND is_locked=0 AND status=1 AND active=1");
+
+					if(empty($dataSasaran)){
+						throw new Exception('Sasaran belum dipilih!');
+					}
+
+					$dataProgram = $wpdb->get_row("
+                        SELECT
+                            u.nama_urusan,
+                            u.nama_bidang_urusan,
+                            u.nama_program,
+                            u.id_program
+                        FROM data_prog_keg as u 
+                        WHERE u.tahun_anggaran=".get_option('_crb_tahun_anggaran_sipd')." AND id_program=".$data['id_program']."
+                        GROUP BY u.kode_program
+                        ORDER BY u.kode_program ASC 
+                    ");
+
+                    if(empty($dataProgram)){
+						throw new Exception('Program tidak ditemukan!');
+					}
+
+					try {
+							$wpdb->insert('data_renstra_program_lokal', [
+								'bidur_lock' => 0,
+								'id_bidang_urusan' => $dataSasaran->id_bidang_urusan, // diambil dari sasaran renstra atau dari program yang dipilih
+								'id_misi' => $dataSasaran->id_misi,
+								'id_program' => $dataProgram->id_program,
+								'id_unik' => $this->generateRandomString(), // kode_program
+								'id_unit' => $dataSasaran->id_unit,
+								'id_visi' => $dataSasaran->id_visi,
+								'is_locked' => 0,
+								'is_locked_indikator' => 0,
+								'kode_bidang_urusan' => $dataSasaran->kode_bidang_urusan, // diambil dari sasaran renstra atau dari program yang dipilih
+								'kode_program' => $dataProgram->kode_program,
+								'kode_sasaran' => $dataSasaran->id_unik,
+								'kode_skpd' => $dataSasaran->kode_skpd,
+								'kode_tujuan' => $dataSasaran->kode_tujuan,
+								'nama_bidang_urusan' => $dataSasaran->nama_bidang_urusan,
+								'nama_program' => $dataProgram->nama_program,
+								'nama_skpd' => $dataSasaran->nama_skpd,
+								'program_lock' => 0,
+								'sasaran_lock' => $dataSasaran->sasaran_lock,
+								'sasaran_teks' => $dataSasaran->sasaran_teks,
+								'status' => 1,
+								'tujuan_lock' => $dataSasaran->tujuan_lock,
+								'tujuan_teks' => $dataSasaran->tujuan_teks,
+								'urut_sasaran' => $dataSasaran->urut_sasaran,
+								'urut_tujuan' => $dataSasaran->urut_tujuan,
+								'active' => 1
+							]);
+
+						echo json_encode([
+							'status' => true,
+							'message' => 'Sukses simpan program'
+						]);exit;
+
+					} catch (Exception $e) {
+						throw $e;										
+					}
+
+				}else{
+					throw new Exception('Api key tidak sesuai');
+				}
+			}else{
+				throw new Exception('Format tidak sesuai');
+			}
+		}catch(Exception $e){
+			echo json_encode([
+				'status' => false,
+				'message' => $e->getMessage()
+			]);exit;
+		}
+	}
+
+	public function edit_program_renstra(){
+		global $wpdb;
+		if (!empty($_POST)) {
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+
+				$data = $wpdb->get_row("
+					SELECT * FROM data_renstra_program_lokal
+						WHERE id_unik='".$_POST['id_unik']."'
+							AND id_unik_indikator IS NULL
+							AND is_locked=0
+							AND active=1
+							AND status=1
+						", ARRAY_A);
+
+				echo json_encode([
+					'status' => true,
+					'data' => $data,
+					'message' => 'Sukses get program by id_unik'
+				]);exit;
+			}
+
+			echo json_encode([
+				'status' => false,
+				'message' => 'Api key tidak sesuai'
+			]);exit;
+		}
+
+		echo json_encode([
+			'status' => false,
+			'message' => 'Format tidak sesuai'
+		]);exit;
+	}
+
+	public function update_program_renstra(){
+		global $wpdb;
+
+		try{
+			if (!empty($_POST)) {
+				if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+					
+					$data = json_decode(stripslashes($_POST['data']), true);
+
+					$this->verify_program_renstra($data);
+
+					$id_cek = $wpdb->get_var("
+						SELECT id FROM data_renstra_program_lokal
+							WHERE nama_program = '".trim($data['program_teks'])."'
+										AND id_unik != '".$data['id_unik']."'
+										AND program_lock=0
+										AND status=1
+										AND active=1
+								");
+					
+					if(!empty($id_cek)){
+						throw new Exception('Program : '.$data['program_teks'].' sudah ada!');
+					}
+
+					$dataSasaran = $wpdb->get_row("
+						SELECT 
+							id_unik, 
+							sasaran_teks, 
+							is_locked AS sasaran_lock, 
+							urut_sasaran, 
+							kode_tujuan 
+						FROM data_renstra_sasaran_lokal 
+						WHERE 
+							id_unik='".$data['kode_sasaran'] . "' AND 
+							id_unik_indikator IS NULL AND 
+							is_locked=0 AND 
+							status=1 AND 
+							active=1");
+
+					if(empty($dataSasaran)){
+						throw new Exception('Sasaran tidak ditemukan!');
+					}
+
+					$dataProgram = $wpdb->get_row("
+                        SELECT
+                            u.nama_urusan,
+                            u.nama_bidang_urusan,
+                            u.nama_program,
+                            u.id_program
+                        FROM data_prog_keg as u 
+                        WHERE u.tahun_anggaran=".get_option('_crb_tahun_anggaran_sipd')." AND id_program=".$data['id_program']."
+                        GROUP BY u.kode_program
+                        ORDER BY u.kode_program ASC 
+                    ");
+
+					if(empty($dataProgram)){
+						throw new Exception('Program tidak ditemukan!');
+					}
+
+					try {
+							// update program
+							$wpdb->update('data_renstra_program_lokal', [
+									'id_bidang_urusan' => $dataSasaran->id_bidang_urusan, // diambil dari sasaran renstra atau dari program yang dipilih
+									'id_misi' => $dataSasaran->id_misi,
+									'id_program' => $dataProgram->id_program,
+									'id_unit' => $dataSasaran->id_unit,
+									'id_visi' => $dataSasaran->id_visi,
+									'kode_bidang_urusan' => $dataSasaran->kode_bidang_urusan, // diambil dari sasaran renstra atau dari program yang dipilih
+									'kode_program' => $dataProgram->kode_program,
+									'kode_sasaran' => $dataSasaran->id_unik,
+									'kode_skpd' => $dataSasaran->kode_skpd,
+									'kode_tujuan' => $dataSasaran->kode_tujuan,
+									'nama_bidang_urusan' => $dataSasaran->nama_bidang_urusan,
+									'nama_program' => $dataProgram->nama_program,
+									'nama_skpd' => $dataSasaran->nama_skpd,
+									'sasaran_lock' => $dataSasaran->sasaran_lock,
+									'sasaran_teks' => $dataSasaran->sasaran_teks,
+									'tujuan_lock' => $dataSasaran->tujuan_lock,
+									'tujuan_teks' => $dataSasaran->tujuan_teks,
+									'urut_sasaran' => $dataSasaran->urut_sasaran,
+									'urut_tujuan' => $dataSasaran->urut_tujuan,
+									'update_at' => date('Y-m-d H:i:s')
+								], [
+									'id_unik' => $data['id_unik'] // pake id_unik biar teks sasaran di row indikator sasaran ikut terupdate
+								]);
+
+						echo json_encode([
+						'status' => true,
+						'message' => 'Sukses ubah program'
+					]);exit;
+
+					} catch (Exception $e) {
+						throw $e;										
+					}
+				}else{
+					throw new Exception('Api key tidak sesuai');
+				}
+			}else{
+				throw new Exception('Format tidak sesuai');
+			}
+		}catch(Exception $e){
+			echo json_encode([
+				'status' => false,
+				'message' => $e->getMessage()
+			]);exit;
+		}
+	}
+
+	public function delete_program_renstra(){
+		global $wpdb;
+		try{
+			if (!empty($_POST)) {
+				if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+
+					$id_cek = $wpdb->get_var("SELECT * FROM data_renstra_kegiatan_lokal WHERE kode_program='" .$_POST['kode_program']. "' AND id_unik IS NOT NULL AND id_unik_indikator IS NULL AND is_locked=0 AND status=1 AND active=1");
+
+					if(!empty($id_cek)){
+						throw new Exception("Program sudah digunakan oleh kegiatan", 1);
+					}
+					
+					$id_cek = $wpdb->get_var("SELECT * FROM data_renstra_program_lokal WHERE id_unik='" .$_POST['kode_program']. "' AND id_unik_indikator IS NOT NULL AND is_locked=0 AND status=1 AND active=1");
+
+					if(!empty($id_cek)){
+						throw new Exception("Program sudah digunakan oleh indikator program", 1);
+					}
+
+					$wpdb->get_results("DELETE FROM data_renstra_program_lokal WHERE id_unik='".$_POST['kode_program']."'");
+
+					echo json_encode([
+						'status' => true,
+						'message' => 'Sukses hapus program'
+					]);exit;
+
+				}else{
+					throw new Exception("Api key tidak sesuai", 1);
+				}
+			}else{
+				throw new Exception("Format tidak sesuai", 1);
+			}
+		}catch(Exception $e){
+			echo json_encode([
+				'status' => false,
+				'message' => $e->getMessage()
+			]);exit;
+		}
+	}
+
+	private function verify_program_renstra(array $data){
+		if(empty($data['kode_sasaran'])){
+			throw new Exception('Sasaran wajib dipilih!');
+		}
+
+		if(empty($data['id_urusan'])){
+			throw new Exception('Urusan wajib dipilih');
+		}
+
+		if(empty($data['id_bidang'])){
+			throw new Exception('Bidang wajib dipilih!');
+		}
+
+		if(empty($data['id_program'])){
+			throw new Exception('Program wajib dipilih');
+		}
+
+	}
+
 }

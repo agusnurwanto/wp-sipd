@@ -591,6 +591,12 @@ class Wpsipd
 		$this->loader->add_action('wp_ajax_edit_indikator_sasaran_renstra',  $plugin_public, 'edit_indikator_sasaran_renstra');
 		$this->loader->add_action('wp_ajax_update_indikator_sasaran_renstra',  $plugin_public, 'update_indikator_sasaran_renstra');
 		$this->loader->add_action('wp_ajax_delete_indikator_sasaran_renstra',  $plugin_public, 'delete_indikator_sasaran_renstra');
+
+		$this->loader->add_action('wp_ajax_get_program_renstra',  $plugin_public, 'get_program_renstra');
+		$this->loader->add_action('wp_ajax_submit_program_renstra',  $plugin_public, 'submit_program_renstra');
+		$this->loader->add_action('wp_ajax_edit_program_renstra',  $plugin_public, 'edit_program_renstra');
+		$this->loader->add_action('wp_ajax_update_program_renstra',  $plugin_public, 'update_program_renstra');
+		$this->loader->add_action('wp_ajax_delete_program_renstra',  $plugin_public, 'delete_program_renstra');
 		
 		add_shortcode('menu_monev',  array($plugin_public, 'menu_monev'));
 		add_shortcode('datassh', array($plugin_public, 'datassh'));
@@ -629,6 +635,7 @@ class Wpsipd
 		add_shortcode('input_renja', array($plugin_public, 'input_renja'));
 		add_shortcode('monitor_rak', array($plugin_public, 'monitor_rak'));
 		add_shortcode('monitor_json_rka', array($plugin_public, 'monitor_json_rka'));
+		add_shortcode('monitor_rkpd_renja', array($plugin_public, 'monitor_rkpd_renja'));
 	}
 
 	/**
