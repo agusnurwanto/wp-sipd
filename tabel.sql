@@ -1768,6 +1768,7 @@ CREATE TABLE `data_jadwal_lokal` (
   `waktu_akhir` datetime DEFAULT NULL,
   `status` int(11) NOT NULL DEFAULT '0',
   `tahun_anggaran` year(4) NOT NULL DEFAULT '2022',
+  `lama_pelaksanaan` int(2) NOT NULL DEFAULT '1',
   `id_tipe` int(11) NOT NULL,
   `relasi_perencanaan` int(11) DEFAULT NULL,
   PRIMARY KEY  (id_jadwal_lokal)

@@ -4429,6 +4429,15 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/wpsipd-public-monitor-sql-migrate.php';
 	}
 
+	public function monitor_json_rka($atts)
+	{
+		// untuk disable render shortcode di halaman edit page/post
+		if(!empty($_GET) && !empty($_GET['post'])){
+			return '';
+		}
+		require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/wpsipd-public-monitor-json-rka.php';
+	}
+
 	public function monitoring_spd_rinci($atts)
 	{
 		// untuk disable render shortcode di halaman edit page/post
