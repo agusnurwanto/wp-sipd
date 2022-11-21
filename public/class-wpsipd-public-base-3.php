@@ -2162,10 +2162,10 @@ class Wpsipd_Public_Base_3
 				}else{
 					$tahun_anggaran = $_POST['tahun_anggaran'];
 					$sql = $wpdb->prepare("
-								select 
+								SELECT 
 									* 
-								from data_renstra_kegiatan
-								where tahun_anggaran=%d
+								FROM data_renstra_kegiatan
+								WHERE tahun_anggaran=%d
 									kode_program=%s
 									id_unik IS NOT NULL AND
 									id_unik_indikator IS NULL AND
@@ -2193,6 +2193,155 @@ class Wpsipd_Public_Base_3
 			'status' => false,
 			'message' => 'Format tidak sesuai'
 		]);exit;
+	}
+
+	public function add_kegiatan_renstra(){
+		global $wpdb;
+
+		try{
+			if (!empty($_POST)) {
+				if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+
+					$sql = $wpdb->prepare("
+								SELECT 
+									* 
+								FROM data_prog_keg
+								WHERE id_program=%d
+							", $_POST['id_program']);
+					$data = $wpdb->get_results($sql, ARRAY_A);
+
+					$kegiatan = [];
+					foreach ($data as $key => $value) {
+						if(empty($kegiatan[$value['kode_giat']])){
+							$kegiatan[$value['kode_giat']] = [
+								'id' => $value['id'],
+								'kegiatan_teks' => $value['nama_giat']
+							];
+						}
+					}
+
+					echo json_encode([
+						'status' => true,
+						'data' => array_values($kegiatan)
+					]);exit;
+
+				}else{
+					throw new Exception('Api key tidak sesuai');
+				}
+			}else{
+				throw new Exception('Format tidak sesuai');
+			}
+		}catch(Exception $e){
+			echo json_encode([
+				'status' => false,
+				'message' => $e->getMessage()
+			]);exit;
+		}
+	}
+
+	public function submit_kegiatan_renstra(){
+		
+		global $wpdb;
+
+		try{
+			if (!empty($_POST)) {
+				if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+					
+					$data = json_decode(stripslashes($_POST['data']), true);
+
+					$this->verify_kegiatan_renstra($data);
+
+					$id_cek = $wpdb->get_var("
+						SELECT id FROM data_renstra_kegiatan_lokal
+							WHERE nama_giat ='".trim($data['kegiatan_teks'])."'
+								AND kode_program='".$data['kode_program']."'
+								AND giat_lock=0
+								AND status=1
+								AND active=1
+					");
+
+					if(!empty($id_cek)){
+						throw new Exception('Kegiatan : '.$data['kegiatan_teks'].' sudah ada!');
+					}
+
+					$dataProgram = $wpdb->get_row("SELECT * FROM data_renstra_program_lokal WHERE id_unik='".$data['kode_program']."' AND id_unik_indikator IS NULL AND is_locked=0 AND status=1 AND active=1");
+
+					if(empty($dataProgram)){
+						throw new Exception('Program tidak ditemukan!');
+					}
+
+					$dataKegiatan = $wpdb->get_row("SELECT * FROM data_prog_keg WHERE id='".$data['id_kegiatan']."'");
+
+					if(empty($dataKegiatan)){
+						throw new Exception('Kegiatan tidak ditemukan!');
+					}
+
+					try {
+						$wpdb->insert('data_renstra_kegiatan_lokal', [
+								'bidur_lock' => 0,
+								'giat_lock' => 0,
+								'id_bidang_urusan' => $dataProgram->id_bidang_urusan,
+								'id_giat' => $dataKegiatan->id,
+								'id_misi' => $dataProgram->id_misi,
+								'id_program' => $dataProgram->id_program,
+								'id_unik' => $this->generateRandomString(), // kode_kegiatan
+								'id_unit' => $dataProgram->id_unit,
+								'id_visi' => $dataProgram->id_visi,
+								'is_locked' => 0,
+								'is_locked_indikator' => 0,
+								'kode_bidang_urusan' => $dataProgram->kode_bidang_urusan,
+								'kode_giat' => $dataKegiatan->kode_giat,
+								'kode_program' => $dataProgram->id_unik,
+								'kode_sasaran' => $dataProgram->kode_program,
+								'kode_skpd' => $dataProgram->kode_skpd,
+								'kode_tujuan' => $dataProgram->kode_tujuan,
+								'nama_bidang_urusan' => $dataProgram->nama_bidang_urusan,
+								'nama_giat' => $dataKegiatan->nama_giat,
+								'nama_program' => $dataProgram->nama_program,
+								'nama_skpd' => $dataProgram->nama_skpd,
+								'program_lock' => $dataProgram->program_lock,
+								'renstra_prog_lock' => $dataProgram->program_lock,
+								'sasaran_lock' => $dataProgram->sasaran_lock,
+								'sasaran_teks' => $dataProgram->sasaran_teks,
+								'status' => 1,
+								'tujuan_lock' => $dataProgram->tujuan_lock,
+								'tujuan_teks' => $dataProgram->tujuan_teks,
+								'urut_sasaran' => $dataProgram->urut_sasaran,
+								'urut_tujuan' => $dataProgram->urut_tujuan,
+								'active' => 1
+							]);
+
+						echo json_encode([
+							'status' => true,
+							'message' => 'Sukses simpan kegiatan'
+						]);exit;
+
+					} catch (Exception $e) {
+						throw $e;										
+					}
+
+				}else{
+					throw new Exception('Api key tidak sesuai');
+				}
+			}else{
+				throw new Exception('Format tidak sesuai');
+			}
+		}catch(Exception $e){
+			echo json_encode([
+				'status' => false,
+				'message' => $e->getMessage()
+			]);exit;
+		}
+	}
+
+	private function verify_kegiatan_renstra(array $data){
+		if(empty($data['id_kegiatan'])){
+			throw new Exception('Kegiatan wajib dipilih!');
+		}
+
+		if(empty($data['urut_kegiatan'])){
+			throw new Exception('Urut kegiatan tidak boleh kosong!');
+		}
 	}
 
 	public function get_bidang_urusan_renstra(){

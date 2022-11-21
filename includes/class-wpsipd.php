@@ -606,6 +606,7 @@ class Wpsipd
 		$this->loader->add_action('wp_ajax_delete_indikator_program_renstra',  $plugin_public, 'delete_indikator_program_renstra');
 
 		$this->loader->add_action('wp_ajax_get_kegiatan_renstra',  $plugin_public, 'get_kegiatan_renstra');
+		$this->loader->add_action('wp_ajax_add_kegiatan_renstra',  $plugin_public, 'add_kegiatan_renstra');
 		$this->loader->add_action('wp_ajax_submit_kegiatan_renstra',  $plugin_public, 'submit_kegiatan_renstra');
 		$this->loader->add_action('wp_ajax_edit_kegiatan_renstra',  $plugin_public, 'edit_kegiatan_renstra');
 		$this->loader->add_action('wp_ajax_update_kegiatan_renstra',  $plugin_public, 'update_kegiatan_renstra');
