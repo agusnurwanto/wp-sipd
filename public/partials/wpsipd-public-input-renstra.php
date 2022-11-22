@@ -55,9 +55,9 @@ if(!empty($jadwal_lokal)){
 	$akhir = new DateTime($selesaiJadwal);
 	$now = new DateTime(date('Y-m-d H:i:s'));
 
-	// if($now >= $awal && $now <= $akhir){
+	if($now >= $awal && $now <= $akhir){
 		$add_renstra = '<a style="margin-left: 10px;" id="tambah-data" onclick="return false;" href="#" class="btn btn-success">Tambah Data RENSTRA</a>';
-	// }
+	}
 }
 
 $akhir_renstra = $awal_renstra+5;
@@ -1631,6 +1631,39 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
 								jQuery("#modal-crud-renstra").modal('show');
           	}
 		})	
+	});
+
+	jQuery(document).on('click', '.btn-delete-indikator-kegiatan', function(){
+
+		if(confirm('Data akan dihapus, lanjut?')){
+
+			jQuery('#wrap-loading').show();
+			
+			let id = jQuery(this).data('id');	
+			let kode_kegiatan = jQuery(this).data('kodekegiatan');
+
+			jQuery.ajax({
+				method:'POST',
+				url:ajax.url,
+				dataType:'json',
+				data:{
+					'action': 'delete_indikator_kegiatan_renstra',
+		      'api_key': '<?php echo $api_key; ?>',
+					'id': id,
+				},
+				success:function(response){
+
+					alert(response.message);
+					if(response.status){
+						indikatorKegiatanRenstra({
+							'id_unik': kode_kegiatan
+						});
+					}
+					jQuery('#wrap-loading').hide();
+
+				}
+			})
+		}
 	});
 
 	jQuery(document).on('click', '#btn-simpan-data-renstra-lokal', function(){

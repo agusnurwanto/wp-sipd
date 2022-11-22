@@ -2790,6 +2790,33 @@ class Wpsipd_Public_Base_3
 		}
 	}
 
+	public function delete_indikator_kegiatan_renstra(){
+		global $wpdb;
+		try{
+			if (!empty($_POST)) {
+				if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+
+					$wpdb->get_results("DELETE FROM data_renstra_kegiatan_lokal WHERE id=".$_POST['id']);
+
+					echo json_encode([
+						'status' => true,
+						'message' => 'Sukses hapus indikator kegiatan'
+					]);exit;
+
+				}else{
+					throw new Exception("Api key tidak sesuai", 1);
+				}
+			}else{
+				throw new Exception("Format tidak sesuai", 1);
+			}
+		}catch(Exception $e){
+			echo json_encode([
+				'status' => false,
+				'message' => $e->getMessage()
+			]);exit;
+		}
+	}
+
 	private function verify_indikator_kegiatan_renstra(array $data){
 		if(empty($data['id_unik'])){
 			throw new Exception('Kegiatan wajib dipilih!');
