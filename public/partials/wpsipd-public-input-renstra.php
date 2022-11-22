@@ -55,9 +55,9 @@ if(!empty($jadwal_lokal)){
 	$akhir = new DateTime($selesaiJadwal);
 	$now = new DateTime(date('Y-m-d H:i:s'));
 
-	// if($now >= $awal && $now <= $akhir){ // disable sementara
+	if($now >= $awal && $now <= $akhir){ // disable sementara
 		$add_renstra = '<a style="margin-left: 10px;" id="tambah-data" onclick="return false;" href="#" class="btn btn-success">Tambah Data RENSTRA</a>';
-	// }
+	}
 }
 
 $akhir_renstra = $awal_renstra+5;
@@ -1337,6 +1337,10 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
 					jQuery('#wrap-loading').hide();
 		  				
 						let html = '<form id="form-renstra">'
+										+'<input type="hidden" name="id" id="id" value="'+response.kegiatan.id+'"/>'
+										+'<input type="hidden" name="id_unik" id="id_unik" value="'+response.kegiatan.id_unik+'"/>'
+										+'<input type="hidden" name="id_program" id="id_program" value="'+response.kegiatan.id_program+'"/>'
+										+'<input type="hidden" name="kode_program" id="kode_program" value="'+response.kegiatan.kode_program+'"/>'
 										+'<input type="hidden" name="kegiatan_teks" id="kegiatan_teks"/>'
 									  +'<div class="form-group">'
 												+'<label for="kegiatan_teks">Kegiatan</label>'
@@ -1356,7 +1360,7 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
 								+'<i class="dashicons dashicons-no" style="margin-top: 3px;"></i> Tutup'
 							+'</button>'
 							+'<button type="button" class="btn btn-sm btn-success" id="btn-simpan-data-renstra-lokal" '
-								+'data-action="submit_kegiatan_renstra" '
+								+'data-action="update_kegiatan_renstra" '
 								+'data-view="kegiatanRenstra"'
 							+'>'
 								+'<i class="dashicons dashicons-yes" style="margin-top: 3px;"></i> Simpan'
