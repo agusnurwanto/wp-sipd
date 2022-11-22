@@ -2666,6 +2666,130 @@ class Wpsipd_Public_Base_3
 		}
 	}
 
+	public function edit_indikator_kegiatan_renstra(){
+		global $wpdb;
+
+		try{
+			if (!empty($_POST)) {
+				if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+					
+					$indikator = $wpdb->get_row("SELECT * FROM data_renstra_kegiatan_lokal WHERE id=".$_POST['id']." AND id_unik='".$_POST['kode_kegiatan']. "' AND id_unik_indikator IS NOT NULL AND is_locked_indikator=0 AND status=1 AND active=1");
+
+					echo json_encode([
+						'status' => true,
+						'data' => $indikator
+					]);exit;
+
+				}else{
+					throw new Exception('Api key tidak sesuai');
+				}
+			}else{
+				throw new Exception('Format tidak sesuai');
+			}
+		}catch(Exception $e){
+			echo json_encode([
+				'status' => false,
+				'message' => $e->getMessage()
+			]);exit;
+		}
+	}
+
+	public function update_indikator_kegiatan_renstra(){
+		global $wpdb;
+
+		try{
+			if (!empty($_POST)) {
+				if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+					
+					$data = json_decode(stripslashes($_POST['data']), true);
+
+					$this->verify_indikator_kegiatan_renstra($data);
+
+					$id_cek = $wpdb->get_var("
+						SELECT id FROM data_renstra_kegiatan_lokal
+							WHERE indikator='".$data['indikator_teks']."'
+										AND id_unik='".$data['id_unik']."'
+										AND id!='".$data['id']."'
+										AND id_unik_indikator IS NOT NULL
+										AND is_locked_indikator=0
+										AND status=1
+										AND active=1
+								");
+					
+					if(!empty($id_cek)){
+						throw new Exception('Indikator : '.$data['indikator_teks'].' sudah ada!');
+					}
+
+					$dataKegiatan = $wpdb->get_row("SELECT * FROM data_renstra_kegiatan_lokal WHERE id_unik='".$data['id_unik'] ."' AND is_locked=0 AND status=1 AND active=1 AND id_unik_indikator IS NULL");
+
+					if (empty($dataKegiatan)) {
+						throw new Exception('Kegiatan yang dipilih tidak ditemukan!');
+					}
+
+					$wpdb->update('data_renstra_kegiatan_lokal', [
+								'id_bidang_urusan' => $dataKegiatan->id_bidang_urusan,
+								'id_giat' => $dataKegiatan->id_giat,
+								'id_misi' => $dataKegiatan->id_misi,
+								'id_program' => $dataKegiatan->id_program,
+								'id_unik' => $dataKegiatan->id_unik,
+								'id_unit' => $dataKegiatan->id_unit,
+								'id_visi' => $dataKegiatan->id_visi,
+								'indikator' => $data['indikator_teks'],
+								'is_locked' => $dataKegiatan->is_locked,
+								'kode_bidang_urusan' => $dataKegiatan->kode_bidang_urusan,
+								'kode_giat' => $dataKegiatan->kode_giat,
+								'kode_program' => $dataKegiatan->id_unik,
+								'kode_sasaran' => $dataKegiatan->kode_program,
+								'kode_skpd' => $dataKegiatan->kode_skpd,
+								'kode_tujuan' => $dataKegiatan->kode_tujuan,
+								'nama_bidang_urusan' => $dataKegiatan->nama_bidang_urusan,
+								'nama_giat' => $dataKegiatan->nama_giat,
+								'nama_program' => $dataKegiatan->nama_program,
+								'nama_skpd' => $dataKegiatan->nama_skpd,
+								'pagu_1' => $data['pagu_1'],
+								'pagu_2' => $data['pagu_2'],
+								'pagu_3' => $data['pagu_3'],
+								'pagu_4' => $data['pagu_4'],
+								'pagu_5' => $data['pagu_5'],
+								'program_lock' => $dataKegiatan->program_lock,
+								'renstra_prog_lock' => $dataKegiatan->program_lock,
+								'sasaran_lock' => $dataKegiatan->sasaran_lock,
+								'sasaran_teks' => $dataKegiatan->sasaran_teks,
+								'satuan' => $data['satuan'],
+								'target_1' => $data['target_1'],
+								'target_2' => $data['target_2'],
+								'target_3' => $data['target_3'],
+								'target_4' => $data['target_4'],
+								'target_5' => $data['target_5'],
+								'target_awal' => $data['target_awal'],
+								'target_akhir' => $data['target_akhir'],
+								'tujuan_lock' => $dataKegiatan->tujuan_lock,
+								'tujuan_teks' => $dataKegiatan->tujuan_teks,
+								'urut_sasaran' => $dataKegiatan->urut_sasaran,
+								'urut_tujuan' => $dataKegiatan->urut_tujuan,
+							], [
+								'id' => $data['id']
+							]);
+
+						echo json_encode([
+							'status' => true,
+							'message' => 'Sukses simpan indikator kegiatan'
+						]);exit;
+
+				}else{
+					throw new Exception('Api key tidak sesuai');
+				}
+			}else{
+				throw new Exception('Format tidak sesuai');
+			}
+		}catch(Exception $e){
+			echo json_encode([
+				'status' => false,
+				'message' => $e->getMessage()
+			]);exit;
+		}
+	}
+
 	private function verify_indikator_kegiatan_renstra(array $data){
 		if(empty($data['id_unik'])){
 			throw new Exception('Kegiatan wajib dipilih!');

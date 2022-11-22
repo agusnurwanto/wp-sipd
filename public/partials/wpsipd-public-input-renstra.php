@@ -1515,6 +1515,124 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
 			indikatorKegiatanModal.modal('show');
 	});
 
+	jQuery(document).on('click', '.btn-edit-indikator-kegiatan', function(){
+
+		jQuery('#wrap-loading').show();
+
+		let id = jQuery(this).data('id');
+		let kode_kegiatan = jQuery(this).data('kodekegiatan');
+
+		jQuery.ajax({
+			url: ajax.url,
+          	type: "post",
+          	data: {
+          		"action": "edit_indikator_kegiatan_renstra",
+          		"api_key": "<?php echo $api_key; ?>",
+							'id': id,
+							'kode_kegiatan': kode_kegiatan
+          	},
+          	dataType: "json",
+          	success: function(response){
+
+	          		jQuery('#wrap-loading').hide();
+
+	          		let html = '<form id="form-renstra">'
+									+'<input type="hidden" name="id" value="'+id+'">'
+									+'<input type="hidden" name="id_unik" value="'+kode_kegiatan+'">'
+									+'<div class="form-group">'
+										+'<label for="indikator_teks">Indikator</label>'
+					  					+'<textarea class="form-control" name="indikator_teks">'+response.data.indikator+'</textarea>'
+									+'</div>'
+									+'<div class="form-group">'
+										+'<label for="satuan">Satuan</label>'
+					  					+'<input type="text" class="form-control" name="satuan" value="'+response.data.satuan+'"/>'
+									+'</div>'
+									+'<div class="form-group">'
+									+'<div class="row">'
+										+'<div class="col-md-6">'
+											+'<label for="target_1">Target tahun ke-1</label>'
+						  					+'<input type="text" class="form-control" name="target_1" value="'+response.data.target_1+'"/>'
+						  				+'</div>'
+						  				+'<div class="col-md-6">'
+						  					+'<label for="pagu_1">Pagu</label>'
+						  					+'<input type="number" class="form-control" name="pagu_1" value="'+response.data.pagu_1+'"/>'
+						  				+'</div>'
+						  			+'</div>'
+								+'</div>'
+								+'<div class="form-group">'
+									+'<div class="row">'
+										+'<div class="col-md-6">'
+											+'<label for="target_2">Target tahun ke-2</label>'
+							  				+'<input type="text" class="form-control" name="target_2" value="'+response.data.target_2+'"/>'
+							  			+'</div>'
+							  			+'<div class="col-md-6">'
+						  					+'<label for="pagu_2">Pagu</label>'
+						  					+'<input type="number" class="form-control" name="pagu_2" value="'+response.data.pagu_2+'"/>'
+						  				+'</div>'
+								+'</div>'
+								+'<div class="form-group">'
+									+'<div class="row">'
+										+'<div class="col-md-6">'
+											+'<label for="target_3">Target tahun ke-3</label>'
+						  					+'<input type="text" class="form-control" name="target_3" value="'+response.data.target_3+'"/>'
+						  				+'</div>'
+							  			+'<div class="col-md-6">'
+							  				+'<label for="pagu_3">Pagu</label>'
+							  				+'<input type="number" class="form-control" name="pagu_3" value="'+response.data.pagu_3+'"/>'
+							  			+'</div>'
+						  			+'</div>'
+								+'</div>'
+								+'<div class="form-group">'
+									+'<div class="row">'
+										+'<div class="col-md-6">'
+											+'<label for="target_4">Target tahun ke-4</label>'
+						  					+'<input type="text" class="form-control" name="target_4" value="'+response.data.target_4+'"/>'
+										+'</div>'
+										+'<div class="col-md-6">'
+						  					+'<label for="pagu_4">Pagu</label>'
+						  					+'<input type="number" class="form-control" name="pagu_4" value="'+response.data.pagu_4+'"/>'
+						  				+'</div>'
+									+'</div>'
+								+'</div>'
+								+'<div class="form-group">'
+									+'<div class="row">'
+										+'<div class="col-md-6">'
+											+'<label for="target_5">Target tahun ke-5</label>'
+						  					+'<input type="text" class="form-control" name="target_5" value="'+response.data.target_5+'"/>'
+										+'</div>'
+										+'<div class="col-md-6">'
+						  					+'<label for="pagu_5">Pagu</label>'
+						  					+'<input type="number" class="form-control" name="pagu_5" value="'+response.data.pagu_5+'"/>'
+						  				+'</div>'
+									+'</div>'
+								+'</div>'
+									+'<div class="form-group">'
+										+'<label for="target_awal">Target awal</label>'
+					  					+'<input type="text" class="form-control" name="target_awal" value="'+response.data.target_awal+'"/>'
+									+'</div>'
+									+'<div class="form-group">'
+									+'<label for="target_akhir">Target akhir</label>'
+					  					+'<input type="text" class="form-control" name="target_akhir" value="'+response.data.target_akhir+'"/>'
+									+'</div>'
+								  +'</form>';
+
+								jQuery("#modal-crud-renstra").find('.modal-title').html('Edit Indikator Kegiatan');
+								jQuery("#modal-crud-renstra").find('.modal-body').html(html);
+								jQuery("#modal-crud-renstra").find('.modal-footer').html(''
+									+'<button type="button" class="btn btn-sm btn-warning" data-dismiss="modal">'
+										+'<i class="dashicons dashicons-no" style="margin-top: 3px;"></i> Tutup'
+									+'</button><button type="button" class="btn btn-sm btn-success" id="btn-simpan-data-renstra-lokal" '
+										+'data-action="update_indikator_kegiatan_renstra" '
+										+'data-view="indikatorKegiatanRenstra"'
+									+'>'
+										+'<i class="dashicons dashicons-yes" style="margin-top: 3px;"></i> Simpan'
+									+'</button>');	
+
+								jQuery("#modal-crud-renstra").modal('show');
+          	}
+		})	
+	});
+
 	jQuery(document).on('click', '#btn-simpan-data-renstra-lokal', function(){
 		
 		jQuery('#wrap-loading').show();
