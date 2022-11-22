@@ -780,10 +780,10 @@ class Wpsipd_Public_Base_3
 
 				if($_POST['type'] == 1){
 					$sql = $wpdb->prepare("
-						select 
+						SELECT 
 							* 
-						from data_renstra_sasaran_lokal
-						where is_locked=0
+						FROM data_renstra_sasaran_lokal
+						WHERE is_locked=0
 							AND kode_tujuan='".$_POST['kode_tujuan']."'
 							AND id_unik IS NOT NULL
 							AND id_unik_indikator IS NULL
@@ -795,12 +795,13 @@ class Wpsipd_Public_Base_3
 				}else{
 					$tahun_anggaran = $_POST['tahun_anggaran'];
 					$sql = $wpdb->prepare("
-								select 
+								SELECT 
 									* 
-								from data_renstra_sasaran
-								where tahun_anggaran=%d
-									and kode_tujuan=%s
-									and active=1
+								FROM data_renstra_sasaran
+								WHERE tahun_anggaran=%d
+									AND kode_tujuan=%s
+									AND active=1
+								ORDER BY urut_sasaran DESC
 							", $tahun_anggaran, $_POST['kode_tujuan']);
 					$sasaran = $wpdb->get_results($sql, ARRAY_A);
 				}
@@ -1151,7 +1152,7 @@ class Wpsipd_Public_Base_3
 									id_unik_indikator IS NOT NULL AND 
 									is_locked_indikator=0 AND
 									active=1
-							ORDER BY urut_sasaran
+							ORDER BY urut_sasaran DESC
 							", $tahun_anggaran, $_POST['id_unik']);
 						$indikator = $wpdb->get_results($sql, ARRAY_A);
 					}
@@ -1497,6 +1498,7 @@ class Wpsipd_Public_Base_3
 									status=1 AND 
 									is_locked=0 AND
 									active=1
+								ORDER BY id
 							", $tahun_anggaran, $_POST['kode_sasaran']);
 					$program = $wpdb->get_results($sql, ARRAY_A);
 				}
@@ -1844,7 +1846,6 @@ class Wpsipd_Public_Base_3
 									id_unik_indikator IS NOT NULL AND 
 									is_locked_indikator=0 AND
 									active=1
-							ORDER BY urut_sasaran
 							", $tahun_anggaran, $_POST['kode_program']);
 						$indikator = $wpdb->get_results($sql, ARRAY_A);
 					}
@@ -2511,6 +2512,219 @@ class Wpsipd_Public_Base_3
 	private function verify_kegiatan_renstra(array $data){
 		if(empty($data['id_kegiatan'])){
 			throw new Exception('Kegiatan wajib dipilih!');
+		}
+	}
+
+	public function get_indikator_kegiatan_renstra(){
+		global $wpdb;
+		try{
+			if (!empty($_POST)) {
+				if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+					
+					if($_POST['type']==1){
+						$sql = $wpdb->prepare("
+							SELECT * FROM data_renstra_kegiatan_lokal 
+								WHERE 
+									id_unik=%s AND 
+									id_unik_indikator IS NOT NULL AND 
+									is_locked_indikator=0 AND 
+									status=1 AND 
+									active=1", $_POST['id_unik']);
+						$indikator = $wpdb->get_results($sql, ARRAY_A);
+					}else{
+
+						$tahun_anggaran = $_POST['tahun_anggaran'];
+						$sql = $wpdb->prepare("
+							SELECT 
+								* 
+							FROM data_renstra_kegiatan
+							WHERE tahun_anggaran=%d AND 
+									id_unik=%s
+									id_unik_indikator IS NOT NULL AND 
+									is_locked_indikator=0 AND
+									active=1
+							", $tahun_anggaran, $_POST['id_unik']);
+						$indikator = $wpdb->get_results($sql, ARRAY_A);
+					}
+
+					echo json_encode([
+						'status' => true,
+						'data' => $indikator,
+						'message' => 'Sukses get indikator kegiatan'
+					]);exit;
+
+				}else{
+					throw new Exception('Api key tidak sesuai');
+				}
+			}else{
+				throw new Exception('Format tidak sesuai');
+			}
+		}catch(Exception $e){
+			echo json_encode([
+				'status' => false,
+				'message' => $e->getMessage()
+			]);exit;
+		}
+	}
+
+	public function submit_indikator_kegiatan_renstra(){
+		global $wpdb;
+
+		try{
+			if (!empty($_POST)) {
+				if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+					
+					$data = json_decode(stripslashes($_POST['data']), true);
+
+					$this->verify_indikator_kegiatan_renstra($data);
+
+					$id_cek = $wpdb->get_var("
+						SELECT id FROM data_renstra_kegiatan_lokal
+							WHERE indikator='".$data['indikator_teks']."'
+										AND id_unik='".$data['id_unik']."'
+										AND id_unik_indikator IS NOT NULL
+										AND is_locked_indikator=0
+										AND status=1
+										AND active=1
+								");
+					
+					if(!empty($id_cek)){
+						throw new Exception('Indikator : '.$data['indikator_teks'].' sudah ada!');
+					}
+
+					$dataKegiatan = $wpdb->get_row("SELECT * FROM data_renstra_kegiatan_lokal WHERE id_unik='".$data['id_unik'] ."' AND is_locked=0 AND status=1 AND active=1 AND id_unik_indikator IS NULL");
+
+					if (empty($dataKegiatan)) {
+						throw new Exception('Kegiatan yang dipilih tidak ditemukan!');
+					}
+
+					$wpdb->insert('data_renstra_kegiatan_lokal', [
+								'bidur_lock' => 0,
+								'giat_lock' => 0,
+								'id_bidang_urusan' => $dataKegiatan->id_bidang_urusan,
+								'id_giat' => $dataKegiatan->id_giat,
+								'id_misi' => $dataKegiatan->id_misi,
+								'id_program' => $dataKegiatan->id_program,
+								'id_unik' => $dataKegiatan->id_unik,
+								'id_unik_indikator' => $this->generateRandomString(),
+								'id_unit' => $dataKegiatan->id_unit,
+								'id_visi' => $dataKegiatan->id_visi,
+								'indikator' => $data['indikator_teks'],
+								'is_locked' => $dataKegiatan->is_locked,
+								'is_locked_indikator' => 0,
+								'kode_bidang_urusan' => $dataKegiatan->kode_bidang_urusan,
+								'kode_giat' => $dataKegiatan->kode_giat,
+								'kode_program' => $dataKegiatan->id_unik,
+								'kode_sasaran' => $dataKegiatan->kode_program,
+								'kode_skpd' => $dataKegiatan->kode_skpd,
+								'kode_tujuan' => $dataKegiatan->kode_tujuan,
+								'nama_bidang_urusan' => $dataKegiatan->nama_bidang_urusan,
+								'nama_giat' => $dataKegiatan->nama_giat,
+								'nama_program' => $dataKegiatan->nama_program,
+								'nama_skpd' => $dataKegiatan->nama_skpd,
+								'pagu_1' => $data['pagu_1'],
+								'pagu_2' => $data['pagu_2'],
+								'pagu_3' => $data['pagu_3'],
+								'pagu_4' => $data['pagu_4'],
+								'pagu_5' => $data['pagu_5'],
+								'program_lock' => $dataKegiatan->program_lock,
+								'renstra_prog_lock' => $dataKegiatan->program_lock,
+								'sasaran_lock' => $dataKegiatan->sasaran_lock,
+								'sasaran_teks' => $dataKegiatan->sasaran_teks,
+								'satuan' => $data['satuan'],
+								'status' => 1,
+								'target_1' => $data['target_1'],
+								'target_2' => $data['target_2'],
+								'target_3' => $data['target_3'],
+								'target_4' => $data['target_4'],
+								'target_5' => $data['target_5'],
+								'target_awal' => $data['target_awal'],
+								'target_akhir' => $data['target_akhir'],
+								'tujuan_lock' => $dataKegiatan->tujuan_lock,
+								'tujuan_teks' => $dataKegiatan->tujuan_teks,
+								'urut_sasaran' => $dataKegiatan->urut_sasaran,
+								'urut_tujuan' => $dataKegiatan->urut_tujuan,
+								'active' => 1
+							]);
+
+						echo json_encode([
+							'status' => true,
+							'message' => 'Sukses simpan indikator kegiatan'
+						]);exit;
+
+				}else{
+					throw new Exception('Api key tidak sesuai');
+				}
+			}else{
+				throw new Exception('Format tidak sesuai');
+			}
+		}catch(Exception $e){
+			echo json_encode([
+				'status' => false,
+				'message' => $e->getMessage()
+			]);exit;
+		}
+	}
+
+	private function verify_indikator_kegiatan_renstra(array $data){
+		if(empty($data['id_unik'])){
+			throw new Exception('Kegiatan wajib dipilih!');
+		}
+
+		if(empty($data['indikator_teks'])){
+			throw new Exception('Indikator kegiatan tidak boleh kosong!');
+		}
+
+		if(empty($data['satuan'])){
+			throw new Exception('Satuan indikator kegiatan tidak boleh kosong!');
+		}
+
+		if(empty($data['target_1'])){
+			throw new Exception('Target Indikator kegiatan tahun ke-1 tidak boleh kosong!');
+		}
+
+		if(empty($data['pagu_1'])){
+			throw new Exception('Pagu indikator kegiatan tahun ke-1 tidak boleh kosong!');
+		}
+
+		if(empty($data['target_2'])){
+			throw new Exception('Target Indikator kegiatan tahun ke-2 tidak boleh kosong!');
+		}
+
+		if(empty($data['pagu_2'])){
+			throw new Exception('Pagu indikator kegiatan tahun ke-2 tidak boleh kosong!');
+		}
+
+		if(empty($data['target_3'])){
+			throw new Exception('Target Indikator kegiatan tahun ke-3 tidak boleh kosong!');
+		}
+
+		if(empty($data['pagu_3'])){
+			throw new Exception('Pagu indikator kegiatan tahun ke-3 tidak boleh kosong!');
+		}
+
+		if(empty($data['target_4'])){
+			throw new Exception('Target Indikator kegiatan tahun ke-4 tidak boleh kosong!');
+		}
+
+		if(empty($data['pagu_4'])){
+			throw new Exception('Pagu indikator kegiatan tahun ke-4 tidak boleh kosong!');
+		}
+
+		if(empty($data['target_5'])){
+			throw new Exception('Target Indikator kegiatan tahun ke-5 tidak boleh kosong!');
+		}
+
+		if(empty($data['pagu_5'])){
+			throw new Exception('Pagu indikator kegiatan tahun ke-5 tidak boleh kosong!');
+		}
+
+		if(empty($data['target_awal'])){
+			throw new Exception('Target awal Indikator kegiatan tidak boleh kosong!');
+		}
+
+		if(empty($data['target_akhir'])){
+			throw new Exception('Target akhir Indikator kegiatan tidak boleh kosong!');
 		}
 	}
 

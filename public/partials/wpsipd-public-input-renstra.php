@@ -55,9 +55,9 @@ if(!empty($jadwal_lokal)){
 	$akhir = new DateTime($selesaiJadwal);
 	$now = new DateTime(date('Y-m-d H:i:s'));
 
-	if($now >= $awal && $now <= $akhir){
+	// if($now >= $awal && $now <= $akhir){
 		$add_renstra = '<a style="margin-left: 10px;" id="tambah-data" onclick="return false;" href="#" class="btn btn-success">Tambah Data RENSTRA</a>';
-	}
+	// }
 }
 
 $akhir_renstra = $awal_renstra+5;
@@ -1411,6 +1411,110 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
 		}
 	});
 
+	jQuery(document).on('click', '.btn-kelola-indikator-kegiatan', function(){
+        jQuery("#modal-indikator-renstra").find('.modal-body').html('');
+				indikatorKegiatanRenstra({'id_unik':jQuery(this).data('kodekegiatan')});
+	});
+
+	jQuery(document).on('click', '.btn-add-indikator-kegiatan', function(){
+
+		let indikatorKegiatanModal = jQuery("#modal-crud-renstra");
+		let id_unik = jQuery(this).data('kodekegiatan');
+		let html = '<form id="form-renstra">'
+					+'<input type="hidden" name="id_unik" value="'+id_unik+'">'
+					+'<div class="form-group">'
+						+'<label for="indikator_teks">Indikator</label>'
+		  				+'<textarea class="form-control" name="indikator_teks"></textarea>'
+					+'</div>'
+					+'<div class="form-group">'
+						+'<label for="satuan">Satuan</label>'
+		  				+'<input type="text" class="form-control" name="satuan"/>'
+					+'</div>'
+					+'<div class="form-group">'
+							+'<div class="row">'
+								+'<div class="col-md-6">'
+									+'<label for="target_1">Target tahun ke-1</label>'
+			  						+'<input type="text" class="form-control" name="target_1"/>'
+								+'</div>'
+								+'<div class="col-md-6">'
+									+'<label for="pagu_1">Pagu</label>'
+			  						+'<input type="number" class="form-control" name="pagu_1"/>'
+								+'</div>'
+							+'</div>'
+						+'</div>'
+						+'<div class="form-group">'
+							+'<div class="row">'
+								+'<div class="col-md-6">'
+									+'<label for="target_2">Target tahun ke-2</label>'
+			  						+'<input type="text" class="form-control" name="target_2"/>'
+								+'</div>'
+								+'<div class="col-md-6">'
+									+'<label for="pagu_2">Pagu</label>'
+			  						+'<input type="number" class="form-control" name="pagu_2"/>'
+								+'</div>'
+							+'</div>'
+						+'</div>'
+						+'<div class="form-group">'
+							+'<div class="row">'
+								+'<div class="col-md-6">'
+									+'<label for="target_3">Target tahun ke-3</label>'
+					  				+'<input type="text" class="form-control" name="target_3"/>'
+								+'</div>'
+								+'<div class="col-md-6">'
+			  						+'<label for="pagu_3">Pagu</label>'
+			  						+'<input type="number" class="form-control" name="pagu_3"/>'
+								+'</div>'
+							+'</div>'
+						+'</div>'
+						+'<div class="form-group">'
+							+'<div class="row">'
+								+'<div class="col-md-6">'
+									+'<label for="target_4">Target tahun ke-4</label>'
+					  				+'<input type="text" class="form-control" name="target_4"/>'
+								+'</div>'
+								+'<div class="col-md-6">'
+			  						+'<label for="pagu_4">Pagu</label>'
+			  						+'<input type="number" class="form-control" name="pagu_4"/>'
+								+'</div>'
+							+'</div>'
+						+'</div>'
+						+'<div class="form-group">'
+							+'<div class="row">'
+								+'<div class="col-md-6">'
+									+'<label for="target_5">Target tahun ke-5</label>'
+					  				+'<input type="text" class="form-control" name="target_5"/>'
+								+'</div>'
+								+'<div class="col-md-6">'
+			  						+'<label for="pagu_5">Pagu</label>'
+			  						+'<input type="number" class="form-control" name="pagu_5"/>'
+								+'</div>'
+							+'</div>'	
+						+'</div>'
+					+'<div class="form-group">'
+						+'<label for="target_awal">Target awal</label>'
+		  				+'<input type="text" class="form-control" name="target_awal"/>'
+					+'</div>'
+					+'<div class="form-group">'
+						+'<label for="target_akhir">Target akhir</label>'
+		  				+'<input type="text" class="form-control" name="target_akhir"/>'
+					+'</div>'
+					+'</form>';
+
+			indikatorKegiatanModal.find('.modal-title').html('Tambah Indikator');
+			indikatorKegiatanModal.find('.modal-body').html(html);
+			indikatorKegiatanModal.find('.modal-footer').html(''
+				+'<button type="button" class="btn btn-sm btn-warning" data-dismiss="modal">'
+					+'<i class="dashicons dashicons-no" style="margin-top: 3px;"></i> Tutup'
+				+'</button>'
+				+'<button type="button" class="btn btn-sm btn-success" id="btn-simpan-data-renstra-lokal" '
+					+'data-action="submit_indikator_kegiatan_renstra" '
+					+'data-view="indikatorKegiatanRenstra"'
+				+'>'
+					+'<i class="dashicons dashicons-yes" style="margin-top: 3px;"></i> Simpan'
+				+'</button>');
+			indikatorKegiatanModal.modal('show');
+	});
+
 	jQuery(document).on('click', '#btn-simpan-data-renstra-lokal', function(){
 		
 		jQuery('#wrap-loading').show();
@@ -1425,7 +1529,7 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
 			dataType:'json',
 			data:{
 				'action': action,
-	          	'api_key': '<?php echo $api_key; ?>',
+	      'api_key': '<?php echo $api_key; ?>',
 				'data': JSON.stringify(form),
 			},
 			success:function(response){
@@ -1723,7 +1827,7 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
 												+"<th>Aksi</th>"
 											+"</tr>"
 										+"</thead>"
-										+"<tbody id='indikator_tujuan'>";
+										+"<tbody id='indikator_sasaran'>";
 										response.data.map(function(value, index){
 							          			html +="<tr>"
 										          		+"<td>"+(index+1)+".</td>"
@@ -1866,7 +1970,7 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
 													+"<th>Aksi</th>"
 												+"</tr>"
 											+"</thead>"
-											+"<tbody id='indikator_tujuan'>";
+											+"<tbody id='indikator_program'>";
 											response.data.map(function(value, index){
 								          			html +="<tr>"
 											          		+"<td>"+(index+1)+".</td>"
@@ -1962,6 +2066,85 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
 			 	jQuery('.nav-tabs a[href="#nav-kegiatan"]').tab('show');
 			}
 		})
+	}
+
+	function indikatorKegiatanRenstra(params){
+
+		jQuery('#wrap-loading').show();
+
+		jQuery.ajax({
+			url: ajax.url,
+          	type: "post",
+          	data: {
+          		"action": "get_indikator_kegiatan_renstra",
+          		"api_key": "<?php echo $api_key; ?>",
+							'id_unik': params.id_unik,
+							"type": 1
+          	},
+          	dataType: "json",
+          	success: function(response){
+
+          		jQuery('#wrap-loading').hide();
+          		
+          		let html=""
+									+'<div style="margin-top:10px">'
+										+"<button type=\"button\" class=\"btn btn-sm btn-primary mb-2 btn-add-indikator-kegiatan\" data-kodekegiatan=\""+params.id_unik+"\">"
+												+"<i class=\"dashicons dashicons-plus\" style=\"margin-top: 3px;\"></i> Tambah Indikator"
+										+"</button>"
+									+'</div>'
+				          			+'<table class="table">'
+					          			+'<thead>'
+					          				+'<tr>'
+					          					+'<th class="text-center" style="width: 160px;">Kegiatan</th>'
+					          					+'<th>'+jQuery('#nav-kegiatan tr[kodekegiatan="'+params.id_unik+'"]').find('td').eq(1).text()+'</th>'
+					          				+'</tr>'
+					          			+'</thead>'
+				          			+'</table>'
+
+									+"<table class='table'>"
+										+"<thead>"
+											+"<tr>"
+												+"<th>No.</th>"
+												+"<th>Indikator</th>"
+												+"<th>Satuan</th>"
+												+"<th>Target 1</th>"
+												+"<th>Target 2</th>"
+												+"<th>Target 3</th>"
+												+"<th>Target 4</th>"
+												+"<th>Target 5</th>"
+												+"<th>Target Awal</th>"
+												+"<th>Target Akhir</th>"
+												+"<th>Aksi</th>"
+											+"</tr>"
+										+"</thead>"
+										+"<tbody id='indikator_kegiatan'>";
+										response.data.map(function(value, index){
+							          html +="<tr>"
+										          		+"<td>"+(index+1)+".</td>"
+										          		+"<td>"+value.indikator+"</td>"
+										          		+"<td>"+value.satuan+"</td>"
+										          		+"<td>"+value.target_1+"</td>"
+										          		+"<td>"+value.target_2+"</td>"
+										          		+"<td>"+value.target_3+"</td>"
+										          		+"<td>"+value.target_4+"</td>"
+										          		+"<td>"+value.target_5+"</td>"
+										          		+"<td>"+value.target_awal+"</td>"
+										          		+"<td>"+value.target_akhir+"</td>"
+										          		+"<td>"
+										          			+"<a href='#' class='btn btn-sm btn-success btn-edit-indikator-kegiatan' data-kodekegiatan='"+value.id_unik+"' data-id='"+value.id+"'><i class='dashicons dashicons-edit' style='margin-top: 3px;'></i></a>&nbsp"
+																		+"<a href='#' class='btn btn-sm btn-danger btn-delete-indikator-kegiatan' data-kodekegiatan='"+value.id_unik+"' data-id='"+value.id+"'><i class='dashicons dashicons-trash' style='margin-top: 3px;'></i></a>&nbsp;"
+										          		+"</td>"
+										          	+"</tr>";
+							      });
+						          html+='</tbody></table>';
+
+										jQuery("#modal-indikator-renstra").find('.modal-title').html('Indikator kegiatan');
+								    jQuery("#modal-indikator-renstra").find('.modal-body').html(html);
+										jQuery("#modal-indikator-renstra").find('.modal-dialog').css('maxWidth','1250px');
+										jQuery("#modal-indikator-renstra").find('.modal-dialog').css('width','100%');
+										jQuery("#modal-indikator-renstra").modal('show');
+									}
+		});
 	}
 
 	function get_urusan() {
@@ -2132,8 +2315,7 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
 	    return indexed_array;
 	}
 
-	function runFunction(name, arguments)
-	{
+	function runFunction(name, arguments){
 	    var fn = window[name];
 	    if(typeof fn !== 'function')
 	        return;
