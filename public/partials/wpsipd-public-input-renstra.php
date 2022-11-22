@@ -55,7 +55,7 @@ if(!empty($jadwal_lokal)){
 	$akhir = new DateTime($selesaiJadwal);
 	$now = new DateTime(date('Y-m-d H:i:s'));
 
-	if($now >= $awal && $now <= $akhir){ // disable sementara
+	if($now >= $awal && $now <= $akhir){
 		$add_renstra = '<a style="margin-left: 10px;" id="tambah-data" onclick="return false;" href="#" class="btn btn-success">Tambah Data RENSTRA</a>';
 	}
 }
@@ -1374,6 +1374,43 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
 		});	
 	});
 
+	jQuery(document).on('click', '.btn-hapus-kegiatan', function(){
+
+		if(confirm('Data akan dihapus, lanjut?')){
+
+			jQuery('#wrap-loading').show();
+			
+			let id = jQuery(this).data('id');	
+			let id_unik = jQuery(this).data('kodekegiatan');
+			let id_program = jQuery(this).data('idprogram');
+			let kode_program = jQuery(this).data('kodeprogram');
+
+			jQuery.ajax({
+				method:'POST',
+				url:ajax.url,
+				dataType:'json',
+				data:{
+					'action': 'delete_kegiatan_renstra',
+		      'api_key': '<?php echo $api_key; ?>',
+					'id': id,
+					'id_unik': id_unik,
+				},
+				success:function(response){
+
+					alert(response.message);
+					if(response.status){
+						kegiatanRenstra({
+							'id_program': id_program,
+							'kode_program': kode_program
+						});
+					}
+					jQuery('#wrap-loading').hide();
+
+				}
+			})
+		}
+	});
+
 	jQuery(document).on('click', '#btn-simpan-data-renstra-lokal', function(){
 		
 		jQuery('#wrap-loading').show();
@@ -1914,7 +1951,7 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
 			          							+'<td>'
 			          								+'<a href="javascript:void(0)" data-kodekegiatan="'+value.id_unik+'" class="btn btn-sm btn-warning btn-kelola-indikator-kegiatan"><i class="dashicons dashicons-menu-alt" style="margin-top: 3px;"></i></a>&nbsp;'	
 			          								+'<a href="javascript:void(0)" data-id="'+value.id+'" data-kodekegiatan="'+value.id_unik+'" data-idprogram="'+value.id_program+'" class="btn btn-sm btn-success btn-edit-kegiatan"><i class="dashicons dashicons-edit" style="margin-top: 3px;"></i></a>&nbsp;'
-			          								+'<a href="javascript:void(0)" data-id="'+value.id+'" data-kodekegiatan="'+value.id_unik+'" data-kodesasaran="'+value.kode_sasaran+'" class="btn btn-sm btn-danger btn-hapus-kegiatan"><i class="dashicons dashicons-trash" style="margin-top: 3px;"></i></a></td>'
+			          								+'<a href="javascript:void(0)" data-id="'+value.id+'" data-kodekegiatan="'+value.id_unik+'" data-kodeprogram="'+value.kode_program+'" data-idprogram="'+value.id_program+'" class="btn btn-sm btn-danger btn-hapus-kegiatan"><i class="dashicons dashicons-trash" style="margin-top: 3px;"></i></a></td>'
 			          						+'</tr>';
           						})
 

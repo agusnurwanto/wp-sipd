@@ -2475,6 +2475,39 @@ class Wpsipd_Public_Base_3
 		}
 	}
 
+	public function delete_kegiatan_renstra(){
+		global $wpdb;
+		try{
+			if (!empty($_POST)) {
+				if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+
+					$id_cek = $wpdb->get_var("SELECT * FROM data_renstra_kegiatan_lokal WHERE id_unik='" . $_POST['id_unik']. "' AND id_unik_indikator IS NOT NULL AND is_locked=0 AND status=1 AND active=1");
+
+					if(!empty($id_cek)){
+						throw new Exception("Kegiatan sudah digunakan oleh indikator kegiatan", 1);
+					}
+					
+					$wpdb->get_results("DELETE FROM data_renstra_kegiatan_lokal WHERE id=".$_POST['id']);
+
+					echo json_encode([
+						'status' => true,
+						'message' => 'Sukses hapus kegiatan'
+					]);exit;
+
+				}else{
+					throw new Exception("Api key tidak sesuai", 1);
+				}
+			}else{
+				throw new Exception("Format tidak sesuai", 1);
+			}
+		}catch(Exception $e){
+			echo json_encode([
+				'status' => false,
+				'message' => $e->getMessage()
+			]);exit;
+		}
+	}
+
 	private function verify_kegiatan_renstra(array $data){
 		if(empty($data['id_kegiatan'])){
 			throw new Exception('Kegiatan wajib dipilih!');
