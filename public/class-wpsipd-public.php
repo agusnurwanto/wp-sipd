@@ -15674,7 +15674,16 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 
 			$sql_tipe = $wpdb->get_results("SELECT * FROM `data_tipe_perencanaan` WHERE nama_tipe='".$tipe_perencanaan."'", ARRAY_A);
 
-			$sql_jadwal_lokal = $wpdb->get_results("SELECT nama,waktu_awal,waktu_akhir,status,tahun_anggaran FROM `data_jadwal_lokal` WHERE status = 0 AND (waktu_awal < '".$time_now."' AND waktu_akhir > '".$time_now."') AND id_tipe='".$sql_tipe[0]['id']."'", ARRAY_A);
+			$sql_jadwal_lokal = $wpdb->get_results("
+				SELECT 
+					* 
+				FROM `data_jadwal_lokal` 
+				WHERE status = 0 
+					AND (
+						waktu_awal < '".$time_now."' 
+						AND waktu_akhir > '".$time_now."'
+					) AND id_tipe='".$sql_tipe[0]['id']."'
+			", ARRAY_A);
 
 			if(!empty($sql_jadwal_lokal)){
 				$data_return = array(
