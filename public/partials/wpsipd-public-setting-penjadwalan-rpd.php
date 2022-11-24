@@ -262,7 +262,7 @@ $body = '';
 			.attr("onclick", 'submitEditJadwalForm('+id_jadwal_lokal+')')
 			.attr("disabled", false)
 			.text("Simpan");
-
+		jQuery('#wrap-loading').show();
 		jQuery.ajax({
 			url: thisAjaxUrl,
 			type:"post",
@@ -273,6 +273,7 @@ $body = '';
 			},
 			dataType: "json",
 			success:function(response){
+				jQuery('#wrap-loading').hide();
 				jQuery("#jadwal_nama").val(response.data.nama);
 				jQuery("#tahun_mulai_anggaran").val(response.data.tahun_anggaran);
 				jQuery("#lama_pelaksanaan").val(response.data.lama_pelaksanaan);
@@ -291,7 +292,7 @@ $body = '';
 		let this_tahun_anggaran = jQuery("#tahun_mulai_anggaran").val()
 		let relasi_perencanaan = jQuery("#link_rpjpd").val()
 		let this_lama_pelaksanaan = jQuery("#lama_pelaksanaan").val()
-		if(nama.trim() == '' || jadwalMulai == '' || jadwalSelesai == '' || relasi_perencanaan == '' || this_tahun_anggaran == '' || this_lama_pelaksanaan == ''){
+		if(nama.trim() == '' || jadwalMulai == '' || jadwalSelesai == '' || this_tahun_anggaran == '' || this_lama_pelaksanaan == ''){
 			jQuery("#wrap-loading").hide()
 			alert("Ada yang kosong, Harap diisi semua")
 			return false

@@ -400,8 +400,12 @@ foreach ($data_all['data'] as $tujuan) {
 	for($i=1; $i<=$lama_pelaksanaan; $i++){
 		$target_html .= '<td class="atas kanan bawah text_tengah">'.${'target_'.$i}.'</td>';
 	}
+	$warning = "";
+	if(empty($tujuan['detail'][0]['id_isu'])){
+		$warning = "style='background: #80000014;'";
+	}
 	$body .= '
-		<tr class="tr-tujuan">
+		<tr class="tr-tujuan" '.$warning.'>
 			<td class="kiri atas kanan bawah">'.$no_tujuan.'</td>
 			<td class="atas kanan bawah">'.$tujuan['detail'][0]['isu_teks'].'</td>
 			<td class="atas kanan bawah">'.parsing_nama_kode($tujuan['nama']).button_edit_monev($tujuan['detail'][0]['id_unik']).'</td>
@@ -445,7 +449,7 @@ foreach ($data_all['data'] as $tujuan) {
 			$target_html .= '<td class="atas kanan bawah text_tengah">'.${'target_'.$i}.'</td>';
 		}
 		$body .= '
-			<tr class="tr-sasaran">
+			<tr class="tr-sasaran" '.$warning.'>
 				<td class="kiri atas kanan bawah">'.$no_tujuan.'.'.$no_sasaran.'</td>
 				<td class="atas kanan bawah"><span class="debug-tujuan">'.$tujuan['detail'][0]['isu_teks'].'</span></td>
 				<td class="atas kanan bawah"><span class="debug-tujuan">'.$tujuan['nama'].'</span></td>
@@ -496,7 +500,7 @@ foreach ($data_all['data'] as $tujuan) {
 				$target_html .= '<td class="atas kanan bawah text_tengah">'.${'target_'.$i}.'</td>';
 			}
 			$body .= '
-				<tr class="tr-program" data-kode-skpd="'.$program['kode_skpd'].'">
+				<tr class="tr-program" data-kode-skpd="'.$program['kode_skpd'].'" '.$warning.'>
 					<td class="kiri atas kanan bawah">'.$no_tujuan.'.'.$no_sasaran.'.'.$no_program.'</td>
 					<td class="atas kanan bawah"><span class="debug-tujuan">'.$tujuan['detail'][0]['isu_teks'].'</span></td>
 					<td class="atas kanan bawah"><span class="debug-tujuan">'.$tujuan['nama'].'</span></td>
@@ -571,7 +575,7 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
 		</tbody>
 	</table>
 </div>
-<div class="modal fade" id="modal-monev" tabindex="-1" role="dialog" data-backdrop="static" aria-hidden="true">'
+<div class="modal hide fade" id="modal-monev" tabindex="-1" role="dialog" data-backdrop="static" aria-hidden="true">'
     <div class="modal-dialog" style="max-width: 1500px;" role="document">
         <div class="modal-content">
             <div class="modal-header bgpanel-theme">
@@ -597,7 +601,7 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
         </div>
     </div>
 </div>
-<div class="modal fade" id="modal-tujuan" tabindex="-1" role="dialog" data-backdrop="static" aria-hidden="true">'
+<div class="modal hide fade" id="modal-tujuan" tabindex="-1" role="dialog" data-backdrop="static" aria-hidden="true">'
     <div class="modal-dialog modal-xl" role="document">
         <div class="modal-content">
             <div class="modal-header bgpanel-theme">
@@ -640,7 +644,7 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
         </div>
     </div>
 </div>
-<div class="modal fade" id="modal-tujuan-indikator" tabindex="-1" role="dialog" data-backdrop="static" aria-hidden="true">'
+<div class="modal hide fade" id="modal-tujuan-indikator" tabindex="-1" role="dialog" data-backdrop="static" aria-hidden="true">'
     <div class="modal-dialog modal-xl" role="document">
         <div class="modal-content">
             <div class="modal-header bgpanel-theme">
@@ -728,7 +732,7 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
         </div>
     </div>
 </div>
-<div class="modal fade" id="modal-sasaran" tabindex="-1" role="dialog" data-backdrop="static" aria-hidden="true">'
+<div class="modal hide fade" id="modal-sasaran" tabindex="-1" role="dialog" data-backdrop="static" aria-hidden="true">'
     <div class="modal-dialog modal-xl" role="document">
         <div class="modal-content">
             <div class="modal-header bgpanel-theme">
@@ -759,7 +763,7 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
         </div>
     </div>
 </div>
-<div class="modal fade" id="modal-sasaran-indikator" tabindex="-1" role="dialog" data-backdrop="static" aria-hidden="true">'
+<div class="modal hide fade" id="modal-sasaran-indikator" tabindex="-1" role="dialog" data-backdrop="static" aria-hidden="true">'
     <div class="modal-dialog modal-xl" role="document">
         <div class="modal-content">
             <div class="modal-header bgpanel-theme">
@@ -827,7 +831,7 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
         </div>
     </div>
 </div>
-<div class="modal fade" id="modal-program" tabindex="-1" role="dialog" data-backdrop="static" aria-hidden="true">'
+<div class="modal hide fade" id="modal-program" tabindex="-1" role="dialog" data-backdrop="static" aria-hidden="true">'
     <div class="modal-dialog modal-xl" role="document">
         <div class="modal-content">
             <div class="modal-header bgpanel-theme">
@@ -869,7 +873,7 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
         </div>
     </div>
 </div>
-<div class="modal fade" id="modal-program-indikator" tabindex="-1" role="dialog" data-backdrop="static" aria-hidden="true">'
+<div class="modal hide fade" id="modal-program-indikator" tabindex="-1" role="dialog" data-backdrop="static" aria-hidden="true">'
     <div class="modal-dialog modal-xl" role="document">
         <div class="modal-content">
             <div class="modal-header bgpanel-theme">

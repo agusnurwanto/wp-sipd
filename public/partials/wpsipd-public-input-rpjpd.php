@@ -20,17 +20,19 @@ if(!empty($jadwal_lokal)){
 	$namaJadwal = $jadwal_lokal[0]['nama'];
 	$mulaiJadwal = $jadwal_lokal[0]['waktu_awal'];
 	$selesaiJadwal = $jadwal_lokal[0]['waktu_akhir'];
+	$lama_pelaksanaan = $jadwal_lokal[0]['lama_pelaksanaan'];
 }else{
 	$tahun_anggaran = '2005';
 	$namaJadwal = '-';
 	$mulaiJadwal = '-';
 	$selesaiJadwal = '-';
+	$lama_pelaksanaan = 25;
 }
 
 $timezone = get_option('timezone_string');
 
 $awal_rpjpd = $tahun_anggaran;
-$akhir_rpjpd = $awal_rpjpd+20;
+$akhir_rpjpd = $awal_rpjpd+$lama_pelaksanaan;
 $nama_pemda = get_option('_crb_daerah');
 
 $current_user = wp_get_current_user();

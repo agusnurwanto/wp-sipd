@@ -7,6 +7,12 @@ jQuery(document).ready(function(){
 	if(jQuery('#wrap-loading').length == 0){
 		jQuery('body').prepend(loading);
 	}
+
+	jQuery(document).on('hidden.bs.modal', function () {
+	  	if(jQuery('.modal.show').length){
+	    	jQuery('body').addClass('modal-open');
+	  	}
+	});
 });
 
 function to_number(text){
