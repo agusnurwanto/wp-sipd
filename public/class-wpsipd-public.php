@@ -14103,7 +14103,8 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						3 => 'waktu_akhir',
 						4 => 'status',
 						5 => 'tahun_anggaran',
-						6 => 'relasi_perencanaan'
+						6 => 'relasi_perencanaan',
+						7 => 'lama_pelaksanaan'
 					);
 					$where = $sqlTot = $sqlRec = "";
 
@@ -14125,14 +14126,6 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						);
 						die(json_encode($return));
 					}
-
-					$time_period = array(
-						"rpjpd" 	=> 15,
-						"rpjm"		=> 5,
-						"rpd"		=> 5,
-						"renstra"	=> 5,
-						"renja"		=> 1,
-					);
 
 					if(!empty($_POST['tahun_anggaran'])){
 						$where .=" AND tahun_anggaran = ".$_POST['tahun_anggaran'];
@@ -14199,7 +14192,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 								}
 							}
 	
-							$tahun_anggaran_selesai = $recVal['tahun_anggaran'] + $time_period[$tipe_perencanaan];
+							$tahun_anggaran_selesai = $recVal['tahun_anggaran'] + $recVal['lama_pelaksanaan'];
 						
 							$queryRecords[$recKey]['waktu_awal']	= date('d-m-Y H:i', strtotime($recVal['waktu_awal']));
 							$queryRecords[$recKey]['waktu_akhir']	= date('d-m-Y H:i', strtotime($recVal['waktu_akhir']));
@@ -14259,7 +14252,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		if(!empty($_POST)){
 			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
 				if(in_array("administrator", $user_meta->roles)){
-					if(!empty($_POST['nama']) && !empty($_POST['jadwal_mulai']) && !empty($_POST['jadwal_selesai']) && !empty($_POST['tahun_anggaran']) && !empty($_POST['tipe_perencanaan'])){
+					if(!empty($_POST['nama']) && !empty($_POST['jadwal_mulai']) && !empty($_POST['jadwal_selesai']) && !empty($_POST['tahun_anggaran']) && !empty($_POST['tipe_perencanaan']) && !empty($_POST['lama_pelaksanaan'])){
 						$nama				= trim(htmlspecialchars($_POST['nama']));
 						$jadwal_mulai		= trim(htmlspecialchars($_POST['jadwal_mulai']));
 						$jadwal_mulai		= date('Y-m-d H:i:s', strtotime($jadwal_mulai));
@@ -14268,6 +14261,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						$tahun_anggaran		= trim(htmlspecialchars($_POST['tahun_anggaran']));
 						$tipe_perencanaan	= trim(htmlspecialchars($_POST['tipe_perencanaan']));
 						$relasi_perencanaan = (!empty($_POST['relasi_perencanaan'])) ? trim(htmlspecialchars($_POST['relasi_perencanaan'])) : NULL;
+						$lama_pelaksanaan	= trim(htmlspecialchars($_POST['lama_pelaksanaan']));
 
 						$id_tipe = 0;
 						$sqlTipe = $wpdb->get_results("SELECT * FROM `data_tipe_perencanaan` WHERE nama_tipe='".$tipe_perencanaan."'", ARRAY_A);
@@ -14301,7 +14295,8 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 								'status'			=> 0,
 								'tahun_anggaran'	=> $tahun_anggaran,
 								'id_tipe'			=> $id_tipe,
-								'relasi_perencanaan'=> $relasi_perencanaan
+								'relasi_perencanaan'=> $relasi_perencanaan,
+								'lama_pelaksanaan'	=> $lama_pelaksanaan
 							);
 	
 							$wpdb->insert('data_jadwal_lokal',$data_jadwal);
@@ -14399,6 +14394,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						$jadwal_selesai	= date('Y-m-d H:i:s', strtotime($jadwal_selesai));
 						$tahun_anggaran	= trim(htmlspecialchars($_POST['tahun_anggaran']));
 						$relasi_perencanaan = (!empty($_POST['relasi_perencanaan'])) ? trim(htmlspecialchars($_POST['relasi_perencanaan'])) : NULL;
+						$lama_pelaksanaan	= trim(htmlspecialchars($_POST['lama_pelaksanaan']));
 
 						$data_this_id = $wpdb->get_results($wpdb->prepare('SELECT * FROM data_jadwal_lokal WHERE id_jadwal_lokal = %d',$id_jadwal_lokal), ARRAY_A);
 
@@ -14411,7 +14407,8 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 									'waktu_awal'			=> $jadwal_mulai,
 									'waktu_akhir'			=> $jadwal_selesai,
 									'tahun_anggaran'		=> $tahun_anggaran,
-									'relasi_perencanaan' 	=> $relasi_perencanaan
+									'relasi_perencanaan' 	=> $relasi_perencanaan,
+									'lama_pelaksanaan'	=> $lama_pelaksanaan
 								);
 	
 								$wpdb->update('data_jadwal_lokal', $data_jadwal, array(
@@ -14525,6 +14522,39 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		}else{
 			$return = array(
 				'status' => 'error',
+				'message'	=> 'Format tidak sesuai!'
+			);
+		}
+		die(json_encode($return));
+	}
+
+	/** get data default lama pelaksanaan by id */
+	public function get_data_standar_lama_pelaksanaan(){
+		global $wpdb;
+		$return = array(
+			'status' => 'success',
+			'data'	=> array()
+		);
+
+		if(!empty($_POST)){
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+				$tipe_perencanaan = $_POST['tipe_perencanaan'];
+				
+				$lama_pelaksanaan_by_name = $wpdb->get_results($wpdb->prepare('SELECT * FROM data_tipe_perencanaan WHERE nama_tipe = %s',$tipe_perencanaan), ARRAY_A);
+
+				$return = array(
+					'status' 						=> 'success',
+					'data' 							=> $lama_pelaksanaan_by_name[0]
+				);
+			}else{
+				$return = array(
+					'status'	=> 'error',
+					'message'	=> 'Api Key tidak sesuai!'
+				);
+			}
+		}else{
+			$return = array(
+				'status'	=> 'error',
 				'message'	=> 'Format tidak sesuai!'
 			);
 		}

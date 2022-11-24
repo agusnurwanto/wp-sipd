@@ -235,21 +235,21 @@ foreach ($subkeg as $kk => $sub) {
 
 $body = '';
 foreach ($data_all['data'] as $label_tag) {
-    $body .= '
-        <tr style="background: #f7eb64;">
-            <td class="kiri kanan bawah text_blok" colspan="13">'.$label_tag['nama'].'</td>
-            <td class="kanan bawah text_kanan text_blok">'.number_format($label_tag['total'],0,",",".").'</td>
-            <td class="kanan bawah" colspan="4">&nbsp;</td>
-            <td class="kanan bawah text_kanan text_blok">'.number_format($label_tag['total_n_plus'],0,",",".").'</td>
-        </tr>
-    ';
+    // $body .= '
+    //     <tr style="background: #f7eb64;">
+    //         <td class="kiri kanan bawah text_blok" colspan="13">'.$label_tag['nama'].'</td>
+    //         <td class="kanan bawah text_kanan text_blok">'.number_format($label_tag['total'],0,",",".").'</td>
+    //         <td class="kanan bawah" colspan="4">&nbsp;</td>
+    //         <td class="kanan bawah text_kanan text_blok">'.number_format($label_tag['total_n_plus'],0,",",".").'</td>
+    //     </tr>
+    // ';
     foreach ($label_tag['data'] as $sub_skpd) {
         $body .= '
             <tr>
                 <td class="kiri kanan bawah text_blok"></td>
                 <td class="kanan bawah text_blok" colspan="18">Unit Organisasi : '.$sub_skpd['nama_skpd'].'</td>
             </tr>
-            <tr style="background: #ffe2e2;">
+            <tr>
                 <td class="kiri kanan bawah text_blok"></td>
                 <td class="kanan bawah">&nbsp;</td>
                 <td class="kanan bawah text_blok" colspan="11">Sub Unit Organisasi : '.$sub_skpd['nama'].'</td>
@@ -474,21 +474,5 @@ echo '
 ?>
 
 <script type="text/javascript">
-    // run_download_excel();
-    var _url = window.location.href;
-    var url = new URL(_url);
-    _url = url.origin+url.pathname+'?key='+url.searchParams.get('key');
-    var rkpd = url.searchParams.get("rkpd");
-    if(!rkpd){
-        var type = url.searchParams.get("type");
-        if(type && type=='detail'){
-            var extend_action = '<a class="button button-primary" target="_blank" href="'+_url+'" style="margin-left: 10px;">Sembunyikan capaian RENSTRA & RPJM</a>';
-        }else{
-            var extend_action = '<a class="button button-primary" target="_blank" href="'+_url+'&type=detail" style="margin-left: 10px;">Tampilkan capaian RENSTRA & RPJM</a>';
-        }
-        extend_action += '<a class="button button-primary" target="_blank" href="'+_url+'&rkpd=1" style="margin-left: 10px;">Format RKPD</a>';
-    }else{
-        var extend_action = '<a class="button button-primary" target="_blank" href="'+_url+'" style="margin-left: 10px;">Format RENJA</a>';
-    }
-    jQuery('#action-sipd #excel').after(extend_action);
+    run_download_excel();
 </script>
