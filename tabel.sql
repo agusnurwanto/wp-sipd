@@ -2044,6 +2044,7 @@ CREATE TABLE `data_tipe_perencanaan` (
   `id` int(11) NOT NULL auto_increment,
   `nama_tipe` varchar(64) NOT NULL,
   `keterangan_tipe` text NOT NULL,
+  `lama_pelaksanaan` int(11) NOT NULL,
   PRIMARY KEY  (id)
 );
 

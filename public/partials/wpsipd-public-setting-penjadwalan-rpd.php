@@ -90,6 +90,10 @@ $body = '';
 					<input type="number" id='tahun_mulai_anggaran' name="tahun_mulai_anggaran" style='display:block;width:100%;' placeholder="Tahun Mulai Anggaran"/>
 				</div>
 				<div>
+					<label for='lama_pelaksanaan' style='display:inline-block'>Lama Pelaksanaan</label>
+					<input type="number" id='lama_pelaksanaan' name="lama_pelaksanaan" style='display:block;width:100%;' placeholder="Lama Pelaksanaan"/>
+				</div>
+				<div>
 					<label for='jadwal_tanggal' style='display:inline-block'>Jadwal Pelaksanaan</label>
 					<input type="text" id='jadwal_tanggal' name="datetimes" style='display:block;width:100%;'/>
 				</div>
@@ -184,6 +188,19 @@ $body = '';
 			.attr("disabled", false)
 			.text("Simpan");
 		jQuery('#modalTambahJadwal').modal('show');
+		jQuery.ajax({
+			url: thisAjaxUrl,
+			type:"post",
+			data:{
+				'action' 			: "get_data_standar_lama_pelaksanaan",
+				'api_key' 			: jQuery("#api_key").val(),
+				'tipe_perencanaan' 	: tipePerencanaan
+			},
+			dataType: "json",
+			success:function(response){
+				jQuery("#lama_pelaksanaan").val(response.data.lama_pelaksanaan);
+			}
+		})
 	}
 
 	/** Submit tambah jadwal */
@@ -194,7 +211,8 @@ $body = '';
 		let jadwalSelesai = jQuery("#jadwal_tanggal").data('daterangepicker').endDate.format('YYYY-MM-DD HH:mm:ss')
 		let this_tahun_anggaran = jQuery("#tahun_mulai_anggaran").val()
 		let relasi_perencanaan = jQuery("#link_rpjpd").val()
-		if(nama.trim() == '' || jadwalMulai == '' || jadwalSelesai == '' || relasi_perencanaan == ''){
+		let this_lama_pelaksanaan = jQuery("#lama_pelaksanaan").val()
+		if(nama.trim() == '' || jadwalMulai == '' || jadwalSelesai == '' || relasi_perencanaan == '' || this_tahun_anggaran == '' || this_lama_pelaksanaan == ''){
 			jQuery("#wrap-loading").hide()
 			alert("Ada yang kosong, Harap diisi semua")
 			return false
@@ -211,7 +229,8 @@ $body = '';
 					'jadwal_selesai'	: jadwalSelesai,
 					'tahun_anggaran'	: this_tahun_anggaran,
 					'tipe_perencanaan'	: tipePerencanaan,
-					'relasi_perencanaan': relasi_perencanaan
+					'relasi_perencanaan': relasi_perencanaan,
+					'lama_pelaksanaan'	: this_lama_pelaksanaan
 				},
 				beforeSend: function() {
 					jQuery('.submitBtn').attr('disabled','disabled')
@@ -243,7 +262,7 @@ $body = '';
 			.attr("onclick", 'submitEditJadwalForm('+id_jadwal_lokal+')')
 			.attr("disabled", false)
 			.text("Simpan");
-
+		jQuery('#wrap-loading').show();
 		jQuery.ajax({
 			url: thisAjaxUrl,
 			type:"post",
@@ -254,8 +273,10 @@ $body = '';
 			},
 			dataType: "json",
 			success:function(response){
+				jQuery('#wrap-loading').hide();
 				jQuery("#jadwal_nama").val(response.data.nama);
 				jQuery("#tahun_mulai_anggaran").val(response.data.tahun_anggaran);
+				jQuery("#lama_pelaksanaan").val(response.data.lama_pelaksanaan);
 				jQuery('#jadwal_tanggal').data('daterangepicker').setStartDate(moment(response.data.waktu_awal).format('DD-MM-YYYY HH:mm'));
 				jQuery('#jadwal_tanggal').data('daterangepicker').setEndDate(moment(response.data.waktu_akhir).format('DD-MM-YYYY HH:mm'));
 				jQuery("#link_rpjpd").val(response.data.relasi_perencanaan).change();
@@ -270,7 +291,8 @@ $body = '';
 		let jadwalSelesai = jQuery("#jadwal_tanggal").data('daterangepicker').endDate.format('YYYY-MM-DD HH:mm:ss')
 		let this_tahun_anggaran = jQuery("#tahun_mulai_anggaran").val()
 		let relasi_perencanaan = jQuery("#link_rpjpd").val()
-		if(nama.trim() == '' || jadwalMulai == '' || jadwalSelesai == '' || relasi_perencanaan == ''){
+		let this_lama_pelaksanaan = jQuery("#lama_pelaksanaan").val()
+		if(nama.trim() == '' || jadwalMulai == '' || jadwalSelesai == '' || this_tahun_anggaran == '' || this_lama_pelaksanaan == ''){
 			jQuery("#wrap-loading").hide()
 			alert("Ada yang kosong, Harap diisi semua")
 			return false
@@ -288,7 +310,8 @@ $body = '';
 					'id_jadwal_lokal'	: id_jadwal_lokal,
 					'tahun_anggaran'	: this_tahun_anggaran,
 					'tipe_perencanaan'	: tipePerencanaan,
-					'relasi_perencanaan': relasi_perencanaan
+					'relasi_perencanaan': relasi_perencanaan,
+					'lama_pelaksanaan'	: this_lama_pelaksanaan
 				},
 				beforeSend: function() {
 					jQuery('.submitBtn').attr('disabled','disabled')
