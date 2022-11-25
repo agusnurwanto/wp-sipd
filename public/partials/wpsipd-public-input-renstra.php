@@ -856,27 +856,34 @@ foreach ($data_all['data'] as $tujuan) {
 	<table cellpadding="2" cellspacing="0" style="font-family:\'Open Sans\',-apple-system,BlinkMacSystemFont,\'Segoe UI\',sans-serif; border-collapse: collapse; font-size: 70%; border: 0; table-layout: fixed;" contenteditable="false">
 		<thead>
 			<tr>
-				<th style="width: 85px;" class="atas kiri kanan bawah text_tengah text_blok">No</th>
-				<th style="width: 200px;" class="atas kanan bawah text_tengah text_blok">Bidang Urusan</th>
-				<th style="width: 200px;" class="atas kanan bawah text_tengah text_blok">Tujuan</th>
-				<th style="width: 200px;" class="atas kanan bawah text_tengah text_blok">Sasaran</th>
-				<th style="width: 200px;" class="atas kanan bawah text_tengah text_blok">Program</th>
-				<th style="width: 200px;" class="atas kanan bawah text_tengah text_blok">Kegiatan</th>
-				<th style="width: 400px;" class="atas kanan bawah text_tengah text_blok">Indikator</th>
-				<th style="width: 100px;" class="atas kanan bawah text_tengah text_blok">Target Awal</th>
-				<th style="width: 100px;" class="atas kanan bawah text_tengah text_blok">Target Tahun 1</th>
-				<th style="width: 100px;" class="atas kanan bawah text_tengah text_blok">Pagu Tahun 1</th>
-				<th style="width: 100px;" class="atas kanan bawah text_tengah text_blok">Target Tahun 2</th>
-				<th style="width: 100px;" class="atas kanan bawah text_tengah text_blok">Pagu Tahun 2</th>
-				<th style="width: 100px;" class="atas kanan bawah text_tengah text_blok">Target Tahun 3</th>
-				<th style="width: 100px;" class="atas kanan bawah text_tengah text_blok">Pagu Tahun 3</th>
-				<th style="width: 100px;" class="atas kanan bawah text_tengah text_blok">Target Tahun 4</th>
-				<th style="width: 100px;" class="atas kanan bawah text_tengah text_blok">Pagu Tahun 4</th>
-				<th style="width: 100px;" class="atas kanan bawah text_tengah text_blok">Target Tahun 5</th>
-				<th style="width: 100px;" class="atas kanan bawah text_tengah text_blok">Pagu Tahun 5</th>
-				<th style="width: 100px;" class="atas kanan bawah text_tengah text_blok">Target Akhir</th>
-				<th style="width: 100px;" class="atas kanan bawah text_tengah text_blok">Satuan</th>
-				<th style="width: 150px;" class="atas kanan bawah text_tengah text_blok">Keterangan</th>
+				<th rowspan="2" style="width: 85px;" class="atas kiri kanan bawah text_tengah text_blok">No</th>
+				<th rowspan="2" style="width: 200px;" class="atas kanan bawah text_tengah text_blok">Bidang Urusan</th>
+				<th rowspan="2" style="width: 200px;" class="atas kanan bawah text_tengah text_blok">Tujuan</th>
+				<th rowspan="2" style="width: 200px;" class="atas kanan bawah text_tengah text_blok">Sasaran</th>
+				<th rowspan="2" style="width: 200px;" class="atas kanan bawah text_tengah text_blok">Program</th>
+				<th rowspan="2" style="width: 200px;" class="atas kanan bawah text_tengah text_blok">Kegiatan</th>
+				<th rowspan="2" style="width: 400px;" class="atas kanan bawah text_tengah text_blok">Indikator</th>
+				<th rowspan="2" style="width: 100px;" class="atas kanan bawah text_tengah text_blok">Target Awal</th>
+				<th colspan="2" style="width: 100px;" class="atas kanan bawah text_tengah text_blok">Tahun 1</th>
+				<th colspan="2" style="width: 100px;" class="atas kanan bawah text_tengah text_blok">Tahun 2</th>
+				<th colspan="2" style="width: 100px;" class="atas kanan bawah text_tengah text_blok">Tahun 3</th>
+				<th colspan="2" style="width: 100px;" class="atas kanan bawah text_tengah text_blok">Tahun 4</th>
+				<th colspan="2" style="width: 100px;" class="atas kanan bawah text_tengah text_blok">Tahun 5</th>
+				<th rowspan="2" style="width: 100px;" class="atas kanan bawah text_tengah text_blok">Target Akhir</th>
+				<th rowspan="2" style="width: 100px;" class="atas kanan bawah text_tengah text_blok">Satuan</th>
+				<th rowspan="2" style="width: 150px;" class="atas kanan bawah text_tengah text_blok">Keterangan</th>
+			</tr>
+			<tr>
+				<th style="width: 100px;" class="atas kanan bawah text_tengah text_blok">Target</th>
+				<th style="width: 100px;" class="atas kanan bawah text_tengah text_blok">Pagu</th>
+				<th style="width: 100px;" class="atas kanan bawah text_tengah text_blok">Target</th>
+				<th style="width: 100px;" class="atas kanan bawah text_tengah text_blok">Pagu</th>
+				<th style="width: 100px;" class="atas kanan bawah text_tengah text_blok">Target</th>
+				<th style="width: 100px;" class="atas kanan bawah text_tengah text_blok">Pagu</th>
+				<th style="width: 100px;" class="atas kanan bawah text_tengah text_blok">Target</th>
+				<th style="width: 100px;" class="atas kanan bawah text_tengah text_blok">Pagu</th>
+				<th style="width: 100px;" class="atas kanan bawah text_tengah text_blok">Target</th>
+				<th style="width: 100px;" class="atas kanan bawah text_tengah text_blok">Pagu</th>
 			</tr>
 			<tr>
 				<th class='atas kiri kanan bawah text_tengah text_blok'>0</th>
