@@ -115,6 +115,187 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
 	$skpd_filter_html .= '<option value="'.$kode_skpd.'">'.$kode_skpd.' '.$nama_skpd.'</option>';
 }
 
+$tujuan_all = $wpdb->get_results($wpdb->prepare("
+			SELECT 
+				* 
+			FROM data_renstra_tujuan_lokal 
+			WHERE 
+				id_unit=%d AND 
+				active=1 ORDER BY urut_tujuan",
+				$input['id_skpd']), ARRAY_A);
+
+foreach ($tujuan_all as $keyTujuan => $tujuan_value) {
+	if(empty($data_all['data'][$tujuan_value['id_unik']])){
+			$data_all['data'][$tujuan_value['id_unik']] = [
+					'id' => $tujuan_value['id'],
+					'id_bidang_urusan' => $tujuan_value['id_bidang_urusan'],
+					'id_unik' => $tujuan_value['id_unik'],
+					'tujuan_teks' => $tujuan_value['tujuan_teks'],
+					'nama_bidang_urusan' => $tujuan_value['nama_bidang_urusan'],
+					'indikator' => array(),
+					'data' => array()
+			];
+	}
+
+	if(!empty($tujuan_value['id_unik_indikator'])){
+			if(empty($data_all['data'][$tujuan_value['id_unik']]['indikator'][$tujuan_value['id_unik_indikator']])){
+					$data_all['data'][$tujuan_value['id_unik']]['indikator'][$tujuan_value['id_unik_indikator']] = [
+							'id_unik_indikator' => $tujuan_value['id_unik_indikator'],
+							'indikator_teks' => $tujuan_value['indikator_teks'],
+							'satuan' => $tujuan_value['satuan'],
+							'target_1' => $tujuan_value['target_1'],
+							'target_2' => $tujuan_value['target_2'],
+							'target_3' => $tujuan_value['target_3'],
+							'target_4' => $tujuan_value['target_4'],
+							'target_5' => $tujuan_value['target_5'],
+							'target_awal' => $tujuan_value['target_awal'],
+							'target_akhir' => $tujuan_value['target_akhir'],
+					];
+			}
+	}
+
+	if(empty($tujuan_value['id_unik_indikator'])){
+		$sasaran_all = $wpdb->get_results($wpdb->prepare("
+			SELECT 
+				* 
+			FROM data_renstra_sasaran_lokal 
+			WHERE 
+				kode_tujuan=%s AND 
+				active=1 ORDER BY urut_sasaran",
+				$tujuan_value['id_unik']), ARRAY_A);
+
+		foreach ($sasaran_all as $keySasaran => $sasaran_value) {
+			if(empty($data_all['data'][$tujuan_value['id_unik']]['data'][$sasaran_value['id_unik']])){
+					$data_all['data'][$tujuan_value['id_unik']]['data'][$sasaran_value['id_unik']] = [
+							'id' => $sasaran_value['id'],
+							'id_unik' => $sasaran_value['id_unik'],
+							'sasaran_teks' => $sasaran_value['sasaran_teks'],
+							'indikator' => array(),
+							'data' => array()
+					];
+			}
+
+			if(!empty($sasaran_value['id_unik_indikator'])){
+				if(empty($data_all['data'][$tujuan_value['id_unik']]['data'][$sasaran_value['id_unik']]['indikator'][$sasaran_value['id_unik_indikator']])){
+					$data_all['data'][$tujuan_value['id_unik']]['data'][$sasaran_value['id_unik']]['indikator'][$sasaran_value['id_unik_indikator']] = [
+									'id_unik_indikator' => $sasaran_value['id_unik_indikator'],
+									'indikator_teks' => $sasaran_value['indikator_teks'],
+									'satuan' => $sasaran_value['satuan'],
+									'target_1' => $sasaran_value['target_1'],
+									'target_2' => $sasaran_value['target_2'],
+									'target_3' => $sasaran_value['target_3'],
+									'target_4' => $sasaran_value['target_4'],
+									'target_5' => $sasaran_value['target_5'],
+									'target_awal' => $sasaran_value['target_awal'],
+									'target_akhir' => $sasaran_value['target_akhir'],
+							];
+				}
+			}
+
+			if(empty($sasaran_value['id_unik_indikator'])){
+
+					$program_all = $wpdb->get_results($wpdb->prepare("
+						SELECT 
+							* 
+						FROM data_renstra_program_lokal 
+						WHERE 
+							kode_sasaran=%s AND 
+							kode_tujuan=%s AND 
+							active=1 ORDER BY id",
+							$sasaran_value['id_unik'], $tujuan_value['id_unik']), ARRAY_A);
+
+					foreach ($program_all as $keyProgram => $program_value) {
+							if(empty($data_all['data'][$tujuan_value['id_unik']]['data'][$sasaran_value['id_unik']]['data'][$program_value['id_unik']])){
+									$data_all['data'][$tujuan_value['id_unik']]['data'][$sasaran_value['id_unik']]['data'][$program_value['id_unik']] = [
+											'id' => $program_value['id'],
+											'id_unik' => $program_value['id_unik'],
+											'program_teks' => $program_value['nama_program'],
+											'indikator' => array(),
+											'data' => array()
+									];
+							}
+
+							if(!empty($program_value['id_unik_indikator'])){
+								if(empty($data_all['data'][$tujuan_value['id_unik']]['data'][$sasaran_value['id_unik']]['data'][$program_value['id_unik']]['indikator'][$program_value['id_unik_indikator']])){
+									$data_all['data'][$tujuan_value['id_unik']]['data'][$sasaran_value['id_unik']]['data'][$program_value['id_unik']]['indikator'][$program_value['id_unik_indikator']] = [
+											'id_unik_indikator' => $program_value['id_unik_indikator'],
+											'indikator_teks' => $program_value['indikator'],
+											'satuan' => $program_value['satuan'],
+											'target_1' => $program_value['target_1'],
+											'pagu_1' => $program_value['pagu_1'],
+											'target_2' => $program_value['target_2'],
+											'pagu_2' => $program_value['pagu_2'],
+											'target_3' => $program_value['target_3'],
+											'pagu_3' => $program_value['pagu_3'],
+											'target_4' => $program_value['target_4'],
+											'pagu_4' => $program_value['pagu_4'],
+											'target_5' => $program_value['target_5'],
+											'pagu_5' => $program_value['pagu_5'],
+											'target_awal' => $program_value['target_awal'],
+											'target_akhir' => $program_value['target_akhir'],
+									];
+								}
+							}
+
+							if(empty($program_value['id_unik_indikator'])){
+									$kegiatan_all = $wpdb->get_results($wpdb->prepare("
+											SELECT 
+												* 
+											FROM data_renstra_kegiatan_lokal 
+											WHERE 
+												kode_program=%s AND 
+												kode_sasaran=%s AND 
+												kode_tujuan=%s AND 
+												active=1 ORDER BY id",
+												$program_value['id_unik'],
+												$sasaran_value['id_unik'],
+												$tujuan_value['id_unik'],
+											), ARRAY_A);
+
+									foreach ($kegiatan_all as $keyKegiatan => $kegiatan_value) {
+										
+											if(empty($data_all['data'][$tujuan_value['id_unik']]['data'][$sasaran_value['id_unik']]['data'][$program_value['id_unik']]['data'][$kegiatan_value['id_unik']])){
+
+												$data_all['data'][$tujuan_value['id_unik']]['data'][$sasaran_value['id_unik']]['data'][$program_value['id_unik']]['data'][$kegiatan_value['id_unik']] = [
+														'id' => $kegiatan_value['id'],
+														'id_unik' => $kegiatan_value['id_unik'],
+														'kegiatan_teks' => $kegiatan_value['nama_giat'],
+														'indikator' => array()
+												];
+											}
+
+											if(!empty($kegiatan_value['id_unik_indikator'])){
+												if(empty($data_all['data'][$tujuan_value['id_unik']]['data'][$sasaran_value['id_unik']]['data'][$program_value['id_unik']]['data'][$kegiatan_value['id_unik']]['indikator'][$kegiatan_value['id_unik_indikator']])){
+														$data_all['data'][$tujuan_value['id_unik']]['data'][$sasaran_value['id_unik']]['data'][$program_value['id_unik']]['data'][$kegiatan_value['id_unik']]['indikator'][$kegiatan_value['id_unik_indikator']] = [
+																'id_unik_indikator' => $kegiatan_value['id_unik_indikator'],
+																'indikator_teks' => $kegiatan_value['indikator'],
+																'satuan' => $kegiatan_value['satuan'],
+																'target_1' => $kegiatan_value['target_1'],
+																'pagu_1' => $kegiatan_value['pagu_1'],
+																'target_2' => $kegiatan_value['target_2'],
+																'pagu_2' => $kegiatan_value['pagu_2'],
+																'target_3' => $kegiatan_value['target_3'],
+																'pagu_3' => $kegiatan_value['pagu_3'],
+																'target_4' => $kegiatan_value['target_4'],
+																'pagu_4' => $kegiatan_value['pagu_4'],
+																'target_5' => $kegiatan_value['target_5'],
+																'pagu_5' => $kegiatan_value['pagu_5'],
+																'target_awal' => $kegiatan_value['target_awal'],
+																'target_akhir' => $kegiatan_value['target_akhir'],
+														];
+												}
+											}
+									}
+							}
+					}
+			}
+		}
+	}
+
+}
+
+// echo '<pre>';print_r($data_all);echo '</pre>';die();
+
 ?>
 <link href="https://cdnjs.cloudflare.com/ajax/libs/slim-select/1.27.1/slimselect.min.css" rel="stylesheet">
 <style type="text/css">

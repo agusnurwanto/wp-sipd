@@ -27,26 +27,27 @@ function parsing_nama_kode($nama_kode){
 }
 
 $api_key = get_option('_crb_api_key_extension' );
-
-$jadwal_lokal = $wpdb->get_results("SELECT * from data_jadwal_lokal where id_jadwal_lokal = (select max(id_jadwal_lokal) from data_jadwal_lokal where id_tipe=3)", ARRAY_A);
+$cek_jadwal = $this->validasi_jadwal_perencanaan('rpd');
+$jadwal_lokal = $cek_jadwal['data'];
 $id_jadwal_rpjpd = "";
+$lama_pelaksanaan = 5;
+$tahun_anggaran = '2022';
+$namaJadwal = '-';
+$mulaiJadwal = '-';
+$selesaiJadwal = '-';
 if(!empty($jadwal_lokal)){
 	$tahun_anggaran = $jadwal_lokal[0]['tahun_anggaran'];
 	$namaJadwal = $jadwal_lokal[0]['nama'];
 	$mulaiJadwal = $jadwal_lokal[0]['waktu_awal'];
 	$selesaiJadwal = $jadwal_lokal[0]['waktu_akhir'];
     $id_jadwal_rpjpd = $jadwal_lokal[0]['relasi_perencanaan'];
-}else{
-	$tahun_anggaran = '2022';
-	$namaJadwal = '-';
-	$mulaiJadwal = '-';
-	$selesaiJadwal = '-';
+    $lama_pelaksanaan = $jadwal_lokal[0]['lama_pelaksanaan'];
 }
 
 $timezone = get_option('timezone_string');
 
 $awal_rpd = 2018;
-$akhir_rpd = $awal_rpd+5;
+$akhir_rpd = $awal_rpd+$lama_pelaksanaan;
 $nama_pemda = get_option('_crb_daerah');
 
 $current_user = wp_get_current_user();
@@ -395,8 +396,16 @@ foreach ($data_all['data'] as $tujuan) {
 			$satuan .= '<div class="indikator_program">'.$v['satuan'].'</div>';
 		}
 	}
+	$target_html = "";
+	for($i=1; $i<=$lama_pelaksanaan; $i++){
+		$target_html .= '<td class="atas kanan bawah text_tengah">'.${'target_'.$i}.'</td>';
+	}
+	$warning = "";
+	if(empty($tujuan['detail'][0]['id_isu'])){
+		$warning = "style='background: #80000014;'";
+	}
 	$body .= '
-		<tr class="tr-tujuan">
+		<tr class="tr-tujuan" '.$warning.'>
 			<td class="kiri atas kanan bawah">'.$no_tujuan.'</td>
 			<td class="atas kanan bawah">'.$tujuan['detail'][0]['isu_teks'].'</td>
 			<td class="atas kanan bawah">'.parsing_nama_kode($tujuan['nama']).button_edit_monev($tujuan['detail'][0]['id_unik']).'</td>
@@ -404,11 +413,7 @@ foreach ($data_all['data'] as $tujuan) {
 			<td class="atas kanan bawah"></td>
 			<td class="atas kanan bawah">'.$indikator_tujuan.'</td>
 			<td class="atas kanan bawah text_tengah">'.$target_awal.'</td>
-			<td class="atas kanan bawah text_tengah">'.$target_1.'</td>
-			<td class="atas kanan bawah text_tengah">'.$target_2.'</td>
-			<td class="atas kanan bawah text_tengah">'.$target_3.'</td>
-			<td class="atas kanan bawah text_tengah">'.$target_4.'</td>
-			<td class="atas kanan bawah text_tengah">'.$target_5.'</td>
+			'.$target_html.'
 			<td class="atas kanan bawah text_tengah">'.$target_akhir.'</td>
 			<td class="atas kanan bawah">'.$satuan.'</td>
 			<td class="atas kanan bawah"></td>
@@ -439,8 +444,12 @@ foreach ($data_all['data'] as $tujuan) {
 				$satuan .= '<div class="indikator_program">'.$v['satuan'].'</div>';
 			}
 		}
+		$target_html = "";
+		for($i=1; $i<=$lama_pelaksanaan; $i++){
+			$target_html .= '<td class="atas kanan bawah text_tengah">'.${'target_'.$i}.'</td>';
+		}
 		$body .= '
-			<tr class="tr-sasaran">
+			<tr class="tr-sasaran" '.$warning.'>
 				<td class="kiri atas kanan bawah">'.$no_tujuan.'.'.$no_sasaran.'</td>
 				<td class="atas kanan bawah"><span class="debug-tujuan">'.$tujuan['detail'][0]['isu_teks'].'</span></td>
 				<td class="atas kanan bawah"><span class="debug-tujuan">'.$tujuan['nama'].'</span></td>
@@ -448,11 +457,7 @@ foreach ($data_all['data'] as $tujuan) {
 				<td class="atas kanan bawah"></td>
 				<td class="atas kanan bawah">'.$indikator_sasaran.'</td>
 				<td class="atas kanan bawah text_tengah">'.$target_awal.'</td>
-				<td class="atas kanan bawah text_tengah">'.$target_1.'</td>
-				<td class="atas kanan bawah text_tengah">'.$target_2.'</td>
-				<td class="atas kanan bawah text_tengah">'.$target_3.'</td>
-				<td class="atas kanan bawah text_tengah">'.$target_4.'</td>
-				<td class="atas kanan bawah text_tengah">'.$target_5.'</td>
+				'.$target_html.'
 				<td class="atas kanan bawah text_tengah">'.$target_akhir.'</td>
 				<td class="atas kanan bawah">'.$satuan.'</td>
 				<td class="atas kanan bawah"></td>
@@ -490,8 +495,12 @@ foreach ($data_all['data'] as $tujuan) {
 			$target_5 = implode('', $target_5);
 			$target_akhir = implode('', $target_akhir);
 			$satuan = implode('', $satuan);
+			$target_html = "";
+			for($i=1; $i<=$lama_pelaksanaan; $i++){
+				$target_html .= '<td class="atas kanan bawah text_tengah">'.${'target_'.$i}.'</td>';
+			}
 			$body .= '
-				<tr class="tr-program" data-kode-skpd="'.$program['kode_skpd'].'">
+				<tr class="tr-program" data-kode-skpd="'.$program['kode_skpd'].'" '.$warning.'>
 					<td class="kiri atas kanan bawah">'.$no_tujuan.'.'.$no_sasaran.'.'.$no_program.'</td>
 					<td class="atas kanan bawah"><span class="debug-tujuan">'.$tujuan['detail'][0]['isu_teks'].'</span></td>
 					<td class="atas kanan bawah"><span class="debug-tujuan">'.$tujuan['nama'].'</span></td>
@@ -499,11 +508,7 @@ foreach ($data_all['data'] as $tujuan) {
 					<td class="atas kanan bawah">'.parsing_nama_kode($program['nama']).button_edit_monev($tujuan['detail'][0]['id_unik'].'||'.$sasaran['detail'][0]['id_unik'].'||'.$program['detail'][0]['id_unik']).'</td>
 					<td class="atas kanan bawah">'.$text_indikator.'</td>
 					<td class="atas kanan bawah text_tengah">'.$target_awal.'</td>
-					<td class="atas kanan bawah text_tengah">'.$target_1.'</td>
-					<td class="atas kanan bawah text_tengah">'.$target_2.'</td>
-					<td class="atas kanan bawah text_tengah">'.$target_3.'</td>
-					<td class="atas kanan bawah text_tengah">'.$target_4.'</td>
-					<td class="atas kanan bawah text_tengah">'.$target_5.'</td>
+					'.$target_html.'
 					<td class="atas kanan bawah text_tengah">'.$target_akhir.'</td>
 					<td class="atas kanan bawah text_tengah">'.$satuan.'</td>
 					<td class="atas kanan bawah">'.$program['kode_skpd'].' '.$program['nama_skpd'].'</td>
@@ -530,7 +535,7 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
 		margin: 3px;
 	}
 </style>
-<h4 style="text-align: center; margin: 0; font-weight: bold;">Monitoring dan Evaluasi RPD (Rencana Pembangunan Daerah) <br><?php echo $nama_pemda; ?></h4>
+<h4 style="text-align: center; margin: 0; font-weight: bold;">Monitoring dan Evaluasi RPD (Rencana Pembangunan Daerah) <br><?php echo $nama_pemda; ?><br><?php echo $awal_rpd.' - '.$akhir_rpd; ?></h4>
 <div id="cetak" title="Laporan MONEV RENJA" style="padding: 5px; overflow: auto; height: 80vh;">
 	<table cellpadding="2" cellspacing="0" style="font-family:\'Open Sans\',-apple-system,BlinkMacSystemFont,\'Segoe UI\',sans-serif; border-collapse: collapse; font-size: 70%; border: 0; table-layout: fixed;" contenteditable="false">
 		<thead>
@@ -542,11 +547,9 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
 				<th style="width: 200px;" class="atas kanan bawah text_tengah text_blok">Program</th>
 				<th style="width: 400px;" class="atas kanan bawah text_tengah text_blok">Indikator</th>
 				<th style="width: 100px;" class="atas kanan bawah text_tengah text_blok">Target Awal</th>
-				<th style="width: 100px;" class="atas kanan bawah text_tengah text_blok">Target Tahun 1</th>
-				<th style="width: 100px;" class="atas kanan bawah text_tengah text_blok">Target Tahun 2</th>
-				<th style="width: 100px;" class="atas kanan bawah text_tengah text_blok">Target Tahun 3</th>
-				<th style="width: 100px;" class="atas kanan bawah text_tengah text_blok">Target Tahun 4</th>
-				<th style="width: 100px;" class="atas kanan bawah text_tengah text_blok">Target Tahun 5</th>
+			<?php for($i=1; $i<=$lama_pelaksanaan; $i++){ ?>
+				<th style="width: 100px;" class="atas kanan bawah text_tengah text_blok">Target Tahun <?php echo $i; ?></th>
+			<?php }; ?>
 				<th style="width: 100px;" class="atas kanan bawah text_tengah text_blok">Target Akhir</th>
 				<th style="width: 100px;" class="atas kanan bawah text_tengah text_blok">Satuan</th>
 				<th style="width: 150px;" class="atas kanan bawah text_tengah text_blok">Keterangan</th>
@@ -562,11 +565,9 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
 				<th class='atas kanan bawah text_tengah text_blok'>7</th>
 				<th class='atas kanan bawah text_tengah text_blok'>8</th>
 				<th class='atas kanan bawah text_tengah text_blok'>9</th>
-				<th class='atas kanan bawah text_tengah text_blok'>10</th>
-				<th class='atas kanan bawah text_tengah text_blok'>11</th>
-				<th class='atas kanan bawah text_tengah text_blok'>12</th>
-				<th class='atas kanan bawah text_tengah text_blok'>13</th>
-				<th class='atas kanan bawah text_tengah text_blok'>14</th>
+			<?php for($i=1; $i<=$lama_pelaksanaan; $i++){ ?>
+				<th style="width: 100px;" class="atas kanan bawah text_tengah text_blok"><?php echo 9+$i; ?></th>
+			<?php }; ?>
 			</tr>
 		</thead>
 		<tbody>
@@ -574,7 +575,7 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
 		</tbody>
 	</table>
 </div>
-<div class="modal fade" id="modal-monev" tabindex="-1" role="dialog" data-backdrop="static" aria-hidden="true">'
+<div class="modal hide fade" id="modal-monev" tabindex="-1" role="dialog" data-backdrop="static" aria-hidden="true">'
     <div class="modal-dialog" style="max-width: 1500px;" role="document">
         <div class="modal-content">
             <div class="modal-header bgpanel-theme">
@@ -600,7 +601,7 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
         </div>
     </div>
 </div>
-<div class="modal fade" id="modal-tujuan" tabindex="-1" role="dialog" data-backdrop="static" aria-hidden="true">'
+<div class="modal hide fade" id="modal-tujuan" tabindex="-1" role="dialog" data-backdrop="static" aria-hidden="true">'
     <div class="modal-dialog modal-xl" role="document">
         <div class="modal-content">
             <div class="modal-header bgpanel-theme">
@@ -643,7 +644,7 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
         </div>
     </div>
 </div>
-<div class="modal fade" id="modal-tujuan-indikator" tabindex="-1" role="dialog" data-backdrop="static" aria-hidden="true">'
+<div class="modal hide fade" id="modal-tujuan-indikator" tabindex="-1" role="dialog" data-backdrop="static" aria-hidden="true">'
     <div class="modal-dialog modal-xl" role="document">
         <div class="modal-content">
             <div class="modal-header bgpanel-theme">
@@ -700,56 +701,18 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
 					    	<input class="form-control" id="indikator-teks-tujuan-satuan-awal" type="text">
 					  	</div>
 					</div>
+				<?php for($i=1; $i<=$lama_pelaksanaan; $i++){ ?>
 				  	<div class="form-row">
 					  	<div class="form-group col-md-6">
-					    	<label>Target 1</label>
-					    	<input class="form-control" id="indikator-teks-tujuan-vol-1" type="number">
+					    	<label>Target <?php echo $i; ?></label>
+					    	<input class="form-control" id="indikator-teks-tujuan-vol-<?php echo $i; ?>" type="number">
 					  	</div>
 					  	<div class="form-group col-md-6">
 					    	<label>Satuan</label>
-					    	<input class="form-control" id="indikator-teks-tujuan-satuan-1" type="text">
+					    	<input class="form-control" id="indikator-teks-tujuan-satuan-<?php echo $i; ?>" type="text">
 					  	</div>
 					</div>
-				  	<div class="form-row">
-					  	<div class="form-group col-md-6">
-					    	<label>Target 2</label>
-					    	<input class="form-control" id="indikator-teks-tujuan-vol-2" type="number">
-					  	</div>
-					  	<div class="form-group col-md-6">
-					    	<label>Satuan</label>
-					    	<input class="form-control" id="indikator-teks-tujuan-satuan-2" type="text">
-					  	</div>
-					</div>
-				  	<div class="form-row">
-					  	<div class="form-group col-md-6">
-					    	<label>Target 3</label>
-					    	<input class="form-control" id="indikator-teks-tujuan-vol-3" type="number">
-					  	</div>
-					  	<div class="form-group col-md-6">
-					    	<label>Satuan</label>
-					    	<input class="form-control" id="indikator-teks-tujuan-satuan-3" type="text">
-					  	</div>
-					</div>
-				  	<div class="form-row">
-					  	<div class="form-group col-md-6">
-					    	<label>Target 4</label>
-					    	<input class="form-control" id="indikator-teks-tujuan-vol-4" type="number">
-					  	</div>
-					  	<div class="form-group col-md-6">
-					    	<label>Satuan</label>
-					    	<input class="form-control" id="indikator-teks-tujuan-satuan-4" type="text">
-					  	</div>
-					</div>
-				  	<div class="form-row">
-					  	<div class="form-group col-md-6">
-					    	<label>Target 5</label>
-					    	<input class="form-control" id="indikator-teks-tujuan-vol-5" type="number">
-					  	</div>
-					  	<div class="form-group col-md-6">
-					    	<label>Satuan</label>
-					    	<input class="form-control" id="indikator-teks-tujuan-satuan-5" type="text">
-					  	</div>
-					</div>
+				<?php }; ?>
 				  	<div class="form-row">
 					  	<div class="form-group col-md-6">
 					    	<label>Target Akhir</label>
@@ -769,7 +732,7 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
         </div>
     </div>
 </div>
-<div class="modal fade" id="modal-sasaran" tabindex="-1" role="dialog" data-backdrop="static" aria-hidden="true">'
+<div class="modal hide fade" id="modal-sasaran" tabindex="-1" role="dialog" data-backdrop="static" aria-hidden="true">'
     <div class="modal-dialog modal-xl" role="document">
         <div class="modal-content">
             <div class="modal-header bgpanel-theme">
@@ -800,7 +763,7 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
         </div>
     </div>
 </div>
-<div class="modal fade" id="modal-sasaran-indikator" tabindex="-1" role="dialog" data-backdrop="static" aria-hidden="true">'
+<div class="modal hide fade" id="modal-sasaran-indikator" tabindex="-1" role="dialog" data-backdrop="static" aria-hidden="true">'
     <div class="modal-dialog modal-xl" role="document">
         <div class="modal-content">
             <div class="modal-header bgpanel-theme">
@@ -837,56 +800,18 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
 					    	<input class="form-control" id="indikator-teks-sasaran-satuan-awal" type="text">
 					  	</div>
 					</div>
+				<?php for($i=1; $i<=$lama_pelaksanaan; $i++){ ?>
 				  	<div class="form-row">
 					  	<div class="form-group col-md-6">
-					    	<label>Target 1</label>
-					    	<input class="form-control" id="indikator-teks-sasaran-vol-1" type="number">
+					    	<label>Target <?php echo $i; ?></label>
+					    	<input class="form-control" id="indikator-teks-sasaran-vol-<?php echo $i; ?>" type="number">
 					  	</div>
 					  	<div class="form-group col-md-6">
 					    	<label>Satuan</label>
-					    	<input class="form-control" id="indikator-teks-sasaran-satuan-1" type="text">
+					    	<input class="form-control" id="indikator-teks-sasaran-satuan-<?php echo $i; ?>" type="text">
 					  	</div>
 					</div>
-				  	<div class="form-row">
-					  	<div class="form-group col-md-6">
-					    	<label>Target 2</label>
-					    	<input class="form-control" id="indikator-teks-sasaran-vol-2" type="number">
-					  	</div>
-					  	<div class="form-group col-md-6">
-					    	<label>Satuan</label>
-					    	<input class="form-control" id="indikator-teks-sasaran-satuan-2" type="text">
-					  	</div>
-					</div>
-				  	<div class="form-row">
-					  	<div class="form-group col-md-6">
-					    	<label>Target 3</label>
-					    	<input class="form-control" id="indikator-teks-sasaran-vol-3" type="number">
-					  	</div>
-					  	<div class="form-group col-md-6">
-					    	<label>Satuan</label>
-					    	<input class="form-control" id="indikator-teks-sasaran-satuan-3" type="text">
-					  	</div>
-					</div>
-				  	<div class="form-row">
-					  	<div class="form-group col-md-6">
-					    	<label>Target 4</label>
-					    	<input class="form-control" id="indikator-teks-sasaran-vol-4" type="number">
-					  	</div>
-					  	<div class="form-group col-md-6">
-					    	<label>Satuan</label>
-					    	<input class="form-control" id="indikator-teks-sasaran-satuan-4" type="text">
-					  	</div>
-					</div>
-				  	<div class="form-row">
-					  	<div class="form-group col-md-6">
-					    	<label>Target 5</label>
-					    	<input class="form-control" id="indikator-teks-sasaran-vol-5" type="number">
-					  	</div>
-					  	<div class="form-group col-md-6">
-					    	<label>Satuan</label>
-					    	<input class="form-control" id="indikator-teks-sasaran-satuan-5" type="text">
-					  	</div>
-					</div>
+				<?php }; ?>
 				  	<div class="form-row">
 					  	<div class="form-group col-md-6">
 					    	<label>Target Akhir</label>
@@ -906,7 +831,7 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
         </div>
     </div>
 </div>
-<div class="modal fade" id="modal-program" tabindex="-1" role="dialog" data-backdrop="static" aria-hidden="true">'
+<div class="modal hide fade" id="modal-program" tabindex="-1" role="dialog" data-backdrop="static" aria-hidden="true">'
     <div class="modal-dialog modal-xl" role="document">
         <div class="modal-content">
             <div class="modal-header bgpanel-theme">
@@ -948,7 +873,7 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
         </div>
     </div>
 </div>
-<div class="modal fade" id="modal-program-indikator" tabindex="-1" role="dialog" data-backdrop="static" aria-hidden="true">'
+<div class="modal hide fade" id="modal-program-indikator" tabindex="-1" role="dialog" data-backdrop="static" aria-hidden="true">'
     <div class="modal-dialog modal-xl" role="document">
         <div class="modal-content">
             <div class="modal-header bgpanel-theme">
@@ -991,76 +916,22 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
 					    	<input class="form-control" id="indikator-teks-program-satuan-awal" type="text">
 					  	</div>
 					</div>
+				<?php for($i=1; $i<=$lama_pelaksanaan; $i++){ ?>
 				  	<div class="form-row">
 					  	<div class="form-group col-md-4">
-					    	<label>Target 1</label>
-					    	<input class="form-control" id="indikator-teks-program-vol-1" type="number">
+					    	<label>Target <?php echo $i; ?></label>
+					    	<input class="form-control" id="indikator-teks-program-vol-<?php echo $i; ?>" type="number">
 					  	</div>
 					  	<div class="form-group col-md-4">
 					    	<label>Satuan</label>
-					    	<input class="form-control" id="indikator-teks-program-satuan-1" type="text">
+					    	<input class="form-control" id="indikator-teks-program-satuan-<?php echo $i; ?>" type="text">
 					  	</div>
 					  	<div class="form-group col-md-4">
-					    	<label>Pagu 1</label>
-					    	<input class="form-control" id="indikator-teks-program-pagu-1" type="number">
+					    	<label>Pagu <?php echo $i; ?></label>
+					    	<input class="form-control" id="indikator-teks-program-pagu-<?php echo $i; ?>" type="number">
 					  	</div>
 					</div>
-				  	<div class="form-row">
-					  	<div class="form-group col-md-4">
-					    	<label>Target 2</label>
-					    	<input class="form-control" id="indikator-teks-program-vol-2" type="number">
-					  	</div>
-					  	<div class="form-group col-md-4">
-					    	<label>Satuan</label>
-					    	<input class="form-control" id="indikator-teks-program-satuan-2" type="text">
-					  	</div>
-					  	<div class="form-group col-md-4">
-					    	<label>Pagu 2</label>
-					    	<input class="form-control" id="indikator-teks-program-pagu-2" type="number">
-					  	</div>
-					</div>
-				  	<div class="form-row">
-					  	<div class="form-group col-md-4">
-					    	<label>Target 3</label>
-					    	<input class="form-control" id="indikator-teks-program-vol-3" type="number">
-					  	</div>
-					  	<div class="form-group col-md-4">
-					    	<label>Satuan</label>
-					    	<input class="form-control" id="indikator-teks-program-satuan-3" type="text">
-					  	</div>
-					  	<div class="form-group col-md-4">
-					    	<label>Pagu 3</label>
-					    	<input class="form-control" id="indikator-teks-program-pagu-3" type="number">
-					  	</div>
-					</div>
-				  	<div class="form-row">
-					  	<div class="form-group col-md-4">
-					    	<label>Target 4</label>
-					    	<input class="form-control" id="indikator-teks-program-vol-4" type="number">
-					  	</div>
-					  	<div class="form-group col-md-4">
-					    	<label>Satuan</label>
-					    	<input class="form-control" id="indikator-teks-program-satuan-4" type="text">
-					  	</div>
-					  	<div class="form-group col-md-4">
-					    	<label>Pagu 4</label>
-					    	<input class="form-control" id="indikator-teks-program-pagu-4" type="number">
-					  	</div>
-					</div>
-				  	<div class="form-row">
-					  	<div class="form-group col-md-4">
-					    	<label>Target 5</label>
-					    	<input class="form-control" id="indikator-teks-program-vol-5" type="number">
-					  	</div>
-					  	<div class="form-group col-md-4">
-					    	<label>Satuan</label>
-					    	<input class="form-control" id="indikator-teks-program-satuan-5" type="text">
-					  	</div>
-					  	<div class="form-group col-md-4">
-					    	<label>Pagu 5</label>
-					    	<input class="form-control" id="indikator-teks-program-pagu-5" type="number">
-					  	</div>
-					</div>
+				<?php }; ?>
 				  	<div class="form-row">
 					  	<div class="form-group col-md-6">
 					    	<label>Target Akhir</label>
@@ -1099,10 +970,10 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
 	penjadwalanHitungMundur(dataHitungMundur);
 
 	var aksi = ''
-		+'<a style="margin-left: 10px;" id="singkron-sipd" onclick="return false;" href="#" class="btn btn-danger">Ambil data dari SIPD lokal</a>'
-		+'<a style="margin-left: 10px;" id="tambah-data" onclick="return false;" href="#" class="btn btn-success">Tambah Data RPD</a>'
+		+'<?php if($cek_jadwal['status'] == 'success'): ?><a style="margin-left: 10px;" id="singkron-sipd" onclick="return false;" href="#" class="btn btn-danger">Ambil data dari SIPD lokal</a><?php endif; ?>'
+		+'<?php if($cek_jadwal['status'] == 'success'): ?><a style="margin-left: 10px;" id="tambah-data" onclick="return false;" href="#" class="btn btn-success">Tambah Data RPD</a><?php endif; ?>'
 		+'<h3 style="margin-top: 20px;">SETTING</h3>'
-		+'<label><input type="checkbox" onclick="tampilkan_edit(this);"> Edit Data RPD</label>'
+		+'<?php if($cek_jadwal['status'] == 'success'): ?><label><input type="checkbox" onclick="tampilkan_edit(this);"> Edit Data RPD</label><?php endif; ?>'
 		+'<label style="margin-left: 20px;"><input type="checkbox" onclick="show_debug(this);"> Debug Cascading RPD</label>'
 		+'<label style="margin-left: 20px;">'
 			+'Sembunyikan Baris '
@@ -1133,20 +1004,9 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
 		var val = jQuery(that).val();
 		var tr_sasaran = jQuery('.tr-sasaran');
 		var tr_program = jQuery('.tr-program');
-		tr_misi.show();
-		tr_tujuan.show();
 		tr_sasaran.show();
 		tr_program.show();
-		if(val == 'tr-misi'){
-			tr_misi.hide();
-			tr_tujuan.hide();
-			tr_sasaran.hide();
-			tr_program.hide();
-		}else if(val == 'tr-tujuan'){
-			tr_tujuan.hide();
-			tr_sasaran.hide();
-			tr_program.hide();
-		}else if(val == 'tr-sasaran'){
+		if(val == 'tr-sasaran'){
 			tr_sasaran.hide();
 			tr_program.hide();
 		}else if(val == 'tr-program'){
@@ -1287,11 +1147,9 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
 											+"<th class='text-center' style='width: 45px;'></th>"
 											+"<th class='text-center'>Indikator</th>"
 											+"<th class='text-center'>Awal</th>"
-											+"<th class='text-center'>Tahun 1</th>"
-											+"<th class='text-center'>Tahun 2</th>"
-											+"<th class='text-center'>Tahun 3</th>"
-											+"<th class='text-center'>Tahun 4</th>"
-											+"<th class='text-center'>Tahun 5</th>"
+										<?php for($i=1; $i<=$lama_pelaksanaan; $i++){ ?>
+											+"<th class='text-center'>Tahun <?php echo $i; ?></th>"
+										<?php }; ?>
 											+"<th class='text-center'>Akhir</th>"
 											+"<th class='text-center' style='width: 110px;'>Aksi</th>"
 										+"</tr>"
@@ -1303,11 +1161,9 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
 								+'<td class="text-center">'+no+'.'+(i+1)+'</td>'
 								+'<td>'+bb.indikator_teks+'</td>'
 								+'<td class="text-center">'+bb.target_awal+'</td>'
-								+'<td class="text-center">'+bb.target_1+'</td>'
-								+'<td class="text-center">'+bb.target_2+'</td>'
-								+'<td class="text-center">'+bb.target_3+'</td>'
-								+'<td class="text-center">'+bb.target_4+'</td>'
-								+'<td class="text-center">'+bb.target_5+'</td>'
+							<?php for($i=1; $i<=$lama_pelaksanaan; $i++){ ?>
+								+'<td class="text-center">'+bb.target_<?php echo $i; ?>+'</td>'
+							<?php }; ?>
 								+'<td class="text-center">'+bb.target_akhir+'</td>'
 								+'<td class="text-center aksi">'
 									+'<button class="btn-sm btn-warning" onclick="edit_tujuan_indikator(\''+bb.id_unik_indikator+'\');"><i class="dashicons dashicons-edit"></i></button>'
@@ -1395,11 +1251,9 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
 											+"<th class='text-center' style='width: 45px;'></th>"
 											+"<th class='text-center'>Indikator</th>"
 											+"<th class='text-center'>Awal</th>"
-											+"<th class='text-center'>Tahun 1</th>"
-											+"<th class='text-center'>Tahun 2</th>"
-											+"<th class='text-center'>Tahun 3</th>"
-											+"<th class='text-center'>Tahun 4</th>"
-											+"<th class='text-center'>Tahun 5</th>"
+										<?php for($i=1; $i<=$lama_pelaksanaan; $i++){ ?>
+											+"<th class='text-center'>Tahun <?php echo $i; ?></th>"
+										<?php }; ?>
 											+"<th class='text-center'>Akhir</th>"
 											+"<th class='text-center' style='width: 110px;'>Aksi</th>"
 										+"</tr>"
@@ -1411,11 +1265,9 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
 								+'<td class="text-center">'+no+'.'+(i+1)+'</td>'
 								+'<td>'+bb.indikator_teks+'</td>'
 								+'<td class="text-center">'+bb.target_awal+'</td>'
-								+'<td class="text-center">'+bb.target_1+'</td>'
-								+'<td class="text-center">'+bb.target_2+'</td>'
-								+'<td class="text-center">'+bb.target_3+'</td>'
-								+'<td class="text-center">'+bb.target_4+'</td>'
-								+'<td class="text-center">'+bb.target_5+'</td>'
+							<?php for($i=1; $i<=$lama_pelaksanaan; $i++){ ?>
+								+'<td class="text-center">'+bb.target_<?php echo $i; ?>+'</td>'
+							<?php }; ?>
 								+'<td class="text-center">'+bb.target_akhir+'</td>'
 								+'<td class="text-center aksi">'
 									+'<button class="btn-sm btn-warning" onclick="edit_sasaran_indikator(\''+bb.id_unik_indikator+'\');"><i class="dashicons dashicons-edit"></i></button>'
@@ -1506,11 +1358,9 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
 											+"<th class='text-center' style='width: 45px;'></th>"
 											+"<th class='text-center'>Indikator</th>"
 											+"<th class='text-center'>Awal</th>"
-											+"<th class='text-center'>Tahun 1</th>"
-											+"<th class='text-center'>Tahun 2</th>"
-											+"<th class='text-center'>Tahun 3</th>"
-											+"<th class='text-center'>Tahun 4</th>"
-											+"<th class='text-center'>Tahun 5</th>"
+										<?php for($i=1; $i<=$lama_pelaksanaan; $i++){ ?>
+											+"<th class='text-center'>Tahun <?php echo $i; ?></th>"
+										<?php }; ?>
 											+"<th class='text-center'>Akhir</th>"
 											+"<th class='text-center'>SKPD</th>"
 											+"<th class='text-center' style='width: 110px;'>Aksi</th>"
@@ -1523,11 +1373,9 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
 								+'<td class="text-center">'+no+'.'+(i+1)+'</td>'
 								+'<td>'+bb.indikator+'</td>'
 								+'<td class="text-center">'+bb.target_awal+'</td>'
-								+'<td class="text-center">'+bb.target_1+'<br>'+formatRupiah(bb.pagu_1)+'</td>'
-								+'<td class="text-center">'+bb.target_2+'<br>'+formatRupiah(bb.pagu_2)+'</td>'
-								+'<td class="text-center">'+bb.target_3+'<br>'+formatRupiah(bb.pagu_3)+'</td>'
-								+'<td class="text-center">'+bb.target_4+'<br>'+formatRupiah(bb.pagu_4)+'</td>'
-								+'<td class="text-center">'+bb.target_5+'<br>'+formatRupiah(bb.pagu_5)+'</td>'
+							<?php for($i=1; $i<=$lama_pelaksanaan; $i++){ ?>
+								+'<td class="text-center">'+bb.target_<?php echo $i; ?>+'<br>'+formatRupiah(bb.pagu_<?php echo $i; ?>)+'</td>'
+							<?php }; ?>
 								+'<td class="text-center">'+bb.target_akhir+'</td>'
 								+'<td>'+bb.kode_skpd+' '+bb.nama_skpd+'</td>'
 								+'<td class="text-center aksi">'
@@ -1577,16 +1425,10 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
 	  			jQuery('#indikator-teks-tujuan').val('');
 				jQuery('#indikator-teks-tujuan-vol-awal').val('');
 				jQuery('#indikator-teks-tujuan-satuan-awal').val('');
-				jQuery('#indikator-teks-tujuan-vol-1').val('');
-				jQuery('#indikator-teks-tujuan-satuan-1').val('');
-				jQuery('#indikator-teks-tujuan-vol-2').val('');
-				jQuery('#indikator-teks-tujuan-satuan-2').val('');
-				jQuery('#indikator-teks-tujuan-vol-3').val('');
-				jQuery('#indikator-teks-tujuan-satuan-3').val('');
-				jQuery('#indikator-teks-tujuan-vol-4').val('');
-				jQuery('#indikator-teks-tujuan-satuan-4').val('');
-				jQuery('#indikator-teks-tujuan-vol-5').val('');
-				jQuery('#indikator-teks-tujuan-satuan-5').val('');
+			<?php for($i=1; $i<=$lama_pelaksanaan; $i++){ ?>
+				jQuery('#indikator-teks-tujuan-vol-<?php echo $i; ?>').val('');
+				jQuery('#indikator-teks-tujuan-satuan-<?php echo $i; ?>').val('');
+			<?php }; ?>
 				jQuery('#indikator-teks-tujuan-vol-akhir').val('');
 				jQuery('#indikator-teks-tujuan-satuan-akhir').val('');
 				jQuery('#modal-tujuan-indikator').modal('show');
@@ -1650,16 +1492,10 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
 				jQuery('#indikator-teks-sasaran').val('');
 				jQuery('#indikator-teks-sasaran-vol-awal').val('');
 				jQuery('#indikator-teks-sasaran-satuan-awal').val('');
-				jQuery('#indikator-teks-sasaran-vol-1').val('');
-				jQuery('#indikator-teks-sasaran-satuan-1').val('');
-				jQuery('#indikator-teks-sasaran-vol-2').val('');
-				jQuery('#indikator-teks-sasaran-satuan-2').val('');
-				jQuery('#indikator-teks-sasaran-vol-3').val('');
-				jQuery('#indikator-teks-sasaran-satuan-3').val('');
-				jQuery('#indikator-teks-sasaran-vol-4').val('');
-				jQuery('#indikator-teks-sasaran-satuan-4').val('');
-				jQuery('#indikator-teks-sasaran-vol-5').val('');
-				jQuery('#indikator-teks-sasaran-satuan-5').val('');
+			<?php for($i=1; $i<=$lama_pelaksanaan; $i++){ ?>
+				jQuery('#indikator-teks-sasaran-vol-<?php echo $i; ?>').val('');
+				jQuery('#indikator-teks-sasaran-satuan-<?php echo $i; ?>').val('');
+			<?php }; ?>
 				jQuery('#indikator-teks-sasaran-vol-akhir').val('');
 				jQuery('#indikator-teks-sasaran-satuan-akhir').val('');
 				jQuery('#modal-sasaran-indikator').attr('id-sasaran', id_sasaran);
@@ -1692,21 +1528,11 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
 					jQuery('#indikator-teks-program').val('');
 					jQuery('#indikator-teks-program-vol-awal').val('');
 					jQuery('#indikator-teks-program-satuan-awal').val('');
-					jQuery('#indikator-teks-program-vol-1').val('');
-					jQuery('#indikator-teks-program-satuan-1').val('');
-					jQuery('#indikator-teks-program-pagu-1').val('');
-					jQuery('#indikator-teks-program-vol-2').val('');
-					jQuery('#indikator-teks-program-satuan-2').val('');
-					jQuery('#indikator-teks-program-pagu-2').val('');
-					jQuery('#indikator-teks-program-vol-3').val('');
-					jQuery('#indikator-teks-program-satuan-3').val('');
-					jQuery('#indikator-teks-program-pagu-3').val('');
-					jQuery('#indikator-teks-program-vol-4').val('');
-					jQuery('#indikator-teks-program-satuan-4').val('');
-					jQuery('#indikator-teks-program-pagu-4').val('');
-					jQuery('#indikator-teks-program-vol-5').val('');
-					jQuery('#indikator-teks-program-satuan-5').val('');
-					jQuery('#indikator-teks-program-pagu-5').val('');
+				<?php for($i=1; $i<=$lama_pelaksanaan; $i++){ ?>
+					jQuery('#indikator-teks-program-vol-<?php echo $i; ?>').val('');
+					jQuery('#indikator-teks-program-satuan-<?php echo $i; ?>').val('');
+					jQuery('#indikator-teks-program-pagu-<?php echo $i; ?>').val('');
+				<?php }; ?>
 					jQuery('#indikator-teks-program-vol-akhir').val('');
 					jQuery('#indikator-teks-program-satuan-akhir').val('');
 					jQuery('#modal-program-indikator').attr('id-program', id_program);
@@ -2123,16 +1949,10 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
 		  			jQuery('#indikator-teks-tujuan').val(res.data_all[b].detail[0].indikator_teks);
 					jQuery('#indikator-teks-tujuan-vol-awal').val(get_vol(res.data_all[b].detail[0].target_awal));
 					jQuery('#indikator-teks-tujuan-satuan-awal').val(get_sat(res.data_all[b].detail[0].target_awal));
-					jQuery('#indikator-teks-tujuan-vol-1').val(get_vol(res.data_all[b].detail[0].target_1));
-					jQuery('#indikator-teks-tujuan-satuan-1').val(get_sat(res.data_all[b].detail[0].target_1));
-					jQuery('#indikator-teks-tujuan-vol-2').val(get_vol(res.data_all[b].detail[0].target_2));
-					jQuery('#indikator-teks-tujuan-satuan-2').val(get_sat(res.data_all[b].detail[0].target_2));
-					jQuery('#indikator-teks-tujuan-vol-3').val(get_vol(res.data_all[b].detail[0].target_3));
-					jQuery('#indikator-teks-tujuan-satuan-3').val(get_sat(res.data_all[b].detail[0].target_3));
-					jQuery('#indikator-teks-tujuan-vol-4').val(get_vol(res.data_all[b].detail[0].target_4));
-					jQuery('#indikator-teks-tujuan-satuan-4').val(get_sat(res.data_all[b].detail[0].target_4));
-					jQuery('#indikator-teks-tujuan-vol-5').val(get_vol(res.data_all[b].detail[0].target_5));
-					jQuery('#indikator-teks-tujuan-satuan-5').val(get_sat(res.data_all[b].detail[0].target_5));
+				<?php for($i=1; $i<=$lama_pelaksanaan; $i++){ ?>
+					jQuery('#indikator-teks-tujuan-vol-<?php echo $i; ?>').val(get_vol(res.data_all[b].detail[0].target_<?php echo $i; ?>));
+					jQuery('#indikator-teks-tujuan-satuan-<?php echo $i; ?>').val(get_sat(res.data_all[b].detail[0].target_<?php echo $i; ?>));
+				<?php }; ?>
 					jQuery('#indikator-teks-tujuan-vol-akhir').val(get_vol(res.data_all[b].detail[0].target_akhir));
 					jQuery('#indikator-teks-tujuan-satuan-akhir').val(get_sat(res.data_all[b].detail[0].target_akhir));
 				}
@@ -2164,16 +1984,10 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
 		  			jQuery('#indikator-teks-sasaran').val(res.data_all[b].detail[0].indikator_teks);
 					jQuery('#indikator-teks-sasaran-vol-awal').val(get_vol(res.data_all[b].detail[0].target_awal));
 					jQuery('#indikator-teks-sasaran-satuan-awal').val(get_sat(res.data_all[b].detail[0].target_awal));
-					jQuery('#indikator-teks-sasaran-vol-1').val(get_vol(res.data_all[b].detail[0].target_1));
-					jQuery('#indikator-teks-sasaran-satuan-1').val(get_sat(res.data_all[b].detail[0].target_1));
-					jQuery('#indikator-teks-sasaran-vol-2').val(get_vol(res.data_all[b].detail[0].target_2));
-					jQuery('#indikator-teks-sasaran-satuan-2').val(get_sat(res.data_all[b].detail[0].target_2));
-					jQuery('#indikator-teks-sasaran-vol-3').val(get_vol(res.data_all[b].detail[0].target_3));
-					jQuery('#indikator-teks-sasaran-satuan-3').val(get_sat(res.data_all[b].detail[0].target_3));
-					jQuery('#indikator-teks-sasaran-vol-4').val(get_vol(res.data_all[b].detail[0].target_4));
-					jQuery('#indikator-teks-sasaran-satuan-4').val(get_sat(res.data_all[b].detail[0].target_4));
-					jQuery('#indikator-teks-sasaran-vol-5').val(get_vol(res.data_all[b].detail[0].target_5));
-					jQuery('#indikator-teks-sasaran-satuan-5').val(get_sat(res.data_all[b].detail[0].target_5));
+				<?php for($i=1; $i<=$lama_pelaksanaan; $i++){ ?>
+					jQuery('#indikator-teks-sasaran-vol-<?php echo $i; ?>').val(get_vol(res.data_all[b].detail[0].target_<?php echo $i; ?>));
+					jQuery('#indikator-teks-sasaran-satuan-<?php echo $i; ?>').val(get_sat(res.data_all[b].detail[0].target_<?php echo $i; ?>));
+				<?php }; ?>
 					jQuery('#indikator-teks-sasaran-vol-akhir').val(get_vol(res.data_all[b].detail[0].target_akhir));
 					jQuery('#indikator-teks-sasaran-satuan-akhir').val(get_sat(res.data_all[b].detail[0].target_akhir));
 				}
@@ -2209,21 +2023,11 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
 			  			jQuery('#indikator-teks-program').val(res.data_all[b].detail[0].indikator);
 						jQuery('#indikator-teks-program-vol-awal').val(get_vol(res.data_all[b].detail[0].target_awal));
 						jQuery('#indikator-teks-program-satuan-awal').val(get_sat(res.data_all[b].detail[0].target_awal));
-						jQuery('#indikator-teks-program-vol-1').val(get_vol(res.data_all[b].detail[0].target_1));
-						jQuery('#indikator-teks-program-satuan-1').val(get_sat(res.data_all[b].detail[0].target_1));
-						jQuery('#indikator-teks-program-pagu-1').val(res.data_all[b].detail[0].pagu_1);
-						jQuery('#indikator-teks-program-vol-2').val(get_vol(res.data_all[b].detail[0].target_2));
-						jQuery('#indikator-teks-program-satuan-2').val(get_sat(res.data_all[b].detail[0].target_2));
-						jQuery('#indikator-teks-program-pagu-2').val(res.data_all[b].detail[0].pagu_2);
-						jQuery('#indikator-teks-program-vol-3').val(get_vol(res.data_all[b].detail[0].target_3));
-						jQuery('#indikator-teks-program-satuan-3').val(get_sat(res.data_all[b].detail[0].target_3));
-						jQuery('#indikator-teks-program-pagu-3').val(res.data_all[b].detail[0].pagu_3);
-						jQuery('#indikator-teks-program-vol-4').val(get_vol(res.data_all[b].detail[0].target_4));
-						jQuery('#indikator-teks-program-satuan-4').val(get_sat(res.data_all[b].detail[0].target_4));
-						jQuery('#indikator-teks-program-pagu-4').val(res.data_all[b].detail[0].pagu_4);
-						jQuery('#indikator-teks-program-vol-5').val(get_vol(res.data_all[b].detail[0].target_5));
-						jQuery('#indikator-teks-program-satuan-5').val(get_sat(res.data_all[b].detail[0].target_5));
-						jQuery('#indikator-teks-program-pagu-5').val(res.data_all[b].detail[0].pagu_5);
+					<?php for($i=1; $i<=$lama_pelaksanaan; $i++){ ?>
+						jQuery('#indikator-teks-program-vol-<?php echo $i; ?>').val(get_vol(res.data_all[b].detail[0].target_<?php echo $i; ?>));
+						jQuery('#indikator-teks-program-satuan-<?php echo $i; ?>').val(get_sat(res.data_all[b].detail[0].target_<?php echo $i; ?>));
+						jQuery('#indikator-teks-program-pagu-<?php echo $i; ?>').val(res.data_all[b].detail[0].pagu_<?php echo $i; ?>);
+					<?php }; ?>
 						jQuery('#indikator-teks-program-vol-akhir').val(get_vol(res.data_all[b].detail[0].target_akhir));
 						jQuery('#indikator-teks-program-satuan-akhir').val(get_sat(res.data_all[b].detail[0].target_akhir));
 					}
@@ -2531,46 +2335,16 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
 		if(satuan_awal == ''){
 			return alert('Satuan awal indikator tujuan tidak boleh kosong!');
 		}
-		var vol_1 = jQuery('#indikator-teks-tujuan-vol-1').val();
-		if(vol_1 == ''){
-			return alert('Volume 1 indikator tujuan tidak boleh kosong!');
+	<?php for($i=1; $i<=$lama_pelaksanaan; $i++){ ?>
+		var vol_<?php echo $i; ?> = jQuery('#indikator-teks-tujuan-vol-<?php echo $i; ?>').val();
+		if(vol_<?php echo $i; ?> == ''){
+			return alert('Volume <?php echo $i; ?> indikator tujuan tidak boleh kosong!');
 		}
-		var satuan_1 = jQuery('#indikator-teks-tujuan-satuan-1').val();
-		if(satuan_1 == ''){
-			return alert('Satuan 1 indikator tujuan tidak boleh kosong!');
+		var satuan_<?php echo $i; ?> = jQuery('#indikator-teks-tujuan-satuan-<?php echo $i; ?>').val();
+		if(satuan_<?php echo $i; ?> == ''){
+			return alert('Satuan <?php echo $i; ?> indikator tujuan tidak boleh kosong!');
 		}
-		var vol_2 = jQuery('#indikator-teks-tujuan-vol-2').val();
-		if(vol_2 == ''){
-			return alert('Volume 2 indikator tujuan tidak boleh kosong!');
-		}
-		var satuan_2 = jQuery('#indikator-teks-tujuan-satuan-2').val();
-		if(satuan_2 == ''){
-			return alert('Satuan 2 indikator tujuan tidak boleh kosong!');
-		}
-		var vol_3 = jQuery('#indikator-teks-tujuan-vol-3').val();
-		if(vol_3 == ''){
-			return alert('Volume 3 indikator tujuan tidak boleh kosong!');
-		}
-		var satuan_3 = jQuery('#indikator-teks-tujuan-satuan-3').val();
-		if(satuan_3 == ''){
-			return alert('Satuan 3 indikator tujuan tidak boleh kosong!');
-		}
-		var vol_4 = jQuery('#indikator-teks-tujuan-vol-4').val();
-		if(vol_4 == ''){
-			return alert('Volume 4 indikator tujuan tidak boleh kosong!');
-		}
-		var satuan_4 = jQuery('#indikator-teks-tujuan-satuan-4').val();
-		if(satuan_4 == ''){
-			return alert('Satuan 4 indikator tujuan tidak boleh kosong!');
-		}
-		var vol_5 = jQuery('#indikator-teks-tujuan-vol-5').val();
-		if(vol_5 == ''){
-			return alert('Volume 5 indikator tujuan tidak boleh kosong!');
-		}
-		var satuan_5 = jQuery('#indikator-teks-tujuan-satuan-5').val();
-		if(satuan_5 == ''){
-			return alert('Satuan 5 indikator tujuan tidak boleh kosong!');
-		}
+	<?php }; ?>
 		var vol_akhir = jQuery('#indikator-teks-tujuan-vol-akhir').val();
 		if(vol_akhir == ''){
 			return alert('Volume akhir indikator tujuan tidak boleh kosong!');
@@ -2593,16 +2367,10 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
 	          		"id_tujuan": id_tujuan,
 	          		"vol_awal": vol_awal,
 	          		"satuan_awal": satuan_awal,
-	          		"vol_1": vol_1,
-	          		"satuan_1": satuan_1,
-	          		"vol_2": vol_2,
-	          		"satuan_2": satuan_2,
-	          		"vol_3": vol_3,
-	          		"satuan_3": satuan_3,
-	          		"vol_4": vol_4,
-	          		"satuan_4": satuan_4,
-	          		"vol_5": vol_5,
-	          		"satuan_5": satuan_5,
+				<?php for($i=1; $i<=$lama_pelaksanaan; $i++){ ?>
+	          		"vol_<?php echo $i; ?>": vol_<?php echo $i; ?>,
+	          		"satuan_<?php echo $i; ?>": satuan_<?php echo $i; ?>,
+				<?php }; ?>
 	          		"vol_akhir": vol_akhir,
 	          		"satuan_akhir": satuan_akhir,
 	          		"id": id_indikator
@@ -2638,46 +2406,16 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
 		if(satuan_awal == ''){
 			return alert('Satuan awal indikator sasaran tidak boleh kosong!');
 		}
-		var vol_1 = jQuery('#indikator-teks-sasaran-vol-1').val();
-		if(vol_1 == ''){
-			return alert('Volume 1 indikator sasaran tidak boleh kosong!');
+	<?php for($i=1; $i<=$lama_pelaksanaan; $i++){ ?>
+		var vol_<?php echo $i; ?> = jQuery('#indikator-teks-sasaran-vol-<?php echo $i; ?>').val();
+		if(vol_<?php echo $i; ?> == ''){
+			return alert('Volume <?php echo $i; ?> indikator sasaran tidak boleh kosong!');
 		}
-		var satuan_1 = jQuery('#indikator-teks-sasaran-satuan-1').val();
-		if(satuan_1 == ''){
-			return alert('Satuan 1 indikator sasaran tidak boleh kosong!');
+		var satuan_<?php echo $i; ?> = jQuery('#indikator-teks-sasaran-satuan-<?php echo $i; ?>').val();
+		if(satuan_<?php echo $i; ?> == ''){
+			return alert('Satuan <?php echo $i; ?> indikator sasaran tidak boleh kosong!');
 		}
-		var vol_2 = jQuery('#indikator-teks-sasaran-vol-2').val();
-		if(vol_2 == ''){
-			return alert('Volume 2 indikator sasaran tidak boleh kosong!');
-		}
-		var satuan_2 = jQuery('#indikator-teks-sasaran-satuan-2').val();
-		if(satuan_2 == ''){
-			return alert('Satuan 2 indikator sasaran tidak boleh kosong!');
-		}
-		var vol_3 = jQuery('#indikator-teks-sasaran-vol-3').val();
-		if(vol_3 == ''){
-			return alert('Volume 3 indikator sasaran tidak boleh kosong!');
-		}
-		var satuan_3 = jQuery('#indikator-teks-sasaran-satuan-3').val();
-		if(satuan_3 == ''){
-			return alert('Satuan 3 indikator sasaran tidak boleh kosong!');
-		}
-		var vol_4 = jQuery('#indikator-teks-sasaran-vol-4').val();
-		if(vol_4 == ''){
-			return alert('Volume 4 indikator sasaran tidak boleh kosong!');
-		}
-		var satuan_4 = jQuery('#indikator-teks-sasaran-satuan-4').val();
-		if(satuan_4 == ''){
-			return alert('Satuan 4 indikator sasaran tidak boleh kosong!');
-		}
-		var vol_5 = jQuery('#indikator-teks-sasaran-vol-5').val();
-		if(vol_5 == ''){
-			return alert('Volume 5 indikator sasaran tidak boleh kosong!');
-		}
-		var satuan_5 = jQuery('#indikator-teks-sasaran-satuan-5').val();
-		if(satuan_5 == ''){
-			return alert('Satuan 5 indikator sasaran tidak boleh kosong!');
-		}
+	<?php }; ?>
 		var vol_akhir = jQuery('#indikator-teks-sasaran-vol-akhir').val();
 		if(vol_akhir == ''){
 			return alert('Volume akhir indikator sasaran tidak boleh kosong!');
@@ -2700,16 +2438,10 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
 	          		"id_sasaran": id_sasaran,
 	          		"vol_awal": vol_awal,
 	          		"satuan_awal": satuan_awal,
-	          		"vol_1": vol_1,
-	          		"satuan_1": satuan_1,
-	          		"vol_2": vol_2,
-	          		"satuan_2": satuan_2,
-	          		"vol_3": vol_3,
-	          		"satuan_3": satuan_3,
-	          		"vol_4": vol_4,
-	          		"satuan_4": satuan_4,
-	          		"vol_5": vol_5,
-	          		"satuan_5": satuan_5,
+				<?php for($i=1; $i<=$lama_pelaksanaan; $i++){ ?>
+	          		"vol_<?php echo $i; ?>": vol_<?php echo $i; ?>,
+	          		"satuan_<?php echo $i; ?>": satuan_<?php echo $i; ?>,
+				<?php }; ?>
 	          		"vol_akhir": vol_akhir,
 	          		"satuan_akhir": satuan_akhir,
 	          		"id": id_indikator
@@ -2751,51 +2483,17 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
 		if(satuan_awal == ''){
 			return alert('Satuan awal indikator program tidak boleh kosong!');
 		}
-		var vol_1 = jQuery('#indikator-teks-program-vol-1').val();
-		if(vol_1 == ''){
-			return alert('Volume 1 indikator program tidak boleh kosong!');
+	<?php for($i=1; $i<=$lama_pelaksanaan; $i++){ ?>
+		var vol_<?php echo $i; ?> = jQuery('#indikator-teks-program-vol-<?php echo $i; ?>').val();
+		if(vol_<?php echo $i; ?> == ''){
+			return alert('Volume <?php echo $i; ?> indikator program tidak boleh kosong!');
 		}
-		var pagu_1 = jQuery('#indikator-teks-program-pagu-1').val();
-		var satuan_1 = jQuery('#indikator-teks-program-satuan-1').val();
-		if(satuan_1 == ''){
-			return alert('Satuan 1 indikator program tidak boleh kosong!');
+		var pagu_<?php echo $i; ?> = jQuery('#indikator-teks-program-pagu-<?php echo $i; ?>').val();
+		var satuan_<?php echo $i; ?> = jQuery('#indikator-teks-program-satuan-<?php echo $i; ?>').val();
+		if(satuan_<?php echo $i; ?> == ''){
+			return alert('Satuan <?php echo $i; ?> indikator program tidak boleh kosong!');
 		}
-		var vol_2 = jQuery('#indikator-teks-program-vol-2').val();
-		if(vol_2 == ''){
-			return alert('Volume 2 indikator program tidak boleh kosong!');
-		}
-		var pagu_2 = jQuery('#indikator-teks-program-pagu-2').val();
-		var satuan_2 = jQuery('#indikator-teks-program-satuan-2').val();
-		if(satuan_2 == ''){
-			return alert('Satuan 2 indikator program tidak boleh kosong!');
-		}
-		var vol_3 = jQuery('#indikator-teks-program-vol-3').val();
-		if(vol_3 == ''){
-			return alert('Volume 3 indikator program tidak boleh kosong!');
-		}
-		var pagu_3 = jQuery('#indikator-teks-program-pagu-3').val();
-		var satuan_3 = jQuery('#indikator-teks-program-satuan-3').val();
-		if(satuan_3 == ''){
-			return alert('Satuan 3 indikator program tidak boleh kosong!');
-		}
-		var vol_4 = jQuery('#indikator-teks-program-vol-4').val();
-		if(vol_4 == ''){
-			return alert('Volume 4 indikator program tidak boleh kosong!');
-		}
-		var pagu_4 = jQuery('#indikator-teks-program-pagu-4').val();
-		var satuan_4 = jQuery('#indikator-teks-program-satuan-4').val();
-		if(satuan_4 == ''){
-			return alert('Satuan 4 indikator program tidak boleh kosong!');
-		}
-		var vol_5 = jQuery('#indikator-teks-program-vol-5').val();
-		if(vol_5 == ''){
-			return alert('Volume 5 indikator program tidak boleh kosong!');
-		}
-		var pagu_5 = jQuery('#indikator-teks-program-pagu-5').val();
-		var satuan_5 = jQuery('#indikator-teks-program-satuan-5').val();
-		if(satuan_5 == ''){
-			return alert('Satuan 5 indikator program tidak boleh kosong!');
-		}
+	<?php }; ?>
 		var vol_akhir = jQuery('#indikator-teks-program-vol-akhir').val();
 		if(vol_akhir == ''){
 			return alert('Volume akhir indikator program tidak boleh kosong!');
@@ -2821,21 +2519,11 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
 	          		"nama_skpd": nama_skpd,
 	          		"vol_awal": vol_awal,
 	          		"satuan_awal": satuan_awal,
-	          		"vol_1": vol_1,
-	          		"satuan_1": satuan_1,
-	          		"pagu_1": pagu_1,
-	          		"vol_2": vol_2,
-	          		"satuan_2": satuan_2,
-	          		"pagu_2": pagu_2,
-	          		"vol_3": vol_3,
-	          		"satuan_3": satuan_3,
-	          		"pagu_3": pagu_3,
-	          		"vol_4": vol_4,
-	          		"satuan_4": satuan_4,
-	          		"pagu_4": pagu_4,
-	          		"vol_5": vol_5,
-	          		"satuan_5": satuan_5,
-	          		"pagu_5": pagu_5,
+				<?php for($i=1; $i<=$lama_pelaksanaan; $i++){ ?>
+	          		"vol_<?php echo $i; ?>": vol_<?php echo $i; ?>,
+	          		"satuan_<?php echo $i; ?>": satuan_<?php echo $i; ?>,
+	          		"pagu_<?php echo $i; ?>": pagu_<?php echo $i; ?>,
+				<?php }; ?>
 	          		"vol_akhir": vol_akhir,
 	          		"satuan_akhir": satuan_akhir,
 	          		"id": id_indikator

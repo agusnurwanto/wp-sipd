@@ -684,6 +684,12 @@ class Wpsipd_Public_Base_1 extends Wpsipd_Public_Base_2{
                                 from $table
                                 where id_unik=%s
                             ", $_POST['id_tujuan']), ARRAY_A);
+                            for($i=1; $i<=5; $i++){
+                                if(empty($_POST['vol_'.$i]) && empty($_POST['satuan_'.$i])){
+                                    $_POST['vol_'.$i] = '';
+                                    $_POST['satuan_'.$i] = '';
+                                }
+                            }
                             $data = array(
                                 'id_isu' => $tujuan[0]['id_isu'],
                                 'tujuan_teks' => $tujuan[0]['tujuan_teks'],
@@ -757,6 +763,12 @@ class Wpsipd_Public_Base_1 extends Wpsipd_Public_Base_2{
                                 from $table
                                 where id_unik=%s
                             ", $_POST['id_sasaran']), ARRAY_A);
+                            for($i=1; $i<=5; $i++){
+                                if(empty($_POST['vol_'.$i]) && empty($_POST['satuan_'.$i])){
+                                    $_POST['vol_'.$i] = '';
+                                    $_POST['satuan_'.$i] = '';
+                                }
+                            }
                             $data = array(
                                 'kode_tujuan' => $sasaran[0]['kode_tujuan'],
                                 'sasaran_teks' => $sasaran[0]['sasaran_teks'],
@@ -831,6 +843,13 @@ class Wpsipd_Public_Base_1 extends Wpsipd_Public_Base_2{
                                 from $table
                                 where id_unik=%s
                             ", $_POST['id_program']), ARRAY_A);
+                            for($i=1; $i<=5; $i++){
+                                if(empty($_POST['vol_'.$i]) && empty($_POST['satuan_'.$i])){
+                                    $_POST['vol_'.$i] = '';
+                                    $_POST['satuan_'.$i] = '';
+                                    $_POST['pagu_'.$i] = '';
+                                }
+                            }
                             $data = array(
                                 'kode_sasaran' => $program[0]['kode_sasaran'],
                                 'nama_program' => $program[0]['nama_program'],

@@ -638,7 +638,7 @@ $body_sumberdana .= '
             <tr>
                 <td class="atas kanan bawah kiri text_tengah text_blok" width="20px;">No</td>
                 <td class="atas kanan bawah text_tengah text_blok">SKPD/Sub Kegiatan</td>
-                <td class="atas kanan bawah text_tengah text_blok" width="300px;">Sumber Dana SIPD</td>
+                <td class="atas kanan bawah text_tengah text_blok" width="300px;">Sumber Dana SIPD & Akumulasi Rincian</td>
                 <?php if($type_mapping == 2):?>
                     <td class="atas kanan bawah text_tengah text_blok" style="width: 140px;">Sumber Dana Mapping</td>
                     <td class="atas kanan bawah text_tengah text_blok" style="width: 140px;">Pagu Sumber Dana Mapping (Rp.)</td>
@@ -653,7 +653,7 @@ $body_sumberdana .= '
                     <td class="atas kanan bawah text_tengah text_blok" style="width: 140px;">RKA SIPD Bertambah/(Berkurang) (Rp.)</td>
                 <?php endif; ?>
                 <?php if($type_mapping == 1 || $type_mapping == 2):?>
-                <td class="atas kanan bawah text_tengah text_blok" style="width: 140px;">Pagu Sumber Dana SIPD (Rp.)</td>
+                <td class="atas kanan bawah text_tengah text_blok" style="width: 140px;">Pagu Sumber Dana SIPD Sub Kegiatan (Rp.)</td>
                 <?php endif; ?>
                 <td class="atas kanan bawah text_tengah text_blok" style="width: 140px;">Pagu Simda (Rp.)</td>
                 <td class="atas kanan bawah text_tengah text_blok" style="width: 140px;">Ralisasi Simda (Rp.)</td>
