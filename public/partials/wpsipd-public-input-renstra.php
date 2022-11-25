@@ -298,6 +298,49 @@ foreach ($tujuan_all as $keyTujuan => $tujuan_value) {
 
 // echo '<pre>';print_r($data_all);echo '</pre>';die();
 
+if(empty($data_all['data']['tujuan_kosong'])){
+	$data_all['data']['tujuan_kosong'] = array(
+		'tujuan_teks' => '<span style="color: red">kosong</span>',
+		'tujuan_teks' => '<span style="color: red">kosong</span>',
+		'indikator' => array(),
+		'data' => array()
+	);
+}
+if(empty($data_all['data']['tujuan_kosong']['data']['sasaran_kosong'])){
+	$data_all['data']['tujuan_kosong']['data']['sasaran_kosong'] = array(
+		'sasaran_teks' => '<span style="color: red">kosong</span>',
+		'indikator' => array(),
+		'data' => array()
+	);
+}
+if(empty($data_all['data']['tujuan_kosong']['data']['sasaran_kosong']['data']['program_kosong'])){
+	$data_all['data']['tujuan_kosong']['data']['sasaran_kosong']['data']['program_kosong'] = array(
+		'program_teks' => '<span style="color: red">kosong</span>',
+		'indikator' => array(),
+		'data' => array()
+	);
+}
+if(empty($data_all['data']['tujuan_kosong']['data']['sasaran_kosong']['data']['program_kosong']['data']['kegiatan_kosong'])){
+	$data_all['data']['tujuan_kosong']['data']['sasaran_kosong']['data']['program_kosong']['data']['kegiatan_kosong'] = array(
+		'kegiatan_teks' => '<span style="color: red">kosong</span>',
+		'indikator' => array(),
+		'data' => array()
+	);
+}
+
+if(empty($data_all['data']['tujuan_kosong']['data']['sasaran_kosong']['data']['program_kosong']['data']['kegiatan_kosong']['data'])){
+	unset($data_all['data']['tujuan_kosong']['data']['sasaran_kosong']['data']['program_kosong']['data']['kegiatan_kosong']);
+}
+if(empty($data_all['data']['tujuan_kosong']['data']['sasaran_kosong']['data']['program_kosong']['data'])){
+	unset($data_all['data']['tujuan_kosong']['data']['sasaran_kosong']['data']['program_kosong']);
+}
+if(empty($data_all['data']['tujuan_kosong']['data']['sasaran_kosong']['data'])){
+	unset($data_all['data']['tujuan_kosong']['data']['sasaran_kosong']);
+}
+if(empty($data_all['data']['tujuan_kosong']['data'])){
+	unset($data_all['data']['tujuan_kosong']);
+}
+
 $bodu = '';
 $no_tujuan = 0;
 foreach ($data_all['data'] as $tujuan) {
