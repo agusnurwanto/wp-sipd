@@ -65,7 +65,7 @@ $urut = $tahun_anggaran-$awal_renstra;
 
 $timezone = get_option('timezone_string');
 
-$rumus_indikator_db = $wpdb->get_results("SELECT * from data_rumus_indikator where active=1 and tahun_anggaran=".$tahun_anggaran, ARRAY_A);
+$rumus_indikator_db = $wpdb->get_results("SELECT * FROM data_rumus_indikator WHERE active=1 AND tahun_anggaran=".$tahun_anggaran, ARRAY_A);
 $rumus_indikator = '';
 foreach ($rumus_indikator_db as $k => $v){
 	$rumus_indikator .= '<option value="'.$v['id'].'">'.$v['rumus'].'</option>';
@@ -77,13 +77,13 @@ if(!empty($input['id_skpd'])){
 }
 
 $sql = $wpdb->prepare("
-	select 
+	SELECT 
 		* 
-	from data_unit 
-	where tahun_anggaran=%d
+	FROM data_unit 
+	WHERE tahun_anggaran=%d
 		".$where_skpd."
-		and active=1
-	order by id_skpd ASC
+		AND active=1
+	ORDER BY id_skpd ASC
 ", $tahun_anggaran);
 
 $unit = $wpdb->get_results($sql, ARRAY_A);
@@ -658,10 +658,15 @@ foreach ($data_all['data'] as $tujuan) {
 				<td class="atas kanan bawah">'.$indikator_tujuan.'</td>
 				<td class="atas kanan bawah">'.$target_awal.'</td>
 				<td class="atas kanan bawah">'.$target_1.'</td>
+				<td class="atas kanan bawah"></td>
 				<td class="atas kanan bawah">'.$target_2.'</td>
+				<td class="atas kanan bawah"></td>
 				<td class="atas kanan bawah">'.$target_3.'</td>
+				<td class="atas kanan bawah"></td>
 				<td class="atas kanan bawah">'.$target_4.'</td>
+				<td class="atas kanan bawah"></td>
 				<td class="atas kanan bawah">'.$target_5.'</td>
+				<td class="atas kanan bawah"></td>
 				<td class="atas kanan bawah">'.$target_akhir.'</td>
 				<td class="atas kanan bawah">'.$satuan.'</td>
 				<td class="atas kanan bawah"></td>
@@ -702,10 +707,15 @@ foreach ($data_all['data'] as $tujuan) {
 					<td class="atas kanan bawah">'.$indikator_sasaran.'</td>
 					<td class="atas kanan bawah">'.$target_awal.'</td>
 					<td class="atas kanan bawah">'.$target_1.'</td>
+					<td class="atas kanan bawah"></td>
 					<td class="atas kanan bawah">'.$target_2.'</td>
+					<td class="atas kanan bawah"></td>
 					<td class="atas kanan bawah">'.$target_3.'</td>
+					<td class="atas kanan bawah"></td>
 					<td class="atas kanan bawah">'.$target_4.'</td>
+					<td class="atas kanan bawah"></td>
 					<td class="atas kanan bawah">'.$target_5.'</td>
+					<td class="atas kanan bawah"></td>
 					<td class="atas kanan bawah">'.$target_akhir.'</td>
 					<td class="atas kanan bawah">'.$satuan.'</td>
 					<td class="atas kanan bawah"></td>
@@ -718,20 +728,30 @@ foreach ($data_all['data'] as $tujuan) {
 			$indikator_program = '';
 			$target_awal = '';
 			$target_1 = '';
+			$pagu_1   = '';
 			$target_2 = '';
+			$pagu_2   = '';
 			$target_3 = '';
+			$pagu_3   = '';
 			$target_4 = '';
+			$pagu_4   = '';
 			$target_5 = '';
+			$pagu_5   = '';
 			$target_akhir = '';
 			$satuan = '';
 			foreach($program['indikator'] as $keyProgram => $valueProgram){
 				$indikator_program .= '<div class="indikator">'.$valueProgram['indikator_teks'].'</div>';
 				$target_awal .= '<div class="indikator">'.$valueProgram['target_awal'].'</div>';
 				$target_1 .= '<div class="indikator">'.$valueProgram['target_1'].'</div>';
+				$pagu_1 .= '<div class="indikator">'.$valueProgram['pagu_1'].'</div>';
 				$target_2 .= '<div class="indikator">'.$valueProgram['target_2'].'</div>';
+				$pagu_2 .= '<div class="indikator">'.$valueProgram['pagu_2'].'</div>';
 				$target_3 .= '<div class="indikator">'.$valueProgram['target_3'].'</div>';
+				$pagu_3 .= '<div class="indikator">'.$valueProgram['pagu_3'].'</div>';
 				$target_4 .= '<div class="indikator">'.$valueProgram['target_4'].'</div>';
+				$pagu_4 .= '<div class="indikator">'.$valueProgram['pagu_4'].'</div>';
 				$target_5 .= '<div class="indikator">'.$valueProgram['target_5'].'</div>';
+				$pagu_5 .= '<div class="indikator">'.$valueProgram['pagu_5'].'</div>';
 				$target_akhir .= '<div class="indikator">'.$valueProgram['target_akhir'].'</div>';
 				$satuan .= '<div class="indikator">'.$valueProgram['satuan'].'</div>';
 			}
@@ -746,10 +766,15 @@ foreach ($data_all['data'] as $tujuan) {
 						<td class="atas kanan bawah">'.$indikator_program.'</td>
 						<td class="atas kanan bawah">'.$target_awal.'</td>
 						<td class="atas kanan bawah">'.$target_1.'</td>
+						<td class="atas kanan bawah">'.$pagu_1.'</td>
 						<td class="atas kanan bawah">'.$target_2.'</td>
+						<td class="atas kanan bawah">'.$pagu_2.'</td>
 						<td class="atas kanan bawah">'.$target_3.'</td>
+						<td class="atas kanan bawah">'.$pagu_3.'</td>
 						<td class="atas kanan bawah">'.$target_4.'</td>
+						<td class="atas kanan bawah">'.$pagu_4.'</td>
 						<td class="atas kanan bawah">'.$target_5.'</td>
+						<td class="atas kanan bawah">'.$pagu_5.'</td>
 						<td class="atas kanan bawah">'.$target_akhir.'</td>
 						<td class="atas kanan bawah">'.$satuan.'</td>
 						<td class="atas kanan bawah"></td>
@@ -762,20 +787,30 @@ foreach ($data_all['data'] as $tujuan) {
 				$indikator_kegiatan = '';
 				$target_awal = '';
 				$target_1 = '';
+				$pagu_1   = '';
 				$target_2 = '';
+				$pagu_2   = '';
 				$target_3 = '';
+				$pagu_3   = '';
 				$target_4 = '';
+				$pagu_4   = '';
 				$target_5 = '';
+				$pagu_5   = '';
 				$target_akhir = '';
 				$satuan = '';
 				foreach($kegiatan['indikator'] as $keyKegiatan => $valueKegiatan){
 					$indikator_kegiatan .= '<div class="indikator">'.$valueKegiatan['indikator_teks'].'</div>';
 					$target_awal .= '<div class="indikator">'.$valueKegiatan['target_awal'].'</div>';
 					$target_1 .= '<div class="indikator">'.$valueKegiatan['target_1'].'</div>';
+					$pagu_1 .= '<div class="indikator">'.$valueKegiatan['pagu_1'].'</div>';
 					$target_2 .= '<div class="indikator">'.$valueKegiatan['target_2'].'</div>';
+					$pagu_2 .= '<div class="indikator">'.$valueKegiatan['pagu_2'].'</div>';
 					$target_3 .= '<div class="indikator">'.$valueKegiatan['target_3'].'</div>';
+					$pagu_3 .= '<div class="indikator">'.$valueKegiatan['pagu_3'].'</div>';
 					$target_4 .= '<div class="indikator">'.$valueKegiatan['target_4'].'</div>';
+					$pagu_4 .= '<div class="indikator">'.$valueKegiatan['pagu_4'].'</div>';
 					$target_5 .= '<div class="indikator">'.$valueKegiatan['target_5'].'</div>';
+					$pagu_5 .= '<div class="indikator">'.$valueKegiatan['pagu_5'].'</div>';
 					$target_akhir .= '<div class="indikator">'.$valueKegiatan['target_akhir'].'</div>';
 					$satuan .= '<div class="indikator">'.$valueKegiatan['satuan'].'</div>';
 				}
@@ -790,10 +825,15 @@ foreach ($data_all['data'] as $tujuan) {
 							<td class="atas kanan bawah">'.$indikator_kegiatan.'</td>
 							<td class="atas kanan bawah">'.$target_awal.'</td>
 							<td class="atas kanan bawah">'.$target_1.'</td>
+							<td class="atas kanan bawah">'.$pagu_1.'</td>
 							<td class="atas kanan bawah">'.$target_2.'</td>
+							<td class="atas kanan bawah">'.$pagu_2.'</td>
 							<td class="atas kanan bawah">'.$target_3.'</td>
+							<td class="atas kanan bawah">'.$pagu_3.'</td>
 							<td class="atas kanan bawah">'.$target_4.'</td>
+							<td class="atas kanan bawah">'.$pagu_4.'</td>
 							<td class="atas kanan bawah">'.$target_5.'</td>
+							<td class="atas kanan bawah">'.$pagu_5.'</td>
 							<td class="atas kanan bawah">'.$target_akhir.'</td>
 							<td class="atas kanan bawah">'.$satuan.'</td>
 							<td class="atas kanan bawah"></td>
@@ -825,10 +865,15 @@ foreach ($data_all['data'] as $tujuan) {
 				<th style="width: 400px;" class="atas kanan bawah text_tengah text_blok">Indikator</th>
 				<th style="width: 100px;" class="atas kanan bawah text_tengah text_blok">Target Awal</th>
 				<th style="width: 100px;" class="atas kanan bawah text_tengah text_blok">Target Tahun 1</th>
+				<th style="width: 100px;" class="atas kanan bawah text_tengah text_blok">Pagu Tahun 1</th>
 				<th style="width: 100px;" class="atas kanan bawah text_tengah text_blok">Target Tahun 2</th>
+				<th style="width: 100px;" class="atas kanan bawah text_tengah text_blok">Pagu Tahun 2</th>
 				<th style="width: 100px;" class="atas kanan bawah text_tengah text_blok">Target Tahun 3</th>
+				<th style="width: 100px;" class="atas kanan bawah text_tengah text_blok">Pagu Tahun 3</th>
 				<th style="width: 100px;" class="atas kanan bawah text_tengah text_blok">Target Tahun 4</th>
+				<th style="width: 100px;" class="atas kanan bawah text_tengah text_blok">Pagu Tahun 4</th>
 				<th style="width: 100px;" class="atas kanan bawah text_tengah text_blok">Target Tahun 5</th>
+				<th style="width: 100px;" class="atas kanan bawah text_tengah text_blok">Pagu Tahun 5</th>
 				<th style="width: 100px;" class="atas kanan bawah text_tengah text_blok">Target Akhir</th>
 				<th style="width: 100px;" class="atas kanan bawah text_tengah text_blok">Satuan</th>
 				<th style="width: 150px;" class="atas kanan bawah text_tengah text_blok">Keterangan</th>
@@ -850,6 +895,11 @@ foreach ($data_all['data'] as $tujuan) {
 				<th class='atas kanan bawah text_tengah text_blok'>13</th>
 				<th class='atas kanan bawah text_tengah text_blok'>14</th>
 				<th class='atas kanan bawah text_tengah text_blok'>15</th>
+				<th class='atas kanan bawah text_tengah text_blok'>16</th>
+				<th class='atas kanan bawah text_tengah text_blok'>17</th>
+				<th class='atas kanan bawah text_tengah text_blok'>18</th>
+				<th class='atas kanan bawah text_tengah text_blok'>19</th>
+				<th class='atas kanan bawah text_tengah text_blok'>20</th>
 			</tr>
 		</thead>
 		<tbody>
