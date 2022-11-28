@@ -718,7 +718,7 @@ foreach ($data_all['data'] as $tujuan) {
 		}
 		$body .= '
 				<tr class="tr-sasaran'.$bg_rpjm.'">
-					<td class="kiri atas kanan bawah">'.$no_sasaran.'</td>
+					<td class="kiri atas kanan bawah">'.$no_tujuan.".".$no_sasaran.'</td>
 					<td class="kiri atas kanan bawah"></td>
 					<td class="atas kanan bawah"></td>
 					<td class="atas kanan bawah">'.$sasaran['sasaran_teks'].'</td>
@@ -777,7 +777,7 @@ foreach ($data_all['data'] as $tujuan) {
 			}
 			$body .= '
 					<tr class="tr-program'.$bg_rpjm.'">
-						<td class="kiri atas kanan bawah">'.$no_program.'</td>
+						<td class="kiri atas kanan bawah">'.$no_tujuan.".".$no_sasaran.".".$no_program.'</td>
 						<td class="kiri atas kanan bawah"></td>
 						<td class="atas kanan bawah"></td>
 						<td class="atas kanan bawah"></td>
@@ -836,7 +836,7 @@ foreach ($data_all['data'] as $tujuan) {
 				}
 				$body .= '
 						<tr class="tr-kegiatan'.$bg_rpjm.'">
-							<td class="kiri atas kanan bawah">'.$no_kegiatan.'</td>
+							<td class="kiri atas kanan bawah">'.$no_tujuan.".".$no_sasaran.".".$no_program.".".$no_kegiatan.'</td>
 							<td class="kiri atas kanan bawah"></td>
 							<td class="atas kanan bawah"></td>
 							<td class="atas kanan bawah"></td>
