@@ -611,28 +611,14 @@ class Wpsipd_Public_Base_3
 			throw new Exception('Satuan indikator tujuan tidak boleh kosong!');
 		}
 
-		if(empty($data['target_1'])){
-			throw new Exception('Target Indikator tujuan tahun ke-1 tidak boleh kosong!');
-		}
-
-		if(empty($data['target_2'])){
-			throw new Exception('Target Indikator tujuan tahun ke-2 tidak boleh kosong!');
-		}
-
-		if(empty($data['target_3'])){
-			throw new Exception('Target Indikator tujuan tahun ke-3 tidak boleh kosong!');
-		}
-
-		if(empty($data['target_4'])){
-			throw new Exception('Target Indikator tujuan tahun ke-4 tidak boleh kosong!');
-		}
-
-		if(empty($data['target_5'])){
-			throw new Exception('Target Indikator tujuan tahun ke-5 tidak boleh kosong!');
-		}
-
 		if(empty($data['target_awal'])){
 			throw new Exception('Target awal Indikator tujuan tidak boleh kosong!');
+		}
+
+		for ($i=1; $i <= $data['lama_pelaksanaan'] ; $i++) { 
+			if(empty($data['target_'.$i])){
+				throw new Exception('Target Indikator tujuan tahun ke-'.$i.' tidak boleh kosong!');
+			}
 		}
 
 		if(empty($data['target_akhir'])){
@@ -1440,28 +1426,14 @@ class Wpsipd_Public_Base_3
 			throw new Exception('Satuan indikator sasaran tidak boleh kosong!');
 		}
 
-		if(empty($data['target_1'])){
-			throw new Exception('Target Indikator sasaran tahun ke-1 tidak boleh kosong!');
-		}
-
-		if(empty($data['target_2'])){
-			throw new Exception('Target Indikator sasaran tahun ke-2 tidak boleh kosong!');
-		}
-
-		if(empty($data['target_3'])){
-			throw new Exception('Target Indikator sasaran tahun ke-3 tidak boleh kosong!');
-		}
-
-		if(empty($data['target_4'])){
-			throw new Exception('Target Indikator sasaran tahun ke-4 tidak boleh kosong!');
-		}
-
-		if(empty($data['target_5'])){
-			throw new Exception('Target Indikator sasaran tahun ke-5 tidak boleh kosong!');
-		}
-
 		if(empty($data['target_awal'])){
 			throw new Exception('Target awal Indikator sasaran tidak boleh kosong!');
+		}
+
+		for ($i=1; $i <= $data['lama_pelaksanaan'] ; $i++) { 
+			if(empty($data['target_'.$i])){
+				throw new Exception('Target Indikator sasaran tahun ke-'.$i.' tidak boleh kosong!');
+			}
 		}
 
 		if(empty($data['target_akhir'])){
@@ -2112,28 +2084,14 @@ class Wpsipd_Public_Base_3
 			throw new Exception('Satuan indikator program tidak boleh kosong!');
 		}
 
-		if(empty($data['target_1'])){
-			throw new Exception('Target Indikator program tahun ke-1 tidak boleh kosong!');
-		}
-
-		if(empty($data['target_2'])){
-			throw new Exception('Target Indikator program tahun ke-2 tidak boleh kosong!');
-		}
-
-		if(empty($data['target_3'])){
-			throw new Exception('Target Indikator program tahun ke-3 tidak boleh kosong!');
-		}
-
-		if(empty($data['target_4'])){
-			throw new Exception('Target Indikator program tahun ke-4 tidak boleh kosong!');
-		}
-
-		if(empty($data['target_5'])){
-			throw new Exception('Target Indikator program tahun ke-5 tidak boleh kosong!');
-		}
-
 		if(empty($data['target_awal'])){
 			throw new Exception('Target awal Indikator program tidak boleh kosong!');
+		}
+
+		for ($i=1; $i <= $data['lama_pelaksanaan'] ; $i++) { 
+			if(empty($data['target_'.$i])){
+				throw new Exception('Target Indikator program tahun ke-'.$i.' tidak boleh kosong!');
+			}
 		}
 
 		if(empty($data['target_akhir'])){
@@ -2830,48 +2788,18 @@ class Wpsipd_Public_Base_3
 			throw new Exception('Satuan indikator kegiatan tidak boleh kosong!');
 		}
 
-		if(empty($data['target_1'])){
-			throw new Exception('Target Indikator kegiatan tahun ke-1 tidak boleh kosong!');
-		}
-
-		if(empty($data['pagu_1'])){
-			throw new Exception('Pagu indikator kegiatan tahun ke-1 tidak boleh kosong!');
-		}
-
-		if(empty($data['target_2'])){
-			throw new Exception('Target Indikator kegiatan tahun ke-2 tidak boleh kosong!');
-		}
-
-		if(empty($data['pagu_2'])){
-			throw new Exception('Pagu indikator kegiatan tahun ke-2 tidak boleh kosong!');
-		}
-
-		if(empty($data['target_3'])){
-			throw new Exception('Target Indikator kegiatan tahun ke-3 tidak boleh kosong!');
-		}
-
-		if(empty($data['pagu_3'])){
-			throw new Exception('Pagu indikator kegiatan tahun ke-3 tidak boleh kosong!');
-		}
-
-		if(empty($data['target_4'])){
-			throw new Exception('Target Indikator kegiatan tahun ke-4 tidak boleh kosong!');
-		}
-
-		if(empty($data['pagu_4'])){
-			throw new Exception('Pagu indikator kegiatan tahun ke-4 tidak boleh kosong!');
-		}
-
-		if(empty($data['target_5'])){
-			throw new Exception('Target Indikator kegiatan tahun ke-5 tidak boleh kosong!');
-		}
-
-		if(empty($data['pagu_5'])){
-			throw new Exception('Pagu indikator kegiatan tahun ke-5 tidak boleh kosong!');
-		}
-
 		if(empty($data['target_awal'])){
 			throw new Exception('Target awal Indikator kegiatan tidak boleh kosong!');
+		}
+
+		for ($i=1; $i <= $data['lama_pelaksanaan'] ; $i++) { 
+			if(empty($data['target_'.$i])){
+				throw new Exception('Target Indikator kegiatan tahun ke-'.$i.' tidak boleh kosong!');
+			}
+
+			if(empty($data['pagu_'.$i])){
+				throw new Exception('Pagu Indikator kegiatan tahun ke-'.$i.' tidak boleh kosong!');
+			}
 		}
 
 		if(empty($data['target_akhir'])){

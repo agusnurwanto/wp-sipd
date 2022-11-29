@@ -4,7 +4,10 @@ if ( ! defined( 'WPINC' ) ) {
 	die;
 }
 global $wpdb;
+
 date_default_timezone_set('Asia/Jakarta');
+$timezone = get_option('timezone_string');
+
 $input = shortcode_atts( array(
 	'id_skpd' => '',
 	'tahun_anggaran' => get_option('_crb_tahun_anggaran_sipd')
@@ -40,6 +43,7 @@ $mulaiJadwal = '-';
 $selesaiJadwal = '-';
 $relasi_perencanaan = '-';
 $id_tipe_relasi = '-';
+$lama_pelaksanaan = 5;
 
 $jadwal_lokal = $wpdb->get_results("SELECT a.*, (SELECT id_tipe FROM data_jadwal_lokal WHERE id_jadwal_lokal=a.relasi_perencanaan) id_tipe_relasi FROM data_jadwal_lokal a WHERE a.id_jadwal_lokal = (SELECT MAX(id_jadwal_lokal) FROM data_jadwal_lokal a WHERE a.id_tipe=4)", ARRAY_A);
 
@@ -51,6 +55,7 @@ if(!empty($jadwal_lokal)){
 	$selesaiJadwal = $jadwal_lokal[0]['waktu_akhir'];
 	$relasi_perencanaan = $jadwal_lokal[0]['relasi_perencanaan'] ?? '-';
 	$id_tipe_relasi = $jadwal_lokal[0]['id_tipe_relasi'] ?? '-';
+	$lama_pelaksanaan = $jadwal_lokal[0]['lama_pelaksanaan'];
 
 	$awal = new DateTime($mulaiJadwal);
 	$akhir = new DateTime($selesaiJadwal);
@@ -63,9 +68,6 @@ if(!empty($jadwal_lokal)){
 
 $akhir_renstra = $awal_renstra+5;
 $urut = $tahun_anggaran-$awal_renstra;
-
-$timezone = get_option('timezone_string');
-
 $rumus_indikator_db = $wpdb->get_results("SELECT * FROM data_rumus_indikator WHERE active=1 AND tahun_anggaran=".$tahun_anggaran, ARRAY_A);
 $rumus_indikator = '';
 foreach ($rumus_indikator_db as $k => $v){
@@ -1205,6 +1207,7 @@ foreach ($data_all['data'] as $tujuan) {
 		let id_unik = jQuery(this).data('kodetujuan');
 		let html = '<form id="form-renstra">'
 					+'<input type="hidden" name="id_unik" value="'+id_unik+'">'
+					+'<input type="hidden" name="lama_pelaksanaan" value="<?php echo $lama_pelaksanaan; ?>">'
 					+'<div class="form-group">'
 						+'<label for="indikator_teks">Indikator</label>'
 		  				+'<textarea class="form-control" name="indikator_teks"></textarea>'
@@ -1214,29 +1217,15 @@ foreach ($data_all['data'] as $tujuan) {
 		  				+'<input type="text" class="form-control" name="satuan"/>'
 					+'</div>'
 					+'<div class="form-group">'
-						+'<label for="target_1">Target tahun ke-1</label>'
-		  				+'<input type="text" class="form-control" name="target_1"/>'
-					+'</div>'
-					+'<div class="form-group">'
-						+'<label for="target_2">Target tahun ke-2</label>'
-		  				+'<input type="text" class="form-control" name="target_2"/>'
-					+'</div>'
-					+'<div class="form-group">'
-						+'<label for="target_3">Target tahun ke-3</label>'
-		  				+'<input type="text" class="form-control" name="target_3"/>'
-					+'</div>'
-					+'<div class="form-group">'
-						+'<label for="target_4">Target tahun ke-4</label>'
-		  				+'<input type="text" class="form-control" name="target_4"/>'
-					+'</div>'
-					+'<div class="form-group">'
-						+'<label for="target_5">Target tahun ke-5</label>'
-		  				+'<input type="text" class="form-control" name="target_5"/>'
-					+'</div>'
-					+'<div class="form-group">'
 						+'<label for="target_awal">Target awal</label>'
 		  				+'<input type="text" class="form-control" name="target_awal"/>'
 					+'</div>'
+					<?php for($i=1; $i<=$lama_pelaksanaan; $i++){ ?>
+					+'<div class="form-group">'
+						+'<label for="target_<?php echo $i; ?>">Target tahun ke-<?php echo $i; ?></label>'
+		  				+'<input type="text" class="form-control" name="target_<?php echo $i; ?>"/>'
+					+'</div>'
+					<?php }; ?>
 					+'<div class="form-group">'
 						+'<label for="target_akhir">Target akhir</label>'
 		  				+'<input type="text" class="form-control" name="target_akhir"/>'
@@ -1283,6 +1272,7 @@ foreach ($data_all['data'] as $tujuan) {
           		let html = '<form id="form-renstra">'
 					+'<input type="hidden" name="id" value="'+id+'">'
 					+'<input type="hidden" name="id_unik" value="'+id_unik+'">'
+					+'<input type="hidden" name="lama_pelaksanaan" value="<?php echo $lama_pelaksanaan; ?>">'
 					+'<div class="form-group">'
 						+'<label for="indikator_teks">Indikator</label>'
 	  					+'<textarea class="form-control" name="indikator_teks">'+response.data.indikator_teks+'</textarea>'
@@ -1292,29 +1282,15 @@ foreach ($data_all['data'] as $tujuan) {
 	  					+'<input type="text" class="form-control" name="satuan" value="'+response.data.satuan+'"/>'
 					+'</div>'
 					+'<div class="form-group">'
-						+'<label for="target_1">Target tahun ke-1</label>'
-	  					+'<input type="text" class="form-control" name="target_1" value="'+response.data.target_1+'"/>'
-					+'</div>'
-					+'<div class="form-group">'
-						+'<label for="target_2">Target tahun ke-2</label>'
-	  					+'<input type="text" class="form-control" name="target_2" value="'+response.data.target_2+'"/>'
-					+'</div>'
-					+'<div class="form-group">'
-						+'<label for="target_3">Target tahun ke-3</label>'
-	  					+'<input type="text" class="form-control" name="target_3" value="'+response.data.target_3+'"/>'
-					+'</div>'
-					+'<div class="form-group">'
-						+'<label for="target_4">Target tahun ke-4</label>'
-	  					+'<input type="text" class="form-control" name="target_4" value="'+response.data.target_4+'"/>'
-					+'</div>'
-					+'<div class="form-group">'
-						+'<label for="target_5">Target tahun ke-5</label>'
-	  					+'<input type="text" class="form-control" name="target_5" value="'+response.data.target_5+'"/>'
-					+'</div>'
-					+'<div class="form-group">'
 						+'<label for="target_awal">Target awal</label>'
 	  					+'<input type="text" class="form-control" name="target_awal" value="'+response.data.target_awal+'"/>'
 					+'</div>'
+					<?php for($i=1; $i<=$lama_pelaksanaan; $i++){ ?>
+					+'<div class="form-group">'
+						+'<label for="target_<?php echo $i; ?>">Target tahun ke-<?php echo $i; ?></label>'
+		  				+'<input type="text" class="form-control" name="target_<?php echo $i; ?>" value="'+response.data.target_<?php echo $i; ?>+'"/>'
+					+'</div>'
+					<?php }; ?>
 					+'<div class="form-group">'
 					+'<label for="target_akhir">Target akhir</label>'
 	  					+'<input type="text" class="form-control" name="target_akhir" value="'+response.data.target_akhir+'"/>'
@@ -1514,6 +1490,7 @@ foreach ($data_all['data'] as $tujuan) {
 		let id_unik = jQuery(this).data('kodesasaran');
 		let html = '<form id="form-renstra">'
 					+'<input type="hidden" name="id_unik" value="'+id_unik+'">'
+					+'<input type="hidden" name="lama_pelaksanaan" value="<?php echo $lama_pelaksanaan; ?>">'
 					+'<div class="form-group">'
 						+'<label for="indikator_teks">Indikator</label>'
 		  				+'<textarea class="form-control" name="indikator_teks"></textarea>'
@@ -1523,29 +1500,15 @@ foreach ($data_all['data'] as $tujuan) {
 		  				+'<input type="text" class="form-control" name="satuan"/>'
 					+'</div>'
 					+'<div class="form-group">'
-						+'<label for="target_1">Target tahun ke-1</label>'
-		  				+'<input type="text" class="form-control" name="target_1"/>'
-					+'</div>'
-					+'<div class="form-group">'
-						+'<label for="target_2">Target tahun ke-2</label>'
-		  				+'<input type="text" class="form-control" name="target_2"/>'
-					+'</div>'
-					+'<div class="form-group">'
-						+'<label for="target_3">Target tahun ke-3</label>'
-		  				+'<input type="text" class="form-control" name="target_3"/>'
-					+'</div>'
-					+'<div class="form-group">'
-						+'<label for="target_4">Target tahun ke-4</label>'
-		  				+'<input type="text" class="form-control" name="target_4"/>'
-					+'</div>'
-					+'<div class="form-group">'
-						+'<label for="target_5">Target tahun ke-5</label>'
-		  				+'<input type="text" class="form-control" name="target_5"/>'
-					+'</div>'
-					+'<div class="form-group">'
 						+'<label for="target_awal">Target awal</label>'
 		  				+'<input type="text" class="form-control" name="target_awal"/>'
 					+'</div>'
+					<?php for($i=1; $i<=$lama_pelaksanaan; $i++){ ?>
+					+'<div class="form-group">'
+						+'<label for="target_<?php echo $i; ?>">Target tahun ke-<?php echo $i; ?></label>'
+		  				+'<input type="text" class="form-control" name="target_<?php echo $i; ?>"/>'
+					+'</div>'
+					<?php }; ?>
 					+'<div class="form-group">'
 						+'<label for="target_akhir">Target akhir</label>'
 		  				+'<input type="text" class="form-control" name="target_akhir"/>'
@@ -1590,6 +1553,7 @@ foreach ($data_all['data'] as $tujuan) {
           		let html = '<form id="form-renstra">'
 								+'<input type="hidden" name="id" value="'+id+'">'
 								+'<input type="hidden" name="id_unik" value="'+id_unik+'">'
+								+'<input type="hidden" name="lama_pelaksanaan" value="<?php echo $lama_pelaksanaan; ?>">'
 								+'<div class="form-group">'
 									+'<label for="indikator_teks">Indikator</label>'
 				  					+'<textarea class="form-control" name="indikator_teks">'+response.data.indikator_teks+'</textarea>'
@@ -1599,29 +1563,15 @@ foreach ($data_all['data'] as $tujuan) {
 				  					+'<input type="text" class="form-control" name="satuan" value="'+response.data.satuan+'"/>'
 								+'</div>'
 								+'<div class="form-group">'
-									+'<label for="target_1">Target tahun ke-1</label>'
-				  					+'<input type="text" class="form-control" name="target_1" value="'+response.data.target_1+'"/>'
-								+'</div>'
-								+'<div class="form-group">'
-									+'<label for="target_2">Target tahun ke-2</label>'
-				  					+'<input type="text" class="form-control" name="target_2" value="'+response.data.target_2+'"/>'
-								+'</div>'
-								+'<div class="form-group">'
-									+'<label for="target_3">Target tahun ke-3</label>'
-				  					+'<input type="text" class="form-control" name="target_3" value="'+response.data.target_3+'"/>'
-								+'</div>'
-								+'<div class="form-group">'
-									+'<label for="target_4">Target tahun ke-4</label>'
-				  					+'<input type="text" class="form-control" name="target_4" value="'+response.data.target_4+'"/>'
-								+'</div>'
-								+'<div class="form-group">'
-									+'<label for="target_5">Target tahun ke-5</label>'
-				  					+'<input type="text" class="form-control" name="target_5" value="'+response.data.target_5+'"/>'
-								+'</div>'
-								+'<div class="form-group">'
 									+'<label for="target_awal">Target awal</label>'
 				  					+'<input type="text" class="form-control" name="target_awal" value="'+response.data.target_awal+'"/>'
 								+'</div>'
+								<?php for($i=1; $i<=$lama_pelaksanaan; $i++){ ?>
+								+'<div class="form-group">'
+									+'<label for="target_<?php echo $i; ?>">Target tahun ke-<?php echo $i; ?></label>'
+					  				+'<input type="text" class="form-control" name="target_<?php echo $i; ?>" value="'+response.data.target_<?php echo $i; ?>+'"/>'
+								+'</div>'
+								<?php }; ?>
 								+'<div class="form-group">'
 								+'<label for="target_akhir">Target akhir</label>'
 				  					+'<input type="text" class="form-control" name="target_akhir" value="'+response.data.target_akhir+'"/>'
@@ -1849,6 +1799,7 @@ foreach ($data_all['data'] as $tujuan) {
 
 			html += '<form id="form-renstra">'
 						+'<input type="hidden" name="kode_program" value='+kode_program+'>'
+						+'<input type="hidden" name="lama_pelaksanaan" value="<?php echo $lama_pelaksanaan; ?>">'
 						+'<div class="form-group">'
 							+'<label for="indikator_teks">Indikator</label>'
 			  			+'<textarea class="form-control" name="indikator_teks"></textarea>'
@@ -1858,29 +1809,15 @@ foreach ($data_all['data'] as $tujuan) {
 			  			+'<input type="text" class="form-control" name="satuan"/>'
 						+'</div>'
 						+'<div class="form-group">'
-							+'<label for="target_1">Target tahun ke-1</label>'
-			  			+'<input type="text" class="form-control" name="target_1"/>'
-						+'</div>'
-						+'<div class="form-group">'
-							+'<label for="target_2">Target tahun ke-2</label>'
-			  			+'<input type="text" class="form-control" name="target_2"/>'
-						+'</div>'
-						+'<div class="form-group">'
-							+'<label for="target_3">Target tahun ke-3</label>'
-					  	+'<input type="text" class="form-control" name="target_3"/>'
-						+'</div>'
-						+'<div class="form-group">'
-							+'<label for="target_4">Target tahun ke-4</label>'
-					  	+'<input type="text" class="form-control" name="target_4"/>'
-						+'</div>'
-						+'<div class="form-group">'
-							+'<label for="target_5">Target tahun ke-5</label>'
-					  	+'<input type="text" class="form-control" name="target_5"/>'	
-						+'</div>'
-						+'<div class="form-group">'
 							+'<label for="target_awal">Target awal</label>'
 			  				+'<input type="text" class="form-control" name="target_awal"/>'
 						+'</div>'
+						<?php for($i=1; $i<=$lama_pelaksanaan; $i++){ ?>
+						+'<div class="form-group">'
+							+'<label for="target_<?php echo $i; ?>">Target tahun ke-<?php echo $i; ?></label>'
+			  				+'<input type="text" class="form-control" name="target_<?php echo $i; ?>"/>'
+						+'</div>'
+						<?php }; ?>
 						+'<div class="form-group">'
 							+'<label for="target_akhir">Target akhir</label>'
 			  				+'<input type="text" class="form-control" name="target_akhir"/>'
@@ -1928,6 +1865,7 @@ foreach ($data_all['data'] as $tujuan) {
 	          		let html = '<form id="form-renstra">'
 									+'<input type="hidden" name="id" value="'+id+'">'
 									+'<input type="hidden" name="kode_program" value="'+kode_program+'">'
+									+'<input type="hidden" name="lama_pelaksanaan" value="<?php echo $lama_pelaksanaan; ?>">'
 									+'<div class="form-group">'
 										+'<label for="indikator_teks">Indikator</label>'
 					  					+'<textarea class="form-control" name="indikator_teks">'+response.data.indikator+'</textarea>'
@@ -1937,29 +1875,15 @@ foreach ($data_all['data'] as $tujuan) {
 					  					+'<input type="text" class="form-control" name="satuan" value="'+response.data.satuan+'"/>'
 									+'</div>'
 									+'<div class="form-group">'
-										+'<label for="target_1">Target tahun ke-1</label>'
-							  		+'<input type="text" class="form-control" name="target_1" value="'+response.data.target_1+'"/>'
-									+'</div>'
-									+'<div class="form-group">'
-										+'<label for="target_2">Target tahun ke-2</label>'
-								  	+'<input type="text" class="form-control" name="target_2" value="'+response.data.target_2+'"/>'
-									+'</div>'
-									+'<div class="form-group">'
-										+'<label for="target_3">Target tahun ke-3</label>'
-							  		+'<input type="text" class="form-control" name="target_3" value="'+response.data.target_3+'"/>'
-									+'</div>'
-									+'<div class="form-group">'
-										+'<label for="target_4">Target tahun ke-4</label>'
-							  		+'<input type="text" class="form-control" name="target_4" value="'+response.data.target_4+'"/>'
-									+'</div>'
-									+'<div class="form-group">'
-										+'<label for="target_5">Target tahun ke-5</label>'
-							  		+'<input type="text" class="form-control" name="target_5" value="'+response.data.target_5+'"/>'
-									+'</div>'
-									+'<div class="form-group">'
 										+'<label for="target_awal">Target awal</label>'
 					  					+'<input type="text" class="form-control" name="target_awal" value="'+response.data.target_awal+'"/>'
 									+'</div>'
+									<?php for($i=1; $i<=$lama_pelaksanaan; $i++){ ?>
+									+'<div class="form-group">'
+										+'<label for="target_<?php echo $i; ?>">Target tahun ke-<?php echo $i; ?></label>'
+						  				+'<input type="text" class="form-control" name="target_<?php echo $i; ?>" value="'+response.data.target_<?php echo $i; ?>+'"/>'
+									+'</div>'
+									<?php }; ?>
 									+'<div class="form-group">'
 									+'<label for="target_akhir">Target akhir</label>'
 					  					+'<input type="text" class="form-control" name="target_akhir" value="'+response.data.target_akhir+'"/>'
@@ -2185,6 +2109,7 @@ foreach ($data_all['data'] as $tujuan) {
 		let id_unik = jQuery(this).data('kodekegiatan');
 		let html = '<form id="form-renstra">'
 					+'<input type="hidden" name="id_unik" value="'+id_unik+'">'
+					+'<input type="hidden" name="lama_pelaksanaan" value="<?php echo $lama_pelaksanaan; ?>">'
 					+'<div class="form-group">'
 						+'<label for="indikator_teks">Indikator</label>'
 		  				+'<textarea class="form-control" name="indikator_teks"></textarea>'
@@ -2194,69 +2119,23 @@ foreach ($data_all['data'] as $tujuan) {
 		  				+'<input type="text" class="form-control" name="satuan"/>'
 					+'</div>'
 					+'<div class="form-group">'
-							+'<div class="row">'
-								+'<div class="col-md-6">'
-									+'<label for="target_1">Target tahun ke-1</label>'
-			  						+'<input type="text" class="form-control" name="target_1"/>'
-								+'</div>'
-								+'<div class="col-md-6">'
-									+'<label for="pagu_1">Pagu</label>'
-			  						+'<input type="number" class="form-control" name="pagu_1"/>'
-								+'</div>'
-							+'</div>'
-						+'</div>'
-						+'<div class="form-group">'
-							+'<div class="row">'
-								+'<div class="col-md-6">'
-									+'<label for="target_2">Target tahun ke-2</label>'
-			  						+'<input type="text" class="form-control" name="target_2"/>'
-								+'</div>'
-								+'<div class="col-md-6">'
-									+'<label for="pagu_2">Pagu</label>'
-			  						+'<input type="number" class="form-control" name="pagu_2"/>'
-								+'</div>'
-							+'</div>'
-						+'</div>'
-						+'<div class="form-group">'
-							+'<div class="row">'
-								+'<div class="col-md-6">'
-									+'<label for="target_3">Target tahun ke-3</label>'
-					  				+'<input type="text" class="form-control" name="target_3"/>'
-								+'</div>'
-								+'<div class="col-md-6">'
-			  						+'<label for="pagu_3">Pagu</label>'
-			  						+'<input type="number" class="form-control" name="pagu_3"/>'
-								+'</div>'
-							+'</div>'
-						+'</div>'
-						+'<div class="form-group">'
-							+'<div class="row">'
-								+'<div class="col-md-6">'
-									+'<label for="target_4">Target tahun ke-4</label>'
-					  				+'<input type="text" class="form-control" name="target_4"/>'
-								+'</div>'
-								+'<div class="col-md-6">'
-			  						+'<label for="pagu_4">Pagu</label>'
-			  						+'<input type="number" class="form-control" name="pagu_4"/>'
-								+'</div>'
-							+'</div>'
-						+'</div>'
-						+'<div class="form-group">'
-							+'<div class="row">'
-								+'<div class="col-md-6">'
-									+'<label for="target_5">Target tahun ke-5</label>'
-					  				+'<input type="text" class="form-control" name="target_5"/>'
-								+'</div>'
-								+'<div class="col-md-6">'
-			  						+'<label for="pagu_5">Pagu</label>'
-			  						+'<input type="number" class="form-control" name="pagu_5"/>'
-								+'</div>'
-							+'</div>'	
-						+'</div>'
-					+'<div class="form-group">'
 						+'<label for="target_awal">Target awal</label>'
 		  				+'<input type="text" class="form-control" name="target_awal"/>'
 					+'</div>'
+					<?php for($i=1; $i<=$lama_pelaksanaan; $i++){ ?>
+					+'<div class="form-group">'
+						+'<div class="row">'
+							+'<div class="col-md-6">'
+								+'<label for="target_<?php echo $i; ?>">Target tahun ke-<?php echo $i; ?></label>'
+			  					+'<input type="text" class="form-control" name="target_<?php echo $i; ?>"/>'
+							+'</div>'
+							+'<div class="col-md-6">'
+								+'<label for="pagu_<?php echo $i; ?>">Pagu</label>'
+			  					+'<input type="number" class="form-control" name="pagu_<?php echo $i; ?>"/>'
+							+'</div>'
+						+'</div>'
+					+'</div>'
+					<?php }; ?>
 					+'<div class="form-group">'
 						+'<label for="target_akhir">Target akhir</label>'
 		  				+'<input type="text" class="form-control" name="target_akhir"/>'
@@ -2291,8 +2170,8 @@ foreach ($data_all['data'] as $tujuan) {
           	data: {
           		"action": "edit_indikator_kegiatan_renstra",
           		"api_key": "<?php echo $api_key; ?>",
-							'id': id,
-							'kode_kegiatan': kode_kegiatan
+				'id': id,
+				'kode_kegiatan': kode_kegiatan
           	},
           	dataType: "json",
           	success: function(response){
@@ -2302,6 +2181,7 @@ foreach ($data_all['data'] as $tujuan) {
 	          		let html = '<form id="form-renstra">'
 									+'<input type="hidden" name="id" value="'+id+'">'
 									+'<input type="hidden" name="id_unik" value="'+kode_kegiatan+'">'
+									+'<input type="hidden" name="lama_pelaksanaan" value="<?php echo $lama_pelaksanaan; ?>">'
 									+'<div class="form-group">'
 										+'<label for="indikator_teks">Indikator</label>'
 					  					+'<textarea class="form-control" name="indikator_teks">'+response.data.indikator+'</textarea>'
@@ -2311,68 +2191,23 @@ foreach ($data_all['data'] as $tujuan) {
 					  					+'<input type="text" class="form-control" name="satuan" value="'+response.data.satuan+'"/>'
 									+'</div>'
 									+'<div class="form-group">'
-									+'<div class="row">'
-										+'<div class="col-md-6">'
-											+'<label for="target_1">Target tahun ke-1</label>'
-						  					+'<input type="text" class="form-control" name="target_1" value="'+response.data.target_1+'"/>'
-						  				+'</div>'
-						  				+'<div class="col-md-6">'
-						  					+'<label for="pagu_1">Pagu</label>'
-						  					+'<input type="number" class="form-control" name="pagu_1" value="'+response.data.pagu_1+'"/>'
-						  				+'</div>'
-						  			+'</div>'
-								+'</div>'
-								+'<div class="form-group">'
-									+'<div class="row">'
-										+'<div class="col-md-6">'
-											+'<label for="target_2">Target tahun ke-2</label>'
-							  				+'<input type="text" class="form-control" name="target_2" value="'+response.data.target_2+'"/>'
-							  			+'</div>'
-							  			+'<div class="col-md-6">'
-						  					+'<label for="pagu_2">Pagu</label>'
-						  					+'<input type="number" class="form-control" name="pagu_2" value="'+response.data.pagu_2+'"/>'
-						  				+'</div>'
-								+'</div>'
-								+'<div class="form-group">'
-									+'<div class="row">'
-										+'<div class="col-md-6">'
-											+'<label for="target_3">Target tahun ke-3</label>'
-						  					+'<input type="text" class="form-control" name="target_3" value="'+response.data.target_3+'"/>'
-						  				+'</div>'
-							  			+'<div class="col-md-6">'
-							  				+'<label for="pagu_3">Pagu</label>'
-							  				+'<input type="number" class="form-control" name="pagu_3" value="'+response.data.pagu_3+'"/>'
-							  			+'</div>'
-						  			+'</div>'
-								+'</div>'
-								+'<div class="form-group">'
-									+'<div class="row">'
-										+'<div class="col-md-6">'
-											+'<label for="target_4">Target tahun ke-4</label>'
-						  					+'<input type="text" class="form-control" name="target_4" value="'+response.data.target_4+'"/>'
-										+'</div>'
-										+'<div class="col-md-6">'
-						  					+'<label for="pagu_4">Pagu</label>'
-						  					+'<input type="number" class="form-control" name="pagu_4" value="'+response.data.pagu_4+'"/>'
-						  				+'</div>'
-									+'</div>'
-								+'</div>'
-								+'<div class="form-group">'
-									+'<div class="row">'
-										+'<div class="col-md-6">'
-											+'<label for="target_5">Target tahun ke-5</label>'
-						  					+'<input type="text" class="form-control" name="target_5" value="'+response.data.target_5+'"/>'
-										+'</div>'
-										+'<div class="col-md-6">'
-						  					+'<label for="pagu_5">Pagu</label>'
-						  					+'<input type="number" class="form-control" name="pagu_5" value="'+response.data.pagu_5+'"/>'
-						  				+'</div>'
-									+'</div>'
-								+'</div>'
-									+'<div class="form-group">'
 										+'<label for="target_awal">Target awal</label>'
 					  					+'<input type="text" class="form-control" name="target_awal" value="'+response.data.target_awal+'"/>'
 									+'</div>'
+									<?php for($i=1; $i<=$lama_pelaksanaan; $i++){ ?>
+									+'<div class="form-group">'
+										+'<div class="row">'
+											+'<div class="col-md-6">'
+												+'<label for="target_<?php echo $i; ?>">Target tahun ke-<?php echo $i; ?></label>'
+							  					+'<input type="text" class="form-control" name="target_<?php echo $i; ?>" value="'+response.data.target_<?php echo $i; ?>+'"/>'
+											+'</div>'
+											+'<div class="col-md-6">'
+												+'<label for="pagu_<?php echo $i; ?>">Pagu</label>'
+							  					+'<input type="number" class="form-control" name="pagu_<?php echo $i; ?>" value="'+response.data.pagu_<?php echo $i; ?>+'"/>'
+											+'</div>'
+										+'</div>'
+									+'</div>'
+									<?php }; ?>
 									+'<div class="form-group">'
 									+'<label for="target_akhir">Target akhir</label>'
 					  					+'<input type="text" class="form-control" name="target_akhir" value="'+response.data.target_akhir+'"/>'
@@ -2567,8 +2402,8 @@ foreach ($data_all['data'] as $tujuan) {
           	data: {
           		"action": "get_indikator_tujuan_renstra",
           		"api_key": "<?php echo $api_key; ?>",
-							'id_unik': params.id_unik,
-							'type':1
+				'id_unik': params.id_unik,
+				'type':1
           	},
           	dataType: "json",
           	success: function(response){
@@ -2594,12 +2429,10 @@ foreach ($data_all['data'] as $tujuan) {
 								+"<th>No.</th>"
 								+"<th>Indikator</th>"
 								+"<th>Satuan</th>"
-								+"<th>Target 1</th>"
-								+"<th>Target 2</th>"
-								+"<th>Target 3</th>"
-								+"<th>Target 4</th>"
-								+"<th>Target 5</th>"
 								+"<th>Target Awal</th>"
+								<?php for($i=1; $i<=$lama_pelaksanaan; $i++){ ?>
+								+"<th>Target <?php echo $i; ?></th>"
+								<?php }; ?>
 								+"<th>Target Akhir</th>"
 								+"<th>Aksi</th>"
 							+"</tr>"
@@ -2610,12 +2443,10 @@ foreach ($data_all['data'] as $tujuan) {
 						          		+"<td>"+(index+1)+".</td>"
 						          		+"<td>"+value.indikator_teks+"</td>"
 						          		+"<td>"+value.satuan+"</td>"
-						          		+"<td>"+value.target_1+"</td>"
-						          		+"<td>"+value.target_2+"</td>"
-						          		+"<td>"+value.target_3+"</td>"
-						          		+"<td>"+value.target_4+"</td>"
-						          		+"<td>"+value.target_5+"</td>"
 						          		+"<td>"+value.target_awal+"</td>"
+						          		<?php for($i=1; $i<=$lama_pelaksanaan; $i++){ ?>
+										+"<td>"+value.target_<?php echo $i; ?>+"</td>"
+										<?php }; ?>
 						          		+"<td>"+value.target_akhir+"</td>"
 						          		+"<td>"
 						          			+"<a href='#' class='btn btn-sm btn-success btn-edit-indikator-tujuan' data-id='"+value.id+"' data-idunik='"+value.id_unik+"'><i class='dashicons dashicons-edit' style='margin-top: 3px;'></i></a>&nbsp"
@@ -2731,12 +2562,10 @@ foreach ($data_all['data'] as $tujuan) {
 												+"<th>No.</th>"
 												+"<th>Indikator</th>"
 												+"<th>Satuan</th>"
-												+"<th>Target 1</th>"
-												+"<th>Target 2</th>"
-												+"<th>Target 3</th>"
-												+"<th>Target 4</th>"
-												+"<th>Target 5</th>"
 												+"<th>Target Awal</th>"
+												<?php for($i=1; $i<=$lama_pelaksanaan; $i++){ ?>
+												+"<th>Target <?php echo $i; ?></th>"
+												<?php }; ?>
 												+"<th>Target Akhir</th>"
 												+"<th>Aksi</th>"
 											+"</tr>"
@@ -2747,26 +2576,24 @@ foreach ($data_all['data'] as $tujuan) {
 										          		+"<td>"+(index+1)+".</td>"
 										          		+"<td>"+value.indikator_teks+"</td>"
 										          		+"<td>"+value.satuan+"</td>"
-										          		+"<td>"+value.target_1+"</td>"
-										          		+"<td>"+value.target_2+"</td>"
-										          		+"<td>"+value.target_3+"</td>"
-										          		+"<td>"+value.target_4+"</td>"
-										          		+"<td>"+value.target_5+"</td>"
 										          		+"<td>"+value.target_awal+"</td>"
+										          		<?php for($i=1; $i<=$lama_pelaksanaan; $i++){ ?>
+														+"<td>"+value.target_<?php echo $i; ?>+"</td>"
+														<?php }; ?>
 										          		+"<td>"+value.target_akhir+"</td>"
 										          		+"<td>"
 										          			+"<a href='#' class='btn btn-sm btn-success btn-edit-indikator-sasaran' data-id='"+value.id+"' data-idunik='"+value.id_unik+"' ><i class='dashicons dashicons-edit' style='margin-top: 3px;'></i></a>&nbsp"
-																		+"<a href='#' class='btn btn-sm btn-danger btn-delete-indikator-sasaran' data-id='"+value.id+"' data-idunik='"+value.id_unik+"' ><i class='dashicons dashicons-trash' style='margin-top: 3px;'></i></a>&nbsp;"
+															+"<a href='#' class='btn btn-sm btn-danger btn-delete-indikator-sasaran' data-id='"+value.id+"' data-idunik='"+value.id_unik+"' ><i class='dashicons dashicons-trash' style='margin-top: 3px;'></i></a>&nbsp;"
 										          		+"</td>"
 										          	+"</tr>";
 							          		});
 						          	html+='</tbody></table>';
 
-								jQuery("#modal-indikator-renstra").find('.modal-title').html('Indikator Sasaran');
+							jQuery("#modal-indikator-renstra").find('.modal-title').html('Indikator Sasaran');
 						    jQuery("#modal-indikator-renstra").find('.modal-body').html(html);
-								jQuery("#modal-indikator-renstra").find('.modal-dialog').css('maxWidth','1250px');
-								jQuery("#modal-indikator-renstra").find('.modal-dialog').css('width','100%');
-								jQuery("#modal-indikator-renstra").modal('show');
+							jQuery("#modal-indikator-renstra").find('.modal-dialog').css('maxWidth','1250px');
+							jQuery("#modal-indikator-renstra").find('.modal-dialog').css('width','100%');
+							jQuery("#modal-indikator-renstra").modal('show');
           	}
 		})
 	}
@@ -2874,12 +2701,10 @@ foreach ($data_all['data'] as $tujuan) {
 													+"<th>No.</th>"
 													+"<th>Indikator</th>"
 													+"<th>Satuan</th>"
-													+"<th>Target 1</th>"
-													+"<th>Target 2</th>"
-													+"<th>Target 3</th>"
-													+"<th>Target 4</th>"
-													+"<th>Target 5</th>"
 													+"<th>Target Awal</th>"
+													<?php for($i=1; $i<=$lama_pelaksanaan; $i++){ ?>
+													+"<th>Target <?php echo $i; ?></th>"
+													<?php }; ?>
 													+"<th>Target Akhir</th>"
 													+"<th>Aksi</th>"
 												+"</tr>"
@@ -2890,16 +2715,14 @@ foreach ($data_all['data'] as $tujuan) {
 											          		+"<td>"+(index+1)+".</td>"
 											          		+"<td>"+value.indikator+"</td>"
 											          		+"<td>"+value.satuan+"</td>"
-											          		+"<td>"+value.target_1+"</td>"
-											          		+"<td>"+value.target_2+"</td>"
-											          		+"<td>"+value.target_3+"</td>"
-											          		+"<td>"+value.target_4+"</td>"
-											          		+"<td>"+value.target_5+"</td>"
 											          		+"<td>"+value.target_awal+"</td>"
+											          		<?php for($i=1; $i<=$lama_pelaksanaan; $i++){ ?>
+															+"<td>"+value.target_<?php echo $i; ?>+"</td>"
+															<?php }; ?>
 											          		+"<td>"+value.target_akhir+"</td>"
 											          		+"<td>"
 											          			+"<a href='#' class='btn btn-sm btn-success btn-edit-indikator-program' data-kodeprogram='"+value.id_unik+"' data-id='"+value.id+"'><i class='dashicons dashicons-edit' style='margin-top: 3px;'></i></a>&nbsp"
-																			+"<a href='#' class='btn btn-sm btn-danger btn-delete-indikator-program' data-kodeprogram='"+value.id_unik+"' data-id='"+value.id+"'><i class='dashicons dashicons-trash' style='margin-top: 3px;'></i></a>&nbsp;"
+																+"<a href='#' class='btn btn-sm btn-danger btn-delete-indikator-program' data-kodeprogram='"+value.id_unik+"' data-id='"+value.id+"'><i class='dashicons dashicons-trash' style='margin-top: 3px;'></i></a>&nbsp;"
 											          		+"</td>"
 											          	+"</tr>";
 								          		});
@@ -3021,12 +2844,10 @@ foreach ($data_all['data'] as $tujuan) {
 												+"<th>No.</th>"
 												+"<th>Indikator</th>"
 												+"<th>Satuan</th>"
-												+"<th>Target 1</th>"
-												+"<th>Target 2</th>"
-												+"<th>Target 3</th>"
-												+"<th>Target 4</th>"
-												+"<th>Target 5</th>"
 												+"<th>Target Awal</th>"
+												<?php for($i=1; $i<=$lama_pelaksanaan; $i++){ ?>
+												+"<th>Target <?php echo $i; ?></th>"
+												<?php }; ?>
 												+"<th>Target Akhir</th>"
 												+"<th>Aksi</th>"
 											+"</tr>"
@@ -3037,27 +2858,25 @@ foreach ($data_all['data'] as $tujuan) {
 										          		+"<td>"+(index+1)+".</td>"
 										          		+"<td>"+value.indikator+"</td>"
 										          		+"<td>"+value.satuan+"</td>"
-										          		+"<td>"+value.target_1+"</td>"
-										          		+"<td>"+value.target_2+"</td>"
-										          		+"<td>"+value.target_3+"</td>"
-										          		+"<td>"+value.target_4+"</td>"
-										          		+"<td>"+value.target_5+"</td>"
 										          		+"<td>"+value.target_awal+"</td>"
+										          		<?php for($i=1; $i<=$lama_pelaksanaan; $i++){ ?>
+														+"<td>"+value.target_<?php echo $i; ?>+"</td>"
+														<?php }; ?>
 										          		+"<td>"+value.target_akhir+"</td>"
 										          		+"<td>"
 										          			+"<a href='#' class='btn btn-sm btn-success btn-edit-indikator-kegiatan' data-kodekegiatan='"+value.id_unik+"' data-id='"+value.id+"'><i class='dashicons dashicons-edit' style='margin-top: 3px;'></i></a>&nbsp"
-																		+"<a href='#' class='btn btn-sm btn-danger btn-delete-indikator-kegiatan' data-kodekegiatan='"+value.id_unik+"' data-id='"+value.id+"'><i class='dashicons dashicons-trash' style='margin-top: 3px;'></i></a>&nbsp;"
+															+"<a href='#' class='btn btn-sm btn-danger btn-delete-indikator-kegiatan' data-kodekegiatan='"+value.id_unik+"' data-id='"+value.id+"'><i class='dashicons dashicons-trash' style='margin-top: 3px;'></i></a>&nbsp;"
 										          		+"</td>"
 										          	+"</tr>";
 							      });
 						          html+='</tbody></table>';
 
-										jQuery("#modal-indikator-renstra").find('.modal-title').html('Indikator kegiatan');
-								    jQuery("#modal-indikator-renstra").find('.modal-body').html(html);
-										jQuery("#modal-indikator-renstra").find('.modal-dialog').css('maxWidth','1250px');
-										jQuery("#modal-indikator-renstra").find('.modal-dialog').css('width','100%');
-										jQuery("#modal-indikator-renstra").modal('show');
-									}
+						jQuery("#modal-indikator-renstra").find('.modal-title').html('Indikator kegiatan');
+						jQuery("#modal-indikator-renstra").find('.modal-body').html(html);
+						jQuery("#modal-indikator-renstra").find('.modal-dialog').css('maxWidth','1250px');
+						jQuery("#modal-indikator-renstra").find('.modal-dialog').css('width','100%');
+						jQuery("#modal-indikator-renstra").modal('show');
+			}
 		});
 	}
 
