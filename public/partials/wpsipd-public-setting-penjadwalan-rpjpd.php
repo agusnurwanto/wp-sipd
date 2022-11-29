@@ -227,7 +227,7 @@ $body = '';
 			},
 			dataType: "json",
 			success:function(response){
-				jQuery('#wrap-loading').show();
+				jQuery('#wrap-loading').hide();
 				jQuery("#jadwal_nama").val(response.data.nama);
 				jQuery("#tahun_mulai_anggaran").val(response.data.tahun_anggaran);
 				jQuery("#lama_pelaksanaan").val(response.data.lama_pelaksanaan);
