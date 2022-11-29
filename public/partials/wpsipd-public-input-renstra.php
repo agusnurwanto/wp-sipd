@@ -4,6 +4,7 @@ if ( ! defined( 'WPINC' ) ) {
 	die;
 }
 global $wpdb;
+date_default_timezone_set('Asia/Jakarta');
 $input = shortcode_atts( array(
 	'id_skpd' => '',
 	'tahun_anggaran' => get_option('_crb_tahun_anggaran_sipd')
