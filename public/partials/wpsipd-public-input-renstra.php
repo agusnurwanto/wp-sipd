@@ -44,6 +44,7 @@ $selesaiJadwal = '-';
 $relasi_perencanaan = '-';
 $id_tipe_relasi = '-';
 $lama_pelaksanaan = 5;
+$disabled = 'disabled';
 
 $jadwal_lokal = $wpdb->get_results("SELECT a.*, (SELECT id_tipe FROM data_jadwal_lokal WHERE id_jadwal_lokal=a.relasi_perencanaan) id_tipe_relasi FROM data_jadwal_lokal a WHERE a.id_jadwal_lokal = (SELECT MAX(id_jadwal_lokal) FROM data_jadwal_lokal a WHERE a.id_tipe=4)", ARRAY_A);
 
@@ -77,6 +78,12 @@ foreach ($rumus_indikator_db as $k => $v){
 $where_skpd = '';
 if(!empty($input['id_skpd'])){
 	$where_skpd = "and id_skpd =".$input['id_skpd'];
+}
+
+$user_id = um_user( 'ID' );
+$user_meta = get_userdata($user_id);
+if(in_array("administrator", $user_meta->roles)){
+	$disabled='';
 }
 
 $sql = $wpdb->prepare("
@@ -1210,24 +1217,68 @@ foreach ($data_all['data'] as $tujuan) {
 		  				+'<textarea class="form-control" name="indikator_teks"></textarea>'
 					+'</div>'
 					+'<div class="form-group">'
-						+'<label for="satuan">Satuan</label>'
-		  				+'<input type="text" class="form-control" name="satuan"/>'
+						+'<div class="row">'
+							+'<div class="col-md-6">'
+								+'<div class="card">'
+									+'<div class="card-header">Usulan</div>'
+									+'<div class="card-body">'
+										+'<div class="form-group">'
+											+'<label for="satuan_usulan">Satuan</label>'
+							  				+'<input type="text" class="form-control" name="satuan_usulan"/>'
+										+'</div>'
+										+'<div class="form-group">'
+											+'<label for="target_awal">Target awal</label>'
+							  				+'<input type="text" class="form-control" name="target_awal_usulan"/>'
+										+'</div>'
+										<?php for($i=1; $i<=$lama_pelaksanaan; $i++){ ?>
+										+'<div class="form-group">'
+											+'<label for="target_<?php echo $i; ?>">Target tahun ke-<?php echo $i; ?></label>'
+							  				+'<input type="text" class="form-control" name="target_<?php echo $i; ?>_usulan"/>'
+										+'</div>'
+										<?php }; ?>
+										+'<div class="form-group">'
+											+'<label for="target_akhir">Target akhir</label>'
+							  				+'<input type="text" class="form-control" name="target_akhir_usulan"/>'
+										+'</div>'
+										+'<div class="form-group">'
+											+'<label for="catatan_usulan">Catatan</label>'
+							  				+'<textarea class="form-control" name="catatan_usulan"></textarea>'
+										+'</div>'
+									+'</div>'
+								+'</div>'
+							+'</div>'
+							+'<div class="col-md-6">'
+								+'<div class="card">'
+									+'<div class="card-header">Penetapan</div>'
+									+'<div class="card-body">'
+										+'<div class="form-group">'
+											+'<label for="satuan">Satuan</label>'
+							  				+'<input type="text" class="form-control" name="satuan" <?php echo $disabled; ?> />'
+										+'</div>'
+										+'<div class="form-group">'
+											+'<label for="target_awal">Target awal</label>'
+							  				+'<input type="text" class="form-control" name="target_awal" <?php echo $disabled; ?>/>'
+										+'</div>'
+										<?php for($i=1; $i<=$lama_pelaksanaan; $i++){ ?>
+										+'<div class="form-group">'
+											+'<label for="target_<?php echo $i; ?>">Target tahun ke-<?php echo $i; ?></label>'
+							  				+'<input type="text" class="form-control" name="target_<?php echo $i; ?>" <?php echo $disabled; ?>/>'
+										+'</div>'
+										<?php }; ?>
+										+'<div class="form-group">'
+											+'<label for="target_akhir">Target akhir</label>'
+							  				+'<input type="text" class="form-control" name="target_akhir" <?php echo $disabled; ?>/>'
+										+'</div>'
+										+'<div class="form-group">'
+											+'<label for="catatan">Catatan</label>'
+							  				+'<textarea class="form-control" name="catatan" <?php echo $disabled; ?>></textarea>'
+										+'</div>'
+									+'</div>'
+								+'</div>'
+							+'</div>'
+						+'</div>'
 					+'</div>'
-					+'<div class="form-group">'
-						+'<label for="target_awal">Target awal</label>'
-		  				+'<input type="text" class="form-control" name="target_awal"/>'
-					+'</div>'
-					<?php for($i=1; $i<=$lama_pelaksanaan; $i++){ ?>
-					+'<div class="form-group">'
-						+'<label for="target_<?php echo $i; ?>">Target tahun ke-<?php echo $i; ?></label>'
-		  				+'<input type="text" class="form-control" name="target_<?php echo $i; ?>"/>'
-					+'</div>'
-					<?php }; ?>
-					+'<div class="form-group">'
-						+'<label for="target_akhir">Target akhir</label>'
-		  				+'<input type="text" class="form-control" name="target_akhir"/>'
-					+'</div>'
-					+'</form>';
+				+'</form>';
 
 			indikatorTujuanModal.find('.modal-title').html('Tambah Indikator');
 			indikatorTujuanModal.find('.modal-body').html(html);
@@ -1241,6 +1292,8 @@ foreach ($data_all['data'] as $tujuan) {
 				+'>'
 					+'<i class="dashicons dashicons-yes" style="margin-top: 3px;"></i> Simpan'
 				+'</button>');
+			indikatorTujuanModal.find('.modal-dialog').css('maxWidth','950px');
+			indikatorTujuanModal.find('.modal-dialog').css('width','100%');
 			indikatorTujuanModal.modal('show');
 	});
 
