@@ -2429,11 +2429,11 @@ foreach ($data_all['data'] as $tujuan) {
 								+"<th>No.</th>"
 								+"<th>Indikator</th>"
 								+"<th>Satuan</th>"
-								+"<th>Target Awal</th>"
+								+"<th>Awal</th>"
 								<?php for($i=1; $i<=$lama_pelaksanaan; $i++){ ?>
-								+"<th>Target <?php echo $i; ?></th>"
+								+"<th>Tahun <?php echo $i; ?></th>"
 								<?php }; ?>
-								+"<th>Target Akhir</th>"
+								+"<th>Akhir</th>"
 								+"<th>Aksi</th>"
 							+"</tr>"
 						+"</thead>"
@@ -2562,11 +2562,11 @@ foreach ($data_all['data'] as $tujuan) {
 												+"<th>No.</th>"
 												+"<th>Indikator</th>"
 												+"<th>Satuan</th>"
-												+"<th>Target Awal</th>"
+												+"<th>Awal</th>"
 												<?php for($i=1; $i<=$lama_pelaksanaan; $i++){ ?>
-												+"<th>Target <?php echo $i; ?></th>"
+												+"<th>Tahun <?php echo $i; ?></th>"
 												<?php }; ?>
-												+"<th>Target Akhir</th>"
+												+"<th>Akhir</th>"
 												+"<th>Aksi</th>"
 											+"</tr>"
 										+"</thead>"
@@ -2701,11 +2701,11 @@ foreach ($data_all['data'] as $tujuan) {
 													+"<th>No.</th>"
 													+"<th>Indikator</th>"
 													+"<th>Satuan</th>"
-													+"<th>Target Awal</th>"
+													+"<th>Awal</th>"
 													<?php for($i=1; $i<=$lama_pelaksanaan; $i++){ ?>
-													+"<th>Target <?php echo $i; ?></th>"
+													+"<th>Tahun <?php echo $i; ?></th>"
 													<?php }; ?>
-													+"<th>Target Akhir</th>"
+													+"<th>Akhir</th>"
 													+"<th>Aksi</th>"
 												+"</tr>"
 											+"</thead>"
@@ -2844,11 +2844,11 @@ foreach ($data_all['data'] as $tujuan) {
 												+"<th>No.</th>"
 												+"<th>Indikator</th>"
 												+"<th>Satuan</th>"
-												+"<th>Target Awal</th>"
+												+"<th>Awal</th>"
 												<?php for($i=1; $i<=$lama_pelaksanaan; $i++){ ?>
-												+"<th>Target <?php echo $i; ?></th>"
+												+"<th>Tahun <?php echo $i; ?></th>"
 												<?php }; ?>
-												+"<th>Target Akhir</th>"
+												+"<th>Akhir</th>"
 												+"<th>Aksi</th>"
 											+"</tr>"
 										+"</thead>"
