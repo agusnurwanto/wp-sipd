@@ -290,7 +290,7 @@ $body = '';
 			.attr("onclick", 'submitEditJadwalForm('+id_jadwal_lokal+')')
 			.attr("disabled", false)
 			.text("Simpan");
-
+		jQuery("#wrap-loading").show()
 		jQuery.ajax({
 			url: thisAjaxUrl,
 			type:"post",
@@ -301,6 +301,7 @@ $body = '';
 			},
 			dataType: "json",
 			success:function(response){
+				jQuery("#wrap-loading").hide()
 				jQuery("#jadwal_nama").val(response.data.nama);
 				jQuery("#lama_pelaksanaan").val(response.data.lama_pelaksanaan);
 				jQuery('#jadwal_tanggal').data('daterangepicker').setStartDate(moment(response.data.waktu_awal).format('DD-MM-YYYY HH:mm'));
