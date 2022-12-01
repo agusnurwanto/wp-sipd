@@ -25,8 +25,10 @@ function format_sumberdana(){
 	var tahun = jQuery('#pilih_tahun').val();
 	var id_skpd = jQuery('#pilih_skpd').val();
 	get_list_skpd(tahun, function(){
+		if(id_skpd == '-1'){
+			return;
+		}
 		jQuery("#wrap-loading").show();
-		jQuery('#pilih_skpd').val(id_skpd);
 		var format = jQuery('input[name="format-sd"]:checked').attr('format-id');
 		jQuery.ajax({
 			url: ajaxurl,
@@ -51,7 +53,9 @@ function format_sumberdana(){
 
 function get_list_skpd(tahun, cb){
 	if(options_skpd[tahun]){
-		var opsi = '<option value="0">Semua SKPD</option>';
+		var opsi = ''
+			+'<option value="-1">Pilih SKPD</option>'
+			+'<option value="0">Semua SKPD</option>';
 		options_skpd[tahun].map(function(b, i){
 			opsi += '<option value="'+b.id_skpd+'">'+b.kode_skpd+' '+b.nama_skpd+'</option>';
 		});
