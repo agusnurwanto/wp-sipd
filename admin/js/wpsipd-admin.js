@@ -28,6 +28,7 @@ function format_sumberdana(){
 		if(id_skpd == '-1'){
 			return;
 		}
+		jQuery('#pilih_skpd').val(id_skpd);
 		jQuery("#wrap-loading").show();
 		var format = jQuery('input[name="format-sd"]:checked').attr('format-id');
 		jQuery.ajax({
