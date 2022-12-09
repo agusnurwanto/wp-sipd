@@ -67,7 +67,7 @@ if(!empty($jadwal_lokal)){
 	}
 }
 
-$akhir_renstra = $awal_renstra+5;
+$akhir_renstra = $awal_renstra+$lama_pelaksanaan;
 $urut = $tahun_anggaran-$awal_renstra;
 $rumus_indikator_db = $wpdb->get_results("SELECT * FROM data_rumus_indikator WHERE active=1 AND tahun_anggaran=".$tahun_anggaran, ARRAY_A);
 $rumus_indikator = '';
@@ -674,6 +674,8 @@ foreach ($data_all['data'] as $tujuan) {
 		$target_akhir .= '<div class="indikator">'.$indikator['target_akhir'].'</div>';
 		$satuan .= '<div class="indikator">'.$indikator['satuan'].'</div>';
 	}
+
+	$target_arr = [$target_1, $target_2, $target_3, $target_4, $target_5];
 	$body .= '
 			<tr class="tr-tujuan'.$bg_rpjm.'">
 				<td class="kiri atas kanan bawah">'.$no_tujuan.'</td>
@@ -683,18 +685,11 @@ foreach ($data_all['data'] as $tujuan) {
 				<td class="atas kanan bawah"></td>
 				<td class="atas kanan bawah"></td>
 				<td class="atas kanan bawah">'.$indikator_tujuan.'</td>
-				<td class="atas kanan bawah">'.$target_awal.'</td>
-				<td class="atas kanan bawah">'.$target_1.'</td>
-				<td class="atas kanan bawah"></td>
-				<td class="atas kanan bawah">'.$target_2.'</td>
-				<td class="atas kanan bawah"></td>
-				<td class="atas kanan bawah">'.$target_3.'</td>
-				<td class="atas kanan bawah"></td>
-				<td class="atas kanan bawah">'.$target_4.'</td>
-				<td class="atas kanan bawah"></td>
-				<td class="atas kanan bawah">'.$target_5.'</td>
-				<td class="atas kanan bawah"></td>
-				<td class="atas kanan bawah">'.$target_akhir.'</td>
+				<td class="atas kanan bawah">'.$target_awal.'</td>';
+				for ($i=1; $i <= $lama_pelaksanaan; $i++) { 
+					$body.="<td class=\"atas kanan bawah\">".$target_arr[$i]."</td><td class=\"atas kanan bawah\"></td>";
+				}
+				$body.='<td class="atas kanan bawah">'.$target_akhir.'</td>
 				<td class="atas kanan bawah">'.$satuan.'</td>
 				<td class="atas kanan bawah"></td>
 			</tr>
@@ -723,6 +718,8 @@ foreach ($data_all['data'] as $tujuan) {
 			$target_akhir .= '<div class="indikator">'.$indikator['target_akhir'].'</div>';
 			$satuan .= '<div class="indikator">'.$indikator['satuan'].'</div>';
 		}
+
+		$target_arr = [$target_1, $target_2, $target_3, $target_4, $target_5];
 		$body .= '
 				<tr class="tr-sasaran'.$bg_rpjm.'">
 					<td class="kiri atas kanan bawah">'.$no_tujuan.".".$no_sasaran.'</td>
@@ -732,18 +729,11 @@ foreach ($data_all['data'] as $tujuan) {
 					<td class="atas kanan bawah"></td>
 					<td class="atas kanan bawah"></td>
 					<td class="atas kanan bawah">'.$indikator_sasaran.'</td>
-					<td class="atas kanan bawah">'.$target_awal.'</td>
-					<td class="atas kanan bawah">'.$target_1.'</td>
-					<td class="atas kanan bawah"></td>
-					<td class="atas kanan bawah">'.$target_2.'</td>
-					<td class="atas kanan bawah"></td>
-					<td class="atas kanan bawah">'.$target_3.'</td>
-					<td class="atas kanan bawah"></td>
-					<td class="atas kanan bawah">'.$target_4.'</td>
-					<td class="atas kanan bawah"></td>
-					<td class="atas kanan bawah">'.$target_5.'</td>
-					<td class="atas kanan bawah"></td>
-					<td class="atas kanan bawah">'.$target_akhir.'</td>
+					<td class="atas kanan bawah">'.$target_awal.'</td>';
+					for ($i=1; $i <= $lama_pelaksanaan; $i++) { 
+						$body.="<td class=\"atas kanan bawah\">".$target_arr[$i]."</td><td class=\"atas kanan bawah\"></td>";
+					}
+					$body.='<td class="atas kanan bawah">'.$target_akhir.'</td>
 					<td class="atas kanan bawah">'.$satuan.'</td>
 					<td class="atas kanan bawah"></td>
 				</tr>
@@ -782,6 +772,9 @@ foreach ($data_all['data'] as $tujuan) {
 				$target_akhir .= '<div class="indikator">'.$indikator['target_akhir'].'</div>';
 				$satuan .= '<div class="indikator">'.$indikator['satuan'].'</div>';
 			}
+
+			$target_arr = [$target_1, $target_2, $target_3, $target_4, $target_5];
+			$pagu_arr = [$pagu_1, $pagu_2, $pagu_3, $pagu_4, $pagu_5];
 			$body .= '
 					<tr class="tr-program'.$bg_rpjm.'">
 						<td class="kiri atas kanan bawah">'.$no_tujuan.".".$no_sasaran.".".$no_program.'</td>
@@ -791,18 +784,11 @@ foreach ($data_all['data'] as $tujuan) {
 						<td class="atas kanan bawah">'.$program['program_teks'].'</td>
 						<td class="atas kanan bawah"></td>
 						<td class="atas kanan bawah">'.$indikator_program.'</td>
-						<td class="atas kanan bawah">'.$target_awal.'</td>
-						<td class="atas kanan bawah">'.$target_1.'</td>
-						<td class="atas kanan bawah">'.$pagu_1.'</td>
-						<td class="atas kanan bawah">'.$target_2.'</td>
-						<td class="atas kanan bawah">'.$pagu_2.'</td>
-						<td class="atas kanan bawah">'.$target_3.'</td>
-						<td class="atas kanan bawah">'.$pagu_3.'</td>
-						<td class="atas kanan bawah">'.$target_4.'</td>
-						<td class="atas kanan bawah">'.$pagu_4.'</td>
-						<td class="atas kanan bawah">'.$target_5.'</td>
-						<td class="atas kanan bawah">'.$pagu_5.'</td>
-						<td class="atas kanan bawah">'.$target_akhir.'</td>
+						<td class="atas kanan bawah">'.$target_awal.'</td>';
+						for ($i=1; $i <= $lama_pelaksanaan; $i++) { 
+							$body.="<td class=\"atas kanan bawah\">".$target_arr[$i]."</td><td class=\"atas kanan bawah\">".$pagu_arr[$i]."</td>";
+						}
+						$body.='<td class="atas kanan bawah">'.$target_akhir.'</td>
 						<td class="atas kanan bawah">'.$satuan.'</td>
 						<td class="atas kanan bawah"></td>
 					</tr>
@@ -841,6 +827,9 @@ foreach ($data_all['data'] as $tujuan) {
 					$target_akhir .= '<div class="indikator">'.$indikator['target_akhir'].'</div>';
 					$satuan .= '<div class="indikator">'.$indikator['satuan'].'</div>';
 				}
+
+				$target_arr = [$target_1, $target_2, $target_3, $target_4, $target_5];
+				$pagu_arr = [$pagu_1, $pagu_2, $pagu_3, $pagu_4, $pagu_5];
 				$body .= '
 						<tr class="tr-kegiatan'.$bg_rpjm.'">
 							<td class="kiri atas kanan bawah">'.$no_tujuan.".".$no_sasaran.".".$no_program.".".$no_kegiatan.'</td>
@@ -850,17 +839,11 @@ foreach ($data_all['data'] as $tujuan) {
 							<td class="atas kanan bawah"></td>
 							<td class="atas kanan bawah">'.$kegiatan['kegiatan_teks'].'</td>
 							<td class="atas kanan bawah">'.$indikator_kegiatan.'</td>
-							<td class="atas kanan bawah">'.$target_awal.'</td>
-							<td class="atas kanan bawah">'.$target_1.'</td>
-							<td class="atas kanan bawah">'.$pagu_1.'</td>
-							<td class="atas kanan bawah">'.$target_2.'</td>
-							<td class="atas kanan bawah">'.$pagu_2.'</td>
-							<td class="atas kanan bawah">'.$target_3.'</td>
-							<td class="atas kanan bawah">'.$pagu_3.'</td>
-							<td class="atas kanan bawah">'.$target_4.'</td>
-							<td class="atas kanan bawah">'.$pagu_4.'</td>
-							<td class="atas kanan bawah">'.$target_5.'</td>
-							<td class="atas kanan bawah">'.$pagu_5.'</td>
+							<td class="atas kanan bawah">'.$target_awal.'</td>';
+							for ($i=1; $i <= $lama_pelaksanaan; $i++) { 
+								$body.="<td class=\"atas kanan bawah\">".$target_arr[$i]."</td><td class=\"atas kanan bawah\">".$pagu_arr[$i]."</td>";
+							}
+							$body.='
 							<td class="atas kanan bawah">'.$target_akhir.'</td>
 							<td class="atas kanan bawah">'.$satuan.'</td>
 							<td class="atas kanan bawah"></td>
@@ -881,40 +864,36 @@ foreach ($data_all['data'] as $tujuan) {
 		background-color: #ffa2a2;
 	}
 </style>
-<h4 style="text-align: center; margin: 0; font-weight: bold;">Monitoring dan Evaluasi RENSTRA (Rencana Strategis) <br><?php echo $judul_skpd.'Tahun '.$awal_renstra.' - '.$akhir_renstra.' '.$nama_pemda; ?></h4>
+<h4 style="text-align: center; margin: 0; font-weight: bold;">RENCANA STRATEGIS (RENSTRA) <br><?php echo $judul_skpd.'Tahun '.$awal_renstra.' - '.$akhir_renstra.' '.$nama_pemda; ?></h4>
 <div id="cetak" title="Laporan MONEV RENSTRA" style="padding: 5px; overflow: auto; height: 80vh;">
-	<table cellpadding="2" cellspacing="0" style="font-family:\'Open Sans\',-apple-system,BlinkMacSystemFont,\'Segoe UI\',sans-serif; border-collapse: collapse; font-size: 70%; border: 0; table-layout: fixed;" contenteditable="false">
+	<table id="table-renstra" cellpadding="2" cellspacing="0" style="font-family:\'Open Sans\',-apple-system,BlinkMacSystemFont,\'Segoe UI\',sans-serif; border-collapse: collapse; font-size: 70%; border: 0; table-layout: fixed;" contenteditable="false">
 		<thead>
-			<tr>
-				<th rowspan="2" style="width: 85px;" class="atas kiri kanan bawah text_tengah text_blok">No</th>
-				<th rowspan="2" style="width: 200px;" class="atas kanan bawah text_tengah text_blok">Bidang Urusan</th>
-				<th rowspan="2" style="width: 200px;" class="atas kanan bawah text_tengah text_blok">Tujuan</th>
-				<th rowspan="2" style="width: 200px;" class="atas kanan bawah text_tengah text_blok">Sasaran</th>
-				<th rowspan="2" style="width: 200px;" class="atas kanan bawah text_tengah text_blok">Program</th>
-				<th rowspan="2" style="width: 200px;" class="atas kanan bawah text_tengah text_blok">Kegiatan</th>
-				<th rowspan="2" style="width: 400px;" class="atas kanan bawah text_tengah text_blok">Indikator</th>
-				<th rowspan="2" style="width: 100px;" class="atas kanan bawah text_tengah text_blok">Target Awal</th>
-				<th colspan="2" style="width: 100px;" class="atas kanan bawah text_tengah text_blok">Tahun 1</th>
-				<th colspan="2" style="width: 100px;" class="atas kanan bawah text_tengah text_blok">Tahun 2</th>
-				<th colspan="2" style="width: 100px;" class="atas kanan bawah text_tengah text_blok">Tahun 3</th>
-				<th colspan="2" style="width: 100px;" class="atas kanan bawah text_tengah text_blok">Tahun 4</th>
-				<th colspan="2" style="width: 100px;" class="atas kanan bawah text_tengah text_blok">Tahun 5</th>
-				<th rowspan="2" style="width: 100px;" class="atas kanan bawah text_tengah text_blok">Target Akhir</th>
-				<th rowspan="2" style="width: 100px;" class="atas kanan bawah text_tengah text_blok">Satuan</th>
-				<th rowspan="2" style="width: 150px;" class="atas kanan bawah text_tengah text_blok">Keterangan</th>
+			<?php
+			$row_head='<tr>
+				<th style="width: 85px;" class="row_head_1 atas kiri kanan bawah text_tengah text_blok">No</th>
+				<th style="width: 200px;" class="row_head_1 atas kanan bawah text_tengah text_blok">Bidang Urusan</th>
+				<th style="width: 200px;" class="row_head_1 atas kanan bawah text_tengah text_blok">Tujuan</th>
+				<th style="width: 200px;" class="row_head_1 atas kanan bawah text_tengah text_blok">Sasaran</th>
+				<th style="width: 200px;" class="row_head_1 atas kanan bawah text_tengah text_blok">Program</th>
+				<th style="width: 200px;" class="row_head_1 atas kanan bawah text_tengah text_blok">Kegiatan</th>
+				<th style="width: 400px;" class="row_head_1 atas kanan bawah text_tengah text_blok">Indikator</th>
+				<th style="width: 100px;" class="row_head_1 atas kanan bawah text_tengah text_blok">Target Awal</th>';
+				for ($i=1; $i <= $lama_pelaksanaan; $i++) { 
+				$row_head.='<th style="width: 100px;" class="row_head_1_tahun atas kanan bawah text_tengah text_blok">Tahun '.$i.'</th>';
+				}
+			$row_head.='
+				<th style="width: 100px;" class="row_head_1 atas kanan bawah text_tengah text_blok">Target Akhir</th>
+				<th style="width: 100px;" class="row_head_1 atas kanan bawah text_tengah text_blok">Satuan</th>
+				<th style="width: 150px;" class="row_head_1 atas kanan bawah text_tengah text_blok">Keterangan</th>
 			</tr>
-			<tr>
-				<th style="width: 100px;" class="atas kanan bawah text_tengah text_blok">Target</th>
-				<th style="width: 100px;" class="atas kanan bawah text_tengah text_blok">Pagu</th>
-				<th style="width: 100px;" class="atas kanan bawah text_tengah text_blok">Target</th>
-				<th style="width: 100px;" class="atas kanan bawah text_tengah text_blok">Pagu</th>
-				<th style="width: 100px;" class="atas kanan bawah text_tengah text_blok">Target</th>
-				<th style="width: 100px;" class="atas kanan bawah text_tengah text_blok">Pagu</th>
-				<th style="width: 100px;" class="atas kanan bawah text_tengah text_blok">Target</th>
-				<th style="width: 100px;" class="atas kanan bawah text_tengah text_blok">Pagu</th>
-				<th style="width: 100px;" class="atas kanan bawah text_tengah text_blok">Target</th>
-				<th style="width: 100px;" class="atas kanan bawah text_tengah text_blok">Pagu</th>
-			</tr>
+			<tr>';
+			for ($i=1; $i <= $lama_pelaksanaan; $i++) { 
+			$row_head.='<th style="width: 100px;" class="row_head_2 atas kanan bawah text_tengah text_blok">Target</th><th style="width: 100px;" class="atas kanan bawah text_tengah text_blok">Pagu</th>';
+			}
+			$row_head.='</tr>';
+			echo $row_head;
+			?>
+
 			<tr>
 				<th class='atas kiri kanan bawah text_tengah text_blok'>0</th>
 				<th class='atas kanan bawah text_tengah text_blok'>1</th>
@@ -924,19 +903,22 @@ foreach ($data_all['data'] as $tujuan) {
 				<th class='atas kanan bawah text_tengah text_blok'>5</th>
 				<th class='atas kanan bawah text_tengah text_blok'>6</th>
 				<th class='atas kanan bawah text_tengah text_blok'>7</th>
-				<th class='atas kanan bawah text_tengah text_blok'>8</th>
-				<th class='atas kanan bawah text_tengah text_blok'>9</th>
-				<th class='atas kanan bawah text_tengah text_blok'>10</th>
-				<th class='atas kanan bawah text_tengah text_blok'>11</th>
-				<th class='atas kanan bawah text_tengah text_blok'>12</th>
-				<th class='atas kanan bawah text_tengah text_blok'>13</th>
-				<th class='atas kanan bawah text_tengah text_blok'>14</th>
-				<th class='atas kanan bawah text_tengah text_blok'>15</th>
-				<th class='atas kanan bawah text_tengah text_blok'>16</th>
-				<th class='atas kanan bawah text_tengah text_blok'>17</th>
-				<th class='atas kanan bawah text_tengah text_blok'>18</th>
-				<th class='atas kanan bawah text_tengah text_blok'>19</th>
-				<th class='atas kanan bawah text_tengah text_blok'>20</th>
+				<?php 
+				$target_temp = 8;
+				for ($i=1; $i <= $lama_pelaksanaan; $i++) { 
+					if($i!=1){
+						$target_temp=$pagu_temp+1; 
+					}
+					$pagu_temp=$target_temp+1;
+				?>
+				<th class='atas kanan bawah text_tengah text_blok'><?php echo $target_temp ?></th>
+				<th class='atas kanan bawah text_tengah text_blok'><?php echo $pagu_temp ?></th>
+				<?php
+				}
+				?>
+				<th class='atas kanan bawah text_tengah text_blok'><?php echo $pagu_temp+1 ?></th>
+				<th class='atas kanan bawah text_tengah text_blok'><?php echo $pagu_temp+2 ?></th>
+				<th class='atas kanan bawah text_tengah text_blok'><?php echo $pagu_temp+3 ?></th>
 			</tr>
 		</thead>
 		<tbody>
@@ -1010,8 +992,13 @@ foreach ($data_all['data'] as $tujuan) {
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/slim-select/1.27.1/slimselect.min.js"></script>
 <script type="text/javascript">
+	
 	run_download_excel();
+	
 	let data_all = <?php echo json_encode($data_all); ?>;
+
+	jQuery("#table-renstra th.row_head_1").attr('rowspan',2);
+	jQuery("#table-renstra th.row_head_1_tahun").attr('colspan',2);
 
 	var mySpace = '<div style="padding:3rem;"></div>';
 	
@@ -1029,6 +1016,7 @@ foreach ($data_all['data'] as $tujuan) {
 	var aksi = ''
 		+'<a style="margin-left: 10px;" id="singkron-sipd" onclick="return false;" href="#" class="btn btn-danger">Ambil data dari SIPD lokal</a>'
 		+'<?php echo $add_renstra; ?>'
+		+'<a style="margin-left: 10px;" id="cetak-renstra" onclick="return false;" href="#" class="btn btn-warning">CETAK RENSTRA</a>'
 		+'<h3 style="margin-top: 20px;">SETTING</h3>'
 		+'<label><input type="checkbox" onclick="tampilkan_edit(this);"> Edit Data RENSTRA</label>'
 		+'<label style="margin-left: 20px;"><input type="checkbox" onclick="show_debug(this);"> Debug Cascading RPJM</label>'
