@@ -3372,178 +3372,129 @@ class Wpsipd_Public_Base_3
 						$satuan .= '<div class="indikator">'.$indikator['satuan'].'</div>';
 					}
 
-					$target_arr = [$target_1, $target_2, $target_3, $target_4, $target_5];
-					$body .= '
-							<tr class="tr-tujuan'.$bg_rpjm.'">
-								<td class="atas kanan bawah">'.$tujuan['tujuan_teks'].'</td>
-								<td class="atas kanan bawah"></td>
-								<td class="atas kanan bawah"></td>
-								<td class="atas kanan bawah"></td>
-								<td class="atas kanan bawah"></td>';
-								for ($i=1; $i <= $lama_pelaksanaan; $i++) { 
-									$body.="<td class=\"atas kanan bawah\">".$target_arr[$i]."</td><td class=\"atas kanan bawah\"></td>";
-								}
-								$body.='<td class="atas kanan bawah">'.$target_akhir.'</td>
-							</tr>
-					';
-
-					// $no_sasaran=0;
-					// foreach ($tujuan['data'] as $sasaran) {
-					// 	$no_sasaran++;
-					// 	$indikator_sasaran = '';
-					// 	$target_awal = '';
-					// 	$target_1 = '';
-					// 	$target_2 = '';
-					// 	$target_3 = '';
-					// 	$target_4 = '';
-					// 	$target_5 = '';
-					// 	$target_akhir = '';
-					// 	$satuan = '';
-					// 	foreach($sasaran['indikator'] as $key => $indikator){
-					// 		$indikator_sasaran .= '<div class="indikator">'.$indikator['indikator_teks'].'</div>';
-					// 		$target_awal .= '<div class="indikator">'.$indikator['target_awal'].'</div>';
-					// 		$target_1 .= '<div class="indikator">'.$indikator['target_1'].'</div>';
-					// 		$target_2 .= '<div class="indikator">'.$indikator['target_2'].'</div>';
-					// 		$target_3 .= '<div class="indikator">'.$indikator['target_3'].'</div>';
-					// 		$target_4 .= '<div class="indikator">'.$indikator['target_4'].'</div>';
-					// 		$target_5 .= '<div class="indikator">'.$indikator['target_5'].'</div>';
-					// 		$target_akhir .= '<div class="indikator">'.$indikator['target_akhir'].'</div>';
-					// 		$satuan .= '<div class="indikator">'.$indikator['satuan'].'</div>';
-					// 	}
-
-					// 	$target_arr = [$target_1, $target_2, $target_3, $target_4, $target_5];
-					// 	$body .= '
-					// 			<tr class="tr-sasaran'.$bg_rpjm.'">
-					// 				<td class="kiri atas kanan bawah">'.$no_tujuan.".".$no_sasaran.'</td>
-					// 				<td class="kiri atas kanan bawah"></td>
-					// 				<td class="atas kanan bawah"></td>
-					// 				<td class="atas kanan bawah">'.$sasaran['sasaran_teks'].'</td>
-					// 				<td class="atas kanan bawah"></td>
-					// 				<td class="atas kanan bawah"></td>
-					// 				<td class="atas kanan bawah">'.$indikator_sasaran.'</td>
-					// 				<td class="atas kanan bawah">'.$target_awal.'</td>';
-					// 				for ($i=1; $i <= $lama_pelaksanaan; $i++) { 
-					// 					$body.="<td class=\"atas kanan bawah\">".$target_arr[$i]."</td><td class=\"atas kanan bawah\"></td>";
-					// 				}
-					// 				$body.='<td class="atas kanan bawah">'.$target_akhir.'</td>
-					// 				<td class="atas kanan bawah">'.$satuan.'</td>
-					// 				<td class="atas kanan bawah"></td>
-					// 			</tr>
-					// 	';
+					foreach ($tujuan['data'] as $sasaran) {
+						$no_sasaran++;
+						$indikator_sasaran = '';
+						$target_awal = '';
+						$target_1 = '';
+						$target_2 = '';
+						$target_3 = '';
+						$target_4 = '';
+						$target_5 = '';
+						$target_akhir = '';
+						$satuan = '';
+						foreach($sasaran['indikator'] as $key => $indikator){
+							$indikator_sasaran .= '<div class="indikator">'.$indikator['indikator_teks'].'</div>';
+							$target_awal .= '<div class="indikator">'.$indikator['target_awal'].'</div>';
+							$target_1 .= '<div class="indikator">'.$indikator['target_1'].'</div>';
+							$target_2 .= '<div class="indikator">'.$indikator['target_2'].'</div>';
+							$target_3 .= '<div class="indikator">'.$indikator['target_3'].'</div>';
+							$target_4 .= '<div class="indikator">'.$indikator['target_4'].'</div>';
+							$target_5 .= '<div class="indikator">'.$indikator['target_5'].'</div>';
+							$target_akhir .= '<div class="indikator">'.$indikator['target_akhir'].'</div>';
+							$satuan .= '<div class="indikator">'.$indikator['satuan'].'</div>';
+						}
 						
-					// 	$no_program=0;
-					// 	foreach ($sasaran['data'] as $program) {
-					// 		$no_program++;
-					// 		$indikator_program = '';
-					// 		$target_awal = '';
-					// 		$target_1 = '';
-					// 		$pagu_1   = '';
-					// 		$target_2 = '';
-					// 		$pagu_2   = '';
-					// 		$target_3 = '';
-					// 		$pagu_3   = '';
-					// 		$target_4 = '';
-					// 		$pagu_4   = '';
-					// 		$target_5 = '';
-					// 		$pagu_5   = '';
-					// 		$target_akhir = '';
-					// 		$satuan = '';
-					// 		foreach($program['indikator'] as $key => $indikator){
-					// 			$indikator_program .= '<div class="indikator">'.$indikator['indikator_teks'].'</div>';
-					// 			$target_awal .= '<div class="indikator">'.$indikator['target_awal'].'</div>';
-					// 			$target_1 .= '<div class="indikator">'.$indikator['target_1'].'</div>';
-					// 			$pagu_1 .= '<div class="indikator">'.$indikator['pagu_1'].'</div>';
-					// 			$target_2 .= '<div class="indikator">'.$indikator['target_2'].'</div>';
-					// 			$pagu_2 .= '<div class="indikator">'.$indikator['pagu_2'].'</div>';
-					// 			$target_3 .= '<div class="indikator">'.$indikator['target_3'].'</div>';
-					// 			$pagu_3 .= '<div class="indikator">'.$indikator['pagu_3'].'</div>';
-					// 			$target_4 .= '<div class="indikator">'.$indikator['target_4'].'</div>';
-					// 			$pagu_4 .= '<div class="indikator">'.$indikator['pagu_4'].'</div>';
-					// 			$target_5 .= '<div class="indikator">'.$indikator['target_5'].'</div>';
-					// 			$pagu_5 .= '<div class="indikator">'.$indikator['pagu_5'].'</div>';
-					// 			$target_akhir .= '<div class="indikator">'.$indikator['target_akhir'].'</div>';
-					// 			$satuan .= '<div class="indikator">'.$indikator['satuan'].'</div>';
-					// 		}
+						foreach ($sasaran['data'] as $program) {
+							$no_program++;
+							$indikator_program = '';
+							$target_awal = '';
+							$target_1 = '';
+							$pagu_1   = '';
+							$target_2 = '';
+							$pagu_2   = '';
+							$target_3 = '';
+							$pagu_3   = '';
+							$target_4 = '';
+							$pagu_4   = '';
+							$target_5 = '';
+							$pagu_5   = '';
+							$target_akhir = '';
+							$satuan = '';
+							foreach($program['indikator'] as $key => $indikator){
+								$indikator_program .= '<div class="indikator">'.$indikator['indikator_teks'].'</div>';
+								$target_awal .= '<div class="indikator">'.$indikator['target_awal'].'</div>';
+								$target_1 .= '<div class="indikator">'.$indikator['target_1'].'</div>';
+								$pagu_1 .= '<div class="indikator">'.$indikator['pagu_1'].'</div>';
+								$target_2 .= '<div class="indikator">'.$indikator['target_2'].'</div>';
+								$pagu_2 .= '<div class="indikator">'.$indikator['pagu_2'].'</div>';
+								$target_3 .= '<div class="indikator">'.$indikator['target_3'].'</div>';
+								$pagu_3 .= '<div class="indikator">'.$indikator['pagu_3'].'</div>';
+								$target_4 .= '<div class="indikator">'.$indikator['target_4'].'</div>';
+								$pagu_4 .= '<div class="indikator">'.$indikator['pagu_4'].'</div>';
+								$target_5 .= '<div class="indikator">'.$indikator['target_5'].'</div>';
+								$pagu_5 .= '<div class="indikator">'.$indikator['pagu_5'].'</div>';
+								$target_akhir .= '<div class="indikator">'.$indikator['target_akhir'].'</div>';
+								$satuan .= '<div class="indikator">'.$indikator['satuan'].'</div>';
+							}
 
-					// 		$target_arr = [$target_1, $target_2, $target_3, $target_4, $target_5];
-					// 		$pagu_arr = [$pagu_1, $pagu_2, $pagu_3, $pagu_4, $pagu_5];
-					// 		$body .= '
-					// 				<tr class="tr-program'.$bg_rpjm.'">
-					// 					<td class="kiri atas kanan bawah">'.$no_tujuan.".".$no_sasaran.".".$no_program.'</td>
-					// 					<td class="kiri atas kanan bawah"></td>
-					// 					<td class="atas kanan bawah"></td>
-					// 					<td class="atas kanan bawah"></td>
-					// 					<td class="atas kanan bawah">'.$program['program_teks'].'</td>
-					// 					<td class="atas kanan bawah"></td>
-					// 					<td class="atas kanan bawah">'.$indikator_program.'</td>
-					// 					<td class="atas kanan bawah">'.$target_awal.'</td>';
-					// 					for ($i=1; $i <= $lama_pelaksanaan; $i++) { 
-					// 						$body.="<td class=\"atas kanan bawah\">".$target_arr[$i]."</td><td class=\"atas kanan bawah\">".$pagu_arr[$i]."</td>";
-					// 					}
-					// 					$body.='<td class="atas kanan bawah">'.$target_akhir.'</td>
-					// 					<td class="atas kanan bawah">'.$satuan.'</td>
-					// 					<td class="atas kanan bawah"></td>
-					// 				</tr>
-					// 		';
+							$target_arr = [$target_1, $target_2, $target_3, $target_4, $target_5];
+							$pagu_arr = [$pagu_1, $pagu_2, $pagu_3, $pagu_4, $pagu_5];
+							$body .= '
+									<tr class="tr-program'.$bg_rpjm.'">
+										<td class="atas kanan bawah">'.$tujuan['tujuan_teks'].'</td>
+										<td class="atas kanan bawah">'.$sasaran['sasaran_teks'].'</td>
+										<td class="atas kanan bawah"></td>
+										<td class="atas kanan bawah">'.$program['program_teks'].'</td>
+										<td class="atas kanan bawah">'.$indikator_program.'</td>';
+										for ($i=1; $i <= $_POST['lama_pelaksanaan']; $i++) { 
+											$body.="<td class=\"atas kanan bawah\">".$target_arr[$i]."</td><td class=\"atas kanan bawah\">".$pagu_arr[$i]."</td>";
+										}
+										$body.='<td class="atas kanan bawah">'.$target_akhir.'</td>
+									</tr>
+							';
 							
-					// 		$no_kegiatan=0;
-					// 		foreach ($program['data'] as $kegiatan) {
-					// 			$no_kegiatan++;
-					// 			$indikator_kegiatan = '';
-					// 			$target_awal = '';
-					// 			$target_1 = '';
-					// 			$pagu_1   = '';
-					// 			$target_2 = '';
-					// 			$pagu_2   = '';
-					// 			$target_3 = '';
-					// 			$pagu_3   = '';
-					// 			$target_4 = '';
-					// 			$pagu_4   = '';
-					// 			$target_5 = '';
-					// 			$pagu_5   = '';
-					// 			$target_akhir = '';
-					// 			$satuan = '';
-					// 			foreach($kegiatan['indikator'] as $key => $indikator){
-					// 				$indikator_kegiatan .= '<div class="indikator">'.$indikator['indikator_teks'].'</div>';
-					// 				$target_awal .= '<div class="indikator">'.$indikator['target_awal'].'</div>';
-					// 				$target_1 .= '<div class="indikator">'.$indikator['target_1'].'</div>';
-					// 				$pagu_1 .= '<div class="indikator">'.$indikator['pagu_1'].'</div>';
-					// 				$target_2 .= '<div class="indikator">'.$indikator['target_2'].'</div>';
-					// 				$pagu_2 .= '<div class="indikator">'.$indikator['pagu_2'].'</div>';
-					// 				$target_3 .= '<div class="indikator">'.$indikator['target_3'].'</div>';
-					// 				$pagu_3 .= '<div class="indikator">'.$indikator['pagu_3'].'</div>';
-					// 				$target_4 .= '<div class="indikator">'.$indikator['target_4'].'</div>';
-					// 				$pagu_4 .= '<div class="indikator">'.$indikator['pagu_4'].'</div>';
-					// 				$target_5 .= '<div class="indikator">'.$indikator['target_5'].'</div>';
-					// 				$pagu_5 .= '<div class="indikator">'.$indikator['pagu_5'].'</div>';
-					// 				$target_akhir .= '<div class="indikator">'.$indikator['target_akhir'].'</div>';
-					// 				$satuan .= '<div class="indikator">'.$indikator['satuan'].'</div>';
-					// 			}
+							foreach ($program['data'] as $kegiatan) {
+								$indikator_kegiatan = '';
+								$target_awal = '';
+								$target_1 = '';
+								$pagu_1   = '';
+								$target_2 = '';
+								$pagu_2   = '';
+								$target_3 = '';
+								$pagu_3   = '';
+								$target_4 = '';
+								$pagu_4   = '';
+								$target_5 = '';
+								$pagu_5   = '';
+								$target_akhir = '';
+								$satuan = '';
+								foreach($kegiatan['indikator'] as $key => $indikator){
+									$indikator_kegiatan .= '<div class="indikator">'.$indikator['indikator_teks'].'</div>';
+									$target_awal .= '<div class="indikator">'.$indikator['target_awal'].'</div>';
+									$target_1 .= '<div class="indikator">'.$indikator['target_1'].'</div>';
+									$pagu_1 .= '<div class="indikator">'.$indikator['pagu_1'].'</div>';
+									$target_2 .= '<div class="indikator">'.$indikator['target_2'].'</div>';
+									$pagu_2 .= '<div class="indikator">'.$indikator['pagu_2'].'</div>';
+									$target_3 .= '<div class="indikator">'.$indikator['target_3'].'</div>';
+									$pagu_3 .= '<div class="indikator">'.$indikator['pagu_3'].'</div>';
+									$target_4 .= '<div class="indikator">'.$indikator['target_4'].'</div>';
+									$pagu_4 .= '<div class="indikator">'.$indikator['pagu_4'].'</div>';
+									$target_5 .= '<div class="indikator">'.$indikator['target_5'].'</div>';
+									$pagu_5 .= '<div class="indikator">'.$indikator['pagu_5'].'</div>';
+									$target_akhir .= '<div class="indikator">'.$indikator['target_akhir'].'</div>';
+									$satuan .= '<div class="indikator">'.$indikator['satuan'].'</div>';
+								}
 
-					// 			$target_arr = [$target_1, $target_2, $target_3, $target_4, $target_5];
-					// 			$pagu_arr = [$pagu_1, $pagu_2, $pagu_3, $pagu_4, $pagu_5];
-					// 			$body .= '
-					// 					<tr class="tr-kegiatan'.$bg_rpjm.'">
-					// 						<td class="kiri atas kanan bawah">'.$no_tujuan.".".$no_sasaran.".".$no_program.".".$no_kegiatan.'</td>
-					// 						<td class="kiri atas kanan bawah"></td>
-					// 						<td class="atas kanan bawah"></td>
-					// 						<td class="atas kanan bawah"></td>
-					// 						<td class="atas kanan bawah"></td>
-					// 						<td class="atas kanan bawah">'.$kegiatan['kegiatan_teks'].'</td>
-					// 						<td class="atas kanan bawah">'.$indikator_kegiatan.'</td>
-					// 						<td class="atas kanan bawah">'.$target_awal.'</td>';
-					// 						for ($i=1; $i <= $lama_pelaksanaan; $i++) { 
-					// 							$body.="<td class=\"atas kanan bawah\">".$target_arr[$i]."</td><td class=\"atas kanan bawah\">".$pagu_arr[$i]."</td>";
-					// 						}
-					// 						$body.='
-					// 						<td class="atas kanan bawah">'.$target_akhir.'</td>
-					// 						<td class="atas kanan bawah">'.$satuan.'</td>
-					// 						<td class="atas kanan bawah"></td>
-					// 					</tr>
-					// 			';
-					// 		}
-					// 	}
-					// }
+								$target_arr = [$target_1, $target_2, $target_3, $target_4, $target_5];
+								$pagu_arr = [$pagu_1, $pagu_2, $pagu_3, $pagu_4, $pagu_5];
+								$body .= '
+										<tr class="tr-kegiatan'.$bg_rpjm.'">
+											<td class="atas kanan bawah"></td>
+											<td class="atas kanan bawah"></td>
+											<td class="atas kanan bawah"></td>
+											<td class="atas kanan bawah">'.$kegiatan['kegiatan_teks'].'</td>
+											<td class="atas kanan bawah">'.$indikator_kegiatan.'</td>';
+											for ($i=1; $i <= $_POST['lama_pelaksanaan']; $i++) { 
+												$body.="<td class=\"atas kanan bawah\">".$target_arr[$i]."</td><td class=\"atas kanan bawah\">".$pagu_arr[$i]."</td>";
+											}
+											$body.='
+											<td class="atas kanan bawah">'.$target_akhir.'</td>
+										</tr>
+								';
+							}
+						}
+					}
 				}
 
 				$html='
@@ -3560,11 +3511,11 @@ class Wpsipd_Public_Base_3
 								<th style="width: 100px;" class="row_head_1 atas kanan bawah text_tengah text_blok">Kondisi Kinerja pada akhir periode Renstra Perangkat Daerah</th>
 							</tr>';
 
-					$html.="<tr>";
+							$html.="<tr>";
 							for ($i=$_POST['awal_renstra']; $i <= $_POST['akhir_renstra']; $i++) { 
 								$html.='<th style="width: 100px;" class="row_head_1_tahun atas kanan bawah text_tengah text_blok">'.$i.'</th>';
 							}
-					$html.="</tr>";
+							$html.="</tr>";
 
 							$html.="<tr>";
 							for ($i=1; $i <= $_POST['lama_pelaksanaan']; $i++) { 
@@ -3591,7 +3542,7 @@ class Wpsipd_Public_Base_3
 							</tr>";
 
 						$html.="</thead>
-						<tbody></tbody>
+						<tbody>".$body."</tbody>
 					</table>";
 
 					$ret['html'] = $html;
