@@ -50,7 +50,7 @@ $jadwal_lokal = $wpdb->get_results("SELECT a.*, (SELECT id_tipe FROM data_jadwal
 
 $add_renstra = '';
 if(!empty($jadwal_lokal)){
-	$awal_renstra = $jadwal_lokal[0]['tahun_anggaran'];
+	$awal_renstra = $jadwal_lokal[0]['tahun_anggaran']+1;
 	$namaJadwal = $jadwal_lokal[0]['nama'];
 	$mulaiJadwal = $jadwal_lokal[0]['waktu_awal'];
 	$selesaiJadwal = $jadwal_lokal[0]['waktu_akhir'];
@@ -67,7 +67,7 @@ if(!empty($jadwal_lokal)){
 	}
 }
 
-$akhir_renstra = $awal_renstra+$lama_pelaksanaan;
+$akhir_renstra = ($awal_renstra-1)+$lama_pelaksanaan;
 $urut = $tahun_anggaran-$awal_renstra;
 $rumus_indikator_db = $wpdb->get_results("SELECT * FROM data_rumus_indikator WHERE active=1 AND tahun_anggaran=".$tahun_anggaran, ARRAY_A);
 $rumus_indikator = '';
@@ -1016,7 +1016,12 @@ foreach ($data_all['data'] as $tujuan) {
 	var aksi = ''
 		+'<a style="margin-left: 10px;" id="singkron-sipd" onclick="return false;" href="#" class="btn btn-danger">Ambil data dari SIPD lokal</a>'
 		+'<?php echo $add_renstra; ?>'
-		+'<a style="margin-left: 10px;" id="cetak-renstra" onclick="return false;" href="#" class="btn btn-warning">CETAK RENSTRA</a>'
+		+'<div class="dropdown" style="margin:30px">'
+  			+'<button class="btn btn-warning dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">CETAK RENSTRA</button>'
+			  +'<div class="dropdown-menu" aria-labelledby="dropdownMenuButton">'
+			    +'<a class="dropdown-item" href="javascript:laporan(\'tc27\')">TC27</a>'
+			  +'</div>'
+		+'</div>'
 		+'<h3 style="margin-top: 20px;">SETTING</h3>'
 		+'<label><input type="checkbox" onclick="tampilkan_edit(this);"> Edit Data RENSTRA</label>'
 		+'<label style="margin-left: 20px;"><input type="checkbox" onclick="show_debug(this);"> Debug Cascading RPJM</label>'
@@ -2659,6 +2664,47 @@ foreach ($data_all['data'] as $tujuan) {
 	jQuery(document).on('change', '#bidang-teks', function(){
 		get_program(jQuery(this).val());
 	});
+
+	function laporan(type){
+		jQuery('#wrap-loading').show();
+
+		let action='';
+		switch(type){
+			case 'tc27':
+				action='view_laporan_tc27';
+			break;
+
+			default:
+				action='view_laporan_tc27';
+				break;
+		}
+
+		jQuery.ajax({
+				method:'POST',
+				url:ajax.url,
+				dataType:'json',
+				data:{
+					'action': action,
+		          	'api_key': '<?php echo $api_key; ?>',
+		          	'id_unit': '<?php echo $input['id_skpd']; ?>',
+		          	'lama_pelaksanaan': '<?php echo $lama_pelaksanaan; ?>', 
+		          	'awal_renstra': '<?php echo $awal_renstra; ?>',
+		          	'akhir_renstra': '<?php echo $akhir_renstra; ?>'
+				},
+				success:function(response){
+					jQuery('#wrap-loading').hide();
+					jQuery("#modal-crud-renstra").find('.modal-title').html('Laporan Renstra TC27');
+					jQuery("#modal-crud-renstra").find('.modal-body').html(response.html);
+					jQuery("#modal-crud-renstra").find('.modal-body').css('overflow-x', 'auto');
+					jQuery("#modal-crud-renstra").find('.modal-dialog').css('maxWidth','1950px');
+					jQuery("#modal-crud-renstra").find('.modal-dialog').css('width','100%');
+					jQuery("#modal-crud-renstra").modal('show');
+					jQuery("#view-table-renstra th.row_head_1").attr('rowspan',3);
+					jQuery("#view-table-renstra th.row_head_kinerja").attr('colspan',<?php echo (2*$lama_pelaksanaan) ?>);
+					jQuery("#view-table-renstra th.row_head_1_tahun").attr('colspan',2);
+				}
+			});
+	}
 
 	function pilihJadwal(that){
 		jQuery("#wrap-loading").show();
