@@ -833,7 +833,10 @@ class Wpsipd_Admin {
 		global $wpdb;
 		$tahun = $wpdb->get_results('select tahun_anggaran from data_unit group by tahun_anggaran order by tahun_anggaran ASC', ARRAY_A);
 		$options_tahun = array();
-		$tahun_skr = date('Y');
+		$tahun_skr = get_option('_crb_tahun_anggaran_sipd');
+		if(empty($tahun_skr)){
+			$tahun_skr = date('Y');
+		}
 		foreach ($tahun as $k => $v) {
 			$selected = '';
 			if($tahun_skr == $v['tahun_anggaran']){
@@ -855,12 +858,12 @@ class Wpsipd_Admin {
 	            			'.implode('', $options_tahun).'
 	            		</select>
 	            		<select style="margin-bottom: 15px; margin-left: 25px; min-width: 200px;" id="pilih_skpd" onchange="format_sumberdana();">
-	            			<option value="0">Semua SKPD</option>
+	            			<option value="-1">Pilih SKPD</option>
 	            		</select>
 	            		<br>
-	            		<label><input type="radio" checked name="format-sd" format-id="1" onclick="format_sumberdana();"> Format Per Sumber Dana SIPD</label>
+	            		<label><input type="radio" name="format-sd" format-id="1" onclick="format_sumberdana();"> Format Per Sumber Dana SIPD</label>
 	            		<label style="margin-left: 25px;"><input type="radio" name="format-sd" format-id="3" onclick="format_sumberdana();"> Format Kombinasi Sumber Dana SIPD</label>
-	            		<label style="margin-left: 25px;"><input type="radio" name="format-sd" format-id="2" onclick="format_sumberdana();"> Format Per Sumber Dana Mapping</label>
+	            		<label style="margin-left: 25px;"><input type="radio" checked name="format-sd" format-id="2" onclick="format_sumberdana();"> Format Per Sumber Dana Mapping</label>
 	            	</div>
 	            	<div id="tabel_monev_sumber_dana">
 	            	</div>

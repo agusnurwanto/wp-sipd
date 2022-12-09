@@ -7028,18 +7028,19 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 									and m.active=1', 
 							$_POST['tahun_anggaran'], $id_rinci )
 						);
-						$res['data_sumber_dana'] = $wpdb->get_results(
-							$wpdb->prepare('
+						$sql = $wpdb->prepare('
 								select 
 									s.nama_dana,
-									s.id
+									s.id_dana as id
 								from data_mapping_sumberdana m
-									left join data_sumber_dana s on m.id_sumber_dana=s.id
+								left join data_sumber_dana s on m.id_sumber_dana=s.id_dana
+									and s.tahun_anggaran=m.tahun_anggaran
 								where m.tahun_anggaran=%d
 									and m.id_rinci_sub_bl=%d
 									and m.active=1', 
-							$_POST['tahun_anggaran'], $id_rinci )
-						);
+							$_POST['tahun_anggaran'], $id_rinci );
+						// $res['data_sumber_dana_query'] = $sql;
+						$res['data_sumber_dana'] = $wpdb->get_results($sql);
 						$ret['data'][] = $res;
 					}
 				} else {
