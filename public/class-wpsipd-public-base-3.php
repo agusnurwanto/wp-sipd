@@ -3432,15 +3432,15 @@ class Wpsipd_Public_Base_3
 							$pagu_arr = [$pagu_1, $pagu_2, $pagu_3, $pagu_4, $pagu_5];
 							$body .= '
 									<tr class="tr-program'.$bg_rpjm.'">
-										<td class="atas kanan bawah">'.$tujuan['tujuan_teks'].'</td>
-										<td class="atas kanan bawah">'.$sasaran['sasaran_teks'].'</td>
-										<td class="atas kanan bawah"></td>
-										<td class="atas kanan bawah">'.$program['program_teks'].'</td>
-										<td class="atas kanan bawah">'.$indikator_program.'</td>';
+										<td class="kiri atas kanan bawah">'.$tujuan['tujuan_teks'].'</td>
+										<td class="kiri atas kanan bawah">'.$sasaran['sasaran_teks'].'</td>
+										<td class="kiri atas kanan bawah"></td>
+										<td class="kiri atas kanan bawah">'.$program['program_teks'].'</td>
+										<td class="kiri atas kanan bawah">'.$indikator_program.'</td>';
 										for ($i=1; $i <= $_POST['lama_pelaksanaan']; $i++) { 
-											$body.="<td class=\"atas kanan bawah\">".$target_arr[$i]."</td><td class=\"atas kanan bawah\">".$pagu_arr[$i]."</td>";
+											$body.="<td class=\"kiri atas kanan bawah\">".$target_arr[$i]."</td><td class=\"atas kanan bawah\">".$pagu_arr[$i]."</td>";
 										}
-										$body.='<td class="atas kanan bawah">'.$target_akhir.'</td>
+										$body.='<td class="kiri kiri atas kanan bawah">'.$target_akhir.'</td>
 									</tr>
 							';
 							
@@ -3480,16 +3480,16 @@ class Wpsipd_Public_Base_3
 								$pagu_arr = [$pagu_1, $pagu_2, $pagu_3, $pagu_4, $pagu_5];
 								$body .= '
 										<tr class="tr-kegiatan'.$bg_rpjm.'">
-											<td class="atas kanan bawah"></td>
-											<td class="atas kanan bawah"></td>
-											<td class="atas kanan bawah"></td>
-											<td class="atas kanan bawah">'.$kegiatan['kegiatan_teks'].'</td>
-											<td class="atas kanan bawah">'.$indikator_kegiatan.'</td>';
+											<td class="kiri atas kanan bawah"></td>
+											<td class="kiri atas kanan bawah"></td>
+											<td class="kiri atas kanan bawah"></td>
+											<td class="kiri atas kanan bawah">'.$kegiatan['kegiatan_teks'].'</td>
+											<td class="kiri atas kanan bawah">'.$indikator_kegiatan.'</td>';
 											for ($i=1; $i <= $_POST['lama_pelaksanaan']; $i++) { 
-												$body.="<td class=\"atas kanan bawah\">".$target_arr[$i]."</td><td class=\"atas kanan bawah\">".$pagu_arr[$i]."</td>";
+												$body.="<td class=\"kiri atas kanan bawah\">".$target_arr[$i]."</td><td class=\"atas kanan bawah\">".$pagu_arr[$i]."</td>";
 											}
 											$body.='
-											<td class="atas kanan bawah">'.$target_akhir.'</td>
+											<td class="kiri atas kanan bawah">'.$target_akhir.'</td>
 										</tr>
 								';
 							}
@@ -3502,7 +3502,7 @@ class Wpsipd_Public_Base_3
 						<thead>';
 
 					$html.='<tr>
-								<th style="width: 200px;" class="row_head_1 atas kanan bawah text_tengah text_blok">Tujuan</th>
+								<th style="width: 200px;" class="row_head_1 atas kanan bawah text_tengah text_blok kiri">Tujuan</th>
 								<th style="width: 200px;" class="row_head_1 atas kanan bawah text_tengah text_blok">Sasaran</th>
 								<th style="width: 200px;" class="row_head_1 atas kanan bawah text_tengah text_blok">Kode</th>
 								<th style="width: 200px;" class="row_head_1 atas kanan bawah text_tengah text_blok">Program dan Kegiatan</th>
@@ -3513,7 +3513,7 @@ class Wpsipd_Public_Base_3
 
 							$html.="<tr>";
 							for ($i=$_POST['awal_renstra']; $i <= $_POST['akhir_renstra']; $i++) { 
-								$html.='<th style="width: 100px;" class="row_head_1_tahun atas kanan bawah text_tengah text_blok">'.$i.'</th>';
+								$html.='<th style="width: 100px;" class="row_head_1_tahun atas kanan bawah text_tengah text_blok kiri">'.$i.'</th>';
 							}
 							$html.="</tr>";
 
@@ -3524,7 +3524,7 @@ class Wpsipd_Public_Base_3
 							$html.='</tr>';
 
 							$html.='<tr>
-								<th class="atas kanan bawah text_tengah text_blok">1</th>
+								<th class="atas kanan bawah text_tengah text_blok kiri">1</th>
 								<th class="atas kanan bawah text_tengah text_blok">2</th>
 								<th class="atas kanan bawah text_tengah text_blok">3</th>
 								<th class="atas kanan bawah text_tengah text_blok">4</th>
