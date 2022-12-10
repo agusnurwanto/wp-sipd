@@ -1017,7 +1017,7 @@ foreach ($data_all['data'] as $tujuan) {
 		+'<a style="margin-left: 10px;" id="singkron-sipd" onclick="return false;" href="#" class="btn btn-danger">Ambil data dari SIPD lokal</a>'
 		+'<?php echo $add_renstra; ?>'
 		+'<div class="dropdown" style="margin:30px">'
-  			+'<button class="btn btn-warning dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">CETAK RENSTRA</button>'
+  			+'<button class="btn btn-warning dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">LAPORAN</button>'
 			  +'<div class="dropdown-menu" aria-labelledby="dropdownMenuButton">'
 			    +'<a class="dropdown-item" href="javascript:laporan(\'tc27\')">TC27</a>'
 			  +'</div>'
@@ -2669,13 +2669,16 @@ foreach ($data_all['data'] as $tujuan) {
 		jQuery('#wrap-loading').show();
 
 		let action='';
+		let name='';
 		switch(type){
 			case 'tc27':
 				action='view_laporan_tc27';
+				name='Laporan Renstra TC27';
 			break;
 
 			default:
 				action='view_laporan_tc27';
+				name='Laporan Renstra TC27';
 				break;
 		}
 
@@ -2692,18 +2695,32 @@ foreach ($data_all['data'] as $tujuan) {
 		          	'akhir_renstra': '<?php echo $akhir_renstra; ?>'
 				},
 				success:function(response){
+					
 					jQuery('#wrap-loading').hide();
+
+					jQuery("#modal-crud-renstra").find('.modal-dialog').css('maxWidth','1950px');
+					jQuery("#modal-crud-renstra").find('.modal-dialog').css('width','100%');
 					jQuery("#modal-crud-renstra").find('.modal-title').html('Laporan Renstra TC27');
 					jQuery("#modal-crud-renstra").find('.modal-body').html(response.html);
 					jQuery("#modal-crud-renstra").find('.modal-body').css('overflow-x', 'auto');
-					jQuery("#modal-crud-renstra").find('.modal-dialog').css('maxWidth','1950px');
-					jQuery("#modal-crud-renstra").find('.modal-dialog').css('width','100%');
+					jQuery("#modal-crud-renstra").find('.modal-footer').html(''
+						+'<button type="button" class="btn btn-sm btn-warning" data-dismiss="modal">'
+							+'<i class="dashicons dashicons-no" style="margin-top: 3px;"></i> Tutup'
+						+'</button>'
+						+'<button type="button" class="btn btn-sm btn-success" onclick=\'exportExcel("'+name+'")\'>'
+							+'<i class="dashicons dashicons-yes" style="margin-top: 3px;"></i> Export Excel'
+						+'</button>');
 					jQuery("#modal-crud-renstra").modal('show');
+					
 					jQuery("#view-table-renstra th.row_head_1").attr('rowspan',3);
 					jQuery("#view-table-renstra th.row_head_kinerja").attr('colspan',<?php echo (2*$lama_pelaksanaan) ?>);
 					jQuery("#view-table-renstra th.row_head_1_tahun").attr('colspan',2);
 				}
 			});
+	}
+
+	function exportExcel(name){
+		tableHtmlToExcel('view-table-renstra', name);
 	}
 
 	function pilihJadwal(that){

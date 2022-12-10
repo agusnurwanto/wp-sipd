@@ -3257,9 +3257,11 @@ class Wpsipd_Public_Base_3
 
 									foreach ($program_all as $keyProgram => $program_value) {
 										if(empty($data_all['data'][$tujuan_value['id_unik']]['data'][$sasaran_value['id_unik']]['data'][$program_value['id_unik']])){
+											$kode = explode(" ", $program_value['nama_program']);
 											$data_all['data'][$tujuan_value['id_unik']]['data'][$sasaran_value['id_unik']]['data'][$program_value['id_unik']] = [
 												'id' => $program_value['id'],
 												'id_unik' => $program_value['id_unik'],
+												'kode' => $kode[0],
 												'program_teks' => $program_value['nama_program'],
 												'indikator' => array(),
 												'data' => array()
@@ -3308,10 +3310,11 @@ class Wpsipd_Public_Base_3
 										foreach ($kegiatan_all as $keyKegiatan => $kegiatan_value) {
 														
 											if(empty($data_all['data'][$tujuan_value['id_unik']]['data'][$sasaran_value['id_unik']]['data'][$program_value['id_unik']]['data'][$kegiatan_value['id_unik']])){
-
+												$kode = explode(" ", $kegiatan_value['nama_giat']);
 												$data_all['data'][$tujuan_value['id_unik']]['data'][$sasaran_value['id_unik']]['data'][$program_value['id_unik']]['data'][$kegiatan_value['id_unik']] = [
 													'id' => $kegiatan_value['id'],
 													'id_unik' => $kegiatan_value['id_unik'],
+													'kode' => $kode[0],
 													'kegiatan_teks' => $kegiatan_value['nama_giat'],
 													'indikator' => array()
 												];
@@ -3434,7 +3437,7 @@ class Wpsipd_Public_Base_3
 									<tr class="tr-program'.$bg_rpjm.'">
 										<td class="kiri atas kanan bawah">'.$tujuan['tujuan_teks'].'</td>
 										<td class="kiri atas kanan bawah">'.$sasaran['sasaran_teks'].'</td>
-										<td class="kiri atas kanan bawah"></td>
+										<td class="kiri atas kanan bawah">'.$program['kode'].'</td>
 										<td class="kiri atas kanan bawah">'.$program['program_teks'].'</td>
 										<td class="kiri atas kanan bawah">'.$indikator_program.'</td>';
 										for ($i=1; $i <= $_POST['lama_pelaksanaan']; $i++) { 
@@ -3482,7 +3485,7 @@ class Wpsipd_Public_Base_3
 										<tr class="tr-kegiatan'.$bg_rpjm.'">
 											<td class="kiri atas kanan bawah"></td>
 											<td class="kiri atas kanan bawah"></td>
-											<td class="kiri atas kanan bawah"></td>
+											<td class="kiri atas kanan bawah">'.$kegiatan['kode'].'</td>
 											<td class="kiri atas kanan bawah">'.$kegiatan['kegiatan_teks'].'</td>
 											<td class="kiri atas kanan bawah">'.$indikator_kegiatan.'</td>';
 											for ($i=1; $i <= $_POST['lama_pelaksanaan']; $i++) { 
