@@ -9984,6 +9984,26 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 					'name' => '_crb_custom_mapping_rekening_fmis'
 				));
 				$type_pagu = get_option('_crb_fmis_pagu');
+				$type_aktivitas = get_option('_crb_fmis_aktivitas');
+				if($type_aktivitas != 2){
+					$sumber_dana_single = $wpdb->get_results($wpdb->prepare('
+						SELECT 
+							m.id_sumber_dana,
+							s.kode_dana,
+							s.nama_dana
+						FROM data_mapping_sumberdana m
+						INNER JOIN data_sumber_dana s on s.id_dana=m.id_sumber_dana
+							and s.tahun_anggaran=m.tahun_anggaran
+						INNER JOIN data_rka r on r.tahun_anggaran=m.tahun_anggaran
+							and r.active=m.active
+							and m.id_rinci_sub_bl=r.id_rinci_sub_bl
+						WHERE m.tahun_anggaran=%d
+							AND m.active=1
+							and r.kode_sbl=%s
+						GROUP BY m.id_sumber_dana
+						LIMIT 1
+					', $tahun_anggaran, $kode_sbl), ARRAY_A);
+				}
 				foreach ($rka as $k => $v) {
 					if(
 						!empty($type_pagu)
@@ -10009,26 +10029,38 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						$_kode_akun[5] = $this->simda->CekNull($_kode_akun[5], 4);
 						$rka[$k]['kode_akun'] = implode('.', $_kode_akun);
 					}
-					$sumber_dana = $wpdb->get_results($wpdb->prepare('
-						SELECT 
-							m.id_sumber_dana,
-							s.kode_dana,
-							s.nama_dana
-						FROM data_mapping_sumberdana m
-						INNER JOIN data_sumber_dana s on s.id_dana=m.id_sumber_dana
-							and s.tahun_anggaran=m.tahun_anggaran
-						WHERE m.tahun_anggaran=%d
-							AND m.active=1
-							AND m.id_rinci_sub_bl=%d
-					', $tahun_anggaran, $v['id_rinci_sub_bl']), ARRAY_A);
-					if(
-						!empty($sumber_dana) 
-						&& !empty($sumber_dana[0])
-						&& !empty($sumber_dana[0]['nama_dana'])
-					){
-						$rka[$k]['sumber_dana'] = $sumber_dana;
+					if($type_aktivitas == 2){
+						$sumber_dana = $wpdb->get_results($wpdb->prepare('
+							SELECT 
+								m.id_sumber_dana,
+								s.kode_dana,
+								s.nama_dana
+							FROM data_mapping_sumberdana m
+							INNER JOIN data_sumber_dana s on s.id_dana=m.id_sumber_dana
+								and s.tahun_anggaran=m.tahun_anggaran
+							WHERE m.tahun_anggaran=%d
+								AND m.active=1
+								AND m.id_rinci_sub_bl=%d
+						', $tahun_anggaran, $v['id_rinci_sub_bl']), ARRAY_A);
+						if(
+							!empty($sumber_dana) 
+							&& !empty($sumber_dana[0])
+							&& !empty($sumber_dana[0]['nama_dana'])
+						){
+							$rka[$k]['sumber_dana'] = $sumber_dana;
+						}else{
+							$rka[$k]['sumber_dana'] = $sumber_dana_default;
+						}
 					}else{
-						$rka[$k]['sumber_dana'] = $sumber_dana_default;
+						if(
+							!empty($sumber_dana_single) 
+							&& !empty($sumber_dana_single[0])
+							&& !empty($sumber_dana_single[0]['nama_dana'])
+						){
+							$rka[$k]['sumber_dana'] = $sumber_dana_single;
+						}else{
+							$rka[$k]['sumber_dana'] = $sumber_dana_default;
+						}
 					}
 				}
 				$ret['data'] = $rka;
