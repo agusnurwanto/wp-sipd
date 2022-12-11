@@ -377,4 +377,147 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 		require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/wpsipd-public-monitor-rkpd-renja.php';
 	}
 
+	public function get_sub_unit_by_id(){
+		global $wpdb;
+		$ret = array(
+			'status'	=> 'success',
+			'action'	=> $_POST['action'],
+			'data'	=> array()
+		);
+		if (!empty($_POST)) {
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+				$table_content = '<option value="">Pilih Satuan</option>';
+				if(!empty($_POST['id_skpd'])){
+					$ret['data'] = $wpdb->get_results(
+						$wpdb->prepare("
+						SELECT 
+							*
+						from data_unit
+						where id_skpd=%d
+							AND tahun_anggaran=%d
+							AND active=1", $_POST['id_skpd'], $_POST['tahun_anggaran']),
+						ARRAY_A
+					);
+					if(!empty($ret['data']) && $ret['data'][0]['isskpd'] == 0){
+						$ret['data'] = $wpdb->get_results(
+							$wpdb->prepare("
+							SELECT 
+								*
+							from data_unit
+							where id_skpd=%d
+								AND tahun_anggaran=%d
+								AND active=1
+							order by id_skpd ASC", $ret['data'][0]['id_skpd'], $_POST['tahun_anggaran']),
+							ARRAY_A
+						);
+					}else if(!empty($ret['data'])){
+						$ret['data'] = $wpdb->get_results(
+							$wpdb->prepare("
+							SELECT 
+								*
+							from data_unit
+							where idinduk=%d
+								AND tahun_anggaran=%d
+								AND active=1
+							order by id_skpd ASC", $ret['data'][0]['id_skpd'], $_POST['tahun_anggaran']),
+							ARRAY_A
+						);
+					}
+			    	foreach ($ret['data'] as $key => $value) {
+			    		$table_content .= '<option value="'.$value['id_skpd'].'">'.$value['nama_skpd'].'</option>';
+			    	}
+					$ret['table_content'] = $table_content;
+					$ret['query'] = $wpdb->last_query;
+					$ret['id_skpd'] = $_POST['id_skpd'];
+				}else{
+					$ret['status'] = 'error';
+					$ret['message'] = 'ID SKPD tidak boleh kosong!';
+				}
+			} else {
+				$ret['status'] = 'error';
+				$ret['message'] = 'APIKEY tidak sesuai!';
+			}
+		} else {
+			$ret['status'] = 'error';
+			$ret['message'] = 'Format Salah!';
+		}
+		die(json_encode($ret));
+	}
+
+	public function run_sql_data_master(){
+		global $wpdb;
+		$ret = array(
+			'status'	=> 'success',
+			'action'	=> $_POST['action'],
+			'data'		=> array(),
+			'status_insert' => array(),
+			'cek_query' => array()
+		);
+		if(!empty($_POST)){
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+				if(!empty($_POST['nama_tabel'] && !empty($_POST['tahun_anggaran']))){
+					$nama_tabel = $_POST['nama_tabel'];
+					if($nama_tabel === 'data_rumus_indikator'){
+						$ret['data'] = get_option('data_master_rumus_indikator');
+						if(!empty($ret['data'])){
+							foreach($ret['data'] as $val_data){
+								$data_rumus_indikator = $wpdb->get_results($wpdb->prepare('
+											SELECT *
+											FROM data_rumus_indikator
+											WHERE id=%d
+											AND rumus=%s
+											AND tahun_anggaran=%d',
+											$val_data['id'],$val_data['rumus'],$_POST['tahun_anggaran']), ARRAY_A);
+								if(empty($data_rumus_indikator)){
+									$ret['status_insert'] = $wpdb->insert($nama_tabel, array('id'=>$val_data['id'],'rumus'=>$val_data['rumus'],'keterangan'=>$val_data['keterangan'],'user'=>$val_data['user'],'active'=>$val_data['active'],'update_at'=>current_time('mysql'),'tahun_anggaran'=>$_POST['tahun_anggaran']));
+								}
+							}
+						}
+					}else if($nama_tabel === 'data_label_komponen'){
+						$ret['data'] = get_option('data_master_label_komponen');
+						if(!empty($ret['data'])){
+							foreach($ret['data'] as $val_data){
+								$data_rumus_indikator = $wpdb->get_results($wpdb->prepare('
+											SELECT *
+											FROM data_label_komponen
+											WHERE nama=%s
+											AND tahun_anggaran=%d',
+											$val_data['nama'],$_POST['tahun_anggaran']), ARRAY_A);
+								if(empty($data_rumus_indikator)){
+									$ret['status_insert'] = $wpdb->insert($nama_tabel, array('nama'=>$val_data['nama'],'keterangan'=>$val_data['keterangan'],'id_skpd'=>$val_data['id_skpd'],'user'=>$val_data['user'],'active'=>$val_data['active'],'update_at'=>current_time('mysql'),'tahun_anggaran'=>$_POST['tahun_anggaran']));
+								}
+							}
+						}
+					}else if($nama_tabel === 'data_tipe_perencanaan'){
+						$ret['data'] = get_option('data_master_tipe_perencanaan');
+						if(!empty($ret['data'])){
+							foreach($ret['data'] as $val_data){
+								$data_tipe_perencanaan = $wpdb->get_results($wpdb->prepare('
+															SELECT *
+															FROM data_tipe_perencanaan
+															WHERE id=%d',
+															$val_data['id']), ARRAY_A);
+								if(empty($data_tipe_perencanaan)){
+									$ret['status_insert'] = $wpdb->insert($nama_tabel, array('nama_tipe'=>$val_data['nama_tipe'],'keterangan_tipe'=>$val_data['keterangan_tipe'],'lama_pelaksanaan'=>$val_data['lama_pelaksanaan']));
+								}else{
+									$ret['status_insert'] = $wpdb->update($nama_tabel, array('nama_tipe'=>$val_data['nama_tipe'],'keterangan_tipe'=>$val_data['keterangan_tipe'],'lama_pelaksanaan'=>$val_data['lama_pelaksanaan']), array('id'=>$val_data['id']));
+								}
+							}
+						}
+					}
+				}else{
+					$ret['status'] = 'error';
+					$ret['message'] = 'Data ada  yang kosong!';
+				}
+			}else{
+				$ret['status'] = 'error';
+				$ret['message'] = 'APIKEY tidak sesuai!';
+			}
+		}else{
+			$ret['status']	= 'error';
+			$ret['message']	= 'Format Salah!';
+		}
+		die(json_encode($ret));
+	}
+
 }

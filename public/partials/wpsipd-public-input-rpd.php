@@ -383,6 +383,7 @@ foreach ($data_all['data'] as $tujuan) {
 	$target_5 = '';
 	$target_akhir = '';
 	$satuan = '';
+	$indikator_catatan_tujuan = '';
 	foreach($tujuan['detail'] as $k => $v){
 		if(!empty($v['indikator_teks'])){
 			$indikator_tujuan .= '<div class="indikator_program">'.$v['indikator_teks'].button_edit_monev($v['id_unik'].'|'.$v['id_unik_indikator']).'</div>';
@@ -394,6 +395,7 @@ foreach ($data_all['data'] as $tujuan) {
 			$target_5 .= '<div class="indikator_program">'.$v['target_5'].'</div>';
 			$target_akhir .= '<div class="indikator_program">'.$v['target_akhir'].'</div>';
 			$satuan .= '<div class="indikator_program">'.$v['satuan'].'</div>';
+			$indikator_catatan_tujuan .= '<div class="indikator_program">'.$v['indikator_catatan_teks'].'</div>';
 		}
 	}
 	$target_html = "";
@@ -416,6 +418,9 @@ foreach ($data_all['data'] as $tujuan) {
 			'.$target_html.'
 			<td class="atas kanan bawah text_tengah">'.$target_akhir.'</td>
 			<td class="atas kanan bawah">'.$satuan.'</td>
+			<td class="atas kanan bawah">'.$tujuan['detail'][0]['no_urut'].'</td>
+			<td class="atas kanan bawah">'.$tujuan['detail'][0]['catatan_teks_tujuan'].'</td>
+			<td class="atas kanan bawah">'.$indikator_catatan_tujuan.'</td>
 			<td class="atas kanan bawah"></td>
 		</tr>
 	';
@@ -431,6 +436,7 @@ foreach ($data_all['data'] as $tujuan) {
 		$target_5 = '';
 		$target_akhir = '';
 		$satuan = '';
+		$indikator_catatan_sasaran = '';
 		foreach($sasaran['detail'] as $k => $v){
 			if(!empty($v['indikator_teks'])){
 				$indikator_sasaran .= '<div class="indikator_program">'.$v['indikator_teks'].button_edit_monev($tujuan['detail'][0]['id_unik'].'||'.$v['id_unik'].'|'.$v['id_unik_indikator']).'</div>';
@@ -442,6 +448,7 @@ foreach ($data_all['data'] as $tujuan) {
 				$target_5 .= '<div class="indikator_program">'.$v['target_5'].'</div>';
 				$target_akhir .= '<div class="indikator_program">'.$v['target_akhir'].'</div>';
 				$satuan .= '<div class="indikator_program">'.$v['satuan'].'</div>';
+				$indikator_catatan_sasaran .= '<div class="indikator_program">'.$v['indikator_catatan_teks'].'</div>';
 			}
 		}
 		$target_html = "";
@@ -460,6 +467,9 @@ foreach ($data_all['data'] as $tujuan) {
 				'.$target_html.'
 				<td class="atas kanan bawah text_tengah">'.$target_akhir.'</td>
 				<td class="atas kanan bawah">'.$satuan.'</td>
+				<td class="atas kanan bawah">'.$sasaran['detail'][0]['sasaran_no_urut'].'</td>
+				<td class="atas kanan bawah">'.$sasaran['detail'][0]['sasaran_catatan'].'</td>
+				<td class="atas kanan bawah">'.$indikator_catatan_sasaran.'</td>
 				<td class="atas kanan bawah"></td>
 			</tr>
 		';
@@ -552,6 +562,9 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
 			<?php }; ?>
 				<th style="width: 100px;" class="atas kanan bawah text_tengah text_blok">Target Akhir</th>
 				<th style="width: 100px;" class="atas kanan bawah text_tengah text_blok">Satuan</th>
+				<th style="width: 100px;" class="atas kanan bawah text_tengah text_blok">No. Urut</th>
+				<th style="width: 100px;" class="atas kanan bawah text_tengah text_blok">Catatan</th>
+				<th style="width: 100px;" class="atas kanan bawah text_tengah text_blok">Indikator Catatan</th>
 				<th style="width: 150px;" class="atas kanan bawah text_tengah text_blok">Keterangan</th>
 			</tr>
 			<tr>
@@ -565,8 +578,11 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
 				<th class='atas kanan bawah text_tengah text_blok'>7</th>
 				<th class='atas kanan bawah text_tengah text_blok'>8</th>
 				<th class='atas kanan bawah text_tengah text_blok'>9</th>
+				<th class='atas kanan bawah text_tengah text_blok'>10</th>
+				<th class='atas kanan bawah text_tengah text_blok'>11</th>
+				<th class='atas kanan bawah text_tengah text_blok'>12</th>
 			<?php for($i=1; $i<=$lama_pelaksanaan; $i++){ ?>
-				<th style="width: 100px;" class="atas kanan bawah text_tengah text_blok"><?php echo 9+$i; ?></th>
+				<th style="width: 100px;" class="atas kanan bawah text_tengah text_blok"><?php echo 12+$i; ?></th>
 			<?php }; ?>
 			</tr>
 		</thead>
@@ -635,6 +651,14 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
 				    	<textarea class="form-control" id="tujuan-teks"></textarea>
 				    	<small class="form-text text-muted">Input teks tujuan RPD.</small>
 				  	</div>
+					<div class="form-group">
+						<label>No Urut</label>
+						<input class="form-control" type="number" id="no-urut-teks-tujuan"></input>
+					</div>
+					<div class="form-group">
+						<label>Catatan Teks</label>
+						<textarea class="form-control" id="catatan-teks-tujuan"></textarea>
+					</div>
 				</form>
             </div>
             <div class="modal-footer">
@@ -723,6 +747,10 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
 					    	<input class="form-control" id="indikator-teks-tujuan-satuan-akhir" type="text">
 					  	</div>
 					</div>
+					<div class="form-group">
+						<label>Catatan Teks</label>
+						<textarea class="form-control" id="indikator-teks-tujuan-catatan" type="text"></textarea>
+					</div>
 				</form>
             </div>
             <div class="modal-footer">
@@ -753,6 +781,14 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
 				    	<label>Sasaran Teks</label>
 				    	<textarea class="form-control" id="sasaran-teks"></textarea>
 				    	<small class="form-text text-muted">Input teks sasaran RPD.</small>
+				  	</div>
+					<div class="form-group">
+				    	<label>No Urut</label>
+				    	<input class="form-control" id="sasaran-no-urut" type="number"></input>
+				  	</div>
+					<div class="form-group">
+				    	<label>Catatan Teks</label>
+				    	<textarea class="form-control" id="sasaran-catatan-teks"></textarea>
 				  	</div>
 				</form>
             </div>
@@ -821,6 +857,10 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
 					    	<label>Satuan</label>
 					    	<input class="form-control" id="indikator-teks-sasaran-satuan-akhir" type="text">
 					  	</div>
+					</div>
+					<div class="form-group">
+						<label>Input catatan teks</label>
+						<textarea class="form-control" id="indikator-catatan-teks-sasaran" type="text"></textarea>
 					</div>
 				</form>
             </div>
@@ -1431,6 +1471,7 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
 			<?php }; ?>
 				jQuery('#indikator-teks-tujuan-vol-akhir').val('');
 				jQuery('#indikator-teks-tujuan-satuan-akhir').val('');
+				jQuery('#indikator-teks-tujuan-catatan').val('');
 				jQuery('#modal-tujuan-indikator').modal('show');
 				for(var b in res.data_all){
           			res.data_all[b].rpjpd.visi.data.data.map(function(bb, ii){
@@ -1583,6 +1624,8 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
 			jQuery('#modal-tujuan').attr('data-id', '');
 			jQuery('#modal-tujuan').modal('show');
 			jQuery('#tujuan-teks').val('');
+			jQuery('#no-urut-teks-tujuan').val('');
+			jQuery('#catatan-teks-tujuan').val('');
 		});
 	}
 
@@ -1762,6 +1805,8 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
 		  			jQuery('#isu-teks').html(isu_html);
 
 					jQuery('#tujuan-teks').val(res.data_all[b].nama);
+					jQuery('#no-urut-teks-tujuan').val(res.data_all[b].no_urut);
+					jQuery('#catatan-teks-tujuan').val(res.data_all[b].catatan_teks_tujuan);
 		  		}
 				jQuery('#modal-tujuan').attr('data-id', id_unik_tujuan);
 				jQuery('#modal-tujuan').modal('show');
@@ -1788,6 +1833,9 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
           		for(var b in res.data_all){
 					jQuery('#sasaran-teks').val(res.data_all[b].nama);
 		  		}
+				// console.log(res.data_all[b]);
+				jQuery('#sasaran-no-urut').val(res.data_all[b].sasaran_no_urut);
+				jQuery('#sasaran-catatan-teks').val(res.data_all[b].sasaran_catatan);
 				jQuery('#modal-sasaran').attr('id-tujuan', res.data[0].kode_tujuan);
 				jQuery('#modal-sasaran').attr('data-id', id_unik_sasaran);
 				jQuery('#modal-sasaran').modal('show');
@@ -1955,6 +2003,7 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
 				<?php }; ?>
 					jQuery('#indikator-teks-tujuan-vol-akhir').val(get_vol(res.data_all[b].detail[0].target_akhir));
 					jQuery('#indikator-teks-tujuan-satuan-akhir').val(get_sat(res.data_all[b].detail[0].target_akhir));
+					jQuery('#indikator-teks-tujuan-catatan').val(res.data_all[b].indikator_catatan_teks);
 				}
 				jQuery('#wrap-loading').hide();
 				jQuery('#modal-tujuan-indikator').attr('data-id', id_unik_tujuan_indikator);
@@ -1990,6 +2039,7 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
 				<?php }; ?>
 					jQuery('#indikator-teks-sasaran-vol-akhir').val(get_vol(res.data_all[b].detail[0].target_akhir));
 					jQuery('#indikator-teks-sasaran-satuan-akhir').val(get_sat(res.data_all[b].detail[0].target_akhir));
+					jQuery('#indikator-catatan-teks-sasaran').val(res.data_all[b].indikator_catatan_teks);
 				}
 				jQuery('#wrap-loading').hide();
 				jQuery('#modal-sasaran-indikator').attr('data-id', id_unik_sasaran_indikator);
@@ -2059,6 +2109,13 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
 				return alert('Isu RPJPD tidak boleh kosong!');
 			}
 			var id_tujuan = jQuery('#modal-tujuan').attr('data-id');
+			var no_urut = jQuery('#no-urut-teks-tujuan').val();
+			if(no_urut == ''){
+				jQuery('#wrap-loading').hide();
+				console.log('hei');
+				return alert('No urut tidak boleh kosong!');
+			}
+			var catatan_teks_tujuan = jQuery('#catatan-teks-tujuan').val();
 			jQuery.ajax({
 				url: ajax.url,
 	          	type: "post",
@@ -2068,7 +2125,9 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
 	          		"table": 'data_rpd_tujuan_lokal',
 	          		"data": tujuan_teks,
 	          		"id_isu": id_isu,
-	          		"id": id_tujuan
+	          		"id": id_tujuan,
+					"no_urut":no_urut,
+					"catatan_teks_tujuan":catatan_teks_tujuan
 	          	},
 	          	dataType: "json",
 	          	success: function(res){
@@ -2090,12 +2149,21 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
 			var sasaran_teks = jQuery('#sasaran-teks').val();
 			if(sasaran_teks == ''){
 				return alert('Sasaran tidak boleh kosong!');
+				jQuery('#wrap-loading').hide();
 			}
 			var id_unik_tujuan = jQuery('#modal-sasaran').attr('id-tujuan');
 			if(id_unik_tujuan == ''){
 				return alert('Id tujuan tidak boleh kosong!');
+				jQuery('#wrap-loading').hide();
 			}
 			var id_sasaran = jQuery('#modal-sasaran').attr('data-id');
+			var sasaran_no_urut = jQuery('#sasaran-no-urut').val();
+			if(sasaran_no_urut == ''){
+				return alert('No urut sasaran tidak boleh kosong!');
+				// jQuery('#wrap-loading').hide();
+				// console.log('tutup');
+			}
+			var sasaran_catatan = jQuery('#sasaran-catatan-teks').val();
 			jQuery.ajax({
 				url: ajax.url,
 	          	type: "post",
@@ -2105,10 +2173,13 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
 	          		"table": 'data_rpd_sasaran_lokal',
 	          		"data": sasaran_teks,
 	          		"id_tujuan": id_unik_tujuan,
-	          		"id": id_sasaran
+	          		"id": id_sasaran,
+					"sasaran_no_urut": sasaran_no_urut,
+					"sasaran_catatan": sasaran_catatan
 	          	},
 	          	dataType: "json",
 	          	success: function(res){
+				console.log(res);
 					jQuery('#wrap-loading').hide();
 					if(res.status == 'success'){
 	          			edit_val = true;
@@ -2354,6 +2425,7 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
 			return alert('Satuan akhir indikator tujuan tidak boleh kosong!');
 		}
 		var id_indikator = jQuery('#modal-tujuan-indikator').attr('data-id');
+		var indikator_catatan_teks = jQuery('#indikator-teks-tujuan-catatan').val();
 		if(confirm('Apakah anda yakin untuk menyimpan data ini?')){
 			jQuery('#wrap-loading').show();
 			jQuery.ajax({
@@ -2373,7 +2445,8 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
 				<?php }; ?>
 	          		"vol_akhir": vol_akhir,
 	          		"satuan_akhir": satuan_akhir,
-	          		"id": id_indikator
+	          		"id": id_indikator,
+					"indikator_catatan_teks":indikator_catatan_teks
 	          	},
 	          	dataType: "json",
 	          	success: function(res){
@@ -2425,6 +2498,7 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
 			return alert('Satuan akhir indikator sasaran tidak boleh kosong!');
 		}
 		var id_indikator = jQuery('#modal-sasaran-indikator').attr('data-id');
+		var indikator_catatan_teks = jQuery('#indikator-catatan-teks-sasaran').val();
 		if(confirm('Apakah anda yakin untuk menyimpan data ini?')){
 			jQuery('#wrap-loading').show();
 			jQuery.ajax({
@@ -2444,7 +2518,8 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
 				<?php }; ?>
 	          		"vol_akhir": vol_akhir,
 	          		"satuan_akhir": satuan_akhir,
-	          		"id": id_indikator
+	          		"id": id_indikator,
+					'indikator_catatan_teks': indikator_catatan_teks
 	          	},
 	          	dataType: "json",
 	          	success: function(res){

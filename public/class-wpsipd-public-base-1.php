@@ -564,7 +564,10 @@ class Wpsipd_Public_Base_1 extends Wpsipd_Public_Base_2{
                                     'nama' => $tujuan['tujuan_teks'],
                                     'id_jadwal_rpjpd' => $id_jadwal_rpjpd,
                                     'rpjpd' => array(),
-                                    'detail' => array()
+                                    'detail' => array(),
+                                    'no_urut' => $tujuan['no_urut'],
+                                    'catatan_teks_tujuan' => $tujuan['catatan_teks_tujuan'],
+                                    'indikator_catatan_teks' => $tujuan['indikator_catatan_teks']
                                 );
                                 if(!empty($_POST['id_unik_tujuan'])){
                                     $_POST['table'] = 'data_rpjpd_isu';
@@ -614,6 +617,9 @@ class Wpsipd_Public_Base_1 extends Wpsipd_Public_Base_2{
                                     'id' => $sasaran['id'],
                                     'id_unik' => $sasaran['id_unik'],
                                     'nama' => $sasaran['sasaran_teks'],
+                                    'sasaran_no_urut' => $sasaran['sasaran_no_urut'],
+                                    'sasaran_catatan' => $sasaran['sasaran_catatan'],
+                                    'indikator_catatan_teks'=> $sasaran['indikator_catatan_teks'],
                                     'detail' => array()
                                 );
                             }
@@ -702,7 +708,8 @@ class Wpsipd_Public_Base_1 extends Wpsipd_Public_Base_2{
                                 'target_4' => $_POST['vol_4'].' '.$_POST['satuan_4'],
                                 'target_5' => $_POST['vol_5'].' '.$_POST['satuan_5'],
                                 'target_akhir' => $_POST['vol_akhir'].' '.$_POST['satuan_akhir'],
-                                'update_at' => date('Y-m-d H:i:s')
+                                'update_at' => date('Y-m-d H:i:s'),
+                                'indikator_catatan_teks' => $_POST['indikator_catatan_teks']
                             );
                             if(!empty($_POST['id'])){
                                 $data['id_unik_indikator'] = $_POST['id'];
@@ -729,7 +736,9 @@ class Wpsipd_Public_Base_1 extends Wpsipd_Public_Base_2{
                             $data = array(
                                 'id_isu' => $_POST['id_isu'],
                                 'tujuan_teks' => $_POST['data'],
-                                'update_at' => date('Y-m-d H:i:s')
+                                'update_at' => date('Y-m-d H:i:s'),
+                                'no_urut'   => $_POST['no_urut'],
+                                'catatan_teks_tujuan'   => $_POST['catatan_teks_tujuan']
                             );
                             if(!empty($_POST['id'])){
                                 $data['id_unik'] = $_POST['id'];
@@ -781,7 +790,8 @@ class Wpsipd_Public_Base_1 extends Wpsipd_Public_Base_2{
                                 'target_4' => $_POST['vol_4'].' '.$_POST['satuan_4'],
                                 'target_5' => $_POST['vol_5'].' '.$_POST['satuan_5'],
                                 'target_akhir' => $_POST['vol_akhir'].' '.$_POST['satuan_akhir'],
-                                'update_at' => date('Y-m-d H:i:s')
+                                'update_at' => date('Y-m-d H:i:s'),
+                                'indikator_catatan_teks' => $_POST['indikator_catatan_teks']
                             );
                             if(!empty($_POST['id'])){
                                 $data['id_unik_indikator'] = $_POST['id'];
@@ -808,7 +818,9 @@ class Wpsipd_Public_Base_1 extends Wpsipd_Public_Base_2{
                             $data = array(
                                 'kode_tujuan' => $_POST['id_tujuan'],
                                 'sasaran_teks' => $_POST['data'],
-                                'update_at' => date('Y-m-d H:i:s')
+                                'update_at' => date('Y-m-d H:i:s'),
+                                'sasaran_no_urut' => $_POST['sasaran_no_urut'],
+                                'sasaran_catatan' => $_POST['sasaran_catatan']
                             );
                             if(!empty($_POST['id'])){
                                 $data['id_unik'] = $_POST['id'];

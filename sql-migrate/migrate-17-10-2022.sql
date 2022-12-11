@@ -42,10 +42,10 @@ INSERT INTO `data_rumus_indikator` (`id_asli`, `id`, `rumus`, `keterangan`, `use
 (5, 2, 'Indikator Tren Negatif', 'Indikator Tren Negatif adalah jenis indikator yang semakin rendah realisasi maka dianggap semakin baik. Contoh : Angka Stunting. Rumus capaian target : Target/Realisasi * 100. Total triwulan = realisasi triwulan terakhir.', NULL, 1, '2021-08-23 00:00:00', 2022),
 (6, 3, 'Indikator Jenis Persentase', 'Indikator Jenis Persentase adalah jenis indikator berupa persentase. Pengisian realisasi target per bulan diisi sama atau lebih besar dari bulan sebelumnya. Rumus capaian target = Realisasi/Target * 100. Rumus total target triwulan = realisasi triwulan terakhir.', NULL, 1, '2021-08-23 00:00:00', 2022);
 
-INSERT INTO `data_tipe_perencanaan` (`id`, `nama_tipe`, `keterangan_tipe`) VALUES
-(1, 'rpjpd', ''),
-(2, 'rpjm', ''),
-(3, 'rpd', ''),
-(4, 'renstra', ''),
-(5, 'renja', ''),
-(6, 'penganggaran', '');
+INSERT INTO `data_tipe_perencanaan` (`id`, `nama_tipe`, `keterangan_tipe`, `lama_pelaksanaan`) VALUES
+(1, 'rpjpd', '', 25),
+(2, 'rpjm', '', 5),
+(3, 'rpd', '', 5),
+(4, 'renstra', '', 5),
+(5, 'renja', '', 1),
+(6, 'penganggaran', '', 1);

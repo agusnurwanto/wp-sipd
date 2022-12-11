@@ -3230,6 +3230,9 @@ CREATE TABLE `data_rpd_tujuan_lokal` (
   `urut_tujuan` tinyint(4) DEFAULT NULL,
   `visi_teks` text DEFAULT NULL,
   `id_isu` int(11) DEFAULT NULL,
+  `no_urut` int(11) NOT NULL,
+  `catatan_teks_tujuan` text NOT NULL,
+  `indikator_catatan_teks` text NOT NULL,
   `update_at` datetime NOT NULL,
   PRIMARY KEY  (id)
 );
@@ -3267,6 +3270,9 @@ CREATE TABLE `data_rpd_sasaran_lokal` (
   `urut_saspok` text DEFAULT NULL,
   `urut_tujuan` text DEFAULT NULL,
   `visi_teks` text DEFAULT NULL,
+  `sasaran_no_urut` int(11) NOT NULL,
+  `sasaran_catatan` text NOT NULL,
+  `indikator_catatan_teks` text NOT NULL,
   `update_at` datetime NOT NULL,
   PRIMARY KEY  (id)
 );
@@ -3484,6 +3490,9 @@ CREATE TABLE `data_rpd_tujuan_lokal_history` (
   `update_at` datetime NOT NULL,
   `id_jadwal` int(11) NOT NULL,
   `id_asli` int(11) NOT NULL,
+  `no_urut` int(11) NOT NULL,
+  `catatan_teks_tujuan` text NOT NULL,
+  `indikator_catatan_teks` text NOT NULL,
   PRIMARY KEY  (id)
 );
 
@@ -3523,6 +3532,9 @@ CREATE TABLE `data_rpd_sasaran_lokal_history` (
   `update_at` datetime NOT NULL,
   `id_jadwal` int(11) NOT NULL,
   `id_asli` int(11) NOT NULL,
+  `sasaran_no_urut` int(11) NOT NULL,
+  `sasaran_catatan` text NOT NULL,
+  `indikator_catatan_teks` text NOT NULL,
   PRIMARY KEY  (id)
 );
 

@@ -501,6 +501,7 @@ class Wpsipd
 		$this->loader->add_action('wp_ajax_submit_delete_schedule',  $plugin_public, 'submit_delete_schedule');
 		$this->loader->add_action('wp_ajax_submit_lock_schedule',  $plugin_public, 'submit_lock_schedule');
 		$this->loader->add_action('wp_ajax_run_sql_migrate',  $plugin_public, 'run_sql_migrate');
+		$this->loader->add_action('wp_ajax_run_sql_data_master',  $plugin_public, 'run_sql_data_master');
 		$this->loader->add_action('wp_ajax_singkron_rpjmd_sipd_lokal',  $plugin_public, 'singkron_rpjmd_sipd_lokal');
 		$this->loader->add_action('wp_ajax_singkron_rpd_sipd_lokal',  $plugin_public, 'singkron_rpd_sipd_lokal');
 		$this->loader->add_action('wp_ajax_singkron_rpjpd_sipd_lokal',  $plugin_public, 'singkron_rpjpd_sipd_lokal');
@@ -618,6 +619,8 @@ class Wpsipd
 		$this->loader->add_action('wp_ajax_edit_indikator_kegiatan_renstra',  $plugin_public, 'edit_indikator_kegiatan_renstra');
 		$this->loader->add_action('wp_ajax_update_indikator_kegiatan_renstra',  $plugin_public, 'update_indikator_kegiatan_renstra');
 		$this->loader->add_action('wp_ajax_delete_indikator_kegiatan_renstra',  $plugin_public, 'delete_indikator_kegiatan_renstra');
+
+		$this->loader->add_action('wp_ajax_get_sub_unit_by_id',  $plugin_public, 'get_sub_unit_by_id');
 		
 		add_shortcode('menu_monev',  array($plugin_public, 'menu_monev'));
 		add_shortcode('datassh', array($plugin_public, 'datassh'));
