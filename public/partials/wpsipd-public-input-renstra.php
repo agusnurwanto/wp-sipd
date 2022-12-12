@@ -1092,6 +1092,8 @@ foreach ($data_all['data'] as $tujuan) {
 								+'>'
 									+'<i class="dashicons dashicons-yes" style="margin-top: 3px;"></i> Simpan'
 								+'</button>');
+							tujuanModal.find('.modal-dialog').css('maxWidth','');
+							tujuanModal.find('.modal-dialog').css('width','');
 							tujuanModal.modal('show');
 						}else{
 							alert(response.message);
@@ -1155,6 +1157,8 @@ foreach ($data_all['data'] as $tujuan) {
 						+'>'
 							+'<i class="dashicons dashicons-yes" style="margin-top: 3px;"></i> Simpan'
 						+'</button>');
+					tujuanModal.find('.modal-dialog').css('maxWidth','');
+					tujuanModal.find('.modal-dialog').css('width','');
 					tujuanModal.modal('show');
 				}else{
 					alert(response.message);
@@ -1195,7 +1199,7 @@ foreach ($data_all['data'] as $tujuan) {
 
 	jQuery(document).on('click', '.btn-kelola-indikator-tujuan', function(){
         jQuery("#modal-indikator-renstra").find('.modal-body').html('');
-				indikatorTujuanRenstra({'id_unik':jQuery(this).data('idunik')});
+		indikatorTujuanRenstra({'id_unik':jQuery(this).data('idunik')});
 	});
 
 	jQuery(document).on('click', '.btn-add-indikator-tujuan', function(){
@@ -1464,6 +1468,7 @@ foreach ($data_all['data'] as $tujuan) {
 						+'</div>'
 					+'</form>';
 
+		sasaranModal.find('.modal-body').html('');
 		sasaranModal.find('.modal-title').html('Tambah Sasaran');
 		sasaranModal.find('.modal-body').html(html);
 		sasaranModal.find('.modal-footer').html(''
@@ -1476,6 +1481,8 @@ foreach ($data_all['data'] as $tujuan) {
 			+'>'
 				+'<i class="dashicons dashicons-yes" style="margin-top: 3px;"></i> Simpan'
 			+'</button>');
+		sasaranModal.find('.modal-dialog').css('maxWidth','');
+		sasaranModal.find('.modal-dialog').css('width','');
 		sasaranModal.modal('show');
 	});
 
@@ -1495,41 +1502,44 @@ foreach ($data_all['data'] as $tujuan) {
           	data: {
           		"action": "edit_sasaran_renstra",
           		"api_key": "<?php echo $api_key; ?>",
-							'id_sasaran': id_sasaran
+				'id_sasaran': id_sasaran
           	},
           	dataType: "json",
           	success: function(response){
 
           		jQuery('#wrap-loading').hide();
-							let html = '<form id="form-renstra">'
-											+'<input type="hidden" name="relasi_perencanaan" value="'+relasi_perencanaan+'">'
-											+'<input type="hidden" name="id_tipe_relasi" value="'+id_tipe_relasi+'">'
-											+'<input type="hidden" name="id_unit" value="'+id_unit+'">'
-											+'<input type="hidden" name="kode_tujuan" value="'+response.data.kode_tujuan+'" />'
-											+'<input type="hidden" name="kode_sasaran" value="'+response.data.id_unik+'" />'
-											+'<div class="form-group">'
-												+'<label for="sasaran">Sasaran</label>'
-				  								+'<textarea class="form-control" name="sasaran_teks">'+response.data.sasaran_teks+'</textarea>'
-											+'</div>'
-											+'<div class="form-group">'
-												+'<label for="urut_sasaran">Urut Sasaran</label>'
-				  								+'<input type="number" class="form-control" name="urut_sasaran" value="'+response.data.urut_sasaran+'"/>'
-											+'</div>'
-										+'</form>';
+				let html = '<form id="form-renstra">'
+							+'<input type="hidden" name="relasi_perencanaan" value="'+relasi_perencanaan+'">'
+							+'<input type="hidden" name="id_tipe_relasi" value="'+id_tipe_relasi+'">'
+							+'<input type="hidden" name="id_unit" value="'+id_unit+'">'
+							+'<input type="hidden" name="kode_tujuan" value="'+response.data.kode_tujuan+'" />'
+							+'<input type="hidden" name="kode_sasaran" value="'+response.data.id_unik+'" />'
+							+'<div class="form-group">'
+								+'<label for="sasaran">Sasaran</label>'
+								+'<textarea class="form-control" name="sasaran_teks">'+response.data.sasaran_teks+'</textarea>'
+							+'</div>'
+							+'<div class="form-group">'
+								+'<label for="urut_sasaran">Urut Sasaran</label>'
+								+'<input type="number" class="form-control" name="urut_sasaran" value="'+response.data.urut_sasaran+'"/>'
+							+'</div>'
+						+'</form>';
 
-					        sasaranModal.find('.modal-title').html('Edit Sasaran');
-									sasaranModal.find('.modal-body').html(html);
-									sasaranModal.find('.modal-footer').html(''
-										+'<button type="button" class="btn btn-sm btn-warning" data-dismiss="modal">'
-											+'<i class="dashicons dashicons-no" style="margin-top: 3px;"></i> Tutup'
-										+'</button>'
-										+'<button type="button" class="btn btn-sm btn-success" id="btn-simpan-data-renstra-lokal" '
-											+'data-action="update_sasaran_renstra" '
-											+'data-view="sasaranRenstra"'
-										+'>'
-											+'<i class="dashicons dashicons-yes" style="margin-top: 3px;"></i> Simpan'
-										+'</button>');
-									sasaranModal.modal('show');
+				sasaranModal.find('.modal-title').html('Edit Sasaran');
+				sasaranModal.find('.modal-body').html('');
+				sasaranModal.find('.modal-body').html(html);
+				sasaranModal.find('.modal-footer').html(''
+					+'<button type="button" class="btn btn-sm btn-warning" data-dismiss="modal">'
+						+'<i class="dashicons dashicons-no" style="margin-top: 3px;"></i> Tutup'
+					+'</button>'
+					+'<button type="button" class="btn btn-sm btn-success" id="btn-simpan-data-renstra-lokal" '
+						+'data-action="update_sasaran_renstra" '
+						+'data-view="sasaranRenstra"'
+					+'>'
+						+'<i class="dashicons dashicons-yes" style="margin-top: 3px;"></i> Simpan'
+					+'</button>');
+				sasaranModal.find('.modal-dialog').css('maxWidth','');
+				sasaranModal.find('.modal-dialog').css('width','');
+				sasaranModal.modal('show');
           	}
         });
 	});
@@ -1562,7 +1572,6 @@ foreach ($data_all['data'] as $tujuan) {
 						});
 					}
 					jQuery('#wrap-loading').hide();
-
 				}
 			})
 		}
@@ -1757,21 +1766,21 @@ foreach ($data_all['data'] as $tujuan) {
 								+'</div>'
 							  +'</form>';
 
-							indikatorSasaranModal.find('.modal-title').html('Edit Indikator Sasaran');
-							indikatorSasaranModal.find('.modal-body').html(html);
-							indikatorSasaranModal.find('.modal-footer').html(''
-								+'<button type="button" class="btn btn-sm btn-warning" data-dismiss="modal">'
-									+'<i class="dashicons dashicons-no" style="margin-top: 3px;"></i> Tutup'
-								+'</button>'
-								+'<button type="button" class="btn btn-sm btn-success" id="btn-simpan-data-renstra-lokal" '
-									+'data-action="update_indikator_sasaran_renstra" '
-									+'data-view="indikatorSasaranRenstra"'
-								+'>'
-									+'<i class="dashicons dashicons-yes" style="margin-top: 3px;"></i> Simpan'
-								+'</button>');
-							indikatorSasaranModal.find('.modal-dialog').css('maxWidth','950px');
-							indikatorSasaranModal.find('.modal-dialog').css('width','100%');
-							indikatorSasaranModal.modal('show');
+				indikatorSasaranModal.find('.modal-title').html('Edit Indikator Sasaran');
+				indikatorSasaranModal.find('.modal-body').html(html);
+				indikatorSasaranModal.find('.modal-footer').html(''
+					+'<button type="button" class="btn btn-sm btn-warning" data-dismiss="modal">'
+						+'<i class="dashicons dashicons-no" style="margin-top: 3px;"></i> Tutup'
+					+'</button>'
+					+'<button type="button" class="btn btn-sm btn-success" id="btn-simpan-data-renstra-lokal" '
+						+'data-action="update_indikator_sasaran_renstra" '
+						+'data-view="indikatorSasaranRenstra"'
+					+'>'
+						+'<i class="dashicons dashicons-yes" style="margin-top: 3px;"></i> Simpan'
+					+'</button>');
+				indikatorSasaranModal.find('.modal-dialog').css('maxWidth','950px');
+				indikatorSasaranModal.find('.modal-dialog').css('width','100%');
+				indikatorSasaranModal.modal('show');
           	}
 		})			
 	});
@@ -1826,40 +1835,42 @@ foreach ($data_all['data'] as $tujuan) {
 
 		  			jQuery('#wrap-loading').hide();
 		  				
-						let html = '<form id="form-renstra">'
-										+'<input type="hidden" name="kode_sasaran" value="'+kode_sasaran+'"/>'
-										+'<div class="form-group">'
-									    	+'<label>Pilih Urusan</label>'
-									    	+'<select class="form-control" name="id_urusan" id="urusan-teks"></select>'
-									  	+'</div>'
-									  	+'<div class="form-group">'
-									    	+'<label>Pilih Bidang</label>'
-									    	+'<select class="form-control" name="id_bidang" id="bidang-teks"></select>'
-									  	+'</div>'
-									  	+'<div class="form-group">'
-									    	+'<label>Pilih Program</label>'
-									    	+'<select class="form-control" name="id_program" id="program-teks"></select>'
-									  	+'</div>'
-									+'</form>';
+					let html = '<form id="form-renstra">'
+									+'<input type="hidden" name="kode_sasaran" value="'+kode_sasaran+'"/>'
+									+'<div class="form-group">'
+								    	+'<label>Pilih Urusan</label>'
+								    	+'<select class="form-control" name="id_urusan" id="urusan-teks"></select>'
+								  	+'</div>'
+								  	+'<div class="form-group">'
+								    	+'<label>Pilih Bidang</label>'
+								    	+'<select class="form-control" name="id_bidang" id="bidang-teks"></select>'
+								  	+'</div>'
+								  	+'<div class="form-group">'
+								    	+'<label>Pilih Program</label>'
+								    	+'<select class="form-control" name="id_program" id="program-teks"></select>'
+								  	+'</div>'
+								+'</form>';
 
 				    programModal.find('.modal-title').html('Tambah Program');
-						programModal.find('.modal-body').html(html);
-						programModal.find('.modal-footer').html(''
-							+'<button type="button" class="btn btn-sm btn-warning" data-dismiss="modal">'
-								+'<i class="dashicons dashicons-no" style="margin-top: 3px;"></i> Tutup'
-							+'</button>'
-							+'<button type="button" class="btn btn-sm btn-success" id="btn-simpan-data-renstra-lokal" '
-								+'data-action="submit_program_renstra" '
-								+'data-view="programRenstra"'
-							+'>'
-								+'<i class="dashicons dashicons-yes" style="margin-top: 3px;"></i> Simpan'
-							+'</button>');
+				    programModal.find('.modal-body').html(html);
+					programModal.find('.modal-footer').html(''
+						+'<button type="button" class="btn btn-sm btn-warning" data-dismiss="modal">'
+							+'<i class="dashicons dashicons-no" style="margin-top: 3px;"></i> Tutup'
+						+'</button>'
+						+'<button type="button" class="btn btn-sm btn-success" id="btn-simpan-data-renstra-lokal" '
+							+'data-action="submit_program_renstra" '
+							+'data-view="programRenstra"'
+						+'>'
+							+'<i class="dashicons dashicons-yes" style="margin-top: 3px;"></i> Simpan'
+						+'</button>');
+					programModal.find('.modal-dialog').css('maxWidth','');
+					programModal.find('.modal-dialog').css('width','');
 
-						get_urusan();
-						get_bidang();
-						get_program();
+					get_urusan();
+					get_bidang();
+					get_program();
 
-						programModal.modal('show');
+					programModal.modal('show');
   		});	
 	});
 
@@ -1884,46 +1895,47 @@ foreach ($data_all['data'] as $tujuan) {
 
           		get_bidang_urusan().then(function(){
 
-			          			jQuery('#wrap-loading').hide();
+			        jQuery('#wrap-loading').hide();
 							
-											let html = '<form id="form-renstra">'
-															+'<input type="hidden" name="id_unik" value="'+res.data.id_unik+'"/>'
-															+'<input type="hidden" name="kode_sasaran" value="'+res.data.kode_sasaran+'"/>'
-															+'<div class="form-group">'
-														    	+'<label>Pilih Urusan</label>'
-														    	+'<select class="form-control" name="id_urusan" id="urusan-teks"></select>'
-														  	+'</div>'
-														  	+'<div class="form-group">'
-														    	+'<label>Pilih Bidang</label>'
-														    	+'<select class="form-control" name="id_bidang" id="bidang-teks"></select>'
-														  	+'</div>'
-														  	+'<div class="form-group">'
-														    	+'<label>Pilih Program</label>'
-														    	+'<select class="form-control" name="id_program" id="program-teks"></select>'
-														  	+'</div>'
-														+'</form>';
+					let html = '<form id="form-renstra">'
+								+'<input type="hidden" name="id_unik" value="'+res.data.id_unik+'"/>'
+								+'<input type="hidden" name="kode_sasaran" value="'+res.data.kode_sasaran+'"/>'
+								+'<div class="form-group">'
+							    	+'<label>Pilih Urusan</label>'
+							    	+'<select class="form-control" name="id_urusan" id="urusan-teks"></select>'
+							  	+'</div>'
+							  	+'<div class="form-group">'
+							    	+'<label>Pilih Bidang</label>'
+							    	+'<select class="form-control" name="id_bidang" id="bidang-teks"></select>'
+							  	+'</div>'
+							  	+'<div class="form-group">'
+							    	+'<label>Pilih Program</label>'
+							    	+'<select class="form-control" name="id_program" id="program-teks"></select>'
+							  	+'</div>'
+							+'</form>';
 
-									    programModal.find('.modal-title').html('Edit Program');
-											programModal.find('.modal-body').html(html);
-											programModal.find('.modal-footer').html(''
-												+'<button type="button" class="btn btn-sm btn-warning" data-dismiss="modal">'
-													+'<i class="dashicons dashicons-no" style="margin-top: 3px;"></i> Tutup'
-												+'</button>'
-												+'<button type="button" class="btn btn-sm btn-success" id="btn-simpan-data-renstra-lokal" '
-													+'data-action="update_program_renstra" '
-													+'data-view="programRenstra"'
-												+'>'
-													+'<i class="dashicons dashicons-yes" style="margin-top: 3px;"></i> Simpan'
-												+'</button>');
+					programModal.find('.modal-title').html('Edit Program');
+				    programModal.find('.modal-body').html('');
+					programModal.find('.modal-body').html(html);
+					programModal.find('.modal-footer').html(''
+						+'<button type="button" class="btn btn-sm btn-warning" data-dismiss="modal">'
+							+'<i class="dashicons dashicons-no" style="margin-top: 3px;"></i> Tutup'
+						+'</button>'
+						+'<button type="button" class="btn btn-sm btn-success" id="btn-simpan-data-renstra-lokal" '
+							+'data-action="update_program_renstra" '
+							+'data-view="programRenstra"'
+						+'>'
+							+'<i class="dashicons dashicons-yes" style="margin-top: 3px;"></i> Simpan'
+						+'</button>');
+					programModal.find('.modal-dialog').css('maxWidth','');
+					programModal.find('.modal-dialog').css('width','');
 
-											get_urusan();
-											get_bidang();
-											get_program(false, id_program);
+					get_urusan();
+					get_bidang();
+					get_program(false, id_program);
 
-											programModal.modal('show');
-
-			          		});
-
+					programModal.modal('show');
+          		});
           	}
         });
 	});
@@ -1943,7 +1955,7 @@ foreach ($data_all['data'] as $tujuan) {
 				dataType:'json',
 				data:{
 					'action': 'delete_program_renstra',
-		      'api_key': '<?php echo $api_key; ?>',
+		      		'api_key': '<?php echo $api_key; ?>',
 					'kode_program': kode_program,
 				},
 				success:function(response){
@@ -2049,23 +2061,22 @@ foreach ($data_all['data'] as $tujuan) {
 						+'</div>'
 					+'</form>';
 				
-				jQuery("#modal-crud-renstra").find('.modal-title').html('Tambah Indikator');
-				jQuery("#modal-crud-renstra").find('.modal-body').html(html);
-				jQuery("#modal-crud-renstra").find('.modal-footer').html(''
-					+'<button type="button" class="btn btn-sm btn-warning" data-dismiss="modal">'
-						+'<i class="dashicons dashicons-no" style="margin-top: 3px;"></i> Tutup'
-					+'</button>'
-					+'<button type="button" class="btn btn-sm btn-success" id="btn-simpan-data-renstra-lokal" '
-						+'data-action="submit_indikator_program_renstra" '
-						+'data-view="indikatorProgramRenstra"'
-					+'>'
-						+'<i class="dashicons dashicons-yes" style="margin-top: 3px;"></i> Simpan'
-					+'</button>');
-
-				jQuery("#modal-crud-renstra").find('.modal-dialog').css('maxWidth','950px');
-				jQuery("#modal-crud-renstra").find('.modal-dialog').css('width','100%');
-				jQuery("#modal-crud-renstra").modal('show');
-			}); 
+			jQuery("#modal-crud-renstra").find('.modal-title').html('Tambah Indikator');
+			jQuery("#modal-crud-renstra").find('.modal-body').html(html);
+			jQuery("#modal-crud-renstra").find('.modal-footer').html(''
+				+'<button type="button" class="btn btn-sm btn-warning" data-dismiss="modal">'
+					+'<i class="dashicons dashicons-no" style="margin-top: 3px;"></i> Tutup'
+				+'</button>'
+				+'<button type="button" class="btn btn-sm btn-success" id="btn-simpan-data-renstra-lokal" '
+					+'data-action="submit_indikator_program_renstra" '
+					+'data-view="indikatorProgramRenstra"'
+				+'>'
+					+'<i class="dashicons dashicons-yes" style="margin-top: 3px;"></i> Simpan'
+				+'</button>');
+			jQuery("#modal-crud-renstra").find('.modal-dialog').css('maxWidth','950px');
+			jQuery("#modal-crud-renstra").find('.modal-dialog').css('width','100%');
+			jQuery("#modal-crud-renstra").modal('show');
+		}); 
 	});
 
 	jQuery(document).on('click', '.btn-edit-indikator-program', function(){
@@ -2161,21 +2172,21 @@ foreach ($data_all['data'] as $tujuan) {
 									+'</div>'
 								  +'</form>';
 
-								jQuery("#modal-crud-renstra").find('.modal-title').html('Edit Indikator Program');
-								jQuery("#modal-crud-renstra").find('.modal-body').html(html);
-								jQuery("#modal-crud-renstra").find('.modal-footer').html(''
-									+'<button type="button" class="btn btn-sm btn-warning" data-dismiss="modal">'
-										+'<i class="dashicons dashicons-no" style="margin-top: 3px;"></i> Tutup'
-									+'</button><button type="button" class="btn btn-sm btn-success" id="btn-simpan-data-renstra-lokal" '
-										+'data-action="update_indikator_program_renstra" '
-										+'data-view="indikatorProgramRenstra"'
-									+'>'
-										+'<i class="dashicons dashicons-yes" style="margin-top: 3px;"></i> Simpan'
-									+'</button>');	
-
-								jQuery("#modal-crud-renstra").find('.modal-dialog').css('maxWidth','950px');
-								jQuery("#modal-crud-renstra").find('.modal-dialog').css('width','100%');
-								jQuery("#modal-crud-renstra").modal('show');
+				jQuery("#modal-crud-renstra").find('.modal-title').html('Edit Indikator Program');
+				jQuery("#modal-crud-renstra").find('.modal-body').html(html);
+				jQuery("#modal-crud-renstra").find('.modal-footer').html(''
+					+'<button type="button" class="btn btn-sm btn-warning" data-dismiss="modal">'
+						+'<i class="dashicons dashicons-no" style="margin-top: 3px;"></i> Tutup'
+					+'</button>'
+					+'<button type="button" class="btn btn-sm btn-success" id="btn-simpan-data-renstra-lokal" '
+						+'data-action="update_indikator_program_renstra" '
+						+'data-view="indikatorProgramRenstra"'
+					+'>'
+						+'<i class="dashicons dashicons-yes" style="margin-top: 3px;"></i> Simpan'
+					+'</button>');	
+				jQuery("#modal-crud-renstra").find('.modal-dialog').css('maxWidth','950px');
+				jQuery("#modal-crud-renstra").find('.modal-dialog').css('width','100%');
+				jQuery("#modal-crud-renstra").modal('show');
           	}
 		})	
 	});
@@ -2242,35 +2253,35 @@ foreach ($data_all['data'] as $tujuan) {
 
 					jQuery('#wrap-loading').hide();
 		  				
-						let html = '<form id="form-renstra">'
-										+'<input type="hidden" name="kode_program" value="'+kode_program+'"/>'
-										+'<input type="hidden" name="kegiatan_teks" id="kegiatan_teks"/>'
-									  +'<div class="form-group">'
-												+'<label for="kegiatan_teks">Kegiatan</label>'
-												+'<select class="form-control" id="id_kegiatan" name="id_kegiatan" onchange="pilihKegiatan(this)">';
-													html+='<option value="">Pilih Kegiatan</option>';
-													response.data.map(function(value, index){
-														html +='<option value="'+value.id+'">'+value.kegiatan_teks+'</option>';
-													})
-												html+='</select>'
-											+'</div>'
-									+'</form>';
+					let html = '<form id="form-renstra">'
+								+'<input type="hidden" name="kode_program" value="'+kode_program+'"/>'
+								+'<input type="hidden" name="kegiatan_teks" id="kegiatan_teks"/>'
+								+'<div class="form-group">'
+									+'<label for="kegiatan_teks">Kegiatan</label>'
+									+'<select class="form-control" id="id_kegiatan" name="id_kegiatan" onchange="pilihKegiatan(this)">';
+										html+='<option value="">Pilih Kegiatan</option>';
+										response.data.map(function(value, index){
+											html +='<option value="'+value.id+'">'+value.kegiatan_teks+'</option>';
+										})
+										html+='</select>'
+								+'</div>'
+							+'</form>';
 
 				    kegiatanModal.find('.modal-title').html('Tambah Kegiatan');
-						kegiatanModal.find('.modal-body').html(html);
-						kegiatanModal.find('.modal-footer').html(''
-							+'<button type="button" class="btn btn-sm btn-warning" data-dismiss="modal">'
-								+'<i class="dashicons dashicons-no" style="margin-top: 3px;"></i> Tutup'
-							+'</button>'
-							+'<button type="button" class="btn btn-sm btn-success" id="btn-simpan-data-renstra-lokal" '
-								+'data-action="submit_kegiatan_renstra" '
-								+'data-view="kegiatanRenstra"'
-							+'>'
-								+'<i class="dashicons dashicons-yes" style="margin-top: 3px;"></i> Simpan'
-							+'</button>');
-
-						kegiatanModal.modal('show');
-
+					kegiatanModal.find('.modal-body').html(html);
+					kegiatanModal.find('.modal-footer').html(''
+						+'<button type="button" class="btn btn-sm btn-warning" data-dismiss="modal">'
+							+'<i class="dashicons dashicons-no" style="margin-top: 3px;"></i> Tutup'
+						+'</button>'
+						+'<button type="button" class="btn btn-sm btn-success" id="btn-simpan-data-renstra-lokal" '
+							+'data-action="submit_kegiatan_renstra" '
+							+'data-view="kegiatanRenstra"'
+						+'>'
+							+'<i class="dashicons dashicons-yes" style="margin-top: 3px;"></i> Simpan'
+						+'</button>');
+					kegiatanModal.find('.modal-dialog').css('maxWidth','');
+					kegiatanModal.find('.modal-dialog').css('width','');
+					kegiatanModal.modal('show');
 				}
 		});	
 	});
@@ -2288,7 +2299,7 @@ foreach ($data_all['data'] as $tujuan) {
 				dataType:'json',
 				data:{
 					'action': 'edit_kegiatan_renstra',
-		      'api_key': '<?php echo $api_key; ?>',
+		      		'api_key': '<?php echo $api_key; ?>',
 					'id_program': id_program,
 					'id_kegiatan': id_kegiatan,
 				},
@@ -2296,40 +2307,40 @@ foreach ($data_all['data'] as $tujuan) {
 
 					jQuery('#wrap-loading').hide();
 		  				
-						let html = '<form id="form-renstra">'
-										+'<input type="hidden" name="id" id="id" value="'+response.kegiatan.id+'"/>'
-										+'<input type="hidden" name="id_unik" id="id_unik" value="'+response.kegiatan.id_unik+'"/>'
-										+'<input type="hidden" name="id_program" id="id_program" value="'+response.kegiatan.id_program+'"/>'
-										+'<input type="hidden" name="kode_program" id="kode_program" value="'+response.kegiatan.kode_program+'"/>'
-										+'<input type="hidden" name="kegiatan_teks" id="kegiatan_teks"/>'
-									  +'<div class="form-group">'
-												+'<label for="kegiatan_teks">Kegiatan</label>'
-												+'<select class="form-control" id="id_kegiatan" name="id_kegiatan" onchange="pilihKegiatan(this)">';
-													html+='<option value="">Pilih Kegiatan</option>';
-													response.data.map(function(value, index){
-														html +='<option value="'+value.id+'">'+value.kegiatan_teks+'</option>';
-													})
-												html+='</select>'
-											+'</div>'
-									+'</form>';
+					let html = '<form id="form-renstra">'
+								+'<input type="hidden" name="id" id="id" value="'+response.kegiatan.id+'"/>'
+								+'<input type="hidden" name="id_unik" id="id_unik" value="'+response.kegiatan.id_unik+'"/>'
+								+'<input type="hidden" name="id_program" id="id_program" value="'+response.kegiatan.id_program+'"/>'
+								+'<input type="hidden" name="kode_program" id="kode_program" value="'+response.kegiatan.kode_program+'"/>'
+								+'<input type="hidden" name="kegiatan_teks" id="kegiatan_teks"/>'
+							  +'<div class="form-group">'
+									+'<label for="kegiatan_teks">Kegiatan</label>'
+									+'<select class="form-control" id="id_kegiatan" name="id_kegiatan" onchange="pilihKegiatan(this)">';
+										html+='<option value="">Pilih Kegiatan</option>';
+										response.data.map(function(value, index){
+											html +='<option value="'+value.id+'">'+value.kegiatan_teks+'</option>';
+										})
+									html+='</select>'
+							+'</div>'
+							+'</form>';
 
 				    kegiatanModal.find('.modal-title').html('Tambah Kegiatan');
-						kegiatanModal.find('.modal-body').html(html);
-						kegiatanModal.find('.modal-footer').html(''
-							+'<button type="button" class="btn btn-sm btn-warning" data-dismiss="modal">'
-								+'<i class="dashicons dashicons-no" style="margin-top: 3px;"></i> Tutup'
-							+'</button>'
-							+'<button type="button" class="btn btn-sm btn-success" id="btn-simpan-data-renstra-lokal" '
-								+'data-action="update_kegiatan_renstra" '
-								+'data-view="kegiatanRenstra"'
-							+'>'
-								+'<i class="dashicons dashicons-yes" style="margin-top: 3px;"></i> Simpan'
-							+'</button>');
-
-						kegiatanModal.modal('show');
-
-						jQuery("#id_kegiatan").val(response.kegiatan.id_giat);
-
+				    kegiatanModal.find('.modal-body').html('');
+					kegiatanModal.find('.modal-body').html(html);
+					kegiatanModal.find('.modal-footer').html(''
+						+'<button type="button" class="btn btn-sm btn-warning" data-dismiss="modal">'
+							+'<i class="dashicons dashicons-no" style="margin-top: 3px;"></i> Tutup'
+						+'</button>'
+						+'<button type="button" class="btn btn-sm btn-success" id="btn-simpan-data-renstra-lokal" '
+							+'data-action="update_kegiatan_renstra" '
+							+'data-view="kegiatanRenstra"'
+						+'>'
+							+'<i class="dashicons dashicons-yes" style="margin-top: 3px;"></i> Simpan'
+						+'</button>');
+					kegiatanModal.find('.modal-dialog').css('maxWidth','');
+					kegiatanModal.find('.modal-dialog').css('width','');
+					kegiatanModal.modal('show');
+					jQuery("#id_kegiatan").val(response.kegiatan.id_giat);
 				}
 		});	
 	});
@@ -2373,7 +2384,7 @@ foreach ($data_all['data'] as $tujuan) {
 
 	jQuery(document).on('click', '.btn-kelola-indikator-kegiatan', function(){
         jQuery("#modal-indikator-renstra").find('.modal-body').html('');
-				indikatorKegiatanRenstra({'id_unik':jQuery(this).data('kodekegiatan')});
+		indikatorKegiatanRenstra({'id_unik':jQuery(this).data('kodekegiatan')});
 	});
 
 	jQuery(document).on('click', '.btn-add-indikator-kegiatan', function(){
@@ -2577,20 +2588,20 @@ foreach ($data_all['data'] as $tujuan) {
 									+'</div>'
 								  +'</form>';
 
-								jQuery("#modal-crud-renstra").find('.modal-title').html('Edit Indikator Kegiatan');
-								jQuery("#modal-crud-renstra").find('.modal-body').html(html);
-								jQuery("#modal-crud-renstra").find('.modal-footer').html(''
-									+'<button type="button" class="btn btn-sm btn-warning" data-dismiss="modal">'
-										+'<i class="dashicons dashicons-no" style="margin-top: 3px;"></i> Tutup'
-									+'</button><button type="button" class="btn btn-sm btn-success" id="btn-simpan-data-renstra-lokal" '
-										+'data-action="update_indikator_kegiatan_renstra" '
-										+'data-view="indikatorKegiatanRenstra"'
-									+'>'
-										+'<i class="dashicons dashicons-yes" style="margin-top: 3px;"></i> Simpan'
-									+'</button>');	
-								jQuery("#modal-crud-renstra").find('.modal-dialog').css('maxWidth','950px');
-								jQuery("#modal-crud-renstra").find('.modal-dialog').css('width','100%');
-								jQuery("#modal-crud-renstra").modal('show');
+					jQuery("#modal-crud-renstra").find('.modal-title').html('Edit Indikator Kegiatan');
+					jQuery("#modal-crud-renstra").find('.modal-body').html(html);
+					jQuery("#modal-crud-renstra").find('.modal-footer').html(''
+						+'<button type="button" class="btn btn-sm btn-warning" data-dismiss="modal">'
+							+'<i class="dashicons dashicons-no" style="margin-top: 3px;"></i> Tutup'
+						+'</button><button type="button" class="btn btn-sm btn-success" id="btn-simpan-data-renstra-lokal" '
+							+'data-action="update_indikator_kegiatan_renstra" '
+							+'data-view="indikatorKegiatanRenstra"'
+						+'>'
+							+'<i class="dashicons dashicons-yes" style="margin-top: 3px;"></i> Simpan'
+						+'</button>');	
+					jQuery("#modal-crud-renstra").find('.modal-dialog').css('maxWidth','950px');
+					jQuery("#modal-crud-renstra").find('.modal-dialog').css('width','100%');
+					jQuery("#modal-crud-renstra").modal('show');
           	}
 		})	
 	});
@@ -2670,15 +2681,19 @@ foreach ($data_all['data'] as $tujuan) {
 
 		let action='';
 		let name='';
+		let title='';
+
 		switch(type){
 			case 'tc27':
 				action='view_laporan_tc27';
 				name='Laporan Renstra TC27';
+				title='Laporan Renstra TC27';
 			break;
 
 			default:
 				action='view_laporan_tc27';
 				name='Laporan Renstra TC27';
+				title='Laporan Renstra TC27';
 				break;
 		}
 
@@ -2700,7 +2715,7 @@ foreach ($data_all['data'] as $tujuan) {
 
 					jQuery("#modal-crud-renstra").find('.modal-dialog').css('maxWidth','1950px');
 					jQuery("#modal-crud-renstra").find('.modal-dialog').css('width','100%');
-					jQuery("#modal-crud-renstra").find('.modal-title').html('Laporan Renstra TC27');
+					jQuery("#modal-crud-renstra").find('.modal-title').html(title);
 					jQuery("#modal-crud-renstra").find('.modal-body').html(response.html);
 					jQuery("#modal-crud-renstra").find('.modal-body').css('overflow-x', 'auto');
 					jQuery("#modal-crud-renstra").find('.modal-footer').html(''
