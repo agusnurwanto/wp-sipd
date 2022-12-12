@@ -648,6 +648,13 @@ class Wpsipd_Admin {
 		    ) )
         	->set_default_value('1')
         	->set_help_text('Pilihan ini untuk opsi yang dipakai saat penarikan data dijadwal pergeseran atau perubahan. Jika masih jadwal APBD Murni maka pilih <b>Nilai Terakhir</b>.');
+        $mapping_unit[] = Field::make( 'radio', 'crb_fmis_aktivitas', __( 'Jenis Aktivitas FMIS ' ) )
+		    ->add_options( array(
+		        '1' => __( '1 / Single Aktivitas' ),
+		        '2' => __( 'Multi Aktivitas' )
+		    ) )
+        	->set_default_value('1')
+        	->set_help_text('Jika sumber dana belum divalidasi kebenarannya maka sebaiknya pilih jenis aktivitas single. Referensi cara melakukan monitoring rekap sumber dana bisa dicek di <a href="https://youtu.be/JMFIXXbY_6c" target="_blank">https://youtu.be/JMFIXXbY_6c</a>. Aktivitas di FMIS menjadi dasar pencairan anggaran di proses penatausahaan, harus konsisten dari awal tahun agar proses berjalan lancar.');
         $mapping_unit[] = Field::make( 'radio', 'crb_backup_rincian_fmis', __( 'Apakah nilai rincian FMIS akan ikut di backup ke database lokal saat melakukan singkronisasi data?' ) )
 		    ->add_options( array(
 		        '1' => __( 'Iya' ),
