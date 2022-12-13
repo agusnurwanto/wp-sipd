@@ -18,7 +18,8 @@ $sql = "
         AND tahun_anggaran=%d";
 $subkeg = $wpdb->get_results($wpdb->prepare($sql,$input['id_skpd'], $input['tahun_anggaran']), ARRAY_A);
 
-$jadwal_lokal = $wpdb->get_results($wpdb->prepare("SELECT * from data_jadwal_lokal where id_jadwal_lokal = (select max(id_jadwal_lokal) from data_jadwal_lokal where id_tipe=%d)",5), ARRAY_A);
+$cek_jadwal = $this->validasi_jadwal_perencanaan('renja');
+$jadwal_lokal = $cek_jadwal['data'];
 if(!empty($jadwal_lokal)){
 	$tahun_anggaran = $jadwal_lokal[0]['tahun_anggaran'];
 	$namaJadwal = $jadwal_lokal[0]['nama'];
@@ -30,6 +31,9 @@ if(!empty($jadwal_lokal)){
 	$mulaiJadwal = '-';
 	$selesaiJadwal = '-';
 }
+
+// nomor urut tahun anggaran RENJA sesuai jadwal tahun awal di RENSTRA
+$urut = 0;
 
 $timezone = get_option('timezone_string');
 

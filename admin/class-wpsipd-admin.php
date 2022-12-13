@@ -288,13 +288,13 @@ class Wpsipd_Admin {
 		    ->set_page_parent( $input_perencanaan )
 		    ->add_fields( $this->generate_jadwal_perencanaan() );
 
-	    Container::make( 'theme_options', __( 'Input RENJA' ) )
-		    ->set_page_parent( $input_perencanaan )
-		    ->add_fields( $this->generate_input_renja() );
-
 	    Container::make( 'theme_options', __( 'Input RENSTRA' ) )
 		    ->set_page_parent( $input_perencanaan )
 		    ->add_fields( $this->generate_input_renstra() );
+
+	    Container::make( 'theme_options', __( 'Input RENJA' ) )
+		    ->set_page_parent( $input_perencanaan )
+		    ->add_fields( $this->generate_input_renja() );
 	}
 
 	public function options_basic(){
