@@ -15755,6 +15755,13 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 					'data'		=> $sql_jadwal_lokal
 				);
 			}else{
+				$sql_jadwal_lokal = $wpdb->get_results("
+					SELECT 
+						* 
+					FROM `data_jadwal_lokal` 
+					WHERE status = 0 
+						AND id_tipe='".$sql_tipe[0]['id']."'
+				", ARRAY_A);
 				$data_return = array(
 					'status' 	=> 'error',
 					'message'	=> "Data terbuka tidak ditemukan.",

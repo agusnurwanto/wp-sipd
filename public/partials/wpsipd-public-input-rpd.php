@@ -30,7 +30,7 @@ $api_key = get_option('_crb_api_key_extension' );
 $cek_jadwal = $this->validasi_jadwal_perencanaan('rpd');
 $jadwal_lokal = $cek_jadwal['data'];
 $id_jadwal_rpjpd = "";
-$lama_pelaksanaan = 5;
+$lama_pelaksanaan = 4;
 $tahun_anggaran = '2022';
 $namaJadwal = '-';
 $mulaiJadwal = '-';
@@ -46,7 +46,7 @@ if(!empty($jadwal_lokal)){
 
 $timezone = get_option('timezone_string');
 
-$awal_rpd = 2018;
+$awal_rpd = $tahun_anggaran;
 $akhir_rpd = $awal_rpd+$lama_pelaksanaan;
 $nama_pemda = get_option('_crb_daerah');
 
@@ -406,6 +406,14 @@ foreach ($data_all['data'] as $tujuan) {
 	if(empty($tujuan['detail'][0]['id_isu'])){
 		$warning = "style='background: #80000014;'";
 	}
+	$no_urut = '';
+	if(!empty($tujuan['detail'][0]['no_urut'])){
+		$no_urut = $tujuan['detail'][0]['no_urut'];
+	}
+	$catatan_teks_tujuan = '';
+	if(!empty($tujuan['detail'][0]['catatan_teks_tujuan'])){
+		$catatan_teks_tujuan = $tujuan['detail'][0]['catatan_teks_tujuan'];
+	}
 	$body .= '
 		<tr class="tr-tujuan" '.$warning.'>
 			<td class="kiri atas kanan bawah">'.$no_tujuan.'</td>
@@ -418,10 +426,10 @@ foreach ($data_all['data'] as $tujuan) {
 			'.$target_html.'
 			<td class="atas kanan bawah text_tengah">'.$target_akhir.'</td>
 			<td class="atas kanan bawah">'.$satuan.'</td>
-			<td class="atas kanan bawah">'.$tujuan['detail'][0]['no_urut'].'</td>
-			<td class="atas kanan bawah">'.$tujuan['detail'][0]['catatan_teks_tujuan'].'</td>
-			<td class="atas kanan bawah">'.$indikator_catatan_tujuan.'</td>
 			<td class="atas kanan bawah"></td>
+			<td class="atas kanan bawah">'.$no_urut.'</td>
+			<td class="atas kanan bawah">'.$catatan_teks_tujuan.'</td>
+			<td class="atas kanan bawah">'.$indikator_catatan_tujuan.'</td>
 		</tr>
 	';
 	$no_sasaran = 0;
@@ -455,6 +463,14 @@ foreach ($data_all['data'] as $tujuan) {
 		for($i=1; $i<=$lama_pelaksanaan; $i++){
 			$target_html .= '<td class="atas kanan bawah text_tengah">'.${'target_'.$i}.'</td>';
 		}
+		$sasaran_no_urut = '';
+		if(!empty($sasaran['detail'][0]['sasaran_no_urut'])){
+			$sasaran_no_urut = $sasaran['detail'][0]['sasaran_no_urut'];
+		}
+		$sasaran_catatan = '';
+		if(!empty($sasaran['detail'][0]['sasaran_catatan'])){
+			$sasaran_catatan = $sasaran['detail'][0]['sasaran_catatan'];
+		}
 		$body .= '
 			<tr class="tr-sasaran" '.$warning.'>
 				<td class="kiri atas kanan bawah">'.$no_tujuan.'.'.$no_sasaran.'</td>
@@ -467,10 +483,10 @@ foreach ($data_all['data'] as $tujuan) {
 				'.$target_html.'
 				<td class="atas kanan bawah text_tengah">'.$target_akhir.'</td>
 				<td class="atas kanan bawah">'.$satuan.'</td>
-				<td class="atas kanan bawah">'.$sasaran['detail'][0]['sasaran_no_urut'].'</td>
-				<td class="atas kanan bawah">'.$sasaran['detail'][0]['sasaran_catatan'].'</td>
-				<td class="atas kanan bawah">'.$indikator_catatan_sasaran.'</td>
 				<td class="atas kanan bawah"></td>
+				<td class="atas kanan bawah">'.$sasaran_no_urut.'</td>
+				<td class="atas kanan bawah">'.$sasaran_catatan.'</td>
+				<td class="atas kanan bawah">'.$indikator_catatan_sasaran.'</td>
 			</tr>
 		';
 		$no_program = 0;
@@ -509,6 +525,8 @@ foreach ($data_all['data'] as $tujuan) {
 			for($i=1; $i<=$lama_pelaksanaan; $i++){
 				$target_html .= '<td class="atas kanan bawah text_tengah">'.${'target_'.$i}.'</td>';
 			}
+			$catatan_program = '';
+			$catatan_indikator_program = '';
 			$body .= '
 				<tr class="tr-program" data-kode-skpd="'.$program['kode_skpd'].'" '.$warning.'>
 					<td class="kiri atas kanan bawah">'.$no_tujuan.'.'.$no_sasaran.'.'.$no_program.'</td>
@@ -522,6 +540,8 @@ foreach ($data_all['data'] as $tujuan) {
 					<td class="atas kanan bawah text_tengah">'.$target_akhir.'</td>
 					<td class="atas kanan bawah text_tengah">'.$satuan.'</td>
 					<td class="atas kanan bawah">'.$program['kode_skpd'].' '.$program['nama_skpd'].'</td>
+					<td class="atas kanan bawah" colspan="2">'.$catatan_program.'</td>
+					<td class="atas kanan bawah">'.$catatan_indikator_program.'</td>
 				</tr>
 			';
 		}
@@ -562,10 +582,10 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
 			<?php }; ?>
 				<th style="width: 100px;" class="atas kanan bawah text_tengah text_blok">Target Akhir</th>
 				<th style="width: 100px;" class="atas kanan bawah text_tengah text_blok">Satuan</th>
+				<th style="width: 150px;" class="atas kanan bawah text_tengah text_blok">Keterangan</th>
 				<th style="width: 100px;" class="atas kanan bawah text_tengah text_blok">No. Urut</th>
 				<th style="width: 100px;" class="atas kanan bawah text_tengah text_blok">Catatan</th>
 				<th style="width: 100px;" class="atas kanan bawah text_tengah text_blok">Indikator Catatan</th>
-				<th style="width: 150px;" class="atas kanan bawah text_tengah text_blok">Keterangan</th>
 			</tr>
 			<tr>
 				<th class='atas kiri kanan bawah text_tengah text_blok'>0</th>
