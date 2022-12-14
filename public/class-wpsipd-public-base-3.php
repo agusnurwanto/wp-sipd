@@ -3445,7 +3445,7 @@ class Wpsipd_Public_Base_3
 										for ($i=1; $i <= $_POST['lama_pelaksanaan']; $i++) { 
 											$body.="<td class=\"kiri atas kanan bawah\">".$target_arr[$i]."</td><td class=\"atas kanan bawah\">".$pagu_arr[$i]."</td>";
 										}
-										$body.='<td class="kiri kiri atas kanan bawah">'.$target_akhir.'</td>
+										$body.='<td class="kiri kiri atas kanan bawah"></td>
 									</tr>
 							';
 							
@@ -3494,7 +3494,7 @@ class Wpsipd_Public_Base_3
 												$body.="<td class=\"kiri atas kanan bawah\">".$target_arr[$i]."</td><td class=\"atas kanan bawah\">".$pagu_arr[$i]."</td>";
 											}
 											$body.='
-											<td class="kiri atas kanan bawah">'.$target_akhir.'</td>
+											<td class="kiri atas kanan bawah"></td>
 										</tr>
 								';
 							}
