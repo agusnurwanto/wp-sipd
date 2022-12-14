@@ -78,13 +78,7 @@ class Wpsipd_Public_Base_3
 			$where .= " AND a.id_unik='".$params['kode_sasaran_parent']."'";
 		}
 
-		$relasi = $wpdb->get_row("
-				SELECT 
-					id_tipe 
-				FROM `data_jadwal_lokal`
-				WHERE id_jadwal_lokal=".$params['relasi_perencanaan']);
-
-		switch ($relasi->id_tipe) {
+		switch ($params['id_tipe_relasi']) {
 			case '2':
 				$tableA = "data_rpjmd_sasaran_lokal_history";
 				$tableB = "data_rpjmd_program_lokal_history";

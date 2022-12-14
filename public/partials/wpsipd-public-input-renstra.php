@@ -50,12 +50,21 @@ $cek_jadwal = $this->validasi_jadwal_perencanaan('renstra');
 $jadwal_lokal = $cek_jadwal['data'];
 $add_renstra = '';
 if(!empty($jadwal_lokal)){
+	if(!empty($jadwal_lokal[0]['relasi_perencanaan'])){
+		$relasi = $wpdb->get_row("
+					SELECT 
+						id_tipe 
+					FROM `data_jadwal_lokal`
+					WHERE id_jadwal_lokal=".$jadwal_lokal[0]['relasi_perencanaan']);
+
+		$relasi_perencanaan = $jadwal_lokal[0]['relasi_perencanaan'];
+		$id_tipe_relasi = $relasi->id_tipe;
+	}
+
 	$awal_renstra = $jadwal_lokal[0]['tahun_anggaran']+1;
 	$namaJadwal = $jadwal_lokal[0]['nama'];
 	$mulaiJadwal = $jadwal_lokal[0]['waktu_awal'];
 	$selesaiJadwal = $jadwal_lokal[0]['waktu_akhir'];
-	$relasi_perencanaan = $jadwal_lokal[0]['relasi_perencanaan'] ?? '-';
-	$id_tipe_relasi = $jadwal_lokal[0]['id_tipe'] ?? '-';
 	$lama_pelaksanaan = $jadwal_lokal[0]['lama_pelaksanaan'];
 
 	$awal = new DateTime($mulaiJadwal);
@@ -1106,7 +1115,13 @@ foreach ($data_all['data'] as $tujuan) {
 							let html = '<form id="form-renstra">'
 											+'<input type="hidden" name="id_unit" value="'+<?php echo $input['id_skpd']; ?>+'">'
 											+'<div class="form-group">'
-												+'<label for="tujuan_teks">Sasaran Rpjm/Rpd</label>'
+												+'<label for="tujuan_teks">Tujuan RPJM/RPD</label>'
+												+'<select class="form-control" id="tujuan-rpjm" name="tujuan_rpjm" onchange="return false">'
+													+'<option value="">Pilih Tujuan</option>'
+												+'</select>'
+											+'</div>'
+											+'<div class="form-group">'
+												+'<label for="tujuan_teks">Sasaran RPJM/RPD</label>'
 												+'<select class="form-control" id="sasaran-parent" name="sasaran_parent" onchange="pilihSasaranParent(this)">';
 													html+='<option value="">Pilih Sasaran</option>';
 													response.data.map(function(value, index){
@@ -1171,31 +1186,37 @@ foreach ($data_all['data'] as $tujuan) {
 				jQuery('#wrap-loading').hide();
 				if(response.status){
 					let html = '<form id="form-renstra">'
-											+'<input type="hidden" name="id" value="'+response.tujuan.id+'">'
-											+'<input type="hidden" name="id_unik" value="'+response.tujuan.id_unik+'">'
-											+'<input type="hidden" name="id_unit" value="'+<?php echo $input['id_skpd']; ?>+'">'
-											+'<div class="form-group">'
-												+'<label for="tujuan_teks">Sasaran Rpjm/Rpd</label>'
-												+'<select class="form-control" id="sasaran-parent" name="sasaran_parent" onchange="pilihSasaranParent(this)">';
-													html+='<option value="" selected>Pilih Sasaran</option>';
-													response.sasaran_parent.map(function(value, index){
-														html +='<option value="'+value.id_unik+'|'+value.id_program+'">'+value.sasaran_teks+'</option>';
-													})
-												html+='</select>'
-											+'</div>'
-											+'<div class="form-group">'
-												+'<label for="tujuan_teks">Tujuan Renstra</label>'
-								  				+'<textarea class="form-control" id="tujuan_teks" name="tujuan_teks">'+response.tujuan.tujuan_teks+'</textarea>'
-											+'</div>'
-											+'<div class="form-group">'
-												+'<label for="tujuan_teks">Urut Tujuan</label>'
-								  				+'<input type="number" class="form-control" name="urut_tujuan" value="'+response.tujuan.urut_tujuan+'" />'
-											+'</div>'
-											+'<div class="form-group">'
-												+'<label for="catatan">Catatan</label>'
-							  					+'<textarea class="form-control" name="catatan_tujuan">'+response.tujuan.catatan_tujuan+'</textarea>'
-											+'</div>'
-										+'</form>';
+									+'<input type="hidden" name="id" value="'+response.tujuan.id+'">'
+									+'<input type="hidden" name="id_unik" value="'+response.tujuan.id_unik+'">'
+									+'<input type="hidden" name="id_unit" value="'+<?php echo $input['id_skpd']; ?>+'">'
+									+'<div class="form-group">'
+										+'<label for="tujuan_teks">Tujuan RPJM/RPD</label>'
+										+'<select class="form-control" id="tujuan-rpjm" name="tujuan_rpjm" onchange="return false">'
+											+'<option value="">Pilih Tujuan</option>'
+										+'</select>'
+									+'</div>'
+									+'<div class="form-group">'
+										+'<label for="tujuan_teks">Sasaran RPJM/RPD</label>'
+										+'<select class="form-control" id="sasaran-parent" name="sasaran_parent" onchange="pilihSasaranParent(this)">';
+											html+='<option value="" selected>Pilih Sasaran</option>';
+												response.sasaran_parent.map(function(value, index){
+													html +='<option value="'+value.id_unik+'|'+value.id_program+'">'+value.sasaran_teks+'</option>';
+												})
+											html+='</select>'
+									+'</div>'
+									+'<div class="form-group">'
+										+'<label for="tujuan_teks">Tujuan Renstra</label>'
+								  		+'<textarea class="form-control" id="tujuan_teks" name="tujuan_teks">'+response.tujuan.tujuan_teks+'</textarea>'
+									+'</div>'
+									+'<div class="form-group">'
+										+'<label for="tujuan_teks">Urut Tujuan</label>'
+								  		+'<input type="number" class="form-control" name="urut_tujuan" value="'+response.tujuan.urut_tujuan+'" />'
+									+'</div>'
+									+'<div class="form-group">'
+										+'<label for="catatan">Catatan</label>'
+							  			+'<textarea class="form-control" name="catatan_tujuan">'+response.tujuan.catatan_tujuan+'</textarea>'
+									+'</div>'
+								+'</form>';
 
 			        tujuanModal.find('.modal-title').html('Edit Tujuan');
 					tujuanModal.find('.modal-body').html(html);
@@ -2296,7 +2317,7 @@ foreach ($data_all['data'] as $tujuan) {
 				dataType:'json',
 				data:{
 					'action': 'add_kegiatan_renstra',
-		      'api_key': '<?php echo $api_key; ?>',
+		      		'api_key': '<?php echo $api_key; ?>',
 					'id_program': id_program,
 				},
 				success:function(response){
@@ -2305,6 +2326,7 @@ foreach ($data_all['data'] as $tujuan) {
 		  				
 					let html = '<form id="form-renstra">'
 								+'<input type="hidden" name="kode_program" value="'+kode_program+'"/>'
+								+'<input type="hidden" name="id_program" value="'+id_program+'"/>'
 								+'<input type="hidden" name="kegiatan_teks" id="kegiatan_teks"/>'
 								+'<div class="form-group">'
 									+'<label for="kegiatan_teks">Kegiatan</label>'
@@ -2671,7 +2693,7 @@ foreach ($data_all['data'] as $tujuan) {
 				dataType:'json',
 				data:{
 					'action': 'delete_indikator_kegiatan_renstra',
-		      'api_key': '<?php echo $api_key; ?>',
+		      		'api_key': '<?php echo $api_key; ?>',
 					'id': id,
 				},
 				success:function(response){
@@ -3234,7 +3256,7 @@ foreach ($data_all['data'] as $tujuan) {
 			dataType:'json',
 			data:{
 				'action': 'get_kegiatan_renstra',
-	      'api_key': '<?php echo $api_key; ?>',
+	      		'api_key': '<?php echo $api_key; ?>',
 				'kode_program': params.kode_program,
 				'type':1
 			},
@@ -3252,7 +3274,7 @@ foreach ($data_all['data'] as $tujuan) {
 	          					+'</tr>'
 
 	          					+'<tr>'
-	          						+'<th class="text-center" style="width: 160px;">Tujuan</th>'
+	          						+'<th class="text-center" style="width: 160px;">Sasaran</th>'
 	          						+'<th>'+jQuery('#nav-sasaran tr[kodesasaran="'+jQuery("#nav-program .btn-tambah-program").data("kodesasaran")+'"]').find('td').eq(1).text()+'</th>'
 	          					+'</tr>'
 	          					+'<tr>'
