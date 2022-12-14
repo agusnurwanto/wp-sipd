@@ -55,7 +55,7 @@ if(!empty($jadwal_lokal)){
 	$mulaiJadwal = $jadwal_lokal[0]['waktu_awal'];
 	$selesaiJadwal = $jadwal_lokal[0]['waktu_akhir'];
 	$relasi_perencanaan = $jadwal_lokal[0]['relasi_perencanaan'] ?? '-';
-	$id_tipe_relasi = $jadwal_lokal[0]['id_tipe_relasi'] ?? '-';
+	$id_tipe_relasi = $jadwal_lokal[0]['id_tipe'] ?? '-';
 	$lama_pelaksanaan = $jadwal_lokal[0]['lama_pelaksanaan'];
 
 	$awal = new DateTime($mulaiJadwal);

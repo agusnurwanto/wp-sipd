@@ -78,12 +78,26 @@ class Wpsipd_Public_Base_3
 			$where .= " AND a.id_unik='".$params['kode_sasaran_parent']."'";
 		}
 
-		if($params['id_tipe_relasi'] == 2){
-			$tableA = "data_rpjmd_sasaran_lokal_history";
-			$tableB = "data_rpjmd_program_lokal_history";
-		}else if($params['id_tipe_relasi'] == 3){
-			$tableA = "data_rpd_sasaran_lokal_history";
-			$tableB = "data_rpd_program_lokal_history";
+		$relasi = $wpdb->get_row("
+				SELECT 
+					id_tipe 
+				FROM `data_jadwal_lokal`
+				WHERE id_jadwal_lokal=".$params['relasi_perencanaan']);
+
+		switch ($relasi->id_tipe) {
+			case '2':
+				$tableA = "data_rpjmd_sasaran_lokal_history";
+				$tableB = "data_rpjmd_program_lokal_history";
+				break;
+
+			case '3':
+				$tableA = "data_rpd_sasaran_lokal_history";
+				$tableB = "data_rpd_program_lokal_history";
+				break;
+			
+			default:
+				throw new Exception("Tipe relasi perencanaan tidak diketahui, harap menghubungi admin", 1);
+				break;
 		}
 
 		return $wpdb->get_results("
@@ -107,8 +121,6 @@ class Wpsipd_Public_Base_3
 					b.id_unik IS NOT NULL AND 
 					b.id_unik_indikator IS NOT NULL 
 					$where;");
-
-		throw new Exception("Relasi perencanaan tidak diketahui", 1);
 	}
 
 	public function get_tujuan_renstra(){
