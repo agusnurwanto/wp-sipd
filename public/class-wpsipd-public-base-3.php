@@ -267,6 +267,7 @@ class Wpsipd_Public_Base_3
 						'status' => 1,
 						'tujuan_teks' => $data['tujuan_teks'],
 						'urut_tujuan' => $data['urut_tujuan'],
+						'catatan_tujuan' => $data['catatan_tujuan'],
 						'active' => 1
 					]);
 
@@ -400,6 +401,7 @@ class Wpsipd_Public_Base_3
 							'nama_skpd' => $dataUnit->nama_skpd,
 							'tujuan_teks' => $data['tujuan_teks'],
 							'urut_tujuan' => $data['urut_tujuan'],
+							'catatan_tujuan' => $data['catatan_tujuan'],
 							'update_at' => date('Y-m-d H:i:s')
 						], [
 							'id_unik' => $data['id_unik'], // pake id_unik biar teks tujuan di row indikator tujuan ikut terupdate
