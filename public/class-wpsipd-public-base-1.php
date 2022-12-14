@@ -701,15 +701,16 @@ class Wpsipd_Public_Base_1 extends Wpsipd_Public_Base_2{
                                 'tujuan_teks' => $tujuan[0]['tujuan_teks'],
                                 'id_unik' => $tujuan[0]['id_unik'],
                                 'indikator_teks' => $_POST['data'],
-                                'target_awal' => $_POST['vol_awal'].' '.$_POST['satuan_awal'],
-                                'target_1' => $_POST['vol_1'].' '.$_POST['satuan_1'],
-                                'target_2' => $_POST['vol_2'].' '.$_POST['satuan_2'],
-                                'target_3' => $_POST['vol_3'].' '.$_POST['satuan_3'],
-                                'target_4' => $_POST['vol_4'].' '.$_POST['satuan_4'],
-                                'target_5' => $_POST['vol_5'].' '.$_POST['satuan_5'],
-                                'target_akhir' => $_POST['vol_akhir'].' '.$_POST['satuan_akhir'],
+                                'target_awal' => $_POST['vol_awal'],
+                                'target_1' => $_POST['vol_1'],
+                                'target_2' => $_POST['vol_2'],
+                                'target_3' => $_POST['vol_3'],
+                                'target_4' => $_POST['vol_4'],
+                                'target_5' => $_POST['vol_5'],
+                                'target_akhir' => $_POST['vol_akhir'],
                                 'update_at' => date('Y-m-d H:i:s'),
-                                'indikator_catatan_teks' => $_POST['indikator_catatan_teks']
+                                'indikator_catatan_teks' => $_POST['indikator_catatan_teks'],
+                                'satuan' => $_POST['satuan']
                             );
                             if(!empty($_POST['id'])){
                                 $data['id_unik_indikator'] = $_POST['id'];
@@ -783,15 +784,16 @@ class Wpsipd_Public_Base_1 extends Wpsipd_Public_Base_2{
                                 'sasaran_teks' => $sasaran[0]['sasaran_teks'],
                                 'id_unik' => $sasaran[0]['id_unik'],
                                 'indikator_teks' => $_POST['data'],
-                                'target_awal' => $_POST['vol_awal'].' '.$_POST['satuan_awal'],
-                                'target_1' => $_POST['vol_1'].' '.$_POST['satuan_1'],
-                                'target_2' => $_POST['vol_2'].' '.$_POST['satuan_2'],
-                                'target_3' => $_POST['vol_3'].' '.$_POST['satuan_3'],
-                                'target_4' => $_POST['vol_4'].' '.$_POST['satuan_4'],
-                                'target_5' => $_POST['vol_5'].' '.$_POST['satuan_5'],
-                                'target_akhir' => $_POST['vol_akhir'].' '.$_POST['satuan_akhir'],
+                                'target_awal' => $_POST['vol_awal'],
+                                'target_1' => $_POST['vol_1'],
+                                'target_2' => $_POST['vol_2'],
+                                'target_3' => $_POST['vol_3'],
+                                'target_4' => $_POST['vol_4'],
+                                'target_5' => $_POST['vol_5'],
+                                'target_akhir' => $_POST['vol_akhir'],
                                 'update_at' => date('Y-m-d H:i:s'),
-                                'indikator_catatan_teks' => $_POST['indikator_catatan_teks']
+                                'indikator_catatan_teks' => $_POST['indikator_catatan_teks'],
+                                'satuan' => $_POST['satuan']
                             );
                             if(!empty($_POST['id'])){
                                 $data['id_unik_indikator'] = $_POST['id'];

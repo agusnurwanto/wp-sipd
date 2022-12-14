@@ -46,8 +46,8 @@ $id_tipe_relasi = '-';
 $lama_pelaksanaan = 5;
 $disabled = 'disabled';
 
-$jadwal_lokal = $wpdb->get_results("SELECT a.*, (SELECT id_tipe FROM data_jadwal_lokal WHERE id_jadwal_lokal=a.relasi_perencanaan) id_tipe_relasi FROM data_jadwal_lokal a WHERE a.id_jadwal_lokal = (SELECT MAX(id_jadwal_lokal) FROM data_jadwal_lokal a WHERE a.id_tipe=4)", ARRAY_A);
-
+$cek_jadwal = $this->validasi_jadwal_perencanaan('renstra');
+$jadwal_lokal = $cek_jadwal['data'];
 $add_renstra = '';
 if(!empty($jadwal_lokal)){
 	$awal_renstra = $jadwal_lokal[0]['tahun_anggaran']+1;
@@ -77,7 +77,7 @@ foreach ($rumus_indikator_db as $k => $v){
 
 $where_skpd = '';
 if(!empty($input['id_skpd'])){
-	$where_skpd = "and id_skpd =".$input['id_skpd'];
+	$where_skpd = "and id_skpd=".$input['id_skpd'];
 }
 
 $user_id = um_user( 'ID' );
@@ -97,6 +97,10 @@ $sql = $wpdb->prepare("
 ", $tahun_anggaran);
 
 $unit = $wpdb->get_results($sql, ARRAY_A);
+
+if(empty($unit)){
+	die('<h1>Data SKPD dengan id_skpd='.$input['id_skpd'].' dan tahun_anggaran='.$tahun_anggaran.' tidak ditemukan!</h1>');
+}
 
 $judul_skpd = '';
 if(!empty($input['id_skpd'])){
