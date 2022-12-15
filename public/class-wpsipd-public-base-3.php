@@ -36,7 +36,7 @@ class Wpsipd_Public_Base_3
 		}
 
 		$sql = "
-				SELECT 
+				SELECT DISTINCT
 					c.id_unik, 
 					c.tujuan_teks
 				FROM ".$tableA." a 
@@ -110,13 +110,9 @@ class Wpsipd_Public_Base_3
 		// 			$where;");
 
 		return $wpdb->get_results("
-				SELECT 
+				SELECT DISTINCT
 					a.id_unik, 
-					a.sasaran_teks, 
-					a.id_visi, 
-					a.visi_teks, 
-					a.id_misi, 
-					a.misi_teks
+					a.sasaran_teks
 				FROM ".$tableA." a  
 				WHERE 
 					a.id_jadwal=".$params['relasi_perencanaan']." AND 
@@ -384,23 +380,23 @@ class Wpsipd_Public_Base_3
 							$raw_sasaran_parent = explode("|", $data['sasaran_parent']);
 							$where_sasaran_rpjm = "AND kode_sasaran_rpjm='".$raw_sasaran_parent[0]."'";
 
-							$dataBidangUrusan = $wpdb->get_row("
-								SELECT DISTINCT 
-									id_bidang_urusan, 
-									kode_bidang_urusan, 
-									nama_bidang_urusan 
-								FROM data_prog_keg 
-									WHERE 
-										id_program=".$raw_sasaran_parent[1]);
+							// $dataBidangUrusan = $wpdb->get_row("
+							// 	SELECT DISTINCT 
+							// 		id_bidang_urusan, 
+							// 		kode_bidang_urusan, 
+							// 		nama_bidang_urusan 
+							// 	FROM data_prog_keg 
+							// 		WHERE 
+							// 			id_program=".$raw_sasaran_parent[1]);
 
-							if(empty($dataBidangUrusan)){
-								throw new Exception('Bidang urusan tidak ditemukan!');
-							}
+							// if(empty($dataBidangUrusan)){
+							// 	throw new Exception('Bidang urusan tidak ditemukan!');
+							// }
 
-							$data['id_bidang_urusan'] = $dataBidangUrusan->id_bidang_urusan ?? null;
-							$data['kode_bidang_urusan'] = $dataBidangUrusan->kode_bidang_urusan ?? null;
+							$data['id_bidang_urusan'] = null;
+							$data['kode_bidang_urusan'] = null;
+							$data['nama_bidang_urusan'] = null;
 							$data['kode_sasaran_rpjm'] = $raw_sasaran_parent[0] ?? null;
-							$data['nama_bidang_urusan'] = $dataBidangUrusan->nama_bidang_urusan ?? null;
 						}
 
 						if(empty($data['tujuan_teks'])){

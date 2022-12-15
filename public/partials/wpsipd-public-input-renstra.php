@@ -76,6 +76,17 @@ if(!empty($jadwal_lokal)){
 	}
 }
 
+$nama_tipe_relasi = 'RPJMD / RPD';
+switch ($id_tipe_relasi) {
+	case '2':
+			$nama_tipe_relasi = 'RPJMD';
+		break;
+
+	case '3':
+			$nama_tipe_relasi = 'RPD';
+		break;
+}
+
 $akhir_renstra = ($awal_renstra-1)+$lama_pelaksanaan;
 $urut = $tahun_anggaran-$awal_renstra;
 $rumus_indikator_db = $wpdb->get_results("SELECT * FROM data_rumus_indikator WHERE active=1 AND tahun_anggaran=".$tahun_anggaran, ARRAY_A);
@@ -152,6 +163,7 @@ foreach ($tujuan_all as $keyTujuan => $tujuan_value) {
 			'nama_bidang_urusan' => $tujuan_value['nama_bidang_urusan'],
 			'urut_tujuan' => $tujuan_value['urut_tujuan'],
 			'catatan' => $tujuan_value['catatan_tujuan'],
+			'sasaran_rpjm' => '',
 			'indikator' => array(),
 			'data' => array(),
 			'status_rpjm' => false
@@ -161,17 +173,23 @@ foreach ($tujuan_all as $keyTujuan => $tujuan_value) {
 			$table = 'data_rpjmd_sasaran_lokal';
 			switch ($id_tipe_relasi) {
 				case '2':
-						$table = 'data_rpjmd_sasaran_lokal';
+						$table = 'data_rpjmd_sasaran_lokal_history';
 					break;
 
 				case '3':
-						$table = 'data_rpd_sasaran_lokal';
+						$table = 'data_rpd_sasaran_lokal_history';
 					break;
 			}
 
-			$id = $wpdb->get_var("SELECT id FROM ".$table." WHERE id_unik='{$tujuan_value['kode_sasaran_rpjm']}'");
-			if(!empty($id)){
-				$data_all['data'][$tujuan_value['id_unik']]['status_rpjm']=true;
+			$sasaran_rpjm = $wpdb->get_var("
+				SELECT DISTINCT
+					sasaran_teks
+				FROM ".$table." 
+				WHERE id_unik='{$tujuan_value['kode_sasaran_rpjm']}'
+			");
+			if(!empty($sasaran_rpjm)){
+				$data_all['data'][$tujuan_value['id_unik']]['status_rpjm'] = true;
+				$data_all['data'][$tujuan_value['id_unik']]['sasaran_rpjm'] = $sasaran_rpjm;
 			}
 		}
 	}
@@ -705,10 +723,14 @@ foreach ($data_all['data'] as $tujuan) {
 	}
 
 	$target_arr = [$target_1, $target_2, $target_3, $target_4, $target_5];
+	$sasaran_rpjm = '';
+	if(!empty($tujuan['sasaran_rpjm'])){
+		$sasaran_rpjm = $tujuan['sasaran_rpjm'];
+	}
 	$body .= '
 			<tr class="tr-tujuan'.$bg_rpjm.'">
 				<td class="kiri atas kanan bawah">'.$no_tujuan.'</td>
-				<td class="kiri atas kanan bawah">'.$tujuan['nama_bidang_urusan'].'</td>
+				<td class="kiri atas kanan bawah">'.$sasaran_rpjm.'</td>
 				<td class="atas kanan bawah">'.$tujuan['tujuan_teks'].'</td>
 				<td class="atas kanan bawah"></td>
 				<td class="atas kanan bawah"></td>
@@ -908,7 +930,7 @@ foreach ($data_all['data'] as $tujuan) {
 	.indikator_kegiatan { min-height: 40px; }
 	.modal {overflow-y:auto;}
 	.status-rpjm{
-		background-color: #ffffff;
+		background-color: #f5c9c9;
 	}
 </style>
 <h4 style="text-align: center; margin: 0; font-weight: bold;">RENCANA STRATEGIS (RENSTRA) <br><?php echo $judul_skpd.'Tahun '.$awal_renstra.' - '.$akhir_renstra.' '.$nama_pemda; ?></h4>
@@ -918,7 +940,7 @@ foreach ($data_all['data'] as $tujuan) {
 			<?php
 			$row_head='<tr>
 				<th style="width: 85px;" class="row_head_1 atas kiri kanan bawah text_tengah text_blok">No</th>
-				<th style="width: 200px;" class="row_head_1 atas kanan bawah text_tengah text_blok">Bidang Urusan</th>
+				<th style="width: 200px;" class="row_head_1 atas kanan bawah text_tengah text_blok">Sasaran '.$nama_tipe_relasi.'</th>
 				<th style="width: 200px;" class="row_head_1 atas kanan bawah text_tengah text_blok">Tujuan</th>
 				<th style="width: 200px;" class="row_head_1 atas kanan bawah text_tengah text_blok">Sasaran</th>
 				<th style="width: 200px;" class="row_head_1 atas kanan bawah text_tengah text_blok">Program</th>
@@ -980,7 +1002,7 @@ foreach ($data_all['data'] as $tujuan) {
 	</table>
 </div>
 
-<div class="modal fade" id="modal-monev" tabindex="-1" role="dialog" data-backdrop="static" aria-hidden="true">'
+<div class="modal fade" id="modal-monev" role="dialog" data-backdrop="static" aria-hidden="true">'
     <div class="modal-dialog modal-xl" role="document">
         <div class="modal-content">
             <div class="modal-header bgpanel-theme">
@@ -1010,7 +1032,7 @@ foreach ($data_all['data'] as $tujuan) {
 </div>
 
 <!-- Modal indikator renstra -->
-<div class="modal fade" id="modal-indikator-renstra" tabindex="-1" role="dialog" aria-labelledby="modal-indikator-renstra-label" aria-hidden="true">
+<div class="modal fade" id="modal-indikator-renstra" role="dialog" aria-labelledby="modal-indikator-renstra-label" aria-hidden="true">
   <div class="modal-dialog" role="document">
     <div class="modal-content">
       <div class="modal-header">
@@ -1027,7 +1049,7 @@ foreach ($data_all['data'] as $tujuan) {
 </div>
 
 <!-- Modal crud renstra -->
-<div class="modal fade" id="modal-crud-renstra" tabindex="-2" role="dialog" aria-labelledby="modal-crud-renstra-label" aria-hidden="true">
+<div class="modal fade" id="modal-crud-renstra" role="dialog" aria-labelledby="modal-crud-renstra-label" aria-hidden="true">
   <div class="modal-dialog" role="document">
     <div class="modal-content">
       <div class="modal-header">
@@ -1125,10 +1147,10 @@ foreach ($data_all['data'] as $tujuan) {
 											+'</div>'
 											+'<div class="form-group">'
 												+'<label for="tujuan_teks">Sasaran RPJM/RPD</label>'
-												+'<select class="form-control" id="sasaran-rpjm" name="sasaran_parent" onchange="pilihSasaranRpjm(this)"></select>'
+												+'<select class="form-control" id="sasaran-rpjm" name="sasaran_parent"></select>'
 											+'</div>'
 											+'<div class="form-group">'
-												+'<label for="tujuan_teks">Tujuan Renstra</label>'
+												+'<label for="tujuan_teks">Tujuan Renstra</label><span onclick="copySasaran();" class="btn btn-sm btn-primary" style="margin-left: 20px;">Copy dari sasaran</span></label>'
 								  				+'<textarea class="form-control" id="tujuan_teks" name="tujuan_teks"></textarea>'
 											+'</div>'
 											+'<div class="form-group">'
@@ -1198,11 +1220,11 @@ foreach ($data_all['data'] as $tujuan) {
 									+'</div>'
 									+'<div class="form-group">'
 										+'<label for="tujuan_teks">Sasaran RPJM/RPD</label>'
-										+'<select class="form-control" id="sasaran-rpjm" name="sasaran_parent" onchange="pilihSasaranRpjm(this)"></select>'
+										+'<select class="form-control" id="sasaran-rpjm" name="sasaran_parent"></select>'
 									+'</div>'
 
 									+'<div class="form-group">'
-										+'<label for="tujuan_teks">Tujuan Renstra</label>'
+										+'<label for="tujuan_teks">Tujuan Renstra</label><span onclick="copySasaran();" class="btn btn-sm btn-primary" style="margin-left: 20px;">Copy dari sasaran</span></label>'
 								  		+'<textarea class="form-control" id="tujuan_teks" name="tujuan_teks">'+response.tujuan.tujuan_teks+'</textarea>'
 									+'</div>'
 									+'<div class="form-group">'
@@ -1893,52 +1915,47 @@ foreach ($data_all['data'] as $tujuan) {
 	});
 
 	jQuery(document).on('click', '.btn-tambah-program', function(){
-
 		jQuery('#wrap-loading').show();
-
 		let programModal = jQuery("#modal-crud-renstra");
 		let kode_sasaran = jQuery(this).data('kodesasaran');
+		get_bidang_urusan().then(function(){
+  			jQuery('#wrap-loading').hide();
+			let html = ''
+				+'<form id="form-renstra">'
+					+'<input type="hidden" name="kode_sasaran" value="'+kode_sasaran+'"/>'
+					+'<div class="form-group">'
+				    	+'<label>Pilih Urusan</label>'
+				    	+'<select class="form-control" name="id_urusan" id="urusan-teks"></select>'
+				  	+'</div>'
+				  	+'<div class="form-group">'
+				    	+'<label>Pilih Bidang</label>'
+				    	+'<select class="form-control" name="id_bidang" id="bidang-teks"></select>'
+				  	+'</div>'
+				  	+'<div class="form-group">'
+				    	+'<label>Pilih Program</label>'
+				    	+'<select class="form-control" name="id_program" id="program-teks"></select>'
+				  	+'</div>'
+				+'</form>';
 
-  				get_bidang_urusan().then(function(){
+		    programModal.find('.modal-title').html('Tambah Program');
+		    programModal.find('.modal-body').html(html);
+			programModal.find('.modal-footer').html(''
+				+'<button type="button" class="btn btn-sm btn-warning" data-dismiss="modal">'
+					+'<i class="dashicons dashicons-no" style="margin-top: 3px;"></i> Tutup'
+				+'</button>'
+				+'<button type="button" class="btn btn-sm btn-success" id="btn-simpan-data-renstra-lokal" '
+					+'data-action="submit_program_renstra" '
+					+'data-view="programRenstra"'
+				+'>'
+					+'<i class="dashicons dashicons-yes" style="margin-top: 3px;"></i> Simpan'
+				+'</button>');
+			programModal.find('.modal-dialog').css('maxWidth','');
+			programModal.find('.modal-dialog').css('width','');
 
-		  			jQuery('#wrap-loading').hide();
-		  				
-					let html = '<form id="form-renstra">'
-									+'<input type="hidden" name="kode_sasaran" value="'+kode_sasaran+'"/>'
-									+'<div class="form-group">'
-								    	+'<label>Pilih Urusan</label>'
-								    	+'<select class="form-control" name="id_urusan" id="urusan-teks"></select>'
-								  	+'</div>'
-								  	+'<div class="form-group">'
-								    	+'<label>Pilih Bidang</label>'
-								    	+'<select class="form-control" name="id_bidang" id="bidang-teks"></select>'
-								  	+'</div>'
-								  	+'<div class="form-group">'
-								    	+'<label>Pilih Program</label>'
-								    	+'<select class="form-control" name="id_program" id="program-teks"></select>'
-								  	+'</div>'
-								+'</form>';
-
-				    programModal.find('.modal-title').html('Tambah Program');
-				    programModal.find('.modal-body').html(html);
-					programModal.find('.modal-footer').html(''
-						+'<button type="button" class="btn btn-sm btn-warning" data-dismiss="modal">'
-							+'<i class="dashicons dashicons-no" style="margin-top: 3px;"></i> Tutup'
-						+'</button>'
-						+'<button type="button" class="btn btn-sm btn-success" id="btn-simpan-data-renstra-lokal" '
-							+'data-action="submit_program_renstra" '
-							+'data-view="programRenstra"'
-						+'>'
-							+'<i class="dashicons dashicons-yes" style="margin-top: 3px;"></i> Simpan'
-						+'</button>');
-					programModal.find('.modal-dialog').css('maxWidth','');
-					programModal.find('.modal-dialog').css('width','');
-
-					get_urusan();
-					get_bidang();
-					get_program();
-
-					programModal.modal('show');
+			programModal.modal('show');
+			get_urusan();
+			get_bidang();
+			get_program();
   		});	
 	});
 
@@ -1998,11 +2015,30 @@ foreach ($data_all['data'] as $tujuan) {
 					programModal.find('.modal-dialog').css('maxWidth','');
 					programModal.find('.modal-dialog').css('width','');
 
+					programModal.modal('show');
+
 					get_urusan();
 					get_bidang();
+					var val_urusan = jQuery('#urusan-teks').val();
+					var val_bidang = jQuery('#bidang-teks').val();
+					for(var nm_urusan in all_program){
+						for(var nm_bidang in all_program[nm_urusan]){
+							for(var nm_program in all_program[nm_urusan][nm_bidang]){
+								if(
+									id_program 
+									&& id_program == all_program[nm_urusan][nm_bidang][nm_program].id_program
+								){
+									if(val_urusan != nm_urusan){
+										jQuery('#urusan-teks').val(nm_urusan).trigger('change');
+									}
+									if(val_bidang != nm_bidang){
+										jQuery('#bidang-teks').val(nm_bidang).trigger('change');
+									}
+								}
+							}
+						}
+					}
 					get_program(false, id_program);
-
-					programModal.modal('show');
           		});
           	}
         });
@@ -2742,7 +2778,44 @@ foreach ($data_all['data'] as $tujuan) {
 	});
 
 	jQuery(document).on('change', '#bidang-teks', function(){
-		get_program(jQuery(this).val());
+		var val = jQuery(this).val();
+		var val_urusan = jQuery('#urusan-teks').val();
+		for(var nm_urusan in all_program){
+			for(var nm_bidang in all_program[nm_urusan]){
+				for(var nm_program in all_program[nm_urusan][nm_bidang]){
+					if(val && nm_bidang == val){
+						if(val_urusan != nm_urusan){
+							console.log(val_urusan, nm_urusan);
+							jQuery('#urusan-teks').val(nm_urusan).trigger('change');
+						}
+					}
+				}
+			}
+		}
+		get_program(val);
+	});
+
+	jQuery(document).on('change', '#program-teks', function(){
+		var val = jQuery(this).val();
+		var val_urusan = jQuery('#urusan-teks').val();
+		var val_bidang = jQuery('#bidang-teks').val();
+		for(var nm_urusan in all_program){
+			for(var nm_bidang in all_program[nm_urusan]){
+				for(var nm_program in all_program[nm_urusan][nm_bidang]){
+					if(val && val == all_program[nm_urusan][nm_bidang][nm_program].id_program){
+						if(val_urusan != nm_urusan){
+							console.log(val_urusan, nm_urusan);
+							jQuery('#urusan-teks').val(nm_urusan).trigger('change');
+						}
+						if(val_bidang != nm_bidang){
+							console.log(val_bidang, nm_bidang);
+							jQuery('#bidang-teks').val(nm_bidang).trigger('change');
+						}
+					}
+				}
+			}
+		}
+		get_program(false, val);
 	});
 
 	function laporan(type){
@@ -2833,10 +2906,8 @@ foreach ($data_all['data'] as $tujuan) {
 		});
 	}
 
-	function pilihSasaranRpjm(that){
-		if(that.value !=""){
-			jQuery("#tujuan_teks").val(jQuery("#sasaran-rpjm").find(':selected').text());
-		}
+	function copySasaran(){
+		jQuery("#tujuan_teks").val(jQuery("#sasaran-rpjm").find(':selected').text());
 	}
 
 	function pilihKegiatan(that){
@@ -2878,16 +2949,17 @@ foreach ($data_all['data'] as $tujuan) {
 	          			+'</thead>'
 	          			+'<tbody>';
 			          		res.data.map(function(value, index){
-			          			tujuan +='<tr kodetujuan="'+value.id_unik+'">'
-						          			+'<td>'+(index+1)+'.</td>'
-						          			+'<td>'+value.tujuan_teks+'</td>'
-						          			+'<td>'
-						          					+'<a href="javascript:void(0)" data-idtujuan="'+value.id+'" data-idunik="'+value.id_unik+'" class="btn btn-sm btn-warning btn-kelola-indikator-tujuan"><i class="dashicons dashicons-menu-alt" style="margin-top: 3px;"></i></a>&nbsp;'
-						          					+'<a href="javascript:void(0)" data-kodetujuan="'+value.id_unik+'" class="btn btn-sm btn-primary btn-detail-tujuan"><i class="dashicons dashicons-search"></i></a>&nbsp;'
-						          					+'<a href="javascript:void(0)" data-id="'+value.id+'" class="btn btn-sm btn-success btn-edit-tujuan"><i class="dashicons dashicons-edit"></i></a>&nbsp;'
-						          					+'<a href="javascript:void(0)" data-id="'+value.id+'" data-idunik="'+value.id_unik+'" class="btn btn-sm btn-danger btn-hapus-tujuan"><i class="dashicons dashicons-trash"></i></a>'
-						          			+'</td>'
-						          		+'</tr>';
+			          			tujuan += ''
+			          			+'<tr kodetujuan="'+value.id_unik+'">'
+				          			+'<td>'+(index+1)+'.</td>'
+				          			+'<td>'+value.tujuan_teks+'</td>'
+				          			+'<td>'
+				          					+'<a href="javascript:void(0)" data-idtujuan="'+value.id+'" data-idunik="'+value.id_unik+'" class="btn btn-sm btn-warning btn-kelola-indikator-tujuan"><i class="dashicons dashicons-menu-alt" style="margin-top: 3px;"></i></a>&nbsp;'
+				          					+'<a href="javascript:void(0)" data-kodetujuan="'+value.id_unik+'" class="btn btn-sm btn-primary btn-detail-tujuan"><i class="dashicons dashicons-search"></i></a>&nbsp;'
+				          					+'<a href="javascript:void(0)" data-id="'+value.id+'" class="btn btn-sm btn-success btn-edit-tujuan"><i class="dashicons dashicons-edit"></i></a>&nbsp;'
+				          					+'<a href="javascript:void(0)" data-id="'+value.id+'" data-idunik="'+value.id_unik+'" class="btn btn-sm btn-danger btn-hapus-tujuan"><i class="dashicons dashicons-trash"></i></a>'
+				          			+'</td>'
+				          		+'</tr>';
 			          		})
           			tujuan+='<tbody>'
           			+'</table>';
@@ -3392,7 +3464,7 @@ foreach ($data_all['data'] as $tujuan) {
 		for(var nm_urusan in all_program){
 			html += '<option>'+nm_urusan+'</option>';
 		}
-		jQuery('#urusan-teks').html(html);
+		jQuery('#urusan-teks').html(html).select2({width: '100%'});
 	}
 
 	function get_bidang(nm_urusan) {
@@ -3408,7 +3480,7 @@ foreach ($data_all['data'] as $tujuan) {
 				}
 			}
 		}
-		jQuery('#bidang-teks').html(html);
+		jQuery('#bidang-teks').html(html).select2({width: '100%'});
 	}
 
 	function get_program(nm_bidang, val) {
@@ -3461,7 +3533,7 @@ foreach ($data_all['data'] as $tujuan) {
 				}
 			}
 		}
-		jQuery('#program-teks').html(html);
+		jQuery('#program-teks').html(html).select2({width: '100%'});
 	}
 
 	function get_bidang_urusan(skpd){
