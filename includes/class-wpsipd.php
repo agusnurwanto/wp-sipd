@@ -564,9 +564,6 @@ class Wpsipd
 		$this->loader->add_action('wp_ajax_edit_indikator_program_rpjm',  $plugin_public, 'edit_indikator_program_rpjm');
 		$this->loader->add_action('wp_ajax_update_indikator_program_rpjm',  $plugin_public, 'update_indikator_program_rpjm');
 		$this->loader->add_action('wp_ajax_delete_indikator_program_rpjm',  $plugin_public, 'delete_indikator_program_rpjm');
-
-		$this->loader->add_action('wp_ajax_get_data_jadwal_lokal',  $plugin_public, 'get_data_jadwal_lokal');
-		$this->loader->add_action('wp_ajax_get_sasaran_rpjm_history',  $plugin_public, 'get_sasaran_rpjm_history');
 		
 		$this->loader->add_action('wp_ajax_get_tujuan_renstra',  $plugin_public, 'get_tujuan_renstra');
 		$this->loader->add_action('wp_ajax_add_tujuan_renstra',  $plugin_public, 'add_tujuan_renstra');
@@ -619,6 +616,8 @@ class Wpsipd
 		$this->loader->add_action('wp_ajax_edit_indikator_kegiatan_renstra',  $plugin_public, 'edit_indikator_kegiatan_renstra');
 		$this->loader->add_action('wp_ajax_update_indikator_kegiatan_renstra',  $plugin_public, 'update_indikator_kegiatan_renstra');
 		$this->loader->add_action('wp_ajax_delete_indikator_kegiatan_renstra',  $plugin_public, 'delete_indikator_kegiatan_renstra');
+
+		$this->loader->add_action('wp_ajax_get_sasaran_parent',  $plugin_public, 'get_sasaran_parent');
 
 		$this->loader->add_action('wp_ajax_get_sub_unit_by_id',  $plugin_public, 'get_sub_unit_by_id');
 		$this->loader->add_action('wp_ajax_view_laporan_tc27',  $plugin_public, 'view_laporan_tc27_renstra');

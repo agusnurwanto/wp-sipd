@@ -9,60 +9,55 @@ class Wpsipd_Public_Base_3
 		return $user_meta->roles;
 	}
 
-	public function get_data_jadwal_lokal(){
+	public function get_tujuan_parent_by_tipe($params = array()){
+
 		global $wpdb;
 
-		try{
-			if (!empty($_POST)) {
-				if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
-
-					$data = $wpdb->get_results("SELECT * FROM data_jadwal_lokal WHERE status=1 ORDER BY id_jadwal_lokal");
-
-					echo json_encode([
-						'status' => true,
-						'data' => $data
-					]);exit;
-
-				}else{
-					throw new Exception('Api key tidak sesuai');
-				}
-			}else{
-				throw new Exception('Format tidak sesuai');
-			}
-		}catch(Exception $e){
-			echo json_encode([
-				'status' => false,
-				'message' => $e->getMessage()
-			]);exit;
+		if($params['relasi_perencanaan']=='-'){
+			return [];
 		}
-	}
 
-	public function get_sasaran_rpjm_history(){
-		global $wpdb;
-		try{
-			if (!empty($_POST)) {
-				if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+		switch ($params['id_tipe_relasi']) {
+			case '2':
+				$tableA = "data_rpjmd_sasaran_lokal_history";
+				$tableB = "data_rpjmd_program_lokal_history";
+				$tableC = "data_rpjmd_tujuan_lokal_history";
+				break;
 
-					$data = $wpdb->get_results("SELECT a.id_unik, a.sasaran_teks, b.id_program FROM data_rpjmd_sasaran_lokal_history a INNER JOIN data_rpjmd_program_lokal_history b ON a.id_unik=b.kode_sasaran WHERE b.id_unit=".$_POST['id_unit']." AND a.id_jadwal=".$_POST['id_jadwal']." AND a.status=1;");
-
-
-					echo json_encode([
-						'status' => true,
-						'data' => $data
-					]);exit;
-
-				}else{
-					throw new Exception('Api key tidak sesuai');
-				}
-			}else{
-				throw new Exception('Format tidak sesuai');
-			}
-		}catch(Exception $e){
-			echo json_encode([
-				'status' => false,
-				'message' => $e->getMessage()
-			]);exit;
+			case '3':
+				$tableA = "data_rpd_sasaran_lokal_history";
+				$tableB = "data_rpd_program_lokal_history";
+				$tableC = "data_rpd_tujuan_lokal_history";
+				break;
+			
+			default:
+				throw new Exception("Tipe relasi perencanaan tidak diketahui, harap menghubungi admin", 1);
+				break;
 		}
+
+		return $wpdb->get_results("
+				SELECT 
+					c.id_unik, 
+					c.tujuan_teks
+				FROM ".$tableA." a 
+					INNER JOIN ".$tableB." b 
+						ON a.id_unik=b.kode_sasaran
+					INNER JOIN ".$tableC." c
+						ON b.kode_tujuan=c.id_unik
+				WHERE 
+					b.id_unit=".$params['id_unit']." AND 
+					a.id_jadwal=".$params['relasi_perencanaan']." AND 
+					b.id_jadwal=".$params['relasi_perencanaan']." AND 
+                    c.id_jadwal=".$params['relasi_perencanaan']." AND 
+					a.status=1 AND
+                    b.status=1 AND
+                    c.status=1 AND
+					a.id_unik IS NOT NULL AND 
+					a.id_unik_indikator IS NULL AND 
+					b.id_unik IS NOT NULL AND 
+					b.id_unik_indikator IS NOT NULL AND
+                    c.id_unik IS NOT NULL AND 
+					c.id_unik_indikator IS NOT NULL");
 	}
 
 	public function get_sasaran_parent_by_tipe($params = array()){
@@ -76,6 +71,10 @@ class Wpsipd_Public_Base_3
 		$where = '';
 		if(!empty($params['kode_sasaran_parent'])){
 			$where .= " AND a.id_unik='".$params['kode_sasaran_parent']."'";
+		}
+
+		if(!empty($params['kode_tujuan_rpjm'])){
+			$where .= " AND a.kode_tujuan='".$params['kode_tujuan_rpjm']."'";
 		}
 
 		switch ($params['id_tipe_relasi']) {
@@ -109,12 +108,43 @@ class Wpsipd_Public_Base_3
 				WHERE 
 					b.id_unit=".$params['id_unit']." AND 
 					a.id_jadwal=".$params['relasi_perencanaan']." AND 
-					a.status=1 AND 
+					b.id_jadwal=".$params['relasi_perencanaan']." AND 
+					a.status=1 AND
+                    b.status=1 AND
 					a.id_unik IS NOT NULL AND 
 					a.id_unik_indikator IS NULL AND 
 					b.id_unik IS NOT NULL AND 
-					b.id_unik_indikator IS NOT NULL 
+					b.id_unik_indikator IS NOT NULL
 					$where;");
+	}
+
+	public function get_sasaran_parent(){
+
+		global $wpdb;
+
+		try{
+			if (!empty($_POST)) {
+				if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+
+					$sasaran = $this->get_sasaran_parent_by_tipe($_POST);
+
+					echo json_encode([
+						'status' => true,
+						'data' => $sasaran
+					]);exit;
+
+				}else{
+					throw new Exception('Api key tidak sesuai');
+				}
+			}else{
+				throw new Exception('Format tidak sesuai');
+			}
+		}catch(Exception $e){
+			echo json_encode([
+				'status' => false,
+				'message' => $e->getMessage()
+			]);exit;
+		}
 	}
 
 	public function get_tujuan_renstra(){
@@ -143,17 +173,16 @@ class Wpsipd_Public_Base_3
 							* 
 						FROM data_renstra_tujuan
 						WHERE tahun_anggaran=%d
-								AND id_misi=%d
 								AND active=1
 						ORDER BY urut_tujuan
-						", $tahun_anggaran, $_POST['id_misi']);
+						", $tahun_anggaran);
 					$tujuan = $wpdb->get_results($sql, ARRAY_A);
 				}
 
 				echo json_encode([
 					'status' => true,
 					'data' => $tujuan,
-					'message' => 'Sukses get detail visi dg data tujuan by id_misi'
+					'message' => 'Sukses get tujuan renstra'
 				]);exit;
 			}
 
@@ -176,11 +205,11 @@ class Wpsipd_Public_Base_3
 			if (!empty($_POST)) {
 				if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
 
-					$sasaran_parent = $this->get_sasaran_parent_by_tipe($_POST);
+					$tujuan = $this->get_tujuan_parent_by_tipe($_POST);
 
 					echo json_encode([
 						'status' => true,
-						'data' => $sasaran_parent
+						'data' => $tujuan
 					]);exit;
 
 				}else{
@@ -307,14 +336,14 @@ class Wpsipd_Public_Base_3
 			if (!empty($_POST)) {
 				if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
 
-					$sasaran_parent = $this->get_sasaran_parent_by_tipe($_POST);
+					$tujuan_parent = $this->get_tujuan_parent_by_tipe($_POST);
 
 					$tujuan = $wpdb->get_row("SELECT a.* FROM data_renstra_tujuan_lokal a WHERE a.id=".$_POST['id_tujuan']);
 
 					echo json_encode([
 						'status' => true,
 						'tujuan' => $tujuan,
-						'sasaran_parent' => $sasaran_parent,
+						'tujuan_parent' => $tujuan_parent,
 						'message' => 'Sukses get tujuan by id'
 					]);exit;
 

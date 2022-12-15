@@ -1116,18 +1116,16 @@ foreach ($data_all['data'] as $tujuan) {
 											+'<input type="hidden" name="id_unit" value="'+<?php echo $input['id_skpd']; ?>+'">'
 											+'<div class="form-group">'
 												+'<label for="tujuan_teks">Tujuan RPJM/RPD</label>'
-												+'<select class="form-control" id="tujuan-rpjm" name="tujuan_rpjm" onchange="return false">'
-													+'<option value="">Pilih Tujuan</option>'
-												+'</select>'
+												+'<select class="form-control" id="tujuan-rpjm" name="tujuan_rpjm" onchange="pilihTujuanRpjm(this)">'
+													+'<option value="">Pilih Tujuan</option>';
+													response.data.map(function(value, index){
+														html +='<option value="'+value.id_unik+'">'+value.tujuan_teks+'</option>';
+													})
+												html+='</select>'
 											+'</div>'
 											+'<div class="form-group">'
 												+'<label for="tujuan_teks">Sasaran RPJM/RPD</label>'
-												+'<select class="form-control" id="sasaran-parent" name="sasaran_parent" onchange="pilihSasaranParent(this)">';
-													html+='<option value="">Pilih Sasaran</option>';
-													response.data.map(function(value, index){
-														html +='<option value="'+value.id_unik+'|'+value.id_program+'">'+value.sasaran_teks+'</option>';
-													})
-												html+='</select>'
+												+'<select class="form-control" id="sasaran-rpjm" name="sasaran_parent" onchange="pilihSasaranRpjm(this)"></select>'
 											+'</div>'
 											+'<div class="form-group">'
 												+'<label for="tujuan_teks">Tujuan Renstra</label>'
@@ -1176,10 +1174,10 @@ foreach ($data_all['data'] as $tujuan) {
           	data: {
           		"action": "edit_tujuan_renstra",
           		"api_key": "<?php echo $api_key; ?>",
-							'id_tujuan': idtujuan, 
-			        'id_unit': '<?php echo $input['id_skpd'] ?>',
-			        'relasi_perencanaan': '<?php echo $relasi_perencanaan; ?>',
-			        'id_tipe_relasi': '<?php echo $id_tipe_relasi; ?>',
+				'id_tujuan': idtujuan, 
+			    'id_unit': '<?php echo $input['id_skpd'] ?>',
+			    'relasi_perencanaan': '<?php echo $relasi_perencanaan; ?>',
+			    'id_tipe_relasi': '<?php echo $id_tipe_relasi; ?>',
           	},
           	dataType: "json",
           	success: function(response){
@@ -1191,19 +1189,18 @@ foreach ($data_all['data'] as $tujuan) {
 									+'<input type="hidden" name="id_unit" value="'+<?php echo $input['id_skpd']; ?>+'">'
 									+'<div class="form-group">'
 										+'<label for="tujuan_teks">Tujuan RPJM/RPD</label>'
-										+'<select class="form-control" id="tujuan-rpjm" name="tujuan_rpjm" onchange="return false">'
-											+'<option value="">Pilih Tujuan</option>'
-										+'</select>'
+										+'<select class="form-control" id="tujuan-rpjm" name="tujuan_rpjm" onchange="pilihTujuanRpjm(this)">'
+											+'<option value="">Pilih Tujuan</option>';
+											response.tujuan_parent.map(function(value, index){
+												html +='<option value="'+value.id_unik+'">'+value.tujuan_teks+'</option>';
+											})
+									html+='</select>'
 									+'</div>'
 									+'<div class="form-group">'
 										+'<label for="tujuan_teks">Sasaran RPJM/RPD</label>'
-										+'<select class="form-control" id="sasaran-parent" name="sasaran_parent" onchange="pilihSasaranParent(this)">';
-											html+='<option value="" selected>Pilih Sasaran</option>';
-												response.sasaran_parent.map(function(value, index){
-													html +='<option value="'+value.id_unik+'|'+value.id_program+'">'+value.sasaran_teks+'</option>';
-												})
-											html+='</select>'
+										+'<select class="form-control" id="sasaran-rpjm" name="sasaran_parent" onchange="pilihSasaranRpjm(this)"></select>'
 									+'</div>'
+
 									+'<div class="form-group">'
 										+'<label for="tujuan_teks">Tujuan Renstra</label>'
 								  		+'<textarea class="form-control" id="tujuan_teks" name="tujuan_teks">'+response.tujuan.tujuan_teks+'</textarea>'
@@ -1630,7 +1627,7 @@ foreach ($data_all['data'] as $tujuan) {
 				dataType:'json',
 				data:{
 					'action': 'delete_sasaran_renstra',
-		      'api_key': '<?php echo $api_key; ?>',
+		      		'api_key': '<?php echo $api_key; ?>',
 					'id_sasaran': id_sasaran,
 					'kode_sasaran': kode_sasaran,
 				},
@@ -1871,7 +1868,7 @@ foreach ($data_all['data'] as $tujuan) {
 				dataType:'json',
 				data:{
 					'action': 'delete_indikator_sasaran_renstra',
-		      'api_key': '<?php echo $api_key; ?>',
+		      		'api_key': '<?php echo $api_key; ?>',
 					'id': id
 				},
 				success:function(response){
@@ -1957,7 +1954,7 @@ foreach ($data_all['data'] as $tujuan) {
           	data: {
           		"action": "edit_program_renstra",
           		"api_key": "<?php echo $api_key; ?>",
-							'id_unik': jQuery(this).data('kodeprogram')
+				'id_unik': jQuery(this).data('kodeprogram')
           	},
           	dataType: "json",
           	success: function(res){
@@ -2163,8 +2160,8 @@ foreach ($data_all['data'] as $tujuan) {
           	data: {
           		"action": "edit_indikator_program_renstra",
           		"api_key": "<?php echo $api_key; ?>",
-							'id': id,
-							'kode_program': kode_program
+				'id': id,
+				'kode_program': kode_program
           	},
           	dataType: "json",
           	success: function(response){
@@ -2277,7 +2274,7 @@ foreach ($data_all['data'] as $tujuan) {
 				dataType:'json',
 				data:{
 					'action': 'delete_indikator_program_renstra',
-		      'api_key': '<?php echo $api_key; ?>',
+		      		'api_key': '<?php echo $api_key; ?>',
 					'id': id,
 					'kode_program': kode_program,
 				},
@@ -2434,7 +2431,7 @@ foreach ($data_all['data'] as $tujuan) {
 				dataType:'json',
 				data:{
 					'action': 'delete_kegiatan_renstra',
-		      'api_key': '<?php echo $api_key; ?>',
+		      		'api_key': '<?php echo $api_key; ?>',
 					'id': id,
 					'id_unik': id_unik,
 				},
@@ -2810,34 +2807,35 @@ foreach ($data_all['data'] as $tujuan) {
 		tableHtmlToExcel('view-table-renstra', name);
 	}
 
-	function pilihJadwal(that){
+	function pilihTujuanRpjm(that){
 		jQuery("#wrap-loading").show();
-		if(that.value != ''){
-			jQuery.ajax({
-				method:'POST',
-				url:ajax.url,
-				dataType:'json',
-				data:{
-					'action': 'get_sasaran_rpjm_history',
-		      'api_key': '<?php echo $api_key; ?>',
-		      'id_jadwal': that.value,
-		      'id_unit': '<?php echo $input['id_skpd'] ?>',
-				},
-				success:function(response){
-					jQuery("#wrap-loading").hide();
-					let html = '<option value="">Pilih Sasaran Rpjm</option>';
-					response.data.map(function(value, index){
-						html +='<option value="'+value.id_unik+'|'+value.id_program+'">'+value.sasaran_teks+'</option>'
-					});
-					jQuery("#sasaran-parent").html(html);
-				}
-			});
-		}
+		let kode_tujuan_rpjm = jQuery(that).val();
+		jQuery.ajax({
+			method:'POST',
+			url:ajax.url,
+			dataType:'json',
+			data:{
+				'action':'get_sasaran_parent',
+				'api_key': '<?php echo $api_key; ?>',
+				'kode_tujuan_rpjm': kode_tujuan_rpjm,
+		        'id_unit': '<?php echo $input['id_skpd']; ?>',
+		        'relasi_perencanaan': '<?php echo $relasi_perencanaan; ?>',
+		        'id_tipe_relasi': '<?php echo $id_tipe_relasi; ?>',
+			},
+			success:function(response){
+				jQuery("#wrap-loading").hide();
+				let option='<option>Pilih Sasaran</option>';
+				response.data.map(function(value, index){
+					option+='<option value="'+value.id_unik+'|'+value.id_program+'">'+value.sasaran_teks+'</option>';
+				})
+				jQuery("#sasaran-rpjm").html(option);
+			}
+		});
 	}
 
-	function pilihSasaranParent(that){
+	function pilihSasaranRpjm(that){
 		if(that.value !=""){
-			jQuery("#tujuan_teks").val(jQuery("#sasaran-parent").find(':selected').text());
+			jQuery("#tujuan_teks").val(jQuery("#sasaran-rpjm").find(':selected').text());
 		}
 	}
 
