@@ -908,7 +908,7 @@ foreach ($data_all['data'] as $tujuan) {
 	.indikator_kegiatan { min-height: 40px; }
 	.modal {overflow-y:auto;}
 	.status-rpjm{
-		background-color: #ffa2a2;
+		background-color: #ffffff;
 	}
 </style>
 <h4 style="text-align: center; margin: 0; font-weight: bold;">RENCANA STRATEGIS (RENSTRA) <br><?php echo $judul_skpd.'Tahun '.$awal_renstra.' - '.$akhir_renstra.' '.$nama_pemda; ?></h4>
@@ -1076,7 +1076,7 @@ foreach ($data_all['data'] as $tujuan) {
 			  +'</div>'
 		+'</div>'
 		+'<h3 style="margin-top: 20px;">SETTING</h3>'
-		+'<label><input type="checkbox" onclick="tampilkan_edit(this);"> Edit Data RENSTRA</label>'
+		// +'<label><input type="checkbox" onclick="tampilkan_edit(this);"> Edit Data RENSTRA</label>'
 		+'<label style="margin-left: 20px;"><input type="checkbox" onclick="show_debug(this);"> Debug Cascading RPJM</label>'
 		+'<label style="margin-left: 20px;">'
 			+'Sembunyikan Baris '
@@ -3534,6 +3534,41 @@ foreach ($data_all['data'] as $tujuan) {
 				}
 			}
 		});
+	}
+
+	function sembunyikan_baris(that){
+		var val = jQuery(that).val();
+		var tr_tujuan = jQuery('.tr-tujuan');
+		var tr_sasaran = jQuery('.tr-sasaran');
+		var tr_program = jQuery('.tr-program');
+		var tr_kegiatan = jQuery('.tr-kegiatan');
+		tr_tujuan.show();
+		tr_sasaran.show();
+		tr_program.show();
+		tr_kegiatan.show();
+		if(val == 'tr-tujuan'){
+			tr_tujuan.hide();
+			tr_sasaran.hide();
+			tr_program.hide();
+			tr_kegiatan.hide();
+		}else if(val == 'tr-sasaran'){
+			tr_sasaran.hide();
+			tr_program.hide();
+			tr_kegiatan.hide();
+		}else if(val == 'tr-program'){
+			tr_program.hide();
+			tr_kegiatan.hide();
+		}else if(val == 'tr-kegiatan'){
+			tr_kegiatan.hide();
+		} 
+	}
+
+	function show_debug(that){
+		if(jQuery(that).is(':checked')){
+			jQuery("#table-renstra").find('.status-rpjm').css('background-color', '#ffa2a2');
+		}else{
+			jQuery("#table-renstra").find('.status-rpjm').css('background-color', '#ffffff');
+		}
 	}
 
 	function set_data_jadwal_lokal() {

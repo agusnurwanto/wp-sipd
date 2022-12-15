@@ -3536,7 +3536,7 @@ class Wpsipd_Public_Base_3
 							$target_arr = [$target_1, $target_2, $target_3, $target_4, $target_5];
 							$pagu_arr = [$pagu_1, $pagu_2, $pagu_3, $pagu_4, $pagu_5];
 							$body .= '
-									<tr class="tr-program'.$bg_rpjm.'">
+									<tr class="tr-program">
 										<td class="kiri atas kanan bawah">'.$tujuan_teks.'</td>
 										<td class="kiri atas kanan bawah">'.$sasaran_teks.'</td>
 										<td class="kiri atas kanan bawah">'.$program['kode'].'</td>
