@@ -444,6 +444,8 @@ class Wpsipd
 		$this->loader->add_action('wp_ajax_get_rpd',  $plugin_public, 'get_rpd');
 		$this->loader->add_action('wp_ajax_nopriv_get_rpd',  $plugin_public, 'get_rpd');
 
+		$this->loader->add_action('wp_ajax_get_data_program_renstra', $plugin_public, 'get_data_program_renstra');
+
 		$this->loader->add_action('wp_ajax_get_bidang_urusan',  $plugin_public, 'get_bidang_urusan');
 		$this->loader->add_action('wp_ajax_nopriv_get_bidang_urusan',  $plugin_public, 'get_bidang_urusan');
 

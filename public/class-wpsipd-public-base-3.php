@@ -35,29 +35,23 @@ class Wpsipd_Public_Base_3
 				break;
 		}
 
-		return $wpdb->get_results("
+		$sql = "
 				SELECT 
 					c.id_unik, 
 					c.tujuan_teks
 				FROM ".$tableA." a 
-					INNER JOIN ".$tableB." b 
-						ON a.id_unik=b.kode_sasaran
 					INNER JOIN ".$tableC." c
-						ON b.kode_tujuan=c.id_unik
-				WHERE 
-					b.id_unit=".$params['id_unit']." AND 
+						ON a.kode_tujuan=c.id_unik
+				WHERE  
 					a.id_jadwal=".$params['relasi_perencanaan']." AND 
-					b.id_jadwal=".$params['relasi_perencanaan']." AND 
                     c.id_jadwal=".$params['relasi_perencanaan']." AND 
 					a.status=1 AND
-                    b.status=1 AND
                     c.status=1 AND
 					a.id_unik IS NOT NULL AND 
-					a.id_unik_indikator IS NULL AND 
-					b.id_unik IS NOT NULL AND 
-					b.id_unik_indikator IS NOT NULL AND
-                    c.id_unik IS NOT NULL AND 
-					c.id_unik_indikator IS NOT NULL");
+                    c.id_unik IS NOT NULL";
+		$sql_data =  $wpdb->get_results($sql);
+		// die($sql);
+		return $sql_data;
 	}
 
 	public function get_sasaran_parent_by_tipe($params = array()){
@@ -93,6 +87,28 @@ class Wpsipd_Public_Base_3
 				break;
 		}
 
+		// return $wpdb->get_results("
+		// 		SELECT 
+		// 			a.id_unik, 
+		// 			a.sasaran_teks, 
+		// 			a.id_visi, 
+		// 			a.visi_teks, 
+		// 			a.id_misi, 
+		// 			a.misi_teks, 
+		// 			b.id_program 
+		// 		FROM ".$tableA." a 
+		// 			INNER JOIN ".$tableB." b 
+		// 				ON a.id_unik=b.kode_sasaran 
+		// 		WHERE 
+		// 			b.id_unit=".$params['id_unit']." AND 
+		// 			a.id_jadwal=".$params['relasi_perencanaan']." AND 
+		// 			b.id_jadwal=".$params['relasi_perencanaan']." AND 
+		// 			a.status=1 AND
+        //             b.status=1 AND
+		// 			a.id_unik IS NOT NULL AND 
+		// 			b.id_unik IS NOT NULL
+		// 			$where;");
+
 		return $wpdb->get_results("
 				SELECT 
 					a.id_unik, 
@@ -100,21 +116,12 @@ class Wpsipd_Public_Base_3
 					a.id_visi, 
 					a.visi_teks, 
 					a.id_misi, 
-					a.misi_teks, 
-					b.id_program 
-				FROM ".$tableA." a 
-					INNER JOIN ".$tableB." b 
-						ON a.id_unik=b.kode_sasaran 
+					a.misi_teks
+				FROM ".$tableA." a  
 				WHERE 
-					b.id_unit=".$params['id_unit']." AND 
 					a.id_jadwal=".$params['relasi_perencanaan']." AND 
-					b.id_jadwal=".$params['relasi_perencanaan']." AND 
 					a.status=1 AND
-                    b.status=1 AND
-					a.id_unik IS NOT NULL AND 
-					a.id_unik_indikator IS NULL AND 
-					b.id_unik IS NOT NULL AND 
-					b.id_unik_indikator IS NOT NULL
+					a.id_unik IS NOT NULL
 					$where;");
 	}
 

@@ -1003,7 +1003,8 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
 
 	var aksi = ''
 		+'<?php if($cek_jadwal['status'] == 'success'): ?><a style="margin-left: 10px;" id="singkron-sipd" onclick="return false;" href="#" class="btn btn-danger">Ambil data dari SIPD lokal</a><?php endif; ?>'
-		+'<?php if($cek_jadwal['status'] == 'success'): ?><a style="margin-left: 10px;" id="tambah-data" onclick="return false;" href="#" class="btn btn-success">Tambah Data RPD</a><?php endif; ?>'
+		+'<?php if($cek_jadwal['status'] == 'success'): ?><a style="margin-left: 10px;" id="tambah-data" onclick="return false;" href="#" class="btn btn-success">Tambah Data RPD</a><br><br><?php endif; ?>'
+		+'<?php if($cek_jadwal['status'] == 'success'): ?><a style="margin-left: 10px;" id="generate-data-program-renstra" onclick="return false;" href="#" class="btn btn-warning">Generate Data Program Dari RENSTRA</a><?php endif; ?>'
 		+'<h3 style="margin-top: 20px;">SETTING</h3>'
 		+'<?php if($cek_jadwal['status'] == 'success'): ?><label><input type="checkbox" onclick="tampilkan_edit(this);"> Edit Data RPD</label><?php endif; ?>'
 		+'<label style="margin-left: 20px;"><input type="checkbox" onclick="show_debug(this);"> Debug Cascading RPD</label>'
@@ -2613,6 +2614,27 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
 	          		resolve(res.data);
 	          	}
 	        });
+		});
+	}
+
+	jQuery('#generate-data-program-renstra').on('click', function(){
+		generate_data_program_renstra();
+	});
+
+	function generate_data_program_renstra() {
+		jQuery('#wrap-loading').show();
+		jQuery.ajax({
+			url	: ajax.url,
+			type : "post",
+			data : {
+				"action": "get_data_program_renstra",
+				"api_key": "<?php echo $api_key; ?>"
+			},
+			dataType: "json",
+			success: function(res){
+				jQuery('#wrap-loading').hide();
+				console.log(res)
+			}
 		});
 	}
 

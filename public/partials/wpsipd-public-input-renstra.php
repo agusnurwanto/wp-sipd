@@ -50,8 +50,17 @@ $cek_jadwal = $this->validasi_jadwal_perencanaan('renstra');
 $jadwal_lokal = $cek_jadwal['data'];
 $add_renstra = '';
 if(!empty($jadwal_lokal)){
-	$relasi_perencanaan = $jadwal_lokal[0]['relasi_perencanaan'];
-	$id_tipe_relasi = $jadwal_lokal[0]['id_tipe'];
+	if(!empty($jadwal_lokal[0]['relasi_perencanaan'])){
+		$relasi = $wpdb->get_row("
+					SELECT 
+						id_tipe 
+					FROM `data_jadwal_lokal`
+					WHERE id_jadwal_lokal=".$jadwal_lokal[0]['relasi_perencanaan']);
+
+		$relasi_perencanaan = $jadwal_lokal[0]['relasi_perencanaan'];
+		$id_tipe_relasi = $relasi->id_tipe;
+	}
+
 	$awal_renstra = $jadwal_lokal[0]['tahun_anggaran']+1;
 	$namaJadwal = $jadwal_lokal[0]['nama'];
 	$mulaiJadwal = $jadwal_lokal[0]['waktu_awal'];
@@ -706,7 +715,7 @@ foreach ($data_all['data'] as $tujuan) {
 				<td class="atas kanan bawah"></td>
 				<td class="atas kanan bawah">'.$indikator_tujuan.'</td>
 				<td class="atas kanan bawah">'.$target_awal.'</td>';
-				for ($i=1; $i <= $lama_pelaksanaan; $i++) { 
+				for ($i=0; $i < $lama_pelaksanaan; $i++) { 
 					$body.="<td class=\"atas kanan bawah\">".$target_arr[$i]."</td><td class=\"atas kanan bawah\"></td>";
 				}
 				$body.='<td class="atas kanan bawah">'.$target_akhir.'</td>
@@ -755,7 +764,7 @@ foreach ($data_all['data'] as $tujuan) {
 					<td class="atas kanan bawah"></td>
 					<td class="atas kanan bawah">'.$indikator_sasaran.'</td>
 					<td class="atas kanan bawah">'.$target_awal.'</td>';
-					for ($i=1; $i <= $lama_pelaksanaan; $i++) { 
+					for ($i=0; $i < $lama_pelaksanaan; $i++) { 
 						$body.="<td class=\"atas kanan bawah\">".$target_arr[$i]."</td><td class=\"atas kanan bawah\"></td>";
 					}
 					$body.='<td class="atas kanan bawah">'.$target_akhir.'</td>
@@ -2713,7 +2722,7 @@ foreach ($data_all['data'] as $tujuan) {
 			dataType:'json',
 			data:{
 				'action': action,
-	      'api_key': '<?php echo $api_key; ?>',
+	      		'api_key': '<?php echo $api_key; ?>',
 				'data': JSON.stringify(form),
 			},
 			success:function(response){
@@ -2817,7 +2826,7 @@ foreach ($data_all['data'] as $tujuan) {
 				jQuery("#wrap-loading").hide();
 				let option='<option>Pilih Sasaran</option>';
 				response.data.map(function(value, index){
-					option+='<option value="'+value.id_unik+'|'+value.id_program+'">'+value.sasaran_teks+'</option>';
+					option+='<option value="'+value.id_unik+'|'+<?php echo $relasi_perencanaan; ?>+'">'+value.sasaran_teks+'</option>';
 				})
 				jQuery("#sasaran-rpjm").html(option);
 			}

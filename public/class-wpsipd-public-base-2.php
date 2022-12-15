@@ -520,4 +520,36 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 		die(json_encode($ret));
 	}
 
+	public function get_data_program_renstra(){
+		global $wpdb;
+		$ret = array(
+			'status'	=> 'success',
+			'action'	=> $_POST['action'],
+			'data'		=> array(),
+			'cek_query' => array()
+		);
+		if(!empty($_POST)){
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+				
+				$data_renstra_program = $wpdb->get_results($wpdb->prepare('
+					SELECT
+						*
+					FROM 
+						data_renstra_program_lokal')
+					,ARRAY_A);
+
+				$ret['data'] = $data_renstra_program;
+
+				$ret['cek_query'] = $wpdb->last_query;				
+
+			}else{
+				$ret['status'] = 'error';
+				$ret['message'] = 'APIKEY tidak sesuai!';
+			}
+		}else{
+			$ret['status']	= 'error';
+			$ret['message']	= 'Format Salah!';
+		}
+		die(json_encode($ret));
+	}
 }
