@@ -825,7 +825,7 @@ foreach ($data_all['data'] as $tujuan) {
 						<td class="atas kanan bawah">'.$indikator_program.'</td>
 						<td class="atas kanan bawah">'.$target_awal.'</td>';
 						for ($i=1; $i <= $lama_pelaksanaan; $i++) { 
-							$body.="<td class=\"atas kanan bawah\">".$target_arr[$i]."</td><td class=\"atas kanan bawah\">".$pagu_arr[$i]."</td>";
+							$body.="<td class=\"atas kanan bawah\">".$target_arr[$i-1]."</td><td class=\"atas kanan bawah\">".$pagu_arr[$i-1]."</td>";
 						}
 						$body.='<td class="atas kanan bawah">'.$target_akhir.'</td>
 						<td class="atas kanan bawah">'.$satuan.'</td>
@@ -885,7 +885,7 @@ foreach ($data_all['data'] as $tujuan) {
 							<td class="atas kanan bawah">'.$indikator_kegiatan.'</td>
 							<td class="atas kanan bawah">'.$target_awal.'</td>';
 							for ($i=1; $i <= $lama_pelaksanaan; $i++) { 
-								$body.="<td class=\"atas kanan bawah\">".$target_arr[$i]."</td><td class=\"atas kanan bawah\">".$pagu_arr[$i]."</td>";
+								$body.="<td class=\"atas kanan bawah\">".$target_arr[$i-1]."</td><td class=\"atas kanan bawah\">".$pagu_arr[$i-1]."</td>";
 							}
 							$body.='
 							<td class="atas kanan bawah">'.$target_akhir.'</td>
