@@ -15795,7 +15795,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 							* 
 						FROM `data_jadwal_lokal` 
 						WHERE id_tipe='".$sql_tipe[0]['id']."'
-						ORDER BY id desc
+						ORDER BY id_jadwal_lokal desc
 						LIMIT 1
 					", ARRAY_A);
 				}
