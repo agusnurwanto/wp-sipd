@@ -426,25 +426,76 @@ class Wpsipd_Public_Base_3
 							throw new Exception('Unit kerja tidak ditemukan!');
 						}
 
-						$status = $wpdb->update('data_renstra_tujuan_lokal', [
-							'id_bidang_urusan' => $data['id_bidang_urusan'],
-							'id_unit' => $dataUnit->id_unit,
-							'kode_bidang_urusan' => $data['kode_bidang_urusan'],
-							'kode_sasaran_rpjm' => $data['kode_sasaran_rpjm'],
-							'kode_skpd' => $dataUnit->kode_skpd,
-							'nama_bidang_urusan' => $data['nama_bidang_urusan'],
-							'nama_skpd' => $dataUnit->nama_skpd,
-							'tujuan_teks' => $data['tujuan_teks'],
-							'urut_tujuan' => $data['urut_tujuan'],
-							'catatan_tujuan' => $data['catatan_tujuan'],
-							'update_at' => date('Y-m-d H:i:s')
-						], [
-							'id_unik' => $data['id_unik'], // pake id_unik biar teks tujuan di row indikator tujuan ikut terupdate
-							'status' => 1,
-							'active' => 1,
-						]);
+						try {
 
-						if(!$status){
+							$wpdb->query('START TRANSACTION');
+							
+							// update tujuan dan indikator
+							$wpdb->update('data_renstra_tujuan_lokal', [
+								'id_bidang_urusan' => $data['id_bidang_urusan'],
+								'id_unit' => $dataUnit->id_unit,
+								'kode_bidang_urusan' => $data['kode_bidang_urusan'],
+								'kode_sasaran_rpjm' => $data['kode_sasaran_rpjm'],
+								'kode_skpd' => $dataUnit->kode_skpd,
+								'nama_bidang_urusan' => $data['nama_bidang_urusan'],
+								'nama_skpd' => $dataUnit->nama_skpd,
+								'tujuan_teks' => $data['tujuan_teks'],
+								'urut_tujuan' => $data['urut_tujuan'],
+								'catatan_tujuan' => $data['catatan_tujuan'],
+								'update_at' => date('Y-m-d H:i:s')
+							], [
+								'id_unik' => $data['id_unik'], // pake id_unik biar teks tujuan di row indikator tujuan ikut terupdate
+								'status' => 1,
+								'active' => 1,
+							]);
+
+							// update data tujuan di table sasaran dan indikator
+							$wpdb->update('data_renstra_sasaran_lokal', [
+								'id_bidang_urusan' => $data['id_bidang_urusan'],
+								'kode_bidang_urusan' => $data['kode_bidang_urusan'],
+								'nama_bidang_urusan' => $data['nama_bidang_urusan'],
+								'tujuan_lock' => $data['tujuan_lock'],
+								'tujuan_teks' => $data['tujuan_teks'],
+								'urut_tujuan' => $data['urut_tujuan'],
+							], [
+								'kode_tujuan' => $data['id_unik']
+							]);
+
+							// update data tujuan di table program dan indikator
+							$wpdb->update('data_renstra_program_lokal', [
+								'id_bidang_urusan' => $data['id_bidang_urusan'],
+								'kode_bidang_urusan' => $data['kode_bidang_urusan'],
+								'nama_bidang_urusan' => $data['nama_bidang_urusan'],
+								'tujuan_lock' => $data['tujuan_lock'],
+								'tujuan_teks' => $data['tujuan_teks'],
+								'urut_tujuan' => $data['urut_tujuan']
+							], [
+								'kode_tujuan' => $data['id_unik']
+							]);
+
+							// update data tujuan di table kegiatan dan indikator
+							$wpdb->update('data_renstra_kegiatan_lokal', [
+								'id_bidang_urusan' => $data['id_bidang_urusan'],
+								'kode_bidang_urusan' => $data['kode_bidang_urusan'],
+								'nama_bidang_urusan' => $data['nama_bidang_urusan'],
+								'tujuan_lock' => $data['tujuan_lock'],
+								'tujuan_teks' => $data['tujuan_teks'],
+								'urut_tujuan' => $data['urut_tujuan']
+							], [
+								'kode_tujuan' => $data['id_unik']
+							]);
+							
+							$wpdb->query('COMMIT');
+
+							echo json_encode([
+								'status' => true,
+								'message' => 'Sukses ubah tujuan renstra',
+							]);exit;
+
+						} catch (Exception $e) {
+
+							$wpdb->query('ROLLBACK');
+							
 							throw new Exception('Terjadi kesalahan saat ubah data, harap hubungi admin!');
 						}
 
@@ -1830,12 +1881,12 @@ class Wpsipd_Public_Base_3
 					try {
 							// update program
 							$wpdb->update('data_renstra_program_lokal', [
-									'id_bidang_urusan' => $dataSasaran->id_bidang_urusan, // diambil dari sasaran renstra atau dari program yang dipilih
+									'id_bidang_urusan' => $dataSasaran->id_bidang_urusan,
 									'id_misi' => $dataSasaran->id_misi,
 									'id_program' => $dataProgram->id_program,
 									'id_unit' => $dataSasaran->id_unit,
 									'id_visi' => $dataSasaran->id_visi,
-									'kode_bidang_urusan' => $dataSasaran->kode_bidang_urusan, // diambil dari sasaran renstra atau dari program yang dipilih
+									'kode_bidang_urusan' => $dataSasaran->kode_bidang_urusan,
 									'kode_program' => $dataProgram->kode_program,
 									'kode_sasaran' => $dataSasaran->id_unik,
 									'kode_skpd' => $dataSasaran->kode_skpd,
@@ -1931,7 +1982,6 @@ class Wpsipd_Public_Base_3
 		if(empty($data['id_program'])){
 			throw new Exception('Program wajib dipilih');
 		}
-
 	}
 
 	public function get_indikator_program_renstra(){
@@ -3299,6 +3349,8 @@ class Wpsipd_Public_Base_3
 												'id' => $program_value['id'],
 												'id_unik' => $program_value['id_unik'],
 												'kode' => $kode[0],
+												'tujuan_teks' => $program_value['tujuan_teks'],
+												'sasaran_teks' => $program_value['sasaran_teks'],
 												'program_teks' => $program_value['nama_program'],
 												'indikator' => array(),
 												'data' => array()
@@ -3434,7 +3486,7 @@ class Wpsipd_Public_Base_3
 							$target_akhir .= '<div class="indikator">'.$indikator['target_akhir'].'</div>';
 							$satuan .= '<div class="indikator">'.$indikator['satuan'].'</div>';
 						}
-						
+
 						foreach ($sasaran['data'] as $program) {
 							$no_program++;
 							$indikator_program = '';
@@ -3451,6 +3503,19 @@ class Wpsipd_Public_Base_3
 							$pagu_5   = '';
 							$target_akhir = '';
 							$satuan = '';
+							
+							if($tujuan_teks!=$program['tujuan_teks']){
+								$tujuan_teks=$program['tujuan_teks'];
+							}else{
+								$tujuan_teks = '';
+							}
+							
+							if($sasaran_teks!=$program['sasaran_teks']){
+								$sasaran_teks=$program['sasaran_teks'];
+							}else{
+								$sasaran_teks = '';
+							}
+
 							foreach($program['indikator'] as $key => $indikator){
 								$indikator_program .= '<div class="indikator">'.$indikator['indikator_teks'].'</div>';
 								$target_awal .= '<div class="indikator">'.$indikator['target_awal'].'</div>';
@@ -3472,8 +3537,8 @@ class Wpsipd_Public_Base_3
 							$pagu_arr = [$pagu_1, $pagu_2, $pagu_3, $pagu_4, $pagu_5];
 							$body .= '
 									<tr class="tr-program'.$bg_rpjm.'">
-										<td class="kiri atas kanan bawah">'.$tujuan['tujuan_teks'].'</td>
-										<td class="kiri atas kanan bawah">'.$sasaran['sasaran_teks'].'</td>
+										<td class="kiri atas kanan bawah">'.$tujuan_teks.'</td>
+										<td class="kiri atas kanan bawah">'.$sasaran_teks.'</td>
 										<td class="kiri atas kanan bawah">'.$program['kode'].'</td>
 										<td class="kiri atas kanan bawah">'.$program['program_teks'].'</td>
 										<td class="kiri atas kanan bawah">'.$indikator_program.'</td>';
@@ -3600,9 +3665,5 @@ class Wpsipd_Public_Base_3
             );
         }
         die(json_encode($ret));
-    }
-
-    private function generate_tc27(){
-
     }
 }
