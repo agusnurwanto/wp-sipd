@@ -5978,6 +5978,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 			$unit = $wpdb->get_results($wpdb->prepare("
 				SELECT 
 					nama_skpd, 
+					is_skpd, 
 					id_skpd, 
 					kode_skpd 
 				from data_unit 
@@ -5987,51 +5988,74 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 				$tahun, $id_skpd), ARRAY_A);
 			echo '<ul class="aksi-monev text_tengah">';
             foreach ($unit as $kk => $vv) {
-				$nama_page = 'RFK '.$vv['nama_skpd'].' '.$vv['kode_skpd'].' | '.$tahun;
-				$custom_post = get_page_by_title($nama_page, OBJECT, 'page');
-				$url_rfk = $this->get_link_post($custom_post);
+				$user_id = um_user( 'ID' );
+				$user_meta = get_userdata($user_id);
+				if(
+					in_array("administrator", $user_meta->roles) 
+					|| in_array("PLT", $user_meta->roles) 
+					|| in_array("PA", $user_meta->roles) 
+					|| in_array("KPA", $user_meta->roles)
+				){
+					$nama_page = 'RFK '.$vv['nama_skpd'].' '.$vv['kode_skpd'].' | '.$tahun;
+					$custom_post = get_page_by_title($nama_page, OBJECT, 'page');
+					$url_rfk = $this->get_link_post($custom_post);
 
-				$nama_page_sd = 'Sumber Dana '.$vv['nama_skpd'].' '.$vv['kode_skpd'].' | '.$tahun;
-				$custom_post = get_page_by_title($nama_page_sd, OBJECT, 'page');
-				$url_sd = $this->get_link_post($custom_post);
+					if(!empty($daftar_tombol_list[1])){
+						echo '<li><a href="'.$url_rfk.'" target="_blank" class="btn btn-info">MONEV RFK</a></li>';
+					}
 
-				$nama_page_label = 'Label Komponen '.$vv['nama_skpd'].' '.$vv['kode_skpd'].' | '.$tahun;
-				$custom_post = get_page_by_title($nama_page_label, OBJECT, 'page');
-				$url_label = $this->get_link_post($custom_post);
+					$nama_page_sd = 'Sumber Dana '.$vv['nama_skpd'].' '.$vv['kode_skpd'].' | '.$tahun;
+					$custom_post = get_page_by_title($nama_page_sd, OBJECT, 'page');
+					$url_sd = $this->get_link_post($custom_post);
+					if(!empty($daftar_tombol_list[2])){
+						echo '<li><a href="'.$url_sd.'" target="_blank" class="btn btn-info">MONEV SUMBER DANA</a></li>';
+					}
 
-				$nama_page_monev_renja = 'MONEV '.$vv['nama_skpd'].' '.$vv['kode_skpd'].' | '.$tahun;
-				$custom_post = get_page_by_title($nama_page_monev_renja, OBJECT, 'page');
-				$url_monev_renja = $this->get_link_post($custom_post);
+					$nama_page_label = 'Label Komponen '.$vv['nama_skpd'].' '.$vv['kode_skpd'].' | '.$tahun;
+					$custom_post = get_page_by_title($nama_page_label, OBJECT, 'page');
+					$url_label = $this->get_link_post($custom_post);
+					if(!empty($daftar_tombol_list[3])){
+						echo '<li><a href="'.$url_label.'" target="_blank" class="btn btn-info">MONEV LABEL KOMPONEN</a></li>';
+					}
 
-				$nama_page_monev_renstra = 'MONEV RENSTRA '.$vv['nama_skpd'].' '.$vv['kode_skpd'].' | '.$tahun;
-				$custom_post = get_page_by_title($nama_page_monev_renstra, OBJECT, 'page');
-				$url_monev_renstra = $this->get_link_post($custom_post);
+					$nama_page_monev_renja = 'MONEV '.$vv['nama_skpd'].' '.$vv['kode_skpd'].' | '.$tahun;
+					$custom_post = get_page_by_title($nama_page_monev_renja, OBJECT, 'page');
+					$url_monev_renja = $this->get_link_post($custom_post);
+					if(!empty($daftar_tombol_list[4])){
+						echo '<li><a href="'.$url_monev_renja.'" target="_blank" class="btn btn-info">MONEV INDIKATOR RENJA</a></li>';
+					}
 
-				if(!empty($daftar_tombol_list[1])){
-					echo '<li><a href="'.$url_rfk.'" target="_blank" class="btn btn-info">MONEV RFK</a></li>';
-				}
-				if(!empty($daftar_tombol_list[2])){
-					echo '<li><a href="'.$url_sd.'" target="_blank" class="btn btn-info">MONEV SUMBER DANA</a></li>';
-				}
-				if(!empty($daftar_tombol_list[3])){
-					echo '<li><a href="'.$url_label.'" target="_blank" class="btn btn-info">MONEV LABEL KOMPONEN</a></li>';
-				}
-				if(!empty($daftar_tombol_list[4])){
-					echo '<li><a href="'.$url_monev_renja.'" target="_blank" class="btn btn-info">MONEV INDIKATOR RENJA</a></li>';
-				}
-				if(!empty($daftar_tombol_list[5])){
-					echo '<li><a href="'.$url_monev_renstra.'" target="_blank" class="btn btn-info">MONEV INDIKATOR RENSTRA</a></li>';
-				}
-			}
-			$user_id = um_user( 'ID' );
-			$user_meta = get_userdata($user_id);
-			if(in_array("administrator", $user_meta->roles) || in_array("PLT", $user_meta->roles) || in_array("PA", $user_meta->roles) || in_array("KPA", $user_meta->roles)){
-				$nama_page_menu_ssh = 'Rekapitulasi Rincian Belanja '.$vv['nama_skpd'].' '.$vv['kode_skpd'].' | '.$tahun;
-				$custom_post = get_page_by_title($nama_page_menu_ssh, OBJECT, 'page');
-				$url_menu_ssh = $this->get_link_post($custom_post);
+					if($vv['is_skpd'] == 1){
+						$nama_page_monev_renstra = 'MONEV RENSTRA '.$vv['nama_skpd'].' '.$vv['kode_skpd'].' | '.$tahun;
+						$custom_post = get_page_by_title($nama_page_monev_renstra, OBJECT, 'page');
+						$url_monev_renstra = $this->get_link_post($custom_post);
+						if(!empty($daftar_tombol_list[5])){
+							echo '<li><a href="'.$url_monev_renstra.'" target="_blank" class="btn btn-info">MONEV INDIKATOR RENSTRA</a></li>';
+						}
+					}
 
-				if(!empty($daftar_tombol_list[7])){
-					echo '<li><a href="'.$url_menu_ssh.'" target="_blank" class="btn btn-info">MENU SSH</a></li>';
+					$nama_page_menu_ssh = 'Rekapitulasi Rincian Belanja '.$vv['nama_skpd'].' '.$vv['kode_skpd'].' | '.$tahun;
+					$custom_post = get_page_by_title($nama_page_menu_ssh, OBJECT, 'page');
+					$url_menu_ssh = $this->get_link_post($custom_post);
+					if(!empty($daftar_tombol_list[7])){
+						echo '<li><a href="'.$url_menu_ssh.'" target="_blank" class="btn btn-info">MENU SSH</a></li>';
+					}
+
+					if($vv['is_skpd'] == 1){
+						$nama_page = 'Input RENSTRA '.$vv['nama_skpd'].' '.$vv['kode_skpd'];
+						$custom_post = get_page_by_title($nama_page, OBJECT, 'page');
+						$url_menu = $this->get_link_post($custom_post);
+						if(!empty($daftar_tombol_list[8])){
+							echo '<li><a href="'.$url_menu.'" target="_blank" class="btn btn-info">INPUT RENSTRA</a></li>';
+						}
+					}
+
+					$nama_page = 'Input RENJA '.$vv['nama_skpd'].' '.$vv['kode_skpd'].' | '.$tahun;
+					$custom_post = get_page_by_title($nama_page, OBJECT, 'page');
+					$url_menu = $this->get_link_post($custom_post);
+					if(!empty($daftar_tombol_list[9])){
+						echo '<li><a href="'.$url_menu.'" target="_blank" class="btn btn-info">INPUT RENJA</a></li>';
+					}
 				}
 			}
 			echo '</ul>';
@@ -15737,6 +15761,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 
 			$sql_tipe = $wpdb->get_results("SELECT * FROM `data_tipe_perencanaan` WHERE nama_tipe='".$tipe_perencanaan."'", ARRAY_A);
 
+			// get jadwal aktif dan terbuka
 			$sql_jadwal_lokal = $wpdb->get_results("
 				SELECT 
 					* 
@@ -15755,6 +15780,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 					'data'		=> $sql_jadwal_lokal
 				);
 			}else{
+				// get jadwal aktif
 				$sql_jadwal_lokal = $wpdb->get_results("
 					SELECT 
 						* 
@@ -15762,6 +15788,17 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 					WHERE status = 0 
 						AND id_tipe='".$sql_tipe[0]['id']."'
 				", ARRAY_A);
+				if(empty($sql_jadwal_lokal)){
+					// get jadwal terakhir sesuai tipe
+					$sql_jadwal_lokal = $wpdb->get_results("
+						SELECT 
+							* 
+						FROM `data_jadwal_lokal` 
+						WHERE id_tipe='".$sql_tipe[0]['id']."'
+						ORDER BY id desc
+						LIMIT 1
+					", ARRAY_A);
+				}
 				$data_return = array(
 					'status' 	=> 'error',
 					'message'	=> "Data terbuka tidak ditemukan.",

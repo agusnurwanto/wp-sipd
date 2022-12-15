@@ -385,7 +385,9 @@ class Wpsipd_Admin {
 			        '4' => __( 'MONEV INDIKATOR RENJA' ),
 			        '5' => __( 'MONEV INDIKATOR RENSTRA' ),
 			        '6' => __( 'MONEV INDIKATOR RPJM' ),
-					'7' => __( 'MENU SSH' )
+					'7' => __( 'MENU SSH' ),
+					'8' => __( 'INPUT RENSTRA' ),
+					'9' => __( 'INPUT RENJA' )
 			    ) )
             	->set_default_value(array('1','2','3','4','5'))
             	->set_help_text('Daftar fitur ini akan ditampilkan dalam bentuk tombol di halaman dasboard user setelah berhasil login.'),

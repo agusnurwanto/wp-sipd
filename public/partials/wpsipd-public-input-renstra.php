@@ -50,17 +50,8 @@ $cek_jadwal = $this->validasi_jadwal_perencanaan('renstra');
 $jadwal_lokal = $cek_jadwal['data'];
 $add_renstra = '';
 if(!empty($jadwal_lokal)){
-	if(!empty($jadwal_lokal[0]['relasi_perencanaan'])){
-		$relasi = $wpdb->get_row("
-					SELECT 
-						id_tipe 
-					FROM `data_jadwal_lokal`
-					WHERE id_jadwal_lokal=".$jadwal_lokal[0]['relasi_perencanaan']);
-
-		$relasi_perencanaan = $jadwal_lokal[0]['relasi_perencanaan'];
-		$id_tipe_relasi = $relasi->id_tipe;
-	}
-
+	$relasi_perencanaan = $jadwal_lokal[0]['relasi_perencanaan'];
+	$id_tipe_relasi = $jadwal_lokal[0]['id_tipe'];
 	$awal_renstra = $jadwal_lokal[0]['tahun_anggaran']+1;
 	$namaJadwal = $jadwal_lokal[0]['nama'];
 	$mulaiJadwal = $jadwal_lokal[0]['waktu_awal'];
