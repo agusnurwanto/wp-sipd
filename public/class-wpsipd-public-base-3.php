@@ -9,7 +9,7 @@ class Wpsipd_Public_Base_3
 		return $user_meta->roles;
 	}
 
-	public function get_tujuan_parent_by_tipe($params = array()){
+	public function get_tujuan_parent_by_tipe($params = array(), $tujuan_exist = array()){
 
 		global $wpdb;
 
@@ -35,7 +35,26 @@ class Wpsipd_Public_Base_3
 				break;
 		}
 
-		$sql = "
+		if(!empty($tujuan_exist)){
+			$sql = "
+				SELECT DISTINCT
+					a.id_unik as id_unik_sasaran, 
+					a.sasaran_teks,
+					c.id_unik, 
+					c.tujuan_teks
+				FROM ".$tableA." a 
+					INNER JOIN ".$tableC." c
+						ON a.kode_tujuan=c.id_unik
+				WHERE  
+					a.id_unik='".$tujuan_exist->kode_sasaran_rpjm."' AND 
+					a.id_jadwal=".$params['relasi_perencanaan']." AND 
+		            c.id_jadwal=".$params['relasi_perencanaan']." AND 
+					a.status=1 AND
+		            c.status=1 AND
+					a.id_unik IS NOT NULL AND 
+		            c.id_unik IS NOT NULL";
+		}else{
+			$sql = "
 				SELECT DISTINCT
 					c.id_unik, 
 					c.tujuan_teks
@@ -44,13 +63,14 @@ class Wpsipd_Public_Base_3
 						ON a.kode_tujuan=c.id_unik
 				WHERE  
 					a.id_jadwal=".$params['relasi_perencanaan']." AND 
-                    c.id_jadwal=".$params['relasi_perencanaan']." AND 
+		            c.id_jadwal=".$params['relasi_perencanaan']." AND 
 					a.status=1 AND
-                    c.status=1 AND
+		            c.status=1 AND
 					a.id_unik IS NOT NULL AND 
-                    c.id_unik IS NOT NULL";
-		$sql_data =  $wpdb->get_results($sql);
+		            c.id_unik IS NOT NULL";
+		}
 		// die($sql);
+		$sql_data =  $wpdb->get_results($sql);
 		return $sql_data;
 	}
 
@@ -207,12 +227,25 @@ class Wpsipd_Public_Base_3
 		try{
 			if (!empty($_POST)) {
 				if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+					$skpd = $this->get_skpd_db();
+					$skpd_db = $skpd['skpd'];
+					$bidur_db = $skpd['bidur'];
+					
+					if(empty($skpd_db)){
+						throw new Exception('SKPD untuk user ini tidak ditemukan!');
+					}
+
+					if(empty($bidur_db)){
+						throw new Exception('Bidang urusan untuk SKPD ini tidak ditemukan!');
+					}
 
 					$tujuan = $this->get_tujuan_parent_by_tipe($_POST);
 
 					echo json_encode([
 						'status' => true,
-						'data' => $tujuan
+						'data' => $tujuan,
+						'skpd' => $skpd_db,
+						'bidur' => $bidur_db,
 					]);exit;
 
 				}else{
@@ -332,21 +365,117 @@ class Wpsipd_Public_Base_3
 		}
 	}
 
+	function get_skpd_db(){
+		global $wpdb;
+		$user_id = um_user( 'ID' );
+		$user_meta = get_userdata($user_id);
+		$skpd_db = false;
+		$bidur_db = false;
+		if(in_array("administrator", $user_meta->roles)){
+			$skpd_db = $wpdb->get_results($wpdb->prepare("
+				SELECT 
+					nama_skpd, 
+					id_skpd, 
+					kode_skpd,
+					bidur_1,
+					bidur_2,
+					bidur_3,
+					is_skpd
+				from data_unit 
+				where tahun_anggaran=%d
+					and is_skpd=1
+					and id_skpd=%d
+				group by id_skpd", $_POST['tahun_anggaran'], $_POST['id_unit']), ARRAY_A);
+		}else if(
+			in_array("PLT", $user_meta->roles) 
+			|| in_array("PA", $user_meta->roles) 
+			|| in_array("KPA", $user_meta->roles)
+		){
+			$nipkepala = get_user_meta($user_id, '_nip');
+			$skpd_db = $wpdb->get_results($wpdb->prepare("
+				SELECT 
+					nama_skpd, 
+					id_skpd, 
+					kode_skpd,
+					is_skpd
+				from data_unit 
+				where nipkepala=%s 
+					and tahun_anggaran=%d
+					and is_skpd=1
+					and id_skpd=%d
+				group by id_skpd", $nipkepala[0], $_POST['tahun_anggaran'], $_POST['id_unit']), ARRAY_A);
+		}
+
+		$bidur_all = array();
+		foreach($skpd_db as $i => $data){
+			$bidur = explode('.', $data['kode_skpd']);
+			$bidur_1 = $bidur[0].'.'.$bidur[1];
+			$bidur_2 = $bidur[2].'.'.$bidur[3];
+			$bidur_3 = $bidur[4].'.'.$bidur[5];
+			if($bidur_1!='0.00'){
+				$bidur_all[$bidur_1] = "'".$bidur_1."'";
+			}
+			if($bidur_2!='0.00'){
+				$bidur_all[$bidur_2] = "'".$bidur_2."'";
+			}
+			if($bidur_3!='0.00'){
+				$bidur_all[$bidur_3] = "'".$bidur_3."'";
+			}
+			$skpd_db[$i]['bidur_1'] = $bidur_1;
+			$skpd_db[$i]['bidur_2'] = $bidur_2;
+			$skpd_db[$i]['bidur_3'] = $bidur_3;
+		}
+
+		$id_bidur_all = implode(',', $bidur_all);
+		$sql = $wpdb->prepare("
+			SELECT DISTINCT
+				id_bidang_urusan,
+				id_urusan,
+				kode_bidang_urusan,
+				kode_urusan,
+				nama_bidang_urusan,
+				nama_urusan
+			from data_prog_keg 
+			where kode_bidang_urusan IN ($id_bidur_all)
+				and tahun_anggaran=%d
+		", $_POST['tahun_anggaran']);
+		// die($sql);
+		$bidur_db = $wpdb->get_results($sql, ARRAY_A);
+		return array(
+			'skpd' => $skpd_db,
+			'bidur' => $bidur_db
+		);
+	}
+
 	public function edit_tujuan_renstra(){
 		global $wpdb;
 
 		try {
 			if (!empty($_POST)) {
 				if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+					$skpd = $this->get_skpd_db();
+					$skpd_db = $skpd['skpd'];
+					$bidur_db = $skpd['bidur'];
+					
+					if(empty($skpd_db)){
+						throw new Exception('SKPD untuk user ini tidak ditemukan!');
+					}
 
-					$tujuan_parent = $this->get_tujuan_parent_by_tipe($_POST);
+					if(empty($bidur_db)){
+						throw new Exception('Bidang urusan untuk SKPD ini tidak ditemukan!');
+					}
 
 					$tujuan = $wpdb->get_row("SELECT a.* FROM data_renstra_tujuan_lokal a WHERE a.id=".$_POST['id_tujuan']);
+					$tujuan_parent_selected = $this->get_tujuan_parent_by_tipe($_POST, $tujuan);
+					$tujuan_parent = $this->get_tujuan_parent_by_tipe($_POST);
 
 					echo json_encode([
 						'status' => true,
 						'tujuan' => $tujuan,
+						'tujuan_parent_selected' => $tujuan_parent_selected,
 						'tujuan_parent' => $tujuan_parent,
+						'skpd' => $skpd_db,
+						'bidur' => $bidur_db,
 						'message' => 'Sukses get tujuan by id'
 					]);exit;
 

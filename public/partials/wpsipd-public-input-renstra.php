@@ -730,7 +730,8 @@ foreach ($data_all['data'] as $tujuan) {
 	$body .= '
 			<tr class="tr-tujuan'.$bg_rpjm.'">
 				<td class="kiri atas kanan bawah">'.$no_tujuan.'</td>
-				<td class="kiri atas kanan bawah">'.$sasaran_rpjm.'</td>
+				<td class="atas kanan bawah">'.$sasaran_rpjm.'</td>
+				<td class="atas kanan bawah">'.$tujuan['nama_bidang_urusan'].'</td>
 				<td class="atas kanan bawah">'.$tujuan['tujuan_teks'].'</td>
 				<td class="atas kanan bawah"></td>
 				<td class="atas kanan bawah"></td>
@@ -779,7 +780,8 @@ foreach ($data_all['data'] as $tujuan) {
 		$body .= '
 				<tr class="tr-sasaran'.$bg_rpjm.'">
 					<td class="kiri atas kanan bawah">'.$no_tujuan.".".$no_sasaran.'</td>
-					<td class="kiri atas kanan bawah"></td>
+					<td class="atas kanan bawah"></td>
+					<td class="atas kanan bawah"></td>
 					<td class="atas kanan bawah"></td>
 					<td class="atas kanan bawah">'.$sasaran['sasaran_teks'].'</td>
 					<td class="atas kanan bawah"></td>
@@ -839,7 +841,8 @@ foreach ($data_all['data'] as $tujuan) {
 			$body .= '
 					<tr class="tr-program'.$bg_rpjm.'">
 						<td class="kiri atas kanan bawah">'.$no_tujuan.".".$no_sasaran.".".$no_program.'</td>
-						<td class="kiri atas kanan bawah"></td>
+						<td class="atas kanan bawah"></td>
+						<td class="atas kanan bawah"></td>
 						<td class="atas kanan bawah"></td>
 						<td class="atas kanan bawah"></td>
 						<td class="atas kanan bawah">'.$program['program_teks'].'</td>
@@ -899,7 +902,8 @@ foreach ($data_all['data'] as $tujuan) {
 				$body .= '
 						<tr class="tr-kegiatan'.$bg_rpjm.'">
 							<td class="kiri atas kanan bawah">'.$no_tujuan.".".$no_sasaran.".".$no_program.".".$no_kegiatan.'</td>
-							<td class="kiri atas kanan bawah"></td>
+							<td class="atas kanan bawah"></td>
+							<td class="atas kanan bawah"></td>
 							<td class="atas kanan bawah"></td>
 							<td class="atas kanan bawah"></td>
 							<td class="atas kanan bawah"></td>
@@ -941,6 +945,7 @@ foreach ($data_all['data'] as $tujuan) {
 			$row_head='<tr>
 				<th style="width: 85px;" class="row_head_1 atas kiri kanan bawah text_tengah text_blok">No</th>
 				<th style="width: 200px;" class="row_head_1 atas kanan bawah text_tengah text_blok">Sasaran '.$nama_tipe_relasi.'</th>
+				<th style="width: 200px;" class="row_head_1 atas kanan bawah text_tengah text_blok">Bidang Urusan</th>
 				<th style="width: 200px;" class="row_head_1 atas kanan bawah text_tengah text_blok">Tujuan</th>
 				<th style="width: 200px;" class="row_head_1 atas kanan bawah text_tengah text_blok">Sasaran</th>
 				<th style="width: 200px;" class="row_head_1 atas kanan bawah text_tengah text_blok">Program</th>
@@ -975,8 +980,9 @@ foreach ($data_all['data'] as $tujuan) {
 				<th class='atas kanan bawah text_tengah text_blok'>5</th>
 				<th class='atas kanan bawah text_tengah text_blok'>6</th>
 				<th class='atas kanan bawah text_tengah text_blok'>7</th>
+				<th class='atas kanan bawah text_tengah text_blok'>8</th>
 				<?php 
-				$target_temp = 8;
+				$target_temp = 9;
 				for ($i=1; $i <= $lama_pelaksanaan; $i++) { 
 					if($i!=1){
 						$target_temp=$pagu_temp+1; 
@@ -1126,6 +1132,7 @@ foreach ($data_all['data'] as $tujuan) {
 				data:{
 					'action': 'add_tujuan_renstra',
 		          	'api_key': '<?php echo $api_key; ?>',
+		          	'tahun_anggaran': '<?php echo $input['tahun_anggaran']; ?>',
 		          	'id_unit': '<?php echo $input['id_skpd']; ?>',
 		          	'relasi_perencanaan': '<?php echo $relasi_perencanaan; ?>',
 		          	'id_tipe_relasi': '<?php echo $id_tipe_relasi; ?>',
@@ -1133,9 +1140,37 @@ foreach ($data_all['data'] as $tujuan) {
 				success:function(response){
 						jQuery('#wrap-loading').hide();
 						if(response.status){
+							var bidur_opd = {};
+							var html_opd = '<option value="">Pilih Perangkat Daerah</option>';
+							response.skpd.map(function(b, i){
+								var selected = '';
+								if(b.id_skpd == <?php echo $input['id_skpd'] ?>){
+									selected = 'selected';
+									bidur_opd = b;
+								}
+								html_opd += '<option '+selected+' value="'+b.id_skpd+'">'+b.kode_skpd+' '+b.nama_skpd+'</option>';
+							});
+							var html_bidur = '<option value="">Pilih Bidang Urusan</option>';
+							response.bidur.map(function(b, i){
+								if(
+									bidur_opd.bidur_1 == b.kode_bidang_urusan
+									|| bidur_opd.bidur_2 == b.kode_bidang_urusan
+									|| bidur_opd.bidur_3 == b.kode_bidang_urusan
+								){
+									html_bidur += '<option value="'+b.id_bidang_urusan+'" data="'+JSON.stringify(b)+'">'+b.nama_bidang_urusan+'</opton>';
+								}
+							});
 							let tujuanModal = jQuery("#modal-crud-renstra");
 							let html = '<form id="form-renstra">'
 											+'<input type="hidden" name="id_unit" value="'+<?php echo $input['id_skpd']; ?>+'">'
+											+'<div class="form-group">'
+												+'<label for="tujuan_teks" disabled>Pilih Perangkat Daerah</label>'
+												+'<select class="form-control" id="daftar-skpd" name="nama_unit">'+html_opd+'</select>'
+											+'</div>'
+											+'<div class="form-group">'
+												+'<label for="tujuan_teks">Pilih Bidang Urusan</label>'
+												+'<select class="form-control" id="bidang-urusan" name="bidang-urusan">'+html_bidur+'</select>'
+											+'</div>'
 											+'<div class="form-group">'
 												+'<label for="tujuan_teks">Tujuan RPJM/RPD</label>'
 												+'<select class="form-control" id="tujuan-rpjm" name="tujuan_rpjm" onchange="pilihTujuanRpjm(this)">'
@@ -1196,6 +1231,7 @@ foreach ($data_all['data'] as $tujuan) {
           	data: {
           		"action": "edit_tujuan_renstra",
           		"api_key": "<?php echo $api_key; ?>",
+		        'tahun_anggaran': '<?php echo $input['tahun_anggaran']; ?>',
 				'id_tujuan': idtujuan, 
 			    'id_unit': '<?php echo $input['id_skpd'] ?>',
 			    'relasi_perencanaan': '<?php echo $relasi_perencanaan; ?>',
@@ -1205,16 +1241,51 @@ foreach ($data_all['data'] as $tujuan) {
           	success: function(response){
 				jQuery('#wrap-loading').hide();
 				if(response.status){
+					var bidur_opd = {};
+					var html_opd = '<option value="">Pilih Perangkat Daerah</option>';
+					response.skpd.map(function(b, i){
+						var selected = '';
+						if(b.id_skpd == <?php echo $input['id_skpd'] ?>){
+							selected = 'selected';
+							bidur_opd = b;
+						}
+						html_opd += '<option '+selected+' value="'+b.id_skpd+'">'+b.kode_skpd+' '+b.nama_skpd+'</option>';
+					});
+					var html_bidur = '<option value="">Pilih Bidang Urusan</option>';
+					response.bidur.map(function(b, i){
+						if(
+							bidur_opd.bidur_1 == b.kode_bidang_urusan
+							|| bidur_opd.bidur_2 == b.kode_bidang_urusan
+							|| bidur_opd.bidur_3 == b.kode_bidang_urusan
+						){
+							html_bidur += '<option value="'+b.kode_bidang_urusan+'" data=\''+JSON.stringify(b)+'\'">'+b.nama_bidang_urusan+'</opton>';
+						}
+					});
 					let html = '<form id="form-renstra">'
 									+'<input type="hidden" name="id" value="'+response.tujuan.id+'">'
 									+'<input type="hidden" name="id_unik" value="'+response.tujuan.id_unik+'">'
 									+'<input type="hidden" name="id_unit" value="'+<?php echo $input['id_skpd']; ?>+'">'
 									+'<div class="form-group">'
+										+'<label for="tujuan_teks">Pilih Perangkat Daerah</label>'
+										+'<select disabled class="form-control" id="daftar-skpd" name="nama_unit">'+html_opd+'</select>'
+									+'</div>'
+									+'<div class="form-group">'
+										+'<label for="tujuan_teks">Pilih Bidang Urusan</label>'
+										+'<select class="form-control" id="bidang-urusan" name="bidang-urusan">'+html_bidur+'</select>'
+									+'</div>'
+									+'<div class="form-group">'
 										+'<label for="tujuan_teks">Tujuan RPJM/RPD</label>'
 										+'<select class="form-control" id="tujuan-rpjm" name="tujuan_rpjm" onchange="pilihTujuanRpjm(this)">'
 											+'<option value="">Pilih Tujuan</option>';
 											response.tujuan_parent.map(function(value, index){
-												html +='<option value="'+value.id_unik+'">'+value.tujuan_teks+'</option>';
+												var selected = '';
+												if(
+													response.tujuan_parent_selected
+													&& response.tujuan_parent_selected[0].id_unik == value.id_unik
+												){
+													selected = "selected";
+												}
+												html +='<option '+selected+' value="'+value.id_unik+'">'+value.tujuan_teks+'</option>';
 											})
 									html+='</select>'
 									+'</div>'
@@ -1252,6 +1323,11 @@ foreach ($data_all['data'] as $tujuan) {
 					tujuanModal.find('.modal-dialog').css('maxWidth','');
 					tujuanModal.find('.modal-dialog').css('width','');
 					tujuanModal.modal('show');
+					if(response.tujuan_parent_selected){
+						pilihTujuanRpjm(document.getElementById('tujuan-rpjm'), function(){
+							jQuery('#sasaran-rpjm').val(response.tujuan_parent_selected[0].id_unik_sasaran+'|'+<?php echo $relasi_perencanaan; ?>);
+						});
+					}
 				}else{
 					alert(response.message);
 				}
@@ -2880,7 +2956,7 @@ foreach ($data_all['data'] as $tujuan) {
 		tableHtmlToExcel('view-table-renstra', name);
 	}
 
-	function pilihTujuanRpjm(that){
+	function pilihTujuanRpjm(that, cb){
 		jQuery("#wrap-loading").show();
 		let kode_tujuan_rpjm = jQuery(that).val();
 		jQuery.ajax({
@@ -2902,6 +2978,9 @@ foreach ($data_all['data'] as $tujuan) {
 					option+='<option value="'+value.id_unik+'|'+<?php echo $relasi_perencanaan; ?>+'">'+value.sasaran_teks+'</option>';
 				})
 				jQuery("#sasaran-rpjm").html(option);
+				if(typeof cb == 'function'){
+					cb();
+				}
 			}
 		});
 	}
