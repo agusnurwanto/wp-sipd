@@ -1163,13 +1163,14 @@ foreach ($data_all['data'] as $tujuan) {
 							let tujuanModal = jQuery("#modal-crud-renstra");
 							let html = '<form id="form-renstra">'
 											+'<input type="hidden" name="id_unit" value="'+<?php echo $input['id_skpd']; ?>+'">'
+											+'<input type="hidden" name="bidur-all" value="">'
 											+'<div class="form-group">'
 												+'<label for="tujuan_teks" disabled>Pilih Perangkat Daerah</label>'
 												+'<select class="form-control" id="daftar-skpd" name="nama_unit">'+html_opd+'</select>'
 											+'</div>'
 											+'<div class="form-group">'
 												+'<label for="tujuan_teks">Pilih Bidang Urusan</label>'
-												+'<select class="form-control" id="bidang-urusan" name="bidang-urusan">'+html_bidur+'</select>'
+												+'<select class="form-control" id="bidang-urusan" name="bidang-urusan" onchange="setBidurAll(this);">'+html_bidur+'</select>'
 											+'</div>'
 											+'<div class="form-group">'
 												+'<label for="tujuan_teks">Tujuan RPJM/RPD</label>'
@@ -1265,13 +1266,14 @@ foreach ($data_all['data'] as $tujuan) {
 									+'<input type="hidden" name="id" value="'+response.tujuan.id+'">'
 									+'<input type="hidden" name="id_unik" value="'+response.tujuan.id_unik+'">'
 									+'<input type="hidden" name="id_unit" value="'+<?php echo $input['id_skpd']; ?>+'">'
+									+'<input type="hidden" name="bidur-all" value="">'
 									+'<div class="form-group">'
 										+'<label for="tujuan_teks">Pilih Perangkat Daerah</label>'
 										+'<select disabled class="form-control" id="daftar-skpd" name="nama_unit">'+html_opd+'</select>'
 									+'</div>'
 									+'<div class="form-group">'
 										+'<label for="tujuan_teks">Pilih Bidang Urusan</label>'
-										+'<select class="form-control" id="bidang-urusan" name="bidang-urusan">'+html_bidur+'</select>'
+										+'<select class="form-control" id="bidang-urusan" name="bidang-urusan" onchange="setBidurAll(this);">'+html_bidur+'</select>'
 									+'</div>'
 									+'<div class="form-group">'
 										+'<label for="tujuan_teks">Tujuan RPJM/RPD</label>'
@@ -1281,6 +1283,7 @@ foreach ($data_all['data'] as $tujuan) {
 												var selected = '';
 												if(
 													response.tujuan_parent_selected
+													&& response.tujuan_parent_selected[0]
 													&& response.tujuan_parent_selected[0].id_unik == value.id_unik
 												){
 													selected = "selected";
@@ -1323,7 +1326,10 @@ foreach ($data_all['data'] as $tujuan) {
 					tujuanModal.find('.modal-dialog').css('maxWidth','');
 					tujuanModal.find('.modal-dialog').css('width','');
 					tujuanModal.modal('show');
-					if(response.tujuan_parent_selected){
+					if(
+						response.tujuan_parent_selected
+						&& response.tujuan_parent_selected[0]
+					){
 						pilihTujuanRpjm(document.getElementById('tujuan-rpjm'), function(){
 							jQuery('#sasaran-rpjm').val(response.tujuan_parent_selected[0].id_unik_sasaran+'|'+<?php echo $relasi_perencanaan; ?>);
 						});
@@ -3747,5 +3753,10 @@ foreach ($data_all['data'] as $tujuan) {
 	        return;
 
 	    fn.apply(window, arguments);
+	}
+
+	function setBidurAll(that){
+		var data = jQuery(that).find('option:selected').attr('data');
+		jQuery('input[name="bidur-all"]').val(data);
 	}
 </script>

@@ -502,139 +502,131 @@ class Wpsipd_Public_Base_3
 			if (!empty($_POST)) {
 				if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
 					
-						$data = json_decode(stripslashes($_POST['data']), true);
+					$data = json_decode(stripslashes($_POST['data']), true);
 
-						$where_sasaran_rpjm = '';
-						if(!empty($data['sasaran_parent'])){
-							$raw_sasaran_parent = explode("|", $data['sasaran_parent']);
-							$where_sasaran_rpjm = "AND kode_sasaran_rpjm='".$raw_sasaran_parent[0]."'";
+					$where_sasaran_rpjm = '';
+					if(!empty($data['sasaran_parent'])){
+						$raw_sasaran_parent = explode("|", $data['sasaran_parent']);
+						$where_sasaran_rpjm = "AND kode_sasaran_rpjm='".$raw_sasaran_parent[0]."'";
+						$data['kode_sasaran_rpjm'] = $raw_sasaran_parent[0] || null;
+					}
 
-							// $dataBidangUrusan = $wpdb->get_row("
-							// 	SELECT DISTINCT 
-							// 		id_bidang_urusan, 
-							// 		kode_bidang_urusan, 
-							// 		nama_bidang_urusan 
-							// 	FROM data_prog_keg 
-							// 		WHERE 
-							// 			id_program=".$raw_sasaran_parent[1]);
+					$bidur_all = json_decode(stripslashes($data['bidur-all']), true);
+					if(empty($bidur_all)){
+						throw new Exception('Bidang urusan tidak boleh kosong!');
+					}
 
-							// if(empty($dataBidangUrusan)){
-							// 	throw new Exception('Bidang urusan tidak ditemukan!');
-							// }
+					$data['id_bidang_urusan'] = $bidur_all['id_bidang_urusan'];
+					$data['kode_bidang_urusan'] = $bidur_all['kode_bidang_urusan'];
+					$data['nama_bidang_urusan'] = $bidur_all['nama_bidang_urusan'];
 
-							$data['id_bidang_urusan'] = null;
-							$data['kode_bidang_urusan'] = null;
-							$data['nama_bidang_urusan'] = null;
-							$data['kode_sasaran_rpjm'] = $raw_sasaran_parent[0] ?? null;
-						}
+					if(empty($data['tujuan_teks'])){
+						throw new Exception('Tujuan tidak boleh kosong!');
+					}
 
-						if(empty($data['tujuan_teks'])){
-							throw new Exception('Tujuan tidak boleh kosong!');
-						}
+					if(empty($data['urut_tujuan'])){
+						throw new Exception('Urut tujuan tidak boleh kosong!');
+					}
 
-						if(empty($data['urut_tujuan'])){
-							throw new Exception('Urut tujuan tidak boleh kosong!');
-						}
+					$id_cek = $wpdb->get_var("
+						SELECT id FROM data_renstra_tujuan_lokal
+							WHERE tujuan_teks='".trim($data['tujuan_teks'])."'
+										AND id!=".$data['id']." 
+										$where_sasaran_rpjm
+										AND id_unik IS NOT NULL
+										AND id_unik_indikator IS NULL
+										AND is_locked=0
+										AND status=1
+										AND active=1
+								");
+					
+					if(!empty($id_cek)){
+						throw new Exception('Tujuan : '.$data['tujuan_teks'].' sudah ada!');
+					}
 
-						$id_cek = $wpdb->get_var("
-							SELECT id FROM data_renstra_tujuan_lokal
-								WHERE tujuan_teks='".trim($data['tujuan_teks'])."'
-											AND id!=".$data['id']." 
-											$where_sasaran_rpjm
-											AND id_unik IS NOT NULL
-											AND id_unik_indikator IS NULL
-											AND is_locked=0
-											AND status=1
-											AND active=1
-									");
+					$dataUnit = $wpdb->get_row("SELECT * FROM data_unit WHERE id_unit=".$data['id_unit']." AND tahun_anggaran=".get_option('_crb_tahun_anggaran_sipd')." AND active=1 AND is_skpd=1 order by id_skpd ASC;");
+
+					if(empty($dataUnit)){
+						throw new Exception('Unit kerja tidak ditemukan!');
+					}
+
+					try {
+
+						$wpdb->query('START TRANSACTION');
 						
-						if(!empty($id_cek)){
-							throw new Exception('Tujuan : '.$data['tujuan_teks'].' sudah ada!');
-						}
+						// update tujuan dan indikator
+						$wpdb->update('data_renstra_tujuan_lokal', [
+							'id_bidang_urusan' => $data['id_bidang_urusan'],
+							'id_unit' => $dataUnit->id_unit,
+							'kode_bidang_urusan' => $data['kode_bidang_urusan'],
+							'kode_sasaran_rpjm' => $data['kode_sasaran_rpjm'],
+							'kode_skpd' => $dataUnit->kode_skpd,
+							'nama_bidang_urusan' => $data['nama_bidang_urusan'],
+							'nama_skpd' => $dataUnit->nama_skpd,
+							'tujuan_teks' => $data['tujuan_teks'],
+							'urut_tujuan' => $data['urut_tujuan'],
+							'catatan_tujuan' => $data['catatan_tujuan'],
+							'update_at' => date('Y-m-d H:i:s')
+						], [
+							'id_unik' => $data['id_unik'], // pake id_unik biar teks tujuan di row indikator tujuan ikut terupdate
+							'status' => 1,
+							'active' => 1,
+						]);
 
-						$dataUnit = $wpdb->get_row("SELECT * FROM data_unit WHERE id_unit=".$data['id_unit']." AND tahun_anggaran=".get_option('_crb_tahun_anggaran_sipd')." AND active=1 AND is_skpd=1 order by id_skpd ASC;");
+						// update data tujuan di table sasaran dan indikator
+						$wpdb->update('data_renstra_sasaran_lokal', [
+							'id_bidang_urusan' => $data['id_bidang_urusan'],
+							'kode_bidang_urusan' => $data['kode_bidang_urusan'],
+							'nama_bidang_urusan' => $data['nama_bidang_urusan'],
+							'tujuan_lock' => $data['tujuan_lock'],
+							'tujuan_teks' => $data['tujuan_teks'],
+							'urut_tujuan' => $data['urut_tujuan'],
+						], [
+							'kode_tujuan' => $data['id_unik']
+						]);
 
-						if(empty($dataUnit)){
-							throw new Exception('Unit kerja tidak ditemukan!');
-						}
+						// update data tujuan di table program dan indikator
+						$wpdb->update('data_renstra_program_lokal', [
+							'id_bidang_urusan' => $data['id_bidang_urusan'],
+							'kode_bidang_urusan' => $data['kode_bidang_urusan'],
+							'nama_bidang_urusan' => $data['nama_bidang_urusan'],
+							'tujuan_lock' => $data['tujuan_lock'],
+							'tujuan_teks' => $data['tujuan_teks'],
+							'urut_tujuan' => $data['urut_tujuan']
+						], [
+							'kode_tujuan' => $data['id_unik']
+						]);
 
-						try {
-
-							$wpdb->query('START TRANSACTION');
-							
-							// update tujuan dan indikator
-							$wpdb->update('data_renstra_tujuan_lokal', [
-								'id_bidang_urusan' => $data['id_bidang_urusan'],
-								'id_unit' => $dataUnit->id_unit,
-								'kode_bidang_urusan' => $data['kode_bidang_urusan'],
-								'kode_sasaran_rpjm' => $data['kode_sasaran_rpjm'],
-								'kode_skpd' => $dataUnit->kode_skpd,
-								'nama_bidang_urusan' => $data['nama_bidang_urusan'],
-								'nama_skpd' => $dataUnit->nama_skpd,
-								'tujuan_teks' => $data['tujuan_teks'],
-								'urut_tujuan' => $data['urut_tujuan'],
-								'catatan_tujuan' => $data['catatan_tujuan'],
-								'update_at' => date('Y-m-d H:i:s')
-							], [
-								'id_unik' => $data['id_unik'], // pake id_unik biar teks tujuan di row indikator tujuan ikut terupdate
-								'status' => 1,
-								'active' => 1,
-							]);
-
-							// update data tujuan di table sasaran dan indikator
-							$wpdb->update('data_renstra_sasaran_lokal', [
-								'id_bidang_urusan' => $data['id_bidang_urusan'],
-								'kode_bidang_urusan' => $data['kode_bidang_urusan'],
-								'nama_bidang_urusan' => $data['nama_bidang_urusan'],
-								'tujuan_lock' => $data['tujuan_lock'],
-								'tujuan_teks' => $data['tujuan_teks'],
-								'urut_tujuan' => $data['urut_tujuan'],
-							], [
-								'kode_tujuan' => $data['id_unik']
-							]);
-
-							// update data tujuan di table program dan indikator
-							$wpdb->update('data_renstra_program_lokal', [
-								'id_bidang_urusan' => $data['id_bidang_urusan'],
-								'kode_bidang_urusan' => $data['kode_bidang_urusan'],
-								'nama_bidang_urusan' => $data['nama_bidang_urusan'],
-								'tujuan_lock' => $data['tujuan_lock'],
-								'tujuan_teks' => $data['tujuan_teks'],
-								'urut_tujuan' => $data['urut_tujuan']
-							], [
-								'kode_tujuan' => $data['id_unik']
-							]);
-
-							// update data tujuan di table kegiatan dan indikator
-							$wpdb->update('data_renstra_kegiatan_lokal', [
-								'id_bidang_urusan' => $data['id_bidang_urusan'],
-								'kode_bidang_urusan' => $data['kode_bidang_urusan'],
-								'nama_bidang_urusan' => $data['nama_bidang_urusan'],
-								'tujuan_lock' => $data['tujuan_lock'],
-								'tujuan_teks' => $data['tujuan_teks'],
-								'urut_tujuan' => $data['urut_tujuan']
-							], [
-								'kode_tujuan' => $data['id_unik']
-							]);
-							
-							$wpdb->query('COMMIT');
-
-							echo json_encode([
-								'status' => true,
-								'message' => 'Sukses ubah tujuan renstra',
-							]);exit;
-
-						} catch (Exception $e) {
-
-							$wpdb->query('ROLLBACK');
-							
-							throw new Exception('Terjadi kesalahan saat ubah data, harap hubungi admin!');
-						}
+						// update data tujuan di table kegiatan dan indikator
+						$wpdb->update('data_renstra_kegiatan_lokal', [
+							'id_bidang_urusan' => $data['id_bidang_urusan'],
+							'kode_bidang_urusan' => $data['kode_bidang_urusan'],
+							'nama_bidang_urusan' => $data['nama_bidang_urusan'],
+							'tujuan_lock' => $data['tujuan_lock'],
+							'tujuan_teks' => $data['tujuan_teks'],
+							'urut_tujuan' => $data['urut_tujuan']
+						], [
+							'kode_tujuan' => $data['id_unik']
+						]);
+						
+						$wpdb->query('COMMIT');
 
 						echo json_encode([
 							'status' => true,
-							'message' => 'Sukses ubah tujuan',
+							'message' => 'Sukses ubah tujuan renstra',
 						]);exit;
+
+					} catch (Exception $e) {
+
+						$wpdb->query('ROLLBACK');
+						
+						throw new Exception('Terjadi kesalahan saat ubah data, harap hubungi admin!');
+					}
+
+					echo json_encode([
+						'status' => true,
+						'message' => 'Sukses ubah tujuan',
+					]);exit;
 
 				}else{
 					throw new Exception('Api key tidak sesuai');
