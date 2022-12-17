@@ -1157,7 +1157,7 @@ foreach ($data_all['data'] as $tujuan) {
 									|| bidur_opd.bidur_2 == b.kode_bidang_urusan
 									|| bidur_opd.bidur_3 == b.kode_bidang_urusan
 								){
-									html_bidur += '<option value="'+b.id_bidang_urusan+'" data="'+JSON.stringify(b)+'">'+b.nama_bidang_urusan+'</opton>';
+									html_bidur += '<option value="'+b.id_bidang_urusan+'" data=\''+JSON.stringify(b)+'\'>'+b.nama_bidang_urusan+'</opton>';
 								}
 							});
 							let tujuanModal = jQuery("#modal-crud-renstra");
@@ -1165,8 +1165,8 @@ foreach ($data_all['data'] as $tujuan) {
 											+'<input type="hidden" name="id_unit" value="'+<?php echo $input['id_skpd']; ?>+'">'
 											+'<input type="hidden" name="bidur-all" value="">'
 											+'<div class="form-group">'
-												+'<label for="tujuan_teks" disabled>Pilih Perangkat Daerah</label>'
-												+'<select class="form-control" id="daftar-skpd" name="nama_unit">'+html_opd+'</select>'
+												+'<label for="tujuan_teks">Pilih Perangkat Daerah</label>'
+												+'<select class="form-control" id="daftar-skpd" name="nama_unit" disabled>'+html_opd+'</select>'
 											+'</div>'
 											+'<div class="form-group">'
 												+'<label for="tujuan_teks">Pilih Bidang Urusan</label>'
@@ -1253,27 +1253,36 @@ foreach ($data_all['data'] as $tujuan) {
 						html_opd += '<option '+selected+' value="'+b.id_skpd+'">'+b.kode_skpd+' '+b.nama_skpd+'</option>';
 					});
 					var html_bidur = '<option value="">Pilih Bidang Urusan</option>';
+					var bidur_all_value = '';
 					response.bidur.map(function(b, i){
 						if(
 							bidur_opd.bidur_1 == b.kode_bidang_urusan
 							|| bidur_opd.bidur_2 == b.kode_bidang_urusan
 							|| bidur_opd.bidur_3 == b.kode_bidang_urusan
 						){
-							html_bidur += '<option value="'+b.kode_bidang_urusan+'" data=\''+JSON.stringify(b)+'\'">'+b.nama_bidang_urusan+'</opton>';
+							var selected = '';
+							if(response.tujuan.kode_bidang_urusan == b.kode_bidang_urusan){
+								selected = 'selected';
+								bidur_all_value = JSON.stringify(b);
+							}
+							html_bidur += '<option '+selected+' value="'+b.kode_bidang_urusan+'" data=\''+JSON.stringify(b)+'\'">'+b.nama_bidang_urusan+'</opton>';
 						}
 					});
+					if(response.tujuan.catatan_tujuan == 'null'){
+						response.tujuan.catatan_tujuan = '';
+					}
 					let html = '<form id="form-renstra">'
 									+'<input type="hidden" name="id" value="'+response.tujuan.id+'">'
 									+'<input type="hidden" name="id_unik" value="'+response.tujuan.id_unik+'">'
 									+'<input type="hidden" name="id_unit" value="'+<?php echo $input['id_skpd']; ?>+'">'
-									+'<input type="hidden" name="bidur-all" value="">'
+									+'<input type="hidden" name="bidur-all" value=\''+bidur_all_value+'\'>'
 									+'<div class="form-group">'
 										+'<label for="tujuan_teks">Pilih Perangkat Daerah</label>'
 										+'<select disabled class="form-control" id="daftar-skpd" name="nama_unit">'+html_opd+'</select>'
 									+'</div>'
 									+'<div class="form-group">'
 										+'<label for="tujuan_teks">Pilih Bidang Urusan</label>'
-										+'<select class="form-control" id="bidang-urusan" name="bidang-urusan" onchange="setBidurAll(this);">'+html_bidur+'</select>'
+										+'<select class="form-control" id="bidang-urusan" name="bidang-urusan" onchange="setBidurAll(this);" disabled>'+html_bidur+'</select>'
 									+'</div>'
 									+'<div class="form-group">'
 										+'<label for="tujuan_teks">Tujuan RPJM/RPD</label>'

@@ -275,25 +275,17 @@ class Wpsipd_Public_Base_3
 					if(!empty($data['sasaran_parent'])){
 						$raw_sasaran_parent = explode("|", $data['sasaran_parent']);
 						$where_sasaran_rpjm = "AND kode_sasaran_rpjm='".$raw_sasaran_parent[0]."'";
-
-						$dataBidangUrusan = $wpdb->get_row("
-							SELECT DISTINCT 
-								id_bidang_urusan, 
-								kode_bidang_urusan, 
-								nama_bidang_urusan 
-							FROM data_prog_keg 
-								WHERE 
-									id_program=".$raw_sasaran_parent[1]);
-
-						if(empty($dataBidangUrusan)){
-							throw new Exception('Bidang urusan tidak ditemukan!');
-						}
-
-						$data['id_bidang_urusan'] = $dataBidangUrusan->id_bidang_urusan ?? null;
-						$data['kode_bidang_urusan'] = $dataBidangUrusan->kode_bidang_urusan ?? null;
 						$data['kode_sasaran_rpjm'] = $raw_sasaran_parent[0] ?? null;
-						$data['nama_bidang_urusan'] = $dataBidangUrusan->nama_bidang_urusan ?? null;
 					}
+
+					$bidur_all = json_decode(stripslashes($data['bidur-all']), true);
+					if(empty($bidur_all)){
+						throw new Exception('Bidang urusan tidak boleh kosong!');
+					}
+
+					$data['id_bidang_urusan'] = $bidur_all['id_bidang_urusan'];
+					$data['kode_bidang_urusan'] = $bidur_all['kode_bidang_urusan'];
+					$data['nama_bidang_urusan'] = $bidur_all['nama_bidang_urusan'];
 
 					if(empty($data['tujuan_teks'])){
 						throw new Exception('Tujuan tidak boleh kosong!');
@@ -303,22 +295,32 @@ class Wpsipd_Public_Base_3
 						throw new Exception('Urut tujuan tidak boleh kosong!');
 					}
 
-					$id_cek = $wpdb->get_var("
-						SELECT id FROM data_renstra_tujuan_lokal
-							WHERE tujuan_teks='".trim($data['tujuan_teks'])."'
-										$where_sasaran_rpjm
-										AND id_unik IS NOT NULL
-										AND id_unik_indikator IS NULL
-										AND is_locked=0
-										AND status=1
-										AND active=1
-								");
+					$id_cek = $wpdb->get_var($wpdb->prepare("
+						SELECT id 
+						FROM data_renstra_tujuan_lokal
+						WHERE tujuan_teks=%s
+							$where_sasaran_rpjm
+							AND id_unik IS NOT NULL
+							AND id_unik_indikator IS NULL
+							AND is_locked=0
+							AND status=1
+							AND active=1
+						", trim($data['tujuan_teks'])));
 					
 					if(!empty($id_cek)){
 						throw new Exception('Tujuan : '.$data['tujuan_teks'].' sudah ada!');
 					}
 
-					$dataUnit = $wpdb->get_row("SELECT * FROM data_unit WHERE id_unit=".$data['id_unit']." AND tahun_anggaran=".get_option('_crb_tahun_anggaran_sipd')." AND active=1 AND is_skpd=1 order by id_skpd ASC;");
+					$dataUnit = $wpdb->get_row($wpdb->prepare("
+						SELECT 
+							* 
+						FROM data_unit 
+						WHERE id_unit=%d 
+							AND tahun_anggaran=%d 
+							AND active=1 
+							AND is_skpd=1 
+							order by id_skpd ASC
+					", $data['id_unit'], get_option('_crb_tahun_anggaran_sipd')));
 
 					if(empty($dataUnit)){
 						throw new Exception('Unit kerja tidak ditemukan!');
@@ -508,17 +510,8 @@ class Wpsipd_Public_Base_3
 					if(!empty($data['sasaran_parent'])){
 						$raw_sasaran_parent = explode("|", $data['sasaran_parent']);
 						$where_sasaran_rpjm = "AND kode_sasaran_rpjm='".$raw_sasaran_parent[0]."'";
-						$data['kode_sasaran_rpjm'] = $raw_sasaran_parent[0] || null;
+						$data['kode_sasaran_rpjm'] = $raw_sasaran_parent[0] ?? null;
 					}
-
-					$bidur_all = json_decode(stripslashes($data['bidur-all']), true);
-					if(empty($bidur_all)){
-						throw new Exception('Bidang urusan tidak boleh kosong!');
-					}
-
-					$data['id_bidang_urusan'] = $bidur_all['id_bidang_urusan'];
-					$data['kode_bidang_urusan'] = $bidur_all['kode_bidang_urusan'];
-					$data['nama_bidang_urusan'] = $bidur_all['nama_bidang_urusan'];
 
 					if(empty($data['tujuan_teks'])){
 						throw new Exception('Tujuan tidak boleh kosong!');
@@ -528,23 +521,32 @@ class Wpsipd_Public_Base_3
 						throw new Exception('Urut tujuan tidak boleh kosong!');
 					}
 
-					$id_cek = $wpdb->get_var("
+					$id_cek = $wpdb->get_var($wpdb->prepare("
 						SELECT id FROM data_renstra_tujuan_lokal
-							WHERE tujuan_teks='".trim($data['tujuan_teks'])."'
-										AND id!=".$data['id']." 
-										$where_sasaran_rpjm
-										AND id_unik IS NOT NULL
-										AND id_unik_indikator IS NULL
-										AND is_locked=0
-										AND status=1
-										AND active=1
-								");
+						WHERE tujuan_teks=%s
+							AND id!=%d 
+							$where_sasaran_rpjm
+							AND id_unik IS NOT NULL
+							AND id_unik_indikator IS NULL
+							AND is_locked=0
+							AND status=1
+							AND active=1
+						", trim($data['tujuan_teks']), $data['id']));
 					
 					if(!empty($id_cek)){
 						throw new Exception('Tujuan : '.$data['tujuan_teks'].' sudah ada!');
 					}
 
-					$dataUnit = $wpdb->get_row("SELECT * FROM data_unit WHERE id_unit=".$data['id_unit']." AND tahun_anggaran=".get_option('_crb_tahun_anggaran_sipd')." AND active=1 AND is_skpd=1 order by id_skpd ASC;");
+					$dataUnit = $wpdb->get_row($wpdb->prepare("
+						SELECT 
+							* 
+						FROM data_unit 
+						WHERE id_unit=%d 
+							AND tahun_anggaran=%d 
+							AND active=1 
+							AND is_skpd=1 
+						order by id_skpd ASC
+					", $data['id_unit'], get_option('_crb_tahun_anggaran_sipd')));
 
 					if(empty($dataUnit)){
 						throw new Exception('Unit kerja tidak ditemukan!');
@@ -556,12 +558,9 @@ class Wpsipd_Public_Base_3
 						
 						// update tujuan dan indikator
 						$wpdb->update('data_renstra_tujuan_lokal', [
-							'id_bidang_urusan' => $data['id_bidang_urusan'],
 							'id_unit' => $dataUnit->id_unit,
-							'kode_bidang_urusan' => $data['kode_bidang_urusan'],
 							'kode_sasaran_rpjm' => $data['kode_sasaran_rpjm'],
 							'kode_skpd' => $dataUnit->kode_skpd,
-							'nama_bidang_urusan' => $data['nama_bidang_urusan'],
 							'nama_skpd' => $dataUnit->nama_skpd,
 							'tujuan_teks' => $data['tujuan_teks'],
 							'urut_tujuan' => $data['urut_tujuan'],
@@ -575,9 +574,6 @@ class Wpsipd_Public_Base_3
 
 						// update data tujuan di table sasaran dan indikator
 						$wpdb->update('data_renstra_sasaran_lokal', [
-							'id_bidang_urusan' => $data['id_bidang_urusan'],
-							'kode_bidang_urusan' => $data['kode_bidang_urusan'],
-							'nama_bidang_urusan' => $data['nama_bidang_urusan'],
 							'tujuan_lock' => $data['tujuan_lock'],
 							'tujuan_teks' => $data['tujuan_teks'],
 							'urut_tujuan' => $data['urut_tujuan'],
@@ -587,9 +583,6 @@ class Wpsipd_Public_Base_3
 
 						// update data tujuan di table program dan indikator
 						$wpdb->update('data_renstra_program_lokal', [
-							'id_bidang_urusan' => $data['id_bidang_urusan'],
-							'kode_bidang_urusan' => $data['kode_bidang_urusan'],
-							'nama_bidang_urusan' => $data['nama_bidang_urusan'],
 							'tujuan_lock' => $data['tujuan_lock'],
 							'tujuan_teks' => $data['tujuan_teks'],
 							'urut_tujuan' => $data['urut_tujuan']
@@ -599,9 +592,6 @@ class Wpsipd_Public_Base_3
 
 						// update data tujuan di table kegiatan dan indikator
 						$wpdb->update('data_renstra_kegiatan_lokal', [
-							'id_bidang_urusan' => $data['id_bidang_urusan'],
-							'kode_bidang_urusan' => $data['kode_bidang_urusan'],
-							'nama_bidang_urusan' => $data['nama_bidang_urusan'],
 							'tujuan_lock' => $data['tujuan_lock'],
 							'tujuan_teks' => $data['tujuan_teks'],
 							'urut_tujuan' => $data['urut_tujuan']
