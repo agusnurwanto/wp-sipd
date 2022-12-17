@@ -49,7 +49,7 @@ if(empty($_GET) || empty($_GET['debug'])){
 			&& $input['tahun_anggaran'] == $tahun_asli
 		)
 	){
-		die('<h1 class="text_tengah">RFK Bulan '.$nama_bulan.' tahun '.$input['tahun_anggaran'].' tidak ditemukan! Tambah param debug=1 untuk melihat halaman.</h1>');
+		die('<h1 class="text_tengah">RFK Bulan '.$nama_bulan.' tahun '.$input['tahun_anggaran'].' tidak ditemukan! Tambah param GET ?debug=1 untuk melihat halaman.</h1>');
 	}
 }
 
