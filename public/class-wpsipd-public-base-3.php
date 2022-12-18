@@ -176,6 +176,29 @@ class Wpsipd_Public_Base_3
 					$tujuan = $wpdb->get_results($sql, ARRAY_A);
 
 					foreach($tujuan as $k => $tuj){
+						$sasaran = $wpdb->get_results($wpdb->prepare("
+							SELECT 
+								id_unik
+							from data_renstra_sasaran_lokal 
+							where id_unik_indikator IS NULL
+								AND active=1
+								AND kode_tujuan=%s
+						", $tuj['id_unik']), ARRAY_A);
+						$kd_all_prog = array();
+						foreach($sasaran as $sas){
+							$program = $wpdb->get_results($wpdb->prepare("
+								SELECT 
+									id_unik
+								from data_renstra_program_lokal 
+								where id_unik_indikator IS NULL
+									AND active=1
+									AND kode_sasaran=%s
+							", $sas['id_unik']), ARRAY_A);
+							foreach($program as $prog){
+								$kd_all_prog[] = "'".$prog['id_unik']."'";
+							}
+						}
+						$kd_all_prog = implode(',', $kd_all_prog);
 						$pagu = $wpdb->get_row($wpdb->prepare("
 							SELECT 
 								sum(pagu_1) as pagu_akumulasi_1,
@@ -186,8 +209,8 @@ class Wpsipd_Public_Base_3
 							from data_renstra_kegiatan_lokal 
 							where id_unik_indikator IS NOT NULL
 								AND active=1
-								AND kode_tujuan=%s
-						", $tuj['id_unik']));
+								AND kode_program IN ($kd_all_prog)
+						"));
 						$tujuan[$k]['pagu_akumulasi_1'] = $pagu->pagu_akumulasi_1;
 						$tujuan[$k]['pagu_akumulasi_2'] = $pagu->pagu_akumulasi_2;
 						$tujuan[$k]['pagu_akumulasi_3'] = $pagu->pagu_akumulasi_3;
@@ -1088,6 +1111,19 @@ class Wpsipd_Public_Base_3
 					$sasaran = $wpdb->get_results($sql, ARRAY_A);
 
 					foreach($sasaran as $k => $sas){
+						$kd_all_prog = array();
+						$program = $wpdb->get_results($wpdb->prepare("
+							SELECT 
+								id_unik
+							from data_renstra_program_lokal 
+							where id_unik_indikator IS NULL
+								AND active=1
+								AND kode_sasaran=%s
+						", $sas['id_unik']), ARRAY_A);
+						foreach($program as $prog){
+							$kd_all_prog[] = "'".$prog['id_unik']."'";
+						}
+						$kd_all_prog = implode(',', $kd_all_prog);
 						$pagu = $wpdb->get_row($wpdb->prepare("
 							SELECT 
 								sum(pagu_1) as pagu_akumulasi_1,
@@ -1098,8 +1134,8 @@ class Wpsipd_Public_Base_3
 							from data_renstra_kegiatan_lokal 
 							where id_unik_indikator IS NOT NULL
 								AND active=1
-								AND kode_sasaran=%s
-						", $sas['id_unik']));
+								AND kode_program IN ($kd_all_prog)
+						"));
 						$sasaran[$k]['pagu_akumulasi_1'] = $pagu->pagu_akumulasi_1;
 						$sasaran[$k]['pagu_akumulasi_2'] = $pagu->pagu_akumulasi_2;
 						$sasaran[$k]['pagu_akumulasi_3'] = $pagu->pagu_akumulasi_3;

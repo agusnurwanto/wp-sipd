@@ -2617,36 +2617,37 @@ foreach ($data_all['data'] as $tujuan) {
 				success:function(response){
 
 					jQuery('#wrap-loading').hide();
-		  			for(var i in response.data){
+		  			for(var i in response.kegiatan){
 		  				if(
-		  					response.data[i] == 'null'
-		  					|| response.data[i] == null
+		  					response.kegiatan[i] == 'null'
+		  					|| response.kegiatan[i] == null
 		  				){
-		  					response.data[i] = '';
+		  					response.kegiatan[i] = '';
 		  				}
 		  			}
-					let html = '<form id="form-renstra">'
-								+'<input type="hidden" name="id" id="id" value="'+response.kegiatan.id+'"/>'
-								+'<input type="hidden" name="id_unik" id="id_unik" value="'+response.kegiatan.id_unik+'"/>'
-								+'<input type="hidden" name="id_program" id="id_program" value="'+response.kegiatan.id_program+'"/>'
-								+'<input type="hidden" name="kode_program" id="kode_program" value="'+response.kegiatan.kode_program+'"/>'
-								+'<input type="hidden" name="kegiatan_teks" id="kegiatan_teks"/>'
-							  +'<div class="form-group">'
-									+'<label for="kegiatan_teks">Kegiatan</label>'
-									+'<select class="form-control" id="id_kegiatan" name="id_kegiatan" onchange="pilihKegiatan(this)">';
-										html+='<option value="">Pilih Kegiatan</option>';
-										response.data.map(function(value, index){
-											html +='<option value="'+value.id+'">'+value.kegiatan_teks+'</option>';
-										})
-									html+='</select>'
+					let html = ''
+						+'<form id="form-renstra">'
+							+'<input type="hidden" name="id" id="id" value="'+response.kegiatan.id+'"/>'
+							+'<input type="hidden" name="id_unik" id="id_unik" value="'+response.kegiatan.id_unik+'"/>'
+							+'<input type="hidden" name="id_program" id="id_program" value="'+response.kegiatan.id_program+'"/>'
+							+'<input type="hidden" name="kode_program" id="kode_program" value="'+response.kegiatan.kode_program+'"/>'
+							+'<input type="hidden" name="kegiatan_teks" id="kegiatan_teks"/>'
+						  	+'<div class="form-group">'
+								+'<label for="kegiatan_teks">Kegiatan</label>'
+								+'<select class="form-control" id="id_kegiatan" name="id_kegiatan" onchange="pilihKegiatan(this)">';
+									html+='<option value="">Pilih Kegiatan</option>';
+									response.kegiatan.map(function(value, index){
+										html +='<option value="'+value.id+'">'+value.kegiatan_teks+'</option>';
+									});
+								html+='</select>'
 							+'</div>'
 							+'<div class="form-group">'
 								+'<label>Catatan Usulan</label>'
-								+'<textarea class="form-control" name="catatan_usulan" <?php echo $disabled_admin; ?>>'+response.data.catatan_usulan+'</textarea>'
+								+'<textarea class="form-control" name="catatan_usulan" <?php echo $disabled_admin; ?>>'+response.kegiatan.catatan_usulan+'</textarea>'
 							+'</div>'
 							+'<div class="form-group">'
 								+'<label>Catatan Penetapan</label>'
-								+'<textarea class="form-control" name="catatan" <?php echo $disabled; ?>>'+response.data.catatan+'</textarea>'
+								+'<textarea class="form-control" name="catatan" <?php echo $disabled; ?>>'+response.kegiatan.catatan+'</textarea>'
 							+'</div>'
 						+'</form>';
 
