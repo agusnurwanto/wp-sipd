@@ -205,7 +205,12 @@ class Wpsipd_Public_Base_3
 								sum(pagu_2) as pagu_akumulasi_2,
 								sum(pagu_3) as pagu_akumulasi_3,
 								sum(pagu_4) as pagu_akumulasi_4,
-								sum(pagu_5) as pagu_akumulasi_5
+								sum(pagu_5) as pagu_akumulasi_5,
+								sum(pagu_1_usulan) as pagu_akumulasi_1_usulan,
+								sum(pagu_2_usulan) as pagu_akumulasi_2_usulan,
+								sum(pagu_3_usulan) as pagu_akumulasi_3_usulan,
+								sum(pagu_4_usulan) as pagu_akumulasi_4_usulan,
+								sum(pagu_5_usulan) as pagu_akumulasi_5_usulan
 							from data_renstra_kegiatan_lokal 
 							where id_unik_indikator IS NOT NULL
 								AND active=1
@@ -216,6 +221,11 @@ class Wpsipd_Public_Base_3
 						$tujuan[$k]['pagu_akumulasi_3'] = $pagu->pagu_akumulasi_3;
 						$tujuan[$k]['pagu_akumulasi_4'] = $pagu->pagu_akumulasi_4;
 						$tujuan[$k]['pagu_akumulasi_5'] = $pagu->pagu_akumulasi_5;
+						$tujuan[$k]['pagu_akumulasi_1_usulan'] = $pagu->pagu_akumulasi_1_usulan;
+						$tujuan[$k]['pagu_akumulasi_2_usulan'] = $pagu->pagu_akumulasi_2_usulan;
+						$tujuan[$k]['pagu_akumulasi_3_usulan'] = $pagu->pagu_akumulasi_3_usulan;
+						$tujuan[$k]['pagu_akumulasi_4_usulan'] = $pagu->pagu_akumulasi_4_usulan;
+						$tujuan[$k]['pagu_akumulasi_5_usulan'] = $pagu->pagu_akumulasi_5_usulan;
 					}
 				}else{
 
@@ -1130,7 +1140,12 @@ class Wpsipd_Public_Base_3
 								sum(pagu_2) as pagu_akumulasi_2,
 								sum(pagu_3) as pagu_akumulasi_3,
 								sum(pagu_4) as pagu_akumulasi_4,
-								sum(pagu_5) as pagu_akumulasi_5
+								sum(pagu_5) as pagu_akumulasi_5,
+								sum(pagu_1_usulan) as pagu_akumulasi_1_usulan,
+								sum(pagu_2_usulan) as pagu_akumulasi_2_usulan,
+								sum(pagu_3_usulan) as pagu_akumulasi_3_usulan,
+								sum(pagu_4_usulan) as pagu_akumulasi_4_usulan,
+								sum(pagu_5_usulan) as pagu_akumulasi_5_usulan
 							from data_renstra_kegiatan_lokal 
 							where id_unik_indikator IS NOT NULL
 								AND active=1
@@ -1141,6 +1156,11 @@ class Wpsipd_Public_Base_3
 						$sasaran[$k]['pagu_akumulasi_3'] = $pagu->pagu_akumulasi_3;
 						$sasaran[$k]['pagu_akumulasi_4'] = $pagu->pagu_akumulasi_4;
 						$sasaran[$k]['pagu_akumulasi_5'] = $pagu->pagu_akumulasi_5;
+						$sasaran[$k]['pagu_akumulasi_1_usulan'] = $pagu->pagu_akumulasi_1_usulan;
+						$sasaran[$k]['pagu_akumulasi_2_usulan'] = $pagu->pagu_akumulasi_2_usulan;
+						$sasaran[$k]['pagu_akumulasi_3_usulan'] = $pagu->pagu_akumulasi_3_usulan;
+						$sasaran[$k]['pagu_akumulasi_4_usulan'] = $pagu->pagu_akumulasi_4_usulan;
+						$sasaran[$k]['pagu_akumulasi_5_usulan'] = $pagu->pagu_akumulasi_5_usulan;
 					}
 				}else{
 					$tahun_anggaran = $_POST['tahun_anggaran'];
@@ -1923,7 +1943,12 @@ class Wpsipd_Public_Base_3
 								sum(pagu_2) as pagu_akumulasi_2,
 								sum(pagu_3) as pagu_akumulasi_3,
 								sum(pagu_4) as pagu_akumulasi_4,
-								sum(pagu_5) as pagu_akumulasi_5
+								sum(pagu_5) as pagu_akumulasi_5,
+								sum(pagu_1_usulan) as pagu_akumulasi_1_usulan,
+								sum(pagu_2_usulan) as pagu_akumulasi_2_usulan,
+								sum(pagu_3_usulan) as pagu_akumulasi_3_usulan,
+								sum(pagu_4_usulan) as pagu_akumulasi_4_usulan,
+								sum(pagu_5_usulan) as pagu_akumulasi_5_usulan
 							from data_renstra_kegiatan_lokal 
 							where id_unik_indikator IS NOT NULL
 								AND active=1
@@ -1934,6 +1959,11 @@ class Wpsipd_Public_Base_3
 						$program[$k]['pagu_akumulasi_3'] = $pagu->pagu_akumulasi_3;
 						$program[$k]['pagu_akumulasi_4'] = $pagu->pagu_akumulasi_4;
 						$program[$k]['pagu_akumulasi_5'] = $pagu->pagu_akumulasi_5;
+						$program[$k]['pagu_akumulasi_1_usulan'] = $pagu->pagu_akumulasi_1_usulan;
+						$program[$k]['pagu_akumulasi_2_usulan'] = $pagu->pagu_akumulasi_2_usulan;
+						$program[$k]['pagu_akumulasi_3_usulan'] = $pagu->pagu_akumulasi_3_usulan;
+						$program[$k]['pagu_akumulasi_4_usulan'] = $pagu->pagu_akumulasi_4_usulan;
+						$program[$k]['pagu_akumulasi_5_usulan'] = $pagu->pagu_akumulasi_5_usulan;
 					}
 				}else{
 					$tahun_anggaran = $_POST['tahun_anggaran'];
@@ -2742,7 +2772,12 @@ class Wpsipd_Public_Base_3
 								sum(pagu_2) as pagu_akumulasi_2,
 								sum(pagu_3) as pagu_akumulasi_3,
 								sum(pagu_4) as pagu_akumulasi_4,
-								sum(pagu_5) as pagu_akumulasi_5
+								sum(pagu_5) as pagu_akumulasi_5,
+								sum(pagu_1_usulan) as pagu_akumulasi_1_usulan,
+								sum(pagu_2_usulan) as pagu_akumulasi_2_usulan,
+								sum(pagu_3_usulan) as pagu_akumulasi_3_usulan,
+								sum(pagu_4_usulan) as pagu_akumulasi_4_usulan,
+								sum(pagu_5_usulan) as pagu_akumulasi_5_usulan
 							from data_renstra_kegiatan_lokal 
 							where id_unik_indikator IS NOT NULL
 								AND active=1
@@ -2753,6 +2788,11 @@ class Wpsipd_Public_Base_3
 						$kegiatan[$k]['pagu_akumulasi_3'] = $pagu_keg->pagu_akumulasi_3;
 						$kegiatan[$k]['pagu_akumulasi_4'] = $pagu_keg->pagu_akumulasi_4;
 						$kegiatan[$k]['pagu_akumulasi_5'] = $pagu_keg->pagu_akumulasi_5;
+						$kegiatan[$k]['pagu_akumulasi_1_usulan'] = $pagu->pagu_akumulasi_1_usulan;
+						$kegiatan[$k]['pagu_akumulasi_2_usulan'] = $pagu->pagu_akumulasi_2_usulan;
+						$kegiatan[$k]['pagu_akumulasi_3_usulan'] = $pagu->pagu_akumulasi_3_usulan;
+						$kegiatan[$k]['pagu_akumulasi_4_usulan'] = $pagu->pagu_akumulasi_4_usulan;
+						$kegiatan[$k]['pagu_akumulasi_5_usulan'] = $pagu->pagu_akumulasi_5_usulan;
 					}
 				}else{
 					$tahun_anggaran = $_POST['tahun_anggaran'];
@@ -3468,8 +3508,8 @@ class Wpsipd_Public_Base_3
 						'is_locked' => $dataKegiatan->is_locked,
 						'kode_bidang_urusan' => $dataKegiatan->kode_bidang_urusan,
 						'kode_giat' => $dataKegiatan->kode_giat,
-						'kode_program' => $dataKegiatan->id_unik,
-						'kode_sasaran' => $dataKegiatan->kode_program,
+						'kode_program' => $dataKegiatan->kode_program,
+						'kode_sasaran' => $dataKegiatan->kode_sasaran,
 						'kode_skpd' => $dataKegiatan->kode_skpd,
 						'kode_tujuan' => $dataKegiatan->kode_tujuan,
 						'nama_bidang_urusan' => $dataKegiatan->nama_bidang_urusan,

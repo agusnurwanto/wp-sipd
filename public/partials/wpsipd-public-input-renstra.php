@@ -2636,7 +2636,7 @@ foreach ($data_all['data'] as $tujuan) {
 								+'<label for="kegiatan_teks">Kegiatan</label>'
 								+'<select class="form-control" id="id_kegiatan" name="id_kegiatan" onchange="pilihKegiatan(this)">';
 									html+='<option value="">Pilih Kegiatan</option>';
-									response.kegiatan.map(function(value, index){
+									response.data.map(function(value, index){
 										html +='<option value="'+value.id+'">'+value.kegiatan_teks+'</option>';
 									});
 								html+='</select>'
@@ -3191,8 +3191,7 @@ foreach ($data_all['data'] as $tujuan) {
       						<?php for($i=1; $i<=$lama_pelaksanaan; $i++){ ?>
       							+'<th class="text-center" style="width:150px">Pagu Tahun <?php echo $i; ?></th>'
       						<?php } ?>
-	          					+'<th class="text-center">Catatan Usulan</th>'
-	          					+'<th class="text-center">Catatan Penetapan</th>'
+	          					+'<th class="text-center">Catatan</th>'
 	          					+'<th class="text-center" style="width:185px">Aksi</th>'
 	          				+'<tr>'
 	          			+'</thead>'
@@ -3208,20 +3207,25 @@ foreach ($data_all['data'] as $tujuan) {
 			          			}
 			          			tujuan += ''
 			          			+'<tr kodetujuan="'+value.id_unik+'" kode_bidang_urusan="'+value.kode_bidang_urusan+'">'
-				          			+'<td class="text-center">'+(index+1)+'</td>'
-				          			+'<td>'+value.nama_bidang_urusan+'</td>'
-				          			+'<td>'+value.tujuan_teks+'</td>'
+				          			+'<td class="text-center" rowspan="2">'+(index+1)+'</td>'
+				          			+'<td rowspan="2">'+value.nama_bidang_urusan+'</td>'
+				          			+'<td rowspan="2">'+value.tujuan_teks+'</td>'
 	      						<?php for($i=1; $i<=$lama_pelaksanaan; $i++){ ?>
 	      							+'<td class="text-right">'+value.pagu_akumulasi_<?php echo $i; ?>+'</td>'
 	      						<?php } ?>
-				          			+'<td>'+value.catatan_usulan+'</td>'
-				          			+'<td>'+value.catatan+'</td>'
-				          			+'<td class="text-center">'
+				          			+'<td><b>Penetapan</b><br>'+value.catatan+'</td>'
+				          			+'<td class="text-center" rowspan="2">'
 			          					+'<a href="javascript:void(0)" data-idtujuan="'+value.id+'" data-idunik="'+value.id_unik+'" class="btn btn-sm btn-warning btn-kelola-indikator-tujuan"><i class="dashicons dashicons-menu-alt" style="margin-top: 3px;"></i></a>&nbsp;'
 			          					+'<a href="javascript:void(0)" data-kodetujuan="'+value.id_unik+'" class="btn btn-sm btn-primary btn-detail-tujuan"><i class="dashicons dashicons-search"></i></a>&nbsp;'
 			          					+'<a href="javascript:void(0)" data-id="'+value.id+'" class="btn btn-sm btn-success btn-edit-tujuan"><i class="dashicons dashicons-edit"></i></a>&nbsp;'
 			          					+'<a href="javascript:void(0)" data-id="'+value.id+'" data-idunik="'+value.id_unik+'" class="btn btn-sm btn-danger btn-hapus-tujuan"><i class="dashicons dashicons-trash"></i></a>'
 				          			+'</td>'
+				          		+'</tr>'
+			          			+'<tr>'
+	      						<?php for($i=1; $i<=$lama_pelaksanaan; $i++){ ?>
+	      							+'<td class="text-right">'+value.pagu_akumulasi_<?php echo $i; ?>_usulan+'</td>'
+	      						<?php } ?>
+				          			+'<td><b>Usulan</b> '+value.catatan_usulan+'</td>'
 				          		+'</tr>';
 			          		})
           			tujuan+='<tbody>'
@@ -3284,8 +3288,7 @@ foreach ($data_all['data'] as $tujuan) {
 								+"<th class='text-center'>Tahun <?php echo $i; ?></th>"
 								<?php }; ?>
 								+"<th class='text-center'>Akhir</th>"
-								+"<th class='text-center'>Catatan Usulan</th>"
-								+"<th class='text-center'>Catatan Penetapan</th>"
+								+"<th class='text-center'>Catatan</th>"
 								+"<th class='text-center'>Aksi</th>"
 							+"</tr>"
 						+"</thead>"
@@ -3301,20 +3304,28 @@ foreach ($data_all['data'] as $tujuan) {
 		          			}
 		          			html +=''
 		          				+"<tr>"
-					          		+"<td class='text-center'>"+(index+1)+"</td>"
-					          		+"<td>"+value.indikator_teks+"</td>"
+					          		+"<td class='text-center' rowspan='2'>"+(index+1)+"</td>"
+					          		+"<td rowspan='2'>"+value.indikator_teks+"</td>"
 					          		+"<td>"+value.satuan+"</td>"
 					          		+"<td>"+value.target_awal+"</td>"
 					          		<?php for($i=1; $i<=$lama_pelaksanaan; $i++){ ?>
 									+"<td>"+value.target_<?php echo $i; ?>+"</td>"
 									<?php }; ?>
 					          		+"<td>"+value.target_akhir+"</td>"
-					          		+"<td>"+value.catatan_usulan+"</td>"
-					          		+"<td>"+value.catatan+"</td>"
-					          		+"<td class='text-center'>"
+					          		+"<td><b>Penetapan</b><br>"+value.catatan+"</td>"
+					          		+"<td class='text-center' rowspan='2'>"
 					          			+"<a href='#' class='btn btn-sm btn-success btn-edit-indikator-tujuan' data-id='"+value.id+"' data-idunik='"+value.id_unik+"'><i class='dashicons dashicons-edit' style='margin-top: 3px;'></i></a>&nbsp"
 										+"<a href='#' class='btn btn-sm btn-danger btn-delete-indikator-tujuan' data-id='"+value.id+"' data-idunik='"+value.id_unik+"'><i class='dashicons dashicons-trash' style='margin-top: 3px;'></i></a>&nbsp;"
 					          		+"</td>"
+					          	+"</tr>"
+		          				+"<tr>"
+					          		+"<td>"+value.satuan_usulan+"</td>"
+					          		+"<td>"+value.target_awal_usulan+"</td>"
+					          		<?php for($i=1; $i<=$lama_pelaksanaan; $i++){ ?>
+									+"<td>"+value.target_<?php echo $i; ?>_usulan+"</td>"
+									<?php }; ?>
+					          		+"<td>"+value.target_akhir_usulan+"</td>"
+					          		+"<td><b>Usulan</b><br>"+value.catatan_usulan+"</td>"
 					          	+"</tr>";
 		          		});
 		          	html+='</tbody></table>';
@@ -3373,8 +3384,7 @@ foreach ($data_all['data'] as $tujuan) {
       						<?php for($i=1; $i<=$lama_pelaksanaan; $i++){ ?>
       							+'<th class="text-center" style="width:150px">Pagu Tahun <?php echo $i; ?></th>'
       						<?php } ?>
-      							+'<th class="text-center" style="width:15%">Catatan Usulan</th>'
-      							+'<th class="text-center" style="width:15%">Catatan Penetapan</th>'
+      							+'<th class="text-center" style="width:15%">Catatan</th>'
       							+'<th class="text-center" style="width:185px">Aksi</th>'
       						+'<tr>'
       					+'</thead>'
@@ -3391,19 +3401,24 @@ foreach ($data_all['data'] as $tujuan) {
 		          			}
   							sasaran +=''
   								+'<tr kodesasaran="'+value.id_unik+'">'
-          							+'<td class="text-center">'+(index+1)+'</td>'
-          							+'<td>'+value.sasaran_teks+'</td>'
+          							+'<td class="text-center" rowspan="2">'+(index+1)+'</td>'
+          							+'<td rowspan="2">'+value.sasaran_teks+'</td>'
 	      						<?php for($i=1; $i<=$lama_pelaksanaan; $i++){ ?>
 	      							+'<td class="text-right">'+value.pagu_akumulasi_<?php echo $i; ?>+'</td>'
 	      						<?php } ?>
-          							+'<td>'+value.catatan_usulan+'</td>'
-          							+'<td>'+value.catatan+'</td>'
-          							+'<td class="text-center">'
+          							+'<td><b>Penetapan</b><br>'+value.catatan+'</td>'
+          							+'<td class="text-center" rowspan="2">'
           								+'<a href="javascript:void(0)" data-idsasaran="'+value.id+'" data-kodesasaran="'+value.id_unik+'" class="btn btn-sm btn-warning btn-kelola-indikator-sasaran"><i class="dashicons dashicons-menu-alt" style="margin-top: 3px;"></i></a>&nbsp;'
           								+'<a href="javascript:void(0)" data-kodesasaran="'+value.id_unik+'" class="btn btn-sm btn-primary btn-detail-sasaran"><i class="dashicons dashicons-search" style="margin-top: 3px;"></i></a>&nbsp;'
           								+'<a href="javascript:void(0)" data-idsasaran="'+value.id+'" class="btn btn-sm btn-success btn-edit-sasaran"><i class="dashicons dashicons-edit" style="margin-top: 3px;"></i></a>&nbsp;'
           								+'<a href="javascript:void(0)" data-idsasaran="'+value.id+'" data-kodesasaran="'+value.id_unik+'" data-kodetujuan="'+value.kode_tujuan+'" class="btn btn-sm btn-danger btn-hapus-sasaran"><i class="dashicons dashicons-trash" style="margin-top: 3px;"></i></a>'
           							+'</td>'
+          						+'</tr>'
+  								+'<tr>'
+	      						<?php for($i=1; $i<=$lama_pelaksanaan; $i++){ ?>
+	      							+'<td class="text-right">'+value.pagu_akumulasi_<?php echo $i; ?>_usulan+'</td>'
+	      						<?php } ?>
+          							+'<td><b>Usulan</b> '+value.catatan_usulan+'</td>'
           						+'</tr>';
   						});
       					sasaran +='<tbody>'
@@ -3469,8 +3484,7 @@ foreach ($data_all['data'] as $tujuan) {
 								+"<th class='text-center'>Tahun <?php echo $i; ?></th>"
 								<?php }; ?>
 								+"<th class='text-center'>Akhir</th>"
-								+"<th class='text-center'>Catatan Usulan</th>"
-								+"<th class='text-center'>Catatan Penetapan</th>"
+								+"<th class='text-center'>Catatan</th>"
 								+"<th class='text-center'>Aksi</th>"
 							+"</tr>"
 						+"</thead>"
@@ -3486,20 +3500,28 @@ foreach ($data_all['data'] as $tujuan) {
 		          			}
 		          			html +=''
 	          				+"<tr>"
-				          		+"<td class='text-center'>"+(index+1)+"</td>"
-				          		+"<td>"+value.indikator_teks+"</td>"
+				          		+"<td class='text-center' rowspan='2'>"+(index+1)+"</td>"
+				          		+"<td rowspan='2'>"+value.indikator_teks+"</td>"
 				          		+"<td>"+value.satuan+"</td>"
 				          		+"<td>"+value.target_awal+"</td>"
 				          		<?php for($i=1; $i<=$lama_pelaksanaan; $i++){ ?>
 								+"<td>"+value.target_<?php echo $i; ?>+"</td>"
 								<?php }; ?>
 				          		+"<td>"+value.target_akhir+"</td>"
-				          		+"<td>"+value.catatan_usulan+"</td>"
-				          		+"<td>"+value.catatan+"</td>"
-				          		+"<td class='text-center'>"
+				          		+"<td><b>Penetapan</b><br>"+value.catatan+"</td>"
+				          		+"<td class='text-center' rowspan='2'>"
 				          			+"<a href='#' class='btn btn-sm btn-success btn-edit-indikator-sasaran' data-id='"+value.id+"' data-idunik='"+value.id_unik+"' ><i class='dashicons dashicons-edit' style='margin-top: 3px;'></i></a>&nbsp"
 									+"<a href='#' class='btn btn-sm btn-danger btn-delete-indikator-sasaran' data-id='"+value.id+"' data-idunik='"+value.id_unik+"' ><i class='dashicons dashicons-trash' style='margin-top: 3px;'></i></a>&nbsp;"
 				          		+"</td>"
+				          	+"</tr>"
+	          				+"<tr>"
+				          		+"<td>"+value.satuan_usulan+"</td>"
+				          		+"<td>"+value.target_awal_usulan+"</td>"
+				          		<?php for($i=1; $i<=$lama_pelaksanaan; $i++){ ?>
+								+"<td>"+value.target_<?php echo $i; ?>_usulan+"</td>"
+								<?php }; ?>
+				          		+"<td>"+value.target_akhir_usulan+"</td>"
+				          		+"<td><b>Usulan</b><br>"+value.catatan_usulan+"</td>"
 				          	+"</tr>";
 		          		});
 		          	html+='</tbody></table>';
@@ -3562,8 +3584,7 @@ foreach ($data_all['data'] as $tujuan) {
       						<?php for($i=1; $i<=$lama_pelaksanaan; $i++){ ?>
       							+'<th class="text-center" style="width:12%">Pagu Tahun <?php echo $i; ?></th>'
       						<?php } ?>
-      							+'<th class="text-center" style="width:15%">Catatan Usulan</th>'
-      							+'<th class="text-center" style="width:15%">Catatan Penetapan</th>'
+      							+'<th class="text-center" style="width:15%">Catatan</th>'
       							+'<th class="text-center" style="width:185px">Aksi</th>'
       						+'<tr>'
       					+'</thead>'
@@ -3579,18 +3600,23 @@ foreach ($data_all['data'] as $tujuan) {
 		          			}
   							program += ''
   								+'<tr kodeprogram="'+value.id_unik+'">'
-          							+'<td class="text-center">'+(index+1)+'</td>'
-          							+'<td>'+value.nama_program+'</td>'
+          							+'<td class="text-center" rowspan="2">'+(index+1)+'</td>'
+          							+'<td rowspan="2">'+value.nama_program+'</td>'
 	      						<?php for($i=1; $i<=$lama_pelaksanaan; $i++){ ?>
 	      							+'<td class="text-right">'+value.pagu_akumulasi_<?php echo $i; ?>+'</td>'
 	      						<?php } ?>
-          							+'<td>'+value.catatan_usulan+'</td>'
-          							+'<td>'+value.catatan+'</td>'
-          							+'<td class="text-center">'
+          							+'<td><b>Penetapan</b><br>'+value.catatan+'</td>'
+          							+'<td class="text-center" rowspan="2">'
           								+'<a href="javascript:void(0)" data-kodeprogram="'+value.id_unik+'" class="btn btn-sm btn-warning btn-kelola-indikator-program"><i class="dashicons dashicons-menu-alt" style="margin-top: 3px;"></i></a>&nbsp;'	
           								+'<a href="javascript:void(0)" data-kodeprogram="'+value.id_unik+'" data-idprogram="'+value.id_program+'" class="btn btn-sm btn-primary btn-detail-program"><i class="dashicons dashicons-search" style="margin-top: 3px;"></i></a>&nbsp;'
           								+'<a href="javascript:void(0)" data-id="'+value.id+'" data-kodeprogram="'+value.id_unik+'" class="btn btn-sm btn-success btn-edit-program"><i class="dashicons dashicons-edit" style="margin-top: 3px;"></i></a>&nbsp;'
           								+'<a href="javascript:void(0)" data-id="'+value.id+'" data-kodeprogram="'+value.id_unik+'" data-kodesasaran="'+value.kode_sasaran+'" class="btn btn-sm btn-danger btn-hapus-program"><i class="dashicons dashicons-trash" style="margin-top: 3px;"></i></a></td>'
+          						+'</tr>'
+  								+'<tr>'
+	      						<?php for($i=1; $i<=$lama_pelaksanaan; $i++){ ?>
+	      							+'<td class="text-right">'+value.pagu_akumulasi_<?php echo $i; ?>_usulan+'</td>'
+	      						<?php } ?>
+          							+'<td><b>Usulan</b> '+value.catatan_usulan+'</td>'
           						+'</tr>';
   						});
       					program += ''
@@ -3661,8 +3687,7 @@ foreach ($data_all['data'] as $tujuan) {
 								+"<th class='text-center'>Tahun <?php echo $i; ?></th>"
 								<?php }; ?>
 								+"<th class='text-center'>Akhir</th>"
-								+"<th class='text-center'>Catatan Usulan</th>"
-								+"<th class='text-center'>Catatan Penetapan</th>"
+								+"<th class='text-center'>Catatan</th>"
 								+"<th class='text-center'>Aksi</th>"
 							+"</tr>"
 						+"</thead>"
@@ -3678,20 +3703,28 @@ foreach ($data_all['data'] as $tujuan) {
 		          			}
 		          			html +=''
 		          				+"<tr>"
-					          		+"<td class='text-center'>"+(index+1)+"</td>"
-					          		+"<td>"+value.indikator+"</td>"
+					          		+"<td class='text-center' rowspan='2'>"+(index+1)+"</td>"
+					          		+"<td rowspan='2'>"+value.indikator+"</td>"
 					          		+"<td>"+value.satuan+"</td>"
 					          		+"<td>"+value.target_awal+"</td>"
 					          		<?php for($i=1; $i<=$lama_pelaksanaan; $i++){ ?>
 									+"<td>"+value.target_<?php echo $i; ?>+"</td>"
 									<?php }; ?>
 					          		+"<td>"+value.target_akhir+"</td>"
-					          		+"<td>"+value.catatan_usulan+"</td>"
-					          		+"<td>"+value.catatan+"</td>"
-					          		+"<td class='text-center'>"
+					          		+"<td><b>Penetapan</b><br>"+value.catatan+"</td>"
+					          		+"<td class='text-center' rowspan='2'>"
 					          			+"<a href='#' class='btn btn-sm btn-success btn-edit-indikator-program' data-kodeprogram='"+value.id_unik+"' data-id='"+value.id+"'><i class='dashicons dashicons-edit' style='margin-top: 3px;'></i></a>&nbsp"
 										+"<a href='#' class='btn btn-sm btn-danger btn-delete-indikator-program' data-kodeprogram='"+value.id_unik+"' data-id='"+value.id+"'><i class='dashicons dashicons-trash' style='margin-top: 3px;'></i></a>&nbsp;"
 					          		+"</td>"
+					          	+"</tr>"
+		          				+"<tr>"
+					          		+"<td>"+value.satuan_usulan+"</td>"
+					          		+"<td>"+value.target_awal_usulan+"</td>"
+					          		<?php for($i=1; $i<=$lama_pelaksanaan; $i++){ ?>
+									+"<td>"+value.target_<?php echo $i; ?>_usulan+"</td>"
+									<?php }; ?>
+					          		+"<td>"+value.target_akhir_usulan+"</td>"
+					          		+"<td><b>Usulan</b><br>"+value.catatan_usulan+"</td>"
 					          	+"</tr>";
 			          		});
 		          	html+=''
@@ -3759,8 +3792,7 @@ foreach ($data_all['data'] as $tujuan) {
       						<?php for($i=1; $i<=$lama_pelaksanaan; $i++){ ?>
       							+'<th class="text-center" style="width:10%">Pagu Tahun <?php echo $i; ?></th>'
       						<?php } ?>
-      							+'<th class="text-center" style="width:10%">Catatan Usulan</th>'
-      							+'<th class="text-center" style="width:10%">Catatan Penetapan</th>'
+      							+'<th class="text-center" style="width:10%">Catatan</th>'
       							+'<th class="text-center" style="width:13%">Aksi</th>'
       						+'<tr>'
       					+'</thead>'
@@ -3776,18 +3808,23 @@ foreach ($data_all['data'] as $tujuan) {
 		          			}
   							kegiatan +=''
   								+'<tr kodekegiatan="'+value.id_unik+'">'
-          							+'<td class="text-center">'+(index+1)+'</td>'
-          							+'<td>'+value.nama_giat+'</td>'
+          							+'<td class="text-center" rowspan="2">'+(index+1)+'</td>'
+          							+'<td rowspan="2">'+value.nama_giat+'</td>'
           						<?php for($i=1; $i<=$lama_pelaksanaan; $i++){ ?>
           							+'<td class="text-right">'+formatRupiah(value.pagu_akumulasi_<?php echo $i; ?>)+'</td>'
           						<?php } ?>
-          							+'<td>'+value.catatan_usulan+'</td>'
-          							+'<td>'+value.catatan+'</td>'
-          							+'<td class="text-center">'
+          							+'<td><b>Penetapan</b><br>'+value.catatan+'</td>'
+          							+'<td class="text-center" rowspan="2">'
           								+'<a href="javascript:void(0)" data-kodekegiatan="'+value.id_unik+'" class="btn btn-sm btn-warning btn-kelola-indikator-kegiatan"><i class="dashicons dashicons-menu-alt" style="margin-top: 3px;"></i></a>&nbsp;'	
           								+'<a href="javascript:void(0)" data-id="'+value.id+'" data-kodekegiatan="'+value.id_unik+'" data-idprogram="'+value.id_program+'" class="btn btn-sm btn-success btn-edit-kegiatan"><i class="dashicons dashicons-edit" style="margin-top: 3px;"></i></a>&nbsp;'
           								+'<a href="javascript:void(0)" data-id="'+value.id+'" data-kodekegiatan="'+value.id_unik+'" data-kodeprogram="'+value.kode_program+'" data-idprogram="'+value.id_program+'" class="btn btn-sm btn-danger btn-hapus-kegiatan"><i class="dashicons dashicons-trash" style="margin-top: 3px;"></i></a>'
           							+'</td>'
+          						+'</tr>'
+  								+'<tr>'
+          						<?php for($i=1; $i<=$lama_pelaksanaan; $i++){ ?>
+          							+'<td class="text-right">'+formatRupiah(value.pagu_akumulasi_<?php echo $i; ?>_usulan)+'</td>'
+          						<?php } ?>
+          							+'<td><b>Usulan</b> '+value.catatan_usulan+'</td>'
           						+'</tr>';
   						});
       					kegiatan +='<tbody>'
@@ -3864,8 +3901,7 @@ foreach ($data_all['data'] as $tujuan) {
 								+"<th class='text-center'>Pagu Tahun <?php echo $i; ?></th>"
 								<?php }; ?>
 								+"<th class='text-center'>Target Akhir</th>"
-								+"<th class='text-center'>Catatan Usulan</th>"
-								+"<th class='text-center'>Catatan Penetapan</th>"
+								+"<th class='text-center'>Catatan</th>"
 								+"<th class='text-center'>Aksi</th>"
 							+"</tr>"
 						+"</thead>"
@@ -3881,8 +3917,8 @@ foreach ($data_all['data'] as $tujuan) {
 		          			}
 			          		html +=''
 			          		+"<tr>"
-				          		+"<td class='text-center'>"+(index+1)+"</td>"
-				          		+"<td>"+value.indikator+"</td>"
+				          		+"<td class='text-center' rowspan='2'>"+(index+1)+"</td>"
+				          		+"<td rowspan='2'>"+value.indikator+"</td>"
 				          		+"<td>"+value.satuan+"</td>"
 				          		+"<td class='text-center'>"+value.target_awal+"</td>"
 				          		<?php for($i=1; $i<=$lama_pelaksanaan; $i++){ ?>
@@ -3890,12 +3926,21 @@ foreach ($data_all['data'] as $tujuan) {
 								+"<td class='text-right'>"+formatRupiah(value.pagu_<?php echo $i; ?>)+"</td>"
 								<?php }; ?>
 				          		+"<td class='text-center'>"+value.target_akhir+"</td>"
-				          		+"<td>"+value.catatan_usulan+"</td>"
-				          		+"<td>"+value.catatan+"</td>"
-				          		+"<td class='text-center'>"
+				          		+"<td><b>Penetapan</b><br>"+value.catatan+"</td>"
+				          		+"<td class='text-center' rowspan='2'>"
 				          			+"<a href='#' class='btn btn-sm btn-success btn-edit-indikator-kegiatan' data-kodekegiatan='"+value.id_unik+"' data-id='"+value.id+"'><i class='dashicons dashicons-edit' style='margin-top: 3px;'></i></a>&nbsp"
 									+"<a href='#' class='btn btn-sm btn-danger btn-delete-indikator-kegiatan' data-kodekegiatan='"+value.id_unik+"' data-id='"+value.id+"'><i class='dashicons dashicons-trash' style='margin-top: 3px;'></i></a>&nbsp;"
 				          		+"</td>"
+				          	+"</tr>"
+			          		+"<tr>"
+				          		+"<td>"+value.satuan_usulan+"</td>"
+				          		+"<td class='text-center'>"+value.target_awal_usulan+"</td>"
+				          		<?php for($i=1; $i<=$lama_pelaksanaan; $i++){ ?>
+								+"<td class='text-center'>"+value.target_<?php echo $i; ?>_usulan+"</td>"
+								+"<td class='text-right'>"+formatRupiah(value.pagu_<?php echo $i; ?>_usulan)+"</td>"
+								<?php }; ?>
+				          		+"<td class='text-center'>"+value.target_akhir_usulan+"</td>"
+				          		+"<td><b>Usulan</b><br>"+value.catatan_usulan+"</td>"
 				          	+"</tr>";
 				      	});
 	          	html+=''
