@@ -243,3 +243,7 @@ td[contenteditable="true"] {
     color: #abcd58;
     text-align: center;
 }
+
+.modal a {
+    text-decoration: none !important;
+}
