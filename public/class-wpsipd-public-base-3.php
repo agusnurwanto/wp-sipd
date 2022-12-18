@@ -395,6 +395,7 @@ class Wpsipd_Public_Base_3
 				group by id_skpd", $nipkepala[0], $_POST['tahun_anggaran'], $_POST['id_unit']), ARRAY_A);
 		}
 
+		$bidur_penunjang = 'X.XX';
 		$bidur_all = array();
 		foreach($skpd_db as $i => $data){
 			$bidur = explode('.', $data['kode_skpd']);
@@ -410,9 +411,11 @@ class Wpsipd_Public_Base_3
 			if($bidur_3!='0.00'){
 				$bidur_all[$bidur_3] = "'".$bidur_3."'";
 			}
+			$bidur_all[$bidur_penunjang] = "'".$bidur_penunjang."'";
 			$skpd_db[$i]['bidur_1'] = $bidur_1;
 			$skpd_db[$i]['bidur_2'] = $bidur_2;
 			$skpd_db[$i]['bidur_3'] = $bidur_3;
+			$skpd_db[$i]['bidur_4'] = $bidur_penunjang;
 		}
 
 		$id_bidur_all = implode(',', $bidur_all);
@@ -3513,19 +3516,20 @@ class Wpsipd_Public_Base_3
             if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( WPSIPD_API_KEY )) {
                 $tahun_anggaran = get_option('_crb_tahun_anggaran_sipd');
 
-                $join="";
+                $join = "";
+                $where = "";
                 if(!empty($_POST['id_unit'])){
-                	if($_POST['relasi_perencanaan'] != '-'){
+            		if($_POST['type']==1){
+            			$join.="
+            				LEFT JOIN data_unit as s on s.kode_skpd like CONCAT('%',u.kode_bidang_urusan,'%')
+		                        and s.active=1
+		                        and s.is_skpd=1
+		                        and s.tahun_anggaran=u.tahun_anggaran
+		                ";
+		                $where .= $wpdb->prepare(" and (s.id_skpd=%d or u.kode_bidang_urusan='X.XX')", $_POST['id_unit']);
+            		}
                 		
-                		if($_POST['type']==1){
-                			$join.="
-                				INNER JOIN data_unit as s on s.kode_skpd like CONCAT('%',u.kode_bidang_urusan,'%')
-			                        and s.active=1
-			                        and s.is_skpd=1
-			                        and s.tahun_anggaran=u.tahun_anggaran
-			                ";
-                		}
-
+                	if($_POST['relasi_perencanaan'] != '-'){
                 		if($_POST['id_tipe_relasi']==2){
                 			$join.=" INNER JOIN data_rpjmd_program_lokal t on t.id_unit = s.id_skpd";
                 		}elseif ($_POST['id_tipe_relasi']==3) {
@@ -3544,6 +3548,7 @@ class Wpsipd_Public_Base_3
                         FROM data_prog_keg as u
                         ".$join."
                         WHERE u.tahun_anggaran=$tahun_anggaran
+                        	$where
                         GROUP BY u.kode_program
                         ORDER BY u.kode_program ASC 
                     ");
@@ -3569,6 +3574,7 @@ class Wpsipd_Public_Base_3
                         ORDER BY u.kode_program ASC, s.kode_skpd ASC 
                     ");
                 }
+                // $ret['sql'] = $wpdb->last_query;
                 $ret['data'] = $data;
             }else{
                 $ret = array(
