@@ -1176,6 +1176,7 @@ foreach ($data_all['data'] as $tujuan) {
 									bidur_opd.bidur_1 == b.kode_bidang_urusan
 									|| bidur_opd.bidur_2 == b.kode_bidang_urusan
 									|| bidur_opd.bidur_3 == b.kode_bidang_urusan
+									|| bidur_opd.bidur_4 == b.kode_bidang_urusan
 								){
 									html_bidur += '<option value="'+b.id_bidang_urusan+'" data=\''+JSON.stringify(b)+'\'>'+b.nama_bidang_urusan+'</opton>';
 								}
@@ -2132,7 +2133,7 @@ foreach ($data_all['data'] as $tujuan) {
 			get_bidang();
 			get_program();
 			var nm_bidang = jQuery('#nav-tujuan tr[kodetujuan="'+jQuery("#nav-sasaran .btn-tambah-sasaran").data("kodetujuan")+'"]').find('td').eq(1).text();
-			jQuery('#bidang-teks').val(nm_bidang).trigger('change');
+			jQuery('#bidang-teks').val(nm_bidang.trim()).trigger('change');
   		});	
 	});
 
@@ -2219,10 +2220,10 @@ foreach ($data_all['data'] as $tujuan) {
 									id_program 
 									&& id_program == all_program[nm_urusan][nm_bidang][nm_program].id_program
 								){
-									if(val_urusan != nm_urusan){
+									if(val_urusan.trim() != nm_urusan){
 										jQuery('#urusan-teks').val(nm_urusan).trigger('change');
 									}
-									if(val_bidang != nm_bidang){
+									if(val_bidang.trim() != nm_bidang){
 										jQuery('#bidang-teks').val(nm_bidang).trigger('change');
 									}
 								}
@@ -3008,8 +3009,8 @@ foreach ($data_all['data'] as $tujuan) {
 			for(var nm_bidang in all_program[nm_urusan]){
 				for(var nm_program in all_program[nm_urusan][nm_bidang]){
 					if(val && nm_bidang == val){
-						if(val_urusan != nm_urusan){
-							console.log(val_urusan, nm_urusan);
+						if(val_urusan.trim() != nm_urusan){
+							console.log(val_urusan.trim(), nm_urusan);
 							jQuery('#urusan-teks').val(nm_urusan).trigger('change');
 							jQuery('#bidang-teks').val(val).trigger('change');
 						}
@@ -3028,12 +3029,12 @@ foreach ($data_all['data'] as $tujuan) {
 			for(var nm_bidang in all_program[nm_urusan]){
 				for(var nm_program in all_program[nm_urusan][nm_bidang]){
 					if(val && val == all_program[nm_urusan][nm_bidang][nm_program].id_program){
-						if(val_urusan != nm_urusan){
-							console.log(val_urusan, nm_urusan);
+						if(val_urusan.trim() != nm_urusan){
+							console.log(val_urusan.trim(), nm_urusan);
 							jQuery('#urusan-teks').val(nm_urusan).trigger('change');
 						}
-						if(val_bidang != nm_bidang){
-							console.log(val_bidang, nm_bidang);
+						if(val_bidang.trim() != nm_bidang){
+							console.log(val_bidang.trim(), nm_bidang);
 							jQuery('#bidang-teks').val(nm_bidang).trigger('change');
 						}
 					}
@@ -3975,14 +3976,14 @@ foreach ($data_all['data'] as $tujuan) {
 			          	success: function(res){
 							window.all_program = {};
 							res.data.map(function(b, i){
-								if(!all_program[b.nama_urusan]){
-									all_program[b.nama_urusan] = {};
+								if(!all_program[b.nama_urusan.trim()]){
+									all_program[b.nama_urusan.trim()] = {};
 								}
-								if(!all_program[b.nama_urusan][b.nama_bidang_urusan]){
-									all_program[b.nama_urusan][b.nama_bidang_urusan] = {};
+								if(!all_program[b.nama_urusan.trim()][b.nama_bidang_urusan.trim()]){
+									all_program[b.nama_urusan.trim()][b.nama_bidang_urusan.trim()] = {};
 								}
-								if(!all_program[b.nama_urusan][b.nama_bidang_urusan][b.nama_program]){
-									all_program[b.nama_urusan][b.nama_bidang_urusan][b.nama_program] = b;
+								if(!all_program[b.nama_urusan.trim()][b.nama_bidang_urusan.trim()][b.nama_program.trim()]){
+									all_program[b.nama_urusan.trim()][b.nama_bidang_urusan.trim()][b.nama_program.trim()] = b;
 								}
 							});
 							resolve();
@@ -4008,14 +4009,14 @@ foreach ($data_all['data'] as $tujuan) {
 			          	success: function(res){
 							window.all_skpd = {};
 							res.data.map(function(b, i){
-								if(!all_skpd[b.nama_urusan]){
-									all_skpd[b.nama_urusan] = {};
+								if(!all_skpd[b.nama_urusan.trim()]){
+									all_skpd[b.nama_urusan.trim()] = {};
 								}
-								if(!all_skpd[b.nama_urusan][b.nama_bidang_urusan]){
-									all_skpd[b.nama_urusan][b.nama_bidang_urusan] = {};
+								if(!all_skpd[b.nama_urusan.trim()][b.nama_bidang_urusan.trim()]){
+									all_skpd[b.nama_urusan.trim()][b.nama_bidang_urusan.trim()] = {};
 								}
-								if(!all_skpd[b.nama_urusan][b.nama_bidang_urusan][b.nama_skpd]){
-									all_skpd[b.nama_urusan][b.nama_bidang_urusan][b.nama_skpd] = b;
+								if(!all_skpd[b.nama_urusan.trim()][b.nama_bidang_urusan.trim()][b.nama_skpd.trim()]){
+									all_skpd[b.nama_urusan.trim()][b.nama_bidang_urusan.trim()][b.nama_skpd.trim()] = b;
 								}
 							});
 							resolve();
