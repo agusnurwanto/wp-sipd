@@ -174,6 +174,26 @@ class Wpsipd_Public_Base_3
 							active=1 
 						ORDER BY id", $_POST['id_skpd']);
 					$tujuan = $wpdb->get_results($sql, ARRAY_A);
+
+					foreach($tujuan as $k => $tuj){
+						$pagu = $wpdb->get_row($wpdb->prepare("
+							SELECT 
+								sum(pagu_1) as pagu_akumulasi_1,
+								sum(pagu_2) as pagu_akumulasi_2,
+								sum(pagu_3) as pagu_akumulasi_3,
+								sum(pagu_4) as pagu_akumulasi_4,
+								sum(pagu_5) as pagu_akumulasi_5
+							from data_renstra_kegiatan_lokal 
+							where id_unik_indikator IS NOT NULL
+								AND active=1
+								AND kode_tujuan=%s
+						", $tuj['id_unik']));
+						$tujuan[$k]['pagu_akumulasi_1'] = $pagu->pagu_akumulasi_1;
+						$tujuan[$k]['pagu_akumulasi_2'] = $pagu->pagu_akumulasi_2;
+						$tujuan[$k]['pagu_akumulasi_3'] = $pagu->pagu_akumulasi_3;
+						$tujuan[$k]['pagu_akumulasi_4'] = $pagu->pagu_akumulasi_4;
+						$tujuan[$k]['pagu_akumulasi_5'] = $pagu->pagu_akumulasi_5;
+					}
 				}else{
 
 					$tahun_anggaran = $input['tahun_anggaran'];
@@ -1066,6 +1086,26 @@ class Wpsipd_Public_Base_3
 							AND active=1
 					", $_POST['kode_tujuan']);
 					$sasaran = $wpdb->get_results($sql, ARRAY_A);
+
+					foreach($sasaran as $k => $sas){
+						$pagu = $wpdb->get_row($wpdb->prepare("
+							SELECT 
+								sum(pagu_1) as pagu_akumulasi_1,
+								sum(pagu_2) as pagu_akumulasi_2,
+								sum(pagu_3) as pagu_akumulasi_3,
+								sum(pagu_4) as pagu_akumulasi_4,
+								sum(pagu_5) as pagu_akumulasi_5
+							from data_renstra_kegiatan_lokal 
+							where id_unik_indikator IS NOT NULL
+								AND active=1
+								AND kode_sasaran=%s
+						", $sas['id_unik']));
+						$sasaran[$k]['pagu_akumulasi_1'] = $pagu->pagu_akumulasi_1;
+						$sasaran[$k]['pagu_akumulasi_2'] = $pagu->pagu_akumulasi_2;
+						$sasaran[$k]['pagu_akumulasi_3'] = $pagu->pagu_akumulasi_3;
+						$sasaran[$k]['pagu_akumulasi_4'] = $pagu->pagu_akumulasi_4;
+						$sasaran[$k]['pagu_akumulasi_5'] = $pagu->pagu_akumulasi_5;
+					}
 				}else{
 					$tahun_anggaran = $_POST['tahun_anggaran'];
 					$sql = $wpdb->prepare("
@@ -1839,6 +1879,26 @@ class Wpsipd_Public_Base_3
 							active=1 ORDER BY id
 					", $_POST['kode_sasaran']);
 					$program = $wpdb->get_results($sql, ARRAY_A);
+
+					foreach($program as $k => $prog){
+						$pagu = $wpdb->get_row($wpdb->prepare("
+							SELECT 
+								sum(pagu_1) as pagu_akumulasi_1,
+								sum(pagu_2) as pagu_akumulasi_2,
+								sum(pagu_3) as pagu_akumulasi_3,
+								sum(pagu_4) as pagu_akumulasi_4,
+								sum(pagu_5) as pagu_akumulasi_5
+							from data_renstra_kegiatan_lokal 
+							where id_unik_indikator IS NOT NULL
+								AND active=1
+								AND kode_program=%s
+						", $prog['id_unik']));
+						$program[$k]['pagu_akumulasi_1'] = $pagu->pagu_akumulasi_1;
+						$program[$k]['pagu_akumulasi_2'] = $pagu->pagu_akumulasi_2;
+						$program[$k]['pagu_akumulasi_3'] = $pagu->pagu_akumulasi_3;
+						$program[$k]['pagu_akumulasi_4'] = $pagu->pagu_akumulasi_4;
+						$program[$k]['pagu_akumulasi_5'] = $pagu->pagu_akumulasi_5;
+					}
 				}else{
 					$tahun_anggaran = $_POST['tahun_anggaran'];
 					$sql = $wpdb->prepare("
@@ -2631,14 +2691,33 @@ class Wpsipd_Public_Base_3
 				if($_POST['type'] == 1){
 					$sql = $wpdb->prepare("
 						SELECT 
-							* 
-						FROM data_renstra_kegiatan_lokal
-						WHERE kode_program=%s AND
-							id_unik IS NOT NULL and
-							id_unik_indikator IS NULL and
-							active=1 ORDER BY id
+							k.*
+						FROM data_renstra_kegiatan_lokal k
+						WHERE k.kode_program=%s AND
+							k.id_unik IS NOT NULL and
+							k.id_unik_indikator IS NULL and
+							k.active=1 ORDER BY id
 					", $_POST['kode_program']);
 					$kegiatan = $wpdb->get_results($sql, ARRAY_A);
+					foreach($kegiatan as $k => $keg){
+						$pagu_keg = $wpdb->get_row($wpdb->prepare("
+							SELECT 
+								sum(pagu_1) as pagu_akumulasi_1,
+								sum(pagu_2) as pagu_akumulasi_2,
+								sum(pagu_3) as pagu_akumulasi_3,
+								sum(pagu_4) as pagu_akumulasi_4,
+								sum(pagu_5) as pagu_akumulasi_5
+							from data_renstra_kegiatan_lokal 
+							where id_unik_indikator IS NOT NULL
+								AND active=1
+								AND id_unik=%s
+						", $keg['id_unik']));
+						$kegiatan[$k]['pagu_akumulasi_1'] = $pagu_keg->pagu_akumulasi_1;
+						$kegiatan[$k]['pagu_akumulasi_2'] = $pagu_keg->pagu_akumulasi_2;
+						$kegiatan[$k]['pagu_akumulasi_3'] = $pagu_keg->pagu_akumulasi_3;
+						$kegiatan[$k]['pagu_akumulasi_4'] = $pagu_keg->pagu_akumulasi_4;
+						$kegiatan[$k]['pagu_akumulasi_5'] = $pagu_keg->pagu_akumulasi_5;
+					}
 				}else{
 					$tahun_anggaran = $_POST['tahun_anggaran'];
 					$sql = $wpdb->prepare("
@@ -2739,7 +2818,7 @@ class Wpsipd_Public_Base_3
 					", $data['id_kegiatan'], $data['kode_program']));
 
 					if(!empty($id_cek)){
-						throw new Exception('Kegiatan : '.$data['kegiatan_teks'].' sudah ada!');
+						throw new Exception('Kegiatan : '.$data['kegiatan_teks'].' sudah ada! id='.$id_cek);
 					}
 
 					$dataProgram = $wpdb->get_row($wpdb->prepare("

@@ -101,9 +101,11 @@ if(!empty($input['id_skpd'])){
 	$where_skpd = "and id_skpd=".$input['id_skpd'];
 }
 
+$is_admin = false;
 $user_id = um_user( 'ID' );
 $user_meta = get_userdata($user_id);
 if(in_array("administrator", $user_meta->roles)){
+	$is_admin = true;
 	$disabled='';
 	$disabled_admin = 'disabled';
 }
@@ -1029,7 +1031,7 @@ foreach ($data_all['data'] as $tujuan) {
 </div>
 
 <div class="modal fade" id="modal-monev" role="dialog" data-backdrop="static" aria-hidden="true">'
-    <div class="modal-dialog modal-xl" role="document">
+    <div class="modal-dialog" style="max-width: 1200px;" role="document">
         <div class="modal-content">
             <div class="modal-header bgpanel-theme">
                 <h4 style="margin: 0;" class="modal-title" id="">Data Renstra</h4>
@@ -1115,7 +1117,9 @@ foreach ($data_all['data'] as $tujuan) {
 	penjadwalanHitungMundur(dataHitungMundur);
 
 	var aksi = ''
+	<?php if($is_admin): ?>
 		+'<a style="margin-left: 10px;" id="singkron-sipd" onclick="return false;" href="#" class="btn btn-danger">Ambil data dari SIPD lokal</a>'
+	<?php endif; ?>
 		+'<?php echo $add_renstra; ?>'
 		+'<div class="dropdown" style="margin:30px">'
   			+'<button class="btn btn-warning dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">LAPORAN</button>'
@@ -2646,7 +2650,7 @@ foreach ($data_all['data'] as $tujuan) {
 							+'</div>'
 						+'</form>';
 
-				    kegiatanModal.find('.modal-title').html('Tambah Kegiatan');
+				    kegiatanModal.find('.modal-title').html('Edit Kegiatan');
 				    kegiatanModal.find('.modal-body').html('');
 					kegiatanModal.find('.modal-body').html(html);
 					kegiatanModal.find('.modal-footer').html(''
@@ -2900,7 +2904,7 @@ foreach ($data_all['data'] as $tujuan) {
 										+'</div>'
 										+'<div class="form-group">'
 											+'<label for="pagu_<?php echo $i; ?>">Pagu <?php echo $i; ?></label>'
-							  				+'<input type="number" class="form-control" name="pagu_<?php echo $i; ?>" value="'+response.data.pagu_<?php echo $i; ?>+'"/>'
+							  				+'<input type="number" class="form-control" name="pagu_<?php echo $i; ?>" value="'+response.data.pagu_<?php echo $i; ?>+'"  <?php echo $disabled; ?>/>'
 										+'</div>'
 										<?php }; ?>
 										+'<div class="form-group">'
@@ -3180,12 +3184,15 @@ foreach ($data_all['data'] as $tujuan) {
 	          		+'<table class="table">'
 	          			+'<thead>'
 	          				+'<tr>'
-	          					+'<th class="text-center" style="width:5%">No</th>'
-	          					+'<th class="text-center" style="width:25%">Bidang Urusan</th>'
-	          					+'<th class="text-center" style="width:30%">Tujuan</th>'
-	          					+'<th class="text-center" style="width:10%">Catatan Usulan</th>'
-	          					+'<th class="text-center" style="width:10%">Catatan Penetapan</th>'
-	          					+'<th class="text-center" style="width:25%">Aksi</th>'
+	          					+'<th class="text-center" style="width:45px">No</th>'
+	          					+'<th class="text-center" style="width:20%">Bidang Urusan</th>'
+	          					+'<th class="text-center">Tujuan</th>'
+      						<?php for($i=1; $i<=$lama_pelaksanaan; $i++){ ?>
+      							+'<th class="text-center" style="width:150px">Pagu Tahun <?php echo $i; ?></th>'
+      						<?php } ?>
+	          					+'<th class="text-center">Catatan Usulan</th>'
+	          					+'<th class="text-center">Catatan Penetapan</th>'
+	          					+'<th class="text-center" style="width:185px">Aksi</th>'
 	          				+'<tr>'
 	          			+'</thead>'
 	          			+'<tbody>';
@@ -3203,6 +3210,9 @@ foreach ($data_all['data'] as $tujuan) {
 				          			+'<td class="text-center">'+(index+1)+'</td>'
 				          			+'<td>'+value.nama_bidang_urusan+'</td>'
 				          			+'<td>'+value.tujuan_teks+'</td>'
+	      						<?php for($i=1; $i<=$lama_pelaksanaan; $i++){ ?>
+	      							+'<td class="text-right">'+value.pagu_akumulasi_<?php echo $i; ?>+'</td>'
+	      						<?php } ?>
 				          			+'<td>'+value.catatan_usulan+'</td>'
 				          			+'<td>'+value.catatan+'</td>'
 				          			+'<td class="text-center">'
@@ -3327,7 +3337,7 @@ foreach ($data_all['data'] as $tujuan) {
 			dataType:'json',
 			data:{
 				'action': 'get_sasaran_renstra',
-	      'api_key': '<?php echo $api_key; ?>',
+	      		'api_key': '<?php echo $api_key; ?>',
 				'kode_tujuan': params.kode_tujuan,
 				'type':1
 			},
@@ -3336,61 +3346,67 @@ foreach ($data_all['data'] as $tujuan) {
           		jQuery('#wrap-loading').hide();
           		
           		let sasaran = ''
-          				+'<div style="margin-top:10px"><button type="button" class="btn btn-sm btn-primary mb-2 btn-tambah-sasaran" data-kodetujuan="'+params.kode_tujuan+'"><i class="dashicons dashicons-plus" style="margin-top: 3px;"></i> Tambah Sasaran</button></div>'
-          				+'<table class="table">'
-          					+'<thead>'
-		          				+'<tr>'
-		          					+'<th class="text-center" style="width: 160px;">Perangkat Daerah</th>'
-		          					+'<th>'+jQuery('#nama-skpd').text()+'</th>'
-		          				+'</tr>'
-	          					+'<tr>'
-	          						+'<th class="text-center" style="width: 160px;">Bidang Urusan</th>'
-	          						+'<th>'+jQuery('#nav-tujuan tr[kodetujuan="'+params.kode_tujuan+'"]').find('td').eq(1).text()+'</th>'
-	          					+'</tr>'
-	          					+'<tr>'
-	          						+'<th class="text-center" style="width: 160px;">Tujuan</th>'
-	          						+'<th>'+jQuery('#nav-tujuan tr[kodetujuan="'+params.kode_tujuan+'"]').find('td').eq(2).text()+'</th>'
-	          					+'</tr>'
-          					+'</thead>'
-          				+'</table>'
-          				
-          				+'<table class="table">'
-          					+'<thead>'
-          						+'<tr>'
-          							+'<th class="text-center" style="width:5%">No</th>'
-          							+'<th class="text-center" style="width:45%">Sasaran</th>'
-          							+'<th class="text-center" style="width:15%">Catatan Usulan</th>'
-          							+'<th class="text-center" style="width:15%">Catatan Penetapan</th>'
-          							+'<th class="text-center" style="width:25%">Aksi</th>'
-          						+'<tr>'
-          					+'</thead>'
-          					+'<tbody>';
+      				+'<div style="margin-top:10px"><button type="button" class="btn btn-sm btn-primary mb-2 btn-tambah-sasaran" data-kodetujuan="'+params.kode_tujuan+'"><i class="dashicons dashicons-plus" style="margin-top: 3px;"></i> Tambah Sasaran</button></div>'
+      				+'<table class="table">'
+      					+'<thead>'
+	          				+'<tr>'
+	          					+'<th class="text-center" style="width: 160px;">Perangkat Daerah</th>'
+	          					+'<th>'+jQuery('#nama-skpd').text()+'</th>'
+	          				+'</tr>'
+          					+'<tr>'
+          						+'<th class="text-center" style="width: 160px;">Bidang Urusan</th>'
+          						+'<th>'+jQuery('#nav-tujuan tr[kodetujuan="'+params.kode_tujuan+'"]').find('td').eq(1).text()+'</th>'
+          					+'</tr>'
+          					+'<tr>'
+          						+'<th class="text-center" style="width: 160px;">Tujuan</th>'
+          						+'<th>'+jQuery('#nav-tujuan tr[kodetujuan="'+params.kode_tujuan+'"]').find('td').eq(2).text()+'</th>'
+          					+'</tr>'
+      					+'</thead>'
+      				+'</table>'
+      				
+      				+'<table class="table">'
+      					+'<thead>'
+      						+'<tr>'
+      							+'<th class="text-center" style="width:45px">No</th>'
+      							+'<th class="text-center">Sasaran</th>'
+      						<?php for($i=1; $i<=$lama_pelaksanaan; $i++){ ?>
+      							+'<th class="text-center" style="width:150px">Pagu Tahun <?php echo $i; ?></th>'
+      						<?php } ?>
+      							+'<th class="text-center" style="width:15%">Catatan Usulan</th>'
+      							+'<th class="text-center" style="width:15%">Catatan Penetapan</th>'
+      							+'<th class="text-center" style="width:185px">Aksi</th>'
+      						+'<tr>'
+      					+'</thead>'
+      					+'<tbody>';
 
-          						response.data.map(function(value, index){
-				          			for(var i in value){
-				          				if(
-				          					value[i] == 'null'
-				          					|| value[i] == null
-				          				){
-				          					value[i] = '';
-				          				}
-				          			}
-          							sasaran +=''
-          								+'<tr kodesasaran="'+value.id_unik+'">'
-		          							+'<td class="text-center">'+(index+1)+'</td>'
-		          							+'<td>'+value.sasaran_teks+'</td>'
-		          							+'<td>'+value.catatan_usulan+'</td>'
-		          							+'<td>'+value.catatan+'</td>'
-		          							+'<td class="text-center">'
-		          								+'<a href="javascript:void(0)" data-idsasaran="'+value.id+'" data-kodesasaran="'+value.id_unik+'" class="btn btn-sm btn-warning btn-kelola-indikator-sasaran"><i class="dashicons dashicons-menu-alt" style="margin-top: 3px;"></i></a>&nbsp;'
-		          								+'<a href="javascript:void(0)" data-kodesasaran="'+value.id_unik+'" class="btn btn-sm btn-primary btn-detail-sasaran"><i class="dashicons dashicons-search" style="margin-top: 3px;"></i></a>&nbsp;'
-		          								+'<a href="javascript:void(0)" data-idsasaran="'+value.id+'" class="btn btn-sm btn-success btn-edit-sasaran"><i class="dashicons dashicons-edit" style="margin-top: 3px;"></i></a>&nbsp;'
-		          								+'<a href="javascript:void(0)" data-idsasaran="'+value.id+'" data-kodesasaran="'+value.id_unik+'" data-kodetujuan="'+value.kode_tujuan+'" class="btn btn-sm btn-danger btn-hapus-sasaran"><i class="dashicons dashicons-trash" style="margin-top: 3px;"></i></a>'
-		          							+'</td>'
-		          						+'</tr>';
-          						})
-          					sasaran +='<tbody>'
-          				+'</table>';
+  						response.data.map(function(value, index){
+		          			for(var i in value){
+		          				if(
+		          					value[i] == 'null'
+		          					|| value[i] == null
+		          				){
+		          					value[i] = '';
+		          				}
+		          			}
+  							sasaran +=''
+  								+'<tr kodesasaran="'+value.id_unik+'">'
+          							+'<td class="text-center">'+(index+1)+'</td>'
+          							+'<td>'+value.sasaran_teks+'</td>'
+	      						<?php for($i=1; $i<=$lama_pelaksanaan; $i++){ ?>
+	      							+'<td class="text-right">'+value.pagu_akumulasi_<?php echo $i; ?>+'</td>'
+	      						<?php } ?>
+          							+'<td>'+value.catatan_usulan+'</td>'
+          							+'<td>'+value.catatan+'</td>'
+          							+'<td class="text-center">'
+          								+'<a href="javascript:void(0)" data-idsasaran="'+value.id+'" data-kodesasaran="'+value.id_unik+'" class="btn btn-sm btn-warning btn-kelola-indikator-sasaran"><i class="dashicons dashicons-menu-alt" style="margin-top: 3px;"></i></a>&nbsp;'
+          								+'<a href="javascript:void(0)" data-kodesasaran="'+value.id_unik+'" class="btn btn-sm btn-primary btn-detail-sasaran"><i class="dashicons dashicons-search" style="margin-top: 3px;"></i></a>&nbsp;'
+          								+'<a href="javascript:void(0)" data-idsasaran="'+value.id+'" class="btn btn-sm btn-success btn-edit-sasaran"><i class="dashicons dashicons-edit" style="margin-top: 3px;"></i></a>&nbsp;'
+          								+'<a href="javascript:void(0)" data-idsasaran="'+value.id+'" data-kodesasaran="'+value.id_unik+'" data-kodetujuan="'+value.kode_tujuan+'" class="btn btn-sm btn-danger btn-hapus-sasaran"><i class="dashicons dashicons-trash" style="margin-top: 3px;"></i></a>'
+          							+'</td>'
+          						+'</tr>';
+  						});
+      					sasaran +='<tbody>'
+      				+'</table>';
 
 			    jQuery("#nav-sasaran").html(sasaran);
 			 	jQuery('.nav-tabs a[href="#nav-sasaran"]').tab('show');
@@ -3540,11 +3556,14 @@ foreach ($data_all['data'] as $tujuan) {
       				+'<table class="table">'
       					+'<thead>'
       						+'<tr>'
-      							+'<th class="text-center" style="width:5%">No</th>'
-      							+'<th class="text-center" style="width:45%">Program</th>'
+      							+'<th class="text-center" style="width:45px">No</th>'
+      							+'<th class="text-center">Program</th>'
+      						<?php for($i=1; $i<=$lama_pelaksanaan; $i++){ ?>
+      							+'<th class="text-center" style="width:12%">Pagu Tahun <?php echo $i; ?></th>'
+      						<?php } ?>
       							+'<th class="text-center" style="width:15%">Catatan Usulan</th>'
       							+'<th class="text-center" style="width:15%">Catatan Penetapan</th>'
-      							+'<th class="text-center" style="width:25%">Aksi</th>'
+      							+'<th class="text-center" style="width:185px">Aksi</th>'
       						+'<tr>'
       					+'</thead>'
       					+'<tbody>';
@@ -3561,6 +3580,9 @@ foreach ($data_all['data'] as $tujuan) {
   								+'<tr kodeprogram="'+value.id_unik+'">'
           							+'<td class="text-center">'+(index+1)+'</td>'
           							+'<td>'+value.nama_program+'</td>'
+	      						<?php for($i=1; $i<=$lama_pelaksanaan; $i++){ ?>
+	      							+'<td class="text-right">'+value.pagu_akumulasi_<?php echo $i; ?>+'</td>'
+	      						<?php } ?>
           							+'<td>'+value.catatan_usulan+'</td>'
           							+'<td>'+value.catatan+'</td>'
           							+'<td class="text-center">'
@@ -3731,11 +3753,14 @@ foreach ($data_all['data'] as $tujuan) {
       				+'<table class="table">'
       					+'<thead>'
       						+'<tr>'
-      							+'<th class="text-center" style="width:5%">No</th>'
-      							+'<th class="text-center" style="width:45%">Kegiatan</th>'
-      							+'<th class="text-center" style="width:15%">Catatan Usulan</th>'
-      							+'<th class="text-center" style="width:15%">Catatan Penetapan</th>'
-      							+'<th class="text-center" style="width:25%">Aksi</th>'
+      							+'<th class="text-center" style="width:45px">No</th>'
+      							+'<th class="text-center">Kegiatan</th>'
+      						<?php for($i=1; $i<=$lama_pelaksanaan; $i++){ ?>
+      							+'<th class="text-center" style="width:10%">Pagu Tahun <?php echo $i; ?></th>'
+      						<?php } ?>
+      							+'<th class="text-center" style="width:10%">Catatan Usulan</th>'
+      							+'<th class="text-center" style="width:10%">Catatan Penetapan</th>'
+      							+'<th class="text-center" style="width:13%">Aksi</th>'
       						+'<tr>'
       					+'</thead>'
       					+'<tbody>';
@@ -3752,6 +3777,9 @@ foreach ($data_all['data'] as $tujuan) {
   								+'<tr kodekegiatan="'+value.id_unik+'">'
           							+'<td class="text-center">'+(index+1)+'</td>'
           							+'<td>'+value.nama_giat+'</td>'
+          						<?php for($i=1; $i<=$lama_pelaksanaan; $i++){ ?>
+          							+'<td class="text-right">'+formatRupiah(value.pagu_akumulasi_<?php echo $i; ?>)+'</td>'
+          						<?php } ?>
           							+'<td>'+value.catatan_usulan+'</td>'
           							+'<td>'+value.catatan+'</td>'
           							+'<td class="text-center">'
@@ -3829,11 +3857,12 @@ foreach ($data_all['data'] as $tujuan) {
 								+"<th class='text-center'>No</th>"
 								+"<th class='text-center'>Indikator</th>"
 								+"<th class='text-center'>Satuan</th>"
-								+"<th class='text-center'>Awal</th>"
+								+"<th class='text-center'>Target Awal</th>"
 								<?php for($i=1; $i<=$lama_pelaksanaan; $i++){ ?>
-								+"<th class='text-center'>Tahun <?php echo $i; ?></th>"
+								+"<th class='text-center'>Target Tahun <?php echo $i; ?></th>"
+								+"<th class='text-center'>Pagu Tahun <?php echo $i; ?></th>"
 								<?php }; ?>
-								+"<th class='text-center'>Akhir</th>"
+								+"<th class='text-center'>Target Akhir</th>"
 								+"<th class='text-center'>Catatan Usulan</th>"
 								+"<th class='text-center'>Catatan Penetapan</th>"
 								+"<th class='text-center'>Aksi</th>"
@@ -3854,11 +3883,12 @@ foreach ($data_all['data'] as $tujuan) {
 				          		+"<td class='text-center'>"+(index+1)+"</td>"
 				          		+"<td>"+value.indikator+"</td>"
 				          		+"<td>"+value.satuan+"</td>"
-				          		+"<td>"+value.target_awal+"</td>"
+				          		+"<td class='text-center'>"+value.target_awal+"</td>"
 				          		<?php for($i=1; $i<=$lama_pelaksanaan; $i++){ ?>
-								+"<td>"+value.target_<?php echo $i; ?>+"</td>"
+								+"<td class='text-center'>"+value.target_<?php echo $i; ?>+"</td>"
+								+"<td class='text-right'>"+formatRupiah(value.pagu_<?php echo $i; ?>)+"</td>"
 								<?php }; ?>
-				          		+"<td>"+value.target_akhir+"</td>"
+				          		+"<td class='text-center'>"+value.target_akhir+"</td>"
 				          		+"<td>"+value.catatan_usulan+"</td>"
 				          		+"<td>"+value.catatan+"</td>"
 				          		+"<td class='text-center'>"
