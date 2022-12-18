@@ -70,6 +70,7 @@ $sql = "
 		i.isu_teks 
 	from data_rpd_tujuan_lokal t
 	left join data_rpjpd_isu i on t.id_isu = i.id
+	where t.active=1
 ";
 if(!empty($id_jadwal_rpjpd)){
 	$sql = "
@@ -78,6 +79,7 @@ if(!empty($id_jadwal_rpjpd)){
 			i.isu_teks 
 		from data_rpd_tujuan_lokal t
 		left join data_rpjpd_isu_history i on t.id_isu = i.id_asli
+		where t.active=1
 	";
 }
 $tujuan_all = $wpdb->get_results($sql, ARRAY_A);
@@ -94,6 +96,7 @@ foreach ($tujuan_all as $tujuan) {
 				* 
 			from data_rpd_sasaran_lokal
 			where kode_tujuan=%s
+				and active=1
 		", $tujuan['id_unik']);
 		$sasaran_all = $wpdb->get_results($sql, ARRAY_A);
 		foreach ($sasaran_all as $sasaran) {
@@ -109,6 +112,7 @@ foreach ($tujuan_all as $tujuan) {
 						* 
 					from data_rpd_program_lokal
 					where kode_sasaran=%s
+						and active=1
 				", $sasaran['id_unik']);
 				$program_all = $wpdb->get_results($sql, ARRAY_A);
 				foreach ($program_all as $program) {
@@ -181,6 +185,7 @@ if(!empty($tujuan_ids)){
 		from data_rpd_tujuan_lokal t
 		left join data_rpjpd_isu i on t.id_isu = i.id
 		where t.id_unik not in (".implode(',', $tujuan_ids).")
+			and t.active=1
 	";
 	if(!empty($id_jadwal_rpjpd)){
 		$sql = "
@@ -190,6 +195,7 @@ if(!empty($tujuan_ids)){
 			from data_rpd_tujuan_lokal t
 			left join data_rpjpd_isu_history i on t.id_isu = i.id_asli
 			where t.id_unik not in (".implode(',', $tujuan_ids).")
+				and t.active=1
 		";
 	}
 }else{
@@ -199,6 +205,7 @@ if(!empty($tujuan_ids)){
 			i.isu_teks 
 		from data_rpd_tujuan_lokal t
 		left join data_rpjpd_isu i on t.id_isu = i.id
+		where t.active=1
 	";
 	if(!empty($id_jadwal_rpjpd)){
 		$sql = "
@@ -207,6 +214,7 @@ if(!empty($tujuan_ids)){
 				i.isu_teks 
 			from data_rpd_tujuan_lokal t
 			left join data_rpjpd_isu_history i on t.id_isu = i.id_asli
+			where t.active=1
 		";
 	}
 }
@@ -225,6 +233,7 @@ foreach ($tujuan_all_kosong as $tujuan) {
 			* 
 		from data_rpd_sasaran_lokal
 		where kode_tujuan=%s
+			and active=1
 	", $tujuan['id_unik']);
 	$sasaran_all = $wpdb->get_results($sql, ARRAY_A);
 	foreach ($sasaran_all as $sasaran) {
@@ -242,6 +251,7 @@ foreach ($tujuan_all_kosong as $tujuan) {
 				* 
 			from data_rpd_program_lokal
 			where kode_sasaran=%s
+				and active=1
 		", $sasaran['id_unik']);
 		$program_all = $wpdb->get_results($sql, ARRAY_A);
 		foreach ($program_all as $program) {
@@ -276,12 +286,14 @@ if(!empty($sasaran_ids)){
 			* 
 		from data_rpd_sasaran_lokal
 		where id_unik not in (".implode(',', $sasaran_ids).")
+			and active=1
 	";
 }else{
 	$sql = "
 		select 
 			* 
 		from data_rpd_sasaran_lokal
+		where active=1
 	";
 }
 $sasaran_all_kosong = $wpdb->get_results($sql, ARRAY_A);
@@ -299,6 +311,7 @@ foreach ($sasaran_all_kosong as $sasaran) {
 			* 
 		from data_rpd_program_lokal
 		where kode_sasaran=%s
+			and active=1
 	", $sasaran['id_unik']);
 	$program_all = $wpdb->get_results($sql, ARRAY_A);
 	foreach ($program_all as $program) {
@@ -332,12 +345,14 @@ if(!empty($program_ids)){
 			* 
 		from data_rpd_program_lokal
 		where id_unik not in (".implode(',', $program_ids).")
+			and active=1
 	";
 }else{
 	$sql = "
 		select 
 			* 
 		from data_rpd_program_lokal
+		where active=1
 	";
 }
 $program_all = $wpdb->get_results($sql, ARRAY_A);

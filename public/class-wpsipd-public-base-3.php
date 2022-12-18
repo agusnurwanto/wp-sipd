@@ -49,8 +49,8 @@ class Wpsipd_Public_Base_3
 					a.id_unik='".$tujuan_exist->kode_sasaran_rpjm."' AND 
 					a.id_jadwal=".$params['relasi_perencanaan']." AND 
 		            c.id_jadwal=".$params['relasi_perencanaan']." AND 
-					a.status=1 AND
-		            c.status=1 AND
+					a.active=1 AND
+		            c.active=1 AND
 					a.id_unik IS NOT NULL AND 
 		            c.id_unik IS NOT NULL";
 		}else{
@@ -64,8 +64,8 @@ class Wpsipd_Public_Base_3
 				WHERE  
 					a.id_jadwal=".$params['relasi_perencanaan']." AND 
 		            c.id_jadwal=".$params['relasi_perencanaan']." AND 
-					a.status=1 AND
-		            c.status=1 AND
+					a.active=1 AND
+		            c.active=1 AND
 					a.id_unik IS NOT NULL AND 
 		            c.id_unik IS NOT NULL";
 		}
@@ -107,28 +107,6 @@ class Wpsipd_Public_Base_3
 				break;
 		}
 
-		// return $wpdb->get_results("
-		// 		SELECT 
-		// 			a.id_unik, 
-		// 			a.sasaran_teks, 
-		// 			a.id_visi, 
-		// 			a.visi_teks, 
-		// 			a.id_misi, 
-		// 			a.misi_teks, 
-		// 			b.id_program 
-		// 		FROM ".$tableA." a 
-		// 			INNER JOIN ".$tableB." b 
-		// 				ON a.id_unik=b.kode_sasaran 
-		// 		WHERE 
-		// 			b.id_unit=".$params['id_unit']." AND 
-		// 			a.id_jadwal=".$params['relasi_perencanaan']." AND 
-		// 			b.id_jadwal=".$params['relasi_perencanaan']." AND 
-		// 			a.status=1 AND
-        //             b.status=1 AND
-		// 			a.id_unik IS NOT NULL AND 
-		// 			b.id_unik IS NOT NULL
-		// 			$where;");
-
 		return $wpdb->get_results("
 				SELECT DISTINCT
 					a.id_unik, 
@@ -136,7 +114,7 @@ class Wpsipd_Public_Base_3
 				FROM ".$tableA." a  
 				WHERE 
 					a.id_jadwal=".$params['relasi_perencanaan']." AND 
-					a.status=1 AND
+					a.active=1 AND
 					a.id_unik IS NOT NULL
 					$where;");
 	}
@@ -193,8 +171,6 @@ class Wpsipd_Public_Base_3
 						WHERE id_unik IS NOT NULL AND
 							id_unit=%d AND
 							id_unik_indikator IS NULL AND
-							status=1 AND 
-							is_locked=0 AND 
 							active=1 
 						ORDER BY id", $_POST['id_skpd']);
 					$tujuan = $wpdb->get_results($sql, ARRAY_A);
@@ -314,8 +290,6 @@ class Wpsipd_Public_Base_3
 							$where_sasaran_rpjm
 							AND id_unik IS NOT NULL
 							AND id_unik_indikator IS NULL
-							AND is_locked=0
-							AND status=1
 							AND active=1
 						", trim($data['tujuan_teks'])));
 					
@@ -547,8 +521,6 @@ class Wpsipd_Public_Base_3
 							$where_sasaran_rpjm
 							AND id_unik IS NOT NULL
 							AND id_unik_indikator IS NULL
-							AND is_locked=0
-							AND status=1
 							AND active=1
 						", trim($data['tujuan_teks']), $data['id']));
 					
@@ -680,13 +652,13 @@ class Wpsipd_Public_Base_3
 				if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
 
 					
-					$id_cek = $wpdb->get_var("SELECT * FROM data_renstra_sasaran_lokal WHERE kode_tujuan='" . $_POST['id_unik'] . "' AND is_locked=0 AND status=1 AND active=1");
+					$id_cek = $wpdb->get_var("SELECT * FROM data_renstra_sasaran_lokal WHERE kode_tujuan='" . $_POST['id_unik'] . "' AND active=1");
 
 					if(!empty($id_cek)){
 						throw new Exception("Tujuan sudah digunakan oleh sasaran", 1);
 					}
 
-					$id_cek = $wpdb->get_var("SELECT * FROM data_renstra_tujuan_lokal WHERE id_unik='" . $_POST['id_unik']. "' AND id_unik_indikator IS NOT NULL AND is_locked=0 AND status=1 AND active=1");
+					$id_cek = $wpdb->get_var("SELECT * FROM data_renstra_tujuan_lokal WHERE id_unik='" . $_POST['id_unik']. "' AND id_unik_indikator IS NOT NULL AND active=1");
 
 					if(!empty($id_cek)){
 						throw new Exception("Tujuan sudah digunakan oleh indikator tujuan", 1);
@@ -726,8 +698,6 @@ class Wpsipd_Public_Base_3
 								WHERE 
 									id_unik=%s AND 
 									id_unik_indikator IS NOT NULL AND 
-									is_locked_indikator=0 AND 
-									status=1 AND 
 									active=1", $_POST['id_unik']);
 						$indikator = $wpdb->get_results($sql, ARRAY_A);
 					}else{
@@ -740,7 +710,6 @@ class Wpsipd_Public_Base_3
 							WHERE tahun_anggaran=%d AND 
 									id_unik=%s
 									id_unik_indikator IS NOT NULL AND 
-									is_locked_indikator=0 AND
 									active=1
 							ORDER BY urut_tujuan
 							", $tahun_anggaran, $_POST['id_unik']);
@@ -782,8 +751,6 @@ class Wpsipd_Public_Base_3
 						SELECT id FROM data_rpjmd_tujuan_lokal
 							WHERE indikator_teks='".$data['indikator_teks']."'
 										AND id_unik='".$data['id_unik']."'
-										AND is_locked_indikator=0
-										AND status=1
 										AND active=1
 								");
 					
@@ -791,7 +758,7 @@ class Wpsipd_Public_Base_3
 						throw new Exception('Indikator : '.$data['indikator_teks'].' sudah ada!');
 					}
 
-					$dataTujuan = $wpdb->get_row("SELECT * FROM data_renstra_tujuan_lokal WHERE id_unik='" . $data['id_unik'] . "' AND is_locked=0 AND status=1 AND active=1 AND id_unik_indikator IS NULL");
+					$dataTujuan = $wpdb->get_row("SELECT * FROM data_renstra_tujuan_lokal WHERE id_unik='" . $data['id_unik'] . "' AND active=1 AND id_unik_indikator IS NULL");
 
 					if (empty($dataTujuan)) {
 						throw new Exception('Tujuan yang dipilih tidak ditemukan!');
@@ -880,7 +847,15 @@ class Wpsipd_Public_Base_3
 			if (!empty($_POST)) {
 				if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
 					
-					$indikator = $wpdb->get_row("SELECT * FROM data_renstra_tujuan_lokal WHERE id=".$_POST['id']." AND id_unik IS NOT NULL AND id_unik_indikator IS NOT NULL AND is_locked_indikator=0 AND status=1 AND active=1");
+					$indikator = $wpdb->get_row($wpdb->prepare("
+						SELECT 
+							* 
+						FROM data_renstra_tujuan_lokal 
+						WHERE id=%d 
+							AND id_unik IS NOT NULL 
+							AND id_unik_indikator IS NOT NULL 
+							AND active=1
+					", $_POST['id']));
 
 					echo json_encode([
 						'status' => true,
@@ -912,21 +887,28 @@ class Wpsipd_Public_Base_3
 
 					$this->verify_indikator_tujuan_renstra($data);
 
-					$id_cek = $wpdb->get_var("
-						SELECT id FROM data_rpjmd_tujuan_lokal
-							WHERE indikator_teks='".$data['indikator_teks']."'
-										AND id_unik='".$data['id_unik']."'
-										AND id!=".$data['id']."
-										AND is_locked_indikator=0
-										AND status=1
-										AND active=1
-								");
+					$id_cek = $wpdb->get_var($wpdb->prepare("
+						SELECT 
+							id 
+						FROM data_rpjmd_tujuan_lokal
+						WHERE indikator_teks=%s
+							AND id_unik=%s
+							AND id!=%d
+							AND active=1
+					", $data['indikator_teks'], $data['id_unik'], $data['id']));
 					
 					if(!empty($id_cek)){
 						throw new Exception('Indikator : '.$data['indikator_teks'].' sudah ada!');
 					}
 
-					$dataTujuan = $wpdb->get_row("SELECT * FROM data_renstra_tujuan_lokal WHERE id_unik='" . $data['id_unik'] . "' AND is_locked=0 AND status=1 AND active=1 AND id_unik_indikator IS NULL");
+					$dataTujuan = $wpdb->get_row($wpdb->prepare("
+						SELECT 
+							* 
+						FROM data_renstra_tujuan_lokal 
+						WHERE id_unik=%s 
+							AND active=1 
+							AND id_unik_indikator IS NULL
+					", $data['id_unik']));
 
 					if (empty($dataTujuan)) {
 						throw new Exception('Tujuan yang dipilih tidak ditemukan!');
@@ -1010,7 +992,13 @@ class Wpsipd_Public_Base_3
 			if (!empty($_POST)) {
 				if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
 					
-					$wpdb->get_results("DELETE FROM data_renstra_tujuan_lokal WHERE id=" . $_POST['id'] . " AND id_unik_indikator IS NOT NULL AND active=1 AND status=1");
+					$wpdb->get_results($wpdb->prepare("
+						DELETE 
+						FROM data_renstra_tujuan_lokal 
+						WHERE id=%d 
+							AND id_unik_indikator IS NOT NULL 
+							AND active=1
+					", $_POST['id']));
 
 					echo json_encode([
 						'status' => true,
@@ -1069,26 +1057,23 @@ class Wpsipd_Public_Base_3
 						SELECT 
 							* 
 						FROM data_renstra_sasaran_lokal
-						WHERE is_locked=0
-							AND kode_tujuan='".$_POST['kode_tujuan']."'
+						WHERE kode_tujuan=%s
 							AND id_unik IS NOT NULL
 							AND id_unik_indikator IS NULL
-							AND is_locked=0
-							AND status=1
 							AND active=1
-					");
+					", $_POST['kode_tujuan']);
 					$sasaran = $wpdb->get_results($sql, ARRAY_A);
 				}else{
 					$tahun_anggaran = $_POST['tahun_anggaran'];
 					$sql = $wpdb->prepare("
-								SELECT 
-									* 
-								FROM data_renstra_sasaran
-								WHERE tahun_anggaran=%d
-									AND kode_tujuan=%s
-									AND active=1
-								ORDER BY urut_sasaran DESC
-							", $tahun_anggaran, $_POST['kode_tujuan']);
+						SELECT 
+							* 
+						FROM data_renstra_sasaran
+						WHERE tahun_anggaran=%d
+							AND kode_tujuan=%s
+							AND active=1
+						ORDER BY urut_sasaran DESC
+					", $tahun_anggaran, $_POST['kode_tujuan']);
 					$sasaran = $wpdb->get_results($sql, ARRAY_A);
 				}
 
@@ -1128,8 +1113,6 @@ class Wpsipd_Public_Base_3
 						FROM data_renstra_sasaran_lokal
 						WHERE sasaran_teks=%s
 							AND kode_tujuan=%s
-							AND is_locked=0
-							AND status=1
 							AND active=1
 						", $data['sasaran_teks'], $data['kode_tujuan']));
 					
@@ -1152,7 +1135,6 @@ class Wpsipd_Public_Base_3
 						FROM data_renstra_tujuan_lokal 
 						WHERE 
 							id_unik=%s AND 
-							is_locked=0 AND status=1 AND 
 							active=1 AND 
 							id_unik IS NOT NULL AND 
 							id_unik_indikator IS NULL
@@ -1234,9 +1216,7 @@ class Wpsipd_Public_Base_3
 					WHERE id=%d
 						AND id_unik IS NOT NULL
 						AND id_unik_indikator IS NULL
-						AND is_locked=0
 						AND active=1
-						AND status=1
 				", $_POST['id_sasaran']));
 
 				echo json_encode([
@@ -1277,9 +1257,7 @@ class Wpsipd_Public_Base_3
 							AND kode_tujuan=%s
 							AND id_unik!=%s
 							AND id_unik_indikator IS NULL
-							AND is_locked=0
 							AND active=1
-							AND status=1
 						", $data['sasaran_teks'], $data['kode_tujuan'], $data['kode_sasaran']));
 					
 					if(!empty($id_cek)){
@@ -1301,8 +1279,6 @@ class Wpsipd_Public_Base_3
 						FROM data_renstra_tujuan_lokal 
 						WHERE 
 							id_unik=%s AND 
-							is_locked=0 AND 
-							status=1 AND 
 							active=1 AND 
 							id_unik IS NOT NULL AND 
 						id_unik_indikator IS NULL
@@ -1398,13 +1374,26 @@ class Wpsipd_Public_Base_3
 			if (!empty($_POST)) {
 				if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
 					
-					$id_cek = $wpdb->get_var("SELECT * FROM data_renstra_program_lokal WHERE kode_sasaran='" . $_POST['kode_sasaran'] . "' AND is_locked=0 AND status=1 AND active=1");
+					$id_cek = $wpdb->get_var($wpdb->prepare("
+						SELECT 
+							* 
+						FROM data_renstra_program_lokal 
+						WHERE kode_sasaran=%s 
+							AND active=1
+					", $_POST['kode_sasaran']));
 
 					if(!empty($id_cek)){
 						throw new Exception("Sasaran sudah digunakan oleh program", 1);
 					}
 
-					$id_cek = $wpdb->get_var("SELECT * FROM data_renstra_sasaran_lokal WHERE id_unik='" . $_POST['kode_sasaran'] . "' AND id_unik_indikator IS NOT NULL AND is_locked=0 AND status=1 AND active=1");
+					$id_cek = $wpdb->get_var($wpdb->prepare("
+						SELECT 
+							* 
+						FROM data_renstra_sasaran_lokal 
+						WHERE id_unik=%s 
+							AND id_unik_indikator IS NOT NULL 
+							AND active=1
+					", $_POST['kode_sasaran']));
 
 					if(!empty($id_cek)){
 						throw new Exception("Sasaran sudah digunakan oleh indikator sasaran", 1);
@@ -1460,8 +1449,6 @@ class Wpsipd_Public_Base_3
 							WHERE 
 								id_unik=%s AND 
 								id_unik_indikator IS NOT NULL AND 
-								is_locked_indikator=0 AND 
-								status=1 AND 
 								active=1", $_POST['id_unik']);
 						$indikator = $wpdb->get_results($sql, ARRAY_A);
 					}else{
@@ -1471,10 +1458,9 @@ class Wpsipd_Public_Base_3
 								* 
 							FROM data_renstra_sasaran
 							WHERE tahun_anggaran=%d AND 
-									id_unik=%s
-									id_unik_indikator IS NOT NULL AND 
-									is_locked_indikator=0 AND
-									active=1
+								id_unik=%s AND
+								id_unik_indikator IS NOT NULL AND 
+								active=1
 							ORDER BY urut_sasaran DESC
 							", $tahun_anggaran, $_POST['id_unik']);
 						$indikator = $wpdb->get_results($sql, ARRAY_A);
@@ -1511,28 +1497,29 @@ class Wpsipd_Public_Base_3
 
 					$this->verify_indikator_sasaran_renstra($data);
 
-					$id_cek = $wpdb->get_var("
-						SELECT id FROM data_renstra_sasaran_lokal
-							WHERE indikator_teks='".$data['indikator_teks']."'
-										AND id_unik='".$data['id_unik']."'
-										AND id_unik_indikator IS NOT NULL
-										AND is_locked_indikator=0
-										AND status=1
-										AND active=1
-								");
+					$id_cek = $wpdb->get_var($wpdb->prepare("
+						SELECT 
+							id 
+						FROM data_renstra_sasaran_lokal
+						WHERE indikator_teks=%s
+							AND id_unik=%s
+							AND id_unik_indikator IS NOT NULL
+							AND active=1
+					", $data['indikator_teks'], $data['id_unik']));
 					
 					if(!empty($id_cek)){
 						throw new Exception('Indikator : '.$data['indikator_teks'].' sudah ada!');
 					}
 
-					$dataSasaran = $wpdb->get_row("
-						SELECT * FROM data_renstra_sasaran_lokal 
-							WHERE 
-								id_unik='".$data['id_unik']."' AND 
-								id_unik_indikator IS NULL AND 
-								is_locked=0 AND 
-								status=1 AND 
-								active=1");
+					$dataSasaran = $wpdb->get_row($wpdb->prepare("
+						SELECT 
+							* 
+						FROM data_renstra_sasaran_lokal 
+						WHERE 
+							id_unik=%s AND 
+							id_unik_indikator IS NULL AND 
+							active=1
+					", $data['id_unik']));
 
 					if (empty($dataSasaran)) {
 						throw new Exception('Sasaran yang dipilih tidak ditemukan!');
@@ -1626,15 +1613,16 @@ class Wpsipd_Public_Base_3
 			if (!empty($_POST)) {
 				if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
 					
-					$indikator = $wpdb->get_row("
-						SELECT * FROM data_renstra_sasaran_lokal 
-							WHERE 
-								id=".$_POST['id']." AND 
-								id_unik IS NOT NULL AND 
-								id_unik_indikator IS NOT NULL AND 
-								is_locked_indikator=0 AND 
-								status=1 AND 
-								active=1");
+					$indikator = $wpdb->get_row($wpdb->prepare("
+						SELECT 
+							* 
+						FROM data_renstra_sasaran_lokal 
+						WHERE 
+							id=%d AND 
+							id_unik IS NOT NULL AND 
+							id_unik_indikator IS NOT NULL AND 
+							active=1
+					", $_POST['id']));
 
 					echo json_encode([
 						'status' => true,
@@ -1666,27 +1654,28 @@ class Wpsipd_Public_Base_3
 
 					$this->verify_indikator_sasaran_renstra($data);
 
-					$id_cek = $wpdb->get_var("
-						SELECT id FROM data_renstra_sasaran_lokal
-							WHERE indikator_teks='".$data['indikator_teks']."'
-										AND id!=".$data['id']."
-										AND is_locked_indikator=0
-										AND status=1
-										AND active=1
-								");
+					$id_cek = $wpdb->get_var($wpdb->prepare("
+						SELECT 
+							id 
+						FROM data_renstra_sasaran_lokal
+						WHERE indikator_teks=%s
+							AND id!=%d
+							AND active=1
+					", $data['indikator_teks'], $data['id']));
 					
 					if(!empty($id_cek)){
 						throw new Exception('Indikator : '.$data['indikator_teks'].' sudah ada!');
 					}
 
-					$dataSasaran = $wpdb->get_row("
-						SELECT * FROM data_renstra_sasaran_lokal 
-							WHERE 
-								id_unik='".$data['id_unik']."' AND 
-								id_unik_indikator IS NULL AND 
-								is_locked=0 AND 
-								status=1 AND 
-								active=1");
+					$dataSasaran = $wpdb->get_row($wpdb->prepare("
+						SELECT 
+							* 
+						FROM data_renstra_sasaran_lokal 
+						WHERE 
+							id_unik=%s AND 
+							id_unik_indikator IS NULL AND 
+							active=1
+					", $data['id_unik']));
 
 					if (empty($dataSasaran)) {
 						throw new Exception('Sasaran yang dipilih tidak ditemukan!');
@@ -1775,12 +1764,14 @@ class Wpsipd_Public_Base_3
 			if (!empty($_POST)) {
 				if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
 					
-					$wpdb->get_results("
-						DELETE FROM data_renstra_sasaran_lokal 
-							WHERE 
-								id=".$_POST['id']." AND
-								id_unik_indikator IS NOT NULL AND 
-								active=1 AND status=1");
+					$wpdb->get_results($wpdb->prepare("
+						DELETE 
+						FROM data_renstra_sasaran_lokal 
+						WHERE 
+							id=%d AND
+							id_unik_indikator IS NOT NULL AND 
+							active=1
+					", $_POST['id']));
 
 					echo json_encode([
 						'status' => true,
@@ -1836,30 +1827,28 @@ class Wpsipd_Public_Base_3
 			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
 				if($_POST['type'] == 1){
 					$sql = $wpdb->prepare("
-						SELECT * FROM data_renstra_program_lokal
-							WHERE kode_sasaran='".$_POST['kode_sasaran']."' AND
-								id_unik IS NOT NULL and
-								id_unik_indikator IS NULL and
-								status=1 AND 
-								is_locked=0 AND 
-								active=1 ORDER BY id
-						");
+						SELECT 
+							* 
+						FROM data_renstra_program_lokal
+						WHERE kode_sasaran=%s AND
+							id_unik IS NOT NULL and
+							id_unik_indikator IS NULL and
+							active=1 ORDER BY id
+					", $_POST['kode_sasaran']);
 					$program = $wpdb->get_results($sql, ARRAY_A);
 				}else{
 					$tahun_anggaran = $_POST['tahun_anggaran'];
 					$sql = $wpdb->prepare("
-								SELECT 
-									* 
-								FROM data_renstra_program
-								WHERE tahun_anggaran=%d
-									kode_sasaran=%s
-									id_unik IS NOT NULL AND
-									id_unik_indikator IS NULL AND
-									status=1 AND 
-									is_locked=0 AND
-									active=1
-								ORDER BY id
-							", $tahun_anggaran, $_POST['kode_sasaran']);
+						SELECT 
+							* 
+						FROM data_renstra_program
+						WHERE tahun_anggaran=%d
+							kode_sasaran=%s
+							id_unik IS NOT NULL AND
+							id_unik_indikator IS NULL AND
+							active=1
+						ORDER BY id
+					", $tahun_anggaran, $_POST['kode_sasaran']);
 					$program = $wpdb->get_results($sql, ARRAY_A);
 				}
 
@@ -1900,8 +1889,6 @@ class Wpsipd_Public_Base_3
 						FROM data_renstra_program_lokal
 						WHERE nama_program=%s
 							AND kode_sasaran=%s
-							AND program_lock=0
-							AND status=1
 							AND active=1
 					", trim($data['program_teks']), $data['kode_sasaran']));
 
@@ -1913,9 +1900,7 @@ class Wpsipd_Public_Base_3
 						SELECT 
 							* 
 						FROM data_renstra_sasaran_lokal 
-						WHERE id_unik=%s 
-							AND is_locked=0 
-							AND status=1 
+						WHERE id_unik=%s
 							AND active=1
 					", $data['kode_sasaran']));
 
@@ -2004,9 +1989,7 @@ class Wpsipd_Public_Base_3
 					SELECT * FROM data_renstra_program_lokal
 					WHERE id_unik=%s
 						AND id_unik_indikator IS NULL
-						AND is_locked=0
 						AND active=1
-						AND status=1
 					", $_POST['id_unik']), ARRAY_A);
 
 				echo json_encode([
@@ -2045,8 +2028,6 @@ class Wpsipd_Public_Base_3
 						FROM data_renstra_program_lokal
 						WHERE nama_program=%s
 							AND id_unik!=%s
-							AND program_lock=0
-							AND status=1
 							AND active=1
 						", trim($data['program_teks']), $data['id_unik']));
 					
@@ -2061,8 +2042,6 @@ class Wpsipd_Public_Base_3
 						WHERE 
 							id_unik=%s AND 
 							id_unik_indikator IS NULL AND 
-							is_locked=0 AND 
-							status=1 AND 
 							active=1
 					", $data['kode_sasaran']));
 
@@ -2179,8 +2158,6 @@ class Wpsipd_Public_Base_3
 						WHERE kode_program=%s 
 							AND id_unik IS NOT NULL 
 							AND id_unik_indikator IS NULL 
-							AND is_locked=0 
-							AND status=1 
 							AND active=1
 					", $_POST['kode_program']));
 
@@ -2194,8 +2171,6 @@ class Wpsipd_Public_Base_3
 						FROM data_renstra_program_lokal 
 						WHERE id_unik=%s 
 							AND id_unik_indikator IS NOT NULL 
-							AND is_locked=0 
-							AND status=1 
 							AND active=1
 					", $_POST['kode_program']));
 
@@ -2259,13 +2234,14 @@ class Wpsipd_Public_Base_3
 
 					if($_POST['type'] == 1){
 						$sql = $wpdb->prepare("
-							SELECT * FROM data_renstra_program_lokal 
-								WHERE 
-									id_unik=%s AND 
-									id_unik_indikator IS NOT NULL AND 
-									is_locked_indikator=0 AND 
-									status=1 AND 
-									active=1", $_POST['kode_program']);
+							SELECT 
+								* 
+							FROM data_renstra_program_lokal 
+							WHERE 
+								id_unik=%s AND 
+								id_unik_indikator IS NOT NULL AND 
+								active=1
+						", $_POST['kode_program']);
 						$indikator = $wpdb->get_results($sql, ARRAY_A);
 					}else{
 						$tahun_anggaran = $_POST['tahun_anggaran'];
@@ -2274,11 +2250,10 @@ class Wpsipd_Public_Base_3
 								* 
 							FROM data_renstra_program
 							WHERE tahun_anggaran=%d AND 
-									id_unik=%s
-									id_unik_indikator IS NOT NULL AND 
-									is_locked_indikator=0 AND
-									active=1
-							", $tahun_anggaran, $_POST['kode_program']);
+								id_unik=%s
+								id_unik_indikator IS NOT NULL AND 
+								active=1
+						", $tahun_anggaran, $_POST['kode_program']);
 						$indikator = $wpdb->get_results($sql, ARRAY_A);
 					}
 
@@ -2320,8 +2295,6 @@ class Wpsipd_Public_Base_3
 						WHERE indikator=%s
 							AND id_unik=%s
 							AND id_unik_indikator IS NOT NULL
-							AND is_locked_indikator=0
-							AND status=1
 							AND active=1
 					", $data['indikator_teks'], $data['kode_program']));
 					
@@ -2334,8 +2307,6 @@ class Wpsipd_Public_Base_3
 							* 
 						FROM data_renstra_program_lokal 
 						WHERE id_unik=%s 
-							AND is_locked=0 
-							AND status=1 
 							AND active=1 
 							AND id_unik_indikator IS NULL
 					", $data['kode_program']));
@@ -2446,8 +2417,6 @@ class Wpsipd_Public_Base_3
 						WHERE id=%d 
 							AND id_unik=%s 
 							AND id_unik_indikator IS NOT NULL 
-							AND is_locked_indikator=0 
-							AND status=1 
 							AND active=1
 					", $_POST['id'], $_POST['kode_program']));
 
@@ -2489,8 +2458,6 @@ class Wpsipd_Public_Base_3
 							AND id!=%d
 							AND id_unik=%s
 							AND id_unik_indikator is not null
-							AND is_locked_indikator=0
-							AND status=1
 							AND active=1
 					", $data['indikator_teks'], $data['id'], $data['kode_program']));
 					
@@ -2503,8 +2470,6 @@ class Wpsipd_Public_Base_3
 							* 
 						FROM data_renstra_program_lokal 
 						WHERE id_unik=%s 
-							AND is_locked=0 
-							AND status=1 
 							AND active=1 
 							AND id_unik IS NOT NULL 
 							AND id_unik_indikator IS NULL
@@ -2607,7 +2572,6 @@ class Wpsipd_Public_Base_3
 						WHERE id=%d 
 							AND id_unik_indikator IS NOT NULL 
 							AND active=1 
-							AND status=1
 					", $_POST['id']));
 
 					echo json_encode([
@@ -2669,8 +2633,6 @@ class Wpsipd_Public_Base_3
 						WHERE kode_program=%s AND
 							id_unik IS NOT NULL and
 							id_unik_indikator IS NULL and
-							status=1 AND 
-							is_locked=0 AND 
 							active=1 ORDER BY id
 					", $_POST['kode_program']);
 					$kegiatan = $wpdb->get_results($sql, ARRAY_A);
@@ -2684,8 +2646,6 @@ class Wpsipd_Public_Base_3
 							kode_program=%s
 							id_unik IS NOT NULL AND
 							id_unik_indikator IS NULL AND
-							status=1 AND 
-							is_locked=0 AND
 							active=1
 					", $tahun_anggaran, $_POST['kode_program']);
 					$kegiatan = $wpdb->get_results($sql, ARRAY_A);
@@ -2772,8 +2732,6 @@ class Wpsipd_Public_Base_3
 						FROM data_renstra_kegiatan_lokal
 						WHERE id_giat=%d
 							AND kode_program=%s
-							AND giat_lock=0
-							AND status=1
 							AND active=1
 					", $data['id_kegiatan'], $data['kode_program']));
 
@@ -2787,8 +2745,6 @@ class Wpsipd_Public_Base_3
 						FROM data_renstra_program_lokal 
 						WHERE id_unik=%s 
 							AND id_unik_indikator IS NULL 
-							AND is_locked=0 
-							AND status=1 
 							AND active=1
 					", $data['kode_program']));
 
@@ -2938,8 +2894,6 @@ class Wpsipd_Public_Base_3
 						WHERE id_giat=%d
 							AND kode_program=%s
 							AND id!=%d
-							AND giat_lock=0
-							AND status=1
 							AND active=1
 					", $data['id_kegiatan'], $data['kode_program'], $data['id']));
 
@@ -2953,8 +2907,6 @@ class Wpsipd_Public_Base_3
 						FROM data_renstra_program_lokal 
 						WHERE id_unik=%s 
 							AND id_unik_indikator IS NULL 
-							AND is_locked=0 
-							AND status=1 
 							AND active=1
 					", $data['kode_program']));
 
@@ -3076,8 +3028,6 @@ class Wpsipd_Public_Base_3
 						FROM data_renstra_kegiatan_lokal 
 						WHERE id_unik=%s 
 							AND id_unik_indikator IS NOT NULL 
-							AND is_locked=0 
-							AND status=1 
 							AND active=1
 					", $_POST['id_unik']));
 
@@ -3130,8 +3080,6 @@ class Wpsipd_Public_Base_3
 						WHERE 
 							id_unik=%s AND 
 							id_unik_indikator IS NOT NULL AND 
-							is_locked_indikator=0 AND 
-							status=1 AND 
 							active=1
 						", $_POST['id_unik']);
 						$indikator = $wpdb->get_results($sql, ARRAY_A);
@@ -3142,11 +3090,10 @@ class Wpsipd_Public_Base_3
 								* 
 							FROM data_renstra_kegiatan
 							WHERE tahun_anggaran=%d AND 
-									id_unik=%s
-									id_unik_indikator IS NOT NULL AND 
-									is_locked_indikator=0 AND
-									active=1
-							", $tahun_anggaran, $_POST['id_unik']);
+								id_unik=%s
+								id_unik_indikator IS NOT NULL AND 
+								active=1
+						", $tahun_anggaran, $_POST['id_unik']);
 						$indikator = $wpdb->get_results($sql, ARRAY_A);
 					}
 
@@ -3188,8 +3135,6 @@ class Wpsipd_Public_Base_3
 						WHERE indikator=%s
 							AND id_unik=%s
 							AND id_unik_indikator IS NOT NULL
-							AND is_locked_indikator=0
-							AND status=1
 							AND active=1
 					", $data['indikator_teks'], $data['id_unik']));
 					
@@ -3202,8 +3147,6 @@ class Wpsipd_Public_Base_3
 							* 
 						FROM data_renstra_kegiatan_lokal 
 						WHERE id_unik=%s 
-							AND is_locked=0 
-							AND status=1 
 							AND active=1 
 							AND id_unik_indikator IS NULL
 					", $data['id_unik']));
@@ -3334,8 +3277,6 @@ class Wpsipd_Public_Base_3
 						WHERE id=%d 
 							AND id_unik=%s 
 							AND id_unik_indikator IS NOT NULL 
-							AND is_locked_indikator=0 
-							AND status=1 
 							AND active=1
 					", $_POST['id'], $_POST['kode_kegiatan']));
 
@@ -3377,8 +3318,6 @@ class Wpsipd_Public_Base_3
 							AND id_unik=%s
 							AND id!=%d
 							AND id_unik_indikator IS NOT NULL
-							AND is_locked_indikator=0
-							AND status=1
 							AND active=1
 					", $data['indikator_teks'], $data['id_unik'], $data['id']));
 					
@@ -3391,8 +3330,6 @@ class Wpsipd_Public_Base_3
 							* 
 						FROM data_renstra_kegiatan_lokal 
 						WHERE id_unik=%s 
-							AND is_locked=0 
-							AND status=1 
 							AND active=1 
 							AND id_unik_indikator IS NULL
 					", $data['id_unik']));

@@ -15513,9 +15513,9 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 					select 
 						* 
 					from data_rpd_tujuan
-					where active=1
 				";
 				$tujuan_all = $wpdb->get_results($sql, ARRAY_A);
+				$id_unik = $this->generateRandomString();
 				foreach ($tujuan_all as $tujuan) {
 					$table = 'data_rpd_tujuan_lokal';
 					$id_cek = $wpdb->get_var("
@@ -15528,8 +15528,8 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						'head_teks' => $tujuan['head_teks'],
 						'id_misi_old' => $tujuan['id_misi_old'],
 						'id_tujuan' => $tujuan['id_tujuan'],
-						'id_unik' => $tujuan['id_unik'],
-						'id_unik_indikator' => $tujuan['id_unik_indikator'],
+						'id_unik' => $id_unik,
+						'id_unik_indikator' => $this->generateRandomString(),
 						'indikator_teks' => $tujuan['indikator_teks'],
 						'is_locked' => $tujuan['is_locked'],
 						'is_locked_indikator' => $tujuan['is_locked_indikator'],
@@ -15552,7 +15552,8 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						'urut_saspok' => $tujuan['urut_saspok'],
 						'urut_tujuan' => $tujuan['urut_tujuan'],
 						'visi_teks' => $tujuan['visi_teks'],
-						'update_at' => $tujuan['update_at']
+						'update_at' => $tujuan['update_at'],
+						'active' => 1
 					);
 					if(!empty($id_cek)){
 						$wpdb->update($table, $data, array('id' => $id_cek));
@@ -15564,9 +15565,9 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 							* 
 						from data_rpd_sasaran
 						where kode_tujuan=%s
-							and active=1
 					", $tujuan['id_unik']);
 					$sasaran_all = $wpdb->get_results($sql, ARRAY_A);
+					$id_unik = $this->generateRandomString();
 					foreach ($sasaran_all as $sasaran) {
 						$table = 'data_rpd_sasaran_lokal';
 						$id_cek = $wpdb->get_var("
@@ -15579,8 +15580,8 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 							'head_teks' => $sasaran['head_teks'],
 							'id_misi_old' => $sasaran['id_misi_old'],
 							'id_sasaran' => $sasaran['id_sasaran'],
-							'id_unik' => $sasaran['id_unik'],
-							'id_unik_indikator' => $sasaran['id_unik_indikator'],
+							'id_unik' => $id_unik,
+							'id_unik_indikator' => $this->generateRandomString(),
 							'indikator_teks' => $sasaran['indikator_teks'],
 							'is_locked' => $sasaran['is_locked'],
 							'is_locked_indikator' => $sasaran['is_locked_indikator'],
@@ -15607,7 +15608,8 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 							'urut_saspok' => $sasaran['urut_saspok'],
 							'urut_tujuan' => $sasaran['urut_tujuan'],
 							'visi_teks' => $sasaran['visi_teks'],
-							'update_at' => $sasaran['update_at']
+							'update_at' => $sasaran['update_at'],
+							'active' => 1
 						);
 						if(!empty($id_cek)){
 							$wpdb->update($table, $data, array('id' => $id_cek));
@@ -15619,9 +15621,9 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 								* 
 							from data_rpd_program
 							where kode_sasaran=%s
-								and active=1
 						", $sasaran['id_unik']);
 						$program_all = $wpdb->get_results($sql, ARRAY_A);
+						$id_unik = $this->generateRandomString();
 						foreach ($program_all as $program) {
 							$table = 'data_rpd_program_lokal';
 							$id_cek = $wpdb->get_var("
@@ -15636,8 +15638,8 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 								'id_misi_old' => $program['id_misi_old'],
 								'id_program' => $program['id_program'],
 								'id_program_mth' => $program['id_program_mth'],
-								'id_unik' => $program['id_unik'],
-								'id_unik_indikator' => $program['id_unik_indikator'],
+								'id_unik' => $id_unik,
+								'id_unik_indikator' => $this->generateRandomString(),
 								'id_unit' => $program['id_unit'],
 								'indikator' => $program['indikator'],
 								'is_locked' => $program['is_locked'],
@@ -15676,7 +15678,8 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 								'urut_saspok' => $program['urut_saspok'],
 								'urut_tujuan' => $program['urut_tujuan'],
 								'visi_teks' => $program['visi_teks'],
-								'update_at' => $program['update_at']
+								'update_at' => $program['update_at'],
+								'active' => 1
 							);
 							if(!empty($id_cek)){
 								$wpdb->update($table, $data, array('id' => $id_cek));

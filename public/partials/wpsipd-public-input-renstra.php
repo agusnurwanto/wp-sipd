@@ -188,6 +188,7 @@ foreach ($tujuan_all as $keyTujuan => $tujuan_value) {
 					sasaran_teks
 				FROM ".$table." 
 				WHERE id_unik='{$tujuan_value['kode_sasaran_rpjm']}'
+					AND active=1
 			");
 			if(!empty($sasaran_rpjm)){
 				$data_all['data'][$tujuan_value['id_unik']]['status_rpjm'] = true;
@@ -406,13 +407,16 @@ if(!empty($sasaran_ids)){
 		SELECT 
 			* 
 		FROM data_renstra_sasaran_lokal
-		WHERE id_unik NOT IN (".implode(',', $sasaran_ids).") AND
-			id_unit=".$input['id_skpd'];
+		WHERE id_unik NOT IN (".implode(',', $sasaran_ids).") 
+			AND active=1
+			AND id_unit=".$input['id_skpd'];
 }else{
 	$sql = "
 		SELECT 
 			* 
-		FROM data_renstra_sasaran_lokal WHERE id_unit=".$input['id_skpd'];
+		FROM data_renstra_sasaran_lokal 
+		WHERE active=1
+			AND id_unit=".$input['id_skpd'];
 }
 $sasaran_all_kosong = $wpdb->get_results($sql, ARRAY_A);
 
@@ -449,13 +453,13 @@ foreach ($sasaran_all_kosong as $keySasaran => $sasaran_value) {
 	if(empty($sasaran_value['id_unik_indikator'])){
 
 		$program_all = $wpdb->get_results($wpdb->prepare("
-						SELECT 
-							* 
-						FROM data_renstra_program_lokal 
-						WHERE 
-							kode_sasaran=%s AND 
-							active=1 ORDER BY id",
-							$sasaran_value['id_unik']), ARRAY_A);
+			SELECT 
+				* 
+			FROM data_renstra_program_lokal 
+			WHERE 
+				kode_sasaran=%s AND 
+				active=1 ORDER BY id
+			", $sasaran_value['id_unik']), ARRAY_A);
 
 		foreach ($program_all as $keyProgram => $program_value) {
 			if(empty($data_all['data']['tujuan_kosong']['data'][$sasaran_value['id_unik']]['data'][$program_value['id_unik']])){
@@ -493,16 +497,14 @@ foreach ($sasaran_all_kosong as $keySasaran => $sasaran_value) {
 
 			if(empty($program_value['id_unik_indikator'])){
 				$kegiatan_all = $wpdb->get_results($wpdb->prepare("
-										SELECT 
-												* 
-											FROM data_renstra_kegiatan_lokal 
-											WHERE 
-												kode_program=%s AND 
-												kode_sasaran=%s AND
-												active=1 ORDER BY id",
-												$program_value['id_unik'],
-												$sasaran_value['id_unik']
-											), ARRAY_A);
+					SELECT 
+						* 
+					FROM data_renstra_kegiatan_lokal 
+					WHERE 
+						kode_program=%s AND 
+						kode_sasaran=%s AND
+						active=1 ORDER BY id
+				", $program_value['id_unik'], $sasaran_value['id_unik'] ), ARRAY_A);
 
 				foreach ($kegiatan_all as $keyKegiatan => $kegiatan_value) {
 										
@@ -550,12 +552,16 @@ if(!empty($program_ids)){
 		SELECT 
 			* 
 		FROM data_renstra_program_lokal
-		WHERE id_unik NOT IN (".implode(',', $program_ids).") AND id_unit=".$input['id_skpd'];
+		WHERE id_unik NOT IN (".implode(',', $program_ids).") 
+			AND active=1
+			AND id_unit=".$input['id_skpd'];
 }else{
 	$sql = "
 		SELECT 
 			* 
-		FROM data_renstra_program_lokal WHERE id_unit=".$input['id_skpd'];
+		FROM data_renstra_program_lokal 
+		WHERE active=1
+			AND id_unit=".$input['id_skpd'];
 }
 $program_all_kosong = $wpdb->get_results($sql, ARRAY_A);
 
@@ -594,11 +600,14 @@ foreach ($program_all_kosong as $keyProgram => $program_value) {
 	}
 
 	if(empty($program_value['id_unik_indikator'])){
-		$kegiatan_all = $wpdb->get_results($wpdb->prepare("SELECT *  FROM data_renstra_kegiatan_lokal WHERE 
-												kode_program=%s AND 
-												active=1 ORDER BY id",
-												$program_value['id_unik']
-											), ARRAY_A);
+		$kegiatan_all = $wpdb->get_results($wpdb->prepare("
+			SELECT 
+				*  
+			FROM data_renstra_kegiatan_lokal 
+			WHERE 
+				kode_program=%s AND 
+				active=1 ORDER BY id
+		", $program_value['id_unik']), ARRAY_A);
 
 		foreach ($kegiatan_all as $keyKegiatan => $kegiatan_value) {									
 			if(empty($data_all['data']['tujuan_kosong']['data']['sasaran_kosong']['data'][$program_value['id_unik']]['data'][$kegiatan_value['id_unik']])){
@@ -642,12 +651,16 @@ if(!empty($kegiatan_ids)){
 		SELECT 
 			* 
 		FROM data_renstra_kegiatan_lokal
-		WHERE id_unik NOT IN (".implode(',', $kegiatan_ids).") AND id_unit=".$input['id_skpd'];
+		WHERE id_unik NOT IN (".implode(',', $kegiatan_ids).") 
+			AND active=1
+			AND id_unit=".$input['id_skpd'];
 }else{
 	$sql = "
 		SELECT 
 			* 
-		FROM data_renstra_kegiatan_lokal WHERE id_unit=".$input['id_skpd'];
+		FROM data_renstra_kegiatan_lokal 
+		WHERE active=1
+			AND id_unit=".$input['id_skpd'];
 }
 $kegiatan_all = $wpdb->get_results($sql, ARRAY_A);
 
