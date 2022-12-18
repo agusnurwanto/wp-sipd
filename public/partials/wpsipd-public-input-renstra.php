@@ -1377,7 +1377,7 @@ foreach ($data_all['data'] as $tujuan) {
 						&& response.tujuan_parent_selected[0]
 					){
 						pilihTujuanRpjm(document.getElementById('tujuan-rpjm'), function(){
-							jQuery('#sasaran-rpjm').val(response.tujuan_parent_selected[0].id_unik_sasaran+'|'+<?php echo $relasi_perencanaan; ?>);
+							jQuery('#sasaran-rpjm').val(response.tujuan_parent_selected[0].id_unik_sasaran);
 						});
 					}
 				}else{
