@@ -2648,7 +2648,10 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
 			dataType: "json",
 			success: function(res){
 				jQuery('#wrap-loading').hide();
-				console.log(res)
+				if(res.cek.length != 0){
+					edit_val = true;
+					refresh_page();
+				}
 			}
 		});
 	}
@@ -2725,10 +2728,14 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
 	});
 
 	jQuery('#modal-monev').on('hidden.bs.modal', function () {
+		refresh_page();
+	});
+
+	function refresh_page() {
 		if(edit_val){
 			if(confirm('Ada data yang berubah, apakah mau merefresh halaman ini?')){
 	    		window.location = "";
 			}
 	    }
-	});
+	}
 </script>

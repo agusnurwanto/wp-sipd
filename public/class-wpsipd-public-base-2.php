@@ -526,21 +526,78 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 			'status'	=> 'success',
 			'action'	=> $_POST['action'],
 			'data'		=> array(),
-			'cek_query' => array()
+			'cek' 		=> array()
 		);
 		if(!empty($_POST)){
 			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
 				
-				$data_renstra_program = $wpdb->get_results($wpdb->prepare('
-					SELECT
-						*
-					FROM 
-						data_renstra_program_lokal')
+				$data_sasaran_rpd_history = $wpdb->get_results($wpdb->prepare(
+					'SELECT DISTINCT id_unik
+					FROM data_rpd_sasaran_lokal_history
+					WHERE status=%d',
+					1)
 					,ARRAY_A);
 
-				$ret['data'] = $data_renstra_program;
+				$rpd_history = array();
+				foreach($data_sasaran_rpd_history as $v_rpd_history){
+					array_push($rpd_history, $v_rpd_history['id_unik']);
+				}
+				$rpd_history = implode(",",$rpd_history);
 
-				$ret['cek_query'] = $wpdb->last_query;				
+				//mencari data program renstra yang terhubung ke rpd
+				$data_renstra_program = $wpdb->get_results($wpdb->prepare(
+					'SELECT
+						p.*,
+						t.kode_sasaran_rpjm
+					FROM data_renstra_program_lokal p
+					INNER JOIN data_renstra_tujuan_lokal t
+					ON p.kode_tujuan = t.id_unik
+					WHERE 
+						p.program_lock=%d AND
+						p.status=%d AND
+						p.active=%d AND
+						t.kode_sasaran_rpjm IN (%s)',
+					0,1,1,$rpd_history)
+					,ARRAY_A);
+				
+				$wpdb->query( $wpdb->prepare(
+					'UPDATE data_rpd_program_lokal
+						SET active = %d',
+						0)
+				);
+
+				//update dan insert data program ke rpd
+				foreach($data_renstra_program as $v_renstra){
+					$data_rpd_same_program = $wpdb->get_results($wpdb->prepare(
+						'SELECT id_unik,id_program 
+						FROM data_rpd_program_lokal 
+						WHERE 
+							id_program=%d AND 
+							kode_sasaran=%s',
+						$v_renstra['id_program'],$v_renstra['kode_sasaran_rpjm'])
+						,ARRAY_A);
+
+					$nama_program = explode(" ", $v_renstra['nama_program']);
+					$deleted_name_program = array_shift($nama_program);
+					$nama_program = implode(" ", $nama_program);
+
+					$data = array(
+							'kode_sasaran' 	=> $v_renstra['kode_sasaran_rpjm'],
+							'nama_program' 	=> $nama_program,
+							'id_program'	=> $v_renstra['id_program'],
+							'update_at' 	=> current_time('mysql'),
+							'active'		=> 1
+						);
+					if(!empty($data_rpd_same_program)){
+						$wpdb->update('data_rpd_program_lokal', $data, array('id_unik' => $data_rpd_same_program[0]['id_unik']));
+					}else{
+						$ret['cek'][$v_renstra['id_program']] = $v_renstra;
+						$data['id_unik'] = time().'-'.$this->generateRandomString(5);
+						$wpdb->insert('data_rpd_program_lokal', $data);
+					}
+				}
+
+				$ret['data'] = $data_renstra_program;				
 
 			}else{
 				$ret['status'] = 'error';
