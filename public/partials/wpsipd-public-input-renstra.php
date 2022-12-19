@@ -1435,15 +1435,15 @@ foreach ($data_all['data'] as $tujuan) {
 					+'<input type="hidden" name="id_unik" value="'+id_unik+'">'
 					+'<input type="hidden" name="lama_pelaksanaan" value="<?php echo $lama_pelaksanaan; ?>">'
 					+'<div class="form-group">'
-						+'<label for="indikator_teks">Indikator</label>'
-		  				+'<textarea class="form-control" name="indikator_teks"></textarea>'
-					+'</div>'
-					+'<div class="form-group">'
 						+'<div class="row">'
 							+'<div class="col-md-6">'
 								+'<div class="card">'
 									+'<div class="card-header">Usulan</div>'
 									+'<div class="card-body">'
+										+'<div class="form-group">'
+											+'<label for="indikator_teks_usulan">Indikator</label>'
+							  				+'<textarea class="form-control" name="indikator_teks_usulan"></textarea>'
+										+'</div>'
 										+'<div class="form-group">'
 											+'<label for="satuan_usulan">Satuan</label>'
 							  				+'<input type="text" class="form-control" name="satuan_usulan"/>'
@@ -1473,6 +1473,10 @@ foreach ($data_all['data'] as $tujuan) {
 								+'<div class="card">'
 									+'<div class="card-header">Penetapan</div>'
 									+'<div class="card-body">'
+										+'<div class="form-group">'
+											+'<label for="indikator_teks">Indikator</label>'
+							  				+'<textarea class="form-control" name="indikator_teks" <?php echo $disabled; ?> ></textarea>'
+										+'</div>'
 										+'<div class="form-group">'
 											+'<label for="satuan">Satuan</label>'
 							  				+'<input type="text" class="form-control" name="satuan" <?php echo $disabled; ?> />'
@@ -1551,15 +1555,15 @@ foreach ($data_all['data'] as $tujuan) {
 					+'<input type="hidden" name="id_unik" value="'+id_unik+'">'
 					+'<input type="hidden" name="lama_pelaksanaan" value="<?php echo $lama_pelaksanaan; ?>">'
 					+'<div class="form-group">'
-						+'<label for="indikator_teks">Indikator</label>'
-	  					+'<textarea class="form-control" name="indikator_teks">'+response.data.indikator_teks+'</textarea>'
-					+'</div>'
-					+'<div class="form-group">'
 						+'<div class="row">'
 							+'<div class="col-md-6">'
 								+'<div class="card">'
 									+'<div class="card-header">Usulan</div>'
 									+'<div class="card-body">'
+										+'<div class="form-group">'
+											+'<label for="indikator_teks_usulan">Indikator</label>'
+						  					+'<textarea class="form-control" name="indikator_teks_usulan">'+response.data.indikator_teks_usulan+'</textarea>'
+										+'</div>'
 										+'<div class="form-group">'
 											+'<label for="satuan_usulan">Satuan</label>'
 							  				+'<input type="text" class="form-control" name="satuan_usulan" value="'+response.data.satuan_usulan+'" />'
@@ -1589,6 +1593,10 @@ foreach ($data_all['data'] as $tujuan) {
 								+'<div class="card">'
 									+'<div class="card-header">Penetapan</div>'
 									+'<div class="card-body">'
+										+'<div class="form-group">'
+											+'<label for="indikator_teks">Indikator</label>'
+						  					+'<textarea class="form-control" name="indikator_teks" <?php echo $disabled; ?> >'+response.data.indikator_teks+'</textarea>'
+										+'</div>'
 										+'<div class="form-group">'
 											+'<label for="satuan">Satuan</label>'
 							  				+'<input type="text" class="form-control" name="satuan" value="'+response.data.satuan+'" <?php echo $disabled; ?> />'
@@ -1844,15 +1852,15 @@ foreach ($data_all['data'] as $tujuan) {
 					+'<input type="hidden" name="id_unik" value="'+id_unik+'">'
 					+'<input type="hidden" name="lama_pelaksanaan" value="<?php echo $lama_pelaksanaan; ?>">'
 					+'<div class="form-group">'
-						+'<label for="indikator_teks">Indikator</label>'
-		  				+'<textarea class="form-control" name="indikator_teks"></textarea>'
-					+'</div>'
-					+'<div class="form-group">'
 						+'<div class="row">'
 							+'<div class="col-md-6">'
 								+'<div class="card">'
 									+'<div class="card-header">Usulan</div>'
 									+'<div class="card-body">'
+										+'<div class="form-group">'
+											+'<label for="indikator_teks_usulan">Indikator</label>'
+							  				+'<textarea class="form-control" name="indikator_teks_usulan"></textarea>'
+										+'</div>'
 										+'<div class="form-group">'
 											+'<label for="satuan_usulan">Satuan</label>'
 							  				+'<input type="text" class="form-control" name="satuan_usulan"/>'
@@ -1882,6 +1890,10 @@ foreach ($data_all['data'] as $tujuan) {
 								+'<div class="card">'
 									+'<div class="card-header">Penetapan</div>'
 									+'<div class="card-body">'
+										+'<div class="form-group">'
+											+'<label for="indikator_teks">Indikator</label>'
+							  				+'<textarea class="form-control" name="indikator_teks" <?php echo $disabled; ?>></textarea>'
+										+'</div>'
 										+'<div class="form-group">'
 											+'<label for="satuan">Satuan</label>'
 							  				+'<input type="text" class="form-control" name="satuan" <?php echo $disabled; ?> />'
@@ -1961,15 +1973,15 @@ foreach ($data_all['data'] as $tujuan) {
 						+'<input type="hidden" name="id_unik" value="'+id_unik+'">'
 						+'<input type="hidden" name="lama_pelaksanaan" value="<?php echo $lama_pelaksanaan; ?>">'
 						+'<div class="form-group">'
-							+'<label for="indikator_teks">Indikator</label>'
-		  					+'<textarea class="form-control" name="indikator_teks">'+response.data.indikator_teks+'</textarea>'
-						+'</div>'
-						+'<div class="form-group">'
 							+'<div class="row">'
 								+'<div class="col-md-6">'
 									+'<div class="card">'
 										+'<div class="card-header">Usulan</div>'
 										+'<div class="card-body">'
+											+'<div class="form-group">'
+												+'<label for="indikator_teks_usulan">Indikator</label>'
+							  					+'<textarea class="form-control" name="indikator_teks_usulan">'+response.data.indikator_teks_usulan+'</textarea>'
+											+'</div>'
 											+'<div class="form-group">'
 												+'<label for="satuan_usulan">Satuan</label>'
 								  				+'<input type="text" class="form-control" name="satuan_usulan" value="'+response.data.satuan_usulan+'" />'
@@ -1999,6 +2011,10 @@ foreach ($data_all['data'] as $tujuan) {
 									+'<div class="card">'
 										+'<div class="card-header">Penetapan</div>'
 										+'<div class="card-body">'
+											+'<div class="form-group">'
+												+'<label for="indikator_teks">Indikator</label>'
+							  					+'<textarea class="form-control" name="indikator_teks" <?php echo $disabled; ?>>'+response.data.indikator_teks+'</textarea>'
+											+'</div>'
 											+'<div class="form-group">'
 												+'<label for="satuan">Satuan</label>'
 								  				+'<input type="text" class="form-control" name="satuan" value="'+response.data.satuan+'" <?php echo $disabled; ?> />'
@@ -2294,15 +2310,15 @@ foreach ($data_all['data'] as $tujuan) {
 						+'<input type="hidden" name="kode_program" value='+kode_program+'>'
 						+'<input type="hidden" name="lama_pelaksanaan" value="<?php echo $lama_pelaksanaan; ?>">'
 						+'<div class="form-group">'
-							+'<label for="indikator_teks">Indikator</label>'
-			  			+'<textarea class="form-control" name="indikator_teks"></textarea>'
-						+'</div>'
-						+'<div class="form-group">'
 							+'<div class="row">'
 								+'<div class="col-md-6">'
 									+'<div class="card">'
 										+'<div class="card-header">Usulan</div>'
 										+'<div class="card-body">'
+											+'<div class="form-group">'
+												+'<label for="indikator_teks_usulan">Indikator</label>'
+								  			+'<textarea class="form-control" name="indikator_teks_usulan"></textarea>'
+											+'</div>'
 											+'<div class="form-group">'
 												+'<label for="satuan_usulan">Satuan</label>'
 								  				+'<input type="text" class="form-control" name="satuan_usulan"/>'
@@ -2332,6 +2348,10 @@ foreach ($data_all['data'] as $tujuan) {
 									+'<div class="card">'
 										+'<div class="card-header">Penetapan</div>'
 										+'<div class="card-body">'
+											+'<div class="form-group">'
+												+'<label for="indikator_teks">Indikator</label>'
+								  			+'<textarea class="form-control" name="indikator_teks" <?php echo $disabled; ?>></textarea>'
+											+'</div>'
 											+'<div class="form-group">'
 												+'<label for="satuan">Satuan</label>'
 								  				+'<input type="text" class="form-control" name="satuan" <?php echo $disabled; ?> />'
@@ -2406,15 +2426,15 @@ foreach ($data_all['data'] as $tujuan) {
 						+'<input type="hidden" name="kode_program" value="'+kode_program+'">'
 						+'<input type="hidden" name="lama_pelaksanaan" value="<?php echo $lama_pelaksanaan; ?>">'
 						+'<div class="form-group">'
-							+'<label for="indikator_teks">Indikator</label>'
-		  					+'<textarea class="form-control" name="indikator_teks">'+response.data.indikator+'</textarea>'
-						+'</div>'
-						+'<div class="form-group">'
 							+'<div class="row">'
 								+'<div class="col-md-6">'
 									+'<div class="card">'
 										+'<div class="card-header">Usulan</div>'
 										+'<div class="card-body">'
+											+'<div class="form-group">'
+												+'<label for="indikator_teks_usulan">Indikator</label>'
+							  					+'<textarea class="form-control" name="indikator_teks_usulan">'+response.data.indikator_usulan+'</textarea>'
+											+'</div>'
 											+'<div class="form-group">'
 												+'<label for="satuan_usulan">Satuan</label>'
 								  				+'<input type="text" class="form-control" name="satuan_usulan" value="'+response.data.satuan_usulan+'" />'
@@ -2444,6 +2464,10 @@ foreach ($data_all['data'] as $tujuan) {
 									+'<div class="card">'
 										+'<div class="card-header">Penetapan</div>'
 										+'<div class="card-body">'
+											+'<div class="form-group">'
+												+'<label for="indikator_teks">Indikator</label>'
+							  					+'<textarea class="form-control" name="indikator_teks" <?php echo $disabled; ?>>'+response.data.indikator+'</textarea>'
+											+'</div>'
 											+'<div class="form-group">'
 												+'<label for="satuan">Satuan</label>'
 								  				+'<input type="text" class="form-control" name="satuan" value="'+response.data.satuan+'" <?php echo $disabled; ?> />'
@@ -2723,79 +2747,83 @@ foreach ($data_all['data'] as $tujuan) {
 			+'<input type="hidden" name="id_unik" value="'+id_unik+'">'
 			+'<input type="hidden" name="lama_pelaksanaan" value="<?php echo $lama_pelaksanaan; ?>">'
 			+'<div class="form-group">'
-				+'<label for="indikator_teks">Indikator</label>'
-  				+'<textarea class="form-control" name="indikator_teks"></textarea>'
-			+'</div>'
-			+'<div class="form-group">'
-					+'<div class="row">'
-						+'<div class="col-md-6">'
-							+'<div class="card">'
-								+'<div class="card-header">Usulan</div>'
-								+'<div class="card-body">'
-									+'<div class="form-group">'
-										+'<label for="satuan_usulan">Satuan</label>'
-						  				+'<input type="text" class="form-control" name="satuan_usulan"/>'
-									+'</div>'
-									+'<div class="form-group">'
-										+'<label for="target_awal_usulan">Target awal</label>'
-						  				+'<input type="number" class="form-control" name="target_awal_usulan"/>'
-									+'</div>'
-									<?php for($i=1; $i<=$lama_pelaksanaan; $i++){ ?>
-									+'<div class="form-group">'
-										+'<label for="target_<?php echo $i; ?>_usulan">Target tahun ke-<?php echo $i; ?></label>'
-						  				+'<input type="number" class="form-control" name="target_<?php echo $i; ?>_usulan"/>'
-									+'</div>'
-									+'<div class="form-group">'
-										+'<label for="pagu_<?php echo $i; ?>_usulan">Pagu <?php echo $i; ?></label>'
-						  				+'<input type="number" class="form-control" name="pagu_<?php echo $i; ?>_usulan"/>'
-									+'</div>'
-									<?php }; ?>
-									+'<div class="form-group">'
-										+'<label for="target_akhir_usulan">Target akhir</label>'
-						  				+'<input type="number" class="form-control" name="target_akhir_usulan"/>'
-									+'</div>'
-									+'<div class="form-group">'
-										+'<label for="catatan_usulan">Catatan</label>'
-						  				+'<textarea class="form-control" name="catatan_usulan" <?php echo $disabled_admin; ?>></textarea>'
-									+'</div>'
+				+'<div class="row">'
+					+'<div class="col-md-6">'
+						+'<div class="card">'
+							+'<div class="card-header">Usulan</div>'
+							+'<div class="card-body">'
+								+'<div class="form-group">'
+									+'<label for="indikator_teks_usulan">Indikator</label>'
+					  				+'<textarea class="form-control" name="indikator_teks_usulan"></textarea>'
+								+'</div>'
+								+'<div class="form-group">'
+									+'<label for="satuan_usulan">Satuan</label>'
+					  				+'<input type="text" class="form-control" name="satuan_usulan"/>'
+								+'</div>'
+								+'<div class="form-group">'
+									+'<label for="target_awal_usulan">Target awal</label>'
+					  				+'<input type="number" class="form-control" name="target_awal_usulan"/>'
+								+'</div>'
+								<?php for($i=1; $i<=$lama_pelaksanaan; $i++){ ?>
+								+'<div class="form-group">'
+									+'<label for="target_<?php echo $i; ?>_usulan">Target tahun ke-<?php echo $i; ?></label>'
+					  				+'<input type="number" class="form-control" name="target_<?php echo $i; ?>_usulan"/>'
+								+'</div>'
+								+'<div class="form-group">'
+									+'<label for="pagu_<?php echo $i; ?>_usulan">Pagu <?php echo $i; ?></label>'
+					  				+'<input type="number" class="form-control" name="pagu_<?php echo $i; ?>_usulan"/>'
+								+'</div>'
+								<?php }; ?>
+								+'<div class="form-group">'
+									+'<label for="target_akhir_usulan">Target akhir</label>'
+					  				+'<input type="number" class="form-control" name="target_akhir_usulan"/>'
+								+'</div>'
+								+'<div class="form-group">'
+									+'<label for="catatan_usulan">Catatan</label>'
+					  				+'<textarea class="form-control" name="catatan_usulan" <?php echo $disabled_admin; ?>></textarea>'
 								+'</div>'
 							+'</div>'
 						+'</div>'
-						+'<div class="col-md-6">'
-							+'<div class="card">'
-								+'<div class="card-header">Penetapan</div>'
-								+'<div class="card-body">'
-									+'<div class="form-group">'
-										+'<label for="satuan">Satuan</label>'
-						  				+'<input type="text" class="form-control" name="satuan" <?php echo $disabled; ?> />'
-									+'</div>'
-									+'<div class="form-group">'
-										+'<label for="target_awal">Target awal</label>'
-						  				+'<input type="number" class="form-control" name="target_awal" <?php echo $disabled; ?>/>'
-									+'</div>'
-									<?php for($i=1; $i<=$lama_pelaksanaan; $i++){ ?>
-									+'<div class="form-group">'
-										+'<label for="target_<?php echo $i; ?>">Target tahun ke-<?php echo $i; ?></label>'
-						  				+'<input type="number" class="form-control" name="target_<?php echo $i; ?>" <?php echo $disabled; ?>/>'
-									+'</div>'
-									+'<div class="form-group">'
-										+'<label for="pagu_<?php echo $i; ?>">Pagu <?php echo $i; ?></label>'
-						  				+'<input type="number" class="form-control" name="pagu_<?php echo $i; ?>" <?php echo $disabled; ?>/>'
-									+'</div>'
-									<?php }; ?>
-									+'<div class="form-group">'
-										+'<label for="target_akhir">Target akhir</label>'
-						  				+'<input type="number" class="form-control" name="target_akhir" <?php echo $disabled; ?>/>'
-									+'</div>'
-									+'<div class="form-group">'
-										+'<label for="catatan">Catatan</label>'
-						  				+'<textarea class="form-control" name="catatan" <?php echo $disabled; ?>></textarea>'
-									+'</div>'
+					+'</div>'
+					+'<div class="col-md-6">'
+						+'<div class="card">'
+							+'<div class="card-header">Penetapan</div>'
+							+'<div class="card-body">'
+								+'<div class="form-group">'
+									+'<label for="indikator_teks">Indikator</label>'
+					  				+'<textarea class="form-control" name="indikator_teks" <?php echo $disabled; ?>></textarea>'
+								+'</div>'
+								+'<div class="form-group">'
+									+'<label for="satuan">Satuan</label>'
+					  				+'<input type="text" class="form-control" name="satuan" <?php echo $disabled; ?> />'
+								+'</div>'
+								+'<div class="form-group">'
+									+'<label for="target_awal">Target awal</label>'
+					  				+'<input type="number" class="form-control" name="target_awal" <?php echo $disabled; ?>/>'
+								+'</div>'
+								<?php for($i=1; $i<=$lama_pelaksanaan; $i++){ ?>
+								+'<div class="form-group">'
+									+'<label for="target_<?php echo $i; ?>">Target tahun ke-<?php echo $i; ?></label>'
+					  				+'<input type="number" class="form-control" name="target_<?php echo $i; ?>" <?php echo $disabled; ?>/>'
+								+'</div>'
+								+'<div class="form-group">'
+									+'<label for="pagu_<?php echo $i; ?>">Pagu <?php echo $i; ?></label>'
+					  				+'<input type="number" class="form-control" name="pagu_<?php echo $i; ?>" <?php echo $disabled; ?>/>'
+								+'</div>'
+								<?php }; ?>
+								+'<div class="form-group">'
+									+'<label for="target_akhir">Target akhir</label>'
+					  				+'<input type="number" class="form-control" name="target_akhir" <?php echo $disabled; ?>/>'
+								+'</div>'
+								+'<div class="form-group">'
+									+'<label for="catatan">Catatan</label>'
+					  				+'<textarea class="form-control" name="catatan" <?php echo $disabled; ?>></textarea>'
 								+'</div>'
 							+'</div>'
 						+'</div>'
 					+'</div>'
 				+'</div>'
+			+'</div>'
 		+'</form>';
 
 		indikatorKegiatanModal.find('.modal-title').html('Tambah Indikator');
@@ -2848,15 +2876,15 @@ foreach ($data_all['data'] as $tujuan) {
 					+'<input type="hidden" name="id_unik" value="'+kode_kegiatan+'">'
 					+'<input type="hidden" name="lama_pelaksanaan" value="<?php echo $lama_pelaksanaan; ?>">'
 					+'<div class="form-group">'
-						+'<label for="indikator_teks">Indikator</label>'
-	  					+'<textarea class="form-control" name="indikator_teks">'+response.data.indikator+'</textarea>'
-					+'</div>'
-					+'<div class="form-group">'
 						+'<div class="row">'
 							+'<div class="col-md-6">'
 								+'<div class="card">'
 									+'<div class="card-header">Usulan</div>'
 									+'<div class="card-body">'
+										+'<div class="form-group">'
+											+'<label for="indikator_teks_usulan">Indikator</label>'
+						  					+'<textarea class="form-control" name="indikator_teks_usulan">'+response.data.indikator_usulan+'</textarea>'
+										+'</div>'
 										+'<div class="form-group">'
 											+'<label for="satuan_usulan">Satuan</label>'
 							  				+'<input type="text" class="form-control" name="satuan_usulan" value="'+response.data.satuan_usulan+'" />'
@@ -2890,6 +2918,10 @@ foreach ($data_all['data'] as $tujuan) {
 								+'<div class="card">'
 									+'<div class="card-header">Penetapan</div>'
 									+'<div class="card-body">'
+										+'<div class="form-group">'
+											+'<label for="indikator_teks">Indikator</label>'
+						  					+'<textarea class="form-control" name="indikator_teks" <?php echo $disabled; ?>>'+response.data.indikator+'</textarea>'
+										+'</div>'
 										+'<div class="form-group">'
 											+'<label for="satuan">Satuan</label>'
 							  				+'<input type="text" class="form-control" name="satuan" value="'+response.data.satuan+'" <?php echo $disabled; ?> />'
@@ -3305,13 +3337,13 @@ foreach ($data_all['data'] as $tujuan) {
 		          			html +=''
 		          				+"<tr>"
 					          		+"<td class='text-center' rowspan='2'>"+(index+1)+"</td>"
-					          		+"<td rowspan='2'>"+value.indikator_teks+"</td>"
+					          		+"<td>"+value.indikator_teks+"</td>"
 					          		+"<td>"+value.satuan+"</td>"
-					          		+"<td>"+value.target_awal+"</td>"
+					          		+"<td class='text-center'>"+value.target_awal+"</td>"
 					          		<?php for($i=1; $i<=$lama_pelaksanaan; $i++){ ?>
-									+"<td>"+value.target_<?php echo $i; ?>+"</td>"
+									+"<td class='text-center'>"+value.target_<?php echo $i; ?>+"</td>"
 									<?php }; ?>
-					          		+"<td>"+value.target_akhir+"</td>"
+					          		+"<td class='text-center'>"+value.target_akhir+"</td>"
 					          		+"<td><b>Penetapan</b><br>"+value.catatan+"</td>"
 					          		+"<td class='text-center' rowspan='2'>"
 					          			+"<a href='#' class='btn btn-sm btn-success btn-edit-indikator-tujuan' data-id='"+value.id+"' data-idunik='"+value.id_unik+"'><i class='dashicons dashicons-edit' style='margin-top: 3px;'></i></a>&nbsp"
@@ -3319,12 +3351,13 @@ foreach ($data_all['data'] as $tujuan) {
 					          		+"</td>"
 					          	+"</tr>"
 		          				+"<tr>"
+					          		+"<td>"+value.indikator_teks_usulan+"</td>"
 					          		+"<td>"+value.satuan_usulan+"</td>"
-					          		+"<td>"+value.target_awal_usulan+"</td>"
+					          		+"<td class='text-center'>"+value.target_awal_usulan+"</td>"
 					          		<?php for($i=1; $i<=$lama_pelaksanaan; $i++){ ?>
-									+"<td>"+value.target_<?php echo $i; ?>_usulan+"</td>"
+									+"<td class='text-center'>"+value.target_<?php echo $i; ?>_usulan+"</td>"
 									<?php }; ?>
-					          		+"<td>"+value.target_akhir_usulan+"</td>"
+					          		+"<td class='text-center'>"+value.target_akhir_usulan+"</td>"
 					          		+"<td><b>Usulan</b><br>"+value.catatan_usulan+"</td>"
 					          	+"</tr>";
 		          		});
@@ -3501,13 +3534,13 @@ foreach ($data_all['data'] as $tujuan) {
 		          			html +=''
 	          				+"<tr>"
 				          		+"<td class='text-center' rowspan='2'>"+(index+1)+"</td>"
-				          		+"<td rowspan='2'>"+value.indikator_teks+"</td>"
+				          		+"<td>"+value.indikator_teks+"</td>"
 				          		+"<td>"+value.satuan+"</td>"
-				          		+"<td>"+value.target_awal+"</td>"
+				          		+"<td class='text-center'>"+value.target_awal+"</td>"
 				          		<?php for($i=1; $i<=$lama_pelaksanaan; $i++){ ?>
-								+"<td>"+value.target_<?php echo $i; ?>+"</td>"
+								+"<td class='text-center'>"+value.target_<?php echo $i; ?>+"</td>"
 								<?php }; ?>
-				          		+"<td>"+value.target_akhir+"</td>"
+				          		+"<td class='text-center'>"+value.target_akhir+"</td>"
 				          		+"<td><b>Penetapan</b><br>"+value.catatan+"</td>"
 				          		+"<td class='text-center' rowspan='2'>"
 				          			+"<a href='#' class='btn btn-sm btn-success btn-edit-indikator-sasaran' data-id='"+value.id+"' data-idunik='"+value.id_unik+"' ><i class='dashicons dashicons-edit' style='margin-top: 3px;'></i></a>&nbsp"
@@ -3515,12 +3548,13 @@ foreach ($data_all['data'] as $tujuan) {
 				          		+"</td>"
 				          	+"</tr>"
 	          				+"<tr>"
+				          		+"<td>"+value.indikator_teks_usulan+"</td>"
 				          		+"<td>"+value.satuan_usulan+"</td>"
-				          		+"<td>"+value.target_awal_usulan+"</td>"
+				          		+"<td class='text-center'>"+value.target_awal_usulan+"</td>"
 				          		<?php for($i=1; $i<=$lama_pelaksanaan; $i++){ ?>
-								+"<td>"+value.target_<?php echo $i; ?>_usulan+"</td>"
+								+"<td class='text-center'>"+value.target_<?php echo $i; ?>_usulan+"</td>"
 								<?php }; ?>
-				          		+"<td>"+value.target_akhir_usulan+"</td>"
+				          		+"<td class='text-center'>"+value.target_akhir_usulan+"</td>"
 				          		+"<td><b>Usulan</b><br>"+value.catatan_usulan+"</td>"
 				          	+"</tr>";
 		          		});
@@ -3704,13 +3738,13 @@ foreach ($data_all['data'] as $tujuan) {
 		          			html +=''
 		          				+"<tr>"
 					          		+"<td class='text-center' rowspan='2'>"+(index+1)+"</td>"
-					          		+"<td rowspan='2'>"+value.indikator+"</td>"
+					          		+"<td>"+value.indikator+"</td>"
 					          		+"<td>"+value.satuan+"</td>"
-					          		+"<td>"+value.target_awal+"</td>"
+					          		+"<td class='text-center'>"+value.target_awal+"</td>"
 					          		<?php for($i=1; $i<=$lama_pelaksanaan; $i++){ ?>
-									+"<td>"+value.target_<?php echo $i; ?>+"</td>"
+									+"<td class='text-center'>"+value.target_<?php echo $i; ?>+"</td>"
 									<?php }; ?>
-					          		+"<td>"+value.target_akhir+"</td>"
+					          		+"<td class='text-center'>"+value.target_akhir+"</td>"
 					          		+"<td><b>Penetapan</b><br>"+value.catatan+"</td>"
 					          		+"<td class='text-center' rowspan='2'>"
 					          			+"<a href='#' class='btn btn-sm btn-success btn-edit-indikator-program' data-kodeprogram='"+value.id_unik+"' data-id='"+value.id+"'><i class='dashicons dashicons-edit' style='margin-top: 3px;'></i></a>&nbsp"
@@ -3718,12 +3752,13 @@ foreach ($data_all['data'] as $tujuan) {
 					          		+"</td>"
 					          	+"</tr>"
 		          				+"<tr>"
+					          		+"<td>"+value.indikator_usulan+"</td>"
 					          		+"<td>"+value.satuan_usulan+"</td>"
-					          		+"<td>"+value.target_awal_usulan+"</td>"
+					          		+"<td class='text-center'>"+value.target_awal_usulan+"</td>"
 					          		<?php for($i=1; $i<=$lama_pelaksanaan; $i++){ ?>
-									+"<td>"+value.target_<?php echo $i; ?>_usulan+"</td>"
+									+"<td class='text-center'>"+value.target_<?php echo $i; ?>_usulan+"</td>"
 									<?php }; ?>
-					          		+"<td>"+value.target_akhir_usulan+"</td>"
+					          		+"<td class='text-center'>"+value.target_akhir_usulan+"</td>"
 					          		+"<td><b>Usulan</b><br>"+value.catatan_usulan+"</td>"
 					          	+"</tr>";
 			          		});
@@ -3918,7 +3953,7 @@ foreach ($data_all['data'] as $tujuan) {
 			          		html +=''
 			          		+"<tr>"
 				          		+"<td class='text-center' rowspan='2'>"+(index+1)+"</td>"
-				          		+"<td rowspan='2'>"+value.indikator+"</td>"
+				          		+"<td>"+value.indikator+"</td>"
 				          		+"<td>"+value.satuan+"</td>"
 				          		+"<td class='text-center'>"+value.target_awal+"</td>"
 				          		<?php for($i=1; $i<=$lama_pelaksanaan; $i++){ ?>
@@ -3933,6 +3968,7 @@ foreach ($data_all['data'] as $tujuan) {
 				          		+"</td>"
 				          	+"</tr>"
 			          		+"<tr>"
+				          		+"<td>"+value.indikator_usulan+"</td>"
 				          		+"<td>"+value.satuan_usulan+"</td>"
 				          		+"<td class='text-center'>"+value.target_awal_usulan+"</td>"
 				          		<?php for($i=1; $i<=$lama_pelaksanaan; $i++){ ?>

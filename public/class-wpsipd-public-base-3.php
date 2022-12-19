@@ -803,18 +803,27 @@ class Wpsipd_Public_Base_3
 
 					$this->verify_indikator_tujuan_renstra($data);
 
-					$id_cek = $wpdb->get_var("
-						SELECT id FROM data_rpjmd_tujuan_lokal
-							WHERE indikator_teks='".$data['indikator_teks']."'
-										AND id_unik='".$data['id_unik']."'
-										AND active=1
-								");
+					$id_cek = $wpdb->get_var($wpdb->prepare("
+						SELECT 
+							id 
+						FROM data_renstra_tujuan_lokal
+						WHERE indikator_teks_usulan=%s
+							AND id_unik=%s
+							AND active=1
+					", $data['indikator_teks_usulan'], $data['id_unik']));
 					
 					if(!empty($id_cek)){
-						throw new Exception('Indikator : '.$data['indikator_teks'].' sudah ada!');
+						throw new Exception('Indikator : '.$data['indikator_teks_usulan'].' sudah ada!');
 					}
 
-					$dataTujuan = $wpdb->get_row("SELECT * FROM data_renstra_tujuan_lokal WHERE id_unik='" . $data['id_unik'] . "' AND active=1 AND id_unik_indikator IS NULL");
+					$dataTujuan = $wpdb->get_row($wpdb->prepare("
+						SELECT 
+							* 
+						FROM data_renstra_tujuan_lokal 
+						WHERE id_unik=%s 
+							AND active=1 
+							AND id_unik_indikator IS NULL
+					", $data['id_unik']));
 
 					if (empty($dataTujuan)) {
 						throw new Exception('Tujuan yang dipilih tidak ditemukan!');
@@ -825,7 +834,6 @@ class Wpsipd_Public_Base_3
 						'id_unik' => $dataTujuan->id_unik, // kode_tujuan
 						'id_unik_indikator' => $this->generateRandomString(),
 						'id_unit' => $dataTujuan->id_unit,
-						'indikator_teks' => $data['indikator_teks'],
 						'is_locked' => 0,
 						'is_locked_indikator' => 0,
 						'kode_bidang_urusan' => $dataTujuan->kode_bidang_urusan,
@@ -838,18 +846,19 @@ class Wpsipd_Public_Base_3
 						'urut_tujuan' => $dataTujuan->urut_tujuan,
 						'active' => 1
 					];
+					$inputs['indikator_teks_usulan'] = $data['indikator_teks_usulan'];
+					$inputs['satuan_usulan'] = $data['satuan_usulan'];
+					$inputs['target_1_usulan'] = $data['target_1_usulan'];
+					$inputs['target_2_usulan'] = $data['target_2_usulan'];
+					$inputs['target_3_usulan'] = $data['target_3_usulan'];
+					$inputs['target_4_usulan'] = $data['target_4_usulan'];
+					$inputs['target_5_usulan'] = $data['target_5_usulan'];
+					$inputs['target_awal_usulan'] = $data['target_awal_usulan'];
+					$inputs['target_akhir_usulan'] = $data['target_akhir_usulan'];
+					$inputs['catatan_usulan'] = $data['catatan_usulan'];
 
 					if(in_array('administrator', $this->role())){
-						$inputs['satuan_usulan'] = $data['satuan_usulan'];
-						$inputs['target_1_usulan'] = $data['target_1_usulan'];
-						$inputs['target_2_usulan'] = $data['target_2_usulan'];
-						$inputs['target_3_usulan'] = $data['target_3_usulan'];
-						$inputs['target_4_usulan'] = $data['target_4_usulan'];
-						$inputs['target_5_usulan'] = $data['target_5_usulan'];
-						$inputs['target_awal_usulan'] = $data['target_awal_usulan'];
-						$inputs['target_akhir_usulan'] = $data['target_akhir_usulan'];
-						$inputs['catatan_usulan'] = $data['catatan_usulan'];
-
+						$inputs['indikator_teks'] = !empty($data['indikator_teks']) ? $data['indikator_teks'] : $data['indikator_teks_usulan'];
 						$inputs['satuan'] = !empty($data['satuan']) ? $data['satuan'] : $data['satuan_usulan'];
 						$inputs['target_1'] = !empty($data['target_1']) ? $data['target_1'] : $data['target_1_usulan'];
 						$inputs['target_2'] = !empty($data['target_2']) ? $data['target_2'] : $data['target_2_usulan'];
@@ -859,16 +868,6 @@ class Wpsipd_Public_Base_3
 						$inputs['target_awal'] = !empty($data['target_awal']) ? $data['target_awal'] : $data['target_awal_usulan'];
 						$inputs['target_akhir'] = !empty($data['target_akhir']) ? $data['target_akhir'] : $data['target_akhir_usulan'];
 						$inputs['catatan'] = !empty($data['catatan']) ? $data['catatan'] : $data['catatan_usulan'];
-					}else{
-						$inputs['satuan_usulan'] = $data['satuan_usulan'];
-						$inputs['target_1_usulan'] = $data['target_1_usulan'];
-						$inputs['target_2_usulan'] = $data['target_2_usulan'];
-						$inputs['target_3_usulan'] = $data['target_3_usulan'];
-						$inputs['target_4_usulan'] = $data['target_4_usulan'];
-						$inputs['target_5_usulan'] = $data['target_5_usulan'];
-						$inputs['target_awal_usulan'] = $data['target_awal_usulan'];
-						$inputs['target_akhir_usulan'] = $data['target_akhir_usulan'];
-						$inputs['catatan_usulan'] = $data['catatan_usulan'];
 					}
 
 					$status = $wpdb->insert('data_renstra_tujuan_lokal', $inputs);
@@ -946,15 +945,15 @@ class Wpsipd_Public_Base_3
 					$id_cek = $wpdb->get_var($wpdb->prepare("
 						SELECT 
 							id 
-						FROM data_rpjmd_tujuan_lokal
-						WHERE indikator_teks=%s
+						FROM data_renstra_tujuan_lokal
+						WHERE indikator_teks_usulan=%s
 							AND id_unik=%s
 							AND id!=%d
 							AND active=1
-					", $data['indikator_teks'], $data['id_unik'], $data['id']));
+					", $data['indikator_teks_usulan'], $data['id_unik'], $data['id']));
 					
 					if(!empty($id_cek)){
-						throw new Exception('Indikator : '.$data['indikator_teks'].' sudah ada!');
+						throw new Exception('Indikator : '.$data['indikator_teks_usulan'].' sudah ada!');
 					}
 
 					$dataTujuan = $wpdb->get_row($wpdb->prepare("
@@ -974,7 +973,6 @@ class Wpsipd_Public_Base_3
 						'id_bidang_urusan' => $dataTujuan->id_bidang_urusan,
 						'id_unik' => $dataTujuan->id_unik, // kode_tujuan
 						'id_unit' => $dataTujuan->id_unit,
-						'indikator_teks' => $data['indikator_teks'],
 						'kode_bidang_urusan' => $dataTujuan->kode_bidang_urusan,
 						'kode_sasaran_rpjm' => $dataTujuan->kode_sasaran_rpjm,
 						'kode_skpd' => $dataTujuan->kode_skpd,
@@ -984,19 +982,19 @@ class Wpsipd_Public_Base_3
 						'urut_tujuan' => $dataTujuan->urut_tujuan,
 						'update_at' => date('Y-m-d H:i:s')
 					];
+					$inputs['indikator_teks_usulan'] = $data['indikator_teks_usulan'];
+					$inputs['satuan_usulan'] = $data['satuan_usulan'];
+					$inputs['target_1_usulan'] = $data['target_1_usulan'];
+					$inputs['target_2_usulan'] = $data['target_2_usulan'];
+					$inputs['target_3_usulan'] = $data['target_3_usulan'];
+					$inputs['target_4_usulan'] = $data['target_4_usulan'];
+					$inputs['target_5_usulan'] = $data['target_5_usulan'];
+					$inputs['target_awal_usulan'] = $data['target_awal_usulan'];
+					$inputs['target_akhir_usulan'] = $data['target_akhir_usulan'];
+					$inputs['catatan_usulan'] = $data['catatan_usulan'];
 
 					if(in_array('administrator', $this->role())){
-						$inputs['satuan_usulan'] = $data['satuan_usulan'];
-						$inputs['target_1_usulan'] = $data['target_1_usulan'];
-						$inputs['target_2_usulan'] = $data['target_2_usulan'];
-						$inputs['target_3_usulan'] = $data['target_3_usulan'];
-						$inputs['target_4_usulan'] = $data['target_4_usulan'];
-						$inputs['target_5_usulan'] = $data['target_5_usulan'];
-						$inputs['target_awal_usulan'] = $data['target_awal_usulan'];
-						$inputs['target_akhir_usulan'] = $data['target_akhir_usulan'];
-						$inputs['catatan_usulan'] = $data['catatan_usulan'];
-
-						$inputs['satuan'] = !empty($data['satuan']) ? $data['satuan'] : $data['satuan_usulan'];
+						$inputs['indikator_teks'] = !empty($data['indikator_teks']) ? $data['indikator_teks'] : $data['indikator_teks_usulan'];
 						$inputs['target_1'] = !empty($data['target_1']) ? $data['target_1'] : $data['target_1_usulan'];
 						$inputs['target_2'] = !empty($data['target_2']) ? $data['target_2'] : $data['target_2_usulan'];
 						$inputs['target_3'] = !empty($data['target_3']) ? $data['target_3'] : $data['target_3_usulan'];
@@ -1005,16 +1003,6 @@ class Wpsipd_Public_Base_3
 						$inputs['target_awal'] = !empty($data['target_awal']) ? $data['target_awal'] : $data['target_awal_usulan'];
 						$inputs['target_akhir'] = !empty($data['target_akhir']) ? $data['target_akhir'] : $data['target_akhir_usulan'];
 						$inputs['catatan'] = !empty($data['catatan']) ? $data['catatan'] : $data['catatan_usulan'];
-					}else{
-						$inputs['satuan_usulan'] = $data['satuan_usulan'];
-						$inputs['target_1_usulan'] = $data['target_1_usulan'];
-						$inputs['target_2_usulan'] = $data['target_2_usulan'];
-						$inputs['target_3_usulan'] = $data['target_3_usulan'];
-						$inputs['target_4_usulan'] = $data['target_4_usulan'];
-						$inputs['target_5_usulan'] = $data['target_5_usulan'];
-						$inputs['target_awal_usulan'] = $data['target_awal_usulan'];
-						$inputs['target_akhir_usulan'] = $data['target_akhir_usulan'];
-						$inputs['catatan_usulan'] = $data['catatan_usulan'];
 					}
 
 					$status = $wpdb->update('data_renstra_tujuan_lokal', $inputs, ['id' => $data['id']]);
@@ -1080,8 +1068,8 @@ class Wpsipd_Public_Base_3
 			throw new Exception('Tujuan wajib dipilih!');
 		}
 
-		if(empty($data['indikator_teks'])){
-			throw new Exception('Indikator tujuan tidak boleh kosong!');
+		if(empty($data['indikator_teks_usulan'])){
+			throw new Exception('Indikator usulan tujuan tidak boleh kosong!');
 		}
 
 		if(empty($data['satuan_usulan'])){
@@ -1600,14 +1588,14 @@ class Wpsipd_Public_Base_3
 						SELECT 
 							id 
 						FROM data_renstra_sasaran_lokal
-						WHERE indikator_teks=%s
+						WHERE indikator_teks_usulan=%s
 							AND id_unik=%s
 							AND id_unik_indikator IS NOT NULL
 							AND active=1
-					", $data['indikator_teks'], $data['id_unik']));
+					", $data['indikator_teks_usulan'], $data['id_unik']));
 					
 					if(!empty($id_cek)){
-						throw new Exception('Indikator : '.$data['indikator_teks'].' sudah ada!');
+						throw new Exception('Indikator : '.$data['indikator_teks_usulan'].' sudah ada!');
 					}
 
 					$dataSasaran = $wpdb->get_row($wpdb->prepare("
@@ -1631,7 +1619,6 @@ class Wpsipd_Public_Base_3
 						'id_unik_indikator' => $this->generateRandomString(), 
 						'id_unit' => $dataSasaran->id_unit,
 						'id_visi' => $dataSasaran->id_visi,
-						'indikator_teks' => $data['indikator_teks'],
 						'is_locked' => 0,
 						'is_locked_indikator' => 0,
 						'kode_bidang_urusan' => $dataSasaran->kode_bidang_urusan,
@@ -1648,17 +1635,19 @@ class Wpsipd_Public_Base_3
 						'active' => 1
 					];
 
-					if(in_array('administrator', $this->role())){
-						$inputs['satuan_usulan'] = $data['satuan_usulan'];
-						$inputs['target_1_usulan'] = $data['target_1_usulan'];
-						$inputs['target_2_usulan'] = $data['target_2_usulan'];
-						$inputs['target_3_usulan'] = $data['target_3_usulan'];
-						$inputs['target_4_usulan'] = $data['target_4_usulan'];
-						$inputs['target_5_usulan'] = $data['target_5_usulan'];
-						$inputs['target_awal_usulan'] = $data['target_awal_usulan'];
-						$inputs['target_akhir_usulan'] = $data['target_akhir_usulan'];
-						$inputs['catatan_usulan'] = $data['catatan_usulan'];
+					$inputs['indikator_teks_usulan'] = $data['indikator_teks_usulan'];
+					$inputs['satuan_usulan'] = $data['satuan_usulan'];
+					$inputs['target_1_usulan'] = $data['target_1_usulan'];
+					$inputs['target_2_usulan'] = $data['target_2_usulan'];
+					$inputs['target_3_usulan'] = $data['target_3_usulan'];
+					$inputs['target_4_usulan'] = $data['target_4_usulan'];
+					$inputs['target_5_usulan'] = $data['target_5_usulan'];
+					$inputs['target_awal_usulan'] = $data['target_awal_usulan'];
+					$inputs['target_akhir_usulan'] = $data['target_akhir_usulan'];
+					$inputs['catatan_usulan'] = $data['catatan_usulan'];
 
+					if(in_array('administrator', $this->role())){
+						$inputs['indikator_teks'] = !empty($data['indikator_teks']) ? $data['indikator_teks'] : $data['indikator_teks_usulan'];
 						$inputs['satuan'] = !empty($data['satuan']) ? $data['satuan'] : $data['satuan_usulan'];
 						$inputs['target_1'] = !empty($data['target_1']) ? $data['target_1'] : $data['target_1_usulan'];
 						$inputs['target_2'] = !empty($data['target_2']) ? $data['target_2'] : $data['target_2_usulan'];
@@ -1668,16 +1657,6 @@ class Wpsipd_Public_Base_3
 						$inputs['target_awal'] = !empty($data['target_awal']) ? $data['target_awal'] : $data['target_awal_usulan'];
 						$inputs['target_akhir'] = !empty($data['target_akhir']) ? $data['target_akhir'] : $data['target_akhir_usulan'];
 						$inputs['catatan'] = !empty($data['catatan']) ? $data['catatan'] : $data['catatan_usulan'];
-					}else{
-						$inputs['satuan_usulan'] = $data['satuan_usulan'];
-						$inputs['target_1_usulan'] = $data['target_1_usulan'];
-						$inputs['target_2_usulan'] = $data['target_2_usulan'];
-						$inputs['target_3_usulan'] = $data['target_3_usulan'];
-						$inputs['target_4_usulan'] = $data['target_4_usulan'];
-						$inputs['target_5_usulan'] = $data['target_5_usulan'];
-						$inputs['target_awal_usulan'] = $data['target_awal_usulan'];
-						$inputs['target_akhir_usulan'] = $data['target_akhir_usulan'];
-						$inputs['catatan_usulan'] = $data['catatan_usulan'];
 					}
 
 					$status = $wpdb->insert('data_renstra_sasaran_lokal', $inputs);
@@ -1757,13 +1736,13 @@ class Wpsipd_Public_Base_3
 						SELECT 
 							id 
 						FROM data_renstra_sasaran_lokal
-						WHERE indikator_teks=%s
+						WHERE indikator_teks_usulan=%s
 							AND id!=%d
 							AND active=1
-					", $data['indikator_teks'], $data['id']));
+					", $data['indikator_teks_usulan'], $data['id']));
 					
 					if(!empty($id_cek)){
-						throw new Exception('Indikator : '.$data['indikator_teks'].' sudah ada!');
+						throw new Exception('Indikator : '.$data['indikator_teks_usulan'].' sudah ada!');
 					}
 
 					$dataSasaran = $wpdb->get_row($wpdb->prepare("
@@ -1786,7 +1765,6 @@ class Wpsipd_Public_Base_3
 						'id_unik' => $dataSasaran->id_unik,
 						'id_unit' => $dataSasaran->id_unit,
 						'id_visi' => $dataSasaran->id_visi,
-						'indikator_teks' => $data['indikator_teks'],
 						'kode_bidang_urusan' => $dataSasaran->kode_bidang_urusan,
 						'kode_skpd' => $dataSasaran->kode_skpd,
 						'kode_tujuan' => $dataSasaran->kode_tujuan,
@@ -1799,18 +1777,19 @@ class Wpsipd_Public_Base_3
 						'urut_tujuan' => $dataSasaran->urut_tujuan,
 						'update_at' => date('Y-m-d H:i:s')
 					];
+					$inputs['indikator_teks_usulan'] = $data['indikator_teks_usulan'];
+					$inputs['satuan_usulan'] = $data['satuan_usulan'];
+					$inputs['target_1_usulan'] = $data['target_1_usulan'];
+					$inputs['target_2_usulan'] = $data['target_2_usulan'];
+					$inputs['target_3_usulan'] = $data['target_3_usulan'];
+					$inputs['target_4_usulan'] = $data['target_4_usulan'];
+					$inputs['target_5_usulan'] = $data['target_5_usulan'];
+					$inputs['target_awal_usulan'] = $data['target_awal_usulan'];
+					$inputs['target_akhir_usulan'] = $data['target_akhir_usulan'];
+					$inputs['catatan_usulan'] = $data['catatan_usulan'];
 
 					if(in_array('administrator', $this->role())){
-						$inputs['satuan_usulan'] = $data['satuan_usulan'];
-						$inputs['target_1_usulan'] = $data['target_1_usulan'];
-						$inputs['target_2_usulan'] = $data['target_2_usulan'];
-						$inputs['target_3_usulan'] = $data['target_3_usulan'];
-						$inputs['target_4_usulan'] = $data['target_4_usulan'];
-						$inputs['target_5_usulan'] = $data['target_5_usulan'];
-						$inputs['target_awal_usulan'] = $data['target_awal_usulan'];
-						$inputs['target_akhir_usulan'] = $data['target_akhir_usulan'];
-						$inputs['catatan_usulan'] = $data['catatan_usulan'];
-
+						$inputs['indikator_teks'] = !empty($data['indikator_teks']) ? $data['indikator_teks'] : $data['indikator_teks_usulan'];
 						$inputs['satuan'] = !empty($data['satuan']) ? $data['satuan'] : $data['satuan_usulan'];
 						$inputs['target_1'] = !empty($data['target_1']) ? $data['target_1'] : $data['target_1_usulan'];
 						$inputs['target_2'] = !empty($data['target_2']) ? $data['target_2'] : $data['target_2_usulan'];
@@ -1820,16 +1799,6 @@ class Wpsipd_Public_Base_3
 						$inputs['target_awal'] = !empty($data['target_awal']) ? $data['target_awal'] : $data['target_awal_usulan'];
 						$inputs['target_akhir'] = !empty($data['target_akhir']) ? $data['target_akhir'] : $data['target_akhir_usulan'];
 						$inputs['catatan'] = !empty($data['catatan']) ? $data['catatan'] : $data['catatan_usulan'];
-					}else{
-						$inputs['satuan_usulan'] = $data['satuan_usulan'];
-						$inputs['target_1_usulan'] = $data['target_1_usulan'];
-						$inputs['target_2_usulan'] = $data['target_2_usulan'];
-						$inputs['target_3_usulan'] = $data['target_3_usulan'];
-						$inputs['target_4_usulan'] = $data['target_4_usulan'];
-						$inputs['target_5_usulan'] = $data['target_5_usulan'];
-						$inputs['target_awal_usulan'] = $data['target_awal_usulan'];
-						$inputs['target_akhir_usulan'] = $data['target_akhir_usulan'];
-						$inputs['catatan_usulan'] = $data['catatan_usulan'];
 					}
 
 					$status = $wpdb->update('data_renstra_sasaran_lokal', $inputs, ['id' => $data['id']]);
@@ -1896,8 +1865,8 @@ class Wpsipd_Public_Base_3
 			throw new Exception('Sasaran wajib dipilih!');
 		}
 
-		if(empty($data['indikator_teks'])){
-			throw new Exception('Indikator sasaran tidak boleh kosong!');
+		if(empty($data['indikator_teks_usulan'])){
+			throw new Exception('Indikator usulan sasaran tidak boleh kosong!');
 		}
 
 		if(empty($data['satuan_usulan'])){
@@ -2421,14 +2390,14 @@ class Wpsipd_Public_Base_3
 						SELECT 
 							id 
 						FROM data_renstra_program_lokal
-						WHERE indikator=%s
+						WHERE indikator_usulan=%s
 							AND id_unik=%s
 							AND id_unik_indikator IS NOT NULL
 							AND active=1
-					", $data['indikator_teks'], $data['kode_program']));
+					", $data['indikator_teks_usulan'], $data['kode_program']));
 					
 					if(!empty($id_cek)){
-						throw new Exception('Indikator : '.$data['indikator_teks'].' sudah ada!');
+						throw new Exception('Indikator : '.$data['indikator_teks_usulan'].' sudah ada!');
 					}
 
 					$dataProgram = $wpdb->get_row($wpdb->prepare("
@@ -2453,7 +2422,6 @@ class Wpsipd_Public_Base_3
 						'id_unik_indikator' => $this->generateRandomString(),
 						'id_unit' => $dataProgram->id_unit,
 						'id_visi' => $dataProgram->id_visi,
-						'indikator' => $data['indikator_teks'],
 						'is_locked' => 0,
 						'is_locked_indikator' => 0,
 						'kode_bidang_urusan' => $dataProgram->kode_bidang_urusan,
@@ -2474,18 +2442,19 @@ class Wpsipd_Public_Base_3
 						'urut_tujuan' => $dataProgram->urut_tujuan,
 						'active' => 1
 					];
+					$inputs['indikator_usulan'] = $data['indikator_teks_usulan'];
+					$inputs['satuan_usulan'] = $data['satuan_usulan'];
+					$inputs['target_1_usulan'] = $data['target_1_usulan'];
+					$inputs['target_2_usulan'] = $data['target_2_usulan'];
+					$inputs['target_3_usulan'] = $data['target_3_usulan'];
+					$inputs['target_4_usulan'] = $data['target_4_usulan'];
+					$inputs['target_5_usulan'] = $data['target_5_usulan'];
+					$inputs['target_awal_usulan'] = $data['target_awal_usulan'];
+					$inputs['target_akhir_usulan'] = $data['target_akhir_usulan'];
+					$inputs['catatan_usulan'] = $data['catatan_usulan'];
 
 					if(in_array('administrator', $this->role())){
-						$inputs['satuan_usulan'] = $data['satuan_usulan'];
-						$inputs['target_1_usulan'] = $data['target_1_usulan'];
-						$inputs['target_2_usulan'] = $data['target_2_usulan'];
-						$inputs['target_3_usulan'] = $data['target_3_usulan'];
-						$inputs['target_4_usulan'] = $data['target_4_usulan'];
-						$inputs['target_5_usulan'] = $data['target_5_usulan'];
-						$inputs['target_awal_usulan'] = $data['target_awal_usulan'];
-						$inputs['target_akhir_usulan'] = $data['target_akhir_usulan'];
-						$inputs['catatan_usulan'] = $data['catatan_usulan'];
-
+						$inputs['indikator'] = !empty($data['indikator_teks']) ? $data['indikator_teks'] : $data['indikator_teks_usulan'];
 						$inputs['satuan'] = !empty($data['satuan']) ? $data['satuan'] : $data['satuan_usulan'];
 						$inputs['target_1'] = !empty($data['target_1']) ? $data['target_1'] : $data['target_1_usulan'];
 						$inputs['target_2'] = !empty($data['target_2']) ? $data['target_2'] : $data['target_2_usulan'];
@@ -2495,22 +2464,17 @@ class Wpsipd_Public_Base_3
 						$inputs['target_awal'] = !empty($data['target_awal']) ? $data['target_awal'] : $data['target_awal_usulan'];
 						$inputs['target_akhir'] = !empty($data['target_akhir']) ? $data['target_akhir'] : $data['target_akhir_usulan'];
 						$inputs['catatan'] = !empty($data['catatan']) ? $data['catatan'] : $data['catatan_usulan'];
-					}else{
-						$inputs['satuan_usulan'] = $data['satuan_usulan'];
-						$inputs['target_1_usulan'] = $data['target_1_usulan'];
-						$inputs['target_2_usulan'] = $data['target_2_usulan'];
-						$inputs['target_3_usulan'] = $data['target_3_usulan'];
-						$inputs['target_4_usulan'] = $data['target_4_usulan'];
-						$inputs['target_5_usulan'] = $data['target_5_usulan'];
-						$inputs['target_awal_usulan'] = $data['target_awal_usulan'];
-						$inputs['target_akhir_usulan'] = $data['target_akhir_usulan'];
-						$inputs['catatan_usulan'] = $data['catatan_usulan'];
 					}
 
 					$status = $wpdb->insert('data_renstra_program_lokal', $inputs);
 
 					if(!$status){
-						throw new Exception("Gagal simpan data, harap hubungi admin", 1);
+						$ket = '';
+						if(in_array('administrator', $this->role())){
+							$ket = " | query: ".$wpdb->last_query;
+						}
+						$ket .= " | error: ".$wpdb->last_error;
+						throw new Exception("Gagal simpan data, harap hubungi admin. $ket", 1);
 					}
 					
 					echo json_encode([
@@ -2583,12 +2547,12 @@ class Wpsipd_Public_Base_3
 						SELECT 
 							id 
 						FROM data_renstra_program_lokal
-						WHERE indikator=%s
+						WHERE indikator_usulan=%s
 							AND id!=%d
 							AND id_unik=%s
 							AND id_unik_indikator is not null
 							AND active=1
-					", $data['indikator_teks'], $data['id'], $data['kode_program']));
+					", $data['indikator_teks_usulan'], $data['id'], $data['kode_program']));
 					
 					if(!empty($id_cek)){
 						throw new Exception('Indikator : '.$data['indikator_teks'].' sudah ada!');
@@ -2614,7 +2578,6 @@ class Wpsipd_Public_Base_3
 						'id_program' => $dataProgram->id_program,
 						'id_unit' => $dataProgram->id_unit,
 						'id_visi' => $dataProgram->id_visi,
-						'indikator' => $data['indikator_teks'],
 						'kode_bidang_urusan' => $dataProgram->kode_bidang_urusan,
 						'kode_program' => $dataProgram->id_unik,
 						'kode_sasaran' => $dataProgram->kode_sasaran,
@@ -2631,18 +2594,19 @@ class Wpsipd_Public_Base_3
 						'urut_tujuan' => $dataProgram->urut_tujuan,
 						'update_at' => date('Y-m-d H:i:s')
 					];
+					$inputs['indikator_usulan'] = $data['indikator_teks_usulan'];
+					$inputs['satuan_usulan'] = $data['satuan_usulan'];
+					$inputs['target_1_usulan'] = $data['target_1_usulan'];
+					$inputs['target_2_usulan'] = $data['target_2_usulan'];
+					$inputs['target_3_usulan'] = $data['target_3_usulan'];
+					$inputs['target_4_usulan'] = $data['target_4_usulan'];
+					$inputs['target_5_usulan'] = $data['target_5_usulan'];
+					$inputs['target_awal_usulan'] = $data['target_awal_usulan'];
+					$inputs['target_akhir_usulan'] = $data['target_akhir_usulan'];
+					$inputs['catatan_usulan'] = $data['catatan_usulan'];
 
 					if(in_array('administrator', $this->role())){
-						$inputs['satuan_usulan'] = $data['satuan_usulan'];
-						$inputs['target_1_usulan'] = $data['target_1_usulan'];
-						$inputs['target_2_usulan'] = $data['target_2_usulan'];
-						$inputs['target_3_usulan'] = $data['target_3_usulan'];
-						$inputs['target_4_usulan'] = $data['target_4_usulan'];
-						$inputs['target_5_usulan'] = $data['target_5_usulan'];
-						$inputs['target_awal_usulan'] = $data['target_awal_usulan'];
-						$inputs['target_akhir_usulan'] = $data['target_akhir_usulan'];
-						$inputs['catatan_usulan'] = $data['catatan_usulan'];
-
+						$inputs['indikator'] = !empty($data['indikator_teks']) ? $data['indikator_teks'] : $data['indikator_teks_usulan'];
 						$inputs['satuan'] = !empty($data['satuan']) ? $data['satuan'] : $data['satuan_usulan'];
 						$inputs['target_1'] = !empty($data['target_1']) ? $data['target_1'] : $data['target_1_usulan'];
 						$inputs['target_2'] = !empty($data['target_2']) ? $data['target_2'] : $data['target_2_usulan'];
@@ -2652,22 +2616,17 @@ class Wpsipd_Public_Base_3
 						$inputs['target_awal'] = !empty($data['target_awal']) ? $data['target_awal'] : $data['target_awal_usulan'];
 						$inputs['target_akhir'] = !empty($data['target_akhir']) ? $data['target_akhir'] : $data['target_akhir_usulan'];
 						$inputs['catatan'] = !empty($data['catatan']) ? $data['catatan'] : $data['catatan_usulan'];
-					}else{
-						$inputs['satuan_usulan'] = $data['satuan_usulan'];
-						$inputs['target_1_usulan'] = $data['target_1_usulan'];
-						$inputs['target_2_usulan'] = $data['target_2_usulan'];
-						$inputs['target_3_usulan'] = $data['target_3_usulan'];
-						$inputs['target_4_usulan'] = $data['target_4_usulan'];
-						$inputs['target_5_usulan'] = $data['target_5_usulan'];
-						$inputs['target_awal_usulan'] = $data['target_awal_usulan'];
-						$inputs['target_akhir_usulan'] = $data['target_akhir_usulan'];
-						$inputs['catatan_usulan'] = $data['catatan_usulan'];
 					}
 
 					$status = $wpdb->update('data_renstra_program_lokal', $inputs, ['id' => $data['id']]);
 
 					if(!$status){
-						throw new Exception("Gagal simpan data, harap hubungi admin", 1);
+						$ket = '';
+						if(in_array('administrator', $this->role())){
+							$ket = " | query: ".$wpdb->last_query;
+						}
+						$ket .= " | error: ".$wpdb->last_error;
+						throw new Exception("Gagal simpan data, harap hubungi admin. $ket", 1);
 					}
 
 					echo json_encode([
@@ -2727,8 +2686,8 @@ class Wpsipd_Public_Base_3
 			throw new Exception('Program wajib dipilih!');
 		}
 
-		if(empty($data['indikator_teks'])){
-			throw new Exception('Indikator program tidak boleh kosong!');
+		if(empty($data['indikator_teks_usulan'])){
+			throw new Exception('Indikator usulan program tidak boleh kosong!');
 		}
 
 		if(empty($data['satuan_usulan'])){
@@ -3290,14 +3249,14 @@ class Wpsipd_Public_Base_3
 						SELECT 
 							id 
 						FROM data_renstra_kegiatan_lokal
-						WHERE indikator=%s
+						WHERE indikator_usulan=%s
 							AND id_unik=%s
 							AND id_unik_indikator IS NOT NULL
 							AND active=1
-					", $data['indikator_teks'], $data['id_unik']));
+					", $data['indikator_teks_usulan'], $data['id_unik']));
 					
 					if(!empty($id_cek)){
-						throw new Exception('Indikator : '.$data['indikator_teks'].' sudah ada!');
+						throw new Exception('Indikator : '.$data['indikator_teks_usulan'].' sudah ada!');
 					}
 
 					$dataKegiatan = $wpdb->get_row($wpdb->prepare("
@@ -3324,7 +3283,6 @@ class Wpsipd_Public_Base_3
 						'id_unik_indikator' => $this->generateRandomString(),
 						'id_unit' => $dataKegiatan->id_unit,
 						'id_visi' => $dataKegiatan->id_visi,
-						'indikator' => $data['indikator_teks'],
 						'is_locked' => $dataKegiatan->is_locked,
 						'is_locked_indikator' => 0,
 						'kode_bidang_urusan' => $dataKegiatan->kode_bidang_urusan,
@@ -3348,23 +3306,24 @@ class Wpsipd_Public_Base_3
 						'urut_tujuan' => $dataKegiatan->urut_tujuan,
 						'active' => 1
 					];
+					$inputs['indikator_usulan'] = $data['indikator_teks_usulan'];
+					$inputs['satuan_usulan'] = $data['satuan_usulan'];
+					$inputs['target_1_usulan'] = $data['target_1_usulan'];
+					$inputs['target_2_usulan'] = $data['target_2_usulan'];
+					$inputs['target_3_usulan'] = $data['target_3_usulan'];
+					$inputs['target_4_usulan'] = $data['target_4_usulan'];
+					$inputs['target_5_usulan'] = $data['target_5_usulan'];
+					$inputs['target_awal_usulan'] = $data['target_awal_usulan'];
+					$inputs['target_akhir_usulan'] = $data['target_akhir_usulan'];
+					$inputs['pagu_1_usulan'] = $data['pagu_1_usulan'];
+					$inputs['pagu_2_usulan'] = $data['pagu_2_usulan'];
+					$inputs['pagu_3_usulan'] = $data['pagu_3_usulan'];
+					$inputs['pagu_4_usulan'] = $data['pagu_4_usulan'];
+					$inputs['pagu_5_usulan'] = $data['pagu_5_usulan'];
+					$inputs['catatan_usulan'] = $data['catatan_usulan'];
 
 					if(in_array('administrator', $this->role())){
-						$inputs['satuan_usulan'] = $data['satuan_usulan'];
-						$inputs['target_1_usulan'] = $data['target_1_usulan'];
-						$inputs['target_2_usulan'] = $data['target_2_usulan'];
-						$inputs['target_3_usulan'] = $data['target_3_usulan'];
-						$inputs['target_4_usulan'] = $data['target_4_usulan'];
-						$inputs['target_5_usulan'] = $data['target_5_usulan'];
-						$inputs['target_awal_usulan'] = $data['target_awal_usulan'];
-						$inputs['target_akhir_usulan'] = $data['target_akhir_usulan'];
-						$inputs['pagu_1_usulan'] = $data['pagu_1_usulan'];
-						$inputs['pagu_2_usulan'] = $data['pagu_2_usulan'];
-						$inputs['pagu_3_usulan'] = $data['pagu_3_usulan'];
-						$inputs['pagu_4_usulan'] = $data['pagu_4_usulan'];
-						$inputs['pagu_5_usulan'] = $data['pagu_5_usulan'];
-						$inputs['catatan_usulan'] = $data['catatan_usulan'];
-
+						$inputs['indikator'] = !empty($data['indikator_teks']) ? $data['indikator_teks'] : $data['indikator_teks_usulan'];
 						$inputs['satuan'] = !empty($data['satuan']) ? $data['satuan'] : $data['satuan_usulan'];
 						$inputs['target_1'] = !empty($data['target_1']) ? $data['target_1'] : $data['target_1_usulan'];
 						$inputs['target_2'] = !empty($data['target_2']) ? $data['target_2'] : $data['target_2_usulan'];
@@ -3379,27 +3338,17 @@ class Wpsipd_Public_Base_3
 						$inputs['pagu_4'] = !empty($data['pagu_4']) ? $data['pagu_4'] : $data['pagu_4_usulan'];
 						$inputs['pagu_5'] = !empty($data['pagu_5']) ? $data['pagu_5'] : $data['pagu_5_usulan'];
 						$inputs['catatan'] = !empty($data['catatan']) ? $data['catatan'] : $data['catatan_usulan'];
-					}else{
-						$inputs['satuan_usulan'] = $data['satuan_usulan'];
-						$inputs['target_1_usulan'] = $data['target_1_usulan'];
-						$inputs['target_2_usulan'] = $data['target_2_usulan'];
-						$inputs['target_3_usulan'] = $data['target_3_usulan'];
-						$inputs['target_4_usulan'] = $data['target_4_usulan'];
-						$inputs['target_5_usulan'] = $data['target_5_usulan'];
-						$inputs['target_awal_usulan'] = $data['target_awal_usulan'];
-						$inputs['target_akhir_usulan'] = $data['target_akhir_usulan'];
-						$inputs['pagu_1_usulan'] = $data['pagu_1_usulan'];
-						$inputs['pagu_2_usulan'] = $data['pagu_2_usulan'];
-						$inputs['pagu_3_usulan'] = $data['pagu_3_usulan'];
-						$inputs['pagu_4_usulan'] = $data['pagu_4_usulan'];
-						$inputs['pagu_5_usulan'] = $data['pagu_5_usulan'];
-						$inputs['catatan_usulan'] = $data['catatan_usulan'];
 					}
 
 					$status = $wpdb->insert('data_renstra_kegiatan_lokal', $inputs);
 
 					if(!$status){
-						throw new Exception("Gagal simpan data, harap hubungi admin", 1);
+						$ket = '';
+						if(in_array('administrator', $this->role())){
+							$ket = " | query: ".$wpdb->last_query;
+						}
+						$ket .= " | error: ".$wpdb->last_error;
+						throw new Exception("Gagal simpan data, harap hubungi admin. $ket", 1);
 					}
 
 					echo json_encode([
@@ -3472,15 +3421,15 @@ class Wpsipd_Public_Base_3
 						SELECT 
 							id 
 						FROM data_renstra_kegiatan_lokal
-						WHERE indikator=%s
+						WHERE indikator_usulan=%s
 							AND id_unik=%s
 							AND id!=%d
 							AND id_unik_indikator IS NOT NULL
 							AND active=1
-					", $data['indikator_teks'], $data['id_unik'], $data['id']));
+					", $data['indikator_teks_usulan'], $data['id_unik'], $data['id']));
 					
 					if(!empty($id_cek)){
-						throw new Exception('Indikator : '.$data['indikator_teks'].' sudah ada!');
+						throw new Exception('Indikator : '.$data['indikator_teks_usulan'].' sudah ada!');
 					}
 
 					$dataKegiatan = $wpdb->get_row($wpdb->prepare("
@@ -3504,7 +3453,6 @@ class Wpsipd_Public_Base_3
 						'id_unik' => $dataKegiatan->id_unik,
 						'id_unit' => $dataKegiatan->id_unit,
 						'id_visi' => $dataKegiatan->id_visi,
-						'indikator' => $data['indikator_teks'],
 						'is_locked' => $dataKegiatan->is_locked,
 						'kode_bidang_urusan' => $dataKegiatan->kode_bidang_urusan,
 						'kode_giat' => $dataKegiatan->kode_giat,
@@ -3525,23 +3473,24 @@ class Wpsipd_Public_Base_3
 						'urut_sasaran' => $dataKegiatan->urut_sasaran,
 						'urut_tujuan' => $dataKegiatan->urut_tujuan,
 					];
+					$inputs['indikator_usulan'] = $data['indikator_teks_usulan'];
+					$inputs['satuan_usulan'] = $data['satuan_usulan'];
+					$inputs['target_1_usulan'] = $data['target_1_usulan'];
+					$inputs['target_2_usulan'] = $data['target_2_usulan'];
+					$inputs['target_3_usulan'] = $data['target_3_usulan'];
+					$inputs['target_4_usulan'] = $data['target_4_usulan'];
+					$inputs['target_5_usulan'] = $data['target_5_usulan'];
+					$inputs['target_awal_usulan'] = $data['target_awal_usulan'];
+					$inputs['target_akhir_usulan'] = $data['target_akhir_usulan'];
+					$inputs['pagu_1_usulan'] = $data['pagu_1_usulan'];
+					$inputs['pagu_2_usulan'] = $data['pagu_2_usulan'];
+					$inputs['pagu_3_usulan'] = $data['pagu_3_usulan'];
+					$inputs['pagu_4_usulan'] = $data['pagu_4_usulan'];
+					$inputs['pagu_5_usulan'] = $data['pagu_5_usulan'];
+					$inputs['catatan_usulan'] = $data['catatan_usulan'];
 
 					if(in_array('administrator', $this->role())){
-						$inputs['satuan_usulan'] = $data['satuan_usulan'];
-						$inputs['target_1_usulan'] = $data['target_1_usulan'];
-						$inputs['target_2_usulan'] = $data['target_2_usulan'];
-						$inputs['target_3_usulan'] = $data['target_3_usulan'];
-						$inputs['target_4_usulan'] = $data['target_4_usulan'];
-						$inputs['target_5_usulan'] = $data['target_5_usulan'];
-						$inputs['target_awal_usulan'] = $data['target_awal_usulan'];
-						$inputs['target_akhir_usulan'] = $data['target_akhir_usulan'];
-						$inputs['pagu_1_usulan'] = $data['pagu_1_usulan'];
-						$inputs['pagu_2_usulan'] = $data['pagu_2_usulan'];
-						$inputs['pagu_3_usulan'] = $data['pagu_3_usulan'];
-						$inputs['pagu_4_usulan'] = $data['pagu_4_usulan'];
-						$inputs['pagu_5_usulan'] = $data['pagu_5_usulan'];
-						$inputs['catatan_usulan'] = $data['catatan_usulan'];
-
+						$inputs['indikator'] = !empty($data['indikator_teks']) ? $data['indikator_teks'] : $data['indikator_teks_usulan'];
 						$inputs['satuan'] = !empty($data['satuan']) ? $data['satuan'] : $data['satuan_usulan'];
 						$inputs['target_1'] = !empty($data['target_1']) ? $data['target_1'] : $data['target_1_usulan'];
 						$inputs['target_2'] = !empty($data['target_2']) ? $data['target_2'] : $data['target_2_usulan'];
@@ -3556,27 +3505,17 @@ class Wpsipd_Public_Base_3
 						$inputs['pagu_4'] = !empty($data['pagu_4']) ? $data['pagu_4'] : $data['pagu_4_usulan'];
 						$inputs['pagu_5'] = !empty($data['pagu_5']) ? $data['pagu_5'] : $data['pagu_5_usulan'];
 						$inputs['catatan'] = !empty($data['catatan']) ? $data['catatan'] : $data['catatan_usulan'];
-					}else{
-						$inputs['satuan_usulan'] = $data['satuan_usulan'];
-						$inputs['target_1_usulan'] = $data['target_1_usulan'];
-						$inputs['target_2_usulan'] = $data['target_2_usulan'];
-						$inputs['target_3_usulan'] = $data['target_3_usulan'];
-						$inputs['target_4_usulan'] = $data['target_4_usulan'];
-						$inputs['target_5_usulan'] = $data['target_5_usulan'];
-						$inputs['target_awal_usulan'] = $data['target_awal_usulan'];
-						$inputs['target_akhir_usulan'] = $data['target_akhir_usulan'];
-						$inputs['pagu_1_usulan'] = $data['pagu_1_usulan'];
-						$inputs['pagu_2_usulan'] = $data['pagu_2_usulan'];
-						$inputs['pagu_3_usulan'] = $data['pagu_3_usulan'];
-						$inputs['pagu_4_usulan'] = $data['pagu_4_usulan'];
-						$inputs['pagu_5_usulan'] = $data['pagu_5_usulan'];
-						$inputs['catatan_usulan'] = $data['catatan_usulan'];
 					}
 
 					$status = $wpdb->update('data_renstra_kegiatan_lokal', $inputs, ['id' => $data['id']]);
 
 					if(!$status){
-						throw new Exception("Gagal simpan data, harap hubungi admin", 1);
+						$ket = '';
+						if(in_array('administrator', $this->role())){
+							$ket = " | query: ".$wpdb->last_query;
+						}
+						$ket .= " | error: ".$wpdb->last_error;
+						throw new Exception("Gagal simpan data, harap hubungi admin. $ket", 1);
 					}
 						
 					echo json_encode([
@@ -3634,8 +3573,8 @@ class Wpsipd_Public_Base_3
 			throw new Exception('Kegiatan wajib dipilih!');
 		}
 
-		if(empty($data['indikator_teks'])){
-			throw new Exception('Indikator kegiatan tidak boleh kosong!');
+		if(empty($data['indikator_teks_usulan'])){
+			throw new Exception('Indikator usulan kegiatan tidak boleh kosong!');
 		}
 
 		if(empty($data['satuan_usulan'])){
