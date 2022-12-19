@@ -4112,7 +4112,7 @@ class Wpsipd_Public_Base_3
 								$target_arr = [$target_1, $target_2, $target_3, $target_4, $target_5];
 								$pagu_arr = [$pagu_1, $pagu_2, $pagu_3, $pagu_4, $pagu_5];
 								$body .= '
-										<tr class="tr-kegiatan'.$bg_rpjm.'">
+										<tr class="tr-kegiatan">
 											<td class="kiri atas kanan bawah"></td>
 											<td class="kiri atas kanan bawah"></td>
 											<td class="kiri atas kanan bawah">'.$kegiatan['kode'].'</td>
