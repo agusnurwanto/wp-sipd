@@ -384,7 +384,7 @@ class Wpsipd_Public_Base_3
 						'active' => 1
 					]);
 
-					if(!$status){
+					if($status === false){
 						throw new Exception('Terjadi kesalahan saat simpan data, harap hubungi admin!');
 					}
 
@@ -872,7 +872,7 @@ class Wpsipd_Public_Base_3
 
 					$status = $wpdb->insert('data_renstra_tujuan_lokal', $inputs);
 
-					if(!$status){
+					if($status === false){
 						throw new Exception('Terjadi kesalahan saat simpan data, harap hubungi admin!');
 					}
 
@@ -1007,7 +1007,7 @@ class Wpsipd_Public_Base_3
 
 					$status = $wpdb->update('data_renstra_tujuan_lokal', $inputs, ['id' => $data['id']]);
 
-					if(!$status){
+					if($status === false){
 						throw new Exception('Terjadi kesalahan saat ubah data, harap hubungi admin!');
 					}
 
@@ -1268,7 +1268,7 @@ class Wpsipd_Public_Base_3
 						'active' => 1
 					]);
 
-					if(!$status){
+					if($status === false){
 						throw new Exception('Terjadi kesalahan saat simpan data, harap hubungi admin!');
 					}
 
@@ -1432,7 +1432,7 @@ class Wpsipd_Public_Base_3
 						'id_unik_indikator' => 'NOT NULL'
 					]);
 
-					if(!$status){
+					if($status === false){
 						throw new Exception('Terjadi kesalahan saat simpan data, harap hubungi admin!');
 					}
 
@@ -1661,7 +1661,7 @@ class Wpsipd_Public_Base_3
 
 					$status = $wpdb->insert('data_renstra_sasaran_lokal', $inputs);
 
-					if(!$status){
+					if($status === false){
 						throw new Exception('Terjadi kesalahan saat simpan data, harap hubungi admin!');
 					}
 
@@ -1803,7 +1803,7 @@ class Wpsipd_Public_Base_3
 
 					$status = $wpdb->update('data_renstra_sasaran_lokal', $inputs, ['id' => $data['id']]);
 
-					if(!$status){
+					if($status === false){
 						throw new Exception('Terjadi kesalahan saat simpan data, harap hubungi admin!');
 					}
 
@@ -2468,7 +2468,7 @@ class Wpsipd_Public_Base_3
 
 					$status = $wpdb->insert('data_renstra_program_lokal', $inputs);
 
-					if(!$status){
+					if($status === false){
 						$ket = '';
 						if(in_array('administrator', $this->role())){
 							$ket = " | query: ".$wpdb->last_query;
@@ -2620,7 +2620,7 @@ class Wpsipd_Public_Base_3
 
 					$status = $wpdb->update('data_renstra_program_lokal', $inputs, ['id' => $data['id']]);
 
-					if(!$status){
+					if($status === false){
 						$ket = '';
 						if(in_array('administrator', $this->role())){
 							$ket = " | query: ".$wpdb->last_query;
@@ -3342,7 +3342,7 @@ class Wpsipd_Public_Base_3
 
 					$status = $wpdb->insert('data_renstra_kegiatan_lokal', $inputs);
 
-					if(!$status){
+					if($status === false){
 						$ket = '';
 						if(in_array('administrator', $this->role())){
 							$ket = " | query: ".$wpdb->last_query;
@@ -3509,7 +3509,7 @@ class Wpsipd_Public_Base_3
 
 					$status = $wpdb->update('data_renstra_kegiatan_lokal', $inputs, ['id' => $data['id']]);
 
-					if(!$status){
+					if($status === false){
 						$ket = '';
 						if(in_array('administrator', $this->role())){
 							$ket = " | query: ".$wpdb->last_query;

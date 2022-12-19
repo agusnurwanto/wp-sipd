@@ -18345,4 +18345,15 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 	    }
 	    return $randomString;
 	}
+
+	function _number_format($number = 0, $mata_uang = ''){
+		if(!is_numeric($number)){
+			$number = 0;
+		}
+		$uang = number_format($number, 0, ",", ".");
+		if(!empty($mata_uang)){
+			$uang = $mata_uang.' '.$uang;
+		}
+		return $uang;
+	}
 }
