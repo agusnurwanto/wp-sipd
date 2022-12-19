@@ -169,6 +169,16 @@ foreach ($tujuan_all as $keyTujuan => $tujuan_value) {
 			'catatan' => $tujuan_value['catatan'],
 			'catatan_usulan' => $tujuan_value['catatan_usulan'],
 			'sasaran_rpjm' => '',
+			'pagu_akumulasi_1' => 0,
+			'pagu_akumulasi_2' => 0,
+			'pagu_akumulasi_3' => 0,
+			'pagu_akumulasi_4' => 0,
+			'pagu_akumulasi_5' => 0,
+			'pagu_akumulasi_1_usulan' => 0,
+			'pagu_akumulasi_2_usulan' => 0,
+			'pagu_akumulasi_3_usulan' => 0,
+			'pagu_akumulasi_4_usulan' => 0,
+			'pagu_akumulasi_5_usulan' => 0,
 			'indikator' => array(),
 			'data' => array(),
 			'status_rpjm' => false
@@ -249,6 +259,16 @@ foreach ($tujuan_all as $keyTujuan => $tujuan_value) {
 					'urut_sasaran' => $sasaran_value['urut_sasaran'],
 					'catatan' => $sasaran_value['catatan'],
 					'catatan_usulan' => $sasaran_value['catatan_usulan'],
+					'pagu_akumulasi_1' => 0,
+					'pagu_akumulasi_2' => 0,
+					'pagu_akumulasi_3' => 0,
+					'pagu_akumulasi_4' => 0,
+					'pagu_akumulasi_5' => 0,
+					'pagu_akumulasi_1_usulan' => 0,
+					'pagu_akumulasi_2_usulan' => 0,
+					'pagu_akumulasi_3_usulan' => 0,
+					'pagu_akumulasi_4_usulan' => 0,
+					'pagu_akumulasi_5_usulan' => 0,
 					'indikator' => array(),
 					'data' => array()
 				];
@@ -304,6 +324,16 @@ foreach ($tujuan_all as $keyTujuan => $tujuan_value) {
 								'program_teks' => $program_value['nama_program'],
 								'catatan' => $program_value['catatan'],
 								'catatan_usulan' => $program_value['catatan_usulan'],
+								'pagu_akumulasi_1' => 0,
+								'pagu_akumulasi_2' => 0,
+								'pagu_akumulasi_3' => 0,
+								'pagu_akumulasi_4' => 0,
+								'pagu_akumulasi_5' => 0,
+								'pagu_akumulasi_1_usulan' => 0,
+								'pagu_akumulasi_2_usulan' => 0,
+								'pagu_akumulasi_3_usulan' => 0,
+								'pagu_akumulasi_4_usulan' => 0,
+								'pagu_akumulasi_5_usulan' => 0,
 								'indikator' => array(),
 								'data' => array()
 							];
@@ -374,14 +404,68 @@ foreach ($tujuan_all as $keyTujuan => $tujuan_value) {
 									'kegiatan_teks' => $kegiatan_value['nama_giat'],
 									'catatan' => $kegiatan_value['catatan'],
 									'catatan_usulan' => $kegiatan_value['catatan_usulan'],
+									'pagu_akumulasi_1' => 0,
+									'pagu_akumulasi_2' => 0,
+									'pagu_akumulasi_3' => 0,
+									'pagu_akumulasi_4' => 0,
+									'pagu_akumulasi_5' => 0,
+									'pagu_akumulasi_1_usulan' => 0,
+									'pagu_akumulasi_2_usulan' => 0,
+									'pagu_akumulasi_3_usulan' => 0,
+									'pagu_akumulasi_4_usulan' => 0,
+									'pagu_akumulasi_5_usulan' => 0,
 									'indikator' => array()
 								];
 							}
-
 							$kegiatan_ids[$kegiatan_value['id_unik']] = "'".$kegiatan_value['id_unik']."'";
 
 							if(!empty($kegiatan_value['id_unik_indikator'])){
 								if(empty($data_all['data'][$tujuan_value['id_unik']]['data'][$sasaran_value['id_unik']]['data'][$program_value['id_unik']]['data'][$kegiatan_value['id_unik']]['indikator'][$kegiatan_value['id_unik_indikator']])){
+
+									$data_all['data'][$tujuan_value['id_unik']]['pagu_akumulasi_1'] += $kegiatan_value['pagu_1'];
+									$data_all['data'][$tujuan_value['id_unik']]['pagu_akumulasi_2'] += $kegiatan_value['pagu_2'];
+									$data_all['data'][$tujuan_value['id_unik']]['pagu_akumulasi_3'] += $kegiatan_value['pagu_3'];
+									$data_all['data'][$tujuan_value['id_unik']]['pagu_akumulasi_4'] += $kegiatan_value['pagu_4'];
+									$data_all['data'][$tujuan_value['id_unik']]['pagu_akumulasi_5'] += $kegiatan_value['pagu_5'];
+									$data_all['data'][$tujuan_value['id_unik']]['pagu_akumulasi_1_usulan'] += $kegiatan_value['pagu_1_usulan'];
+									$data_all['data'][$tujuan_value['id_unik']]['pagu_akumulasi_2_usulan'] += $kegiatan_value['pagu_2_usulan'];
+									$data_all['data'][$tujuan_value['id_unik']]['pagu_akumulasi_3_usulan'] += $kegiatan_value['pagu_3_usulan'];
+									$data_all['data'][$tujuan_value['id_unik']]['pagu_akumulasi_4_usulan'] += $kegiatan_value['pagu_4_usulan'];
+									$data_all['data'][$tujuan_value['id_unik']]['pagu_akumulasi_5_usulan'] += $kegiatan_value['pagu_5_usulan'];
+
+									$data_all['data'][$tujuan_value['id_unik']]['data'][$sasaran_value['id_unik']]['pagu_akumulasi_1'] += $kegiatan_value['pagu_1'];
+									$data_all['data'][$tujuan_value['id_unik']]['data'][$sasaran_value['id_unik']]['pagu_akumulasi_2'] += $kegiatan_value['pagu_2'];
+									$data_all['data'][$tujuan_value['id_unik']]['data'][$sasaran_value['id_unik']]['pagu_akumulasi_3'] += $kegiatan_value['pagu_3'];
+									$data_all['data'][$tujuan_value['id_unik']]['data'][$sasaran_value['id_unik']]['pagu_akumulasi_4'] += $kegiatan_value['pagu_4'];
+									$data_all['data'][$tujuan_value['id_unik']]['data'][$sasaran_value['id_unik']]['pagu_akumulasi_5'] += $kegiatan_value['pagu_5'];
+									$data_all['data'][$tujuan_value['id_unik']]['data'][$sasaran_value['id_unik']]['pagu_akumulasi_1_usulan'] += $kegiatan_value['pagu_1_usulan'];
+									$data_all['data'][$tujuan_value['id_unik']]['data'][$sasaran_value['id_unik']]['pagu_akumulasi_2_usulan'] += $kegiatan_value['pagu_2_usulan'];
+									$data_all['data'][$tujuan_value['id_unik']]['data'][$sasaran_value['id_unik']]['pagu_akumulasi_3_usulan'] += $kegiatan_value['pagu_3_usulan'];
+									$data_all['data'][$tujuan_value['id_unik']]['data'][$sasaran_value['id_unik']]['pagu_akumulasi_4_usulan'] += $kegiatan_value['pagu_4_usulan'];
+									$data_all['data'][$tujuan_value['id_unik']]['data'][$sasaran_value['id_unik']]['pagu_akumulasi_5_usulan'] += $kegiatan_value['pagu_5_usulan'];
+									
+									$data_all['data'][$tujuan_value['id_unik']]['data'][$sasaran_value['id_unik']]['data'][$program_value['id_unik']]['pagu_akumulasi_1'] += $kegiatan_value['pagu_1'];
+									$data_all['data'][$tujuan_value['id_unik']]['data'][$sasaran_value['id_unik']]['data'][$program_value['id_unik']]['pagu_akumulasi_2'] += $kegiatan_value['pagu_2'];
+									$data_all['data'][$tujuan_value['id_unik']]['data'][$sasaran_value['id_unik']]['data'][$program_value['id_unik']]['pagu_akumulasi_3'] += $kegiatan_value['pagu_3'];
+									$data_all['data'][$tujuan_value['id_unik']]['data'][$sasaran_value['id_unik']]['data'][$program_value['id_unik']]['pagu_akumulasi_4'] += $kegiatan_value['pagu_4'];
+									$data_all['data'][$tujuan_value['id_unik']]['data'][$sasaran_value['id_unik']]['data'][$program_value['id_unik']]['pagu_akumulasi_5'] += $kegiatan_value['pagu_5'];
+									$data_all['data'][$tujuan_value['id_unik']]['data'][$sasaran_value['id_unik']]['data'][$program_value['id_unik']]['pagu_akumulasi_1_usulan'] += $kegiatan_value['pagu_1_usulan'];
+									$data_all['data'][$tujuan_value['id_unik']]['data'][$sasaran_value['id_unik']]['data'][$program_value['id_unik']]['pagu_akumulasi_2_usulan'] += $kegiatan_value['pagu_2_usulan'];
+									$data_all['data'][$tujuan_value['id_unik']]['data'][$sasaran_value['id_unik']]['data'][$program_value['id_unik']]['pagu_akumulasi_3_usulan'] += $kegiatan_value['pagu_3_usulan'];
+									$data_all['data'][$tujuan_value['id_unik']]['data'][$sasaran_value['id_unik']]['data'][$program_value['id_unik']]['pagu_akumulasi_4_usulan'] += $kegiatan_value['pagu_4_usulan'];
+									$data_all['data'][$tujuan_value['id_unik']]['data'][$sasaran_value['id_unik']]['data'][$program_value['id_unik']]['pagu_akumulasi_5_usulan'] += $kegiatan_value['pagu_5_usulan'];
+
+									$data_all['data'][$tujuan_value['id_unik']]['data'][$sasaran_value['id_unik']]['data'][$program_value['id_unik']]['data'][$kegiatan_value['id_unik']]['pagu_akumulasi_1'] += $kegiatan_value['pagu_1'];
+									$data_all['data'][$tujuan_value['id_unik']]['data'][$sasaran_value['id_unik']]['data'][$program_value['id_unik']]['data'][$kegiatan_value['id_unik']]['pagu_akumulasi_2'] += $kegiatan_value['pagu_2'];
+									$data_all['data'][$tujuan_value['id_unik']]['data'][$sasaran_value['id_unik']]['data'][$program_value['id_unik']]['data'][$kegiatan_value['id_unik']]['pagu_akumulasi_3'] += $kegiatan_value['pagu_3'];
+									$data_all['data'][$tujuan_value['id_unik']]['data'][$sasaran_value['id_unik']]['data'][$program_value['id_unik']]['data'][$kegiatan_value['id_unik']]['pagu_akumulasi_4'] += $kegiatan_value['pagu_4'];
+									$data_all['data'][$tujuan_value['id_unik']]['data'][$sasaran_value['id_unik']]['data'][$program_value['id_unik']]['data'][$kegiatan_value['id_unik']]['pagu_akumulasi_5'] += $kegiatan_value['pagu_5'];
+									$data_all['data'][$tujuan_value['id_unik']]['data'][$sasaran_value['id_unik']]['data'][$program_value['id_unik']]['data'][$kegiatan_value['id_unik']]['pagu_akumulasi_1_usulan'] += $kegiatan_value['pagu_1_usulan'];
+									$data_all['data'][$tujuan_value['id_unik']]['data'][$sasaran_value['id_unik']]['data'][$program_value['id_unik']]['data'][$kegiatan_value['id_unik']]['pagu_akumulasi_2_usulan'] += $kegiatan_value['pagu_2_usulan'];
+									$data_all['data'][$tujuan_value['id_unik']]['data'][$sasaran_value['id_unik']]['data'][$program_value['id_unik']]['data'][$kegiatan_value['id_unik']]['pagu_akumulasi_3_usulan'] += $kegiatan_value['pagu_3_usulan'];
+									$data_all['data'][$tujuan_value['id_unik']]['data'][$sasaran_value['id_unik']]['data'][$program_value['id_unik']]['data'][$kegiatan_value['id_unik']]['pagu_akumulasi_4_usulan'] += $kegiatan_value['pagu_4_usulan'];
+									$data_all['data'][$tujuan_value['id_unik']]['data'][$sasaran_value['id_unik']]['data'][$program_value['id_unik']]['data'][$kegiatan_value['id_unik']]['pagu_akumulasi_5_usulan'] += $kegiatan_value['pagu_5_usulan'];
+
 									$data_all['data'][$tujuan_value['id_unik']]['data'][$sasaran_value['id_unik']]['data'][$program_value['id_unik']]['data'][$kegiatan_value['id_unik']]['indikator'][$kegiatan_value['id_unik_indikator']] = [
 										'id_unik_indikator' => $kegiatan_value['id_unik_indikator'],
 										'indikator_teks' => $kegiatan_value['indikator'],
@@ -436,6 +520,16 @@ if(empty($data_all['data']['tujuan_kosong'])){
 		'urut_tujuan' => '',
 		'catatan' => '',
 		'catatan_usulan' => '',
+		'pagu_akumulasi_1' => 0,
+		'pagu_akumulasi_2' => 0,
+		'pagu_akumulasi_3' => 0,
+		'pagu_akumulasi_4' => 0,
+		'pagu_akumulasi_5' => 0,
+		'pagu_akumulasi_1_usulan' => 0,
+		'pagu_akumulasi_2_usulan' => 0,
+		'pagu_akumulasi_3_usulan' => 0,
+		'pagu_akumulasi_4_usulan' => 0,
+		'pagu_akumulasi_5_usulan' => 0,
 		'indikator' => array(),
 		'data' => array()
 	);
@@ -448,6 +542,16 @@ if(empty($data_all['data']['tujuan_kosong']['data']['sasaran_kosong'])){
 		'urut_sasaran' => '',
 		'catatan' => '',
 		'catatan_usulan' => '',
+		'pagu_akumulasi_1' => 0,
+		'pagu_akumulasi_2' => 0,
+		'pagu_akumulasi_3' => 0,
+		'pagu_akumulasi_4' => 0,
+		'pagu_akumulasi_5' => 0,
+		'pagu_akumulasi_1_usulan' => 0,
+		'pagu_akumulasi_2_usulan' => 0,
+		'pagu_akumulasi_3_usulan' => 0,
+		'pagu_akumulasi_4_usulan' => 0,
+		'pagu_akumulasi_5_usulan' => 0,
 		'indikator' => array(),
 		'data' => array()
 	);
@@ -459,6 +563,16 @@ if(empty($data_all['data']['tujuan_kosong']['data']['sasaran_kosong']['data']['p
 		'program_teks' => '<span style="color: red">kosong</span>',
 		'catatan' => '',
 		'catatan_usulan' => '',
+		'pagu_akumulasi_1' => 0,
+		'pagu_akumulasi_2' => 0,
+		'pagu_akumulasi_3' => 0,
+		'pagu_akumulasi_4' => 0,
+		'pagu_akumulasi_5' => 0,
+		'pagu_akumulasi_1_usulan' => 0,
+		'pagu_akumulasi_2_usulan' => 0,
+		'pagu_akumulasi_3_usulan' => 0,
+		'pagu_akumulasi_4_usulan' => 0,
+		'pagu_akumulasi_5_usulan' => 0,
 		'indikator' => array(),
 		'data' => array()
 	);
@@ -470,6 +584,16 @@ if(empty($data_all['data']['tujuan_kosong']['data']['sasaran_kosong']['data']['p
 		'kegiatan_teks' => '<span style="color: red">kosong</span>',
 		'catatan' => '',
 		'catatan_usulan' => '',
+		'pagu_akumulasi_1' => 0,
+		'pagu_akumulasi_2' => 0,
+		'pagu_akumulasi_3' => 0,
+		'pagu_akumulasi_4' => 0,
+		'pagu_akumulasi_5' => 0,
+		'pagu_akumulasi_1_usulan' => 0,
+		'pagu_akumulasi_2_usulan' => 0,
+		'pagu_akumulasi_3_usulan' => 0,
+		'pagu_akumulasi_4_usulan' => 0,
+		'pagu_akumulasi_5_usulan' => 0,
 		'indikator' => array(),
 		'data' => array()
 	);
@@ -503,6 +627,16 @@ foreach ($sasaran_all_kosong as $keySasaran => $sasaran_value) {
 			'urut_sasaran' => $sasaran_value['urut_sasaran'],
 			'catatan' => $sasaran_value['catatan'],
 			'catatan_usulan' => $sasaran_value['catatan_usulan'],
+			'pagu_akumulasi_1' => 0,
+			'pagu_akumulasi_2' => 0,
+			'pagu_akumulasi_3' => 0,
+			'pagu_akumulasi_4' => 0,
+			'pagu_akumulasi_5' => 0,
+			'pagu_akumulasi_1_usulan' => 0,
+			'pagu_akumulasi_2_usulan' => 0,
+			'pagu_akumulasi_3_usulan' => 0,
+			'pagu_akumulasi_4_usulan' => 0,
+			'pagu_akumulasi_5_usulan' => 0,
 			'indikator' => array(),
 			'data' => array()
 		];
@@ -555,6 +689,16 @@ foreach ($sasaran_all_kosong as $keySasaran => $sasaran_value) {
 						'program_teks' => $program_value['nama_program'],
 						'catatan' => $program_value['catatan'],
 						'catatan_usulan' => $program_value['catatan_usulan'],
+						'pagu_akumulasi_1' => 0,
+						'pagu_akumulasi_2' => 0,
+						'pagu_akumulasi_3' => 0,
+						'pagu_akumulasi_4' => 0,
+						'pagu_akumulasi_5' => 0,
+						'pagu_akumulasi_1_usulan' => 0,
+						'pagu_akumulasi_2_usulan' => 0,
+						'pagu_akumulasi_3_usulan' => 0,
+						'pagu_akumulasi_4_usulan' => 0,
+						'pagu_akumulasi_5_usulan' => 0,
 						'indikator' => array(),
 						'data' => array()
 				];
@@ -619,12 +763,56 @@ foreach ($sasaran_all_kosong as $keySasaran => $sasaran_value) {
 							'kegiatan_teks' => $kegiatan_value['nama_giat'],
 							'catatan' => $kegiatan_value['catatan'],
 							'catatan_usulan' => $kegiatan_value['catatan_usulan'],
+							'pagu_akumulasi_1' => 0,
+							'pagu_akumulasi_2' => 0,
+							'pagu_akumulasi_3' => 0,
+							'pagu_akumulasi_4' => 0,
+							'pagu_akumulasi_5' => 0,
+							'pagu_akumulasi_1_usulan' => 0,
+							'pagu_akumulasi_2_usulan' => 0,
+							'pagu_akumulasi_3_usulan' => 0,
+							'pagu_akumulasi_4_usulan' => 0,
+							'pagu_akumulasi_5_usulan' => 0,
 							'indikator' => array()
 						];
 					}
 
 					if(!empty($kegiatan_value['id_unik_indikator'])) {
 						if(empty($data_all['data']['tujuan_kosong']['data'][$sasaran_value['id_unik']]['data'][$program_value['id_unik']]['data'][$kegiatan_value['id_unik']]['indikator'][$kegiatan_value['id_unik_indikator']])){
+
+							$data_all['data']['tujuan_kosong']['data'][$sasaran_value['id_unik']]['pagu_akumulasi_1'] += $kegiatan_value['pagu_1'];
+							$data_all['data']['tujuan_kosong']['data'][$sasaran_value['id_unik']]['pagu_akumulasi_2'] += $kegiatan_value['pagu_2'];
+							$data_all['data']['tujuan_kosong']['data'][$sasaran_value['id_unik']]['pagu_akumulasi_3'] += $kegiatan_value['pagu_3'];
+							$data_all['data']['tujuan_kosong']['data'][$sasaran_value['id_unik']]['pagu_akumulasi_4'] += $kegiatan_value['pagu_4'];
+							$data_all['data']['tujuan_kosong']['data'][$sasaran_value['id_unik']]['pagu_akumulasi_5'] += $kegiatan_value['pagu_5'];
+							$data_all['data']['tujuan_kosong']['data'][$sasaran_value['id_unik']]['pagu_akumulasi_1_usulan'] += $kegiatan_value['pagu_1_usulan'];
+							$data_all['data']['tujuan_kosong']['data'][$sasaran_value['id_unik']]['pagu_akumulasi_2_usulan'] += $kegiatan_value['pagu_2_usulan'];
+							$data_all['data']['tujuan_kosong']['data'][$sasaran_value['id_unik']]['pagu_akumulasi_3_usulan'] += $kegiatan_value['pagu_3_usulan'];
+							$data_all['data']['tujuan_kosong']['data'][$sasaran_value['id_unik']]['pagu_akumulasi_4_usulan'] += $kegiatan_value['pagu_4_usulan'];
+							$data_all['data']['tujuan_kosong']['data'][$sasaran_value['id_unik']]['pagu_akumulasi_5_usulan'] += $kegiatan_value['pagu_5_usulan'];
+
+							$data_all['data']['tujuan_kosong']['data'][$sasaran_value['id_unik']]['data'][$program_value['id_unik']]['pagu_akumulasi_1'] += $kegiatan_value['pagu_1'];
+							$data_all['data']['tujuan_kosong']['data'][$sasaran_value['id_unik']]['data'][$program_value['id_unik']]['pagu_akumulasi_2'] += $kegiatan_value['pagu_2'];
+							$data_all['data']['tujuan_kosong']['data'][$sasaran_value['id_unik']]['data'][$program_value['id_unik']]['pagu_akumulasi_3'] += $kegiatan_value['pagu_3'];
+							$data_all['data']['tujuan_kosong']['data'][$sasaran_value['id_unik']]['data'][$program_value['id_unik']]['pagu_akumulasi_4'] += $kegiatan_value['pagu_4'];
+							$data_all['data']['tujuan_kosong']['data'][$sasaran_value['id_unik']]['data'][$program_value['id_unik']]['pagu_akumulasi_5'] += $kegiatan_value['pagu_5'];
+							$data_all['data']['tujuan_kosong']['data'][$sasaran_value['id_unik']]['data'][$program_value['id_unik']]['pagu_akumulasi_1_usulan'] += $kegiatan_value['pagu_1_usulan'];
+							$data_all['data']['tujuan_kosong']['data'][$sasaran_value['id_unik']]['data'][$program_value['id_unik']]['pagu_akumulasi_2_usulan'] += $kegiatan_value['pagu_2_usulan'];
+							$data_all['data']['tujuan_kosong']['data'][$sasaran_value['id_unik']]['data'][$program_value['id_unik']]['pagu_akumulasi_3_usulan'] += $kegiatan_value['pagu_3_usulan'];
+							$data_all['data']['tujuan_kosong']['data'][$sasaran_value['id_unik']]['data'][$program_value['id_unik']]['pagu_akumulasi_4_usulan'] += $kegiatan_value['pagu_4_usulan'];
+							$data_all['data']['tujuan_kosong']['data'][$sasaran_value['id_unik']]['data'][$program_value['id_unik']]['pagu_akumulasi_5_usulan'] += $kegiatan_value['pagu_5_usulan'];
+
+							$data_all['data']['tujuan_kosong']['data'][$sasaran_value['id_unik']]['data'][$program_value['id_unik']]['data'][$kegiatan_value['id_unik']]['pagu_akumulasi_1'] += $kegiatan_value['pagu_1'];
+							$data_all['data']['tujuan_kosong']['data'][$sasaran_value['id_unik']]['data'][$program_value['id_unik']]['data'][$kegiatan_value['id_unik']]['pagu_akumulasi_2'] += $kegiatan_value['pagu_2'];
+							$data_all['data']['tujuan_kosong']['data'][$sasaran_value['id_unik']]['data'][$program_value['id_unik']]['data'][$kegiatan_value['id_unik']]['pagu_akumulasi_3'] += $kegiatan_value['pagu_3'];
+							$data_all['data']['tujuan_kosong']['data'][$sasaran_value['id_unik']]['data'][$program_value['id_unik']]['data'][$kegiatan_value['id_unik']]['pagu_akumulasi_4'] += $kegiatan_value['pagu_4'];
+							$data_all['data']['tujuan_kosong']['data'][$sasaran_value['id_unik']]['data'][$program_value['id_unik']]['data'][$kegiatan_value['id_unik']]['pagu_akumulasi_5'] += $kegiatan_value['pagu_5'];
+							$data_all['data']['tujuan_kosong']['data'][$sasaran_value['id_unik']]['data'][$program_value['id_unik']]['data'][$kegiatan_value['id_unik']]['pagu_akumulasi_1_usulan'] += $kegiatan_value['pagu_1_usulan'];
+							$data_all['data']['tujuan_kosong']['data'][$sasaran_value['id_unik']]['data'][$program_value['id_unik']]['data'][$kegiatan_value['id_unik']]['pagu_akumulasi_2_usulan'] += $kegiatan_value['pagu_2_usulan'];
+							$data_all['data']['tujuan_kosong']['data'][$sasaran_value['id_unik']]['data'][$program_value['id_unik']]['data'][$kegiatan_value['id_unik']]['pagu_akumulasi_3_usulan'] += $kegiatan_value['pagu_3_usulan'];
+							$data_all['data']['tujuan_kosong']['data'][$sasaran_value['id_unik']]['data'][$program_value['id_unik']]['data'][$kegiatan_value['id_unik']]['pagu_akumulasi_4_usulan'] += $kegiatan_value['pagu_4_usulan'];
+							$data_all['data']['tujuan_kosong']['data'][$sasaran_value['id_unik']]['data'][$program_value['id_unik']]['data'][$kegiatan_value['id_unik']]['pagu_akumulasi_5_usulan'] += $kegiatan_value['pagu_5_usulan'];
+
 							$data_all['data']['tujuan_kosong']['data'][$sasaran_value['id_unik']]['data'][$program_value['id_unik']]['data'][$kegiatan_value['id_unik']]['indikator'][$kegiatan_value['id_unik_indikator']] = [
 								'id_unik_indikator' => $kegiatan_value['id_unik_indikator'],
 								'indikator_teks' => $kegiatan_value['indikator'],
@@ -693,6 +881,16 @@ foreach ($program_all_kosong as $keyProgram => $program_value) {
 			'program_teks' => $program_value['nama_program'],
 			'catatan' => $program_value['catatan'],
 			'catatan_usulan' => $program_value['catatan_usulan'],
+			'pagu_akumulasi_1' => 0,
+			'pagu_akumulasi_2' => 0,
+			'pagu_akumulasi_3' => 0,
+			'pagu_akumulasi_4' => 0,
+			'pagu_akumulasi_5' => 0,
+			'pagu_akumulasi_1_usulan' => 0,
+			'pagu_akumulasi_2_usulan' => 0,
+			'pagu_akumulasi_3_usulan' => 0,
+			'pagu_akumulasi_4_usulan' => 0,
+			'pagu_akumulasi_5_usulan' => 0,
 			'indikator' => array(),
 			'data' => array()
 		];
@@ -754,12 +952,45 @@ foreach ($program_all_kosong as $keyProgram => $program_value) {
 					'kegiatan_teks' => $kegiatan_value['nama_giat'],
 					'catatan' => $kegiatan_value['catatan'],
 					'catatan_usulan' => $kegiatan_value['catatan_usulan'],
+					'pagu_akumulasi_1' => 0,
+					'pagu_akumulasi_2' => 0,
+					'pagu_akumulasi_3' => 0,
+					'pagu_akumulasi_4' => 0,
+					'pagu_akumulasi_5' => 0,
+					'pagu_akumulasi_1_usulan' => 0,
+					'pagu_akumulasi_2_usulan' => 0,
+					'pagu_akumulasi_3_usulan' => 0,
+					'pagu_akumulasi_4_usulan' => 0,
+					'pagu_akumulasi_5_usulan' => 0,
 					'indikator' => array()
 				];
 			}
 
 			if(!empty($kegiatan_value['id_unik_indikator'])){
 				if(empty($data_all['data']['tujuan_kosong']['data']['sasaran_kosong']['data'][$program_value['id_unik']]['data'][$kegiatan_value['id_unik']]['indikator'][$kegiatan_value['id_unik_indikator']])){
+
+					$data_all['data']['tujuan_kosong']['data']['sasaran_kosong']['data'][$program_value['id_unik']]['pagu_akumulasi_1'] += $kegiatan_value['pagu_1'];
+					$data_all['data']['tujuan_kosong']['data']['sasaran_kosong']['data'][$program_value['id_unik']]['pagu_akumulasi_2'] += $kegiatan_value['pagu_2'];
+					$data_all['data']['tujuan_kosong']['data']['sasaran_kosong']['data'][$program_value['id_unik']]['pagu_akumulasi_3'] += $kegiatan_value['pagu_3'];
+					$data_all['data']['tujuan_kosong']['data']['sasaran_kosong']['data'][$program_value['id_unik']]['pagu_akumulasi_4'] += $kegiatan_value['pagu_4'];
+					$data_all['data']['tujuan_kosong']['data']['sasaran_kosong']['data'][$program_value['id_unik']]['pagu_akumulasi_5'] += $kegiatan_value['pagu_5'];
+					$data_all['data']['tujuan_kosong']['data']['sasaran_kosong']['data'][$program_value['id_unik']]['pagu_akumulasi_1_usulan'] += $kegiatan_value['pagu_1_usulan'];
+					$data_all['data']['tujuan_kosong']['data']['sasaran_kosong']['data'][$program_value['id_unik']]['pagu_akumulasi_2_usulan'] += $kegiatan_value['pagu_2_usulan'];
+					$data_all['data']['tujuan_kosong']['data']['sasaran_kosong']['data'][$program_value['id_unik']]['pagu_akumulasi_3_usulan'] += $kegiatan_value['pagu_3_usulan'];
+					$data_all['data']['tujuan_kosong']['data']['sasaran_kosong']['data'][$program_value['id_unik']]['pagu_akumulasi_4_usulan'] += $kegiatan_value['pagu_4_usulan'];
+					$data_all['data']['tujuan_kosong']['data']['sasaran_kosong']['data'][$program_value['id_unik']]['pagu_akumulasi_5_usulan'] += $kegiatan_value['pagu_5_usulan'];
+
+					$data_all['data']['tujuan_kosong']['data']['sasaran_kosong']['data'][$program_value['id_unik']]['data'][$kegiatan_value['id_unik']]['pagu_akumulasi_1'] += $kegiatan_value['pagu_1'];
+					$data_all['data']['tujuan_kosong']['data']['sasaran_kosong']['data'][$program_value['id_unik']]['data'][$kegiatan_value['id_unik']]['pagu_akumulasi_2'] += $kegiatan_value['pagu_2'];
+					$data_all['data']['tujuan_kosong']['data']['sasaran_kosong']['data'][$program_value['id_unik']]['data'][$kegiatan_value['id_unik']]['pagu_akumulasi_3'] += $kegiatan_value['pagu_3'];
+					$data_all['data']['tujuan_kosong']['data']['sasaran_kosong']['data'][$program_value['id_unik']]['data'][$kegiatan_value['id_unik']]['pagu_akumulasi_4'] += $kegiatan_value['pagu_4'];
+					$data_all['data']['tujuan_kosong']['data']['sasaran_kosong']['data'][$program_value['id_unik']]['data'][$kegiatan_value['id_unik']]['pagu_akumulasi_5'] += $kegiatan_value['pagu_5'];
+					$data_all['data']['tujuan_kosong']['data']['sasaran_kosong']['data'][$program_value['id_unik']]['data'][$kegiatan_value['id_unik']]['pagu_akumulasi_1_usulan'] += $kegiatan_value['pagu_1_usulan'];
+					$data_all['data']['tujuan_kosong']['data']['sasaran_kosong']['data'][$program_value['id_unik']]['data'][$kegiatan_value['id_unik']]['pagu_akumulasi_2_usulan'] += $kegiatan_value['pagu_2_usulan'];
+					$data_all['data']['tujuan_kosong']['data']['sasaran_kosong']['data'][$program_value['id_unik']]['data'][$kegiatan_value['id_unik']]['pagu_akumulasi_3_usulan'] += $kegiatan_value['pagu_3_usulan'];
+					$data_all['data']['tujuan_kosong']['data']['sasaran_kosong']['data'][$program_value['id_unik']]['data'][$kegiatan_value['id_unik']]['pagu_akumulasi_4_usulan'] += $kegiatan_value['pagu_4_usulan'];
+					$data_all['data']['tujuan_kosong']['data']['sasaran_kosong']['data'][$program_value['id_unik']]['data'][$kegiatan_value['id_unik']]['pagu_akumulasi_5_usulan'] += $kegiatan_value['pagu_5_usulan'];
+
 					$data_all['data']['tujuan_kosong']['data']['sasaran_kosong']['data'][$program_value['id_unik']]['data'][$kegiatan_value['id_unik']]['indikator'][$kegiatan_value['id_unik_indikator']] = [
 						'id_unik_indikator' => $kegiatan_value['id_unik_indikator'],
 						'indikator_teks' => $kegiatan_value['indikator'],
@@ -826,12 +1057,32 @@ foreach ($kegiatan_all as $keyKegiatan => $kegiatan_value) {
 			'kegiatan_teks' => $kegiatan_value['nama_giat'],
 			'catatan' => $kegiatan_value['catatan'],
 			'catatan_usulan' => $kegiatan_value['catatan_usulan'],
+			'pagu_akumulasi_1' => 0,
+			'pagu_akumulasi_2' => 0,
+			'pagu_akumulasi_3' => 0,
+			'pagu_akumulasi_4' => 0,
+			'pagu_akumulasi_5' => 0,
+			'pagu_akumulasi_1_usulan' => 0,
+			'pagu_akumulasi_2_usulan' => 0,
+			'pagu_akumulasi_3_usulan' => 0,
+			'pagu_akumulasi_4_usulan' => 0,
+			'pagu_akumulasi_5_usulan' => 0,
 			'indikator' => array()
 		];
 	}
 
 	if(!empty($kegiatan_value['id_unik_indikator'])){
 		if(empty($data_all['data']['tujuan_kosong']['data']['sasaran_kosong']['data']['program_kosong']['data'][$kegiatan_value['id_unik']]['indikator'][$kegiatan_value['id_unik_indikator']])){
+			$data_all['data']['tujuan_kosong']['data']['sasaran_kosong']['data']['program_kosong']['data'][$kegiatan_value['id_unik']]['pagu_akumulasi_1'] += $kegiatan_value['pagu_1'];
+			$data_all['data']['tujuan_kosong']['data']['sasaran_kosong']['data']['program_kosong']['data'][$kegiatan_value['id_unik']]['pagu_akumulasi_2'] += $kegiatan_value['pagu_2'];
+			$data_all['data']['tujuan_kosong']['data']['sasaran_kosong']['data']['program_kosong']['data'][$kegiatan_value['id_unik']]['pagu_akumulasi_3'] += $kegiatan_value['pagu_3'];
+			$data_all['data']['tujuan_kosong']['data']['sasaran_kosong']['data']['program_kosong']['data'][$kegiatan_value['id_unik']]['pagu_akumulasi_4'] += $kegiatan_value['pagu_4'];
+			$data_all['data']['tujuan_kosong']['data']['sasaran_kosong']['data']['program_kosong']['data'][$kegiatan_value['id_unik']]['pagu_akumulasi_5'] += $kegiatan_value['pagu_5'];
+			$data_all['data']['tujuan_kosong']['data']['sasaran_kosong']['data']['program_kosong']['data'][$kegiatan_value['id_unik']]['pagu_akumulasi_1_usulan'] += $kegiatan_value['pagu_1_usulan'];
+			$data_all['data']['tujuan_kosong']['data']['sasaran_kosong']['data']['program_kosong']['data'][$kegiatan_value['id_unik']]['pagu_akumulasi_2_usulan'] += $kegiatan_value['pagu_2_usulan'];
+			$data_all['data']['tujuan_kosong']['data']['sasaran_kosong']['data']['program_kosong']['data'][$kegiatan_value['id_unik']]['pagu_akumulasi_3_usulan'] += $kegiatan_value['pagu_3_usulan'];
+			$data_all['data']['tujuan_kosong']['data']['sasaran_kosong']['data']['program_kosong']['data'][$kegiatan_value['id_unik']]['pagu_akumulasi_4_usulan'] += $kegiatan_value['pagu_4_usulan'];
+			$data_all['data']['tujuan_kosong']['data']['sasaran_kosong']['data']['program_kosong']['data'][$kegiatan_value['id_unik']]['pagu_akumulasi_5_usulan'] += $kegiatan_value['pagu_5_usulan'];
 			$data_all['data']['tujuan_kosong']['data']['sasaran_kosong']['data']['program_kosong']['data'][$kegiatan_value['id_unik']]['indikator'][$kegiatan_value['id_unik_indikator']] = [
 				'id_unik_indikator' => $kegiatan_value['id_unik_indikator'],
 				'indikator_teks' => $kegiatan_value['indikator'],
@@ -949,7 +1200,7 @@ foreach ($data_all['data'] as $tujuan) {
 				<td class="atas kanan bawah">'.$indikator_tujuan.'</td>
 				<td class="atas kanan bawah text_tengah">'.$target_awal.'</td>';
 				for ($i=0; $i < $lama_pelaksanaan; $i++) { 
-					$body.="<td class=\"atas kanan bawah text_tengah\">".$target_arr[$i]."</td><td class=\"atas kanan bawah\"></td>";
+					$body.="<td class=\"atas kanan bawah text_tengah\">".$target_arr[$i]."</td><td class=\"atas kanan bawah text_kanan\"><b>(".$this->_number_format($tujuan['pagu_akumulasi_'.($i+1)]).")</b></td>";
 				}
 				$body.='<td class="atas kanan bawah text_tengah">'.$target_akhir.'</td>
 				<td class="atas kanan bawah">'.$satuan.'</td>
@@ -960,7 +1211,7 @@ foreach ($data_all['data'] as $tujuan) {
 				<td class="atas kanan bawah">'.$indikator_tujuan_usulan.'</td>
 				<td class="atas kanan bawah text_tengah">'.$target_awal_usulan.'</td>';
 				for ($i=0; $i < $lama_pelaksanaan; $i++) { 
-					$body.="<td class=\"atas kanan bawah text_tengah\">".$target_arr_usulan[$i]."</td><td class=\"atas kanan bawah\"></td>";
+					$body.="<td class=\"atas kanan bawah text_tengah\">".$target_arr_usulan[$i]."</td><td class=\"atas kanan bawah text_kanan\"><b>(".$this->_number_format($tujuan['pagu_akumulasi_'.($i+1).'_usulan']).")</b></td>";
 				}
 				$body.='<td class="atas kanan bawah text_tengah">'.$target_akhir_usulan.'</td>
 				<td class="atas kanan bawah text_tengah">'.$satuan_usulan.'</td>
@@ -1029,7 +1280,7 @@ foreach ($data_all['data'] as $tujuan) {
 					<td class="atas kanan bawah">'.$indikator_sasaran.'</td>
 					<td class="atas kanan bawah text_tengah">'.$target_awal.'</td>';
 					for ($i=0; $i < $lama_pelaksanaan; $i++) { 
-						$body.="<td class=\"atas kanan bawah text_tengah\">".$target_arr[$i]."</td><td class=\"atas kanan bawah\"></td>";
+						$body.="<td class=\"atas kanan bawah text_tengah\">".$target_arr[$i]."</td><td class=\"atas kanan bawah text_kanan\"><b>(".$this->_number_format($sasaran['pagu_akumulasi_'.($i+1)]).")</b></td>";
 					}
 					$body.='<td class="atas kanan bawah text_tengah">'.$target_akhir.'</td>
 					<td class="atas kanan bawah">'.$satuan.'</td>
@@ -1040,7 +1291,7 @@ foreach ($data_all['data'] as $tujuan) {
 					<td class="atas kanan bawah">'.$indikator_sasaran_usulan.'</td>
 					<td class="atas kanan bawah text_tengah">'.$target_awal_usulan.'</td>';
 					for ($i=0; $i < $lama_pelaksanaan; $i++) { 
-						$body.="<td class=\"atas kanan bawah text_tengah\">".$target_arr_usulan[$i]."</td><td class=\"atas kanan bawah\"></td>";
+						$body.="<td class=\"atas kanan bawah text_tengah\">".$target_arr_usulan[$i]."</td><td class=\"atas kanan bawah text_kanan\"><b>(".$this->_number_format($sasaran['pagu_akumulasi_'.($i+1).'_usulan']).")</b></td>";
 					}
 					$body.='<td class="atas kanan bawah text_tengah">'.$target_akhir_usulan.'</td>
 					<td class="atas kanan bawah">'.$satuan_usulan.'</td>
@@ -1128,26 +1379,26 @@ foreach ($data_all['data'] as $tujuan) {
 						<td class="atas kanan bawah"></td>
 						<td class="atas kanan bawah">'.$program['program_teks'].'</td>
 						<td class="atas kanan bawah"></td>
-						<td class="atas kanan bawah">'.$indikator_program.'</td>
-						<td class="atas kanan bawah text_tengah">'.$target_awal.'</td>';
+						<td class="atas kanan bawah"><br>'.$indikator_program.'</td>
+						<td class="atas kanan bawah text_tengah"><br>'.$target_awal.'</td>';
 						for ($i=1; $i <= $lama_pelaksanaan; $i++) { 
-							$body.="<td class=\"atas kanan bawah text_tengah\">".$target_arr[$i-1]."</td><td class=\"atas kanan bawah text_kanan\">".$pagu_arr[$i-1]."</td>";
+							$body.="<td class=\"atas kanan bawah text_tengah\"><br>".$target_arr[$i-1]."</td><td class=\"atas kanan bawah text_kanan\"><b>(".$this->_number_format($program['pagu_akumulasi_'.($i+1)]).")</b><br>".$pagu_arr[$i-1]."</td>";
 						}
-						$body.='<td class="atas kanan bawah text_tengah">'.$target_akhir.'</td>
-						<td class="atas kanan bawah">'.$satuan.'</td>
+						$body.='<td class="atas kanan bawah text_tengah"><br>'.$target_akhir.'</td>
+						<td class="atas kanan bawah"><br>'.$satuan.'</td>
 						<td class="atas kanan bawah"></td>
 						<td class="atas kanan bawah"></td>
 						<td class="atas kanan bawah">'.$program['catatan'].'</td>
-						<td class="atas kanan bawah">'.$catatan_indikator.'</td>
-						<td class="atas kanan bawah">'.$indikator_program_usulan.'</td>
-						<td class="atas kanan bawah text_tengah">'.$target_awal_usulan.'</td>';
+						<td class="atas kanan bawah"><br>'.$catatan_indikator.'</td>
+						<td class="atas kanan bawah"><br>'.$indikator_program_usulan.'</td>
+						<td class="atas kanan bawah text_tengah"><br>'.$target_awal_usulan.'</td>';
 						for ($i=1; $i <= $lama_pelaksanaan; $i++) { 
-							$body.="<td class=\"atas kanan bawah text_tengah\">".$target_arr_usulan[$i-1]."</td><td class=\"atas kanan bawah text_kanan\">".$pagu_arr_usulan[$i-1]."</td>";
+							$body.="<td class=\"atas kanan bawah text_tengah\"><br>".$target_arr_usulan[$i-1]."</td><td class=\"atas kanan bawah text_kanan\"><b>(".$this->_number_format($program['pagu_akumulasi_'.($i+1).'_usulan']).")</b><br>".$pagu_arr_usulan[$i-1]."</td>";
 						}
-						$body.='<td class="atas kanan bawah text_tengah">'.$target_akhir_usulan.'</td>
-						<td class="atas kanan bawah">'.$satuan_usulan.'</td>
+						$body.='<td class="atas kanan bawah text_tengah"><br>'.$target_akhir_usulan.'</td>
+						<td class="atas kanan bawah"><br>'.$satuan_usulan.'</td>
 						<td class="atas kanan bawah">'.$program['catatan_usulan'].'</td>
-						<td class="atas kanan bawah">'.$catatan_indikator_usulan.'</td>
+						<td class="atas kanan bawah"><br>'.$catatan_indikator_usulan.'</td>
 					</tr>
 			';
 			
@@ -1230,27 +1481,27 @@ foreach ($data_all['data'] as $tujuan) {
 							<td class="atas kanan bawah"></td>
 							<td class="atas kanan bawah"></td>
 							<td class="atas kanan bawah">'.$kegiatan['kegiatan_teks'].'</td>
-							<td class="atas kanan bawah">'.$indikator_kegiatan.'</td>
-							<td class="atas kanan bawah text_tengah">'.$target_awal.'</td>';
+							<td class="atas kanan bawah"><br>'.$indikator_kegiatan.'</td>
+							<td class="atas kanan bawah text_tengah"><br>'.$target_awal.'</td>';
 							for ($i=1; $i <= $lama_pelaksanaan; $i++) { 
-								$body.="<td class=\"atas kanan bawah text_tengah\">".$target_arr[$i-1]."</td><td class=\"atas kanan bawah text_kanan\">".$pagu_arr[$i-1]."</td>";
+								$body.="<td class=\"atas kanan bawah text_tengah\"><br>".$target_arr[$i-1]."</td><td class=\"atas kanan bawah text_kanan\"><b>(".$this->_number_format($kegiatan['pagu_akumulasi_'.($i+1).'_usulan']).")</b><br>".$pagu_arr[$i-1]."</td>";
 							}
 							$body.='
-							<td class="atas kanan bawah text_tengah">'.$target_akhir.'</td>
-							<td class="atas kanan bawah">'.$satuan.'</td>
+							<td class="atas kanan bawah text_tengah"><br>'.$target_akhir.'</td>
+							<td class="atas kanan bawah"><br>'.$satuan.'</td>
 							<td class="atas kanan bawah"></td>
 							<td class="atas kanan bawah"></td>
 							<td class="atas kanan bawah">'.$kegiatan['catatan'].'</td>
-							<td class="atas kanan bawah">'.$catatan_indikator.'</td>
-							<td class="atas kanan bawah">'.$indikator_kegiatan_usulan.'</td>
-							<td class="atas kanan bawah text_tengah">'.$target_awal_usulan.'</td>';
+							<td class="atas kanan bawah"><br>'.$catatan_indikator.'</td>
+							<td class="atas kanan bawah"><br>'.$indikator_kegiatan_usulan.'</td>
+							<td class="atas kanan bawah text_tengah"><br>'.$target_awal_usulan.'</td>';
 							for ($i=1; $i <= $lama_pelaksanaan; $i++) { 
-								$body.="<td class=\"atas kanan bawah text_tengah\">".$target_arr_usulan[$i-1]."</td><td class=\"atas kanan bawah text_kanan\">".$pagu_arr_usulan[$i-1]."</td>";
+								$body.="<td class=\"atas kanan bawah text_tengah\"><br>".$target_arr_usulan[$i-1]."</td><td class=\"atas kanan bawah text_kanan\"><b>(".$this->_number_format($kegiatan['pagu_akumulasi_'.($i+1).'_usulan']).")</b><br>".$pagu_arr_usulan[$i-1]."</td>";
 							}
 							$body.='
-							<td class="atas kanan bawah text_tengah">'.$target_akhir_usulan.'</td>
-							<td class="atas kanan bawah">'.$satuan_usulan.'</td>
-							<td class="atas kanan bawah">'.$kegiatan['catatan_usulan'].'</td>
+							<td class="atas kanan bawah text_tengah"><br>'.$target_akhir_usulan.'</td>
+							<td class="atas kanan bawah"><br>'.$satuan_usulan.'</td>
+							<td class="atas kanan bawah"><br>'.$kegiatan['catatan_usulan'].'</td>
 							<td class="atas kanan bawah">'.$catatan_indikator_usulan.'</td>
 						</tr>
 				';
@@ -1265,9 +1516,6 @@ foreach ($data_all['data'] as $tujuan) {
 	.indikator_program { min-height: 40px; }
 	.indikator_kegiatan { min-height: 40px; }
 	.modal {overflow-y:auto;}
-	.status-rpjm{
-		background-color: #f5c9c9;
-	}
 </style>
 <h4 style="text-align: center; margin: 0; font-weight: bold;">RENCANA STRATEGIS (RENSTRA) <br><?php echo $judul_skpd.'Tahun '.$awal_renstra.' - '.$akhir_renstra.' '.$nama_pemda; ?></h4>
 <div id="cetak" title="Laporan MONEV RENSTRA" style="padding: 5px; overflow: auto; height: 80vh;">
@@ -1372,6 +1620,12 @@ foreach ($data_all['data'] as $tujuan) {
 			<?php echo $body; ?>
 		</tbody>
 	</table>
+	<h3>Catatan:</h3>
+	<ol>
+		<li><b>Debug Cascading <?php echo $nama_tipe_relasi; ?></b> berfungsi untuk melakukan pengecekan relasi antara tujuan RENSTRA dengan sasaran di <?php echo $nama_tipe_relasi; ?></li>
+		<li>Baris berwarna merah saat dilakukan checklist pada kotak <b>Debug Cascading <?php echo $nama_tipe_relasi; ?></b> menandakan bahwa tujuan RENSTRA belum terkoneksi dengan data di <?php echo $nama_tipe_relasi; ?></li>
+		<li>Pagu tujuan, sasaran, program dan kegiatan adalah akumulasi dari pagu di indikator kegiatan</li>
+	</ol>
 </div>
 
 <div class="modal fade" id="modal-monev" role="dialog" data-backdrop="static" aria-hidden="true">'
@@ -1473,7 +1727,7 @@ foreach ($data_all['data'] as $tujuan) {
 		+'</div>'
 		+'<h3 style="margin-top: 20px;">SETTING</h3>'
 		// +'<label><input type="checkbox" onclick="tampilkan_edit(this);"> Edit Data RENSTRA</label>'
-		+'<label style="margin-left: 20px;"><input type="checkbox" onclick="show_debug(this);"> Debug Cascading RPJM</label>'
+		+'<label style="margin-left: 20px;"><input type="checkbox" onclick="show_debug(this);"> Debug Cascading <?php echo $nama_tipe_relasi; ?></label>'
 		+'<label style="margin-left: 20px;">'
 			+'Sembunyikan Baris '
 			+'<select id="sembunyikan-baris" onchange="sembunyikan_baris(this);" style="padding: 5px 10px; min-width: 200px;">'
@@ -1542,7 +1796,7 @@ foreach ($data_all['data'] as $tujuan) {
 												+'<select class="form-control" id="bidang-urusan" name="bidang-urusan" onchange="setBidurAll(this);">'+html_bidur+'</select>'
 											+'</div>'
 											+'<div class="form-group">'
-												+'<label for="tujuan_teks">Tujuan RPJM/RPD</label>'
+												+'<label for="tujuan_teks">Tujuan <?php echo $nama_tipe_relasi; ?></label>'
 												+'<select class="form-control" id="tujuan-rpjm" name="tujuan_rpjm" onchange="pilihTujuanRpjm(this)">'
 													+'<option value="">Pilih Tujuan</option>';
 													response.data.map(function(value, index){
@@ -1551,7 +1805,7 @@ foreach ($data_all['data'] as $tujuan) {
 												html+='</select>'
 											+'</div>'
 											+'<div class="form-group">'
-												+'<label for="tujuan_teks">Sasaran RPJM/RPD</label>'
+												+'<label for="tujuan_teks">Sasaran <?php echo $nama_tipe_relasi; ?></label>'
 												+'<select class="form-control" id="sasaran-rpjm" name="sasaran_parent"></select>'
 											+'</div>'
 											+'<div class="form-group">'
@@ -1667,7 +1921,7 @@ foreach ($data_all['data'] as $tujuan) {
 							+'<select class="form-control" id="bidang-urusan" name="bidang-urusan" onchange="setBidurAll(this);" disabled>'+html_bidur+'</select>'
 						+'</div>'
 						+'<div class="form-group">'
-							+'<label for="tujuan_teks">Tujuan RPJM/RPD</label>'
+							+'<label for="tujuan_teks">Tujuan <?php echo $nama_tipe_relasi; ?></label>'
 							+'<select class="form-control" id="tujuan-rpjm" name="tujuan_rpjm" onchange="pilihTujuanRpjm(this)">'
 								+'<option value="">Pilih Tujuan</option>';
 								response.tujuan_parent.map(function(value, index){
@@ -1684,7 +1938,7 @@ foreach ($data_all['data'] as $tujuan) {
 						html+='</select>'
 						+'</div>'
 						+'<div class="form-group">'
-							+'<label for="tujuan_teks">Sasaran RPJM/RPD</label>'
+							+'<label for="tujuan_teks">Sasaran <?php echo $nama_tipe_relasi; ?></label>'
 							+'<select class="form-control" id="sasaran-rpjm" name="sasaran_parent"></select>'
 						+'</div>'
 
@@ -4514,7 +4768,7 @@ foreach ($data_all['data'] as $tujuan) {
 
 	function show_debug(that){
 		if(jQuery(that).is(':checked')){
-			jQuery("#table-renstra").find('.status-rpjm').css('background-color', '#ffa2a2');
+			jQuery("#table-renstra").find('.status-rpjm').css('background-color', '#f5c9c9');
 		}else{
 			jQuery("#table-renstra").find('.status-rpjm').css('background-color', '#ffffff');
 		}

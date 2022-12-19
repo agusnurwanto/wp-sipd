@@ -3764,8 +3764,8 @@ class Wpsipd_Public_Base_3
 							FROM data_renstra_sasaran_lokal 
 							WHERE 
 								kode_tujuan=%s AND 
-								active=1 ORDER BY urut_sasaran",
-								$tujuan_value['id_unik']), ARRAY_A);
+								active=1 ORDER BY urut_sasaran
+						", $tujuan_value['id_unik']), ARRAY_A);
 
 						foreach ($sasaran_all as $keySasaran => $sasaran_value) {
 							if(empty($data_all['data'][$tujuan_value['id_unik']]['data'][$sasaran_value['id_unik']])){
@@ -3800,14 +3800,14 @@ class Wpsipd_Public_Base_3
 							if(empty($sasaran_value['id_unik_indikator'])){
 
 								$program_all = $wpdb->get_results($wpdb->prepare("
-										SELECT 
-											* 
-										FROM data_renstra_program_lokal 
-										WHERE 
-											kode_sasaran=%s AND 
-											kode_tujuan=%s AND 
-											active=1 ORDER BY id",
-											$sasaran_value['id_unik'], $tujuan_value['id_unik']), ARRAY_A);
+									SELECT 
+										* 
+									FROM data_renstra_program_lokal 
+									WHERE 
+										kode_sasaran=%s AND 
+										kode_tujuan=%s AND 
+										active=1 ORDER BY id
+								", $sasaran_value['id_unik'], $tujuan_value['id_unik']), ARRAY_A);
 
 									foreach ($program_all as $keyProgram => $program_value) {
 										if(empty($data_all['data'][$tujuan_value['id_unik']]['data'][$sasaran_value['id_unik']]['data'][$program_value['id_unik']])){
