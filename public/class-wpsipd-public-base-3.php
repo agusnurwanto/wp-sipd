@@ -3850,18 +3850,15 @@ class Wpsipd_Public_Base_3
 
 									if(empty($program_value['id_unik_indikator'])){
 										$kegiatan_all = $wpdb->get_results($wpdb->prepare("
-														SELECT 
-															* 
-														FROM data_renstra_kegiatan_lokal 
-														WHERE 
-															kode_program=%s AND 
-															kode_sasaran=%s AND 
-															kode_tujuan=%s AND 
-															active=1 ORDER BY id",
-															$program_value['id_unik'],
-															$sasaran_value['id_unik'],
-															$tujuan_value['id_unik'],
-														), ARRAY_A);
+											SELECT 
+												* 
+											FROM data_renstra_kegiatan_lokal 
+											WHERE 
+												kode_program=%s AND 
+												kode_sasaran=%s AND 
+												kode_tujuan=%s AND 
+												active=1 ORDER BY id
+										", $program_value['id_unik'], $sasaran_value['id_unik'], $tujuan_value['id_unik']), ARRAY_A);
 
 										foreach ($kegiatan_all as $keyKegiatan => $kegiatan_value) {
 														
