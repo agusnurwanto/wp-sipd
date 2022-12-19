@@ -44,7 +44,7 @@ $selesaiJadwal = '-';
 $relasi_perencanaan = '-';
 $id_tipe_relasi = '-';
 $lama_pelaksanaan = 5;
-$disabled = 'disabled';
+$disabled = 'readonly';
 $disabled_admin = '';
 
 $cek_jadwal = $this->validasi_jadwal_perencanaan('renstra');
@@ -107,7 +107,7 @@ $user_meta = get_userdata($user_id);
 if(in_array("administrator", $user_meta->roles)){
 	$is_admin = true;
 	$disabled='';
-	$disabled_admin = 'disabled';
+	$disabled_admin = 'readonly';
 }
 
 $sql = $wpdb->prepare("
@@ -147,13 +147,13 @@ $kegiatan_ids = array();
 $nama_pemda = get_option('_crb_daerah');
 
 $tujuan_all = $wpdb->get_results($wpdb->prepare("
-			SELECT 
-				* 
-			FROM data_renstra_tujuan_lokal 
-			WHERE 
-				id_unit=%d AND 
-				active=1 ORDER BY urut_tujuan",
-				$input['id_skpd']), ARRAY_A);
+	SELECT 
+		* 
+	FROM data_renstra_tujuan_lokal 
+	WHERE 
+		id_unit=%d AND 
+		active=1 ORDER BY urut_tujuan
+", $input['id_skpd']), ARRAY_A);
 
 // echo '<pre>';print_r($wpdb->last_query);echo '</pre>';die();
 
@@ -1189,9 +1189,9 @@ foreach ($data_all['data'] as $tujuan) {
 		$sasaran_rpjm = $tujuan['sasaran_rpjm'];
 	}
 	$body .= '
-			<tr class="tr-tujuan'.$bg_rpjm.'">
-				<td class="kiri atas kanan bawah">'.$no_tujuan.'</td>
-				<td class="atas kanan bawah">'.$sasaran_rpjm.'</td>
+			<tr class="tr-tujuan">
+				<td class="kiri atas kanan bawah'.$bg_rpjm.'">'.$no_tujuan.'</td>
+				<td class="atas kanan bawah'.$bg_rpjm.'">'.$sasaran_rpjm.'</td>
 				<td class="atas kanan bawah">'.$tujuan['nama_bidang_urusan'].'</td>
 				<td class="atas kanan bawah">'.$tujuan['tujuan_teks'].'</td>
 				<td class="atas kanan bawah"></td>
@@ -1208,15 +1208,15 @@ foreach ($data_all['data'] as $tujuan) {
 				<td class="atas kanan bawah text_tengah">'.$tujuan['urut_tujuan'].'</td>
 				<td class="atas kanan bawah">'.$tujuan['catatan'].'</td>
 				<td class="atas kanan bawah">'.$catatan_indikator.'</td>
-				<td class="atas kanan bawah">'.$indikator_tujuan_usulan.'</td>
-				<td class="atas kanan bawah text_tengah">'.$target_awal_usulan.'</td>';
+				<td class="atas kanan bawah td-usulan">'.$indikator_tujuan_usulan.'</td>
+				<td class="atas kanan bawah text_tengah td-usulan">'.$target_awal_usulan.'</td>';
 				for ($i=0; $i < $lama_pelaksanaan; $i++) { 
-					$body.="<td class=\"atas kanan bawah text_tengah\">".$target_arr_usulan[$i]."</td><td class=\"atas kanan bawah text_kanan\"><b>(".$this->_number_format($tujuan['pagu_akumulasi_'.($i+1).'_usulan']).")</b></td>";
+					$body.="<td class=\"atas kanan bawah text_tengah td-usulan\">".$target_arr_usulan[$i]."</td><td class=\"atas kanan bawah text_kanan td-usulan\"><b>(".$this->_number_format($tujuan['pagu_akumulasi_'.($i+1).'_usulan']).")</b></td>";
 				}
-				$body.='<td class="atas kanan bawah text_tengah">'.$target_akhir_usulan.'</td>
-				<td class="atas kanan bawah text_tengah">'.$satuan_usulan.'</td>
-				<td class="atas kanan bawah">'.$tujuan['catatan_usulan'].'</td>
-				<td class="atas kanan bawah">'.$catatan_indikator_usulan.'</td>
+				$body.='<td class="atas kanan bawah text_tengah td-usulan">'.$target_akhir_usulan.'</td>
+				<td class="atas kanan bawah text_tengah td-usulan">'.$satuan_usulan.'</td>
+				<td class="atas kanan bawah td-usulan">'.$tujuan['catatan_usulan'].'</td>
+				<td class="atas kanan bawah td-usulan">'.$catatan_indikator_usulan.'</td>
 			</tr>
 	';
 
@@ -1269,9 +1269,9 @@ foreach ($data_all['data'] as $tujuan) {
 		$target_arr = [$target_1, $target_2, $target_3, $target_4, $target_5];
 		$target_arr_usulan = [$target_1_usulan, $target_2_usulan, $target_3_usulan, $target_4_usulan, $target_5_usulan];
 		$body .= '
-				<tr class="tr-sasaran'.$bg_rpjm.'">
-					<td class="kiri atas kanan bawah">'.$no_tujuan.".".$no_sasaran.'</td>
-					<td class="atas kanan bawah"></td>
+				<tr class="tr-sasaran">
+					<td class="kiri atas kanan bawah'.$bg_rpjm.'">'.$no_tujuan.".".$no_sasaran.'</td>
+					<td class="atas kanan bawah'.$bg_rpjm.'"></td>
 					<td class="atas kanan bawah"></td>
 					<td class="atas kanan bawah"></td>
 					<td class="atas kanan bawah">'.$sasaran['sasaran_teks'].'</td>
@@ -1288,15 +1288,15 @@ foreach ($data_all['data'] as $tujuan) {
 					<td class="atas kanan bawah text_tengah">'.$sasaran['urut_sasaran'].'</td>
 					<td class="atas kanan bawah">'.$sasaran['catatan'].'</td>
 					<td class="atas kanan bawah">'.$catatan_indikator.'</td>
-					<td class="atas kanan bawah">'.$indikator_sasaran_usulan.'</td>
-					<td class="atas kanan bawah text_tengah">'.$target_awal_usulan.'</td>';
+					<td class="atas kanan bawah td-usulan">'.$indikator_sasaran_usulan.'</td>
+					<td class="atas kanan bawah text_tengah td-usulan">'.$target_awal_usulan.'</td>';
 					for ($i=0; $i < $lama_pelaksanaan; $i++) { 
-						$body.="<td class=\"atas kanan bawah text_tengah\">".$target_arr_usulan[$i]."</td><td class=\"atas kanan bawah text_kanan\"><b>(".$this->_number_format($sasaran['pagu_akumulasi_'.($i+1).'_usulan']).")</b></td>";
+						$body.="<td class=\"atas kanan bawah text_tengah td-usulan\">".$target_arr_usulan[$i]."</td><td class=\"atas kanan bawah text_kanan td-usulan\"><b>(".$this->_number_format($sasaran['pagu_akumulasi_'.($i+1).'_usulan']).")</b></td>";
 					}
-					$body.='<td class="atas kanan bawah text_tengah">'.$target_akhir_usulan.'</td>
-					<td class="atas kanan bawah">'.$satuan_usulan.'</td>
-					<td class="atas kanan bawah">'.$sasaran['catatan_usulan'].'</td>
-					<td class="atas kanan bawah">'.$catatan_indikator_usulan.'</td>
+					$body.='<td class="atas kanan bawah text_tengah td-usulan">'.$target_akhir_usulan.'</td>
+					<td class="atas kanan bawah td-usulan">'.$satuan_usulan.'</td>
+					<td class="atas kanan bawah td-usulan">'.$sasaran['catatan_usulan'].'</td>
+					<td class="atas kanan bawah td-usulan">'.$catatan_indikator_usulan.'</td>
 				</tr>
 		';
 		
@@ -1371,9 +1371,9 @@ foreach ($data_all['data'] as $tujuan) {
 			$target_arr_usulan = [$target_1_usulan, $target_2_usulan, $target_3_usulan, $target_4_usulan, $target_5_usulan];
 			$pagu_arr_usulan = [$pagu_1_usulan, $pagu_2_usulan, $pagu_3_usulan, $pagu_4_usulan, $pagu_5_usulan];
 			$body .= '
-					<tr class="tr-program'.$bg_rpjm.'">
-						<td class="kiri atas kanan bawah">'.$no_tujuan.".".$no_sasaran.".".$no_program.'</td>
-						<td class="atas kanan bawah"></td>
+					<tr class="tr-program">
+						<td class="kiri atas kanan bawah'.$bg_rpjm.'">'.$no_tujuan.".".$no_sasaran.".".$no_program.'</td>
+						<td class="atas kanan bawah'.$bg_rpjm.'"></td>
 						<td class="atas kanan bawah"></td>
 						<td class="atas kanan bawah"></td>
 						<td class="atas kanan bawah"></td>
@@ -1390,15 +1390,15 @@ foreach ($data_all['data'] as $tujuan) {
 						<td class="atas kanan bawah"></td>
 						<td class="atas kanan bawah">'.$program['catatan'].'</td>
 						<td class="atas kanan bawah"><br>'.$catatan_indikator.'</td>
-						<td class="atas kanan bawah"><br>'.$indikator_program_usulan.'</td>
-						<td class="atas kanan bawah text_tengah"><br>'.$target_awal_usulan.'</td>';
+						<td class="atas kanan bawah td-usulan"><br>'.$indikator_program_usulan.'</td>
+						<td class="atas kanan bawah text_tengah td-usulan"><br>'.$target_awal_usulan.'</td>';
 						for ($i=1; $i <= $lama_pelaksanaan; $i++) { 
-							$body.="<td class=\"atas kanan bawah text_tengah\"><br>".$target_arr_usulan[$i-1]."</td><td class=\"atas kanan bawah text_kanan\"><b>(".$this->_number_format($program['pagu_akumulasi_'.($i+1).'_usulan']).")</b><br>".$pagu_arr_usulan[$i-1]."</td>";
+							$body.="<td class=\"atas kanan bawah text_tengah td-usulan\"><br>".$target_arr_usulan[$i-1]."</td><td class=\"atas kanan bawah text_kanan td-usulan\"><b>(".$this->_number_format($program['pagu_akumulasi_'.($i+1).'_usulan']).")</b><br>".$pagu_arr_usulan[$i-1]."</td>";
 						}
-						$body.='<td class="atas kanan bawah text_tengah"><br>'.$target_akhir_usulan.'</td>
-						<td class="atas kanan bawah"><br>'.$satuan_usulan.'</td>
-						<td class="atas kanan bawah">'.$program['catatan_usulan'].'</td>
-						<td class="atas kanan bawah"><br>'.$catatan_indikator_usulan.'</td>
+						$body.='<td class="atas kanan bawah text_tengah td-usulan"><br>'.$target_akhir_usulan.'</td>
+						<td class="atas kanan bawah td-usulan"><br>'.$satuan_usulan.'</td>
+						<td class="atas kanan bawah td-usulan">'.$program['catatan_usulan'].'</td>
+						<td class="atas kanan bawah td-usulan"><br>'.$catatan_indikator_usulan.'</td>
 					</tr>
 			';
 			
@@ -1473,9 +1473,9 @@ foreach ($data_all['data'] as $tujuan) {
 				$target_arr_usulan = [$target_1_usulan, $target_2_usulan, $target_3_usulan, $target_4_usulan, $target_5_usulan];
 				$pagu_arr_usulan = [$pagu_1_usulan, $pagu_2_usulan, $pagu_3_usulan, $pagu_4_usulan, $pagu_5_usulan];
 				$body .= '
-						<tr class="tr-kegiatan'.$bg_rpjm.'">
-							<td class="kiri atas kanan bawah">'.$no_tujuan.".".$no_sasaran.".".$no_program.".".$no_kegiatan.'</td>
-							<td class="atas kanan bawah"></td>
+						<tr class="tr-kegiatan">
+							<td class="kiri atas kanan bawah'.$bg_rpjm.'">'.$no_tujuan.".".$no_sasaran.".".$no_program.".".$no_kegiatan.'</td>
+							<td class="atas kanan bawah'.$bg_rpjm.'"></td>
 							<td class="atas kanan bawah"></td>
 							<td class="atas kanan bawah"></td>
 							<td class="atas kanan bawah"></td>
@@ -1484,7 +1484,7 @@ foreach ($data_all['data'] as $tujuan) {
 							<td class="atas kanan bawah"><br>'.$indikator_kegiatan.'</td>
 							<td class="atas kanan bawah text_tengah"><br>'.$target_awal.'</td>';
 							for ($i=1; $i <= $lama_pelaksanaan; $i++) { 
-								$body.="<td class=\"atas kanan bawah text_tengah\"><br>".$target_arr[$i-1]."</td><td class=\"atas kanan bawah text_kanan\"><b>(".$this->_number_format($kegiatan['pagu_akumulasi_'.($i+1).'_usulan']).")</b><br>".$pagu_arr[$i-1]."</td>";
+								$body.="<td class=\"atas kanan bawah text_tengah\"><br>".$target_arr[$i-1]."</td><td class=\"atas kanan bawah text_kanan\"><b>(".$this->_number_format($kegiatan['pagu_akumulasi_'.($i+1)]).")</b><br>".$pagu_arr[$i-1]."</td>";
 							}
 							$body.='
 							<td class="atas kanan bawah text_tengah"><br>'.$target_akhir.'</td>
@@ -1493,16 +1493,16 @@ foreach ($data_all['data'] as $tujuan) {
 							<td class="atas kanan bawah"></td>
 							<td class="atas kanan bawah">'.$kegiatan['catatan'].'</td>
 							<td class="atas kanan bawah"><br>'.$catatan_indikator.'</td>
-							<td class="atas kanan bawah"><br>'.$indikator_kegiatan_usulan.'</td>
-							<td class="atas kanan bawah text_tengah"><br>'.$target_awal_usulan.'</td>';
+							<td class="atas kanan bawah td-usulan"><br>'.$indikator_kegiatan_usulan.'</td>
+							<td class="atas kanan bawah text_tengah td-usulan"><br>'.$target_awal_usulan.'</td>';
 							for ($i=1; $i <= $lama_pelaksanaan; $i++) { 
-								$body.="<td class=\"atas kanan bawah text_tengah\"><br>".$target_arr_usulan[$i-1]."</td><td class=\"atas kanan bawah text_kanan\"><b>(".$this->_number_format($kegiatan['pagu_akumulasi_'.($i+1).'_usulan']).")</b><br>".$pagu_arr_usulan[$i-1]."</td>";
+								$body.="<td class=\"atas kanan bawah text_tengah td-usulan\"><br>".$target_arr_usulan[$i-1]."</td><td class=\"atas kanan bawah text_kanan td-usulan\"><b>(".$this->_number_format($kegiatan['pagu_akumulasi_'.($i+1).'_usulan']).")</b><br>".$pagu_arr_usulan[$i-1]."</td>";
 							}
 							$body.='
-							<td class="atas kanan bawah text_tengah"><br>'.$target_akhir_usulan.'</td>
-							<td class="atas kanan bawah"><br>'.$satuan_usulan.'</td>
-							<td class="atas kanan bawah"><br>'.$kegiatan['catatan_usulan'].'</td>
-							<td class="atas kanan bawah">'.$catatan_indikator_usulan.'</td>
+							<td class="atas kanan bawah text_tengah td-usulan"><br>'.$target_akhir_usulan.'</td>
+							<td class="atas kanan bawah td-usulan"><br>'.$satuan_usulan.'</td>
+							<td class="atas kanan bawah td-usulan"><br>'.$kegiatan['catatan_usulan'].'</td>
+							<td class="atas kanan bawah td-usulan">'.$catatan_indikator_usulan.'</td>
 						</tr>
 				';
 			}
@@ -1516,6 +1516,15 @@ foreach ($data_all['data'] as $tujuan) {
 	.indikator_program { min-height: 40px; }
 	.indikator_kegiatan { min-height: 40px; }
 	.modal {overflow-y:auto;}
+	.tr-tujuan {
+	    background: #0000ff1f;
+	}
+	.tr-sasaran {
+	    background: #ffff0059;
+	}
+	.tr-program {
+	    background: #baffba;
+	}
 </style>
 <h4 style="text-align: center; margin: 0; font-weight: bold;">RENCANA STRATEGIS (RENSTRA) <br><?php echo $judul_skpd.'Tahun '.$awal_renstra.' - '.$akhir_renstra.' '.$nama_pemda; ?></h4>
 <div id="cetak" title="Laporan MONEV RENSTRA" style="padding: 5px; overflow: auto; height: 80vh;">
@@ -1542,16 +1551,16 @@ foreach ($data_all['data'] as $tujuan) {
 				<th style="width: 50px;" class="row_head_1 atas kanan bawah text_tengah text_blok">No Urut</th>
 				<th style="width: 150px;" class="row_head_1 atas kanan bawah text_tengah text_blok">Catatan</th>
 				<th style="width: 150px;" class="row_head_1 atas kanan bawah text_tengah text_blok">Catatan Indikator</th>
-				<th style="width: 400px;" class="row_head_1 atas kanan bawah text_tengah text_blok">Indikator Usulan</th>
-				<th style="width: 100px;" class="row_head_1 atas kanan bawah text_tengah text_blok">Target Awal Usulan</th>';
+				<th style="width: 400px;" class="row_head_1 atas kanan bawah text_tengah text_blok td-usulan">Indikator Usulan</th>
+				<th style="width: 100px;" class="row_head_1 atas kanan bawah text_tengah text_blok td-usulan">Target Awal Usulan</th>';
 				for ($i=1; $i <= $lama_pelaksanaan; $i++) { 
-				$row_head.='<th style="width: 200px;" class="row_head_1_tahun atas kanan bawah text_tengah text_blok">Tahun '.$i.' Usulan</th>';
+				$row_head.='<th style="width: 200px;" class="row_head_1_tahun atas kanan bawah text_tengah text_blok td-usulan">Tahun '.$i.' Usulan</th>';
 				}
 			$row_head.='
-				<th style="width: 100px;" class="row_head_1 atas kanan bawah text_tengah text_blok">Target Akhir Usulan</th>
-				<th style="width: 100px;" class="row_head_1 atas kanan bawah text_tengah text_blok">Satuan Usulan</th>
-				<th style="width: 150px;" class="row_head_1 atas kanan bawah text_tengah text_blok">Catatan Usulan</th>
-				<th style="width: 150px;" class="row_head_1 atas kanan bawah text_tengah text_blok">Catatan Indikator Usulan</th>
+				<th style="width: 100px;" class="row_head_1 atas kanan bawah text_tengah text_blok td-usulan">Target Akhir Usulan</th>
+				<th style="width: 100px;" class="row_head_1 atas kanan bawah text_tengah text_blok td-usulan">Satuan Usulan</th>
+				<th style="width: 150px;" class="row_head_1 atas kanan bawah text_tengah text_blok td-usulan">Catatan Usulan</th>
+				<th style="width: 150px;" class="row_head_1 atas kanan bawah text_tengah text_blok td-usulan">Catatan Indikator Usulan</th>
 			</tr>
 			<tr>';
 			for ($i=1; $i <= $lama_pelaksanaan; $i++) { 
@@ -1559,8 +1568,8 @@ foreach ($data_all['data'] as $tujuan) {
 					<th style="width: 100px;" class="row_head_2 atas kanan bawah text_tengah text_blok">Target</th>
 					<th style="width: 100px;" class="atas kanan bawah text_tengah text_blok">Pagu</th>';
 				$row_head.='
-					<th style="width: 100px;" class="row_head_2 atas kanan bawah text_tengah text_blok">Target Usulan</th>
-					<th style="width: 100px;" class="atas kanan bawah text_tengah text_blok">Pagu Usulan</th>';
+					<th style="width: 100px;" class="row_head_2 atas kanan bawah text_tengah text_blok td-usulan">Target Usulan</th>
+					<th style="width: 100px;" class="atas kanan bawah text_tengah text_blok td-usulan">Pagu Usulan</th>';
 			}
 			$row_head.='</tr>';
 			echo $row_head;
@@ -1595,8 +1604,8 @@ foreach ($data_all['data'] as $tujuan) {
 				<th class='atas kanan bawah text_tengah text_blok'><?php echo $pagu_temp+4 ?></th>
 				<th class='atas kanan bawah text_tengah text_blok'><?php echo $pagu_temp+5 ?></th>
 				<th class='atas kanan bawah text_tengah text_blok'><?php echo $pagu_temp+6 ?></th>
-				<th class='atas kanan bawah text_tengah text_blok'><?php echo $pagu_temp+7 ?></th>
-				<th class='atas kanan bawah text_tengah text_blok'><?php echo $pagu_temp+8 ?></th>
+				<th class='atas kanan bawah text_tengah text_blok td-usulan'><?php echo $pagu_temp+7 ?></th>
+				<th class='atas kanan bawah text_tengah text_blok td-usulan'><?php echo $pagu_temp+8 ?></th>
 			<?php 
 				$target_temp += 9;
 				for ($i=1; $i <= $lama_pelaksanaan; $i++) { 
@@ -1605,28 +1614,32 @@ foreach ($data_all['data'] as $tujuan) {
 					}
 					$pagu_temp=$target_temp+1;
 			?>
-				<th class='atas kanan bawah text_tengah text_blok'><?php echo $target_temp ?></th>
-				<th class='atas kanan bawah text_tengah text_blok'><?php echo $pagu_temp ?></th>
+				<th class='atas kanan bawah text_tengah text_blok td-usulan'><?php echo $target_temp ?></th>
+				<th class='atas kanan bawah text_tengah text_blok td-usulan'><?php echo $pagu_temp ?></th>
 			<?php
 				}
 			?>
-				<th class='atas kanan bawah text_tengah text_blok'><?php echo $pagu_temp+1 ?></th>
-				<th class='atas kanan bawah text_tengah text_blok'><?php echo $pagu_temp+2 ?></th>
-				<th class='atas kanan bawah text_tengah text_blok'><?php echo $pagu_temp+3 ?></th>
-				<th class='atas kanan bawah text_tengah text_blok'><?php echo $pagu_temp+4 ?></th>
+				<th class='atas kanan bawah text_tengah text_blok td-usulan'><?php echo $pagu_temp+1 ?></th>
+				<th class='atas kanan bawah text_tengah text_blok td-usulan'><?php echo $pagu_temp+2 ?></th>
+				<th class='atas kanan bawah text_tengah text_blok td-usulan'><?php echo $pagu_temp+3 ?></th>
+				<th class='atas kanan bawah text_tengah text_blok td-usulan'><?php echo $pagu_temp+4 ?></th>
 			</tr>
 		</thead>
 		<tbody>
 			<?php echo $body; ?>
 		</tbody>
 	</table>
-	<h3>Catatan:</h3>
-	<ol>
-		<li><b>Debug Cascading <?php echo $nama_tipe_relasi; ?></b> berfungsi untuk melakukan pengecekan relasi antara tujuan RENSTRA dengan sasaran di <?php echo $nama_tipe_relasi; ?></li>
-		<li>Baris berwarna merah saat dilakukan checklist pada kotak <b>Debug Cascading <?php echo $nama_tipe_relasi; ?></b> menandakan bahwa tujuan RENSTRA belum terkoneksi dengan data di <?php echo $nama_tipe_relasi; ?></li>
-		<li>Pagu tujuan, sasaran, program dan kegiatan adalah akumulasi dari pagu di indikator kegiatan</li>
-	</ol>
 </div>
+<h3>Catatan:</h3>
+<ol>
+	<li>Background warna biru adalah baris tujuan</li>
+	<li>Background warna kuning adalah baris sasaran</li>
+	<li>Background warna hijau adalah baris program</li>
+	<li>Background warna putih adalah baris kegiatan</li>
+	<li><b>Debug Cascading <?php echo $nama_tipe_relasi; ?></b> berfungsi untuk melakukan pengecekan relasi antara tujuan RENSTRA dengan sasaran di <?php echo $nama_tipe_relasi; ?></li>
+	<li>Baris berwarna merah saat dilakukan checklist pada kotak <b>Debug Cascading <?php echo $nama_tipe_relasi; ?></b> menandakan bahwa tujuan RENSTRA belum terkoneksi dengan data di <?php echo $nama_tipe_relasi; ?></li>
+	<li>Pagu tujuan, sasaran, program dan kegiatan adalah akumulasi dari pagu di indikator kegiatan</li>
+</ol>
 
 <div class="modal fade" id="modal-monev" role="dialog" data-backdrop="static" aria-hidden="true">'
     <div class="modal-dialog" style="max-width: 1200px;" role="document">
@@ -1736,6 +1749,12 @@ foreach ($data_all['data'] as $tujuan) {
 				+'<option value="tr-program">Program</option>'
 				+'<option value="tr-kegiatan">Kegiatan</option>'
 			+'</select>'
+		+'<label style="margin-left: 20px;">'
+			+'Sembunyikan Kolom '
+			+'<select onchange="sembunyikan_kolom(this);" style="padding: 5px 10px; min-width: 200px;">'
+				+'<option value="">Pilih Kolom</option>'
+				+'<option value="usulan">Usulan</option>'
+			+'</select>'
 		+'</label>';
 	jQuery('#action-sipd').append(aksi);
 
@@ -1809,7 +1828,7 @@ foreach ($data_all['data'] as $tujuan) {
 												+'<select class="form-control" id="sasaran-rpjm" name="sasaran_parent"></select>'
 											+'</div>'
 											+'<div class="form-group">'
-												+'<label for="tujuan_teks">Tujuan Renstra</label><span onclick="copySasaran();" class="btn btn-sm btn-primary" style="margin-left: 20px;">Copy dari sasaran</span></label>'
+												+'<label for="tujuan_teks">Tujuan Renstra</label><span onclick="copySasaran();" class="btn btn-primary" style="margin-left: 20px;">Copy dari sasaran</span></label>'
 								  				+'<textarea class="form-control" id="tujuan_teks" name="tujuan_teks"></textarea>'
 											+'</div>'
 											+'<div class="form-group">'
@@ -1829,14 +1848,14 @@ foreach ($data_all['data'] as $tujuan) {
 							tujuanModal.find('.modal-title').html('Tambah Tujuan');
 							tujuanModal.find('.modal-body').html(html);
 							tujuanModal.find('.modal-footer').html(''
-								+'<button type="button" class="btn btn-sm btn-warning" data-dismiss="modal">'
-									+'<i class="dashicons dashicons-no" style="margin-top: 3px;"></i> Tutup'
+								+'<button type="button" class="btn btn-warning" data-dismiss="modal">'
+									+'<i class="dashicons dashicons-no" style="margin-top: 2px;"></i> Tutup'
 								+'</button>'
-								+'<button type="button" class="btn btn-sm btn-success" id="btn-simpan-data-renstra-lokal" '
+								+'<button type="button" class="btn btn-success" id="btn-simpan-data-renstra-lokal" '
 									+'data-action="submit_tujuan_renstra" '
 									+'data-view="tujuanRenstra"'
 								+'>'
-									+'<i class="dashicons dashicons-yes" style="margin-top: 3px;"></i> Simpan'
+									+'<i class="dashicons dashicons-yes" style="margin-top: 2px;"></i> Simpan'
 								+'</button>');
 							tujuanModal.find('.modal-dialog').css('maxWidth','');
 							tujuanModal.find('.modal-dialog').css('width','');
@@ -1943,7 +1962,7 @@ foreach ($data_all['data'] as $tujuan) {
 						+'</div>'
 
 						+'<div class="form-group">'
-							+'<label for="tujuan_teks">Tujuan Renstra</label><span onclick="copySasaran();" class="btn btn-sm btn-primary" style="margin-left: 20px;">Copy dari sasaran</span></label>'
+							+'<label for="tujuan_teks">Tujuan Renstra</label><span onclick="copySasaran();" class="btn btn-primary" style="margin-left: 20px;">Copy dari sasaran</span></label>'
 					  		+'<textarea class="form-control" id="tujuan_teks" name="tujuan_teks">'+response.tujuan.tujuan_teks+'</textarea>'
 						+'</div>'
 						+'<div class="form-group">'
@@ -1963,14 +1982,14 @@ foreach ($data_all['data'] as $tujuan) {
 			        tujuanModal.find('.modal-title').html('Edit Tujuan');
 					tujuanModal.find('.modal-body').html(html);
 					tujuanModal.find('.modal-footer').html(''
-						+'<button type="button" class="btn btn-sm btn-warning" data-dismiss="modal">'
-							+'<i class="dashicons dashicons-no" style="margin-top: 3px;"></i> Tutup'
+						+'<button type="button" class="btn btn-warning" data-dismiss="modal">'
+							+'<i class="dashicons dashicons-no" style="margin-top: 2px;"></i> Tutup'
 						+'</button>'
-						+'<button type="button" class="btn btn-sm btn-success" id="btn-simpan-data-renstra-lokal" '
+						+'<button type="button" class="btn btn-success" id="btn-simpan-data-renstra-lokal" '
 							+'data-action="update_tujuan_renstra" '
 							+'data-view="tujuanRenstra"'
 						+'>'
-							+'<i class="dashicons dashicons-yes" style="margin-top: 3px;"></i> Simpan'
+							+'<i class="dashicons dashicons-yes" style="margin-top: 2px;"></i> Simpan'
 						+'</button>');
 					tujuanModal.find('.modal-dialog').css('maxWidth','');
 					tujuanModal.find('.modal-dialog').css('width','');
@@ -2101,20 +2120,29 @@ foreach ($data_all['data'] as $tujuan) {
 								+'</div>'
 							+'</div>'
 						+'</div>'
+					<?php if($is_admin): ?>
+						+'<div class="row">'
+							+'<div class="col-md-12 text-center">'
+								+'<button onclick="copy_usulan(this); return false;" type="button" class="btn btn-danger" style="margin-top: 20px;">'
+									+'<i class="dashicons dashicons-arrow-right-alt" style="margin-top: 2px;"></i> Copy Data Usulan ke Penetapan'
+								+'</button>'
+							+'</div>'
+						+'</div>'
+					<?php endif; ?>
 					+'</div>'
 				+'</form>';
 
 			indikatorTujuanModal.find('.modal-title').html('Tambah Indikator');
 			indikatorTujuanModal.find('.modal-body').html(html);
 			indikatorTujuanModal.find('.modal-footer').html(''
-				+'<button type="button" class="btn btn-sm btn-warning" data-dismiss="modal">'
-					+'<i class="dashicons dashicons-no" style="margin-top: 3px;"></i> Tutup'
+				+'<button type="button" class="btn btn-warning" data-dismiss="modal">'
+					+'<i class="dashicons dashicons-no" style="margin-top: 2px;"></i> Tutup'
 				+'</button>'
-				+'<button type="button" class="btn btn-sm btn-success" id="btn-simpan-data-renstra-lokal" '
+				+'<button type="button" class="btn btn-success" id="btn-simpan-data-renstra-lokal" '
 					+'data-action="submit_indikator_tujuan_renstra" '
 					+'data-view="indikatorTujuanRenstra"'
 				+'>'
-					+'<i class="dashicons dashicons-yes" style="margin-top: 3px;"></i> Simpan'
+					+'<i class="dashicons dashicons-yes" style="margin-top: 2px;"></i> Simpan'
 				+'</button>');
 			indikatorTujuanModal.find('.modal-dialog').css('maxWidth','950px');
 			indikatorTujuanModal.find('.modal-dialog').css('width','100%');
@@ -2221,20 +2249,29 @@ foreach ($data_all['data'] as $tujuan) {
 								+'</div>'
 							+'</div>'
 						+'</div>'
+					<?php if($is_admin): ?>
+						+'<div class="row">'
+							+'<div class="col-md-12 text-center">'
+								+'<button onclick="copy_usulan(this); return false;" type="button" class="btn btn-danger" style="margin-top: 20px;">'
+									+'<i class="dashicons dashicons-arrow-right-alt" style="margin-top: 2px;"></i> Copy Data Usulan ke Penetapan'
+								+'</button>'
+							+'</div>'
+						+'</div>'
+					<?php endif; ?>
 					+'</div>'
 				  +'</form>';
 
 				indikatorTujuanModal.find('.modal-title').html('Edit Indikator Tujuan');
 				indikatorTujuanModal.find('.modal-body').html(html);
 				indikatorTujuanModal.find('.modal-footer').html(''
-					+'<button type="button" class="btn btn-sm btn-warning" data-dismiss="modal">'
-						+'<i class="dashicons dashicons-no" style="margin-top: 3px;"></i> Tutup'
+					+'<button type="button" class="btn btn-warning" data-dismiss="modal">'
+						+'<i class="dashicons dashicons-no" style="margin-top: 2px;"></i> Tutup'
 					+'</button>'
-					+'<button type="button" class="btn btn-sm btn-success" id="btn-simpan-data-renstra-lokal" '
+					+'<button type="button" class="btn btn-success" id="btn-simpan-data-renstra-lokal" '
 						+'data-action="update_indikator_tujuan_renstra" '
 						+'data-view="indikatorTujuanRenstra"'
 					+'>'
-						+'<i class="dashicons dashicons-yes" style="margin-top: 3px;"></i> Simpan'
+						+'<i class="dashicons dashicons-yes" style="margin-top: 2px;"></i> Simpan'
 					+'</button>');
 				indikatorTujuanModal.find('.modal-dialog').css('maxWidth','950px');
 				indikatorTujuanModal.find('.modal-dialog').css('width','100%');
@@ -2317,14 +2354,14 @@ foreach ($data_all['data'] as $tujuan) {
 		sasaranModal.find('.modal-title').html('Tambah Sasaran');
 		sasaranModal.find('.modal-body').html(html);
 		sasaranModal.find('.modal-footer').html(''
-			+'<button type="button" class="btn btn-sm btn-warning" data-dismiss="modal">'
-				+'<i class="dashicons dashicons-no" style="margin-top: 3px;"></i> Tutup'
+			+'<button type="button" class="btn btn-warning" data-dismiss="modal">'
+				+'<i class="dashicons dashicons-no" style="margin-top: 2px;"></i> Tutup'
 			+'</button>'
-			+'<button type="button" class="btn btn-sm btn-success" id="btn-simpan-data-renstra-lokal" '
+			+'<button type="button" class="btn btn-success" id="btn-simpan-data-renstra-lokal" '
 				+'data-action="submit_sasaran_renstra" '
 				+'data-view="sasaranRenstra"'
 			+'>'
-				+'<i class="dashicons dashicons-yes" style="margin-top: 3px;"></i> Simpan'
+				+'<i class="dashicons dashicons-yes" style="margin-top: 2px;"></i> Simpan'
 			+'</button>');
 		sasaranModal.find('.modal-dialog').css('maxWidth','');
 		sasaranModal.find('.modal-dialog').css('width','');
@@ -2388,14 +2425,14 @@ foreach ($data_all['data'] as $tujuan) {
 				sasaranModal.find('.modal-body').html('');
 				sasaranModal.find('.modal-body').html(html);
 				sasaranModal.find('.modal-footer').html(''
-					+'<button type="button" class="btn btn-sm btn-warning" data-dismiss="modal">'
-						+'<i class="dashicons dashicons-no" style="margin-top: 3px;"></i> Tutup'
+					+'<button type="button" class="btn btn-warning" data-dismiss="modal">'
+						+'<i class="dashicons dashicons-no" style="margin-top: 2px;"></i> Tutup'
 					+'</button>'
-					+'<button type="button" class="btn btn-sm btn-success" id="btn-simpan-data-renstra-lokal" '
+					+'<button type="button" class="btn btn-success" id="btn-simpan-data-renstra-lokal" '
 						+'data-action="update_sasaran_renstra" '
 						+'data-view="sasaranRenstra"'
 					+'>'
-						+'<i class="dashicons dashicons-yes" style="margin-top: 3px;"></i> Simpan'
+						+'<i class="dashicons dashicons-yes" style="margin-top: 2px;"></i> Simpan'
 					+'</button>');
 				sasaranModal.find('.modal-dialog').css('maxWidth','');
 				sasaranModal.find('.modal-dialog').css('width','');
@@ -2518,20 +2555,29 @@ foreach ($data_all['data'] as $tujuan) {
 								+'</div>'
 							+'</div>'
 						+'</div>'
+					<?php if($is_admin): ?>
+						+'<div class="row">'
+							+'<div class="col-md-12 text-center">'
+								+'<button onclick="copy_usulan(this); return false;" type="button" class="btn btn-danger" style="margin-top: 20px;">'
+									+'<i class="dashicons dashicons-arrow-right-alt" style="margin-top: 2px;"></i> Copy Data Usulan ke Penetapan'
+								+'</button>'
+							+'</div>'
+						+'</div>'
+					<?php endif; ?>
 					+'</div>'
 					+'</form>';
 
 			indikatorSasaranModal.find('.modal-title').html('Tambah Indikator');
 			indikatorSasaranModal.find('.modal-body').html(html);
 			indikatorSasaranModal.find('.modal-footer').html(''
-				+'<button type="button" class="btn btn-sm btn-warning" data-dismiss="modal">'
-					+'<i class="dashicons dashicons-no" style="margin-top: 3px;"></i> Tutup'
+				+'<button type="button" class="btn btn-warning" data-dismiss="modal">'
+					+'<i class="dashicons dashicons-no" style="margin-top: 2px;"></i> Tutup'
 				+'</button>'
-				+'<button type="button" class="btn btn-sm btn-success" id="btn-simpan-data-renstra-lokal" '
+				+'<button type="button" class="btn btn-success" id="btn-simpan-data-renstra-lokal" '
 					+'data-action="submit_indikator_sasaran_renstra" '
 					+'data-view="indikatorSasaranRenstra"'
 				+'>'
-					+'<i class="dashicons dashicons-yes" style="margin-top: 3px;"></i> Simpan'
+					+'<i class="dashicons dashicons-yes" style="margin-top: 2px;"></i> Simpan'
 				+'</button>');
 			indikatorSasaranModal.find('.modal-dialog').css('maxWidth','950px');
 			indikatorSasaranModal.find('.modal-dialog').css('width','100%');
@@ -2639,20 +2685,29 @@ foreach ($data_all['data'] as $tujuan) {
 									+'</div>'
 								+'</div>'
 							+'</div>'
+						<?php if($is_admin): ?>
+							+'<div class="row">'
+								+'<div class="col-md-12 text-center">'
+									+'<button onclick="copy_usulan(this); return false;" type="button" class="btn btn-danger" style="margin-top: 20px;">'
+										+'<i class="dashicons dashicons-arrow-right-alt" style="margin-top: 2px;"></i> Copy Data Usulan ke Penetapan'
+									+'</button>'
+								+'</div>'
+							+'</div>'
+						<?php endif; ?>
 						+'</div>'
 				  	+'</form>';
 
 				indikatorSasaranModal.find('.modal-title').html('Edit Indikator Sasaran');
 				indikatorSasaranModal.find('.modal-body').html(html);
 				indikatorSasaranModal.find('.modal-footer').html(''
-					+'<button type="button" class="btn btn-sm btn-warning" data-dismiss="modal">'
-						+'<i class="dashicons dashicons-no" style="margin-top: 3px;"></i> Tutup'
+					+'<button type="button" class="btn btn-warning" data-dismiss="modal">'
+						+'<i class="dashicons dashicons-no" style="margin-top: 2px;"></i> Tutup'
 					+'</button>'
-					+'<button type="button" class="btn btn-sm btn-success" id="btn-simpan-data-renstra-lokal" '
+					+'<button type="button" class="btn btn-success" id="btn-simpan-data-renstra-lokal" '
 						+'data-action="update_indikator_sasaran_renstra" '
 						+'data-view="indikatorSasaranRenstra"'
 					+'>'
-						+'<i class="dashicons dashicons-yes" style="margin-top: 3px;"></i> Simpan'
+						+'<i class="dashicons dashicons-yes" style="margin-top: 2px;"></i> Simpan'
 					+'</button>');
 				indikatorSasaranModal.find('.modal-dialog').css('maxWidth','950px');
 				indikatorSasaranModal.find('.modal-dialog').css('width','100%');
@@ -2734,14 +2789,14 @@ foreach ($data_all['data'] as $tujuan) {
 		    programModal.find('.modal-title').html('Tambah Program');
 		    programModal.find('.modal-body').html(html);
 			programModal.find('.modal-footer').html(''
-				+'<button type="button" class="btn btn-sm btn-warning" data-dismiss="modal">'
-					+'<i class="dashicons dashicons-no" style="margin-top: 3px;"></i> Tutup'
+				+'<button type="button" class="btn btn-warning" data-dismiss="modal">'
+					+'<i class="dashicons dashicons-no" style="margin-top: 2px;"></i> Tutup'
 				+'</button>'
-				+'<button type="button" class="btn btn-sm btn-success" id="btn-simpan-data-renstra-lokal" '
+				+'<button type="button" class="btn btn-success" id="btn-simpan-data-renstra-lokal" '
 					+'data-action="submit_program_renstra" '
 					+'data-view="programRenstra"'
 				+'>'
-					+'<i class="dashicons dashicons-yes" style="margin-top: 3px;"></i> Simpan'
+					+'<i class="dashicons dashicons-yes" style="margin-top: 2px;"></i> Simpan'
 				+'</button>');
 			programModal.find('.modal-dialog').css('maxWidth','');
 			programModal.find('.modal-dialog').css('width','');
@@ -2813,14 +2868,14 @@ foreach ($data_all['data'] as $tujuan) {
 				    programModal.find('.modal-body').html('');
 					programModal.find('.modal-body').html(html);
 					programModal.find('.modal-footer').html(''
-						+'<button type="button" class="btn btn-sm btn-warning" data-dismiss="modal">'
-							+'<i class="dashicons dashicons-no" style="margin-top: 3px;"></i> Tutup'
+						+'<button type="button" class="btn btn-warning" data-dismiss="modal">'
+							+'<i class="dashicons dashicons-no" style="margin-top: 2px;"></i> Tutup'
 						+'</button>'
-						+'<button type="button" class="btn btn-sm btn-success" id="btn-simpan-data-renstra-lokal" '
+						+'<button type="button" class="btn btn-success" id="btn-simpan-data-renstra-lokal" '
 							+'data-action="update_program_renstra" '
 							+'data-view="programRenstra"'
 						+'>'
-							+'<i class="dashicons dashicons-yes" style="margin-top: 3px;"></i> Simpan'
+							+'<i class="dashicons dashicons-yes" style="margin-top: 2px;"></i> Simpan'
 						+'</button>');
 					programModal.find('.modal-dialog').css('maxWidth','');
 					programModal.find('.modal-dialog').css('width','');
@@ -2904,92 +2959,102 @@ foreach ($data_all['data'] as $tujuan) {
 			
 			jQuery('#wrap-loading').hide();
 
-			html += '<form id="form-renstra">'
-						+'<input type="hidden" name="kode_program" value='+kode_program+'>'
-						+'<input type="hidden" name="lama_pelaksanaan" value="<?php echo $lama_pelaksanaan; ?>">'
-						+'<div class="form-group">'
-							+'<div class="row">'
-								+'<div class="col-md-6">'
-									+'<div class="card">'
-										+'<div class="card-header">Usulan</div>'
-										+'<div class="card-body">'
-											+'<div class="form-group">'
-												+'<label for="indikator_teks_usulan">Indikator</label>'
-								  			+'<textarea class="form-control" name="indikator_teks_usulan"></textarea>'
-											+'</div>'
-											+'<div class="form-group">'
-												+'<label for="satuan_usulan">Satuan</label>'
-								  				+'<input type="text" class="form-control" name="satuan_usulan"/>'
-											+'</div>'
-											+'<div class="form-group">'
-												+'<label for="target_awal_usulan">Target awal</label>'
-								  				+'<input type="number" class="form-control" name="target_awal_usulan"/>'
-											+'</div>'
-											<?php for($i=1; $i<=$lama_pelaksanaan; $i++){ ?>
-											+'<div class="form-group">'
-												+'<label for="target_<?php echo $i; ?>_usulan">Target tahun ke-<?php echo $i; ?></label>'
-								  				+'<input type="number" class="form-control" name="target_<?php echo $i; ?>_usulan"/>'
-											+'</div>'
-											<?php }; ?>
-											+'<div class="form-group">'
-												+'<label for="target_akhir_usulan">Target akhir</label>'
-								  				+'<input type="number" class="form-control" name="target_akhir_usulan"/>'
-											+'</div>'
-											+'<div class="form-group">'
-												+'<label for="catatan_usulan">Catatan</label>'
-								  				+'<textarea class="form-control" name="catatan_usulan"></textarea>'
-											+'</div>'
+			html += ''
+				+'<form id="form-renstra">'
+					+'<input type="hidden" name="kode_program" value='+kode_program+'>'
+					+'<input type="hidden" name="lama_pelaksanaan" value="<?php echo $lama_pelaksanaan; ?>">'
+					+'<div class="form-group">'
+						+'<div class="row">'
+							+'<div class="col-md-6">'
+								+'<div class="card">'
+									+'<div class="card-header">Usulan</div>'
+									+'<div class="card-body">'
+										+'<div class="form-group">'
+											+'<label for="indikator_teks_usulan">Indikator</label>'
+							  			+'<textarea class="form-control" name="indikator_teks_usulan"></textarea>'
+										+'</div>'
+										+'<div class="form-group">'
+											+'<label for="satuan_usulan">Satuan</label>'
+							  				+'<input type="text" class="form-control" name="satuan_usulan"/>'
+										+'</div>'
+										+'<div class="form-group">'
+											+'<label for="target_awal_usulan">Target awal</label>'
+							  				+'<input type="number" class="form-control" name="target_awal_usulan"/>'
+										+'</div>'
+										<?php for($i=1; $i<=$lama_pelaksanaan; $i++){ ?>
+										+'<div class="form-group">'
+											+'<label for="target_<?php echo $i; ?>_usulan">Target tahun ke-<?php echo $i; ?></label>'
+							  				+'<input type="number" class="form-control" name="target_<?php echo $i; ?>_usulan"/>'
+										+'</div>'
+										<?php }; ?>
+										+'<div class="form-group">'
+											+'<label for="target_akhir_usulan">Target akhir</label>'
+							  				+'<input type="number" class="form-control" name="target_akhir_usulan"/>'
+										+'</div>'
+										+'<div class="form-group">'
+											+'<label for="catatan_usulan">Catatan</label>'
+							  				+'<textarea class="form-control" name="catatan_usulan" <?php echo $disabled_admin; ?>></textarea>'
 										+'</div>'
 									+'</div>'
 								+'</div>'
-								+'<div class="col-md-6">'
-									+'<div class="card">'
-										+'<div class="card-header">Penetapan</div>'
-										+'<div class="card-body">'
-											+'<div class="form-group">'
-												+'<label for="indikator_teks">Indikator</label>'
-								  			+'<textarea class="form-control" name="indikator_teks" <?php echo $disabled; ?>></textarea>'
-											+'</div>'
-											+'<div class="form-group">'
-												+'<label for="satuan">Satuan</label>'
-								  				+'<input type="text" class="form-control" name="satuan" <?php echo $disabled; ?> />'
-											+'</div>'
-											+'<div class="form-group">'
-												+'<label for="target_awal">Target awal</label>'
-								  				+'<input type="number" class="form-control" name="target_awal" <?php echo $disabled; ?>/>'
-											+'</div>'
-											<?php for($i=1; $i<=$lama_pelaksanaan; $i++){ ?>
-											+'<div class="form-group">'
-												+'<label for="target_<?php echo $i; ?>">Target tahun ke-<?php echo $i; ?></label>'
-								  				+'<input type="number" class="form-control" name="target_<?php echo $i; ?>" <?php echo $disabled; ?>/>'
-											+'</div>'
-											<?php }; ?>
-											+'<div class="form-group">'
-												+'<label for="target_akhir">Target akhir</label>'
-								  				+'<input type="number" class="form-control" name="target_akhir" <?php echo $disabled; ?>/>'
-											+'</div>'
-											+'<div class="form-group">'
-												+'<label for="catatan">Catatan</label>'
-								  				+'<textarea class="form-control" name="catatan" <?php echo $disabled; ?>></textarea>'
-											+'</div>'
+							+'</div>'
+							+'<div class="col-md-6">'
+								+'<div class="card">'
+									+'<div class="card-header">Penetapan</div>'
+									+'<div class="card-body">'
+										+'<div class="form-group">'
+											+'<label for="indikator_teks">Indikator</label>'
+							  			+'<textarea class="form-control" name="indikator_teks" <?php echo $disabled; ?>></textarea>'
+										+'</div>'
+										+'<div class="form-group">'
+											+'<label for="satuan">Satuan</label>'
+							  				+'<input type="text" class="form-control" name="satuan" <?php echo $disabled; ?> />'
+										+'</div>'
+										+'<div class="form-group">'
+											+'<label for="target_awal">Target awal</label>'
+							  				+'<input type="number" class="form-control" name="target_awal" <?php echo $disabled; ?>/>'
+										+'</div>'
+										<?php for($i=1; $i<=$lama_pelaksanaan; $i++){ ?>
+										+'<div class="form-group">'
+											+'<label for="target_<?php echo $i; ?>">Target tahun ke-<?php echo $i; ?></label>'
+							  				+'<input type="number" class="form-control" name="target_<?php echo $i; ?>" <?php echo $disabled; ?>/>'
+										+'</div>'
+										<?php }; ?>
+										+'<div class="form-group">'
+											+'<label for="target_akhir">Target akhir</label>'
+							  				+'<input type="number" class="form-control" name="target_akhir" <?php echo $disabled; ?>/>'
+										+'</div>'
+										+'<div class="form-group">'
+											+'<label for="catatan">Catatan</label>'
+							  				+'<textarea class="form-control" name="catatan" <?php echo $disabled; ?>></textarea>'
 										+'</div>'
 									+'</div>'
 								+'</div>'
 							+'</div>'
 						+'</div>'
-					+'</form>';
+					<?php if($is_admin): ?>
+						+'<div class="row">'
+							+'<div class="col-md-12 text-center">'
+								+'<button onclick="copy_usulan(this); return false;" type="button" class="btn btn-danger" style="margin-top: 20px;">'
+									+'<i class="dashicons dashicons-arrow-right-alt" style="margin-top: 2px;"></i> Copy Data Usulan ke Penetapan'
+								+'</button>'
+							+'</div>'
+						+'</div>'
+					<?php endif; ?>
+					+'</div>'
+				+'</form>';
 				
 			jQuery("#modal-crud-renstra").find('.modal-title').html('Tambah Indikator');
 			jQuery("#modal-crud-renstra").find('.modal-body').html(html);
 			jQuery("#modal-crud-renstra").find('.modal-footer').html(''
-				+'<button type="button" class="btn btn-sm btn-warning" data-dismiss="modal">'
-					+'<i class="dashicons dashicons-no" style="margin-top: 3px;"></i> Tutup'
+				+'<button type="button" class="btn btn-warning" data-dismiss="modal">'
+					+'<i class="dashicons dashicons-no" style="margin-top: 2px;"></i> Tutup'
 				+'</button>'
-				+'<button type="button" class="btn btn-sm btn-success" id="btn-simpan-data-renstra-lokal" '
+				+'<button type="button" class="btn btn-success" id="btn-simpan-data-renstra-lokal" '
 					+'data-action="submit_indikator_program_renstra" '
 					+'data-view="indikatorProgramRenstra"'
 				+'>'
-					+'<i class="dashicons dashicons-yes" style="margin-top: 3px;"></i> Simpan'
+					+'<i class="dashicons dashicons-yes" style="margin-top: 2px;"></i> Simpan'
 				+'</button>');
 			jQuery("#modal-crud-renstra").find('.modal-dialog').css('maxWidth','950px');
 			jQuery("#modal-crud-renstra").find('.modal-dialog').css('width','100%');
@@ -3016,96 +3081,113 @@ foreach ($data_all['data'] as $tujuan) {
           	dataType: "json",
           	success: function(response){
 
-	          		jQuery('#wrap-loading').hide();
+          		jQuery('#wrap-loading').hide();
+          		for(var i in response.data){
+          			if(
+          				response.data[i] == 'null'
+          				|| response.data[i] == null
+          			){
+          				response.data[i] = '';
+          			}
+          		}
 
-	          		let html = ''
-	          		+'<form id="form-renstra">'
-						+'<input type="hidden" name="id" value="'+id+'">'
-						+'<input type="hidden" name="kode_program" value="'+kode_program+'">'
-						+'<input type="hidden" name="lama_pelaksanaan" value="<?php echo $lama_pelaksanaan; ?>">'
-						+'<div class="form-group">'
-							+'<div class="row">'
-								+'<div class="col-md-6">'
-									+'<div class="card">'
-										+'<div class="card-header">Usulan</div>'
-										+'<div class="card-body">'
-											+'<div class="form-group">'
-												+'<label for="indikator_teks_usulan">Indikator</label>'
-							  					+'<textarea class="form-control" name="indikator_teks_usulan">'+response.data.indikator_usulan+'</textarea>'
-											+'</div>'
-											+'<div class="form-group">'
-												+'<label for="satuan_usulan">Satuan</label>'
-								  				+'<input type="text" class="form-control" name="satuan_usulan" value="'+response.data.satuan_usulan+'" />'
-											+'</div>'
-											+'<div class="form-group">'
-												+'<label for="target_awal_usulan">Target awal</label>'
-								  				+'<input type="number" class="form-control" name="target_awal_usulan" value="'+response.data.target_awal_usulan+'" />'
-											+'</div>'
-											<?php for($i=1; $i<=$lama_pelaksanaan; $i++){ ?>
-											+'<div class="form-group">'
-												+'<label for="target_<?php echo $i; ?>_usulan">Target tahun ke-<?php echo $i; ?></label>'
-								  				+'<input type="number" class="form-control" name="target_<?php echo $i; ?>_usulan" value="'+response.data.target_<?php echo $i; ?>_usulan+'"/>'
-											+'</div>'
-											<?php }; ?>
-											+'<div class="form-group">'
-												+'<label for="target_akhir_usulan">Target akhir</label>'
-								  				+'<input type="number" class="form-control" name="target_akhir_usulan" value="'+response.data.target_akhir_usulan+'"/>'
-											+'</div>'
-											+'<div class="form-group">'
-												+'<label for="catatan_usulan">Catatan</label>'
-								  				+'<textarea class="form-control" name="catatan_usulan">'+response.data.catatan_usulan+'</textarea>'
-											+'</div>'
+          		let html = ''
+          		+'<form id="form-renstra">'
+					+'<input type="hidden" name="id" value="'+id+'">'
+					+'<input type="hidden" name="kode_program" value="'+kode_program+'">'
+					+'<input type="hidden" name="lama_pelaksanaan" value="<?php echo $lama_pelaksanaan; ?>">'
+					+'<div class="form-group">'
+						+'<div class="row">'
+							+'<div class="col-md-6">'
+								+'<div class="card">'
+									+'<div class="card-header">Usulan</div>'
+									+'<div class="card-body">'
+										+'<div class="form-group">'
+											+'<label for="indikator_teks_usulan">Indikator</label>'
+						  					+'<textarea class="form-control" name="indikator_teks_usulan">'+response.data.indikator_usulan+'</textarea>'
+										+'</div>'
+										+'<div class="form-group">'
+											+'<label for="satuan_usulan">Satuan</label>'
+							  				+'<input type="text" class="form-control" name="satuan_usulan" value="'+response.data.satuan_usulan+'" />'
+										+'</div>'
+										+'<div class="form-group">'
+											+'<label for="target_awal_usulan">Target awal</label>'
+							  				+'<input type="number" class="form-control" name="target_awal_usulan" value="'+response.data.target_awal_usulan+'" />'
+										+'</div>'
+										<?php for($i=1; $i<=$lama_pelaksanaan; $i++){ ?>
+										+'<div class="form-group">'
+											+'<label for="target_<?php echo $i; ?>_usulan">Target tahun ke-<?php echo $i; ?></label>'
+							  				+'<input type="number" class="form-control" name="target_<?php echo $i; ?>_usulan" value="'+response.data.target_<?php echo $i; ?>_usulan+'"/>'
+										+'</div>'
+										<?php }; ?>
+										+'<div class="form-group">'
+											+'<label for="target_akhir_usulan">Target akhir</label>'
+							  				+'<input type="number" class="form-control" name="target_akhir_usulan" value="'+response.data.target_akhir_usulan+'"/>'
+										+'</div>'
+										+'<div class="form-group">'
+											+'<label for="catatan_usulan">Catatan</label>'
+							  				+'<textarea class="form-control" name="catatan_usulan" <?php echo $disabled_admin; ?>>'+response.data.catatan_usulan+'</textarea>'
 										+'</div>'
 									+'</div>'
 								+'</div>'
-								+'<div class="col-md-6">'
-									+'<div class="card">'
-										+'<div class="card-header">Penetapan</div>'
-										+'<div class="card-body">'
-											+'<div class="form-group">'
-												+'<label for="indikator_teks">Indikator</label>'
-							  					+'<textarea class="form-control" name="indikator_teks" <?php echo $disabled; ?>>'+response.data.indikator+'</textarea>'
-											+'</div>'
-											+'<div class="form-group">'
-												+'<label for="satuan">Satuan</label>'
-								  				+'<input type="text" class="form-control" name="satuan" value="'+response.data.satuan+'" <?php echo $disabled; ?> />'
-											+'</div>'
-											+'<div class="form-group">'
-												+'<label for="target_awal">Target awal</label>'
-								  				+'<input type="number" class="form-control" name="target_awal" value="'+response.data.target_awal+'" <?php echo $disabled; ?>/>'
-											+'</div>'
-											<?php for($i=1; $i<=$lama_pelaksanaan; $i++){ ?>
-											+'<div class="form-group">'
-												+'<label for="target_<?php echo $i; ?>">Target tahun ke-<?php echo $i; ?></label>'
-								  				+'<input type="number" class="form-control" name="target_<?php echo $i; ?>" value="'+response.data.target_<?php echo $i; ?>+'" <?php echo $disabled; ?>/>'
-											+'</div>'
-											<?php }; ?>
-											+'<div class="form-group">'
-												+'<label for="target_akhir">Target akhir</label>'
-								  				+'<input type="number" class="form-control" name="target_akhir" value="'+response.data.target_akhir+'" <?php echo $disabled; ?>/>'
-											+'</div>'
-											+'<div class="form-group">'
-												+'<label for="catatan">Catatan</label>'
-								  				+'<textarea class="form-control" name="catatan" <?php echo $disabled; ?>>'+response.data.catatan+'</textarea>'
-											+'</div>'
+							+'</div>'
+							+'<div class="col-md-6">'
+								+'<div class="card">'
+									+'<div class="card-header">Penetapan</div>'
+									+'<div class="card-body">'
+										+'<div class="form-group">'
+											+'<label for="indikator_teks">Indikator</label>'
+						  					+'<textarea class="form-control" name="indikator_teks" <?php echo $disabled; ?>>'+response.data.indikator+'</textarea>'
+										+'</div>'
+										+'<div class="form-group">'
+											+'<label for="satuan">Satuan</label>'
+							  				+'<input type="text" class="form-control" name="satuan" value="'+response.data.satuan+'" <?php echo $disabled; ?> />'
+										+'</div>'
+										+'<div class="form-group">'
+											+'<label for="target_awal">Target awal</label>'
+							  				+'<input type="number" class="form-control" name="target_awal" value="'+response.data.target_awal+'" <?php echo $disabled; ?>/>'
+										+'</div>'
+										<?php for($i=1; $i<=$lama_pelaksanaan; $i++){ ?>
+										+'<div class="form-group">'
+											+'<label for="target_<?php echo $i; ?>">Target tahun ke-<?php echo $i; ?></label>'
+							  				+'<input type="number" class="form-control" name="target_<?php echo $i; ?>" value="'+response.data.target_<?php echo $i; ?>+'" <?php echo $disabled; ?>/>'
+										+'</div>'
+										<?php }; ?>
+										+'<div class="form-group">'
+											+'<label for="target_akhir">Target akhir</label>'
+							  				+'<input type="number" class="form-control" name="target_akhir" value="'+response.data.target_akhir+'" <?php echo $disabled; ?>/>'
+										+'</div>'
+										+'<div class="form-group">'
+											+'<label for="catatan">Catatan</label>'
+							  				+'<textarea class="form-control" name="catatan" <?php echo $disabled; ?>>'+response.data.catatan+'</textarea>'
 										+'</div>'
 									+'</div>'
 								+'</div>'
 							+'</div>'
 						+'</div>'
-				  	+'</form>';
+					<?php if($is_admin): ?>
+						+'<div class="row">'
+							+'<div class="col-md-12 text-center">'
+								+'<button onclick="copy_usulan(this); return false;" type="button" class="btn btn-danger" style="margin-top: 20px;">'
+									+'<i class="dashicons dashicons-arrow-right-alt" style="margin-top: 2px;"></i> Copy Data Usulan ke Penetapan'
+								+'</button>'
+							+'</div>'
+						+'</div>'
+					<?php endif; ?>
+					+'</div>'
+			  	+'</form>';
 
 				jQuery("#modal-crud-renstra").find('.modal-title').html('Edit Indikator Program');
 				jQuery("#modal-crud-renstra").find('.modal-body').html(html);
 				jQuery("#modal-crud-renstra").find('.modal-footer').html(''
-					+'<button type="button" class="btn btn-sm btn-warning" data-dismiss="modal">'
-						+'<i class="dashicons dashicons-no" style="margin-top: 3px;"></i> Tutup'
+					+'<button type="button" class="btn btn-warning" data-dismiss="modal">'
+						+'<i class="dashicons dashicons-no" style="margin-top: 2px;"></i> Tutup'
 					+'</button>'
-					+'<button type="button" class="btn btn-sm btn-success" id="btn-simpan-data-renstra-lokal" '
+					+'<button type="button" class="btn btn-success" id="btn-simpan-data-renstra-lokal" '
 						+'data-action="update_indikator_program_renstra" '
 						+'data-view="indikatorProgramRenstra"'
 					+'>'
-						+'<i class="dashicons dashicons-yes" style="margin-top: 3px;"></i> Simpan'
+						+'<i class="dashicons dashicons-yes" style="margin-top: 2px;"></i> Simpan'
 					+'</button>');	
 				jQuery("#modal-crud-renstra").find('.modal-dialog').css('maxWidth','950px');
 				jQuery("#modal-crud-renstra").find('.modal-dialog').css('width','100%');
@@ -3203,14 +3285,14 @@ foreach ($data_all['data'] as $tujuan) {
 				    kegiatanModal.find('.modal-title').html('Tambah Kegiatan');
 					kegiatanModal.find('.modal-body').html(html);
 					kegiatanModal.find('.modal-footer').html(''
-						+'<button type="button" class="btn btn-sm btn-warning" data-dismiss="modal">'
-							+'<i class="dashicons dashicons-no" style="margin-top: 3px;"></i> Tutup'
+						+'<button type="button" class="btn btn-warning" data-dismiss="modal">'
+							+'<i class="dashicons dashicons-no" style="margin-top: 2px;"></i> Tutup'
 						+'</button>'
-						+'<button type="button" class="btn btn-sm btn-success" id="btn-simpan-data-renstra-lokal" '
+						+'<button type="button" class="btn btn-success" id="btn-simpan-data-renstra-lokal" '
 							+'data-action="submit_kegiatan_renstra" '
 							+'data-view="kegiatanRenstra"'
 						+'>'
-							+'<i class="dashicons dashicons-yes" style="margin-top: 3px;"></i> Simpan'
+							+'<i class="dashicons dashicons-yes" style="margin-top: 2px;"></i> Simpan'
 						+'</button>');
 					kegiatanModal.find('.modal-dialog').css('maxWidth','');
 					kegiatanModal.find('.modal-dialog').css('width','');
@@ -3277,14 +3359,14 @@ foreach ($data_all['data'] as $tujuan) {
 				    kegiatanModal.find('.modal-body').html('');
 					kegiatanModal.find('.modal-body').html(html);
 					kegiatanModal.find('.modal-footer').html(''
-						+'<button type="button" class="btn btn-sm btn-warning" data-dismiss="modal">'
-							+'<i class="dashicons dashicons-no" style="margin-top: 3px;"></i> Tutup'
+						+'<button type="button" class="btn btn-warning" data-dismiss="modal">'
+							+'<i class="dashicons dashicons-no" style="margin-top: 2px;"></i> Tutup'
 						+'</button>'
-						+'<button type="button" class="btn btn-sm btn-success" id="btn-simpan-data-renstra-lokal" '
+						+'<button type="button" class="btn btn-success" id="btn-simpan-data-renstra-lokal" '
 							+'data-action="update_kegiatan_renstra" '
 							+'data-view="kegiatanRenstra"'
 						+'>'
-							+'<i class="dashicons dashicons-yes" style="margin-top: 3px;"></i> Simpan'
+							+'<i class="dashicons dashicons-yes" style="margin-top: 2px;"></i> Simpan'
 						+'</button>');
 					kegiatanModal.find('.modal-dialog').css('maxWidth','');
 					kegiatanModal.find('.modal-dialog').css('width','');
@@ -3421,20 +3503,29 @@ foreach ($data_all['data'] as $tujuan) {
 						+'</div>'
 					+'</div>'
 				+'</div>'
+			<?php if($is_admin): ?>
+				+'<div class="row">'
+					+'<div class="col-md-12 text-center">'
+						+'<button onclick="copy_usulan(this); return false;" type="button" class="btn btn-danger" style="margin-top: 20px;">'
+							+'<i class="dashicons dashicons-arrow-right-alt" style="margin-top: 2px;"></i> Copy Data Usulan ke Penetapan'
+						+'</button>'
+					+'</div>'
+				+'</div>'
+			<?php endif; ?>
 			+'</div>'
 		+'</form>';
 
 		indikatorKegiatanModal.find('.modal-title').html('Tambah Indikator');
 		indikatorKegiatanModal.find('.modal-body').html(html);
 		indikatorKegiatanModal.find('.modal-footer').html(''
-			+'<button type="button" class="btn btn-sm btn-warning" data-dismiss="modal">'
-				+'<i class="dashicons dashicons-no" style="margin-top: 3px;"></i> Tutup'
+			+'<button type="button" class="btn btn-warning" data-dismiss="modal">'
+				+'<i class="dashicons dashicons-no" style="margin-top: 2px;"></i> Tutup'
 			+'</button>'
-			+'<button type="button" class="btn btn-sm btn-success" id="btn-simpan-data-renstra-lokal" '
+			+'<button type="button" class="btn btn-success" id="btn-simpan-data-renstra-lokal" '
 				+'data-action="submit_indikator_kegiatan_renstra" '
 				+'data-view="indikatorKegiatanRenstra"'
 			+'>'
-				+'<i class="dashicons dashicons-yes" style="margin-top: 3px;"></i> Simpan'
+				+'<i class="dashicons dashicons-yes" style="margin-top: 2px;"></i> Simpan'
 			+'</button>');
 		indikatorKegiatanModal.find('.modal-dialog').css('maxWidth','950px');
 		indikatorKegiatanModal.find('.modal-dialog').css('width','100%');
@@ -3550,19 +3641,28 @@ foreach ($data_all['data'] as $tujuan) {
 								+'</div>'
 							+'</div>'
 						+'</div>'
+					<?php if($is_admin): ?>
+						+'<div class="row">'
+							+'<div class="col-md-12 text-center">'
+								+'<button onclick="copy_usulan(this); return false;" type="button" class="btn btn-danger" style="margin-top: 20px;">'
+									+'<i class="dashicons dashicons-arrow-right-alt" style="margin-top: 2px;"></i> Copy Data Usulan ke Penetapan'
+								+'</button>'
+							+'</div>'
+						+'</div>'
+					<?php endif; ?>
 					+'</div>'
 			  	+'</form>';
 
 				jQuery("#modal-crud-renstra").find('.modal-title').html('Edit Indikator Kegiatan');
 				jQuery("#modal-crud-renstra").find('.modal-body').html(html);
 				jQuery("#modal-crud-renstra").find('.modal-footer').html(''
-					+'<button type="button" class="btn btn-sm btn-warning" data-dismiss="modal">'
-						+'<i class="dashicons dashicons-no" style="margin-top: 3px;"></i> Tutup'
-					+'</button><button type="button" class="btn btn-sm btn-success" id="btn-simpan-data-renstra-lokal" '
+					+'<button type="button" class="btn btn-warning" data-dismiss="modal">'
+						+'<i class="dashicons dashicons-no" style="margin-top: 2px;"></i> Tutup'
+					+'</button><button type="button" class="btn btn-success" id="btn-simpan-data-renstra-lokal" '
 						+'data-action="update_indikator_kegiatan_renstra" '
 						+'data-view="indikatorKegiatanRenstra"'
 					+'>'
-						+'<i class="dashicons dashicons-yes" style="margin-top: 3px;"></i> Simpan'
+						+'<i class="dashicons dashicons-yes" style="margin-top: 2px;"></i> Simpan'
 					+'</button>');	
 				jQuery("#modal-crud-renstra").find('.modal-dialog').css('maxWidth','950px');
 				jQuery("#modal-crud-renstra").find('.modal-dialog').css('width','100%');
@@ -3722,11 +3822,11 @@ foreach ($data_all['data'] as $tujuan) {
 					jQuery("#modal-crud-renstra").find('.modal-body').html(response.html);
 					jQuery("#modal-crud-renstra").find('.modal-body').css('overflow-x', 'auto');
 					jQuery("#modal-crud-renstra").find('.modal-footer').html(''
-						+'<button type="button" class="btn btn-sm btn-warning" data-dismiss="modal">'
-							+'<i class="dashicons dashicons-no" style="margin-top: 3px;"></i> Tutup'
+						+'<button type="button" class="btn btn-warning" data-dismiss="modal">'
+							+'<i class="dashicons dashicons-no" style="margin-top: 2px;"></i> Tutup'
 						+'</button>'
-						+'<button type="button" class="btn btn-sm btn-success" onclick=\'exportExcel("'+name+'")\'>'
-							+'<i class="dashicons dashicons-yes" style="margin-top: 3px;"></i> Export Excel'
+						+'<button type="button" class="btn btn-success" onclick=\'exportExcel("'+name+'")\'>'
+							+'<i class="dashicons dashicons-yes" style="margin-top: 2px;"></i> Export Excel'
 						+'</button>');
 					jQuery("#modal-crud-renstra").modal('show');
 					
@@ -3802,7 +3902,7 @@ foreach ($data_all['data'] as $tujuan) {
           		jQuery('#wrap-loading').hide();
 
           		let tujuan = ''
-	          		+'<div style="margin-top:10px"><button type="button" class="btn btn-sm btn-primary mb-2 btn-tambah-tujuan"><i class="dashicons dashicons-plus" style="margin-top: 3px;"></i> Tambah Tujuan</button>'
+	          		+'<div style="margin-top:10px"><button type="button" class="btn btn-primary mb-2 btn-tambah-tujuan"><i class="dashicons dashicons-plus" style="margin-top: 2px;"></i> Tambah Tujuan</button>'
 	          		+'</div>'
           			+'<table class="table">'
 	          			+'<thead>'
@@ -3845,10 +3945,10 @@ foreach ($data_all['data'] as $tujuan) {
 	      						<?php } ?>
 				          			+'<td><b>Penetapan</b><br>'+value.catatan+'</td>'
 				          			+'<td class="text-center" rowspan="2">'
-			          					+'<a href="javascript:void(0)" data-idtujuan="'+value.id+'" data-idunik="'+value.id_unik+'" class="btn btn-sm btn-warning btn-kelola-indikator-tujuan"><i class="dashicons dashicons-menu-alt" style="margin-top: 3px;"></i></a>&nbsp;'
-			          					+'<a href="javascript:void(0)" data-kodetujuan="'+value.id_unik+'" class="btn btn-sm btn-primary btn-detail-tujuan"><i class="dashicons dashicons-search"></i></a>&nbsp;'
-			          					+'<a href="javascript:void(0)" data-id="'+value.id+'" class="btn btn-sm btn-success btn-edit-tujuan"><i class="dashicons dashicons-edit"></i></a>&nbsp;'
-			          					+'<a href="javascript:void(0)" data-id="'+value.id+'" data-idunik="'+value.id_unik+'" class="btn btn-sm btn-danger btn-hapus-tujuan"><i class="dashicons dashicons-trash"></i></a>'
+			          					+'<a href="javascript:void(0)" data-idtujuan="'+value.id+'" data-idunik="'+value.id_unik+'" class="btn btn-warning btn-kelola-indikator-tujuan"><i class="dashicons dashicons-menu-alt" style="margin-top: 2px;"></i></a>&nbsp;'
+			          					+'<a href="javascript:void(0)" data-kodetujuan="'+value.id_unik+'" class="btn btn-primary btn-detail-tujuan"><i class="dashicons dashicons-search"></i></a>&nbsp;'
+			          					+'<a href="javascript:void(0)" data-id="'+value.id+'" class="btn btn-success btn-edit-tujuan"><i class="dashicons dashicons-edit"></i></a>&nbsp;'
+			          					+'<a href="javascript:void(0)" data-id="'+value.id+'" data-idunik="'+value.id_unik+'" class="btn btn-danger btn-hapus-tujuan"><i class="dashicons dashicons-trash"></i></a>'
 				          			+'</td>'
 				          		+'</tr>'
 			          			+'<tr>'
@@ -3887,8 +3987,8 @@ foreach ($data_all['data'] as $tujuan) {
 
           		let html=""
 					+'<div style="margin-top:10px">'
-						+"<button type=\"button\" class=\"btn btn-sm btn-primary mb-2 btn-add-indikator-tujuan\" data-kodetujuan=\""+params.id_unik+"\">"
-								+"<i class=\"dashicons dashicons-plus\" style=\"margin-top: 3px;\"></i> Tambah Indikator"
+						+"<button type=\"button\" class=\"btn btn-primary mb-2 btn-add-indikator-tujuan\" data-kodetujuan=\""+params.id_unik+"\">"
+								+"<i class=\"dashicons dashicons-plus\" style=\"margin-top: 2px;\"></i> Tambah Indikator"
 						+"</button>"
 					+'</div>'
           			+'<table class="table">'
@@ -3944,8 +4044,8 @@ foreach ($data_all['data'] as $tujuan) {
 					          		+"<td class='text-center'>"+value.target_akhir+"</td>"
 					          		+"<td><b>Penetapan</b><br>"+value.catatan+"</td>"
 					          		+"<td class='text-center' rowspan='2'>"
-					          			+"<a href='#' class='btn btn-sm btn-success btn-edit-indikator-tujuan' data-id='"+value.id+"' data-idunik='"+value.id_unik+"'><i class='dashicons dashicons-edit' style='margin-top: 3px;'></i></a>&nbsp"
-										+"<a href='#' class='btn btn-sm btn-danger btn-delete-indikator-tujuan' data-id='"+value.id+"' data-idunik='"+value.id_unik+"'><i class='dashicons dashicons-trash' style='margin-top: 3px;'></i></a>&nbsp;"
+					          			+"<a href='#' class='btn btn-success btn-edit-indikator-tujuan' data-id='"+value.id+"' data-idunik='"+value.id_unik+"'><i class='dashicons dashicons-edit' style='margin-top: 2px;'></i></a>&nbsp"
+										+"<a href='#' class='btn btn-danger btn-delete-indikator-tujuan' data-id='"+value.id+"' data-idunik='"+value.id_unik+"'><i class='dashicons dashicons-trash' style='margin-top: 2px;'></i></a>&nbsp;"
 					          		+"</td>"
 					          	+"</tr>"
 		          				+"<tr>"
@@ -3989,7 +4089,7 @@ foreach ($data_all['data'] as $tujuan) {
           		jQuery('#wrap-loading').hide();
           		
           		let sasaran = ''
-      				+'<div style="margin-top:10px"><button type="button" class="btn btn-sm btn-primary mb-2 btn-tambah-sasaran" data-kodetujuan="'+params.kode_tujuan+'"><i class="dashicons dashicons-plus" style="margin-top: 3px;"></i> Tambah Sasaran</button></div>'
+      				+'<div style="margin-top:10px"><button type="button" class="btn btn-primary mb-2 btn-tambah-sasaran" data-kodetujuan="'+params.kode_tujuan+'"><i class="dashicons dashicons-plus" style="margin-top: 2px;"></i> Tambah Sasaran</button></div>'
       				+'<table class="table">'
       					+'<thead>'
 	          				+'<tr>'
@@ -4039,10 +4139,10 @@ foreach ($data_all['data'] as $tujuan) {
 	      						<?php } ?>
           							+'<td><b>Penetapan</b><br>'+value.catatan+'</td>'
           							+'<td class="text-center" rowspan="2">'
-          								+'<a href="javascript:void(0)" data-idsasaran="'+value.id+'" data-kodesasaran="'+value.id_unik+'" class="btn btn-sm btn-warning btn-kelola-indikator-sasaran"><i class="dashicons dashicons-menu-alt" style="margin-top: 3px;"></i></a>&nbsp;'
-          								+'<a href="javascript:void(0)" data-kodesasaran="'+value.id_unik+'" class="btn btn-sm btn-primary btn-detail-sasaran"><i class="dashicons dashicons-search" style="margin-top: 3px;"></i></a>&nbsp;'
-          								+'<a href="javascript:void(0)" data-idsasaran="'+value.id+'" class="btn btn-sm btn-success btn-edit-sasaran"><i class="dashicons dashicons-edit" style="margin-top: 3px;"></i></a>&nbsp;'
-          								+'<a href="javascript:void(0)" data-idsasaran="'+value.id+'" data-kodesasaran="'+value.id_unik+'" data-kodetujuan="'+value.kode_tujuan+'" class="btn btn-sm btn-danger btn-hapus-sasaran"><i class="dashicons dashicons-trash" style="margin-top: 3px;"></i></a>'
+          								+'<a href="javascript:void(0)" data-idsasaran="'+value.id+'" data-kodesasaran="'+value.id_unik+'" class="btn btn-warning btn-kelola-indikator-sasaran"><i class="dashicons dashicons-menu-alt" style="margin-top: 2px;"></i></a>&nbsp;'
+          								+'<a href="javascript:void(0)" data-kodesasaran="'+value.id_unik+'" class="btn btn-primary btn-detail-sasaran"><i class="dashicons dashicons-search" style="margin-top: 2px;"></i></a>&nbsp;'
+          								+'<a href="javascript:void(0)" data-idsasaran="'+value.id+'" class="btn btn-success btn-edit-sasaran"><i class="dashicons dashicons-edit" style="margin-top: 2px;"></i></a>&nbsp;'
+          								+'<a href="javascript:void(0)" data-idsasaran="'+value.id+'" data-kodesasaran="'+value.id_unik+'" data-kodetujuan="'+value.kode_tujuan+'" class="btn btn-danger btn-hapus-sasaran"><i class="dashicons dashicons-trash" style="margin-top: 2px;"></i></a>'
           							+'</td>'
           						+'</tr>'
   								+'<tr>'
@@ -4080,8 +4180,8 @@ foreach ($data_all['data'] as $tujuan) {
           		
           		let html=""
 					+'<div style="margin-top:10px">'
-						+"<button type=\"button\" class=\"btn btn-sm btn-primary mb-2 btn-add-indikator-sasaran\" data-kodesasaran=\""+params.id_unik+"\">"
-							+"<i class=\"dashicons dashicons-plus\" style=\"margin-top: 3px;\"></i> Tambah Indikator"
+						+"<button type=\"button\" class=\"btn btn-primary mb-2 btn-add-indikator-sasaran\" data-kodesasaran=\""+params.id_unik+"\">"
+							+"<i class=\"dashicons dashicons-plus\" style=\"margin-top: 2px;\"></i> Tambah Indikator"
 						+"</button>"
 					+'</div>'
           			+'<table class="table">'
@@ -4141,8 +4241,8 @@ foreach ($data_all['data'] as $tujuan) {
 				          		+"<td class='text-center'>"+value.target_akhir+"</td>"
 				          		+"<td><b>Penetapan</b><br>"+value.catatan+"</td>"
 				          		+"<td class='text-center' rowspan='2'>"
-				          			+"<a href='#' class='btn btn-sm btn-success btn-edit-indikator-sasaran' data-id='"+value.id+"' data-idunik='"+value.id_unik+"' ><i class='dashicons dashicons-edit' style='margin-top: 3px;'></i></a>&nbsp"
-									+"<a href='#' class='btn btn-sm btn-danger btn-delete-indikator-sasaran' data-id='"+value.id+"' data-idunik='"+value.id_unik+"' ><i class='dashicons dashicons-trash' style='margin-top: 3px;'></i></a>&nbsp;"
+				          			+"<a href='#' class='btn btn-success btn-edit-indikator-sasaran' data-id='"+value.id+"' data-idunik='"+value.id_unik+"' ><i class='dashicons dashicons-edit' style='margin-top: 2px;'></i></a>&nbsp"
+									+"<a href='#' class='btn btn-danger btn-delete-indikator-sasaran' data-id='"+value.id+"' data-idunik='"+value.id_unik+"' ><i class='dashicons dashicons-trash' style='margin-top: 2px;'></i></a>&nbsp;"
 				          		+"</td>"
 				          	+"</tr>"
 	          				+"<tr>"
@@ -4186,7 +4286,7 @@ foreach ($data_all['data'] as $tujuan) {
           		jQuery('#wrap-loading').hide();
           		
           		let program = ''
-      				+'<div style="margin-top:10px"><button type="button" class="btn btn-sm btn-primary mb-2 btn-tambah-program" data-kodesasaran="'+params.kode_sasaran+'"><i class="dashicons dashicons-plus" style="margin-top: 3px;"></i> Tambah Program</button></div>'
+      				+'<div style="margin-top:10px"><button type="button" class="btn btn-primary mb-2 btn-tambah-program" data-kodesasaran="'+params.kode_sasaran+'"><i class="dashicons dashicons-plus" style="margin-top: 2px;"></i> Tambah Program</button></div>'
       				+'<table class="table">'
       					+'<thead>'
 	          				+'<tr>'
@@ -4239,10 +4339,10 @@ foreach ($data_all['data'] as $tujuan) {
 	      						<?php } ?>
           							+'<td><b>Penetapan</b><br>'+value.catatan+'</td>'
           							+'<td class="text-center" rowspan="2">'
-          								+'<a href="javascript:void(0)" data-kodeprogram="'+value.id_unik+'" class="btn btn-sm btn-warning btn-kelola-indikator-program"><i class="dashicons dashicons-menu-alt" style="margin-top: 3px;"></i></a>&nbsp;'	
-          								+'<a href="javascript:void(0)" data-kodeprogram="'+value.id_unik+'" data-idprogram="'+value.id_program+'" class="btn btn-sm btn-primary btn-detail-program"><i class="dashicons dashicons-search" style="margin-top: 3px;"></i></a>&nbsp;'
-          								+'<a href="javascript:void(0)" data-id="'+value.id+'" data-kodeprogram="'+value.id_unik+'" class="btn btn-sm btn-success btn-edit-program"><i class="dashicons dashicons-edit" style="margin-top: 3px;"></i></a>&nbsp;'
-          								+'<a href="javascript:void(0)" data-id="'+value.id+'" data-kodeprogram="'+value.id_unik+'" data-kodesasaran="'+value.kode_sasaran+'" class="btn btn-sm btn-danger btn-hapus-program"><i class="dashicons dashicons-trash" style="margin-top: 3px;"></i></a></td>'
+          								+'<a href="javascript:void(0)" data-kodeprogram="'+value.id_unik+'" class="btn btn-warning btn-kelola-indikator-program"><i class="dashicons dashicons-menu-alt" style="margin-top: 2px;"></i></a>&nbsp;'	
+          								+'<a href="javascript:void(0)" data-kodeprogram="'+value.id_unik+'" data-idprogram="'+value.id_program+'" class="btn btn-primary btn-detail-program"><i class="dashicons dashicons-search" style="margin-top: 2px;"></i></a>&nbsp;'
+          								+'<a href="javascript:void(0)" data-id="'+value.id+'" data-kodeprogram="'+value.id_unik+'" class="btn btn-success btn-edit-program"><i class="dashicons dashicons-edit" style="margin-top: 2px;"></i></a>&nbsp;'
+          								+'<a href="javascript:void(0)" data-id="'+value.id+'" data-kodeprogram="'+value.id_unik+'" data-kodesasaran="'+value.kode_sasaran+'" class="btn btn-danger btn-hapus-program"><i class="dashicons dashicons-trash" style="margin-top: 2px;"></i></a></td>'
           						+'</tr>'
   								+'<tr>'
 	      						<?php for($i=1; $i<=$lama_pelaksanaan; $i++){ ?>
@@ -4280,8 +4380,8 @@ foreach ($data_all['data'] as $tujuan) {
           		
           		let html=""
 					+'<div style="margin-top:10px">'
-						+"<button type=\"button\" class=\"btn btn-sm btn-primary mb-2 btn-add-indikator-program\" data-kodeprogram=\""+params.kode_program+"\">"
-							+"<i class=\"dashicons dashicons-plus\" style=\"margin-top: 3px;\"></i> Tambah Indikator"
+						+"<button type=\"button\" class=\"btn btn-primary mb-2 btn-add-indikator-program\" data-kodeprogram=\""+params.kode_program+"\">"
+							+"<i class=\"dashicons dashicons-plus\" style=\"margin-top: 2px;\"></i> Tambah Indikator"
 						+"</button>"
 					+'</div>'
           			+'<table class="table">'
@@ -4345,8 +4445,8 @@ foreach ($data_all['data'] as $tujuan) {
 					          		+"<td class='text-center'>"+value.target_akhir+"</td>"
 					          		+"<td><b>Penetapan</b><br>"+value.catatan+"</td>"
 					          		+"<td class='text-center' rowspan='2'>"
-					          			+"<a href='#' class='btn btn-sm btn-success btn-edit-indikator-program' data-kodeprogram='"+value.id_unik+"' data-id='"+value.id+"'><i class='dashicons dashicons-edit' style='margin-top: 3px;'></i></a>&nbsp"
-										+"<a href='#' class='btn btn-sm btn-danger btn-delete-indikator-program' data-kodeprogram='"+value.id_unik+"' data-id='"+value.id+"'><i class='dashicons dashicons-trash' style='margin-top: 3px;'></i></a>&nbsp;"
+					          			+"<a href='#' class='btn btn-success btn-edit-indikator-program' data-kodeprogram='"+value.id_unik+"' data-id='"+value.id+"'><i class='dashicons dashicons-edit' style='margin-top: 2px;'></i></a>&nbsp"
+										+"<a href='#' class='btn btn-danger btn-delete-indikator-program' data-kodeprogram='"+value.id_unik+"' data-id='"+value.id+"'><i class='dashicons dashicons-trash' style='margin-top: 2px;'></i></a>&nbsp;"
 					          		+"</td>"
 					          	+"</tr>"
 		          				+"<tr>"
@@ -4392,7 +4492,7 @@ foreach ($data_all['data'] as $tujuan) {
           		jQuery('#wrap-loading').hide();
           		
           		let kegiatan = ''
-      				+'<div style="margin-top:10px"><button type="button" class="btn btn-sm btn-primary mb-2 btn-tambah-kegiatan" data-kodeprogram="'+params.kode_program+'" data-idprogram="'+params.id_program+'"><i class="dashicons dashicons-plus" style="margin-top: 3px;"></i> Tambah Kegiatan</button></div>'
+      				+'<div style="margin-top:10px"><button type="button" class="btn btn-primary mb-2 btn-tambah-kegiatan" data-kodeprogram="'+params.kode_program+'" data-idprogram="'+params.id_program+'"><i class="dashicons dashicons-plus" style="margin-top: 2px;"></i> Tambah Kegiatan</button></div>'
       				+'<table class="table">'
       					+'<thead>'
 	          				+'<tr>'
@@ -4448,9 +4548,9 @@ foreach ($data_all['data'] as $tujuan) {
           						<?php } ?>
           							+'<td><b>Penetapan</b><br>'+value.catatan+'</td>'
           							+'<td class="text-center" rowspan="2">'
-          								+'<a href="javascript:void(0)" data-kodekegiatan="'+value.id_unik+'" class="btn btn-sm btn-warning btn-kelola-indikator-kegiatan"><i class="dashicons dashicons-menu-alt" style="margin-top: 3px;"></i></a>&nbsp;'	
-          								+'<a href="javascript:void(0)" data-id="'+value.id+'" data-kodekegiatan="'+value.id_unik+'" data-idprogram="'+value.id_program+'" class="btn btn-sm btn-success btn-edit-kegiatan"><i class="dashicons dashicons-edit" style="margin-top: 3px;"></i></a>&nbsp;'
-          								+'<a href="javascript:void(0)" data-id="'+value.id+'" data-kodekegiatan="'+value.id_unik+'" data-kodeprogram="'+value.kode_program+'" data-idprogram="'+value.id_program+'" class="btn btn-sm btn-danger btn-hapus-kegiatan"><i class="dashicons dashicons-trash" style="margin-top: 3px;"></i></a>'
+          								+'<a href="javascript:void(0)" data-kodekegiatan="'+value.id_unik+'" class="btn btn-warning btn-kelola-indikator-kegiatan"><i class="dashicons dashicons-menu-alt" style="margin-top: 2px;"></i></a>&nbsp;'	
+          								+'<a href="javascript:void(0)" data-id="'+value.id+'" data-kodekegiatan="'+value.id_unik+'" data-idprogram="'+value.id_program+'" class="btn btn-success btn-edit-kegiatan"><i class="dashicons dashicons-edit" style="margin-top: 2px;"></i></a>&nbsp;'
+          								+'<a href="javascript:void(0)" data-id="'+value.id+'" data-kodekegiatan="'+value.id_unik+'" data-kodeprogram="'+value.kode_program+'" data-idprogram="'+value.id_program+'" class="btn btn-danger btn-hapus-kegiatan"><i class="dashicons dashicons-trash" style="margin-top: 2px;"></i></a>'
           							+'</td>'
           						+'</tr>'
   								+'<tr>'
@@ -4489,8 +4589,8 @@ foreach ($data_all['data'] as $tujuan) {
           		
           		let html=""
 					+'<div style="margin-top:10px">'
-						+"<button type=\"button\" class=\"btn btn-sm btn-primary mb-2 btn-add-indikator-kegiatan\" data-kodekegiatan=\""+params.id_unik+"\">"
-								+"<i class=\"dashicons dashicons-plus\" style=\"margin-top: 3px;\"></i> Tambah Indikator"
+						+"<button type=\"button\" class=\"btn btn-primary mb-2 btn-add-indikator-kegiatan\" data-kodekegiatan=\""+params.id_unik+"\">"
+								+"<i class=\"dashicons dashicons-plus\" style=\"margin-top: 2px;\"></i> Tambah Indikator"
 						+"</button>"
 					+'</div>'
           			+'<table class="table">'
@@ -4561,8 +4661,8 @@ foreach ($data_all['data'] as $tujuan) {
 				          		+"<td class='text-center'>"+value.target_akhir+"</td>"
 				          		+"<td><b>Penetapan</b><br>"+value.catatan+"</td>"
 				          		+"<td class='text-center' rowspan='2'>"
-				          			+"<a href='#' class='btn btn-sm btn-success btn-edit-indikator-kegiatan' data-kodekegiatan='"+value.id_unik+"' data-id='"+value.id+"'><i class='dashicons dashicons-edit' style='margin-top: 3px;'></i></a>&nbsp"
-									+"<a href='#' class='btn btn-sm btn-danger btn-delete-indikator-kegiatan' data-kodekegiatan='"+value.id_unik+"' data-id='"+value.id+"'><i class='dashicons dashicons-trash' style='margin-top: 3px;'></i></a>&nbsp;"
+				          			+"<a href='#' class='btn btn-success btn-edit-indikator-kegiatan' data-kodekegiatan='"+value.id_unik+"' data-id='"+value.id+"'><i class='dashicons dashicons-edit' style='margin-top: 2px;'></i></a>&nbsp"
+									+"<a href='#' class='btn btn-danger btn-delete-indikator-kegiatan' data-kodekegiatan='"+value.id_unik+"' data-id='"+value.id+"'><i class='dashicons dashicons-trash' style='margin-top: 2px;'></i></a>&nbsp;"
 				          		+"</td>"
 				          	+"</tr>"
 			          		+"<tr>"
@@ -4739,6 +4839,15 @@ foreach ($data_all['data'] as $tujuan) {
 		});
 	}
 
+	function sembunyikan_kolom(that){
+		var val = jQuery(that).val();
+		var td_usulan = jQuery('.td-usulan');
+		td_usulan.show();
+		if(val == 'usulan'){
+			td_usulan.hide();
+		}
+	}
+
 	function sembunyikan_baris(that){
 		var val = jQuery(that).val();
 		var tr_tujuan = jQuery('.tr-tujuan');
@@ -4770,7 +4879,7 @@ foreach ($data_all['data'] as $tujuan) {
 		if(jQuery(that).is(':checked')){
 			jQuery("#table-renstra").find('.status-rpjm').css('background-color', '#f5c9c9');
 		}else{
-			jQuery("#table-renstra").find('.status-rpjm').css('background-color', '#ffffff');
+			jQuery("#table-renstra").find('.status-rpjm').css('background-color', 'transparent');
 		}
 	}
 
@@ -4804,5 +4913,40 @@ foreach ($data_all['data'] as $tujuan) {
 	function setBidurAll(that){
 		var data = jQuery(that).find('option:selected').attr('data');
 		jQuery('input[name="bidur-all"]').val(data);
+	}
+
+	function copy_usulan(that){
+		var modal = jQuery(that).closest('.modal-dialog');
+		var action = modal.find('.modal-footer .btn-success').attr('data-action');
+		var usulan = modal.find('textarea[name="indikator_teks_usulan"]').val();
+		modal.find('textarea[name="indikator_teks"]').val(usulan);
+		var usulan = modal.find('input[name="satuan_usulan"]').val();
+		modal.find('input[name="satuan"]').val(usulan);
+		var usulan = modal.find('input[name="target_awal_usulan"]').val();
+		modal.find('input[name="target_awal"]').val(usulan);
+		var usulan = modal.find('input[name="target_1_usulan"]').val();
+		modal.find('input[name="target_1"]').val(usulan);
+		var usulan = modal.find('input[name="target_2_usulan"]').val();
+		modal.find('input[name="target_2"]').val(usulan);
+		var usulan = modal.find('input[name="target_3_usulan"]').val();
+		modal.find('input[name="target_3"]').val(usulan);
+		var usulan = modal.find('input[name="target_4_usulan"]').val();
+		modal.find('input[name="target_4"]').val(usulan);
+		var usulan = modal.find('input[name="target_5_usulan"]').val();
+		modal.find('input[name="target_5"]').val(usulan);
+		var usulan = modal.find('input[name="pagu_1_usulan"]').val();
+		modal.find('input[name="pagu_1"]').val(usulan);
+		var usulan = modal.find('input[name="pagu_2_usulan"]').val();
+		modal.find('input[name="pagu_2"]').val(usulan);
+		var usulan = modal.find('input[name="pagu_3_usulan"]').val();
+		modal.find('input[name="pagu_3"]').val(usulan);
+		var usulan = modal.find('input[name="pagu_4_usulan"]').val();
+		modal.find('input[name="pagu_4"]').val(usulan);
+		var usulan = modal.find('input[name="pagu_5_usulan"]').val();
+		modal.find('input[name="pagu_5"]').val(usulan);
+		var usulan = modal.find('input[name="target_akhir_usulan"]').val();
+		modal.find('input[name="target_akhir"]').val(usulan);
+		var usulan = modal.find('textarea[name="catatan_usulan"]').val();
+		modal.find('textarea[name="catatan"]').val(usulan);
 	}
 </script>

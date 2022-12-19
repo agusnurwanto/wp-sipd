@@ -4000,14 +4000,14 @@ class Wpsipd_Public_Base_3
 							$target_arr = [$target_1, $target_2, $target_3, $target_4, $target_5];
 							$pagu_arr = [$pagu_1, $pagu_2, $pagu_3, $pagu_4, $pagu_5];
 							$body .= '
-									<tr class="tr-program">
+									<tr>
 										<td class="kiri atas kanan bawah">'.$tujuan_teks.'</td>
 										<td class="kiri atas kanan bawah">'.$sasaran_teks.'</td>
 										<td class="kiri atas kanan bawah">'.$program['kode'].'</td>
 										<td class="kiri atas kanan bawah">'.$program['program_teks'].'</td>
 										<td class="kiri atas kanan bawah">'.$indikator_program.'</td>';
 										for ($i=1; $i <= $_POST['lama_pelaksanaan']; $i++) { 
-											$body.="<td class=\"kiri atas kanan bawah\">".$target_arr[$i-1]."</td><td class=\"atas kanan bawah\">".$pagu_arr[$i-1]."</td>";
+											$body.="<td class=\"kiri atas kanan bawah text_tengah\">".$target_arr[$i-1]."</td><td class=\"atas kanan bawah text_kanan\">".$this->_number_format($pagu_arr[$i-1])."</td>";
 										}
 										$body.='<td class="kiri kiri atas kanan bawah"></td>
 									</tr>
@@ -4048,14 +4048,14 @@ class Wpsipd_Public_Base_3
 								$target_arr = [$target_1, $target_2, $target_3, $target_4, $target_5];
 								$pagu_arr = [$pagu_1, $pagu_2, $pagu_3, $pagu_4, $pagu_5];
 								$body .= '
-										<tr class="tr-kegiatan'.$bg_rpjm.'">
+										<tr>
 											<td class="kiri atas kanan bawah"></td>
 											<td class="kiri atas kanan bawah"></td>
 											<td class="kiri atas kanan bawah">'.$kegiatan['kode'].'</td>
 											<td class="kiri atas kanan bawah">'.$kegiatan['kegiatan_teks'].'</td>
 											<td class="kiri atas kanan bawah">'.$indikator_kegiatan.'</td>';
 											for ($i=1; $i <= $_POST['lama_pelaksanaan']; $i++) { 
-												$body.="<td class=\"kiri atas kanan bawah\">".$target_arr[$i-1]."</td><td class=\"atas kanan bawah\">".$pagu_arr[$i-1]."</td>";
+												$body.="<td class=\"kiri atas kanan bawah text_tengah\">".$target_arr[$i-1]."</td><td class=\"atas kanan bawah text_kanan\">".$this->_number_format($pagu_arr[$i-1])."</td>";
 											}
 											$body.='
 											<td class="kiri atas kanan bawah"></td>
