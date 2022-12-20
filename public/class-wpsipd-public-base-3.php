@@ -4646,7 +4646,7 @@ class Wpsipd_Public_Base_3
 												active=1 ORDER BY id",
 												$program_value['id_unik'],
 												$sasaran_value['id_unik'],
-												$tujuan_value['id_unik'],
+												$tujuan_value['id_unik']
 											), ARRAY_A);
 
 										foreach ($kegiatan_all as $keyKegiatan => $kegiatan_value) {
