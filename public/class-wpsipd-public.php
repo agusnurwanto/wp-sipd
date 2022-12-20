@@ -777,14 +777,14 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						$prog_keg[$kd_keg_simda]['nama_program'] = $sub[0]['nama_program'];
 						$prog_keg[$kd_keg_simda]['nama_giat'] = $sub[0]['nama_giat'];
 						$prog_keg[$kd_keg_simda]['nama_sub_giat'] = $sub[0]['nama_sub_giat'];
-						if(!empty($program_mapping[$sub[0]['nama_program']])){
-							$prog_keg[$kd_keg_simda]['nama_program'] = $program_mapping[$sub[0]['nama_program']];
+						if(!empty($program_mapping[$this->removeNewline($sub[0]['nama_program'])])){
+							$prog_keg[$kd_keg_simda]['nama_program'] = $program_mapping[$this->removeNewline($sub[0]['nama_program'])];
 						}
-						if(!empty($keg_mapping[$sub[0]['nama_giat']])){
-							$prog_keg[$kd_keg_simda]['nama_giat'] = $keg_mapping[$sub[0]['nama_giat']];
+						if(!empty($keg_mapping[$this->removeNewline($sub[0]['nama_giat'])])){
+							$prog_keg[$kd_keg_simda]['nama_giat'] = $keg_mapping[$this->removeNewline($sub[0]['nama_giat'])];
 						}
-						if(!empty($subkeg_mapping[$sub[0]['nama_sub_giat']])){
-							$prog_keg[$kd_keg_simda]['nama_sub_giat'] = $subkeg_mapping[$sub[0]['nama_sub_giat']];
+						if(!empty($subkeg_mapping[$this->removeNewline($sub[0]['nama_sub_giat'])])){
+							$prog_keg[$kd_keg_simda]['nama_sub_giat'] = $subkeg_mapping[$this->removeNewline($sub[0]['nama_sub_giat'])];
 						}
 					}
 					$kontrak[$k]->detail = $prog_keg[$kd_keg_simda];
@@ -5080,18 +5080,18 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 							'nama_urusan' => $sub['nama_urusan'],
 							'nama_sub_giat' => $sub['nama_sub_giat']
 						);
-						if(!empty($program_mapping[$sub['nama_program']])){
-							$newsub['nama_program'] = $program_mapping[$sub['nama_program']];
+						if(!empty($program_mapping[$this->removeNewline($sub['nama_program'])])){
+							$newsub['nama_program'] = $program_mapping[$this->removeNewline($sub['nama_program'])];
 						}
-						if(!empty($keg_mapping[$sub['nama_giat']])){
-							$newsub['nama_giat'] = $keg_mapping[$sub['nama_giat']];
+						if(!empty($keg_mapping[$this->removeNewline($sub['nama_giat'])])){
+							$newsub['nama_giat'] = $keg_mapping[$this->removeNewline($sub['nama_giat'])];
 						}
 						$nama_sub_giat = explode(' ', $sub['nama_sub_giat']);
 						$kode_sub = $nama_sub_giat[0];
 						unset($nama_sub_giat[0]);
 						$nama_sub_giat = implode(' ', $nama_sub_giat);
-						if(!empty($subkeg_mapping[$nama_sub_giat])){
-							$newsub['nama_sub_giat'] = $kode_sub.' '.$subkeg_mapping[$nama_sub_giat];
+						if(!empty($subkeg_mapping[$this->removeNewline($nama_sub_giat)])){
+							$newsub['nama_sub_giat'] = $kode_sub.' '.$subkeg_mapping[$this->removeNewline($nama_sub_giat)];
 						}
 						$newsub['id_mapping'] = get_option('_crb_unit_fmis_'.$tahun_anggaran.'_'.$sub['id_sub_skpd']);
 						$kas = array();
@@ -9732,18 +9732,18 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 									$data_sub_keg[$k]['pagu'] = $v['pagumurni'];
 									$data_sub_keg[$k]['pagu_keg'] = $v['pagumurni'];
 								}
-								if(!empty($program_mapping[$v['nama_program']])){
+								if(!empty($program_mapping[$this->removeNewline($v['nama_program'])])){
 									$data_sub_keg[$k]['nama_program'] = $program_mapping[$v['nama_program']];
 								}
-								if(!empty($keg_mapping[$v['nama_giat']])){
-									$data_sub_keg[$k]['nama_giat'] = $keg_mapping[$v['nama_giat']];
+								if(!empty($keg_mapping[$this->removeNewline($v['nama_giat'])])){
+									$data_sub_keg[$k]['nama_giat'] = $keg_mapping[$this->removeNewline($v['nama_giat'])];
 								}
 								$nama_sub_giat = explode(' ', $v['nama_sub_giat']);
 								$kode_sub = $nama_sub_giat[0];
 								unset($nama_sub_giat[0]);
 								$nama_sub_giat = implode(' ', $nama_sub_giat);
-								if(!empty($subkeg_mapping[$nama_sub_giat])){
-									$data_sub_keg[$k]['nama_sub_giat'] = $kode_sub.' '.$subkeg_mapping[$nama_sub_giat];
+								if(!empty($subkeg_mapping[$this->removeNewline($nama_sub_giat)])){
+									$data_sub_keg[$k]['nama_sub_giat'] = $kode_sub.' '.$subkeg_mapping[$this->removeNewline($nama_sub_giat)];
 								}
 								$data_sub_keg[$k]['id_mapping'] = get_option('_crb_unit_fmis_'.$tahun_anggaran.'_'.$v['id_sub_skpd']);
 								$data_sub_keg[$k]['sub_keg_indikator'] = $wpdb->get_results("
@@ -9891,18 +9891,18 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 									$newdata['kode_program'] = $kd_program;
 									$newdata['kode_giat'] = $kd_keg;
 									$newdata['kode_sub_giat'] = $kd_sub_keg;
-									if(!empty($program_mapping[$nama_program])){
-										$newdata['nama_program'] = $program_mapping[$nama_program];
+									if(!empty($program_mapping[$this->removeNewline($nama_program)])){
+										$newdata['nama_program'] = $program_mapping[$this->removeNewline($nama_program)];
 									}else{
 										$newdata['nama_program'] = $nama_program;
 									}
-									if(!empty($keg_mapping[$nama_keg])){
-										$newdata['nama_giat'] = $keg_mapping[$nama_keg];
+									if(!empty($keg_mapping[$this->removeNewline($nama_keg)])){
+										$newdata['nama_giat'] = $keg_mapping[$this->removeNewline($nama_keg)];
 									}else{
 										$newdata['nama_giat'] = $nama_keg;
 									}
-									if(!empty($subkeg_mapping[$nama_sub_keg])){
-										$newdata['nama_sub_giat'] = $kd_sub_keg.' '.$subkeg_mapping[$nama_sub_keg];
+									if(!empty($subkeg_mapping[$this->removeNewline($nama_sub_keg)])){
+										$newdata['nama_sub_giat'] = $kd_sub_keg.' '.$subkeg_mapping[$this->removeNewline($nama_sub_keg)];
 									}else{
 										$newdata['nama_sub_giat'] = $kd_sub_keg.' '.$nama_sub_keg;
 									}
@@ -9953,6 +9953,10 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		die(json_encode($ret));
 	}
 
+	function removeNewline($string){
+		return preg_replace('/\s+/S', " ", $string);
+	}
+
 	public function get_fmis_mapping($options){
 		if($options['name'] == '_crb_custom_mapping_rekening_fmis'){
 			$mapping = get_option($options['name']);
@@ -9968,7 +9972,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 			$ret = array();
 			foreach($mapping as $map){
 				$map = explode(']-[', $map);
-				$ret[str_replace('[', '', $map[0])] = str_replace(']', '', $map[1]);
+				$ret[str_replace('[', '', $this->removeNewline($map[0]))] = str_replace(']', '', $this->removeNewline($map[1]));
 			}
 		}
 		return $ret;
@@ -10580,19 +10584,19 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						$data_fmis['rincian'] = $new_rincian;
 						$data_fmis['sub_kegiatan_asli'] = $data_fmis['sub_kegiatan'];
 						foreach($subkeg_mapping as $nama_sub_sipd => $nama_sub_fmis){
-							if($data_fmis['sub_kegiatan'] == $nama_sub_fmis){
+							if($this->removeNewline($data_fmis['sub_kegiatan']) == $this->removeNewline($nama_sub_fmis)){
 								$data_fmis['sub_kegiatan'] = $nama_sub_sipd;
 							}
 						}
 						$data_fmis['kegiatan_asli'] = $data_fmis['kegiatan'];
 						foreach($keg_mapping as $nama_giat_sipd => $nama_giat_fmis){
-							if($data_fmis['kegiatan'] == $nama_giat_fmis){
+							if($this->removeNewline($data_fmis['kegiatan']) == $this->removeNewline($nama_giat_fmis)){
 								$data_fmis['kegiatan'] = $nama_giat_sipd;
 							}
 						}
 						$data_fmis['program_asli'] = $data_fmis['program'];
 						foreach($program_mapping as $nama_program_sipd => $nama_program_fmis){
-							if($data_fmis['program'] == $nama_program_fmis){
+							if($this->removeNewline($data_fmis['program']) == $this->removeNewline($nama_program_fmis)){
 								$data_fmis['program'] = $nama_program_sipd;
 							}
 						}
@@ -12579,14 +12583,14 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						$prog_keg[$kd_keg_simda]['nama_program'] = $sub[0]['nama_program'];
 						$prog_keg[$kd_keg_simda]['nama_giat'] = $sub[0]['nama_giat'];
 						$prog_keg[$kd_keg_simda]['nama_sub_giat'] = $sub[0]['nama_sub_giat'];
-						if(!empty($program_mapping[$sub[0]['nama_program']])){
-							$prog_keg[$kd_keg_simda]['nama_program'] = $program_mapping[$sub[0]['nama_program']];
+						if(!empty($program_mapping[$this->removeNewline($sub[0]['nama_program'])])){
+							$prog_keg[$kd_keg_simda]['nama_program'] = $program_mapping[$this->removeNewline($sub[0]['nama_program'])];
 						}
-						if(!empty($keg_mapping[$sub[0]['nama_giat']])){
-							$prog_keg[$kd_keg_simda]['nama_giat'] = $keg_mapping[$sub[0]['nama_giat']];
+						if(!empty($keg_mapping[$this->removeNewline($sub[0]['nama_giat'])])){
+							$prog_keg[$kd_keg_simda]['nama_giat'] = $keg_mapping[$this->removeNewline($sub[0]['nama_giat'])];
 						}
-						if(!empty($subkeg_mapping[$sub[0]['nama_sub_giat']])){
-							$prog_keg[$kd_keg_simda]['nama_sub_giat'] = $subkeg_mapping[$sub[0]['nama_sub_giat']];
+						if(!empty($subkeg_mapping[$this->removeNewline($sub[0]['nama_sub_giat'])])){
+							$prog_keg[$kd_keg_simda]['nama_sub_giat'] = $subkeg_mapping[$this->removeNewline($sub[0]['nama_sub_giat'])];
 						}
 					}
 
@@ -12732,14 +12736,14 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						$prog_keg[$kd_keg_simda]['nama_program'] = $sub[0]['nama_program'];
 						$prog_keg[$kd_keg_simda]['nama_giat'] = $sub[0]['nama_giat'];
 						$prog_keg[$kd_keg_simda]['nama_sub_giat'] = $sub[0]['nama_sub_giat'];
-						if(!empty($program_mapping[$sub[0]['nama_program']])){
-							$prog_keg[$kd_keg_simda]['nama_program'] = $program_mapping[$sub[0]['nama_program']];
+						if(!empty($program_mapping[$this->removeNewline($sub[0]['nama_program'])])){
+							$prog_keg[$kd_keg_simda]['nama_program'] = $program_mapping[$this->removeNewline($sub[0]['nama_program'])];
 						}
-						if(!empty($keg_mapping[$sub[0]['nama_giat']])){
-							$prog_keg[$kd_keg_simda]['nama_giat'] = $keg_mapping[$sub[0]['nama_giat']];
+						if(!empty($keg_mapping[$this->removeNewline($sub[0]['nama_giat'])])){
+							$prog_keg[$kd_keg_simda]['nama_giat'] = $keg_mapping[$this->removeNewline($sub[0]['nama_giat'])];
 						}
-						if(!empty($subkeg_mapping[$sub[0]['nama_sub_giat']])){
-							$prog_keg[$kd_keg_simda]['nama_sub_giat'] = $subkeg_mapping[$sub[0]['nama_sub_giat']];
+						if(!empty($subkeg_mapping[$this->removeNewline($sub[0]['nama_sub_giat'])])){
+							$prog_keg[$kd_keg_simda]['nama_sub_giat'] = $subkeg_mapping[$this->removeNewline($sub[0]['nama_sub_giat'])];
 						}
 					}
 
@@ -12885,14 +12889,14 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						$prog_keg[$kd_keg_simda]['nama_program'] = $sub[0]['nama_program'];
 						$prog_keg[$kd_keg_simda]['nama_giat'] = $sub[0]['nama_giat'];
 						$prog_keg[$kd_keg_simda]['nama_sub_giat'] = $sub[0]['nama_sub_giat'];
-						if(!empty($program_mapping[$sub[0]['nama_program']])){
-							$prog_keg[$kd_keg_simda]['nama_program'] = $program_mapping[$sub[0]['nama_program']];
+						if(!empty($program_mapping[$this->removeNewline($sub[0]['nama_program'])])){
+							$prog_keg[$kd_keg_simda]['nama_program'] = $program_mapping[$this->removeNewline($sub[0]['nama_program'])];
 						}
-						if(!empty($keg_mapping[$sub[0]['nama_giat']])){
-							$prog_keg[$kd_keg_simda]['nama_giat'] = $keg_mapping[$sub[0]['nama_giat']];
+						if(!empty($keg_mapping[$this->removeNewline($sub[0]['nama_giat'])])){
+							$prog_keg[$kd_keg_simda]['nama_giat'] = $keg_mapping[$this->removeNewline($sub[0]['nama_giat'])];
 						}
-						if(!empty($subkeg_mapping[$sub[0]['nama_sub_giat']])){
-							$prog_keg[$kd_keg_simda]['nama_sub_giat'] = $subkeg_mapping[$sub[0]['nama_sub_giat']];
+						if(!empty($subkeg_mapping[$this->removeNewline($sub[0]['nama_sub_giat'])])){
+							$prog_keg[$kd_keg_simda]['nama_sub_giat'] = $subkeg_mapping[$this->removeNewline($sub[0]['nama_sub_giat'])];
 						}
 					}
 
