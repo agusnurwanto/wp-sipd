@@ -2633,7 +2633,9 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
 	}
 
 	jQuery('#generate-data-program-renstra').on('click', function(){
-		generate_data_program_renstra();
+		if(confirm("Apakah anda yakin?\nGenerate data program dari RENSTRA akan menghapus data program di RPD.")){
+			generate_data_program_renstra();
+		}
 	});
 
 	function generate_data_program_renstra() {
