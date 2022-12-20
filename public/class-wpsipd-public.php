@@ -14178,7 +14178,12 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 
 					/** Search id tipe */
 					$tipe_perencanaan = $_POST['tipe_perencanaan'];
-					$sqlTipe = $wpdb->get_results("SELECT * FROM `data_tipe_perencanaan` WHERE nama_tipe='".$tipe_perencanaan."'", ARRAY_A);
+					$sqlTipe = $wpdb->get_results($wpdb->prepare("
+						SELECT 
+							* 
+						FROM `data_tipe_perencanaan` 
+						WHERE nama_tipe=%s
+					", $tipe_perencanaan), ARRAY_A);
 
 					if(empty($sqlTipe)){
 						$return = array(
@@ -14189,7 +14194,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 					}
 
 					if(!empty($_POST['tahun_anggaran'])){
-						$where .=" AND tahun_anggaran = ".$_POST['tahun_anggaran'];
+						$where .=$wpdb->prepare(" AND tahun_anggaran = %d", $_POST['tahun_anggaran']);
 					}
 
 					// getting total number records without any search
@@ -14200,7 +14205,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						$sqlRec .= $where;
 					}
 
-					$sqlRec .=  " ORDER BY ". $columns[$params['order'][0]['column']]."   ".$params['order'][0]['dir']."  LIMIT ".$params['start']." ,".$params['length']." ";
+					$sqlRec .=  $wpdb->prepare(" ORDER BY ". $columns[$params['order'][0]['column']]."   ".$params['order'][0]['dir']."  LIMIT %d ,%d ", $params['start'], $params['length']);
 
 					$queryTot = $wpdb->get_results($sqlTot, ARRAY_A);
 					$totalRecords = $queryTot[0]['jml'];
@@ -14216,6 +14221,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 								$lock	= '<a class="btn btn-success mr-2" href="#" onclick="return lock_data_penjadwalan(\''.$recVal['id_jadwal_lokal'].'\');" title="Kunci data penjadwalan"><i class="dashicons dashicons-unlock"></i></a>';
 								$edit	= '<a class="btn btn-warning mr-2" href="#" onclick="return edit_data_penjadwalan(\''.$recVal['id_jadwal_lokal'].'\');" title="Edit data penjadwalan"><i class="dashicons dashicons-edit"></i></a>';
 								$delete	= '<a class="btn btn-danger" href="#" onclick="return hapus_data_penjadwalan(\''.$recVal['id_jadwal_lokal'].'\');" title="Hapus data penjadwalan"><i class="dashicons dashicons-trash"></i></a>';
+								$delete	.= '<a class="btn btn-danger" href="#" onclick="copy_usulan(); return false;" title="Copy Data Usulan ke Penetapan">Copy Data Usulan</a>';
 							}
 	
 							$status = array(

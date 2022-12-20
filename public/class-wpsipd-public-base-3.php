@@ -3694,14 +3694,25 @@ class Wpsipd_Public_Base_3
         if (!empty($_POST)) {
             if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( WPSIPD_API_KEY )) {
             	if(in_array('administrator', $this->role())){
-	                $tujuan_all = $wpdb->get_results($wpdb->prepare("
-						SELECT 
-							* 
-						FROM data_renstra_tujuan_lokal 
-						WHERE 
-							id_unit=%d AND 
-							active=1 ORDER BY urut_tujuan
-					", $_POST['id_unit']), ARRAY_A);
+            		if(empty($_POST['id_unit'])){
+            			$sql = "
+							SELECT 
+								* 
+							FROM data_renstra_tujuan_lokal 
+							WHERE active=1 
+							ORDER BY urut_tujuan
+						";
+            		}else{
+            			$sql = $wpdb->prepare("
+							SELECT 
+								* 
+							FROM data_renstra_tujuan_lokal 
+							WHERE 
+								id_unit=%d AND 
+								active=1 ORDER BY urut_tujuan
+						", $_POST['id_unit']);
+            		}
+	                $tujuan_all = $wpdb->get_results($sql, ARRAY_A);
 
 					foreach ($tujuan_all as $keyTujuan => $tujuan_value) {
 						$newData = array(
