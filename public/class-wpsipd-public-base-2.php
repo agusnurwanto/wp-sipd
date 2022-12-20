@@ -526,11 +526,9 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 			'status'	=> 'success',
 			'action'	=> $_POST['action'],
 			'data'		=> array(),
-			'cek' 		=> array()
 		);
 		if(!empty($_POST)){
 			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
-				
 				$data_sasaran_rpd_history = $wpdb->get_results($wpdb->prepare(
 					'SELECT DISTINCT id_unik
 					FROM data_rpd_sasaran_lokal_history
@@ -559,46 +557,93 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 						t.kode_sasaran_rpjm IN (%s)',
 					0,1,1,$rpd_history)
 					,ARRAY_A);
-				
+
 				$wpdb->query( $wpdb->prepare(
 					'UPDATE data_rpd_program_lokal
 						SET active = %d',
 						0)
 				);
 
-				//update dan insert data program ke rpd
+				//update dan insert data program dan indikator ke rpd
 				foreach($data_renstra_program as $v_renstra){
-					$data_rpd_same_program = $wpdb->get_results($wpdb->prepare(
-						'SELECT id_unik,id_program 
-						FROM data_rpd_program_lokal 
-						WHERE 
-							id_program=%d AND 
-							kode_sasaran=%s',
-						$v_renstra['id_program'],$v_renstra['kode_sasaran_rpjm'])
-						,ARRAY_A);
-
 					$nama_program = explode(" ", $v_renstra['nama_program']);
-					$deleted_name_program = array_shift($nama_program);
+					array_shift($nama_program);
 					$nama_program = implode(" ", $nama_program);
 
-					$data = array(
+					$data_kirim = array(
 							'kode_sasaran' 	=> $v_renstra['kode_sasaran_rpjm'],
 							'nama_program' 	=> $nama_program,
 							'id_program'	=> $v_renstra['id_program'],
 							'update_at' 	=> current_time('mysql'),
 							'active'		=> 1
 						);
-					if(!empty($data_rpd_same_program)){
-						$wpdb->update('data_rpd_program_lokal', $data, array('id_unik' => $data_rpd_same_program[0]['id_unik']));
+
+					//simpan program
+					if(empty($v_renstra['indikator'])){
+						$data_rpd_same_program = $wpdb->get_results($wpdb->prepare(
+							'SELECT *
+							FROM data_rpd_program_lokal 
+							WHERE 
+								nama_program=%s AND 
+								kode_sasaran=%s AND
+								indikator IS NULL',
+							$nama_program,$v_renstra['kode_sasaran_rpjm'])
+							,ARRAY_A);
+
+						if(!empty($data_rpd_same_program)){
+							$wpdb->update('data_rpd_program_lokal', $data_kirim, array('id_unik' => $data_rpd_same_program[0]['id_unik'], 'indikator' => NULL));
+						}else if(empty($data_rpd_same_program) && empty($v_renstra['indikator'])){
+							$data_kirim['id_unik'] = time().'-'.$this->generateRandomString(5);
+							$wpdb->insert('data_rpd_program_lokal', $data_kirim);
+						}
 					}else{
-						$ret['cek'][$v_renstra['id_program']] = $v_renstra;
-						$data['id_unik'] = time().'-'.$this->generateRandomString(5);
-						$wpdb->insert('data_rpd_program_lokal', $data);
+						//simpan indikator
+						$data_rpd_same_indikator = $wpdb->get_results($wpdb->prepare(
+							'SELECT *
+							FROM data_rpd_program_lokal 
+							WHERE 
+								nama_program=%s AND 
+								kode_sasaran=%s AND
+								indikator=%s',
+							$nama_program,$v_renstra['kode_sasaran_rpjm'],$v_renstra['indikator'])
+							,ARRAY_A);
+
+						$data_kirim['id_unit'] = $v_renstra['id_unit'];
+						$data_kirim['indikator'] = $v_renstra['indikator'];
+						$data_kirim['kode_skpd'] = $v_renstra['kode_skpd'];
+						$data_kirim['nama_skpd'] = $v_renstra['nama_skpd'];
+						$data_kirim['target_awal'] = $v_renstra['target_awal'].' '.$v_renstra['satuan'];
+						$data_kirim['target_1'] = $v_renstra['target_1'].' '.$v_renstra['satuan'];
+						$data_kirim['target_2'] = $v_renstra['target_2'].' '.$v_renstra['satuan'];
+						$data_kirim['target_3'] = $v_renstra['target_3'].' '.$v_renstra['satuan'];
+						$data_kirim['target_4'] = $v_renstra['target_4'].' '.$v_renstra['satuan'];
+						$data_kirim['target_5'] = $v_renstra['target_5'].' '.$v_renstra['satuan'];
+						$data_kirim['target_akhir'] = $v_renstra['target_akhir'].' '.$v_renstra['satuan'];
+
+						if(!empty($data_rpd_same_indikator)){
+							$data_kirim['id_unik'] = $data_rpd_same_indikator[0]['id_unik'];
+							$wpdb->update('data_rpd_program_lokal', $data_kirim, array('id_unik_indikator' => $data_rpd_same_indikator[0]['id_unik_indikator']));
+						}else{
+							//untuk mendapatkan id unik program
+							$data_program = $wpdb->get_results($wpdb->prepare(
+								'SELECT id_unik
+								FROM data_rpd_program_lokal 
+								WHERE 
+									nama_program=%s AND 
+									kode_sasaran=%s AND
+									indikator IS NULL',
+								$nama_program,$v_renstra['kode_sasaran_rpjm'])
+								,ARRAY_A);
+
+							if(!empty($data_program)){
+								$data_kirim['id_unik'] = $data_program[0]['id_unik'];
+								$data_kirim['id_unik_indikator'] = time().'-'.$this->generateRandomString(5); //id_unik indikator
+								$wpdb->insert('data_rpd_program_lokal', $data_kirim);
+							}
+						}
 					}
 				}
-
 				$ret['data'] = $data_renstra_program;				
-
 			}else{
 				$ret['status'] = 'error';
 				$ret['message'] = 'APIKEY tidak sesuai!';

@@ -777,14 +777,14 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						$prog_keg[$kd_keg_simda]['nama_program'] = $sub[0]['nama_program'];
 						$prog_keg[$kd_keg_simda]['nama_giat'] = $sub[0]['nama_giat'];
 						$prog_keg[$kd_keg_simda]['nama_sub_giat'] = $sub[0]['nama_sub_giat'];
-						if(!empty($program_mapping[$sub[0]['nama_program']])){
-							$prog_keg[$kd_keg_simda]['nama_program'] = $program_mapping[$sub[0]['nama_program']];
+						if(!empty($program_mapping[$this->removeNewline($sub[0]['nama_program'])])){
+							$prog_keg[$kd_keg_simda]['nama_program'] = $program_mapping[$this->removeNewline($sub[0]['nama_program'])];
 						}
-						if(!empty($keg_mapping[$sub[0]['nama_giat']])){
-							$prog_keg[$kd_keg_simda]['nama_giat'] = $keg_mapping[$sub[0]['nama_giat']];
+						if(!empty($keg_mapping[$this->removeNewline($sub[0]['nama_giat'])])){
+							$prog_keg[$kd_keg_simda]['nama_giat'] = $keg_mapping[$this->removeNewline($sub[0]['nama_giat'])];
 						}
-						if(!empty($subkeg_mapping[$sub[0]['nama_sub_giat']])){
-							$prog_keg[$kd_keg_simda]['nama_sub_giat'] = $subkeg_mapping[$sub[0]['nama_sub_giat']];
+						if(!empty($subkeg_mapping[$this->removeNewline($sub[0]['nama_sub_giat'])])){
+							$prog_keg[$kd_keg_simda]['nama_sub_giat'] = $subkeg_mapping[$this->removeNewline($sub[0]['nama_sub_giat'])];
 						}
 					}
 					$kontrak[$k]->detail = $prog_keg[$kd_keg_simda];
@@ -5080,18 +5080,18 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 							'nama_urusan' => $sub['nama_urusan'],
 							'nama_sub_giat' => $sub['nama_sub_giat']
 						);
-						if(!empty($program_mapping[$sub['nama_program']])){
-							$newsub['nama_program'] = $program_mapping[$sub['nama_program']];
+						if(!empty($program_mapping[$this->removeNewline($sub['nama_program'])])){
+							$newsub['nama_program'] = $program_mapping[$this->removeNewline($sub['nama_program'])];
 						}
-						if(!empty($keg_mapping[$sub['nama_giat']])){
-							$newsub['nama_giat'] = $keg_mapping[$sub['nama_giat']];
+						if(!empty($keg_mapping[$this->removeNewline($sub['nama_giat'])])){
+							$newsub['nama_giat'] = $keg_mapping[$this->removeNewline($sub['nama_giat'])];
 						}
 						$nama_sub_giat = explode(' ', $sub['nama_sub_giat']);
 						$kode_sub = $nama_sub_giat[0];
 						unset($nama_sub_giat[0]);
 						$nama_sub_giat = implode(' ', $nama_sub_giat);
-						if(!empty($subkeg_mapping[$nama_sub_giat])){
-							$newsub['nama_sub_giat'] = $kode_sub.' '.$subkeg_mapping[$nama_sub_giat];
+						if(!empty($subkeg_mapping[$this->removeNewline($nama_sub_giat)])){
+							$newsub['nama_sub_giat'] = $kode_sub.' '.$subkeg_mapping[$this->removeNewline($nama_sub_giat)];
 						}
 						$newsub['id_mapping'] = get_option('_crb_unit_fmis_'.$tahun_anggaran.'_'.$sub['id_sub_skpd']);
 						$kas = array();
@@ -9732,18 +9732,18 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 									$data_sub_keg[$k]['pagu'] = $v['pagumurni'];
 									$data_sub_keg[$k]['pagu_keg'] = $v['pagumurni'];
 								}
-								if(!empty($program_mapping[$v['nama_program']])){
+								if(!empty($program_mapping[$this->removeNewline($v['nama_program'])])){
 									$data_sub_keg[$k]['nama_program'] = $program_mapping[$v['nama_program']];
 								}
-								if(!empty($keg_mapping[$v['nama_giat']])){
-									$data_sub_keg[$k]['nama_giat'] = $keg_mapping[$v['nama_giat']];
+								if(!empty($keg_mapping[$this->removeNewline($v['nama_giat'])])){
+									$data_sub_keg[$k]['nama_giat'] = $keg_mapping[$this->removeNewline($v['nama_giat'])];
 								}
 								$nama_sub_giat = explode(' ', $v['nama_sub_giat']);
 								$kode_sub = $nama_sub_giat[0];
 								unset($nama_sub_giat[0]);
 								$nama_sub_giat = implode(' ', $nama_sub_giat);
-								if(!empty($subkeg_mapping[$nama_sub_giat])){
-									$data_sub_keg[$k]['nama_sub_giat'] = $kode_sub.' '.$subkeg_mapping[$nama_sub_giat];
+								if(!empty($subkeg_mapping[$this->removeNewline($nama_sub_giat)])){
+									$data_sub_keg[$k]['nama_sub_giat'] = $kode_sub.' '.$subkeg_mapping[$this->removeNewline($nama_sub_giat)];
 								}
 								$data_sub_keg[$k]['id_mapping'] = get_option('_crb_unit_fmis_'.$tahun_anggaran.'_'.$v['id_sub_skpd']);
 								$data_sub_keg[$k]['sub_keg_indikator'] = $wpdb->get_results("
@@ -9891,18 +9891,18 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 									$newdata['kode_program'] = $kd_program;
 									$newdata['kode_giat'] = $kd_keg;
 									$newdata['kode_sub_giat'] = $kd_sub_keg;
-									if(!empty($program_mapping[$nama_program])){
-										$newdata['nama_program'] = $program_mapping[$nama_program];
+									if(!empty($program_mapping[$this->removeNewline($nama_program)])){
+										$newdata['nama_program'] = $program_mapping[$this->removeNewline($nama_program)];
 									}else{
 										$newdata['nama_program'] = $nama_program;
 									}
-									if(!empty($keg_mapping[$nama_keg])){
-										$newdata['nama_giat'] = $keg_mapping[$nama_keg];
+									if(!empty($keg_mapping[$this->removeNewline($nama_keg)])){
+										$newdata['nama_giat'] = $keg_mapping[$this->removeNewline($nama_keg)];
 									}else{
 										$newdata['nama_giat'] = $nama_keg;
 									}
-									if(!empty($subkeg_mapping[$nama_sub_keg])){
-										$newdata['nama_sub_giat'] = $kd_sub_keg.' '.$subkeg_mapping[$nama_sub_keg];
+									if(!empty($subkeg_mapping[$this->removeNewline($nama_sub_keg)])){
+										$newdata['nama_sub_giat'] = $kd_sub_keg.' '.$subkeg_mapping[$this->removeNewline($nama_sub_keg)];
 									}else{
 										$newdata['nama_sub_giat'] = $kd_sub_keg.' '.$nama_sub_keg;
 									}
@@ -9953,6 +9953,10 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		die(json_encode($ret));
 	}
 
+	function removeNewline($string){
+		return preg_replace('/\s+/S', " ", $string);
+	}
+
 	public function get_fmis_mapping($options){
 		if($options['name'] == '_crb_custom_mapping_rekening_fmis'){
 			$mapping = get_option($options['name']);
@@ -9968,7 +9972,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 			$ret = array();
 			foreach($mapping as $map){
 				$map = explode(']-[', $map);
-				$ret[str_replace('[', '', $map[0])] = str_replace(']', '', $map[1]);
+				$ret[str_replace('[', '', $this->removeNewline($map[0]))] = str_replace(']', '', $this->removeNewline($map[1]));
 			}
 		}
 		return $ret;
@@ -10580,19 +10584,19 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						$data_fmis['rincian'] = $new_rincian;
 						$data_fmis['sub_kegiatan_asli'] = $data_fmis['sub_kegiatan'];
 						foreach($subkeg_mapping as $nama_sub_sipd => $nama_sub_fmis){
-							if($data_fmis['sub_kegiatan'] == $nama_sub_fmis){
+							if($this->removeNewline($data_fmis['sub_kegiatan']) == $this->removeNewline($nama_sub_fmis)){
 								$data_fmis['sub_kegiatan'] = $nama_sub_sipd;
 							}
 						}
 						$data_fmis['kegiatan_asli'] = $data_fmis['kegiatan'];
 						foreach($keg_mapping as $nama_giat_sipd => $nama_giat_fmis){
-							if($data_fmis['kegiatan'] == $nama_giat_fmis){
+							if($this->removeNewline($data_fmis['kegiatan']) == $this->removeNewline($nama_giat_fmis)){
 								$data_fmis['kegiatan'] = $nama_giat_sipd;
 							}
 						}
 						$data_fmis['program_asli'] = $data_fmis['program'];
 						foreach($program_mapping as $nama_program_sipd => $nama_program_fmis){
-							if($data_fmis['program'] == $nama_program_fmis){
+							if($this->removeNewline($data_fmis['program']) == $this->removeNewline($nama_program_fmis)){
 								$data_fmis['program'] = $nama_program_sipd;
 							}
 						}
@@ -12579,14 +12583,14 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						$prog_keg[$kd_keg_simda]['nama_program'] = $sub[0]['nama_program'];
 						$prog_keg[$kd_keg_simda]['nama_giat'] = $sub[0]['nama_giat'];
 						$prog_keg[$kd_keg_simda]['nama_sub_giat'] = $sub[0]['nama_sub_giat'];
-						if(!empty($program_mapping[$sub[0]['nama_program']])){
-							$prog_keg[$kd_keg_simda]['nama_program'] = $program_mapping[$sub[0]['nama_program']];
+						if(!empty($program_mapping[$this->removeNewline($sub[0]['nama_program'])])){
+							$prog_keg[$kd_keg_simda]['nama_program'] = $program_mapping[$this->removeNewline($sub[0]['nama_program'])];
 						}
-						if(!empty($keg_mapping[$sub[0]['nama_giat']])){
-							$prog_keg[$kd_keg_simda]['nama_giat'] = $keg_mapping[$sub[0]['nama_giat']];
+						if(!empty($keg_mapping[$this->removeNewline($sub[0]['nama_giat'])])){
+							$prog_keg[$kd_keg_simda]['nama_giat'] = $keg_mapping[$this->removeNewline($sub[0]['nama_giat'])];
 						}
-						if(!empty($subkeg_mapping[$sub[0]['nama_sub_giat']])){
-							$prog_keg[$kd_keg_simda]['nama_sub_giat'] = $subkeg_mapping[$sub[0]['nama_sub_giat']];
+						if(!empty($subkeg_mapping[$this->removeNewline($sub[0]['nama_sub_giat'])])){
+							$prog_keg[$kd_keg_simda]['nama_sub_giat'] = $subkeg_mapping[$this->removeNewline($sub[0]['nama_sub_giat'])];
 						}
 					}
 
@@ -12732,14 +12736,14 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						$prog_keg[$kd_keg_simda]['nama_program'] = $sub[0]['nama_program'];
 						$prog_keg[$kd_keg_simda]['nama_giat'] = $sub[0]['nama_giat'];
 						$prog_keg[$kd_keg_simda]['nama_sub_giat'] = $sub[0]['nama_sub_giat'];
-						if(!empty($program_mapping[$sub[0]['nama_program']])){
-							$prog_keg[$kd_keg_simda]['nama_program'] = $program_mapping[$sub[0]['nama_program']];
+						if(!empty($program_mapping[$this->removeNewline($sub[0]['nama_program'])])){
+							$prog_keg[$kd_keg_simda]['nama_program'] = $program_mapping[$this->removeNewline($sub[0]['nama_program'])];
 						}
-						if(!empty($keg_mapping[$sub[0]['nama_giat']])){
-							$prog_keg[$kd_keg_simda]['nama_giat'] = $keg_mapping[$sub[0]['nama_giat']];
+						if(!empty($keg_mapping[$this->removeNewline($sub[0]['nama_giat'])])){
+							$prog_keg[$kd_keg_simda]['nama_giat'] = $keg_mapping[$this->removeNewline($sub[0]['nama_giat'])];
 						}
-						if(!empty($subkeg_mapping[$sub[0]['nama_sub_giat']])){
-							$prog_keg[$kd_keg_simda]['nama_sub_giat'] = $subkeg_mapping[$sub[0]['nama_sub_giat']];
+						if(!empty($subkeg_mapping[$this->removeNewline($sub[0]['nama_sub_giat'])])){
+							$prog_keg[$kd_keg_simda]['nama_sub_giat'] = $subkeg_mapping[$this->removeNewline($sub[0]['nama_sub_giat'])];
 						}
 					}
 
@@ -12885,14 +12889,14 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						$prog_keg[$kd_keg_simda]['nama_program'] = $sub[0]['nama_program'];
 						$prog_keg[$kd_keg_simda]['nama_giat'] = $sub[0]['nama_giat'];
 						$prog_keg[$kd_keg_simda]['nama_sub_giat'] = $sub[0]['nama_sub_giat'];
-						if(!empty($program_mapping[$sub[0]['nama_program']])){
-							$prog_keg[$kd_keg_simda]['nama_program'] = $program_mapping[$sub[0]['nama_program']];
+						if(!empty($program_mapping[$this->removeNewline($sub[0]['nama_program'])])){
+							$prog_keg[$kd_keg_simda]['nama_program'] = $program_mapping[$this->removeNewline($sub[0]['nama_program'])];
 						}
-						if(!empty($keg_mapping[$sub[0]['nama_giat']])){
-							$prog_keg[$kd_keg_simda]['nama_giat'] = $keg_mapping[$sub[0]['nama_giat']];
+						if(!empty($keg_mapping[$this->removeNewline($sub[0]['nama_giat'])])){
+							$prog_keg[$kd_keg_simda]['nama_giat'] = $keg_mapping[$this->removeNewline($sub[0]['nama_giat'])];
 						}
-						if(!empty($subkeg_mapping[$sub[0]['nama_sub_giat']])){
-							$prog_keg[$kd_keg_simda]['nama_sub_giat'] = $subkeg_mapping[$sub[0]['nama_sub_giat']];
+						if(!empty($subkeg_mapping[$this->removeNewline($sub[0]['nama_sub_giat'])])){
+							$prog_keg[$kd_keg_simda]['nama_sub_giat'] = $subkeg_mapping[$this->removeNewline($sub[0]['nama_sub_giat'])];
 						}
 					}
 
@@ -14174,7 +14178,12 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 
 					/** Search id tipe */
 					$tipe_perencanaan = $_POST['tipe_perencanaan'];
-					$sqlTipe = $wpdb->get_results("SELECT * FROM `data_tipe_perencanaan` WHERE nama_tipe='".$tipe_perencanaan."'", ARRAY_A);
+					$sqlTipe = $wpdb->get_results($wpdb->prepare("
+						SELECT 
+							* 
+						FROM `data_tipe_perencanaan` 
+						WHERE nama_tipe=%s
+					", $tipe_perencanaan), ARRAY_A);
 
 					if(empty($sqlTipe)){
 						$return = array(
@@ -14185,7 +14194,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 					}
 
 					if(!empty($_POST['tahun_anggaran'])){
-						$where .=" AND tahun_anggaran = ".$_POST['tahun_anggaran'];
+						$where .=$wpdb->prepare(" AND tahun_anggaran = %d", $_POST['tahun_anggaran']);
 					}
 
 					// getting total number records without any search
@@ -14196,7 +14205,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						$sqlRec .= $where;
 					}
 
-					$sqlRec .=  " ORDER BY ". $columns[$params['order'][0]['column']]."   ".$params['order'][0]['dir']."  LIMIT ".$params['start']." ,".$params['length']." ";
+					$sqlRec .=  $wpdb->prepare(" ORDER BY ". $columns[$params['order'][0]['column']]."   ".$params['order'][0]['dir']."  LIMIT %d ,%d ", $params['start'], $params['length']);
 
 					$queryTot = $wpdb->get_results($sqlTot, ARRAY_A);
 					$totalRecords = $queryTot[0]['jml'];
@@ -14214,6 +14223,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 								$lock	= '<a class="btn btn-success mr-2" href="#" onclick="return lock_data_penjadwalan(\''.$recVal['id_jadwal_lokal'].'\');" title="Kunci data penjadwalan"><i class="dashicons dashicons-unlock"></i></a>';
 								$edit	= '<a class="btn btn-warning mr-2" href="#" onclick="return edit_data_penjadwalan(\''.$recVal['id_jadwal_lokal'].'\');" title="Edit data penjadwalan"><i class="dashicons dashicons-edit"></i></a>';
 								$delete	= '<a class="btn btn-danger" href="#" onclick="return hapus_data_penjadwalan(\''.$recVal['id_jadwal_lokal'].'\');" title="Hapus data penjadwalan"><i class="dashicons dashicons-trash"></i></a>';
+								$delete	.= '<a class="btn btn-danger" href="#" onclick="copy_usulan(); return false;" title="Copy Data Usulan ke Penetapan">Copy Data Usulan</a>';
 							}
 	
 							$status = array(
@@ -14965,7 +14975,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 									'id_jadwal_lokal'	=> $id_jadwal_lokal
 								));
 
-								$columns_1 = array('bidur_lock','giat_lock','id_bidang_urusan','id_giat','id_misi','id_program','id_unik','id_unik_indikator','id_unit','id_visi','indikator','is_locked','is_locked_indikator','kode_bidang_urusan','kode_giat','kode_program','kode_sasaran','kode_skpd','kode_tujuan','kode_unik_program','nama_bidang_urusan','nama_giat','nama_program','nama_skpd','pagu_1','pagu_2','pagu_3','pagu_4','pagu_5','program_lock','renstra_prog_lock','sasaran_lock','sasaran_teks','satuan','status','target_1','target_2','target_3','target_4','target_5','target_akhir','target_awal','satuan_usulan','target_1_usulan','target_2_usulan','target_3_usulan','target_4_usulan','target_5_usulan','target_akhir_usulan','target_awal_usulan','catatan_usulan','catatan','tujuan_lock','tujuan_teks','urut_sasaran','urut_tujuan','active','update_at','tahun_anggaran');
+								$columns_1 = array('bidur_lock','giat_lock','id_bidang_urusan','id_giat','id_misi','id_program','id_unik','id_unik_indikator','id_unit','id_visi','indikator','indikator_usulan','is_locked','is_locked_indikator','kode_bidang_urusan','kode_giat','kode_program','kode_sasaran','kode_skpd','kode_tujuan','kode_unik_program','nama_bidang_urusan','nama_giat','nama_program','nama_skpd','pagu_1','pagu_2','pagu_3','pagu_4','pagu_5','program_lock','renstra_prog_lock','sasaran_lock','sasaran_teks','satuan','status','target_1','target_2','target_3','target_4','target_5','target_akhir','target_awal','satuan_usulan','target_1_usulan','target_2_usulan','target_3_usulan','target_4_usulan','target_5_usulan','target_akhir_usulan','target_awal_usulan','catatan_usulan','catatan','tujuan_lock','tujuan_teks','urut_sasaran','urut_tujuan','active','update_at','tahun_anggaran');
 	
 								$sql_backup_data_renstra_kegiatan_lokal =  "INSERT INTO data_renstra_kegiatan_lokal_history (".implode(', ', $columns_1).",id_jadwal,id_asli)
 											SELECT ".implode(', ', $columns_1).", ".$data_this_id[0]['id_jadwal_lokal'].", id as id_asli
@@ -14973,7 +14983,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 
 								$queryRecords1 = $wpdb->query($sql_backup_data_renstra_kegiatan_lokal);
 
-								$columns_2 = array('bidur_lock','id_bidang_urusan','id_misi','id_program','id_unik','id_unik_indikator','id_unit','id_visi','indikator','is_locked','is_locked_indikator','kode_bidang_urusan','kode_program','kode_sasaran','kode_skpd','kode_tujuan','nama_bidang_urusan','nama_program','nama_skpd','pagu_1','pagu_2','pagu_3','pagu_4','pagu_5','pagu_1_usulan','pagu_2_usulan','pagu_3_usulan','pagu_4_usulan','pagu_5_usulan','program_lock','sasaran_lock','sasaran_teks','satuan','status','target_1','target_2','target_3','target_4','target_5','target_akhir','target_awal','satuan_usulan','target_1_usulan','target_2_usulan','target_3_usulan','target_4_usulan','target_5_usulan','target_akhir_usulan','target_awal_usulan','catatan_usulan','catatan','tujuan_lock','tujuan_teks','urut_sasaran','urut_tujuan','active','update_at','tahun_anggaran');
+								$columns_2 = array('bidur_lock','id_bidang_urusan','id_misi','id_program','id_unik','id_unik_indikator','id_unit','id_visi','indikator','indikator_usulan','is_locked','is_locked_indikator','kode_bidang_urusan','kode_program','kode_sasaran','kode_skpd','kode_tujuan','nama_bidang_urusan','nama_program','nama_skpd','pagu_1','pagu_2','pagu_3','pagu_4','pagu_5','pagu_1_usulan','pagu_2_usulan','pagu_3_usulan','pagu_4_usulan','pagu_5_usulan','program_lock','sasaran_lock','sasaran_teks','satuan','status','target_1','target_2','target_3','target_4','target_5','target_akhir','target_awal','satuan_usulan','target_1_usulan','target_2_usulan','target_3_usulan','target_4_usulan','target_5_usulan','target_akhir_usulan','target_awal_usulan','catatan_usulan','catatan','tujuan_lock','tujuan_teks','urut_sasaran','urut_tujuan','active','update_at','tahun_anggaran');
 	
 								$sql_backup_data_renstra_program_lokal =  "INSERT INTO data_renstra_program_lokal_history (".implode(', ', $columns_2).",id_jadwal,id_asli)
 											SELECT ".implode(', ', $columns_2).", ".$data_this_id[0]['id_jadwal_lokal'].", id as id_asli
@@ -14981,7 +14991,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 
 								$queryRecords2 = $wpdb->query($sql_backup_data_renstra_program_lokal);
 
-								$columns_3 = array('bidur_lock','id_bidang_urusan','id_misi','id_unit','id_unik_indikator','id_unik','id_visi','indikator_teks','is_locked','is_locked_indikator','kode_bidang_urusan','kode_skpd','kode_tujuan','nama_bidang_urusan','nama_skpd','sasaran_teks','satuan','status','target_1','target_2','target_3','target_4','target_5','target_akhir','target_awal','satuan_usulan','target_1_usulan','target_2_usulan','target_3_usulan','target_4_usulan','target_5_usulan','target_akhir_usulan','target_awal_usulan','catatan_usulan','catatan','tujuan_lock','tujuan_teks','urut_sasaran','urut_tujuan','active','update_at','tahun_anggaran');
+								$columns_3 = array('bidur_lock','id_bidang_urusan','id_misi','id_unit','id_unik_indikator','id_unik','id_visi','indikator_teks','indikator_teks_usulan','is_locked','is_locked_indikator','kode_bidang_urusan','kode_skpd','kode_tujuan','nama_bidang_urusan','nama_skpd','sasaran_teks','satuan','status','target_1','target_2','target_3','target_4','target_5','target_akhir','target_awal','satuan_usulan','target_1_usulan','target_2_usulan','target_3_usulan','target_4_usulan','target_5_usulan','target_akhir_usulan','target_awal_usulan','catatan_usulan','catatan','tujuan_lock','tujuan_teks','urut_sasaran','urut_tujuan','active','update_at','tahun_anggaran');
 	
 								$sql_backup_data_renstra_sasaran_lokal =  "INSERT INTO data_renstra_sasaran_lokal_history (".implode(', ', $columns_3).",id_jadwal,id_asli)
 											SELECT ".implode(', ', $columns_3).", ".$data_this_id[0]['id_jadwal_lokal'].", id as id_asli
@@ -14989,7 +14999,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 
 								$queryRecords3 = $wpdb->query($sql_backup_data_renstra_sasaran_lokal);
 
-								$columns_4 = array('bidur_lock','id_bidang_urusan','id_unik','id_unik_indikator','id_unit','indikator_teks','is_locked','is_locked_indikator','kode_bidang_urusan','kode_sasaran_rpjm','kode_skpd','nama_bidang_urusan','nama_skpd','satuan','status','target_1','target_2','target_3','target_4','target_5','target_akhir','target_awal','satuan_usulan','target_1_usulan','target_2_usulan','target_3_usulan','target_4_usulan','target_5_usulan','target_akhir_usulan','target_awal_usulan','catatan_usulan','catatan','tujuan_teks','urut_tujuan','active','update_at','tahun_anggaran');
+								$columns_4 = array('bidur_lock','id_bidang_urusan','id_unik','id_unik_indikator','id_unit','indikator_teks','indikator_teks_usulan','is_locked','is_locked_indikator','kode_bidang_urusan','kode_sasaran_rpjm','kode_skpd','nama_bidang_urusan','nama_skpd','satuan','status','target_1','target_2','target_3','target_4','target_5','target_akhir','target_awal','satuan_usulan','target_1_usulan','target_2_usulan','target_3_usulan','target_4_usulan','target_5_usulan','target_akhir_usulan','target_awal_usulan','catatan_usulan','catatan','tujuan_teks','urut_tujuan','active','update_at','tahun_anggaran');
 	
 								$sql_backup_data_renstra_tujuan_lokal =  "INSERT INTO data_renstra_tujuan_lokal_history (".implode(', ', $columns_4).",id_jadwal,id_asli)
 											SELECT ".implode(', ', $columns_4).", ".$data_this_id[0]['id_jadwal_lokal'].", id as id_asli
@@ -18342,5 +18352,16 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 	        $randomString .= $characters[rand(0, $charactersLength - 1)];
 	    }
 	    return $randomString;
+	}
+
+	function _number_format($number = 0, $mata_uang = ''){
+		if(!is_numeric($number)){
+			$number = 0;
+		}
+		$uang = number_format($number, 0, ",", ".");
+		if(!empty($mata_uang)){
+			$uang = $mata_uang.' '.$uang;
+		}
+		return $uang;
 	}
 }

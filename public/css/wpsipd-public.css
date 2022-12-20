@@ -247,3 +247,7 @@ td[contenteditable="true"] {
 .modal a {
     text-decoration: none !important;
 }
+
+.modal .btn, table .btn {
+    margin-bottom: 5px;
+}

@@ -9,33 +9,33 @@ global $wpdb;
 $select_rpd_rpjm = '';
 
 $sqlTipe = $wpdb->get_results($wpdb->prepare("
-				SELECT 
-					* 
-				FROM 
-					`data_tipe_perencanaan` 
-				WHERE 
-					nama_tipe=%s
-				OR 
-					nama_tipe=%s",
-					'rpd',
-					'rpjm'
-				), ARRAY_A);
+	SELECT 
+		* 
+	FROM 
+		`data_tipe_perencanaan` 
+	WHERE 
+		nama_tipe=%s
+	OR 
+		nama_tipe=%s",
+		'rpd',
+		'rpjm'
+	), ARRAY_A);
 $data_rpd_rpjm = $wpdb->get_results($wpdb->prepare('
-				SELECT
-					id_jadwal_lokal,
-					nama,
-					id_tipe
-				FROM
-					data_jadwal_lokal
-				WHERE
-					status=1
-					and id_tipe=%d
-				OR 
-					status=1
-					and id_tipe=%d',
-					$sqlTipe[0]['id'],
-					$sqlTipe[1]['id']
-				),ARRAY_A);
+	SELECT
+		id_jadwal_lokal,
+		nama,
+		id_tipe
+	FROM
+		data_jadwal_lokal
+	WHERE
+		status=1
+		and id_tipe=%d
+	OR 
+		status=1
+		and id_tipe=%d',
+		$sqlTipe[0]['id'],
+		$sqlTipe[1]['id']
+	),ARRAY_A);
 				
 if(!empty($data_rpd_rpjm)){
 	foreach($data_rpd_rpjm as $val_rpd_rpjm){
@@ -430,6 +430,25 @@ $body = '';
 		jQuery("#jadwal_nama").val("")
 		jQuery("#tahun_mulai_anggaran").val("")
 		jQuery("#jadwal_tanggal").val("")
+	}
+
+	function copy_usulan(){
+		if(confirm('Apakah anda yakin untuk melakukan ini? data penetapan akan diupdate sama dengan data usulan.')){
+			jQuery('#wrap-loading').show();
+			jQuery.ajax({
+				url: ajax.url,
+	          	type: "post",
+	          	data: {
+	          		"action": "copy_usulan_renstra",
+	          		"api_key": jQuery("#api_key").val()
+	          	},
+	          	dataType: "json",
+	          	success: function(res){
+	          		alert(res.message);
+	          		jQuery('#wrap-loading').hide();
+	          	}
+	        });
+		}
 	}
 
 	function report(awal_renstra, akhir_renstra, lama_pelaksanaan, relasi_perencanaan){

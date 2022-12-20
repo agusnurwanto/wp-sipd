@@ -636,11 +636,11 @@ class Wpsipd_Admin {
 	    $mapping_unit[] = Field::make( 'textarea', 'crb_custom_mapping_sumberdana_fmis', 'Custom Mapping Sumber Dana Antara SIPD dan FMIS' )
             	->set_help_text('Data ini untuk mengakomodir perbedaan kode sumber dana yang ada di SIPD dan FMIS. Contoh pengisian data sebagai berikut [xxx]-[xxx] data dipisah dengan pemisah "," (koma). Formatnya adalah <b>[nama sumber dana sipd]-[nama sumber dana fmis]</b>.');
 	    $mapping_unit[] = Field::make( 'textarea', 'crb_custom_mapping_subkeg_fmis', 'Custom Mapping Sub Kegaitan SIPD dan FMIS' )
-            	->set_help_text('Data ini untuk mengakomodir perbedaan nama sub kegiatan yang ada di SIPD dan FMIS. Contoh pengisian data sebagai berikut [nama_subkeg]-[nama_subkeg] data dipisah dengan pemisah "," (koma).');
+            	->set_help_text('Data ini untuk mengakomodir perbedaan nama sub kegiatan yang ada di SIPD dan FMIS. Contoh pengisian data sebagai berikut [nama_subkeg]-[nama_subkeg] data dipisah dengan pemisah "," (koma). Video tutorial <a href="https://youtu.be/7J_k8NEAZLM" target="_blank">https://youtu.be/7J_k8NEAZLM</a>.');
 	    $mapping_unit[] = Field::make( 'textarea', 'crb_custom_mapping_keg_fmis', 'Custom Mapping Kegaitan SIPD dan FMIS' )
-            	->set_help_text('Data ini untuk mengakomodir perbedaan nama kegiatan yang ada di SIPD dan FMIS. Contoh pengisian data sebagai berikut [nama_kegiatan]-[nama_kegiatan] data dipisah dengan pemisah "," (koma).');
+            	->set_help_text('Data ini untuk mengakomodir perbedaan nama kegiatan yang ada di SIPD dan FMIS. Contoh pengisian data sebagai berikut [nama_kegiatan]-[nama_kegiatan] data dipisah dengan pemisah "," (koma). Video tutorial <a href="https://youtu.be/7J_k8NEAZLM" target="_blank">https://youtu.be/7J_k8NEAZLM</a>.');
 	    $mapping_unit[] = Field::make( 'textarea', 'crb_custom_mapping_program_fmis', 'Custom Mapping Program SIPD dan FMIS' )
-            	->set_help_text('Data ini untuk mengakomodir perbedaan nama program yang ada di SIPD dan FMIS. Contoh pengisian data sebagai berikut [nama_program]-[nama_program] data dipisah dengan pemisah "," (koma).');
+            	->set_help_text('Data ini untuk mengakomodir perbedaan nama program yang ada di SIPD dan FMIS. Contoh pengisian data sebagai berikut [nama_program]-[nama_program] data dipisah dengan pemisah "," (koma). Video tutorial <a href="https://youtu.be/7J_k8NEAZLM" target="_blank">https://youtu.be/7J_k8NEAZLM</a>.');
 		$mapping_unit[] = Field::make( 'html', 'crb_fmis_keterangan_mapping' )
 	        ->set_html( 'Mapping SKPD berisi ID dari Unit dan Sub Unit FMIS. Data ID SKPD FMIS dapat dilihat pada form edit atau tambah user. ID dipisahkan dengan delimiter "." (titik). Contoh jika ID dari Unit Dindik adalah 50 dan ID dari sub Unit Dindik adalah 70, maka penulisanya adalah <b>50.70</b>.' );
         $mapping_unit[] = Field::make( 'radio', 'crb_fmis_pagu', __( 'Nilai Rincian yang dikirim ke FMIS' ) )

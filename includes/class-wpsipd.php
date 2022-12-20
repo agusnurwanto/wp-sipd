@@ -580,7 +580,6 @@ class Wpsipd
 		$this->loader->add_action('wp_ajax_update_indikator_tujuan_renstra',  $plugin_public, 'update_indikator_tujuan_renstra');
 		$this->loader->add_action('wp_ajax_delete_indikator_tujuan_renstra',  $plugin_public, 'delete_indikator_tujuan_renstra');
 
-
 		$this->loader->add_action('wp_ajax_get_sasaran_renstra',  $plugin_public, 'get_sasaran_renstra');
 		$this->loader->add_action('wp_ajax_submit_sasaran_renstra',  $plugin_public, 'submit_sasaran_renstra');
 		$this->loader->add_action('wp_ajax_edit_sasaran_renstra',  $plugin_public, 'edit_sasaran_renstra');
@@ -620,11 +619,11 @@ class Wpsipd
 		$this->loader->add_action('wp_ajax_delete_indikator_kegiatan_renstra',  $plugin_public, 'delete_indikator_kegiatan_renstra');
 
 		$this->loader->add_action('wp_ajax_get_sasaran_parent',  $plugin_public, 'get_sasaran_parent');
-
 		$this->loader->add_action('wp_ajax_get_sub_unit_by_id',  $plugin_public, 'get_sub_unit_by_id');
 		$this->loader->add_action('wp_ajax_view_laporan_tc27',  $plugin_public, 'view_laporan_tc27_renstra');
+		$this->loader->add_action('wp_ajax_copy_usulan_renstra',  $plugin_public, 'copy_usulan_renstra');
 		$this->loader->add_action('wp_ajax_view_rekap_renstra',  $plugin_public, 'view_rekap_renstra');
-		
+
 		add_shortcode('menu_monev',  array($plugin_public, 'menu_monev'));
 		add_shortcode('datassh', array($plugin_public, 'datassh'));
 		add_shortcode('rekbelanja', array($plugin_public, 'rekbelanja'));
