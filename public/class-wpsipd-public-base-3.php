@@ -384,7 +384,7 @@ class Wpsipd_Public_Base_3
 						'active' => 1
 					]);
 
-					if(!$status){
+					if($status === false){
 						throw new Exception('Terjadi kesalahan saat simpan data, harap hubungi admin!');
 					}
 
@@ -872,7 +872,7 @@ class Wpsipd_Public_Base_3
 
 					$status = $wpdb->insert('data_renstra_tujuan_lokal', $inputs);
 
-					if(!$status){
+					if($status === false){
 						throw new Exception('Terjadi kesalahan saat simpan data, harap hubungi admin!');
 					}
 
@@ -1007,7 +1007,7 @@ class Wpsipd_Public_Base_3
 
 					$status = $wpdb->update('data_renstra_tujuan_lokal', $inputs, ['id' => $data['id']]);
 
-					if(!$status){
+					if($status === false){
 						throw new Exception('Terjadi kesalahan saat ubah data, harap hubungi admin!');
 					}
 
@@ -1268,7 +1268,7 @@ class Wpsipd_Public_Base_3
 						'active' => 1
 					]);
 
-					if(!$status){
+					if($status === false){
 						throw new Exception('Terjadi kesalahan saat simpan data, harap hubungi admin!');
 					}
 
@@ -1432,7 +1432,7 @@ class Wpsipd_Public_Base_3
 						'id_unik_indikator' => 'NOT NULL'
 					]);
 
-					if(!$status){
+					if($status === false){
 						throw new Exception('Terjadi kesalahan saat simpan data, harap hubungi admin!');
 					}
 
@@ -1661,7 +1661,7 @@ class Wpsipd_Public_Base_3
 
 					$status = $wpdb->insert('data_renstra_sasaran_lokal', $inputs);
 
-					if(!$status){
+					if($status === false){
 						throw new Exception('Terjadi kesalahan saat simpan data, harap hubungi admin!');
 					}
 
@@ -1803,7 +1803,7 @@ class Wpsipd_Public_Base_3
 
 					$status = $wpdb->update('data_renstra_sasaran_lokal', $inputs, ['id' => $data['id']]);
 
-					if(!$status){
+					if($status === false){
 						throw new Exception('Terjadi kesalahan saat simpan data, harap hubungi admin!');
 					}
 
@@ -2468,7 +2468,7 @@ class Wpsipd_Public_Base_3
 
 					$status = $wpdb->insert('data_renstra_program_lokal', $inputs);
 
-					if(!$status){
+					if($status === false){
 						$ket = '';
 						if(in_array('administrator', $this->role())){
 							$ket = " | query: ".$wpdb->last_query;
@@ -2620,7 +2620,7 @@ class Wpsipd_Public_Base_3
 
 					$status = $wpdb->update('data_renstra_program_lokal', $inputs, ['id' => $data['id']]);
 
-					if(!$status){
+					if($status === false){
 						$ket = '';
 						if(in_array('administrator', $this->role())){
 							$ket = " | query: ".$wpdb->last_query;
@@ -3342,7 +3342,7 @@ class Wpsipd_Public_Base_3
 
 					$status = $wpdb->insert('data_renstra_kegiatan_lokal', $inputs);
 
-					if(!$status){
+					if($status === false){
 						$ket = '';
 						if(in_array('administrator', $this->role())){
 							$ket = " | query: ".$wpdb->last_query;
@@ -3509,7 +3509,7 @@ class Wpsipd_Public_Base_3
 
 					$status = $wpdb->update('data_renstra_kegiatan_lokal', $inputs, ['id' => $data['id']]);
 
-					if(!$status){
+					if($status === false){
 						$ket = '';
 						if(in_array('administrator', $this->role())){
 							$ket = " | query: ".$wpdb->last_query;
@@ -3685,6 +3685,153 @@ class Wpsipd_Public_Base_3
         die(json_encode($ret));
     }
 
+	public function copy_usulan_renstra(){
+        global $wpdb;
+        $ret = array(
+            'status'    => 'success',
+            'message'   => 'Berhasil copy data usulan ke penetapan! Segarkan/refresh halaman ini untuk melihat perubahannya.'
+        );
+        if (!empty($_POST)) {
+            if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( WPSIPD_API_KEY )) {
+            	if(in_array('administrator', $this->role())){
+	                $tujuan_all = $wpdb->get_results($wpdb->prepare("
+						SELECT 
+							* 
+						FROM data_renstra_tujuan_lokal 
+						WHERE 
+							id_unit=%d AND 
+							active=1 ORDER BY urut_tujuan
+					", $_POST['id_unit']), ARRAY_A);
+
+					foreach ($tujuan_all as $keyTujuan => $tujuan_value) {
+						$newData = array(
+							'indikator_teks' => $tujuan_value['indikator_teks_usulan'],
+							'satuan' => $tujuan_value['satuan_usulan'],
+							'target_awal' => $tujuan_value['target_awal_usulan'],
+							'target_1' => $tujuan_value['target_1_usulan'],
+							'target_2' => $tujuan_value['target_2_usulan'],
+							'target_3' => $tujuan_value['target_3_usulan'],
+							'target_4' => $tujuan_value['target_4_usulan'],
+							'target_5' => $tujuan_value['target_5_usulan'],
+							'target_akhir' => $tujuan_value['target_akhir_usulan'],
+							'catatan' => $tujuan_value['catatan_usulan']
+						);
+						$wpdb->update('data_renstra_tujuan_lokal', $newData, array(
+							'id' => $tujuan_value['id']
+						));
+						if(empty($tujuan_value['id_unik_indikator'])){
+							$sasaran_all = $wpdb->get_results($wpdb->prepare("
+								SELECT 
+									* 
+								FROM data_renstra_sasaran_lokal 
+								WHERE 
+									kode_tujuan=%s AND 
+									active=1 ORDER BY urut_sasaran
+							", $tujuan_value['id_unik']), ARRAY_A);
+
+							foreach ($sasaran_all as $keySasaran => $sasaran_value) {
+								$newData = array(
+									'indikator_teks' => $sasaran_value['indikator_teks_usulan'],
+									'satuan' => $sasaran_value['satuan_usulan'],
+									'target_awal' => $sasaran_value['target_awal_usulan'],
+									'target_1' => $sasaran_value['target_1_usulan'],
+									'target_2' => $sasaran_value['target_2_usulan'],
+									'target_3' => $sasaran_value['target_3_usulan'],
+									'target_4' => $sasaran_value['target_4_usulan'],
+									'target_5' => $sasaran_value['target_5_usulan'],
+									'target_akhir' => $sasaran_value['target_akhir_usulan'],
+									'catatan' => $sasaran_value['catatan_usulan']
+								);
+								$wpdb->update('data_renstra_sasaran_lokal', $newData, array(
+									'id' => $sasaran_value['id']
+								));
+								if(empty($sasaran_value['id_unik_indikator'])){
+									$program_all = $wpdb->get_results($wpdb->prepare("
+										SELECT 
+											* 
+										FROM data_renstra_program_lokal 
+										WHERE 
+											kode_sasaran=%s AND 
+											kode_tujuan=%s AND 
+											active=1 ORDER BY id
+									", $sasaran_value['id_unik'], $tujuan_value['id_unik']), ARRAY_A);
+
+									foreach ($program_all as $keyProgram => $program_value) {
+										$newData = array(
+											'indikator' => $program_value['indikator_usulan'],
+											'satuan' => $program_value['satuan_usulan'],
+											'target_awal' => $program_value['target_awal_usulan'],
+											'target_1' => $program_value['target_1_usulan'],
+											'target_2' => $program_value['target_2_usulan'],
+											'target_3' => $program_value['target_3_usulan'],
+											'target_4' => $program_value['target_4_usulan'],
+											'target_5' => $program_value['target_5_usulan'],
+											'target_akhir' => $program_value['target_akhir_usulan'],
+											'catatan' => $program_value['catatan_usulan']
+										);
+										$wpdb->update('data_renstra_program_lokal', $newData, array(
+											'id' => $program_value['id']
+										));
+										if(empty($program_value['id_unik_indikator'])){
+											$kegiatan_all = $wpdb->get_results($wpdb->prepare("
+												SELECT 
+													* 
+												FROM data_renstra_kegiatan_lokal 
+												WHERE 
+													kode_program=%s AND 
+													kode_sasaran=%s AND 
+													kode_tujuan=%s AND 
+													active=1 ORDER BY id
+											", $program_value['id_unik'], $sasaran_value['id_unik'], $tujuan_value['id_unik']), ARRAY_A);
+											foreach ($kegiatan_all as $keyKegiatan => $kegiatan_value) {
+												$newData = array(
+													'indikator' => $kegiatan_value['indikator_usulan'],
+													'satuan' => $kegiatan_value['satuan_usulan'],
+													'target_awal' => $kegiatan_value['target_awal_usulan'],
+													'target_1' => $kegiatan_value['target_1_usulan'],
+													'target_2' => $kegiatan_value['target_2_usulan'],
+													'target_3' => $kegiatan_value['target_3_usulan'],
+													'target_4' => $kegiatan_value['target_4_usulan'],
+													'target_5' => $kegiatan_value['target_5_usulan'],
+													'pagu_1' => $kegiatan_value['pagu_1_usulan'],
+													'pagu_2' => $kegiatan_value['pagu_2_usulan'],
+													'pagu_3' => $kegiatan_value['pagu_3_usulan'],
+													'pagu_4' => $kegiatan_value['pagu_4_usulan'],
+													'pagu_5' => $kegiatan_value['pagu_5_usulan'],
+													'target_akhir' => $kegiatan_value['target_akhir_usulan'],
+													'catatan' => $kegiatan_value['catatan_usulan']
+												);
+												$wpdb->update('data_renstra_kegiatan_lokal', $newData, array(
+													'id' => $kegiatan_value['id']
+												));
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+				}else{
+					$ret = array(
+	                    'status' => 'error',
+	                    'message'   => 'Anda tidak punya kewenangan untuk melakukan ini!'
+	                );
+				}
+            }else{
+                $ret = array(
+                    'status' => 'error',
+                    'message'   => 'Api Key tidak sesuai!'
+                );
+            }
+        }else{
+            $ret = array(
+                'status' => 'error',
+                'message'   => 'Format tidak sesuai!'
+            );
+        }
+        die(json_encode($ret));
+    }
+
     public function view_laporan_tc27_renstra(){
     	global $wpdb;
         $ret = array(
@@ -3764,8 +3911,8 @@ class Wpsipd_Public_Base_3
 							FROM data_renstra_sasaran_lokal 
 							WHERE 
 								kode_tujuan=%s AND 
-								active=1 ORDER BY urut_sasaran",
-								$tujuan_value['id_unik']), ARRAY_A);
+								active=1 ORDER BY urut_sasaran
+						", $tujuan_value['id_unik']), ARRAY_A);
 
 						foreach ($sasaran_all as $keySasaran => $sasaran_value) {
 							if(empty($data_all['data'][$tujuan_value['id_unik']]['data'][$sasaran_value['id_unik']])){
@@ -3800,14 +3947,14 @@ class Wpsipd_Public_Base_3
 							if(empty($sasaran_value['id_unik_indikator'])){
 
 								$program_all = $wpdb->get_results($wpdb->prepare("
-										SELECT 
-											* 
-										FROM data_renstra_program_lokal 
-										WHERE 
-											kode_sasaran=%s AND 
-											kode_tujuan=%s AND 
-											active=1 ORDER BY id",
-											$sasaran_value['id_unik'], $tujuan_value['id_unik']), ARRAY_A);
+									SELECT 
+										* 
+									FROM data_renstra_program_lokal 
+									WHERE 
+										kode_sasaran=%s AND 
+										kode_tujuan=%s AND 
+										active=1 ORDER BY id
+								", $sasaran_value['id_unik'], $tujuan_value['id_unik']), ARRAY_A);
 
 									foreach ($program_all as $keyProgram => $program_value) {
 										if(empty($data_all['data'][$tujuan_value['id_unik']]['data'][$sasaran_value['id_unik']]['data'][$program_value['id_unik']])){
@@ -3850,18 +3997,15 @@ class Wpsipd_Public_Base_3
 
 									if(empty($program_value['id_unik_indikator'])){
 										$kegiatan_all = $wpdb->get_results($wpdb->prepare("
-														SELECT 
-															* 
-														FROM data_renstra_kegiatan_lokal 
-														WHERE 
-															kode_program=%s AND 
-															kode_sasaran=%s AND 
-															kode_tujuan=%s AND 
-															active=1 ORDER BY id",
-															$program_value['id_unik'],
-															$sasaran_value['id_unik'],
-															$tujuan_value['id_unik'],
-														), ARRAY_A);
+											SELECT 
+												* 
+											FROM data_renstra_kegiatan_lokal 
+											WHERE 
+												kode_program=%s AND 
+												kode_sasaran=%s AND 
+												kode_tujuan=%s AND 
+												active=1 ORDER BY id
+										", $program_value['id_unik'], $sasaran_value['id_unik'], $tujuan_value['id_unik']), ARRAY_A);
 
 										foreach ($kegiatan_all as $keyKegiatan => $kegiatan_value) {
 														
@@ -4003,14 +4147,14 @@ class Wpsipd_Public_Base_3
 							$target_arr = [$target_1, $target_2, $target_3, $target_4, $target_5];
 							$pagu_arr = [$pagu_1, $pagu_2, $pagu_3, $pagu_4, $pagu_5];
 							$body .= '
-									<tr class="tr-program">
+									<tr>
 										<td class="kiri atas kanan bawah">'.$tujuan_teks.'</td>
 										<td class="kiri atas kanan bawah">'.$sasaran_teks.'</td>
 										<td class="kiri atas kanan bawah">'.$program['kode'].'</td>
 										<td class="kiri atas kanan bawah">'.$program['program_teks'].'</td>
 										<td class="kiri atas kanan bawah">'.$indikator_program.'</td>';
 										for ($i=1; $i <= $_POST['lama_pelaksanaan']; $i++) { 
-											$body.="<td class=\"kiri atas kanan bawah\">".$target_arr[$i-1]."</td><td class=\"atas kanan bawah\">".$pagu_arr[$i-1]."</td>";
+											$body.="<td class=\"kiri atas kanan bawah text_tengah\">".$target_arr[$i-1]."</td><td class=\"atas kanan bawah text_kanan\">".$this->_number_format($pagu_arr[$i-1])."</td>";
 										}
 										$body.='<td class="kiri kiri atas kanan bawah"></td>
 									</tr>
@@ -4051,14 +4195,14 @@ class Wpsipd_Public_Base_3
 								$target_arr = [$target_1, $target_2, $target_3, $target_4, $target_5];
 								$pagu_arr = [$pagu_1, $pagu_2, $pagu_3, $pagu_4, $pagu_5];
 								$body .= '
-										<tr class="tr-kegiatan'.$bg_rpjm.'">
+										<tr>
 											<td class="kiri atas kanan bawah"></td>
 											<td class="kiri atas kanan bawah"></td>
 											<td class="kiri atas kanan bawah">'.$kegiatan['kode'].'</td>
 											<td class="kiri atas kanan bawah">'.$kegiatan['kegiatan_teks'].'</td>
 											<td class="kiri atas kanan bawah">'.$indikator_kegiatan.'</td>';
 											for ($i=1; $i <= $_POST['lama_pelaksanaan']; $i++) { 
-												$body.="<td class=\"kiri atas kanan bawah\">".$target_arr[$i-1]."</td><td class=\"atas kanan bawah\">".$pagu_arr[$i-1]."</td>";
+												$body.="<td class=\"kiri atas kanan bawah text_tengah\">".$target_arr[$i-1]."</td><td class=\"atas kanan bawah text_kanan\">".$this->_number_format($pagu_arr[$i-1])."</td>";
 											}
 											$body.='
 											<td class="kiri atas kanan bawah"></td>
