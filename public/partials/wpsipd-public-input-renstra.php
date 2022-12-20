@@ -1730,6 +1730,7 @@ foreach ($data_all['data'] as $tujuan) {
 	var aksi = ''
 	<?php if($is_admin): ?>
 		+'<a style="margin-left: 10px;" id="singkron-sipd" onclick="return false;" href="#" class="btn btn-danger">Ambil data dari SIPD lokal</a>'
+		+'<a style="margin-left: 10px;" onclick="copy_usulan_all(); return false;" href="#" class="btn btn-danger">Copy Data Usulan ke Penetapan</a>'
 	<?php endif; ?>
 		+'<?php echo $add_renstra; ?>'
 		+'<div class="dropdown" style="margin:30px">'
@@ -4948,5 +4949,25 @@ foreach ($data_all['data'] as $tujuan) {
 		modal.find('input[name="target_akhir"]').val(usulan);
 		var usulan = modal.find('textarea[name="catatan_usulan"]').val();
 		modal.find('textarea[name="catatan"]').val(usulan);
+	}
+
+	function copy_usulan_all(){
+		if(confirm('Apakah anda yakin untuk melakukan ini? data penetapan akan diupdate sama dengan data usulan.')){
+			jQuery('#wrap-loading').show();
+			jQuery.ajax({
+				url: ajax.url,
+	          	type: "post",
+	          	data: {
+	          		"action": "copy_usulan_renstra",
+	          		"api_key": "<?php echo $api_key; ?>",
+	          		"id_unit": "<?php echo $input['id_skpd']; ?>"
+	          	},
+	          	dataType: "json",
+	          	success: function(res){
+	          		alert(res.message);
+	          		jQuery('#wrap-loading').hide();
+	          	}
+	        });
+		}
 	}
 </script>
