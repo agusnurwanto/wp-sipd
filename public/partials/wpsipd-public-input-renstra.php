@@ -62,7 +62,7 @@ if(!empty($jadwal_lokal)){
 		$id_tipe_relasi = $relasi->id_tipe;
 	}
 
-	$awal_renstra = $jadwal_lokal[0]['tahun_anggaran']+1;
+	$awal_renstra = $jadwal_lokal[0]['tahun_anggaran'];
 	$namaJadwal = $jadwal_lokal[0]['nama'];
 	$mulaiJadwal = $jadwal_lokal[0]['waktu_awal'];
 	$selesaiJadwal = $jadwal_lokal[0]['waktu_akhir'];
@@ -88,7 +88,7 @@ switch ($id_tipe_relasi) {
 		break;
 }
 
-$akhir_renstra = ($awal_renstra-1)+$lama_pelaksanaan;
+$akhir_renstra = $awal_renstra+$lama_pelaksanaan-1;
 $urut = $tahun_anggaran-$awal_renstra;
 $rumus_indikator_db = $wpdb->get_results("SELECT * FROM data_rumus_indikator WHERE active=1 AND tahun_anggaran=".$tahun_anggaran, ARRAY_A);
 $rumus_indikator = '';
@@ -3064,9 +3064,7 @@ foreach ($data_all['data'] as $tujuan) {
 			break;
 
 			default:
-				action='view_laporan_tc27';
-				name='Laporan Renstra TC27';
-				title='Laporan Renstra TC27';
+				alert('Jenis laporan belum dipilih!');
 				break;
 		}
 
@@ -3086,7 +3084,7 @@ foreach ($data_all['data'] as $tujuan) {
 					
 					jQuery('#wrap-loading').hide();
 
-					jQuery("#modal-crud-renstra").find('.modal-dialog').css('maxWidth','1950px');
+					jQuery("#modal-crud-renstra").find('.modal-dialog').css('maxWidth','1450px');
 					jQuery("#modal-crud-renstra").find('.modal-dialog').css('width','100%');
 					jQuery("#modal-crud-renstra").find('.modal-title').html(title);
 					jQuery("#modal-crud-renstra").find('.modal-body').html(response.html);

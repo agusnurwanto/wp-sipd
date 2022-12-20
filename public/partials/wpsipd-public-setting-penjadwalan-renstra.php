@@ -57,6 +57,7 @@ $body = '';
 }
 </style>
 <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
 <div class="cetak">
 	<div style="padding: 10px;margin:0 0 3rem 0;">
 		<input type="hidden" value="<?php echo get_option( '_crb_api_key_extension' ); ?>" id="api_key">
@@ -125,13 +126,17 @@ $body = '';
 	</div>
 </div>
 
+<div class="report"></div>
+
 <script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
 <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 <script>
 	jQuery(document).ready(function(){
 
 		globalThis.tipePerencanaan = 'renstra'
 		globalThis.thisAjaxUrl = "<?php echo admin_url('admin-ajax.php'); ?>"
+		globalThis.tahunAnggaran = "<?php echo get_option('_crb_tahun_anggaran_sipd'); ?>"
 
 		get_data_penjadwalan();
 
@@ -425,6 +430,172 @@ $body = '';
 		jQuery("#jadwal_nama").val("")
 		jQuery("#tahun_mulai_anggaran").val("")
 		jQuery("#jadwal_tanggal").val("")
+	}
+
+	function report(awal_renstra, akhir_renstra, lama_pelaksanaan, relasi_perencanaan){
+
+		all_skpd();
+
+		let modal = `
+			<div class="modal fade" id="modal-report" tab-index="-1" role="dialog" aria-labelledby="modal-indikator-renstra-label" aria-hidden="true">
+			  <div class="modal-dialog modal-lg" role="document" style="min-width:1450px">
+			    <div class="modal-content">
+			      <div class="modal-header">
+			        <h5 class="modal-title">Export Data</h5>
+			        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+			          <span aria-hidden="true">&times;</span>
+			        </button>
+			      </div>
+			      
+			      <div class="modal-body">
+				    <div class="container-fluid">
+					    <div class="row">
+						    <div class="col-md-2">Unit Kerja</div>
+						    <div class="col-md-6">
+						    	<select class="form-control list_opd" id="list_opd"></select>
+						    </div>
+					    </div></br>
+					     <div class="row">
+					    	<div class="col-md-2">Jenis Laporan</div>
+					    	<div class="col-md-6">
+					      		<select class="form-control jenis" id="jenis">
+					      			<option>Pilih Jenis</option>
+					      			<option value="rekap">Format Renstra</option>
+					      			<option value="tc27">TC 27</option>
+				      			</select>
+					    	</div>
+					    </div></br>
+					    <div class="row">
+					    	<div class="col-md-2"></div>
+					    	<div class="col-md-6">
+					      		<button type="button" class="btn btn-success btn-preview" onclick="preview('${awal_renstra}', '${akhir_renstra}', '${lama_pelaksanaan}', '${relasi_perencanaan}')">Preview</button>
+					      		<button type="button" class="btn btn-primary export-excel" onclick="exportExcel()" disabled>Export Excel</button>
+					    	</div>
+					    </div></br>
+					</div>
+			      </div>
+
+			      <div class="modal-preview" style="padding:10px"></div>
+
+			    </div>
+			  </div>
+			</div>`;
+
+		jQuery("body .report").html(modal);
+		jQuery("#modal-report").modal('show');
+	}
+
+	function all_skpd(){
+		jQuery.ajax({
+			url:ajax.url,
+			type:'post',
+			dataType:'json',
+			data:{
+				action:'get_list_skpd',
+				tahun_anggaran:tahunAnggaran
+			},
+			success:function(response){
+				let list_opd=`<option>Pilih OPD</option>`;
+				response.map(function(v,i){
+					list_opd+=`<option value="${v.id_skpd}">${v.nama_skpd}</option>`;
+				});
+				jQuery("#list_opd").html(list_opd);
+
+				jQuery(document).ready(function() {
+				    jQuery('.list_opd').select2();
+				    jQuery('.jenis').select2();
+				});
+			}
+		})
+	}
+
+	function preview(awal_renstra, akhir_renstra, lama_pelaksanaan, relasi_perencanaan){
+
+		let jenis=jQuery("#jenis").val();
+		let id_unit=jQuery("#list_opd").val();
+
+		if(id_unit=='' || id_unit=='undefined'){
+			alert('Unit kerja belum dipilih');
+		}
+
+		switch(jenis){
+			case 'rekap':
+				rekap(id_unit, awal_renstra, akhir_renstra, lama_pelaksanaan, relasi_perencanaan);
+				break;
+
+			case 'tc27':
+				tc27(id_unit, awal_renstra, akhir_renstra, lama_pelaksanaan);
+				break;
+
+			default:
+				alert('Jenis laporan belum dipilih');
+				break;
+		}
+	}
+
+	function rekap(id_unit, awal_renstra, akhir_renstra, lama_pelaksanaan, relasi_perencanaan){
+		jQuery("#wrap-loading").show();
+		jQuery.ajax({
+			url:ajax.url,
+			type:'post',
+			dataType:'json',
+			data:{
+				action:'view_rekap_renstra',
+				id_unit:id_unit,
+				awal_renstra:awal_renstra,
+				akhir_renstra:akhir_renstra,
+				lama_pelaksanaan:lama_pelaksanaan,
+				tahun_anggaran:tahunAnggaran,
+				relasi_perencanaan:relasi_perencanaan,
+				api_key:jQuery("#api_key").val(),
+			},
+			success:function(response){
+				jQuery('#wrap-loading').hide();
+				jQuery("#modal-report .modal-preview").html(response.html);
+				jQuery("#modal-report .modal-preview").css('overflow-x', 'auto');
+				jQuery("#modal-report .modal-preview").css('padding', '15px');
+				jQuery('#modal-report .export-excel').attr("disabled", false);
+				jQuery('#modal-report .export-excel').attr("title", 'Laporan Renstra');
+
+				jQuery("#table-renstra th.row_head_1").attr('rowspan',2);
+				jQuery("#table-renstra th.row_head_1_tahun").attr('colspan',2);
+			}
+		})
+	}
+
+	function tc27(id_unit, awal_renstra, akhir_renstra, lama_pelaksanaan){
+		jQuery("#wrap-loading").show();
+		jQuery.ajax({
+			url:ajax.url,
+			type:'post',
+			dataType:'json',
+			data:{
+				action:'view_laporan_tc27',
+				id_unit:id_unit,
+				awal_renstra:awal_renstra,
+				akhir_renstra:akhir_renstra,
+				lama_pelaksanaan:lama_pelaksanaan,
+				tahun_anggaran:tahunAnggaran,
+				api_key:jQuery("#api_key").val(),
+			},
+			success:function(response){
+				jQuery('#wrap-loading').hide();
+				jQuery("#modal-report .modal-preview").html(response.html);
+				jQuery("#modal-report .modal-preview").css('overflow-x', 'auto');
+				jQuery("#modal-report .modal-preview").css('padding', '15px');
+				jQuery('#modal-report .export-excel').attr("disabled", false);
+				jQuery('#modal-report .export-excel').attr("title", 'Laporan TC 27');
+
+				jQuery("#table-renstra th.row_head_1").attr('rowspan',3);
+				jQuery("#table-renstra th.row_head_kinerja").attr('colspan',2*lama_pelaksanaan);
+				jQuery("#table-renstra th.row_head_1_tahun").attr('colspan',2);
+			}
+		})
+	}
+
+	function exportExcel(){
+		let name=jQuery('#modal-report .export-excel').attr("title");
+		tableHtmlToExcel("preview", name);
 	}
 
 </script> 

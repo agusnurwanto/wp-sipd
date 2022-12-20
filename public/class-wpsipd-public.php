@@ -14205,10 +14205,12 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 					if(!empty($queryRecords)){
 						foreach($queryRecords as $recKey => $recVal){
 							if($recVal['status'] == 1){
+								$report = '<a class="btn btn-primary mr-2" href="#" onclick="return report(\''.$recVal['tahun_anggaran'].'\', \''.($recVal['tahun_anggaran']+$recVal['lama_pelaksanaan']-1).'\', \''.$recVal['lama_pelaksanaan'].'\', \''.$recVal['relasi_perencanaan'].'\');" title="Cetak Laporan"><i class="dashicons dashicons-printer"></i></a>';
 								$lock	= '<a class="btn btn-success disabled" href="#" onclick="return cannot_change_schedule(\'kunci\');" title="Kunci data penjadwalan" aria-disabled="true"><i class="dashicons dashicons-lock"></i></a>';
 								$edit	= '';
 								$delete	= '';
 							}else{
+								$report	= '';
 								$lock	= '<a class="btn btn-success mr-2" href="#" onclick="return lock_data_penjadwalan(\''.$recVal['id_jadwal_lokal'].'\');" title="Kunci data penjadwalan"><i class="dashicons dashicons-unlock"></i></a>';
 								$edit	= '<a class="btn btn-warning mr-2" href="#" onclick="return edit_data_penjadwalan(\''.$recVal['id_jadwal_lokal'].'\');" title="Edit data penjadwalan"><i class="dashicons dashicons-edit"></i></a>';
 								$delete	= '<a class="btn btn-danger" href="#" onclick="return hapus_data_penjadwalan(\''.$recVal['id_jadwal_lokal'].'\');" title="Hapus data penjadwalan"><i class="dashicons dashicons-trash"></i></a>';
@@ -14253,7 +14255,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						
 							$queryRecords[$recKey]['waktu_awal']	= date('d-m-Y H:i', strtotime($recVal['waktu_awal']));
 							$queryRecords[$recKey]['waktu_akhir']	= date('d-m-Y H:i', strtotime($recVal['waktu_akhir']));
-							$queryRecords[$recKey]['aksi'] = $lock.$edit.$delete;
+							$queryRecords[$recKey]['aksi'] = $report.$lock.$edit.$delete;
 							$queryRecords[$recKey]['nama'] = ucfirst($recVal['nama']);
 							$queryRecords[$recKey]['status'] = $status[$recVal['status']];
 							$queryRecords[$recKey]['tahun_anggaran_selesai'] = $tahun_anggaran_selesai;

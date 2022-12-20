@@ -623,6 +623,8 @@ class Wpsipd
 
 		$this->loader->add_action('wp_ajax_get_sub_unit_by_id',  $plugin_public, 'get_sub_unit_by_id');
 		$this->loader->add_action('wp_ajax_view_laporan_tc27',  $plugin_public, 'view_laporan_tc27_renstra');
+		$this->loader->add_action('wp_ajax_view_rekap_renstra',  $plugin_public, 'view_rekap_renstra');
+		
 		add_shortcode('menu_monev',  array($plugin_public, 'menu_monev'));
 		add_shortcode('datassh', array($plugin_public, 'datassh'));
 		add_shortcode('rekbelanja', array($plugin_public, 'rekbelanja'));
