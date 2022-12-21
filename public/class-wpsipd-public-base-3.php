@@ -2875,7 +2875,7 @@ class Wpsipd_Public_Base_3
 					", $_POST['kode_program']);
 					$kegiatan = $wpdb->get_results($sql, ARRAY_A);
 					foreach($kegiatan as $k => $keg){
-						$pagu_keg = $wpdb->get_row($wpdb->prepare("
+						$pagu = $wpdb->get_row($wpdb->prepare("
 							SELECT 
 								sum(pagu_1) as pagu_akumulasi_1,
 								sum(pagu_2) as pagu_akumulasi_2,
@@ -2892,11 +2892,11 @@ class Wpsipd_Public_Base_3
 								AND active=1
 								AND id_unik=%s
 						", $keg['id_unik']));
-						$kegiatan[$k]['pagu_akumulasi_1'] = $pagu_keg->pagu_akumulasi_1;
-						$kegiatan[$k]['pagu_akumulasi_2'] = $pagu_keg->pagu_akumulasi_2;
-						$kegiatan[$k]['pagu_akumulasi_3'] = $pagu_keg->pagu_akumulasi_3;
-						$kegiatan[$k]['pagu_akumulasi_4'] = $pagu_keg->pagu_akumulasi_4;
-						$kegiatan[$k]['pagu_akumulasi_5'] = $pagu_keg->pagu_akumulasi_5;
+						$kegiatan[$k]['pagu_akumulasi_1'] = $pagu->pagu_akumulasi_1;
+						$kegiatan[$k]['pagu_akumulasi_2'] = $pagu->pagu_akumulasi_2;
+						$kegiatan[$k]['pagu_akumulasi_3'] = $pagu->pagu_akumulasi_3;
+						$kegiatan[$k]['pagu_akumulasi_4'] = $pagu->pagu_akumulasi_4;
+						$kegiatan[$k]['pagu_akumulasi_5'] = $pagu->pagu_akumulasi_5;
 						$kegiatan[$k]['pagu_akumulasi_1_usulan'] = $pagu->pagu_akumulasi_1_usulan;
 						$kegiatan[$k]['pagu_akumulasi_2_usulan'] = $pagu->pagu_akumulasi_2_usulan;
 						$kegiatan[$k]['pagu_akumulasi_3_usulan'] = $pagu->pagu_akumulasi_3_usulan;

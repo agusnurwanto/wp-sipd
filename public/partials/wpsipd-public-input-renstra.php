@@ -3992,7 +3992,7 @@ foreach ($data_all['data'] as $tujuan) {
 				          			+'<td rowspan="2">'+value.nama_bidang_urusan+'</td>'
 				          			+'<td rowspan="2">'+value.tujuan_teks+'</td>'
 	      						<?php for($i=1; $i<=$lama_pelaksanaan; $i++){ ?>
-	      							+'<td class="text-right">'+value.pagu_akumulasi_<?php echo $i; ?>+'</td>'
+	      							+'<td class="text-right">'+formatRupiah(value.pagu_akumulasi_<?php echo $i; ?>)+'</td>'
 	      						<?php } ?>
 				          			+'<td><b>Penetapan</b><br>'+value.catatan+'</td>'
 				          			+'<td class="text-center" rowspan="2">'
@@ -4004,7 +4004,7 @@ foreach ($data_all['data'] as $tujuan) {
 				          		+'</tr>'
 			          			+'<tr>'
 	      						<?php for($i=1; $i<=$lama_pelaksanaan; $i++){ ?>
-	      							+'<td class="text-right">'+value.pagu_akumulasi_<?php echo $i; ?>_usulan+'</td>'
+	      							+'<td class="text-right">'+formatRupiah(value.pagu_akumulasi_<?php echo $i; ?>_usulan)+'</td>'
 	      						<?php } ?>
 				          			+'<td><b>Usulan</b> '+value.catatan_usulan+'</td>'
 				          		+'</tr>';
@@ -4186,7 +4186,7 @@ foreach ($data_all['data'] as $tujuan) {
           							+'<td class="text-center" rowspan="2">'+(index+1)+'</td>'
           							+'<td rowspan="2">'+value.sasaran_teks+'</td>'
 	      						<?php for($i=1; $i<=$lama_pelaksanaan; $i++){ ?>
-	      							+'<td class="text-right">'+value.pagu_akumulasi_<?php echo $i; ?>+'</td>'
+	      							+'<td class="text-right">'+formatRupiah(value.pagu_akumulasi_<?php echo $i; ?>)+'</td>'
 	      						<?php } ?>
           							+'<td><b>Penetapan</b><br>'+value.catatan+'</td>'
           							+'<td class="text-center" rowspan="2">'
@@ -4198,7 +4198,7 @@ foreach ($data_all['data'] as $tujuan) {
           						+'</tr>'
   								+'<tr>'
 	      						<?php for($i=1; $i<=$lama_pelaksanaan; $i++){ ?>
-	      							+'<td class="text-right">'+value.pagu_akumulasi_<?php echo $i; ?>_usulan+'</td>'
+	      							+'<td class="text-right">'+formatRupiah(value.pagu_akumulasi_<?php echo $i; ?>_usulan)+'</td>'
 	      						<?php } ?>
           							+'<td><b>Usulan</b> '+value.catatan_usulan+'</td>'
           						+'</tr>';
@@ -4396,7 +4396,7 @@ foreach ($data_all['data'] as $tujuan) {
           							+'<td class="text-center" rowspan="4">'+(index+1)+'</td>'
           							+'<td rowspan="4">'+value.nama_program+'</td>'
 	      						<?php for($i=1; $i<=$lama_pelaksanaan; $i++){ ?>
-	      							+'<td class="text-right '+peringatan[<?php echo $i; ?>]+'">'+value.pagu_akumulasi_<?php echo $i; ?>+'</td>'
+	      							+'<td class="text-right '+peringatan[<?php echo $i; ?>]+'">'+formatRupiah(value.pagu_akumulasi_<?php echo $i; ?>)+'</td>'
 	      						<?php } ?>
           							+'<td><b>Penetapan</b><br>'+value.catatan+'</td>'
           							+'<td class="text-center" rowspan="4">'
@@ -4407,19 +4407,19 @@ foreach ($data_all['data'] as $tujuan) {
           						+'</tr>'
   								+'<tr>'
 	      						<?php for($i=1; $i<=$lama_pelaksanaan; $i++){ ?>
-	      							+'<td class="text-right '+peringatan[<?php echo $i; ?>]+'">'+value.pagu_akumulasi_<?php echo $i; ?>_program+'</td>'
+	      							+'<td class="text-right '+peringatan[<?php echo $i; ?>]+'">'+formatRupiah(value.pagu_akumulasi_<?php echo $i; ?>_program)+'</td>'
 	      						<?php } ?>
           							+'<td>Akumulasi Penetapan Indikator Program</td>'
           						+'</tr>'
   								+'<tr>'
 	      						<?php for($i=1; $i<=$lama_pelaksanaan; $i++){ ?>
-	      							+'<td class="text-right '+peringatan_usulan[<?php echo $i; ?>]+'">'+value.pagu_akumulasi_<?php echo $i; ?>_usulan+'</td>'
+	      							+'<td class="text-right '+peringatan_usulan[<?php echo $i; ?>]+'">'+formatRupiah(value.pagu_akumulasi_<?php echo $i; ?>_usulan)+'</td>'
 	      						<?php } ?>
           							+'<td><b>Usulan</b> '+value.catatan_usulan+'</td>'
           						+'</tr>'
   								+'<tr>'
 	      						<?php for($i=1; $i<=$lama_pelaksanaan; $i++){ ?>
-	      							+'<td class="text-right '+peringatan_usulan[<?php echo $i; ?>]+'">'+value.pagu_akumulasi_<?php echo $i; ?>_usulan_program+'</td>'
+	      							+'<td class="text-right '+peringatan_usulan[<?php echo $i; ?>]+'">'+formatRupiah(value.pagu_akumulasi_<?php echo $i; ?>_usulan_program)+'</td>'
 	      						<?php } ?>
           							+'<td>Akumulasi Usulan Indikator Program</td>'
           						+'</tr>';
@@ -4513,25 +4513,25 @@ foreach ($data_all['data'] as $tujuan) {
 		          						+'<tbody style="font-weight: normal;">'
 			  								+'<tr>'
 				      						<?php for($i=1; $i<=$lama_pelaksanaan; $i++){ ?>
-				      							+'<td class="text-right '+peringatan[<?php echo $i; ?>]+'">'+response.program.pagu_akumulasi_<?php echo $i; ?>+'</td>'
+				      							+'<td class="text-right '+peringatan[<?php echo $i; ?>]+'">'+formatRupiah(response.program.pagu_akumulasi_<?php echo $i; ?>)+'</td>'
 				      						<?php } ?>
 			          							+'<td><b>Penetapan</b><br>'+response.program.catatan+'</td>'
 			          						+'</tr>'
 			  								+'<tr>'
 				      						<?php for($i=1; $i<=$lama_pelaksanaan; $i++){ ?>
-				      							+'<td class="text-right '+peringatan[<?php echo $i; ?>]+'">'+response.program.pagu_akumulasi_<?php echo $i; ?>_program+'</td>'
+				      							+'<td class="text-right '+peringatan[<?php echo $i; ?>]+'">'+formatRupiah(response.program.pagu_akumulasi_<?php echo $i; ?>_program)+'</td>'
 				      						<?php } ?>
 			          							+'<td>Akumulasi Penetapan Indikator Program</td>'
 			          						+'</tr>'
 			  								+'<tr>'
 				      						<?php for($i=1; $i<=$lama_pelaksanaan; $i++){ ?>
-				      							+'<td class="text-right '+peringatan_usulan[<?php echo $i; ?>]+'">'+response.program.pagu_akumulasi_<?php echo $i; ?>_usulan+'</td>'
+				      							+'<td class="text-right '+peringatan_usulan[<?php echo $i; ?>]+'">'+formatRupiah(response.program.pagu_akumulasi_<?php echo $i; ?>_usulan)+'</td>'
 				      						<?php } ?>
 			          							+'<td><b>Usulan</b> '+response.program.catatan_usulan+'</td>'
 			          						+'</tr>'
 			  								+'<tr>'
 				      						<?php for($i=1; $i<=$lama_pelaksanaan; $i++){ ?>
-				      							+'<td class="text-right '+peringatan_usulan[<?php echo $i; ?>]+'">'+response.program.pagu_akumulasi_<?php echo $i; ?>_usulan_program+'</td>'
+				      							+'<td class="text-right '+peringatan_usulan[<?php echo $i; ?>]+'">'+formatRupiah(response.program.pagu_akumulasi_<?php echo $i; ?>_usulan_program)+'</td>'
 				      						<?php } ?>
 			          							+'<td>Akumulasi Usulan Indikator Program</td>'
 			          						+'</tr>'
