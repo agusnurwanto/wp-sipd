@@ -1918,6 +1918,34 @@ class Wpsipd_Public_Base_3
 								sum(pagu_3_usulan) as pagu_akumulasi_3_usulan,
 								sum(pagu_4_usulan) as pagu_akumulasi_4_usulan,
 								sum(pagu_5_usulan) as pagu_akumulasi_5_usulan
+							from data_renstra_program_lokal 
+							where id_unik_indikator IS NOT NULL
+								AND active=1
+								AND id_unik=%s
+						", $prog['id_unik']));
+						$program[$k]['pagu_akumulasi_1_program'] = $pagu->pagu_akumulasi_1;
+						$program[$k]['pagu_akumulasi_2_program'] = $pagu->pagu_akumulasi_2;
+						$program[$k]['pagu_akumulasi_3_program'] = $pagu->pagu_akumulasi_3;
+						$program[$k]['pagu_akumulasi_4_program'] = $pagu->pagu_akumulasi_4;
+						$program[$k]['pagu_akumulasi_5_program'] = $pagu->pagu_akumulasi_5;
+						$program[$k]['pagu_akumulasi_1_usulan_program'] = $pagu->pagu_akumulasi_1_usulan;
+						$program[$k]['pagu_akumulasi_2_usulan_program'] = $pagu->pagu_akumulasi_2_usulan;
+						$program[$k]['pagu_akumulasi_3_usulan_program'] = $pagu->pagu_akumulasi_3_usulan;
+						$program[$k]['pagu_akumulasi_4_usulan_program'] = $pagu->pagu_akumulasi_4_usulan;
+						$program[$k]['pagu_akumulasi_5_usulan_program'] = $pagu->pagu_akumulasi_5_usulan;
+
+						$pagu = $wpdb->get_row($wpdb->prepare("
+							SELECT 
+								sum(pagu_1) as pagu_akumulasi_1,
+								sum(pagu_2) as pagu_akumulasi_2,
+								sum(pagu_3) as pagu_akumulasi_3,
+								sum(pagu_4) as pagu_akumulasi_4,
+								sum(pagu_5) as pagu_akumulasi_5,
+								sum(pagu_1_usulan) as pagu_akumulasi_1_usulan,
+								sum(pagu_2_usulan) as pagu_akumulasi_2_usulan,
+								sum(pagu_3_usulan) as pagu_akumulasi_3_usulan,
+								sum(pagu_4_usulan) as pagu_akumulasi_4_usulan,
+								sum(pagu_5_usulan) as pagu_akumulasi_5_usulan
 							from data_renstra_kegiatan_lokal 
 							where id_unik_indikator IS NOT NULL
 								AND active=1
@@ -2322,6 +2350,106 @@ class Wpsipd_Public_Base_3
 		}
 	}
 
+	function get_pagu_indikator_program($id_unik){
+		global $wpdb;
+		$program = array();
+		$program['pagu_akumulasi_1_program'] = '';
+		$program['pagu_akumulasi_2_program'] = '';
+		$program['pagu_akumulasi_3_program'] = '';
+		$program['pagu_akumulasi_4_program'] = '';
+		$program['pagu_akumulasi_5_program'] = '';
+		$program['pagu_akumulasi_1_usulan_program'] = '';
+		$program['pagu_akumulasi_2_usulan_program'] = '';
+		$program['pagu_akumulasi_3_usulan_program'] = '';
+		$program['pagu_akumulasi_4_usulan_program'] = '';
+		$program['pagu_akumulasi_5_usulan_program'] = '';
+		$program['pagu_akumulasi_1'] = '';
+		$program['pagu_akumulasi_2'] = '';
+		$program['pagu_akumulasi_3'] = '';
+		$program['pagu_akumulasi_4'] = '';
+		$program['pagu_akumulasi_5'] = '';
+		$program['pagu_akumulasi_1_usulan'] = '';
+		$program['pagu_akumulasi_2_usulan'] = '';
+		$program['pagu_akumulasi_3_usulan'] = '';
+		$program['pagu_akumulasi_4_usulan'] = '';
+		$program['pagu_akumulasi_5_usulan'] = '';
+		$program['catatan'] = '';
+		$program['catatan_usulan'] = '';
+		if(!empty($id_unik)){
+			$sql = $wpdb->prepare("
+				SELECT 
+					* 
+				FROM data_renstra_program_lokal
+				WHERE id_unik=%s and
+					id_unik_indikator IS NULL and
+					active=1 ORDER BY id
+			", $id_unik);
+			$program = $wpdb->get_results($sql, ARRAY_A);
+
+			if(!empty($program)){
+				foreach($program as $k => $prog){
+					$pagu = $wpdb->get_row($wpdb->prepare("
+						SELECT 
+							sum(pagu_1) as pagu_akumulasi_1,
+							sum(pagu_2) as pagu_akumulasi_2,
+							sum(pagu_3) as pagu_akumulasi_3,
+							sum(pagu_4) as pagu_akumulasi_4,
+							sum(pagu_5) as pagu_akumulasi_5,
+							sum(pagu_1_usulan) as pagu_akumulasi_1_usulan,
+							sum(pagu_2_usulan) as pagu_akumulasi_2_usulan,
+							sum(pagu_3_usulan) as pagu_akumulasi_3_usulan,
+							sum(pagu_4_usulan) as pagu_akumulasi_4_usulan,
+							sum(pagu_5_usulan) as pagu_akumulasi_5_usulan
+						from data_renstra_program_lokal 
+						where id_unik_indikator IS NOT NULL
+							AND active=1
+							AND id_unik=%s
+					", $prog['id_unik']));
+					$program[$k]['pagu_akumulasi_1_program'] = $pagu->pagu_akumulasi_1;
+					$program[$k]['pagu_akumulasi_2_program'] = $pagu->pagu_akumulasi_2;
+					$program[$k]['pagu_akumulasi_3_program'] = $pagu->pagu_akumulasi_3;
+					$program[$k]['pagu_akumulasi_4_program'] = $pagu->pagu_akumulasi_4;
+					$program[$k]['pagu_akumulasi_5_program'] = $pagu->pagu_akumulasi_5;
+					$program[$k]['pagu_akumulasi_1_usulan_program'] = $pagu->pagu_akumulasi_1_usulan;
+					$program[$k]['pagu_akumulasi_2_usulan_program'] = $pagu->pagu_akumulasi_2_usulan;
+					$program[$k]['pagu_akumulasi_3_usulan_program'] = $pagu->pagu_akumulasi_3_usulan;
+					$program[$k]['pagu_akumulasi_4_usulan_program'] = $pagu->pagu_akumulasi_4_usulan;
+					$program[$k]['pagu_akumulasi_5_usulan_program'] = $pagu->pagu_akumulasi_5_usulan;
+
+					$pagu = $wpdb->get_row($wpdb->prepare("
+						SELECT 
+							sum(pagu_1) as pagu_akumulasi_1,
+							sum(pagu_2) as pagu_akumulasi_2,
+							sum(pagu_3) as pagu_akumulasi_3,
+							sum(pagu_4) as pagu_akumulasi_4,
+							sum(pagu_5) as pagu_akumulasi_5,
+							sum(pagu_1_usulan) as pagu_akumulasi_1_usulan,
+							sum(pagu_2_usulan) as pagu_akumulasi_2_usulan,
+							sum(pagu_3_usulan) as pagu_akumulasi_3_usulan,
+							sum(pagu_4_usulan) as pagu_akumulasi_4_usulan,
+							sum(pagu_5_usulan) as pagu_akumulasi_5_usulan
+						from data_renstra_kegiatan_lokal 
+						where id_unik_indikator IS NOT NULL
+							AND active=1
+							AND kode_program=%s
+					", $prog['id_unik']));
+					$program[$k]['pagu_akumulasi_1'] = $pagu->pagu_akumulasi_1;
+					$program[$k]['pagu_akumulasi_2'] = $pagu->pagu_akumulasi_2;
+					$program[$k]['pagu_akumulasi_3'] = $pagu->pagu_akumulasi_3;
+					$program[$k]['pagu_akumulasi_4'] = $pagu->pagu_akumulasi_4;
+					$program[$k]['pagu_akumulasi_5'] = $pagu->pagu_akumulasi_5;
+					$program[$k]['pagu_akumulasi_1_usulan'] = $pagu->pagu_akumulasi_1_usulan;
+					$program[$k]['pagu_akumulasi_2_usulan'] = $pagu->pagu_akumulasi_2_usulan;
+					$program[$k]['pagu_akumulasi_3_usulan'] = $pagu->pagu_akumulasi_3_usulan;
+					$program[$k]['pagu_akumulasi_4_usulan'] = $pagu->pagu_akumulasi_4_usulan;
+					$program[$k]['pagu_akumulasi_5_usulan'] = $pagu->pagu_akumulasi_5_usulan;
+				}
+				$program = $program[0];
+			}
+		}
+		return $program;
+	}
+
 	public function get_indikator_program_renstra(){
 		
 		global $wpdb;
@@ -2329,7 +2457,7 @@ class Wpsipd_Public_Base_3
 		try{
 			if (!empty($_POST)) {
 				if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
-
+					$program = array();
 					if($_POST['type'] == 1){
 						$sql = $wpdb->prepare("
 							SELECT 
@@ -2341,6 +2469,7 @@ class Wpsipd_Public_Base_3
 								active=1
 						", $_POST['kode_program']);
 						$indikator = $wpdb->get_results($sql, ARRAY_A);
+						$program = $this->get_pagu_indikator_program($_POST['kode_program']);
 					}else{
 						$tahun_anggaran = $_POST['tahun_anggaran'];
 						$sql = $wpdb->prepare("
@@ -2358,6 +2487,7 @@ class Wpsipd_Public_Base_3
 					echo json_encode([
 						'status' => true,
 						'data' => $indikator,
+						'program' => $program,
 						'message' => 'Sukses get indikator program'
 					]);exit;
 
@@ -2449,6 +2579,11 @@ class Wpsipd_Public_Base_3
 					$inputs['target_3_usulan'] = $data['target_3_usulan'];
 					$inputs['target_4_usulan'] = $data['target_4_usulan'];
 					$inputs['target_5_usulan'] = $data['target_5_usulan'];
+					$inputs['pagu_1_usulan'] = $data['pagu_1_usulan'];
+					$inputs['pagu_2_usulan'] = $data['pagu_2_usulan'];
+					$inputs['pagu_3_usulan'] = $data['pagu_3_usulan'];
+					$inputs['pagu_4_usulan'] = $data['pagu_4_usulan'];
+					$inputs['pagu_5_usulan'] = $data['pagu_5_usulan'];
 					$inputs['target_awal_usulan'] = $data['target_awal_usulan'];
 					$inputs['target_akhir_usulan'] = $data['target_akhir_usulan'];
 					$inputs['catatan_usulan'] = $data['catatan_usulan'];
@@ -2461,6 +2596,11 @@ class Wpsipd_Public_Base_3
 						$inputs['target_3'] = !empty($data['target_3']) ? $data['target_3'] : $data['target_3_usulan'];
 						$inputs['target_4'] = !empty($data['target_4']) ? $data['target_4'] : $data['target_4_usulan'];
 						$inputs['target_5'] = !empty($data['target_5']) ? $data['target_5'] : $data['target_5_usulan'];
+						$inputs['pagu_1'] = !empty($data['pagu_1']) ? $data['pagu_1'] : $data['pagu_1_usulan'];
+						$inputs['pagu_2'] = !empty($data['pagu_2']) ? $data['pagu_2'] : $data['pagu_2_usulan'];
+						$inputs['pagu_3'] = !empty($data['pagu_3']) ? $data['pagu_3'] : $data['pagu_3_usulan'];
+						$inputs['pagu_4'] = !empty($data['pagu_4']) ? $data['pagu_4'] : $data['pagu_4_usulan'];
+						$inputs['pagu_5'] = !empty($data['pagu_5']) ? $data['pagu_5'] : $data['pagu_5_usulan'];
 						$inputs['target_awal'] = !empty($data['target_awal']) ? $data['target_awal'] : $data['target_awal_usulan'];
 						$inputs['target_akhir'] = !empty($data['target_akhir']) ? $data['target_akhir'] : $data['target_akhir_usulan'];
 						$inputs['catatan'] = !empty($data['catatan']) ? $data['catatan'] : $data['catatan_usulan'];
@@ -2601,6 +2741,11 @@ class Wpsipd_Public_Base_3
 					$inputs['target_3_usulan'] = $data['target_3_usulan'];
 					$inputs['target_4_usulan'] = $data['target_4_usulan'];
 					$inputs['target_5_usulan'] = $data['target_5_usulan'];
+					$inputs['pagu_1_usulan'] = $data['pagu_1_usulan'];
+					$inputs['pagu_2_usulan'] = $data['pagu_2_usulan'];
+					$inputs['pagu_3_usulan'] = $data['pagu_3_usulan'];
+					$inputs['pagu_4_usulan'] = $data['pagu_4_usulan'];
+					$inputs['pagu_5_usulan'] = $data['pagu_5_usulan'];
 					$inputs['target_awal_usulan'] = $data['target_awal_usulan'];
 					$inputs['target_akhir_usulan'] = $data['target_akhir_usulan'];
 					$inputs['catatan_usulan'] = $data['catatan_usulan'];
@@ -2613,6 +2758,11 @@ class Wpsipd_Public_Base_3
 						$inputs['target_3'] = !empty($data['target_3']) ? $data['target_3'] : $data['target_3_usulan'];
 						$inputs['target_4'] = !empty($data['target_4']) ? $data['target_4'] : $data['target_4_usulan'];
 						$inputs['target_5'] = !empty($data['target_5']) ? $data['target_5'] : $data['target_5_usulan'];
+						$inputs['pagu_1'] = !empty($data['pagu_1']) ? $data['pagu_1'] : $data['pagu_1_usulan'];
+						$inputs['pagu_2'] = !empty($data['pagu_2']) ? $data['pagu_2'] : $data['pagu_2_usulan'];
+						$inputs['pagu_3'] = !empty($data['pagu_3']) ? $data['pagu_3'] : $data['pagu_3_usulan'];
+						$inputs['pagu_4'] = !empty($data['pagu_4']) ? $data['pagu_4'] : $data['pagu_4_usulan'];
+						$inputs['pagu_5'] = !empty($data['pagu_5']) ? $data['pagu_5'] : $data['pagu_5_usulan'];
 						$inputs['target_awal'] = !empty($data['target_awal']) ? $data['target_awal'] : $data['target_awal_usulan'];
 						$inputs['target_akhir'] = !empty($data['target_akhir']) ? $data['target_akhir'] : $data['target_akhir_usulan'];
 						$inputs['catatan'] = !empty($data['catatan']) ? $data['catatan'] : $data['catatan_usulan'];

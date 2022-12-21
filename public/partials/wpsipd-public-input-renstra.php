@@ -1307,14 +1307,19 @@ foreach ($data_all['data'] as $tujuan) {
 			$target_awal = '';
 			$target_1 = '';
 			$pagu_1   = '';
+			$pagu_1_akumulasi = 0;
 			$target_2 = '';
 			$pagu_2   = '';
+			$pagu_2_akumulasi = 0;
 			$target_3 = '';
 			$pagu_3   = '';
+			$pagu_3_akumulasi = 0;
 			$target_4 = '';
 			$pagu_4   = '';
+			$pagu_4_akumulasi = 0;
 			$target_5 = '';
 			$pagu_5   = '';
+			$pagu_5_akumulasi = 0;
 			$target_akhir = '';
 			$satuan = '';
 			$catatan_indikator = '';
@@ -1322,14 +1327,19 @@ foreach ($data_all['data'] as $tujuan) {
 			$target_awal_usulan = '';
 			$target_1_usulan = '';
 			$pagu_1_usulan   = '';
+			$pagu_1_usulan_akumulasi = 0;
 			$target_2_usulan = '';
 			$pagu_2_usulan   = '';
+			$pagu_2_usulan_akumulasi = 0;
 			$target_3_usulan = '';
 			$pagu_3_usulan   = '';
+			$pagu_3_usulan_akumulasi = 0;
 			$target_4_usulan = '';
 			$pagu_4_usulan   = '';
+			$pagu_4_usulan_akumulasi = 0;
 			$target_5_usulan = '';
 			$pagu_5_usulan   = '';
+			$pagu_5_usulan_akumulasi = 0;
 			$target_akhir_usulan = '';
 			$satuan_usulan = '';
 			$catatan_indikator_usulan = '';
@@ -1338,14 +1348,19 @@ foreach ($data_all['data'] as $tujuan) {
 				$target_awal .= '<div class="indikator">'.$indikator['target_awal'].'</div>';
 				$target_1 .= '<div class="indikator">'.$indikator['target_1'].'</div>';
 				$pagu_1 .= '<div class="indikator">'.$this->_number_format($indikator['pagu_1']).'</div>';
+				$pagu_1_akumulasi += $indikator['pagu_1'];
 				$target_2 .= '<div class="indikator">'.$indikator['target_2'].'</div>';
 				$pagu_2 .= '<div class="indikator">'.$this->_number_format($indikator['pagu_2']).'</div>';
+				$pagu_2_akumulasi += $indikator['pagu_2'];
 				$target_3 .= '<div class="indikator">'.$indikator['target_3'].'</div>';
 				$pagu_3 .= '<div class="indikator">'.$this->_number_format($indikator['pagu_3']).'</div>';
+				$pagu_3_akumulasi += $indikator['pagu_3'];
 				$target_4 .= '<div class="indikator">'.$indikator['target_4'].'</div>';
 				$pagu_4 .= '<div class="indikator">'.$this->_number_format($indikator['pagu_4']).'</div>';
+				$pagu_4_akumulasi += $indikator['pagu_4'];
 				$target_5 .= '<div class="indikator">'.$indikator['target_5'].'</div>';
 				$pagu_5 .= '<div class="indikator">'.$this->_number_format($indikator['pagu_5']).'</div>';
+				$pagu_5_akumulasi += $indikator['pagu_5'];
 				$target_akhir .= '<div class="indikator">'.$indikator['target_akhir'].'</div>';
 				$satuan .= '<div class="indikator">'.$indikator['satuan'].'</div>';
 				$catatan_indikator .= '<div class="indikator">'.$indikator['catatan_indikator'].'</div>';
@@ -1353,14 +1368,19 @@ foreach ($data_all['data'] as $tujuan) {
 				$target_awal_usulan .= '<div class="indikator">'.$indikator['target_awal_usulan'].'</div>';
 				$target_1_usulan .= '<div class="indikator">'.$indikator['target_1_usulan'].'</div>';
 				$pagu_1_usulan .= '<div class="indikator">'.$this->_number_format($indikator['pagu_1_usulan']).'</div>';
+				$pagu_1_usulan_akumulasi += $indikator['pagu_1_usulan'];
 				$target_2_usulan .= '<div class="indikator">'.$indikator['target_2_usulan'].'</div>';
 				$pagu_2_usulan .= '<div class="indikator">'.$this->_number_format($indikator['pagu_2_usulan']).'</div>';
+				$pagu_2_usulan_akumulasi += $indikator['pagu_2_usulan'];
 				$target_3_usulan .= '<div class="indikator">'.$indikator['target_3_usulan'].'</div>';
 				$pagu_3_usulan .= '<div class="indikator">'.$this->_number_format($indikator['pagu_3_usulan']).'</div>';
+				$pagu_3_usulan_akumulasi += $indikator['pagu_3_usulan'];
 				$target_4_usulan .= '<div class="indikator">'.$indikator['target_4_usulan'].'</div>';
 				$pagu_4_usulan .= '<div class="indikator">'.$this->_number_format($indikator['pagu_4_usulan']).'</div>';
+				$pagu_4_usulan_akumulasi += $indikator['pagu_4_usulan'];
 				$target_5_usulan .= '<div class="indikator">'.$indikator['target_5_usulan'].'</div>';
 				$pagu_5_usulan .= '<div class="indikator">'.$this->_number_format($indikator['pagu_5_usulan']).'</div>';
+				$pagu_5_usulan_akumulasi += $indikator['pagu_5_usulan'];
 				$target_akhir_usulan .= '<div class="indikator">'.$indikator['target_akhir_usulan'].'</div>';
 				$satuan_usulan .= '<div class="indikator">'.$indikator['satuan_usulan'].'</div>';
 				$catatan_indikator_usulan .= '<div class="indikator">'.$indikator['catatan_indikator_usulan'].'</div>';
@@ -1381,8 +1401,14 @@ foreach ($data_all['data'] as $tujuan) {
 						<td class="atas kanan bawah"></td>
 						<td class="atas kanan bawah"><br>'.$indikator_program.'</td>
 						<td class="atas kanan bawah text_tengah"><br>'.$target_awal.'</td>';
-						for ($i=1; $i <= $lama_pelaksanaan; $i++) { 
-							$body.="<td class=\"atas kanan bawah text_tengah\"><br>".$target_arr[$i-1]."</td><td class=\"atas kanan bawah text_kanan\"><b>(".$this->_number_format($program['pagu_akumulasi_'.($i+1)]).")</b><br>".$pagu_arr[$i-1]."</td>";
+						for ($i=0; $i < $lama_pelaksanaan; $i++) { 
+							$class_warning = '';
+							if($program['pagu_akumulasi_'.($i+1)] != ${"pagu_".($i+1)."_akumulasi"}){
+								$class_warning = 'peringatan';
+							}
+							$body.="
+							<td class=\"atas kanan bawah text_tengah\"><br>".$target_arr[$i]."</td>
+							<td class=\"atas kanan bawah text_kanan $class_warning\"><b>(".$this->_number_format($program['pagu_akumulasi_'.($i+1)]).")</b><br>".$pagu_arr[$i]."</td>";
 						}
 						$body.='<td class="atas kanan bawah text_tengah"><br>'.$target_akhir.'</td>
 						<td class="atas kanan bawah"><br>'.$satuan.'</td>
@@ -1392,8 +1418,14 @@ foreach ($data_all['data'] as $tujuan) {
 						<td class="atas kanan bawah"><br>'.$catatan_indikator.'</td>
 						<td class="atas kanan bawah td-usulan"><br>'.$indikator_program_usulan.'</td>
 						<td class="atas kanan bawah text_tengah td-usulan"><br>'.$target_awal_usulan.'</td>';
-						for ($i=1; $i <= $lama_pelaksanaan; $i++) { 
-							$body.="<td class=\"atas kanan bawah text_tengah td-usulan\"><br>".$target_arr_usulan[$i-1]."</td><td class=\"atas kanan bawah text_kanan td-usulan\"><b>(".$this->_number_format($program['pagu_akumulasi_'.($i+1).'_usulan']).")</b><br>".$pagu_arr_usulan[$i-1]."</td>";
+						for ($i=0; $i < $lama_pelaksanaan; $i++) {
+							$class_warning = '';
+							if($program['pagu_akumulasi_'.($i+1).'_usulan'] != ${"pagu_".($i+1)."_usulan_akumulasi"}){
+								$class_warning = 'peringatan';
+							} 
+							$body.="
+							<td class=\"atas kanan bawah text_tengah td-usulan\"><br>".$target_arr_usulan[$i]."</td>
+							<td class=\"atas kanan bawah text_kanan td-usulan $class_warning\"><b>(".$this->_number_format($program['pagu_akumulasi_'.($i+1).'_usulan']).")</b><br>".$pagu_arr_usulan[$i]."</td>";
 						}
 						$body.='<td class="atas kanan bawah text_tengah td-usulan"><br>'.$target_akhir_usulan.'</td>
 						<td class="atas kanan bawah td-usulan"><br>'.$satuan_usulan.'</td>
@@ -1483,8 +1515,8 @@ foreach ($data_all['data'] as $tujuan) {
 							<td class="atas kanan bawah">'.$kegiatan['kegiatan_teks'].'</td>
 							<td class="atas kanan bawah"><br>'.$indikator_kegiatan.'</td>
 							<td class="atas kanan bawah text_tengah"><br>'.$target_awal.'</td>';
-							for ($i=1; $i <= $lama_pelaksanaan; $i++) { 
-								$body.="<td class=\"atas kanan bawah text_tengah\"><br>".$target_arr[$i-1]."</td><td class=\"atas kanan bawah text_kanan\"><b>(".$this->_number_format($kegiatan['pagu_akumulasi_'.($i+1)]).")</b><br>".$pagu_arr[$i-1]."</td>";
+							for ($i=0; $i < $lama_pelaksanaan; $i++) { 
+								$body.="<td class=\"atas kanan bawah text_tengah\"><br>".$target_arr[$i]."</td><td class=\"atas kanan bawah text_kanan\"><b>(".$this->_number_format($kegiatan['pagu_akumulasi_'.($i+1)]).")</b><br>".$pagu_arr[$i]."</td>";
 							}
 							$body.='
 							<td class="atas kanan bawah text_tengah"><br>'.$target_akhir.'</td>
@@ -1495,8 +1527,8 @@ foreach ($data_all['data'] as $tujuan) {
 							<td class="atas kanan bawah"><br>'.$catatan_indikator.'</td>
 							<td class="atas kanan bawah td-usulan"><br>'.$indikator_kegiatan_usulan.'</td>
 							<td class="atas kanan bawah text_tengah td-usulan"><br>'.$target_awal_usulan.'</td>';
-							for ($i=1; $i <= $lama_pelaksanaan; $i++) { 
-								$body.="<td class=\"atas kanan bawah text_tengah td-usulan\"><br>".$target_arr_usulan[$i-1]."</td><td class=\"atas kanan bawah text_kanan td-usulan\"><b>(".$this->_number_format($kegiatan['pagu_akumulasi_'.($i+1).'_usulan']).")</b><br>".$pagu_arr_usulan[$i-1]."</td>";
+							for ($i=0; $i < $lama_pelaksanaan; $i++) { 
+								$body.="<td class=\"atas kanan bawah text_tengah td-usulan\"><br>".$target_arr_usulan[$i]."</td><td class=\"atas kanan bawah text_kanan td-usulan\"><b>(".$this->_number_format($kegiatan['pagu_akumulasi_'.($i+1).'_usulan']).")</b><br>".$pagu_arr_usulan[$i]."</td>";
 							}
 							$body.='
 							<td class="atas kanan bawah text_tengah td-usulan"><br>'.$target_akhir_usulan.'</td>
@@ -1524,6 +1556,9 @@ foreach ($data_all['data'] as $tujuan) {
 	}
 	.tr-program {
 	    background: #baffba;
+	}
+	.peringatan {
+		background: #f5c9c9;
 	}
 </style>
 <h4 style="text-align: center; margin: 0; font-weight: bold;">RENCANA STRATEGIS (RENSTRA) <br><?php echo $judul_skpd.'Tahun '.$awal_renstra.' - '.$akhir_renstra.' '.$nama_pemda; ?></h4>
@@ -1632,13 +1667,14 @@ foreach ($data_all['data'] as $tujuan) {
 </div>
 <h3>Catatan:</h3>
 <ol>
-	<li>Background warna biru adalah baris tujuan</li>
-	<li>Background warna kuning adalah baris sasaran</li>
-	<li>Background warna hijau adalah baris program</li>
+	<li>Background warna biru adalah baris tujuan.</li>
+	<li>Background warna kuning adalah baris sasaran.</li>
+	<li>Background warna hijau adalah baris program.</li>
 	<li>Background warna putih adalah baris kegiatan</li>
-	<li><b>Debug Cascading <?php echo $nama_tipe_relasi; ?></b> berfungsi untuk melakukan pengecekan relasi antara tujuan RENSTRA dengan sasaran di <?php echo $nama_tipe_relasi; ?></li>
-	<li>Baris berwarna merah saat dilakukan checklist pada kotak <b>Debug Cascading <?php echo $nama_tipe_relasi; ?></b> menandakan bahwa tujuan RENSTRA belum terkoneksi dengan data di <?php echo $nama_tipe_relasi; ?></li>
-	<li>Pagu tujuan, sasaran, program dan kegiatan adalah akumulasi dari pagu di indikator kegiatan</li>
+	<li><b>Debug Cascading <?php echo $nama_tipe_relasi; ?></b> berfungsi untuk melakukan pengecekan relasi antara tujuan RENSTRA dengan sasaran di <?php echo $nama_tipe_relasi; ?>.</li>
+	<li>Baris berwarna merah saat dilakukan checklist pada kotak <b>Debug Cascading <?php echo $nama_tipe_relasi; ?></b> menandakan bahwa tujuan RENSTRA belum terkoneksi dengan data di <?php echo $nama_tipe_relasi; ?>.</li>
+	<li>Pagu tujuan, sasaran, program dan kegiatan adalah akumulasi dari pagu di indikator kegiatan.</li>
+	<li>Indikator program memiliki pagu tersendiri sesuai format SIPD. Pada kotak pagu program akan berwarna merah jika pagu akumulasi kegiatan dan pagu akumulasi indikator program tidak sama.</li>
 </ol>
 
 <div class="modal fade" id="modal-monev" role="dialog" data-backdrop="static" aria-hidden="true">'
@@ -2987,6 +3023,10 @@ foreach ($data_all['data'] as $tujuan) {
 											+'<label for="target_<?php echo $i; ?>_usulan">Target tahun ke-<?php echo $i; ?></label>'
 							  				+'<input type="number" class="form-control" name="target_<?php echo $i; ?>_usulan"/>'
 										+'</div>'
+										+'<div class="form-group">'
+											+'<label for="pagu_<?php echo $i; ?>_usulan">Pagu tahun ke-<?php echo $i; ?></label>'
+							  				+'<input type="number" class="form-control" name="pagu_<?php echo $i; ?>_usulan"/>'
+										+'</div>'
 										<?php }; ?>
 										+'<div class="form-group">'
 											+'<label for="target_akhir_usulan">Target akhir</label>'
@@ -3019,6 +3059,10 @@ foreach ($data_all['data'] as $tujuan) {
 										+'<div class="form-group">'
 											+'<label for="target_<?php echo $i; ?>">Target tahun ke-<?php echo $i; ?></label>'
 							  				+'<input type="number" class="form-control" name="target_<?php echo $i; ?>" <?php echo $disabled; ?>/>'
+										+'</div>'
+										+'<div class="form-group">'
+											+'<label for="pagu_<?php echo $i; ?>">Pagu tahun ke-<?php echo $i; ?></label>'
+							  				+'<input type="number" class="form-control" name="pagu_<?php echo $i; ?>" <?php echo $disabled; ?>/>'
 										+'</div>'
 										<?php }; ?>
 										+'<div class="form-group">'
@@ -3120,6 +3164,10 @@ foreach ($data_all['data'] as $tujuan) {
 											+'<label for="target_<?php echo $i; ?>_usulan">Target tahun ke-<?php echo $i; ?></label>'
 							  				+'<input type="number" class="form-control" name="target_<?php echo $i; ?>_usulan" value="'+response.data.target_<?php echo $i; ?>_usulan+'"/>'
 										+'</div>'
+										+'<div class="form-group">'
+											+'<label for="pagu_<?php echo $i; ?>_usulan">Pagu tahun ke-<?php echo $i; ?></label>'
+							  				+'<input type="number" class="form-control" name="pagu_<?php echo $i; ?>_usulan" value="'+response.data.pagu_<?php echo $i; ?>_usulan+'"/>'
+										+'</div>'
 										<?php }; ?>
 										+'<div class="form-group">'
 											+'<label for="target_akhir_usulan">Target akhir</label>'
@@ -3152,6 +3200,10 @@ foreach ($data_all['data'] as $tujuan) {
 										+'<div class="form-group">'
 											+'<label for="target_<?php echo $i; ?>">Target tahun ke-<?php echo $i; ?></label>'
 							  				+'<input type="number" class="form-control" name="target_<?php echo $i; ?>" value="'+response.data.target_<?php echo $i; ?>+'" <?php echo $disabled; ?>/>'
+										+'</div>'
+										+'<div class="form-group">'
+											+'<label for="pagu_<?php echo $i; ?>">Pagu tahun ke-<?php echo $i; ?></label>'
+							  				+'<input type="number" class="form-control" name="pagu_<?php echo $i; ?>" value="'+response.data.pagu_<?php echo $i; ?>+'" <?php echo $disabled; ?>/>'
 										+'</div>'
 										<?php }; ?>
 										+'<div class="form-group">'
@@ -4329,15 +4381,25 @@ foreach ($data_all['data'] as $tujuan) {
 		          					value[i] = '';
 		          				}
 		          			}
+		          			var peringatan = {};
+		          			var peringatan_usulan = {};
+  						<?php for($i=1; $i<=$lama_pelaksanaan; $i++){ ?>
+  							if(value.pagu_akumulasi_<?php echo $i; ?> != value.pagu_akumulasi_<?php echo $i; ?>_program){
+  								peringatan[<?php echo $i; ?>] = 'peringatan';
+  							}
+  							if(value.pagu_akumulasi_<?php echo $i; ?>_usulan != value.pagu_akumulasi_<?php echo $i; ?>_usulan_program){
+  								peringatan_usulan[<?php echo $i; ?>] = 'peringatan';
+  							}
+  						<?php } ?>
   							program += ''
   								+'<tr kodeprogram="'+value.id_unik+'">'
-          							+'<td class="text-center" rowspan="2">'+(index+1)+'</td>'
-          							+'<td rowspan="2">'+value.nama_program+'</td>'
+          							+'<td class="text-center" rowspan="4">'+(index+1)+'</td>'
+          							+'<td rowspan="4">'+value.nama_program+'</td>'
 	      						<?php for($i=1; $i<=$lama_pelaksanaan; $i++){ ?>
-	      							+'<td class="text-right">'+value.pagu_akumulasi_<?php echo $i; ?>+'</td>'
+	      							+'<td class="text-right '+peringatan[<?php echo $i; ?>]+'">'+value.pagu_akumulasi_<?php echo $i; ?>+'</td>'
 	      						<?php } ?>
           							+'<td><b>Penetapan</b><br>'+value.catatan+'</td>'
-          							+'<td class="text-center" rowspan="2">'
+          							+'<td class="text-center" rowspan="4">'
           								+'<a href="javascript:void(0)" data-kodeprogram="'+value.id_unik+'" class="btn btn-warning btn-kelola-indikator-program"><i class="dashicons dashicons-menu-alt" style="margin-top: 2px;"></i></a>&nbsp;'	
           								+'<a href="javascript:void(0)" data-kodeprogram="'+value.id_unik+'" data-idprogram="'+value.id_program+'" class="btn btn-primary btn-detail-program"><i class="dashicons dashicons-search" style="margin-top: 2px;"></i></a>&nbsp;'
           								+'<a href="javascript:void(0)" data-id="'+value.id+'" data-kodeprogram="'+value.id_unik+'" class="btn btn-success btn-edit-program"><i class="dashicons dashicons-edit" style="margin-top: 2px;"></i></a>&nbsp;'
@@ -4345,9 +4407,21 @@ foreach ($data_all['data'] as $tujuan) {
           						+'</tr>'
   								+'<tr>'
 	      						<?php for($i=1; $i<=$lama_pelaksanaan; $i++){ ?>
-	      							+'<td class="text-right">'+value.pagu_akumulasi_<?php echo $i; ?>_usulan+'</td>'
+	      							+'<td class="text-right '+peringatan[<?php echo $i; ?>]+'">'+value.pagu_akumulasi_<?php echo $i; ?>_program+'</td>'
+	      						<?php } ?>
+          							+'<td>Akumulasi Penetapan Indikator Program</td>'
+          						+'</tr>'
+  								+'<tr>'
+	      						<?php for($i=1; $i<=$lama_pelaksanaan; $i++){ ?>
+	      							+'<td class="text-right '+peringatan_usulan[<?php echo $i; ?>]+'">'+value.pagu_akumulasi_<?php echo $i; ?>_usulan+'</td>'
 	      						<?php } ?>
           							+'<td><b>Usulan</b> '+value.catatan_usulan+'</td>'
+          						+'</tr>'
+  								+'<tr>'
+	      						<?php for($i=1; $i<=$lama_pelaksanaan; $i++){ ?>
+	      							+'<td class="text-right '+peringatan_usulan[<?php echo $i; ?>]+'">'+value.pagu_akumulasi_<?php echo $i; ?>_usulan_program+'</td>'
+	      						<?php } ?>
+          							+'<td>Akumulasi Usulan Indikator Program</td>'
           						+'</tr>';
   						});
       					program += ''
@@ -4376,6 +4450,26 @@ foreach ($data_all['data'] as $tujuan) {
           	success: function(response){
 
           		jQuery('#wrap-loading').hide();
+      			for(var i in response.program){
+      				if(
+      					response.program[i] == 'null'
+      					|| response.program[i] == null
+      				){
+      					response.program[i] = '';
+      				}
+      			}
+      			var peringatan = {};
+      			var peringatan_usulan = {};
+			<?php for($i=1; $i<=$lama_pelaksanaan; $i++){ ?>
+				peringatan[<?php echo $i; ?>] = '';
+				if(response.program.pagu_akumulasi_<?php echo $i; ?> != response.program.pagu_akumulasi_<?php echo $i; ?>_program){
+					peringatan[<?php echo $i; ?>] = 'peringatan';
+				}
+				peringatan_usulan[<?php echo $i; ?>] = '';
+				if(response.program.pagu_akumulasi_<?php echo $i; ?>_usulan != response.program.pagu_akumulasi_<?php echo $i; ?>_usulan_program){
+					peringatan_usulan[<?php echo $i; ?>] = 'peringatan';
+				}
+			<?php } ?>
           		
           		let html=""
 					+'<div style="margin-top:10px">'
@@ -4405,6 +4499,46 @@ foreach ($data_all['data'] as $tujuan) {
 	          					+'<th class="text-center" style="width: 160px;">Program</th>'
 	          					+'<th>'+jQuery('#nav-program tr[kodeprogram="'+params.kode_program+'"]').find('td').eq(1).text()+'</th>'
 	          				+'</tr>'
+	          				+'<tr>'
+	          					+'<th colspan=2>'
+	          						+'<table>'
+		          						+'<thead>'
+				      						+'<tr>'
+				      						<?php for($i=1; $i<=$lama_pelaksanaan; $i++){ ?>
+				      							+'<th class="text-center">Pagu Tahun <?php echo $i; ?></th>'
+				      						<?php } ?>
+				      							+'<th class="text-center" style="width:15%">Catatan</th>'
+				      						+'</tr>'
+		          						+'</thead>'
+		          						+'<tbody style="font-weight: normal;">'
+			  								+'<tr>'
+				      						<?php for($i=1; $i<=$lama_pelaksanaan; $i++){ ?>
+				      							+'<td class="text-right '+peringatan[<?php echo $i; ?>]+'">'+response.program.pagu_akumulasi_<?php echo $i; ?>+'</td>'
+				      						<?php } ?>
+			          							+'<td><b>Penetapan</b><br>'+response.program.catatan+'</td>'
+			          						+'</tr>'
+			  								+'<tr>'
+				      						<?php for($i=1; $i<=$lama_pelaksanaan; $i++){ ?>
+				      							+'<td class="text-right '+peringatan[<?php echo $i; ?>]+'">'+response.program.pagu_akumulasi_<?php echo $i; ?>_program+'</td>'
+				      						<?php } ?>
+			          							+'<td>Akumulasi Penetapan Indikator Program</td>'
+			          						+'</tr>'
+			  								+'<tr>'
+				      						<?php for($i=1; $i<=$lama_pelaksanaan; $i++){ ?>
+				      							+'<td class="text-right '+peringatan_usulan[<?php echo $i; ?>]+'">'+response.program.pagu_akumulasi_<?php echo $i; ?>_usulan+'</td>'
+				      						<?php } ?>
+			          							+'<td><b>Usulan</b> '+response.program.catatan_usulan+'</td>'
+			          						+'</tr>'
+			  								+'<tr>'
+				      						<?php for($i=1; $i<=$lama_pelaksanaan; $i++){ ?>
+				      							+'<td class="text-right '+peringatan_usulan[<?php echo $i; ?>]+'">'+response.program.pagu_akumulasi_<?php echo $i; ?>_usulan_program+'</td>'
+				      						<?php } ?>
+			          							+'<td>Akumulasi Usulan Indikator Program</td>'
+			          						+'</tr>'
+		          						+'</tbody>'
+	          						+'</table>'
+	          					+'</th>'
+	          				+'</tr>'
 	          			+'</thead>'
           			+'</table>'
 					+"<table class='table'>"
@@ -4415,7 +4549,8 @@ foreach ($data_all['data'] as $tujuan) {
 								+"<th class='text-center'>Satuan</th>"
 								+"<th class='text-center'>Awal</th>"
 								<?php for($i=1; $i<=$lama_pelaksanaan; $i++){ ?>
-								+"<th class='text-center'>Tahun <?php echo $i; ?></th>"
+								+"<th class='text-center'>Target Tahun <?php echo $i; ?></th>"
+								+"<th class='text-center'>Pagu Tahun <?php echo $i; ?></th>"
 								<?php }; ?>
 								+"<th class='text-center'>Akhir</th>"
 								+"<th class='text-center'>Catatan</th>"
@@ -4440,6 +4575,7 @@ foreach ($data_all['data'] as $tujuan) {
 					          		+"<td class='text-center'>"+value.target_awal+"</td>"
 					          		<?php for($i=1; $i<=$lama_pelaksanaan; $i++){ ?>
 									+"<td class='text-center'>"+value.target_<?php echo $i; ?>+"</td>"
+									+"<td class='text-right'>"+formatRupiah(value.pagu_<?php echo $i; ?>)+"</td>"
 									<?php }; ?>
 					          		+"<td class='text-center'>"+value.target_akhir+"</td>"
 					          		+"<td><b>Penetapan</b><br>"+value.catatan+"</td>"
@@ -4454,6 +4590,7 @@ foreach ($data_all['data'] as $tujuan) {
 					          		+"<td class='text-center'>"+value.target_awal_usulan+"</td>"
 					          		<?php for($i=1; $i<=$lama_pelaksanaan; $i++){ ?>
 									+"<td class='text-center'>"+value.target_<?php echo $i; ?>_usulan+"</td>"
+									+"<td class='text-right'>"+formatRupiah(value.pagu_<?php echo $i; ?>_usulan)+"</td>"
 									<?php }; ?>
 					          		+"<td class='text-center'>"+value.target_akhir_usulan+"</td>"
 					          		+"<td><b>Usulan</b><br>"+value.catatan_usulan+"</td>"
