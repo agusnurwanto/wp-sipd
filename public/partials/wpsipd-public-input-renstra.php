@@ -3889,7 +3889,7 @@ foreach ($data_all['data'] as $tujuan) {
 	}
 
 	function exportExcel(name){
-		tableHtmlToExcel('view-table-renstra', name);
+		tableHtmlToExcel('preview', name);
 	}
 
 	function pilihTujuanRpjm(that, cb){
