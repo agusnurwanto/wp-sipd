@@ -687,7 +687,8 @@ class Wpsipd_Public_Base_1 extends Wpsipd_Public_Base_2{
                                 select
                                     id_isu,
                                     tujuan_teks,
-                                    id_unik
+                                    id_unik,
+                                    no_urut
                                 from $table
                                 where id_unik=%s
                             ", $_POST['id_tujuan']), ARRAY_A);
@@ -710,6 +711,7 @@ class Wpsipd_Public_Base_1 extends Wpsipd_Public_Base_2{
                                 'target_5' => $_POST['vol_5'],
                                 'target_akhir' => $_POST['vol_akhir'],
                                 'update_at' => date('Y-m-d H:i:s'),
+                                'no_urut' => $tujuan[0]['no_urut'],
                                 'indikator_catatan_teks' => $_POST['indikator_catatan_teks'],
                                 'satuan' => $_POST['satuan'],
                                 'active' => 1
@@ -772,7 +774,8 @@ class Wpsipd_Public_Base_1 extends Wpsipd_Public_Base_2{
                                 select
                                     kode_tujuan,
                                     sasaran_teks,
-                                    id_unik
+                                    id_unik,
+                                    sasaran_no_urut
                                 from $table
                                 where id_unik=%s
                             ", $_POST['id_sasaran']), ARRAY_A);
@@ -795,6 +798,7 @@ class Wpsipd_Public_Base_1 extends Wpsipd_Public_Base_2{
                                 'target_5' => $_POST['vol_5'],
                                 'target_akhir' => $_POST['vol_akhir'],
                                 'update_at' => date('Y-m-d H:i:s'),
+                                'sasaran_no_urut' => $sasaran[0]['sasaran_no_urut'],
                                 'indikator_catatan_teks' => $_POST['indikator_catatan_teks'],
                                 'satuan' => $_POST['satuan'],
                                 'active' => 1

@@ -71,6 +71,7 @@ $sql = "
 	from data_rpd_tujuan_lokal t
 	left join data_rpjpd_isu i on t.id_isu = i.id
 	where t.active=1
+	order by t.no_urut asc
 ";
 if(!empty($id_jadwal_rpjpd)){
 	$sql = "
@@ -80,6 +81,7 @@ if(!empty($id_jadwal_rpjpd)){
 		from data_rpd_tujuan_lokal t
 		left join data_rpjpd_isu_history i on t.id_isu = i.id_asli
 		where t.active=1
+		order by t.no_urut asc
 	";
 }
 $tujuan_all = $wpdb->get_results($sql, ARRAY_A);
@@ -97,6 +99,7 @@ foreach ($tujuan_all as $tujuan) {
 			from data_rpd_sasaran_lokal
 			where kode_tujuan=%s
 				and active=1
+				order by sasaran_no_urut asc
 		", $tujuan['id_unik']);
 		$sasaran_all = $wpdb->get_results($sql, ARRAY_A);
 		foreach ($sasaran_all as $sasaran) {
