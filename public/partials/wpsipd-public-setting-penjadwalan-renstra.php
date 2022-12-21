@@ -505,6 +505,7 @@ $body = '';
 	}
 
 	function all_skpd(){
+
 		jQuery.ajax({
 			url:ajax.url,
 			type:'post',
@@ -514,16 +515,13 @@ $body = '';
 				tahun_anggaran:tahunAnggaran
 			},
 			success:function(response){
-				let list_opd=`<option>Pilih OPD</option>`;
+				let list_opd=`<option value="">Pilih OPD</option>`;
 				response.map(function(v,i){
 					list_opd+=`<option value="${v.id_skpd}">${v.nama_skpd}</option>`;
 				});
 				jQuery("#list_opd").html(list_opd);
-
-				jQuery(document).ready(function() {
-				    jQuery('.list_opd').select2();
-				    jQuery('.jenis').select2();
-				});
+				jQuery('.list_opd').select2();
+				jQuery('.jenis').select2();		
 			}
 		})
 	}
@@ -535,6 +533,7 @@ $body = '';
 
 		if(id_unit=='' || id_unit=='undefined'){
 			alert('Unit kerja belum dipilih');
+			return;
 		}
 
 		switch(jenis){
