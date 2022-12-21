@@ -3881,15 +3881,15 @@ foreach ($data_all['data'] as $tujuan) {
 						+'</button>');
 					jQuery("#modal-crud-renstra").modal('show');
 					
-					jQuery("#view-table-renstra th.row_head_1").attr('rowspan',3);
-					jQuery("#view-table-renstra th.row_head_kinerja").attr('colspan',<?php echo (2*$lama_pelaksanaan) ?>);
-					jQuery("#view-table-renstra th.row_head_1_tahun").attr('colspan',2);
+					jQuery("#table-renstra th.row_head_1").attr('rowspan',3);
+					jQuery("#table-renstra th.row_head_kinerja").attr('colspan',<?php echo (2*$lama_pelaksanaan) ?>);
+					jQuery("#table-renstra th.row_head_1_tahun").attr('colspan',2);
 				}
 			});
 	}
 
 	function exportExcel(name){
-		tableHtmlToExcel('view-table-renstra', name);
+		tableHtmlToExcel('preview', name);
 	}
 
 	function pilihTujuanRpjm(that, cb){
