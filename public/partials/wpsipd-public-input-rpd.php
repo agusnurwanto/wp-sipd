@@ -2117,10 +2117,10 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
 		if(tujuan_teks == ''){
 			return alert('Tujuan tidak boleh kosong!');
 		}
-	<?php if(!empty($id_jadwal_rpjpd)): ?>
 		var id_isu = jQuery('#isu-teks').val();
+	<?php if(!empty($id_jadwal_rpjpd)): ?>
 		if(id_isu == ''){
-			return alert('Isu RPJPD tidak boleh kosong!');
+			return alert('Isu RPJPD tidak boleh kosong karena jadwal RPD sudah terelasi dengan jadwal RPJPD!');
 		}
 	<?php endif; ?>
 		var id_tujuan = jQuery('#modal-tujuan').attr('data-id');
