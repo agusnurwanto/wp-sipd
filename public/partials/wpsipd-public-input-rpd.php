@@ -2113,23 +2113,25 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
 	}
 
 	function simpan_tujuan(){
+		var tujuan_teks = jQuery('#tujuan-teks').val();
+		if(tujuan_teks == ''){
+			return alert('Tujuan tidak boleh kosong!');
+		}
+	<?php if(!empty($id_jadwal_rpjpd)): ?>
+		var id_isu = jQuery('#isu-teks').val();
+		if(id_isu == ''){
+			return alert('Isu RPJPD tidak boleh kosong!');
+		}
+	<?php endif; ?>
+		var id_tujuan = jQuery('#modal-tujuan').attr('data-id');
+		var no_urut = jQuery('#no-urut-teks-tujuan').val();
+		if(no_urut == ''){
+			jQuery('#wrap-loading').hide();
+			console.log('hei');
+			return alert('No urut tidak boleh kosong!');
+		}
 		if(confirm('Apakah anda yakin untuk menyimpan data ini?')){
 			jQuery('#wrap-loading').show();
-			var tujuan_teks = jQuery('#tujuan-teks').val();
-			if(tujuan_teks == ''){
-				return alert('Tujuan tidak boleh kosong!');
-			}
-			var id_isu = jQuery('#isu-teks').val();
-			if(id_isu == ''){
-				return alert('Isu RPJPD tidak boleh kosong!');
-			}
-			var id_tujuan = jQuery('#modal-tujuan').attr('data-id');
-			var no_urut = jQuery('#no-urut-teks-tujuan').val();
-			if(no_urut == ''){
-				jQuery('#wrap-loading').hide();
-				console.log('hei');
-				return alert('No urut tidak boleh kosong!');
-			}
 			var catatan_teks_tujuan = jQuery('#catatan-teks-tujuan').val();
 			jQuery.ajax({
 				url: ajax.url,
@@ -2159,25 +2161,25 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
 	}
 
 	function simpan_sasaran(){
+		var sasaran_teks = jQuery('#sasaran-teks').val();
+		if(sasaran_teks == ''){
+			return alert('Sasaran tidak boleh kosong!');
+			jQuery('#wrap-loading').hide();
+		}
+		var id_unik_tujuan = jQuery('#modal-sasaran').attr('id-tujuan');
+		if(id_unik_tujuan == ''){
+			return alert('Id tujuan tidak boleh kosong!');
+			jQuery('#wrap-loading').hide();
+		}
+		var id_sasaran = jQuery('#modal-sasaran').attr('data-id');
+		var sasaran_no_urut = jQuery('#sasaran-no-urut').val();
+		if(sasaran_no_urut == ''){
+			return alert('No urut sasaran tidak boleh kosong!');
+			// jQuery('#wrap-loading').hide();
+			// console.log('tutup');
+		}
 		if(confirm('Apakah anda yakin untuk menyimpan data ini?')){
 			jQuery('#wrap-loading').show();
-			var sasaran_teks = jQuery('#sasaran-teks').val();
-			if(sasaran_teks == ''){
-				return alert('Sasaran tidak boleh kosong!');
-				jQuery('#wrap-loading').hide();
-			}
-			var id_unik_tujuan = jQuery('#modal-sasaran').attr('id-tujuan');
-			if(id_unik_tujuan == ''){
-				return alert('Id tujuan tidak boleh kosong!');
-				jQuery('#wrap-loading').hide();
-			}
-			var id_sasaran = jQuery('#modal-sasaran').attr('data-id');
-			var sasaran_no_urut = jQuery('#sasaran-no-urut').val();
-			if(sasaran_no_urut == ''){
-				return alert('No urut sasaran tidak boleh kosong!');
-				// jQuery('#wrap-loading').hide();
-				// console.log('tutup');
-			}
 			var sasaran_catatan = jQuery('#sasaran-catatan-teks').val();
 			jQuery.ajax({
 				url: ajax.url,
@@ -2208,19 +2210,19 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
 	}
 
 	function simpan_program(){
+		var id_program_master = jQuery('#program-teks').val();
+		if(id_program_master == ''){
+			return alert('Program tidak boleh kosong!');
+		}
+		var program_teks = jQuery('#program-teks option:selected').text().split(' ');
+		program_teks.shift();
+		program_teks = program_teks.join(' ');
+		var id_unik_sasaran = jQuery('#modal-program').attr('id-sasaran');
+		if(id_unik_sasaran == ''){
+			return alert('Id sasaran tidak boleh kosong!');
+		}
 		if(confirm('Apakah anda yakin untuk menyimpan data ini?')){
 			jQuery('#wrap-loading').show();
-			var id_program_master = jQuery('#program-teks').val();
-			if(id_program_master == ''){
-				return alert('Program tidak boleh kosong!');
-			}
-			var program_teks = jQuery('#program-teks option:selected').text().split(' ');
-			program_teks.shift();
-			program_teks = program_teks.join(' ');
-			var id_unik_sasaran = jQuery('#modal-program').attr('id-sasaran');
-			if(id_unik_sasaran == ''){
-				return alert('Id sasaran tidak boleh kosong!');
-			}
 			var id_program = jQuery('#modal-program').attr('data-id');
 			jQuery.ajax({
 				url: ajax.url,
