@@ -198,34 +198,46 @@ class Wpsipd_Public_Base_3
 								$kd_all_prog[] = "'".$prog['id_unik']."'";
 							}
 						}
-						$kd_all_prog = implode(',', $kd_all_prog);
-						$pagu = $wpdb->get_row($wpdb->prepare("
-							SELECT 
-								sum(pagu_1) as pagu_akumulasi_1,
-								sum(pagu_2) as pagu_akumulasi_2,
-								sum(pagu_3) as pagu_akumulasi_3,
-								sum(pagu_4) as pagu_akumulasi_4,
-								sum(pagu_5) as pagu_akumulasi_5,
-								sum(pagu_1_usulan) as pagu_akumulasi_1_usulan,
-								sum(pagu_2_usulan) as pagu_akumulasi_2_usulan,
-								sum(pagu_3_usulan) as pagu_akumulasi_3_usulan,
-								sum(pagu_4_usulan) as pagu_akumulasi_4_usulan,
-								sum(pagu_5_usulan) as pagu_akumulasi_5_usulan
-							from data_renstra_kegiatan_lokal 
-							where id_unik_indikator IS NOT NULL
-								AND active=1
-								AND kode_program IN ($kd_all_prog)
-						"));
-						$tujuan[$k]['pagu_akumulasi_1'] = $pagu->pagu_akumulasi_1;
-						$tujuan[$k]['pagu_akumulasi_2'] = $pagu->pagu_akumulasi_2;
-						$tujuan[$k]['pagu_akumulasi_3'] = $pagu->pagu_akumulasi_3;
-						$tujuan[$k]['pagu_akumulasi_4'] = $pagu->pagu_akumulasi_4;
-						$tujuan[$k]['pagu_akumulasi_5'] = $pagu->pagu_akumulasi_5;
-						$tujuan[$k]['pagu_akumulasi_1_usulan'] = $pagu->pagu_akumulasi_1_usulan;
-						$tujuan[$k]['pagu_akumulasi_2_usulan'] = $pagu->pagu_akumulasi_2_usulan;
-						$tujuan[$k]['pagu_akumulasi_3_usulan'] = $pagu->pagu_akumulasi_3_usulan;
-						$tujuan[$k]['pagu_akumulasi_4_usulan'] = $pagu->pagu_akumulasi_4_usulan;
-						$tujuan[$k]['pagu_akumulasi_5_usulan'] = $pagu->pagu_akumulasi_5_usulan;
+						$tujuan[$k]['pagu_akumulasi_1'] = 0;
+						$tujuan[$k]['pagu_akumulasi_2'] = 0;
+						$tujuan[$k]['pagu_akumulasi_3'] = 0;
+						$tujuan[$k]['pagu_akumulasi_4'] = 0;
+						$tujuan[$k]['pagu_akumulasi_5'] = 0;
+						$tujuan[$k]['pagu_akumulasi_1_usulan'] = 0;
+						$tujuan[$k]['pagu_akumulasi_2_usulan'] = 0;
+						$tujuan[$k]['pagu_akumulasi_3_usulan'] = 0;
+						$tujuan[$k]['pagu_akumulasi_4_usulan'] = 0;
+						$tujuan[$k]['pagu_akumulasi_5_usulan'] = 0;
+						if(!empty($kd_all_prog)){
+							$kd_all_prog = implode(',', $kd_all_prog);
+							$pagu = $wpdb->get_row($wpdb->prepare("
+								SELECT 
+									sum(pagu_1) as pagu_akumulasi_1,
+									sum(pagu_2) as pagu_akumulasi_2,
+									sum(pagu_3) as pagu_akumulasi_3,
+									sum(pagu_4) as pagu_akumulasi_4,
+									sum(pagu_5) as pagu_akumulasi_5,
+									sum(pagu_1_usulan) as pagu_akumulasi_1_usulan,
+									sum(pagu_2_usulan) as pagu_akumulasi_2_usulan,
+									sum(pagu_3_usulan) as pagu_akumulasi_3_usulan,
+									sum(pagu_4_usulan) as pagu_akumulasi_4_usulan,
+									sum(pagu_5_usulan) as pagu_akumulasi_5_usulan
+								from data_renstra_kegiatan_lokal 
+								where id_unik_indikator IS NOT NULL
+									AND active=1
+									AND kode_program IN ($kd_all_prog)
+							"));
+							$tujuan[$k]['pagu_akumulasi_1'] = $pagu->pagu_akumulasi_1;
+							$tujuan[$k]['pagu_akumulasi_2'] = $pagu->pagu_akumulasi_2;
+							$tujuan[$k]['pagu_akumulasi_3'] = $pagu->pagu_akumulasi_3;
+							$tujuan[$k]['pagu_akumulasi_4'] = $pagu->pagu_akumulasi_4;
+							$tujuan[$k]['pagu_akumulasi_5'] = $pagu->pagu_akumulasi_5;
+							$tujuan[$k]['pagu_akumulasi_1_usulan'] = $pagu->pagu_akumulasi_1_usulan;
+							$tujuan[$k]['pagu_akumulasi_2_usulan'] = $pagu->pagu_akumulasi_2_usulan;
+							$tujuan[$k]['pagu_akumulasi_3_usulan'] = $pagu->pagu_akumulasi_3_usulan;
+							$tujuan[$k]['pagu_akumulasi_4_usulan'] = $pagu->pagu_akumulasi_4_usulan;
+							$tujuan[$k]['pagu_akumulasi_5_usulan'] = $pagu->pagu_akumulasi_5_usulan;
+						}
 					}
 				}else{
 
@@ -1121,34 +1133,46 @@ class Wpsipd_Public_Base_3
 						foreach($program as $prog){
 							$kd_all_prog[] = "'".$prog['id_unik']."'";
 						}
-						$kd_all_prog = implode(',', $kd_all_prog);
-						$pagu = $wpdb->get_row($wpdb->prepare("
-							SELECT 
-								sum(pagu_1) as pagu_akumulasi_1,
-								sum(pagu_2) as pagu_akumulasi_2,
-								sum(pagu_3) as pagu_akumulasi_3,
-								sum(pagu_4) as pagu_akumulasi_4,
-								sum(pagu_5) as pagu_akumulasi_5,
-								sum(pagu_1_usulan) as pagu_akumulasi_1_usulan,
-								sum(pagu_2_usulan) as pagu_akumulasi_2_usulan,
-								sum(pagu_3_usulan) as pagu_akumulasi_3_usulan,
-								sum(pagu_4_usulan) as pagu_akumulasi_4_usulan,
-								sum(pagu_5_usulan) as pagu_akumulasi_5_usulan
-							from data_renstra_kegiatan_lokal 
-							where id_unik_indikator IS NOT NULL
-								AND active=1
-								AND kode_program IN ($kd_all_prog)
-						"));
-						$sasaran[$k]['pagu_akumulasi_1'] = $pagu->pagu_akumulasi_1;
-						$sasaran[$k]['pagu_akumulasi_2'] = $pagu->pagu_akumulasi_2;
-						$sasaran[$k]['pagu_akumulasi_3'] = $pagu->pagu_akumulasi_3;
-						$sasaran[$k]['pagu_akumulasi_4'] = $pagu->pagu_akumulasi_4;
-						$sasaran[$k]['pagu_akumulasi_5'] = $pagu->pagu_akumulasi_5;
-						$sasaran[$k]['pagu_akumulasi_1_usulan'] = $pagu->pagu_akumulasi_1_usulan;
-						$sasaran[$k]['pagu_akumulasi_2_usulan'] = $pagu->pagu_akumulasi_2_usulan;
-						$sasaran[$k]['pagu_akumulasi_3_usulan'] = $pagu->pagu_akumulasi_3_usulan;
-						$sasaran[$k]['pagu_akumulasi_4_usulan'] = $pagu->pagu_akumulasi_4_usulan;
-						$sasaran[$k]['pagu_akumulasi_5_usulan'] = $pagu->pagu_akumulasi_5_usulan;
+						$sasaran[$k]['pagu_akumulasi_1'] = 0;
+						$sasaran[$k]['pagu_akumulasi_2'] = 0;
+						$sasaran[$k]['pagu_akumulasi_3'] = 0;
+						$sasaran[$k]['pagu_akumulasi_4'] = 0;
+						$sasaran[$k]['pagu_akumulasi_5'] = 0;
+						$sasaran[$k]['pagu_akumulasi_1_usulan'] = 0;
+						$sasaran[$k]['pagu_akumulasi_2_usulan'] = 0;
+						$sasaran[$k]['pagu_akumulasi_3_usulan'] = 0;
+						$sasaran[$k]['pagu_akumulasi_4_usulan'] = 0;
+						$sasaran[$k]['pagu_akumulasi_5_usulan'] = 0;
+						if(!empty($kd_all_prog)){
+							$kd_all_prog = implode(',', $kd_all_prog);
+							$pagu = $wpdb->get_row($wpdb->prepare("
+								SELECT 
+									sum(pagu_1) as pagu_akumulasi_1,
+									sum(pagu_2) as pagu_akumulasi_2,
+									sum(pagu_3) as pagu_akumulasi_3,
+									sum(pagu_4) as pagu_akumulasi_4,
+									sum(pagu_5) as pagu_akumulasi_5,
+									sum(pagu_1_usulan) as pagu_akumulasi_1_usulan,
+									sum(pagu_2_usulan) as pagu_akumulasi_2_usulan,
+									sum(pagu_3_usulan) as pagu_akumulasi_3_usulan,
+									sum(pagu_4_usulan) as pagu_akumulasi_4_usulan,
+									sum(pagu_5_usulan) as pagu_akumulasi_5_usulan
+								from data_renstra_kegiatan_lokal 
+								where id_unik_indikator IS NOT NULL
+									AND active=1
+									AND kode_program IN ($kd_all_prog)
+							"));
+							$sasaran[$k]['pagu_akumulasi_1'] = $pagu->pagu_akumulasi_1;
+							$sasaran[$k]['pagu_akumulasi_2'] = $pagu->pagu_akumulasi_2;
+							$sasaran[$k]['pagu_akumulasi_3'] = $pagu->pagu_akumulasi_3;
+							$sasaran[$k]['pagu_akumulasi_4'] = $pagu->pagu_akumulasi_4;
+							$sasaran[$k]['pagu_akumulasi_5'] = $pagu->pagu_akumulasi_5;
+							$sasaran[$k]['pagu_akumulasi_1_usulan'] = $pagu->pagu_akumulasi_1_usulan;
+							$sasaran[$k]['pagu_akumulasi_2_usulan'] = $pagu->pagu_akumulasi_2_usulan;
+							$sasaran[$k]['pagu_akumulasi_3_usulan'] = $pagu->pagu_akumulasi_3_usulan;
+							$sasaran[$k]['pagu_akumulasi_4_usulan'] = $pagu->pagu_akumulasi_4_usulan;
+							$sasaran[$k]['pagu_akumulasi_5_usulan'] = $pagu->pagu_akumulasi_5_usulan;
+						}
 					}
 				}else{
 					$tahun_anggaran = $_POST['tahun_anggaran'];
