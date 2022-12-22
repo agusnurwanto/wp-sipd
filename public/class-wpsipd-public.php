@@ -10864,6 +10864,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 
 	function replace_text($text, $debug=false){
 		$text = strtolower(trim(html_entity_decode($text), " \t\n\r\0\x0B\xC2\xA0"));
+		$text = $this->removeNewline($text);
 		if($debug){
 			echo $text.' | ';
 		}
