@@ -251,6 +251,8 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 										'id_jadwal_lokal'	=> $id_jadwal_lokal
 									));
 
+									$delete_lokal_history = $this->delete_data_lokal_history('data_rpjpd_visi');
+
 									$columns_1 = array('visi_teks','update_at');
 		
 									$sql_backup_data_rpjpd_visi =  "INSERT INTO data_rpjpd_visi_history (".implode(', ', $columns_1).",id_jadwal,id_asli)
@@ -258,6 +260,8 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 												FROM data_rpjpd_visi";
 
 									$queryRecords1 = $wpdb->query($sql_backup_data_rpjpd_visi);
+
+									$delete_lokal_history = $this->delete_data_lokal_history('data_rpjpd_misi');
 
 									$columns_2 = array('id_visi','misi_teks','urut_misi','update_at');
 		
@@ -267,6 +271,8 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 
 									$queryRecords2 = $wpdb->query($sql_backup_data_rpjpd_misi);
 
+									$delete_lokal_history = $this->delete_data_lokal_history('data_rpjpd_sasaran');
+
 									$columns_3 = array('id_misi','saspok_teks','urut_saspok','update_at');
 		
 									$sql_backup_data_rpjpd_sasaran =  "INSERT INTO data_rpjpd_sasaran_history (".implode(', ', $columns_3).",id_jadwal,id_asli)
@@ -275,6 +281,8 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 
 									$queryRecords3 = $wpdb->query($sql_backup_data_rpjpd_sasaran);
 
+									$delete_lokal_history = $this->delete_data_lokal_history('data_rpjpd_kebijakan');
+
 									$columns_4 = array('id_saspok','kebijakan_teks','urut_kebijakan','update_at');
 		
 									$sql_backup_data_rpjpd_kebijakan =  "INSERT INTO data_rpjpd_kebijakan_history (".implode(', ', $columns_4).",id_jadwal,id_asli)
@@ -282,6 +290,8 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 												FROM data_rpjpd_kebijakan";
 
 									$queryRecords4 = $wpdb->query($sql_backup_data_rpjpd_kebijakan);
+
+									$delete_lokal_history = $this->delete_data_lokal_history('data_rpjpd_isu');
 
 									$columns_5 = array('id_kebijakan','isu_teks','urut_isu','update_at',);
 		

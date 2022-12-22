@@ -1839,8 +1839,8 @@ CREATE TABLE `data_rka_history` (
   `idkomponen` double(20,0) DEFAULT NULL,
   `idketerangan` int(11) DEFAULT NULL,
   `idsubtitle` int(11) DEFAULT NULL,
-  `id_data_rka` int(11) NOT NULL,
-  `id_local_schedule` int(11) NOT NULL,
+  `id_asli` int(11) NOT NULL,
+  `id_jadwal` int(11) NOT NULL,
   PRIMARY KEY  (id)
 );
 
@@ -1907,8 +1907,8 @@ CREATE TABLE `data_sub_keg_bl_history` (
   `active` tinyint(4) DEFAULT '1',
   `update_at` datetime NOT NULL,
   `tahun_anggaran` year(4) NOT NULL DEFAULT '2021',
-  `id_data_sub_keg_bl` int(11) NOT NULL,
-  `id_local_schedule` int(11) NOT NULL,
+  `id_asli` int(11) NOT NULL,
+  `id_jadwal` int(11) NOT NULL,
   PRIMARY KEY  (id)
 );
 
@@ -1924,8 +1924,8 @@ CREATE TABLE `data_sub_keg_indikator_history` (
   `active` tinyint(4) DEFAULT '1',
   `update_at` datetime NOT NULL,
   `tahun_anggaran` year(4) NOT NULL,
-  `id_data_sub_keg_indikator` int(11) NOT NULL,
-  `id_local_schedule` int(11) NOT NULL,
+  `id_asli` int(11) NOT NULL,
+  `id_jadwal` int(11) NOT NULL,
   PRIMARY KEY  (id)
 );
 
@@ -1940,8 +1940,8 @@ CREATE TABLE `data_keg_indikator_hasil_history` (
   `active` tinyint(4) DEFAULT '1',
   `update_at` datetime NOT NULL,
   `tahun_anggaran` year(4) NOT NULL,
-  `id_data_keg_indikator_hasil` int(11) NOT NULL,
-  `id_local_schedule` int(11) NOT NULL,
+  `id_asli` int(11) NOT NULL,
+  `id_jadwal` int(11) NOT NULL,
   PRIMARY KEY  (id)
 );
 
@@ -1955,8 +1955,8 @@ CREATE TABLE `data_tag_sub_keg_history` (
   `active` tinyint(4) DEFAULT '1',
   `update_at` datetime NOT NULL,
   `tahun_anggaran` year(4) NOT NULL,
-  `id_data_tag_sub_keg` int(11) NOT NULL,
-  `id_local_schedule` int(11) NOT NULL,
+  `id_asli` int(11) NOT NULL,
+  `id_jadwal` int(11) NOT NULL,
   PRIMARY KEY  (id)
 );
 
@@ -1971,8 +1971,8 @@ CREATE TABLE `data_capaian_prog_sub_keg_history` (
   `active` tinyint(4) DEFAULT '1',
   `update_at` datetime NOT NULL,
   `tahun_anggaran` year(4) NOT NULL,
-  `id_data_capaian_prog_sub_keg` int(11) NOT NULL,
-  `id_local_schedule` int(11) NOT NULL,
+  `id_asli` int(11) NOT NULL,
+  `id_jadwal` int(11) NOT NULL,
   PRIMARY KEY  (id)
 );
 
@@ -1987,8 +1987,8 @@ CREATE TABLE `data_output_giat_sub_keg_history` (
   `active` tinyint(4) DEFAULT '1',
   `update_at` datetime NOT NULL,
   `tahun_anggaran` year(4) NOT NULL,
-  `id_data_output_giat_sub_keg` int(11) NOT NULL,
-  `id_local_schedule` int(11) NOT NULL,
+  `id_asli` int(11) NOT NULL,
+  `id_jadwal` int(11) NOT NULL,
   PRIMARY KEY  (id)
 );
 
@@ -2004,8 +2004,8 @@ CREATE TABLE `data_dana_sub_keg_history` (
   `active` tinyint(4) DEFAULT '1',
   `update_at` datetime NOT NULL,
   `tahun_anggaran` year(4) NOT NULL,
-  `id_data_dana_sub_keg` int(11) NOT NULL,
-  `id_local_schedule` int(11) NOT NULL,
+  `id_asli` int(11) NOT NULL,
+  `id_jadwal` int(11) NOT NULL,
   PRIMARY KEY  (id)
 );
 
@@ -2023,8 +2023,8 @@ CREATE TABLE `data_lokasi_sub_keg_history` (
   `active` tinyint(4) DEFAULT NULL,
   `update_at` datetime NOT NULL,
   `tahun_anggaran` year(4) NOT NULL,
-  `id_data_lokasi_sub_keg` int(11) NOT NULL,
-  `id_local_schedule` int(11) NOT NULL,
+  `id_asli` int(11) NOT NULL,
+  `id_jadwal` int(11) NOT NULL,
   PRIMARY KEY  (id)
 );
 
@@ -2036,8 +2036,8 @@ CREATE TABLE `data_mapping_sumberdana_history` (
   `active` tinyint(4) NOT NULL,
   `update_at` datetime NOT NULL,
   `tahun_anggaran` year(4) NOT NULL,
-  `id_data_mapping_sumberdana` int(11) NOT NULL,
-  `id_local_schedule` int(11) NOT NULL,
+  `id_asli` int(11) NOT NULL,
+  `id_jadwal` int(11) NOT NULL,
   PRIMARY KEY  (id)
 );
 
