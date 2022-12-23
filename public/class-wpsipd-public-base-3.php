@@ -5354,6 +5354,8 @@ class Wpsipd_Public_Base_3
 									$html.='
 										<th style="width: 100px;" class="row_head_2 atas kanan bawah text_tengah text_blok">Target</th>
 										<th style="width: 100px;" class="atas kanan bawah text_tengah text_blok">Pagu</th>';
+								}
+								for ($i=1; $i <= $lama_pelaksanaan; $i++) { 
 									$html.='
 										<th style="width: 100px;" class="row_head_2 atas kanan bawah text_tengah text_blok td-usulan">Target Usulan</th>
 										<th style="width: 100px;" class="atas kanan bawah text_tengah text_blok td-usulan">Pagu Usulan</th>';

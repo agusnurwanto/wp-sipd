@@ -72,9 +72,9 @@ if(!empty($jadwal_lokal)){
 	$akhir = new DateTime($selesaiJadwal);
 	$now = new DateTime(date('Y-m-d H:i:s'));
 
-	if($now >= $awal && $now <= $akhir){
+	// if($now >= $awal && $now <= $akhir){
 		$add_renstra = '<a style="margin-left: 10px;" id="tambah-data" onclick="return false;" href="#" class="btn btn-success">Tambah Data RENSTRA</a>';
-	}
+	// }
 }
 
 $nama_tipe_relasi = 'RPJMD / RPD';
@@ -1602,6 +1602,8 @@ foreach ($data_all['data'] as $tujuan) {
 				$row_head.='
 					<th style="width: 100px;" class="row_head_2 atas kanan bawah text_tengah text_blok">Target</th>
 					<th style="width: 100px;" class="atas kanan bawah text_tengah text_blok">Pagu</th>';
+			}
+			for ($i=1; $i <= $lama_pelaksanaan; $i++) { 
 				$row_head.='
 					<th style="width: 100px;" class="row_head_2 atas kanan bawah text_tengah text_blok td-usulan">Target Usulan</th>
 					<th style="width: 100px;" class="atas kanan bawah text_tengah text_blok td-usulan">Pagu Usulan</th>';
