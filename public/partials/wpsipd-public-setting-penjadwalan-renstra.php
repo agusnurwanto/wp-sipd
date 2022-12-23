@@ -642,11 +642,11 @@ $body = '';
 				jQuery("#modal-report .modal-preview").css('overflow-x', 'auto');
 				jQuery("#modal-report .modal-preview").css('padding', '15px');
 				jQuery('#modal-report .export-excel').attr("disabled", false);
-				jQuery('#modal-report .export-excel').attr("title", 'Laporan TC 27');
+				jQuery('#modal-report .export-excel').attr("title", 'Laporan Pagu Akumulasi');
 
-				jQuery("#table-renstra th.row_head_1").attr('rowspan',3);
-				jQuery("#table-renstra th.row_head_kinerja").attr('colspan',2*lama_pelaksanaan);
-				jQuery("#table-renstra th.row_head_1_tahun").attr('colspan',2);
+				jQuery("#table-renstra th.row_head").attr('rowspan',2);
+				jQuery("#table-renstra th.row_head_tahun").attr('colspan',2);
+				jQuery("#table-renstra th.row_head_tahun_usulan").attr('colspan',2);
 			}
 		})
 	}
