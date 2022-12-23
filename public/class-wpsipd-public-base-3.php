@@ -2613,21 +2613,21 @@ class Wpsipd_Public_Base_3
 					$inputs['catatan_usulan'] = $data['catatan_usulan'];
 
 					if(in_array('administrator', $this->role())){
-						$inputs['indikator'] = !empty($data['indikator_teks']) ? $data['indikator_teks'] : $data['indikator_teks_usulan'];
-						$inputs['satuan'] = !empty($data['satuan']) ? $data['satuan'] : $data['satuan_usulan'];
-						$inputs['target_1'] = !empty($data['target_1']) ? $data['target_1'] : $data['target_1_usulan'];
-						$inputs['target_2'] = !empty($data['target_2']) ? $data['target_2'] : $data['target_2_usulan'];
-						$inputs['target_3'] = !empty($data['target_3']) ? $data['target_3'] : $data['target_3_usulan'];
-						$inputs['target_4'] = !empty($data['target_4']) ? $data['target_4'] : $data['target_4_usulan'];
-						$inputs['target_5'] = !empty($data['target_5']) ? $data['target_5'] : $data['target_5_usulan'];
-						$inputs['pagu_1'] = !empty($data['pagu_1']) ? $data['pagu_1'] : $data['pagu_1_usulan'];
-						$inputs['pagu_2'] = !empty($data['pagu_2']) ? $data['pagu_2'] : $data['pagu_2_usulan'];
-						$inputs['pagu_3'] = !empty($data['pagu_3']) ? $data['pagu_3'] : $data['pagu_3_usulan'];
-						$inputs['pagu_4'] = !empty($data['pagu_4']) ? $data['pagu_4'] : $data['pagu_4_usulan'];
-						$inputs['pagu_5'] = !empty($data['pagu_5']) ? $data['pagu_5'] : $data['pagu_5_usulan'];
-						$inputs['target_awal'] = !empty($data['target_awal']) ? $data['target_awal'] : $data['target_awal_usulan'];
-						$inputs['target_akhir'] = !empty($data['target_akhir']) ? $data['target_akhir'] : $data['target_akhir_usulan'];
-						$inputs['catatan'] = !empty($data['catatan']) ? $data['catatan'] : $data['catatan_usulan'];
+						$inputs['indikator'] = !empty($data['indikator_teks']) || $data['indikator_teks']==0 ? $data['indikator_teks'] : $data['indikator_teks_usulan'];
+						$inputs['satuan'] = !empty($data['satuan']) || $data['satuan']==0 ? $data['satuan'] : $data['satuan_usulan'];
+						$inputs['target_1'] = !empty($data['target_1']) || $data['target_1']==0 ? $data['target_1'] : $data['target_1_usulan'];
+						$inputs['target_2'] = !empty($data['target_2']) || $data['target_2']==0 ? $data['target_2'] : $data['target_2_usulan'];
+						$inputs['target_3'] = !empty($data['target_3']) || $data['target_3']==0 ? $data['target_3'] : $data['target_3_usulan'];
+						$inputs['target_4'] = !empty($data['target_4']) || $data['target_4']==0 ? $data['target_4'] : $data['target_4_usulan'];
+						$inputs['target_5'] = !empty($data['target_5']) || $data['target_5']==0 ? $data['target_5'] : $data['target_5_usulan'];
+						$inputs['pagu_1'] = !empty($data['pagu_1']) || $data['pagu_1']==0 ? $data['pagu_1'] : $data['pagu_1_usulan'];
+						$inputs['pagu_2'] = !empty($data['pagu_2']) || $data['pagu_2']==0 ? $data['pagu_2'] : $data['pagu_2_usulan'];
+						$inputs['pagu_3'] = !empty($data['pagu_3']) || $data['pagu_3']==0 ? $data['pagu_3'] : $data['pagu_3_usulan'];
+						$inputs['pagu_4'] = !empty($data['pagu_4']) || $data['pagu_4']==0 ? $data['pagu_4'] : $data['pagu_4_usulan'];
+						$inputs['pagu_5'] = !empty($data['pagu_5']) || $data['pagu_5']==0 ? $data['pagu_5'] : $data['pagu_5_usulan'];
+						$inputs['target_awal'] = !empty($data['target_awal']) || $data['target_awal']==0 ? $data['target_awal'] : $data['target_awal_usulan'];
+						$inputs['target_akhir'] = !empty($data['target_akhir']) || $data['target_akhir']==0 ? $data['target_akhir'] : $data['target_akhir_usulan'];
+						$inputs['catatan'] = $data['catatan'];
 					}
 
 					$status = $wpdb->insert('data_renstra_program_lokal', $inputs);
@@ -2775,21 +2775,21 @@ class Wpsipd_Public_Base_3
 					$inputs['catatan_usulan'] = $data['catatan_usulan'];
 
 					if(in_array('administrator', $this->role())){
-						$inputs['indikator'] = !empty($data['indikator_teks']) ? $data['indikator_teks'] : $data['indikator_teks_usulan'];
-						$inputs['satuan'] = !empty($data['satuan']) ? $data['satuan'] : $data['satuan_usulan'];
-						$inputs['target_1'] = !empty($data['target_1']) ? $data['target_1'] : $data['target_1_usulan'];
-						$inputs['target_2'] = !empty($data['target_2']) ? $data['target_2'] : $data['target_2_usulan'];
-						$inputs['target_3'] = !empty($data['target_3']) ? $data['target_3'] : $data['target_3_usulan'];
-						$inputs['target_4'] = !empty($data['target_4']) ? $data['target_4'] : $data['target_4_usulan'];
-						$inputs['target_5'] = !empty($data['target_5']) ? $data['target_5'] : $data['target_5_usulan'];
-						$inputs['pagu_1'] = !empty($data['pagu_1']) ? $data['pagu_1'] : $data['pagu_1_usulan'];
-						$inputs['pagu_2'] = !empty($data['pagu_2']) ? $data['pagu_2'] : $data['pagu_2_usulan'];
-						$inputs['pagu_3'] = !empty($data['pagu_3']) ? $data['pagu_3'] : $data['pagu_3_usulan'];
-						$inputs['pagu_4'] = !empty($data['pagu_4']) ? $data['pagu_4'] : $data['pagu_4_usulan'];
-						$inputs['pagu_5'] = !empty($data['pagu_5']) ? $data['pagu_5'] : $data['pagu_5_usulan'];
-						$inputs['target_awal'] = !empty($data['target_awal']) ? $data['target_awal'] : $data['target_awal_usulan'];
-						$inputs['target_akhir'] = !empty($data['target_akhir']) ? $data['target_akhir'] : $data['target_akhir_usulan'];
-						$inputs['catatan'] = !empty($data['catatan']) ? $data['catatan'] : $data['catatan_usulan'];
+						$inputs['indikator'] = !empty($data['indikator_teks']) || $data['indikator_teks']==0 ? $data['indikator_teks'] : $data['indikator_teks_usulan'];
+						$inputs['satuan'] = !empty($data['satuan']) || $data['satuan']==0 ? $data['satuan'] : $data['satuan_usulan'];
+						$inputs['target_1'] = !empty($data['target_1']) || $data['target_1']==0 ? $data['target_1'] : $data['target_1_usulan'];
+						$inputs['target_2'] = !empty($data['target_2']) || $data['target_2']==0 ? $data['target_2'] : $data['target_2_usulan'];
+						$inputs['target_3'] = !empty($data['target_3']) || $data['target_3']==0 ? $data['target_3'] : $data['target_3_usulan'];
+						$inputs['target_4'] = !empty($data['target_4']) || $data['target_4']==0 ? $data['target_4'] : $data['target_4_usulan'];
+						$inputs['target_5'] = !empty($data['target_5']) || $data['target_5']==0 ? $data['target_5'] : $data['target_5_usulan'];
+						$inputs['pagu_1'] = !empty($data['pagu_1']) || $data['pagu_1']==0 ? $data['pagu_1'] : $data['pagu_1_usulan'];
+						$inputs['pagu_2'] = !empty($data['pagu_2']) || $data['pagu_2']==0 ? $data['pagu_2'] : $data['pagu_2_usulan'];
+						$inputs['pagu_3'] = !empty($data['pagu_3']) || $data['pagu_3']==0 ? $data['pagu_3'] : $data['pagu_3_usulan'];
+						$inputs['pagu_4'] = !empty($data['pagu_4']) || $data['pagu_4']==0 ? $data['pagu_4'] : $data['pagu_4_usulan'];
+						$inputs['pagu_5'] = !empty($data['pagu_5']) || $data['pagu_5']==0 ? $data['pagu_5'] : $data['pagu_5_usulan'];
+						$inputs['target_awal'] = !empty($data['target_awal']) || $data['target_awal']==0 ? $data['target_awal'] : $data['target_awal_usulan'];
+						$inputs['target_akhir'] = !empty($data['target_akhir']) || $data['target_akhir']==0 ? $data['target_akhir'] : $data['target_akhir_usulan'];
+						$inputs['catatan'] = $data['catatan'];
 					}
 
 					$status = $wpdb->update('data_renstra_program_lokal', $inputs, ['id' => $data['id']]);
@@ -2868,17 +2868,26 @@ class Wpsipd_Public_Base_3
 			throw new Exception('Satuan usulan indikator program tidak boleh kosong!');
 		}
 
-		if($data['target_awal_usulan'] < 0 || $data['target_awal_usulan'] == ''){
+		if(
+			empty($data['target_awal_usulan']) 
+			|| $data['target_awal_usulan']!=0
+		){
 			throw new Exception('Target awal usulan Indikator program tidak boleh kosong!');
 		}
 
 		for ($i=1; $i <= $data['lama_pelaksanaan'] ; $i++) { 
-			if($data['target_'.$i.'_usulan'] < 0 || $data['target_'.$i.'_usulan'] == ''){
+			if(
+				empty($data['target_'.$i.'_usulan']) 
+				&& $data['target_'.$i.'_usulan']!=0
+			){
 				throw new Exception('Target usulan Indikator program tahun ke-'.$i.' tidak boleh kosong!');
 			}
 		}
 
-		if($data['target_akhir_usulan'] < 0 || $data['target_akhir_usulan'] == ''){
+		if(
+			empty($data['target_akhir_usulan']) 
+			&& $data['target_akhir_usulan']!=0
+		){
 			throw new Exception('Target akhir usulan Indikator program tidak boleh kosong!');
 		}
 	}
@@ -3498,20 +3507,20 @@ class Wpsipd_Public_Base_3
 
 					if(in_array('administrator', $this->role())){
 						$inputs['indikator'] = !empty($data['indikator_teks']) ? $data['indikator_teks'] : $data['indikator_teks_usulan'];
-						$inputs['satuan'] = !empty($data['satuan']) ? $data['satuan'] : $data['satuan_usulan'];
-						$inputs['target_1'] = !empty($data['target_1']) ? $data['target_1'] : $data['target_1_usulan'];
-						$inputs['target_2'] = !empty($data['target_2']) ? $data['target_2'] : $data['target_2_usulan'];
-						$inputs['target_3'] = !empty($data['target_3']) ? $data['target_3'] : $data['target_3_usulan'];
-						$inputs['target_4'] = !empty($data['target_4']) ? $data['target_4'] : $data['target_4_usulan'];
-						$inputs['target_5'] = !empty($data['target_5']) ? $data['target_5'] : $data['target_5_usulan'];
-						$inputs['target_awal'] = !empty($data['target_awal']) ? $data['target_awal'] : $data['target_awal_usulan'];
-						$inputs['target_akhir'] = !empty($data['target_akhir']) ? $data['target_akhir'] : $data['target_akhir_usulan'];
-						$inputs['pagu_1'] = !empty($data['pagu_1']) ? $data['pagu_1'] : $data['pagu_1_usulan'];
-						$inputs['pagu_2'] = !empty($data['pagu_2']) ? $data['pagu_2'] : $data['pagu_2_usulan'];
-						$inputs['pagu_3'] = !empty($data['pagu_3']) ? $data['pagu_3'] : $data['pagu_3_usulan'];
-						$inputs['pagu_4'] = !empty($data['pagu_4']) ? $data['pagu_4'] : $data['pagu_4_usulan'];
-						$inputs['pagu_5'] = !empty($data['pagu_5']) ? $data['pagu_5'] : $data['pagu_5_usulan'];
-						$inputs['catatan'] = !empty($data['catatan']) ? $data['catatan'] : $data['catatan_usulan'];
+						$inputs['satuan'] = !empty($data['satuan']) || $data['satuan']==0 ? $data['satuan'] : $data['satuan_usulan'];
+						$inputs['target_1'] = !empty($data['target_1']) || $data['target_1']==0 ? $data['target_1'] : $data['target_1_usulan'];
+						$inputs['target_2'] = !empty($data['target_2']) || $data['target_2']==0 ? $data['target_2'] : $data['target_2_usulan'];
+						$inputs['target_3'] = !empty($data['target_3']) || $data['target_3']==0 ? $data['target_3'] : $data['target_3_usulan'];
+						$inputs['target_4'] = !empty($data['target_4']) || $data['target_4']==0 ? $data['target_4'] : $data['target_4_usulan'];
+						$inputs['target_5'] = !empty($data['target_5']) || $data['target_5']==0 ? $data['target_5'] : $data['target_5_usulan'];
+						$inputs['target_awal'] = !empty($data['target_awal']) || $data['target_awal']==0 ? $data['target_awal'] : $data['target_awal_usulan'];
+						$inputs['target_akhir'] = !empty($data['target_akhir']) || $data['target_akhir']==0 ? $data['target_akhir'] : $data['target_akhir_usulan'];
+						$inputs['pagu_1'] = !empty($data['pagu_1']) || $data['pagu_1']==0 ? $data['pagu_1'] : $data['pagu_1_usulan'];
+						$inputs['pagu_2'] = !empty($data['pagu_2']) || $data['pagu_2']==0 ? $data['pagu_2'] : $data['pagu_2_usulan'];
+						$inputs['pagu_3'] = !empty($data['pagu_3']) || $data['pagu_3']==0 ? $data['pagu_3'] : $data['pagu_3_usulan'];
+						$inputs['pagu_4'] = !empty($data['pagu_4']) || $data['pagu_4']==0 ? $data['pagu_4'] : $data['pagu_4_usulan'];
+						$inputs['pagu_5'] = !empty($data['pagu_5']) || $data['pagu_5']==0 ? $data['pagu_5'] : $data['pagu_5_usulan'];
+						$inputs['catatan'] = $data['catatan'];
 					}
 
 					$status = $wpdb->insert('data_renstra_kegiatan_lokal', $inputs);
@@ -3664,21 +3673,21 @@ class Wpsipd_Public_Base_3
 					$inputs['catatan_usulan'] = $data['catatan_usulan'];
 
 					if(in_array('administrator', $this->role())){
-						$inputs['indikator'] = !empty($data['indikator_teks']) ? $data['indikator_teks'] : $data['indikator_teks_usulan'];
-						$inputs['satuan'] = !empty($data['satuan']) ? $data['satuan'] : $data['satuan_usulan'];
-						$inputs['target_1'] = !empty($data['target_1']) ? $data['target_1'] : $data['target_1_usulan'];
-						$inputs['target_2'] = !empty($data['target_2']) ? $data['target_2'] : $data['target_2_usulan'];
-						$inputs['target_3'] = !empty($data['target_3']) ? $data['target_3'] : $data['target_3_usulan'];
-						$inputs['target_4'] = !empty($data['target_4']) ? $data['target_4'] : $data['target_4_usulan'];
-						$inputs['target_5'] = !empty($data['target_5']) ? $data['target_5'] : $data['target_5_usulan'];
-						$inputs['target_awal'] = !empty($data['target_awal']) ? $data['target_awal'] : $data['target_awal_usulan'];
-						$inputs['target_akhir'] = !empty($data['target_akhir']) ? $data['target_akhir'] : $data['target_akhir_usulan'];
-						$inputs['pagu_1'] = !empty($data['pagu_1']) ? $data['pagu_1'] : $data['pagu_1_usulan'];
-						$inputs['pagu_2'] = !empty($data['pagu_2']) ? $data['pagu_2'] : $data['pagu_2_usulan'];
-						$inputs['pagu_3'] = !empty($data['pagu_3']) ? $data['pagu_3'] : $data['pagu_3_usulan'];
-						$inputs['pagu_4'] = !empty($data['pagu_4']) ? $data['pagu_4'] : $data['pagu_4_usulan'];
-						$inputs['pagu_5'] = !empty($data['pagu_5']) ? $data['pagu_5'] : $data['pagu_5_usulan'];
-						$inputs['catatan'] = !empty($data['catatan']) ? $data['catatan'] : $data['catatan_usulan'];
+						$inputs['indikator'] = !empty($data['indikator_teks']) || data['indikator_teks']==0 ? $data['indikator_teks'] : $data['indikator_teks_usulan'];
+						$inputs['satuan'] = !empty($data['satuan']) || data['satuan']==0 ? $data['satuan'] : $data['satuan_usulan'];
+						$inputs['target_1'] = !empty($data['target_1']) || data['target_1']==0 ? $data['target_1'] : $data['target_1_usulan'];
+						$inputs['target_2'] = !empty($data['target_2']) || data['target_2']==0 ? $data['target_2'] : $data['target_2_usulan'];
+						$inputs['target_3'] = !empty($data['target_3']) || data['target_3']==0 ? $data['target_3'] : $data['target_3_usulan'];
+						$inputs['target_4'] = !empty($data['target_4']) || data['target_4']==0 ? $data['target_4'] : $data['target_4_usulan'];
+						$inputs['target_5'] = !empty($data['target_5']) || data['target_5']==0 ? $data['target_5'] : $data['target_5_usulan'];
+						$inputs['target_awal'] = !empty($data['target_awal']) || data['target_awal']==0 ? $data['target_awal'] : $data['target_awal_usulan'];
+						$inputs['target_akhir'] = !empty($data['target_akhir']) || data['target_akhir']==0 ? $data['target_akhir'] : $data['target_akhir_usulan'];
+						$inputs['pagu_1'] = !empty($data['pagu_1']) || data['pagu_1']==0 ? $data['pagu_1'] : $data['pagu_1_usulan'];
+						$inputs['pagu_2'] = !empty($data['pagu_2']) || data['pagu_2']==0 ? $data['pagu_2'] : $data['pagu_2_usulan'];
+						$inputs['pagu_3'] = !empty($data['pagu_3']) || data['pagu_3']==0 ? $data['pagu_3'] : $data['pagu_3_usulan'];
+						$inputs['pagu_4'] = !empty($data['pagu_4']) || data['pagu_4']==0 ? $data['pagu_4'] : $data['pagu_4_usulan'];
+						$inputs['pagu_5'] = !empty($data['pagu_5']) || data['pagu_5']==0 ? $data['pagu_5'] : $data['pagu_5_usulan'];
+						$inputs['catatan'] = $data['catatan'];
 					}
 
 					$status = $wpdb->update('data_renstra_kegiatan_lokal', $inputs, ['id' => $data['id']]);
@@ -3755,21 +3764,33 @@ class Wpsipd_Public_Base_3
 			throw new Exception('Satuan indikator usulan kegiatan tidak boleh kosong!');
 		}
 
-		if($data['target_awal_usulan'] < 0 || $data['target_awal_usulan'] == ''){
+		if(
+			empty($data['target_awal_usulan']) 
+			&& $data['target_awal_usulan']!=0
+		){
 			throw new Exception('Target awal usulan Indikator kegiatan tidak boleh kosong!');
 		}
 
 		for ($i=1; $i <= $data['lama_pelaksanaan'] ; $i++) { 
-			if($data['target_'.$i.'_usulan'] < 0 || $data['target_'.$i.'_usulan'] == ''){
+			if(
+				empty($data['target_'.$i.'_usulan']) 
+				&& $data['target_'.$i.'_usulan']!=0
+			){
 				throw new Exception('Target usulan Indikator kegiatan tahun ke-'.$i.' tidak boleh kosong!');
 			}
 
-			if(empty($data['pagu_'.$i.'_usulan'])){
+			if(
+				empty($data['pagu_'.$i.'_usulan']) 
+				&& $data['pagu_'.$i.'_usulan']!=0
+			){
 				throw new Exception('Pagu usulan Indikator kegiatan tahun ke-'.$i.' tidak boleh kosong!');
 			}
 		}
 
-		if($data['target_akhir_usulan'] < 0 || $data['target_akhir_usulan'] == ''){
+		if(
+			empty($data['target_akhir_usulan'])
+			&& $data['target_akhir_usulan']!=0
+		){
 			throw new Exception('Target akhir usulan Indikator kegiatan tidak boleh kosong!');
 		}
 	}

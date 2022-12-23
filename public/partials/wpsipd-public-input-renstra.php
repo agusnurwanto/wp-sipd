@@ -3998,10 +3998,10 @@ foreach ($data_all['data'] as $tujuan) {
 	      						<?php } ?>
 				          			+'<td><b>Penetapan</b><br>'+value.catatan+'</td>'
 				          			+'<td class="text-center" rowspan="2">'
-			          					+'<a href="javascript:void(0)" data-idtujuan="'+value.id+'" data-idunik="'+value.id_unik+'" class="btn btn-warning btn-kelola-indikator-tujuan"><i class="dashicons dashicons-menu-alt" style="margin-top: 2px;"></i></a>&nbsp;'
-			          					+'<a href="javascript:void(0)" data-kodetujuan="'+value.id_unik+'" class="btn btn-primary btn-detail-tujuan"><i class="dashicons dashicons-search"></i></a>&nbsp;'
-			          					+'<a href="javascript:void(0)" data-id="'+value.id+'" class="btn btn-success btn-edit-tujuan"><i class="dashicons dashicons-edit"></i></a>&nbsp;'
-			          					+'<a href="javascript:void(0)" data-id="'+value.id+'" data-idunik="'+value.id_unik+'" class="btn btn-danger btn-hapus-tujuan"><i class="dashicons dashicons-trash"></i></a>'
+			          					+'<a href="javascript:void(0)" data-idtujuan="'+value.id+'" data-idunik="'+value.id_unik+'" class="btn btn-warning btn-kelola-indikator-tujuan" title="Lihat Indikator Tujuan"><i class="dashicons dashicons-menu-alt" style="margin-top: 2px;"></i></a>&nbsp;'
+			          					+'<a href="javascript:void(0)" data-kodetujuan="'+value.id_unik+'" class="btn btn-primary btn-detail-tujuan" title="Lihat Sasaran"><i class="dashicons dashicons-search"></i></a>&nbsp;'
+			          					+'<a href="javascript:void(0)" data-id="'+value.id+'" class="btn btn-success btn-edit-tujuan" title="Edit Tujuan"><i class="dashicons dashicons-edit"></i></a>&nbsp;'
+			          					+'<a href="javascript:void(0)" data-id="'+value.id+'" data-idunik="'+value.id_unik+'" class="btn btn-danger btn-hapus-tujuan" title="Hapus Tujuan"><i class="dashicons dashicons-trash"></i></a>'
 				          			+'</td>'
 				          		+'</tr>'
 			          			+'<tr>'
@@ -4097,8 +4097,8 @@ foreach ($data_all['data'] as $tujuan) {
 					          		+"<td class='text-center'>"+value.target_akhir+"</td>"
 					          		+"<td><b>Penetapan</b><br>"+value.catatan+"</td>"
 					          		+"<td class='text-center' rowspan='2'>"
-					          			+"<a href='#' class='btn btn-success btn-edit-indikator-tujuan' data-id='"+value.id+"' data-idunik='"+value.id_unik+"'><i class='dashicons dashicons-edit' style='margin-top: 2px;'></i></a>&nbsp"
-										+"<a href='#' class='btn btn-danger btn-delete-indikator-tujuan' data-id='"+value.id+"' data-idunik='"+value.id_unik+"'><i class='dashicons dashicons-trash' style='margin-top: 2px;'></i></a>&nbsp;"
+					          			+"<a href='#' class='btn btn-success btn-edit-indikator-tujuan' data-id='"+value.id+"' data-idunik='"+value.id_unik+"' title='Edit Indikator'><i class='dashicons dashicons-edit' style='margin-top: 2px;'></i></a>&nbsp"
+										+"<a href='#' class='btn btn-danger btn-delete-indikator-tujuan' data-id='"+value.id+"' data-idunik='"+value.id_unik+"' title='Hapus Indikator'><i class='dashicons dashicons-trash' style='margin-top: 2px;'></i></a>&nbsp;"
 					          		+"</td>"
 					          	+"</tr>"
 		          				+"<tr>"
@@ -4192,10 +4192,10 @@ foreach ($data_all['data'] as $tujuan) {
 	      						<?php } ?>
           							+'<td><b>Penetapan</b><br>'+value.catatan+'</td>'
           							+'<td class="text-center" rowspan="2">'
-          								+'<a href="javascript:void(0)" data-idsasaran="'+value.id+'" data-kodesasaran="'+value.id_unik+'" class="btn btn-warning btn-kelola-indikator-sasaran"><i class="dashicons dashicons-menu-alt" style="margin-top: 2px;"></i></a>&nbsp;'
-          								+'<a href="javascript:void(0)" data-kodesasaran="'+value.id_unik+'" class="btn btn-primary btn-detail-sasaran"><i class="dashicons dashicons-search" style="margin-top: 2px;"></i></a>&nbsp;'
-          								+'<a href="javascript:void(0)" data-idsasaran="'+value.id+'" class="btn btn-success btn-edit-sasaran"><i class="dashicons dashicons-edit" style="margin-top: 2px;"></i></a>&nbsp;'
-          								+'<a href="javascript:void(0)" data-idsasaran="'+value.id+'" data-kodesasaran="'+value.id_unik+'" data-kodetujuan="'+value.kode_tujuan+'" class="btn btn-danger btn-hapus-sasaran"><i class="dashicons dashicons-trash" style="margin-top: 2px;"></i></a>'
+          								+'<a href="javascript:void(0)" data-idsasaran="'+value.id+'" data-kodesasaran="'+value.id_unik+'" class="btn btn-warning btn-kelola-indikator-sasaran" title="Lihat Indikator Sasaran"><i class="dashicons dashicons-menu-alt" style="margin-top: 2px;"></i></a>&nbsp;'
+          								+'<a href="javascript:void(0)" data-kodesasaran="'+value.id_unik+'" class="btn btn-primary btn-detail-sasaran" title="Lihat Program"><i class="dashicons dashicons-search" style="margin-top: 2px;"></i></a>&nbsp;'
+          								+'<a href="javascript:void(0)" data-idsasaran="'+value.id+'" class="btn btn-success btn-edit-sasaran" title="Edit Sasaran"><i class="dashicons dashicons-edit" style="margin-top: 2px;"></i></a>&nbsp;'
+          								+'<a href="javascript:void(0)" data-idsasaran="'+value.id+'" data-kodesasaran="'+value.id_unik+'" data-kodetujuan="'+value.kode_tujuan+'" class="btn btn-danger btn-hapus-sasaran" title="Hapus Sasaran"><i class="dashicons dashicons-trash" style="margin-top: 2px;"></i></a>'
           							+'</td>'
           						+'</tr>'
   								+'<tr>'
@@ -4294,8 +4294,8 @@ foreach ($data_all['data'] as $tujuan) {
 				          		+"<td class='text-center'>"+value.target_akhir+"</td>"
 				          		+"<td><b>Penetapan</b><br>"+value.catatan+"</td>"
 				          		+"<td class='text-center' rowspan='2'>"
-				          			+"<a href='#' class='btn btn-success btn-edit-indikator-sasaran' data-id='"+value.id+"' data-idunik='"+value.id_unik+"' ><i class='dashicons dashicons-edit' style='margin-top: 2px;'></i></a>&nbsp"
-									+"<a href='#' class='btn btn-danger btn-delete-indikator-sasaran' data-id='"+value.id+"' data-idunik='"+value.id_unik+"' ><i class='dashicons dashicons-trash' style='margin-top: 2px;'></i></a>&nbsp;"
+				          			+"<a href='#' class='btn btn-success btn-edit-indikator-sasaran' data-id='"+value.id+"' data-idunik='"+value.id_unik+"' title='Edit Indikator Program'><i class='dashicons dashicons-edit' style='margin-top: 2px;'></i></a>&nbsp"
+									+"<a href='#' class='btn btn-danger btn-delete-indikator-sasaran' data-id='"+value.id+"' data-idunik='"+value.id_unik+"' title='Hapus Indikator Program'><i class='dashicons dashicons-trash' style='margin-top: 2px;'></i></a>&nbsp;"
 				          		+"</td>"
 				          	+"</tr>"
 	          				+"<tr>"
@@ -4402,10 +4402,10 @@ foreach ($data_all['data'] as $tujuan) {
 	      						<?php } ?>
           							+'<td><b>Penetapan</b><br>'+value.catatan+'</td>'
           							+'<td class="text-center" rowspan="4">'
-          								+'<a href="javascript:void(0)" data-kodeprogram="'+value.id_unik+'" class="btn btn-warning btn-kelola-indikator-program"><i class="dashicons dashicons-menu-alt" style="margin-top: 2px;"></i></a>&nbsp;'	
-          								+'<a href="javascript:void(0)" data-kodeprogram="'+value.id_unik+'" data-idprogram="'+value.id_program+'" class="btn btn-primary btn-detail-program"><i class="dashicons dashicons-search" style="margin-top: 2px;"></i></a>&nbsp;'
-          								+'<a href="javascript:void(0)" data-id="'+value.id+'" data-kodeprogram="'+value.id_unik+'" class="btn btn-success btn-edit-program"><i class="dashicons dashicons-edit" style="margin-top: 2px;"></i></a>&nbsp;'
-          								+'<a href="javascript:void(0)" data-id="'+value.id+'" data-kodeprogram="'+value.id_unik+'" data-kodesasaran="'+value.kode_sasaran+'" class="btn btn-danger btn-hapus-program"><i class="dashicons dashicons-trash" style="margin-top: 2px;"></i></a></td>'
+          								+'<a href="javascript:void(0)" data-kodeprogram="'+value.id_unik+'" class="btn btn-warning btn-kelola-indikator-program" title="Lihat Indikator Program"><i class="dashicons dashicons-menu-alt" style="margin-top: 2px;"></i></a>&nbsp;'	
+          								+'<a href="javascript:void(0)" data-kodeprogram="'+value.id_unik+'" data-idprogram="'+value.id_program+'" class="btn btn-primary btn-detail-program" title="Lihat Kegiatan"><i class="dashicons dashicons-search" style="margin-top: 2px;"></i></a>&nbsp;'
+          								+'<a href="javascript:void(0)" data-id="'+value.id+'" data-kodeprogram="'+value.id_unik+'" class="btn btn-success btn-edit-program" title="Edit Program"><i class="dashicons dashicons-edit" style="margin-top: 2px;"></i></a>&nbsp;'
+          								+'<a href="javascript:void(0)" data-id="'+value.id+'" data-kodeprogram="'+value.id_unik+'" data-kodesasaran="'+value.kode_sasaran+'" class="btn btn-danger btn-hapus-program" title="Hapus Program"><i class="dashicons dashicons-trash" style="margin-top: 2px;"></i></a></td>'
           						+'</tr>'
   								+'<tr>'
 	      						<?php for($i=1; $i<=$lama_pelaksanaan; $i++){ ?>
@@ -4582,8 +4582,8 @@ foreach ($data_all['data'] as $tujuan) {
 					          		+"<td class='text-center'>"+value.target_akhir+"</td>"
 					          		+"<td><b>Penetapan</b><br>"+value.catatan+"</td>"
 					          		+"<td class='text-center' rowspan='2'>"
-					          			+"<a href='#' class='btn btn-success btn-edit-indikator-program' data-kodeprogram='"+value.id_unik+"' data-id='"+value.id+"'><i class='dashicons dashicons-edit' style='margin-top: 2px;'></i></a>&nbsp"
-										+"<a href='#' class='btn btn-danger btn-delete-indikator-program' data-kodeprogram='"+value.id_unik+"' data-id='"+value.id+"'><i class='dashicons dashicons-trash' style='margin-top: 2px;'></i></a>&nbsp;"
+					          			+"<a href='#' class='btn btn-success btn-edit-indikator-program' data-kodeprogram='"+value.id_unik+"' data-id='"+value.id+"'><i class='dashicons dashicons-edit' style='margin-top: 2px;' title='Edit Indikator Program'></i></a>&nbsp"
+										+"<a href='#' class='btn btn-danger btn-delete-indikator-program' data-kodeprogram='"+value.id_unik+"' data-id='"+value.id+"' title='Hapus Indikator Program'><i class='dashicons dashicons-trash' style='margin-top: 2px;'></i></a>&nbsp;"
 					          		+"</td>"
 					          	+"</tr>"
 		          				+"<tr>"
@@ -4686,9 +4686,9 @@ foreach ($data_all['data'] as $tujuan) {
           						<?php } ?>
           							+'<td><b>Penetapan</b><br>'+value.catatan+'</td>'
           							+'<td class="text-center" rowspan="2">'
-          								+'<a href="javascript:void(0)" data-kodekegiatan="'+value.id_unik+'" class="btn btn-warning btn-kelola-indikator-kegiatan"><i class="dashicons dashicons-menu-alt" style="margin-top: 2px;"></i></a>&nbsp;'	
-          								+'<a href="javascript:void(0)" data-id="'+value.id+'" data-kodekegiatan="'+value.id_unik+'" data-idprogram="'+value.id_program+'" class="btn btn-success btn-edit-kegiatan"><i class="dashicons dashicons-edit" style="margin-top: 2px;"></i></a>&nbsp;'
-          								+'<a href="javascript:void(0)" data-id="'+value.id+'" data-kodekegiatan="'+value.id_unik+'" data-kodeprogram="'+value.kode_program+'" data-idprogram="'+value.id_program+'" class="btn btn-danger btn-hapus-kegiatan"><i class="dashicons dashicons-trash" style="margin-top: 2px;"></i></a>'
+          								+'<a href="javascript:void(0)" data-kodekegiatan="'+value.id_unik+'" class="btn btn-warning btn-kelola-indikator-kegiatan" title="Lihat Indikator Kegiatan"><i class="dashicons dashicons-menu-alt" style="margin-top: 2px;"></i></a>&nbsp;'	
+          								+'<a href="javascript:void(0)" data-id="'+value.id+'" data-kodekegiatan="'+value.id_unik+'" data-idprogram="'+value.id_program+'" class="btn btn-success btn-edit-kegiatan" title="Edit Kegiatan"><i class="dashicons dashicons-edit" style="margin-top: 2px;"></i></a>&nbsp;'
+          								+'<a href="javascript:void(0)" data-id="'+value.id+'" data-kodekegiatan="'+value.id_unik+'" data-kodeprogram="'+value.kode_program+'" data-idprogram="'+value.id_program+'" class="btn btn-danger btn-hapus-kegiatan" title="Hapus Kegiatan"><i class="dashicons dashicons-trash" style="margin-top: 2px;"></i></a>'
           							+'</td>'
           						+'</tr>'
   								+'<tr>'
@@ -4799,8 +4799,8 @@ foreach ($data_all['data'] as $tujuan) {
 				          		+"<td class='text-center'>"+value.target_akhir+"</td>"
 				          		+"<td><b>Penetapan</b><br>"+value.catatan+"</td>"
 				          		+"<td class='text-center' rowspan='2'>"
-				          			+"<a href='#' class='btn btn-success btn-edit-indikator-kegiatan' data-kodekegiatan='"+value.id_unik+"' data-id='"+value.id+"'><i class='dashicons dashicons-edit' style='margin-top: 2px;'></i></a>&nbsp"
-									+"<a href='#' class='btn btn-danger btn-delete-indikator-kegiatan' data-kodekegiatan='"+value.id_unik+"' data-id='"+value.id+"'><i class='dashicons dashicons-trash' style='margin-top: 2px;'></i></a>&nbsp;"
+				          			+"<a href='#' class='btn btn-success btn-edit-indikator-kegiatan' data-kodekegiatan='"+value.id_unik+"' data-id='"+value.id+"' title='Edit Indikator Indikator'><i class='dashicons dashicons-edit' style='margin-top: 2px;'></i></a>&nbsp"
+									+"<a href='#' class='btn btn-danger btn-delete-indikator-kegiatan' data-kodekegiatan='"+value.id_unik+"' data-id='"+value.id+"' title='Hapus Indikator Kegiatan'><i class='dashicons dashicons-trash' style='margin-top: 2px;'></i></a>&nbsp;"
 				          		+"</td>"
 				          	+"</tr>"
 			          		+"<tr>"
