@@ -1088,17 +1088,17 @@ class Wpsipd_Public_Base_3
 			throw new Exception('Satuan usulan indikator tujuan tidak boleh kosong!');
 		}
 
-		if(empty($data['target_awal_usulan'])){
+		if($data['target_awal_usulan'] < 0 || $data['target_awal_usulan'] == ''){
 			throw new Exception('Target awal usulan Indikator tujuan tidak boleh kosong!');
 	 	}
 
 		for ($i=1; $i <= $data['lama_pelaksanaan'] ; $i++) { 
-			if(empty($data['target_'.$i.'_usulan'])){
+			if($data['target_'.$i.'_usulan'] < 0 || $data['target_'.$i.'_usulan'] == ''){
 				throw new Exception('Target usulan Indikator tujuan tahun ke-'.$i.' tidak boleh kosong!');
 			}
 		}
 
-		if(empty($data['target_akhir_usulan'])){
+		if($data['target_akhir_usulan'] < 0 || $data['target_akhir_usulan'] == ''){
 			throw new Exception('Target akhir usulan Indikator tujuan tidak boleh kosong!');
 		}		
 	}
@@ -1897,17 +1897,17 @@ class Wpsipd_Public_Base_3
 			throw new Exception('Satuan indikator sasaran usulan tidak boleh kosong!');
 		}
 
-		if(empty($data['target_awal_usulan'])){
+		if($data['target_awal_usulan'] < 0 || $data['target_awal_usulan'] == ''){
 			throw new Exception('Target awal usulan Indikator sasaran tidak boleh kosong!');
 		}
 
 		for ($i=1; $i <= $data['lama_pelaksanaan'] ; $i++) { 
-			if(empty($data['target_'.$i.'_usulan'])){
+			if($data['target_'.$i.'_usulan'] < 0 || $data['target_'.$i.'_usulan'] == ''){
 				throw new Exception('Target usulan Indikator sasaran tahun ke-'.$i.' tidak boleh kosong!');
 			}
 		}
 
-		if(empty($data['target_akhir_usulan'])){
+		if($data['target_akhir_usulan'] < 0 || $data['target_akhir_usulan'] == ''){
 			throw new Exception('Target akhir usulan Indikator sasaran tidak boleh kosong!');
 		}		
 	}
