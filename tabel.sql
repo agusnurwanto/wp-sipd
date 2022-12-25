@@ -160,6 +160,20 @@ CREATE TABLE `data_capaian_prog_sub_keg` (
   PRIMARY KEY  (id)
 );
 
+CREATE TABLE `data_capaian_prog_sub_keg_lokal` (
+  `id` int(11) NOT NULL auto_increment,
+  `satuancapaian` varchar(50) DEFAULT NULL,
+  `targetcapaianteks` varchar(50) DEFAULT NULL,
+  `capaianteks` text,
+  `targetcapaian` int(11) DEFAULT NULL,
+  `kode_sbl` varchar(50) DEFAULT NULL,
+  `idsubbl` int(11) DEFAULT NULL,
+  `active` tinyint(4) DEFAULT '1',
+  `update_at` datetime NOT NULL,
+  `tahun_anggaran` year(4) NOT NULL,
+  PRIMARY KEY  (id)
+);
+
 CREATE TABLE `data_dana_sub_keg` (
   `id` int(11) NOT NULL auto_increment,
   `namadana` text DEFAULT NULL,
@@ -177,6 +191,20 @@ CREATE TABLE `data_dana_sub_keg` (
 
 
 CREATE TABLE `data_output_giat_sub_keg` (
+  `id` int(11) NOT NULL auto_increment,
+  `outputteks` text,
+  `satuanoutput` varchar(50) DEFAULT NULL,
+  `targetoutput` int(11) DEFAULT NULL,
+  `targetoutputteks` varchar(50) DEFAULT NULL,
+  `kode_sbl` varchar(50) DEFAULT NULL,
+  `idsubbl` int(11) DEFAULT NULL,
+  `active` tinyint(4) DEFAULT '1',
+  `update_at` datetime NOT NULL,
+  `tahun_anggaran` year(4) NOT NULL,
+  PRIMARY KEY  (id)
+);
+
+CREATE TABLE `data_output_giat_sub_keg_lokal` (
   `id` int(11) NOT NULL auto_increment,
   `outputteks` text,
   `satuanoutput` varchar(50) DEFAULT NULL,
@@ -244,6 +272,21 @@ CREATE TABLE `data_ssh_rek_belanja` (
 );
 
 CREATE TABLE `data_sub_keg_indikator` (
+  `id` int(11) NOT NULL auto_increment,
+  `outputteks` text NOT NULL,
+  `targetoutput` int(11) NOT NULL,
+  `satuanoutput` text NOT NULL,
+  `idoutputbl` int(11) NOT NULL,
+  `targetoutputteks` text NOT NULL,
+  `kode_sbl` varchar(50) NOT NULL,
+  `idsubbl` int(11) DEFAULT NULL,
+  `active` tinyint(4) DEFAULT '1',
+  `update_at` datetime NOT NULL,
+  `tahun_anggaran` year(4) NOT NULL,
+  PRIMARY KEY  (id)
+);
+
+CREATE TABLE `data_sub_keg_indikator_lokal` (
   `id` int(11) NOT NULL auto_increment,
   `outputteks` text NOT NULL,
   `targetoutput` int(11) NOT NULL,
@@ -628,6 +671,23 @@ CREATE TABLE `data_renstra` (
 );
 
 CREATE TABLE `data_lokasi_sub_keg` (
+  `id` int(11) NOT NULL auto_increment,
+  `camatteks` text,
+  `daerahteks` text,
+  `idcamat` int(11) DEFAULT NULL,
+  `iddetillokasi` double DEFAULT NULL,
+  `idkabkota` int(11) DEFAULT NULL,
+  `idlurah` int(11) DEFAULT NULL,
+  `lurahteks` text,
+  `kode_sbl` varchar(50) DEFAULT NULL,
+  `idsubbl` int(11) DEFAULT NULL,
+  `active` tinyint(4) DEFAULT NULL,
+  `update_at` datetime NOT NULL,
+  `tahun_anggaran` year(4) NOT NULL,
+  PRIMARY KEY  (id)
+);
+
+CREATE TABLE `data_lokasi_sub_keg_lokal` (
   `id` int(11) NOT NULL auto_increment,
   `camatteks` text,
   `daerahteks` text,
@@ -1083,6 +1143,72 @@ CREATE TABLE `data_rpjmd_tujuan` (
 );
 
 CREATE TABLE `data_sub_keg_bl` (
+  `id` int(11) NOT NULL auto_increment,
+  `id_sub_skpd` int(11) NOT NULL,
+  `id_lokasi` int(11) DEFAULT NULL,
+  `id_label_kokab` int(11) NOT NULL,
+  `nama_dana` text,
+  `no_sub_giat` varchar(20) NOT NULL,
+  `kode_giat` varchar(50) NOT NULL,
+  `id_program` int(11) NOT NULL,
+  `nama_lokasi` text DEFAULT NULL,
+  `waktu_akhir` int(11) NOT NULL,
+  `pagu_n_lalu` double(20, 0) DEFAULT NULL,
+  `id_urusan` int(11) NOT NULL,
+  `id_unik_sub_bl` text NOT NULL,
+  `id_sub_giat` int(11) NOT NULL,
+  `label_prov` text,
+  `kode_program` varchar(50) NOT NULL,
+  `kode_sub_giat` varchar(50) NOT NULL,
+  `no_program` varchar(20) NOT NULL,
+  `kode_urusan` varchar(20) NOT NULL,
+  `kode_bidang_urusan` varchar(20) NOT NULL,
+  `nama_program` text NOT NULL,
+  `target_4` text,
+  `target_5` text,
+  `id_bidang_urusan` int(11) DEFAULT NULL,
+  `nama_bidang_urusan` text,
+  `target_3` text,
+  `no_giat` varchar(50) NOT NULL,
+  `id_label_prov` int(11) NOT NULL,
+  `waktu_awal` int(11) NOT NULL,
+  `pagumurni` double(20, 0) DEFAULT NULL,
+  `pagu` double(20, 0) NOT NULL,
+  `pagu_simda` double(20, 0) DEFAULT NULL,
+  `output_sub_giat` text,
+  `sasaran` text,
+  `indikator` text,
+  `id_dana` int(11) DEFAULT NULL,
+  `nama_sub_giat` text NOT NULL,
+  `pagu_n_depan` double(20, 0) NOT NULL,
+  `satuan` text,
+  `id_rpjmd` int(11) NOT NULL,
+  `id_giat` int(11) NOT NULL,
+  `id_label_pusat` int(11) NOT NULL,
+  `nama_giat` text NOT NULL,
+  `kode_skpd` varchar(50) NOT NULL,
+  `nama_skpd` text NOT NULL,
+  `kode_sub_skpd` varchar(50) NOT NULL,
+  `id_skpd` int(11) NOT NULL,
+  `id_sub_bl` int(11) DEFAULT NULL,
+  `nama_sub_skpd` text NOT NULL,
+  `target_1` text,
+  `nama_urusan` text NOT NULL,
+  `target_2` text,
+  `label_kokab` text,
+  `label_pusat` text,
+  `pagu_keg` double(20, 0) NOT NULL,
+  `pagu_fmis` double(20, 0) DEFAULT NULL,
+  `id_bl` int(11) DEFAULT NULL,
+  `kode_bl` varchar(50) NOT NULL,
+  `kode_sbl` varchar(50) NOT NULL,
+  `active` tinyint(4) DEFAULT '1',
+  `update_at` datetime NOT NULL,
+  `tahun_anggaran` year(4) NOT NULL DEFAULT '2021',
+  PRIMARY KEY  (id)
+);
+
+CREATE TABLE `data_sub_keg_bl_lokal` (
   `id` int(11) NOT NULL auto_increment,
   `id_sub_skpd` int(11) NOT NULL,
   `id_lokasi` int(11) DEFAULT NULL,
@@ -1912,7 +2038,92 @@ CREATE TABLE `data_sub_keg_bl_history` (
   PRIMARY KEY  (id)
 );
 
+CREATE TABLE `data_sub_keg_bl_lokal_history` (
+  `id` int(11) NOT NULL auto_increment,
+  `id_sub_skpd` int(11) NOT NULL,
+  `id_lokasi` int(11) DEFAULT NULL,
+  `id_label_kokab` int(11) NOT NULL,
+  `nama_dana` text CHARACTER SET latin1,
+  `no_sub_giat` varchar(20) CHARACTER SET latin1 NOT NULL,
+  `kode_giat` varchar(50) CHARACTER SET latin1 NOT NULL,
+  `id_program` int(11) NOT NULL,
+  `nama_lokasi` text CHARACTER SET latin1,
+  `waktu_akhir` int(11) NOT NULL,
+  `pagu_n_lalu` double(20,0) DEFAULT NULL,
+  `id_urusan` int(11) NOT NULL,
+  `id_unik_sub_bl` text CHARACTER SET latin1 NOT NULL,
+  `id_sub_giat` int(11) NOT NULL,
+  `label_prov` text CHARACTER SET latin1,
+  `kode_program` varchar(50) CHARACTER SET latin1 NOT NULL,
+  `kode_sub_giat` varchar(50) CHARACTER SET latin1 NOT NULL,
+  `no_program` varchar(20) CHARACTER SET latin1 NOT NULL,
+  `kode_urusan` varchar(20) CHARACTER SET latin1 NOT NULL,
+  `kode_bidang_urusan` varchar(20) CHARACTER SET latin1 NOT NULL,
+  `nama_program` text CHARACTER SET latin1 NOT NULL,
+  `target_4` text CHARACTER SET latin1,
+  `target_5` text CHARACTER SET latin1,
+  `id_bidang_urusan` int(11) DEFAULT NULL,
+  `nama_bidang_urusan` text CHARACTER SET latin1,
+  `target_3` text CHARACTER SET latin1,
+  `no_giat` varchar(50) CHARACTER SET latin1 NOT NULL,
+  `id_label_prov` int(11) NOT NULL,
+  `waktu_awal` int(11) NOT NULL,
+  `pagumurni` double(20,0) DEFAULT NULL,
+  `pagu` double(20,0) NOT NULL,
+  `pagu_simda` double(20,0) DEFAULT NULL,
+  `output_sub_giat` text CHARACTER SET latin1,
+  `sasaran` text CHARACTER SET latin1,
+  `indikator` text CHARACTER SET latin1,
+  `id_dana` int(11) DEFAULT NULL,
+  `nama_sub_giat` text CHARACTER SET latin1 NOT NULL,
+  `pagu_n_depan` double(20,0) NOT NULL,
+  `satuan` text CHARACTER SET latin1,
+  `id_rpjmd` int(11) NOT NULL,
+  `id_giat` int(11) NOT NULL,
+  `id_label_pusat` int(11) NOT NULL,
+  `nama_giat` text CHARACTER SET latin1 NOT NULL,
+  `kode_skpd` varchar(50) CHARACTER SET latin1 NOT NULL,
+  `nama_skpd` text CHARACTER SET latin1 NOT NULL,
+  `kode_sub_skpd` varchar(50) CHARACTER SET latin1 NOT NULL,
+  `id_skpd` int(11) NOT NULL,
+  `id_sub_bl` int(11) DEFAULT NULL,
+  `nama_sub_skpd` text CHARACTER SET latin1 NOT NULL,
+  `target_1` text CHARACTER SET latin1,
+  `nama_urusan` text CHARACTER SET latin1 NOT NULL,
+  `target_2` text CHARACTER SET latin1,
+  `label_kokab` text CHARACTER SET latin1,
+  `label_pusat` text CHARACTER SET latin1,
+  `pagu_keg` double(20,0) NOT NULL,
+  `pagu_fmis` double(20, 0) DEFAULT NULL,
+  `id_bl` int(11) DEFAULT NULL,
+  `kode_bl` varchar(50) CHARACTER SET latin1 NOT NULL,
+  `kode_sbl` varchar(50) CHARACTER SET latin1 NOT NULL,
+  `active` tinyint(4) DEFAULT '1',
+  `update_at` datetime NOT NULL,
+  `tahun_anggaran` year(4) NOT NULL DEFAULT '2021',
+  `id_asli` int(11) NOT NULL,
+  `id_jadwal` int(11) NOT NULL,
+  PRIMARY KEY  (id)
+);
+
 CREATE TABLE `data_sub_keg_indikator_history` (
+  `id` int(11) NOT NULL auto_increment,
+  `outputteks` text NOT NULL,
+  `targetoutput` int(11) NOT NULL,
+  `satuanoutput` text NOT NULL,
+  `idoutputbl` int(11) NOT NULL,
+  `targetoutputteks` text NOT NULL,
+  `kode_sbl` varchar(50) NOT NULL,
+  `idsubbl` int(11) DEFAULT NULL,
+  `active` tinyint(4) DEFAULT '1',
+  `update_at` datetime NOT NULL,
+  `tahun_anggaran` year(4) NOT NULL,
+  `id_asli` int(11) NOT NULL,
+  `id_jadwal` int(11) NOT NULL,
+  PRIMARY KEY  (id)
+);
+
+CREATE TABLE `data_sub_keg_indikator_lokal_history` (
   `id` int(11) NOT NULL auto_increment,
   `outputteks` text NOT NULL,
   `targetoutput` int(11) NOT NULL,
@@ -1976,7 +2187,39 @@ CREATE TABLE `data_capaian_prog_sub_keg_history` (
   PRIMARY KEY  (id)
 );
 
+CREATE TABLE `data_capaian_prog_sub_keg_lokal_history` (
+  `id` int(11) NOT NULL auto_increment,
+  `satuancapaian` varchar(50) DEFAULT NULL,
+  `targetcapaianteks` varchar(50) DEFAULT NULL,
+  `capaianteks` text,
+  `targetcapaian` int(11) DEFAULT NULL,
+  `kode_sbl` varchar(50) DEFAULT NULL,
+  `idsubbl` int(11) DEFAULT NULL,
+  `active` tinyint(4) DEFAULT '1',
+  `update_at` datetime NOT NULL,
+  `tahun_anggaran` year(4) NOT NULL,
+  `id_asli` int(11) NOT NULL,
+  `id_jadwal` int(11) NOT NULL,
+  PRIMARY KEY  (id)
+);
+
 CREATE TABLE `data_output_giat_sub_keg_history` (
+  `id` int(11) NOT NULL auto_increment,
+  `outputteks` text,
+  `satuanoutput` varchar(50) DEFAULT NULL,
+  `targetoutput` int(11) DEFAULT NULL,
+  `targetoutputteks` varchar(50) DEFAULT NULL,
+  `kode_sbl` varchar(50) DEFAULT NULL,
+  `idsubbl` int(11) DEFAULT NULL,
+  `active` tinyint(4) DEFAULT '1',
+  `update_at` datetime NOT NULL,
+  `tahun_anggaran` year(4) NOT NULL,
+  `id_asli` int(11) NOT NULL,
+  `id_jadwal` int(11) NOT NULL,
+  PRIMARY KEY  (id)
+);
+
+CREATE TABLE `data_output_giat_sub_keg_lokal_history` (
   `id` int(11) NOT NULL auto_increment,
   `outputteks` text,
   `satuanoutput` varchar(50) DEFAULT NULL,
@@ -2010,6 +2253,25 @@ CREATE TABLE `data_dana_sub_keg_history` (
 );
 
 CREATE TABLE `data_lokasi_sub_keg_history` (
+  `id` int(11) NOT NULL auto_increment,
+  `camatteks` text,
+  `daerahteks` text,
+  `idcamat` int(11) DEFAULT NULL,
+  `iddetillokasi` double DEFAULT NULL,
+  `idkabkota` int(11) DEFAULT NULL,
+  `idlurah` int(11) DEFAULT NULL,
+  `lurahteks` text,
+  `kode_sbl` varchar(50) DEFAULT NULL,
+  `idsubbl` int(11) DEFAULT NULL,
+  `active` tinyint(4) DEFAULT NULL,
+  `update_at` datetime NOT NULL,
+  `tahun_anggaran` year(4) NOT NULL,
+  `id_asli` int(11) NOT NULL,
+  `id_jadwal` int(11) NOT NULL,
+  PRIMARY KEY  (id)
+);
+
+CREATE TABLE `data_lokasi_sub_keg_lokal_history` (
   `id` int(11) NOT NULL auto_increment,
   `camatteks` text,
   `daerahteks` text,

@@ -10,10 +10,17 @@ $input = shortcode_atts( array(
 ), $atts );
 $nama_pemda = get_option('_crb_daerah');
 
+$tahun_anggaran = '2022';
+$namaJadwal = '-';
+$mulaiJadwal = '-';
+$selesaiJadwal = '-';
+$relasi_perencanaan = '-';
+$id_tipe_relasi = '-';
+
 $sql = "
     SELECT 
         *
-    FROM data_sub_keg_bl
+    FROM data_sub_keg_bl_lokal
     WHERE id_sub_skpd=%d
         AND tahun_anggaran=%d";
 $subkeg = $wpdb->get_results($wpdb->prepare($sql,$input['id_skpd'], $input['tahun_anggaran']), ARRAY_A);
@@ -21,15 +28,20 @@ $subkeg = $wpdb->get_results($wpdb->prepare($sql,$input['id_skpd'], $input['tahu
 $cek_jadwal = $this->validasi_jadwal_perencanaan('renja');
 $jadwal_lokal = $cek_jadwal['data'];
 if(!empty($jadwal_lokal)){
+    if(!empty($jadwal_lokal[0]['relasi_perencanaan'])){
+        $relasi = $wpdb->get_row("
+            SELECT 
+                id_tipe 
+            FROM `data_jadwal_lokal`
+            WHERE id_jadwal_lokal=".$jadwal_lokal[0]['relasi_perencanaan']);
+
+        $relasi_perencanaan = $jadwal_lokal[0]['relasi_perencanaan'];
+        $id_tipe_relasi = $relasi->id_tipe;
+    }
 	$tahun_anggaran = $jadwal_lokal[0]['tahun_anggaran'];
 	$namaJadwal = $jadwal_lokal[0]['nama'];
 	$mulaiJadwal = $jadwal_lokal[0]['waktu_awal'];
 	$selesaiJadwal = $jadwal_lokal[0]['waktu_akhir'];
-}else{
-	$tahun_anggaran = '2022';
-	$namaJadwal = '-';
-	$mulaiJadwal = '-';
-	$selesaiJadwal = '-';
 }
 
 // nomor urut tahun anggaran RENJA sesuai jadwal tahun awal di RENSTRA
@@ -49,7 +61,7 @@ foreach ($subkeg as $kk => $sub) {
     $capaian_prog = $wpdb->get_results($wpdb->prepare("
         select 
             * 
-        from data_capaian_prog_sub_keg 
+        from data_capaian_prog_sub_keg_lokal 
         where tahun_anggaran=%d
             and active=1
             and kode_sbl=%s
@@ -60,7 +72,7 @@ foreach ($subkeg as $kk => $sub) {
     $output_giat = $wpdb->get_results($wpdb->prepare("
         select 
             * 
-        from data_output_giat_sub_keg 
+        from data_output_giat_sub_keg_lokal 
         where tahun_anggaran=%d
             and active=1
             and kode_sbl=%s
@@ -70,7 +82,7 @@ foreach ($subkeg as $kk => $sub) {
     $output_sub_giat = $wpdb->get_results($wpdb->prepare("
         select 
             * 
-        from data_sub_keg_indikator
+        from data_sub_keg_indikator_lokal
         where tahun_anggaran=%d
             and active=1
             and kode_sbl=%s
@@ -80,7 +92,7 @@ foreach ($subkeg as $kk => $sub) {
     $lokasi_sub_giat = $wpdb->get_results($wpdb->prepare("
         select 
             * 
-        from data_lokasi_sub_keg
+        from data_lokasi_sub_keg_lokal
         where tahun_anggaran=%d
             and active=1
             and kode_sbl=%s
@@ -89,41 +101,18 @@ foreach ($subkeg as $kk => $sub) {
 
     $nama = explode(' ', $sub['nama_sub_giat']);
     $kode_sub_giat = $nama[0];
-    $data_renstra = $wpdb->get_results($wpdb->prepare("
+    $data_renstra = array();
+    $_nama_skpd = $wpdb->get_row($wpdb->prepare("
         select 
-            * 
-        from data_renstra
-        where tahun_anggaran=%d
+            nama_skpd 
+        from data_unit
+        where 
+            id_skpd=%d 
+            and tahun_anggaran=%d
             and active=1
-            and kode_sub_giat=%s
-            and id_unit=%s
         order by id ASC
-    ", $input['tahun_anggaran'], $kode_sub_giat, $sub['id_skpd']), ARRAY_A);
-    $data_rpjmd = array();
-    if(!empty($data_renstra)){
-        $data_rpjmd = $wpdb->get_results($wpdb->prepare("
-            select 
-                * 
-            from data_rpjmd
-            where 
-                id_rpjmd=%d 
-                and tahun_anggaran=%d
-            order by id ASC
-        ", $data_renstra[0]['id_rpjmd'], $input['tahun_anggaran']), ARRAY_A);
-        $nama_skpd = $data_renstra[0]['nama_skpd'];
-    }else{
-        $_nama_skpd = $wpdb->get_row($wpdb->prepare("
-            select 
-                nama_skpd 
-            from data_unit
-            where 
-                id_skpd=%d 
-                and tahun_anggaran=%d
-                and active=1
-            order by id ASC
-        ", $sub['id_skpd'], $input['tahun_anggaran']), ARRAY_A);
-        $nama_skpd = $_nama_skpd['nama_skpd'];
-    }
+    ", $sub['id_skpd'], $input['tahun_anggaran']), ARRAY_A);
+    $nama_skpd = $_nama_skpd['nama_skpd'];
     // die($wpdb->last_query);
 
 
@@ -429,50 +418,147 @@ echo '
         </table>
     </div>
 ';
-echo '
-	<div class="modal fade mt-4" id="modalTambahRenja" tabindex="-1" role="dialog" aria-labelledby="modalTambahRenjaLabel" aria-hidden="true">
-		<div class="modal-dialog modal-lg" role="document">
-			<div class="modal-content">
-				<div class="modal-header">
-					<h5 class="modal-title" id="modalTambahRenjaLabel">Tambah Renja</h5>
-					<button type="button" class="close" data-dismiss="modal" aria-label="Close">
-					<span aria-hidden="true">&times;</span>
-					</button>
-				</div>
-				<div class="modal-body">
-					<div>
-						<label for="input_sub_unit" style="display:inline-block">Sub Unit</label>
-                        <select id="input_sub_unit" style="display:block;width:100%;"></select>
-					</div>
-					<div>
-						<label for="input_prioritas_provinsi" style="display:inline-block">Prioritas Pembangunan Provinsi</label>
-						<input type="number" id="input_prioritas_provinsi" name="input_prioritas_provinsi" style="display:block;width:100%;" placeholder="Prioritas Pembangunan Provinsi"/>
-					</div>
-					<div>
-						<label for="input_prioritas_kab_kota" style="display:inline-block">Prioritas Pembangunan Kabupaten/Kota</label>
-						<input type="number" id="input_prioritas_kab_kota" name="input_prioritas_kab_kota" style="display:block;width:100%;" placeholder="Prioritas Pembangunan Kabupaten/Kota"/>
-					</div>
-					<div>
-						<label for="jadwal_tanggal" style="display:inline-block">Jadwal Pelaksanaan</label>
-						<input type="text" id="jadwal_tanggal" name="datetimes" style="display:block;width:100%;"/>
-					</div>
-					<div>
-						<label for="link_rpd_rpjm" style="display:inline-block">Pilih Jadwal RPD atau RPJM</label>
-						<select id="link_rpd_rpjm" style="display:block;width: 100%;">
-							<option value="">Pilih RPD atau RPJM</option>
-							<?php echo $select_rpd_rpjm; ?>
-						</select>
-					</div>
-				</div> 
-				<div class="modal-footer">
-					<button class="btn btn-primary submitBtn" onclick="submitTambahRenjaForm()">Simpan</button>
-					<button type="submit" class="components-button btn btn-secondary" data-dismiss="modal">Tutup</button>
-				</div>
+?>
+
+<div class="modal fade mt-4" id="modalTambahRenja" role="dialog" aria-labelledby="modalTambahRenjaLabel" aria-hidden="true">
+	<div class="modal-dialog modal-lg" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title" id="modalTambahRenjaLabel">Tambah Sub Kegiatan</h5>
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+				<span aria-hidden="true">&times;</span>
+				</button>
+			</div>
+			<div class="modal-body">
+                <form>
+                    <div class="form-group">
+    					<label for="input_sub_unit">Sub Unit</label>
+                        <select class="form-control" id="input_sub_unit"></select>
+    				</div>
+    				<div class="form-group">
+    					<label for="input_prioritas_provinsi">Prioritas Pembangunan Provinsi</label>
+    					<select class="form-control" id="input_prioritas_provinsi" name="input_prioritas_provinsi">
+                            <option value="">Pilih Prioritas Pembangunan Provinsi</option>
+                        </select>
+    				</div>
+    				<div class="form-group">
+    					<label for="input_prioritas_kab_kota">Prioritas Pembangunan Kabupaten/Kota</label>
+    					<select class="form-control" id="input_prioritas_kab_kota" name="input_prioritas_kab_kota">
+                            <option value="">Pilih Prioritas Pembangunan Kabupaten/Kota</option>
+                        </select>
+    				</div>
+    				<div class="form-group">
+    					<label for="sub_kegiatan">Sub Kegiatan</label>
+    					<select class="form-control" id="sub_kegiatan">
+    						<option value="">Pilih Sub Kegiatan</option>
+    					</select>
+    				</div>
+                    <div class="form-group">
+                        <label for="label_tag">Label (Tag) Sub Kegiatan</label>
+                        <select class="form-control" id="label_tag">
+                            <option value="">Pilih Sub Kegiatan</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="sumber_dana">Sumber Dana</label>
+                        <table style="margin: 0;">
+                            <tr>
+                                <td style="width: 40%">
+                                    <select class="form-control" id="sumber_dana">
+                                        <option value="">Pilih Sumber Dana</option>
+                                    </select>
+                                </td>
+                                <td>
+                                    <input class="form-control" type="number" id="pagu_sumber_dana"/>
+                                </td>
+                                <td style="width: 70px" class="text-center">
+                                    <button class="btn btn-warning"><i class="dashicons dashicons-plus"></i></button>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+    				<div class="form-group">
+    					<label for="kabupaten">Lokasi Pelaksanaan</label>
+                        <table style="margin: 0;">
+                            <tr>
+                                <td>
+                                    <select class="form-control" id="kabupaten">
+                                        <option value="">Pilih Kabupaten / Kota</option>
+                                    </select>
+                                </td>
+                                <td style="width: 30%">
+                                    <select class="form-control" id="kecamatan">
+                                        <option value="">Pilih Kecamatan</option>
+                                    </select>
+                                </td>
+                                <td style="width: 30%">
+                                    <select class="form-control" id="desa">
+                                        <option value="">Pilih Desa</option>
+                                    </select>
+                                </td>
+                                <td style="width: 70px" class="text-center">
+                                    <button class="btn btn-warning"><i class="dashicons dashicons-plus"></i></button>
+                                </td>
+                            </tr>
+                        </table>
+    				</div>
+                    <div class="form-group">
+                        <label for="bulan_awal">Waktu Pelaksanaan</label>
+                        <table style="margin: 0;">
+                            <tr>
+                                <td style="width: 50%;">
+                                    <select class="form-control" id="bulan_awal">
+                                        <option value="">Pilih Bulan Awal</option>
+                                    </select>
+                                </td>
+                                <td style="width: 50%;">
+                                    <select class="form-control" id="bulan_akhir">
+                                        <option value="">Pilih Bulan Akhir</option>
+                                    </select>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                    <div class="form-group">
+                        <label for="pagu_sub_kegiatan">Anggaran Sub Kegiatan</label>
+                        <input class="form-control" type="number" id="pagu_sub_kegiatan"/>
+                    </div>
+                    <div class="form-group">
+                        <label for="pagu_sub_kegiatan_1">Anggaran Sub Kegiatan Tahun Berikutnya</label>
+                        <input class="form-control" type="number" id="pagu_sub_kegiatan_1"/>
+                    </div>
+                    <div class="form-group">
+                        <label for="bulan_awal">Indikator Sub Kegiatan</label>
+                        <table style="margin: 0;">
+                            <tr>
+                                <td>
+                                    <select class="form-control" id="tolak_ukur">
+                                        <option value="">Pilih Nama Indikator</option>
+                                    </select>
+                                </td>
+                                <td style="width: 100px;">
+                                    <input class="form-control" type="number" id="target" placeholder="Target Indikator"/>
+                                </td>
+                                <td style="width: 150px;">
+                                    <select class="form-control" id="satuan">
+                                        <option value="">Pilih Satuan</option>
+                                    </select>
+                                </td>
+                                <td style="width: 70px" class="text-center">
+                                    <button class="btn btn-warning"><i class="dashicons dashicons-plus"></i></button>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                </form>
+			</div> 
+			<div class="modal-footer">
+				<button class="btn btn-primary submitBtn" onclick="submitTambahRenjaForm()">Simpan</button>
+				<button type="submit" class="components-button btn btn-secondary" data-dismiss="modal">Tutup</button>
 			</div>
 		</div>
 	</div>
-';
-?>
+</div>
 
 <script type="text/javascript">
     run_download_excel();
@@ -513,7 +599,7 @@ echo '
 			success:function(response){
                 globalThis.dataSubUnit = response;
                 jQuery("#input_sub_unit").html(dataSubUnit.table_content);
-			    jQuery('#input_sub_unit').select2();
+			    jQuery('#input_sub_unit').select2({width: '100%'});
                 console.log(dataSubUnit.table_content);
 				// enable_button();
 			}
@@ -521,7 +607,7 @@ echo '
 	}
 
 	jQuery('#tambah-data').on('click', function(){
-		jQuery("#modalTambahRenja .modal-title").html("Tambah Renja");
+		jQuery("#modalTambahRenja .modal-title").html("Tambah Sub Kegiatan");
 		jQuery("#modalTambahRenja .submitBtn")
 			.attr("onclick", 'submitTambahRenjaForm()')
 			.attr("disabled", false)
