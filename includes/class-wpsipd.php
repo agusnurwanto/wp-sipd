@@ -623,6 +623,7 @@ class Wpsipd
 		$this->loader->add_action('wp_ajax_view_laporan_tc27',  $plugin_public, 'view_laporan_tc27_renstra');
 		$this->loader->add_action('wp_ajax_copy_usulan_renstra',  $plugin_public, 'copy_usulan_renstra');
 		$this->loader->add_action('wp_ajax_view_rekap_renstra',  $plugin_public, 'view_rekap_renstra');
+		$this->loader->add_action('wp_ajax_view_pagu_akumulasi_renstra',  $plugin_public, 'view_pagu_akumulasi_renstra');
 
 		$this->loader->add_action('wp_ajax_view_rekap_rpd',  $plugin_public, 'view_rekap_rpd');
 

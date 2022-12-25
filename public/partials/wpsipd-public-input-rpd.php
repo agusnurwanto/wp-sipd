@@ -1181,10 +1181,10 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
 						+'<td class="text-center">'+(no)+'</td>'
 						+'<td>'+res.data_all[b].nama+'</td>'
 						+'<td class="text-center aksi">'
-							+'<button class="btn-sm btn-primary" onclick="detail_tujuan(\''+res.data_all[b].id_unik+'\');"><i class="dashicons dashicons-search"></i></button>'
-							+'<button class="btn-sm btn-primary" onclick="tambah_tujuan_indikator(\''+res.data_all[b].id_unik+'\');"><i class="dashicons dashicons-plus"></i></button>'
-							+'<button class="btn-sm btn-warning" onclick="edit_tujuan(\''+res.data_all[b].id_unik+'\');"><i class="dashicons dashicons-edit"></i></button>'
-							+'<button class="btn-sm btn-danger" onclick="hapus_tujuan(\''+res.data_all[b].id_unik+'\');"><i class="dashicons dashicons-trash"></i></button>'
+							+'<button class="btn-sm btn-primary" onclick="detail_tujuan(\''+res.data_all[b].id_unik+'\');" title="Lihat Sasaran"><i class="dashicons dashicons-search"></i></button>'
+							+'<button class="btn-sm btn-primary" onclick="tambah_tujuan_indikator(\''+res.data_all[b].id_unik+'\');" title="Tambah Indikator Tujuan"><i class="dashicons dashicons-plus"></i></button>'
+							+'<button class="btn-sm btn-warning" onclick="edit_tujuan(\''+res.data_all[b].id_unik+'\');" title="Edit Tujuan"><i class="dashicons dashicons-edit"></i></button>'
+							+'<button class="btn-sm btn-danger" onclick="hapus_tujuan(\''+res.data_all[b].id_unik+'\');" title="Hapus Tujuan"><i class="dashicons dashicons-trash"></i></button>'
 						+'</td>'
 					+'</tr>';
 
@@ -1223,8 +1223,8 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
 								+'<td class="text-center">'+bb.target_akhir+'</td>'
 								+'<td class="text-center">'+satuan+'</td>'
 								+'<td class="text-center aksi">'
-									+'<button class="btn-sm btn-warning" onclick="edit_tujuan_indikator(\''+bb.id_unik_indikator+'\');"><i class="dashicons dashicons-edit"></i></button>'
-									+'<button class="btn-sm btn-danger" onclick="hapus_tujuan_indikator(\''+bb.id_unik_indikator+'\');"><i class="dashicons dashicons-trash"></i></button>'
+									+'<button class="btn-sm btn-warning" onclick="edit_tujuan_indikator(\''+bb.id_unik_indikator+'\');" title="Edit Indikator Tujuan"><i class="dashicons dashicons-edit"></i></button>'
+									+'<button class="btn-sm btn-danger" onclick="hapus_tujuan_indikator(\''+bb.id_unik_indikator+'\');" title="Hapus Indikator Tujuan"><i class="dashicons dashicons-trash"></i></button>'
 								+'</td>'
 							+'</tr>';
 						});
@@ -1291,10 +1291,10 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
 						+'<td class="text-center">'+(no)+'</td>'
 						+'<td>'+res.data_all[b].nama+'</td>'
 						+'<td class="text-center aksi">'
-							+'<button class="btn-sm btn-primary" onclick="detail_sasaran(\''+res.data_all[b].id_unik+'\');"><i class="dashicons dashicons-search"></i></button>'
-							+'<button class="btn-sm btn-primary" onclick="tambah_sasaran_indikator(\''+res.data_all[b].id_unik+'\');"><i class="dashicons dashicons-plus"></i></button>'
-							+'<button class="btn-sm btn-warning" onclick="edit_sasaran(\''+res.data_all[b].id_unik+'\');"><i class="dashicons dashicons-edit"></i></button>'
-							+'<button class="btn-sm btn-danger" onclick="hapus_sasaran(\''+res.data_all[b].id_unik+'\');"><i class="dashicons dashicons-trash"></i></button>'
+							+'<button class="btn-sm btn-primary" onclick="detail_sasaran(\''+res.data_all[b].id_unik+'\');" title="Lihat Program"><i class="dashicons dashicons-search"></i></button>'
+							+'<button class="btn-sm btn-primary" onclick="tambah_sasaran_indikator(\''+res.data_all[b].id_unik+'\');" title="Tambah Indikator Sasaran"><i class="dashicons dashicons-plus"></i></button>'
+							+'<button class="btn-sm btn-warning" onclick="edit_sasaran(\''+res.data_all[b].id_unik+'\');" title="Edit Sasaran"><i class="dashicons dashicons-edit"></i></button>'
+							+'<button class="btn-sm btn-danger" onclick="hapus_sasaran(\''+res.data_all[b].id_unik+'\');" title="Hapus Sasaran"><i class="dashicons dashicons-trash"></i></button>'
 						+'</td>'
 					+'</tr>';
 
@@ -1333,8 +1333,8 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
 								+'<td class="text-center">'+bb.target_akhir+'</td>'
 								+'<td class="text-center">'+satuan+'</td>'
 								+'<td class="text-center aksi">'
-									+'<button class="btn-sm btn-warning" onclick="edit_sasaran_indikator(\''+bb.id_unik_indikator+'\');"><i class="dashicons dashicons-edit"></i></button>'
-									+'<button class="btn-sm btn-danger" onclick="hapus_sasaran_indikator(\''+bb.id_unik_indikator+'\');"><i class="dashicons dashicons-trash"></i></button>'
+									+'<button class="btn-sm btn-warning" onclick="edit_sasaran_indikator(\''+bb.id_unik_indikator+'\');" title="Edit Indikator Sasaran"><i class="dashicons dashicons-edit"></i></button>'
+									+'<button class="btn-sm btn-danger" onclick="hapus_sasaran_indikator(\''+bb.id_unik_indikator+'\');" title="Hapus Indikator Sasaran"><i class="dashicons dashicons-trash"></i></button>'
 								+'</td>'
 							+'</tr>';
 						});
@@ -1405,9 +1405,9 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
 						+'<td class="text-center">'+(no)+'</td>'
 						+'<td>'+res.data_all[b].nama+'</td>'
 						+'<td class="text-center aksi">'
-							+'<button class="btn-sm btn-primary" onclick="tambah_program_indikator(\''+res.data_all[b].id_unik+'\');"><i class="dashicons dashicons-plus"></i></button>'
-							+'<button class="btn-sm btn-warning" onclick="edit_program(\''+res.data_all[b].id_unik+'\');"><i class="dashicons dashicons-edit"></i></button>'
-							+'<button class="btn-sm btn-danger" onclick="hapus_program(\''+res.data_all[b].id_unik+'\');"><i class="dashicons dashicons-trash"></i></button>'
+							+'<button class="btn-sm btn-primary" onclick="tambah_program_indikator(\''+res.data_all[b].id_unik+'\');" title="Tambah Indikator Program"><i class="dashicons dashicons-plus"></i></button>'
+							+'<button class="btn-sm btn-warning" onclick="edit_program(\''+res.data_all[b].id_unik+'\');" title="Edit Program"><i class="dashicons dashicons-edit"></i></button>'
+							+'<button class="btn-sm btn-danger" onclick="hapus_program(\''+res.data_all[b].id_unik+'\');" title="Hapus Program"><i class="dashicons dashicons-trash"></i></button>'
 						+'</td>'
 					+'</tr>';
 
@@ -1442,8 +1442,8 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
 								+'<td class="text-center">'+bb.target_akhir+'</td>'
 								+'<td>'+bb.kode_skpd+' '+bb.nama_skpd+'</td>'
 								+'<td class="text-center aksi">'
-									+'<button class="btn-sm btn-warning" onclick="edit_program_indikator(\''+bb.id_unik_indikator+'\');"><i class="dashicons dashicons-edit"></i></button>'
-									+'<button class="btn-sm btn-danger" onclick="hapus_program_indikator(\''+bb.id_unik_indikator+'\');"><i class="dashicons dashicons-trash"></i></button>'
+									+'<button class="btn-sm btn-warning" onclick="edit_program_indikator(\''+bb.id_unik_indikator+'\');" title="Edit Indikator Program"><i class="dashicons dashicons-edit"></i></button>'
+									+'<button class="btn-sm btn-danger" onclick="hapus_program_indikator(\''+bb.id_unik_indikator+'\');" title="Hapus Indikator Program"><i class="dashicons dashicons-trash"></i></button>'
 								+'</td>'
 							+'</tr>';
 						});

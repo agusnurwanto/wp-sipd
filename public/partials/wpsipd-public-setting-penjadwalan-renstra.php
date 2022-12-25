@@ -478,9 +478,10 @@ $body = '';
 					    	<div class="col-md-2">Jenis Laporan</div>
 					    	<div class="col-md-6">
 					      		<select class="form-control jenis" id="jenis">
-					      			<option>Pilih Jenis</option>
+					      			<option value="-">Pilih Jenis</option>
 					      			<option value="rekap">Format Renstra</option>
-					      			<option value="tc27">TC 27</option>
+					      			<option value="tc27">Format TC 27</option>
+					      			<option value="pagu_akumulasi">Format Pagu Akumulasi</option>
 				      			</select>
 					    	</div>
 					    </div></br>
@@ -515,7 +516,7 @@ $body = '';
 				tahun_anggaran:tahunAnggaran
 			},
 			success:function(response){
-				let list_opd=`<option value="">Pilih OPD</option>`;
+				let list_opd=`<option value="">Pilih Unit Kerja</option><option value="all">Semua Unit Kerja</option>`;
 				response.map(function(v,i){
 					list_opd+=`<option value="${v.id_skpd}">${v.nama_skpd}</option>`;
 				});
@@ -536,6 +537,11 @@ $body = '';
 			return;
 		}
 
+		if(id_unit=='all' && jenis!='pagu_akumulasi' && jenis!='-'){
+			alert('Pilih minimal satu Unit Kerja!');
+			return;
+		}
+
 		switch(jenis){
 			case 'rekap':
 				rekap(id_unit, awal_renstra, akhir_renstra, lama_pelaksanaan, relasi_perencanaan);
@@ -545,7 +551,11 @@ $body = '';
 				tc27(id_unit, awal_renstra, akhir_renstra, lama_pelaksanaan);
 				break;
 
-			default:
+			case 'pagu_akumulasi':
+				pagu_akumulasi(id_unit, awal_renstra, akhir_renstra, lama_pelaksanaan);
+				break;
+
+			case '-':
 				alert('Jenis laporan belum dipilih');
 				break;
 		}
@@ -607,6 +617,36 @@ $body = '';
 				jQuery("#table-renstra th.row_head_1").attr('rowspan',3);
 				jQuery("#table-renstra th.row_head_kinerja").attr('colspan',2*lama_pelaksanaan);
 				jQuery("#table-renstra th.row_head_1_tahun").attr('colspan',2);
+			}
+		})
+	}
+
+	function pagu_akumulasi(id_unit, awal_renstra, akhir_renstra, lama_pelaksanaan){
+		jQuery("#wrap-loading").show();
+		jQuery.ajax({
+			url:ajax.url,
+			type:'post',
+			dataType:'json',
+			data:{
+				action:'view_pagu_akumulasi_renstra',
+				id_unit:id_unit,
+				awal_renstra:awal_renstra,
+				akhir_renstra:akhir_renstra,
+				lama_pelaksanaan:lama_pelaksanaan,
+				tahun_anggaran:tahunAnggaran,
+				api_key:jQuery("#api_key").val(),
+			},
+			success:function(response){
+				jQuery('#wrap-loading').hide();
+				jQuery("#modal-report .modal-preview").html(response.html);
+				jQuery("#modal-report .modal-preview").css('overflow-x', 'auto');
+				jQuery("#modal-report .modal-preview").css('padding', '15px');
+				jQuery('#modal-report .export-excel').attr("disabled", false);
+				jQuery('#modal-report .export-excel').attr("title", 'Laporan Pagu Akumulasi');
+
+				jQuery("#table-renstra th.row_head").attr('rowspan',2);
+				jQuery("#table-renstra th.row_head_tahun").attr('colspan',2);
+				jQuery("#table-renstra th.row_head_tahun_usulan").attr('colspan',2);
 			}
 		})
 	}
