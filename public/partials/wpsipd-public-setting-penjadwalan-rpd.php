@@ -434,12 +434,12 @@ $body = '';
 			      
 			      <div class="modal-body">
 				    <div class="container-fluid">
-					     <div class="row">
+						<div class="row">
 					    	<div class="col-md-2">Jenis Laporan</div>
 					    	<div class="col-md-6">
 					      		<select class="form-control jenis" id="jenis">
 					      			<option>Pilih Jenis</option>
-					      			<option value="rekap">Format RPD</option>>
+					      			<option value="rekap">Format RPD</option>
 				      			</select>
 					    	</div>
 					    </div></br>

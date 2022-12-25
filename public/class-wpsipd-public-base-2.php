@@ -1236,7 +1236,7 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 						</style>';
 					$html .='
 					<div id="preview">
-						<h4 style="text-align: center; margin: 0; font-weight: bold;">Monitoring dan Evaluasiaaaa RPD (Rencana Pembangunan Daerah) <br>'.$nama_pemda .'<br>'. $awal_rpd.' - '.$akhir_rpd .'</h4>
+						<h4 style="text-align: center; margin: 0; font-weight: bold;">Monitoring dan Evaluasi RPD (Rencana Pembangunan Daerah) <br>'.$nama_pemda .'<br>'. $awal_rpd.' - '.$akhir_rpd .'</h4>
 						<div id="cetak" title="Laporan MONEV RENJA" style="padding: 5px; overflow: auto; height: 80vh;">
 							<table cellpadding="2" cellspacing="0" style="font-family:\'Open Sans\',-apple-system,BlinkMacSystemFont,\'Segoe UI\',sans-serif; border-collapse: collapse; font-size: 70%; border: 0; table-layout: fixed;" contenteditable="false">
 								<thead>
@@ -1275,7 +1275,7 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 										<th class="atas kanan bawah text_tengah text_blok">12</th>';
 										for($i=1; $i<=$lama_pelaksanaan; $i++){
 											$no = 12+$i;
-											$html .='<th style="width: 100px;" class="atas kanan bawah text_tengah text_blok">'.$no.'></th>';
+											$html .='<th style="width: 100px;" class="atas kanan bawah text_tengah text_blok">'.$no.'</th>';
 										}
 										$html .='
 									</tr>
