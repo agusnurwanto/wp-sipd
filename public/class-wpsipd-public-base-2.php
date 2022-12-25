@@ -251,7 +251,7 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 										'id_jadwal_lokal'	=> $id_jadwal_lokal
 									));
 
-									$delete_lokal_history = $this->delete_data_lokal_history('data_rpjpd_visi');
+									$delete_lokal_history = $this->delete_data_lokal_history('data_rpjpd_visi', $data_this_id[0]['id_jadwal_lokal']);
 
 									$columns_1 = array('visi_teks','update_at');
 		
@@ -261,7 +261,7 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 
 									$queryRecords1 = $wpdb->query($sql_backup_data_rpjpd_visi);
 
-									$delete_lokal_history = $this->delete_data_lokal_history('data_rpjpd_misi');
+									$delete_lokal_history = $this->delete_data_lokal_history('data_rpjpd_misi', $data_this_id[0]['id_jadwal_lokal']);
 
 									$columns_2 = array('id_visi','misi_teks','urut_misi','update_at');
 		
@@ -271,7 +271,7 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 
 									$queryRecords2 = $wpdb->query($sql_backup_data_rpjpd_misi);
 
-									$delete_lokal_history = $this->delete_data_lokal_history('data_rpjpd_sasaran');
+									$delete_lokal_history = $this->delete_data_lokal_history('data_rpjpd_sasaran', $data_this_id[0]['id_jadwal_lokal']);
 
 									$columns_3 = array('id_misi','saspok_teks','urut_saspok','update_at');
 		
@@ -281,7 +281,7 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 
 									$queryRecords3 = $wpdb->query($sql_backup_data_rpjpd_sasaran);
 
-									$delete_lokal_history = $this->delete_data_lokal_history('data_rpjpd_kebijakan');
+									$delete_lokal_history = $this->delete_data_lokal_history('data_rpjpd_kebijakan', $data_this_id[0]['id_jadwal_lokal']);
 
 									$columns_4 = array('id_saspok','kebijakan_teks','urut_kebijakan','update_at');
 		
@@ -291,7 +291,7 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 
 									$queryRecords4 = $wpdb->query($sql_backup_data_rpjpd_kebijakan);
 
-									$delete_lokal_history = $this->delete_data_lokal_history('data_rpjpd_isu');
+									$delete_lokal_history = $this->delete_data_lokal_history('data_rpjpd_isu', $data_this_id[0]['id_jadwal_lokal']);
 
 									$columns_5 = array('id_kebijakan','isu_teks','urut_isu','update_at',);
 		
