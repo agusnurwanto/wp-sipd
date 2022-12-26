@@ -14671,7 +14671,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 									'id_jadwal_lokal'	=> $id_jadwal_lokal
 								));
 
-								$delete_lokal_history = $this->delete_data_lokal_history('data_rka');
+								$delete_lokal_history = $this->delete_data_lokal_history('data_rka', $data_this_id[0]['id_jadwal_lokal']);
 
 								$columns_1 = array('created_user','createddate','createdtime','harga_satuan','harga_satuan_murni','id_daerah','id_rinci_sub_bl','id_standar_nfs','is_locked','jenis_bl','ket_bl_teks','kode_akun','koefisien','koefisien_murni','lokus_akun_teks','nama_akun','nama_komponen','spek_komponen','satuan','spek','sat1','sat2','sat3','sat4','volum1','volum2','volum3','volum4','volume','volume_murni','subs_bl_teks','subtitle_teks','kode_dana','is_paket','nama_dana','id_dana','substeks','total_harga','rincian','rincian_murni','totalpajak','pajak','pajak_murni','updated_user','updateddate','updatedtime','user1','user2','active','update_at','tahun_anggaran','idbl','idsubbl','kode_bl','kode_sbl','id_prop_penerima','id_camat_penerima','id_kokab_penerima','id_lurah_penerima','id_penerima','idkomponen','idketerangan','idsubtitle');
 	
@@ -14681,7 +14681,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 
 								$queryRecords1 = $wpdb->query($sql_backup_data_rka);
 
-								$delete_lokal_history = $this->delete_data_lokal_history('data_sub_keg_bl');
+								$delete_lokal_history = $this->delete_data_lokal_history('data_sub_keg_bl', $data_this_id[0]['id_jadwal_lokal']);
 
 								$columns_2 = array('id_sub_skpd','id_lokasi','id_label_kokab','nama_dana','no_sub_giat','kode_giat','id_program','nama_lokasi','waktu_akhir','pagu_n_lalu','id_urusan','id_unik_sub_bl','id_sub_giat','label_prov','kode_program','kode_sub_giat','no_program','kode_urusan','kode_bidang_urusan','nama_program','target_4','target_5','id_bidang_urusan','nama_bidang_urusan','target_3','no_giat','id_label_prov','waktu_awal','pagumurni','pagu','pagu_simda','output_sub_giat','sasaran','indikator','id_dana','nama_sub_giat','pagu_n_depan','satuan','id_rpjmd','id_giat','id_label_pusat','nama_giat','kode_skpd','nama_skpd','kode_sub_skpd','id_skpd','id_sub_bl','nama_sub_skpd','target_1','nama_urusan','target_2','label_kokab','label_pusat','pagu_keg','pagu_fmis','id_bl','kode_bl','kode_sbl','active','update_at','tahun_anggaran');
 
@@ -14691,7 +14691,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 
 								$queryRecords2 = $wpdb->query($sql_backup_data_sub_keg_bl);
 
-								$delete_lokal_history = $this->delete_data_lokal_history('data_sub_keg_indikator');
+								$delete_lokal_history = $this->delete_data_lokal_history('data_sub_keg_indikator', $data_this_id[0]['id_jadwal_lokal']);
 
 								$oclumns_3 = array('outputteks','targetoutput','satuanoutput','idoutputbl','targetoutputteks','kode_sbl','idsubbl','active','update_at','tahun_anggaran');
 
@@ -14701,7 +14701,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 
 								$queryRecords3 = $wpdb->query($sql_backup_data_sub_keg_indikator);
 
-								$delete_lokal_history = $this->delete_data_lokal_history('data_keg_indikator_hasil');
+								$delete_lokal_history = $this->delete_data_lokal_history('data_keg_indikator_hasil', $data_this_id[0]['id_jadwal_lokal']);
 
 								$oclumns_4 = array('hasilteks','satuanhasil','targethasil','targethasilteks','kode_sbl','idsubbl','active','update_at','tahun_anggaran');
 
@@ -14711,7 +14711,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 
 								$queryRecords4 = $wpdb->query($sql_backup_data_keg_indikator_hasil);
 
-								$delete_lokal_history = $this->delete_data_lokal_history('data_tag_sub_keg');
+								$delete_lokal_history = $this->delete_data_lokal_history('data_tag_sub_keg', $data_this_id[0]['id_jadwal_lokal']);
 
 								$oclumns_5 = array('idlabelgiat','namalabel','idtagbl','kode_sbl','idsubbl','active','update_at','tahun_anggaran');
 
@@ -14721,7 +14721,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 
 								$queryRecords5 = $wpdb->query($sql_backup_data_tag_sub_keg);
 
-								$delete_lokal_history = $this->delete_data_lokal_history('data_capaian_prog_sub_keg');
+								$delete_lokal_history = $this->delete_data_lokal_history('data_capaian_prog_sub_keg', $data_this_id[0]['id_jadwal_lokal']);
 
 								$oclumns_6 = array('satuancapaian','targetcapaianteks','capaianteks','targetcapaian','kode_sbl','idsubbl','active','update_at','tahun_anggaran');
 
@@ -14731,7 +14731,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 
 								$queryRecords6 = $wpdb->query($sql_backup_data_capaian_prog_sub_keg);
 
-								$delete_lokal_history = $this->delete_data_lokal_history('data_output_giat_sub_keg');
+								$delete_lokal_history = $this->delete_data_lokal_history('data_output_giat_sub_keg', $data_this_id[0]['id_jadwal_lokal']);
 
 								$oclumns_7 = array('outputteks','satuanoutput','targetoutput','targetoutputteks','kode_sbl','idsubbl','active','update_at','tahun_anggaran');
 
@@ -14741,7 +14741,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 
 								$queryRecords7 = $wpdb->query($sql_backup_data_output_giat_sub_keg);
 
-								$delete_lokal_history = $this->delete_data_lokal_history('data_dana_sub_keg');
+								$delete_lokal_history = $this->delete_data_lokal_history('data_dana_sub_keg', $data_this_id[0]['id_jadwal_lokal']);
 
 								$oclumns_8 = array('namadana','kodedana','iddana','iddanasubbl','pagudana','kode_sbl','idsubbl','active','update_at','tahun_anggaran');
 
@@ -14751,7 +14751,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 
 								$queryRecords8 = $wpdb->query($sql_backup_data_dana_sub_keg);
 
-								$delete_lokal_history = $this->delete_data_lokal_history('data_lokasi_sub_keg');
+								$delete_lokal_history = $this->delete_data_lokal_history('data_lokasi_sub_keg', $data_this_id[0]['id_jadwal_lokal']);
 
 								$oclumns_9 = array('camatteks','daerahteks','idcamat','iddetillokasi','idkabkota','idlurah','lurahteks','kode_sbl','idsubbl','active','update_at','tahun_anggaran');
 
@@ -14761,7 +14761,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 
 								$queryRecords9 = $wpdb->query($sql_backup_data_lokasi_sub_keg);
 
-								$delete_lokal_history = $this->delete_data_lokal_history('data_mapping_sumberdana');
+								$delete_lokal_history = $this->delete_data_lokal_history('data_mapping_sumberdana', $data_this_id[0]['id_jadwal_lokal']);
 
 								$oclumns_10 = array('id_rinci_sub_bl','id_sumber_dana','user','active','update_at','tahun_anggaran');
 
@@ -14771,7 +14771,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 
 								$queryRecords10 = $wpdb->query($sql_backup_data_mapping_sumberdana);
 
-								$delete_lokal_history = $this->delete_data_lokal_history('data_pendapatan');
+								$delete_lokal_history = $this->delete_data_lokal_history('data_pendapatan', $data_this_id[0]['id_jadwal_lokal']);
 
 								$oclumns_11 = array('created_user','createddate','createdtime','id_pendapatan','keterangan','kode_akun','nama_akun','nilaimurni','program_koordinator','rekening','skpd_koordinator','total','pagu_fmis','updated_user','updateddate','updatedtime','uraian','urusan_koordinator','user1','user2','id_skpd','active','update_at','tahun_anggaran');
 
@@ -14781,7 +14781,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 
 								$queryRecords11 = $wpdb->query($sql_backup_data_pendapatan);
 
-								$delete_lokal_history = $this->delete_data_lokal_history('data_pembiayaan');
+								$delete_lokal_history = $this->delete_data_lokal_history('data_pembiayaan', $data_this_id[0]['id_jadwal_lokal']);
 
 								$oclumns_12 = array('created_user','createddate','createdtime','id_pembiayaan','keterangan','kode_akun','nama_akun','nilaimurni','program_koordinator','rekening','skpd_koordinator','total','pagu_fmis','updated_user','updateddate','updatedtime','uraian','urusan_koordinator','type','user1','user2','id_skpd','active','update_at','tahun_anggaran');
 
@@ -14876,7 +14876,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 									'id_jadwal_lokal'	=> $id_jadwal_lokal
 								));
 
-								$delete_lokal_history = $this->delete_data_lokal_history('data_rpjmd_misi_lokal');
+								$delete_lokal_history = $this->delete_data_lokal_history('data_rpjmd_misi_lokal', $data_this_id[0]['id_jadwal_lokal']);
 
 								$columns_1 = array('id_misi','id_misi_old','id_visi','is_locked','misi_teks','status','urut_misi','visi_lock','visi_teks','update_at','active','tahun_anggaran');
 	
@@ -14886,7 +14886,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 
 								$queryRecords1 = $wpdb->query($sql_backup_data_rpjmd_misi_lokal);
 
-								$delete_lokal_history = $this->delete_data_lokal_history('data_rpjmd_program_lokal');
+								$delete_lokal_history = $this->delete_data_lokal_history('data_rpjmd_program_lokal', $data_this_id[0]['id_jadwal_lokal']);
 
 								$columns_2 = array('id_misi','id_misi_old','id_program','id_unik','id_unik_indikator','id_unit','id_visi','indikator','is_locked','is_locked_indikator','kode_sasaran','kode_skpd','kode_tujuan','misi_teks','nama_program','nama_skpd','pagu_1','pagu_2','pagu_3','pagu_4','pagu_5','program_lock','sasaran_lock','sasaran_teks','satuan','status','target_1','target_2','target_3','target_4','target_5','target_akhir','target_awal','tujuan_lock','tujuan_teks','urut_misi','urut_sasaran','urut_tujuan','visi_teks','active','update_at','tahun_anggaran');
 	
@@ -14896,7 +14896,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 
 								$queryRecords2 = $wpdb->query($sql_backup_data_rpjmd_program_lokal);
 
-								$delete_lokal_history = $this->delete_data_lokal_history('data_rpjmd_sasaran_lokal');
+								$delete_lokal_history = $this->delete_data_lokal_history('data_rpjmd_sasaran_lokal', $data_this_id[0]['id_jadwal_lokal']);
 
 								$columns_3 = array('id_misi','id_misi_old','id_sasaran','id_unik','id_unik_indikator','id_visi','indikator_teks','is_locked','is_locked_indikator','kode_tujuan','misi_teks','sasaran_teks','satuan','status','target_1','target_2','target_3','target_4','target_5','target_akhir','target_awal','tujuan_lock','tujuan_teks','urut_misi','urut_sasaran','urut_tujuan','visi_teks','active','update_at','tahun_anggaran');
 	
@@ -14906,7 +14906,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 
 								$queryRecords3 = $wpdb->query($sql_backup_data_rpjmd_sasaran_lokal);
 
-								$delete_lokal_history = $this->delete_data_lokal_history('data_rpjmd_tujuan_lokal');
+								$delete_lokal_history = $this->delete_data_lokal_history('data_rpjmd_tujuan_lokal', $data_this_id[0]['id_jadwal_lokal']);
 
 								$columns_4 = array('id_misi','id_misi_old','id_tujuan','id_unik','id_unik_indikator','id_visi','indikator_teks','is_locked','is_locked_indikator','misi_lock','misi_teks','satuan','status','target_1','target_2','target_3','target_4','target_5','target_akhir','target_awal','tujuan_teks','urut_misi','urut_tujuan','visi_teks','active','update_at','tahun_anggaran');
 	
@@ -14916,7 +14916,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 
 								$queryRecords4 = $wpdb->query($sql_backup_data_rpjmd_tujuan_lokal);
 
-								$delete_lokal_history = $this->delete_data_lokal_history('data_rpjmd_visi_lokal');
+								$delete_lokal_history = $this->delete_data_lokal_history('data_rpjmd_visi_lokal', $data_this_id[0]['id_jadwal_lokal']);
 
 								$columns_5 = array('id_visi','is_locked','status','visi_teks','update_at','active','tahun_anggaran');
 	
@@ -15010,7 +15010,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 									'id_jadwal_lokal'	=> $id_jadwal_lokal
 								));
 
-								$delete_lokal_history = $this->delete_data_lokal_history('data_renstra_kegiatan_lokal');
+								$delete_lokal_history = $this->delete_data_lokal_history('data_renstra_kegiatan_lokal', $data_this_id[0]['id_jadwal_lokal']);
 
 								$columns_1 = array('bidur_lock','giat_lock','id_bidang_urusan','id_giat','id_misi','id_program','id_unik','id_unik_indikator','id_unit','id_visi','indikator','indikator_usulan','is_locked','is_locked_indikator','kode_bidang_urusan','kode_giat','kode_program','kode_sasaran','kode_skpd','kode_tujuan','kode_unik_program','nama_bidang_urusan','nama_giat','nama_program','nama_skpd','pagu_1','pagu_2','pagu_3','pagu_4','pagu_5','program_lock','renstra_prog_lock','sasaran_lock','sasaran_teks','satuan','status','target_1','target_2','target_3','target_4','target_5','target_akhir','target_awal','satuan_usulan','target_1_usulan','target_2_usulan','target_3_usulan','target_4_usulan','target_5_usulan','target_akhir_usulan','target_awal_usulan','catatan_usulan','catatan','tujuan_lock','tujuan_teks','urut_sasaran','urut_tujuan','active','update_at','tahun_anggaran');
 	
@@ -15020,7 +15020,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 
 								$queryRecords1 = $wpdb->query($sql_backup_data_renstra_kegiatan_lokal);
 
-								$delete_lokal_history = $this->delete_data_lokal_history('data_renstra_program_lokal');
+								$delete_lokal_history = $this->delete_data_lokal_history('data_renstra_program_lokal', $data_this_id[0]['id_jadwal_lokal']);
 
 								$columns_2 = array('bidur_lock','id_bidang_urusan','id_misi','id_program','id_unik','id_unik_indikator','id_unit','id_visi','indikator','indikator_usulan','is_locked','is_locked_indikator','kode_bidang_urusan','kode_program','kode_sasaran','kode_skpd','kode_tujuan','nama_bidang_urusan','nama_program','nama_skpd','pagu_1','pagu_2','pagu_3','pagu_4','pagu_5','pagu_1_usulan','pagu_2_usulan','pagu_3_usulan','pagu_4_usulan','pagu_5_usulan','program_lock','sasaran_lock','sasaran_teks','satuan','status','target_1','target_2','target_3','target_4','target_5','target_akhir','target_awal','satuan_usulan','target_1_usulan','target_2_usulan','target_3_usulan','target_4_usulan','target_5_usulan','target_akhir_usulan','target_awal_usulan','catatan_usulan','catatan','tujuan_lock','tujuan_teks','urut_sasaran','urut_tujuan','active','update_at','tahun_anggaran');
 	
@@ -15030,7 +15030,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 
 								$queryRecords2 = $wpdb->query($sql_backup_data_renstra_program_lokal);
 
-								$delete_lokal_history = $this->delete_data_lokal_history('data_renstra_sasaran_lokal');
+								$delete_lokal_history = $this->delete_data_lokal_history('data_renstra_sasaran_lokal', $data_this_id[0]['id_jadwal_lokal']);
 
 								$columns_3 = array('bidur_lock','id_bidang_urusan','id_misi','id_unit','id_unik_indikator','id_unik','id_visi','indikator_teks','indikator_teks_usulan','is_locked','is_locked_indikator','kode_bidang_urusan','kode_skpd','kode_tujuan','nama_bidang_urusan','nama_skpd','sasaran_teks','satuan','status','target_1','target_2','target_3','target_4','target_5','target_akhir','target_awal','satuan_usulan','target_1_usulan','target_2_usulan','target_3_usulan','target_4_usulan','target_5_usulan','target_akhir_usulan','target_awal_usulan','catatan_usulan','catatan','tujuan_lock','tujuan_teks','urut_sasaran','urut_tujuan','active','update_at','tahun_anggaran');
 	
@@ -15040,7 +15040,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 
 								$queryRecords3 = $wpdb->query($sql_backup_data_renstra_sasaran_lokal);
 
-								$delete_lokal_history = $this->delete_data_lokal_history('data_renstra_tujuan_lokal');
+								$delete_lokal_history = $this->delete_data_lokal_history('data_renstra_tujuan_lokal', $data_this_id[0]['id_jadwal_lokal']);
 
 								$columns_4 = array('bidur_lock','id_bidang_urusan','id_unik','id_unik_indikator','id_unit','indikator_teks','indikator_teks_usulan','is_locked','is_locked_indikator','kode_bidang_urusan','kode_sasaran_rpjm','kode_skpd','nama_bidang_urusan','nama_skpd','satuan','status','target_1','target_2','target_3','target_4','target_5','target_akhir','target_awal','satuan_usulan','target_1_usulan','target_2_usulan','target_3_usulan','target_4_usulan','target_5_usulan','target_akhir_usulan','target_awal_usulan','catatan_usulan','catatan','tujuan_teks','urut_tujuan','active','update_at','tahun_anggaran');
 	
@@ -15134,7 +15134,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 									'id_jadwal_lokal'	=> $id_jadwal_lokal
 								));
 
-								$delete_tujuan_lokal_history = $this->delete_data_lokal_history('data_rpd_tujuan_lokal');
+								$delete_tujuan_lokal_history = $this->delete_data_lokal_history('data_rpd_tujuan_lokal', $data_this_id[0]['id_jadwal_lokal']);
 
 								$columns_1 = array('head_teks','id_misi_old','id_tujuan','id_unik','id_unik_indikator','indikator_teks','is_locked','is_locked_indikator','isu_teks','kebijakan_teks','misi_lock','misi_teks','saspok_teks','satuan','status','target_1','target_2','target_3','target_4','target_5','target_akhir','target_awal','tujuan_teks','urut_misi','urut_saspok','urut_tujuan','visi_teks','id_isu','update_at','no_urut','catatan_teks_tujuan','indikator_catatan_teks','active');
 	
@@ -15144,7 +15144,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 
 								$queryRecords1 = $wpdb->query($sql_backup_data_rpd_tujuan_lokal);
 
-								$delete_sasaran_lokal_history = $this->delete_data_lokal_history('data_rpd_sasaran_lokal');
+								$delete_sasaran_lokal_history = $this->delete_data_lokal_history('data_rpd_sasaran_lokal', $data_this_id[0]['id_jadwal_lokal']);
 
 								$columns_2 = array('head_teks','id_misi_old','id_sasaran','id_unik','id_unik_indikator','indikator_teks','is_locked','is_locked_indikator','isu_teks','kebijakan_teks','kode_tujuan','misi_lock','misi_teks','sasaran_teks','saspok_teks','satuan','status','target_1','target_2','target_3','target_4','target_5','target_akhir','target_awal','tujuan_lock','tujuan_teks','urut_misi','urut_sasaran','urut_saspok','urut_tujuan','visi_teks','update_at','sasaran_no_urut','sasaran_catatan','indikator_catatan_teks','id_visi','id_misi','active');
 	
@@ -15154,7 +15154,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 
 								$queryRecords2 = $wpdb->query($sql_backup_data_rpd_sasaran_lokal);
 
-								$delete_rpd_program_lokal_history = $this->delete_data_lokal_history('data_rpd_program_lokal');
+								$delete_rpd_program_lokal_history = $this->delete_data_lokal_history('data_rpd_program_lokal', $data_this_id[0]['id_jadwal_lokal']);
 
 								$columns_3 = array('head_teks','id_bidur_mth','id_misi_old','id_program','id_program_mth','id_unik','id_unik_indikator','id_unit','indikator','is_locked','is_locked_indikator','isu_teks','kebijakan_teks','kode_sasaran','kode_skpd','kode_tujuan','misi_lock','misi_teks','nama_program','nama_skpd','pagu_1','pagu_2','pagu_3','pagu_4','pagu_5','program_lock','sasaran_lock','sasaran_teks','saspok_teks','satuan','status','target_1','target_2','target_3','target_4','target_5','target_akhir','target_awal','tujuan_lock','tujuan_teks','urut_misi','urut_sasaran','urut_saspok','urut_tujuan','visi_teks','update_at','id_visi','id_misi','active');
 	
@@ -15208,31 +15208,21 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		die(json_encode($return));
 	}
 
-	public function delete_data_lokal_history($nama_tabel = 'data_rpd_tujuan_lokal'){
+	public function delete_data_lokal_history($nama_tabel = 'data_rpd_tujuan_lokal', $id_jadwal = 1){
 		global $wpdb;
 		$return = array(
 			'status' => 'error',
 			'message'	=> 'Format tidak sesuai!'
 		);
 
-		$data_lokal_history = $wpdb->get_results(
-			'SELECT id
-			FROM '.$nama_tabel,
-			ARRAY_A
-		);
-
 		$nama_tabel_history = $nama_tabel."_history";
 
-		if(!empty($data_lokal_history)){
-			foreach($data_lokal_history as $v_data){
-				$delete = $wpdb->delete($nama_tabel_history, array('id_asli' => $v_data['id']));
-				if($delete == false){
-					$return = array(
-						'status' 	=> 'error',
-						'message'	=> 'Delete error, harap hubungi admin!'
-					);		
-				}
-			}
+		$delete = $wpdb->delete($nama_tabel_history, array('id_jadwal' => $id_jadwal));
+		if($delete == false){
+			$return = array(
+				'status' 	=> 'error',
+				'message'	=> 'Delete error, harap hubungi admin!'
+			);
 		}
 
 		return $return;

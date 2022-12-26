@@ -625,6 +625,8 @@ class Wpsipd
 		$this->loader->add_action('wp_ajax_view_rekap_renstra',  $plugin_public, 'view_rekap_renstra');
 		$this->loader->add_action('wp_ajax_view_pagu_akumulasi_renstra',  $plugin_public, 'view_pagu_akumulasi_renstra');
 
+		$this->loader->add_action('wp_ajax_view_rekap_rpd',  $plugin_public, 'view_rekap_rpd');
+
 		add_shortcode('menu_monev',  array($plugin_public, 'menu_monev'));
 		add_shortcode('datassh', array($plugin_public, 'datassh'));
 		add_shortcode('rekbelanja', array($plugin_public, 'rekbelanja'));
