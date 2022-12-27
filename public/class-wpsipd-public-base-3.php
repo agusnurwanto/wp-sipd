@@ -4058,15 +4058,14 @@ class Wpsipd_Public_Base_3
             if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( WPSIPD_API_KEY )) {
 
             	$nama_pemda = get_option('_crb_daerah');
+				$tahun_anggaran=$_POST['tahun_anggaran'] ?? get_option('_crb_tahun_anggaran_sipd');
 
             	$where_skpd = '';
 				if(!empty($_POST['id_unit'])){
 					$where_skpd = "and id_skpd=".$_POST['id_unit'];
 				}
 
-				$tahun_anggaran=$_POST['tahun_anggaran'] ?? get_option('_crb_tahun_anggaran_sipd');
-
-				$sql = $wpdb->prepare("
+				$unit = $wpdb->get_results($wpdb->prepare("
 					SELECT 
 						* 
 					FROM data_unit 
@@ -4074,9 +4073,7 @@ class Wpsipd_Public_Base_3
 						".$where_skpd."
 						AND active=1
 					ORDER BY id_skpd ASC
-				", $tahun_anggaran);
-
-				$unit = $wpdb->get_results($sql, ARRAY_A);
+				", $tahun_anggaran), ARRAY_A);
 
 				if(empty($unit)){
 					die('<h1>Data SKPD dengan id_skpd='.$_POST['id_unit'].' dan tahun_anggaran='.$tahun_anggaran.' tidak ditemukan!</h1>');
@@ -4087,13 +4084,30 @@ class Wpsipd_Public_Base_3
 					$judul_skpd = $unit[0]['kode_skpd'].'&nbsp;'.$unit[0]['nama_skpd'].'<br>';
 				}
 
+				$jadwal_lokal = $wpdb->get_row($wpdb->prepare("
+					SELECT 
+						tahun_anggaran AS awal_renstra,
+						(tahun_anggaran+lama_pelaksanaan-1) AS akhir_renstra,
+						lama_pelaksanaan,
+						status 
+					FROM `data_jadwal_lokal` 
+						WHERE id_jadwal_lokal=%d", $_POST['id_jadwal_lokal']));
+
+				$_suffix='';
+				$where='';
+				if($jadwal_lokal->status){
+					$_suffix='_history';
+					$where='AND id_jadwal='.$_POST['id_jadwal_lokal'];
+				}
+
             	$tujuan_all = $wpdb->get_results($wpdb->prepare("
 					SELECT 
 						* 
-					FROM data_renstra_tujuan_lokal 
+					FROM data_renstra_tujuan_lokal".$_suffix." 
 					WHERE 
 						id_unit=%d AND 
-						active=1 ORDER BY urut_tujuan
+						active=1 $where 
+						ORDER BY urut_tujuan
 				", $_POST['id_unit']), ARRAY_A);
 
 				foreach ($tujuan_all as $keyTujuan => $tujuan_value) {
@@ -4108,24 +4122,6 @@ class Wpsipd_Public_Base_3
 							'data' => array(),
 							'status_rpjm' => false
 						];
-
-						if(!empty($tujuan_value['kode_sasaran_rpjm']) && $relasi_perencanaan != '-'){
-							$table = 'data_rpjmd_sasaran_lokal';
-							switch ($id_tipe_relasi) {
-								case '2':
-										$table = 'data_rpjmd_sasaran_lokal';
-									break;
-
-								case '3':
-										$table = 'data_rpd_sasaran_lokal';
-									break;
-							}
-
-							$id = $wpdb->get_var("SELECT id FROM ".$table." WHERE id_unik='{$tujuan_value['kode_sasaran_rpjm']}'");
-							if(!empty($id)){
-								$data_all['data'][$tujuan_value['id_unik']]['status_rpjm']=true;
-							}
-						}
 					}
 
 					$tujuan_ids[$tujuan_value['id_unik']] = "'".$tujuan_value['id_unik']."'";
@@ -4151,10 +4147,11 @@ class Wpsipd_Public_Base_3
 						$sasaran_all = $wpdb->get_results($wpdb->prepare("
 							SELECT 
 								* 
-							FROM data_renstra_sasaran_lokal 
+							FROM data_renstra_sasaran_lokal".$_suffix." 
 							WHERE 
 								kode_tujuan=%s AND 
-								active=1 ORDER BY urut_sasaran
+								active=1 $where
+								ORDER BY urut_sasaran
 						", $tujuan_value['id_unik']), ARRAY_A);
 
 						foreach ($sasaran_all as $keySasaran => $sasaran_value) {
@@ -4192,11 +4189,12 @@ class Wpsipd_Public_Base_3
 								$program_all = $wpdb->get_results($wpdb->prepare("
 									SELECT 
 										* 
-									FROM data_renstra_program_lokal 
+									FROM data_renstra_program_lokal".$_suffix." 
 									WHERE 
 										kode_sasaran=%s AND 
 										kode_tujuan=%s AND 
-										active=1 ORDER BY id
+										active=1 $where
+										ORDER BY id
 								", $sasaran_value['id_unik'], $tujuan_value['id_unik']), ARRAY_A);
 
 									foreach ($program_all as $keyProgram => $program_value) {
@@ -4242,12 +4240,14 @@ class Wpsipd_Public_Base_3
 										$kegiatan_all = $wpdb->get_results($wpdb->prepare("
 											SELECT 
 												* 
-											FROM data_renstra_kegiatan_lokal 
+											FROM data_renstra_kegiatan_lokal".$_suffix." 
 											WHERE 
 												kode_program=%s AND 
 												kode_sasaran=%s AND 
 												kode_tujuan=%s AND 
-												active=1 ORDER BY id
+												active=1 
+												$where
+												ORDER BY id
 										", $program_value['id_unik'], $sasaran_value['id_unik'], $tujuan_value['id_unik']), ARRAY_A);
 
 										foreach ($kegiatan_all as $keyKegiatan => $kegiatan_value) {
@@ -4303,9 +4303,8 @@ class Wpsipd_Public_Base_3
 					$target_4 = '';
 					$target_5 = '';
 					$target_akhir = '';
-					$satuan = '';
+					$satuan = '';					
 
-					$bg_rpjm = (!$tujuan['status_rpjm']) ? ' status-rpjm' : '';
 					foreach($tujuan['indikator'] as $key => $indikator){
 						$indikator_tujuan .= '<div class="indikator">'.$indikator['indikator_teks'].'</div>';
 						$target_awal .= '<div class="indikator">'.$indikator['target_awal'].'</div>';
@@ -4357,7 +4356,7 @@ class Wpsipd_Public_Base_3
 							$pagu_5   = '';
 							$target_akhir = '';
 							$satuan = '';
-							
+
 							if($tujuan_teks!=$program['tujuan_teks']){
 								$tujuan_teks=$program['tujuan_teks'];
 							}else{
@@ -4389,6 +4388,7 @@ class Wpsipd_Public_Base_3
 
 							$target_arr = [$target_1, $target_2, $target_3, $target_4, $target_5];
 							$pagu_arr = [$pagu_1, $pagu_2, $pagu_3, $pagu_4, $pagu_5];
+
 							$body .= '
 									<tr>
 										<td class="kiri atas kanan bawah">'.$tujuan_teks.'</td>
@@ -4396,7 +4396,7 @@ class Wpsipd_Public_Base_3
 										<td class="kiri atas kanan bawah">'.$program['kode'].'</td>
 										<td class="kiri atas kanan bawah">'.$program['program_teks'].'</td>
 										<td class="kiri atas kanan bawah">'.$indikator_program.'</td>';
-										for ($i=1; $i <= $_POST['lama_pelaksanaan']; $i++) { 
+										for ($i=1; $i <= $jadwal_lokal->lama_pelaksanaan; $i++) { 
 											$body.="<td class=\"kiri atas kanan bawah text_tengah\">".$target_arr[$i-1]."</td><td class=\"atas kanan bawah text_kanan\">".$this->_number_format($pagu_arr[$i-1])."</td>";
 										}
 										$body.='<td class="kiri kiri atas kanan bawah"></td>
@@ -4444,7 +4444,7 @@ class Wpsipd_Public_Base_3
 											<td class="kiri atas kanan bawah">'.$kegiatan['kode'].'</td>
 											<td class="kiri atas kanan bawah">'.$kegiatan['kegiatan_teks'].'</td>
 											<td class="kiri atas kanan bawah">'.$indikator_kegiatan.'</td>';
-											for ($i=1; $i <= $_POST['lama_pelaksanaan']; $i++) { 
+											for ($i=1; $i <= $jadwal_lokal->lama_pelaksanaan; $i++) { 
 												$body.="<td class=\"kiri atas kanan bawah text_tengah\">".$target_arr[$i-1]."</td><td class=\"atas kanan bawah text_kanan\">".$this->_number_format($pagu_arr[$i-1])."</td>";
 											}
 											$body.='
@@ -4458,29 +4458,29 @@ class Wpsipd_Public_Base_3
 
 				$html='
 					<div id="preview">
-						<h4 style="text-align: center; margin: 0; font-weight: bold;">RENCANA STRATEGIS (RENSTRA) 
-						<br>'.$judul_skpd.'Tahun '.$_POST['awal_renstra'].' - '.$_POST['akhir_renstra'].' '.$nama_pemda.'</h4>
+						<h4 style="text-align: center; margin: 0; font-weight: bold;">RENCANA STRATEGIS (RENSTRA)
+						<br>'.$judul_skpd.'Tahun '.$jadwal_lokal->awal_renstra.' - '.$jadwal_lokal->akhir_renstra.' '.$nama_pemda.'</h4>
 						<table id="table-renstra" cellpadding="2" cellspacing="0" style="font-family:\'Open Sans\',-apple-system,BlinkMacSystemFont,\'Segoe UI\',sans-serif; border-collapse: collapse; font-size: 70%; border: 0; table-layout: fixed;" contenteditable="false">
 							<thead>';
 
 						$html.='<tr>
-									<th style="width: 200px;" class="row_head_1 atas kanan bawah text_tengah text_blok kiri">Tujuan</th>
-									<th style="width: 200px;" class="row_head_1 atas kanan bawah text_tengah text_blok">Sasaran</th>
-									<th style="width: 200px;" class="row_head_1 atas kanan bawah text_tengah text_blok">Kode</th>
-									<th style="width: 200px;" class="row_head_1 atas kanan bawah text_tengah text_blok">Program dan Kegiatan</th>
-									<th style="width: 400px;" class="row_head_1 atas kanan bawah text_tengah text_blok">Indikator Kinerja Tujuan, Sasaran, Program(outcome) dan Kegiatan (output)</th>
-									<th style="width: 400px;"class="row_head_kinerja atas kanan bawah text_tengah text_blok">Target Kinerja Program dan Kerangka Pendanaan</th>
-									<th style="width: 100px;" class="row_head_1 atas kanan bawah text_tengah text_blok">Kondisi Kinerja pada akhir periode Renstra Perangkat Daerah</th>
+									<th style="width: 200px;" class="atas kanan bawah text_tengah text_blok kiri" rowspan="3">Tujuan</th>
+									<th style="width: 200px;" class="atas kanan bawah text_tengah text_blok" rowspan="3">Sasaran</th>
+									<th style="width: 200px;" class="atas kanan bawah text_tengah text_blok" rowspan="3">Kode</th>
+									<th style="width: 200px;" class="atas kanan bawah text_tengah text_blok" rowspan="3">Program dan Kegiatan</th>
+									<th style="width: 400px;" class="atas kanan bawah text_tengah text_blok" rowspan="3">Indikator Kinerja Tujuan, Sasaran, <br>Program(outcome) dan Kegiatan (output)</th>
+									<th style="width: 400px;"class="row_head_kinerja atas kanan bawah text_tengah text_blok" colspan="'.(2*$jadwal_lokal->lama_pelaksanaan).'">Target Kinerja Program dan Kerangka Pendanaan</th>
+									<th style="width: 100px;" class="atas kanan bawah text_tengah text_blok" rowspan="3">Kondisi Kinerja pada akhir periode Renstra Perangkat Daerah</th>
 								</tr>';
 
 								$html.="<tr>";
-								for ($i=$_POST['awal_renstra']; $i <= $_POST['akhir_renstra']; $i++) { 
-									$html.='<th style="width: 100px;" class="row_head_1_tahun atas kanan bawah text_tengah text_blok kiri">'.$i.'</th>';
+								for ($i=$jadwal_lokal->awal_renstra; $i <= $jadwal_lokal->akhir_renstra; $i++) { 
+									$html.='<th style="width: 100px;" class="atas kanan bawah text_tengah text_blok kiri" colspan="2">'.$i.'</th>';
 								}
 								$html.="</tr>";
 
 								$html.="<tr>";
-								for ($i=1; $i <= $_POST['lama_pelaksanaan']; $i++) { 
+								for ($i=1; $i <= $jadwal_lokal->lama_pelaksanaan; $i++) { 
 									$html.='<th style="width: 100px;" class="row_head_2 atas kanan bawah text_tengah text_blok">Target</th><th style="width: 100px;" class="atas kanan bawah text_tengah text_blok">Rp.</th>';
 								}
 								$html.='</tr>';
@@ -4493,7 +4493,7 @@ class Wpsipd_Public_Base_3
 									<th class="atas kanan bawah text_tengah text_blok">5</th>';
 
 									$target_temp = 6;
-									for ($i=1; $i <= $_POST['lama_pelaksanaan']; $i++) { 
+									for ($i=1; $i <= $jadwal_lokal->lama_pelaksanaan; $i++) { 
 										if($i!=1){
 											$target_temp=$pagu_temp+1; 
 										}
@@ -4539,22 +4539,35 @@ class Wpsipd_Public_Base_3
             if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( WPSIPD_API_KEY )) {
 
             	$tahun_anggaran = $_POST['tahun_anggaran'];
-				$awal_renstra = $_POST['awal_renstra'];
-				$akhir_renstra = $_POST['akhir_renstra'];
-				$lama_pelaksanaan = $_POST['lama_pelaksanaan'];
+				
+            	$jadwal_lokal = $wpdb->get_row($wpdb->prepare("
+					SELECT 
+						d.tahun_anggaran AS awal_renstra,
+						(d.tahun_anggaran+d.lama_pelaksanaan-1) AS akhir_renstra,
+						d.lama_pelaksanaan,
+						d.status,
+						d.relasi_perencanaan,
+						(SELECT status FROM `data_jadwal_lokal` WHERE id_jadwal_lokal=d.relasi_perencanaan) AS status_rpjm, 
+						(SELECT id_tipe FROM `data_jadwal_lokal` WHERE id_jadwal_lokal=d.relasi_perencanaan) AS id_tipe_relasi 
+					FROM `data_jadwal_lokal` d
+						WHERE id_jadwal_lokal=%d", $_POST['id_jadwal_lokal']));
 
-				if(!empty($_POST['relasi_perencanaan'])){
-					$relasi = $wpdb->get_row("
-									SELECT 
-										id_tipe 
-									FROM `data_jadwal_lokal`
-									WHERE id_jadwal_lokal=".$_POST['relasi_perencanaan']);
-					$id_tipe_relasi = $relasi->id_tipe;
+				$_suffix='';
+				$where='';
+				if($jadwal_lokal->status){
+					$_suffix='_history';
+					$where='AND id_jadwal='.$_POST['id_jadwal_lokal'];
+				}
+
+				$_suffix_rpjmd='';
+				if($jadwal_lokal->status_rpjm){
+					$_suffix_rpjmd='_history';
+					$where_rpjm='AND id_jadwal='.$jadwal_lokal->relasi_perencanaan;
 				}
 
 
 				$nama_tipe_relasi = 'RPJMD / RPD';
-				switch ($id_tipe_relasi) {
+				switch ($jadwal_lokal->id_tipe_relasi) {
 					case '2':
 							$nama_tipe_relasi = 'RPJMD';
 						break;
@@ -4599,13 +4612,11 @@ class Wpsipd_Public_Base_3
 				$tujuan_all = $wpdb->get_results($wpdb->prepare("
 					SELECT 
 						* 
-					FROM data_renstra_tujuan_lokal 
+					FROM data_renstra_tujuan_lokal".$_suffix." 
 					WHERE 
 						id_unit=%d AND 
-						active=1 ORDER BY urut_tujuan
+						active=1 $where ORDER BY urut_tujuan
 				", $_POST['id_unit']), ARRAY_A);
-
-				// echo '<pre>';print_r($wpdb->last_query);echo '</pre>';die();
 
 				foreach ($tujuan_all as $keyTujuan => $tujuan_value) {
 					if(empty($data_all['data'][$tujuan_value['id_unik']])){
@@ -4634,15 +4645,15 @@ class Wpsipd_Public_Base_3
 							'status_rpjm' => false
 						];
 
-						if(!empty($tujuan_value['kode_sasaran_rpjm']) && $relasi_perencanaan != '-'){
+						if(!empty($tujuan_value['kode_sasaran_rpjm']) && $jadwal_lokal->relasi_perencanaan != '-'){
 							$table = 'data_rpjmd_sasaran_lokal';
-							switch ($id_tipe_relasi) {
+							switch ($jadwal_lokal->id_tipe_relasi) {
 								case '2':
-										$table = 'data_rpjmd_sasaran_lokal_history';
+										$table = 'data_rpjmd_sasaran_lokal'.$_suffix_rpjmd;
 									break;
 
 								case '3':
-										$table = 'data_rpd_sasaran_lokal_history';
+										$table = 'data_rpd_sasaran_lokal'.$_suffix_rpjmd;
 									break;
 							}
 
@@ -4651,7 +4662,7 @@ class Wpsipd_Public_Base_3
 									sasaran_teks
 								FROM ".$table." 
 								WHERE id_unik='{$tujuan_value['kode_sasaran_rpjm']}'
-									AND active=1
+									AND active=1 $where_rpjm
 							");
 							if(!empty($sasaran_rpjm)){
 								$data_all['data'][$tujuan_value['id_unik']]['status_rpjm'] = true;
@@ -4694,10 +4705,10 @@ class Wpsipd_Public_Base_3
 						$sasaran_all = $wpdb->get_results($wpdb->prepare("
 							SELECT 
 								* 
-							FROM data_renstra_sasaran_lokal 
+							FROM data_renstra_sasaran_lokal".$_suffix." 
 							WHERE 
 								kode_tujuan=%s AND 
-								active=1 ORDER BY urut_sasaran
+								active=1 $where ORDER BY urut_sasaran
 						", $tujuan_value['id_unik']), ARRAY_A);
 
 						foreach ($sasaran_all as $keySasaran => $sasaran_value) {
@@ -4759,11 +4770,11 @@ class Wpsipd_Public_Base_3
 								$program_all = $wpdb->get_results($wpdb->prepare("
 										SELECT 
 											* 
-										FROM data_renstra_program_lokal 
+										FROM data_renstra_program_lokal".$_suffix." 
 										WHERE 
 											kode_sasaran=%s AND 
 											kode_tujuan=%s AND 
-											active=1 ORDER BY id",
+											active=1 $where ORDER BY id",
 											$sasaran_value['id_unik'], $tujuan_value['id_unik']), ARRAY_A);
 
 									foreach ($program_all as $keyProgram => $program_value) {
@@ -4833,12 +4844,12 @@ class Wpsipd_Public_Base_3
 										$kegiatan_all = $wpdb->get_results($wpdb->prepare("
 											SELECT 
 												* 
-											FROM data_renstra_kegiatan_lokal 
+											FROM data_renstra_kegiatan_lokal".$_suffix." 
 											WHERE 
 												kode_program=%s AND 
 												kode_sasaran=%s AND 
 												kode_tujuan=%s AND 
-												active=1 ORDER BY id",
+												active=1 $where ORDER BY id",
 												$program_value['id_unik'],
 												$sasaran_value['id_unik'],
 												$tujuan_value['id_unik']
@@ -5024,7 +5035,7 @@ class Wpsipd_Public_Base_3
 								<td class="atas kanan bawah"></td>
 								<td class="atas kanan bawah">'.$indikator_tujuan.'</td>
 								<td class="atas kanan bawah text_tengah">'.$target_awal.'</td>';
-								for ($i=0; $i < $lama_pelaksanaan; $i++) { 
+								for ($i=0; $i < $jadwal_lokal->lama_pelaksanaan; $i++) { 
 									$body.="<td class=\"atas kanan bawah text_tengah\">".$target_arr[$i]."</td><td class=\"atas kanan bawah text_kanan\"><b>(".$this->_number_format($tujuan['pagu_akumulasi_'.($i+1)]).")</b></td>";
 								}
 								$body.='<td class="atas kanan bawah text_tengah">'.$target_akhir.'</td>
@@ -5035,7 +5046,7 @@ class Wpsipd_Public_Base_3
 								<td class="atas kanan bawah">'.$catatan_indikator.'</td>
 								<td class="atas kanan bawah td-usulan">'.$indikator_tujuan_usulan.'</td>
 								<td class="atas kanan bawah text_tengah td-usulan">'.$target_awal_usulan.'</td>';
-								for ($i=0; $i < $lama_pelaksanaan; $i++) { 
+								for ($i=0; $i < $jadwal_lokal->lama_pelaksanaan; $i++) { 
 									$body.="<td class=\"atas kanan bawah text_tengah td-usulan\">".$target_arr_usulan[$i]."</td><td class=\"atas kanan bawah text_kanan td-usulan\"><b>(".$this->_number_format($tujuan['pagu_akumulasi_'.($i+1).'_usulan']).")</b></td>";
 								}
 								$body.='<td class="atas kanan bawah text_tengah td-usulan">'.$target_akhir_usulan.'</td>
@@ -5104,7 +5115,7 @@ class Wpsipd_Public_Base_3
 									<td class="atas kanan bawah"></td>
 									<td class="atas kanan bawah">'.$indikator_sasaran.'</td>
 									<td class="atas kanan bawah text_tengah">'.$target_awal.'</td>';
-									for ($i=0; $i < $lama_pelaksanaan; $i++) { 
+									for ($i=0; $i < $jadwal_lokal->lama_pelaksanaan; $i++) { 
 										$body.="<td class=\"atas kanan bawah text_tengah\">".$target_arr[$i]."</td><td class=\"atas kanan bawah text_kanan\"><b>(".$this->_number_format($sasaran['pagu_akumulasi_'.($i+1)]).")</b></td>";
 									}
 									$body.='<td class="atas kanan bawah text_tengah">'.$target_akhir.'</td>
@@ -5115,7 +5126,7 @@ class Wpsipd_Public_Base_3
 									<td class="atas kanan bawah">'.$catatan_indikator.'</td>
 									<td class="atas kanan bawah td-usulan">'.$indikator_sasaran_usulan.'</td>
 									<td class="atas kanan bawah text_tengah td-usulan">'.$target_awal_usulan.'</td>';
-									for ($i=0; $i < $lama_pelaksanaan; $i++) { 
+									for ($i=0; $i < $jadwal_lokal->lama_pelaksanaan; $i++) { 
 										$body.="<td class=\"atas kanan bawah text_tengah td-usulan\">".$target_arr_usulan[$i]."</td><td class=\"atas kanan bawah text_kanan td-usulan\"><b>(".$this->_number_format($sasaran['pagu_akumulasi_'.($i+1).'_usulan']).")</b></td>";
 									}
 									$body.='<td class="atas kanan bawah text_tengah td-usulan">'.$target_akhir_usulan.'</td>
@@ -5206,8 +5217,14 @@ class Wpsipd_Public_Base_3
 										<td class="atas kanan bawah"></td>
 										<td class="atas kanan bawah"><br>'.$indikator_program.'</td>
 										<td class="atas kanan bawah text_tengah"><br>'.$target_awal.'</td>';
-										for ($i=1; $i <= $lama_pelaksanaan; $i++) { 
-											$body.="<td class=\"atas kanan bawah text_tengah\"><br>".$target_arr[$i-1]."</td><td class=\"atas kanan bawah text_kanan\"><b>(".$this->_number_format($program['pagu_akumulasi_'.($i+1)]).")</b><br>".$pagu_arr[$i-1]."</td>";
+										for ($i=0; $i < $jadwal_lokal->lama_pelaksanaan; $i++) { 
+											$class_warning = '';
+											if($program['pagu_akumulasi_'.($i+1)] != ${"pagu_".($i+1)."_akumulasi"}){
+												$class_warning = 'peringatan';
+											}
+											$body.="
+											<td class=\"atas kanan bawah text_tengah\"><br>".$target_arr[$i]."</td>
+											<td class=\"atas kanan bawah text_kanan $class_warning\"><b>(".$this->_number_format($program['pagu_akumulasi_'.($i+1)]).")</b><br>".$pagu_arr[$i]."</td>";
 										}
 										$body.='<td class="atas kanan bawah text_tengah"><br>'.$target_akhir.'</td>
 										<td class="atas kanan bawah"><br>'.$satuan.'</td>
@@ -5217,8 +5234,14 @@ class Wpsipd_Public_Base_3
 										<td class="atas kanan bawah"><br>'.$catatan_indikator.'</td>
 										<td class="atas kanan bawah td-usulan"><br>'.$indikator_program_usulan.'</td>
 										<td class="atas kanan bawah text_tengah td-usulan"><br>'.$target_awal_usulan.'</td>';
-										for ($i=1; $i <= $lama_pelaksanaan; $i++) { 
-											$body.="<td class=\"atas kanan bawah text_tengah td-usulan\"><br>".$target_arr_usulan[$i-1]."</td><td class=\"atas kanan bawah text_kanan td-usulan\"><b>(".$this->_number_format($program['pagu_akumulasi_'.($i+1).'_usulan']).")</b><br>".$pagu_arr_usulan[$i-1]."</td>";
+										for ($i=0; $i < $jadwal_lokal->lama_pelaksanaan; $i++) {
+											$class_warning = '';
+											if($program['pagu_akumulasi_'.($i+1).'_usulan'] != ${"pagu_".($i+1)."_usulan_akumulasi"}){
+												$class_warning = 'peringatan';
+											} 
+											$body.="
+											<td class=\"atas kanan bawah text_tengah td-usulan\"><br>".$target_arr_usulan[$i]."</td>
+											<td class=\"atas kanan bawah text_kanan td-usulan $class_warning\"><b>(".$this->_number_format($program['pagu_akumulasi_'.($i+1).'_usulan']).")</b><br>".$pagu_arr_usulan[$i]."</td>";
 										}
 										$body.='<td class="atas kanan bawah text_tengah td-usulan"><br>'.$target_akhir_usulan.'</td>
 										<td class="atas kanan bawah td-usulan"><br>'.$satuan_usulan.'</td>
@@ -5308,7 +5331,7 @@ class Wpsipd_Public_Base_3
 											<td class="atas kanan bawah">'.$kegiatan['kegiatan_teks'].'</td>
 											<td class="atas kanan bawah"><br>'.$indikator_kegiatan.'</td>
 											<td class="atas kanan bawah text_tengah"><br>'.$target_awal.'</td>';
-											for ($i=1; $i <= $lama_pelaksanaan; $i++) { 
+											for ($i=1; $i <= $jadwal_lokal->lama_pelaksanaan; $i++) { 
 												$body.="<td class=\"atas kanan bawah text_tengah\"><br>".$target_arr[$i-1]."</td><td class=\"atas kanan bawah text_kanan\"><b>(".$this->_number_format($kegiatan['pagu_akumulasi_'.($i+1)]).")</b><br>".$pagu_arr[$i-1]."</td>";
 											}
 											$body.='
@@ -5320,7 +5343,7 @@ class Wpsipd_Public_Base_3
 											<td class="atas kanan bawah"><br>'.$catatan_indikator.'</td>
 											<td class="atas kanan bawah td-usulan"><br>'.$indikator_kegiatan_usulan.'</td>
 											<td class="atas kanan bawah text_tengah td-usulan"><br>'.$target_awal_usulan.'</td>';
-											for ($i=1; $i <= $lama_pelaksanaan; $i++) { 
+											for ($i=1; $i <= $jadwal_lokal->lama_pelaksanaan; $i++) { 
 												$body.="<td class=\"atas kanan bawah text_tengah td-usulan\"><br>".$target_arr_usulan[$i-1]."</td><td class=\"atas kanan bawah text_kanan td-usulan\"><b>(".$this->_number_format($kegiatan['pagu_akumulasi_'.($i+1).'_usulan']).")</b><br>".$pagu_arr_usulan[$i-1]."</td>";
 											}
 											$body.='
@@ -5335,48 +5358,65 @@ class Wpsipd_Public_Base_3
 					}
 				}
 
-				$html='<div id="preview" style="padding: 5px; overflow: auto; height: 80vh;">
+				$html='
+					<style type="text/css">
+						.indikator_program { min-height: 40px; }
+						.indikator_kegiatan { min-height: 40px; }
+						.tr-tujuan {
+						    background: #0000ff1f;
+						}
+						.tr-sasaran {
+						    background: #ffff0059;
+						}
+						.tr-program {
+						    background: #baffba;
+						}
+						.peringatan {
+							background: #f5c9c9;
+						}
+					</style>
+					<div id="preview" style="padding: 5px; overflow: auto; height: 80vh;">
 						<h4 style="text-align: center; margin: 0; font-weight: bold;">RENCANA STRATEGIS (RENSTRA) 
-						<br>'.$judul_skpd.'Tahun '.$awal_renstra.' - '.$akhir_renstra.' '.$nama_pemda.'</h4>
+						<br>'.$judul_skpd.'Tahun '.$jadwal_lokal->awal_renstra.' - '.$jadwal_lokal->akhir_renstra.' '.$nama_pemda.'</h4>
 						<table id="table-renstra" cellpadding="2" cellspacing="0" style="font-family:\'Open Sans\',-apple-system,BlinkMacSystemFont,\'Segoe UI\',sans-serif; border-collapse: collapse; font-size: 70%; border: 0; table-layout: fixed;" contenteditable="false">
 							<thead><tr>
-									<th style="width: 85px;" class="row_head_1 atas kiri kanan bawah text_tengah text_blok">No</th>
-									<th style="width: 200px;" class="row_head_1 atas kanan bawah text_tengah text_blok">Sasaran '.$nama_tipe_relasi.'</th>
-									<th style="width: 200px;" class="row_head_1 atas kanan bawah text_tengah text_blok">Bidang Urusan</th>
-									<th style="width: 200px;" class="row_head_1 atas kanan bawah text_tengah text_blok">Tujuan</th>
-									<th style="width: 200px;" class="row_head_1 atas kanan bawah text_tengah text_blok">Sasaran</th>
-									<th style="width: 200px;" class="row_head_1 atas kanan bawah text_tengah text_blok">Program</th>
-									<th style="width: 200px;" class="row_head_1 atas kanan bawah text_tengah text_blok">Kegiatan</th>
-									<th style="width: 400px;" class="row_head_1 atas kanan bawah text_tengah text_blok">Indikator</th>
-									<th style="width: 100px;" class="row_head_1 atas kanan bawah text_tengah text_blok">Target Awal</th>';
-									for ($i=1; $i <= $lama_pelaksanaan; $i++) { 
-									$html.='<th style="width: 200px;" class="row_head_1_tahun atas kanan bawah text_tengah text_blok">Tahun '.$i.'</th>';
+									<th style="width: 85px;" rowspan="2" class="atas kiri kanan bawah text_tengah text_blok">No</th>
+									<th style="width: 200px;" rowspan="2" class="atas kanan bawah text_tengah text_blok">Sasaran '.$nama_tipe_relasi.'</th>
+									<th style="width: 200px;" rowspan="2" class="atas kanan bawah text_tengah text_blok">Bidang Urusan</th>
+									<th style="width: 200px;" rowspan="2" class="atas kanan bawah text_tengah text_blok">Tujuan</th>
+									<th style="width: 200px;" rowspan="2" class="atas kanan bawah text_tengah text_blok">Sasaran</th>
+									<th style="width: 200px;" rowspan="2" class="atas kanan bawah text_tengah text_blok">Program</th>
+									<th style="width: 200px;" rowspan="2" class="atas kanan bawah text_tengah text_blok">Kegiatan</th>
+									<th style="width: 400px;" rowspan="2" class="atas kanan bawah text_tengah text_blok">Indikator</th>
+									<th style="width: 100px;" rowspan="2" class="atas kanan bawah text_tengah text_blok">Target Awal</th>';
+									for ($i=1; $i <= $jadwal_lokal->lama_pelaksanaan; $i++) { 
+									$html.='<th style="width: 200px;" colspan="2" class="atas kanan bawah text_tengah text_blok">Tahun '.$i.'</th>';
 									}
 								$html.='
-									<th style="width: 100px;" class="row_head_1 atas kanan bawah text_tengah text_blok">Target Akhir</th>
-									<th style="width: 100px;" class="row_head_1 atas kanan bawah text_tengah text_blok">Satuan</th>
-									<th style="width: 150px;" class="row_head_1 atas kanan bawah text_tengah text_blok">Keterangan</th>
-									<th style="width: 50px;" class="row_head_1 atas kanan bawah text_tengah text_blok">No Urut</th>
-									<th style="width: 150px;" class="row_head_1 atas kanan bawah text_tengah text_blok">Catatan</th>
-									<th style="width: 150px;" class="row_head_1 atas kanan bawah text_tengah text_blok">Catatan Indikator</th>
-									<th style="width: 400px;" class="row_head_1 atas kanan bawah text_tengah text_blok td-usulan">Indikator Usulan</th>
-									<th style="width: 100px;" class="row_head_1 atas kanan bawah text_tengah text_blok td-usulan">Target Awal Usulan</th>';
-									for ($i=1; $i <= $lama_pelaksanaan; $i++) { 
-									$html.='<th style="width: 200px;" class="row_head_1_tahun atas kanan bawah text_tengah text_blok td-usulan">Tahun '.$i.' Usulan</th>';
+									<th style="width: 100px;" rowspan="2" class="atas kanan bawah text_tengah text_blok">Target Akhir</th>
+									<th style="width: 100px;" rowspan="2" class="atas kanan bawah text_tengah text_blok">Satuan</th>
+									<th style="width: 150px;" rowspan="2" class="atas kanan bawah text_tengah text_blok">Keterangan</th>
+									<th style="width: 50px;" rowspan="2" class="atas kanan bawah text_tengah text_blok">No Urut</th>
+									<th style="width: 150px;" rowspan="2" class="atas kanan bawah text_tengah text_blok">Catatan</th>
+									<th style="width: 150px;" rowspan="2" class="atas kanan bawah text_tengah text_blok">Catatan Indikator</th>
+									<th style="width: 400px;" rowspan="2" class="atas kanan bawah text_tengah text_blok td-usulan">Indikator Usulan</th>
+									<th style="width: 100px;" rowspan="2" class="atas kanan bawah text_tengah text_blok td-usulan">Target Awal Usulan</th>';
+									for ($i=1; $i <= $jadwal_lokal->lama_pelaksanaan; $i++) { 
+									$html.='<th style="width: 200px;" colspan="2" class="atas kanan bawah text_tengah text_blok td-usulan">Tahun '.$i.' Usulan</th>';
 									}
 								$html.='
-									<th style="width: 100px;" class="row_head_1 atas kanan bawah text_tengah text_blok td-usulan">Target Akhir Usulan</th>
-									<th style="width: 100px;" class="row_head_1 atas kanan bawah text_tengah text_blok td-usulan">Satuan Usulan</th>
-									<th style="width: 150px;" class="row_head_1 atas kanan bawah text_tengah text_blok td-usulan">Catatan Usulan</th>
-									<th style="width: 150px;" class="row_head_1 atas kanan bawah text_tengah text_blok td-usulan">Catatan Indikator Usulan</th>
+									<th style="width: 100px;" rowspan="2" class="atas kanan bawah text_tengah text_blok td-usulan">Target Akhir Usulan</th>
+									<th style="width: 100px;" rowspan="2" class="atas kanan bawah text_tengah text_blok td-usulan">Satuan Usulan</th>
+									<th style="width: 150px;" rowspan="2" class="atas kanan bawah text_tengah text_blok td-usulan">Catatan Usulan</th>
+									<th style="width: 150px;" rowspan="2" class="atas kanan bawah text_tengah text_blok td-usulan">Catatan Indikator Usulan</th>
 								</tr>
 								<tr>';
-								for ($i=1; $i <= $lama_pelaksanaan; $i++) { 
+								for ($i=1; $i <= $jadwal_lokal->lama_pelaksanaan; $i++) { 
 									$html.='
 										<th style="width: 100px;" class="row_head_2 atas kanan bawah text_tengah text_blok">Target</th>
 										<th style="width: 100px;" class="atas kanan bawah text_tengah text_blok">Pagu</th>';
 								}
-								for ($i=1; $i <= $lama_pelaksanaan; $i++) { 
+								for ($i=1; $i <= $jadwal_lokal->lama_pelaksanaan; $i++) { 
 									$html.='
 										<th style="width: 100px;" class="row_head_2 atas kanan bawah text_tengah text_blok td-usulan">Target Usulan</th>
 										<th style="width: 100px;" class="atas kanan bawah text_tengah text_blok td-usulan">Pagu Usulan</th>';
@@ -5395,7 +5435,7 @@ class Wpsipd_Public_Base_3
 									<th class='atas kanan bawah text_tengah text_blok'>8</th>";
 								 
 									$target_temp = 9;
-									for ($i=1; $i <= $lama_pelaksanaan; $i++) { 
+									for ($i=1; $i <= $jadwal_lokal->lama_pelaksanaan; $i++) { 
 										if($i!=1){
 											$target_temp=$pagu_temp+1; 
 										}
@@ -5415,7 +5455,7 @@ class Wpsipd_Public_Base_3
 									<th class='atas kanan bawah text_tengah text_blok td-usulan'>".($pagu_temp+8)."</th>";
 								 
 									$target_temp += 9;
-									for ($i=1; $i <= $lama_pelaksanaan; $i++) { 
+									for ($i=1; $i <= $jadwal_lokal->lama_pelaksanaan; $i++) { 
 										if($i!=1){
 											$target_temp=$pagu_temp+1; 
 										}
@@ -5464,36 +5504,31 @@ class Wpsipd_Public_Base_3
 	        if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( WPSIPD_API_KEY )) {
 
 				$nama_pemda = get_option('_crb_daerah');
+				$id_unit = $_POST['id_unit'];
 	        	$tahun_anggaran = $_POST['tahun_anggaran'];
-				$awal_renstra = $_POST['awal_renstra'];
-				$akhir_renstra = $_POST['akhir_renstra'];
-				$lama_pelaksanaan = $_POST['lama_pelaksanaan'];
+				$id_jadwal_lokal = $_POST['id_jadwal_lokal'];
 
-				if(!empty($_POST['relasi_perencanaan'])){
-					$relasi = $wpdb->get_row("
-									SELECT 
-										id_tipe 
-									FROM `data_jadwal_lokal`
-									WHERE id_jadwal_lokal=".$_POST['relasi_perencanaan']);
-					$id_tipe_relasi = $relasi->id_tipe;
-				}
+				$jadwal_lokal = $wpdb->get_row($wpdb->prepare("
+					SELECT 
+						nama AS nama_jadwal,
+						tahun_anggaran AS awal_renstra,
+						(tahun_anggaran+lama_pelaksanaan-1) AS akhir_renstra,
+						lama_pelaksanaan,
+						status 
+					FROM `data_jadwal_lokal` 
+						WHERE id_jadwal_lokal=%d", $id_jadwal_lokal));
 
-
-				$nama_tipe_relasi = 'RPJMD / RPD';
-				switch ($id_tipe_relasi) {
-					case '2':
-							$nama_tipe_relasi = 'RPJMD';
-						break;
-
-					case '3':
-							$nama_tipe_relasi = 'RPD';
-						break;
+				$_suffix='';
+				$where='';
+				if($jadwal_lokal->status){
+					$_suffix='_history';
+					$where='AND id_jadwal='.$id_jadwal_lokal;
 				}
 
 				$where_skpd = '';
-				if(!empty($_POST['id_unit'])){
-					if($_POST['id_unit'] !='all'){
-						$where_skpd = "and id_skpd=".$_POST['id_unit'];
+				if(!empty($id_unit)){
+					if($id_unit !='all'){
+						$where_skpd = "and id_skpd=".$id_unit;
 					}
 				}
 
@@ -5545,10 +5580,10 @@ class Wpsipd_Public_Base_3
 					$tujuan_all = $wpdb->get_results($wpdb->prepare("
 						SELECT 
 							DISTINCT id_unik 
-						FROM data_renstra_tujuan_lokal 
+						FROM data_renstra_tujuan_lokal".$_suffix." 
 						WHERE 
 							id_unit=%d AND 
-							active=1 ORDER BY urut_tujuan
+							active=1 $where ORDER BY urut_tujuan
 					", $unit['id_skpd']), ARRAY_A);
 
 					foreach ($tujuan_all as $keyTujuan => $tujuan_value) {
@@ -5556,10 +5591,10 @@ class Wpsipd_Public_Base_3
 						$sasaran_all = $wpdb->get_results($wpdb->prepare("
 								SELECT 
 									DISTINCT id_unik 
-								FROM data_renstra_sasaran_lokal 
+								FROM data_renstra_sasaran_lokal".$_suffix." 
 								WHERE 
 									kode_tujuan=%s AND 
-									active=1 ORDER BY urut_sasaran
+									active=1 $where ORDER BY urut_sasaran
 							", $tujuan_value['id_unik']), ARRAY_A);
 
 						foreach ($sasaran_all as $keySasaran => $sasaran_value) {
@@ -5567,11 +5602,11 @@ class Wpsipd_Public_Base_3
 							$program_all = $wpdb->get_results($wpdb->prepare("
 								SELECT 
 									DISTINCT id_unik 
-								FROM data_renstra_program_lokal 
+								FROM data_renstra_program_lokal".$_suffix." 
 								WHERE 
 									kode_sasaran=%s AND 
 									kode_tujuan=%s AND 
-									active=1 ORDER BY id",
+									active=1 $where ORDER BY id",
 									$sasaran_value['id_unik'], $tujuan_value['id_unik']), ARRAY_A);
 
 							foreach ($program_all as $keyProgram => $program_value) {
@@ -5587,12 +5622,12 @@ class Wpsipd_Public_Base_3
 										COALESCE(SUM(pagu_3_usulan), 0) AS pagu_3_usulan, 
 										COALESCE(SUM(pagu_4_usulan), 0) AS pagu_4_usulan, 
 										COALESCE(SUM(pagu_5_usulan), 0) AS pagu_5_usulan 
-									FROM data_renstra_kegiatan_lokal 
+									FROM data_renstra_kegiatan_lokal".$_suffix." 
 									WHERE 
 										kode_program=%s AND 
 										kode_sasaran=%s AND 
 										kode_tujuan=%s AND 
-										active=1 ORDER BY id",
+										active=1 $where ORDER BY id",
 										$program_value['id_unik'],
 										$sasaran_value['id_unik'],
 										$tujuan_value['id_unik'],
@@ -5632,35 +5667,37 @@ class Wpsipd_Public_Base_3
 					$body.='<tr>
 						<td class="kiri atas kanan bawah text_tengah">'.$no.'.</td>
 						<td class="atas kanan bawah">'.$unit['nama_skpd'].'</td>';
-						for ($i=1; $i <= $lama_pelaksanaan; $i++) { 
+						for ($i=1; $i <= $jadwal_lokal->lama_pelaksanaan; $i++) { 
 							$body.='<td class="atas kanan bawah">'.$this->_number_format($unit['pagu_'.$i]).'</td>';
 							$body.='<td class="atas kanan bawah">'.$this->_number_format($unit['pagu_'.$i.'_usulan']).'</td>';
 						}
 					$body.='</tr>';
 					$no++;
 				}
-				$body.='<tr style="background:#80e9b1">
-						<td class="kiri atas kanan bawah text_tengah" colspan="2"><b>TOTAL</b></td>';
-						for ($i=1; $i <= $lama_pelaksanaan; $i++) { 
+				$body.='<tr>
+						<td class="kiri atas kanan bawah text_tengah" colspan="2"><b>TOTAL PAGU</b></td>';
+						for ($i=1; $i <= $jadwal_lokal->lama_pelaksanaan; $i++) { 
 							$body.='<td class="atas kanan bawah"><b>'.$this->_number_format($data_all['pagu_'.$i.'_total']).'</b></td>';
 							$body.='<td class="atas kanan bawah"><b>'.$this->_number_format($data_all['pagu_'.$i.'_usulan_total']).'</b></td>';
 						}
 				$body.='</tr>';
 
 				$html='<div id="preview" style="padding: 5px; overflow: auto; height: 80vh;">
-						<h4 style="text-align: center; margin: 0; font-weight: bold;">PAGU AKUMULASI RENSTRA - '.$nama_tipe_relasi.' 
-						<br>Tahun '.$awal_renstra.' - '.$akhir_renstra.' '.$nama_pemda.'</h4>
+						<h4 style="text-align: center; margin: 0; font-weight: bold;">PAGU AKUMULASI RENSTRA Per Unit Kerja 
+						<br>Tahun '.$jadwal_lokal->awal_renstra.' - '.$jadwal_lokal->akhir_renstra.' '.$nama_pemda.'
+						<br>'.$jadwal_lokal->nama_jadwal.'
+						</h4>
 						<table id="table-renstra" cellpadding="2" cellspacing="0" style="font-family:\'Open Sans\',-apple-system,BlinkMacSystemFont,\'Segoe UI\',sans-serif; border-collapse: collapse; font-size: 70%; border: 0; table-layout: fixed;" contenteditable="false">
 							<thead><tr>
-									<th style="width: 85px;" class="row_head atas kiri kanan bawah text_tengah text_blok">No</th>
-									<th style="width: 200px;" class="row_head atas kanan bawah text_tengah text_blok">Unit Kerja</th>';
-									for ($i=1; $i <= $lama_pelaksanaan; $i++) { 
-									$html.='<th style="width: 200px;" class="row_head_tahun atas kanan bawah text_tengah text_blok">Tahun '.$i.'</th>';
+									<th style="width: 85px;" class="atas kiri kanan bawah text_tengah text_blok" rowspan="2">No</th>
+									<th style="width: 200px;" class="atas kanan bawah text_tengah text_blok" rowspan="2">Unit Kerja</th>';
+									for ($i=1; $i <= $jadwal_lokal->lama_pelaksanaan; $i++) { 
+									$html.='<th style="width: 200px;" class="atas kanan bawah text_tengah text_blok" colspan="2">Tahun '.$i.'</th>';
 									}
 								$html.='
 								</tr>';
 								$html.='<tr>';
-								for ($i=1; $i <= $lama_pelaksanaan; $i++) { 
+								for ($i=1; $i <= $jadwal_lokal->lama_pelaksanaan; $i++) { 
 									$html.='<th style="width: 100px;" class="atas kanan bawah text_tengah text_blok">Pagu</th><th style="width: 100px;" class="atas kanan bawah text_tengah text_blok">Pagu Usulan</th>';
 								}
 								$html.='</tr>';

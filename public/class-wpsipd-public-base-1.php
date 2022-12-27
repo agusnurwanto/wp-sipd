@@ -721,7 +721,7 @@ class Wpsipd_Public_Base_1 extends Wpsipd_Public_Base_2{
                                 $wpdb->update($table, $data, array( "id_unik_indikator" => $_POST['id'] ));
                                 $ret['message'] = 'Berhasil update data RPD!';
                             }else{
-                                $data['id_unik_indikator'] = time().'-'.$this->generateRandomString(5);
+                                $data['id_unik_indikator'] = $this->generateRandomString(5);
                                 $cek_id = $wpdb->get_var($wpdb->prepare("
                                     select 
                                         id 
@@ -751,7 +751,7 @@ class Wpsipd_Public_Base_1 extends Wpsipd_Public_Base_2{
                                 $wpdb->update($table, $data, array( "id_unik" => $_POST['id'] ));
                                 $ret['message'] = 'Berhasil update data RPD!';
                             }else{
-                                $data['id_unik'] = time().'-'.$this->generateRandomString(5);
+                                $data['id_unik'] = $this->generateRandomString(5);
                                 $cek_id = $wpdb->get_var($wpdb->prepare("
                                     select 
                                         id 
@@ -808,7 +808,7 @@ class Wpsipd_Public_Base_1 extends Wpsipd_Public_Base_2{
                                 $wpdb->update($table, $data, array( "id_unik_indikator" => $_POST['id'] ));
                                 $ret['message'] = 'Berhasil update data RPD!';
                             }else{
-                                $data['id_unik_indikator'] = time().'-'.$this->generateRandomString(5);
+                                $data['id_unik_indikator'] = $this->generateRandomString(5);
                                 $cek_id = $wpdb->get_var($wpdb->prepare("
                                     select 
                                         id 
@@ -838,7 +838,7 @@ class Wpsipd_Public_Base_1 extends Wpsipd_Public_Base_2{
                                 $wpdb->update($table, $data, array( "id_unik" => $_POST['id'] ));
                                 $ret['message'] = 'Berhasil update data RPD!';
                             }else{
-                                $data['id_unik'] = time().'-'.$this->generateRandomString(5);
+                                $data['id_unik'] = $this->generateRandomString(5);
                                 $cek_id = $wpdb->get_var($wpdb->prepare("
                                     select 
                                         id 
@@ -882,18 +882,19 @@ class Wpsipd_Public_Base_1 extends Wpsipd_Public_Base_2{
                                 'kode_skpd' => $_POST['kode_skpd'],
                                 'nama_skpd' => $_POST['nama_skpd'],
                                 'indikator' => $_POST['data'],
-                                'target_awal' => $_POST['vol_awal'].' '.$_POST['satuan_awal'],
-                                'target_1' => $_POST['vol_1'].' '.$_POST['satuan_1'],
+                                'target_awal' => $_POST['vol_awal'],
+                                'target_1' => $_POST['vol_1'],
                                 'pagu_1' => $_POST['pagu_1'],
-                                'target_2' => $_POST['vol_2'].' '.$_POST['satuan_2'],
+                                'target_2' => $_POST['vol_2'],
                                 'pagu_2' => $_POST['pagu_2'],
-                                'target_3' => $_POST['vol_3'].' '.$_POST['satuan_3'],
+                                'target_3' => $_POST['vol_3'],
                                 'pagu_3' => $_POST['pagu_3'],
-                                'target_4' => $_POST['vol_4'].' '.$_POST['satuan_4'],
+                                'target_4' => $_POST['vol_4'],
                                 'pagu_4' => $_POST['pagu_4'],
-                                'target_5' => $_POST['vol_5'].' '.$_POST['satuan_5'],
+                                'target_5' => $_POST['vol_5'],
                                 'pagu_5' => $_POST['pagu_5'],
-                                'target_akhir' => $_POST['vol_akhir'].' '.$_POST['satuan_akhir'],
+                                'target_akhir' => $_POST['vol_akhir'],
+                                'satuan' => $_POST['satuan'],
                                 'update_at' => date('Y-m-d H:i:s'),
                                 'active' => 1
                             );
@@ -902,7 +903,7 @@ class Wpsipd_Public_Base_1 extends Wpsipd_Public_Base_2{
                                 $wpdb->update($table, $data, array( "id_unik_indikator" => $_POST['id'] ));
                                 $ret['message'] = 'Berhasil update data RPD!';
                             }else{
-                                $data['id_unik_indikator'] = time().'-'.$this->generateRandomString(5);
+                                $data['id_unik_indikator'] = $this->generateRandomString(5);
                                 $cek_id = $wpdb->get_var($wpdb->prepare("
                                     select 
                                         id 
@@ -931,7 +932,7 @@ class Wpsipd_Public_Base_1 extends Wpsipd_Public_Base_2{
                                 $wpdb->update($table, $data, array( "id_unik" => $_POST['id'] ));
                                 $ret['message'] = 'Berhasil update data RPD!';
                             }else{
-                                $data['id_unik'] = time().'-'.$this->generateRandomString(5);
+                                $data['id_unik'] = $this->generateRandomString(5);
                                 $cek_id = $wpdb->get_var($wpdb->prepare("
                                     select 
                                         id 

@@ -14215,7 +14215,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 					if(!empty($queryRecords)){
 						foreach($queryRecords as $recKey => $recVal){
 							if($recVal['status'] == 1){
-								$report = '<a class="btn btn-primary mr-2" href="#" onclick="return report(\''.$recVal['tahun_anggaran'].'\', \''.($recVal['tahun_anggaran']+$recVal['lama_pelaksanaan']-1).'\', \''.$recVal['lama_pelaksanaan'].'\', \''.$recVal['relasi_perencanaan'].'\');" title="Cetak Laporan"><i class="dashicons dashicons-printer"></i></a>';
+								$report = '<a class="btn btn-primary mr-2" href="#" onclick="return report(\''.$recVal['id_jadwal_lokal'].'\');" title="Cetak Laporan"><i class="dashicons dashicons-printer"></i></a>';
 								$lock	= '<a class="btn btn-success disabled" href="#" onclick="return cannot_change_schedule(\'kunci\');" title="Kunci data penjadwalan" aria-disabled="true"><i class="dashicons dashicons-lock"></i></a>';
 								$edit	= '';
 								$delete	= '';
@@ -18420,6 +18420,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 	    for ($i = 0; $i < $length; $i++) {
 	        $randomString .= $characters[rand(0, $charactersLength - 1)];
 	    }
+		$randomString = time().'-'.$randomString;
 	    return $randomString;
 	}
 

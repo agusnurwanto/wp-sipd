@@ -542,13 +542,13 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 				$data_sasaran_rpd_history = $wpdb->get_results($wpdb->prepare(
 					'SELECT DISTINCT id_unik
 					FROM data_rpd_sasaran_lokal_history
-					WHERE status=%d',
+					WHERE active=%d',
 					1)
 					,ARRAY_A);
 
 				$rpd_history = array();
 				foreach($data_sasaran_rpd_history as $v_rpd_history){
-					array_push($rpd_history, $v_rpd_history['id_unik']);
+					array_push($rpd_history, "'".$v_rpd_history['id_unik']."'");
 				}
 				$rpd_history = implode(",",$rpd_history);
 
@@ -564,8 +564,8 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 						p.program_lock=%d AND
 						p.status=%d AND
 						p.active=%d AND
-						t.kode_sasaran_rpjm IN (%s)',
-					0,1,1,$rpd_history)
+						t.kode_sasaran_rpjm IN ('.$rpd_history.')',
+					0,1,1)
 					,ARRAY_A);
 
 				$wpdb->query( $wpdb->prepare(
@@ -589,21 +589,21 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 						);
 
 					//simpan program
-					if(empty($v_renstra['indikator'])){
+					if(empty($v_renstra['id_unik_indikator'])){
 						$data_rpd_same_program = $wpdb->get_results($wpdb->prepare(
 							'SELECT *
 							FROM data_rpd_program_lokal 
 							WHERE 
 								nama_program=%s AND 
 								kode_sasaran=%s AND
-								indikator IS NULL',
+								id_unik_indikator IS NULL',
 							$nama_program,$v_renstra['kode_sasaran_rpjm'])
 							,ARRAY_A);
 
 						if(!empty($data_rpd_same_program)){
-							$wpdb->update('data_rpd_program_lokal', $data_kirim, array('id_unik' => $data_rpd_same_program[0]['id_unik'], 'indikator' => NULL));
-						}else if(empty($data_rpd_same_program) && empty($v_renstra['indikator'])){
-							$data_kirim['id_unik'] = time().'-'.$this->generateRandomString(5);
+							$wpdb->update('data_rpd_program_lokal', $data_kirim, array('id_unik' => $data_rpd_same_program[0]['id_unik'], 'id_unik_indikator' => NULL));
+						}else if(empty($data_rpd_same_program) && empty($v_renstra['id_unik_indikator'])){
+							$data_kirim['id_unik'] = $this->generateRandomString(5);
 							$wpdb->insert('data_rpd_program_lokal', $data_kirim);
 						}
 					}else{
@@ -614,21 +614,28 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 							WHERE 
 								nama_program=%s AND 
 								kode_sasaran=%s AND
-								indikator=%s',
-							$nama_program,$v_renstra['kode_sasaran_rpjm'],$v_renstra['indikator'])
+								indikator=%s AND
+								kode_skpd=%s',
+							$nama_program, $v_renstra['kode_sasaran_rpjm'], $v_renstra['indikator'], $v_renstra['kode_skpd'])
 							,ARRAY_A);
 
-						$data_kirim['id_unit'] = $v_renstra['id_unit'];
 						$data_kirim['indikator'] = $v_renstra['indikator'];
+						$data_kirim['target_awal'] = $v_renstra['target_awal'];
+						$data_kirim['target_1'] = $v_renstra['target_1'];
+						$data_kirim['target_2'] = $v_renstra['target_2'];
+						$data_kirim['target_3'] = $v_renstra['target_3'];
+						$data_kirim['target_4'] = $v_renstra['target_4'];
+						$data_kirim['target_5'] = $v_renstra['target_5'];
+						$data_kirim['pagu_1'] = $v_renstra['pagu_1'];
+						$data_kirim['pagu_2'] = $v_renstra['pagu_2'];
+						$data_kirim['pagu_3'] = $v_renstra['pagu_3'];
+						$data_kirim['pagu_4'] = $v_renstra['pagu_4'];
+						$data_kirim['pagu_5'] = $v_renstra['pagu_5'];
+						$data_kirim['target_akhir'] = $v_renstra['target_akhir'];
+						$data_kirim['satuan'] = $v_renstra['satuan'];
 						$data_kirim['kode_skpd'] = $v_renstra['kode_skpd'];
 						$data_kirim['nama_skpd'] = $v_renstra['nama_skpd'];
-						$data_kirim['target_awal'] = $v_renstra['target_awal'].' '.$v_renstra['satuan'];
-						$data_kirim['target_1'] = $v_renstra['target_1'].' '.$v_renstra['satuan'];
-						$data_kirim['target_2'] = $v_renstra['target_2'].' '.$v_renstra['satuan'];
-						$data_kirim['target_3'] = $v_renstra['target_3'].' '.$v_renstra['satuan'];
-						$data_kirim['target_4'] = $v_renstra['target_4'].' '.$v_renstra['satuan'];
-						$data_kirim['target_5'] = $v_renstra['target_5'].' '.$v_renstra['satuan'];
-						$data_kirim['target_akhir'] = $v_renstra['target_akhir'].' '.$v_renstra['satuan'];
+						$data_kirim['id_unit'] = $v_renstra['id_unit'];
 
 						if(!empty($data_rpd_same_indikator)){
 							$data_kirim['id_unik'] = $data_rpd_same_indikator[0]['id_unik'];
@@ -641,13 +648,13 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 								WHERE 
 									nama_program=%s AND 
 									kode_sasaran=%s AND
-									indikator IS NULL',
+									id_unik_indikator IS NULL',
 								$nama_program,$v_renstra['kode_sasaran_rpjm'])
 								,ARRAY_A);
 
 							if(!empty($data_program)){
 								$data_kirim['id_unik'] = $data_program[0]['id_unik'];
-								$data_kirim['id_unik_indikator'] = time().'-'.$this->generateRandomString(5); //id_unik indikator
+								$data_kirim['id_unik_indikator'] = $this->generateRandomString(5); //id_unik indikator
 								$wpdb->insert('data_rpd_program_lokal', $data_kirim);
 							}
 						}
@@ -1329,5 +1336,15 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 		$nama = $nama_kodes[0];
 		unset($nama_kodes[0]);
 		return $nama.'<span class="debug-kode">||'.implode('||', $nama_kodes).'</span>';
+	}
+
+	public function view_pagu_akumulasi_rpd(){
+		global $wpdb;
+        $ret = array(
+            'status'    => 'success',
+            'message'   => 'Masih dalam pengembangan!' //'Berhasil generate laporan renstra!'
+        );
+
+		die(json_encode($ret));
 	}
 }
