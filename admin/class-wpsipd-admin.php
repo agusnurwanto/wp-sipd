@@ -147,6 +147,7 @@ class Wpsipd_Admin {
 	    for ($i = 0; $i < $length; $i++) {
 	        $randomString .= $characters[rand(0, $charactersLength - 1)];
 	    }
+		$randomString = time().'-'.$randomString;
 	    return $randomString;
 	}
 

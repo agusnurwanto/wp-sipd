@@ -434,12 +434,20 @@ $body = '';
 			      
 			      <div class="modal-body">
 				    <div class="container-fluid">
+					    <div class="row">
+						    <div class="col-md-2">Unit Kerja</div>
+						    <div class="col-md-6">
+						    	<select class="form-control list_opd" id="list_opd"></select>
+								<small>Pilih OPD untuk print rekap format pagu akumulasi.</small>
+						    </div>
+					    </div></br>
 						<div class="row">
 					    	<div class="col-md-2">Jenis Laporan</div>
 					    	<div class="col-md-6">
 					      		<select class="form-control jenis" id="jenis">
 					      			<option>Pilih Jenis</option>
 					      			<option value="rekap">Format RPD</option>
+									<option value="pagu_akumulasi">Format Pagu Akumulasi</option>
 				      			</select>
 					    	</div>
 					    </div></br>
@@ -484,7 +492,6 @@ $body = '';
 		})
 	}
 
-
 	function preview(awal_rpd, akhir_rpd, lama_pelaksanaan, relasi_perencanaan){
 
 		let jenis=jQuery("#jenis").val();
@@ -492,6 +499,16 @@ $body = '';
 		switch(jenis){
 			case 'rekap':
 				rekap(awal_rpd, akhir_rpd, lama_pelaksanaan, relasi_perencanaan);
+				break;
+
+			case 'pagu_akumulasi':
+				console.log("heloo");
+				let id_unit = jQuery("#list_opd").val();
+				if(id_unit=='' || id_unit=='undefined'){
+					alert('Unit kerja belum dipilih');
+					return;
+				}
+				pagu_akumulasi(id_unit, awal_rpd, akhir_rpd, lama_pelaksanaan, relasi_perencanaan);
 				break;
 
 			default:
@@ -516,10 +533,44 @@ $body = '';
 				api_key:jQuery("#api_key").val(),
 			},
 			success:function(response){
-				jQuery('#wrap-loading').hide();
-				jQuery("#modal-report .modal-preview").html(response.html);
-				jQuery('#modal-report .export-excel').attr("disabled", false);
-				jQuery('#modal-report .export-excel').attr("title", 'Laporan RPD');
+				if(response.status == 'success'){
+						jQuery('#wrap-loading').hide();
+						jQuery("#modal-report .modal-preview").html(response.html);
+						jQuery('#modal-report .export-excel').attr("disabled", false);
+						jQuery('#modal-report .export-excel').attr("title", 'Laporan RPD');
+					}else{
+						alert(`GAGAL! \n${response.message}`)
+					}
+			}
+		})
+	}
+
+	function pagu_akumulasi(id_unit, awal_rpd, akhir_rpd, lama_pelaksanaan, relasi_perencanaan){
+		jQuery("#wrap-loading").show();
+		jQuery.ajax({
+			url:ajax.url,
+			type: 'post',
+			dataType: 'json',
+			data: {
+				action: 'view_pagu_akumulasi_rpd',
+				id_unit: id_unit,
+				awal_rpd:awal_rpd,
+				akhir_rpd:akhir_rpd,
+				lama_pelaksanaan:lama_pelaksanaan,
+				relasi_perencanaan: relasi_perencanaan,
+				tahun_anggaran:tahunAnggaran,
+				api_key: jQuery("#api_key").val(),
+			},
+			success:function(response){
+				if(response.status == 'success'){
+						jQuery('#wrap-loading').hide();
+						jQuery("#modal-report .modal-preview").html(response.html);
+						jQuery('#modal-report .export-excel').attr("disabled", false);
+						jQuery('#modal-report .export-excel').attr("title", 'Laporan Pagu Akumulasi');
+					}else{
+						jQuery('#wrap-loading').hide();
+						alert(`GAGAL! \n${response.message}`)
+					}
 			}
 		})
 	}
