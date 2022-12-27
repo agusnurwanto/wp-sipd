@@ -72,9 +72,9 @@ if(!empty($jadwal_lokal)){
 	$akhir = new DateTime($selesaiJadwal);
 	$now = new DateTime(date('Y-m-d H:i:s'));
 
-	// if($now >= $awal && $now <= $akhir){
+	if($now >= $awal && $now <= $akhir){
 		$add_renstra = '<a style="margin-left: 10px;" id="tambah-data" onclick="return false;" href="#" class="btn btn-success">Tambah Data RENSTRA</a>';
-	// }
+	}
 }
 
 $nama_tipe_relasi = 'RPJMD / RPD';
@@ -3844,8 +3844,8 @@ foreach ($data_all['data'] as $tujuan) {
 		switch(type){
 			case 'tc27':
 				action='view_laporan_tc27';
-				name='Laporan Renstra TC27';
-				title='Laporan Renstra TC27';
+				name='Laporan Renstra TC 27';
+				title='Laporan Renstra TC 27';
 			break;
 
 			default:
@@ -3861,9 +3861,8 @@ foreach ($data_all['data'] as $tujuan) {
 					'action': action,
 		          	'api_key': '<?php echo $api_key; ?>',
 		          	'id_unit': '<?php echo $input['id_skpd']; ?>',
-		          	'lama_pelaksanaan': '<?php echo $lama_pelaksanaan; ?>', 
-		          	'awal_renstra': '<?php echo $awal_renstra; ?>',
-		          	'akhir_renstra': '<?php echo $akhir_renstra; ?>'
+		          	'id_jadwal_lokal':'<?php echo $jadwal_lokal[0]['id_jadwal_lokal']; ?>',
+		          	'tahun_anggaran':'<?php echo $tahun_anggaran; ?>'
 				},
 				success:function(response){
 					
@@ -3882,10 +3881,6 @@ foreach ($data_all['data'] as $tujuan) {
 							+'<i class="dashicons dashicons-yes" style="margin-top: 2px;"></i> Export Excel'
 						+'</button>');
 					jQuery("#modal-crud-renstra").modal('show');
-					
-					jQuery("#table-renstra th.row_head_1").attr('rowspan',3);
-					jQuery("#table-renstra th.row_head_kinerja").attr('colspan',<?php echo (2*$lama_pelaksanaan) ?>);
-					jQuery("#table-renstra th.row_head_1_tahun").attr('colspan',2);
 				}
 			});
 	}

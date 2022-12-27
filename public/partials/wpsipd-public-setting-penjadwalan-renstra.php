@@ -451,7 +451,7 @@ $body = '';
 		}
 	}
 
-	function report(awal_renstra, akhir_renstra, lama_pelaksanaan, relasi_perencanaan){
+	function report(id_jadwal_lokal){
 
 		all_skpd();
 
@@ -479,16 +479,16 @@ $body = '';
 					    	<div class="col-md-6">
 					      		<select class="form-control jenis" id="jenis">
 					      			<option value="-">Pilih Jenis</option>
-					      			<option value="rekap">Format Renstra</option>
+					      			<option value="rekap">Format Rekap Renstra</option>
 					      			<option value="tc27">Format TC 27</option>
-					      			<option value="pagu_akumulasi">Format Pagu Akumulasi</option>
+					      			<option value="pagu_akumulasi">Format Pagu Akumulasi Per Unit Kerja</option>
 				      			</select>
 					    	</div>
 					    </div></br>
 					    <div class="row">
 					    	<div class="col-md-2"></div>
 					    	<div class="col-md-6">
-					      		<button type="button" class="btn btn-success btn-preview" onclick="preview('${awal_renstra}', '${akhir_renstra}', '${lama_pelaksanaan}', '${relasi_perencanaan}')">Preview</button>
+					      		<button type="button" class="btn btn-success btn-preview" onclick="preview('${id_jadwal_lokal}')">Preview</button>
 					      		<button type="button" class="btn btn-primary export-excel" onclick="exportExcel()" disabled>Export Excel</button>
 					    	</div>
 					    </div></br>
@@ -527,7 +527,7 @@ $body = '';
 		})
 	}
 
-	function preview(awal_renstra, akhir_renstra, lama_pelaksanaan, relasi_perencanaan){
+	function preview(id_jadwal_lokal){
 
 		let jenis=jQuery("#jenis").val();
 		let id_unit=jQuery("#list_opd").val();
@@ -544,15 +544,15 @@ $body = '';
 
 		switch(jenis){
 			case 'rekap':
-				rekap(id_unit, awal_renstra, akhir_renstra, lama_pelaksanaan, relasi_perencanaan);
+				generate(id_unit, id_jadwal_lokal, 'view_rekap_renstra', 'Laporan Rekap Renstra');
 				break;
 
 			case 'tc27':
-				tc27(id_unit, awal_renstra, akhir_renstra, lama_pelaksanaan);
+				generate(id_unit, id_jadwal_lokal, 'view_laporan_tc27', 'Laporan Renstra TC 27 | Hal. Jadwal Input Renstra');
 				break;
 
 			case 'pagu_akumulasi':
-				pagu_akumulasi(id_unit, awal_renstra, akhir_renstra, lama_pelaksanaan);
+				generate(id_unit, id_jadwal_lokal, 'view_pagu_akumulasi_renstra', 'Laporan Pagu Akumulasi Per Unit Kerja');
 				break;
 
 			case '-':
@@ -561,48 +561,16 @@ $body = '';
 		}
 	}
 
-	function rekap(id_unit, awal_renstra, akhir_renstra, lama_pelaksanaan, relasi_perencanaan){
+	function generate(id_unit, id_jadwal_lokal, action, title){
 		jQuery("#wrap-loading").show();
 		jQuery.ajax({
 			url:ajax.url,
 			type:'post',
 			dataType:'json',
 			data:{
-				action:'view_rekap_renstra',
+				action:action,
 				id_unit:id_unit,
-				awal_renstra:awal_renstra,
-				akhir_renstra:akhir_renstra,
-				lama_pelaksanaan:lama_pelaksanaan,
-				tahun_anggaran:tahunAnggaran,
-				relasi_perencanaan:relasi_perencanaan,
-				api_key:jQuery("#api_key").val(),
-			},
-			success:function(response){
-				jQuery('#wrap-loading').hide();
-				jQuery("#modal-report .modal-preview").html(response.html);
-				jQuery("#modal-report .modal-preview").css('overflow-x', 'auto');
-				jQuery("#modal-report .modal-preview").css('padding', '15px');
-				jQuery('#modal-report .export-excel').attr("disabled", false);
-				jQuery('#modal-report .export-excel').attr("title", 'Laporan Renstra');
-
-				jQuery("#table-renstra th.row_head_1").attr('rowspan',2);
-				jQuery("#table-renstra th.row_head_1_tahun").attr('colspan',2);
-			}
-		})
-	}
-
-	function tc27(id_unit, awal_renstra, akhir_renstra, lama_pelaksanaan){
-		jQuery("#wrap-loading").show();
-		jQuery.ajax({
-			url:ajax.url,
-			type:'post',
-			dataType:'json',
-			data:{
-				action:'view_laporan_tc27',
-				id_unit:id_unit,
-				awal_renstra:awal_renstra,
-				akhir_renstra:akhir_renstra,
-				lama_pelaksanaan:lama_pelaksanaan,
+				id_jadwal_lokal:id_jadwal_lokal,
 				tahun_anggaran:tahunAnggaran,
 				api_key:jQuery("#api_key").val(),
 			},
@@ -612,41 +580,7 @@ $body = '';
 				jQuery("#modal-report .modal-preview").css('overflow-x', 'auto');
 				jQuery("#modal-report .modal-preview").css('padding', '15px');
 				jQuery('#modal-report .export-excel').attr("disabled", false);
-				jQuery('#modal-report .export-excel').attr("title", 'Laporan TC 27');
-
-				jQuery("#table-renstra th.row_head_1").attr('rowspan',3);
-				jQuery("#table-renstra th.row_head_kinerja").attr('colspan',2*lama_pelaksanaan);
-				jQuery("#table-renstra th.row_head_1_tahun").attr('colspan',2);
-			}
-		})
-	}
-
-	function pagu_akumulasi(id_unit, awal_renstra, akhir_renstra, lama_pelaksanaan){
-		jQuery("#wrap-loading").show();
-		jQuery.ajax({
-			url:ajax.url,
-			type:'post',
-			dataType:'json',
-			data:{
-				action:'view_pagu_akumulasi_renstra',
-				id_unit:id_unit,
-				awal_renstra:awal_renstra,
-				akhir_renstra:akhir_renstra,
-				lama_pelaksanaan:lama_pelaksanaan,
-				tahun_anggaran:tahunAnggaran,
-				api_key:jQuery("#api_key").val(),
-			},
-			success:function(response){
-				jQuery('#wrap-loading').hide();
-				jQuery("#modal-report .modal-preview").html(response.html);
-				jQuery("#modal-report .modal-preview").css('overflow-x', 'auto');
-				jQuery("#modal-report .modal-preview").css('padding', '15px');
-				jQuery('#modal-report .export-excel').attr("disabled", false);
-				jQuery('#modal-report .export-excel').attr("title", 'Laporan Pagu Akumulasi');
-
-				jQuery("#table-renstra th.row_head").attr('rowspan',2);
-				jQuery("#table-renstra th.row_head_tahun").attr('colspan',2);
-				jQuery("#table-renstra th.row_head_tahun_usulan").attr('colspan',2);
+				jQuery('#modal-report .export-excel').attr("title", title);
 			}
 		})
 	}
