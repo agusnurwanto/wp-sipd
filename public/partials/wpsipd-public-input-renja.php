@@ -421,7 +421,7 @@ echo '
 ?>
 
 <div class="modal fade mt-4" id="modalTambahRenja" role="dialog" aria-labelledby="modalTambahRenjaLabel" aria-hidden="true">
-	<div class="modal-dialog modal-lg" role="document">
+	<div class="modal-dialog modal-xl" role="document">
 		<div class="modal-content">
 			<div class="modal-header">
 				<h5 class="modal-title" id="modalTambahRenjaLabel">Tambah Sub Kegiatan</h5>
@@ -453,103 +453,228 @@ echo '
     						<option value="">Pilih Sub Kegiatan</option>
     					</select>
     				</div>
-                    <div class="form-group">
-                        <label for="label_tag">Label (Tag) Sub Kegiatan</label>
-                        <select class="form-control" id="label_tag">
-                            <option value="">Pilih Sub Kegiatan</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="sumber_dana">Sumber Dana</label>
-                        <table style="margin: 0;">
+                    <table>
+                        <thead>
                             <tr>
-                                <td style="width: 40%">
-                                    <select class="form-control" id="sumber_dana">
-                                        <option value="">Pilih Sumber Dana</option>
-                                    </select>
-                                </td>
-                                <td>
-                                    <input class="form-control" type="number" id="pagu_sumber_dana"/>
-                                </td>
-                                <td style="width: 70px" class="text-center">
-                                    <button class="btn btn-warning"><i class="dashicons dashicons-plus"></i></button>
-                                </td>
+                                <th class="text-center" width="50%">Usulan</th>
+                                <th class="text-center" width="50%">Penetapan</th>
                             </tr>
-                        </table>
-                    </div>
-    				<div class="form-group">
-    					<label for="kabupaten">Lokasi Pelaksanaan</label>
-                        <table style="margin: 0;">
+                        </thead>
+                        <tbody>
                             <tr>
                                 <td>
-                                    <select class="form-control" id="kabupaten">
-                                        <option value="">Pilih Kabupaten / Kota</option>
-                                    </select>
+                                    <div class="form-group">
+                                        <label for="label_tag">Label (Tag) Sub Kegiatan</label>
+                                        <select class="form-control" id="label_tag">
+                                            <option value="">Pilih Sub Kegiatan</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="sumber_dana">Sumber Dana</label>
+                                        <table style="margin: 0;">
+                                            <tr>
+                                                <td style="width: 40%">
+                                                    <select class="form-control" name="sumber_dana">
+                                                        <option value="">Pilih Sumber Dana</option>
+                                                    </select>
+                                                </td>
+                                                <td>
+                                                    <input class="form-control" type="number" name="pagu_sumber_dana"/>
+                                                </td>
+                                                <td style="width: 70px" class="text-center">
+                                                    <button class="btn btn-warning" onclick="tambahSumberDana(this); return false;"><i class="dashicons dashicons-plus"></i></button>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </div>
+                    				<div class="form-group">
+                    					<label for="kabupaten">Lokasi Pelaksanaan</label>
+                                        <table style="margin: 0;">
+                                            <tr>
+                                                <td>
+                                                    <select class="form-control" name="kabupaten">
+                                                        <option value="">Pilih Kabupaten / Kota</option>
+                                                    </select>
+                                                </td>
+                                                <td style="width: 30%">
+                                                    <select class="form-control" name="kecamatan">
+                                                        <option value="">Pilih Kecamatan</option>
+                                                    </select>
+                                                </td>
+                                                <td style="width: 30%">
+                                                    <select class="form-control" name="desa">
+                                                        <option value="">Pilih Desa</option>
+                                                    </select>
+                                                </td>
+                                                <td style="width: 70px" class="text-center">
+                                                    <button class="btn btn-warning" onclick="tambahLokasi(this); return false;"><i class="dashicons dashicons-plus"></i></button>
+                                                </td>
+                                            </tr>
+                                        </table>
+                    				</div>
+                                    <div class="form-group">
+                                        <label for="bulan_awal">Waktu Pelaksanaan</label>
+                                        <table style="margin: 0;">
+                                            <tr>
+                                                <td style="width: 50%;">
+                                                    <select class="form-control" id="bulan_awal">
+                                                        <option value="">Pilih Bulan Awal</option>
+                                                    </select>
+                                                </td>
+                                                <td style="width: 50%;">
+                                                    <select class="form-control" id="bulan_akhir">
+                                                        <option value="">Pilih Bulan Akhir</option>
+                                                    </select>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="pagu_sub_kegiatan">Anggaran Sub Kegiatan</label>
+                                        <input class="form-control" type="number" id="pagu_sub_kegiatan"/>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="pagu_sub_kegiatan_1">Anggaran Sub Kegiatan Tahun Berikutnya</label>
+                                        <input class="form-control" type="number" id="pagu_sub_kegiatan_1"/>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="bulan_awal">Indikator Sub Kegiatan</label>
+                                        <table style="margin: 0;">
+                                            <tr data-id="1" header="1">
+                                                <td colspan="2">
+                                                    <select class="form-control" name="tolak_ukur">
+                                                        <option value="">Pilih Nama Indikator</option>
+                                                    </select>
+                                                </td>
+                                                <td rowspan="2" style="width: 70px; vertical-align: middle;" class="text-center">
+                                                    <button class="btn btn-warning" onclick="tambahIndikator(this); return false;"><i class="dashicons dashicons-plus"></i></button>
+                                                </td>
+                                            </tr>
+                                            <tr data-id="1">
+                                                <td style="width: 50%;">
+                                                    <input class="form-control" type="number" name="target" placeholder="Target Indikator"/>
+                                                </td>
+                                                <td style="width: 50%;">
+                                                    <select class="form-control" name="satuan">
+                                                        <option value="">Pilih Satuan</option>
+                                                    </select>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="catatan_usulan">Catatan</label>
+                                        <textarea class="form-control" id="catatan_usulan"></textarea>
+                                    </div>
                                 </td>
-                                <td style="width: 30%">
-                                    <select class="form-control" id="kecamatan">
-                                        <option value="">Pilih Kecamatan</option>
-                                    </select>
-                                </td>
-                                <td style="width: 30%">
-                                    <select class="form-control" id="desa">
-                                        <option value="">Pilih Desa</option>
-                                    </select>
-                                </td>
-                                <td style="width: 70px" class="text-center">
-                                    <button class="btn btn-warning"><i class="dashicons dashicons-plus"></i></button>
-                                </td>
-                            </tr>
-                        </table>
-    				</div>
-                    <div class="form-group">
-                        <label for="bulan_awal">Waktu Pelaksanaan</label>
-                        <table style="margin: 0;">
-                            <tr>
-                                <td style="width: 50%;">
-                                    <select class="form-control" id="bulan_awal">
-                                        <option value="">Pilih Bulan Awal</option>
-                                    </select>
-                                </td>
-                                <td style="width: 50%;">
-                                    <select class="form-control" id="bulan_akhir">
-                                        <option value="">Pilih Bulan Akhir</option>
-                                    </select>
-                                </td>
-                            </tr>
-                        </table>
-                    </div>
-                    <div class="form-group">
-                        <label for="pagu_sub_kegiatan">Anggaran Sub Kegiatan</label>
-                        <input class="form-control" type="number" id="pagu_sub_kegiatan"/>
-                    </div>
-                    <div class="form-group">
-                        <label for="pagu_sub_kegiatan_1">Anggaran Sub Kegiatan Tahun Berikutnya</label>
-                        <input class="form-control" type="number" id="pagu_sub_kegiatan_1"/>
-                    </div>
-                    <div class="form-group">
-                        <label for="bulan_awal">Indikator Sub Kegiatan</label>
-                        <table style="margin: 0;">
-                            <tr>
                                 <td>
-                                    <select class="form-control" id="tolak_ukur">
-                                        <option value="">Pilih Nama Indikator</option>
-                                    </select>
-                                </td>
-                                <td style="width: 100px;">
-                                    <input class="form-control" type="number" id="target" placeholder="Target Indikator"/>
-                                </td>
-                                <td style="width: 150px;">
-                                    <select class="form-control" id="satuan">
-                                        <option value="">Pilih Satuan</option>
-                                    </select>
-                                </td>
-                                <td style="width: 70px" class="text-center">
-                                    <button class="btn btn-warning"><i class="dashicons dashicons-plus"></i></button>
+                                    <div class="form-group">
+                                        <label for="label_tag">Label (Tag) Sub Kegiatan</label>
+                                        <select class="form-control" id="label_tag">
+                                            <option value="">Pilih Sub Kegiatan</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="sumber_dana">Sumber Dana</label>
+                                        <table style="margin: 0;">
+                                            <tr>
+                                                <td style="width: 40%">
+                                                    <select class="form-control" name="sumber_dana">
+                                                        <option value="">Pilih Sumber Dana</option>
+                                                    </select>
+                                                </td>
+                                                <td>
+                                                    <input class="form-control" type="number" name="pagu_sumber_dana"/>
+                                                </td>
+                                                <td style="width: 70px" class="text-center">
+                                                    <button class="btn btn-warning" onclick="tambahSumberDana(this); return false;"><i class="dashicons dashicons-plus"></i></button>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="kabupaten">Lokasi Pelaksanaan</label>
+                                        <table style="margin: 0;">
+                                            <tr>
+                                                <td>
+                                                    <select class="form-control" name="kabupaten">
+                                                        <option value="">Pilih Kabupaten / Kota</option>
+                                                    </select>
+                                                </td>
+                                                <td style="width: 30%">
+                                                    <select class="form-control" name="kecamatan">
+                                                        <option value="">Pilih Kecamatan</option>
+                                                    </select>
+                                                </td>
+                                                <td style="width: 30%">
+                                                    <select class="form-control" name="desa">
+                                                        <option value="">Pilih Desa</option>
+                                                    </select>
+                                                </td>
+                                                <td style="width: 70px" class="text-center">
+                                                    <button class="btn btn-warning" onclick="tambahLokasi(this); return false;"><i class="dashicons dashicons-plus"></i></button>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="bulan_awal">Waktu Pelaksanaan</label>
+                                        <table style="margin: 0;">
+                                            <tr>
+                                                <td style="width: 50%;">
+                                                    <select class="form-control" id="bulan_awal">
+                                                        <option value="">Pilih Bulan Awal</option>
+                                                    </select>
+                                                </td>
+                                                <td style="width: 50%;">
+                                                    <select class="form-control" id="bulan_akhir">
+                                                        <option value="">Pilih Bulan Akhir</option>
+                                                    </select>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="pagu_sub_kegiatan">Anggaran Sub Kegiatan</label>
+                                        <input class="form-control" type="number" id="pagu_sub_kegiatan"/>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="pagu_sub_kegiatan_1">Anggaran Sub Kegiatan Tahun Berikutnya</label>
+                                        <input class="form-control" type="number" id="pagu_sub_kegiatan_1"/>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="bulan_awal">Indikator Sub Kegiatan</label>
+                                        <table style="margin: 0;">
+                                            <tr data-id="1" header="1">
+                                                <td colspan="2">
+                                                    <select class="form-control" name="tolak_ukur">
+                                                        <option value="">Pilih Nama Indikator</option>
+                                                    </select>
+                                                </td>
+                                                <td rowspan="2" style="width: 70px; vertical-align: middle;" class="text-center">
+                                                    <button class="btn btn-warning" onclick="tambahIndikator(this); return false;"><i class="dashicons dashicons-plus"></i></button>
+                                                </td>
+                                            </tr>
+                                            <tr data-id="1">
+                                                <td style="width: 50%;">
+                                                    <input class="form-control" type="number" name="target" placeholder="Target Indikator"/>
+                                                </td>
+                                                <td style="width: 50%;">
+                                                    <select class="form-control" name="satuan">
+                                                        <option value="">Pilih Satuan</option>
+                                                    </select>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="catatan">Catatan</label>
+                                        <textarea class="form-control" id="catatan"></textarea>
+                                    </div>
                                 </td>
                             </tr>
-                        </table>
-                    </div>
+                        </tbody>
+                    </table>
                 </form>
 			</div> 
 			<div class="modal-footer">
@@ -584,6 +709,126 @@ echo '
 	+'<a style="margin-left: 10px;" id="tambah-data" onclick="return false;" href="#" class="btn btn-success">Tambah Data RENJA</a>'
 	+'</label>';
 	jQuery('#action-sipd').append(aksi);
+
+    function tambahIndikator(that){
+        var id = +jQuery(that).closest('tr').attr('data-id');
+        var trnew = ''
+            +'<tr data-id="'+(id+1)+'" header="1">'
+                +'<td colspan="2">'
+                    +'<select class="form-control" name="tolak_ukur">'
+                        +'<option value="">Pilih Nama Indikator</option>'
+                    +'</select>'
+                +'</td>'
+                +'<td style="width: 70px; vertical-align: middle;" class="text-center aksi" rowspan="2">'
+                    +'<button class="btn btn-warning" onclick="tambahIndikator(this); return false;"><i class="dashicons dashicons-plus"></i></button>'
+                +'</td>'
+            +'</tr>'
+            +'<tr data-id="'+(id+1)+'">'
+                +'<td style="width: 50%;">'
+                    +'<input class="form-control" type="number" name="target" placeholder="Target Indikator"/>'
+                +'</td>'
+                +'<td style="width: 50%;">'
+                    +'<select class="form-control" name="satuan">'
+                        +'<option value="">Pilih Satuan</option>'
+                    +'</select>'
+                +'</td>'
+            +'</tr>';
+        var tbody = jQuery(that).closest('tbody');
+        tbody.append(trnew);
+        var tr = tbody.find('>tr');
+        var length = tr.length-2;
+        tr.map(function(i, b){
+            var header = jQuery(b).attr('header');
+            if(header == 1){
+                if(length == i){
+                    var html = '<button class="btn btn-warning" onclick="tambahIndikator(this); return false;"><i class="dashicons dashicons-plus"></i></button>';
+                }else{
+                    var html = '<button class="btn btn-danger" onclick="hapusIndikator(this); return false;"><i class="dashicons dashicons-trash"></i></button>';
+                }
+                jQuery(b).find('>td').last().html(html);
+            }
+        });
+    }
+
+    function hapusIndikator(that){
+        var id = jQuery(that).closest('tr').attr('data-id');
+        jQuery(that).closest('tbody').find('tr[data-id="'+id+'"]').remove();
+    }
+
+    function tambahLokasi(that){
+        var trnew = ''
+            +'<tr>'
+                +'<td>'
+                    +'<select class="form-control" id="kabupaten">'
+                        +'<option value="">Pilih Kabupaten / Kota</option>'
+                    +'</select>'
+                +'</td>'
+                +'<td style="width: 30%">'
+                    +'<select class="form-control" id="kecamatan">'
+                        +'<option value="">Pilih Kecamatan</option>'
+                    +'</select>'
+                +'</td>'
+                +'<td style="width: 30%">'
+                    +'<select class="form-control" id="desa">'
+                        +'<option value="">Pilih Desa</option>'
+                    +'</select>'
+                +'</td>'
+                +'<td style="width: 70px" class="text-center">'
+                    +'<button class="btn btn-warning" onclick="tambahLokasi(this);"><i class="dashicons dashicons-plus"></i></button>'
+                +'</td>'
+            +'</tr>';
+        var tbody = jQuery(that).closest('tbody');
+        tbody.append(trnew);
+        var tr = tbody.find('>tr');
+        var length = tr.length-1;
+        tr.map(function(i, b){
+            if(length == i){
+                var html = '<button class="btn btn-warning" onclick="tambahLokasi(this); return false;"><i class="dashicons dashicons-plus"></i></button>';
+            }else{
+                var html = '<button class="btn btn-danger" onclick="hapusLokasi(this); return false;"><i class="dashicons dashicons-trash"></i></button>';
+            }
+            jQuery(b).find('>td').last().html(html);
+        });
+    }
+
+    function hapusLokasi(that){
+        var tbody = jQuery(that).closest('tbody');
+        jQuery(that).closest('tr').remove();
+    }
+
+    function tambahSumberDana(that){
+        var trnew = ''
+            +'<tr>'
+                +'<td style="width: 60%">'
+                    +'<select class="form-control" name="sumber_dana">'
+                        +'<option value="">Pilih Sumber Dana</option>'
+                    +'</select>'
+                +'</td>'
+                +'<td>'
+                    +'<input class="form-control" type="number" name="pagu_sumber_dana"/>'
+                +'</td>'
+                +'<td style="width: 70px" class="text-center">'
+                    +'<button class="btn btn-warning" onclick="tambahSumberDana(this); return false;"><i class="dashicons dashicons-plus"></i></button>'
+                +'</td>'
+            +'</tr>';
+        var tbody = jQuery(that).closest('tbody');
+        tbody.append(trnew);
+        var tr = tbody.find('>tr');
+        var length = tr.length-1;
+        tr.map(function(i, b){
+            if(length == i){
+                var html = '<button class="btn btn-warning" onclick="tambahSumberDana(this); return false;"><i class="dashicons dashicons-plus"></i></button>';
+            }else{
+                var html = '<button class="btn btn-danger" onclick="hapusSumberDana(this); return false;"><i class="dashicons dashicons-trash"></i></button>';
+            }
+            jQuery(b).find('>td').last().html(html);
+        });
+    }
+
+    function hapusSumberDana(that){
+        var tbody = jQuery(that).closest('tbody');
+        jQuery(that).closest('tr').remove();
+    }
 
     function get_data_sub_unit(id_skpd){
 		jQuery.ajax({
