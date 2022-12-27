@@ -4645,7 +4645,7 @@ class Wpsipd_Public_Base_3
 							'status_rpjm' => false
 						];
 
-						if(!empty($tujuan_value['kode_sasaran_rpjm']) && $relasi_perencanaan != '-'){
+						if(!empty($tujuan_value['kode_sasaran_rpjm']) && $jadwal_lokal->relasi_perencanaan != '-'){
 							$table = 'data_rpjmd_sasaran_lokal';
 							switch ($jadwal_lokal->id_tipe_relasi) {
 								case '2':
@@ -5360,10 +5360,8 @@ class Wpsipd_Public_Base_3
 
 				$html='
 					<style type="text/css">
-						.debug-tujuan, .debug-sasaran, .debug-program, .debug-kegiatan, .debug-kode { display: none; }
 						.indikator_program { min-height: 40px; }
 						.indikator_kegiatan { min-height: 40px; }
-						.modal {overflow-y:auto;}
 						.tr-tujuan {
 						    background: #0000ff1f;
 						}
