@@ -3534,14 +3534,21 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		);
 		if (!empty($_POST)) {
 			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+				$all_id_sub_skpd = array();
+				foreach ($_POST['subkeg_aktif'] as $v) {
+					$id = explode('.', $v['kode_sbl']);
+					$all_id_sub_skpd[$id[1]] = $wpdb->prepare('%d', $id[1]);
+				}
+				$all_id_sub_skpd = implode(',', $all_id_sub_skpd);
 				$sub_bl = $wpdb->get_results($wpdb->prepare("
 					SELECT 
 						kode_sbl 
 					from data_sub_keg_bl 
 					where tahun_anggaran=%d 
-						AND id_sub_skpd=%s"
-					, $_POST['tahun_anggaran'], $_POST['id_unit']
+						AND id_sub_skpd IN ($all_id_sub_skpd)"
+					, $_POST['tahun_anggaran']
 				), ARRAY_A);
+				$ret['sql'] = $wpdb->last_query;
 				foreach ($sub_bl as $k => $sub) {
 					$cek_aktif = false;
 					foreach ($_POST['subkeg_aktif'] as $v) {
@@ -3556,7 +3563,6 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 					}
 					$wpdb->update('data_sub_keg_bl', array( 'active' => $aktif ), array(
 						'tahun_anggaran' => $_POST['tahun_anggaran'],
-						'id_sub_skpd' => $_POST['id_unit'],
 						'kode_sbl' => $sub['kode_sbl']
 					));
 					$wpdb->update('data_sub_keg_indikator', array( 'active' => $aktif ), array(
