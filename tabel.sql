@@ -3649,6 +3649,7 @@ CREATE TABLE `data_rpd_program_lokal` (
   `urut_saspok` tinyint(4) DEFAULT NULL,
   `urut_tujuan` tinyint(4) DEFAULT NULL,
   `visi_teks` text DEFAULT NULL,
+  `catatan` text DEFAULT NULL,
   `update_at` datetime NOT NULL,
   `active` tinyint(4) NOT NULL,
   PRIMARY KEY  (id)
@@ -3914,6 +3915,7 @@ CREATE TABLE `data_rpd_program_lokal_history` (
   `urut_saspok` tinyint(4) DEFAULT NULL,
   `urut_tujuan` tinyint(4) DEFAULT NULL,
   `visi_teks` text DEFAULT NULL,
+  `catatan` text DEFAULT NULL,
   `update_at` datetime NOT NULL,
   `id_jadwal` int(11) NOT NULL,
   `id_asli` int(11) NOT NULL,

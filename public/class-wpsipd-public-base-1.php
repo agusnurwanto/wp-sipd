@@ -522,6 +522,7 @@ class Wpsipd_Public_Base_1 extends Wpsipd_Public_Base_2{
                     }else if(!empty($_POST['id_unik_tujuan_indikator'])){
                         $where .= $wpdb->prepare(' and id_unik_indikator=%s', $_POST['id_unik_tujuan_indikator']);
                     }
+                    $where .= ' ORDER BY no_urut ASC';
                 }else if($_POST['table'] == 'data_rpd_sasaran_lokal'){
                     $table = $_POST['table'];
                     if(!empty($_POST['id_unik_tujuan'])){
@@ -531,6 +532,7 @@ class Wpsipd_Public_Base_1 extends Wpsipd_Public_Base_2{
                     }else if(!empty($_POST['id_unik_sasaran_indikator'])){
                         $where .= $wpdb->prepare(' and id_unik_indikator=%s', $_POST['id_unik_sasaran_indikator']);
                     }
+                    $where .= ' ORDER BY sasaran_no_urut ASC';
                 }else if($_POST['table'] == 'data_rpd_program_lokal'){
                     $table = $_POST['table'];
                     if(!empty($_POST['id_unik_sasaran'])){
@@ -559,11 +561,62 @@ class Wpsipd_Public_Base_1 extends Wpsipd_Public_Base_2{
                                 if(!empty($_POST['id_unik_tujuan_indikator'])){
                                     $_POST['id_unik_tujuan'] = $tujuan['id_unik'];
                                 }
+                                $sasaran = $wpdb->get_results($wpdb->prepare("
+                                    SELECT 
+                                        id_unik
+                                    from data_rpd_sasaran_lokal 
+                                    where id_unik_indikator IS NULL
+                                        AND active=1
+                                        AND kode_tujuan=%s
+                                ", $tujuan['id_unik']), ARRAY_A);
+                                $kd_all_sasaran = array();
+                                foreach($sasaran as $sas){
+                                    $kd_all_sasaran[] = "'".$sas['id_unik']."'";
+                                }
+                                $kd_all_sasaran =  implode(',', $kd_all_sasaran);
+                                if(empty($kd_all_sasaran)){
+                                    $kd_all_sasaran = 0;
+                                }
+
+                                $program = $wpdb->get_results($wpdb->prepare("
+                                    SELECT 
+                                        id_unik
+                                    from data_rpd_program_lokal 
+                                    where id_unik_indikator IS NULL
+                                        AND active=1
+                                        AND kode_sasaran in ($kd_all_sasaran)
+                                ", $sasaran['id_unik']), ARRAY_A);
+                                $kd_all_prog = array();
+                                foreach($program as $prog){
+                                    $kd_all_prog[] = "'".$prog['id_unik']."'";
+                                }
+                                $kd_all_prog =  implode(',', $kd_all_prog);
+                                if(empty($kd_all_prog)){
+                                    $kd_all_prog = 0;
+                                }
+
+                                $pagu = $wpdb->get_row($wpdb->prepare("
+                                    SELECT 
+                                        sum(pagu_1) as pagu_akumulasi_1,
+                                        sum(pagu_2) as pagu_akumulasi_2,
+                                        sum(pagu_3) as pagu_akumulasi_3,
+                                        sum(pagu_4) as pagu_akumulasi_4,
+                                        sum(pagu_5) as pagu_akumulasi_5
+                                    from data_rpd_program_lokal 
+                                    where id_unik_indikator IS NOT NULL
+                                        AND active=1
+                                        AND id_unik in ($kd_all_prog)
+                                "), ARRAY_A);
                                 $data_all[$tujuan['id_unik']] = array(
                                     'id' => $tujuan['id'],
                                     'id_unik' => $tujuan['id_unik'],
                                     'nama' => $tujuan['tujuan_teks'],
                                     'id_jadwal_rpjpd' => $id_jadwal_rpjpd,
+                                    'pagu_akumulasi_1' => $pagu['pagu_akumulasi_1'],
+                                    'pagu_akumulasi_2' => $pagu['pagu_akumulasi_2'],
+                                    'pagu_akumulasi_3' => $pagu['pagu_akumulasi_3'],
+                                    'pagu_akumulasi_4' => $pagu['pagu_akumulasi_4'],
+                                    'pagu_akumulasi_5' => $pagu['pagu_akumulasi_5'],
                                     'rpjpd' => array(),
                                     'detail' => array(),
                                     'no_urut' => $tujuan['no_urut'],
@@ -614,10 +667,43 @@ class Wpsipd_Public_Base_1 extends Wpsipd_Public_Base_2{
                     }else if($_POST['table'] == 'data_rpd_sasaran_lokal'){
                         foreach ($ret['data'] as $sasaran) {
                             if(empty($data_all[$sasaran['id_unik']])){
+                                $program = $wpdb->get_results($wpdb->prepare("
+                                    SELECT 
+                                        id_unik
+                                    from data_rpd_program_lokal 
+                                    where id_unik_indikator IS NULL
+                                        AND active=1
+                                        AND kode_sasaran=%s
+                                ", $sasaran['id_unik']), ARRAY_A);
+                                $kd_all_prog = array();
+                                foreach($program as $prog){
+                                    $kd_all_prog[] = "'".$prog['id_unik']."'";
+                                }
+                                $kd_all_prog =  implode(',', $kd_all_prog);
+                                if(empty($kd_all_prog)){
+                                    $kd_all_prog = 0;
+                                }
+                                $pagu = $wpdb->get_row($wpdb->prepare("
+                                    SELECT 
+                                        sum(pagu_1) as pagu_akumulasi_1,
+                                        sum(pagu_2) as pagu_akumulasi_2,
+                                        sum(pagu_3) as pagu_akumulasi_3,
+                                        sum(pagu_4) as pagu_akumulasi_4,
+                                        sum(pagu_5) as pagu_akumulasi_5
+                                    from data_rpd_program_lokal 
+                                    where id_unik_indikator IS NOT NULL
+                                        AND active=1
+                                        AND id_unik in ($kd_all_prog)
+                                "), ARRAY_A);
                                 $data_all[$sasaran['id_unik']] = array(
                                     'id' => $sasaran['id'],
                                     'id_unik' => $sasaran['id_unik'],
                                     'nama' => $sasaran['sasaran_teks'],
+                                    'pagu_akumulasi_1' => $pagu['pagu_akumulasi_1'],
+                                    'pagu_akumulasi_2' => $pagu['pagu_akumulasi_2'],
+                                    'pagu_akumulasi_3' => $pagu['pagu_akumulasi_3'],
+                                    'pagu_akumulasi_4' => $pagu['pagu_akumulasi_4'],
+                                    'pagu_akumulasi_5' => $pagu['pagu_akumulasi_5'],
                                     'sasaran_no_urut' => $sasaran['sasaran_no_urut'],
                                     'sasaran_catatan' => $sasaran['sasaran_catatan'],
                                     'indikator_catatan_teks'=> $sasaran['indikator_catatan_teks'],
@@ -631,11 +717,28 @@ class Wpsipd_Public_Base_1 extends Wpsipd_Public_Base_2{
                     }else if($_POST['table'] == 'data_rpd_program_lokal'){
                         foreach ($ret['data'] as $program) {
                             if(empty($data_all[$program['id_unik']])){
+                                $pagu = $wpdb->get_row($wpdb->prepare("
+                                    SELECT 
+                                        sum(pagu_1) as pagu_akumulasi_1,
+                                        sum(pagu_2) as pagu_akumulasi_2,
+                                        sum(pagu_3) as pagu_akumulasi_3,
+                                        sum(pagu_4) as pagu_akumulasi_4,
+                                        sum(pagu_5) as pagu_akumulasi_5
+                                    from data_rpd_program_lokal 
+                                    where id_unik_indikator IS NOT NULL
+                                        AND active=1
+                                        AND id_unik=%s
+                                ", $program['id_unik']), ARRAY_A);
                                 $data_all[$program['id_unik']] = array(
                                     'id' => $program['id'],
                                     'id_unik' => $program['id_unik'],
                                     'id_program' => $program['id_program'],
                                     'nama' => $program['nama_program'],
+                                    'pagu_akumulasi_1' => $pagu['pagu_akumulasi_1'],
+                                    'pagu_akumulasi_2' => $pagu['pagu_akumulasi_2'],
+                                    'pagu_akumulasi_3' => $pagu['pagu_akumulasi_3'],
+                                    'pagu_akumulasi_4' => $pagu['pagu_akumulasi_4'],
+                                    'pagu_akumulasi_5' => $pagu['pagu_akumulasi_5'],
                                     'detail' => array()
                                 );
                             }
@@ -894,6 +997,7 @@ class Wpsipd_Public_Base_1 extends Wpsipd_Public_Base_2{
                                 'target_5' => $_POST['vol_5'],
                                 'pagu_5' => $_POST['pagu_5'],
                                 'target_akhir' => $_POST['vol_akhir'],
+                                'catatan' => $_POST['catatan'],
                                 'satuan' => $_POST['satuan'],
                                 'update_at' => date('Y-m-d H:i:s'),
                                 'active' => 1
@@ -923,6 +1027,7 @@ class Wpsipd_Public_Base_1 extends Wpsipd_Public_Base_2{
                             $data = array(
                                 'kode_sasaran' => $_POST['id_sasaran'],
                                 'nama_program' => $_POST['nama_program'],
+                                'catatan' => $_POST['catatan'],
                                 'id_program' => $_POST['data'],
                                 'update_at' => date('Y-m-d H:i:s'),
                                 'active' => 1
@@ -1062,7 +1167,27 @@ class Wpsipd_Public_Base_1 extends Wpsipd_Public_Base_2{
                         WHERE u.tahun_anggaran=$tahun_anggaran
                         GROUP BY u.kode_program, s.kode_skpd
                         ORDER BY u.kode_program ASC, s.kode_skpd ASC 
-                    ");
+                    ", ARRAY_A);
+                    $data2 = $wpdb->get_results("
+                        SELECT
+                            s.id_skpd,
+                            s.kode_skpd,
+                            s.nama_skpd,
+                            u.nama_urusan,
+                            u.nama_program,
+                            u.kode_program,
+                            u.id_program,
+                            u.nama_bidang_urusan
+                        FROM data_prog_keg as u 
+                        INNER JOIN data_unit as s on s.active=1
+                            and s.is_skpd=1
+                            and s.tahun_anggaran=u.tahun_anggaran
+                        WHERE u.tahun_anggaran=$tahun_anggaran
+                            and u.kode_bidang_urusan like 'X.XX%'
+                        GROUP BY u.kode_program, s.kode_skpd
+                        ORDER BY u.kode_program ASC, s.kode_skpd ASC 
+                    ", ARRAY_A);
+                    $data = array_merge($data, $data2);
                 }
                 $ret['data'] = $data;
             }else{

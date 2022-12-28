@@ -14224,7 +14224,12 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 								$lock	= '<a class="btn btn-success mr-2" href="#" onclick="return lock_data_penjadwalan(\''.$recVal['id_jadwal_lokal'].'\');" title="Kunci data penjadwalan"><i class="dashicons dashicons-unlock"></i></a>';
 								$edit	= '<a class="btn btn-warning mr-2" href="#" onclick="return edit_data_penjadwalan(\''.$recVal['id_jadwal_lokal'].'\');" title="Edit data penjadwalan"><i class="dashicons dashicons-edit"></i></a>';
 								$delete	= '<a class="btn btn-danger" href="#" onclick="return hapus_data_penjadwalan(\''.$recVal['id_jadwal_lokal'].'\');" title="Hapus data penjadwalan"><i class="dashicons dashicons-trash"></i></a>';
-								$delete	.= '<a class="btn btn-danger" href="#" onclick="copy_usulan(); return false;" title="Copy Data Usulan ke Penetapan">Copy Data Usulan</a>';
+								if(
+									$tipe_perencanaan == 4
+									|| $tipe_perencanaan == 5
+								){
+									$delete	.= '<a class="btn btn-danger" href="#" onclick="copy_usulan(); return false;" title="Copy Data Usulan ke Penetapan">Copy Data Usulan</a>';
+								}
 							}
 	
 							$status = array(

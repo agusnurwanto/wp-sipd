@@ -43,6 +43,46 @@ $unit = (!empty($unit)) ? $unit : array();
 $nama_skpd = (!empty($unit[0]['nama_skpd'])) ? $unit[0]['nama_skpd'] : '-';
 
 $sql_anggaran = $wpdb->prepare("
+    SELECT 
+        k.kode_urusan,
+        k.nama_urusan,
+        k.kode_bidang_urusan,
+        k.nama_bidang_urusan,
+        k.kode_program,
+        k.nama_program,
+        k.kode_giat,
+        k.nama_giat,
+        k.kode_skpd,
+        k.nama_skpd,
+        k.kode_sub_skpd,
+        k.nama_sub_skpd,
+        k.kode_sub_giat,
+        k.nama_sub_giat,
+        r.subs_bl_teks,
+        sum(r.rincian) as rincian,
+        ms.nama_dana
+    FROM data_sub_keg_bl as k 
+    INNER JOIN data_rka as r on k.kode_sbl=r.kode_sbl 
+        and r.active=k.active 
+        and r.tahun_anggaran=k.tahun_anggaran 
+    LEFT JOIN data_mapping_sumberdana as s on r.id_rinci_sub_bl=s.id_rinci_sub_bl 
+        and s.active=k.active 
+        and s.tahun_anggaran=k.tahun_anggaran 
+    LEFT JOIN data_sumber_dana as ms on ms.id_dana=s.id_sumber_dana 
+        and ms.tahun_anggaran=k.tahun_anggaran 
+    WHERE
+        k.tahun_anggaran=%d
+        AND k.active=1
+        AND k.id_sub_skpd=%d
+    GROUP BY k.kode_sub_skpd ASC, k.kode_sub_giat, r.subs_bl_teks
+    ORDER BY k.kode_sub_skpd ASC, k.kode_sub_giat ASC
+    ",$input["tahun_anggaran"], $input['id_skpd']);
+
+echo '
+    <h2>SQL untuk select total rincian per kelompok belanja (#)</h2>
+    <pre>'.$sql_anggaran.'</pre>';
+
+$sql_anggaran = $wpdb->prepare("
     SELECT
         k.id,
         k.id_sub_skpd,
@@ -189,55 +229,4 @@ $sql_anggaran = $wpdb->prepare("
 
 echo '
     <h2>SQL untuk select semua rincian</h2>
-    <pre>'.$sql_anggaran.'</pre>';
-
-$sql_anggaran = $wpdb->prepare("
-    SELECT 
-        k.kode_giat,
-        k.id_program,
-        k.nama_lokasi,
-        k.pagu_n_lalu,
-        k.label_prov,
-        k.kode_program,
-        k.kode_sub_giat,
-        k.no_program,
-        k.kode_urusan,
-        k.kode_bidang_urusan,
-        k.nama_program,
-        k.id_bidang_urusan,
-        k.nama_bidang_urusan,
-        k.pagu,
-        k.nama_sub_giat,
-        k.pagu_n_depan,
-        k.nama_giat,
-        k.kode_skpd,
-        k.nama_skpd,
-        k.kode_sub_skpd,
-        k.id_skpd,
-        k.nama_sub_skpd,
-        k.nama_urusan,
-        k.pagu_keg,
-        k.kode_bl,
-        k.kode_sbl,
-        r.subs_bl_teks,
-        sum(r.rincian) as rincian,
-        ms.id_dana,
-        ms.nama_dana
-    FROM data_sub_keg_bl as k 
-    INNER JOIN data_rka as r on k.kode_sbl=r.kode_sbl 
-        and r.active=k.active 
-        and r.tahun_anggaran=k.tahun_anggaran 
-    LEFT JOIN data_mapping_sumberdana as s on r.id_rinci_sub_bl=s.id_rinci_sub_bl 
-        and s.active=k.active 
-        and s.tahun_anggaran=k.tahun_anggaran 
-    LEFT JOIN data_sumber_dana as ms on ms.id_dana=s.id_sumber_dana 
-        and ms.tahun_anggaran=k.tahun_anggaran 
-    WHERE
-        k.tahun_anggaran=%d
-        AND k.active=1
-        AND k.id_sub_skpd=%d
-    ",$input["tahun_anggaran"], $input['id_skpd']);
-
-echo '
-    <h2>SQL untuk select total rincian per kelompok belanja (#)</h2>
     <pre>'.$sql_anggaran.'</pre>';
