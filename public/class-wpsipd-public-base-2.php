@@ -1508,7 +1508,7 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 							<td class="kiri atas kanan bawah text_tengah">'.$no.'.</td>
 							<td class="atas kanan bawah">'.$unit['nama_skpd'].'</td>';
 							for ($i=1; $i <= $jadwal_lokal->lama_pelaksanaan; $i++) { 
-								$body.='<td class="atas kanan bawah">'.$this->_number_format($unit['pagu_'.$i]).'</td>';
+								$body.='<td class="atas kanan bawah text_kanan">'.$this->_number_format($unit['pagu_'.$i]).'</td>';
 							}
 						$body.='</tr>';
 						$no++;
@@ -1516,7 +1516,7 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 					$body.='<tr>
 							<td class="kiri atas kanan bawah text_tengah" colspan="2"><b>TOTAL PAGU</b></td>';
 							for ($i=1; $i <= $jadwal_lokal->lama_pelaksanaan; $i++) { 
-								$body.='<td class="atas kanan bawah"><b>'.$this->_number_format($data_all['pagu_'.$i.'_total']).'</b></td>';
+								$body.='<td class="atas kanan bawah text_kanan"><b>'.$this->_number_format($data_all['pagu_'.$i.'_total']).'</b></td>';
 							}
 					$body.='</tr>';
 
@@ -1524,7 +1524,7 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 					$html ='<div id="preview" style="padding: 5px; overflow: auto; height: 80vh;">
 						<h4 style="text-align: center; margin: 0; font-weight: bold;">PAGU AKUMULASI RPD Per Unit Kerja 
 						<br>Tahun '.$jadwal_lokal->awal_rpd.' - '.$jadwal_lokal->akhir_rpd.' '.$nama_pemda.'
-						<br>'.$jadwal_lokal->nama_jadwal.'
+						<br>Tahapan: '.$jadwal_lokal->nama_jadwal.'
 						</h4>
 						<table id="table-renstra" cellpadding="2" cellspacing="0" style="font-family:\'Open Sans\',-apple-system,BlinkMacSystemFont,\'Segoe UI\',sans-serif; border-collapse: collapse; font-size: 70%; border: 0; table-layout: fixed;" contenteditable="false">
 							<thead><tr>
