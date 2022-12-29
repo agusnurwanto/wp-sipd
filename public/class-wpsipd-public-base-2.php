@@ -1561,4 +1561,61 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 
 		die(json_encode($ret));
 	}
+
+	public function singkron_master_indikator_sub_keg(){
+		global $wpdb;
+		$ret = array(
+			'status'	=> 'success',
+			'message' 	=> 'Berhasil sinkron data master indikator sub kegiatan!',
+			'data'		=> array(),
+		);
+
+		if(!empty($_POST)){
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+				$ret['data'] = 'on progress';	
+				// $cek = $wpdb->get_var($wpdb->prepare(
+				// 	"SELECT	id_sub_keg 
+				// 	FROM data_master_indikator_indikator_subgiat
+				// 	WHERE
+				// 		id_skpd=%d
+				// 		AND id_sub_keg=%d
+				// 		AND tahun_anggaran=%d
+				// 		AND active=1",
+				// 	$_POST['id_skpd'],$_POST['id_sub_keg'],$_POST['tahun_anggaran']));
+
+				// $opsi = array(
+				// 	'id_skpd' => $_POST['id_skpd'],
+				// 	'id_sub_keg' => $_POST['id_sub_keg'],
+				// 	'indikator' => $_POST['indikator'],
+				// 	'satuan' => $_POST['satuan'],
+				// 	'active' => 1,
+				// 	'tahun_anggaran' => $_POST['tahun_anggaran'],
+				// 	'update_at' => current_time('mysql')
+				// );
+
+				// $wpdb->query( $wpdb->prepare(
+				// 	'UPDATE data_master_indikator_subgiat
+				// 		SET active = %d',
+				// 		0)
+				// );
+
+				// if(!empty($cek)){
+				// 	$wpdb->update('data_master_indikator_subgiat', $opsi, array(
+				// 		'id_sub_giat' => $_POST['id_sub_keg'],
+				// 		'tahun_anggaran' => $_POST['tahun_anggaran']
+				// 	));
+				// }else{
+				// 	$wpdb->insert('data_master_indikator_subgiat',$opsi);
+				// }
+			}else{
+				$ret['status'] = 'error';
+				$ret['message'] = 'APIKEY tidak sesuai!';
+			}
+		}else{
+			$ret['status']	= 'error';
+			$ret['message']	= 'Format Salah!';
+		}
+
+		die(json_encode($ret));
+	}
 }

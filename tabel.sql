@@ -4147,3 +4147,35 @@ CREATE TABLE `data_skpd_sirup` (
   `update_at` datetime NOT NULL,
   PRIMARY KEY  (id)
 );
+
+CREATE TABLE `data_master_indikator_subgiat` (
+  `id` int(11) NOT NULL auto_increment,
+  `id_skpd` int(11) NOT NULL,
+  `id_sub_keg` int(11) NOT NULL,
+  `indikator` text NOT NULL,
+  `satuan` text NOT NULL,
+  `active` tinyint(4) NOT NULL,
+  `tahun_anggaran` year(4) NOT NULL,
+  `updated_at` datetime NOT NULL,
+  PRIMARY KEY (id)
+);
+
+CREATE TABLE `data_prioritas_prov` (
+  `id` int(11) NOT NULL auto_increment,
+  `id_prioritas` int(11) NOT NULL,
+  `teks_prioritas` text NOT NULL,
+  `active` tinyint(4) NOT NULL,
+  `tahun_anggaran` year(4) NOT NULL,
+  `update_at` datetime NOT NULL,
+  PRIMARY KEY (id)
+);
+
+CREATE TABLE `data_prioritas_kokab` (
+  `id` int(11) NOT NULL auto_increment,
+  `id_prioritas` int(11) NOT NULL,
+  `teks_prioritas` text NOT NULL,
+  `active` tinyint(4) NOT NULL,
+  `tahun_anggaran` year(4) NOT NULL,
+  `update_at` datetime NOT NULL,
+  PRIMARY KEY (id)
+);
