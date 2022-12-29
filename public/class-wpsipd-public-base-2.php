@@ -396,7 +396,7 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 		);
 		if (!empty($_POST)) {
 			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
-				$table_content = '<option value="">Pilih Satuan</option>';
+				$table_content = '<option value="">Pilih Perangkat Daerah</option>';
 				if(!empty($_POST['id_skpd'])){
 					$ret['data'] = $wpdb->get_results(
 						$wpdb->prepare("
