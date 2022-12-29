@@ -681,31 +681,31 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 
 		if (!empty($_POST)) {
             if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( WPSIPD_API_KEY )) {
-				if(!empty($_POST['relasi_perencanaan']) && !empty($_POST['tahun_anggaran']) && !empty($_POST['awal_rpd']) && !empty($_POST['akhir_rpd']) && !empty($_POST['lama_pelaksanaan'])){
-					$id_jadwal_rpjpd 	= $_POST['relasi_perencanaan'];
-					$tahun_anggaran 	= $_POST['tahun_anggaran'];
-					$awal_rpd			= $_POST['awal_rpd'];
-					$akhir_rpd 			= $_POST['akhir_rpd'];
-					$lama_pelaksanaan 	= $_POST['lama_pelaksanaan'];
-				
-					// $cek_jadwal = $this->validasi_jadwal_perencanaan('rpd');
-					// $jadwal_lokal = $cek_jadwal['data'];
-					// $lama_pelaksanaan = 4;
-					// $tahun_anggaran = '2022';
-					// $namaJadwal = '-';
-					// $mulaiJadwal = '-';
-					// $selesaiJadwal = '-';
-					// if(!empty($jadwal_lokal)){
-						// 	$tahun_anggaran = $jadwal_lokal[0]['tahun_anggaran'];
-						// 	$namaJadwal = $jadwal_lokal[0]['nama'];
-						// 	$mulaiJadwal = $jadwal_lokal[0]['waktu_awal'];
-						// 	$selesaiJadwal = $jadwal_lokal[0]['waktu_akhir'];
-						// 	$id_jadwal_rpjpd = $jadwal_lokal[0]['relasi_perencanaan'];
-						// 	$lama_pelaksanaan = $jadwal_lokal[0]['lama_pelaksanaan'];
-						// }
+				if(!empty($_POST['id_jadwal_lokal'])){
+					$id_jadwal_lokal 	= $_POST['id_jadwal_lokal'];
 					
+					$data_jadwal_lokal = $wpdb->get_results($wpdb->prepare(
+						'SELECT *
+						FROM data_jadwal_lokal
+						WHERE id_jadwal_lokal=%d',
+						$id_jadwal_lokal),
+					ARRAY_A);
+
+					if(empty($data_jadwal_lokal)){
+						$ret = array(
+							'status' => 'error',
+							'message'   => 'Data tidak ditemukan!'
+						);
+
+						die(json_encode($ret));
+					}
+
+					$namaJadwal = $data_jadwal_lokal[0]['nama'];
+					$tahun_anggaran = $data_jadwal_lokal[0]['tahun_anggaran'];
+					$lama_pelaksanaan	= $data_jadwal_lokal[0]['lama_pelaksanaan'];
 					$awal_rpd = $tahun_anggaran;
 					$akhir_rpd = $awal_rpd+$lama_pelaksanaan-1;
+					$id_jadwal_rpjpd = $data_jadwal_lokal[0]['relasi_perencanaan'];	
 					$nama_pemda = get_option('_crb_daerah');
 
 					$bulan = date('m');
@@ -715,19 +715,29 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 						'data' => array()
 					);
 
-
 					$tujuan_ids = array();
 					$sasaran_ids = array();
 					$program_ids = array();
 					$skpd_filter = array();
 
+					$where_tabel = '';
+					$where = '';
+					$where_t = '';
+					if($data_jadwal_lokal[0]['status'] == 1){
+						$where_tabel = '_history';
+						$where = ' AND id_jadwal='.$data_jadwal_lokal[0]['id_jadwal_lokal'];
+						$where_t = ' AND t.id_jadwal='.$data_jadwal_lokal[0]['id_jadwal_lokal'];
+					}
+
 					$sql = "
 						select 
 							t.*,
 							i.isu_teks 
-						from data_rpd_tujuan_lokal t
+						from data_rpd_tujuan_lokal".$where_tabel." t
 						left join data_rpjpd_isu i on t.id_isu = i.id
-						where t.active=1
+						where 
+							t.active=1
+							".$where_t."
 						order by t.no_urut asc
 					";
 					if(!empty($id_jadwal_rpjpd)){
@@ -735,9 +745,11 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 							select 
 								t.*,
 								i.isu_teks 
-							from data_rpd_tujuan_lokal t
+							from data_rpd_tujuan_lokal".$where_tabel." t
 							left join data_rpjpd_isu_history i on t.id_isu = i.id_asli
-							where t.active=1
+							where 
+								t.active=1
+								".$where_t."
 							order by t.no_urut asc
 						";
 					}
@@ -753,9 +765,10 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 							$sql = $wpdb->prepare("
 								select 
 									* 
-								from data_rpd_sasaran_lokal
+								from data_rpd_sasaran_lokal".$where_tabel."
 								where kode_tujuan=%s
 									and active=1
+									".$where."
 									order by sasaran_no_urut asc
 							", $tujuan['id_unik']);
 							$sasaran_all = $wpdb->get_results($sql, ARRAY_A);
@@ -770,9 +783,10 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 									$sql = $wpdb->prepare("
 										select 
 											* 
-										from data_rpd_program_lokal
+										from data_rpd_program_lokal".$where_tabel."
 										where kode_sasaran=%s
 											and active=1
+											".$where."
 									", $sasaran['id_unik']);
 									$program_all = $wpdb->get_results($sql, ARRAY_A);
 									foreach ($program_all as $program) {
@@ -841,20 +855,22 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 							select 
 								t.*,
 								i.isu_teks 
-							from data_rpd_tujuan_lokal t
+							from data_rpd_tujuan_lokal".$where_tabel." t
 							left join data_rpjpd_isu i on t.id_isu = i.id
 							where t.id_unik not in (".implode(',', $tujuan_ids).")
 								and t.active=1
+								".$where_t."
 						";
 						if(!empty($id_jadwal_rpjpd)){
 							$sql = "
 								select 
 									t.*,
 									i.isu_teks 
-								from data_rpd_tujuan_lokal t
+								from data_rpd_tujuan_lokal".$where_tabel." t
 								left join data_rpjpd_isu_history i on t.id_isu = i.id_asli
 								where t.id_unik not in (".implode(',', $tujuan_ids).")
 									and t.active=1
+									".$where_t."
 							";
 						}
 					}else{
@@ -862,18 +878,20 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 							select 
 								t.*,
 								i.isu_teks 
-							from data_rpd_tujuan_lokal t
+							from data_rpd_tujuan_lokal".$where_tabel." t
 							left join data_rpjpd_isu i on t.id_isu = i.id
 							where t.active=1
+							".$where_t."
 						";
 						if(!empty($id_jadwal_rpjpd)){
 							$sql = "
 								select 
 									t.*,
 									i.isu_teks 
-								from data_rpd_tujuan_lokal t
+								from data_rpd_tujuan_lokal".$where_tabel." t
 								left join data_rpjpd_isu_history i on t.id_isu = i.id_asli
 								where t.active=1
+								".$where_t."
 							";
 						}
 					}
@@ -890,9 +908,10 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 						$sql = $wpdb->prepare("
 							select 
 								* 
-							from data_rpd_sasaran_lokal
+							from data_rpd_sasaran_lokal".$where_tabel."
 							where kode_tujuan=%s
 								and active=1
+								".$where."
 						", $tujuan['id_unik']);
 						$sasaran_all = $wpdb->get_results($sql, ARRAY_A);
 						foreach ($sasaran_all as $sasaran) {
@@ -908,9 +927,10 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 							$sql = $wpdb->prepare("
 								select 
 									* 
-								from data_rpd_program_lokal
+								from data_rpd_program_lokal".$where_tabel."
 								where kode_sasaran=%s
 									and active=1
+									".$where."
 							", $sasaran['id_unik']);
 							$program_all = $wpdb->get_results($sql, ARRAY_A);
 							foreach ($program_all as $program) {
@@ -943,16 +963,18 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 						$sql = "
 							select 
 								* 
-							from data_rpd_sasaran_lokal
+							from data_rpd_sasaran_lokal".$where_tabel."
 							where id_unik not in (".implode(',', $sasaran_ids).")
 								and active=1
+								".$where."
 						";
 					}else{
 						$sql = "
 							select 
 								* 
-							from data_rpd_sasaran_lokal
+							from data_rpd_sasaran_lokal".$where_tabel."
 							where active=1
+							".$where."
 						";
 					}
 					$sasaran_all_kosong = $wpdb->get_results($sql, ARRAY_A);
@@ -968,9 +990,10 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 						$sql = $wpdb->prepare("
 							select 
 								* 
-							from data_rpd_program_lokal
+							from data_rpd_program_lokal".$where_tabel."
 							where kode_sasaran=%s
 								and active=1
+								".$where."
 						", $sasaran['id_unik']);
 						$program_all = $wpdb->get_results($sql, ARRAY_A);
 						foreach ($program_all as $program) {
@@ -1002,16 +1025,18 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 						$sql = "
 							select 
 								* 
-							from data_rpd_program_lokal
+							from data_rpd_program_lokal".$where_tabel."
 							where id_unik not in (".implode(',', $program_ids).")
 								and active=1
+								".$where."
 						";
 					}else{
 						$sql = "
 							select 
 								* 
-							from data_rpd_program_lokal
+							from data_rpd_program_lokal".$where_tabel."
 							where active=1
+							".$where."
 						";
 					}
 					$program_all = $wpdb->get_results($sql, ARRAY_A);
@@ -1175,6 +1200,7 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 								$target_5 = array();
 								$target_akhir = array();
 								$satuan = array();
+								$nama_skpd = array();
 								foreach ($program['data'] as $indikator_program) {
 									$text_indikator[] = '<div class="indikator_program">'.$indikator_program['nama'].$this->button_edit_monev($tujuan['detail'][0]['id_unik'].'||'.$sasaran['detail'][0]['id_unik'].'||'.$indikator_program['data']['id_unik'].'|'.$indikator_program['data']['id_unik_indikator']).'</div>';
 									$target_awal[] = '<div class="indikator_program">'.$indikator_program['data']['target_awal'].'</div>';
@@ -1185,6 +1211,7 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 									$target_5[] = '<div class="indikator_program">'.$indikator_program['data']['target_5'].'</div>'.number_format($indikator_program['data']['pagu_5'],0,",",".");
 									$target_akhir[] = '<div class="indikator_program">'.$indikator_program['data']['target_akhir'].'</div>';
 									$satuan[] = '<div class="indikator_program">'.$indikator_program['data']['satuan'].'</div>';
+									$nama_skpd[] = '<div class="indikator_program">'.$indikator_program['data']['kode_skpd'].' '.$indikator_program['data']['nama_skpd'].'</div>';
 								}
 								$text_indikator = implode('', $text_indikator);
 								$target_awal = implode('', $target_awal);
@@ -1195,6 +1222,7 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 								$target_5 = implode('', $target_5);
 								$target_akhir = implode('', $target_akhir);
 								$satuan = implode('', $satuan);
+								$nama_skpd = implode('', $nama_skpd);
 								$target_html = "";
 								for($i=1; $i<=$lama_pelaksanaan; $i++){
 									$target_html .= '<td class="atas kanan bawah text_tengah">'.${'target_'.$i}.'</td>';
@@ -1213,7 +1241,7 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 										'.$target_html.'
 										<td class="atas kanan bawah text_tengah">'.$target_akhir.'</td>
 										<td class="atas kanan bawah text_tengah">'.$satuan.'</td>
-										<td class="atas kanan bawah">'.$program['kode_skpd'].' '.$program['nama_skpd'].'</td>
+										<td class="atas kanan bawah">'.$nama_skpd.'</td>
 										<td class="atas kanan bawah" colspan="2">'.$catatan_program.'</td>
 										<td class="atas kanan bawah">'.$catatan_indikator_program.'</td>
 									</tr>
@@ -1342,8 +1370,194 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 		global $wpdb;
         $ret = array(
             'status'    => 'success',
-            'message'   => 'Masih dalam pengembangan!' //'Berhasil generate laporan renstra!'
+            'message'   => 'Berhasil generate laporan pagu akumulasi!',
+			'html'		=> ''
         );
+
+		if (!empty($_POST)) {
+            if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( WPSIPD_API_KEY )) {
+				if(!empty($_POST['id_unit']) && !empty($_POST['id_jadwal_lokal'])){
+
+					$nama_pemda = get_option('_crb_daerah');
+					$id_unit = $_POST['id_unit'];
+					$id_jadwal_lokal = $_POST['id_jadwal_lokal'];
+
+					$jadwal_lokal = $wpdb->get_row($wpdb->prepare("
+						SELECT 
+							nama AS nama_jadwal,
+							tahun_anggaran AS awal_rpd,
+							(tahun_anggaran+lama_pelaksanaan-1) AS akhir_rpd,
+							lama_pelaksanaan,
+							status 
+						FROM `data_jadwal_lokal` 
+							WHERE id_jadwal_lokal=%d", $id_jadwal_lokal));
+
+					if(empty($jadwal_lokal)){
+						$ret = array(
+							'status'	=> 'error',
+							'message'	=> 'Data tidak ditemukan!'
+						);
+						
+						die(json_encode($ret));
+					}
+					$tahun_anggaran = $jadwal_lokal->awal_rpd;
+
+					$_suffix='';
+					$where='';
+					if($jadwal_lokal->status){
+						$_suffix='_history';
+						$where='AND id_jadwal='.$id_jadwal_lokal;
+					}
+
+					$where_skpd = '';
+					if(!empty($id_unit)){
+						if($id_unit !='all'){
+							$where_skpd = "and id_skpd=".$id_unit;
+						}
+					}
+
+					$sql = $wpdb->prepare("
+						SELECT 
+							* 
+						FROM data_unit 
+						WHERE tahun_anggaran=%d
+							".$where_skpd."
+							AND is_skpd=1
+							AND active=1
+						ORDER BY id_skpd ASC
+					", $tahun_anggaran);
+
+					$units = $wpdb->get_results($sql, ARRAY_A);
+
+					$data_all = array(
+						'data' => array(),
+						'pagu_1_total' => 0,
+						'pagu_2_total' => 0,
+						'pagu_3_total' => 0,
+						'pagu_4_total' => 0,
+						'pagu_5_total' => 0
+					);
+
+					foreach ($units as $unit) {
+						if(empty($data_all['data'][$unit['id_skpd']])){
+							$data_all['data'][$unit['id_skpd']] = [
+								'kode_skpd' => $unit['kode_skpd'],
+								'nama_skpd' => $unit['nama_skpd'],
+								'pagu_1' => 0,
+								'pagu_2' => 0,
+								'pagu_3' => 0,
+								'pagu_4' => 0,
+								'pagu_5' => 0,
+							];
+						}
+
+						$tujuan_all = $wpdb->get_results($wpdb->prepare("
+							SELECT 
+								DISTINCT id_unik 
+							FROM data_rpd_tujuan_lokal".$_suffix." 
+							WHERE 
+								active=1 $where ORDER BY no_urut
+						"), ARRAY_A);
+
+						foreach ($tujuan_all as $keyTujuan => $tujuan_value) {
+							$sasaran_all = $wpdb->get_results($wpdb->prepare("
+								SELECT 
+									DISTINCT id_unik 
+								FROM data_rpd_sasaran_lokal".$_suffix." 
+								WHERE 
+									kode_tujuan=%s AND 
+									active=1 $where ORDER BY sasaran_no_urut
+							", $tujuan_value['id_unik']), ARRAY_A);
+
+							foreach ($sasaran_all as $keySasaran => $sasaran_value) {
+								$program_all = $wpdb->get_results($wpdb->prepare("
+								SELECT 
+									COALESCE(SUM(pagu_1), 0) AS pagu_1, 
+									COALESCE(SUM(pagu_2), 0) AS pagu_2, 
+									COALESCE(SUM(pagu_3), 0) AS pagu_3, 
+									COALESCE(SUM(pagu_4), 0) AS pagu_4, 
+									COALESCE(SUM(pagu_5), 0) AS pagu_5
+								FROM data_rpd_program_lokal".$_suffix." 
+								WHERE 
+									id_unit=%d AND
+									kode_sasaran=%s AND 
+									active=1 $where ORDER BY id",
+									$unit['id_skpd'],$sasaran_value['id_unik']), ARRAY_A);
+
+								foreach ($program_all as $keyProgram => $program_value) {
+									$data_all['data'][$unit['id_skpd']]['pagu_1']+=$program_value['pagu_1'];
+									$data_all['data'][$unit['id_skpd']]['pagu_2']+=$program_value['pagu_2'];
+									$data_all['data'][$unit['id_skpd']]['pagu_3']+=$program_value['pagu_3'];
+									$data_all['data'][$unit['id_skpd']]['pagu_4']+=$program_value['pagu_4'];
+									$data_all['data'][$unit['id_skpd']]['pagu_5']+=$program_value['pagu_5'];
+
+									$data_all['pagu_1_total']+=$program_value['pagu_1'];
+									$data_all['pagu_2_total']+=$program_value['pagu_2'];
+									$data_all['pagu_3_total']+=$program_value['pagu_3'];
+									$data_all['pagu_4_total']+=$program_value['pagu_4'];
+									$data_all['pagu_5_total']+=$program_value['pagu_5'];
+								}
+							}
+						}
+					}
+
+					$body = '';
+					$no=1;
+					foreach ($data_all['data'] as $key => $unit) {
+						$body.='<tr>
+							<td class="kiri atas kanan bawah text_tengah">'.$no.'.</td>
+							<td class="atas kanan bawah">'.$unit['nama_skpd'].'</td>';
+							for ($i=1; $i <= $jadwal_lokal->lama_pelaksanaan; $i++) { 
+								$body.='<td class="atas kanan bawah">'.$this->_number_format($unit['pagu_'.$i]).'</td>';
+							}
+						$body.='</tr>';
+						$no++;
+					}
+					$body.='<tr>
+							<td class="kiri atas kanan bawah text_tengah" colspan="2"><b>TOTAL PAGU</b></td>';
+							for ($i=1; $i <= $jadwal_lokal->lama_pelaksanaan; $i++) { 
+								$body.='<td class="atas kanan bawah"><b>'.$this->_number_format($data_all['pagu_'.$i.'_total']).'</b></td>';
+							}
+					$body.='</tr>';
+
+
+					$html ='<div id="preview" style="padding: 5px; overflow: auto; height: 80vh;">
+						<h4 style="text-align: center; margin: 0; font-weight: bold;">PAGU AKUMULASI RPD Per Unit Kerja 
+						<br>Tahun '.$jadwal_lokal->awal_rpd.' - '.$jadwal_lokal->akhir_rpd.' '.$nama_pemda.'
+						<br>'.$jadwal_lokal->nama_jadwal.'
+						</h4>
+						<table id="table-renstra" cellpadding="2" cellspacing="0" style="font-family:\'Open Sans\',-apple-system,BlinkMacSystemFont,\'Segoe UI\',sans-serif; border-collapse: collapse; font-size: 70%; border: 0; table-layout: fixed;" contenteditable="false">
+							<thead><tr>
+									<th style="width: 85px;" class="atas kiri kanan bawah text_tengah text_blok">No</th>
+									<th style="width: 200px;" class="atas kanan bawah text_tengah text_blok">Unit Kerja</th>';
+									for ($i=1; $i <= $jadwal_lokal->lama_pelaksanaan; $i++) { 
+										$html.='<th style="width: 200px;" class="atas kanan bawah text_tengah text_blok">Tahun '.$i.'</th>';
+									}
+								$html.='
+								</tr>';
+								$html.='</thead>
+							<tbody>'.$body.'</tbody>
+						</table>
+					</div>';
+					$ret['html'] = $html;
+				}else{
+					$ret = array(
+						'status'	=> 'error',
+						'message'	=> 'Data ada yang kosong, harap diisi semua!'
+					);
+				}
+			}else{
+            	$ret = array(
+                    'status' => 'error',
+                    'message'   => 'Api Key tidak sesuai!'
+                );
+            }
+        }else{
+        	 $ret = array(
+                'status' => 'error',
+                'message'   => 'Format tidak sesuai!'
+            );
+        }		
 
 		die(json_encode($ret));
 	}

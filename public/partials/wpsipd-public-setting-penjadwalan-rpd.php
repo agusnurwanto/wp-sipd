@@ -418,7 +418,7 @@ $body = '';
 		jQuery("#jadwal_tanggal").val("")
 	}
 
-	function report(awal_rpd,akhir_rpd,lama_pelaksanaan,relasi_perencanaan){
+	function report(id_jadwal_lokal){
 		all_skpd();
 
 		let modal = `
@@ -454,7 +454,7 @@ $body = '';
 					    <div class="row">
 					    	<div class="col-md-2"></div>
 					    	<div class="col-md-6">
-					      		<button type="button" class="btn btn-success btn-preview" onclick="preview('${awal_rpd}', '${akhir_rpd}', '${lama_pelaksanaan}', '${relasi_perencanaan}')">Preview</button>
+					      		<button type="button" class="btn btn-success btn-preview" onclick="preview('${id_jadwal_lokal}')">Preview</button>
 					      		<button type="button" class="btn btn-primary export-excel" onclick="exportExcel()" disabled>Export Excel</button>
 					    	</div>
 					    </div></br>
@@ -481,7 +481,7 @@ $body = '';
 				tahun_anggaran:tahunAnggaran
 			},
 			success:function(response){
-				let list_opd=`<option value="">Pilih OPD</option>`;
+				let list_opd=`<option value="">Pilih OPD</option><option value="all">Semua Unit Kerja</option>`;
 				response.map(function(v,i){
 					list_opd+=`<option value="${v.id_skpd}">${v.nama_skpd}</option>`;
 				});
@@ -492,23 +492,22 @@ $body = '';
 		})
 	}
 
-	function preview(awal_rpd, akhir_rpd, lama_pelaksanaan, relasi_perencanaan){
+	function preview(id_jadwal_lokal){
 
 		let jenis=jQuery("#jenis").val();
 
 		switch(jenis){
 			case 'rekap':
-				rekap(awal_rpd, akhir_rpd, lama_pelaksanaan, relasi_perencanaan);
+				rekap(id_jadwal_lokal);
 				break;
 
 			case 'pagu_akumulasi':
-				console.log("heloo");
 				let id_unit = jQuery("#list_opd").val();
 				if(id_unit=='' || id_unit=='undefined'){
 					alert('Unit kerja belum dipilih');
 					return;
 				}
-				pagu_akumulasi(id_unit, awal_rpd, akhir_rpd, lama_pelaksanaan, relasi_perencanaan);
+				pagu_akumulasi(id_unit, id_jadwal_lokal);
 				break;
 
 			default:
@@ -517,7 +516,7 @@ $body = '';
 		}
 	}
 
-	function rekap(awal_rpd, akhir_rpd, lama_pelaksanaan, relasi_perencanaan){
+	function rekap(id_jadwal_lokal){
 		jQuery("#wrap-loading").show();
 		jQuery.ajax({
 			url:ajax.url,
@@ -525,11 +524,7 @@ $body = '';
 			dataType:'json',
 			data:{
 				action:'view_rekap_rpd',
-				awal_rpd:awal_rpd,
-				akhir_rpd:akhir_rpd,
-				lama_pelaksanaan:lama_pelaksanaan,
-				tahun_anggaran:tahunAnggaran,
-				relasi_perencanaan:relasi_perencanaan,
+				id_jadwal_lokal:id_jadwal_lokal,
 				api_key:jQuery("#api_key").val(),
 			},
 			success:function(response){
@@ -545,7 +540,7 @@ $body = '';
 		})
 	}
 
-	function pagu_akumulasi(id_unit, awal_rpd, akhir_rpd, lama_pelaksanaan, relasi_perencanaan){
+	function pagu_akumulasi(id_unit, id_jadwal_lokal){
 		jQuery("#wrap-loading").show();
 		jQuery.ajax({
 			url:ajax.url,
@@ -554,11 +549,7 @@ $body = '';
 			data: {
 				action: 'view_pagu_akumulasi_rpd',
 				id_unit: id_unit,
-				awal_rpd:awal_rpd,
-				akhir_rpd:akhir_rpd,
-				lama_pelaksanaan:lama_pelaksanaan,
-				relasi_perencanaan: relasi_perencanaan,
-				tahun_anggaran:tahunAnggaran,
+				id_jadwal_lokal: id_jadwal_lokal,
 				api_key: jQuery("#api_key").val(),
 			},
 			success:function(response){
