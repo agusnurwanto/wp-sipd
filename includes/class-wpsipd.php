@@ -201,6 +201,12 @@ class Wpsipd
 		$this->loader->add_action('wp_enqueue_scripts', $plugin_public, 'enqueue_styles');
 		$this->loader->add_action('wp_enqueue_scripts', $plugin_public, 'enqueue_scripts');
 
+		$this->loader->add_action('wp_ajax_get_data_sub_giat',  $plugin_public, 'get_data_sub_giat');
+		$this->loader->add_action('wp_ajax_nopriv_get_data_sub_giat',  $plugin_public, 'get_data_sub_giat');
+
+		$this->loader->add_action('wp_ajax_singkron_master_indikator_sub_keg',  $plugin_public, 'singkron_master_indikator_sub_keg');
+		$this->loader->add_action('wp_ajax_nopriv_singkron_master_indikator_sub_keg',  $plugin_public, 'singkron_master_indikator_sub_keg');
+
 		$this->loader->add_action('wp_ajax_singkron_akun_belanja',  $plugin_public, 'singkron_akun_belanja');
 		$this->loader->add_action('wp_ajax_nopriv_singkron_akun_belanja',  $plugin_public, 'singkron_akun_belanja');
 

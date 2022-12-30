@@ -1583,8 +1583,8 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
 				var no = 0;
 				for(var b in res.data_all){
 					var catatan = '';
-					if(res.data_all[b].detail[0].catatan != null){
-						catatan = res.data_all[b].detail[0].catatan;
+					if(res.data_all[b].catatan != null){
+						catatan = res.data_all[b].catatan;
 					}
 					no++;
 					data_html += ''

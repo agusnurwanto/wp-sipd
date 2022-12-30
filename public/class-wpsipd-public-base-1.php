@@ -733,6 +733,7 @@ class Wpsipd_Public_Base_1 extends Wpsipd_Public_Base_2{
                                     'id' => $program['id'],
                                     'id_unik' => $program['id_unik'],
                                     'id_program' => $program['id_program'],
+                                    'catatan' => $program['catatan'],
                                     'nama' => $program['nama_program'],
                                     'pagu_akumulasi_1' => $pagu['pagu_akumulasi_1'],
                                     'pagu_akumulasi_2' => $pagu['pagu_akumulasi_2'],
@@ -1189,6 +1190,40 @@ class Wpsipd_Public_Base_1 extends Wpsipd_Public_Base_2{
                     ", ARRAY_A);
                     $data = array_merge($data, $data2);
                 }
+                $ret['data'] = $data;
+            }else{
+                $ret = array(
+                    'status' => 'error',
+                    'message'   => 'Api Key tidak sesuai!'
+                );
+            }
+        }else{
+            $ret = array(
+                'status' => 'error',
+                'message'   => 'Format tidak sesuai!'
+            );
+        }
+        die(json_encode($ret));
+    }
+
+    public function get_data_sub_giat(){
+        global $wpdb;
+        $ret = array(
+            'status'    => 'success',
+            'action'    => 'get_data_sub_giat',
+            'message'   => 'Berhasil get data sub kegiatan!'
+        );
+        if (!empty($_POST)) {
+            if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( WPSIPD_API_KEY )) {
+                $tahun_anggaran = $_POST['tahun_anggaran'];
+                $data = $wpdb->get_results($wpdb->prepare("
+                    SELECT
+                        u.*
+                    FROM data_prog_keg as u 
+                    WHERE u.tahun_anggaran=%d
+                    GROUP BY u.kode_program
+                    ORDER BY u.kode_program ASC 
+                ", $tahun_anggaran), ARRAY_A);
                 $ret['data'] = $data;
             }else{
                 $ret = array(

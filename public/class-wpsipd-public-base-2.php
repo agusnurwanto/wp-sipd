@@ -1572,41 +1572,42 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 
 		if(!empty($_POST)){
 			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
-				$ret['data'] = 'on progress';	
-				// $cek = $wpdb->get_var($wpdb->prepare(
-				// 	"SELECT	id_sub_keg 
-				// 	FROM data_master_indikator_indikator_subgiat
-				// 	WHERE
-				// 		id_skpd=%d
-				// 		AND id_sub_keg=%d
-				// 		AND tahun_anggaran=%d
-				// 		AND active=1",
-				// 	$_POST['id_skpd'],$_POST['id_sub_keg'],$_POST['tahun_anggaran']));
+				$tahun_anggaran = $_POST['tahun_anggaran'];
+				$wpdb->update('data_master_indikator_subgiat', array('active' => 0), array(
+					'tahun_anggaran' => $tahun_anggaran
+				));
+				foreach($_POST['data'] as $id_sub => $sub_all){
+					foreach($sub_all as $sub){
+						$cek = $wpdb->get_var($wpdb->prepare("
+							SELECT
+								id 
+							FROM data_master_indikator_subgiat
+							WHERE
+								indikator=%s
+								AND id_sub_keg=%d
+								AND tahun_anggaran=%d
+								AND active=1
+						", $sub['indikator'], $id_sub, $tahun_anggaran));
 
-				// $opsi = array(
-				// 	'id_skpd' => $_POST['id_skpd'],
-				// 	'id_sub_keg' => $_POST['id_sub_keg'],
-				// 	'indikator' => $_POST['indikator'],
-				// 	'satuan' => $_POST['satuan'],
-				// 	'active' => 1,
-				// 	'tahun_anggaran' => $_POST['tahun_anggaran'],
-				// 	'update_at' => current_time('mysql')
-				// );
+						$opsi = array(
+							// 'id_skpd' => null,
+							'id_sub_keg' => $id_sub,
+							'indikator' => $sub['indikator'],
+							'satuan' => $sub['satuan'],
+							'active' => 1,
+							'tahun_anggaran' => $tahun_anggaran,
+							'updated_at' => current_time('mysql')
+						);
 
-				// $wpdb->query( $wpdb->prepare(
-				// 	'UPDATE data_master_indikator_subgiat
-				// 		SET active = %d',
-				// 		0)
-				// );
-
-				// if(!empty($cek)){
-				// 	$wpdb->update('data_master_indikator_subgiat', $opsi, array(
-				// 		'id_sub_giat' => $_POST['id_sub_keg'],
-				// 		'tahun_anggaran' => $_POST['tahun_anggaran']
-				// 	));
-				// }else{
-				// 	$wpdb->insert('data_master_indikator_subgiat',$opsi);
-				// }
+						if(!empty($cek)){
+							$wpdb->update('data_master_indikator_subgiat', $opsi, array(
+								'id' => $cek
+							));
+						}else{
+							$wpdb->insert('data_master_indikator_subgiat',$opsi);
+						}
+					}
+				}
 			}else{
 				$ret['status'] = 'error';
 				$ret['message'] = 'APIKEY tidak sesuai!';
