@@ -1221,8 +1221,6 @@ class Wpsipd_Public_Base_1 extends Wpsipd_Public_Base_2{
                         u.*
                     FROM data_prog_keg as u 
                     WHERE u.tahun_anggaran=%d
-                    GROUP BY u.kode_program
-                    ORDER BY u.kode_program ASC 
                 ", $tahun_anggaran), ARRAY_A);
                 $ret['data'] = $data;
             }else{

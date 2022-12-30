@@ -1586,14 +1586,13 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 								indikator=%s
 								AND id_sub_keg=%d
 								AND tahun_anggaran=%d
-								AND active=1
-						", $sub['indikator'], $id_sub, $tahun_anggaran));
+						", trim($sub['indikator']), $id_sub, $tahun_anggaran));
 
 						$opsi = array(
 							// 'id_skpd' => null,
 							'id_sub_keg' => $id_sub,
-							'indikator' => $sub['indikator'],
-							'satuan' => $sub['satuan'],
+							'indikator' => trim($sub['indikator']),
+							'satuan' => trim($sub['satuan']),
 							'active' => 1,
 							'tahun_anggaran' => $tahun_anggaran,
 							'updated_at' => current_time('mysql')
