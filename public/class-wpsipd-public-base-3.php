@@ -5721,4 +5721,524 @@ class Wpsipd_Public_Base_3
 	    }
 	    die(json_encode($ret));
 	}
+
+	public function get_sub_kegiatan_renstra(){
+		global $wpdb;
+		if (!empty($_POST)) {
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+				if($_POST['type'] == 1){
+					$sql = $wpdb->prepare("
+						SELECT 
+							k.*
+						FROM data_renstra_sub_kegiatan_lokal k
+						WHERE k.kode_giat=%s AND
+							k.id_unik IS NOT NULL and
+							k.id_unik_indikator IS NULL and
+							k.active=1 ORDER BY id
+					", $_POST['kode_kegiatan']);
+					$kegiatan = $wpdb->get_results($sql, ARRAY_A);
+				}
+
+				echo json_encode([
+					'status' => true,
+					'data' => $kegiatan,
+					'message' => 'Sukses get sub kegiatan by kegiatan'
+				]);exit;
+			}
+
+			echo json_encode([
+				'status' => false,
+				'message' => 'Api key tidak sesuai'
+			]);exit;
+		}
+
+		echo json_encode([
+			'status' => false,
+			'message' => 'Format tidak sesuai'
+		]);exit;
+	}
+
+	public function add_sub_kegiatan_renstra(){
+		global $wpdb;
+
+		try{
+			if (!empty($_POST)) {
+				if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+
+					$sql = $wpdb->prepare("
+						SELECT 
+							* 
+						FROM data_prog_keg
+						WHERE id=%d 
+							AND tahun_anggaran=%d
+					", $_POST['id_kegiatan'], $_POST['tahun_anggaran']);
+					$data = $wpdb->get_results($sql, ARRAY_A);
+
+					$sub_kegiatan = [];
+					foreach ($data as $key => $value) {
+						if(empty($sub_kegiatan[$value['kode_sub_giat']])){
+							$sub_kegiatan[$value['kode_sub_giat']] = [
+								'id_sub_giat' => $value['id_sub_giat'],
+								'sub_kegiatan_teks' => $value['nama_sub_giat']
+							];
+						}
+					}
+
+					echo json_encode([
+						'status' => true,
+						'data' => array_values($sub_kegiatan)
+					]);exit;
+
+				}else{
+					throw new Exception('Api key tidak sesuai');
+				}
+			}else{
+				throw new Exception('Format tidak sesuai');
+			}
+		}catch(Exception $e){
+			echo json_encode([
+				'status' => false,
+				'message' => $e->getMessage()
+			]);exit;
+		}
+	}
+
+	public function submit_sub_kegiatan_renstra(){
+		
+		global $wpdb;
+
+		try{
+			if (!empty($_POST)) {
+				if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+					
+					$data = json_decode(stripslashes($_POST['data']), true);
+
+					$this->verify_sub_kegiatan_renstra($data);
+
+					$id_cek = $wpdb->get_var($wpdb->prepare("
+						SELECT 
+							id 
+						FROM data_renstra_sub_kegiatan_lokal
+						WHERE id_sub_giat=%d
+							AND id_giat=%d
+							AND kode_giat=%s
+							AND active=1
+					", $data['id_sub_kegiatan'], $data['id_kegiatan'], $data['kode_kegiatan']));
+					
+					if(!empty($id_cek)){
+						throw new Exception('Sub Kegiatan : '.$data['sub_kegiatan_teks'].' sudah ada! id='.$id_cek);
+					}
+
+					$dataKegiatan = $wpdb->get_row($wpdb->prepare("
+						SELECT 
+							* 
+						FROM data_renstra_kegiatan_lokal 
+						WHERE id_unik=%s 
+							AND id_unik_indikator IS NULL 
+							AND active=1
+					", $data['kode_kegiatan']));
+
+
+					if(empty($dataKegiatan)){
+						throw new Exception('Kegiatan tidak ditemukan!');
+					}
+
+					$dataSubKegiatan = $wpdb->get_row($wpdb->prepare("
+						SELECT 
+							* 
+						FROM data_prog_keg 
+						WHERE id_sub_giat=%d
+							AND tahun_anggaran=%d
+					", $data['id_sub_kegiatan'], get_option('_crb_tahun_anggaran_sipd')));
+
+					if(empty($dataSubKegiatan)){
+						throw new Exception('Sub Kegiatan tidak ditemukan!');
+					}
+
+					try {
+
+					$inputs = [
+							'bidur_lock' => 0,
+							'giat_lock' => 0,
+							'id_bidang_urusan' => $dataKegiatan->id_bidang_urusan,
+							'id_sub_giat' => $dataSubKegiatan->id_sub_giat,
+							'id_giat' => $dataKegiatan->id_giat,
+							'id_misi' => $dataKegiatan->id_misi,
+							'id_program' => $dataKegiatan->id_program,
+							'id_unik' => $this->generateRandomString(), // kode_sub_kegiatan
+							'id_unit' => $dataKegiatan->id_unit,
+							'id_visi' => $dataKegiatan->id_visi,
+							'is_locked' => 0,
+							'is_locked_indikator' => 0,
+							'kode_bidang_urusan' => $dataKegiatan->kode_bidang_urusan,
+							'kode_sub_giat' => $dataSubKegiatan->kode_sub_giat,
+							'kode_giat' => $dataKegiatan->id_unik,
+							'kode_program' => $dataKegiatan->kode_program,
+							'kode_sasaran' => $dataKegiatan->kode_sasaran,
+							'kode_skpd' => $dataKegiatan->kode_skpd,
+							'kode_tujuan' => $dataKegiatan->kode_tujuan,
+							'nama_bidang_urusan' => $dataKegiatan->nama_bidang_urusan,
+							'nama_sub_giat' => $dataSubKegiatan->nama_sub_giat,
+							'nama_giat' => $dataKegiatan->nama_giat,
+							'nama_program' => $dataKegiatan->nama_program,
+							'nama_skpd' => $dataKegiatan->nama_skpd,
+							'program_lock' => $dataKegiatan->program_lock,
+							'renstra_prog_lock' => $dataKegiatan->program_lock,
+							'sasaran_lock' => $dataKegiatan->sasaran_lock,
+							'sasaran_teks' => $dataKegiatan->sasaran_teks,
+							'status' => 1,
+							'tujuan_lock' => $dataKegiatan->tujuan_lock,
+							'tujuan_teks' => $dataKegiatan->tujuan_teks,
+							'urut_sasaran' => $dataKegiatan->urut_sasaran,
+							'urut_tujuan' => $dataKegiatan->urut_tujuan,
+							'active' => 1
+					];
+
+					$inputs['pagu_1_usulan'] = $data['pagu_1_usulan'];
+					$inputs['pagu_2_usulan'] = $data['pagu_2_usulan'];
+					$inputs['pagu_3_usulan'] = $data['pagu_3_usulan'];
+					$inputs['pagu_4_usulan'] = $data['pagu_4_usulan'];
+					$inputs['pagu_5_usulan'] = $data['pagu_5_usulan'];
+					$inputs['catatan_usulan'] = $data['catatan_usulan'];
+
+					if(in_array('administrator', $this->role())){
+						$inputs['pagu_1'] = !empty($data['pagu_1']) || $data['pagu_1']==0 ? $data['pagu_1'] : $data['pagu_1_usulan'];
+						$inputs['pagu_2'] = !empty($data['pagu_2']) || $data['pagu_2']==0 ? $data['pagu_2'] : $data['pagu_2_usulan'];
+						$inputs['pagu_3'] = !empty($data['pagu_3']) || $data['pagu_3']==0 ? $data['pagu_3'] : $data['pagu_3_usulan'];
+						$inputs['pagu_4'] = !empty($data['pagu_4']) || $data['pagu_4']==0 ? $data['pagu_4'] : $data['pagu_4_usulan'];
+						$inputs['pagu_5'] = !empty($data['pagu_5']) || $data['pagu_5']==0 ? $data['pagu_5'] : $data['pagu_5_usulan'];
+						$inputs['catatan'] = $data['catatan'];
+					}
+
+					$status = $wpdb->insert('data_renstra_sub_kegiatan_lokal', $inputs);
+
+					if($status === false){
+						$ket = '';
+						if(in_array('administrator', $this->role())){
+							$ket = " | query: ".$wpdb->last_query;
+						}
+						$ket .= " | error: ".$wpdb->last_error;
+						throw new Exception("Gagal simpan data, harap hubungi admin. $ket", 1);
+					}
+
+						echo json_encode([
+							'status' => true,
+							'message' => 'Sukses simpan sub kegiatan'
+						]);exit;
+
+					} catch (Exception $e) {
+						throw $e;										
+					}
+
+				}else{
+					throw new Exception('Api key tidak sesuai');
+				}
+			}else{
+				throw new Exception('Format tidak sesuai');
+			}
+		}catch(Exception $e){
+			echo json_encode([
+				'status' => false,
+				'message' => $e->getMessage()
+			]);exit;
+		}
+	}
+
+	public function edit_sub_kegiatan_renstra(){
+		global $wpdb;
+
+		try{
+			if (!empty($_POST)) {
+				if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+
+					$sql = $wpdb->prepare("
+						SELECT 
+							* 
+						FROM data_prog_keg
+						WHERE id=%d 
+							AND tahun_anggaran=%d
+					", $_POST['id_kegiatan'], $_POST['tahun_anggaran']);
+					$data = $wpdb->get_results($sql, ARRAY_A);
+
+					$sub_kegiatan = [];
+					foreach ($data as $key => $value) {
+						if(empty($sub_kegiatan[$value['kode_sub_giat']])){
+							$sub_kegiatan[$value['kode_sub_giat']] = [
+								'id_sub_giat' => $value['id_sub_giat'],
+								'sub_kegiatan_teks' => $value['nama_sub_giat']
+							];
+						}
+					}
+
+					$dataSubKegiatan = $wpdb->get_row($wpdb->prepare("
+						SELECT 
+							* 
+						FROM data_renstra_sub_kegiatan_lokal
+						WHERE id=%d
+					", $_POST['id_sub_kegiatan']));
+
+					echo json_encode([
+						'status' => true,
+						'sub_kegiatan' => $dataSubKegiatan,
+						'data' => array_values($sub_kegiatan)
+					]);exit;
+
+				}else{
+					throw new Exception('Api key tidak sesuai');
+				}
+			}else{
+				throw new Exception('Format tidak sesuai');
+			}
+		}catch(Exception $e){
+			echo json_encode([
+				'status' => false,
+				'message' => $e->getMessage()
+			]);exit;
+		}
+	}
+
+	public function update_sub_kegiatan_renstra(){
+
+		global $wpdb;
+
+		try{
+			if (!empty($_POST)) {
+				if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+					
+					$data = json_decode(stripslashes($_POST['data']), true);
+
+					$this->verify_sub_kegiatan_renstra($data);
+
+					$id_cek = $wpdb->get_var($wpdb->prepare("
+						SELECT 
+							id 
+						FROM data_renstra_sub_kegiatan_lokal
+						WHERE id!=%d
+							AND id_sub_giat=%d
+							AND id_giat=%d
+							AND kode_giat=%s
+							AND active=1
+					", $data['id'], $data['id_sub_kegiatan'], $data['id_kegiatan'], $data['kode_kegiatan']));
+					
+					if(!empty($id_cek)){
+						throw new Exception('Sub Kegiatan : '.$data['sub_kegiatan_teks'].' sudah ada! id='.$id_cek);
+					}
+
+					$dataKegiatan = $wpdb->get_row($wpdb->prepare("
+						SELECT 
+							* 
+						FROM data_renstra_kegiatan_lokal 
+						WHERE id_unik=%s 
+							AND id_unik_indikator IS NULL 
+							AND active=1
+					", $data['kode_kegiatan']));
+
+
+					if(empty($dataKegiatan)){
+						throw new Exception('Kegiatan tidak ditemukan!');
+					}
+
+					$dataSubKegiatan = $wpdb->get_row($wpdb->prepare("
+						SELECT 
+							* 
+						FROM data_prog_keg 
+						WHERE id_sub_giat=%d
+							AND tahun_anggaran=%d
+					", $data['id_sub_kegiatan'], get_option('_crb_tahun_anggaran_sipd')));
+
+					if(empty($dataSubKegiatan)){
+						throw new Exception('Sub Kegiatan tidak ditemukan!');
+					}
+
+					try {
+
+						$inputs = [
+								'bidur_lock' => 0,
+								'giat_lock' => 0,
+								'id_bidang_urusan' => $dataKegiatan->id_bidang_urusan,
+								'id_sub_giat' => $dataSubKegiatan->id_sub_giat,
+								'id_giat' => $dataKegiatan->id_giat,
+								'id_misi' => $dataKegiatan->id_misi,
+								'id_program' => $dataKegiatan->id_program,
+								'id_unik' => $this->generateRandomString(), // kode_sub_kegiatan
+								'id_unit' => $dataKegiatan->id_unit,
+								'id_visi' => $dataKegiatan->id_visi,
+								'is_locked' => 0,
+								'is_locked_indikator' => 0,
+								'kode_bidang_urusan' => $dataKegiatan->kode_bidang_urusan,
+								'kode_sub_giat' => $dataSubKegiatan->kode_sub_giat,
+								'kode_giat' => $dataKegiatan->id_unik,
+								'kode_program' => $dataKegiatan->kode_program,
+								'kode_sasaran' => $dataKegiatan->kode_sasaran,
+								'kode_skpd' => $dataKegiatan->kode_skpd,
+								'kode_tujuan' => $dataKegiatan->kode_tujuan,
+								'nama_bidang_urusan' => $dataKegiatan->nama_bidang_urusan,
+								'nama_sub_giat' => $dataSubKegiatan->nama_sub_giat,
+								'nama_giat' => $dataKegiatan->nama_giat,
+								'nama_program' => $dataKegiatan->nama_program,
+								'nama_skpd' => $dataKegiatan->nama_skpd,
+								'program_lock' => $dataKegiatan->program_lock,
+								'renstra_prog_lock' => $dataKegiatan->program_lock,
+								'sasaran_lock' => $dataKegiatan->sasaran_lock,
+								'sasaran_teks' => $dataKegiatan->sasaran_teks,
+								'status' => 1,
+								'tujuan_lock' => $dataKegiatan->tujuan_lock,
+								'tujuan_teks' => $dataKegiatan->tujuan_teks,
+								'urut_sasaran' => $dataKegiatan->urut_sasaran,
+								'urut_tujuan' => $dataKegiatan->urut_tujuan,
+								'active' => 1
+						];
+
+						$inputs['pagu_1_usulan'] = $data['pagu_1_usulan'];
+						$inputs['pagu_2_usulan'] = $data['pagu_2_usulan'];
+						$inputs['pagu_3_usulan'] = $data['pagu_3_usulan'];
+						$inputs['pagu_4_usulan'] = $data['pagu_4_usulan'];
+						$inputs['pagu_5_usulan'] = $data['pagu_5_usulan'];
+						$inputs['catatan_usulan'] = $data['catatan_usulan'];
+
+						if(in_array('administrator', $this->role())){
+							$inputs['pagu_1'] = !empty($data['pagu_1']) || $data['pagu_1']==0 ? $data['pagu_1'] : $data['pagu_1_usulan'];
+							$inputs['pagu_2'] = !empty($data['pagu_2']) || $data['pagu_2']==0 ? $data['pagu_2'] : $data['pagu_2_usulan'];
+							$inputs['pagu_3'] = !empty($data['pagu_3']) || $data['pagu_3']==0 ? $data['pagu_3'] : $data['pagu_3_usulan'];
+							$inputs['pagu_4'] = !empty($data['pagu_4']) || $data['pagu_4']==0 ? $data['pagu_4'] : $data['pagu_4_usulan'];
+							$inputs['pagu_5'] = !empty($data['pagu_5']) || $data['pagu_5']==0 ? $data['pagu_5'] : $data['pagu_5_usulan'];
+							$inputs['catatan'] = $data['catatan'];
+						}
+
+						$status = $wpdb->update('data_renstra_sub_kegiatan_lokal', $inputs, [
+							'id_unik' => $data['kode_sub_kegiatan'],
+							'id_unik_indikator' => 'NULL'
+						]);
+
+						if($status === false){
+							$ket = '';
+							if(in_array('administrator', $this->role())){
+								$ket = " | query: ".$wpdb->last_query;
+							}
+							$ket .= " | error: ".$wpdb->last_error;
+							throw new Exception("Gagal simpan data, harap hubungi admin. $ket", 1);
+						}
+
+						$status = $wpdb->update('data_renstra_sub_kegiatan_lokal', [
+							'id_bidang_urusan' => $dataKegiatan->id_bidang_urusan,
+							'id_sub_giat' => $dataSubKegiatan->id_sub_giat,
+							'id_giat' => $dataKegiatan->id_giat,
+							'id_misi' => $dataKegiatan->id_misi,
+							'id_program' => $dataKegiatan->id_program,
+							'id_unit' => $dataKegiatan->id_unit,
+							'id_visi' => $dataKegiatan->id_visi,
+							'kode_bidang_urusan' => $dataKegiatan->kode_bidang_urusan,
+							'kode_sub_giat' => $dataSubKegiatan->kode_sub_giat,
+							'kode_giat' => $dataKegiatan->id_unik,
+							'kode_program' => $dataKegiatan->kode_program,
+							'kode_sasaran' => $dataKegiatan->kode_sasaran,
+							'kode_skpd' => $dataKegiatan->kode_skpd,
+							'kode_tujuan' => $dataKegiatan->kode_tujuan,
+							'nama_bidang_urusan' => $dataKegiatan->nama_bidang_urusan,
+							'nama_sub_giat' => $dataSubKegiatan->nama_sub_giat,
+							'nama_giat' => $dataKegiatan->nama_giat,
+							'nama_program' => $dataKegiatan->nama_program,
+							'nama_skpd' => $dataKegiatan->nama_skpd,
+							'program_lock' => $dataKegiatan->program_lock,
+							'renstra_prog_lock' => $dataKegiatan->program_lock,
+							'sasaran_lock' => $dataKegiatan->sasaran_lock,
+							'sasaran_teks' => $dataKegiatan->sasaran_teks,
+							'tujuan_lock' => $dataKegiatan->tujuan_lock,
+							'tujuan_teks' => $dataKegiatan->tujuan_teks,
+							'urut_sasaran' => $dataKegiatan->urut_sasaran,
+							'urut_tujuan' => $dataKegiatan->urut_tujuan,
+						], [
+							'id_unik' => $data['kode_sub_kegiatan'],
+							'id_unik_indikator' => 'NOT NULL'
+						]);
+
+						if($status === false){
+							$ket = '';
+							if(in_array('administrator', $this->role())){
+								$ket = " | query: ".$wpdb->last_query;
+							}
+							$ket .= " | error: ".$wpdb->last_error;
+							throw new Exception("Gagal simpan data indikator, harap hubungi admin. $ket", 1);
+						}
+
+						echo json_encode([
+							'status' => true,
+							'message' => 'Sukses simpan sub kegiatan'
+						]);exit;
+
+					} catch (Exception $e) {
+						throw $e;										
+					}
+
+				}else{
+					throw new Exception('Api key tidak sesuai');
+				}
+			}else{
+				throw new Exception('Format tidak sesuai');
+			}
+		}catch(Exception $e){
+			echo json_encode([
+				'status' => false,
+				'message' => $e->getMessage()
+			]);exit;
+		}
+	}
+
+	public function delete_sub_kegiatan_renstra(){
+		global $wpdb;
+		try{
+			if (!empty($_POST)) {
+				if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+
+					$id_cek = $wpdb->get_var($wpdb->prepare("
+						SELECT 
+							* 
+						FROM data_renstra_sub_kegiatan_lokal 
+						WHERE id_unik=%s 
+							AND id_unik_indikator IS NOT NULL 
+							AND active=1
+					", $_POST['id_unik']));
+
+					if(!empty($id_cek)){
+						throw new Exception("Sub kegiatan sudah digunakan oleh indikator sub kegiatan", 1);
+					}
+					
+					$wpdb->get_results($wpdb->prepare("
+						DELETE 
+						FROM data_renstra_sub_kegiatan_lokal 
+						WHERE id=%d
+					", $_POST['id']));
+
+					echo json_encode([
+						'status' => true,
+						'message' => 'Sukses hapus sub kegiatan'
+					]);exit;
+
+				}else{
+					throw new Exception("Api key tidak sesuai", 1);
+				}
+			}else{
+				throw new Exception("Format tidak sesuai", 1);
+			}
+		}catch(Exception $e){
+			echo json_encode([
+				'status' => false,
+				'message' => $e->getMessage()
+			]);exit;
+		}
+	}
+
+	private function verify_sub_kegiatan_renstra(array $data){
+		if(empty($data['id_sub_kegiatan'])){
+			throw new Exception('Sub Kegiatan wajib dipilih!');
+		}
+
+		for ($i=1; $i <= $data['lama_pelaksanaan'] ; $i++) { 
+			if(
+				!is_numeric($data['pagu_'.$i.'_usulan'])
+			){
+				throw new Exception('Pagu usulan sub kegiatan tahun ke-'.$i.' tidak boleh kosong!');
+			}
+		}
+	}
 }
