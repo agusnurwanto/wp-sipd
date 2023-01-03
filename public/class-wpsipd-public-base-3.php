@@ -5556,7 +5556,7 @@ class Wpsipd_Public_Base_3
 					'pagu_2_usulan_total' => 0,
 					'pagu_3_usulan_total' => 0,
 					'pagu_4_usulan_total' => 0,
-					'pagu_5_usulan_total' => 0,
+					'pagu_5_usulan_total' => 0
 				);
 				foreach ($units as $unit) {
 
@@ -5573,7 +5573,7 @@ class Wpsipd_Public_Base_3
 							'pagu_2_usulan' => 0,
 							'pagu_3_usulan' => 0,
 							'pagu_4_usulan' => 0,
-							'pagu_5_usulan' => 0,
+							'pagu_5_usulan' => 0
 						];
 					}
 					
@@ -5630,7 +5630,7 @@ class Wpsipd_Public_Base_3
 										active=1 $where ORDER BY id",
 										$program_value['id_unik'],
 										$sasaran_value['id_unik'],
-										$tujuan_value['id_unik'],
+										$tujuan_value['id_unik']
 									), ARRAY_A);
 
 								foreach ($kegiatan_all as $keyKegiatan => $kegiatan_value) {

@@ -10798,7 +10798,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 								foreach($data_fmis['rincian'] as $rinci){
 									$uraian_belanja = $this->get_uraian_belanja_fmis($rinci['uraian_belanja']);
 									$uraian = $uraian_belanja['uraian'];
-									$keterangan = $uraian_belanja['keterangan'];
+									$keterangan = explode('dan', $uraian_belanja['keterangan'])[0];
 									$sub_sipd = $wpdb->get_results($wpdb->prepare("
 										SELECT
 											id
