@@ -5951,25 +5951,6 @@ class Wpsipd_Public_Base_3
 			if (!empty($_POST)) {
 				if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
 
-					$sql = $wpdb->prepare("
-						SELECT 
-							* 
-						FROM data_prog_keg
-						WHERE id=%d 
-							AND tahun_anggaran=%d
-					", $_POST['id_kegiatan'], $_POST['tahun_anggaran']);
-					$data = $wpdb->get_results($sql, ARRAY_A);
-
-					$sub_kegiatan = [];
-					foreach ($data as $key => $value) {
-						if(empty($sub_kegiatan[$value['kode_sub_giat']])){
-							$sub_kegiatan[$value['kode_sub_giat']] = [
-								'id_sub_giat' => $value['id_sub_giat'],
-								'sub_kegiatan_teks' => $value['nama_sub_giat']
-							];
-						}
-					}
-
 					$dataSubKegiatan = $wpdb->get_row($wpdb->prepare("
 						SELECT 
 							* 
@@ -5979,8 +5960,7 @@ class Wpsipd_Public_Base_3
 
 					echo json_encode([
 						'status' => true,
-						'sub_kegiatan' => $dataSubKegiatan,
-						'data' => array_values($sub_kegiatan)
+						'sub_kegiatan' => $dataSubKegiatan
 					]);exit;
 
 				}else{
@@ -6290,21 +6270,22 @@ class Wpsipd_Public_Base_3
 					
 					$data = json_decode(stripslashes($_POST['data']), true);
 
+					// echo '<pre>';print_r($data);echo '</pre>';die();
+
 					$this->verify_indikator_sub_kegiatan_renstra($data);
 
 					$id_cek = $wpdb->get_var($wpdb->prepare("
 						SELECT 
 							id 
 						FROM data_renstra_sub_kegiatan_lokal
-						WHERE indikator_usulan=%d
+						WHERE indikator_usulan=%s
 							AND id_unik=%s
 							AND id_unik_indikator IS NOT NULL
 							AND active=1
 					", $data['indikator_teks_usulan'], $data['id_unik']));
 					
 					if(!empty($id_cek)){
-						$indikator = $wpdb->get_row($wpdb->prepare("SELECT indikator AS indikator_teks FROM data_master_indikator_subgiat WHERE id_sub_giat=%d AND tahun_anggaran=%d", $data['id_sub_giat'], $data['tahun_anggaran']));
-						throw new Exception('Indikator : '.$indikator->indikator_teks.' sudah ada!');
+						throw new Exception('Indikator : '.$data['indikator_teks_usulan'].' sudah ada!');
 					}
 
 					$dataSubKegiatan = $wpdb->get_row($wpdb->prepare("
@@ -6317,7 +6298,7 @@ class Wpsipd_Public_Base_3
 					", $data['id_unik']));
 
 					if (empty($dataSubKegiatan)) {
-						throw new Exception('Kegiatan yang dipilih tidak ditemukan!');
+						throw new Exception('Sub Kegiatan yang dipilih tidak ditemukan!');
 					}
 
 					$inputs = [
@@ -6394,7 +6375,7 @@ class Wpsipd_Public_Base_3
 
 					echo json_encode([
 						'status' => true,
-						'message' => 'Sukses simpan indikator kegiatan'
+						'message' => 'Sukses simpan indikator sub kegiatan'
 					]);exit;
 
 				}else{
@@ -6418,14 +6399,6 @@ class Wpsipd_Public_Base_3
 			if (!empty($_POST)) {
 				if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
 
-					$listIndikator=$wpdb->get_results($wpdb->prepare("
-						SELECT * 
-						FROM data_master_indikator_subgiat 
-						WHERE id_sub_keg=%d
-							AND tahun_anggaran=%d
-							AND active=1
-					", $_POST['id_sub_giat'], $_POST['tahun_anggaran']));
-					
 					$indikator = $wpdb->get_row($wpdb->prepare("
 						SELECT 
 							* 
@@ -6436,9 +6409,10 @@ class Wpsipd_Public_Base_3
 							AND active=1
 					", $_POST['id'], $_POST['kode_sub_kegiatan']));
 
+					// echo '<pre>';print_r($wpdb->last_query);echo '</pre>';die();
+
 					echo json_encode([
 						'status' => true,
-						'list' => $listIndikator,
 						'data' => $indikator
 					]);exit;
 
@@ -6471,7 +6445,7 @@ class Wpsipd_Public_Base_3
 						SELECT 
 							id 
 						FROM data_renstra_sub_kegiatan_lokal
-						WHERE indikator_usulan=%d
+						WHERE indikator_usulan=%s
 							AND id_unik=%s
 							AND id!=%d
 							AND id_unik_indikator IS NOT NULL
@@ -6479,8 +6453,7 @@ class Wpsipd_Public_Base_3
 					", $data['indikator_teks_usulan'], $data['id_unik'], $data['id']));
 					
 					if(!empty($id_cek)){
-						$indikator = $wpdb->get_row($wpdb->prepare("SELECT indikator AS indikator_teks FROM data_master_indikator_subgiat WHERE id_sub_giat=%d AND tahun_anggaran=%d", $data['id_sub_giat'], $data['tahun_anggaran']));
-						throw new Exception('Indikator : '.$indikator->indikator_teks.' sudah ada!');
+						throw new Exception('Indikator : '.$data['indikator_teks_usulan'].' sudah ada!');
 					}
 
 					$dataSubKegiatan = $wpdb->get_row($wpdb->prepare("
@@ -6649,19 +6622,65 @@ class Wpsipd_Public_Base_3
 		}
 	}
 
+	public function get_list_sub_kegiatan(){
+		global $wpdb;
+
+		try{
+			if (!empty($_POST)) {
+				if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+
+					$sql = $wpdb->prepare("
+						SELECT 
+							* 
+						FROM data_prog_keg
+						WHERE id=%d 
+							AND tahun_anggaran=%d
+					", $_POST['id_kegiatan'], $_POST['tahun_anggaran']);
+					$data = $wpdb->get_results($sql, ARRAY_A);
+
+					$sub_kegiatan = [];
+					foreach ($data as $key => $value) {
+						if(empty($sub_kegiatan[$value['kode_sub_giat']])){
+							$sub_kegiatan[$value['kode_sub_giat']] = [
+								'id_sub_giat' => $value['id_sub_giat'],
+								'sub_kegiatan_teks' => $value['nama_sub_giat']
+							];
+						}
+					}
+
+					echo json_encode([
+						'status' => true,
+						'data' => array_values($sub_kegiatan)
+					]);exit;
+
+				}else{
+					throw new Exception('Api key tidak sesuai');
+				}
+			}else{
+				throw new Exception('Format tidak sesuai');
+			}
+		}catch(Exception $e){
+			echo json_encode([
+				'status' => false,
+				'message' => $e->getMessage()
+			]);exit;
+		}
+	}
+
 	public function get_master_indikator_subgiat(){
 		global $wpdb;
 		try{
 			if (!empty($_POST)) {
 				if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
-				
+
 					$indikator=$wpdb->get_results($wpdb->prepare("
 						SELECT * 
 						FROM data_master_indikator_subgiat 
-						WHERE id_sub_keg=%d
-							AND tahun_anggaran=%d
-							AND active=1
-					", $_POST['id_sub_giat'], $_POST['tahun_anggaran']));
+						WHERE id_sub_keg=%d AND 
+							tahun_anggaran=%d AND 
+							active=1
+					", $_POST['id_sub_giat'], $_POST['tahun_anggaran']
+					));
 
 					echo json_encode([
 						'status' => true,
