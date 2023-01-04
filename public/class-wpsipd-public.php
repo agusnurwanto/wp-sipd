@@ -4426,6 +4426,15 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		echo $table;
 	}
 
+	public function data_mapping_master_fmis($atts)
+	{
+		// untuk disable render shortcode di halaman edit page/post
+		if(!empty($_GET) && !empty($_GET['post'])){
+			return '';
+		}
+		require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/wpsipd-public-mapping-fmis.php';
+	}
+
 	public function monitoring_sql_migrate($atts)
 	{
 		// untuk disable render shortcode di halaman edit page/post
@@ -9963,7 +9972,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		return preg_replace('/\s+/S', " ", $string);
 	}
 
-	public function get_fmis_mapping($options){
+	public function get_fmis_mapping($options, $no_remove=false){
 		if($options['name'] == '_crb_custom_mapping_rekening_fmis'){
 			$mapping = get_option($options['name']);
 			$mapping = explode(',', $mapping);
@@ -9978,7 +9987,11 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 			$ret = array();
 			foreach($mapping as $map){
 				$map = explode(']-[', $map);
-				$ret[str_replace('[', '', $this->removeNewline($map[0]))] = str_replace(']', '', $this->removeNewline($map[1]));
+				if(true == $no_remove){
+					$ret[str_replace('[', '', $map[0])] = str_replace(']', '', $map[1]);
+				}else{
+					$ret[str_replace('[', '', $this->removeNewline($map[0]))] = str_replace(']', '', $this->removeNewline($map[1]));
+				}
 			}
 		}
 		return $ret;

@@ -57,7 +57,10 @@ foreach ($kode_rek as $rek) {
 			$where = '
 				tahun_anggaran='.$input['tahun_anggaran'].' 
 					and active=1 
-					and kode_bl LIKE \''.$opd['idinduk'].'.'.$opd['id_skpd'].'.%\'
+					and ( 
+						kode_bl LIKE \''.$opd['id_unit'].'.'.$opd['id_skpd'].'.%\'
+						OR kode_bl LIKE \''.$opd['idinduk'].'.'.$opd['id_skpd'].'.%\'
+					)
 			';
 			$data = $wpdb->get_row('
 				select 

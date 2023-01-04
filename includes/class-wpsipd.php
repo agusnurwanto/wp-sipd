@@ -687,6 +687,7 @@ class Wpsipd
 		add_shortcode('monitor_rak', array($plugin_public, 'monitor_rak'));
 		add_shortcode('monitor_json_rka', array($plugin_public, 'monitor_json_rka'));
 		add_shortcode('monitor_rkpd_renja', array($plugin_public, 'monitor_rkpd_renja'));
+		add_shortcode('data_mapping_master_fmis', array($plugin_public, 'data_mapping_master_fmis'));
 	}
 
 	/**
