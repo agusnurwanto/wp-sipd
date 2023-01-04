@@ -4031,7 +4031,7 @@ foreach ($data_all['data'] as $tujuan) {
 								+'<div class="card-body">'
 									+'<div class="form-group">'
 										+'<label for="indikator_teks_usulan">Indikator</label></br>'
-						  				+'<select class="form-class opt_indikator" onchange="setSatuan(this, \'satuan_usulan\')" name="indikator_teks_usulan" style="width:100%></select>'
+						  				+'<select class="form-class opt_indikator" onchange="setSatuan(this, \'satuan_usulan\')" name="indikator_teks_usulan" style="width:100%"></select>'
 									+'</div>'
 									+'<div class="form-group">'
 										+'<label for="satuan_usulan">Satuan</label>'

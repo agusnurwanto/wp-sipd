@@ -6673,15 +6673,21 @@ class Wpsipd_Public_Base_3
 			if (!empty($_POST)) {
 				if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
 
+					// $indikator=$wpdb->get_results($wpdb->prepare("
+					// 	SELECT * 
+					// 	FROM data_master_indikator_subgiat 
+					// 	WHERE id_sub_keg=%d AND 
+					// 		tahun_anggaran=%d AND 
+					// 		active=1
+					// ", $_POST['id_sub_giat'], $_POST['tahun_anggaran']
+					// ));
+
 					$indikator=$wpdb->get_results($wpdb->prepare("
 						SELECT * 
 						FROM data_master_indikator_subgiat 
-						WHERE id_sub_keg=%d AND 
-							tahun_anggaran=%d AND 
-							active=1
-					", $_POST['id_sub_giat'], $_POST['tahun_anggaran']
-					));
-
+						WHERE active=1
+					"));
+				
 					echo json_encode([
 						'status' => true,
 						'data' => $indikator,
