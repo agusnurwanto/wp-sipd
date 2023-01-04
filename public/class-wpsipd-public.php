@@ -10814,7 +10814,9 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 									$keterangan = $uraian_belanja['keterangan'];
 									$sub_sipd = $wpdb->get_results($wpdb->prepare("
 										SELECT
-											id
+											id,
+											uraian,
+											keterangan
 										FROM data_pendapatan
 										WHERE tahun_anggaran = %d
 											AND active = 1
@@ -10850,7 +10852,9 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 									$keterangan = $uraian_belanja['keterangan'];
 									$sub_sipd = $wpdb->get_results($wpdb->prepare("
 										SELECT
-											id
+											id,
+											uraian,
+											keterangan
 										FROM data_pembiayaan
 										WHERE tahun_anggaran = %d
 											AND active = 1
