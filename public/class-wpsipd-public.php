@@ -10826,8 +10826,8 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 										$uraian_db = str_replace('&', 'dan', html_entity_decode($val['uraian']));
 										$keterangan_db = str_replace('&', 'dan', html_entity_decode($val['keterangan']));
 										if(
-											removeNewline($uraian) == removeNewline($uraian_db)
-											&& removeNewline($keterangan) == removeNewline($keterangan_db)
+											$this->removeNewline($uraian) == $this->removeNewline($uraian_db)
+											&& $this->removeNewline($keterangan) == $this->removeNewline($keterangan_db)
 										){
 											$new_sub_sipd = $val;
 										}
@@ -10862,8 +10862,8 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 										$uraian_db = str_replace('&', 'dan', html_entity_decode($val['uraian']));
 										$keterangan_db = str_replace('&', 'dan', html_entity_decode($val['keterangan']));
 										if(
-											removeNewline($uraian) == removeNewline($uraian_db)
-											&& removeNewline($keterangan) == removeNewline($keterangan_db)
+											$this->removeNewline($uraian) == $this->removeNewline($uraian_db)
+											&& $this->removeNewline($keterangan) == $this->removeNewline($keterangan_db)
 										){
 											$new_sub_sipd = $val;
 										}
