@@ -10811,7 +10811,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 								foreach($data_fmis['rincian'] as $rinci){
 									$uraian_belanja = $this->get_uraian_belanja_fmis($rinci['uraian_belanja']);
 									$uraian = $uraian_belanja['uraian'];
-									$keterangan = explode('dan', $uraian_belanja['keterangan'])[0];
+									$keterangan = $uraian_belanja['keterangan'];
 									$sub_sipd = $wpdb->get_results($wpdb->prepare("
 										SELECT
 											id
@@ -10820,14 +10820,23 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 											AND active = 1
 											AND id_skpd = %d
 											AND kode_akun = %s
-											AND uraian like %s
-											AND keterangan like %s
-									", $tahun_anggaran, $id_skpd_sipd[0], $rinci['kode_rekening'], $uraian.'%', $keterangan.'%'), ARRAY_A);
-									if(!empty($sub_sipd)){
+									", $tahun_anggaran, $id_skpd_sipd[0], $rinci['kode_rekening']), ARRAY_A);
+									$new_sub_sipd = array();
+									foreach ($sub_sipd as $val) {
+										$uraian_db = str_replace('&', 'dan', html_entity_decode($val['uraian']));
+										$keterangan_db = str_replace('&', 'dan', html_entity_decode($val['keterangan']));
+										if(
+											removeNewline($uraian) == removeNewline($uraian_db)
+											&& removeNewline($keterangan) == removeNewline($keterangan_db)
+										){
+											$new_sub_sipd = $val;
+										}
+									}
+									if(!empty($new_sub_sipd)){
 										$wpdb->update('data_pendapatan', array(
 											'pagu_fmis' => $rinci['jumlah']
 										), array(
-											'id' => $sub_sipd[0]['id']
+											'id' => $new_sub_sipd['id']
 										));
 									}else{
 										$ret['message_rinci'][] = 'Rekening Pendapatan SIPD dari kode_akun='.$rinci['kode_rekening'].', id_skpd='.$id_skpd_sipd[0].' dan aktivitas="'.$rinci['aktivitas'].'" tidak ditemukan | '.$wpdb->last_query;
@@ -10847,14 +10856,23 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 											AND active = 1
 											AND id_skpd = %d
 											AND kode_akun = %s
-											AND uraian like %s
-											AND keterangan like %s
-									", $tahun_anggaran, $id_skpd_sipd[0], $rinci['kode_rekening'], $uraian.'%', $keterangan.'%'), ARRAY_A);
-									if(!empty($sub_sipd)){
+									", $tahun_anggaran, $id_skpd_sipd[0], $rinci['kode_rekening']), ARRAY_A);
+									$new_sub_sipd = array();
+									foreach ($sub_sipd as $val) {
+										$uraian_db = str_replace('&', 'dan', html_entity_decode($val['uraian']));
+										$keterangan_db = str_replace('&', 'dan', html_entity_decode($val['keterangan']));
+										if(
+											removeNewline($uraian) == removeNewline($uraian_db)
+											&& removeNewline($keterangan) == removeNewline($keterangan_db)
+										){
+											$new_sub_sipd = $val;
+										}
+									}
+									if(!empty($new_sub_sipd)){
 										$wpdb->update('data_pembiayaan', array(
 											'pagu_fmis' => $rinci['jumlah']
 										), array(
-											'id' => $sub_sipd[0]['id']
+											'id' => $new_sub_sipd['id']
 										));
 									}else{
 										$ret['message_rinci'][] = 'Rekening Pembiayaan SIPD dari kode_akun='.$rinci['kode_rekening'].', id_skpd='.$id_skpd_sipd[0].' dan aktivitas="'.$rinci['aktivitas'].'" tidak ditemukan | '.$wpdb->last_query;
