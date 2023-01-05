@@ -641,6 +641,9 @@ class Wpsipd
 		$this->loader->add_action('wp_ajax_update_sub_kegiatan_renstra',  $plugin_public, 'update_sub_kegiatan_renstra');
 		$this->loader->add_action('wp_ajax_delete_sub_kegiatan_renstra',  $plugin_public, 'delete_sub_kegiatan_renstra');
 
+		$this->loader->add_action('wp_ajax_get_sub_keg_parent',  $plugin_public, 'get_sub_keg_parent');
+		$this->loader->add_action('wp_ajax_get_indikator_sub_keg_parent',  $plugin_public, 'get_indikator_sub_keg_parent');
+
 		add_shortcode('menu_monev',  array($plugin_public, 'menu_monev'));
 		add_shortcode('datassh', array($plugin_public, 'datassh'));
 		add_shortcode('rekbelanja', array($plugin_public, 'rekbelanja'));
