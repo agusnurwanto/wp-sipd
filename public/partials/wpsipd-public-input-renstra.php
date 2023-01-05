@@ -1914,8 +1914,12 @@ foreach ($data_all['data'] as $tujuan) {
 							<td class="atas kanan bawah"></td>
 							<td class="atas kanan bawah"><br>'.$indikator_kegiatan.'</td>
 							<td class="atas kanan bawah text_tengah"><br>'.$target_awal.'</td>';
-							for ($i=0; $i < $lama_pelaksanaan; $i++) { 
-								$body.="<td class=\"atas kanan bawah text_tengah\"><br>".$target_arr[$i]."</td><td class=\"atas kanan bawah text_kanan\"><b>(".$this->_number_format($kegiatan['pagu_akumulasi_'.($i+1)]).")</b><br>".$pagu_arr[$i]."</td>";
+							for ($i=0; $i < $lama_pelaksanaan; $i++) {
+								$class_warning = '';
+								if($kegiatan['pagu_akumulasi_'.($i+1)] != $kegiatan['pagu_akumulasi_subkegiatan_'.($i+1)]){
+									$class_warning = 'peringatan';
+								} 
+								$body.="<td class=\"atas kanan bawah text_tengah\"><br>".$target_arr[$i]."</td><td class=\"atas kanan bawah text_kanan $class_warning\"><b>(".$this->_number_format($kegiatan['pagu_akumulasi_'.($i+1)]).")</b><br>".$pagu_arr[$i]."</td>";
 							}
 							$body.='
 							<td class="atas kanan bawah text_tengah"><br>'.$target_akhir.'</td>
@@ -1926,8 +1930,12 @@ foreach ($data_all['data'] as $tujuan) {
 							<td class="atas kanan bawah"><br>'.$catatan_indikator.'</td>
 							<td class="atas kanan bawah td-usulan"><br>'.$indikator_kegiatan_usulan.'</td>
 							<td class="atas kanan bawah text_tengah td-usulan"><br>'.$target_awal_usulan.'</td>';
-							for ($i=0; $i < $lama_pelaksanaan; $i++) { 
-								$body.="<td class=\"atas kanan bawah text_tengah td-usulan\"><br>".$target_arr_usulan[$i]."</td><td class=\"atas kanan bawah text_kanan td-usulan\"><b>(".$this->_number_format($kegiatan['pagu_akumulasi_'.($i+1).'_usulan']).")</b><br>".$pagu_arr_usulan[$i]."</td>";
+							for ($i=0; $i < $lama_pelaksanaan; $i++) {
+								$class_warning = '';
+								if($kegiatan['pagu_akumulasi_'.($i+1)] != $kegiatan['pagu_akumulasi_subkegiatan_'.($i+1).'_usulan']){
+									$class_warning = 'peringatan';
+								}
+								$body.="<td class=\"atas kanan bawah text_tengah td-usulan\"><br>".$target_arr_usulan[$i]."</td><td class=\"atas kanan bawah text_kanan td-usulan $class_warning\"><b>(".$this->_number_format($kegiatan['pagu_akumulasi_'.($i+1).'_usulan']).")</b><br>".$pagu_arr_usulan[$i]."</td>";
 							}
 							$body.='
 							<td class="atas kanan bawah text_tengah td-usulan"><br>'.$target_akhir_usulan.'</td>
