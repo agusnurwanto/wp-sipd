@@ -144,6 +144,7 @@ $tujuan_ids = array();
 $sasaran_ids = array();
 $program_ids = array();
 $kegiatan_ids = array();
+$sub_kegiatan_ids = array();
 $nama_pemda = get_option('_crb_daerah');
 
 $tujuan_all = $wpdb->get_results($wpdb->prepare("
@@ -414,7 +415,18 @@ foreach ($tujuan_all as $keyTujuan => $tujuan_value) {
 									'pagu_akumulasi_3_usulan' => 0,
 									'pagu_akumulasi_4_usulan' => 0,
 									'pagu_akumulasi_5_usulan' => 0,
-									'indikator' => array()
+									'pagu_akumulasi_subkegiatan_1' => 0,
+									'pagu_akumulasi_subkegiatan_2' => 0,
+									'pagu_akumulasi_subkegiatan_3' => 0,
+									'pagu_akumulasi_subkegiatan_4' => 0,
+									'pagu_akumulasi_subkegiatan_5' => 0,
+									'pagu_akumulasi_subkegiatan_1_usulan' => 0,
+									'pagu_akumulasi_subkegiatan_2_usulan' => 0,
+									'pagu_akumulasi_subkegiatan_3_usulan' => 0,
+									'pagu_akumulasi_subkegiatan_4_usulan' => 0,
+									'pagu_akumulasi_subkegiatan_5_usulan' => 0,
+									'indikator' => array(),
+									'data' => array(),
 								];
 							}
 							$kegiatan_ids[$kegiatan_value['id_unik']] = "'".$kegiatan_value['id_unik']."'";
@@ -499,6 +511,93 @@ foreach ($tujuan_all as $keyTujuan => $tujuan_value) {
 										'target_akhir_usulan' => $kegiatan_value['target_akhir_usulan'],
 										'catatan_indikator_usulan' => $kegiatan_value['catatan_usulan']
 									];
+								}
+							}
+
+							if(empty($kegiatan_value['id_unik_indikator'])){
+								$sub_kegiatan_all = $wpdb->get_results($wpdb->prepare("
+									SELECT 
+										* 
+									FROM data_renstra_sub_kegiatan_lokal 
+									WHERE 
+										kode_giat=%s AND 
+										kode_program=%s AND 
+										kode_sasaran=%s AND 
+										kode_tujuan=%s AND 
+										active=1 ORDER BY id",
+										$kegiatan_value['id_unik'],
+										$program_value['id_unik'],
+										$sasaran_value['id_unik'],
+										$tujuan_value['id_unik'],
+									), ARRAY_A);
+
+
+
+								foreach ($sub_kegiatan_all as $keySubKegiatan => $sub_kegiatan_value) {
+									
+									if(empty($data_all['data'][$tujuan_value['id_unik']]['data'][$sasaran_value['id_unik']]['data'][$program_value['id_unik']]['data'][$kegiatan_value['id_unik']]['data'][$sub_kegiatan_value['id_unik']])){
+
+										$data_all['data'][$tujuan_value['id_unik']]['data'][$sasaran_value['id_unik']]['data'][$program_value['id_unik']]['data'][$kegiatan_value['id_unik']]['pagu_akumulasi_subkegiatan_1'] += $sub_kegiatan_value['pagu_1'];
+										$data_all['data'][$tujuan_value['id_unik']]['data'][$sasaran_value['id_unik']]['data'][$program_value['id_unik']]['data'][$kegiatan_value['id_unik']]['pagu_akumulasi_subkegiatan_2'] += $sub_kegiatan_value['pagu_2'];
+										$data_all['data'][$tujuan_value['id_unik']]['data'][$sasaran_value['id_unik']]['data'][$program_value['id_unik']]['data'][$kegiatan_value['id_unik']]['pagu_akumulasi_subkegiatan_3'] += $sub_kegiatan_value['pagu_3'];
+										$data_all['data'][$tujuan_value['id_unik']]['data'][$sasaran_value['id_unik']]['data'][$program_value['id_unik']]['data'][$kegiatan_value['id_unik']]['pagu_akumulasi_subkegiatan_4'] += $sub_kegiatan_value['pagu_4'];
+										$data_all['data'][$tujuan_value['id_unik']]['data'][$sasaran_value['id_unik']]['data'][$program_value['id_unik']]['data'][$kegiatan_value['id_unik']]['pagu_akumulasi_subkegiatan_5'] += $sub_kegiatan_value['pagu_5'];
+										$data_all['data'][$tujuan_value['id_unik']]['data'][$sasaran_value['id_unik']]['data'][$program_value['id_unik']]['data'][$kegiatan_value['id_unik']]['pagu_akumulasi_subkegiatan_1_usulan'] += $sub_kegiatan_value['pagu_1_usulan'];
+										$data_all['data'][$tujuan_value['id_unik']]['data'][$sasaran_value['id_unik']]['data'][$program_value['id_unik']]['data'][$kegiatan_value['id_unik']]['pagu_akumulasi_subkegiatan_2_usulan'] += $sub_kegiatan_value['pagu_2_usulan'];
+										$data_all['data'][$tujuan_value['id_unik']]['data'][$sasaran_value['id_unik']]['data'][$program_value['id_unik']]['data'][$kegiatan_value['id_unik']]['pagu_akumulasi_subkegiatan_3_usulan'] += $sub_kegiatan_value['pagu_3_usulan'];
+										$data_all['data'][$tujuan_value['id_unik']]['data'][$sasaran_value['id_unik']]['data'][$program_value['id_unik']]['data'][$kegiatan_value['id_unik']]['pagu_akumulasi_subkegiatan_4_usulan'] += $sub_kegiatan_value['pagu_4_usulan'];
+										$data_all['data'][$tujuan_value['id_unik']]['data'][$sasaran_value['id_unik']]['data'][$program_value['id_unik']]['data'][$kegiatan_value['id_unik']]['pagu_akumulasi_subkegiatan_5_usulan'] += $sub_kegiatan_value['pagu_5_usulan'];
+
+										$data_all['data'][$tujuan_value['id_unik']]['data'][$sasaran_value['id_unik']]['data'][$program_value['id_unik']]['data'][$kegiatan_value['id_unik']]['data'][$sub_kegiatan_value['id_unik']] = [
+											'id' => $sub_kegiatan_value['id'],
+											'id_unik' => $sub_kegiatan_value['id_unik'],
+											'sub_kegiatan_teks' => $sub_kegiatan_value['nama_sub_giat'],
+											'catatan' => $sub_kegiatan_value['catatan'],
+											'catatan_usulan' => $sub_kegiatan_value['catatan_usulan'],
+											'pagu_1' => $sub_kegiatan_value['pagu_1'],
+											'pagu_2' => $sub_kegiatan_value['pagu_2'],
+											'pagu_3' => $sub_kegiatan_value['pagu_3'],
+											'pagu_4' => $sub_kegiatan_value['pagu_4'],
+											'pagu_5' => $sub_kegiatan_value['pagu_5'],
+											'pagu_1_usulan' => $sub_kegiatan_value['pagu_1_usulan'],
+											'pagu_2_usulan' => $sub_kegiatan_value['pagu_2_usulan'],
+											'pagu_3_usulan' => $sub_kegiatan_value['pagu_3_usulan'],
+											'pagu_4_usulan' => $sub_kegiatan_value['pagu_4_usulan'],
+											'pagu_5_usulan' => $sub_kegiatan_value['pagu_5_usulan'],
+											'indikator' => array(),
+										];
+									}
+									$sub_kegiatan_ids[$sub_kegiatan_value['id_unik']] = "'".$sub_kegiatan_value['id_unik']."'";
+
+									if(!empty($sub_kegiatan_value['id_unik_indikator'])){
+										if(empty($data_all['data'][$tujuan_value['id_unik']]['data'][$sasaran_value['id_unik']]['data'][$program_value['id_unik']]['data'][$kegiatan_value['id_unik']]['data'][$sub_kegiatan_value['id_unik']]['indikator'][$sub_kegiatan_value['id_unik_indikator']])){
+
+											$data_all['data'][$tujuan_value['id_unik']]['data'][$sasaran_value['id_unik']]['data'][$program_value['id_unik']]['data'][$kegiatan_value['id_unik']]['data'][$sub_kegiatan_value['id_unik']]['indikator'][$sub_kegiatan_value['id_unik_indikator']] = [
+
+												'id_unik_indikator' => $sub_kegiatan_value['id_unik_indikator'],
+												'indikator_teks' => $sub_kegiatan_value['indikator'],
+												'satuan' => $sub_kegiatan_value['satuan'],
+												'target_1' => $sub_kegiatan_value['target_1'],
+												'target_2' => $sub_kegiatan_value['target_2'],
+												'target_3' => $sub_kegiatan_value['target_3'],
+												'target_4' => $sub_kegiatan_value['target_4'],
+												'target_5' => $sub_kegiatan_value['target_5'],
+												'target_awal' => $sub_kegiatan_value['target_awal'],
+												'target_akhir' => $sub_kegiatan_value['target_akhir'],
+												'catatan_indikator' => $sub_kegiatan_value['catatan'],
+												'indikator_teks_usulan' => $sub_kegiatan_value['indikator_usulan'],
+												'satuan_usulan' => $sub_kegiatan_value['satuan_usulan'],
+												'target_1_usulan' => $sub_kegiatan_value['target_1_usulan'],
+												'target_2_usulan' => $sub_kegiatan_value['target_2_usulan'],
+												'target_3_usulan' => $sub_kegiatan_value['target_3_usulan'],
+												'target_4_usulan' => $sub_kegiatan_value['target_4_usulan'],
+												'target_5_usulan' => $sub_kegiatan_value['target_5_usulan'],
+												'target_awal_usulan' => $sub_kegiatan_value['target_awal_usulan'],
+												'target_akhir_usulan' => $sub_kegiatan_value['target_akhir_usulan'],
+												'catatan_indikator_usulan' => $sub_kegiatan_value['catatan_usulan']
+											];
+										}
+									}
 								}
 							}
 						}
@@ -594,6 +693,27 @@ if(empty($data_all['data']['tujuan_kosong']['data']['sasaran_kosong']['data']['p
 		'pagu_akumulasi_3_usulan' => 0,
 		'pagu_akumulasi_4_usulan' => 0,
 		'pagu_akumulasi_5_usulan' => 0,
+		'indikator' => array(),
+		'data' => array()
+	);
+}
+if(empty($data_all['data']['tujuan_kosong']['data']['sasaran_kosong']['data']['program_kosong']['data']['kegiatan_kosong'])){
+	$data_all['data']['tujuan_kosong']['data']['sasaran_kosong']['data']['program_kosong']['data']['kegiatan_kosong']['data']['sub_kegiatan_kosong'] = array(
+		'id' => '',
+		'id_unik' => '',
+		'sub_kegiatan_teks' => '<span style="color: red">kosong</span>',
+		'catatan' => '',
+		'catatan_usulan' => '',
+		'pagu_1' => 0,
+		'pagu_2' => 0,
+		'pagu_3' => 0,
+		'pagu_4' => 0,
+		'pagu_5' => 0,
+		'pagu_1_usulan' => 0,
+		'pagu_2_usulan' => 0,
+		'pagu_3_usulan' => 0,
+		'pagu_4_usulan' => 0,
+		'pagu_5_usulan' => 0,
 		'indikator' => array(),
 		'data' => array()
 	);
@@ -773,6 +893,16 @@ foreach ($sasaran_all_kosong as $keySasaran => $sasaran_value) {
 							'pagu_akumulasi_3_usulan' => 0,
 							'pagu_akumulasi_4_usulan' => 0,
 							'pagu_akumulasi_5_usulan' => 0,
+							'pagu_akumulasi_subkegiatan_1' => 0,
+							'pagu_akumulasi_subkegiatan_2' => 0,
+							'pagu_akumulasi_subkegiatan_3' => 0,
+							'pagu_akumulasi_subkegiatan_4' => 0,
+							'pagu_akumulasi_subkegiatan_5' => 0,
+							'pagu_akumulasi_subkegiatan_1_usulan' => 0,
+							'pagu_akumulasi_subkegiatan_2_usulan' => 0,
+							'pagu_akumulasi_subkegiatan_3_usulan' => 0,
+							'pagu_akumulasi_subkegiatan_4_usulan' => 0,
+							'pagu_akumulasi_subkegiatan_5_usulan' => 0,
 							'indikator' => array()
 						];
 					}
@@ -846,6 +976,88 @@ foreach ($sasaran_all_kosong as $keySasaran => $sasaran_value) {
 								'target_akhir_usulan' => $kegiatan_value['target_akhir_usulan'],
 								'catatan_indikator_usulan' => $kegiatan_value['catatan_usulan']
 							];
+						}
+					}
+
+					if(empty($kegiatan_value['id_unik_indikator'])){
+						$sub_kegiatan_all = $wpdb->get_results($wpdb->prepare("
+							SELECT 
+								* 
+							FROM data_renstra_sub_kegiatan_lokal 
+								WHERE 
+									kode_giat=%s AND 
+									kode_program=%s AND 
+									kode_sasaran=%s AND 
+									active=1 ORDER BY id",
+									$kegiatan_value['id_unik'],
+									$program_value['id_unik'],
+									$sasaran_value['id_unik']
+								), ARRAY_A);
+
+						foreach ($sub_kegiatan_all as $keySubKegiatan => $sub_kegiatan_value) {
+										
+							if(empty($data_all['data']['tujuan_kosong']['data'][$sasaran_value['id_unik']]['data'][$program_value['id_unik']]['data'][$kegiatan_value['id_unik']]['data'][$sub_kegiatan_value['id_unik']])){
+
+								$data_all['data']['tujuan_kosong']['data'][$sasaran_value['id_unik']]['data'][$program_value['id_unik']]['data'][$kegiatan_value['id_unik']]['pagu_akumulasi_subkegiatan_1'] += $sub_kegiatan_value['pagu_1'];
+								$data_all['data']['tujuan_kosong']['data'][$sasaran_value['id_unik']]['data'][$program_value['id_unik']]['data'][$kegiatan_value['id_unik']]['pagu_akumulasi_subkegiatan_2'] += $sub_kegiatan_value['pagu_2'];
+								$data_all['data']['tujuan_kosong']['data'][$sasaran_value['id_unik']]['data'][$program_value['id_unik']]['data'][$kegiatan_value['id_unik']]['pagu_akumulasi_subkegiatan_3'] += $sub_kegiatan_value['pagu_3'];
+								$data_all['data']['tujuan_kosong']['data'][$sasaran_value['id_unik']]['data'][$program_value['id_unik']]['data'][$kegiatan_value['id_unik']]['pagu_akumulasi_subkegiatan_4'] += $sub_kegiatan_value['pagu_4'];
+								$data_all['data']['tujuan_kosong']['data'][$sasaran_value['id_unik']]['data'][$program_value['id_unik']]['data'][$kegiatan_value['id_unik']]['pagu_akumulasi_subkegiatan_5'] += $sub_kegiatan_value['pagu_5'];
+								$data_all['data']['tujuan_kosong']['data'][$sasaran_value['id_unik']]['data'][$program_value['id_unik']]['data'][$kegiatan_value['id_unik']]['pagu_akumulasi_subkegiatan_1_usulan'] += $sub_kegiatan_value['pagu_1_usulan'];
+								$data_all['data']['tujuan_kosong']['data'][$sasaran_value['id_unik']]['data'][$program_value['id_unik']]['data'][$kegiatan_value['id_unik']]['pagu_akumulasi_subkegiatan_2_usulan'] += $sub_kegiatan_value['pagu_2_usulan'];
+								$data_all['data']['tujuan_kosong']['data'][$sasaran_value['id_unik']]['data'][$program_value['id_unik']]['data'][$kegiatan_value['id_unik']]['pagu_akumulasi_subkegiatan_3_usulan'] += $sub_kegiatan_value['pagu_3_usulan'];
+								$data_all['data']['tujuan_kosong']['data'][$sasaran_value['id_unik']]['data'][$program_value['id_unik']]['data'][$kegiatan_value['id_unik']]['pagu_akumulasi_subkegiatan_4_usulan'] += $sub_kegiatan_value['pagu_4_usulan'];
+								$data_all['data']['tujuan_kosong']['data'][$sasaran_value['id_unik']]['data'][$program_value['id_unik']]['data'][$kegiatan_value['id_unik']]['pagu_akumulasi_subkegiatan_5_usulan'] += $sub_kegiatan_value['pagu_5_usulan'];
+
+								$data_all['data']['tujuan_kosong']['data'][$sasaran_value['id_unik']]['data'][$program_value['id_unik']]['data'][$kegiatan_value['id_unik']]['data'][$sub_kegiatan_value['id_unik']] = [
+										'id' => $sub_kegiatan_value['id'],
+										'id_unik' => $sub_kegiatan_value['id_unik'],
+										'sub_kegiatan_teks' => $sub_kegiatan_value['nama_sub_giat'],
+										'catatan' => $sub_kegiatan_value['catatan'],
+										'catatan_usulan' => $sub_kegiatan_value['catatan_usulan'],
+										'pagu_1' => $sub_kegiatan_value['pagu_1'],
+										'pagu_2' => $sub_kegiatan_value['pagu_2'],
+										'pagu_3' => $sub_kegiatan_value['pagu_3'],
+										'pagu_4' => $sub_kegiatan_value['pagu_4'],
+										'pagu_5' => $sub_kegiatan_value['pagu_5'],
+										'pagu_1_usulan' => $sub_kegiatan_value['pagu_1_usulan'],
+										'pagu_2_usulan' => $sub_kegiatan_value['pagu_2_usulan'],
+										'pagu_3_usulan' => $sub_kegiatan_value['pagu_3_usulan'],
+										'pagu_4_usulan' => $sub_kegiatan_value['pagu_4_usulan'],
+										'pagu_5_usulan' => $sub_kegiatan_value['pagu_5_usulan'],
+										'indikator' => array(),
+									];
+							}
+
+							if(!empty($sub_kegiatan_value['id_unik_indikator'])){
+								if(empty($data_all['data']['tujuan_kosong']['data'][$sasaran_value['id_unik']]['data'][$program_value['id_unik']]['data'][$kegiatan_value['id_unik']]['data'][$sub_kegiatan_value['id_unik']]['indikator'][$sub_kegiatan_value['id_unik_indikator']])){
+
+									$data_all['data']['tujuan_kosong']['data'][$sasaran_value['id_unik']]['data'][$program_value['id_unik']]['data'][$kegiatan_value['id_unik']]['data'][$sub_kegiatan_value['id_unik']]['indikator'][$sub_kegiatan_value['id_unik_indikator']] = [
+
+										'id_unik_indikator' => $sub_kegiatan_value['id_unik_indikator'],
+										'indikator_teks' => $sub_kegiatan_value['indikator'],
+										'satuan' => $sub_kegiatan_value['satuan'],
+										'target_1' => $sub_kegiatan_value['target_1'],
+										'target_2' => $sub_kegiatan_value['target_2'],
+										'target_3' => $sub_kegiatan_value['target_3'],
+										'target_4' => $sub_kegiatan_value['target_4'],
+										'target_5' => $sub_kegiatan_value['target_5'],
+										'target_awal' => $sub_kegiatan_value['target_awal'],
+										'target_akhir' => $sub_kegiatan_value['target_akhir'],
+										'catatan_indikator' => $sub_kegiatan_value['catatan'],
+										'indikator_teks_usulan' => $sub_kegiatan_value['indikator_usulan'],
+										'satuan_usulan' => $sub_kegiatan_value['satuan_usulan'],
+										'target_1_usulan' => $sub_kegiatan_value['target_1_usulan'],
+										'target_2_usulan' => $sub_kegiatan_value['target_2_usulan'],
+										'target_3_usulan' => $sub_kegiatan_value['target_3_usulan'],
+										'target_4_usulan' => $sub_kegiatan_value['target_4_usulan'],
+										'target_5_usulan' => $sub_kegiatan_value['target_5_usulan'],
+										'target_awal_usulan' => $sub_kegiatan_value['target_awal_usulan'],
+										'target_akhir_usulan' => $sub_kegiatan_value['target_akhir_usulan'],
+										'catatan_indikator_usulan' => $sub_kegiatan_value['catatan_usulan']
+									];
+								}
+							}
 						}
 					}
 				}
@@ -944,7 +1156,7 @@ foreach ($program_all_kosong as $keyProgram => $program_value) {
 				active=1 ORDER BY id
 		", $program_value['id_unik']), ARRAY_A);
 
-		foreach ($kegiatan_all as $keyKegiatan => $kegiatan_value) {									
+		foreach ($kegiatan_all as $keyKegiatan => $kegiatan_value) {								
 			if(empty($data_all['data']['tujuan_kosong']['data']['sasaran_kosong']['data'][$program_value['id_unik']]['data'][$kegiatan_value['id_unik']])){
 				$data_all['data']['tujuan_kosong']['data']['sasaran_kosong']['data'][$program_value['id_unik']]['data'][$kegiatan_value['id_unik']] = [
 					'id' => $kegiatan_value['id'],
@@ -962,6 +1174,16 @@ foreach ($program_all_kosong as $keyProgram => $program_value) {
 					'pagu_akumulasi_3_usulan' => 0,
 					'pagu_akumulasi_4_usulan' => 0,
 					'pagu_akumulasi_5_usulan' => 0,
+					'pagu_akumulasi_subkegiatan_1' => 0,
+					'pagu_akumulasi_subkegiatan_2' => 0,
+					'pagu_akumulasi_subkegiatan_3' => 0,
+					'pagu_akumulasi_subkegiatan_4' => 0,
+					'pagu_akumulasi_subkegiatan_5' => 0,
+					'pagu_akumulasi_subkegiatan_1_usulan' => 0,
+					'pagu_akumulasi_subkegiatan_2_usulan' => 0,
+					'pagu_akumulasi_subkegiatan_3_usulan' => 0,
+					'pagu_akumulasi_subkegiatan_4_usulan' => 0,
+					'pagu_akumulasi_subkegiatan_5_usulan' => 0,
 					'indikator' => array()
 				];
 			}
@@ -1026,6 +1248,86 @@ foreach ($program_all_kosong as $keyProgram => $program_value) {
 					];
 				}
 			}
+
+			if(empty($kegiatan_value['id_unik_indikator'])){
+				$sub_kegiatan_all = $wpdb->get_results($wpdb->prepare("
+					SELECT 
+						* 
+					FROM data_renstra_sub_kegiatan_lokal 
+					WHERE 
+						kode_giat=%s AND 
+						kode_program=%s AND 
+						active=1 ORDER BY id",
+						$kegiatan_value['id_unik'],
+						$program_value['id_unik'],
+				), ARRAY_A);
+
+				foreach ($sub_kegiatan_all as $keySubKegiatan => $sub_kegiatan_value) {
+										
+					if(empty($data_all['data']['tujuan_kosong']['data']['sasaran_kosong']['data'][$program_value['id_unik']]['data'][$kegiatan_value['id_unik']]['data'][$sub_kegiatan_value['id_unik']])){
+
+						$data_all['data']['tujuan_kosong']['data']['sasaran_kosong']['data'][$program_value['id_unik']]['data'][$kegiatan_value['id_unik']]['pagu_akumulasi_subkegiatan_1'] += $sub_kegiatan_value['pagu_1'];
+						$data_all['data']['tujuan_kosong']['data']['sasaran_kosong']['data'][$program_value['id_unik']]['data'][$kegiatan_value['id_unik']]['pagu_akumulasi_subkegiatan_2'] += $sub_kegiatan_value['pagu_2'];
+						$data_all['data']['tujuan_kosong']['data']['sasaran_kosong']['data'][$program_value['id_unik']]['data'][$kegiatan_value['id_unik']]['pagu_akumulasi_subkegiatan_3'] += $sub_kegiatan_value['pagu_3'];
+						$data_all['data']['tujuan_kosong']['data']['sasaran_kosong']['data'][$program_value['id_unik']]['data'][$kegiatan_value['id_unik']]['pagu_akumulasi_subkegiatan_4'] += $sub_kegiatan_value['pagu_4'];
+						$data_all['data']['tujuan_kosong']['data']['sasaran_kosong']['data'][$program_value['id_unik']]['data'][$kegiatan_value['id_unik']]['pagu_akumulasi_subkegiatan_5'] += $sub_kegiatan_value['pagu_5'];
+						$data_all['data']['tujuan_kosong']['data']['sasaran_kosong']['data'][$program_value['id_unik']]['data'][$kegiatan_value['id_unik']]['pagu_akumulasi_subkegiatan_1_usulan'] += $sub_kegiatan_value['pagu_1_usulan'];
+						$data_all['data']['tujuan_kosong']['data']['sasaran_kosong']['data'][$program_value['id_unik']]['data'][$kegiatan_value['id_unik']]['pagu_akumulasi_subkegiatan_2_usulan'] += $sub_kegiatan_value['pagu_2_usulan'];
+						$data_all['data']['tujuan_kosong']['data']['sasaran_kosong']['data'][$program_value['id_unik']]['data'][$kegiatan_value['id_unik']]['pagu_akumulasi_subkegiatan_3_usulan'] += $sub_kegiatan_value['pagu_3_usulan'];
+						$data_all['data']['tujuan_kosong']['data']['sasaran_kosong']['data'][$program_value['id_unik']]['data'][$kegiatan_value['id_unik']]['pagu_akumulasi_subkegiatan_4_usulan'] += $sub_kegiatan_value['pagu_4_usulan'];
+						$data_all['data']['tujuan_kosong']['data']['sasaran_kosong']['data'][$program_value['id_unik']]['data'][$kegiatan_value['id_unik']]['pagu_akumulasi_subkegiatan_5_usulan'] += $sub_kegiatan_value['pagu_5_usulan'];
+
+						$data_all['data']['tujuan_kosong']['data']['sasaran_kosong']['data'][$program_value['id_unik']]['data'][$kegiatan_value['id_unik']]['data'][$sub_kegiatan_value['id_unik']] = [
+							'id' => $sub_kegiatan_value['id'],
+							'id_unik' => $sub_kegiatan_value['id_unik'],
+							'sub_kegiatan_teks' => $sub_kegiatan_value['nama_sub_giat'],
+							'catatan' => $sub_kegiatan_value['catatan'],
+							'catatan_usulan' => $sub_kegiatan_value['catatan_usulan'],
+							'pagu_1' => $sub_kegiatan_value['pagu_1'],
+							'pagu_2' => $sub_kegiatan_value['pagu_2'],
+							'pagu_3' => $sub_kegiatan_value['pagu_3'],
+							'pagu_4' => $sub_kegiatan_value['pagu_4'],
+							'pagu_5' => $sub_kegiatan_value['pagu_5'],
+							'pagu_1_usulan' => $sub_kegiatan_value['pagu_1_usulan'],
+							'pagu_2_usulan' => $sub_kegiatan_value['pagu_2_usulan'],
+							'pagu_3_usulan' => $sub_kegiatan_value['pagu_3_usulan'],
+							'pagu_4_usulan' => $sub_kegiatan_value['pagu_4_usulan'],
+							'pagu_5_usulan' => $sub_kegiatan_value['pagu_5_usulan'],
+							'indikator' => array(),
+						];
+					}
+
+					if(!empty($sub_kegiatan_value['id_unik_indikator'])){
+						if(empty($data_all['data']['tujuan_kosong']['data']['sasaran_kosong']['data'][$program_value['id_unik']]['data'][$kegiatan_value['id_unik']]['data'][$sub_kegiatan_value['id_unik']]['indikator'][$sub_kegiatan_value['id_unik_indikator']])){
+
+							$data_all['data']['tujuan_kosong']['data']['sasaran_kosong']['data'][$program_value['id_unik']]['data'][$kegiatan_value['id_unik']]['data'][$sub_kegiatan_value['id_unik']]['indikator'][$sub_kegiatan_value['id_unik_indikator']] = [
+
+								'id_unik_indikator' => $sub_kegiatan_value['id_unik_indikator'],
+								'indikator_teks' => $sub_kegiatan_value['indikator'],
+								'satuan' => $sub_kegiatan_value['satuan'],
+								'target_1' => $sub_kegiatan_value['target_1'],
+								'target_2' => $sub_kegiatan_value['target_2'],
+								'target_3' => $sub_kegiatan_value['target_3'],
+								'target_4' => $sub_kegiatan_value['target_4'],
+								'target_5' => $sub_kegiatan_value['target_5'],
+								'target_awal' => $sub_kegiatan_value['target_awal'],
+								'target_akhir' => $sub_kegiatan_value['target_akhir'],
+								'catatan_indikator' => $sub_kegiatan_value['catatan'],
+								'indikator_teks_usulan' => $sub_kegiatan_value['indikator_usulan'],
+								'satuan_usulan' => $sub_kegiatan_value['satuan_usulan'],
+								'target_1_usulan' => $sub_kegiatan_value['target_1_usulan'],
+								'target_2_usulan' => $sub_kegiatan_value['target_2_usulan'],
+								'target_3_usulan' => $sub_kegiatan_value['target_3_usulan'],
+								'target_4_usulan' => $sub_kegiatan_value['target_4_usulan'],
+								'target_5_usulan' => $sub_kegiatan_value['target_5_usulan'],
+								'target_awal_usulan' => $sub_kegiatan_value['target_awal_usulan'],
+								'target_akhir_usulan' => $sub_kegiatan_value['target_akhir_usulan'],
+								'catatan_indikator_usulan' => $sub_kegiatan_value['catatan_usulan']
+							];
+						}
+					}
+				}
+			}
 		}
 	}
 }
@@ -1067,6 +1369,16 @@ foreach ($kegiatan_all as $keyKegiatan => $kegiatan_value) {
 			'pagu_akumulasi_3_usulan' => 0,
 			'pagu_akumulasi_4_usulan' => 0,
 			'pagu_akumulasi_5_usulan' => 0,
+			'pagu_akumulasi_subkegiatan_1' => 0,
+			'pagu_akumulasi_subkegiatan_2' => 0,
+			'pagu_akumulasi_subkegiatan_3' => 0,
+			'pagu_akumulasi_subkegiatan_4' => 0,
+			'pagu_akumulasi_subkegiatan_5' => 0,
+			'pagu_akumulasi_subkegiatan_1_usulan' => 0,
+			'pagu_akumulasi_subkegiatan_2_usulan' => 0,
+			'pagu_akumulasi_subkegiatan_3_usulan' => 0,
+			'pagu_akumulasi_subkegiatan_4_usulan' => 0,
+			'pagu_akumulasi_subkegiatan_5_usulan' => 0,
 			'indikator' => array()
 		];
 	}
@@ -1118,9 +1430,92 @@ foreach ($kegiatan_all as $keyKegiatan => $kegiatan_value) {
 			];
 		}
 	}
+
+	if(empty($kegiatan_value['id_unik_indikator'])){
+		$sub_kegiatan_all = $wpdb->get_results($wpdb->prepare("
+			SELECT 
+				* 
+			FROM data_renstra_sub_kegiatan_lokal 
+			WHERE 
+				kode_giat=%s AND 
+				kode_program=%s AND 
+				active=1 ORDER BY id",
+				$kegiatan_value['id_unik'],
+				$program_value['id_unik'],
+			), ARRAY_A);
+
+		foreach ($sub_kegiatan_all as $keySubKegiatan => $sub_kegiatan_value) {
+										
+			if(empty($data_all['data']['tujuan_kosong']['data']['sasaran_kosong']['data']['program_kosong']['data'][$kegiatan_value['id_unik']]['data'][$sub_kegiatan_value['id_unik']])){
+
+				$data_all['data']['tujuan_kosong']['data']['sasaran_kosong']['data']['program_kosong']['data'][$kegiatan_value['id_unik']]['pagu_akumulasi_subkegiatan_1'] += $sub_kegiatan_value['pagu_1'];
+				$data_all['data']['tujuan_kosong']['data']['sasaran_kosong']['data']['program_kosong']['data'][$kegiatan_value['id_unik']]['pagu_akumulasi_subkegiatan_2'] += $sub_kegiatan_value['pagu_2'];
+				$data_all['data']['tujuan_kosong']['data']['sasaran_kosong']['data']['program_kosong']['data'][$kegiatan_value['id_unik']]['pagu_akumulasi_subkegiatan_3'] += $sub_kegiatan_value['pagu_3'];
+				$data_all['data']['tujuan_kosong']['data']['sasaran_kosong']['data']['program_kosong']['data'][$kegiatan_value['id_unik']]['pagu_akumulasi_subkegiatan_4'] += $sub_kegiatan_value['pagu_4'];
+				$data_all['data']['tujuan_kosong']['data']['sasaran_kosong']['data']['program_kosong']['data'][$kegiatan_value['id_unik']]['pagu_akumulasi_subkegiatan_5'] += $sub_kegiatan_value['pagu_5'];
+				$data_all['data']['tujuan_kosong']['data']['sasaran_kosong']['data']['program_kosong']['data'][$kegiatan_value['id_unik']]['pagu_akumulasi_subkegiatan_1_usulan'] += $sub_kegiatan_value['pagu_1_usulan'];
+				$data_all['data']['tujuan_kosong']['data']['sasaran_kosong']['data']['program_kosong']['data'][$kegiatan_value['id_unik']]['pagu_akumulasi_subkegiatan_2_usulan'] += $sub_kegiatan_value['pagu_2_usulan'];
+				$data_all['data']['tujuan_kosong']['data']['sasaran_kosong']['data']['program_kosong']['data'][$kegiatan_value['id_unik']]['pagu_akumulasi_subkegiatan_3_usulan'] += $sub_kegiatan_value['pagu_3_usulan'];
+				$data_all['data']['tujuan_kosong']['data']['sasaran_kosong']['data']['program_kosong']['data'][$kegiatan_value['id_unik']]['pagu_akumulasi_subkegiatan_4_usulan'] += $sub_kegiatan_value['pagu_4_usulan'];
+				$data_all['data']['tujuan_kosong']['data']['sasaran_kosong']['data']['program_kosong']['data'][$kegiatan_value['id_unik']]['pagu_akumulasi_subkegiatan_5_usulan'] += $sub_kegiatan_value['pagu_5_usulan'];
+
+				$data_all['data']['tujuan_kosong']['data']['sasaran_kosong']['data']['program_kosong']['data'][$kegiatan_value['id_unik']]['data'][$sub_kegiatan_value['id_unik']] = [
+					'id' => $sub_kegiatan_value['id'],
+					'id_unik' => $sub_kegiatan_value['id_unik'],
+					'sub_kegiatan_teks' => $sub_kegiatan_value['nama_sub_giat'],
+					'catatan' => $sub_kegiatan_value['catatan'],
+					'catatan_usulan' => $sub_kegiatan_value['catatan_usulan'],
+					'pagu_1' => $sub_kegiatan_value['pagu_1'],
+					'pagu_2' => $sub_kegiatan_value['pagu_2'],
+					'pagu_3' => $sub_kegiatan_value['pagu_3'],
+					'pagu_4' => $sub_kegiatan_value['pagu_4'],
+					'pagu_5' => $sub_kegiatan_value['pagu_5'],
+					'pagu_1_usulan' => $sub_kegiatan_value['pagu_1_usulan'],
+					'pagu_2_usulan' => $sub_kegiatan_value['pagu_2_usulan'],
+					'pagu_3_usulan' => $sub_kegiatan_value['pagu_3_usulan'],
+					'pagu_4_usulan' => $sub_kegiatan_value['pagu_4_usulan'],
+					'pagu_5_usulan' => $sub_kegiatan_value['pagu_5_usulan'],
+					'indikator' => array(),
+				];
+			}
+
+			if(!empty($sub_kegiatan_value['id_unik_indikator'])){
+				if(empty($data_all['data']['tujuan_kosong']['data']['sasaran_kosong']['data']['program_kosong']['data'][$kegiatan_value['id_unik']]['data'][$sub_kegiatan_value['id_unik']]['indikator'][$sub_kegiatan_value['id_unik_indikator']])){
+
+					$data_all['data']['tujuan_kosong']['data']['sasaran_kosong']['data']['program_kosong']['data'][$kegiatan_value['id_unik']]['data'][$sub_kegiatan_value['id_unik']]['indikator'][$sub_kegiatan_value['id_unik_indikator']] = [
+
+						'id_unik_indikator' => $sub_kegiatan_value['id_unik_indikator'],
+						'indikator_teks' => $sub_kegiatan_value['indikator'],
+						'satuan' => $sub_kegiatan_value['satuan'],
+						'target_1' => $sub_kegiatan_value['target_1'],
+						'target_2' => $sub_kegiatan_value['target_2'],
+						'target_3' => $sub_kegiatan_value['target_3'],
+						'target_4' => $sub_kegiatan_value['target_4'],
+						'target_5' => $sub_kegiatan_value['target_5'],
+						'target_awal' => $sub_kegiatan_value['target_awal'],
+						'target_akhir' => $sub_kegiatan_value['target_akhir'],
+						'catatan_indikator' => $sub_kegiatan_value['catatan'],
+						'indikator_teks_usulan' => $sub_kegiatan_value['indikator_usulan'],
+						'satuan_usulan' => $sub_kegiatan_value['satuan_usulan'],
+						'target_1_usulan' => $sub_kegiatan_value['target_1_usulan'],
+						'target_2_usulan' => $sub_kegiatan_value['target_2_usulan'],
+						'target_3_usulan' => $sub_kegiatan_value['target_3_usulan'],
+						'target_4_usulan' => $sub_kegiatan_value['target_4_usulan'],
+						'target_5_usulan' => $sub_kegiatan_value['target_5_usulan'],
+						'target_awal_usulan' => $sub_kegiatan_value['target_awal_usulan'],
+						'target_akhir_usulan' => $sub_kegiatan_value['target_akhir_usulan'],
+						'catatan_indikator_usulan' => $sub_kegiatan_value['catatan_usulan']
+					];
+				}
+			}
+		}
+	}
 }
 
 // hapus data kosong jika empty
+if(empty($data_all['data']['tujuan_kosong']['data']['sasaran_kosong']['data']['program_kosong']['data']['kegiatan_kosong']['data']['sub_kegiatan_kosong']['data'])){
+	unset($data_all['data']['tujuan_kosong']['data']['sasaran_kosong']['data']['program_kosong']['data']['kegiatan_kosong']['sub_kegiatan_kosong']);
+}
 if(empty($data_all['data']['tujuan_kosong']['data']['sasaran_kosong']['data']['program_kosong']['data']['kegiatan_kosong']['data'])){
 	unset($data_all['data']['tujuan_kosong']['data']['sasaran_kosong']['data']['program_kosong']['data']['kegiatan_kosong']);
 }
@@ -1194,6 +1589,7 @@ foreach ($data_all['data'] as $tujuan) {
 				<td class="atas kanan bawah'.$bg_rpjm.'">'.$sasaran_rpjm.'</td>
 				<td class="atas kanan bawah">'.$tujuan['nama_bidang_urusan'].'</td>
 				<td class="atas kanan bawah">'.$tujuan['tujuan_teks'].'</td>
+				<td class="atas kanan bawah"></td>
 				<td class="atas kanan bawah"></td>
 				<td class="atas kanan bawah"></td>
 				<td class="atas kanan bawah"></td>
@@ -1275,6 +1671,7 @@ foreach ($data_all['data'] as $tujuan) {
 					<td class="atas kanan bawah"></td>
 					<td class="atas kanan bawah"></td>
 					<td class="atas kanan bawah">'.$sasaran['sasaran_teks'].'</td>
+					<td class="atas kanan bawah"></td>
 					<td class="atas kanan bawah"></td>
 					<td class="atas kanan bawah"></td>
 					<td class="atas kanan bawah">'.$indikator_sasaran.'</td>
@@ -1399,6 +1796,7 @@ foreach ($data_all['data'] as $tujuan) {
 						<td class="atas kanan bawah"></td>
 						<td class="atas kanan bawah">'.$program['program_teks'].'</td>
 						<td class="atas kanan bawah"></td>
+						<td class="atas kanan bawah"></td>
 						<td class="atas kanan bawah"><br>'.$indikator_program.'</td>
 						<td class="atas kanan bawah text_tengah"><br>'.$target_awal.'</td>';
 						for ($i=0; $i < $lama_pelaksanaan; $i++) { 
@@ -1513,6 +1911,7 @@ foreach ($data_all['data'] as $tujuan) {
 							<td class="atas kanan bawah"></td>
 							<td class="atas kanan bawah"></td>
 							<td class="atas kanan bawah">'.$kegiatan['kegiatan_teks'].'</td>
+							<td class="atas kanan bawah"></td>
 							<td class="atas kanan bawah"><br>'.$indikator_kegiatan.'</td>
 							<td class="atas kanan bawah text_tengah"><br>'.$target_awal.'</td>';
 							for ($i=0; $i < $lama_pelaksanaan; $i++) { 
@@ -1537,6 +1936,110 @@ foreach ($data_all['data'] as $tujuan) {
 							<td class="atas kanan bawah td-usulan">'.$catatan_indikator_usulan.'</td>
 						</tr>
 				';
+
+				$no_sub_kegiatan = 0;
+				$pagu_akumulasi = '';
+				$pagu_akumulasi_usulan = '';
+				foreach ($kegiatan['data'] as $key => $sub_kegiatan) {
+					
+					$no_sub_kegiatan++;
+					$indikator_sub_kegiatan = '';
+					$target_awal = '';
+					$target_1 = '';
+					$pagu_1   = '';
+					$target_2 = '';
+					$pagu_2   = '';
+					$target_3 = '';
+					$pagu_3   = '';
+					$target_4 = '';
+					$pagu_4   = '';
+					$target_5 = '';
+					$pagu_5   = '';
+					$target_akhir = '';
+					$satuan = '';
+					$catatan_indikator = '';
+					$indikator_sub_kegiatan_usulan = '';
+					$target_awal_usulan = '';
+					$target_1_usulan = '';
+					$pagu_1_usulan   = '';
+					$target_2_usulan = '';
+					$pagu_2_usulan   = '';
+					$target_3_usulan = '';
+					$pagu_3_usulan   = '';
+					$target_4_usulan = '';
+					$pagu_4_usulan   = '';
+					$target_5_usulan = '';
+					$pagu_5_usulan   = '';
+					$target_akhir_usulan = '';
+					$satuan_usulan = '';
+					$catatan_indikator_usulan = '';
+
+					foreach ($sub_kegiatan['indikator'] as $key => $indikator) {
+						$indikator_sub_kegiatan .= '<div class="indikator">'.$indikator['indikator_teks'].'</div>';
+						$target_awal .= '<div class="indikator">'.$indikator['target_awal'].'</div>';
+						$target_1 .= '<div class="indikator">'.$indikator['target_1'].'</div>';
+						$target_2 .= '<div class="indikator">'.$indikator['target_2'].'</div>';
+						$target_3 .= '<div class="indikator">'.$indikator['target_3'].'</div>';
+						$target_4 .= '<div class="indikator">'.$indikator['target_4'].'</div>';
+						$target_5 .= '<div class="indikator">'.$indikator['target_5'].'</div>';
+						$target_akhir .= '<div class="indikator">'.$indikator['target_akhir'].'</div>';
+						$satuan .= '<div class="indikator">'.$indikator['satuan'].'</div>';
+						$catatan_indikator .= '<div class="indikator">'.$indikator['catatan_indikator'].'</div>';
+						$indikator_sub_kegiatan_usulan .= '<div class="indikator">'.$indikator['indikator_teks_usulan'].'</div>';
+						$target_awal_usulan .= '<div class="indikator">'.$indikator['target_awal_usulan'].'</div>';
+						$target_1_usulan .= '<div class="indikator">'.$indikator['target_1_usulan'].'</div>';
+						$target_2_usulan .= '<div class="indikator">'.$indikator['target_2_usulan'].'</div>';
+						$target_3_usulan .= '<div class="indikator">'.$indikator['target_3_usulan'].'</div>';
+						$target_4_usulan .= '<div class="indikator">'.$indikator['target_4_usulan'].'</div>';
+						$target_5_usulan .= '<div class="indikator">'.$indikator['target_5_usulan'].'</div>';
+						$target_akhir_usulan .= '<div class="indikator">'.$indikator['target_akhir_usulan'].'</div>';
+						$satuan_usulan .= '<div class="indikator">'.$indikator['satuan_usulan'].'</div>';
+						$catatan_indikator_usulan .= '<div class="indikator">'.$indikator['catatan_indikator_usulan'].'</div>';
+					}
+
+					$target_arr = [$target_1, $target_2, $target_3, $target_4, $target_5];
+					$target_arr_usulan = [$target_1_usulan, $target_2_usulan, $target_3_usulan, $target_4_usulan, $target_5_usulan];
+					$body .= '
+							<tr class="tr-sub-kegiatan">
+								<td class="kiri atas kanan bawah'.$bg_rpjm.'">'.$no_tujuan.'.'.$no_sasaran.'.'.$no_program.'.'.$no_kegiatan.'.'.$no_sub_kegiatan.'</td>
+								<td class="atas kanan bawah'.$bg_rpjm.'"></td>
+								<td class="atas kanan bawah"></td>
+								<td class="atas kanan bawah"></td>
+								<td class="atas kanan bawah"></td>
+								<td class="atas kanan bawah"></td>
+								<td class="atas kanan bawah"></td>
+								<td class="atas kanan bawah">'.$sub_kegiatan['sub_kegiatan_teks'].'</td>
+								<td class="atas kanan bawah"><br>'.$indikator_sub_kegiatan.'</td>
+								<td class="atas kanan bawah text_tengah"><br>'.$target_awal.'</td>';
+								for ($i=0; $i < $lama_pelaksanaan; $i++) {
+									if($no_sub_kegiatan==1){
+										$pagu_akumulasi="<b>(".$this->_number_format($kegiatan['pagu_akumulasi_subkegiatan_'.($i+1)]).")</b>";
+									}
+									$body.="<td class=\"atas kanan bawah text_tengah\"><br>".$target_arr[$i]."</td><td class=\"atas kanan bawah text_kanan\">".$pagu_akumulasi."<br>".$sub_kegiatan['pagu_'.($i+1)]."</td>";
+								}
+								$body.='
+								<td class="atas kanan bawah text_tengah"><br>'.$target_akhir.'</td>
+								<td class="atas kanan bawah"><br>'.$satuan.'</td>
+								<td class="atas kanan bawah"></td>
+								<td class="atas kanan bawah"></td>
+								<td class="atas kanan bawah">'.$sub_kegiatan['catatan'].'</td>
+								<td class="atas kanan bawah"><br>'.$catatan_indikator.'</td>
+								<td class="atas kanan bawah td-usulan"><br>'.$indikator_sub_kegiatan_usulan.'</td>
+								<td class="atas kanan bawah text_tengah td-usulan"><br>'.$target_awal_usulan.'</td>';
+								for ($i=0; $i < $lama_pelaksanaan; $i++) {
+									if($no_sub_kegiatan==1){
+										$pagu_akumulasi_usulan="<b>(".$this->_number_format($kegiatan['pagu_akumulasi_subkegiatan_'.($i+1).'_usulan']).")</b>";
+									}
+									$body.="<td class=\"atas kanan bawah text_tengah td-usulan\"><br>".$target_arr_usulan[$i]."</td><td class=\"atas kanan bawah text_kanan td-usulan\">".$pagu_akumulasi_usulan."<br>".$sub_kegiatan['pagu_'.($i+1).'_usulan']."</td>";
+								}
+								$body.='
+								<td class="atas kanan bawah text_tengah td-usulan"><br>'.$target_akhir_usulan.'</td>
+								<td class="atas kanan bawah td-usulan"><br>'.$satuan_usulan.'</td>
+								<td class="atas kanan bawah td-usulan"><br>'.$kegiatan['catatan_usulan'].'</td>
+								<td class="atas kanan bawah td-usulan">'.$catatan_indikator_usulan.'</td>
+							</tr>
+					';
+				}
 			}
 		}
 	}
@@ -1557,6 +2060,9 @@ foreach ($data_all['data'] as $tujuan) {
 	.tr-program {
 	    background: #baffba;
 	}
+	.tr-kegiatan {
+	    background: #ffdbc6;
+	}
 	.peringatan {
 		background: #f5c9c9;
 	}
@@ -1574,6 +2080,7 @@ foreach ($data_all['data'] as $tujuan) {
 				<th style="width: 200px;" class="row_head_1 atas kanan bawah text_tengah text_blok">Sasaran</th>
 				<th style="width: 200px;" class="row_head_1 atas kanan bawah text_tengah text_blok">Program</th>
 				<th style="width: 200px;" class="row_head_1 atas kanan bawah text_tengah text_blok">Kegiatan</th>
+				<th style="width: 200px;" class="row_head_1 atas kanan bawah text_tengah text_blok">Sub Kegiatan</th>
 				<th style="width: 400px;" class="row_head_1 atas kanan bawah text_tengah text_blok">Indikator</th>
 				<th style="width: 100px;" class="row_head_1 atas kanan bawah text_tengah text_blok">Target Awal</th>';
 				for ($i=1; $i <= $lama_pelaksanaan; $i++) { 
@@ -1622,8 +2129,9 @@ foreach ($data_all['data'] as $tujuan) {
 				<th class='atas kanan bawah text_tengah text_blok'>6</th>
 				<th class='atas kanan bawah text_tengah text_blok'>7</th>
 				<th class='atas kanan bawah text_tengah text_blok'>8</th>
+				<th class='atas kanan bawah text_tengah text_blok'>9</th>
 			<?php 
-				$target_temp = 9;
+				$target_temp = 10;
 				for ($i=1; $i <= $lama_pelaksanaan; $i++) { 
 					if($i!=1){
 						$target_temp=$pagu_temp+1; 
@@ -1672,7 +2180,8 @@ foreach ($data_all['data'] as $tujuan) {
 	<li>Background warna biru adalah baris tujuan.</li>
 	<li>Background warna kuning adalah baris sasaran.</li>
 	<li>Background warna hijau adalah baris program.</li>
-	<li>Background warna putih adalah baris kegiatan</li>
+	<li>Background warna orange adalah baris kegiatan</li>
+	<li>Background warna putih adalah baris sub kegiatan</li>
 	<li><b>Debug Cascading <?php echo $nama_tipe_relasi; ?></b> berfungsi untuk melakukan pengecekan relasi antara tujuan RENSTRA dengan sasaran di <?php echo $nama_tipe_relasi; ?>.</li>
 	<li>Baris berwarna merah saat dilakukan checklist pada kotak <b>Debug Cascading <?php echo $nama_tipe_relasi; ?></b> menandakan bahwa tujuan RENSTRA belum terkoneksi dengan data di <?php echo $nama_tipe_relasi; ?>.</li>
 	<li>Pagu tujuan, sasaran, program dan kegiatan adalah akumulasi dari pagu di indikator kegiatan.</li>
@@ -1789,6 +2298,7 @@ foreach ($data_all['data'] as $tujuan) {
 				+'<option value="tr-sasaran">Sasaran</option>'
 				+'<option value="tr-program">Program</option>'
 				+'<option value="tr-kegiatan">Kegiatan</option>'
+				+'<option value="tr-sub-kegiatan">Sub Kegiatan</option>'
 			+'</select>'
 		+'<label style="margin-left: 20px;">'
 			+'Sembunyikan Kolom '
@@ -5743,24 +6253,32 @@ foreach ($data_all['data'] as $tujuan) {
 		var tr_sasaran = jQuery('.tr-sasaran');
 		var tr_program = jQuery('.tr-program');
 		var tr_kegiatan = jQuery('.tr-kegiatan');
+		var tr_sub_kegiatan = jQuery('.tr-sub-kegiatan');
 		tr_tujuan.show();
 		tr_sasaran.show();
 		tr_program.show();
 		tr_kegiatan.show();
+		tr_sub_kegiatan.show();
 		if(val == 'tr-tujuan'){
 			tr_tujuan.hide();
 			tr_sasaran.hide();
 			tr_program.hide();
 			tr_kegiatan.hide();
+			tr_sub_kegiatan.hide();
 		}else if(val == 'tr-sasaran'){
 			tr_sasaran.hide();
 			tr_program.hide();
 			tr_kegiatan.hide();
+			tr_sub_kegiatan.hide();
 		}else if(val == 'tr-program'){
 			tr_program.hide();
 			tr_kegiatan.hide();
+			tr_sub_kegiatan.hide();
 		}else if(val == 'tr-kegiatan'){
 			tr_kegiatan.hide();
+			tr_sub_kegiatan.hide();
+		}else if(val == 'tr-sub-kegiatan'){
+			tr_sub_kegiatan.hide();
 		} 
 	}
 
