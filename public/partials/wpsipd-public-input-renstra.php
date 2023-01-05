@@ -4395,11 +4395,6 @@ foreach ($data_all['data'] as $tujuan) {
 				},
 				success:function(response){
 
-					get_list_sub_kegiatan({
-						'id_kegiatan':id_kegiatan,
-						'tahun_anggaran':'<?php echo $tahun_anggaran; ?>',
-					}, 'id_sub_kegiatan');
-
 					jQuery('#wrap-loading').hide();
 		  			let html = '<form id="form-renstra">'
 								+'<input type="hidden" name="id" value="'+response.sub_kegiatan.id+'"/>'
@@ -4465,7 +4460,7 @@ foreach ($data_all['data'] as $tujuan) {
 								+'</div>'
 							+'</form>';
 
-				    jQuery("#modal-crud-renstra").find('.modal-title').html('Tambah Sub Kegiatan');
+				    jQuery("#modal-crud-renstra").find('.modal-title').html('Edit Sub Kegiatan');
 					jQuery("#modal-crud-renstra").find('.modal-body').html(html);
 					jQuery("#modal-crud-renstra").find('.modal-footer').html(''
 						+'<button type="button" class="btn btn-warning" data-dismiss="modal">'
@@ -4480,7 +4475,14 @@ foreach ($data_all['data'] as $tujuan) {
 					jQuery("#modal-crud-renstra").find('.modal-dialog').css('maxWidth','950px');
 					jQuery("#modal-crud-renstra").find('.modal-dialog').css('width','100%');
 					jQuery("#modal-crud-renstra").modal('show');
-					jQuery("#id_sub_kegiatan").val(response.sub_kegiatan.id_sub_giat);
+
+					get_list_sub_kegiatan({
+						'id_kegiatan':id_kegiatan,
+						'tahun_anggaran':'<?php echo $tahun_anggaran; ?>',
+					}, 'id_sub_kegiatan').then(function(){
+						jQuery("#id_sub_kegiatan").val(response.sub_kegiatan.id_sub_giat);
+					});
+
 				}
 		});	
 	});
@@ -6413,26 +6415,28 @@ foreach ($data_all['data'] as $tujuan) {
 	}
 
 	function get_list_sub_kegiatan(params, tag){
-		jQuery.ajax({
-			url: ajax.url,
-		    type: "post",
-		    data: {
-		       		"action": "get_list_sub_kegiatan",
-		       		"api_key": "<?php echo $api_key; ?>",
-		       		"id_kegiatan": params.id_kegiatan,
-		       		"tahun_anggaran": params.tahun_anggaran
-		       	},
-		       	dataType: "json",
-		       	success: function(res){
-		      		let opt = ''
-		          		+'<option value="">Pilih Sub Kegiatan</option>'
-		          		res.data.map(function(value, index) {	
-		          			opt+='<option value="'+value.id_sub_giat+'">'+value.sub_kegiatan_teks+'</option>'
-		          		});
-		          	jQuery("#"+tag).html(opt);
-		          	jQuery('#'+tag).select2({width: '100%'});
-		        }
-		    });
+		return new Promise(function(resolve, reject){
+			jQuery.ajax({
+				url: ajax.url,
+			    type: "post",
+			    data: {
+			       		"action": "get_list_sub_kegiatan",
+			       		"api_key": "<?php echo $api_key; ?>",
+			       		"id_kegiatan": params.id_kegiatan,
+			       		"tahun_anggaran": params.tahun_anggaran
+			       	},
+			       	dataType: "json",
+			       	success: function(res){
+			      		let opt = ''
+			          		+'<option value="">Pilih Sub Kegiatan</option>'
+			          		res.data.map(function(value, index) {	
+			          			opt+='<option value="'+value.id_sub_giat+'">'+value.sub_kegiatan_teks+'</option>'
+			          		});
+			          	jQuery("#"+tag).html(opt);
+			          	resolve();
+			        }
+			});
+		})
 	}
 
 	function setSatuan(that, input){
