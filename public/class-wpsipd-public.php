@@ -4426,6 +4426,15 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		echo $table;
 	}
 
+	public function data_mapping_master_fmis($atts)
+	{
+		// untuk disable render shortcode di halaman edit page/post
+		if(!empty($_GET) && !empty($_GET['post'])){
+			return '';
+		}
+		require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/wpsipd-public-mapping-fmis.php';
+	}
+
 	public function monitoring_sql_migrate($atts)
 	{
 		// untuk disable render shortcode di halaman edit page/post
@@ -9963,7 +9972,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		return preg_replace('/\s+/S', " ", $string);
 	}
 
-	public function get_fmis_mapping($options){
+	public function get_fmis_mapping($options, $no_remove=false){
 		if($options['name'] == '_crb_custom_mapping_rekening_fmis'){
 			$mapping = get_option($options['name']);
 			$mapping = explode(',', $mapping);
@@ -9978,7 +9987,11 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 			$ret = array();
 			foreach($mapping as $map){
 				$map = explode(']-[', $map);
-				$ret[str_replace('[', '', $this->removeNewline($map[0]))] = str_replace(']', '', $this->removeNewline($map[1]));
+				if(true == $no_remove){
+					$ret[str_replace('[', '', $map[0])] = str_replace(']', '', $map[1]);
+				}else{
+					$ret[str_replace('[', '', $this->removeNewline($map[0]))] = str_replace(']', '', $this->removeNewline($map[1]));
+				}
 			}
 		}
 		return $ret;
@@ -10798,23 +10811,34 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 								foreach($data_fmis['rincian'] as $rinci){
 									$uraian_belanja = $this->get_uraian_belanja_fmis($rinci['uraian_belanja']);
 									$uraian = $uraian_belanja['uraian'];
-									$keterangan = explode('dan', $uraian_belanja['keterangan'])[0];
+									$keterangan = $uraian_belanja['keterangan'];
 									$sub_sipd = $wpdb->get_results($wpdb->prepare("
 										SELECT
-											id
+											id,
+											uraian,
+											keterangan
 										FROM data_pendapatan
 										WHERE tahun_anggaran = %d
 											AND active = 1
 											AND id_skpd = %d
 											AND kode_akun = %s
-											AND uraian like %s
-											AND keterangan like %s
-									", $tahun_anggaran, $id_skpd_sipd[0], $rinci['kode_rekening'], $uraian.'%', $keterangan.'%'), ARRAY_A);
-									if(!empty($sub_sipd)){
+									", $tahun_anggaran, $id_skpd_sipd[0], $rinci['kode_rekening']), ARRAY_A);
+									$new_sub_sipd = array();
+									foreach ($sub_sipd as $val) {
+										$uraian_db = str_replace('&', 'dan', html_entity_decode($val['uraian']));
+										$keterangan_db = str_replace('&', 'dan', html_entity_decode($val['keterangan']));
+										if(
+											$this->removeNewline($uraian) == $this->removeNewline($uraian_db)
+											&& $this->removeNewline($keterangan) == $this->removeNewline($keterangan_db)
+										){
+											$new_sub_sipd = $val;
+										}
+									}
+									if(!empty($new_sub_sipd)){
 										$wpdb->update('data_pendapatan', array(
 											'pagu_fmis' => $rinci['jumlah']
 										), array(
-											'id' => $sub_sipd[0]['id']
+											'id' => $new_sub_sipd['id']
 										));
 									}else{
 										$ret['message_rinci'][] = 'Rekening Pendapatan SIPD dari kode_akun='.$rinci['kode_rekening'].', id_skpd='.$id_skpd_sipd[0].' dan aktivitas="'.$rinci['aktivitas'].'" tidak ditemukan | '.$wpdb->last_query;
@@ -10828,20 +10852,31 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 									$keterangan = $uraian_belanja['keterangan'];
 									$sub_sipd = $wpdb->get_results($wpdb->prepare("
 										SELECT
-											id
+											id,
+											uraian,
+											keterangan
 										FROM data_pembiayaan
 										WHERE tahun_anggaran = %d
 											AND active = 1
 											AND id_skpd = %d
 											AND kode_akun = %s
-											AND uraian like %s
-											AND keterangan like %s
-									", $tahun_anggaran, $id_skpd_sipd[0], $rinci['kode_rekening'], $uraian.'%', $keterangan.'%'), ARRAY_A);
-									if(!empty($sub_sipd)){
+									", $tahun_anggaran, $id_skpd_sipd[0], $rinci['kode_rekening']), ARRAY_A);
+									$new_sub_sipd = array();
+									foreach ($sub_sipd as $val) {
+										$uraian_db = str_replace('&', 'dan', html_entity_decode($val['uraian']));
+										$keterangan_db = str_replace('&', 'dan', html_entity_decode($val['keterangan']));
+										if(
+											$this->removeNewline($uraian) == $this->removeNewline($uraian_db)
+											&& $this->removeNewline($keterangan) == $this->removeNewline($keterangan_db)
+										){
+											$new_sub_sipd = $val;
+										}
+									}
+									if(!empty($new_sub_sipd)){
 										$wpdb->update('data_pembiayaan', array(
 											'pagu_fmis' => $rinci['jumlah']
 										), array(
-											'id' => $sub_sipd[0]['id']
+											'id' => $new_sub_sipd['id']
 										));
 									}else{
 										$ret['message_rinci'][] = 'Rekening Pembiayaan SIPD dari kode_akun='.$rinci['kode_rekening'].', id_skpd='.$id_skpd_sipd[0].' dan aktivitas="'.$rinci['aktivitas'].'" tidak ditemukan | '.$wpdb->last_query;
@@ -10885,15 +10920,9 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		$uraian_belanja = explode('Rupiah ', $uraian);
 		if(count($uraian_belanja) >= 2){
 			$uraian_belanja = explode(' | ', $uraian_belanja[1]);
-			$ret['uraian'] = explode("\n", $uraian_belanja[0]);
-			$ret['uraian'] = explode("\t", $ret['uraian'][0]);
-			$ret['uraian'] = explode("  ", $ret['uraian'][0]);
-			$ret['uraian'] = $ret['uraian'][0];
+			$ret['uraian'] = $uraian_belanja[0];
 			if(count($uraian_belanja) >= 2){
-				$ret['keterangan'] = explode("\n", $uraian_belanja[1]);
-				$ret['keterangan'] = explode("\t", $ret['keterangan'][0]);
-				$ret['keterangan'] = explode("  ", $ret['keterangan'][0]);
-				$ret['keterangan'] = $ret['keterangan'][0];
+				$ret['keterangan'] = $uraian_belanja[1];
 			}
 		}
 		return $ret;

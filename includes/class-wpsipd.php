@@ -635,7 +635,6 @@ class Wpsipd
 		$this->loader->add_action('wp_ajax_view_pagu_akumulasi_rpd',  $plugin_public, 'view_pagu_akumulasi_rpd');
 
 		$this->loader->add_action('wp_ajax_get_sub_kegiatan_renstra',  $plugin_public, 'get_sub_kegiatan_renstra');
-		$this->loader->add_action('wp_ajax_add_sub_kegiatan_renstra',  $plugin_public, 'add_sub_kegiatan_renstra');
 		$this->loader->add_action('wp_ajax_submit_sub_kegiatan_renstra',  $plugin_public, 'submit_sub_kegiatan_renstra');
 		$this->loader->add_action('wp_ajax_edit_sub_kegiatan_renstra',  $plugin_public, 'edit_sub_kegiatan_renstra');
 		$this->loader->add_action('wp_ajax_update_sub_kegiatan_renstra',  $plugin_public, 'update_sub_kegiatan_renstra');
@@ -643,6 +642,15 @@ class Wpsipd
 
 		$this->loader->add_action('wp_ajax_get_sub_keg_parent',  $plugin_public, 'get_sub_keg_parent');
 		$this->loader->add_action('wp_ajax_get_indikator_sub_keg_parent',  $plugin_public, 'get_indikator_sub_keg_parent');
+
+		$this->loader->add_action('wp_ajax_get_indikator_sub_kegiatan_renstra',  $plugin_public, 'get_indikator_sub_kegiatan_renstra');
+		$this->loader->add_action('wp_ajax_submit_indikator_sub_kegiatan_renstra',  $plugin_public, 'submit_indikator_sub_kegiatan_renstra');
+		$this->loader->add_action('wp_ajax_edit_indikator_sub_kegiatan_renstra',  $plugin_public, 'edit_indikator_sub_kegiatan_renstra');
+		$this->loader->add_action('wp_ajax_update_indikator_sub_kegiatan_renstra',  $plugin_public, 'update_indikator_sub_kegiatan_renstra');
+		$this->loader->add_action('wp_ajax_delete_indikator_sub_kegiatan_renstra',  $plugin_public, 'delete_indikator_sub_kegiatan_renstra');
+
+		$this->loader->add_action('wp_ajax_get_list_sub_kegiatan',  $plugin_public, 'get_list_sub_kegiatan');
+		$this->loader->add_action('wp_ajax_get_master_indikator_subgiat',  $plugin_public, 'get_master_indikator_subgiat');
 
 		add_shortcode('menu_monev',  array($plugin_public, 'menu_monev'));
 		add_shortcode('datassh', array($plugin_public, 'datassh'));
@@ -682,6 +690,7 @@ class Wpsipd
 		add_shortcode('monitor_rak', array($plugin_public, 'monitor_rak'));
 		add_shortcode('monitor_json_rka', array($plugin_public, 'monitor_json_rka'));
 		add_shortcode('monitor_rkpd_renja', array($plugin_public, 'monitor_rkpd_renja'));
+		add_shortcode('data_mapping_master_fmis', array($plugin_public, 'data_mapping_master_fmis'));
 	}
 
 	/**
