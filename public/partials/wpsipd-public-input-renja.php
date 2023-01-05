@@ -433,7 +433,7 @@ echo '
                 <form>
                     <div class="form-group">
     					<label for="input_sub_unit">Sub Unit</label>
-                        <select class="form-control" id="input_sub_unit"></select>
+                        <select class="form-control" id="input_sub_unit" onchange="get_sub_keg(this)"></select>
     				</div>
     				<div class="form-group">
     					<label for="input_prioritas_provinsi">Prioritas Pembangunan Provinsi</label>
@@ -449,7 +449,7 @@ echo '
     				</div>
     				<div class="form-group">
     					<label for="sub_kegiatan">Sub Kegiatan</label>
-    					<select class="form-control" id="sub_kegiatan">
+    					<select class="form-control" id="sub_kegiatan" onchange="get_indikator_sub_keg(this)">
     						<option value="">Pilih Sub Kegiatan</option>
     					</select>
     				</div>
@@ -542,7 +542,7 @@ echo '
                                         <table style="margin: 0;">
                                             <tr data-id="1" header="1">
                                                 <td colspan="2">
-                                                    <select class="form-control" name="tolak_ukur">
+                                                    <select class="form-control" id="pagu_indikator_sub_keg_usulan" name="tolak_ukur">
                                                         <option value="">Pilih Nama Indikator</option>
                                                     </select>
                                                 </td>
@@ -647,7 +647,7 @@ echo '
                                         <table style="margin: 0;">
                                             <tr data-id="1" header="1">
                                                 <td colspan="2">
-                                                    <select class="form-control" name="tolak_ukur">
+                                                    <select class="form-control" id="pagu_indikator_sub_keg_penetapan" name="tolak_ukur">
                                                         <option value="">Pilih Nama Indikator</option>
                                                     </select>
                                                 </td>
@@ -859,4 +859,64 @@ echo '
 			.text("Simpan");
 		jQuery('#modalTambahRenja').modal('show');
 	});
+
+    function get_sub_keg(that){
+        jQuery("#wrap-loading").show();
+		let kode_sub_unit = jQuery(that).val();
+		jQuery.ajax({
+			method:'POST',
+			url:"<?php echo admin_url('admin-ajax.php'); ?>",
+			dataType:'json',
+			data:{
+				'action':'get_sub_keg_parent',
+				'api_key': jQuery("#api_key").val(),
+                'tahun_anggaran': tahun_anggaran,
+				'kode_sub_unit': kode_sub_unit,
+                'id_unit':id_skpd
+			},
+			success:function(response){
+				jQuery("#wrap-loading").hide();
+				let option='<option>Pilih Sub Kegiatan</option>';
+				response.data.map(function(value, index){
+                    value.map(function(value_sub, index_sub){
+                        let nama = value_sub.nama_sub_giat.split(' ');
+                        let del = nama.shift();
+                        nama = nama.join(' ');
+                        option+='<option value="'+value_sub.id_sub_giat+'">'+nama+'</option>';
+                    });
+                })
+
+				jQuery("#sub_kegiatan").html(option);
+                jQuery("#sub_kegiatan").select2({width: '100%'});
+			}
+		});
+    }
+
+    function get_indikator_sub_keg(that){
+        jQuery("#wrap-loading").show();
+		let id_sub_keg = jQuery(that).val();
+		jQuery.ajax({
+			method:'POST',
+			url:"<?php echo admin_url('admin-ajax.php'); ?>",
+			dataType:'json',
+			data:{
+				'action':'get_indikator_sub_keg_parent',
+				'api_key': jQuery("#api_key").val(),
+                'tahun_anggaran': tahun_anggaran,
+				'id_sub_keg' : id_sub_keg
+			},
+			success:function(response){
+				jQuery("#wrap-loading").hide();
+				let option='<option>Pilih Nama Indikator</option>';
+				response.data.map(function(value, index){
+                    option+='<option value="'+value.id_sub_keg+'">'+value.indikator+'</option>';
+                })
+
+				jQuery("#pagu_indikator_sub_keg_usulan").html(option);
+                jQuery("#pagu_indikator_sub_keg_usulan").select2({width: '100%'});
+                jQuery("#pagu_indikator_sub_keg_penetapan").html(option);
+                jQuery("#pagu_indikator_sub_keg_penetapan").select2({width: '100%'});
+			}
+		});
+    }
 </script>

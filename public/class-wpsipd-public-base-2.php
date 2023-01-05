@@ -1618,4 +1618,88 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 
 		die(json_encode($ret));
 	}
+
+	public function get_sub_keg_parent(){
+		global $wpdb;
+		$ret = array(
+			'status'	=> 'success',
+			'message' 	=> 'Berhasil mendapapatkan data sub kegiatan!',
+			'data'		=> array(),
+		);
+
+		if(!empty($_POST)){
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+				$tahun_anggaran = $_POST['tahun_anggaran'];
+				$kode_sub_unit = $_POST['kode_sub_unit'];
+				$id_unit = $_POST['id_unit'];
+
+				$skpd = $this->get_skpd_db();
+				$skpd_db = $skpd['skpd'];
+				$bidur_db = $skpd['bidur'];
+
+				$data_sub_kegiatan = array();
+				foreach($bidur_db as $k_bidur => $v_bidur){
+					$data = $wpdb->get_results($wpdb->prepare(
+						'SELECT id,
+							id_bidang_urusan,
+							id_sub_giat,
+							kode_sub_giat,
+							nama_sub_giat
+						FROM data_prog_keg
+						WHERE id_bidang_urusan=%d
+						AND tahun_anggaran=%d
+					', $v_bidur['id_bidang_urusan'],$tahun_anggaran),ARRAY_A);
+
+					if(empty($data_sub_kegiatan[$k_bidur])){
+						$data_sub_kegiatan[$k_bidur] = $data;
+					}
+				}
+				$ret['data'] = $data_sub_kegiatan;
+			}else{
+				$ret['status'] = 'error';
+				$ret['message'] = 'APIKEY tidak sesuai!';
+			}
+		}else{
+			$ret['status']	= 'error';
+			$ret['message']	= 'Format Salah!';
+		}
+
+		die(json_encode($ret));
+	}
+
+	public function get_indikator_sub_keg_parent(){
+		global $wpdb;
+		$ret = array(
+			'status'	=> 'success',
+			'message' 	=> 'Berhasil mendapapatkan data indikator sub kegiatan!',
+			'data'		=> array(),
+		);
+
+		if(!empty($_POST)){
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+				$tahun_anggaran = $_POST['tahun_anggaran'];
+				$id_sub_keg = $_POST['id_sub_keg'];
+
+				$data_sub_kegiatan = $wpdb->get_results($wpdb->prepare(
+					'SELECT *
+					FROM data_master_indikator_subgiat
+					WHERE id_sub_keg=%d
+					AND tahun_anggaran=%d
+					AND active=1
+				', $id_sub_keg,$tahun_anggaran),ARRAY_A);
+
+				if(empty($data)){
+					$ret['data'] = $data_sub_kegiatan;
+				}
+			}else{
+				$ret['status'] = 'error';
+				$ret['message'] = 'APIKEY tidak sesuai!';
+			}
+		}else{
+			$ret['status']	= 'error';
+			$ret['message']	= 'Format Salah!';
+		}
+
+		die(json_encode($ret));
+	}
 }
