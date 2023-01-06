@@ -9969,7 +9969,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 	}
 
 	function removeNewline($string){
-		return preg_replace('/\s+/S', " ", $string);
+		return trim(preg_replace('/\s+/S', " ", $string));
 	}
 
 	public function get_fmis_mapping($options, $no_remove=false){

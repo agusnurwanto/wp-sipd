@@ -117,6 +117,10 @@ foreach ($units as $k => $unit):
 			order by k.kode_sub_giat ASC
 		", $bulan, $input['tahun_anggaran'], $unit['id_skpd']), ARRAY_A);
 	}else{
+		$id_induk = $unit['idinduk'];
+		if(empty($id_induk)){
+			$id_induk = $unit['id_unit'];
+		}
 		$unit_induk = $wpdb->get_results($wpdb->prepare("
 			select 
 				* 
@@ -125,7 +129,7 @@ foreach ($units as $k => $unit):
 				and active=1
 				and id_skpd=%d
 			order by id_skpd ASC
-		", $input['tahun_anggaran'], $unit['idinduk']), ARRAY_A);
+		", $input['tahun_anggaran'], $id_induk), ARRAY_A);
 
 		$subkeg = $wpdb->get_results($wpdb->prepare("
 			select 
