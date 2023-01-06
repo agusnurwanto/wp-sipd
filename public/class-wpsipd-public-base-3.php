@@ -2908,6 +2908,7 @@ class Wpsipd_Public_Base_3
 					", $_POST['kode_program']);
 					$kegiatan = $wpdb->get_results($sql, ARRAY_A);
 					foreach($kegiatan as $k => $keg){
+
 						$pagu = $wpdb->get_row($wpdb->prepare("
 							SELECT 
 								sum(pagu_1) as pagu_akumulasi_1,
@@ -2935,6 +2936,34 @@ class Wpsipd_Public_Base_3
 						$kegiatan[$k]['pagu_akumulasi_3_usulan'] = $pagu->pagu_akumulasi_3_usulan;
 						$kegiatan[$k]['pagu_akumulasi_4_usulan'] = $pagu->pagu_akumulasi_4_usulan;
 						$kegiatan[$k]['pagu_akumulasi_5_usulan'] = $pagu->pagu_akumulasi_5_usulan;
+
+						$pagu = $wpdb->get_row($wpdb->prepare("
+							SELECT 
+								COALESCE(sum(pagu_1), 0) as pagu_akumulasi_1,
+								COALESCE(sum(pagu_2), 0) as pagu_akumulasi_2,
+								COALESCE(sum(pagu_3), 0) as pagu_akumulasi_3,
+								COALESCE(sum(pagu_4), 0) as pagu_akumulasi_4,
+								COALESCE(sum(pagu_5), 0) as pagu_akumulasi_5,
+								COALESCE(sum(pagu_1_usulan), 0) as pagu_akumulasi_1_usulan,
+								COALESCE(sum(pagu_2_usulan), 0) as pagu_akumulasi_2_usulan,
+								COALESCE(sum(pagu_3_usulan), 0) as pagu_akumulasi_3_usulan,
+								COALESCE(sum(pagu_4_usulan), 0) as pagu_akumulasi_4_usulan,
+								COALESCE(sum(pagu_5_usulan), 0) as pagu_akumulasi_5_usulan
+							from data_renstra_sub_kegiatan_lokal 
+							where id_unik_indikator IS NULL
+								AND kode_giat=%s
+								AND active=1
+						", $prog['id_unik']));
+						$kegiatan[$k]['pagu_akumulasi_1_subkegiatan'] = $pagu->pagu_akumulasi_1;
+						$kegiatan[$k]['pagu_akumulasi_2_subkegiatan'] = $pagu->pagu_akumulasi_2;
+						$kegiatan[$k]['pagu_akumulasi_3_subkegiatan'] = $pagu->pagu_akumulasi_3;
+						$kegiatan[$k]['pagu_akumulasi_4_subkegiatan'] = $pagu->pagu_akumulasi_4;
+						$kegiatan[$k]['pagu_akumulasi_5_subkegiatan'] = $pagu->pagu_akumulasi_5;
+						$kegiatan[$k]['pagu_akumulasi_1_usulan_subkegiatan'] = $pagu->pagu_akumulasi_1_usulan;
+						$kegiatan[$k]['pagu_akumulasi_2_usulan_subkegiatan'] = $pagu->pagu_akumulasi_2_usulan;
+						$kegiatan[$k]['pagu_akumulasi_3_usulan_subkegiatan'] = $pagu->pagu_akumulasi_3_usulan;
+						$kegiatan[$k]['pagu_akumulasi_4_usulan_subkegiatan'] = $pagu->pagu_akumulasi_4_usulan;
+						$kegiatan[$k]['pagu_akumulasi_5_usulan_subkegiatan'] = $pagu->pagu_akumulasi_5_usulan;
 					}
 				}else{
 					$tahun_anggaran = $_POST['tahun_anggaran'];
@@ -6675,20 +6704,14 @@ class Wpsipd_Public_Base_3
 			if (!empty($_POST)) {
 				if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
 
-					// $indikator=$wpdb->get_results($wpdb->prepare("
-					// 	SELECT * 
-					// 	FROM data_master_indikator_subgiat 
-					// 	WHERE id_sub_keg=%d AND 
-					// 		tahun_anggaran=%d AND 
-					// 		active=1
-					// ", $_POST['id_sub_giat'], $_POST['tahun_anggaran']
-					// ));
-
 					$indikator=$wpdb->get_results($wpdb->prepare("
 						SELECT * 
 						FROM data_master_indikator_subgiat 
-						WHERE active=1
-					"));
+						WHERE id_sub_keg=%d AND 
+							tahun_anggaran=%d AND 
+							active=1
+					", $_POST['id_sub_giat'], $_POST['tahun_anggaran']
+					));
 				
 					echo json_encode([
 						'status' => true,

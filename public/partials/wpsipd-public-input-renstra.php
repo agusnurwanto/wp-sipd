@@ -3872,6 +3872,7 @@ foreach ($data_all['data'] as $tujuan) {
 					kegiatanModal.find('.modal-dialog').css('maxWidth','');
 					kegiatanModal.find('.modal-dialog').css('width','');
 					kegiatanModal.modal('show');
+					jQuery("#id_kegiatan").select2({width: '100%'});
 				}
 		});	
 	});
@@ -3947,6 +3948,7 @@ foreach ($data_all['data'] as $tujuan) {
 					kegiatanModal.find('.modal-dialog').css('width','');
 					kegiatanModal.modal('show');
 					jQuery("#id_kegiatan").val(response.kegiatan.id_giat);
+					jQuery("#id_kegiatan").select2({width: '100%'});
 				}
 		});	
 	});
@@ -4291,12 +4293,6 @@ foreach ($data_all['data'] as $tujuan) {
 		let kode_kegiatan = jQuery(this).data('kodekegiatan');
 		let id_kegiatan = jQuery(this).data('idkegiatan');
 
-		get_list_sub_kegiatan({
-			'id_kegiatan':id_kegiatan,
-			'tahun_anggaran':'<?php echo $tahun_anggaran; ?>',
-		}, 'id_sub_kegiatan');
-
-		
 		let html = '<form id="form-renstra">'
 						+'<input type="hidden" name="kode_kegiatan" value="'+kode_kegiatan+'"/>'
 						+'<input type="hidden" name="id_kegiatan" value="'+id_kegiatan+'"/>'
@@ -4374,6 +4370,13 @@ foreach ($data_all['data'] as $tujuan) {
 				jQuery("#modal-crud-renstra").find('.modal-dialog').css('maxWidth','950px');
 				jQuery("#modal-crud-renstra").find('.modal-dialog').css('width','100%');
 				jQuery("#modal-crud-renstra").modal('show');
+
+				get_list_sub_kegiatan({
+					'id_kegiatan':id_kegiatan,
+					'tahun_anggaran':'<?php echo $tahun_anggaran; ?>',
+				}, 'id_sub_kegiatan').then(function(){
+					jQuery("#id_sub_kegiatan").select2({width:'100%'});
+				});
 	});
 
 	jQuery(document).on('click', '.btn-edit-sub-kegiatan', function(){
@@ -4481,6 +4484,7 @@ foreach ($data_all['data'] as $tujuan) {
 						'tahun_anggaran':'<?php echo $tahun_anggaran; ?>',
 					}, 'id_sub_kegiatan').then(function(){
 						jQuery("#id_sub_kegiatan").val(response.sub_kegiatan.id_sub_giat);
+						jQuery("#id_sub_kegiatan").select2({width:'100%'});
 					});
 
 				}
@@ -4533,11 +4537,6 @@ foreach ($data_all['data'] as $tujuan) {
 		
 		let id_unik = jQuery(this).data('kodesubkegiatan');
 		let id_sub_giat = jQuery(this).data('idsubgiat');
-
-		get_master_indikator_subgiat({
-	       'id_sub_giat':id_sub_giat,
-	       'tahun_anggaran':'<?php echo $tahun_anggaran; ?>',
-	    }, 'opt_indikator');
 
         let html = ''
 			+'<form id="form-renstra">'
@@ -4639,6 +4638,13 @@ foreach ($data_all['data'] as $tujuan) {
 			jQuery("#modal-crud-renstra").find('.modal-dialog').css('maxWidth','950px');
 			jQuery("#modal-crud-renstra").find('.modal-dialog').css('width','100%');
 			jQuery("#modal-crud-renstra").modal('show');
+
+			get_master_indikator_subgiat({
+		       'id_sub_giat':id_sub_giat,
+		       'tahun_anggaran':'<?php echo $tahun_anggaran; ?>',
+		    }, 'opt_indikator').then(function(){
+	            jQuery(".opt_indikator").select2({width: '100%'});
+		    });
 			
 	});
 
@@ -4766,13 +4772,13 @@ foreach ($data_all['data'] as $tujuan) {
 					get_master_indikator_subgiat({
 				       'id_sub_giat':response.id_sub_giat,
 				       'tahun_anggaran':'<?php echo $tahun_anggaran; ?>',
-				    }, 'opt_indikator').then(function(){
+					}, 'opt_indikator').then(function(){
 						jQuery(".opt_indikator_usulan").val(response.data.indikator_usulan);
 						if(response.data.indikator!=''){
 							jQuery(".opt_indikator_penetapan").val(response.data.indikator);
+	            			jQuery(".opt_indikator").select2({width: '100%'});
 						}
-				    });
-
+					});
 			}
 		})
 	});
@@ -5724,12 +5730,22 @@ foreach ($data_all['data'] as $tujuan) {
 		          					value[i] = '';
 		          				}
 		          			}
+		          			var peringatan = {};
+		          			var peringatan_usulan = {};
+	  						<?php for($i=1; $i<=$lama_pelaksanaan; $i++){ ?>
+	  							if(value.pagu_akumulasi_<?php echo $i; ?> != value.pagu_akumulasi_<?php echo $i; ?>_subkegiatan){
+	  								peringatan[<?php echo $i; ?>] = 'peringatan';
+	  							}
+	  							if(value.pagu_akumulasi_<?php echo $i; ?>_usulan != value.pagu_akumulasi_<?php echo $i; ?>_usulan_subkegiatan){
+	  								peringatan_usulan[<?php echo $i; ?>] = 'peringatan';
+	  							}
+	  						<?php } ?>
   							kegiatan +=''
   								+'<tr kodekegiatan="'+value.id_unik+'">'
           							+'<td class="text-center" rowspan="2">'+(index+1)+'</td>'
           							+'<td rowspan="2">'+value.nama_giat+'</td>'
           						<?php for($i=1; $i<=$lama_pelaksanaan; $i++){ ?>
-          							+'<td class="text-right">'+formatRupiah(value.pagu_akumulasi_<?php echo $i; ?>)+'</td>'
+          							+'<td class="text-right '+peringatan[<?php echo $i; ?>]+'">'+formatRupiah(value.pagu_akumulasi_<?php echo $i; ?>)+'</td>'
           						<?php } ?>
           							+'<td><b>Penetapan</b><br>'+value.catatan+'</td>'
           							+'<td class="text-center" rowspan="2">'
@@ -5741,7 +5757,7 @@ foreach ($data_all['data'] as $tujuan) {
           						+'</tr>'
   								+'<tr>'
           						<?php for($i=1; $i<=$lama_pelaksanaan; $i++){ ?>
-          							+'<td class="text-right">'+formatRupiah(value.pagu_akumulasi_<?php echo $i; ?>_usulan)+'</td>'
+          							+'<td class="text-right '+peringatan_usulan[<?php echo $i; ?>]+'">'+formatRupiah(value.pagu_akumulasi_<?php echo $i; ?>_usulan)+'</td>'
           						<?php } ?>
           							+'<td><b>Usulan</b> '+value.catatan_usulan+'</td>'
           						+'</tr>';
