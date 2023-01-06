@@ -5823,6 +5823,7 @@ class Wpsipd_Public_Base_3
 							AND id_giat=%d
 							AND kode_giat=%s
 							AND active=1
+							AND id_unik_indikator IS NULL
 					", $data['id_sub_kegiatan'], $data['id_kegiatan'], $data['kode_kegiatan']));
 					
 					if(!empty($id_cek)){
@@ -5998,8 +5999,9 @@ class Wpsipd_Public_Base_3
 							AND id_giat=%d
 							AND kode_giat=%s
 							AND active=1
+							AND id_unik_indikator IS NULL
 					", $data['id'], $data['id_sub_kegiatan'], $data['id_kegiatan'], $data['kode_kegiatan']));
-					
+
 					if(!empty($id_cek)){
 						throw new Exception('Sub Kegiatan : '.$data['sub_kegiatan_teks'].' sudah ada! id='.$id_cek);
 					}
