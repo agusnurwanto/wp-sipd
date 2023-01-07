@@ -10723,7 +10723,10 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 							}
 
 							// belanja
-							if($data_fmis['rincian'][0]['kdrek1'] == 5){
+							if(
+								$data_fmis['rincian'][0]['kdrek1'] == 5
+								|| $data_fmis['sub_kegiatan'] != 'Non Sub Kegiatan' // agar bisa merubah pagu rincian 0
+							){
 								$sub_sipd = $wpdb->get_results($wpdb->prepare("
 									SELECT
 										s.id,
