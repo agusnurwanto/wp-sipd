@@ -10568,7 +10568,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		die(json_encode($ret));
 	}
 
-	function singkroniasi_total_sub_keg_fmis(){
+	function singkronisasi_total_sub_keg_fmis(){
 		global $wpdb;
 		$ret = array(
 			'action'	=> $_POST['action'],
@@ -13139,7 +13139,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		die(json_encode($return));
 	}
 
-	function singkroniasi_spd_fmis(){
+	function singkronisasi_spd_fmis(){
 		global $wpdb;
 		$return = array(
 			'action' => $_POST['action'],
