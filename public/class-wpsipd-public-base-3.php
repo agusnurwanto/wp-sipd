@@ -5204,16 +5204,6 @@ class Wpsipd_Public_Base_3
 													'pagu_akumulasi_indikator_3_usulan' => 0,
 													'pagu_akumulasi_indikator_4_usulan' => 0,
 													'pagu_akumulasi_indikator_5_usulan' => 0,
-													'pagu_akumulasi_subkegiatan_1' => 0,
-													'pagu_akumulasi_subkegiatan_2' => 0,
-													'pagu_akumulasi_subkegiatan_3' => 0,
-													'pagu_akumulasi_subkegiatan_4' => 0,
-													'pagu_akumulasi_subkegiatan_5' => 0,
-													'pagu_akumulasi_subkegiatan_1_usulan' => 0,
-													'pagu_akumulasi_subkegiatan_2_usulan' => 0,
-													'pagu_akumulasi_subkegiatan_3_usulan' => 0,
-													'pagu_akumulasi_subkegiatan_4_usulan' => 0,
-													'pagu_akumulasi_subkegiatan_5_usulan' => 0,
 													'indikator' => array(),
 													'data' => array()
 												];
@@ -5334,17 +5324,6 @@ class Wpsipd_Public_Base_3
 														$data_all['data'][$tujuan_value['id_unik']]['data'][$sasaran_value['id_unik']]['data'][$program_value['id_unik']]['data'][$kegiatan_value['id_unik']]['pagu_akumulasi_3_usulan'] += $sub_kegiatan_value['pagu_3_usulan'];
 														$data_all['data'][$tujuan_value['id_unik']]['data'][$sasaran_value['id_unik']]['data'][$program_value['id_unik']]['data'][$kegiatan_value['id_unik']]['pagu_akumulasi_4_usulan'] += $sub_kegiatan_value['pagu_4_usulan'];
 														$data_all['data'][$tujuan_value['id_unik']]['data'][$sasaran_value['id_unik']]['data'][$program_value['id_unik']]['data'][$kegiatan_value['id_unik']]['pagu_akumulasi_5_usulan'] += $sub_kegiatan_value['pagu_5_usulan'];
-
-														$data_all['data'][$tujuan_value['id_unik']]['data'][$sasaran_value['id_unik']]['data'][$program_value['id_unik']]['data'][$kegiatan_value['id_unik']]['pagu_akumulasi_subkegiatan_1'] += $sub_kegiatan_value['pagu_1'];
-														$data_all['data'][$tujuan_value['id_unik']]['data'][$sasaran_value['id_unik']]['data'][$program_value['id_unik']]['data'][$kegiatan_value['id_unik']]['pagu_akumulasi_subkegiatan_2'] += $sub_kegiatan_value['pagu_2'];
-														$data_all['data'][$tujuan_value['id_unik']]['data'][$sasaran_value['id_unik']]['data'][$program_value['id_unik']]['data'][$kegiatan_value['id_unik']]['pagu_akumulasi_subkegiatan_3'] += $sub_kegiatan_value['pagu_3'];
-														$data_all['data'][$tujuan_value['id_unik']]['data'][$sasaran_value['id_unik']]['data'][$program_value['id_unik']]['data'][$kegiatan_value['id_unik']]['pagu_akumulasi_subkegiatan_4'] += $sub_kegiatan_value['pagu_4'];
-														$data_all['data'][$tujuan_value['id_unik']]['data'][$sasaran_value['id_unik']]['data'][$program_value['id_unik']]['data'][$kegiatan_value['id_unik']]['pagu_akumulasi_subkegiatan_5'] += $sub_kegiatan_value['pagu_5'];
-														$data_all['data'][$tujuan_value['id_unik']]['data'][$sasaran_value['id_unik']]['data'][$program_value['id_unik']]['data'][$kegiatan_value['id_unik']]['pagu_akumulasi_subkegiatan_1_usulan'] += $sub_kegiatan_value['pagu_1_usulan'];
-														$data_all['data'][$tujuan_value['id_unik']]['data'][$sasaran_value['id_unik']]['data'][$program_value['id_unik']]['data'][$kegiatan_value['id_unik']]['pagu_akumulasi_subkegiatan_2_usulan'] += $sub_kegiatan_value['pagu_2_usulan'];
-														$data_all['data'][$tujuan_value['id_unik']]['data'][$sasaran_value['id_unik']]['data'][$program_value['id_unik']]['data'][$kegiatan_value['id_unik']]['pagu_akumulasi_subkegiatan_3_usulan'] += $sub_kegiatan_value['pagu_3_usulan'];
-														$data_all['data'][$tujuan_value['id_unik']]['data'][$sasaran_value['id_unik']]['data'][$program_value['id_unik']]['data'][$kegiatan_value['id_unik']]['pagu_akumulasi_subkegiatan_4_usulan'] += $sub_kegiatan_value['pagu_4_usulan'];
-														$data_all['data'][$tujuan_value['id_unik']]['data'][$sasaran_value['id_unik']]['data'][$program_value['id_unik']]['data'][$kegiatan_value['id_unik']]['pagu_akumulasi_subkegiatan_5_usulan'] += $sub_kegiatan_value['pagu_5_usulan'];
 
 														$data_all['data'][$tujuan_value['id_unik']]['data'][$sasaran_value['id_unik']]['data'][$program_value['id_unik']]['data'][$kegiatan_value['id_unik']]['data'][$sub_kegiatan_value['id_unik']] = [
 															'id' => $sub_kegiatan_value['id'],
@@ -5771,7 +5750,7 @@ class Wpsipd_Public_Base_3
 											<td class="atas kanan bawah"></td>
 											<td class="atas kanan bawah"><br>'.$indikator_kegiatan.'</td>
 											<td class="atas kanan bawah text_tengah"><br>'.$target_awal.'</td>';
-											for ($i=1; $i <= $jadwal_lokal->lama_pelaksanaan; $i++) {
+											for ($i=0; $i < $jadwal_lokal->lama_pelaksanaan; $i++) {
 												$class_warning = '';
 												if($kegiatan['pagu_akumulasi_'.($i+1)] != $kegiatan['pagu_akumulasi_indikator_'.($i+1)]){
 													$class_warning = 'peringatan';
@@ -5787,7 +5766,7 @@ class Wpsipd_Public_Base_3
 											<td class="atas kanan bawah"><br>'.$catatan_indikator.'</td>
 											<td class="atas kanan bawah td-usulan"><br>'.$indikator_kegiatan_usulan.'</td>
 											<td class="atas kanan bawah text_tengah td-usulan"><br>'.$target_awal_usulan.'</td>';
-											for ($i=1; $i <= $jadwal_lokal->lama_pelaksanaan; $i++) {
+											for ($i=0; $i < $jadwal_lokal->lama_pelaksanaan; $i++) {
 												$class_warning = '';
 												if($kegiatan['pagu_akumulasi_'.($i+1).'_usulan'] != $kegiatan['pagu_akumulasi_indikator_'.($i+1).'_usulan']){
 													$class_warning = 'peringatan';
@@ -5877,9 +5856,6 @@ class Wpsipd_Public_Base_3
 												<td class="atas kanan bawah"><br>'.$indikator_sub_kegiatan.'</td>
 												<td class="atas kanan bawah text_tengah"><br>'.$target_awal.'</td>';
 												for ($i=0; $i < $jadwal_lokal->lama_pelaksanaan; $i++) {
-													if($no_sub_kegiatan==1){
-														$pagu_akumulasi="<b>(".$this->_number_format($kegiatan['pagu_akumulasi_subkegiatan_'.($i+1)]).")</b>";
-													}
 													$body.="<td class=\"atas kanan bawah text_tengah\"><br>".$target_arr[$i]."</td><td class=\"atas kanan bawah text_kanan\">".$pagu_akumulasi."<br>".$sub_kegiatan['pagu_'.($i+1)]."</td>";
 												}
 												$body.='
@@ -5892,9 +5868,6 @@ class Wpsipd_Public_Base_3
 												<td class="atas kanan bawah td-usulan"><br>'.$indikator_sub_kegiatan_usulan.'</td>
 												<td class="atas kanan bawah text_tengah td-usulan"><br>'.$target_awal_usulan.'</td>';
 												for ($i=0; $i < $jadwal_lokal->lama_pelaksanaan; $i++) {
-													if($no_sub_kegiatan==1){
-														$pagu_akumulasi_usulan="<b>(".$this->_number_format($kegiatan['pagu_akumulasi_subkegiatan_'.($i+1).'_usulan']).")</b>";
-													}
 													$body.="<td class=\"atas kanan bawah text_tengah td-usulan\"><br>".$target_arr_usulan[$i]."</td><td class=\"atas kanan bawah text_kanan td-usulan\">".$pagu_akumulasi_usulan."<br>".$sub_kegiatan['pagu_'.($i+1).'_usulan']."</td>";
 												}
 												$body.='
