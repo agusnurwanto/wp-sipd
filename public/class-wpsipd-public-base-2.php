@@ -1639,16 +1639,30 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 
 				$data_sub_kegiatan = array();
 				foreach($bidur_db as $k_bidur => $v_bidur){
-					$data = $wpdb->get_results($wpdb->prepare(
-						'SELECT id,
-							id_bidang_urusan,
-							id_sub_giat,
-							kode_sub_giat,
-							nama_sub_giat
-						FROM data_prog_keg
-						WHERE id_bidang_urusan=%d
-						AND tahun_anggaran=%d
-					', $v_bidur['id_bidang_urusan'],$tahun_anggaran),ARRAY_A);
+					if(!empty($_POST['kode_giat'])){
+						$data = $wpdb->get_results($wpdb->prepare(
+							'SELECT id,
+								id_bidang_urusan,
+								id_sub_giat,
+								kode_sub_giat,
+								nama_sub_giat
+							FROM data_prog_keg
+							WHERE id_bidang_urusan=%d
+							AND tahun_anggaran=%d
+							AND kode_giat=%s
+						', $v_bidur['id_bidang_urusan'],$tahun_anggaran, $_POST['kode_giat']),ARRAY_A);
+					}else{
+						$data = $wpdb->get_results($wpdb->prepare(
+							'SELECT id,
+								id_bidang_urusan,
+								id_sub_giat,
+								kode_sub_giat,
+								nama_sub_giat
+							FROM data_prog_keg
+							WHERE id_bidang_urusan=%d
+							AND tahun_anggaran=%d
+						', $v_bidur['id_bidang_urusan'],$tahun_anggaran),ARRAY_A);
+					}
 
 					if(empty($data_sub_kegiatan[$k_bidur])){
 						$data_sub_kegiatan[$k_bidur] = $data;
