@@ -10568,7 +10568,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		die(json_encode($ret));
 	}
 
-	function singkroniasi_total_sub_keg_fmis(){
+	function singkronisasi_total_sub_keg_fmis(){
 		global $wpdb;
 		$ret = array(
 			'action'	=> $_POST['action'],
@@ -10723,7 +10723,10 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 							}
 
 							// belanja
-							if($data_fmis['rincian'][0]['kdrek1'] == 5){
+							if(
+								$data_fmis['rincian'][0]['kdrek1'] == 5
+								|| $data_fmis['sub_kegiatan'] != 'Non Sub Kegiatan' // agar bisa merubah pagu rincian 0
+							){
 								$sub_sipd = $wpdb->get_results($wpdb->prepare("
 									SELECT
 										s.id,
@@ -13139,7 +13142,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		die(json_encode($return));
 	}
 
-	function singkroniasi_spd_fmis(){
+	function singkronisasi_spd_fmis(){
 		global $wpdb;
 		$return = array(
 			'action' => $_POST['action'],

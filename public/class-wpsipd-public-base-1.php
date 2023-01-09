@@ -121,6 +121,7 @@ class Wpsipd_Public_Base_1 extends Wpsipd_Public_Base_2{
     public function get_rpjpd($res=false, $id_jadwal_history=false){
         global $wpdb;
         $ret = array(
+            'action'    => 'get_rpjpd',
             'status'    => 'success',
             'message'   => 'Berhasil mengambil data RPJPD dari data SIPD lokal!'
         );
@@ -129,134 +130,160 @@ class Wpsipd_Public_Base_1 extends Wpsipd_Public_Base_2{
                 $table = '';
                 $where = 'where 1=1 ';
 
-                if(!empty($id_jadwal_history)){
-                    if($_POST['table'] == 'data_rpjpd_visi'){
-                        $table = 'data_rpjpd_visi_history';
-                        $where .= "and id_jadwal=".$id_jadwal_history." ";
-                    }else if($_POST['table'] == 'data_rpjpd_misi'){
-                        $table = 'data_rpjpd_misi_history';
-                        $where .= "and id_jadwal=".$id_jadwal_history." ";
-                        if(!empty($_POST['id_misi'])){
-                            $id_visi = $wpdb->get_var($wpdb->prepare("
-                                select id_visi
-                                from $table
-                                where id_asli=%d
-                                    and id_jadwal=%d", 
-                                $_POST['id_misi'],
-                                $id_jadwal_history
-                            ));
-                            $where .= $wpdb->prepare('and id_visi=%d', $id_visi);
-                        }else{
-                            $where .= $wpdb->prepare('and id_visi=%d', $_POST['id']);
-                        }
-                    }else if($_POST['table'] == 'data_rpjpd_sasaran'){
-                        $table = 'data_rpjpd_sasaran_history';
-                        $where .= "and id_jadwal=".$id_jadwal_history." ";
-                        if(!empty($_POST['id_saspok'])){
-                            $id_misi = $wpdb->get_var($wpdb->prepare("
-                                select id_misi
-                                from $table
-                                where id_asli=%d
-                                    and id_jadwal=%d", 
-                                $_POST['id_saspok'],
-                                $id_jadwal_history
-                            ));
-                            $where .= $wpdb->prepare('and id_misi=%d', $id_misi);
-                        }else{
-                            $where .= $wpdb->prepare('and id_misi=%d', $_POST['id']);
-                        }
-                    }else if($_POST['table'] == 'data_rpjpd_kebijakan'){
-                        $table = 'data_rpjpd_kebijakan_history';
-                        $where .= "and id_jadwal=".$id_jadwal_history." ";
-                        if(!empty($_POST['id_kebijakan'])){
-                            $id_saspok = $wpdb->get_var($wpdb->prepare("
-                                select id_saspok
-                                from $table
-                                where id_asli=%d
-                                    and id_jadwal=%d", 
-                                $_POST['id_kebijakan'],
-                                $id_jadwal_history
-                            ));
-                            $where .= $wpdb->prepare('and id_saspok=%d', $id_saspok);
-                        }else{
-                            $where .= $wpdb->prepare('and id_saspok=%d', $_POST['id']);
-                        }
-                    }else if($_POST['table'] == 'data_rpjpd_isu'){
-                        $table = 'data_rpjpd_isu_history';
-                        $where .= "and id_jadwal=".$id_jadwal_history." ";
-                        if(!empty($_POST['id_isu'])){
-                            $id_kebijakan = $wpdb->get_var($wpdb->prepare("
-                                select id_kebijakan
-                                from $table
-                                where id_asli=%d
-                                    and id_jadwal=%d", 
-                                $_POST['id_isu'],
-                                $id_jadwal_history
-                            ));
-                            $where .= $wpdb->prepare('and id_kebijakan=%d', $id_kebijakan);
-                        }else{
-                            $where .= $wpdb->prepare('and id_kebijakan=%d', $_POST['id']);
-                        }
-                    }
+                if($_POST['table'] == 'all'){
+                    $sql = "
+                        select 
+                            v.id as id_visi,
+                            v.visi_teks,
+                            m.id as id_misi,
+                            m.misi_teks,
+                            m.urut_misi,
+                            s.id as id_sasaran,
+                            s.saspok_teks,
+                            s.urut_saspok,
+                            k.id as id_kebijakan,
+                            k.kebijakan_teks,
+                            k.urut_kebijakan,
+                            i.id as id_isu,
+                            i.isu_teks,
+                            i.urut_isu
+                        from data_rpjpd_visi v
+                        left join data_rpjpd_misi m on v.id=m.id_visi
+                        left join data_rpjpd_sasaran s on m.id=s.id_misi
+                        left join data_rpjpd_kebijakan k on s.id=k.id_saspok
+                        left join data_rpjpd_isu i on k.id=i.id_kebijakan
+                    ";
+                    $ret['data'] = $wpdb->get_results($sql, ARRAY_A);
                 }else{
-                    if($_POST['table'] == 'data_rpjpd_visi'){
-                        $table = 'data_rpjpd_visi';
-                    }else if($_POST['table'] == 'data_rpjpd_misi'){
-                        $table = 'data_rpjpd_misi';
-                        if(!empty($_POST['id_misi'])){
-                            $id_visi = $wpdb->get_var($wpdb->prepare("
-                                select id_visi
-                                from $table
-                                where id=%d", $_POST['id_misi']));
-                            $where .= $wpdb->prepare('and id_visi=%d', $id_visi);
-                        }else{
-                            $where .= $wpdb->prepare('and id_visi=%d', $_POST['id']);
+                    if(!empty($id_jadwal_history)){
+                        if($_POST['table'] == 'data_rpjpd_visi'){
+                            $table = 'data_rpjpd_visi_history';
+                            $where .= "and id_jadwal=".$id_jadwal_history." ";
+                        }else if($_POST['table'] == 'data_rpjpd_misi'){
+                            $table = 'data_rpjpd_misi_history';
+                            $where .= "and id_jadwal=".$id_jadwal_history." ";
+                            if(!empty($_POST['id_misi'])){
+                                $id_visi = $wpdb->get_var($wpdb->prepare("
+                                    select id_visi
+                                    from $table
+                                    where id_asli=%d
+                                        and id_jadwal=%d", 
+                                    $_POST['id_misi'],
+                                    $id_jadwal_history
+                                ));
+                                $where .= $wpdb->prepare('and id_visi=%d', $id_visi);
+                            }else{
+                                $where .= $wpdb->prepare('and id_visi=%d', $_POST['id']);
+                            }
+                        }else if($_POST['table'] == 'data_rpjpd_sasaran'){
+                            $table = 'data_rpjpd_sasaran_history';
+                            $where .= "and id_jadwal=".$id_jadwal_history." ";
+                            if(!empty($_POST['id_saspok'])){
+                                $id_misi = $wpdb->get_var($wpdb->prepare("
+                                    select id_misi
+                                    from $table
+                                    where id_asli=%d
+                                        and id_jadwal=%d", 
+                                    $_POST['id_saspok'],
+                                    $id_jadwal_history
+                                ));
+                                $where .= $wpdb->prepare('and id_misi=%d', $id_misi);
+                            }else{
+                                $where .= $wpdb->prepare('and id_misi=%d', $_POST['id']);
+                            }
+                        }else if($_POST['table'] == 'data_rpjpd_kebijakan'){
+                            $table = 'data_rpjpd_kebijakan_history';
+                            $where .= "and id_jadwal=".$id_jadwal_history." ";
+                            if(!empty($_POST['id_kebijakan'])){
+                                $id_saspok = $wpdb->get_var($wpdb->prepare("
+                                    select id_saspok
+                                    from $table
+                                    where id_asli=%d
+                                        and id_jadwal=%d", 
+                                    $_POST['id_kebijakan'],
+                                    $id_jadwal_history
+                                ));
+                                $where .= $wpdb->prepare('and id_saspok=%d', $id_saspok);
+                            }else{
+                                $where .= $wpdb->prepare('and id_saspok=%d', $_POST['id']);
+                            }
+                        }else if($_POST['table'] == 'data_rpjpd_isu'){
+                            $table = 'data_rpjpd_isu_history';
+                            $where .= "and id_jadwal=".$id_jadwal_history." ";
+                            if(!empty($_POST['id_isu'])){
+                                $id_kebijakan = $wpdb->get_var($wpdb->prepare("
+                                    select id_kebijakan
+                                    from $table
+                                    where id_asli=%d
+                                        and id_jadwal=%d", 
+                                    $_POST['id_isu'],
+                                    $id_jadwal_history
+                                ));
+                                $where .= $wpdb->prepare('and id_kebijakan=%d', $id_kebijakan);
+                            }else{
+                                $where .= $wpdb->prepare('and id_kebijakan=%d', $_POST['id']);
+                            }
                         }
-                    }else if($_POST['table'] == 'data_rpjpd_sasaran'){
-                        $table = 'data_rpjpd_sasaran';
-                        if(!empty($_POST['id_saspok'])){
-                            $id_misi = $wpdb->get_var($wpdb->prepare("
-                                select id_misi
-                                from $table
-                                where id=%d", $_POST['id_saspok']));
-                            $where .= $wpdb->prepare('and id_misi=%d', $id_misi);
-                        }else{
-                            $where .= $wpdb->prepare('and id_misi=%d', $_POST['id']);
-                        }
-                    }else if($_POST['table'] == 'data_rpjpd_kebijakan'){
-                        $table = 'data_rpjpd_kebijakan';
-                        if(!empty($_POST['id_kebijakan'])){
-                            $id_saspok = $wpdb->get_var($wpdb->prepare("
-                                select id_saspok
-                                from $table
-                                where id=%d", $_POST['id_kebijakan']));
-                            $where .= $wpdb->prepare('and id_saspok=%d', $id_saspok);
-                        }else{
-                            $where .= $wpdb->prepare('and id_saspok=%d', $_POST['id']);
-                        }
-                    }else if($_POST['table'] == 'data_rpjpd_isu'){
-                        $table = 'data_rpjpd_isu';
-                        if(!empty($_POST['id_isu'])){
-                            $id_kebijakan = $wpdb->get_var($wpdb->prepare("
-                                select id_kebijakan
-                                from $table
-                                where id=%d", $_POST['id_isu']));
-                            $where .= $wpdb->prepare('and id_kebijakan=%d', $id_kebijakan);
-                        }else{
-                            $where .= $wpdb->prepare('and id_kebijakan=%d', $_POST['id']);
+                    }else{
+                        if($_POST['table'] == 'data_rpjpd_visi'){
+                            $table = 'data_rpjpd_visi';
+                        }else if($_POST['table'] == 'data_rpjpd_misi'){
+                            $table = 'data_rpjpd_misi';
+                            if(!empty($_POST['id_misi'])){
+                                $id_visi = $wpdb->get_var($wpdb->prepare("
+                                    select id_visi
+                                    from $table
+                                    where id=%d", $_POST['id_misi']));
+                                $where .= $wpdb->prepare('and id_visi=%d', $id_visi);
+                            }else{
+                                $where .= $wpdb->prepare('and id_visi=%d', $_POST['id']);
+                            }
+                        }else if($_POST['table'] == 'data_rpjpd_sasaran'){
+                            $table = 'data_rpjpd_sasaran';
+                            if(!empty($_POST['id_saspok'])){
+                                $id_misi = $wpdb->get_var($wpdb->prepare("
+                                    select id_misi
+                                    from $table
+                                    where id=%d", $_POST['id_saspok']));
+                                $where .= $wpdb->prepare('and id_misi=%d', $id_misi);
+                            }else{
+                                $where .= $wpdb->prepare('and id_misi=%d', $_POST['id']);
+                            }
+                        }else if($_POST['table'] == 'data_rpjpd_kebijakan'){
+                            $table = 'data_rpjpd_kebijakan';
+                            if(!empty($_POST['id_kebijakan'])){
+                                $id_saspok = $wpdb->get_var($wpdb->prepare("
+                                    select id_saspok
+                                    from $table
+                                    where id=%d", $_POST['id_kebijakan']));
+                                $where .= $wpdb->prepare('and id_saspok=%d', $id_saspok);
+                            }else{
+                                $where .= $wpdb->prepare('and id_saspok=%d', $_POST['id']);
+                            }
+                        }else if($_POST['table'] == 'data_rpjpd_isu'){
+                            $table = 'data_rpjpd_isu';
+                            if(!empty($_POST['id_isu'])){
+                                $id_kebijakan = $wpdb->get_var($wpdb->prepare("
+                                    select id_kebijakan
+                                    from $table
+                                    where id=%d", $_POST['id_isu']));
+                                $where .= $wpdb->prepare('and id_kebijakan=%d', $id_kebijakan);
+                            }else{
+                                $where .= $wpdb->prepare('and id_kebijakan=%d', $_POST['id']);
+                            }
                         }
                     }
-                }
-                $sql = "
-                    select 
-                        * 
-                    from $table
-                    $where
-                ";
-                $ret['data'] = $wpdb->get_results($sql, ARRAY_A);
-                if(!empty($id_jadwal_history)){
-                    foreach($ret['data'] as $k => $data){
-                        $ret['data'][$k]['id'] = $data['id_asli'];
+                    $sql = "
+                        select 
+                            * 
+                        from $table
+                        $where
+                    ";
+                    $ret['data'] = $wpdb->get_results($sql, ARRAY_A);
+                    if(!empty($id_jadwal_history)){
+                        foreach($ret['data'] as $k => $data){
+                            $ret['data'][$k]['id'] = $data['id_asli'];
+                        }
                     }
                 }
             }else{
