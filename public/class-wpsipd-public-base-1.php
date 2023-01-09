@@ -524,6 +524,7 @@ class Wpsipd_Public_Base_1 extends Wpsipd_Public_Base_2{
     public function get_rpd($cb = false){
         global $wpdb;
         $ret = array(
+            'action'    => 'get_rpd',
             'status'    => 'success',
             'message'   => 'Berhasil get data RPD!'
         );

@@ -553,11 +553,9 @@ class Wpsipd_Public_Base_3
 
 				}else{
 					throw new Exception("'Api key tidak sesuai'", 1);
-					
 				}
 			}else{
 				throw new Exception("Format tidak sesuai", 1);
-				
 			}
 		} catch (Exception $e) {
 			echo json_encode([
