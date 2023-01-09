@@ -3487,7 +3487,6 @@ foreach ($data_all['data'] as $tujuan) {
 
 	jQuery(document).on('click', '.btn-tambah-program', function(){
 		jQuery('#wrap-loading').show();
-		let programModal = jQuery("#modal-crud-renstra");
 		let kode_sasaran = jQuery(this).data('kodesasaran');
 		get_bidang_urusan().then(function(){
   			jQuery('#wrap-loading').hide();
@@ -3516,9 +3515,9 @@ foreach ($data_all['data'] as $tujuan) {
 				  	+'</div>'
 				+'</form>';
 
-		    programModal.find('.modal-title').html('Tambah Program');
-		    programModal.find('.modal-body').html(html);
-			programModal.find('.modal-footer').html(''
+		    jQuery("#modal-crud-renstra").find('.modal-title').html('Tambah Program');
+		    jQuery("#modal-crud-renstra").find('.modal-body').html(html);
+			jQuery("#modal-crud-renstra").find('.modal-footer').html(''
 				+'<button type="button" class="btn btn-warning" data-dismiss="modal">'
 					+'<i class="dashicons dashicons-no" style="margin-top: 2px;"></i> Tutup'
 				+'</button>'
@@ -3528,10 +3527,10 @@ foreach ($data_all['data'] as $tujuan) {
 				+'>'
 					+'<i class="dashicons dashicons-yes" style="margin-top: 2px;"></i> Simpan'
 				+'</button>');
-			programModal.find('.modal-dialog').css('maxWidth','');
-			programModal.find('.modal-dialog').css('width','');
+			jQuery("#modal-crud-renstra").find('.modal-dialog').css('maxWidth','');
+			jQuery("#modal-crud-renstra").find('.modal-dialog').css('width','');
 
-			programModal.modal('show');
+			jQuery("#modal-crud-renstra").modal('show');
 			get_urusan();
 			get_bidang();
 			get_program();

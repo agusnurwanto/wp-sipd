@@ -694,6 +694,15 @@ class Wpsipd_Public_Base_3
 						], [
 							'kode_tujuan' => $data['id_unik']
 						]);
+
+						// update data tujuan di table sub kegiatan dan indikator
+						$wpdb->update('data_renstra_sub_kegiatan_lokal', [
+							'tujuan_lock' => $data['tujuan_lock'],
+							'tujuan_teks' => $data['tujuan_teks'],
+							'urut_tujuan' => $data['urut_tujuan']
+						], [
+							'kode_tujuan' => $data['id_unik']
+						]);
 						
 						$wpdb->query('COMMIT');
 
@@ -1437,6 +1446,8 @@ class Wpsipd_Public_Base_3
 							$data['id_misi'] = $dataSasaranParent[0]->id_misi;
 						}
 					}
+
+					add_filter( 'query', array($this, 'wpsipd_query') );
 
 					// update data sasaran
 					$status = $wpdb->update('data_renstra_sasaran_lokal', [
@@ -2243,6 +2254,9 @@ class Wpsipd_Public_Base_3
 					}
 
 					try {
+
+						add_filter( 'query', array($this, 'wpsipd_query') );
+
 						// update program
 						$wpdb->update('data_renstra_program_lokal', [
 							'id_bidang_urusan' => $dataSasaran->id_bidang_urusan,
@@ -3276,6 +3290,9 @@ class Wpsipd_Public_Base_3
 					}
 
 					try {
+
+						add_filter( 'query', array($this, 'wpsipd_query') );
+
 						$wpdb->update('data_renstra_kegiatan_lokal', [
 							'bidur_lock' => 0,
 							'giat_lock' => 0,
@@ -6502,6 +6519,8 @@ class Wpsipd_Public_Base_3
 					}
 
 					try {
+
+						add_filter( 'query', array($this, 'wpsipd_query') );
 
 						$inputs = [
 								'bidur_lock' => $dataKegiatan->bidur_lock,
