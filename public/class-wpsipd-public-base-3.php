@@ -1997,23 +1997,42 @@ class Wpsipd_Public_Base_3
 						$program[$k]['pagu_akumulasi_4_usulan_program'] = $pagu->pagu_akumulasi_4_usulan;
 						$program[$k]['pagu_akumulasi_5_usulan_program'] = $pagu->pagu_akumulasi_5_usulan;
 
+						$kegiatan = $wpdb->get_results($wpdb->prepare("
+							SELECT 
+								id_unik 
+							FROM 
+								data_renstra_kegiatan_lokal 
+							WHERE 
+								kode_program=%s AND
+								id_unik_indikator IS NULL AND 
+								active=1
+								", $prog['id_unik']), 
+						ARRAY_A);
+
+						$kd_all_keg = [];
+						foreach ($kegiatan as $key => $keg) {
+							$kd_all_keg[]="'".$keg['id_unik']."'";
+						}
+						
+						$kd_keg = implode(",", $kd_all_keg);
 						$pagu = $wpdb->get_row($wpdb->prepare("
 							SELECT 
-								sum(pagu_1) as pagu_akumulasi_1,
-								sum(pagu_2) as pagu_akumulasi_2,
-								sum(pagu_3) as pagu_akumulasi_3,
-								sum(pagu_4) as pagu_akumulasi_4,
-								sum(pagu_5) as pagu_akumulasi_5,
-								sum(pagu_1_usulan) as pagu_akumulasi_1_usulan,
-								sum(pagu_2_usulan) as pagu_akumulasi_2_usulan,
-								sum(pagu_3_usulan) as pagu_akumulasi_3_usulan,
-								sum(pagu_4_usulan) as pagu_akumulasi_4_usulan,
-								sum(pagu_5_usulan) as pagu_akumulasi_5_usulan
+								coalesce(sum(pagu_1), 0) as pagu_akumulasi_1,
+								coalesce(sum(pagu_2), 0) as pagu_akumulasi_2,
+								coalesce(sum(pagu_3), 0) as pagu_akumulasi_3,
+								coalesce(sum(pagu_4), 0) as pagu_akumulasi_4,
+								coalesce(sum(pagu_5), 0) as pagu_akumulasi_5,
+								coalesce(sum(pagu_1_usulan), 0) as pagu_akumulasi_1_usulan,
+								coalesce(sum(pagu_2_usulan), 0) as pagu_akumulasi_2_usulan,
+								coalesce(sum(pagu_3_usulan), 0) as pagu_akumulasi_3_usulan,
+								coalesce(sum(pagu_4_usulan), 0) as pagu_akumulasi_4_usulan,
+								coalesce(sum(pagu_5_usulan), 0) as pagu_akumulasi_5_usulan
 							from data_renstra_sub_kegiatan_lokal 
 							where id_unik_indikator IS NULL
+								AND kode_kegiatan in (".$kd_keg.")
 								AND active=1
-								AND kode_program=%s
-						", $prog['id_unik']));
+						"));
+
 						$program[$k]['pagu_akumulasi_1'] = $pagu->pagu_akumulasi_1;
 						$program[$k]['pagu_akumulasi_2'] = $pagu->pagu_akumulasi_2;
 						$program[$k]['pagu_akumulasi_3'] = $pagu->pagu_akumulasi_3;
@@ -2484,23 +2503,42 @@ class Wpsipd_Public_Base_3
 					$program[$k]['pagu_akumulasi_4_usulan_program'] = $pagu->pagu_akumulasi_4_usulan;
 					$program[$k]['pagu_akumulasi_5_usulan_program'] = $pagu->pagu_akumulasi_5_usulan;
 
+					$kegiatan = $wpdb->get_results($wpdb->prepare("
+							SELECT 
+								id_unik 
+							FROM 
+								data_renstra_kegiatan_lokal 
+							WHERE 
+								kode_program=%s AND
+								id_unik_indikator IS NULL AND 
+								active=1
+								", $prog['id_unik']), 
+						ARRAY_A);
+
+					$kd_all_keg = [];
+					foreach ($kegiatan as $key => $keg) {
+						$kd_all_keg[]="'".$keg['id_unik']."'";
+					}
+						
+					$kd_keg = implode(",", $kd_all_keg);
 					$pagu = $wpdb->get_row($wpdb->prepare("
 						SELECT 
-							sum(pagu_1) as pagu_akumulasi_1,
-							sum(pagu_2) as pagu_akumulasi_2,
-							sum(pagu_3) as pagu_akumulasi_3,
-							sum(pagu_4) as pagu_akumulasi_4,
-							sum(pagu_5) as pagu_akumulasi_5,
-							sum(pagu_1_usulan) as pagu_akumulasi_1_usulan,
-							sum(pagu_2_usulan) as pagu_akumulasi_2_usulan,
-							sum(pagu_3_usulan) as pagu_akumulasi_3_usulan,
-							sum(pagu_4_usulan) as pagu_akumulasi_4_usulan,
-							sum(pagu_5_usulan) as pagu_akumulasi_5_usulan
+							coalesce(sum(pagu_1), 0) as pagu_akumulasi_1,
+							coalesce(sum(pagu_2), 0) as pagu_akumulasi_2,
+							coalesce(sum(pagu_3), 0) as pagu_akumulasi_3,
+							coalesce(sum(pagu_4), 0) as pagu_akumulasi_4,
+							coalesce(sum(pagu_5), 0) as pagu_akumulasi_5,
+							coalesce(sum(pagu_1_usulan), 0) as pagu_akumulasi_1_usulan,
+							coalesce(sum(pagu_2_usulan), 0) as pagu_akumulasi_2_usulan,
+							coalesce(sum(pagu_3_usulan), 0) as pagu_akumulasi_3_usulan,
+							coalesce(sum(pagu_4_usulan), 0) as pagu_akumulasi_4_usulan,
+							coalesce(sum(pagu_5_usulan), 0) as pagu_akumulasi_5_usulan
 						from data_renstra_sub_kegiatan_lokal 
 						where id_unik_indikator IS NULL
+							AND kode_kegiatan in (".$kd_keg.")
 							AND active=1
-							AND kode_program=%s
-					", $prog['id_unik']));
+					"));
+
 					$program[$k]['pagu_akumulasi_1'] = $pagu->pagu_akumulasi_1;
 					$program[$k]['pagu_akumulasi_2'] = $pagu->pagu_akumulasi_2;
 					$program[$k]['pagu_akumulasi_3'] = $pagu->pagu_akumulasi_3;
