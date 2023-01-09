@@ -1493,6 +1493,8 @@ class Wpsipd_Public_Base_3
 						'id_unik_indikator' => 'NOT NULL'
 					]);
 
+					remove_filter( 'query', array($this, 'wpsipd_query') );
+
 					if($status === false){
 						throw new Exception('Terjadi kesalahan saat simpan data, harap hubungi admin!');
 					}
@@ -2312,6 +2314,8 @@ class Wpsipd_Public_Base_3
 							'id_unik' => $data['id_unik'],
 							'id_unik_indikator' => 'NOT NULL'
 						]);
+
+						remove_filter( 'query', array($this, 'wpsipd_query') );
 
 						echo json_encode([
 							'status' => true,
@@ -3359,6 +3363,8 @@ class Wpsipd_Public_Base_3
 							'id_unik' => $data['id_unik'],
 							'id_unik_indikator' => 'NOT NULL'
 						]);
+
+						remove_filter( 'query', array($this, 'wpsipd_query') );
 
 						echo json_encode([
 							'status' => true,
@@ -6620,6 +6626,8 @@ class Wpsipd_Public_Base_3
 							'id_unik' => $data['kode_sub_kegiatan'],
 							'id_unik_indikator' => 'NOT NULL'
 						]);
+
+						remove_filter( 'query', array($this, 'wpsipd_query') );
 
 						if($status === false){
 							$ket = '';
