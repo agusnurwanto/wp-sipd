@@ -6686,7 +6686,7 @@ foreach ($data_all['data'] as $tujuan) {
 			       	},
 			       	dataType: "json",
 			       	success: function(res){
-			          	let option='<option>Pilih Sub Kegiatan</option>';
+			          	let option='<option value="">Pilih Sub Kegiatan</option>';
 						res.data.map(function(value, index){
 		                    value.map(function(value_sub, index_sub){
 		                        let nama = value_sub.nama_sub_giat.split(' ');
