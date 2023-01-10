@@ -5897,7 +5897,7 @@ class Wpsipd_Public_Base_3
 						    background: #baffba;
 						}
 						.tr-kegiatan {
-						    background: #ffdbc6;
+						    background: #f904bd52;
 						}
 						.peringatan {
 							background: #f5c9c9;

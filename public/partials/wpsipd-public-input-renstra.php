@@ -5795,7 +5795,7 @@ foreach ($data_all['data'] as $tujuan) {
       							+'<th class="text-center" style="width:10%">Pagu Tahun <?php echo $i; ?></th>'
       						<?php } ?>
       							+'<th class="text-center" style="width:10%">Catatan</th>'
-      							+'<th class="text-center" style="width:13%">Aksi</th>'
+      							+'<th class="text-center" style="width:15%">Aksi</th>'
       						+'<tr>'
       					+'</thead>'
       					+'<tbody>';
