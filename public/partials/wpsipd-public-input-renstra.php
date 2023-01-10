@@ -2140,7 +2140,7 @@ foreach ($data_all['data'] as $tujuan) {
 	    background: #baffba;
 	}
 	.tr-kegiatan {
-	    background: #ffdbc6;
+	    background: #f904bd52;
 	}
 	.peringatan {
 		background: #f5c9c9;
@@ -2259,7 +2259,7 @@ foreach ($data_all['data'] as $tujuan) {
 	<li>Background warna biru adalah baris tujuan.</li>
 	<li>Background warna kuning adalah baris sasaran.</li>
 	<li>Background warna hijau adalah baris program.</li>
-	<li>Background warna orange adalah baris kegiatan</li>
+	<li>Background warna ungu adalah baris kegiatan</li>
 	<li>Background warna putih adalah baris sub kegiatan</li>
 	<li><b>Debug Cascading <?php echo $nama_tipe_relasi; ?></b> berfungsi untuk melakukan pengecekan relasi antara tujuan RENSTRA dengan sasaran di <?php echo $nama_tipe_relasi; ?>.</li>
 	<li>Baris berwarna merah saat dilakukan checklist pada kotak <b>Debug Cascading <?php echo $nama_tipe_relasi; ?></b> menandakan bahwa tujuan RENSTRA belum terkoneksi dengan data di <?php echo $nama_tipe_relasi; ?>.</li>
@@ -5820,24 +5820,36 @@ foreach ($data_all['data'] as $tujuan) {
 	  						<?php } ?>
   							kegiatan +=''
   								+'<tr kodekegiatan="'+value.id_unik+'">'
-          							+'<td class="text-center" rowspan="2">'+(index+1)+'</td>'
-          							+'<td rowspan="2">'+value.nama_giat+'</td>'
+          							+'<td class="text-center" rowspan="4">'+(index+1)+'</td>'
+          							+'<td rowspan="4">'+value.nama_giat+'</td>'
           						<?php for($i=1; $i<=$lama_pelaksanaan; $i++){ ?>
           							+'<td class="text-right '+peringatan[<?php echo $i; ?>]+'">'+formatRupiah(value.pagu_akumulasi_<?php echo $i; ?>)+'</td>'
           						<?php } ?>
           							+'<td><b>Penetapan</b><br>'+value.catatan+'</td>'
-          							+'<td class="text-center" rowspan="2">'
+          							+'<td class="text-center" rowspan="4">'
           								+'<a href="javascript:void(0)" data-kodekegiatan="'+value.id_unik+'" class="btn btn-warning btn-kelola-indikator-kegiatan" title="Lihat Indikator Kegiatan"><i class="dashicons dashicons-menu-alt" style="margin-top: 2px;"></i></a>&nbsp;'
           								+'<a href="javascript:void(0)" data-kodekegiatan="'+value.id_unik+'" data-idkegiatan="'+value.id_giat+'" data-kodegiat="'+value.kode_giat+'" class="btn btn-primary btn-detail-kegiatan" title="Lihat Sub Kegiatan"><i class="dashicons dashicons-search" style="margin-top: 2px;"></i></a>&nbsp;'	
           								+'<a href="javascript:void(0)" data-id="'+value.id+'" data-kodekegiatan="'+value.id_unik+'" data-idprogram="'+value.id_program+'" class="btn btn-success btn-edit-kegiatan" title="Edit Kegiatan"><i class="dashicons dashicons-edit" style="margin-top: 2px;"></i></a>&nbsp;'
           								+'<a href="javascript:void(0)" data-id="'+value.id+'" data-kodekegiatan="'+value.id_unik+'" data-kodeprogram="'+value.kode_program+'" data-idprogram="'+value.id_program+'" class="btn btn-danger btn-hapus-kegiatan" title="Hapus Kegiatan"><i class="dashicons dashicons-trash" style="margin-top: 2px;"></i></a>'
           							+'</td>'
           						+'</tr>'
+          						+'<tr>'
+	      						<?php for($i=1; $i<=$lama_pelaksanaan; $i++){ ?>
+	      							+'<td class="text-right '+peringatan[<?php echo $i; ?>]+'">'+formatRupiah(value.pagu_akumulasi_<?php echo $i; ?>_subkegiatan)+'</td>'
+	      						<?php } ?>
+          							+'<td>Akumulasi Penetapan Indikator Kegiatan</td>'
+          						+'</tr>'
   								+'<tr>'
-          						<?php for($i=1; $i<=$lama_pelaksanaan; $i++){ ?>
-          							+'<td class="text-right '+peringatan_usulan[<?php echo $i; ?>]+'">'+formatRupiah(value.pagu_akumulasi_<?php echo $i; ?>_usulan)+'</td>'
-          						<?php } ?>
+	      						<?php for($i=1; $i<=$lama_pelaksanaan; $i++){ ?>
+	      							+'<td class="text-right '+peringatan_usulan[<?php echo $i; ?>]+'">'+formatRupiah(value.pagu_akumulasi_<?php echo $i; ?>_usulan)+'</td>'
+	      						<?php } ?>
           							+'<td><b>Usulan</b> '+value.catatan_usulan+'</td>'
+          						+'</tr>'
+  								+'<tr>'
+	      						<?php for($i=1; $i<=$lama_pelaksanaan; $i++){ ?>
+	      							+'<td class="text-right '+peringatan_usulan[<?php echo $i; ?>]+'">'+formatRupiah(value.pagu_akumulasi_<?php echo $i; ?>_usulan_subkegiatan)+'</td>'
+	      						<?php } ?>
+          							+'<td>Akumulasi Usulan Indikator Kegiatan</td>'
           						+'</tr>';
   						});
       					kegiatan +='<tbody>'

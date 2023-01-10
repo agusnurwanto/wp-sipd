@@ -4762,7 +4762,7 @@ class Wpsipd_Public_Base_3
 									<th style="width: 200px;" class="atas kanan bawah text_tengah text_blok" rowspan="3">Sasaran</th>
 									<th style="width: 200px;" class="atas kanan bawah text_tengah text_blok" rowspan="3">Kode</th>
 									<th style="width: 200px;" class="atas kanan bawah text_tengah text_blok" rowspan="3">Program, Kegiatan, dan Sub Kegiatan</th>
-									<th style="width: 400px;" class="atas kanan bawah text_tengah text_blok" rowspan="3">Indikator Kinerja Tujuan, Sasaran, <br>Program(outcome) dan Kegiatan (output)</th>
+									<th style="width: 400px;" class="atas kanan bawah text_tengah text_blok" rowspan="3">Indikator Kinerja Tujuan, Sasaran, <br>Program(outcome), Kegiatan (output), dan Sub Kegiatan</th>
 									<th style="width: 400px;"class="row_head_kinerja atas kanan bawah text_tengah text_blok" colspan="'.(2*$jadwal_lokal->lama_pelaksanaan).'">Target Kinerja Program dan Kerangka Pendanaan</th>
 									<th style="width: 100px;" class="atas kanan bawah text_tengah text_blok" rowspan="3">Kondisi Kinerja pada akhir periode Renstra Perangkat Daerah</th>
 								</tr>';
