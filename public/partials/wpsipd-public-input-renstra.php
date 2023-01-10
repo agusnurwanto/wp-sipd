@@ -5823,7 +5823,7 @@ foreach ($data_all['data'] as $tujuan) {
           							+'<td class="text-center" rowspan="4">'+(index+1)+'</td>'
           							+'<td rowspan="4">'+value.nama_giat+'</td>'
           						<?php for($i=1; $i<=$lama_pelaksanaan; $i++){ ?>
-          							+'<td class="text-right '+peringatan[<?php echo $i; ?>]+'">'+formatRupiah(value.pagu_akumulasi_<?php echo $i; ?>_usulan_subkegiatan)+'</td>'
+          							+'<td class="text-right '+peringatan[<?php echo $i; ?>]+'">'+formatRupiah(value.pagu_akumulasi_<?php echo $i; ?>_subkegiatan)+'</td>'
           						<?php } ?>
           							+'<td><b>Penetapan</b><br>'+value.catatan+'</td>'
           							+'<td class="text-center" rowspan="4">'
@@ -5841,7 +5841,7 @@ foreach ($data_all['data'] as $tujuan) {
           						+'</tr>'
   								+'<tr>'
 	      						<?php for($i=1; $i<=$lama_pelaksanaan; $i++){ ?>
-	      							+'<td class="text-right '+peringatan_usulan[<?php echo $i; ?>]+'">'+formatRupiah(value.pagu_akumulasi_<?php echo $i; ?>_usulan)+'</td>'
+	      							+'<td class="text-right '+peringatan_usulan[<?php echo $i; ?>]+'">'+formatRupiah(value.pagu_akumulasi_<?php echo $i; ?>_usulan_subkegiatan)+'</td>'
 	      						<?php } ?>
           							+'<td><b>Usulan</b> '+value.catatan_usulan+'</td>'
           						+'</tr>'
