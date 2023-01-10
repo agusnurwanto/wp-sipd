@@ -4848,7 +4848,7 @@ foreach ($data_all['data'] as $tujuan) {
 					jQuery("#modal-crud-renstra").modal('show');
 
 					get_master_indikator_subgiat({
-				       'id_sub_giat':response.id_sub_giat,
+				       'id_sub_giat':id_sub_giat,
 				       'tahun_anggaran':'<?php echo $tahun_anggaran; ?>',
 					}, 'opt_indikator').then(function(){
 						jQuery(".opt_indikator_usulan").val(response.data.id_indikator_usulan);
