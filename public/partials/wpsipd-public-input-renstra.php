@@ -5847,7 +5847,7 @@ foreach ($data_all['data'] as $tujuan) {
           						+'</tr>'
   								+'<tr>'
 	      						<?php for($i=1; $i<=$lama_pelaksanaan; $i++){ ?>
-	      							+'<td class="text-right '+peringatan_usulan[<?php echo $i; ?>]+'">'+formatRupiah(value.pagu_akumulasi_<?php echo $i; ?>)+'</td>'
+	      							+'<td class="text-right '+peringatan_usulan[<?php echo $i; ?>]+'">'+formatRupiah(value.pagu_akumulasi_<?php echo $i; ?>_usulan)+'</td>'
 	      						<?php } ?>
           							+'<td>Akumulasi Usulan Indikator Kegiatan</td>'
           						+'</tr>';
