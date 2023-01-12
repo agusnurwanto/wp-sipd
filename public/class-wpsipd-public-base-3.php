@@ -5292,7 +5292,7 @@ class Wpsipd_Public_Base_3
 														$kegiatan_value['id_unik'],
 														$program_value['id_unik'],
 														$sasaran_value['id_unik'],
-														$tujuan_value['id_unik'],
+														$tujuan_value['id_unik']
 													), ARRAY_A);
 
 												foreach ($sub_kegiatan_all as $keySubKegiatan => $sub_kegiatan_value) {
