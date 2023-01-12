@@ -137,7 +137,17 @@ $current_user = wp_get_current_user();
 $body = '';
 $bulan = date('m');
 $data_all = array(
-	'data' => array()
+	'data' => array(),
+	'pagu_akumulasi_1' => 0,
+	'pagu_akumulasi_2' => 0,
+	'pagu_akumulasi_3' => 0,
+	'pagu_akumulasi_4' => 0,
+	'pagu_akumulasi_5' => 0,
+	'pagu_akumulasi_1_usulan' => 0,
+	'pagu_akumulasi_2_usulan' => 0,
+	'pagu_akumulasi_3_usulan' => 0,
+	'pagu_akumulasi_4_usulan' => 0,
+	'pagu_akumulasi_5_usulan' => 0,
 );
 
 $tujuan_ids = array();
@@ -568,6 +578,17 @@ foreach ($tujuan_all as $keyTujuan => $tujuan_value) {
 										$data_all['data'][$tujuan_value['id_unik']]['data'][$sasaran_value['id_unik']]['data'][$program_value['id_unik']]['data'][$kegiatan_value['id_unik']]['pagu_akumulasi_3_usulan'] += $sub_kegiatan_value['pagu_3_usulan'];
 										$data_all['data'][$tujuan_value['id_unik']]['data'][$sasaran_value['id_unik']]['data'][$program_value['id_unik']]['data'][$kegiatan_value['id_unik']]['pagu_akumulasi_4_usulan'] += $sub_kegiatan_value['pagu_4_usulan'];
 										$data_all['data'][$tujuan_value['id_unik']]['data'][$sasaran_value['id_unik']]['data'][$program_value['id_unik']]['data'][$kegiatan_value['id_unik']]['pagu_akumulasi_5_usulan'] += $sub_kegiatan_value['pagu_5_usulan'];
+
+										$data_all['pagu_akumulasi_1']+=$sub_kegiatan_value['pagu_1'];
+										$data_all['pagu_akumulasi_2']+=$sub_kegiatan_value['pagu_2'];
+										$data_all['pagu_akumulasi_3']+=$sub_kegiatan_value['pagu_3'];
+										$data_all['pagu_akumulasi_4']+=$sub_kegiatan_value['pagu_4'];
+										$data_all['pagu_akumulasi_5']+=$sub_kegiatan_value['pagu_5'];
+										$data_all['pagu_akumulasi_1_usulan']+=$sub_kegiatan_value['pagu_1_usulan'];
+										$data_all['pagu_akumulasi_2_usulan']+=$sub_kegiatan_value['pagu_2_usulan'];
+										$data_all['pagu_akumulasi_3_usulan']+=$sub_kegiatan_value['pagu_3_usulan'];
+										$data_all['pagu_akumulasi_4_usulan']+=$sub_kegiatan_value['pagu_4_usulan'];
+										$data_all['pagu_akumulasi_5_usulan']+=$sub_kegiatan_value['pagu_5_usulan'];
 
 										$data_all['data'][$tujuan_value['id_unik']]['data'][$sasaran_value['id_unik']]['data'][$program_value['id_unik']]['data'][$kegiatan_value['id_unik']]['data'][$sub_kegiatan_value['id_unik']] = [
 											'id' => $sub_kegiatan_value['id'],
@@ -2023,8 +2044,6 @@ foreach ($data_all['data'] as $tujuan) {
 				';
 
 				$no_sub_kegiatan = 0;
-				$pagu_akumulasi = '';
-				$pagu_akumulasi_usulan = '';
 				foreach ($kegiatan['data'] as $key => $sub_kegiatan) {
 					
 					$no_sub_kegiatan++;
@@ -2097,7 +2116,7 @@ foreach ($data_all['data'] as $tujuan) {
 								<td class="atas kanan bawah"><br>'.$indikator_sub_kegiatan.'</td>
 								<td class="atas kanan bawah text_tengah"><br>'.$target_awal.'</td>';
 								for ($i=0; $i < $lama_pelaksanaan; $i++) {
-									$body.="<td class=\"atas kanan bawah text_tengah\"><br>".$target_arr[$i]."</td><td class=\"atas kanan bawah text_kanan\">".$pagu_akumulasi."<br>".$sub_kegiatan['pagu_'.($i+1)]."</td>";
+									$body.="<td class=\"atas kanan bawah text_tengah\"><br>".$target_arr[$i]."</td><td class=\"atas kanan bawah text_kanan\">".$this->_number_format($sub_kegiatan['pagu_'.($i+1)])."</td>";
 								}
 								$body.='
 								<td class="atas kanan bawah text_tengah"><br>'.$target_akhir.'</td>
@@ -2109,7 +2128,7 @@ foreach ($data_all['data'] as $tujuan) {
 								<td class="atas kanan bawah td-usulan"><br>'.$indikator_sub_kegiatan_usulan.'</td>
 								<td class="atas kanan bawah text_tengah td-usulan"><br>'.$target_awal_usulan.'</td>';
 								for ($i=0; $i < $lama_pelaksanaan; $i++) {
-									$body.="<td class=\"atas kanan bawah text_tengah td-usulan\"><br>".$target_arr_usulan[$i]."</td><td class=\"atas kanan bawah text_kanan td-usulan\">".$pagu_akumulasi_usulan."<br>".$sub_kegiatan['pagu_'.($i+1).'_usulan']."</td>";
+									$body.="<td class=\"atas kanan bawah text_tengah td-usulan\"><br>".$target_arr_usulan[$i]."</td><td class=\"atas kanan bawah text_kanan td-usulan\">".$this->_number_format($sub_kegiatan['pagu_'.($i+1).'_usulan'])."</td>";
 								}
 								$body.='
 								<td class="atas kanan bawah text_tengah td-usulan"><br>'.$target_akhir_usulan.'</td>
@@ -2123,6 +2142,19 @@ foreach ($data_all['data'] as $tujuan) {
 		}
 	}
 }
+$body.='<tr class="tr-total-pagu-opd">
+	<td colspan="10" class="kiri atas kanan bawah"><b>TOTAL PAGU PER TAHUN ANGGARAN</b></td>';
+	for ($i=0; $i < $lama_pelaksanaan; $i++) {
+		$body.="<td colspan='2' class=\"atas kanan bawah text_kanan\"><b>".$this->_number_format($data_all['pagu_akumulasi_'.($i+1)])."</b></td>";
+	}
+$body.='
+	<td colspan="8" class="atas kanan bawah"></td>';
+	for ($i=0; $i < $lama_pelaksanaan; $i++) {
+		$body.="<td colspan='2' class=\"atas kanan bawah text_kanan\"><b>".$this->_number_format($data_all['pagu_akumulasi_'.($i+1).'_usulan'])."</b></td>";
+	}
+$body.='
+	<td colspan="5" class="atas kanan bawah"></td>
+</tr>';
 ?>
 <link href="https://cdnjs.cloudflare.com/ajax/libs/slim-select/1.27.1/slimselect.min.css" rel="stylesheet">
 <style type="text/css">
@@ -2141,6 +2173,9 @@ foreach ($data_all['data'] as $tujuan) {
 	}
 	.tr-kegiatan {
 	    background: #f904bd52;
+	}
+	.tr-total-pagu-opd{
+		background: #83efef;
 	}
 	.peringatan {
 		background: #f5c9c9;
@@ -2263,8 +2298,9 @@ foreach ($data_all['data'] as $tujuan) {
 	<li>Background warna putih adalah baris sub kegiatan</li>
 	<li><b>Debug Cascading <?php echo $nama_tipe_relasi; ?></b> berfungsi untuk melakukan pengecekan relasi antara tujuan RENSTRA dengan sasaran di <?php echo $nama_tipe_relasi; ?>.</li>
 	<li>Baris berwarna merah saat dilakukan checklist pada kotak <b>Debug Cascading <?php echo $nama_tipe_relasi; ?></b> menandakan bahwa tujuan RENSTRA belum terkoneksi dengan data di <?php echo $nama_tipe_relasi; ?>.</li>
-	<li>Pagu tujuan, sasaran, program dan kegiatan adalah akumulasi dari pagu di indikator kegiatan.</li>
-	<li>Indikator program memiliki pagu tersendiri sesuai format SIPD. Pada kotak pagu program akan berwarna merah jika pagu akumulasi kegiatan dan pagu akumulasi indikator program tidak sama.</li>
+	<li>Pagu tujuan, sasaran, program dan kegiatan adalah akumulasi dari pagu di sub kegiatan.</li>
+	<li>Indikator program memiliki pagu tersendiri sesuai format SIPD. Pada kotak pagu program akan berwarna merah jika pagu akumulasi sub kegiatan dan pagu akumulasi indikator program tidak sama.</li>
+	<li>Indikator kegiatan memiliki pagu tersendiri sesuai format SIPD. Pada kotak pagu kegiatan akan berwarna merah jika pagu akumulasi sub kegiatan dan pagu akumulasi indikator kegiatan tidak sama.</li>
 </ol>
 
 <div class="modal fade" id="modal-monev" role="dialog" data-backdrop="static" aria-hidden="true">'
@@ -2299,7 +2335,7 @@ foreach ($data_all['data'] as $tujuan) {
 </div>
 
 <!-- Modal indikator renstra -->
-<div class="modal fade" id="modal-indikator-renstra" role="dialog" aria-labelledby="modal-indikator-renstra-label" aria-hidden="true">
+<div class="modal fade" id="modal-indikator-renstra" data-backdrop="static" role="dialog" aria-labelledby="modal-indikator-renstra-label" aria-hidden="true">
   <div class="modal-dialog" role="document">
     <div class="modal-content">
       <div class="modal-header">
@@ -2316,7 +2352,7 @@ foreach ($data_all['data'] as $tujuan) {
 </div>
 
 <!-- Modal crud renstra -->
-<div class="modal fade" id="modal-crud-renstra" role="dialog" aria-labelledby="modal-crud-renstra-label" aria-hidden="true">
+<div class="modal fade" id="modal-crud-renstra" data-backdrop="static"  role="dialog" aria-labelledby="modal-crud-renstra-label" aria-hidden="true">
   <div class="modal-dialog" role="document">
     <div class="modal-content">
       <div class="modal-header">

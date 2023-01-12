@@ -4637,7 +4637,7 @@ class Wpsipd_Public_Base_3
 							$pagu_arr = [$pagu_1, $pagu_2, $pagu_3, $pagu_4, $pagu_5];
 
 							$body .= '
-									<tr>
+									<tr class="tr-program">
 										<td class="kiri atas kanan bawah">'.$tujuan_teks.'</td>
 										<td class="kiri atas kanan bawah">'.$sasaran_teks.'</td>
 										<td class="kiri atas kanan bawah">'.$program['kode'].'</td>
@@ -4685,7 +4685,7 @@ class Wpsipd_Public_Base_3
 								$target_arr = [$target_1, $target_2, $target_3, $target_4, $target_5];
 								$pagu_arr = [$pagu_1, $pagu_2, $pagu_3, $pagu_4, $pagu_5];
 								$body .= '
-										<tr>
+										<tr class="tr-kegiatan">
 											<td class="kiri atas kanan bawah"></td>
 											<td class="kiri atas kanan bawah"></td>
 											<td class="kiri atas kanan bawah">'.$kegiatan['kode'].'</td>
@@ -4729,7 +4729,7 @@ class Wpsipd_Public_Base_3
 
 									$target_arr = [$target_1, $target_2, $target_3, $target_4, $target_5];
 									$body .= '
-											<tr>
+											<tr class="tr-sub-kegiatan">
 												<td class="kiri atas kanan bawah"></td>
 												<td class="kiri atas kanan bawah"></td>
 												<td class="kiri atas kanan bawah">'.$sub_kegiatan['kode'].'</td>
@@ -4749,6 +4749,14 @@ class Wpsipd_Public_Base_3
 				}
 
 				$html='
+					<style>
+						.tr-program {
+						    background: #baffba;
+						}
+						.tr-kegiatan {
+						    background: #f904bd52;
+						}
+					</style>
 					<div id="preview">
 						<h4 style="text-align: center; margin: 0; font-weight: bold;">RENCANA STRATEGIS (RENSTRA)
 						<br>'.$judul_skpd.'Tahun '.$jadwal_lokal->awal_renstra.' - '.$jadwal_lokal->akhir_renstra.' '.$nama_pemda.'</h4>
@@ -4824,7 +4832,17 @@ class Wpsipd_Public_Base_3
             'message'   => 'Berhasil generate laporan renstra!'
         );
         $data_all = array(
-			'data' => array()
+			'data' => array(),
+			'pagu_akumulasi_1' => 0,
+			'pagu_akumulasi_2' => 0,
+			'pagu_akumulasi_3' => 0,
+			'pagu_akumulasi_4' => 0,
+			'pagu_akumulasi_5' => 0,
+			'pagu_akumulasi_1_usulan' => 0,
+			'pagu_akumulasi_2_usulan' => 0,
+			'pagu_akumulasi_3_usulan' => 0,
+			'pagu_akumulasi_4_usulan' => 0,
+			'pagu_akumulasi_5_usulan' => 0,
 		);
 
 		if (!empty($_POST)) {
@@ -5324,6 +5342,17 @@ class Wpsipd_Public_Base_3
 														$data_all['data'][$tujuan_value['id_unik']]['data'][$sasaran_value['id_unik']]['data'][$program_value['id_unik']]['data'][$kegiatan_value['id_unik']]['pagu_akumulasi_3_usulan'] += $sub_kegiatan_value['pagu_3_usulan'];
 														$data_all['data'][$tujuan_value['id_unik']]['data'][$sasaran_value['id_unik']]['data'][$program_value['id_unik']]['data'][$kegiatan_value['id_unik']]['pagu_akumulasi_4_usulan'] += $sub_kegiatan_value['pagu_4_usulan'];
 														$data_all['data'][$tujuan_value['id_unik']]['data'][$sasaran_value['id_unik']]['data'][$program_value['id_unik']]['data'][$kegiatan_value['id_unik']]['pagu_akumulasi_5_usulan'] += $sub_kegiatan_value['pagu_5_usulan'];
+
+														$data_all['pagu_akumulasi_1']+=$sub_kegiatan_value['pagu_1'];
+														$data_all['pagu_akumulasi_2']+=$sub_kegiatan_value['pagu_2'];
+														$data_all['pagu_akumulasi_3']+=$sub_kegiatan_value['pagu_3'];
+														$data_all['pagu_akumulasi_4']+=$sub_kegiatan_value['pagu_4'];
+														$data_all['pagu_akumulasi_5']+=$sub_kegiatan_value['pagu_5'];
+														$data_all['pagu_akumulasi_1_usulan']+=$sub_kegiatan_value['pagu_1_usulan'];
+														$data_all['pagu_akumulasi_2_usulan']+=$sub_kegiatan_value['pagu_2_usulan'];
+														$data_all['pagu_akumulasi_3_usulan']+=$sub_kegiatan_value['pagu_3_usulan'];
+														$data_all['pagu_akumulasi_4_usulan']+=$sub_kegiatan_value['pagu_4_usulan'];
+														$data_all['pagu_akumulasi_5_usulan']+=$sub_kegiatan_value['pagu_5_usulan'];
 
 														$data_all['data'][$tujuan_value['id_unik']]['data'][$sasaran_value['id_unik']]['data'][$program_value['id_unik']]['data'][$kegiatan_value['id_unik']]['data'][$sub_kegiatan_value['id_unik']] = [
 															'id' => $sub_kegiatan_value['id'],
@@ -5883,6 +5912,20 @@ class Wpsipd_Public_Base_3
 					}
 				}
 
+				$body.='<tr class="tr-total-pagu-opd">
+					<td colspan="10" class="kiri atas kanan bawah"><b>TOTAL PAGU PER TAHUN ANGGARAN</b></td>';
+					for ($i=0; $i < $jadwal_lokal->lama_pelaksanaan; $i++) {
+						$body.="<td colspan='2' class=\"atas kanan bawah text_kanan\"><b>".$this->_number_format($data_all['pagu_akumulasi_'.($i+1)])."</b></td>";
+					}
+				$body.='
+					<td colspan="8" class="atas kanan bawah"></td>';
+					for ($i=0; $i < $jadwal_lokal->lama_pelaksanaan; $i++) {
+						$body.="<td colspan='2' class=\"atas kanan bawah text_kanan\"><b>".$this->_number_format($data_all['pagu_akumulasi_'.($i+1).'_usulan'])."</b></td>";
+					}
+				$body.='
+					<td colspan="5" class="atas kanan bawah"></td>
+				</tr>';
+
 				$html='
 					<style type="text/css">
 						.indikator_program { min-height: 40px; }
@@ -5898,6 +5941,9 @@ class Wpsipd_Public_Base_3
 						}
 						.tr-kegiatan {
 						    background: #f904bd52;
+						}
+						.tr-total-pagu-opd{
+							background: #83efef;
 						}
 						.peringatan {
 							background: #f5c9c9;
