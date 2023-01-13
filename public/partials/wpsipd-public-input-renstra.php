@@ -2142,19 +2142,40 @@ foreach ($data_all['data'] as $tujuan) {
 		}
 	}
 }
-$body.='<tr class="tr-total-pagu-opd">
-	<td colspan="10" class="kiri atas kanan bawah"><b>TOTAL PAGU PER TAHUN ANGGARAN</b></td>';
-	for ($i=0; $i < $lama_pelaksanaan; $i++) {
-		$body.="<td colspan='2' class=\"atas kanan bawah text_kanan\"><b>".$this->_number_format($data_all['pagu_akumulasi_'.($i+1)])."</b></td>";
-	}
-$body.='
-	<td colspan="8" class="atas kanan bawah"></td>';
-	for ($i=0; $i < $lama_pelaksanaan; $i++) {
-		$body.="<td colspan='2' class=\"atas kanan bawah text_kanan\"><b>".$this->_number_format($data_all['pagu_akumulasi_'.($i+1).'_usulan'])."</b></td>";
-	}
-$body.='
-	<td colspan="5" class="atas kanan bawah"></td>
-</tr>';
+
+$table='<table cellpadding="2" cellspacing="0" style="font-family:\'Open Sans\',-apple-system,BlinkMacSystemFont,\'Segoe UI\',sans-serif; border-collapse: collapse; font-size: 80%; border: 0; table-layout: fixed;margin:30px 0px 30px 0px" contenteditable="false">
+			<thead>
+				<tr style="background:#ddf0a6">
+					<th class="kiri atas kanan bawah text_tengah lebar1">Pagu Akumulasi Per Tahun Anggaran</th>';
+					for ($i=0; $i < $lama_pelaksanaan; $i++) {
+						$table.="<th class=\"kiri atas kanan bawah text_tengah lebar2\">Tahun ".($i+1)."</th>";
+					}
+		$table.='</tr>
+			</thead>
+			<tbody>
+				<tr style="background:#a2e9d1">
+					<td class="kiri kanan bawah text_tengah"><b>Pagu Penetapan</b></td>';
+					for ($i=0; $i < $lama_pelaksanaan; $i++) {
+						$table.="<td class=\"atas kanan bawah text_kanan\">".$this->_number_format($data_all['pagu_akumulasi_'.($i+1)])."</td>";
+					}
+		$table.='</tr>
+				<tr style="background:#b0ffb0">
+					<td class="kiri kanan bawah text_tengah"><b>Pagu Usulan</b></td>';
+					for ($i=0; $i < $lama_pelaksanaan; $i++) {
+						$table.="<td class=\" kanan bawah text_kanan\">".$this->_number_format($data_all['pagu_akumulasi_'.($i+1).'_usulan'])."</td>";
+					}
+		$table.='
+				</tr>
+				<tr>
+					<td class="kiri kanan bawah text_tengah"><b>Selisih</b></td>';
+					for ($i=0; $i < $lama_pelaksanaan; $i++) {
+						$selisih=($data_all['pagu_akumulasi_'.($i+1)])-($data_all['pagu_akumulasi_'.($i+1).'_usulan']);
+						$table.="<td class=\"atas kanan bawah text_kanan ".(!empty($selisih) ? 'peringatan' : '')."\">".$this->_number_format($selisih)."</td>";
+					}
+		$table.='
+				</tr>
+			</tbody>
+		</table>';
 ?>
 <link href="https://cdnjs.cloudflare.com/ajax/libs/slim-select/1.27.1/slimselect.min.css" rel="stylesheet">
 <style type="text/css">
@@ -2180,9 +2201,16 @@ $body.='
 	.peringatan {
 		background: #f5c9c9;
 	}
+	.lebar1{
+		width: 15%;
+	}
+	.lebar2{
+		width: 20%;
+	}
 </style>
 <h4 style="text-align: center; margin: 0; font-weight: bold;">RENCANA STRATEGIS (RENSTRA) <br><?php echo $judul_skpd.'Tahun '.$awal_renstra.' - '.$akhir_renstra.' '.$nama_pemda; ?></h4>
 <div id="cetak" title="Laporan MONEV RENSTRA" style="padding: 5px; overflow: auto; height: 80vh;">
+	<?php echo $table; ?>
 	<table id="table-renstra" cellpadding="2" cellspacing="0" style="font-family:\'Open Sans\',-apple-system,BlinkMacSystemFont,\'Segoe UI\',sans-serif; border-collapse: collapse; font-size: 70%; border: 0; table-layout: fixed;" contenteditable="false">
 		<thead>
 			<?php
