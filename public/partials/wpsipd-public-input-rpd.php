@@ -658,11 +658,11 @@ foreach ($data_all['data'] as $tujuan) {
 				$target_3[] = '<div class="indikator_program">'.$indikator_program['data']['target_3'].'</div>';
 				$target_4[] = '<div class="indikator_program">'.$indikator_program['data']['target_4'].'</div>';
 				$target_5[] = '<div class="indikator_program">'.$indikator_program['data']['target_5'].'</div>';
-				$pagu_1[] = $this->_number_format($indikator_program['data']['pagu_1']);
-				$pagu_2[] = $this->_number_format($indikator_program['data']['pagu_2']);
-				$pagu_3[] = $this->_number_format($indikator_program['data']['pagu_3']);
-				$pagu_4[] = $this->_number_format($indikator_program['data']['pagu_4']);
-				$pagu_5[] = $this->_number_format($indikator_program['data']['pagu_5']);
+				$pagu_1[] = '<div class="indikator_program">'.$this->_number_format($indikator_program['data']['pagu_1']).'</div>';
+				$pagu_2[] = '<div class="indikator_program">'.$this->_number_format($indikator_program['data']['pagu_2']).'</div>';
+				$pagu_3[] = '<div class="indikator_program">'.$this->_number_format($indikator_program['data']['pagu_3']).'</div>';
+				$pagu_4[] = '<div class="indikator_program">'.$this->_number_format($indikator_program['data']['pagu_4']).'</div>';
+				$pagu_5[] = '<div class="indikator_program">'.$this->_number_format($indikator_program['data']['pagu_5']).'</div>';
 				$target_akhir[] = '<div class="indikator_program">'.$indikator_program['data']['target_akhir'].'</div>';
 				$satuan[] = '<div class="indikator_program">'.$indikator_program['data']['satuan'].'</div>';
 				$nama_skpd[] = '<div class="indikator_program">'.$indikator_program['data']['kode_skpd'].' '.$indikator_program['data']['nama_skpd'].'</div>';
@@ -687,7 +687,7 @@ foreach ($data_all['data'] as $tujuan) {
 			$target_html = "";
 			for($i=1; $i<=$lama_pelaksanaan; $i++){
 				$target_html .= '<td class="atas kanan bawah text_tengah">'.${'target_'.$i}.'</td>';
-				$target_html .= '<td class="atas kanan bawah text_tengah"><b>('.$this->_number_format($program['total_akumulasi_'.$i]).')</b><br>'.${'pagu_'.$i}.'</td>';
+				$target_html .= '<td class="atas kanan bawah text_tengah">'.${'pagu_'.$i}.'<div class="indikator_program"><b>('.$this->_number_format($program['total_akumulasi_'.$i]).')</b></div></td>';
 			}
 			$catatan_program = '';
 			if(!empty($program['detail'][0]['catatan'])){
@@ -731,6 +731,15 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
 	.aksi button {
 		margin: 3px;
 	}
+	.tr-tujuan {
+	    background: #0000ff1f;
+	}
+	.tr-sasaran {
+	    background: #ffff0059;
+	}
+	.tr-program {
+	    background: #baffba;
+	}
 </style>
 <h4 style="text-align: center; margin: 0; font-weight: bold;">Monitoring dan Evaluasi RPD (Rencana Pembangunan Daerah) <br><?php echo $nama_pemda; ?><br><?php echo $awal_rpd.' - '.$akhir_rpd; ?></h4>
 <div id="cetak" title="Laporan MONEV RENJA" style="padding: 5px; overflow: auto; height: 80vh;">
@@ -745,7 +754,7 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
 				<th style="width: 400px;" class="atas kanan bawah text_tengah text_blok">Indikator</th>
 				<th style="width: 100px;" class="atas kanan bawah text_tengah text_blok">Target Awal</th>
 			<?php for($i=1; $i<=$lama_pelaksanaan; $i++){ ?>
-				<th style="width: 200px;" class="atas kanan bawah text_tengah text_blok" colspan="2">Tahun <?php echo $i; ?></th>
+				<th style="width: 300px;" class="atas kanan bawah text_tengah text_blok" colspan="2">Tahun <?php echo $i; ?></th>
 			<?php }; ?>
 				<th style="width: 100px;" class="atas kanan bawah text_tengah text_blok">Target Akhir</th>
 				<th style="width: 100px;" class="atas kanan bawah text_tengah text_blok">Satuan</th>
@@ -755,27 +764,27 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
 				<th style="width: 100px;" class="atas kanan bawah text_tengah text_blok">Indikator Catatan</th>
 			</tr>
 			<tr>
-				<th rowspan="2" class='atas kiri kanan bawah text_tengah text_blok'>0</th>
-				<th rowspan="2" class='atas kanan bawah text_tengah text_blok'>1</th>
+				<th rowspan="2" class='atas kiri kanan bawah text_tengah text_blok'>1</th>
 				<th rowspan="2" class='atas kanan bawah text_tengah text_blok'>2</th>
 				<th rowspan="2" class='atas kanan bawah text_tengah text_blok'>3</th>
 				<th rowspan="2" class='atas kanan bawah text_tengah text_blok'>4</th>
 				<th rowspan="2" class='atas kanan bawah text_tengah text_blok'>5</th>
 				<th rowspan="2" class='atas kanan bawah text_tengah text_blok'>6</th>
+				<th rowspan="2" class='atas kanan bawah text_tengah text_blok'>7</th>
 			<?php for($i=1; $i<=$lama_pelaksanaan; $i++){ ?>
-				<th style="width: 200px;" class="atas kanan bawah text_tengah text_blok" colspan="2"><?php echo 6+$i; ?></th>
+				<th class="atas kanan bawah text_tengah text_blok" colspan="2"><?php echo 7+$i; ?></th>
 			<?php }; ?>
-				<th rowspan="2" class='atas kanan bawah text_tengah text_blok'><?php $i+1; ?></th>
-				<th rowspan="2" class='atas kanan bawah text_tengah text_blok'><?php $i+2; ?></th>
-				<th rowspan="2" class='atas kanan bawah text_tengah text_blok'><?php $i+3; ?></th>
-				<th rowspan="2" class='atas kanan bawah text_tengah text_blok'><?php $i+4; ?></th>
-				<th rowspan="2" class='atas kanan bawah text_tengah text_blok'><?php $i+5; ?></th>
-				<th rowspan="2" class='atas kanan bawah text_tengah text_blok'><?php $i+6; ?></th>
+				<th rowspan="2" class='atas kanan bawah text_tengah text_blok'><?php echo $i+7; ?></th>
+				<th rowspan="2" class='atas kanan bawah text_tengah text_blok'><?php echo $i+8; ?></th>
+				<th rowspan="2" class='atas kanan bawah text_tengah text_blok'><?php echo $i+9; ?></th>
+				<th rowspan="2" class='atas kanan bawah text_tengah text_blok'><?php echo $i+10; ?></th>
+				<th rowspan="2" class='atas kanan bawah text_tengah text_blok'><?php echo $i+11; ?></th>
+				<th rowspan="2" class='atas kanan bawah text_tengah text_blok'><?php echo $i+12; ?></th>
 			</tr>
 			<tr>
 			<?php for($i=1; $i<=$lama_pelaksanaan; $i++){ ?>
-				<th style="width: 50px;" class="atas kanan bawah text_tengah text_blok">Target</th>
-				<th style="width: 150px;" class="atas kanan bawah text_tengah text_blok">Pagu</th>
+				<th class="atas kanan bawah text_tengah text_blok">Target</th>
+				<th style="width: 200px;" class="atas kanan bawah text_tengah text_blok">Pagu</th>
 			<?php }; ?>
 			</tr>
 		</thead>
