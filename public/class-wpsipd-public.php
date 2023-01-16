@@ -15049,6 +15049,17 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						if($time_now > $data_this_id[0]['waktu_awal']){
 							$status_check = array(0,NULL,2);
 							if(in_array($data_this_id[0]['status'],$status_check)){
+
+								$this->check_total_pagu_penetapan([
+									'lama_pelaksanaan' => $data_this_id[0]['lama_pelaksanaan'],
+									'check' => false
+								]);
+
+								$this->check_total_pagu_penetapan_opd([
+									'tahun_anggaran' => $data_this_id[0]['tahun_anggaran'],
+									'lama_pelaksanaan' => $data_this_id[0]['lama_pelaksanaan']
+								]);
+
 								//lock data penjadwalan
 								$wpdb->update('data_jadwal_lokal', array('waktu_akhir' => $time_now,'status' => 1), array(
 									'id_jadwal_lokal'	=> $id_jadwal_lokal
@@ -18477,5 +18488,212 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 			$uang = $mata_uang.' '.$uang;
 		}
 		return $uang;
+	}
+
+	public function check_total_pagu_penetapan($opt = array()){
+		
+		global $wpdb;
+
+		try{
+
+			$data_all=array(
+				'pagu_1_prog_total' => 0,
+				'pagu_2_prog_total' => 0,
+				'pagu_3_prog_total' => 0,
+				'pagu_4_prog_total' => 0,
+				'pagu_5_prog_total' => 0,
+				'pagu_1_keg_total' => 0,
+				'pagu_2_keg_total' => 0,
+				'pagu_3_keg_total' => 0,
+				'pagu_4_keg_total' => 0,
+				'pagu_5_keg_total' => 0,
+				'pagu_1_subkeg_total' => 0,
+				'pagu_2_subkeg_total' => 0,
+				'pagu_3_subkeg_total' => 0,
+				'pagu_4_subkeg_total' => 0,
+				'pagu_5_subkeg_total' => 0,
+			);
+
+			$where='';
+			if(!empty($opt['id_skpd'])){
+				$where=' AND id_unit='.$opt['id_skpd'];
+			}
+
+			$tujuan_all = $wpdb->get_results($wpdb->prepare("
+				SELECT 
+					DISTINCT id_unik 
+				FROM data_renstra_tujuan_lokal 
+				WHERE 
+					active=1 $where ORDER BY urut_tujuan
+			"), ARRAY_A);
+
+			foreach ($tujuan_all as $keyTujuan => $tujuan_value) {
+						
+				$sasaran_all = $wpdb->get_results($wpdb->prepare("
+					SELECT 
+						DISTINCT id_unik 
+					FROM data_renstra_sasaran_lokal 
+					WHERE 
+						kode_tujuan=%s AND 
+						active=1 $where ORDER BY urut_sasaran
+					", $tujuan_value['id_unik']), ARRAY_A);
+
+				foreach ($sasaran_all as $keySasaran => $sasaran_value) {
+								
+					$program_all = $wpdb->get_results($wpdb->prepare("
+						SELECT 
+							id_unik,
+							nama_program,
+							COALESCE(SUM(pagu_1), 0) AS pagu_1,
+							COALESCE(SUM(pagu_2), 0) AS pagu_2,
+							COALESCE(SUM(pagu_3), 0) AS pagu_3,
+							COALESCE(SUM(pagu_4), 0) AS pagu_4,
+							COALESCE(SUM(pagu_5), 0) AS pagu_5 
+						FROM data_renstra_program_lokal 
+						WHERE 
+							kode_sasaran=%s AND 
+							kode_tujuan=%s AND
+							id_unik_indikator IS NOT NULL AND 
+							active=1 $where ORDER BY id",
+							$sasaran_value['id_unik'], $tujuan_value['id_unik']), ARRAY_A);
+
+					foreach ($program_all as $keyProgram => $program_value) {
+
+						$data_all['pagu_1_prog_total']+=$program_value['pagu_1'];
+						$data_all['pagu_2_prog_total']+=$program_value['pagu_2'];
+						$data_all['pagu_3_prog_total']+=$program_value['pagu_3'];
+						$data_all['pagu_4_prog_total']+=$program_value['pagu_4'];
+						$data_all['pagu_5_prog_total']+=$program_value['pagu_5'];
+
+						$kegiatan_all = $wpdb->get_results($wpdb->prepare("
+							SELECT 
+								id_unik,
+								nama_giat,
+								COALESCE(SUM(pagu_1), 0) AS pagu_1,
+								COALESCE(SUM(pagu_2), 0) AS pagu_2,
+								COALESCE(SUM(pagu_3), 0) AS pagu_3,
+								COALESCE(SUM(pagu_4), 0) AS pagu_4,
+								COALESCE(SUM(pagu_5), 0) AS pagu_5
+							FROM data_renstra_kegiatan_lokal
+							WHERE 
+								kode_program=%s AND
+								kode_sasaran=%s AND
+								kode_tujuan=%s AND
+								id_unik_indikator IS NOT NULL AND
+								active=1 $where ORDER BY id", 
+								$program_value['id_unik'], $sasaran_value['id_unik'], $tujuan_value['id_unik']), ARRAY_A);
+
+						foreach ($kegiatan_all as $keyKegiatan => $kegiatan_value) {
+
+							$data_all['pagu_1_keg_total']+=$kegiatan_value['pagu_1'];
+							$data_all['pagu_2_keg_total']+=$kegiatan_value['pagu_2'];
+							$data_all['pagu_3_keg_total']+=$kegiatan_value['pagu_3'];
+							$data_all['pagu_4_keg_total']+=$kegiatan_value['pagu_4'];
+							$data_all['pagu_5_keg_total']+=$kegiatan_value['pagu_5'];
+
+							$sub_kegiatan_all = $wpdb->get_results($wpdb->prepare("
+								SELECT
+									nama_sub_giat, 
+									COALESCE(SUM(pagu_1), 0) AS pagu_1, 
+									COALESCE(SUM(pagu_2), 0) AS pagu_2, 
+									COALESCE(SUM(pagu_3), 0) AS pagu_3, 
+									COALESCE(SUM(pagu_4), 0) AS pagu_4, 
+									COALESCE(SUM(pagu_5), 0) AS pagu_5
+								FROM data_renstra_sub_kegiatan_lokal 
+								WHERE 
+									kode_kegiatan=%s AND 
+									kode_program=%s AND 
+									kode_sasaran=%s AND 
+									kode_tujuan=%s AND 
+									active=1 $where ORDER BY id",
+									$kegiatan_value['id_unik'],
+									$program_value['id_unik'],
+									$sasaran_value['id_unik'],
+									$tujuan_value['id_unik']
+							), ARRAY_A);
+
+							foreach ($sub_kegiatan_all as $keySubKegiatan => $sub_kegiatan_value) {
+								$data_all['pagu_1_subkeg_total']+=$sub_kegiatan_value['pagu_1'];
+								$data_all['pagu_2_subkeg_total']+=$sub_kegiatan_value['pagu_2'];
+								$data_all['pagu_3_subkeg_total']+=$sub_kegiatan_value['pagu_3'];
+								$data_all['pagu_4_subkeg_total']+=$sub_kegiatan_value['pagu_4'];
+								$data_all['pagu_5_subkeg_total']+=$sub_kegiatan_value['pagu_5'];
+							}
+						
+							if($opt['check']){
+								for ($i=0; $i < $opt['lama_pelaksanaan']; $i++) {
+									if(
+										$data_all['pagu_'.($i+1).'_keg_total'] != $data_all['pagu_'.($i+1).'_subkeg_total']
+									){
+										throw new Exception("Pagu Akumulasi di tahun ke ".($i+1)." tidak sama antara pagu indikator kegiatan ".$kegiatan_value['nama_giat']." dan pagu sub kegiatannya, Unit Kerja : ".$opt['nama_opd'], true);
+									}
+								}
+							}	
+						}
+						
+						if($opt['check']){
+							for ($i=0; $i < $opt['lama_pelaksanaan']; $i++) {
+								if(
+									$data_all['pagu_'.($i+1).'_prog_total'] != $data_all['pagu_'.($i+1).'_keg_total']
+								){
+									throw new Exception("Pagu Akumulasi di tahun ke ".($i+1)." tidak sama antara pagu indikator program ".$program_value['nama_program']." dan pagu indikator kegiatannya, Unit Kerja : ".$opt['nama_opd'], true);
+								}
+							}
+						}
+					}
+				}
+			}
+
+			if(!$opt['check']){
+				for ($i=0; $i < $opt['lama_pelaksanaan']; $i++) { 
+					if(
+						($data_all['pagu_'.($i+1).'_prog_total'] != $data_all['pagu_'.($i+1).'_keg_total']) || 
+						($data_all['pagu_'.($i+1).'_prog_total'] != $data_all['pagu_'.($i+1).'_subkeg_total']) || 
+						($data_all['pagu_'.($i+1).'_keg_total'] != $data_all['pagu_'.($i+1).'_subkeg_total'])
+					){
+						throw new Exception("Pagu Akumulasi di tahun ke ".($i+1)." tidak sama antara pagu indikator program, pagu indikator kegiatan dan pagu sub kegiatan", true);
+					}
+				}
+			}
+		}catch(Exception $e){
+			echo json_encode([
+				'status' => 'error',
+				'message' => $e->getMessage()
+			]);exit;
+		}
+	}
+
+	public function check_total_pagu_penetapan_opd($opt = array()){
+		
+		global $wpdb;
+
+		try{
+
+			$sql = $wpdb->prepare("
+				SELECT 
+					* 
+				FROM data_unit 
+				WHERE tahun_anggaran=%d
+					AND active=1
+				ORDER BY id_skpd ASC
+			", $opt['tahun_anggaran']);
+
+			$units = $wpdb->get_results($sql, ARRAY_A);
+
+			foreach ($units as $key => $unit) {
+				$this->check_total_pagu_penetapan([
+					'id_skpd' => $unit['id_skpd'],
+					'nama_opd' => $unit['nama_skpd'],
+					'tahun_anggaran' => $opt['tahun_anggaran'],
+					'lama_pelaksanaan' => $opt['lama_pelaksanaan'],
+					'check' => true
+				]);
+			}
+		}catch(Exception $e){
+			echo json_encode([
+				'status' => 'error',
+				'message' => $e->getMessage()
+			]);exit;
+		}
 	}
 }
