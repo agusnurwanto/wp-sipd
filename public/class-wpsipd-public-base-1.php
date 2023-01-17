@@ -550,7 +550,7 @@ class Wpsipd_Public_Base_1 extends Wpsipd_Public_Base_2{
                     }else if(!empty($_POST['id_unik_tujuan_indikator'])){
                         $where .= $wpdb->prepare(' and id_unik_indikator=%s', $_POST['id_unik_tujuan_indikator']);
                     }
-                    $where .= ' ORDER BY no_urut ASC';
+                    $where .= ' ORDER BY no_urut ASC, id ASC';
                 }else if($_POST['table'] == 'data_rpd_sasaran_lokal'){
                     $table = $_POST['table'];
                     if(!empty($_POST['id_unik_tujuan'])){
@@ -560,7 +560,7 @@ class Wpsipd_Public_Base_1 extends Wpsipd_Public_Base_2{
                     }else if(!empty($_POST['id_unik_sasaran_indikator'])){
                         $where .= $wpdb->prepare(' and id_unik_indikator=%s', $_POST['id_unik_sasaran_indikator']);
                     }
-                    $where .= ' ORDER BY sasaran_no_urut ASC';
+                    $where .= ' ORDER BY sasaran_no_urut ASC, id ASC';
                 }else if($_POST['table'] == 'data_rpd_program_lokal'){
                     $table = $_POST['table'];
                     if(!empty($_POST['id_unik_sasaran'])){
