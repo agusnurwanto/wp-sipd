@@ -409,6 +409,10 @@ class Wpsipd_Admin {
             Field::make( 'html', 'crb_sql_migrate' )
             	->set_html( '<a target="_blank" href="'.$url_sql_migrate.'" class="button button-primary button-large">SQL Migrate WP-SIPD</a>' )
             	->set_help_text('Status SQL migrate WP-SIPD jika ada update struktur database.'),
+			Field::make( 'text', 'crb_id_lokasi_prov', 'ID Lokasi Provinsi')
+            	->set_default_value(0),
+			Field::make( 'text', 'crb_id_lokasi_kokab', 'ID Lokasi Kota/Kabupaten' )
+            	->set_default_value(0),
             /*Field::make( 'html', 'crb_siencang' )
             	->set_html( '<a target="_blank" href="'.$siencang_link.'">SIPD to SIENCANG</a> | <a href="https://github.com/ganjarnugraha/perencanaan-penganggaran" target="_blank">https://github.com/ganjarnugraha/perencanaan-penganggaran</a>' ),
             Field::make( 'html', 'crb_simda' )

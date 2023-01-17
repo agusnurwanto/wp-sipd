@@ -9,6 +9,12 @@ $input = shortcode_atts( array(
 	'tahun_anggaran' => '2022'
 ), $atts );
 $nama_pemda = get_option('_crb_daerah');
+$id_lokasi_prov = get_option('_crb_id_lokasi_prov');
+$id_lokasi_kokab = (empty(get_option('_crb_id_lokasi_kokab'))) ? 0 : get_option('_crb_id_lokasi_kokab');
+
+if($id_lokasi_prov == 0 || empty($id_lokasi_prov)){
+    die('Setting ID lokasi Provinsi di SIPD Options tidak boleh kosong!');
+}
 
 $tahun_anggaran = '2022';
 $namaJadwal = '-';
@@ -22,7 +28,8 @@ $sql = "
         *
     FROM data_sub_keg_bl_lokal
     WHERE id_sub_skpd=%d
-        AND tahun_anggaran=%d";
+        AND tahun_anggaran=%d
+        AND active=1";
 $subkeg = $wpdb->get_results($wpdb->prepare($sql,$input['id_skpd'], $input['tahun_anggaran']), ARRAY_A);
 
 $cek_jadwal = $this->validasi_jadwal_perencanaan('renja');
@@ -48,6 +55,13 @@ if(!empty($jadwal_lokal)){
 $urut = 0;
 
 $timezone = get_option('timezone_string');
+
+$bulan = array('Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember');
+$bulan_option = '';
+foreach($bulan as $k_bulan => $v_bulan){
+    $key_bulan = $k_bulan+1;
+    $bulan_option .= '<option value="'.$key_bulan.'">'.$v_bulan.'</option>';
+}
 
 $nama_skpd = "";
 $data_all = array(
@@ -102,6 +116,7 @@ foreach ($subkeg as $kk => $sub) {
     $nama = explode(' ', $sub['nama_sub_giat']);
     $kode_sub_giat = $nama[0];
     $data_renstra = array();
+    $data_rpjmd = array();
     $_nama_skpd = $wpdb->get_row($wpdb->prepare("
         select 
             nama_skpd 
@@ -195,7 +210,7 @@ $body = '';
     foreach ($data_all['data'] as $sub_skpd) {
         $body .= '
             <tr>
-                <td class="kiri kanan bawah text_blok" colspan="19">Unit Organisasi : '.$sub_skpd['nama_skpd'].'</td>
+                <td class="kiri kanan bawah text_blok" colspan="20">Unit Organisasi : '.$sub_skpd['nama_skpd'].'</td>
             </tr>
             <tr>
                 <td class="kiri kanan bawah text_blok"></td>
@@ -203,6 +218,7 @@ $body = '';
                 <td class="kanan bawah text_kanan text_blok">'.number_format($sub_skpd['total'],0,",",".").'</td>
                 <td class="kanan bawah" colspan="4">&nbsp;</td>
                 <td class="kanan bawah text_kanan text_blok">'.number_format($sub_skpd['total_n_plus'],0,",",".").'</td>
+                <td class="kanan bawah"></td>
             </tr>
         ';
         foreach ($sub_skpd['data'] as $kd_urusan => $urusan) {
@@ -213,7 +229,7 @@ $body = '';
                     <td class="kanan bawah">&nbsp;</td>
                     <td class="kanan bawah">&nbsp;</td>
                     <td class="kanan bawah">&nbsp;</td>
-                    <td class="kanan bawah text_blok" colspan="14">'.$urusan['nama'].'</td>
+                    <td class="kanan bawah text_blok" colspan="15">'.$urusan['nama'].'</td>
                 </tr>
             ';
             foreach ($urusan['data'] as $kd_bidang => $bidang) {
@@ -230,6 +246,7 @@ $body = '';
                         <td class="kanan bawah text_kanan text_blok">'.number_format($bidang['total'],0,",",".").'</td>
                         <td class="kanan bawah" colspan="4">&nbsp;</td>
                         <td class="kanan bawah text_kanan text_blok">'.number_format($bidang['total_n_plus'],0,",",".").'</td>
+                        <td class="kanan bawah"></td>
                     </tr>
                 ';
                 foreach ($bidang['data'] as $kd_program => $program) {
@@ -246,6 +263,7 @@ $body = '';
                             <td class="kanan bawah text_kanan text_blok">'.number_format($program['total'],0,",",".").'</td>
                             <td class="kanan bawah" colspan="4">&nbsp;</td>
                             <td class="kanan bawah text_kanan text_blok">'.number_format($program['total_n_plus'],0,",",".").'</td>
+                            <td class="kanan bawah"></td>
                         </tr>
                     ';
                     foreach ($program['data'] as $kd_giat => $giat) {
@@ -262,9 +280,11 @@ $body = '';
                                 <td style="border:.5pt solid #000; vertical-align:middle;  text-align:right; font-weight:bold;">'.number_format($giat['total'],0,",",".").'</td>
                                 <td style="border:.5pt solid #000; vertical-align:middle; font-weight:bold;" colspan="4"></td>
                                 <td style="border:.5pt solid #000; vertical-align:middle;  text-align:right; font-weight:bold;">'.number_format($giat['total_n_plus'],0,",",".").'</td>
+                                <td class="kanan bawah"></td>
                             </tr>
                         ';
                         foreach ($giat['data'] as $kd_sub_giat => $sub_giat) {
+                            $kode_sub_giat = $kd_sub_giat;
                             $kd_sub_giat = explode('.', $kd_sub_giat);
                             $kd_sub_giat = $kd_sub_giat[count($kd_sub_giat)-1];
                             $capaian_prog = '';
@@ -315,6 +335,9 @@ $body = '';
                                     $target_ind_n_plus = $sub_giat['data_rpjmd'][0]['target_'.($urut+1)];
                                 }
                             }
+
+                            $tombol_aksi = '<button class="btn-sm btn-warning" style="margin: 1px;" onclick="edit_renja(\''.$kode_sub_giat.'\');" title="Edit Renja"><i class="dashicons dashicons-edit"></i></button>';
+                            $tombol_aksi .= '<button class="btn-sm btn-danger" style="margin: 1px;" onclick="delete_renja(\''.$kode_sub_giat.'\');" title="Hapus Renja"><i class="dashicons dashicons-trash"></i></button>';
                             $body .= '
                                 <tr>
                                     <td class="kiri kanan bawah">'.$kd_urusan.'</td>
@@ -336,6 +359,7 @@ $body = '';
                                     <td class="kanan bawah">'.$ind_n_plus.'</td>
                                     <td class="kanan bawah">'.$target_ind_n_plus.'</td>
                                     <td class="kanan bawah text_kanan">'.number_format($sub_giat['total_n_plus'],0,",",".").'</td>
+                                    <td class="kanan bawah">'.$tombol_aksi.'</td>
                                 </tr>
                             ';
                             $sasaran_text = '';
@@ -375,9 +399,10 @@ echo '
                     <th style="padding: 0; border: 0; width:5.5%"></th>
                     <th style="padding: 0; border: 0; width:3.5%"></th>
                     <th style="padding: 0; border: 0; width:4%"></th>
-                    <th style="padding: 0; border: 0; width:7.5%"></th>
+                    <th style="padding: 0; border: 0; width:3.5%"></th>
                     <th style="padding: 0; border: 0; width:3.5%"></th>
                     <th style="padding: 0; border: 0; width:5.5%"></th>
+                    <th style="padding: 0; border: 0; width:4.5%"></th>
                 </tr>
                 <tr>
                     <td class="atas kanan bawah kiri text_tengah text_blok" colspan="5" rowspan="3">Kode</td>
@@ -386,6 +411,7 @@ echo '
                     <td class="atas kanan bawah text_tengah text_blok" colspan="6">Rencana Tahun '.$input['tahun_anggaran'].'</td>
                     <td class="atas kanan bawah text_tengah text_blok" rowspan="3">Catatan Penting</td>
                     <td class="atas kanan bawah text_tengah text_blok" colspan="3">Prakiraan Maju Rencana Tahun '.($input['tahun_anggaran']+1).'</td>
+                    <td class="atas kanan bawah kiri text_tengah text_blok" rowspan="3">Aksi</td>
                 </tr>
                 <tr>
                     <td class="kanan bawah text_tengah text_blok" rowspan="2">Capaian Program</td>
@@ -413,6 +439,7 @@ echo '
                     <td class="kanan bawah text_kanan text_blok">'.number_format($data_all['total'],0,",",".").'</td>
                     <td class="kanan bawah" colspan="4">&nbsp;</td>
                     <td class="kanan bawah text_kanan text_blok">'.number_format($data_all['total_n_plus'],0,",",".").'</td>
+                    <td class="kanan bawah"></td>
                 </tr>
             </tbody>
         </table>
@@ -430,10 +457,10 @@ echo '
 				</button>
 			</div>
 			<div class="modal-body">
-                <form>
+                <form id="form-renja">
                     <div class="form-group">
     					<label for="input_sub_unit">Sub Unit</label>
-                        <select class="form-control" id="input_sub_unit" onchange="get_sub_keg(this)"></select>
+                        <select class="form-control" name="input_sub_unit" id="input_sub_unit" onchange="get_sub_keg(this)"></select>
     				</div>
     				<div class="form-group">
     					<label for="input_prioritas_provinsi">Prioritas Pembangunan Provinsi</label>
@@ -449,7 +476,7 @@ echo '
     				</div>
     				<div class="form-group">
     					<label for="sub_kegiatan">Sub Kegiatan</label>
-    					<select class="form-control" id="sub_kegiatan" onchange="get_indikator_sub_keg(this)">
+    					<select class="form-control" name="input_sub_kegiatan" id="sub_kegiatan" onchange="get_indikator_sub_keg(this)">
     						<option value="">Pilih Sub Kegiatan</option>
     					</select>
     				</div>
@@ -464,22 +491,22 @@ echo '
                             <tr>
                                 <td>
                                     <div class="form-group">
-                                        <label for="label_tag">Label (Tag) Sub Kegiatan</label>
-                                        <select class="form-control" id="label_tag">
+                                        <label for="label_tag_usulan">Label (Tag) Sub Kegiatan</label>
+                                        <select class="form-control" name="input_label_sub_keg_usulan" id="label_tag_usulan">
                                             <option value="">Pilih Sub Kegiatan</option>
                                         </select>
                                     </div>
                                     <div class="form-group">
-                                        <label for="sumber_dana">Sumber Dana</label>
+                                        <label for="sumber_dana_usulan">Sumber Dana</label>
                                         <table style="margin: 0;">
                                             <tr>
                                                 <td style="width: 40%">
-                                                    <select class="form-control" name="sumber_dana">
+                                                    <select class="form-control" id="sumber_dana_usulan" name="input_sumber_dana_usulan">
                                                         <option value="">Pilih Sumber Dana</option>
                                                     </select>
                                                 </td>
                                                 <td>
-                                                    <input class="form-control" type="number" name="pagu_sumber_dana"/>
+                                                    <input class="form-control" type="number" name="input_pagu_sumber_dana_usulan"/>
                                                 </td>
                                                 <td style="width: 70px" class="text-center">
                                                     <button class="btn btn-warning" onclick="tambahSumberDana(this); return false;"><i class="dashicons dashicons-plus"></i></button>
@@ -488,21 +515,21 @@ echo '
                                         </table>
                                     </div>
                     				<div class="form-group">
-                    					<label for="kabupaten">Lokasi Pelaksanaan</label>
+                    					<label for="kabupaten_kota_usulan">Lokasi Pelaksanaan</label>
                                         <table style="margin: 0;">
                                             <tr>
                                                 <td>
-                                                    <select class="form-control" name="kabupaten">
+                                                    <select class="form-control kabupaten_kota" id="kabupaten_kota_usulan" name="input_kabupaten_kota_usulan">
                                                         <option value="">Pilih Kabupaten / Kota</option>
                                                     </select>
                                                 </td>
                                                 <td style="width: 30%">
-                                                    <select class="form-control" name="kecamatan">
+                                                    <select class="form-control" name="input_kecamatan_usulan">
                                                         <option value="">Pilih Kecamatan</option>
                                                     </select>
                                                 </td>
                                                 <td style="width: 30%">
-                                                    <select class="form-control" name="desa">
+                                                    <select class="form-control" name="input_desa_usulan">
                                                         <option value="">Pilih Desa</option>
                                                     </select>
                                                 </td>
@@ -513,36 +540,38 @@ echo '
                                         </table>
                     				</div>
                                     <div class="form-group">
-                                        <label for="bulan_awal">Waktu Pelaksanaan</label>
+                                        <label for="bulan_awal_usulan">Waktu Pelaksanaan</label>
                                         <table style="margin: 0;">
                                             <tr>
                                                 <td style="width: 50%;">
-                                                    <select class="form-control" id="bulan_awal">
+                                                    <select class="form-control" name="input_bulan_awal_usulan" id="bulan_awal_usulan">
                                                         <option value="">Pilih Bulan Awal</option>
+                                                        <?php echo $bulan_option; ?>
                                                     </select>
                                                 </td>
                                                 <td style="width: 50%;">
-                                                    <select class="form-control" id="bulan_akhir">
+                                                    <select class="form-control" name="input_bulan_akhir_usulan" id="bulan_akhir_usulan">
                                                         <option value="">Pilih Bulan Akhir</option>
+                                                        <?php echo $bulan_option; ?>
                                                     </select>
                                                 </td>
                                             </tr>
                                         </table>
                                     </div>
                                     <div class="form-group">
-                                        <label for="pagu_sub_kegiatan">Anggaran Sub Kegiatan</label>
-                                        <input class="form-control" type="number" id="pagu_sub_kegiatan"/>
+                                        <label for="pagu_sub_kegiatan_usulan">Anggaran Sub Kegiatan</label>
+                                        <input class="form-control" type="number" name="input_pagu_sub_keg_usulan" id="pagu_sub_kegiatan_usulan"/>
                                     </div>
                                     <div class="form-group">
-                                        <label for="pagu_sub_kegiatan_1">Anggaran Sub Kegiatan Tahun Berikutnya</label>
-                                        <input class="form-control" type="number" id="pagu_sub_kegiatan_1"/>
+                                        <label for="pagu_sub_kegiatan_1_usulan">Anggaran Sub Kegiatan Tahun Berikutnya</label>
+                                        <input class="form-control" type="number" name="input_pagu_sub_keg_1_usulan" id="pagu_sub_kegiatan_1_usulan"/>
                                     </div>
                                     <div class="form-group">
-                                        <label for="bulan_awal">Indikator Sub Kegiatan</label>
+                                        <label for="pagu_ind_sub_keg_usulan">Indikator Sub Kegiatan</label>
                                         <table style="margin: 0;">
                                             <tr data-id="1" header="1">
                                                 <td colspan="2">
-                                                    <select class="form-control" id="pagu_indikator_sub_keg_usulan" name="tolak_ukur">
+                                                    <select class="form-control pagu_indi_sub_keg" id="pagu_ind_sub_keg_usulan" name="input_indikator_sub_keg_usulan">
                                                         <option value="">Pilih Nama Indikator</option>
                                                     </select>
                                                 </td>
@@ -552,10 +581,10 @@ echo '
                                             </tr>
                                             <tr data-id="1">
                                                 <td style="width: 50%;">
-                                                    <input class="form-control" type="number" name="target" placeholder="Target Indikator"/>
+                                                    <input class="form-control" type="number" name="input_target_usulan" placeholder="Target Indikator"/>
                                                 </td>
                                                 <td style="width: 50%;">
-                                                    <select class="form-control" name="satuan">
+                                                    <select class="form-control satuan_pagu_indi_sub_keg" id="satuan_pagu_indi_sub_keg_usulan" name="input_satuan_usulan">
                                                         <option value="">Pilih Satuan</option>
                                                     </select>
                                                 </td>
@@ -564,13 +593,13 @@ echo '
                                     </div>
                                     <div class="form-group">
                                         <label for="catatan_usulan">Catatan</label>
-                                        <textarea class="form-control" id="catatan_usulan"></textarea>
+                                        <textarea class="form-control" name="input_catatan_usulan" id="catatan_usulan"></textarea>
                                     </div>
                                 </td>
                                 <td>
                                     <div class="form-group">
                                         <label for="label_tag">Label (Tag) Sub Kegiatan</label>
-                                        <select class="form-control" id="label_tag">
+                                        <select class="form-control" name="input_label_sub_keg" id="label_tag">
                                             <option value="">Pilih Sub Kegiatan</option>
                                         </select>
                                     </div>
@@ -579,12 +608,12 @@ echo '
                                         <table style="margin: 0;">
                                             <tr>
                                                 <td style="width: 40%">
-                                                    <select class="form-control" name="sumber_dana">
+                                                    <select class="form-control" id="sumber_dana" name="input_sumber_dana">
                                                         <option value="">Pilih Sumber Dana</option>
                                                     </select>
                                                 </td>
                                                 <td>
-                                                    <input class="form-control" type="number" name="pagu_sumber_dana"/>
+                                                    <input class="form-control" type="number" name="input_pagu_sumber_dana"/>
                                                 </td>
                                                 <td style="width: 70px" class="text-center">
                                                     <button class="btn btn-warning" onclick="tambahSumberDana(this); return false;"><i class="dashicons dashicons-plus"></i></button>
@@ -593,21 +622,21 @@ echo '
                                         </table>
                                     </div>
                                     <div class="form-group">
-                                        <label for="kabupaten">Lokasi Pelaksanaan</label>
+                                        <label for="kabupaten_kota">Lokasi Pelaksanaan</label>
                                         <table style="margin: 0;">
                                             <tr>
                                                 <td>
-                                                    <select class="form-control" name="kabupaten">
+                                                    <select class="form-control kabupaten_kota" id="kabupaten_kota" name="input_kabupaten_kota" onchange="get_data_lokasi(this,'kabkot')">
                                                         <option value="">Pilih Kabupaten / Kota</option>
                                                     </select>
                                                 </td>
                                                 <td style="width: 30%">
-                                                    <select class="form-control" name="kecamatan">
+                                                    <select class="form-control kecamatan" id="kecamatan" name="input_kecamatan" onchange="get_data_lokasi(this,'kec')">
                                                         <option value="">Pilih Kecamatan</option>
                                                     </select>
                                                 </td>
                                                 <td style="width: 30%">
-                                                    <select class="form-control" name="desa">
+                                                    <select class="form-control desa" id="desa" name="input_desa" onchange="get_data_lokasi(this,'desa')">
                                                         <option value="">Pilih Desa</option>
                                                     </select>
                                                 </td>
@@ -622,13 +651,15 @@ echo '
                                         <table style="margin: 0;">
                                             <tr>
                                                 <td style="width: 50%;">
-                                                    <select class="form-control" id="bulan_awal">
+                                                    <select class="form-control" name="input_bulan_awal" id="bulan_awal">
                                                         <option value="">Pilih Bulan Awal</option>
+                                                        <?php echo $bulan_option; ?>
                                                     </select>
                                                 </td>
                                                 <td style="width: 50%;">
-                                                    <select class="form-control" id="bulan_akhir">
+                                                    <select class="form-control" name="input_bulan_akhir" id="bulan_akhir">
                                                         <option value="">Pilih Bulan Akhir</option>
+                                                        <?php echo $bulan_option; ?>
                                                     </select>
                                                 </td>
                                             </tr>
@@ -636,18 +667,18 @@ echo '
                                     </div>
                                     <div class="form-group">
                                         <label for="pagu_sub_kegiatan">Anggaran Sub Kegiatan</label>
-                                        <input class="form-control" type="number" id="pagu_sub_kegiatan"/>
+                                        <input class="form-control" type="number" name="input_pagu_sub_keg" id="pagu_sub_kegiatan"/>
                                     </div>
                                     <div class="form-group">
                                         <label for="pagu_sub_kegiatan_1">Anggaran Sub Kegiatan Tahun Berikutnya</label>
-                                        <input class="form-control" type="number" id="pagu_sub_kegiatan_1"/>
+                                        <input class="form-control" type="number" name="input_pagu_sub_keg_1" id="pagu_sub_kegiatan_1"/>
                                     </div>
                                     <div class="form-group">
-                                        <label for="bulan_awal">Indikator Sub Kegiatan</label>
+                                        <label for="pagu_indi_sub_keg_penetapan">Indikator Sub Kegiatan</label>
                                         <table style="margin: 0;">
                                             <tr data-id="1" header="1">
                                                 <td colspan="2">
-                                                    <select class="form-control" id="pagu_indikator_sub_keg_penetapan" name="tolak_ukur">
+                                                    <select class="form-control pagu_indi_sub_keg" id="pagu_indi_sub_keg_penetapan" name="input_indikator_sub_keg">
                                                         <option value="">Pilih Nama Indikator</option>
                                                     </select>
                                                 </td>
@@ -657,10 +688,10 @@ echo '
                                             </tr>
                                             <tr data-id="1">
                                                 <td style="width: 50%;">
-                                                    <input class="form-control" type="number" name="target" placeholder="Target Indikator"/>
+                                                    <input class="form-control" type="number" name="input_target" placeholder="Target Indikator"/>
                                                 </td>
                                                 <td style="width: 50%;">
-                                                    <select class="form-control" name="satuan">
+                                                    <select class="form-control satuan_pagu_indi_sub_keg" id="satuan_pagu_indi_sub_keg_penetapan" name="input_satuan">
                                                         <option value="">Pilih Satuan</option>
                                                     </select>
                                                 </td>
@@ -669,7 +700,7 @@ echo '
                                     </div>
                                     <div class="form-group">
                                         <label for="catatan">Catatan</label>
-                                        <textarea class="form-control" id="catatan"></textarea>
+                                        <textarea class="form-control" name="input_catatan" id="catatan"></textarea>
                                     </div>
                                 </td>
                             </tr>
@@ -691,6 +722,9 @@ echo '
     let tahun_anggaran = <?php echo $input['tahun_anggaran']; ?>;
 
     get_data_sub_unit(id_skpd)
+    get_data_sumber_dana()
+
+    get_data_lokasi();
 
 	var mySpace = '<div style="padding:3rem;"></div>';
 	
@@ -706,8 +740,8 @@ echo '
 	penjadwalanHitungMundur(dataHitungMundur);
 
 	var aksi = ''
-	+'<a style="margin-left: 10px;" id="tambah-data" onclick="return false;" href="#" class="btn btn-success">Tambah Data RENJA</a>'
-	+'</label>';
+	    +'<a style="margin-left: 10px;" id="tambah-data" onclick="return false;" href="#" class="btn btn-success">Tambah Data RENJA</a>'
+	    +'</label>';
 	jQuery('#action-sipd').append(aksi);
 
     function tambahIndikator(that){
@@ -715,7 +749,7 @@ echo '
         var trnew = ''
             +'<tr data-id="'+(id+1)+'" header="1">'
                 +'<td colspan="2">'
-                    +'<select class="form-control" name="tolak_ukur">'
+                    +'<select class="form-control pagu_indi_sub_keg" name="tolak_ukur">'
                         +'<option value="">Pilih Nama Indikator</option>'
                     +'</select>'
                 +'</td>'
@@ -728,7 +762,7 @@ echo '
                     +'<input class="form-control" type="number" name="target" placeholder="Target Indikator"/>'
                 +'</td>'
                 +'<td style="width: 50%;">'
-                    +'<select class="form-control" name="satuan">'
+                    +'<select class="form-control satuan_pagu_indi_sub_keg" name="satuan">'
                         +'<option value="">Pilih Satuan</option>'
                     +'</select>'
                 +'</td>'
@@ -876,13 +910,10 @@ echo '
 			},
 			success:function(response){
 				jQuery("#wrap-loading").hide();
-				let option='<option>Pilih Sub Kegiatan</option>';
+				let option='<option value="">Pilih Sub Kegiatan</option>';
 				response.data.map(function(value, index){
                     value.map(function(value_sub, index_sub){
-                        let nama = value_sub.nama_sub_giat.split(' ');
-                        let del = nama.shift();
-                        nama = nama.join(' ');
-                        option+='<option value="'+value_sub.id_sub_giat+'">'+nama+'</option>';
+                        option+='<option value="'+value_sub.id_sub_giat+'">'+value_sub.nama_sub_giat+'</option>';
                     });
                 })
 
@@ -907,16 +938,179 @@ echo '
 			},
 			success:function(response){
 				jQuery("#wrap-loading").hide();
-				let option='<option>Pilih Nama Indikator</option>';
+				let option='<option value="">Pilih Nama Indikator</option>';
 				response.data.map(function(value, index){
                     option+='<option value="'+value.id_sub_keg+'">'+value.indikator+'</option>';
                 })
 
-				jQuery("#pagu_indikator_sub_keg_usulan").html(option);
-                jQuery("#pagu_indikator_sub_keg_usulan").select2({width: '100%'});
-                jQuery("#pagu_indikator_sub_keg_penetapan").html(option);
-                jQuery("#pagu_indikator_sub_keg_penetapan").select2({width: '100%'});
+                let optionSatuan='<option value="">Pilih Satuan</option>';
+				response.data.map(function(value, index){
+                    optionSatuan+='<option value="'+value.id_sub_keg+'">'+value.satuan+'</option>';
+                })
+
+				jQuery(".pagu_indi_sub_keg").html(option);
+                jQuery(".pagu_indi_sub_keg").select2({width: '100%'});
+                jQuery(".satuan_pagu_indi_sub_keg").html(optionSatuan);
 			}
 		});
     }
+
+    function get_data_sumber_dana(){
+        jQuery("#wrap-loading").show();
+        jQuery.ajax({
+            method: 'POST',
+            url: '<?php echo admin_url('admin-ajax.php'); ?>',
+            dataType: 'json',
+            data: {
+                'action': 'get_data_sumber_dana_renja',
+                'api_key': jQuery('#api_key').val(),
+                'tahun_anggaran': tahun_anggaran
+            },
+            success:function(response){
+                jQuery("#wrap-loading").hide();
+                let option='<option value="">Pilih Sumber Dana</option>';
+				response.data.map(function(value, index){
+                    option+='<option value="'+value.id_unik+'">'+value.nama_dana+'</option>';
+                })
+
+				jQuery("#sumber_dana_usulan").html(option);
+                jQuery("#sumber_dana_usulan").select2({width: '100%'});
+                jQuery("#sumber_dana").html(option);
+                jQuery("#sumber_dana").select2({width: '100%'});
+            }
+        })
+    }
+
+    function get_data_lokasi(that,jenis_lokasi){
+        if(jenis_lokasi == ''){
+            alert('Ada kesalahan,harap refresh halaman!')
+            return false;
+        }
+        let id_alamat = jQuery(that).val();
+        if(id_alamat == undefined){
+            id_alamat = <?php echo $id_lokasi_prov; ?>;
+            jenis_lokasi = 'prov';
+        }
+        jQuery.ajax({
+            method:'post',
+            url: '<?php echo admin_url('admin-ajax.php'); ?>',
+            dataType: 'json',
+            data: {
+                'action': 'get_data_lokasi_renja',
+                'api_key': jQuery('#api_key').val(),
+                'tahun_anggaran': tahun_anggaran,
+                'id_skpd': id_skpd,
+                'jenis_lokasi': jenis_lokasi,
+                'id_alamat':id_alamat
+            },
+            success: function(response){
+                let option='<option value="">Pilih '+response.jenis_lokasi+'</option>';
+                response.data.map(function(value, index){
+                    option +='<option value="'+value.id_alamat+'">'+value.nama+'</option>';
+                })
+
+                switch (jenis_lokasi) {
+                    case 'kabkot':
+                        jQuery(".kecamatan").html(option);
+                        jQuery(".kecamatan").select2({width: '100%'});
+                        break;
+                    case 'kec':
+                        jQuery(".desa").html(option);
+                        jQuery(".desa").select2({width: '100%'});
+                        break;
+                    case 'prov':
+                        jQuery(".kabupaten_kota").html(option);
+                        jQuery(".kabupaten_kota").select2({width: '100%'});
+                        break;
+                    default:
+                        break;
+                }
+            }
+        });
+    }
+
+    function submitTambahRenjaForm(){
+        jQuery("#wrap-loading").show();
+        let form = getFormData(jQuery("#form-renja"));
+        jQuery.ajax({
+            method:'post',
+            url:'<?php echo admin_url('admin-ajax.php'); ?>',
+            dataType: 'json',
+            data: {
+                'action': 'submit_tambah_renja',
+                'api_key': jQuery('#api_key').val(),
+                'data': JSON.stringify(form),
+                'tahun_anggaran': tahun_anggaran
+            },
+            success:function(response){
+                jQuery('#wrap-loading').hide();
+                jQuery('#modalTambahRenja').modal('hide')
+                alert(response.message);
+                refresh_page();
+            }
+        });
+    }
+
+    function edit_renja(kode_sub_giat){
+        jQuery('#wrap-loading').show();
+        jQuery.ajax({
+            method: 'post',
+            url: '<?php echo admin_url('admin-ajax.php'); ?>',
+            dataType: 'json',
+            data: {
+                'action': 'edit_renja',
+                'api_key': jQuery('#api_key').val(),
+                'kode_sub_giat': kode_sub_giat,
+                'tahun_anggaran': tahun_anggaran
+            },
+            success: function(response){
+                jQuery('#wrap-loading').hide();
+                jQuery("#modalTambahRenja .modal-title").html("Edit Sub Kegiatan");
+                jQuery("#modalTambahRenja .submitBtn")
+                    .attr("onclick", 'submitEditRenjaForm()')
+                    .attr("disabled", false)
+                    .text("Simpan");
+                jQuery('#modalTambahRenja').modal('show');              
+            }
+        })
+    }
+
+    function delete_renja(kode_sub_giat){
+        if(confirm('Apakah anda yakin untuk menghapus data ini?')){
+            jQuery("#wrap-loading").show();
+            jQuery.ajax({
+                method: 'post',
+                url: '<?php echo admin_url('admin-ajax.php'); ?>',
+                dataType: 'json',
+                data: {
+                    'action': 'delete_renja',
+                    'api_key': jQuery('#api_key').val(),
+                    'kode_sub_giat': kode_sub_giat,
+                    'tahun_anggaran': tahun_anggaran
+                },
+                success:function(response){
+                    jQuery('#wrap-loading').hide();
+                    alert(response.message);
+                    refresh_page();
+                }
+            })
+        }
+    }
+
+    function getFormData($form) {
+	    let unindexed_array = $form.serializeArray();
+	    let indexed_array = {};
+
+	    jQuery.map(unindexed_array, function (n, i) {
+	    	indexed_array[n['name']] = n['value'];
+	    });
+
+	    return indexed_array;
+	}
+
+    function refresh_page() {
+        if(confirm('Ada data yang berubah, apakah mau merefresh halaman ini?')){
+            window.location = "";
+        }
+	}
 </script>
