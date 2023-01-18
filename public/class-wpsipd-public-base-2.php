@@ -1629,46 +1629,51 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 
 		if(!empty($_POST)){
 			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
-				$tahun_anggaran = $_POST['tahun_anggaran'];
-				$kode_sub_unit = $_POST['kode_sub_unit'];
-				$id_unit = $_POST['id_unit'];
+				if(!empty($_POST['tahun_anggaran']) && !empty($_POST['kode_sub_unit']) && !empty($_POST['id_unit'])){
+					$tahun_anggaran = $_POST['tahun_anggaran'];
+					$kode_sub_unit = $_POST['kode_sub_unit'];
+					$id_unit = $_POST['id_unit'];
 
-				$skpd = $this->get_skpd_db();
-				$skpd_db = $skpd['skpd'];
-				$bidur_db = $skpd['bidur'];
+					$skpd = $this->get_skpd_db();
+					$skpd_db = $skpd['skpd'];
+					$bidur_db = $skpd['bidur'];
 
-				$data_sub_kegiatan = array();
-				foreach($bidur_db as $k_bidur => $v_bidur){
-					if(!empty($_POST['kode_giat'])){
-						$data = $wpdb->get_results($wpdb->prepare(
-							'SELECT id,
-								id_bidang_urusan,
-								id_sub_giat,
-								kode_sub_giat,
-								nama_sub_giat
-							FROM data_prog_keg
-							WHERE id_bidang_urusan=%d
-							AND tahun_anggaran=%d
-							AND kode_giat=%s
-						', $v_bidur['id_bidang_urusan'],$tahun_anggaran, $_POST['kode_giat']),ARRAY_A);
-					}else{
-						$data = $wpdb->get_results($wpdb->prepare(
-							'SELECT id,
-								id_bidang_urusan,
-								id_sub_giat,
-								kode_sub_giat,
-								nama_sub_giat
-							FROM data_prog_keg
-							WHERE id_bidang_urusan=%d
-							AND tahun_anggaran=%d
-						', $v_bidur['id_bidang_urusan'],$tahun_anggaran),ARRAY_A);
+					$data_sub_kegiatan = array();
+					foreach($bidur_db as $k_bidur => $v_bidur){
+						if(!empty($_POST['kode_giat'])){
+							$data = $wpdb->get_results($wpdb->prepare(
+								'SELECT id,
+									id_bidang_urusan,
+									id_sub_giat,
+									kode_sub_giat,
+									nama_sub_giat
+								FROM data_prog_keg
+								WHERE id_bidang_urusan=%d
+								AND tahun_anggaran=%d
+								AND kode_giat=%s
+							', $v_bidur['id_bidang_urusan'],$tahun_anggaran, $_POST['kode_giat']),ARRAY_A);
+						}else{
+							$data = $wpdb->get_results($wpdb->prepare(
+								'SELECT id,
+									id_bidang_urusan,
+									id_sub_giat,
+									kode_sub_giat,
+									nama_sub_giat
+								FROM data_prog_keg
+								WHERE id_bidang_urusan=%d
+								AND tahun_anggaran=%d
+							', $v_bidur['id_bidang_urusan'],$tahun_anggaran),ARRAY_A);
+						}
+
+						if(empty($data_sub_kegiatan[$k_bidur])){
+							$data_sub_kegiatan[$k_bidur] = $data;
+						}
 					}
-
-					if(empty($data_sub_kegiatan[$k_bidur])){
-						$data_sub_kegiatan[$k_bidur] = $data;
-					}
+					$ret['data'] = $data_sub_kegiatan;
+				}else{
+					$ret['status'] = 'error';
+					$ret['message'] = 'Ada param yang kosong!';	
 				}
-				$ret['data'] = $data_sub_kegiatan;
 			}else{
 				$ret['status'] = 'error';
 				$ret['message'] = 'APIKEY tidak sesuai!';
@@ -1691,19 +1696,282 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 
 		if(!empty($_POST)){
 			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+				if(!empty($_POST['tahun_anggaran']) && !empty($_POST['id_sub_keg'])){
+					$tahun_anggaran = $_POST['tahun_anggaran'];
+					$id_sub_keg = $_POST['id_sub_keg'];
+
+					$data_sub_kegiatan = $wpdb->get_results($wpdb->prepare(
+						'SELECT *
+						FROM data_master_indikator_subgiat
+						WHERE id_sub_keg=%d
+						AND tahun_anggaran=%d
+						AND active=1
+					', $id_sub_keg,$tahun_anggaran),ARRAY_A);
+
+					if(empty($data)){
+						$ret['data'] = $data_sub_kegiatan;
+					}
+				}else{
+					$ret['status'] = 'error';
+					$ret['message'] = 'Ada param yang kosong!';
+				}
+			}else{
+				$ret['status'] = 'error';
+				$ret['message'] = 'APIKEY tidak sesuai!';
+			}
+		}else{
+			$ret['status']	= 'error';
+			$ret['message']	= 'Format Salah!';
+		}
+
+		die(json_encode($ret));
+	}
+
+	public function get_data_sumber_dana_renja(){
+		global $wpdb;
+		$ret = array(
+			'status'	=> 'success',
+			'message' 	=> 'Berhasil mendapapatkan data sumber dana!',
+			'data'		=> array(),
+		);
+
+		if(!empty($_POST)){
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+				if(!empty($_POST['tahun_anggaran'])){
+					$tahun_anggaran = $_POST['tahun_anggaran'];
+	
+					$data_sumber_dana = $wpdb->get_results($wpdb->prepare(
+						'SELECT *
+						FROM data_sumber_dana
+						WHERE tahun_anggaran=%d
+					', $tahun_anggaran),ARRAY_A);
+	
+					if(!empty($data_sumber_dana)){
+						$ret['data'] = $data_sumber_dana;
+					}
+				}else{
+					$ret['status'] = 'error';
+					$ret['message'] = 'Ada param yang kosong!';
+				}
+			}else{
+				$ret['status'] = 'error';
+				$ret['message'] = 'APIKEY tidak sesuai!';
+			}
+		}else{
+			$ret['status']	= 'error';
+			$ret['message']	= 'Format Salah!';
+		}
+
+		die(json_encode($ret));
+	}
+
+	public function submit_tambah_renja(){
+		global $wpdb;
+		$ret = array(
+			'status'	=> 'success',
+			'message' 	=> 'Berhasil menambahkan data RENJA!'
+		);
+
+		if(!empty($_POST)){
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
 				$tahun_anggaran = $_POST['tahun_anggaran'];
-				$id_sub_keg = $_POST['id_sub_keg'];
+				$data = json_decode(stripslashes($_POST['data']), true);
 
-				$data_sub_kegiatan = $wpdb->get_results($wpdb->prepare(
+				$data_sub_unit = $wpdb->get_row($wpdb->prepare(
 					'SELECT *
-					FROM data_master_indikator_subgiat
-					WHERE id_sub_keg=%d
-					AND tahun_anggaran=%d
-					AND active=1
-				', $id_sub_keg,$tahun_anggaran),ARRAY_A);
+					FROM data_unit
+					WHERE id_skpd=%d',
+				$data['input_sub_unit']));
 
-				if(empty($data)){
-					$ret['data'] = $data_sub_kegiatan;
+				$nama_skpd = $data_sub_unit->nama_skpd;
+				$kode_skpd = $data_sub_unit->kode_skpd;
+				if($data_sub_unit->is_skpd != 1){
+					$data_unit = $wpdb->get_row($wpdb->prepare(
+						'SELECT *
+						FROM data_unit
+						WHERE id_unit=%d
+						AND is_skpd=1',
+					$data_sub_unit->id_unit));
+					$nama_skpd = $data_unit->nama_skpd;
+					$kode_skpd = $data_unit->kode_skpd;
+				}
+
+				$data_prog_keg = $wpdb->get_row($wpdb->prepare(
+									'SELECT *
+									FROM data_prog_keg
+									WHERE id_sub_giat=%d',
+									$data['input_sub_kegiatan']));
+
+				// $kode_bl = $data_sub_unit->id_unit."."$data_sub_unit->id_skpd.".".$data_prog_keg->id_program.".".;
+
+				$opsi = array(
+					'id_sub_skpd' => $data['input_sub_unit'],
+					'id_sub_giat' => $data['input_sub_kegiatan'],
+					'id_skpd' => $data_sub_unit->id_unit,
+					'nama_skpd' => $nama_skpd,
+					'kode_skpd' => $kode_skpd,
+					'nama_sub_skpd' => $data_sub_unit->nama_skpd,
+					'kode_sub_skpd' => $data_sub_unit->kode_skpd,
+					'pagu' => $data['input_pagu_sub_keg'],
+					'pagu_usulan' => $data['input_pagu_sub_keg_usulan'],
+					'pagu_n_depan' => $data['input_pagu_sub_keg_1'],
+					'pagu_n_depan_usulan' => $data['input_pagu_sub_keg_1_usulan'],
+					'kode_urusan' => $data_prog_keg->kode_urusan,
+					'id_urusan' => $data_prog_keg->id_urusan,
+					'nama_urusan' => $data_prog_keg->nama_urusan,
+					'id_bidang_urusan' => $data_prog_keg->id_bidang_urusan,
+					'kode_bidang_urusan' => $data_prog_keg->kode_bidang_urusan,
+					'nama_bidang_urusan' => $data_prog_keg->nama_bidang_urusan,
+					'id_program' => $data_prog_keg->id_program,
+					'kode_program' => $data_prog_keg->kode_program,
+					'nama_program' => $data_prog_keg->nama_program,
+					'kode_giat' => $data_prog_keg->kode_giat,
+					'nama_giat' => $data_prog_keg->nama_giat,
+					'kode_sub_giat' => $data_prog_keg->kode_sub_giat,
+					'nama_sub_giat' => $data_prog_keg->nama_sub_giat,
+					'catatan' => $data['input_catatan'],
+					'catatan_usulan' => $data['input_catatan_usulan'],
+					'active' => 1,
+					'tahun_anggaran' => $tahun_anggaran,
+					'update_at' => current_time('mysql')
+				);
+
+				$status = $wpdb->insert('data_sub_keg_bl_lokal',$opsi);
+
+				if($status === false){
+					$ret['status'] = 'error';
+					$ret['message'] = 'Insert gagal, harap hubungi admin!';
+				}
+			}else{
+				$ret['status'] = 'error';
+				$ret['message'] = 'APIKEY tidak sesuai!';
+			}
+		}else{
+			$ret['status']	= 'error';
+			$ret['message']	= 'Format Salah!';
+		}
+
+		die(json_encode($ret));
+	}
+
+	public function edit_renja(){
+		global $wpdb;
+		$ret = array(
+			'status' => 'success',
+			'message' => 'Berhasil mendapatkan data!',
+			'data' => array()
+		);
+		
+		if(!empty($_POST)){
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+				if(!empty($_POST['tahun_anggaran']) && !empty($_POST['kode_sub_giat'])){				
+					$tahun_anggaran = $_POST['tahun_anggaran'];
+					$kode_sub_giat = $_POST['kode_sub_giat'];
+
+					$data_sub_giat = $wpdb->get_results($wpdb->prepare(
+						'SELECT *
+						FROM data_sub_keg_bl_lokal
+						WHERE kode_sub_giat=%s
+						AND tahun_anggaran=%d
+						AND active=1',
+						$kode_sub_giat,$tahun_anggaran,ARRAY_A));
+					
+					if(!empty($data_sub_giat)){
+						$ret['data'] = $data_sub_giat;
+					}
+				}else{
+					$ret['status'] = 'error';
+					$ret['message'] = 'Ada param yang kosong!';
+				}
+			}else{
+				$ret['status'] = 'error';
+				$ret['message'] = 'APIKEY tidak sesuai!';
+			}
+		}else{
+			$ret['status']	= 'error';
+			$ret['message']	= 'Format Salah!';
+		}
+
+		die(json_encode($ret));
+
+	}
+
+	public function delete_renja(){
+		global $wpdb;
+		$ret = array(
+			'status'	=> 'success',
+			'message' 	=> 'Berhasil menghapus data RENJA!'
+		);
+
+		if(!empty($_POST)){
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+				if(!empty($_POST['tahun_anggaran']) && !empty($_POST['kode_sub_giat'])){
+					$tahun_anggaran = $_POST['tahun_anggaran'];
+					$kode_sub_giat = $_POST['kode_sub_giat'];
+	
+					$status = $wpdb->update('data_sub_keg_bl_lokal', array('active' => 0), array('kode_sub_giat' => $kode_sub_giat));
+	
+					if($status === false){
+						$ret['status'] = 'error';
+						$ret['message'] = 'Delete gagal, harap hubungi admin!';
+					}
+				}else{
+					$ret['status'] = 'error';
+					$ret['message'] = 'Ada param yang kosong!';
+				}
+			}else{
+				$ret['status'] = 'error';
+				$ret['message'] = 'APIKEY tidak sesuai!';
+			}
+		}else{
+			$ret['status']	= 'error';
+			$ret['message']	= 'Format Salah!';
+		}
+
+		die(json_encode($ret));
+	}
+
+	public function get_data_lokasi_renja(){
+		global $wpdb;
+		$ret = array(
+			'status'	=> 'success',
+			'message' 	=> 'Berhasil mendapatkan data lokasi!',
+			'data'		=> array(),
+		);
+
+		if(!empty($_POST)){
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+				if(!empty($_POST['tahun_anggaran']) && !empty($_POST['jenis_lokasi']) && !empty($_POST['id_alamat'])){
+					$tahun_anggaran = $_POST['tahun_anggaran'];
+					$jenis_lokasi = $_POST['jenis_lokasi'];
+					$id_alamat = $_POST['id_alamat'];
+	
+					$where = '';
+					switch ($jenis_lokasi) {
+						case 'kabkot':
+							$jenis_lokasi = 'Kecamatan';
+							$where = ' AND is_kec=1 AND id_kab='.$id_alamat;
+							break;
+						case 'kec':
+							$jenis_lokasi = 'Desa';
+							$where = ' AND is_kel=1 AND id_kec='.$id_alamat;
+							break;
+						case 'prov':
+							$jenis_lokasi = 'Kabupaten/Kota';
+							$where = ' AND is_kab=1 AND id_prov='.$id_alamat;
+							break;
+					}
+					$data_lokasi = $wpdb->get_results($wpdb->prepare(
+						'SELECT *
+						FROM data_alamat
+						WHERE tahun=%d'.$where,
+						$tahun_anggaran),ARRAY_A);
+	
+					$ret['jenis_lokasi'] = $jenis_lokasi;
+					$ret['data'] = $data_lokasi;
+				}else{
+					$ret['status'] = 'error';
+					$ret['message'] = 'Ada param yang kosong!';
 				}
 			}else{
 				$ret['status'] = 'error';
