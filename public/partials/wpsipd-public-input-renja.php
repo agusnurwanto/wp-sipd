@@ -22,6 +22,19 @@ $mulaiJadwal = '-';
 $selesaiJadwal = '-';
 $relasi_perencanaan = '-';
 $id_tipe_relasi = '-';
+$id_unit = '';
+$data_skpd = $wpdb->get_row($wpdb->prepare("
+    select 
+        nama_skpd,
+        id_unit 
+    from data_unit
+    where 
+        id_skpd=%d 
+        and tahun_anggaran=%d
+        and active=1
+    order by id ASC
+    ", $input['id_skpd'], $input['tahun_anggaran']), ARRAY_A);
+$id_unit = (!empty($data_skpd['id_unit'])) ? $data_skpd['id_unit'] : '';
 
 $sql = "
     SELECT 
@@ -720,6 +733,7 @@ echo '
     run_download_excel();
     let id_skpd = <?php echo $input['id_skpd']; ?>;
     let tahun_anggaran = <?php echo $input['tahun_anggaran']; ?>;
+    let id_unit = <?php echo $id_unit; ?>;
 
     get_data_sub_unit(id_skpd)
     get_data_sumber_dana()
@@ -906,7 +920,7 @@ echo '
 				'api_key': jQuery("#api_key").val(),
                 'tahun_anggaran': tahun_anggaran,
 				'kode_sub_unit': kode_sub_unit,
-                'id_unit':id_skpd
+                'id_unit':id_unit
 			},
 			success:function(response){
 				jQuery("#wrap-loading").hide();
