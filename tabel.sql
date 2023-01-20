@@ -1271,6 +1271,10 @@ CREATE TABLE `data_sub_keg_bl_lokal` (
   `active` tinyint(4) DEFAULT '1',
   `update_at` datetime NOT NULL,
   `tahun_anggaran` year(4) NOT NULL DEFAULT '2021',
+  `catatan` text DEFAULT NULL,
+  `catatan_usulan` text DEFAULT NULL,
+  `pagu_usulan` double(20, 0) DEFAULT NULL,
+  `pagu_n_depan_usulan` double(20, 0) DEFAULT NULL,
   PRIMARY KEY  (id)
 );
 
