@@ -1764,7 +1764,12 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
 				if (!empty($_POST['data'])) {
 					$data = $_POST['data'];
-					$cek = $wpdb->get_var("SELECT id_usulan from data_pokir where tahun_anggaran=".$_POST['tahun_anggaran']." AND id_usulan=" . $data['id_usulan']);
+					$cek = $wpdb->get_var($wpdb->prepare("
+						SELECT 
+							id_usulan 
+						from data_pokir 
+						where tahun_anggaran=%d AND id_usulan=%d"
+					, $_POST['tahun_anggaran'], $data['id_usulan']));
 					$opsi = array(
 						'alamat_teks' => $data['alamat_teks'],
 						'anggaran' => $data['anggaran'],
@@ -1862,6 +1867,73 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 				} else {
 					$ret['status'] = 'error';
 					$ret['message'] = 'Format Data ASMAS Salah!';
+				}
+			} else {
+				$ret['status'] = 'error';
+				$ret['message'] = 'APIKEY tidak sesuai!';
+			}
+		} else {
+			$ret['status'] = 'error';
+			$ret['message'] = 'Format Salah!';
+		}
+		die(json_encode($ret));
+	}
+
+	public function singkron_kamus_usulan_pokir()
+	{
+		global $wpdb;
+		$ret = array(
+			'status'	=> 'success',
+			'message'	=> 'Berhasil export data kamus usulan POKIR!'
+		);
+		if (!empty($_POST)) {
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+				if (!empty($_POST['data'])) {
+					$data = $_POST['data'];
+					$cek = $wpdb->get_var($wpdb->prepare("
+						SELECT 
+							id_kamus 
+						from data_kamus_usulan_pokir 
+						where tahun_anggaran=%d 
+							AND id_kamus=%d"
+						, $_POST['tahun_anggaran'], $data['id_kamus']));
+					$opsi = array(
+						'anggaran' => $data['anggaran'],
+						'bidang_urusan' => $data['bidang_urusan'],
+						'giat_teks' => $data['giat_teks'],
+						'id_kamus' => $data['id_kamus'],
+						'id_program' => $data['id_program'],
+						'id_unit' => $data['id_unit'],
+						'is_locked' => $data['is_locked'],
+						'idbidangurusan' => $data['idbidangurusan'],
+						'idskpd' => $data['idskpd'],
+						'kodeprogram' => $data['kodeprogram'],
+						'namaprogram' => $data['namaprogram'],
+						'jenis_profil' => $data['jenis_profil'],
+						'kelompok' => $data['kelompok'],
+						'kode_skpd' => $data['kode_skpd'],
+						'nama_skpd' => $data['nama_skpd'],
+						'outcome_teks' => $data['outcome_teks'],
+						'output_teks' => $data['output_teks'],
+						'pekerjaan' => $data['pekerjaan'],
+						'prioritas_teks' => $data['prioritas_teks'],
+						'satuan' => $data['satuan'],
+						'tipe' => $data['tipe'],
+						'active' => 1,
+						'update_at' => current_time('mysql'),
+						'tahun_anggaran' => $_POST['tahun_anggaran']
+					);
+					if (!empty($cek)) {
+						$wpdb->update('data_kamus_usulan_pokir', $opsi, array(
+							'id_kamus' => $data['id_kamus'],
+							'tahun_anggaran' => $_POST['tahun_anggaran']
+						));
+					} else {
+						$wpdb->insert('data_kamus_usulan_pokir', $opsi);
+					}
+				} else {
+					$ret['status'] = 'error';
+					$ret['message'] = 'Format Data Salah!';
 				}
 			} else {
 				$ret['status'] = 'error';
