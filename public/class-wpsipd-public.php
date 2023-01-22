@@ -4999,6 +4999,69 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		die(json_encode($ret));
 	}
 
+	function singkron_detail_spd(){
+		ini_set('max_execution_time',0);
+		global $wpdb;
+		$ret=array(
+			'status'=>'success',
+			'message'=>'Berhasil Singkron Detail SPD',
+			'action'=>$_POST['action']
+		);
+		if(!empty($_POST)){
+			if(!empty($_POST['api_key']) && $_POST['api_key']==get_option('_crb_api_key_extension')){
+				$data=$_POST['data'];
+				//Insert atau update data spd
+				$cek=$wpdb->get_var("select idSpd from data_spd_sipd where idSpd=".$_POST['idSpd']." and tahun_anggaran=".$_POST['tahun_anggaran']);
+				$opsi=array(
+					"idSpd"=>$_POST["idSpd"],
+					"nomorSpd"=>$_POST["nomorSpd"],
+					"totalSpd"=>$_POST["totalSpd"],
+					"keteranganSpd"=>$_POST["keteranganSpd"],
+					"ketentuanLainnya"=>$_POST["ketentuanLainnya"],
+					"id_skpd"=>$_POST["id_skpd"],
+					"active"=>1,
+					"tahun_anggaran"=>$_POST["tahun_anggaran"],
+					"created_at"=>current_time('mysql')
+				);
+				if(!empty($cek)){
+					$wpdb->update("data_spd_sipd",$opsi,array("idSpd"=>$data["idSpd"]));
+				}else{
+					$wpdb->insert("data_spd_sipd",$opsi);
+				}
+				//Insert atau update data detail spd
+				foreach($data as $k =>$v){
+					$cek=$wpdb->get_var("select idDetailSpd from data_spd_sipd_detail where idDetailSpd=".$v["idDetailSpd"].' and tahun_anggaran='.$_POST['tahun_anggaran']);
+					$opsi= array(
+						'idDetailSpd'=>$v["idDetailSpd"],
+						'idSpd'=>$v["idSpd"],
+						"id_skpd"=>$v["id_skpd"],
+						"id_sub_skpd"=>$v["id_sub_skpd"],
+						"id_program"=>$v["id_program"],
+						"id_giat"=>$v["id_giat"],
+						"id_sub_giat"=>$v["id_sub_giat"],
+						"id_akun"=>$v["id_akun"],
+						"nilai"=>$v["nilai"],
+						"created_at"=>current_time('mysql'),
+						'active'=>1,
+						'tahun_anggaran'=>$_POST['tahun_anggaran']
+					);
+					if(!empty($cek)){
+						$wpdb->update('data_spd_sipd_detail',$opsi,array("idDetailSpd"=>$v["idDetailSpd"]));
+					}else{
+						$wpdb->insert("data_spd_sipd_detail",$opsi);
+					}
+				}
+			}else{
+				$ret["status"]="error";
+				$ret["message"]="API KEY tidak sesuai";
+			}
+		}else{
+			$ret["status"]="error";
+			$ret["message"]="Tidak ada parameter yang dikirim";
+		}
+		die(json_encode($ret));
+	}
+
 	function singkron_anggaran_kas(){
 		global $wpdb;
 		$ret = array(
