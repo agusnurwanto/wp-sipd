@@ -11,6 +11,35 @@ CREATE TABLE `data_catatan_rfk_unit` (
   PRIMARY KEY  (id)
 );
 
+CREATE TABLE `data_spd_sipd`(
+  `idSpd` int,
+  `nomorSpd` varchar(80),
+  `keteranganSpd` varchar(80),
+  `ketentuanLainnya` varchar(500),
+  `id_skpd` int,
+  `totalSpd` double,
+  `active` tinyint,
+  `created_at` datetime,
+  `tahun_anggaran` year,
+  PRIMARY KEY (`idSpd`,`tahun_anggaran`)
+);
+
+CREATE TABLE `data_spd_sipd_detail`(
+  `idDetailSpd` int,
+  `idSpd` int,
+  `id_skpd` int,
+  `id_sub_skpd` int,
+  `id_program` int,
+  `id_giat` int,
+  `id_sub_giat` int,
+  `id_akun` int,
+  `nilai` double,
+  `active` tinyint,
+  `created_at` datetime,
+  `tahun_anggaran` year,
+  PRIMARY KEY (`idDetailSpd`,`tahun_anggaran`)
+);
+
 CREATE TABLE `data_unit` (
   `id` int(11) NOT NULL auto_increment,
   `id_setup_unit` int(11) DEFAULT NULL,
