@@ -6580,6 +6580,45 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		}
 	}
 
+	function get_pagu_simda_rka($options = array()){
+		global $wpdb;
+		$kd_urusan = $options['kd_urusan'];
+		$kd_bidang = $options['kd_bidang'];
+		$kd_unit = $options['kd_unit'];
+		$kd_sub = $options['kd_sub'];
+		$kd_prog = $options['kd_prog'];
+		$id_prog = $options['id_prog'];
+		$kd_keg = $options['kd_keg'];
+		$sql = $wpdb->prepare("
+			SELECT 
+				SUM(r.total) as total
+			FROM ta_belanja_rinc_sub r
+			WHERE r.tahun = %d
+				AND r.kd_urusan = %d
+				AND r.kd_bidang = %d
+				AND r.kd_unit = %d
+				AND r.kd_sub = %d
+				AND r.kd_prog = %d
+				AND r.id_prog = %d
+				AND r.kd_keg = %d
+			", 
+			$options['tahun_anggaran'], 
+			$kd_urusan, 
+			$kd_bidang, 
+			$kd_unit, 
+			$kd_sub, 
+			$kd_prog, 
+			$id_prog, 
+			$kd_keg
+		);
+		$pagu = $this->simda->CurlSimda(array('query' => $sql));
+		if(!empty($pagu[0])){
+			return $pagu[0]->total;
+		}else{
+			return $options['pagu_simda'];
+		}
+	}
+
 	function get_rak_simda($options = array()){
 		global $wpdb;
 		$kd_urusan = $options['kd_urusan'];

@@ -26,6 +26,12 @@ if(
 	&& $_GET['pagu_dpa'] == 'fmis'
 ){
     $cek_pagu_dpa = 'fmis';
+}else if(
+	!empty($_GET) 
+	&& !empty($_GET['pagu_dpa'])
+	&& $_GET['pagu_dpa'] == 'rka_simda'
+){
+    $cek_pagu_dpa = 'rka_simda';
 }
 
 $tahun_asli = date('Y');
@@ -268,18 +274,33 @@ foreach ($units as $k => $unit):
 
 		$total_simda = 0;
 		if($singkron_simda == '1'){
-			$total_simda = $this->get_pagu_simda_last(array(
-				'tahun_anggaran' => $input['tahun_anggaran'],
-				'pagu_simda' => $sub['pagu_simda'],
-				'id_sub_keg' => $sub['id_sub_keg'],
-				'kd_urusan' => $_kd_urusan,
-				'kd_bidang' => $_kd_bidang,
-				'kd_unit' => $kd_unit,
-				'kd_sub' => $kd_sub_unit,
-				'kd_prog' => $kd_prog,
-				'id_prog' => $id_prog,
-				'kd_keg' => $kd_keg
-			));
+			if($cek_pagu_dpa == 'rka_simda'){
+				$total_simda = $this->get_pagu_simda_rka(array(
+					'tahun_anggaran' => $input['tahun_anggaran'],
+					'pagu_simda' => $sub['pagu_simda'],
+					'id_sub_keg' => $sub['id_sub_keg'],
+					'kd_urusan' => $_kd_urusan,
+					'kd_bidang' => $_kd_bidang,
+					'kd_unit' => $kd_unit,
+					'kd_sub' => $kd_sub_unit,
+					'kd_prog' => $kd_prog,
+					'id_prog' => $id_prog,
+					'kd_keg' => $kd_keg
+				));
+			}else{
+				$total_simda = $this->get_pagu_simda_last(array(
+					'tahun_anggaran' => $input['tahun_anggaran'],
+					'pagu_simda' => $sub['pagu_simda'],
+					'id_sub_keg' => $sub['id_sub_keg'],
+					'kd_urusan' => $_kd_urusan,
+					'kd_bidang' => $_kd_bidang,
+					'kd_unit' => $kd_unit,
+					'kd_sub' => $kd_sub_unit,
+					'kd_prog' => $kd_prog,
+					'id_prog' => $id_prog,
+					'kd_keg' => $kd_keg
+				));
+			}
 			$total_rak_simda = $this->get_rak_simda(array(
 				'user' => $current_user->display_name,
 				'id_skpd' => $input['id_skpd'],
@@ -704,7 +725,9 @@ foreach ($units as $k => $unit):
 
 	$kolom_dpa = 'DPA SIMDA';
 	$total_dpa = $data_all['total_simda'];
-	if($cek_pagu_dpa == 'fmis'){
+	if($cek_pagu_dpa == 'rka_simda'){
+		$kolom_dpa = 'RKA SIMDA';
+	}else if($cek_pagu_dpa == 'fmis'){
 		$kolom_dpa = 'RKA FMIS';
 		$total_dpa = $data_all['total_fmis'];
 	}
@@ -1022,6 +1045,7 @@ if(!current_user_can('administrator')){
 			+'<label style="margin-left: 20px;"><input type="checkbox" id="tampil-nilai-fisik" onclick="tampil_nilai_fisik();"> Tampilkan Nilai Realisasi Fisik</label>'
 			+'<label style="margin-left: 20px;">Pagu DPA: '
 				+'<select id="pagu_dpa" style="padding: 5px;">'
+					+'<option value="rka_simda">RKA SIMDA</option>'
 					+'<option value="simda">APBD SIMDA</option>'
 					+'<option value="fmis">APBD FMIS</option>'
 				+'</select>'
