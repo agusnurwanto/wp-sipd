@@ -4443,6 +4443,14 @@ $table='<table cellpadding="2" cellspacing="0" style="font-family:\'Open Sans\',
 						+'</div>'
 						+'<div class="form-group">'
 							+'<div class="row">'
+								+'<div class="col-md-12">'
+									+'<label for="sub_unit">Sub Unit</label>'
+									+'<select class="form-control" id="id_sub_unit" name="id_sub_unit"></select>'
+								+'</div>'
+							+'</div>'
+						+'</div>'
+						+'<div class="form-group">'
+							+'<div class="row">'
 								+'<div class="col-md-6">'
 									+'<div class="card">'
 										+'<div class="card-header">Usulan</div>'
@@ -4514,6 +4522,13 @@ $table='<table cellpadding="2" cellspacing="0" style="font-family:\'Open Sans\',
 				}, 'id_sub_kegiatan').then(function(){
 					jQuery("#id_sub_kegiatan").select2({width:'100%'});
 				});
+
+				get_list_unit({
+					'id_skpd':'<?php echo $unit[0]['id_skpd'];?>',
+					'tahun_anggaran':'<?php echo $tahun_anggaran;?>',
+				}, 'id_sub_unit').then(function(){
+					jQuery("#id_sub_unit").select2({width:'100%'});
+				});
 	});
 
 	jQuery(document).on('click', '.btn-edit-sub-kegiatan', function(){
@@ -4551,6 +4566,14 @@ $table='<table cellpadding="2" cellspacing="0" style="font-family:\'Open Sans\',
 										+'<div class="col-md-12">'
 											+'<label for="sub_kegiatan_teks">Sub Kegiatan</label>'
 											+'<select class="form-control" id="id_sub_kegiatan" name="id_sub_kegiatan" onchange="setTeks(this, \'sub_kegiatan_teks\', \'id_sub_kegiatan\')"></select>'
+										+'</div>'
+									+'</div>'
+								+'</div>'
+								+'<div class="form-group">'
+									+'<div class="row">'
+										+'<div class="col-md-12">'
+											+'<label for="sub_unit">Sub Unit</label>'
+											+'<select class="form-control" id="id_sub_unit" name="id_sub_unit"></select>'
 										+'</div>'
 									+'</div>'
 								+'</div>'
@@ -4629,6 +4652,14 @@ $table='<table cellpadding="2" cellspacing="0" style="font-family:\'Open Sans\',
 						jQuery("#id_sub_kegiatan").select2({width:'100%'});
 					});
 
+					get_list_unit({
+						'id_skpd':'<?php echo $unit[0]['id_skpd'];?>',
+						'tahun_anggaran':'<?php echo $tahun_anggaran;?>',
+					}, 'id_sub_unit').then(function(){
+						jQuery("#id_sub_unit").val(response.sub_kegiatan.id_sub_unit);
+						jQuery("#id_sub_unit").select2({width:'100%'});
+					});
+
 				}
 		});	
 	});
@@ -4642,6 +4673,7 @@ $table='<table cellpadding="2" cellspacing="0" style="font-family:\'Open Sans\',
 			let id = jQuery(this).data('id');	
 			let id_unik = jQuery(this).data('kodesubkegiatan');
 			let id_kegiatan = jQuery(this).data('idkegiatan');
+			let kode_giat = jQuery(this).data('kodegiat');
 			let kode_kegiatan = jQuery(this).data('kodekegiatan');
 
 			jQuery.ajax({
@@ -4659,7 +4691,7 @@ $table='<table cellpadding="2" cellspacing="0" style="font-family:\'Open Sans\',
 					alert(response.message);
 					if(response.status){
 						subKegiatanRenstra({
-							'id_kegiatan': id_kegiatan,
+							'kode_giat': kode_giat,
 							'kode_kegiatan': kode_kegiatan
 						});
 					}
@@ -6189,7 +6221,7 @@ $table='<table cellpadding="2" cellspacing="0" style="font-family:\'Open Sans\',
 			          						+'<td class="text-center" rowspan="2">'
 			          							+'<a href="javascript:void(0)" data-kodesubkegiatan="'+value.id_unik+'" data-idsubgiat="'+value.id_sub_giat+'" class="btn btn-warning btn-kelola-indikator-sub-kegiatan" title="Lihat Indikator Sub Kegiatan"><i class="dashicons dashicons-menu-alt" style="margin-top: 2px;"></i></a>&nbsp;'
 			          							+'<a href="javascript:void(0)" data-id="'+value.id+'" data-kodekegiatan="'+value.kode_kegiatan+'" data-kodegiat="'+value.kode_giat+'" class="btn btn-success btn-edit-sub-kegiatan" title="Edit Sub Kegiatan"><i class="dashicons dashicons-edit" style="margin-top: 2px;"></i></a>&nbsp;'
-			          							+'<a href="javascript:void(0)" data-id="'+value.id+'" data-kodesubkegiatan="'+value.id_unik+'" data-kodekegiatan="'+value.kode_giat+'" data-idkegiatan="'+value.id_giat+'" class="btn btn-danger btn-hapus-sub-kegiatan" title="Hapus Sub Kegiatan"><i class="dashicons dashicons-trash" style="margin-top: 2px;"></i></a>'
+			          							+'<a href="javascript:void(0)" data-id="'+value.id+'" data-kodesubkegiatan="'+value.id_unik+'" data-kodegiat="'+value.kode_giat+'" data-kodekegiatan="'+value.kode_kegiatan+'" data-idkegiatan="'+value.id_giat+'" class="btn btn-danger btn-hapus-sub-kegiatan" title="Hapus Sub Kegiatan"><i class="dashicons dashicons-trash" style="margin-top: 2px;"></i></a>'
 			          						+'</td>'
 			          					+'</tr>'
 			  							+'<tr>'
@@ -6657,6 +6689,7 @@ $table='<table cellpadding="2" cellspacing="0" style="font-family:\'Open Sans\',
 			       		"kode_giat": params.kode_giat,
 			       		"id_unit": params.id_unit,
 			       		"kode_unit": params.kode_unit,
+			       		"kode_sub_unit": params.kode_unit, // kode_sub_unit di table data_unit tidak ada
 			       		"tahun_anggaran": params.tahun_anggaran
 			       	},
 			       	dataType: "json",
@@ -6679,5 +6712,32 @@ $table='<table cellpadding="2" cellspacing="0" style="font-family:\'Open Sans\',
 
 	function setSatuan(that, input){
 		jQuery(`input[name=${input}]`).val(jQuery(that).find(':selected').data('satuan'));
+	}
+
+	function get_list_unit(params, tag){
+		return new Promise(function(resolve, reject){
+			jQuery.ajax({
+				url: ajax.url,
+			    type: "post",
+			    data: {
+			       		"action": "get_all_sub_unit",
+			       		"api_key": "<?php echo $api_key; ?>",
+			       		"id_skpd": params.id_skpd,
+			       		"tahun_anggaran": params.tahun_anggaran
+			       	},
+			       	dataType: "json",
+			       	success: function(res){
+			          	let opt = ''
+			          		+'<option value="">Pilih Sub Unit</option>'
+			          		res.data.map(function(value, index) {
+			          			if(!value.is_skpd){
+			          				opt+='<option value="'+value.id_skpd+'">'+value.nama_skpd+'</option>'
+			          			}
+			          		});
+			          	jQuery("#"+tag).html(opt);
+			          	resolve();
+			        }
+			});
+		})
 	}
 </script>

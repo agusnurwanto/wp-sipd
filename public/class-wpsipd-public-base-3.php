@@ -6362,6 +6362,14 @@ class Wpsipd_Public_Base_3
 
 					$this->verify_sub_kegiatan_renstra($data);
 
+					$where_unit = '';
+					$info_sub_unit_exist = '';
+					if(!empty($data['id_sub_unit'])){
+						$sub_unit = $wpdb->get_row($wpdb->prepare("SELECT nama_skpd FROM data_unit WHERE id_skpd=%d AND tahun_anggaran=%d", $data['id_sub_unit'], get_option('_crb_tahun_anggaran_sipd')));
+						$where_unit = ' AND id_sub_unit = ' . $data['id_sub_unit'];
+						$info_sub_unit_exist = ' Sudah pernah ditambahkan ke ' . $sub_unit->nama_skpd;
+					}
+
 					$id_cek = $wpdb->get_var($wpdb->prepare("
 						SELECT 
 							id 
@@ -6370,11 +6378,11 @@ class Wpsipd_Public_Base_3
 							AND kode_giat=%s
 							AND kode_kegiatan=%s
 							AND active=1
-							AND id_unik_indikator IS NULL
+							AND id_unik_indikator IS NULL $where_unit
 					", $data['id_sub_kegiatan'], $data['kode_giat'], $data['kode_kegiatan']));
 					
 					if(!empty($id_cek)){
-						throw new Exception('Sub Kegiatan : '.$data['sub_kegiatan_teks'].' sudah ada! id='.$id_cek);
+						throw new Exception('Sub Kegiatan : '.$data['sub_kegiatan_teks'].' sudah ada! '.$info_sub_unit_exist.' id='.$id_cek);
 					}
 
 					$dataKegiatan = $wpdb->get_row($wpdb->prepare("
@@ -6414,6 +6422,7 @@ class Wpsipd_Public_Base_3
 							'id_program' => $dataKegiatan->id_program,
 							'id_unik' => $this->generateRandomString(), // kode_sub_kegiatan
 							'id_unit' => $dataKegiatan->id_unit,
+							'id_sub_unit' => !empty($data['id_sub_unit']) ? $data['id_sub_unit'] : null,
 							'id_visi' => $dataKegiatan->id_visi,
 							'is_locked' => 0,
 							'is_locked_indikator' => 0,
@@ -6430,6 +6439,7 @@ class Wpsipd_Public_Base_3
 							'nama_giat' => $dataKegiatan->nama_giat,
 							'nama_program' => $dataKegiatan->nama_program,
 							'nama_skpd' => $dataKegiatan->nama_skpd,
+							'nama_sub_unit' => !empty($data['id_sub_unit']) ? $sub_unit->nama_skpd : null,
 							'program_lock' => $dataKegiatan->program_lock,
 							'renstra_prog_lock' => $dataKegiatan->program_lock,
 							'sasaran_lock' => $dataKegiatan->sasaran_lock,
@@ -6537,21 +6547,72 @@ class Wpsipd_Public_Base_3
 
 					$this->verify_sub_kegiatan_renstra($data);
 
-					$id_cek = $wpdb->get_var($wpdb->prepare("
-						SELECT 
-							id 
-						FROM data_renstra_sub_kegiatan_lokal
-						WHERE id!=%d
-							AND id_sub_giat=%d
-							AND id_giat=%d
-							AND kode_giat=%s
-							AND kode_kegiatan=%s
-							AND active=1
-							AND id_unik_indikator IS NULL
-					", $data['id'], $data['id_sub_giat'], $data['id_giat'], $data['kode_giat'], $data['kode_kegiatan']));
+					$sub_keg_exist = $wpdb->get_row($wpdb->prepare("SELECT id_sub_unit, nama_sub_unit FROM data_renstra_sub_kegiatan_lokal WHERE id=%d", $data['id']));
 
+					$where_unit='';
+					$info_sub_unit_exist='';
+					$inputs=[];
+					$inputs_indikator=[];
+					if(!empty($sub_keg_exist->id_sub_unit)){
+						if(!empty($data['id_sub_unit'])){
+
+							// child ke child lain
+							if($sub_keg_exist->id_sub_unit != $data['id_sub_unit']){
+								$sub_unit = $wpdb->get_row($wpdb->prepare("SELECT nama_skpd FROM data_unit WHERE id_skpd=%d AND tahun_anggaran=%d", $data['id_sub_unit'], get_option('_crb_tahun_anggaran_sipd')));
+								$where_unit=' AND id_sub_unit='.$data['id_sub_unit'];
+								$info_sub_unit_exist = 'Sudah pernah ditambahkan ke ' . $sub_unit->nama_skpd;
+								$inputs['nama_sub_unit'] = $sub_unit->nama_skpd;
+								$inputs_indikator['nama_sub_unit'] = $sub_unit->nama_skpd;
+							}else{
+								$where_unit=' AND id_sub_unit='.$sub_keg_exist->id_sub_unit;
+								$info_sub_unit_exist = 'Sudah pernah ditambahkan ke ' . $sub_keg_exist->nama_skpd;
+								$inputs['nama_sub_unit'] = $sub_keg_exist->nama_sub_unit;
+								$inputs_indikator['nama_sub_unit'] = $sub_keg_exist->nama_sub_unit;
+							}
+							$inputs['id_sub_unit'] = $data['id_sub_unit'];
+							$inputs_indikator['id_sub_unit'] = $data['id_sub_unit'];
+						}else{
+
+							// child ke parent
+							$sub_unit = $wpdb->get_row($wpdb->prepare("SELECT id_unit, (SELECT nama_skpd FROM data_unit WHERE id_skpd=sub_unit.id_unit AND is_skpd=1 AND tahun_anggaran=%d) nama_skpd_induk, nama_skpd FROM data_unit sub_unit WHERE id_skpd=%d AND tahun_anggaran=%d", get_option('_crb_tahun_anggaran_sipd'), $data['id_sub_unit'], get_option('_crb_tahun_anggaran_sipd')));
+							$where_unit=' AND id_sub_unit IS NULL';
+							$info_sub_unit_exist = 'Sudah pernah ditambahkan ke ' . $sub_unit->nama_skpd_induk;
+							$inputs['nama_sub_unit'] = null;
+							$inputs['id_sub_unit'] = null;
+							$inputs_indikator['nama_sub_unit'] = null;
+							$inputs_indikator['id_sub_unit'] = null;
+						}
+					}else{
+						
+						// parent ke child
+						if(!empty($data['id_sub_unit'])){
+							$sub_unit = $wpdb->get_row($wpdb->prepare("SELECT nama_skpd FROM data_unit WHERE id_skpd=%d AND tahun_anggaran=%d", $data['id_sub_unit'], get_option('_crb_tahun_anggaran_sipd')));
+							$where_unit=' AND id_sub_unit = ' . $data['id_sub_unit'];
+							$info_sub_unit_exist = 'Sudah pernah ditambahkan ke ' . $sub_unit->nama_skpd;
+							$inputs['nama_sub_unit'] = $sub_unit->nama_skpd;
+							$inputs['id_sub_unit'] = $data['id_sub_unit'];
+							$inputs_indikator['nama_sub_unit'] = $sub_unit->nama_skpd;
+							$inputs_indikator['id_sub_unit'] = $data['id_sub_unit'];
+						}else{
+							$where_unit=' AND id_sub_unit IS NULL';
+						}
+					}
+
+					$id_cek = $wpdb->get_var($wpdb->prepare("
+							SELECT 
+								id 
+							FROM data_renstra_sub_kegiatan_lokal
+							WHERE id!=%d
+								AND id_sub_giat=%d
+								AND id_giat=%d
+								AND kode_giat=%s
+								AND kode_kegiatan=%s
+								AND active=1
+								AND id_unik_indikator IS NULL $where_unit
+						", $data['id'], $data['id_sub_giat'], $data['id_giat'], $data['kode_giat'], $data['kode_kegiatan']));
+					
 					if(!empty($id_cek)){
-						throw new Exception('Sub Kegiatan : '.$data['sub_kegiatan_teks'].' sudah ada! id='.$id_cek);
+						throw new Exception('Sub Kegiatan : '.$data['sub_kegiatan_teks'].' sudah ada! '.$info_sub_unit_exist.' id='.$id_cek);
 					}
 
 					$dataKegiatan = $wpdb->get_row($wpdb->prepare("
@@ -6583,38 +6644,36 @@ class Wpsipd_Public_Base_3
 
 						add_filter( 'query', array($this, 'wpsipd_query') );
 
-						$inputs = [
-								'bidur_lock' => $dataKegiatan->bidur_lock,
-								'giat_lock' => $dataKegiatan->giat_lock,
-								'id_bidang_urusan' => $dataKegiatan->id_bidang_urusan,
-								'id_sub_giat' => $dataSubKegiatan->id_sub_giat,
-								'id_giat' => $dataKegiatan->id_giat,
-								'id_misi' => $dataKegiatan->id_misi,
-								'id_program' => $dataKegiatan->id_program,
-								'id_unit' => $dataKegiatan->id_unit,
-								'id_visi' => $dataKegiatan->id_visi,
-								'kode_bidang_urusan' => $dataKegiatan->kode_bidang_urusan,
-								'kode_sub_giat' => $dataSubKegiatan->kode_sub_giat,
-								'kode_giat' => $dataKegiatan->kode_giat,
-								'kode_kegiatan' => $dataKegiatan->id_unik,
-								'kode_program' => $dataKegiatan->kode_program,
-								'kode_sasaran' => $dataKegiatan->kode_sasaran,
-								'kode_skpd' => $dataKegiatan->kode_skpd,
-								'kode_tujuan' => $dataKegiatan->kode_tujuan,
-								'nama_bidang_urusan' => $dataKegiatan->nama_bidang_urusan,
-								'nama_sub_giat' => $dataSubKegiatan->nama_sub_giat,
-								'nama_giat' => $dataKegiatan->nama_giat,
-								'nama_program' => $dataKegiatan->nama_program,
-								'nama_skpd' => $dataKegiatan->nama_skpd,
-								'program_lock' => $dataKegiatan->program_lock,
-								'renstra_prog_lock' => $dataKegiatan->program_lock,
-								'sasaran_lock' => $dataKegiatan->sasaran_lock,
-								'sasaran_teks' => $dataKegiatan->sasaran_teks,
-								'tujuan_lock' => $dataKegiatan->tujuan_lock,
-								'tujuan_teks' => $dataKegiatan->tujuan_teks,
-								'urut_sasaran' => $dataKegiatan->urut_sasaran,
-								'urut_tujuan' => $dataKegiatan->urut_tujuan
-						];
+						$inputs['bidur_lock'] = $dataKegiatan->bidur_lock;
+						$inputs['giat_lock'] = $dataKegiatan->giat_lock;
+						$inputs['id_bidang_urusan'] = $dataKegiatan->id_bidang_urusan;
+						$inputs['id_sub_giat'] = $dataSubKegiatan->id_sub_giat;
+						$inputs['id_giat'] = $dataKegiatan->id_giat;
+						$inputs['id_misi'] = $dataKegiatan->id_misi;
+						$inputs['id_program'] = $dataKegiatan->id_program;
+						$inputs['id_unit'] = $dataKegiatan->id_unit;
+						$inputs['id_visi'] = $dataKegiatan->id_visi;
+						$inputs['kode_bidang_urusan'] = $dataKegiatan->kode_bidang_urusan;
+						$inputs['kode_sub_giat'] = $dataSubKegiatan->kode_sub_giat;
+						$inputs['kode_giat'] = $dataKegiatan->kode_giat;
+						$inputs['kode_kegiatan'] = $dataKegiatan->id_unik;
+						$inputs['kode_program'] = $dataKegiatan->kode_program;
+						$inputs['kode_sasaran'] = $dataKegiatan->kode_sasaran;
+						$inputs['kode_skpd'] = $dataKegiatan->kode_skpd;
+						$inputs['kode_tujuan'] = $dataKegiatan->kode_tujuan;
+						$inputs['nama_bidang_urusan'] = $dataKegiatan->nama_bidang_urusan;
+						$inputs['nama_sub_giat'] = $dataSubKegiatan->nama_sub_giat;
+						$inputs['nama_giat'] = $dataKegiatan->nama_giat;
+						$inputs['nama_program'] = $dataKegiatan->nama_program;
+						$inputs['nama_skpd'] = $dataKegiatan->nama_skpd;
+						$inputs['program_lock'] = $dataKegiatan->program_lock;
+						$inputs['renstra_prog_lock'] = $dataKegiatan->program_lock;
+						$inputs['sasaran_lock'] = $dataKegiatan->sasaran_lock;
+						$inputs['sasaran_teks'] = $dataKegiatan->sasaran_teks;
+						$inputs['tujuan_lock'] = $dataKegiatan->tujuan_lock;
+						$inputs['tujuan_teks'] = $dataKegiatan->tujuan_teks;
+						$inputs['urut_sasaran'] = $dataKegiatan->urut_sasaran;
+						$inputs['urut_tujuan'] = $dataKegiatan->urut_tujuan;
 
 						$inputs['pagu_1_usulan'] = $data['pagu_1_usulan'];
 						$inputs['pagu_2_usulan'] = $data['pagu_2_usulan'];
@@ -6646,38 +6705,38 @@ class Wpsipd_Public_Base_3
 							throw new Exception("Gagal simpan data, harap hubungi admin. $ket", 1);
 						}
 
-						$status = $wpdb->update('data_renstra_sub_kegiatan_lokal', [
-							'bidur_lock' => $dataKegiatan->bidur_lock,
-							'giat_lock' => $dataKegiatan->giat_lock,
-							'id_bidang_urusan' => $dataKegiatan->id_bidang_urusan,
-							'id_sub_giat' => $dataSubKegiatan->id_sub_giat,
-							'id_giat' => $dataKegiatan->id_giat,
-							'id_misi' => $dataKegiatan->id_misi,
-							'id_program' => $dataKegiatan->id_program,
-							'id_unit' => $dataKegiatan->id_unit,
-							'id_visi' => $dataKegiatan->id_visi,
-							'kode_bidang_urusan' => $dataKegiatan->kode_bidang_urusan,
-							'kode_sub_giat' => $dataSubKegiatan->kode_sub_giat,
-							'kode_giat' => $dataKegiatan->kode_giat,
-							'kode_kegiatan' => $dataKegiatan->id_unik,
-							'kode_program' => $dataKegiatan->kode_program,
-							'kode_sasaran' => $dataKegiatan->kode_sasaran,
-							'kode_skpd' => $dataKegiatan->kode_skpd,
-							'kode_tujuan' => $dataKegiatan->kode_tujuan,
-							'nama_bidang_urusan' => $dataKegiatan->nama_bidang_urusan,
-							'nama_sub_giat' => $dataSubKegiatan->nama_sub_giat,
-							'nama_giat' => $dataKegiatan->nama_giat,
-							'nama_program' => $dataKegiatan->nama_program,
-							'nama_skpd' => $dataKegiatan->nama_skpd,
-							'program_lock' => $dataKegiatan->program_lock,
-							'renstra_prog_lock' => $dataKegiatan->program_lock,
-							'sasaran_lock' => $dataKegiatan->sasaran_lock,
-							'sasaran_teks' => $dataKegiatan->sasaran_teks,
-							'tujuan_lock' => $dataKegiatan->tujuan_lock,
-							'tujuan_teks' => $dataKegiatan->tujuan_teks,
-							'urut_sasaran' => $dataKegiatan->urut_sasaran,
-							'urut_tujuan' => $dataKegiatan->urut_tujuan
-						], [
+						$inputs_indikator['bidur_lock'] = $dataKegiatan->bidur_lock;
+						$inputs_indikator['giat_lock'] = $dataKegiatan->giat_lock;
+						$inputs_indikator['id_bidang_urusan'] = $dataKegiatan->id_bidang_urusan;
+						$inputs_indikator['id_sub_giat'] = $dataSubKegiatan->id_sub_giat;
+						$inputs_indikator['id_giat'] = $dataKegiatan->id_giat;
+						$inputs_indikator['id_misi'] = $dataKegiatan->id_misi;
+						$inputs_indikator['id_program'] = $dataKegiatan->id_program;
+						$inputs_indikator['id_unit'] = $dataKegiatan->id_unit;
+						$inputs_indikator['id_visi'] = $dataKegiatan->id_visi;
+						$inputs_indikator['kode_bidang_urusan'] = $dataKegiatan->kode_bidang_urusan;
+						$inputs_indikator['kode_sub_giat'] = $dataSubKegiatan->kode_sub_giat;
+						$inputs_indikator['kode_giat'] = $dataKegiatan->kode_giat;
+						$inputs_indikator['kode_kegiatan'] = $dataKegiatan->id_unik;
+						$inputs_indikator['kode_program'] = $dataKegiatan->kode_program;
+						$inputs_indikator['kode_sasaran'] = $dataKegiatan->kode_sasaran;
+						$inputs_indikator['kode_skpd'] = $dataKegiatan->kode_skpd;
+						$inputs_indikator['kode_tujuan'] = $dataKegiatan->kode_tujuan;
+						$inputs_indikator['nama_bidang_urusan'] = $dataKegiatan->nama_bidang_urusan;
+						$inputs_indikator['nama_sub_giat'] = $dataSubKegiatan->nama_sub_giat;
+						$inputs_indikator['nama_giat'] = $dataKegiatan->nama_giat;
+						$inputs_indikator['nama_program'] = $dataKegiatan->nama_program;
+						$inputs_indikator['nama_skpd'] = $dataKegiatan->nama_skpd;
+						$inputs_indikator['program_lock'] = $dataKegiatan->program_lock;
+						$inputs_indikator['renstra_prog_lock'] = $dataKegiatan->program_lock;
+						$inputs_indikator['sasaran_lock'] = $dataKegiatan->sasaran_lock;
+						$inputs_indikator['sasaran_teks'] = $dataKegiatan->sasaran_teks;
+						$inputs_indikator['tujuan_lock'] = $dataKegiatan->tujuan_lock;
+						$inputs_indikator['tujuan_teks'] = $dataKegiatan->tujuan_teks;
+						$inputs_indikator['urut_sasaran'] = $dataKegiatan->urut_sasaran;
+						$inputs_indikator['urut_tujuan'] = $dataKegiatan->urut_tujuan;
+
+						$status = $wpdb->update('data_renstra_sub_kegiatan_lokal', $inputs_indikator, [
 							'id_unik' => $data['kode_sub_kegiatan'],
 							'id_unik_indikator' => 'NOT NULL'
 						]);
@@ -6874,6 +6933,7 @@ class Wpsipd_Public_Base_3
 						'id_unik' => $dataSubKegiatan->id_unik,
 						'id_unik_indikator' => $this->generateRandomString(),
 						'id_unit' => $dataSubKegiatan->id_unit,
+						'id_sub_unit' => $dataSubKegiatan->id_sub_unit,
 						'id_visi' => $dataSubKegiatan->id_visi,
 						'is_locked' => $dataSubKegiatan->is_locked,
 						'is_locked_indikator' => 0,
@@ -6890,6 +6950,7 @@ class Wpsipd_Public_Base_3
 						'nama_giat' => $dataSubKegiatan->nama_giat,
 						'nama_program' => $dataSubKegiatan->nama_program,
 						'nama_skpd' => $dataSubKegiatan->nama_skpd,
+						'nama_sub_unit' => $dataSubKegiatan->nama_sub_unit,
 						'program_lock' => $dataSubKegiatan->program_lock,
 						'renstra_prog_lock' => $dataSubKegiatan->program_lock,
 						'sasaran_lock' => $dataSubKegiatan->sasaran_lock,
@@ -7054,6 +7115,7 @@ class Wpsipd_Public_Base_3
 						'id_program' => $dataSubKegiatan->id_program,
 						'id_unik' => $dataSubKegiatan->id_unik,
 						'id_unit' => $dataSubKegiatan->id_unit,
+						'id_sub_unit' => $dataSubKegiatan->id_sub_unit,
 						'id_visi' => $dataSubKegiatan->id_visi,
 						'is_locked' => $dataSubKegiatan->is_locked,
 						'kode_bidang_urusan' => $dataSubKegiatan->kode_bidang_urusan,
@@ -7070,6 +7132,7 @@ class Wpsipd_Public_Base_3
 						'nama_giat' => $dataSubKegiatan->nama_giat,
 						'nama_program' => $dataSubKegiatan->nama_program,
 						'nama_skpd' => $dataSubKegiatan->nama_skpd,
+						'nama_sub_unit' => $dataSubKegiatan->nama_sub_unit,
 						'program_lock' => $dataSubKegiatan->program_lock,
 						'renstra_prog_lock' => $dataSubKegiatan->program_lock,
 						'sasaran_lock' => $dataSubKegiatan->sasaran_lock,
