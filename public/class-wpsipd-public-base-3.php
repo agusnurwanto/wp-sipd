@@ -2007,40 +2007,53 @@ class Wpsipd_Public_Base_3
 								", $prog['id_unik']), 
 						ARRAY_A);
 
+						$program[$k]['pagu_akumulasi_1'] = 0;
+						$program[$k]['pagu_akumulasi_2'] = 0;
+						$program[$k]['pagu_akumulasi_3'] = 0;
+						$program[$k]['pagu_akumulasi_4'] = 0;
+						$program[$k]['pagu_akumulasi_5'] = 0;
+						$program[$k]['pagu_akumulasi_1_usulan'] = 0;
+						$program[$k]['pagu_akumulasi_2_usulan'] = 0;
+						$program[$k]['pagu_akumulasi_3_usulan'] = 0;
+						$program[$k]['pagu_akumulasi_4_usulan'] = 0;
+						$program[$k]['pagu_akumulasi_5_usulan'] = 0;
+
 						$kd_all_keg = [];
 						foreach ($kegiatan as $key => $keg) {
 							$kd_all_keg[]="'".$keg['id_unik']."'";
 						}
-						
-						$kd_keg = implode(",", $kd_all_keg);
-						$pagu = $wpdb->get_row($wpdb->prepare("
-							SELECT 
-								coalesce(sum(pagu_1), 0) as pagu_akumulasi_1,
-								coalesce(sum(pagu_2), 0) as pagu_akumulasi_2,
-								coalesce(sum(pagu_3), 0) as pagu_akumulasi_3,
-								coalesce(sum(pagu_4), 0) as pagu_akumulasi_4,
-								coalesce(sum(pagu_5), 0) as pagu_akumulasi_5,
-								coalesce(sum(pagu_1_usulan), 0) as pagu_akumulasi_1_usulan,
-								coalesce(sum(pagu_2_usulan), 0) as pagu_akumulasi_2_usulan,
-								coalesce(sum(pagu_3_usulan), 0) as pagu_akumulasi_3_usulan,
-								coalesce(sum(pagu_4_usulan), 0) as pagu_akumulasi_4_usulan,
-								coalesce(sum(pagu_5_usulan), 0) as pagu_akumulasi_5_usulan
-							from data_renstra_sub_kegiatan_lokal 
-							where id_unik_indikator IS NULL
-								AND kode_kegiatan in (".$kd_keg.")
-								AND active=1
-						"));
 
-						$program[$k]['pagu_akumulasi_1'] = $pagu->pagu_akumulasi_1;
-						$program[$k]['pagu_akumulasi_2'] = $pagu->pagu_akumulasi_2;
-						$program[$k]['pagu_akumulasi_3'] = $pagu->pagu_akumulasi_3;
-						$program[$k]['pagu_akumulasi_4'] = $pagu->pagu_akumulasi_4;
-						$program[$k]['pagu_akumulasi_5'] = $pagu->pagu_akumulasi_5;
-						$program[$k]['pagu_akumulasi_1_usulan'] = $pagu->pagu_akumulasi_1_usulan;
-						$program[$k]['pagu_akumulasi_2_usulan'] = $pagu->pagu_akumulasi_2_usulan;
-						$program[$k]['pagu_akumulasi_3_usulan'] = $pagu->pagu_akumulasi_3_usulan;
-						$program[$k]['pagu_akumulasi_4_usulan'] = $pagu->pagu_akumulasi_4_usulan;
-						$program[$k]['pagu_akumulasi_5_usulan'] = $pagu->pagu_akumulasi_5_usulan;
+						if(!empty($kd_all_keg)){
+							$kd_keg = implode(",", $kd_all_keg);
+							$pagu = $wpdb->get_row($wpdb->prepare("
+								SELECT 
+									coalesce(sum(pagu_1), 0) as pagu_akumulasi_1,
+									coalesce(sum(pagu_2), 0) as pagu_akumulasi_2,
+									coalesce(sum(pagu_3), 0) as pagu_akumulasi_3,
+									coalesce(sum(pagu_4), 0) as pagu_akumulasi_4,
+									coalesce(sum(pagu_5), 0) as pagu_akumulasi_5,
+									coalesce(sum(pagu_1_usulan), 0) as pagu_akumulasi_1_usulan,
+									coalesce(sum(pagu_2_usulan), 0) as pagu_akumulasi_2_usulan,
+									coalesce(sum(pagu_3_usulan), 0) as pagu_akumulasi_3_usulan,
+									coalesce(sum(pagu_4_usulan), 0) as pagu_akumulasi_4_usulan,
+									coalesce(sum(pagu_5_usulan), 0) as pagu_akumulasi_5_usulan
+								from data_renstra_sub_kegiatan_lokal 
+								where id_unik_indikator IS NULL
+									AND kode_kegiatan in (".$kd_keg.")
+									AND active=1
+							"));
+
+							$program[$k]['pagu_akumulasi_1'] = $pagu->pagu_akumulasi_1;
+							$program[$k]['pagu_akumulasi_2'] = $pagu->pagu_akumulasi_2;
+							$program[$k]['pagu_akumulasi_3'] = $pagu->pagu_akumulasi_3;
+							$program[$k]['pagu_akumulasi_4'] = $pagu->pagu_akumulasi_4;
+							$program[$k]['pagu_akumulasi_5'] = $pagu->pagu_akumulasi_5;
+							$program[$k]['pagu_akumulasi_1_usulan'] = $pagu->pagu_akumulasi_1_usulan;
+							$program[$k]['pagu_akumulasi_2_usulan'] = $pagu->pagu_akumulasi_2_usulan;
+							$program[$k]['pagu_akumulasi_3_usulan'] = $pagu->pagu_akumulasi_3_usulan;
+							$program[$k]['pagu_akumulasi_4_usulan'] = $pagu->pagu_akumulasi_4_usulan;
+							$program[$k]['pagu_akumulasi_5_usulan'] = $pagu->pagu_akumulasi_5_usulan;
+						}
 					}
 				}else{
 					$tahun_anggaran = $_POST['tahun_anggaran'];

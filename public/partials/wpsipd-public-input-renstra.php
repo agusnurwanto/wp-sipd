@@ -424,7 +424,7 @@ foreach ($tujuan_all as $keyTujuan => $tujuan_value) {
 								active=1 ORDER BY id",
 								$program_value['id_unik'],
 								$sasaran_value['id_unik'],
-								$tujuan_value['id_unik'],
+								$tujuan_value['id_unik']
 							), ARRAY_A);
 
 						foreach ($kegiatan_all as $keyKegiatan => $kegiatan_value) {
@@ -528,7 +528,7 @@ foreach ($tujuan_all as $keyTujuan => $tujuan_value) {
 										$kegiatan_value['id_unik'],
 										$program_value['id_unik'],
 										$sasaran_value['id_unik'],
-										$tujuan_value['id_unik'],
+										$tujuan_value['id_unik']
 									), ARRAY_A);
 
 								foreach ($sub_kegiatan_all as $keySubKegiatan => $sub_kegiatan_value) {
@@ -1344,7 +1344,7 @@ foreach ($program_all_kosong as $keyProgram => $program_value) {
 						kode_program=%s AND 
 						active=1 ORDER BY id",
 						$kegiatan_value['id_unik'],
-						$program_value['id_unik'],
+						$program_value['id_unik']
 				), ARRAY_A);
 
 				foreach ($sub_kegiatan_all as $keySubKegiatan => $sub_kegiatan_value) {
@@ -1539,7 +1539,7 @@ foreach ($kegiatan_all as $keyKegiatan => $kegiatan_value) {
 				kode_program=%s AND 
 				active=1 ORDER BY id",
 				$kegiatan_value['id_unik'],
-				$program_value['id_unik'],
+				$program_value['id_unik']
 			), ARRAY_A);
 
 		foreach ($sub_kegiatan_all as $keySubKegiatan => $sub_kegiatan_value) {
