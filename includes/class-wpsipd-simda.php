@@ -1772,9 +1772,35 @@ class Wpsipd_Simda
 				if(!empty($cek_sd)){
 					$id_sumber_dana = $cek_sd[0]->kd_sumber;
 				}else{
-					$ret['status'] = 'error';
-					$ret['simda_status'] = 'error';
-					$ret['simda_msg'] = 'Sumber dana dengan kd_sumber='.$id_sumber_dana.' dan nm_sumber="'.$nama_sd.'" tidak dapat disimpan di tabel ref_sumber_dana. Harap tambahkan secara manual! nm_sumber harus sama dan untuk kd_sumber tidak harus sama. Sesuaikan dengan kondisi.';
+					$cek_id_sumber_dana = false;
+					for($i=1; $i < 255; $i++){
+						if(!$cek_id_sumber_dana){
+							$cek_sd = $this->CurlSimda(array(
+								'query' => "select * from ref_sumber_dana where kd_sumber='".$i."'"
+							));
+							if(empty($cek_sd)){
+								$cek_id_sumber_dana = $i;
+							}
+						}
+					}
+					if(!$cek_id_sumber_dana){
+						$ret['status'] = 'error';
+						$ret['simda_status'] = 'error';
+						$ret['simda_msg'] = 'Sumber dana dengan kd_sumber='.$id_sumber_dana.' dan nm_sumber="'.$nama_sd.'" tidak dapat disimpan di tabel ref_sumber_dana. Harap tambahkan secara manual! nm_sumber harus sama dan untuk kd_sumber tidak harus sama. Sesuaikan dengan kondisi.';
+					}else{
+						$id_sumber_dana = $cek_id_sumber_dana;
+						$options = array('query' => "
+							INSERT INTO ref_sumber_dana (
+		                        kd_sumber,
+		                        nm_sumber
+		                    )
+		                    VALUES (
+								".$id_sumber_dana.",
+								'".$nama_sd."'
+							)"
+						);
+						$this->CurlSimda($options);
+					}
 				}
 			}else{
 				$options = array('query' => "
