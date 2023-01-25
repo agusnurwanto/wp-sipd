@@ -543,8 +543,8 @@ $body = '';
 					list_opd+=`<option value="${v.id_skpd}">${v.nama_skpd}</option>`;
 				});
 				jQuery("#list_opd").html(list_opd);
-				jQuery('.list_opd').select2();
-				jQuery('.jenis').select2();		
+				jQuery('.list_opd').select2({width: '100%'});
+				jQuery('.jenis').select2({width: '100%'});
 			}
 		})
 	}

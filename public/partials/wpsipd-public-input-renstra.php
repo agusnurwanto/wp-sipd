@@ -6202,6 +6202,7 @@ $table='<table cellpadding="2" cellspacing="0" style="font-family:\'Open Sans\',
 			      				+'<tr>'
 			      					+'<th class="text-center" style="width:45px">No</th>'
 			      					+'<th class="text-center">Kegiatan</th>'
+			      					+'<th class="text-center">Sub Unit Pelaksana</th>'
 			      					<?php for($i=1; $i<=$lama_pelaksanaan; $i++){ ?>
 			      					+'<th class="text-center" style="width:10%">Pagu Tahun <?php echo $i; ?></th>'
 			      					<?php } ?>
@@ -6223,6 +6224,7 @@ $table='<table cellpadding="2" cellspacing="0" style="font-family:\'Open Sans\',
 			  							+'<tr kodesubkegiatan="'+value.id_unik+'">'
 			          						+'<td class="text-center" rowspan="2">'+(index+1)+'</td>'
 			          						+'<td rowspan="2">'+value.nama_sub_giat+'</td>'
+			          						+'<td rowspan="2">'+value.nama_sub_unit+'</td>'
 			          						<?php for($i=1; $i<=$lama_pelaksanaan; $i++){ ?>
 			          						+'<td class="text-right">'+formatRupiah(value.pagu_<?php echo $i; ?>)+'</td>'
 			          						<?php } ?>

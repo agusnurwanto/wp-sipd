@@ -6460,7 +6460,7 @@ class Wpsipd_Public_Base_3
 						throw new Exception('Sub Kegiatan tidak ditemukan!');
 					}
 
-					$dataSubUnit = $wpdb->get_row($wpdb->prepare("SELECT nama_skpd FROM data_unit WHERE id_skpd=%d AND tahun_anggaran=%d", $data['id_sub_unit'], get_option('_crb_tahun_anggaran_sipd')));
+					$dataSubUnit = $wpdb->get_row($wpdb->prepare("SELECT kode_skpd, nama_skpd FROM data_unit WHERE id_skpd=%d AND tahun_anggaran=%d", $data['id_sub_unit'], get_option('_crb_tahun_anggaran_sipd')));
 
 					if(empty($dataSubUnit)){
 						throw new Exception('Sub Unit tidak ditemukan di tahun anggaran '.get_option('_crb_tahun_anggaran_sipd').'!');
@@ -6495,7 +6495,7 @@ class Wpsipd_Public_Base_3
 							'nama_giat' => $dataKegiatan->nama_giat,
 							'nama_program' => $dataKegiatan->nama_program,
 							'nama_skpd' => $dataKegiatan->nama_skpd,
-							'nama_sub_unit' => $dataSubUnit->nama_skpd,
+							'nama_sub_unit' => $dataSubUnit->kode_skpd." ".$dataSubUnit->nama_skpd,
 							'program_lock' => $dataKegiatan->program_lock,
 							'renstra_prog_lock' => $dataKegiatan->program_lock,
 							'sasaran_lock' => $dataKegiatan->sasaran_lock,
@@ -6646,7 +6646,7 @@ class Wpsipd_Public_Base_3
 						throw new Exception('Sub Kegiatan tidak ditemukan!');
 					}
 
-					$dataSubUnit = $wpdb->get_row($wpdb->prepare("SELECT nama_skpd FROM data_unit WHERE id_skpd=%d AND tahun_anggaran=%d", $data['id_sub_unit'], get_option('_crb_tahun_anggaran_sipd')));
+					$dataSubUnit = $wpdb->get_row($wpdb->prepare("SELECT kode_skpd, nama_skpd FROM data_unit WHERE id_skpd=%d AND tahun_anggaran=%d", $data['id_sub_unit'], get_option('_crb_tahun_anggaran_sipd')));
 
 					if(empty($dataSubUnit)){
 						throw new Exception('Sub Unit tidak ditemukan di tahun anggaran '.get_option('_crb_tahun_anggaran_sipd').'!');
@@ -6679,7 +6679,7 @@ class Wpsipd_Public_Base_3
 						$inputs['nama_giat'] = $dataKegiatan->nama_giat;
 						$inputs['nama_program'] = $dataKegiatan->nama_program;
 						$inputs['nama_skpd'] = $dataKegiatan->nama_skpd;
-						$inputs['nama_sub_unit'] = $dataSubUnit->nama_skpd;
+						$inputs['nama_sub_unit'] = $dataSubUnit->kode_skpd." ".$dataSubUnit->nama_skpd;
 						$inputs['program_lock'] = $dataKegiatan->program_lock;
 						$inputs['renstra_prog_lock'] = $dataKegiatan->program_lock;
 						$inputs['sasaran_lock'] = $dataKegiatan->sasaran_lock;
@@ -6742,7 +6742,7 @@ class Wpsipd_Public_Base_3
 						$inputs_indikator['nama_giat'] = $dataKegiatan->nama_giat;
 						$inputs_indikator['nama_program'] = $dataKegiatan->nama_program;
 						$inputs_indikator['nama_skpd'] = $dataKegiatan->nama_skpd;
-						$inputs_indikator['nama_sub_unit'] = $dataSubUnit->nama_skpd;
+						$inputs_indikator['nama_sub_unit'] = $dataSubUnit->kode_skpd." ".$dataSubUnit->nama_skpd;
 						$inputs_indikator['program_lock'] = $dataKegiatan->program_lock;
 						$inputs_indikator['renstra_prog_lock'] = $dataKegiatan->program_lock;
 						$inputs_indikator['sasaran_lock'] = $dataKegiatan->sasaran_lock;
