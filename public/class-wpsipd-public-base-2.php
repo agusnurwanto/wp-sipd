@@ -1896,6 +1896,74 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 
 	}
 
+	public function submit_edit_renja(){
+		global $wpdb;
+		$ret = array(
+			'status'	=> 'success',
+			'message' 	=> 'Berhasil mengubah data RENJA!'
+		);
+
+		if(!empty($_POST)){
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+				$tahun_anggaran = $_POST['tahun_anggaran'];
+				$kode_sub_giat = $_POST['kode_sub_giat'];
+				$data = json_decode(stripslashes($_POST['data']), true);
+
+				// $data_sub_unit = $wpdb->get_row($wpdb->prepare(
+				// 	'SELECT *
+				// 	FROM data_unit
+				// 	WHERE id_skpd=%d',
+				// $data['input_sub_unit']));
+
+				// $nama_skpd = $data_sub_unit->nama_skpd;
+				// $kode_skpd = $data_sub_unit->kode_skpd;
+				// if($data_sub_unit->is_skpd != 1){
+				// 	$data_unit = $wpdb->get_row($wpdb->prepare(
+				// 		'SELECT *
+				// 		FROM data_unit
+				// 		WHERE id_unit=%d
+				// 		AND is_skpd=1',
+				// 	$data_sub_unit->id_unit));
+				// 	$nama_skpd = $data_unit->nama_skpd;
+				// 	$kode_skpd = $data_unit->kode_skpd;
+				// }
+
+				// $data_prog_keg = $wpdb->get_row($wpdb->prepare(
+				// 					'SELECT *
+				// 					FROM data_prog_keg
+				// 					WHERE id_sub_giat=%d',
+				// 					$data['input_sub_kegiatan']));
+
+				// $kode_bl = $data_sub_unit->id_unit."."$data_sub_unit->id_skpd.".".$data_prog_keg->id_program.".".;
+
+				$opsi = array(
+					'pagu' => $data['input_pagu_sub_keg'],
+					'pagu_usulan' => $data['input_pagu_sub_keg_usulan'],
+					'pagu_n_depan' => $data['input_pagu_sub_keg_1'],
+					'pagu_n_depan_usulan' => $data['input_pagu_sub_keg_1_usulan'],
+					'catatan' => $data['input_catatan'],
+					'catatan_usulan' => $data['input_catatan_usulan'],
+					'update_at' => current_time('mysql')
+				);
+
+				$status = $wpdb->update('data_sub_keg_bl_lokal',$opsi,array('kode_sub_giat' => $kode_sub_giat));
+
+				if($status === false){
+					$ret['status'] = 'error';
+					$ret['message'] = 'Update gagal, harap hubungi admin!';
+				}
+			}else{
+				$ret['status'] = 'error';
+				$ret['message'] = 'APIKEY tidak sesuai!';
+			}
+		}else{
+			$ret['status']	= 'error';
+			$ret['message']	= 'Format Salah!';
+		}
+
+		die(json_encode($ret));
+	}
+
 	public function delete_renja(){
 		global $wpdb;
 		$ret = array(

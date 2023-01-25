@@ -646,6 +646,7 @@ class Wpsipd
 		$this->loader->add_action('wp_ajax_submit_tambah_renja',  $plugin_public, 'submit_tambah_renja');
 		$this->loader->add_action('wp_ajax_get_data_lokasi_renja',  $plugin_public, 'get_data_lokasi_renja');
 		$this->loader->add_action('wp_ajax_edit_renja',  $plugin_public, 'edit_renja');
+		$this->loader->add_action('wp_ajax_submit_edit_renja',  $plugin_public, 'submit_edit_renja');
 		$this->loader->add_action('wp_ajax_delete_renja',  $plugin_public, 'delete_renja');
 		
 		$this->loader->add_action('wp_ajax_get_indikator_sub_kegiatan_renstra',  $plugin_public, 'get_indikator_sub_kegiatan_renstra');
