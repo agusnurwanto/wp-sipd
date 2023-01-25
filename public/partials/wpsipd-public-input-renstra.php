@@ -424,7 +424,7 @@ foreach ($tujuan_all as $keyTujuan => $tujuan_value) {
 								active=1 ORDER BY id",
 								$program_value['id_unik'],
 								$sasaran_value['id_unik'],
-								$tujuan_value['id_unik'],
+								$tujuan_value['id_unik']
 							), ARRAY_A);
 
 						foreach ($kegiatan_all as $keyKegiatan => $kegiatan_value) {
@@ -528,7 +528,7 @@ foreach ($tujuan_all as $keyTujuan => $tujuan_value) {
 										$kegiatan_value['id_unik'],
 										$program_value['id_unik'],
 										$sasaran_value['id_unik'],
-										$tujuan_value['id_unik'],
+										$tujuan_value['id_unik']
 									), ARRAY_A);
 
 								foreach ($sub_kegiatan_all as $keySubKegiatan => $sub_kegiatan_value) {
@@ -606,6 +606,8 @@ foreach ($tujuan_all as $keyTujuan => $tujuan_value) {
 											'pagu_3_usulan' => $sub_kegiatan_value['pagu_3_usulan'],
 											'pagu_4_usulan' => $sub_kegiatan_value['pagu_4_usulan'],
 											'pagu_5_usulan' => $sub_kegiatan_value['pagu_5_usulan'],
+											'id_sub_unit' => $sub_kegiatan_value['id_sub_unit'],
+											'nama_sub_unit' => $sub_kegiatan_value['nama_sub_unit'],
 											'indikator' => array(),
 										];
 									}
@@ -1344,7 +1346,7 @@ foreach ($program_all_kosong as $keyProgram => $program_value) {
 						kode_program=%s AND 
 						active=1 ORDER BY id",
 						$kegiatan_value['id_unik'],
-						$program_value['id_unik'],
+						$program_value['id_unik']
 				), ARRAY_A);
 
 				foreach ($sub_kegiatan_all as $keySubKegiatan => $sub_kegiatan_value) {
@@ -1539,7 +1541,7 @@ foreach ($kegiatan_all as $keyKegiatan => $kegiatan_value) {
 				kode_program=%s AND 
 				active=1 ORDER BY id",
 				$kegiatan_value['id_unik'],
-				$program_value['id_unik'],
+				$program_value['id_unik']
 			), ARRAY_A);
 
 		foreach ($sub_kegiatan_all as $keySubKegiatan => $sub_kegiatan_value) {
@@ -1711,6 +1713,7 @@ foreach ($data_all['data'] as $tujuan) {
 				<td class="atas kanan bawah text_tengah td-usulan">'.$satuan_usulan.'</td>
 				<td class="atas kanan bawah td-usulan">'.$tujuan['catatan_usulan'].'</td>
 				<td class="atas kanan bawah td-usulan">'.$catatan_indikator_usulan.'</td>
+				<td class="atas kanan bawah td-usulan"></td>
 			</tr>
 	';
 
@@ -1792,6 +1795,7 @@ foreach ($data_all['data'] as $tujuan) {
 					<td class="atas kanan bawah td-usulan">'.$satuan_usulan.'</td>
 					<td class="atas kanan bawah td-usulan">'.$sasaran['catatan_usulan'].'</td>
 					<td class="atas kanan bawah td-usulan">'.$catatan_indikator_usulan.'</td>
+					<td class="atas kanan bawah td-usulan"></td>
 				</tr>
 		';
 		
@@ -1927,6 +1931,7 @@ foreach ($data_all['data'] as $tujuan) {
 						<td class="atas kanan bawah td-usulan"><br>'.$satuan_usulan.'</td>
 						<td class="atas kanan bawah td-usulan">'.$program['catatan_usulan'].'</td>
 						<td class="atas kanan bawah td-usulan"><br>'.$catatan_indikator_usulan.'</td>
+						<td class="atas kanan bawah td-usulan"></td>
 					</tr>
 			';
 			
@@ -2040,6 +2045,7 @@ foreach ($data_all['data'] as $tujuan) {
 							<td class="atas kanan bawah td-usulan"><br>'.$satuan_usulan.'</td>
 							<td class="atas kanan bawah td-usulan"><br>'.$kegiatan['catatan_usulan'].'</td>
 							<td class="atas kanan bawah td-usulan">'.$catatan_indikator_usulan.'</td>
+							<td class="atas kanan bawah td-usulan"></td>
 						</tr>
 				';
 
@@ -2135,6 +2141,7 @@ foreach ($data_all['data'] as $tujuan) {
 								<td class="atas kanan bawah td-usulan"><br>'.$satuan_usulan.'</td>
 								<td class="atas kanan bawah td-usulan"><br>'.$kegiatan['catatan_usulan'].'</td>
 								<td class="atas kanan bawah td-usulan">'.$catatan_indikator_usulan.'</td>
+								<td class="atas kanan bawah">'.$sub_kegiatan['nama_sub_unit'].'</td>
 							</tr>
 					';
 				}
@@ -2170,7 +2177,7 @@ $table='<table cellpadding="2" cellspacing="0" style="font-family:\'Open Sans\',
 					<td class="kiri kanan bawah text_tengah"><b>Selisih</b></td>';
 					for ($i=0; $i < $lama_pelaksanaan; $i++) {
 						$selisih=($data_all['pagu_akumulasi_'.($i+1)])-($data_all['pagu_akumulasi_'.($i+1).'_usulan']);
-						$table.="<td class=\"atas kanan bawah text_kanan ".(!empty($selisih) ? 'peringatan' : '')."\">".$this->_number_format($selisih)."</td>";
+						$table.="<td class=\"atas kanan bawah text_kanan\">".$this->_number_format($selisih)."</td>";
 					}
 		$table.='
 				</tr>
@@ -2193,7 +2200,7 @@ $table='<table cellpadding="2" cellspacing="0" style="font-family:\'Open Sans\',
 	    background: #baffba;
 	}
 	.tr-kegiatan {
-	    background: #f904bd52;
+	    background: #13d0d03d;
 	}
 	.tr-total-pagu-opd{
 		background: #83efef;
@@ -2245,6 +2252,7 @@ $table='<table cellpadding="2" cellspacing="0" style="font-family:\'Open Sans\',
 				<th style="width: 100px;" class="row_head_1 atas kanan bawah text_tengah text_blok td-usulan">Satuan Usulan</th>
 				<th style="width: 150px;" class="row_head_1 atas kanan bawah text_tengah text_blok td-usulan">Catatan Usulan</th>
 				<th style="width: 150px;" class="row_head_1 atas kanan bawah text_tengah text_blok td-usulan">Catatan Indikator Usulan</th>
+				<th style="width: 150px;" class="row_head_1 atas kanan bawah text_tengah text_blok">Sub Unit Pelaksana</th>
 			</tr>
 			<tr>';
 			for ($i=1; $i <= $lama_pelaksanaan; $i++) { 
@@ -2310,6 +2318,7 @@ $table='<table cellpadding="2" cellspacing="0" style="font-family:\'Open Sans\',
 				<th class='atas kanan bawah text_tengah text_blok td-usulan'><?php echo $pagu_temp+2 ?></th>
 				<th class='atas kanan bawah text_tengah text_blok td-usulan'><?php echo $pagu_temp+3 ?></th>
 				<th class='atas kanan bawah text_tengah text_blok td-usulan'><?php echo $pagu_temp+4 ?></th>
+				<th class='atas kanan bawah text_tengah text_blok td-usulan'><?php echo $pagu_temp+5 ?></th>
 			</tr>
 		</thead>
 		<tbody>
@@ -2322,7 +2331,7 @@ $table='<table cellpadding="2" cellspacing="0" style="font-family:\'Open Sans\',
 	<li>Background warna biru adalah baris tujuan.</li>
 	<li>Background warna kuning adalah baris sasaran.</li>
 	<li>Background warna hijau adalah baris program.</li>
-	<li>Background warna ungu adalah baris kegiatan</li>
+	<li>Background warna biru muda adalah baris kegiatan</li>
 	<li>Background warna putih adalah baris sub kegiatan</li>
 	<li><b>Debug Cascading <?php echo $nama_tipe_relasi; ?></b> berfungsi untuk melakukan pengecekan relasi antara tujuan RENSTRA dengan sasaran di <?php echo $nama_tipe_relasi; ?>.</li>
 	<li>Baris berwarna merah saat dilakukan checklist pada kotak <b>Debug Cascading <?php echo $nama_tipe_relasi; ?></b> menandakan bahwa tujuan RENSTRA belum terkoneksi dengan data di <?php echo $nama_tipe_relasi; ?>.</li>
@@ -4443,6 +4452,14 @@ $table='<table cellpadding="2" cellspacing="0" style="font-family:\'Open Sans\',
 						+'</div>'
 						+'<div class="form-group">'
 							+'<div class="row">'
+								+'<div class="col-md-12">'
+									+'<label for="sub_unit">Sub Unit</label>'
+									+'<select class="form-control" id="id_sub_unit" name="id_sub_unit"></select>'
+								+'</div>'
+							+'</div>'
+						+'</div>'
+						+'<div class="form-group">'
+							+'<div class="row">'
 								+'<div class="col-md-6">'
 									+'<div class="card">'
 										+'<div class="card-header">Usulan</div>'
@@ -4514,6 +4531,13 @@ $table='<table cellpadding="2" cellspacing="0" style="font-family:\'Open Sans\',
 				}, 'id_sub_kegiatan').then(function(){
 					jQuery("#id_sub_kegiatan").select2({width:'100%'});
 				});
+
+				get_list_unit({
+					'id_skpd':'<?php echo $unit[0]['id_skpd'];?>',
+					'tahun_anggaran':'<?php echo $tahun_anggaran;?>',
+				}, 'id_sub_unit').then(function(){
+					jQuery("#id_sub_unit").select2({width:'100%'});
+				});
 	});
 
 	jQuery(document).on('click', '.btn-edit-sub-kegiatan', function(){
@@ -4551,6 +4575,14 @@ $table='<table cellpadding="2" cellspacing="0" style="font-family:\'Open Sans\',
 										+'<div class="col-md-12">'
 											+'<label for="sub_kegiatan_teks">Sub Kegiatan</label>'
 											+'<select class="form-control" id="id_sub_kegiatan" name="id_sub_kegiatan" onchange="setTeks(this, \'sub_kegiatan_teks\', \'id_sub_kegiatan\')"></select>'
+										+'</div>'
+									+'</div>'
+								+'</div>'
+								+'<div class="form-group">'
+									+'<div class="row">'
+										+'<div class="col-md-12">'
+											+'<label for="sub_unit">Sub Unit</label>'
+											+'<select class="form-control" id="id_sub_unit" name="id_sub_unit"></select>'
 										+'</div>'
 									+'</div>'
 								+'</div>'
@@ -4629,6 +4661,14 @@ $table='<table cellpadding="2" cellspacing="0" style="font-family:\'Open Sans\',
 						jQuery("#id_sub_kegiatan").select2({width:'100%'});
 					});
 
+					get_list_unit({
+						'id_skpd':'<?php echo $unit[0]['id_skpd'];?>',
+						'tahun_anggaran':'<?php echo $tahun_anggaran;?>',
+					}, 'id_sub_unit').then(function(){
+						jQuery("#id_sub_unit").val(response.sub_kegiatan.id_sub_unit);
+						jQuery("#id_sub_unit").select2({width:'100%'});
+					});
+
 				}
 		});	
 	});
@@ -4642,6 +4682,7 @@ $table='<table cellpadding="2" cellspacing="0" style="font-family:\'Open Sans\',
 			let id = jQuery(this).data('id');	
 			let id_unik = jQuery(this).data('kodesubkegiatan');
 			let id_kegiatan = jQuery(this).data('idkegiatan');
+			let kode_giat = jQuery(this).data('kodegiat');
 			let kode_kegiatan = jQuery(this).data('kodekegiatan');
 
 			jQuery.ajax({
@@ -4659,7 +4700,7 @@ $table='<table cellpadding="2" cellspacing="0" style="font-family:\'Open Sans\',
 					alert(response.message);
 					if(response.status){
 						subKegiatanRenstra({
-							'id_kegiatan': id_kegiatan,
+							'kode_giat': kode_giat,
 							'kode_kegiatan': kode_kegiatan
 						});
 					}
@@ -6161,6 +6202,7 @@ $table='<table cellpadding="2" cellspacing="0" style="font-family:\'Open Sans\',
 			      				+'<tr>'
 			      					+'<th class="text-center" style="width:45px">No</th>'
 			      					+'<th class="text-center">Kegiatan</th>'
+			      					+'<th class="text-center">Sub Unit Pelaksana</th>'
 			      					<?php for($i=1; $i<=$lama_pelaksanaan; $i++){ ?>
 			      					+'<th class="text-center" style="width:10%">Pagu Tahun <?php echo $i; ?></th>'
 			      					<?php } ?>
@@ -6182,6 +6224,7 @@ $table='<table cellpadding="2" cellspacing="0" style="font-family:\'Open Sans\',
 			  							+'<tr kodesubkegiatan="'+value.id_unik+'">'
 			          						+'<td class="text-center" rowspan="2">'+(index+1)+'</td>'
 			          						+'<td rowspan="2">'+value.nama_sub_giat+'</td>'
+			          						+'<td rowspan="2">'+value.nama_sub_unit+'</td>'
 			          						<?php for($i=1; $i<=$lama_pelaksanaan; $i++){ ?>
 			          						+'<td class="text-right">'+formatRupiah(value.pagu_<?php echo $i; ?>)+'</td>'
 			          						<?php } ?>
@@ -6189,7 +6232,7 @@ $table='<table cellpadding="2" cellspacing="0" style="font-family:\'Open Sans\',
 			          						+'<td class="text-center" rowspan="2">'
 			          							+'<a href="javascript:void(0)" data-kodesubkegiatan="'+value.id_unik+'" data-idsubgiat="'+value.id_sub_giat+'" class="btn btn-warning btn-kelola-indikator-sub-kegiatan" title="Lihat Indikator Sub Kegiatan"><i class="dashicons dashicons-menu-alt" style="margin-top: 2px;"></i></a>&nbsp;'
 			          							+'<a href="javascript:void(0)" data-id="'+value.id+'" data-kodekegiatan="'+value.kode_kegiatan+'" data-kodegiat="'+value.kode_giat+'" class="btn btn-success btn-edit-sub-kegiatan" title="Edit Sub Kegiatan"><i class="dashicons dashicons-edit" style="margin-top: 2px;"></i></a>&nbsp;'
-			          							+'<a href="javascript:void(0)" data-id="'+value.id+'" data-kodesubkegiatan="'+value.id_unik+'" data-kodekegiatan="'+value.kode_giat+'" data-idkegiatan="'+value.id_giat+'" class="btn btn-danger btn-hapus-sub-kegiatan" title="Hapus Sub Kegiatan"><i class="dashicons dashicons-trash" style="margin-top: 2px;"></i></a>'
+			          							+'<a href="javascript:void(0)" data-id="'+value.id+'" data-kodesubkegiatan="'+value.id_unik+'" data-kodegiat="'+value.kode_giat+'" data-kodekegiatan="'+value.kode_kegiatan+'" data-idkegiatan="'+value.id_giat+'" class="btn btn-danger btn-hapus-sub-kegiatan" title="Hapus Sub Kegiatan"><i class="dashicons dashicons-trash" style="margin-top: 2px;"></i></a>'
 			          						+'</td>'
 			          					+'</tr>'
 			  							+'<tr>'
@@ -6657,6 +6700,7 @@ $table='<table cellpadding="2" cellspacing="0" style="font-family:\'Open Sans\',
 			       		"kode_giat": params.kode_giat,
 			       		"id_unit": params.id_unit,
 			       		"kode_unit": params.kode_unit,
+			       		"kode_sub_unit": params.kode_unit, // kode_sub_unit di table data_unit tidak ada
 			       		"tahun_anggaran": params.tahun_anggaran
 			       	},
 			       	dataType: "json",
@@ -6679,5 +6723,30 @@ $table='<table cellpadding="2" cellspacing="0" style="font-family:\'Open Sans\',
 
 	function setSatuan(that, input){
 		jQuery(`input[name=${input}]`).val(jQuery(that).find(':selected').data('satuan'));
+	}
+
+	function get_list_unit(params, tag){
+		return new Promise(function(resolve, reject){
+			jQuery.ajax({
+				url: ajax.url,
+			    type: "post",
+			    data: {
+			       		"action": "get_all_sub_unit",
+			       		"api_key": "<?php echo $api_key; ?>",
+			       		"id_skpd": params.id_skpd,
+			       		"tahun_anggaran": params.tahun_anggaran
+			       	},
+			       	dataType: "json",
+			       	success: function(res){
+			          	let opt = ''
+			          		+'<option value="">Pilih Sub Unit</option>'
+			          		res.data.map(function(value, index) {
+			          			opt+='<option value="'+value.id_skpd+'">'+value.nama_skpd+'</option>'
+			          		});
+			          	jQuery("#"+tag).html(opt);
+			          	resolve();
+			        }
+			});
+		})
 	}
 </script>

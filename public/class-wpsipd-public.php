@@ -1764,7 +1764,12 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
 				if (!empty($_POST['data'])) {
 					$data = $_POST['data'];
-					$cek = $wpdb->get_var("SELECT id_usulan from data_pokir where tahun_anggaran=".$_POST['tahun_anggaran']." AND id_usulan=" . $data['id_usulan']);
+					$cek = $wpdb->get_var($wpdb->prepare("
+						SELECT 
+							id_usulan 
+						from data_pokir 
+						where tahun_anggaran=%d AND id_usulan=%d"
+					, $_POST['tahun_anggaran'], $data['id_usulan']));
 					$opsi = array(
 						'alamat_teks' => $data['alamat_teks'],
 						'anggaran' => $data['anggaran'],
@@ -1862,6 +1867,73 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 				} else {
 					$ret['status'] = 'error';
 					$ret['message'] = 'Format Data ASMAS Salah!';
+				}
+			} else {
+				$ret['status'] = 'error';
+				$ret['message'] = 'APIKEY tidak sesuai!';
+			}
+		} else {
+			$ret['status'] = 'error';
+			$ret['message'] = 'Format Salah!';
+		}
+		die(json_encode($ret));
+	}
+
+	public function singkron_kamus_usulan_pokir()
+	{
+		global $wpdb;
+		$ret = array(
+			'status'	=> 'success',
+			'message'	=> 'Berhasil export data kamus usulan POKIR!'
+		);
+		if (!empty($_POST)) {
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+				if (!empty($_POST['data'])) {
+					$data = $_POST['data'];
+					$cek = $wpdb->get_var($wpdb->prepare("
+						SELECT 
+							id_kamus 
+						from data_kamus_usulan_pokir 
+						where tahun_anggaran=%d 
+							AND id_kamus=%d"
+						, $_POST['tahun_anggaran'], $data['id_kamus']));
+					$opsi = array(
+						'anggaran' => $data['anggaran'],
+						'bidang_urusan' => $data['bidang_urusan'],
+						'giat_teks' => $data['giat_teks'],
+						'id_kamus' => $data['id_kamus'],
+						'id_program' => $data['id_program'],
+						'id_unit' => $data['id_unit'],
+						'is_locked' => $data['is_locked'],
+						'idbidangurusan' => $data['idbidangurusan'],
+						'idskpd' => $data['idskpd'],
+						'kodeprogram' => $data['kodeprogram'],
+						'namaprogram' => $data['namaprogram'],
+						'jenis_profil' => $data['jenis_profil'],
+						'kelompok' => $data['kelompok'],
+						'kode_skpd' => $data['kode_skpd'],
+						'nama_skpd' => $data['nama_skpd'],
+						'outcome_teks' => $data['outcome_teks'],
+						'output_teks' => $data['output_teks'],
+						'pekerjaan' => $data['pekerjaan'],
+						'prioritas_teks' => $data['prioritas_teks'],
+						'satuan' => $data['satuan'],
+						'tipe' => $data['tipe'],
+						'active' => 1,
+						'update_at' => current_time('mysql'),
+						'tahun_anggaran' => $_POST['tahun_anggaran']
+					);
+					if (!empty($cek)) {
+						$wpdb->update('data_kamus_usulan_pokir', $opsi, array(
+							'id_kamus' => $data['id_kamus'],
+							'tahun_anggaran' => $_POST['tahun_anggaran']
+						));
+					} else {
+						$wpdb->insert('data_kamus_usulan_pokir', $opsi);
+					}
+				} else {
+					$ret['status'] = 'error';
+					$ret['message'] = 'Format Data Salah!';
 				}
 			} else {
 				$ret['status'] = 'error';
@@ -4927,6 +4999,69 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		die(json_encode($ret));
 	}
 
+	function singkron_detail_spd(){
+		ini_set('max_execution_time',0);
+		global $wpdb;
+		$ret=array(
+			'status'=>'success',
+			'message'=>'Berhasil Singkron Detail SPD',
+			'action'=>$_POST['action']
+		);
+		if(!empty($_POST)){
+			if(!empty($_POST['api_key']) && $_POST['api_key']==get_option('_crb_api_key_extension')){
+				$data=$_POST['data'];
+				//Insert atau update data spd
+				$cek=$wpdb->get_var("select idSpd from data_spd_sipd where idSpd=".$_POST['idSpd']." and tahun_anggaran=".$_POST['tahun_anggaran']);
+				$opsi=array(
+					"idSpd"=>$_POST["idSpd"],
+					"nomorSpd"=>$_POST["nomorSpd"],
+					"totalSpd"=>$_POST["totalSpd"],
+					"keteranganSpd"=>$_POST["keteranganSpd"],
+					"ketentuanLainnya"=>$_POST["ketentuanLainnya"],
+					"id_skpd"=>$_POST["id_skpd"],
+					"active"=>1,
+					"tahun_anggaran"=>$_POST["tahun_anggaran"],
+					"created_at"=>current_time('mysql')
+				);
+				if(!empty($cek)){
+					$wpdb->update("data_spd_sipd",$opsi,array("idSpd"=>$data["idSpd"]));
+				}else{
+					$wpdb->insert("data_spd_sipd",$opsi);
+				}
+				//Insert atau update data detail spd
+				foreach($data as $k =>$v){
+					$cek=$wpdb->get_var("select idDetailSpd from data_spd_sipd_detail where idDetailSpd=".$v["idDetailSpd"].' and tahun_anggaran='.$_POST['tahun_anggaran']);
+					$opsi= array(
+						'idDetailSpd'=>$v["idDetailSpd"],
+						'idSpd'=>$v["idSpd"],
+						"id_skpd"=>$v["id_skpd"],
+						"id_sub_skpd"=>$v["id_sub_skpd"],
+						"id_program"=>$v["id_program"],
+						"id_giat"=>$v["id_giat"],
+						"id_sub_giat"=>$v["id_sub_giat"],
+						"id_akun"=>$v["id_akun"],
+						"nilai"=>$v["nilai"],
+						"created_at"=>current_time('mysql'),
+						'active'=>1,
+						'tahun_anggaran'=>$_POST['tahun_anggaran']
+					);
+					if(!empty($cek)){
+						$wpdb->update('data_spd_sipd_detail',$opsi,array("idDetailSpd"=>$v["idDetailSpd"]));
+					}else{
+						$wpdb->insert("data_spd_sipd_detail",$opsi);
+					}
+				}
+			}else{
+				$ret["status"]="error";
+				$ret["message"]="API KEY tidak sesuai";
+			}
+		}else{
+			$ret["status"]="error";
+			$ret["message"]="Tidak ada parameter yang dikirim";
+		}
+		die(json_encode($ret));
+	}
+
 	function singkron_anggaran_kas(){
 		global $wpdb;
 		$ret = array(
@@ -6502,6 +6637,45 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 			$wpdb->update('data_sub_keg_bl', array('pagu_simda' => $pagu[0]->total), array(
 				'id' => $options['id_sub_keg']
 			));
+			return $pagu[0]->total;
+		}else{
+			return $options['pagu_simda'];
+		}
+	}
+
+	function get_pagu_simda_rka($options = array()){
+		global $wpdb;
+		$kd_urusan = $options['kd_urusan'];
+		$kd_bidang = $options['kd_bidang'];
+		$kd_unit = $options['kd_unit'];
+		$kd_sub = $options['kd_sub'];
+		$kd_prog = $options['kd_prog'];
+		$id_prog = $options['id_prog'];
+		$kd_keg = $options['kd_keg'];
+		$sql = $wpdb->prepare("
+			SELECT 
+				SUM(r.total) as total
+			FROM ta_belanja_rinc_sub r
+			WHERE r.tahun = %d
+				AND r.kd_urusan = %d
+				AND r.kd_bidang = %d
+				AND r.kd_unit = %d
+				AND r.kd_sub = %d
+				AND r.kd_prog = %d
+				AND r.id_prog = %d
+				AND r.kd_keg = %d
+			", 
+			$options['tahun_anggaran'], 
+			$kd_urusan, 
+			$kd_bidang, 
+			$kd_unit, 
+			$kd_sub, 
+			$kd_prog, 
+			$id_prog, 
+			$kd_keg
+		);
+		$pagu = $this->simda->CurlSimda(array('query' => $sql));
+		if(!empty($pagu[0])){
 			return $pagu[0]->total;
 		}else{
 			return $options['pagu_simda'];
@@ -15052,12 +15226,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 
 								$this->check_total_pagu_penetapan([
 									'lama_pelaksanaan' => $data_this_id[0]['lama_pelaksanaan'],
-									'check' => false
-								]);
-
-								$this->check_total_pagu_penetapan_opd([
-									'tahun_anggaran' => $data_this_id[0]['tahun_anggaran'],
-									'lama_pelaksanaan' => $data_this_id[0]['lama_pelaksanaan']
+									'tahun_anggaran' => $data_this_id[0]['tahun_anggaran']
 								]);
 
 								//lock data penjadwalan
@@ -18497,183 +18666,30 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		try{
 
 			$data_all=array(
-				'pagu_1_prog_total' => 0,
-				'pagu_2_prog_total' => 0,
-				'pagu_3_prog_total' => 0,
-				'pagu_4_prog_total' => 0,
-				'pagu_5_prog_total' => 0,
-				'pagu_1_keg_total' => 0,
-				'pagu_2_keg_total' => 0,
-				'pagu_3_keg_total' => 0,
-				'pagu_4_keg_total' => 0,
-				'pagu_5_keg_total' => 0,
-				'pagu_1_subkeg_total' => 0,
-				'pagu_2_subkeg_total' => 0,
-				'pagu_3_subkeg_total' => 0,
-				'pagu_4_subkeg_total' => 0,
-				'pagu_5_subkeg_total' => 0,
+				'data' => array(),
+				'pagu_1_program_kab' => 0,
+				'pagu_2_program_kab' => 0,
+				'pagu_3_program_kab' => 0,
+				'pagu_4_program_kab' => 0,
+				'pagu_5_program_kab' => 0,
+				'pagu_1_kegiatan_kab' => 0,
+				'pagu_2_kegiatan_kab' => 0,
+				'pagu_3_kegiatan_kab' => 0,
+				'pagu_4_kegiatan_kab' => 0,
+				'pagu_5_kegiatan_kab' => 0,
+				'pagu_1_subkegiatan_kab' => 0,
+				'pagu_2_subkegiatan_kab' => 0,
+				'pagu_3_subkegiatan_kab' => 0,
+				'pagu_4_subkegiatan_kab' => 0,
+				'pagu_5_subkegiatan_kab' => 0,
 			);
-
-			$where='';
-			if(!empty($opt['id_skpd'])){
-				$where=' AND id_unit='.$opt['id_skpd'];
-			}
-
-			$tujuan_all = $wpdb->get_results($wpdb->prepare("
-				SELECT 
-					DISTINCT id_unik 
-				FROM data_renstra_tujuan_lokal 
-				WHERE 
-					active=1 $where ORDER BY urut_tujuan
-			"), ARRAY_A);
-
-			foreach ($tujuan_all as $keyTujuan => $tujuan_value) {
-						
-				$sasaran_all = $wpdb->get_results($wpdb->prepare("
-					SELECT 
-						DISTINCT id_unik 
-					FROM data_renstra_sasaran_lokal 
-					WHERE 
-						kode_tujuan=%s AND 
-						active=1 $where ORDER BY urut_sasaran
-					", $tujuan_value['id_unik']), ARRAY_A);
-
-				foreach ($sasaran_all as $keySasaran => $sasaran_value) {
-								
-					$program_all = $wpdb->get_results($wpdb->prepare("
-						SELECT 
-							id_unik,
-							nama_program,
-							COALESCE(SUM(pagu_1), 0) AS pagu_1,
-							COALESCE(SUM(pagu_2), 0) AS pagu_2,
-							COALESCE(SUM(pagu_3), 0) AS pagu_3,
-							COALESCE(SUM(pagu_4), 0) AS pagu_4,
-							COALESCE(SUM(pagu_5), 0) AS pagu_5 
-						FROM data_renstra_program_lokal 
-						WHERE 
-							kode_sasaran=%s AND 
-							kode_tujuan=%s AND
-							id_unik_indikator IS NOT NULL AND 
-							active=1 $where ORDER BY id",
-							$sasaran_value['id_unik'], $tujuan_value['id_unik']), ARRAY_A);
-
-					foreach ($program_all as $keyProgram => $program_value) {
-
-						$data_all['pagu_1_prog_total']+=$program_value['pagu_1'];
-						$data_all['pagu_2_prog_total']+=$program_value['pagu_2'];
-						$data_all['pagu_3_prog_total']+=$program_value['pagu_3'];
-						$data_all['pagu_4_prog_total']+=$program_value['pagu_4'];
-						$data_all['pagu_5_prog_total']+=$program_value['pagu_5'];
-
-						$kegiatan_all = $wpdb->get_results($wpdb->prepare("
-							SELECT 
-								id_unik,
-								nama_giat,
-								COALESCE(SUM(pagu_1), 0) AS pagu_1,
-								COALESCE(SUM(pagu_2), 0) AS pagu_2,
-								COALESCE(SUM(pagu_3), 0) AS pagu_3,
-								COALESCE(SUM(pagu_4), 0) AS pagu_4,
-								COALESCE(SUM(pagu_5), 0) AS pagu_5
-							FROM data_renstra_kegiatan_lokal
-							WHERE 
-								kode_program=%s AND
-								kode_sasaran=%s AND
-								kode_tujuan=%s AND
-								id_unik_indikator IS NOT NULL AND
-								active=1 $where ORDER BY id", 
-								$program_value['id_unik'], $sasaran_value['id_unik'], $tujuan_value['id_unik']), ARRAY_A);
-
-						foreach ($kegiatan_all as $keyKegiatan => $kegiatan_value) {
-
-							$data_all['pagu_1_keg_total']+=$kegiatan_value['pagu_1'];
-							$data_all['pagu_2_keg_total']+=$kegiatan_value['pagu_2'];
-							$data_all['pagu_3_keg_total']+=$kegiatan_value['pagu_3'];
-							$data_all['pagu_4_keg_total']+=$kegiatan_value['pagu_4'];
-							$data_all['pagu_5_keg_total']+=$kegiatan_value['pagu_5'];
-
-							$sub_kegiatan_all = $wpdb->get_results($wpdb->prepare("
-								SELECT
-									nama_sub_giat, 
-									COALESCE(SUM(pagu_1), 0) AS pagu_1, 
-									COALESCE(SUM(pagu_2), 0) AS pagu_2, 
-									COALESCE(SUM(pagu_3), 0) AS pagu_3, 
-									COALESCE(SUM(pagu_4), 0) AS pagu_4, 
-									COALESCE(SUM(pagu_5), 0) AS pagu_5
-								FROM data_renstra_sub_kegiatan_lokal 
-								WHERE 
-									kode_kegiatan=%s AND 
-									kode_program=%s AND 
-									kode_sasaran=%s AND 
-									kode_tujuan=%s AND 
-									active=1 $where ORDER BY id",
-									$kegiatan_value['id_unik'],
-									$program_value['id_unik'],
-									$sasaran_value['id_unik'],
-									$tujuan_value['id_unik']
-							), ARRAY_A);
-
-							foreach ($sub_kegiatan_all as $keySubKegiatan => $sub_kegiatan_value) {
-								$data_all['pagu_1_subkeg_total']+=$sub_kegiatan_value['pagu_1'];
-								$data_all['pagu_2_subkeg_total']+=$sub_kegiatan_value['pagu_2'];
-								$data_all['pagu_3_subkeg_total']+=$sub_kegiatan_value['pagu_3'];
-								$data_all['pagu_4_subkeg_total']+=$sub_kegiatan_value['pagu_4'];
-								$data_all['pagu_5_subkeg_total']+=$sub_kegiatan_value['pagu_5'];
-							}
-						
-							if($opt['check']){
-								for ($i=0; $i < $opt['lama_pelaksanaan']; $i++) {
-									if(
-										$data_all['pagu_'.($i+1).'_keg_total'] != $data_all['pagu_'.($i+1).'_subkeg_total']
-									){
-										throw new Exception("Pagu Akumulasi di tahun ke ".($i+1)." tidak sama antara pagu indikator kegiatan ".$kegiatan_value['nama_giat']." dan pagu sub kegiatannya, Unit Kerja : ".$opt['nama_opd'], true);
-									}
-								}
-							}	
-						}
-						
-						if($opt['check']){
-							for ($i=0; $i < $opt['lama_pelaksanaan']; $i++) {
-								if(
-									$data_all['pagu_'.($i+1).'_prog_total'] != $data_all['pagu_'.($i+1).'_keg_total']
-								){
-									throw new Exception("Pagu Akumulasi di tahun ke ".($i+1)." tidak sama antara pagu indikator program ".$program_value['nama_program']." dan pagu indikator kegiatannya, Unit Kerja : ".$opt['nama_opd'], true);
-								}
-							}
-						}
-					}
-				}
-			}
-
-			if(!$opt['check']){
-				for ($i=0; $i < $opt['lama_pelaksanaan']; $i++) { 
-					if(
-						($data_all['pagu_'.($i+1).'_prog_total'] != $data_all['pagu_'.($i+1).'_keg_total']) || 
-						($data_all['pagu_'.($i+1).'_prog_total'] != $data_all['pagu_'.($i+1).'_subkeg_total']) || 
-						($data_all['pagu_'.($i+1).'_keg_total'] != $data_all['pagu_'.($i+1).'_subkeg_total'])
-					){
-						throw new Exception("Pagu Akumulasi di tahun ke ".($i+1)." tidak sama antara pagu indikator program, pagu indikator kegiatan dan pagu sub kegiatan", true);
-					}
-				}
-			}
-		}catch(Exception $e){
-			echo json_encode([
-				'status' => 'error',
-				'message' => $e->getMessage()
-			]);exit;
-		}
-	}
-
-	public function check_total_pagu_penetapan_opd($opt = array()){
-		
-		global $wpdb;
-
-		try{
 
 			$sql = $wpdb->prepare("
 				SELECT 
 					* 
 				FROM data_unit 
 				WHERE tahun_anggaran=%d
+					AND is_skpd=1
 					AND active=1
 				ORDER BY id_skpd ASC
 			", $opt['tahun_anggaran']);
@@ -18681,13 +18697,331 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 			$units = $wpdb->get_results($sql, ARRAY_A);
 
 			foreach ($units as $key => $unit) {
-				$this->check_total_pagu_penetapan([
-					'id_skpd' => $unit['id_skpd'],
-					'nama_opd' => $unit['nama_skpd'],
-					'tahun_anggaran' => $opt['tahun_anggaran'],
-					'lama_pelaksanaan' => $opt['lama_pelaksanaan'],
-					'check' => true
-				]);
+
+				if(empty($data_all['data'][$unit['id_skpd']])){
+					$data_all['data'][$unit['id_skpd']] = [
+						'unit_kerja' => $unit['nama_skpd'],
+						'pagu_1_program_opd' => 0,
+						'pagu_2_program_opd' => 0,
+						'pagu_3_program_opd' => 0,
+						'pagu_4_program_opd' => 0,
+						'pagu_5_program_opd' => 0,
+						'pagu_1_kegiatan_opd' => 0,
+						'pagu_2_kegiatan_opd' => 0,
+						'pagu_3_kegiatan_opd' => 0,
+						'pagu_4_kegiatan_opd' => 0,
+						'pagu_5_kegiatan_opd' => 0,
+						'pagu_1_subkegiatan_opd' => 0,
+						'pagu_2_subkegiatan_opd' => 0,
+						'pagu_3_subkegiatan_opd' => 0,
+						'pagu_4_subkegiatan_opd' => 0,
+						'pagu_5_subkegiatan_opd' => 0,
+						'data' => array()
+					];
+				}
+
+				$tujuan_all = $wpdb->get_results($wpdb->prepare("
+					SELECT 
+						DISTINCT id_unik 
+					FROM data_renstra_tujuan_lokal 
+					WHERE
+						id_unit=%d AND 
+						active=1 $where ORDER BY urut_tujuan
+				", $unit['id_skpd']), ARRAY_A);
+
+				foreach ($tujuan_all as $keyTujuan => $tujuan_value) {
+							
+					$sasaran_all = $wpdb->get_results($wpdb->prepare("
+						SELECT 
+							DISTINCT id_unik 
+						FROM data_renstra_sasaran_lokal 
+						WHERE 
+							kode_tujuan=%s AND 
+							active=1 ORDER BY urut_sasaran
+						", $tujuan_value['id_unik']), ARRAY_A);
+
+					foreach ($sasaran_all as $keySasaran => $sasaran_value) {
+									
+						$program_all = $wpdb->get_results($wpdb->prepare("
+							SELECT 
+								id_unik,
+								id_unik_indikator,
+								nama_program,
+								pagu_1,
+								pagu_2,
+								pagu_3,
+								pagu_4,
+								pagu_5 
+							FROM data_renstra_program_lokal 
+							WHERE 
+								kode_sasaran=%s AND 
+								kode_tujuan=%s AND
+								active=1 ORDER BY id",
+								$sasaran_value['id_unik'], $tujuan_value['id_unik']), ARRAY_A);
+
+						foreach ($program_all as $keyProgram => $program_value) {
+
+							if(empty($data_all['data'][$unit['id_skpd']]['data'][$program_value['id_unik']])){
+								$data_all['data'][$unit['id_skpd']]['data'][$program_value['id_unik']] = [
+									'nama_program' => $program_value['nama_program'],
+									'pagu_akumulasi_1_program' => 0,
+									'pagu_akumulasi_2_program' => 0,
+									'pagu_akumulasi_3_program' => 0,
+									'pagu_akumulasi_4_program' => 0,
+									'pagu_akumulasi_5_program' => 0,
+									'pagu_akumulasi_1_kegiatan' => 0,
+									'pagu_akumulasi_2_kegiatan' => 0,
+									'pagu_akumulasi_3_kegiatan' => 0,
+									'pagu_akumulasi_4_kegiatan' => 0,
+									'pagu_akumulasi_5_kegiatan' => 0,
+									'pagu_akumulasi_1_subkegiatan' => 0,
+									'pagu_akumulasi_2_subkegiatan' => 0,
+									'pagu_akumulasi_3_subkegiatan' => 0,
+									'pagu_akumulasi_4_subkegiatan' => 0,
+									'pagu_akumulasi_5_subkegiatan' => 0,
+									'data' => array(),
+								];
+							}
+
+							if(!empty($program_value['id_unik_indikator'])){
+								$data_all['data'][$unit['id_skpd']]['data'][$program_value['id_unik']]['pagu_akumulasi_1_program']+=$program_value['pagu_1'];
+								$data_all['data'][$unit['id_skpd']]['data'][$program_value['id_unik']]['pagu_akumulasi_2_program']+=$program_value['pagu_2'];
+								$data_all['data'][$unit['id_skpd']]['data'][$program_value['id_unik']]['pagu_akumulasi_3_program']+=$program_value['pagu_3'];
+								$data_all['data'][$unit['id_skpd']]['data'][$program_value['id_unik']]['pagu_akumulasi_4_program']+=$program_value['pagu_4'];
+								$data_all['data'][$unit['id_skpd']]['data'][$program_value['id_unik']]['pagu_akumulasi_5_program']+=$program_value['pagu_5'];
+
+								$data_all['data'][$unit['id_skpd']]['pagu_1_program_opd']+=$program_value['pagu_1'];
+								$data_all['data'][$unit['id_skpd']]['pagu_2_program_opd']+=$program_value['pagu_2'];
+								$data_all['data'][$unit['id_skpd']]['pagu_3_program_opd']+=$program_value['pagu_3'];
+								$data_all['data'][$unit['id_skpd']]['pagu_4_program_opd']+=$program_value['pagu_4'];
+								$data_all['data'][$unit['id_skpd']]['pagu_5_program_opd']+=$program_value['pagu_5'];
+
+								$data_all['pagu_1_program_kab']+=$program_value['pagu_1'];
+								$data_all['pagu_2_program_kab']+=$program_value['pagu_2'];
+								$data_all['pagu_3_program_kab']+=$program_value['pagu_3'];
+								$data_all['pagu_4_program_kab']+=$program_value['pagu_4'];
+								$data_all['pagu_5_program_kab']+=$program_value['pagu_5'];
+							}
+
+							if(empty($program_value['id_unik_indikator'])){
+								$kegiatan_all = $wpdb->get_results($wpdb->prepare("
+									SELECT 
+										id_unik,
+										nama_giat,
+										pagu_1,
+										pagu_2,
+										pagu_3,
+										pagu_4,
+										pagu_5
+									FROM data_renstra_kegiatan_lokal
+									WHERE 
+										kode_program=%s AND
+										kode_sasaran=%s AND
+										kode_tujuan=%s AND
+										active=1 ORDER BY id", 
+										$program_value['id_unik'], $sasaran_value['id_unik'], $tujuan_value['id_unik']), ARRAY_A);
+
+								foreach ($kegiatan_all as $keyKegiatan => $kegiatan_value) {
+
+									if(empty($data_all['data'][$unit['id_skpd']]['data'][$program_value['id_unik']]['data'][$kegiatan_value['id_unik']])){
+										$data_all['data'][$unit['id_skpd']]['data'][$program_value['id_unik']]['data'][$kegiatan_value['id_unik']] = [
+											'nama_kegiatan' => $kegiatan_value['nama_giat'],
+											'pagu_akumulasi_1_kegiatan' => 0,
+											'pagu_akumulasi_2_kegiatan' => 0,
+											'pagu_akumulasi_3_kegiatan' => 0,
+											'pagu_akumulasi_4_kegiatan' => 0,
+											'pagu_akumulasi_5_kegiatan' => 0,
+											'pagu_akumulasi_1_subkegiatan' => 0,
+											'pagu_akumulasi_2_subkegiatan' => 0,
+											'pagu_akumulasi_3_subkegiatan' => 0,
+											'pagu_akumulasi_4_subkegiatan' => 0,
+											'pagu_akumulasi_5_subkegiatan' => 0,
+										];
+									}
+
+									if(!empty($kegiatan_value['id_unik_indikator'])){
+										$data_all['data'][$unit['id_skpd']]['data'][$program_value['id_unik']]['pagu_akumulasi_1_kegiatan']+=$kegiatan_value['pagu_1'];
+										$data_all['data'][$unit['id_skpd']]['data'][$program_value['id_unik']]['pagu_akumulasi_2_kegiatan']+=$kegiatan_value['pagu_2'];
+										$data_all['data'][$unit['id_skpd']]['data'][$program_value['id_unik']]['pagu_akumulasi_3_kegiatan']+=$kegiatan_value['pagu_3'];
+										$data_all['data'][$unit['id_skpd']]['data'][$program_value['id_unik']]['pagu_akumulasi_4_kegiatan']+=$kegiatan_value['pagu_4'];
+										$data_all['data'][$unit['id_skpd']]['data'][$program_value['id_unik']]['pagu_akumulasi_5_kegiatan']+=$kegiatan_value['pagu_5'];
+
+										$data_all['data'][$unit['id_skpd']]['data'][$program_value['id_unik']]['data'][$kegiatan_value['id_unik']]['pagu_akumulasi_1_kegiatan']+=$kegiatan_value['pagu_1'];
+										$data_all['data'][$unit['id_skpd']]['data'][$program_value['id_unik']]['data'][$kegiatan_value['id_unik']]['pagu_akumulasi_2_kegiatan']+=$kegiatan_value['pagu_2'];
+										$data_all['data'][$unit['id_skpd']]['data'][$program_value['id_unik']]['data'][$kegiatan_value['id_unik']]['pagu_akumulasi_3_kegiatan']+=$kegiatan_value['pagu_3'];
+										$data_all['data'][$unit['id_skpd']]['data'][$program_value['id_unik']]['data'][$kegiatan_value['id_unik']]['pagu_akumulasi_4_kegiatan']+=$kegiatan_value['pagu_4'];
+										$data_all['data'][$unit['id_skpd']]['data'][$program_value['id_unik']]['data'][$kegiatan_value['id_unik']]['pagu_akumulasi_5_kegiatan']+=$kegiatan_value['pagu_5'];
+
+										$data_all['data'][$unit['id_skpd']]['pagu_1_kegiatan_opd']+=$kegiatan_value['pagu_1'];
+										$data_all['data'][$unit['id_skpd']]['pagu_2_kegiatan_opd']+=$kegiatan_value['pagu_2'];
+										$data_all['data'][$unit['id_skpd']]['pagu_3_kegiatan_opd']+=$kegiatan_value['pagu_3'];
+										$data_all['data'][$unit['id_skpd']]['pagu_4_kegiatan_opd']+=$kegiatan_value['pagu_4'];
+										$data_all['data'][$unit['id_skpd']]['pagu_5_kegiatan_opd']+=$kegiatan_value['pagu_5'];
+
+										$data_all['pagu_1_kegiatan_kab']+=$kegiatan_value['pagu_1'];
+										$data_all['pagu_2_kegiatan_kab']+=$kegiatan_value['pagu_2'];
+										$data_all['pagu_3_kegiatan_kab']+=$kegiatan_value['pagu_3'];
+										$data_all['pagu_4_kegiatan_kab']+=$kegiatan_value['pagu_4'];
+										$data_all['pagu_5_kegiatan_kab']+=$kegiatan_value['pagu_5'];
+									}
+
+									if(empty($kegiatan_value['id_unik_indikator'])){
+										$sub_kegiatan_all = $wpdb->get_results($wpdb->prepare("
+											SELECT
+												nama_sub_giat, 
+												COALESCE(pagu_1, 0) AS pagu_1, 
+												COALESCE(pagu_2, 0) AS pagu_2, 
+												COALESCE(pagu_3, 0) AS pagu_3, 
+												COALESCE(pagu_4, 0) AS pagu_4, 
+												COALESCE(pagu_5, 0) AS pagu_5
+											FROM data_renstra_sub_kegiatan_lokal 
+											WHERE 
+												kode_kegiatan=%s AND 
+												kode_program=%s AND 
+												kode_sasaran=%s AND 
+												kode_tujuan=%s AND
+												id_unik_indikator IS NULL AND 
+												active=1 ORDER BY id",
+												$kegiatan_value['id_unik'],
+												$program_value['id_unik'],
+												$sasaran_value['id_unik'],
+												$tujuan_value['id_unik']
+										), ARRAY_A);
+
+										foreach ($sub_kegiatan_all as $keySubKegiatan => $sub_kegiatan_value) {
+											$data_all['data'][$unit['id_skpd']]['data'][$program_value['id_unik']]['pagu_akumulasi_1_subkegiatan']+=$sub_kegiatan_value['pagu_1'];
+											$data_all['data'][$unit['id_skpd']]['data'][$program_value['id_unik']]['pagu_akumulasi_2_subkegiatan']+=$sub_kegiatan_value['pagu_2'];
+											$data_all['data'][$unit['id_skpd']]['data'][$program_value['id_unik']]['pagu_akumulasi_3_subkegiatan']+=$sub_kegiatan_value['pagu_3'];
+											$data_all['data'][$unit['id_skpd']]['data'][$program_value['id_unik']]['pagu_akumulasi_4_subkegiatan']+=$sub_kegiatan_value['pagu_4'];
+											$data_all['data'][$unit['id_skpd']]['data'][$program_value['id_unik']]['pagu_akumulasi_5_subkegiatan']+=$sub_kegiatan_value['pagu_5'];
+
+											$data_all['data'][$unit['id_skpd']]['data'][$program_value['id_unik']]['data'][$kegiatan_value['id_unik']]['pagu_akumulasi_1_subkegiatan']+=$sub_kegiatan_value['pagu_1'];
+											$data_all['data'][$unit['id_skpd']]['data'][$program_value['id_unik']]['data'][$kegiatan_value['id_unik']]['pagu_akumulasi_2_subkegiatan']+=$sub_kegiatan_value['pagu_2'];
+											$data_all['data'][$unit['id_skpd']]['data'][$program_value['id_unik']]['data'][$kegiatan_value['id_unik']]['pagu_akumulasi_3_subkegiatan']+=$sub_kegiatan_value['pagu_3'];
+											$data_all['data'][$unit['id_skpd']]['data'][$program_value['id_unik']]['data'][$kegiatan_value['id_unik']]['pagu_akumulasi_4_subkegiatan']+=$sub_kegiatan_value['pagu_4'];
+											$data_all['data'][$unit['id_skpd']]['data'][$program_value['id_unik']]['data'][$kegiatan_value['id_unik']]['pagu_akumulasi_5_subkegiatan']+=$sub_kegiatan_value['pagu_5'];
+
+											$data_all['data'][$unit['id_skpd']]['pagu_1_sub_kegiatan_opd']+=$sub_kegiatan_value['pagu_1'];
+											$data_all['data'][$unit['id_skpd']]['pagu_2_sub_kegiatan_opd']+=$sub_kegiatan_value['pagu_2'];
+											$data_all['data'][$unit['id_skpd']]['pagu_3_sub_kegiatan_opd']+=$sub_kegiatan_value['pagu_3'];
+											$data_all['data'][$unit['id_skpd']]['pagu_4_sub_kegiatan_opd']+=$sub_kegiatan_value['pagu_4'];
+											$data_all['data'][$unit['id_skpd']]['pagu_5_sub_kegiatan_opd']+=$sub_kegiatan_value['pagu_5'];
+											
+											$data_all['pagu_1_subkegiatan_kab']+=$sub_kegiatan_value['pagu_1'];
+											$data_all['pagu_2_subkegiatan_kab']+=$sub_kegiatan_value['pagu_2'];
+											$data_all['pagu_3_subkegiatan_kab']+=$sub_kegiatan_value['pagu_3'];
+											$data_all['pagu_4_subkegiatan_kab']+=$sub_kegiatan_value['pagu_4'];
+											$data_all['pagu_5_subkegiatan_kab']+=$sub_kegiatan_value['pagu_5'];
+										}	
+									}
+								}
+							}
+						}
+					}
+				}	
+			}
+
+			// echo '<pre>';print_r($data_all);echo '</pre>';die();
+
+			for ($i=0; $i < $opt['lama_pelaksanaan']; $i++) { 
+				if(
+					($data_all['pagu_'.($i+1).'_program_kab'] != $data_all['pagu_'.($i+1).'_kegiatan_kab']) || 
+					($data_all['pagu_'.($i+1).'_program_kab'] != $data_all['pagu_'.($i+1).'_subkegiatan_kab']) || 
+					($data_all['pagu_'.($i+1).'_kegiatan_kab'] != $data_all['pagu_'.($i+1).'_subkegiatan_kab'])
+				){
+					
+					throw new Exception("
+						<p>Pagu akumulasi total di tahun ke ".($i+1)." tidak sama antara pagu indikator program, pagu indikator kegiatan dan pagu sub kegiatan.</p>
+						<table>
+							<thead>
+								<tr>
+									<th width='50%'>Data Renstra</th>
+									<th>Total Pagu</th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr>
+									<td>Program</td>
+									<td>".$this->_number_format($data_all['pagu_'.($i+1).'_program_kab'])."</td>
+								</tr>
+								<tr>
+									<td>Kegiatan</td>
+									<td>".$this->_number_format($data_all['pagu_'.($i+1).'_kegiatan_kab'])."</td>
+								</tr>
+								<tr>
+									<td>Sub Kegiatan</td>
+									<td>".$this->_number_format($data_all['pagu_'.($i+1).'_subkegiatan_kab'])."</td>
+								</tr>
+							</tbody>
+						</table>
+						", true);
+				}
+			}
+
+			foreach ($data_all['data'] as $unit) {
+				foreach ($unit['data'] as $valueProgram) {
+					foreach ($valueProgram['data'] as $keyKegiatan => $valueKegiatan) {
+						for ($i=0; $i < $opt['lama_pelaksanaan']; $i++) {
+							if(
+								$valueKegiatan['pagu_akumulasi_'.($i+1).'_kegiatan'] != 
+								$valueKegiatan['pagu_akumulasi_'.($i+1).'_subkegiatan']
+							){
+								throw new Exception("
+								<div>
+									<p>Pagu Akumulasi Tahun ke ".($i+1)." tidak sama antara pagu indikator kegiatan dan pagu sub kegiatannya.</p>
+									<table>
+										<thead>
+											<tr>
+												<th width='30%'>Unit Kerja</th>
+												<th width='30%'>Kegiatan</th>
+												<th>Pagu Kegiatan</th>
+												<th>Pagu Sub Kegiatan</th>
+											</tr>
+										</thead>
+										<tbody>
+											<tr>
+												<td>".$unit['unit_kerja']."</td>
+												<td>".$valueKegiatan['nama_kegiatan']."</td>
+												<td>".$this->_number_format($valueKegiatan['pagu_akumulasi_'.($i+1).'_kegiatan'])."</td>
+												<td>".$this->_number_format($valueKegiatan['pagu_akumulasi_'.($i+1).'_subkegiatan'])."</td>
+											</tr>
+										</tbody>
+									</table>
+								</div>", true);
+							}
+						}	
+					}
+
+					for ($i=0; $i < $opt['lama_pelaksanaan']; $i++) {
+						if(
+							$valueProgram['pagu_akumulasi_'.($i+1).'_program'] !=
+							$valueProgram['pagu_akumulasi_'.($i+1).'_kegiatan']
+						){
+							throw new Exception("
+								<div>
+									<p>Pagu Akumulasi Tahun ke ".($i+1)." tidak sama antara pagu indikator program dan pagu indikator kegiatannya.</p>
+									<table>
+										<thead>
+											<tr>
+												<th width='30%'>Unit Kerja</th>
+												<th width='30%'>Program</th>
+												<th>Pagu Program</th>
+												<th>Pagu Kegiatan</th>
+											</tr>
+										</thead>
+										<tbody>
+											<tr>
+												<td>".$unit['unit_kerja']."</td>
+												<td>".$valueProgram['nama_program']."</td>
+												<td>".$this->_number_format($valueProgram['pagu_akumulasi_'.($i+1).'_program'])."</td>
+												<td>".$this->_number_format($valueProgram['pagu_akumulasi_'.($i+1).'_kegiatan'])."</td>
+											</tr>
+										</tbody>
+									</table>
+								</div>", true);
+						}
+					}
+				}
 			}
 		}catch(Exception $e){
 			echo json_encode([
@@ -18696,4 +19030,5 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 			]);exit;
 		}
 	}
+
 }
