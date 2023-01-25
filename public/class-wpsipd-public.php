@@ -55,7 +55,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 	 */
 	public function __construct($plugin_name, $version, $simda)
 	{
-
+		ini_set('max_execution_time',0);
 		$this->plugin_name = $plugin_name;
 		$this->version = $version;
 		$this->simda = $simda;
@@ -4999,8 +4999,49 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		die(json_encode($ret));
 	}
 
-	function singkron_detail_spd(){
-		ini_set('max_execution_time',0);
+	//Import Data UP SKPD
+	public function singkron_up(){
+		global $wpdb;
+		$ret =array(
+			"status"=>"success",
+			"message"=>"Berhasil singkron Data SK UP",
+			"action"=>$_POST["action"]
+		);
+		//cek parameter dari client
+		if(!empty($_POST)){
+			//cek API KEY
+			if(!empty($_POST['api_key']) && $_POST['api_key']==get_option('_crb_api_key_extension')){
+				$data=$_POST["data"];
+				foreach($data as $k=>$v){
+					$cek=$wpdb->get_var($wpdb->prepare("select id_besaran_up from data_up_sipd where id_besaran_up=%d",$v["id_besaran_up"]));
+					$opsi=array(
+						"id_besaran_up"=>$v["id_besaran_up"],
+						"id_skpd"=>$v["id_skpd"],
+						"pagu"=>$v["besaran_up"],
+						"active"=>1,
+						"create_at"=>current_time('mysql'),
+						"tahun_anggaran"=>$_POST["tahun_anggaran"]
+					);
+
+					if(!empty($cek)){ //Jika variable cek tidak kosong update data up
+						$wpdb->update("data_up_sipd",$opsi,array("id_besaran_up"=>$v["id_besaran_up"]));
+					}else{
+						$wpdb->insert("data_up_sipd",$opsi);
+					}
+				}
+			}else{
+				$ret["status"]="error";
+				$ret["message"]="APIKEY tidak sesuai";
+			}
+		}else{
+			$ret["status"]="error";
+			$ret["message"]="Parameter data kosong";
+		}
+		die(json_encode($ret));
+	}
+	//Import data SPD SIPD Penatausahaan
+	public function singkron_detail_spd(){
+		
 		global $wpdb;
 		$ret=array(
 			'status'=>'success',
@@ -5011,7 +5052,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 			if(!empty($_POST['api_key']) && $_POST['api_key']==get_option('_crb_api_key_extension')){
 				$data=$_POST['data'];
 				//Insert atau update data spd
-				$cek=$wpdb->get_var("select idSpd from data_spd_sipd where idSpd=".$_POST['idSpd']." and tahun_anggaran=".$_POST['tahun_anggaran']);
+				$cek=$wpdb->get_var($wpdb->prepare("select idSpd from data_spd_sipd where idSpd=%d and tahun_anggaran=%d",$_POST["idSpd"],$_POST["tahun_anggaran"]));
 				$opsi=array(
 					"idSpd"=>$_POST["idSpd"],
 					"nomorSpd"=>$_POST["nomorSpd"],
@@ -5030,7 +5071,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 				}
 				//Insert atau update data detail spd
 				foreach($data as $k =>$v){
-					$cek=$wpdb->get_var("select idDetailSpd from data_spd_sipd_detail where idDetailSpd=".$v["idDetailSpd"].' and tahun_anggaran='.$_POST['tahun_anggaran']);
+					$cek=$wpdb->get_var($wpdb->prepare("select idDetailSpd from data_spd_sipd_detail where idDetailSpd=%d and tahun_anggaran=%d",$v["idDetailSpd"],$_POST['tahun_anggaran']));
 					$opsi= array(
 						'idDetailSpd'=>$v["idDetailSpd"],
 						'idSpd'=>$v["idSpd"],

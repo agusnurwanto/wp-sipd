@@ -279,6 +279,9 @@ class Wpsipd
 		$this->loader->add_action('wp_ajax_singkron_anggaran_kas',  $plugin_public, 'singkron_anggaran_kas');
 		$this->loader->add_action('wp_ajax_nopriv_singkron_anggaran_kas',  $plugin_public, 'singkron_anggaran_kas');
 		
+		$this->loader->add_action('wp_ajax_singkron_up',  $plugin_public, 'singkron_up');
+		$this->loader->add_action('wp_ajax_nopriv_singkron_up',  $plugin_public, 'singkron_up');
+		
 		$this->loader->add_action('wp_ajax_singkron_detail_spd',  $plugin_public, 'singkron_detail_spd');
 		$this->loader->add_action('wp_ajax_nopriv_singkron_detail_spd',  $plugin_public, 'singkron_detail_spd');
 
