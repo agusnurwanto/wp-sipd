@@ -2007,40 +2007,53 @@ class Wpsipd_Public_Base_3
 								", $prog['id_unik']), 
 						ARRAY_A);
 
+						$program[$k]['pagu_akumulasi_1'] = 0;
+						$program[$k]['pagu_akumulasi_2'] = 0;
+						$program[$k]['pagu_akumulasi_3'] = 0;
+						$program[$k]['pagu_akumulasi_4'] = 0;
+						$program[$k]['pagu_akumulasi_5'] = 0;
+						$program[$k]['pagu_akumulasi_1_usulan'] = 0;
+						$program[$k]['pagu_akumulasi_2_usulan'] = 0;
+						$program[$k]['pagu_akumulasi_3_usulan'] = 0;
+						$program[$k]['pagu_akumulasi_4_usulan'] = 0;
+						$program[$k]['pagu_akumulasi_5_usulan'] = 0;
+
 						$kd_all_keg = [];
 						foreach ($kegiatan as $key => $keg) {
 							$kd_all_keg[]="'".$keg['id_unik']."'";
 						}
-						
-						$kd_keg = implode(",", $kd_all_keg);
-						$pagu = $wpdb->get_row($wpdb->prepare("
-							SELECT 
-								coalesce(sum(pagu_1), 0) as pagu_akumulasi_1,
-								coalesce(sum(pagu_2), 0) as pagu_akumulasi_2,
-								coalesce(sum(pagu_3), 0) as pagu_akumulasi_3,
-								coalesce(sum(pagu_4), 0) as pagu_akumulasi_4,
-								coalesce(sum(pagu_5), 0) as pagu_akumulasi_5,
-								coalesce(sum(pagu_1_usulan), 0) as pagu_akumulasi_1_usulan,
-								coalesce(sum(pagu_2_usulan), 0) as pagu_akumulasi_2_usulan,
-								coalesce(sum(pagu_3_usulan), 0) as pagu_akumulasi_3_usulan,
-								coalesce(sum(pagu_4_usulan), 0) as pagu_akumulasi_4_usulan,
-								coalesce(sum(pagu_5_usulan), 0) as pagu_akumulasi_5_usulan
-							from data_renstra_sub_kegiatan_lokal 
-							where id_unik_indikator IS NULL
-								AND kode_kegiatan in (".$kd_keg.")
-								AND active=1
-						"));
 
-						$program[$k]['pagu_akumulasi_1'] = $pagu->pagu_akumulasi_1;
-						$program[$k]['pagu_akumulasi_2'] = $pagu->pagu_akumulasi_2;
-						$program[$k]['pagu_akumulasi_3'] = $pagu->pagu_akumulasi_3;
-						$program[$k]['pagu_akumulasi_4'] = $pagu->pagu_akumulasi_4;
-						$program[$k]['pagu_akumulasi_5'] = $pagu->pagu_akumulasi_5;
-						$program[$k]['pagu_akumulasi_1_usulan'] = $pagu->pagu_akumulasi_1_usulan;
-						$program[$k]['pagu_akumulasi_2_usulan'] = $pagu->pagu_akumulasi_2_usulan;
-						$program[$k]['pagu_akumulasi_3_usulan'] = $pagu->pagu_akumulasi_3_usulan;
-						$program[$k]['pagu_akumulasi_4_usulan'] = $pagu->pagu_akumulasi_4_usulan;
-						$program[$k]['pagu_akumulasi_5_usulan'] = $pagu->pagu_akumulasi_5_usulan;
+						if(!empty($kd_all_keg)){
+							$kd_keg = implode(",", $kd_all_keg);
+							$pagu = $wpdb->get_row($wpdb->prepare("
+								SELECT 
+									coalesce(sum(pagu_1), 0) as pagu_akumulasi_1,
+									coalesce(sum(pagu_2), 0) as pagu_akumulasi_2,
+									coalesce(sum(pagu_3), 0) as pagu_akumulasi_3,
+									coalesce(sum(pagu_4), 0) as pagu_akumulasi_4,
+									coalesce(sum(pagu_5), 0) as pagu_akumulasi_5,
+									coalesce(sum(pagu_1_usulan), 0) as pagu_akumulasi_1_usulan,
+									coalesce(sum(pagu_2_usulan), 0) as pagu_akumulasi_2_usulan,
+									coalesce(sum(pagu_3_usulan), 0) as pagu_akumulasi_3_usulan,
+									coalesce(sum(pagu_4_usulan), 0) as pagu_akumulasi_4_usulan,
+									coalesce(sum(pagu_5_usulan), 0) as pagu_akumulasi_5_usulan
+								from data_renstra_sub_kegiatan_lokal 
+								where id_unik_indikator IS NULL
+									AND kode_kegiatan in (".$kd_keg.")
+									AND active=1
+							"));
+
+							$program[$k]['pagu_akumulasi_1'] = $pagu->pagu_akumulasi_1;
+							$program[$k]['pagu_akumulasi_2'] = $pagu->pagu_akumulasi_2;
+							$program[$k]['pagu_akumulasi_3'] = $pagu->pagu_akumulasi_3;
+							$program[$k]['pagu_akumulasi_4'] = $pagu->pagu_akumulasi_4;
+							$program[$k]['pagu_akumulasi_5'] = $pagu->pagu_akumulasi_5;
+							$program[$k]['pagu_akumulasi_1_usulan'] = $pagu->pagu_akumulasi_1_usulan;
+							$program[$k]['pagu_akumulasi_2_usulan'] = $pagu->pagu_akumulasi_2_usulan;
+							$program[$k]['pagu_akumulasi_3_usulan'] = $pagu->pagu_akumulasi_3_usulan;
+							$program[$k]['pagu_akumulasi_4_usulan'] = $pagu->pagu_akumulasi_4_usulan;
+							$program[$k]['pagu_akumulasi_5_usulan'] = $pagu->pagu_akumulasi_5_usulan;
+						}
 					}
 				}else{
 					$tahun_anggaran = $_POST['tahun_anggaran'];
@@ -4754,7 +4767,7 @@ class Wpsipd_Public_Base_3
 						    background: #baffba;
 						}
 						.tr-kegiatan {
-						    background: #f904bd52;
+						    background: #13d0d03d;
 						}
 					</style>
 					<div id="preview">
@@ -5370,6 +5383,8 @@ class Wpsipd_Public_Base_3
 															'pagu_3_usulan' => $sub_kegiatan_value['pagu_3_usulan'],
 															'pagu_4_usulan' => $sub_kegiatan_value['pagu_4_usulan'],
 															'pagu_5_usulan' => $sub_kegiatan_value['pagu_5_usulan'],
+															'id_sub_unit' => $sub_kegiatan_value['id_sub_unit'],
+															'nama_sub_unit' => $sub_kegiatan_value['nama_sub_unit'],
 															'indikator' => array(),
 														];
 													}
@@ -5498,6 +5513,7 @@ class Wpsipd_Public_Base_3
 								<td class="atas kanan bawah text_tengah td-usulan">'.$satuan_usulan.'</td>
 								<td class="atas kanan bawah td-usulan">'.$tujuan['catatan_usulan'].'</td>
 								<td class="atas kanan bawah td-usulan">'.$catatan_indikator_usulan.'</td>
+								<td class="atas kanan bawah"></td>
 							</tr>
 					';
 
@@ -5579,6 +5595,7 @@ class Wpsipd_Public_Base_3
 									<td class="atas kanan bawah td-usulan">'.$satuan_usulan.'</td>
 									<td class="atas kanan bawah td-usulan">'.$sasaran['catatan_usulan'].'</td>
 									<td class="atas kanan bawah td-usulan">'.$catatan_indikator_usulan.'</td>
+									<td class="atas kanan bawah"></td>
 								</tr>
 						';
 						
@@ -5694,6 +5711,7 @@ class Wpsipd_Public_Base_3
 										<td class="atas kanan bawah td-usulan"><br>'.$satuan_usulan.'</td>
 										<td class="atas kanan bawah td-usulan">'.$program['catatan_usulan'].'</td>
 										<td class="atas kanan bawah td-usulan"><br>'.$catatan_indikator_usulan.'</td>
+										<td class="atas kanan bawah"></td>
 									</tr>
 							';
 							
@@ -5807,6 +5825,7 @@ class Wpsipd_Public_Base_3
 											<td class="atas kanan bawah td-usulan"><br>'.$satuan_usulan.'</td>
 											<td class="atas kanan bawah td-usulan"><br>'.$kegiatan['catatan_usulan'].'</td>
 											<td class="atas kanan bawah td-usulan">'.$catatan_indikator_usulan.'</td>
+											<td class="atas kanan bawah"></td>
 										</tr>
 								';
 
@@ -5904,6 +5923,7 @@ class Wpsipd_Public_Base_3
 												<td class="atas kanan bawah td-usulan"><br>'.$satuan_usulan.'</td>
 												<td class="atas kanan bawah td-usulan"><br>'.$kegiatan['catatan_usulan'].'</td>
 												<td class="atas kanan bawah td-usulan">'.$catatan_indikator_usulan.'</td>
+												<td class="atas kanan bawah">'.$sub_kegiatan['nama_sub_unit'].'</td>
 											</tr>
 									';
 								}
@@ -5923,8 +5943,42 @@ class Wpsipd_Public_Base_3
 						$body.="<td colspan='2' class=\"atas kanan bawah text_kanan\"><b>".$this->_number_format($data_all['pagu_akumulasi_'.($i+1).'_usulan'])."</b></td>";
 					}
 				$body.='
-					<td colspan="5" class="atas kanan bawah"></td>
+					<td colspan="6" class="atas kanan bawah"></td>
 				</tr>';
+
+				$table='<table cellpadding="2" cellspacing="0" style="font-family:\'Open Sans\',-apple-system,BlinkMacSystemFont,\'Segoe UI\',sans-serif; border-collapse: collapse; font-size: 80%; border: 0; table-layout: fixed;margin:30px 0px 30px 0px" contenteditable="false">
+						<thead>
+							<tr style="background:#ddf0a6">
+								<th class="kiri atas kanan bawah text_tengah lebar1">Pagu Akumulasi Sub Kegiatan Per Tahun Anggaran</th>';
+								for ($i=0; $i < $jadwal_lokal->lama_pelaksanaan; $i++) {
+									$table.="<th class=\"kiri atas kanan bawah text_tengah lebar2\">Tahun ".($i+1)."</th>";
+								}
+				$table.='</tr>
+						</thead>
+						<tbody>
+							<tr style="background:#a2e9d1">
+								<td class="kiri kanan bawah text_tengah"><b>Pagu Penetapan</b></td>';
+								for ($i=0; $i < $jadwal_lokal->lama_pelaksanaan; $i++) {
+									$table.="<td class=\"atas kanan bawah text_kanan\">".$this->_number_format($data_all['pagu_akumulasi_'.($i+1)])."</td>";
+								}
+				$table.='</tr>
+							<tr style="background:#b0ffb0">
+								<td class="kiri kanan bawah text_tengah"><b>Pagu Usulan</b></td>';
+								for ($i=0; $i < $jadwal_lokal->lama_pelaksanaan; $i++) {
+									$table.="<td class=\" kanan bawah text_kanan\">".$this->_number_format($data_all['pagu_akumulasi_'.($i+1).'_usulan'])."</td>";
+								}
+				$table.='
+							</tr>
+							<tr>
+								<td class="kiri kanan bawah text_tengah"><b>Selisih</b></td>';
+								for ($i=0; $i < $jadwal_lokal->lama_pelaksanaan; $i++) {
+									$selisih=($data_all['pagu_akumulasi_'.($i+1)])-($data_all['pagu_akumulasi_'.($i+1).'_usulan']);
+									$table.="<td class=\"atas kanan bawah text_kanan\">".$this->_number_format($selisih)."</td>";
+								}
+				$table.='
+							</tr>
+						</tbody>
+					</table>';
 
 				$html='
 					<style type="text/css">
@@ -5940,7 +5994,7 @@ class Wpsipd_Public_Base_3
 						    background: #baffba;
 						}
 						.tr-kegiatan {
-						    background: #f904bd52;
+						    background: #13d0d03d;
 						}
 						.tr-total-pagu-opd{
 							background: #83efef;
@@ -5950,8 +6004,9 @@ class Wpsipd_Public_Base_3
 						}
 					</style>
 					<div id="preview" style="padding: 5px; overflow: auto; height: 80vh;">
-						<h4 style="text-align: center; margin: 0; font-weight: bold;">RENCANA STRATEGIS (RENSTRA) 
+						<h4 style="text-align: center; margin: 0; font-weight: bold;">RENCANA STRATEGIS (RENSTRA)
 						<br>'.$judul_skpd.'Tahun '.$jadwal_lokal->awal_renstra.' - '.$jadwal_lokal->akhir_renstra.' '.$nama_pemda.'</h4>
+						'.$table.'
 						<table id="table-renstra" cellpadding="2" cellspacing="0" style="font-family:\'Open Sans\',-apple-system,BlinkMacSystemFont,\'Segoe UI\',sans-serif; border-collapse: collapse; font-size: 70%; border: 0; table-layout: fixed;" contenteditable="false">
 							<thead><tr>
 									<th style="width: 85px;" rowspan="2" class="atas kiri kanan bawah text_tengah text_blok">No</th>
@@ -5984,6 +6039,7 @@ class Wpsipd_Public_Base_3
 									<th style="width: 100px;" rowspan="2" class="atas kanan bawah text_tengah text_blok td-usulan">Satuan Usulan</th>
 									<th style="width: 150px;" rowspan="2" class="atas kanan bawah text_tengah text_blok td-usulan">Catatan Usulan</th>
 									<th style="width: 150px;" rowspan="2" class="atas kanan bawah text_tengah text_blok td-usulan">Catatan Indikator Usulan</th>
+									<th style="width: 150px;" rowspan="2" class="atas kanan bawah text_tengah text_blok td-usulan">Sub Unit Pelaksana</th>
 								</tr>
 								<tr>';
 								for ($i=1; $i <= $jadwal_lokal->lama_pelaksanaan; $i++) { 
@@ -6045,6 +6101,7 @@ class Wpsipd_Public_Base_3
 									<th class='atas kanan bawah text_tengah text_blok td-usulan'>".($pagu_temp+2)."</th>
 									<th class='atas kanan bawah text_tengah text_blok td-usulan'>".($pagu_temp+3)."</th>
 									<th class='atas kanan bawah text_tengah text_blok td-usulan'>".($pagu_temp+4)."</th>
+									<th class='atas kanan bawah text_tengah text_blok td-usulan'>".($pagu_temp+5)."</th>
 								</tr>
 							</thead>
 							<tbody>".$body."</tbody>
@@ -6362,14 +6419,6 @@ class Wpsipd_Public_Base_3
 
 					$this->verify_sub_kegiatan_renstra($data);
 
-					$where_unit = '';
-					$info_sub_unit_exist = '';
-					if(!empty($data['id_sub_unit'])){
-						$sub_unit = $wpdb->get_row($wpdb->prepare("SELECT nama_skpd FROM data_unit WHERE id_skpd=%d AND tahun_anggaran=%d", $data['id_sub_unit'], get_option('_crb_tahun_anggaran_sipd')));
-						$where_unit = ' AND id_sub_unit = ' . $data['id_sub_unit'];
-						$info_sub_unit_exist = ' Sudah pernah ditambahkan ke ' . $sub_unit->nama_skpd;
-					}
-
 					$id_cek = $wpdb->get_var($wpdb->prepare("
 						SELECT 
 							id 
@@ -6378,11 +6427,12 @@ class Wpsipd_Public_Base_3
 							AND kode_giat=%s
 							AND kode_kegiatan=%s
 							AND active=1
-							AND id_unik_indikator IS NULL $where_unit
-					", $data['id_sub_kegiatan'], $data['kode_giat'], $data['kode_kegiatan']));
+							AND id_sub_unit=%d 
+							AND id_unik_indikator IS NULL
+					", $data['id_sub_kegiatan'], $data['kode_giat'], $data['kode_kegiatan'], $data['id_sub_unit']));
 					
 					if(!empty($id_cek)){
-						throw new Exception('Sub Kegiatan : '.$data['sub_kegiatan_teks'].' sudah ada! '.$info_sub_unit_exist.' id='.$id_cek);
+						throw new Exception('Sub Kegiatan : '.$data['sub_kegiatan_teks'].' sudah ada! id='.$id_cek);
 					}
 
 					$dataKegiatan = $wpdb->get_row($wpdb->prepare("
@@ -6410,6 +6460,12 @@ class Wpsipd_Public_Base_3
 						throw new Exception('Sub Kegiatan tidak ditemukan!');
 					}
 
+					$dataSubUnit = $wpdb->get_row($wpdb->prepare("SELECT kode_skpd, nama_skpd FROM data_unit WHERE id_skpd=%d AND tahun_anggaran=%d", $data['id_sub_unit'], get_option('_crb_tahun_anggaran_sipd')));
+
+					if(empty($dataSubUnit)){
+						throw new Exception('Sub Unit tidak ditemukan di tahun anggaran '.get_option('_crb_tahun_anggaran_sipd').'!');
+					}
+
 					try {
 
 					$inputs = [
@@ -6422,7 +6478,7 @@ class Wpsipd_Public_Base_3
 							'id_program' => $dataKegiatan->id_program,
 							'id_unik' => $this->generateRandomString(), // kode_sub_kegiatan
 							'id_unit' => $dataKegiatan->id_unit,
-							'id_sub_unit' => !empty($data['id_sub_unit']) ? $data['id_sub_unit'] : null,
+							'id_sub_unit' => $data['id_sub_unit'],
 							'id_visi' => $dataKegiatan->id_visi,
 							'is_locked' => 0,
 							'is_locked_indikator' => 0,
@@ -6439,7 +6495,7 @@ class Wpsipd_Public_Base_3
 							'nama_giat' => $dataKegiatan->nama_giat,
 							'nama_program' => $dataKegiatan->nama_program,
 							'nama_skpd' => $dataKegiatan->nama_skpd,
-							'nama_sub_unit' => !empty($data['id_sub_unit']) ? $sub_unit->nama_skpd : null,
+							'nama_sub_unit' => $dataSubUnit->kode_skpd." ".$dataSubUnit->nama_skpd,
 							'program_lock' => $dataKegiatan->program_lock,
 							'renstra_prog_lock' => $dataKegiatan->program_lock,
 							'sasaran_lock' => $dataKegiatan->sasaran_lock,
@@ -6547,57 +6603,6 @@ class Wpsipd_Public_Base_3
 
 					$this->verify_sub_kegiatan_renstra($data);
 
-					$sub_keg_exist = $wpdb->get_row($wpdb->prepare("SELECT id_sub_unit, nama_sub_unit FROM data_renstra_sub_kegiatan_lokal WHERE id=%d", $data['id']));
-
-					$where_unit='';
-					$info_sub_unit_exist='';
-					$inputs=[];
-					$inputs_indikator=[];
-					if(!empty($sub_keg_exist->id_sub_unit)){
-						if(!empty($data['id_sub_unit'])){
-
-							// child ke child lain
-							if($sub_keg_exist->id_sub_unit != $data['id_sub_unit']){
-								$sub_unit = $wpdb->get_row($wpdb->prepare("SELECT nama_skpd FROM data_unit WHERE id_skpd=%d AND tahun_anggaran=%d", $data['id_sub_unit'], get_option('_crb_tahun_anggaran_sipd')));
-								$where_unit=' AND id_sub_unit='.$data['id_sub_unit'];
-								$info_sub_unit_exist = 'Sudah pernah ditambahkan ke ' . $sub_unit->nama_skpd;
-								$inputs['nama_sub_unit'] = $sub_unit->nama_skpd;
-								$inputs_indikator['nama_sub_unit'] = $sub_unit->nama_skpd;
-							}else{
-								$where_unit=' AND id_sub_unit='.$sub_keg_exist->id_sub_unit;
-								$info_sub_unit_exist = 'Sudah pernah ditambahkan ke ' . $sub_keg_exist->nama_skpd;
-								$inputs['nama_sub_unit'] = $sub_keg_exist->nama_sub_unit;
-								$inputs_indikator['nama_sub_unit'] = $sub_keg_exist->nama_sub_unit;
-							}
-							$inputs['id_sub_unit'] = $data['id_sub_unit'];
-							$inputs_indikator['id_sub_unit'] = $data['id_sub_unit'];
-						}else{
-
-							// child ke parent
-							$sub_unit = $wpdb->get_row($wpdb->prepare("SELECT id_unit, (SELECT nama_skpd FROM data_unit WHERE id_skpd=sub_unit.id_unit AND is_skpd=1 AND tahun_anggaran=%d) nama_skpd_induk, nama_skpd FROM data_unit sub_unit WHERE id_skpd=%d AND tahun_anggaran=%d", get_option('_crb_tahun_anggaran_sipd'), $data['id_sub_unit'], get_option('_crb_tahun_anggaran_sipd')));
-							$where_unit=' AND id_sub_unit IS NULL';
-							$info_sub_unit_exist = 'Sudah pernah ditambahkan ke ' . $sub_unit->nama_skpd_induk;
-							$inputs['nama_sub_unit'] = null;
-							$inputs['id_sub_unit'] = null;
-							$inputs_indikator['nama_sub_unit'] = null;
-							$inputs_indikator['id_sub_unit'] = null;
-						}
-					}else{
-						
-						// parent ke child
-						if(!empty($data['id_sub_unit'])){
-							$sub_unit = $wpdb->get_row($wpdb->prepare("SELECT nama_skpd FROM data_unit WHERE id_skpd=%d AND tahun_anggaran=%d", $data['id_sub_unit'], get_option('_crb_tahun_anggaran_sipd')));
-							$where_unit=' AND id_sub_unit = ' . $data['id_sub_unit'];
-							$info_sub_unit_exist = 'Sudah pernah ditambahkan ke ' . $sub_unit->nama_skpd;
-							$inputs['nama_sub_unit'] = $sub_unit->nama_skpd;
-							$inputs['id_sub_unit'] = $data['id_sub_unit'];
-							$inputs_indikator['nama_sub_unit'] = $sub_unit->nama_skpd;
-							$inputs_indikator['id_sub_unit'] = $data['id_sub_unit'];
-						}else{
-							$where_unit=' AND id_sub_unit IS NULL';
-						}
-					}
-
 					$id_cek = $wpdb->get_var($wpdb->prepare("
 							SELECT 
 								id 
@@ -6608,11 +6613,12 @@ class Wpsipd_Public_Base_3
 								AND kode_giat=%s
 								AND kode_kegiatan=%s
 								AND active=1
-								AND id_unik_indikator IS NULL $where_unit
-						", $data['id'], $data['id_sub_giat'], $data['id_giat'], $data['kode_giat'], $data['kode_kegiatan']));
+								AND id_sub_unit=%d 
+								AND id_unik_indikator IS NULL
+						", $data['id'], $data['id_sub_giat'], $data['id_giat'], $data['kode_giat'], $data['kode_kegiatan'], $data['id_sub_unit']));
 					
 					if(!empty($id_cek)){
-						throw new Exception('Sub Kegiatan : '.$data['sub_kegiatan_teks'].' sudah ada! '.$info_sub_unit_exist.' id='.$id_cek);
+						throw new Exception('Sub Kegiatan : '.$data['sub_kegiatan_teks'].' sudah ada! id='.$id_cek);
 					}
 
 					$dataKegiatan = $wpdb->get_row($wpdb->prepare("
@@ -6640,6 +6646,12 @@ class Wpsipd_Public_Base_3
 						throw new Exception('Sub Kegiatan tidak ditemukan!');
 					}
 
+					$dataSubUnit = $wpdb->get_row($wpdb->prepare("SELECT kode_skpd, nama_skpd FROM data_unit WHERE id_skpd=%d AND tahun_anggaran=%d", $data['id_sub_unit'], get_option('_crb_tahun_anggaran_sipd')));
+
+					if(empty($dataSubUnit)){
+						throw new Exception('Sub Unit tidak ditemukan di tahun anggaran '.get_option('_crb_tahun_anggaran_sipd').'!');
+					}
+
 					try {
 
 						add_filter( 'query', array($this, 'wpsipd_query') );
@@ -6652,6 +6664,7 @@ class Wpsipd_Public_Base_3
 						$inputs['id_misi'] = $dataKegiatan->id_misi;
 						$inputs['id_program'] = $dataKegiatan->id_program;
 						$inputs['id_unit'] = $dataKegiatan->id_unit;
+						$inputs['id_sub_unit'] = $data['id_sub_unit'];
 						$inputs['id_visi'] = $dataKegiatan->id_visi;
 						$inputs['kode_bidang_urusan'] = $dataKegiatan->kode_bidang_urusan;
 						$inputs['kode_sub_giat'] = $dataSubKegiatan->kode_sub_giat;
@@ -6666,6 +6679,7 @@ class Wpsipd_Public_Base_3
 						$inputs['nama_giat'] = $dataKegiatan->nama_giat;
 						$inputs['nama_program'] = $dataKegiatan->nama_program;
 						$inputs['nama_skpd'] = $dataKegiatan->nama_skpd;
+						$inputs['nama_sub_unit'] = $dataSubUnit->kode_skpd." ".$dataSubUnit->nama_skpd;
 						$inputs['program_lock'] = $dataKegiatan->program_lock;
 						$inputs['renstra_prog_lock'] = $dataKegiatan->program_lock;
 						$inputs['sasaran_lock'] = $dataKegiatan->sasaran_lock;
@@ -6713,6 +6727,7 @@ class Wpsipd_Public_Base_3
 						$inputs_indikator['id_misi'] = $dataKegiatan->id_misi;
 						$inputs_indikator['id_program'] = $dataKegiatan->id_program;
 						$inputs_indikator['id_unit'] = $dataKegiatan->id_unit;
+						$inputs_indikator['id_sub_unit'] = $data['id_sub_unit'];
 						$inputs_indikator['id_visi'] = $dataKegiatan->id_visi;
 						$inputs_indikator['kode_bidang_urusan'] = $dataKegiatan->kode_bidang_urusan;
 						$inputs_indikator['kode_sub_giat'] = $dataSubKegiatan->kode_sub_giat;
@@ -6727,6 +6742,7 @@ class Wpsipd_Public_Base_3
 						$inputs_indikator['nama_giat'] = $dataKegiatan->nama_giat;
 						$inputs_indikator['nama_program'] = $dataKegiatan->nama_program;
 						$inputs_indikator['nama_skpd'] = $dataKegiatan->nama_skpd;
+						$inputs_indikator['nama_sub_unit'] = $dataSubUnit->kode_skpd." ".$dataSubUnit->nama_skpd;
 						$inputs_indikator['program_lock'] = $dataKegiatan->program_lock;
 						$inputs_indikator['renstra_prog_lock'] = $dataKegiatan->program_lock;
 						$inputs_indikator['sasaran_lock'] = $dataKegiatan->sasaran_lock;
@@ -6822,6 +6838,10 @@ class Wpsipd_Public_Base_3
 	private function verify_sub_kegiatan_renstra(array $data){
 		if(empty($data['id_sub_kegiatan'])){
 			throw new Exception('Sub Kegiatan wajib dipilih!');
+		}
+
+		if(empty($data['id_sub_unit'])){
+			throw new Exception('Sub Unit wajib dipilih!');
 		}
 
 		for ($i=1; $i <= $data['lama_pelaksanaan'] ; $i++) { 

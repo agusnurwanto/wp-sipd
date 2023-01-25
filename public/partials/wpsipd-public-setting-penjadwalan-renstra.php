@@ -380,9 +380,18 @@ $body = '';
 	}
 
 	function lock_data_penjadwalan(id_jadwal_lokal){
-		let confirmLocked = confirm("Apakah anda yakin akan mengunci penjadwalan?");
-		if(confirmLocked){
-			jQuery('#wrap-loading').show();
+		Swal.fire({
+		  title: 'Kunci Penjadwalan Renstra?',
+		  text: "Apakah anda yakin akan mengunci penjadwalan?",
+		  icon: 'warning',
+		  showCancelButton: true,
+		  confirmButtonColor: '#3085d6',
+		  cancelButtonColor: '#d33',
+		  confirmButtonText: 'Kunci Jadwal!',
+		  cancelButtonText: 'Batal',
+		}).then((result) => {
+		  if (result.isConfirmed) {
+		    jQuery('#wrap-loading').show();
 			jQuery.ajax({
 				url: thisAjaxUrl,
 				type:'post',
@@ -398,6 +407,7 @@ $body = '';
 						Swal.fire({
 						  title: 'Success!',
 						  html: 'Data berhasil dikunci!.',
+						  confirmButtonText: 'Tutup',
 						  icon: 'success'
 						})
 						penjadwalanTable.ajax.reload();
@@ -405,12 +415,15 @@ $body = '';
 						Swal.fire({
 						  title: 'Oops!',
 						  html: response.message,
-						  icon: 'error'
+						  confirmButtonText: 'Tutup',
+						  icon: 'error',
+		  				  width: '950px'
 						})
 					}
 				}
 			});
-		}
+		  }
+		})
 	}
 
 	jQuery(function() {
@@ -530,8 +543,8 @@ $body = '';
 					list_opd+=`<option value="${v.id_skpd}">${v.nama_skpd}</option>`;
 				});
 				jQuery("#list_opd").html(list_opd);
-				jQuery('.list_opd').select2();
-				jQuery('.jenis').select2();		
+				jQuery('.list_opd').select2({width: '100%'});
+				jQuery('.jenis').select2({width: '100%'});
 			}
 		})
 	}

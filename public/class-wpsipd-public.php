@@ -18954,8 +18954,32 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 					($data_all['pagu_'.($i+1).'_program_kab'] != $data_all['pagu_'.($i+1).'_subkegiatan_kab']) || 
 					($data_all['pagu_'.($i+1).'_kegiatan_kab'] != $data_all['pagu_'.($i+1).'_subkegiatan_kab'])
 				){
+					
 					throw new Exception("
-						<p>Pagu Akumulasi Total di tahun ke ".($i+1)." tidak sama antara pagu indikator program, pagu indikator kegiatan dan pagu sub kegiatan.</p>", true);
+						<p>Pagu akumulasi total di tahun ke ".($i+1)." tidak sama antara pagu indikator program, pagu indikator kegiatan dan pagu sub kegiatan.</p>
+						<table>
+							<thead>
+								<tr>
+									<th width='50%'>Data Renstra</th>
+									<th>Total Pagu</th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr>
+									<td>Program</td>
+									<td>".$this->_number_format($data_all['pagu_'.($i+1).'_program_kab'])."</td>
+								</tr>
+								<tr>
+									<td>Kegiatan</td>
+									<td>".$this->_number_format($data_all['pagu_'.($i+1).'_kegiatan_kab'])."</td>
+								</tr>
+								<tr>
+									<td>Sub Kegiatan</td>
+									<td>".$this->_number_format($data_all['pagu_'.($i+1).'_subkegiatan_kab'])."</td>
+								</tr>
+							</tbody>
+						</table>
+						", true);
 				}
 			}
 
@@ -18973,14 +18997,18 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 									<table>
 										<thead>
 											<tr>
-												<th>Unit Kerja</th>
-												<th>Kegiatan</th>
+												<th width='30%'>Unit Kerja</th>
+												<th width='30%'>Kegiatan</th>
+												<th>Pagu Kegiatan</th>
+												<th>Pagu Sub Kegiatan</th>
 											</tr>
 										</thead>
 										<tbody>
 											<tr>
 												<td>".$unit['unit_kerja']."</td>
 												<td>".$valueKegiatan['nama_kegiatan']."</td>
+												<td>".$this->_number_format($valueKegiatan['pagu_akumulasi_'.($i+1).'_kegiatan'])."</td>
+												<td>".$this->_number_format($valueKegiatan['pagu_akumulasi_'.($i+1).'_subkegiatan'])."</td>
 											</tr>
 										</tbody>
 									</table>
@@ -19000,14 +19028,18 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 									<table>
 										<thead>
 											<tr>
-												<th>Unit Kerja</th>
-												<th>Program</th>
+												<th width='30%'>Unit Kerja</th>
+												<th width='30%'>Program</th>
+												<th>Pagu Program</th>
+												<th>Pagu Kegiatan</th>
 											</tr>
 										</thead>
 										<tbody>
 											<tr>
 												<td>".$unit['unit_kerja']."</td>
 												<td>".$valueProgram['nama_program']."</td>
+												<td>".$this->_number_format($valueProgram['pagu_akumulasi_'.($i+1).'_program'])."</td>
+												<td>".$this->_number_format($valueProgram['pagu_akumulasi_'.($i+1).'_kegiatan'])."</td>
 											</tr>
 										</tbody>
 									</table>
