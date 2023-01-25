@@ -5542,6 +5542,31 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		}
 	}
 
+	function singkron_kas_fmis(){
+		global $wpdb;
+		$ret = array(
+			'status'	=> 'success',
+			'action'	=> $_POST['action'],
+			'data'	=> array()
+		);
+		if (!empty($_POST)) {
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+				// on progress
+			} else {
+				$ret['status'] = 'error';
+				$ret['message'] = 'APIKEY tidak sesuai!';
+			}
+		} else {
+			$ret['status'] = 'error';
+			$ret['message'] = 'Format Salah!';
+		}
+		if($no_debug){
+			return $ret;
+		}else{
+			die(json_encode($ret));
+		}
+	}
+
 	function get_kas($no_debug=false){
 		global $wpdb;
 		$ret = array(
