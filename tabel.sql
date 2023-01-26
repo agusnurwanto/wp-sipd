@@ -368,6 +368,7 @@ CREATE TABLE `data_prog_keg` (
   `id` int(11) NOT NULL auto_increment,
   `id_bidang_urusan` int(11) NOT NULL,
   `id_program` int(11) NOT NULL,
+  `id_giat` int(11) NOT NULL,
   `id_sub_giat` int(11) NOT NULL,
   `id_urusan` int(11) NOT NULL,
   `is_locked` int(11) NOT NULL,
