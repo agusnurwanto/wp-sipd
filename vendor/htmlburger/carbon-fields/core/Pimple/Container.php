@@ -92,7 +92,7 @@ class Container implements \ArrayAccess
      *
      * @throws \InvalidArgumentException if the identifier is not defined
      */
-    public function offsetGet($id): mixed
+    public function offsetGet($id): object
     {
         if (!isset($this->keys[$id])) {
             throw new \InvalidArgumentException(sprintf('Identifier "%s" is not defined.', $id));

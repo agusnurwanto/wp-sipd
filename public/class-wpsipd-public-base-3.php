@@ -1964,7 +1964,7 @@ class Wpsipd_Public_Base_3
 						WHERE kode_sasaran=%s AND
 							id_unik IS NOT NULL and
 							id_unik_indikator IS NULL and
-							active=1 ORDER BY id_program
+							active=1 ORDER BY nama_program
 					", $_POST['kode_sasaran']);
 					$program = $wpdb->get_results($sql, ARRAY_A);
 
@@ -2996,7 +2996,7 @@ class Wpsipd_Public_Base_3
 							k.id_unik IS NOT NULL and
 							k.id_unik_indikator IS NULL and
 							k.active=1 
-						ORDER BY id_giat
+						ORDER BY nama_giat
 					", $_POST['kode_program']);
 					$kegiatan = $wpdb->get_results($sql, ARRAY_A);
 					foreach($kegiatan as $k => $keg){
@@ -4443,7 +4443,7 @@ class Wpsipd_Public_Base_3
 										kode_sasaran=%s AND 
 										kode_tujuan=%s AND 
 										active=1 $where
-									ORDER BY id_program
+									ORDER BY nama_program
 								", $sasaran_value['id_unik'], $tujuan_value['id_unik']), ARRAY_A);
 
 									foreach ($program_all as $keyProgram => $program_value) {
@@ -4494,7 +4494,7 @@ class Wpsipd_Public_Base_3
 												kode_tujuan=%s AND 
 												active=1 
 												$where
-											ORDER BY id_giat
+											ORDER BY nama_giat
 										", $program_value['id_unik'], $sasaran_value['id_unik'], $tujuan_value['id_unik']), ARRAY_A);
 
 										foreach ($kegiatan_all as $keyKegiatan => $kegiatan_value) {
@@ -4546,7 +4546,7 @@ class Wpsipd_Public_Base_3
 														kode_tujuan=%s AND 
 														active=1 
 														$where
-													ORDER BY id_sub_giat
+													ORDER BY nama_sub_giat
 												", $kegiatan_value['id_unik'], $program_value['id_unik'], $sasaran_value['id_unik'], $tujuan_value['id_unik']), ARRAY_A);
 
 												foreach ($sub_kegiatan_all as $keySubKegiatan => $sub_kegiatan_value) {
@@ -5141,7 +5141,7 @@ class Wpsipd_Public_Base_3
 											kode_sasaran=%s AND 
 											kode_tujuan=%s AND 
 											active=1 $where 
-										ORDER BY id_program",
+										ORDER BY nama_program",
 										$sasaran_value['id_unik'], $tujuan_value['id_unik']), ARRAY_A);
 
 									foreach ($program_all as $keyProgram => $program_value) {
@@ -5244,7 +5244,7 @@ class Wpsipd_Public_Base_3
 												kode_sasaran=%s AND 
 												kode_tujuan=%s AND 
 												active=1 $where 
-											ORDER BY id_giat",
+											ORDER BY nama_giat",
 												$program_value['id_unik'],
 												$sasaran_value['id_unik'],
 												$tujuan_value['id_unik']
@@ -5347,7 +5347,7 @@ class Wpsipd_Public_Base_3
 														kode_sasaran=%s AND 
 														kode_tujuan=%s AND 
 														active=1 
-													ORDER BY id_sub_giat",
+													ORDER BY nama_sub_giat",
 														$kegiatan_value['id_unik'],
 														$program_value['id_unik'],
 														$sasaran_value['id_unik'],
@@ -6428,7 +6428,7 @@ class Wpsipd_Public_Base_3
 							k.id_unik IS NOT NULL and
 							k.id_unik_indikator IS NULL and
 							k.active=1 
-						ORDER BY id_sub_giat
+						ORDER BY nama_sub_giat
 					", $_POST['kode_kegiatan']);
 					$kegiatan = $wpdb->get_results($sql, ARRAY_A);
 				}
