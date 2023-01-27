@@ -3102,15 +3102,17 @@ class Wpsipd_Public_Base_3
 						SELECT 
 							* 
 						FROM data_prog_keg
-						WHERE id_program=%d
-					", $_POST['id_program']);
+						WHERE 
+							id_program=%d AND
+							tahun_anggaran=%d
+					", $_POST['id_program'], get_option('_crb_tahun_anggaran_sipd'));
 					$data = $wpdb->get_results($sql, ARRAY_A);
 
 					$kegiatan = [];
 					foreach ($data as $key => $value) {
 						if(empty($kegiatan[$value['kode_giat']])){
 							$kegiatan[$value['kode_giat']] = [
-								'id' => $value['id'],
+								'id' => $value['id_giat'],
 								'kegiatan_teks' => $value['nama_giat']
 							];
 						}
@@ -3177,8 +3179,10 @@ class Wpsipd_Public_Base_3
 						SELECT 
 							* 
 						FROM data_prog_keg 
-						WHERE id=%d
-					", $data['id_kegiatan']));
+						WHERE 
+							id_giat=%d AND
+							tahun_anggaran=%d
+					", $data['id_kegiatan'], get_option('_crb_tahun_anggaran_sipd')));
 
 					if(empty($dataKegiatan)){
 						throw new Exception('Kegiatan tidak ditemukan!');
@@ -3189,7 +3193,7 @@ class Wpsipd_Public_Base_3
 							'bidur_lock' => 0,
 							'giat_lock' => 0,
 							'id_bidang_urusan' => $dataProgram->id_bidang_urusan,
-							'id_giat' => $dataKegiatan->id,
+							'id_giat' => $dataKegiatan->id_giat,
 							'id_misi' => $dataProgram->id_misi,
 							'id_program' => $dataProgram->id_program,
 							'id_unik' => $this->generateRandomString(), // kode_kegiatan
@@ -3255,15 +3259,17 @@ class Wpsipd_Public_Base_3
 						SELECT 
 							* 
 						FROM data_prog_keg
-						WHERE id_program=%d
-					", $_POST['id_program']);
+						WHERE 
+							id_program=%d AND
+							tahun_anggaran=%d
+					", $_POST['id_program'], get_option('_crb_tahun_anggaran_sipd'));
 					$data = $wpdb->get_results($sql, ARRAY_A);
 
 					$kegiatan = [];
 					foreach ($data as $key => $value) {
 						if(empty($kegiatan[$value['kode_giat']])){
 							$kegiatan[$value['kode_giat']] = [
-								'id' => $value['id'],
+								'id' => $value['id_giat'],
 								'kegiatan_teks' => $value['nama_giat']
 							];
 						}
@@ -3339,8 +3345,10 @@ class Wpsipd_Public_Base_3
 						SELECT 
 							* 
 						FROM data_prog_keg 
-						WHERE id=%d
-					", $data['id_kegiatan']));
+						WHERE 
+							id_giat=%d AND
+							tahun_anggaran=%d
+					", $data['id_kegiatan'], get_option('_crb_tahun_anggaran_sipd')));
 
 					if(empty($dataKegiatan)){
 						throw new Exception('Kegiatan tidak ditemukan!');
@@ -3354,7 +3362,7 @@ class Wpsipd_Public_Base_3
 							'bidur_lock' => 0,
 							'giat_lock' => 0,
 							'id_bidang_urusan' => $dataProgram->id_bidang_urusan,
-							'id_giat' => $dataKegiatan->id,
+							'id_giat' => $dataKegiatan->id_giat,
 							'id_misi' => $dataProgram->id_misi,
 							'id_program' => $dataProgram->id_program,
 							'id_unit' => $dataProgram->id_unit,
@@ -7336,4 +7344,104 @@ class Wpsipd_Public_Base_3
 		echo '<pre>';
 		die();
 	}
+
+	public function singkronisasi_kegiatan_renstra(){
+        global $wpdb;
+        $ret = array(
+            'status'    => 'success',
+            'message'   => 'Berhasil ubah id_giat ke table kegiatan dan sub_kegiatan! Segarkan/refresh halaman ini untuk melihat perubahannya.'
+        );
+
+        try{
+        	if (!empty($_POST)) {
+	            if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( WPSIPD_API_KEY )) {
+	            	if(in_array('administrator', $this->role())){
+		                
+		                $tujuan_all = $wpdb->get_results($wpdb->prepare("
+							SELECT 
+								* 
+							FROM data_renstra_tujuan_lokal 
+							WHERE active=1 AND 
+								id_unik_indikator IS NULL 
+							ORDER BY urut_tujuan"), ARRAY_A);
+
+						foreach ($tujuan_all as $keyTujuan => $tujuan_value) {
+							$sasaran_all = $wpdb->get_results($wpdb->prepare("
+								SELECT 
+									* 
+								FROM data_renstra_sasaran_lokal 
+								WHERE 
+									kode_tujuan=%s AND 
+									active=1  AND 
+									id_unik_indikator IS NULL ORDER BY urut_sasaran
+							", $tujuan_value['id_unik']), ARRAY_A);
+							foreach ($sasaran_all as $keySasaran => $sasaran_value) {
+								$program_all = $wpdb->get_results($wpdb->prepare("
+									SELECT 
+										* 
+									FROM data_renstra_program_lokal 
+									WHERE 
+										kode_sasaran=%s AND 
+										kode_tujuan=%s AND 
+										active=1  AND 
+										id_unik_indikator IS NULL ORDER BY id
+								", $sasaran_value['id_unik'], $tujuan_value['id_unik']), ARRAY_A);
+								foreach ($program_all as $keyProgram => $program_value) {
+									$kegiatan_all = $wpdb->get_results($wpdb->prepare("
+										SELECT 
+											* 
+										FROM data_renstra_kegiatan_lokal 
+										WHERE 
+											kode_program=%s AND 
+											kode_sasaran=%s AND 
+											kode_tujuan=%s AND 
+											active=1 AND
+											id_unik_indikator IS NULL ORDER BY id
+									", $program_value['id_unik'], $sasaran_value['id_unik'], $tujuan_value['id_unik']), ARRAY_A);
+									foreach ($kegiatan_all as $keyKegiatan => $kegiatan_value) {
+										$master = $wpdb->get_row($wpdb->prepare("
+												SELECT 
+													id_giat 
+												FROM data_prog_keg
+												WHERE id=%d
+													AND tahun_anggaran=%d
+												", $kegiatan_value['id_giat'], get_option('_crb_tahun_anggaran_sipd')));
+
+										if(empty($master)){
+											throw new Exception('Kegiatan tidak ditemukan!'. $kegiatan_value['id_giat']);
+										}
+														
+										$newData = array(
+											'id_giat' => $master->id_giat
+										);
+										
+										// echo '<pre>';print_r($newData);echo '</pre>';
+										
+										$wpdb->update('data_renstra_kegiatan_lokal', $newData, array(
+											'id_unik' => $kegiatan_value['id_unik']
+										));
+
+										$wpdb->update('data_renstra_sub_kegiatan_lokal', $newData, array(
+											'kode_kegiatan' => $kegiatan_value['id_unik']
+										));
+									}
+								}
+							}
+						}
+					}else{
+		                throw new Exception("Anda tidak punya kewenangan untuk melakukan ini!", 1);
+					}
+	            }else{
+	                throw new Exception("Api Key tidak sesuai!", 1);
+	            }
+	        }else{
+	            throw new Exception("Format tidak sesuai!", 1);
+	        }
+        }catch(Exception $e){
+        	echo json_encode([
+				'status' => false,
+				'message' => $e->getMessage()
+			]);exit;
+        }
+    }
 }
