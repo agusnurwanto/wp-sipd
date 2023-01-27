@@ -532,17 +532,17 @@ echo '
                                         <table style="margin: 0;">
                                             <tr>
                                                 <td>
-                                                    <select class="form-control kabupaten_kota" id="kabupaten_kota_usulan" name="input_kabupaten_kota_usulan">
+                                                    <select class="form-control kabupaten_kota" id="kabupaten_kota_usulan" name="input_kabupaten_kota_usulan" onchange="get_data_lokasi(this,'kabkot','usulan')">
                                                         <option value="">Pilih Kabupaten / Kota</option>
                                                     </select>
                                                 </td>
                                                 <td style="width: 30%">
-                                                    <select class="form-control" name="input_kecamatan_usulan">
+                                                    <select class="form-control" name="input_kecamatan_usulan" id="kecamatan_usulan" onchange="get_data_lokasi(this,'kec','usulan')">
                                                         <option value="">Pilih Kecamatan</option>
                                                     </select>
                                                 </td>
                                                 <td style="width: 30%">
-                                                    <select class="form-control" name="input_desa_usulan">
+                                                    <select class="form-control" name="input_desa_usulan" id="desa_usulan" onchange="get_data_lokasi(this,'desa','usulan')">
                                                         <option value="">Pilih Desa</option>
                                                     </select>
                                                 </td>
@@ -639,17 +639,17 @@ echo '
                                         <table style="margin: 0;">
                                             <tr>
                                                 <td>
-                                                    <select class="form-control kabupaten_kota" id="kabupaten_kota" name="input_kabupaten_kota" onchange="get_data_lokasi(this,'kabkot')">
+                                                    <select class="form-control" id="kabupaten_kota" name="input_kabupaten_kota" onchange="get_data_lokasi(this,'kabkot','penetapan')">
                                                         <option value="">Pilih Kabupaten / Kota</option>
                                                     </select>
                                                 </td>
                                                 <td style="width: 30%">
-                                                    <select class="form-control kecamatan" id="kecamatan" name="input_kecamatan" onchange="get_data_lokasi(this,'kec')">
+                                                    <select class="form-control" id="kecamatan" name="input_kecamatan" onchange="get_data_lokasi(this,'kec','penetapan')">
                                                         <option value="">Pilih Kecamatan</option>
                                                     </select>
                                                 </td>
                                                 <td style="width: 30%">
-                                                    <select class="form-control desa" id="desa" name="input_desa" onchange="get_data_lokasi(this,'desa')">
+                                                    <select class="form-control" id="desa" name="input_desa" onchange="get_data_lokasi(this,'desa','penetapan')">
                                                         <option value="">Pilih Desa</option>
                                                     </select>
                                                 </td>
@@ -995,16 +995,26 @@ echo '
         })
     }
 
-    function get_data_lokasi(that,jenis_lokasi){
+    function get_data_lokasi(that,jenis_lokasi,status){
         if(jenis_lokasi == ''){
             alert('Ada kesalahan,harap refresh halaman!')
             return false;
         }
+
+        if(jenis_lokasi == 'kabkot' || jenis_lokasi == 'kec'){
+            jQuery("#wrap-loading").show();
+        }
+
         let id_alamat = jQuery(that).val();
         if(id_alamat == undefined){
             id_alamat = <?php echo $id_lokasi_prov; ?>;
             jenis_lokasi = 'prov';
         }
+
+        if(status == undefined){
+            status = 'all';
+        }
+        
         jQuery.ajax({
             method:'post',
             url: '<?php echo admin_url('admin-ajax.php'); ?>',
@@ -1018,51 +1028,78 @@ echo '
                 'id_alamat':id_alamat
             },
             success: function(response){
+                jQuery("#wrap-loading").hide();
                 let option='<option value="">Pilih '+response.jenis_lokasi+'</option>';
                 response.data.map(function(value, index){
                     option +='<option value="'+value.id_alamat+'">'+value.nama+'</option>';
                 })
 
-                switch (jenis_lokasi) {
-                    case 'kabkot':
-                        jQuery(".kecamatan").html(option);
-                        jQuery(".kecamatan").select2({width: '100%'});
-                        break;
-                    case 'kec':
-                        jQuery(".desa").html(option);
-                        jQuery(".desa").select2({width: '100%'});
-                        break;
-                    case 'prov':
-                        jQuery(".kabupaten_kota").html(option);
-                        jQuery(".kabupaten_kota").select2({width: '100%'});
-                        break;
-                    default:
-                        break;
+                if(jenis_lokasi == 'kabkot'){
+                    if(status == 'usulan'){
+                        jQuery("#kecamatan_usulan").html(option);
+                        jQuery("#kecamatan_usulan").select2({width: '100%'});
+                    }else if(status == 'penetapan'){
+                        jQuery("#kecamatan").html(option);
+                        jQuery("#kecamatan").select2({width: '100%'});
+                    }else{
+                        jQuery("#kecamatan").html(option);
+                        jQuery("#kecamatan").select2({width: '100%'});
+                        jQuery("#kecamatan_usulan").html(option);
+                        jQuery("#kecamatan_usulan").select2({width: '100%'});
+                    }
+                }else if(jenis_lokasi == 'kec'){
+                    if(status == 'usulan'){
+                        jQuery("#desa_usulan").html(option);
+                        jQuery("#desa_usulan").select2({width: '100%'});
+                    }else if(status == 'penetapan'){
+                        jQuery("#desa").html(option);
+                        jQuery("#desa").select2({width: '100%'});
+                    }else{
+                        jQuery("#desa").html(option);
+                        jQuery("#desa").select2({width: '100%'});
+                        jQuery("#desa_usulan").html(option);
+                        jQuery("#desa_usulan").select2({width: '100%'});
+                    }
+                }else if(jenis_lokasi == 'prov'){
+                    if(status == 'usulan'){
+                        jQuery("#kabupaten_kota_usulan").html(option);
+                        jQuery("#kabupaten_kota_usulan").select2({width: '100%'});
+                    }else if(status == 'penetapan'){
+                        jQuery("#kabupaten_kota").html(option);
+                        jQuery("#kabupaten_kota").select2({width: '100%'});
+                    }else{
+                        jQuery("#kabupaten_kota").html(option);
+                        jQuery("#kabupaten_kota").select2({width: '100%'});
+                        jQuery("#kabupaten_kota_usulan").html(option);
+                        jQuery("#kabupaten_kota_usulan").select2({width: '100%'});
+                    }
                 }
             }
         });
     }
 
     function submitTambahRenjaForm(){
-        jQuery("#wrap-loading").show();
-        let form = getFormData(jQuery("#form-renja"));
-        jQuery.ajax({
-            method:'post',
-            url:'<?php echo admin_url('admin-ajax.php'); ?>',
-            dataType: 'json',
-            data: {
-                'action': 'submit_tambah_renja',
-                'api_key': jQuery('#api_key').val(),
-                'data': JSON.stringify(form),
-                'tahun_anggaran': tahun_anggaran
-            },
-            success:function(response){
-                jQuery('#wrap-loading').hide();
-                jQuery('#modalTambahRenja').modal('hide')
-                alert(response.message);
-                refresh_page();
-            }
-        });
+        if(confirm('Apakah anda yakin untuk menyimpan data ini?')){
+            jQuery("#wrap-loading").show();
+            let form = getFormData(jQuery("#form-renja"));
+            jQuery.ajax({
+                method:'post',
+                url:'<?php echo admin_url('admin-ajax.php'); ?>',
+                dataType: 'json',
+                data: {
+                    'action': 'submit_tambah_renja',
+                    'api_key': jQuery('#api_key').val(),
+                    'data': JSON.stringify(form),
+                    'tahun_anggaran': tahun_anggaran
+                },
+                success:function(response){
+                    jQuery('#wrap-loading').hide();
+                    jQuery('#modalTambahRenja').modal('hide')
+                    alert(response.message);
+                    refresh_page();
+                }
+            });
+        }
     }
 
     function edit_renja(kode_sub_giat){
@@ -1079,14 +1116,52 @@ echo '
             },
             success: function(response){
                 jQuery('#wrap-loading').hide();
+                jQuery('#pagu_sub_kegiatan_usulan').val(response.data[0].pagu_usulan);
+                jQuery('#pagu_sub_kegiatan_1_usulan').val(response.data[0].pagu_n_depan_usulan);
+                jQuery('#pagu_sub_kegiatan').val(response.data[0].pagu);
+                jQuery('#pagu_sub_kegiatan_1').val(response.data[0].pagu_n_depan);
+                jQuery('#catatan_usulan').val(response.data[0].catatan_usulan);
+                jQuery('#catatan').val(response.data[0].catatan);
+                let input_sub_unit = `<option selected value="${response.data[0].id_sub_skpd}">${response.data[0].nama_sub_skpd}</option>`;
+                jQuery('#input_sub_unit').html(input_sub_unit);
+                jQuery('#input_sub_unit').prop('disabled', true);
+                let input_sub_kegiatan = `<option selected value="${response.data[0].id_sub_giat}">${response.data[0].nama_sub_giat}</option>`;
+                jQuery('#sub_kegiatan').html(input_sub_kegiatan);
+                jQuery('#sub_kegiatan').prop('disabled', true);
+
                 jQuery("#modalTambahRenja .modal-title").html("Edit Sub Kegiatan");
                 jQuery("#modalTambahRenja .submitBtn")
-                    .attr("onclick", 'submitEditRenjaForm()')
+                    .attr("onclick", `submitEditRenjaForm('${kode_sub_giat}')`)
                     .attr("disabled", false)
                     .text("Simpan");
                 jQuery('#modalTambahRenja').modal('show');              
             }
         })
+    }
+
+    function submitEditRenjaForm(kode_sub_giat){
+        if(confirm('Apakah anda yakin untuk mengubah data ini?')){
+            jQuery('#wrap-loading').show();
+            let form = getFormData(jQuery("#form-renja"));
+            jQuery.ajax({
+                method: 'post',
+                url: '<?php echo admin_url('admin-ajax.php'); ?>',
+                dataType: 'json',
+                data: {
+                    'action': 'submit_edit_renja',
+                    'api_key': jQuery('#api_key').val(),
+                    'data': JSON.stringify(form),
+                    'kode_sub_giat': kode_sub_giat,
+                    'tahun_anggaran': tahun_anggaran
+                },
+                success: function(response){
+                    jQuery('#wrap-loading').hide();
+                    jQuery('#modalTambahRenja').modal('hide');
+                    alert(response.message);
+                    refresh_page();
+                }
+            })
+        }
     }
 
     function delete_renja(kode_sub_giat){

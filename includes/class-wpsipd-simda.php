@@ -2576,7 +2576,7 @@ class Wpsipd_Simda
 	                    .' and kd_program='.$options['kd_program90']
 	                    .' and kd_kegiatan='.$options['kd_kegiatan90']
 						.' and kd_fungsi='.$kd_fungsi
-						.' and kd_sub_fungsi='.$kd_sub_fungsi
+						// .' and kd_sub_fungsi='.$kd_sub_fungsi // dimatikan karena bikin error duplikat primary key
 			));
 			if(empty($mapping_keg90)){
 				$this->CurlSimda(array(

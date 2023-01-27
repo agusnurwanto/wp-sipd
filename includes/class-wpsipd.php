@@ -270,11 +270,17 @@ class Wpsipd
 		$this->loader->add_action('wp_ajax_get_kas_fmis',  $plugin_public, 'get_kas_fmis');
 		$this->loader->add_action('wp_ajax_nopriv_get_kas_fmis',  $plugin_public, 'get_kas_fmis');
 
+		$this->loader->add_action('wp_ajax_singkron_kas_fmis',  $plugin_public, 'singkron_kas_fmis');
+		$this->loader->add_action('wp_ajax_nopriv_singkron_kas_fmis',  $plugin_public, 'singkron_kas_fmis');
+
 		$this->loader->add_action('wp_ajax_get_all_sub_unit',  $plugin_public, 'get_all_sub_unit');
 		$this->loader->add_action('wp_ajax_nopriv_get_all_sub_unit',  $plugin_public, 'get_all_sub_unit');
 
 		$this->loader->add_action('wp_ajax_singkron_anggaran_kas',  $plugin_public, 'singkron_anggaran_kas');
 		$this->loader->add_action('wp_ajax_nopriv_singkron_anggaran_kas',  $plugin_public, 'singkron_anggaran_kas');
+		
+		$this->loader->add_action('wp_ajax_singkron_up',  $plugin_public, 'singkron_up');
+		$this->loader->add_action('wp_ajax_nopriv_singkron_up',  $plugin_public, 'singkron_up');
 		
 		$this->loader->add_action('wp_ajax_singkron_detail_spd',  $plugin_public, 'singkron_detail_spd');
 		$this->loader->add_action('wp_ajax_nopriv_singkron_detail_spd',  $plugin_public, 'singkron_detail_spd');
@@ -652,6 +658,7 @@ class Wpsipd
 		$this->loader->add_action('wp_ajax_submit_tambah_renja',  $plugin_public, 'submit_tambah_renja');
 		$this->loader->add_action('wp_ajax_get_data_lokasi_renja',  $plugin_public, 'get_data_lokasi_renja');
 		$this->loader->add_action('wp_ajax_edit_renja',  $plugin_public, 'edit_renja');
+		$this->loader->add_action('wp_ajax_submit_edit_renja',  $plugin_public, 'submit_edit_renja');
 		$this->loader->add_action('wp_ajax_delete_renja',  $plugin_public, 'delete_renja');
 		
 		$this->loader->add_action('wp_ajax_get_indikator_sub_kegiatan_renstra',  $plugin_public, 'get_indikator_sub_kegiatan_renstra');

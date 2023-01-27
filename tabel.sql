@@ -12,6 +12,7 @@ CREATE TABLE `data_catatan_rfk_unit` (
 );
 
 CREATE TABLE `data_spd_sipd`(
+  `id` int not null auto_increment,
   `idSpd` int,
   `nomorSpd` varchar(80),
   `keteranganSpd` varchar(80),
@@ -21,10 +22,11 @@ CREATE TABLE `data_spd_sipd`(
   `active` tinyint,
   `created_at` datetime,
   `tahun_anggaran` year,
-  PRIMARY KEY (`idSpd`,`tahun_anggaran`)
+  PRIMARY KEY (`id`,`idSpd`,`tahun_anggaran`)
 );
 
 CREATE TABLE `data_spd_sipd_detail`(
+  `id` int(11) NOT NULL auto_increment,
   `idDetailSpd` int,
   `idSpd` int,
   `id_skpd` int,
@@ -37,7 +39,18 @@ CREATE TABLE `data_spd_sipd_detail`(
   `active` tinyint,
   `created_at` datetime,
   `tahun_anggaran` year,
-  PRIMARY KEY (`idDetailSpd`,`tahun_anggaran`)
+  PRIMARY KEY (`id`,`idDetailSpd`,`tahun_anggaran`)
+);
+
+CREATE TABLE `data_up_sipd` (
+  `id` int(11) NOT NULL auto_increment,
+  `id_besaran_up` int(11) NOT NULL,
+  `id_skpd` int(11) NOT NULL,
+  `pagu` double NOT NULL,
+  `active` tinyint(4) NOT NULL,
+  `create_at` datetime NOT NULL,
+  `tahun_anggaran` year(4) NOT NULL,
+  PRIMARY KEY (id)
 );
 
 CREATE TABLE `data_unit` (
@@ -368,6 +381,7 @@ CREATE TABLE `data_prog_keg` (
   `id` int(11) NOT NULL auto_increment,
   `id_bidang_urusan` int(11) NOT NULL,
   `id_program` int(11) NOT NULL,
+  `id_giat` int(11) NOT NULL,
   `id_sub_giat` int(11) NOT NULL,
   `id_urusan` int(11) NOT NULL,
   `is_locked` int(11) NOT NULL,
