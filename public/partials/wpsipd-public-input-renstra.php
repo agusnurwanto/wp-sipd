@@ -324,7 +324,7 @@ foreach ($tujuan_all as $keyTujuan => $tujuan_value) {
 						WHERE 
 							kode_sasaran=%s AND 
 							kode_tujuan=%s AND 
-							active=1 ORDER BY id",
+							active=1 ORDER BY id_program",
 							$sasaran_value['id_unik'], $tujuan_value['id_unik']), ARRAY_A);
 
 					foreach ($program_all as $keyProgram => $program_value) {
@@ -421,7 +421,7 @@ foreach ($tujuan_all as $keyTujuan => $tujuan_value) {
 								kode_program=%s AND 
 								kode_sasaran=%s AND 
 								kode_tujuan=%s AND 
-								active=1 ORDER BY id",
+								active=1 ORDER BY id_giat",
 								$program_value['id_unik'],
 								$sasaran_value['id_unik'],
 								$tujuan_value['id_unik']
@@ -524,7 +524,7 @@ foreach ($tujuan_all as $keyTujuan => $tujuan_value) {
 										kode_program=%s AND 
 										kode_sasaran=%s AND 
 										kode_tujuan=%s AND 
-										active=1 ORDER BY id",
+										active=1 ORDER BY id_sub_giat",
 										$kegiatan_value['id_unik'],
 										$program_value['id_unik'],
 										$sasaran_value['id_unik'],
@@ -852,7 +852,7 @@ foreach ($sasaran_all_kosong as $keySasaran => $sasaran_value) {
 			FROM data_renstra_program_lokal 
 			WHERE 
 				kode_sasaran=%s AND 
-				active=1 ORDER BY id
+				active=1 ORDER BY id_program
 			", $sasaran_value['id_unik']), ARRAY_A);
 
 		foreach ($program_all as $keyProgram => $program_value) {
@@ -1042,7 +1042,7 @@ foreach ($sasaran_all_kosong as $keySasaran => $sasaran_value) {
 									kode_kegiatan=%s AND 
 									kode_program=%s AND 
 									kode_sasaran=%s AND 
-									active=1 ORDER BY id",
+									active=1 ORDER BY id_sub_giat",
 									$kegiatan_value['id_unik'],
 									$program_value['id_unik'],
 									$sasaran_value['id_unik']
@@ -1251,7 +1251,7 @@ foreach ($program_all_kosong as $keyProgram => $program_value) {
 			FROM data_renstra_kegiatan_lokal 
 			WHERE 
 				kode_program=%s AND 
-				active=1 ORDER BY id
+				active=1 ORDER BY id_giat
 		", $program_value['id_unik']), ARRAY_A);
 
 		foreach ($kegiatan_all as $keyKegiatan => $kegiatan_value) {								
@@ -1344,7 +1344,7 @@ foreach ($program_all_kosong as $keyProgram => $program_value) {
 					WHERE 
 						kode_kegiatan=%s AND 
 						kode_program=%s AND 
-						active=1 ORDER BY id",
+						active=1 ORDER BY id_sub_giat",
 						$kegiatan_value['id_unik'],
 						$program_value['id_unik']
 				), ARRAY_A);
@@ -1539,7 +1539,7 @@ foreach ($kegiatan_all as $keyKegiatan => $kegiatan_value) {
 			WHERE 
 				kode_kegiatan=%s AND 
 				kode_program=%s AND 
-				active=1 ORDER BY id",
+				active=1 ORDER BY id_sub_giat",
 				$kegiatan_value['id_unik'],
 				$program_value['id_unik']
 			), ARRAY_A);
@@ -5181,7 +5181,7 @@ $table='<table cellpadding="2" cellspacing="0" style="font-family:\'Open Sans\',
 			url: ajax.url,
           	type: "post",
           	data: {
-          		"action": "get_tujuan_renstra", // wpsipd-public-base-2
+          		"action": "get_tujuan_renstra",
           		"api_key": "<?php echo $api_key; ?>",
           		"id_skpd": "<?php echo $input['id_skpd']; ?>",
           		"type": 1

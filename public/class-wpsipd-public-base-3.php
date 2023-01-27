@@ -172,7 +172,7 @@ class Wpsipd_Public_Base_3
 							id_unit=%d AND
 							id_unik_indikator IS NULL AND
 							active=1 
-						ORDER BY id", $_POST['id_skpd']);
+						ORDER BY urut_tujuan", $_POST['id_skpd']);
 					$tujuan = $wpdb->get_results($sql, ARRAY_A);
 
 					foreach($tujuan as $k => $tuj){
@@ -788,7 +788,7 @@ class Wpsipd_Public_Base_3
 								WHERE 
 									id_unik=%s AND 
 									id_unik_indikator IS NOT NULL AND 
-									active=1", $_POST['id_unik']);
+									active=1 ORDER BY id", $_POST['id_unik']);
 						$indikator = $wpdb->get_results($sql, ARRAY_A);
 					}else{
 
@@ -1139,6 +1139,7 @@ class Wpsipd_Public_Base_3
 							AND id_unik IS NOT NULL
 							AND id_unik_indikator IS NULL
 							AND active=1
+						ORDER BY urut_sasaran
 					", $_POST['kode_tujuan']);
 					$sasaran = $wpdb->get_results($sql, ARRAY_A);
 
@@ -1597,7 +1598,8 @@ class Wpsipd_Public_Base_3
 							WHERE 
 								id_unik=%s AND 
 								id_unik_indikator IS NOT NULL AND 
-								active=1", $_POST['id_unik']);
+								active=1
+							ORDER BY id", $_POST['id_unik']);
 						$indikator = $wpdb->get_results($sql, ARRAY_A);
 					}else{
 						$tahun_anggaran = $_POST['tahun_anggaran'];
@@ -1962,7 +1964,7 @@ class Wpsipd_Public_Base_3
 						WHERE kode_sasaran=%s AND
 							id_unik IS NOT NULL and
 							id_unik_indikator IS NULL and
-							active=1 ORDER BY id
+							active=1 ORDER BY id_program
 					", $_POST['kode_sasaran']);
 					$program = $wpdb->get_results($sql, ARRAY_A);
 
@@ -2584,6 +2586,7 @@ class Wpsipd_Public_Base_3
 								id_unik=%s AND 
 								id_unik_indikator IS NOT NULL AND 
 								active=1
+							ORDER BY id
 						", $_POST['kode_program']);
 						$indikator = $wpdb->get_results($sql, ARRAY_A);
 						$program = $this->get_pagu_indikator_program($_POST['kode_program']);
@@ -2992,7 +2995,8 @@ class Wpsipd_Public_Base_3
 						WHERE k.kode_program=%s AND
 							k.id_unik IS NOT NULL and
 							k.id_unik_indikator IS NULL and
-							k.active=1 ORDER BY id
+							k.active=1 
+						ORDER BY id_giat
 					", $_POST['kode_program']);
 					$kegiatan = $wpdb->get_results($sql, ARRAY_A);
 					foreach($kegiatan as $k => $keg){
@@ -3603,6 +3607,7 @@ class Wpsipd_Public_Base_3
 							id_unik=%s AND 
 							id_unik_indikator IS NOT NULL AND 
 							active=1
+						ORDER BY id
 						", $_POST['id_unik']);
 						$indikator = $wpdb->get_results($sql, ARRAY_A);
 						$kegiatan = $this->get_pagu_indikator_kegiatan($_POST['id_unik']);
@@ -4229,6 +4234,42 @@ class Wpsipd_Public_Base_3
 													'id' => $kegiatan_value['id']
 												));
 											}
+
+											if(empty($kegiatan_value['id_unik_indikator'])){
+												$sub_kegiatan_all = $wpdb->get_results($wpdb->prepare("
+													SELECT 
+														*
+													FROM data_renstra_sub_kegiatan_lokal
+													WHERE
+														kode_kegiatan=%s AND
+														kode_program=%s AND
+														kode_sasaran=%s AND
+														kode_tujuan=%s AND
+														active=1 ORDER BY id
+												", $kegiatan_value['id_unik'], $program_value['id_unik'], $sasaran_value['id_unik'], $tujuan_value['id_unik']), ARRAY_A);
+												foreach ($sub_kegiatan_all as $keySubKegiatan => $sub_kegiatan_value) {
+													$newData = array(
+														'indikator' => $sub_kegiatan_value['indikator_usulan'],
+														'satuan' => $sub_kegiatan_value['satuan_usulan'],
+														'target_awal' => $sub_kegiatan_value['target_awal_usulan'],
+														'target_1' => $sub_kegiatan_value['target_1_usulan'],
+														'target_2' => $sub_kegiatan_value['target_2_usulan'],
+														'target_3' => $sub_kegiatan_value['target_3_usulan'],
+														'target_4' => $sub_kegiatan_value['target_4_usulan'],
+														'target_5' => $sub_kegiatan_value['target_5_usulan'],
+														'pagu_1' => $sub_kegiatan_value['pagu_1_usulan'],
+														'pagu_2' => $sub_kegiatan_value['pagu_2_usulan'],
+														'pagu_3' => $sub_kegiatan_value['pagu_3_usulan'],
+														'pagu_4' => $sub_kegiatan_value['pagu_4_usulan'],
+														'pagu_5' => $sub_kegiatan_value['pagu_5_usulan'],
+														'target_akhir' => $sub_kegiatan_value['target_akhir_usulan'],
+														'catatan' => $sub_kegiatan_value['catatan_usulan']
+													);
+													$wpdb->update('data_renstra_sub_kegiatan_lokal', $newData, array(
+														'id' => $sub_kegiatan_value['id']
+													));
+												}
+											}
 										}
 									}
 								}
@@ -4319,7 +4360,7 @@ class Wpsipd_Public_Base_3
 					WHERE 
 						id_unit=%d AND 
 						active=1 $where 
-						ORDER BY urut_tujuan
+					ORDER BY urut_tujuan
 				", $_POST['id_unit']), ARRAY_A);
 
 				foreach ($tujuan_all as $keyTujuan => $tujuan_value) {
@@ -4361,7 +4402,7 @@ class Wpsipd_Public_Base_3
 							WHERE 
 								kode_tujuan=%s AND 
 								active=1 $where
-								ORDER BY urut_sasaran
+							ORDER BY urut_sasaran
 						", $tujuan_value['id_unik']), ARRAY_A);
 
 						foreach ($sasaran_all as $keySasaran => $sasaran_value) {
@@ -4402,7 +4443,7 @@ class Wpsipd_Public_Base_3
 										kode_sasaran=%s AND 
 										kode_tujuan=%s AND 
 										active=1 $where
-										ORDER BY id
+									ORDER BY id_program
 								", $sasaran_value['id_unik'], $tujuan_value['id_unik']), ARRAY_A);
 
 									foreach ($program_all as $keyProgram => $program_value) {
@@ -4453,7 +4494,7 @@ class Wpsipd_Public_Base_3
 												kode_tujuan=%s AND 
 												active=1 
 												$where
-												ORDER BY id
+											ORDER BY id_giat
 										", $program_value['id_unik'], $sasaran_value['id_unik'], $tujuan_value['id_unik']), ARRAY_A);
 
 										foreach ($kegiatan_all as $keyKegiatan => $kegiatan_value) {
@@ -4505,7 +4546,7 @@ class Wpsipd_Public_Base_3
 														kode_tujuan=%s AND 
 														active=1 
 														$where
-														ORDER BY id
+													ORDER BY id_sub_giat
 												", $kegiatan_value['id_unik'], $program_value['id_unik'], $sasaran_value['id_unik'], $tujuan_value['id_unik']), ARRAY_A);
 
 												foreach ($sub_kegiatan_all as $keySubKegiatan => $sub_kegiatan_value) {
@@ -4938,7 +4979,8 @@ class Wpsipd_Public_Base_3
 					FROM data_renstra_tujuan_lokal".$_suffix." 
 					WHERE 
 						id_unit=%d AND 
-						active=1 $where ORDER BY urut_tujuan
+						active=1 $where 
+					ORDER BY urut_tujuan
 				", $_POST['id_unit']), ARRAY_A);
 
 				foreach ($tujuan_all as $keyTujuan => $tujuan_value) {
@@ -5031,7 +5073,8 @@ class Wpsipd_Public_Base_3
 							FROM data_renstra_sasaran_lokal".$_suffix." 
 							WHERE 
 								kode_tujuan=%s AND 
-								active=1 $where ORDER BY urut_sasaran
+								active=1 $where 
+							ORDER BY urut_sasaran
 						", $tujuan_value['id_unik']), ARRAY_A);
 
 						foreach ($sasaran_all as $keySasaran => $sasaran_value) {
@@ -5097,8 +5140,9 @@ class Wpsipd_Public_Base_3
 										WHERE 
 											kode_sasaran=%s AND 
 											kode_tujuan=%s AND 
-											active=1 $where ORDER BY id",
-											$sasaran_value['id_unik'], $tujuan_value['id_unik']), ARRAY_A);
+											active=1 $where 
+										ORDER BY id_program",
+										$sasaran_value['id_unik'], $tujuan_value['id_unik']), ARRAY_A);
 
 									foreach ($program_all as $keyProgram => $program_value) {
 										if(empty($data_all['data'][$tujuan_value['id_unik']]['data'][$sasaran_value['id_unik']]['data'][$program_value['id_unik']])){
@@ -5199,7 +5243,8 @@ class Wpsipd_Public_Base_3
 												kode_program=%s AND 
 												kode_sasaran=%s AND 
 												kode_tujuan=%s AND 
-												active=1 $where ORDER BY id",
+												active=1 $where 
+											ORDER BY id_giat",
 												$program_value['id_unik'],
 												$sasaran_value['id_unik'],
 												$tujuan_value['id_unik']
@@ -5301,7 +5346,8 @@ class Wpsipd_Public_Base_3
 														kode_program=%s AND 
 														kode_sasaran=%s AND 
 														kode_tujuan=%s AND 
-														active=1 ORDER BY id",
+														active=1 
+													ORDER BY id_sub_giat",
 														$kegiatan_value['id_unik'],
 														$program_value['id_unik'],
 														$sasaran_value['id_unik'],
@@ -5830,8 +5876,6 @@ class Wpsipd_Public_Base_3
 								';
 
 								$no_sub_kegiatan = 0;
-								$pagu_akumulasi = '';
-								$pagu_akumulasi_usulan = '';
 								foreach ($kegiatan['data'] as $key => $sub_kegiatan) {
 									
 									$no_sub_kegiatan++;
@@ -5904,7 +5948,7 @@ class Wpsipd_Public_Base_3
 												<td class="atas kanan bawah"><br>'.$indikator_sub_kegiatan.'</td>
 												<td class="atas kanan bawah text_tengah"><br>'.$target_awal.'</td>';
 												for ($i=0; $i < $jadwal_lokal->lama_pelaksanaan; $i++) {
-													$body.="<td class=\"atas kanan bawah text_tengah\"><br>".$target_arr[$i]."</td><td class=\"atas kanan bawah text_kanan\">".$pagu_akumulasi."<br>".$sub_kegiatan['pagu_'.($i+1)]."</td>";
+													$body.="<td class=\"atas kanan bawah text_tengah\"><br>".$target_arr[$i]."</td><td class=\"atas kanan bawah text_kanan\">".$this->_number_format($sub_kegiatan['pagu_'.($i+1)])."</td>";
 												}
 												$body.='
 												<td class="atas kanan bawah text_tengah"><br>'.$target_akhir.'</td>
@@ -5916,7 +5960,7 @@ class Wpsipd_Public_Base_3
 												<td class="atas kanan bawah td-usulan"><br>'.$indikator_sub_kegiatan_usulan.'</td>
 												<td class="atas kanan bawah text_tengah td-usulan"><br>'.$target_awal_usulan.'</td>';
 												for ($i=0; $i < $jadwal_lokal->lama_pelaksanaan; $i++) {
-													$body.="<td class=\"atas kanan bawah text_tengah td-usulan\"><br>".$target_arr_usulan[$i]."</td><td class=\"atas kanan bawah text_kanan td-usulan\">".$pagu_akumulasi_usulan."<br>".$sub_kegiatan['pagu_'.($i+1).'_usulan']."</td>";
+													$body.="<td class=\"atas kanan bawah text_tengah td-usulan\"><br>".$target_arr_usulan[$i]."</td><td class=\"atas kanan bawah text_kanan td-usulan\">".$this->_number_format($sub_kegiatan['pagu_'.($i+1).'_usulan'])."</td>";
 												}
 												$body.='
 												<td class="atas kanan bawah text_tengah td-usulan"><br>'.$target_akhir_usulan.'</td>
@@ -6383,7 +6427,8 @@ class Wpsipd_Public_Base_3
 						WHERE k.kode_kegiatan=%s AND
 							k.id_unik IS NOT NULL and
 							k.id_unik_indikator IS NULL and
-							k.active=1 ORDER BY id
+							k.active=1 
+						ORDER BY id_sub_giat
 					", $_POST['kode_kegiatan']);
 					$kegiatan = $wpdb->get_results($sql, ARRAY_A);
 				}
@@ -6866,6 +6911,7 @@ class Wpsipd_Public_Base_3
 							id_unik=%s AND 
 							id_unik_indikator IS NOT NULL AND 
 							active=1
+						ORDER BY id
 						", $_POST['id_unik']);
 						$indikator = $wpdb->get_results($sql, ARRAY_A);
 					}

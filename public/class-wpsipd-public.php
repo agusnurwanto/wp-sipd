@@ -15234,6 +15234,16 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 									'id_jadwal_lokal'	=> $id_jadwal_lokal
 								));
 
+								$delete_lokal_history = $this->delete_data_lokal_history('data_renstra_sub_kegiatan_lokal', $data_this_id[0]['id_jadwal_lokal']);
+
+								$columns_0 = array('bidur_lock','giat_lock','id_bidang_urusan','id_sub_giat','id_giat','id_misi','id_program','id_unik','id_unik_indikator','id_unit','id_sub_unit','id_visi','id_indikator','indikator','id_indikator_usulan','indikator_usulan','is_locked','is_locked_indikator','kode_bidang_urusan','kode_sub_giat','kode_giat','kode_program','kode_sasaran','kode_skpd','kode_tujuan','kode_unik_program','nama_bidang_urusan','nama_sub_giat','nama_giat','nama_program','nama_skpd','nama_sub_unit','pagu_1','pagu_2','pagu_3','pagu_4','pagu_5','pagu_1_usulan','pagu_2_usulan','pagu_3_usulan','pagu_4_usulan','pagu_5_usulan','program_lock','renstra_prog_lock','sasaran_lock','sasaran_teks','satuan','status','target_1','target_2','target_3','target_4','target_5','target_akhir','target_awal','satuan_usulan','target_1_usulan','target_2_usulan','target_3_usulan','target_4_usulan','target_5_usulan','target_akhir_usulan','target_awal_usulan','catatan_usulan','catatan','tujuan_lock','tujuan_teks','urut_sasaran','urut_tujuan','active','update_at','tahun_anggaran','kode_kegiatan');
+	
+								$sql_backup_data_renstra_sub_kegiatan_lokal =  "INSERT INTO data_renstra_sub_kegiatan_lokal_history (".implode(', ', $columns_0).",id_jadwal,id_asli)
+											SELECT ".implode(', ', $columns_0).", ".$data_this_id[0]['id_jadwal_lokal'].", id as id_asli
+											FROM data_renstra_sub_kegiatan_lokal";
+
+								$queryRecords0 = $wpdb->query($sql_backup_data_renstra_sub_kegiatan_lokal);
+
 								$delete_lokal_history = $this->delete_data_lokal_history('data_renstra_kegiatan_lokal', $data_this_id[0]['id_jadwal_lokal']);
 
 								$columns_1 = array('bidur_lock','giat_lock','id_bidang_urusan','id_giat','id_misi','id_program','id_unik','id_unik_indikator','id_unit','id_visi','indikator','indikator_usulan','is_locked','is_locked_indikator','kode_bidang_urusan','kode_giat','kode_program','kode_sasaran','kode_skpd','kode_tujuan','kode_unik_program','nama_bidang_urusan','nama_giat','nama_program','nama_skpd','pagu_1','pagu_2','pagu_3','pagu_4','pagu_5','program_lock','renstra_prog_lock','sasaran_lock','sasaran_teks','satuan','status','target_1','target_2','target_3','target_4','target_5','target_akhir','target_awal','satuan_usulan','target_1_usulan','target_2_usulan','target_3_usulan','target_4_usulan','target_5_usulan','target_akhir_usulan','target_awal_usulan','catatan_usulan','catatan','tujuan_lock','tujuan_teks','urut_sasaran','urut_tujuan','active','update_at','tahun_anggaran');
