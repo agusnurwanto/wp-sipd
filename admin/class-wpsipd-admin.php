@@ -250,10 +250,6 @@ class Wpsipd_Admin {
 		    ->set_page_parent( $monev )
 		    ->add_fields( $this->generate_sumber_dana() );
 
-		Container::make( 'theme_options', __( 'Satuan Harga' ) )
-		    ->set_page_parent( $monev )
-		    ->add_fields( $this->get_ajax_field(array('type' => 'monev_satuan_harga')) );
-
 		Container::make( 'theme_options', __( 'Monev RAK' ) )
 		    ->set_page_parent( $monev )
 		    ->add_fields( $this->get_ajax_field(array('type' => 'monev_rak')) );
@@ -296,6 +292,18 @@ class Wpsipd_Admin {
 	    Container::make( 'theme_options', __( 'Input RENJA' ) )
 		    ->set_page_parent( $input_perencanaan )
 		    ->add_fields( $this->generate_input_renja() );
+
+		$satuan_harga = Container::make( 'theme_options', __( 'Satuan Harga' ) )
+			->set_page_menu_position( 5 )
+		    ->add_fields( $this->get_ajax_field(array('type' => 'rekap_satuan_harga')) );
+
+	    Container::make( 'theme_options', __( 'Usulan Standar Harga' ) )
+		    ->set_page_parent( $satuan_harga )
+		    ->add_fields( $this->get_ajax_field(array('type' => 'monev_satuan_harga')) );
+
+	    Container::make( 'theme_options', __( 'Tidak Terpakai di SIPD' ) )
+		    ->set_page_parent( $satuan_harga )
+		    ->add_fields( $this->get_ajax_field(array('type' => 'tidak_terpakai_satuan_harga')) );
 	}
 
 	public function options_basic(){
@@ -591,9 +599,13 @@ class Wpsipd_Admin {
 						$body_all .= $body_pemda;
 			        }else if($_POST['type'] == 'monev_satuan_harga'){
 						$url_add_new_ssh = $this->generatePage('Data Usulan Standar Satuan Harga (SSH) | '.$v['tahun_anggaran'], $v['tahun_anggaran'], '[data_ssh_usulan tahun_anggaran="'.$v['tahun_anggaran'].'"]');
+						$body_all .= '<div style="padding:.75rem 0 0 .75rem;"><a style="font-weight: bold;" target="_blank" href="'.$url_add_new_ssh.'">Halaman Data Usulan SSH '.$v['tahun_anggaran'].'</a></div>'.$body_pemda;
+			        }else if($_POST['type'] == 'rekap_satuan_harga'){
 						$url_pemda = $this->generatePage('Rekapitulasi Rincian Belanja Pemerintah Daerah '.$v['tahun_anggaran'], $v['tahun_anggaran'], '[data_halaman_menu_ssh tahun_anggaran="'.$v['tahun_anggaran'].'"]');
 						$body_all .= '<a style="font-weight: bold;" target="_blank" href="'.$url_pemda.'">Halaman Rekapitulasi Rincian Belanja '.$v['tahun_anggaran'].'</a>';
-						$body_all .= '<div style="padding:.75rem 0 0 .75rem;"><a style="font-weight: bold;" target="_blank" href="'.$url_add_new_ssh.'">Halaman Data Usulan SSH '.$v['tahun_anggaran'].'</a></div>'.$body_pemda;
+			        }else if($_POST['type'] == 'tidak_terpakai_satuan_harga'){
+						$url_pemda = $this->generatePage('Standar Harga Tidak Terpakai '.$v['tahun_anggaran'], $v['tahun_anggaran'], '[ssh_tidak_terpakai tahun_anggaran="'.$v['tahun_anggaran'].'"]');
+						$body_all .= '<a style="font-weight: bold;" target="_blank" href="'.$url_pemda.'">Standar Harga Tidak Terpakai '.$v['tahun_anggaran'].'</a>';
 			        }else if($_POST['type'] == 'input_renja'){
 			        	$body_all .= $body_pemda;
 					}else if($_POST['type'] == 'monev_rak'){
@@ -613,6 +625,8 @@ class Wpsipd_Admin {
 					|| $_POST['type'] == 'monev_rpjm'
 					|| $_POST['type'] == 'apbdpenjabaran'
 					|| $_POST['type'] == 'monev_satuan_harga'
+					|| $_POST['type'] == 'rekap_satuan_harga'
+					|| $_POST['type'] == 'tidak_terpakai_satuan_harga'
 					|| $_POST['type'] == 'input_renja'
 					|| $_POST['type'] == 'monev_rak'
 					|| $_POST['type'] == 'monev_json_rka'

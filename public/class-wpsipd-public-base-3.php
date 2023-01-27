@@ -1,6 +1,7 @@
 <?php
+require_once WPSIPD_PLUGIN_PATH."/public/class-wpsipd-public-ssh.php";
 
-class Wpsipd_Public_Base_3
+class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 {
 	
 	protected function role(){
