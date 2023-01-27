@@ -340,6 +340,10 @@ CREATE TABLE `data_sub_keg_indikator_lokal` (
   `active` tinyint(4) DEFAULT '1',
   `update_at` datetime NOT NULL,
   `tahun_anggaran` year(4) NOT NULL,
+  `outputteks_usulan` text NOT NULL,
+  `targetoutput_usulan` int(11) NOT NULL,
+  `satuanoutput_usulan` text NOT NULL,
+  `targetoutputteks_usulan` text NOT NULL,
   PRIMARY KEY  (id)
 );
 
@@ -2184,6 +2188,10 @@ CREATE TABLE `data_sub_keg_indikator_lokal_history` (
   `tahun_anggaran` year(4) NOT NULL,
   `id_asli` int(11) NOT NULL,
   `id_jadwal` int(11) NOT NULL,
+  `outputteks_usulan` text NOT NULL,
+  `targetoutput_usulan` int(11) NOT NULL,
+  `satuanoutput_usulan` text NOT NULL,
+  `targetoutputteks_usulan` text NOT NULL,
   PRIMARY KEY  (id)
 );
 
