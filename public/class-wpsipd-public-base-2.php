@@ -1802,12 +1802,25 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 									WHERE id_sub_giat=%d',
 									$data['input_sub_kegiatan']));
 
-				// $kode_bl = $data_sub_unit->id_unit."."$data_sub_unit->id_skpd.".".$data_prog_keg->id_program.".".;
+				$kode_bl = $data_sub_unit->id_unit.".".$data_sub_unit->id_skpd.".".$data_prog_keg->id_program.".".$data_prog_keg->id_giat;
+				$kode_sbl = $kode_bl.".".$data_prog_keg->id_sub_giat;
 
-				$opsi = array(
+				$data_sub_keg = $wpdb->get_row($wpdb->prepare(
+					'SELECT *
+					FROM data_master_indikator_subgiat
+					WHERE id_sub_keg=%d
+					AND tahun_anggaran=%d
+					AND active=1',
+					$data['input_indikator_sub_keg'],
+					$tahun_anggaran
+				));
+
+				$opsi_sub_keg_bl = array(
 					'id_sub_skpd' => $data['input_sub_unit'],
 					'id_sub_giat' => $data['input_sub_kegiatan'],
 					'id_skpd' => $data_sub_unit->id_unit,
+					'kode_bl' => $kode_bl,
+					'kode_sbl' => $kode_sbl,
 					'nama_skpd' => $nama_skpd,
 					'kode_skpd' => $kode_skpd,
 					'nama_sub_skpd' => $data_sub_unit->nama_skpd,
@@ -1836,11 +1849,37 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 					'update_at' => current_time('mysql')
 				);
 
-				$status = $wpdb->insert('data_sub_keg_bl_lokal',$opsi);
+				$status = $wpdb->insert('data_sub_keg_bl_lokal',$opsi_sub_keg_bl);
 
 				if($status === false){
 					$ret['status'] = 'error';
 					$ret['message'] = 'Insert gagal, harap hubungi admin!';
+					die(json_encode($ret));
+				}
+				
+				$opsi_sub_keg_indikator = array(
+					'outputteks' => $data_sub_keg->indikator,
+					'outputteks_usulan' => $data_sub_keg->indikator,
+					'targetoutput' => $data['input_target'],
+					'targetoutput_usulan' => $data['input_target_usulan'],
+					'satuanoutput' => $data_sub_keg->satuan,
+					'satuanoutput_usulan' => $data_sub_keg->satuan,
+					'idoutputbl' => 0,
+					'targetoutputteks' => $data_sub_keg->indikator.' '.$data_sub_keg->satuan,
+					'targetoutputteks_usulan' => $data_sub_keg->indikator.' '.$data_sub_keg->satuan,
+					'kode_sbl' => $kode_sbl,
+					'idsubbl' => '.',
+					'active' => 1,
+					'update_at' => current_time('mysql'),
+					'tahun_anggaran' => $tahun_anggaran
+				);
+				
+				$status_sub_keg = $wpdb->insert('data_sub_keg_indikator_lokal', $opsi_sub_keg_indikator);
+
+				if($status_sub_keg === false){
+					$ret['status'] = 'error';
+					$ret['message'] = 'Insert gagal, harap hubungi admin!';
+					die(json_encode($ret));
 				}
 			}else{
 				$ret['status'] = 'error';
