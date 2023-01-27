@@ -7401,7 +7401,7 @@ class Wpsipd_Public_Base_3
 									foreach ($kegiatan_all as $keyKegiatan => $kegiatan_value) {
 										$master = $wpdb->get_row($wpdb->prepare("
 												SELECT 
-													id_giat 
+													DISTINCT id_giat 
 												FROM data_prog_keg
 												WHERE id=%d
 													AND tahun_anggaran=%d
@@ -7415,8 +7415,6 @@ class Wpsipd_Public_Base_3
 											'id_giat' => $master->id_giat
 										);
 										
-										// echo '<pre>';print_r($newData);echo '</pre>';
-										
 										$wpdb->update('data_renstra_kegiatan_lokal', $newData, array(
 											'id_unik' => $kegiatan_value['id_unik']
 										));
@@ -7429,10 +7427,7 @@ class Wpsipd_Public_Base_3
 							}
 						}
 
-						echo json_encode([
-							'status'    => 'success',
-            				'message'   => 'Berhasil ubah id_giat ke table kegiatan dan sub_kegiatan! Segarkan/refresh halaman ini untuk melihat perubahannya.'
-						]);exit;
+						echo json_encode($ret);exit;
 					}else{
 		                throw new Exception("Anda tidak punya kewenangan untuk melakukan ini!", 1);
 					}
