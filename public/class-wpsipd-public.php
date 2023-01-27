@@ -18824,11 +18824,11 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 								id_unik,
 								id_unik_indikator,
 								nama_program,
-								pagu_1,
-								pagu_2,
-								pagu_3,
-								pagu_4,
-								pagu_5 
+								COALESCE(pagu_1, 0) AS pagu_1,
+								COALESCE(pagu_2, 0) AS pagu_2,
+								COALESCE(pagu_3, 0) AS pagu_3,
+								COALESCE(pagu_4, 0) AS pagu_4,
+								COALESCE(pagu_5, 0) AS pagu_5 
 							FROM data_renstra_program_lokal 
 							WHERE 
 								kode_sasaran=%s AND 
@@ -18885,11 +18885,11 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 									SELECT 
 										id_unik,
 										nama_giat,
-										pagu_1,
-										pagu_2,
-										pagu_3,
-										pagu_4,
-										pagu_5
+										COALESCE(pagu_1, 0) AS pagu_1,
+										COALESCE(pagu_2, 0) AS pagu_2,
+										COALESCE(pagu_3, 0) AS pagu_3,
+										COALESCE(pagu_4, 0) AS pagu_4,
+										COALESCE(pagu_5, 0) AS pagu_5
 									FROM data_renstra_kegiatan_lokal
 									WHERE 
 										kode_program=%s AND
