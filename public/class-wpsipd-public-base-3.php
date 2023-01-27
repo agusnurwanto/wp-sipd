@@ -7428,6 +7428,11 @@ class Wpsipd_Public_Base_3
 								}
 							}
 						}
+
+						echo json_encode([
+							'status'    => 'success',
+            				'message'   => 'Berhasil ubah id_giat ke table kegiatan dan sub_kegiatan! Segarkan/refresh halaman ini untuk melihat perubahannya.'
+						]);exit;
 					}else{
 		                throw new Exception("Anda tidak punya kewenangan untuk melakukan ini!", 1);
 					}
