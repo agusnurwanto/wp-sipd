@@ -2430,9 +2430,9 @@ $table='<table cellpadding="2" cellspacing="0" style="font-family:\'Open Sans\',
 
 	var aksi = ''
 	<?php if($is_admin): ?>
-		+'<a style="margin-left: 10px;" id="singkron-sipd" onclick="return false;" href="#" class="btn btn-danger">Ambil data dari SIPD lokal</a>'
+		+'<a style="margin-left: 10px; display: none;" id="singkron-sipd" onclick="return false;" href="#" class="btn btn-danger">Ambil data dari SIPD lokal</a>'
 		+'<a style="margin-left: 10px;" onclick="copy_usulan_all(); return false;" href="#" class="btn btn-danger">Copy Data Usulan ke Penetapan</a>'
-		+'<a style="margin-left: 10px;" onclick="singkronisasi_kegiatan(); return false;" href="#" class="btn btn-danger">Singkronisasi Kegiatan</a>'
+		+'<a style="margin-left: 10px; display: none;" onclick="singkronisasi_kegiatan(); return false;" href="#" class="btn btn-danger">Singkronisasi Kegiatan</a>'
 	<?php endif; ?>
 		+'<?php echo $add_renstra; ?>'
 		+'<div class="dropdown" style="margin:30px">'

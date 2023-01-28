@@ -250,10 +250,6 @@ class Wpsipd_Admin {
 		    ->set_page_parent( $monev )
 		    ->add_fields( $this->generate_sumber_dana() );
 
-		Container::make( 'theme_options', __( 'Satuan Harga' ) )
-		    ->set_page_parent( $monev )
-		    ->add_fields( $this->get_ajax_field(array('type' => 'monev_satuan_harga')) );
-
 		Container::make( 'theme_options', __( 'Monev RAK' ) )
 		    ->set_page_parent( $monev )
 		    ->add_fields( $this->get_ajax_field(array('type' => 'monev_rak')) );
@@ -296,6 +292,18 @@ class Wpsipd_Admin {
 	    Container::make( 'theme_options', __( 'Input RENJA' ) )
 		    ->set_page_parent( $input_perencanaan )
 		    ->add_fields( $this->generate_input_renja() );
+
+		$satuan_harga = Container::make( 'theme_options', __( 'Satuan Harga' ) )
+			->set_page_menu_position( 5 )
+		    ->add_fields( $this->get_ajax_field(array('type' => 'rekap_satuan_harga')) );
+
+	    Container::make( 'theme_options', __( 'Usulan Standar Harga' ) )
+		    ->set_page_parent( $satuan_harga )
+		    ->add_fields( $this->get_ajax_field(array('type' => 'monev_satuan_harga')) );
+
+	    Container::make( 'theme_options', __( 'Tidak Terpakai di SIPD' ) )
+		    ->set_page_parent( $satuan_harga )
+		    ->add_fields( $this->get_ajax_field(array('type' => 'tidak_terpakai_satuan_harga')) );
 	}
 
 	public function options_basic(){
@@ -591,9 +599,13 @@ class Wpsipd_Admin {
 						$body_all .= $body_pemda;
 			        }else if($_POST['type'] == 'monev_satuan_harga'){
 						$url_add_new_ssh = $this->generatePage('Data Usulan Standar Satuan Harga (SSH) | '.$v['tahun_anggaran'], $v['tahun_anggaran'], '[data_ssh_usulan tahun_anggaran="'.$v['tahun_anggaran'].'"]');
+						$body_all .= '<div style="padding:.75rem 0 0 .75rem;"><a style="font-weight: bold;" target="_blank" href="'.$url_add_new_ssh.'">Halaman Data Usulan SSH '.$v['tahun_anggaran'].'</a></div>'.$body_pemda;
+			        }else if($_POST['type'] == 'rekap_satuan_harga'){
 						$url_pemda = $this->generatePage('Rekapitulasi Rincian Belanja Pemerintah Daerah '.$v['tahun_anggaran'], $v['tahun_anggaran'], '[data_halaman_menu_ssh tahun_anggaran="'.$v['tahun_anggaran'].'"]');
 						$body_all .= '<a style="font-weight: bold;" target="_blank" href="'.$url_pemda.'">Halaman Rekapitulasi Rincian Belanja '.$v['tahun_anggaran'].'</a>';
-						$body_all .= '<div style="padding:.75rem 0 0 .75rem;"><a style="font-weight: bold;" target="_blank" href="'.$url_add_new_ssh.'">Halaman Data Usulan SSH '.$v['tahun_anggaran'].'</a></div>'.$body_pemda;
+			        }else if($_POST['type'] == 'tidak_terpakai_satuan_harga'){
+						$url_pemda = $this->generatePage('Standar Harga Tidak Terpakai '.$v['tahun_anggaran'], $v['tahun_anggaran'], '[ssh_tidak_terpakai tahun_anggaran="'.$v['tahun_anggaran'].'"]');
+						$body_all .= '<a style="font-weight: bold;" target="_blank" href="'.$url_pemda.'">Standar Harga Tidak Terpakai '.$v['tahun_anggaran'].'</a>';
 			        }else if($_POST['type'] == 'input_renja'){
 			        	$body_all .= $body_pemda;
 					}else if($_POST['type'] == 'monev_rak'){
@@ -613,6 +625,8 @@ class Wpsipd_Admin {
 					|| $_POST['type'] == 'monev_rpjm'
 					|| $_POST['type'] == 'apbdpenjabaran'
 					|| $_POST['type'] == 'monev_satuan_harga'
+					|| $_POST['type'] == 'rekap_satuan_harga'
+					|| $_POST['type'] == 'tidak_terpakai_satuan_harga'
 					|| $_POST['type'] == 'input_renja'
 					|| $_POST['type'] == 'monev_rak'
 					|| $_POST['type'] == 'monev_json_rka'
@@ -641,15 +655,18 @@ class Wpsipd_Admin {
 		$mapping_unit[] = Field::make( 'html', 'crb_fmis_keterangan' )
 	        ->set_html( '<h3>Tahun anggaran WP-SIPD: '.$tahun_anggaran.'</h3>Informasi terkait integrasi data WP-SIPD ke FMIS bisa dicek di <a href="https://smkasiyahhomeschooling.blogspot.com/2021/12/fmis-chrome-extension-untuk-integrasi.html" target="blank">https://smkasiyahhomeschooling.blogspot.com/2021/12/fmis-chrome-extension-untuk-integrasi.html</a>.' );
 	    $mapping_unit[] = Field::make( 'textarea', 'crb_custom_mapping_rekening_fmis', 'Custom Mapping Rekening Antara SIPD dan FMIS' )
-            	->set_help_text('Data ini untuk mengakomodir perbedaan kode rekening yang ada di SIPD dan FMIS. Contoh pengisian data sebagai berikut 5.1.01.88.88.8888-5.2.2.16.1.3 data dipisah dengan pemisah "," (koma). Formatnya adalah <b>kode_rek_sipd-kode_rek_fmis</b>. <h4><a target="_blank" href="'.$url_mapping_rekening.'">Data Mapping Data Master FMIS Rekening</a></h4>.');
+            	->set_help_text('Data ini untuk mengakomodir perbedaan kode rekening yang ada di SIPD dan FMIS. Contoh pengisian data sebagai berikut 5.1.01.88.88.8888-5.2.2.16.1.3 data dipisah dengan pemisah "," (koma). Formatnya adalah <b>kode_rek_sipd-kode_rek_fmis</b>. <h4><a target="_blank" href="'.$url_mapping_rekening.'">Data Mapping Data Master FMIS Rekening</a></h4>');
 	    // $mapping_unit[] = Field::make( 'textarea', 'crb_custom_mapping_sumberdana_fmis', 'Custom Mapping Sumber Dana Antara SIPD dan FMIS' )
         //     	->set_help_text('Data ini untuk mengakomodir perbedaan kode sumber dana yang ada di SIPD dan FMIS. Contoh pengisian data sebagai berikut [xxx]-[xxx] data dipisah dengan pemisah "," (koma). Formatnya adalah <b>[nama sumber dana sipd]-[nama sumber dana fmis]</b>.');
 	    $mapping_unit[] = Field::make( 'textarea', 'crb_custom_mapping_subkeg_fmis', 'Custom Mapping Sub Kegiatan SIPD dan FMIS' )
-            	->set_help_text('Data ini untuk mengakomodir perbedaan nama sub kegiatan yang ada di SIPD dan FMIS. Contoh pengisian data sebagai berikut [nama_subkeg]-[nama_subkeg] data dipisah dengan pemisah "," (koma). Video tutorial <a href="https://youtu.be/7J_k8NEAZLM" target="_blank">https://youtu.be/7J_k8NEAZLM</a>. <h4><a target="_blank" href="'.$url_mapping_sub_kegiatan.'">Data Mapping Data Master FMIS Sub Kegiatan</a></h4>.');
+            	->set_help_text('Data ini untuk mengakomodir perbedaan nama sub kegiatan yang ada di SIPD dan FMIS. Contoh pengisian data sebagai berikut [nama_subkeg]-[nama_subkeg] data dipisah dengan pemisah "," (koma). Video tutorial <a href="https://youtu.be/7J_k8NEAZLM" target="_blank">https://youtu.be/7J_k8NEAZLM</a>. <h4><a target="_blank" href="'.$url_mapping_sub_kegiatan.'">Data Mapping Data Master FMIS Sub Kegiatan</a></h4>');
 	    $mapping_unit[] = Field::make( 'textarea', 'crb_custom_mapping_keg_fmis', 'Custom Mapping Kegiatan SIPD dan FMIS' )
-            	->set_help_text('Data ini untuk mengakomodir perbedaan nama kegiatan yang ada di SIPD dan FMIS. Contoh pengisian data sebagai berikut [nama_kegiatan]-[nama_kegiatan] data dipisah dengan pemisah "," (koma). Video tutorial <a href="https://youtu.be/7J_k8NEAZLM" target="_blank">https://youtu.be/7J_k8NEAZLM</a>. <h4><a target="_blank" href="'.$url_mapping_kegiatan.'">Data Mapping Data Master FMIS Kegiatan</a></h4>.');
+            	->set_help_text('Data ini untuk mengakomodir perbedaan nama kegiatan yang ada di SIPD dan FMIS. Contoh pengisian data sebagai berikut [nama_kegiatan]-[nama_kegiatan] data dipisah dengan pemisah "," (koma). Video tutorial <a href="https://youtu.be/7J_k8NEAZLM" target="_blank">https://youtu.be/7J_k8NEAZLM</a>. <h4><a target="_blank" href="'.$url_mapping_kegiatan.'">Data Mapping Data Master FMIS Kegiatan</a></h4>');
 	    $mapping_unit[] = Field::make( 'textarea', 'crb_custom_mapping_program_fmis', 'Custom Mapping Program SIPD dan FMIS' )
-            	->set_help_text('Data ini untuk mengakomodir perbedaan nama program yang ada di SIPD dan FMIS. Contoh pengisian data sebagai berikut [nama_program]-[nama_program] data dipisah dengan pemisah "," (koma). Video tutorial <a href="https://youtu.be/7J_k8NEAZLM" target="_blank">https://youtu.be/7J_k8NEAZLM</a>. <h4><a target="_blank" href="'.$url_mapping_program.'">Data Mapping Data Master FMIS Program</a></h4>.');
+            	->set_help_text('Data ini untuk mengakomodir perbedaan nama program yang ada di SIPD dan FMIS. Contoh pengisian data sebagai berikut [nama_program]-[nama_program] data dipisah dengan pemisah "," (koma). Video tutorial <a href="https://youtu.be/7J_k8NEAZLM" target="_blank">https://youtu.be/7J_k8NEAZLM</a>. <h4><a target="_blank" href="'.$url_mapping_program.'">Data Mapping Data Master FMIS Program</a></h4>');
+	    $mapping_unit[] = Field::make( 'textarea', 'crb_custom_mapping_pindah_subkeg_fmis', 'Pindah Sub Kegiatan SIPD ke FMIS' )
+	    		->set_default_value('1.02.02.2.02.39-{"kode_sub_giat":"1.02.02.2.01.22", "nama_program":"1.02.02 PROGRAM PEMENUHAN UPAYA KESEHATAN PERORANGAN DAN UPAYA KESEHATAN MASYARAKAT", "nama_giat":"1.02.02.2.01 Penyediaan Fasilitas Pelayanan Kesehatan untuk UKM dan UKP Kewenangan Daerah Kabupaten/Kota", "nama_sub_giat":"1.02.02.2.01.22 Pengelolaan Pelayanan Kesehatan Dasar Melalui Pendekatan Keluarga"}')
+            	->set_help_text('Data ini untuk mengakomodir pindah sub kegiatan dari SIPD ke FMIS. Contoh pengisian data sebagai berikut <h4>1.02.02.2.02.39-{"kode_sub_giat":"1.02.02.2.01.22", "nama_program":"1.02.02 PROGRAM PEMENUHAN UPAYA KESEHATAN PERORANGAN DAN UPAYA KESEHATAN MASYARAKAT", "nama_giat":"1.02.02.2.01 Penyediaan Fasilitas Pelayanan Kesehatan untuk UKM dan UKP Kewenangan Daerah Kabupaten/Kota", "nama_sub_giat":"1.02.02.2.01.22 Pengelolaan Pelayanan Kesehatan Dasar Melalui Pendekatan Keluarga"}</h4><h4>(kode_sub_kegiatan_SIPD-data_JSON_sub_kegiatan_FMIS)</h4> data dipisah dengan pemisah "#" (tanda pagar).');
 		$mapping_unit[] = Field::make( 'html', 'crb_fmis_keterangan_mapping' )
 	        ->set_html( 'Mapping SKPD berisi ID dari Unit dan Sub Unit FMIS. Data ID SKPD FMIS dapat dilihat pada form edit atau tambah user. ID dipisahkan dengan delimiter "." (titik). Contoh jika ID dari Unit Dindik adalah 50 dan ID dari sub Unit Dindik adalah 70, maka penulisanya adalah <b>50.70</b>.' );
         $mapping_unit[] = Field::make( 'radio', 'crb_fmis_pagu', __( 'Nilai Rincian yang dikirim ke FMIS' ) )
