@@ -7405,8 +7405,8 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 													DISTINCT id_giat 
 												FROM data_prog_keg
 												WHERE id=%d
-													AND tahun_anggaran=%d
-												", $kegiatan_value['id_giat'], get_option('_crb_tahun_anggaran_sipd')));
+													AND id_giat != 0
+											", $kegiatan_value['id_giat']));
 
 										if(empty($master)){
 											throw new Exception('Kegiatan tidak ditemukan!'. $kegiatan_value['id_giat']);
