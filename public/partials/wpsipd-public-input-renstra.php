@@ -2432,6 +2432,7 @@ $table='<table cellpadding="2" cellspacing="0" style="font-family:\'Open Sans\',
 	<?php if($is_admin): ?>
 		+'<a style="margin-left: 10px;" id="singkron-sipd" onclick="return false;" href="#" class="btn btn-danger">Ambil data dari SIPD lokal</a>'
 		+'<a style="margin-left: 10px;" onclick="copy_usulan_all(); return false;" href="#" class="btn btn-danger">Copy Data Usulan ke Penetapan</a>'
+		+'<a style="margin-left: 10px;" onclick="singkronisasi_kegiatan(); return false;" href="#" class="btn btn-danger">Singkronisasi Kegiatan</a>'
 	<?php endif; ?>
 		+'<?php echo $add_renstra; ?>'
 		+'<div class="dropdown" style="margin:30px">'
@@ -6748,5 +6749,24 @@ $table='<table cellpadding="2" cellspacing="0" style="font-family:\'Open Sans\',
 			        }
 			});
 		})
+	}
+
+	function singkronisasi_kegiatan(){
+		if(confirm('Apakah anda yakin untuk melakukan ini? id_giat dari table kegiatan dan sub_kegiatan akan diupdate.')){
+			jQuery('#wrap-loading').show();
+			jQuery.ajax({
+				url: ajax.url,
+	          	type: "post",
+	          	data: {
+	          		"action": "singkronisasi_kegiatan_renstra",
+	          		"api_key": "<?php echo $api_key; ?>",
+	          	},
+	          	dataType: "json",
+	          	success: function(res){
+	          		alert(res.message);
+	          		jQuery('#wrap-loading').hide();
+	          	}
+	        });
+		}
 	}
 </script>
