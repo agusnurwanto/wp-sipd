@@ -7347,6 +7347,7 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 	}
 
 	public function singkronisasi_kegiatan_renstra(){
+		return;
         global $wpdb;
         $ret = array(
             'status'    => 'success',

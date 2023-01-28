@@ -9965,6 +9965,9 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						$subkeg_mapping = $this->get_fmis_mapping(array(
 							'name' => '_crb_custom_mapping_subkeg_fmis'
 						));
+						$pindah_subkeg_mapping = $this->get_fmis_mapping(array(
+							'name' => '_crb_custom_mapping_pindah_subkeg_fmis'
+						));
 						$data_sub_keg = array();
 						$type_pagu = get_option('_crb_fmis_pagu');
 						if($idsumber == 1){
@@ -9981,6 +9984,16 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 									and s.active=1", 
 							$tahun_anggaran), ARRAY_A);
 							foreach ($data_sub_keg as $k => $v) {
+								$nama_sub_giat = explode(' ', $v['nama_sub_giat']);
+								$kode_sub = $nama_sub_giat[0];
+								unset($nama_sub_giat[0]);
+								$nama_sub_giat = implode(' ', $nama_sub_giat);
+								if(!empty($pindah_subkeg_mapping[$kode_sub])){
+									$v['nama_program'] = $pindah_subkeg_mapping[$kode_sub]['nama_program'];
+									$v['nama_giat'] = $pindah_subkeg_mapping[$kode_sub]['nama_giat'];
+									$v['nama_sub_giat'] = $pindah_subkeg_mapping[$kode_sub]['nama_sub_giat'];
+									$data_sub_keg[$k] = $v;
+								}
 								if(
 									!empty($type_pagu)
 									&& $type_pagu == 2
@@ -9994,10 +10007,6 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 								if(!empty($keg_mapping[$this->removeNewline($v['nama_giat'])])){
 									$data_sub_keg[$k]['nama_giat'] = $keg_mapping[$this->removeNewline($v['nama_giat'])];
 								}
-								$nama_sub_giat = explode(' ', $v['nama_sub_giat']);
-								$kode_sub = $nama_sub_giat[0];
-								unset($nama_sub_giat[0]);
-								$nama_sub_giat = implode(' ', $nama_sub_giat);
 								if(!empty($subkeg_mapping[$this->removeNewline($nama_sub_giat)])){
 									$data_sub_keg[$k]['nama_sub_giat'] = $kode_sub.' '.$subkeg_mapping[$this->removeNewline($nama_sub_giat)];
 								}
@@ -10214,6 +10223,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 	}
 
 	public function get_fmis_mapping($options, $no_remove=false){
+		global $wpdb;
 		if($options['name'] == '_crb_custom_mapping_rekening_fmis'){
 			$mapping = get_option($options['name']);
 			$mapping = explode(',', $mapping);
@@ -10221,6 +10231,32 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 			foreach($mapping as $map){
 				$map = explode('-', $map);
 				$ret[$map[0]] = $map[1];
+			}
+		}else if($options['name'] == '_crb_custom_mapping_pindah_subkeg_fmis'){
+			$mapping = get_option($options['name']);
+			$mapping = explode('#', $mapping); // pindah sub keg dipisah dengan tanda pagar
+			$ret = array();
+			foreach($mapping as $map){
+				$map = explode('-', $map);
+				$ret[$map[0]] = '';
+				$sub_giat_fmis = json_decode(stripslashes(html_entity_decode($map[1])), true);
+				if(!empty($sub_giat_fmis)){
+					if(!empty($sub_giat_fmis['nama_sub_giat'])){
+						$ret[$map[0]] = $sub_giat_fmis;
+					}else{
+						$sub_giat = $wpdb->get_row($wpdb->prepare("
+							SELECT 
+								kode_sub_giat,
+								nama_program,
+								nama_giat,
+								nama_sub_giat
+							FROM data_prog_keg
+							where kode_sub_giat=%s
+							order by tahun_anggaran DESC
+						", $sub_giat_fmis['kode_sub_giat']), ARRAY_A);
+						$ret[$map[0]] = $sub_giat;
+					}
+				}
 			}
 		}else{
 			$mapping = get_option($options['name']);
