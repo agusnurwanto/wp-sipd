@@ -671,6 +671,8 @@ class Wpsipd
 		$this->loader->add_action('wp_ajax_get_master_indikator_subgiat',  $plugin_public, 'get_master_indikator_subgiat');
 
 		$this->loader->add_action('wp_ajax_singkronisasi_kegiatan_renstra',  $plugin_public, 'singkronisasi_kegiatan_renstra');
+		$this->loader->add_action('wp_ajax_get_pagu_program',  $plugin_public, 'get_pagu_program');
+		$this->loader->add_action('wp_ajax_get_pagu_kegiatan',  $plugin_public, 'get_pagu_kegiatan');
 
 		add_shortcode('menu_monev',  array($plugin_public, 'menu_monev'));
 		add_shortcode('datassh', array($plugin_public, 'datassh'));

@@ -2134,7 +2134,8 @@ class Wpsipd_Public_Base_3
                             u.nama_urusan,
                             u.nama_bidang_urusan,
                             u.nama_program,
-                            u.id_program
+                            u.id_program,
+                            u.kode_program
                         FROM data_prog_keg as u 
                         WHERE u.tahun_anggaran=%d
                         	AND id_program=%d
@@ -2149,15 +2150,15 @@ class Wpsipd_Public_Base_3
 					try {
 							$wpdb->insert('data_renstra_program_lokal', [
 								'bidur_lock' => 0,
-								'id_bidang_urusan' => $dataSasaran->id_bidang_urusan, // diambil dari sasaran renstra atau dari program yang dipilih
+								'id_bidang_urusan' => $dataSasaran->id_bidang_urusan,
 								'id_misi' => $dataSasaran->id_misi,
 								'id_program' => $dataProgram->id_program,
-								'id_unik' => $this->generateRandomString(), // kode_program
+								'id_unik' => $this->generateRandomString(),
 								'id_unit' => $dataSasaran->id_unit,
 								'id_visi' => $dataSasaran->id_visi,
 								'is_locked' => 0,
 								'is_locked_indikator' => 0,
-								'kode_bidang_urusan' => $dataSasaran->kode_bidang_urusan, // diambil dari sasaran renstra atau dari program yang dipilih
+								'kode_bidang_urusan' => $dataSasaran->kode_bidang_urusan,
 								'kode_program' => $dataProgram->kode_program,
 								'kode_sasaran' => $dataSasaran->id_unik,
 								'kode_skpd' => $dataSasaran->kode_skpd,
@@ -2275,7 +2276,8 @@ class Wpsipd_Public_Base_3
                             u.nama_urusan,
                             u.nama_bidang_urusan,
                             u.nama_program,
-                            u.id_program
+                            u.id_program,
+                            u.kode_program
                         FROM data_prog_keg as u 
                         WHERE u.tahun_anggaran=%d 
                         	AND u.id_program=%d
@@ -2839,7 +2841,7 @@ class Wpsipd_Public_Base_3
 						'id_unit' => $dataProgram->id_unit,
 						'id_visi' => $dataProgram->id_visi,
 						'kode_bidang_urusan' => $dataProgram->kode_bidang_urusan,
-						'kode_program' => $dataProgram->id_unik,
+						'kode_program' => $dataProgram->kode_program,
 						'kode_sasaran' => $dataProgram->kode_sasaran,
 						'kode_skpd' => $dataProgram->kode_skpd,
 						'kode_tujuan' => $dataProgram->kode_tujuan,
@@ -4088,7 +4090,6 @@ class Wpsipd_Public_Base_3
                         ORDER BY u.kode_program ASC, s.kode_skpd ASC 
                     ");
                 }
-                // $ret['sql'] = $wpdb->last_query;
                 $ret['data'] = $data;
             }else{
                 $ret = array(
@@ -7443,5 +7444,220 @@ class Wpsipd_Public_Base_3
 				'message' => $e->getMessage()
 			]);exit;
         }
+    }
+
+    public function get_pagu_program(){
+    	global $wpdb;
+
+		try{
+			if (!empty($_POST)) {
+				if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+					
+					$data = [
+						'penetapan' => [
+							'pagu_1' => 0,
+							'pagu_2' => 0,
+							'pagu_3' => 0,
+							'pagu_4' => 0,
+							'pagu_5' => 0,
+						],
+						'usulan' => [
+							'pagu_1' => 0,
+							'pagu_2' => 0,
+							'pagu_3' => 0,
+							'pagu_4' => 0,
+							'pagu_5' => 0,
+						]
+					];
+
+					$kegiatan_all = $wpdb->get_results($wpdb->prepare("
+						SELECT 
+							id_unik
+						FROM data_renstra_kegiatan_lokal
+						WHERE
+							kode_program=%s AND
+							id_unik_indikator IS NULL ORDER BY nama_program
+					", $_POST['kode_program']), ARRAY_A);
+
+					foreach ($kegiatan_all as $keyKegiatan => $kegiatan_value) {
+						$sub_kegiatan_all = $wpdb->get_results($wpdb->prepare("
+							SELECT 
+								COALESCE(pagu_1, 0) AS pagu_1, 
+								COALESCE(pagu_2, 0) AS pagu_2, 
+								COALESCE(pagu_3, 0) AS pagu_3, 
+								COALESCE(pagu_4, 0) AS pagu_4, 
+								COALESCE(pagu_5, 0) AS pagu_5,
+								COALESCE(pagu_1_usulan, 0) AS pagu_1_usulan, 
+								COALESCE(pagu_2_usulan, 0) AS pagu_2_usulan, 
+								COALESCE(pagu_3_usulan, 0) AS pagu_3_usulan, 
+								COALESCE(pagu_4_usulan, 0) AS pagu_4_usulan, 
+								COALESCE(pagu_5_usulan, 0) AS pagu_5_usulan 
+							FROM data_renstra_sub_kegiatan_lokal 
+							WHERE 
+								kode_kegiatan=%s AND 
+								id_unik_indikator IS NULL ORDER BY nama_sub_giat
+						", $kegiatan_value['id_unik']), ARRAY_A);
+
+						foreach ($sub_kegiatan_all as $sub_kegiatan) {
+							$data['penetapan']['pagu_1']+=$sub_kegiatan['pagu_1'];
+							$data['penetapan']['pagu_2']+=$sub_kegiatan['pagu_2'];
+							$data['penetapan']['pagu_3']+=$sub_kegiatan['pagu_3'];
+							$data['penetapan']['pagu_4']+=$sub_kegiatan['pagu_4'];
+							$data['penetapan']['pagu_5']+=$sub_kegiatan['pagu_5'];
+							$data['usulan']['pagu_1']+=$sub_kegiatan['pagu_1_usulan'];
+							$data['usulan']['pagu_2']+=$sub_kegiatan['pagu_2_usulan'];
+							$data['usulan']['pagu_3']+=$sub_kegiatan['pagu_3_usulan'];
+							$data['usulan']['pagu_4']+=$sub_kegiatan['pagu_4_usulan'];
+							$data['usulan']['pagu_5']+=$sub_kegiatan['pagu_5_usulan'];
+						}
+					}
+
+					$data_indikator_program = $wpdb->get_row($wpdb->prepare("
+						SELECT
+							COALESCE(SUM(pagu_1), 0) AS pagu_1,
+							COALESCE(SUM(pagu_2), 0) AS pagu_2,
+							COALESCE(SUM(pagu_3), 0) AS pagu_3,
+							COALESCE(SUM(pagu_4), 0) AS pagu_4,
+							COALESCE(SUM(pagu_5), 0) AS pagu_5,
+							COALESCE(SUM(pagu_1_usulan), 0) AS pagu_1_usulan,
+							COALESCE(SUM(pagu_2_usulan), 0) AS pagu_2_usulan,
+							COALESCE(SUM(pagu_3_usulan), 0) AS pagu_3_usulan,
+							COALESCE(SUM(pagu_4_usulan), 0) AS pagu_4_usulan,
+							COALESCE(SUM(pagu_5_usulan), 0) AS pagu_5_usulan
+						FROM data_renstra_program_lokal
+						WHERE
+							id_unik=%s AND
+							id_unik_indikator IS NOT NULL
+					", $_POST['kode_program']));
+
+					$data['penetapan']['pagu_1']=$data['penetapan']['pagu_1']-$data_indikator_program->pagu_1;
+					$data['penetapan']['pagu_2']=$data['penetapan']['pagu_2']-$data_indikator_program->pagu_2;
+					$data['penetapan']['pagu_3']=$data['penetapan']['pagu_3']-$data_indikator_program->pagu_3;
+					$data['penetapan']['pagu_4']=$data['penetapan']['pagu_4']-$data_indikator_program->pagu_4;
+					$data['penetapan']['pagu_5']=$data['penetapan']['pagu_5']-$data_indikator_program->pagu_5;
+					$data['usulan']['pagu_1']=$data['usulan']['pagu_1']-$data_indikator_program->pagu_1_usulan;
+					$data['usulan']['pagu_2']=$data['usulan']['pagu_2']-$data_indikator_program->pagu_2_usulan;
+					$data['usulan']['pagu_3']=$data['usulan']['pagu_3']-$data_indikator_program->pagu_3_usulan;
+					$data['usulan']['pagu_4']=$data['usulan']['pagu_4']-$data_indikator_program->pagu_4_usulan;
+					$data['usulan']['pagu_5']=$data['usulan']['pagu_5']-$data_indikator_program->pagu_5_usulan;
+
+					echo json_encode([
+						'status' => true,
+						'data' => $data
+					]);exit();
+				}else{
+					throw new Exception("Api key tidak sesuai", 1);
+				}
+			}else{
+				throw new Exception("Format tidak sesuai", 1);
+			}
+		}catch(Exception $e){
+			echo json_encode([
+				'status' => false,
+				'message' => $e->getMessage()
+			]);exit();
+		}	
+    }
+
+    public function get_pagu_kegiatan(){
+    	global $wpdb;
+
+		try{
+			if (!empty($_POST)) {
+				if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+					
+					$data = [
+						'penetapan' => [
+							'pagu_1' => 0,
+							'pagu_2' => 0,
+							'pagu_3' => 0,
+							'pagu_4' => 0,
+							'pagu_5' => 0,
+						],
+						'usulan' => [
+							'pagu_1' => 0,
+							'pagu_2' => 0,
+							'pagu_3' => 0,
+							'pagu_4' => 0,
+							'pagu_5' => 0,
+						]
+					];
+
+					$sub_kegiatan_all = $wpdb->get_results($wpdb->prepare("
+						SELECT 
+							COALESCE(pagu_1, 0) AS pagu_1, 
+							COALESCE(pagu_2, 0) AS pagu_2, 
+							COALESCE(pagu_3, 0) AS pagu_3, 
+							COALESCE(pagu_4, 0) AS pagu_4, 
+							COALESCE(pagu_5, 0) AS pagu_5,
+							COALESCE(pagu_1_usulan, 0) AS pagu_1_usulan, 
+							COALESCE(pagu_2_usulan, 0) AS pagu_2_usulan, 
+							COALESCE(pagu_3_usulan, 0) AS pagu_3_usulan, 
+							COALESCE(pagu_4_usulan, 0) AS pagu_4_usulan, 
+							COALESCE(pagu_5_usulan, 0) AS pagu_5_usulan 
+						FROM data_renstra_sub_kegiatan_lokal 
+						WHERE 
+							kode_kegiatan=%s AND 
+							id_unik_indikator IS NULL ORDER BY nama_sub_giat
+					", $_POST['kode_kegiatan']), ARRAY_A);
+
+					foreach ($sub_kegiatan_all as $sub_kegiatan) {
+						$data['penetapan']['pagu_1']+=$sub_kegiatan['pagu_1'];
+						$data['penetapan']['pagu_2']+=$sub_kegiatan['pagu_2'];
+						$data['penetapan']['pagu_3']+=$sub_kegiatan['pagu_3'];
+						$data['penetapan']['pagu_4']+=$sub_kegiatan['pagu_4'];
+						$data['penetapan']['pagu_5']+=$sub_kegiatan['pagu_5'];
+						$data['usulan']['pagu_1']+=$sub_kegiatan['pagu_1_usulan'];
+						$data['usulan']['pagu_2']+=$sub_kegiatan['pagu_2_usulan'];
+						$data['usulan']['pagu_3']+=$sub_kegiatan['pagu_3_usulan'];
+						$data['usulan']['pagu_4']+=$sub_kegiatan['pagu_4_usulan'];
+						$data['usulan']['pagu_5']+=$sub_kegiatan['pagu_5_usulan'];
+					}
+
+					$data_indikator_kegiatan = $wpdb->get_row($wpdb->prepare("
+						SELECT
+							COALESCE(SUM(pagu_1), 0) AS pagu_1,
+							COALESCE(SUM(pagu_2), 0) AS pagu_2,
+							COALESCE(SUM(pagu_3), 0) AS pagu_3,
+							COALESCE(SUM(pagu_4), 0) AS pagu_4,
+							COALESCE(SUM(pagu_5), 0) AS pagu_5,
+							COALESCE(SUM(pagu_1_usulan), 0) AS pagu_1_usulan,
+							COALESCE(SUM(pagu_2_usulan), 0) AS pagu_2_usulan,
+							COALESCE(SUM(pagu_3_usulan), 0) AS pagu_3_usulan,
+							COALESCE(SUM(pagu_4_usulan), 0) AS pagu_4_usulan,
+							COALESCE(SUM(pagu_5_usulan), 0) AS pagu_5_usulan
+						FROM data_renstra_kegiatan_lokal
+						WHERE
+							id_unik=%s AND
+							id_unik_indikator IS NOT NULL
+					", $_POST['kode_kegiatan']));
+
+					$data['penetapan']['pagu_1']=$data['penetapan']['pagu_1']-$data_indikator_kegiatan->pagu_1;
+					$data['penetapan']['pagu_2']=$data['penetapan']['pagu_2']-$data_indikator_kegiatan->pagu_2;
+					$data['penetapan']['pagu_3']=$data['penetapan']['pagu_3']-$data_indikator_kegiatan->pagu_3;
+					$data['penetapan']['pagu_4']=$data['penetapan']['pagu_4']-$data_indikator_kegiatan->pagu_4;
+					$data['penetapan']['pagu_5']=$data['penetapan']['pagu_5']-$data_indikator_kegiatan->pagu_5;
+					$data['usulan']['pagu_1']=$data['usulan']['pagu_1']-$data_indikator_kegiatan->pagu_1_usulan;
+					$data['usulan']['pagu_2']=$data['usulan']['pagu_2']-$data_indikator_kegiatan->pagu_2_usulan;
+					$data['usulan']['pagu_3']=$data['usulan']['pagu_3']-$data_indikator_kegiatan->pagu_3_usulan;
+					$data['usulan']['pagu_4']=$data['usulan']['pagu_4']-$data_indikator_kegiatan->pagu_4_usulan;
+					$data['usulan']['pagu_5']=$data['usulan']['pagu_5']-$data_indikator_kegiatan->pagu_5_usulan;
+
+					echo json_encode([
+						'status' => true,
+						'data' => $data
+					]);exit();
+				}else{
+					throw new Exception("Api key tidak sesuai", 1);
+				}
+			}else{
+				throw new Exception("Format tidak sesuai", 1);
+			}
+		}catch(Exception $e){
+			echo json_encode([
+				'status' => false,
+				'message' => $e->getMessage()
+			]);exit();
+		}	
     }
 }
