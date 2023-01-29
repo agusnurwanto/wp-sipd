@@ -4485,3 +4485,73 @@ ALTER TABLE `data_sp2d_sipd`
   
 ALTER TABLE `data_sp2d_sipd`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+  CREATE TABLE `data_spm_sipd` (
+  `id` int(11) NOT NULL,
+  `idSpm` int(11) DEFAULT NULL,
+  `idSpp` int(11) DEFAULT NULL,
+  `created_at` datetime DEFAULT NULL,
+  `updated_at` datetime DEFAULT NULL,
+  `idDetailSpm` int(11) DEFAULT NULL,
+  `id_skpd` int(11) DEFAULT NULL,
+  `tahun_anggaran` year(4) DEFAULT NULL COMMENT 'tahun_spm',
+  `id_jadwal` int(11) DEFAULT NULL,
+  `id_tahap` int(11) DEFAULT NULL,
+  `status_tahap` varchar(15) DEFAULT NULL,
+  `nomorSpp` varchar(80) DEFAULT NULL,
+  `nilaiSpp` double DEFAULT NULL,
+  `tanggalSpp` date DEFAULT NULL,
+  `keteranganSpp` varchar(500) DEFAULT NULL,
+  `idSkpd` int(11) DEFAULT NULL,
+  `idSubUnit` int(11) DEFAULT NULL,
+  `nilaiDisetujuiSpp` double DEFAULT NULL,
+  `tanggalDisetujuiSpp` date DEFAULT NULL,
+  `jenisSpp` int(11) DEFAULT NULL,
+  `verifikasiSpp` varchar(10) DEFAULT NULL,
+  `keteranganVerifikasi` varchar(500) DEFAULT NULL,
+  `idSpd` int(11) DEFAULT NULL,
+  `idPengesahanSpj` int(11) DEFAULT NULL,
+  `kunciRekening` bit(1) DEFAULT NULL,
+  `alamatPenerimaSpp` varchar(100) DEFAULT NULL,
+  `bankPenerimaSpp` varchar(100) DEFAULT NULL,
+  `nomorRekeningPenerimaSpp` varchar(35) DEFAULT NULL,
+  `npwpPenerimaSpp` varchar(35) DEFAULT NULL,
+  `jenisLs` varchar(15) DEFAULT NULL,
+  `isUploaded` bit(1) DEFAULT NULL,
+  `tahunSpp` year(4) DEFAULT NULL,
+  `idKontrak` int(11) DEFAULT NULL,
+  `idBA` int(11) DEFAULT NULL,
+  `isSpm` bit(1) DEFAULT NULL,
+  `statusPerubahan` bit(1) DEFAULT NULL,
+  `isDraft` bit(1) DEFAULT NULL,
+  `isGaji` bit(1) DEFAULT NULL,
+  `is_sptjm` bit(1) DEFAULT NULL,
+  `tanggal_otorisasi` date DEFAULT NULL,
+  `is_otorisasi` bit(1) DEFAULT NULL,
+  `bulan_gaji` tinyint(4) DEFAULT NULL,
+  `id_pegawai_pptk` int(11) DEFAULT NULL,
+  `nama_pegawai_pptk` varchar(50) DEFAULT NULL,
+  `nip_pegawai_pptk` varchar(30) DEFAULT NULL,
+  `kode_tahap` varchar(5) DEFAULT NULL,
+  `is_tpp` bit(1) DEFAULT NULL,
+  `bulan_tpp` tinyint(1) DEFAULT NULL,
+  `id_pengajuan_tu` int(11) DEFAULT NULL,
+  `nomor_pengajuan_tu` varchar(80) DEFAULT NULL,
+  `nomorSpm` varchar(80) DEFAULT NULL,
+  `tanggalSpm` date DEFAULT NULL,
+  `keteranganSpm` varchar(500) DEFAULT NULL,
+  `verifikasiSpm` bit(1) DEFAULT NULL,
+  `tanggalVerifikasiSpm` date DEFAULT NULL,
+  `jenisSpm` varchar(5) DEFAULT NULL,
+  `nilaiSpm` double DEFAULT NULL,
+  `keteranganVerifikasiSpm` varchar(500) DEFAULT NULL,
+  `isOtorisasi` bit(1) DEFAULT NULL,
+  `tanggalOtorisasi` date DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+ALTER TABLE `data_spm_sipd`
+  ADD PRIMARY KEY (`id`);
+
+ALTER TABLE `data_spm_sipd`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+COMMIT;

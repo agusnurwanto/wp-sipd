@@ -287,6 +287,9 @@ class Wpsipd
 		
 		$this->loader->add_action('wp_ajax_singkron_sp2d',  $plugin_public, 'singkron_sp2d');
 		$this->loader->add_action('wp_ajax_nopriv_singkron_sp2d',  $plugin_public, 'singkron_sp2d');
+		
+		$this->loader->add_action('wp_ajax_singkron_spm',  $plugin_public, 'singkron_spm');
+		$this->loader->add_action('wp_ajax_nopriv_singkron_spm',  $plugin_public, 'singkron_spm');
 
 		$this->loader->add_action('wp_ajax_singkron_pendapatan',  $plugin_public, 'singkron_pendapatan');
 		$this->loader->add_action('wp_ajax_nopriv_singkron_pendapatan',  $plugin_public, 'singkron_pendapatan');
