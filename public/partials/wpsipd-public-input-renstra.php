@@ -3770,6 +3770,10 @@ $table='<table cellpadding="2" cellspacing="0" style="font-family:\'Open Sans\',
 			jQuery("#modal-crud-renstra").find('.modal-dialog').css('maxWidth','950px');
 			jQuery("#modal-crud-renstra").find('.modal-dialog').css('width','100%');
 			jQuery("#modal-crud-renstra").modal('show');
+
+			get_pagu_program({
+				'id_unik':kode_program,
+			});
 		}); 
 	});
 
@@ -4141,7 +4145,6 @@ $table='<table cellpadding="2" cellspacing="0" style="font-family:\'Open Sans\',
 
 	jQuery(document).on('click', '.btn-add-indikator-kegiatan', function(){
 
-		let indikatorKegiatanModal = jQuery("#modal-crud-renstra");
 		let id_unik = jQuery(this).data('kodekegiatan');
 		let html = ''
 		+'<form id="form-renstra">'
@@ -4236,9 +4239,9 @@ $table='<table cellpadding="2" cellspacing="0" style="font-family:\'Open Sans\',
 			+'</div>'
 		+'</form>';
 
-		indikatorKegiatanModal.find('.modal-title').html('Tambah Indikator');
-		indikatorKegiatanModal.find('.modal-body').html(html);
-		indikatorKegiatanModal.find('.modal-footer').html(''
+		jQuery("#modal-crud-renstra").find('.modal-title').html('Tambah Indikator');
+		jQuery("#modal-crud-renstra").find('.modal-body').html(html);
+		jQuery("#modal-crud-renstra").find('.modal-footer').html(''
 			+'<button type="button" class="btn btn-warning" data-dismiss="modal">'
 				+'<i class="dashicons dashicons-no" style="margin-top: 2px;"></i> Tutup'
 			+'</button>'
@@ -4248,9 +4251,13 @@ $table='<table cellpadding="2" cellspacing="0" style="font-family:\'Open Sans\',
 			+'>'
 				+'<i class="dashicons dashicons-yes" style="margin-top: 2px;"></i> Simpan'
 			+'</button>');
-		indikatorKegiatanModal.find('.modal-dialog').css('maxWidth','950px');
-		indikatorKegiatanModal.find('.modal-dialog').css('width','100%');
-		indikatorKegiatanModal.modal('show');
+		jQuery("#modal-crud-renstra").find('.modal-dialog').css('maxWidth','950px');
+		jQuery("#modal-crud-renstra").find('.modal-dialog').css('width','100%');
+		jQuery("#modal-crud-renstra").modal('show');
+
+		get_pagu_kegiatan({
+			'id_unik':id_unik,
+		});
 	});
 
 	jQuery(document).on('click', '.btn-edit-indikator-kegiatan', function(){
@@ -6768,5 +6775,63 @@ $table='<table cellpadding="2" cellspacing="0" style="font-family:\'Open Sans\',
 	          	}
 	        });
 		}
+	}
+
+	function get_pagu_program(params){
+		return new Promise(function(resolve, reject){
+			jQuery.ajax({
+				url: ajax.url,
+			    type: "post",
+			    data: {
+			       		"action": "get_pagu_program",
+			       		"api_key": "<?php echo $api_key; ?>",
+			       		"kode_program": params.id_unik
+			       	},
+			       	dataType: "json",
+			       	success: function(res){
+			          	if(res.status){
+			          		for (let key in res.data.penetapan) {
+			          			jQuery("input[name="+key+"]").val(res.data.penetapan[key]);
+			          		}
+
+			          		for (let key in res.data.usulan) {
+			          			jQuery("input[name="+key+"_usulan]").val(res.data.usulan[key]);
+			          		}
+			          	}else{
+			          		alert(res.message);
+			          	}
+			          	resolve();
+			        }
+			});
+		})
+	}
+
+	function get_pagu_kegiatan(params){
+		return new Promise(function(resolve, reject){
+			jQuery.ajax({
+				url: ajax.url,
+			    type: "post",
+			    data: {
+			       		"action": "get_pagu_kegiatan",
+			       		"api_key": "<?php echo $api_key; ?>",
+			       		"kode_kegiatan": params.id_unik
+			       	},
+			       	dataType: "json",
+			       	success: function(res){
+			          	if(res.status){
+			          		for (let key in res.data.penetapan) {
+			          			jQuery("input[name="+key+"]").val(res.data.penetapan[key]);
+			          		}
+
+			          		for (let key in res.data.usulan) {
+			          			jQuery("input[name="+key+"_usulan]").val(res.data.usulan[key]);
+			          		}
+			          	}else{
+			          		alert(res.message);
+			          	}
+			          	resolve();
+			        }
+			});
+		})
 	}
 </script>
