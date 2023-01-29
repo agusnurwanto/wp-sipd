@@ -5040,6 +5040,91 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		}
 		die(json_encode($ret));
 	}
+	//Import data SP2D dari SIPD Penatausahaan
+	public function singkron_sp2d(){
+		global $wpdb;
+		$ret=array(
+			'status'=>'success',
+			'message'=>'Berhasil singkronisasi SP2D'
+		);
+		if(!empty($_POST)){
+			if(!empty($_POST['api_key']) && $_POST['api_key']==get_option('_crb_api_key_extension')){
+				$data=$_POST['data'];
+				foreach($data as $i=>$v){
+					$cek=$wpdb->get_var($wpdb->prepare("select idSp2d from data_sp2d_sipd where idSp2d=%d and tahun_anggaran=%d",$v['idSp2d'],$_POST['tahun_anggaran']));
+					$opsi=array(
+						"idSpm"=> $v["idSpm"],
+						"nomorSp2d"=> $v["nomorSp2d"],
+						"tanggalSp2d"=> $v["tanggalSp2d"],
+						"tahun_anggaran"=> $v["tahunSp2d"],
+						"idSubUnit"=> $v["idSubUnit"],
+						"keteranganSp2d"=> $v["keteranganSp2d"],
+						"jenisSp2d"=> $v["jenisSp2d"],
+						"nilaiSp2d"=> $v["nilaiSp2d"],
+						"jenisLs"=> $v["jenisLs"],
+						"isPergeseran"=> $v["isPergeseran"],
+						"isPelimpahan"=> $v["isPelimpanan"],
+						"created_at"=> $v["created_at"],
+						"updated_at"=> $v["updated_at"],
+						"isTbpLs"=> $v["isTbpLs"],
+						"idSkpd"=> $v["idSkpd"],
+						"isDraft"=> $v["isDraft"],
+						"idSp2d"=> $v["idSp2d"],
+						"verifikasiSp2d"=> $v["verifikasiSp2d"],
+						"tanggalVerifikasi"=> $v["tanggalVerifikasi"],
+						"idSkpdTujuan"=> $v["idSkpdTujuan"],
+						"kunciRekening"=> $v["kunciRekening"],
+						"isBku"=> $v["isBku"],
+						"bulan_gaji"=> $v["bulan_gaji"],
+						"tahun_gaji"=> $v["tahun_gaji"],
+						"jenis_gaji"=> $v["jenis_gaji"],
+						"is_bku_skpd"=> $v["is_bku_skpd"],
+						"id_jadwal"=> $v["id_jadwal"],
+						"id_tahap"=> $v["id_tahap"],
+						"status_tahap"=> $v["status_tahap"],
+						"kode_tahap"=> $v["kode_tahap"],
+						"status_aklap"=> $v["status_aklap"],
+						"nomor_jurnal"=> $v["nomor_jurnal"],
+						"jurnal_id"=> $v["jurnal_id"],
+						"metode"=> $v["metode"],
+						"bulan_tpp"=> $v["bulan_tpp"],
+						"tahun_tpp"=> $v["tahun_tpp"],
+						"nomor_rekening_pembayar"=> $v["nomor_rekening_pembayar"],
+						"bank_rekening_pembayar"=> $v["bank_rekening_pembayar"],
+						"is_rekening_pembayar"=> $v["is_rekening_pembayar"],
+						"nomorSpm"=> $v["nomorSpm"],
+						"tanggalSpm"=> $v["tanggalSpm"],
+						"tahunSpm"=> $v["tahunSpm"],
+						"keteranganSpm"=> $v["keteranganSpm"],
+						"verifikasiSpm"=> $v["verifikasiSpm"],
+						"tanggalVerifikasiSpm"=> $v["tanggalVerifikasiSpm"],
+						"jenisSpm"=> $v["jenisSpm"],
+						"nilaiSpm"=> $v["nilaiSpm"],
+						"keteranganVerifikasiSpm"=> $v["keteranganVerifikasiSpm"],
+						"isOtorisasi"=> $v["isOtorisasi"],
+						"tanggalOtorisasi"=> $v["tanggal_otorisasi"],
+						"is_sptjm"=> $v["is_sptjm"],
+						"namaSkpd"=> $v["namaSkpd"],
+						"kodeSkpd"=> $v["kodeSkpd"],
+						"is_bpk"=> $v["is_bpk"]
+					);
+					if(!empty($cek)){
+						$wpdb->update('data_sp2d_sipd',$opsi,array('idSp2d'=>$v["idSp2d"],'tahun_anggaran'=>$v["tahunSp2d"]));
+					}else{
+						$wpdb->insert('data_sp2d_sipd',$opsi);
+						//insert data ke table data_sp2d_sipd
+					}
+				}
+			}else{
+				$ret['status']='error';
+				$ret['message']='APIKEY tidak sesuai!';
+			}
+		}else{
+			$ret['status']='error';
+			$ret['message']='Tidak ada parameter yang dikirim dari Chrome Extension!';
+		}
+		die(json_encode($ret));
+	}
 	//Import data SPD SIPD Penatausahaan
 	public function singkron_detail_spd(){
 		

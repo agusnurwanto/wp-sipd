@@ -4421,3 +4421,67 @@ CREATE TABLE `data_kamus_usulan_pokir` (
   `tahun_anggaran` year(4) NOT NULL,
   PRIMARY KEY  (id)
 );
+
+CREATE TABLE `data_sp2d_sipd` (
+  `id` int(11) NOT NULL,
+  `idSpm` int(11) DEFAULT NULL,
+  `nomorSp2d` varchar(80) DEFAULT NULL,
+  `tanggalSp2d` date DEFAULT NULL,
+  `tahun_anggaran` year(4) DEFAULT NULL,
+  `idSubUnit` int(11) DEFAULT NULL,
+  `keteranganSp2d` varchar(500) DEFAULT NULL,
+  `jenisSp2d` varchar(5) DEFAULT NULL,
+  `nilaiSp2d` double DEFAULT NULL,
+  `jenisLs` varchar(20) DEFAULT NULL,
+  `isPergeseran` bit(1) DEFAULT NULL,
+  `isPelimpahan` bit(1) DEFAULT NULL,
+  `created_at` datetime DEFAULT NULL,
+  `updated_at` datetime DEFAULT NULL,
+  `isTbpLs` bit(1) DEFAULT NULL,
+  `idSkpd` int(11) DEFAULT NULL,
+  `isDraft` bit(1) DEFAULT NULL,
+  `idSp2d` int(11) DEFAULT NULL,
+  `verifikasiSp2d` bit(1) DEFAULT NULL,
+  `tanggalVerifikasi` date DEFAULT NULL,
+  `idSkpdTujuan` int(11) DEFAULT NULL,
+  `kunciRekening` bit(1) DEFAULT NULL,
+  `isBku` bit(1) DEFAULT NULL,
+  `bulan_gaji` int(11) DEFAULT NULL,
+  `tahun_gaji` year(4) DEFAULT NULL,
+  `jenis_gaji` tinyint(4) DEFAULT NULL,
+  `is_bku_skpd` bit(1) DEFAULT NULL,
+  `id_jadwal` int(11) DEFAULT NULL,
+  `id_tahap` int(11) DEFAULT NULL,
+  `status_tahap` varchar(20) DEFAULT NULL,
+  `kode_tahap` varchar(10) DEFAULT NULL,
+  `status_aklap` tinyint(4) DEFAULT NULL,
+  `nomor_jurnal` varchar(50) DEFAULT NULL,
+  `jurnal_id` int(11) DEFAULT NULL,
+  `metode` varchar(30) DEFAULT NULL,
+  `bulan_tpp` tinyint(4) DEFAULT NULL,
+  `tahun_tpp` year(4) DEFAULT NULL,
+  `nomor_rekening_pembayar` varchar(30) DEFAULT NULL,
+  `bank_rekening_pembayar` varchar(40) DEFAULT NULL,
+  `is_rekening_pembayar` bit(1) DEFAULT NULL,
+  `nomorSpm` varchar(80) DEFAULT NULL,
+  `tanggalSpm` date DEFAULT NULL,
+  `tahunSpm` year(4) DEFAULT NULL,
+  `keteranganSpm` varchar(500) DEFAULT NULL,
+  `verifikasiSpm` tinyint(4) DEFAULT NULL,
+  `tanggalVerifikasiSpm` date DEFAULT NULL,
+  `jenisSpm` varchar(5) DEFAULT NULL,
+  `nilaiSpm` double DEFAULT NULL,
+  `keteranganVerifikasiSpm` varchar(500) DEFAULT NULL,
+  `isOtorisasi` bit(1) DEFAULT NULL,
+  `tanggalOtorisasi` date DEFAULT NULL,
+  `is_sptjm` bit(1) DEFAULT NULL,
+  `namaSkpd` varchar(200) DEFAULT NULL,
+  `kodeSkpd` varchar(50) DEFAULT NULL,
+  `is_bpk` bit(1) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+ALTER TABLE `data_sp2d_sipd`
+  ADD PRIMARY KEY (`id`);
+  
+ALTER TABLE `data_sp2d_sipd`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
