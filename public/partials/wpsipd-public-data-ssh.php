@@ -84,23 +84,24 @@ $body = '';
 					window.location = selectedVal;
 				}
 			});
-		})
+		});
 
 		function get_data_ssh_sipd(tahun){
-			jQuery("#wrap-loading").show();
-			jQuery('#data_ssh_sipd_table').DataTable({
+			jQuery('#data_ssh_sipd_table').on('preXhr.dt', function ( e, settings, data ) {
+				jQuery("#wrap-loading").show();
+		    } ).DataTable({
 				"processing": true,
         		"serverSide": true,
 		        "ajax": {
 		        	url: "<?php echo admin_url('admin-ajax.php'); ?>",
 					type:"post",
 					data:{
-						'action' : "get_data_ssh_sipd",
-						'api_key' : jQuery("#api_key").val(),
-						'tahun_anggaran' : tahun,
+						'action': "get_data_ssh_sipd",
+						'api_key': jQuery("#api_key").val(),
+						'tahun_anggaran': tahun
 					}
 				},
-				"initComplete":function( settings, json){
+				"drawCallback": function( settings ){
 					jQuery("#wrap-loading").hide();
 				},
 				"columns": [

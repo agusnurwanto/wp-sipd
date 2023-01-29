@@ -31,7 +31,7 @@ $body = '';
 		<div style="padding: 10px;margin:0 0 3rem 0;">
 			<input type="hidden" value="<?php echo get_option( '_crb_api_key_extension' ); ?>" id="api_key">
 			<input type="hidden" value="<?php echo $input['tahun_anggaran']; ?>" id="tahun_anggaran">
-			<h1 class="text-center" style="margin:3rem;">Data satuan standar harga (SSH) SIPD tahun anggaran <?php echo $input['tahun_anggaran']; ?></h1>
+			<h1 class="text-center" style="margin:3rem;">Data Satuan Harga Tidak Terpakai di SIPD tahun anggaran <?php echo $input['tahun_anggaran']; ?></h1>
 			<table id="data_ssh_sipd_table" cellpadding="2" cellspacing="0" style="font-family:\'Open Sans\',-apple-system,BlinkMacSystemFont,\'Segoe UI\',sans-serif; border-collapse: collapse; width:100%; overflow-wrap: break-word;" class="table table-bordered">
 				<thead id="data_header">
 					<tr>
@@ -87,20 +87,22 @@ $body = '';
 		})
 
 		function get_data_ssh_sipd(tahun){
-			jQuery("#wrap-loading").show();
-			jQuery('#data_ssh_sipd_table').DataTable({
+			jQuery('#data_ssh_sipd_table').on('preXhr.dt', function ( e, settings, data ) {
+				jQuery("#wrap-loading").show();
+		    } ).DataTable({
 				"processing": true,
         		"serverSide": true,
 		        "ajax": {
 		        	url: "<?php echo admin_url('admin-ajax.php'); ?>",
 					type:"post",
 					data:{
-						'action' : "get_data_ssh_sipd",
-						'api_key' : jQuery("#api_key").val(),
-						'tahun_anggaran' : tahun,
+						'action': "get_data_ssh_sipd",
+						'api_key': jQuery("#api_key").val(),
+						'tahun_anggaran': tahun,
+						'tidak_terpakai': 1,
 					}
 				},
-				"initComplete":function( settings, json){
+				"drawCallback": function( settings ){
 					jQuery("#wrap-loading").hide();
 				},
 				"columns": [
