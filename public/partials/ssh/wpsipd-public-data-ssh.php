@@ -67,6 +67,12 @@ $body = '';
 			</div>
 		</div>
 	</div>
+	<script type="text/javascript" src="https://cdn.datatables.net/buttons/2.3.2/js/dataTables.buttons.min.js"></script>
+	<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.3/jszip.min.js"></script>
+	<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/pdfmake.min.js"></script>
+	<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/vfs_fonts.js"></script>
+	<script type="text/javascript" src="https://cdn.datatables.net/buttons/2.3.2/js/buttons.html5.min.js"></script>
+	<script type="text/javascript" src="https://cdn.datatables.net/buttons/2.3.2/js/buttons.print.min.js"></script>
 
 	<script>
 		jQuery(document).ready(function(){
@@ -104,6 +110,14 @@ $body = '';
 				"drawCallback": function( settings ){
 					jQuery("#wrap-loading").hide();
 				},
+		        dom: 'Bfrtip',
+		        buttons: [
+		            'copy', 'csv', 'excel', 'pdf', 'print'
+		        ],
+				lengthMenu: [
+					[20, 100, 500, -1], 
+					[20, 100, 500, "All"]
+				],
 				"columns": [
 		            { 
 		            	"data": "id_standar_harga",
@@ -141,6 +155,7 @@ $body = '';
 
 		//data akun ssh sipd
 		function data_akun_ssh_sipd(id_standar_harga){
+			jQuery('#wrap-loading').show();
 			jQuery('#modalDataSSH').modal('show');
 			jQuery("#modalDataSSH .modal-dialog").removeClass("modal-xl modal-sm");
 			jQuery("#modalDataSSH .modal-dialog").addClass("modal-lg");
@@ -173,6 +188,7 @@ $body = '';
 					jQuery.each( data_akun, function( key, value ) {
 						jQuery("ul.ul-desc-akun").append(`<li>${value.nama_akun}</li>`);
 					});
+					jQuery('#wrap-loading').hide();
 				}
 			})
 		}

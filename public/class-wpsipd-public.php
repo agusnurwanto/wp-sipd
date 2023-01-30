@@ -4632,17 +4632,6 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		}
 		require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/wpsipd-public-monitor-update.php';
 	}
-	
-	public function monitor_satuan_harga($atts)
-	{
-		// untuk disable render shortcode di halaman edit page/post
-		if(!empty($_GET) && !empty($_GET['post'])){
-			return '';
-		}
-		if(!empty($atts['id_skpd'])){
-			require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/wpsipd-public-monitor-satuan-harga.php';
-		}
-	}
 
 	public function tampilrka($atts)
 	{
@@ -4710,16 +4699,6 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		if($input['lampiran'] == 99){
 			require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/wpsipd-public-apbdpenjabaran-99.php';
 		}
-	}
-
-	public function laporan_per_item_ssh($atts)
-	{
-		// untuk disable render shortcode di halaman edit page/post
-		if(!empty($_GET) && !empty($_GET['post'])){
-			return '';
-		}
-		
-		require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/wpsipd-public-laporan-per-item-ssh.php';
 	}
 
 	public function setting_penjadwalan($atts)
@@ -12064,14 +12043,6 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 			);
 		}
 		die(json_encode($return));
-	}
-
-	public function data_ssh_sipd($atts){
-		// untuk disable render shortcode di halaman edit page/post
-		if(!empty($_GET) && !empty($_GET['post'])){
-			return '';
-		}
-		require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/wpsipd-public-data-ssh.php';
 	}
 
 	public function jadwal_renja($atts){

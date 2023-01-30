@@ -128,6 +128,13 @@ class Wpsipd_Admin {
 
 	public function get_link_post($custom_post){
 		$link = get_permalink($custom_post);
+		$site_url = get_site_url();
+		if(
+			$link == $site_url
+			|| $link == $site_url.'/'
+		){
+			return $link;
+		}
 		$options = array();
 		if(!empty($custom_post->custom_url)){
 			$options['custom_url'] = $custom_post->custom_url;
@@ -151,7 +158,7 @@ class Wpsipd_Admin {
 	    return $randomString;
 	}
 
-	public function generatePage($nama_page, $tahun_anggaran, $content = false, $update = false){
+	public function generatePage($nama_page, $tahun_anggaran, $content = false, $update = false, $post_status = 'private'){
 		$custom_post = get_page_by_title($nama_page, OBJECT, 'page');
 		if(empty($content)){
 			$content = '[monitor_sipd tahun_anggaran="'.$tahun_anggaran.'"]';
@@ -161,7 +168,7 @@ class Wpsipd_Admin {
 			'post_title'	=> $nama_page,
 			'post_content'	=> $content,
 			'post_type'		=> 'page',
-			'post_status'	=> 'private',
+			'post_status'	=> $post_status,
 			'comment_status'	=> 'closed'
 		);
 		if (empty($custom_post) || empty($custom_post->ID)) {
@@ -297,9 +304,13 @@ class Wpsipd_Admin {
 			->set_page_menu_position( 5 )
 		    ->add_fields( $this->get_ajax_field(array('type' => 'rekap_satuan_harga')) );
 
-	    Container::make( 'theme_options', __( 'Usulan Standar Harga' ) )
+	    Container::make( 'theme_options', __( 'Usulan Satuan Harga' ) )
 		    ->set_page_parent( $satuan_harga )
 		    ->add_fields( $this->get_ajax_field(array('type' => 'monev_satuan_harga')) );
+
+	    Container::make( 'theme_options', __( 'Satuan Harga di SIPD' ) )
+		    ->set_page_parent( $satuan_harga )
+		    ->add_fields( $this->get_ajax_field(array('type' => 'satuan_harga_sipd')) );
 
 	    Container::make( 'theme_options', __( 'Tidak Terpakai di SIPD' ) )
 		    ->set_page_parent( $satuan_harga )
@@ -441,9 +452,6 @@ class Wpsipd_Admin {
 			$url = $this->generatePage('Monitoring Data SPD | '.$v['tahun_anggaran'], $v['tahun_anggaran'], '[monitoring_data_spd tahun_anggaran="'.$v['tahun_anggaran'].'"]');
 			$options_basic[] = Field::make( 'html', 'crb_monitor_spd_'.$k )
             	->set_html( '<a target="_blank" href="'.$url.'">Halaman Monitor Data SPD (Surat Penyediaan Dana) '.$v['tahun_anggaran'].'</a>' );
-			$url_data_ssh_public = $this->generate_data_ssh_page($v['tahun_anggaran']);
-			$options_basic[] = Field::make( 'html', 'crb_menu_data_ssh_sipd_'.$k )
-            	->set_html( '<a target="_blank" href="'.$url_data_ssh_public.'">Data Satuan Standar Harga (SSH) SIPD '.$v['tahun_anggaran'].'</a>' );
 			$url = $this->generatePage('Setting penjadwalan | '.$v['tahun_anggaran'], $v['tahun_anggaran'], '[setting_penjadwalan tahun_anggaran="'.$v['tahun_anggaran'].'"]');
 			$options_basic[] = Field::make( 'html', 'crb_penjadwalan_'.$k )
 				->set_html( '<a target="_blank" href="'.$url.'">Halaman Pengaturan Penjadwalan '.$v['tahun_anggaran'].'</a>' );
@@ -602,10 +610,13 @@ class Wpsipd_Admin {
 						$body_all .= '<div style="padding:.75rem 0 0 .75rem;"><a style="font-weight: bold;" target="_blank" href="'.$url_add_new_ssh.'">Halaman Data Usulan SSH '.$v['tahun_anggaran'].'</a></div>'.$body_pemda;
 			        }else if($_POST['type'] == 'rekap_satuan_harga'){
 						$url_pemda = $this->generatePage('Rekapitulasi Rincian Belanja Pemerintah Daerah '.$v['tahun_anggaran'], $v['tahun_anggaran'], '[data_halaman_menu_ssh tahun_anggaran="'.$v['tahun_anggaran'].'"]');
-						$body_all .= '<a style="font-weight: bold;" target="_blank" href="'.$url_pemda.'">Halaman Rekapitulasi Rincian Belanja '.$v['tahun_anggaran'].'</a>';
+						$body_all .= '<a style="font-weight: bold;" target="_blank" href="'.$url_pemda.'">Halaman Rekapitulasi Rincian Belanja '.$v['tahun_anggaran'].'</a><br>';
 			        }else if($_POST['type'] == 'tidak_terpakai_satuan_harga'){
 						$url_pemda = $this->generatePage('Standar Harga Tidak Terpakai '.$v['tahun_anggaran'], $v['tahun_anggaran'], '[ssh_tidak_terpakai tahun_anggaran="'.$v['tahun_anggaran'].'"]');
-						$body_all .= '<a style="font-weight: bold;" target="_blank" href="'.$url_pemda.'">Standar Harga Tidak Terpakai '.$v['tahun_anggaran'].'</a>';
+						$body_all .= '<a style="font-weight: bold;" target="_blank" href="'.$url_pemda.'">Standar Harga Tidak Terpakai '.$v['tahun_anggaran'].'</a><br>';
+			        }else if($_POST['type'] == 'satuan_harga_sipd'){
+						$url_pemda = $this->generatePage('Data Standar Satuan Harga SIPD | '.$v['tahun_anggaran'], $v['tahun_anggaran'], '[data_ssh_sipd tahun_anggaran="'.$v['tahun_anggaran'].'"]', true, 'publish');
+						$body_all .= '<a style="font-weight: bold;" target="_blank" href="'.$url_pemda.'">Data Standar Satuan Harga SIPD | '.$v['tahun_anggaran'].'</a><br>';
 			        }else if($_POST['type'] == 'input_renja'){
 			        	$body_all .= $body_pemda;
 					}else if($_POST['type'] == 'monev_rak'){
@@ -627,6 +638,7 @@ class Wpsipd_Admin {
 					|| $_POST['type'] == 'monev_satuan_harga'
 					|| $_POST['type'] == 'rekap_satuan_harga'
 					|| $_POST['type'] == 'tidak_terpakai_satuan_harga'
+					|| $_POST['type'] == 'satuan_harga_sipd'
 					|| $_POST['type'] == 'input_renja'
 					|| $_POST['type'] == 'monev_rak'
 					|| $_POST['type'] == 'monev_json_rka'
@@ -1715,38 +1727,6 @@ class Wpsipd_Admin {
 		return get_permalink($custom_post->ID);
 	}
 
-	public function generate_data_ssh_page($tahun_anggaran){
-		$nama_page = 'Data Standar Satuan Harga SIPD | '.$tahun_anggaran;
-		$custom_post = get_page_by_title($nama_page, OBJECT, 'page');
-
-		$_post = array(
-			'post_title'	=> $nama_page,
-			'post_content'	=> '[data_ssh_sipd tahun_anggaran="'.$tahun_anggaran.'"]',
-			'post_type'		=> 'page',
-			'post_status'	=> 'publish',
-			'comment_status'	=> 'closed'
-		);
-		if (empty($custom_post) || empty($custom_post->ID)) {
-			$id = wp_insert_post($_post);
-			$_post['insert'] = 1;
-			$_post['ID'] = $id;
-			$custom_post = get_page_by_title($nama_page, OBJECT, 'page');
-			update_post_meta($custom_post->ID, 'ast-breadcrumbs-content', 'disabled');
-			update_post_meta($custom_post->ID, 'ast-featured-img', 'disabled');
-			update_post_meta($custom_post->ID, 'ast-main-header-display', 'disabled');
-			update_post_meta($custom_post->ID, 'footer-sml-layout', 'disabled');
-			update_post_meta($custom_post->ID, 'site-content-layout', 'page-builder');
-			update_post_meta($custom_post->ID, 'site-post-title', 'disabled');
-			update_post_meta($custom_post->ID, 'site-sidebar-layout', 'no-sidebar');
-			update_post_meta($custom_post->ID, 'theme-transparent-header-meta', 'disabled');
-		}else if($custom_post->post_status == 'private'){
-			$_post['ID'] = $custom_post->ID;
-			wp_update_post( $_post );
-			$_post['update'] = 1;
-		}
-		return get_permalink($custom_post->ID);
-	}
-
     function allow_access_private_post(){
     	if(
     		!empty($_GET) 
@@ -1788,6 +1768,9 @@ class Wpsipd_Admin {
 					$sql = $wp_query->request;
 					$post = $wpdb->get_results($sql, ARRAY_A);
 					if(!empty($post)){
+						if(empty($post[0]['post_status'])){
+							return;
+						}
 						if($post[0]['post_status'] == 'private'){
 							wp_update_post(array(
 						        'ID'    =>  $post[0]['ID'],
