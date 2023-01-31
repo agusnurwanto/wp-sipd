@@ -315,6 +315,10 @@ class Wpsipd_Admin {
 	    Container::make( 'theme_options', __( 'Tidak Terpakai di SIPD' ) )
 		    ->set_page_parent( $satuan_harga )
 		    ->add_fields( $this->get_ajax_field(array('type' => 'tidak_terpakai_satuan_harga')) );
+
+		$monev_fmis = Container::make( 'theme_options', __( 'MONEV FMIS' ) )
+			->set_page_menu_position( 5 )
+		    ->add_fields( $this->get_ajax_field(array('type' => 'register_sp2d_fmis')) );
 	}
 
 	public function options_basic(){
@@ -615,8 +619,11 @@ class Wpsipd_Admin {
 						$url_pemda = $this->generatePage('Standar Harga Tidak Terpakai '.$v['tahun_anggaran'], $v['tahun_anggaran'], '[ssh_tidak_terpakai tahun_anggaran="'.$v['tahun_anggaran'].'"]');
 						$body_all .= '<a style="font-weight: bold;" target="_blank" href="'.$url_pemda.'">Standar Harga Tidak Terpakai '.$v['tahun_anggaran'].'</a><br>';
 			        }else if($_POST['type'] == 'satuan_harga_sipd'){
-						$url_pemda = $this->generatePage('Data Standar Satuan Harga SIPD | '.$v['tahun_anggaran'], $v['tahun_anggaran'], '[data_ssh_sipd tahun_anggaran="'.$v['tahun_anggaran'].'"]', true, 'publish');
+						$url_pemda = $this->generatePage('Data Standar Satuan Harga SIPD | '.$v['tahun_anggaran'], $v['tahun_anggaran'], '[data_ssh_sipd tahun_anggaran="'.$v['tahun_anggaran'].'"]', false, 'publish');
 						$body_all .= '<a style="font-weight: bold;" target="_blank" href="'.$url_pemda.'">Data Standar Satuan Harga SIPD | '.$v['tahun_anggaran'].'</a><br>';
+			        }else if($_POST['type'] == 'register_sp2d_fmis'){
+						$url_pemda = $this->generatePage('Register Surat Perintah Pencairan Dana (SP2D) Cair FMIS | '.$v['tahun_anggaran'], $v['tahun_anggaran'], '[register_sp2d_fmis tahun_anggaran="'.$v['tahun_anggaran'].'"]');
+						$body_all .= '<a style="font-weight: bold;" target="_blank" href="'.$url_pemda.'">Register Surat Perintah Pencairan Dana (SP2D) Cair FMIS | '.$v['tahun_anggaran'].'</a><br>';
 			        }else if($_POST['type'] == 'input_renja'){
 			        	$body_all .= $body_pemda;
 					}else if($_POST['type'] == 'monev_rak'){
@@ -639,6 +646,7 @@ class Wpsipd_Admin {
 					|| $_POST['type'] == 'rekap_satuan_harga'
 					|| $_POST['type'] == 'tidak_terpakai_satuan_harga'
 					|| $_POST['type'] == 'satuan_harga_sipd'
+					|| $_POST['type'] == 'register_sp2d_fmis'
 					|| $_POST['type'] == 'input_renja'
 					|| $_POST['type'] == 'monev_rak'
 					|| $_POST['type'] == 'monev_json_rka'

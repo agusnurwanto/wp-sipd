@@ -20,11 +20,6 @@ foreach($tahun as $tahun_value){
 
 $body = '';
 ?>
-<style>
-	.dt-buttons {
-	    text-align: center;
-	}
-</style>
 	<div class="cetak">
 		<div style="padding: 10px;margin:0 0 3rem 0;">
 			<input type="hidden" value="<?php echo get_option( '_crb_api_key_extension' ); ?>" id="api_key">

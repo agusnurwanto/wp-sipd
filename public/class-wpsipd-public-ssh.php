@@ -1,6 +1,7 @@
 <?php
+require_once WPSIPD_PLUGIN_PATH."/public/class-wpsipd-public-fmis.php";
 
-class Wpsipd_Public_Ssh
+class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 {
 	public function data_ssh_sipd($atts){
 		// untuk disable render shortcode di halaman edit page/post
@@ -131,7 +132,11 @@ class Wpsipd_Public_Ssh
 					$sqlRec .= $where;
 				}
 
-			 	$sqlRec .=  " ORDER BY ". $columns[$params['order'][0]['column']]."   ".$params['order'][0]['dir']."  LIMIT ".$params['start']." ,".$params['length']." ";
+				$limit = '';
+				if($params['length'] != -1){
+					$limit = "  LIMIT ".$wpdb->prepare('%d', $params['start'])." ,".$wpdb->prepare('%d', $params['length']);
+				}
+			 	$sqlRec .=  " ORDER BY ". $columns[$params['order'][0]['column']]."   ".$params['order'][0]['dir'].$limit;
 
 				$queryTot = $wpdb->get_results($sqlTot, ARRAY_A);
 				$totalRecords = $queryTot[0]['jml'];

@@ -264,3 +264,14 @@ select,
 textarea{
     padding: 0.375rem 0.75rem;
 }
+
+.dt-buttons {
+    display: inline-block;
+    margin-left: 20px;
+}
+.dataTables_length {
+    float: left;
+}
+.dataTables_filter {
+    float: right;
+}
