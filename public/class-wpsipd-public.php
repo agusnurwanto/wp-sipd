@@ -13990,8 +13990,22 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		if(!empty($_POST)){
 			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
 				if(in_array("administrator", $user_meta->roles)){
-					$lama_pelaksanaan = ($_POST['tipe_perencanaan'] == 'renja') ? 1 : trim(htmlspecialchars($_POST['lama_pelaksanaan']));
-					if(!empty($_POST['nama']) && !empty($_POST['jadwal_mulai']) && !empty($_POST['jadwal_selesai']) && !empty($_POST['tahun_anggaran']) && !empty($_POST['tipe_perencanaan']) && !empty($lama_pelaksanaan)){
+					if(
+						$_POST['tipe_perencanaan'] == 'renja'
+						|| $_POST['tipe_perencanaan'] == 'penganggaran'
+					){
+						$lama_pelaksanaan = 1;
+					}else{
+						$lama_pelaksanaan = trim(htmlspecialchars($_POST['lama_pelaksanaan']));
+					}
+					if(
+						!empty($_POST['nama']) 
+						&& !empty($_POST['jadwal_mulai']) 
+						&& !empty($_POST['jadwal_selesai']) 
+						&& !empty($_POST['tahun_anggaran']) 
+						&& !empty($_POST['tipe_perencanaan']) 
+						&& !empty($lama_pelaksanaan)
+					){
 						$nama				= trim(htmlspecialchars($_POST['nama']));
 						$jadwal_mulai		= trim(htmlspecialchars($_POST['jadwal_mulai']));
 						$jadwal_mulai		= date('Y-m-d H:i:s', strtotime($jadwal_mulai));
