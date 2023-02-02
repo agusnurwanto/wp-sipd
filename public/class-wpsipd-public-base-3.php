@@ -4078,9 +4078,9 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
                 		
                 	if($_POST['relasi_perencanaan'] != '-'){
                 		if($_POST['id_tipe_relasi']==2){
-                			$join.=" LEFT JOIN data_rpjmd_program_lokal t on t.id_unit = s.id_skpd";
+                			$join.=" INNER JOIN data_rpjmd_program_lokal t on t.id_unit = s.id_skpd";
                 		}elseif ($_POST['id_tipe_relasi']==3) {
-                			$join.=" LEFT JOIN data_rpd_program_lokal t on t.id_unit = s.id_skpd";
+                			$join.=" INNER JOIN data_rpd_program_lokal t on t.id_unit = s.id_skpd";
                 		}
                 	}
                 }
