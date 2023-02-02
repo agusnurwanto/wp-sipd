@@ -53,12 +53,12 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 	 * @param      string    $plugin_name       The name of the plugin.
 	 * @param      string    $version    The version of this plugin.
 	 */
-	public function __construct($plugin_name, $version, $simda)
+	public function __construct( $plugin_name, $version, $simda , $sipkd )
 	{
-		ini_set('max_execution_time',0);
 		$this->plugin_name = $plugin_name;
 		$this->version = $version;
 		$this->simda = $simda;
+		$this->sipkd = $sipkd;
 	}
 
 	/**

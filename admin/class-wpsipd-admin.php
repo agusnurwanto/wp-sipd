@@ -53,11 +53,12 @@ class Wpsipd_Admin {
 	 * @param      string    $plugin_name       The name of this plugin.
 	 * @param      string    $version    The version of this plugin.
 	 */
-	public function __construct( $plugin_name, $version, $simda ) {
+	public function __construct( $plugin_name, $version, $simda , $sipkd ) {
 
 		$this->plugin_name = $plugin_name;
 		$this->version = $version;
 		$this->simda = $simda;
+		$this->sipkd = $sipkd;
 	}
 
 	/**
@@ -220,6 +221,10 @@ class Wpsipd_Admin {
 	    Container::make( 'theme_options', __( 'FMIS Setting' ) )
 		    ->set_page_parent( $basic_options_container )
 		    ->add_fields( $this->get_setting_fmis() );
+
+	    Container::make( 'theme_options', __( 'SIPKD Setting' ) )
+		    ->set_page_parent( $basic_options_container )
+		    ->add_fields( $this->get_setting_sipkd() );
 
 		Container::make( 'theme_options', __( 'API Setting' ) )
 		    ->set_page_parent( $basic_options_container )
@@ -713,6 +718,40 @@ class Wpsipd_Admin {
 		foreach ($unit as $k => $v) {
 			$mapping_unit[] = Field::make( 'text', 'crb_unit_fmis_'.$tahun_anggaran.'_'.$v['id_skpd'], ($k+1).'. Kode Sub Unit FMIS untuk '.$v['kode_skpd'].' '.$v['nama_skpd'] );
 		}
+		return $mapping_unit;
+	}
+
+	public function get_setting_sipkd(){
+		global $wpdb;
+		$tahun_anggaran = get_option('_crb_tahun_anggaran_sipd');
+		$mapping_unit = array(
+	        Field::make( 'radio', 'crb_singkron_sipkd', __( 'Aktifkan koneksi SIPKD' ) )
+			    ->add_options( array(
+			        '1' => __( 'Ya' ),
+			        '2' => __( 'Tidak' )
+			    ) )
+            	->set_default_value('2')
+            	->set_help_text('Settingan ini untuk mengaktifkan pengecekan koneksi ke database SQL Server SIPKD.'),
+            Field::make( 'text', 'crb_url_api_sipkd', 'URL API SIPKD' )
+            	->set_help_text('Scirpt SIPKD API PHP dibuat terpisah di <a href="https://github.com/agusnurwanto/SIMDA-API-PHP" target="_blank">SIMDA API PHP</a>.'),
+            Field::make( 'text', 'crb_timeout_simda', 'MAX TIMEOUT API SIPKD' )
+            	->set_default_value(10)
+            	->set_help_text('Setting maksimal timout request CURL ke API SIPKD dalam hitungan detik.'),
+            Field::make( 'text', 'crb_apikey_sipkd', 'APIKEY SIPKD' )
+            	->set_default_value($this->generateRandomString()),
+            Field::make( 'text', 'crb_db_sipkd', 'Database SIPKD' )
+	    );
+
+	    $cek_status_koneksi_sipkd = $this->sipkd->CurlSipkd(array(
+			'query' => 'select * from ref_setting',
+			'no_debug' => true
+		));
+		$ket_sipkd = '<b style="color:red">Belum terkoneksi ke SIPKD!</b>';
+		if(!empty($cek_status_koneksi_sipkd[0]) && !empty($cek_status_koneksi_sipkd[0]->version)){
+			$ket_sipkd = '<b style="color: green">Terkoneksi database SIPKD versi '.$cek_status_koneksi_sipkd[0]->version.'</b>';
+		}
+		$mapping_unit[] = Field::make( 'html', 'crb_status_sipkd' )
+	            	->set_html( 'Status koneksi SQL server SIPKD: '.$ket_sipkd );
 		return $mapping_unit;
 	}
 
