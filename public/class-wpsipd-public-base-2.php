@@ -539,9 +539,18 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 		);
 		if(!empty($_POST)){
 			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+
+				$sasaran_parent = "data_rpd_sasaran_lokal_history";
+				$program_parent = "data_rpd_program_lokal";
+
+				if(!empty($_POST['type']) && $_POST['type']=='rpjm'){
+					$sasaran_parent = "data_rpjmd_sasaran_lokal_history";
+					$program_parent = "data_rpjmd_program_lokal";
+				}
+
 				$data_sasaran_rpd_history = $wpdb->get_results($wpdb->prepare(
 					'SELECT DISTINCT id_unik
-					FROM data_rpd_sasaran_lokal_history
+					FROM '.$sasaran_parent.'
 					WHERE active=%d',
 					1)
 					,ARRAY_A);
@@ -552,7 +561,7 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 				}
 				$rpd_history = implode(",",$rpd_history);
 
-				//mencari data program renstra yang terhubung ke rpd
+				//mencari data program renstra yang terhubung ke rpd/rpjm
 				$data_renstra_program = $wpdb->get_results($wpdb->prepare(
 					'SELECT
 						p.*,
@@ -569,7 +578,7 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 					,ARRAY_A);
 
 				$wpdb->query( $wpdb->prepare(
-					'UPDATE data_rpd_program_lokal
+					'UPDATE '.$program_parent.'
 						SET active = %d',
 						0)
 				);
@@ -592,7 +601,7 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 					if(empty($v_renstra['id_unik_indikator'])){
 						$data_rpd_same_program = $wpdb->get_results($wpdb->prepare(
 							'SELECT *
-							FROM data_rpd_program_lokal 
+							FROM '.$program_parent.' 
 							WHERE 
 								nama_program=%s AND 
 								kode_sasaran=%s AND
@@ -601,16 +610,16 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 							,ARRAY_A);
 
 						if(!empty($data_rpd_same_program)){
-							$wpdb->update('data_rpd_program_lokal', $data_kirim, array('id_unik' => $data_rpd_same_program[0]['id_unik'], 'id_unik_indikator' => NULL));
+							$wpdb->update($program_parent, $data_kirim, array('id_unik' => $data_rpd_same_program[0]['id_unik'], 'id_unik_indikator' => NULL));
 						}else if(empty($data_rpd_same_program) && empty($v_renstra['id_unik_indikator'])){
 							$data_kirim['id_unik'] = $this->generateRandomString(5);
-							$wpdb->insert('data_rpd_program_lokal', $data_kirim);
+							$wpdb->insert($program_parent, $data_kirim);
 						}
 					}else{
 						//simpan indikator
 						$data_rpd_same_indikator = $wpdb->get_results($wpdb->prepare(
 							'SELECT *
-							FROM data_rpd_program_lokal 
+							FROM '.$program_parent.' 
 							WHERE 
 								nama_program=%s AND 
 								kode_sasaran=%s AND
@@ -639,12 +648,12 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 
 						if(!empty($data_rpd_same_indikator)){
 							$data_kirim['id_unik'] = $data_rpd_same_indikator[0]['id_unik'];
-							$wpdb->update('data_rpd_program_lokal', $data_kirim, array('id_unik_indikator' => $data_rpd_same_indikator[0]['id_unik_indikator']));
+							$wpdb->update($program_parent, $data_kirim, array('id_unik_indikator' => $data_rpd_same_indikator[0]['id_unik_indikator']));
 						}else{
 							//untuk mendapatkan id unik program
 							$data_program = $wpdb->get_results($wpdb->prepare(
 								'SELECT id_unik
-								FROM data_rpd_program_lokal 
+								FROM '.$program_parent.' 
 								WHERE 
 									nama_program=%s AND 
 									kode_sasaran=%s AND
@@ -655,7 +664,7 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 							if(!empty($data_program)){
 								$data_kirim['id_unik'] = $data_program[0]['id_unik'];
 								$data_kirim['id_unik_indikator'] = $this->generateRandomString(5); //id_unik indikator
-								$wpdb->insert('data_rpd_program_lokal', $data_kirim);
+								$wpdb->insert($program_parent, $data_kirim);
 							}
 						}
 					}

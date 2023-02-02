@@ -962,6 +962,7 @@ $tahun_selesai = (!empty($tahun_anggaran)) ? $tahun_anggaran + 5 : '-';
 	var aksi = ''
 		+'<a style="margin-left: 10px;" id="singkron-sipd" onclick="return false;" href="#" class="btn btn-danger">Ambil data dari SIPD lokal</a>'
 		+'<a style="margin-left: 10px;" id="tambah-data" onclick="return false;" href="#" class="btn btn-success">Tambah Data RPJM</a>'
+		+'<a style="margin-left: 10px;" id="generate-data-program-renstra" onclick="return false;" href="#" class="btn btn-warning">Generate Data Program Dari RENSTRA</a>'
 		+'<h3 style="margin-top: 20px;">SETTING</h3>'
 		+'<label><input type="checkbox" onclick="tampilkan_edit(this);"> Edit Data RPJM</label>'
 		+'<label style="margin-left: 20px;"><input type="checkbox" onclick="show_debug(this);"> Debug Cascading RPJM</label>'
@@ -3070,5 +3071,32 @@ $tahun_selesai = (!empty($tahun_anggaran)) ? $tahun_anggaran + 5 : '-';
 	        return;
 
 	    fn.apply(window, arguments);
+	}
+
+	jQuery('#generate-data-program-renstra').on('click', function(){
+		if(confirm("Apakah anda yakin?\nGenerate data program dari RENSTRA akan menghapus data program di RPJM.")){
+			generate_data_program_renstra();
+		}
+	});
+
+	function generate_data_program_renstra() {
+		jQuery('#wrap-loading').show();
+		jQuery.ajax({
+			url	: ajax.url,
+			type : "post",
+			data : {
+				"action": "get_data_program_renstra",
+				"api_key": "<?php echo $api_key; ?>",
+				"type":"rpjm"
+			},
+			dataType: "json",
+			success: function(res){
+				jQuery('#wrap-loading').hide();
+				if(res.data.length != 0){
+					edit_val = true;
+					refresh_page();
+				}
+			}
+		});
 	}
 </script>
