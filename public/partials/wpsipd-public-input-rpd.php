@@ -126,7 +126,7 @@ foreach ($tujuan_all as $tujuan) {
 					from data_rpd_program_lokal
 					where kode_sasaran=%s
 						and active=1
-						order by id_program
+						order by nama_program ASC
 				", $sasaran['id_unik']);
 				$program_all = $wpdb->get_results($sql, ARRAY_A);
 				foreach ($program_all as $program) {
