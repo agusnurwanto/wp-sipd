@@ -200,7 +200,7 @@ foreach ($visi_all as $visi) {
 					select 
 						* 
 					from data_rpjmd_program_lokal
-					where kode_sasaran=%s and id_unik_indikator is null
+					where kode_sasaran=%s and id_unik_indikator is null and active=1
 				", $sasaran['id_unik']);
 				$program_all = $wpdb->get_results($sql, ARRAY_A);
 				foreach ($program_all as $program) {
@@ -216,7 +216,7 @@ foreach ($visi_all as $visi) {
 						select 
 							* 
 						from data_rpjmd_program_lokal
-						where id_unik=%s and id_unik_indikator is not null
+						where id_unik=%s and id_unik_indikator is not null and active=1
 					", $program['id_unik']);
 					$program_indikator_all = $wpdb->get_results($sql, ARRAY_A);
 					foreach ($program_indikator_all as $program_indikator) {
@@ -352,7 +352,7 @@ foreach ($misi_all_kosong as $misi) {
 				select 
 					* 
 				from data_rpjmd_program_lokal
-				where kode_sasaran=%s
+				where kode_sasaran=%s and active=1
 			", $sasaran['id_unik']);
 			$program_all = $wpdb->get_results($sql, ARRAY_A);
 			foreach ($program_all as $program) {
@@ -368,7 +368,7 @@ foreach ($misi_all_kosong as $misi) {
 						select 
 							* 
 						from data_rpjmd_program_lokal
-						where id_unik=%s and id_unik_indikator is not null
+						where id_unik=%s and id_unik_indikator is not null and active=1
 					", $program['id_unik']);
 				$program_indikator_all = $wpdb->get_results($sql, ARRAY_A);
 				foreach ($program_indikator_all as $program_indikator) {
@@ -452,7 +452,7 @@ foreach ($tujuan_all_kosong as $tujuan) {
 			select 
 				* 
 			from data_rpjmd_program_lokal
-			where kode_sasaran=%s
+			where kode_sasaran=%s and active=1
 		", $sasaran['id_unik']);
 		$program_all = $wpdb->get_results($sql, ARRAY_A);
 		foreach ($program_all as $program) {
@@ -468,7 +468,7 @@ foreach ($tujuan_all_kosong as $tujuan) {
 						select 
 							* 
 						from data_rpjmd_program_lokal
-						where id_unik=%s and id_unik_indikator is not null
+						where id_unik=%s and id_unik_indikator is not null and active=1
 					", $program['id_unik']);
 			$program_indikator_all = $wpdb->get_results($sql, ARRAY_A);
 			foreach ($program_indikator_all as $program_indikator) {
@@ -524,7 +524,7 @@ foreach ($sasaran_all_kosong as $sasaran) {
 		select 
 			* 
 		from data_rpjmd_program_lokal
-		where kode_sasaran=%s
+		where kode_sasaran=%s and active=1
 	", $sasaran['id_unik']);
 	$program_all = $wpdb->get_results($sql, ARRAY_A);
 	foreach ($program_all as $program) {
@@ -546,7 +546,7 @@ foreach ($sasaran_all_kosong as $sasaran) {
 					select 
 						* 
 					from data_rpjmd_program_lokal
-					where id_unik=%s and id_unik_indikator is not null
+					where id_unik=%s and id_unik_indikator is not null and active=1
 				", $program['id_unik']);
 		$program_indikator_all = $wpdb->get_results($sql, ARRAY_A);
 		foreach ($program_indikator_all as $program_indikator) {
@@ -566,13 +566,13 @@ if(!empty($program_ids)){
 		select 
 			* 
 		from data_rpjmd_program_lokal
-		where id_unik not in (".implode(',', $program_ids).")
+		where id_unik not in (".implode(',', $program_ids).") and active=1
 	";
 }else{
 	$sql = "
 		select 
 			* 
-		from data_rpjmd_program_lokal
+		from data_rpjmd_program_lokal where active=1
 	";
 }
 $program_all = $wpdb->get_results($sql, ARRAY_A);
@@ -965,7 +965,7 @@ $tahun_selesai = (!empty($tahun_anggaran)) ? $tahun_anggaran + 5 : '-';
 		+'<a style="margin-left: 10px;" id="generate-data-program-renstra" onclick="return false;" href="#" class="btn btn-warning">Generate Data Program Dari RENSTRA</a>'
 		+'<h3 style="margin-top: 20px;">SETTING</h3>'
 		+'<label><input type="checkbox" onclick="tampilkan_edit(this);"> Edit Data RPJM</label>'
-		+'<label style="margin-left: 20px;"><input type="checkbox" onclick="show_debug(this);"> Debug Cascading RPJM</label>'
+		// +'<label style="margin-left: 20px;"><input type="checkbox" onclick="show_debug(this);"> Debug Cascading RPJM</label>'
 		+'<label style="margin-left: 20px;">'
 			+'Sembunyikan Baris '
 			+'<select id="sembunyikan-baris" onchange="sembunyikan_baris(this);" style="padding: 5px 10px; min-width: 200px;">'
@@ -3098,5 +3098,13 @@ $tahun_selesai = (!empty($tahun_anggaran)) ? $tahun_anggaran + 5 : '-';
 				}
 			}
 		});
+	}
+
+	function refresh_page() {
+		if(edit_val){
+			if(confirm('Ada data yang berubah, apakah mau merefresh halaman ini?')){
+	    		window.location = "";
+			}
+	    }
 	}
 </script>

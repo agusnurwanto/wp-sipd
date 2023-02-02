@@ -2109,13 +2109,18 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 						SELECT 
 							id 
 						FROM data_renstra_program_lokal
-						WHERE nama_program=%s
+						WHERE id_program=%d
 							AND kode_sasaran=%s
 							AND active=1
-					", trim($data['program_teks']), $data['kode_sasaran']));
+							AND id_unik_indikator IS NULL
+					", $data['id_program'], $data['kode_sasaran']));
 
 					if(!empty($id_cek)){
-						throw new Exception('Program : '.$data['program_teks'].' sudah ada!');
+						$program = $wpdb->get_row($wpdb->prepare("SELECT nama_program FROM data_prog_keg WHERE id_program=%d AND tahun_anggaran=%d", $data['id_program'], get_option('_crb_tahun_anggaran_sipd')));
+						if(empty($program)){
+							throw new Exception('Program tidak ditemukan!');
+						}
+						throw new Exception('Program : '.$program->nama_program.' sudah ada!');
 					}
 
 					$dataSasaran = $wpdb->get_row($wpdb->prepare("
@@ -2249,13 +2254,19 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 						SELECT 
 							id 
 						FROM data_renstra_program_lokal
-						WHERE nama_program=%s
+						WHERE id_program=%d
 							AND id_unik!=%s
+							AND kode_sasaran=%s
 							AND active=1
-						", trim($data['program_teks']), $data['id_unik']));
+							AND id_unik_indikator IS NULL
+						", $data['id_program'], $data['id_unik'], $data['kode_sasaran']));
 					
 					if(!empty($id_cek)){
-						throw new Exception('Program : '.$data['program_teks'].' sudah ada!');
+						$program = $wpdb->get_row($wpdb->prepare("SELECT nama_program FROM data_prog_keg WHERE id_program=%d AND tahun_anggaran=%d", $data['id_program'], get_option('_crb_tahun_anggaran_sipd')));
+						if(empty($program)){
+							throw new Exception('Program tidak ditemukan!');
+						}
+						throw new Exception('Program : '.$program->nama_program.' sudah ada!');
 					}
 
 					$dataSasaran = $wpdb->get_row($wpdb->prepare("
@@ -2531,40 +2542,53 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 								", $prog['id_unik']), 
 						ARRAY_A);
 
+					$program[$k]['pagu_akumulasi_1'] = 0;
+					$program[$k]['pagu_akumulasi_2'] = 0;
+					$program[$k]['pagu_akumulasi_3'] = 0;
+					$program[$k]['pagu_akumulasi_4'] = 0;
+					$program[$k]['pagu_akumulasi_5'] = 0;
+					$program[$k]['pagu_akumulasi_1_usulan'] = 0;
+					$program[$k]['pagu_akumulasi_2_usulan'] = 0;
+					$program[$k]['pagu_akumulasi_3_usulan'] = 0;
+					$program[$k]['pagu_akumulasi_4_usulan'] = 0;
+					$program[$k]['pagu_akumulasi_5_usulan'] = 0;
+
 					$kd_all_keg = [];
 					foreach ($kegiatan as $key => $keg) {
 						$kd_all_keg[]="'".$keg['id_unik']."'";
 					}
-						
-					$kd_keg = implode(",", $kd_all_keg);
-					$pagu = $wpdb->get_row($wpdb->prepare("
-						SELECT 
-							coalesce(sum(pagu_1), 0) as pagu_akumulasi_1,
-							coalesce(sum(pagu_2), 0) as pagu_akumulasi_2,
-							coalesce(sum(pagu_3), 0) as pagu_akumulasi_3,
-							coalesce(sum(pagu_4), 0) as pagu_akumulasi_4,
-							coalesce(sum(pagu_5), 0) as pagu_akumulasi_5,
-							coalesce(sum(pagu_1_usulan), 0) as pagu_akumulasi_1_usulan,
-							coalesce(sum(pagu_2_usulan), 0) as pagu_akumulasi_2_usulan,
-							coalesce(sum(pagu_3_usulan), 0) as pagu_akumulasi_3_usulan,
-							coalesce(sum(pagu_4_usulan), 0) as pagu_akumulasi_4_usulan,
-							coalesce(sum(pagu_5_usulan), 0) as pagu_akumulasi_5_usulan
-						from data_renstra_sub_kegiatan_lokal 
-						where id_unik_indikator IS NULL
-							AND kode_kegiatan in (".$kd_keg.")
-							AND active=1
-					"));
+					
+					if(!empty($kd_all_keg)){
+						$kd_keg = implode(",", $kd_all_keg);
+						$pagu = $wpdb->get_row($wpdb->prepare("
+							SELECT 
+								coalesce(sum(pagu_1), 0) as pagu_akumulasi_1,
+								coalesce(sum(pagu_2), 0) as pagu_akumulasi_2,
+								coalesce(sum(pagu_3), 0) as pagu_akumulasi_3,
+								coalesce(sum(pagu_4), 0) as pagu_akumulasi_4,
+								coalesce(sum(pagu_5), 0) as pagu_akumulasi_5,
+								coalesce(sum(pagu_1_usulan), 0) as pagu_akumulasi_1_usulan,
+								coalesce(sum(pagu_2_usulan), 0) as pagu_akumulasi_2_usulan,
+								coalesce(sum(pagu_3_usulan), 0) as pagu_akumulasi_3_usulan,
+								coalesce(sum(pagu_4_usulan), 0) as pagu_akumulasi_4_usulan,
+								coalesce(sum(pagu_5_usulan), 0) as pagu_akumulasi_5_usulan
+							from data_renstra_sub_kegiatan_lokal 
+							where id_unik_indikator IS NULL
+								AND kode_kegiatan in (".$kd_keg.")
+								AND active=1
+						"));
 
-					$program[$k]['pagu_akumulasi_1'] = $pagu->pagu_akumulasi_1;
-					$program[$k]['pagu_akumulasi_2'] = $pagu->pagu_akumulasi_2;
-					$program[$k]['pagu_akumulasi_3'] = $pagu->pagu_akumulasi_3;
-					$program[$k]['pagu_akumulasi_4'] = $pagu->pagu_akumulasi_4;
-					$program[$k]['pagu_akumulasi_5'] = $pagu->pagu_akumulasi_5;
-					$program[$k]['pagu_akumulasi_1_usulan'] = $pagu->pagu_akumulasi_1_usulan;
-					$program[$k]['pagu_akumulasi_2_usulan'] = $pagu->pagu_akumulasi_2_usulan;
-					$program[$k]['pagu_akumulasi_3_usulan'] = $pagu->pagu_akumulasi_3_usulan;
-					$program[$k]['pagu_akumulasi_4_usulan'] = $pagu->pagu_akumulasi_4_usulan;
-					$program[$k]['pagu_akumulasi_5_usulan'] = $pagu->pagu_akumulasi_5_usulan;
+						$program[$k]['pagu_akumulasi_1'] = $pagu->pagu_akumulasi_1;
+						$program[$k]['pagu_akumulasi_2'] = $pagu->pagu_akumulasi_2;
+						$program[$k]['pagu_akumulasi_3'] = $pagu->pagu_akumulasi_3;
+						$program[$k]['pagu_akumulasi_4'] = $pagu->pagu_akumulasi_4;
+						$program[$k]['pagu_akumulasi_5'] = $pagu->pagu_akumulasi_5;
+						$program[$k]['pagu_akumulasi_1_usulan'] = $pagu->pagu_akumulasi_1_usulan;
+						$program[$k]['pagu_akumulasi_2_usulan'] = $pagu->pagu_akumulasi_2_usulan;
+						$program[$k]['pagu_akumulasi_3_usulan'] = $pagu->pagu_akumulasi_3_usulan;
+						$program[$k]['pagu_akumulasi_4_usulan'] = $pagu->pagu_akumulasi_4_usulan;
+						$program[$k]['pagu_akumulasi_5_usulan'] = $pagu->pagu_akumulasi_5_usulan;
+					}	
 				}
 				$program = $program[0];
 			}
@@ -3159,6 +3183,7 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 						WHERE id_giat=%d
 							AND kode_program=%s
 							AND active=1
+							AND id_unik_indikator IS NULL
 					", $data['id_kegiatan'], $data['kode_program']));
 
 					if(!empty($id_cek)){
@@ -3325,10 +3350,15 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 							AND kode_program=%s
 							AND id!=%d
 							AND active=1
+							AND id_unik_indikator IS NULL
 					", $data['id_kegiatan'], $data['kode_program'], $data['id']));
 
 					if(!empty($id_cek)){
-						throw new Exception('Kegiatan : '.$data['kegiatan_teks'].' sudah ada!');
+						$kegiatan = $wpdb->get_row($wpdb->prepare("SELECT nama_giat FROM data_prog_keg WHERE id_giat=%d AND tahun_anggaran=%d", $data['id_kegiatan'], get_option('_crb_tahun_anggaran_sipd')));
+						if(empty($kegiatan)){
+							throw new Exception('Program tidak ditemukan!');
+						}
+						throw new Exception('Kegiatan : '.$kegiatan->nama_giat.' sudah ada!');
 					}
 
 					$dataProgram = $wpdb->get_row($wpdb->prepare("
@@ -4048,9 +4078,9 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
                 		
                 	if($_POST['relasi_perencanaan'] != '-'){
                 		if($_POST['id_tipe_relasi']==2){
-                			$join.=" INNER JOIN data_rpjmd_program_lokal t on t.id_unit = s.id_skpd";
+                			$join.=" LEFT JOIN data_rpjmd_program_lokal t on t.id_unit = s.id_skpd";
                 		}elseif ($_POST['id_tipe_relasi']==3) {
-                			$join.=" INNER JOIN data_rpd_program_lokal t on t.id_unit = s.id_skpd";
+                			$join.=" LEFT JOIN data_rpd_program_lokal t on t.id_unit = s.id_skpd";
                 		}
                 	}
                 }
