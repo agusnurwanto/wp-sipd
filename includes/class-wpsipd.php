@@ -284,6 +284,12 @@ class Wpsipd
 		
 		$this->loader->add_action('wp_ajax_singkron_detail_spd',  $plugin_public, 'singkron_detail_spd');
 		$this->loader->add_action('wp_ajax_nopriv_singkron_detail_spd',  $plugin_public, 'singkron_detail_spd');
+		
+		$this->loader->add_action('wp_ajax_singkron_sp2d',  $plugin_public, 'singkron_sp2d');
+		$this->loader->add_action('wp_ajax_nopriv_singkron_sp2d',  $plugin_public, 'singkron_sp2d');
+		
+		$this->loader->add_action('wp_ajax_singkron_spm',  $plugin_public, 'singkron_spm');
+		$this->loader->add_action('wp_ajax_nopriv_singkron_spm',  $plugin_public, 'singkron_spm');
 
 		$this->loader->add_action('wp_ajax_singkron_pendapatan',  $plugin_public, 'singkron_pendapatan');
 		$this->loader->add_action('wp_ajax_nopriv_singkron_pendapatan',  $plugin_public, 'singkron_pendapatan');
@@ -670,6 +676,11 @@ class Wpsipd
 		$this->loader->add_action('wp_ajax_get_list_sub_kegiatan',  $plugin_public, 'get_list_sub_kegiatan');
 		$this->loader->add_action('wp_ajax_get_master_indikator_subgiat',  $plugin_public, 'get_master_indikator_subgiat');
 
+		$this->loader->add_action('wp_ajax_singkronisasi_kegiatan_renstra',  $plugin_public, 'singkronisasi_kegiatan_renstra');
+		$this->loader->add_action('wp_ajax_get_pagu_program',  $plugin_public, 'get_pagu_program');
+		$this->loader->add_action('wp_ajax_get_pagu_kegiatan',  $plugin_public, 'get_pagu_kegiatan');
+		$this->loader->add_action('wp_ajax_get_data_register_sp2d_fmis',  $plugin_public, 'get_data_register_sp2d_fmis');
+
 		add_shortcode('menu_monev',  array($plugin_public, 'menu_monev'));
 		add_shortcode('datassh', array($plugin_public, 'datassh'));
 		add_shortcode('rekbelanja', array($plugin_public, 'rekbelanja'));
@@ -709,6 +720,8 @@ class Wpsipd
 		add_shortcode('monitor_json_rka', array($plugin_public, 'monitor_json_rka'));
 		add_shortcode('monitor_rkpd_renja', array($plugin_public, 'monitor_rkpd_renja'));
 		add_shortcode('data_mapping_master_fmis', array($plugin_public, 'data_mapping_master_fmis'));
+		add_shortcode('ssh_tidak_terpakai', array($plugin_public, 'ssh_tidak_terpakai'));
+		add_shortcode('register_sp2d_fmis', array($plugin_public, 'register_sp2d_fmis'));
 	}
 
 	/**

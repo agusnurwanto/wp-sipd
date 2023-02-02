@@ -324,7 +324,7 @@ foreach ($tujuan_all as $keyTujuan => $tujuan_value) {
 						WHERE 
 							kode_sasaran=%s AND 
 							kode_tujuan=%s AND 
-							active=1 ORDER BY id",
+							active=1 ORDER BY id_program",
 							$sasaran_value['id_unik'], $tujuan_value['id_unik']), ARRAY_A);
 
 					foreach ($program_all as $keyProgram => $program_value) {
@@ -421,7 +421,7 @@ foreach ($tujuan_all as $keyTujuan => $tujuan_value) {
 								kode_program=%s AND 
 								kode_sasaran=%s AND 
 								kode_tujuan=%s AND 
-								active=1 ORDER BY id",
+								active=1 ORDER BY id_giat",
 								$program_value['id_unik'],
 								$sasaran_value['id_unik'],
 								$tujuan_value['id_unik']
@@ -524,7 +524,7 @@ foreach ($tujuan_all as $keyTujuan => $tujuan_value) {
 										kode_program=%s AND 
 										kode_sasaran=%s AND 
 										kode_tujuan=%s AND 
-										active=1 ORDER BY id",
+										active=1 ORDER BY id_sub_giat",
 										$kegiatan_value['id_unik'],
 										$program_value['id_unik'],
 										$sasaran_value['id_unik'],
@@ -852,7 +852,7 @@ foreach ($sasaran_all_kosong as $keySasaran => $sasaran_value) {
 			FROM data_renstra_program_lokal 
 			WHERE 
 				kode_sasaran=%s AND 
-				active=1 ORDER BY id
+				active=1 ORDER BY id_program
 			", $sasaran_value['id_unik']), ARRAY_A);
 
 		foreach ($program_all as $keyProgram => $program_value) {
@@ -1042,7 +1042,7 @@ foreach ($sasaran_all_kosong as $keySasaran => $sasaran_value) {
 									kode_kegiatan=%s AND 
 									kode_program=%s AND 
 									kode_sasaran=%s AND 
-									active=1 ORDER BY id",
+									active=1 ORDER BY id_sub_giat",
 									$kegiatan_value['id_unik'],
 									$program_value['id_unik'],
 									$sasaran_value['id_unik']
@@ -1251,7 +1251,7 @@ foreach ($program_all_kosong as $keyProgram => $program_value) {
 			FROM data_renstra_kegiatan_lokal 
 			WHERE 
 				kode_program=%s AND 
-				active=1 ORDER BY id
+				active=1 ORDER BY id_giat
 		", $program_value['id_unik']), ARRAY_A);
 
 		foreach ($kegiatan_all as $keyKegiatan => $kegiatan_value) {								
@@ -1344,7 +1344,7 @@ foreach ($program_all_kosong as $keyProgram => $program_value) {
 					WHERE 
 						kode_kegiatan=%s AND 
 						kode_program=%s AND 
-						active=1 ORDER BY id",
+						active=1 ORDER BY id_sub_giat",
 						$kegiatan_value['id_unik'],
 						$program_value['id_unik']
 				), ARRAY_A);
@@ -1539,7 +1539,7 @@ foreach ($kegiatan_all as $keyKegiatan => $kegiatan_value) {
 			WHERE 
 				kode_kegiatan=%s AND 
 				kode_program=%s AND 
-				active=1 ORDER BY id",
+				active=1 ORDER BY id_sub_giat",
 				$kegiatan_value['id_unik'],
 				$program_value['id_unik']
 			), ARRAY_A);
@@ -2430,8 +2430,9 @@ $table='<table cellpadding="2" cellspacing="0" style="font-family:\'Open Sans\',
 
 	var aksi = ''
 	<?php if($is_admin): ?>
-		+'<a style="margin-left: 10px;" id="singkron-sipd" onclick="return false;" href="#" class="btn btn-danger">Ambil data dari SIPD lokal</a>'
+		+'<a style="margin-left: 10px; display: none;" id="singkron-sipd" onclick="return false;" href="#" class="btn btn-danger">Ambil data dari SIPD lokal</a>'
 		+'<a style="margin-left: 10px;" onclick="copy_usulan_all(); return false;" href="#" class="btn btn-danger">Copy Data Usulan ke Penetapan</a>'
+		+'<a style="margin-left: 10px; display: none;" onclick="singkronisasi_kegiatan(); return false;" href="#" class="btn btn-danger">Singkronisasi Kegiatan</a>'
 	<?php endif; ?>
 		+'<?php echo $add_renstra; ?>'
 		+'<div class="dropdown" style="margin:30px">'
@@ -3769,6 +3770,10 @@ $table='<table cellpadding="2" cellspacing="0" style="font-family:\'Open Sans\',
 			jQuery("#modal-crud-renstra").find('.modal-dialog').css('maxWidth','950px');
 			jQuery("#modal-crud-renstra").find('.modal-dialog').css('width','100%');
 			jQuery("#modal-crud-renstra").modal('show');
+
+			get_pagu_program({
+				'id_unik':kode_program,
+			});
 		}); 
 	});
 
@@ -4140,7 +4145,6 @@ $table='<table cellpadding="2" cellspacing="0" style="font-family:\'Open Sans\',
 
 	jQuery(document).on('click', '.btn-add-indikator-kegiatan', function(){
 
-		let indikatorKegiatanModal = jQuery("#modal-crud-renstra");
 		let id_unik = jQuery(this).data('kodekegiatan');
 		let html = ''
 		+'<form id="form-renstra">'
@@ -4235,9 +4239,9 @@ $table='<table cellpadding="2" cellspacing="0" style="font-family:\'Open Sans\',
 			+'</div>'
 		+'</form>';
 
-		indikatorKegiatanModal.find('.modal-title').html('Tambah Indikator');
-		indikatorKegiatanModal.find('.modal-body').html(html);
-		indikatorKegiatanModal.find('.modal-footer').html(''
+		jQuery("#modal-crud-renstra").find('.modal-title').html('Tambah Indikator');
+		jQuery("#modal-crud-renstra").find('.modal-body').html(html);
+		jQuery("#modal-crud-renstra").find('.modal-footer').html(''
 			+'<button type="button" class="btn btn-warning" data-dismiss="modal">'
 				+'<i class="dashicons dashicons-no" style="margin-top: 2px;"></i> Tutup'
 			+'</button>'
@@ -4247,9 +4251,13 @@ $table='<table cellpadding="2" cellspacing="0" style="font-family:\'Open Sans\',
 			+'>'
 				+'<i class="dashicons dashicons-yes" style="margin-top: 2px;"></i> Simpan'
 			+'</button>');
-		indikatorKegiatanModal.find('.modal-dialog').css('maxWidth','950px');
-		indikatorKegiatanModal.find('.modal-dialog').css('width','100%');
-		indikatorKegiatanModal.modal('show');
+		jQuery("#modal-crud-renstra").find('.modal-dialog').css('maxWidth','950px');
+		jQuery("#modal-crud-renstra").find('.modal-dialog').css('width','100%');
+		jQuery("#modal-crud-renstra").modal('show');
+
+		get_pagu_kegiatan({
+			'id_unik':id_unik,
+		});
 	});
 
 	jQuery(document).on('click', '.btn-edit-indikator-kegiatan', function(){
@@ -5181,7 +5189,7 @@ $table='<table cellpadding="2" cellspacing="0" style="font-family:\'Open Sans\',
 			url: ajax.url,
           	type: "post",
           	data: {
-          		"action": "get_tujuan_renstra", // wpsipd-public-base-2
+          		"action": "get_tujuan_renstra",
           		"api_key": "<?php echo $api_key; ?>",
           		"id_skpd": "<?php echo $input['id_skpd']; ?>",
           		"type": 1
@@ -6744,6 +6752,83 @@ $table='<table cellpadding="2" cellspacing="0" style="font-family:\'Open Sans\',
 			          			opt+='<option value="'+value.id_skpd+'">'+value.nama_skpd+'</option>'
 			          		});
 			          	jQuery("#"+tag).html(opt);
+			          	resolve();
+			        }
+			});
+		})
+	}
+
+	function singkronisasi_kegiatan(){
+		if(confirm('Apakah anda yakin untuk melakukan ini? id_giat dari table kegiatan dan sub_kegiatan akan diupdate.')){
+			jQuery('#wrap-loading').show();
+			jQuery.ajax({
+				url: ajax.url,
+	          	type: "post",
+	          	data: {
+	          		"action": "singkronisasi_kegiatan_renstra",
+	          		"api_key": "<?php echo $api_key; ?>",
+	          	},
+	          	dataType: "json",
+	          	success: function(res){
+	          		alert(res.message);
+	          		jQuery('#wrap-loading').hide();
+	          	}
+	        });
+		}
+	}
+
+	function get_pagu_program(params){
+		return new Promise(function(resolve, reject){
+			jQuery.ajax({
+				url: ajax.url,
+			    type: "post",
+			    data: {
+			       		"action": "get_pagu_program",
+			       		"api_key": "<?php echo $api_key; ?>",
+			       		"kode_program": params.id_unik
+			       	},
+			       	dataType: "json",
+			       	success: function(res){
+			          	if(res.status){
+			          		for (let key in res.data.penetapan) {
+			          			jQuery("input[name="+key+"]").val(res.data.penetapan[key]);
+			          		}
+
+			          		for (let key in res.data.usulan) {
+			          			jQuery("input[name="+key+"_usulan]").val(res.data.usulan[key]);
+			          		}
+			          	}else{
+			          		alert(res.message);
+			          	}
+			          	resolve();
+			        }
+			});
+		})
+	}
+
+	function get_pagu_kegiatan(params){
+		return new Promise(function(resolve, reject){
+			jQuery.ajax({
+				url: ajax.url,
+			    type: "post",
+			    data: {
+			       		"action": "get_pagu_kegiatan",
+			       		"api_key": "<?php echo $api_key; ?>",
+			       		"kode_kegiatan": params.id_unik
+			       	},
+			       	dataType: "json",
+			       	success: function(res){
+			          	if(res.status){
+			          		for (let key in res.data.penetapan) {
+			          			jQuery("input[name="+key+"]").val(res.data.penetapan[key]);
+			          		}
+
+			          		for (let key in res.data.usulan) {
+			          			jQuery("input[name="+key+"_usulan]").val(res.data.usulan[key]);
+			          		}
+			          	}else{
+			          		alert(res.message);
+			          	}
 			          	resolve();
 			        }
 			});
