@@ -748,6 +748,13 @@ CREATE TABLE `data_lokasi_sub_keg_lokal` (
   `active` tinyint(4) DEFAULT NULL,
   `update_at` datetime NOT NULL,
   `tahun_anggaran` year(4) NOT NULL,
+  `camatteks_usulan` text DEFAULT NULL,
+  `daerahteks_usulan` text DEFAULT NULL,
+  `idcamat_usulan` int(11) DEFAULT NULL,
+  `iddetillokasi_usulan` double DEFAULT NULL,
+  `idkabkota_usulan` int(11) DEFAULT NULL,
+  `idlurah_usulan` int(11) DEFAULT NULL,
+  `lurahteks_usulan` text DEFAULT NULL,
   PRIMARY KEY  (id)
 );
 
@@ -1322,6 +1329,8 @@ CREATE TABLE `data_sub_keg_bl_lokal` (
   `catatan_usulan` text DEFAULT NULL,
   `pagu_usulan` double(20, 0) DEFAULT NULL,
   `pagu_n_depan_usulan` double(20, 0) DEFAULT NULL,
+  `waktu_awal_usulan` int(11) DEFAULT NULL,
+  `waktu_akhir_usulan` int(11) DEFAULT NULL,
   PRIMARY KEY  (id)
 );
 
@@ -2154,6 +2163,12 @@ CREATE TABLE `data_sub_keg_bl_lokal_history` (
   `tahun_anggaran` year(4) NOT NULL DEFAULT '2021',
   `id_asli` int(11) NOT NULL,
   `id_jadwal` int(11) NOT NULL,
+  `catatan` text DEFAULT NULL,
+  `catatan_usulan` text DEFAULT NULL,
+  `pagu_usulan` double(20, 0) DEFAULT NULL,
+  `pagu_n_depan_usulan` double(20, 0) DEFAULT NULL,
+  `waktu_awal_usulan` int(11) DEFAULT NULL,
+  `waktu_akhir_usulan` int(11) DEFAULT NULL,
   PRIMARY KEY  (id)
 );
 
@@ -2342,6 +2357,13 @@ CREATE TABLE `data_lokasi_sub_keg_lokal_history` (
   `tahun_anggaran` year(4) NOT NULL,
   `id_asli` int(11) NOT NULL,
   `id_jadwal` int(11) NOT NULL,
+  `camatteks_usulan` text DEFAULT NULL,
+  `daerahteks_usulan` text DEFAULT NULL,
+  `idcamat_usulan` int(11) DEFAULT NULL,
+  `iddetillokasi_usulan` double DEFAULT NULL,
+  `idkabkota_usulan` int(11) DEFAULT NULL,
+  `idlurah_usulan` int(11) DEFAULT NULL,
+  `lurahteks_usulan` text DEFAULT NULL,
   PRIMARY KEY  (id)
 );
 

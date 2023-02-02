@@ -594,7 +594,7 @@ echo '
                                             </tr>
                                             <tr data-id="1">
                                                 <td style="width: 50%;">
-                                                    <input class="form-control" type="number" name="input_target_usulan" placeholder="Target Indikator"/>
+                                                    <input class="form-control" type="number" name="input_target_usulan" id="indikator_pagu_indi_sub_keg_usulan" placeholder="Target Indikator"/>
                                                 </td>
                                                 <td style="width: 50%;">
                                                     <select class="form-control satuan_pagu_indi_sub_keg" id="satuan_pagu_indi_sub_keg_usulan" name="input_satuan_usulan">
@@ -691,7 +691,7 @@ echo '
                                         <table style="margin: 0;">
                                             <tr data-id="1" header="1">
                                                 <td colspan="2">
-                                                    <select class="form-control pagu_indi_sub_keg" id="pagu_indi_sub_keg_penetapan" name="input_indikator_sub_keg">
+                                                    <select class="form-control pagu_indi_sub_keg" id="pagu_indi_sub_keg_penetapan" name="input_indikator_sub_keg[]">
                                                         <option value="">Pilih Nama Indikator</option>
                                                     </select>
                                                 </td>
@@ -701,10 +701,10 @@ echo '
                                             </tr>
                                             <tr data-id="1">
                                                 <td style="width: 50%;">
-                                                    <input class="form-control" type="number" name="input_target" placeholder="Target Indikator"/>
+                                                    <input class="form-control" type="number" name="input_target[]" id="indikator_pagu_indi_sub_keg" placeholder="Target Indikator"/>
                                                 </td>
                                                 <td style="width: 50%;">
-                                                    <select class="form-control satuan_pagu_indi_sub_keg" id="satuan_pagu_indi_sub_keg_penetapan" name="input_satuan">
+                                                    <select class="form-control satuan_pagu_indi_sub_keg" id="satuan_pagu_indi_sub_keg_penetapan" name="input_satuan[]">
                                                         <option value="">Pilih Satuan</option>
                                                     </select>
                                                 </td>
@@ -763,7 +763,7 @@ echo '
         var trnew = ''
             +'<tr data-id="'+(id+1)+'" header="1">'
                 +'<td colspan="2">'
-                    +'<select class="form-control pagu_indi_sub_keg" name="tolak_ukur">'
+                    +'<select class="form-control pagu_indi_sub_keg" name="input_indikator_sub_keg[]">'
                         +'<option value="">Pilih Nama Indikator</option>'
                     +'</select>'
                 +'</td>'
@@ -773,10 +773,10 @@ echo '
             +'</tr>'
             +'<tr data-id="'+(id+1)+'">'
                 +'<td style="width: 50%;">'
-                    +'<input class="form-control" type="number" name="target" placeholder="Target Indikator"/>'
+                    +'<input class="form-control" type="number" name="input_target[]" placeholder="Target Indikator"/>'
                 +'</td>'
                 +'<td style="width: 50%;">'
-                    +'<select class="form-control satuan_pagu_indi_sub_keg" name="satuan">'
+                    +'<select class="form-control satuan_pagu_indi_sub_keg" name="input_satuan[]">'
                         +'<option value="">Pilih Satuan</option>'
                     +'</select>'
                 +'</td>'
@@ -1094,7 +1094,7 @@ echo '
                 },
                 success:function(response){
                     jQuery('#wrap-loading').hide();
-                    jQuery('#modalTambahRenja').modal('hide')
+                    jQuery('#modalTambahRenja').modal('hide');
                     alert(response.message);
                     refresh_page();
                 }
@@ -1116,19 +1116,28 @@ echo '
             },
             success: function(response){
                 jQuery('#wrap-loading').hide();
-                jQuery('#pagu_sub_kegiatan_usulan').val(response.data[0].pagu_usulan);
-                jQuery('#pagu_sub_kegiatan_1_usulan').val(response.data[0].pagu_n_depan_usulan);
-                jQuery('#pagu_sub_kegiatan').val(response.data[0].pagu);
-                jQuery('#pagu_sub_kegiatan_1').val(response.data[0].pagu_n_depan);
-                jQuery('#catatan_usulan').val(response.data[0].catatan_usulan);
-                jQuery('#catatan').val(response.data[0].catatan);
-                let input_sub_unit = `<option selected value="${response.data[0].id_sub_skpd}">${response.data[0].nama_sub_skpd}</option>`;
+                jQuery('#pagu_sub_kegiatan_usulan').val(response.data.pagu_usulan);
+                jQuery('#pagu_sub_kegiatan_1_usulan').val(response.data.pagu_n_depan_usulan);
+                jQuery('#pagu_sub_kegiatan').val(response.data.pagu);
+                jQuery('#pagu_sub_kegiatan_1').val(response.data.pagu_n_depan);
+                jQuery('#catatan_usulan').val(response.data.catatan_usulan);
+                jQuery('#catatan').val(response.data.catatan);
+                let input_sub_unit = `<option selected value="${response.data.id_sub_skpd}">${response.data.nama_sub_skpd}</option>`;
                 jQuery('#input_sub_unit').html(input_sub_unit);
                 jQuery('#input_sub_unit').prop('disabled', true);
-                let input_sub_kegiatan = `<option selected value="${response.data[0].id_sub_giat}">${response.data[0].nama_sub_giat}</option>`;
+                let input_sub_kegiatan = `<option selected value="${response.data.id_sub_giat}">${response.data.nama_sub_giat}</option>`;
                 jQuery('#sub_kegiatan').html(input_sub_kegiatan);
                 jQuery('#sub_kegiatan').prop('disabled', true);
-
+                // let input_indikator_sub_keg_usulan = `<option selected value="${response.data.ss}"></option>`;
+                // jQuery('#pagu_ind_sub_keg_usulan').html(input_indikator_sub_keg);
+                // jQuery('#indikator_pagu_indi_sub_keg_usulan').val(response.data.ssd);
+                // let input_satuan_sub_keg_usulan = `<option selected value="${response.data.re}"></option>`;
+                // jQuery('#satuan_pagu_indi_sub_keg_usulan').html(input_satuan_sub_keg);
+                // let input_indikator_sub_keg = `<option selected value="${response.data.ss}"></option>`;
+                // jQuery('#pagu_ind_sub_keg').html(input_indikator_sub_keg);
+                // jQuery('#indikator_pagu_indi_sub_keg').val(response.data.ssd);
+                // let input_satuan_sub_keg = `<option selected value="${response.data.re}"></option>`;
+                // jQuery('#satuan_pagu_indi_sub_keg').html(input_satuan_sub_keg);
                 jQuery("#modalTambahRenja .modal-title").html("Edit Sub Kegiatan");
                 jQuery("#modalTambahRenja .submitBtn")
                     .attr("onclick", `submitEditRenjaForm('${kode_sub_giat}')`)
@@ -1186,20 +1195,30 @@ echo '
         }
     }
 
-    function getFormData($form) {
+    function getFormData($form){
 	    let unindexed_array = $form.serializeArray();
 	    let indexed_array = {};
+        
+        jQuery.map(unindexed_array, function (n, i) {
+            indexed_array[n['name']] = n['value'];
+        });
 
-	    jQuery.map(unindexed_array, function (n, i) {
-	    	indexed_array[n['name']] = n['value'];
-	    });
+        var input_target = jQuery('input[name="input_target[]"]').map(function(){ 
+            return this.value; 
+        }).get();
+
+        indexed_array['input_target'] = input_target;
 
 	    return indexed_array;
 	}
 
-    function refresh_page() {
+    function refresh_page(){
         if(confirm('Ada data yang berubah, apakah mau merefresh halaman ini?')){
             window.location = "";
         }
 	}
+
+    // function reset_form(){
+
+    // }
 </script>
