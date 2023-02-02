@@ -12111,12 +12111,16 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 					'query' => $sql,
 					'debug' => 1
 				));
-				foreach($data_spd as $k => $spd){
-					$kd_sub_unit = $spd->kd_urusan.'.'.$spd->kd_bidang.'.'.$spd->kd_unit.'.'.$spd->kd_sub;
-					$data_spd[$k]->kd_sub_unit = $kd_sub_unit;
-					if(!empty($mapping_skpd['id_mapping_simda'][$kd_sub_unit])){
-						$data_spd[$k]->skpd = $mapping_skpd['id_mapping_simda'][$kd_sub_unit];
+				if(!empty($data_spd)){
+					foreach($data_spd as $k => $spd){
+						$kd_sub_unit = $spd->kd_urusan.'.'.$spd->kd_bidang.'.'.$spd->kd_unit.'.'.$spd->kd_sub;
+						$data_spd[$k]->kd_sub_unit = $kd_sub_unit;
+						if(!empty($mapping_skpd['id_mapping_simda'][$kd_sub_unit])){
+							$data_spd[$k]->skpd = $mapping_skpd['id_mapping_simda'][$kd_sub_unit];
+						}
 					}
+				}else{
+					$data_spd = array();
 				}
 				$return['data'] = $data_spd;
 			}else{
