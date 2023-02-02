@@ -4445,7 +4445,7 @@ CREATE TABLE `data_kamus_usulan_pokir` (
 );
 
 CREATE TABLE `data_sp2d_sipd` (
-  `id` int(11) NOT NULL,
+  `id` int(11) NOT NULL auto_increment,
   `idSpm` int(11) DEFAULT NULL,
   `nomorSp2d` varchar(80) DEFAULT NULL,
   `tanggalSp2d` date DEFAULT NULL,
@@ -4499,17 +4499,12 @@ CREATE TABLE `data_sp2d_sipd` (
   `is_sptjm` bit(1) DEFAULT NULL,
   `namaSkpd` varchar(200) DEFAULT NULL,
   `kodeSkpd` varchar(50) DEFAULT NULL,
-  `is_bpk` bit(1) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+  `is_bpk` bit(1) DEFAULT NULL,
+  PRIMARY KEY  (id)
+);
 
-ALTER TABLE `data_sp2d_sipd`
-  ADD PRIMARY KEY (`id`);
-  
-ALTER TABLE `data_sp2d_sipd`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
-
-  CREATE TABLE `data_spm_sipd` (
-  `id` int(11) NOT NULL,
+CREATE TABLE `data_spm_sipd` (
+  `id` int(11) NOT NULL auto_increment,
   `idSpm` int(11) DEFAULT NULL,
   `idSpp` int(11) DEFAULT NULL,
   `created_at` datetime DEFAULT NULL,
@@ -4568,12 +4563,6 @@ ALTER TABLE `data_sp2d_sipd`
   `nilaiSpm` double DEFAULT NULL,
   `keteranganVerifikasiSpm` varchar(500) DEFAULT NULL,
   `isOtorisasi` bit(1) DEFAULT NULL,
-  `tanggalOtorisasi` date DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
-ALTER TABLE `data_spm_sipd`
-  ADD PRIMARY KEY (`id`);
-
-ALTER TABLE `data_spm_sipd`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
-COMMIT;
+  `tanggalOtorisasi` date DEFAULT NULL,
+  PRIMARY KEY  (id)
+);

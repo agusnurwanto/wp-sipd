@@ -11062,7 +11062,11 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						if(!empty($id_skpd_sipd)){
 							$cek_aktivitas = array();
 							$singkron_rincian_fmis = get_option( '_crb_backup_rincian_fmis' );
-							if($singkron_rincian_fmis == 1){
+							if(
+								$singkron_rincian_fmis == 1
+								|| $data_fmis['rincian'][0]['kdrek1'] == 4
+								|| $data_fmis['rincian'][0]['kdrek1'] == 6
+							){
 								foreach($data_fmis['rincian'] as $key => $rinci){
 									foreach($rek_mapping as $rek_mapping_sipd => $rek_mapping_fmis){
 										$_kode_akun = explode('.', $rinci['kode_rekening']);
