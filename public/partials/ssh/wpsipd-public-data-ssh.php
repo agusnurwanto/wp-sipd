@@ -20,18 +20,11 @@ foreach($tahun as $tahun_value){
 
 $body = '';
 ?>
-	<style>
-	.bulk-action {
-		padding: .45rem;
-		border-color: #eaeaea;
-		vertical-align: middle;
-	}
-	</style>
 	<div class="cetak">
 		<div style="padding: 10px;margin:0 0 3rem 0;">
 			<input type="hidden" value="<?php echo get_option( '_crb_api_key_extension' ); ?>" id="api_key">
 			<input type="hidden" value="<?php echo $input['tahun_anggaran']; ?>" id="tahun_anggaran">
-			<h1 class="text-center" style="margin:3rem;">Data satuan standar harga (SSH) SIPD tahun anggaran <?php echo $input['tahun_anggaran']; ?></h1>
+			<h1 id="judul" class="text-center" style="margin:3rem;">Data satuan standar harga (SSH) SIPD tahun anggaran <?php echo $input['tahun_anggaran']; ?></h1>
 			<table id="data_ssh_sipd_table" cellpadding="2" cellspacing="0" style="font-family:\'Open Sans\',-apple-system,BlinkMacSystemFont,\'Segoe UI\',sans-serif; border-collapse: collapse; width:100%; overflow-wrap: break-word;" class="table table-bordered">
 				<thead id="data_header">
 					<tr>
@@ -67,6 +60,12 @@ $body = '';
 			</div>
 		</div>
 	</div>
+	<script type="text/javascript" src="https://cdn.datatables.net/buttons/2.3.2/js/dataTables.buttons.min.js"></script>
+	<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.3/jszip.min.js"></script>
+	<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/pdfmake.min.js"></script>
+	<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/vfs_fonts.js"></script>
+	<script type="text/javascript" src="https://cdn.datatables.net/buttons/2.3.2/js/buttons.html5.min.js"></script>
+	<script type="text/javascript" src="https://cdn.datatables.net/buttons/2.3.2/js/buttons.print.min.js"></script>
 
 	<script>
 		jQuery(document).ready(function(){
@@ -75,8 +74,8 @@ $body = '';
 			
 			get_data_ssh_sipd(tahun);
 
-			let html_filter = "<select class='ml-3 bulk-action' id='selectYears'><?php echo $select_tahun ?></select>"
-			jQuery("#data_ssh_sipd_table_length").append(html_filter);
+			let html_filter = "<div style='text-align: center; margin-bottom: 20px;'><select id='selectYears'><?php echo $select_tahun ?></select></div>"
+			jQuery("#judul").after(html_filter);
 
 			jQuery('#selectYears').on('change', function(e){
 				let selectedVal = jQuery(this).find('option:selected').val();
@@ -84,25 +83,34 @@ $body = '';
 					window.location = selectedVal;
 				}
 			});
-		})
+		});
 
 		function get_data_ssh_sipd(tahun){
-			jQuery("#wrap-loading").show();
-			jQuery('#data_ssh_sipd_table').DataTable({
+			jQuery('#data_ssh_sipd_table').on('preXhr.dt', function ( e, settings, data ) {
+				jQuery("#wrap-loading").show();
+		    } ).DataTable({
 				"processing": true,
         		"serverSide": true,
 		        "ajax": {
 		        	url: "<?php echo admin_url('admin-ajax.php'); ?>",
 					type:"post",
 					data:{
-						'action' : "get_data_ssh_sipd",
-						'api_key' : jQuery("#api_key").val(),
-						'tahun_anggaran' : tahun,
+						'action': "get_data_ssh_sipd",
+						'api_key': jQuery("#api_key").val(),
+						'tahun_anggaran': tahun
 					}
 				},
-				"initComplete":function( settings, json){
+				"drawCallback": function( settings ){
 					jQuery("#wrap-loading").hide();
 				},
+		        dom: 'lBfrtip',
+		        buttons: [
+		            'copy', 'csv', 'excel', 'pdf', 'print'
+		        ],
+				lengthMenu: [
+					[20, 100, 500, -1], 
+					[20, 100, 500, "All"]
+				],
 				"columns": [
 		            { 
 		            	"data": "id_standar_harga",
@@ -140,6 +148,7 @@ $body = '';
 
 		//data akun ssh sipd
 		function data_akun_ssh_sipd(id_standar_harga){
+			jQuery('#wrap-loading').show();
 			jQuery('#modalDataSSH').modal('show');
 			jQuery("#modalDataSSH .modal-dialog").removeClass("modal-xl modal-sm");
 			jQuery("#modalDataSSH .modal-dialog").addClass("modal-lg");
@@ -172,6 +181,7 @@ $body = '';
 					jQuery.each( data_akun, function( key, value ) {
 						jQuery("ul.ul-desc-akun").append(`<li>${value.nama_akun}</li>`);
 					});
+					jQuery('#wrap-loading').hide();
 				}
 			})
 		}
