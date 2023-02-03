@@ -4444,6 +4444,48 @@ CREATE TABLE `data_kamus_usulan_pokir` (
   PRIMARY KEY  (id)
 );
 
+CREATE TABLE `data_file` (
+  `id` int(11) NOT NULL auto_increment,
+  `nama` text DEFAULT NULL,
+  `url_asli` text DEFAULT NULL,
+  `path` text DEFAULT NULL,
+  `tipe_file` text DEFAULT NULL,
+  `update_at` datetime NOT NULL,
+  `tahun_anggaran` year(4) DEFAULT NULL,
+  PRIMARY KEY  (id)
+);
+
+CREATE TABLE `data_sp2d_fmis` (
+  `id` int(11) NOT NULL auto_increment,
+  `DT_RowIndex` text DEFAULT NULL,
+  `created_at` text DEFAULT NULL,
+  `url_sp2d` text DEFAULT NULL,
+  `nama_file` text DEFAULT NULL,
+  `created_id` int(11) DEFAULT NULL,
+  `idkdbank` int(11) DEFAULT NULL,
+  `idsp2d` int(11) DEFAULT NULL,
+  `idspm` int(11) DEFAULT NULL,
+  `idsubunit` int(11) DEFAULT NULL,
+  `info` text DEFAULT NULL,
+  `keterangan` text DEFAULT NULL,
+  `no_bku` int(11) DEFAULT NULL,
+  `no_transaksi` text DEFAULT NULL,
+  `npwp_bud` text DEFAULT NULL,
+  `penandatangan_jbt` text DEFAULT NULL,
+  `penandatangan_nip` text DEFAULT NULL,
+  `penandatangan_nm` text DEFAULT NULL,
+  `sp2d_no` text DEFAULT NULL,
+  `sp2d_tgl` date DEFAULT NULL,
+  `status` text DEFAULT NULL,
+  `status_tte` text DEFAULT NULL,
+  `tahun` year(4) DEFAULT NULL,
+  `updated_at` text DEFAULT NULL,
+  `updated_id` text DEFAULT NULL,
+  `tahun_anggaran` year(4) DEFAULT NULL,
+  `active` tinyint(4) NOT NULL,
+  PRIMARY KEY  (id)
+);
+
 CREATE TABLE `data_sp2d_sipd` (
   `id` int(11) NOT NULL auto_increment,
   `idSpm` int(11) DEFAULT NULL,

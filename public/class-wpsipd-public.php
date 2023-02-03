@@ -18512,4 +18512,91 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		}
 	}
 
+	private function wpsipd_upload_file($opsi = array(), $ret = array()){
+		$file = $opsi['file'];
+		$file_name = $opsi['file_name'];
+		$file_extension = $opsi['file_extension'];
+		$tahun_anggaran = $opsi['tahun_anggaran'];
+		$url_asli = $opsi['url_asli'];
+
+		$target_folder = WPSIPD_PLUGIN_PATH.'public/media/';
+		$target_file = $target_folder.$file_name;
+		// max 10MB
+		if ($file["size"] > 1000000) {
+			$ret['status'] = 'error';
+			$ret['message'] = 'Max file upload sebesar 10MB!';
+		}
+		// cek type file
+		$imageFileType = strtolower(pathinfo($target_folder.basename($file["name"]),PATHINFO_EXTENSION));
+		if($imageFileType != $file_extension) {
+			$ret['status'] = 'error';
+			$ret['message'] = 'File yang diupload harus berextensi .'.$file_extension.'!';
+		}
+		if($ret['status'] == 'success'){
+			move_uploaded_file($file["tmp_name"], $target_file);
+			$ret['path'] = $target_file;
+			$cek_id = $wpdb->get_var($wpdb->prepare("
+				SELECT
+					id
+				FROM data_file
+				WHERE nama = %s
+					AND tahun_anggaran = %d
+			", $rinci['sp2d_no'], $tahun_anggaran), ARRAY_A);
+			$opsi = array(
+				'nama' => $file_name,
+				'url_asli' => $url_asli,
+				'path' => $target_file,
+				'tipe_file' => $file_extension,
+				'updated_at' => date('Y-m-d H:i:s'),
+				'tahun_anggaran' => $tahun_anggaran
+			);
+			if(empty($cek_id)){
+				$cek_id = $wpdb->insert('data_sp2d_fmis', $opsi);
+			}else{
+				$wpdb->update('data_sp2d_fmis', $opsi, array(
+					'id' => $cek_id
+				));
+			}
+			$ret['id'] = $cek_id;
+		}
+		return $ret;
+	}
+
+	function save_file(){
+		global $wpdb;
+		$return = array(
+			'status' => 'success',
+			'message'	=> 'Berhasil simpan file!'
+		);
+
+		$table_content = '';
+		if(!empty($_POST)){
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+				$data = file_get_contents('php://input');
+				$mysql_blob = base64_encode($data);
+				print_r($data);
+				print_r($_REQUEST); die('tes');
+				$tahun_anggaran = $_POST['tahun_anggaran'];
+				$return = $this->wpsipd_upload_file(array(
+					'file' => $_FILES["file"], 
+					'file_name' => $_POST["file_name"], 
+					'tahun_anggaran' => $tahun_anggaran, 
+					'file_extension' => 'pdf',
+					'url_asli' => $_POST['url']
+				), $return);
+			}else{
+				$return = array(
+					'status' => 'error',
+					'message'	=> 'Api Key tidak sesuai!'
+				);
+			}
+		}else{
+			$return = array(
+				'status' => 'error',
+				'message'	=> 'Format tidak sesuai!'
+			);
+		}
+		die(json_encode($return));
+	}
+
 }

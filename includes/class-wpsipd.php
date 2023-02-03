@@ -485,6 +485,12 @@ class Wpsipd
 		$this->loader->add_action('wp_ajax_mapping_satuan_kerja_sirup',  $plugin_public, 'mapping_satuan_kerja_sirup');
 		$this->loader->add_action('wp_ajax_nopriv_mapping_satuan_kerja_sirup',  $plugin_public, 'mapping_satuan_kerja_sirup');
 
+		$this->loader->add_action('wp_ajax_backup_sp2d_fmis',  $plugin_public, 'backup_sp2d_fmis');
+		$this->loader->add_action('wp_ajax_nopriv_backup_sp2d_fmis',  $plugin_public, 'backup_sp2d_fmis');
+
+		$this->loader->add_action('wp_ajax_save_file',  $plugin_public, 'save_file');
+		$this->loader->add_action('wp_ajax_nopriv_save_file',  $plugin_public, 'save_file');
+
 		$this->loader->add_action('wp_ajax_simpan_rfk',  $plugin_public, 'simpan_rfk');
 		$this->loader->add_action('wp_ajax_reset_rfk',  $plugin_public, 'reset_rfk');
 		$this->loader->add_action('wp_ajax_reset_catatan_verifkator_rfk',  $plugin_public, 'reset_catatan_verifkator_rfk');
