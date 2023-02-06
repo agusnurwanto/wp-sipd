@@ -1861,6 +1861,16 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 					die(json_encode($ret));
 				}
 
+				$data_sub_keg = $wpdb->get_row($wpdb->prepare(
+					'SELECT *
+					FROM data_master_indikator_subgiat
+					WHERE id_sub_keg=%d
+					AND tahun_anggaran=%d
+					AND active=1',
+					$data['input_indikator_sub_keg'],
+					$tahun_anggaran
+				));
+
 				$opsi_sub_keg_indikator = array(
 					'outputteks' => $data_sub_keg->indikator,
 					'outputteks_usulan' => $data_sub_keg->indikator,

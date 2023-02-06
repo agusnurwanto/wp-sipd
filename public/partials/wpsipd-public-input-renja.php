@@ -42,7 +42,8 @@ $sql = "
     FROM data_sub_keg_bl_lokal
     WHERE id_sub_skpd=%d
         AND tahun_anggaran=%d
-        AND active=1";
+        AND active=1
+        ORDER BY kode_giat ASC, kode_sub_giat ASC";
 $subkeg = $wpdb->get_results($wpdb->prepare($sql,$input['id_skpd'], $input['tahun_anggaran']), ARRAY_A);
 
 $cek_jadwal = $this->validasi_jadwal_perencanaan('renja');
@@ -349,7 +350,14 @@ $body = '';
                                 }
                             }
 
-                            $tombol_aksi = '<button class="btn-sm btn-warning" style="margin: 1px;" onclick="edit_renja(\''.$kode_sub_giat.'\');" title="Edit Renja"><i class="dashicons dashicons-edit"></i></button>';
+                            $kode_sbl = '';
+                            if(!empty($sub_giat['output_sub_giat'])){
+                                $kode_sbl = $sub_giat['output_sub_giat'][0]['kode_sbl'];
+                            }
+
+                            $url_rka_lokal = $this->generatePage('Data RKA Lokal | '.$kode_sbl.' | '.$input['tahun_anggaran'],$input['tahun_anggaran'],'[input_rka_lokal kode_sbl="'.$kode_sbl.'" tahun_anggaran="'.$input['tahun_anggaran'].'"]');
+                            $tombol_aksi = '<a href="'.$url_rka_lokal.'" target="_blank"><button class="btn-sm btn-info" style="margin: 1px;" title="Detail Renja"><i class="dashicons dashicons-search"></i></button></a>';
+                            $tombol_aksi .= '<button class="btn-sm btn-warning" style="margin: 1px;" onclick="edit_renja(\''.$kode_sub_giat.'\');" title="Edit Renja"><i class="dashicons dashicons-edit"></i></button>';
                             $tombol_aksi .= '<button class="btn-sm btn-danger" style="margin: 1px;" onclick="delete_renja(\''.$kode_sub_giat.'\');" title="Hapus Renja"><i class="dashicons dashicons-trash"></i></button>';
                             $body .= '
                                 <tr>
@@ -1203,11 +1211,41 @@ echo '
             indexed_array[n['name']] = n['value'];
         });
 
+        var input_indikator_sub_keg = jQuery('input[name="input_indikator_sub_keg[]"]').map(function(){ 
+            return this.value; 
+        }).get();
+
+        indexed_array['input_indikator_sub_keg'] = input_indikator_sub_keg;
+
         var input_target = jQuery('input[name="input_target[]"]').map(function(){ 
             return this.value; 
         }).get();
 
         indexed_array['input_target'] = input_target;
+
+        var input_satuan = jQuery('input[name="input_satuan[]"]').map(function(){ 
+            return this.value; 
+        }).get();
+
+        indexed_array['input_satuan'] = input_satuan;
+
+        var input_indikator_sub_keg_usulan = jQuery('input[name="input_indikator_sub_keg_usulan[]"]').map(function(){ 
+            return this.value; 
+        }).get();
+
+        indexed_array['input_indikator_sub_keg_usulan'] = input_indikator_sub_keg_usulan;
+
+        var input_target_usulan = jQuery('input[name="input_target_usulan[]"]').map(function(){ 
+            return this.value; 
+        }).get();
+
+        indexed_array['input_target_usulan'] = input_target_usulan;
+
+        var input_satuan_usulan = jQuery('input[name="input_satuan_usulan[]"]').map(function(){ 
+            return this.value; 
+        }).get();
+
+        indexed_array['input_satuan_usulan'] = input_satuan_usulan;
 
 	    return indexed_array;
 	}
