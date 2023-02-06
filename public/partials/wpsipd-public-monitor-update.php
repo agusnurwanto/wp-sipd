@@ -36,6 +36,7 @@ foreach ($kode_rek as $rek) {
 		$type_belanja = '';
 		$table = '';
 		$table_tanpa_rinci = '';
+		$table_fmis_rinci = 'data_rincian_fmis';
 		if($rek == '4'){
 			$type_belanja = 'Pendapatan';
 			$table = 'data_pendapatan';
@@ -164,6 +165,7 @@ foreach ($kode_rek as $rek) {
 					and active=1 
 					and id_skpd='.$opd['id_skpd'].'
 			';
+
 			if($type_belanja == 'Pembiayaan Pengeluaran'){
 				$where .= " and type='pengeluaran'";
 			}else if($type_belanja == 'Pembiayaan Penerimaan'){
@@ -178,6 +180,17 @@ foreach ($kode_rek as $rek) {
 				from '.$table.' 
 				where '.$where
 			, ARRAY_A);
+
+			$data_fmis = $wpdb->get_row('
+				select 
+					sum(jumlah) as total_fmis_rinci
+				from '.$table_fmis_rinci.' 
+				where tahun_anggaran='.$input['tahun_anggaran'].' 
+					and active=1 
+					and id_sub_skpd='.$opd['id_skpd']
+			, ARRAY_A);
+
+			$data['total_fmis'] = $data_fmis['total_fmis_rinci'];
 			$update_at = $wpdb->get_row('
 				select 
 					update_at 

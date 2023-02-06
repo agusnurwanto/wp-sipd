@@ -95,4 +95,81 @@ class Wpsipd_Public_FMIS
 		}
 		die(json_encode($return));
 	}
+
+	public function backup_sp2d_fmis()
+	{
+		global $wpdb;
+		$return = array(
+			'status' => 'success',
+			'message' => 'Berhasil simpan data SP2D FMIS!'
+		);
+		if(!empty($_POST)){
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+				$tahun_anggaran = $_POST['tahun_anggaran'];
+				$wpdb->update('data_sp2d_fmis', array(
+					'active' => 0
+				), array(
+					'tahun_anggaran' => $tahun_anggaran
+				));
+				$data_sp2d = json_decode(stripslashes(html_entity_decode($_POST['sp2d'])));
+				foreach($data_sp2d as $rinci){
+					$cek_id = $wpdb->get_var($wpdb->prepare("
+						SELECT
+							id
+						FROM data_sp2d_fmis
+						WHERE sp2d_no = %s
+							AND tahun = %d
+							AND tahun_anggaran = %d
+					", $rinci->sp2d_no, $rinci->tahun, $tahun_anggaran));
+					
+					$opsi = array(
+						'DT_RowIndex'=> $rinci->DT_RowIndex,
+						'created_at' => $rinci->created_at,
+						'url_sp2d' => $rinci->url_sp2d,
+						'nama_file' => $rinci->nama_file,
+						'created_id' => $rinci->created_id,
+						'idkdbank' => $rinci->idkdbank,
+						'idsp2d' => $rinci->idsp2d,
+						'idspm' => $rinci->idspm,
+						'idsubunit' => $rinci->idsubunit,
+						'info' => $rinci->info,
+						'keterangan' => $rinci->keterangan,
+						'no_bku' => $rinci->no_bku,
+						'no_transaksi' => $rinci->no_transaksi,
+						'npwp_bud' => $rinci->npwp_bud,
+						'penandatangan_jbt' => $rinci->penandatangan_jbt,
+						'penandatangan_nip' => $rinci->penandatangan_nip,
+						'penandatangan_nm' => $rinci->penandatangan_nm,
+						'sp2d_no' => $rinci->sp2d_no,
+						'sp2d_tgl' => $rinci->sp2d_tgl,
+						'status' => $rinci->status,
+						'status_tte' => $rinci->status_tte,
+						'tahun' => $rinci->tahun,
+						'updated_at' => $rinci->updated_at,
+						'updated_id' => $rinci->updated_id,
+						'tahun_anggaran' => $tahun_anggaran,
+						'active' => 1
+					);
+					if(empty($cek_id)){
+						$wpdb->insert('data_sp2d_fmis', $opsi);
+					}else{
+						$wpdb->update('data_sp2d_fmis', $opsi, array(
+							'id' => $cek_id
+						));
+					}
+				}
+			}else{
+				$return = array(
+					'status' => 'error',
+					'message'	=> 'Api Key tidak sesuai!'
+				);
+			}
+		}else{
+			$return = array(
+				'status' => 'error',
+				'message'	=> 'Format tidak sesuai!'
+			);
+		}
+		die(json_encode($return));
+	}
 }

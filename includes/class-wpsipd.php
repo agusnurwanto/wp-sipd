@@ -130,6 +130,12 @@ class Wpsipd
 		require_once plugin_dir_path(dirname(__FILE__)) . 'includes/class-wpsipd-simda.php';
 
 		$this->simda = new Wpsipd_Simda( $this->plugin_name, $this->version );
+
+		// Untuk SCRIPT SIPKD
+		require_once plugin_dir_path(dirname(__FILE__)) . 'includes/class-wpsipd-sipkd.php';
+
+		$this->sipkd = new Wpsipd_Sipkd( $this->plugin_name, $this->version );
+
 		$this->loader = new Wpsipd_Loader();
 	}
 
@@ -160,7 +166,7 @@ class Wpsipd
 	private function define_admin_hooks()
 	{
 
-		$plugin_admin = new Wpsipd_Admin($this->get_plugin_name(), $this->get_version(), $this->simda);
+		$plugin_admin = new Wpsipd_Admin($this->get_plugin_name(), $this->get_version(), $this->simda, $this->sipkd);
 
 		$this->loader->add_action('admin_enqueue_scripts', $plugin_admin, 'enqueue_styles');
 		$this->loader->add_action('admin_enqueue_scripts', $plugin_admin, 'enqueue_scripts');
@@ -196,7 +202,7 @@ class Wpsipd
 	private function define_public_hooks()
 	{
 
-		$plugin_public = new Wpsipd_Public($this->get_plugin_name(), $this->get_version(), $this->simda);
+		$plugin_public = new Wpsipd_Public($this->get_plugin_name(), $this->get_version(), $this->simda, $this->sipkd);
 
 		$this->loader->add_action('wp_enqueue_scripts', $plugin_public, 'enqueue_styles');
 		$this->loader->add_action('wp_enqueue_scripts', $plugin_public, 'enqueue_scripts');
@@ -478,6 +484,12 @@ class Wpsipd
 
 		$this->loader->add_action('wp_ajax_mapping_satuan_kerja_sirup',  $plugin_public, 'mapping_satuan_kerja_sirup');
 		$this->loader->add_action('wp_ajax_nopriv_mapping_satuan_kerja_sirup',  $plugin_public, 'mapping_satuan_kerja_sirup');
+
+		$this->loader->add_action('wp_ajax_backup_sp2d_fmis',  $plugin_public, 'backup_sp2d_fmis');
+		$this->loader->add_action('wp_ajax_nopriv_backup_sp2d_fmis',  $plugin_public, 'backup_sp2d_fmis');
+
+		$this->loader->add_action('wp_ajax_save_file',  $plugin_public, 'save_file');
+		$this->loader->add_action('wp_ajax_nopriv_save_file',  $plugin_public, 'save_file');
 
 		$this->loader->add_action('wp_ajax_simpan_rfk',  $plugin_public, 'simpan_rfk');
 		$this->loader->add_action('wp_ajax_reset_rfk',  $plugin_public, 'reset_rfk');

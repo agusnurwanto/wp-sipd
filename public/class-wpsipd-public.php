@@ -53,12 +53,12 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 	 * @param      string    $plugin_name       The name of the plugin.
 	 * @param      string    $version    The version of this plugin.
 	 */
-	public function __construct($plugin_name, $version, $simda)
+	public function __construct( $plugin_name, $version, $simda , $sipkd )
 	{
-		ini_set('max_execution_time',0);
 		$this->plugin_name = $plugin_name;
 		$this->version = $version;
 		$this->simda = $simda;
+		$this->sipkd = $sipkd;
 	}
 
 	/**
@@ -11062,7 +11062,11 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						if(!empty($id_skpd_sipd)){
 							$cek_aktivitas = array();
 							$singkron_rincian_fmis = get_option( '_crb_backup_rincian_fmis' );
-							if($singkron_rincian_fmis == 1){
+							if(
+								$singkron_rincian_fmis == 1
+								|| $data_fmis['rincian'][0]['kdrek1'] == 4
+								|| $data_fmis['rincian'][0]['kdrek1'] == 6
+							){
 								foreach($data_fmis['rincian'] as $key => $rinci){
 									foreach($rek_mapping as $rek_mapping_sipd => $rek_mapping_fmis){
 										$_kode_akun = explode('.', $rinci['kode_rekening']);
@@ -12111,12 +12115,16 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 					'query' => $sql,
 					'debug' => 1
 				));
-				foreach($data_spd as $k => $spd){
-					$kd_sub_unit = $spd->kd_urusan.'.'.$spd->kd_bidang.'.'.$spd->kd_unit.'.'.$spd->kd_sub;
-					$data_spd[$k]->kd_sub_unit = $kd_sub_unit;
-					if(!empty($mapping_skpd['id_mapping_simda'][$kd_sub_unit])){
-						$data_spd[$k]->skpd = $mapping_skpd['id_mapping_simda'][$kd_sub_unit];
+				if(!empty($data_spd)){
+					foreach($data_spd as $k => $spd){
+						$kd_sub_unit = $spd->kd_urusan.'.'.$spd->kd_bidang.'.'.$spd->kd_unit.'.'.$spd->kd_sub;
+						$data_spd[$k]->kd_sub_unit = $kd_sub_unit;
+						if(!empty($mapping_skpd['id_mapping_simda'][$kd_sub_unit])){
+							$data_spd[$k]->skpd = $mapping_skpd['id_mapping_simda'][$kd_sub_unit];
+						}
 					}
+				}else{
+					$data_spd = array();
 				}
 				$return['data'] = $data_spd;
 			}else{
@@ -13876,13 +13884,12 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 
 					if(!empty($queryRecords)){
 						foreach($queryRecords as $recKey => $recVal){
+							$report = '<a class="btn btn-primary mr-2" href="#" onclick="return report(\''.$recVal['id_jadwal_lokal'].'\');" title="Cetak Laporan"><i class="dashicons dashicons-printer"></i></a>';
 							if($recVal['status'] == 1){
-								$report = '<a class="btn btn-primary mr-2" href="#" onclick="return report(\''.$recVal['id_jadwal_lokal'].'\');" title="Cetak Laporan"><i class="dashicons dashicons-printer"></i></a>';
 								$lock	= '<a class="btn btn-success disabled" href="#" onclick="return cannot_change_schedule(\'kunci\');" title="Kunci data penjadwalan" aria-disabled="true"><i class="dashicons dashicons-lock"></i></a>';
 								$edit	= '';
 								$delete	= '';
 							}else{
-								$report = '<a class="btn btn-primary mr-2" href="#" onclick="return report(\''.$recVal['id_jadwal_lokal'].'\');" title="Cetak Laporan"><i class="dashicons dashicons-printer"></i></a>';
 								$lock	= '<a class="btn btn-success mr-2" href="#" onclick="return lock_data_penjadwalan(\''.$recVal['id_jadwal_lokal'].'\');" title="Kunci data penjadwalan"><i class="dashicons dashicons-unlock"></i></a>';
 								$edit	= '<a class="btn btn-warning mr-2" href="#" onclick="return edit_data_penjadwalan(\''.$recVal['id_jadwal_lokal'].'\');" title="Edit data penjadwalan"><i class="dashicons dashicons-edit"></i></a>';
 								$delete	= '<a class="btn btn-danger" href="#" onclick="return hapus_data_penjadwalan(\''.$recVal['id_jadwal_lokal'].'\');" title="Hapus data penjadwalan"><i class="dashicons dashicons-trash"></i></a>';
@@ -18503,6 +18510,93 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 				'message' => $e->getMessage()
 			]);exit;
 		}
+	}
+
+	private function wpsipd_upload_file($opsi = array(), $ret = array()){
+		$file = $opsi['file'];
+		$file_name = $opsi['file_name'];
+		$file_extension = $opsi['file_extension'];
+		$tahun_anggaran = $opsi['tahun_anggaran'];
+		$url_asli = $opsi['url_asli'];
+
+		$target_folder = WPSIPD_PLUGIN_PATH.'public/media/';
+		$target_file = $target_folder.$file_name;
+		// max 10MB
+		if ($file["size"] > 1000000) {
+			$ret['status'] = 'error';
+			$ret['message'] = 'Max file upload sebesar 10MB!';
+		}
+		// cek type file
+		$imageFileType = strtolower(pathinfo($target_folder.basename($file["name"]),PATHINFO_EXTENSION));
+		if($imageFileType != $file_extension) {
+			$ret['status'] = 'error';
+			$ret['message'] = 'File yang diupload harus berextensi .'.$file_extension.'!';
+		}
+		if($ret['status'] == 'success'){
+			move_uploaded_file($file["tmp_name"], $target_file);
+			$ret['path'] = $target_file;
+			$cek_id = $wpdb->get_var($wpdb->prepare("
+				SELECT
+					id
+				FROM data_file
+				WHERE nama = %s
+					AND tahun_anggaran = %d
+			", $rinci['sp2d_no'], $tahun_anggaran), ARRAY_A);
+			$opsi = array(
+				'nama' => $file_name,
+				'url_asli' => $url_asli,
+				'path' => $target_file,
+				'tipe_file' => $file_extension,
+				'updated_at' => date('Y-m-d H:i:s'),
+				'tahun_anggaran' => $tahun_anggaran
+			);
+			if(empty($cek_id)){
+				$cek_id = $wpdb->insert('data_sp2d_fmis', $opsi);
+			}else{
+				$wpdb->update('data_sp2d_fmis', $opsi, array(
+					'id' => $cek_id
+				));
+			}
+			$ret['id'] = $cek_id;
+		}
+		return $ret;
+	}
+
+	function save_file(){
+		global $wpdb;
+		$return = array(
+			'status' => 'success',
+			'message'	=> 'Berhasil simpan file!'
+		);
+
+		$table_content = '';
+		if(!empty($_POST)){
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+				$data = file_get_contents('php://input');
+				$mysql_blob = base64_encode($data);
+				print_r($data);
+				print_r($_REQUEST); die('tes');
+				$tahun_anggaran = $_POST['tahun_anggaran'];
+				$return = $this->wpsipd_upload_file(array(
+					'file' => $_FILES["file"], 
+					'file_name' => $_POST["file_name"], 
+					'tahun_anggaran' => $tahun_anggaran, 
+					'file_extension' => 'pdf',
+					'url_asli' => $_POST['url']
+				), $return);
+			}else{
+				$return = array(
+					'status' => 'error',
+					'message'	=> 'Api Key tidak sesuai!'
+				);
+			}
+		}else{
+			$return = array(
+				'status' => 'error',
+				'message'	=> 'Format tidak sesuai!'
+			);
+		}
+		die(json_encode($return));
 	}
 
 }
