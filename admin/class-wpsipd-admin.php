@@ -729,16 +729,24 @@ class Wpsipd_Admin {
 		$url_program=$this->generatePage('Singkronisasi Program',false,'[data_program type="program"]');
 		$url_giat =$this->generatePage('Singkronisasi Kegiatan dan Sub Kegiatan',false,'[data_giat type="giat"]');
 		$url_unit =$this->generatePage('Singkronisasi SKPD/Sub Unit',false,'[data_unit type="unit"]');
+		$url_dana =$this->generatePage('Singkronisasi Sumber Dana',false,'[data_sumber_dana type="sumbar_dana"]');
 		$url_kua =$this->generatePage('Singkronisasi KUA/PPAS',false,'[data_kua type="kuappa"]');
+		$url_raskd =$this->generatePage('Singkronisasi RKA Pendapatan',false,'[data_raskd type="raskd"]');
+		$url_raskr =$this->generatePage('Singkronisasi RKA Belanja',false,'[data_raskr type="raskr"]');
+		$url_raskb =$this->generatePage('Singkronisasi RKA Pembiayaan',false,'[data_raskb type="raskb"]');
 		$setting = array(
-			Field::make('html','crb_akun_sipkd')
+			Field::make('html','crb_singkron_sipkd')
 				->set_html('<ul>
 				<li><a href="'.$url_akun.'" target="__blank__">Singkron Akun</a></li>
 				<li><a href="'.$url_urusan.'" target="__blank__">Singkron Urusan/Bidang Urusan</a></li>
 				<li><a href="'.$url_program.'" target="__blank__">Singkron Program</a></li>
 				<li><a href="'.$url_giat.'" target="__blank__">Singkron Kegiatan/ Sub Kegiatan</a></li>
+				<li><a href="'.$url_dana.'" target="__blank__">Singkron Sumber Dana</a></li>
 				<li><a href="'.$url_unit.'" target="__blank__">Singkron SKPD/Sub Unit</a></li>
 				<li><a href="'.$url_kua.'" target="__blank__">Singkron KUA/PPAS</a></li>
+				<li><a href="'.$url_raskd.'" target="__blank__">Singkron RKA Pendapatan</a></li>
+				<li><a href="'.$url_raskr.'" target="__blank__">Singkron RKA Belanja</a></li>
+				<li><a href="'.$url_raskb.'" target="__blank__">Singkron RKA Pembiayaan</a></li>
 			</ul>'),
 			Field::make('text','crb_host_sipkd',"IP Server Database SIPKD")
 				->set_help_text("Alamat server Database SIPKD"),
