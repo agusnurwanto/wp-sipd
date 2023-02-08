@@ -129,7 +129,11 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		if (!empty($_POST)) {
 			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
 				if (!empty($_POST['ssh'])) {
-					$ssh = $_POST['ssh'];
+					if(!empty($_POST['type']) && $_POST['type'] == 'ri'){
+						$ssh = json_decode(stripslashes(html_entity_decode($_POST['ssh'])), true);						
+					}else{
+						$ssh = $_POST['ssh'];
+					}
 					foreach ($ssh as $k => $v) {
 						$cek = $wpdb->get_var("SELECT id_standar_harga from data_ssh where tahun_anggaran=".$_POST['tahun_anggaran']." AND id_standar_harga=" . $v['id_standar_harga']);
 						$kelompok = explode(' ', $v['nama_kel_standar_harga']);
