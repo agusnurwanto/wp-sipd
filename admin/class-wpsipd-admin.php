@@ -725,33 +725,40 @@ class Wpsipd_Admin {
 		global $wpdb;
 		$tahun_anggaran = get_option('_crb_tahun_anggaran_sipd');
 		$mapping_unit = array(
-	        Field::make( 'radio', 'crb_singkron_sipkd', __( 'Aktifkan koneksi SIPKD' ) )
-			    ->add_options( array(
-			        '1' => __( 'Ya' ),
-			        '2' => __( 'Tidak' )
-			    ) )
-            	->set_default_value('2')
-            	->set_help_text('Settingan ini untuk mengaktifkan pengecekan koneksi ke database SQL Server SIPKD.'),
-            Field::make( 'text', 'crb_url_api_sipkd', 'URL API SIPKD' )
-            	->set_help_text('Scirpt SIPKD API PHP dibuat terpisah di <a href="https://github.com/agusnurwanto/SIMDA-API-PHP" target="_blank">SIMDA API PHP</a>.'),
-            Field::make( 'text', 'crb_timeout_simda', 'MAX TIMEOUT API SIPKD' )
-            	->set_default_value(10)
-            	->set_help_text('Setting maksimal timout request CURL ke API SIPKD dalam hitungan detik.'),
-            Field::make( 'text', 'crb_apikey_sipkd', 'APIKEY SIPKD' )
-            	->set_default_value($this->generateRandomString()),
-            Field::make( 'text', 'crb_db_sipkd', 'Database SIPKD' )
+			Field::make('text','crb_host_sipkd',"IP Server Database SIPKD")
+				->set_help_text("Alamat server Database SIPKD"),
+			Field::make('text','crb_port_sipkd',"Port Database SIPKD")
+				->set_help_text("Port Database SIPKD"),
+			Field::make('text','crb_user_sipkd',"User Database SIPKD")
+				->set_help_text("User Database SIPKD"),
+			Field::make('text',"crb_pass_sipkd","Password Database SIPKD")
+				->set_help_text("Password Database SIPKD"),
+			Field::make('text','crb_dbname_sipkd',"Nama Database SIPKD")
+				->set_help_text("Nama Database SIPKD"),
+			Field::make('radio','crb_versi_sipkd',"Versi Aplikasi SIPKD")
+				->add_options(array(
+					"1"=>__("Versi 6.2"),
+					"2"=>__("Versi 6.3")
+				))
+				->set_default_value("2")
+				->set_help_text("Versi Aplikasi SIPKD")
+	        // Field::make( 'radio', 'crb_singkron_sipkd', __( 'Aktifkan koneksi SIPKD' ) )
+			//     ->add_options( array(
+			//         '1' => __( 'Ya' ),
+			//         '2' => __( 'Tidak' )
+			//     ) )
+            // 	->set_default_value('2')
+            // 	->set_help_text('Settingan ini untuk mengaktifkan pengecekan koneksi ke database SQL Server SIPKD.'),
+            // Field::make( 'text', 'crb_url_api_sipkd', 'URL API SIPKD' )
+            // 	->set_help_text('Scirpt SIPKD API PHP dibuat terpisah di <a href="https://github.com/agusnurwanto/SIMDA-API-PHP" target="_blank">SIMDA API PHP</a>.'),
+            // Field::make( 'text', 'crb_timeout_simda', 'MAX TIMEOUT API SIPKD' )
+            // 	->set_default_value(10)
+            // 	->set_help_text('Setting maksimal timout request CURL ke API SIPKD dalam hitungan detik.'),
+            // Field::make( 'text', 'crb_apikey_sipkd', 'APIKEY SIPKD' )
+            // 	->set_default_value($this->generateRandomString()),
+            // Field::make( 'text', 'crb_db_sipkd', 'Database SIPKD' )
 	    );
 
-	    $cek_status_koneksi_sipkd = $this->sipkd->CurlSipkd(array(
-			'query' => 'select * from ref_setting',
-			'no_debug' => true
-		));
-		$ket_sipkd = '<b style="color:red">Belum terkoneksi ke SIPKD!</b>';
-		if(!empty($cek_status_koneksi_sipkd[0]) && !empty($cek_status_koneksi_sipkd[0]->version)){
-			$ket_sipkd = '<b style="color: green">Terkoneksi database SIPKD versi '.$cek_status_koneksi_sipkd[0]->version.'</b>';
-		}
-		$mapping_unit[] = Field::make( 'html', 'crb_status_sipkd' )
-	            	->set_html( 'Status koneksi SQL server SIPKD: '.$ket_sipkd );
 		return $mapping_unit;
 	}
 
