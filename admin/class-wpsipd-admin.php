@@ -724,35 +724,50 @@ class Wpsipd_Admin {
 	public function get_setting_sipkd(){
 		global $wpdb;
 		$tahun_anggaran = get_option('_crb_tahun_anggaran_sipd');
-		$mapping_unit = array(
-	        Field::make( 'radio', 'crb_singkron_sipkd', __( 'Aktifkan koneksi SIPKD' ) )
-			    ->add_options( array(
-			        '1' => __( 'Ya' ),
-			        '2' => __( 'Tidak' )
-			    ) )
-            	->set_default_value('2')
-            	->set_help_text('Settingan ini untuk mengaktifkan pengecekan koneksi ke database SQL Server SIPKD.'),
-            Field::make( 'text', 'crb_url_api_sipkd', 'URL API SIPKD' )
-            	->set_help_text('Scirpt SIPKD API PHP dibuat terpisah di <a href="https://github.com/agusnurwanto/SIMDA-API-PHP" target="_blank">SIMDA API PHP</a>.'),
-            Field::make( 'text', 'crb_timeout_simda', 'MAX TIMEOUT API SIPKD' )
-            	->set_default_value(10)
-            	->set_help_text('Setting maksimal timout request CURL ke API SIPKD dalam hitungan detik.'),
-            Field::make( 'text', 'crb_apikey_sipkd', 'APIKEY SIPKD' )
-            	->set_default_value($this->generateRandomString()),
-            Field::make( 'text', 'crb_db_sipkd', 'Database SIPKD' )
+		$url_akun=$this->generatePage('Singkronisasi Akun', false, '[data_akun type="akun"]');
+		$url_urusan=$this->generatePage('Sinkronisasi Urusan/Bidang Urusan',false,'[data_urusan type="urusan"]');
+		$url_program=$this->generatePage('Singkronisasi Program',false,'[data_program type="program"]');
+		$url_giat =$this->generatePage('Singkronisasi Kegiatan dan Sub Kegiatan',false,'[data_giat type="giat"]');
+		$url_unit =$this->generatePage('Singkronisasi SKPD/Sub Unit',false,'[data_unit type="unit"]');
+		$url_dana =$this->generatePage('Singkronisasi Sumber Dana',false,'[data_sumber_dana type="sumbar_dana"]');
+		$url_kua =$this->generatePage('Singkronisasi KUA/PPAS',false,'[data_kua type="kuappa"]');
+		$url_raskd =$this->generatePage('Singkronisasi RKA Pendapatan',false,'[data_raskd type="raskd"]');
+		$url_raskr =$this->generatePage('Singkronisasi RKA Belanja',false,'[data_raskr type="raskr"]');
+		$url_raskb =$this->generatePage('Singkronisasi RKA Pembiayaan',false,'[data_raskb type="raskb"]');
+		$setting = array(
+			Field::make('html','crb_singkron_sipkd')
+				->set_html('<ul>
+				<li><a href="'.$url_akun.'" target="__blank__">Singkron Akun</a></li>
+				<li><a href="'.$url_urusan.'" target="__blank__">Singkron Urusan/Bidang Urusan</a></li>
+				<li><a href="'.$url_program.'" target="__blank__">Singkron Program</a></li>
+				<li><a href="'.$url_giat.'" target="__blank__">Singkron Kegiatan/ Sub Kegiatan</a></li>
+				<li><a href="'.$url_dana.'" target="__blank__">Singkron Sumber Dana</a></li>
+				<li><a href="'.$url_unit.'" target="__blank__">Singkron SKPD/Sub Unit</a></li>
+				<li><a href="'.$url_kua.'" target="__blank__">Singkron KUA/PPAS</a></li>
+				<li><a href="'.$url_raskd.'" target="__blank__">Singkron RKA Pendapatan</a></li>
+				<li><a href="'.$url_raskr.'" target="__blank__">Singkron RKA Belanja</a></li>
+				<li><a href="'.$url_raskb.'" target="__blank__">Singkron RKA Pembiayaan</a></li>
+			</ul>'),
+			Field::make('text','crb_host_sipkd',"IP Server Database SIPKD")
+				->set_help_text("Alamat server Database SIPKD"),
+			Field::make('text','crb_port_sipkd',"Port Database SIPKD")
+				->set_help_text("Port Database SIPKD"),
+			Field::make('text','crb_user_sipkd',"User Database SIPKD")
+				->set_help_text("User Database SIPKD"),
+			Field::make('text',"crb_pass_sipkd","Password Database SIPKD")
+				->set_help_text("Password Database SIPKD"),
+			Field::make('text','crb_dbname_sipkd',"Nama Database SIPKD")
+				->set_help_text("Nama Database SIPKD"),
+			Field::make('radio','crb_versi_sipkd',"Versi Aplikasi SIPKD")
+				->add_options(array(
+					"1"=>__("Versi 6.2"),
+					"2"=>__("Versi 6.3")
+				))
+				->set_default_value("2")
+				->set_help_text("Versi Aplikasi SIPKD")
 	    );
 
-	    $cek_status_koneksi_sipkd = $this->sipkd->CurlSipkd(array(
-			'query' => 'select * from ref_setting',
-			'no_debug' => true
-		));
-		$ket_sipkd = '<b style="color:red">Belum terkoneksi ke SIPKD!</b>';
-		if(!empty($cek_status_koneksi_sipkd[0]) && !empty($cek_status_koneksi_sipkd[0]->version)){
-			$ket_sipkd = '<b style="color: green">Terkoneksi database SIPKD versi '.$cek_status_koneksi_sipkd[0]->version.'</b>';
-		}
-		$mapping_unit[] = Field::make( 'html', 'crb_status_sipkd' )
-	            	->set_html( 'Status koneksi SQL server SIPKD: '.$ket_sipkd );
-		return $mapping_unit;
+		return $setting;
 	}
 
 	public function get_mapping_unit(){
