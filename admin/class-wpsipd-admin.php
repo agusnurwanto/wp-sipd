@@ -724,7 +724,22 @@ class Wpsipd_Admin {
 	public function get_setting_sipkd(){
 		global $wpdb;
 		$tahun_anggaran = get_option('_crb_tahun_anggaran_sipd');
-		$mapping_unit = array(
+		$url_akun=$this->generatePage('Singkronisasi Akun', false, '[data_akun type="akun"]');
+		$url_urusan=$this->generatePage('Sinkronisasi Urusan/Bidang Urusan',false,'[data_urusan type="urusan"]');
+		$url_program=$this->generatePage('Singkronisasi Program',false,'[data_program type="program"]');
+		$url_giat =$this->generatePage('Singkronisasi Kegiatan dan Sub Kegiatan',false,'[data_giat type="giat"]');
+		$url_unit =$this->generatePage('Singkronisasi SKPD/Sub Unit',false,'[data_unit type="unit"]');
+		$url_kua =$this->generatePage('Singkronisasi KUA/PPAS',false,'[data_kua type="kuappa"]');
+		$setting = array(
+			Field::make('html','crb_akun_sipkd')
+				->set_html('<ul>
+				<li><a href="'.$url_akun.'" target="__blank__">Singkron Akun</a></li>
+				<li><a href="'.$url_urusan.'" target="__blank__">Singkron Urusan/Bidang Urusan</a></li>
+				<li><a href="'.$url_program.'" target="__blank__">Singkron Program</a></li>
+				<li><a href="'.$url_giat.'" target="__blank__">Singkron Kegiatan/ Sub Kegiatan</a></li>
+				<li><a href="'.$url_unit.'" target="__blank__">Singkron SKPD/Sub Unit</a></li>
+				<li><a href="'.$url_kua.'" target="__blank__">Singkron KUA/PPAS</a></li>
+			</ul>'),
 			Field::make('text','crb_host_sipkd',"IP Server Database SIPKD")
 				->set_help_text("Alamat server Database SIPKD"),
 			Field::make('text','crb_port_sipkd',"Port Database SIPKD")
@@ -742,24 +757,9 @@ class Wpsipd_Admin {
 				))
 				->set_default_value("2")
 				->set_help_text("Versi Aplikasi SIPKD")
-	        // Field::make( 'radio', 'crb_singkron_sipkd', __( 'Aktifkan koneksi SIPKD' ) )
-			//     ->add_options( array(
-			//         '1' => __( 'Ya' ),
-			//         '2' => __( 'Tidak' )
-			//     ) )
-            // 	->set_default_value('2')
-            // 	->set_help_text('Settingan ini untuk mengaktifkan pengecekan koneksi ke database SQL Server SIPKD.'),
-            // Field::make( 'text', 'crb_url_api_sipkd', 'URL API SIPKD' )
-            // 	->set_help_text('Scirpt SIPKD API PHP dibuat terpisah di <a href="https://github.com/agusnurwanto/SIMDA-API-PHP" target="_blank">SIMDA API PHP</a>.'),
-            // Field::make( 'text', 'crb_timeout_simda', 'MAX TIMEOUT API SIPKD' )
-            // 	->set_default_value(10)
-            // 	->set_help_text('Setting maksimal timout request CURL ke API SIPKD dalam hitungan detik.'),
-            // Field::make( 'text', 'crb_apikey_sipkd', 'APIKEY SIPKD' )
-            // 	->set_default_value($this->generateRandomString()),
-            // Field::make( 'text', 'crb_db_sipkd', 'Database SIPKD' )
 	    );
 
-		return $mapping_unit;
+		return $setting;
 	}
 
 	public function get_mapping_unit(){
