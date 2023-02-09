@@ -6376,6 +6376,8 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 					|| in_array("PLT", $user_meta->roles) 
 					|| in_array("PA", $user_meta->roles) 
 					|| in_array("KPA", $user_meta->roles)
+					|| in_array("tapd_pp", $user_meta->roles)
+					|| in_array("tapd_keu", $user_meta->roles)
 				){
 					$nama_page = 'RFK '.$vv['nama_skpd'].' '.$vv['kode_skpd'].' | '.$tahun;
 					$custom_post = get_page_by_title($nama_page, OBJECT, 'page');
@@ -6532,7 +6534,10 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 					}
 				}
 			}
-		}else if(in_array("tapd_pp", $user_meta->roles)){
+		}else if(
+			in_array("tapd_pp", $user_meta->roles)
+			|| in_array("tapd_keu", $user_meta->roles)
+		){
 			$this->pilih_tahun_anggaran();
 			$this->tampil_menu_rpjm();
 			if(empty($_GET) || empty($_GET['tahun'])){ return; }
