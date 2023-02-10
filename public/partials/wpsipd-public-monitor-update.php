@@ -47,10 +47,10 @@ foreach ($kode_rek as $rek) {
 			$table_pagu_unit = 'data_unit_pagu';
 		}else if($rek == '6.1'){
 			$table = 'data_pembiayaan';
-			$type_belanja = 'Pembiayaan Pengeluaran';
+			$type_belanja = 'Pembiayaan Penerimaan';
 		}else if($rek == '6.2'){
 			$table = 'data_pembiayaan';
-			$type_belanja = 'Pembiayaan Penerimaan';
+			$type_belanja = 'Pembiayaan Pengeluaran';
 		}else{
 			continue;
 		}
@@ -181,12 +181,18 @@ foreach ($kode_rek as $rek) {
 				where '.$where
 			, ARRAY_A);
 
+			$rek_all = explode('.', $rek);
+			$rek_1 = $rek_all[0];
+			if(!empty($rek_all[1])){
+				$rek_1 .= ' and kdrek2='.$rek_all[1];
+			}
 			$data_fmis = $wpdb->get_row('
 				select 
 					sum(jumlah) as total_fmis_rinci
 				from '.$table_fmis_rinci.' 
 				where tahun_anggaran='.$input['tahun_anggaran'].' 
 					and active=1 
+					and kdrek1='.$rek_1.'
 					and id_sub_skpd='.$opd['id_skpd']
 			, ARRAY_A);
 
