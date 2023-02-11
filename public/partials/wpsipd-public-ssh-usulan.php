@@ -657,6 +657,12 @@ $body = '';
 
 	function tambah_new_ssh(tahun){
 		jQuery("#u_tkdn").val(null);
+		jQuery("#u_lapiran_usulan_ssh_1").val(null);
+		jQuery("#u_lapiran_usulan_ssh_2").val(null);
+		jQuery("#u_lapiran_usulan_ssh_3").val(null);
+		jQuery("#file_lapiran_usulan_ssh_1").html('');
+		jQuery("#file_lapiran_usulan_ssh_2").html('');
+		jQuery("#file_lapiran_usulan_ssh_3").html('');
 		jQuery("#tambahUsulanSshModal .modal-title").html("Tambah usulan SSH");
 		jQuery("#tambahUsulanSshModal .submitBtn")
 			.attr("onclick", 'submitUsulanSshForm('+tahun+')')
@@ -1142,7 +1148,7 @@ $body = '';
 					jQuery("#u_nama_komponen").val(response.data.nama_standar_harga);
 					jQuery("#u_spesifikasi").val(response.data.spek);
 					jQuery("#u_harga_satuan").val(response.data.harga);
-					jQuery(`#u_jenis_produk_${response.data.jenis_produk}`).prop('checked',true);
+					jQuery(`input[name=u_jenis_produk][value=${response.data.jenis_produk}]`).prop('checked',true);
 					jQuery("#u_tkdn").val(response.data.tkdn);
 					jQuery("#u_keterangan_lampiran").val(response.data.keterangan_lampiran);
 					response.data_akun_usulan.map(function(b, i){
@@ -1156,6 +1162,9 @@ $body = '';
 							}
 						});
 					});
+					jQuery("#u_lapiran_usulan_ssh_1").val(null);
+					jQuery("#u_lapiran_usulan_ssh_2").val(null);
+					jQuery("#u_lapiran_usulan_ssh_3").val(null);
 					jQuery("#file_lapiran_usulan_ssh_1").html(response.data.lampiran_1);
 					jQuery("#file_lapiran_usulan_ssh_1").attr('href', '#');
 					jQuery("#file_lapiran_usulan_ssh_2").html(response.data.lampiran_2);
@@ -1189,6 +1198,12 @@ $body = '';
 		var akun = jQuery('#u_akun').val();
 		var jenis_produk = jQuery('input[name=u_jenis_produk]:checked').val();
 		var tkdn = jQuery('#u_tkdn').val();
+		var lapiran_usulan_ssh_1 = jQuery('#u_lapiran_usulan_ssh_1')[0].files[0];
+		var lapiran_usulan_ssh_2 = jQuery('#u_lapiran_usulan_ssh_2')[0].files[0];
+		var lapiran_usulan_ssh_3 = jQuery('#u_lapiran_usulan_ssh_3')[0].files[0];
+		var lapiran_usulan_ssh_1_old = jQuery("#file_lapiran_usulan_ssh_1").text();
+		var lapiran_usulan_ssh_2_old = jQuery("#file_lapiran_usulan_ssh_2").text();
+		var lapiran_usulan_ssh_3_old = jQuery("#file_lapiran_usulan_ssh_3").text();
 		jQuery("#wrap-loading").show();
 		if(
 			kategori.trim() == ''
@@ -1203,24 +1218,43 @@ $body = '';
 			alert('Harap diisi semua, tidak ada yang kosong.');
 			return false;
 		}else{
+			let tempData = new FormData();
+			tempData.append('action', 'submit_edit_usulan_ssh');
+			tempData.append('api_key', jQuery("#api_key").val());
+			tempData.append('id_standar_harga', id_standar_harga);
+			tempData.append('kategori', kategori);
+			tempData.append('nama_komponen', nama_komponen);
+			tempData.append('spesifikasi', spesifikasi);
+			tempData.append('satuan', satuan);
+			tempData.append('harga_satuan', harga_satuan);
+			tempData.append('jenis_produk', jenis_produk);
+			tempData.append('tkdn', tkdn);
+			tempData.append('akun', akun);
+			tempData.append('tahun_anggaran', tahun);
+			tempData.append('keterangan_lampiran', keterangan_lampiran);
+			tempData.append('lapiran_usulan_ssh_1_old', lapiran_usulan_ssh_1_old);
+			tempData.append('lapiran_usulan_ssh_2_old', lapiran_usulan_ssh_2_old);
+			tempData.append('lapiran_usulan_ssh_3_old', lapiran_usulan_ssh_3_old);
+
+			if(typeof lapiran_usulan_ssh_1 !== 'undefined'){
+				tempData.append('lapiran_usulan_ssh_1', lapiran_usulan_ssh_1);
+			}
+
+			if(typeof lapiran_usulan_ssh_2 !== 'undefined'){
+				tempData.append('lapiran_usulan_ssh_2', lapiran_usulan_ssh_2);
+			}
+
+			if(typeof lapiran_usulan_ssh_3 !== 'undefined'){
+				tempData.append('lapiran_usulan_ssh_3', lapiran_usulan_ssh_3);
+			}
+
 			jQuery.ajax({
 				url: "<?php echo admin_url('admin-ajax.php'); ?>",
 				type:'post',
-				data:{
-					'action' 				: 'submit_edit_usulan_ssh',
-					'api_key'				: jQuery("#api_key").val(),
-					'id_standar_harga'		: id_standar_harga,
-					'kategori'				: kategori,
-					'nama_komponen'			: nama_komponen,
-					'spesifikasi'			: spesifikasi,
-					'satuan'				: satuan,
-					'harga_satuan'			: harga_satuan,
-					'jenis_produk'			: jenis_produk,
-					'tkdn'					: tkdn,
-					'akun' 					: akun,
-					'tahun_anggaran'		: tahun,
-					'keterangan_lampiran'	: keterangan_lampiran,
-				},
+				data: tempData,
+				processData: false,
+				contentType: false,
+				cache: false,
 				dataType: 'json',
 				success:function(response){
 					if(response.status == 'success'){
@@ -1523,12 +1557,16 @@ $body = '';
 		if(!allowExt.includes(ext)){
 			alert('Lampiran wajib ber-type png, jpeg, jpg, atau pdf');
 			jQuery(that).val(null);
+			return false;
 		}
 
 		if(that.files[0].size > 2097152){ // default 2MB
 			alert('Ukuran File Lampiran terlalu besar!');
 			jQuery(that).val(null);
+			return false;
 		}
+		
+		return true;
 	}
 
 </script> 

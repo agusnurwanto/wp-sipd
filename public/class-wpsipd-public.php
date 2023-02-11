@@ -11831,7 +11831,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 			$table_content = '';
 			if(!empty($_POST)){
 				if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
-					if(!empty($_POST['kategori']) && !empty($_POST['nama_komponen']) && !empty($_POST['spesifikasi']) && !empty($_POST['satuan']) && !empty($_POST['harga_satuan']) && !empty($_POST['akun']) && !empty($_POST['keterangan_lampiran'])){
+					if(!empty($_POST['kategori']) && !empty($_POST['nama_komponen']) && !empty($_POST['spesifikasi']) && !empty($_POST['satuan']) && !empty($_POST['harga_satuan']) && !empty($_POST['akun']) && !empty($_POST['keterangan_lampiran']) && !empty($_FILES['lapiran_usulan_ssh_1'])){
 						$kategori =trim(htmlspecialchars($_POST['kategori']));
 						$nama_standar_harga = trim(htmlspecialchars($_POST['nama_komponen']));
 						$spek = trim(htmlspecialchars($_POST['spesifikasi']));
@@ -11932,21 +11932,21 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 							'tkdn' => $tkdn
 						);
 
-						$upload_1 = CustomTrait::uploadFile($_POST, $_FILES['lapiran_usulan_ssh_1'], ['jpg', 'jpeg', 'png', 'pdf'], $path = WPSIPD_PLUGIN_PATH.'public/media/ssh/');
+						$upload_1 = CustomTrait::uploadFile($_POST['api_key'], $path = WPSIPD_PLUGIN_PATH.'public/media/ssh/', $_FILES['lapiran_usulan_ssh_1'], ['jpg', 'jpeg', 'png', 'pdf']);
 
 						if($upload_1['status']){
 							$opsi_ssh['lampiran_1'] = $upload_1['filename'];
 						}
 
 						if(!empty($_FILES['lapiran_usulan_ssh_2'])){
-							$upload_2 = CustomTrait::uploadFile($_POST, $_FILES['lapiran_usulan_ssh_2'], ['jpg', 'jpeg', 'png', 'pdf'], $path = WPSIPD_PLUGIN_PATH.'public/media/ssh/');
+							$upload_2 = CustomTrait::uploadFile($_POST['api_key'], $path = WPSIPD_PLUGIN_PATH.'public/media/ssh/', $_FILES['lapiran_usulan_ssh_2'], ['jpg', 'jpeg', 'png', 'pdf']);
 							if($upload_2['status']){
 								$opsi_ssh['lampiran_2'] = $upload_2['filename'];
 							}
 						}
 
 						if(!empty($_FILES['lapiran_usulan_ssh_3'])){
-							$upload_3 = CustomTrait::uploadFile($_POST, $_FILES['lapiran_usulan_ssh_3'], ['jpg', 'jpeg', 'png', 'pdf'], $path = WPSIPD_PLUGIN_PATH.'public/media/ssh/');
+							$upload_3 = CustomTrait::uploadFile($_POST['api_key'], $path = WPSIPD_PLUGIN_PATH.'public/media/ssh/', $_FILES['lapiran_usulan_ssh_3'], ['jpg', 'jpeg', 'png', 'pdf']);
 							if($upload_3['status']){
 								$opsi_ssh['lampiran_3'] = $upload_3['filename'];
 							}
@@ -13045,7 +13045,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 							}else{
 								$last_kode_standar_harga = $data_this_id_ssh[0]['kode_standar_harga'];
 							}
-	
+
 							//insert edit data usulan ssh
 							$opsi_edit_ssh = array(
 								'kode_standar_harga' => $last_kode_standar_harga,
@@ -13062,6 +13062,45 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 								'jenis_produk'	=> $jenis_produk,
 								'tkdn'	=> $tkdn
 							);
+
+							if(!empty($_FILES['lapiran_usulan_ssh_1'])){
+								$upload_1 = CustomTrait::uploadFile($_POST['api_key'], $path = WPSIPD_PLUGIN_PATH.'public/media/ssh/', $_FILES['lapiran_usulan_ssh_1'], ['jpg', 'jpeg', 'png', 'pdf']);
+								if($upload_1['status']){
+									$opsi_edit_ssh['lampiran_1'] = $upload_1['filename'];
+									if(
+										!empty($_POST['lapiran_usulan_ssh_1_old']) && 
+										is_file(WPSIPD_PLUGIN_PATH.'public/media/ssh/'.$_POST['lapiran_usulan_ssh_1_old']))
+									{
+										unlink(WPSIPD_PLUGIN_PATH.'public/media/ssh/'.$_POST['lapiran_usulan_ssh_1_old']);
+									}
+								}
+							}
+
+							if(!empty($_FILES['lapiran_usulan_ssh_2'])){
+								$upload_2 = CustomTrait::uploadFile($_POST['api_key'], $path = WPSIPD_PLUGIN_PATH.'public/media/ssh/', $_FILES['lapiran_usulan_ssh_2'], ['jpg', 'jpeg', 'png', 'pdf']);
+								if($upload_2['status']){
+									$opsi_edit_ssh['lampiran_2'] = $upload_2['filename'];
+									if(
+										!empty($_POST['lapiran_usulan_ssh_2_old']) && 
+										is_file(WPSIPD_PLUGIN_PATH.'public/media/ssh/'.$_POST['lapiran_usulan_ssh_2_old']))
+									{
+										unlink(WPSIPD_PLUGIN_PATH.'public/media/ssh/'.$_POST['lapiran_usulan_ssh_2_old']);
+									}
+								}
+							}
+
+							if(!empty($_FILES['lapiran_usulan_ssh_3'])){
+								$upload_3 = CustomTrait::uploadFile($_POST['api_key'], $path = WPSIPD_PLUGIN_PATH.'public/media/ssh/', $_FILES['lapiran_usulan_ssh_3'], ['jpg', 'jpeg', 'png', 'pdf']);
+								if($upload_3['status']){
+									$opsi_edit_ssh['lampiran_3'] = $upload_3['filename'];
+									if(
+										!empty($_POST['lapiran_usulan_ssh_3_old']) && 
+										is_file(WPSIPD_PLUGIN_PATH.'public/media/ssh/'.$_POST['lapiran_usulan_ssh_3_old']))
+									{
+										unlink(WPSIPD_PLUGIN_PATH.'public/media/ssh/'.$_POST['lapiran_usulan_ssh_3_old']);
+									}
+								}
+							}
 	
 							$wpdb->update('data_ssh_usulan', $opsi_edit_ssh, array(
 								'id_standar_harga' => $id_standar_harga,
