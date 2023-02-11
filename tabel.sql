@@ -1871,6 +1871,9 @@ CREATE TABLE `data_ssh_usulan` (
   `status_jenis_usulan` varchar(30) DEFAULT NULL,
   `jenis_produk` tinyint(4) DEFAULT NULL,
   `tkdn` int(11) DEFAULT NULL,
+  `lampiran_1` varchar(255) DEFAULT NULL,
+  `lampiran_2` varchar(255) DEFAULT NULL,
+  `lampiran_3` varchar(255) DEFAULT NULL,
   PRIMARY KEY  (id)
 );
 

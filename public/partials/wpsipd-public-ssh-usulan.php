@@ -259,55 +259,65 @@ $body = '';
 					<span aria-hidden="true">&times;</span>
 				</button>
 			</div>
-			<div class="modal-body">
-				<div>
-					<label for='u_kategori' style='display:inline-block'>Kategori</label>
-					<select id='u_kategori' style='display:block;width:100%;'></select>
-				</div>
-				<div>
-					<label for='u_nama_komponen' style='display:inline-block'>Nama Komponen</label>
-					<input type='text' id='u_nama_komponen' style='display:block;width:100%;' placeholder='Nama Komponen'>
-				</div>
-				<div>
-					<label for='u_spesifikasi' style='display:inline-block'>Spesifikasi</label>
-					<input type='text' id='u_spesifikasi' style='display:block;width:100%;' placeholder='Spesifikasi'>
-				</div>
-				<div>
-					<label for='u_satuan' style='display:inline-block'>Satuan</label>
-					<select id='u_satuan' style='display:block;width:100%;'></select>
-				</div>
-				<div>
-					<label for='u_harga_satuan' style='display:inline-block'>Harga Satuan</label>
-					<input type='number' id='u_harga_satuan' style='display:block;width:100%;' placeholder='Harga Satuan'>
-				</div>
-				<div>
-					<label for='u_jenis_produk' style='display:inline-block'>Jenis Produk</label>
+			<form id="form-usulan-ssh">
+				<div class="modal-body">
 					<div>
-						<input type='radio' id='u_jenis_produk_dalam_negeri' name='u_jenis_produk' value='1'>
-						<label class='mr-4' for='u_jenis_produk_dalam_negeri'>Produk Dalam Negeri</label>
-						<input type='radio' id='u_jenis_produk_luar_negeri' name='u_jenis_produk' value='0'>
-						<label for='u_jenis_produk_luar_negeri'>Produk Luar Negeri</label>
+						<label for='u_kategori' style='display:inline-block'>Kategori</label>
+						<select id='u_kategori' style='display:block;width:100%;'></select>
 					</div>
+					<div>
+						<label for='u_nama_komponen' style='display:inline-block'>Nama Komponen</label>
+						<input type='text' id='u_nama_komponen' style='display:block;width:100%;' placeholder='Nama Komponen'>
+					</div>
+					<div>
+						<label for='u_spesifikasi' style='display:inline-block'>Spesifikasi</label>
+						<input type='text' id='u_spesifikasi' style='display:block;width:100%;' placeholder='Spesifikasi'>
+					</div>
+					<div>
+						<label for='u_satuan' style='display:inline-block'>Satuan</label>
+						<select id='u_satuan' style='display:block;width:100%;'></select>
+					</div>
+					<div>
+						<label for='u_harga_satuan' style='display:inline-block'>Harga Satuan</label>
+						<input type='number' id='u_harga_satuan' style='display:block;width:100%;' placeholder='Harga Satuan'>
+					</div>
+					<div>
+						<label for='u_jenis_produk' style='display:inline-block'>Jenis Produk</label>
+						<div>
+							<input type='radio' id='u_jenis_produk_dalam_negeri' name='u_jenis_produk' value='1'>
+							<label class='mr-4' for='u_jenis_produk_dalam_negeri'>Produk Dalam Negeri</label>
+							<input type='radio' id='u_jenis_produk_luar_negeri' name='u_jenis_produk' value='0'>
+							<label for='u_jenis_produk_luar_negeri'>Produk Luar Negeri</label>
+						</div>
+					</div>
+					<div>
+						<label for='u_tkdn' style='display: block;'>Tingkat Komponen Dalam Negeri (TKDN)</label>
+						<input type='number' id='u_tkdn' style='width:22%;' placeholder='Presentase TKDN'>
+						<label style='font-size: 1.2rem;margin-left: 0.5rem;'>%</label>
+					</div>
+					<div>
+						<label for='u_akun' style='display:inline-block'>Rekening Akun</label>
+						<select id='u_akun' name='states[]' multiple='multiple' style='display:block;width:100%;'></select>
+					</div>
+					<div>
+						<label for='u_keterangan_lampiran' style='display:inline-block'>Keterangan</label>
+						<input type='text' id='u_keterangan_lampiran' style='display:block;width:100%;' placeholder='Link Google Drive Keterangan'>
+						<small style="color:red">*Masukkan link Google Drive berisikan lampiran minimal 3 harga toko beserta gambar.</small>
+					</div>
+					<div>
+						<label for='u_lapiran_usulan_ssh' style='display:inline-block'>Lampiran Usulan SSH</label>
+						<input type='file' id='u_lapiran_usulan_ssh_1' accept="image/png, image/jpeg, image/jpg, application/pdf" style='display:block;width:100%;' onchange="checkFileType(this)"><a id="file_lapiran_usulan_ssh_1"></a></br>
+						<input type='file' id='u_lapiran_usulan_ssh_2' accept="image/png, image/jpeg, image/jpg, application/pdf" style='display:block;width:100%;' onchange="checkFileType(this)"><a id="file_lapiran_usulan_ssh_2"></a></br>
+						<input type='file' id='u_lapiran_usulan_ssh_3' accept="image/png, image/jpeg, image/jpg, application/pdf" style='display:block;width:100%;' onchange="checkFileType(this)"><a id="file_lapiran_usulan_ssh_3"></a><br>
+						<small style="color:red">*Lampiran wajib ber-type png, jpeg, jpg, atau pdf.</small><br>
+						<small style="color:red">*Ukuran lampiran maksimal 2MB.</small>
+					</div>
+				</div> 
+				<div class="modal-footer">
+					<a class='btn btn-primary submitBtn' style="color:white; cursor: pointer;"> onclick='submitUsulanSshForm(<?php echo $input['tahun_anggaran']; ?>)'>Simpan</a>
+	                <button type="button" class="components-button btn btn-default" data-dismiss="modal">Tutup</button>
 				</div>
-				<div>
-					<label for='u_tkdn' style='display: block;'>Tingkat Komponen Dalam Negeri (TKDN)</label>
-					<input type='number' id='u_tkdn' style='width:22%;' placeholder='Presentase TKDN'>
-					<label style='font-size: 1.2rem;margin-left: 0.5rem;'>%</label>
-				</div>
-				<div>
-					<label for='u_akun' style='display:inline-block'>Rekening Akun</label>
-					<select id='u_akun' name='states[]' multiple='multiple' style='display:block;width:100%;'></select>
-				</div>
-				<div>
-					<label for='u_keterangan_lampiran' style='display:inline-block'>Keterangan</label>
-					<input type='text' id='u_keterangan_lampiran' style='display:block;width:100%;' placeholder='Link Google Drive Keterangan'>
-					<small>*Masukkan link Google Drive berisikan lampiran minimal 3 harga toko beserta gambar.</small>
-				</div>
-			</div> 
-			<div class="modal-footer">
-				<button class='btn btn-primary submitBtn' onclick='submitUsulanSshForm(<?php echo $input['tahun_anggaran']; ?>)'>Simpan</button>
-                <button type="button" class="components-button btn btn-default" data-dismiss="modal">Tutup</button>
-			</div>
+			</form>
 		</div>
 	</div>
 </div>
@@ -646,6 +656,7 @@ $body = '';
 	}
 
 	function tambah_new_ssh(tahun){
+		jQuery("#u_tkdn").val(null);
 		jQuery("#tambahUsulanSshModal .modal-title").html("Tambah usulan SSH");
 		jQuery("#tambahUsulanSshModal .submitBtn")
 			.attr("onclick", 'submitUsulanSshForm('+tahun+')')
@@ -749,30 +760,51 @@ $body = '';
 		var keterangan_lampiran = jQuery('#u_keterangan_lampiran').val();
 		var jenis_produk = jQuery('input[name=u_jenis_produk]:checked').val();
 		var tkdn = jQuery('#u_tkdn').val();
+		var lapiran_usulan_ssh_1 = jQuery('#u_lapiran_usulan_ssh_1')[0].files[0];
+		var lapiran_usulan_ssh_2 = jQuery('#u_lapiran_usulan_ssh_2')[0].files[0];
+		var lapiran_usulan_ssh_3 = jQuery('#u_lapiran_usulan_ssh_3')[0].files[0];
 		jQuery("#wrap-loading").show();
-		if(kategori.trim() == '' || nama_komponen.trim() == '' || spesifikasi.trim() == '' || satuan.trim() == '' || harga_satuan.trim() == '' || jenis_produk.trim() == '' || tkdn.trim() == '' || akun == '' || keterangan_lampiran.trim() == '' ){
+
+		if(kategori == '' || nama_komponen == '' || spesifikasi == '' || satuan == '' || harga_satuan == '' || jenis_produk == '' || tkdn == '' || akun == '' || keterangan_lampiran == '' || keterangan_lampiran == '' || typeof lapiran_usulan_ssh_1 == 'undefined' ){
+			jQuery("#wrap-loading").hide();
+			alert('Harap diisi semua, tidak ada yang kosong.');
+			return false;
+		}else if(kategori.trim() == '' || nama_komponen.trim() == '' || spesifikasi.trim() == '' || satuan.trim() == '' || harga_satuan.trim() == '' || jenis_produk.trim() == '' || tkdn.trim() == '' || akun == '' || keterangan_lampiran.trim() == '' || keterangan_lampiran.trim() == ''){
 			jQuery("#wrap-loading").hide();
 			alert('Harap diisi semua, tidak ada yang kosong.');
 			return false;
 		}else{
+			let tempData = new FormData();
+			tempData.append('action', 'submit_usulan_ssh');
+			tempData.append('api_key', jQuery("#api_key").val());
+			tempData.append('kategori', kategori);
+			tempData.append('nama_komponen', nama_komponen);
+			tempData.append('spesifikasi', spesifikasi);
+			tempData.append('satuan', satuan);
+			tempData.append('harga_satuan', harga_satuan);
+			tempData.append('jenis_produk', jenis_produk);
+			tempData.append('tkdn', tkdn);
+			tempData.append('akun', akun);
+			tempData.append('tahun_anggaran', tahun);
+			tempData.append('keterangan_lampiran', keterangan_lampiran);
+			tempData.append('lapiran_usulan_ssh_1', lapiran_usulan_ssh_1);
+
+			if(typeof lapiran_usulan_ssh_2 !== 'undefined'){
+				tempData.append('lapiran_usulan_ssh_2', lapiran_usulan_ssh_2);
+			}
+
+			if(typeof lapiran_usulan_ssh_3 !== 'undefined'){
+				tempData.append('lapiran_usulan_ssh_3', lapiran_usulan_ssh_3);
+			}
+
 			jQuery.ajax({
 				url: "<?php echo admin_url('admin-ajax.php'); ?>",
 				type:'post',
-				data:{
-					'action' : 'submit_usulan_ssh',
-					'api_key' : jQuery("#api_key").val(),
-					'kategori' : kategori,
-					'nama_komponen' : nama_komponen,
-					'spesifikasi' : spesifikasi,
-					'satuan' : satuan,
-					'harga_satuan' : harga_satuan,
-					'jenis_produk' : jenis_produk,
-					'tkdn' : tkdn,
-					'akun' : akun,
-					'tahun_anggaran' : tahun,
-					'keterangan_lampiran' : keterangan_lampiran,
-				},
+				data:tempData,
 				dataType: 'json',
+			    processData: false,
+			    contentType: false,
+			    cache: false,
 				beforeSend: function () {
 					jQuery('.submitBtn').attr("disabled","disabled");
 				},
@@ -1124,6 +1156,12 @@ $body = '';
 							}
 						});
 					});
+					jQuery("#file_lapiran_usulan_ssh_1").html(response.data.lampiran_1);
+					jQuery("#file_lapiran_usulan_ssh_1").attr('href', '#');
+					jQuery("#file_lapiran_usulan_ssh_2").html(response.data.lampiran_2);
+					jQuery("#file_lapiran_usulan_ssh_2").attr('href', '#');
+					jQuery("#file_lapiran_usulan_ssh_3").html(response.data.lampiran_3);
+					jQuery("#file_lapiran_usulan_ssh_3").attr('href', '#');
 					jQuery("#tambahUsulanSshModal .submitBtn")
 						.attr('onclick', 'submitEditUsulanSshForm('+id_standar_harga+', '+tahun+')')
 						.attr('disabled', false)
@@ -1475,6 +1513,22 @@ $body = '';
 		post.querySelector(".dots").classList.toggle("hide");
 		post.querySelector(".more").classList.toggle("hide");
 		btn.textContent == "more" ? btn.textContent = "less" : btn.textContent = "more";
+	}
+
+	function checkFileType(that){
+		let allowExt = ['jpg', 'jpeg', 'png', 'pdf'];
+		let file = jQuery(that).val();
+		let ext = file.split('.').pop();
+
+		if(!allowExt.includes(ext)){
+			alert('Lampiran wajib ber-type png, jpeg, jpg, atau pdf');
+			jQuery(that).val(null);
+		}
+
+		if(that.files[0].size > 2097152){ // default 2MB
+			alert('Ukuran File Lampiran terlalu besar!');
+			jQuery(that).val(null);
+		}
 	}
 
 </script> 
