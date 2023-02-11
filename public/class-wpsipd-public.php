@@ -18608,4 +18608,79 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		die(json_encode($return));
 	}
 
+	function get_data_json(){
+		global $wpdb;
+		$return = array(
+			'status' => 'success',
+			'message'	=> 'Berhasil get data JSON!'
+		);
+
+		$table_content = '';
+		if(!empty($_POST)){
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+				$id_sumber_dana_default = get_option('_crb_default_sumber_dana' );
+				$sumber_dana_default = $wpdb->get_row($wpdb->prepare('
+				    SELECT 
+				        id_dana,
+				        kode_dana,
+				        nama_dana
+				    FROM data_sumber_dana
+				    WHERE tahun_anggaran=%d
+				        AND id_dana=%d
+				', $_POST['tahun_anggaran'], $id_sumber_dana_default), ARRAY_A);
+				if($_POST['tipe'] == 'json_rek_sd'){
+					$sql_anggaran = $wpdb->prepare("
+					    SELECT 
+					        k.kode_urusan,
+					        k.nama_urusan,
+					        k.kode_bidang_urusan,
+					        k.nama_bidang_urusan,
+					        k.kode_program,
+					        k.nama_program,
+					        k.kode_giat,
+					        k.nama_giat,
+					        k.kode_skpd,
+					        k.nama_skpd,
+					        k.kode_sub_skpd,
+					        k.nama_sub_skpd,
+					        k.kode_sub_giat,
+					        k.nama_sub_giat,
+					        r.kode_akun,
+					        r.nama_akun,
+					        sum(r.rincian) as rincian,
+					        coalesce(ms.id_dana, $sumber_dana_default[id_dana]) as id_dana,
+					        coalesce(ms.nama_dana, '$sumber_dana_default[nama_dana]') as nama_dana
+					    FROM data_sub_keg_bl as k 
+					    INNER JOIN data_rka as r on k.kode_sbl=r.kode_sbl 
+					        and r.active=k.active 
+					        and r.tahun_anggaran=k.tahun_anggaran 
+					    LEFT JOIN data_mapping_sumberdana as s on r.id_rinci_sub_bl=s.id_rinci_sub_bl 
+					        and s.active=k.active 
+					        and s.tahun_anggaran=k.tahun_anggaran 
+					    LEFT JOIN data_sumber_dana as ms on ms.id_dana=s.id_sumber_dana 
+					        and ms.tahun_anggaran=k.tahun_anggaran 
+					    WHERE
+					        k.tahun_anggaran=%d
+					        AND k.active=1
+					        AND k.id_sub_skpd=%d
+					    GROUP BY k.kode_sub_skpd ASC, k.kode_sub_giat, r.kode_akun
+					    ORDER BY k.kode_sub_skpd ASC, k.kode_sub_giat ASC
+					    ",$_POST["tahun_anggaran"], $_POST['id_skpd']);
+					$return['data'] = $wpdb->get_results($sql_anggaran);
+				}
+			}else{
+				$return = array(
+					'status' => 'error',
+					'message'	=> 'Api Key tidak sesuai!'
+				);
+			}
+		}else{
+			$return = array(
+				'status' => 'error',
+				'message'	=> 'Format tidak sesuai!'
+			);
+		}
+		die(json_encode($return));
+	}
+
 }
