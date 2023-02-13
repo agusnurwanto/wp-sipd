@@ -85,8 +85,8 @@ global $wpdb;
                 dataType:'json',
                 data:jQuery('#fakun').serialize(),
                 success:(resp)=>{
-                   let tb= jQuery('#listakun tbody');
-                   tb.html('');
+                    let tb= jQuery('#listakun tbody');
+                    tb.html('');
                     resp.data.map((v,i)=>{
                         var row='<tr><td>'+v.mtgkey+'</td><td>'+v.kdper+'</td><td>'+v.nmper+'</td><td>'+v.mtglevel+'</td><td>'+v.TYPE+'</td></tr>'
                         tb.append(row)
@@ -95,7 +95,11 @@ global $wpdb;
             })
         })
         jQuery('#btn-singkron').on('click',()=>{
-            confirm('Apakah anda ingin mensinkronkan data Akun ke SIPKD?')
+            if(confirm('Apakah anda ingin mensinkronkan data Akun ke SIPKD?')){
+                jQuery('#action').val('sipkd_singkron_akun_sipd')
+                alert('dieksekusi')
+
+            }
         })
         jQuery(document).on({
             ajaxStart:()=>{
