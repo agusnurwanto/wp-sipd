@@ -698,7 +698,6 @@ class Wpsipd
 		
 		//ajax SIPKD
 		$this->loader->add_action('wp_ajax_sipkd_get_akun_sipd',  $plugin_public, 'sipkd_get_akun_sipd');
-		$this->loader->add_action('wp_ajax_nopriv_sipkd_get_akun_sipd',  $plugin_public, 'sipkd_get_akun_sipd');
 		
 		//end ajax SIPKD
 		

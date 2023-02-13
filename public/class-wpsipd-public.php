@@ -18777,6 +18777,10 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 	}
 
 	public function sipkd_singkron_akun(){
+		global $wpdb;
+		//verifikasi request
+
+		//end verifikasi
 		
 	}
 }

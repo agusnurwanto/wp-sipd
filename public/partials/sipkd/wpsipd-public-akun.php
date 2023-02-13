@@ -37,7 +37,7 @@ global $wpdb;
                                 </form>
                                         <div>
                                             <button type="submit" value="refresh" class="button btn-primary" id="btn-refresh">Refresh</button> 
-                                            <button class="button btn-danger" value="singkron" id="btn-singkron">Singkron ke DB Lokal</button>
+                                            <button class="button btn-danger" value="singkron" id="btn-singkron">Singkron ke DB SIPKD</button>
                                         </div>
                                 <div class="load" style="display:none;">Loading....</div>
                         </div>
@@ -93,6 +93,9 @@ global $wpdb;
                     });
                 }
             })
+        })
+        jQuery('#btn-singkron').on('click',()=>{
+            confirm('Apakah anda ingin mensinkronkan data Akun ke SIPKD?')
         })
         jQuery(document).on({
             ajaxStart:()=>{
