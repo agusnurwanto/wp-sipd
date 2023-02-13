@@ -1,4 +1,7 @@
 <?php
+/*
+    library sql server wp-sipd
+*/
 
 class Wpsipd_sqlsrv{
     private $conn;
@@ -31,6 +34,6 @@ class Wpsipd_sqlsrv{
     }
 
     public function exec($sp,$param){
-        
+
     }
 }
