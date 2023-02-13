@@ -2020,7 +2020,11 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		if (!empty($_POST)) {
 			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
 				if (!empty($_POST['akun'])) {
-					$akun = $_POST['akun'];
+					if(!empty($_POST['type']) && $_POST['type'] == 'ri'){
+						$akun = json_decode(stripslashes(html_entity_decode($_POST['akun'])), true);						
+					}else{
+						$akun = $_POST['akun'];
+					}
 					foreach ($akun as $k => $v) {
 						$cek = $wpdb->get_var("SELECT id_akun from data_akun where tahun_anggaran=".$_POST['tahun_anggaran']." AND id_akun=" . $v['id_akun']);
 						$opsi = array(
@@ -3036,7 +3040,11 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		if (!empty($_POST)) {
 			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
 				if (!empty($_POST['dana'])) {
-					$sumber_dana = $_POST['dana'];
+					if(!empty($_POST['type']) && $_POST['type'] == 'ri'){
+						$sumber_dana = json_decode(stripslashes(html_entity_decode($_POST['dana'])), true);						
+					}else{
+						$sumber_dana = $_POST['dana'];
+					}
 					foreach ($sumber_dana as $k => $v) {
 						$cek = $wpdb->get_var("SELECT id_dana from data_sumber_dana where tahun_anggaran=".$_POST['tahun_anggaran']." AND id_dana=" . $v['id_dana']);
 						$opsi = array(
