@@ -19,10 +19,10 @@ global $wpdb;
                                         <select name="tahun_anggaran" id="tahun_anggaran" class="form-control" id="tahun">
                                             <option value="2021">2021</option>
                                             <option value="2022">2022</option>
-                                            <option value="2023">2023</option>
+                                            <option value="2023" selected>2023</option>
                                         </select>
                                         <div class="form-check form-check-inline">
-                                            <input type="radio" class="form-check-input" id="pendapatan" name="jenis" value="4">
+                                            <input type="radio" class="form-check-input" id="pendapatan" name="jenis" value="4" checked>
                                             <label for="pendapatan">Pendapatan</label>
                                         </div>
                                         <div class="form-check form-check-inline">
