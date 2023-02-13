@@ -18751,6 +18751,9 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 
 	public function sipkd_get_akun_sipd(){
 		global $wpdb;
+		//verifikasi request
+
+		//end verifikasi
 		$data=$wpdb->get_results($wpdb->prepare("
 		select 
 		concat(id_akun,'_') mtgkey,concat(kode_akun,'.') kdper,nama_akun nmper,
@@ -18771,5 +18774,9 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 			'data'=>$data
 		];
 		die(json_encode($ret));
+	}
+
+	public function sipkd_singkron_akun(){
+		
 	}
 }
