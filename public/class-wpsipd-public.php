@@ -26,6 +26,7 @@ require_once WPSIPD_PLUGIN_PATH."/public/trait/CustomTrait.php";
 
 class Wpsipd_Public extends Wpsipd_Public_Base_1
 {
+	use CustomTrait;
 
 	/**
 	 * The ID of this plugin.
@@ -54,8 +55,6 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 	 * @param      string    $plugin_name       The name of the plugin.
 	 * @param      string    $version    The version of this plugin.
 	 */
-
-	use CustomTrait;
 
 	public function __construct( $plugin_name, $version, $simda , $sipkd )
 	{
