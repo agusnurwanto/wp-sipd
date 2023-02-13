@@ -18813,19 +18813,19 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 				$ret=[
 					'status'=>'success',
 					'message'=>'Berhasil singkronisasi Akun SIPD ke SIPKD'
-				]
+				];
 			}catch(Exception $e){
 				$ret=[
 					'status'=>'error',
 					'message'=>$e->getMessage()
-				]
+				];
 			}
 
 		}else{
 			$ret=[
 				'status'=>'error',
 				'message'=>'Terjadi kesalahan koneksi ke database SIPKD'
-			]
+			];
 		}
 		echo json_encode($ret);
 	}
