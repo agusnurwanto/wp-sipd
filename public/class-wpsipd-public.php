@@ -2260,7 +2260,11 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		if (!empty($_POST)) {
 			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
 				if (!empty($_POST['data_unit'])) {
-					$data_unit = $_POST['data_unit'];
+					if(!empty($_POST['type']) && $_POST['type'] == 'ri'){
+						$data_unit = json_decode(stripslashes(html_entity_decode($_POST['data_unit'])), true);						
+					}else{
+						$data_unit = $_POST['data_unit'];
+					}
 					// $wpdb->update('data_unit', array( 'active' => 0 ), array(
 					// 	'tahun_anggaran' => $_POST['tahun_anggaran']
 					// ));
