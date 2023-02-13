@@ -133,6 +133,8 @@ class Wpsipd
 
 		// Untuk SCRIPT SIPKD
 		require_once plugin_dir_path(dirname(__FILE__)) . 'includes/class-wpsipd-sipkd.php';
+		
+		require_once plugin_dir_path(dirname(__FILE__)) . 'includes/class-wpsipd-sqlsrv.php';
 
 		$this->sipkd = new Wpsipd_Sipkd( $this->plugin_name, $this->version );
 

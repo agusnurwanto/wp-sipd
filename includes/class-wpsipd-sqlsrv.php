@@ -10,6 +10,7 @@ class Wpsipd_sqlsrv{
     private $dbuser;
     private $dbpass;
     private $dbname;
+    public $status;
     public function __construct($host,$port,$usrdb,$passdb,$dbname){
         $this->dbhost=$host;
         $this->dbport=$port;
@@ -17,15 +18,21 @@ class Wpsipd_sqlsrv{
         $this->dbpass=$passdb;
         $this->dbname=$dbname;
         $this->conn=$this->connect();
+        if($this->conn)
+            $this->status=true;
+        else
+            $this->status=false;
     }
 
     public function __destruct(){
-        $this->conn.close();
+        if($this->conn){
+            $this->conn.close();
+        }
     }
 
     private function connect(){
         try{
-            $conn new PDO("sqlsrv:Server=".$this->dbhost.",".$this->dbport.";Database=".$this->dbname,$this->dbuser,$this->dbpass);
+            $conn =new PDO("sqlsrv:Server=".$this->dbhost.",".$this->dbport.";Database=".$this->dbname,$this->dbuser,$this->dbpass);
             $conn->setAttribute( PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION );
             return $conn;
         }catch(Exception $e){

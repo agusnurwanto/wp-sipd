@@ -18782,9 +18782,51 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 
 	public function sipkd_singkron_akun(){
 		global $wpdb;
-		//verifikasi request
-
-		//end verifikasi
+		$ret =[];
 		
+		$sipkd=new Wpsipd_sqlsrv(get_option('crb_host_sipkd'),get_option('crb_port_sipkd'),get_option('crb_user_sipkd'),get_option('crb_pass_sipkd'),get_option('crb_dbname_sipkd'));
+		//verifikasi request
+		
+		//end verifikasi
+		if($sipkd->status){
+			$data=$wpdb->get_results($wpdb->prepare("
+			select 
+			concat(id_akun,'_') mtgkey,concat(kode_akun,'.') kdper,nama_akun nmper,
+			case 
+			when length(kode_akun)=1 then 1
+			when length(kode_akun)=3 then 2
+			when length(kode_akun)=6 then 3
+			when length(kode_akun)=9 then 4
+			when length(kode_akun)=12 then 5
+			else 6
+			end mtglevel,
+			if(length(kode_akun)=17,'D','H') as TYPE
+			from data_akun where left(kode_akun,1)=%s and tahun_anggaran=%d 
+			ORDER BY kode_akun",$_POST['jenis'],$_POST['tahun_anggaran']));
+
+			//looping data row $data
+			try{
+				foreach($data as $v){
+	
+					//insert data ke database sipkd
+				}
+				$ret=[
+					'status'=>'success',
+					'message'=>'Berhasil singkronisasi Akun SIPD ke SIPKD'
+				]
+			}catch(Exception $e){
+				$ret=[
+					'status'=>'error',
+					'message'=>$e->getMessage()
+				]
+			}
+
+		}else{
+			$ret=[
+				'status'=>'error',
+				'message'=>'Terjadi kesalahan koneksi ke database SIPKD'
+			]
+		}
+		echo json_encode($ret);
 	}
 }
