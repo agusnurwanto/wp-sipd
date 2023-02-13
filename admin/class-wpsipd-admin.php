@@ -724,16 +724,16 @@ class Wpsipd_Admin {
 	public function get_setting_sipkd(){
 		global $wpdb;
 		$tahun_anggaran = get_option('_crb_tahun_anggaran_sipd');
-		$url_akun=$this->generatePage('Singkronisasi Akun', false, '[data_akun type="akun"]');
-		$url_urusan=$this->generatePage('Sinkronisasi Urusan/Bidang Urusan',false,'[data_urusan type="urusan"]');
-		$url_program=$this->generatePage('Singkronisasi Program',false,'[data_program type="program"]');
-		$url_giat =$this->generatePage('Singkronisasi Kegiatan dan Sub Kegiatan',false,'[data_giat type="giat"]');
-		$url_unit =$this->generatePage('Singkronisasi SKPD/Sub Unit',false,'[data_unit type="unit"]');
-		$url_dana =$this->generatePage('Singkronisasi Sumber Dana',false,'[data_sumber_dana type="sumbar_dana"]');
-		$url_kua =$this->generatePage('Singkronisasi KUA/PPAS',false,'[data_kua type="kuappa"]');
-		$url_raskd =$this->generatePage('Singkronisasi RKA Pendapatan',false,'[data_raskd type="raskd"]');
-		$url_raskr =$this->generatePage('Singkronisasi RKA Belanja',false,'[data_raskr type="raskr"]');
-		$url_raskb =$this->generatePage('Singkronisasi RKA Pembiayaan',false,'[data_raskb type="raskb"]');
+		$url_akun=$this->generatePage('Singkronisasi Akun', false, '[sipkd_data_akun type="sipkd_akun"]');
+		$url_urusan=$this->generatePage('Sinkronisasi Urusan/Bidang Urusan',false,'[sipkd_data_urusan type="sipkd_urusan"]');
+		$url_program=$this->generatePage('Singkronisasi Program',false,'[sipkd_data_program type="sipkd_program"]');
+		$url_giat =$this->generatePage('Singkronisasi Kegiatan dan Sub Kegiatan',false,'[sipkd_data_giat type="sipkd_giat"]');
+		$url_unit =$this->generatePage('Singkronisasi SKPD/Sub Unit',false,'[sipkd_data_unit type="sipkd_unit"]');
+		$url_dana =$this->generatePage('Singkronisasi Sumber Dana',false,'[sipkd_data_sumber_dana type="sipkd_sumber_dana"]');
+		$url_kua =$this->generatePage('Singkronisasi KUA/PPAS',false,'[sipkd_data_kua type="sipkd_kuappa"]');
+		$url_raskd =$this->generatePage('Singkronisasi RKA Pendapatan',false,'[sipkd_data_raskd type="sipkd_raskd"]');
+		$url_raskr =$this->generatePage('Singkronisasi RKA Belanja',false,'[sipkd_data_raskr type="sipkd_raskr"]');
+		$url_raskb =$this->generatePage('Singkronisasi RKA Pembiayaan',false,'[sipkd_data_raskb type="sipkd_raskb"]');
 		$setting = array(
 			Field::make('html','crb_singkron_sipkd')
 				->set_html('<ul>

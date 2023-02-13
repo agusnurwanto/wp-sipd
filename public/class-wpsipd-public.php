@@ -18749,4 +18749,27 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		die(json_encode($return));
 	}
 
+	public function sipkd_get_akun_sipd(){
+		global $wpdb;
+		$data=$wpdb->get_results($wpdb->prepare("
+		select 
+		concat(id_akun,'_') mtgkey,concat(kode_akun,'.') kdper,nama_akun nmper,
+		case 
+		when length(kode_akun)=1 then 1
+		when length(kode_akun)=3 then 2
+		when length(kode_akun)=6 then 3
+		when length(kode_akun)=9 then 4
+		when length(kode_akun)=12 then 5
+		else 6
+		end mtglevel,
+		if(length(kode_akun)=17,'D','H') as TYPE
+		from data_akun where left(kode_akun,1)=%s and tahun_anggaran=%d 
+		ORDER BY kode_akun",$_POST['jenis'],$_POST['tahun_anggaran']));
+		$ret=[
+			'status'=>'succes',
+			'message'=>'Berhasil get data JSON',
+			'data'=>$data
+		];
+		die(json_encode($ret));
+	}
 }

@@ -487,13 +487,13 @@ class Wpsipd
 
 		$this->loader->add_action('wp_ajax_backup_sp2d_fmis',  $plugin_public, 'backup_sp2d_fmis');
 		$this->loader->add_action('wp_ajax_nopriv_backup_sp2d_fmis',  $plugin_public, 'backup_sp2d_fmis');
-
+		
 		$this->loader->add_action('wp_ajax_save_file',  $plugin_public, 'save_file');
 		$this->loader->add_action('wp_ajax_nopriv_save_file',  $plugin_public, 'save_file');
-
+		
 		$this->loader->add_action('wp_ajax_get_data_json',  $plugin_public, 'get_data_json');
 		$this->loader->add_action('wp_ajax_nopriv_get_data_json',  $plugin_public, 'get_data_json');
-
+		
 		$this->loader->add_action('wp_ajax_simpan_rfk',  $plugin_public, 'simpan_rfk');
 		$this->loader->add_action('wp_ajax_reset_rfk',  $plugin_public, 'reset_rfk');
 		$this->loader->add_action('wp_ajax_reset_catatan_verifkator_rfk',  $plugin_public, 'reset_catatan_verifkator_rfk');
@@ -503,14 +503,14 @@ class Wpsipd
 		$this->loader->add_action('wp_ajax_get_data_rpjm',  $plugin_public, 'get_data_rpjm');
 		$this->loader->add_action('wp_ajax_get_rka_simda',  $plugin_public, 'get_rka_simda');
 		$this->loader->add_action('wp_ajax_get_dpa_simda',  $plugin_public, 'get_dpa_simda');
-
+		
 		$this->loader->add_action('wp_ajax_reset_rfk_pemda',  $plugin_public, 'reset_rfk_pemda');
 		$this->loader->add_action('wp_ajax_get_monev_renstra',  $plugin_public, 'get_monev_renstra');
 		$this->loader->add_action('wp_ajax_save_monev_renstra',  $plugin_public, 'save_monev_renstra');
 		
 		$this->loader->add_action('wp_ajax_get_sumber_dana_mapping',  $plugin_public, 'get_sumber_dana_mapping');
 		$this->loader->add_action('wp_ajax_get_rincian_sumber_dana_mapping',  $plugin_public, 'get_rincian_sumber_dana_mapping');
-
+		
 		$this->loader->add_action('wp_ajax_get_data_usulan_ssh',  $plugin_public, 'get_data_usulan_ssh');
 		$this->loader->add_action('wp_ajax_get_data_satuan_ssh',  $plugin_public, 'get_data_satuan_ssh');
 		$this->loader->add_action('wp_ajax_get_data_kategori_ssh',  $plugin_public, 'get_data_kategori_ssh');
@@ -551,7 +551,7 @@ class Wpsipd
 		$this->loader->add_action('wp_ajax_submit_lock_schedule_rpd',  $plugin_public, 'submit_lock_schedule_rpd');
 		$this->loader->add_action('wp_ajax_submit_lock_schedule_rpjpd',  $plugin_public, 'submit_lock_schedule_rpjpd');
 		$this->loader->add_action('wp_ajax_get_data_standar_lama_pelaksanaan',  $plugin_public, 'get_data_standar_lama_pelaksanaan');
-
+		
 		$this->loader->add_action('wp_ajax_simpan_rpjpd',  $plugin_public, 'simpan_rpjpd');
 		$this->loader->add_action('wp_ajax_simpan_rpd',  $plugin_public, 'simpan_rpd');
 		$this->loader->add_action('wp_ajax_hapus_rpjpd',  $plugin_public, 'hapus_rpjpd');
@@ -580,19 +580,19 @@ class Wpsipd
 		$this->loader->add_action('wp_ajax_edit_indikator_tujuan_rpjm',  $plugin_public, 'edit_indikator_tujuan_rpjm');
 		$this->loader->add_action('wp_ajax_update_indikator_tujuan_rpjm',  $plugin_public, 'update_indikator_tujuan_rpjm');
 		$this->loader->add_action('wp_ajax_delete_indikator_tujuan_rpjm',  $plugin_public, 'delete_indikator_tujuan_rpjm');
-
+		
 		$this->loader->add_action('wp_ajax_get_sasaran_rpjm',  $plugin_public, 'get_sasaran_rpjm');
 		$this->loader->add_action('wp_ajax_submit_sasaran_rpjm',  $plugin_public, 'submit_sasaran_rpjm');
 		$this->loader->add_action('wp_ajax_edit_sasaran_rpjm',  $plugin_public, 'edit_sasaran_rpjm');
 		$this->loader->add_action('wp_ajax_update_sasaran_rpjm',  $plugin_public, 'update_sasaran_rpjm');
 		$this->loader->add_action('wp_ajax_delete_sasaran_rpjm',  $plugin_public, 'delete_sasaran_rpjm');
-
+		
 		$this->loader->add_action('wp_ajax_get_indikator_sasaran_rpjm',  $plugin_public, 'get_indikator_sasaran_rpjm');
 		$this->loader->add_action('wp_ajax_submit_indikator_sasaran_rpjm',  $plugin_public, 'submit_indikator_sasaran_rpjm');
 		$this->loader->add_action('wp_ajax_edit_indikator_sasaran_rpjm',  $plugin_public, 'edit_indikator_sasaran_rpjm');
 		$this->loader->add_action('wp_ajax_update_indikator_sasaran_rpjm',  $plugin_public, 'update_indikator_sasaran_rpjm');
 		$this->loader->add_action('wp_ajax_delete_indikator_sasaran_rpjm',  $plugin_public, 'delete_indikator_sasaran_rpjm');
-
+		
 		$this->loader->add_action('wp_ajax_get_program_rpjm',  $plugin_public, 'get_program_rpjm');
 		$this->loader->add_action('wp_ajax_add_program_rpjm',  $plugin_public, 'add_program_rpjm');
 		$this->loader->add_action('wp_ajax_submit_program_rpjm',  $plugin_public, 'submit_program_rpjm');
@@ -612,67 +612,67 @@ class Wpsipd
 		$this->loader->add_action('wp_ajax_edit_tujuan_renstra',  $plugin_public, 'edit_tujuan_renstra');
 		$this->loader->add_action('wp_ajax_update_tujuan_renstra',  $plugin_public, 'update_tujuan_renstra');
 		$this->loader->add_action('wp_ajax_delete_tujuan_renstra',  $plugin_public, 'delete_tujuan_renstra');
-
+		
 		$this->loader->add_action('wp_ajax_get_indikator_tujuan_renstra',  $plugin_public, 'get_indikator_tujuan_renstra');
 		$this->loader->add_action('wp_ajax_submit_indikator_tujuan_renstra',  $plugin_public, 'submit_indikator_tujuan_renstra');
 		$this->loader->add_action('wp_ajax_edit_indikator_tujuan_renstra',  $plugin_public, 'edit_indikator_tujuan_renstra');
 		$this->loader->add_action('wp_ajax_update_indikator_tujuan_renstra',  $plugin_public, 'update_indikator_tujuan_renstra');
 		$this->loader->add_action('wp_ajax_delete_indikator_tujuan_renstra',  $plugin_public, 'delete_indikator_tujuan_renstra');
-
+		
 		$this->loader->add_action('wp_ajax_get_sasaran_renstra',  $plugin_public, 'get_sasaran_renstra');
 		$this->loader->add_action('wp_ajax_submit_sasaran_renstra',  $plugin_public, 'submit_sasaran_renstra');
 		$this->loader->add_action('wp_ajax_edit_sasaran_renstra',  $plugin_public, 'edit_sasaran_renstra');
 		$this->loader->add_action('wp_ajax_update_sasaran_renstra',  $plugin_public, 'update_sasaran_renstra');
 		$this->loader->add_action('wp_ajax_delete_sasaran_renstra',  $plugin_public, 'delete_sasaran_renstra');
-
+		
 		$this->loader->add_action('wp_ajax_get_indikator_sasaran_renstra',  $plugin_public, 'get_indikator_sasaran_renstra');
 		$this->loader->add_action('wp_ajax_submit_indikator_sasaran_renstra',  $plugin_public, 'submit_indikator_sasaran_renstra');
 		$this->loader->add_action('wp_ajax_edit_indikator_sasaran_renstra',  $plugin_public, 'edit_indikator_sasaran_renstra');
 		$this->loader->add_action('wp_ajax_update_indikator_sasaran_renstra',  $plugin_public, 'update_indikator_sasaran_renstra');
 		$this->loader->add_action('wp_ajax_delete_indikator_sasaran_renstra',  $plugin_public, 'delete_indikator_sasaran_renstra');
-
+		
 		$this->loader->add_action('wp_ajax_get_bidang_urusan_renstra',  $plugin_public, 'get_bidang_urusan_renstra');
 		$this->loader->add_action('wp_ajax_get_program_renstra',  $plugin_public, 'get_program_renstra');
 		$this->loader->add_action('wp_ajax_submit_program_renstra',  $plugin_public, 'submit_program_renstra');
 		$this->loader->add_action('wp_ajax_edit_program_renstra',  $plugin_public, 'edit_program_renstra');
 		$this->loader->add_action('wp_ajax_update_program_renstra',  $plugin_public, 'update_program_renstra');
 		$this->loader->add_action('wp_ajax_delete_program_renstra',  $plugin_public, 'delete_program_renstra');
-
+		
 		$this->loader->add_action('wp_ajax_get_indikator_program_renstra',  $plugin_public, 'get_indikator_program_renstra');
 		$this->loader->add_action('wp_ajax_submit_indikator_program_renstra',  $plugin_public, 'submit_indikator_program_renstra');
 		$this->loader->add_action('wp_ajax_edit_indikator_program_renstra',  $plugin_public, 'edit_indikator_program_renstra');
 		$this->loader->add_action('wp_ajax_update_indikator_program_renstra',  $plugin_public, 'update_indikator_program_renstra');
 		$this->loader->add_action('wp_ajax_delete_indikator_program_renstra',  $plugin_public, 'delete_indikator_program_renstra');
-
+		
 		$this->loader->add_action('wp_ajax_get_kegiatan_renstra',  $plugin_public, 'get_kegiatan_renstra');
 		$this->loader->add_action('wp_ajax_add_kegiatan_renstra',  $plugin_public, 'add_kegiatan_renstra');
 		$this->loader->add_action('wp_ajax_submit_kegiatan_renstra',  $plugin_public, 'submit_kegiatan_renstra');
 		$this->loader->add_action('wp_ajax_edit_kegiatan_renstra',  $plugin_public, 'edit_kegiatan_renstra');
 		$this->loader->add_action('wp_ajax_update_kegiatan_renstra',  $plugin_public, 'update_kegiatan_renstra');
 		$this->loader->add_action('wp_ajax_delete_kegiatan_renstra',  $plugin_public, 'delete_kegiatan_renstra');
-
+		
 		$this->loader->add_action('wp_ajax_get_indikator_kegiatan_renstra',  $plugin_public, 'get_indikator_kegiatan_renstra');
 		$this->loader->add_action('wp_ajax_submit_indikator_kegiatan_renstra',  $plugin_public, 'submit_indikator_kegiatan_renstra');
 		$this->loader->add_action('wp_ajax_edit_indikator_kegiatan_renstra',  $plugin_public, 'edit_indikator_kegiatan_renstra');
 		$this->loader->add_action('wp_ajax_update_indikator_kegiatan_renstra',  $plugin_public, 'update_indikator_kegiatan_renstra');
 		$this->loader->add_action('wp_ajax_delete_indikator_kegiatan_renstra',  $plugin_public, 'delete_indikator_kegiatan_renstra');
-
+		
 		$this->loader->add_action('wp_ajax_get_sasaran_parent',  $plugin_public, 'get_sasaran_parent');
 		$this->loader->add_action('wp_ajax_get_sub_unit_by_id',  $plugin_public, 'get_sub_unit_by_id');
 		$this->loader->add_action('wp_ajax_view_laporan_tc27',  $plugin_public, 'view_laporan_tc27_renstra');
 		$this->loader->add_action('wp_ajax_copy_usulan_renstra',  $plugin_public, 'copy_usulan_renstra');
 		$this->loader->add_action('wp_ajax_view_rekap_renstra',  $plugin_public, 'view_rekap_renstra');
 		$this->loader->add_action('wp_ajax_view_pagu_akumulasi_renstra',  $plugin_public, 'view_pagu_akumulasi_renstra');
-
+		
 		$this->loader->add_action('wp_ajax_view_rekap_rpd',  $plugin_public, 'view_rekap_rpd');
 		$this->loader->add_action('wp_ajax_view_pagu_akumulasi_rpd',  $plugin_public, 'view_pagu_akumulasi_rpd');
-
+		
 		$this->loader->add_action('wp_ajax_get_sub_kegiatan_renstra',  $plugin_public, 'get_sub_kegiatan_renstra');
 		$this->loader->add_action('wp_ajax_submit_sub_kegiatan_renstra',  $plugin_public, 'submit_sub_kegiatan_renstra');
 		$this->loader->add_action('wp_ajax_edit_sub_kegiatan_renstra',  $plugin_public, 'edit_sub_kegiatan_renstra');
 		$this->loader->add_action('wp_ajax_update_sub_kegiatan_renstra',  $plugin_public, 'update_sub_kegiatan_renstra');
 		$this->loader->add_action('wp_ajax_delete_sub_kegiatan_renstra',  $plugin_public, 'delete_sub_kegiatan_renstra');
-
+		
 		$this->loader->add_action('wp_ajax_get_sub_keg_parent',  $plugin_public, 'get_sub_keg_parent');
 		$this->loader->add_action('wp_ajax_get_indikator_sub_keg_parent',  $plugin_public, 'get_indikator_sub_keg_parent');
 		$this->loader->add_action('wp_ajax_get_data_sumber_dana_renja',  $plugin_public, 'get_data_sumber_dana_renja');
@@ -687,15 +687,21 @@ class Wpsipd
 		$this->loader->add_action('wp_ajax_edit_indikator_sub_kegiatan_renstra',  $plugin_public, 'edit_indikator_sub_kegiatan_renstra');
 		$this->loader->add_action('wp_ajax_update_indikator_sub_kegiatan_renstra',  $plugin_public, 'update_indikator_sub_kegiatan_renstra');
 		$this->loader->add_action('wp_ajax_delete_indikator_sub_kegiatan_renstra',  $plugin_public, 'delete_indikator_sub_kegiatan_renstra');
-
+		
 		$this->loader->add_action('wp_ajax_get_list_sub_kegiatan',  $plugin_public, 'get_list_sub_kegiatan');
 		$this->loader->add_action('wp_ajax_get_master_indikator_subgiat',  $plugin_public, 'get_master_indikator_subgiat');
-
+		
 		$this->loader->add_action('wp_ajax_singkronisasi_kegiatan_renstra',  $plugin_public, 'singkronisasi_kegiatan_renstra');
 		$this->loader->add_action('wp_ajax_get_pagu_program',  $plugin_public, 'get_pagu_program');
 		$this->loader->add_action('wp_ajax_get_pagu_kegiatan',  $plugin_public, 'get_pagu_kegiatan');
 		$this->loader->add_action('wp_ajax_get_data_register_sp2d_fmis',  $plugin_public, 'get_data_register_sp2d_fmis');
-
+		
+		//ajax SIPKD
+		$this->loader->add_action('wp_ajax_sipkd_get_akun_sipd',  $plugin_public, 'sipkd_get_akun_sipd');
+		$this->loader->add_action('wp_ajax_nopriv_sipkd_get_akun_sipd',  $plugin_public, 'sipkd_get_akun_sipd');
+		
+		//end ajax SIPKD
+		
 		add_shortcode('menu_monev',  array($plugin_public, 'menu_monev'));
 		add_shortcode('datassh', array($plugin_public, 'datassh'));
 		add_shortcode('rekbelanja', array($plugin_public, 'rekbelanja'));
@@ -737,6 +743,10 @@ class Wpsipd
 		add_shortcode('data_mapping_master_fmis', array($plugin_public, 'data_mapping_master_fmis'));
 		add_shortcode('ssh_tidak_terpakai', array($plugin_public, 'ssh_tidak_terpakai'));
 		add_shortcode('register_sp2d_fmis', array($plugin_public, 'register_sp2d_fmis'));
+
+		//shortcode SIPKD
+		add_shortcode('data_akun',array($plugin_public,'sipkd_akun'));
+		//end shortcode SIPKD
 	}
 
 	/**

@@ -1,6 +1,8 @@
 <?php
 
-class Wpsipd_Public_FMIS
+require_once WPSIPD_PLUGIN_PATH."/public/class-wpsipd-public-sipkd.php";
+
+class Wpsipd_Public_FMIS extends Wpsipd_public_sipkd
 {
 	public function register_sp2d_fmis($atts)
 	{
