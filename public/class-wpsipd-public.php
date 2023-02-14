@@ -18835,6 +18835,33 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 				'message'=>'Terjadi kesalahan koneksi ke database SIPKD'
 			];
 		}
-		echo json_encode($ret);
+		die(json_encode($ret));
+	}
+
+	public function sipkd_get_urus_skpd(){
+		global $wpdb;
+		//Verifikasi Request
+
+		//end verifikasi request
+		$data= $wpdb->prepare("SELECT distinct concat(id_urusan,'_') as unitkey,kode_urusan kdunit,nama_urusan nmunit,1 kdlevel,'H' as TYPE FROM data_sub_keg_bl
+		where tahun_anggaran=%d
+		union ALL
+		SELECT distinct concat(id_bidang_urusan,'_'),kode_bidang_urusan,nama_bidang_urusan,2,'H' FROM data_sub_keg_bl
+		where tahun_anggaran=%d
+		union all
+		SELECT distinct concat(id_skpd,'_'),kode_skpd,nama_skpd,3,'D' FROM data_sub_keg_bl
+		where tahun_anggaran=%d
+		union ALL
+		SELECT distinct concat(id_sub_skpd,'_'),kode_sub_skpd,nama_sub_skpd,4,'D' FROM data_sub_keg_bl
+		where tahun_anggaran=%d and id_sub_skpd<>id_skpd",$_POST['tahun_anggaran'],2023,2023);
+		
+		//$data=$wpdb->get_result($qr);
+		$ret=[
+			'status'=>'success',
+			'message'=>'Berhasil load data Urusan/Bidang Urusan/ SKPD',
+			'data'=>$data
+		];
+
+		die(json_encode($ret));
 	}
 }
