@@ -2491,7 +2491,11 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		if (!empty($_POST)) {
 			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
 				if (!empty($_POST['subgiat'])) {
-					$sub_giat = $_POST['subgiat'];
+					if(!empty($_POST['type']) && $_POST['type'] == 'ri'){
+						$sub_giat = json_decode(stripslashes(html_entity_decode($_POST['subgiat'])), true);						
+					}else{
+						$sub_giat = $_POST['subgiat'];
+					}
 					foreach ($sub_giat as $k => $v) {
 						$cek = $wpdb->get_var("SELECT id_sub_giat from data_prog_keg where tahun_anggaran=".$_POST['tahun_anggaran']." AND id_sub_giat=" . $v['id_sub_giat']);
 						$opsi = array(
