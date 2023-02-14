@@ -728,7 +728,6 @@ class Wpsipd_Admin {
 		$url_urusan=$this->generatePage('Sinkronisasi Urusan/Bidang Urusan',false,'[sipkd_data_urusan type="sipkd_urusan"]');
 		$url_program=$this->generatePage('Singkronisasi Program',false,'[sipkd_data_program type="sipkd_program"]');
 		$url_giat =$this->generatePage('Singkronisasi Kegiatan dan Sub Kegiatan',false,'[sipkd_data_giat type="sipkd_giat"]');
-		$url_unit =$this->generatePage('Singkronisasi SKPD/Sub Unit',false,'[sipkd_data_unit type="sipkd_unit"]');
 		$url_dana =$this->generatePage('Singkronisasi Sumber Dana',false,'[sipkd_data_sumber_dana type="sipkd_sumber_dana"]');
 		$url_kua =$this->generatePage('Singkronisasi KUA/PPAS',false,'[sipkd_data_kua type="sipkd_kuappa"]');
 		$url_raskd =$this->generatePage('Singkronisasi RKA Pendapatan',false,'[sipkd_data_raskd type="sipkd_raskd"]');
@@ -738,11 +737,10 @@ class Wpsipd_Admin {
 			Field::make('html','crb_singkron_sipkd')
 				->set_html('<ul>
 				<li><a href="'.$url_akun.'" target="__blank__">Singkron Akun</a></li>
-				<li><a href="'.$url_urusan.'" target="__blank__">Singkron Urusan/Bidang Urusan</a></li>
+				<li><a href="'.$url_urusan.'" target="__blank__">Singkron Urusan/Bidang Urusan/SKPD</a></li>
 				<li><a href="'.$url_program.'" target="__blank__">Singkron Program</a></li>
 				<li><a href="'.$url_giat.'" target="__blank__">Singkron Kegiatan/ Sub Kegiatan</a></li>
 				<li><a href="'.$url_dana.'" target="__blank__">Singkron Sumber Dana</a></li>
-				<li><a href="'.$url_unit.'" target="__blank__">Singkron SKPD/Sub Unit</a></li>
 				<li><a href="'.$url_kua.'" target="__blank__">Singkron KUA/PPAS</a></li>
 				<li><a href="'.$url_raskd.'" target="__blank__">Singkron RKA Pendapatan</a></li>
 				<li><a href="'.$url_raskr.'" target="__blank__">Singkron RKA Belanja</a></li>
