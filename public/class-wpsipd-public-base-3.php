@@ -369,10 +369,12 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 						FROM data_renstra_tujuan_lokal
 						WHERE tujuan_teks=%s
 							$where_sasaran_rpjm
+							AND id_bidang_urusan=%s
+							AND id_unit=%d
 							AND id_unik IS NOT NULL
 							AND id_unik_indikator IS NULL
 							AND active=1
-						", trim($data['tujuan_teks'])));
+						", trim($data['tujuan_teks']), $data['id_bidang_urusan'], $data['id_unit']));
 					
 					if(!empty($id_cek)){
 						throw new Exception('Tujuan : '.$data['tujuan_teks'].' sudah ada!');
