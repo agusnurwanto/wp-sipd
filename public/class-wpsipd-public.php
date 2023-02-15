@@ -2528,6 +2528,34 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						} else {
 							$wpdb->insert('data_prog_keg', $opsi);
 						}
+						// master indikator sub_giat
+						if(!empty($_POST['type']) && $_POST['type'] == 'ri'){
+							$cek_indikator = $wpdb->get_var($wpdb->prepare("
+																	SELECT
+																		id 
+																	FROM data_master_indikator_subgiat
+																	WHERE
+																		indikator=%s
+																		AND id_sub_keg=%d
+																		AND tahun_anggaran=%d
+																", trim($v['indikator']), $v['id_sub_giat'], $_POST['tahun_anggaran']));
+							$opsi = array(
+								// 'id_skpd' => null,
+								'id_sub_keg' => $v['id_sub_giat'],
+								'indikator' => trim($v['indikator']),
+								'satuan' => trim($v['satuan']),
+								'active' => 1,
+								'updated_at' => current_time('mysql'),
+								'tahun_anggaran' => $_POST['tahun_anggaran']								
+							);
+							if(!empty($cek_indikator)){
+							$wpdb->update('data_master_indikator_subgiat', $opsi, array(
+								'id' => $cek_indikator
+							));
+							}else{
+								$wpdb->insert('data_master_indikator_subgiat',$opsi);
+							}
+						}
 					}
 				} else if ($ret['status'] != 'error') {
 					$ret['status'] = 'error';
