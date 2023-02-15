@@ -2043,6 +2043,21 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						'pelaksana_kua' => $data['pelaksana_kua'],
 						'pelaksana_apbd' => $data['pelaksana_apbd'],
 						'set_kpa_sekda' => $data['set_kpa_sekda'],
+						'set_kpa_sub_sekda'  => $data['set_kpa_sub_sekda'],
+						'id_setup_anggaran'  => $data['id_setup_anggaran'],
+						'set_rkpd'  => $data['set_rkpd'],
+						'set_kua'  => $data['set_kua'],
+						'ref_program'  => $data['ref_program'],
+						'ref_giat'  => $data['ref_giat'],
+						'ref_akun'  => $data['ref_akun'],
+						'ref_skpd'  => $data['ref_skpd'],
+						'ref_sumber_dana'  => $data['ref_sumber_dana'],
+						'ref_lokasi'  => $data['ref_lokasi'],
+						'ref_standar_harga'  => $data['ref_standar_harga'],
+						'is_locked'  => $data['is_locked'],
+						'jenis_set_pagu'  => $data['jenis_set_pagu'],
+						'tahun_aksi'  => $data['tahun_aksi'],
+						'status_kd'  => $data['status_kd'],
 						'update_at' => current_time('mysql'),
 						'tahun_anggaran' => $_POST['tahun_anggaran']
 					);
@@ -2051,7 +2066,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 					update_option( '_crb_wakil_daerah', $data['wakil_kepala_daerah'] );
 					if (!empty($cek)) {
 						$wpdb->update('data_pengaturan_sipd', $opsi, array(
-							'id_daerah' => $v['id_daerah'],
+							'id_daerah' => $data['id_daerah'],
 							'tahun_anggaran' => $_POST['tahun_anggaran']
 						));
 					} else {
