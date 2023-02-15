@@ -4458,6 +4458,7 @@ CREATE TABLE `data_kamus_usulan_pokir` (
   `prioritas_teks` text DEFAULT NULL,
   `satuan` text DEFAULT NULL,
   `tipe` text DEFAULT NULL,
+  `id_jenis_usul` int(11) DEFAULT NULL,
   `active` tinyint(4) NOT NULL,
   `update_at` datetime NOT NULL,
   `tahun_anggaran` year(4) NOT NULL,

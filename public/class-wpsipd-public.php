@@ -1938,6 +1938,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						'prioritas_teks' => $data['prioritas_teks'],
 						'satuan' => $data['satuan'],
 						'tipe' => $data['tipe'],
+						'id_jenis_usul' => $data['id_jenis_usul'],
 						'active' => 1,
 						'update_at' => current_time('mysql'),
 						'tahun_anggaran' => $_POST['tahun_anggaran']
