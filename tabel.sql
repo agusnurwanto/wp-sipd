@@ -82,7 +82,7 @@ CREATE TABLE `data_unit` (
   `pangkatkepala` varchar(50) DEFAULT NULL,
   `setupunit` int(11) DEFAULT NULL,
   `statuskepala` varchar(20) DEFAULT NULL,
-  'mapping' varchar(10) DEFAULT NULL,
+  `mapping` varchar(10) DEFAULT NULL,
   `id_kecamatan` int(11) DEFAULT NULL,
   `id_strategi` int(11) DEFAULT NULL,
   `is_dpa_khusus` tinyint(4) DEFAULT NULL,
@@ -645,28 +645,26 @@ CREATE TABLE `data_pengaturan_sipd` (
   `status_kd` int(11) DEFAULT NULL,
   `update_at` datetime NOT NULL,
   `tahun_anggaran` year(4) NOT NULL,
-  `update_at` datetime NOT NULL,
-  `tahun_anggaran` year(4) NOT NULL,
   PRIMARY KEY  (id)
 );
 
 CREATE TABLE `data_sumber_dana` (
   `id` int(11) NOT NULL auto_increment,
-  `created_at` datetime NOT NULL,
-  `created_user` int(11) NOT NULL,
-  `id_daerah` int(11) NOT NULL,
-  `id_dana` int(11) NOT NULL,
-  `id_unik` text NOT NULL,
-  `is_locked` int(11) NOT NULL,
+  `created_at` datetime DEFAULT NULL,
+  `created_user` int(11) DEFAULT NULL,
+  `id_daerah` int(11) DEFAULT NULL,
+  `id_dana` int(11) DEFAULT NULL,
+  `id_unik` text DEFAULT NULL,
+  `is_locked` int(11) DEFAULT NULL,
   `kode_dana` varchar(50) NOT NULL,
   `nama_dana` text NOT NULL,
   `sumber_dana` text DEFAULT NULL,
-  `set_input` varchar(50) NOT NULL,
-  `status` varchar(50) NOT NULL,
-  `tahun` year(4) NOT NULL DEFAULT '2021',
+  `set_input` varchar(50) DEFAULT NULL,
+  `status` varchar(50) DEFAULT NULL,
+  `tahun` year(4) DEFAULT NULL DEFAULT '2021',
   `updated_at` datetime DEFAULT NULL,
-  `updated_user` int(11) NOT NULL DEFAULT '0',
-  `tahun_anggaran` year(4) NOT NULL,
+  `updated_user` int(11) DEFAULT NULL DEFAULT '0',
+  `tahun_anggaran` year(4) DEFAULT NULL,
   PRIMARY KEY  (id)
 );
 
