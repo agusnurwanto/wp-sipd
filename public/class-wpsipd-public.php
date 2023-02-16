@@ -1639,7 +1639,11 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		if (!empty($_POST)) {
 			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
 				if (!empty($_POST['data'])) {
-					$data = $_POST['data'];
+					if(!empty($_POST['type']) && $_POST['type'] == 'ri'){
+						$data = json_decode(stripslashes(html_entity_decode($_POST['data'])), true);						
+					}else{
+						$data = $_POST['data'];
+					}
 					$cek = $wpdb->get_var("SELECT id_usulan from data_asmas where tahun_anggaran=".$_POST['tahun_anggaran']." AND id_usulan=" . $data['id_usulan']);
 					$opsi = array(
 						'alamat_teks' => $data['alamat_teks'],
@@ -1733,6 +1737,33 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						'detail_usulanggaran' => $data['detail_usulanggaran'],
 						'detail_usulvolume' => $data['detail_usulvolume'],
 						'detail_volume' => $data['detail_volume'],
+						'id_unik' => $data['id_unik'],
+						'is_verif' => $data['is_verif'],
+						'nama_skpd_awal' => $data['nama_skpd_awal'],
+						'is_kembalikan' => $data['is_kembalikan'],
+						'rekom_teks' => $data['rekom_teks'],
+						'kembalikan' => $data['kembalikan'],
+						'id_isu' => $data['id_isu'],
+						'id_program' => $data['id_program'],
+						'detail_koefisien' => $data['detail_koefisien'],
+						'is_stat_lahan' => $data['is_stat_lahan'],
+						'is_sertifikat_lahan' => $data['is_sertifikat_lahan'],
+						'is_rincian_teknis' => $data['is_rincian_teknis'],
+						'latbel_teks' => $data['latbel_teks'],
+						'dashuk_teks' => $data['dashuk_teks'],
+						'maksud_teks' => $data['maksud_teks'],
+						'tujuan_teks' => $data['tujuan_teks'],
+						'id_akun' => $data['id_akun'],
+						'id_prop' => $data['id_prop'],
+						'id_bl' => $data['id_bl'],
+						'id_sub_bl' => $data['id_sub_bl'],
+						'sub_giat_baru' => $data['sub_giat_baru'],
+						'detail_id_skpd_awal' => $data['detail_id_skpd_awal'],
+						'id_skpd_bl' => $data['id_skpd_bl'],
+						'id_sub_skpd_bl' => $data['id_sub_skpd_bl'],
+						'id_program_bl' => $data['id_program_bl'],
+						'id_giat_bl' => $data['id_giat_bl'],
+						'id_sub_giat_bl' => $data['id_sub_giat_bl'],	
 						'active' => 1,
 						'update_at' => current_time('mysql'),
 						'tahun_anggaran' => $_POST['tahun_anggaran']
@@ -1770,7 +1801,11 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		if (!empty($_POST)) {
 			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
 				if (!empty($_POST['data'])) {
-					$data = $_POST['data'];
+					if(!empty($_POST['type']) && $_POST['type'] == 'ri'){
+						$data = json_decode(stripslashes(html_entity_decode($_POST['data'])), true);						
+					}else{
+						$data = $_POST['data'];
+					}
 					$cek = $wpdb->get_var($wpdb->prepare("
 						SELECT 
 							id_usulan 
@@ -1859,6 +1894,33 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						'detail_usulanggaran' => $data['detail_usulanggaran'],
 						'detail_usulvolume' => $data['detail_usulvolume'],
 						'detail_volume' => $data['detail_volume'],
+						'id_unik' => $data['id_unik'],
+						'is_verif' => $data['is_verif'],
+						'nama_skpd_awal' => $data['nama_skpd_awal'],
+						'is_kembalikan' => $data['is_kembalikan'],
+						'rekom_teks' => $data['rekom_teks'],
+						'kembalikan' => $data['kembalikan'],
+						'id_isu' => $data['id_isu'],
+						'id_program' => $data['id_program'],
+						'detail_koefisien' => $data['detail_koefisien'],
+						'is_stat_lahan' => $data['is_stat_lahan'],
+						'is_sertifikat_lahan' => $data['is_sertifikat_lahan'],
+						'is_rincian_teknis' => $data['is_rincian_teknis'],
+						'latbel_teks' => $data['latbel_teks'],
+						'dashuk_teks' => $data['dashuk_teks'],
+						'maksud_teks' => $data['maksud_teks'],
+						'tujuan_teks' => $data['tujuan_teks'],
+						'id_akun' => $data['id_akun'],
+						'id_prop' => $data['id_prop'],
+						'id_bl' => $data['id_bl'],
+						'id_sub_bl' => $data['id_sub_bl'],
+						'sub_giat_baru' => $data['sub_giat_baru'],
+						'detail_id_skpd_awal' => $data['detail_id_skpd_awal'],
+						'id_skpd_bl' => $data['id_skpd_bl'],
+						'id_sub_skpd_bl' => $data['id_sub_skpd_bl'],
+						'id_program_bl' => $data['id_program_bl'],
+						'id_giat_bl' => $data['id_giat_bl'],
+						'id_sub_giat_bl' => $data['id_sub_giat_bl'],
 						'active' => 1,
 						'update_at' => current_time('mysql'),
 						'tahun_anggaran' => $_POST['tahun_anggaran']
@@ -1930,6 +1992,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						'prioritas_teks' => $data['prioritas_teks'],
 						'satuan' => $data['satuan'],
 						'tipe' => $data['tipe'],
+						'id_jenis_usul' => $data['id_jenis_usul'],
 						'active' => 1,
 						'update_at' => current_time('mysql'),
 						'tahun_anggaran' => $_POST['tahun_anggaran']
@@ -1980,6 +2043,21 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						'pelaksana_kua' => $data['pelaksana_kua'],
 						'pelaksana_apbd' => $data['pelaksana_apbd'],
 						'set_kpa_sekda' => $data['set_kpa_sekda'],
+						'set_kpa_sub_sekda'  => $data['set_kpa_sub_sekda'],
+						'id_setup_anggaran'  => $data['id_setup_anggaran'],
+						'set_rkpd'  => $data['set_rkpd'],
+						'set_kua'  => $data['set_kua'],
+						'ref_program'  => $data['ref_program'],
+						'ref_giat'  => $data['ref_giat'],
+						'ref_akun'  => $data['ref_akun'],
+						'ref_skpd'  => $data['ref_skpd'],
+						'ref_sumber_dana'  => $data['ref_sumber_dana'],
+						'ref_lokasi'  => $data['ref_lokasi'],
+						'ref_standar_harga'  => $data['ref_standar_harga'],
+						'is_locked'  => $data['is_locked'],
+						'jenis_set_pagu'  => $data['jenis_set_pagu'],
+						'tahun_aksi'  => $data['tahun_aksi'],
+						'status_kd'  => $data['status_kd'],
 						'update_at' => current_time('mysql'),
 						'tahun_anggaran' => $_POST['tahun_anggaran']
 					);
@@ -1988,7 +2066,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 					update_option( '_crb_wakil_daerah', $data['wakil_kepala_daerah'] );
 					if (!empty($cek)) {
 						$wpdb->update('data_pengaturan_sipd', $opsi, array(
-							'id_daerah' => $v['id_daerah'],
+							'id_daerah' => $data['id_daerah'],
 							'tahun_anggaran' => $_POST['tahun_anggaran']
 						));
 					} else {
@@ -2052,6 +2130,16 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 							'nama_akun' => $v['nama_akun'],
 							'set_input' => $v['set_input'],
 							'set_lokus' => $v['set_lokus'],
+							'ket_akun' => $v['ket_akun'],
+							'kode_akun_lama' => $v['kode_akun_lama'],
+							'kode_akun_revisi' => $v['kode_akun_revisi'],
+							'kunci_tahun' => $v['kunci_tahun'],
+							'level' => $v['level'],
+							'mulai_tahun' => $v['mulai_tahun'],
+							'pembiayaan' => $v['pembiayaan'],
+							'pendapatan' => $v['pendapatan'],
+							'set_kab_kota' => $v['set_kab_kota'],
+							'set_prov' => $v['set_prov'],
 							'status' => $v['status'],
 							'update_at' => current_time('mysql'),
 							'tahun_anggaran' => $_POST['tahun_anggaran']
@@ -2312,6 +2400,12 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 							'pangkatkepala' => $v['pangkatkepala'],
 							'setupunit' => $v['setupunit'],
 							'statuskepala' => $v['statuskepala'],
+							'mapping' => $v['mapping'],
+							'id_kecamatan' => $v['id_kecamatan'],
+							'id_strategi' => $v['id_strategi'],
+							'is_dpa_khusus' => $v['is_dpa_khusus'],
+							'is_ppkd' => $v['is_ppkd'],
+							'set_input' => $v['set_input'],
 							'active' => 1,
 							'update_at' => current_time('mysql'),
 							'tahun_anggaran' => $_POST['tahun_anggaran']
@@ -2483,7 +2577,11 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		if (!empty($_POST)) {
 			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
 				if (!empty($_POST['subgiat'])) {
-					$sub_giat = $_POST['subgiat'];
+					if(!empty($_POST['type']) && $_POST['type'] == 'ri'){
+						$sub_giat = json_decode(stripslashes(html_entity_decode($_POST['subgiat'])), true);						
+					}else{
+						$sub_giat = $_POST['subgiat'];
+					}
 					foreach ($sub_giat as $k => $v) {
 						$cek = $wpdb->get_var("SELECT id_sub_giat from data_prog_keg where tahun_anggaran=".$_POST['tahun_anggaran']." AND id_sub_giat=" . $v['id_sub_giat']);
 						$opsi = array(
@@ -2504,6 +2602,20 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 							'nama_sub_giat' => $v['nama_sub_giat'],
 							'nama_urusan' => $v['nama_urusan'],
 							'status' => $v['status'],
+							'aceh' => $v['aceh'],
+							'bali' => $v['bali'],
+							'papua' => $v['papua'],
+							'papua_barat' => $v['papua_barat'],
+							'yogyakarta' => $v['yogyakarta'],
+							'jakarta' => $v['jakarta'],
+							'id_daerah' => $v['id_daerah'],
+							'id_daerah_khusus' => $v['id_daerah_khusus'],
+							'is_setda' => $v['is_setda'],
+							'is_setwan' => $v['is_setwan'],
+							'kunci_tahun' => $v['kunci_tahun'],
+							'mulai_tahun' => $v['mulai_tahun'],
+							'set_kab_kota' => $v['set_kab_kota'],
+							'set_prov' => $v['set_prov'],
 							'update_at' => current_time('mysql'),
 							'tahun_anggaran' => $_POST['tahun_anggaran']
 						);
@@ -2515,6 +2627,34 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 							));
 						} else {
 							$wpdb->insert('data_prog_keg', $opsi);
+						}
+						// master indikator sub_giat
+						if(!empty($_POST['type']) && $_POST['type'] == 'ri'){
+							$cek_indikator = $wpdb->get_var($wpdb->prepare("
+																	SELECT
+																		id 
+																	FROM data_master_indikator_subgiat
+																	WHERE
+																		indikator=%s
+																		AND id_sub_keg=%d
+																		AND tahun_anggaran=%d
+																", trim($v['indikator']), $v['id_sub_giat'], $_POST['tahun_anggaran']));
+							$opsi = array(
+								// 'id_skpd' => null,
+								'id_sub_keg' => $v['id_sub_giat'],
+								'indikator' => trim($v['indikator']),
+								'satuan' => trim($v['satuan']),
+								'active' => 1,
+								'updated_at' => current_time('mysql'),
+								'tahun_anggaran' => $_POST['tahun_anggaran']								
+							);
+							if(!empty($cek_indikator)){
+							$wpdb->update('data_master_indikator_subgiat', $opsi, array(
+								'id' => $cek_indikator
+							));
+							}else{
+								$wpdb->insert('data_master_indikator_subgiat',$opsi);
+							}
 						}
 					}
 				} else if ($ret['status'] != 'error') {
@@ -3056,6 +3196,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 							'is_locked' => $v['is_locked'],
 							'kode_dana' => $v['kode_dana'],
 							'nama_dana' => $v['nama_dana'],
+							'sumber_dana' => $v['sumber_dana'],
 							'set_input' => $v['set_input'],
 							'status' => $v['status'],
 							'tahun' => $v['tahun'],
@@ -18839,6 +18980,32 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 				'message'=>'Terjadi kesalahan koneksi ke database SIPKD'
 			];
 		}
-		echo json_encode($ret);
+		die(json_encode($ret));
+	}
+
+	public function sipkd_get_urus_skpd(){
+		global $wpdb;
+		//Verifikasi Request
+
+		//end verifikasi request
+		$data= $wpdb->get_results($wpdb->prepare("SELECT distinct concat(id_urusan,'_') as unitkey,kode_urusan kdunit,nama_urusan nmunit,1 kdlevel,'H' as TYPE FROM data_sub_keg_bl
+		where tahun_anggaran=%d
+		union ALL
+		SELECT distinct concat(id_bidang_urusan,'_'),kode_bidang_urusan,nama_bidang_urusan,2,'H' FROM data_sub_keg_bl
+		where tahun_anggaran=%d
+		union all
+		SELECT distinct concat(id_skpd,'_'),kode_skpd,nama_skpd,3,'D' FROM data_sub_keg_bl
+		where tahun_anggaran=%d
+		union ALL
+		SELECT distinct concat(id_sub_skpd,'_'),kode_sub_skpd,nama_sub_skpd,4,'D' FROM data_sub_keg_bl where tahun_anggaran=%d and id_sub_skpd<>id_skpd order by kdunit",$_POST['tahun_anggaran'],$_POST['tahun_anggaran'],$_POST['tahun_anggaran'],$_POST['tahun_anggaran']));
+		
+		//$data=$wpdb->get_result($qr);
+		$ret=[
+			'status'=>'success',
+			'message'=>'Berhasil load data Urusan/Bidang Urusan/ SKPD',
+			'data'=>$data
+		];
+
+		die(json_encode($ret));
 	}
 }

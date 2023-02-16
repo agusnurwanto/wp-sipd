@@ -700,7 +700,7 @@ class Wpsipd
 		
 		//ajax SIPKD
 		$this->loader->add_action('wp_ajax_sipkd_get_akun_sipd',  $plugin_public, 'sipkd_get_akun_sipd');
-		
+		$this->loader->add_action('wp_ajax_sipkd_get_urus_skpd',  $plugin_public, 'sipkd_get_urus_skpd');
 		//end ajax SIPKD
 		
 		add_shortcode('menu_monev',  array($plugin_public, 'menu_monev'));
@@ -747,6 +747,7 @@ class Wpsipd
 
 		//shortcode SIPKD
 		add_shortcode('data_akun',array($plugin_public,'sipkd_akun'));
+		add_shortcode('data_urusan',array($plugin_public,'sipkd_urusan_skpd'));
 		//end shortcode SIPKD
 	}
 
