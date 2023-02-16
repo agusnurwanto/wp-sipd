@@ -496,14 +496,24 @@ $body = '';
 						    	<select class="form-control list_opd" id="list_opd"></select>
 						    </div>
 					    </div></br>
-					     <div class="row">
+					    <div class="row">
 					    	<div class="col-md-2">Jenis Laporan</div>
 					    	<div class="col-md-6">
-					      		<select class="form-control jenis" id="jenis">
+					      		<select class="form-control jenis" id="jenis" onchange="jenisLaporan(this)">
 					      			<option value="-">Pilih Jenis</option>
 					      			<option value="rekap">Format Rekap Renstra</option>
 					      			<option value="tc27">Format TC 27</option>
 					      			<option value="pagu_akumulasi">Format Pagu Akumulasi Per Unit Kerja</option>
+				      			</select>
+					    	</div>
+					    </div></br>
+					    <div class="row">
+					    	<div class="col-md-2">Pagu</div>
+					    	<div class="col-md-6">
+					      		<select class="jenis_pagu" id="jenis_pagu" disabled>
+					      			<option value="-">Pilih jenis pagu</option>
+					      			<option value="0">Usulan</option>
+					      			<option value="1">Penetapan</option>
 				      			</select>
 					    	</div>
 					    </div></br>
@@ -525,6 +535,7 @@ $body = '';
 
 		jQuery("body .report").html(modal);
 		jQuery("#modal-report").modal('show');
+		jQuery('.jenis').select2({width: '100%'});
 	}
 
 	function all_skpd(){
@@ -544,9 +555,17 @@ $body = '';
 				});
 				jQuery("#list_opd").html(list_opd);
 				jQuery('.list_opd').select2({width: '100%'});
-				jQuery('.jenis').select2({width: '100%'});
+				jQuery('.jenis_pagu').select2({width: '100%'});
 			}
 		})
+	}
+
+	function jenisLaporan(that){
+		if(jQuery(that).val()=='tc27'){
+			jQuery("#jenis_pagu").attr('disabled', false);
+		}else{
+			jQuery("#jenis_pagu").attr('disabled', true);
+		}
 	}
 
 	function preview(id_jadwal_lokal){
@@ -570,7 +589,7 @@ $body = '';
 				break;
 
 			case 'tc27':
-				generate(id_unit, id_jadwal_lokal, 'view_laporan_tc27', 'Laporan Renstra TC 27 | Hal. Jadwal Input Renstra');
+				generate(id_unit, id_jadwal_lokal, 'view_laporan_tc27', 'Laporan Renstra TC 27 | Hal. Jadwal Input Renstra', jQuery("#jenis_pagu").val());
 				break;
 
 			case 'pagu_akumulasi':
@@ -583,7 +602,7 @@ $body = '';
 		}
 	}
 
-	function generate(id_unit, id_jadwal_lokal, action, title){
+	function generate(id_unit, id_jadwal_lokal, action, title, option='', from='jadwal'){
 		jQuery("#wrap-loading").show();
 		jQuery.ajax({
 			url:ajax.url,
@@ -591,18 +610,25 @@ $body = '';
 			dataType:'json',
 			data:{
 				action:action,
+				option:option,
+				from:from,
 				id_unit:id_unit,
 				id_jadwal_lokal:id_jadwal_lokal,
 				tahun_anggaran:tahunAnggaran,
 				api_key:jQuery("#api_key").val(),
 			},
 			success:function(response){
-				jQuery('#wrap-loading').hide();
-				jQuery("#modal-report .modal-preview").html(response.html);
-				jQuery("#modal-report .modal-preview").css('overflow-x', 'auto');
-				jQuery("#modal-report .modal-preview").css('padding', '15px');
-				jQuery('#modal-report .export-excel').attr("disabled", false);
-				jQuery('#modal-report .export-excel').attr("title", title);
+				jQuery("#wrap-loading").hide();
+				if(response.status=='error'){
+					alert(response.message);
+				}else{
+					jQuery('#wrap-loading').hide();
+					jQuery("#modal-report .modal-preview").html(response.html);
+					jQuery("#modal-report .modal-preview").css('overflow-x', 'auto');
+					jQuery("#modal-report .modal-preview").css('padding', '15px');
+					jQuery('#modal-report .export-excel').attr("disabled", false);
+					jQuery('#modal-report .export-excel').attr("title", title);
+				}
 			}
 		})
 	}
