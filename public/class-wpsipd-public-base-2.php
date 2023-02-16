@@ -1814,16 +1814,6 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 				$kode_bl = $data_sub_unit->id_unit.".".$data_sub_unit->id_skpd.".".$data_prog_keg->id_program.".".$data_prog_keg->id_giat;
 				$kode_sbl = $kode_bl.".".$data_prog_keg->id_sub_giat;
 
-				$data_sub_keg = $wpdb->get_row($wpdb->prepare(
-					'SELECT *
-					FROM data_master_indikator_subgiat
-					WHERE id_sub_keg=%d
-					AND tahun_anggaran=%d
-					AND active=1',
-					$data['input_indikator_sub_keg'],
-					$tahun_anggaran
-				));
-
 				$opsi_sub_keg_bl = array(
 					'id_sub_skpd' => $data['input_sub_unit'],
 					'id_sub_giat' => $data['input_sub_kegiatan'],
@@ -1870,43 +1860,43 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 					die(json_encode($ret));
 				}
 
-				$data_sub_keg = $wpdb->get_row($wpdb->prepare(
-					'SELECT *
-					FROM data_master_indikator_subgiat
-					WHERE id_sub_keg=%d
-					AND tahun_anggaran=%d
-					AND active=1',
-					$data['input_indikator_sub_keg'],
-					$tahun_anggaran
-				));
-
-				$opsi_sub_keg_indikator = array(
-					'outputteks' => $data_sub_keg->indikator,
-					'outputteks_usulan' => $data_sub_keg->indikator,
-					'targetoutput' => $data['input_target'],
-					'targetoutput_usulan' => $data['input_target_usulan'],
-					'satuanoutput' => $data_sub_keg->satuan,
-					'satuanoutput_usulan' => $data_sub_keg->satuan,
-					'idoutputbl' => 0,
-					'targetoutputteks' => $data_sub_keg->indikator.' '.$data_sub_keg->satuan,
-					'targetoutputteks_usulan' => $data_sub_keg->indikator.' '.$data_sub_keg->satuan,
-					'kode_sbl' => $kode_sbl,
-					'idsubbl' => '.',
-					'active' => 1,
-					'update_at' => current_time('mysql'),
-					'tahun_anggaran' => $tahun_anggaran,
-					'id_indikator_sub_giat' => $data_sub_keg->id_sub_keg
-				);
-				
-				$status_sub_keg = $wpdb->insert('data_sub_keg_indikator_lokal', $opsi_sub_keg_indikator);
-
-				if($status_sub_keg === false){
-					$ret['status'] = 'error';
-					$ret['message'] = 'Insert gagal, harap hubungi admin!';
-					die(json_encode($ret));
+				foreach($data['input_indikator_sub_keg'] as $k_sub_keg => $v_sub_keg){
+					$data_sub_keg = $wpdb->get_row($wpdb->prepare(
+						'SELECT *
+						FROM data_master_indikator_subgiat
+						WHERE id_sub_keg=%d
+						AND tahun_anggaran=%d
+						AND active=1',
+						$v_sub_keg,
+						$tahun_anggaran
+					));
+		
+					$opsi_sub_keg_indikator = array(
+						'outputteks' => $data_sub_keg->indikator,
+						'outputteks_usulan' => $data_sub_keg->indikator,
+						'targetoutput' => $data['input_target'][$k_sub_keg],
+						'targetoutput_usulan' => $data['input_target_usulan'][$k_sub_keg],
+						'satuanoutput' => $data_sub_keg->satuan,
+						'satuanoutput_usulan' => $data_sub_keg->satuan,
+						'idoutputbl' => 0,
+						'targetoutputteks' => $data_sub_keg->indikator.' '.$data_sub_keg->satuan,
+						'targetoutputteks_usulan' => $data_sub_keg->indikator.' '.$data_sub_keg->satuan,
+						'kode_sbl' => $kode_sbl,
+						'idsubbl' => '.',
+						'active' => 1,
+						'update_at' => current_time('mysql'),
+						'tahun_anggaran' => $tahun_anggaran,
+						'id_indikator_sub_giat' => $data_sub_keg->id_sub_keg
+					);
+					
+					$status_sub_keg = $wpdb->insert('data_sub_keg_indikator_lokal', $opsi_sub_keg_indikator);
+		
+					if($status_sub_keg === false){
+						$ret['status'] = 'error';
+						$ret['message'] = 'Insert gagal, harap hubungi admin!';
+						die(json_encode($ret));
+					}
 				}
-
-				$repeat = array('','_usulan');
 
 				$data_camat = '';
 				$data_camat_usulan = '';
@@ -1914,15 +1904,6 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 				$data_kabkot_usulan = '';
 				$data_lurah = '';
 				$data_lurah_usulan = '';
-
-				$data_camat = $wpdb->get_row($wpdb->prepare(
-					'SELECT * 
-					FROM data_alamat
-					WHERE is_kec=1
-					AND id_alamat=%d
-					AND tahun=%d',
-					$data['input_kecamatan'],$tahun_anggaran
-				),ARRAY_A);
 
 				$data_kabkot = $wpdb->get_row($wpdb->prepare(
 					'SELECT *
@@ -1933,6 +1914,21 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 					$data['input_kabupaten_kota'],$tahun_anggaran
 				),ARRAY_A);
 
+				$data_camat = $wpdb->get_row($wpdb->prepare(
+					'SELECT * 
+					FROM data_alamat
+					WHERE is_kec=1
+					AND id_alamat=%d
+					AND tahun=%d',
+					$data['input_kecamatan'],$tahun_anggaran
+				),ARRAY_A);
+
+				$id_camat = $nama_camat = NULL;
+				if(!empty($data_camat)){
+					$id_camat = $data_camat['id_alamat'];
+					$nama_camat = $data_camat['nama'];
+				}
+
 				$data_lurah = $wpdb->get_row($wpdb->prepare(
 					'SELECT * 
 					FROM data_alamat
@@ -1941,7 +1937,24 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 					AND tahun=%d',
 					$data['input_desa'],$tahun_anggaran
 				),ARRAY_A);
-	
+
+				$id_lurah = $nama_lurah = NULL;
+				if(!empty($data_lurah)){
+					$id_lurah = $data_lurah['id_alamat'];
+					$nama_lurah = $data_lurah['nama'];
+				}
+
+				$nama_camat = !empty($data_camat['nama']) ? $data_camat['nama'] : null;
+				
+				$data_kabkot_usulan = $wpdb->get_row($wpdb->prepare(
+					'SELECT *
+					FROM data_alamat
+					WHERE is_kab=1
+					AND id_alamat=%d
+					AND tahun=%d',
+					$data['input_kabupaten_kota_usulan'],$tahun_anggaran
+				),ARRAY_A);
+
 				$data_camat_usulan = $wpdb->get_row($wpdb->prepare(
 					'SELECT * 
 					FROM data_alamat
@@ -1951,14 +1964,11 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 					$data['input_kecamatan_usulan'],$tahun_anggaran
 				),ARRAY_A);
 
-				$data_kabkot_usulan = $wpdb->get_row($wpdb->prepare(
-					'SELECT *
-					FROM data_alamat
-					WHERE is_kab=1
-					AND id_alamat=%d
-					AND tahun=%d',
-					$data['input_kabupaten_kota_usulan'],$tahun_anggaran
-				),ARRAY_A);
+				$id_camat_usulan = $nama_camat_usulan = NULL;
+				if(!empty($data_camat_usulan)){
+					$id_camat_usulan = $data_camat_usulan['id_alamat'];
+					$nama_camat_usulan = $data_camat_usulan['nama'];
+				}
 
 				$data_lurah_usulan = $wpdb->get_row($wpdb->prepare(
 					'SELECT * 
@@ -1969,21 +1979,27 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 					$data['input_desa_usulan'],$tahun_anggaran
 				),ARRAY_A);
 
+				$id_lurah_usulan = $nama_lurah_usulan = NULL;
+				if(!empty($data_lurah_usulan)){
+					$id_lurah_usulan = $data_lurah_usulan['id_alamat'];
+					$nama_lurah_usulan = $data_lurah_usulan['nama'];
+				}
+
 				$opsi_lokasi = array(
-					'camatteks' => $data_camat['nama'],
+					'camatteks' => $nama_camat,
 					'daerahteks' => $data_kabkot['nama'],
-					'idcamat' => $data_lurah['id_kec'],
+					'idcamat' => $id_camat,
 					'iddetillokasi' => 0,
-					'idkabkota' => $data_lurah['id_kab'],
-					'idlurah' => $data['input_desa'],
-					'lurahteks' => $data_lurah['nama'],
-					'camatteks_usulan' => $data_camat_usulan['nama'],
+					'idkabkota' => $data_kabkot['id_alamat'],
+					'idlurah' => $id_lurah,
+					'lurahteks' => $nama_lurah,
+					'camatteks_usulan' => $nama_camat_usulan,
 					'daerahteks_usulan' => $data_kabkot_usulan['nama'],
-					'idcamat_usulan' => $data_lurah_usulan['id_kec'],
+					'idcamat_usulan' => $id_camat_usulan,
 					'iddetillokasi_usulan' => 0,
 					'idkabkota_usulan' => $data_lurah_usulan['id_kab'],
-					'idlurah_usulan' => $data['input_desa_usulan'],
-					'lurahteks_usulan' => $data_lurah_usulan['nama'],
+					'idlurah_usulan' => $id_lurah_usulan,
+					'lurahteks_usulan' => $nama_lurah_usulan,
 					'kode_sbl' => $kode_sbl,
 					'idsubbl' => 0,
 					'active' => 1,

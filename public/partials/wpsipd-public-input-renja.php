@@ -266,6 +266,8 @@ $body = '';
                 foreach ($bidang['data'] as $kd_program => $program) {
                     $kd_program = explode('.', $kd_program);
                     $kd_program = $kd_program[count($kd_program)-1];
+                    
+                    $tombol_aksi = '<button class="btn-sm btn-warning" style="margin: 1px;" onclick="edit_program(21231);" title="Edit Program"><i class="dashicons dashicons-plus"></i></button>';
                     $body .= '
                         <tr>
                             <td class="kiri kanan bawah text_blok">'.$kd_urusan.'</td>
@@ -277,12 +279,15 @@ $body = '';
                             <td class="kanan bawah text_kanan text_blok">'.number_format($program['total'],0,",",".").'</td>
                             <td class="kanan bawah" colspan="4">&nbsp;</td>
                             <td class="kanan bawah text_kanan text_blok">'.number_format($program['total_n_plus'],0,",",".").'</td>
-                            <td class="kanan bawah"></td>
+                            <td class="kanan bawah">'.$tombol_aksi.'</td>
                         </tr>
                     ';
                     foreach ($program['data'] as $kd_giat => $giat) {
                         $kd_giat = explode('.', $kd_giat);
                         $kd_giat = $kd_giat[count($kd_giat)-2].'.'.$kd_giat[count($kd_giat)-1];
+                        
+                        $tombol_aksi = '<button class="btn-sm btn-warning" style="margin: 1px;" onclick="edit_program(21231);" title="Edit Program"><i class="dashicons dashicons-plus"></i></button>';
+
                         $body .= '
                             <tr>
                                 <td style="border:.5pt solid #000; vertical-align:middle; font-weight:bold;" width="5">'.$kd_urusan.'</td>
@@ -294,7 +299,7 @@ $body = '';
                                 <td style="border:.5pt solid #000; vertical-align:middle;  text-align:right; font-weight:bold;">'.number_format($giat['total'],0,",",".").'</td>
                                 <td style="border:.5pt solid #000; vertical-align:middle; font-weight:bold;" colspan="4"></td>
                                 <td style="border:.5pt solid #000; vertical-align:middle;  text-align:right; font-weight:bold;">'.number_format($giat['total_n_plus'],0,",",".").'</td>
-                                <td class="kanan bawah"></td>
+                                <td class="kanan bawah">'.$tombol_aksi.'</td>
                             </tr>
                         ';
                         foreach ($giat['data'] as $kd_sub_giat => $sub_giat) {
@@ -481,23 +486,23 @@ echo '
                 <form id="form-renja">
                     <div class="form-group">
     					<label for="input_sub_unit">Sub Unit</label>
-                        <select class="form-control" name="input_sub_unit" id="input_sub_unit" onchange="get_sub_keg(this)"></select>
+                        <select class="form-control input_select_2" name="input_sub_unit" id="input_sub_unit" onchange="get_sub_keg(this)"></select>
     				</div>
     				<div class="form-group">
     					<label for="input_prioritas_provinsi">Prioritas Pembangunan Provinsi</label>
-    					<select class="form-control" id="input_prioritas_provinsi" name="input_prioritas_provinsi">
+    					<select class="form-control input_select_2" id="input_prioritas_provinsi" name="input_prioritas_provinsi">
                             <option value="">Pilih Prioritas Pembangunan Provinsi</option>
                         </select>
     				</div>
     				<div class="form-group">
     					<label for="input_prioritas_kab_kota">Prioritas Pembangunan Kabupaten/Kota</label>
-    					<select class="form-control" id="input_prioritas_kab_kota" name="input_prioritas_kab_kota">
+    					<select class="form-control input_select_2" id="input_prioritas_kab_kota" name="input_prioritas_kab_kota">
                             <option value="">Pilih Prioritas Pembangunan Kabupaten/Kota</option>
                         </select>
     				</div>
     				<div class="form-group">
     					<label for="sub_kegiatan">Sub Kegiatan</label>
-    					<select class="form-control" name="input_sub_kegiatan" id="sub_kegiatan" onchange="get_indikator_sub_keg(this)">
+    					<select class="form-control input_select_2" name="input_sub_kegiatan" id="sub_kegiatan" onchange="get_indikator_sub_keg(this)">
     						<option value="">Pilih Sub Kegiatan</option>
     					</select>
     				</div>
@@ -513,7 +518,7 @@ echo '
                                 <td>
                                     <div class="form-group">
                                         <label for="label_tag_usulan">Label (Tag) Sub Kegiatan</label>
-                                        <select class="form-control" name="input_label_sub_keg_usulan" id="label_tag_usulan">
+                                        <select class="form-control input_select_2" name="input_label_sub_keg_usulan" id="label_tag_usulan">
                                             <option value="">Pilih Sub Kegiatan</option>
                                         </select>
                                     </div>
@@ -521,13 +526,13 @@ echo '
                                         <label for="sumber_dana_usulan">Sumber Dana</label>
                                         <table style="margin: 0;">
                                             <tr>
-                                                <td style="width: 40%">
-                                                    <select class="form-control" id="sumber_dana_usulan" name="input_sumber_dana_usulan">
+                                                <td style="width: 40%; max-width:100px;">
+                                                    <select class="form-control input_select_2" id="sumber_dana_usulan" name="input_sumber_dana_usulan">
                                                         <option value="">Pilih Sumber Dana</option>
                                                     </select>
                                                 </td>
                                                 <td>
-                                                    <input class="form-control" type="number" name="input_pagu_sumber_dana_usulan"/>
+                                                    <input class="form-control input_number" type="number" name="input_pagu_sumber_dana_usulan"/>
                                                 </td>
                                                 <td style="width: 70px" class="text-center">
                                                     <button class="btn btn-warning" onclick="tambahSumberDana(this); return false;"><i class="dashicons dashicons-plus"></i></button>
@@ -545,12 +550,12 @@ echo '
                                                     </select>
                                                 </td>
                                                 <td style="width: 30%">
-                                                    <select class="form-control" name="input_kecamatan_usulan" id="kecamatan_usulan" onchange="get_data_lokasi(this,'kec','usulan')">
+                                                    <select class="form-control input_select_2" name="input_kecamatan_usulan" id="kecamatan_usulan" onchange="get_data_lokasi(this,'kec','usulan')">
                                                         <option value="">Pilih Kecamatan</option>
                                                     </select>
                                                 </td>
                                                 <td style="width: 30%">
-                                                    <select class="form-control" name="input_desa_usulan" id="desa_usulan" onchange="get_data_lokasi(this,'desa','usulan')">
+                                                    <select class="form-control input_select_2" name="input_desa_usulan" id="desa_usulan" onchange="get_data_lokasi(this,'desa','usulan')">
                                                         <option value="">Pilih Desa</option>
                                                     </select>
                                                 </td>
@@ -565,13 +570,13 @@ echo '
                                         <table style="margin: 0;">
                                             <tr>
                                                 <td style="width: 50%;">
-                                                    <select class="form-control" name="input_bulan_awal_usulan" id="bulan_awal_usulan">
+                                                    <select class="form-control bulan_awal" name="input_bulan_awal_usulan" id="bulan_awal_usulan">
                                                         <option value="">Pilih Bulan Awal</option>
                                                         <?php echo $bulan_option; ?>
                                                     </select>
                                                 </td>
                                                 <td style="width: 50%;">
-                                                    <select class="form-control" name="input_bulan_akhir_usulan" id="bulan_akhir_usulan">
+                                                    <select class="form-control bulan_akhir" name="input_bulan_akhir_usulan" id="bulan_akhir_usulan">
                                                         <option value="">Pilih Bulan Akhir</option>
                                                         <?php echo $bulan_option; ?>
                                                     </select>
@@ -581,18 +586,18 @@ echo '
                                     </div>
                                     <div class="form-group">
                                         <label for="pagu_sub_kegiatan_usulan">Anggaran Sub Kegiatan</label>
-                                        <input class="form-control" type="number" name="input_pagu_sub_keg_usulan" id="pagu_sub_kegiatan_usulan"/>
+                                        <input class="form-control input_number" type="number" name="input_pagu_sub_keg_usulan" id="pagu_sub_kegiatan_usulan"/>
                                     </div>
                                     <div class="form-group">
                                         <label for="pagu_sub_kegiatan_1_usulan">Anggaran Sub Kegiatan Tahun Berikutnya</label>
-                                        <input class="form-control" type="number" name="input_pagu_sub_keg_1_usulan" id="pagu_sub_kegiatan_1_usulan"/>
+                                        <input class="form-control input_number" type="number" name="input_pagu_sub_keg_1_usulan" id="pagu_sub_kegiatan_1_usulan"/>
                                     </div>
                                     <div class="form-group">
                                         <label for="pagu_ind_sub_keg_usulan">Indikator Sub Kegiatan</label>
                                         <table style="margin: 0;">
                                             <tr data-id="1" header="1">
-                                                <td colspan="2">
-                                                    <select class="form-control pagu_indi_sub_keg" id="pagu_ind_sub_keg_usulan" name="input_indikator_sub_keg_usulan">
+                                                <td colspan="2" style="max-width: 100px;">
+                                                    <select class="form-control pagu_indi_sub_keg input_select_2" id="pagu_ind_sub_keg_usulan" name="input_indikator_sub_keg_usulan[]">
                                                         <option value="">Pilih Nama Indikator</option>
                                                     </select>
                                                 </td>
@@ -602,10 +607,10 @@ echo '
                                             </tr>
                                             <tr data-id="1">
                                                 <td style="width: 50%;">
-                                                    <input class="form-control" type="number" name="input_target_usulan" id="indikator_pagu_indi_sub_keg_usulan" placeholder="Target Indikator"/>
+                                                    <input class="form-control input_number" type="number" id="indikator_pagu_indi_sub_keg_usulan" name="input_target_usulan[]" placeholder="Target Indikator"/>
                                                 </td>
                                                 <td style="width: 50%;">
-                                                    <select class="form-control satuan_pagu_indi_sub_keg" id="satuan_pagu_indi_sub_keg_usulan" name="input_satuan_usulan">
+                                                    <select class="form-control satuan_pagu_indi_sub_keg input_select_2" id="satuan_pagu_indi_sub_keg_usulan" name="input_satuan_usulan[]">
                                                         <option value="">Pilih Satuan</option>
                                                     </select>
                                                 </td>
@@ -614,13 +619,13 @@ echo '
                                     </div>
                                     <div class="form-group">
                                         <label for="catatan_usulan">Catatan</label>
-                                        <textarea class="form-control" name="input_catatan_usulan" id="catatan_usulan"></textarea>
+                                        <textarea class="form-control input_text" name="input_catatan_usulan" id="catatan_usulan"></textarea>
                                     </div>
                                 </td>
                                 <td>
                                     <div class="form-group">
                                         <label for="label_tag">Label (Tag) Sub Kegiatan</label>
-                                        <select class="form-control" name="input_label_sub_keg" id="label_tag">
+                                        <select class="form-control input_select_2" name="input_label_sub_keg" id="label_tag">
                                             <option value="">Pilih Sub Kegiatan</option>
                                         </select>
                                     </div>
@@ -628,13 +633,13 @@ echo '
                                         <label for="sumber_dana">Sumber Dana</label>
                                         <table style="margin: 0;">
                                             <tr>
-                                                <td style="width: 40%">
-                                                    <select class="form-control" id="sumber_dana" name="input_sumber_dana">
+                                                <td style="width: 40%; max-width:100px;">
+                                                    <select class="form-control input_select_2" id="sumber_dana" name="input_sumber_dana">
                                                         <option value="">Pilih Sumber Dana</option>
                                                     </select>
                                                 </td>
                                                 <td>
-                                                    <input class="form-control" type="number" name="input_pagu_sumber_dana"/>
+                                                    <input class="form-control input_number" type="number" name="input_pagu_sumber_dana"/>
                                                 </td>
                                                 <td style="width: 70px" class="text-center">
                                                     <button class="btn btn-warning" onclick="tambahSumberDana(this); return false;"><i class="dashicons dashicons-plus"></i></button>
@@ -652,12 +657,12 @@ echo '
                                                     </select>
                                                 </td>
                                                 <td style="width: 30%">
-                                                    <select class="form-control" id="kecamatan" name="input_kecamatan" onchange="get_data_lokasi(this,'kec','penetapan')">
+                                                    <select class="form-control input_select" id="kecamatan" name="input_kecamatan" onchange="get_data_lokasi(this,'kec','penetapan')">
                                                         <option value="">Pilih Kecamatan</option>
                                                     </select>
                                                 </td>
                                                 <td style="width: 30%">
-                                                    <select class="form-control" id="desa" name="input_desa" onchange="get_data_lokasi(this,'desa','penetapan')">
+                                                    <select class="form-control input_select" id="desa" name="input_desa" onchange="get_data_lokasi(this,'desa','penetapan')">
                                                         <option value="">Pilih Desa</option>
                                                     </select>
                                                 </td>
@@ -672,13 +677,13 @@ echo '
                                         <table style="margin: 0;">
                                             <tr>
                                                 <td style="width: 50%;">
-                                                    <select class="form-control" name="input_bulan_awal" id="bulan_awal">
+                                                    <select class="form-control bulan_awal" name="input_bulan_awal" id="bulan_awal">
                                                         <option value="">Pilih Bulan Awal</option>
                                                         <?php echo $bulan_option; ?>
                                                     </select>
                                                 </td>
                                                 <td style="width: 50%;">
-                                                    <select class="form-control" name="input_bulan_akhir" id="bulan_akhir">
+                                                    <select class="form-control bulan_akhir" name="input_bulan_akhir" id="bulan_akhir">
                                                         <option value="">Pilih Bulan Akhir</option>
                                                         <?php echo $bulan_option; ?>
                                                     </select>
@@ -688,31 +693,31 @@ echo '
                                     </div>
                                     <div class="form-group">
                                         <label for="pagu_sub_kegiatan">Anggaran Sub Kegiatan</label>
-                                        <input class="form-control" type="number" name="input_pagu_sub_keg" id="pagu_sub_kegiatan"/>
+                                        <input class="form-control input_number" type="number" name="input_pagu_sub_keg" id="pagu_sub_kegiatan"/>
                                     </div>
                                     <div class="form-group">
                                         <label for="pagu_sub_kegiatan_1">Anggaran Sub Kegiatan Tahun Berikutnya</label>
-                                        <input class="form-control" type="number" name="input_pagu_sub_keg_1" id="pagu_sub_kegiatan_1"/>
+                                        <input class="form-control input_number" type="number" name="input_pagu_sub_keg_1" id="pagu_sub_kegiatan_1"/>
                                     </div>
                                     <div class="form-group">
                                         <label for="pagu_indi_sub_keg_penetapan">Indikator Sub Kegiatan</label>
                                         <table style="margin: 0;">
                                             <tr data-id="1" header="1">
-                                                <td colspan="2">
-                                                    <select class="form-control pagu_indi_sub_keg" id="pagu_indi_sub_keg_penetapan" name="input_indikator_sub_keg[]">
+                                                <td colspan="2" style="max-width: 100px;">
+                                                    <select class="form-control pagu_indi_sub_keg input_select_2" id="pagu_indi_sub_keg_penetapan" name="input_indikator_sub_keg[]">
                                                         <option value="">Pilih Nama Indikator</option>
                                                     </select>
                                                 </td>
-                                                <td rowspan="2" style="width: 70px; vertical-align: middle;" class="text-center">
+                                                <td rowspan="2" style="max-width: 100px; vertical-align: middle;" class="text-center">
                                                     <button class="btn btn-warning" onclick="tambahIndikator(this); return false;"><i class="dashicons dashicons-plus"></i></button>
                                                 </td>
                                             </tr>
                                             <tr data-id="1">
                                                 <td style="width: 50%;">
-                                                    <input class="form-control" type="number" name="input_target[]" id="indikator_pagu_indi_sub_keg" placeholder="Target Indikator"/>
+                                                    <input class="form-control input_number" type="number" name="input_target[]" id="indikator_pagu_indi_sub_keg" placeholder="Target Indikator"/>
                                                 </td>
                                                 <td style="width: 50%;">
-                                                    <select class="form-control satuan_pagu_indi_sub_keg" id="satuan_pagu_indi_sub_keg_penetapan" name="input_satuan[]">
+                                                    <select class="form-control satuan_pagu_indi_sub_keg input_select_2" id="satuan_pagu_indi_sub_keg_penetapan" name="input_satuan[]">
                                                         <option value="">Pilih Satuan</option>
                                                     </select>
                                                 </td>
@@ -721,7 +726,7 @@ echo '
                                     </div>
                                     <div class="form-group">
                                         <label for="catatan">Catatan</label>
-                                        <textarea class="form-control" name="input_catatan" id="catatan"></textarea>
+                                        <textarea class="form-control input_text" name="input_catatan" id="catatan"></textarea>
                                     </div>
                                 </td>
                             </tr>
@@ -737,6 +742,23 @@ echo '
 	</div>
 </div>
 
+<!-- Modal indikator renja -->
+<div class="modal fade" id="modal-indikator-renja" data-backdrop="static" role="dialog" aria-labelledby="modal-indikator-renja-label" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Modal title</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+      </div>
+      <div class="modal-footer"></div>
+    </div>
+  </div>
+</div>
+
 <script type="text/javascript">
     run_download_excel();
     let id_skpd = <?php echo $input['id_skpd']; ?>;
@@ -746,11 +768,17 @@ echo '
     get_data_sub_unit(id_skpd)
     get_data_sumber_dana()
 
-    get_data_lokasi();
+    get_data_lokasi()
+    
+    set_waktu();
 
 	var mySpace = '<div style="padding:3rem;"></div>';
 	
 	jQuery('body').prepend(mySpace);
+
+    jQuery('#modalTambahRenja').on('hidden.bs.modal', function () {
+        reset_form();
+    })
 
 	var dataHitungMundur = {
 		'namaJadwal' : '<?php echo ucwords($namaJadwal)  ?>',
@@ -770,7 +798,7 @@ echo '
         var id = +jQuery(that).closest('tr').attr('data-id');
         var trnew = ''
             +'<tr data-id="'+(id+1)+'" header="1">'
-                +'<td colspan="2">'
+                +'<td colspan="2" style="max-width: 100px;">'
                     +'<select class="form-control pagu_indi_sub_keg" name="input_indikator_sub_keg[]">'
                         +'<option value="">Pilih Nama Indikator</option>'
                     +'</select>'
@@ -914,6 +942,8 @@ echo '
 			.attr("disabled", false)
 			.text("Simpan");
 		jQuery('#modalTambahRenja').modal('show');
+        jQuery('#input_sub_unit').prop('disabled', false);
+        jQuery('#sub_kegiatan').prop('disabled', false);
 	});
 
     function get_sub_keg(that){
@@ -1103,6 +1133,7 @@ echo '
                 success:function(response){
                     jQuery('#wrap-loading').hide();
                     jQuery('#modalTambahRenja').modal('hide');
+                    reset_form();
                     alert(response.message);
                     refresh_page();
                 }
@@ -1136,6 +1167,14 @@ echo '
                 let input_sub_kegiatan = `<option selected value="${response.data.id_sub_giat}">${response.data.nama_sub_giat}</option>`;
                 jQuery('#sub_kegiatan').html(input_sub_kegiatan);
                 jQuery('#sub_kegiatan').prop('disabled', true);
+                jQuery('select[name^="input_bulan_awal_usulan"] option:selected').attr("selected",null);
+                jQuery('select[name^="input_bulan_awal_usulan"] option[value="'+response.data.waktu_awal_usulan+'"]').attr("selected","selected");
+                jQuery('select[name^="input_bulan_akhir_usulan"] option:selected').attr("selected",null);
+                jQuery('select[name^="input_bulan_akhir_usulan"] option[value="'+response.data.waktu_akhir_usulan+'"]').attr("selected","selected");
+                // jQuery('select[name^="input_bulan_awal"] option:selected').attr("selected",null);
+                // jQuery('select[name^="input_bulan_awal"] option[value="'+response.data.waktu_awal+'"]').attr("selected","selected");
+                // jQuery('select[name^="input_bulan_akhir"] option:selected').attr("selected",null);
+                // jQuery('select[name^="input_bulan_akhir"] option[value="'+response.data.waktu_akhir+'"]').attr("selected","selected");
                 // let input_indikator_sub_keg_usulan = `<option selected value="${response.data.ss}"></option>`;
                 // jQuery('#pagu_ind_sub_keg_usulan').html(input_indikator_sub_keg);
                 // jQuery('#indikator_pagu_indi_sub_keg_usulan').val(response.data.ssd);
@@ -1203,50 +1242,170 @@ echo '
         }
     }
 
+    function edit_program(id_unik){
+        jQuery("#modal-indikator-renja").find('.modal-body').html('');
+        indikatorProgram(id_unik);
+    }
+
+    function indikatorProgram(data){
+        jQuery('#wrap-loading').show();
+
+        // jQuery.ajax({
+        //     method: 'post',
+        //     url: '<?php echo admin_url('admin-ajax.php'); ?>',
+        //     dataType: 'json',
+        //     data: {
+        //         'action': 'get_indikator_program_renja',
+        //         'api_key': jQuery('#api_key').val(),
+        //         'data': data  
+        //     },
+        //     success:function(response){
+                jQuery('#wrap-loading').hide();
+
+                let html=""
+					+'<div style="margin-top:10px">'
+						+'<button type="button" class="btn btn-primary mb-2 btn-add-indikator-program" data-kodeprogram="12">'
+							+'<i class="dashicons dashicons-plus" style="margin-top: 2px;"></i> Tambah Indikator'
+						+'</button>'
+					+'</div>'
+          			+'<table class="table">'
+	          			+'<thead>'
+	          				+'<tr>'
+	          					+'<th class="text-center" style="width: 160px;">Perangkat Daerah</th>'
+	          					+'<th>'+jQuery('#nama-skpd').text()+'</th>'
+	          				+'</tr>'
+	          				+'<tr>'
+          						+'<th class="text-center" style="width: 160px;">Bidang Urusan</th>'
+          						+'<th>'+jQuery('#nav-tujuan tr[kodetujuan="'+jQuery("#nav-sasaran .btn-tambah-sasaran").data("kodetujuan")+'"]').find('td').eq(1).text()+'</th>'
+          					+'</tr>'
+          					+'<tr>'
+          						+'<th class="text-center" style="width: 160px;">Tujuan</th>'
+          						+'<th>'+jQuery('#nav-tujuan tr[kodetujuan="'+jQuery("#nav-sasaran .btn-tambah-sasaran").data("kodetujuan")+'"]').find('td').eq(2).text()+'</th>'
+          					+'</tr>'
+          					+'<tr>'
+          						+'<th class="text-center" style="width: 160px;">Sasaran</th>'
+          						+'<th>'+jQuery('#nav-sasaran tr[kodesasaran="'+jQuery("#nav-program .btn-tambah-program").data("kodesasaran")+'"]').find('td').eq(1).text()+'</th>'
+          					+'</tr>'
+	          				+'<tr>'
+	          					+'<th class="text-center" style="width: 160px;">Program</th>'
+	          					+'<th>'+jQuery('#nav-program tr[kodeprogram="12"]').find('td').eq(1).text()+'</th>'
+	          				+'</tr>'
+	          				// +'<tr>'
+	          				// 	+'<th colspan=2>'
+	          				// 		+'<table>'
+		          			// 			+'<thead>'
+				      		// 				+'<tr>'
+				      		// 					+'<th class="text-center">Pagu Tahun 1212</th>'
+				      		// 					+'<th class="text-center" style="width:15%">Catatan</th>'
+				      		// 				+'</tr>'
+		          			// 			+'</thead>'
+		          			// 			+'<tbody style="font-weight: normal;">'
+			  				// 				+'<tr>'
+                            //                     +'<td>hai</td>'
+                            //                 +'</tr>'
+                            //                 +'<tr>'
+                            //                     +'<td>hai</td>'
+                            //                 +'</tr>'
+		          			// 			+'</tbody>'
+	          				// 		+'</table>'
+	          				// 	+'</th>'
+	          				// +'</tr>'
+	          			+'</thead>'
+          			+'</table>'
+					+"<table class='table'>"
+						+"<thead>"
+							+"<tr>"
+								+"<th class='text-center'>No</th>"
+								+"<th class='text-center'>Indikator</th>"
+								+"<th class='text-center'>Satuan</th>"
+								+"<th class='text-center'>Awal</th>"
+								+"<th class='text-center'>Akhir</th>"
+								+"<th class='text-center'>Catatan</th>"
+								+"<th class='text-center'>Aksi</th>"
+							+"</tr>"
+						+"</thead>"
+						+"<tbody id='indikator_program'>";
+						// response.data.map(function(value, index){
+		          		// 	for(var i in value){
+		          		// 		if(
+		          		// 			value[i] == 'null'
+		          		// 			|| value[i] == null
+		          		// 		){
+		          		// 			value[i] = '';
+		          		// 		}
+		          		// 	}
+		          			html +=''
+		          				+"<tr>"
+					          		+"<td class='text-center' rowspan='2'>1</td>"
+					          		+"<td>xx</td>"
+					          		+"<td>qw</td>"
+					          		+"<td class='text-center'>wq</td>"
+									+"<td class='text-center'>as</td>"
+									+"<td class='text-right'>as</td>"
+					          		+"<td class='text-center'>asa</td>"
+					          		+"<td><b>Penetapan</b><br>asa</td>"
+					          		+"<td class='text-center' rowspan='2'>"
+					          			+"<a href='#' class='btn btn-success btn-edit-indikator-program' data-kodeprogram='12' data-id='12'><i class='dashicons dashicons-edit' style='margin-top: 2px;' title='Edit Indikator Program'></i></a>&nbsp"
+										+"<a href='#' class='btn btn-danger btn-delete-indikator-program' data-kodeprogram='12' data-id='12' title='Hapus Indikator Program'><i class='dashicons dashicons-trash' style='margin-top: 2px;'></i></a>&nbsp;"
+					          		+"</td>"
+					          	+"</tr>"
+		          				+"<tr>"
+					          		+"<td>as</td>"
+					          		+"<td>dsa</td>"
+					          		+"<td class='text-center'>das</td>"
+									+"<td class='text-center'>313</td>"
+									+"<td class='text-right'>123</td>"
+					          		+"<td class='text-center'>22</td>"
+					          		+"<td><b>Usulan</b><br>ewe</td>"
+					          	+"</tr>";
+			          		// });
+		          	html+=''
+		          		+'</tbody>'
+		          	+'</table>';
+
+                jQuery('#modal-indikator-renja').find('.modal-title').html('Indikator Program');
+                jQuery('#modal-indikator-renja').find('.modal-body').html(html);
+                jQuery('#modal-indikator-renja').find('.modal-dialog').css('maxWidth','1250px');
+                jQuery('#modal-indikator-renja').find('.modal-dialog').css('width','100%');
+                jQuery('#modal-indikator-renja').modal('show');
+            // }
+        // })
+    }
+
     function getFormData($form){
 	    let unindexed_array = $form.serializeArray();
 	    let indexed_array = {};
         
+        indexed_array['input_indikator_sub_keg'] = [];
+        indexed_array['input_target'] = [];
+        indexed_array['input_satuan'] = [];
+        indexed_array['input_indikator_sub_keg_usulan'] = [];
+        indexed_array['input_target_usulan'] = [];
+        indexed_array['input_satuan_usulan'] = [];
         jQuery.map(unindexed_array, function (n, i) {
             indexed_array[n['name']] = n['value'];
+
+            if(n['name'] == 'input_indikator_sub_keg[]'){
+                indexed_array['input_indikator_sub_keg'].push(n['value'])
+            }
+            if(n['name'] == 'input_target[]'){
+                indexed_array['input_target'].push(n['value'])
+            }
+            if(n['name'] == 'input_satuan[]'){
+                indexed_array['input_satuan'].push(n['value'])
+            }
+            if(n['name'] == 'input_indikator_sub_keg_usulan[]'){
+                indexed_array['input_indikator_sub_keg_usulan'].push(n['value'])
+            }
+            if(n['name'] == 'input_target_usulan[]'){
+                indexed_array['input_target_usulan'].push(n['value'])
+            }
+            if(n['name'] == 'input_satuan_usulan[]'){
+                indexed_array['input_satuan_usulan'].push(n['value'])
+            }
         });
 
-        var input_indikator_sub_keg = jQuery('input[name="input_indikator_sub_keg[]"]').map(function(){ 
-            return this.value; 
-        }).get();
-
-        indexed_array['input_indikator_sub_keg'] = input_indikator_sub_keg;
-
-        var input_target = jQuery('input[name="input_target[]"]').map(function(){ 
-            return this.value; 
-        }).get();
-
-        indexed_array['input_target'] = input_target;
-
-        var input_satuan = jQuery('input[name="input_satuan[]"]').map(function(){ 
-            return this.value; 
-        }).get();
-
-        indexed_array['input_satuan'] = input_satuan;
-
-        var input_indikator_sub_keg_usulan = jQuery('input[name="input_indikator_sub_keg_usulan[]"]').map(function(){ 
-            return this.value; 
-        }).get();
-
-        indexed_array['input_indikator_sub_keg_usulan'] = input_indikator_sub_keg_usulan;
-
-        var input_target_usulan = jQuery('input[name="input_target_usulan[]"]').map(function(){ 
-            return this.value; 
-        }).get();
-
-        indexed_array['input_target_usulan'] = input_target_usulan;
-
-        var input_satuan_usulan = jQuery('input[name="input_satuan_usulan[]"]').map(function(){ 
-            return this.value; 
-        }).get();
-
-        indexed_array['input_satuan_usulan'] = input_satuan_usulan;
-
+        console.log(indexed_array)
 	    return indexed_array;
 	}
 
@@ -1256,7 +1415,19 @@ echo '
         }
 	}
 
-    // function reset_form(){
+    function set_waktu(){
+        jQuery('.bulan_awal option[value=1]').attr('selected','selected');
+        jQuery('.bulan_akhir option[value=12]').attr('selected','selected');
+    }
 
-    // }
+    function reset_form(){
+        jQuery('.input_number').val(0);
+        jQuery('.input_text').val('');
+        jQuery('.input_select').val('');
+        jQuery('.input_select_2').val(null).trigger('change');
+        jQuery('.bulan_awal option:selected').attr("selected",null);
+        jQuery('.bulan_awal option[value="1"]').attr("selected","selected");
+        jQuery('.bulan_akhir option:selected').attr("selected",null);
+        jQuery('.bulan_akhir option[value="12"]').attr("selected","selected");
+    }
 </script>
