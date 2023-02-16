@@ -11597,7 +11597,10 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						$status_verif = 'Menunggu';
 					}
 
-					if(in_array("administrator", $user_meta->roles)){
+					if(
+						in_array("administrator", $user_meta->roles) || 
+						in_array("tapd_keu", $user_meta->roles)
+					){
 						$iconFilter = '<i class="dashicons dashicons-yes"></i>';
 						$verify = '<li><a class="btn btn-success" href="#" onclick="return verify_ssh_usulan(\''.$recVal['id_standar_harga'].'\');" title="Verifikasi Item Usulan SSH">'.$iconFilter.'</a></li>';
 					}else{
