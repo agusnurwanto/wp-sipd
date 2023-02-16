@@ -8537,14 +8537,18 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 
 	public function get_link_post($custom_post){
 		$link = get_permalink($custom_post);
-		$options = array();
-		if(!empty($custom_post->custom_url)){
-			$options['custom_url'] = $custom_post->custom_url;
-		}
-		if(strpos($link, '?') === false){
-			$link .= '?key=' . $this->gen_key(false, $options);
+		if(false == $link){
+			$link = '#';
 		}else{
-			$link .= '&key=' . $this->gen_key(false, $options);
+			$options = array();
+			if(!empty($custom_post->custom_url)){
+				$options['custom_url'] = $custom_post->custom_url;
+			}
+			if(strpos($link, '?') === false){
+				$link .= '?key=' . $this->gen_key(false, $options);
+			}else{
+				$link .= '&key=' . $this->gen_key(false, $options);
+			}
 		}
 		return $link;
 	}
