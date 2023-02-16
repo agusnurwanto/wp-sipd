@@ -11551,8 +11551,16 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		$user_meta = get_userdata($user_id);
 		if(empty($user_meta->roles)){
 			echo 'User ini tidak dapat akses sama sekali :)';
-		}else if(in_array("administrator", $user_meta->roles) || in_array("PLT", $user_meta->roles) || in_array("PA", $user_meta->roles) || in_array("KPA", $user_meta->roles)){
+		}else if(
+			in_array("administrator", $user_meta->roles) 
+			|| in_array("PLT", $user_meta->roles) 
+			|| in_array("PA", $user_meta->roles) 
+			|| in_array("KPA", $user_meta->roles)
+			|| in_array("tapd_keu", $user_meta->roles)
+		){
 			require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/wpsipd-public-ssh-usulan.php';
+		}else{
+			echo 'User ini tidak dapat akses ke halaman ini :)';
 		}
 	}
 
@@ -11560,7 +11568,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		global $wpdb;
 		$user_id = um_user( 'ID' );
 		$user_meta = get_userdata($user_id);
-
+		
 		$return = array(
 			'status' => 'success',
 			'data'	=> array()
@@ -11613,12 +11621,16 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						$where .=" AND status_upload_sipd != '1' OR status_upload_sipd IS NULL ";
 					}
 				}
-
 				/** Jika admin tampilkan semua data */
-				if(!in_array("administrator",$user_meta->roles)){
+				if(
+					!in_array("administrator",$user_meta->roles) &&
+					!in_array("tapd_keu", $user_meta->roles)
+				){
 					$this_user_meta = get_user_meta($user_id);
 					/** cari data user berdasarkan nama skpd */
-					if($this_user_meta['_crb_nama_skpd'][0] != ''){
+					if(
+						$this_user_meta['_crb_nama_skpd'][0] != ''
+					){
 						$user_meta = get_users(array(
 							'meta_key' => '_crb_nama_skpd',
 							'meta_value' => $this_user_meta['_crb_nama_skpd'][0]
@@ -11632,7 +11644,6 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 					}else{
 						$get_by_skpd = array($user_id);
 					}
-					
 					/** menambahkan filter data usulan ssh berdasarkan skpd terkait */
 					if(count($get_by_skpd) >= 1){
 						foreach($get_by_skpd as $skpd_key => $skpd_val){

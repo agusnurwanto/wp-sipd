@@ -520,7 +520,10 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 		if(!empty($_POST)){
 			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
 				if($_POST['verify_ssh'] != '' && !empty($_POST['id_ssh_verify_ssh'])){
-					if(in_array("administrator", $user_meta->roles)){
+					if(
+						in_array("administrator", $user_meta->roles) ||
+						in_array("tapd_keu", $user_meta->roles)
+					){
 						if(($_POST['verify_ssh'] == 0) && empty($_POST['reason_verify_ssh'])){
 							$return = array(
 								'status' => 'error',
@@ -548,6 +551,7 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 								'status' => $status_usulan_ssh,
 								'keterangan_status' => $keterangan_status,
 								'update_at' => $date_now,
+								'verified_by' => um_user( 'ID' ),
 							);
 			
 							$where_ssh = array(

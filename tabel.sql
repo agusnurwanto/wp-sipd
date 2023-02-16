@@ -1976,6 +1976,7 @@ CREATE TABLE `data_ssh_usulan` (
   `lampiran_1` varchar(255) DEFAULT NULL,
   `lampiran_2` varchar(255) DEFAULT NULL,
   `lampiran_3` varchar(255) DEFAULT NULL,
+  `verified_by` int(11) DEFAULT NULL,
   PRIMARY KEY  (id)
 );
 
