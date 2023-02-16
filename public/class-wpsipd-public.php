@@ -1559,6 +1559,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						'kode_camat' => $data['kode_camat'],
 						'kode_lurah' => $data['kode_lurah'],						  
 						'kode_ddn_2' => $data['kode_ddn_2'],
+						'status' => $data['status'],
 						'update_at' => current_time('mysql'),
 						'tahun_anggaran' => $_POST['tahun_anggaran']
 					);

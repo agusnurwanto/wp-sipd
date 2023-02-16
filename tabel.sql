@@ -614,6 +614,7 @@ CREATE TABLE `data_dewan` (
   `kode_lurah` text DEFAULT NULL,  
   `kode_ddn_2` varchar(50) DEFAULT NULL,
   `update_at` datetime NOT NULL,
+  `status` varchar(50) DEFAULT NULL,
   `tahun_anggaran` year(4) NOT NULL,
   PRIMARY KEY  (id)
 );
