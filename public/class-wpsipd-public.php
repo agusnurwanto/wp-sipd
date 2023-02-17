@@ -1497,7 +1497,11 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		if (!empty($_POST)) {
 			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
 				if (!empty($_POST['data'])) {
-					$data = $_POST['data'];
+					if(!empty($_POST['type']) && $_POST['type'] == 'ri'){
+						$data = json_decode(stripslashes(html_entity_decode($_POST['data'])), true);						
+					}else{
+						$data = $_POST['data'];
+					}
 					$cek = $wpdb->get_var("SELECT iduser from data_dewan where tahun_anggaran=".$_POST['tahun_anggaran']." AND iduser=" . $data['iduser']);
 					$opsi = array(
 						'accasmas' => $data['accasmas'],
@@ -1538,7 +1542,24 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						'notelp' => $data['notelp'],
 						'npwp' => $data['npwp'],
 						'id_sub_skpd' => $data['id_sub_skpd'],
-						'active' => 1,
+						// 'active' => 1,
+						'active' => $data['active'],
+						'is_locked' => $data['is_locked'],
+						'accmonitor' => $data['accmonitor'],
+						'akses_user' => $data['akses_user'],
+						'akta_kumham' => $data['akta_kumham'],
+						'ijin_op' => $data['ijin_op'],
+						'is_profil_ok' => $data['is_profil_ok'],
+						'is_vertikal' => $data['is_vertikal'],
+						'map_lat_lokasi' => $data['map_lat_lokasi'],
+						'map_lng_lokasi' => $data['map_lng_lokasi'],
+						'no_sertifikat' => $data['no_sertifikat'],
+						'path_foto' => $data['path_foto'],
+						'surat_dom' => $data['surat_dom'],
+						'kode_camat' => $data['kode_camat'],
+						'kode_lurah' => $data['kode_lurah'],						  
+						'kode_ddn_2' => $data['kode_ddn_2'],
+						'status' => $data['status'],
 						'update_at' => current_time('mysql'),
 						'tahun_anggaran' => $_POST['tahun_anggaran']
 					);
