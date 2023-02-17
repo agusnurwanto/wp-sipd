@@ -1758,7 +1758,7 @@ CREATE TABLE `data_skpd_mitra_bappeda` (
   `nama_user` text DEFAULT NULL,
   `nip` text DEFAULT NULL,
   `update_at` datetime NOT NULL,
-  `active` tinyint(4) NOT NULL,
+  `active` tinyint(4) DEFAULT '1',
   `tahun_anggaran` year(4) NOT NULL,
   PRIMARY KEY  (id)
 );
