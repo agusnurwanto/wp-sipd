@@ -936,10 +936,14 @@ $body = '';
 		jQuery("#tambahUsulanSsh .modal-footer").html("<button style=\'margin: 0 0 2rem 0.5rem;border-radius:0.2rem;\' class=\'btn_submit_verify_ssh\' onclick=\'submit_verify_ssh("+id_standar_ssh+")\'>Simpan</button>");
 		jQuery("#verify-ssh-no").on("click", function() {
 			jQuery(".add-desc-verify-ssh").show();
+			jQuery(".catatan-verify-ssh").show();
 		})
 		jQuery("#verify-ssh-yes").on("click", function() {
 			jQuery(".add-desc-verify-ssh").hide();
+			jQuery(".catatan-verify-ssh").hide();
 		})
+
+		getDataUsulanSshByIdStandarHarga(id_standar_ssh);
 	}
 
 	/** submit verifikasi usulan ssh */
@@ -1567,6 +1571,39 @@ $body = '';
 		}
 		
 		return true;
+	}
+
+	function getDataUsulanSshByIdStandarHarga(id_standar_harga){
+		return new Promise(function(resolve, reject){
+			jQuery.ajax({
+				url: ajax.url,
+			    type: "post",
+			    data: {
+			          "action": "get_data_usulan_ssh_by_id_standar_harga",
+			          "api_key": jQuery("#api_key").val(),
+			          "id_standar_harga": id_standar_harga,
+			    },
+			    dataType: "json",
+			    success: function(res){
+			    	console.log(res);
+			    	if(res.status){
+
+			    		let user='';
+			    		let catatan='';
+			    		if(res.role==='administrator'){
+			    			user = 'Tapd Keuangan';
+			    			catatan = res.data.keterangan_status_tapdkeu!=null ? res.data.keterangan_status_tapdkeu : '';
+			    		}else if(res.role==='tapd_keu'){
+			    			user = 'Administrator';
+			    			catatan = res.data.keterangan_status_admin!=null ? res.data.keterangan_status_admin : '';
+			    		}
+			    		let html="<tr class=\'catatan-verify-ssh\' style='display:none'><td colspan=\'2\'><label for=\'catatan_verify_ssh\' style=\'display:inline-block;\'>Alasan "+user+"</label><textarea id=\'catatan_verify_ssh\' disabled>"+catatan+"</textarea></td></tr>"
+			    		jQuery(".add-desc-verify-ssh").after(html);
+			    	}
+			    	resolve();
+			    }
+			});
+		})
 	}
 
 </script> 

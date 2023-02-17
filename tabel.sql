@@ -1977,10 +1977,14 @@ CREATE TABLE `data_ssh_usulan` (
   `harga_3` double(20,0) DEFAULT NULL,
   `kode_kel_standar_harga` varchar(30) DEFAULT NULL,
   `nama_kel_standar_harga` text,
-  `update_at` datetime DEFAULT NULL,
+  `update_at_admin` datetime DEFAULT NULL,
+  `update_at_tapdkeu` datetime DEFAULT NULL,
   `tahun_anggaran` year(4) NOT NULL DEFAULT '2022',
   `status` varchar(20) DEFAULT NULL,
-  `keterangan_status` text,
+  `status_by_admin` varchar(20) DEFAULT NULL,
+  `status_by_tapdkeu` varchar(20) DEFAULT NULL,
+  `keterangan_status_admin` text,
+  `keterangan_status_tapdkeu` text,
   `status_upload_sipd` varchar(20) DEFAULT NULL,
   `keterangan_lampiran` text,
   `kode_standar_harga_sipd` varchar(30) DEFAULT NULL,
@@ -1990,7 +1994,8 @@ CREATE TABLE `data_ssh_usulan` (
   `lampiran_1` varchar(255) DEFAULT NULL,
   `lampiran_2` varchar(255) DEFAULT NULL,
   `lampiran_3` varchar(255) DEFAULT NULL,
-  `verified_by` int(11) DEFAULT NULL,
+  `verified_by_admin` int(11) DEFAULT NULL,
+  `verified_by_tapdkeu` int(11) DEFAULT NULL,
   PRIMARY KEY  (id)
 );
 

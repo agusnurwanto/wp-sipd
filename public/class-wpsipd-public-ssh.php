@@ -537,22 +537,58 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 						$reason_verify_ssh = trim(htmlspecialchars($_POST['reason_verify_ssh']));
 						$id_ssh_verify_ssh = trim(htmlspecialchars($_POST['id_ssh_verify_ssh']));
 
-						$data_ssh = $wpdb->get_results($wpdb->prepare("SELECT status_upload_sipd FROM data_ssh_usulan WHERE id_standar_harga = %d",$id_ssh_verify_ssh), ARRAY_A);
+						$data_ssh = $wpdb->get_results($wpdb->prepare("SELECT status_upload_sipd, status, status_by_admin, status_by_tapdkeu, keterangan_status_admin, keterangan_status_tapdkeu FROM data_ssh_usulan WHERE id_standar_harga = %d",$id_ssh_verify_ssh), ARRAY_A);
 		
 						if($data_ssh[0]['status_upload_sipd'] != 1){
-							$date_now = date("Y-m-d H:i:s");
+							
+							// $date_now = date("Y-m-d H:i:s");
+							// $status_usulan_ssh = ($verify_ssh) ? 'approved' : 'rejected';
+							// $keterangan_status = (!empty($reason_verify_ssh)) ? $reason_verify_ssh : NULL;
 			
-							$status_usulan_ssh = ($verify_ssh) ? 'approved' : 'rejected';
-			
-							$keterangan_status = (!empty($reason_verify_ssh)) ? $reason_verify_ssh : NULL;
-			
-							//update status data usulan ssh
-							$opsi_ssh = array(
-								'status' => $status_usulan_ssh,
-								'keterangan_status' => $keterangan_status,
-								'update_at' => $date_now,
-								'verified_by' => um_user( 'ID' ),
-							);
+							//// update status data usulan ssh
+							// $opsi_ssh = array(
+								// 'status' => $status_usulan_ssh,
+								// 'keterangan_status' => $keterangan_status,
+								// 'update_at' => $date_now,
+								// 'verified_by' => um_user( 'ID' ),
+							// );
+
+							$opsi_ssh = array();
+							if(in_array("administrator", $user_meta->roles)){
+								$opsi_ssh['update_at_admin']=date("Y-m-d H:i:s");
+								$opsi_ssh['verified_by_admin']=um_user( 'ID' );
+								if($verify_ssh){
+									if(trim($data_ssh[0]['status_by_tapdkeu'])==='approved'){
+										$opsi_ssh['status']='approved';
+									}
+									$opsi_ssh['status_by_admin']='approved';
+									$opsi_ssh['keterangan_status_admin']='';
+								}else{
+									if(trim($data_ssh[0]['status'])==='approved'){
+										$opsi_ssh['status']='rejected';
+									}
+									$opsi_ssh['status_by_admin']='rejected';
+									$opsi_ssh['keterangan_status_admin']=(!empty($reason_verify_ssh)) ? $reason_verify_ssh : NULL;
+								}
+							}
+
+							if(in_array("tapd_keu", $user_meta->roles)){
+								$opsi_ssh['update_at_tapdkeu']=date("Y-m-d H:i:s");
+								$opsi_ssh['verified_by_tapdkeu']=um_user( 'ID' );
+								if($verify_ssh){
+									if(trim($data_ssh[0]['status_by_admin'])==='approved'){
+										$opsi_ssh['status']='approved';
+									}
+									$opsi_ssh['status_by_tapdkeu']='approved';
+									$opsi_ssh['keterangan_status_tapdkeu']='';
+								}else{
+									if(trim($data_ssh[0]['status'])==='approved'){
+										$opsi_ssh['status']='rejected';
+									}
+									$opsi_ssh['status_by_tapdkeu']='rejected';
+									$opsi_ssh['keterangan_status_tapdkeu']=(!empty($reason_verify_ssh)) ? $reason_verify_ssh : NULL;
+								}
+							}
 			
 							$where_ssh = array(
 								'id_standar_harga' => $id_ssh_verify_ssh
@@ -885,6 +921,42 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 
 				$return = array(
 					'status' => 'success',
+					'data' => $data_ssh
+				);
+			}else{
+				$return = array(
+					'status' => 'error',
+					'message'	=> 'Api Key tidak sesuai!'
+				);
+			}
+		}else{
+			$return = array(
+				'status' => 'error',
+				'message'	=> 'Format tidak sesuai!'
+			);
+		}
+		die(json_encode($return));
+	}
+
+	public function get_data_usulan_ssh_by_id_standar_harga(){
+		global $wpdb;
+		
+		$return = array(
+			'status' => 'success',
+			'data'	=> array()
+		);
+
+		if(!empty($_POST)){
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+
+				$user_id = um_user( 'ID' );
+				$user_meta = get_userdata($user_id);
+
+				$data_ssh = $wpdb->get_row($wpdb->prepare("SELECT keterangan_status_admin, keterangan_status_tapdkeu FROM data_ssh_usulan WHERE id_standar_harga=%d", $_POST['id_standar_harga']));
+
+				$return = array(
+					'status' => 'success',
+					'role' => $user_meta->roles[0],
 					'data' => $data_ssh
 				);
 			}else{
