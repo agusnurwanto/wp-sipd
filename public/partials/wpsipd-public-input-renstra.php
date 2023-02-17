@@ -5085,7 +5085,7 @@ $table='<table cellpadding="2" cellspacing="0" style="font-family:\'Open Sans\',
 		get_program(false, val);
 	});
 
-	function laporan(type, option=''){
+	function laporan(type, option){
 		jQuery('#wrap-loading').show();
 
 		let action='';
@@ -5122,6 +5122,7 @@ $table='<table cellpadding="2" cellspacing="0" style="font-family:\'Open Sans\',
 
 					jQuery("#modal-crud-renstra").find('.modal-dialog').css('maxWidth','1450px');
 					jQuery("#modal-crud-renstra").find('.modal-dialog').css('width','100%');
+					jQuery("#modal-crud-renstra").find('.modal-body').css('margin-right','20px');
 					jQuery("#modal-crud-renstra").find('.modal-title').html(title);
 					jQuery("#modal-crud-renstra").find('.modal-body').html(response.html);
 					jQuery("#modal-crud-renstra").find('.modal-body').css('overflow-x', 'auto');

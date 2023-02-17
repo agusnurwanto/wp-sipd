@@ -4950,11 +4950,11 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 				if($_POST['from']!='jadwal'){
 					$btnLaporan='<div class="dropdown" style="margin:30px; text-align:center">
 							<button class="btn btn-primary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-								TC 27 PAGU RENSTRA '.(!empty($_POST['option']) ? ' PENETAPAN' : ' USULAN').'
+								TC 27 RENSTRA '.(!empty($_POST['option']) ? ' PENETAPAN' : ' USULAN').'
 							</button>
 							<div class="dropdown-menu" aria-labelledby="dropdownMenuButton" x-placement="bottom-start" style="position: absolute; will-change: transform; top: 0px; left: 0px; transform: translate3d(678px, 36px, 0px);">
-								<a class="dropdown-item" href="javascript:laporan(\'tc27\', 1)">TC 27 PAGU RENSTRA PENETAPAN</a>
-								<a class="dropdown-item" href="javascript:laporan(\'tc27\', 0)">TC 27 PAGU RENSTRA USULAN</a>
+								<a class="dropdown-item" href="javascript:laporan(\'tc27\', 1)">TC 27 RENSTRA PENETAPAN</a>
+								<a class="dropdown-item" href="javascript:laporan(\'tc27\', 0)">TC 27 RENSTRA USULAN</a>
 							</div>
 						</div>';
 				}

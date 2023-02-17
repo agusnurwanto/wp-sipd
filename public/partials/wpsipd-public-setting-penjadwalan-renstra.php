@@ -622,7 +622,6 @@ $body = '';
 				if(response.status=='error'){
 					alert(response.message);
 				}else{
-					jQuery('#wrap-loading').hide();
 					jQuery("#modal-report .modal-preview").html(response.html);
 					jQuery("#modal-report .modal-preview").css('overflow-x', 'auto');
 					jQuery("#modal-report .modal-preview").css('padding', '15px');
