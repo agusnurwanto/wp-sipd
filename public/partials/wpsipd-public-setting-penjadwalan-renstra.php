@@ -624,6 +624,7 @@ $body = '';
 				}else{
 					jQuery("#modal-report .modal-preview").html(response.html);
 					jQuery("#modal-report .modal-preview").css('overflow-x', 'auto');
+					jQuery("#modal-report .modal-preview").css('margin-right','20px');
 					jQuery("#modal-report .modal-preview").css('padding', '15px');
 					jQuery('#modal-report .export-excel').attr("disabled", false);
 					jQuery('#modal-report .export-excel').attr("title", title);

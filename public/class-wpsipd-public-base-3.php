@@ -4433,6 +4433,7 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 							$data_all['data'][$tujuan_value['id_unik']]['indikator'][$tujuan_value['id_unik_indikator']] = [
 								'id_unik_indikator' => $tujuan_value['id_unik_indikator'],
 								'indikator_teks' => $tujuan_value['indikator_teks'],
+								'indikator_teks_usulan' => $tujuan_value['indikator_teks_usulan'],
 								'satuan' => $tujuan_value['satuan'],
 								'target_1' => $tujuan_value['target_1'],
 								'target_2' => $tujuan_value['target_2'],
@@ -4480,6 +4481,7 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 									$data_all['data'][$tujuan_value['id_unik']]['data'][$sasaran_value['id_unik']]['indikator'][$sasaran_value['id_unik_indikator']] = [
 										'id_unik_indikator' => $sasaran_value['id_unik_indikator'],
 										'indikator_teks' => $sasaran_value['indikator_teks'],
+										'indikator_teks_usulan' => $sasaran_value['indikator_teks_usulan'],
 										'satuan' => $sasaran_value['satuan'],
 										'target_1' => $sasaran_value['target_1'],
 										'target_2' => $sasaran_value['target_2'],
@@ -4533,6 +4535,7 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 											$data_all['data'][$tujuan_value['id_unik']]['data'][$sasaran_value['id_unik']]['data'][$program_value['id_unik']]['indikator'][$program_value['id_unik_indikator']] = [
 												'id_unik_indikator' => $program_value['id_unik_indikator'],
 												'indikator_teks' => $program_value['indikator'],
+												'indikator_teks_usulan' => $program_value['indikator_usulan'],
 												'satuan' => $program_value['satuan'],
 												'target_1' => $program_value['target_1'],
 												'pagu_1' => $program_value['pagu_1'],
@@ -4596,6 +4599,7 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 													$data_all['data'][$tujuan_value['id_unik']]['data'][$sasaran_value['id_unik']]['data'][$program_value['id_unik']]['data'][$kegiatan_value['id_unik']]['indikator'][$kegiatan_value['id_unik_indikator']] = [
 														'id_unik_indikator' => $kegiatan_value['id_unik_indikator'],
 														'indikator_teks' => $kegiatan_value['indikator'],
+														'indikator_teks_usulan' => $kegiatan_value['indikator_usulan'],
 														'satuan' => $kegiatan_value['satuan'],
 														'target_1' => $kegiatan_value['target_1'],
 														'pagu_1' => $kegiatan_value['pagu_1'],
@@ -4672,6 +4676,7 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 															$data_all['data'][$tujuan_value['id_unik']]['data'][$sasaran_value['id_unik']]['data'][$program_value['id_unik']]['data'][$kegiatan_value['id_unik']]['data'][$sub_kegiatan_value['id_unik']]['indikator'][$sub_kegiatan_value['id_unik_indikator']] = [
 																'id_unik_indikator' => $sub_kegiatan_value['id_unik_indikator'],
 																'indikator_teks' => $sub_kegiatan_value['indikator'],
+																'indikator_teks_usulan' => $sub_kegiatan_value['indikator_usulan'],
 																'satuan' => $sub_kegiatan_value['satuan'],
 																'target_1' => $sub_kegiatan_value['target_1'],
 																'target_2' => $sub_kegiatan_value['target_2'],
@@ -4701,6 +4706,10 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 					}
 				}
 
+				// $this->debug([
+				// 	'data' => $data_all['data']
+				// ]);
+
 				foreach ($data_all['data'] as $tujuan) {
 					$indikator_tujuan = '';
 					$target_awal = '';
@@ -4712,9 +4721,10 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 					$target_akhir = '';
 
 					foreach($tujuan['indikator'] as $key => $indikator){
-						$indikator_tujuan .= '<div class="indikator">'.$indikator['indikator_teks'].'</div>';
+						$indikator_tujuan .= '<div class="indikator">
+								'.(!empty($_POST['option']) ? $indikator['indikator_teks'] : $indikator['indikator_teks_usulan']).'</div>';
 						$target_awal .= '<div class="indikator">
-							'.(!empty($_POST['option']) ? $indikator['target_awal'] . " " . $indikator['satuan'] : $indikator['target_awal_usulan'] . " " . $indikator['satuan_usulan']).'</div>';
+								'.(!empty($_POST['option']) ? $indikator['target_awal'] . " " . $indikator['satuan'] : $indikator['target_awal_usulan'] . " " . $indikator['satuan_usulan']).'</div>';
 						$target_1 .= '<div class="indikator">
 								'.(!empty($_POST['option']) ? $indikator['target_1'] . " " . $indikator['satuan'] : $indikator['target_1_usulan'] . " " . $indikator['satuan_usulan']).'</div>';
 						$target_2 .= '<div class="indikator">
@@ -4741,9 +4751,10 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 						$target_akhir = '';
 
 						foreach($sasaran['indikator'] as $key => $indikator){
-							$indikator_sasaran .= '<div class="indikator">'.$indikator['indikator_teks'].'</div>';
+							$indikator_sasaran .= '<div class="indikator">
+								'.(!empty($_POST['option']) ? $indikator['indikator_teks'] : $indikator['indikator_teks_usulan']).'</div>';
 							$target_awal .= '<div class="indikator">
-							'.(!empty($_POST['option']) ? $indikator['target_awal'] . " " . $indikator['satuan'] : $indikator['target_awal_usulan'] . " " . $indikator['satuan_usulan']).'</div>';
+								'.(!empty($_POST['option']) ? $indikator['target_awal'] . " " . $indikator['satuan'] : $indikator['target_awal_usulan'] . " " . $indikator['satuan_usulan']).'</div>';
 							$target_1 .= '<div class="indikator">
 								'.(!empty($_POST['option']) ? $indikator['target_1'] . " " . $indikator['satuan'] : $indikator['target_1_usulan'] . " " . $indikator['satuan_usulan']).'</div>';
 							$target_2 .= '<div class="indikator">
@@ -4787,29 +4798,30 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 							}
 
 							foreach($program['indikator'] as $key => $indikator){
-								$indikator_program .= '<div class="indikator">'.$indikator['indikator_teks'].'</div>';
+								$indikator_program .= '<div class="indikator">
+									'.(!empty($_POST['option']) ? $indikator['indikator_teks'] : $indikator['indikator_teks_usulan']).'</div>';
 								$target_awal .= '<div class="indikator">
 									'.(!empty($_POST['option']) ? $indikator['target_awal'] . " " . $indikator['satuan'] : $indikator['target_awal_usulan'] . " " . $indikator['satuan_usulan']).'</div>';
 								$target_1 .= '<div class="indikator">
 									'.(!empty($_POST['option']) ? $indikator['target_1'] . " " . $indikator['satuan'] : $indikator['target_1_usulan'] . " " . $indikator['satuan_usulan']).'</div>';
 								$pagu_1 .= '<div class="indikator">
-									'.(!empty($_POST['option']) ? $indikator['pagu_1'] : $indikator['pagu_1_usulan']).'</div>';
+									'.(!empty($_POST['option']) ? $this->_number_format($indikator['pagu_1']) : $this->_number_format($indikator['pagu_1_usulan'])).'</div>';
 								$target_2 .= '<div class="indikator">
 									'.(!empty($_POST['option']) ? $indikator['target_2'] . " " . $indikator['satuan'] : $indikator['target_2_usulan'] . " " . $indikator['satuan_usulan']).'</div>';
 								$pagu_2 .= '<div class="indikator">
-									'.(!empty($_POST['option']) ? $indikator['pagu_2'] : $indikator['pagu_2_usulan']).'</div>';
+									'.(!empty($_POST['option']) ? $this->_number_format($indikator['pagu_2']) : $this->_number_format($indikator['pagu_2_usulan'])).'</div>';
 								$target_3 .= '<div class="indikator">
 									'.(!empty($_POST['option']) ? $indikator['target_3'] . " " . $indikator['satuan'] : $indikator['target_3_usulan'] . " " . $indikator['satuan_usulan']).'</div>';
 								$pagu_3 .= '<div class="indikator">
-									'.(!empty($_POST['option']) ? $indikator['pagu_3'] : $indikator['pagu_3_usulan']).'</div>';
+									'.(!empty($_POST['option']) ? $this->_number_format($indikator['pagu_3']) : $this->_number_format($indikator['pagu_3_usulan'])).'</div>';
 								$target_4 .= '<div class="indikator">
 									'.(!empty($_POST['option']) ? $indikator['target_4'] . " " . $indikator['satuan'] : $indikator['target_4_usulan'] . " " . $indikator['satuan_usulan']).'</div>';
 								$pagu_4 .= '<div class="indikator">
-									'.(!empty($_POST['option']) ? $indikator['pagu_4'] : $indikator['pagu_4_usulan']).'</div>';
+									'.(!empty($_POST['option']) ? $this->_number_format($indikator['pagu_4']) : $this->_number_format($indikator['pagu_4_usulan'])).'</div>';
 								$target_5 .= '<div class="indikator">
 									'.(!empty($_POST['option']) ? $indikator['target_5'] . " " . $indikator['satuan'] : $indikator['target_5_usulan'] . " " . $indikator['satuan_usulan']).'</div>';
 								$pagu_5 .= '<div class="indikator">
-									'.(!empty($_POST['option']) ? $indikator['pagu_5'] : $indikator['pagu_5_usulan']).'</div>';
+									'.(!empty($_POST['option']) ? $this->_number_format($indikator['pagu_5']) : $this->_number_format($indikator['pagu_5_usulan'])).'</div>';
 								$target_akhir .= '<div class="indikator">
 									'.(!empty($_POST['option']) ? $indikator['target_akhir'] . " " . $indikator['satuan'] : $indikator['target_akhir_usulan'] . " " . $indikator['satuan_usulan']).'</div>';
 							}
@@ -4825,7 +4837,7 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 										<td class="kiri atas kanan bawah">'.$program['program_teks'].'</td>
 										<td class="kiri atas kanan bawah">'.$indikator_program.'</td>';
 										for ($i=1; $i <= $jadwal_lokal->lama_pelaksanaan; $i++) { 
-											$body.="<td class=\"kiri atas kanan bawah text_tengah\">".$target_arr[($i-1)]."</td><td class=\"atas kanan bawah text_kanan\">".$this->_number_format($pagu_arr[($i-1)])."</td>";
+											$body.="<td class=\"kiri atas kanan bawah text_tengah\">".$target_arr[($i-1)]."</td><td class=\"atas kanan bawah text_kanan\">".$pagu_arr[($i-1)]."</td>";
 										}
 										$body.='<td class="kiri kiri atas kanan bawah"></td>
 									</tr>
@@ -4847,29 +4859,30 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 								$target_akhir = '';
 
 								foreach($kegiatan['indikator'] as $key => $indikator){
-									$indikator_kegiatan .= '<div class="indikator">'.$indikator['indikator_teks'].'</div>';
+									$indikator_kegiatan .= '<div class="indikator">
+										'.(!empty($_POST['option']) ? $indikator['indikator_teks'] : $indikator['indikator_teks_usulan']).'</div>';
 									$target_awal .= '<div class="indikator">
-									'.(!empty($_POST['option']) ? $indikator['target_awal'] . " " . $indikator['satuan'] : $indikator['target_awal_usulan'] . " " . $indikator['satuan_usulan']).'</div>';
+										'.(!empty($_POST['option']) ? $indikator['target_awal'] . " " . $indikator['satuan'] : $indikator['target_awal_usulan'] . " " . $indikator['satuan_usulan']).'</div>';
 									$target_1 .= '<div class="indikator">
 										'.(!empty($_POST['option']) ? $indikator['target_1'] . " " . $indikator['satuan'] : $indikator['target_1_usulan'] . " " . $indikator['satuan_usulan']).'</div>';
 									$pagu_1 .= '<div class="indikator">
-										'.(!empty($_POST['option']) ? $indikator['pagu_1'] : $indikator['pagu_1_usulan']).'</div>';
+										'.(!empty($_POST['option']) ? $this->_number_format($indikator['pagu_1']) : $this->_number_format($indikator['pagu_1_usulan'])).'</div>';
 									$target_2 .= '<div class="indikator">
 										'.(!empty($_POST['option']) ? $indikator['target_2'] . " " . $indikator['satuan'] : $indikator['target_2_usulan'] . " " . $indikator['satuan_usulan']).'</div>';
 									$pagu_2 .= '<div class="indikator">
-										'.(!empty($_POST['option']) ? $indikator['pagu_2'] : $indikator['pagu_2_usulan']).'</div>';
+										'.(!empty($_POST['option']) ? $this->_number_format($indikator['pagu_2']) : $this->_number_format($indikator['pagu_2_usulan'])).'</div>';
 									$target_3 .= '<div class="indikator">
 										'.(!empty($_POST['option']) ? $indikator['target_3'] . " " . $indikator['satuan'] : $indikator['target_3_usulan'] . " " . $indikator['satuan_usulan']).'</div>';
 									$pagu_3 .= '<div class="indikator">
-										'.(!empty($_POST['option']) ? $indikator['pagu_3'] : $indikator['pagu_3_usulan']).'</div>';
+										'.(!empty($_POST['option']) ? $this->_number_format($indikator['pagu_3']) : $this->_number_format($indikator['pagu_3_usulan'])).'</div>';
 									$target_4 .= '<div class="indikator">
 										'.(!empty($_POST['option']) ? $indikator['target_4'] . " " . $indikator['satuan'] : $indikator['target_4_usulan'] . " " . $indikator['satuan_usulan']).'</div>';
 									$pagu_4 .= '<div class="indikator">
-										'.(!empty($_POST['option']) ? $indikator['pagu_4'] : $indikator['pagu_4_usulan']).'</div>';
+										'.(!empty($_POST['option']) ? $this->_number_format($indikator['pagu_4']) : $this->_number_format($indikator['pagu_4_usulan'])).'</div>';
 									$target_5 .= '<div class="indikator">
 										'.(!empty($_POST['option']) ? $indikator['target_5'] . " " . $indikator['satuan'] : $indikator['target_5_usulan'] . " " . $indikator['satuan_usulan']).'</div>';
 									$pagu_5 .= '<div class="indikator">
-										'.(!empty($_POST['option']) ? $indikator['pagu_5'] : $indikator['pagu_5_usulan']).'</div>';
+										'.(!empty($_POST['option']) ? $this->_number_format($indikator['pagu_5']) : $this->_number_format($indikator['pagu_5_usulan'])).'</div>';
 									$target_akhir .= '<div class="indikator">
 										'.(!empty($_POST['option']) ? $indikator['target_akhir'] . " " . $indikator['satuan'] : $indikator['target_akhir_usulan'] . " " . $indikator['satuan_usulan']).'</div>';
 								}
@@ -4884,7 +4897,7 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 											<td class="kiri atas kanan bawah">'.$kegiatan['kegiatan_teks'].'</td>
 											<td class="kiri atas kanan bawah">'.$indikator_kegiatan.'</td>';
 											for ($i=1; $i <= $jadwal_lokal->lama_pelaksanaan; $i++) { 
-												$body.="<td class=\"kiri atas kanan bawah text_tengah\">".$target_arr[($i-1)]."</td><td class=\"atas kanan bawah text_kanan\">".$this->_number_format($pagu_arr[($i-1)])."</td>";
+												$body.="<td class=\"kiri atas kanan bawah text_tengah\">".$target_arr[($i-1)]."</td><td class=\"atas kanan bawah text_kanan\">".$pagu_arr[($i-1)]."</td>";
 											}
 											$body.='
 											<td class="kiri atas kanan bawah"></td>
@@ -4907,7 +4920,8 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 									$target_akhir = '';
 
 									foreach($sub_kegiatan['indikator'] as $key => $indikator){
-										$indikator_sub_kegiatan .= '<div class="indikator">'.$indikator['indikator_teks'].'</div>';
+										$indikator_sub_kegiatan .= '<div class="indikator">
+											'.(!empty($_POST['option']) ? $indikator['indikator_teks'] : $indikator['indikator_teks_usulan']).'</div>';
 										$target_awal .= '<div class="indikator">
 											'.(!empty($_POST['option']) ? $indikator['target_awal'] . " " . $indikator['satuan'] : $indikator['target_awal_usulan'] . " " . $indikator['satuan_usulan']).'</div>';
 										$target_1 .= '<div class="indikator">
