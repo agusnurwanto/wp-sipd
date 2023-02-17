@@ -1596,11 +1596,16 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		if (!empty($_POST)) {
 			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
 				if (!empty($_POST['data'])) {
+					if(!empty($_POST['type']) && $_POST['type'] == 'ri'){
+						$data = json_decode(stripslashes(html_entity_decode($_POST['data'])), true);						
+					}else{
+						$data = $_POST['data'];
+					}
 					$wpdb->update('data_skpd_mitra_bappeda', array( 'active' => 0 ), array(
 						'id_user' => $_POST['id_user'],
 						'tahun_anggaran' => $_POST['tahun_anggaran']
 					));
-					foreach ($_POST['data'] as $k => $v) {
+					foreach ($data as $k => $v) {
 						$cek = $wpdb->get_var("
 							SELECT 
 								id_user 
@@ -1621,6 +1626,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 							'nama_user' => $v['nama_user'],
 							'nip' => $v['nip'],
 							'active' => 1,
+							// 'active' => $v['active'],
 							'update_at' => current_time('mysql'),
 							'tahun_anggaran' => $_POST['tahun_anggaran']
 						);
