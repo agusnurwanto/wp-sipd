@@ -2205,7 +2205,11 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		);
 		if (!empty($_POST)) {
 			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
-				$data = $_POST['data'];
+				if(!empty($_POST['type']) && $_POST['type'] == 'ri'){
+					$data = json_decode(stripslashes(html_entity_decode($_POST['data'])), true);						
+				}else{
+					$data = $_POST['data'];
+				}
 				$wpdb->update('data_pendapatan', array('active' => 0), array(
 					'tahun_anggaran' => $_POST['tahun_anggaran'],
 					'id_skpd' => $_POST['id_skpd']
@@ -2286,7 +2290,11 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		);
 		if (!empty($_POST)) {
 			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
-				$data = $_POST['data'];
+				if(!empty($_POST['type']) && $_POST['type'] == 'ri'){
+					$data = json_decode(stripslashes(html_entity_decode($_POST['data'])), true);						
+				}else{
+					$data = $_POST['data'];
+				}
 				$type = array();
 				foreach ($data as $k => $v) {
 					if(empty($type[$v['type']])){
