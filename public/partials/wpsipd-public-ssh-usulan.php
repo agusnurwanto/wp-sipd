@@ -341,6 +341,10 @@ $body = '';
 				"<option value=''>Pilih Filter</option>"+
 				"<option value='diterima'>Diterima</option>"+
 				"<option value='ditolak'>Ditolak</option>"+
+				"<option value='diterima_admin'>Diterima Admin</option>"+
+				"<option value='ditolak_admin'>Ditolak Admin</option>"+
+				"<option value='diterima_tapdkeu'>Diterima TAPD Keuangan</option>"+
+				"<option value='ditolak_tapdkeu'>Ditolak TAPD Keuangan</option>"+
 				"<option value='menunggu'>Menunggu</option>"+
 				"<option value='sudah_upload_sipd'>Sudah upload SIPD</option>"+
 				"<option value='belum_upload_sipd'>Belum upload SIPD</option>"+
@@ -1596,7 +1600,7 @@ $body = '';
 			    			user = 'Administrator';
 			    			catatan = res.data.keterangan_status_admin!=null ? res.data.keterangan_status_admin : '';
 			    		}
-			    		let html="<tr class=\'catatan-verify-ssh\' style='display:none'><td colspan=\'2\'><label for=\'catatan_verify_ssh\' style=\'display:inline-block;\'>Alasan "+user+"</label><textarea id=\'catatan_verify_ssh\' disabled>"+catatan+"</textarea></td></tr>"
+			    		let html="<tr class=\'catatan-verify-ssh\' style='display:none'><td colspan=\'2\'><label for=\'catatan_verify_ssh\' style=\'display:inline-block;\'>Alasan "+user+"</label><br><span class=\'medium-bold-2\' id=\'catatan_verify_ssh\'>"+catatan+"</span></td></tr>"
 			    		jQuery(".add-desc-verify-ssh").after(html);
 			    	}
 			    	resolve();

@@ -11653,7 +11653,11 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 					12=> 'keterangan_lampiran',
 					13=> 'status_jenis_usulan',
 					14=> 'jenis_produk',
-					15=> 'tkdn'
+					15=> 'tkdn',
+					16=> 'status_by_admin',
+					17=> 'status_by_tapdkeu',
+					18=> 'keterangan_status_admin',
+					19=> 'keterangan_status_tapdkeu',
 				);
 				$where = $sqlTot = $sqlRec = "";
 
@@ -11678,6 +11682,14 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						$where .=" AND status_upload_sipd = '1' ";
 					}else if($_POST['filter'] == 'belum_upload_sipd'){
 						$where .=" AND status_upload_sipd != '1' OR status_upload_sipd IS NULL ";
+					}else if($_POST['filter'] == 'diterima_admin'){
+						$where .=" AND status_by_admin = 'approved' ";
+					}else if($_POST['filter'] == 'ditolak_admin'){
+						$where .=" AND status_by_admin = 'rejected' ";
+					}else if($_POST['filter'] == 'diterima_tapdkeu'){
+						$where .=" AND status_by_tapdkeu = 'approved' ";
+					}else if($_POST['filter'] == 'ditolak_tapdkeu'){
+						$where .=" AND status_by_tapdkeu = 'rejected' ";
 					}
 				}
 				/** Jika admin tampilkan semua data */
@@ -11796,6 +11808,24 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						$status_verif = 'Menunggu';
 					}
 
+					$status_verif_admin = '';
+					if($recVal['status_by_admin'] == 'approved'){
+						$status_verif_admin .= '<br>Admin Standar Harga : <span class="medium-bold-2">Disetujui</span>';
+					}else if($recVal['status_by_admin'] == 'rejected'){
+						$status_verif_admin .= '
+										<br>Admin Standar Harga : <span class="medium-bold-2">Ditolak</span>
+										<br>Alasan : <span class="medium-bold-2">' . $recVal['keterangan_status_admin'].'</span>';
+					}
+
+					$status_verif_tapdkeu = '';
+					if($recVal['status_by_tapdkeu'] == 'approved'){
+						$status_verif_tapdkeu .= '<br>TAPD Keuangan : <span class="medium-bold-2">Disetujui</span>';
+					}else if($recVal['status_by_tapdkeu'] == 'rejected'){
+						$status_verif_tapdkeu .= '
+										<br>TAPD Keuangan: <span class="medium-bold-2">Ditolak</span>
+										<br>Alasan : <span class="medium-bold-2">' . $recVal['keterangan_status_tapdkeu'] . '</span>';
+					}
+
 					if(
 						in_array("administrator", $user_meta->roles) || 
 						in_array("tapd_keu", $user_meta->roles)
@@ -11819,7 +11849,11 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 					$spek_satuan .= '<tr><td>Satuan: '.ucwords($recVal['satuan']).'</td></tr><tr><td>Jenis Produk: '.$jenis_produk.'</td></tr><tr><td>TKDN: '.$recVal['tkdn'].' %</td></tr></table>';
 
 					$show_status = '<table style="margin: 0;">';
-					$show_status .= '<tr><td>Usulan: <span class="medium-bold-2">'.$status_verif.'</span></td></tr>';
+					$show_status .= '<tr>
+										<td>
+											Usulan: <span class="medium-bold-2">'.$status_verif.'</span>'.$status_verif_admin.$status_verif_tapdkeu.'
+										</td>
+									</tr>';
 					$show_status .= '<tr><td>Upload SIPD: <span class="medium-bold-2">'.ucwords($queryRecords[$recKey]['status_upload_sipd']).'</span></td></tr>';
 					$show_status .= '<tr><td>Jenis: <span class="medium-bold-2">'.ucwords(str_replace("_"," ",$recVal['status_jenis_usulan'])).'</span></td></tr></table>';
 
