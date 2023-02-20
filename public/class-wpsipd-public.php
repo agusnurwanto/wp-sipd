@@ -2205,7 +2205,11 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		);
 		if (!empty($_POST)) {
 			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
-				$data = $_POST['data'];
+				if(!empty($_POST['type']) && $_POST['type'] == 'ri'){
+					$data = json_decode(stripslashes(html_entity_decode($_POST['data'])), true);						
+				}else{
+					$data = $_POST['data'];
+				}
 				$wpdb->update('data_pendapatan', array('active' => 0), array(
 					'tahun_anggaran' => $_POST['tahun_anggaran'],
 					'id_skpd' => $_POST['id_skpd']
@@ -2240,6 +2244,16 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						'user1' => $v['user1'],
 						'user2' => $v['user2'],
 						'id_skpd' => $_POST['id_skpd'],
+						'id_akun' => $v['id_akun'],
+						  'id_jadwal_murni' => $v['id_jadwal_murni'],
+						  'kode_akun' => $v['kode_akun'],
+						  'koefisien' => $v['koefisien'],
+						  'kua_murni' => $v['kua_murni'],
+						  'kua_pak' => $v['kua_pak'],
+						  'rkpd_murni' => $v['rkpd_murni'],
+						  'rkpd_pak' => $v['rkpd_pak'],
+						  'satuan' => $v['satuan'],
+						  'volume' => $v['volume'],
 						'active' => 1,
 						'update_at' => current_time('mysql'),
 						'tahun_anggaran' => $_POST['tahun_anggaran']
@@ -2286,7 +2300,11 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		);
 		if (!empty($_POST)) {
 			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
-				$data = $_POST['data'];
+				if(!empty($_POST['type']) && $_POST['type'] == 'ri'){
+					$data = json_decode(stripslashes(html_entity_decode($_POST['data'])), true);						
+				}else{
+					$data = $_POST['data'];
+				}
 				$type = array();
 				foreach ($data as $k => $v) {
 					if(empty($type[$v['type']])){
@@ -2328,6 +2346,16 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						'user1' => $v['user1'],
 						'user2' => $v['user2'],
 						'id_skpd' => $_POST['id_skpd'],
+						'id_akun' => $v['id_akun'],
+						  'id_jadwal_murni' => $v['id_jadwal_murni'],
+						  'kode_akun' => $v['kode_akun'],
+						  'koefisien' => $v['koefisien'],
+						  'kua_murni' => $v['kua_murni'],
+						  'kua_pak' => $v['kua_pak'],
+						  'rkpd_murni' => $v['rkpd_murni'],
+						  'rkpd_pak' => $v['rkpd_pak'],
+						  'satuan' => $v['satuan'],
+						  'volume' => $v['volume'],
 						'active' => 1,
 						'update_at' => current_time('mysql'),
 						'tahun_anggaran' => $_POST['tahun_anggaran']
