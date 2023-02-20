@@ -4755,3 +4755,43 @@ CREATE TABLE `data_spm_sipd` (
   `tanggalOtorisasi` date DEFAULT NULL,
   PRIMARY KEY  (id)
 );
+
+CREATE TABLE `data_dana_sub_keg_lokal` (
+  `id` int(11) NOT NULL auto_increment,
+  `namadana` text DEFAULT NULL,
+  `kodedana` varchar(50) DEFAULT NULL,
+  `iddana` int(11) DEFAULT NULL,
+  `iddanasubbl` int(11) DEFAULT NULL,
+  `pagudana` double(20, 0) DEFAULT NULL,
+  `kode_sbl` varchar(50) DEFAULT NULL,
+  `idsubbl` int(11) DEFAULT NULL,
+  `active` tinyint(4) DEFAULT 1,
+  `update_at` datetime NOT NULL,
+  `tahun_anggaran` year(4) NOT NULL,
+  `nama_dana_usulan` text DEFAULT NULL,
+  `kode_dana_usulan` varchar(50) DEFAULT NULL,
+  `id_dana_usulan` int(11) DEFAULT NULL,
+  `pagu_dana_usulan` double(20, 0) DEFAULT NULL,
+  PRIMARY KEY  (id)
+);
+
+CREATE TABLE `data_dana_sub_keg_lokal_history` (
+  `id` int(11) NOT NULL auto_increment,
+  `namadana` text,
+  `kodedana` varchar(50) DEFAULT NULL,
+  `iddana` int(11) DEFAULT NULL,
+  `iddanasubbl` int(11) DEFAULT NULL,
+  `pagudana` double(20,0) DEFAULT NULL,
+  `kode_sbl` varchar(50) DEFAULT NULL,
+  `idsubbl` int(11) DEFAULT NULL,
+  `active` tinyint(4) DEFAULT '1',
+  `update_at` datetime NOT NULL,
+  `tahun_anggaran` year(4) NOT NULL,
+  `id_asli` int(11) NOT NULL,
+  `id_jadwal` int(11) NOT NULL,
+  `nama_dana_usulan` text DEFAULT NULL,
+  `kode_dana_usulan` varchar(50) DEFAULT NULL,
+  `id_dana_usulan` int(11) DEFAULT NULL,
+  `pagu_dana_usulan` double(20, 0) DEFAULT NULL,
+  PRIMARY KEY  (id)
+);
