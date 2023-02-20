@@ -564,6 +564,7 @@ $body = '';
 		if(jQuery(that).val()=='tc27'){
 			jQuery("#jenis_pagu").attr('disabled', false);
 		}else{
+			jQuery("#jenis_pagu").val('-').trigger('change');
 			jQuery("#jenis_pagu").attr('disabled', true);
 		}
 	}

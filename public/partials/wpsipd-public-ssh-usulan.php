@@ -1585,7 +1585,6 @@ $body = '';
 			    },
 			    dataType: "json",
 			    success: function(res){
-			    	console.log(res);
 			    	if(res.status){
 
 			    		let user='';

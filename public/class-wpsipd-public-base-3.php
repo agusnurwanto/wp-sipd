@@ -4422,12 +4422,13 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 							'id_unik' => $tujuan_value['id_unik'],
 							'tujuan_teks' => $tujuan_value['tujuan_teks'],
 							'nama_bidang_urusan' => $tujuan_value['nama_bidang_urusan'],
-							'indikator' => array(),
+							// 'indikator' => array(),
 							'data' => array(),
 							'status_rpjm' => false
 						];
 					}
 
+					/*
 					if(!empty($tujuan_value['id_unik_indikator'])){
 						if(empty($data_all['data'][$tujuan_value['id_unik']]['indikator'][$tujuan_value['id_unik_indikator']])){
 							$data_all['data'][$tujuan_value['id_unik']]['indikator'][$tujuan_value['id_unik_indikator']] = [
@@ -4453,6 +4454,7 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 							];
 						}
 					}
+					*/
 
 					if(empty($tujuan_value['id_unik_indikator'])){
 						$sasaran_all = $wpdb->get_results($wpdb->prepare("
@@ -4471,11 +4473,12 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 									'id' => $sasaran_value['id'],
 									'id_unik' => $sasaran_value['id_unik'],
 									'sasaran_teks' => $sasaran_value['sasaran_teks'],
-									'indikator' => array(),
+									// 'indikator' => array(),
 									'data' => array()
 								];
 							}
 
+							/*
 							if(!empty($sasaran_value['id_unik_indikator'])){
 								if(empty($data_all['data'][$tujuan_value['id_unik']]['data'][$sasaran_value['id_unik']]['indikator'][$sasaran_value['id_unik_indikator']])){
 									$data_all['data'][$tujuan_value['id_unik']]['data'][$sasaran_value['id_unik']]['indikator'][$sasaran_value['id_unik_indikator']] = [
@@ -4501,6 +4504,7 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 									];
 								}
 							}
+							*/
 
 							if(empty($sasaran_value['id_unik_indikator'])){
 
@@ -4525,8 +4529,18 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 												'tujuan_teks' => $program_value['tujuan_teks'],
 												'sasaran_teks' => $program_value['sasaran_teks'],
 												'program_teks' => $program_value['nama_program'],
+												'pagu_1' => 0,
+												'pagu_2' => 0,
+												'pagu_3' => 0,
+												'pagu_4' => 0,
+												'pagu_5' => 0,
+												'pagu_1_usulan' => 0,
+												'pagu_2_usulan' => 0,
+												'pagu_3_usulan' => 0,
+												'pagu_4_usulan' => 0,
+												'pagu_5_usulan' => 0,
 												'indikator' => array(),
-												'data' => array()
+												'data' => array(),
 											];
 										}
 
@@ -4538,28 +4552,18 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 												'indikator_teks_usulan' => $program_value['indikator_usulan'],
 												'satuan' => $program_value['satuan'],
 												'target_1' => $program_value['target_1'],
-												'pagu_1' => $program_value['pagu_1'],
 												'target_2' => $program_value['target_2'],
-												'pagu_2' => $program_value['pagu_2'],
 												'target_3' => $program_value['target_3'],
-												'pagu_3' => $program_value['pagu_3'],
 												'target_4' => $program_value['target_4'],
-												'pagu_4' => $program_value['pagu_4'],
 												'target_5' => $program_value['target_5'],
-												'pagu_5' => $program_value['pagu_5'],
 												'target_awal' => $program_value['target_awal'],
 												'target_akhir' => $program_value['target_akhir'],
 												'satuan_usulan' => $program_value['satuan_usulan'],
 												'target_1_usulan' => $program_value['target_1_usulan'],
-												'pagu_1_usulan' => $program_value['pagu_1_usulan'],
 												'target_2_usulan' => $program_value['target_2_usulan'],
-												'pagu_2_usulan' => $program_value['pagu_2_usulan'],
 												'target_3_usulan' => $program_value['target_3_usulan'],
-												'pagu_3_usulan' => $program_value['pagu_3_usulan'],
 												'target_4_usulan' => $program_value['target_4_usulan'],
-												'pagu_4_usulan' => $program_value['pagu_4_usulan'],
 												'target_5_usulan' => $program_value['target_5_usulan'],
-												'pagu_5_usulan' => $program_value['pagu_5_usulan'],
 												'target_awal_usulan' => $program_value['target_awal_usulan'],
 												'target_akhir_usulan' => $program_value['target_akhir_usulan']
 											];
@@ -4589,8 +4593,18 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 													'id_unik' => $kegiatan_value['id_unik'],
 													'kode' => $kode[0],
 													'kegiatan_teks' => $kegiatan_value['nama_giat'],
+													'pagu_1' => 0,
+													'pagu_2' => 0,
+													'pagu_3' => 0,
+													'pagu_4' => 0,
+													'pagu_5' => 0,
+													'pagu_1_usulan' => 0,
+													'pagu_2_usulan' => 0,
+													'pagu_3_usulan' => 0,
+													'pagu_4_usulan' => 0,
+													'pagu_5_usulan' => 0,
 													'indikator' => array(),
-													'data' => []
+													'data' => array(),
 												];
 											}
 
@@ -4602,28 +4616,18 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 														'indikator_teks_usulan' => $kegiatan_value['indikator_usulan'],
 														'satuan' => $kegiatan_value['satuan'],
 														'target_1' => $kegiatan_value['target_1'],
-														'pagu_1' => $kegiatan_value['pagu_1'],
 														'target_2' => $kegiatan_value['target_2'],
-														'pagu_2' => $kegiatan_value['pagu_2'],
 														'target_3' => $kegiatan_value['target_3'],
-														'pagu_3' => $kegiatan_value['pagu_3'],
 														'target_4' => $kegiatan_value['target_4'],
-														'pagu_4' => $kegiatan_value['pagu_4'],
 														'target_5' => $kegiatan_value['target_5'],
-														'pagu_5' => $kegiatan_value['pagu_5'],
 														'target_awal' => $kegiatan_value['target_awal'],
 														'target_akhir' => $kegiatan_value['target_akhir'],
 														'satuan_usulan' => $kegiatan_value['satuan_usulan'],
 														'target_1_usulan' => $kegiatan_value['target_1_usulan'],
-														'pagu_1_usulan' => $kegiatan_value['pagu_1_usulan'],
 														'target_2_usulan' => $kegiatan_value['target_2_usulan'],
-														'pagu_2_usulan' => $kegiatan_value['pagu_2_usulan'],
 														'target_3_usulan' => $kegiatan_value['target_3_usulan'],
-														'pagu_3_usulan' => $kegiatan_value['pagu_3_usulan'],
 														'target_4_usulan' => $kegiatan_value['target_4_usulan'],
-														'pagu_4_usulan' => $kegiatan_value['pagu_4_usulan'],
 														'target_5_usulan' => $kegiatan_value['target_5_usulan'],
-														'pagu_5_usulan' => $kegiatan_value['pagu_5_usulan'],
 														'target_awal_usulan' => $kegiatan_value['target_awal_usulan'],
 														'target_akhir_usulan' => $kegiatan_value['target_akhir_usulan']
 													];
@@ -4669,6 +4673,30 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 															'pagu_5_usulan' => $sub_kegiatan_value['pagu_5_usulan'],
 															'indikator' => array(),
 														];
+
+														//kegiatan
+														$data_all['data'][$tujuan_value['id_unik']]['data'][$sasaran_value['id_unik']]['data'][$program_value['id_unik']]['data'][$kegiatan_value['id_unik']]['pagu_1']+=$sub_kegiatan_value['pagu_1'];
+														$data_all['data'][$tujuan_value['id_unik']]['data'][$sasaran_value['id_unik']]['data'][$program_value['id_unik']]['data'][$kegiatan_value['id_unik']]['pagu_2']+=$sub_kegiatan_value['pagu_2'];
+														$data_all['data'][$tujuan_value['id_unik']]['data'][$sasaran_value['id_unik']]['data'][$program_value['id_unik']]['data'][$kegiatan_value['id_unik']]['pagu_3']+=$sub_kegiatan_value['pagu_3'];
+														$data_all['data'][$tujuan_value['id_unik']]['data'][$sasaran_value['id_unik']]['data'][$program_value['id_unik']]['data'][$kegiatan_value['id_unik']]['pagu_4']+=$sub_kegiatan_value['pagu_4'];
+														$data_all['data'][$tujuan_value['id_unik']]['data'][$sasaran_value['id_unik']]['data'][$program_value['id_unik']]['data'][$kegiatan_value['id_unik']]['pagu_5']+=$sub_kegiatan_value['pagu_5'];
+														$data_all['data'][$tujuan_value['id_unik']]['data'][$sasaran_value['id_unik']]['data'][$program_value['id_unik']]['data'][$kegiatan_value['id_unik']]['pagu_1_usulan']+=$sub_kegiatan_value['pagu_1_usulan'];
+														$data_all['data'][$tujuan_value['id_unik']]['data'][$sasaran_value['id_unik']]['data'][$program_value['id_unik']]['data'][$kegiatan_value['id_unik']]['pagu_2_usulan']+=$sub_kegiatan_value['pagu_2_usulan'];
+														$data_all['data'][$tujuan_value['id_unik']]['data'][$sasaran_value['id_unik']]['data'][$program_value['id_unik']]['data'][$kegiatan_value['id_unik']]['pagu_3_usulan']+=$sub_kegiatan_value['pagu_3_usulan'];
+														$data_all['data'][$tujuan_value['id_unik']]['data'][$sasaran_value['id_unik']]['data'][$program_value['id_unik']]['data'][$kegiatan_value['id_unik']]['pagu_4_usulan']+=$sub_kegiatan_value['pagu_4_usulan'];
+														$data_all['data'][$tujuan_value['id_unik']]['data'][$sasaran_value['id_unik']]['data'][$program_value['id_unik']]['data'][$kegiatan_value['id_unik']]['pagu_5_usulan']+=$sub_kegiatan_value['pagu_5_usulan'];
+
+														//program
+														$data_all['data'][$tujuan_value['id_unik']]['data'][$sasaran_value['id_unik']]['data'][$program_value['id_unik']]['pagu_1']+=$sub_kegiatan_value['pagu_1'];
+														$data_all['data'][$tujuan_value['id_unik']]['data'][$sasaran_value['id_unik']]['data'][$program_value['id_unik']]['pagu_2']+=$sub_kegiatan_value['pagu_2'];
+														$data_all['data'][$tujuan_value['id_unik']]['data'][$sasaran_value['id_unik']]['data'][$program_value['id_unik']]['pagu_3']+=$sub_kegiatan_value['pagu_3'];
+														$data_all['data'][$tujuan_value['id_unik']]['data'][$sasaran_value['id_unik']]['data'][$program_value['id_unik']]['pagu_4']+=$sub_kegiatan_value['pagu_4'];
+														$data_all['data'][$tujuan_value['id_unik']]['data'][$sasaran_value['id_unik']]['data'][$program_value['id_unik']]['pagu_5']+=$sub_kegiatan_value['pagu_5'];
+														$data_all['data'][$tujuan_value['id_unik']]['data'][$sasaran_value['id_unik']]['data'][$program_value['id_unik']]['pagu_1_usulan']+=$sub_kegiatan_value['pagu_1_usulan'];
+														$data_all['data'][$tujuan_value['id_unik']]['data'][$sasaran_value['id_unik']]['data'][$program_value['id_unik']]['pagu_2_usulan']+=$sub_kegiatan_value['pagu_2_usulan'];
+														$data_all['data'][$tujuan_value['id_unik']]['data'][$sasaran_value['id_unik']]['data'][$program_value['id_unik']]['pagu_3_usulan']+=$sub_kegiatan_value['pagu_3_usulan'];
+														$data_all['data'][$tujuan_value['id_unik']]['data'][$sasaran_value['id_unik']]['data'][$program_value['id_unik']]['pagu_4_usulan']+=$sub_kegiatan_value['pagu_4_usulan'];
+														$data_all['data'][$tujuan_value['id_unik']]['data'][$sasaran_value['id_unik']]['data'][$program_value['id_unik']]['pagu_5_usulan']+=$sub_kegiatan_value['pagu_5_usulan'];
 													}
 
 													if(!empty($sub_kegiatan_value['id_unik_indikator'])){
@@ -4706,11 +4734,8 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 					}
 				}
 
-				// $this->debug([
-				// 	'data' => $data_all['data']
-				// ]);
-
 				foreach ($data_all['data'] as $tujuan) {
+					/*
 					$indikator_tujuan = '';
 					$target_awal = '';
 					$target_1 = '';
@@ -4738,8 +4763,10 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 						$target_akhir .= '<div class="indikator">
 								'.(!empty($_POST['option']) ? $indikator['target_akhir'] . " " . $indikator['satuan'] : $indikator['target_akhir_usulan'] . " " . $indikator['satuan_usulan']).'</div>';
 					}
+					*/
 
 					foreach ($tujuan['data'] as $sasaran) {
+						/*
 						$no_sasaran++;
 						$indikator_sasaran = '';
 						$target_awal = '';
@@ -4768,21 +4795,17 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 							$target_akhir .= '<div class="indikator">
 								'.(!empty($_POST['option']) ? $indikator['target_akhir'] . " " . $indikator['satuan'] : $indikator['target_akhir_usulan'] . " " . $indikator['satuan_usulan']).'</div>';
 						}
+						*/
 
 						foreach ($sasaran['data'] as $program) {
 							$no_program++;
 							$indikator_program = '';
 							$target_awal = '';
 							$target_1 = '';
-							$pagu_1   = '';
 							$target_2 = '';
-							$pagu_2   = '';
 							$target_3 = '';
-							$pagu_3   = '';
 							$target_4 = '';
-							$pagu_4   = '';
 							$target_5 = '';
-							$pagu_5   = '';
 							$target_akhir = '';
 
 							if($tujuan_teks!=$program['tujuan_teks']){
@@ -4804,31 +4827,19 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 									'.(!empty($_POST['option']) ? $indikator['target_awal'] . " " . $indikator['satuan'] : $indikator['target_awal_usulan'] . " " . $indikator['satuan_usulan']).'</div>';
 								$target_1 .= '<div class="indikator">
 									'.(!empty($_POST['option']) ? $indikator['target_1'] . " " . $indikator['satuan'] : $indikator['target_1_usulan'] . " " . $indikator['satuan_usulan']).'</div>';
-								$pagu_1 .= '<div class="indikator">
-									'.(!empty($_POST['option']) ? $this->_number_format($indikator['pagu_1']) : $this->_number_format($indikator['pagu_1_usulan'])).'</div>';
 								$target_2 .= '<div class="indikator">
 									'.(!empty($_POST['option']) ? $indikator['target_2'] . " " . $indikator['satuan'] : $indikator['target_2_usulan'] . " " . $indikator['satuan_usulan']).'</div>';
-								$pagu_2 .= '<div class="indikator">
-									'.(!empty($_POST['option']) ? $this->_number_format($indikator['pagu_2']) : $this->_number_format($indikator['pagu_2_usulan'])).'</div>';
 								$target_3 .= '<div class="indikator">
 									'.(!empty($_POST['option']) ? $indikator['target_3'] . " " . $indikator['satuan'] : $indikator['target_3_usulan'] . " " . $indikator['satuan_usulan']).'</div>';
-								$pagu_3 .= '<div class="indikator">
-									'.(!empty($_POST['option']) ? $this->_number_format($indikator['pagu_3']) : $this->_number_format($indikator['pagu_3_usulan'])).'</div>';
 								$target_4 .= '<div class="indikator">
 									'.(!empty($_POST['option']) ? $indikator['target_4'] . " " . $indikator['satuan'] : $indikator['target_4_usulan'] . " " . $indikator['satuan_usulan']).'</div>';
-								$pagu_4 .= '<div class="indikator">
-									'.(!empty($_POST['option']) ? $this->_number_format($indikator['pagu_4']) : $this->_number_format($indikator['pagu_4_usulan'])).'</div>';
 								$target_5 .= '<div class="indikator">
 									'.(!empty($_POST['option']) ? $indikator['target_5'] . " " . $indikator['satuan'] : $indikator['target_5_usulan'] . " " . $indikator['satuan_usulan']).'</div>';
-								$pagu_5 .= '<div class="indikator">
-									'.(!empty($_POST['option']) ? $this->_number_format($indikator['pagu_5']) : $this->_number_format($indikator['pagu_5_usulan'])).'</div>';
 								$target_akhir .= '<div class="indikator">
 									'.(!empty($_POST['option']) ? $indikator['target_akhir'] . " " . $indikator['satuan'] : $indikator['target_akhir_usulan'] . " " . $indikator['satuan_usulan']).'</div>';
 							}
 
 							$target_arr = [$target_1, $target_2, $target_3, $target_4, $target_5];
-							$pagu_arr = [$pagu_1, $pagu_2, $pagu_3, $pagu_4, $pagu_5];
-
 							$body .= '
 									<tr class="tr-program">
 										<td class="kiri atas kanan bawah">'.$tujuan_teks.'</td>
@@ -4837,7 +4848,7 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 										<td class="kiri atas kanan bawah">'.$program['program_teks'].'</td>
 										<td class="kiri atas kanan bawah">'.$indikator_program.'</td>';
 										for ($i=1; $i <= $jadwal_lokal->lama_pelaksanaan; $i++) { 
-											$body.="<td class=\"kiri atas kanan bawah text_tengah\">".$target_arr[($i-1)]."</td><td class=\"atas kanan bawah text_kanan\">".$pagu_arr[($i-1)]."</td>";
+											$body.="<td class=\"kiri atas kanan bawah text_tengah\">".$target_arr[($i-1)]."</td><td class=\"atas kanan bawah text_kanan\">".$this->_number_format((!empty($_POST['option']) ? $program['pagu_'.$i] : $program['pagu_'.$i.'_usulan']))."</td>";
 										}
 										$body.='<td class="kiri kiri atas kanan bawah"></td>
 									</tr>
@@ -4847,15 +4858,10 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 								$indikator_kegiatan = '';
 								$target_awal = '';
 								$target_1 = '';
-								$pagu_1   = '';
 								$target_2 = '';
-								$pagu_2   = '';
 								$target_3 = '';
-								$pagu_3   = '';
 								$target_4 = '';
-								$pagu_4   = '';
 								$target_5 = '';
-								$pagu_5   = '';
 								$target_akhir = '';
 
 								foreach($kegiatan['indikator'] as $key => $indikator){
@@ -4865,30 +4871,19 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 										'.(!empty($_POST['option']) ? $indikator['target_awal'] . " " . $indikator['satuan'] : $indikator['target_awal_usulan'] . " " . $indikator['satuan_usulan']).'</div>';
 									$target_1 .= '<div class="indikator">
 										'.(!empty($_POST['option']) ? $indikator['target_1'] . " " . $indikator['satuan'] : $indikator['target_1_usulan'] . " " . $indikator['satuan_usulan']).'</div>';
-									$pagu_1 .= '<div class="indikator">
-										'.(!empty($_POST['option']) ? $this->_number_format($indikator['pagu_1']) : $this->_number_format($indikator['pagu_1_usulan'])).'</div>';
 									$target_2 .= '<div class="indikator">
 										'.(!empty($_POST['option']) ? $indikator['target_2'] . " " . $indikator['satuan'] : $indikator['target_2_usulan'] . " " . $indikator['satuan_usulan']).'</div>';
-									$pagu_2 .= '<div class="indikator">
-										'.(!empty($_POST['option']) ? $this->_number_format($indikator['pagu_2']) : $this->_number_format($indikator['pagu_2_usulan'])).'</div>';
 									$target_3 .= '<div class="indikator">
 										'.(!empty($_POST['option']) ? $indikator['target_3'] . " " . $indikator['satuan'] : $indikator['target_3_usulan'] . " " . $indikator['satuan_usulan']).'</div>';
-									$pagu_3 .= '<div class="indikator">
-										'.(!empty($_POST['option']) ? $this->_number_format($indikator['pagu_3']) : $this->_number_format($indikator['pagu_3_usulan'])).'</div>';
 									$target_4 .= '<div class="indikator">
 										'.(!empty($_POST['option']) ? $indikator['target_4'] . " " . $indikator['satuan'] : $indikator['target_4_usulan'] . " " . $indikator['satuan_usulan']).'</div>';
-									$pagu_4 .= '<div class="indikator">
-										'.(!empty($_POST['option']) ? $this->_number_format($indikator['pagu_4']) : $this->_number_format($indikator['pagu_4_usulan'])).'</div>';
 									$target_5 .= '<div class="indikator">
 										'.(!empty($_POST['option']) ? $indikator['target_5'] . " " . $indikator['satuan'] : $indikator['target_5_usulan'] . " " . $indikator['satuan_usulan']).'</div>';
-									$pagu_5 .= '<div class="indikator">
-										'.(!empty($_POST['option']) ? $this->_number_format($indikator['pagu_5']) : $this->_number_format($indikator['pagu_5_usulan'])).'</div>';
 									$target_akhir .= '<div class="indikator">
 										'.(!empty($_POST['option']) ? $indikator['target_akhir'] . " " . $indikator['satuan'] : $indikator['target_akhir_usulan'] . " " . $indikator['satuan_usulan']).'</div>';
 								}
 
 								$target_arr = [$target_1, $target_2, $target_3, $target_4, $target_5];
-								$pagu_arr = [$pagu_1, $pagu_2, $pagu_3, $pagu_4, $pagu_5];
 								$body .= '
 										<tr class="tr-kegiatan">
 											<td class="kiri atas kanan bawah"></td>
@@ -4897,7 +4892,7 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 											<td class="kiri atas kanan bawah">'.$kegiatan['kegiatan_teks'].'</td>
 											<td class="kiri atas kanan bawah">'.$indikator_kegiatan.'</td>';
 											for ($i=1; $i <= $jadwal_lokal->lama_pelaksanaan; $i++) { 
-												$body.="<td class=\"kiri atas kanan bawah text_tengah\">".$target_arr[($i-1)]."</td><td class=\"atas kanan bawah text_kanan\">".$pagu_arr[($i-1)]."</td>";
+												$body.="<td class=\"kiri atas kanan bawah text_tengah\">".$target_arr[($i-1)]."</td><td class=\"atas kanan bawah text_kanan\">".$this->_number_format((!empty($_POST['option']) ? $kegiatan['pagu_'.$i] : $kegiatan['pagu_'.$i.'_usulan']))."</td>";
 											}
 											$body.='
 											<td class="kiri atas kanan bawah"></td>
@@ -4908,15 +4903,10 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 									$indikator_sub_kegiatan = '';
 									$target_awal = '';
 									$target_1 = '';
-									$pagu_1   = '';
 									$target_2 = '';
-									$pagu_2   = '';
 									$target_3 = '';
-									$pagu_3   = '';
 									$target_4 = '';
-									$pagu_4   = '';
 									$target_5 = '';
-									$pagu_5   = '';
 									$target_akhir = '';
 
 									foreach($sub_kegiatan['indikator'] as $key => $indikator){
