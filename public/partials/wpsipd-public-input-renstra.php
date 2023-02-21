@@ -2438,7 +2438,7 @@ $table='<table cellpadding="2" cellspacing="0" style="font-family:\'Open Sans\',
 		+'<div class="dropdown" style="margin:30px">'
   			+'<button class="btn btn-warning dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">LAPORAN</button>'
 			  +'<div class="dropdown-menu" aria-labelledby="dropdownMenuButton">'
-			    +'<a class="dropdown-item" href="javascript:laporan(\'tc27\')">TC27</a>'
+			    +'<a class="dropdown-item" href="javascript:laporan(\'tc27\', 1)">TC27</a>'
 			  +'</div>'
 		+'</div>'
 		+'<h3 style="margin-top: 20px;">SETTING</h3>'
@@ -5085,7 +5085,7 @@ $table='<table cellpadding="2" cellspacing="0" style="font-family:\'Open Sans\',
 		get_program(false, val);
 	});
 
-	function laporan(type){
+	function laporan(type, option){
 		jQuery('#wrap-loading').show();
 
 		let action='';
@@ -5110,6 +5110,7 @@ $table='<table cellpadding="2" cellspacing="0" style="font-family:\'Open Sans\',
 				dataType:'json',
 				data:{
 					'action': action,
+					'option': option,
 		          	'api_key': '<?php echo $api_key; ?>',
 		          	'id_unit': '<?php echo $input['id_skpd']; ?>',
 		          	'id_jadwal_lokal':'<?php echo $jadwal_lokal[0]['id_jadwal_lokal']; ?>',
@@ -5121,6 +5122,7 @@ $table='<table cellpadding="2" cellspacing="0" style="font-family:\'Open Sans\',
 
 					jQuery("#modal-crud-renstra").find('.modal-dialog').css('maxWidth','1450px');
 					jQuery("#modal-crud-renstra").find('.modal-dialog').css('width','100%');
+					jQuery("#modal-crud-renstra").find('.modal-body').css('margin-right','20px');
 					jQuery("#modal-crud-renstra").find('.modal-title').html(title);
 					jQuery("#modal-crud-renstra").find('.modal-body').html(response.html);
 					jQuery("#modal-crud-renstra").find('.modal-body').css('overflow-x', 'auto');
