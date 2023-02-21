@@ -11231,6 +11231,10 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						}
 						$id_mapping = $data_fmis['idsubunit'];
 						$get_id = $this->get_id_skpd_fmis($id_mapping, $tahun_anggaran, true);
+						if(empty($get_id['id_skpd_sipd'])){
+							$id_mapping = $data_fmis['idunit'];
+							$get_id = $this->get_id_skpd_fmis($id_mapping, $tahun_anggaran, true);
+						}
 						$id_skpd_sipd = $get_id['id_skpd_sipd'];
 						if(!empty($id_skpd_sipd)){
 							$cek_aktivitas = array();
