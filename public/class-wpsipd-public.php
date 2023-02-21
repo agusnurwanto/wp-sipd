@@ -14030,7 +14030,11 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 
 		if(!empty($_POST)){
 			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
-				$satuan = $_POST['satuan'];
+				if(!empty($_POST['type']) && $_POST['type'] == 'ri'){
+					$satuan = json_decode(stripslashes(html_entity_decode($_POST['satuan'])), true);						
+				}else{
+					$satuan = $_POST['satuan'];
+				}
 				foreach ($satuan as $k => $v) {
 					$cek = $wpdb->get_var($wpdb->prepare("
 						SELECT 
@@ -14042,6 +14046,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						$v['satuan']
 					));
 					$opsi = array(
+						'id_satuan' => $v['id_satuan'],
 						'nama_satuan' => $v['satuan'],
 						'tahun_anggaran'	=> $_POST['tahun_anggaran']
 					);
