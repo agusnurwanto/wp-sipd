@@ -1864,9 +1864,18 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 					$data_sumber_dana = $wpdb->get_row($wpdb->prepare(
 						'SELECT *
 						FROM data_sumber_dana
-						WHERE id_unik=%d
+						WHERE id_dana=%d
 						AND tahun_anggaran=%d',
 						$v_sumber_dana,
+						$tahun_anggaran
+					));
+
+					$data_sumber_dana_usulan = $wpdb->get_row($wpdb->prepare(
+						'SELECT *
+						FROM data_sumber_dana
+						WHERE id_dana=%d
+						AND tahun_anggaran=%d',
+						$data['input_sumber_dana_usulan'][$k_sumber_dana],
 						$tahun_anggaran
 					));
 
@@ -1879,9 +1888,9 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 						'active' => 1,
 						'update_at' => current_time('mysql'),
 						'tahun_anggaran' => $tahun_anggaran,
-						'nama_dana_usulan' => $data_sumber_dana->nama_dana,
-						'kode_dana_usulan' => $data_sumber_dana->kode_dana,
-						'id_dana_usulan' => $data_sumber_dana->id_dana,
+						'nama_dana_usulan' => $data_sumber_dana_usulan->nama_dana,
+						'kode_dana_usulan' => $data_sumber_dana_usulan->kode_dana,
+						'id_dana_usulan' => $data_sumber_dana_usulan->id_dana,
 						'pagu_dana_usulan' => $data['input_pagu_sumber_dana_usulan'][$k_sumber_dana],
 					);
 					
@@ -1916,7 +1925,7 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 						'targetoutputteks' => $data_sub_keg->indikator.' '.$data_sub_keg->satuan,
 						'targetoutputteks_usulan' => $data_sub_keg->indikator.' '.$data_sub_keg->satuan,
 						'kode_sbl' => $kode_sbl,
-						'idsubbl' => '.',
+						'idsubbl' => 0,
 						'active' => 1,
 						'update_at' => current_time('mysql'),
 						'tahun_anggaran' => $tahun_anggaran,
@@ -2032,7 +2041,7 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 						'daerahteks_usulan' => $data_kabkot_usulan['nama'],
 						'idcamat_usulan' => $id_camat_usulan,
 						'iddetillokasi_usulan' => 0,
-						'idkabkota_usulan' => $data_lurah_usulan['id_kab'],
+						'idkabkota_usulan' => $data_kabkot_usulan['id_alamat'],
 						'idlurah_usulan' => $id_lurah_usulan,
 						'lurahteks_usulan' => $nama_lurah_usulan,
 						'kode_sbl' => $kode_sbl,
@@ -2082,20 +2091,123 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 						WHERE sk.kode_sub_giat=%s
 						AND sk.tahun_anggaran=%d
 						AND sk.active=1',
-						$kode_sub_giat,$tahun_anggaran),ARRAY_A);
-
-					// $data_sub_keg_indikator = $wpdb->get_results($wpdb->prepare(
-					// 	'SELECT *
-					// 	FROM data_sub_keg_indikator_lokal
-					// 	WHERE kode_sbl=%s
-					// 	AND tahun_anggaran=%s
-					// 	AND active=1',
-					// 	$data_sub_giat['kode_sbl'],$tahun_anggaran
-					// ),ARRAY_A);
-					
+						$kode_sub_giat,$tahun_anggaran
+					),ARRAY_A);
 					if(!empty($data_sub_giat)){
 						$ret['data'] = $data_sub_giat;
 					}
+
+					$data_master_sumber_dana =$wpdb->get_results($wpdb->prepare(
+						'SELECT *
+						FROM data_sumber_dana
+						WHERE
+						tahun_anggaran=%d',
+						$tahun_anggaran
+					));
+					if(!empty($data_master_sumber_dana)){
+						$ret['data']['master_sumber_dana'] = $data_master_sumber_dana;
+					}
+
+					$data_sumber_dana = $wpdb->get_results($wpdb->prepare(
+						'SELECT *
+						FROM data_dana_sub_keg_lokal
+						WHERE kode_sbl=%s
+						AND tahun_anggaran=%d
+						AND active=1',
+						$data_sub_giat['kode_sbl'], $tahun_anggaran
+					));
+					if(!empty($data_sumber_dana)){
+						$ret['data']['sumber_dana'] = $data_sumber_dana;
+					}
+
+					$data_lokasi = $wpdb->get_results($wpdb->prepare(
+						'SELECT *
+						FROM data_lokasi_sub_keg_lokal
+						WHERE kode_sbl=%s
+						AND tahun_anggaran=%d
+						AND active=1',
+						$data_sub_giat['kode_sbl'],$tahun_anggaran
+					));
+					if(!empty($data_lokasi)){
+						$ret['data']['lokasi'] = $data_lokasi;
+					}
+
+					$data_master_kabkot = array();
+					$data_master_kec = array();
+					$data_master_desa = array();
+					foreach ($data_lokasi as $v_lokasi) {
+						$data_prov = $wpdb->get_row($wpdb->prepare(
+							'SELECT *
+							FROM data_alamat
+							WHERE id_alamat=%d
+							AND tahun=%d
+							AND is_kab=1',
+							$v_lokasi->idkabkota, $tahun_anggaran
+						));
+
+						$data_master_kabkot = $wpdb->get_results($wpdb->prepare(
+							'SELECT *
+							FROM data_alamat
+							WHERE id_prov=%d
+							AND tahun=%d
+							AND is_kab=1',
+							$data_prov->id_prov,$tahun_anggaran
+						));
+						if(!empty($data_master_kabkot)){
+							$ret['data']['data_master_kabkot'][$v_lokasi->id] = $data_master_kabkot;
+						}
+
+						$data_master_kec = $wpdb->get_results($wpdb->prepare(
+							'SELECT *
+							FROM data_alamat
+							WHERE id_prov=%d
+							AND id_kab=%d
+							AND tahun=%d
+							AND is_kec=1',
+							$data_prov->id_prov,$v_lokasi->idkabkota,$tahun_anggaran
+						));
+						if(!empty($data_master_kec)){
+							$ret['data']['data_master_kec'][$v_lokasi->id] = $data_master_kec;
+						}
+						
+						$data_master_desa = array();
+						if(!empty($v_lokasi->idcamat)){
+							$data_master_desa = $wpdb->get_results($wpdb->prepare(
+								'SELECT *
+								FROM data_alamat
+								WHERE id_prov=%d
+								AND id_kab=%d
+								AND id_kec=%d
+								AND tahun=%d
+								AND is_kec=1',
+								$data_prov->id_prov,$v_lokasi->idkabkota,$v_lokasi->idcamat,$tahun_anggaran
+							));
+						}
+						if(!empty($data_master_desa)){
+							$ret['data']['data_master_desa'][$v_lokasi->id] = $data_master_desa;
+						}
+					}
+					
+					$data_master_sub_keg_indikator = $wpdb->get_results($wpdb->prepare(
+						'SELECT *
+						FROM data_master_indikator_subgiat
+						WHERE id_sub_keg=%d
+						AND tahun_anggaran=%d
+						AND active=1
+					', $data_sub_giat['id_sub_giat'],$tahun_anggaran
+					),ARRAY_A);
+					if(!empty($data_master_sub_keg_indikator)){
+						$ret['data']['master_sub_keg_indikator'] = $data_master_sub_keg_indikator;
+					}
+
+					$data_sub_keg_indikator = $wpdb->get_results($wpdb->prepare(
+						'SELECT *
+						FROM data_sub_keg_indikator_lokal
+						WHERE kode_sbl=%s
+						AND tahun_anggaran=%s
+						AND active=1',
+						$data_sub_giat['kode_sbl'],$tahun_anggaran
+					),ARRAY_A);
 					if(!empty($data_sub_keg_indikator)){
 						$ret['data']['indikator_sub_keg'] = $data_sub_keg_indikator;
 					}
@@ -2129,34 +2241,27 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 				$kode_sub_giat = $_POST['kode_sub_giat'];
 				$data = json_decode(stripslashes($_POST['data']), true);
 
-				// $data_sub_unit = $wpdb->get_row($wpdb->prepare(
-				// 	'SELECT *
-				// 	FROM data_unit
-				// 	WHERE id_skpd=%d',
-				// $data['input_sub_unit']));
+				$cek_data_renja = $wpdb->get_row($wpdb->prepare(
+					'SELECT id,
+						kode_sub_giat,
+						kode_sbl
+					FROM data_sub_keg_bl_lokal
+					WHERE kode_sub_giat=%s
+					AND active=1',
+					$kode_sub_giat
+				));
 
-				// $nama_skpd = $data_sub_unit->nama_skpd;
-				// $kode_skpd = $data_sub_unit->kode_skpd;
-				// if($data_sub_unit->is_skpd != 1){
-				// 	$data_unit = $wpdb->get_row($wpdb->prepare(
-				// 		'SELECT *
-				// 		FROM data_unit
-				// 		WHERE id_unit=%d
-				// 		AND is_skpd=1',
-				// 	$data_sub_unit->id_unit));
-				// 	$nama_skpd = $data_unit->nama_skpd;
-				// 	$kode_skpd = $data_unit->kode_skpd;
-				// }
-
-				// $data_prog_keg = $wpdb->get_row($wpdb->prepare(
-				// 					'SELECT *
-				// 					FROM data_prog_keg
-				// 					WHERE id_sub_giat=%d',
-				// 					$data['input_sub_kegiatan']));
-
-				// $kode_bl = $data_sub_unit->id_unit."."$data_sub_unit->id_skpd.".".$data_prog_keg->id_program.".".;
+				if(empty($cek_data_renja)){
+					$ret['status']	= 'error';
+					$ret['message']	= 'Data tidak ditemukan!';
+					die(json_encode($ret));
+				}
 
 				$opsi = array(
+					'waktu_awal' => $data['input_bulan_awal'],
+					'waktu_awal_usulan' => $data['input_bulan_awal_usulan'],
+					'waktu_akhir' => $data['input_bulan_akhir'],
+					'waktu_akhir_usulan' => $data['input_bulan_akhir_usulan'],
 					'pagu' => $data['input_pagu_sub_keg'],
 					'pagu_usulan' => $data['input_pagu_sub_keg_usulan'],
 					'pagu_n_depan' => $data['input_pagu_sub_keg_1'],
@@ -2166,12 +2271,102 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 					'update_at' => current_time('mysql')
 				);
 
-				$status = $wpdb->update('data_sub_keg_bl_lokal',$opsi,array('kode_sub_giat' => $kode_sub_giat));
+				$status = $wpdb->update('data_sub_keg_bl_lokal',$opsi,array('kode_sub_giat' => $kode_sub_giat, 'active' => 1));
 
 				if($status === false){
 					$ret['status'] = 'error';
 					$ret['message'] = 'Update gagal, harap hubungi admin!';
 				}
+				/** edit multiple sumber dana */
+				foreach ($data['input_sumber_dana'] as $k_sumber_dana => $v_sumber_dana) {
+					$data_sumber_dana = $wpdb->get_row($wpdb->prepare(
+						'SELECT *
+						FROM data_sumber_dana
+						WHERE id_dana=%d
+						AND tahun_anggaran=%d',
+						$v_sumber_dana,
+						$tahun_anggaran
+					));
+
+					$data_sumber_dana_usulan = $wpdb->get_row($wpdb->prepare(
+						'SELECT *
+						FROM data_sumber_dana
+						WHERE id_dana=%d
+						AND tahun_anggaran=%d',
+						$data['input_sumber_dana_usulan'][$k_sumber_dana],
+						$tahun_anggaran
+					));
+
+					$opsi_sumber_dana = array(
+						'namadana' => $data_sumber_dana->nama_dana,
+						'kodedana' => $data_sumber_dana->kode_dana,
+						'iddana' => $data_sumber_dana->id_dana,
+						'pagudana' => $data['input_pagu_sumber_dana'][$k_sumber_dana],
+						'nama_dana_usulan' => $data_sumber_dana_usulan->nama_dana,
+						'kode_dana_usulan' => $data_sumber_dana_usulan->kode_dana,
+						'id_dana_usulan' => $data_sumber_dana_usulan->id_dana,
+						'pagu_dana_usulan' => $data['input_pagu_sumber_dana_usulan'][$k_sumber_dana],
+					);
+
+					$cek_sumber_dana = $wpdb->get_results($wpdb->prepare(
+						'SELECT id
+						FROM data_dana_sub_keg_lokal
+						WHERE kode_sbl=%s
+						AND tahun_anggaran=%d
+						AND active=1',
+						$cek_data_renja->kode_sbl, $tahun_anggaran
+					), ARRAY_A);
+					
+					$status_sumber_dana = $wpdb->update('data_dana_sub_keg_lokal', $opsi_sumber_dana,array('id' => $cek_sumber_dana[$k_sumber_dana]['id'], 'kode_sbl' => $cek_data_renja->kode_sbl, 'active' => 1));
+		
+					if($status_sumber_dana === false){
+						$ret['status'] = 'error';
+						$ret['message'] = 'Insert gagal, harap hubungi admin!';
+						die(json_encode($ret));
+					}
+				}
+				/** -- end -- */
+				/** edit multiple indikator sub keg */
+				foreach($data['input_indikator_sub_keg'] as $k_sub_keg => $v_sub_keg){
+					$data_sub_keg = $wpdb->get_row($wpdb->prepare(
+						'SELECT *
+						FROM data_master_indikator_subgiat
+						WHERE id_sub_keg=%d
+						AND tahun_anggaran=%d
+						AND active=1',
+						$v_sub_keg,
+						$tahun_anggaran
+					));
+		
+					$opsi_sub_keg_indikator = array(
+						'outputteks' => $data_sub_keg->indikator,
+						'outputteks_usulan' => $data_sub_keg->indikator,
+						'targetoutput' => $data['input_target'][$k_sub_keg],
+						'targetoutput_usulan' => $data['input_target_usulan'][$k_sub_keg],
+						'satuanoutput' => $data_sub_keg->satuan,
+						'satuanoutput_usulan' => $data_sub_keg->satuan,
+						'targetoutputteks' => $data_sub_keg->indikator.' '.$data_sub_keg->satuan,
+						'targetoutputteks_usulan' => $data_sub_keg->indikator.' '.$data_sub_keg->satuan,
+						'id_indikator_sub_giat' => $data_sub_keg->id_sub_keg
+					);
+					$cek_sub_keg_indi = $wpdb->get_results($wpdb->prepare(
+						'SELECT id
+						FROM data_sub_keg_indikator_lokal
+						WHERE kode_sbl=%s
+						AND tahun_anggaran=%d
+						AND active=1',
+						$cek_data_renja->kode_sbl, $tahun_anggaran
+					), ARRAY_A);
+
+					
+					$status_sub_keg = $wpdb->update('data_sub_keg_indikator_lokal', $opsi_sub_keg_indikator, array('id' => $cek_sub_keg_indi[$k_sub_keg]['id'] ,'kode_sbl' => $cek_data_renja->kode_sbl, 'active' => 1));
+					if($status_sub_keg === false){
+						$ret['status'] = 'error';
+						$ret['message'] = 'Insert gagal, harap hubungi admin!';
+						die(json_encode($ret));
+					}
+				}		
+				/** -- end -- */
 			}else{
 				$ret['status'] = 'error';
 				$ret['message'] = 'APIKEY tidak sesuai!';
@@ -2208,7 +2403,9 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 					),ARRAY_A);
 	
 					$status = $wpdb->update('data_sub_keg_bl_lokal', array('active' => 0), array('kode_sub_giat' => $kode_sub_giat));
-					$status_sub_keg = $wpdb->update('data_sub_keg_indikator_lokal', array('active' => 0), array('kode_sbl' => $data_sub_keg[0]['kode_sbl']));
+					$status_indi_sub_keg = $wpdb->update('data_sub_keg_indikator_lokal', array('active' => 0), array('kode_sbl' => $data_sub_keg[0]['kode_sbl']));
+					$status_dana_sub_keg = $wpdb->update('data_dana_sub_keg_lokal', array('active' => 0), array('kode_sbl' => $data_sub_keg[0]['kode_sbl']));
+					$status_lokasi_sub_keg = $wpdb->update('data_lokasi_sub_keg_lokal', array('active' => 0), array('kode_sbl' => $data_sub_keg[0]['kode_sbl']));
 	
 					if($status === false){
 						$ret['status'] = 'error';
