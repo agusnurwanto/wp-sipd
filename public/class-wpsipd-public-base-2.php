@@ -401,7 +401,8 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 					$ret['data'] = $wpdb->get_results(
 						$wpdb->prepare("
 						SELECT 
-							*
+							id_skpd,
+							nama_skpd
 						from data_unit
 						where id_skpd=%d
 							AND tahun_anggaran=%d
@@ -412,7 +413,8 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 						$ret['data'] = $wpdb->get_results(
 							$wpdb->prepare("
 							SELECT 
-								*
+								id_skpd,
+								nama_skpd
 							from data_unit
 							where id_skpd=%d
 								AND tahun_anggaran=%d
@@ -424,7 +426,8 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 						$ret['data'] = $wpdb->get_results(
 							$wpdb->prepare("
 							SELECT 
-								*
+								id_skpd,
+								nama_skpd
 							from data_unit
 							where idinduk=%d
 								AND tahun_anggaran=%d
