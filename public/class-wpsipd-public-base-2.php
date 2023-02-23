@@ -2327,6 +2327,20 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 				}
 				/** -- end -- */
 				/** edit multiple indikator sub keg */
+				$cek_delete_sub_keg_indi = $wpdb->get_results($wpdb->prepare(
+					'SELECT id
+					FROM data_sub_keg_indikator_lokal
+					WHERE kode_sbl=%s
+					AND tahun_anggaran=%d
+					AND active=1',
+					$cek_data_renja->kode_sbl, $tahun_anggaran
+				), ARRAY_A);
+				$delete_indi = array();
+				foreach ($cek_delete_sub_keg_indi as $v_indi) {
+					if(in_array($v_indi['id'],$data['ind_sub_keg_id']) == false){
+						$status_sub_keg = $wpdb->update('data_sub_keg_indikator_lokal', array('active' => 0), array('id' => $v_indi['id'], 'kode_sbl' => $cek_data_renja->kode_sbl, 'active' => 1));
+					}
+				}
 				foreach($data['input_indikator_sub_keg'] as $k_sub_keg => $v_sub_keg){
 					$data_sub_keg = $wpdb->get_row($wpdb->prepare(
 						'SELECT *
@@ -2347,19 +2361,30 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 						'satuanoutput_usulan' => $data_sub_keg->satuan,
 						'targetoutputteks' => $data_sub_keg->indikator.' '.$data_sub_keg->satuan,
 						'targetoutputteks_usulan' => $data_sub_keg->indikator.' '.$data_sub_keg->satuan,
-						'id_indikator_sub_giat' => $data_sub_keg->id_sub_keg
+						'id_indikator_sub_giat' => $data_sub_keg->id_sub_keg,
+						'idoutputbl' => 0,
+						'kode_sbl' => $cek_data_renja->kode_sbl,
+						'idsubbl' => 0,
+						'active' => 1,
+						'update_at' => current_time('mysql'),
+						'tahun_anggaran' => $tahun_anggaran
 					);
+
+					$cek_id = $data['ind_sub_keg_id'][$k_sub_keg];
 					$cek_sub_keg_indi = $wpdb->get_results($wpdb->prepare(
 						'SELECT id
 						FROM data_sub_keg_indikator_lokal
-						WHERE kode_sbl=%s
+						WHERE id=%d
+						AND kode_sbl=%s
 						AND tahun_anggaran=%d
 						AND active=1',
-						$cek_data_renja->kode_sbl, $tahun_anggaran
+						$cek_id, $cek_data_renja->kode_sbl, $tahun_anggaran
 					), ARRAY_A);
-
-					
-					$status_sub_keg = $wpdb->update('data_sub_keg_indikator_lokal', $opsi_sub_keg_indikator, array('id' => $cek_sub_keg_indi[$k_sub_keg]['id'] ,'kode_sbl' => $cek_data_renja->kode_sbl, 'active' => 1));
+					if(!empty($cek_sub_keg_indi)){
+						$status_sub_keg = $wpdb->update('data_sub_keg_indikator_lokal', $opsi_sub_keg_indikator, array('id' => $cek_id ,'kode_sbl' => $cek_data_renja->kode_sbl, 'active' => 1));
+					}else{
+						$status_sub_keg = $wpdb->insert('data_sub_keg_indikator_lokal', $opsi_sub_keg_indikator);
+					}
 					if($status_sub_keg === false){
 						$ret['status'] = 'error';
 						$ret['message'] = 'Insert gagal, harap hubungi admin!';
