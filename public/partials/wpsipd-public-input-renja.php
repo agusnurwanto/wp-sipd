@@ -1335,31 +1335,31 @@ echo '
                                 +'<button class="btn btn-warning" onclick="tambahSumberDana(this); return false;"><i class="dashicons dashicons-plus"></i></button>'
                             +'</td>'
                         +'</tr>';
-                    var tbody = jQuery('.input_sumber_dana_usulan > tbody');
-                    tbody.append(trNewUsulan);
-                    var tr = tbody.find('>tr');
-                    var length = tr.length-1;
-                    tr.map(function(i, b){
-                        if(i == 0){
-                            var html = '<button class="btn btn-warning" onclick="tambahSumberDana(this); return false;"><i class="dashicons dashicons-plus"></i></button>';
-                        }else{
-                            var html = '<button class="btn btn-danger" onclick="hapusSumberDana(this); return false;"><i class="dashicons dashicons-trash"></i></button>';
-                        }
-                        jQuery(b).find('>td').last().html(html);
-                    });
-                    var trNew = ''
-                        +'<tr data-id="'+id+'">'
-                            +'<td style="width: 60%">'
-                                +'<select class="form-control input_select_2" id="sumber_dana_'+id+'" name="input_sumber_dana[]">'
-                                    +'<option value="">Pilih Sumber Dana</option>'
-                                +'</select>'
-                            +'</td>'
-                            +'<td>'
-                                +'<input class="form-control input_number" id="pagu_sumber_dana_'+id+'" type="number" name="input_pagu_sumber_dana[]"/>'
-                            +'</td>'
-                        +'</tr>';
-                    var tbody = jQuery('.input_sumber_dana > tbody');
-                    tbody.append(trNew);
+                        var tbody = jQuery('.input_sumber_dana_usulan > tbody');
+                        tbody.append(trNewUsulan);
+                        var tr = tbody.find('>tr');
+                        var length = tr.length-1;
+                        tr.map(function(i, b){
+                            if(i == 0){
+                                var html = '<button class="btn btn-warning" onclick="tambahSumberDana(this); return false;"><i class="dashicons dashicons-plus"></i></button>';
+                            }else{
+                                var html = '<button class="btn btn-danger" onclick="hapusSumberDana(this); return false;"><i class="dashicons dashicons-trash"></i></button>';
+                            }
+                            jQuery(b).find('>td').last().html(html);
+                        });
+                        var trNew = ''
+                            +'<tr data-id="'+id+'">'
+                                +'<td style="width: 60%">'
+                                    +'<select class="form-control input_select_2" id="sumber_dana_'+id+'" name="input_sumber_dana[]">'
+                                        +'<option value="">Pilih Sumber Dana</option>'
+                                    +'</select>'
+                                +'</td>'
+                                +'<td>'
+                                    +'<input class="form-control input_number" id="pagu_sumber_dana_'+id+'" type="number" name="input_pagu_sumber_dana[]"/>'
+                                +'</td>'
+                            +'</tr>';
+                        var tbody = jQuery('.input_sumber_dana > tbody');
+                        tbody.append(trNew);
                     }
                     
                     jQuery("#sumber_dana_usulan_"+id).html(option_dana).select2({width: '100%'});
@@ -1399,7 +1399,8 @@ echo '
                     jQuery("#kabupaten_kota_usulan_"+urutan).val(value.idkabkota_usulan).trigger('change');
                     if(value.idcamat_usulan != null){
                         // jQuery("#kecamatan_usulan_"+urutan).val(value.idcamat_usulan).trigger('change');
-                    } 
+                    }
+                })
                 /** -- end -- */
                 jQuery("#modalTambahRenja .modal-title").html("Edit Sub Kegiatan");
                 jQuery("#modalTambahRenja .submitBtn")
