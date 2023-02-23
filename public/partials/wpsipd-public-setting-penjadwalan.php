@@ -86,7 +86,7 @@ $body = '';
 					<th class="text-center">Jadwal Selesai</th>
 					<th class="text-center">Tahun Anggaran</th>
 					<th class="text-center">Jadwal RENSTRA</th>
-					<th class="text-center" style="width: 150px;">Aksi</th>
+					<th class="text-center" style="width: 250px;">Aksi</th>
 				</tr>
 			</thead>
 			<tbody id="data_body">
@@ -410,6 +410,44 @@ $body = '';
 			alert('Tidak bisa edit karena penjadwalan sudah dikunci');
 		}else if(jenis == 'hapus'){
 			alert('Tidak bisa hapus karena penjadwalan sudah dikunci');
+		}
+	}
+
+	function copy_usulan(){
+		if(confirm('Apakah anda yakin untuk melakukan ini? data penetapan akan diupdate sama dengan data usulan.')){
+			jQuery('#wrap-loading').show();
+			jQuery.ajax({
+				url: ajax.url,
+	          	type: "post",
+	          	data: {
+	          		"action": "copy_usulan_renja",
+	          		"api_key": jQuery("#api_key").val()
+	          	},
+	          	dataType: "json",
+	          	success: function(res){
+	          		alert(res.message);
+	          		jQuery('#wrap-loading').hide();
+	          	}
+	        });
+		}
+	}
+
+	function copy_data_renstra(){
+		if(confirm('Apakah anda yakin untuk melakukan ini? data RENJA akan diisi sesuai RENSTRA tahun berjalan.')){
+			jQuery('#wrap-loading').show();
+			jQuery.ajax({
+				url: ajax.url,
+	          	type: "post",
+	          	data: {
+	          		"action": "copy_data_renstra_ke_renja",
+	          		"api_key": jQuery("#api_key").val()
+	          	},
+	          	dataType: "json",
+	          	success: function(res){
+	          		alert(res.message);
+	          		jQuery('#wrap-loading').hide();
+	          	}
+	        });
 		}
 	}
 

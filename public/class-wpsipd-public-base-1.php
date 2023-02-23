@@ -1265,4 +1265,54 @@ class Wpsipd_Public_Base_1 extends Wpsipd_Public_Base_2{
         }
         die(json_encode($ret));
     }
+
+    public function copy_data_renstra_ke_renja(){
+        global $wpdb;
+        $ret = array(
+            'status'    => 'success',
+            'action'    => 'get_data_sub_giat',
+            'message'   => 'Berhasil copy data RENSTRA dengan RENJA!'
+        );
+        if (!empty($_POST)) {
+            if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( WPSIPD_API_KEY )) {
+                // belum selesai
+            }else{
+                $ret = array(
+                    'status' => 'error',
+                    'message'   => 'Api Key tidak sesuai!'
+                );
+            }
+        }else{
+            $ret = array(
+                'status' => 'error',
+                'message'   => 'Format tidak sesuai!'
+            );
+        }
+        die(json_encode($ret));
+    }
+
+    public function copy_usulan_renja(){
+        global $wpdb;
+        $ret = array(
+            'status'    => 'success',
+            'action'    => 'get_data_sub_giat',
+            'message'   => 'Berhasil copy data usulan RENJA!'
+        );
+        if (!empty($_POST)) {
+            if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( WPSIPD_API_KEY )) {
+                // belum selesai
+            }else{
+                $ret = array(
+                    'status' => 'error',
+                    'message'   => 'Api Key tidak sesuai!'
+                );
+            }
+        }else{
+            $ret = array(
+                'status' => 'error',
+                'message'   => 'Format tidak sesuai!'
+            );
+        }
+        die(json_encode($ret));
+    }
 }

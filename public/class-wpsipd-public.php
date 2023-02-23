@@ -14243,6 +14243,9 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 									|| $tipe_perencanaan == 'renja'
 								){
 									$delete	.= '<a class="btn btn-danger" href="#" onclick="copy_usulan(); return false;" title="Copy Data Usulan ke Penetapan">Copy Data Usulan</a>';
+									if($tipe_perencanaan == 'renja'){
+										$delete	.= '<a class="btn btn-danger" href="#" onclick="copy_data_renstra(); return false;" title="Copy Data RENSTRA ke RENJA">Copy Data RENSTRA</a>';
+									}
 								}
 							}
 	
