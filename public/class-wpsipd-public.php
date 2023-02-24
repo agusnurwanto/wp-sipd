@@ -13970,29 +13970,49 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 
 		if(!empty($_POST)){
 			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
-				$kategori = $_POST['kategori'];
-				$wpdb->update('data_kelompok_satuan_harga', array('active' => 0), array(
-					'tahun_anggaran'	=> $_POST['tahun_anggaran'],
-					'tipe_kelompok' => $_POST['tipe_ssh']
-				));
+				if(!empty($_POST['type']) && $_POST['type'] == 'ri'){
+					$kategori = json_decode(stripslashes(html_entity_decode($_POST['kategori'])), true);						
+				}else{
+					$kategori = $_POST['kategori'];
+				}
+
+				if(empty($_POST['type'])){
+					$wpdb->update('data_kelompok_satuan_harga', array('active' => 0), array(
+						'tahun_anggaran'	=> $_POST['tahun_anggaran'],
+						'tipe_kelompok' => $_POST['tipe_ssh']
+					));	
+				}
 				foreach ($kategori as $k => $v) {
-					$cek = $wpdb->get_var($wpdb->prepare("
-						SELECT 
-							id 
-						from data_kelompok_satuan_harga 
-						where tahun_anggaran=%d 
-							AND id_kategori=%s
-							AND tipe_kelompok=%s",
-						$_POST['tahun_anggaran'],
-						$v['id_kategori'],
-						$v['kelompok']
-					));
+					if(!empty($_POST['type']) && $_POST['type'] == 'ri'){
+						$cek = $wpdb->get_var($wpdb->prepare("
+							SELECT 
+								id 
+							from data_kelompok_satuan_harga 
+							where tahun_anggaran=%d 
+								AND id_kategori=%s",
+							$_POST['tahun_anggaran'],
+							$v['id_kategori']
+						));
+					}else{
+						$cek = $wpdb->get_var($wpdb->prepare("
+							SELECT 
+								id 
+							from data_kelompok_satuan_harga 
+							where tahun_anggaran=%d 
+								AND id_kategori=%s
+								AND tipe_kelompok=%s",
+							$_POST['tahun_anggaran'],
+							$v['id_kategori'],
+							$v['kelompok']
+						));
+					}
 					$opsi = array(
 						'id_kategori' => $v['id_kategori'],
 						'kode_kategori' => $v['kode_kategori'],
 						'uraian_kategori' => $v['uraian_kategori'],
 						'tipe_kelompok' => $v['kelompok'],
-						'active' => 1,
+						// 'active' => 1,
+						'active' => $v['active'],
 						'tahun_anggaran'	=> $_POST['tahun_anggaran']
 					);
 					if (!empty($cek)) {
