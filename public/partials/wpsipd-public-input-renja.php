@@ -536,12 +536,12 @@ echo '
                                         <table class="input_sumber_dana_usulan" style="margin: 0;">
                                             <tr data-id="1">
                                                 <td style="width: 60%; max-width:100px;">
-                                                    <select class="form-control input_select_2 sumber_dana_usulan" id="sumber_dana_usulan_1" name="input_sumber_dana_usulan[]">
+                                                    <select class="form-control input_select_2 sumber_dana_usulan" id="sumber_dana_usulan_1" name="input_sumber_dana_usulan[1]">
                                                         <option value="">Pilih Sumber Dana</option>
                                                     </select>
                                                 </td>
                                                 <td>
-                                                    <input class="form-control input_number" id="pagu_sumber_dana_usulan_1" type="number" name="input_pagu_sumber_dana_usulan[]"/>
+                                                    <input class="form-control input_number" id="pagu_sumber_dana_usulan_1" type="number" name="input_pagu_sumber_dana_usulan[1]"/>
                                                 </td>
                                                 <td style="width: 70px" class="text-center">
                                                     <button class="btn btn-warning" onclick="tambahSumberDana(this); return false;"><i class="dashicons dashicons-plus"></i></button>
@@ -554,17 +554,17 @@ echo '
                                         <table class="input_lokasi_usulan" style="margin: 0;">
                                             <tr data-id="1">
                                                 <td>
-                                                    <select class="form-control kabupaten_kota_usulan" id="kabupaten_kota_usulan_1" name="input_kabupaten_kota_usulan[]" onchange="get_data_lokasi(this.value,'kabkot','usulan')">
+                                                    <select class="form-control kabupaten_kota_usulan" id="kabupaten_kota_usulan_1" name="input_kabupaten_kota_usulan[1]" onchange="get_data_lokasi(this.value,'kabkot','usulan')">
                                                         <option value="">Pilih Kabupaten / Kota</option>
                                                     </select>
                                                 </td>
                                                 <td style="width: 30%">
-                                                    <select class="form-control input_select_2 kecamatan_usulan" name="input_kecamatan_usulan[]" id="kecamatan_usulan_1" onchange="get_data_lokasi(this.value,'kec','usulan')">
+                                                    <select class="form-control input_select_2 kecamatan_usulan" name="input_kecamatan_usulan[1]" id="kecamatan_usulan_1" onchange="get_data_lokasi(this.value,'kec','usulan')">
                                                         <option value="">Pilih Kecamatan</option>
                                                     </select>
                                                 </td>
                                                 <td style="width: 30%">
-                                                    <select class="form-control input_select_2 desa_usulan" name="input_desa_usulan[]" id="desa_usulan_1">
+                                                    <select class="form-control input_select_2 desa_usulan" name="input_desa_usulan[1]" id="desa_usulan_1">
                                                         <option value="">Pilih Desa</option>
                                                     </select>
                                                 </td>
@@ -606,10 +606,10 @@ echo '
                                         <table class="indi_sub_keg_table_usulan" style="margin: 0;">
                                             <tr data-id="1" header="1">
                                                 <td colspan="2" style="max-width: 100px;">
-                                                    <select class="form-control pagu_indi_sub_keg input_select_2" id="pagu_ind_sub_keg_usulan_1" name="input_indikator_sub_keg_usulan[]">
+                                                    <select class="form-control pagu_indi_sub_keg input_select_2" id="pagu_ind_sub_keg_usulan_1" name="input_indikator_sub_keg_usulan[1]">
                                                         <option value="">Pilih Nama Indikator</option>
                                                     </select>
-                                                    <input type="hidden" id="ind_sub_keg_id_1" name="ind_sub_keg_id[]" value="0">
+                                                    <input type="hidden" id="ind_sub_keg_id_1" name="ind_sub_keg_id[1]" value="0">
                                                 </td>
                                                 <td rowspan="2" style="width: 70px; vertical-align: middle;" class="text-center">
                                                     <button class="btn btn-warning" onclick="tambahIndikator(this); return false;"><i class="dashicons dashicons-plus"></i></button>
@@ -617,10 +617,10 @@ echo '
                                             </tr>
                                             <tr data-id="1">
                                                 <td style="width: 50%;">
-                                                    <input class="form-control input_number" type="number" id="indikator_pagu_indi_sub_keg_usulan_1" name="input_target_usulan[]" placeholder="Target Indikator"/>
+                                                    <input class="form-control input_number" type="number" id="indikator_pagu_indi_sub_keg_usulan_1" name="input_target_usulan[1]" placeholder="Target Indikator"/>
                                                 </td>
                                                 <td style="width: 50%;">
-                                                    <select class="form-control satuan_pagu_indi_sub_keg input_select_2" id="satuan_pagu_indi_sub_keg_usulan_1" name="input_satuan_usulan[]">
+                                                    <select class="form-control satuan_pagu_indi_sub_keg input_select_2" id="satuan_pagu_indi_sub_keg_usulan_1" name="input_satuan_usulan[1]">
                                                         <option value="">Pilih Satuan</option>
                                                     </select>
                                                 </td>
@@ -644,12 +644,12 @@ echo '
                                         <table class="input_sumber_dana" style="margin: 0;">
                                             <tr data-id="1">
                                                 <td style="width: 60%; max-width:100px;">
-                                                    <select class="form-control input_select_2 sumber_dana" id="sumber_dana_1" name="input_sumber_dana[]">
+                                                    <select class="form-control input_select_2 sumber_dana" id="sumber_dana_1" name="input_sumber_dana[1]">
                                                         <option value="">Pilih Sumber Dana</option>
                                                     </select>
                                                 </td>
                                                 <td>
-                                                    <input class="form-control input_number" id="pagu_sumber_dana_1" type="number" name="input_pagu_sumber_dana[]"/>
+                                                    <input class="form-control input_number" id="pagu_sumber_dana_1" type="number" name="input_pagu_sumber_dana[1]"/>
                                                 </td>
                                             </tr>
                                         </table>
@@ -659,17 +659,17 @@ echo '
                                         <table class="input_lokasi" style="margin: 0;">
                                             <tr data-id="1">
                                                 <td>
-                                                    <select class="form-control kabupaten_kota" id="kabupaten_kota_1" name="input_kabupaten_kota[]" onchange="get_data_lokasi(this.value,'kabkot','penetapan')">
+                                                    <select class="form-control kabupaten_kota" id="kabupaten_kota_1" name="input_kabupaten_kota[1]" onchange="get_data_lokasi(this.value,'kabkot','penetapan')">
                                                         <option value="">Pilih Kabupaten / Kota</option>
                                                     </select>
                                                 </td>
                                                 <td style="width: 30%">
-                                                    <select class="form-control input_select kecamatan" id="kecamatan_1" name="input_kecamatan[]" onchange="get_data_lokasi(this.value,'kec','penetapan')">
+                                                    <select class="form-control input_select kecamatan" id="kecamatan_1" name="input_kecamatan[1]" onchange="get_data_lokasi(this.value,'kec','penetapan')">
                                                         <option value="">Pilih Kecamatan</option>
                                                     </select>
                                                 </td>
                                                 <td style="width: 30%">
-                                                    <select class="form-control input_select desa" id="desa_1" name="input_desa[]">
+                                                    <select class="form-control input_select desa" id="desa_1" name="input_desa[1]">
                                                         <option value="">Pilih Desa</option>
                                                     </select>
                                                 </td>
@@ -708,17 +708,17 @@ echo '
                                         <table class="indi_sub_keg_table" style="margin: 0;">
                                             <tr data-id="1" header="1">
                                                 <td colspan="2" style="max-width: 100px;">
-                                                    <select class="form-control pagu_indi_sub_keg input_select_2" id="pagu_indi_sub_keg_penetapan_1" name="input_indikator_sub_keg[]">
+                                                    <select class="form-control pagu_indi_sub_keg input_select_2" id="pagu_indi_sub_keg_penetapan_1" name="input_indikator_sub_keg[1]">
                                                         <option value="">Pilih Nama Indikator</option>
                                                     </select>
                                                 </td>
                                             </tr>
                                             <tr data-id="1">
                                                 <td style="width: 50%;">
-                                                    <input class="form-control input_number" type="number" name="input_target[]" id="indikator_pagu_indi_sub_keg_1" placeholder="Target Indikator"/>
+                                                    <input class="form-control input_number" type="number" name="input_target[1]" id="indikator_pagu_indi_sub_keg_1" placeholder="Target Indikator"/>
                                                 </td>
                                                 <td style="width: 50%;">
-                                                    <select class="form-control satuan_pagu_indi_sub_keg input_select_2" id="satuan_pagu_indi_sub_keg_penetapan_1" name="input_satuan[]">
+                                                    <select class="form-control satuan_pagu_indi_sub_keg input_select_2" id="satuan_pagu_indi_sub_keg_penetapan_1" name="input_satuan[1]">
                                                         <option value="">Pilih Satuan</option>
                                                     </select>
                                                 </td>
@@ -767,15 +767,6 @@ echo '
 
     jQuery(document).ready(function(){
         run_download_excel();
-    <?php if(!empty($add_renja)): ?>
-        get_data_sub_unit(id_skpd)
-        .then(function(){
-            get_data_sumber_dana()
-            .then(function(){
-                get_data_lokasi(false, 'prov')
-            });
-        });
-    <?php endif; ?>
 
     	var mySpace = '<div style="padding:3rem;"></div>';
     	jQuery('body').prepend(mySpace);
@@ -792,37 +783,44 @@ echo '
     	var aksi = '<?php echo $add_renja; ?>';
     	jQuery('#action-sipd').append(aksi);
 
+    <?php if(!empty($add_renja)): ?>
         jQuery('#tambah-data').on('click', function(){
-            jQuery("#modalTambahRenja .modal-title").html("Tambah Sub Kegiatan");
-            jQuery("#modalTambahRenja .submitBtn")
-                .attr("onclick", 'submitTambahRenjaForm()')
-                .attr("disabled", false)
-                .text("Simpan");
-            jQuery('#modalTambahRenja').modal('show');
-            jQuery('#input_sub_unit').prop('disabled', false);
-            jQuery('#sub_kegiatan').prop('disabled', false);
-        });
+            get_data_sub_unit(id_skpd)
+            .then(function(){
+                get_data_sumber_dana()
+                .then(function(){
+                    get_data_lokasi(false, 'prov')
+                    .then(function(){
+                        jQuery("#modalTambahRenja .modal-title").html("Tambah Sub Kegiatan");
+                        jQuery("#modalTambahRenja .submitBtn")
+                            .attr("onclick", 'submitTambahRenjaForm()')
+                            .attr("disabled", false)
+                            .text("Simpan");
+                        jQuery('#modalTambahRenja').modal('show');
+                        jQuery('#input_sub_unit').prop('disabled', false);
+                        jQuery('#sub_kegiatan').prop('disabled', false);
+                        jQuery('#input_sub_unit').val('').trigger("change");
+                        jQuery('#sub_kegiatan').empty().trigger("change");
+                        jQuery('.bulan_awal').val("1");
+                        jQuery('.bulan_akhir').val("12");
+                        jQuery('.input_number').val(0);
+                        jQuery('.input_text').val('');
+                        jQuery('.input_select').val('');
+                        var iddf = jQuery('.indi_sub_keg_table_usulan tr').last().attr('data-id');
+                        if(iddf > 1){
+                            for (let index = iddf; index > 1; index--) {
+                                jQuery('.indi_sub_keg_table_usulan > tbody').find('tr[data-id="'+index+'"]').remove();
+                                jQuery('.indi_sub_keg_table > tbody').find('tr[data-id="'+index+'"]').remove();
+                            }
+                        }
+                        var html = '<button class="btn btn-warning" onclick="tambahIndikator(this); return false;"><i class="dashicons dashicons-plus"></i></button>';
+                        jQuery('.indi_sub_keg_table_usulan tr:first-child').find('>td').last().html(html);
 
-        jQuery('#modalTambahRenja').on('hidden.bs.modal', function () {
-            jQuery('.input_number').val(0);
-            jQuery('.input_text').val('');
-            jQuery('.input_select').val('');
-            jQuery('.input_select_2').val(null).trigger('change');
-            jQuery('.bulan_awal option:selected').attr("selected",null);
-            jQuery('.bulan_awal option[value=1]').attr("selected","selected");
-            jQuery('.bulan_akhir option:selected').attr("selected",null);
-            jQuery('.bulan_akhir option[value=12]').attr("selected","selected");
-            
-            var iddf = jQuery('.indi_sub_keg_table_usulan tr').last().attr('data-id');
-            if(iddf > 1){
-                for (let index = iddf; index > 1; index--) {
-                    jQuery('.indi_sub_keg_table_usulan > tbody').find('tr[data-id="'+index+'"]').remove();
-                    jQuery('.indi_sub_keg_table > tbody').find('tr[data-id="'+index+'"]').remove();
-                }
-            }
-            var html = '<button class="btn btn-warning" onclick="tambahIndikator(this); return false;"><i class="dashicons dashicons-plus"></i></button>';
-            jQuery('.indi_sub_keg_table_usulan tr:first-child').find('>td').last().html(html);
+                    });
+                })
+            });
         });
+    <?php endif; ?>
     });
 
     function tambahIndikator(that){
@@ -832,10 +830,10 @@ echo '
         var trNewUsulan = ''
             +'<tr data-id="'+newId+'" header="1">'
                 +'<td colspan="2" style="max-width: 100px;">'
-                    +'<select class="form-control pagu_indi_sub_keg input_select_2" data-edit="0" id="pagu_ind_sub_keg_usulan_'+newId+'" name="input_indikator_sub_keg_usulan[]">'
+                    +'<select class="form-control pagu_indi_sub_keg input_select_2" data-edit="0" id="pagu_ind_sub_keg_usulan_'+newId+'" name="input_indikator_sub_keg_usulan['+newId+']">'
                         +'<option value="">Pilih Nama Indikator</option>'
                     +'</select>'
-                    +'<input type="hidden" id="ind_sub_keg_id_'+newId+'" name="ind_sub_keg_id[]" value="0">'
+                    +'<input type="hidden" id="ind_sub_keg_id_'+newId+'" name="ind_sub_keg_id['+newId+']" value="0">'
                 +'</td>'
                 +'<td style="width: 70px; vertical-align: middle;" class="text-center aksi" rowspan="2">'
                     +'<button class="btn btn-warning" onclick="tambahIndikator(this); return false;"><i class="dashicons dashicons-plus"></i></button>'
@@ -843,10 +841,10 @@ echo '
             +'</tr>'
             +'<tr data-id="'+newId+'">'
                 +'<td style="width: 50%;">'
-                    +'<input class="form-control input_number" type="number" id="indikator_pagu_indi_sub_keg_usulan_'+newId+'" name="input_target_usulan[]" placeholder="Target Indikator"/>'
+                    +'<input class="form-control input_number" type="number" id="indikator_pagu_indi_sub_keg_usulan_'+newId+'" name="input_target_usulan['+newId+']" placeholder="Target Indikator"/>'
                 +'</td>'
                 +'<td style="width: 50%;">'
-                    +'<select class="form-control satuan_pagu_indi_sub_keg input_select_2" id="satuan_pagu_indi_sub_keg_usulan_'+newId+'" name="input_satuan_usulan[]">'
+                    +'<select class="form-control satuan_pagu_indi_sub_keg input_select_2" id="satuan_pagu_indi_sub_keg_usulan_'+newId+'" name="input_satuan_usulan['+newId+']">'
                         +'<option value="">Pilih Satuan</option>'
                     +'</select>'
                 +'</td>'
@@ -871,17 +869,17 @@ echo '
         var trNewUsulan = ''
             +'<tr data-id="'+newId+'" header="1">'
                 +'<td colspan="2" style="max-width: 100px;">'
-                    +' <select class="form-control pagu_indi_sub_keg input_select_2" id="pagu_indi_sub_keg_penetapan_'+newId+'" name="input_indikator_sub_keg[]">'
+                    +' <select class="form-control pagu_indi_sub_keg input_select_2" id="pagu_indi_sub_keg_penetapan_'+newId+'" name="input_indikator_sub_keg['+newId+']">'
                         +'<option value="">Pilih Nama Indikator</option>'
                     +'</select>'
                 +'</td>'
             +'</tr>'
             +'<tr data-id="'+newId+'">'
                 +'<td style="width: 50%;">'
-                    +'<input class="form-control input_number" type="number" name="input_target[]" id="indikator_pagu_indi_sub_keg_'+newId+'" placeholder="Target Indikator"/>'
+                    +'<input class="form-control input_number" type="number" name="input_target['+newId+']" id="indikator_pagu_indi_sub_keg_'+newId+'" placeholder="Target Indikator"/>'
                 +'</td>'
                 +'<td style="width: 50%;">'
-                    +'<select class="form-control satuan_pagu_indi_sub_keg input_select_2" id="satuan_pagu_indi_sub_keg_penetapan_'+newId+'" name="input_satuan[]">'
+                    +'<select class="form-control satuan_pagu_indi_sub_keg input_select_2" id="satuan_pagu_indi_sub_keg_penetapan_'+newId+'" name="input_satuan['+newId+']">'
                         +'<option value="">Pilih Satuan</option>'
                     +'</select>'
                 +'</td>'
@@ -909,17 +907,17 @@ echo '
         var trNewUsulan = ''
             +'<tr data-id="'+newId+'">'
                 +'<td>'
-                    +'<select class="form-control" id="kabupaten_kota_usulan_'+newId+'" name="input_kabupaten_kota_usulan[]" onchange="get_data_lokasi(this.value,\'kabkot\',\'usulan\')">'
+                    +'<select class="form-control" id="kabupaten_kota_usulan_'+newId+'" name="input_kabupaten_kota_usulan['+newId+']" onchange="get_data_lokasi(this.value,\'kabkot\',\'usulan\')">'
                         +'<option value="">Pilih Kabupaten / Kota</option>'
                     +'</select>'
                 +'</td>'
                 +'<td style="width: 30%">'
-                    +'<select class="form-control input_select" id="kecamatan_usulan_'+newId+'" name="input_kecamatan_usulan[]" onchange="get_data_lokasi(this.value,\'kec\',\'usulan\')">'
+                    +'<select class="form-control input_select" id="kecamatan_usulan_'+newId+'" name="input_kecamatan_usulan['+newId+']" onchange="get_data_lokasi(this.value,\'kec\',\'usulan\')">'
                         +'<option value="">Pilih Kecamatan</option>'
                     +'</select>'
                 +'</td>'
                 +'<td style="width: 30%">'
-                    +'<select class="form-control input_select" id="desa_usulan_'+newId+'" name="input_desa_usulan[]">'
+                    +'<select class="form-control input_select" id="desa_usulan_'+newId+'" name="input_desa_usulan['+newId+']">'
                         +'<option value="">Pilih Desa</option>'
                     +'</select>'
                 +'</td>'
@@ -943,17 +941,17 @@ echo '
         var trNew = ''
             +'<tr data-id="'+newId+'">'
                 +'<td>'
-                    +'<select class="form-control" id="kabupaten_kota_'+newId+'" name="input_kabupaten_kota[]" onchange="get_data_lokasi(this.value,\'kabkot\',\'penetapan\')">'
+                    +'<select class="form-control" id="kabupaten_kota_'+newId+'" name="input_kabupaten_kota['+newId+']" onchange="get_data_lokasi(this.value,\'kabkot\',\'penetapan\')">'
                         +'<option value="">Pilih Kabupaten / Kota</option>'
                     +'</select>'
                 +'</td>'
                 +'<td style="width: 30%">'
-                    +'<select class="form-control input_select" id="kecamatan_'+newId+'" name="input_kecamatan[]" onchange="get_data_lokasi(this.value,\'kec\',\'penetapan\')">'
+                    +'<select class="form-control input_select" id="kecamatan_'+newId+'" name="input_kecamatan['+newId+']" onchange="get_data_lokasi(this.value,\'kec\',\'penetapan\')">'
                         +'<option value="">Pilih Kecamatan</option>'
                     +'</select>'
                 +'</td>'
                 +'<td style="width: 30%">'
-                    +'<select class="form-control input_select" id="desa_'+newId+'" name="input_desa[]">'
+                    +'<select class="form-control input_select" id="desa_'+newId+'" name="input_desa['+newId+']">'
                         +'<option value="">Pilih Desa</option>'
                     +'</select>'
                 +'</td>'
@@ -974,12 +972,12 @@ echo '
         var trNewUsulan = ''
             +'<tr data-id="'+newId+'">'
                 +'<td style="width: 60%">'
-                    +'<select class="form-control input_select_2" id="sumber_dana_usulan_'+newId+'" name="input_sumber_dana_usulan[]">'
+                    +'<select class="form-control input_select_2" id="sumber_dana_usulan_'+newId+'" name="input_sumber_dana_usulan['+newId+']">'
                         +'<option value="">Pilih Sumber Dana</option>'
                     +'</select>'
                 +'</td>'
                 +'<td>'
-                    +'<input class="form-control input_number" id="pagu_sumber_dana_usulan_'+newId+'" type="number" name="input_pagu_sumber_dana_usulan[]"/>'
+                    +'<input class="form-control input_number" id="pagu_sumber_dana_usulan_'+newId+'" type="number" name="input_pagu_sumber_dana_usulan['+newId+']"/>'
                 +'</td>'
                 +'<td style="width: 70px" class="text-center">'
                     +'<button class="btn btn-warning" onclick="tambahSumberDana(this); return false;"><i class="dashicons dashicons-plus"></i></button>'
@@ -1001,12 +999,12 @@ echo '
         var trNew = ''
             +'<tr data-id="'+newId+'">'
                 +'<td style="width: 60%">'
-                    +'<select class="form-control input_select_2" id="sumber_dana_'+newId+'" name="input_sumber_dana[]">'
+                    +'<select class="form-control input_select_2" id="sumber_dana_'+newId+'" name="input_sumber_dana['+newId+']">'
                         +'<option value="">Pilih Sumber Dana</option>'
                     +'</select>'
                 +'</td>'
                 +'<td>'
-                    +'<input class="form-control input_number" id="pagu_sumber_dana_'+newId+'" type="number" name="input_pagu_sumber_dana[]"/>'
+                    +'<input class="form-control input_number" id="pagu_sumber_dana_'+newId+'" type="number" name="input_pagu_sumber_dana['+newId+']"/>'
                 +'</td>'
             +'</tr>';
         var tbody = jQuery('.input_sumber_dana > tbody');
@@ -1021,33 +1019,40 @@ echo '
 
     function get_data_sub_unit(id_skpd){
         return new Promise(function(resolve, reject){
-            jQuery('#wrap-loading').show();
-    		jQuery.ajax({
-    			url: "<?php echo admin_url('admin-ajax.php'); ?>",
-    			type:"post",
-    			data:{
-    				'action'            : "get_sub_unit_by_id",
-    				'api_key'           : jQuery("#api_key").val(),
-    				'tahun_anggaran'    : tahun_anggaran,
-                    'id_skpd'           : id_skpd
-    			},
-    			dataType: "json",
-    			success:function(response){
-                    jQuery('#wrap-loading').hide();
-                    globalThis.dataSubUnit = response;
-                    jQuery("#input_sub_unit").html(dataSubUnit.table_content);
-    			    jQuery('#input_sub_unit').select2({width: '100%'});
-                    console.log(dataSubUnit.table_content);
-    				// enable_button();
-                    resolve();
-    			}
-    		})
+            if(typeof dataSubUnit == 'undefined'){
+                jQuery('#wrap-loading').show();
+        		jQuery.ajax({
+        			url: "<?php echo admin_url('admin-ajax.php'); ?>",
+        			type:"post",
+        			data:{
+        				'action'            : "get_sub_unit_by_id",
+        				'api_key'           : jQuery("#api_key").val(),
+        				'tahun_anggaran'    : tahun_anggaran,
+                        'id_skpd'           : id_skpd
+        			},
+        			dataType: "json",
+        			success:function(response){
+                        jQuery('#wrap-loading').hide();
+                        window.dataSubUnit = response;
+                        jQuery("#input_sub_unit").html(dataSubUnit.table_content);
+        			    jQuery('#input_sub_unit').select2({width: '100%'});
+                        console.log(dataSubUnit.table_content);
+        				// enable_button();
+                        resolve();
+        			}
+        		});
+            }else{
+                resolve();
+            }
         });
 	}
 
     function get_sub_keg(that){
-        jQuery("#wrap-loading").show();
 		let kode_sub_unit = jQuery(that).val();
+        if(kode_sub_unit == ''){
+            return;
+        }
+        jQuery("#wrap-loading").show();
 		jQuery.ajax({
 			method:'POST',
 			url:"<?php echo admin_url('admin-ajax.php'); ?>",
@@ -1075,8 +1080,11 @@ echo '
     }
 
     function get_indikator_sub_keg(that){
-        jQuery("#wrap-loading").show();
 		let id_sub_keg = jQuery(that).val();
+        if(id_sub_keg==''){
+            return;
+        }
+        jQuery("#wrap-loading").show();
 		jQuery.ajax({
 			method:'POST',
 			url:"<?php echo admin_url('admin-ajax.php'); ?>",
@@ -1107,8 +1115,11 @@ echo '
     }
 
     function get_indikator_sub_keg_by_id(data){
-        jQuery("#wrap-loading").show();
 		let id_sub_keg = data.id_sub_keg;
+        if(id_sub_keg == ''){
+            return;
+        }
+        jQuery("#wrap-loading").show();
         let id_input = data.id;
 		jQuery.ajax({
 			method:'POST',
@@ -1142,61 +1153,87 @@ echo '
 
     function get_data_sumber_dana(){
         return new Promise(function(resolve, reject){
-            jQuery("#wrap-loading").show();
-            jQuery.ajax({
-                method: 'POST',
-                url: '<?php echo admin_url('admin-ajax.php'); ?>',
-                dataType: 'json',
-                data: {
-                    'action': 'get_data_sumber_dana_renja',
-                    'api_key': jQuery('#api_key').val(),
-                    'tahun_anggaran': tahun_anggaran
-                },
-                success:function(response){
-                    jQuery("#wrap-loading").hide();
-                    let option='<option value="">Pilih Sumber Dana</option>';
-    				response.data.map(function(value, index){
-                        option+='<option value="'+value.id_dana+'">'+value.nama_dana+'</option>';
-                    })
+            if(typeof master_sumberdana == 'undefined'){
+                jQuery("#wrap-loading").show();
+                jQuery.ajax({
+                    method: 'POST',
+                    url: '<?php echo admin_url('admin-ajax.php'); ?>',
+                    dataType: 'json',
+                    data: {
+                        'action': 'get_data_sumber_dana_renja',
+                        'api_key': jQuery('#api_key').val(),
+                        'tahun_anggaran': tahun_anggaran
+                    },
+                    success:function(response){
+                        window.master_sumberdana = response.data;
+                        jQuery("#wrap-loading").hide();
+                        let option='<option value="">Pilih Sumber Dana</option>';
+        				response.data.map(function(value, index){
+                            option+='<option value="'+value.id_dana+'">'+value.nama_dana+'</option>';
+                        })
 
-    				jQuery(".sumber_dana_usulan").html(option);
-                    jQuery(".sumber_dana_usulan").select2({width: '100%'});
-                    jQuery(".sumber_dana").html(option);
-                    jQuery(".sumber_dana").select2({width: '100%'});
-                    resolve();
-                }
-            });
+        				jQuery(".sumber_dana_usulan").html(option);
+                        jQuery(".sumber_dana_usulan").select2({width: '100%'});
+                        jQuery(".sumber_dana").html(option);
+                        jQuery(".sumber_dana").select2({width: '100%'});
+                        resolve();
+                    }
+                });
+            }else{
+                resolve();
+            }
         });
     }
 
     function get_data_lokasi(id_alamat,jenis_lokasi,status){
-        if(jenis_lokasi == ''){
-            alert('Ada kesalahan,harap refresh halaman!')
-            return false;
-        }
-        jQuery("#wrap-loading").show();
+        return new Promise(function(resolve1, reject1){
+            if(jenis_lokasi == ''){
+                alert('Ada kesalahan,harap refresh halaman!')
+                return resolve1(false);
+            }
+            jQuery("#wrap-loading").show();
 
-        if(id_alamat == false){
-            id_alamat = <?php echo $id_lokasi_prov; ?>;
-        }
+            if(id_alamat == false){
+                id_alamat = <?php echo $id_lokasi_prov; ?>;
+            }
 
-        if(status == undefined){
-            status = 'all';
-        }
-        
-        jQuery.ajax({
-            method:'post',
-            url: '<?php echo admin_url('admin-ajax.php'); ?>',
-            dataType: 'json',
-            data: {
-                'action': 'get_data_lokasi_renja',
-                'api_key': jQuery('#api_key').val(),
-                'tahun_anggaran': tahun_anggaran,
-                'id_skpd': id_skpd,
-                'jenis_lokasi': jenis_lokasi,
-                'id_alamat':id_alamat
-            },
-            success: function(response){
+            if(status == undefined){
+                status = 'all';
+            }
+            
+            if(typeof lokasi == 'undefined'){
+                window.lokasi = {};
+            }
+            if(typeof lokasi[jenis_lokasi] == 'undefined'){
+                window.lokasi[jenis_lokasi] = {};
+            }
+            if(typeof lokasi[jenis_lokasi][id_alamat] == 'undefined'){
+                window.lokasi[jenis_lokasi][id_alamat] = [];
+            }
+            new Promise(function(resolve, reject){
+                if(lokasi[jenis_lokasi][id_alamat].length == 0){
+                    jQuery.ajax({
+                        method:'post',
+                        url: '<?php echo admin_url('admin-ajax.php'); ?>',
+                        dataType: 'json',
+                        data: {
+                            'action': 'get_data_lokasi_renja',
+                            'api_key': jQuery('#api_key').val(),
+                            'tahun_anggaran': tahun_anggaran,
+                            'id_skpd': id_skpd,
+                            'jenis_lokasi': jenis_lokasi,
+                            'id_alamat':id_alamat
+                        },
+                        success: function(response){
+                            window.lokasi[jenis_lokasi][id_alamat] = response;
+                            resolve(lokasi[jenis_lokasi][id_alamat]);
+                        }
+                    });
+                }else{
+                    resolve(lokasi[jenis_lokasi][id_alamat]);
+                }
+            })
+            .then(function(response){
                 jQuery("#wrap-loading").hide();
                 let option='<option value="">Pilih '+response.jenis_lokasi+'</option>';
                 response.data.map(function(value, index){
@@ -1257,7 +1294,8 @@ echo '
                         jQuery(".kabupaten_kota_usulan").select2({width: '100%'});
                     }
                 }
-            }
+                return resolve1();
+            });
         });
     }
 
@@ -1286,223 +1324,239 @@ echo '
     }
 
     function edit_renja(kode_sub_giat){
-        jQuery('#wrap-loading').show();
-        jQuery.ajax({
-            method: 'post',
-            url: '<?php echo admin_url('admin-ajax.php'); ?>',
-            dataType: 'json',
-            data: {
-                'action': 'edit_renja',
-                'api_key': jQuery('#api_key').val(),
-                'kode_sub_giat': kode_sub_giat,
-                'tahun_anggaran': tahun_anggaran
-            },
-            success: function(response){
-                jQuery('#wrap-loading').hide();
-                jQuery('#pagu_sub_kegiatan_usulan').val(response.data.pagu_usulan);
-                jQuery('#pagu_sub_kegiatan_1_usulan').val(response.data.pagu_n_depan_usulan);
-                jQuery('#pagu_sub_kegiatan').val(response.data.pagu);
-                jQuery('#pagu_sub_kegiatan_1').val(response.data.pagu_n_depan);
-                jQuery('#catatan_usulan').val(response.data.catatan_usulan);
-                jQuery('#catatan').val(response.data.catatan);
-                let input_sub_unit = `<option selected value="${response.data.id_sub_skpd}">${response.data.nama_sub_skpd}</option>`;
-                jQuery('#input_sub_unit').html(input_sub_unit);
-                jQuery('#input_sub_unit').prop('disabled', true);
-                let input_sub_kegiatan = `<option selected value="${response.data.id_sub_giat}">${response.data.nama_sub_giat}</option>`;
-                jQuery('#sub_kegiatan').html(input_sub_kegiatan);
-                jQuery('#sub_kegiatan').prop('disabled', true);
-                jQuery('select[name="input_bulan_awal_usulan"] option[value="'+response.data.waktu_awal_usulan+'"]').attr("selected","selected");
-                jQuery('select[name="input_bulan_akhir_usulan"] option[value="'+response.data.waktu_akhir_usulan+'"]').attr("selected","selected");
-                jQuery('select[name="input_bulan_awal"] option[value="'+response.data.waktu_awal+'"]').attr("selected","selected");
-                jQuery('select[name="input_bulan_akhir"] option[value="'+response.data.waktu_akhir+'"]').attr("selected","selected");
-                let option='<option value="">Pilih Nama Indikator</option>';
-                /** Memunculkan data indikator sub kegiatan */
-                response.data.master_sub_keg_indikator.map(function(value, index){
-                    option+='<option value="'+value.id_sub_keg+'">'+value.indikator+'</option>';
-                })
-                let optionSatuan='<option value="">Pilih Satuan</option>';
-                response.data.master_sub_keg_indikator.map(function(value, index){
-                    optionSatuan+='<option value="'+value.id_sub_keg+'">'+value.satuan+'</option>';
-                })
-                response.data.indikator_sub_keg.map(function(value, index){
-                    var id = index+1;
+        get_data_sub_unit(id_skpd)
+        .then(function(){
+            get_data_sumber_dana()
+            .then(function(){
+                get_data_lokasi(false, 'prov')
+                .then(function(){
+                    jQuery('#wrap-loading').show();
+                    jQuery.ajax({
+                        method: 'post',
+                        url: '<?php echo admin_url('admin-ajax.php'); ?>',
+                        dataType: 'json',
+                        data: {
+                            'action': 'edit_renja',
+                            'api_key': jQuery('#api_key').val(),
+                            'kode_sub_giat': kode_sub_giat,
+                            'tahun_anggaran': tahun_anggaran
+                        },
+                        success: function(response){
+                            jQuery('#wrap-loading').hide();
+                            jQuery('#pagu_sub_kegiatan_usulan').val(response.data.pagu_usulan);
+                            jQuery('#pagu_sub_kegiatan_1_usulan').val(response.data.pagu_n_depan_usulan);
+                            jQuery('#pagu_sub_kegiatan').val(response.data.pagu);
+                            jQuery('#pagu_sub_kegiatan_1').val(response.data.pagu_n_depan);
+                            jQuery('#catatan_usulan').val(response.data.catatan_usulan);
+                            jQuery('#catatan').val(response.data.catatan);
+                            let input_sub_unit = `<option selected value="${response.data.id_sub_skpd}">${response.data.nama_sub_skpd}</option>`;
+                            jQuery('#input_sub_unit').html(input_sub_unit);
+                            jQuery('#input_sub_unit').prop('disabled', true);
+                            let input_sub_kegiatan = `<option selected value="${response.data.id_sub_giat}">${response.data.nama_sub_giat}</option>`;
+                            jQuery('#sub_kegiatan').html(input_sub_kegiatan);
+                            jQuery('#sub_kegiatan').prop('disabled', true);
+                            jQuery('select[name="input_bulan_awal_usulan"] option[value="'+response.data.waktu_awal_usulan+'"]').attr("selected","selected");
+                            jQuery('select[name="input_bulan_akhir_usulan"] option[value="'+response.data.waktu_akhir_usulan+'"]').attr("selected","selected");
+                            jQuery('select[name="input_bulan_awal"] option[value="'+response.data.waktu_awal+'"]').attr("selected","selected");
+                            jQuery('select[name="input_bulan_akhir"] option[value="'+response.data.waktu_akhir+'"]').attr("selected","selected");
 
-                    if(id > 1){
-                        var trNewUsulan = ''
-                        +'<tr data-id="'+id+'" header="1">'
-                            +'<td colspan="2" style="max-width: 100px;">'
-                                +'<select class="form-control pagu_indi_sub_keg input_select_2" data-edit="'+value.id+'" id="pagu_ind_sub_keg_usulan_'+id+'" name="input_indikator_sub_keg_usulan[]">'
-                                    +'<option value="">Pilih Nama Indikator</option>'
-                                +'</select>'
-                                +'<input type="hidden" id="ind_sub_keg_id_'+id+'" name="ind_sub_keg_id[]" value="'+value.id+'">'
-                            +'</td>'
-                            +'<td style="width: 70px; vertical-align: middle;" class="text-center aksi" rowspan="2">'
-                                +'<button class="btn btn-warning" onclick="tambahIndikator(this); return false;"><i class="dashicons dashicons-plus"></i></button>'
-                            +'</td>'
-                        +'</tr>'
-                        +'<tr data-id="'+id+'">'
-                            +'<td style="width: 50%;">'
-                                +'<input class="form-control input_number" type="number" id="indikator_pagu_indi_sub_keg_usulan_'+id+'" name="input_target_usulan[]" placeholder="Target Indikator"/>'
-                            +'</td>'
-                            +'<td style="width: 50%;">'
-                                +'<select class="form-control satuan_pagu_indi_sub_keg input_select_2" id="satuan_pagu_indi_sub_keg_usulan_'+id+'" name="input_satuan_usulan[]">'
-                                    +'<option value="">Pilih Satuan</option>'
-                                +'</select>'
-                            +'</td>'
-                        +'</tr>';
-                    
-                        var tbody = jQuery('.indi_sub_keg_table_usulan > tbody');
-                        tbody.append(trNewUsulan);
-                        var tr = tbody.find('>tr');
-                        var length = tr.length-2;
-                        tr.map(function(i, b){
-                            var header = jQuery(b).attr('header');
-                            if(header == 1){
-                                if(i == 0){
-                                    var html = '<button class="btn btn-warning" onclick="tambahIndikator(this); return false;"><i class="dashicons dashicons-plus"></i></button>';
-                                }else{
-                                    var html = '<button class="btn btn-danger" onclick="hapusIndikator(this); return false;"><i class="dashicons dashicons-trash"></i></button>';
+                            /** Memunculkan data indikator sub kegiatan */
+                            let optionIndikator='<option value="">Pilih Nama Indikator</option>';
+                            response.data.master_sub_keg_indikator.map(function(value, index){
+                                optionIndikator+='<option value="'+value.id_sub_keg+'">'+value.indikator+'</option>';
+                            });
+                            let optionSatuan='<option value="">Pilih Satuan</option>';
+                            response.data.master_sub_keg_indikator.map(function(value, index){
+                                optionSatuan+='<option value="'+value.id_sub_keg+'">'+value.satuan+'</option>';
+                            });
+                            jQuery("#pagu_ind_sub_keg_usulan_1").html(optionIndikator).select2({width: '100%'});
+                            jQuery("#pagu_indi_sub_keg_penetapan_1").html(optionIndikator).select2({width: '100%'});
+                            jQuery("#satuan_pagu_indi_sub_keg_usulan_1").html(optionSatuan).select2({width: '100%'});
+                            jQuery("#satuan_pagu_indi_sub_keg_penetapan_1").html(optionSatuan).select2({width: '100%'});
+
+                            response.data.indikator_sub_keg.map(function(value, index){
+                                var id = index+1;
+                                if(id > 1){
+                                    var trNewUsulan = ''
+                                    +'<tr data-id="'+id+'" header="1">'
+                                        +'<td colspan="2" style="max-width: 100px;">'
+                                            +'<select class="form-control pagu_indi_sub_keg input_select_2" data-edit="'+value.id+'" id="pagu_ind_sub_keg_usulan_'+id+'" name="input_indikator_sub_keg_usulan['+id+']">'
+                                                +'<option value="">Pilih Nama Indikator</option>'
+                                            +'</select>'
+                                            +'<input type="hidden" id="ind_sub_keg_id_'+id+'" name="ind_sub_keg_id['+id+']" value="'+value.id+'">'
+                                        +'</td>'
+                                        +'<td style="width: 70px; vertical-align: middle;" class="text-center aksi" rowspan="2">'
+                                            +'<button class="btn btn-warning" onclick="tambahIndikator(this); return false;"><i class="dashicons dashicons-plus"></i></button>'
+                                        +'</td>'
+                                    +'</tr>'
+                                    +'<tr data-id="'+id+'">'
+                                        +'<td style="width: 50%;">'
+                                            +'<input class="form-control input_number" type="number" id="indikator_pagu_indi_sub_keg_usulan_'+id+'" name="input_target_usulan['+id+']" placeholder="Target Indikator"/>'
+                                        +'</td>'
+                                        +'<td style="width: 50%;">'
+                                            +'<select class="form-control satuan_pagu_indi_sub_keg input_select_2" id="satuan_pagu_indi_sub_keg_usulan_'+id+'" name="input_satuan_usulan['+id+']">'
+                                                +'<option value="">Pilih Satuan</option>'
+                                            +'</select>'
+                                        +'</td>'
+                                    +'</tr>';
+                                
+                                    var tbody = jQuery('.indi_sub_keg_table_usulan > tbody');
+                                    tbody.append(trNewUsulan);
+                                    var tr = tbody.find('>tr');
+                                    var length = tr.length-2;
+                                    tr.map(function(i, b){
+                                        var header = jQuery(b).attr('header');
+                                        if(header == 1){
+                                            if(i == 0){
+                                                var html = '<button class="btn btn-warning" onclick="tambahIndikator(this); return false;"><i class="dashicons dashicons-plus"></i></button>';
+                                            }else{
+                                                var html = '<button class="btn btn-danger" onclick="hapusIndikator(this); return false;"><i class="dashicons dashicons-trash"></i></button>';
+                                            }
+                                            jQuery(b).find('>td').last().html(html);
+                                        }
+                                    });
+                                    /** tambah input indi_sub_keg */
+                                    var trNewUsulan = ''
+                                        +'<tr data-id="'+id+'" header="1">'
+                                            +'<td colspan="2" style="max-width: 100px;">'
+                                                +' <select class="form-control pagu_indi_sub_keg input_select_2" id="pagu_indi_sub_keg_penetapan_'+id+'" name="input_indikator_sub_keg['+id+']">'
+                                                    +'<option value="">Pilih Nama Indikator</option>'
+                                                +'</select>'
+                                            +'</td>'
+                                        +'</tr>'
+                                        +'<tr data-id="'+id+'">'
+                                            +'<td style="width: 50%;">'
+                                                +'<input class="form-control input_number" type="number" name="input_target['+id+']" id="indikator_pagu_indi_sub_keg_'+id+'" placeholder="Target Indikator"/>'
+                                            +'</td>'
+                                            +'<td style="width: 50%;">'
+                                                +'<select class="form-control satuan_pagu_indi_sub_keg input_select_2" id="satuan_pagu_indi_sub_keg_penetapan_'+id+'" name="input_satuan['+id+']">'
+                                                    +'<option value="">Pilih Satuan</option>'
+                                                +'</select>'
+                                            +'</td>'
+                                        +'</tr>';
+
+                                    var tbody = jQuery('.indi_sub_keg_table > tbody');
+                                    tbody.append(trNewUsulan);
+                                    jQuery("#pagu_ind_sub_keg_usulan_"+id).html(optionIndikator).select2({width: '100%'});
+                                    jQuery("#pagu_indi_sub_keg_penetapan_"+id).html(optionIndikator).select2({width: '100%'});
+                                    jQuery("#satuan_pagu_indi_sub_keg_usulan_"+id).html(optionSatuan).select2({width: '100%'});
+                                    jQuery("#satuan_pagu_indi_sub_keg_penetapan_"+id).html(optionSatuan).select2({width: '100%'});
                                 }
-                                jQuery(b).find('>td').last().html(html);
-                            }
-                        });
-                        /** tambah input indi_sub_keg */
-                        var trNewUsulan = ''
-                            +'<tr data-id="'+id+'" header="1">'
-                                +'<td colspan="2" style="max-width: 100px;">'
-                                    +' <select class="form-control pagu_indi_sub_keg input_select_2" id="pagu_indi_sub_keg_penetapan_'+id+'" name="input_indikator_sub_keg[]">'
-                                        +'<option value="">Pilih Nama Indikator</option>'
-                                    +'</select>'
-                                +'</td>'
-                            +'</tr>'
-                            +'<tr data-id="'+id+'">'
-                                +'<td style="width: 50%;">'
-                                    +'<input class="form-control input_number" type="number" name="input_target[]" id="indikator_pagu_indi_sub_keg_'+id+'" placeholder="Target Indikator"/>'
-                                +'</td>'
-                                +'<td style="width: 50%;">'
-                                    +'<select class="form-control satuan_pagu_indi_sub_keg input_select_2" id="satuan_pagu_indi_sub_keg_penetapan_'+id+'" name="input_satuan[]">'
-                                        +'<option value="">Pilih Satuan</option>'
-                                    +'</select>'
-                                +'</td>'
-                            +'</tr>';
 
-                        var tbody = jQuery('.indi_sub_keg_table > tbody');
-                        tbody.append(trNewUsulan);
-                    }
+                                jQuery("#ind_sub_keg_id_"+id).val(value.id);
+                                jQuery("#indikator_pagu_indi_sub_keg_usulan_"+id).val(value.targetoutput_usulan);
+                                jQuery("#pagu_ind_sub_keg_usulan_"+id).val(value.id_indikator_sub_giat).trigger('change');
+                                jQuery("#satuan_pagu_indi_sub_keg_usulan_"+id).val(value.id_indikator_sub_giat).trigger('change');
+                                jQuery("#indikator_pagu_indi_sub_keg_"+id).val(value.targetoutput);
+                                jQuery("#pagu_indi_sub_keg_penetapan_"+id).val(value.id_indikator_sub_giat).trigger('change');
+                                jQuery("#satuan_pagu_indi_sub_keg_penetapan_"+id).val(value.id_indikator_sub_giat).trigger('change');
+                            })
+                            /** -- end -- */
 
-                    jQuery("#ind_sub_keg_id_"+id).val(value.id);
-                    jQuery("#pagu_ind_sub_keg_usulan_"+id).html(option).select2({width: '100%'});
-                    jQuery("#pagu_indi_sub_keg_penetapan_"+id).html(option).select2({width: '100%'});
-                    jQuery("#satuan_pagu_indi_sub_keg_usulan_"+id).html(optionSatuan).select2({width: '100%'});
-                    jQuery("#satuan_pagu_indi_sub_keg_penetapan_"+id).html(optionSatuan).select2({width: '100%'});
-                    
-                    jQuery("#indikator_pagu_indi_sub_keg_usulan_"+id).val(value.targetoutput_usulan);
-                    jQuery("#pagu_ind_sub_keg_usulan_"+id).val(value.id_indikator_sub_giat).trigger('change');
-                    jQuery("#satuan_pagu_indi_sub_keg_usulan_"+id).val(value.id_indikator_sub_giat).trigger('change');
-                    jQuery("#indikator_pagu_indi_sub_keg_"+id).val(value.targetoutput);
-                    jQuery("#pagu_indi_sub_keg_penetapan_"+id).val(value.id_indikator_sub_giat).trigger('change');
-                    jQuery("#satuan_pagu_indi_sub_keg_penetapan_"+id).val(value.id_indikator_sub_giat).trigger('change');
-                })
-                /** -- end -- */
-                /** Memunculkan data sumber dana */
-                let option_dana='<option value="">Pilih Sumber Dana</option>';
-				response.data.master_sumber_dana.map(function(value, index){
-                    option_dana+='<option value="'+value.id_dana+'">'+value.nama_dana+'</option>';
-                })
-				jQuery("#sumber_dana_usulan").html(option_dana);
-                jQuery("#sumber_dana").html(option_dana);
-                response.data.sumber_dana.map(function(value, index){
-                    var id = index+1;
-                    if(id > 1){
-                        var trNewUsulan = ''
-                        +'<tr data-id="'+id+'">'
-                            +'<td style="width: 60%">'
-                                +'<select class="form-control input_select_2" id="sumber_dana_usulan_'+id+'" name="input_sumber_dana_usulan[]">'
-                                    +'<option value="">Pilih Sumber Dana</option>'
-                                +'</select>'
-                            +'</td>'
-                            +'<td>'
-                                +'<input class="form-control input_number" id="pagu_sumber_dana_usulan_'+id+'" type="number" name="input_pagu_sumber_dana_usulan[]"/>'
-                            +'</td>'
-                            +'<td style="width: 70px" class="text-center">'
-                                +'<button class="btn btn-warning" onclick="tambahSumberDana(this); return false;"><i class="dashicons dashicons-plus"></i></button>'
-                            +'</td>'
-                        +'</tr>';
-                        var tbody = jQuery('.input_sumber_dana_usulan > tbody');
-                        tbody.append(trNewUsulan);
-                        var tr = tbody.find('>tr');
-                        var length = tr.length-1;
-                        tr.map(function(i, b){
-                            if(i == 0){
-                                var html = '<button class="btn btn-warning" onclick="tambahSumberDana(this); return false;"><i class="dashicons dashicons-plus"></i></button>';
-                            }else{
-                                var html = '<button class="btn btn-danger" onclick="hapusSumberDana(this); return false;"><i class="dashicons dashicons-trash"></i></button>';
-                            }
-                            jQuery(b).find('>td').last().html(html);
-                        });
-                        var trNew = ''
-                            +'<tr data-id="'+id+'">'
-                                +'<td style="width: 60%">'
-                                    +'<select class="form-control input_select_2" id="sumber_dana_'+id+'" name="input_sumber_dana[]">'
-                                        +'<option value="">Pilih Sumber Dana</option>'
-                                    +'</select>'
-                                +'</td>'
-                                +'<td>'
-                                    +'<input class="form-control input_number" id="pagu_sumber_dana_'+id+'" type="number" name="input_pagu_sumber_dana[]"/>'
-                                +'</td>'
-                            +'</tr>';
-                        var tbody = jQuery('.input_sumber_dana > tbody');
-                        tbody.append(trNew);
-                    }
-                    
-                    jQuery("#sumber_dana_usulan_"+id).html(option_dana).select2({width: '100%'});
-                    jQuery("#sumber_dana_usulan_"+id).val(value.id_dana_usulan).trigger('change');
-                    jQuery("#pagu_sumber_dana_usulan_"+id).val(value.pagu_dana_usulan);
-                    jQuery("#sumber_dana_"+id).html(option_dana).select2({width: '100%'});
-                    jQuery("#sumber_dana_"+id).val(value.iddana).trigger('change');
-                    jQuery("#pagu_sumber_dana_"+id).val(value.pagudana);
-                })
-                /** -- end -- */
-                /** Memunculkan data lokasi */
-                response.data.lokasi.map(function(value, index){
-                    let urutan = index+1;
-                    let id = value.id;
-                    let option_kabkot='<option value="">Pilih Kabupaten/Kota</option>';
-                    response.data.data_master_kabkot[id].map(function(value, index){
-                        option_kabkot+='<option value="'+value.id_alamat+'">'+value.nama+'</option>'
-                    });
-                    jQuery("#kabupaten_kota_usulan_"+urutan).html(option_kabkot);
-                    jQuery("#kabupaten_kota_usulan_"+urutan).select2({width: '100%'});
-                    let option_kec='<option value="">Pilih Kecamatan</option>';
-                    response.data.data_master_kec[id].map(function(value, index){
-                        option_kec+='<option value="'+value.id_alamat+'">'+value.nama+'</option>'
-                    });
-                    jQuery("#kecamatan_usulan_"+urutan).html(option_kec);
-                    jQuery("#kecamatan_usulan_"+urutan).select2({width: '100%'});
-                    let option_desa='<option value="">Semua Desa</option>';
-                    if(response.data.data_master_desa != undefined && response.data.data_master_desa[id] != undefined){
-                        option_desa='<option value="">Pilih Desa</option>';
-                        response.data.data_master_desa[id].map(function(value, index){
-                            option_desa+='<option value="'+value.id_alamat+'">'+value.nama+'</option>'
-                        });
-                    }
-                    jQuery("#desa_usulan_"+urutan).html(option_desa);
-                    jQuery("#desa_usulan_"+urutan).select2({width: '100%'});
-                    
-                    jQuery("#kabupaten_kota_usulan_"+urutan).val(value.idkabkota_usulan).trigger('change');
-                    if(value.idcamat_usulan != null){
-                        // jQuery("#kecamatan_usulan_"+urutan).val(value.idcamat_usulan).trigger('change');
-                    }
-                })
-                /** -- end -- */
-                jQuery("#modalTambahRenja .modal-title").html("Edit Sub Kegiatan");
-                jQuery("#modalTambahRenja .submitBtn")
-                    .attr("onclick", `submitEditRenjaForm('${kode_sub_giat}')`)
-                    .attr("disabled", false)
-                    .text("Simpan");
-                jQuery('#modalTambahRenja').modal('show');
-            }
-        })
+                            /** Memunculkan data sumber dana */
+                            let option_dana='<option value="">Pilih Sumber Dana</option>';
+            				master_sumberdana.map(function(value, index){
+                                option_dana+='<option value="'+value.id_dana+'">'+value.nama_dana+'</option>';
+                            })
+            				jQuery("#sumber_dana_usulan").html(option_dana);
+                            jQuery("#sumber_dana").html(option_dana);
+                            response.data.sumber_dana.map(function(value, index){
+                                var id = index+1;
+                                if(id > 1){
+                                    var trNewUsulan = ''
+                                    +'<tr data-id="'+id+'">'
+                                        +'<td style="width: 60%">'
+                                            +'<select class="form-control input_select_2" id="sumber_dana_usulan_'+id+'" name="input_sumber_dana_usulan['+id+']">'
+                                                +'<option value="">Pilih Sumber Dana</option>'
+                                            +'</select>'
+                                        +'</td>'
+                                        +'<td>'
+                                            +'<input class="form-control input_number" id="pagu_sumber_dana_usulan_'+id+'" type="number" name="input_pagu_sumber_dana_usulan['+id+']"/>'
+                                        +'</td>'
+                                        +'<td style="width: 70px" class="text-center">'
+                                            +'<button class="btn btn-warning" onclick="tambahSumberDana(this); return false;"><i class="dashicons dashicons-plus"></i></button>'
+                                        +'</td>'
+                                    +'</tr>';
+                                    var tbody = jQuery('.input_sumber_dana_usulan > tbody');
+                                    tbody.append(trNewUsulan);
+                                    var tr = tbody.find('>tr');
+                                    var length = tr.length-1;
+                                    tr.map(function(i, b){
+                                        if(i == 0){
+                                            var html = '<button class="btn btn-warning" onclick="tambahSumberDana(this); return false;"><i class="dashicons dashicons-plus"></i></button>';
+                                        }else{
+                                            var html = '<button class="btn btn-danger" onclick="hapusSumberDana(this); return false;"><i class="dashicons dashicons-trash"></i></button>';
+                                        }
+                                        jQuery(b).find('>td').last().html(html);
+                                    });
+                                    var trNew = ''
+                                        +'<tr data-id="'+id+'">'
+                                            +'<td style="width: 60%">'
+                                                +'<select class="form-control input_select_2" id="sumber_dana_'+id+'" name="input_sumber_dana['+id+']">'
+                                                    +'<option value="">Pilih Sumber Dana</option>'
+                                                +'</select>'
+                                            +'</td>'
+                                            +'<td>'
+                                                +'<input class="form-control input_number" id="pagu_sumber_dana_'+id+'" type="number" name="input_pagu_sumber_dana['+id+']"/>'
+                                            +'</td>'
+                                        +'</tr>';
+                                    var tbody = jQuery('.input_sumber_dana > tbody');
+                                    tbody.append(trNew);
+                                    jQuery("#sumber_dana_usulan_"+id).html(option_dana).select2({width: '100%'});
+                                    jQuery("#sumber_dana_"+id).html(option_dana).select2({width: '100%'});
+                                }
+                                
+                                jQuery("#sumber_dana_usulan_"+id).val(value.id_dana_usulan).trigger('change');
+                                jQuery("#pagu_sumber_dana_usulan_"+id).val(value.pagu_dana_usulan);
+                                jQuery("#sumber_dana_"+id).val(value.iddana).trigger('change');
+                                jQuery("#pagu_sumber_dana_"+id).val(value.pagudana);
+                            })
+                            /** -- end -- */
+
+                            /** Memunculkan data lokasi */
+                            response.data.lokasi.map(function(value, index){
+                                let urutan = index+1;
+                                let id = value.id;
+                                let option_kabkot='<option value="">Pilih Kabupaten/Kota</option>';
+                                response.data.data_master_kabkot[id].map(function(value, index){
+                                    option_kabkot+='<option value="'+value.id_alamat+'">'+value.nama+'</option>'
+                                });
+                                jQuery("#kabupaten_kota_usulan_"+urutan).html(option_kabkot);
+                                jQuery("#kabupaten_kota_usulan_"+urutan).select2({width: '100%'});
+                                let option_kec='<option value="">Pilih Kecamatan</option>';
+                                response.data.data_master_kec[id].map(function(value, index){
+                                    option_kec+='<option value="'+value.id_alamat+'">'+value.nama+'</option>'
+                                });
+                                jQuery("#kecamatan_usulan_"+urutan).html(option_kec);
+                                jQuery("#kecamatan_usulan_"+urutan).select2({width: '100%'});
+                                let option_desa='<option value="">Semua Desa</option>';
+                                if(response.data.data_master_desa != undefined && response.data.data_master_desa[id] != undefined){
+                                    option_desa='<option value="">Pilih Desa</option>';
+                                    response.data.data_master_desa[id].map(function(value, index){
+                                        option_desa+='<option value="'+value.id_alamat+'">'+value.nama+'</option>'
+                                    });
+                                }
+                                jQuery("#desa_usulan_"+urutan).html(option_desa);
+                                jQuery("#desa_usulan_"+urutan).select2({width: '100%'});
+                                
+                                jQuery("#kabupaten_kota_usulan_"+urutan).val(value.idkabkota_usulan).trigger('change');
+                                if(value.idcamat_usulan != null){
+                                    // jQuery("#kecamatan_usulan_"+urutan).val(value.idcamat_usulan).trigger('change');
+                                }
+                            })
+                            /** -- end -- */
+
+                            jQuery("#modalTambahRenja .modal-title").html("Edit Sub Kegiatan");
+                            jQuery("#modalTambahRenja .submitBtn")
+                                .attr("onclick", `submitEditRenjaForm('${kode_sub_giat}')`)
+                                .attr("disabled", false)
+                                .text("Simpan");
+                            jQuery('#modalTambahRenja').modal('show');
+                        }
+                    })
+                });
+            });
+        });
     }
 
     function submitEditRenjaForm(kode_sub_giat){
@@ -1684,83 +1738,12 @@ echo '
 
     function getFormData($form){
 	    let unindexed_array = $form.serializeArray();
-	    let indexed_array = {};
-        
-        indexed_array['input_indikator_sub_keg'] = [];
-        indexed_array['input_target'] = [];
-        indexed_array['input_satuan'] = [];
-        indexed_array['input_indikator_sub_keg_usulan'] = [];
-        indexed_array['input_target_usulan'] = [];
-        indexed_array['input_satuan_usulan'] = [];
-        indexed_array['input_kabupaten_kota'] = [];
-        indexed_array['input_kecamatan'] = [];
-        indexed_array['input_desa'] = [];
-        indexed_array['input_kabupaten_kota_usulan'] = [];
-        indexed_array['input_kecamatan_usulan'] = [];
-        indexed_array['input_desa_usulan'] = [];
-        indexed_array['input_sumber_dana'] = [];
-        indexed_array['input_pagu_sumber_dana'] = [];
-        indexed_array['input_sumber_dana_usulan'] = [];
-        indexed_array['input_pagu_sumber_dana_usulan'] = [];
-        indexed_array['ind_sub_keg_id'] = [];
-        jQuery.map(unindexed_array, function (n, i) {
-            indexed_array[n['name']] = n['value'];
-
-            switch (n['name']) {
-                case 'input_indikator_sub_keg[]':
-                    indexed_array['input_indikator_sub_keg'].push(n['value']);
-                    break;
-                case 'input_target[]':
-                    indexed_array['input_target'].push(n['value']);
-                    break;
-                case 'input_satuan[]':
-                    indexed_array['input_satuan'].push(n['value']);
-                    break;
-                case 'input_indikator_sub_keg_usulan[]':
-                    indexed_array['input_indikator_sub_keg_usulan'].push(n['value']);
-                    break;
-                case 'input_target_usulan[]':
-                    indexed_array['input_target_usulan'].push(n['value']);
-                    break;
-                case 'input_satuan_usulan[]':
-                    indexed_array['input_satuan_usulan'].push(n['value']);
-                    break;
-                case 'ind_sub_keg_id[]':
-                    indexed_array['ind_sub_keg_id'].push(n['value']);
-                    break;
-                case 'input_kabupaten_kota[]':
-                    indexed_array['input_kabupaten_kota'].push(n['value']);
-                    break;
-                case 'input_kecamatan[]':
-                    indexed_array['input_kecamatan'].push(n['value']);
-                    break;
-                case 'input_desa[]':
-                    indexed_array['input_desa'].push(n['value']);
-                    break;
-                case 'input_kabupaten_kota_usulan[]':
-                    indexed_array['input_kabupaten_kota_usulan'].push(n['value']);
-                    break;
-                case 'input_kecamatan_usulan[]':
-                    indexed_array['input_kecamatan_usulan'].push(n['value']);
-                    break;
-                case 'input_desa_usulan[]':
-                    indexed_array['input_desa_usulan'].push(n['value']);
-                    break;
-                case 'input_sumber_dana[]':
-                    indexed_array['input_sumber_dana'].push(n['value']);
-                    break;
-                case 'input_pagu_sumber_dana[]':
-                    indexed_array['input_pagu_sumber_dana'].push(n['value']);
-                    break;
-                case 'input_sumber_dana_usulan[]':
-                    indexed_array['input_sumber_dana_usulan'].push(n['value']);
-                    break;
-                case 'input_pagu_sumber_dana_usulan[]':
-                    indexed_array['input_pagu_sumber_dana_usulan'].push(n['value']);
-                    break;
-            }
-        });
-	    return indexed_array;
+        var data = {};
+        unindexed_array.map(function(b, i){
+            data[b.name] = b.value;
+        })
+        console.log('data', data);
+        return data;
 	}
 
     function refresh_page(){
