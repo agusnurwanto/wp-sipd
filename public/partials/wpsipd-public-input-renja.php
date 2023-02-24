@@ -89,7 +89,9 @@ foreach($bulan as $k_bulan => $v_bulan){
 $nama_skpd = "";
 $data_all = array(
     'total' => 0,
+    'total_usulan' => 0,
     'total_n_plus' => 0,
+    'total_n_plus_usulan' => 0,
     'data' => array()
 );
 foreach ($subkeg as $kk => $sub) {
@@ -160,6 +162,8 @@ foreach ($subkeg as $kk => $sub) {
             'nama_skpd'  => $nama_skpd,
             'total' => 0,
             'total_n_plus' => 0,
+            'total_usulan' => 0,
+            'total_n_plus_usulan' => 0,
             'data'  => array()
         );
     }
@@ -169,6 +173,8 @@ foreach ($subkeg as $kk => $sub) {
             'nama'  => $sub['nama_urusan'],
             'total' => 0,
             'total_n_plus' => 0,
+            'total_usulan' => 0,
+            'total_n_plus_usulan' => 0,
             'data'  => array()
         );
     }
@@ -177,6 +183,8 @@ foreach ($subkeg as $kk => $sub) {
             'nama'  => $sub['nama_bidang_urusan'],
             'total' => 0,
             'total_n_plus' => 0,
+            'total_usulan' => 0,
+            'total_n_plus_usulan' => 0,
             'data'  => array()
         );
     }
@@ -185,6 +193,8 @@ foreach ($subkeg as $kk => $sub) {
             'nama'  => $sub['nama_program'],
             'total' => 0,
             'total_n_plus' => 0,
+            'total_usulan' => 0,
+            'total_n_plus_usulan' => 0,
             'data'  => array()
         );
     }
@@ -193,6 +203,8 @@ foreach ($subkeg as $kk => $sub) {
             'nama'  => $sub['nama_giat'],
             'total' => 0,
             'total_n_plus' => 0,
+            'total_usulan' => 0,
+            'total_n_plus_usulan' => 0,
             'data'  => array()
         );
     }
@@ -203,6 +215,8 @@ foreach ($subkeg as $kk => $sub) {
             'nama'  => implode(' ', $nama),
             'total' => 0,
             'total_n_plus' => 0,
+            'total_usulan' => 0,
+            'total_n_plus_usulan' => 0,
             'capaian_prog' => $capaian_prog,
             'output_giat' => $output_giat,
             'output_sub_giat' => $output_sub_giat,
@@ -227,6 +241,22 @@ foreach ($subkeg as $kk => $sub) {
     $data_all['data'][$sub['id_sub_skpd']]['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']]['total_n_plus'] += $sub['pagu_n_depan'];
     $data_all['data'][$sub['id_sub_skpd']]['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']]['data'][$sub['kode_giat']]['total_n_plus'] += $sub['pagu_n_depan'];
     $data_all['data'][$sub['id_sub_skpd']]['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']]['data'][$sub['kode_giat']]['data'][$sub['kode_sub_giat']]['total_n_plus'] += $sub['pagu_n_depan'];
+
+    $data_all['total_usulan'] += $sub['pagu_usulan'];
+    $data_all['data'][$sub['id_sub_skpd']]['total_usulan'] += $sub['pagu_usulan'];
+    $data_all['data'][$sub['id_sub_skpd']]['data'][$sub['kode_urusan']]['total_usulan'] += $sub['pagu_usulan'];
+    $data_all['data'][$sub['id_sub_skpd']]['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['total_usulan'] += $sub['pagu_usulan'];
+    $data_all['data'][$sub['id_sub_skpd']]['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']]['total_usulan'] += $sub['pagu_usulan'];
+    $data_all['data'][$sub['id_sub_skpd']]['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']]['data'][$sub['kode_giat']]['total_usulan'] += $sub['pagu_usulan'];
+    $data_all['data'][$sub['id_sub_skpd']]['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']]['data'][$sub['kode_giat']]['data'][$sub['kode_sub_giat']]['total_usulan'] += $sub['pagu_usulan'];
+
+    $data_all['total_n_plus_usulan'] += $sub['pagu_n_depan_usulan'];
+    $data_all['data'][$sub['id_sub_skpd']]['total_n_plus_usulan'] += $sub['pagu_n_depan_usulan'];
+    $data_all['data'][$sub['id_sub_skpd']]['data'][$sub['kode_urusan']]['total_n_plus_usulan'] += $sub['pagu_n_depan_usulan'];
+    $data_all['data'][$sub['id_sub_skpd']]['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['total_n_plus_usulan'] += $sub['pagu_n_depan_usulan'];
+    $data_all['data'][$sub['id_sub_skpd']]['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']]['total_n_plus_usulan'] += $sub['pagu_n_depan_usulan'];
+    $data_all['data'][$sub['id_sub_skpd']]['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']]['data'][$sub['kode_giat']]['total_n_plus_usulan'] += $sub['pagu_n_depan_usulan'];
+    $data_all['data'][$sub['id_sub_skpd']]['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']]['data'][$sub['kode_giat']]['data'][$sub['kode_sub_giat']]['total_n_plus_usulan'] += $sub['pagu_n_depan_usulan'];
 }
 
 $body = '';
@@ -238,9 +268,9 @@ $body = '';
             <tr>
                 <td class="kiri kanan bawah text_blok"></td>
                 <td class="kanan bawah text_blok" colspan="12">Sub Unit Organisasi : '.$sub_skpd['nama'].'</td>
-                <td class="kanan bawah text_kanan text_blok">'.number_format($sub_skpd['total'],0,",",".").'</td>
+                <td class="kanan bawah text_kanan text_blok">'.number_format($sub_skpd['total'],0,",",".").'<span class="nilai_usulan">'.number_format($sub_skpd['total_usulan'],0,",",".").'</span></td>
                 <td class="kanan bawah" colspan="4">&nbsp;</td>
-                <td class="kanan bawah text_kanan text_blok">'.number_format($sub_skpd['total_n_plus'],0,",",".").'</td>
+                <td class="kanan bawah text_kanan text_blok">'.number_format($sub_skpd['total_n_plus'],0,",",".").'<span class="nilai_usulan">'.number_format($sub_skpd['total_n_plus_usulan'],0,",",".").'</span></td>
                 <td class="kanan bawah"></td>
             </tr>
         ';
@@ -266,9 +296,9 @@ $body = '';
                         <td class="kanan bawah">&nbsp;</td>
                         <td class="kanan bawah">&nbsp;</td>
                         <td class="kanan bawah text_blok" colspan="8">'.$bidang['nama'].'</td>
-                        <td class="kanan bawah text_kanan text_blok">'.number_format($bidang['total'],0,",",".").'</td>
+                        <td class="kanan bawah text_kanan text_blok">'.number_format($bidang['total'],0,",",".").'<span class="nilai_usulan">'.number_format($bidang['total_usulan'],0,",",".").'</span></td>
                         <td class="kanan bawah" colspan="4">&nbsp;</td>
-                        <td class="kanan bawah text_kanan text_blok">'.number_format($bidang['total_n_plus'],0,",",".").'</td>
+                        <td class="kanan bawah text_kanan text_blok">'.number_format($bidang['total_n_plus'],0,",",".").'<span class="nilai_usulan">'.number_format($bidang['total_n_plus_usulan'],0,",",".").'</span></td>
                         <td class="kanan bawah"></td>
                     </tr>
                 ';
@@ -285,9 +315,9 @@ $body = '';
                             <td class="kanan bawah">&nbsp;</td>
                             <td class="kanan bawah">&nbsp;</td>
                             <td class="kanan bawah text_blok" colspan="8">'.$program['nama'].'</td>
-                            <td class="kanan bawah text_kanan text_blok">'.number_format($program['total'],0,",",".").'</td>
+                            <td class="kanan bawah text_kanan text_blok">'.number_format($program['total'],0,",",".").'<span class="nilai_usulan">'.number_format($program['total_usulan'],0,",",".").'</span></td>
                             <td class="kanan bawah" colspan="4">&nbsp;</td>
-                            <td class="kanan bawah text_kanan text_blok">'.number_format($program['total_n_plus'],0,",",".").'</td>
+                            <td class="kanan bawah text_kanan text_blok">'.number_format($program['total_n_plus'],0,",",".").'<span class="nilai_usulan">'.number_format($program['total_n_plus_usulan'],0,",",".").'</span></td>
                             <td class="kanan bawah text_tengah">'.$tombol_aksi.'</td>
                         </tr>
                     ';
@@ -305,9 +335,9 @@ $body = '';
                                 <td style="border:.5pt solid #000; vertical-align:middle; font-weight:bold;" width="5">'.$kd_giat.'</td>
                                 <td style="border:.5pt solid #000; vertical-align:middle;" width="5">&nbsp;</td>
                                 <td style="border:.5pt solid #000; vertical-align:middle; font-weight:bold;" colspan="8">'.$giat['nama'].'</td>
-                                <td style="border:.5pt solid #000; vertical-align:middle;  text-align:right; font-weight:bold;">'.number_format($giat['total'],0,",",".").'</td>
+                                <td style="border:.5pt solid #000; vertical-align:middle;  text-align:right; font-weight:bold;">'.number_format($giat['total'],0,",",".").'<span class="nilai_usulan">'.number_format($giat['total_usulan'],0,",",".").'</span></td>
                                 <td style="border:.5pt solid #000; vertical-align:middle; font-weight:bold;" colspan="4"></td>
-                                <td style="border:.5pt solid #000; vertical-align:middle;  text-align:right; font-weight:bold;">'.number_format($giat['total_n_plus'],0,",",".").'</td>
+                                <td style="border:.5pt solid #000; vertical-align:middle;  text-align:right; font-weight:bold;">'.number_format($giat['total_n_plus'],0,",",".").'<span class="nilai_usulan">'.number_format($giat['total_n_plus_usulan'],0,",",".").'</span></td>
                                 <td class="kanan bawah text_tengah">'.$tombol_aksi.'</td>
                             </tr>
                         ';
@@ -388,12 +418,12 @@ $body = '';
                                     <td class="kanan bawah">'.$target_capaian_prog.'</td>
                                     <td class="kanan bawah">'.$target_output_sub_giat.'</td>
                                     <td class="kanan bawah">'.$target_output_giat.'</td>
-                                    <td class="kanan bawah text_kanan">'.number_format($sub_giat['total'],0,",",".").'</td>
+                                    <td class="kanan bawah text_kanan">'.number_format($sub_giat['total'],0,",",".").'<span class="nilai_usulan">'.number_format($sub_giat['total_usulan'],0,",",".").'</span></td>
                                     <td class="kanan bawah"><br/></td>
                                     <td class="kanan bawah">&nbsp;</td>
                                     <td class="kanan bawah">'.$ind_n_plus.'</td>
                                     <td class="kanan bawah">'.$target_ind_n_plus.'</td>
-                                    <td class="kanan bawah text_kanan">'.number_format($sub_giat['total_n_plus'],0,",",".").'</td>
+                                    <td class="kanan bawah text_kanan">'.number_format($sub_giat['total_n_plus'],0,",",".").'<span class="nilai_usulan">'.number_format($sub_giat['total_n_plus_usulan'],0,",",".").'</span></td>
                                     <td class="kanan bawah text_tengah">'.$tombol_aksi.'</td>
                                 </tr>
                             ';
@@ -471,9 +501,9 @@ echo '
                 '.$body.'
                 <tr>
                     <td class="kiri kanan bawah text_blok text_kanan" colspan="13">TOTAL</td>
-                    <td class="kanan bawah text_kanan text_blok">'.number_format($data_all['total'],0,",",".").'</td>
+                    <td class="kanan bawah text_kanan text_blok">'.number_format($data_all['total'],0,",",".").'<span class="nilai_usulan">'.number_format($data_all['total_usulan'],0,",",".").'</span></td>
                     <td class="kanan bawah" colspan="4">&nbsp;</td>
-                    <td class="kanan bawah text_kanan text_blok">'.number_format($data_all['total_n_plus'],0,",",".").'</td>
+                    <td class="kanan bawah text_kanan text_blok">'.number_format($data_all['total_n_plus'],0,",",".").'<span class="nilai_usulan">'.number_format($data_all['total_n_plus_usulan'],0,",",".").'</span></td>
                     <td class="kanan bawah"></td>
                 </tr>
             </tbody>
@@ -481,7 +511,17 @@ echo '
     </div>
 ';
 ?>
-
+<style type="text/css">
+    .nilai_usulan:before {
+        content: "( ";
+    }
+    .nilai_usulan:after {
+        content: " )";
+    }
+    .nilai_usulan {
+        display: block;
+    }
+</style>
 <div class="modal fade mt-4" id="modalTambahRenja" role="dialog" aria-labelledby="modalTambahRenjaLabel" aria-hidden="true">
 	<div class="modal-dialog modal-xl" role="document">
 		<div class="modal-content">
@@ -620,7 +660,7 @@ echo '
                                                     <input class="form-control input_number" type="number" id="indikator_pagu_indi_sub_keg_usulan_1" name="input_target_usulan[1]" placeholder="Target Indikator"/>
                                                 </td>
                                                 <td style="width: 50%;">
-                                                    <select class="form-control satuan_pagu_indi_sub_keg input_select_2" id="satuan_pagu_indi_sub_keg_usulan_1" name="input_satuan_usulan[1]">
+                                                    <select class="form-control satuan_pagu_indi_sub_keg input_select_2" id="satuan_pagu_indi_sub_keg_usulan_1" name="input_satuan_usulan[1]" readonly>
                                                         <option value="">Pilih Satuan</option>
                                                     </select>
                                                 </td>
@@ -644,7 +684,7 @@ echo '
                                         <table class="input_sumber_dana" style="margin: 0;">
                                             <tr data-id="1">
                                                 <td style="width: 60%; max-width:100px;">
-                                                    <select class="form-control input_select_2 sumber_dana" id="sumber_dana_1" name="input_sumber_dana[1]">
+                                                    <select class="form-control input_select_2 sumber_dana" id="sumber_dana_1" name="input_sumber_dana[1]" readonly>
                                                         <option value="">Pilih Sumber Dana</option>
                                                     </select>
                                                 </td>
@@ -659,17 +699,17 @@ echo '
                                         <table class="input_lokasi" style="margin: 0;">
                                             <tr data-id="1">
                                                 <td>
-                                                    <select class="form-control kabupaten_kota" id="kabupaten_kota_1" name="input_kabupaten_kota[1]" onchange="get_data_lokasi(this.value,'kabkot','penetapan')">
+                                                    <select class="form-control kabupaten_kota" id="kabupaten_kota_1" name="input_kabupaten_kota[1]" onchange="get_data_lokasi(this.value,'kabkot','penetapan')" readonly>
                                                         <option value="">Pilih Kabupaten / Kota</option>
                                                     </select>
                                                 </td>
                                                 <td style="width: 30%">
-                                                    <select class="form-control input_select kecamatan" id="kecamatan_1" name="input_kecamatan[1]" onchange="get_data_lokasi(this.value,'kec','penetapan')">
+                                                    <select class="form-control input_select kecamatan" id="kecamatan_1" name="input_kecamatan[1]" onchange="get_data_lokasi(this.value,'kec','penetapan')" readonly>
                                                         <option value="">Pilih Kecamatan</option>
                                                     </select>
                                                 </td>
                                                 <td style="width: 30%">
-                                                    <select class="form-control input_select desa" id="desa_1" name="input_desa[1]">
+                                                    <select class="form-control input_select desa" id="desa_1" name="input_desa[1]" readonly>
                                                         <option value="">Pilih Desa</option>
                                                     </select>
                                                 </td>
@@ -681,13 +721,13 @@ echo '
                                         <table style="margin: 0;">
                                             <tr>
                                                 <td style="width: 50%;">
-                                                    <select class="form-control bulan_awal" name="input_bulan_awal" id="bulan_awal">
+                                                    <select class="form-control bulan_awal" name="input_bulan_awal" id="bulan_awal" readonly>
                                                         <option value="">Pilih Bulan Awal</option>
                                                         <?php echo $bulan_option; ?>
                                                     </select>
                                                 </td>
                                                 <td style="width: 50%;">
-                                                    <select class="form-control bulan_akhir" name="input_bulan_akhir" id="bulan_akhir">
+                                                    <select class="form-control bulan_akhir" name="input_bulan_akhir" id="bulan_akhir" readonly>
                                                         <option value="">Pilih Bulan Akhir</option>
                                                         <?php echo $bulan_option; ?>
                                                     </select>
@@ -708,7 +748,7 @@ echo '
                                         <table class="indi_sub_keg_table" style="margin: 0;">
                                             <tr data-id="1" header="1">
                                                 <td colspan="2" style="max-width: 100px;">
-                                                    <select class="form-control pagu_indi_sub_keg input_select_2" id="pagu_indi_sub_keg_penetapan_1" name="input_indikator_sub_keg[1]">
+                                                    <select class="form-control pagu_indi_sub_keg input_select_2" id="pagu_indi_sub_keg_penetapan_1" name="input_indikator_sub_keg[1]" readonly>
                                                         <option value="">Pilih Nama Indikator</option>
                                                     </select>
                                                 </td>
@@ -718,7 +758,7 @@ echo '
                                                     <input class="form-control input_number" type="number" name="input_target[1]" id="indikator_pagu_indi_sub_keg_1" placeholder="Target Indikator"/>
                                                 </td>
                                                 <td style="width: 50%;">
-                                                    <select class="form-control satuan_pagu_indi_sub_keg input_select_2" id="satuan_pagu_indi_sub_keg_penetapan_1" name="input_satuan[1]">
+                                                    <select class="form-control satuan_pagu_indi_sub_keg input_select_2" id="satuan_pagu_indi_sub_keg_penetapan_1" name="input_satuan[1]" readonly>
                                                         <option value="">Pilih Satuan</option>
                                                     </select>
                                                 </td>
@@ -1740,7 +1780,16 @@ echo '
 	    let unindexed_array = $form.serializeArray();
         var data = {};
         unindexed_array.map(function(b, i){
-            data[b.name] = b.value;
+            var nama_baru = b.name.split('[');
+            if(nama_baru.length > 1){
+                nama_baru = nama_baru[0];
+                if(!data[nama_baru]){
+                    data[nama_baru] = [];
+                }
+                data[nama_baru].push(b.value);
+            }else{
+                data[b.name] = b.value;
+            }
         })
         console.log('data', data);
         return data;

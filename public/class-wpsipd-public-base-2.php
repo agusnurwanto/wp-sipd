@@ -1796,7 +1796,8 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 		global $wpdb;
 		$ret = array(
 			'status'	=> 'success',
-			'message' 	=> 'Berhasil menambahkan data RENJA!'
+			'message' 	=> 'Berhasil menambahkan data RENJA!',
+			'indikator' => array()
 		);
 
 		if(!empty($_POST)){
@@ -1921,8 +1922,8 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 					}else{
 						// $wpdb->update('data_sub_keg_bl_lokal', $opsi_sub_keg_bl, array('id' => $cek_id));
 					
-						$ret['status'] = 'error';
-						$ret['message'] = 'Sub kegiatan '.$data_prog_keg->nama_sub_giat.' untuk sub unit '.$data_sub_unit->nama_skpd.' sudah ada!';
+						// $ret['status'] = 'error';
+						// $ret['message'] = 'Sub kegiatan '.$data_prog_keg->nama_sub_giat.' untuk sub unit '.$data_sub_unit->nama_skpd.' sudah ada!';
 					}
 				}
 
@@ -1988,8 +1989,11 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 						'kode_sbl' => $kode_sbl,
 						'tahun_anggaran' => $tahun_anggaran
 					));
-					foreach($data['input_indikator_sub_keg'] as $k_sub_keg => $v_sub_keg){
-						$data_sub_keg = $wpdb->get_row($wpdb->prepare('
+					foreach($data['input_indikator_sub_keg_usulan'] as $k_sub_keg => $v_sub_keg){
+						if(empty($v_sub_keg)){
+							$v_sub_keg = $data['input_indikator_sub_keg'][$k_sub_keg];
+						}
+						$indikator_sub_keg = $wpdb->get_row($wpdb->prepare('
 							SELECT 
 								*
 							FROM data_master_indikator_subgiat
@@ -1998,37 +2002,42 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 								AND active=1
 						', $v_sub_keg, $tahun_anggaran));
 			
-						$opsi_sub_keg_indikator = array(
-							'outputteks' => $data_sub_keg->indikator,
-							'outputteks_usulan' => $data_sub_keg->indikator,
-							'targetoutput' => $data['input_target'][$k_sub_keg],
-							'targetoutput_usulan' => $data['input_target_usulan'][$k_sub_keg],
-							'satuanoutput' => $data_sub_keg->satuan,
-							'satuanoutput_usulan' => $data_sub_keg->satuan,
-							'idoutputbl' => 0,
-							'targetoutputteks' => $data_sub_keg->indikator.' '.$data_sub_keg->satuan,
-							'targetoutputteks_usulan' => $data_sub_keg->indikator.' '.$data_sub_keg->satuan,
-							'kode_sbl' => $kode_sbl,
-							'idsubbl' => 0,
-							'active' => 1,
-							'update_at' => current_time('mysql'),
-							'tahun_anggaran' => $tahun_anggaran,
-							'id_indikator_sub_giat' => $data_sub_keg->id_sub_keg
-						);
-						
-						$cek_id = $wpdb->get_var($wpdb->prepare("
-							SELECT
-								id
-							FROM data_sub_keg_indikator_lokal
-							WHERE kode_sbl=%s
-								AND tahun_anggaran=%d
-						", $kode_sbl, $tahun_anggaran));
-						if(!$cek_id){
-							$wpdb->insert('data_sub_keg_indikator_lokal', $opsi_sub_keg_indikator);
+						if(!empty($indikator_sub_keg)){
+							$opsi_sub_keg_indikator = array(
+								'outputteks' => $indikator_sub_keg->indikator,
+								'outputteks_usulan' => $indikator_sub_keg->indikator,
+								'targetoutput' => $data['input_target'][$k_sub_keg],
+								'targetoutput_usulan' => $data['input_target_usulan'][$k_sub_keg],
+								'satuanoutput' => $indikator_sub_keg->satuan,
+								'satuanoutput_usulan' => $indikator_sub_keg->satuan,
+								'idoutputbl' => 0,
+								'targetoutputteks' => $indikator_sub_keg->indikator.' '.$indikator_sub_keg->satuan,
+								'targetoutputteks_usulan' => $indikator_sub_keg->indikator.' '.$indikator_sub_keg->satuan,
+								'kode_sbl' => $kode_sbl,
+								'idsubbl' => 0,
+								'active' => 1,
+								'update_at' => current_time('mysql'),
+								'tahun_anggaran' => $tahun_anggaran,
+								'id_indikator_sub_giat' => $indikator_sub_keg->id_sub_keg
+							);
+							
+							$cek_id = $wpdb->get_var($wpdb->prepare("
+								SELECT
+									id
+								FROM data_sub_keg_indikator_lokal
+								WHERE kode_sbl=%s
+									AND tahun_anggaran=%d
+							", $kode_sbl, $tahun_anggaran));
+							if(!$cek_id){
+								$wpdb->insert('data_sub_keg_indikator_lokal', $opsi_sub_keg_indikator);
+							}else{
+								$wpdb->update('data_sub_keg_indikator_lokal', $opsi_sub_keg_indikator, array(
+									"id" => $cek_id
+								));
+							}
+							// $ret['indikator'][] = $wpdb->last_query;
 						}else{
-							$wpdb->update('data_sub_keg_indikator_lokal', $opsi_sub_keg_indikator, array(
-								"id" => $cek_id
-							));
+							$ret['indikator'][] = 'ID sub kegiatan '.$v_sub_keg.' tidak ditemukan di tabel data_master_indikator_subgiat! '.$wpdb->last_query;
 						}
 					}
 
