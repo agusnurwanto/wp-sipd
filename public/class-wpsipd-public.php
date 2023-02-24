@@ -3656,7 +3656,11 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		if (!empty($_POST)) {
 			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
 				if (!empty($_POST['data'])) {
-					$data_unit = $_POST['data'];
+					if(!empty($_POST['type']) && $_POST['type'] == 'ri'){
+						$data_unit = json_decode(stripslashes(html_entity_decode($_POST['data'])), true);						
+					}else{
+						$data_unit = $_POST['data'];
+					}
 					$cek = $wpdb->get_var($wpdb->prepare("SELECT kode_skpd from data_unit_pagu where tahun_anggaran=%d AND kode_skpd=%s", $_POST['tahun_anggaran'], $data_unit['kode_skpd']));
 					$opsi = array(
 						'batasanpagu' => $data_unit['batasanpagu'],
