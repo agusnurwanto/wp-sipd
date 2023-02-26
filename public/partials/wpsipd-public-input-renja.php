@@ -368,7 +368,7 @@ $body = '';
                                 $target_output_sub_giat = array();
                                 foreach ($sub_giat['output_sub_giat'] as $k_sub => $v_sub) {
                                     $output_sub_giat[] = $v_sub['outputteks'];
-                                    $target_output_sub_giat[] = $v_sub['targetoutputteks'];
+                                    $target_output_sub_giat[] = $v_sub['targetoutputteks'].'<span class="nilai_usulan">'.$v_sub['targetoutputteks_usulan'].'</span>';
                                 }
                                 $output_sub_giat = implode('<br>', $output_sub_giat);
                                 $target_output_sub_giat = implode('<br>', $target_output_sub_giat);
@@ -1777,7 +1777,14 @@ echo '
     }
 
     function getFormData($form){
+        var disabled = $form.find('[disabled]');
+        disabled.map(function(i, b){
+            jQuery(b).removeAttr('disabled');
+        });
 	    let unindexed_array = $form.serializeArray();
+        disabled.map(function(i, b){
+            jQuery(b).attr('disabled');
+        });
         var data = {};
         unindexed_array.map(function(b, i){
             var nama_baru = b.name.split('[');

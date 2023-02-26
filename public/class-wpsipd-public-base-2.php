@@ -1810,26 +1810,26 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 				$tahun_anggaran = $_POST['tahun_anggaran'];
 				$data = json_decode(stripslashes($_POST['data']), true);
 				if(empty($data['input_sub_unit'])){
-					$res['status'] = 'error';
-					$res['message'] = 'Sub Unit tidak boleh kosong';
+					$ret['status'] = 'error';
+					$ret['message'] = 'Sub Unit tidak boleh kosong';
 				}elseif(empty($data['input_sub_kegiatan'])){
-					$res['status'] = 'error';
-					$res['message'] = 'Sub kegiatan tidak boleh kosong';
+					$ret['status'] = 'error';
+					$ret['message'] = 'Sub kegiatan tidak boleh kosong';
 				}elseif(
 					!isset($data['input_pagu_sub_keg_usulan']) 
 					|| $data['input_pagu_sub_keg_usulan'] == 0
 				){
-					$res['status'] = 'error';
-					$res['message'] = 'Pagu usulan tidak boleh kosong';
+					$ret['status'] = 'error';
+					$ret['message'] = 'Pagu usulan tidak boleh kosong';
 				}elseif(empty($data['input_indikator_sub_keg_usulan'])){
-					$res['status'] = 'error';
-					$res['message'] = 'Indikator usulan tidak boleh kosong';
+					$ret['status'] = 'error';
+					$ret['message'] = 'Indikator usulan tidak boleh kosong';
 				}elseif(empty($data['input_target_usulan'])){
-					$res['status'] = 'error';
-					$res['message'] = 'Target indikator usulan tidak boleh kosong';
+					$ret['status'] = 'error';
+					$ret['message'] = 'Target indikator usulan tidak boleh kosong';
 				}elseif(empty($data['input_satuan_usulan'])){
-					$res['status'] = 'error';
-					$res['message'] = 'Satuan indikator usulan tidak boleh kosong';
+					$ret['status'] = 'error';
+					$ret['message'] = 'Satuan indikator usulan tidak boleh kosong';
 				}
 
 				// print_r($data); die();
@@ -1920,7 +1920,8 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 					if(!$cek_id){
 						$wpdb->insert('data_sub_keg_bl_lokal',$opsi_sub_keg_bl);
 					}else{
-						// $wpdb->update('data_sub_keg_bl_lokal', $opsi_sub_keg_bl, array('id' => $cek_id));
+						$wpdb->update('data_sub_keg_bl_lokal', $opsi_sub_keg_bl, array('id' => $cek_id));
+						$ret['message'] = 'Berhasil update data RENJA!';
 					
 						// $ret['status'] = 'error';
 						// $ret['message'] = 'Sub kegiatan '.$data_prog_keg->nama_sub_giat.' untuk sub unit '.$data_sub_unit->nama_skpd.' sudah ada!';
@@ -2011,8 +2012,8 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 								'satuanoutput' => $indikator_sub_keg->satuan,
 								'satuanoutput_usulan' => $indikator_sub_keg->satuan,
 								'idoutputbl' => 0,
-								'targetoutputteks' => $indikator_sub_keg->indikator.' '.$indikator_sub_keg->satuan,
-								'targetoutputteks_usulan' => $indikator_sub_keg->indikator.' '.$indikator_sub_keg->satuan,
+								'targetoutputteks' => $data['input_target'][$k_sub_keg].' '.$indikator_sub_keg->satuan,
+								'targetoutputteks_usulan' => $data['input_target_usulan'][$k_sub_keg].' '.$indikator_sub_keg->satuan,
 								'kode_sbl' => $kode_sbl,
 								'idsubbl' => 0,
 								'active' => 1,
@@ -2350,179 +2351,7 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 	}
 
 	public function submit_edit_renja(){
-		global $wpdb;
-		$ret = array(
-			'status'	=> 'success',
-			'message' 	=> 'Berhasil mengubah data RENJA!'
-		);
-
-		if(!empty($_POST)){
-			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
-				$tahun_anggaran = $_POST['tahun_anggaran'];
-				$kode_sub_giat = $_POST['kode_sub_giat'];
-				$data = json_decode(stripslashes($_POST['data']), true);
-
-				$cek_data_renja = $wpdb->get_row($wpdb->prepare(
-					'SELECT id,
-						kode_sub_giat,
-						kode_sbl
-					FROM data_sub_keg_bl_lokal
-					WHERE kode_sub_giat=%s
-					AND active=1',
-					$kode_sub_giat
-				));
-
-				if(empty($cek_data_renja)){
-					$ret['status']	= 'error';
-					$ret['message']	= 'Data tidak ditemukan!';
-					die(json_encode($ret));
-				}
-
-				$opsi = array(
-					'waktu_awal' => $data['input_bulan_awal'],
-					'waktu_awal_usulan' => $data['input_bulan_awal_usulan'],
-					'waktu_akhir' => $data['input_bulan_akhir'],
-					'waktu_akhir_usulan' => $data['input_bulan_akhir_usulan'],
-					'pagu' => $data['input_pagu_sub_keg'],
-					'pagu_usulan' => $data['input_pagu_sub_keg_usulan'],
-					'pagu_n_depan' => $data['input_pagu_sub_keg_1'],
-					'pagu_n_depan_usulan' => $data['input_pagu_sub_keg_1_usulan'],
-					'catatan' => $data['input_catatan'],
-					'catatan_usulan' => $data['input_catatan_usulan'],
-					'update_at' => current_time('mysql')
-				);
-
-				$status = $wpdb->update('data_sub_keg_bl_lokal',$opsi,array('kode_sub_giat' => $kode_sub_giat, 'active' => 1));
-
-				if($status === false){
-					$ret['status'] = 'error';
-					$ret['message'] = 'Update gagal, harap hubungi admin!';
-				}
-				/** edit multiple sumber dana */
-				foreach ($data['input_sumber_dana'] as $k_sumber_dana => $v_sumber_dana) {
-					$data_sumber_dana = $wpdb->get_row($wpdb->prepare(
-						'SELECT *
-						FROM data_sumber_dana
-						WHERE id_dana=%d
-						AND tahun_anggaran=%d',
-						$v_sumber_dana,
-						$tahun_anggaran
-					));
-
-					$data_sumber_dana_usulan = $wpdb->get_row($wpdb->prepare(
-						'SELECT *
-						FROM data_sumber_dana
-						WHERE id_dana=%d
-						AND tahun_anggaran=%d',
-						$data['input_sumber_dana_usulan'][$k_sumber_dana],
-						$tahun_anggaran
-					));
-
-					$opsi_sumber_dana = array(
-						'namadana' => $data_sumber_dana->nama_dana,
-						'kodedana' => $data_sumber_dana->kode_dana,
-						'iddana' => $data_sumber_dana->id_dana,
-						'pagudana' => $data['input_pagu_sumber_dana'][$k_sumber_dana],
-						'nama_dana_usulan' => $data_sumber_dana_usulan->nama_dana,
-						'kode_dana_usulan' => $data_sumber_dana_usulan->kode_dana,
-						'id_dana_usulan' => $data_sumber_dana_usulan->id_dana,
-						'pagu_dana_usulan' => $data['input_pagu_sumber_dana_usulan'][$k_sumber_dana],
-					);
-
-					$cek_sumber_dana = $wpdb->get_results($wpdb->prepare(
-						'SELECT id
-						FROM data_dana_sub_keg_lokal
-						WHERE kode_sbl=%s
-						AND tahun_anggaran=%d
-						AND active=1',
-						$cek_data_renja->kode_sbl, $tahun_anggaran
-					), ARRAY_A);
-					
-					$status_sumber_dana = $wpdb->update('data_dana_sub_keg_lokal', $opsi_sumber_dana,array('id' => $cek_sumber_dana[$k_sumber_dana]['id'], 'kode_sbl' => $cek_data_renja->kode_sbl, 'active' => 1));
-		
-					if($status_sumber_dana === false){
-						$ret['status'] = 'error';
-						$ret['message'] = 'Insert gagal, harap hubungi admin!';
-						die(json_encode($ret));
-					}
-				}
-				/** -- end -- */
-				/** edit multiple indikator sub keg */
-				$cek_delete_sub_keg_indi = $wpdb->get_results($wpdb->prepare(
-					'SELECT id
-					FROM data_sub_keg_indikator_lokal
-					WHERE kode_sbl=%s
-					AND tahun_anggaran=%d
-					AND active=1',
-					$cek_data_renja->kode_sbl, $tahun_anggaran
-				), ARRAY_A);
-				$delete_indi = array();
-				foreach ($cek_delete_sub_keg_indi as $v_indi) {
-					if(in_array($v_indi['id'],$data['ind_sub_keg_id']) == false){
-						$status_sub_keg = $wpdb->update('data_sub_keg_indikator_lokal', array('active' => 0), array('id' => $v_indi['id'], 'kode_sbl' => $cek_data_renja->kode_sbl, 'active' => 1));
-					}
-				}
-				foreach($data['input_indikator_sub_keg'] as $k_sub_keg => $v_sub_keg){
-					$data_sub_keg = $wpdb->get_row($wpdb->prepare(
-						'SELECT *
-						FROM data_master_indikator_subgiat
-						WHERE id_sub_keg=%d
-						AND tahun_anggaran=%d
-						AND active=1',
-						$v_sub_keg,
-						$tahun_anggaran
-					));
-		
-					$opsi_sub_keg_indikator = array(
-						'outputteks' => $data_sub_keg->indikator,
-						'outputteks_usulan' => $data_sub_keg->indikator,
-						'targetoutput' => $data['input_target'][$k_sub_keg],
-						'targetoutput_usulan' => $data['input_target_usulan'][$k_sub_keg],
-						'satuanoutput' => $data_sub_keg->satuan,
-						'satuanoutput_usulan' => $data_sub_keg->satuan,
-						'targetoutputteks' => $data_sub_keg->indikator.' '.$data_sub_keg->satuan,
-						'targetoutputteks_usulan' => $data_sub_keg->indikator.' '.$data_sub_keg->satuan,
-						'id_indikator_sub_giat' => $data_sub_keg->id_sub_keg,
-						'idoutputbl' => 0,
-						'kode_sbl' => $cek_data_renja->kode_sbl,
-						'idsubbl' => 0,
-						'active' => 1,
-						'update_at' => current_time('mysql'),
-						'tahun_anggaran' => $tahun_anggaran
-					);
-
-					$cek_id = $data['ind_sub_keg_id'][$k_sub_keg];
-					$cek_sub_keg_indi = $wpdb->get_results($wpdb->prepare(
-						'SELECT id
-						FROM data_sub_keg_indikator_lokal
-						WHERE id=%d
-						AND kode_sbl=%s
-						AND tahun_anggaran=%d
-						AND active=1',
-						$cek_id, $cek_data_renja->kode_sbl, $tahun_anggaran
-					), ARRAY_A);
-					if(!empty($cek_sub_keg_indi)){
-						$status_sub_keg = $wpdb->update('data_sub_keg_indikator_lokal', $opsi_sub_keg_indikator, array('id' => $cek_id ,'kode_sbl' => $cek_data_renja->kode_sbl, 'active' => 1));
-					}else{
-						$status_sub_keg = $wpdb->insert('data_sub_keg_indikator_lokal', $opsi_sub_keg_indikator);
-					}
-					if($status_sub_keg === false){
-						$ret['status'] = 'error';
-						$ret['message'] = 'Insert gagal, harap hubungi admin!';
-						die(json_encode($ret));
-					}
-				}		
-				/** -- end -- */
-			}else{
-				$ret['status'] = 'error';
-				$ret['message'] = 'APIKEY tidak sesuai!';
-			}
-		}else{
-			$ret['status']	= 'error';
-			$ret['message']	= 'Format Salah!';
-		}
-
-		die(json_encode($ret));
+		$this->submit_tambah_renja();
 	}
 
 	public function delete_renja(){
