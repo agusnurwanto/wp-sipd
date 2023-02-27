@@ -1276,6 +1276,87 @@ class Wpsipd_Public_Base_1 extends Wpsipd_Public_Base_2{
         if (!empty($_POST)) {
             if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( WPSIPD_API_KEY )) {
                 // belum selesai
+                $data_sub_keg_renstra = $wpdb->get_results($wpdb->prepare(
+                    'SELECT k.*,p.kode_urusan,p.id_urusan,p.nama_urusan
+                    FROM data_renstra_sub_kegiatan_lokal k
+                    LEFT JOIN data_prog_keg p
+                    ON k.kode_sub_giat=p.kode_sub_giat
+                    WHERE k.id_unik IS NOT NULL
+                    AND k.id_unik_indikator IS NULL
+                    AND k.active=1'
+                ),ARRAY_A);
+
+                // $id_jadwal_lokal = $_POST['id_jadwal']
+                // $relasi = $wpdb->get_row($
+                // 'SELECT 
+                //     *
+                // FROM `data_jadwal_lokal`
+                // WHERE id_jadwal_lokal=".$jadwal_lokal[0]['relasi_perencanaan']);
+
+                // if(!empty($data_sub_keg_renstra)){
+                //     foreach ($data_sub_keg_renstra as $v_sub_keg_renstra) {
+                //         $kode_sub_skpd = substr($v_sub_keg_renstra['nama_sub_unit'],0,22);
+                //         $kode_bl = $v_sub_keg_renstra['id_unit'].'.'.$v_sub_keg_renstra['id_sub_unit'].'.'.$v_sub_keg_renstra['id_program'].'.'.$v_sub_keg_renstra['id_giat'];
+                //         $kode_sbl = $kode_bl.'.'.$v_sub_keg_renstra['id_sub_giat'];
+
+                //         $v_sub_keg_renstra['tahun_anggaran'] = 2023; //sementara manual karena di renstra '0000'
+                //         $opsi_sub_keg_renstra = array(
+                //             'id_sub_skpd' => $v_sub_keg_renstra['id_sub_unit'],
+                //             'id_sub_giat' => $v_sub_keg_renstra['id_sub_giat'],
+                //             'id_skpd' => $v_sub_keg_renstra['id_unit'],
+                //             'kode_bl' => $kode_bl,
+                //             'kode_sbl' => $kode_sbl,
+                //             'nama_skpd' => $v_sub_keg_renstra['nama_skpd'],
+                //             'kode_skpd' => $v_sub_keg_renstra['kode_skpd'],
+                //             'nama_sub_skpd' => $v_sub_keg_renstra['nama_sub_unit'],
+                //             'kode_sub_skpd' => $kode_sub_skpd,  
+                //             'pagu' => $v_sub_keg_renstra['pagu_1'],
+                //             'pagu_usulan' => $v_sub_keg_renstra['pagu_1_usulan'],
+                //             'pagu_n_depan' => $v_sub_keg_renstra['pagu_2'],
+                //             'pagu_n_depan_usulan' => $v_sub_keg_renstra['pagu_2_usulan'],
+                //             'kode_urusan' => $v_sub_keg_renstra['kode_urusan'],
+                //             'id_urusan' => $v_sub_keg_renstra['id_urusan'],
+                //             'nama_urusan' => $v_sub_keg_renstra['nama_urusan'],
+                //             'id_bidang_urusan' => $v_sub_keg_renstra['kode_bidang_urusan'],
+                //             'kode_bidang_urusan' => $v_sub_keg_renstra['id_bidang_urusan'],
+                //             'nama_bidang_urusan' => $v_sub_keg_renstra['nama_bidang_urusan'],
+                //             'id_program' => $v_sub_keg_renstra['id_program'],
+                //             'kode_program' => $v_sub_keg_renstra['kode_program'],
+                //             'nama_program' => $v_sub_keg_renstra['nama_program'],
+                //             'kode_giat' => $v_sub_keg_renstra['kode_giat'],
+                //             'nama_giat' => $v_sub_keg_renstra['nama_giat'],
+                //             'kode_sub_giat' => $v_sub_keg_renstra['kode_sub_giat'],
+                //             'nama_sub_giat' => $v_sub_keg_renstra['nama_sub_giat'],
+                //             'catatan' => $v_sub_keg_renstra['catatan'],
+                //             'catatan_usulan' => $v_sub_keg_renstra['catatan_usulan'],
+                //             'waktu_awal' => 1,
+                //             'waktu_akhir' => 12,
+                //             'waktu_awal_usulan' => 1,
+                //             'waktu_akhir_usulan' => 12,
+                //             'active' => 1,
+                //             'tahun_anggaran' => $v_sub_keg_renstra['tahun_anggaran'],
+                //             'update_at' => current_time('mysql')
+                //         );
+                        
+                //         $cek_data_renja = $wpdb->get_results($wpdb->prepare(
+                //                 'SELECT id
+                //                 FROM data_sub_keg_bl_lokal
+                //                 WHERE kode_sub_giat=%s
+                //                 AND kode_skpd=%s
+                //                 AND id_sub_skpd=%s
+                //                 AND tahun_anggaran=%d
+                //                 AND active=1',
+                //                 $v_sub_keg_renstra['kode_sub_giat'],$v_sub_keg_renstra['kode_skpd'],$v_sub_keg_renstra['id_sub_unit'],$v_sub_keg_renstra['tahun_anggaran']
+                //         ), ARRAY_A);   // tahun sementara dibuat default karen di tabel renstra masih "0000"
+
+                //         if(!empty($cek_data_renja)){
+                //             $status_sub_keg = $wpdb->update('data_sub_keg_bl_lokal', $opsi_sub_keg_renstra, array('id' => $cek_data_renja[0]['id']));
+                //         }else{
+                //             $status_sub_keg = $wpdb->insert('data_sub_keg_bl_lokal', $opsi_sub_keg_renstra);
+                //         }
+                //     }
+                //     $ret['data'] = $data_sub_keg_renstra;
+                // }
             }else{
                 $ret = array(
                     'status' => 'error',
