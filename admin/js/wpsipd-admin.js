@@ -470,4 +470,14 @@ jQuery(document).ready(function(){
             });
 		}
 	});
+	jQuery('body').on('click', '.header-tahun', function(){
+		var tahun = jQuery(this).attr('tahun');
+		if(jQuery(this).hasClass('active')){
+			jQuery(this).removeClass('active');
+			jQuery('.body-tahun[tahun="'+tahun+'"]').removeClass('active');
+		}else{
+			jQuery(this).addClass('active');
+			jQuery('.body-tahun[tahun="'+tahun+'"]').addClass('active');
+		}
+	});
 });
