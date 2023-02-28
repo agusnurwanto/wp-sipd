@@ -1641,9 +1641,8 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 
 		if(!empty($_POST)){
 			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
-				if(!empty($_POST['tahun_anggaran']) && !empty($_POST['kode_sub_unit']) && !empty($_POST['id_unit'])){
+				if(!empty($_POST['tahun_anggaran']) && !empty($_POST['id_unit'])){
 					$tahun_anggaran = $_POST['tahun_anggaran'];
-					$kode_sub_unit = $_POST['kode_sub_unit'];
 					$id_unit = $_POST['id_unit'];
 
 					$skpd = $this->get_skpd_db();
@@ -1682,6 +1681,7 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 						}
 					}
 					$ret['data'] = $data_sub_kegiatan;
+					// $ret['sql'] = $wpdb->last_query;
 				}else{
 					$ret['status'] = 'error';
 					$ret['message'] = 'Ada param yang kosong!';	

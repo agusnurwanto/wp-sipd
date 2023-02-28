@@ -500,7 +500,11 @@ class Wpsipd_Admin {
 				}
 				$body_all = '';
 				$unit_renstra = [];
-				$tahun = $wpdb->get_results('select tahun_anggaran from data_unit group by tahun_anggaran order by tahun_anggaran ASC', ARRAY_A);
+				$limit = '';
+				if($_POST['type'] == 'input_renstra'){
+					$limit = ' LIMIT 1';
+				}
+				$tahun = $wpdb->get_results('select tahun_anggaran from data_unit group by tahun_anggaran order by tahun_anggaran DESC '.$limit, ARRAY_A);
 				foreach ($tahun as $k => $v) {
 		            $unit = $wpdb->get_results("SELECT nama_skpd, id_skpd, kode_skpd, nipkepala from data_unit where active=1 and tahun_anggaran=".$v['tahun_anggaran'].' and is_skpd=1 order by kode_skpd ASC', ARRAY_A);
 		            $body_pemda = '<ul style="margin-left: 20px;">';
@@ -590,6 +594,11 @@ class Wpsipd_Admin {
 		            }
 		            $body_pemda .= '</ul>';
 
+		            if($_POST['type'] != 'input_renstra'){
+			            $body_all .= '
+			            	<h3 class="header-tahun" tahun="'.$v['tahun_anggaran'].'">Tahun Anggaran '.$v['tahun_anggaran'].'</h3>
+			            	<div class="body-tahun" tahun="'.$v['tahun_anggaran'].'">';
+			        }
 					if($_POST['type'] == 'rfk'){
 						$url_pemda = $this->generatePage('Realisasi Fisik dan Keuangan Pemerintah Daerah | '.$v['tahun_anggaran'], $v['tahun_anggaran'], '[monitor_rfk tahun_anggaran="'.$v['tahun_anggaran'].'"]');
 						$body_all .= '<a style="font-weight: bold;" target="_blank" href="'.$url_pemda.$url_nilai_dpa.'">Halaman Realisasi Fisik dan Keuangan Pemerintah Daerah Tahun '.$v['tahun_anggaran'].'</a>'.$body_pemda;
@@ -639,6 +648,9 @@ class Wpsipd_Admin {
 			        	$body_all .= $body_pemda;
 					}else if($_POST['type'] == 'rkpd_renja'){
 			        	$body_all .= $body_pemda;
+					}
+					if($_POST['type'] != 'input_renstra'){
+						$body_all .= '</div>';
 					}
 				}
 				if(
