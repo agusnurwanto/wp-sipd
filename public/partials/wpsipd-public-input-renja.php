@@ -568,7 +568,7 @@ echo '
                                     <div class="form-group">
                                         <label for="label_tag_usulan">Label (Tag) Sub Kegiatan</label>
                                         <select class="form-control input_select_2" name="input_label_sub_keg_usulan" id="label_tag_usulan">
-                                            <option value="">Pilih Sub Kegiatan</option>
+                                            <option value="">Pilih Label (Tag)</option>
                                         </select>
                                     </div>
                                     <div class="form-group">
@@ -676,7 +676,7 @@ echo '
                                     <div class="form-group">
                                         <label for="label_tag">Label (Tag) Sub Kegiatan</label>
                                         <select class="form-control input_select_2" name="input_label_sub_keg" id="label_tag">
-                                            <option value="">Pilih Sub Kegiatan</option>
+                                            <option value="">Pilih Label (Tag)</option>
                                         </select>
                                     </div>
                                     <div class="form-group">
@@ -1082,6 +1082,8 @@ echo '
         			}
         		});
             }else{
+                jQuery("#input_sub_unit").html(dataSubUnit.table_content);
+                jQuery('#input_sub_unit').select2({width: '100%'});
                 resolve();
             }
         });
@@ -1092,72 +1094,97 @@ echo '
         if(kode_sub_unit == ''){
             return;
         }
+        if(typeof sub_keg_all == 'undefined'){
+            window.sub_keg_all = {};
+        }
         jQuery("#wrap-loading").show();
-		jQuery.ajax({
-			method:'POST',
-			url:"<?php echo admin_url('admin-ajax.php'); ?>",
-			dataType:'json',
-			data:{
-				'action':'get_sub_keg_parent',
-				'api_key': jQuery("#api_key").val(),
-                'tahun_anggaran': tahun_anggaran,
-				'kode_sub_unit': kode_sub_unit,
-                'id_unit':id_unit
-			},
-			success:function(response){
-				jQuery("#wrap-loading").hide();
-				let option='<option value="">Pilih Sub Kegiatan</option>';
-				response.data.map(function(value, index){
-                    value.map(function(value_sub, index_sub){
-                        option+='<option value="'+value_sub.id_sub_giat+'">'+value_sub.nama_sub_giat+'</option>';
-                    });
-                })
+        new Promise(function(resolve, reject){
+            if(!sub_keg_all[kode_sub_unit]){
+        		jQuery.ajax({
+        			method:'POST',
+        			url:"<?php echo admin_url('admin-ajax.php'); ?>",
+        			dataType:'json',
+        			data:{
+        				'action':'get_sub_keg_parent',
+        				'api_key': jQuery("#api_key").val(),
+                        'tahun_anggaran': tahun_anggaran,
+        				'id_unit': kode_sub_unit
+        			},
+        			success:function(response){
+                        sub_keg_all[kode_sub_unit] = response.data;
+                        resolve(sub_keg_all[kode_sub_unit]);
+        			}
+        		});
+            }else{
+                resolve(sub_keg_all[kode_sub_unit]);
+            }
+        })
+        .then(function(data){
+            let option='<option value="">Pilih Sub Kegiatan</option>';
+            data.map(function(value, index){
+                value.map(function(value_sub, index_sub){
+                    option+='<option value="'+value_sub.id_sub_giat+'">'+value_sub.nama_sub_giat+'</option>';
+                });
+            })
 
-				jQuery("#sub_kegiatan").html(option);
-                jQuery("#sub_kegiatan").select2({width: '100%'});
-			}
-		});
+            jQuery("#sub_kegiatan").html(option);
+            jQuery("#sub_kegiatan").select2({width: '100%'});
+            jQuery("#wrap-loading").hide();
+        })
     }
 
     function get_indikator_sub_keg(that){
 		let id_sub_keg = jQuery(that).val();
-        if(id_sub_keg==''){
+        if(id_sub_keg == '' || typeof id_sub_keg == 'undefined'){
             return;
         }
+        if(typeof indikator_sub_keg_all == 'undefined'){
+            window.indikator_sub_keg_all = {};
+        }
         jQuery("#wrap-loading").show();
-		jQuery.ajax({
-			method:'POST',
-			url:"<?php echo admin_url('admin-ajax.php'); ?>",
-			dataType:'json',
-			data:{
-				'action':'get_indikator_sub_keg_parent',
-				'api_key': jQuery("#api_key").val(),
-                'tahun_anggaran': tahun_anggaran,
-				'id_sub_keg' : id_sub_keg
-			},
-			success:function(response){
-				jQuery("#wrap-loading").hide();
-				let option='<option value="">Pilih Nama Indikator</option>';
-				response.data.map(function(value, index){
-                    option+='<option value="'+value.id_sub_keg+'">'+value.indikator+'</option>';
-                })
+        new Promise(function(resolve, reject){
+            if(!indikator_sub_keg_all[id_sub_keg]){
+        		jQuery.ajax({
+        			method:'POST',
+        			url:"<?php echo admin_url('admin-ajax.php'); ?>",
+        			dataType:'json',
+        			data:{
+        				'action':'get_indikator_sub_keg_parent',
+        				'api_key': jQuery("#api_key").val(),
+                        'tahun_anggaran': tahun_anggaran,
+        				'id_sub_keg' : id_sub_keg
+        			},
+        			success:function(response){
+                        indikator_sub_keg_all[id_sub_keg] = response.data;
+                        resolve(indikator_sub_keg_all[id_sub_keg]);
+        			}
+        		});
+            }else{
+                resolve(indikator_sub_keg_all[id_sub_keg]);
+            }
+        })
+        .then(function(data){
+            let option='<option value="">Pilih Nama Indikator</option>';
+            data.map(function(value, index){
+                option+='<option value="'+value.id_sub_keg+'">'+value.indikator+'</option>';
+            })
 
-                let optionSatuan='<option value="">Pilih Satuan</option>';
-				response.data.map(function(value, index){
-                    optionSatuan+='<option value="'+value.id_sub_keg+'">'+value.satuan+'</option>';
-                })
+            let optionSatuan='<option value="">Pilih Satuan</option>';
+            data.map(function(value, index){
+                optionSatuan+='<option value="'+value.id_sub_keg+'">'+value.satuan+'</option>';
+            })
 
-				jQuery(".pagu_indi_sub_keg").html(option);
-                jQuery(".pagu_indi_sub_keg").select2({width: '100%'});
-                jQuery(".satuan_pagu_indi_sub_keg").html(optionSatuan);
-			}
-		});
+            jQuery(".pagu_indi_sub_keg").html(option);
+            jQuery(".pagu_indi_sub_keg").select2({width: '100%'});
+            jQuery(".satuan_pagu_indi_sub_keg").html(optionSatuan);
+            jQuery("#wrap-loading").hide();
+        });
     }
 
     function get_indikator_sub_keg_by_id(data){
 		let id_sub_keg = data.id_sub_keg;
         let id_input = data.id;
-        if(id_sub_keg == ''){
+        if(id_sub_keg == '' || typeof id_sub_keg == 'undefined'){
             return;
         }
         if(typeof indikator_sub_keg_all == 'undefined'){

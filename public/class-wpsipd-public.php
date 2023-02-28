@@ -14278,7 +14278,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 								){
 									$delete	.= '<a class="btn btn-danger" href="#" onclick="copy_usulan(); return false;" title="Copy Data Usulan ke Penetapan">Copy Data Usulan</a>';
 									if($tipe_perencanaan == 'renja'){
-										$delete	.= '<a class="btn btn-danger" href="#" onclick="copy_data_renstra(); return false;" title="Copy Data RENSTRA ke RENJA">Copy Data RENSTRA</a>';
+										$delete	.= '<a class="btn btn-danger" href="#" onclick="copy_data_renstra(\''.$recVal['id_jadwal_lokal'].'\'); return false;" title="Copy Data RENSTRA ke RENJA">Copy Data RENSTRA</a>';
 									}
 								}
 							}
@@ -18669,6 +18669,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 								$kegiatan_all = $wpdb->get_results($wpdb->prepare("
 									SELECT 
 										id_unik,
+										id_unik_indikator,
 										nama_giat,
 										COALESCE(pagu_1, 0) AS pagu_1,
 										COALESCE(pagu_2, 0) AS pagu_2,
@@ -18682,7 +18683,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 										kode_tujuan=%s AND
 										active=1 ORDER BY id", 
 										$program_value['id_unik'], $sasaran_value['id_unik'], $tujuan_value['id_unik']), ARRAY_A);
-
+										
 								foreach ($kegiatan_all as $keyKegiatan => $kegiatan_value) {
 
 									if(empty($data_all['data'][$unit['id_skpd']]['data'][$program_value['id_unik']]['data'][$kegiatan_value['id_unik']])){

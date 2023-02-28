@@ -1275,7 +1275,124 @@ class Wpsipd_Public_Base_1 extends Wpsipd_Public_Base_2{
         );
         if (!empty($_POST)) {
             if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( WPSIPD_API_KEY )) {
-                // belum selesai
+                if (!empty($_POST['id_jadwal'])) {
+                    $data_jadwal_renja = $wpdb->get_row($wpdb->prepare(
+                        'SELECT *
+                        FROM data_jadwal_lokal
+                        WHERE id_jadwal_lokal=%d',
+                        $_POST['id_jadwal']
+                    ), ARRAY_A);
+
+                    $jadwal_renstra = $wpdb->get_row($wpdb->prepare(
+                        'SELECT *
+                        FROM data_jadwal_lokal
+                        WHERE id_jadwal_lokal = (SELECT max(id_jadwal_lokal) FROM data_jadwal_lokal WHERE id_tipe=4)
+                        AND status=1
+                        AND tahun_anggaran=%d',
+                        $data_jadwal_renja['tahun_anggaran']
+                    ), ARRAY_A);
+
+                    $n_tahun = array();
+                    for ($tahun=0; $tahun < $jadwal_renstra['lama_pelaksanaan']; $tahun++) { 
+                        $tahun_ke = $tahun+1;
+                        array_push($n_tahun, $tahun_ke);
+                    }
+                    $tahun_renstra = $data_jadwal_renja['tahun_anggaran'] - $jadwal_renstra['tahun_anggaran'];                   
+                    $tahun_ke = $n_tahun[$tahun_renstra];
+
+                    if(!empty($tahun_ke)){
+                        
+                        $data_sub_keg_renstra = $wpdb->get_results($wpdb->prepare(
+                            'SELECT k.*,p.kode_urusan,p.id_urusan,p.nama_urusan,p.kode_program as kode_program_prog,u.kode_skpd as kode_sub_skpd
+                            FROM data_renstra_sub_kegiatan_lokal_history k
+                            LEFT JOIN data_prog_keg p
+                            ON k.kode_sub_giat=p.kode_sub_giat
+                            LEFT JOIN data_unit u
+                            ON k.id_sub_unit=u.id_skpd
+                            WHERE k.id_jadwal=%d
+                            AND k.id_unik IS NOT NULL
+                            AND k.id_unik_indikator IS NULL
+                            AND k.active=1',
+                            $jadwal_renstra['id_jadwal_lokal']
+                        ),ARRAY_A);
+
+                        if(!empty($data_sub_keg_renstra)){
+                            foreach ($data_sub_keg_renstra as $v_sub_keg_renstra) {
+                                $kode_bl = $v_sub_keg_renstra['id_unit'].'.'.$v_sub_keg_renstra['id_sub_unit'].'.'.$v_sub_keg_renstra['id_program'].'.'.$v_sub_keg_renstra['id_giat'];
+                                $kode_sbl = $kode_bl.'.'.$v_sub_keg_renstra['id_sub_giat'];
+
+                                $opsi_sub_keg_renstra = array(
+                                    'id_sub_skpd' => $v_sub_keg_renstra['id_sub_unit'],
+                                    'id_sub_giat' => $v_sub_keg_renstra['id_sub_giat'],
+                                    'id_skpd' => $v_sub_keg_renstra['id_unit'],
+                                    'kode_bl' => $kode_bl,
+                                    'kode_sbl' => $kode_sbl,
+                                    'nama_skpd' => $v_sub_keg_renstra['nama_skpd'],
+                                    'kode_skpd' => $v_sub_keg_renstra['kode_skpd'],
+                                    'nama_sub_skpd' => $v_sub_keg_renstra['nama_sub_unit'],
+                                    'kode_sub_skpd' => $v_sub_keg_renstra['kode_sub_skpd'],  
+                                    'pagu' => $v_sub_keg_renstra['pagu_'.$tahun_ke],
+                                    'pagu_usulan' => $v_sub_keg_renstra['pagu_'.$tahun_ke.'_usulan'],
+                                    'pagu_n_depan' => $v_sub_keg_renstra['pagu_'.($tahun_ke+1)],
+                                    'pagu_n_depan_usulan' => $v_sub_keg_renstra['pagu_'.($tahun_ke+1).'_usulan'],
+                                    'kode_urusan' => $v_sub_keg_renstra['kode_urusan'],
+                                    'id_urusan' => $v_sub_keg_renstra['id_urusan'],
+                                    'nama_urusan' => $v_sub_keg_renstra['nama_urusan'],
+                                    'id_bidang_urusan' => $v_sub_keg_renstra['id_bidang_urusan'],
+                                    'kode_bidang_urusan' => $v_sub_keg_renstra['kode_bidang_urusan'],
+                                    'nama_bidang_urusan' => $v_sub_keg_renstra['nama_bidang_urusan'],
+                                    'id_program' => $v_sub_keg_renstra['id_program'],
+                                    'kode_program' => $v_sub_keg_renstra['kode_program_prog'],
+                                    'nama_program' => $v_sub_keg_renstra['nama_program'],
+                                    'kode_giat' => $v_sub_keg_renstra['kode_giat'],
+                                    'nama_giat' => $v_sub_keg_renstra['nama_giat'],
+                                    'kode_sub_giat' => $v_sub_keg_renstra['kode_sub_giat'],
+                                    'nama_sub_giat' => $v_sub_keg_renstra['nama_sub_giat'],
+                                    'catatan' => $v_sub_keg_renstra['catatan'],
+                                    'catatan_usulan' => $v_sub_keg_renstra['catatan_usulan'],
+                                    'waktu_awal' => 1,
+                                    'waktu_akhir' => 12,
+                                    'waktu_awal_usulan' => 1,
+                                    'waktu_akhir_usulan' => 12,
+                                    'active' => 1,
+                                    'tahun_anggaran' => $data_jadwal_renja['tahun_anggaran'],
+                                    'update_at' => current_time('mysql')
+                                );
+                                
+                                $cek_data_renja = $wpdb->get_results($wpdb->prepare(
+                                        'SELECT id
+                                        FROM data_sub_keg_bl_lokal
+                                        WHERE kode_sub_giat=%s
+                                        AND kode_skpd=%s
+                                        AND id_sub_skpd=%s
+                                        AND tahun_anggaran=%d
+                                        AND active=1',
+                                        $v_sub_keg_renstra['kode_sub_giat'],$v_sub_keg_renstra['kode_skpd'],$v_sub_keg_renstra['id_sub_unit'],$data_jadwal_renja['tahun_anggaran']
+                                ), ARRAY_A);
+
+                                if(!empty($cek_data_renja)){
+                                    $status_sub_keg = $wpdb->update('data_sub_keg_bl_lokal', $opsi_sub_keg_renstra, array('id' => $cek_data_renja[0]['id']));
+                                }else{
+                                    $status_sub_keg = $wpdb->insert('data_sub_keg_bl_lokal', $opsi_sub_keg_renstra);
+                                }
+
+
+                            }
+                            $ret['data'] = $data_sub_keg_renstra;
+                        }
+                    }else{
+                        $ret = array(
+                            'status' => 'error',
+                            'message'   => 'Data Tahun Ke '.$tahun_renstra.' Tidak Ditemukan!'
+                        );
+                    }
+                    $ret['datata'] = $data_sub_keg_renstra;
+                }else{
+                    $ret = array(
+                        'status' => 'error',
+                        'message'   => 'Ada Data Parameter Yang Kosong!'
+                    );
+                }
             }else{
                 $ret = array(
                     'status' => 'error',
