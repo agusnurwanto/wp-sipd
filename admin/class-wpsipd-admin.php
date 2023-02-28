@@ -1787,6 +1787,12 @@ class Wpsipd_Admin {
 		return get_permalink($custom_post->ID);
 	}
 
+	public function generate_input_rka_lokal(){
+		global $wpdb;
+		$label = $this->get_ajax_field(array('type' => 'input_rka_lokal'));
+        return $label;
+	}
+
     function allow_access_private_post(){
     	if(
     		!empty($_GET) 

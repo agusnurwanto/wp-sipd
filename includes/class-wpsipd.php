@@ -748,6 +748,7 @@ class Wpsipd
 		add_shortcode('data_mapping_master_fmis', array($plugin_public, 'data_mapping_master_fmis'));
 		add_shortcode('ssh_tidak_terpakai', array($plugin_public, 'ssh_tidak_terpakai'));
 		add_shortcode('register_sp2d_fmis', array($plugin_public, 'register_sp2d_fmis'));
+		add_shortcode('input_rka_lokal', array($plugin_public, 'input_rka_lokal'));
 
 		//shortcode SIPKD
 		add_shortcode('data_akun',array($plugin_public,'sipkd_akun'));
