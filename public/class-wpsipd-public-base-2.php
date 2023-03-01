@@ -1840,6 +1840,7 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 							nama_skpd,
 							kode_skpd,
 							id_unit,
+							id_skpd,
 							is_skpd
 						FROM data_unit
 						WHERE id_skpd=%d',

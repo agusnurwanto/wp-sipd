@@ -576,7 +576,7 @@ echo '
                                         <table class="input_sumber_dana_usulan" style="margin: 0;">
                                             <tr data-id="1">
                                                 <td style="width: 60%; max-width:100px;">
-                                                    <select class="form-control input_select_2 sumber_dana_usulan" id="sumber_dana_usulan_1" name="input_sumber_dana_usulan[1]">
+                                                    <select class="form-control input_select_2 sumber_dana_usulan" id="sumber_dana_usulan_1" name="input_sumber_dana_usulan[1]" onchange="set_penetapan(this);">
                                                         <option value="">Pilih Sumber Dana</option>
                                                     </select>
                                                 </td>
@@ -594,17 +594,17 @@ echo '
                                         <table class="input_lokasi_usulan" style="margin: 0;">
                                             <tr data-id="1">
                                                 <td>
-                                                    <select class="form-control kabupaten_kota_usulan" id="kabupaten_kota_usulan_1" name="input_kabupaten_kota_usulan[1]" onchange="get_data_lokasi(this.value,'kabkot','usulan')">
+                                                    <select class="form-control kabupaten_kota_usulan" id="kabupaten_kota_usulan_1" name="input_kabupaten_kota_usulan[1]" onchange="get_data_lokasi(this.value,'kabkot','usulan'); set_penetapan(this);">
                                                         <option value="">Pilih Kabupaten / Kota</option>
                                                     </select>
                                                 </td>
                                                 <td style="width: 30%">
-                                                    <select class="form-control input_select_2 kecamatan_usulan" name="input_kecamatan_usulan[1]" id="kecamatan_usulan_1" onchange="get_data_lokasi(this.value,'kec','usulan')">
+                                                    <select class="form-control input_select_2 kecamatan_usulan" name="input_kecamatan_usulan[1]" id="kecamatan_usulan_1" onchange="get_data_lokasi(this.value,'kec','usulan'); set_penetapan(this);">
                                                         <option value="">Pilih Kecamatan</option>
                                                     </select>
                                                 </td>
                                                 <td style="width: 30%">
-                                                    <select class="form-control input_select_2 desa_usulan" name="input_desa_usulan[1]" id="desa_usulan_1">
+                                                    <select class="form-control input_select_2 desa_usulan" name="input_desa_usulan[1]" id="desa_usulan_1" onchange="set_penetapan(this);">
                                                         <option value="">Pilih Desa</option>
                                                     </select>
                                                 </td>
@@ -619,13 +619,13 @@ echo '
                                         <table style="margin: 0;">
                                             <tr>
                                                 <td style="width: 50%;">
-                                                    <select class="form-control bulan_awal" name="input_bulan_awal_usulan" id="bulan_awal_usulan">
+                                                    <select class="form-control bulan_awal" name="input_bulan_awal_usulan" id="bulan_awal_usulan" onchange="set_penetapan(this);">
                                                         <option value="">Pilih Bulan Awal</option>
                                                         <?php echo $bulan_option; ?>
                                                     </select>
                                                 </td>
                                                 <td style="width: 50%;">
-                                                    <select class="form-control bulan_akhir" name="input_bulan_akhir_usulan" id="bulan_akhir_usulan">
+                                                    <select class="form-control bulan_akhir" name="input_bulan_akhir_usulan" id="bulan_akhir_usulan" onchange="set_penetapan(this);">
                                                         <option value="">Pilih Bulan Akhir</option>
                                                         <?php echo $bulan_option; ?>
                                                     </select>
@@ -698,7 +698,7 @@ echo '
                                         <label for="kabupaten_kota">Lokasi Pelaksanaan</label>
                                         <table class="input_lokasi" style="margin: 0;">
                                             <tr data-id="1">
-                                                <td>
+                                                <td style="height: 52px;">
                                                     <select class="form-control kabupaten_kota" id="kabupaten_kota_1" name="input_kabupaten_kota[1]" onchange="get_data_lokasi(this.value,'kabkot','penetapan')" disabled>
                                                         <option value="">Pilih Kabupaten / Kota</option>
                                                     </select>
@@ -947,17 +947,17 @@ echo '
         var trNewUsulan = ''
             +'<tr data-id="'+newId+'">'
                 +'<td>'
-                    +'<select class="form-control" id="kabupaten_kota_usulan_'+newId+'" name="input_kabupaten_kota_usulan['+newId+']" onchange="get_data_lokasi(this.value,\'kabkot\',\'usulan\')">'
+                    +'<select class="form-control" id="kabupaten_kota_usulan_'+newId+'" name="input_kabupaten_kota_usulan['+newId+']" onchange="get_data_lokasi(this.value,\'kabkot\',\'usulan\'); set_penetapan(this);">'
                         +'<option value="">Pilih Kabupaten / Kota</option>'
                     +'</select>'
                 +'</td>'
                 +'<td style="width: 30%">'
-                    +'<select class="form-control input_select" id="kecamatan_usulan_'+newId+'" name="input_kecamatan_usulan['+newId+']" onchange="get_data_lokasi(this.value,\'kec\',\'usulan\')">'
+                    +'<select class="form-control input_select" id="kecamatan_usulan_'+newId+'" name="input_kecamatan_usulan['+newId+']" onchange="get_data_lokasi(this.value,\'kec\',\'usulan\'); set_penetapan(this);">'
                         +'<option value="">Pilih Kecamatan</option>'
                     +'</select>'
                 +'</td>'
                 +'<td style="width: 30%">'
-                    +'<select class="form-control input_select" id="desa_usulan_'+newId+'" name="input_desa_usulan['+newId+']">'
+                    +'<select onchange="set_penetapan(this);" class="form-control input_select" id="desa_usulan_'+newId+'" name="input_desa_usulan['+newId+']">'
                         +'<option value="">Pilih Desa</option>'
                     +'</select>'
                 +'</td>'
@@ -1009,20 +1009,13 @@ echo '
     function tambahSumberDana(that){
         var id = +jQuery('.input_sumber_dana_usulan > tbody tr').last().attr('data-id');
         var newId = id+1;
-        var trNewUsulan = ''
+        var trNewUsulan = jQuery('.input_sumber_dana_usulan > tbody tr').last().html();
+        trNewUsulan = ''
             +'<tr data-id="'+newId+'">'
-                +'<td style="width: 60%">'
-                    +'<select class="form-control input_select_2" id="sumber_dana_usulan_'+newId+'" name="input_sumber_dana_usulan['+newId+']">'
-                        +'<option value="">Pilih Sumber Dana</option>'
-                    +'</select>'
-                +'</td>'
-                +'<td>'
-                    +'<input class="form-control input_number" id="pagu_sumber_dana_usulan_'+newId+'" type="number" name="input_pagu_sumber_dana_usulan['+newId+']"/>'
-                +'</td>'
-                +'<td style="width: 70px" class="text-center">'
-                    +'<button class="btn btn-warning btn-sm" onclick="tambahSumberDana(this); return false;"><i class="dashicons dashicons-plus"></i></button>'
-                +'</td>'
+                +trNewUsulan
             +'</tr>';
+        trNewUsulan = trNewUsulan.replace('_'+id+'"', '_'+newId+'"');
+        trNewUsulan = trNewUsulan.replace('['+id+']', '['+newId+']');
         var tbody = jQuery('.input_sumber_dana_usulan > tbody');
         tbody.append(trNewUsulan);
         var tr = tbody.find('>tr');
@@ -1035,18 +1028,17 @@ echo '
             }
             jQuery(b).find('>td').last().html(html);
         });
+
         /** tambah input sumber dana */
-        var trNew = ''
+        var id = +jQuery('.input_sumber_dana > tbody tr').last().attr('data-id');
+        var newId = id+1;
+        var trNew = jQuery('.input_sumber_dana > tbody tr').last().html();
+        trNew = ''
             +'<tr data-id="'+newId+'">'
-                +'<td style="width: 60%">'
-                    +'<select class="form-control input_select_2" id="sumber_dana_'+newId+'" name="input_sumber_dana['+newId+']">'
-                        +'<option value="">Pilih Sumber Dana</option>'
-                    +'</select>'
-                +'</td>'
-                +'<td>'
-                    +'<input class="form-control input_number" id="pagu_sumber_dana_'+newId+'" type="number" name="input_pagu_sumber_dana['+newId+']"/>'
-                +'</td>'
+                +trNew
             +'</tr>';
+        trNew = trNew.replace('_'+id+'"', '_'+newId+'"');
+        trNew = trNew.replace('['+id+']', '['+newId+']');
         var tbody = jQuery('.input_sumber_dana > tbody');
         tbody.append(trNew);
     }
@@ -1260,6 +1252,16 @@ echo '
                     }
                 });
             }else{
+                jQuery('.input_sumber_dana_usulan tbody tr').map(function(i, b){
+                    if(i >= 1){
+                        jQuery(b).remove();
+                    }
+                });
+                jQuery('.input_sumber_dana tbody tr').map(function(i, b){
+                    if(i >= 1){
+                        jQuery(b).remove();
+                    }
+                });
                 resolve();
             }
         });
@@ -1275,6 +1277,18 @@ echo '
 
             if(id_alamat == false){
                 id_alamat = <?php echo $id_lokasi_prov; ?>;
+                jQuery('.input_lokasi_usulan tbody tr').map(function(i, b){
+                    if(i >= 1){
+                        jQuery(b).remove();
+                    }
+                });
+                jQuery('.input_lokasi tbody tr').map(function(i, b){
+                    if(i >= 1){
+                        jQuery(b).remove();
+                    }
+                });
+                jQuery('#kecamatan_usulan_1').val('').trigger('change');
+                jQuery('#kecamatan_1').val('').trigger('change');
             }
 
             if(
@@ -1402,7 +1416,9 @@ echo '
                     jQuery('#wrap-loading').hide();
                     jQuery('#modalTambahRenja').modal('hide');
                     alert(response.message);
-                    refresh_page();
+                    if(response.status == 'success'){
+                        refresh_page();
+                    }
                 }
             });
         }
@@ -1465,7 +1481,7 @@ echo '
                                     var trNewUsulan = ''
                                     +'<tr data-id="'+id+'" header="1">'
                                         +'<td colspan="2" style="max-width: 100px;">'
-                                            +'<select class="form-control pagu_indi_sub_keg input_select_2" data-edit="'+value.id+'" id="pagu_ind_sub_keg_usulan_'+id+'" name="input_indikator_sub_keg_usulan['+id+']">'
+                                            +'<select class="form-control pagu_indi_sub_keg input_select_2" data-edit="'+value.id+'" id="pagu_ind_sub_keg_usulan_'+id+'" name="input_indikator_sub_keg_usulan['+id+']" onchange="set_penetapan(this);">'
                                                 +'<option value="">Pilih Nama Indikator</option>'
                                             +'</select>'
                                             +'<input type="hidden" id="ind_sub_keg_id_'+id+'" name="ind_sub_keg_id['+id+']" value="'+value.id+'">'
@@ -1479,7 +1495,7 @@ echo '
                                             +'<input class="form-control input_number" type="number" id="indikator_pagu_indi_sub_keg_usulan_'+id+'" name="input_target_usulan['+id+']" placeholder="Target Indikator"/>'
                                         +'</td>'
                                         +'<td style="width: 50%;">'
-                                            +'<select class="form-control satuan_pagu_indi_sub_keg input_select_2" id="satuan_pagu_indi_sub_keg_usulan_'+id+'" name="input_satuan_usulan['+id+']">'
+                                            +'<select class="form-control satuan_pagu_indi_sub_keg input_select_2" id="satuan_pagu_indi_sub_keg_usulan_'+id+'" name="input_satuan_usulan['+id+']" onchange="set_penetapan(this);">'
                                                 +'<option value="">Pilih Satuan</option>'
                                             +'</select>'
                                         +'</td>'
@@ -1504,7 +1520,7 @@ echo '
                                     var trNewUsulan = ''
                                         +'<tr data-id="'+id+'" header="1">'
                                             +'<td colspan="2" style="max-width: 100px;">'
-                                                +' <select class="form-control pagu_indi_sub_keg input_select_2" id="pagu_indi_sub_keg_penetapan_'+id+'" name="input_indikator_sub_keg['+id+']">'
+                                                +' <select class="form-control pagu_indi_sub_keg input_select_2" id="pagu_indi_sub_keg_penetapan_'+id+'" name="input_indikator_sub_keg['+id+']" onchange="set_penetapan(this);">'
                                                     +'<option value="">Pilih Nama Indikator</option>'
                                                 +'</select>'
                                             +'</td>'
@@ -1514,7 +1530,7 @@ echo '
                                                 +'<input class="form-control input_number" type="number" name="input_target['+id+']" id="indikator_pagu_indi_sub_keg_'+id+'" placeholder="Target Indikator"/>'
                                             +'</td>'
                                             +'<td style="width: 50%;">'
-                                                +'<select class="form-control satuan_pagu_indi_sub_keg input_select_2" id="satuan_pagu_indi_sub_keg_penetapan_'+id+'" name="input_satuan['+id+']">'
+                                                +'<select class="form-control satuan_pagu_indi_sub_keg input_select_2" id="satuan_pagu_indi_sub_keg_penetapan_'+id+'" name="input_satuan['+id+']" onchange="set_penetapan(this);">'
                                                     +'<option value="">Pilih Satuan</option>'
                                                 +'</select>'
                                             +'</td>'
@@ -1551,7 +1567,7 @@ echo '
                                     var trNewUsulan = ''
                                     +'<tr data-id="'+id+'">'
                                         +'<td style="width: 60%">'
-                                            +'<select class="form-control input_select_2" id="sumber_dana_usulan_'+id+'" name="input_sumber_dana_usulan['+id+']">'
+                                            +'<select class="form-control input_select_2" id="sumber_dana_usulan_'+id+'" name="input_sumber_dana_usulan['+id+']" onchange="set_penetapan(this);">'
                                                 +'<option value="">Pilih Sumber Dana</option>'
                                             +'</select>'
                                         +'</td>'
@@ -1663,7 +1679,9 @@ echo '
                     jQuery('#wrap-loading').hide();
                     jQuery('#modalTambahRenja').modal('hide');
                     alert(response.message);
-                    refresh_page();
+                    if(response.status == 'success'){
+                        refresh_page();
+                    }
                 }
             })
         }
@@ -1867,5 +1885,10 @@ echo '
         jQuery('.satuan_pagu_indi_sub_keg[name="input_satuan_usulan['+tr_id+']"]').trigger('change');
         jQuery('.pagu_indi_sub_keg[name="input_indikator_sub_keg['+tr_id+']"]').trigger('change');
         jQuery('.satuan_pagu_indi_sub_keg[name="input_satuan['+tr_id+']"]').trigger('change');
+    }
+
+    function set_penetapan(that){
+        var id_penetapan = jQuery(that).attr('id').replace('_usulan', '');
+        jQuery('#'+id_penetapan).val(jQuery(that).val()).trigger('change');
     }
 </script>
