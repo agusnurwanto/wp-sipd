@@ -855,6 +855,8 @@ echo '
                         }
                         var html = '<button class="btn btn-warning btn-sm" onclick="tambahIndikator(this); return false;"><i class="dashicons dashicons-plus"></i></button>';
                         jQuery('.indi_sub_keg_table_usulan tr:first-child').find('>td').last().html(html);
+                        jQuery('#kecamatan_usulan_1').val('').trigger('change');
+                        jQuery('#kecamatan_1').val('').trigger('change');
 
                     });
                 })
@@ -944,29 +946,23 @@ echo '
         /** tambah input lokasi usulan */
         var id = +jQuery('.input_lokasi_usulan > tbody tr').last().attr('data-id');
         newId = id+1;
-        var trNewUsulan = ''
+        var trNewUsulan = jQuery('.input_lokasi_usulan > tbody tr').last().html();
+        trNewUsulan = ''
             +'<tr data-id="'+newId+'">'
-                +'<td>'
-                    +'<select class="form-control" id="kabupaten_kota_usulan_'+newId+'" name="input_kabupaten_kota_usulan['+newId+']" onchange="get_data_lokasi(this.value,\'kabkot\',\'usulan\'); set_penetapan(this);">'
-                        +'<option value="">Pilih Kabupaten / Kota</option>'
-                    +'</select>'
-                +'</td>'
-                +'<td style="width: 30%">'
-                    +'<select class="form-control input_select" id="kecamatan_usulan_'+newId+'" name="input_kecamatan_usulan['+newId+']" onchange="get_data_lokasi(this.value,\'kec\',\'usulan\'); set_penetapan(this);">'
-                        +'<option value="">Pilih Kecamatan</option>'
-                    +'</select>'
-                +'</td>'
-                +'<td style="width: 30%">'
-                    +'<select onchange="set_penetapan(this);" class="form-control input_select" id="desa_usulan_'+newId+'" name="input_desa_usulan['+newId+']">'
-                        +'<option value="">Pilih Desa</option>'
-                    +'</select>'
-                +'</td>'
-                +'<td style="width: 70px" class="text-center">'
-                    +'<button class="btn btn-warning btn-sm" onclick="tambahLokasi(this);"><i class="dashicons dashicons-plus"></i></button>'
-                +'</td>'
+                +trNewUsulan
             +'</tr>';
+        trNewUsulan = trNewUsulan.replaceAll('_'+id+'"', '_'+newId+'"');
+        trNewUsulan = trNewUsulan.replaceAll('['+id+']', '['+newId+']');
         var tbody = jQuery('.input_lokasi_usulan > tbody');
         tbody.append(trNewUsulan);
+        jQuery('.input_lokasi_usulan > tbody tr[data-id="'+newId+'"] .select2').remove();
+        jQuery('.input_lokasi_usulan > tbody tr[data-id="'+newId+'"] select').select2({width: '100%'});
+        <?php 
+            if(!empty($id_lokasi_kokab)){
+                echo 'jQuery("#kabupaten_kota_usulan_"+newId).val('.$id_lokasi_kokab.').trigger("change")';
+            }
+        ?>
+
         var tr = tbody.find('>tr');
         var length = tr.length-1;
         tr.map(function(i, b){
@@ -978,26 +974,22 @@ echo '
             jQuery(b).find('>td').last().html(html);
         });
         /** tambah input lokasi */
-        var trNew = ''
+        var trNew = jQuery('.input_lokasi > tbody tr').last().html();
+        trNew = ''
             +'<tr data-id="'+newId+'">'
-                +'<td>'
-                    +'<select class="form-control" id="kabupaten_kota_'+newId+'" name="input_kabupaten_kota['+newId+']" onchange="get_data_lokasi(this.value,\'kabkot\',\'penetapan\')">'
-                        +'<option value="">Pilih Kabupaten / Kota</option>'
-                    +'</select>'
-                +'</td>'
-                +'<td style="width: 30%">'
-                    +'<select class="form-control input_select" id="kecamatan_'+newId+'" name="input_kecamatan['+newId+']" onchange="get_data_lokasi(this.value,\'kec\',\'penetapan\')">'
-                        +'<option value="">Pilih Kecamatan</option>'
-                    +'</select>'
-                +'</td>'
-                +'<td style="width: 30%">'
-                    +'<select class="form-control input_select" id="desa_'+newId+'" name="input_desa['+newId+']">'
-                        +'<option value="">Pilih Desa</option>'
-                    +'</select>'
-                +'</td>'
+                +trNew
             +'</tr>';
+        trNew = trNew.replaceAll('_'+id+'"', '_'+newId+'"');
+        trNew = trNew.replaceAll('['+id+']', '['+newId+']');
         var tbody = jQuery('.input_lokasi > tbody');
         tbody.append(trNew);
+        jQuery('.input_lokasi > tbody tr[data-id="'+newId+'"] .select2').remove();
+        jQuery('.input_lokasi > tbody tr[data-id="'+newId+'"] select').select2({width: '100%'});
+        <?php 
+            if(!empty($id_lokasi_kokab)){
+                echo 'jQuery("#kabupaten_kota_"+newId).val('.$id_lokasi_kokab.').trigger("change")';
+            }
+        ?>
     }
 
     function hapusLokasi(that){
@@ -1014,10 +1006,12 @@ echo '
             +'<tr data-id="'+newId+'">'
                 +trNewUsulan
             +'</tr>';
-        trNewUsulan = trNewUsulan.replace('_'+id+'"', '_'+newId+'"');
-        trNewUsulan = trNewUsulan.replace('['+id+']', '['+newId+']');
+        trNewUsulan = trNewUsulan.replaceAll('_'+id+'"', '_'+newId+'"');
+        trNewUsulan = trNewUsulan.replaceAll('['+id+']', '['+newId+']');
         var tbody = jQuery('.input_sumber_dana_usulan > tbody');
         tbody.append(trNewUsulan);
+        jQuery('.input_sumber_dana_usulan > tbody tr[data-id="'+newId+'"] .select2').remove();
+        jQuery('.input_sumber_dana_usulan > tbody tr[data-id="'+newId+'"] select').select2({width: '100%'});
         var tr = tbody.find('>tr');
         var length = tr.length-1;
         tr.map(function(i, b){
@@ -1037,10 +1031,12 @@ echo '
             +'<tr data-id="'+newId+'">'
                 +trNew
             +'</tr>';
-        trNew = trNew.replace('_'+id+'"', '_'+newId+'"');
-        trNew = trNew.replace('['+id+']', '['+newId+']');
+        trNew = trNew.replaceAll('_'+id+'"', '_'+newId+'"');
+        trNew = trNew.replaceAll('['+id+']', '['+newId+']');
         var tbody = jQuery('.input_sumber_dana > tbody');
         tbody.append(trNew);
+        jQuery('.input_sumber_dana > tbody tr[data-id="'+newId+'"] .select2').remove();
+        jQuery('.input_sumber_dana > tbody tr[data-id="'+newId+'"] select').select2({width: '100%'});
     }
 
     function hapusSumberDana(that){
@@ -1287,8 +1283,6 @@ echo '
                         jQuery(b).remove();
                     }
                 });
-                jQuery('#kecamatan_usulan_1').val('').trigger('change');
-                jQuery('#kecamatan_1').val('').trigger('change');
             }
 
             if(
@@ -1888,7 +1882,7 @@ echo '
     }
 
     function set_penetapan(that){
-        var id_penetapan = jQuery(that).attr('id').replace('_usulan', '');
+        var id_penetapan = jQuery(that).attr('id').replaceAll('_usulan', '');
         jQuery('#'+id_penetapan).val(jQuery(that).val()).trigger('change');
     }
 </script>
