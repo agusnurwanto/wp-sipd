@@ -3831,7 +3831,12 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		if (!empty($_POST)) {
 			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
 				$all_id_sub_skpd = array();
-				foreach ($_POST['subkeg_aktif'] as $v) {
+				if(!empty($_POST['type']) && $_POST['type'] == 'ri'){
+					$subkeg_aktif = json_decode(stripslashes(html_entity_decode($_POST['subkeg_aktif'])), true);						
+				}else{
+						$subkeg_aktif = $_POST['subkeg_aktif'];
+				}
+				foreach ($subkeg_aktif as $v) {				
 					$id = explode('.', $v['kode_sbl']);
 					$all_id_sub_skpd[$id[1]] = $wpdb->prepare('%d', $id[1]);
 				}
