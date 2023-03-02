@@ -373,10 +373,20 @@ $body = '';
                                 $output_sub_giat = implode('<br>', $output_sub_giat);
                                 $target_output_sub_giat = implode('<br>', $target_output_sub_giat);
                             }
-                            $lokasi_sub_giat = '';
+                            $lokasi_sub_giat_array = array();
                             if(!empty($sub_giat['lokasi_sub_giat'])){
-                                $lokasi_sub_giat = $sub_giat['lokasi_sub_giat'][0]['daerahteks'].', '.$sub_giat['lokasi_sub_giat'][0]['camatteks'].', '.$sub_giat['lokasi_sub_giat'][0]['lurahteks'];
+                                foreach($sub_giat['lokasi_sub_giat'] as $v_lokasi){
+                                    $lokasi_sub_giat = $v_lokasi['daerahteks'];
+                                    if(!empty($v_lokasi['camatteks'])){
+                                        $lokasi_sub_giat .= ', Kec. '.$v_lokasi['camatteks'];
+                                    }
+                                    if(!empty($v_lokasi['lurahteks'])){
+                                        $lokasi_sub_giat .= ', '.$v_lokasi['lurahteks'];
+                                    }
+                                    $lokasi_sub_giat_array[] = $lokasi_sub_giat;
+                                }
                             }
+                            $lokasi_sub_giat = implode('<br>', $lokasi_sub_giat_array);
                             $ind_n_plus = '';
                             $target_ind_n_plus = '';
                             /*
@@ -584,7 +594,7 @@ echo '
                                                     <input class="form-control input_number" id="pagu_sumber_dana_usulan_1" type="number" name="input_pagu_sumber_dana_usulan[1]"/>
                                                 </td>
                                                 <td style="width: 70px" class="text-center">
-                                                    <button class="btn btn-warning btn-sm" onclick="tambahSumberDana(this); return false;"><i class="dashicons dashicons-plus"></i></button>
+                                                    <button class="btn btn-warning btn-sm" onclick="tambahSumberDana(); return false;"><i class="dashicons dashicons-plus"></i></button>
                                                 </td>
                                             </tr>
                                         </table>
@@ -594,12 +604,12 @@ echo '
                                         <table class="input_lokasi_usulan" style="margin: 0;">
                                             <tr data-id="1">
                                                 <td>
-                                                    <select class="form-control kabupaten_kota_usulan" id="kabupaten_kota_usulan_1" name="input_kabupaten_kota_usulan[1]" onchange="get_data_lokasi(this.value,'kabkot','usulan'); set_penetapan(this);">
+                                                    <select class="form-control kabupaten_kota_usulan" id="kabupaten_kota_usulan_1" name="input_kabupaten_kota_usulan[1]" onchange="get_data_lokasi(this.value,'kabkot','usulan', true, 1); set_penetapan(this);">
                                                         <option value="">Pilih Kabupaten / Kota</option>
                                                     </select>
                                                 </td>
                                                 <td style="width: 30%">
-                                                    <select class="form-control input_select_2 kecamatan_usulan" name="input_kecamatan_usulan[1]" id="kecamatan_usulan_1" onchange="get_data_lokasi(this.value,'kec','usulan'); set_penetapan(this);">
+                                                    <select class="form-control input_select_2 kecamatan_usulan" name="input_kecamatan_usulan[1]" id="kecamatan_usulan_1" onchange="get_data_lokasi(this.value,'kec','usulan', true, 1); set_penetapan(this);">
                                                         <option value="">Pilih Kecamatan</option>
                                                     </select>
                                                 </td>
@@ -652,7 +662,7 @@ echo '
                                                     <input type="hidden" id="ind_sub_keg_id_1" name="ind_sub_keg_id[1]" value="0">
                                                 </td>
                                                 <td rowspan="2" style="width: 70px; vertical-align: middle;" class="text-center">
-                                                    <button class="btn btn-warning btn-sm" onclick="tambahIndikator(this); return false;"><i class="dashicons dashicons-plus"></i></button>
+                                                    <button class="btn btn-warning btn-sm" onclick="tambahIndikator(); return false;"><i class="dashicons dashicons-plus"></i></button>
                                                 </td>
                                             </tr>
                                             <tr data-id="1">
@@ -699,12 +709,12 @@ echo '
                                         <table class="input_lokasi" style="margin: 0;">
                                             <tr data-id="1">
                                                 <td style="height: 52px;">
-                                                    <select class="form-control kabupaten_kota" id="kabupaten_kota_1" name="input_kabupaten_kota[1]" onchange="get_data_lokasi(this.value,'kabkot','penetapan')" disabled>
+                                                    <select class="form-control kabupaten_kota" id="kabupaten_kota_1" name="input_kabupaten_kota[1]" onchange_lama="get_data_lokasi(this.value,'kabkot','penetapan', true, 1)" disabled>
                                                         <option value="">Pilih Kabupaten / Kota</option>
                                                     </select>
                                                 </td>
                                                 <td style="width: 30%">
-                                                    <select class="form-control input_select kecamatan" id="kecamatan_1" name="input_kecamatan[1]" onchange="get_data_lokasi(this.value,'kec','penetapan')" disabled>
+                                                    <select class="form-control input_select kecamatan" id="kecamatan_1" name="input_kecamatan[1]" onchange_lama="get_data_lokasi(this.value,'kec','penetapan', true, 1)" disabled>
                                                         <option value="">Pilih Kecamatan</option>
                                                     </select>
                                                 </td>
@@ -829,7 +839,7 @@ echo '
             .then(function(){
                 get_data_sumber_dana()
                 .then(function(){
-                    get_data_lokasi(false, 'prov')
+                    get_data_lokasi(false, 'prov', false, false, 1)
                     .then(function(){
                         jQuery("#modalTambahRenja .modal-title").html("Tambah Sub Kegiatan");
                         jQuery("#modalTambahRenja .submitBtn")
@@ -853,7 +863,7 @@ echo '
                                 jQuery('.indi_sub_keg_table > tbody').find('tr[data-id="'+index+'"]').remove();
                             }
                         }
-                        var html = '<button class="btn btn-warning btn-sm" onclick="tambahIndikator(this); return false;"><i class="dashicons dashicons-plus"></i></button>';
+                        var html = '<button class="btn btn-warning btn-sm" onclick="tambahIndikator(); return false;"><i class="dashicons dashicons-plus"></i></button>';
                         jQuery('.indi_sub_keg_table_usulan tr:first-child').find('>td').last().html(html);
                         jQuery('#kecamatan_usulan_1').val('').trigger('change');
                         jQuery('#kecamatan_1').val('').trigger('change');
@@ -865,7 +875,7 @@ echo '
     <?php endif; ?>
     });
 
-    function tambahIndikator(that){
+    function tambahIndikator(){
         var id = +jQuery('.indi_sub_keg_table_usulan > tbody tr').last().attr('data-id');
         var newId = id+1;
         /** tambah input usulan indi_sub_keg */
@@ -878,7 +888,7 @@ echo '
                     +'<input type="hidden" id="ind_sub_keg_id_'+newId+'" name="ind_sub_keg_id['+newId+']" value="0">'
                 +'</td>'
                 +'<td style="width: 70px; vertical-align: middle;" class="text-center aksi" rowspan="2">'
-                    +'<button class="btn btn-warning btn-sm" onclick="tambahIndikator(this); return false;"><i class="dashicons dashicons-plus"></i></button>'
+                    +'<button class="btn btn-warning btn-sm" onclick="tambahIndikator(); return false;"><i class="dashicons dashicons-plus"></i></button>'
                 +'</td>'
             +'</tr>'
             +'<tr data-id="'+newId+'">'
@@ -886,7 +896,7 @@ echo '
                     +'<input class="form-control input_number" type="number" id="indikator_pagu_indi_sub_keg_usulan_'+newId+'" name="input_target_usulan['+newId+']" placeholder="Target Indikator"/>'
                 +'</td>'
                 +'<td style="width: 50%;">'
-                    +'<select class="form-control satuan_pagu_indi_sub_keg input_select_2" id="satuan_pagu_indi_sub_keg_usulan_'+newId+'" name="input_satuan_usulan['+newId+']">'
+                    +'<select class="form-control satuan_pagu_indi_sub_keg input_select_2" id="satuan_pagu_indi_sub_keg_usulan_'+newId+'" name="input_satuan_usulan['+newId+']" disabled>'
                         +'<option value="">Pilih Satuan</option>'
                     +'</select>'
                 +'</td>'
@@ -900,7 +910,7 @@ echo '
             var header = jQuery(b).attr('header');
             if(header == 1){
                 if(i == 0){
-                    var html = '<button class="btn btn-warning btn-sm" onclick="tambahIndikator(this); return false;"><i class="dashicons dashicons-plus"></i></button>';
+                    var html = '<button class="btn btn-warning btn-sm" onclick="tambahIndikator(); return false;"><i class="dashicons dashicons-plus"></i></button>';
                 }else{
                     var html = '<button class="btn btn-danger btn-sm" onclick="hapusIndikator(this); return false;"><i class="dashicons dashicons-trash"></i></button>';
                 }
@@ -942,54 +952,59 @@ echo '
         jQuery('.indi_sub_keg_table > tbody').find('tr[data-id="'+id+'"]').remove();
     }
 
-    function tambahLokasi(that){
-        /** tambah input lokasi usulan */
-        var id = +jQuery('.input_lokasi_usulan > tbody tr').last().attr('data-id');
-        newId = id+1;
-        var trNewUsulan = jQuery('.input_lokasi_usulan > tbody tr').last().html();
-        trNewUsulan = ''
-            +'<tr data-id="'+newId+'">'
-                +trNewUsulan
-            +'</tr>';
-        trNewUsulan = trNewUsulan.replaceAll('_'+id+'"', '_'+newId+'"');
-        trNewUsulan = trNewUsulan.replaceAll('['+id+']', '['+newId+']');
-        var tbody = jQuery('.input_lokasi_usulan > tbody');
-        tbody.append(trNewUsulan);
-        jQuery('.input_lokasi_usulan > tbody tr[data-id="'+newId+'"] .select2').remove();
-        jQuery('.input_lokasi_usulan > tbody tr[data-id="'+newId+'"] select').select2({width: '100%'});
-        <?php 
-            if(!empty($id_lokasi_kokab)){
-                echo 'jQuery("#kabupaten_kota_usulan_"+newId).val('.$id_lokasi_kokab.').trigger("change")';
-            }
-        ?>
+    function tambahLokasi(){
+        return new Promise(function(resolve, reject){
+            /** tambah input lokasi usulan */
+            var id = +jQuery('.input_lokasi_usulan > tbody tr').last().attr('data-id');
+            newId = id+1;
+            var trNewUsulan = jQuery('.input_lokasi_usulan > tbody tr').last().html();
+            trNewUsulan = ''
+                +'<tr data-id="'+newId+'">'
+                    +trNewUsulan
+                +'</tr>';
+            trNewUsulan = trNewUsulan.replaceAll('_'+id+'"', '_'+newId+'"');
+            trNewUsulan = trNewUsulan.replaceAll('['+id+']', '['+newId+']');
+            trNewUsulan = trNewUsulan.replaceAll(' '+id+')', ' '+newId+')');
+            var tbody = jQuery('.input_lokasi_usulan > tbody');
+            tbody.append(trNewUsulan);
+            jQuery('.input_lokasi_usulan > tbody tr[data-id="'+newId+'"] .select2').remove();
+            jQuery('.input_lokasi_usulan > tbody tr[data-id="'+newId+'"] select').select2({width: '100%'});
+            <?php 
+                if(!empty($id_lokasi_kokab)){
+                    echo 'jQuery("#kabupaten_kota_usulan_"+newId).val('.$id_lokasi_kokab.').trigger("change");';
+                }
+            ?>
 
-        var tr = tbody.find('>tr');
-        var length = tr.length-1;
-        tr.map(function(i, b){
-            if(i == 0){
-                var html = '<button class="btn btn-warning btn-sm" onclick="tambahLokasi(this); return false;"><i class="dashicons dashicons-plus"></i></button>';
-            }else{
-                var html = '<button class="btn btn-danger btn-sm" onclick="hapusLokasi(this); return false;"><i class="dashicons dashicons-trash"></i></button>';
-            }
-            jQuery(b).find('>td').last().html(html);
+            var tr = tbody.find('>tr');
+            var length = tr.length-1;
+            tr.map(function(i, b){
+                if(i == 0){
+                    var html = '<button class="btn btn-warning btn-sm" onclick="tambahLokasi(this); return false;"><i class="dashicons dashicons-plus"></i></button>';
+                }else{
+                    var html = '<button class="btn btn-danger btn-sm" onclick="hapusLokasi(this); return false;"><i class="dashicons dashicons-trash"></i></button>';
+                }
+                jQuery(b).find('>td').last().html(html);
+            });
+            /** tambah input lokasi */
+            var trNew = jQuery('.input_lokasi > tbody tr').last().html();
+            trNew = ''
+                +'<tr data-id="'+newId+'">'
+                    +trNew
+                +'</tr>';
+            trNew = trNew.replaceAll('_'+id+'"', '_'+newId+'"');
+            trNew = trNew.replaceAll('['+id+']', '['+newId+']');
+            trNew = trNew.replaceAll(' '+id+')', ' '+newId+')');
+            var tbody = jQuery('.input_lokasi > tbody');
+            tbody.append(trNew);
+            jQuery('.input_lokasi > tbody tr[data-id="'+newId+'"] .select2').remove();
+            jQuery('.input_lokasi > tbody tr[data-id="'+newId+'"] select').select2({width: '100%'});
+            <?php 
+                if(!empty($id_lokasi_kokab)){
+                    echo 'jQuery("#kabupaten_kota_"+newId).val('.$id_lokasi_kokab.').trigger("change");';
+                }
+            ?>
+            resolve();
         });
-        /** tambah input lokasi */
-        var trNew = jQuery('.input_lokasi > tbody tr').last().html();
-        trNew = ''
-            +'<tr data-id="'+newId+'">'
-                +trNew
-            +'</tr>';
-        trNew = trNew.replaceAll('_'+id+'"', '_'+newId+'"');
-        trNew = trNew.replaceAll('['+id+']', '['+newId+']');
-        var tbody = jQuery('.input_lokasi > tbody');
-        tbody.append(trNew);
-        jQuery('.input_lokasi > tbody tr[data-id="'+newId+'"] .select2').remove();
-        jQuery('.input_lokasi > tbody tr[data-id="'+newId+'"] select').select2({width: '100%'});
-        <?php 
-            if(!empty($id_lokasi_kokab)){
-                echo 'jQuery("#kabupaten_kota_"+newId).val('.$id_lokasi_kokab.').trigger("change")';
-            }
-        ?>
     }
 
     function hapusLokasi(that){
@@ -998,45 +1013,48 @@ echo '
         jQuery('.input_lokasi > tbody').find('tr[data-id="'+id+'"]').remove();
     }
 
-    function tambahSumberDana(that){
-        var id = +jQuery('.input_sumber_dana_usulan > tbody tr').last().attr('data-id');
-        var newId = id+1;
-        var trNewUsulan = jQuery('.input_sumber_dana_usulan > tbody tr').last().html();
-        trNewUsulan = ''
-            +'<tr data-id="'+newId+'">'
-                +trNewUsulan
-            +'</tr>';
-        trNewUsulan = trNewUsulan.replaceAll('_'+id+'"', '_'+newId+'"');
-        trNewUsulan = trNewUsulan.replaceAll('['+id+']', '['+newId+']');
-        var tbody = jQuery('.input_sumber_dana_usulan > tbody');
-        tbody.append(trNewUsulan);
-        jQuery('.input_sumber_dana_usulan > tbody tr[data-id="'+newId+'"] .select2').remove();
-        jQuery('.input_sumber_dana_usulan > tbody tr[data-id="'+newId+'"] select').select2({width: '100%'});
-        var tr = tbody.find('>tr');
-        var length = tr.length-1;
-        tr.map(function(i, b){
-            if(i == 0){
-                var html = '<button class="btn btn-warning btn-sm" onclick="tambahSumberDana(this); return false;"><i class="dashicons dashicons-plus"></i></button>';
-            }else{
-                var html = '<button class="btn btn-danger btn-sm" onclick="hapusSumberDana(this); return false;"><i class="dashicons dashicons-trash"></i></button>';
-            }
-            jQuery(b).find('>td').last().html(html);
-        });
+    function tambahSumberDana(){
+        return new Promise(function(resolve, reject){
+            var id = +jQuery('.input_sumber_dana_usulan > tbody tr').last().attr('data-id');
+            var newId = id+1;
+            var trNewUsulan = jQuery('.input_sumber_dana_usulan > tbody tr').last().html();
+            trNewUsulan = ''
+                +'<tr data-id="'+newId+'">'
+                    +trNewUsulan
+                +'</tr>';
+            trNewUsulan = trNewUsulan.replaceAll('_'+id+'"', '_'+newId+'"');
+            trNewUsulan = trNewUsulan.replaceAll('['+id+']', '['+newId+']');
+            var tbody = jQuery('.input_sumber_dana_usulan > tbody');
+            tbody.append(trNewUsulan);
+            jQuery('.input_sumber_dana_usulan > tbody tr[data-id="'+newId+'"] .select2').remove();
+            jQuery('.input_sumber_dana_usulan > tbody tr[data-id="'+newId+'"] select').select2({width: '100%'});
+            var tr = tbody.find('>tr');
+            var length = tr.length-1;
+            tr.map(function(i, b){
+                if(i == 0){
+                    var html = '<button class="btn btn-warning btn-sm" onclick="tambahSumberDana(); return false;"><i class="dashicons dashicons-plus"></i></button>';
+                }else{
+                    var html = '<button class="btn btn-danger btn-sm" onclick="hapusSumberDana(this); return false;"><i class="dashicons dashicons-trash"></i></button>';
+                }
+                jQuery(b).find('>td').last().html(html);
+            });
 
-        /** tambah input sumber dana */
-        var id = +jQuery('.input_sumber_dana > tbody tr').last().attr('data-id');
-        var newId = id+1;
-        var trNew = jQuery('.input_sumber_dana > tbody tr').last().html();
-        trNew = ''
-            +'<tr data-id="'+newId+'">'
-                +trNew
-            +'</tr>';
-        trNew = trNew.replaceAll('_'+id+'"', '_'+newId+'"');
-        trNew = trNew.replaceAll('['+id+']', '['+newId+']');
-        var tbody = jQuery('.input_sumber_dana > tbody');
-        tbody.append(trNew);
-        jQuery('.input_sumber_dana > tbody tr[data-id="'+newId+'"] .select2').remove();
-        jQuery('.input_sumber_dana > tbody tr[data-id="'+newId+'"] select').select2({width: '100%'});
+            /** tambah input sumber dana */
+            var id = +jQuery('.input_sumber_dana > tbody tr').last().attr('data-id');
+            var newId = id+1;
+            var trNew = jQuery('.input_sumber_dana > tbody tr').last().html();
+            trNew = ''
+                +'<tr data-id="'+newId+'">'
+                    +trNew
+                +'</tr>';
+            trNew = trNew.replaceAll('_'+id+'"', '_'+newId+'"');
+            trNew = trNew.replaceAll('['+id+']', '['+newId+']');
+            var tbody = jQuery('.input_sumber_dana > tbody');
+            tbody.append(trNew);
+            jQuery('.input_sumber_dana > tbody tr[data-id="'+newId+'"] .select2').remove();
+            jQuery('.input_sumber_dana > tbody tr[data-id="'+newId+'"] select').select2({width: '100%'});
+            resolve();
+        });
     }
 
     function hapusSumberDana(that){
@@ -1263,27 +1281,33 @@ echo '
         });
     }
 
-    function get_data_lokasi(id_alamat, jenis_lokasi, status, hide_loading=true){
+    function get_data_lokasi(id_alamat, jenis_lokasi, status, hide_loading=true, tr_id){
+        console.log(id_alamat, jenis_lokasi, status, hide_loading, tr_id);
         return new Promise(function(resolve1, reject1){
             if(jenis_lokasi == ''){
                 alert('Ada kesalahan,harap refresh halaman!')
                 return resolve1(false);
             }
-            jQuery("#wrap-loading").show();
 
             if(id_alamat == false){
-                id_alamat = <?php echo $id_lokasi_prov; ?>;
-                jQuery('.input_lokasi_usulan tbody tr').map(function(i, b){
-                    if(i >= 1){
-                        jQuery(b).remove();
-                    }
-                });
-                jQuery('.input_lokasi tbody tr').map(function(i, b){
-                    if(i >= 1){
-                        jQuery(b).remove();
-                    }
-                });
+                if(jenis_lokasi == 'prov'){
+                    id_alamat = <?php echo $id_lokasi_prov; ?>;
+                    jQuery('.input_lokasi_usulan tbody tr').map(function(i, b){
+                        if(i >= 1){
+                            jQuery(b).remove();
+                        }
+                    });
+                    jQuery('.input_lokasi tbody tr').map(function(i, b){
+                        if(i >= 1){
+                            jQuery(b).remove();
+                        }
+                    });
+                }else{
+                    console.log('id_alamat kosong!');
+                    return resolve1(false);
+                }
             }
+            jQuery("#wrap-loading").show();
 
             if(
                 status == undefined
@@ -1328,66 +1352,86 @@ echo '
                 if(hide_loading){
                     jQuery("#wrap-loading").hide();
                 }
-                let option='<option value="">Pilih '+response.jenis_lokasi+'</option>';
-                response.data.map(function(value, index){
-                <?php if(!empty($id_lokasi_kokab)): ?>
-                    var selected = '';
-                    if(
-                        value.id_alamat == <?php echo $id_lokasi_kokab; ?>
-                        && jenis_lokasi == 'prov'
-                    ){
-                        selected = 'selected';
-                        get_data_lokasi(value.id_alamat, 'kabkot', false, false);
-                        option +='<option '+selected+' value="'+value.id_alamat+'">'+value.nama+'</option>';
-                    }else{
-                        option +='<option '+selected+' value="'+value.id_alamat+'">'+value.nama+'</option>';
-                    }
-                <?php else: ?>
-                    option +='<option value="'+value.id_alamat+'">'+value.nama+'</option>';
-                <?php endif; ?>
-                });
+                new Promise(function(resolve2, reject2){
+                    let option='<option value="">Pilih '+response.jenis_lokasi+'</option>';
+                    var cek_load_kec = false;
+                    response.data.map(function(value, index){
+                    <?php if(!empty($id_lokasi_kokab)): ?>
+                        var selected = '';
+                        if(
+                            value.id_alamat == <?php echo $id_lokasi_kokab; ?>
+                            && jenis_lokasi == 'prov'
+                        ){
+                            selected = 'selected';
+                            option +='<option '+selected+' value="'+value.id_alamat+'">'+value.nama+'</option>';
 
-                if(jenis_lokasi == 'kabkot'){
-                    if(status == 'usulan'){
-                        jQuery(".kecamatan_usulan").html(option);
-                        jQuery(".kecamatan_usulan").select2({width: '100%'});
-                    }else if(status == 'penetapan'){
-                        jQuery(".kecamatan").html(option);
-                        jQuery(".kecamatan").select2({width: '100%'});
-                    }else{
-                        jQuery(".kecamatan").html(option);
-                        jQuery(".kecamatan").select2({width: '100%'});
-                        jQuery(".kecamatan_usulan").html(option);
-                        jQuery(".kecamatan_usulan").select2({width: '100%'});
+                            cek_load_kec = true;
+                            get_data_lokasi(value.id_alamat, 'kabkot', status, hide_loading, tr_id)
+                            .then(function(){
+                                resolve2(option);
+                            });
+                        }else{
+                            option +='<option '+selected+' value="'+value.id_alamat+'">'+value.nama+'</option>';
+                        }
+                    <?php else: ?>
+                        option +='<option value="'+value.id_alamat+'">'+value.nama+'</option>';
+                    <?php endif; ?>
+                    });
+                    if(!cek_load_kec){
+                        resolve2(option);
                     }
-                }else if(jenis_lokasi == 'kec'){
-                    if(status == 'usulan'){
-                        jQuery(".desa_usulan").html(option);
-                        jQuery(".desa_usulan").select2({width: '100%'});
-                    }else if(status == 'penetapan'){
-                        jQuery(".desa").html(option);
-                        jQuery(".desa").select2({width: '100%'});
-                    }else{
-                        jQuery(".desa").html(option);
-                        jQuery(".desa").select2({width: '100%'});
-                        jQuery(".desa_usulan").html(option);
-                        jQuery(".desa_usulan").select2({width: '100%'});
+                })
+                .then(function(option){
+                    var tr_usulan = jQuery('.input_lokasi_usulan tbody tr[data-id="'+tr_id+'"]');
+                    var tr = jQuery('.input_lokasi tbody tr[data-id="'+tr_id+'"]');
+                    if(jenis_lokasi == 'kabkot'){
+                        // if(status == 'usulan'){
+                        //     tr_usulan.find(".kecamatan_usulan").html(option);
+                        //     tr_usulan.find(".kecamatan_usulan").select2({width: '100%'});
+                        // }else if(status == 'penetapan'){
+                        //     tr.find(".kecamatan").html(option);
+                        //     tr.find(".kecamatan").select2({width: '100%'});
+                        // }else{
+                            tr.find(".kecamatan").html(option);
+                            tr.find(".kecamatan").select2({width: '100%'});
+                            tr_usulan.find(".kecamatan_usulan").html(option);
+                            tr_usulan.find(".kecamatan_usulan").select2({width: '100%'});
+                        // }
+                        tr.find(".desa").val('').trigger('change');
+                        tr_usulan.find(".desa_usulan").val('').trigger('change');
+                    }else if(jenis_lokasi == 'kec'){
+                        // if(status == 'usulan'){
+                        //     tr_usulan.find(".desa_usulan").html(option);
+                        //     tr_usulan.find(".desa_usulan").select2({width: '100%'});
+                        // }else if(status == 'penetapan'){
+                        //     tr.find(".desa").html(option);
+                        //     tr.find(".desa").select2({width: '100%'});
+                        // }else{
+                            tr.find(".desa").html(option);
+                            tr.find(".desa").select2({width: '100%'});
+                            tr_usulan.find(".desa_usulan").html(option);
+                            tr_usulan.find(".desa_usulan").select2({width: '100%'});
+                        // }
+                    }else if(jenis_lokasi == 'prov'){
+                        // if(status == 'usulan'){
+                        //     tr_usulan.find(".kabupaten_kota_usulan").html(option);
+                        //     tr_usulan.find(".kabupaten_kota_usulan").select2({width: '100%'});
+                        // }else if(status == 'penetapan'){
+                        //     tr.find(".kabupaten_kota").html(option);
+                        //     tr.find(".kabupaten_kota").select2({width: '100%'});
+                        // }else{
+                            tr.find(".kabupaten_kota").html(option);
+                            tr.find(".kabupaten_kota").select2({width: '100%'});
+                            tr_usulan.find(".kabupaten_kota_usulan").html(option);
+                            tr_usulan.find(".kabupaten_kota_usulan").select2({width: '100%'});
+                        // }
+                        tr.find(".desa").val('').trigger('change');
+                        tr.find(".kecamatan").val('').trigger('change');
+                        tr_usulan.find(".desa_usulan").val('').trigger('change');
+                        tr_usulan.find(".kecamatan_usulan").val('').trigger('change');
                     }
-                }else if(jenis_lokasi == 'prov'){
-                    if(status == 'usulan'){
-                        jQuery(".kabupaten_kota_usulan").html(option);
-                        jQuery(".kabupaten_kota_usulan").select2({width: '100%'});
-                    }else if(status == 'penetapan'){
-                        jQuery(".kabupaten_kota").html(option);
-                        jQuery(".kabupaten_kota").select2({width: '100%'});
-                    }else{
-                        jQuery(".kabupaten_kota").html(option);
-                        jQuery(".kabupaten_kota").select2({width: '100%'});
-                        jQuery(".kabupaten_kota_usulan").html(option);
-                        jQuery(".kabupaten_kota_usulan").select2({width: '100%'});
-                    }
-                }
-                return resolve1();
+                    return resolve1();
+                });
             });
         });
     }
@@ -1423,7 +1467,7 @@ echo '
         .then(function(){
             get_data_sumber_dana()
             .then(function(){
-                get_data_lokasi(false, 'prov')
+                get_data_lokasi(false, 'prov', false, false, 1)
                 .then(function(){
                     jQuery('#wrap-loading').show();
                     jQuery.ajax({
@@ -1437,7 +1481,6 @@ echo '
                             'tahun_anggaran': tahun_anggaran
                         },
                         success: function(response){
-                            jQuery('#wrap-loading').hide();
                             jQuery('#pagu_sub_kegiatan_usulan').val(response.data.pagu_usulan);
                             jQuery('#pagu_sub_kegiatan_1_usulan').val(response.data.pagu_n_depan_usulan);
                             jQuery('#pagu_sub_kegiatan').val(response.data.pagu);
@@ -1470,81 +1513,26 @@ echo '
                             jQuery("#satuan_pagu_indi_sub_keg_penetapan_1").html(optionSatuan).select2({width: '100%'});
 
                             response.data.indikator_sub_keg.map(function(value, index){
-                                var id = index+1;
-                                if(id > 1){
-                                    var trNewUsulan = ''
-                                    +'<tr data-id="'+id+'" header="1">'
-                                        +'<td colspan="2" style="max-width: 100px;">'
-                                            +'<select class="form-control pagu_indi_sub_keg input_select_2" data-edit="'+value.id+'" id="pagu_ind_sub_keg_usulan_'+id+'" name="input_indikator_sub_keg_usulan['+id+']" onchange="set_penetapan(this);">'
-                                                +'<option value="">Pilih Nama Indikator</option>'
-                                            +'</select>'
-                                            +'<input type="hidden" id="ind_sub_keg_id_'+id+'" name="ind_sub_keg_id['+id+']" value="'+value.id+'">'
-                                        +'</td>'
-                                        +'<td style="width: 70px; vertical-align: middle;" class="text-center aksi" rowspan="2">'
-                                            +'<button class="btn btn-warning btn-sm" onclick="tambahIndikator(this); return false;"><i class="dashicons dashicons-plus"></i></button>'
-                                        +'</td>'
-                                    +'</tr>'
-                                    +'<tr data-id="'+id+'">'
-                                        +'<td style="width: 50%;">'
-                                            +'<input class="form-control input_number" type="number" id="indikator_pagu_indi_sub_keg_usulan_'+id+'" name="input_target_usulan['+id+']" placeholder="Target Indikator"/>'
-                                        +'</td>'
-                                        +'<td style="width: 50%;">'
-                                            +'<select class="form-control satuan_pagu_indi_sub_keg input_select_2" id="satuan_pagu_indi_sub_keg_usulan_'+id+'" name="input_satuan_usulan['+id+']" onchange="set_penetapan(this);">'
-                                                +'<option value="">Pilih Satuan</option>'
-                                            +'</select>'
-                                        +'</td>'
-                                    +'</tr>';
-                                
-                                    var tbody = jQuery('.indi_sub_keg_table_usulan > tbody');
-                                    tbody.append(trNewUsulan);
-                                    var tr = tbody.find('>tr');
-                                    var length = tr.length-2;
-                                    tr.map(function(i, b){
-                                        var header = jQuery(b).attr('header');
-                                        if(header == 1){
-                                            if(i == 0){
-                                                var html = '<button class="btn btn-warning btn-sm" onclick="tambahIndikator(this); return false;"><i class="dashicons dashicons-plus"></i></button>';
-                                            }else{
-                                                var html = '<button class="btn btn-danger btn-sm" onclick="hapusIndikator(this); return false;"><i class="dashicons dashicons-trash"></i></button>';
-                                            }
-                                            jQuery(b).find('>td').last().html(html);
-                                        }
-                                    });
-                                    /** tambah input indi_sub_keg */
-                                    var trNewUsulan = ''
-                                        +'<tr data-id="'+id+'" header="1">'
-                                            +'<td colspan="2" style="max-width: 100px;">'
-                                                +' <select class="form-control pagu_indi_sub_keg input_select_2" id="pagu_indi_sub_keg_penetapan_'+id+'" name="input_indikator_sub_keg['+id+']" onchange="set_penetapan(this);">'
-                                                    +'<option value="">Pilih Nama Indikator</option>'
-                                                +'</select>'
-                                            +'</td>'
-                                        +'</tr>'
-                                        +'<tr data-id="'+id+'">'
-                                            +'<td style="width: 50%;">'
-                                                +'<input class="form-control input_number" type="number" name="input_target['+id+']" id="indikator_pagu_indi_sub_keg_'+id+'" placeholder="Target Indikator"/>'
-                                            +'</td>'
-                                            +'<td style="width: 50%;">'
-                                                +'<select class="form-control satuan_pagu_indi_sub_keg input_select_2" id="satuan_pagu_indi_sub_keg_penetapan_'+id+'" name="input_satuan['+id+']" onchange="set_penetapan(this);">'
-                                                    +'<option value="">Pilih Satuan</option>'
-                                                +'</select>'
-                                            +'</td>'
-                                        +'</tr>';
-
-                                    var tbody = jQuery('.indi_sub_keg_table > tbody');
-                                    tbody.append(trNewUsulan);
-                                    jQuery("#pagu_ind_sub_keg_usulan_"+id).html(optionIndikator).select2({width: '100%'});
-                                    jQuery("#pagu_indi_sub_keg_penetapan_"+id).html(optionIndikator).select2({width: '100%'});
-                                    jQuery("#satuan_pagu_indi_sub_keg_usulan_"+id).html(optionSatuan).select2({width: '100%'});
-                                    jQuery("#satuan_pagu_indi_sub_keg_penetapan_"+id).html(optionSatuan).select2({width: '100%'});
-                                }
-
-                                jQuery("#ind_sub_keg_id_"+id).val(value.id);
-                                jQuery("#indikator_pagu_indi_sub_keg_usulan_"+id).val(value.targetoutput_usulan);
-                                jQuery("#pagu_ind_sub_keg_usulan_"+id).val(value.id_indikator_sub_giat).trigger('change');
-                                jQuery("#satuan_pagu_indi_sub_keg_usulan_"+id).val(value.id_indikator_sub_giat).trigger('change');
-                                jQuery("#indikator_pagu_indi_sub_keg_"+id).val(value.targetoutput);
-                                jQuery("#pagu_indi_sub_keg_penetapan_"+id).val(value.id_indikator_sub_giat).trigger('change');
-                                jQuery("#satuan_pagu_indi_sub_keg_penetapan_"+id).val(value.id_indikator_sub_giat).trigger('change');
+                                let id = index+1;
+                                new Promise(function(resolve, reject){
+                                    if(id > 1){
+                                        tambahIndikator()
+                                        .then(function(){
+                                            resolve(value);
+                                        })
+                                    }else{
+                                        resolve(value);
+                                    }
+                                })
+                                .then(function(value){
+                                    jQuery("#ind_sub_keg_id_"+id).val(value.id);
+                                    jQuery("#indikator_pagu_indi_sub_keg_usulan_"+id).val(value.targetoutput_usulan);
+                                    jQuery("#pagu_ind_sub_keg_usulan_"+id).val(value.id_indikator_sub_giat).trigger('change');
+                                    jQuery("#satuan_pagu_indi_sub_keg_usulan_"+id).val(value.id_indikator_sub_giat).trigger('change');
+                                    jQuery("#indikator_pagu_indi_sub_keg_"+id).val(value.targetoutput);
+                                    jQuery("#pagu_indi_sub_keg_penetapan_"+id).val(value.id_indikator_sub_giat).trigger('change');
+                                    jQuery("#satuan_pagu_indi_sub_keg_penetapan_"+id).val(value.id_indikator_sub_giat).trigger('change');
+                                });
                             })
                             /** -- end -- */
 
@@ -1556,55 +1544,23 @@ echo '
             				jQuery("#sumber_dana_usulan").html(option_dana);
                             jQuery("#sumber_dana").html(option_dana);
                             response.data.sumber_dana.map(function(value, index){
-                                var id = index+1;
-                                if(id > 1){
-                                    var trNewUsulan = ''
-                                    +'<tr data-id="'+id+'">'
-                                        +'<td style="width: 60%">'
-                                            +'<select class="form-control input_select_2" id="sumber_dana_usulan_'+id+'" name="input_sumber_dana_usulan['+id+']" onchange="set_penetapan(this);">'
-                                                +'<option value="">Pilih Sumber Dana</option>'
-                                            +'</select>'
-                                        +'</td>'
-                                        +'<td>'
-                                            +'<input class="form-control input_number" id="pagu_sumber_dana_usulan_'+id+'" type="number" name="input_pagu_sumber_dana_usulan['+id+']"/>'
-                                        +'</td>'
-                                        +'<td style="width: 70px" class="text-center">'
-                                            +'<button class="btn btn-warning btn-sm" onclick="tambahSumberDana(this); return false;"><i class="dashicons dashicons-plus"></i></button>'
-                                        +'</td>'
-                                    +'</tr>';
-                                    var tbody = jQuery('.input_sumber_dana_usulan > tbody');
-                                    tbody.append(trNewUsulan);
-                                    var tr = tbody.find('>tr');
-                                    var length = tr.length-1;
-                                    tr.map(function(i, b){
-                                        if(i == 0){
-                                            var html = '<button class="btn btn-warning btn-sm" onclick="tambahSumberDana(this); return false;"><i class="dashicons dashicons-plus"></i></button>';
-                                        }else{
-                                            var html = '<button class="btn btn-danger btn-sm" onclick="hapusSumberDana(this); return false;"><i class="dashicons dashicons-trash"></i></button>';
-                                        }
-                                        jQuery(b).find('>td').last().html(html);
-                                    });
-                                    var trNew = ''
-                                        +'<tr data-id="'+id+'">'
-                                            +'<td style="width: 60%">'
-                                                +'<select class="form-control input_select_2" id="sumber_dana_'+id+'" name="input_sumber_dana['+id+']">'
-                                                    +'<option value="">Pilih Sumber Dana</option>'
-                                                +'</select>'
-                                            +'</td>'
-                                            +'<td>'
-                                                +'<input class="form-control input_number" id="pagu_sumber_dana_'+id+'" type="number" name="input_pagu_sumber_dana['+id+']"/>'
-                                            +'</td>'
-                                        +'</tr>';
-                                    var tbody = jQuery('.input_sumber_dana > tbody');
-                                    tbody.append(trNew);
-                                    jQuery("#sumber_dana_usulan_"+id).html(option_dana).select2({width: '100%'});
-                                    jQuery("#sumber_dana_"+id).html(option_dana).select2({width: '100%'});
-                                }
-                                
-                                jQuery("#sumber_dana_usulan_"+id).val(value.id_dana_usulan).trigger('change');
-                                jQuery("#pagu_sumber_dana_usulan_"+id).val(value.pagu_dana_usulan);
-                                jQuery("#sumber_dana_"+id).val(value.iddana).trigger('change');
-                                jQuery("#pagu_sumber_dana_"+id).val(value.pagudana);
+                                let id = index+1;
+                                new Promise(function(resolve, reject){
+                                    if(id > 1){
+                                        tambahSumberDana()
+                                        .then(function(){
+                                            resolve(value);
+                                        })
+                                    }else{
+                                        resolve(value);
+                                    }
+                                })
+                                .then(function(value){
+                                    jQuery("#sumber_dana_usulan_"+id).val(value.id_dana_usulan).trigger('change');
+                                    jQuery("#pagu_sumber_dana_usulan_"+id).val(value.pagu_dana_usulan);
+                                    jQuery("#sumber_dana_"+id).val(value.iddana).trigger('change');
+                                    jQuery("#pagu_sumber_dana_"+id).val(value.pagudana);
+                                });
                             })
                             /** -- end -- */
 
@@ -1612,32 +1568,58 @@ echo '
                             response.data.lokasi.map(function(value, index){
                                 let urutan = index+1;
                                 let id = value.id;
-                                let option_kabkot='<option value="">Pilih Kabupaten/Kota</option>';
-                                response.data.data_master_kabkot[id].map(function(value, index){
-                                    option_kabkot+='<option value="'+value.id_alamat+'">'+value.nama+'</option>'
-                                });
-                                jQuery("#kabupaten_kota_usulan_"+urutan).html(option_kabkot);
-                                jQuery("#kabupaten_kota_usulan_"+urutan).select2({width: '100%'});
-                                let option_kec='<option value="">Pilih Kecamatan</option>';
-                                response.data.data_master_kec[id].map(function(value, index){
-                                    option_kec+='<option value="'+value.id_alamat+'">'+value.nama+'</option>'
-                                });
-                                jQuery("#kecamatan_usulan_"+urutan).html(option_kec);
-                                jQuery("#kecamatan_usulan_"+urutan).select2({width: '100%'});
-                                let option_desa='<option value="">Semua Desa</option>';
-                                if(response.data.data_master_desa != undefined && response.data.data_master_desa[id] != undefined){
-                                    option_desa='<option value="">Pilih Desa</option>';
+                                new Promise(function(resolve, reject){
+                                    if(urutan > 1){
+                                        tambahLokasi()
+                                        .then(function(){
+                                            resolve(value);
+                                        })
+                                    }else{
+                                        resolve(value);
+                                    }
+                                })
+                                .then(function(value){
+                                    // setting opsi master kecamatan
+                                    let option_kec='<option value="">Pilih Kecamatan</option>';
+                                    response.data.data_master_kec[id].map(function(value, index){
+                                        option_kec+='<option value="'+value.id_alamat+'">'+value.nama+'</option>'
+                                    });
+                                    jQuery("#kecamatan_usulan_"+urutan).html(option_kec);
+                                    jQuery("#kecamatan_usulan_"+urutan).select2({width: '100%'});
+                                    jQuery("#kecamatan_"+urutan).html(option_kec);
+                                    jQuery("#kecamatan_"+urutan).select2({width: '100%'});
+
+                                    // setting opsi master desa
+                                    let option_desa='<option value="">Pilih Desa</option>';
                                     response.data.data_master_desa[id].map(function(value, index){
                                         option_desa+='<option value="'+value.id_alamat+'">'+value.nama+'</option>'
                                     });
-                                }
-                                jQuery("#desa_usulan_"+urutan).html(option_desa);
-                                jQuery("#desa_usulan_"+urutan).select2({width: '100%'});
-                                
-                                jQuery("#kabupaten_kota_usulan_"+urutan).val(value.idkabkota_usulan).trigger('change');
-                                if(value.idcamat_usulan != null){
-                                    // jQuery("#kecamatan_usulan_"+urutan).val(value.idcamat_usulan).trigger('change');
-                                }
+                                    jQuery("#desa_usulan_"+urutan).html(option_desa);
+                                    jQuery("#desa_usulan_"+urutan).select2({width: '100%'});
+                                    jQuery("#desa_"+urutan).html(option_desa);
+                                    jQuery("#desa_"+urutan).select2({width: '100%'});
+                                    
+                                    // set value edit lokasi renja
+                                    if(value.idkabkota_usulan != null){
+                                        setOnchangeFalse("#kabupaten_kota_usulan_"+urutan, value.idkabkota_usulan);
+                                    }
+                                    if(value.idkabkota != null){
+                                        setOnchangeFalse("#kabupaten_kota_"+urutan, value.idkabkota);
+                                    }
+                                    if(value.idcamat_usulan != null){
+                                        setOnchangeFalse("#kecamatan_usulan_"+urutan, value.idcamat_usulan);
+                                    }
+                                    if(value.idcamat != null){
+                                        setOnchangeFalse("#kecamatan_"+urutan, value.idcamat);
+                                    }
+                                    if(value.idlurah_usulan != null){
+                                        setOnchangeFalse("#desa_usulan_"+urutan, value.idlurah_usulan);
+                                    }
+                                    if(value.idlurah != null){
+                                        setOnchangeFalse("#desa_"+urutan, value.idlurah);
+                                    }
+                                })
+
                             })
                             /** -- end -- */
 
@@ -1647,11 +1629,20 @@ echo '
                                 .attr("disabled", false)
                                 .text("Simpan");
                             jQuery('#modalTambahRenja').modal('show');
+                            jQuery('#wrap-loading').hide();
                         }
                     })
                 });
             });
         });
+    }
+
+    function setOnchangeFalse(id, val){
+        var select = jQuery(id);
+        var change = select.attr('onchange');
+        select.attr('onchange', '');
+        select.val(val).trigger('change');
+        select.attr('onchange', change);
     }
 
     function submitEditRenjaForm(kode_sub_giat){
@@ -1836,11 +1827,11 @@ echo '
     function getFormData($form){
         var disabled = $form.find('[disabled]');
         disabled.map(function(i, b){
-            jQuery(b).removeAttr('disabled');
+            jQuery(b).attr('disabled', false);
         });
 	    let unindexed_array = $form.serializeArray();
         disabled.map(function(i, b){
-            jQuery(b).attr('disabled');
+            jQuery(b).attr('disabled', true);
         });
         var data = {};
         unindexed_array.map(function(b, i){
