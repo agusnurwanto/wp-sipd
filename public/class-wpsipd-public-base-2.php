@@ -1805,31 +1805,36 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 
 				// catatan:
 				// user OPD dan user admin harus dibedakan cara kewenangan insertnya
-				// fungsi untuk tambah dan edit, dijadikan satu saja biar lebih efisien
-
-				$tahun_anggaran = $_POST['tahun_anggaran'];
-				$data = json_decode(stripslashes($_POST['data']), true);
-				if(empty($data['input_sub_unit'])){
+				
+				$cek_jadwal = $this->validasi_jadwal_perencanaan('renja');
+                if($cek_jadwal['status'] == 'success'){
+					$tahun_anggaran = $_POST['tahun_anggaran'];
+					$data = json_decode(stripslashes($_POST['data']), true);
+					if(empty($data['input_sub_unit'])){
+						$ret['status'] = 'error';
+						$ret['message'] = 'Sub Unit tidak boleh kosong';
+					}elseif(empty($data['input_sub_kegiatan'])){
+						$ret['status'] = 'error';
+						$ret['message'] = 'Sub kegiatan tidak boleh kosong';
+					}elseif(
+						!isset($data['input_pagu_sub_keg_usulan']) 
+						|| $data['input_pagu_sub_keg_usulan'] == 0
+					){
+						$ret['status'] = 'error';
+						$ret['message'] = 'Pagu usulan tidak boleh kosong';
+					}elseif(empty($data['input_indikator_sub_keg_usulan'])){
+						$ret['status'] = 'error';
+						$ret['message'] = 'Indikator usulan tidak boleh kosong';
+					}elseif(empty($data['input_target_usulan'])){
+						$ret['status'] = 'error';
+						$ret['message'] = 'Target indikator usulan tidak boleh kosong';
+					}elseif(empty($data['input_satuan_usulan'])){
+						$ret['status'] = 'error';
+						$ret['message'] = 'Satuan indikator usulan tidak boleh kosong';
+					}
+				}else{
 					$ret['status'] = 'error';
-					$ret['message'] = 'Sub Unit tidak boleh kosong';
-				}elseif(empty($data['input_sub_kegiatan'])){
-					$ret['status'] = 'error';
-					$ret['message'] = 'Sub kegiatan tidak boleh kosong';
-				}elseif(
-					!isset($data['input_pagu_sub_keg_usulan']) 
-					|| $data['input_pagu_sub_keg_usulan'] == 0
-				){
-					$ret['status'] = 'error';
-					$ret['message'] = 'Pagu usulan tidak boleh kosong';
-				}elseif(empty($data['input_indikator_sub_keg_usulan'])){
-					$ret['status'] = 'error';
-					$ret['message'] = 'Indikator usulan tidak boleh kosong';
-				}elseif(empty($data['input_target_usulan'])){
-					$ret['status'] = 'error';
-					$ret['message'] = 'Target indikator usulan tidak boleh kosong';
-				}elseif(empty($data['input_satuan_usulan'])){
-					$ret['status'] = 'error';
-					$ret['message'] = 'Satuan indikator usulan tidak boleh kosong';
+                    $ret['message'] = 'Jadwal belum dimulai!';
 				}
 
 				// print_r($data); die();

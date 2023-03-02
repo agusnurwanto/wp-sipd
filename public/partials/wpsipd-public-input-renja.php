@@ -138,6 +138,16 @@ foreach ($subkeg as $kk => $sub) {
         order by id ASC
     ", $input['tahun_anggaran'], $sub['kode_sbl']), ARRAY_A);
 
+    $dana_sub_giat = $wpdb->get_results($wpdb->prepare("
+        select 
+            * 
+        from data_dana_sub_keg_lokal
+        where tahun_anggaran=%d
+            and active=1
+            and kode_sbl=%s
+        order by id ASC
+    ", $input['tahun_anggaran'], $sub['kode_sbl']), ARRAY_A);
+
     $nama = explode(' ', $sub['nama_sub_giat']);
     $kode_sub_giat = $nama[0];
     $data_renstra = array();
@@ -221,6 +231,7 @@ foreach ($subkeg as $kk => $sub) {
             'output_giat' => $output_giat,
             'output_sub_giat' => $output_sub_giat,
             'lokasi_sub_giat' => $lokasi_sub_giat,
+            'dana_sub_giat' => $dana_sub_giat,
             'data_renstra' => $data_renstra,
             'data_rpjmd' => $data_rpjmd,
             'data'  => $sub
@@ -306,7 +317,10 @@ $body = '';
                     $kd_program = explode('.', $kd_program);
                     $kd_program = $kd_program[count($kd_program)-1];
                     
-                    $tombol_aksi = '<button class="btn-sm btn-warning" style="margin: 1px;" onclick="edit_program(21231);" title="Edit Program"><i class="dashicons dashicons-plus"></i></button>';
+                    $tombol_aksi = '';
+                    if(!empty($add_renja)){
+                        $tombol_aksi = '<button class="btn-sm btn-warning" style="margin: 1px;" onclick="edit_program(21231);" title="Edit Program"><i class="dashicons dashicons-plus"></i></button>';
+                    }
                     $body .= '
                         <tr>
                             <td class="kiri kanan bawah text_blok">'.$kd_urusan.'</td>
@@ -325,7 +339,10 @@ $body = '';
                         $kd_giat = explode('.', $kd_giat);
                         $kd_giat = $kd_giat[count($kd_giat)-2].'.'.$kd_giat[count($kd_giat)-1];
                         
-                        $tombol_aksi = '<button class="btn-sm btn-warning" style="margin: 1px;" onclick="edit_progra(21231);" title="Edit Kegiatan"><i class="dashicons dashicons-plus"></i></button>';
+                        $tombol_aksi = '';
+                        if(!empty($add_renja)){
+                            $tombol_aksi = '<button class="btn-sm btn-warning" style="margin: 1px;" onclick="edit_progra(21231);" title="Edit Kegiatan"><i class="dashicons dashicons-plus"></i></button>';
+                        }
 
                         $body .= '
                             <tr>
@@ -373,6 +390,8 @@ $body = '';
                                 $output_sub_giat = implode('<br>', $output_sub_giat);
                                 $target_output_sub_giat = implode('<br>', $target_output_sub_giat);
                             }
+
+                            // get lokasi sub kegiatan
                             $lokasi_sub_giat_array = array();
                             if(!empty($sub_giat['lokasi_sub_giat'])){
                                 foreach($sub_giat['lokasi_sub_giat'] as $v_lokasi){
@@ -387,6 +406,18 @@ $body = '';
                                 }
                             }
                             $lokasi_sub_giat = implode('<br>', $lokasi_sub_giat_array);
+
+                            // get sumber dana sub kegiatan
+                            $dana_sub_giat_array = array();
+                            if(!empty($sub_giat['dana_sub_giat'])){
+                                foreach($sub_giat['dana_sub_giat'] as $v_dana){
+                                    $dana_sub_giat = explode('] - ', $v_dana['namadana']);
+                                    $dana_sub_giat_array[] = $dana_sub_giat[1];
+                                }
+                            }
+                            $dana_sub_giat = implode('<br>', $dana_sub_giat_array);
+
+                            $catatan = $sub_giat['data']['catatan'].'<span class="nilai_usulan">'.$sub_giat['data']['catatan_usulan'].'</span>';
                             $ind_n_plus = '';
                             $target_ind_n_plus = '';
                             /*
@@ -410,9 +441,12 @@ $body = '';
                             }
 
                             $url_rka_lokal = $this->generatePage('Data RKA Lokal | '.$kode_sbl.' | '.$input['tahun_anggaran'],$input['tahun_anggaran'],'[input_rka_lokal kode_sbl="'.$kode_sbl.'" tahun_anggaran="'.$input['tahun_anggaran'].'"]');
+                            
                             $tombol_aksi = '<a href="'.$url_rka_lokal.'" target="_blank"><button class="btn-sm btn-info" style="margin: 1px;" title="Detail Renja"><i class="dashicons dashicons-search"></i></button></a>';
-                            $tombol_aksi .= '<button class="btn-sm btn-warning" style="margin: 1px;" onclick="edit_renja(\''.$kode_sub_giat.'\');" title="Edit Renja"><i class="dashicons dashicons-edit"></i></button>';
-                            $tombol_aksi .= '<button class="btn-sm btn-danger" style="margin: 1px;" onclick="delete_renja(\''.$kode_sub_giat.'\');" title="Hapus Renja"><i class="dashicons dashicons-trash"></i></button>';
+                            if(!empty($add_renja)){
+                                $tombol_aksi .= '<button class="btn-sm btn-warning" style="margin: 1px;" onclick="edit_renja(\''.$kode_sub_giat.'\');" title="Edit Renja"><i class="dashicons dashicons-edit"></i></button>';
+                                $tombol_aksi .= '<button class="btn-sm btn-danger" style="margin: 1px;" onclick="delete_renja(\''.$kode_sub_giat.'\');" title="Hapus Renja"><i class="dashicons dashicons-trash"></i></button>';
+                            }
                             $body .= '
                                 <tr>
                                     <td class="kiri kanan bawah">'.$kd_urusan.'</td>
@@ -429,8 +463,8 @@ $body = '';
                                     <td class="kanan bawah">'.$target_output_sub_giat.'</td>
                                     <td class="kanan bawah">'.$target_output_giat.'</td>
                                     <td class="kanan bawah text_kanan">'.number_format($sub_giat['total'],0,",",".").'<span class="nilai_usulan">'.number_format($sub_giat['total_usulan'],0,",",".").'</span></td>
-                                    <td class="kanan bawah"><br/></td>
-                                    <td class="kanan bawah">&nbsp;</td>
+                                    <td class="kanan bawah">'.$dana_sub_giat.'</td>
+                                    <td class="kanan bawah">'.$catatan.'</td>
                                     <td class="kanan bawah">'.$ind_n_plus.'</td>
                                     <td class="kanan bawah">'.$target_ind_n_plus.'</td>
                                     <td class="kanan bawah text_kanan">'.number_format($sub_giat['total_n_plus'],0,",",".").'<span class="nilai_usulan">'.number_format($sub_giat['total_n_plus_usulan'],0,",",".").'</span></td>
