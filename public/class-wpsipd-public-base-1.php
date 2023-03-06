@@ -1271,17 +1271,27 @@ class Wpsipd_Public_Base_1 extends Wpsipd_Public_Base_2{
         $ret = array(
             'status'    => 'success',
             'action'    => 'get_data_sub_giat',
-            'message'   => 'Berhasil copy data RENSTRA dengan RENJA!'
+            'message'   => 'Berhasil copy data RENSTRA ke RENJA!'
         );
         if (!empty($_POST)) {
             if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( WPSIPD_API_KEY )) {
                 if (!empty($_POST['id_jadwal'])) {
+                    $where_sub_keg_skpd = (!empty($_POST['id_skpd'])) ? ' AND k.id_sub_unit='.$_POST['id_skpd'] : ''; /** Untuk copy data berdasarkan skpd */
+
                     $data_jadwal_renja = $wpdb->get_row($wpdb->prepare(
                         'SELECT *
                         FROM data_jadwal_lokal
                         WHERE id_jadwal_lokal=%d',
                         $_POST['id_jadwal']
                     ), ARRAY_A);
+
+                    if(empty($data_jadwal_renja) || $data_jadwal_renja['status'] == 1){
+                        $ret = array(
+                            'status' => 'error',
+                            'message'   => 'Jadwal tidak Ditemukan!',
+                        );
+                        die(json_encode($ret));
+                    }
 
                     $jadwal_renstra = $wpdb->get_row($wpdb->prepare(
                         'SELECT *
@@ -1308,7 +1318,7 @@ class Wpsipd_Public_Base_1 extends Wpsipd_Public_Base_2{
                             ON k.id_sub_unit=u.id_skpd
                             WHERE k.id_jadwal=%d
                             AND k.id_unik IS NOT NULL
-                            AND k.active=1',
+                            AND k.active=1 '.$where_sub_keg_skpd,
                             $jadwal_renstra['id_jadwal_lokal']
                         ),ARRAY_A);
 
@@ -1318,6 +1328,8 @@ class Wpsipd_Public_Base_1 extends Wpsipd_Public_Base_2{
                                 $kode_sbl = $kode_bl.'.'.$v_sub_keg_renstra['id_sub_giat'];
 
                                 if(empty($v_sub_keg_renstra['id_unik_indikator'])){
+                                    $status_indikator_sub_kegiatan = $wpdb->update('data_sub_keg_indikator_lokal', array('active'=>0), array('kode_sbl' => $kode_sbl));
+
                                     $opsi_sub_keg_renstra = array(
                                         'id_sub_skpd' => $v_sub_keg_renstra['id_sub_unit'],
                                         'id_sub_giat' => $v_sub_keg_renstra['id_sub_giat'],
@@ -1388,6 +1400,7 @@ class Wpsipd_Public_Base_1 extends Wpsipd_Public_Base_2{
                                     ), ARRAY_A);
 
                                     if(!empty($data_indikator_program_renstra)){
+                                        $status_indikator_program = $wpdb->update('data_capaian_prog_sub_keg_lokal', array('active'=>0), array('kode_sbl' => $kode_sbl));
                                         foreach($data_indikator_program_renstra as $v_prog){
                                             $opsi_indikator_renstra = array(
                                                 'satuancapaian'=> $v_prog['satuan'],
@@ -1420,6 +1433,7 @@ class Wpsipd_Public_Base_1 extends Wpsipd_Public_Base_2{
                                     ), ARRAY_A);
 
                                     if(!empty($data_indikator_kegiatan_renstra)){
+                                        $status_indikator_kegiatan = $wpdb->update('data_output_giat_sub_keg_lokal', array('active'=>0), array('kode_sbl' => $kode_sbl));
                                         foreach($data_indikator_kegiatan_renstra as $v_indi){
                                             $opsi_indikator_renstra = array(
                                                 'outputteks'=> $v_indi['indikator'],
@@ -1466,7 +1480,7 @@ class Wpsipd_Public_Base_1 extends Wpsipd_Public_Base_2{
                     }else{
                         $ret = array(
                             'status' => 'error',
-                            'message'   => 'Data Tahun Ke '.$tahun_renstra.' Tidak Ditemukan!'
+                            'message'   => 'Data Tahun Ke '.$tahun_ke.' Tidak Ditemukan!'
                         );
                     }
                 }else{

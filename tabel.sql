@@ -229,6 +229,10 @@ CREATE TABLE `data_capaian_prog_sub_keg_lokal` (
   `active` tinyint(4) DEFAULT '1',
   `update_at` datetime NOT NULL,
   `tahun_anggaran` year(4) NOT NULL,
+  `satuancapaian_usulan` varchar(50) DEFAULT NULL,
+  `targetcapaianteks_usulan` varchar(50) DEFAULT NULL,
+  `capaianteks_usulan` text DEFAULT NULL,
+  `targetcapaian_usulan` int(11) DEFAULT NULL,
   PRIMARY KEY  (id)
 );
 
@@ -273,6 +277,10 @@ CREATE TABLE `data_output_giat_sub_keg_lokal` (
   `active` tinyint(4) DEFAULT '1',
   `update_at` datetime NOT NULL,
   `tahun_anggaran` year(4) NOT NULL,
+  `outputteks_usulan` text DEFAULT NULL,
+  `satuanoutput_usulan` varchar(50) DEFAULT NULL,
+  `targetoutput_usulan` int(11) DEFAULT NULL,
+  `targetoutputteks_usulan` varchar(50) DEFAULT NULL,
   PRIMARY KEY  (id)
 );
 
@@ -2416,6 +2424,10 @@ CREATE TABLE `data_capaian_prog_sub_keg_lokal_history` (
   `tahun_anggaran` year(4) NOT NULL,
   `id_asli` int(11) NOT NULL,
   `id_jadwal` int(11) NOT NULL,
+  `satuancapaian_usulan` varchar(50) DEFAULT NULL,
+  `targetcapaianteks_usulan` varchar(50) DEFAULT NULL,
+  `capaianteks_usulan` text DEFAULT NULL,
+  `targetcapaian_usulan` int(11) DEFAULT NULL,
   PRIMARY KEY  (id)
 );
 
@@ -2448,6 +2460,10 @@ CREATE TABLE `data_output_giat_sub_keg_lokal_history` (
   `tahun_anggaran` year(4) NOT NULL,
   `id_asli` int(11) NOT NULL,
   `id_jadwal` int(11) NOT NULL,
+  `outputteks_usulan` text DEFAULT NULL,
+  `satuanoutput_usulan` varchar(50) DEFAULT NULL,
+  `targetoutput_usulan` int(11) DEFAULT NULL,
+  `targetoutputteks_usulan` varchar(50) DEFAULT NULL,
   PRIMARY KEY  (id)
 );
 
