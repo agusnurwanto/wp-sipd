@@ -417,15 +417,21 @@ $body = '';
                             $dana_sub_giat_array = array();
                             if(!empty($sub_giat['dana_sub_giat'])){
                                 foreach($sub_giat['dana_sub_giat'] as $v_dana){
-                                    $dana_sub_giat = explode('] - ', $v_dana['namadana']);
-                                    if(!empty($dana_sub_giat[1])){
-                                        $dana_sub_giat_array[] = $dana_sub_giat[1];
-                                    }else{
+                                    // cek jika ada sumber dana di penetapan
+                                    if(!empty($v_dana['namadana'])){
+                                        $dana_sub_giat = explode('] - ', $v_dana['namadana']);
+                                        if(!empty($dana_sub_giat[1])){
+                                            $dana_sub_giat_array[] = $dana_sub_giat[1];
+                                        }else{
+                                            $dana_sub_giat_array[] = $v_dana['namadana'];
+                                        }
+                                    // cek jika ada sumber dana di usulan
+                                    }else if(!empty($v_dana['nama_dana_usulan'])){
                                         $dana_sub_giat = explode('] - ', $v_dana['nama_dana_usulan']);
                                         if(!empty($dana_sub_giat[1])){
                                             $dana_sub_giat_array[] = $dana_sub_giat[1];
                                         }else{
-                                            $dana_sub_giat_array[] = $dana_sub_giat;
+                                            $dana_sub_giat_array[] = $v_dana['nama_dana_usulan'];
                                         }
                                     }
                                 }
