@@ -64,6 +64,7 @@ if(!empty($jadwal_lokal)){
 	$namaJadwal = $jadwal_lokal[0]['nama'];
 	$mulaiJadwal = $jadwal_lokal[0]['waktu_awal'];
 	$selesaiJadwal = $jadwal_lokal[0]['waktu_akhir'];
+    $idJadwalRenja = $jadwal_lokal[0]['id_jadwal_lokal'];
 
     $awal = new DateTime($mulaiJadwal);
     $akhir = new DateTime($selesaiJadwal);
@@ -71,6 +72,7 @@ if(!empty($jadwal_lokal)){
 
     if($now >= $awal && $now <= $akhir){
         $add_renja = '<a style="margin-left: 10px;" id="tambah-data" onclick="return false;" href="#" class="btn btn-success">Tambah Data RENJA</a>';
+        $add_renja .= '<a style="margin-left: 10px;" id="copy-data-renstra-skpd" data-jadwal="'.$idJadwalRenja.'" data-skpd="'.$input['id_skpd'].'" onclick="return false;" href="#" class="btn btn-danger">Copy Data Renstra per SKPD</a>';
     }
 }
 
@@ -872,6 +874,34 @@ echo '
                 })
             });
         });
+        /** Copy data renstra */
+        jQuery('#copy-data-renstra-skpd').on('click', function(){
+            if(confirm('Apakah anda yakin untuk melakukan ini? data RENJA akan diisi sesuai data RENSTRA per SKPD tahun berjalan!.')){
+                let id_skpd = jQuery('#copy-data-renstra-skpd').data("skpd");
+                let id_jadwal = jQuery('#copy-data-renstra-skpd').data("jadwal");
+                if(id_skpd){
+                    jQuery('#wrap-loading').show();
+                    jQuery.ajax({
+                        url: ajax.url,
+                        type: "post",
+                        data: {
+                            "action": "copy_data_renstra_ke_renja",
+                            "api_key": jQuery("#api_key").val(),
+                            'id_jadwal': id_jadwal,
+                            'id_skpd': id_skpd
+                        },
+                        dataType: "json",
+                        success: function(res){
+                            alert(res.message);
+                            jQuery('#wrap-loading').hide();
+                        }
+                    });
+                }else{
+                    alert('Id SKPD Tidak Ditemukan.!')
+                }
+            }
+        });
+        /** End copy data renstra */
     <?php endif; ?>
     });
 
