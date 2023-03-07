@@ -3947,20 +3947,20 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 					$inputs['catatan_usulan'] = $data['catatan_usulan'];
 
 					if(in_array('administrator', $this->role())){
-						$inputs['indikator'] = !empty($data['indikator_teks']) || data['indikator_teks']==0 ? $data['indikator_teks'] : $data['indikator_teks_usulan'];
-						$inputs['satuan'] = !empty($data['satuan']) || data['satuan']==0 ? $data['satuan'] : $data['satuan_usulan'];
-						$inputs['target_1'] = !empty($data['target_1']) || data['target_1']==0 ? $data['target_1'] : $data['target_1_usulan'];
-						$inputs['target_2'] = !empty($data['target_2']) || data['target_2']==0 ? $data['target_2'] : $data['target_2_usulan'];
-						$inputs['target_3'] = !empty($data['target_3']) || data['target_3']==0 ? $data['target_3'] : $data['target_3_usulan'];
-						$inputs['target_4'] = !empty($data['target_4']) || data['target_4']==0 ? $data['target_4'] : $data['target_4_usulan'];
-						$inputs['target_5'] = !empty($data['target_5']) || data['target_5']==0 ? $data['target_5'] : $data['target_5_usulan'];
-						$inputs['target_awal'] = !empty($data['target_awal']) || data['target_awal']==0 ? $data['target_awal'] : $data['target_awal_usulan'];
-						$inputs['target_akhir'] = !empty($data['target_akhir']) || data['target_akhir']==0 ? $data['target_akhir'] : $data['target_akhir_usulan'];
-						$inputs['pagu_1'] = !empty($data['pagu_1']) || data['pagu_1']==0 ? $data['pagu_1'] : $data['pagu_1_usulan'];
-						$inputs['pagu_2'] = !empty($data['pagu_2']) || data['pagu_2']==0 ? $data['pagu_2'] : $data['pagu_2_usulan'];
-						$inputs['pagu_3'] = !empty($data['pagu_3']) || data['pagu_3']==0 ? $data['pagu_3'] : $data['pagu_3_usulan'];
-						$inputs['pagu_4'] = !empty($data['pagu_4']) || data['pagu_4']==0 ? $data['pagu_4'] : $data['pagu_4_usulan'];
-						$inputs['pagu_5'] = !empty($data['pagu_5']) || data['pagu_5']==0 ? $data['pagu_5'] : $data['pagu_5_usulan'];
+						$inputs['indikator'] = !empty($data['indikator_teks']) || $data['indikator_teks']==0 ? $data['indikator_teks'] : $data['indikator_teks_usulan'];
+						$inputs['satuan'] = !empty($data['satuan']) || $data['satuan']==0 ? $data['satuan'] : $data['satuan_usulan'];
+						$inputs['target_1'] = !empty($data['target_1']) || $data['target_1']==0 ? $data['target_1'] : $data['target_1_usulan'];
+						$inputs['target_2'] = !empty($data['target_2']) || $data['target_2']==0 ? $data['target_2'] : $data['target_2_usulan'];
+						$inputs['target_3'] = !empty($data['target_3']) || $data['target_3']==0 ? $data['target_3'] : $data['target_3_usulan'];
+						$inputs['target_4'] = !empty($data['target_4']) || $data['target_4']==0 ? $data['target_4'] : $data['target_4_usulan'];
+						$inputs['target_5'] = !empty($data['target_5']) || $data['target_5']==0 ? $data['target_5'] : $data['target_5_usulan'];
+						$inputs['target_awal'] = !empty($data['target_awal']) || $data['target_awal']==0 ? $data['target_awal'] : $data['target_awal_usulan'];
+						$inputs['target_akhir'] = !empty($data['target_akhir']) || $data['target_akhir']==0 ? $data['target_akhir'] : $data['target_akhir_usulan'];
+						$inputs['pagu_1'] = !empty($data['pagu_1']) || $data['pagu_1']==0 ? $data['pagu_1'] : $data['pagu_1_usulan'];
+						$inputs['pagu_2'] = !empty($data['pagu_2']) || $data['pagu_2']==0 ? $data['pagu_2'] : $data['pagu_2_usulan'];
+						$inputs['pagu_3'] = !empty($data['pagu_3']) || $data['pagu_3']==0 ? $data['pagu_3'] : $data['pagu_3_usulan'];
+						$inputs['pagu_4'] = !empty($data['pagu_4']) || $data['pagu_4']==0 ? $data['pagu_4'] : $data['pagu_4_usulan'];
+						$inputs['pagu_5'] = !empty($data['pagu_5']) || $data['pagu_5']==0 ? $data['pagu_5'] : $data['pagu_5_usulan'];
 						$inputs['catatan'] = $data['catatan'];
 					}
 
