@@ -97,7 +97,9 @@ $body = '';
 					<th class="text-center">Spesifikasi Satuan</th>
 					<th class="text-center">Harga Satuan</th>
 					<th class="text-center">Keterangan</th>
-					<th class="text-center">Status</th>
+					<th class="text-center">Status Admin Standar Harga</th>
+					<th class="text-center">Status TAPD Keuangan</th>
+					<th class="text-center">Status Akhir</th>
 					<th class="text-right">Aksi</th>
 				</tr>
 			</thead>
@@ -300,9 +302,8 @@ $body = '';
 						<select id='u_akun' name='states[]' multiple='multiple' style='display:block;width:100%;'></select>
 					</div>
 					<div>
-						<label for='u_keterangan_lampiran' style='display:inline-block'>Keterangan</label>
-						<input type='text' id='u_keterangan_lampiran' style='display:block;width:100%;' placeholder='Link Google Drive Keterangan'>
-						<small style="color:red">*Masukkan link Google Drive berisikan lampiran minimal 3 harga toko beserta gambar.</small>
+						<label for='u_keterangan_lampiran' style='display:inline-block'>Catatan</label>
+						<input type='text' id='u_keterangan_lampiran' style='display:block;width:100%;' placeholder='Catatan'>
 					</div>
 					<div>
 						<label for='u_lapiran_usulan_ssh' style='display:inline-block'>Lampiran Usulan SSH</label>
@@ -464,6 +465,18 @@ $body = '';
 					{ 
 		            	"data": "show_keterangan",
 		            	className: "text-left kol-keterangan",
+						"targets": "no-sort",
+						"orderable": false
+		            },
+		            { 
+		            	"data": "verify_admin",
+		            	className: "text-left verify_admin",
+						"targets": "no-sort",
+						"orderable": false
+		            },
+		            { 
+		            	"data": "varify_tapdkeu",
+		            	className: "text-left varify_tapdkeu",
 						"targets": "no-sort",
 						"orderable": false
 		            },
@@ -775,13 +788,13 @@ $body = '';
 		var lapiran_usulan_ssh_3 = jQuery('#u_lapiran_usulan_ssh_3')[0].files[0];
 		jQuery("#wrap-loading").show();
 
-		if(kategori == '' || nama_komponen == '' || spesifikasi == '' || satuan == '' || harga_satuan == '' || jenis_produk == '' || tkdn == '' || akun == '' || keterangan_lampiran == '' || keterangan_lampiran == '' || typeof lapiran_usulan_ssh_1 == 'undefined' ){
+		if(kategori == '' || nama_komponen == '' || spesifikasi == '' || satuan == '' || harga_satuan == '' || jenis_produk == '' || tkdn == '' || akun == '' || typeof lapiran_usulan_ssh_1 == 'undefined' ){
 			jQuery("#wrap-loading").hide();
-			alert('Harap diisi semua, tidak ada yang kosong.');
+			alert('Harap diisi semua, tidak ada yang kosong.1');
 			return false;
-		}else if(kategori.trim() == '' || nama_komponen.trim() == '' || spesifikasi.trim() == '' || satuan.trim() == '' || harga_satuan.trim() == '' || jenis_produk.trim() == '' || tkdn.trim() == '' || akun == '' || keterangan_lampiran.trim() == '' || keterangan_lampiran.trim() == ''){
+		}else if(kategori.trim() == '' || nama_komponen.trim() == '' || spesifikasi.trim() == '' || satuan.trim() == '' || harga_satuan.trim() == '' || jenis_produk.trim() == '' || tkdn.trim() == '' || akun == '' ){
 			jQuery("#wrap-loading").hide();
-			alert('Harap diisi semua, tidak ada yang kosong.');
+			alert('Harap diisi semua, tidak ada yang kosong.2');
 			return false;
 		}else{
 			let tempData = new FormData();
