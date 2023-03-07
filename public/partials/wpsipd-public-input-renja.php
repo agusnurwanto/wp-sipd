@@ -846,19 +846,22 @@ echo '
 
 <!-- Modal indikator renja -->
 <div class="modal fade" id="modal-indikator-renja" data-backdrop="static" role="dialog" aria-labelledby="modal-indikator-renja-label" aria-hidden="true">
-  <div class="modal-dialog" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title">Modal title</h5>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-      <div class="modal-body">
-      </div>
-      <div class="modal-footer"></div>
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Modal title</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary submitBtn" onclick="submitIndikatorProgram()">Simpan</button>
+                <button type="submit" class="components-button btn btn-secondary" data-dismiss="modal">Tutup</button>
+            </div>
+        </div>
     </div>
-  </div>
 </div>
 
 <script type="text/javascript">
@@ -1025,10 +1028,60 @@ echo '
         }
     }
 
+    function tambahIndikatorProgram(){
+        var tr = jQuery('#modal-indikator-renja #indikator_program tr');
+        var tr_penetapan = tr.last();
+        var id = +tr_penetapan.attr('data-id');
+        var newId = id+1;
+        var tr_usulan = tr.parent().find('tr[type="usulan"][data-id="'+id+'"]');
+
+        var trNewUsulan = tr_usulan.html();
+        trNewUsulan = ''
+            +'<tr data-id="'+newId+'" type="usulan">'
+                +trNewUsulan
+            +'</tr>';
+        trNewUsulan = trNewUsulan.replaceAll('_'+id+'"', '_'+newId+'"');
+        trNewUsulan = trNewUsulan.replaceAll('['+id+']', '['+newId+']');
+        trNewUsulan = trNewUsulan.replaceAll('>'+id+'<', '>'+newId+'<');
+
+        var trNewPenetapan = tr_penetapan.html();
+        trNewPenetapan = ''
+            +'<tr data-id="'+newId+'" type="penetapan">'
+                +trNewPenetapan
+            +'</tr>';
+        trNewPenetapan = trNewPenetapan.replaceAll('_'+id+'"', '_'+newId+'"');
+        trNewPenetapan = trNewPenetapan.replaceAll('['+id+']', '['+newId+']');
+        trNewPenetapan = trNewPenetapan.replaceAll('>'+id+'<', '>'+newId+'<');
+
+        var tbody = jQuery('#modal-indikator-renja #indikator_program');
+        tbody.append(trNewUsulan+trNewPenetapan);
+        var tr = tbody.find('>tr');
+        tr.map(function(i, b){
+            var tipe = jQuery(b).attr('type');
+            if(tipe == 'usulan'){
+                if(i == 0){
+                    var html = '<button class="btn btn-warning btn-sm" onclick="tambahIndikatorProgram(); return false;"><i class="dashicons dashicons-plus"></i></button>';
+                }else{
+                    var html = '<button class="btn btn-danger btn-sm" onclick="hapusIndikatorProgram(this); return false;"><i class="dashicons dashicons-trash"></i></button>';
+                }
+                jQuery(b).find('>td').last().html(html);
+            }
+        });
+    }
+
     function hapusIndikator(that){
         var id = jQuery(that).closest('tr').attr('data-id');
         jQuery('.indi_sub_keg_table_usulan > tbody').find('tr[data-id="'+id+'"]').remove();
         jQuery('.indi_sub_keg_table > tbody').find('tr[data-id="'+id+'"]').remove();
+    }
+
+    function hapusIndikatorProgram(that){
+        var id = jQuery(that).closest('tr').attr('data-id');
+        console.log('id', id);
+        jQuery(that).closest('tbody').find('tr[data-id="'+id+'"]').map(function(i, b){
+            console.log('b', b);
+            jQuery(b).remove();
+        });
     }
 
     function tambahLokasi(){
@@ -1751,6 +1804,32 @@ echo '
         }
     }
 
+    function submitIndikatorProgram(){
+        if(confirm('Apakah anda yakin untuk menyimpan data ini?')){
+            jQuery('#wrap-loading').show();
+            let form = getFormData(jQuery("#modal-indikator-renja form"));
+            jQuery.ajax({
+                method: 'post',
+                url: '<?php echo admin_url('admin-ajax.php'); ?>',
+                dataType: 'json',
+                data: {
+                    'action': 'submit_indikator_program_renja',
+                    'api_key': jQuery('#api_key').val(),
+                    'data': JSON.stringify(form),
+                    'tahun_anggaran': tahun_anggaran
+                },
+                success: function(response){
+                    jQuery('#wrap-loading').hide();
+                    jQuery('#modalTambahRenja').modal('hide');
+                    alert(response.message);
+                    if(response.status == 'success'){
+                        refresh_page();
+                    }
+                }
+            })
+        }
+    }
+
     function delete_renja(kode_sub_giat){
         if(confirm('Apakah anda yakin untuk menghapus data ini?')){
             jQuery("#wrap-loading").show();
@@ -1792,6 +1871,7 @@ echo '
             },
             success:function(response){
                 let html=""
+                +'<form>'
           			+'<table class="table" style="margin-top:10px">'
 	          			+'<thead>'
 	          				+'<tr>'
@@ -1812,11 +1892,6 @@ echo '
 	          				+'</tr>'
 	          			+'</thead>'
           			+'</table>'
-                    +'<div>'
-                        +'<button type="button" class="btn btn-warning mb-2 btn-add-indikator-program" data-kodeprogram="12">'
-                            +'<i class="dashicons dashicons-plus" style="margin-top: 2px;"></i> Tambah Indikator'
-                        +'</button>'
-                    +'</div>'
 					+"<table class='table'>"
 						+"<thead>"
 							+"<tr>"
@@ -1826,36 +1901,53 @@ echo '
 								+"<th class='text-center'>Target</th>"
 								+"<th class='text-center' style='width: 120px;'>Satuan</th>"
 								+"<th class='text-center'>Catatan</th>"
+                                +"<th class='text-center'>Aksi</th>"
 							+"</tr>"
 						+"</thead>"
 						+"<tbody id='indikator_program'>";
+
+                        var tombol_tambah = ''
+                            +'<button type="button" class="btn btn-warning" onclick="tambahIndikatorProgram();">'
+                                +'<i class="dashicons dashicons-plus" style="margin-top: 2px;"></i>'
+                            +'</button>';
+
                         if(response.data.length == 0){
                             html +=''
                                 +"<tr data-id='1' type='usulan'>"
-                                    +"<td class='text-center' rowspan='2'>1</td>"
+                                    +"<td class='text-center' rowspan='2' style='vertical-align: middle;'>1</td>"
                                     +"<td class='text-center'>Usulan</td>"
-                                    +"<td><textarea class='form-control' type='text' id='indikator_program_usulan'></textarea></td>"
-                                    +"<td><input class='form-control' type='number' id='target_indikator_program_usulan'></td>"
-                                    +"<td><input class='form-control' type='text' id='satuan_indikator_program_usulan'></td>"
-                                    +"<td><textarea class='form-control' id='catatan_program_usulan'></textarea></td>"
+                                    +"<td><textarea class='form-control' type='text' id='indikator_program_usulan_1' name='indikator_program_usulan[1]'></textarea></td>"
+                                    +"<td><input class='form-control' type='number' id='target_indikator_program_usulan_1' name='target_indikator_program_usulan[1]'></td>"
+                                    +"<td><input class='form-control' type='text' id='satuan_indikator_program_usulan_1' name='satuan_indikator_program_usulan[1]'></td>"
+                                    +"<td><textarea class='form-control' id='catatan_program_usulan_1'></textarea></td>"
+                                    +"<td rowspan='2' class='text-center' style='vertical-align: middle;'>"+tombol_tambah+"</td>"
                                 +"</tr>"
                                 +"<tr data-id='1' type='penetapan'>"
                                     +"<td class='text-center'>Penetapan</td>"
-                                    +"<td><textarea class='form-control' type='text' id='indikator_program_penetapan'></textarea></td>"
-                                    +"<td><input class='form-control' type='number' id='target_indikator_program_penetapan'></td>"
-                                    +"<td><input class='form-control' type='text' id='satuan_indikator_program_penetapan'></td>"
+                                    +"<td><textarea class='form-control' type='text' id='indikator_program_penetapan_1' name='indikator_program_penetapan[1]'></textarea></td>"
+                                    +"<td><input class='form-control' type='number' id='target_indikator_program_penetapan_1' name='target_indikator_program_penetapan[1]'></td>"
+                                    +"<td><input class='form-control' type='text' id='satuan_indikator_program_penetapan_1' name='satuan_indikator_program_penetapan[1]'></td>"
                                     +"<td><textarea class='form-control' id='catatan_program_penetapan'></textarea></td>"
                                 +"</tr>";
                         }else{
     						response.data.map(function(value, index){
+                                if(index == 0){
+                                    var aksi = tombol_tambah;
+                                }else{
+                                    var aksi = ''
+                                        +'<button type="button" class="btn btn-danger" onclick="hapusIndikatorProgram(this);">'
+                                            +'<i class="dashicons dashicons-trash" style="margin-top: 2px;"></i>'
+                                        +'</button>';
+                                }
     		          			html +=''
     		          				+"<tr>"
-    					          		+"<td class='text-center' rowspan='2'>1</td>"
+    					          		+"<td class='text-center' rowspan='2' style='vertical-align: middle;'>1</td>"
                                         +"<td class='text-center'>Usulan</td>"
     					          		+"<td><textarea class='form-control' type='text' id='indikator_program_usulan'></textarea></td>"
     					          		+"<td><input class='form-control' type='number' id='target_indikator_program_usulan'></td>"
     					          		+"<td><input class='form-control' type='text' id='satuan_indikator_program_usulan'></td>"
     									+"<td><textarea class='form-control' id='catatan_program_usulan'></textarea></td>"
+                                        +"<td rowspan='2' class='text-center' style='vertical-align: middle;'>"+aksi+"</td>"
     					          	+"</tr>"
     		          				+"<tr>"
                                         +"<td class='text-center'>Penetapan</td>"
@@ -1868,10 +1960,12 @@ echo '
                         }
 		          	html+=''
 		          		+'</tbody>'
-		          	+'</table>';
+		          	+'</table>'
+                +'</form>';
 
                 jQuery('#modal-indikator-renja').find('.modal-title').html('Indikator Program');
                 jQuery('#modal-indikator-renja').find('.modal-body').html(html);
+                jQuery('#modal-indikator-renja').find('.modal-footer .submitBtn').attr('onclick', 'submitIndikatorProgram()');
                 jQuery('#modal-indikator-renja').find('.modal-dialog').css('maxWidth','1250px');
                 jQuery('#modal-indikator-renja').find('.modal-dialog').css('width','100%');
                 jQuery('#modal-indikator-renja').modal('show');
