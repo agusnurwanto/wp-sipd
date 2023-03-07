@@ -11775,8 +11775,9 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 
 					$iconEdit 	= '<i class="dashicons dashicons-edit"></i>';
 					if(
-						$recVal['status'] == 'waiting' && 
-						$recVal['status_upload_sipd'] != 1 
+						$recVal['status'] == 'waiting' || 
+						$recVal['status'] == 'rejected'  
+						// $recVal['status_upload_sipd'] != 1 
 						// || in_array("administrator", $user_meta->roles) && $recVal['status_upload_sipd'] != 1
 					){
 						
