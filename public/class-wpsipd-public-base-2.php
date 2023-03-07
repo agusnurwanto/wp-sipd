@@ -2442,4 +2442,44 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 
 		die(json_encode($ret));
 	}
+
+	public function get_indikator_program_renja(){
+		global $wpdb;
+		$ret = array(
+			'status'	=> 'success',
+			'message' 	=> 'Berhasil mendapatkan data indikator!',
+			'data'		=> array(),
+		);
+
+		if(!empty($_POST)){
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+				if(!empty($_POST['tahun_anggaran'])){
+					$tahun_anggaran = $_POST['tahun_anggaran'];
+					$kode_sbl = $_POST['kode_sbl'];
+					$data_indikator = $wpdb->get_results($wpdb->prepare('
+						SELECT 
+							*
+						FROM data_capaian_prog_sub_keg_lokal
+						WHERE tahun=%d
+							AND kode_sbl=%s
+					', $tahun_anggaran),ARRAY_A);
+					$ret['data'] = array();
+					if(!empty($data_indikator)){
+						$ret['data'] = $data_indikator;
+					}
+				}else{
+					$ret['status'] = 'error';
+					$ret['message'] = 'Ada param yang kosong!';
+				}
+			}else{
+				$ret['status'] = 'error';
+				$ret['message'] = 'APIKEY tidak sesuai!';
+			}
+		}else{
+			$ret['status']	= 'error';
+			$ret['message']	= 'Format Salah!';
+		}
+
+		die(json_encode($ret));
+	}
 }
