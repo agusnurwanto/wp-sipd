@@ -46,7 +46,7 @@ $sql = "
         ORDER BY kode_giat ASC, kode_sub_giat ASC";
 $subkeg = $wpdb->get_results($wpdb->prepare($sql,$input['id_skpd'], $input['tahun_anggaran']), ARRAY_A);
 
-$cek_jadwal = $this->validasi_jadwal_perencanaan('renja');
+$cek_jadwal = $this->validasi_jadwal_perencanaan('renja',$input['tahun_anggaran']);
 $jadwal_lokal = $cek_jadwal['data'];
 $add_renja = '';
 if(!empty($jadwal_lokal)){
@@ -64,6 +64,7 @@ if(!empty($jadwal_lokal)){
 	$namaJadwal = $jadwal_lokal[0]['nama'];
 	$mulaiJadwal = $jadwal_lokal[0]['waktu_awal'];
 	$selesaiJadwal = $jadwal_lokal[0]['waktu_akhir'];
+    $idJadwalRenja = $jadwal_lokal[0]['id_jadwal_lokal'];
 
     $awal = new DateTime($mulaiJadwal);
     $akhir = new DateTime($selesaiJadwal);
@@ -71,6 +72,7 @@ if(!empty($jadwal_lokal)){
 
     if($now >= $awal && $now <= $akhir){
         $add_renja = '<a style="margin-left: 10px;" id="tambah-data" onclick="return false;" href="#" class="btn btn-success">Tambah Data RENJA</a>';
+        $add_renja .= '<a style="margin-left: 10px;" id="copy-data-renstra-skpd" data-jadwal="'.$idJadwalRenja.'" data-skpd="'.$input['id_skpd'].'" onclick="return false;" href="#" class="btn btn-danger">Copy Data Renstra per SKPD</a>';
     }
 }
 
@@ -138,6 +140,16 @@ foreach ($subkeg as $kk => $sub) {
         order by id ASC
     ", $input['tahun_anggaran'], $sub['kode_sbl']), ARRAY_A);
 
+    $dana_sub_giat = $wpdb->get_results($wpdb->prepare("
+        select 
+            * 
+        from data_dana_sub_keg_lokal
+        where tahun_anggaran=%d
+            and active=1
+            and kode_sbl=%s
+        order by id ASC
+    ", $input['tahun_anggaran'], $sub['kode_sbl']), ARRAY_A);
+
     $nama = explode(' ', $sub['nama_sub_giat']);
     $kode_sub_giat = $nama[0];
     $data_renstra = array();
@@ -171,6 +183,7 @@ foreach ($subkeg as $kk => $sub) {
     if(empty($data_all['data'][$sub['id_sub_skpd']]['data'][$sub['kode_urusan']])){
         $data_all['data'][$sub['id_sub_skpd']]['data'][$sub['kode_urusan']] = array(
             'nama'  => $sub['nama_urusan'],
+            'sub' => $sub,
             'total' => 0,
             'total_n_plus' => 0,
             'total_usulan' => 0,
@@ -181,6 +194,7 @@ foreach ($subkeg as $kk => $sub) {
     if(empty($data_all['data'][$sub['id_sub_skpd']]['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']])){
         $data_all['data'][$sub['id_sub_skpd']]['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']] = array(
             'nama'  => $sub['nama_bidang_urusan'],
+            'sub' => $sub,
             'total' => 0,
             'total_n_plus' => 0,
             'total_usulan' => 0,
@@ -191,6 +205,7 @@ foreach ($subkeg as $kk => $sub) {
     if(empty($data_all['data'][$sub['id_sub_skpd']]['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']])){
         $data_all['data'][$sub['id_sub_skpd']]['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']] = array(
             'nama'  => $sub['nama_program'],
+            'sub' => $sub,
             'total' => 0,
             'total_n_plus' => 0,
             'total_usulan' => 0,
@@ -201,6 +216,7 @@ foreach ($subkeg as $kk => $sub) {
     if(empty($data_all['data'][$sub['id_sub_skpd']]['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']]['data'][$sub['kode_giat']])){
         $data_all['data'][$sub['id_sub_skpd']]['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']]['data'][$sub['kode_giat']] = array(
             'nama'  => $sub['nama_giat'],
+            'sub' => $sub,
             'total' => 0,
             'total_n_plus' => 0,
             'total_usulan' => 0,
@@ -221,6 +237,7 @@ foreach ($subkeg as $kk => $sub) {
             'output_giat' => $output_giat,
             'output_sub_giat' => $output_sub_giat,
             'lokasi_sub_giat' => $lokasi_sub_giat,
+            'dana_sub_giat' => $dana_sub_giat,
             'data_renstra' => $data_renstra,
             'data_rpjmd' => $data_rpjmd,
             'data'  => $sub
@@ -262,10 +279,10 @@ foreach ($subkeg as $kk => $sub) {
 $body = '';
     foreach ($data_all['data'] as $sub_skpd) {
         $body .= '
-            <tr>
+            <tr tipe="unit">
                 <td class="kiri kanan bawah text_blok" colspan="20">Unit Organisasi : '.$sub_skpd['nama_skpd'].'</td>
             </tr>
-            <tr>
+            <tr tipe="sub_unit">
                 <td class="kiri kanan bawah text_blok"></td>
                 <td class="kanan bawah text_blok" colspan="12">Sub Unit Organisasi : '.$sub_skpd['nama'].'</td>
                 <td class="kanan bawah text_kanan text_blok">'.number_format($sub_skpd['total'],0,",",".").'<span class="nilai_usulan">'.number_format($sub_skpd['total_usulan'],0,",",".").'</span></td>
@@ -276,7 +293,7 @@ $body = '';
         ';
         foreach ($sub_skpd['data'] as $kd_urusan => $urusan) {
             $body .= '
-                <tr>
+                <tr tipe="urusan" kode="'.$urusan['sub']['kode_sbl'].'">
                     <td class="kiri kanan bawah text_blok">'.$kd_urusan.'</td>
                     <td class="kanan bawah">&nbsp;</td>
                     <td class="kanan bawah">&nbsp;</td>
@@ -289,7 +306,7 @@ $body = '';
                 $kd_bidang = explode('.', $kd_bidang);
                 $kd_bidang = $kd_bidang[count($kd_bidang)-1];
                 $body .= '
-                    <tr>
+                    <tr tipe="bidang" kode="'.$bidang['sub']['kode_sbl'].'">
                         <td class="kiri kanan bawah text_blok">'.$kd_urusan.'</td>
                         <td class="kanan bawah text_blok">'.$kd_bidang.'</td>
                         <td class="kanan bawah">&nbsp;</td>
@@ -306,9 +323,12 @@ $body = '';
                     $kd_program = explode('.', $kd_program);
                     $kd_program = $kd_program[count($kd_program)-1];
                     
-                    $tombol_aksi = '<button class="btn-sm btn-warning" style="margin: 1px;" onclick="edit_program(21231);" title="Edit Program"><i class="dashicons dashicons-plus"></i></button>';
+                    $tombol_aksi = '';
+                    if(!empty($add_renja)){
+                        $tombol_aksi = '<button class="btn-sm btn-warning" style="margin: 1px;" onclick="edit_program(\''.$program['sub']['kode_sbl'].'\');" title="Edit Program"><i class="dashicons dashicons-plus"></i></button>';
+                    }
                     $body .= '
-                        <tr>
+                        <tr tipe="program" kode="'.$program['sub']['kode_sbl'].'">
                             <td class="kiri kanan bawah text_blok">'.$kd_urusan.'</td>
                             <td class="kanan bawah text_blok">'.$kd_bidang.'</td>
                             <td class="kanan bawah text_blok">'.$kd_program.'</td>
@@ -325,10 +345,13 @@ $body = '';
                         $kd_giat = explode('.', $kd_giat);
                         $kd_giat = $kd_giat[count($kd_giat)-2].'.'.$kd_giat[count($kd_giat)-1];
                         
-                        $tombol_aksi = '<button class="btn-sm btn-warning" style="margin: 1px;" onclick="edit_progra(21231);" title="Edit Kegiatan"><i class="dashicons dashicons-plus"></i></button>';
+                        $tombol_aksi = '';
+                        if(!empty($add_renja)){
+                            $tombol_aksi = '<button class="btn-sm btn-warning" style="margin: 1px;" onclick="edit_kegiatan(\''.$giat['sub']['kode_sbl'].'\');" title="Edit Kegiatan"><i class="dashicons dashicons-plus"></i></button>';
+                        }
 
                         $body .= '
-                            <tr>
+                            <tr tipe="kegiatan" kode="'.$giat['sub']['kode_sbl'].'">
                                 <td style="border:.5pt solid #000; vertical-align:middle; font-weight:bold;" width="5">'.$kd_urusan.'</td>
                                 <td style="border:.5pt solid #000; vertical-align:middle; font-weight:bold; vnd.ms-excel.numberformat:00;" width="5">'.$kd_bidang.'</td>
                                 <td style="border:.5pt solid #000; vertical-align:middle; font-weight:bold; vnd.ms-excel.numberformat:000;" width="5">'.$kd_program.'</td>
@@ -373,6 +396,8 @@ $body = '';
                                 $output_sub_giat = implode('<br>', $output_sub_giat);
                                 $target_output_sub_giat = implode('<br>', $target_output_sub_giat);
                             }
+
+                            // get lokasi sub kegiatan
                             $lokasi_sub_giat_array = array();
                             if(!empty($sub_giat['lokasi_sub_giat'])){
                                 foreach($sub_giat['lokasi_sub_giat'] as $v_lokasi){
@@ -387,6 +412,33 @@ $body = '';
                                 }
                             }
                             $lokasi_sub_giat = implode('<br>', $lokasi_sub_giat_array);
+
+                            // get sumber dana sub kegiatan
+                            $dana_sub_giat_array = array();
+                            if(!empty($sub_giat['dana_sub_giat'])){
+                                foreach($sub_giat['dana_sub_giat'] as $v_dana){
+                                    // cek jika ada sumber dana di penetapan
+                                    if(!empty($v_dana['namadana'])){
+                                        $dana_sub_giat = explode('] - ', $v_dana['namadana']);
+                                        if(!empty($dana_sub_giat[1])){
+                                            $dana_sub_giat_array[] = $dana_sub_giat[1];
+                                        }else{
+                                            $dana_sub_giat_array[] = $v_dana['namadana'];
+                                        }
+                                    // cek jika ada sumber dana di usulan
+                                    }else if(!empty($v_dana['nama_dana_usulan'])){
+                                        $dana_sub_giat = explode('] - ', $v_dana['nama_dana_usulan']);
+                                        if(!empty($dana_sub_giat[1])){
+                                            $dana_sub_giat_array[] = $dana_sub_giat[1];
+                                        }else{
+                                            $dana_sub_giat_array[] = $v_dana['nama_dana_usulan'];
+                                        }
+                                    }
+                                }
+                            }
+                            $dana_sub_giat = implode('<br>', $dana_sub_giat_array);
+
+                            $catatan = $sub_giat['data']['catatan'].'<span class="nilai_usulan">'.$sub_giat['data']['catatan_usulan'].'</span>';
                             $ind_n_plus = '';
                             $target_ind_n_plus = '';
                             /*
@@ -404,17 +456,16 @@ $body = '';
                                 }
                             }
 
-                            $kode_sbl = '';
-                            if(!empty($sub_giat['output_sub_giat'])){
-                                $kode_sbl = $sub_giat['output_sub_giat'][0]['kode_sbl'];
-                            }
-
+                            $kode_sbl = $sub_giat['data']['kode_sbl'];
                             $url_rka_lokal = $this->generatePage('Data RKA Lokal | '.$kode_sbl.' | '.$input['tahun_anggaran'],$input['tahun_anggaran'],'[input_rka_lokal kode_sbl="'.$kode_sbl.'" tahun_anggaran="'.$input['tahun_anggaran'].'"]');
+
                             $tombol_aksi = '<a href="'.$url_rka_lokal.'" target="_blank"><button class="btn-sm btn-info" style="margin: 1px;" title="Detail Renja"><i class="dashicons dashicons-search"></i></button></a>';
-                            $tombol_aksi .= '<button class="btn-sm btn-warning" style="margin: 1px;" onclick="edit_renja(\''.$kode_sub_giat.'\');" title="Edit Renja"><i class="dashicons dashicons-edit"></i></button>';
-                            $tombol_aksi .= '<button class="btn-sm btn-danger" style="margin: 1px;" onclick="delete_renja(\''.$kode_sub_giat.'\');" title="Hapus Renja"><i class="dashicons dashicons-trash"></i></button>';
+                            if(!empty($add_renja)){
+                                $tombol_aksi .= '<button class="btn-sm btn-warning" style="margin: 1px;" onclick="edit_renja(\''.$kode_sub_giat.'\');" title="Edit Renja"><i class="dashicons dashicons-edit"></i></button>';
+                                $tombol_aksi .= '<button class="btn-sm btn-danger" style="margin: 1px;" onclick="delete_renja(\''.$kode_sub_giat.'\');" title="Hapus Renja"><i class="dashicons dashicons-trash"></i></button>';
+                            }
                             $body .= '
-                                <tr>
+                                <tr tipe="sub-kegiatan" kode="'.$kode_sbl.'">
                                     <td class="kiri kanan bawah">'.$kd_urusan.'</td>
                                     <td class="kanan bawah">'.$kd_bidang.'</td>
                                     <td class="kanan bawah">'.$kd_program.'</td>
@@ -429,8 +480,8 @@ $body = '';
                                     <td class="kanan bawah">'.$target_output_sub_giat.'</td>
                                     <td class="kanan bawah">'.$target_output_giat.'</td>
                                     <td class="kanan bawah text_kanan">'.number_format($sub_giat['total'],0,",",".").'<span class="nilai_usulan">'.number_format($sub_giat['total_usulan'],0,",",".").'</span></td>
-                                    <td class="kanan bawah"><br/></td>
-                                    <td class="kanan bawah">&nbsp;</td>
+                                    <td class="kanan bawah">'.$dana_sub_giat.'</td>
+                                    <td class="kanan bawah">'.$catatan.'</td>
                                     <td class="kanan bawah">'.$ind_n_plus.'</td>
                                     <td class="kanan bawah">'.$target_ind_n_plus.'</td>
                                     <td class="kanan bawah text_kanan">'.number_format($sub_giat['total_n_plus'],0,",",".").'<span class="nilai_usulan">'.number_format($sub_giat['total_n_plus_usulan'],0,",",".").'</span></td>
@@ -795,19 +846,22 @@ echo '
 
 <!-- Modal indikator renja -->
 <div class="modal fade" id="modal-indikator-renja" data-backdrop="static" role="dialog" aria-labelledby="modal-indikator-renja-label" aria-hidden="true">
-  <div class="modal-dialog" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title">Modal title</h5>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-      <div class="modal-body">
-      </div>
-      <div class="modal-footer"></div>
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Modal title</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary submitBtn" onclick="submitIndikatorProgram()">Simpan</button>
+                <button type="submit" class="components-button btn btn-secondary" data-dismiss="modal">Tutup</button>
+            </div>
+        </div>
     </div>
-  </div>
 </div>
 
 <script type="text/javascript">
@@ -872,6 +926,34 @@ echo '
                 })
             });
         });
+        /** Copy data renstra */
+        jQuery('#copy-data-renstra-skpd').on('click', function(){
+            if(confirm('Apakah anda yakin untuk melakukan ini? data RENJA akan diisi sesuai data RENSTRA per SKPD tahun berjalan!.')){
+                let id_skpd = jQuery('#copy-data-renstra-skpd').data("skpd");
+                let id_jadwal = jQuery('#copy-data-renstra-skpd').data("jadwal");
+                if(id_skpd){
+                    jQuery('#wrap-loading').show();
+                    jQuery.ajax({
+                        url: ajax.url,
+                        type: "post",
+                        data: {
+                            "action": "copy_data_renstra_ke_renja",
+                            "api_key": jQuery("#api_key").val(),
+                            'id_jadwal': id_jadwal,
+                            'id_skpd': id_skpd
+                        },
+                        dataType: "json",
+                        success: function(res){
+                            alert(res.message);
+                            jQuery('#wrap-loading').hide();
+                        }
+                    });
+                }else{
+                    alert('Id SKPD Tidak Ditemukan.!')
+                }
+            }
+        });
+        /** End copy data renstra */
     <?php endif; ?>
     });
 
@@ -946,10 +1028,60 @@ echo '
         }
     }
 
+    function tambahIndikatorProgram(){
+        var tr = jQuery('#modal-indikator-renja #indikator_program tr');
+        var tr_penetapan = tr.last();
+        var id = +tr_penetapan.attr('data-id');
+        var newId = id+1;
+        var tr_usulan = tr.parent().find('tr[type="usulan"][data-id="'+id+'"]');
+
+        var trNewUsulan = tr_usulan.html();
+        trNewUsulan = ''
+            +'<tr data-id="'+newId+'" type="usulan">'
+                +trNewUsulan
+            +'</tr>';
+        trNewUsulan = trNewUsulan.replaceAll('_'+id+'"', '_'+newId+'"');
+        trNewUsulan = trNewUsulan.replaceAll('['+id+']', '['+newId+']');
+        trNewUsulan = trNewUsulan.replaceAll('>'+id+'<', '>'+newId+'<');
+
+        var trNewPenetapan = tr_penetapan.html();
+        trNewPenetapan = ''
+            +'<tr data-id="'+newId+'" type="penetapan">'
+                +trNewPenetapan
+            +'</tr>';
+        trNewPenetapan = trNewPenetapan.replaceAll('_'+id+'"', '_'+newId+'"');
+        trNewPenetapan = trNewPenetapan.replaceAll('['+id+']', '['+newId+']');
+        trNewPenetapan = trNewPenetapan.replaceAll('>'+id+'<', '>'+newId+'<');
+
+        var tbody = jQuery('#modal-indikator-renja #indikator_program');
+        tbody.append(trNewUsulan+trNewPenetapan);
+        var tr = tbody.find('>tr');
+        tr.map(function(i, b){
+            var tipe = jQuery(b).attr('type');
+            if(tipe == 'usulan'){
+                if(i == 0){
+                    var html = '<button class="btn btn-warning btn-sm" onclick="tambahIndikatorProgram(); return false;"><i class="dashicons dashicons-plus"></i></button>';
+                }else{
+                    var html = '<button class="btn btn-danger btn-sm" onclick="hapusIndikatorProgram(this); return false;"><i class="dashicons dashicons-trash"></i></button>';
+                }
+                jQuery(b).find('>td').last().html(html);
+            }
+        });
+    }
+
     function hapusIndikator(that){
         var id = jQuery(that).closest('tr').attr('data-id');
         jQuery('.indi_sub_keg_table_usulan > tbody').find('tr[data-id="'+id+'"]').remove();
         jQuery('.indi_sub_keg_table > tbody').find('tr[data-id="'+id+'"]').remove();
+    }
+
+    function hapusIndikatorProgram(that){
+        var id = jQuery(that).closest('tr').attr('data-id');
+        console.log('id', id);
+        jQuery(that).closest('tbody').find('tr[data-id="'+id+'"]').map(function(i, b){
+            console.log('b', b);
+            jQuery(b).remove();
+        });
     }
 
     function tambahLokasi(){
@@ -1672,6 +1804,32 @@ echo '
         }
     }
 
+    function submitIndikatorProgram(){
+        if(confirm('Apakah anda yakin untuk menyimpan data ini?')){
+            jQuery('#wrap-loading').show();
+            let form = getFormData(jQuery("#modal-indikator-renja form"));
+            jQuery.ajax({
+                method: 'post',
+                url: '<?php echo admin_url('admin-ajax.php'); ?>',
+                dataType: 'json',
+                data: {
+                    'action': 'submit_indikator_program_renja',
+                    'api_key': jQuery('#api_key').val(),
+                    'data': JSON.stringify(form),
+                    'tahun_anggaran': tahun_anggaran
+                },
+                success: function(response){
+                    jQuery('#wrap-loading').hide();
+                    jQuery('#modalTambahRenja').modal('hide');
+                    alert(response.message);
+                    if(response.status == 'success'){
+                        refresh_page();
+                    }
+                }
+            })
+        }
+    }
+
     function delete_renja(kode_sub_giat){
         if(confirm('Apakah anda yakin untuk menghapus data ini?')){
             jQuery("#wrap-loading").show();
@@ -1701,127 +1859,119 @@ echo '
 
     function indikatorProgram(data){
         jQuery('#wrap-loading').show();
-
-        // jQuery.ajax({
-        //     method: 'post',
-        //     url: '<?php echo admin_url('admin-ajax.php'); ?>',
-        //     dataType: 'json',
-        //     data: {
-        //         'action': 'get_indikator_program_renja',
-        //         'api_key': jQuery('#api_key').val(),
-        //         'data': data  
-        //     },
-        //     success:function(response){
-                jQuery('#wrap-loading').hide();
-
+        jQuery.ajax({
+            method: 'post',
+            url: '<?php echo admin_url('admin-ajax.php'); ?>',
+            dataType: 'json',
+            data: {
+                'action': 'get_indikator_program_renja',
+                'api_key': jQuery('#api_key').val(),
+                'tahun_anggaran': tahun_anggaran,
+                'kode_sbl': data  
+            },
+            success:function(response){
                 let html=""
-					+'<div style="margin-top:10px">'
-						+'<button type="button" class="btn btn-primary mb-2 btn-add-indikator-program" data-kodeprogram="12">'
-							+'<i class="dashicons dashicons-plus" style="margin-top: 2px;"></i> Tambah Indikator'
-						+'</button>'
-					+'</div>'
-          			+'<table class="table">'
+                +'<form>'
+          			+'<table class="table" style="margin-top:10px">'
 	          			+'<thead>'
 	          				+'<tr>'
 	          					+'<th class="text-center" style="width: 160px;">Perangkat Daerah</th>'
-	          					+'<th>'+jQuery('#nama-skpd').text()+'</th>'
+	          					+'<th>'+jQuery('tr[tipe="sub_unit"]').find('td').eq(1).text().replace('Sub Unit Organisasi : ', '')+'</th>'
 	          				+'</tr>'
 	          				+'<tr>'
           						+'<th class="text-center" style="width: 160px;">Bidang Urusan</th>'
-          						+'<th>'+jQuery('#nav-tujuan tr[kodetujuan="'+jQuery("#nav-sasaran .btn-tambah-sasaran").data("kodetujuan")+'"]').find('td').eq(1).text()+'</th>'
-          					+'</tr>'
-          					+'<tr>'
-          						+'<th class="text-center" style="width: 160px;">Tujuan</th>'
-          						+'<th>'+jQuery('#nav-tujuan tr[kodetujuan="'+jQuery("#nav-sasaran .btn-tambah-sasaran").data("kodetujuan")+'"]').find('td').eq(2).text()+'</th>'
-          					+'</tr>'
-          					+'<tr>'
-          						+'<th class="text-center" style="width: 160px;">Sasaran</th>'
-          						+'<th>'+jQuery('#nav-sasaran tr[kodesasaran="'+jQuery("#nav-program .btn-tambah-program").data("kodesasaran")+'"]').find('td').eq(1).text()+'</th>'
+          						+'<th>'+jQuery('tr[tipe="bidang"]').find('td').eq(5).text()+'</th>'
           					+'</tr>'
 	          				+'<tr>'
 	          					+'<th class="text-center" style="width: 160px;">Program</th>'
-	          					+'<th>'+jQuery('#nav-program tr[kodeprogram="12"]').find('td').eq(1).text()+'</th>'
+	          					+'<th>'+jQuery('tr[tipe="program"][kode="'+data+'"]').find('td').eq(5).text()+'</th>'
 	          				+'</tr>'
-	          				// +'<tr>'
-	          				// 	+'<th colspan=2>'
-	          				// 		+'<table>'
-		          			// 			+'<thead>'
-				      		// 				+'<tr>'
-				      		// 					+'<th class="text-center">Pagu Tahun 1212</th>'
-				      		// 					+'<th class="text-center" style="width:15%">Catatan</th>'
-				      		// 				+'</tr>'
-		          			// 			+'</thead>'
-		          			// 			+'<tbody style="font-weight: normal;">'
-			  				// 				+'<tr>'
-                            //                     +'<td>hai</td>'
-                            //                 +'</tr>'
-                            //                 +'<tr>'
-                            //                     +'<td>hai</td>'
-                            //                 +'</tr>'
-		          			// 			+'</tbody>'
-	          				// 		+'</table>'
-	          				// 	+'</th>'
-	          				// +'</tr>'
+	          				+'<tr>'
+                                +'<th class="text-center" style="width: 160px;">Pagu</th>'
+	          					+'<th>'+jQuery('tr[tipe="program"][kode="'+data+'"]').find('td').eq(6).html()+'</th>'
+	          				+'</tr>'
 	          			+'</thead>'
           			+'</table>'
 					+"<table class='table'>"
 						+"<thead>"
 							+"<tr>"
 								+"<th class='text-center'>No</th>"
-								+"<th class='text-center'>Indikator</th>"
-								+"<th class='text-center'>Satuan</th>"
-								+"<th class='text-center'>Awal</th>"
-								+"<th class='text-center'>Akhir</th>"
+								+"<th class='text-center'>Tipe</th>"
+                                +"<th class='text-center'>Indikator</th>"
+								+"<th class='text-center'>Target</th>"
+								+"<th class='text-center' style='width: 120px;'>Satuan</th>"
 								+"<th class='text-center'>Catatan</th>"
-								+"<th class='text-center'>Aksi</th>"
+                                +"<th class='text-center'>Aksi</th>"
 							+"</tr>"
 						+"</thead>"
 						+"<tbody id='indikator_program'>";
-						// response.data.map(function(value, index){
-		          		// 	for(var i in value){
-		          		// 		if(
-		          		// 			value[i] == 'null'
-		          		// 			|| value[i] == null
-		          		// 		){
-		          		// 			value[i] = '';
-		          		// 		}
-		          		// 	}
-		          			html +=''
-		          				+"<tr>"
-					          		+"<td class='text-center' rowspan='2'>1</td>"
-					          		+"<td>xx</td>"
-					          		+"<td>qw</td>"
-					          		+"<td class='text-center'>wq</td>"
-									+"<td class='text-center'>as</td>"
-									+"<td class='text-right'>as</td>"
-					          		+"<td class='text-center'>asa</td>"
-					          		+"<td><b>Penetapan</b><br>asa</td>"
-					          		+"<td class='text-center' rowspan='2'>"
-					          			+"<a href='#' class='btn btn-success btn-edit-indikator-program' data-kodeprogram='12' data-id='12'><i class='dashicons dashicons-edit' style='margin-top: 2px;' title='Edit Indikator Program'></i></a>&nbsp"
-										+"<a href='#' class='btn btn-danger btn-sm btn-delete-indikator-program' data-kodeprogram='12' data-id='12' title='Hapus Indikator Program'><i class='dashicons dashicons-trash' style='margin-top: 2px;'></i></a>&nbsp;"
-					          		+"</td>"
-					          	+"</tr>"
-		          				+"<tr>"
-					          		+"<td>as</td>"
-					          		+"<td>dsa</td>"
-					          		+"<td class='text-center'>das</td>"
-									+"<td class='text-center'>313</td>"
-									+"<td class='text-right'>123</td>"
-					          		+"<td class='text-center'>22</td>"
-					          		+"<td><b>Usulan</b><br>ewe</td>"
-					          	+"</tr>";
-			          		// });
+
+                        var tombol_tambah = ''
+                            +'<button type="button" class="btn btn-warning" onclick="tambahIndikatorProgram();">'
+                                +'<i class="dashicons dashicons-plus" style="margin-top: 2px;"></i>'
+                            +'</button>';
+
+                        if(response.data.length == 0){
+                            html +=''
+                                +"<tr data-id='1' type='usulan'>"
+                                    +"<td class='text-center' rowspan='2' style='vertical-align: middle;'>1</td>"
+                                    +"<td class='text-center'>Usulan</td>"
+                                    +"<td><textarea class='form-control' type='text' id='indikator_program_usulan_1' name='indikator_program_usulan[1]'></textarea></td>"
+                                    +"<td><input class='form-control' type='number' id='target_indikator_program_usulan_1' name='target_indikator_program_usulan[1]'></td>"
+                                    +"<td><input class='form-control' type='text' id='satuan_indikator_program_usulan_1' name='satuan_indikator_program_usulan[1]'></td>"
+                                    +"<td><textarea class='form-control' id='catatan_program_usulan_1'></textarea></td>"
+                                    +"<td rowspan='2' class='text-center' style='vertical-align: middle;'>"+tombol_tambah+"</td>"
+                                +"</tr>"
+                                +"<tr data-id='1' type='penetapan'>"
+                                    +"<td class='text-center'>Penetapan</td>"
+                                    +"<td><textarea class='form-control' type='text' id='indikator_program_penetapan_1' name='indikator_program_penetapan[1]'></textarea></td>"
+                                    +"<td><input class='form-control' type='number' id='target_indikator_program_penetapan_1' name='target_indikator_program_penetapan[1]'></td>"
+                                    +"<td><input class='form-control' type='text' id='satuan_indikator_program_penetapan_1' name='satuan_indikator_program_penetapan[1]'></td>"
+                                    +"<td><textarea class='form-control' id='catatan_program_penetapan'></textarea></td>"
+                                +"</tr>";
+                        }else{
+    						response.data.map(function(value, index){
+                                if(index == 0){
+                                    var aksi = tombol_tambah;
+                                }else{
+                                    var aksi = ''
+                                        +'<button type="button" class="btn btn-danger" onclick="hapusIndikatorProgram(this);">'
+                                            +'<i class="dashicons dashicons-trash" style="margin-top: 2px;"></i>'
+                                        +'</button>';
+                                }
+    		          			html +=''
+    		          				+"<tr>"
+    					          		+"<td class='text-center' rowspan='2' style='vertical-align: middle;'>1</td>"
+                                        +"<td class='text-center'>Usulan</td>"
+    					          		+"<td><textarea class='form-control' type='text' id='indikator_program_usulan'></textarea></td>"
+    					          		+"<td><input class='form-control' type='number' id='target_indikator_program_usulan'></td>"
+    					          		+"<td><input class='form-control' type='text' id='satuan_indikator_program_usulan'></td>"
+    									+"<td><textarea class='form-control' id='catatan_program_usulan'></textarea></td>"
+                                        +"<td rowspan='2' class='text-center' style='vertical-align: middle;'>"+aksi+"</td>"
+    					          	+"</tr>"
+    		          				+"<tr>"
+                                        +"<td class='text-center'>Penetapan</td>"
+                                        +"<td><textarea class='form-control' type='text' id='indikator_program_penetapan'></textarea></td>"
+                                        +"<td><input class='form-control' type='number' id='target_indikator_program_penetapan'></td>"
+                                        +"<td><input class='form-control' type='text' id='satuan_indikator_program_penetapan'></td>"
+                                        +"<td><textarea class='form-control' id='catatan_program_penetapan'></textarea></td>"
+    					          	+"</tr>";
+    		          		});
+                        }
 		          	html+=''
 		          		+'</tbody>'
-		          	+'</table>';
+		          	+'</table>'
+                +'</form>';
 
                 jQuery('#modal-indikator-renja').find('.modal-title').html('Indikator Program');
                 jQuery('#modal-indikator-renja').find('.modal-body').html(html);
+                jQuery('#modal-indikator-renja').find('.modal-footer .submitBtn').attr('onclick', 'submitIndikatorProgram()');
                 jQuery('#modal-indikator-renja').find('.modal-dialog').css('maxWidth','1250px');
                 jQuery('#modal-indikator-renja').find('.modal-dialog').css('width','100%');
                 jQuery('#modal-indikator-renja').modal('show');
-            // }
-        // })
+                jQuery('#wrap-loading').hide();
+            }
+        })
     }
 
     function getFormData($form){

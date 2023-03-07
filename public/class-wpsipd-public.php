@@ -14412,8 +14412,8 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						$sqlTipe = $wpdb->get_results("SELECT * FROM `data_tipe_perencanaan` WHERE nama_tipe='".$tipe_perencanaan."'", ARRAY_A);
 						if(!empty($sqlTipe)){
 							$id_tipe = $sqlTipe[0]['id'];
-
-							$sqlSameTipe = $wpdb->get_results("SELECT * FROM `data_jadwal_lokal` WHERE id_tipe='".$id_tipe."'", ARRAY_A);
+							$where_renja = ($id_tipe == 5 || $id_tipe == 6) ? ' AND tahun_anggaran='.$tahun_anggaran : '';
+							$sqlSameTipe = $wpdb->get_results("SELECT * FROM `data_jadwal_lokal` WHERE id_tipe='".$id_tipe."'".$where_renja, ARRAY_A);
 							foreach($sqlSameTipe as $valTipe){
 								if($valTipe['status'] != 1){
 									$return = array(
@@ -15921,7 +15921,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		die(json_encode($ret));
 	}
 
-	function validasi_jadwal_perencanaan($tipe_perencanaan){
+	function validasi_jadwal_perencanaan($tipe_perencanaan,$tahun_anggaran = 0){
 		global $wpdb;
 
 		$data_return = array(
@@ -15936,51 +15936,67 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 
 			$sql_tipe = $wpdb->get_results("SELECT * FROM `data_tipe_perencanaan` WHERE nama_tipe='".$tipe_perencanaan."'", ARRAY_A);
 
-			// get jadwal aktif dan terbuka
-			$sql_jadwal_lokal = $wpdb->get_results("
-				SELECT 
-					* 
-				FROM `data_jadwal_lokal` 
-				WHERE status = 0 
-					AND (
-						waktu_awal < '".$time_now."' 
-						AND waktu_akhir > '".$time_now."'
-					) AND id_tipe='".$sql_tipe[0]['id']."'
-			", ARRAY_A);
+			$where_renja = '';
+			$cek_renja_penganggaran = true;
+			if($sql_tipe[0]['id'] == 5 || $sql_tipe[0]['id'] == 6){
+				if(!empty($tahun_anggaran)){
+					$where_renja = ' AND tahun_anggaran='.$tahun_anggaran;	
+				}else{
+					$cek_renja_penganggaran = false;
+				}
+			}
 
-			if(!empty($sql_jadwal_lokal)){
-				$data_return = array(
-					'status' 	=> 'success',
-					'message'	=> "Berhasil",
-					'data'		=> $sql_jadwal_lokal
-				);
-			}else{
-				// get jadwal aktif
+			if($cek_renja_penganggaran){
+				// get jadwal aktif dan terbuka
 				$sql_jadwal_lokal = $wpdb->get_results("
 					SELECT 
 						* 
 					FROM `data_jadwal_lokal` 
 					WHERE status = 0 
-						AND id_tipe='".$sql_tipe[0]['id']."'
-				", ARRAY_A);
-				if(empty($sql_jadwal_lokal)){
-					// get jadwal terakhir sesuai tipe
+						AND (
+							waktu_awal < '".$time_now."' 
+							AND waktu_akhir > '".$time_now."'
+						) AND id_tipe='".$sql_tipe[0]['id']."'".$where_renja, ARRAY_A);
+	
+				if(!empty($sql_jadwal_lokal)){
+					$data_return = array(
+						'status' 	=> 'success',
+						'message'	=> "Berhasil",
+						'data'		=> $sql_jadwal_lokal
+					);
+				}else{
+					// get jadwal aktif
 					$sql_jadwal_lokal = $wpdb->get_results("
 						SELECT 
 							* 
 						FROM `data_jadwal_lokal` 
-						WHERE id_tipe='".$sql_tipe[0]['id']."'
-						ORDER BY id_jadwal_lokal desc
-						LIMIT 1
-					", ARRAY_A);
+						WHERE status = 0 
+							AND id_tipe='".$sql_tipe[0]['id']."'".$where_renja, ARRAY_A);
+					if(empty($sql_jadwal_lokal)){
+						// get jadwal terakhir sesuai tipe
+						$sql_jadwal_lokal = $wpdb->get_results("
+							SELECT 
+								* 
+							FROM `data_jadwal_lokal` 
+							WHERE id_tipe='".$sql_tipe[0]['id']."'
+							".$where_renja."
+							ORDER BY id_jadwal_lokal desc
+							LIMIT 1
+						", ARRAY_A);
+					}
+					$data_return = array(
+						'status' 	=> 'error',
+						'message'	=> "Data terbuka tidak ditemukan.",
+						'data'		=> $sql_jadwal_lokal
+					);
 				}
+			}else{
 				$data_return = array(
 					'status' 	=> 'error',
-					'message'	=> "Data terbuka tidak ditemukan.",
-					'data'		=> $sql_jadwal_lokal
+					'message' 	=> "Gagal, Data Tahun Anggaran Tidak Ditemukan",
+					'data'		=> ''
 				);
 			}
-			
 		}else{
 			$data_return = array(
 				'status' 	=> 'error',

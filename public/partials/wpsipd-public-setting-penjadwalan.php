@@ -433,7 +433,7 @@ $body = '';
 	}
 
 	function copy_data_renstra(id_jadwal){
-		if(confirm('Apakah anda yakin untuk melakukan ini? data RENJA akan diisi sesuai RENSTRA tahun berjalan.')){
+		if(confirm('Apakah anda yakin untuk melakukan ini? data RENJA akan diisi sesuai data RENSTRA tahun berjalan!.')){
 			jQuery('#wrap-loading').show();
 			jQuery.ajax({
 				url: ajax.url,
