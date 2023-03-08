@@ -3947,20 +3947,20 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 					$inputs['catatan_usulan'] = $data['catatan_usulan'];
 
 					if(in_array('administrator', $this->role())){
-						$inputs['indikator'] = !empty($data['indikator_teks']) || data['indikator_teks']==0 ? $data['indikator_teks'] : $data['indikator_teks_usulan'];
-						$inputs['satuan'] = !empty($data['satuan']) || data['satuan']==0 ? $data['satuan'] : $data['satuan_usulan'];
-						$inputs['target_1'] = !empty($data['target_1']) || data['target_1']==0 ? $data['target_1'] : $data['target_1_usulan'];
-						$inputs['target_2'] = !empty($data['target_2']) || data['target_2']==0 ? $data['target_2'] : $data['target_2_usulan'];
-						$inputs['target_3'] = !empty($data['target_3']) || data['target_3']==0 ? $data['target_3'] : $data['target_3_usulan'];
-						$inputs['target_4'] = !empty($data['target_4']) || data['target_4']==0 ? $data['target_4'] : $data['target_4_usulan'];
-						$inputs['target_5'] = !empty($data['target_5']) || data['target_5']==0 ? $data['target_5'] : $data['target_5_usulan'];
-						$inputs['target_awal'] = !empty($data['target_awal']) || data['target_awal']==0 ? $data['target_awal'] : $data['target_awal_usulan'];
-						$inputs['target_akhir'] = !empty($data['target_akhir']) || data['target_akhir']==0 ? $data['target_akhir'] : $data['target_akhir_usulan'];
-						$inputs['pagu_1'] = !empty($data['pagu_1']) || data['pagu_1']==0 ? $data['pagu_1'] : $data['pagu_1_usulan'];
-						$inputs['pagu_2'] = !empty($data['pagu_2']) || data['pagu_2']==0 ? $data['pagu_2'] : $data['pagu_2_usulan'];
-						$inputs['pagu_3'] = !empty($data['pagu_3']) || data['pagu_3']==0 ? $data['pagu_3'] : $data['pagu_3_usulan'];
-						$inputs['pagu_4'] = !empty($data['pagu_4']) || data['pagu_4']==0 ? $data['pagu_4'] : $data['pagu_4_usulan'];
-						$inputs['pagu_5'] = !empty($data['pagu_5']) || data['pagu_5']==0 ? $data['pagu_5'] : $data['pagu_5_usulan'];
+						$inputs['indikator'] = !empty($data['indikator_teks']) || $data['indikator_teks']==0 ? $data['indikator_teks'] : $data['indikator_teks_usulan'];
+						$inputs['satuan'] = !empty($data['satuan']) || $data['satuan']==0 ? $data['satuan'] : $data['satuan_usulan'];
+						$inputs['target_1'] = !empty($data['target_1']) || $data['target_1']==0 ? $data['target_1'] : $data['target_1_usulan'];
+						$inputs['target_2'] = !empty($data['target_2']) || $data['target_2']==0 ? $data['target_2'] : $data['target_2_usulan'];
+						$inputs['target_3'] = !empty($data['target_3']) || $data['target_3']==0 ? $data['target_3'] : $data['target_3_usulan'];
+						$inputs['target_4'] = !empty($data['target_4']) || $data['target_4']==0 ? $data['target_4'] : $data['target_4_usulan'];
+						$inputs['target_5'] = !empty($data['target_5']) || $data['target_5']==0 ? $data['target_5'] : $data['target_5_usulan'];
+						$inputs['target_awal'] = !empty($data['target_awal']) || $data['target_awal']==0 ? $data['target_awal'] : $data['target_awal_usulan'];
+						$inputs['target_akhir'] = !empty($data['target_akhir']) || $data['target_akhir']==0 ? $data['target_akhir'] : $data['target_akhir_usulan'];
+						$inputs['pagu_1'] = !empty($data['pagu_1']) || $data['pagu_1']==0 ? $data['pagu_1'] : $data['pagu_1_usulan'];
+						$inputs['pagu_2'] = !empty($data['pagu_2']) || $data['pagu_2']==0 ? $data['pagu_2'] : $data['pagu_2_usulan'];
+						$inputs['pagu_3'] = !empty($data['pagu_3']) || $data['pagu_3']==0 ? $data['pagu_3'] : $data['pagu_3_usulan'];
+						$inputs['pagu_4'] = !empty($data['pagu_4']) || $data['pagu_4']==0 ? $data['pagu_4'] : $data['pagu_4_usulan'];
+						$inputs['pagu_5'] = !empty($data['pagu_5']) || $data['pagu_5']==0 ? $data['pagu_5'] : $data['pagu_5_usulan'];
 						$inputs['catatan'] = $data['catatan'];
 					}
 
@@ -7813,5 +7813,39 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 				'message' => $e->getMessage()
 			]);exit();
 		}	
+    }
+
+    public function get_objek_belanja(){
+    	global $wpdb;
+
+    	try{
+			if (!empty($_POST)) {
+				if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+
+					$data = $wpdb->get_results($wpdb->prepare("SELECT * FROM data_akun WHERE tahun_anggaran=%d AND char_length(kode_akun)=6", $_POST['tahun_anggaran']), ARRAY_A);
+
+					$items=[];
+					foreach ($data as $key => $value) {
+						if(empty($items[$value['id_akun']])){
+							$items[$value['id_akun']]=$value;
+						}
+					}
+
+					echo json_encode([
+						'status' => true,
+						'items' => $data
+					]);exit();
+				}else{
+					throw new Exception("Api key tidak sesuai", 1);
+				}
+			}else{
+				throw new Exception("Format tidak sesuai", 1);	
+			}
+		}catch(Exception $e){
+			echo json_encode([
+				'status' => false,
+				'message' => $e->getMessage()
+			]);exit();
+		}
     }
 }

@@ -562,13 +562,10 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 										$opsi_ssh['status']='approved';
 									}
 									$opsi_ssh['status_by_admin']='approved';
-									$opsi_ssh['keterangan_status_admin']='';
 								}else{
-									if(trim($data_ssh[0]['status'])==='approved'){
-										$opsi_ssh['status']='rejected';
-									}
+									$opsi_ssh['status']='rejected';
 									$opsi_ssh['status_by_admin']='rejected';
-									$opsi_ssh['keterangan_status_admin']=(!empty($reason_verify_ssh)) ? $reason_verify_ssh : NULL;
+									$opsi_ssh['keterangan_status_admin']=(!empty($reason_verify_ssh)) ? $reason_verify_ssh . " | " . $data_ssh[0]['keterangan_status_admin'] : $data_ssh[0]['keterangan_status_admin'];
 								}
 							}
 
@@ -580,13 +577,10 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 										$opsi_ssh['status']='approved';
 									}
 									$opsi_ssh['status_by_tapdkeu']='approved';
-									$opsi_ssh['keterangan_status_tapdkeu']='';
 								}else{
-									if(trim($data_ssh[0]['status'])==='approved'){
-										$opsi_ssh['status']='rejected';
-									}
+									$opsi_ssh['status']='rejected';
 									$opsi_ssh['status_by_tapdkeu']='rejected';
-									$opsi_ssh['keterangan_status_tapdkeu']=(!empty($reason_verify_ssh)) ? $reason_verify_ssh : NULL;
+									$opsi_ssh['keterangan_status_tapdkeu']=(!empty($reason_verify_ssh)) ? $reason_verify_ssh . " | " . $data_ssh[0]['keterangan_status_tapdkeu'] : $data_ssh[0]['keterangan_status_tapdkeu'];
 								}
 							}
 			

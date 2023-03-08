@@ -1806,7 +1806,7 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 				// catatan:
 				// user OPD dan user admin harus dibedakan cara kewenangan insertnya
 				
-				$cek_jadwal = $this->validasi_jadwal_perencanaan('renja');
+				$cek_jadwal = $this->validasi_jadwal_perencanaan('renja',$_POST['tahun_anggaran']);
                 if($cek_jadwal['status'] == 'success'){
 					$tahun_anggaran = $_POST['tahun_anggaran'];
 					$data = json_decode(stripslashes($_POST['data']), true);

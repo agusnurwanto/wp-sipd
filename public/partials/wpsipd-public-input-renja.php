@@ -46,7 +46,7 @@ $sql = "
         ORDER BY kode_giat ASC, kode_sub_giat ASC";
 $subkeg = $wpdb->get_results($wpdb->prepare($sql,$input['id_skpd'], $input['tahun_anggaran']), ARRAY_A);
 
-$cek_jadwal = $this->validasi_jadwal_perencanaan('renja');
+$cek_jadwal = $this->validasi_jadwal_perencanaan('renja',$input['tahun_anggaran']);
 $jadwal_lokal = $cek_jadwal['data'];
 $add_renja = '';
 if(!empty($jadwal_lokal)){

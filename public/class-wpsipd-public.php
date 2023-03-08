@@ -11774,9 +11774,37 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 					$iconX		= '<i class="dashicons dashicons-trash"></i>';
 
 					$iconEdit 	= '<i class="dashicons dashicons-edit"></i>';
-					if($recVal['status'] == 'waiting' && $recVal['status_upload_sipd'] != 1 || in_array("administrator", $user_meta->roles) && $recVal['status_upload_sipd'] != 1){
-						$editUsulanSSH = '<li><a class="btn btn-warning" href="#" onclick="return edit_ssh_usulan(\''.$recVal['status_jenis_usulan'].'\',\''.$recVal['id_standar_harga'].'\');" title="Edit komponen usulan SSH">'.$iconEdit.'</a></li>';
-						$deleteUsulanSSH = '<li><a class="btn btn-danger" href="#" onclick="return delete_ssh_usulan(\''.$recVal['id_standar_harga'].'\');" title="Delete komponen usulan SSH">'.$iconX.'</a></li>';
+					if(
+						$recVal['status'] == 'waiting' || 
+						$recVal['status'] == 'rejected'  
+						// $recVal['status_upload_sipd'] != 1 
+						// || in_array("administrator", $user_meta->roles) && $recVal['status_upload_sipd'] != 1
+					){
+						
+						$can_edit = false;
+						if(
+							in_array("administrator", $user_meta->roles) ||
+							in_array("tapd_keu", $user_meta->roles)
+						){
+							$can_edit = true;
+						}elseif (in_array("pa", $user_meta->roles)) {
+							if(
+								$recVal['status_by_admin']=='' &&
+								$recVal['status_by_tapdkeu']==''
+							){
+								$can_edit = true;
+							}
+						}
+						
+						if($can_edit){
+							$editUsulanSSH = '<li><a class="btn btn-warning" href="#" onclick="return edit_ssh_usulan(\''.$recVal['status_jenis_usulan'].'\',\''.$recVal['id_standar_harga'].'\');" title="Edit komponen usulan SSH">'.$iconEdit.'</a></li>';
+							$deleteUsulanSSH = '<li><a class="btn btn-danger" href="#" onclick="return delete_ssh_usulan(\''.$recVal['id_standar_harga'].'\');" title="Delete komponen usulan SSH">'.$iconX.'</a></li>';
+						}else{
+							$jenis = ($recVal['status_upload_sipd'] == 1) ? 'upload' : 'usulan';
+							$editUsulanSSH = '<li><a class="btn btn-warning" href="#" onclick="return cannot_change_ssh_usulan(\'ubah\',\''.$jenis.'\');" title="Edit komponen usulan SSH">'.$iconEdit.'</a></li>';
+							$deleteUsulanSSH = '<li><a class="btn btn-danger" href="#" onclick="return cannot_change_ssh_usulan(\'hapus\',\''.$jenis.'\');" title="Delete komponen usulan SSH">'.$iconX.'</a></li>';
+						}
+
 					}else{
 						$jenis = ($recVal['status_upload_sipd'] == 1) ? 'upload' : 'usulan';
 						$editUsulanSSH = '<li><a class="btn btn-warning" href="#" onclick="return cannot_change_ssh_usulan(\'ubah\',\''.$jenis.'\');" title="Edit komponen usulan SSH">'.$iconEdit.'</a></li>';
@@ -11809,10 +11837,10 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 					$keterangan_lampiran = "";
 					if(!empty($recVal['keterangan_lampiran'])){
 						if(strlen($recVal['keterangan_lampiran']) > 25){
-							$keterangan_lampiran = '<tr><td class="in-kol-keterangan">Lampiran: '.substr($recVal['keterangan_lampiran'],0,20).'<span class="dots">...</span>';
+							$keterangan_lampiran = '<tr><td class="in-kol-keterangan">Catatan: '.substr($recVal['keterangan_lampiran'],0,20).'<span class="dots">...</span>';
 							$keterangan_lampiran .= '<span class="hide more">'.substr($recVal['keterangan_lampiran'],20).'</span>&nbsp;<span class="more-bold medium-bold" onclick="readMore(this)">more</span></td></tr>';
 						}else{
-							$keterangan_lampiran = '<tr><td>Lampiran: '.$recVal['keterangan_lampiran'].'</td></tr>';
+							$keterangan_lampiran = '<tr><td>Catatan: '.$recVal['keterangan_lampiran'].'</td></tr>';
 						}
 					}
 
@@ -11831,23 +11859,60 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						$status_verif = 'Menunggu';
 					}
 
-					$status_verif_admin = '';
+					$status_verif_admin = '<table style="margin: 0;border-color:white;"><tbody>';
+					$data_riwayat_admin = explode("|", $recVal['keterangan_status_admin']);
+					$riwayat_admin='<ul style="margin:15px">';
+					foreach ($data_riwayat_admin as $key => $value) {
+						$riwayat_admin.='<li>'.$value.'</li>';
+					}
+					$riwayat_admin.='</ul>';
+					
 					if($recVal['status_by_admin'] == 'approved'){
-						$status_verif_admin .= '<br>Admin Standar Harga : <span class="medium-bold-2">Disetujui</span>';
+						$status_verif_admin .= '<tr>
+													<td style="border-color:white;">Usulan : <span class="medium-bold-2">Disetujui</span></td>
+												</tr>
+												<tr>
+													<td style="border-color:white;">Alasan : <span class="medium-bold-2">' .$riwayat_admin. '</span></td>
+												</tr>
+												';
 					}else if($recVal['status_by_admin'] == 'rejected'){
 						$status_verif_admin .= '
-										<br>Admin Standar Harga : <span class="medium-bold-2">Ditolak</span>
-										<br>Alasan : <span class="medium-bold-2">' . $recVal['keterangan_status_admin'].'</span>';
+										<tr>
+											<td style="border-color:white;">Usulan : <span class="medium-bold-2">Ditolak</span></td>
+										</tr>
+										<tr>
+											<td style="border-color:white;">Riwayat Alasan : <span class="medium-bold-2">' .$riwayat_admin. '</span></td>
+										</tr>';
 					}
+					$status_verif_admin .= '</tbody></table>';
 
-					$status_verif_tapdkeu = '';
-					if($recVal['status_by_tapdkeu'] == 'approved'){
-						$status_verif_tapdkeu .= '<br>TAPD Keuangan : <span class="medium-bold-2">Disetujui</span>';
-					}else if($recVal['status_by_tapdkeu'] == 'rejected'){
-						$status_verif_tapdkeu .= '
-										<br>TAPD Keuangan: <span class="medium-bold-2">Ditolak</span>
-										<br>Alasan : <span class="medium-bold-2">' . $recVal['keterangan_status_tapdkeu'] . '</span>';
+					$status_verif_tapdkeu = '<table style="margin: 0;border-color:white;"><tbody>';
+					$data_riwayat_tapdkeu = explode("|", $recVal['keterangan_status_tapdkeu']);
+					$riwayat_tapdkeu='<ul style="margin:15px">';
+					foreach ($data_riwayat_tapdkeu as $key => $value) {
+						$riwayat_tapdkeu.='<li>'.$value.'</li>';
 					}
+					$riwayat_tapdkeu.='</ul>';
+					
+					if($recVal['status_by_tapdkeu'] == 'approved'){
+						$status_verif_tapdkeu .= '<tr>
+													<td style="border-color:white;">Usulan : <span class="medium-bold-2">Disetujui</span></td>
+												</tr>
+												<tr>
+													<td style="border-color:white;">Alasan : <span class="medium-bold-2">' . $riwayat_tapdkeu . '</span></td>
+												</tr>
+												';
+					}else if($recVal['status_by_tapdkeu'] == 'rejected'){
+						$status_verif_tapdkeu .= 
+										'
+										<tr>
+											<td style="border-color:white;">Usulan : <span class="medium-bold-2">Ditolak</span></td>
+										</tr>
+										<tr>
+											<td style="border-color:white;">Riwayat Alasan : <span class="medium-bold-2">' . $riwayat_tapdkeu . '</span></td>
+										</tr>';
+					}
+					$status_verif_tapdkeu .= '</tbody></table>';
 
 					if(
 						in_array("administrator", $user_meta->roles) || 
@@ -11874,7 +11939,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 					$show_status = '<table style="margin: 0;">';
 					$show_status .= '<tr>
 										<td>
-											Usulan: <span class="medium-bold-2">'.$status_verif.'</span>'.$status_verif_admin.$status_verif_tapdkeu.'
+											Usulan: <span class="medium-bold-2">'.$status_verif.'</span>
 										</td>
 									</tr>';
 					$show_status .= '<tr><td>Upload SIPD: <span class="medium-bold-2">'.ucwords($queryRecords[$recKey]['status_upload_sipd']).'</span></td></tr>';
@@ -11890,6 +11955,8 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 					$queryRecords[$recKey]['deleteCheckbox'] = $deleteCheck;
 					$queryRecords[$recKey]['show_kode_komponen'] = $kode_komponen;
 					$queryRecords[$recKey]['spek_satuan'] = $spek_satuan;
+					$queryRecords[$recKey]['verify_admin'] = $status_verif_admin;
+					$queryRecords[$recKey]['varify_tapdkeu'] = $status_verif_tapdkeu;
 					$queryRecords[$recKey]['show_status'] = $show_status;
 					$queryRecords[$recKey]['show_keterangan'] = '<table style="margin: 0;">'.$created_user.$keterangan_status.$created_at.$keterangan_lampiran.'</table>';
 					$queryRecords[$recKey]['show_keterangan'] = $queryRecords[$recKey]['show_keterangan'] == '' ? '-' : $queryRecords[$recKey]['show_keterangan'];
@@ -12117,7 +12184,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 			$table_content = '';
 			if(!empty($_POST)){
 				if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
-					if(!empty($_POST['kategori']) && !empty($_POST['nama_komponen']) && !empty($_POST['spesifikasi']) && !empty($_POST['satuan']) && !empty($_POST['harga_satuan']) && !empty($_POST['akun']) && !empty($_POST['keterangan_lampiran']) && !empty($_FILES['lapiran_usulan_ssh_1'])){
+					if(!empty($_POST['kategori']) && !empty($_POST['nama_komponen']) && !empty($_POST['spesifikasi']) && !empty($_POST['satuan']) && !empty($_POST['harga_satuan']) && !empty($_POST['akun']) && !empty($_FILES['lapiran_usulan_ssh_1'])){
 						$kategori =trim(htmlspecialchars($_POST['kategori']));
 						$nama_standar_harga = trim(htmlspecialchars($_POST['nama_komponen']));
 						$spek = trim(htmlspecialchars($_POST['spesifikasi']));
@@ -12126,7 +12193,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						$akun = $_POST['akun'];
 						$tahun_anggaran = trim(htmlspecialchars($_POST['tahun_anggaran']));
 						$keterangan_lampiran = trim(htmlspecialchars($_POST['keterangan_lampiran']));
-						$jenis_produk = trim(htmlspecialchars($_POST['jenis_produk']));
+						$jenis_produk = !empty($_POST['keterangan_lampiran']) ? trim(htmlspecialchars($_POST['jenis_produk'])) : null;
 						$jenis_produk = ($jenis_produk == 0 || $jenis_produk == 1) ? $jenis_produk : NULL;
 						$tkdn = trim(htmlspecialchars($_POST['tkdn']));
 						$tkdn = ($tkdn >= 0) ? $tkdn : NULL;
@@ -13248,14 +13315,14 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		$table_content = '';
 		if(!empty($_POST)){
 			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
-				if(!empty($_POST['kategori']) && !empty($_POST['spesifikasi']) && !empty($_POST['satuan']) && !empty($_POST['harga_satuan']) && !empty($_POST['tahun_anggaran']) && !empty($_POST['keterangan_lampiran']) && !empty($_POST['id_standar_harga'])){
+				if(!empty($_POST['kategori']) && !empty($_POST['spesifikasi']) && !empty($_POST['satuan']) && !empty($_POST['harga_satuan']) && !empty($_POST['tahun_anggaran']) && !empty($_POST['id_standar_harga'])){
 					$kategori 				= trim(htmlspecialchars($_POST['kategori']));
 					$nama_standar_harga 	= trim(htmlspecialchars($_POST['nama_komponen']));
 					$spek 					= trim(htmlspecialchars($_POST['spesifikasi']));
 					$satuan 				= trim(htmlspecialchars($_POST['satuan']));
 					$harga					= trim(htmlspecialchars($_POST['harga_satuan']));
 					$tahun_anggaran 		= trim(htmlspecialchars($_POST['tahun_anggaran']));
-					$keterangan_lampiran 	= trim(htmlspecialchars($_POST['keterangan_lampiran']));
+					$keterangan_lampiran 	= !empty($_POST['keterangan_lampiran']) ? trim(htmlspecialchars($_POST['keterangan_lampiran'])) : null;
 					$akun 					= $_POST['akun'];
 					$id_standar_harga		= trim(htmlspecialchars($_POST['id_standar_harga']));
 					$jenis_produk 			= trim(htmlspecialchars($_POST['jenis_produk']));
@@ -13264,9 +13331,38 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 					$tkdn					= ($tkdn >= 0) ? $tkdn : NULL;
 					
 					$data_kategori = $wpdb->get_results($wpdb->prepare("SELECT kode_kategori,uraian_kategori FROM data_kelompok_satuan_harga WHERE id_kategori = %d",$kategori), ARRAY_A);
-					$data_this_id_ssh = $wpdb->get_results($wpdb->prepare('SELECT id_standar_harga,kode_kel_standar_harga,kode_standar_harga,status,status_upload_sipd FROM data_ssh_usulan WHERE id_standar_harga = %d',$id_standar_harga), ARRAY_A);
+					$data_this_id_ssh = $wpdb->get_results($wpdb->prepare('SELECT id_standar_harga,kode_kel_standar_harga,kode_standar_harga,status,status_upload_sipd,status_by_admin,status_by_tapdkeu FROM data_ssh_usulan WHERE id_standar_harga = %d',$id_standar_harga), ARRAY_A);
 
-					if($data_this_id_ssh[0]['status'] == 'waiting' || in_array("administrator", $user_meta->roles)){
+					$status_edit=false;
+					if(
+						in_array("administrator", $user_meta->roles) ||
+						in_array("tapd_keu", $user_meta->roles)
+					){
+						$status_edit=true;
+					}elseif (in_array("pa", $user_meta->roles)) {
+						if($data_this_id_ssh[0]['status'] == 'waiting'){
+							if(
+								$data_this_id_ssh[0]['status_by_admin']=='' && 
+								$data_this_id_ssh[0]['status_by_tapdkeu']==''
+							){
+								$status_edit=true;
+							}else{
+								$return = array(
+									'status' => 'error',
+									'message'	=> "Data sudah dalam tahap verifikasi",
+								);
+							}
+						}elseif ($data_this_id_ssh[0]['status'] == 'rejected') {
+							$status_edit=true;
+						}
+					}else{
+						$return = array(
+							'status' => 'error',
+							'message'	=> "User tidak diijinkan!",
+						);
+					}
+
+					if($status_edit){
 						if($data_this_id_ssh[0]['status_upload_sipd'] != 1){
 							$date_now = date("Y-m-d H:i:s");
 	
@@ -13346,7 +13442,8 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 								'tahun_anggaran' => $tahun_anggaran,
 								'keterangan_lampiran' => $keterangan_lampiran,
 								'jenis_produk'	=> $jenis_produk,
-								'tkdn'	=> $tkdn
+								'tkdn'	=> $tkdn,
+								'status'	=> 'waiting',
 							);
 
 							if(!empty($_FILES['lapiran_usulan_ssh_1'])){
@@ -13452,11 +13549,6 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 								'message'	=> "User tidak diijinkan!\nData sudah diunggah di SIPD",
 							);
 						}
-					}else{
-						$return = array(
-							'status' => 'error',
-							'message'	=> "User tidak diijinkan!\nData sudah dalam tahap verifikasi",
-						);
 					}
 				}else{
 					$return = array(
@@ -14412,8 +14504,8 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						$sqlTipe = $wpdb->get_results("SELECT * FROM `data_tipe_perencanaan` WHERE nama_tipe='".$tipe_perencanaan."'", ARRAY_A);
 						if(!empty($sqlTipe)){
 							$id_tipe = $sqlTipe[0]['id'];
-
-							$sqlSameTipe = $wpdb->get_results("SELECT * FROM `data_jadwal_lokal` WHERE id_tipe='".$id_tipe."'", ARRAY_A);
+							$where_renja = ($id_tipe == 5 || $id_tipe == 6) ? ' AND tahun_anggaran='.$tahun_anggaran : '';
+							$sqlSameTipe = $wpdb->get_results("SELECT * FROM `data_jadwal_lokal` WHERE id_tipe='".$id_tipe."'".$where_renja, ARRAY_A);
 							foreach($sqlSameTipe as $valTipe){
 								if($valTipe['status'] != 1){
 									$return = array(
@@ -15921,7 +16013,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		die(json_encode($ret));
 	}
 
-	function validasi_jadwal_perencanaan($tipe_perencanaan){
+	function validasi_jadwal_perencanaan($tipe_perencanaan,$tahun_anggaran = 0){
 		global $wpdb;
 
 		$data_return = array(
@@ -15936,51 +16028,67 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 
 			$sql_tipe = $wpdb->get_results("SELECT * FROM `data_tipe_perencanaan` WHERE nama_tipe='".$tipe_perencanaan."'", ARRAY_A);
 
-			// get jadwal aktif dan terbuka
-			$sql_jadwal_lokal = $wpdb->get_results("
-				SELECT 
-					* 
-				FROM `data_jadwal_lokal` 
-				WHERE status = 0 
-					AND (
-						waktu_awal < '".$time_now."' 
-						AND waktu_akhir > '".$time_now."'
-					) AND id_tipe='".$sql_tipe[0]['id']."'
-			", ARRAY_A);
+			$where_renja = '';
+			$cek_renja_penganggaran = true;
+			if($sql_tipe[0]['id'] == 5 || $sql_tipe[0]['id'] == 6){
+				if(!empty($tahun_anggaran)){
+					$where_renja = ' AND tahun_anggaran='.$tahun_anggaran;	
+				}else{
+					$cek_renja_penganggaran = false;
+				}
+			}
 
-			if(!empty($sql_jadwal_lokal)){
-				$data_return = array(
-					'status' 	=> 'success',
-					'message'	=> "Berhasil",
-					'data'		=> $sql_jadwal_lokal
-				);
-			}else{
-				// get jadwal aktif
+			if($cek_renja_penganggaran){
+				// get jadwal aktif dan terbuka
 				$sql_jadwal_lokal = $wpdb->get_results("
 					SELECT 
 						* 
 					FROM `data_jadwal_lokal` 
 					WHERE status = 0 
-						AND id_tipe='".$sql_tipe[0]['id']."'
-				", ARRAY_A);
-				if(empty($sql_jadwal_lokal)){
-					// get jadwal terakhir sesuai tipe
+						AND (
+							waktu_awal < '".$time_now."' 
+							AND waktu_akhir > '".$time_now."'
+						) AND id_tipe='".$sql_tipe[0]['id']."'".$where_renja, ARRAY_A);
+	
+				if(!empty($sql_jadwal_lokal)){
+					$data_return = array(
+						'status' 	=> 'success',
+						'message'	=> "Berhasil",
+						'data'		=> $sql_jadwal_lokal
+					);
+				}else{
+					// get jadwal aktif
 					$sql_jadwal_lokal = $wpdb->get_results("
 						SELECT 
 							* 
 						FROM `data_jadwal_lokal` 
-						WHERE id_tipe='".$sql_tipe[0]['id']."'
-						ORDER BY id_jadwal_lokal desc
-						LIMIT 1
-					", ARRAY_A);
+						WHERE status = 0 
+							AND id_tipe='".$sql_tipe[0]['id']."'".$where_renja, ARRAY_A);
+					if(empty($sql_jadwal_lokal)){
+						// get jadwal terakhir sesuai tipe
+						$sql_jadwal_lokal = $wpdb->get_results("
+							SELECT 
+								* 
+							FROM `data_jadwal_lokal` 
+							WHERE id_tipe='".$sql_tipe[0]['id']."'
+							".$where_renja."
+							ORDER BY id_jadwal_lokal desc
+							LIMIT 1
+						", ARRAY_A);
+					}
+					$data_return = array(
+						'status' 	=> 'error',
+						'message'	=> "Data terbuka tidak ditemukan.",
+						'data'		=> $sql_jadwal_lokal
+					);
 				}
+			}else{
 				$data_return = array(
 					'status' 	=> 'error',
-					'message'	=> "Data terbuka tidak ditemukan.",
-					'data'		=> $sql_jadwal_lokal
+					'message' 	=> "Gagal, Data Tahun Anggaran Tidak Ditemukan",
+					'data'		=> ''
 				);
 			}
-			
 		}else{
 			$data_return = array(
 				'status' 	=> 'error',
