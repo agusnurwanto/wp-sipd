@@ -233,6 +233,8 @@ CREATE TABLE `data_capaian_prog_sub_keg_lokal` (
   `targetcapaianteks_usulan` varchar(50) DEFAULT NULL,
   `capaianteks_usulan` text DEFAULT NULL,
   `targetcapaian_usulan` int(11) DEFAULT NULL,
+  `catatan` text DEFAULT NULL,
+  `catatan_usulan` text DEFAULT NULL,
   PRIMARY KEY  (id)
 );
 
