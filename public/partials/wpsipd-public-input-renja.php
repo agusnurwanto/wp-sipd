@@ -1055,6 +1055,13 @@ echo '
 
         var tbody = jQuery('#modal-indikator-renja #indikator_program');
         tbody.append(trNewUsulan+trNewPenetapan);
+
+        // kosongkan value
+        tbody.find('>tr[data-id="'+newId+'"]').map(function(i, b){
+            jQuery(b).find('input').val('');
+            jQuery(b).find('textarea').val('');
+        });
+
         var tr = tbody.find('>tr');
         tr.map(function(i, b){
             var tipe = jQuery(b).attr('type');
@@ -1990,6 +1997,7 @@ echo '
             success:function(response){
                 let html=""
                 +'<form>'
+                    +'<input type="hidden" name="kode_sbl" value="'+data+'">'
           			+'<table class="table" style="margin-top:10px">'
 	          			+'<thead>'
 	          				+'<tr>'
@@ -2014,9 +2022,9 @@ echo '
 						+"<thead>"
 							+"<tr>"
 								+"<th class='text-center'>No</th>"
-								+"<th class='text-center'>Tipe</th>"
+								+"<th class='text-center' style='width: 120px;'>Tipe</th>"
                                 +"<th class='text-center'>Indikator</th>"
-								+"<th class='text-center'>Target</th>"
+								+"<th class='text-center' style='width: 120px;'>Target</th>"
 								+"<th class='text-center' style='width: 120px;'>Satuan</th>"
 								+"<th class='text-center'>Catatan</th>"
                                 +"<th class='text-center'>Aksi</th>"
@@ -2031,24 +2039,30 @@ echo '
 
                         if(response.data.length == 0){
                             html +=''
-                                +"<tr data-id='1' type='usulan'>"
-                                    +"<td class='text-center' rowspan='2' style='vertical-align: middle;'>1</td>"
-                                    +"<td class='text-center'>Usulan</td>"
-                                    +"<td><textarea class='form-control' type='text' id='indikator_program_usulan_1' name='indikator_program_usulan[1]'></textarea></td>"
-                                    +"<td><input class='form-control' type='number' id='target_indikator_program_usulan_1' name='target_indikator_program_usulan[1]'></td>"
-                                    +"<td><input class='form-control' type='text' id='satuan_indikator_program_usulan_1' name='satuan_indikator_program_usulan[1]'></td>"
-                                    +"<td><textarea class='form-control' id='catatan_program_usulan_1'></textarea></td>"
-                                    +"<td rowspan='2' class='text-center' style='vertical-align: middle;'>"+tombol_tambah+"</td>"
-                                +"</tr>"
-                                +"<tr data-id='1' type='penetapan'>"
-                                    +"<td class='text-center'>Penetapan</td>"
-                                    +"<td><textarea class='form-control' type='text' id='indikator_program_penetapan_1' name='indikator_program_penetapan[1]'></textarea></td>"
-                                    +"<td><input class='form-control' type='number' id='target_indikator_program_penetapan_1' name='target_indikator_program_penetapan[1]'></td>"
-                                    +"<td><input class='form-control' type='text' id='satuan_indikator_program_penetapan_1' name='satuan_indikator_program_penetapan[1]'></td>"
-                                    +"<td><textarea class='form-control' id='catatan_program_penetapan'></textarea></td>"
-                                +"</tr>";
+                            +"<tr data-id='1' type='usulan'>"
+                                +"<td class='text-center' rowspan='2' style='vertical-align: middle;'>1</td>"
+                                +"<td class='text-center'>Usulan</td>"
+                                +"<td><textarea class='form-control' type='text' id='indikator_program_usulan_1' name='indikator_program_usulan[1]'></textarea></td>"
+                                +"<td><input class='form-control' type='number' id='target_indikator_program_usulan_1' name='target_indikator_program_usulan[1]'></td>"
+                                +"<td><input class='form-control' type='text' id='satuan_indikator_program_usulan_1' name='satuan_indikator_program_usulan[1]'></td>"
+                                +"<td><textarea class='form-control' id='catatan_program_usulan_1' name='catatan_program_usulan[1]'></textarea></td>"
+                                +"<td rowspan='2' class='text-center' style='vertical-align: middle;'>"+tombol_tambah+"</td>"
+                            +"</tr>"
+                            +"<tr data-id='1' type='penetapan'>"
+                                +"<td class='text-center'>Penetapan</td>"
+                                +"<td><textarea class='form-control' type='text' id='indikator_program_penetapan_1' name='indikator_program_penetapan[1]'></textarea></td>"
+                                +"<td><input class='form-control' type='number' id='target_indikator_program_penetapan_1' name='target_indikator_program_penetapan[1]'></td>"
+                                +"<td><input class='form-control' type='text' id='satuan_indikator_program_penetapan_1' name='satuan_indikator_program_penetapan[1]'></td>"
+                                +"<td><textarea class='form-control' id='catatan_program_penetapan_1' name='catatan_program_penetapan[1]'></textarea></td>"
+                            +"</tr>";
                         }else{
     						response.data.map(function(value, index){
+                                for(var i in value){
+                                    if(value[i] == null){
+                                        value[i] = '';
+                                    }
+                                }
+
                                 if(index == 0){
                                     var aksi = tombol_tambah;
                                 }else{
@@ -2057,23 +2071,24 @@ echo '
                                             +'<i class="dashicons dashicons-trash" style="margin-top: 2px;"></i>'
                                         +'</button>';
                                 }
-    		          			html +=''
-    		          				+"<tr>"
-    					          		+"<td class='text-center' rowspan='2' style='vertical-align: middle;'>1</td>"
-                                        +"<td class='text-center'>Usulan</td>"
-    					          		+"<td><textarea class='form-control' type='text' id='indikator_program_usulan'></textarea></td>"
-    					          		+"<td><input class='form-control' type='number' id='target_indikator_program_usulan'></td>"
-    					          		+"<td><input class='form-control' type='text' id='satuan_indikator_program_usulan'></td>"
-    									+"<td><textarea class='form-control' id='catatan_program_usulan'></textarea></td>"
-                                        +"<td rowspan='2' class='text-center' style='vertical-align: middle;'>"+aksi+"</td>"
-    					          	+"</tr>"
-    		          				+"<tr>"
-                                        +"<td class='text-center'>Penetapan</td>"
-                                        +"<td><textarea class='form-control' type='text' id='indikator_program_penetapan'></textarea></td>"
-                                        +"<td><input class='form-control' type='number' id='target_indikator_program_penetapan'></td>"
-                                        +"<td><input class='form-control' type='text' id='satuan_indikator_program_penetapan'></td>"
-                                        +"<td><textarea class='form-control' id='catatan_program_penetapan'></textarea></td>"
-    					          	+"</tr>";
+                                var id = index+1;
+                                html +=''
+                                +"<tr data-id='"+id+"' type='usulan'>"
+                                    +"<td class='text-center' rowspan='2' style='vertical-align: middle;'>"+id+"</td>"
+                                    +"<td class='text-center'>Usulan</td>"
+                                    +"<td><textarea class='form-control' type='text' id='indikator_program_usulan_"+id+"' name='indikator_program_usulan["+id+"]'>"+value.capaianteks_usulan+"</textarea></td>"
+                                    +"<td><input class='form-control' type='number' id='target_indikator_program_usulan_"+id+"' name='target_indikator_program_usulan["+id+"]' value='"+value.targetcapaian_usulan+"'></td>"
+                                    +"<td><input class='form-control' type='text' id='satuan_indikator_program_usulan_"+id+"' name='satuan_indikator_program_usulan["+id+"]' value='"+value.satuancapaian_usulan+"'></td>"
+                                    +"<td><textarea class='form-control' id='catatan_program_usulan_"+id+"' name='catatan_program_usulan["+id+"]'>"+value.catatan_usulan+"</textarea></td>"
+                                    +"<td rowspan='2' class='text-center' style='vertical-align: middle;'>"+aksi+"</td>"
+                                +"</tr>"
+                                +"<tr data-id='"+id+"' type='penetapan'>"
+                                    +"<td class='text-center'>Penetapan</td>"
+                                    +"<td><textarea class='form-control' type='text' id='indikator_program_penetapan_"+id+"' name='indikator_program_penetapan["+id+"]'>"+value.capaianteks+"</textarea></td>"
+                                    +"<td><input class='form-control' type='number' id='target_indikator_program_penetapan_"+id+"' name='target_indikator_program_penetapan["+id+"]' value='"+value.targetcapaian+"'></td>"
+                                    +"<td><input class='form-control' type='text' id='satuan_indikator_program_penetapan_"+id+"' name='satuan_indikator_program_penetapan["+id+"]' value='"+value.satuancapaian+"'></td>"
+                                    +"<td><textarea class='form-control' id='catatan_program_penetapan_"+id+"' name='catatan_program_penetapan["+id+"]'>"+value.catatan+"</textarea></td>"
+                                +"</tr>";
     		          		});
                         }
 		          	html+=''

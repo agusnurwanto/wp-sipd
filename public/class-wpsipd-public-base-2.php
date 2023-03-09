@@ -2460,9 +2460,10 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 						SELECT 
 							*
 						FROM data_capaian_prog_sub_keg_lokal
-						WHERE tahun=%d
+						WHERE tahun_anggaran=%d
 							AND kode_sbl=%s
-					', $tahun_anggaran),ARRAY_A);
+							AND active=1
+					', $tahun_anggaran, $kode_sbl), ARRAY_A);
 					$ret['data'] = array();
 					if(!empty($data_indikator)){
 						$ret['data'] = $data_indikator;
@@ -2483,6 +2484,91 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 		die(json_encode($ret));
 	}
 
+	public function submit_indikator_program_renja(){
+		global $wpdb;
+		$ret = array(
+			'status'	=> 'success',
+			'message' 	=> 'Berhasil simpan data indikator!'
+		);
+
+		if(!empty($_POST)){
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+				if(!empty($_POST['tahun_anggaran'])){
+					$tahun_anggaran = $_POST['tahun_anggaran'];
+					$data_post = json_decode(stripslashes($_POST['data']), true);
+					if(!empty($data_post['kode_sbl'])){
+						$kode = explode('.', $data_post['kode_sbl']);
+						$kode_program = $kode[0].'.'.$kode[1].'.'.$kode[2];
+						$wpdb->query($wpdb->prepare('
+							update data_capaian_prog_sub_keg_lokal 
+							set active=0 
+							where tahun_anggaran=%d
+								AND kode_sbl LIKE %s
+						', $tahun_anggaran , $kode_program.'%'));
+						$data_kode_sbl = $wpdb->get_results($wpdb->prepare('
+							SELECT 
+								id_sub_bl,
+								kode_sbl
+							FROM data_sub_keg_bl_lokal
+							WHERE tahun_anggaran=%d
+								AND kode_sbl LIKE %s
+								AND active=1
+						', $tahun_anggaran, $kode_program.'%'), ARRAY_A);
+						foreach($data_kode_sbl as $sub){
+							$cek_ids = $wpdb->get_results($wpdb->prepare('
+								SELECT 
+									id
+								FROM data_capaian_prog_sub_keg_lokal
+								WHERE tahun_anggaran=%d
+									AND kode_sbl=%s
+							', $tahun_anggaran, $sub['kode_sbl']), ARRAY_A);
+							foreach($data_post['indikator_program_penetapan'] as $key => $ind){
+								$data_indikator = array(
+									'satuancapaian'=> $data_post['satuan_indikator_program_penetapan'][$key],
+									'targetcapaianteks'=> $data_post['target_indikator_program_penetapan'][$key].' '.$data_post['satuan_indikator_program_penetapan'][$key],
+									'capaianteks'=> $data_post['indikator_program_penetapan'][$key],
+									'targetcapaian'=> $data_post['target_indikator_program_penetapan'][$key],
+									'catatan'=> $data_post['catatan_program_penetapan'][$key],
+									'kode_sbl'=> $sub['kode_sbl'],
+									'idsubbl'=> $sub['id_sub_bl'],
+									'active'=> 1,
+									'update_at'=> current_time('mysql'),
+									'tahun_anggaran'=> $tahun_anggaran,
+									'satuancapaian_usulan'=> $data_post['satuan_indikator_program_usulan'][$key],
+									'targetcapaianteks_usulan'=> $data_post['target_indikator_program_usulan'][$key].' '.$data_post['satuan_indikator_program_usulan'][$key],
+									'capaianteks_usulan'=> $data_post['indikator_program_usulan'][$key],
+									'targetcapaian_usulan'=> $data_post['target_indikator_program_usulan'][$key],
+									'catatan_usulan'=> $data_post['catatan_program_usulan'][$key],
+								);
+								if(empty($cek_ids[$key])){
+									$wpdb->insert('data_capaian_prog_sub_keg_lokal', $data_indikator);
+								}else{
+									$wpdb->update('data_capaian_prog_sub_keg_lokal', $data_indikator, array(
+										'id' => $cek_ids[$key]['id']
+									));
+								}
+							}
+						}
+					}else{
+						$ret['status'] = 'error';
+						$ret['message'] = 'Kode SBL tidak boleh kosong!';
+					}
+				}else{
+					$ret['status'] = 'error';
+					$ret['message'] = 'Ada param yang kosong!';
+				}
+			}else{
+				$ret['status'] = 'error';
+				$ret['message'] = 'APIKEY tidak sesuai!';
+			}
+		}else{
+			$ret['status']	= 'error';
+			$ret['message']	= 'Format Salah!';
+		}
+
+		die(json_encode($ret));
+	}
+	
 	public function get_indikator_kegiatan_renja(){
 		global $wpdb;
 		$ret = array(
@@ -2490,11 +2576,12 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 			'message' => 'Berhasil mendapatkan data indikator kegiatan renja',
 			'data' => array()
 		);
-
+	
 		if(!empty($_POST)){
 			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
 				if(!empty($_POST['tahun_anggaran'])){
 					$tahun_anggaran = $_POST['tahun_anggaran'];
+	
 					$kode_sbl = $_POST['kode_sbl'];
 					$data_indikator = $wpdb->get_results($wpdb->prepare('
 						SELECT 
@@ -2509,7 +2596,7 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 					if(!empty($data_indikator)){
 						$ret['data']['indi_kegiatan'] = $data_indikator;
 					}
-
+	
 					$data_indikator_hasil = $wpdb->get_results($wpdb->prepare(
 						'SELECT *
 						FROM data_keg_indikator_hasil_lokal
@@ -2534,10 +2621,10 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 			$ret['status']	= 'error';
 			$ret['message']	= 'Format Salah!';
 		}
-
+	
 		die(json_encode($ret));
 	}
-
+	
 	public function submit_indikator_kegiatan_renja(){
 		global $wpdb;
 		$ret = array(
@@ -2545,7 +2632,7 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 			'message' => 'Berhasil menambahkan data indikator kegiatan renja',
 			'data' => array()
 		);
-
+	
 		if(!empty($_POST)){
 			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
 				if(!empty($_POST['tahun_anggaran'])){
@@ -2553,7 +2640,7 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 					if($cek_jadwal['status'] == 'success'){
 						$tahun_anggaran = $_POST['tahun_anggaran'];
 						$data_post = json_decode(stripslashes($_POST['data']), true);
-
+	
 						if(!empty($_POST['kode_sbl'])){
 							$kode = explode('.', $_POST['kode_sbl']);
 							$kode_kegiatan = $kode[0].'.'.$kode[1].'.'.$kode[2].'.'.$kode[3];
@@ -2581,7 +2668,7 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 										AND kode_sbl=%s',
 										$tahun_anggaran,$v_sub['kode_sbl']
 									),ARRAY_A);
-
+	
 									foreach ($data_post['indikator_kegiatan_penetapan'] as $k_indi => $v_indi) {
 										if(!empty($data_post['indikator_kegiatan_usulan'][$k_indi])){
 											$data_indikator = array(
@@ -2601,7 +2688,7 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 												'targetoutputteks_usulan' => $data_post['target_indikator_kegiatan_usulan'][$k_indi].' '.$data_post['satuan_indikator_kegiatan_usulan'][$k_indi],
 												'catatan_usulan' => $data_post['catatan_indikator_kegiatan_usulan'][$k_indi]
 											);
-
+	
 											if(empty($cek_ids[$k_indi])){
 												$wpdb->insert('data_output_giat_sub_keg_lokal', $data_indikator);
 											}else{
@@ -2636,7 +2723,7 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 										AND kode_sbl=%s',
 										$tahun_anggaran,$v_sub['kode_sbl']
 									),ARRAY_A);
-
+	
 									foreach ($data_post['indikator_hasil_kegiatan_penetapan'] as $k_indi => $v_indi) {
 										if(!empty($data_post['indikator_hasil_kegiatan_usulan'][$k_indi])){
 											$data_indikator_hasil = array(
@@ -2656,7 +2743,7 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 												'targethasilteks_usulan' => $data_post['target_indikator_hasil_kegiatan_usulan'][$k_indi].' '.$data_post['satuan_indikator_hasil_kegiatan_usulan'][$k_indi],
 												'catatan_usulan' => $data_post['catatan_indikator_hasil_kegiatan_usulan'][$k_indi]
 											);
-
+	
 											if(empty($cek_ids[$k_indi])){
 												$wpdb->insert('data_keg_indikator_hasil_lokal', $data_indikator_hasil);
 											}else{
@@ -2687,7 +2774,7 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 			$ret['status']	= 'error';
 			$ret['message']	= 'Format Salah!';
 		}
-
+	
 		die(json_encode($ret));
 	}
 }

@@ -233,6 +233,8 @@ CREATE TABLE `data_capaian_prog_sub_keg_lokal` (
   `targetcapaianteks_usulan` varchar(50) DEFAULT NULL,
   `capaianteks_usulan` text DEFAULT NULL,
   `targetcapaian_usulan` int(11) DEFAULT NULL,
+  `catatan` text DEFAULT NULL,
+  `catatan_usulan` text DEFAULT NULL,
   PRIMARY KEY  (id)
 );
 
@@ -2026,6 +2028,7 @@ CREATE TABLE `data_ssh_usulan` (
   `lampiran_3` varchar(255) DEFAULT NULL,
   `verified_by_admin` int(11) DEFAULT NULL,
   `verified_by_tapdkeu` int(11) DEFAULT NULL,
+  `no_surat_usulan` text DEFAULT NULL,
   PRIMARY KEY  (id)
 );
 
@@ -4951,6 +4954,19 @@ CREATE TABLE `data_rka_lokal_history` (
   `idsubtitle` int(11) DEFAULT NULL,
   `id_asli` int(11) NOT NULL,
   `id_jadwal` int(11) NOT NULL,
+  PRIMARY KEY  (id)
+);
+
+CREATE TABLE `data_surat_usulan_ssh` (
+  `id` int(11) NOT NULL auto_increment,
+  `created_user` int(11) DEFAULT NULL,
+  `idskpd` int(11) DEFAULT NULL,
+  `nomor_surat` text DEFAULT NULL,
+  `nama_file` text DEFAULT NULL,
+  `catatan` text DEFAULT NULL,
+  `active` tinyint(4) DEFAULT '1',
+  `update_at` datetime DEFAULT NULL,
+  `tahun_anggaran` year(4) NOT NULL DEFAULT '2021',
   PRIMARY KEY  (id)
 );
 
