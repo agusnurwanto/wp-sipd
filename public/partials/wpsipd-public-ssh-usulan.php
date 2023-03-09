@@ -262,7 +262,7 @@ if(
 				</div>
 				<div>
 					<label for='tambah_harga_komp_tkdn' style='display: block;'>Tingkat Komponen Dalam Negeri (TKDN)</label>
-					<input type='number' id='tambah_harga_komp_tkdn' style='width:22%;' placeholder='Presentase TKDN' disabled>
+					<input type='number' min="0" max="100" id='tambah_harga_komp_tkdn' style='width:22%;' placeholder='Presentase TKDN 0-100' disabled>
 					<label style='font-size: 1.2rem;margin-left: 0.5rem;'>%</label>
 				</div>
 				<div>
@@ -356,59 +356,77 @@ if(
 			</div>
 			<form id="form-usulan-ssh">
 				<div class="modal-body">
-					<div>
-						<label for='u_kategori' style='display:inline-block'>Kategori</label>
-						<select id='u_kategori' style='display:block;width:100%;'></select>
+					<div class="row">
+						<label for='u_kategori' class="col-md-12">Kategori</label>
+						<div class="col-md-12">
+							<select id='u_kategori' class="form-control"></select>
+						</div>
 					</div>
-					<div>
-						<label for='u_nama_komponen' style='display:inline-block'>Nama Komponen</label>
-						<input type='text' id='u_nama_komponen' style='display:block;width:100%;' placeholder='Nama Komponen'>
+					<div class="row">
+						<label for='u_nama_komponen' class="col-md-12">Nama Komponen</label>
+						<div class="col-md-12">
+							<input type='text' id='u_nama_komponen' class="form-control" placeholder='Nama Komponen'>
+						</div>
 					</div>
-					<div>
-						<label for='u_spesifikasi' style='display:inline-block'>Spesifikasi</label>
-						<input type='text' id='u_spesifikasi' style='display:block;width:100%;' placeholder='Spesifikasi'>
+					<div class="row">
+						<label for='u_spesifikasi' class="col-md-12">Spesifikasi</label>
+						<div class="col-md-12">
+							<input type='text' id='u_spesifikasi' class="form-control" placeholder='Spesifikasi'>
+						</div>
 					</div>
-					<div>
-						<label for='u_satuan' style='display:inline-block'>Satuan</label>
-						<select id='u_satuan' style='display:block;width:100%;'></select>
+					<div class="row">
+						<label for='u_satuan' class="col-md-12">Satuan</label>
+						<div class="col-md-12">
+							<select id='u_satuan' class="form-control"></select>
+						</div>
 					</div>
-					<div>
-						<label for='u_harga_satuan' style='display:inline-block'>Harga Satuan</label>
-						<input type='number' id='u_harga_satuan' style='display:block;width:100%;' placeholder='Harga Satuan'>
+					<div class="row">
+						<label for='u_harga_satuan' class="col-md-12">Harga Satuan</label>
+						<div class="col-md-12">
+							<input type='number' id='u_harga_satuan' class="form-control" placeholder='Harga Satuan'>
+						</div>
 					</div>
-					<div>
-						<label for='u_jenis_produk' style='display:inline-block'>Jenis Produk</label>
-						<div>
+					<div class="row">
+						<label for='u_jenis_produk' class="col-md-12">Jenis Produk</label>
+						<div class="col-md-12">
 							<input type='radio' id='u_jenis_produk_dalam_negeri' name='u_jenis_produk' value='1'>
 							<label class='mr-4' for='u_jenis_produk_dalam_negeri'>Produk Dalam Negeri</label>
 							<input type='radio' id='u_jenis_produk_luar_negeri' name='u_jenis_produk' value='0'>
 							<label for='u_jenis_produk_luar_negeri'>Produk Luar Negeri</label>
 						</div>
 					</div>
-					<div>
-						<label for='u_tkdn' style='display: block;'>Tingkat Komponen Dalam Negeri (TKDN)</label>
-						<input type='number' id='u_tkdn' style='width:22%;' placeholder='Presentase TKDN'>
-						<label style='font-size: 1.2rem;margin-left: 0.5rem;'>%</label>
+					<div class="row">
+						<label for='u_tkdn' class="col-md-12">Tingkat Komponen Dalam Negeri (TKDN)</label>
+						<div class="col-md-12">
+							<input type='number' id='u_tkdn' style='width:22%;' placeholder='Presentase TKDN'>
+							<label style='font-size: 1.2rem;margin-left: 0.5rem;'>%</label>
+						</div>
 					</div>
-					<div>
-						<label for='u_akun' style='display:inline-block'>Rekening Akun</label>
-						<select id='u_akun' name='states[]' multiple='multiple' style='display:block;width:100%;'></select>
+					<div class="row">
+						<label for='u_akun' class="col-md-12">Rekening Akun</label>
+						<div class="col-md-12">
+							<select id='u_akun' name='states[]' multiple='multiple'></select>
+						</div>
 					</div>
-					<div>
-						<label for='u_keterangan_lampiran' style='display:inline-block'>Catatan</label>
-						<input type='text' id='u_keterangan_lampiran' style='display:block;width:100%;' placeholder='Catatan'>
+					<div class="row">
+						<label for='u_lapiran_usulan_ssh' class="col-md-12">Lampiran Usulan SSH</label>
+						<div class="col-md-12">
+							<input type='file' id='u_lapiran_usulan_ssh_1' accept="image/png, image/jpeg, image/jpg, application/pdf" style='display:block;width:100%;' onchange="checkFileType(this)"><a id="file_lapiran_usulan_ssh_1"></a></br>
+							<input type='file' id='u_lapiran_usulan_ssh_2' accept="image/png, image/jpeg, image/jpg, application/pdf" style='display:block;width:100%;' onchange="checkFileType(this)"><a id="file_lapiran_usulan_ssh_2"></a></br>
+							<input type='file' id='u_lapiran_usulan_ssh_3' accept="image/png, image/jpeg, image/jpg, application/pdf" style='display:block;width:100%;' onchange="checkFileType(this)"><a id="file_lapiran_usulan_ssh_3"></a><br>
+							<small style="color:red">*Lampiran wajib ber-type png, jpeg, jpg, atau pdf.</small><br>
+							<small style="color:red">*Ukuran lampiran maksimal 2MB.</small>
+						</div>
 					</div>
-					<div>
-						<label for='u_lapiran_usulan_ssh' style='display:inline-block'>Lampiran Usulan SSH</label>
-						<input type='file' id='u_lapiran_usulan_ssh_1' accept="image/png, image/jpeg, image/jpg, application/pdf" style='display:block;width:100%;' onchange="checkFileType(this)"><a id="file_lapiran_usulan_ssh_1"></a></br>
-						<input type='file' id='u_lapiran_usulan_ssh_2' accept="image/png, image/jpeg, image/jpg, application/pdf" style='display:block;width:100%;' onchange="checkFileType(this)"><a id="file_lapiran_usulan_ssh_2"></a></br>
-						<input type='file' id='u_lapiran_usulan_ssh_3' accept="image/png, image/jpeg, image/jpg, application/pdf" style='display:block;width:100%;' onchange="checkFileType(this)"><a id="file_lapiran_usulan_ssh_3"></a><br>
-						<small style="color:red">*Lampiran wajib ber-type png, jpeg, jpg, atau pdf.</small><br>
-						<small style="color:red">*Ukuran lampiran maksimal 2MB.</small>
+					<div class="row">
+						<label for='u_keterangan_lampiran' class="col-md-12">Catatan</label>
+						<div class="col-md-12">
+							<textarea id='u_keterangan_lampiran' class="form-control" placeholder='Catatan'></textarea>
+						</div>
 					</div>
 				</div> 
 				<div class="modal-footer">
-					<a class='btn btn-primary submitBtn' style="color:white; cursor: pointer;"> onclick='submitUsulanSshForm(<?php echo $input['tahun_anggaran']; ?>)'>Simpan</a>
+					<button class='btn btn-primary submitBtn' onclick='submitUsulanSshForm(<?php echo $input['tahun_anggaran']; ?>); return false;'>Simpan</button>
 	                <button type="button" class="components-button btn btn-default" data-dismiss="modal">Tutup</button>
 				</div>
 			</form>
@@ -701,7 +719,7 @@ if(
 		){
 			
 			jQuery("#u_satuan").html(dataSatuanSsh.table_content);
-			jQuery('#u_satuan').select2();
+			jQuery('#u_satuan').select2({width: '100%'});
 			var ajax_nama_komponen = {
 			  	ajax: {
 				    url: "<?php echo admin_url('admin-ajax.php'); ?>",
@@ -728,7 +746,8 @@ if(
 				    }
 			  	},
 			    placeholder: 'Cari komponen',
-			    minimumInputLength: 3
+			    minimumInputLength: 3,
+			    width: '100%'
 			};
 			var ajax_kategori = {
 			  	ajax: {
@@ -756,7 +775,8 @@ if(
 				    }
 			  	},
 			    placeholder: 'Cari kategori',
-			    minimumInputLength: 3
+			    minimumInputLength: 3,
+			    width: '100%'
 			};
 			var ajax_akun = {
 			  	ajax: {
@@ -785,7 +805,8 @@ if(
 				    }
 			  	},
 			    placeholder: 'Cari komponen',
-			    minimumInputLength: 3
+			    minimumInputLength: 3,
+			    width: '100%'
 			};
 			jQuery('#tambah_harga_komp_nama_komponent').select2(ajax_nama_komponen);
 			jQuery('#tambah_akun_komp_nama_komponent').select2(ajax_nama_komponen);
@@ -987,57 +1008,6 @@ if(
 			});
 		}
 	}
-
-	//edit akun ssh usulan
-	// function edit_akun_ssh_usulan(id_standar_harga){
-		// jQuery('#tambahUsulanSsh').modal('show');
-		// jQuery("#tambahUsulanSsh .modal-dialog").removeClass("modal-xl modal-sm");
-		// jQuery("#tambahUsulanSsh .modal-dialog").addClass("modal-lg");
-		// jQuery("#tambahUsulanSshLabel").html("Tambah Rekening Akun");
-		// jQuery("#tambahUsulanSsh .modal-body").html("<div class=\'akun-ssh-desc\'><table>"+
-		// 			"<tr><td class=\'first-desc\'>Kategori</td><td class=\'sec-desc\'>:</td><td><span id=\'u_data_kategori\'></span></td></tr>"+
-		// 			"<tr><td class=\'first-desc\'>Nama Komponen</td><td class=\'sec-desc\'>:</td><td><span id=\'u_data_nama_komponen\'></span></td></tr>"+
-		// 			"<tr><td class=\'first-desc\'>Spesifikasi</td><td class=\'sec-desc\'>:</td><td><span id=\'u_data_spesifikasi\'></span></td></tr>"+
-		// 			"<tr><td class=\'first-desc\'>Satuan</td><td class=\'sec-desc\'>:</td><td><span id=\'u_data_satuan\'></span></td></tr>"+
-		// 			"<tr><td class=\'first-desc\'>Harga Satuan</td><td class=\'sec-desc\'>:</td><td><span id=\'u_data_harga_satuan\'></span></td></tr>"+
-		// 			"<tr><td class=\'first-desc\'>Rekening Akun</td><td class=\'sec-desc\'>:</td><td class=\'pt-0\'><div class=\'ul-desc-akun\'></div></td></tr></table>"+
-		// 			"<div class=\'add_akun_to_ssh\' style=\'display:none;\'><label for=\'u_data_akun\' style=\'display:inline-block\'>Tambah Rekening Akun</label>"+
-		// 			"<input type=\'hidden\' id=\'u_data_add_ssh_akun_id\'>"+
-		// 			"<select id=\'u_data_akun\' class=\'select2-multiple\' name=\'states[]\' multiple=\'multiple\' style=\'display:block;width:100%;\' required></select>"+
-		// 			"<button style=\'margin: 1rem 0 2rem 0;border-radius:0.2rem;\' class=\'submitBtn btn_add_akun_to_ssh btn-success\' onclick=\'save_add_akun_to_ssh("+tahun+")\'>Simpan Rekening</button></div></div>");
-		// jQuery("#tambahUsulanSsh .modal-footer").html("<button style=\'margin: 0 0 2rem 0.5rem;border-radius:0.2rem;\' class=\'btn_add_akun_to_ssh\' onclick=\'field_add_akun_to_ssh()\'>Tambah Rekening</button>");
-		// jQuery("#u_data_akun").html(dataAkunSsh.table_content);
-		// jQuery('.select2-multiple').select2({
-		// 	dropdownParent: jQuery('#tambahUsulanSsh')
-		// });
-		// let iconX = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x-square" viewBox="0 0 16 16" style="color:red;"><path d="M14 1a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1h12zM2 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H2z"/><path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/></svg>';
-
-		// jQuery.ajax({
-		// 	url: "<?php echo admin_url('admin-ajax.php'); ?>",
-		// 	type:"post",
-		// 	data:{
-		// 		'action' : "get_data_ssh_usulan_by_id",
-		// 		'api_key' : jQuery("#api_key").val(),
-		// 		'id_standar_harga' : id_standar_harga,
-		// 		'tahun_anggaran'	: tahun
-		// 	},
-		// 	dataType: "json",
-		// 	success:function(response){
-		// 		jQuery("#u_data_kategori").html(response.data.kode_standar_harga);
-		// 		jQuery("#u_data_nama_komponen").html(response.data.nama_standar_harga);
-		// 		jQuery("#u_data_spesifikasi").html(response.data.spek);
-		// 		jQuery("#u_data_satuan").html(response.data.satuan);
-		// 		jQuery("#u_data_harga_satuan").html(response.data.harga);
-		// 		jQuery("#u_data_add_ssh_akun_id").val(response.data.id_standar_harga);
-		// 		var data_akun = response.data_akun;
-		// 		jQuery.each( data_akun, function( key, value ) {
-		// 			jQuery(".ul-desc-akun").append(`<div class="row" id="rek_akun_${value.id}" style="border-bottom: 1px solid #ebebeb;padding: 6px;">
-		// 			<div class="col-10">${value.nama_akun}</div>
-		// 			<div class="col-2 text-center"><a href="#" onclick="return delete_akun_ssh_usulan('${id_standar_harga}','${value.id}');" title="Delete rekening akun usulan SSH">${iconX}</a></div></div>`);
-		// 		});
-		// 	}
-		// })
-	// }
 
 	function field_add_akun_to_ssh(){
 		jQuery(".add_akun_to_ssh").toggle();
