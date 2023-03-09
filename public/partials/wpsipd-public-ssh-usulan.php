@@ -3,12 +3,65 @@
 if ( ! defined( 'WPINC' ) ) {
 	die;
 }
+
 $input = shortcode_atts( array(
 	'tahun_anggaran' => '2022'
 ), $atts );
 
 global $wpdb;
-$body = '';
+
+if(
+	in_array("PA", $user_meta->roles)
+	|| in_array("KPA", $user_meta->roles)
+	|| in_array("PLT", $user_meta->roles)
+){
+	$nipkepala = get_user_meta($user_id, '_nip');
+	$skpd_db = $wpdb->get_results($wpdb->prepare("
+		SELECT 
+			nama_skpd, 
+			id_skpd, 
+			kode_skpd,
+			is_skpd
+		from data_unit 
+		where nipkepala=%s 
+			and tahun_anggaran=%d
+		group by id_skpd", $nipkepala[0], $input['tahun_anggaran']), ARRAY_A);
+	foreach ($skpd_db as $skpd) {
+		if($skpd['is_skpd'] == 1){
+			$sub_skpd_db = $wpdb->get_results($wpdb->prepare("
+				SELECT 
+					nama_skpd, 
+					id_skpd, 
+					kode_skpd,
+					is_skpd
+				from data_unit 
+				where id_unit=%d 
+					and tahun_anggaran=%d
+					and is_skpd=0
+				group by id_skpd", $skpd['id_skpd'], $input['tahun_anggaran']), ARRAY_A);
+			foreach ($sub_skpd_db as $sub_skpd) {
+				// 
+			}
+		}
+	}
+}else if(
+	in_array("administrator", $user_meta->roles)
+	|| in_array("tapd_keu", $user_meta->roles)
+){
+	$skpd_mitra = $wpdb->get_results($wpdb->prepare("
+		SELECT 
+			nama_skpd, 
+			id_skpd, 
+			kode_skpd 
+		from data_unit 
+		where active=1 
+			and tahun_anggaran=%d
+		group by id_skpd", $input['tahun_anggaran']), ARRAY_A);
+	foreach ($skpd_mitra as $k => $v) {
+		// 
+	}
+}
+
 ?>
 
 <style type="text/css">
@@ -83,10 +136,25 @@ $body = '';
 		<input type="hidden" value="<?php echo get_option( '_crb_api_key_extension' ); ?>" id="api_key">
 		<input type="hidden" value="<?php echo $input['tahun_anggaran']; ?>" id="tahun_anggaran">
 		<h1 class="text-center">Data usulan satuan standar harga (SSH)<br>tahun anggaran <?php echo $input['tahun_anggaran']; ?></h1>
+		<h2 class="text-center">Surat Usulan Standar Harga</h2>
+		<table id="surat_usulan_ssh_table" class="table table-bordered">
+			<thead>
+				<tr>
+					<th class="text-center">Nomor Surat</th>
+					<th class="text-center">File</th>
+					<th class="text-center">Waktu Dibuat</th>
+					<th class="text-center">Jumlah Usulan</th>
+					<th class="text-center">Catatan</th>
+				</tr>
+			</thead>
+			<tbody id="data_body_surat" class="data_body_ssh_surat">
+			</tbody>
+		</table>
 		<div style="margin-bottom: 25px;">
 			<button class="btn btn-primary tambah_ssh" disabled onclick="tambah_new_ssh(<?php echo $input['tahun_anggaran']; ?>);">Tambah Item SSH</button>
 			<button class="btn btn-primary tambah_new_ssh" disabled onclick="get_data_by_name_komponen_ssh('harga',<?php echo $input['tahun_anggaran']; ?>)">Tambah Harga SSH</button>
 			<button class="btn btn-primary tambah_new_ssh" disabled onclick="get_data_by_name_komponen_ssh('akun',<?php echo $input['tahun_anggaran']; ?>)">Tambah Akun SSH</button>
+			<button class="btn btn-warning" onclick="buat_surat_usulan(<?php echo $input['tahun_anggaran']; ?>)">Buat Surat Usulan</button>
 		</div>
 		<table id="usulan_ssh_table" class="table table-bordered">
 			<thead id="data_header">
@@ -106,6 +174,31 @@ $body = '';
 			<tbody id="data_body" class="data_body_ssh">
 			</tbody>
 		</table>
+	</div>
+</div>
+
+<div class="modal fade" id="tambahSuratUsulan" role="dialog" data-backdrop="static" aria-hidden="true">
+	<div class="modal-dialog modal-lg" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title">Form Surat Usulan</h5>
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+					<span aria-hidden="true">&times;</span>
+				</button>
+			</div>
+			<div class="modal-body">
+				<div class="row">
+					<label class="col-md-2" for="nomor_surat" style="display:inline-block">Kategori</label>
+					<div class="col-md-10">
+						<input type="text" id="nomor_surat" class="form-control" placeholder="kode_surat/no_urut/kode_opd/tahun" value="kode_surat/no_urut/kode_opd/<?php echo $input['tahun_anggaran']; ?>">
+					</div>
+				</div>
+			</div> 
+			<div class="modal-footer">
+				<button class="btn btn-primary submitBtn" onclick="submitSuratUsulan(<?php echo $input['tahun_anggaran']; ?>)">Simpan</button>
+				<button type="button" class="components-button btn btn-secondary" data-dismiss="modal">Tutup</button>
+			</div>
+		</div>
 	</div>
 </div>
 
@@ -326,6 +419,7 @@ $body = '';
 <script>
 	jQuery(document).ready(function(){
 		globalThis.tahun = <?php echo $input['tahun_anggaran']; ?>;
+		get_data_ssh_surat(tahun);
 		get_data_ssh(tahun)
 		.then(function(){
 			jQuery('#wrap-loading').show();
@@ -495,6 +589,55 @@ $body = '';
 		        ],
 				"initComplete":function( settings, json){
 					jQuery("#wrap-loading").hide();
+					resolve();
+				}
+			});
+		});
+	}
+
+	function get_data_ssh_surat(tahun){
+		return new Promise(function(resolve, reject){
+			globalThis.usulanSSHTable = jQuery('#surat_usulan_ssh_table').DataTable({
+				"processing": true,
+        		"serverSide": true,
+		        "ajax": {
+					url: "<?php echo admin_url('admin-ajax.php'); ?>",
+					type:"post",
+					data:{
+						'action' : "get_data_usulan_ssh_surat",
+						'api_key' : jQuery("#api_key").val(),
+						'tahun_anggaran' : tahun
+					}
+				},
+  				order: [0],
+				"columns": [
+					{
+						"targets": 'no-sort',
+						"orderable": false,
+		            	className: "text-center"
+		            },
+					{
+						"targets": 'no-sort',
+						"orderable": false,
+		            	className: "text-center"
+		            },
+					{
+						"targets": 'no-sort',
+						"orderable": false,
+		            	className: "text-center"
+		            },
+					{
+						"targets": 'no-sort',
+						"orderable": false,
+		            	className: "text-center"
+		            },
+					{
+						"targets": 'no-sort',
+						"orderable": false,
+		            	className: "text-left"
+		            }
+		        ],
+				"initComplete":function( settings, json){
 					resolve();
 				}
 			});
@@ -1622,4 +1765,21 @@ $body = '';
 		})
 	}
 
+	function buat_surat_usulan(tahun) {
+        var ids = [];
+        jQuery('.delete_check').each(function(){
+            if(
+            	jQuery(this).is(':checked')
+            	&& jQuery(this).attr('no-surat') == ''
+            ){
+                ids.push(jQuery(this).val());
+            }
+        });
+
+        if(ids.length == 0){
+        	alert('Harap pilih dulu usulan standar harga! Pastikan pilih data usulan yang belum pernah dibuat surat usulan.');
+        }else{
+        	jQuery('#tambahSuratUsulan').modal('show');
+        }
+	}
 </script> 
