@@ -165,9 +165,9 @@ if(
 					<th class="text-center">Spesifikasi Satuan</th>
 					<th class="text-center">Harga Satuan</th>
 					<th class="text-center">Keterangan</th>
-					<th class="text-center">Status Admin Standar Harga</th>
-					<th class="text-center">Status TAPD Keuangan</th>
-					<th class="text-center">Status Akhir</th>
+					<th class="text-center">Verifikator 1</th>
+					<th class="text-center">Verifikator 2</th>
+					<th class="text-center">Status</th>
 					<th class="text-right">Aksi</th>
 				</tr>
 			</thead>
@@ -443,14 +443,18 @@ if(
 			jQuery('#wrap-loading').show();
             get_data_satuan_ssh(tahun);
             get_data_nama_ssh(tahun);
+            get_list_unit({
+				is_skpd:1,
+				tahun_anggaran:tahun
+			});
 			jQuery("#usulan_ssh_table_wrapper div:first").addClass("h-100 align-items-center");
-			let html_filter = "<select class='ml-3 bulk-action' id='multi_select_action'>"+
+			let html_filter = "<div class='row'><div class='col-sm-12 col-md-10'><select name='filter_action' class='ml-3 bulk-action' id='multi_select_action'>"+
 				"<option value='0'>Tindakan Massal</option>"+
 				"<option value='approve'>Setuju</option>"+
 				"<option value='notapprove'>Tolak</option>"+
 				"<option value='delete'>Hapus</option></select>"+
-			"<button type='submit' class='ml-1 btn btn-secondary' onclick='action_check_data_usulan_ssh()'>Terapkan</button>"+
-			"<select class='ml-3 bulk-action' id='search_filter_action'>"+
+			"<button type='submit' class='ml-1 btn btn-secondary' onclick='action_check_data_usulan_ssh()'>Terapkan</button>&nbsp;"+
+			"<select name='filter_status' class='ml-3 bulk-action' id='search_filter_action'>"+
 				"<option value=''>Pilih Filter</option>"+
 				"<option value='diterima'>Diterima</option>"+
 				"<option value='ditolak'>Ditolak</option>"+
@@ -462,8 +466,14 @@ if(
 				"<option value='sudah_upload_sipd'>Sudah upload SIPD</option>"+
 				"<option value='belum_upload_sipd'>Belum upload SIPD</option>"+
 			"</select>"+
-			"<button type='button' class='ml-1 btn btn-secondary' onclick='action_filter_data_usulan_ssh()'>Saring</button>"
-			jQuery("#usulan_ssh_table_length").append(html_filter);
+			"<button type='button' class='ml-1 btn btn-secondary' onclick='action_filter_data_usulan_ssh()'>Saring</button>&nbsp;"
+			+
+			"<select name='filter_opd' class='ml-3 bulk-action' id='search_filter_action_opd' style='width:50%'></select>"+
+			"<button type='button' class='ml-1 btn btn-secondary' onclick='action_filter_data_usulan_ssh_opd()'>Saring</button></div></div>";
+			// jQuery("#usulan_ssh_table_length").append(html_filter);
+			jQuery(".h-100").after(html_filter);
+			jQuery("#multi_select_action").select2();
+			jQuery("#search_filter_action").select2();
 		});
 		let get_data = 1;
 		jQuery('#tambahUsulanSsh').on('hidden.bs.modal', function () {
@@ -952,13 +962,13 @@ if(
 		var lapiran_usulan_ssh_3 = jQuery('#u_lapiran_usulan_ssh_3')[0].files[0];
 		jQuery("#wrap-loading").show();
 
-		if(kategori == '' || nama_komponen == '' || spesifikasi == '' || satuan == '' || harga_satuan == '' || jenis_produk == '' || tkdn == '' || akun == '' || typeof lapiran_usulan_ssh_1 == 'undefined' ){
+		if(kategori == '' || nama_komponen == '' || spesifikasi == '' || satuan == '' || harga_satuan == '' || jenis_produk == '' || tkdn == '' || akun == '' || typeof lapiran_usulan_ssh_1 == 'undefined' || typeof lapiran_usulan_ssh_2 == 'undefined' ){
 			jQuery("#wrap-loading").hide();
-			alert('Harap diisi semua, tidak ada yang kosong.1');
+			alert('Harap diisi semua, tidak ada yang kosong, lampiran 1 dan 2 wajib terisi..');
 			return false;
 		}else if(kategori.trim() == '' || nama_komponen.trim() == '' || spesifikasi.trim() == '' || satuan.trim() == '' || harga_satuan.trim() == '' || jenis_produk.trim() == '' || tkdn.trim() == '' || akun == '' ){
 			jQuery("#wrap-loading").hide();
-			alert('Harap diisi semua, tidak ada yang kosong.2');
+			alert('Harap diisi semua, tidak ada yang kosong...');
 			return false;
 		}else{
 			let tempData = new FormData();
@@ -975,10 +985,7 @@ if(
 			tempData.append('tahun_anggaran', tahun);
 			tempData.append('keterangan_lampiran', keterangan_lampiran);
 			tempData.append('lapiran_usulan_ssh_1', lapiran_usulan_ssh_1);
-
-			if(typeof lapiran_usulan_ssh_2 !== 'undefined'){
-				tempData.append('lapiran_usulan_ssh_2', lapiran_usulan_ssh_2);
-			}
+			tempData.append('lapiran_usulan_ssh_2', lapiran_usulan_ssh_2);
 
 			if(typeof lapiran_usulan_ssh_3 !== 'undefined'){
 				tempData.append('lapiran_usulan_ssh_3', lapiran_usulan_ssh_3);
@@ -1694,7 +1701,7 @@ if(
 			return false;
 		}
 
-		if(that.files[0].size > 2097152){ // default 2MB
+		if(that.files[0].size > 1048576){ // default 1MB
 			alert('Ukuran File Lampiran terlalu besar!');
 			jQuery(that).val(null);
 			return false;
@@ -1751,5 +1758,31 @@ if(
         }else{
         	jQuery('#tambahSuratUsulan').modal('show');
         }
+	}
+
+	function get_list_unit(params){
+		return new Promise(function(resolve, reject){
+			jQuery.ajax({
+				url: ajax.url,
+			    type: "post",
+			    data: {
+			       		"action": "get_unit",
+			       		"api_key": jQuery("#api_key").val(),
+			       		"is_skpd": params.is_skpd,
+			       		"tahun_anggaran": params.tahun_anggaran
+			       	},
+			       	dataType: "json",
+			       	success: function(res){
+			          	let opt = ''
+			          		+'<option value="">Pilih Unit</option>'
+			          		res.data.map(function(value, index) {
+			          			opt+='<option value="'+value.id_skpd+'">'+value.nama_skpd+'</option>'
+			          		});
+			          	jQuery("#search_filter_action_opd").html(opt);
+			          	jQuery("#search_filter_action_opd").select2();
+			          	resolve();
+			        }
+			});
+		})
 	}
 </script> 
