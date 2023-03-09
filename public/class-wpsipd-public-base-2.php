@@ -2482,4 +2482,212 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 
 		die(json_encode($ret));
 	}
+
+	public function get_indikator_kegiatan_renja(){
+		global $wpdb;
+		$ret = array(
+			'status' => 'success',
+			'message' => 'Berhasil mendapatkan data indikator kegiatan renja',
+			'data' => array()
+		);
+
+		if(!empty($_POST)){
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+				if(!empty($_POST['tahun_anggaran'])){
+					$tahun_anggaran = $_POST['tahun_anggaran'];
+					$kode_sbl = $_POST['kode_sbl'];
+					$data_indikator = $wpdb->get_results($wpdb->prepare('
+						SELECT 
+							*
+						FROM data_output_giat_sub_keg_lokal
+						WHERE tahun_anggaran=%d
+							AND kode_sbl=%s
+							AND active=1',
+							$tahun_anggaran, $kode_sbl
+					),ARRAY_A);
+					$ret['data']['indi_kegiatan'] = array();
+					if(!empty($data_indikator)){
+						$ret['data']['indi_kegiatan'] = $data_indikator;
+					}
+
+					$data_indikator_hasil = $wpdb->get_results($wpdb->prepare(
+						'SELECT *
+						FROM data_keg_indikator_hasil_lokal
+						WHERE tahun_anggaran=%d
+						AND kode_sbl=%s
+						AND active=1',
+						$tahun_anggaran, $kode_sbl
+					), ARRAY_A);
+					$ret['data']['indi_kegiatan_hasil'] = array();
+					if(!empty($data_indikator_hasil)){
+						$ret['data']['indi_kegiatan_hasil'] = $data_indikator_hasil;
+					}
+				}else{
+					$ret['status'] = 'error';
+					$ret['message'] = 'Ada param yang kosong!';
+				}
+			}else{
+				$ret['status'] = 'error';
+				$ret['message'] = 'APIKEY tidak sesuai!';
+			}
+		}else{
+			$ret['status']	= 'error';
+			$ret['message']	= 'Format Salah!';
+		}
+
+		die(json_encode($ret));
+	}
+
+	public function submit_indikator_kegiatan_renja(){
+		global $wpdb;
+		$ret = array(
+			'status' => 'success',
+			'message' => 'Berhasil menambahkan data indikator kegiatan renja',
+			'data' => array()
+		);
+
+		if(!empty($_POST)){
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+				if(!empty($_POST['tahun_anggaran'])){
+					$cek_jadwal = $this->validasi_jadwal_perencanaan('renja',$_POST['tahun_anggaran']);
+					if($cek_jadwal['status'] == 'success'){
+						$tahun_anggaran = $_POST['tahun_anggaran'];
+						$data_post = json_decode(stripslashes($_POST['data']), true);
+
+						if(!empty($_POST['kode_sbl'])){
+							$kode = explode('.', $_POST['kode_sbl']);
+							$kode_kegiatan = $kode[0].'.'.$kode[1].'.'.$kode[2].'.'.$kode[3];
+							/** Insert indikator kegiatan */
+								$wpdb->query($wpdb->prepare(
+									'UPDATE data_output_giat_sub_keg_lokal
+									SET active=0
+									WHERE tahun_anggaran=%d
+									AND kode_sbl LIKE %s',
+									$tahun_anggaran,$kode_kegiatan.'%'
+								));
+								$data_kode_sbl = $wpdb->get_results($wpdb->prepare(
+									'SELECT kode_sbl,id_sub_bl
+									FROM data_sub_keg_bl_lokal
+									WHERE tahun_anggaran=%d
+									AND kode_sbl LIKE %s
+									AND active=1',
+									$tahun_anggaran,$kode_kegiatan.'%'
+								), ARRAY_A);
+								foreach ($data_kode_sbl as $k_sbl => $v_sub) {
+									$cek_ids = $wpdb->get_results($wpdb->prepare(
+										'SELECT id
+										FROM data_output_giat_sub_keg_lokal
+										WHERE tahun_anggaran=%d
+										AND kode_sbl=%s',
+										$tahun_anggaran,$v_sub['kode_sbl']
+									),ARRAY_A);
+
+									foreach ($data_post['indikator_kegiatan_penetapan'] as $k_indi => $v_indi) {
+										if(!empty($data_post['indikator_kegiatan_usulan'][$k_indi])){
+											$data_indikator = array(
+												'outputteks' => $data_post['indikator_kegiatan_penetapan'][$k_indi],
+												'satuanoutput' => $data_post['satuan_indikator_kegiatan_penetapan'][$k_indi],
+												'targetoutput' => $data_post['target_indikator_kegiatan_penetapan'][$k_indi],
+												'targetoutputteks' => $data_post['target_indikator_kegiatan_penetapan'][$k_indi].' '.$data_post['satuan_indikator_kegiatan_penetapan'][$k_indi],
+												'catatan' => $data_post['catatan_indikator_kegiatan_penetapan'][$k_indi],
+												'kode_sbl' => $v_sub['kode_sbl'],
+												'idsubbl' => $v_sub['id_sub_bl'],
+												'active' => 1,
+												'update_at' => current_time('mysql'),
+												'tahun_anggaran' => $tahun_anggaran,
+												'outputteks_usulan' => $data_post['indikator_kegiatan_usulan'][$k_indi],
+												'satuanoutput_usulan' => $data_post['satuan_indikator_kegiatan_usulan'][$k_indi],
+												'targetoutput_usulan' => $data_post['target_indikator_kegiatan_usulan'][$k_indi],
+												'targetoutputteks_usulan' => $data_post['target_indikator_kegiatan_usulan'][$k_indi].' '.$data_post['satuan_indikator_kegiatan_usulan'][$k_indi],
+												'catatan_usulan' => $data_post['catatan_indikator_kegiatan_usulan'][$k_indi]
+											);
+
+											if(empty($cek_ids[$k_indi])){
+												$wpdb->insert('data_output_giat_sub_keg_lokal', $data_indikator);
+											}else{
+												$wpdb->update('data_output_giat_sub_keg_lokal', $data_indikator, array(
+													'id' => $cek_ids[$k_indi]['id']
+												));
+											}
+										}
+									}
+								}
+							/** Insert Indikator Hasil Kegiatan */
+								$wpdb->query($wpdb->prepare(
+									'UPDATE data_keg_indikator_hasil_lokal
+									SET active=0
+									WHERE tahun_anggaran=%d
+									AND kode_sbl LIKE %s',
+									$tahun_anggaran,$kode_kegiatan.'%'
+								));
+								$data_kode_sbl = $wpdb->get_results($wpdb->prepare(
+									'SELECT kode_sbl,id_sub_bl
+									FROM data_sub_keg_bl_lokal
+									WHERE tahun_anggaran=%d
+									AND kode_sbl LIKE %s
+									AND active=1',
+									$tahun_anggaran,$kode_kegiatan.'%'
+								), ARRAY_A);
+								foreach ($data_kode_sbl as $k_sbl => $v_sub) {
+									$cek_ids = $wpdb->get_results($wpdb->prepare(
+										'SELECT id
+										FROM data_keg_indikator_hasil_lokal
+										WHERE tahun_anggaran=%d
+										AND kode_sbl=%s',
+										$tahun_anggaran,$v_sub['kode_sbl']
+									),ARRAY_A);
+
+									foreach ($data_post['indikator_hasil_kegiatan_penetapan'] as $k_indi => $v_indi) {
+										if(!empty($data_post['indikator_hasil_kegiatan_usulan'][$k_indi])){
+											$data_indikator_hasil = array(
+												'hasilteks' => $data_post['indikator_hasil_kegiatan_penetapan'][$k_indi],
+												'satuanhasil' => $data_post['satuan_indikator_hasil_kegiatan_penetapan'][$k_indi],
+												'targethasil' => $data_post['target_indikator_hasil_kegiatan_penetapan'][$k_indi],
+												'targethasilteks' => $data_post['target_indikator_hasil_kegiatan_penetapan'][$k_indi].' '.$data_post['satuan_indikator_hasil_kegiatan_penetapan'][$k_indi],
+												'catatan' => $data_post['catatan_indikator_hasil_kegiatan_penetapan'][$k_indi],
+												'kode_sbl' => $v_sub['kode_sbl'],
+												'idsubbl' => $v_sub['id_sub_bl'],
+												'active' => 1,
+												'update_at' => current_time('mysql'),
+												'tahun_anggaran' => $tahun_anggaran,
+												'hasilteks_usulan' => $data_post['indikator_hasil_kegiatan_usulan'][$k_indi],
+												'satuanhasil_usulan' => $data_post['satuan_indikator_hasil_kegiatan_usulan'][$k_indi],
+												'targethasil_usulan' => $data_post['target_indikator_hasil_kegiatan_usulan'][$k_indi],
+												'targethasilteks_usulan' => $data_post['target_indikator_hasil_kegiatan_usulan'][$k_indi].' '.$data_post['satuan_indikator_hasil_kegiatan_usulan'][$k_indi],
+												'catatan_usulan' => $data_post['catatan_indikator_hasil_kegiatan_usulan'][$k_indi]
+											);
+
+											if(empty($cek_ids[$k_indi])){
+												$wpdb->insert('data_keg_indikator_hasil_lokal', $data_indikator_hasil);
+											}else{
+												$wpdb->update('data_keg_indikator_hasil_lokal', $data_indikator_hasil, array(
+													'id' => $cek_ids[$k_indi]['id']
+												));
+											}
+										}
+									}
+								}
+						}else{
+							$ret['status'] = 'error';
+							$ret['message'] = 'Kode SBL tidak boleh kosong!';
+						}
+					}else{
+						$ret['status'] = 'error';
+						$ret['message'] = 'Jadwal belum dimulai!';
+					}
+				}else{
+					$ret['status'] = 'error';
+					$ret['message'] = 'Ada param yang kosong!';
+				}
+			}else{
+				$ret['status'] = 'error';
+				$ret['message'] = 'APIKEY tidak sesuai!';
+			}
+		}else{
+			$ret['status']	= 'error';
+			$ret['message']	= 'Format Salah!';
+		}
+
+		die(json_encode($ret));
+	}
 }
