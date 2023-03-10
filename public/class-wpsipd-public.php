@@ -5048,17 +5048,13 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						ARRAY_A
 					);
 				}else{
-					$where='';
-					if(!empty($_POST['is_skpd'])){
-						$where=" AND is_skpd=" . $_POST['is_skpd'];
-					}
 					$ret['data'] = $wpdb->get_results(
 						$wpdb->prepare("
 						SELECT 
 							*
 						from data_unit
 						where tahun_anggaran=%d
-							AND active=1 $where
+							AND active=1
 						order by id_skpd ASC", $_POST['tahun_anggaran']),
 						ARRAY_A
 					);

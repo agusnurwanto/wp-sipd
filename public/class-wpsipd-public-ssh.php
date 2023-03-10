@@ -1162,6 +1162,11 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 						$where .=" AND status_by_tapdkeu = 'rejected' ";
 					}
 				}
+				
+				if(!empty($_POST['filter_opd'])){
+					
+				}
+
 				/** Jika admin tampilkan semua data */
 				if(
 					!in_array("administrator",$user_meta->roles) &&
@@ -1622,6 +1627,7 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 	public function submit_usulan_ssh(){
 		global $wpdb;
 		$user_id = um_user( 'ID' );
+		// $this_user_meta = get_user_meta($user_id);
 		$return = array(
 			'status' => 'success',
 			'data'	=> array()
@@ -1771,6 +1777,10 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 								$opsi_ssh['lampiran_3'] = $upload_3['filename'];
 							}
 						}
+
+						// if(!empty($this_user_meta['_id_sub_skpd'])){
+						// 	$opsi_ssh['id_sub_skpd']=$this_user_meta['_id_sub_skpd'][0];
+						// }
 						
 						$wpdb->insert('data_ssh_usulan',$opsi_ssh);
 						

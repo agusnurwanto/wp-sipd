@@ -444,7 +444,6 @@ if(
             get_data_satuan_ssh(tahun);
             get_data_nama_ssh(tahun);
             get_list_unit({
-				is_skpd:1,
 				tahun_anggaran:tahun
 			});
 			jQuery("#usulan_ssh_table_wrapper div:first").addClass("h-100 align-items-center");
@@ -454,7 +453,7 @@ if(
 				"<option value='notapprove'>Tolak</option>"+
 				"<option value='delete'>Hapus</option></select>"+
 			"<button type='submit' class='ml-1 btn btn-secondary' onclick='action_check_data_usulan_ssh()'>Terapkan</button>&nbsp;"+
-			"<select name='filter_status' class='ml-3 bulk-action' id='search_filter_action'>"+
+			"<select name='filter_status' class='ml-3 bulk-action' id='search_filter_action' onchange='action_filter_data_usulan_ssh()'>"+
 				"<option value=''>Pilih Filter</option>"+
 				"<option value='diterima'>Diterima</option>"+
 				"<option value='ditolak'>Ditolak</option>"+
@@ -465,12 +464,11 @@ if(
 				"<option value='menunggu'>Menunggu</option>"+
 				"<option value='sudah_upload_sipd'>Sudah upload SIPD</option>"+
 				"<option value='belum_upload_sipd'>Belum upload SIPD</option>"+
-			"</select>"+
-			"<button type='button' class='ml-1 btn btn-secondary' onclick='action_filter_data_usulan_ssh()'>Saring</button>&nbsp;"
-			+
-			"<select name='filter_opd' class='ml-3 bulk-action' id='search_filter_action_opd' style='width:50%'></select>"+
-			"<button type='button' class='ml-1 btn btn-secondary' onclick='action_filter_data_usulan_ssh_opd()'>Saring</button></div></div>";
+			"</select>&nbsp;"
+			+"<select name='filter_opd' class='ml-3 bulk-action' id='search_filter_action_opd' style='width:50%' onchange='action_filter_data_usulan_ssh()'></select>";
+			
 			// jQuery("#usulan_ssh_table_length").append(html_filter);
+			
 			jQuery(".h-100").after(html_filter);
 			jQuery("#multi_select_action").select2();
 			jQuery("#search_filter_action").select2();
@@ -542,7 +540,13 @@ if(
 		return new Promise(function(resolve, reject){
 			globalThis.usulanSSHTable = jQuery('#usulan_ssh_table')
 			.on('preXhr.dt', function ( e, settings, data ) {
-				data.filter = jQuery("#search_filter_action").val();
+				if(jQuery("#search_filter_action").val()){
+					data.filter = jQuery("#search_filter_action").val();
+				}
+
+				if(jQuery("#search_filter_action_opd").val()){
+					data.filter_opd = jQuery("#search_filter_action_opd").val();
+				}
 			} )
 			.DataTable({
 				"processing": true,
@@ -1768,13 +1772,12 @@ if(
 			    data: {
 			       		"action": "get_unit",
 			       		"api_key": jQuery("#api_key").val(),
-			       		"is_skpd": params.is_skpd,
 			       		"tahun_anggaran": params.tahun_anggaran
 			       	},
 			       	dataType: "json",
 			       	success: function(res){
 			          	let opt = ''
-			          		+'<option value="">Pilih Unit</option>'
+			          		+'<option value="">Pilih Filter Unit</option>'
 			          		res.data.map(function(value, index) {
 			          			opt+='<option value="'+value.id_skpd+'">'+value.nama_skpd+'</option>'
 			          		});
