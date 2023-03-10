@@ -462,7 +462,6 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 			|| in_array("PA", $user_meta->roles) 
 			|| in_array("KPA", $user_meta->roles)
 		){
-			$nipkepala = get_user_meta($user_id, '_nip');
 			$skpd_db = $wpdb->get_results($wpdb->prepare("
 				SELECT 
 					nama_skpd, 
@@ -470,10 +469,9 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 					kode_skpd,
 					is_skpd
 				from data_unit 
-				where nipkepala=%s 
-					and tahun_anggaran=%d
+				where tahun_anggaran=%d
 					and id_skpd=%d
-				group by id_skpd", $nipkepala[0], $_POST['tahun_anggaran'], $_POST['id_unit']), ARRAY_A);
+				group by id_skpd", $_POST['tahun_anggaran'], $_POST['id_unit']), ARRAY_A);
 		}
 
 		$bidur_penunjang = 'X.XX';
