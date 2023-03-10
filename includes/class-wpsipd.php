@@ -712,7 +712,8 @@ class Wpsipd
 		$this->loader->add_action('wp_ajax_submit_indikator_program_renja',  $plugin_public, 'submit_indikator_program_renja');
 		$this->loader->add_action('wp_ajax_get_data_usulan_ssh_surat',  $plugin_public, 'get_data_usulan_ssh_surat');
 		$this->loader->add_action('wp_ajax_simpan_surat_usulan_ssh',  $plugin_public, 'simpan_surat_usulan_ssh');
-		
+		$this->loader->add_action('wp_ajax_get_indikator_kegiatan_renja',  $plugin_public, 'get_indikator_kegiatan_renja');
+		$this->loader->add_action('wp_ajax_submit_indikator_kegiatan_renja',  $plugin_public, 'submit_indikator_kegiatan_renja');
 		//ajax SIPKD
 		$this->loader->add_action('wp_ajax_sipkd_get_akun_sipd',  $plugin_public, 'sipkd_get_akun_sipd');
 		$this->loader->add_action('wp_ajax_sipkd_get_urus_skpd',  $plugin_public, 'sipkd_get_urus_skpd');
