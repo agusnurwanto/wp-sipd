@@ -283,6 +283,8 @@ CREATE TABLE `data_output_giat_sub_keg_lokal` (
   `satuanoutput_usulan` varchar(50) DEFAULT NULL,
   `targetoutput_usulan` int(11) DEFAULT NULL,
   `targetoutputteks_usulan` varchar(50) DEFAULT NULL,
+  `catatan` text DEFAULT NULL,
+  `catatan_usulan` text DEFAULT NULL,
   PRIMARY KEY  (id)
 );
 
@@ -2468,6 +2470,8 @@ CREATE TABLE `data_output_giat_sub_keg_lokal_history` (
   `satuanoutput_usulan` varchar(50) DEFAULT NULL,
   `targetoutput_usulan` int(11) DEFAULT NULL,
   `targetoutputteks_usulan` varchar(50) DEFAULT NULL,
+  `catatan` text DEFAULT NULL,
+  `catatan_usulan` text DEFAULT NULL,
   PRIMARY KEY  (id)
 );
 
@@ -4964,5 +4968,47 @@ CREATE TABLE `data_surat_usulan_ssh` (
   `active` tinyint(4) DEFAULT '1',
   `update_at` datetime DEFAULT NULL,
   `tahun_anggaran` year(4) NOT NULL DEFAULT '2021',
+  PRIMARY KEY  (id)
+);
+
+CREATE TABLE `data_keg_indikator_hasil_lokal` (
+  `id` int(11) NOT NULL auto_increment,
+  `hasilteks` text,
+  `satuanhasil` varchar(50) DEFAULT NULL,
+  `targethasil` varchar(50) DEFAULT NULL,
+  `targethasilteks` varchar(50) DEFAULT NULL,
+  `kode_sbl` varchar(50) DEFAULT NULL,
+  `idsubbl` varchar(50) DEFAULT NULL,
+  `active` tinyint(4) DEFAULT 1,
+  `update_at` datetime NOT NULL,
+  `tahun_anggaran` year(4) NOT NULL,
+  `hasilteks_usulan` text,
+  `satuanhasil_usulan` varchar(50) DEFAULT NULL,
+  `targethasil_usulan` varchar(50) DEFAULT NULL,
+  `targethasilteks_usulan` varchar(50) DEFAULT NULL,
+  `catatan` text DEFAULT NULL,
+  `catatan_usulan` text DEFAULT NULL,
+  PRIMARY KEY  (id)
+);
+
+CREATE TABLE `data_keg_indikator_hasil_lokal_history` (
+  `id` int(11) NOT NULL auto_increment,
+  `hasilteks` text,
+  `satuanhasil` varchar(50) DEFAULT NULL,
+  `targethasil` varchar(50) DEFAULT NULL,
+  `targethasilteks` varchar(50) DEFAULT NULL,
+  `kode_sbl` varchar(50) DEFAULT NULL,
+  `idsubbl` varchar(50) DEFAULT NULL,
+  `active` tinyint(4) DEFAULT '1',
+  `update_at` datetime NOT NULL,
+  `tahun_anggaran` year(4) NOT NULL,
+  `hasilteks_usulan` text,
+  `satuanhasil_usulan` varchar(50) DEFAULT NULL,
+  `targethasil_usulan` varchar(50) DEFAULT NULL,
+  `targethasilteks_usulan` varchar(50) DEFAULT NULL,
+  `id_asli` int(11) NOT NULL,
+  `id_jadwal` int(11) NOT NULL,
+  `catatan` text DEFAULT NULL,
+  `catatan_usulan` text DEFAULT NULL,
   PRIMARY KEY  (id)
 );
