@@ -7,7 +7,7 @@ trait CustomTrait {
 		string $path = '', 
 		array $file = array(), 
 		array $ext = array(), 
-		int $maxSize = 2097152 // default 2MB
+		int $maxSize = 1048576 // default 1MB
 	)
 	{
 		if (!empty($api_key) && $api_key == get_option( '_crb_api_key_extension' )) {

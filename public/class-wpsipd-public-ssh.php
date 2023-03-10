@@ -1162,6 +1162,11 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 						$where .=" AND status_by_tapdkeu = 'rejected' ";
 					}
 				}
+				
+				if(!empty($_POST['filter_opd'])){
+					
+				}
+
 				/** Jika admin tampilkan semua data */
 				if(
 					!in_array("administrator",$user_meta->roles) &&
@@ -1208,7 +1213,7 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 					$sqlRec .= $where;
 				}
 
-			 	$sqlRec .=  " ORDER BY ". $columns[$params['order'][0]['column']]."   ".$params['order'][0]['dir']."  LIMIT ".$params['start']." ,".$params['length']." ";
+			 	$sqlRec .=  " ORDER BY ". $columns[$params['order'][0]['column']]."   ".$params['order'][0]['dir']." DESC LIMIT ".$params['start']." ,".$params['length']." ";
 
 				$queryTot = $wpdb->get_results($sqlTot, ARRAY_A);
 				$totalRecords = $queryTot[0]['jml'];
@@ -1622,6 +1627,7 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 	public function submit_usulan_ssh(){
 		global $wpdb;
 		$user_id = um_user( 'ID' );
+		// $this_user_meta = get_user_meta($user_id);
 		$return = array(
 			'status' => 'success',
 			'data'	=> array()
@@ -1631,7 +1637,7 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 			$table_content = '';
 			if(!empty($_POST)){
 				if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
-					if(!empty($_POST['kategori']) && !empty($_POST['nama_komponen']) && !empty($_POST['spesifikasi']) && !empty($_POST['satuan']) && !empty($_POST['harga_satuan']) && !empty($_POST['akun']) && !empty($_FILES['lapiran_usulan_ssh_1'])){
+					if(!empty($_POST['kategori']) && !empty($_POST['nama_komponen']) && !empty($_POST['spesifikasi']) && !empty($_POST['satuan']) && !empty($_POST['harga_satuan']) && !empty($_POST['akun']) && !empty($_FILES['lapiran_usulan_ssh_1']) && !empty($_FILES['lapiran_usulan_ssh_2'])){
 						$kategori =trim(htmlspecialchars($_POST['kategori']));
 						$nama_standar_harga = trim(htmlspecialchars($_POST['nama_komponen']));
 						$spek = trim(htmlspecialchars($_POST['spesifikasi']));
@@ -1759,11 +1765,10 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 							$opsi_ssh['lampiran_1'] = $upload_1['filename'];
 						}
 
-						if(!empty($_FILES['lapiran_usulan_ssh_2'])){
-							$upload_2 = CustomTrait::uploadFile($_POST['api_key'], $path = WPSIPD_PLUGIN_PATH.'public/media/ssh/', $_FILES['lapiran_usulan_ssh_2'], ['jpg', 'jpeg', 'png', 'pdf']);
-							if($upload_2['status']){
-								$opsi_ssh['lampiran_2'] = $upload_2['filename'];
-							}
+						
+						$upload_2 = CustomTrait::uploadFile($_POST['api_key'], $path = WPSIPD_PLUGIN_PATH.'public/media/ssh/', $_FILES['lapiran_usulan_ssh_2'], ['jpg', 'jpeg', 'png', 'pdf']);
+						if($upload_2['status']){
+							$opsi_ssh['lampiran_2'] = $upload_2['filename'];
 						}
 
 						if(!empty($_FILES['lapiran_usulan_ssh_3'])){
@@ -1772,6 +1777,10 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 								$opsi_ssh['lampiran_3'] = $upload_3['filename'];
 							}
 						}
+
+						// if(!empty($this_user_meta['_id_sub_skpd'])){
+						// 	$opsi_ssh['id_sub_skpd']=$this_user_meta['_id_sub_skpd'][0];
+						// }
 						
 						$wpdb->insert('data_ssh_usulan',$opsi_ssh);
 						
@@ -1793,7 +1802,7 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 							'opsi_ssh' => $opsi_ssh,
 						);
 					}else{
-						throw new Exception('Harap diisi semua,tidak boleh ada yang kosong!');
+						throw new Exception('Harap diisi semua,tidak boleh ada yang kosong! Lampiran 1 dan 2 wajib terisi!');
 					}
 				}else{
 					throw new Exception('Api Key tidak sesuai!');

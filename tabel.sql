@@ -2029,6 +2029,7 @@ CREATE TABLE `data_ssh_usulan` (
   `verified_by_admin` int(11) DEFAULT NULL,
   `verified_by_tapdkeu` int(11) DEFAULT NULL,
   `no_surat_usulan` text DEFAULT NULL,
+  `id_sub_skpd` int(11) DEFAULT NULL,
   PRIMARY KEY  (id)
 );
 
