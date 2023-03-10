@@ -4960,6 +4960,7 @@ CREATE TABLE `data_surat_usulan_ssh` (
   `nomor_surat` text DEFAULT NULL,
   `nama_file` text DEFAULT NULL,
   `catatan` text DEFAULT NULL,
+  `catatan_verifikator` text DEFAULT NULL,
   `active` tinyint(4) DEFAULT '1',
   `update_at` datetime DEFAULT NULL,
   `tahun_anggaran` year(4) NOT NULL DEFAULT '2021',

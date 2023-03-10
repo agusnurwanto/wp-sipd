@@ -7,7 +7,8 @@ trait CustomTrait {
 		string $path = '', 
 		array $file = array(), 
 		array $ext = array(), 
-		int $maxSize = 2097152 // default 2MB
+		int $maxSize = 2097152, // default 2MB
+		string $nama_file = ''
 	)
 	{
 		if (!empty($api_key) && $api_key == get_option( '_crb_api_key_extension' )) {
@@ -30,6 +31,9 @@ trait CustomTrait {
 					throw new Exception('Ukuran file melebihi ukuran maksimal');
 				}
 
+				if(!empty($nama_file)){
+					$file['name'] = $nama_file.'.'.$fileExt;
+				}
 				$target = $path .  $file['name'];
 				if(move_uploaded_file($file['tmp_name'], $target)){
 					return [
