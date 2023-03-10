@@ -455,7 +455,6 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 					is_skpd
 				from data_unit 
 				where tahun_anggaran=%d
-					and is_skpd=1
 					and id_skpd=%d
 				group by id_skpd", $_POST['tahun_anggaran'], $_POST['id_unit']), ARRAY_A);
 		}else if(
@@ -473,7 +472,6 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 				from data_unit 
 				where nipkepala=%s 
 					and tahun_anggaran=%d
-					and is_skpd=1
 					and id_skpd=%d
 				group by id_skpd", $nipkepala[0], $_POST['tahun_anggaran'], $_POST['id_unit']), ARRAY_A);
 		}

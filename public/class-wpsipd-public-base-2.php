@@ -2523,29 +2523,31 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 									AND kode_sbl=%s
 							', $tahun_anggaran, $sub['kode_sbl']), ARRAY_A);
 							foreach($data_post['indikator_program_penetapan'] as $key => $ind){
-								$data_indikator = array(
-									'satuancapaian'=> $data_post['satuan_indikator_program_penetapan'][$key],
-									'targetcapaianteks'=> $data_post['target_indikator_program_penetapan'][$key].' '.$data_post['satuan_indikator_program_penetapan'][$key],
-									'capaianteks'=> $data_post['indikator_program_penetapan'][$key],
-									'targetcapaian'=> $data_post['target_indikator_program_penetapan'][$key],
-									'catatan'=> $data_post['catatan_program_penetapan'][$key],
-									'kode_sbl'=> $sub['kode_sbl'],
-									'idsubbl'=> $sub['id_sub_bl'],
-									'active'=> 1,
-									'update_at'=> current_time('mysql'),
-									'tahun_anggaran'=> $tahun_anggaran,
-									'satuancapaian_usulan'=> $data_post['satuan_indikator_program_usulan'][$key],
-									'targetcapaianteks_usulan'=> $data_post['target_indikator_program_usulan'][$key].' '.$data_post['satuan_indikator_program_usulan'][$key],
-									'capaianteks_usulan'=> $data_post['indikator_program_usulan'][$key],
-									'targetcapaian_usulan'=> $data_post['target_indikator_program_usulan'][$key],
-									'catatan_usulan'=> $data_post['catatan_program_usulan'][$key],
-								);
-								if(empty($cek_ids[$key])){
-									$wpdb->insert('data_capaian_prog_sub_keg_lokal', $data_indikator);
-								}else{
-									$wpdb->update('data_capaian_prog_sub_keg_lokal', $data_indikator, array(
-										'id' => $cek_ids[$key]['id']
-									));
+								if(!empty($data_post['indikator_program_usulan'][$key])){
+									$data_indikator = array(
+										'satuancapaian'=> $data_post['satuan_indikator_program_penetapan'][$key],
+										'targetcapaianteks'=> $data_post['target_indikator_program_penetapan'][$key].' '.$data_post['satuan_indikator_program_penetapan'][$key],
+										'capaianteks'=> $data_post['indikator_program_penetapan'][$key],
+										'targetcapaian'=> $data_post['target_indikator_program_penetapan'][$key],
+										'catatan'=> $data_post['catatan_program_penetapan'][$key],
+										'kode_sbl'=> $sub['kode_sbl'],
+										'idsubbl'=> $sub['id_sub_bl'],
+										'active'=> 1,
+										'update_at'=> current_time('mysql'),
+										'tahun_anggaran'=> $tahun_anggaran,
+										'satuancapaian_usulan'=> $data_post['satuan_indikator_program_usulan'][$key],
+										'targetcapaianteks_usulan'=> $data_post['target_indikator_program_usulan'][$key].' '.$data_post['satuan_indikator_program_usulan'][$key],
+										'capaianteks_usulan'=> $data_post['indikator_program_usulan'][$key],
+										'targetcapaian_usulan'=> $data_post['target_indikator_program_usulan'][$key],
+										'catatan_usulan'=> $data_post['catatan_program_usulan'][$key],
+									);
+									if(empty($cek_ids[$key])){
+										$wpdb->insert('data_capaian_prog_sub_keg_lokal', $data_indikator);
+									}else{
+										$wpdb->update('data_capaian_prog_sub_keg_lokal', $data_indikator, array(
+											'id' => $cek_ids[$key]['id']
+										));
+									}
 								}
 							}
 						}
