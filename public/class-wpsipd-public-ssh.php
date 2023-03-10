@@ -1002,15 +1002,17 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 					5 => 'catatan_verifikator',
 					6 => 'active',
 					7 => 'update_at',
-					8 => 'tahun_anggaran'
+					8 => 'tahun_anggaran',
 				);
 				$where = $sqlTot = $sqlRec = "";
 
+				$is_admin = true;
 				/** Jika admin tampilkan semua data */
 				if(
 					!in_array("administrator",$user_meta->roles) &&
 					!in_array("tapd_keu", $user_meta->roles)
 				){
+					$is_admin = false;
 					$this_user_meta = get_user_meta($user_id);
 					/** cari data user berdasarkan nama skpd */
 					if(
@@ -1059,13 +1061,27 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 				$queryRecords = $wpdb->get_results($sqlRec, ARRAY_A);
 				foreach($queryRecords as $k => $val){
 					$queryRecords[$k]['aksi'] = '<a class="btn btn-sm btn-primary" href="#" onclick="return simpan_surat_usulan(\''.$val['id'].'\');" title="Simpan Surat Usulan">Simpan</a>';
+					$queryRecords[$k]['jml_usulan'] = 0;
+					$queryRecords[$k]['ids_usulan'] = array();
+					if(!empty($val['nama_file'])){
+						$queryRecords[$k]['nama_file'] = '<a href="'.WPSIPD_PLUGIN_URL.'/public/media/ssh/'.$val['nama_file'].'" target="_blank">'.$val['nama_file']."</a>";
+					}else{
+						$queryRecords[$k]['nama_file'] = '';
+					}
+					if(!$is_admin){
+						$queryRecords[$k]['nama_file'] .= '<br><input type="file" id="surat_file">';
+						$queryRecords[$k]['catatan'] = '<textarea id="catatan_surat_edit" class="form-control">'.$val['catatan'].'</textarea>';
+					}else{
+						$queryRecords[$k]['catatan_verifikator'] = '<textarea id="catatan_verifikator_surat_edit" class="form-control">'.$val['catatan_verifikator'].'</textarea>';
+					}
 				}
 
 				$json_data = array(
-					"draw"            => intval( $params['draw'] ),   
-					"recordsTotal"    => intval( $totalRecords ),  
+					"draw" => intval( $params['draw'] ),   
+					"recordsTotal" => intval( $totalRecords ),  
 					"recordsFiltered" => intval($totalRecords),
-					"data"            => $queryRecords
+					"data" => $queryRecords,
+					"sql" => $sqlRec
 				);
 
 				die(json_encode($json_data));
