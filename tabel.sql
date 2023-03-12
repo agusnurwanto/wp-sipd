@@ -4960,7 +4960,7 @@ CREATE TABLE `data_rka_lokal_history` (
 
 CREATE TABLE `data_surat_usulan_ssh` (
   `id` int(11) NOT NULL auto_increment,
-  `created_user` int(11) DEFAULT NULL,
+  `created_user` text DEFAULT NULL,
   `idskpd` int(11) DEFAULT NULL,
   `nomor_surat` text DEFAULT NULL,
   `nama_file` text DEFAULT NULL,

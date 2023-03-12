@@ -11,6 +11,7 @@ $input = shortcode_atts( array(
 global $wpdb;
 $all_skpd = array();
 $list_skpd_options = '<option value="">Pilih Perangkat Daerah</option>';
+$nama_skpd = "";
 if(
 	in_array("PA", $user_meta->roles)
 	|| in_array("KPA", $user_meta->roles)
@@ -28,8 +29,9 @@ if(
 			and tahun_anggaran=%d
 		group by id_skpd", $nipkepala[0], $input['tahun_anggaran']), ARRAY_A);
 	foreach ($skpd_db as $skpd) {
+		$nama_skpd = $skpd['kode_skpd'].' '.$skpd['nama_skpd'];
 		$all_skpd[] = $skpd;
-		$list_skpd_options .= '<option value="'.$skpd['id_skpd'].'">'.$v['kode_skpd'].' '.$skpd['nama_skpd'].'</option>';
+		$list_skpd_options .= '<option value="'.$skpd['id_skpd'].'">'.$skpd['kode_skpd'].' '.$skpd['nama_skpd'].'</option>';
 		if($skpd['is_skpd'] == 1){
 			$sub_skpd_db = $wpdb->get_results($wpdb->prepare("
 				SELECT 
@@ -44,7 +46,7 @@ if(
 				group by id_skpd", $skpd['id_skpd'], $input['tahun_anggaran']), ARRAY_A);
 			foreach ($sub_skpd_db as $sub_skpd) {
 				$all_skpd[] = $sub_skpd;
-				$list_skpd_options .= '<option value="'.$sub_skpd['id_skpd'].'">-- '.$v['kode_skpd'].' '.$sub_skpd['nama_skpd'].'</option>';
+				$list_skpd_options .= '<option value="'.$sub_skpd['id_skpd'].'">-- '.$sub_skpd['kode_skpd'].' '.$sub_skpd['nama_skpd'].'</option>';
 			}
 		}
 	}
@@ -72,6 +74,8 @@ if(
 		}
 	}
 }
+
+$nama_skpd .= "<br>".get_option('_crb_daerah');
 
 ?>
 
@@ -148,7 +152,7 @@ if(
 	<div style="padding: 10px;">
 		<input type="hidden" value="<?php echo get_option( '_crb_api_key_extension' ); ?>" id="api_key">
 		<input type="hidden" value="<?php echo $input['tahun_anggaran']; ?>" id="tahun_anggaran">
-		<h1 class="text-center">Data usulan satuan standar harga (SSH)<br>tahun anggaran <?php echo $input['tahun_anggaran']; ?></h1>
+		<h1 class="text-center">Data Usulan Standar Harga<br><?php echo $nama_skpd; ?><br>Tahun Anggaran <?php echo $input['tahun_anggaran']; ?></h1>
 		<h2 class="text-center">Surat Usulan Standar Harga</h2>
 		<table id="surat_usulan_ssh_table" class="table table-bordered">
 			<thead>

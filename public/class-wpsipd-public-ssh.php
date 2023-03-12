@@ -1016,30 +1016,11 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 					$this_user_meta = get_user_meta($user_id);
 					/** cari data user berdasarkan nama skpd */
 					if(
-						$this_user_meta['_crb_nama_skpd'][0] != ''
+						$this_user_meta['_id_sub_skpd'][0] != ''
 					){
-						$user_meta = get_users(array(
-							'meta_key' => '_crb_nama_skpd',
-							'meta_value' => $this_user_meta['_crb_nama_skpd'][0]
-						));
-						
-						$id_user_skpd = array();
-						foreach ($user_meta as $metaVal) {
-							array_push($id_user_skpd,$metaVal->data->ID);
-						}
-						$get_by_skpd = $id_user_skpd;
+						$where .=" AND idskpd = '".$this_user_meta['_id_sub_skpd'][0]."' ";
 					}else{
-						$get_by_skpd = array($user_id);
-					}
-					/** menambahkan filter data usulan ssh berdasarkan skpd terkait */
-					if(count($get_by_skpd) >= 1){
-						foreach($get_by_skpd as $skpd_key => $skpd_val){
-							if($skpd_key == 0){
-								$where .=" AND created_user = ".$skpd_val." ";
-							}else if($skpd_key > 1){
-								$where .=" OR created_user = ".$skpd_val." ";
-							}
-						}
+						$where .=" AND idskpd = '-' ";
 					}
 				}
 
