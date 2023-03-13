@@ -467,9 +467,9 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
 					<div class="row form-group">
 						<label for='u_lapiran_usulan_ssh' class="col-md-12">Lampiran Usulan SSH</label>
 						<div class="col-md-12">
-							<input type='file' id='u_lapiran_usulan_ssh_1' accept="image/png, image/jpeg, image/jpg, application/pdf" style='display:block;width:100%;' onchange="checkFileType(this)"><a id="file_lapiran_usulan_ssh_1"></a></br>
-							<input type='file' id='u_lapiran_usulan_ssh_2' accept="image/png, image/jpeg, image/jpg, application/pdf" style='display:block;width:100%;' onchange="checkFileType(this)"><a id="file_lapiran_usulan_ssh_2"></a></br>
-							<input type='file' id='u_lapiran_usulan_ssh_3' accept="image/png, image/jpeg, image/jpg, application/pdf" style='display:block;width:100%;' onchange="checkFileType(this)"><a id="file_lapiran_usulan_ssh_3"></a><br>
+							<input type='file' id='u_lapiran_usulan_ssh_1' accept="image/png, image/jpeg, image/jpg, application/pdf" style='display:block;width:100%;' onchange="checkFileType(this)"><div style="padding-top: 10px; padding-bottom: 10px;">Lampiran 1 : <a id="file_lapiran_usulan_ssh_1"></a></div>
+							<input type='file' id='u_lapiran_usulan_ssh_2' accept="image/png, image/jpeg, image/jpg, application/pdf" style='display:block;width:100%;' onchange="checkFileType(this)"><div style="padding-top: 10px; padding-bottom: 10px;">Lampiran 2 : <a id="file_lapiran_usulan_ssh_2"></a></div>
+							<input type='file' id='u_lapiran_usulan_ssh_3' accept="image/png, image/jpeg, image/jpg, application/pdf" style='display:block;width:100%;' onchange="checkFileType(this)"><div style="padding-top: 10px; padding-bottom: 10px;">Lampiran 3 : <a id="file_lapiran_usulan_ssh_3"></a></div>
 							<small style="color:red">*Lampiran wajib ber-type png, jpeg, jpg, atau pdf.</small><br>
 							<small style="color:red">*Ukuran lampiran maksimal 2MB.</small>
 						</div>
@@ -1403,12 +1403,19 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
 					jQuery("#u_lapiran_usulan_ssh_1").val(null);
 					jQuery("#u_lapiran_usulan_ssh_2").val(null);
 					jQuery("#u_lapiran_usulan_ssh_3").val(null);
+
 					jQuery("#file_lapiran_usulan_ssh_1").html(response.data.lampiran_1);
-					jQuery("#file_lapiran_usulan_ssh_1").attr('href', '#');
+					jQuery("#file_lapiran_usulan_ssh_1").attr('target', '_blank');
+					jQuery("#file_lapiran_usulan_ssh_1").attr('href', '<?php echo esc_url(plugin_dir_url(__DIR__).'media/ssh/') ?>' + response.data.lampiran_1);
+
 					jQuery("#file_lapiran_usulan_ssh_2").html(response.data.lampiran_2);
-					jQuery("#file_lapiran_usulan_ssh_2").attr('href', '#');
+					jQuery("#file_lapiran_usulan_ssh_2").attr('target', '_blank');
+					jQuery("#file_lapiran_usulan_ssh_2").attr('href', '<?php echo esc_url(plugin_dir_url(__DIR__).'media/ssh/') ?>' + response.data.lampiran_2);
+
 					jQuery("#file_lapiran_usulan_ssh_3").html(response.data.lampiran_3);
-					jQuery("#file_lapiran_usulan_ssh_3").attr('href', '#');
+					jQuery("#file_lapiran_usulan_ssh_3").attr('target', '_blank');
+					jQuery("#file_lapiran_usulan_ssh_3").attr('href', '<?php echo esc_url(plugin_dir_url(__DIR__).'media/ssh/') ?>' + response.data.lampiran_3);
+
 					jQuery("#id_sub_skpd").val(response.data.id_sub_skpd).trigger('change');
 					jQuery("#tambahUsulanSshModal .submitBtn")
 						.attr('onclick', 'submitEditUsulanSshForm('+id_standar_harga+', '+tahun+')')
