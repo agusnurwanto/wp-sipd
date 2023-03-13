@@ -41,6 +41,15 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 		require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/ssh/wpsipd-public-ssh-tidak-terpakai.php';
 	}
 
+	function surat_usulan_ssh($atts){
+
+		// untuk disable render shortcode di halaman edit page/post
+		if(!empty($_GET) && !empty($_GET['post'])){
+			return '';
+		}
+		require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/ssh/wpsipd-public-surat-usulan-ssh.php';
+	}
+
 	public function get_data_ssh_sipd(){
 		global $wpdb;
 		$return = array(
@@ -994,15 +1003,16 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 				$params = $columns = $totalRecords = array();
 				$params = $_REQUEST;
 				$columns = array( 
-					0 =>'created_user',
-					1 =>'idskpd', 
+					0 => 'update_at',
+					1 => 'idskpd', 
 					2 => 'nomor_surat',
 					3 => 'nama_file',
 					4 => 'catatan',
 					5 => 'catatan_verifikator',
 					6 => 'active',
-					7 => 'update_at',
+					7 => 'created_user',
 					8 => 'tahun_anggaran',
+					9 => 'id'
 				);
 				$where = $sqlTot = $sqlRec = "";
 
@@ -1024,10 +1034,11 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 					}
 				}
 
+				$tahun_anggaran = $wpdb->prepare('%d', $params['tahun_anggaran']);
 				// getting total number records without any search
 				$sql_tot = "SELECT count(*) as jml FROM `data_surat_usulan_ssh`";
 				$sql = "SELECT ".implode(', ', $columns)." FROM `data_surat_usulan_ssh`";
-				$where_first = " WHERE active=1 AND tahun_anggaran=".$wpdb->prepare('%d', $params['tahun_anggaran']);
+				$where_first = " WHERE active=1 AND tahun_anggaran=".$tahun_anggaran;
 				$sqlTot .= $sql_tot.$where_first;
 				$sqlRec .= $sql.$where_first;
 				if(isset($where) && $where != '') {
@@ -1041,7 +1052,18 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 				$totalRecords = $queryTot[0]['jml'];
 				$queryRecords = $wpdb->get_results($sqlRec, ARRAY_A);
 				foreach($queryRecords as $k => $val){
-					$queryRecords[$k]['aksi'] = '<a class="btn btn-sm btn-primary" href="#" onclick="return simpan_surat_usulan(\''.$val['id'].'\');" title="Simpan Surat Usulan">Simpan</a>';
+					$nama_skpd = $wpdb->get_var($wpdb->prepare("
+						SELECT
+							nama_skpd
+						FROM data_unit
+						WHERE id_skpd=%d
+					", $val['idskpd']));
+					$queryRecords[$k]['nama_skpd'] = $nama_skpd;
+					$title = 'Surat Usulan Standar Harga Nomor '.$val['nomor_surat'].' Tahun '.$tahun_anggaran;
+					$url_surat = $this->generatePage($title, $tahun_anggaran, '[surat_usulan_ssh id_surat="'.$val['id'].'"]');
+					$queryRecords[$k]['aksi'] = '
+						<a class="btn btn-sm btn-warning" target="_blank" href="'.$url_surat.'" title="Cetak Surat Usulan"><i class="dashicons dashicons-printer"></i></a>
+						<a class="btn btn-sm btn-primary" href="#" onclick="return simpan_surat_usulan(\''.$val['id'].'\');" title="Simpan Surat Usulan"><i class="dashicons dashicons-saved"></i></a>';
 					$queryRecords[$k]['jml_usulan'] = 0;
 					$queryRecords[$k]['ids_usulan'] = array();
 					if(!empty($val['nama_file'])){
@@ -1123,22 +1145,26 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 					1 =>'kode_standar_harga', 
 					2 => 'nama_standar_harga',
 					3 => 'spek',
-					4 => 'satuan',
-					5 => 'harga',
-					6 => 'status',
+					4 => 'harga',
+					5 => 'created_at',
+					6 => 'satuan',
 					7 => 'keterangan_status',
 					8 => 'status_upload_sipd',
 					9 => 'created_user',
-					10=> 'kode_standar_harga_sipd',
-					11=> 'created_at',
-					12=> 'keterangan_lampiran',
-					13=> 'status_jenis_usulan',
-					14=> 'jenis_produk',
-					15=> 'tkdn',
-					16=> 'status_by_admin',
-					17=> 'status_by_tapdkeu',
-					18=> 'keterangan_status_admin',
-					19=> 'keterangan_status_tapdkeu',
+					10 => 'kode_standar_harga_sipd',
+					11 => 'update_at',
+					12 => 'keterangan_lampiran',
+					13 => 'status_jenis_usulan',
+					14 => 'jenis_produk',
+					15 => 'tkdn',
+					16 => 'status_by_admin',
+					17 => 'status_by_tapdkeu',
+					18 => 'keterangan_status_admin',
+					19 => 'keterangan_status_tapdkeu',
+					20 => 'status',
+					21 => 'no_surat_usulan',
+					22 => 'kode_kel_standar_harga',
+					23 => 'nama_kel_standar_harga'
 				);
 				$where = $sqlTot = $sqlRec = "";
 
@@ -1224,7 +1250,12 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 					$sqlRec .= $where;
 				}
 
-			 	$sqlRec .=  " ORDER BY ". $columns[$params['order'][0]['column']]."   ".$params['order'][0]['dir']." DESC LIMIT ".$params['start']." ,".$params['length']." ";
+				$order = 'DESC';
+				if(!empty($params['order'][0]['dir'])){
+					$order = $params['order'][0]['dir'];
+				}
+
+			 	$sqlRec .=  " ORDER BY ". $columns[$params['order'][0]['column']]." ".$order." LIMIT ".$wpdb->prepare('%d', $params['start'])." ,".$wpdb->prepare('%d', $params['length'])." ";
 
 				$queryTot = $wpdb->get_results($sqlTot, ARRAY_A);
 				$totalRecords = $queryTot[0]['jml'];
@@ -1292,9 +1323,11 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 						}
 					}
 
-					$created_at = "";
-					if(!empty($recVal['created_at'])){
-						$created_at = '<tr><td>Tanggal: '.date( 'd-m-Y', strtotime($recVal['created_at'])).'</td></tr>';
+					$created_at = '<tr><td>Dibuat: '.date( 'Y-m-d H:i:s', strtotime($recVal['created_at'])).'</td></tr>';
+					if(empty($recVal['update_at'])){
+						$created_at .= '<tr><td>Update: -</td></tr>';
+					}else{
+						$created_at .= '<tr><td>Update: '.date( 'Y-m-d H:i:s', strtotime($recVal['update_at'])).'</td></tr>';
 					}
 
 					$keterangan_lampiran = "";
@@ -1388,7 +1421,14 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 					}
 					$deleteCheck = '<input type="checkbox" class="delete_check" id="delcheck_'.$recVal['id_standar_harga'].'" onclick="checkcheckbox();" value="'.$recVal['id_standar_harga'].'" no-surat="'.$recVal['no_surat_usulan'].'">';
 
-					$kode_komponen = '<table style="margin: 0;"><tr><td>Usulan: '.$recVal['kode_standar_harga'].'</td></tr>';
+					$kode_komponen = '
+						<table style="margin: 0;">
+							<tr>
+								<td>No Surat: '.$recVal['no_surat_usulan'].'</td>
+							</tr>
+							<tr>
+								<td>'.$recVal['kode_kel_standar_harga'].' '.$recVal['nama_kel_standar_harga'].'</td>
+							</tr>';
 					if(!empty($recVal['kode_standar_harga_sipd'])){
 						$kode_komponen .= '<tr><td>Data SIPD: '.$recVal['kode_standar_harga_sipd'].'</td></tr>';
 					}
@@ -1421,15 +1461,16 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 					$queryRecords[$recKey]['verify_admin'] = $status_verif_admin;
 					$queryRecords[$recKey]['varify_tapdkeu'] = $status_verif_tapdkeu;
 					$queryRecords[$recKey]['show_status'] = $show_status;
-					$queryRecords[$recKey]['show_keterangan'] = '<table style="margin: 0;">'.$created_user.$keterangan_status.$created_at.$keterangan_lampiran.'</table>';
+					$queryRecords[$recKey]['show_keterangan'] = '<table style="margin: 0;">'.$created_at.$created_user.$keterangan_status.$keterangan_lampiran.'</table>';
 					$queryRecords[$recKey]['show_keterangan'] = $queryRecords[$recKey]['show_keterangan'] == '' ? '-' : $queryRecords[$recKey]['show_keterangan'];
 				}
 
 				$json_data = array(
-					"draw"            => intval( $params['draw'] ),   
-					"recordsTotal"    => intval( $totalRecords ),  
+					"draw" => intval( $params['draw'] ),   
+					"recordsTotal" => intval( $totalRecords ),  
 					"recordsFiltered" => intval($totalRecords),
-					"data"            => $queryRecords
+					"data" => $queryRecords,
+					"sql" => $sqlRec
 				);
 
 				die(json_encode($json_data));
@@ -2986,7 +3027,7 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 					if(!empty($_POST['ubah'])){
 						$catatan_verifikator = $_POST['catatan_verifikator'];
 					}else{
-						$ids = $_POST['ids'];
+						$ids = explode(',', $_POST['ids']);
 					}
 					$cek_surat_id = $wpdb->get_var($wpdb->prepare("
 						SELECT
