@@ -9,7 +9,9 @@ $input = shortcode_atts( array(
 ), $atts );
 
 global $wpdb;
-
+$all_skpd = array();
+$list_skpd_options = '<option value="">Pilih Perangkat Daerah</option>';
+$nama_skpd = "";
 if(
 	in_array("PA", $user_meta->roles)
 	|| in_array("KPA", $user_meta->roles)
@@ -27,6 +29,9 @@ if(
 			and tahun_anggaran=%d
 		group by id_skpd", $nipkepala[0], $input['tahun_anggaran']), ARRAY_A);
 	foreach ($skpd_db as $skpd) {
+		$nama_skpd = $skpd['kode_skpd'].' '.$skpd['nama_skpd'];
+		$all_skpd[] = $skpd;
+		$list_skpd_options .= '<option value="'.$skpd['id_skpd'].'">'.$skpd['kode_skpd'].' '.$skpd['nama_skpd'].'</option>';
 		if($skpd['is_skpd'] == 1){
 			$sub_skpd_db = $wpdb->get_results($wpdb->prepare("
 				SELECT 
@@ -40,7 +45,8 @@ if(
 					and is_skpd=0
 				group by id_skpd", $skpd['id_skpd'], $input['tahun_anggaran']), ARRAY_A);
 			foreach ($sub_skpd_db as $sub_skpd) {
-				// 
+				$all_skpd[] = $sub_skpd;
+				$list_skpd_options .= '<option value="'.$sub_skpd['id_skpd'].'">-- '.$sub_skpd['kode_skpd'].' '.$sub_skpd['nama_skpd'].'</option>';
 			}
 		}
 	}
@@ -52,15 +58,24 @@ if(
 		SELECT 
 			nama_skpd, 
 			id_skpd, 
-			kode_skpd 
+			kode_skpd,
+			is_skpd 
 		from data_unit 
 		where active=1 
 			and tahun_anggaran=%d
-		group by id_skpd", $input['tahun_anggaran']), ARRAY_A);
+		group by id_skpd
+		order by id_unit ASC, kode_skpd ASC", $input['tahun_anggaran']), ARRAY_A);
 	foreach ($skpd_mitra as $k => $v) {
-		// 
+		$all_skpd[] = $v;
+		if($v['is_skpd'] == 1){
+			$list_skpd_options .= '<option value="'.$v['id_skpd'].'">'.$v['kode_skpd'].' '.$v['nama_skpd'].'</option>';
+		}else{
+			$list_skpd_options .= '<option value="'.$v['id_skpd'].'">-- '.$v['kode_skpd'].' '.$v['nama_skpd'].'</option>';
+		}
 	}
 }
+
+$nama_skpd .= "<br>".get_option('_crb_daerah');
 
 ?>
 
@@ -82,11 +97,10 @@ if(
 	}
 	ul.td-aksi {
 	    margin: 0;
-	    width: 100px;
+	    width: 45px;
 	}
 	ul.td-aksi li {
 	    list-style: none;
-	    margin: 2px;
 	    display: inline-block;
 	}
 	.kol-keterangan{
@@ -130,21 +144,27 @@ if(
 	.verify-ssh{
 		margin-right: .5rem;
 	}
+	ul.td-aksi a {
+		text-decoration: none;
+	}
 </style>
 <div class="cetak">
 	<div style="padding: 10px;">
 		<input type="hidden" value="<?php echo get_option( '_crb_api_key_extension' ); ?>" id="api_key">
 		<input type="hidden" value="<?php echo $input['tahun_anggaran']; ?>" id="tahun_anggaran">
-		<h1 class="text-center">Data usulan satuan standar harga (SSH)<br>tahun anggaran <?php echo $input['tahun_anggaran']; ?></h1>
+		<h1 class="text-center">Data Usulan Standar Harga<br><?php echo $nama_skpd; ?><br>Tahun Anggaran <?php echo $input['tahun_anggaran']; ?></h1>
 		<h2 class="text-center">Surat Usulan Standar Harga</h2>
 		<table id="surat_usulan_ssh_table" class="table table-bordered">
 			<thead>
 				<tr>
+					<th class="text-center">Waktu Update</th>
+					<th class="text-center">Dibuat Oleh</th>
 					<th class="text-center">Nomor Surat</th>
 					<th class="text-center">File</th>
-					<th class="text-center">Waktu Dibuat</th>
 					<th class="text-center">Jumlah Usulan</th>
 					<th class="text-center">Catatan</th>
+					<th class="text-center">Catatan Verifikator</th>
+					<th class="text-center">Aksi</th>
 				</tr>
 			</thead>
 			<tbody id="data_body_surat" class="data_body_ssh_surat">
@@ -168,7 +188,7 @@ if(
 					<th class="text-center">Verifikator 1</th>
 					<th class="text-center">Verifikator 2</th>
 					<th class="text-center">Status</th>
-					<th class="text-right">Aksi</th>
+					<th class="text-right" style="width: 30px">Aksi</th>
 				</tr>
 			</thead>
 			<tbody id="data_body" class="data_body_ssh">
@@ -178,7 +198,7 @@ if(
 </div>
 
 <div class="modal fade" id="tambahSuratUsulan" role="dialog" data-backdrop="static" aria-hidden="true">
-	<div class="modal-dialog modal-lg" role="document">
+	<div class="modal-dialog modal-xl" role="document">
 		<div class="modal-content">
 			<div class="modal-header">
 				<h5 class="modal-title">Form Surat Usulan</h5>
@@ -187,10 +207,40 @@ if(
 				</button>
 			</div>
 			<div class="modal-body">
-				<div class="row">
-					<label class="col-md-2" for="nomor_surat" style="display:inline-block">Kategori</label>
+				<div class="row form-group">
+					<label class="col-md-2" for="surat_skpd">Perangkat Daerah</label>
+					<div class="col-md-10">
+						<select id="surat_skpd" class="form-control"><?php echo $list_skpd_options; ?></select>
+					</div>
+				</div>
+				<div class="row form-group">
+					<label class="col-md-2" for="nomor_surat">Nomor Surat</label>
 					<div class="col-md-10">
 						<input type="text" id="nomor_surat" class="form-control" placeholder="kode_surat/no_urut/kode_opd/tahun" value="kode_surat/no_urut/kode_opd/<?php echo $input['tahun_anggaran']; ?>">
+						<input type="hidden" id="ids_surat_usulan">
+					</div>
+				</div>
+				<div class="row form-group">
+					<label class="col-md-2" for="catatan_surat">Catatan</label>
+					<div class="col-md-10">
+						<textarea type="text" id="catatan_surat" class="form-control"></textarea>
+					</div>
+				</div>
+				<div class="row form-group">
+					<div class="col-md-12">
+						<table class="table table-bordered">
+							<thead>
+								<tr>
+									<th>Uraian Kelompok</th>
+									<th>Nama Komponen</th>
+									<th>Spesifikasi</th>
+									<th>Harga</th>
+									<th>Rekening</th>
+									<th>Jenis Usulan</th>
+								</tr>
+							</thead>
+							<tbody id="tbody_data_usulan"></tbody>
+						</table>
 					</div>
 				</div>
 			</div> 
@@ -203,7 +253,7 @@ if(
 </div>
 
 <div class="modal fade" id="tambahUsulanSsh" role="dialog" data-backdrop="static" aria-hidden="true">
-	<div class="modal-dialog modal-lg" role="document">
+	<div class="modal-dialog modal-xl" role="document">
 		<div class="modal-content">
 			<div class="modal-header">
 				<h5 class="modal-title" id="tambahUsulanSshLabel">Modal title</h5>
@@ -221,7 +271,7 @@ if(
 
 <!-- Modal tambah harga usulan -->
 <div class="modal fade" id="tambahUsulanHargaByKompSSH" role="dialog" data-backdrop="static" aria-hidden="true">
-	<div class="modal-dialog modal-lg" role="document">
+	<div class="modal-dialog modal-xl" role="document">
 		<div class="modal-content">
 			<div class="modal-header">
 				<h5 class="modal-title" id="tambahUsulanHargaByKompSSHLabel">Tambah Harga usulan SSH</h5>
@@ -285,7 +335,7 @@ if(
 
 <!-- Modal tambah akun usulan -->
 <div class="modal fade" id="tambahUsulanAkunByKompSSH" role="dialog" data-backdrop="static" aria-hidden="true">
-	<div class="modal-dialog modal-lg" role="document">
+	<div class="modal-dialog modal-xl" role="document">
 		<div class="modal-content">
 			<div class="modal-header">
 				<h5 class="modal-title" id="tambahUsulanAkunByKompSSHLabel">Tambah Rekening Akun usulan SSH</h5>
@@ -356,37 +406,37 @@ if(
 			</div>
 			<form id="form-usulan-ssh">
 				<div class="modal-body">
-					<div class="row">
+					<div class="row form-group">
 						<label for='u_kategori' class="col-md-12">Kategori</label>
 						<div class="col-md-12">
 							<select id='u_kategori' class="form-control"></select>
 						</div>
 					</div>
-					<div class="row">
+					<div class="row form-group">
 						<label for='u_nama_komponen' class="col-md-12">Nama Komponen</label>
 						<div class="col-md-12">
 							<input type='text' id='u_nama_komponen' class="form-control" placeholder='Nama Komponen'>
 						</div>
 					</div>
-					<div class="row">
+					<div class="row form-group">
 						<label for='u_spesifikasi' class="col-md-12">Spesifikasi</label>
 						<div class="col-md-12">
 							<input type='text' id='u_spesifikasi' class="form-control" placeholder='Spesifikasi'>
 						</div>
 					</div>
-					<div class="row">
+					<div class="row form-group">
 						<label for='u_satuan' class="col-md-12">Satuan</label>
 						<div class="col-md-12">
 							<select id='u_satuan' class="form-control"></select>
 						</div>
 					</div>
-					<div class="row">
+					<div class="row form-group">
 						<label for='u_harga_satuan' class="col-md-12">Harga Satuan</label>
 						<div class="col-md-12">
 							<input type='number' id='u_harga_satuan' class="form-control" placeholder='Harga Satuan'>
 						</div>
 					</div>
-					<div class="row">
+					<div class="row form-group">
 						<label for='u_jenis_produk' class="col-md-12">Jenis Produk</label>
 						<div class="col-md-12">
 							<input type='radio' id='u_jenis_produk_dalam_negeri' name='u_jenis_produk' value='1'>
@@ -395,20 +445,20 @@ if(
 							<label for='u_jenis_produk_luar_negeri'>Produk Luar Negeri</label>
 						</div>
 					</div>
-					<div class="row">
+					<div class="row form-group">
 						<label for='u_tkdn' class="col-md-12">Tingkat Komponen Dalam Negeri (TKDN)</label>
 						<div class="col-md-12">
 							<input type='number' id='u_tkdn' style='width:22%;' placeholder='Presentase TKDN'>
 							<label style='font-size: 1.2rem;margin-left: 0.5rem;'>%</label>
 						</div>
 					</div>
-					<div class="row">
+					<div class="row form-group">
 						<label for='u_akun' class="col-md-12">Rekening Akun</label>
 						<div class="col-md-12">
 							<select id='u_akun' name='states[]' multiple='multiple'></select>
 						</div>
 					</div>
-					<div class="row">
+					<div class="row form-group">
 						<label for='u_lapiran_usulan_ssh' class="col-md-12">Lampiran Usulan SSH</label>
 						<div class="col-md-12">
 							<input type='file' id='u_lapiran_usulan_ssh_1' accept="image/png, image/jpeg, image/jpg, application/pdf" style='display:block;width:100%;' onchange="checkFileType(this)"><a id="file_lapiran_usulan_ssh_1"></a></br>
@@ -418,7 +468,7 @@ if(
 							<small style="color:red">*Ukuran lampiran maksimal 2MB.</small>
 						</div>
 					</div>
-					<div class="row">
+					<div class="row form-group">
 						<label for='u_keterangan_lampiran' class="col-md-12">Catatan</label>
 						<div class="col-md-12">
 							<textarea id='u_keterangan_lampiran' class="form-control" placeholder='Catatan'></textarea>
@@ -436,44 +486,52 @@ if(
 
 <script>
 	jQuery(document).ready(function(){
-		globalThis.tahun = <?php echo $input['tahun_anggaran']; ?>;
-		get_data_ssh_surat(tahun);
-		get_data_ssh(tahun)
+		window.tahun = <?php echo $input['tahun_anggaran']; ?>;
+		window.all_skpd = <?php echo json_encode($all_skpd); ?>;
+		get_data_ssh_surat(tahun)
 		.then(function(){
-			jQuery('#wrap-loading').show();
-            get_data_satuan_ssh(tahun);
-            get_data_nama_ssh(tahun);
-            get_list_unit({
-				tahun_anggaran:tahun
+			get_data_ssh(tahun)
+			.then(function(){
+				jQuery('#wrap-loading').show();
+	            get_data_satuan_ssh(tahun);
+	            get_data_nama_ssh(tahun);
+	            get_list_unit({
+					tahun_anggaran:tahun
+				});
+				jQuery("#usulan_ssh_table_wrapper div:first").addClass("h-100 align-items-center");
+				let html_filter = "<div class='row'><div class='col-sm-12 col-md-10'><select name='filter_action' class='ml-3 bulk-action' id='multi_select_action'>"+
+					"<option value='0'>Tindakan Massal</option>"+
+					"<option value='approve'>Setuju</option>"+
+					"<option value='notapprove'>Tolak</option>"+
+					"<option value='delete'>Hapus</option></select>"+
+				"<button type='submit' class='ml-1 btn btn-secondary' onclick='action_check_data_usulan_ssh()'>Terapkan</button>&nbsp;"+
+				"<select name='filter_status' class='ml-3 bulk-action' id='search_filter_action' onchange='action_filter_data_usulan_ssh()'>"+
+					"<option value=''>Pilih Filter</option>"+
+					"<option value='diterima'>Diterima</option>"+
+					"<option value='ditolak'>Ditolak</option>"+
+					"<option value='diterima_admin'>Diterima Admin</option>"+
+					"<option value='ditolak_admin'>Ditolak Admin</option>"+
+					"<option value='diterima_tapdkeu'>Diterima TAPD Keuangan</option>"+
+					"<option value='ditolak_tapdkeu'>Ditolak TAPD Keuangan</option>"+
+					"<option value='menunggu'>Menunggu</option>"+
+					"<option value='sudah_upload_sipd'>Sudah upload SIPD</option>"+
+					"<option value='belum_upload_sipd'>Belum upload SIPD</option>"+
+				"</select>&nbsp;"
+				+"<select name='filter_opd' class='ml-3 bulk-action' id='search_filter_action_opd' style='width:50%' onchange='action_filter_data_usulan_ssh()'></select>";
+				
+				// jQuery("#usulan_ssh_table_length").append(html_filter);
+				
+				jQuery(".h-100").after(html_filter);
+				jQuery("#multi_select_action").select2();
+				jQuery("#search_filter_action").select2();
 			});
-			jQuery("#usulan_ssh_table_wrapper div:first").addClass("h-100 align-items-center");
-			let html_filter = "<div class='row'><div class='col-sm-12 col-md-10'><select name='filter_action' class='ml-3 bulk-action' id='multi_select_action'>"+
-				"<option value='0'>Tindakan Massal</option>"+
-				"<option value='approve'>Setuju</option>"+
-				"<option value='notapprove'>Tolak</option>"+
-				"<option value='delete'>Hapus</option></select>"+
-			"<button type='submit' class='ml-1 btn btn-secondary' onclick='action_check_data_usulan_ssh()'>Terapkan</button>&nbsp;"+
-			"<select name='filter_status' class='ml-3 bulk-action' id='search_filter_action' onchange='action_filter_data_usulan_ssh()'>"+
-				"<option value=''>Pilih Filter</option>"+
-				"<option value='diterima'>Diterima</option>"+
-				"<option value='ditolak'>Ditolak</option>"+
-				"<option value='diterima_admin'>Diterima Admin</option>"+
-				"<option value='ditolak_admin'>Ditolak Admin</option>"+
-				"<option value='diterima_tapdkeu'>Diterima TAPD Keuangan</option>"+
-				"<option value='ditolak_tapdkeu'>Ditolak TAPD Keuangan</option>"+
-				"<option value='menunggu'>Menunggu</option>"+
-				"<option value='sudah_upload_sipd'>Sudah upload SIPD</option>"+
-				"<option value='belum_upload_sipd'>Belum upload SIPD</option>"+
-			"</select>&nbsp;"
-			+"<select name='filter_opd' class='ml-3 bulk-action' id='search_filter_action_opd' style='width:50%' onchange='action_filter_data_usulan_ssh()'></select>";
-			
-			// jQuery("#usulan_ssh_table_length").append(html_filter);
-			
-			jQuery(".h-100").after(html_filter);
-			jQuery("#multi_select_action").select2();
-			jQuery("#search_filter_action").select2();
 		});
 		let get_data = 1;
+		jQuery('#tambahSuratUsulan').on('hidden.bs.modal', function () {
+			jQuery("#tambahSuratUsulan #surat_skpd").val("");
+			jQuery("#tambahSuratUsulan #nomor_surat").val(jQuery("#tambahSuratUsulan #nomor_surat").attr('value'));
+			jQuery("#tambahSuratUsulan #catatan_surat").val("");
+		});
 		jQuery('#tambahUsulanSsh').on('hidden.bs.modal', function () {
 			jQuery("#tambahUsulanSsh .modal-dialog").removeClass("modal-lg");
 			jQuery("#tambahUsulanSsh .modal-dialog").removeClass("modal-xl");
@@ -536,10 +594,10 @@ if(
 	});
 
 	function get_data_ssh(tahun){
-		jQuery("#wrap-loading").show();
 		return new Promise(function(resolve, reject){
 			globalThis.usulanSSHTable = jQuery('#usulan_ssh_table')
 			.on('preXhr.dt', function ( e, settings, data ) {
+				jQuery("#wrap-loading").show();
 				if(jQuery("#search_filter_action").val()){
 					data.filter = jQuery("#search_filter_action").val();
 				}
@@ -629,7 +687,11 @@ if(
 
 	function get_data_ssh_surat(tahun){
 		return new Promise(function(resolve, reject){
-			globalThis.usulanSSHTable = jQuery('#surat_usulan_ssh_table').DataTable({
+			window.suratUsulanSSHTable = jQuery('#surat_usulan_ssh_table')
+			.on('preXhr.dt', function ( e, settings, data ) {
+				jQuery("#wrap-loading").show();
+			})
+			.DataTable({
 				"processing": true,
         		"serverSide": true,
 		        "ajax": {
@@ -644,32 +706,56 @@ if(
   				order: [0],
 				"columns": [
 					{
+						"data": 'update_at',
 						"targets": 'no-sort',
 						"orderable": false,
 		            	className: "text-center"
 		            },
 					{
+						"data": 'created_user',
 						"targets": 'no-sort',
 						"orderable": false,
 		            	className: "text-center"
 		            },
 					{
+						"data": 'nomor_surat',
 						"targets": 'no-sort',
 						"orderable": false,
 		            	className: "text-center"
 		            },
 					{
+						"data": 'nama_file',
 						"targets": 'no-sort',
 						"orderable": false,
 		            	className: "text-center"
 		            },
 					{
+						"data": 'jml_usulan',
+						"targets": 'no-sort',
+						"orderable": false,
+		            	className: "text-center"
+		            },
+					{
+						"data": 'catatan',
 						"targets": 'no-sort',
 						"orderable": false,
 		            	className: "text-left"
+		            },
+					{
+						"data": 'catatan_verifikator',
+						"targets": 'no-sort',
+						"orderable": false,
+		            	className: "text-left"
+		            },
+					{
+						"data": 'aksi',
+						"targets": 'no-sort',
+						"orderable": false,
+		            	className: "text-center"
 		            }
 		        ],
 				"initComplete":function( settings, json){
+					jQuery("#wrap-loading").hide();
 					resolve();
 				}
 			});
@@ -1014,7 +1100,7 @@ if(
 					}
 					jQuery('#tambahUsulanSshModal').modal('hide');
 					jQuery("#wrap-loading").hide();
-					usulanSSHTable.ajax.reload();	
+					usulanSSHTable.ajax.reload();
 				}
 			});
 		}
@@ -1753,15 +1839,84 @@ if(
             	jQuery(this).is(':checked')
             	&& jQuery(this).attr('no-surat') == ''
             ){
-                ids.push(jQuery(this).val());
+            	var tr = jQuery(this).closest('tr');
+            	var data = {
+            		id: jQuery(this).val(),
+            		kelompok: tr.find('>td').eq(1).html(),
+            		komponen: tr.find('>td').eq(2).html(),
+            		spesifikasi: tr.find('>td').eq(3).html(),
+            		harga: tr.find('>td').eq(4).html(),
+            		rekening: '',
+            		jenis: tr.find('>td').eq(8).html()
+            	}
+                ids.push(data);
             }
         });
 
         if(ids.length == 0){
         	alert('Harap pilih dulu usulan standar harga! Pastikan pilih data usulan yang belum pernah dibuat surat usulan.');
         }else{
+        	jQuery('#wrap-loading').show();
+        	var data = '';
+        	var data_ids = [];
+        	ids.map(function(b, i){
+        		data_ids.push(b.id);
+        		data += ''
+        			+'<tr>'
+        				+'<td>'+b.kelompok+'</td>'
+        				+'<td>'+b.komponen+'</td>'
+        				+'<td>'+b.spesifikasi+'</td>'
+        				+'<td>'+b.harga+'</td>'
+        				+'<td>'+b.rekening+'</td>'
+        				+'<td>'+b.jenis+'</td>'
+        			+'</tr>'
+        	});
+        	jQuery('#ids_surat_usulan').val(data_ids);
+        	jQuery('#tbody_data_usulan').html(data);
         	jQuery('#tambahSuratUsulan').modal('show');
+        	jQuery('#wrap-loading').hide();
         }
+	}
+
+	function submitSuratUsulan(){
+		var nomor_surat = jQuery('#nomor_surat').val();
+		if(nomor_surat == ''){
+			return alert('Nomor surat tidak boleh kosong!');
+		}
+		var ids = jQuery('#ids_surat_usulan').val();
+		if(ids == ''){
+			return alert('Usulan SSH tidak boleh kosong!');
+		}
+		var idskpd = jQuery('#surat_skpd').val();
+		if(idskpd == ''){
+			return alert('Perangkat daerah tidak boleh kosong!');
+		}
+		var catatan = jQuery('#catatan_surat').val();
+		jQuery('#wrap-loading').show();
+		jQuery.ajax({
+			url: ajax.url,
+		    type: "post",
+		    data: {
+		        "action": "simpan_surat_usulan_ssh",
+		        "api_key": jQuery("#api_key").val(),
+		        "tahun_anggaran": tahun,
+		        "nomor_surat": nomor_surat,
+		        "catatan": catatan,
+		        "idskpd": idskpd,
+		        "ids": ids
+		    },
+		    dataType: "json",
+		    success: function(res){
+		    	alert(res.message);
+		    	if(res.status == 'success'){
+					suratUsulanSSHTable.ajax.reload();
+    				jQuery('#tambahSuratUsulan').modal('hide');
+					jQuery('#wrap-loading').hide();
+		    	}else{
+					jQuery('#wrap-loading').hide();
+		    	}
+		    }
+		});
 	}
 
 	function get_list_unit(params){
