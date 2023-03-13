@@ -407,6 +407,12 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
 			<form id="form-usulan-ssh">
 				<div class="modal-body">
 					<div class="row form-group">
+						<label for='id_u_sub_skpd' class="col-md-12">Sub Unit</label>
+						<div class="col-md-12">
+							<select id='id_sub_skpd' name="id_sub_skpd" class="form-control"><?php echo $list_skpd_options; ?></select>
+						</div>
+					</div>
+					<div class="row form-group">
 						<label for='u_kategori' class="col-md-12">Kategori</label>
 						<div class="col-md-12">
 							<select id='u_kategori' class="form-control"></select>
@@ -495,9 +501,6 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
 				jQuery('#wrap-loading').show();
 	            get_data_satuan_ssh(tahun);
 	            get_data_nama_ssh(tahun);
-	            get_list_unit({
-					tahun_anggaran:tahun
-				});
 				jQuery("#usulan_ssh_table_wrapper div:first").addClass("h-100 align-items-center");
 				let html_filter = "<div class='row'><div class='col-sm-12 col-md-10'><select name='filter_action' class='ml-3 bulk-action' id='multi_select_action'>"+
 					"<option value='0'>Tindakan Massal</option>"+
@@ -524,6 +527,8 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
 				jQuery(".h-100").after(html_filter);
 				jQuery("#multi_select_action").select2();
 				jQuery("#search_filter_action").select2();
+				jQuery("#search_filter_action_opd").html('<?php echo $list_skpd_options; ?>');
+			    jQuery("#search_filter_action_opd").select2();
 			});
 		});
 		let get_data = 1;
@@ -1050,13 +1055,14 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
 		var lapiran_usulan_ssh_1 = jQuery('#u_lapiran_usulan_ssh_1')[0].files[0];
 		var lapiran_usulan_ssh_2 = jQuery('#u_lapiran_usulan_ssh_2')[0].files[0];
 		var lapiran_usulan_ssh_3 = jQuery('#u_lapiran_usulan_ssh_3')[0].files[0];
+		var id_sub_skpd = jQuery("#id_sub_skpd").val(); 
 		jQuery("#wrap-loading").show();
 
-		if(kategori == '' || nama_komponen == '' || spesifikasi == '' || satuan == '' || harga_satuan == '' || jenis_produk == '' || tkdn == '' || akun == '' || typeof lapiran_usulan_ssh_1 == 'undefined' || typeof lapiran_usulan_ssh_2 == 'undefined' ){
+		if(kategori == '' || nama_komponen == '' || spesifikasi == '' || satuan == '' || harga_satuan == '' || jenis_produk == '' || tkdn == '' || akun == '' || typeof lapiran_usulan_ssh_1 == 'undefined' || typeof lapiran_usulan_ssh_2 == 'undefined' || id_sub_skpd == ''){
 			jQuery("#wrap-loading").hide();
 			alert('Harap diisi semua, tidak ada yang kosong, lampiran 1 dan 2 wajib terisi..');
 			return false;
-		}else if(kategori.trim() == '' || nama_komponen.trim() == '' || spesifikasi.trim() == '' || satuan.trim() == '' || harga_satuan.trim() == '' || jenis_produk.trim() == '' || tkdn.trim() == '' || akun == '' ){
+		}else if(kategori.trim() == '' || nama_komponen.trim() == '' || spesifikasi.trim() == '' || satuan.trim() == '' || harga_satuan.trim() == '' || jenis_produk.trim() == '' || tkdn.trim() == '' || akun == '' || id_sub_skpd.trim() == ''){
 			jQuery("#wrap-loading").hide();
 			alert('Harap diisi semua, tidak ada yang kosong...');
 			return false;
@@ -1076,6 +1082,7 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
 			tempData.append('keterangan_lampiran', keterangan_lampiran);
 			tempData.append('lapiran_usulan_ssh_1', lapiran_usulan_ssh_1);
 			tempData.append('lapiran_usulan_ssh_2', lapiran_usulan_ssh_2);
+			tempData.append('id_sub_skpd', id_sub_skpd);
 
 			if(typeof lapiran_usulan_ssh_3 !== 'undefined'){
 				tempData.append('lapiran_usulan_ssh_3', lapiran_usulan_ssh_3);
@@ -1402,6 +1409,7 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
 					jQuery("#file_lapiran_usulan_ssh_2").attr('href', '#');
 					jQuery("#file_lapiran_usulan_ssh_3").html(response.data.lampiran_3);
 					jQuery("#file_lapiran_usulan_ssh_3").attr('href', '#');
+					jQuery("#id_sub_skpd").val(response.data.id_sub_skpd).trigger('change');
 					jQuery("#tambahUsulanSshModal .submitBtn")
 						.attr('onclick', 'submitEditUsulanSshForm('+id_standar_harga+', '+tahun+')')
 						.attr('disabled', false)
@@ -1435,6 +1443,7 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
 		var lapiran_usulan_ssh_1_old = jQuery("#file_lapiran_usulan_ssh_1").text();
 		var lapiran_usulan_ssh_2_old = jQuery("#file_lapiran_usulan_ssh_2").text();
 		var lapiran_usulan_ssh_3_old = jQuery("#file_lapiran_usulan_ssh_3").text();
+		var id_sub_skpd	= jQuery("#id_sub_skpd").val();
 		jQuery("#wrap-loading").show();
 		if(
 			kategori.trim() == ''
@@ -1466,6 +1475,7 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
 			tempData.append('lapiran_usulan_ssh_1_old', lapiran_usulan_ssh_1_old);
 			tempData.append('lapiran_usulan_ssh_2_old', lapiran_usulan_ssh_2_old);
 			tempData.append('lapiran_usulan_ssh_3_old', lapiran_usulan_ssh_3_old);
+			tempData.append('id_sub_skpd',id_sub_skpd);
 
 			if(typeof lapiran_usulan_ssh_1 !== 'undefined'){
 				tempData.append('lapiran_usulan_ssh_1', lapiran_usulan_ssh_1);
@@ -1771,6 +1781,7 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
 
 	function action_filter_data_usulan_ssh(){
 		usulanSSHTable.draw();
+		jQuery("#wrap-loading").hide();
 	}
 
 	function readMore(btn){
@@ -1917,30 +1928,5 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
 		    	}
 		    }
 		});
-	}
-
-	function get_list_unit(params){
-		return new Promise(function(resolve, reject){
-			jQuery.ajax({
-				url: ajax.url,
-			    type: "post",
-			    data: {
-			       		"action": "get_unit",
-			       		"api_key": jQuery("#api_key").val(),
-			       		"tahun_anggaran": params.tahun_anggaran
-			       	},
-			       	dataType: "json",
-			       	success: function(res){
-			          	let opt = ''
-			          		+'<option value="">Pilih Filter Unit</option>'
-			          		res.data.map(function(value, index) {
-			          			opt+='<option value="'+value.id_skpd+'">'+value.nama_skpd+'</option>'
-			          		});
-			          	jQuery("#search_filter_action_opd").html(opt);
-			          	jQuery("#search_filter_action_opd").select2();
-			          	resolve();
-			        }
-			});
-		})
 	}
 </script> 
