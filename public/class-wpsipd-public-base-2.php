@@ -2581,36 +2581,52 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 	
 		if(!empty($_POST)){
 			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
-				if(!empty($_POST['tahun_anggaran'])){
+				if(!empty($_POST['tahun_anggaran']) && !empty($_POST['kode_sbl'])){
 					$tahun_anggaran = $_POST['tahun_anggaran'];
-	
 					$kode_sbl = $_POST['kode_sbl'];
-					$data_indikator = $wpdb->get_results($wpdb->prepare('
-						SELECT 
-							*
-						FROM data_output_giat_sub_keg_lokal
-						WHERE tahun_anggaran=%d
+
+					/** Get data indikator kegiatan */
+						$data_indikator = $wpdb->get_results($wpdb->prepare('
+							SELECT 
+								*
+							FROM data_output_giat_sub_keg_lokal
+							WHERE tahun_anggaran=%d
+								AND kode_sbl=%s
+								AND active=1',
+								$tahun_anggaran, $kode_sbl
+						),ARRAY_A);
+						$ret['data']['indi_kegiatan'] = array();
+						if(!empty($data_indikator)){
+							$ret['data']['indi_kegiatan'] = $data_indikator;
+						}
+					/** Get data indikator hasil kegiatan */
+						$data_indikator_hasil = $wpdb->get_results($wpdb->prepare(
+							'SELECT *
+							FROM data_keg_indikator_hasil_lokal
+							WHERE tahun_anggaran=%d
 							AND kode_sbl=%s
 							AND active=1',
 							$tahun_anggaran, $kode_sbl
-					),ARRAY_A);
-					$ret['data']['indi_kegiatan'] = array();
-					if(!empty($data_indikator)){
-						$ret['data']['indi_kegiatan'] = $data_indikator;
-					}
-	
-					$data_indikator_hasil = $wpdb->get_results($wpdb->prepare(
-						'SELECT *
-						FROM data_keg_indikator_hasil_lokal
-						WHERE tahun_anggaran=%d
-						AND kode_sbl=%s
-						AND active=1',
-						$tahun_anggaran, $kode_sbl
-					), ARRAY_A);
-					$ret['data']['indi_kegiatan_hasil'] = array();
-					if(!empty($data_indikator_hasil)){
-						$ret['data']['indi_kegiatan_hasil'] = $data_indikator_hasil;
-					}
+						), ARRAY_A);
+						$ret['data']['indi_kegiatan_hasil'] = array();
+						if(!empty($data_indikator_hasil)){
+							$ret['data']['indi_kegiatan_hasil'] = $data_indikator_hasil;
+						}
+					/** Get data kelompok sasaran kegiatan */
+						$data_sasaran = $wpdb->get_row($wpdb->prepare(
+							'SELECT sasaran,
+								sasaran_usulan,
+								kode_sbl
+							FROM data_sub_keg_bl_lokal
+							WHERE tahun_anggaran=%d
+							AND kode_sbl=%s
+							AND active=1',
+							$tahun_anggaran,$kode_sbl
+						), ARRAY_A);
+						$ret['data']['sasaran'] = array();
+						if(!empty($data_sasaran)){
+							$ret['data']['sasaran'] = $data_sasaran;
+						}
 				}else{
 					$ret['status'] = 'error';
 					$ret['message'] = 'Ada param yang kosong!';
@@ -2646,6 +2662,20 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 						if(!empty($_POST['kode_sbl'])){
 							$kode = explode('.', $_POST['kode_sbl']);
 							$kode_kegiatan = $kode[0].'.'.$kode[1].'.'.$kode[2].'.'.$kode[3];
+							/** Insert sasaran kegiatan */
+								$sasaran = !empty($data_post['kelompok_sasaran_renja_penetapan']) ? $data_post['kelompok_sasaran_renja_penetapan'] : NULL;
+								$sasaran_usulan = !empty($data_post['kelompok_sasaran_renja_usulan']) ? $data_post['kelompok_sasaran_renja_usulan'] : NULL;
+								$wpdb->query($wpdb->prepare(
+									'UPDATE data_sub_keg_bl_lokal
+									SET sasaran=%s,
+										sasaran_usulan=%s
+									WHERE tahun_anggaran=%d
+									AND kode_sbl LIKE %s',
+									$sasaran,
+									$sasaran_usulan,
+									$tahun_anggaran,
+									$kode_kegiatan.'%'
+								));
 							/** Insert indikator kegiatan */
 								$wpdb->query($wpdb->prepare(
 									'UPDATE data_output_giat_sub_keg_lokal
@@ -2672,7 +2702,7 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 									),ARRAY_A);
 	
 									foreach ($data_post['indikator_kegiatan_penetapan'] as $k_indi => $v_indi) {
-										if(!empty($data_post['indikator_kegiatan_usulan'][$k_indi])){
+										if(!empty($data_post['indikator_kegiatan_usulan'][$k_indi]) || !empty($data_post['indikator_kegiatan_penetapan'][$k_indi])){
 											$data_indikator = array(
 												'outputteks' => $data_post['indikator_kegiatan_penetapan'][$k_indi],
 												'satuanoutput' => $data_post['satuan_indikator_kegiatan_penetapan'][$k_indi],
@@ -2690,7 +2720,7 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 												'targetoutputteks_usulan' => $data_post['target_indikator_kegiatan_usulan'][$k_indi].' '.$data_post['satuan_indikator_kegiatan_usulan'][$k_indi],
 												'catatan_usulan' => $data_post['catatan_indikator_kegiatan_usulan'][$k_indi]
 											);
-	
+
 											if(empty($cek_ids[$k_indi])){
 												$wpdb->insert('data_output_giat_sub_keg_lokal', $data_indikator);
 											}else{
@@ -2727,7 +2757,7 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 									),ARRAY_A);
 	
 									foreach ($data_post['indikator_hasil_kegiatan_penetapan'] as $k_indi => $v_indi) {
-										if(!empty($data_post['indikator_hasil_kegiatan_usulan'][$k_indi])){
+										if(!empty($data_post['indikator_hasil_kegiatan_usulan'][$k_indi]) || !empty($data_post['indikator_hasil_kegiatan_penetapan'][$k_indi])){
 											$data_indikator_hasil = array(
 												'hasilteks' => $data_post['indikator_hasil_kegiatan_penetapan'][$k_indi],
 												'satuanhasil' => $data_post['satuan_indikator_hasil_kegiatan_penetapan'][$k_indi],
