@@ -1479,6 +1479,7 @@ CREATE TABLE `data_sub_keg_bl_lokal` (
   `pagu_n_depan_usulan` double(20, 0) DEFAULT NULL,
   `waktu_awal_usulan` int(11) DEFAULT NULL,
   `waktu_akhir_usulan` int(11) DEFAULT NULL,
+  `sasaran_usulan` text DEFAULT NULL,
   PRIMARY KEY  (id)
 );
 
@@ -2328,6 +2329,7 @@ CREATE TABLE `data_sub_keg_bl_lokal_history` (
   `pagu_n_depan_usulan` double(20, 0) DEFAULT NULL,
   `waktu_awal_usulan` int(11) DEFAULT NULL,
   `waktu_akhir_usulan` int(11) DEFAULT NULL,
+  `sasaran_usulan` text DEFAULT NULL,
   PRIMARY KEY  (id)
 );
 
