@@ -147,6 +147,10 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
 	ul.td-aksi a {
 		text-decoration: none;
 	}
+
+	.required {
+		font-size: 12px;color: red;
+	}
 </style>
 <div class="cetak">
 	<div style="padding: 10px;">
@@ -407,43 +411,43 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
 			<form id="form-usulan-ssh">
 				<div class="modal-body">
 					<div class="row form-group">
-						<label for='id_u_sub_skpd' class="col-md-12">Sub Unit</label>
+						<label for='id_u_sub_skpd' class="col-md-12">Sub Unit <span class="required">*</span></label>
 						<div class="col-md-12">
 							<select id='id_sub_skpd' name="id_sub_skpd" class="form-control"><?php echo $list_skpd_options; ?></select>
 						</div>
 					</div>
 					<div class="row form-group">
-						<label for='u_kategori' class="col-md-12">Kategori</label>
+						<label for='u_kategori' class="col-md-12">Kategori <span class="required">*</span></label>
 						<div class="col-md-12">
 							<select id='u_kategori' class="form-control"></select>
 						</div>
 					</div>
 					<div class="row form-group">
-						<label for='u_nama_komponen' class="col-md-12">Nama Komponen</label>
+						<label for='u_nama_komponen' class="col-md-12">Nama Komponen <span class="required">*</span></label>
 						<div class="col-md-12">
 							<input type='text' id='u_nama_komponen' class="form-control" placeholder='Nama Komponen'>
 						</div>
 					</div>
 					<div class="row form-group">
-						<label for='u_spesifikasi' class="col-md-12">Spesifikasi</label>
+						<label for='u_spesifikasi' class="col-md-12">Spesifikasi <span class="required">*</span></label>
 						<div class="col-md-12">
 							<input type='text' id='u_spesifikasi' class="form-control" placeholder='Spesifikasi'>
 						</div>
 					</div>
 					<div class="row form-group">
-						<label for='u_satuan' class="col-md-12">Satuan</label>
+						<label for='u_satuan' class="col-md-12">Satuan <span class="required">*</span></label>
 						<div class="col-md-12">
 							<select id='u_satuan' class="form-control"></select>
 						</div>
 					</div>
 					<div class="row form-group">
-						<label for='u_harga_satuan' class="col-md-12">Harga Satuan</label>
+						<label for='u_harga_satuan' class="col-md-12">Harga Satuan <span class="required">*</span></label>
 						<div class="col-md-12">
 							<input type='number' id='u_harga_satuan' class="form-control" placeholder='Harga Satuan'>
 						</div>
 					</div>
 					<div class="row form-group">
-						<label for='u_jenis_produk' class="col-md-12">Jenis Produk</label>
+						<label for='u_jenis_produk' class="col-md-12">Jenis Produk <span class="required">*</span></label>
 						<div class="col-md-12">
 							<input type='radio' id='u_jenis_produk_dalam_negeri' name='u_jenis_produk' value='1'>
 							<label class='mr-4' for='u_jenis_produk_dalam_negeri'>Produk Dalam Negeri</label>
@@ -452,32 +456,43 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
 						</div>
 					</div>
 					<div class="row form-group">
-						<label for='u_tkdn' class="col-md-12">Tingkat Komponen Dalam Negeri (TKDN)</label>
+						<label for='u_tkdn' class="col-md-12">Tingkat Komponen Dalam Negeri (TKDN) <span class="required">*</span></label>
 						<div class="col-md-12">
 							<input type='number' id='u_tkdn' style='width:22%;' placeholder='Presentase TKDN'>
 							<label style='font-size: 1.2rem;margin-left: 0.5rem;'>%</label>
 						</div>
 					</div>
 					<div class="row form-group">
-						<label for='u_akun' class="col-md-12">Rekening Akun</label>
+						<label for='u_akun' class="col-md-12">Rekening Akun <span class="required">*</span></label>
 						<div class="col-md-12">
 							<select id='u_akun' name='states[]' multiple='multiple'></select>
 						</div>
 					</div>
 					<div class="row form-group">
-						<label for='u_lapiran_usulan_ssh' class="col-md-12">Lampiran Usulan SSH</label>
+						<label for='u_lapiran_usulan_ssh' class="col-md-12">Lampiran Usulan SSH 1 <span class="required">*</span></label>
 						<div class="col-md-12">
-							<input type='file' id='u_lapiran_usulan_ssh_1' accept="image/png, image/jpeg, image/jpg, application/pdf" style='display:block;width:100%;' onchange="checkFileType(this)"><div style="padding-top: 10px; padding-bottom: 10px;">Lampiran 1 : <a id="file_lapiran_usulan_ssh_1"></a></div>
-							<input type='file' id='u_lapiran_usulan_ssh_2' accept="image/png, image/jpeg, image/jpg, application/pdf" style='display:block;width:100%;' onchange="checkFileType(this)"><div style="padding-top: 10px; padding-bottom: 10px;">Lampiran 2 : <a id="file_lapiran_usulan_ssh_2"></a></div>
-							<input type='file' id='u_lapiran_usulan_ssh_3' accept="image/png, image/jpeg, image/jpg, application/pdf" style='display:block;width:100%;' onchange="checkFileType(this)"><div style="padding-top: 10px; padding-bottom: 10px;">Lampiran 3 : <a id="file_lapiran_usulan_ssh_3"></a></div>
-							<small style="color:red">*Lampiran wajib ber-type png, jpeg, jpg, atau pdf.</small><br>
-							<small style="color:red">*Ukuran lampiran maksimal 2MB.</small>
+							<input type='file' id='u_lapiran_usulan_ssh_1' accept="image/png, image/jpeg, image/jpg, application/pdf" style='display:block;width:100%;' onchange="checkFileType(this)"><div style="padding-top: 10px; padding-bottom: 10px;"><a id="file_lapiran_usulan_ssh_1"></a></div>
+						</div>
+					</div>
+					<div class="row form-group">
+						<label for='u_lapiran_usulan_ssh' class="col-md-12">Lampiran Usulan SSH 2 <span class="required">*</span></label>
+						<div class="col-md-12">
+							<input type='file' id='u_lapiran_usulan_ssh_2' accept="image/png, image/jpeg, image/jpg, application/pdf" style='display:block;width:100%;' onchange="checkFileType(this)"><div style="padding-top: 10px; padding-bottom: 10px;"><a id="file_lapiran_usulan_ssh_2"></a></div>
+						</div>
+					</div>
+					<div class="row form-group">
+						<label for='u_lapiran_usulan_ssh' class="col-md-12">Lampiran Usulan SSH 3</label>
+						<div class="col-md-12">
+							<input type='file' id='u_lapiran_usulan_ssh_3' accept="image/png, image/jpeg, image/jpg, application/pdf" style='display:block;width:100%;' onchange="checkFileType(this)"><div style="padding-top: 10px; padding-bottom: 10px;"><a id="file_lapiran_usulan_ssh_3"></a></div>
 						</div>
 					</div>
 					<div class="row form-group">
 						<label for='u_keterangan_lampiran' class="col-md-12">Catatan</label>
 						<div class="col-md-12">
 							<textarea id='u_keterangan_lampiran' class="form-control" placeholder='Catatan'></textarea>
+							<small style="color:red">*Wajib diisi</small><br>
+							<small style="color:red">*Lampiran wajib ber-type png, jpeg, jpg, atau pdf.</small><br>
+							<small style="color:red">*Ukuran lampiran maksimal 1MB.</small>
 						</div>
 					</div>
 				</div> 
@@ -498,7 +513,7 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
 		.then(function(){
 			get_data_ssh(tahun)
 			.then(function(){
-				jQuery('#wrap-loading').show();
+				// jQuery('#wrap-loading').show();
 	            get_data_satuan_ssh(tahun);
 	            get_data_nama_ssh(tahun);
 				jQuery("#usulan_ssh_table_wrapper div:first").addClass("h-100 align-items-center");
@@ -602,7 +617,7 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
 		return new Promise(function(resolve, reject){
 			globalThis.usulanSSHTable = jQuery('#usulan_ssh_table')
 			.on('preXhr.dt', function ( e, settings, data ) {
-				jQuery("#wrap-loading").show();
+				// jQuery("#wrap-loading").show();
 				if(jQuery("#search_filter_action").val()){
 					data.filter = jQuery("#search_filter_action").val();
 				}
@@ -683,7 +698,7 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
 		            }
 		        ],
 				"initComplete":function( settings, json){
-					jQuery("#wrap-loading").hide();
+					// jQuery("#wrap-loading").hide();
 					resolve();
 				}
 			});
@@ -955,6 +970,7 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
 			.attr("disabled", false)
 			.text("Simpan");
 		jQuery('#tambahUsulanSshModal').modal('show');
+		jQuery("#id_sub_skpd").select2({width:'100%'});
 	}
 
 	/** Menampilkan data SSH sesuai komponen */
@@ -1389,6 +1405,7 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
 					jQuery(`input[name=u_jenis_produk][value=${response.data.jenis_produk}]`).prop('checked',true);
 					jQuery("#u_tkdn").val(response.data.tkdn);
 					jQuery("#u_keterangan_lampiran").val(response.data.keterangan_lampiran);
+					console.log(response);
 					response.data_akun_usulan.map(function(b, i){
 						var myText = b.id_akun+" "+b.nama_akun;
 						var option = new Option(myText,b.id_akun, true, true);
@@ -1522,12 +1539,13 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
 	function submitEditTambahHargaUsulanSshForm(id_standar_harga,tahun){
 		var harga_satuan = jQuery('#tambah_harga_komp_harga_satuan').val();
 		var keterangan_lampiran = jQuery('#tambah_harga_komp_keterangan_lampiran').val();
-		jQuery("#wrap-loading").show();
+		// jQuery("#wrap-loading").show();
 		if(harga_satuan.trim() == '' || keterangan_lampiran.trim() == '' || id_standar_harga == ''){
-			jQuery("#wrap-loading").hide();
+			// jQuery("#wrap-loading").hide();
 			alert('Harap diisi semua, tidak ada yang kosong.');
 			return false;
 		}else{
+			// jQuery("#wrap-loading").hide();
 			jQuery.ajax({
 				url: "<?php echo admin_url('admin-ajax.php'); ?>",
 				type:'post',
@@ -1550,11 +1568,10 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
 					}else{
 						alert(response.message);
 					}
+					usulanSSHTable.ajax.reload();
 					jQuery('#tambahUsulanHargaByKompSSH').modal('hide')
 					jQuery('.submitBtn').removeAttr("disabled");
 					jQuery('.modal-body').css('opacity', '');
-					jQuery("#wrap-loading").hide();
-					usulanSSHTable.ajax.reload();
 				}
 			});
 		}

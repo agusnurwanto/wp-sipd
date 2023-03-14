@@ -1670,7 +1670,7 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 						",$kategori), ARRAY_A);
 
 						$data_akun = array();
-						foreach($akun as $v_akun){
+						foreach(explode(",", $akun) as $v_akun){
 							$data_akun[$v_akun] = $wpdb->get_results($wpdb->prepare("
 								SELECT 
 									id_akun,
@@ -1792,7 +1792,8 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 						
 						$wpdb->insert('data_ssh_usulan',$opsi_ssh);
 						
-						foreach($akun as $v_akun){
+						$opsi_akun=[];
+						foreach(explode(",", $akun) as $v_akun){
 							$opsi_akun[$v_akun] = array(
 								'id_akun' => $data_akun[$v_akun][0]['id_akun'],
 								'kode_akun' => $data_akun[$v_akun][0]['kode_akun'],
@@ -1800,7 +1801,6 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 								'id_standar_harga' => $id_standar_harga,
 								'tahun_anggaran' => $tahun_anggaran,
 							);
-			
 							$wpdb->insert('data_ssh_rek_belanja_usulan',$opsi_akun[$v_akun]);
 						}
 
@@ -2171,12 +2171,12 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 	
 							// get data detail akun
 							$data_akun = array();
-							foreach($akun as $v_akun){
+							foreach(explode(",", $akun) as $v_akun){
 								$data_akun[$v_akun] = $wpdb->get_results($wpdb->prepare("SELECT id_akun,kode_akun,nama_akun FROM data_akun WHERE id_akun = %d",$v_akun), ARRAY_A);
 							}
 	
 							// input dan update akun
-							foreach($akun as $id_akun){
+							foreach(explode(",", $akun) as $id_akun){
 								$opsi_akun = array(
 									'id_akun' => $data_akun[$id_akun][0]['id_akun'],
 									'kode_akun' => $data_akun[$id_akun][0]['kode_akun'],
