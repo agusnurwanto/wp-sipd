@@ -968,74 +968,83 @@ echo '
     });
 
     function tambahIndikator(){
-        var id = +jQuery('.indi_sub_keg_table_usulan > tbody tr').last().attr('data-id');
-        var newId = id+1;
-        /** tambah input usulan indi_sub_keg */
-        var trNewUsulan = ''
-            +'<tr data-id="'+newId+'" header="1">'
-                +'<td colspan="2" style="max-width: 100px;">'
-                    +'<select class="form-control pagu_indi_sub_keg input_select_2" data-edit="0" id="pagu_ind_sub_keg_usulan_'+newId+'" name="input_indikator_sub_keg_usulan['+newId+']" onchange="setSatuan(this);">'
-                        +'<option value="">Pilih Nama Indikator</option>'
-                    +'</select>'
-                    +'<input type="hidden" id="ind_sub_keg_id_'+newId+'" name="ind_sub_keg_id['+newId+']" value="0">'
-                +'</td>'
-                +'<td style="width: 70px; vertical-align: middle;" class="text-center aksi" rowspan="2">'
-                    +'<button class="btn btn-warning btn-sm" onclick="tambahIndikator(); return false;"><i class="dashicons dashicons-plus"></i></button>'
-                +'</td>'
-            +'</tr>'
-            +'<tr data-id="'+newId+'">'
-                +'<td style="width: 50%;">'
-                    +'<input class="form-control input_number" type="number" id="indikator_pagu_indi_sub_keg_usulan_'+newId+'" name="input_target_usulan['+newId+']" placeholder="Target Indikator"/>'
-                +'</td>'
-                +'<td style="width: 50%;">'
-                    +'<select class="form-control satuan_pagu_indi_sub_keg input_select_2" id="satuan_pagu_indi_sub_keg_usulan_'+newId+'" name="input_satuan_usulan['+newId+']" disabled>'
-                        +'<option value="">Pilih Satuan</option>'
-                    +'</select>'
-                +'</td>'
-            +'</tr>';
-        
-        var tbody = jQuery('.indi_sub_keg_table_usulan > tbody');
-        tbody.append(trNewUsulan);
-        var tr = tbody.find('>tr');
-        var length = tr.length-2;
-        tr.map(function(i, b){
-            var header = jQuery(b).attr('header');
-            if(header == 1){
-                if(i == 0){
-                    var html = '<button class="btn btn-warning btn-sm" onclick="tambahIndikator(); return false;"><i class="dashicons dashicons-plus"></i></button>';
-                }else{
-                    var html = '<button class="btn btn-danger btn-sm" onclick="hapusIndikator(this); return false;"><i class="dashicons dashicons-trash"></i></button>';
+        return new Promise(function(resolve, reject){
+            var id = +jQuery('.indi_sub_keg_table_usulan > tbody tr').last().attr('data-id');
+            var newId = id+1;
+            /** tambah input usulan indi_sub_keg */
+            var trNewUsulan = ''
+                +'<tr data-id="'+newId+'" header="1">'
+                    +'<td colspan="2" style="max-width: 100px;">'
+                        +'<select class="form-control pagu_indi_sub_keg input_select_2" data-edit="0" id="pagu_ind_sub_keg_usulan_'+newId+'" name="input_indikator_sub_keg_usulan['+newId+']" onchange="setSatuan(this);">'
+                            +'<option value="">Pilih Nama Indikator</option>'
+                        +'</select>'
+                        +'<input type="hidden" id="ind_sub_keg_id_'+newId+'" name="ind_sub_keg_id['+newId+']" value="0">'
+                    +'</td>'
+                    +'<td style="width: 70px; vertical-align: middle;" class="text-center aksi" rowspan="2">'
+                        +'<button class="btn btn-warning btn-sm" onclick="tambahIndikator(); return false;"><i class="dashicons dashicons-plus"></i></button>'
+                    +'</td>'
+                +'</tr>'
+                +'<tr data-id="'+newId+'">'
+                    +'<td style="width: 50%;">'
+                        +'<input class="form-control input_number" type="number" id="indikator_pagu_indi_sub_keg_usulan_'+newId+'" name="input_target_usulan['+newId+']" placeholder="Target Indikator"/>'
+                    +'</td>'
+                    +'<td style="width: 50%;">'
+                        +'<select class="form-control satuan_pagu_indi_sub_keg input_select_2" id="satuan_pagu_indi_sub_keg_usulan_'+newId+'" name="input_satuan_usulan['+newId+']" disabled>'
+                            +'<option value="">Pilih Satuan</option>'
+                        +'</select>'
+                    +'</td>'
+                +'</tr>';
+            
+            var tbody = jQuery('.indi_sub_keg_table_usulan > tbody');
+            tbody.append(trNewUsulan);
+            var tr = tbody.find('>tr');
+            var length = tr.length-2;
+            tr.map(function(i, b){
+                var header = jQuery(b).attr('header');
+                if(header == 1){
+                    if(i == 0){
+                        var html = '<button class="btn btn-warning btn-sm" onclick="tambahIndikator(); return false;"><i class="dashicons dashicons-plus"></i></button>';
+                    }else{
+                        var html = '<button class="btn btn-danger btn-sm" onclick="hapusIndikator(this); return false;"><i class="dashicons dashicons-trash"></i></button>';
+                    }
+                    jQuery(b).find('>td').last().html(html);
                 }
-                jQuery(b).find('>td').last().html(html);
+            });
+            /** tambah input indi_sub_keg */
+            var trNewUsulan = ''
+                +'<tr data-id="'+newId+'" header="1">'
+                    +'<td colspan="2" style="max-width: 100px;">'
+                        +' <select class="form-control pagu_indi_sub_keg input_select_2" id="pagu_indi_sub_keg_penetapan_'+newId+'" name="input_indikator_sub_keg['+newId+']" disabled>'
+                            +'<option value="">Pilih Nama Indikator</option>'
+                        +'</select>'
+                    +'</td>'
+                +'</tr>'
+                +'<tr data-id="'+newId+'">'
+                    +'<td style="width: 50%;">'
+                        +'<input class="form-control input_number" type="number" name="input_target['+newId+']" id="indikator_pagu_indi_sub_keg_'+newId+'" placeholder="Target Indikator"/>'
+                    +'</td>'
+                    +'<td style="width: 50%;">'
+                        +'<select class="form-control satuan_pagu_indi_sub_keg input_select_2" id="satuan_pagu_indi_sub_keg_penetapan_'+newId+'" name="input_satuan['+newId+']" disabled>'
+                            +'<option value="">Pilih Satuan</option>'
+                        +'</select>'
+                    +'</td>'
+                +'</tr>';
+
+            var tbody = jQuery('.indi_sub_keg_table > tbody');
+            tbody.append(trNewUsulan);
+            let val_sub_keg = jQuery("#sub_kegiatan").val();
+            if(val_sub_keg != undefined){
+                get_indikator_sub_keg_by_id({
+                    id: newId,
+                    id_sub_keg: val_sub_keg
+                })
+                .then(function(){
+                    resolve();
+                });
+            }else{
+                resolve();
             }
         });
-        /** tambah input indi_sub_keg */
-        var trNewUsulan = ''
-            +'<tr data-id="'+newId+'" header="1">'
-                +'<td colspan="2" style="max-width: 100px;">'
-                    +' <select class="form-control pagu_indi_sub_keg input_select_2" id="pagu_indi_sub_keg_penetapan_'+newId+'" name="input_indikator_sub_keg['+newId+']" disabled>'
-                        +'<option value="">Pilih Nama Indikator</option>'
-                    +'</select>'
-                +'</td>'
-            +'</tr>'
-            +'<tr data-id="'+newId+'">'
-                +'<td style="width: 50%;">'
-                    +'<input class="form-control input_number" type="number" name="input_target['+newId+']" id="indikator_pagu_indi_sub_keg_'+newId+'" placeholder="Target Indikator"/>'
-                +'</td>'
-                +'<td style="width: 50%;">'
-                    +'<select class="form-control satuan_pagu_indi_sub_keg input_select_2" id="satuan_pagu_indi_sub_keg_penetapan_'+newId+'" name="input_satuan['+newId+']" disabled>'
-                        +'<option value="">Pilih Satuan</option>'
-                    +'</select>'
-                +'</td>'
-            +'</tr>';
-
-        var tbody = jQuery('.indi_sub_keg_table > tbody');
-        tbody.append(trNewUsulan);
-        let val_sub_keg = jQuery("#sub_kegiatan").val();
-        if(val_sub_keg != undefined){
-            let data = {id:newId,id_sub_keg:val_sub_keg};
-            get_indikator_sub_keg_by_id(data);
-        }
     }
 
     function tambahIndikatorProgram(){
@@ -1455,52 +1464,55 @@ echo '
     }
 
     function get_indikator_sub_keg_by_id(data){
-		let id_sub_keg = data.id_sub_keg;
-        let id_input = data.id;
-        if(id_sub_keg == '' || typeof id_sub_keg == 'undefined'){
-            return;
-        }
-        if(typeof indikator_sub_keg_all == 'undefined'){
-            window.indikator_sub_keg_all = {};
-        }
-        jQuery("#wrap-loading").show();
-        new Promise(function(resolve, reject){
-            if(!indikator_sub_keg_all[id_sub_keg]){
-                jQuery.ajax({
-                    method:'POST',
-                    url:"<?php echo admin_url('admin-ajax.php'); ?>",
-                    dataType:'json',
-                    data:{
-                        'action':'get_indikator_sub_keg_parent',
-                        'api_key': jQuery("#api_key").val(),
-                        'tahun_anggaran': tahun_anggaran,
-                        'id_sub_keg' : id_sub_keg
-                    },
-                    success:function(response){
-                        window.indikator_sub_keg_all[id_sub_keg] = response.data;
-                        resolve(indikator_sub_keg_all[id_sub_keg]);
-                    }
-                });
-            }else{
-                resolve(indikator_sub_keg_all[id_sub_keg]);
+        return new Promise(function(resolve1, reject1){
+    		let id_sub_keg = data.id_sub_keg;
+            let id_input = data.id;
+            if(id_sub_keg == '' || typeof id_sub_keg == 'undefined'){
+                return;
             }
-        })
-        .then(function(data){
-            let option='<option value="">Pilih Nama Indikator</option>';
-            data.map(function(value, index){
-                option+='<option value="'+value.id_sub_keg+'">'+value.indikator+'</option>';
+            if(typeof indikator_sub_keg_all == 'undefined'){
+                window.indikator_sub_keg_all = {};
+            }
+            jQuery("#wrap-loading").show();
+            new Promise(function(resolve, reject){
+                if(!indikator_sub_keg_all[id_sub_keg]){
+                    jQuery.ajax({
+                        method:'POST',
+                        url:"<?php echo admin_url('admin-ajax.php'); ?>",
+                        dataType:'json',
+                        data:{
+                            'action':'get_indikator_sub_keg_parent',
+                            'api_key': jQuery("#api_key").val(),
+                            'tahun_anggaran': tahun_anggaran,
+                            'id_sub_keg' : id_sub_keg
+                        },
+                        success:function(response){
+                            window.indikator_sub_keg_all[id_sub_keg] = response.data;
+                            resolve(indikator_sub_keg_all[id_sub_keg]);
+                        }
+                    });
+                }else{
+                    resolve(indikator_sub_keg_all[id_sub_keg]);
+                }
             })
+            .then(function(data){
+                let option='<option value="">Pilih Nama Indikator</option>';
+                data.map(function(value, index){
+                    option+='<option value="'+value.id_sub_keg+'">'+value.indikator+'</option>';
+                })
 
-            let optionSatuan='<option value="">Pilih Satuan</option>';
-            data.map(function(value, index){
-                optionSatuan+='<option value="'+value.id_sub_keg+'">'+value.satuan+'</option>';
-            })
+                let optionSatuan='<option value="">Pilih Satuan</option>';
+                data.map(function(value, index){
+                    optionSatuan+='<option value="'+value.id_sub_keg+'">'+value.satuan+'</option>';
+                })
 
-            jQuery("#pagu_ind_sub_keg_usulan_"+id_input).html(option).select2({width: '100%'});
-            jQuery("#pagu_indi_sub_keg_penetapan_"+id_input).html(option).select2({width: '100%'});
-            jQuery("#satuan_pagu_indi_sub_keg_usulan_"+id_input).html(optionSatuan);
-            jQuery("#satuan_pagu_indi_sub_keg_penetapan_"+id_input).html(optionSatuan);
-            jQuery("#wrap-loading").hide();
+                jQuery("#pagu_ind_sub_keg_usulan_"+id_input).html(option).select2({width: '100%'});
+                jQuery("#pagu_indi_sub_keg_penetapan_"+id_input).html(option).select2({width: '100%'});
+                jQuery("#satuan_pagu_indi_sub_keg_usulan_"+id_input).html(optionSatuan);
+                jQuery("#satuan_pagu_indi_sub_keg_penetapan_"+id_input).html(optionSatuan);
+                jQuery("#wrap-loading").hide();
+                resolve1();
+            });
         });
     }
 
