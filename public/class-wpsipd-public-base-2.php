@@ -2353,21 +2353,11 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 				if(!empty($_POST['tahun_anggaran']) && !empty($_POST['kode_sbl'])){
 					$tahun_anggaran = $_POST['tahun_anggaran'];
 					$kode_sbl = $_POST['kode_sbl'];
-
-					$data_sub_keg = $wpdb->get_results($wpdb->prepare(
-						'SELECT kode_sub_giat,
-							kode_sbl
-						FROM data_sub_keg_bl_lokal
-						WHERE kode_sub_giat=%s
-						AND tahun_anggaran=%d
-						AND active=1',
-						$kode_sbl,$tahun_anggaran
-					),ARRAY_A);
 	
-					$status = $wpdb->update('data_sub_keg_bl_lokal', array('active' => 0), array('kode_sbl' => $kode_sbl));
-					$status_indi_sub_keg = $wpdb->update('data_sub_keg_indikator_lokal', array('active' => 0), array('kode_sbl' => $data_sub_keg[0]['kode_sbl']));
-					$status_dana_sub_keg = $wpdb->update('data_dana_sub_keg_lokal', array('active' => 0), array('kode_sbl' => $data_sub_keg[0]['kode_sbl']));
-					$status_lokasi_sub_keg = $wpdb->update('data_lokasi_sub_keg_lokal', array('active' => 0), array('kode_sbl' => $data_sub_keg[0]['kode_sbl']));
+					$status = $wpdb->update('data_sub_keg_bl_lokal', array('active' => 0), array('kode_sbl' => $kode_sbl, 'tahun_anggaran' => $tahun_anggaran));
+					$status_indi_sub_keg = $wpdb->update('data_sub_keg_indikator_lokal', array('active' => 0), array('kode_sbl' => $kode_sbl, 'tahun_anggaran' => $tahun_anggaran));
+					$status_dana_sub_keg = $wpdb->update('data_dana_sub_keg_lokal', array('active' => 0), array('kode_sbl' => $kode_sbl, 'tahun_anggaran' => $tahun_anggaran));
+					$status_lokasi_sub_keg = $wpdb->update('data_lokasi_sub_keg_lokal', array('active' => 0), array('kode_sbl' => $kode_sbl, 'tahun_anggaran' => $tahun_anggaran));
 	
 					if($status === false){
 						$ret['status'] = 'error';

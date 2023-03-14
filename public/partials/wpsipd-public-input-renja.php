@@ -1912,7 +1912,7 @@ echo '
         select.attr('onchange', change);
     }
 
-    function submitEditRenjaForm(kode_sub_giat){
+    function submitEditRenjaForm(kode_sbl){
         if(confirm('Apakah anda yakin untuk mengubah data ini?')){
             jQuery('#wrap-loading').show();
             let form = getFormData(jQuery("#form-renja"));
@@ -1924,7 +1924,7 @@ echo '
                     'action': 'submit_edit_renja',
                     'api_key': jQuery('#api_key').val(),
                     'data': JSON.stringify(form),
-                    'kode_sub_giat': kode_sub_giat,
+                    'kode_sbl': kode_sbl,
                     'tahun_anggaran': tahun_anggaran
                 },
                 success: function(response){
