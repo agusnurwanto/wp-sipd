@@ -2125,6 +2125,14 @@ echo '
                 'kode_sbl': data  
             },
             success:function(response){
+                
+                let sasaran = sasaran_usulan = "";
+                if(response.data.sasaran.sasaran !=  null){
+                    sasaran = response.data.sasaran.sasaran;
+                }
+                if(response.data.sasaran.sasaran_usulan != null){
+                        sasaran_usulan = response.data.sasaran.sasaran_usulan;
+                }
                 let html=""
                 +'<form>'
           			+'<table class="table" style="margin-top:10px">'
@@ -2152,6 +2160,24 @@ echo '
 	          			+'</thead>'
           			+'</table>'
                     +'</br><h4>Kelompok Sasaran Kegiatan</h4>'
+                    +'<table class="table">'
+						+'<thead>'
+							+'<tr>'
+								+'<th class="text-center" style="width:200px;">Tipe</th>'
+								+'<th class="text-center">Kelompok Sasaran</th>'
+							+'</tr>'
+						+'</thead>'
+                        +'<tbody id="kelompok_sasaran">'
+                            +'<tr>'
+                                +'<td class="text-center">Usulan</td>'
+                                +'<td><textarea class="form-control" id="kelompok_sasaran_usulan" name="kelompok_sasaran_renja_penetapan">'+sasaran+'</textarea></td>'
+                            +'</tr>'
+                            +'<tr>'
+                                +'<td class="text-center">Penetapan</td>'
+                                +'<td><textarea class="form-control" id="kelompok_sasaran_usulan" name="kelompok_sasaran_renja_usulan">'+sasaran_usulan+'</textarea></td>'
+                            +'</tr>'
+                        +'</tbody>'
+                    +'</table>'
                     +'</br><h4>Indikator Keluaran Kegiatan</h4>'
 					+"<table class='table'>"
 						+"<thead>"
@@ -2274,7 +2300,7 @@ echo '
                                 }
     		          			html +=''
     		          				+"<tr data-id='"+id+"' type='usulan'>"
-    					          		+"<td class='text-center' rowspan='2' style='vertical-align: middle;'>1</td>"
+    					          		+"<td class='text-center' rowspan='2' style='vertical-align: middle;'>"+id+"</td>"
                                         +"<td class='text-center'>Usulan</td>"
     					          		+"<td><textarea class='form-control' type='text' id='indikator_hasil_kegiatan_usulan_"+id+"' name='indikator_hasil_kegiatan_usulan["+id+"]'>"+value.hasilteks_usulan+"</textarea></td>"
     					          		+"<td><input class='form-control' type='number' id='target_indikator_hasil_kegiatan_usulan_"+id+"' name='target_indikator_hasil_kegiatan_usulan["+id+"]' value='"+value.targethasil_usulan+"'></td>"

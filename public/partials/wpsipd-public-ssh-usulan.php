@@ -29,7 +29,7 @@ if(
 			and tahun_anggaran=%d
 		group by id_skpd", $nipkepala[0], $input['tahun_anggaran']), ARRAY_A);
 	foreach ($skpd_db as $skpd) {
-		$nama_skpd = $skpd['kode_skpd'].' '.$skpd['nama_skpd'];
+		$nama_skpd = '<br>'.$skpd['kode_skpd'].' '.$skpd['nama_skpd'];
 		$all_skpd[] = $skpd;
 		$list_skpd_options .= '<option value="'.$skpd['id_skpd'].'">'.$skpd['kode_skpd'].' '.$skpd['nama_skpd'].'</option>';
 		if($skpd['is_skpd'] == 1){
@@ -156,7 +156,7 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
 	<div style="padding: 10px;">
 		<input type="hidden" value="<?php echo get_option( '_crb_api_key_extension' ); ?>" id="api_key">
 		<input type="hidden" value="<?php echo $input['tahun_anggaran']; ?>" id="tahun_anggaran">
-		<h1 class="text-center">Data Usulan Standar Harga<br><?php echo $nama_skpd; ?><br>Tahun Anggaran <?php echo $input['tahun_anggaran']; ?></h1>
+		<h1 class="text-center">Data Usulan Standar Harga<?php echo $nama_skpd; ?><br>Tahun Anggaran <?php echo $input['tahun_anggaran']; ?></h1>
 		<h2 class="text-center">Surat Usulan Standar Harga</h2>
 		<table id="surat_usulan_ssh_table" class="table table-bordered">
 			<thead>
@@ -618,13 +618,8 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
 			globalThis.usulanSSHTable = jQuery('#usulan_ssh_table')
 			.on('preXhr.dt', function ( e, settings, data ) {
 				// jQuery("#wrap-loading").show();
-				if(jQuery("#search_filter_action").val()){
-					data.filter = jQuery("#search_filter_action").val();
-				}
-
-				if(jQuery("#search_filter_action_opd").val()){
-					data.filter_opd = jQuery("#search_filter_action_opd").val();
-				}
+				data.filter = jQuery("#search_filter_action").val();
+				data.filter_opd = jQuery("#search_filter_action_opd").val();
 			} )
 			.DataTable({
 				"processing": true,
@@ -638,7 +633,7 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
 						'tahun_anggaran' : tahun
 					}
 				},
-  				order: [0],
+  				order: [[5, 'desc']], // order by waktu input descending
 				"columns": [
 					{ 
 						"data": "deleteCheckbox",
@@ -652,7 +647,11 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
 						"targets": "no-sort",
 						"orderable": false
 		            },
-		            { "data": "nama_standar_harga" },
+		            {
+		            	"data": "nama_standar_harga",
+						"targets": "no-sort",
+						"orderable": false
+					},
 		            { "data": "spek_satuan",
 		            	className: "text-left spek-satuan",
 						"targets": "no-sort",
@@ -661,13 +660,18 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
 		            { 
 		            	"data": "harga",
 		            	className: "text-right",
+						"targets": "no-sort",
+						"orderable": false,
 		            	render: function(data, type) {
 			                var number = jQuery.fn.dataTable.render.number( '.', ',', 2, ''). display(data);
 			                return number;
 			            }
 		            },
 					{ 
-		            	"data": "show_keterangan",
+		            	"data": {
+		            		_: "show_keterangan",
+							sort: "update_at"
+		            	},
 		            	className: "text-left kol-keterangan",
 						"targets": "no-sort",
 						"orderable": false
@@ -697,6 +701,14 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
 						"orderable": false
 		            }
 		        ],
+		        'createdRow': function(row, data, dataIndex) {
+			    	var dataCell = jQuery(row).find('>td:eq(5)');
+			    	var dateOrder = dataCell.find('td:eq(0)').text().split(': ')[1];
+			    	dataCell.attr('data-order', dateOrder);
+			  	},
+				"preDrawCallback": function(argument) {
+					// jQuery("#wrap-loading").show();
+				},
 				"initComplete":function( settings, json){
 					// jQuery("#wrap-loading").hide();
 					resolve();
@@ -708,9 +720,6 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
 	function get_data_ssh_surat(tahun){
 		return new Promise(function(resolve, reject){
 			window.suratUsulanSSHTable = jQuery('#surat_usulan_ssh_table')
-			.on('preXhr.dt', function ( e, settings, data ) {
-				jQuery("#wrap-loading").show();
-			})
 			.DataTable({
 				"processing": true,
         		"serverSide": true,
@@ -723,7 +732,7 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
 						'tahun_anggaran' : tahun
 					}
 				},
-  				order: [0],
+  				order: [[0, 'desc']],
 				"columns": [
 					{
 						"data": 'update_at',
@@ -732,7 +741,7 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
 		            	className: "text-center"
 		            },
 					{
-						"data": 'created_user',
+						"data": 'nama_skpd',
 						"targets": 'no-sort',
 						"orderable": false,
 		            	className: "text-center"
@@ -774,6 +783,9 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
 		            	className: "text-center"
 		            }
 		        ],
+				"preDrawCallback": function(argument) {
+					jQuery("#wrap-loading").show();
+				},
 				"initComplete":function( settings, json){
 					jQuery("#wrap-loading").hide();
 					resolve();
@@ -1944,6 +1956,7 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
 		    success: function(res){
 		    	alert(res.message);
 		    	if(res.status == 'success'){
+					usulanSSHTable.ajax.reload();
 					suratUsulanSSHTable.ajax.reload();
     				jQuery('#tambahSuratUsulan').modal('hide');
 					jQuery('#wrap-loading').hide();
