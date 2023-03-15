@@ -4397,7 +4397,7 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 				$where='';
 				if($jadwal_lokal->status == 1){
 					$_suffix='_history';
-					$where='AND id_jadwal='.$_POST['id_jadwal_lokal'];
+					$where='AND id_jadwal='.$wpdb->prepare("%d", $_POST['id_jadwal_lokal']);
 				}
 
             	$tujuan_all = $wpdb->get_results($wpdb->prepare("
@@ -4522,8 +4522,8 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 												'id' => $program_value['id'],
 												'id_unik' => $program_value['id_unik'],
 												'kode' => $kode[0],
-												'tujuan_teks' => $program_value['tujuan_teks'],
-												'sasaran_teks' => $program_value['sasaran_teks'],
+												'tujuan_teks' => $tujuan_value['tujuan_teks'],
+												'sasaran_teks' => $sasaran_value['sasaran_teks'],
 												'program_teks' => $program_value['nama_program'],
 												'pagu_1' => 0,
 												'pagu_2' => 0,
@@ -5076,13 +5076,13 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 
 				$_suffix='';
 				$where='';
-				if($jadwal_lokal->status){
+				if($jadwal_lokal->status == 1){
 					$_suffix='_history';
-					$where='AND id_jadwal='.$_POST['id_jadwal_lokal'];
+					$where='AND id_jadwal='.$wpdb->prepare("%d", $_POST['id_jadwal_lokal']);
 				}
 
 				$_suffix_rpjmd='';
-				if($jadwal_lokal->status_rpjm){
+				if($jadwal_lokal->status_rpjm == 1){
 					$_suffix_rpjmd='_history';
 					$where_rpjm='AND id_jadwal='.$jadwal_lokal->relasi_perencanaan;
 				}
@@ -5101,7 +5101,7 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 
 				$where_skpd = '';
 				if(!empty($_POST['id_unit'])){
-					$where_skpd = "and id_skpd=".$_POST['id_unit'];
+					$where_skpd = "and id_skpd=".$wpdb->prepare("%d", $_POST['id_unit']);
 				}
 
 				$sql = $wpdb->prepare("
@@ -6355,15 +6355,15 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 
 				$_suffix='';
 				$where='';
-				if($jadwal_lokal->status){
+				if($jadwal_lokal->status == 1){
 					$_suffix='_history';
-					$where='AND id_jadwal='.$id_jadwal_lokal;
+					$where='AND id_jadwal='.$wpdb->prepare("%d", $id_jadwal_lokal);
 				}
 
 				$where_skpd = '';
 				if(!empty($id_unit)){
 					if($id_unit !='all'){
-						$where_skpd = "and id_skpd=".$id_unit;
+						$where_skpd = "and id_skpd=".$wpdb->prepare("%d", $id_unit);
 					}
 				}
 
