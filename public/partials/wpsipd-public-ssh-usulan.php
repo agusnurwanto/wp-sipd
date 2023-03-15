@@ -498,7 +498,6 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
 					</div>
 				</div> 
 				<div class="modal-footer">
-					<button class='btn btn-primary submitBtn' onclick='submitUsulanSshForm(<?php echo $input['tahun_anggaran']; ?>); return false;'>Simpan</button>
 	                <button type="button" class="components-button btn btn-default" data-dismiss="modal">Tutup</button>
 				</div>
 			</form>
@@ -978,12 +977,15 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
 		jQuery("#file_lapiran_usulan_ssh_2").html('');
 		jQuery("#file_lapiran_usulan_ssh_3").html('');
 		jQuery("#tambahUsulanSshModal .modal-title").html("Tambah usulan SSH");
+		jQuery("#tambahUsulanSshModal .modal-footer").find('.submitBtn').remove();
+		jQuery("#tambahUsulanSshModal .modal-footer").prepend('<button class=\'btn btn-primary submitBtn\' onclick=\'return false;\'>Simpan</button>');
 		jQuery("#tambahUsulanSshModal .submitBtn")
 			.attr("onclick", 'submitUsulanSshForm('+tahun+')')
 			.attr("disabled", false)
 			.text("Simpan");
 		jQuery('#tambahUsulanSshModal').modal('show');
 		jQuery("#id_sub_skpd").select2({width:'100%'});
+		jQuery("#id_sub_skpd").val('').trigger('change');
 	}
 
 	/** Menampilkan data SSH sesuai komponen */
@@ -1186,7 +1188,7 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
 		}
 	}
 
-	//edit akun ssh usulan
+	//verify akun ssh usulan
 	function verify_ssh_usulan(id_standar_ssh){
 		jQuery('#tambahUsulanSsh').modal('show');
 		jQuery("#tambahUsulanSshLabel").html("Verifikasi SSH");
@@ -1335,9 +1337,8 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
 	}
 
 	/** edit akun ssh usulan */
-	function edit_ssh_usulan(status_jenis_usulan,id_standar_harga){
+	function edit_ssh_usulan(status_jenis_usulan,id_standar_harga,mod='edit'){
 		jQuery('#wrap-loading').show();
-
 		jQuery.ajax({
 			url: "<?php echo admin_url('admin-ajax.php'); ?>",
 			type:"post",
@@ -1418,7 +1419,7 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
 					jQuery(`input[name=u_jenis_produk][value=${response.data.jenis_produk}]`).prop('checked',true);
 					jQuery("#u_tkdn").val(response.data.tkdn);
 					jQuery("#u_keterangan_lampiran").val(response.data.keterangan_lampiran);
-					console.log(response);
+					
 					response.data_akun_usulan.map(function(b, i){
 						var myText = b.id_akun+" "+b.nama_akun;
 						var option = new Option(myText,b.id_akun, true, true);
@@ -1447,10 +1448,16 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
 					jQuery("#file_lapiran_usulan_ssh_3").attr('href', '<?php echo esc_url(plugin_dir_url(__DIR__).'media/ssh/') ?>' + response.data.lampiran_3);
 
 					jQuery("#id_sub_skpd").val(response.data.id_sub_skpd).trigger('change');
-					jQuery("#tambahUsulanSshModal .submitBtn")
-						.attr('onclick', 'submitEditUsulanSshForm('+id_standar_harga+', '+tahun+')')
-						.attr('disabled', false)
-						.text('Simpan');
+					if(mod==='edit'){
+						jQuery("#tambahUsulanSshModal .modal-footer").find('.submitBtn').remove();
+						jQuery("#tambahUsulanSshModal .modal-footer").prepend('<button class=\'btn btn-primary submitBtn\' onclick=\'return false;\'>Simpan</button>');
+						jQuery("#tambahUsulanSshModal .submitBtn")
+							.attr('onclick', 'submitEditUsulanSshForm('+id_standar_harga+', '+tahun+')')
+							.attr('disabled', false)
+							.text('Simpan');
+					}else if(mod==='detil'){
+						jQuery("#tambahUsulanSshModal .modal-footer").find('.submitBtn').remove();
+					}
 				}
 			}
 		})

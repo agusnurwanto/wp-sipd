@@ -166,7 +166,7 @@ foreach ($subkeg as $kk => $sub) {
     $data_rpjmd = array();
     $_nama_skpd = $wpdb->get_row($wpdb->prepare("
         select 
-            nama_skpd 
+            nama_skpd
         from data_unit
         where 
             id_skpd=%d 
@@ -175,6 +175,7 @@ foreach ($subkeg as $kk => $sub) {
         order by id ASC
     ", $sub['id_skpd'], $input['tahun_anggaran']), ARRAY_A);
     $nama_skpd = $_nama_skpd['nama_skpd'];
+    $nama_sub_skpd = $sub['nama_sub_skpd'];
     // die($wpdb->last_query);
 
 
@@ -337,8 +338,10 @@ $body = '';
                     if(!empty($add_renja)){
                         $tombol_aksi = '<button class="btn-sm btn-warning" style="margin: 1px;" onclick="edit_program(\''.$program['sub']['kode_sbl'].'\');" title="Edit Program"><i class="dashicons dashicons-plus"></i></button>';
                     }
+                    $data_check_program = explode('.', $program['sub']['kode_sbl']);
+                    $data_check_program = $data_check_program[0].'.'.$data_check_program[1].'.'.$data_check_program[2];
                     $body .= '
-                        <tr tipe="program" kode="'.$program['sub']['kode_sbl'].'">
+                        <tr tipe="program" kode="'.$program['sub']['kode_sbl'].'" checkprogram="'.$data_check_program.'">
                             <td class="kiri kanan bawah text_blok">'.$kd_urusan.'</td>
                             <td class="kanan bawah text_blok">'.$kd_bidang.'</td>
                             <td class="kanan bawah text_blok">'.$kd_program.'</td>
@@ -509,13 +512,13 @@ $body = '';
         }
     }
 
-$nama_excel = 'INPUT RENJA '.strtoupper($nama_skpd).'<br>TAHUN ANGGARAN '.$input['tahun_anggaran'].' '.$nama_pemda;
-$nama_laporan = 'INPUT RENJA '.strtoupper($nama_skpd).'<br>TAHUN ANGGARAN '.$input['tahun_anggaran'].' '.$nama_pemda;
+$nama_excel = 'INPUT RENJA '.strtoupper($nama_sub_skpd).'<br>TAHUN ANGGARAN '.$input['tahun_anggaran'].' '.strtoupper($nama_pemda);
+$nama_laporan = 'INPUT RENJA '.strtoupper($nama_sub_skpd).'<br>TAHUN ANGGARAN '.$input['tahun_anggaran'].' '.strtoupper($nama_pemda);
 
 echo '
     <div id="cetak" title="'.$nama_excel.'" style="padding: 5px;">
         <input type="hidden" value="'. get_option( "_crb_api_key_extension" ) .'" id="api_key">
-        <h4 style="text-align: center; font-size: 13px; margin: 10px auto; min-width: 450px; max-width: 570px; font-weight: bold;">'.$nama_laporan.'</h4>
+        <h4 style="text-align: center; margin: 10px auto; min-width: 450px; max-width: 570px; font-weight: bold;">'.$nama_laporan.'</h4>
         <table cellpadding="2" cellspacing="0" style="font-family:\'Open Sans\',-apple-system,BlinkMacSystemFont,\'Segoe UI\',sans-serif; border-collapse: collapse; width:100%; table-layout:fixed; overflow-wrap: break-word; font-size: 60%; border: 0;">
             <thead>
                 <tr>
@@ -2136,6 +2139,8 @@ echo '
 
     function indikatorKegiatan(data){
         jQuery('#wrap-loading').show();
+        let checkProgram = data.split('.')
+        checkProgram = checkProgram[0]+'.'+checkProgram[1]+'.'+checkProgram[2];
         jQuery.ajax({
             method: 'post',
             url: '<?php echo admin_url('admin-ajax.php'); ?>',
@@ -2169,7 +2174,7 @@ echo '
           					+'</tr>'
 	          				+'<tr>'
 	          					+'<th class="text-center" style="width: 160px;">Program</th>'
-	          					+'<th>'+jQuery('tr[tipe="program"][kode="'+data+'"]').find('td').eq(5).text()+'</th>'
+	          					+'<th>'+jQuery('tr[tipe="program"][checkprogram="'+checkProgram+'"]').find('td').eq(5).text()+'</th>'
 	          				+'</tr>'
 	          				+'<tr>'
 	          					+'<th class="text-center" style="width: 160px;">Kegiatan</th>'
@@ -2177,7 +2182,7 @@ echo '
 	          				+'</tr>'
 	          				+'<tr>'
                                 +'<th class="text-center" style="width: 160px;">Pagu</th>'
-	          					+'<th>'+jQuery('tr[tipe="program"][kode="'+data+'"]').find('td').eq(6).html()+'</th>'
+	          					+'<th>'+jQuery('tr[tipe="program"][checkprogram="'+checkProgram+'"]').find('td').eq(6).html()+'</th>'
 	          				+'</tr>'
 	          			+'</thead>'
           			+'</table>'
