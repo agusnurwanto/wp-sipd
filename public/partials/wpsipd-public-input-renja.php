@@ -82,7 +82,9 @@ if(!empty($jadwal_lokal)){
 
     if($now >= $awal && $now <= $akhir){
         $add_renja = '<a style="margin-left: 10px;" id="tambah-data" onclick="return false;" href="#" class="btn btn-success">Tambah Data RENJA</a>';
-        $add_renja .= '<a style="margin-left: 10px;" id="copy-data-renstra-skpd" data-jadwal="'.$idJadwalRenja.'" data-skpd="'.$input['id_skpd'].'" onclick="return false;" href="#" class="btn btn-danger">Copy Data Renstra per SKPD</a>';
+        if(!empty($jadwal_lokal[0]['relasi_perencanaan'])){
+            $add_renja .= '<a style="margin-left: 10px;" id="copy-data-renstra-skpd" data-jadwal="'.$idJadwalRenja.'" data-skpd="'.$input['id_skpd'].'" onclick="return false;" href="#" class="btn btn-danger">Copy Data Renstra per SKPD</a>';
+        }
     }
 }
 
@@ -99,6 +101,7 @@ foreach($bulan as $k_bulan => $v_bulan){
 }
 
 $nama_skpd = "";
+$nama_sub_skpd = "";
 $data_all = array(
     'total' => 0,
     'total_usulan' => 0,
@@ -393,9 +396,17 @@ $body = '';
                             if(!empty($sub_giat['output_giat'])){
                                 $output_giat = $sub_giat['output_giat'][0]['outputteks'];
                             }
+                            $output_giat_usulan = '';
+                            if(!empty($sub_giat['output_giat'])){
+                                $output_giat_usulan = $sub_giat['output_giat'][0]['outputteks_usulan'];
+                            }
                             $target_output_giat = '';
                             if(!empty($sub_giat['output_giat'])){
                                 $target_output_giat = $sub_giat['output_giat'][0]['targetoutputteks'];
+                            }
+                            $target_output_giat_usulan = '';
+                            if(!empty($sub_giat['output_giat'])){
+                                $target_output_giat_usulan = $sub_giat['output_giat'][0]['targetoutputteks_usulan'];
                             }
                             $output_sub_giat = '';
                             $target_output_sub_giat = '';
@@ -487,11 +498,11 @@ $body = '';
                                     <td class="kanan bawah">'.$sub_giat['nama'].'</td>
                                     <td class="kanan bawah">'.$capaian_prog.'</td>
                                     <td class="kanan bawah">'.$output_sub_giat.'</td>
-                                    <td class="kanan bawah">'.$output_giat.'</td>
+                                    <td class="kanan bawah">'.$output_giat.'<span class="nilai_usulan">'.$output_giat_usulan.'</span></td>
                                     <td class="kanan bawah">'.$lokasi_sub_giat.'</td>
                                     <td class="kanan bawah">'.$target_capaian_prog.'</td>
                                     <td class="kanan bawah">'.$target_output_sub_giat.'</td>
-                                    <td class="kanan bawah">'.$target_output_giat.'</td>
+                                    <td class="kanan bawah">'.$target_output_giat.'<span class="nilai_usulan">'.$target_output_giat_usulan.'</span></td>
                                     <td class="kanan bawah text_kanan">'.number_format($sub_giat['total'],0,",",".").'<span class="nilai_usulan">'.number_format($sub_giat['total_usulan'],0,",",".").'</span></td>
                                     <td class="kanan bawah">'.$dana_sub_giat.'</td>
                                     <td class="kanan bawah">'.$catatan.'</td>
@@ -897,8 +908,13 @@ echo '
     	}
     	penjadwalanHitungMundur(dataHitungMundur);
 
+        var setting = ''
+		    +'<h3 style="margin-top: 20px;">SETTING</h3>'
+		    +'<label style="margin-left: 20px;"><input type="checkbox" onclick="hide_usulan(this);"> Sembunyikan Data Usulan</label>'
+
     	var aksi = '<?php echo $add_renja; ?>';
     	jQuery('#action-sipd').append(aksi);
+        jQuery('#action-sipd').append(setting);
 
     <?php if(!empty($add_renja)): ?>
         jQuery('#tambah-data').on('click', function(){
@@ -2438,5 +2454,9 @@ echo '
     function set_penetapan(that){
         var id_penetapan = jQuery(that).attr('id').replaceAll('_usulan', '');
         jQuery('#'+id_penetapan).val(jQuery(that).val()).trigger('change');
+    }
+
+    function hide_usulan(that){
+        jQuery(".nilai_usulan").toggle();
     }
 </script>
