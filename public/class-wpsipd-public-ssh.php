@@ -1264,10 +1264,9 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 				foreach($queryRecords as $recKey => $recVal){
 					$iconPlus 	= '<i class="dashicons dashicons-plus"></i>';
 					$akun 		= '<li><a class="btn btn-primary" href="#" onclick="return edit_akun_ssh_usulan(\''.$recVal['id_standar_harga'].'\');" title="Rekening penyusun usulan SSH">'.$iconPlus.'</a></li>';
-
 					$iconX		= '<i class="dashicons dashicons-trash"></i>';
-
 					$iconEdit 	= '<i class="dashicons dashicons-edit"></i>';
+					$detilUsulanSSH = '<li><a class="btn btn-sm btn-primary" href="#" onclick="return edit_ssh_usulan(\''.$recVal['status_jenis_usulan'].'\',\''.$recVal['id_standar_harga'].'\', \'detil\');" title="Detil komponen usulan SSH"><i class="dashicons dashicons-search"></i></a></li>';
 					if(
 						$recVal['status'] == 'waiting' || 
 						$recVal['status'] == 'rejected'  
@@ -1301,8 +1300,8 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 
 					}else{
 						$jenis = ($recVal['status_upload_sipd'] == 1) ? 'upload' : 'usulan';
-						$editUsulanSSH = '<li><a class="btn btn-sm btn-warning" href="#" onclick="return cannot_change_ssh_usulan(\'ubah\',\''.$jenis.'\');" title="Edit komponen usulan SSH">'.$iconEdit.'</a></li>';
-						$deleteUsulanSSH = '<li><a class="btn btn-sm btn-danger" href="#" onclick="return cannot_change_ssh_usulan(\'hapus\',\''.$jenis.'\');" title="Delete komponen usulan SSH">'.$iconX.'</a></li>';
+						$editUsulanSSH = '<li style="display:none"><a class="btn btn-sm btn-warning" href="#" onclick="return cannot_change_ssh_usulan(\'ubah\',\''.$jenis.'\');" title="Edit komponen usulan SSH">'.$iconEdit.'</a></li>';
+						$deleteUsulanSSH = '<li style="display:none"><a class="btn btn-sm btn-danger" href="#" onclick="return cannot_change_ssh_usulan(\'hapus\',\''.$jenis.'\');" title="Delete komponen usulan SSH">'.$iconX.'</a></li>';
 					}
 
 					$created_user = "";
@@ -1356,12 +1355,15 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 					}
 
 					$status_verif_admin = '<table style="margin: 0;border-color:white;"><tbody>';
-					$data_riwayat_admin = explode("|", $recVal['keterangan_status_admin']);
-					$riwayat_admin='<ul style="margin:15px">';
-					foreach ($data_riwayat_admin as $key => $value) {
-						$riwayat_admin.='<li>'.$value.'</li>';
+					$riwayat_admin='-';
+					if(!empty($recVal['keterangan_status_admin'])){
+						$data_riwayat_admin = explode("|", $recVal['keterangan_status_admin']);
+						$riwayat_admin='<ul style="margin:15px">';
+						foreach ($data_riwayat_admin as $key => $value) {
+							$riwayat_admin.='<li>'.$value.'</li>';
+						}
+						$riwayat_admin.='</ul>';
 					}
-					$riwayat_admin.='</ul>';
 					
 					if($recVal['status_by_admin'] == 'approved'){
 						$status_verif_admin .= '<tr>
@@ -1383,19 +1385,22 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 					$status_verif_admin .= '</tbody></table>';
 
 					$status_verif_tapdkeu = '<table style="margin: 0;border-color:white;"><tbody>';
-					$data_riwayat_tapdkeu = explode("|", $recVal['keterangan_status_tapdkeu']);
-					$riwayat_tapdkeu='<ul style="margin:15px">';
-					foreach ($data_riwayat_tapdkeu as $key => $value) {
-						$riwayat_tapdkeu.='<li>'.$value.'</li>';
+					$riwayat_tapdkeu='-';
+					if(!empty($recVal['keterangan_status_tapdkeu'])){
+						$data_riwayat_tapdkeu = explode("|", $recVal['keterangan_status_tapdkeu']);
+						$riwayat_tapdkeu='<ul style="margin:15px">';
+						foreach ($data_riwayat_tapdkeu as $key => $value) {
+							$riwayat_tapdkeu.='<li>'.$value.'</li>';
+						}
+						$riwayat_tapdkeu.='</ul>';
 					}
-					$riwayat_tapdkeu.='</ul>';
 					
 					if($recVal['status_by_tapdkeu'] == 'approved'){
 						$status_verif_tapdkeu .= '<tr>
 													<td style="border-color:white;">Usulan : <span class="medium-bold-2">Disetujui</span></td>
 												</tr>
 												<tr>
-													<td style="border-color:white;">Alasan : <span class="medium-bold-2">' . $riwayat_tapdkeu . '</span></td>
+													<td style="border-color:white;">Riwayat Alasan : <span class="medium-bold-2">' . $riwayat_tapdkeu . '</span></td>
 												</tr>
 												';
 					}else if($recVal['status_by_tapdkeu'] == 'rejected'){
@@ -1451,7 +1456,7 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 					if($recVal['status_upload_sipd'] == 1){
 						$tombol_aksi = '<li><a class="btn btn-sm btn-success" href="#" onclick="alert(\'Usulan SSH sudah diupload ke SIPD\')" title="Usulan SSH sudah diupload ke SIPD"><span class="dashicons dashicons-lock"></span></a></li>';
 					}else{
-						$tombol_aksi = $verify.$editUsulanSSH.$deleteUsulanSSH;
+						$tombol_aksi = $verify.$detilUsulanSSH.$editUsulanSSH.$deleteUsulanSSH;
 					}
 
 					$queryRecords[$recKey]['aksi'] = '<ul class="td-aksi">'.$tombol_aksi.'</ul>';	
