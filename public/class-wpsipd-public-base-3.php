@@ -1447,63 +1447,94 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 						}
 					}
 
-					add_filter( 'query', array($this, 'wpsipd_query') );
+					try {
 
-					// update data sasaran
-					$status = $wpdb->update('data_renstra_sasaran_lokal', [
-						'id_bidang_urusan' => $dataTujuan->id_bidang_urusan,
-						'id_misi' => $data['id_misi'],
-						'id_unit' => $dataTujuan->id_unit,
-						'id_visi' => $data['id_visi'],
-						'kode_bidang_urusan' => $dataTujuan->kode_bidang_urusan,
-						'kode_skpd' => $dataTujuan->kode_skpd,
-						'kode_tujuan' => $dataTujuan->kode_tujuan,
-						'nama_bidang_urusan' => $dataTujuan->nama_bidang_urusan,
-						'nama_skpd' => $dataTujuan->nama_skpd,
-						'sasaran_teks' => $data['sasaran_teks'],
-						'tujuan_lock' => $dataTujuan->tujuan_lock,
-						'tujuan_teks' => $dataTujuan->tujuan_teks,
-						'urut_sasaran' => $data['urut_sasaran'],
-						'catatan_usulan' => $data['catatan_usulan'],
-						'catatan' => $data['catatan'],
-						'urut_tujuan' => $dataTujuan->urut_tujuan,
-					], [
-						'id_unik' => $data['kode_sasaran'], // pake id_unik biar teks sasaran di row indikator sasaran ikut terupdate
-						'id_unik_indikator' => 'NULL'
-					]);
+						$wpdb->query('START TRANSACTION');
+						add_filter( 'query', array($this, 'wpsipd_query') );
 
-					// update data indikator sasaran
-					$status = $wpdb->update('data_renstra_sasaran_lokal', [
-						'id_bidang_urusan' => $dataTujuan->id_bidang_urusan,
-						'id_misi' => $data['id_misi'],
-						'id_unit' => $dataTujuan->id_unit,
-						'id_visi' => $data['id_visi'],
-						'kode_bidang_urusan' => $dataTujuan->kode_bidang_urusan,
-						'kode_skpd' => $dataTujuan->kode_skpd,
-						'kode_tujuan' => $dataTujuan->kode_tujuan,
-						'nama_bidang_urusan' => $dataTujuan->nama_bidang_urusan,
-						'nama_skpd' => $dataTujuan->nama_skpd,
-						'sasaran_teks' => $data['sasaran_teks'],
-						'tujuan_lock' => $dataTujuan->tujuan_lock,
-						'tujuan_teks' => $dataTujuan->tujuan_teks,
-						'urut_sasaran' => $data['urut_sasaran'],
-						'urut_tujuan' => $dataTujuan->urut_tujuan,
-					], [
-						'id_unik' => $data['kode_sasaran'], // pake id_unik biar teks sasaran di row indikator sasaran ikut terupdate
-						'id_unik_indikator' => 'NOT NULL'
-					]);
+						// update data sasaran
+						$status = $wpdb->update('data_renstra_sasaran_lokal', [
+							'id_bidang_urusan' => $dataTujuan->id_bidang_urusan,
+							'id_misi' => $data['id_misi'],
+							'id_unit' => $dataTujuan->id_unit,
+							'id_visi' => $data['id_visi'],
+							'kode_bidang_urusan' => $dataTujuan->kode_bidang_urusan,
+							'kode_skpd' => $dataTujuan->kode_skpd,
+							'kode_tujuan' => $dataTujuan->kode_tujuan,
+							'nama_bidang_urusan' => $dataTujuan->nama_bidang_urusan,
+							'nama_skpd' => $dataTujuan->nama_skpd,
+							'sasaran_teks' => $data['sasaran_teks'],
+							'tujuan_lock' => $dataTujuan->tujuan_lock,
+							'tujuan_teks' => $dataTujuan->tujuan_teks,
+							'urut_sasaran' => $data['urut_sasaran'],
+							'catatan_usulan' => $data['catatan_usulan'],
+							'catatan' => $data['catatan'],
+							'urut_tujuan' => $dataTujuan->urut_tujuan,
+						], [
+							'id_unik' => $data['kode_sasaran'], // pake id_unik biar teks sasaran di row indikator sasaran ikut terupdate
+							'id_unik_indikator' => 'NULL'
+						]);
 
-					remove_filter( 'query', array($this, 'wpsipd_query') );
+						// update data indikator sasaran
+						$status = $wpdb->update('data_renstra_sasaran_lokal', [
+							'id_bidang_urusan' => $dataTujuan->id_bidang_urusan,
+							'id_misi' => $data['id_misi'],
+							'id_unit' => $dataTujuan->id_unit,
+							'id_visi' => $data['id_visi'],
+							'kode_bidang_urusan' => $dataTujuan->kode_bidang_urusan,
+							'kode_skpd' => $dataTujuan->kode_skpd,
+							'kode_tujuan' => $dataTujuan->kode_tujuan,
+							'nama_bidang_urusan' => $dataTujuan->nama_bidang_urusan,
+							'nama_skpd' => $dataTujuan->nama_skpd,
+							'sasaran_teks' => $data['sasaran_teks'],
+							'tujuan_lock' => $dataTujuan->tujuan_lock,
+							'tujuan_teks' => $dataTujuan->tujuan_teks,
+							'urut_sasaran' => $data['urut_sasaran'],
+							'urut_tujuan' => $dataTujuan->urut_tujuan,
+						], [
+							'id_unik' => $data['kode_sasaran'], // pake id_unik biar teks sasaran di row indikator sasaran ikut terupdate
+							'id_unik_indikator' => 'NOT NULL'
+						]);
 
-					if($status === false){
-						throw new Exception('Terjadi kesalahan saat simpan data, harap hubungi admin!');
+						// update data sasaran di table program dan indikator
+						$wpdb->update('data_renstra_program_lokal', [
+							'sasaran_teks' => $data['sasaran_teks'],
+							'urut_sasaran' => $data['urut_sasaran']
+						], [
+							'kode_sasaran' => $data['kode_sasaran']
+						]);
+
+						// update data sasaran di table kegiatan dan indikator
+						$wpdb->update('data_renstra_kegiatan_lokal', [
+							'sasaran_teks' => $data['sasaran_teks'],
+							'urut_sasaran' => $data['urut_sasaran']
+						], [
+							'kode_sasaran' => $data['kode_sasaran']
+						]);
+
+						// update data sasaran di table sub kegiatan dan indikator
+						$wpdb->update('data_renstra_sub_kegiatan_lokal', [
+							'sasaran_teks' => $data['sasaran_teks'],
+							'urut_sasaran' => $data['urut_sasaran']
+						], [
+							'kode_sasaran' => $data['kode_sasaran']
+						]);
+
+						remove_filter( 'query', array($this, 'wpsipd_query') );
+						
+						$wpdb->query('COMMIT');
+
+						die(json_encode([
+							'status' => true,
+							'message' => 'Sukses ubah sasaran RENSTRA',
+						]));
+
+					} catch (Exception $e) {
+
+						$wpdb->query('ROLLBACK');
+						
+						throw new Exception('Terjadi kesalahan saat ubah data, harap hubungi admin!');
 					}
-
-					echo json_encode([
-						'status' => true,
-						'message' => 'Sukses simpan sasaran'
-					]);exit;
-
 				}else{
 					throw new Exception('Api key tidak sesuai');
 				}
