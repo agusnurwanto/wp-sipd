@@ -4362,7 +4362,7 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 
             	$where_skpd = '';
 				if(!empty($_POST['id_unit'])){
-					$where_skpd = "and id_skpd=".$_POST['id_unit'];
+					$where_skpd = "and id_skpd=".$wpdb->prepare("%d", $_POST['id_unit']);
 				}
 
 				$unit = $wpdb->get_results($wpdb->prepare("
@@ -4395,7 +4395,7 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 
 				$_suffix='';
 				$where='';
-				if($jadwal_lokal->status){
+				if($jadwal_lokal->status == 1){
 					$_suffix='_history';
 					$where='AND id_jadwal='.$_POST['id_jadwal_lokal'];
 				}
