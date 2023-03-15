@@ -2208,17 +2208,17 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 		
 		if(!empty($_POST)){
 			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
-				if(!empty($_POST['tahun_anggaran']) && !empty($_POST['kode_sub_giat'])){				
+				if(!empty($_POST['tahun_anggaran']) && !empty($_POST['kode_sbl'])){				
 					$tahun_anggaran = $_POST['tahun_anggaran'];
-					$kode_sub_giat = $_POST['kode_sub_giat'];
+					$kode_sbl = $_POST['kode_sbl'];
 
 					$data_sub_giat = $wpdb->get_row($wpdb->prepare(
 						'SELECT *
 						FROM data_sub_keg_bl_lokal sk
-						WHERE sk.kode_sub_giat=%s
+						WHERE sk.kode_sbl=%s
 						AND sk.tahun_anggaran=%d
 						AND sk.active=1',
-						$kode_sub_giat,$tahun_anggaran
+						$kode_sbl,$tahun_anggaran
 					),ARRAY_A);
 					if(!empty($data_sub_giat)){
 						$ret['data'] = $data_sub_giat;
@@ -2350,24 +2350,14 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 
 		if(!empty($_POST)){
 			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
-				if(!empty($_POST['tahun_anggaran']) && !empty($_POST['kode_sub_giat'])){
+				if(!empty($_POST['tahun_anggaran']) && !empty($_POST['kode_sbl'])){
 					$tahun_anggaran = $_POST['tahun_anggaran'];
-					$kode_sub_giat = $_POST['kode_sub_giat'];
-
-					$data_sub_keg = $wpdb->get_results($wpdb->prepare(
-						'SELECT kode_sub_giat,
-							kode_sbl
-						FROM data_sub_keg_bl_lokal
-						WHERE kode_sub_giat=%s
-						AND tahun_anggaran=%d
-						AND active=1',
-						$kode_sub_giat,$tahun_anggaran
-					),ARRAY_A);
+					$kode_sbl = $_POST['kode_sbl'];
 	
-					$status = $wpdb->update('data_sub_keg_bl_lokal', array('active' => 0), array('kode_sub_giat' => $kode_sub_giat));
-					$status_indi_sub_keg = $wpdb->update('data_sub_keg_indikator_lokal', array('active' => 0), array('kode_sbl' => $data_sub_keg[0]['kode_sbl']));
-					$status_dana_sub_keg = $wpdb->update('data_dana_sub_keg_lokal', array('active' => 0), array('kode_sbl' => $data_sub_keg[0]['kode_sbl']));
-					$status_lokasi_sub_keg = $wpdb->update('data_lokasi_sub_keg_lokal', array('active' => 0), array('kode_sbl' => $data_sub_keg[0]['kode_sbl']));
+					$status = $wpdb->update('data_sub_keg_bl_lokal', array('active' => 0), array('kode_sbl' => $kode_sbl, 'tahun_anggaran' => $tahun_anggaran));
+					$status_indi_sub_keg = $wpdb->update('data_sub_keg_indikator_lokal', array('active' => 0), array('kode_sbl' => $kode_sbl, 'tahun_anggaran' => $tahun_anggaran));
+					$status_dana_sub_keg = $wpdb->update('data_dana_sub_keg_lokal', array('active' => 0), array('kode_sbl' => $kode_sbl, 'tahun_anggaran' => $tahun_anggaran));
+					$status_lokasi_sub_keg = $wpdb->update('data_lokasi_sub_keg_lokal', array('active' => 0), array('kode_sbl' => $kode_sbl, 'tahun_anggaran' => $tahun_anggaran));
 	
 					if($status === false){
 						$ret['status'] = 'error';
@@ -2658,13 +2648,21 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 					if($cek_jadwal['status'] == 'success'){
 						$tahun_anggaran = $_POST['tahun_anggaran'];
 						$data_post = json_decode(stripslashes($_POST['data']), true);
+
+						
+						$user_id = um_user( 'ID' );
+						$user_meta = get_userdata($user_id);
 	
 						if(!empty($_POST['kode_sbl'])){
 							$kode = explode('.', $_POST['kode_sbl']);
 							$kode_kegiatan = $kode[0].'.'.$kode[1].'.'.$kode[2].'.'.$kode[3];
 							/** Insert sasaran kegiatan */
-								$sasaran = !empty($data_post['kelompok_sasaran_renja_penetapan']) ? $data_post['kelompok_sasaran_renja_penetapan'] : NULL;
 								$sasaran_usulan = !empty($data_post['kelompok_sasaran_renja_usulan']) ? $data_post['kelompok_sasaran_renja_usulan'] : NULL;
+								$sasaran = NULL;
+								if(in_array("administrator", $user_meta->roles)){
+									$sasaran = !empty($data_post['kelompok_sasaran_renja_penetapan']) ? $data_post['kelompok_sasaran_renja_penetapan'] : NULL;
+								}
+
 								$wpdb->query($wpdb->prepare(
 									'UPDATE data_sub_keg_bl_lokal
 									SET sasaran=%s,
@@ -2704,11 +2702,6 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 									foreach ($data_post['indikator_kegiatan_penetapan'] as $k_indi => $v_indi) {
 										if(!empty($data_post['indikator_kegiatan_usulan'][$k_indi]) || !empty($data_post['indikator_kegiatan_penetapan'][$k_indi])){
 											$data_indikator = array(
-												'outputteks' => $data_post['indikator_kegiatan_penetapan'][$k_indi],
-												'satuanoutput' => $data_post['satuan_indikator_kegiatan_penetapan'][$k_indi],
-												'targetoutput' => $data_post['target_indikator_kegiatan_penetapan'][$k_indi],
-												'targetoutputteks' => $data_post['target_indikator_kegiatan_penetapan'][$k_indi].' '.$data_post['satuan_indikator_kegiatan_penetapan'][$k_indi],
-												'catatan' => $data_post['catatan_indikator_kegiatan_penetapan'][$k_indi],
 												'kode_sbl' => $v_sub['kode_sbl'],
 												'idsubbl' => $v_sub['id_sub_bl'],
 												'active' => 1,
@@ -2720,6 +2713,14 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 												'targetoutputteks_usulan' => $data_post['target_indikator_kegiatan_usulan'][$k_indi].' '.$data_post['satuan_indikator_kegiatan_usulan'][$k_indi],
 												'catatan_usulan' => $data_post['catatan_indikator_kegiatan_usulan'][$k_indi]
 											);
+
+											if(in_array("administrator", $user_meta->roles)){
+												$data_indikator['outputteks'] = $data_post['indikator_kegiatan_penetapan'][$k_indi];
+												$data_indikator['satuanoutput'] = $data_post['satuan_indikator_kegiatan_penetapan'][$k_indi];
+												$data_indikator['targetoutput'] = $data_post['target_indikator_kegiatan_penetapan'][$k_indi];
+												$data_indikator['targetoutputteks'] = $data_post['target_indikator_kegiatan_penetapan'][$k_indi].' '.$data_post['satuan_indikator_kegiatan_penetapan'][$k_indi];
+												$data_indikator['catatan'] = $data_post['catatan_indikator_kegiatan_penetapan'][$k_indi];
+											}
 
 											if(empty($cek_ids[$k_indi])){
 												$wpdb->insert('data_output_giat_sub_keg_lokal', $data_indikator);
@@ -2759,11 +2760,6 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 									foreach ($data_post['indikator_hasil_kegiatan_penetapan'] as $k_indi => $v_indi) {
 										if(!empty($data_post['indikator_hasil_kegiatan_usulan'][$k_indi]) || !empty($data_post['indikator_hasil_kegiatan_penetapan'][$k_indi])){
 											$data_indikator_hasil = array(
-												'hasilteks' => $data_post['indikator_hasil_kegiatan_penetapan'][$k_indi],
-												'satuanhasil' => $data_post['satuan_indikator_hasil_kegiatan_penetapan'][$k_indi],
-												'targethasil' => $data_post['target_indikator_hasil_kegiatan_penetapan'][$k_indi],
-												'targethasilteks' => $data_post['target_indikator_hasil_kegiatan_penetapan'][$k_indi].' '.$data_post['satuan_indikator_hasil_kegiatan_penetapan'][$k_indi],
-												'catatan' => $data_post['catatan_indikator_hasil_kegiatan_penetapan'][$k_indi],
 												'kode_sbl' => $v_sub['kode_sbl'],
 												'idsubbl' => $v_sub['id_sub_bl'],
 												'active' => 1,
@@ -2775,6 +2771,14 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 												'targethasilteks_usulan' => $data_post['target_indikator_hasil_kegiatan_usulan'][$k_indi].' '.$data_post['satuan_indikator_hasil_kegiatan_usulan'][$k_indi],
 												'catatan_usulan' => $data_post['catatan_indikator_hasil_kegiatan_usulan'][$k_indi]
 											);
+
+											if(in_array("administrator", $user_meta->roles)){
+												$data_indikator_hasil['hasilteks'] = $data_post['indikator_hasil_kegiatan_penetapan'][$k_indi];
+												$data_indikator_hasil['satuanhasil'] = $data_post['satuan_indikator_hasil_kegiatan_penetapan'][$k_indi];
+												$data_indikator_hasil['targethasil'] = $data_post['target_indikator_hasil_kegiatan_penetapan'][$k_indi];
+												$data_indikator_hasil['targethasilteks'] = $data_post['target_indikator_hasil_kegiatan_penetapan'][$k_indi].' '.$data_post['satuan_indikator_hasil_kegiatan_penetapan'][$k_indi];
+												$data_indikator_hasil['catatan'] = $data_post['catatan_indikator_hasil_kegiatan_penetapan'][$k_indi];
+											}
 	
 											if(empty($cek_ids[$k_indi])){
 												$wpdb->insert('data_keg_indikator_hasil_lokal', $data_indikator_hasil);

@@ -98,6 +98,7 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
 	ul.td-aksi {
 	    margin: 0;
 	    width: 45px;
+	    padding: 0;
 	}
 	ul.td-aksi li {
 	    list-style: none;
@@ -145,7 +146,7 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
 		margin-right: .5rem;
 	}
 	ul.td-aksi a {
-		text-decoration: none;
+		text-decoration: none !important;
 	}
 
 	.required {
