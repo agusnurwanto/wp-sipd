@@ -2486,6 +2486,10 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 				if(!empty($_POST['tahun_anggaran'])){
 					$tahun_anggaran = $_POST['tahun_anggaran'];
 					$data_post = json_decode(stripslashes($_POST['data']), true);
+
+					$user_id = um_user( 'ID' );
+					$user_meta = get_userdata($user_id);
+
 					if(!empty($data_post['kode_sbl'])){
 						$kode = explode('.', $data_post['kode_sbl']);
 						$kode_program = $kode[0].'.'.$kode[1].'.'.$kode[2];
@@ -2515,11 +2519,6 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 							foreach($data_post['indikator_program_penetapan'] as $key => $ind){
 								if(!empty($data_post['indikator_program_usulan'][$key])){
 									$data_indikator = array(
-										'satuancapaian'=> $data_post['satuan_indikator_program_penetapan'][$key],
-										'targetcapaianteks'=> $data_post['target_indikator_program_penetapan'][$key].' '.$data_post['satuan_indikator_program_penetapan'][$key],
-										'capaianteks'=> $data_post['indikator_program_penetapan'][$key],
-										'targetcapaian'=> $data_post['target_indikator_program_penetapan'][$key],
-										'catatan'=> $data_post['catatan_program_penetapan'][$key],
 										'kode_sbl'=> $sub['kode_sbl'],
 										'idsubbl'=> $sub['id_sub_bl'],
 										'active'=> 1,
@@ -2531,6 +2530,15 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 										'targetcapaian_usulan'=> $data_post['target_indikator_program_usulan'][$key],
 										'catatan_usulan'=> $data_post['catatan_program_usulan'][$key],
 									);
+
+									if(in_array("administrator", $user_meta->roles)){
+										$data_indikator['satuancapaian'] = $data_post['satuan_indikator_program_penetapan'][$key];
+										$data_indikator['targetcapaianteks'] = $data_post['target_indikator_program_penetapan'][$key].' '.$data_post['satuan_indikator_program_penetapan'][$key];
+										$data_indikator['capaianteks'] = $data_post['indikator_program_penetapan'][$key];
+										$data_indikator['targetcapaian'] = $data_post['target_indikator_program_penetapan'][$key];
+										$data_indikator['catatan'] = $data_post['catatan_program_penetapan'][$key];
+									}
+
 									if(empty($cek_ids[$key])){
 										$wpdb->insert('data_capaian_prog_sub_keg_lokal', $data_indikator);
 									}else{
@@ -2649,7 +2657,6 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 						$tahun_anggaran = $_POST['tahun_anggaran'];
 						$data_post = json_decode(stripslashes($_POST['data']), true);
 
-						
 						$user_id = um_user( 'ID' );
 						$user_meta = get_userdata($user_id);
 	
