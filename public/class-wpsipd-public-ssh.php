@@ -1607,11 +1607,35 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 					$filter = array();
 					if(!empty($_POST['id_standar_harga'])){
 						$id_standar_harga = $_POST['id_standar_harga'];
-						$data_id_ssh_usulan = $wpdb->get_results($wpdb->prepare('SELECT kode_standar_harga_sipd FROM data_ssh_usulan WHERE id_standar_harga = %d',$id_standar_harga), ARRAY_A);
-						$data_akun_ssh_usulan = $wpdb->get_results($wpdb->prepare('SELECT id,id_akun,nama_akun FROM data_ssh_rek_belanja_usulan WHERE id_standar_harga = %d',$id_standar_harga), ARRAY_A);
+						$data_id_ssh_usulan = $wpdb->get_results($wpdb->prepare('
+							SELECT 
+								kode_standar_harga_sipd 
+							FROM data_ssh_usulan 
+							WHERE id_standar_harga = %d
+						', $id_standar_harga), ARRAY_A);
+						$data_akun_ssh_usulan = $wpdb->get_results($wpdb->prepare('
+							SELECT 
+								id,
+								id_akun,
+								nama_akun 
+							FROM data_ssh_rek_belanja_usulan 
+							WHERE id_standar_harga = %d
+						',$id_standar_harga), ARRAY_A);
 						if(!empty($data_id_ssh_usulan[0]['kode_standar_harga_sipd'])){
-							$data_id_ssh_existing = $wpdb->get_results($wpdb->prepare('SELECT id_standar_harga FROM data_ssh WHERE kode_standar_harga = %s', $data_id_ssh_usulan[0]['kode_standar_harga_sipd']), ARRAY_A);
-							$data_akun_ssh_existing_sipd = $wpdb->get_results($wpdb->prepare('SELECT id,id_akun,nama_akun FROM data_ssh_rek_belanja WHERE id_standar_harga = %d',$data_id_ssh_existing[0]['id_standar_harga']), ARRAY_A);
+							$data_id_ssh_existing = $wpdb->get_results($wpdb->prepare('
+								SELECT 
+									id_standar_harga 
+								FROM data_ssh 
+								WHERE kode_standar_harga = %s
+							', $data_id_ssh_usulan[0]['kode_standar_harga_sipd']), ARRAY_A);
+							$data_akun_ssh_existing_sipd = $wpdb->get_results($wpdb->prepare('
+								SELECT 
+									id,
+									id_akun,
+									nama_akun 
+								FROM data_ssh_rek_belanja 
+								WHERE id_standar_harga = %d
+							',$data_id_ssh_existing[0]['id_standar_harga']), ARRAY_A);
 						}
 						$filter_all = array_merge($data_akun_ssh_usulan, $data_akun_ssh_existing_sipd);
 						foreach($filter_all as $akun){
@@ -1643,11 +1667,8 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 							AND tahun_anggaran = %d
 							AND kode_akun LIKE '5.%'
 							$where
-						LIMIT %d, 20",
-						1,
-						$tahun_anggaran,
-						$_POST['page']
-					), ARRAY_A);
+						LIMIT %d, 20
+					", 1, $tahun_anggaran, $_POST['page']), ARRAY_A);
 					$return['sql'] = $wpdb->last_query;
 
 					foreach ($data_akun as $key => $value) {
