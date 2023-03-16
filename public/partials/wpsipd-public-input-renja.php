@@ -119,7 +119,6 @@ foreach ($subkeg as $kk => $sub) {
         where tahun_anggaran=%d
             and active=1
             and kode_sbl=%s
-            and capaianteks != ''
         order by id ASC
     ", $input['tahun_anggaran'], $sub['kode_sbl']), ARRAY_A);
 
@@ -385,28 +384,28 @@ $body = '';
                             $kd_sub_giat = explode('.', $kd_sub_giat);
                             $kd_sub_giat = $kd_sub_giat[count($kd_sub_giat)-1];
                             $capaian_prog = '';
-                            if(!empty($sub_giat['capaian_prog'])){
-                                $capaian_prog = $sub_giat['capaian_prog'][0]['capaianteks'];
-                            }
                             $target_capaian_prog = '';
                             if(!empty($sub_giat['capaian_prog'])){
-                                $target_capaian_prog = $sub_giat['capaian_prog'][0]['targetcapaianteks'];
+                                $capaian_prog = array();
+                                $target_capaian_prog = array();
+                                foreach ($sub_giat['capaian_prog'] as $k_sub => $v_sub) {
+                                    $capaian_prog[] = $v_sub['capaianteks'].'<span class="nilai_usulan">'.$v_sub['capaianteks_usulan'].'</span>';
+                                    $target_capaian_prog[] = $v_sub['targetcapaianteks'].'<span class="nilai_usulan">'.$v_sub['targetcapaianteks_usulan'].'</span>';
+                                }
+                                $capaian_prog = implode('<br>', $capaian_prog);
+                                $target_capaian_prog = implode('<br>', $target_capaian_prog);
                             }
                             $output_giat = '';
-                            if(!empty($sub_giat['output_giat'])){
-                                $output_giat = $sub_giat['output_giat'][0]['outputteks'];
-                            }
-                            $output_giat_usulan = '';
-                            if(!empty($sub_giat['output_giat'])){
-                                $output_giat_usulan = $sub_giat['output_giat'][0]['outputteks_usulan'];
-                            }
                             $target_output_giat = '';
                             if(!empty($sub_giat['output_giat'])){
-                                $target_output_giat = $sub_giat['output_giat'][0]['targetoutputteks'];
-                            }
-                            $target_output_giat_usulan = '';
-                            if(!empty($sub_giat['output_giat'])){
-                                $target_output_giat_usulan = $sub_giat['output_giat'][0]['targetoutputteks_usulan'];
+                                $output_giat = array();
+                                $target_output_giat = array();
+                                foreach ($sub_giat['output_giat'] as $k_sub => $v_sub) {
+                                    $output_giat[] = $v_sub['outputteks'].'<span class="nilai_usulan">'.$v_sub['outputteks_usulan'].'</span>';
+                                    $target_output_giat[] = $v_sub['targetoutputteks'].'<span class="nilai_usulan">'.$v_sub['targetoutputteks_usulan'].'</span>';
+                                }
+                                $output_giat = implode('<br>', $output_giat);
+                                $target_output_giat = implode('<br>', $target_output_giat);
                             }
                             $output_sub_giat = '';
                             $target_output_sub_giat = '';
@@ -498,11 +497,11 @@ $body = '';
                                     <td class="kanan bawah">'.$sub_giat['nama'].'</td>
                                     <td class="kanan bawah">'.$capaian_prog.'</td>
                                     <td class="kanan bawah">'.$output_sub_giat.'</td>
-                                    <td class="kanan bawah">'.$output_giat.'<span class="nilai_usulan">'.$output_giat_usulan.'</span></td>
+                                    <td class="kanan bawah">'.$output_giat.'</td>
                                     <td class="kanan bawah">'.$lokasi_sub_giat.'</td>
                                     <td class="kanan bawah">'.$target_capaian_prog.'</td>
                                     <td class="kanan bawah">'.$target_output_sub_giat.'</td>
-                                    <td class="kanan bawah">'.$target_output_giat.'<span class="nilai_usulan">'.$target_output_giat_usulan.'</span></td>
+                                    <td class="kanan bawah">'.$target_output_giat.'</td>
                                     <td class="kanan bawah text_kanan">'.number_format($sub_giat['total'],0,",",".").'<span class="nilai_usulan">'.number_format($sub_giat['total_usulan'],0,",",".").'</span></td>
                                     <td class="kanan bawah">'.$dana_sub_giat.'</td>
                                     <td class="kanan bawah">'.$catatan.'</td>
@@ -2091,10 +2090,10 @@ echo '
                             +"</tr>"
                             +"<tr data-id='1' type='penetapan'>"
                                 +"<td class='text-center'>Penetapan</td>"
-                                +"<td><textarea class='form-control' type='text' id='indikator_program_penetapan_1' name='indikator_program_penetapan[1]'></textarea></td>"
-                                +"<td><input class='form-control' type='number' id='target_indikator_program_penetapan_1' name='target_indikator_program_penetapan[1]'></td>"
-                                +"<td><input class='form-control' type='text' id='satuan_indikator_program_penetapan_1' name='satuan_indikator_program_penetapan[1]'></td>"
-                                +"<td><textarea class='form-control' id='catatan_program_penetapan_1' name='catatan_program_penetapan[1]'></textarea></td>"
+                                +"<td><textarea class='form-control' type='text' id='indikator_program_penetapan_1' name='indikator_program_penetapan[1]' <?php echo $disabled; ?>></textarea></td>"
+                                +"<td><input class='form-control' type='number' id='target_indikator_program_penetapan_1' name='target_indikator_program_penetapan[1]' <?php echo $disabled; ?>></td>"
+                                +"<td><input class='form-control' type='text' id='satuan_indikator_program_penetapan_1' name='satuan_indikator_program_penetapan[1]' <?php echo $disabled; ?>></td>"
+                                +"<td><textarea class='form-control' id='catatan_program_penetapan_1' name='catatan_program_penetapan[1]' <?php echo $disabled; ?>></textarea></td>"
                             +"</tr>";
                         }else{
     						response.data.map(function(value, index){
@@ -2125,16 +2124,25 @@ echo '
                                 +"</tr>"
                                 +"<tr data-id='"+id+"' type='penetapan'>"
                                     +"<td class='text-center'>Penetapan</td>"
-                                    +"<td><textarea class='form-control' type='text' id='indikator_program_penetapan_"+id+"' name='indikator_program_penetapan["+id+"]'>"+value.capaianteks+"</textarea></td>"
-                                    +"<td><input class='form-control' type='number' id='target_indikator_program_penetapan_"+id+"' name='target_indikator_program_penetapan["+id+"]' value='"+value.targetcapaian+"'></td>"
-                                    +"<td><input class='form-control' type='text' id='satuan_indikator_program_penetapan_"+id+"' name='satuan_indikator_program_penetapan["+id+"]' value='"+value.satuancapaian+"'></td>"
-                                    +"<td><textarea class='form-control' id='catatan_program_penetapan_"+id+"' name='catatan_program_penetapan["+id+"]'>"+value.catatan+"</textarea></td>"
+                                    +"<td><textarea class='form-control' type='text' id='indikator_program_penetapan_"+id+"' name='indikator_program_penetapan["+id+"]' <?php echo $disabled; ?>>"+value.capaianteks+"</textarea></td>"
+                                    +"<td><input class='form-control' type='number' id='target_indikator_program_penetapan_"+id+"' name='target_indikator_program_penetapan["+id+"]' value='"+value.targetcapaian+"' <?php echo $disabled; ?>></td>"
+                                    +"<td><input class='form-control' type='text' id='satuan_indikator_program_penetapan_"+id+"' name='satuan_indikator_program_penetapan["+id+"]' value='"+value.satuancapaian+"' <?php echo $disabled; ?>></td>"
+                                    +"<td><textarea class='form-control' id='catatan_program_penetapan_"+id+"' name='catatan_program_penetapan["+id+"]' <?php echo $disabled; ?>>"+value.catatan+"</textarea></td>"
                                 +"</tr>";
     		          		});
                         }
 		          	html+=''
 		          		+'</tbody>'
 		          	+'</table>'
+					<?php if($is_admin): ?>
+						+'<div class="row">'
+							+'<div class="col-md-12 text-center">'
+								+'<button onclick="copy_usulan(this); return false;" type="button" class="btn btn-danger" style="margin-top: 20px;">'
+									+'<i class="dashicons dashicons-arrow-right-alt" style="margin-top: 2px;"></i> Copy Data Usulan ke Penetapan'
+								+'</button>'
+							+'</div>'
+						+'</div>'
+					<?php endif; ?>
                 +'</form>';
 
                 jQuery('#modal-indikator-renja').find('.modal-title').html('Indikator Program');
@@ -2363,6 +2371,15 @@ echo '
 		          	html+=''
 		          		+'</tbody>'
 		          	+'</table>'
+					<?php if($is_admin): ?>
+						+'<div class="row">'
+							+'<div class="col-md-12 text-center">'
+								+'<button onclick="copy_usulan(this); return false;" type="button" class="btn btn-danger" style="margin-top: 20px;">'
+									+'<i class="dashicons dashicons-arrow-right-alt" style="margin-top: 2px;"></i> Copy Data Usulan ke Penetapan'
+								+'</button>'
+							+'</div>'
+						+'</div>'
+					<?php endif; ?>
                 +'</form>';
 
                 jQuery('#modal-indikator-renja').find('.modal-title').html('Indikator Kegiatan');
@@ -2459,4 +2476,48 @@ echo '
     function hide_usulan(that){
         jQuery(".nilai_usulan").toggle();
     }
+
+    function copy_usulan(that){
+		var modal = jQuery(that).closest('.modal-dialog');
+        //program
+        var total_prog = modal.find('#indikator_program tr:last-child').attr('data-id');
+        total_prog = total_prog+1;
+        for (let step = 1; step < total_prog; step++) {
+            var usulan = modal.find('textarea[name="indikator_program_usulan['+step+']"]').val();
+            modal.find('textarea[name="indikator_program_penetapan['+step+']"]').val(usulan);
+            var usulan = modal.find('input[name="target_indikator_program_usulan['+step+']"]').val();
+            modal.find('input[name="target_indikator_program_penetapan['+step+']"]').val(usulan);
+            var usulan = modal.find('input[name="satuan_indikator_program_usulan['+step+']"]').val();
+            modal.find('input[name="satuan_indikator_program_penetapan['+step+']"]').val(usulan);
+            var usulan = modal.find('textarea[name="catatan_program_usulan['+step+']"]').val();
+            modal.find('textarea[name="catatan_program_penetapan['+step+']"]').val(usulan);
+        }
+        //kegiatan
+		var usulan = modal.find('textarea[name="kelompok_sasaran_renja_usulan"]').val();
+		modal.find('textarea[name="kelompok_sasaran_renja_penetapan"]').val(usulan);
+        var total_giat = modal.find('#indikator_kegiatan tr:last-child').attr('data-id');
+        total_giat = total_giat+1;
+        for (let step = 1; step < total_giat; step++) {
+            var usulan = modal.find('textarea[name="indikator_kegiatan_usulan['+step+']"]').val();
+            modal.find('textarea[name="indikator_kegiatan_penetapan['+step+']"]').val(usulan);
+            var usulan = modal.find('input[name="target_indikator_kegiatan_usulan['+step+']"]').val();
+            modal.find('input[name="target_indikator_kegiatan_penetapan['+step+']"]').val(usulan);
+            var usulan = modal.find('input[name="satuan_indikator_kegiatan_usulan['+step+']"]').val();
+            modal.find('input[name="satuan_indikator_kegiatan_penetapan['+step+']"]').val(usulan);
+            var usulan = modal.find('textarea[name="catatan_indikator_kegiatan_usulan['+step+']"]').val();
+            modal.find('textarea[name="catatan_indikator_kegiatan_penetapan['+step+']"]').val(usulan);
+        }
+        var total_hasil = modal.find('#indikator_kegiatan tr:last-child').attr('data-id');
+        total_hasil = total_hasil+1;
+        for (let step = 1; step < total_hasil; step++) {
+            var usulan = modal.find('textarea[name="indikator_hasil_kegiatan_usulan['+step+']"]').val();
+            modal.find('textarea[name="indikator_hasil_kegiatan_penetapan['+step+']"]').val(usulan);
+            var usulan = modal.find('input[name="target_indikator_hasil_kegiatan_usulan['+step+']"]').val();
+            modal.find('input[name="target_indikator_hasil_kegiatan_penetapan['+step+']"]').val(usulan);
+            var usulan = modal.find('input[name="satuan_indikator_hasil_kegiatan_usulan['+step+']"]').val();
+            modal.find('input[name="satuan_indikator_hasil_kegiatan_penetapan['+step+']"]').val(usulan);
+            var usulan = modal.find('textarea[name="catatan_indikator_hasil_kegiatan_usulan['+step+']"]').val();
+            modal.find('textarea[name="catatan_indikator_hasil_kegiatan_penetapan['+step+']"]').val(usulan);
+        }
+	}
 </script>
