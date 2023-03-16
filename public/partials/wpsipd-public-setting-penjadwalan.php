@@ -421,7 +421,8 @@ $body = '';
 	          	type: "post",
 	          	data: {
 	          		"action": "copy_usulan_renja",
-	          		"api_key": jQuery("#api_key").val()
+	          		"api_key": jQuery("#api_key").val(),
+					"tahun_anggaran": tahun_anggaran
 	          	},
 	          	dataType: "json",
 	          	success: function(res){

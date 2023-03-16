@@ -81,7 +81,10 @@ if(!empty($jadwal_lokal)){
     $now = new DateTime(date('Y-m-d H:i:s'));
 
     if($now >= $awal && $now <= $akhir){
-        $add_renja = '<a style="margin-left: 10px;" id="tambah-data" onclick="return false;" href="#" class="btn btn-success">Tambah Data RENJA</a>';
+        if($is_admin){
+	        $add_renja .='<a style="margin-left: 10px;" onclick="copy_usulan_all(); return false;" href="#" class="btn btn-danger">Copy Data Usulan ke Penetapan</a>';
+        }
+        $add_renja .= '<a style="margin-left: 10px;" id="tambah-data" onclick="return false;" href="#" class="btn btn-success">Tambah Data RENJA</a>';
         if(!empty($jadwal_lokal[0]['relasi_perencanaan'])){
             $add_renja .= '<a style="margin-left: 10px;" id="copy-data-renstra-skpd" data-jadwal="'.$idJadwalRenja.'" data-skpd="'.$input['id_skpd'].'" onclick="return false;" href="#" class="btn btn-danger">Copy Data Renstra per SKPD</a>';
         }
@@ -2519,5 +2522,34 @@ echo '
             var usulan = modal.find('textarea[name="catatan_indikator_hasil_kegiatan_usulan['+step+']"]').val();
             modal.find('textarea[name="catatan_indikator_hasil_kegiatan_penetapan['+step+']"]').val(usulan);
         }
+	}
+
+    function copy_usulan_all(){
+		if(confirm('Apakah anda yakin untuk melakukan ini? data penetapan akan diupdate sama dengan data usulan.')){
+            let id_skpd = "<?php echo $input['id_skpd']; ?>";
+            if(id_skpd == ''){
+                alert('Id SKPD Kosong')
+            }else{
+                jQuery('#wrap-loading').show();
+                jQuery.ajax({
+                    method: 'post',
+                    url: '<?php echo admin_url('admin-ajax.php'); ?>',
+                    dataType: "json",
+                    data: {
+                    "action": "copy_usulan_renja",
+                    "api_key": jQuery('#api_key').val(),
+                    "id_skpd": id_skpd,
+                    "tahun_anggaran": tahun_anggaran
+                    },
+                    success: function(res){
+                        jQuery('#wrap-loading').hide();
+                        alert(res.message);
+                        if(res.status == 'success'){
+                            refresh_page();
+                        }
+                    }
+                });
+            }
+		}
 	}
 </script>
