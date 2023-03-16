@@ -385,36 +385,28 @@ $body = '';
                             $kd_sub_giat = explode('.', $kd_sub_giat);
                             $kd_sub_giat = $kd_sub_giat[count($kd_sub_giat)-1];
                             $capaian_prog = '';
-                            if(!empty($sub_giat['capaian_prog'])){
-                                $capaian_prog = $sub_giat['capaian_prog'][0]['capaianteks'];
-                            }
-                            $capaian_prog_usulan = '';
-                            if(!empty($sub_giat['capaian_prog'])){
-                                $capaian_prog_usulan = $sub_giat['capaian_prog'][0]['capaianteks_usulan'];
-                            }
                             $target_capaian_prog = '';
                             if(!empty($sub_giat['capaian_prog'])){
-                                $target_capaian_prog = $sub_giat['capaian_prog'][0]['targetcapaianteks'];
-                            }
-                            $target_capaian_prog_usulan = '';
-                            if(!empty($sub_giat['capaian_prog'])){
-                                $target_capaian_prog_usulan = $sub_giat['capaian_prog'][0]['targetcapaianteks_usulan'];
+                                $capaian_prog = array();
+                                $target_capaian_prog = array();
+                                foreach ($sub_giat['capaian_prog'] as $k_sub => $v_sub) {
+                                    $capaian_prog[] = $v_sub['capaianteks'].'<span class="nilai_usulan">'.$v_sub['capaianteks_usulan'].'</span>';
+                                    $target_capaian_prog[] = $v_sub['targetcapaianteks'].'<span class="nilai_usulan">'.$v_sub['targetcapaianteks_usulan'].'</span>';
+                                }
+                                $capaian_prog = implode('<br>', $capaian_prog);
+                                $target_capaian_prog = implode('<br>', $target_capaian_prog);
                             }
                             $output_giat = '';
-                            if(!empty($sub_giat['output_giat'])){
-                                $output_giat = $sub_giat['output_giat'][0]['outputteks'];
-                            }
-                            $output_giat_usulan = '';
-                            if(!empty($sub_giat['output_giat'])){
-                                $output_giat_usulan = $sub_giat['output_giat'][0]['outputteks_usulan'];
-                            }
                             $target_output_giat = '';
                             if(!empty($sub_giat['output_giat'])){
-                                $target_output_giat = $sub_giat['output_giat'][0]['targetoutputteks'];
-                            }
-                            $target_output_giat_usulan = '';
-                            if(!empty($sub_giat['output_giat'])){
-                                $target_output_giat_usulan = $sub_giat['output_giat'][0]['targetoutputteks_usulan'];
+                                $output_giat = array();
+                                $target_output_giat = array();
+                                foreach ($sub_giat['output_giat'] as $k_sub => $v_sub) {
+                                    $output_giat[] = $v_sub['outputteks'].'<span class="nilai_usulan">'.$v_sub['outputteks_usulan'].'</span>';
+                                    $target_output_giat[] = $v_sub['targetoutputteks'].'<span class="nilai_usulan">'.$v_sub['targetoutputteks_usulan'].'</span>';
+                                }
+                                $output_giat = implode('<br>', $output_giat);
+                                $target_output_giat = implode('<br>', $target_output_giat);
                             }
                             $output_sub_giat = '';
                             $target_output_sub_giat = '';
@@ -504,13 +496,13 @@ $body = '';
                                     <td class="kanan bawah">'.$kd_giat.'</td>
                                     <td class="kanan bawah">'.$kd_sub_giat.'</td>
                                     <td class="kanan bawah">'.$sub_giat['nama'].'</td>
-                                    <td class="kanan bawah">'.$capaian_prog.'<span class="nilai_usulan">'.$capaian_prog_usulan.'</span></td>
+                                    <td class="kanan bawah">'.$capaian_prog.'</td>
                                     <td class="kanan bawah">'.$output_sub_giat.'</td>
-                                    <td class="kanan bawah">'.$output_giat.'<span class="nilai_usulan">'.$output_giat_usulan.'</span></td>
+                                    <td class="kanan bawah">'.$output_giat.'</td>
                                     <td class="kanan bawah">'.$lokasi_sub_giat.'</td>
-                                    <td class="kanan bawah">'.$target_capaian_prog.'<span class="nilai_usulan">'.$target_capaian_prog_usulan.'</span></td>
+                                    <td class="kanan bawah">'.$target_capaian_prog.'</td>
                                     <td class="kanan bawah">'.$target_output_sub_giat.'</td>
-                                    <td class="kanan bawah">'.$target_output_giat.'<span class="nilai_usulan">'.$target_output_giat_usulan.'</span></td>
+                                    <td class="kanan bawah">'.$target_output_giat.'</td>
                                     <td class="kanan bawah text_kanan">'.number_format($sub_giat['total'],0,",",".").'<span class="nilai_usulan">'.number_format($sub_giat['total_usulan'],0,",",".").'</span></td>
                                     <td class="kanan bawah">'.$dana_sub_giat.'</td>
                                     <td class="kanan bawah">'.$catatan.'</td>
