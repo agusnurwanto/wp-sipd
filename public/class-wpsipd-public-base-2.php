@@ -2517,7 +2517,7 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 									AND kode_sbl=%s
 							', $tahun_anggaran, $sub['kode_sbl']), ARRAY_A);
 							foreach($data_post['indikator_program_penetapan'] as $key => $ind){
-								if(!empty($data_post['indikator_program_usulan'][$key])){
+								if(!empty($data_post['indikator_program_usulan'][$key]) || !empty($data_post['indikator_program_penetapan'][$key])){
 									$data_indikator = array(
 										'kode_sbl'=> $sub['kode_sbl'],
 										'idsubbl'=> $sub['id_sub_bl'],
