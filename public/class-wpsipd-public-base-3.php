@@ -3155,15 +3155,34 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 		try{
 			if (!empty($_POST)) {
 				if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+					$tahun_anggaran = get_option('_crb_tahun_anggaran_sipd');
+					$kode_program = $wpdb->get_var($wpdb->prepare("
+						SELECT 
+							kode_program 
+						FROM data_prog_keg
+						WHERE id_program=%d 
+					", $_POST['id_program']));
+
+					$where = '';
+					$cek_pemda = $this->cek_kab_kot();
+					// tahun 2024 sudah menggunakan sipd-ri
+					if(
+						$cek_pemda['status'] == 1 
+						&& $tahun_anggaran >= 2024
+					){
+						$where .= ' AND set_kab_kota=1';
+					}else if($cek_pemda['status'] == 2){
+						$where .= ' AND set_prov=1';
+					}
 
 					$sql = $wpdb->prepare("
 						SELECT 
 							* 
 						FROM data_prog_keg
-						WHERE 
-							id_program=%d AND
-							tahun_anggaran=%d
-					", $_POST['id_program'], get_option('_crb_tahun_anggaran_sipd'));
+						WHERE kode_program=%s
+							AND tahun_anggaran=%d
+							$where
+					", $kode_program, $tahun_anggaran);
 					$data = $wpdb->get_results($sql, ARRAY_A);
 
 					$kegiatan = [];
@@ -3178,6 +3197,7 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 
 					echo json_encode([
 						'status' => true,
+						'sql' => $wpdb->last_query,
 						'data' => array_values($kegiatan)
 					]);exit;
 
@@ -4096,6 +4116,18 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 
                 $join = "";
                 $where = "";
+
+                $cek_pemda = $this->cek_kab_kot();
+				// tahun 2024 sudah menggunakan sipd-ri
+				if(
+					$cek_pemda['status'] == 1 
+					&& $tahun_anggaran >= 2024
+				){
+					$where .= ' AND u.set_kab_kota=1';
+				}else if($cek_pemda['status'] == 2){
+					$where .= ' AND u.set_prov=1';
+				}
+
                 if(!empty($_POST['id_unit'])){
             		if($_POST['type']==1){
             			$join.="

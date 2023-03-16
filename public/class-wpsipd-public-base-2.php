@@ -1649,6 +1649,17 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 					$skpd_db = $skpd['skpd'];
 					$bidur_db = $skpd['bidur'];
 
+					$where = '';
+					$cek_pemda = $this->cek_kab_kot();
+					// tahun 2024 sudah menggunakan sipd-ri
+					if(
+						$cek_pemda['status'] == 1 
+						&& $tahun_anggaran >= 2024
+					){
+						$where .= ' AND set_kab_kota=1';
+					}else if($cek_pemda['status'] == 2){
+						$where .= ' AND set_prov=1';
+					}
 					$data_sub_kegiatan = array();
 					foreach($bidur_db as $k_bidur => $v_bidur){
 						if(!empty($_POST['kode_giat'])){
@@ -1660,8 +1671,9 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 									nama_sub_giat
 								FROM data_prog_keg
 								WHERE id_bidang_urusan=%d
-								AND tahun_anggaran=%d
-								AND kode_giat=%s
+									AND tahun_anggaran=%d
+									AND kode_giat=%s
+									'.$where.'
 							', $v_bidur['id_bidang_urusan'],$tahun_anggaran, $_POST['kode_giat']),ARRAY_A);
 						}else{
 							$data = $wpdb->get_results($wpdb->prepare(
@@ -1672,7 +1684,8 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 									nama_sub_giat
 								FROM data_prog_keg
 								WHERE id_bidang_urusan=%d
-								AND tahun_anggaran=%d
+									AND tahun_anggaran=%d
+									'.$where.'
 							', $v_bidur['id_bidang_urusan'],$tahun_anggaran),ARRAY_A);
 						}
 
@@ -1681,7 +1694,7 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 						}
 					}
 					$ret['data'] = $data_sub_kegiatan;
-					// $ret['sql'] = $wpdb->last_query;
+					$ret['sql'] = $wpdb->last_query;
 				}else{
 					$ret['status'] = 'error';
 					$ret['message'] = 'Ada param yang kosong!';	

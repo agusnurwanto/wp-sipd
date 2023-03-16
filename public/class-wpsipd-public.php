@@ -2638,7 +2638,21 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						$sub_giat = $_POST['subgiat'];
 					}
 					foreach ($sub_giat as $k => $v) {
-						$cek = $wpdb->get_var("SELECT id_sub_giat from data_prog_keg where tahun_anggaran=".$_POST['tahun_anggaran']." AND id_sub_giat=" . $v['id_sub_giat']);
+						// nama program kegiatan disertakan dengan kodenya agar sesuai dengan format sebelumnya
+						if(!empty($_POST['type']) && $_POST['type'] == 'ri'){
+							$v['nama_urusan'] = $v['kode_urusan'].' '.$v['nama_urusan'];
+							$v['nama_bidang_urusan'] = $v['kode_bidang_urusan'].' '.$v['nama_bidang_urusan'];
+							$v['nama_program'] = $v['kode_program'].' '.$v['nama_program'];
+							$v['nama_giat'] = $v['kode_giat'].' '.$v['nama_giat'];
+							$v['nama_sub_giat'] = $v['kode_sub_giat'].' '.$v['nama_sub_giat'];
+						}
+						$cek_id = $wpdb->get_var($wpdb->prepare("
+							SELECT 
+								id 
+							from data_prog_keg 
+							where tahun_anggaran=%d 
+								AND id_sub_giat=%d
+						", $_POST['tahun_anggaran'], $v['id_sub_giat']));
 						$opsi = array(
 							'id_bidang_urusan' => $v['id_bidang_urusan'],
 							'id_program' => $v['id_program'],
@@ -2675,10 +2689,9 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 							'tahun_anggaran' => $_POST['tahun_anggaran']
 						);
 
-						if (!empty($cek)) {
+						if (!empty($cek_id)) {
 							$wpdb->update('data_prog_keg', $opsi, array(
-								'id_sub_giat' => $v['id_sub_giat'],
-								'tahun_anggaran' => $_POST['tahun_anggaran']
+								'id' => $cek_id
 							));
 						} else {
 							$wpdb->insert('data_prog_keg', $opsi);
@@ -2686,14 +2699,14 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						// master indikator sub_giat
 						if(!empty($_POST['type']) && $_POST['type'] == 'ri'){
 							$cek_indikator = $wpdb->get_var($wpdb->prepare("
-																	SELECT
-																		id 
-																	FROM data_master_indikator_subgiat
-																	WHERE
-																		indikator=%s
-																		AND id_sub_keg=%d
-																		AND tahun_anggaran=%d
-																", trim($v['indikator']), $v['id_sub_giat'], $_POST['tahun_anggaran']));
+								SELECT
+									id 
+								FROM data_master_indikator_subgiat
+								WHERE
+									indikator=%s
+									AND id_sub_keg=%d
+									AND tahun_anggaran=%d
+							", trim($v['indikator']), $v['id_sub_giat'], $_POST['tahun_anggaran']));
 							$opsi = array(
 								// 'id_skpd' => null,
 								'id_sub_keg' => $v['id_sub_giat'],
@@ -2704,9 +2717,9 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 								'tahun_anggaran' => $_POST['tahun_anggaran']								
 							);
 							if(!empty($cek_indikator)){
-							$wpdb->update('data_master_indikator_subgiat', $opsi, array(
-								'id' => $cek_indikator
-							));
+								$wpdb->update('data_master_indikator_subgiat', $opsi, array(
+									'id' => $cek_indikator
+								));
 							}else{
 								$wpdb->insert('data_master_indikator_subgiat',$opsi);
 							}
@@ -2725,6 +2738,23 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 			$ret['message'] = 'Format Salah!';
 		}
 		die(json_encode($ret));
+	}
+
+	public function cek_kab_kot(){
+		$prov = get_option('_crb_id_lokasi_prov');
+		$kabkot = get_option('_crb_id_lokasi_kokab');
+		// 0 kosong, 1 kabupaten / kota, 2 provinsi
+		$ret = array(
+			'prov' => $prov,
+			'kabkot' => $kabkot,
+			'status' => 0
+		);
+		if(!empty($kabkot)){
+			$ret['status'] = 1;
+		}else if(!empty($prov)){
+			$ret['status'] = 2;
+		}
+		return $ret;
 	}
 
 	public function singkron_data_rpjmd()
@@ -11134,12 +11164,26 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						$new_keg_fmis[strtolower(trim($sub['kegiatan']))] = $sub;
 						$new_prog_fmis[strtolower(trim($sub['program']))] = $sub;
 					}
+
+					$where = '';
+					$cek_pemda = $this->cek_kab_kot();
+					// tahun 2024 sudah menggunakan sipd-ri
+					if(
+						$cek_pemda['status'] == 1 
+						&& $tahun_anggaran >= 2024
+					){
+						$where .= ' AND set_kab_kota=1';
+					}else if($cek_pemda['status'] == 2){
+						$where .= ' AND set_prov=1';
+					}
+
 					$sub_keg_sipd = $wpdb->get_results($wpdb->prepare("
 						SELECT 
 							*
 						FROM
 							data_prog_keg
 						WHERE tahun_anggaran=%d
+							$where
 					", $_POST['tahun_anggaran']), ARRAY_A);
 					$cek_sipd_belum_ada_di_fmis = array();
 					$cek_sipd_keg_belum_ada_di_fmis = array();
