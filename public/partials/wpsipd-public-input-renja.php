@@ -119,7 +119,6 @@ foreach ($subkeg as $kk => $sub) {
         where tahun_anggaran=%d
             and active=1
             and kode_sbl=%s
-            and capaianteks != ''
         order by id ASC
     ", $input['tahun_anggaran'], $sub['kode_sbl']), ARRAY_A);
 
