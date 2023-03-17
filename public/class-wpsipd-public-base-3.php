@@ -8057,7 +8057,7 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 					SELECT 
 					  COALESCE(SUM(s.pagu_usulan), 0) as pagu_usulan,
 					  COALESCE(SUM(s.pagu), 0) as pagu_penetapan
-					FROM data_sub_keg_bl_lokal s
+					FROM data_sub_keg_bl_lokal".$_suffix." s
 					WHERE s.tahun_anggaran=%d
 					  AND s.id_sub_skpd=%d
 					  AND s.active=1", $tahun_anggaran, $unit['id_skpd']);
