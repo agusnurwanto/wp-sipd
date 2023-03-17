@@ -6395,7 +6395,7 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 	        'message'   => 'Berhasil generate laporan pagu akumulasi!'
 	    );
 	    $data_all = array(
-				'data' => array()
+			'data' => array()
 		);
 
 		if (!empty($_POST)) {
@@ -7906,5 +7906,226 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 				'message' => $e->getMessage()
 			]);exit();
 		}
+    }
+
+    public function list_perangkat_daerah(){
+    	global $wpdb;
+
+    	try {
+    		if (!empty($_POST)) {
+				if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+
+					$all_skpd = array();
+					$list_skpd_options = '<option value="">Pilih Unit Kerja</option><option value="all">Semua Unit Kerja</option>';
+					$nama_skpd = "";
+					if(
+						in_array("PA", $this->role())
+						|| in_array("KPA", $this->role())
+						|| in_array("PLT", $this->role())
+					){
+						$nipkepala = get_user_meta($user_id, '_nip');
+						$skpd_db = $wpdb->get_results($wpdb->prepare("
+							SELECT 
+								nama_skpd, 
+								id_skpd, 
+								kode_skpd,
+								is_skpd
+							from data_unit 
+							where nipkepala=%s 
+								and tahun_anggaran=%d
+							group by id_skpd", $nipkepala[0], $_POST['tahun_anggaran']), ARRAY_A);
+						foreach ($skpd_db as $skpd) {
+							$nama_skpd = '<br>'.$skpd['kode_skpd'].' '.$skpd['nama_skpd'];
+							$all_skpd[] = $skpd;
+							$list_skpd_options .= '<option value="'.$skpd['id_skpd'].'">'.$skpd['kode_skpd'].' '.$skpd['nama_skpd'].'</option>';
+							if($skpd['is_skpd'] == 1){
+								$sub_skpd_db = $wpdb->get_results($wpdb->prepare("
+									SELECT 
+										nama_skpd, 
+										id_skpd, 
+										kode_skpd,
+										is_skpd
+									from data_unit 
+									where id_unit=%d 
+										and tahun_anggaran=%d
+										and is_skpd=0
+									group by id_skpd", $skpd['id_skpd'], $_POST['tahun_anggaran']), ARRAY_A);
+								foreach ($sub_skpd_db as $sub_skpd) {
+									$all_skpd[] = $sub_skpd;
+									$list_skpd_options .= '<option value="'.$sub_skpd['id_skpd'].'">-- '.$sub_skpd['kode_skpd'].' '.$sub_skpd['nama_skpd'].'</option>';
+								}
+							}
+						}
+					}else if(
+						in_array("administrator", $this->role())
+						|| in_array("tapd_keu", $this->role())
+					){
+						$skpd_mitra = $wpdb->get_results($wpdb->prepare("
+							SELECT 
+								nama_skpd, 
+								id_skpd, 
+								kode_skpd,
+								is_skpd 
+							from data_unit 
+							where active=1 
+								and tahun_anggaran=%d
+							group by id_skpd
+							order by id_unit ASC, kode_skpd ASC", $_POST['tahun_anggaran']), ARRAY_A);
+						foreach ($skpd_mitra as $k => $v) {
+							$all_skpd[] = $v;
+							if($v['is_skpd'] == 1){
+								$list_skpd_options .= '<option value="'.$v['id_skpd'].'">'.$v['kode_skpd'].' '.$v['nama_skpd'].'</option>';
+							}else{
+								$list_skpd_options .= '<option value="'.$v['id_skpd'].'">-- '.$v['kode_skpd'].' '.$v['nama_skpd'].'</option>';
+							}
+						}
+					}
+
+					echo json_encode([
+						'status' => true,
+						'list_skpd_options' => $list_skpd_options
+					]);exit();
+				}else{
+					throw new Exception("Api key tidak sesuai", 1);
+				}
+			}else{
+				throw new Exception("Format tidak sesuai", 1);	
+			}
+    	} catch (Exception $e) {
+    		echo json_encode([
+				'status' => false,
+				'message' => $e->getMessage()
+			]);exit();
+    	}
+    }
+
+    public function view_pagu_total_renja(){
+    	global $wpdb;
+
+    	try{
+
+    		$nama_pemda = get_option('_crb_daerah');
+			$id_unit = $_POST['id_unit'];
+	        $tahun_anggaran = $_POST['tahun_anggaran'];
+			$id_jadwal_lokal = $_POST['id_jadwal_lokal'];
+
+			$jadwal_lokal = $wpdb->get_row($wpdb->prepare("
+				SELECT 
+					nama AS nama_jadwal,
+					tahun_anggaran,
+					status 
+				FROM `data_jadwal_lokal` 
+					WHERE id_jadwal_lokal=%d", $id_jadwal_lokal));
+
+			$_suffix='';
+			$where='';
+			if($jadwal_lokal->status == 1){
+				$_suffix='_history';
+				$where='AND id_jadwal='.$wpdb->prepare("%d", $id_jadwal_lokal);
+			}
+
+			$where_skpd = '';
+			if(!empty($id_unit)){
+				if($id_unit !='all'){
+					$where_skpd = "AND id_skpd=".$wpdb->prepare("%d", $id_unit);
+				}
+			}
+
+			$sql = $wpdb->prepare("
+				SELECT 
+					id_skpd,
+					kode_skpd,
+					nama_skpd 
+				FROM data_unit 
+				WHERE tahun_anggaran=%d
+					".$where_skpd."
+					AND active=1
+				ORDER BY id_skpd ASC
+			", $tahun_anggaran);
+
+			$units = $wpdb->get_results($sql, ARRAY_A);
+
+			$data_all = array(
+				'data' => array(),
+				'pagu_usulan_kab' => 0,
+				'pagu_penetapan_kab' => 0
+			);
+
+			foreach ($units as $key => $unit) {
+				
+				$sql = $wpdb->prepare("
+					SELECT 
+					  COALESCE(SUM(s.pagu_usulan), 0) as pagu_usulan,
+					  COALESCE(SUM(s.pagu), 0) as pagu_penetapan
+					FROM data_sub_keg_bl_lokal s
+					WHERE s.tahun_anggaran=%d
+					  AND s.id_sub_skpd=%d
+					  AND s.active=1", $tahun_anggaran, $unit['id_skpd']);
+
+				$pagu = $wpdb->get_row($sql, ARRAY_A);
+
+				if(empty($data_all['data'][$unit['kode_skpd']])){
+					$data_all['data'][$unit['kode_skpd']] = [
+						'kode_skpd' => $unit['kode_skpd'],
+						'nama_skpd' => $unit['nama_skpd'],
+						'pagu_usulan' => $pagu['pagu_usulan'],
+						'pagu_penetapan' => $pagu['pagu_penetapan'],
+					];
+
+					$data_all['pagu_usulan_kab'] += $pagu['pagu_usulan'];
+					$data_all['pagu_penetapan_kab'] += $pagu['pagu_penetapan'];
+				}
+			}
+
+			$body = '';
+			$no=1;
+			foreach ($data_all['data'] as $key => $unit) {
+				$body.='
+					<tr>
+						<td class="kiri atas kanan bawah text_tengah">'.$no.'.</td>
+						<td class="atas kanan bawah">'.$unit['nama_skpd'].'</td>
+						<td class="atas kanan bawah">'.$this->_number_format($unit['pagu_usulan']).'</td>
+						<td class="atas kanan bawah">'.$this->_number_format($unit['pagu_penetapan']).'</td>
+					</tr>';
+					$no++;
+			}
+			
+			$footer='<tr>
+						<td class="kiri atas kanan bawah text_tengah" colspan="2"><b>TOTAL PAGU KABUPATEN</b></td>
+						<td class="atas kanan bawah"><b>'.$this->_number_format($data_all['pagu_usulan_kab']).'</b></td>
+						<td class="atas kanan bawah"><b>'.$this->_number_format($data_all['pagu_penetapan_kab']).'</b></td>
+					</tr>';
+
+			$html='<div id="preview" style="padding: 5px; overflow: auto; height: 80vh;">
+					<h4 style="text-align: center; margin: 0; font-weight: bold;">PAGU TOTAL RENJA Per Unit Kerja 
+					<br>Tahun '.$jadwal_lokal->tahun_anggaran.' '.$nama_pemda.'
+					<br>'.$jadwal_lokal->nama_jadwal.'
+					</h4><br>
+					<table id="table-renja" cellpadding="2" cellspacing="0" style="font-family:\'Open Sans\',-apple-system,BlinkMacSystemFont,\'Segoe UI\',sans-serif; border-collapse: collapse; font-size: 70%; border: 0; table-layout: fixed;" contenteditable="false">
+						<thead>
+							<tr>
+								<th style="width: 10px;" class="kiri atas kanan bawah text_tengah text_blok">No.</th>
+								<th style="width: 150px;" class="atas kanan bawah text_tengah text_blok">Nama SKPD</th>
+								<th style="width: 80px;" class="atas kanan bawah text_tengah text_blok">Pagu Usulan</th>
+								<th style="width: 80px;" class="atas kanan bawah text_tengah text_blok">Pagu Penetapan
+								</th>
+							</tr>
+						</thead>
+						<tbody>'.$body.'</tbody>
+						<tfoot>'.$footer.'</tfoot>
+					</table>
+					</div>';
+
+    		echo json_encode([
+				'status' => true,
+				'html' => $html
+			]);exit();
+
+    	}catch(Exception $e){
+    		echo json_encode([
+				'status' => false,
+				'message' => $e->getMessage()
+			]);exit();
+    	}
     }
 }
