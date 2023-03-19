@@ -3864,72 +3864,73 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 				if(!empty($_POST['type']) && $_POST['type'] == 'ri'){
 					$subkeg_aktif = json_decode(stripslashes(html_entity_decode($_POST['subkeg_aktif'])), true);						
 				}else{
-						$subkeg_aktif = $_POST['subkeg_aktif'];
+					$subkeg_aktif = $_POST['subkeg_aktif'];
 				}
 				foreach ($subkeg_aktif as $v) {				
 					$id = explode('.', $v['kode_sbl']);
 					$all_id_sub_skpd[$id[1]] = $wpdb->prepare('%d', $id[1]);
 				}
-				$all_id_sub_skpd = implode(',', $all_id_sub_skpd);
-				$sub_bl = $wpdb->get_results($wpdb->prepare("
-					SELECT 
-						kode_sbl 
-					from data_sub_keg_bl 
-					where tahun_anggaran=%d 
-						AND id_sub_skpd IN ($all_id_sub_skpd)"
-					, $_POST['tahun_anggaran']
-				), ARRAY_A);
-				$ret['sql'] = $wpdb->last_query;
-				foreach ($sub_bl as $k => $sub) {
-					$cek_aktif = false;
-					foreach ($_POST['subkeg_aktif'] as $v) {
-						if($v['kode_sbl'] == $sub['kode_sbl']){
-							$cek_aktif = true;
-							break;
+				if(!empty($all_id_sub_skpd)){
+					$all_id_sub_skpd = implode(',', $all_id_sub_skpd);
+					$sub_bl = $wpdb->get_results($wpdb->prepare("
+						SELECT 
+							kode_sbl 
+						from data_sub_keg_bl 
+						where tahun_anggaran=%d 
+							AND id_sub_skpd IN ($all_id_sub_skpd)"
+						, $_POST['tahun_anggaran']
+					), ARRAY_A);
+					$ret['sql'] = $wpdb->last_query;
+					foreach ($sub_bl as $k => $sub) {
+						$cek_aktif = false;
+						foreach ($_POST['subkeg_aktif'] as $v) {
+							if($v['kode_sbl'] == $sub['kode_sbl']){
+								$cek_aktif = true;
+								break;
+							}
 						}
+						$aktif = 0;
+						if($cek_aktif){
+							$aktif = 1;
+						}
+						$wpdb->update('data_sub_keg_bl', array( 'active' => $aktif ), array(
+							'tahun_anggaran' => $_POST['tahun_anggaran'],
+							'kode_sbl' => $sub['kode_sbl']
+						));
+						$wpdb->update('data_sub_keg_indikator', array( 'active' => $aktif ), array(
+							'tahun_anggaran' => $_POST['tahun_anggaran'],
+							'kode_sbl' => $sub['kode_sbl']
+						));
+						$wpdb->update('data_keg_indikator_hasil', array( 'active' => $aktif ), array(
+							'tahun_anggaran' => $_POST['tahun_anggaran'],
+							'kode_sbl' => $sub['kode_sbl']
+						));
+						$wpdb->update('data_tag_sub_keg', array( 'active' => $aktif ), array(
+							'tahun_anggaran' => $_POST['tahun_anggaran'],
+							'kode_sbl' => $sub['kode_sbl']
+						));
+						$wpdb->update('data_capaian_prog_sub_keg', array( 'active' => $aktif ), array(
+							'tahun_anggaran' => $_POST['tahun_anggaran'],
+							'kode_sbl' => $sub['kode_sbl']
+						));
+						$wpdb->update('data_output_giat_sub_keg', array( 'active' => $aktif ), array(
+							'tahun_anggaran' => $_POST['tahun_anggaran'],
+							'kode_sbl' => $sub['kode_sbl']
+						));
+						$wpdb->update('data_dana_sub_keg', array( 'active' => $aktif ), array(
+							'tahun_anggaran' => $_POST['tahun_anggaran'],
+							'kode_sbl' => $sub['kode_sbl']
+						));
+						$wpdb->update('data_lokasi_sub_keg', array( 'active' => $aktif ), array(
+							'tahun_anggaran' => $_POST['tahun_anggaran'],
+							'kode_sbl' => $sub['kode_sbl']
+						));
+	                    $wpdb->update('data_rka', array( 'active' => $aktif ), array(
+	                        'tahun_anggaran' => $_POST['tahun_anggaran'],
+	                        'kode_sbl' => $sub['kode_sbl']
+	                    ));
 					}
-					$aktif = 0;
-					if($cek_aktif){
-						$aktif = 1;
-					}
-					$wpdb->update('data_sub_keg_bl', array( 'active' => $aktif ), array(
-						'tahun_anggaran' => $_POST['tahun_anggaran'],
-						'kode_sbl' => $sub['kode_sbl']
-					));
-					$wpdb->update('data_sub_keg_indikator', array( 'active' => $aktif ), array(
-						'tahun_anggaran' => $_POST['tahun_anggaran'],
-						'kode_sbl' => $sub['kode_sbl']
-					));
-					$wpdb->update('data_keg_indikator_hasil', array( 'active' => $aktif ), array(
-						'tahun_anggaran' => $_POST['tahun_anggaran'],
-						'kode_sbl' => $sub['kode_sbl']
-					));
-					$wpdb->update('data_tag_sub_keg', array( 'active' => $aktif ), array(
-						'tahun_anggaran' => $_POST['tahun_anggaran'],
-						'kode_sbl' => $sub['kode_sbl']
-					));
-					$wpdb->update('data_capaian_prog_sub_keg', array( 'active' => $aktif ), array(
-						'tahun_anggaran' => $_POST['tahun_anggaran'],
-						'kode_sbl' => $sub['kode_sbl']
-					));
-					$wpdb->update('data_output_giat_sub_keg', array( 'active' => $aktif ), array(
-						'tahun_anggaran' => $_POST['tahun_anggaran'],
-						'kode_sbl' => $sub['kode_sbl']
-					));
-					$wpdb->update('data_dana_sub_keg', array( 'active' => $aktif ), array(
-						'tahun_anggaran' => $_POST['tahun_anggaran'],
-						'kode_sbl' => $sub['kode_sbl']
-					));
-					$wpdb->update('data_lokasi_sub_keg', array( 'active' => $aktif ), array(
-						'tahun_anggaran' => $_POST['tahun_anggaran'],
-						'kode_sbl' => $sub['kode_sbl']
-					));
-                    $wpdb->update('data_rka', array( 'active' => $aktif ), array(
-                        'tahun_anggaran' => $_POST['tahun_anggaran'],
-                        'kode_sbl' => $sub['kode_sbl']
-                    ));
 				}
-
 			} else {
 				$ret['status'] = 'error';
 				$ret['message'] = 'APIKEY tidak sesuai!';
