@@ -1508,12 +1508,156 @@ class Wpsipd_Public_Base_1 extends Wpsipd_Public_Base_2{
         global $wpdb;
         $ret = array(
             'status'    => 'success',
-            'action'    => 'get_data_sub_giat',
             'message'   => 'Berhasil copy data usulan RENJA!'
         );
         if (!empty($_POST)) {
             if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( WPSIPD_API_KEY )) {
-                // belum selesai
+                if(!empty($_POST['tahun_anggaran'])){
+                    if(in_array('administrator', $this->role())){
+                        $tahun_anggaran = $_POST['tahun_anggaran'];
+                        if(empty($_POST['id_skpd'])){
+                            $sql = $wpdb->prepare("
+                                SELECT 
+                                    * 
+                                FROM data_sub_keg_bl_lokal 
+                                WHERE active=1 
+                                AND tahun_anggaran=%d
+                            ", $tahun_anggaran);
+                        }else{
+                            $sql = $wpdb->prepare("
+                                SELECT 
+                                    * 
+                                FROM data_sub_keg_bl_lokal 
+                                WHERE id_sub_skpd=%d 
+                                AND active=1
+                                AND tahun_anggaran=%d
+                            ", $_POST['id_skpd'], $tahun_anggaran);
+                        }
+                        $data_sub_keg = $wpdb->get_results($sql, ARRAY_A);
+                        $ret['data'] = array();
+                        foreach ($data_sub_keg as $keySubKeg => $valueSubKeg) {
+                            $newData = array(
+                                'pagu' => $valueSubKeg['pagu_usulan'],
+                                'pagu_n_depan' => $valueSubKeg['pagu_n_depan_usulan'],
+                                'waktu_awal' => $valueSubKeg['waktu_awal_usulan'],
+                                'waktu_akhir' => $valueSubKeg['waktu_akhir_usulan'],
+                                'catatan' => $valueSubKeg['catatan_usulan'],
+                                'sasaran' => $valueSubKeg['sasaran_usulan']
+                            );
+                            $wpdb->update('data_sub_keg_bl_lokal', $newData, array(
+                                'id' => $valueSubKeg['id']
+                            ));
+                            //copy indikator sub keg
+                            $indi_sub_keg = $wpdb->get_results($wpdb->prepare(
+                                'SELECT *
+                                FROM data_sub_keg_indikator_lokal
+                                WHERE kode_sbl=%s
+                                AND tahun_anggaran=%d
+                                AND active=1',
+                                $valueSubKeg['kode_sbl'],$tahun_anggaran
+                            ), ARRAY_A);
+                            array_push($ret['data'],$tahun_anggaran);
+                            if(!empty($indi_sub_keg)){
+                                foreach ($indi_sub_keg as $k_sub => $v_sub) {
+                                    $newDataSub = array(
+                                        'outputteks' => $v_sub['outputteks_usulan'],
+                                        'targetoutput' => $v_sub['targetoutput_usulan'],
+                                        'satuanoutput' => $v_sub['satuanoutput_usulan'],
+                                        'targetoutputteks' => $v_sub['targetoutputteks_usulan']
+                                    );
+                                    $wpdb->update('data_sub_keg_indikator_lokal', $newDataSub, array(
+                                        'id' => $v_sub['id']
+                                    ));
+                                }
+                            }
+
+                            //copy indikator kegiatan
+                            $indi_keg = $wpdb->get_results($wpdb->prepare(
+                                'SELECT *
+                                FROM data_output_giat_sub_keg_lokal
+                                WHERE kode_sbl=%s
+                                AND tahun_anggaran=%d
+                                AND active=1',
+                                $valueSubKeg['kode_sbl'],$tahun_anggaran
+                            ),ARRAY_A);
+
+                            if(!empty($indi_keg)){
+                                foreach ($indi_keg as $k_keg => $v_keg) {
+                                    $newDataKeg = array(
+                                        'outputteks' => $v_keg['outputteks_usulan'],
+                                        'satuanoutput' => $v_keg['satuanoutput_usulan'],
+                                        'targetoutput' => $v_keg['targetoutput_usulan'],
+                                        'targetoutputteks' => $v_keg['targetoutputteks_usulan'],
+                                        'catatan' => $v_keg['catatan_usulan']
+                                    );
+                                    $wpdb->update('data_output_giat_sub_keg_lokal', $newDataKeg, array(
+                                        'id' => $v_keg['id']
+                                    ));
+                                }
+                            }
+
+                            //copy indikator hasil
+                            $indi_hasil = $wpdb->get_results($wpdb->prepare(
+                                'SELECT *
+                                FROM data_keg_indikator_hasil_lokal
+                                WHERE kode_sbl=%s
+                                AND tahun_anggaran=%d
+                                AND active=1',
+                                $valueSubKeg['kode_sbl'],$tahun_anggaran
+                            ), ARRAY_A);
+
+                            if(!empty($indi_hasil)){
+                                foreach ($indi_hasil as $k_hasil => $v_hasil) {
+                                    $newDataHasil = array(
+                                        'hasilteks' => $v_hasil['hasilteks_usulan'],
+                                        'satuanhasil' => $v_hasil['satuanhasil_usulan'],
+                                        'targethasil' => $v_hasil['targethasil_usulan'],
+                                        'targethasilteks' => $v_hasil['targethasilteks_usulan'],
+                                        'catatan' => $v_hasil['catatan_usulan']
+                                    );
+                                    $wpdb->update('data_keg_indikator_hasil_lokal', $newDataHasil, array(
+                                        'id' => $v_hasil['id']
+                                    ));
+                                }
+                            }
+
+                             //copy indikator program
+                             $indi_prog = $wpdb->get_results($wpdb->prepare(
+                                'SELECT *
+                                FROM data_capaian_prog_sub_keg_lokal
+                                WHERE kode_sbl=%s
+                                AND tahun_anggaran=%d
+                                AND active=1',
+                                $valueSubKeg['kode_sbl'],$tahun_anggaran
+                            ), ARRAY_A);
+
+                            if(!empty($indi_prog)){
+                                foreach ($indi_prog as $k_prog => $v_prog) {
+                                    $newDataProg = array(
+                                        'satuancapaian' => $v_prog['satuancapaian_usulan'],
+                                        'targetcapaianteks' => $v_prog['targetcapaianteks_usulan'],
+                                        'capaianteks' => $v_prog['capaianteks_usulan'],
+                                        'targetcapaian' => $v_prog['targetcapaian_usulan'],
+                                        'catatan' => $v_prog['catatan_usulan']
+                                    );
+                                    $wpdb->update('data_capaian_prog_sub_keg_lokal', $newDataProg, array(
+                                        'id' => $v_prog['id']
+                                    ));
+                                }
+                            }
+                        }
+                    }else{
+                        $ret = array(
+                            'status' => 'error',
+                            'message'   => 'Anda tidak punya kewenangan untuk melakukan ini!'
+                        );
+                    }
+                }else{
+                    $ret = array(
+                        'status' => 'error',
+                        'message'   => 'Tahun Anggaran Kosong!'
+                    );
+                }
             }else{
                 $ret = array(
                     'status' => 'error',
