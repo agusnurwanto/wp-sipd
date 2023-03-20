@@ -12561,23 +12561,23 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 
 					if(!empty($queryRecords)){
 						foreach($queryRecords as $recKey => $recVal){
-							$report = '<a class="btn btn-primary mr-2" href="#" onclick="return report(\''.$recVal['id_jadwal_lokal'].'\');" title="Cetak Laporan"><i class="dashicons dashicons-printer"></i></a>';
+							$report = '<a class="btn btn-sm btn-primary mr-2" style="text-decoration: none;" href="#" onclick="return report(\''.$recVal['id_jadwal_lokal'].'\');" title="Cetak Laporan"><i class="dashicons dashicons-printer"></i></a>';
 							if($recVal['status'] == 1){
-								$lock	= '<a class="btn btn-success disabled" href="#" onclick="return cannot_change_schedule(\'kunci\');" title="Kunci data penjadwalan" aria-disabled="true"><i class="dashicons dashicons-lock"></i></a>';
+								$lock	= '<a class="btn btn-sm btn-success disabled" style="text-decoration: none;" href="#" onclick="return cannot_change_schedule(\'kunci\');" title="Kunci data penjadwalan" aria-disabled="true"><i class="dashicons dashicons-lock"></i></a>';
 								$edit	= '';
 								$delete	= '';
 							}else{
-								$lock	= '<a class="btn btn-success mr-2" href="#" onclick="return lock_data_penjadwalan(\''.$recVal['id_jadwal_lokal'].'\');" title="Kunci data penjadwalan"><i class="dashicons dashicons-unlock"></i></a>';
-								$edit	= '<a class="btn btn-warning mr-2" href="#" onclick="return edit_data_penjadwalan(\''.$recVal['id_jadwal_lokal'].'\');" title="Edit data penjadwalan"><i class="dashicons dashicons-edit"></i></a>';
-								$delete	= '<a class="btn btn-danger" href="#" onclick="return hapus_data_penjadwalan(\''.$recVal['id_jadwal_lokal'].'\');" title="Hapus data penjadwalan"><i class="dashicons dashicons-trash"></i></a>';
+								$lock	= '<a class="btn btn-sm btn-success mr-2" style="text-decoration: none;" href="#" onclick="return lock_data_penjadwalan(\''.$recVal['id_jadwal_lokal'].'\');" title="Kunci data penjadwalan"><i class="dashicons dashicons-unlock"></i></a>';
+								$edit	= '<a class="btn btn-sm btn-warning mr-2" style="text-decoration: none;" href="#" onclick="return edit_data_penjadwalan(\''.$recVal['id_jadwal_lokal'].'\');" title="Edit data penjadwalan"><i class="dashicons dashicons-edit"></i></a>';
+								$delete	= '<a class="btn btn-sm btn-danger" style="text-decoration: none;" href="#" onclick="return hapus_data_penjadwalan(\''.$recVal['id_jadwal_lokal'].'\');" title="Hapus data penjadwalan"><i class="dashicons dashicons-trash"></i></a>';
 
 								if(
 									$tipe_perencanaan == 'renstra'
 									|| $tipe_perencanaan == 'renja'
 								){
-									$delete	.= '<a class="btn btn-danger" href="#" onclick="copy_usulan(); return false;" title="Copy Data Usulan ke Penetapan">Copy Data Usulan</a>';
+									$delete	.= '<a class="btn btn-sm btn-danger mr-2" style="text-decoration: none;" href="#" onclick="copy_usulan(); return false;" title="Copy Data Usulan ke Penetapan">Copy Data Usulan</a>';
 									if($tipe_perencanaan == 'renja' && !empty($recVal['relasi_perencanaan'])){
-										$delete	.= '<a class="btn btn-danger" href="#" onclick="copy_data_renstra(\''.$recVal['id_jadwal_lokal'].'\'); return false;" title="Copy Data RENSTRA ke RENJA">Copy Data RENSTRA</a>';
+										$delete	.= '<a class="btn btn-sm btn-danger" style="text-decoration: none;" href="#" onclick="copy_data_renstra(\''.$recVal['id_jadwal_lokal'].'\'); return false;" title="Copy Data RENSTRA ke RENJA">Copy Data RENSTRA</a>';
 									}
 								}
 							}
