@@ -181,7 +181,7 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
 			<button class="btn btn-primary tambah_new_ssh" disabled onclick="get_data_by_name_komponen_ssh('akun',<?php echo $input['tahun_anggaran']; ?>)">Tambah Akun SSH</button>
 			<button class="btn btn-warning" onclick="buat_surat_usulan(<?php echo $input['tahun_anggaran']; ?>)">Buat Surat Usulan</button>
 		</div>
-		<table id="usulan_ssh_table" class="table table-bordered">
+		<table id="usulan_ssh_table" class="table table-bordered" style="font-size:90%">
 			<thead id="data_header">
 				<tr>
 					<th class="text-center"><input type="checkbox" id="checkall"></th>
@@ -190,10 +190,11 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
 					<th class="text-center">Spesifikasi Satuan</th>
 					<th class="text-center">Harga Satuan</th>
 					<th class="text-center">Keterangan</th>
+					<th class="text-center">Lampiran</th>
 					<th class="text-center">Verifikator 1</th>
 					<th class="text-center">Verifikator 2</th>
 					<th class="text-center">Status</th>
-					<th class="text-right" style="width: 30px">Aksi</th>
+					<th class="text-right" style="width: 100px">Aksi</th>
 				</tr>
 			</thead>
 			<tbody id="data_body" class="data_body_ssh">
@@ -673,6 +674,12 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
 							sort: "update_at"
 		            	},
 		            	className: "text-left kol-keterangan",
+						"targets": "no-sort",
+						"orderable": false
+		            },
+		            { 
+		            	"data": 'lampiran',
+		            	className: "text-left lampiran",
 						"targets": "no-sort",
 						"orderable": false
 		            },

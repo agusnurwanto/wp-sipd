@@ -8101,7 +8101,7 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 					<br>Tahun '.$jadwal_lokal->tahun_anggaran.' '.$nama_pemda.'
 					<br>'.$jadwal_lokal->nama_jadwal.'
 					</h4><br>
-					<table id="table-renja" cellpadding="2" cellspacing="0" style="font-family:\'Open Sans\',-apple-system,BlinkMacSystemFont,\'Segoe UI\',sans-serif; border-collapse: collapse; font-size: 70%; border: 0; table-layout: fixed;" contenteditable="false">
+					<table id="table-renja" cellpadding="2" cellspacing="0" style="font-family:\'Open Sans\',-apple-system,BlinkMacSystemFont,\'Segoe UI\',sans-serif; border-collapse: collapse; font-size: 90%; border: 0; table-layout: fixed;" contenteditable="false">
 						<thead>
 							<tr>
 								<th style="width: 10px;" class="kiri atas kanan bawah text_tengah text_blok">No.</th>
