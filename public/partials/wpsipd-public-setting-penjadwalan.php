@@ -129,8 +129,12 @@ $body = '';
 	</div>
 </div>
 
+<div class="report"></div>
 <script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
 <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
+<script type="text/javascript" src="https://cdn.datatables.net/buttons/1.3.1/js/dataTables.buttons.min.js"></script> 
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.3/jszip.min.js"></script>
+<script type="text/javascript" src="https://cdn.datatables.net/buttons/1.3.1/js/buttons.html5.min.js"></script>
 <script>
 	jQuery(document).ready(function(){
 		globalThis.tahun_anggaran = <?php echo $input['tahun_anggaran']; ?>;
@@ -451,6 +455,140 @@ $body = '';
 	          	}
 	        });
 		}
+	}
+
+	function report(id_jadwal_lokal){
+
+		list_perangkat_daerah();
+
+		let modal = `
+			<div class="modal fade" id="modal-report" tab-index="-1" role="dialog" aria-labelledby="modal-indikator-renja-label" aria-hidden="true">
+			  <div class="modal-dialog modal-lg" role="document" style="min-width:1450px">
+			    <div class="modal-content">
+			      <div class="modal-header">
+			        <h5 class="modal-title">Report</h5>
+			        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+			          <span aria-hidden="true">&times;</span>
+			        </button>
+			      </div>
+			      
+			      <div class="modal-body">
+				    <div class="container-fluid">
+					    <div class="row">
+						    <div class="col-md-2">Unit Kerja</div>
+						    <div class="col-md-6">
+						    	<select class="form-control list_perangkat_daerah" id="list_perangkat_daerah"></select>
+						    </div>
+					    </div></br>
+					    <div class="row">
+					    	<div class="col-md-2">Jenis Laporan</div>
+					    	<div class="col-md-6">
+					      		<select class="form-control jenis" id="jenis">
+					      			<option value="-">Pilih Jenis</option>
+					      			<option value="pagu_total">Format Pagu Total Per Unit Kerja</option>
+				      			</select>
+					    	</div>
+					    </div></br>
+					    <div class="row">
+					    	<div class="col-md-2"></div>
+					    	<div class="col-md-6 action-footer">
+					      		<button type="button" class="btn btn-success btn-preview" onclick="preview('${id_jadwal_lokal}')">Preview</button>
+					    	</div>
+					    </div></br>
+					</div>
+			      </div>
+			      <div class="modal-preview" style="padding:10px"></div>
+			    </div>
+			  </div>
+			</div>`;
+
+		jQuery("body .report").html(modal);
+		jQuery("#modal-report").modal('show');
+		jQuery('.jenis').select2({width: '100%'});
+	}
+
+	function preview(id_jadwal_lokal){
+
+		let jenis=jQuery("#jenis").val();
+		let id_unit=jQuery("#list_perangkat_daerah").val();
+
+		if(id_unit=='' || id_unit=='undefined'){
+			alert('Unit kerja belum dipilih');
+			return;
+		}
+
+		switch(jenis){
+			case 'pagu_total':
+				generate(id_unit, id_jadwal_lokal, 'view_pagu_total_renja', 'Laporan Pagu Akumulasi Per Unit Kerja');
+				break;
+
+			case '-':
+				alert('Jenis laporan belum dipilih');
+				break;
+		}
+	}
+
+	function generate(id_unit, id_jadwal_lokal, action, title){
+		jQuery("#wrap-loading").show();
+		jQuery.ajax({
+			url:ajax.url,
+			type:'post',
+			dataType:'json',
+			data:{
+				action:action,
+				id_unit:id_unit,
+				id_jadwal_lokal:id_jadwal_lokal,
+				tahun_anggaran:tahun_anggaran,
+				api_key:jQuery("#api_key").val(),
+			},
+			success:function(response){
+				jQuery("#wrap-loading").hide();
+				if(response.status=='error'){
+					alert(response.message);
+				}else{
+					jQuery("#modal-report .modal-preview").html(response.html);
+					jQuery("#modal-report .modal-preview").css('overflow-x', 'auto');
+					jQuery("#modal-report .modal-preview").css('margin-right','20px');
+					jQuery("#modal-report .modal-preview").css('padding', '15px');
+					jQuery('#modal-report .export-excel').attr("disabled", false);
+					jQuery('#modal-report .export-excel').attr("title", title);
+					var table = jQuery("#table-renja").DataTable( {
+				        dom: 'Bfrtip',
+				        buttons: [
+				            'excel'
+				        ]
+				    } );
+				    jQuery('#modal-report .action-footer').append(table.buttons().container());
+				    jQuery('#modal-report .action-footer .dt-buttons').css('margin-left', '5px');
+				    jQuery('#modal-report .action-footer .buttons-excel').addClass('btn btn-primary');
+				    jQuery('#modal-report .action-footer .buttons-excel span').html('Export Excel');
+				}
+			}
+		})
+	}
+
+	function list_perangkat_daerah(){
+
+		jQuery.ajax({
+			url:ajax.url,
+			type:'post',
+			dataType:'json',
+			data:{
+				action:'list_perangkat_daerah',
+				tahun_anggaran:tahun_anggaran,
+				api_key:jQuery("#api_key").val(),
+			},
+			success:function(response){
+				if(response.status){
+					jQuery("#list_perangkat_daerah").html(response.list_skpd_options);
+					jQuery('#list_perangkat_daerah').select2({width: '100%'});
+					return true;
+				}
+
+				alert('Oops ada kesalahan load data Unit kerja');
+				return true;
+			}
+		})
 	}
 
 </script> 
