@@ -491,6 +491,9 @@ class Wpsipd
 		$this->loader->add_action('wp_ajax_get_rpjpd',  $plugin_public, 'get_rpjpd');
 		$this->loader->add_action('wp_ajax_nopriv_get_rpjpd',  $plugin_public, 'get_rpjpd');
 
+		$this->loader->add_action('wp_ajax_get_renja',  $plugin_public, 'get_renja');
+		$this->loader->add_action('wp_ajax_nopriv_get_renja',  $plugin_public, 'get_renja');
+
 		$this->loader->add_action('wp_ajax_mapping_satuan_kerja_sirup',  $plugin_public, 'mapping_satuan_kerja_sirup');
 		$this->loader->add_action('wp_ajax_nopriv_mapping_satuan_kerja_sirup',  $plugin_public, 'mapping_satuan_kerja_sirup');
 

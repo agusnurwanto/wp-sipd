@@ -14302,6 +14302,73 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		return $data_return;
 	}
 
+	function get_last_jadwal_kunci($tipe_perencanaan,$tahun_anggaran = 0){
+		global $wpdb;
+
+		$data_return = array(
+			'status' => 200,
+			'message' => "Berhasil"
+		);
+
+		if(!empty($tipe_perencanaan)){
+			date_default_timezone_set("Asia/Bangkok");
+			$dateTime = new DateTime();
+			$time_now = $dateTime->format('Y-m-d H:i:s');
+
+			$sql_tipe = $wpdb->get_results("SELECT * FROM `data_tipe_perencanaan` WHERE nama_tipe='".$tipe_perencanaan."'", ARRAY_A);
+
+			$where_renja = '';
+			$cek_renja_penganggaran = true;
+			if($sql_tipe[0]['id'] == 5 || $sql_tipe[0]['id'] == 6){
+				if(!empty($tahun_anggaran)){
+					$where_renja = ' AND tahun_anggaran='.$tahun_anggaran;	
+				}else{
+					$cek_renja_penganggaran = false;
+				}
+			}
+
+			if($cek_renja_penganggaran){
+				// get jadwal aktif dan terbuka
+				$sql_jadwal_lokal = $wpdb->get_row("
+					SELECT 
+						* 
+					FROM `data_jadwal_lokal` 
+					WHERE status = 1 
+						AND id_tipe='".$sql_tipe[0]['id']."'
+						".$where_renja."
+					ORDER BY id_jadwal_lokal DESC LIMIT 1", ARRAY_A);
+	
+				if(!empty($sql_jadwal_lokal)){
+					$data_return = array(
+						'status' 	=> 'success',
+						'message'	=> "Berhasil",
+						'data'		=> $sql_jadwal_lokal
+					);
+				}else{
+					$data_return = array(
+						'status' 	=> 'error',
+						'message'	=> "Data jadwal terkunci tidak ditemukan.",
+						'data'		=> $sql_jadwal_lokal
+					);
+				}
+			}else{
+				$data_return = array(
+					'status' 	=> 'error',
+					'message' 	=> "Gagal, Data Tahun Anggaran Tidak Ditemukan",
+					'data'		=> ''
+				);
+			}
+		}else{
+			$data_return = array(
+				'status' 	=> 'error',
+				'message' 	=> "Gagal, tipe perencanaan tidak ada",
+				'data'		=> ''
+			);
+		}
+
+		return $data_return;
+	}
+
 	function edit_visi_rpjm(){
 		global $wpdb;
 		if (!empty($_POST)) {
