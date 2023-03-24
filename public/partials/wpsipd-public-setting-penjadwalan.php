@@ -458,9 +458,6 @@ $body = '';
 	}
 
 	function report(id_jadwal_lokal){
-
-		list_perangkat_daerah();
-
 		let modal = `
 			<div class="modal fade" id="modal-report" tab-index="-1" role="dialog" aria-labelledby="modal-indikator-renja-label" aria-hidden="true">
 			  <div class="modal-dialog modal-lg" role="document" style="min-width:1450px">
@@ -503,8 +500,11 @@ $body = '';
 			</div>`;
 
 		jQuery("body .report").html(modal);
-		jQuery("#modal-report").modal('show');
-		jQuery('.jenis').select2({width: '100%'});
+		list_perangkat_daerah()
+		.then(function(){
+			jQuery("#modal-report").modal('show');
+			jQuery('.jenis').select2({width: '100%'});
+		});
 	}
 
 	function preview(id_jadwal_lokal){
@@ -542,7 +542,6 @@ $body = '';
 				api_key:jQuery("#api_key").val(),
 			},
 			success:function(response){
-				jQuery("#wrap-loading").hide();
 				if(response.status=='error'){
 					alert(response.message);
 				}else{
@@ -553,40 +552,56 @@ $body = '';
 					jQuery('#modal-report .export-excel').attr("disabled", false);
 					jQuery('#modal-report .export-excel').attr("title", title);
 					var table = jQuery("#table-renja").DataTable( {
-				        dom: 'Bfrtip',
+				        dom: 'Blfrtip',
+				        lengthMenu: [
+				            [10, 25, 50, -1],
+				            [10, 25, 50, 'All'],
+				        ],
 				        buttons: [
 				            'excel'
 				        ]
 				    } );
+				    jQuery('#modal-report .action-footer .dt-buttons').remove();
 				    jQuery('#modal-report .action-footer').append(table.buttons().container());
 				    jQuery('#modal-report .action-footer .dt-buttons').css('margin-left', '5px');
 				    jQuery('#modal-report .action-footer .buttons-excel').addClass('btn btn-primary');
 				    jQuery('#modal-report .action-footer .buttons-excel span').html('Export Excel');
 				}
+				jQuery("#wrap-loading").hide();
 			}
 		})
 	}
 
 	function list_perangkat_daerah(){
+		jQuery('#wrap-loading').show();
+		return new Promise(function(resolve, reject){
+			if(typeof list_perangkat_daerah_global == 'undefined'){
+				jQuery.ajax({
+					url:ajax.url,
+					type:'post',
+					dataType:'json',
+					data:{
+						action:'list_perangkat_daerah',
+						tahun_anggaran:tahun_anggaran,
+						api_key:jQuery("#api_key").val(),
+					},
+					success:function(response){
+						jQuery('#wrap-loading').hide();
+						if(response.status){
+							list_perangkat_daerah_global = response.list_skpd_options;
+							jQuery("#list_perangkat_daerah").html(list_perangkat_daerah_global);
+							jQuery('#list_perangkat_daerah').select2({width: '100%'});
+							return resolve();
+						}
 
-		jQuery.ajax({
-			url:ajax.url,
-			type:'post',
-			dataType:'json',
-			data:{
-				action:'list_perangkat_daerah',
-				tahun_anggaran:tahun_anggaran,
-				api_key:jQuery("#api_key").val(),
-			},
-			success:function(response){
-				if(response.status){
-					jQuery("#list_perangkat_daerah").html(response.list_skpd_options);
-					jQuery('#list_perangkat_daerah').select2({width: '100%'});
-					return true;
-				}
-
-				alert('Oops ada kesalahan load data Unit kerja');
-				return true;
+						alert('Oops ada kesalahan load data Unit kerja');
+						return resolve();
+					}
+				})
+			}else{
+				jQuery("#list_perangkat_daerah").html(list_perangkat_daerah_global);
+				jQuery('#list_perangkat_daerah').select2({width: '100%'});
+				return resolve();
 			}
 		})
 	}

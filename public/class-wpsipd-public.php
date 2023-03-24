@@ -12561,23 +12561,23 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 
 					if(!empty($queryRecords)){
 						foreach($queryRecords as $recKey => $recVal){
-							$report = '<a class="btn btn-sm btn-primary mr-2" style="text-decoration: none;" href="#" onclick="return report(\''.$recVal['id_jadwal_lokal'].'\');" title="Cetak Laporan"><i class="dashicons dashicons-printer"></i></a>';
+							$report = '<a class="btn btn-sm btn-primary mr-2" style="text-decoration: none;" onclick="report(\''.$recVal['id_jadwal_lokal'].'\'); return false;" href="#" title="Cetak Laporan"><i class="dashicons dashicons-printer"></i></a>';
 							if($recVal['status'] == 1){
-								$lock	= '<a class="btn btn-sm btn-success disabled" style="text-decoration: none;" href="#" onclick="return cannot_change_schedule(\'kunci\');" title="Kunci data penjadwalan" aria-disabled="true"><i class="dashicons dashicons-lock"></i></a>';
+								$lock	= '<a class="btn btn-sm btn-success disabled" style="text-decoration: none;" onclick="cannot_change_schedule(\'kunci\'); return false;" href="#" title="Kunci data penjadwalan" aria-disabled="true"><i class="dashicons dashicons-lock"></i></a>';
 								$edit	= '';
 								$delete	= '';
 							}else{
-								$lock	= '<a class="btn btn-sm btn-success mr-2" style="text-decoration: none;" href="#" onclick="return lock_data_penjadwalan(\''.$recVal['id_jadwal_lokal'].'\');" title="Kunci data penjadwalan"><i class="dashicons dashicons-unlock"></i></a>';
-								$edit	= '<a class="btn btn-sm btn-warning mr-2" style="text-decoration: none;" href="#" onclick="return edit_data_penjadwalan(\''.$recVal['id_jadwal_lokal'].'\');" title="Edit data penjadwalan"><i class="dashicons dashicons-edit"></i></a>';
-								$delete	= '<a class="btn btn-sm btn-danger" style="text-decoration: none;" href="#" onclick="return hapus_data_penjadwalan(\''.$recVal['id_jadwal_lokal'].'\');" title="Hapus data penjadwalan"><i class="dashicons dashicons-trash"></i></a>';
+								$lock	= '<a class="btn btn-sm btn-success mr-2" style="text-decoration: none;" onclick="lock_data_penjadwalan(\''.$recVal['id_jadwal_lokal'].'\'); return false;" href="#" title="Kunci data penjadwalan"><i class="dashicons dashicons-unlock"></i></a>';
+								$edit	= '<a class="btn btn-sm btn-warning mr-2" style="text-decoration: none;" onclick="edit_data_penjadwalan(\''.$recVal['id_jadwal_lokal'].'\'); return false;" href="#" title="Edit data penjadwalan"><i class="dashicons dashicons-edit"></i></a>';
+								$delete	= '<a class="btn btn-sm btn-danger" style="text-decoration: none;" onclick="hapus_data_penjadwalan(\''.$recVal['id_jadwal_lokal'].'\'); return false;" href="#" title="Hapus data penjadwalan"><i class="dashicons dashicons-trash"></i></a>';
 
 								if(
 									$tipe_perencanaan == 'renstra'
 									|| $tipe_perencanaan == 'renja'
 								){
-									$delete	.= '<a class="btn btn-sm btn-danger mr-2" style="text-decoration: none;" href="#" onclick="copy_usulan(); return false;" title="Copy Data Usulan ke Penetapan">Copy Data Usulan</a>';
+									$delete	.= '<a class="btn btn-sm btn-danger mr-2" style="text-decoration: none;" onclick="copy_usulan(); return false;" href="#" title="Copy Data Usulan ke Penetapan">Copy Data Usulan</a>';
 									if($tipe_perencanaan == 'renja' && !empty($recVal['relasi_perencanaan'])){
-										$delete	.= '<a class="btn btn-sm btn-danger" style="text-decoration: none;" href="#" onclick="copy_data_renstra(\''.$recVal['id_jadwal_lokal'].'\'); return false;" title="Copy Data RENSTRA ke RENJA">Copy Data RENSTRA</a>';
+										$delete	.= '<a class="btn btn-sm btn-danger" style="text-decoration: none;" onclick="copy_data_renstra(\''.$recVal['id_jadwal_lokal'].'\'); return false;" href="#" title="Copy Data RENSTRA ke RENJA">Copy Data RENSTRA</a>';
 									}
 								}
 							}
@@ -14281,6 +14281,73 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 					$data_return = array(
 						'status' 	=> 'error',
 						'message'	=> "Data terbuka tidak ditemukan.",
+						'data'		=> $sql_jadwal_lokal
+					);
+				}
+			}else{
+				$data_return = array(
+					'status' 	=> 'error',
+					'message' 	=> "Gagal, Data Tahun Anggaran Tidak Ditemukan",
+					'data'		=> ''
+				);
+			}
+		}else{
+			$data_return = array(
+				'status' 	=> 'error',
+				'message' 	=> "Gagal, tipe perencanaan tidak ada",
+				'data'		=> ''
+			);
+		}
+
+		return $data_return;
+	}
+
+	function get_last_jadwal_kunci($tipe_perencanaan,$tahun_anggaran = 0){
+		global $wpdb;
+
+		$data_return = array(
+			'status' => 200,
+			'message' => "Berhasil"
+		);
+
+		if(!empty($tipe_perencanaan)){
+			date_default_timezone_set("Asia/Bangkok");
+			$dateTime = new DateTime();
+			$time_now = $dateTime->format('Y-m-d H:i:s');
+
+			$sql_tipe = $wpdb->get_results("SELECT * FROM `data_tipe_perencanaan` WHERE nama_tipe='".$tipe_perencanaan."'", ARRAY_A);
+
+			$where_renja = '';
+			$cek_renja_penganggaran = true;
+			if($sql_tipe[0]['id'] == 5 || $sql_tipe[0]['id'] == 6){
+				if(!empty($tahun_anggaran)){
+					$where_renja = ' AND tahun_anggaran='.$tahun_anggaran;	
+				}else{
+					$cek_renja_penganggaran = false;
+				}
+			}
+
+			if($cek_renja_penganggaran){
+				// get jadwal aktif dan terbuka
+				$sql_jadwal_lokal = $wpdb->get_row("
+					SELECT 
+						* 
+					FROM `data_jadwal_lokal` 
+					WHERE status = 1 
+						AND id_tipe='".$sql_tipe[0]['id']."'
+						".$where_renja."
+					ORDER BY id_jadwal_lokal DESC LIMIT 1", ARRAY_A);
+	
+				if(!empty($sql_jadwal_lokal)){
+					$data_return = array(
+						'status' 	=> 'success',
+						'message'	=> "Berhasil",
+						'data'		=> $sql_jadwal_lokal
+					);
+				}else{
+					$data_return = array(
+						'status' 	=> 'error',
+						'message'	=> "Data jadwal terkunci tidak ditemukan.",
 						'data'		=> $sql_jadwal_lokal
 					);
 				}
