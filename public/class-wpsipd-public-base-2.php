@@ -2861,7 +2861,7 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 							AND sk.tahun_anggaran=%d
 							AND sk.active=1
 							AND sk.id_jadwal=%d
-					', $id_skpd, $tahun_anggaran, $cek_jadwal['id_jadwal_lokal']), ARRAY_A);
+					', $id_skpd, $tahun_anggaran, $cek_jadwal['data']['id_jadwal_lokal']), ARRAY_A);
 					foreach($data_sub_giat as $k => $sub){
 						$data_sub_giat[$k]['sumber_dana'] = array();
 						$data_sub_giat[$k]['lokasi'] = array();
@@ -2875,7 +2875,7 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 								AND tahun_anggaran=%d
 								AND active=1
 								AND id_jadwal=%d
-						', $sub['kode_sbl'], $tahun_anggaran, $cek_jadwal['id_jadwal_lokal']));
+						', $sub['kode_sbl'], $tahun_anggaran, $cek_jadwal['data']['id_jadwal_lokal']));
 						if(!empty($data_sumber_dana)){
 							$data_sub_giat[$k]['sumber_dana'] = $data_sumber_dana;
 						}
@@ -2888,7 +2888,7 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 								AND tahun_anggaran=%d
 								AND active=1
 								AND id_jadwal=%d
-						',$sub['kode_sbl'], $tahun_anggaran, $cek_jadwal['id_jadwal_lokal']));
+						',$sub['kode_sbl'], $tahun_anggaran, $cek_jadwal['data']['id_jadwal_lokal']));
 						if(!empty($data_lokasi)){
 							$data_sub_giat[$k]['lokasi'] = $data_lokasi;
 						}
@@ -2901,7 +2901,7 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 								AND tahun_anggaran=%s
 								AND active=1
 								AND id_jadwal=%d
-						', $data_sub_giat['kode_sbl'], $tahun_anggaran, $cek_jadwal['id_jadwal_lokal']), ARRAY_A);
+						', $data_sub_giat['kode_sbl'], $tahun_anggaran, $cek_jadwal['data']['id_jadwal_lokal']), ARRAY_A);
 						if(!empty($data_sub_keg_indikator)){
 							$data_sub_giat[$k]['indikator'] = $data_sub_keg_indikator;
 						}
