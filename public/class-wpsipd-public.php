@@ -4353,7 +4353,11 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 					}
 
 					if (!empty($_POST['dataDana']) && $ret['status'] != 'error') {
-						$dataDana = $_POST['dataDana'];
+						if(!empty($_POST['type']) && $_POST['type'] == 'ri'){
+							$dataDana = json_decode(stripslashes(html_entity_decode($_POST['dataDana'])), true);						
+						}else{
+							$dataDana = $_POST['dataDana'];
+						}
 						$wpdb->update('data_dana_sub_keg', array( 'active' => 0 ), array(
 							'tahun_anggaran' => $_POST['tahun_anggaran'],
 							'kode_sbl' => $_POST['kode_sbl']
@@ -4384,7 +4388,11 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						}
 					}
 					if (!empty($_POST['dataLokout']) && $ret['status'] != 'error') {
-						$dataLokout = $_POST['dataLokout'];
+						if(!empty($_POST['type']) && $_POST['type'] == 'ri'){
+							$dataLokout = json_decode(stripslashes(html_entity_decode($_POST['dataLokout'])), true);						
+						}else{
+							$dataLokout = $_POST['dataLokout'];
+						}
 						$wpdb->update('data_lokasi_sub_keg', array( 'active' => 0 ), array(
 							'tahun_anggaran' => $_POST['tahun_anggaran'],
 							'kode_sbl' => $_POST['kode_sbl']
