@@ -2833,4 +2833,179 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 	
 		die(json_encode($ret));
 	}
+
+	public function get_renja(){
+		global $wpdb;
+		$ret = array(
+			'action' => $_POST['action'],
+			'run' => $_POST['run'],
+			'status' => 'success',
+			'message' => 'Berhasil mendapatkan data!',
+			'data' => array()
+		);
+		
+		if(!empty($_POST)){
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+				if(!empty($_POST['tahun_anggaran']) && !empty($_POST['id_skpd'])){				
+					$tahun_anggaran = $_POST['tahun_anggaran'];
+					$id_skpd = $_POST['id_skpd'];
+					$cek_jadwal = $this->get_last_jadwal_kunci('renja',$_POST['tahun_anggaran']);
+					if($cek_jadwal['status'] == 'error'){
+						return die(json_encode($cek_jadwal));
+					}
+					$data_sub_giat = $wpdb->get_results($wpdb->prepare('
+						SELECT 
+							*
+						FROM data_sub_keg_bl_lokal_history sk
+						WHERE sk.id_sub_skpd=%d
+							AND sk.tahun_anggaran=%d
+							AND sk.active=1
+							AND sk.id_jadwal=%d
+					', $id_skpd, $tahun_anggaran, $cek_jadwal['data']['id_jadwal_lokal']), ARRAY_A);
+					foreach($data_sub_giat as $k => $sub){
+						$data_sub_giat[$k]['sumber_dana'] = array();
+						$data_sub_giat[$k]['lokasi'] = array();
+						$data_sub_giat[$k]['indikator'] = array();
+
+						$data_sumber_dana = $wpdb->get_results($wpdb->prepare('
+							SELECT 
+								*
+							FROM data_dana_sub_keg_lokal_history
+							WHERE kode_sbl=%s
+								AND tahun_anggaran=%d
+								AND active=1
+								AND id_jadwal=%d
+						', $sub['kode_sbl'], $tahun_anggaran, $cek_jadwal['data']['id_jadwal_lokal']));
+						if(!empty($data_sumber_dana)){
+							$data_sub_giat[$k]['sumber_dana'] = $data_sumber_dana;
+						}
+
+						$data_lokasi = $wpdb->get_results($wpdb->prepare('
+							SELECT 
+								*
+							FROM data_lokasi_sub_keg_lokal_history
+							WHERE kode_sbl=%s
+								AND tahun_anggaran=%d
+								AND active=1
+								AND id_jadwal=%d
+						',$sub['kode_sbl'], $tahun_anggaran, $cek_jadwal['data']['id_jadwal_lokal']));
+						if(!empty($data_lokasi)){
+							$data_sub_giat[$k]['lokasi'] = $data_lokasi;
+						}
+
+						$data_sub_keg_indikator = $wpdb->get_results($wpdb->prepare('
+							SELECT 
+								*
+							FROM data_sub_keg_indikator_lokal_history
+							WHERE kode_sbl=%s
+								AND tahun_anggaran=%s
+								AND active=1
+								AND id_jadwal=%d
+						', $data_sub_giat['kode_sbl'], $tahun_anggaran, $cek_jadwal['data']['id_jadwal_lokal']), ARRAY_A);
+						if(!empty($data_sub_keg_indikator)){
+							$data_sub_giat[$k]['indikator'] = $data_sub_keg_indikator;
+						}
+					}
+					if(!empty($data_sub_giat)){
+						$ret['data'] = $data_sub_giat;
+					}
+				}else{
+					$ret['status'] = 'error';
+					$ret['message'] = 'Ada param yang kosong!';
+				}
+			}else{
+				$ret['status'] = 'error';
+				$ret['message'] = 'APIKEY tidak sesuai!';
+			}
+		}else{
+			$ret['status']	= 'error';
+			$ret['message']	= 'Format Salah!';
+		}
+
+		die(json_encode($ret));
+
+	}
+
+	public function halaman_pendapatan($atts)
+	{
+		// untuk disable render shortcode di halaman edit page/post
+		if(!empty($_GET) && !empty($_GET['post'])){
+			return '';
+		}
+		require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/wpsipd-public-pendapatan.php';
+	}
+
+	public function get_data_pendapatan_renja(){
+		global $wpdb;
+		$ret = array(
+			'status'	=> 'success',
+			'message'	=> 'ON PROGRESS PENDAPATAN',//'berhasil get data pendapatan renja',
+			'data'	=> array()
+		);
+		// if(!empty($_POST)) {
+		// 	if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+		// 		if(!empty($_POST['id_skpd']) && !empty($_POST['tahun_anggaran'])){
+		// 			$params = $_REQUEST;
+
+		// 			$pendapatan = $wpdb->get_results(
+		// 				$wpdb->prepare("
+		// 				SELECT 
+		// 					kode_akun,
+		// 					nama_akun,
+		// 					total,
+		// 					keterangan
+		// 				from data_pendapatan_lokal
+		// 				where id_skpd=%d
+		// 					AND tahun_anggaran=%d
+		// 					AND active=1", $_POST['id_skpd'], $_POST['tahun_anggaran']),
+		// 				ARRAY_A
+		// 			);
+
+		// 			$total_pendapatan = $wpdb->get_results(
+		// 				$wpdb->prepare("
+		// 				SELECT 
+		// 					count(id) as jml
+		// 				from data_pendapatan_lokal
+		// 				where id_skpd=%d
+		// 					AND tahun_anggaran=%d
+		// 					AND active=1", $_POST['id_skpd'], $_POST['tahun_anggaran']),
+		// 				ARRAY_A
+		// 			);
+
+		// 			$totalRecords = $total_pendapatan[0]['jml'] ?: 0;
+		// 			if(!empty($pendapatan)){
+		// 				foreach($pendapatan as $k_pend => $v_pend){
+		// 					$edit = '<button class="btn btn-sm btn-primary">Ubah</button>';
+		// 					$delete = '<button style="margin-left: 5px;" class="btn btn-sm btn-danger">Hapus</button>';
+		// 					$pendapatan[$k_pend]['aksi'] = $edit.$delete;
+		// 				}
+		// 				$json_data = array(
+		// 					// "draw"            => intval( $params['draw'] ),
+		// 					"recordsTotal"    => intval( $totalRecords ), 
+		// 					"recordsFiltered" => intval( $totalRecords ),
+		// 					"data"            => $pendapatan
+		// 				);
+
+		// 				die(json_encode($json_data));
+		// 			}else{
+		// 				$ret = array(
+		// 					'status' => 'error',
+		// 					'message'	=> 'Data tidak ditemukan!',
+		// 					'sql' => $wpdb->last_query
+		// 				);
+		// 			}
+		// 		}else{
+		// 			$ret['status'] = 'error';
+		// 			$ret['message'] = 'Ada Parameter Yang Kosong!';
+		// 		}
+		// 	} else {
+		// 		$ret['status'] = 'error';
+		// 		$ret['message'] = 'APIKEY tidak sesuai!';
+		// 	}
+		// } else {
+		// 	$ret['status'] = 'error';
+		// 	$ret['message'] = 'Format Salah!';
+		// }
+		die(json_encode($ret));
+	}	
 }

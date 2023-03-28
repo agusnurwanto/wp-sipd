@@ -215,7 +215,7 @@ $body = '';
 		let this_tahun_anggaran = jQuery("#tahun_mulai_anggaran").val()
 		let relasi_perencanaan = jQuery("#link_rpjpd").val()
 		let this_lama_pelaksanaan = jQuery("#lama_pelaksanaan").val()
-		if(nama.trim() == '' || jadwalMulai == '' || jadwalSelesai == '' || relasi_perencanaan == '' || this_tahun_anggaran == '' || this_lama_pelaksanaan == ''){
+		if(nama.trim() == '' || jadwalMulai == '' || jadwalSelesai == '' || this_tahun_anggaran == '' || this_lama_pelaksanaan == ''){
 			jQuery("#wrap-loading").hide()
 			alert("Ada yang kosong, Harap diisi semua")
 			return false

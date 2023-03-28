@@ -36,7 +36,8 @@ if(in_array("administrator", $user_meta->roles)){
 $data_skpd = $wpdb->get_row($wpdb->prepare("
     select 
         nama_skpd,
-        id_unit 
+        id_unit,
+        is_skpd 
     from data_unit
     where 
         id_skpd=%d 
@@ -46,14 +47,32 @@ $data_skpd = $wpdb->get_row($wpdb->prepare("
     ", $input['id_skpd'], $input['tahun_anggaran']), ARRAY_A);
 $id_unit = (!empty($data_skpd['id_unit'])) ? $data_skpd['id_unit'] : '';
 
-$sql = "
-    SELECT 
-        *
-    FROM data_sub_keg_bl_lokal
-    WHERE id_sub_skpd=%d
-        AND tahun_anggaran=%d
-        AND active=1
-        ORDER BY kode_giat ASC, kode_sub_giat ASC";
+// $url_pendapatan = $this->generatePage('Halaman Pendapatan '.$data_skpd['nama_skpd'].' | '.$input['tahun_anggaran'], $input['tahun_anggaran'], '[halaman_pendapatan id_skpd="'.$input['id_skpd'].'" tahun_anggaran="'.$input['tahun_anggaran'].'"]');
+
+$id_sub_skpd = (!empty($_GET['id_sub_skpd'])) ?: 0;
+$hide_usulan = (!empty($_GET['hide_usulan'])) ?: 0;
+$hide_penetapan = (!empty($_GET['hide_penetapan'])) ?: 0;
+
+if(!empty($id_sub_skpd)){
+    $sql = "
+        SELECT 
+            *
+        FROM data_sub_keg_bl_lokal
+        WHERE id_skpd=%d
+            AND tahun_anggaran=%d
+            AND active=1
+            ORDER BY id_sub_skpd ASC, kode_giat ASC, kode_sub_giat ASC";
+}else{
+    $sql = "
+        SELECT 
+            *
+        FROM data_sub_keg_bl_lokal
+        WHERE id_sub_skpd=%d
+            AND tahun_anggaran=%d
+            AND active=1
+            ORDER BY kode_giat ASC, kode_sub_giat ASC";
+}
+
 $subkeg = $wpdb->get_results($wpdb->prepare($sql,$input['id_skpd'], $input['tahun_anggaran']), ARRAY_A);
 
 $cek_jadwal = $this->validasi_jadwal_perencanaan('renja',$input['tahun_anggaran']);
@@ -88,6 +107,7 @@ if(!empty($jadwal_lokal)){
         if(!empty($jadwal_lokal[0]['relasi_perencanaan'])){
             $add_renja .= '<a style="margin-left: 10px;" id="copy-data-renstra-skpd" data-jadwal="'.$idJadwalRenja.'" data-skpd="'.$input['id_skpd'].'" onclick="return false;" href="#" class="btn btn-danger">Copy Data Renstra per SKPD</a>';
         }
+        //$add_renja .='</br></br><a style="margin-left: 10px;" target="_blank" id="tambah-data" href="'.$url_pendapatan.'" class="btn btn-info">Pendapatan</a>';
     }
 }
 
@@ -180,7 +200,7 @@ foreach ($subkeg as $kk => $sub) {
         order by id ASC
     ", $sub['id_skpd'], $input['tahun_anggaran']), ARRAY_A);
     $nama_skpd = $_nama_skpd['nama_skpd'];
-    $nama_sub_skpd = $sub['nama_sub_skpd'];
+    $nama_sub_skpd = $subkeg[0]['nama_sub_skpd'];
     // die($wpdb->last_query);
 
 
@@ -301,9 +321,9 @@ $body = '';
             <tr tipe="sub_unit">
                 <td class="kiri kanan bawah text_blok"></td>
                 <td class="kanan bawah text_blok" colspan="12">Sub Unit Organisasi : '.$sub_skpd['nama'].'</td>
-                <td class="kanan bawah text_kanan text_blok">'.number_format($sub_skpd['total'],0,",",".").'<span class="nilai_usulan">'.number_format($sub_skpd['total_usulan'],0,",",".").'</span></td>
+                <td class="kanan bawah text_kanan text_blok"><span class="nilai_penetapan">'.number_format($sub_skpd['total'],0,",",".").'</span><span class="nilai_usulan">'.number_format($sub_skpd['total_usulan'],0,",",".").'</span></td>
                 <td class="kanan bawah" colspan="4">&nbsp;</td>
-                <td class="kanan bawah text_kanan text_blok">'.number_format($sub_skpd['total_n_plus'],0,",",".").'<span class="nilai_usulan">'.number_format($sub_skpd['total_n_plus_usulan'],0,",",".").'</span></td>
+                <td class="kanan bawah text_kanan text_blok"><span class="nilai_penetapan">'.number_format($sub_skpd['total_n_plus'],0,",",".").'</span><span class="nilai_usulan">'.number_format($sub_skpd['total_n_plus_usulan'],0,",",".").'</span></td>
                 <td class="kanan bawah"></td>
             </tr>
         ';
@@ -329,9 +349,9 @@ $body = '';
                         <td class="kanan bawah">&nbsp;</td>
                         <td class="kanan bawah">&nbsp;</td>
                         <td class="kanan bawah text_blok" colspan="8">'.$bidang['nama'].'</td>
-                        <td class="kanan bawah text_kanan text_blok">'.number_format($bidang['total'],0,",",".").'<span class="nilai_usulan">'.number_format($bidang['total_usulan'],0,",",".").'</span></td>
+                        <td class="kanan bawah text_kanan text_blok"><span class="nilai_penetapan">'.number_format($bidang['total'],0,",",".").'</span><span class="nilai_usulan">'.number_format($bidang['total_usulan'],0,",",".").'</span></td>
                         <td class="kanan bawah" colspan="4">&nbsp;</td>
-                        <td class="kanan bawah text_kanan text_blok">'.number_format($bidang['total_n_plus'],0,",",".").'<span class="nilai_usulan">'.number_format($bidang['total_n_plus_usulan'],0,",",".").'</span></td>
+                        <td class="kanan bawah text_kanan text_blok"><span class="nilai_penetapan">'.number_format($bidang['total_n_plus'],0,",",".").'</span><span class="nilai_usulan">'.number_format($bidang['total_n_plus_usulan'],0,",",".").'</span></td>
                         <td class="kanan bawah"></td>
                     </tr>
                 ';
@@ -353,9 +373,9 @@ $body = '';
                             <td class="kanan bawah">&nbsp;</td>
                             <td class="kanan bawah">&nbsp;</td>
                             <td class="kanan bawah text_blok" colspan="8">'.$program['nama'].'</td>
-                            <td class="kanan bawah text_kanan text_blok">'.number_format($program['total'],0,",",".").'<span class="nilai_usulan">'.number_format($program['total_usulan'],0,",",".").'</span></td>
+                            <td class="kanan bawah text_kanan text_blok"><span class="nilai_penetapan">'.number_format($program['total'],0,",",".").'</span><span class="nilai_usulan">'.number_format($program['total_usulan'],0,",",".").'</span></td>
                             <td class="kanan bawah" colspan="4">&nbsp;</td>
-                            <td class="kanan bawah text_kanan text_blok">'.number_format($program['total_n_plus'],0,",",".").'<span class="nilai_usulan">'.number_format($program['total_n_plus_usulan'],0,",",".").'</span></td>
+                            <td class="kanan bawah text_kanan text_blok"><span class="nilai_penetapan">'.number_format($program['total_n_plus'],0,",",".").'</span><span class="nilai_usulan">'.number_format($program['total_n_plus_usulan'],0,",",".").'</span></td>
                             <td class="kanan bawah text_tengah">'.$tombol_aksi.'</td>
                         </tr>
                     ';
@@ -376,9 +396,9 @@ $body = '';
                                 <td style="border:.5pt solid #000; vertical-align:middle; font-weight:bold;" width="5">'.$kd_giat.'</td>
                                 <td style="border:.5pt solid #000; vertical-align:middle;" width="5">&nbsp;</td>
                                 <td style="border:.5pt solid #000; vertical-align:middle; font-weight:bold;" colspan="8">'.$giat['nama'].'</td>
-                                <td style="border:.5pt solid #000; vertical-align:middle;  text-align:right; font-weight:bold;">'.number_format($giat['total'],0,",",".").'<span class="nilai_usulan">'.number_format($giat['total_usulan'],0,",",".").'</span></td>
+                                <td style="border:.5pt solid #000; vertical-align:middle;  text-align:right; font-weight:bold;"><span class="nilai_penetapan">'.number_format($giat['total'],0,",",".").'</span><span class="nilai_usulan">'.number_format($giat['total_usulan'],0,",",".").'</span></td>
                                 <td style="border:.5pt solid #000; vertical-align:middle; font-weight:bold;" colspan="4"></td>
-                                <td style="border:.5pt solid #000; vertical-align:middle;  text-align:right; font-weight:bold;">'.number_format($giat['total_n_plus'],0,",",".").'<span class="nilai_usulan">'.number_format($giat['total_n_plus_usulan'],0,",",".").'</span></td>
+                                <td style="border:.5pt solid #000; vertical-align:middle;  text-align:right; font-weight:bold;"><span class="nilai_penetapan">'.number_format($giat['total_n_plus'],0,",",".").'</span><span class="nilai_usulan">'.number_format($giat['total_n_plus_usulan'],0,",",".").'</span></td>
                                 <td class="kanan bawah text_tengah">'.$tombol_aksi.'</td>
                             </tr>
                         ';
@@ -392,8 +412,8 @@ $body = '';
                                 $capaian_prog = array();
                                 $target_capaian_prog = array();
                                 foreach ($sub_giat['capaian_prog'] as $k_sub => $v_sub) {
-                                    $capaian_prog[] = $v_sub['capaianteks'].'<span class="nilai_usulan">'.$v_sub['capaianteks_usulan'].'</span>';
-                                    $target_capaian_prog[] = $v_sub['targetcapaianteks'].'<span class="nilai_usulan">'.$v_sub['targetcapaianteks_usulan'].'</span>';
+                                    $capaian_prog[] = '<span class="nilai_penetapan">'.$v_sub['capaianteks'].'</span><span class="nilai_usulan">'.$v_sub['capaianteks_usulan'].'</span>';
+                                    $target_capaian_prog[] = '<span class="nilai_penetapan">'.$v_sub['targetcapaianteks'].'</span><span class="nilai_usulan">'.$v_sub['targetcapaianteks_usulan'].'</span>';
                                 }
                                 $capaian_prog = implode('<br>', $capaian_prog);
                                 $target_capaian_prog = implode('<br>', $target_capaian_prog);
@@ -404,8 +424,8 @@ $body = '';
                                 $output_giat = array();
                                 $target_output_giat = array();
                                 foreach ($sub_giat['output_giat'] as $k_sub => $v_sub) {
-                                    $output_giat[] = $v_sub['outputteks'].'<span class="nilai_usulan">'.$v_sub['outputteks_usulan'].'</span>';
-                                    $target_output_giat[] = $v_sub['targetoutputteks'].'<span class="nilai_usulan">'.$v_sub['targetoutputteks_usulan'].'</span>';
+                                    $output_giat[] = '<span class="nilai_penetapan">'.$v_sub['outputteks'].'</span><span class="nilai_usulan">'.$v_sub['outputteks_usulan'].'</span>';
+                                    $target_output_giat[] = '<span class="nilai_penetapan">'.$v_sub['targetoutputteks'].'</span><span class="nilai_usulan">'.$v_sub['targetoutputteks_usulan'].'</span>';
                                 }
                                 $output_giat = implode('<br>', $output_giat);
                                 $target_output_giat = implode('<br>', $target_output_giat);
@@ -417,7 +437,7 @@ $body = '';
                                 $target_output_sub_giat = array();
                                 foreach ($sub_giat['output_sub_giat'] as $k_sub => $v_sub) {
                                     $output_sub_giat[] = $v_sub['outputteks'];
-                                    $target_output_sub_giat[] = $v_sub['targetoutputteks'].'<span class="nilai_usulan">'.$v_sub['targetoutputteks_usulan'].'</span>';
+                                    $target_output_sub_giat[] = '<span class="nilai_penetapan">'.$v_sub['targetoutputteks'].'</span><span class="nilai_usulan">'.$v_sub['targetoutputteks_usulan'].'</span>';
                                 }
                                 $output_sub_giat = implode('<br>', $output_sub_giat);
                                 $target_output_sub_giat = implode('<br>', $target_output_sub_giat);
@@ -464,7 +484,7 @@ $body = '';
                             }
                             $dana_sub_giat = implode('<br>', $dana_sub_giat_array);
 
-                            $catatan = $sub_giat['data']['catatan'].'<span class="nilai_usulan">'.$sub_giat['data']['catatan_usulan'].'</span>';
+                            $catatan = '<span class="nilai_penetapan">'.$sub_giat['data']['catatan'].'</span><span class="nilai_usulan">'.$sub_giat['data']['catatan_usulan'].'</span>';
                             $ind_n_plus = '';
                             $target_ind_n_plus = '';
                             /*
@@ -505,12 +525,12 @@ $body = '';
                                     <td class="kanan bawah">'.$target_capaian_prog.'</td>
                                     <td class="kanan bawah">'.$target_output_sub_giat.'</td>
                                     <td class="kanan bawah">'.$target_output_giat.'</td>
-                                    <td class="kanan bawah text_kanan">'.number_format($sub_giat['total'],0,",",".").'<span class="nilai_usulan">'.number_format($sub_giat['total_usulan'],0,",",".").'</span></td>
+                                    <td class="kanan bawah text_kanan"><span class="nilai_penetapan">'.number_format($sub_giat['total'],0,",",".").'</span><span class="nilai_usulan">'.number_format($sub_giat['total_usulan'],0,",",".").'</span></td>
                                     <td class="kanan bawah">'.$dana_sub_giat.'</td>
                                     <td class="kanan bawah">'.$catatan.'</td>
                                     <td class="kanan bawah">'.$ind_n_plus.'</td>
                                     <td class="kanan bawah">'.$target_ind_n_plus.'</td>
-                                    <td class="kanan bawah text_kanan">'.number_format($sub_giat['total_n_plus'],0,",",".").'<span class="nilai_usulan">'.number_format($sub_giat['total_n_plus_usulan'],0,",",".").'</span></td>
+                                    <td class="kanan bawah text_kanan"><span class="nilai_penetapan">'.number_format($sub_giat['total_n_plus'],0,",",".").'</span><span class="nilai_usulan">'.number_format($sub_giat['total_n_plus_usulan'],0,",",".").'</span></td>
                                     <td class="kanan bawah text_tengah">'.$tombol_aksi.'</td>
                                 </tr>
                             ';
@@ -588,9 +608,9 @@ echo '
                 '.$body.'
                 <tr>
                     <td class="kiri kanan bawah text_blok text_kanan" colspan="13">TOTAL</td>
-                    <td class="kanan bawah text_kanan text_blok">'.number_format($data_all['total'],0,",",".").'<span class="nilai_usulan">'.number_format($data_all['total_usulan'],0,",",".").'</span></td>
+                    <td class="kanan bawah text_kanan text_blok"><span class="nilai_penetapan">'.number_format($data_all['total'],0,",",".").'</span><span class="nilai_usulan">'.number_format($data_all['total_usulan'],0,",",".").'</span></td>
                     <td class="kanan bawah" colspan="4">&nbsp;</td>
-                    <td class="kanan bawah text_kanan text_blok">'.number_format($data_all['total_n_plus'],0,",",".").'<span class="nilai_usulan">'.number_format($data_all['total_n_plus_usulan'],0,",",".").'</span></td>
+                    <td class="kanan bawah text_kanan text_blok"><span class="nilai_penetapan">'.number_format($data_all['total_n_plus'],0,",",".").'</span><span class="nilai_usulan">'.number_format($data_all['total_n_plus_usulan'],0,",",".").'</span></td>
                     <td class="kanan bawah"></td>
                 </tr>
             </tbody>
@@ -894,6 +914,10 @@ echo '
     let id_skpd = <?php echo $input['id_skpd']; ?>;
     let tahun_anggaran = <?php echo $input['tahun_anggaran']; ?>;
     let id_unit = <?php echo $id_unit; ?>;
+    let id_sub_unit = <?php echo $id_sub_skpd; ?>;
+    let is_skpd = <?php echo $data_skpd['is_skpd']; ?>;
+    let hide_data_usulan = <?php echo $hide_usulan;?>;
+    let hide_data_penetapan = <?php echo $hide_penetapan;?>;
 
     jQuery(document).ready(function(){
         run_download_excel();
@@ -909,10 +933,28 @@ echo '
     		'thisTimeZone' : '<?php echo $timezone ?>'
     	}
     	penjadwalanHitungMundur(dataHitungMundur);
-
+        
+        let ceklist_sub_unit = '';
+        if(id_sub_unit > 0){
+            ceklist_sub_unit = 'checked';
+        }
+        let ceklist_usulan = '';
+        if(hide_data_usulan > 0){
+            jQuery('.nilai_usulan').remove();
+            ceklist_usulan = 'checked';
+        }
+        let ceklist_penetapan = '';
+        if(hide_data_penetapan > 0){
+            jQuery('.nilai_penetapan').remove();
+            ceklist_penetapan = 'checked';
+        }
         var setting = ''
 		    +'<h3 style="margin-top: 20px;">SETTING</h3>'
-		    +'<label style="margin-left: 20px;"><input type="checkbox" onclick="hide_usulan(this);"> Sembunyikan Data Usulan</label>'
+		    +'<label style="margin-left: 20px;"><input type="checkbox" onclick="hide_usulan(this);" '+ceklist_usulan+'> Sembunyikan Data Usulan</label>'
+		    +'<label style="margin-left: 20px;"><input type="checkbox" onclick="hide_penetapan(this);" '+ceklist_penetapan+'> Sembunyikan Data Penetapan</label>';
+            if(is_skpd == 1){
+                setting +='<label style="margin-left: 20px;"><input type="checkbox" id="show_sub_unit" onclick="show_sub_unit(this);" '+ceklist_sub_unit+'> Tampilkan Data Sub Unit</input></label>';
+            }
 
     	var aksi = '<?php echo $add_renja; ?>';
     	jQuery('#action-sipd').append(aksi);
@@ -2477,7 +2519,56 @@ echo '
     }
 
     function hide_usulan(that){
-        jQuery(".nilai_usulan").toggle();
+        if(hide_data_usulan == 0){
+            location.href = URL_add_parameter(location.href, 'hide_usulan', '1');
+        }else{
+            location.href = URL_add_parameter(location.href, 'hide_usulan', '0');
+        }
+    }
+
+    function hide_penetapan(that){
+        if(hide_data_penetapan == 0){
+            location.href = URL_add_parameter(location.href, 'hide_penetapan', '1');
+        }else{
+            location.href = URL_add_parameter(location.href, 'hide_penetapan', '0');
+        }
+    }
+
+    function show_sub_unit(that){
+        if(id_sub_unit == 0){
+            location.href = URL_add_parameter(location.href, 'id_sub_skpd', '1');
+        }else{
+            location.href = URL_add_parameter(location.href, 'id_sub_skpd', '0');
+        }
+    }
+
+    function URL_add_parameter(url, param, value){
+        var hash       = {};
+        var parser     = document.createElement('a');
+
+        parser.href    = url;
+
+        var parameters = parser.search.split(/\?|&/);
+
+        for(var i=0; i < parameters.length; i++) {
+            if(!parameters[i])
+                continue;
+
+            var ary      = parameters[i].split('=');
+            hash[ary[0]] = ary[1];
+        }
+
+        hash[param] = value;
+
+        var list = [];  
+        Object.keys(hash).forEach(function (key) {
+            list.push(key + '=' + hash[key]);
+        });
+
+        
+        parser.search = '?' + list.join('&');
+        console.log('modify link'+parser.href)
+        return parser.href;
     }
 
     function copy_usulan(that){

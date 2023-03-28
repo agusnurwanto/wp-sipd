@@ -935,7 +935,6 @@ CREATE TABLE `data_pendapatan` (
   `id_skpd` int(11) DEFAULT NULL,
   `id_akun` int(11) DEFAULT NULL,
   `id_jadwal_murni` int(11) DEFAULT NULL,
-  `kode_akun` varchar(50) DEFAULT NULL,
   `koefisien` varchar(50) DEFAULT NULL,
   `kua_murni` varchar(50) DEFAULT NULL,
   `kua_pak` varchar(50) DEFAULT NULL,
@@ -2436,6 +2435,8 @@ CREATE TABLE `data_capaian_prog_sub_keg_lokal_history` (
   `targetcapaianteks_usulan` varchar(50) DEFAULT NULL,
   `capaianteks_usulan` text DEFAULT NULL,
   `targetcapaian_usulan` int(11) DEFAULT NULL,
+  `catatan` text DEFAULT NULL,
+  `catatan_usulan` text DEFAULT NULL,
   PRIMARY KEY  (id)
 );
 

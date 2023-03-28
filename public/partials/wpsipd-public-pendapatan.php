@@ -5,60 +5,12 @@ if ( ! defined( 'WPINC' ) ) {
 }
 
 $input = shortcode_atts( array(
+	'id_skpd' => '',
 	'tahun_anggaran' => '2022'
 ), $atts );
 
-if(isset($tipe_perencanaan)){
-	if($tipe_perencanaan == 'renja'){
-		$judul = 'Renja';
-	}else{
-		$tipe_perencanaan = 'penganggaran';
-		$judul = 'Penganggaran';
-	}
-}else{
-	$tipe_perencanaan = 'penganggaran';
-	$judul = 'Penganggaran';
-}
-
 global $wpdb;
-$tahun = $wpdb->get_results('select tahun_anggaran from data_unit group by tahun_anggaran order by tahun_anggaran ASC', ARRAY_A);
-$select_tahun = "<option value=''>Pilih berdasarkan tahun anggaran</option>";
-foreach($tahun as $tahun_value){
-	$select = $tahun_value['tahun_anggaran'] == $input['tahun_anggaran'] ? 'selected' : '';
-	$nama_page_menu_ssh = 'Setting penjadwalan | '.$tahun_value['tahun_anggaran'];
-	$custom_post = get_page_by_title($nama_page_menu_ssh, OBJECT, 'page');
-	$url_data_ssh = $this->get_link_post($custom_post);
-	$select_tahun .= "<option value='".$url_data_ssh."' ".$select.">Setting penjadwalan | ".$tahun_value['tahun_anggaran']."</option>";
-}
 
-$select_renstra = '';
-
-$sqlTipe = $wpdb->get_results($wpdb->prepare("
-				SELECT 
-					* 
-				FROM 
-					`data_tipe_perencanaan` 
-				WHERE 
-					nama_tipe=%s",
-					'renstra'
-				), ARRAY_A);
-$data_renstra = $wpdb->get_results($wpdb->prepare('
-				SELECT
-					id_jadwal_lokal,
-					nama
-				FROM
-					data_jadwal_lokal
-				WHERE
-					status=1
-					and id_tipe=%d',
-					$sqlTipe[0]['id']
-				),ARRAY_A);
-				
-if(!empty($data_renstra)){
-	foreach($data_renstra as $val_renstra){
-		$select_renstra .= '<option value="'.$val_renstra['id_jadwal_lokal'].'">'.$val_renstra['nama'].'</option>';
-	}
-}
 
 $body = '';
 ?>
@@ -73,19 +25,17 @@ $body = '';
 <div class="cetak">
 	<div style="padding: 10px;margin:0 0 3rem 0;">
 		<input type="hidden" value="<?php echo get_option( '_crb_api_key_extension' ); ?>" id="api_key">
-		<h1 class="text-center" style="margin:3rem;">Halaman Setting Penjadwalan <?php echo $judul; ?>  <?php echo $input['tahun_anggaran']; ?></h1>
+		<h1 class="text-center" style="margin:3rem;">Halaman Pendapatan  <?php echo $input['tahun_anggaran']; ?></h1>
 		<div style="margin-bottom: 25px;">
-			<button class="btn btn-primary tambah_ssh" onclick="tambah_jadwal();">Tambah Jadwal</button>
+			<button class="btn btn-primary tambah_pendapatan" onclick="tambah_pendapatan();">Tambah Pendapatan</button>
 		</div>
-		<table id="data_penjadwalan_table" cellpadding="2" cellspacing="0" style="font-family:\'Open Sans\',-apple-system,BlinkMacSystemFont,\'Segoe UI\',sans-serif; border-collapse: collapse; width:100%; overflow-wrap: break-word;" class="table table-bordered">
+		<table id="data_pendapatan_table" cellpadding="2" cellspacing="0" style="font-family:\'Open Sans\',-apple-system,BlinkMacSystemFont,\'Segoe UI\',sans-serif; border-collapse: collapse; width:100%; overflow-wrap: break-word;" class="table table-bordered">
 			<thead id="data_header">
 				<tr>
-					<th class="text-center">Nama Tahapan</th>
-					<th class="text-center">Status</th>
-					<th class="text-center">Jadwal Mulai</th>
-					<th class="text-center">Jadwal Selesai</th>
-					<th class="text-center">Tahun Anggaran</th>
-					<th class="text-center">Jadwal RENSTRA</th>
+					<th class="text-center">Rekening</th>
+					<th class="text-center">Uraian</th>
+					<th class="text-center">Keterangan</th>
+					<th class="text-center">Nilai</th>
 					<th class="text-center" style="width: 250px;">Aksi</th>
 				</tr>
 			</thead>
@@ -137,21 +87,11 @@ $body = '';
 <script type="text/javascript" src="https://cdn.datatables.net/buttons/1.3.1/js/buttons.html5.min.js"></script>
 <script>
 	jQuery(document).ready(function(){
-		globalThis.tahun_anggaran = <?php echo $input['tahun_anggaran']; ?>;
-		globalThis.tipe_perencanaan = '<?php echo $tipe_perencanaan; ?>';
-		globalThis.thisAjaxUrl = "<?php echo admin_url('admin-ajax.php'); ?>"
+		window.tahun_anggaran = <?php echo $input['tahun_anggaran']; ?>;
+		window.this_ajax_url = "<?php echo admin_url('admin-ajax.php'); ?>"
+		window.id_skpd = "<?php echo $input['id_skpd']; ?>"
 
-		get_data_penjadwalan();
-
-		// let html_filter = "<select class='ml-3 bulk-action' id='selectYears'><?php echo $select_tahun ?></select>"
-		// jQuery("#data_penjadwalan_table_length").append(html_filter);
-
-		jQuery('#selectYears').on('change', function(e){
-			let selectedVal = jQuery(this).find('option:selected').val();
-			if(selectedVal != ''){
-				window.location = selectedVal;
-			}
-		});
+		get_data_pendapatan();
 
 		jQuery('#modalTambahJadwal').on('hidden.bs.modal', function () {
 			jQuery("#jadwal_nama").val("");
@@ -159,19 +99,19 @@ $body = '';
 		})
 	});
 
-	/** get data penjadwalan */
-	function get_data_penjadwalan(){
+	/** get data pendapatan */
+	function get_data_pendapatan(){
 		jQuery("#wrap-loading").show();
-		globalThis.penjadwalanTable = jQuery('#data_penjadwalan_table').DataTable({
+		window.pendapatanTable = jQuery('#data_pendapatan_table').DataTable({
 			"processing": true,
 			"serverSide": true,
 			"ajax": {
-				url: thisAjaxUrl,
+				url: this_ajax_url,
 				type:"post",
 				data:{
-					'action' 		: "get_data_penjadwalan",
+					'action' 		: "get_data_pendapatan_renja",
 					'api_key' 		: jQuery("#api_key").val(),
-					'tipe_perencanaan' : tipe_perencanaan,
+					'id_skpd' 		: id_skpd,
 					'tahun_anggaran': tahun_anggaran
 				}
 			},
@@ -180,27 +120,19 @@ $body = '';
 			},
 			"columns": [
 				{ 
-					"data": "nama",
+					"data": "kode_akun",
 					className: "text-center"
 				},
 				{ 
-					"data": "status",
+					"data": "nama_akun",
 					className: "text-center"
 				},
 				{ 
-					"data": "waktu_awal",
+					"data": "keterangan",
 					className: "text-center"
 				},
 				{ 
-					"data": "waktu_akhir",
-					className: "text-center"
-				},
-				{ 
-					"data": "tahun_anggaran",
-					className: "text-center"
-				},
-				{ 
-					"data": "relasi_perencanaan",
+					"data": "total",
 					className: "text-center"
 				},
 				{ 
@@ -367,212 +299,6 @@ $body = '';
 				}
 			});
 		}
-	}
-
-	function lock_data_penjadwalan(id_jadwal_lokal){
-		let confirmLocked = confirm("Apakah anda yakin akan mengunci penjadwalan?");
-		if(confirmLocked){
-			jQuery('#wrap-loading').show();
-			jQuery.ajax({
-				url: thisAjaxUrl,
-				type:'post',
-				data:{
-					'action' 				: 'submit_lock_schedule',
-					'api_key'				: jQuery("#api_key").val(),
-					'id_jadwal_lokal'		: id_jadwal_lokal
-				},
-				dataType: 'json',
-				success:function(response){
-					jQuery('#wrap-loading').hide();
-					if(response.status == 'success'){
-						alert('Data berhasil dikunci!.');
-						penjadwalanTable.ajax.reload();	
-					}else{
-						alert(`GAGAL! \n${response.message}`);
-					}
-				}
-			});
-		}
-	}
-
-	jQuery(function() {
-		jQuery('#jadwal_tanggal').daterangepicker({
-			timePicker: true,
-			timePicker24Hour: true,
-			startDate: moment().startOf('hour'),
-			endDate: moment().startOf('hour').add(32, 'hour'),
-			locale: {
-				format: 'DD-MM-YYYY HH:mm'
-			}
-		});
-	});
-
-	function cannot_change_schedule(jenis){
-		if(jenis == 'kunci'){
-			alert('Tidak bisa kunci karena penjadwalan sudah dikunci');
-		}else if(jenis == 'edit'){
-			alert('Tidak bisa edit karena penjadwalan sudah dikunci');
-		}else if(jenis == 'hapus'){
-			alert('Tidak bisa hapus karena penjadwalan sudah dikunci');
-		}
-	}
-
-	function copy_usulan(){
-		if(confirm('Apakah anda yakin untuk melakukan ini? data penetapan akan diupdate sama dengan data usulan.')){
-			jQuery('#wrap-loading').show();
-			jQuery.ajax({
-				url: ajax.url,
-	          	type: "post",
-	          	data: {
-	          		"action": "copy_usulan_renja",
-	          		"api_key": jQuery("#api_key").val(),
-					"tahun_anggaran": tahun_anggaran
-	          	},
-	          	dataType: "json",
-	          	success: function(res){
-	          		alert(res.message);
-	          		jQuery('#wrap-loading').hide();
-	          	}
-	        });
-		}
-	}
-
-	function copy_data_renstra(id_jadwal){
-		if(confirm('Apakah anda yakin untuk melakukan ini? data RENJA akan diisi sesuai data RENSTRA tahun berjalan!.')){
-			jQuery('#wrap-loading').show();
-			jQuery.ajax({
-				url: ajax.url,
-	          	type: "post",
-	          	data: {
-	          		"action": "copy_data_renstra_ke_renja",
-	          		"api_key": jQuery("#api_key").val(),
-					'id_jadwal': id_jadwal
-	          	},
-	          	dataType: "json",
-	          	success: function(res){
-	          		alert(res.message);
-	          		jQuery('#wrap-loading').hide();
-	          	}
-	        });
-		}
-	}
-
-	function report(id_jadwal_lokal){
-		let modal = `
-			<div class="modal fade" id="modal-report" tab-index="-1" role="dialog" aria-labelledby="modal-indikator-renja-label" aria-hidden="true">
-			  <div class="modal-dialog modal-lg" role="document" style="min-width:1450px">
-			    <div class="modal-content">
-			      <div class="modal-header">
-			        <h5 class="modal-title">Report</h5>
-			        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-			          <span aria-hidden="true">&times;</span>
-			        </button>
-			      </div>
-			      
-			      <div class="modal-body">
-				    <div class="container-fluid">
-					    <div class="row">
-						    <div class="col-md-2">Unit Kerja</div>
-						    <div class="col-md-6">
-						    	<select class="form-control list_perangkat_daerah" id="list_perangkat_daerah"></select>
-						    </div>
-					    </div></br>
-					    <div class="row">
-					    	<div class="col-md-2">Jenis Laporan</div>
-					    	<div class="col-md-6">
-					      		<select class="form-control jenis" id="jenis">
-					      			<option value="-">Pilih Jenis</option>
-					      			<option value="pagu_total">Format Pagu Total Per Unit Kerja</option>
-				      			</select>
-					    	</div>
-					    </div></br>
-					    <div class="row">
-					    	<div class="col-md-2"></div>
-					    	<div class="col-md-6 action-footer">
-					      		<button type="button" class="btn btn-success btn-preview" onclick="preview('${id_jadwal_lokal}')">Preview</button>
-					    	</div>
-					    </div></br>
-					</div>
-			      </div>
-			      <div class="modal-preview" style="padding:10px"></div>
-			    </div>
-			  </div>
-			</div>`;
-
-		jQuery("body .report").html(modal);
-		list_perangkat_daerah()
-		.then(function(){
-			jQuery("#modal-report").modal('show');
-			jQuery('.jenis').select2({width: '100%'});
-		});
-	}
-
-	function preview(id_jadwal_lokal){
-
-		let jenis=jQuery("#jenis").val();
-		let id_unit=jQuery("#list_perangkat_daerah").val();
-
-		if(id_unit=='' || id_unit=='undefined'){
-			alert('Unit kerja belum dipilih');
-			return;
-		}
-
-		switch(jenis){
-			case 'pagu_total':
-				generate(id_unit, id_jadwal_lokal, 'view_pagu_total_renja', 'Laporan Pagu Akumulasi Per Unit Kerja');
-				break;
-
-			case '-':
-				alert('Jenis laporan belum dipilih');
-				break;
-		}
-	}
-
-	function generate(id_unit, id_jadwal_lokal, action, title){
-		jQuery("#wrap-loading").show();
-		jQuery.ajax({
-			url:ajax.url,
-			type:'post',
-			dataType:'json',
-			data:{
-				action:action,
-				id_unit:id_unit,
-				id_jadwal_lokal:id_jadwal_lokal,
-				tahun_anggaran:tahun_anggaran,
-				api_key:jQuery("#api_key").val(),
-			},
-			success:function(response){
-				if(response.status=='error'){
-					alert(response.message);
-				}else{
-					jQuery("#modal-report .modal-preview").html(response.html);
-					jQuery("#modal-report .modal-preview").css('overflow-x', 'auto');
-					jQuery("#modal-report .modal-preview").css('margin-right','15px');
-					jQuery("#modal-report .modal-preview").css('padding', '15px');
-					jQuery('#modal-report .export-excel').attr("disabled", false);
-					jQuery('#modal-report .export-excel').attr("title", title);
-
-					var table = jQuery("#table-renja").DataTable( {
-				        dom: 'Blfrtip',
-				        lengthMenu: [
-				            [10, 25, 50, -1],
-				            [10, 25, 50, 'All'],
-				        ],
-				        buttons: [
-				            'excel'
-				        ]
-				    } );
-				    jQuery('#modal-report .action-footer .dt-buttons').remove();
-					jQuery('#modal-report .action-footer').html(
-				    	"<button type=\"button\" class=\"btn btn-success btn-preview\" onclick=\"preview('"+id_jadwal_lokal+"')\">Preview</button>");
-				    jQuery('#modal-report .action-footer').append(table.buttons().container());
-				    jQuery('#modal-report .action-footer .dt-buttons').css('margin-left', '5px');
-				    jQuery('#modal-report .action-footer .buttons-excel').addClass('btn btn-primary');
-				    jQuery('#modal-report .action-footer .buttons-excel span').html('Export Excel');
-				}
-				jQuery("#wrap-loading").hide();
-			}
-		})
 	}
 
 	function list_perangkat_daerah(){

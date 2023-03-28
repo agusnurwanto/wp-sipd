@@ -4006,7 +4006,12 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 
 				$kodeunit = '';
 				if (!empty($_POST['data_unit'])) {
-					$data_unit = $_POST['data_unit'];
+					if(!empty($_POST['type']) && $_POST['type'] == 'ri'){
+						$data_unit = json_decode(stripslashes(html_entity_decode($_POST['data_unit'])), true);						
+					}else{
+						$data_unit = $_POST['data_unit'];
+					}
+					//$data_unit = $_POST['data_unit'];
 					$kodeunit = $data_unit['kodeunit'];
 					$_POST['nama_skpd'] = $data_unit['namaunit'];
 					$_POST['kode_sub_skpd'] = $data_unit['kodeunit'];
@@ -4025,7 +4030,11 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 				$_POST['idbl'] = (int) $_POST['idbl'];
 
 				if (!empty($_POST['dataBl']) && $ret['status'] != 'error') {
-					$dataBl = $_POST['dataBl'];
+					if(!empty($_POST['type']) && $_POST['type'] == 'ri'){
+						$dataBl = json_decode(stripslashes(html_entity_decode($_POST['dataBl'])), true);						
+					}else{
+						$dataBl = $_POST['dataBl'];
+					}					
 					foreach ($dataBl as $k => $v) {
 						$cek = $wpdb->get_var("SELECT kode_sbl from data_sub_keg_bl where tahun_anggaran=".$_POST['tahun_anggaran']." AND kode_sbl='" . $_POST['kode_sbl'] . "'");
 
@@ -4190,7 +4199,11 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 
 				if($_POST['total_page'] == $_POST['no_page']){
 					if (!empty($_POST['dataOutput']) && $ret['status'] != 'error') {
-						$dataOutput = $_POST['dataOutput'];
+						if(!empty($_POST['type']) && $_POST['type'] == 'ri'){
+							$dataOutput = json_decode(stripslashes(html_entity_decode($_POST['dataOutput'])), true);						
+						}else{
+							$dataOutput = $_POST['dataOutput'];
+						}
 						$wpdb->update('data_sub_keg_indikator', array( 'active' => 0 ), array(
 							'tahun_anggaran' => $_POST['tahun_anggaran'],
 							'kode_sbl' => $_POST['kode_sbl']
@@ -4222,7 +4235,11 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 					}
 
 					if (!empty($_POST['dataHasil']) && $ret['status'] != 'error') {
-						$dataHasil = $_POST['dataHasil'];
+						if(!empty($_POST['type']) && $_POST['type'] == 'ri'){
+							$dataHasil = json_decode(stripslashes(html_entity_decode($_POST['dataHasil'])), true);						
+						}else{
+							$dataHasil = $_POST['dataHasil'];
+						}
 						$wpdb->update('data_keg_indikator_hasil', array( 'active' => 0 ), array(
 							'tahun_anggaran' => $_POST['tahun_anggaran'],
 							'kode_sbl' => $_POST['kode_sbl']
@@ -4253,7 +4270,11 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 					}
 
 					if (!empty($_POST['dataTag']) && $ret['status'] != 'error') {
-						$dataTag = $_POST['dataTag'];
+						if(!empty($_POST['type']) && $_POST['type'] == 'ri'){
+							$dataTag = json_decode(stripslashes(html_entity_decode($_POST['dataTag'])), true);						
+						}else{
+							$dataTag = $_POST['dataTag'];
+						}
 						$wpdb->update('data_tag_sub_keg', array( 'active' => 0 ), array(
 							'tahun_anggaran' => $_POST['tahun_anggaran'],
 							'kode_sbl' => $_POST['kode_sbl']
@@ -4283,7 +4304,11 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 					}
 
 					if (!empty($_POST['dataCapaian']) && $ret['status'] != 'error') {
-						$dataCapaian = $_POST['dataCapaian'];
+						if(!empty($_POST['type']) && $_POST['type'] == 'ri'){
+							$dataCapaian = json_decode(stripslashes(html_entity_decode($_POST['dataCapaian'])), true);						
+						}else{
+							$dataCapaian = $_POST['dataCapaian'];
+						}
 						$wpdb->update('data_capaian_prog_sub_keg', array( 'active' => 0 ), array(
 							'tahun_anggaran' => $_POST['tahun_anggaran'],
 							'kode_sbl' => $_POST['kode_sbl']
@@ -4314,7 +4339,11 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 					}
 
 					if (!empty($_POST['dataOutputGiat']) && $ret['status'] != 'error') {
-						$dataOutputGiat = $_POST['dataOutputGiat'];
+						if(!empty($_POST['type']) && $_POST['type'] == 'ri'){
+							$dataOutputGiat = json_decode(stripslashes(html_entity_decode($_POST['dataOutputGiat'])), true);						
+						}else{
+							$dataOutputGiat = $_POST['dataOutputGiat'];
+						}
 						$wpdb->update('data_output_giat_sub_keg', array( 'active' => 0 ), array(
 							'tahun_anggaran' => $_POST['tahun_anggaran'],
 							'kode_sbl' => $_POST['kode_sbl']
@@ -4345,7 +4374,11 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 					}
 
 					if (!empty($_POST['dataDana']) && $ret['status'] != 'error') {
-						$dataDana = $_POST['dataDana'];
+						if(!empty($_POST['type']) && $_POST['type'] == 'ri'){
+							$dataDana = json_decode(stripslashes(html_entity_decode($_POST['dataDana'])), true);						
+						}else{
+							$dataDana = $_POST['dataDana'];
+						}
 						$wpdb->update('data_dana_sub_keg', array( 'active' => 0 ), array(
 							'tahun_anggaran' => $_POST['tahun_anggaran'],
 							'kode_sbl' => $_POST['kode_sbl']
@@ -4376,7 +4409,11 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						}
 					}
 					if (!empty($_POST['dataLokout']) && $ret['status'] != 'error') {
-						$dataLokout = $_POST['dataLokout'];
+						if(!empty($_POST['type']) && $_POST['type'] == 'ri'){
+							$dataLokout = json_decode(stripslashes(html_entity_decode($_POST['dataLokout'])), true);						
+						}else{
+							$dataLokout = $_POST['dataLokout'];
+						}
 						$wpdb->update('data_lokasi_sub_keg', array( 'active' => 0 ), array(
 							'tahun_anggaran' => $_POST['tahun_anggaran'],
 							'kode_sbl' => $_POST['kode_sbl']
@@ -4450,7 +4487,11 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 
 				$iddana = false;
 				if (!empty($_POST['dataDana'])) {
-					$dataDana = $_POST['dataDana'];
+					if(!empty($_POST['type']) && $_POST['type'] == 'ri'){
+						$dataDana = json_decode(stripslashes(html_entity_decode($_POST['dataDana'])), true);						
+					}else{
+						$dataDana = $_POST['dataDana'];
+					}
 					foreach ($dataDana as $k => $v) {
 						if(
 							empty($iddana)
@@ -4465,7 +4506,11 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 				}
 
 				if (!empty($_POST['rka']) && $ret['status'] != 'error') {
-					$rka = $_POST['rka'];
+					if(!empty($_POST['type']) && $_POST['type'] == 'ri'){
+						$rka = json_decode(stripslashes(html_entity_decode($_POST['rka'])), true);						
+					}else{
+						$rka = $_POST['rka'];
+					}
 					if(!empty($_POST['no_page']) && $_POST['no_page']==1){
 						$wpdb->delete('data_rka', array(
 							'tahun_anggaran' => $_POST['tahun_anggaran'],
@@ -12561,23 +12606,23 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 
 					if(!empty($queryRecords)){
 						foreach($queryRecords as $recKey => $recVal){
-							$report = '<a class="btn btn-primary mr-2" href="#" onclick="return report(\''.$recVal['id_jadwal_lokal'].'\');" title="Cetak Laporan"><i class="dashicons dashicons-printer"></i></a>';
+							$report = '<a class="btn btn-sm btn-primary mr-2" style="text-decoration: none;" onclick="report(\''.$recVal['id_jadwal_lokal'].'\'); return false;" href="#" title="Cetak Laporan"><i class="dashicons dashicons-printer"></i></a>';
 							if($recVal['status'] == 1){
-								$lock	= '<a class="btn btn-success disabled" href="#" onclick="return cannot_change_schedule(\'kunci\');" title="Kunci data penjadwalan" aria-disabled="true"><i class="dashicons dashicons-lock"></i></a>';
+								$lock	= '<a class="btn btn-sm btn-success disabled" style="text-decoration: none;" onclick="cannot_change_schedule(\'kunci\'); return false;" href="#" title="Kunci data penjadwalan" aria-disabled="true"><i class="dashicons dashicons-lock"></i></a>';
 								$edit	= '';
 								$delete	= '';
 							}else{
-								$lock	= '<a class="btn btn-success mr-2" href="#" onclick="return lock_data_penjadwalan(\''.$recVal['id_jadwal_lokal'].'\');" title="Kunci data penjadwalan"><i class="dashicons dashicons-unlock"></i></a>';
-								$edit	= '<a class="btn btn-warning mr-2" href="#" onclick="return edit_data_penjadwalan(\''.$recVal['id_jadwal_lokal'].'\');" title="Edit data penjadwalan"><i class="dashicons dashicons-edit"></i></a>';
-								$delete	= '<a class="btn btn-danger" href="#" onclick="return hapus_data_penjadwalan(\''.$recVal['id_jadwal_lokal'].'\');" title="Hapus data penjadwalan"><i class="dashicons dashicons-trash"></i></a>';
+								$lock	= '<a class="btn btn-sm btn-success mr-2" style="text-decoration: none;" onclick="lock_data_penjadwalan(\''.$recVal['id_jadwal_lokal'].'\'); return false;" href="#" title="Kunci data penjadwalan"><i class="dashicons dashicons-unlock"></i></a>';
+								$edit	= '<a class="btn btn-sm btn-warning mr-2" style="text-decoration: none;" onclick="edit_data_penjadwalan(\''.$recVal['id_jadwal_lokal'].'\'); return false;" href="#" title="Edit data penjadwalan"><i class="dashicons dashicons-edit"></i></a>';
+								$delete	= '<a class="btn btn-sm btn-danger" style="text-decoration: none;" onclick="hapus_data_penjadwalan(\''.$recVal['id_jadwal_lokal'].'\'); return false;" href="#" title="Hapus data penjadwalan"><i class="dashicons dashicons-trash"></i></a>';
 
 								if(
 									$tipe_perencanaan == 'renstra'
 									|| $tipe_perencanaan == 'renja'
 								){
-									$delete	.= '<a class="btn btn-danger" href="#" onclick="copy_usulan(); return false;" title="Copy Data Usulan ke Penetapan">Copy Data Usulan</a>';
-									if($tipe_perencanaan == 'renja'){
-										$delete	.= '<a class="btn btn-danger" href="#" onclick="copy_data_renstra(\''.$recVal['id_jadwal_lokal'].'\'); return false;" title="Copy Data RENSTRA ke RENJA">Copy Data RENSTRA</a>';
+									$delete	.= '<a class="btn btn-sm btn-danger mr-2" style="text-decoration: none;" onclick="copy_usulan(); return false;" href="#" title="Copy Data Usulan ke Penetapan">Copy Data Usulan</a>';
+									if($tipe_perencanaan == 'renja' && !empty($recVal['relasi_perencanaan'])){
+										$delete	.= '<a class="btn btn-sm btn-danger" style="text-decoration: none;" onclick="copy_data_renstra(\''.$recVal['id_jadwal_lokal'].'\'); return false;" href="#" title="Copy Data RENSTRA ke RENJA">Copy Data RENSTRA</a>';
 									}
 								}
 							}
@@ -13040,43 +13085,43 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 									'id_jadwal_lokal'	=> $id_jadwal_lokal
 								));
 
-								$delete_lokal_history = $this->delete_data_lokal_history('data_rka', $data_this_id[0]['id_jadwal_lokal']);
+								$delete_lokal_history = $this->delete_data_lokal_history('data_rka_lokal', $data_this_id[0]['id_jadwal_lokal']);
 
 								$columns_1 = array('created_user','createddate','createdtime','harga_satuan','harga_satuan_murni','id_daerah','id_rinci_sub_bl','id_standar_nfs','is_locked','jenis_bl','ket_bl_teks','kode_akun','koefisien','koefisien_murni','lokus_akun_teks','nama_akun','nama_komponen','spek_komponen','satuan','spek','sat1','sat2','sat3','sat4','volum1','volum2','volum3','volum4','volume','volume_murni','subs_bl_teks','subtitle_teks','kode_dana','is_paket','nama_dana','id_dana','substeks','total_harga','rincian','rincian_murni','totalpajak','pajak','pajak_murni','updated_user','updateddate','updatedtime','user1','user2','active','update_at','tahun_anggaran','idbl','idsubbl','kode_bl','kode_sbl','id_prop_penerima','id_camat_penerima','id_kokab_penerima','id_lurah_penerima','id_penerima','idkomponen','idketerangan','idsubtitle');
 	
-								$sql_backup_data_rka =  "INSERT INTO data_rka_history (".implode(', ', $columns_1).",id_asli,id_jadwal)
+								$sql_backup_data_rka =  "INSERT INTO data_rka_lokal_history (".implode(', ', $columns_1).",id_asli,id_jadwal)
 											SELECT ".implode(', ', $columns_1).",id as id_asli,".$data_this_id[0]['id_jadwal_lokal']."
-											FROM data_rka WHERE tahun_anggaran='".$data_this_id[0]['tahun_anggaran']."'";
+											FROM data_rka_lokal WHERE tahun_anggaran='".$data_this_id[0]['tahun_anggaran']."'";
 
 								$queryRecords1 = $wpdb->query($sql_backup_data_rka);
 
-								$delete_lokal_history = $this->delete_data_lokal_history('data_sub_keg_bl', $data_this_id[0]['id_jadwal_lokal']);
+								$delete_lokal_history = $this->delete_data_lokal_history('data_sub_keg_bl_lokal', $data_this_id[0]['id_jadwal_lokal']);
 
-								$columns_2 = array('id_sub_skpd','id_lokasi','id_label_kokab','nama_dana','no_sub_giat','kode_giat','id_program','nama_lokasi','waktu_akhir','pagu_n_lalu','id_urusan','id_unik_sub_bl','id_sub_giat','label_prov','kode_program','kode_sub_giat','no_program','kode_urusan','kode_bidang_urusan','nama_program','target_4','target_5','id_bidang_urusan','nama_bidang_urusan','target_3','no_giat','id_label_prov','waktu_awal','pagumurni','pagu','pagu_simda','output_sub_giat','sasaran','indikator','id_dana','nama_sub_giat','pagu_n_depan','satuan','id_rpjmd','id_giat','id_label_pusat','nama_giat','kode_skpd','nama_skpd','kode_sub_skpd','id_skpd','id_sub_bl','nama_sub_skpd','target_1','nama_urusan','target_2','label_kokab','label_pusat','pagu_keg','pagu_fmis','id_bl','kode_bl','kode_sbl','active','update_at','tahun_anggaran');
+								$columns_2 = array('id_sub_skpd','id_lokasi','id_label_kokab','nama_dana','no_sub_giat','kode_giat','id_program','nama_lokasi','waktu_akhir','pagu_n_lalu','id_urusan','id_unik_sub_bl','id_sub_giat','label_prov','kode_program','kode_sub_giat','no_program','kode_urusan','kode_bidang_urusan','nama_program','target_4','target_5','id_bidang_urusan','nama_bidang_urusan','target_3','no_giat','id_label_prov','waktu_awal','pagumurni','pagu','pagu_simda','output_sub_giat','sasaran','indikator','id_dana','nama_sub_giat','pagu_n_depan','satuan','id_rpjmd','id_giat','id_label_pusat','nama_giat','kode_skpd','nama_skpd','kode_sub_skpd','id_skpd','id_sub_bl','nama_sub_skpd','target_1','nama_urusan','target_2','label_kokab','label_pusat','pagu_keg','pagu_fmis','id_bl','kode_bl','kode_sbl','active','update_at','tahun_anggaran','catatan','catatan_usulan','pagu_usulan','pagu_n_depan_usulan','waktu_awal_usulan','waktu_akhir_usulan','sasaran_usulan');
 
-								$sql_backup_data_sub_keg_bl =  "INSERT INTO data_sub_keg_bl_history (".implode(', ', $columns_2).",id_asli,id_jadwal)
+								$sql_backup_data_sub_keg_bl =  "INSERT INTO data_sub_keg_bl_lokal_history (".implode(', ', $columns_2).",id_asli,id_jadwal)
 											SELECT ".implode(', ', $columns_2).",id as id_asli,".$data_this_id[0]['id_jadwal_lokal']."
-											FROM data_sub_keg_bl WHERE tahun_anggaran='".$data_this_id[0]['tahun_anggaran']."'";
+											FROM data_sub_keg_bl_lokal WHERE tahun_anggaran='".$data_this_id[0]['tahun_anggaran']."'";
 
 								$queryRecords2 = $wpdb->query($sql_backup_data_sub_keg_bl);
 
-								$delete_lokal_history = $this->delete_data_lokal_history('data_sub_keg_indikator', $data_this_id[0]['id_jadwal_lokal']);
+								$delete_lokal_history = $this->delete_data_lokal_history('data_sub_keg_indikator_lokal', $data_this_id[0]['id_jadwal_lokal']);
 
-								$oclumns_3 = array('outputteks','targetoutput','satuanoutput','idoutputbl','targetoutputteks','kode_sbl','idsubbl','active','update_at','tahun_anggaran');
+								$oclumns_3 = array('outputteks','targetoutput','satuanoutput','idoutputbl','targetoutputteks','kode_sbl','idsubbl','active','update_at','tahun_anggaran','outputteks_usulan','targetoutput_usulan','satuanoutput_usulan','targetoutputteks_usulan','id_indikator_sub_giat');
 
-								$sql_backup_data_sub_keg_indikator =  "INSERT INTO data_sub_keg_indikator_history (".implode(', ', $oclumns_3).",id_asli,id_jadwal)
+								$sql_backup_data_sub_keg_indikator =  "INSERT INTO data_sub_keg_indikator_lokal_history (".implode(', ', $oclumns_3).",id_asli,id_jadwal)
 											SELECT ".implode(', ', $oclumns_3).",id as id_asli,".$data_this_id[0]['id_jadwal_lokal']."
-											FROM data_sub_keg_indikator WHERE tahun_anggaran='".$data_this_id[0]['tahun_anggaran']."'";
+											FROM data_sub_keg_indikator_lokal WHERE tahun_anggaran='".$data_this_id[0]['tahun_anggaran']."'";
 
 								$queryRecords3 = $wpdb->query($sql_backup_data_sub_keg_indikator);
 
-								$delete_lokal_history = $this->delete_data_lokal_history('data_keg_indikator_hasil', $data_this_id[0]['id_jadwal_lokal']);
+								$delete_lokal_history = $this->delete_data_lokal_history('data_keg_indikator_hasil_lokal', $data_this_id[0]['id_jadwal_lokal']);
 
-								$oclumns_4 = array('hasilteks','satuanhasil','targethasil','targethasilteks','kode_sbl','idsubbl','active','update_at','tahun_anggaran');
+								$oclumns_4 = array('hasilteks','satuanhasil','targethasil','targethasilteks','kode_sbl','idsubbl','active','update_at','tahun_anggaran','hasilteks_usulan','satuanhasil_usulan','targethasil_usulan','targethasilteks_usulan','catatan','catatan_usulan');
 
-								$sql_backup_data_keg_indikator_hasil =  "INSERT INTO data_keg_indikator_hasil_history (".implode(', ', $oclumns_4).",id_asli,id_jadwal)
+								$sql_backup_data_keg_indikator_hasil =  "INSERT INTO data_keg_indikator_hasil_lokal_history (".implode(', ', $oclumns_4).",id_asli,id_jadwal)
 											SELECT ".implode(', ', $oclumns_4).",id as id_asli,".$data_this_id[0]['id_jadwal_lokal']."
-											FROM data_keg_indikator_hasil WHERE tahun_anggaran='".$data_this_id[0]['tahun_anggaran']."'";
+											FROM data_keg_indikator_hasil_lokal WHERE tahun_anggaran='".$data_this_id[0]['tahun_anggaran']."'";
 
 								$queryRecords4 = $wpdb->query($sql_backup_data_keg_indikator_hasil);
 
@@ -13090,43 +13135,43 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 
 								$queryRecords5 = $wpdb->query($sql_backup_data_tag_sub_keg);
 
-								$delete_lokal_history = $this->delete_data_lokal_history('data_capaian_prog_sub_keg', $data_this_id[0]['id_jadwal_lokal']);
+								$delete_lokal_history = $this->delete_data_lokal_history('data_capaian_prog_sub_keg_lokal', $data_this_id[0]['id_jadwal_lokal']);
 
-								$oclumns_6 = array('satuancapaian','targetcapaianteks','capaianteks','targetcapaian','kode_sbl','idsubbl','active','update_at','tahun_anggaran');
+								$oclumns_6 = array('satuancapaian','targetcapaianteks','capaianteks','targetcapaian','kode_sbl','idsubbl','active','update_at','tahun_anggaran','satuancapaian_usulan','targetcapaianteks_usulan','capaianteks_usulan','targetcapaian_usulan','catatan','catatan_usulan');
 
-								$sql_backup_data_capaian_prog_sub_keg =  "INSERT INTO data_capaian_prog_sub_keg_history (".implode(', ', $oclumns_6).",id_asli,id_jadwal)
+								$sql_backup_data_capaian_prog_sub_keg =  "INSERT INTO data_capaian_prog_sub_keg_lokal_history (".implode(', ', $oclumns_6).",id_asli,id_jadwal)
 											SELECT ".implode(', ', $oclumns_6).",id as id_asli,".$data_this_id[0]['id_jadwal_lokal']."
-											FROM data_capaian_prog_sub_keg WHERE tahun_anggaran='".$data_this_id[0]['tahun_anggaran']."'";
+											FROM data_capaian_prog_sub_keg_lokal WHERE tahun_anggaran='".$data_this_id[0]['tahun_anggaran']."'";
 
 								$queryRecords6 = $wpdb->query($sql_backup_data_capaian_prog_sub_keg);
 
-								$delete_lokal_history = $this->delete_data_lokal_history('data_output_giat_sub_keg', $data_this_id[0]['id_jadwal_lokal']);
+								$delete_lokal_history = $this->delete_data_lokal_history('data_output_giat_sub_keg_lokal', $data_this_id[0]['id_jadwal_lokal']);
 
-								$oclumns_7 = array('outputteks','satuanoutput','targetoutput','targetoutputteks','kode_sbl','idsubbl','active','update_at','tahun_anggaran');
+								$oclumns_7 = array('outputteks','satuanoutput','targetoutput','targetoutputteks','kode_sbl','idsubbl','active','update_at','tahun_anggaran','outputteks_usulan','satuanoutput_usulan','targetoutput_usulan','targetoutputteks_usulan','catatan','catatan_usulan');
 
-								$sql_backup_data_output_giat_sub_keg =  "INSERT INTO data_output_giat_sub_keg_history (".implode(', ', $oclumns_7).",id_asli,id_jadwal)
+								$sql_backup_data_output_giat_sub_keg =  "INSERT INTO data_output_giat_sub_keg_lokal_history (".implode(', ', $oclumns_7).",id_asli,id_jadwal)
 											SELECT ".implode(', ', $oclumns_7).",id as id_asli,".$data_this_id[0]['id_jadwal_lokal']."
-											FROM data_output_giat_sub_keg WHERE tahun_anggaran='".$data_this_id[0]['tahun_anggaran']."'";
+											FROM data_output_giat_sub_keg_lokal WHERE tahun_anggaran='".$data_this_id[0]['tahun_anggaran']."'";
 
 								$queryRecords7 = $wpdb->query($sql_backup_data_output_giat_sub_keg);
 
-								$delete_lokal_history = $this->delete_data_lokal_history('data_dana_sub_keg', $data_this_id[0]['id_jadwal_lokal']);
+								$delete_lokal_history = $this->delete_data_lokal_history('data_dana_sub_keg_lokal', $data_this_id[0]['id_jadwal_lokal']);
 
-								$oclumns_8 = array('namadana','kodedana','iddana','iddanasubbl','pagudana','kode_sbl','idsubbl','active','update_at','tahun_anggaran');
+								$oclumns_8 = array('namadana','kodedana','iddana','iddanasubbl','pagudana','kode_sbl','idsubbl','active','update_at','tahun_anggaran','nama_dana_usulan','kode_dana_usulan','id_dana_usulan','pagu_dana_usulan');
 
-								$sql_backup_data_dana_sub_keg =  "INSERT INTO data_dana_sub_keg_history (".implode(', ', $oclumns_8).",id_asli,id_jadwal)
+								$sql_backup_data_dana_sub_keg =  "INSERT INTO data_dana_sub_keg_lokal_history (".implode(', ', $oclumns_8).",id_asli,id_jadwal)
 											SELECT ".implode(', ', $oclumns_8).",id as id_asli,".$data_this_id[0]['id_jadwal_lokal']."
-											FROM data_dana_sub_keg WHERE tahun_anggaran='".$data_this_id[0]['tahun_anggaran']."'";
+											FROM data_dana_sub_keg_lokal WHERE tahun_anggaran='".$data_this_id[0]['tahun_anggaran']."'";
 
 								$queryRecords8 = $wpdb->query($sql_backup_data_dana_sub_keg);
 
-								$delete_lokal_history = $this->delete_data_lokal_history('data_lokasi_sub_keg', $data_this_id[0]['id_jadwal_lokal']);
+								$delete_lokal_history = $this->delete_data_lokal_history('data_lokasi_sub_keg_lokal', $data_this_id[0]['id_jadwal_lokal']);
 
-								$oclumns_9 = array('camatteks','daerahteks','idcamat','iddetillokasi','idkabkota','idlurah','lurahteks','kode_sbl','idsubbl','active','update_at','tahun_anggaran');
+								$oclumns_9 = array('camatteks','daerahteks','idcamat','iddetillokasi','idkabkota','idlurah','lurahteks','kode_sbl','idsubbl','active','update_at','tahun_anggaran','camatteks_usulan','daerahteks_usulan','idcamat_usulan','iddetillokasi_usulan','idkabkota_usulan','idlurah_usulan','lurahteks_usulan');
 
-								$sql_backup_data_lokasi_sub_keg =  "INSERT INTO data_lokasi_sub_keg_history (".implode(', ', $oclumns_9).",id_asli,id_jadwal)
+								$sql_backup_data_lokasi_sub_keg =  "INSERT INTO data_lokasi_sub_keg_lokal_history (".implode(', ', $oclumns_9).",id_asli,id_jadwal)
 											SELECT ".implode(', ', $oclumns_9).",id as id_asli,".$data_this_id[0]['id_jadwal_lokal']."
-											FROM data_lokasi_sub_keg WHERE tahun_anggaran='".$data_this_id[0]['tahun_anggaran']."'";
+											FROM data_lokasi_sub_keg_lokal WHERE tahun_anggaran='".$data_this_id[0]['tahun_anggaran']."'";
 
 								$queryRecords9 = $wpdb->query($sql_backup_data_lokasi_sub_keg);
 
@@ -13397,7 +13442,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 
 								$delete_lokal_history = $this->delete_data_lokal_history('data_renstra_kegiatan_lokal', $data_this_id[0]['id_jadwal_lokal']);
 
-								$columns_1 = array('bidur_lock','giat_lock','id_bidang_urusan','id_giat','id_misi','id_program','id_unik','id_unik_indikator','id_unit','id_visi','indikator','indikator_usulan','is_locked','is_locked_indikator','kode_bidang_urusan','kode_giat','kode_program','kode_sasaran','kode_skpd','kode_tujuan','kode_unik_program','nama_bidang_urusan','nama_giat','nama_program','nama_skpd','pagu_1','pagu_2','pagu_3','pagu_4','pagu_5','program_lock','renstra_prog_lock','sasaran_lock','sasaran_teks','satuan','status','target_1','target_2','target_3','target_4','target_5','target_akhir','target_awal','satuan_usulan','target_1_usulan','target_2_usulan','target_3_usulan','target_4_usulan','target_5_usulan','target_akhir_usulan','target_awal_usulan','catatan_usulan','catatan','tujuan_lock','tujuan_teks','urut_sasaran','urut_tujuan','active','update_at','tahun_anggaran');
+								$columns_1 = array('bidur_lock','giat_lock','id_bidang_urusan','id_giat','id_misi','id_program','id_unik','id_unik_indikator','id_unit','id_visi','indikator','indikator_usulan','is_locked','is_locked_indikator','kode_bidang_urusan','kode_giat','kode_program','kode_sasaran','kode_skpd','kode_tujuan','kode_unik_program','nama_bidang_urusan','nama_giat','nama_program','nama_skpd','pagu_1','pagu_2','pagu_3','pagu_4','pagu_5','pagu_1_usulan','pagu_2_usulan','pagu_3_usulan','pagu_4_usulan','pagu_5_usulan','program_lock','renstra_prog_lock','sasaran_lock','sasaran_teks','satuan','status','target_1','target_2','target_3','target_4','target_5','target_akhir','target_awal','satuan_usulan','target_1_usulan','target_2_usulan','target_3_usulan','target_4_usulan','target_5_usulan','target_akhir_usulan','target_awal_usulan','catatan_usulan','catatan','tujuan_lock','tujuan_teks','urut_sasaran','urut_tujuan','active','update_at','tahun_anggaran');
 	
 								$sql_backup_data_renstra_kegiatan_lokal =  "INSERT INTO data_renstra_kegiatan_lokal_history (".implode(', ', $columns_1).",id_jadwal,id_asli)
 											SELECT ".implode(', ', $columns_1).", ".$data_this_id[0]['id_jadwal_lokal'].", id as id_asli
@@ -13427,7 +13472,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 
 								$delete_lokal_history = $this->delete_data_lokal_history('data_renstra_tujuan_lokal', $data_this_id[0]['id_jadwal_lokal']);
 
-								$columns_4 = array('bidur_lock','id_bidang_urusan','id_unik','id_unik_indikator','id_unit','indikator_teks','indikator_teks_usulan','is_locked','is_locked_indikator','kode_bidang_urusan','kode_sasaran_rpjm','kode_skpd','nama_bidang_urusan','nama_skpd','satuan','status','target_1','target_2','target_3','target_4','target_5','target_akhir','target_awal','satuan_usulan','target_1_usulan','target_2_usulan','target_3_usulan','target_4_usulan','target_5_usulan','target_akhir_usulan','target_awal_usulan','catatan_usulan','catatan','tujuan_teks','urut_tujuan','active','update_at','tahun_anggaran');
+								$columns_4 = array('bidur_lock','id_bidang_urusan','id_unik','id_unik_indikator','id_unit','indikator_teks','indikator_teks_usulan','is_locked','is_locked_indikator','kode_bidang_urusan','kode_sasaran_rpjm','kode_skpd','nama_bidang_urusan','nama_skpd','satuan','status','target_1','target_2','target_3','target_4','target_5','target_akhir','target_awal','satuan_usulan','target_1_usulan','target_2_usulan','target_3_usulan','target_4_usulan','target_5_usulan','target_akhir_usulan','target_awal_usulan','catatan_usulan','catatan','catatan_tujuan','tujuan_teks','urut_tujuan','active','update_at','tahun_anggaran');
 	
 								$sql_backup_data_renstra_tujuan_lokal =  "INSERT INTO data_renstra_tujuan_lokal_history (".implode(', ', $columns_4).",id_jadwal,id_asli)
 											SELECT ".implode(', ', $columns_4).", ".$data_this_id[0]['id_jadwal_lokal'].", id as id_asli
@@ -14281,6 +14326,73 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 					$data_return = array(
 						'status' 	=> 'error',
 						'message'	=> "Data terbuka tidak ditemukan.",
+						'data'		=> $sql_jadwal_lokal
+					);
+				}
+			}else{
+				$data_return = array(
+					'status' 	=> 'error',
+					'message' 	=> "Gagal, Data Tahun Anggaran Tidak Ditemukan",
+					'data'		=> ''
+				);
+			}
+		}else{
+			$data_return = array(
+				'status' 	=> 'error',
+				'message' 	=> "Gagal, tipe perencanaan tidak ada",
+				'data'		=> ''
+			);
+		}
+
+		return $data_return;
+	}
+
+	function get_last_jadwal_kunci($tipe_perencanaan,$tahun_anggaran = 0){
+		global $wpdb;
+
+		$data_return = array(
+			'status' => 200,
+			'message' => "Berhasil"
+		);
+
+		if(!empty($tipe_perencanaan)){
+			date_default_timezone_set("Asia/Bangkok");
+			$dateTime = new DateTime();
+			$time_now = $dateTime->format('Y-m-d H:i:s');
+
+			$sql_tipe = $wpdb->get_results("SELECT * FROM `data_tipe_perencanaan` WHERE nama_tipe='".$tipe_perencanaan."'", ARRAY_A);
+
+			$where_renja = '';
+			$cek_renja_penganggaran = true;
+			if($sql_tipe[0]['id'] == 5 || $sql_tipe[0]['id'] == 6){
+				if(!empty($tahun_anggaran)){
+					$where_renja = ' AND tahun_anggaran='.$tahun_anggaran;	
+				}else{
+					$cek_renja_penganggaran = false;
+				}
+			}
+
+			if($cek_renja_penganggaran){
+				// get jadwal aktif dan terbuka
+				$sql_jadwal_lokal = $wpdb->get_row("
+					SELECT 
+						* 
+					FROM `data_jadwal_lokal` 
+					WHERE status = 1 
+						AND id_tipe='".$sql_tipe[0]['id']."'
+						".$where_renja."
+					ORDER BY id_jadwal_lokal DESC LIMIT 1", ARRAY_A);
+	
+				if(!empty($sql_jadwal_lokal)){
+					$data_return = array(
+						'status' 	=> 'success',
+						'message'	=> "Berhasil",
+						'data'		=> $sql_jadwal_lokal
+					);
+				}else{
+					$data_return = array(
+						'status' 	=> 'error',
+						'message'	=> "Data jadwal terkunci tidak ditemukan.",
 						'data'		=> $sql_jadwal_lokal
 					);
 				}
