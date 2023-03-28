@@ -4006,7 +4006,12 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 
 				$kodeunit = '';
 				if (!empty($_POST['data_unit'])) {
-					$data_unit = $_POST['data_unit'];
+					if(!empty($_POST['type']) && $_POST['type'] == 'ri'){
+						$data_unit = json_decode(stripslashes(html_entity_decode($_POST['data_unit'])), true);						
+					}else{
+						$data_unit = $_POST['data_unit'];
+					}
+					//$data_unit = $_POST['data_unit'];
 					$kodeunit = $data_unit['kodeunit'];
 					$_POST['nama_skpd'] = $data_unit['namaunit'];
 					$_POST['kode_sub_skpd'] = $data_unit['kodeunit'];
@@ -4025,7 +4030,11 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 				$_POST['idbl'] = (int) $_POST['idbl'];
 
 				if (!empty($_POST['dataBl']) && $ret['status'] != 'error') {
-					$dataBl = $_POST['dataBl'];
+					if(!empty($_POST['type']) && $_POST['type'] == 'ri'){
+						$dataBl = json_decode(stripslashes(html_entity_decode($_POST['dataBl'])), true);						
+					}else{
+						$dataBl = $_POST['dataBl'];
+					}					
 					foreach ($dataBl as $k => $v) {
 						$cek = $wpdb->get_var("SELECT kode_sbl from data_sub_keg_bl where tahun_anggaran=".$_POST['tahun_anggaran']." AND kode_sbl='" . $_POST['kode_sbl'] . "'");
 
@@ -4190,7 +4199,11 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 
 				if($_POST['total_page'] == $_POST['no_page']){
 					if (!empty($_POST['dataOutput']) && $ret['status'] != 'error') {
-						$dataOutput = $_POST['dataOutput'];
+						if(!empty($_POST['type']) && $_POST['type'] == 'ri'){
+							$dataOutput = json_decode(stripslashes(html_entity_decode($_POST['dataOutput'])), true);						
+						}else{
+							$dataOutput = $_POST['dataOutput'];
+						}
 						$wpdb->update('data_sub_keg_indikator', array( 'active' => 0 ), array(
 							'tahun_anggaran' => $_POST['tahun_anggaran'],
 							'kode_sbl' => $_POST['kode_sbl']
@@ -4222,7 +4235,11 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 					}
 
 					if (!empty($_POST['dataHasil']) && $ret['status'] != 'error') {
-						$dataHasil = $_POST['dataHasil'];
+						if(!empty($_POST['type']) && $_POST['type'] == 'ri'){
+							$dataHasil = json_decode(stripslashes(html_entity_decode($_POST['dataHasil'])), true);						
+						}else{
+							$dataHasil = $_POST['dataHasil'];
+						}
 						$wpdb->update('data_keg_indikator_hasil', array( 'active' => 0 ), array(
 							'tahun_anggaran' => $_POST['tahun_anggaran'],
 							'kode_sbl' => $_POST['kode_sbl']
@@ -4253,7 +4270,11 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 					}
 
 					if (!empty($_POST['dataTag']) && $ret['status'] != 'error') {
-						$dataTag = $_POST['dataTag'];
+						if(!empty($_POST['type']) && $_POST['type'] == 'ri'){
+							$dataTag = json_decode(stripslashes(html_entity_decode($_POST['dataTag'])), true);						
+						}else{
+							$dataTag = $_POST['dataTag'];
+						}
 						$wpdb->update('data_tag_sub_keg', array( 'active' => 0 ), array(
 							'tahun_anggaran' => $_POST['tahun_anggaran'],
 							'kode_sbl' => $_POST['kode_sbl']
@@ -4283,7 +4304,11 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 					}
 
 					if (!empty($_POST['dataCapaian']) && $ret['status'] != 'error') {
-						$dataCapaian = $_POST['dataCapaian'];
+						if(!empty($_POST['type']) && $_POST['type'] == 'ri'){
+							$dataCapaian = json_decode(stripslashes(html_entity_decode($_POST['dataCapaian'])), true);						
+						}else{
+							$dataCapaian = $_POST['dataCapaian'];
+						}
 						$wpdb->update('data_capaian_prog_sub_keg', array( 'active' => 0 ), array(
 							'tahun_anggaran' => $_POST['tahun_anggaran'],
 							'kode_sbl' => $_POST['kode_sbl']
@@ -4314,7 +4339,11 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 					}
 
 					if (!empty($_POST['dataOutputGiat']) && $ret['status'] != 'error') {
-						$dataOutputGiat = $_POST['dataOutputGiat'];
+						if(!empty($_POST['type']) && $_POST['type'] == 'ri'){
+							$dataOutputGiat = json_decode(stripslashes(html_entity_decode($_POST['dataOutputGiat'])), true);						
+						}else{
+							$dataOutputGiat = $_POST['dataOutputGiat'];
+						}
 						$wpdb->update('data_output_giat_sub_keg', array( 'active' => 0 ), array(
 							'tahun_anggaran' => $_POST['tahun_anggaran'],
 							'kode_sbl' => $_POST['kode_sbl']
@@ -4345,7 +4374,11 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 					}
 
 					if (!empty($_POST['dataDana']) && $ret['status'] != 'error') {
-						$dataDana = $_POST['dataDana'];
+						if(!empty($_POST['type']) && $_POST['type'] == 'ri'){
+							$dataDana = json_decode(stripslashes(html_entity_decode($_POST['dataDana'])), true);						
+						}else{
+							$dataDana = $_POST['dataDana'];
+						}
 						$wpdb->update('data_dana_sub_keg', array( 'active' => 0 ), array(
 							'tahun_anggaran' => $_POST['tahun_anggaran'],
 							'kode_sbl' => $_POST['kode_sbl']
@@ -4376,7 +4409,11 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						}
 					}
 					if (!empty($_POST['dataLokout']) && $ret['status'] != 'error') {
-						$dataLokout = $_POST['dataLokout'];
+						if(!empty($_POST['type']) && $_POST['type'] == 'ri'){
+							$dataLokout = json_decode(stripslashes(html_entity_decode($_POST['dataLokout'])), true);						
+						}else{
+							$dataLokout = $_POST['dataLokout'];
+						}
 						$wpdb->update('data_lokasi_sub_keg', array( 'active' => 0 ), array(
 							'tahun_anggaran' => $_POST['tahun_anggaran'],
 							'kode_sbl' => $_POST['kode_sbl']
@@ -4450,7 +4487,11 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 
 				$iddana = false;
 				if (!empty($_POST['dataDana'])) {
-					$dataDana = $_POST['dataDana'];
+					if(!empty($_POST['type']) && $_POST['type'] == 'ri'){
+						$dataDana = json_decode(stripslashes(html_entity_decode($_POST['dataDana'])), true);						
+					}else{
+						$dataDana = $_POST['dataDana'];
+					}
 					foreach ($dataDana as $k => $v) {
 						if(
 							empty($iddana)
@@ -4465,7 +4506,11 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 				}
 
 				if (!empty($_POST['rka']) && $ret['status'] != 'error') {
-					$rka = $_POST['rka'];
+					if(!empty($_POST['type']) && $_POST['type'] == 'ri'){
+						$rka = json_decode(stripslashes(html_entity_decode($_POST['rka'])), true);						
+					}else{
+						$rka = $_POST['rka'];
+					}
 					if(!empty($_POST['no_page']) && $_POST['no_page']==1){
 						$wpdb->delete('data_rka', array(
 							'tahun_anggaran' => $_POST['tahun_anggaran'],
