@@ -935,7 +935,6 @@ CREATE TABLE `data_pendapatan` (
   `id_skpd` int(11) DEFAULT NULL,
   `id_akun` int(11) DEFAULT NULL,
   `id_jadwal_murni` int(11) DEFAULT NULL,
-  `kode_akun` varchar(50) DEFAULT NULL,
   `koefisien` varchar(50) DEFAULT NULL,
   `kua_murni` varchar(50) DEFAULT NULL,
   `kua_pak` varchar(50) DEFAULT NULL,

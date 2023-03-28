@@ -47,6 +47,8 @@ $data_skpd = $wpdb->get_row($wpdb->prepare("
     ", $input['id_skpd'], $input['tahun_anggaran']), ARRAY_A);
 $id_unit = (!empty($data_skpd['id_unit'])) ? $data_skpd['id_unit'] : '';
 
+// $url_pendapatan = $this->generatePage('Halaman Pendapatan '.$data_skpd['nama_skpd'].' | '.$input['tahun_anggaran'], $input['tahun_anggaran'], '[halaman_pendapatan id_skpd="'.$input['id_skpd'].'" tahun_anggaran="'.$input['tahun_anggaran'].'"]');
+
 $id_sub_skpd = (!empty($_GET['id_sub_skpd'])) ?: 0;
 $hide_usulan = (!empty($_GET['hide_usulan'])) ?: 0;
 $hide_penetapan = (!empty($_GET['hide_penetapan'])) ?: 0;
@@ -105,6 +107,7 @@ if(!empty($jadwal_lokal)){
         if(!empty($jadwal_lokal[0]['relasi_perencanaan'])){
             $add_renja .= '<a style="margin-left: 10px;" id="copy-data-renstra-skpd" data-jadwal="'.$idJadwalRenja.'" data-skpd="'.$input['id_skpd'].'" onclick="return false;" href="#" class="btn btn-danger">Copy Data Renstra per SKPD</a>';
         }
+        //$add_renja .='</br></br><a style="margin-left: 10px;" target="_blank" id="tambah-data" href="'.$url_pendapatan.'" class="btn btn-info">Pendapatan</a>';
     }
 }
 

@@ -725,6 +725,8 @@ class Wpsipd
 		$this->loader->add_action('wp_ajax_get_objek_belanja',  $plugin_public, 'get_objek_belanja');
 		$this->loader->add_action('wp_ajax_list_perangkat_daerah',  $plugin_public, 'list_perangkat_daerah');
 		$this->loader->add_action('wp_ajax_view_pagu_total_renja',  $plugin_public, 'view_pagu_total_renja');
+
+		$this->loader->add_action('wp_ajax_get_data_pendapatan_renja', $plugin_public, 'get_data_pendapatan_renja');
 		
 		add_shortcode('menu_monev',  array($plugin_public, 'menu_monev'));
 		add_shortcode('datassh', array($plugin_public, 'datassh'));
@@ -769,6 +771,7 @@ class Wpsipd
 		add_shortcode('register_sp2d_fmis', array($plugin_public, 'register_sp2d_fmis'));
 		add_shortcode('input_rka_lokal', array($plugin_public, 'input_rka_lokal'));
 		add_shortcode('surat_usulan_ssh', array($plugin_public, 'surat_usulan_ssh'));
+		add_shortcode('halaman_pendapatan', array($plugin_public, 'halaman_pendapatan'));
 
 		//shortcode SIPKD
 		add_shortcode('data_akun',array($plugin_public,'sipkd_akun'));
