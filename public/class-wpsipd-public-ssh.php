@@ -1063,7 +1063,8 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 					$url_surat = $this->generatePage($title, $tahun_anggaran, '[surat_usulan_ssh id_surat="'.$val['id'].'"]');
 					$queryRecords[$k]['aksi'] = '
 						<a class="btn btn-sm btn-warning" target="_blank" href="'.$url_surat.'" title="Cetak Surat Usulan"><i class="dashicons dashicons-printer"></i></a>
-						<a class="btn btn-sm btn-primary" href="#" onclick="return simpan_surat_usulan(\''.$val['id'].'\');" title="Simpan Surat Usulan"><i class="dashicons dashicons-saved"></i></a>';
+						<a class="btn btn-sm btn-primary" href="#" onclick="return simpan_surat_usulan(\''.$val['id'].'\');" title="Simpan Surat Usulan"><i class="dashicons dashicons-saved"></i></a>
+						<a class="btn btn-sm btn-warning" href="#" onclick="return edit_surat_usulan(this);" title="Edit Surat Usulan" data-id="'.$val['id'].'" data-nomorsurat="'.$val['nomor_surat'].'" data-idskpd="'.$val['idskpd'].'"><i class="dashicons dashicons-edit"></i></a>';
 					$queryRecords[$k]['jml_usulan'] = 0;
 					$queryRecords[$k]['ids_usulan'] = array();
 					if(!empty($val['nama_file'])){
@@ -1269,7 +1270,7 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 					$akun 		= '<li><a class="btn btn-primary" href="#" onclick="return edit_akun_ssh_usulan(\''.$recVal['id_standar_harga'].'\');" title="Rekening penyusun usulan SSH">'.$iconPlus.'</a></li>';
 					$iconX		= '<i class="dashicons dashicons-trash"></i>';
 					$iconEdit 	= '<i class="dashicons dashicons-edit"></i>';
-					$detilUsulanSSH = '<a class="btn btn-sm btn-primary" href="#" onclick="return edit_ssh_usulan(\''.$recVal['status_jenis_usulan'].'\',\''.$recVal['id_standar_harga'].'\', \'detil\');" title="Detil komponen usulan SSH"><i class="dashicons dashicons-search"></i></a>&nbsp;';
+					$detilUsulanSSH = '<a class="btn btn-sm btn-primary" href="#" onclick="return edit_ssh_usulan(\''.$recVal['status_jenis_usulan'].'\',\''.$recVal['id_standar_harga'].'\', \'detil\');" title="Detil komponen usulan SSH" style="text-decoration:none"><i class="dashicons dashicons-search" style="text-decoration:none"></i></a>&nbsp;';
 					if(
 						$recVal['status'] == 'waiting' || 
 						$recVal['status'] == 'rejected'  
@@ -1278,33 +1279,44 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 					){
 						
 						$can_edit = false;
+						$can_delete = false;
 						if(
 							in_array("administrator", $user_meta->roles) ||
 							in_array("tapd_keu", $user_meta->roles)
 						){
 							$can_edit = true;
+							$can_delete = true;
 						}elseif (in_array("pa", $user_meta->roles)) {
 							if(
 								$recVal['status_by_admin']=='' &&
 								$recVal['status_by_tapdkeu']==''
 							){
 								$can_edit = true;
+								$can_delete = true;
 							}
 						}
 						
 						if($can_edit){
-							$editUsulanSSH = '<a class="btn btn-sm btn-warning" onclick="edit_ssh_usulan(\''.$recVal['status_jenis_usulan'].'\',\''.$recVal['id_standar_harga'].'\'); return false;" href="#" title="Edit komponen usulan SSH">'.$iconEdit.'</a>&nbsp;';
-							$deleteUsulanSSH = '<a class="btn btn-sm btn-danger" onclick="delete_ssh_usulan(\''.$recVal['id_standar_harga'].'\'); return false;" href="#" title="Delete komponen usulan SSH">'.$iconX.'</a>&nbsp;';
+							$editUsulanSSH = '<a class="btn btn-sm btn-warning" onclick="edit_ssh_usulan(\''.$recVal['status_jenis_usulan'].'\',\''.$recVal['id_standar_harga'].'\'); return false;" href="#" title="Edit komponen usulan SSH" style="text-decoration:none">'.$iconEdit.'</a>&nbsp;';
 						}else{
 							$jenis = ($recVal['status_upload_sipd'] == 1) ? 'upload' : 'usulan';
-							$editUsulanSSH = '<a class="btn btn-sm btn-warning" onclick="cannot_change_ssh_usulan(\'ubah\',\''.$jenis.'\'); return false;" href="#" title="Edit komponen usulan SSH">'.$iconEdit.'</a>&nbsp;';
-							$deleteUsulanSSH = '<a class="btn btn-sm btn-danger" onclick="cannot_change_ssh_usulan(\'hapus\',\''.$jenis.'\'); return false;" href="#" title="Delete komponen usulan SSH">'.$iconX.'</a>&nbsp;';
+							$editUsulanSSH = '<a style="display:none" class="btn btn-sm btn-warning" onclick="cannot_change_ssh_usulan(\'ubah\',\''.$jenis.'\'); return false;" href="#" title="Edit komponen usulan SSH" style="text-decoration:none">'.$iconEdit.'</a>&nbsp;';
+						}
+
+						if($can_delete){
+							if(empty($recVal['no_surat_usulan'])){
+								$deleteUsulanSSH = '<a class="btn btn-sm btn-danger" onclick="delete_ssh_usulan(\''.$recVal['id_standar_harga'].'\'); return false;" href="#" title="Delete komponen usulan SSH" style="text-decoration:none">'.$iconX.'</a>&nbsp;';
+							}else{
+								$deleteUsulanSSH = '<a style="display:none" class="btn btn-sm btn-danger" onclick="cannot_change_ssh_usulan(\'hapus\',\''.$jenis.'\'); return false;" href="#" title="Delete komponen usulan SSH" style="text-decoration:none">'.$iconX.'</a>&nbsp;';
+							}
+						}else{
+							$deleteUsulanSSH = '<a style="display:none" class="btn btn-sm btn-danger" onclick="cannot_change_ssh_usulan(\'hapus\',\''.$jenis.'\'); return false;" href="#" title="Delete komponen usulan SSH" style="text-decoration:none">'.$iconX.'</a>&nbsp;';
 						}
 
 					}else{
 						$jenis = ($recVal['status_upload_sipd'] == 1) ? 'upload' : 'usulan';
-						$editUsulanSSH = '<a style="display:none" class="btn btn-sm btn-warning" href="#" onclick="return cannot_change_ssh_usulan(\'ubah\',\''.$jenis.'\');" title="Edit komponen usulan SSH">'.$iconEdit.'</a>&nbsp;';
-						$deleteUsulanSSH = '<a style="display:none" class="btn btn-sm btn-danger" href="#" onclick="return cannot_change_ssh_usulan(\'hapus\',\''.$jenis.'\');" title="Delete komponen usulan SSH">'.$iconX.'</a>&nbsp;';
+						$editUsulanSSH = '<a style="display:none" class="btn btn-sm btn-warning" href="#" onclick="return cannot_change_ssh_usulan(\'ubah\',\''.$jenis.'\');" title="Edit komponen usulan SSH" style="text-decoration:none">'.$iconEdit.'</a>&nbsp;';
+						$deleteUsulanSSH = '<a style="display:none" class="btn btn-sm btn-danger" href="#" onclick="return cannot_change_ssh_usulan(\'hapus\',\''.$jenis.'\');" title="Delete komponen usulan SSH" style="text-decoration:none">'.$iconX.'</a>&nbsp;';
 					}
 
 					$created_user = "";
@@ -1350,11 +1362,11 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 
 					$status_verif = '';
 					if($recVal['status'] == 'approved'){
-						$status_verif = 'Disetujui';
+						$status_verif = '<span class="btn btn-sm btn-success">Disetujui</span>';
 					}else if($recVal['status'] == 'rejected'){
-						$status_verif = 'Ditolak';
+						$status_verif = '<span class="btn btn-sm btn-danger">Ditolak</span>';
 					}else if($recVal['status'] == 'waiting'){
-						$status_verif = 'Menunggu';
+						$status_verif = '<span class="btn btn-sm btn-warning">Menunggu</span>';
 					}
 
 					$status_verif_admin = '<table style="margin: 0;border-color:white;"><tbody>';
@@ -1423,7 +1435,7 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 						in_array("tapd_keu", $user_meta->roles)
 					){
 						$iconFilter = '<i class="dashicons dashicons-yes"></i>';
-						$verify = '<a class="btn btn-sm btn-success" onclick="verify_ssh_usulan(\''.$recVal['id_standar_harga'].'\'); return false;" href="#" title="Verifikasi Item Usulan SSH">'.$iconFilter.'</a>&nbsp';
+						$verify = '<a class="btn btn-sm btn-success" onclick="verify_ssh_usulan(\''.$recVal['id_standar_harga'].'\'); return false;" href="#" title="Verifikasi Item Usulan SSH" style="text-decoration:none">'.$iconFilter.'</a>&nbsp';
 					}else{
 						$verify = '';
 					}
@@ -3126,7 +3138,7 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 							$wpdb->update('data_ssh_usulan', array(
 								'no_surat_usulan' => $nomor_surat
 							), array(
-								'id' => $id
+								'id_standar_harga' => $id
 							));
 						}
 					}else{
@@ -3148,5 +3160,9 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 			);
 		}
 		die(json_encode($return));
+	}
+
+	public function update_surat_usulan_ssh(){
+		
 	}
 }

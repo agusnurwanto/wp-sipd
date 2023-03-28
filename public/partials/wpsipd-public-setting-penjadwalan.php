@@ -548,16 +548,26 @@ $body = '';
 				}else{
 					jQuery("#modal-report .modal-preview").html(response.html);
 					jQuery("#modal-report .modal-preview").css('overflow-x', 'auto');
-					jQuery("#modal-report .modal-preview").css('margin-right','20px');
+					jQuery("#modal-report .modal-preview").css('margin-right','15px');
 					jQuery("#modal-report .modal-preview").css('padding', '15px');
 					jQuery('#modal-report .export-excel').attr("disabled", false);
 					jQuery('#modal-report .export-excel').attr("title", title);
-					var table = jQuery("#table-renja").DataTable( {
-				        dom: 'Bfrtip',
-				        buttons: [
-				            'excel'
-				        ]
-				    } );
+					
+					var table = jQuery("#table-renja").DataTable({
+				    	drawCallback: function() {
+					        jQuery(".dataTables_paginate > .pagination").addClass("pagination-rounded")
+					    },
+					    columnDefs: [{
+					        orderable: true,
+					    }],
+					    
+					    buttons: [
+				            'excel',
+				        ],
+				    })
+
+				    jQuery('#modal-report .action-footer').html(
+				    	"<button type=\"button\" class=\"btn btn-success btn-preview\" onclick=\"preview('"+id_jadwal_lokal+"')\">Preview</button>");
 				    jQuery('#modal-report .action-footer').append(table.buttons().container());
 				    jQuery('#modal-report .action-footer .dt-buttons').css('margin-left', '5px');
 				    jQuery('#modal-report .action-footer .buttons-excel').addClass('btn btn-primary');

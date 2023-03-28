@@ -204,6 +204,7 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
 </div>
 
 <div class="modal fade" id="tambahSuratUsulan" role="dialog" data-backdrop="static" aria-hidden="true">
+	<input type="hidden" name="method" id="method" value="insert">
 	<div class="modal-dialog modal-xl" role="document">
 		<div class="modal-content">
 			<div class="modal-header">
@@ -1954,19 +1955,28 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
 			return alert('Perangkat daerah tidak boleh kosong!');
 		}
 		var catatan = jQuery('#catatan_surat').val();
+
+		var data = {
+		    "api_key": jQuery("#api_key").val(),
+		    "tahun_anggaran": tahun,
+		    "nomor_surat": nomor_surat,
+		    "catatan": catatan,
+		    "idskpd": idskpd,
+		    "ids": ids
+		};
+
+		var actions = jQuery("#tambahSuratUsulan #method").val();
+		if(actions=='insert'){
+			data['action'] = "simpan_surat_usulan_ssh";
+		}else if(actions=='update'){
+			data['action'] = "update_surat_usulan_ssh";
+		}
+
 		jQuery('#wrap-loading').show();
 		jQuery.ajax({
 			url: ajax.url,
 		    type: "post",
-		    data: {
-		        "action": "simpan_surat_usulan_ssh",
-		        "api_key": jQuery("#api_key").val(),
-		        "tahun_anggaran": tahun,
-		        "nomor_surat": nomor_surat,
-		        "catatan": catatan,
-		        "idskpd": idskpd,
-		        "ids": ids
-		    },
+		    data: data,
 		    dataType: "json",
 		    success: function(res){
 		    	alert(res.message);
@@ -1974,11 +1984,65 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
 					usulanSSHTable.ajax.reload();
 					suratUsulanSSHTable.ajax.reload();
     				jQuery('#tambahSuratUsulan').modal('hide');
-					jQuery('#wrap-loading').hide();
-		    	}else{
-					jQuery('#wrap-loading').hide();
-		    	}
+				}
+				jQuery("#wrap-loading").hide();
 		    }
 		});
+	}
+
+
+	function edit_surat_usulan(that){
+		var id = jQuery(that).data('id');
+		var tr = jQuery(that).parent().parent();
+		var idskpd = jQuery(that).data('idskpd');
+		var nomor_surat = jQuery(that).data('nomorsurat');
+
+		jQuery("#tambahSuratUsulan #method").val("update");
+		jQuery("#tambahSuratUsulan #surat_skpd").val(idskpd);
+		jQuery("#tambahSuratUsulan #nomor_surat").val(tr.find('>td').eq(2).html());
+		jQuery("#tambahSuratUsulan #catatan_surat").val(tr.find('>td').eq(5).html());
+		
+		var ids = [];
+		jQuery('.delete_check').each(function(){
+			if(
+            	jQuery(this).attr('no-surat') == nomor_surat
+            ){
+            	var tr = jQuery(this).closest('tr');
+            	var data = {
+            		id: jQuery(this).val(),
+            		kelompok: tr.find('>td').eq(1).html(),
+            		komponen: tr.find('>td').eq(2).html(),
+            		spesifikasi: tr.find('>td').eq(3).html(),
+            		harga: tr.find('>td').eq(4).html(),
+            		rekening: '',
+            		jenis: tr.find('>td').eq(8).html()
+            	}
+                ids.push(data);
+            }
+        });
+
+        if(ids.length == 0){
+        	alert('Usulan standar harga dengan nomor surat '+nomor_surat+' tidak ditemukan');
+        }else{
+        	jQuery('#wrap-loading').show();
+        	var data = '';
+        	var data_ids = [];
+        	ids.map(function(b, i){
+        		data_ids.push(b.id);
+        		data += ''
+        			+'<tr>'
+        				+'<td>'+b.kelompok+'</td>'
+        				+'<td>'+b.komponen+'</td>'
+        				+'<td>'+b.spesifikasi+'</td>'
+        				+'<td>'+b.harga+'</td>'
+        				+'<td>'+b.rekening+'</td>'
+        				+'<td>'+b.jenis+'</td>'
+        			+'</tr>'
+        	});
+        	jQuery('#ids_surat_usulan').val(data_ids);
+        	jQuery('#tbody_data_usulan').html(data);
+        	jQuery('#tambahSuratUsulan').modal('show');
+        	jQuery('#wrap-loading').hide();
+        }
 	}
 </script> 
