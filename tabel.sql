@@ -935,7 +935,6 @@ CREATE TABLE `data_pendapatan` (
   `id_skpd` int(11) DEFAULT NULL,
   `id_akun` int(11) DEFAULT NULL,
   `id_jadwal_murni` int(11) DEFAULT NULL,
-  `kode_akun` varchar(50) DEFAULT NULL,
   `koefisien` varchar(50) DEFAULT NULL,
   `kua_murni` varchar(50) DEFAULT NULL,
   `kua_pak` varchar(50) DEFAULT NULL,
@@ -2117,6 +2116,7 @@ CREATE TABLE `data_jadwal_lokal` (
   `lama_pelaksanaan` int(2) NOT NULL DEFAULT '1',
   `id_tipe` int(11) NOT NULL,
   `relasi_perencanaan` int(11) DEFAULT NULL,
+  `jenis_jadwal` varchar(20) NOT NULL DEFAULT 'usulan',
   PRIMARY KEY  (id_jadwal_lokal)
 );
 

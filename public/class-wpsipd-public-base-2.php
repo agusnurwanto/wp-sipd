@@ -2925,4 +2925,87 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 		die(json_encode($ret));
 
 	}
+
+	public function halaman_pendapatan($atts)
+	{
+		// untuk disable render shortcode di halaman edit page/post
+		if(!empty($_GET) && !empty($_GET['post'])){
+			return '';
+		}
+		require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/wpsipd-public-pendapatan.php';
+	}
+
+	public function get_data_pendapatan_renja(){
+		global $wpdb;
+		$ret = array(
+			'status'	=> 'success',
+			'message'	=> 'ON PROGRESS PENDAPATAN',//'berhasil get data pendapatan renja',
+			'data'	=> array()
+		);
+		// if(!empty($_POST)) {
+		// 	if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+		// 		if(!empty($_POST['id_skpd']) && !empty($_POST['tahun_anggaran'])){
+		// 			$params = $_REQUEST;
+
+		// 			$pendapatan = $wpdb->get_results(
+		// 				$wpdb->prepare("
+		// 				SELECT 
+		// 					kode_akun,
+		// 					nama_akun,
+		// 					total,
+		// 					keterangan
+		// 				from data_pendapatan_lokal
+		// 				where id_skpd=%d
+		// 					AND tahun_anggaran=%d
+		// 					AND active=1", $_POST['id_skpd'], $_POST['tahun_anggaran']),
+		// 				ARRAY_A
+		// 			);
+
+		// 			$total_pendapatan = $wpdb->get_results(
+		// 				$wpdb->prepare("
+		// 				SELECT 
+		// 					count(id) as jml
+		// 				from data_pendapatan_lokal
+		// 				where id_skpd=%d
+		// 					AND tahun_anggaran=%d
+		// 					AND active=1", $_POST['id_skpd'], $_POST['tahun_anggaran']),
+		// 				ARRAY_A
+		// 			);
+
+		// 			$totalRecords = $total_pendapatan[0]['jml'] ?: 0;
+		// 			if(!empty($pendapatan)){
+		// 				foreach($pendapatan as $k_pend => $v_pend){
+		// 					$edit = '<button class="btn btn-sm btn-primary">Ubah</button>';
+		// 					$delete = '<button style="margin-left: 5px;" class="btn btn-sm btn-danger">Hapus</button>';
+		// 					$pendapatan[$k_pend]['aksi'] = $edit.$delete;
+		// 				}
+		// 				$json_data = array(
+		// 					// "draw"            => intval( $params['draw'] ),
+		// 					"recordsTotal"    => intval( $totalRecords ), 
+		// 					"recordsFiltered" => intval( $totalRecords ),
+		// 					"data"            => $pendapatan
+		// 				);
+
+		// 				die(json_encode($json_data));
+		// 			}else{
+		// 				$ret = array(
+		// 					'status' => 'error',
+		// 					'message'	=> 'Data tidak ditemukan!',
+		// 					'sql' => $wpdb->last_query
+		// 				);
+		// 			}
+		// 		}else{
+		// 			$ret['status'] = 'error';
+		// 			$ret['message'] = 'Ada Parameter Yang Kosong!';
+		// 		}
+		// 	} else {
+		// 		$ret['status'] = 'error';
+		// 		$ret['message'] = 'APIKEY tidak sesuai!';
+		// 	}
+		// } else {
+		// 	$ret['status'] = 'error';
+		// 	$ret['message'] = 'Format Salah!';
+		// }
+		die(json_encode($ret));
+	}	
 }
