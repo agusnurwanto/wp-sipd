@@ -2901,7 +2901,7 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 								AND tahun_anggaran=%s
 								AND active=1
 								AND id_jadwal=%d
-						', $data_sub_giat['kode_sbl'], $tahun_anggaran, $cek_jadwal['data']['id_jadwal_lokal']), ARRAY_A);
+						', $sub['kode_sbl'], $tahun_anggaran, $cek_jadwal['data']['id_jadwal_lokal']), ARRAY_A);
 						if(!empty($data_sub_keg_indikator)){
 							$data_sub_giat[$k]['indikator'] = $data_sub_keg_indikator;
 						}

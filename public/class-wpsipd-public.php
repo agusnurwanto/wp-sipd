@@ -3883,7 +3883,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 					$ret['sql'] = $wpdb->last_query;
 					foreach ($sub_bl as $k => $sub) {
 						$cek_aktif = false;
-						foreach ($_POST['subkeg_aktif'] as $v) {
+						foreach ($subkeg_aktif as $v) {
 							if($v['kode_sbl'] == $sub['kode_sbl']){
 								$cek_aktif = true;
 								break;
