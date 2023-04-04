@@ -17607,9 +17607,10 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		);
 		if (!empty($_POST)) {
 			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
-				if (!empty($_POST['akun'])) {
+				if (!empty($_POST['label'])) {
 					if(!empty($_POST['type']) && $_POST['type'] == 'ri'){
-						$label = json_decode(stripslashes(html_entity_decode($_POST['label'])), true);						
+						//$label = json_decode(stripslashes(html_entity_decode($_POST['label'])), true);			
+						$label = $_POST['label'];		
 					}else{
 						$label = $_POST['label'];
 					}
@@ -17661,9 +17662,10 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		);
 		if (!empty($_POST)) {
 			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
-				if (!empty($_POST['akun'])) {
+				if (!empty($_POST['label'])) {
 					if(!empty($_POST['type']) && $_POST['type'] == 'ri'){
-						$label = json_decode(stripslashes(html_entity_decode($_POST['label'])), true);						
+						//$label = json_decode(stripslashes(html_entity_decode($_POST['label'])), true);			
+						$label = $_POST['label'];		
 					}else{
 						$label = $_POST['label'];
 					}
@@ -17715,9 +17717,10 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		);
 		if (!empty($_POST)) {
 			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
-				if (!empty($_POST['akun'])) {
+				if (!empty($_POST['label'])) {
 					if(!empty($_POST['type']) && $_POST['type'] == 'ri'){
-						$label = json_decode(stripslashes(html_entity_decode($_POST['label'])), true);						
+						//$label = json_decode(stripslashes(html_entity_decode($_POST['label'])), true);
+						$label = $_POST['label'];
 					}else{
 						$label = $_POST['label'];
 					}
