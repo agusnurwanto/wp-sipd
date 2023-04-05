@@ -17609,8 +17609,8 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
 				if (!empty($_POST['label'])) {
 					if(!empty($_POST['type']) && $_POST['type'] == 'ri'){
-						//$label = json_decode(stripslashes(html_entity_decode($_POST['label'])), true);			
-						$label = $_POST['label'];		
+						$label = json_decode(stripslashes(html_entity_decode($_POST['label'])), true);			
+						// $label = $_POST['label'];		
 					}else{
 						$label = $_POST['label'];
 					}
@@ -17624,7 +17624,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 							'is_locked' => $v['is_locked'],
 							'nama_label' => $v['nama_label'],
 							'status' => $v['status'],
-							'active' => $v['active'],														
+							'active' => $v['active'],	
 							'update_at' => current_time('mysql'),
 							'tahun_anggaran' => $_POST['tahun_anggaran']
 						);
@@ -17664,8 +17664,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
 				if (!empty($_POST['label'])) {
 					if(!empty($_POST['type']) && $_POST['type'] == 'ri'){
-						//$label = json_decode(stripslashes(html_entity_decode($_POST['label'])), true);			
-						$label = $_POST['label'];		
+						$label = json_decode(stripslashes(html_entity_decode($_POST['label'])), true);			
 					}else{
 						$label = $_POST['label'];
 					}
@@ -17719,8 +17718,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
 				if (!empty($_POST['label'])) {
 					if(!empty($_POST['type']) && $_POST['type'] == 'ri'){
-						//$label = json_decode(stripslashes(html_entity_decode($_POST['label'])), true);
-						$label = $_POST['label'];
+						$label = json_decode(stripslashes(html_entity_decode($_POST['label'])), true);						
 					}else{
 						$label = $_POST['label'];
 					}
