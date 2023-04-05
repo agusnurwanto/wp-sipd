@@ -2116,6 +2116,7 @@ CREATE TABLE `data_jadwal_lokal` (
   `lama_pelaksanaan` int(2) NOT NULL DEFAULT '1',
   `id_tipe` int(11) NOT NULL,
   `relasi_perencanaan` int(11) DEFAULT NULL,
+  `jenis_jadwal` varchar(20) NOT NULL DEFAULT 'usulan',
   PRIMARY KEY  (id_jadwal_lokal)
 );
 
@@ -4410,11 +4411,33 @@ CREATE TABLE `data_master_indikator_subgiat` (
   PRIMARY KEY (id)
 );
 
+CREATE TABLE `data_prioritas_pusat` (
+  `id` int(11) NOT NULL auto_increment,
+  `id_prioritas` int(11) NULL,
+  `teks_prioritas` text NULL,
+  `active` tinyint(4) NULL,
+  `id_label_pusat` int(11) NULL,
+  `id_unik` text NULL,
+  `is_locked` int(11) NULL, 
+  `set_urut` int(11) NULL,
+  `tahun_awal` year(4) NOT NULL,
+  `tahun_akhir` year(4) NOT NULL,
+  `nama_label` int(11) NULL,
+  `tahun_anggaran` year(4) NOT NULL,
+  `update_at` datetime NOT NULL,
+  PRIMARY KEY (id)
+);
+
 CREATE TABLE `data_prioritas_prov` (
   `id` int(11) NOT NULL auto_increment,
-  `id_prioritas` int(11) NOT NULL,
-  `teks_prioritas` text NOT NULL,
-  `active` tinyint(4) NOT NULL,
+  `id_prioritas` int(11) NULL,
+  `teks_prioritas` text NULL,
+  `active` tinyint(4) NULL,
+  `id_label_prov` int(11) NULL,
+  `id_unik` text NULL,
+  `is_locked` int(11) NULL,
+  `nama_label` int(11) NULL,
+  `status` int(11) NULL,
   `tahun_anggaran` year(4) NOT NULL,
   `update_at` datetime NOT NULL,
   PRIMARY KEY (id)
@@ -4422,9 +4445,14 @@ CREATE TABLE `data_prioritas_prov` (
 
 CREATE TABLE `data_prioritas_kokab` (
   `id` int(11) NOT NULL auto_increment,
-  `id_prioritas` int(11) NOT NULL,
-  `teks_prioritas` text NOT NULL,
-  `active` tinyint(4) NOT NULL,
+  `id_prioritas` int(11) NULL,
+  `teks_prioritas` text NULL,
+  `id_label_kokab` int(11) NULL,
+  `id_unik` text NULL,
+  `is_locked` int(11) NULL,
+  `nama_label` int(11) NULL,
+  `status` int(11) NULL,
+  `active` tinyint(4) NULL,
   `tahun_anggaran` year(4) NOT NULL,
   `update_at` datetime NOT NULL,
   PRIMARY KEY (id)

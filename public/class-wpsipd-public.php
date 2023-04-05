@@ -3883,7 +3883,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 					$ret['sql'] = $wpdb->last_query;
 					foreach ($sub_bl as $k => $sub) {
 						$cek_aktif = false;
-						foreach ($_POST['subkeg_aktif'] as $v) {
+						foreach ($subkeg_aktif as $v) {
 							if($v['kode_sbl'] == $sub['kode_sbl']){
 								$cek_aktif = true;
 								break;
@@ -12558,7 +12558,8 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						4 => 'status',
 						5 => 'tahun_anggaran',
 						6 => 'relasi_perencanaan',
-						7 => 'lama_pelaksanaan'
+						7 => 'lama_pelaksanaan',
+						8 => 'jenis_jadwal'
 					);
 					$where = $sqlTot = $sqlRec = "";
 
@@ -12661,7 +12662,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 									$relasi_perencanaan_renstra = (!empty($nama_tipe)) ? strtoupper($nama_tipe[0]['nama_tipe']) .' | '.$relasi_perencanaan : '-';
 								}
 							}
-	
+
 							$tahun_anggaran_selesai = $recVal['tahun_anggaran'] + $recVal['lama_pelaksanaan'] - 1;
 						
 							$queryRecords[$recKey]['waktu_awal']	= date('d-m-Y H:i', strtotime($recVal['waktu_awal']));
@@ -12737,6 +12738,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						&& !empty($_POST['tahun_anggaran']) 
 						&& !empty($_POST['tipe_perencanaan']) 
 						&& !empty($lama_pelaksanaan)
+						&& !empty($_POST['jenis_jadwal'])
 					){
 						$nama				= trim(htmlspecialchars($_POST['nama']));
 						$jadwal_mulai		= trim(htmlspecialchars($_POST['jadwal_mulai']));
@@ -12746,6 +12748,10 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						$tahun_anggaran		= trim(htmlspecialchars($_POST['tahun_anggaran']));
 						$tipe_perencanaan	= trim(htmlspecialchars($_POST['tipe_perencanaan']));
 						$relasi_perencanaan = (!empty($_POST['relasi_perencanaan'])) ? trim(htmlspecialchars($_POST['relasi_perencanaan'])) : NULL;
+						$jenis_jadwal		= trim(htmlspecialchars($_POST['jenis_jadwal']));
+
+						$arr_jadwal = ['usulan','penetapan'];
+						$jenis_jadwal = in_array($jenis_jadwal,$arr_jadwal) ? $jenis_jadwal : 'usulan';
 
 						$id_tipe = 0;
 						$sqlTipe = $wpdb->get_results("SELECT * FROM `data_tipe_perencanaan` WHERE nama_tipe='".$tipe_perencanaan."'", ARRAY_A);
@@ -12780,7 +12786,8 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 								'tahun_anggaran'	=> $tahun_anggaran,
 								'id_tipe'			=> $id_tipe,
 								'relasi_perencanaan'=> $relasi_perencanaan,
-								'lama_pelaksanaan'	=> $lama_pelaksanaan
+								'lama_pelaksanaan'	=> $lama_pelaksanaan,
+								'jenis_jadwal'		=> $jenis_jadwal
 							);
 	
 							$wpdb->insert('data_jadwal_lokal',$data_jadwal);
@@ -12870,7 +12877,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
 				if(in_array("administrator", $user_meta->roles)){
 					$lama_pelaksanaan = ($_POST['tipe_perencanaan'] == 'renja') ? 1 : trim(htmlspecialchars($_POST['lama_pelaksanaan']));
-					if(!empty($_POST['id_jadwal_lokal']) && !empty($_POST['nama']) && !empty($_POST['jadwal_mulai']) && !empty($_POST['jadwal_selesai']) && !empty($_POST['tahun_anggaran']) && !empty($lama_pelaksanaan)){
+					if(!empty($_POST['id_jadwal_lokal']) && !empty($_POST['nama']) && !empty($_POST['jadwal_mulai']) && !empty($_POST['jadwal_selesai']) && !empty($_POST['tahun_anggaran']) && !empty($lama_pelaksanaan) && !empty($_POST['jenis_jadwal'])){
 						$id_jadwal_lokal= trim(htmlspecialchars($_POST['id_jadwal_lokal']));
 						$nama			= trim(htmlspecialchars($_POST['nama']));
 						$jadwal_mulai	= trim(htmlspecialchars($_POST['jadwal_mulai']));
@@ -12879,6 +12886,10 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						$jadwal_selesai	= date('Y-m-d H:i:s', strtotime($jadwal_selesai));
 						$tahun_anggaran	= trim(htmlspecialchars($_POST['tahun_anggaran']));
 						$relasi_perencanaan = (!empty($_POST['relasi_perencanaan'])) ? trim(htmlspecialchars($_POST['relasi_perencanaan'])) : NULL;
+						$jenis_jadwal		= trim(htmlspecialchars($_POST['jenis_jadwal']));
+
+						$arr_jadwal = ['usulan','penetapan'];
+						$jenis_jadwal = in_array($jenis_jadwal,$arr_jadwal) ? $jenis_jadwal : 'usulan';
 
 						$data_this_id = $wpdb->get_results($wpdb->prepare('SELECT * FROM data_jadwal_lokal WHERE id_jadwal_lokal = %d',$id_jadwal_lokal), ARRAY_A);
 
@@ -12892,7 +12903,8 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 									'waktu_akhir'			=> $jadwal_selesai,
 									'tahun_anggaran'		=> $tahun_anggaran,
 									'relasi_perencanaan' 	=> $relasi_perencanaan,
-									'lama_pelaksanaan'	=> $lama_pelaksanaan
+									'lama_pelaksanaan'		=> $lama_pelaksanaan,
+									'jenis_jadwal'			=> $jenis_jadwal
 								);
 	
 								$wpdb->update('data_jadwal_lokal', $data_jadwal, array(
@@ -17583,6 +17595,173 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 			'data'=>$data
 		];
 
+		die(json_encode($ret));
+	}
+
+	public function singkron_label_kokab()
+	{
+		global $wpdb;
+		$ret = array(
+			'status'	=> 'success',
+			'message'	=> 'Berhasil export Label/Prioritas Kabupaten Kota!'
+		);
+		if (!empty($_POST)) {
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+				if (!empty($_POST['label'])) {
+					if(!empty($_POST['type']) && $_POST['type'] == 'ri'){
+						//$label = json_decode(stripslashes(html_entity_decode($_POST['label'])), true);			
+						$label = $_POST['label'];		
+					}else{
+						$label = $_POST['label'];
+					}
+					foreach ($label as $k => $v) {
+						$cek = $wpdb->get_var("SELECT id_label_kokab from data_prioritas_kokab where tahun_anggaran=".$_POST['tahun_anggaran']." AND id_label_kokab=" . $v['id_label_kokab']);
+						$opsi = array(
+							'id_prioritas' => $v['id_prioritas'],
+							'id_label_kokab' => $v['id_label_kokab'],
+							'teks_prioritas' => $v['teks_prioritas'],
+							'id_unik' => $v['id_unik'],
+							'is_locked' => $v['is_locked'],
+							'nama_label' => $v['nama_label'],
+							'status' => $v['status'],
+							'active' => $v['active'],														
+							'update_at' => current_time('mysql'),
+							'tahun_anggaran' => $_POST['tahun_anggaran']
+						);
+						if (!empty($cek)) {
+							$wpdb->update('data_prioritas_kokab', $opsi, array(
+								'id_label_kokab' => $v['id_label_kokab'],
+								'tahun_anggaran' => $_POST['tahun_anggaran']
+							));
+						} else {
+							$wpdb->insert('data_prioritas_kokab', $opsi);
+						}
+					}
+					// print_r($ssh); die();
+				} else {
+					$ret['status'] = 'error';
+					$ret['message'] = 'Format Label/Prioritas Kabupaten Kota Salah!';
+				}
+			} else {
+				$ret['status'] = 'error';
+				$ret['message'] = 'APIKEY tidak sesuai!';
+			}
+		} else {
+			$ret['status'] = 'error';
+			$ret['message'] = 'Format Salah!';
+		}
+		die(json_encode($ret));
+	}
+
+	public function singkron_label_prov()
+	{
+		global $wpdb;
+		$ret = array(
+			'status'	=> 'success',
+			'message'	=> 'Berhasil export Label/Prioritas Provinsi!'
+		);
+		if (!empty($_POST)) {
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+				if (!empty($_POST['label'])) {
+					if(!empty($_POST['type']) && $_POST['type'] == 'ri'){
+						//$label = json_decode(stripslashes(html_entity_decode($_POST['label'])), true);			
+						$label = $_POST['label'];		
+					}else{
+						$label = $_POST['label'];
+					}
+					foreach ($label as $k => $v) {
+						$cek = $wpdb->get_var("SELECT id_label_prov from data_prioritas_prov where tahun_anggaran=".$_POST['tahun_anggaran']." AND id_label_prov=" . $v['id_label_prov']);
+						$opsi = array(
+							'id_prioritas' => $v['id_prioritas'],
+							'id_label_prov' => $v['id_label_prov'],
+							'teks_prioritas' => $v['teks_prioritas'],
+							'id_unik' => $v['id_unik'],
+							'is_locked' => $v['is_locked'],
+							'nama_label' => $v['nama_label'],
+							'status' => $v['status'],
+							'active' => $v['active'],														
+							'update_at' => current_time('mysql'),
+							'tahun_anggaran' => $_POST['tahun_anggaran']
+						);
+						if (!empty($cek)) {
+							$wpdb->update('data_prioritas_prov', $opsi, array(
+								'id_label_prov' => $v['id_label_prov'],
+								'tahun_anggaran' => $_POST['tahun_anggaran']
+							));
+						} else {
+							$wpdb->insert('data_prioritas_prov', $opsi);
+						}
+					}
+					// print_r($ssh); die();
+				} else {
+					$ret['status'] = 'error';
+					$ret['message'] = 'Format Label/Prioritas Provinsi Salah!';
+				}
+			} else {
+				$ret['status'] = 'error';
+				$ret['message'] = 'APIKEY tidak sesuai!';
+			}
+		} else {
+			$ret['status'] = 'error';
+			$ret['message'] = 'Format Salah!';
+		}
+		die(json_encode($ret));
+	}
+
+	public function singkron_label_pusat()
+	{
+		global $wpdb;
+		$ret = array(
+			'status'	=> 'success',
+			'message'	=> 'Berhasil export Label/Prioritas Pusat!'
+		);
+		if (!empty($_POST)) {
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+				if (!empty($_POST['label'])) {
+					if(!empty($_POST['type']) && $_POST['type'] == 'ri'){
+						//$label = json_decode(stripslashes(html_entity_decode($_POST['label'])), true);
+						$label = $_POST['label'];
+					}else{
+						$label = $_POST['label'];
+					}
+					foreach ($label as $k => $v) {
+						$cek = $wpdb->get_var("SELECT id_label_pusat from data_prioritas_pusat where tahun_anggaran=".$_POST['tahun_anggaran']." AND id_label_pusat=" . $v['id_label_pusat']);
+						$opsi = array(
+							'id_prioritas' => $v['id_prioritas'],
+							'id_label_pusat' => $v['id_label_pusat'],
+							'teks_prioritas' => $v['teks_prioritas'],
+							'id_unik' => $v['id_unik'],
+							'is_locked' => $v['is_locked'],
+							'nama_label' => $v['nama_label'],
+							'tahun_awal' => $v['tahun_awal'],
+							'tahun_akhir' => $v['tahun_akhir'],
+							'set_urut' => $v['set_urut'],
+							'active' => $v['active'],														
+							'update_at' => current_time('mysql'),
+							'tahun_anggaran' => $_POST['tahun_anggaran']
+						);
+						if (!empty($cek)) {
+							$wpdb->update('data_prioritas_pusat', $opsi, array(
+								'id_label_pusat' => $v['id_label_pusat'],
+								'tahun_anggaran' => $_POST['tahun_anggaran']
+							));
+						} else {
+							$wpdb->insert('data_prioritas_pusat', $opsi);
+						}
+					}
+					// print_r($ssh); die();
+				} else {
+					$ret['status'] = 'error';
+					$ret['message'] = 'Format Label/Prioritas Pusat Salah!';
+				}
+			} else {
+				$ret['status'] = 'error';
+				$ret['message'] = 'APIKEY tidak sesuai!';
+			}
+		} else {
+			$ret['status'] = 'error';
+			$ret['message'] = 'Format Salah!';
+		}
 		die(json_encode($ret));
 	}
 }

@@ -13,6 +13,9 @@ $input = shortcode_atts( array(
 	'tahun_anggaran' => get_option('_crb_tahun_anggaran_sipd')
 ), $atts );
 
+$user_id = um_user( 'ID' );
+$user_meta = get_userdata($user_id);
+
 function button_edit_monev($class=false){
 	$ret = ' <span style="display: none;" data-id="'.$class.'" class="edit-monev"><i class="dashicons dashicons-edit"></i></span>';
 	return $ret;
@@ -64,16 +67,30 @@ if(!empty($jadwal_lokal)){
 
 	$awal_renstra = $jadwal_lokal[0]['tahun_anggaran'];
 	$namaJadwal = $jadwal_lokal[0]['nama'];
-	$mulaiJadwal = $jadwal_lokal[0]['waktu_awal'];
-	$selesaiJadwal = $jadwal_lokal[0]['waktu_akhir'];
 	$lama_pelaksanaan = $jadwal_lokal[0]['lama_pelaksanaan'];
+    $jenisJadwal = $jadwal_lokal[0]['jenis_jadwal'];
 
-	$awal = new DateTime($mulaiJadwal);
-	$akhir = new DateTime($selesaiJadwal);
-	$now = new DateTime(date('Y-m-d H:i:s'));
 
-	if($now >= $awal && $now <= $akhir){
-		$add_renstra = '<a style="margin-left: 10px;" id="tambah-data" onclick="return false;" href="#" class="btn btn-success">Tambah Data RENSTRA</a>';
+	if($jenisJadwal == 'penetapan' && in_array("administrator", $user_meta->roles)){
+		$mulaiJadwal = $jadwal_lokal[0]['waktu_awal'];
+		$selesaiJadwal = $jadwal_lokal[0]['waktu_akhir'];
+		$awal = new DateTime($mulaiJadwal);
+		$akhir = new DateTime($selesaiJadwal);
+		$now = new DateTime(date('Y-m-d H:i:s'));
+
+		if($now >= $awal && $now <= $akhir){
+			$add_renstra = '<a style="margin-left: 10px;" id="tambah-data" onclick="return false;" href="#" class="btn btn-success">Tambah Data RENSTRA</a>';
+		}
+    }else if($jenisJadwal == 'usulan'){
+		$mulaiJadwal = $jadwal_lokal[0]['waktu_awal'];
+		$selesaiJadwal = $jadwal_lokal[0]['waktu_akhir'];
+		$awal = new DateTime($mulaiJadwal);
+		$akhir = new DateTime($selesaiJadwal);
+		$now = new DateTime(date('Y-m-d H:i:s'));
+
+		if($now >= $awal && $now <= $akhir){
+			$add_renstra = '<a style="margin-left: 10px;" id="tambah-data" onclick="return false;" href="#" class="btn btn-success">Tambah Data RENSTRA</a>';
+		}
 	}
 }
 
@@ -102,8 +119,6 @@ if(!empty($input['id_skpd'])){
 }
 
 $is_admin = false;
-$user_id = um_user( 'ID' );
-$user_meta = get_userdata($user_id);
 if(in_array("administrator", $user_meta->roles)){
 	$is_admin = true;
 	$disabled='';

@@ -91,23 +91,43 @@ if(!empty($jadwal_lokal)){
     }
 	$tahun_anggaran = $jadwal_lokal[0]['tahun_anggaran'];
 	$namaJadwal = $jadwal_lokal[0]['nama'];
-	$mulaiJadwal = $jadwal_lokal[0]['waktu_awal'];
-	$selesaiJadwal = $jadwal_lokal[0]['waktu_akhir'];
     $idJadwalRenja = $jadwal_lokal[0]['id_jadwal_lokal'];
+    $jenisJadwal = $jadwal_lokal[0]['jenis_jadwal'];
 
-    $awal = new DateTime($mulaiJadwal);
-    $akhir = new DateTime($selesaiJadwal);
-    $now = new DateTime(date('Y-m-d H:i:s'));
+    if($jenisJadwal == 'penetapan' && in_array("administrator", $user_meta->roles)){
+        $mulaiJadwal = $jadwal_lokal[0]['waktu_awal'];
+        $selesaiJadwal = $jadwal_lokal[0]['waktu_akhir'];
+        $awal = new DateTime($mulaiJadwal);
+        $akhir = new DateTime($selesaiJadwal);
+        $now = new DateTime(date('Y-m-d H:i:s'));
 
-    if($now >= $awal && $now <= $akhir){
-        if($is_admin){
-	        $add_renja .='<a style="margin-left: 10px;" onclick="copy_usulan_all(); return false;" href="#" class="btn btn-danger">Copy Data Usulan ke Penetapan</a>';
+        if($now >= $awal && $now <= $akhir){
+            if($is_admin){
+                $add_renja .='<a style="margin-left: 10px;" onclick="copy_usulan_all(); return false;" href="#" class="btn btn-danger">Copy Data Usulan ke Penetapan</a>';
+            }
+            $add_renja .= '<a style="margin-left: 10px;" id="tambah-data" onclick="return false;" href="#" class="btn btn-success">Tambah Data RENJA</a>';
+            if(!empty($jadwal_lokal[0]['relasi_perencanaan'])){
+                $add_renja .= '<a style="margin-left: 10px;" id="copy-data-renstra-skpd" data-jadwal="'.$idJadwalRenja.'" data-skpd="'.$input['id_skpd'].'" onclick="return false;" href="#" class="btn btn-danger">Copy Data Renstra per SKPD</a>';
+            }
+            //$add_renja .='</br></br><a style="margin-left: 10px;" target="_blank" id="tambah-data" href="'.$url_pendapatan.'" class="btn btn-info">Pendapatan</a>';
         }
-        $add_renja .= '<a style="margin-left: 10px;" id="tambah-data" onclick="return false;" href="#" class="btn btn-success">Tambah Data RENJA</a>';
-        if(!empty($jadwal_lokal[0]['relasi_perencanaan'])){
-            $add_renja .= '<a style="margin-left: 10px;" id="copy-data-renstra-skpd" data-jadwal="'.$idJadwalRenja.'" data-skpd="'.$input['id_skpd'].'" onclick="return false;" href="#" class="btn btn-danger">Copy Data Renstra per SKPD</a>';
+    }else if($jenisJadwal == 'usulan'){
+        $mulaiJadwal = $jadwal_lokal[0]['waktu_awal'];
+        $selesaiJadwal = $jadwal_lokal[0]['waktu_akhir'];
+        $awal = new DateTime($mulaiJadwal);
+        $akhir = new DateTime($selesaiJadwal);
+        $now = new DateTime(date('Y-m-d H:i:s'));
+        
+        if($now >= $awal && $now <= $akhir){
+            if($is_admin){
+                $add_renja .='<a style="margin-left: 10px;" onclick="copy_usulan_all(); return false;" href="#" class="btn btn-danger">Copy Data Usulan ke Penetapan</a>';
+            }
+            $add_renja .= '<a style="margin-left: 10px;" id="tambah-data" onclick="return false;" href="#" class="btn btn-success">Tambah Data RENJA</a>';
+            if(!empty($jadwal_lokal[0]['relasi_perencanaan'])){
+                $add_renja .= '<a style="margin-left: 10px;" id="copy-data-renstra-skpd" data-jadwal="'.$idJadwalRenja.'" data-skpd="'.$input['id_skpd'].'" onclick="return false;" href="#" class="btn btn-danger">Copy Data Renstra per SKPD</a>';
+            }
+            //$add_renja .='</br></br><a style="margin-left: 10px;" target="_blank" id="tambah-data" href="'.$url_pendapatan.'" class="btn btn-info">Pendapatan</a>';
         }
-        //$add_renja .='</br></br><a style="margin-left: 10px;" target="_blank" id="tambah-data" href="'.$url_pendapatan.'" class="btn btn-info">Pendapatan</a>';
     }
 }
 
