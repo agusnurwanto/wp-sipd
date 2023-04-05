@@ -700,7 +700,7 @@ echo '
                                     </div>
                                     <div class="form-group">
                                         <label for="sumber_dana_usulan">Sumber Dana</label>
-                                        <table class="input_sumber_dana_usulan" style="margin: 0;">
+                                        <table id="sumber_dana_usulan" class="input_sumber_dana_usulan" style="margin: 0;">
                                             <tr data-id="1">
                                                 <td style="width: 60%; max-width:100px;">
                                                     <select class="form-control input_select_2 sumber_dana_usulan" id="sumber_dana_usulan_1" name="input_sumber_dana_usulan[1]" onchange="set_penetapan(this);">
@@ -770,7 +770,7 @@ echo '
                                     </div>
                                     <div class="form-group">
                                         <label for="pagu_ind_sub_keg_usulan">Indikator Sub Kegiatan</label>
-                                        <table class="indi_sub_keg_table_usulan" style="margin: 0;">
+                                        <table id="pagu_ind_sub_keg_usulan" class="indi_sub_keg_table_usulan" style="margin: 0;">
                                             <tr data-id="1" header="1">
                                                 <td colspan="2" style="max-width: 100px;">
                                                     <select class="form-control pagu_indi_sub_keg input_select_2" id="pagu_ind_sub_keg_usulan_1" name="input_indikator_sub_keg_usulan[1]" onchange="setSatuan(this);">
@@ -900,6 +900,15 @@ echo '
                             </tr>
                         </tbody>
                     </table>
+					<?php if($is_admin): ?>
+						<div class="row">
+							<div class="col-md-12 text-center">
+								<button onclick="copy_usulan(this); return false;" type="button" class="btn btn-danger" style="margin-top: 20px;">
+									<i class="dashicons dashicons-arrow-right-alt" style="margin-top: 2px;"></i> Copy Data Usulan ke Penetapan
+								</button>
+							</div>
+                        </div>
+					<?php endif; ?>
                 </form>
 			</div> 
 			<div class="modal-footer">
@@ -1899,12 +1908,6 @@ echo '
                             /** -- end -- */
 
                             /** Memunculkan data sumber dana */
-                            let option_dana='<option value="">Pilih Sumber Dana</option>';
-            				master_sumberdana.map(function(value, index){
-                                option_dana+='<option value="'+value.id_dana+'">'+value.nama_dana+'</option>';
-                            })
-            				jQuery("#sumber_dana_usulan").html(option_dana);
-                            jQuery("#sumber_dana").html(option_dana);
                             response.data.sumber_dana.map(function(value, index){
                                 let id = index+1;
                                 new Promise(function(resolve, reject){
@@ -2633,6 +2636,25 @@ echo '
             var usulan = modal.find('textarea[name="catatan_indikator_hasil_kegiatan_usulan['+step+']"]').val();
             modal.find('textarea[name="catatan_indikator_hasil_kegiatan_penetapan['+step+']"]').val(usulan);
         }
+        //sub_kegiatan
+        var total_sumber = modal.find('#sumber_dana_usulan tr:last-child').attr('data-id');
+        total_sumber = total_sumber+1;
+        for (let step = 1; step < total_sumber; step++) {
+            var usulan = modal.find('input[name="input_pagu_sumber_dana_usulan['+step+']"]').val();
+            modal.find('input[name="input_pagu_sumber_dana['+step+']"]').val(usulan);
+        }
+        var total_sub_keg = modal.find('#pagu_ind_sub_keg_usulan tr:last-child').attr('data-id');
+        total_sub_keg = total_sub_keg+1;
+        for (let step = 1; step < total_sub_keg; step++) {
+            var usulan = modal.find('input[name="input_target_usulan['+step+']"]').val();
+            modal.find('input[name="input_target['+step+']"]').val(usulan);
+        }
+        var usulan = modal.find('input[name="input_pagu_sub_keg_usulan"]').val();
+        modal.find('input[name="input_pagu_sub_keg"]').val(usulan)
+        var usulan = modal.find('input[name="input_pagu_sub_keg_1_usulan"]').val();
+        modal.find('input[name="input_pagu_sub_keg_1"]').val(usulan)
+        var usulan = modal.find('textarea[name="input_catatan_usulan"]').val();
+        modal.find('textarea[name="input_catatan"]').val(usulan);
 	}
 
     function copy_usulan_all(){

@@ -47,4 +47,34 @@ trait CustomTrait {
 		}
 		throw new Exception('Api key tidak ditemukan');
 	}
+
+	public function tanggalan(string $tanggal){
+		
+		$tanggal = explode("-", $tanggal);
+
+		$bulan = $this->get_bulan($tanggal[1]);
+
+		return $tanggal[2] . " " . $bulan . " " . $tanggal[0];		
+	}
+
+	public function get_bulan($bulan) {
+		if(empty($bulan)){
+			$bulan = date('m');
+		}
+		$nama_bulan = array(
+			"Januari", 
+			"Februari", 
+			"Maret", 
+			"April", 
+			"Mei", 
+			"Juni", 
+			"Juli", 
+			"Agustus", 
+			"September", 
+			"Oktober", 
+			"November", 
+			"Desember"
+		);
+		return $nama_bulan[((int) $bulan)-1];
+	}
 }

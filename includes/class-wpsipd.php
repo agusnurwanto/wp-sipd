@@ -727,6 +727,8 @@ class Wpsipd
 		$this->loader->add_action('wp_ajax_view_pagu_total_renja',  $plugin_public, 'view_pagu_total_renja');
 
 		$this->loader->add_action('wp_ajax_get_data_pendapatan_renja', $plugin_public, 'get_data_pendapatan_renja');
+
+		$this->loader->add_action('wp_ajax_update_surat_usulan_ssh',  $plugin_public, 'update_surat_usulan_ssh');
 		
 		add_shortcode('menu_monev',  array($plugin_public, 'menu_monev'));
 		add_shortcode('datassh', array($plugin_public, 'datassh'));

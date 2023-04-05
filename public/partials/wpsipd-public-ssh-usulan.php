@@ -204,6 +204,7 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
 </div>
 
 <div class="modal fade" id="tambahSuratUsulan" role="dialog" data-backdrop="static" aria-hidden="true">
+	<input type="hidden" id="ubah" value="">
 	<div class="modal-dialog modal-xl" role="document">
 		<div class="modal-content">
 			<div class="modal-header">
@@ -1954,11 +1955,9 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
 			return alert('Perangkat daerah tidak boleh kosong!');
 		}
 		var catatan = jQuery('#catatan_surat').val();
-		jQuery('#wrap-loading').show();
-		jQuery.ajax({
-			url: ajax.url,
-		    type: "post",
-		    data: {
+		var ubah = jQuery("#tambahSuratUsulan #ubah").val();
+		console.log(ubah);
+		var data = {
 		        "action": "simpan_surat_usulan_ssh",
 		        "api_key": jQuery("#api_key").val(),
 		        "tahun_anggaran": tahun,
@@ -1966,7 +1965,17 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
 		        "catatan": catatan,
 		        "idskpd": idskpd,
 		        "ids": ids
-		    },
+		  };
+
+		if(ubah=='ubah'){
+			data['ubah']='ubah';
+		}
+
+		jQuery('#wrap-loading').show();
+		jQuery.ajax({
+			url: ajax.url,
+		    type: "post",
+		    data: data,
 		    dataType: "json",
 		    success: function(res){
 		    	alert(res.message);
@@ -1974,11 +1983,92 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
 					usulanSSHTable.ajax.reload();
 					suratUsulanSSHTable.ajax.reload();
     				jQuery('#tambahSuratUsulan').modal('hide');
-					jQuery('#wrap-loading').hide();
-		    	}else{
-					jQuery('#wrap-loading').hide();
-		    	}
+				}
+				jQuery("#wrap-loading").hide();
 		    }
 		});
+	}
+
+	function edit_surat_usulan(that){
+		var id = jQuery(that).data('id');
+		var tr = jQuery(that).parent().parent();
+		var idskpd = jQuery(that).data('idskpd');
+		var nomor_surat = jQuery(that).data('nomorsurat');
+
+		jQuery("#tambahSuratUsulan #ubah").val('ubah');
+		jQuery("#tambahSuratUsulan #surat_skpd").val(idskpd);
+		jQuery("#tambahSuratUsulan #nomor_surat").val(tr.find('>td').eq(2).html());
+		jQuery("#tambahSuratUsulan #catatan_surat").val(tr.find('>td').eq(5).html());
+		
+		var ids = [];
+		jQuery('.delete_check').each(function(){
+			if(
+            	jQuery(this).attr('no-surat') == nomor_surat
+            ){
+            	var tr = jQuery(this).closest('tr');
+            	var data = {
+            		id: jQuery(this).val(),
+            		kelompok: tr.find('>td').eq(1).html(),
+            		komponen: tr.find('>td').eq(2).html(),
+            		spesifikasi: tr.find('>td').eq(3).html(),
+            		harga: tr.find('>td').eq(4).html(),
+            		rekening: '',
+            		jenis: tr.find('>td').eq(8).html()
+            	}
+                ids.push(data);
+            }
+        });
+
+        if(ids.length == 0){
+        	alert('Usulan standar harga dengan nomor surat '+nomor_surat+' tidak ditemukan');
+        }else{
+        	jQuery('#wrap-loading').show();
+        	var data = '';
+        	var data_ids = [];
+        	ids.map(function(b, i){
+        		data_ids.push(b.id);
+        		data += ''
+        			+'<tr>'
+        				+'<td>'+b.kelompok+'</td>'
+        				+'<td>'+b.komponen+'</td>'
+        				+'<td>'+b.spesifikasi+'</td>'
+        				+'<td>'+b.harga+'</td>'
+        				+'<td>'+b.rekening+'</td>'
+        				+'<td>'+b.jenis+'</td>'
+        			+'</tr>'
+        	});
+        	jQuery('#ids_surat_usulan').val(data_ids);
+        	jQuery('#tbody_data_usulan').html(data);
+        	jQuery('#tambahSuratUsulan').modal('show');
+        	jQuery('#wrap-loading').hide();
+        }
+	}
+
+	function generateSuratUsulanSsh(that){
+		let url = jQuery(that).attr('url');
+		jQuery('#tambahUsulanSsh').modal('show');
+		jQuery("#tambahUsulanSshLabel").html("Pilih Acuan Penyusunan SSH");
+		jQuery("#tambahUsulanSsh .modal-dialog").removeClass("modal-lg modal-xl");
+		jQuery("#tambahUsulanSsh .modal-dialog").addClass("modal-md");
+		jQuery("#tambahUsulanSsh .modal-body").html("<div class=\'akun-ssh-verify\'><table>"+
+					"<tr><td><input class=\'type-sumber-ssh\' id=\'jenis_survey\' name=\'jenis[]\' value=\'1\' type=\'checkbox\' ><label for=\'verify-ssh-yes\'>Survey harga pasar yang telah kami lakukan secara mandiri.</label></td>"+
+					"</tr>"+
+					"<tr>"+
+					"<td><input class=\'type-sumber-ssh\' id=\'jenis_juknis\' name=\'jenis[]\' value=\'2\' type=\'checkbox\'><label for=\'verify-ssh-no\'>Petunjuk Teknis yang kami terima dari kementrian/provinsi.</label></td></tr>"+
+					"<tr><td colspan='2'><small style='color:red'>* Pilih salah satu atau keduanya. </small></td></tr>"+
+					"</div>");
+		jQuery("#tambahUsulanSsh .modal-footer").html("<a target='_blank' style=\'margin: 0 0 2rem 0.5rem;border-radius:0.2rem;\' class=\' btn btn-primary\' url='"+url+"' onclick='openGenerate(this)'>Cetak</a>");
+	}
+
+	function openGenerate(that){
+		let url = jQuery(that).attr('url');
+		let checkedValues = jQuery('#tambahUsulanSsh input:checkbox:checked').map(function() {
+		    return this.value;
+		}).get().join(',');
+
+		if(checkedValues.length > 0){
+			url = url+'&type='+checkedValues;
+		}
+		window.open(url, '_blank');
 	}
 </script> 
