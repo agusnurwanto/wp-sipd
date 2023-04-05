@@ -1835,15 +1835,33 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 					){
 						$ret['status'] = 'error';
 						$ret['message'] = 'Pagu usulan tidak boleh kosong';
-					}elseif(empty($data['input_indikator_sub_keg_usulan'])){
-						$ret['status'] = 'error';
-						$ret['message'] = 'Indikator usulan tidak boleh kosong';
-					}elseif(empty($data['input_target_usulan'])){
-						$ret['status'] = 'error';
-						$ret['message'] = 'Target indikator usulan tidak boleh kosong';
 					}elseif(empty($data['input_satuan_usulan'])){
 						$ret['status'] = 'error';
 						$ret['message'] = 'Satuan indikator usulan tidak boleh kosong';
+					}
+
+					foreach($data['input_indikator_sub_keg_usulan'] as $k_sub_keg => $v_sub_keg){
+						if($ret['status'] != 'error'){
+							if(empty($data['input_indikator_sub_keg_usulan'][$k_sub_keg])){
+								$ret['status'] = 'error';
+								$ret['message'] = 'Indikator usulan tidak boleh kosong';
+							}elseif(empty($data['input_target_usulan'][$k_sub_keg])){
+								$ret['status'] = 'error';
+								$ret['message'] = 'Target indikator usulan tidak boleh kosong';
+							}
+						}
+					}
+
+					foreach ($data['input_sumber_dana'] as $k_sumber_dana => $v_sumber_dana) {
+						if($ret['status'] != 'error'){
+							if(empty($data['input_sumber_dana_usulan'][$k_sumber_dana])){
+								$ret['status'] = 'error';
+								$ret['message'] = 'Sumber Dana usulan tidak boleh kosong';
+							}elseif(empty($data['input_pagu_sumber_dana_usulan'][$k_sumber_dana])){
+								$ret['status'] = 'error';
+								$ret['message'] = 'Pagu Sumber Dana usulan tidak boleh kosong';
+							}
+						}
 					}
 				}else{
 					$ret['status'] = 'error';
