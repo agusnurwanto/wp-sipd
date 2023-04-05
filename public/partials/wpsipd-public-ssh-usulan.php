@@ -204,7 +204,7 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
 </div>
 
 <div class="modal fade" id="tambahSuratUsulan" role="dialog" data-backdrop="static" aria-hidden="true">
-	<input type="hidden" name="method" id="method" value="insert">
+	<input type="hidden" id="ubah" value="">
 	<div class="modal-dialog modal-xl" role="document">
 		<div class="modal-content">
 			<div class="modal-header">
@@ -1955,21 +1955,20 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
 			return alert('Perangkat daerah tidak boleh kosong!');
 		}
 		var catatan = jQuery('#catatan_surat').val();
-
+		var ubah = jQuery("#tambahSuratUsulan #ubah").val();
+		console.log(ubah);
 		var data = {
-		    "api_key": jQuery("#api_key").val(),
-		    "tahun_anggaran": tahun,
-		    "nomor_surat": nomor_surat,
-		    "catatan": catatan,
-		    "idskpd": idskpd,
-		    "ids": ids
-		};
+		        "action": "simpan_surat_usulan_ssh",
+		        "api_key": jQuery("#api_key").val(),
+		        "tahun_anggaran": tahun,
+		        "nomor_surat": nomor_surat,
+		        "catatan": catatan,
+		        "idskpd": idskpd,
+		        "ids": ids
+		  };
 
-		var actions = jQuery("#tambahSuratUsulan #method").val();
-		if(actions=='insert'){
-			data['action'] = "simpan_surat_usulan_ssh";
-		}else if(actions=='update'){
-			data['action'] = "update_surat_usulan_ssh";
+		if(ubah=='ubah'){
+			data['ubah']='ubah';
 		}
 
 		jQuery('#wrap-loading').show();
@@ -1990,14 +1989,13 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
 		});
 	}
 
-
 	function edit_surat_usulan(that){
 		var id = jQuery(that).data('id');
 		var tr = jQuery(that).parent().parent();
 		var idskpd = jQuery(that).data('idskpd');
 		var nomor_surat = jQuery(that).data('nomorsurat');
 
-		jQuery("#tambahSuratUsulan #method").val("update");
+		jQuery("#tambahSuratUsulan #ubah").val('ubah');
 		jQuery("#tambahSuratUsulan #surat_skpd").val(idskpd);
 		jQuery("#tambahSuratUsulan #nomor_surat").val(tr.find('>td').eq(2).html());
 		jQuery("#tambahSuratUsulan #catatan_surat").val(tr.find('>td').eq(5).html());
@@ -2044,5 +2042,33 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
         	jQuery('#tambahSuratUsulan').modal('show');
         	jQuery('#wrap-loading').hide();
         }
+	}
+
+	function generateSuratUsulanSsh(that){
+		let url = jQuery(that).attr('url');
+		jQuery('#tambahUsulanSsh').modal('show');
+		jQuery("#tambahUsulanSshLabel").html("Pilih Acuan Penyusunan SSH");
+		jQuery("#tambahUsulanSsh .modal-dialog").removeClass("modal-lg modal-xl");
+		jQuery("#tambahUsulanSsh .modal-dialog").addClass("modal-md");
+		jQuery("#tambahUsulanSsh .modal-body").html("<div class=\'akun-ssh-verify\'><table>"+
+					"<tr><td><input class=\'type-sumber-ssh\' id=\'jenis_survey\' name=\'jenis[]\' value=\'1\' type=\'checkbox\' ><label for=\'verify-ssh-yes\'>Survey harga pasar yang telah kami lakukan secara mandiri.</label></td>"+
+					"</tr>"+
+					"<tr>"+
+					"<td><input class=\'type-sumber-ssh\' id=\'jenis_juknis\' name=\'jenis[]\' value=\'2\' type=\'checkbox\'><label for=\'verify-ssh-no\'>Petunjuk Teknis yang kami terima dari kementrian/provinsi.</label></td></tr>"+
+					"<tr><td colspan='2'><small style='color:red'>* Pilih salah satu atau keduanya. </small></td></tr>"+
+					"</div>");
+		jQuery("#tambahUsulanSsh .modal-footer").html("<a target='_blank' style=\'margin: 0 0 2rem 0.5rem;border-radius:0.2rem;\' class=\' btn btn-primary\' url='"+url+"' onclick='openGenerate(this)'>Cetak</a>");
+	}
+
+	function openGenerate(that){
+		let url = jQuery(that).attr('url');
+		let checkedValues = jQuery('#tambahUsulanSsh input:checkbox:checked').map(function() {
+		    return this.value;
+		}).get().join(',');
+
+		if(checkedValues.length > 0){
+			url = url+'&type='+checkedValues;
+		}
+		window.open(url, '_blank');
 	}
 </script> 

@@ -1062,7 +1062,7 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 					$title = 'Surat Usulan Standar Harga Nomor '.$val['nomor_surat'].' Tahun '.$tahun_anggaran;
 					$url_surat = $this->generatePage($title, $tahun_anggaran, '[surat_usulan_ssh id_surat="'.$val['id'].'"]');
 					$queryRecords[$k]['aksi'] = '
-						<a class="btn btn-sm btn-warning" target="_blank" href="'.$url_surat.'" title="Cetak Surat Usulan"><i class="dashicons dashicons-printer"></i></a>
+						<a class="btn btn-sm btn-warning" target="_blank" url="'.$url_surat."&idskpd=".$val['idskpd'].'" onclick="generateSuratUsulanSsh(this); return false;" href="#" title="Cetak Surat Usulan"><i class="dashicons dashicons-printer"></i></a>
 						<a class="btn btn-sm btn-primary" href="#" onclick="return simpan_surat_usulan(\''.$val['id'].'\');" title="Simpan Surat Usulan"><i class="dashicons dashicons-saved"></i></a>
 						<a class="btn btn-sm btn-warning" href="#" onclick="return edit_surat_usulan(this);" title="Edit Surat Usulan" data-id="'.$val['id'].'" data-nomorsurat="'.$val['nomor_surat'].'" data-idskpd="'.$val['idskpd'].'"><i class="dashicons dashicons-edit"></i></a>';
 					$queryRecords[$k]['jml_usulan'] = 0;
