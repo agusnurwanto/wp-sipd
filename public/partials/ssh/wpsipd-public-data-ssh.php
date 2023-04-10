@@ -25,22 +25,39 @@ $body = '';
 			<input type="hidden" value="<?php echo get_option( '_crb_api_key_extension' ); ?>" id="api_key">
 			<input type="hidden" value="<?php echo $input['tahun_anggaran']; ?>" id="tahun_anggaran">
 			<h1 id="judul" class="text-center" style="margin:3rem;">Data satuan standar harga (SSH) SIPD tahun anggaran <?php echo $input['tahun_anggaran']; ?></h1>
-			<table id="data_ssh_sipd_table" cellpadding="2" cellspacing="0" style="font-family:\'Open Sans\',-apple-system,BlinkMacSystemFont,\'Segoe UI\',sans-serif; border-collapse: collapse; width:100%; overflow-wrap: break-word;" class="table table-bordered">
-				<thead id="data_header">
-					<tr>
-						<th class="text-center">ID Komponen</th>
-						<th class="text-center">Kode Komponen</th>
-						<th class="text-center">Uraian Komponen</th>
-						<th class="text-center">Spesifikasi</th>
-						<th class="text-center">Satuan</th>
-						<th class="text-center">Harga Satuan</th>
-						<th class="text-center">Tipe Kelompok</th>
-						<th class="text-center">Aksi</th>
-					</tr>
-				</thead>
-				<tbody id="data_body" class="data_body_ssh">
-				</tbody>
-			</table>
+			<div class="summary mb-5" style="">
+				<table>
+					<thead>
+						<tr>
+							<th colspan="3" class="text-center">Summary Rekapitulasi SSH</th>
+						</tr>
+						<tr>
+							<th class="text-center">Menunggu</th>
+							<th class="text-center">Disetujui</th>
+							<th class="text-center">Ditolak</th>
+						</tr>
+					</thead>
+					<tbody id="summary_ssh_body" style="text-align:center;"></tbody>
+				</table>
+			</div>
+			<div class="data-ssh">
+				<table id="data_ssh_sipd_table" cellpadding="2" cellspacing="0" style="font-family:\'Open Sans\',-apple-system,BlinkMacSystemFont,\'Segoe UI\',sans-serif; border-collapse: collapse; width:100%; overflow-wrap: break-word;" class="table table-bordered">
+					<thead id="data_header">
+						<tr>
+							<th class="text-center">ID Komponen</th>
+							<th class="text-center">Kode Komponen</th>
+							<th class="text-center">Uraian Komponen</th>
+							<th class="text-center">Spesifikasi</th>
+							<th class="text-center">Satuan</th>
+							<th class="text-center">Harga Satuan</th>
+							<th class="text-center">Tipe Kelompok</th>
+							<th class="text-center">Aksi</th>
+						</tr>
+					</thead>
+					<tbody id="data_body" class="data_body_ssh">
+					</tbody>
+				</table>
+			</div>
 		</div>
 	</div>
 
@@ -73,6 +90,8 @@ $body = '';
 			globalThis.tahun = <?php echo $input['tahun_anggaran']; ?>;
 			
 			get_data_ssh_sipd(tahun);
+
+			get_data_summary_ssh_sipd(tahun);
 
 			let html_filter = "<div style='text-align: center; margin-bottom: 20px;'><select id='selectYears'><?php echo $select_tahun ?></select></div>"
 			jQuery("#judul").after(html_filter);
@@ -182,6 +201,27 @@ $body = '';
 						jQuery("ul.ul-desc-akun").append(`<li>${value.nama_akun}</li>`);
 					});
 					jQuery('#wrap-loading').hide();
+				}
+			})
+		}
+
+		function get_data_summary_ssh_sipd(tahun){
+			jQuery.ajax({
+				url: "<?php echo admin_url('admin-ajax.php'); ?>",
+				type:"post",
+				data:{
+					'action' : "get_data_summary_ssh_sipd",
+					'api_key' : jQuery("#api_key").val(),
+					'tahun_anggaran' : tahun,
+				},
+				dataType: "json",
+				success:function(response){
+					jQuery("#summary_ssh_body").html(`
+						<tr>
+							<td>${response.data.waiting}</td>
+							<td>${response.data.approved}</td>
+							<td>${response.data.rejected}</td>
+						</tr>`);
 				}
 			})
 		}
