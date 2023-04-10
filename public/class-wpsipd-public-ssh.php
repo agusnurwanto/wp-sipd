@@ -3187,7 +3187,46 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 		die(json_encode($return));
 	}
 
-	public function update_surat_usulan_ssh(){
-		
+	public function get_data_summary_ssh_sipd(){
+		global $wpdb;
+		$return = array(
+			'status' => 'success',
+			'message' => 'Berhasil get data summary rekapitulasi SSH!'
+		);
+
+		if(!empty($_POST)){
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+
+				if(empty($_POST['tahun_anggaran'])){
+					$return = array(
+						'status' => 'error',
+						'message'	=> 'Tahun anggaran tidak boleh kosong!'
+					);
+				}
+
+				$data = $wpdb->get_row($wpdb->prepare("
+					SELECT 
+						(SELECT COUNT(id) FROM `data_ssh_usulan` WHERE tahun_anggaran=%d AND status='rejected') AS rejected,
+    					(SELECT COUNT(id) FROM `data_ssh_usulan` WHERE tahun_anggaran=%d AND status='approved') AS approved,
+    					(SELECT COUNT(id) FROM `data_ssh_usulan` WHERE tahun_anggaran=%d AND status='waiting') AS waiting;", 
+    					$_POST['tahun_anggaran'],
+    					$_POST['tahun_anggaran'],
+    					$_POST['tahun_anggaran']));
+
+				$return['data'] = $data;
+
+			}else{
+				$return = array(
+					'status' => 'error',
+					'message'	=> 'Api Key tidak sesuai!'
+				);
+			}
+		}else{
+			$return = array(
+				'status' => 'error',
+				'message'	=> 'Format tidak sesuai!'
+			);
+		}
+		die(json_encode($return));
 	}
 }
