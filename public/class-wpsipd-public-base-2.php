@@ -2871,6 +2871,32 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 					if($cek_jadwal['status'] == 'error'){
 						return die(json_encode($cek_jadwal));
 					}
+
+					$where = '';
+					$cek_pemda = $this->cek_kab_kot();
+					// tahun 2024 sudah menggunakan sipd-ri
+					if(
+						$cek_pemda['status'] == 1 
+						&& $tahun_anggaran >= 2024
+					){
+						$where .= ' AND set_kab_kota=1';
+					}else if($cek_pemda['status'] == 2){
+						$where .= ' AND set_prov=1';
+					}
+
+					$master_bidang_urusan = array();
+					$master_bidang_urusan_db = $wpdb->get_results($wpdb->prepare('
+						SELECT DISTINCT 
+							kode_bidang_urusan, 
+							nama_bidang_urusan 
+						FROM `data_prog_keg` 
+						WHERE tahun_anggaran=%d
+						'.$where.'
+					', $tahun_anggaran), ARRAY_A);
+					foreach($master_bidang_urusan_db as $bidang){
+						$master_bidang_urusan[$bidang['kode_bidang_urusan']] = $bidang;
+					}
+
 					$data_sub_giat = $wpdb->get_results($wpdb->prepare('
 						SELECT 
 							*
@@ -2881,6 +2907,14 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 							AND sk.id_jadwal=%d
 					', $id_skpd, $tahun_anggaran, $cek_jadwal['data']['id_jadwal_lokal']), ARRAY_A);
 					foreach($data_sub_giat as $k => $sub){
+						if($sub['kode_bidang_urusan'] == 'X.XX'){
+							$urusan_utama = explode('.', $sub['kode_sub_skpd']);
+							$urusan_utama = $urusan_utama[0].'.'.$urusan_utama[1];
+							if(!empty($master_bidang_urusan[$urusan_utama])){
+								$data_sub_giat[$k]['kode_bidang_urusan'] = $master_bidang_urusan[$urusan_utama]['kode_bidang_urusan'];
+								$data_sub_giat[$k]['nama_bidang_urusan'] = $master_bidang_urusan[$urusan_utama]['nama_bidang_urusan'];
+							}
+						}
 						$data_sub_giat[$k]['sumber_dana'] = array();
 						$data_sub_giat[$k]['lokasi'] = array();
 						$data_sub_giat[$k]['indikator'] = array();
