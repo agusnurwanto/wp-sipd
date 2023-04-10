@@ -1012,7 +1012,9 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 					6 => 'active',
 					7 => 'created_user',
 					8 => 'tahun_anggaran',
-					9 => 'id'
+					9 => 'id',
+					10 => 'jenis_survey',
+					11 => 'jenis_juknis',
 				);
 				$where = $sqlTot = $sqlRec = "";
 
@@ -1062,7 +1064,7 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 					$title = 'Surat Usulan Standar Harga Nomor '.$val['nomor_surat'].' Tahun '.$tahun_anggaran;
 					$url_surat = $this->generatePage($title, $tahun_anggaran, '[surat_usulan_ssh id_surat="'.$val['id'].'"]');
 					$queryRecords[$k]['aksi'] = '
-						<a class="btn btn-sm btn-warning" target="_blank" url="'.$url_surat."&idskpd=".$val['idskpd'].'" onclick="generateSuratUsulanSsh(this); return false;" href="#" title="Cetak Surat Usulan"><i class="dashicons dashicons-printer"></i></a>
+						<a class="btn btn-sm btn-warning" target="_blank" href="'.$url_surat."&idskpd=".$val['idskpd'].'" title="Cetak Surat Usulan"><i class="dashicons dashicons-printer"></i></a>
 						<a class="btn btn-sm btn-primary" href="#" onclick="return simpan_surat_usulan(\''.$val['id'].'\');" title="Simpan Surat Usulan"><i class="dashicons dashicons-saved"></i></a>
 						<a class="btn btn-sm btn-warning" href="#" onclick="return edit_surat_usulan(this);" title="Edit Surat Usulan" data-id="'.$val['id'].'" data-nomorsurat="'.$val['nomor_surat'].'" data-idskpd="'.$val['idskpd'].'"><i class="dashicons dashicons-edit"></i></a>';
 					$queryRecords[$k]['jml_usulan'] = 0;
@@ -1077,6 +1079,14 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 						$queryRecords[$k]['catatan'] = '<textarea id="catatan_surat_edit" class="form-control">'.$val['catatan'].'</textarea>';
 					}else{
 						$queryRecords[$k]['catatan_verifikator'] = '<textarea id="catatan_verifikator_surat_edit" class="form-control">'.$val['catatan_verifikator'].'</textarea>';
+					}
+
+					if(!empty($val['jenis_survey']) && $val['jenis_survey'] == 1){
+						$queryRecords[$k]['acuan_ssh'] = '<span class="jenis_survey" data-id="'.$val['jenis_survey'].'">-Survey harga pasar</span>';
+					}
+
+					if(!empty($val['jenis_juknis']) && $val['jenis_juknis'] == 2){
+						$queryRecords[$k]['acuan_ssh'] .= '</br><span class="jenis_juknis" data-id="'.$val['jenis_juknis'].'">-Petunjuk Teknis</span>';
 					}
 				}
 
@@ -1439,7 +1449,7 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 					}else{
 						$verify = '';
 					}
-					$deleteCheck = '<input type="checkbox" class="delete_check" id="delcheck_'.$recVal['id_standar_harga'].'" onclick="checkcheckbox(); return false;" value="'.$recVal['id_standar_harga'].'" no-surat="'.$recVal['no_surat_usulan'].'">';
+					$deleteCheck = '<input type="checkbox" class="delete_check" id="delcheck_'.$recVal['id_standar_harga'].'" onclick="checkcheckbox(); return true;" value="'.$recVal['id_standar_harga'].'" no-surat="'.$recVal['no_surat_usulan'].'">';
 
 					$kode_komponen = '
 						<table style="margin: 0;">
@@ -3071,6 +3081,9 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 				}else if(empty($_POST['ids'])){
 					$return['status'] = 'error';
 					$return['message'] = 'Usulan SSH tidak boleh kosong!';
+				}else if(empty($_POST['acuanSsh'])){
+					$return['status'] = 'error';
+					$return['message'] = 'Acuan penyusunan SSH wajib dipilih!';
 				}
 
 				if($return['status'] == 'success'){
@@ -3106,14 +3119,26 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 				if($return['status'] == 'success'){
 					$user_id = um_user( 'ID' );
 					$user_info = get_userdata($user_id);
+
 					$data = array(
 						'nomor_surat' => $nomor_surat,
 						'idskpd' => $idskpd,
 						'catatan' => $catatan,
 						'active' => 1,
 						'update_at' => date("Y-m-d H:i:s"),
-						'tahun_anggaran' => $tahun_anggaran
+						'tahun_anggaran' => $tahun_anggaran,
+						'jenis_survey' => 0,
+						'jenis_juknis' => 0,
 					);
+
+					foreach ($_POST['acuanSsh'] as $key => $value) {
+						if($value==1){
+							$data['jenis_survey']=$value;
+						}elseif ($value==2) {
+							$data['jenis_juknis']=$value;
+						}
+					}
+
 					if(!empty($_POST['ubah'])){
 						$data['catatan_verifikator'] = $catatan_verifikator;
 						if(!empty($_FILES['file'])){
