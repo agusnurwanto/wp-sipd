@@ -3691,7 +3691,16 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 					}else{
 						$data_unit = $_POST['data'];
 					}
-					$cek = $wpdb->get_var($wpdb->prepare("SELECT kode_skpd from data_unit_pagu where tahun_anggaran=%d AND kode_skpd=%s", $_POST['tahun_anggaran'], $data_unit['kode_skpd']));
+					$cek = $wpdb->get_var($wpdb->prepare("
+						SELECT 
+							kode_skpd 
+						from data_unit_pagu 
+						where tahun_anggaran=%d 
+							AND kode_skpd=%s
+					", $_POST['tahun_anggaran'], $data_unit['kode_skpd']));
+					if(!isset($data_unit['id_user'])){
+						$data_unit['id_user'] = 0;
+					}
 					$opsi = array(
 						'batasanpagu' => $data_unit['batasanpagu'],
 						'id_daerah' => $data_unit['id_daerah'],

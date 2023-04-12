@@ -206,6 +206,15 @@ foreach ($subkeg as $kk => $sub) {
         order by id ASC
     ", $input['tahun_anggaran'], $sub['kode_sbl']), ARRAY_A);
 
+    if($sub['kode_bidang_urusan'] == 'X.XX'){
+        $urusan_utama_x = explode('.', $sub['kode_sub_skpd']);
+        $urusan_utama = $urusan_utama_x[0].'.'.$urusan_utama_x[1];
+        $sub['kode_sub_giat'] = str_replace('X.XX', $urusan_utama, $sub['kode_sub_giat']);
+        $sub['kode_giat'] = str_replace('X.XX', $urusan_utama, $sub['kode_giat']);
+        $sub['kode_program'] = str_replace('X.XX', $urusan_utama, $sub['kode_program']);
+        $sub['kode_bidang_urusan'] = str_replace('X.XX', $urusan_utama, $sub['kode_bidang_urusan']);
+        $sub['kode_urusan'] = str_replace('X', $urusan_utama_x[0], $sub['kode_urusan']);
+    }
     $sub_keg_sipd = $wpdb->get_row($wpdb->prepare("
         select 
             sum(pagu) as pagu
