@@ -4007,14 +4007,18 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 				$kodeunit = '';
 				if (!empty($_POST['data_unit'])) {
 					if(!empty($_POST['type']) && $_POST['type'] == 'ri'){
-						$data_unit = json_decode(stripslashes(html_entity_decode($_POST['data_unit'])), true);						
+						$data_unit = json_decode(stripslashes(html_entity_decode($_POST['data_unit'])), true);
+						$data_unit = $data_unit[0];
+						$kodeunit = $data_unit['kode_unit'];
+						$_POST['nama_skpd'] = $data_unit['nama_skpd'];
+						$_POST['kode_sub_skpd'] = $data_unit['kode_skpd'];
 					}else{
 						$data_unit = $_POST['data_unit'];
+						$kodeunit = $data_unit['kodeunit'];
+						$_POST['nama_skpd'] = $data_unit['namaunit'];
+						$_POST['kode_sub_skpd'] = $data_unit['kodeunit'];
 					}
 					//$data_unit = $_POST['data_unit'];
-					$kodeunit = $data_unit['kodeunit'];
-					$_POST['nama_skpd'] = $data_unit['namaunit'];
-					$_POST['kode_sub_skpd'] = $data_unit['kodeunit'];
 				} else if ($ret['status'] != 'error') {
 					$ret['status'] = 'error';
 					$ret['message'] = 'Format data Unit Salah!';
@@ -4031,12 +4035,18 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 
 				if (!empty($_POST['dataBl']) && $ret['status'] != 'error') {
 					if(!empty($_POST['type']) && $_POST['type'] == 'ri'){
-						$dataBl = json_decode(stripslashes(html_entity_decode($_POST['dataBl'])), true);						
+						$dataBl = json_decode(stripslashes(html_entity_decode($_POST['dataBl'])), true);
 					}else{
 						$dataBl = $_POST['dataBl'];
 					}					
 					foreach ($dataBl as $k => $v) {
-						$cek = $wpdb->get_var("SELECT kode_sbl from data_sub_keg_bl where tahun_anggaran=".$_POST['tahun_anggaran']." AND kode_sbl='" . $_POST['kode_sbl'] . "'");
+						$cek = $wpdb->get_var($wpdb->prepare("
+							SELECT 
+								kode_sbl 
+							from data_sub_keg_bl 
+							where tahun_anggaran=%d 
+								AND kode_sbl=%s
+						", $_POST['tahun_anggaran'], $_POST['kode_sbl']));
 
 						$kode_program = $v['kode_bidang_urusan'].substr($v['kode_program'], 4, strlen($v['kode_program']));
 						$kode_giat = $v['kode_bidang_urusan'].substr($v['kode_giat'], 4, strlen($v['kode_giat']));
@@ -4065,6 +4075,75 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						}
 						if(!isset($v['id_dana'])){
 							$v['id_dana'] = '';
+						}
+						if(!isset($v['id_label_kokab'])){
+							$v['id_label_kokab'] = 0;
+						}
+						if(!isset($v['no_program'])){
+							$v['no_program'] = '';
+						}
+						if(!isset($v['target_1'])){
+							$v['target_1'] = '';
+						}
+						if(!isset($v['target_2'])){
+							$v['target_2'] = '';
+						}
+						if(!isset($v['target_3'])){
+							$v['target_3'] = '';
+						}
+						if(!isset($v['target_4'])){
+							$v['target_4'] = '';
+						}
+						if(!isset($v['target_5'])){
+							$v['target_5'] = '';
+						}
+						if(!isset($v['nama_bidang_urusan'])){
+							$v['nama_bidang_urusan'] = '';
+						}
+						if(!isset($v['no_giat'])){
+							$v['no_giat'] = '';
+						}
+						if(!isset($v['id_label_prov'])){
+							$v['id_label_prov'] = 0;
+						}
+						if(!isset($v['label_prov'])){
+							$v['label_prov'] = '';
+						}
+						if(!isset($v['output_sub_giat'])){
+							$v['output_sub_giat'] = '';
+						}
+						if(!isset($v['sasaran'])){
+							$v['sasaran'] = '';
+						}
+						if(!isset($v['indikator'])){
+							$v['indikator'] = '';
+						}
+						if(!isset($v['pagu_n_depan'])){
+							$v['pagu_n_depan'] = 0;
+						}
+						if(!isset($v['satuan'])){
+							$v['satuan'] = '';
+						}
+						if(!isset($v['id_rpjmd'])){
+							$v['id_rpjmd'] = 0;
+						}
+						if(!isset($v['id_giat'])){
+							$v['id_giat'] = 0;
+						}
+						if(!isset($v['id_label_pusat'])){
+							$v['id_label_pusat'] = '';
+						}
+						if(!isset($_POST['nama_skpd'])){
+							$_POST['nama_skpd'] = '';
+						}
+						if(!isset($v['kode_skpd'])){
+							$v['kode_skpd'] = '';
+						}
+						if(!isset($v['label_pusat'])){
+							$v['label_pusat'] = '';
+						}
+						if(!isset($v['label_kokab'])){
+							$v['label_kokab'] = '';
 						}
 
 						$opsi = array(
