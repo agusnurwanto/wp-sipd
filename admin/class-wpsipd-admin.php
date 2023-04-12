@@ -377,6 +377,9 @@ class Wpsipd_Admin {
             Field::make( 'text', 'crb_daerah', 'Nama Pemda' )
             	->set_default_value($nama_pemda)
             	->set_required( true ),
+	        Field::make( 'image', 'crb_logo_dashboard', __( 'Logo Pemda' ) )
+	        	->set_value_type('url')
+    			->set_default_value('https://via.placeholder.com/233x268'),
             Field::make( 'text', 'crb_api_key_extension', 'Lisensi key chrome extension' )
             	->set_required( true )
             	->set_attribute('readOnly', 'true')
