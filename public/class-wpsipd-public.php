@@ -3701,6 +3701,39 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 					if(!isset($data_unit['id_user'])){
 						$data_unit['id_user'] = 0;
 					}
+					if(!isset($data_unit['totalgiat'])){
+						$data_unit['totalgiat'] = 0;
+					}
+					if(!isset($data_unit['realisasi'])){
+						$data_unit['realisasi'] = 0;
+					}
+					if(!isset($data_unit['pagu_giat'])){
+						$data_unit['pagu_giat'] = 0;
+					}
+					if(!isset($data_unit['nilaipagumurni'])){
+						$data_unit['nilaipagumurni'] = 0;
+					}
+					if(!isset($data_unit['kunciblrinci'])){
+						$data_unit['kunciblrinci'] = 0;
+					}
+					if(!isset($data_unit['kuncibl'])){
+						$data_unit['kuncibl'] = 0;
+					}
+					if(!isset($data_unit['kunci_bl_rinci'])){
+						$data_unit['kunci_bl_rinci'] = 0;
+					}
+					if(!isset($data_unit['kunci_bl'])){
+						$data_unit['kunci_bl'] = 0;
+					}
+					if(!isset($data_unit['is_komponen'])){
+						$data_unit['is_komponen'] = 0;
+					}
+					if(!isset($data_unit['is_deleted'])){
+						$data_unit['is_deleted'] = 0;
+					}
+					if(!isset($data_unit['is_anggaran'])){
+						$data_unit['is_anggaran'] = 0;
+					}
 					$opsi = array(
 						'batasanpagu' => $data_unit['batasanpagu'],
 						'id_daerah' => $data_unit['id_daerah'],
