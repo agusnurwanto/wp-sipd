@@ -374,6 +374,9 @@ class Wpsipd_Admin {
             	->set_attribute('placeholder', '628xxxxxxxxx')
             	->set_required( true )
 				->set_help_text('Nomor whatsapp untuk menerima pesan dari server WP-SIPD. Format nomor diawali dengan 62xxxxxxxxxx tanpa perlu ada + di depan nomor.'),
+			Field::make( 'text', 'crb_lokasi', 'Nama Kota / Kabupaten' )
+            	->set_default_value('')
+            	->set_help_text('Diisi dengan nama daerah tanpa Kota / Kabupaten'),
             Field::make( 'text', 'crb_daerah', 'Nama Pemda' )
             	->set_default_value($nama_pemda)
             	->set_required( true ),
