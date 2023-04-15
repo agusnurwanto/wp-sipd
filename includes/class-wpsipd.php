@@ -231,6 +231,9 @@ class Wpsipd
 		$this->loader->add_action('wp_ajax_singkron_ssh',  $plugin_public, 'singkron_ssh');
 		$this->loader->add_action('wp_ajax_nopriv_singkron_ssh',  $plugin_public, 'singkron_ssh');
 
+		$this->loader->add_action('wp_ajax_singkron_label_giat',  $plugin_public, 'singkron_label_giat');
+		$this->loader->add_action('wp_ajax_nopriv_singkron_label_giat',  $plugin_public, 'singkron_label_giat');
+
 		$this->loader->add_action('wp_ajax_singkron_label_kokab',  $plugin_public, 'singkron_label_kokab');
 		$this->loader->add_action('wp_ajax_nopriv_singkron_label_kokab',  $plugin_public, 'singkron_label_kokab');
 
