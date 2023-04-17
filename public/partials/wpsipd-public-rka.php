@@ -815,10 +815,22 @@ foreach ($bl as $k => $sub_bl) {
 					<td class="kanan bawah text_blok text_kanan nilai_kelompok">Rp. '.$this->ubah_minus($akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']][$akun_4_db[0]['kode_akun']][$item['nama_akun']][$item['subs_bl_teks']]['total']-$akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']][$akun_4_db[0]['kode_akun']][$item['nama_akun']][$item['subs_bl_teks']]['total_murni']).'
 				';
 			}
+			$dana = $wpdb->get_row("
+				SELECT 
+					d.id_sumber_dana,
+					m.nama_dana,
+					m.kode_dana
+				from data_mapping_sumberdana d
+				left join data_sumber_dana m on d.id_sumber_dana=m.id_dana
+					and d.tahun_anggaran = m.tahun_anggaran
+				where id_rinci_sub_bl='".$item['id_rinci_sub_bl']."'
+					AND d.tahun_anggaran=".$item['tahun_anggaran']."
+					AND d.active=1
+			", ARRAY_A);
 			$rin_sub_item .= '
 				<tr>
 	                <td class="kiri kanan bawah text_blok">'.$akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']][$akun_4_db[0]['kode_akun']][$item['nama_akun']][$item['subs_bl_teks']]['kode_akun'].'</td>
-                    <td class="kanan bawah text_blok" colspan="5"><span class="nama">'.$akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']][$akun_4_db[0]['kode_akun']][$item['nama_akun']][$item['subs_bl_teks']]['nama_akun'].'</span>'.button_mapping($sub_bl['kode_sbl'].'-'.$akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']][$akun_4_db[0]['kode_akun']][$item['nama_akun']]['kode_akun'].'-'.$id_subtitle[$key_ket]).'</td>
+                    <td class="kanan bawah text_blok" colspan="5"><span class="nama">'.$akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']][$akun_4_db[0]['kode_akun']][$item['nama_akun']][$item['subs_bl_teks']]['nama_akun'].'</span>'.button_mapping($sub_bl['kode_sbl'].'-'.$akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']][$akun_4_db[0]['kode_akun']][$item['nama_akun']]['kode_akun'].'-'.$id_subtitle[$key_ket]).'<div style="margin-left: 25px;">Sumber Dana: '.$dana['nama_dana'].'</div></td>
                     '.$rin_murni.'
                     <td class="kanan bawah text_kanan text_blok nilai_kelompok" style="white-space:nowrap">Rp. '.number_format($akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']][$akun_4_db[0]['kode_akun']][$item['nama_akun']][$item['subs_bl_teks']]['total'],0,",",".").'</td>
                     '.$selisih_murni.'
