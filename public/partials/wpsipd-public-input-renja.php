@@ -477,9 +477,9 @@ $body = '';
                                 <td class="kanan bawah text_blok">'.$kd_giat.'</td>
                                 <td class="kanan bawah"></td>
                                 <td class="kanan bawah" colspan="8">'.$giat['nama'].'</td>
-                                <td class="kanan bawah text_blok"><span class="nilai_penetapan">'.number_format($giat['total'],0,",",".").'</span><span class="nilai_usulan">'.number_format($giat['total_usulan'],0,",",".").'</span></td>
+                                <td class="kanan bawah text_blok text_kanan"><span class="nilai_penetapan">'.number_format($giat['total'],0,",",".").'</span><span class="nilai_usulan">'.number_format($giat['total_usulan'],0,",",".").'</span></td>
                                 <td class="kanan bawah" colspan="4"></td>
-                                <td class="kanan bawah text_blok"><span class="nilai_penetapan">'.number_format($giat['total_n_plus'],0,",",".").'</span><span class="nilai_usulan">'.number_format($giat['total_n_plus_usulan'],0,",",".").'</span></td>
+                                <td class="kanan bawah text_blok text_kanan"><span class="nilai_penetapan">'.number_format($giat['total_n_plus'],0,",",".").'</span><span class="nilai_usulan">'.number_format($giat['total_n_plus_usulan'],0,",",".").'</span></td>
                                 <td class="kanan bawah text_tengah hide-print">'.$tombol_aksi.'</td>
                                 <td style="'.$warning.'" class="kanan bawah text_kanan hide-print">'.number_format($pagu_keg_sipd,0,",",".").'</td>
                             </tr>
