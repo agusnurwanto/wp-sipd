@@ -17882,4 +17882,56 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		}
 		die(json_encode($ret));
 	}
+
+	public function singkron_label_giat()
+	{
+		global $wpdb;
+		$ret = array(
+			'status'	=> 'success',
+			'message'	=> 'Berhasil export Master Label Giat!'
+		);
+		if (!empty($_POST)) {
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+				if (!empty($_POST['label'])) {
+					if(!empty($_POST['type']) && $_POST['type'] == 'ri'){
+						$label = json_decode(stripslashes(html_entity_decode($_POST['label'])), true);			
+						// $label = $_POST['label'];		
+					}else{
+						$label = $_POST['label'];
+					}
+					foreach ($label as $k => $v) {
+						$cek = $wpdb->get_var("SELECT id_label_giat from data_label_giat where tahun_anggaran=".$_POST['tahun_anggaran']." AND id_label_giat=" . $v['id_label_giat']);
+						$opsi = array(							
+							'id_label_giat' => $v['id_label_giat'],							
+							'id_unik' => $v['id_unik'],
+							'is_locked' => $v['is_locked'],
+							'nama_label' => $v['nama_label'],
+							'status' => $v['status'],							
+							'update_at' => current_time('mysql'),
+							'tahun_anggaran' => $_POST['tahun_anggaran']
+						);
+						if (!empty($cek)) {
+							$wpdb->update('data_label_giat', $opsi, array(
+								'id_label_giat' => $v['id_label_giat'],
+								'tahun_anggaran' => $_POST['tahun_anggaran']
+							));
+						} else {
+							$wpdb->insert('data_label_giat', $opsi);
+						}
+					}
+					// print_r($ssh); die();
+				} else {
+					$ret['status'] = 'error';
+					$ret['message'] = 'Format Master Label Giat Salah!';
+				}
+			} else {
+				$ret['status'] = 'error';
+				$ret['message'] = 'APIKEY tidak sesuai!';
+			}
+		} else {
+			$ret['status'] = 'error';
+			$ret['message'] = 'Format Salah!';
+		}
+		die(json_encode($ret));
+	}
 }

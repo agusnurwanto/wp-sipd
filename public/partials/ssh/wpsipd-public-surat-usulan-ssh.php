@@ -107,6 +107,7 @@ $type='';
 if(!empty($ssh[0]['jenis_survey']) && $ssh[0]['jenis_survey']==1){
 	$type.='survey harga pasar yang telah kami lakukan secara mandiri'.$sambung;
 }
+
 if(!empty($ssh[0]['jenis_juknis']) && $ssh[0]['jenis_juknis']==2){
 	$type.='Petunjuk Teknis yang kami terima dari ....... (kementrian/provinsi)';
 }
@@ -139,7 +140,13 @@ if(!empty($ssh[0]['jenis_juknis']) && $ssh[0]['jenis_juknis']==2){
 		<div class="surat-usulan break-print" id="content">
 			<div class="kop-surat row">
 				<div class="col-3 tengah">
-					<img src="https://th.bing.com/th?id=OIP.TuxWGHNl8aeDTgzN1QOs8wHaIh&w=233&h=268&c=8&rs=1&qlt=90&o=6&dpr=1.3&pid=3.1&rm=2" width="70%">
+					<img src="<?php 
+						if(!empty(get_option('_crb_logo_dashboard'))){
+							echo get_option('_crb_logo_dashboard');
+						}else{
+							echo 'http://via.placeholder.com/350x350';
+						}
+					 ?>" width="70%">
 				</div>
 				<div class="col-md-9">
 					<h4 class="tengah" style="text-transform: uppercase;">Pemerintah <?php echo get_option('_crb_daerah') ?></h4>
@@ -166,7 +173,7 @@ if(!empty($ssh[0]['jenis_juknis']) && $ssh[0]['jenis_juknis']==2){
 			<div class="ttd-surat row">
 				<div class="col-md-6"></div>
 				<div class="col-md-6 text-center">
-					<p>Magetan, <?php echo $this->tanggalan(date('Y-m-d')); ?><br>Kepala <?php echo $skpd->namaunit ?><br><?php echo get_option('_crb_daerah') ?></p><br><br><br><br><p><?php echo $skpd->namakepala ?><br><?php echo $skpd->pangkatkepala ?><br>NIP : <?php echo $skpd->nipkepala ?></p>
+					<p><?php echo get_option('_crb_lokasi'); ?>, <?php echo $this->tanggalan(date('Y-m-d')); ?><br>Kepala <?php echo $skpd->namaunit ?><br><?php echo get_option('_crb_daerah') ?></p><br><br><br><br><p><?php echo $skpd->namakepala ?><br><?php echo $skpd->pangkatkepala ?><br>NIP : <?php echo $skpd->nipkepala ?></p>
 				</div>
 			</div>
 		</div>
