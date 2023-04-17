@@ -4466,6 +4466,7 @@ CREATE TABLE `data_label_giat` (
   `nama_label` text DEFAULT NULL,
   `status` text(11) DEFAULT NULL,
   `tahun_anggaran` year(4) NOT NULL,
+  `active` tinyint(4) DEFAULT NULL,
   `update_at` datetime NOT NULL,
   PRIMARY KEY (id)
 );
