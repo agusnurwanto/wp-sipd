@@ -11522,13 +11522,18 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						}
 						$id_skpd_sipd = $get_id['id_skpd_sipd'];
 						if(!empty($id_skpd_sipd)){
-							$cek_aktivitas = array();
 							$singkron_rincian_fmis = get_option( '_crb_backup_rincian_fmis' );
 							if(
 								$singkron_rincian_fmis == 1
 								|| $data_fmis['rincian'][0]['kdrek1'] == 4
 								|| $data_fmis['rincian'][0]['kdrek1'] == 6
 							){
+								$wpdb->update('data_rincian_fmis', array(
+									'active' => 0
+								), array(
+									'nama_sub_giat' => $data_fmis['sub_kegiatan'],
+									'id_sub_skpd' => $id_skpd_sipd[0],
+								));
 								foreach($data_fmis['rincian'] as $key => $rinci){
 									foreach($rek_mapping as $rek_mapping_sipd => $rek_mapping_fmis){
 										$_kode_akun = explode('.', $rinci['kode_rekening']);
@@ -11543,14 +11548,6 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 											$rinci['kdrek1'] = $rek_mapping_sipd[0];
 											$data_fmis['rincian'][$key] = $rinci;
 										}
-									}
-									if(empty($cek_aktivitas[$rinci['idaktivitas']])){
-										$wpdb->update('data_rincian_fmis', array(
-											'active' => 0
-										), array(
-											'idaktivitas' => $rinci['idaktivitas']
-										));
-										$cek_aktivitas[$rinci['idaktivitas']] = true;
 									}
 									$get_rinci = $wpdb->get_results($wpdb->prepare("
 										SELECT
