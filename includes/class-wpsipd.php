@@ -741,6 +741,8 @@ class Wpsipd
 		$this->loader->add_action('wp_ajax_get_data_pendapatan_renja', $plugin_public, 'get_data_pendapatan_renja');
 
 		$this->loader->add_action('wp_ajax_get_data_summary_ssh_sipd',  $plugin_public, 'get_data_summary_ssh_sipd');
+
+		$this->loader->add_action('wp_ajax_get_rekening_akun',  $plugin_public, 'get_rekening_akun');
 		
 		add_shortcode('menu_monev',  array($plugin_public, 'menu_monev'));
 		add_shortcode('datassh', array($plugin_public, 'datassh'));

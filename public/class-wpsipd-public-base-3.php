@@ -8149,4 +8149,38 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 			]);exit();
     	}
     }
+
+    public function get_rekening_akun(){
+    	global $wpdb;
+
+    	try{
+			if (!empty($_POST)) {
+				if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+
+					$data = $wpdb->get_results($wpdb->prepare("SELECT * FROM data_akun WHERE tahun_anggaran=%d AND kode_akun LIKE %s AND set_input=1", $_POST['tahun_anggaran'], $_POST['kode_akun'].'%'), ARRAY_A);
+
+					$items=[];
+					foreach ($data as $key => $value) {
+						if(empty($items[$value['id_akun']])){
+							$items[$value['id_akun']]=$value;
+						}
+					}
+
+					echo json_encode([
+						'status' => true,
+						'items' => $data
+					]);exit();
+				}else{
+					throw new Exception("Api key tidak sesuai", 1);
+				}
+			}else{
+				throw new Exception("Format tidak sesuai", 1);	
+			}
+		}catch(Exception $e){
+			echo json_encode([
+				'status' => false,
+				'message' => $e->getMessage()
+			]);exit();
+		}
+    }
 }
