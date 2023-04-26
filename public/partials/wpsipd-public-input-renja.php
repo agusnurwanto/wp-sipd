@@ -1086,39 +1086,42 @@ echo '
         jQuery('#tambah-data').on('click', function(){
             get_data_sub_unit(id_skpd)
             .then(function(){
-                get_data_sumber_dana()
+                get_data_prioritas_prov()
                 .then(function(){
-                    get_data_lokasi(false, 'prov', false, false, 1)
+                    get_data_sumber_dana()
                     .then(function(){
-                        jQuery("#modalTambahRenja .modal-title").html("Tambah Sub Kegiatan");
-                        jQuery("#modalTambahRenja .submitBtn")
-                            .attr("onclick", 'submitTambahRenjaForm()')
-                            .attr("disabled", false)
-                            .text("Simpan");
-                        jQuery('#modalTambahRenja').modal('show');
-                        jQuery('#input_sub_unit').prop('disabled', false);
-                        jQuery('#sub_kegiatan').prop('disabled', false);
-                        jQuery('#input_sub_unit').val('').trigger("change");
-                        jQuery('#sub_kegiatan').empty().trigger("change");
-                        jQuery('.bulan_awal').val("1");
-                        jQuery('.bulan_akhir').val("12");
-                        jQuery('.input_number').val(0);
-                        jQuery('.input_text').val('');
-                        jQuery('.input_select').val('');
-                        var iddf = jQuery('.indi_sub_keg_table_usulan tr').last().attr('data-id');
-                        if(iddf > 1){
-                            for (let index = iddf; index > 1; index--) {
-                                jQuery('.indi_sub_keg_table_usulan > tbody').find('tr[data-id="'+index+'"]').remove();
-                                jQuery('.indi_sub_keg_table > tbody').find('tr[data-id="'+index+'"]').remove();
+                        get_data_lokasi(false, 'prov', false, false, 1)
+                        .then(function(){
+                            jQuery("#modalTambahRenja .modal-title").html("Tambah Sub Kegiatan");
+                            jQuery("#modalTambahRenja .submitBtn")
+                                .attr("onclick", 'submitTambahRenjaForm()')
+                                .attr("disabled", false)
+                                .text("Simpan");
+                            jQuery('#modalTambahRenja').modal('show');
+                            jQuery('#input_sub_unit').prop('disabled', false);
+                            jQuery('#sub_kegiatan').prop('disabled', false);
+                            jQuery('#input_sub_unit').val('').trigger("change");
+                            jQuery('#sub_kegiatan').empty().trigger("change");
+                            jQuery('.bulan_awal').val("1");
+                            jQuery('.bulan_akhir').val("12");
+                            jQuery('.input_number').val(0);
+                            jQuery('.input_text').val('');
+                            jQuery('.input_select').val('');
+                            var iddf = jQuery('.indi_sub_keg_table_usulan tr').last().attr('data-id');
+                            if(iddf > 1){
+                                for (let index = iddf; index > 1; index--) {
+                                    jQuery('.indi_sub_keg_table_usulan > tbody').find('tr[data-id="'+index+'"]').remove();
+                                    jQuery('.indi_sub_keg_table > tbody').find('tr[data-id="'+index+'"]').remove();
+                                }
                             }
-                        }
-                        var html = '<button class="btn btn-warning btn-sm" onclick="tambahIndikator(); return false;"><i class="dashicons dashicons-plus"></i></button>';
-                        jQuery('.indi_sub_keg_table_usulan tr:first-child').find('>td').last().html(html);
-                        jQuery('#kecamatan_usulan_1').val('').trigger('change');
-                        jQuery('#kecamatan_1').val('').trigger('change');
+                            var html = '<button class="btn btn-warning btn-sm" onclick="tambahIndikator(); return false;"><i class="dashicons dashicons-plus"></i></button>';
+                            jQuery('.indi_sub_keg_table_usulan tr:first-child').find('>td').last().html(html);
+                            jQuery('#kecamatan_usulan_1').val('').trigger('change');
+                            jQuery('#kecamatan_1').val('').trigger('change');
 
-                    });
-                })
+                        });
+                    })
+                });
             });
         });
         /** Copy data renstra */
@@ -1578,6 +1581,37 @@ echo '
             }else{
                 jQuery("#input_sub_unit").html(dataSubUnit.table_content);
                 jQuery('#input_sub_unit').select2({width: '100%'});
+                resolve();
+            }
+        });
+	}
+
+    function get_data_prioritas_prov(){
+        return new Promise(function(resolve, reject){
+            if(typeof dataPrioritasProv == 'undefined'){
+                jQuery('#wrap-loading').show();
+        		jQuery.ajax({
+        			url: "<?php echo admin_url('admin-ajax.php'); ?>",
+        			type:"post",
+        			data:{
+        				'action'            : "get_prioritas_prov",
+        				'api_key'           : jQuery("#api_key").val(),
+        				'tahun_anggaran'    : tahun_anggaran,
+        			},
+        			dataType: "json",
+        			success:function(response){
+                        jQuery('#wrap-loading').hide();
+                        window.dataPrioritasProv = response;
+                        jQuery("#input_prioritas_provinsi").html(dataPrioritasProv.table_content);
+        			    jQuery('#input_prioritas_provinsi').select2({width: '100%'});
+                        // console.log(dataPrioritasProv.table_content);
+        				// enable_button();
+                        resolve();
+        			}
+        		});
+            }else{
+                jQuery("#input_prioritas_provinsi").html(dataPrioritasProv.table_content);
+                jQuery('#input_prioritas_provinsi').select2({width: '100%'});
                 resolve();
             }
         });
