@@ -2987,6 +2987,42 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 		require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/wpsipd-public-pendapatan.php';
 	}
 
+	public function get_prioritas_prov(){
+		global $wpdb;
+		$ret = array(
+			'status'	=> 'success',
+			'action'	=> $_POST['action'],
+			'data'	=> array()
+		);
+		if (!empty($_POST)) {
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+				$table_content = '<option value="">Pilih Prioritas Pembangunan Provinsi</option>';
+
+				$ret['data'] = $wpdb->get_results(
+					$wpdb->prepare(
+					'SELECT *
+					FROM data_prioritas_prov
+					WHERE tahun_anggaran=%d
+						AND active=1', $_POST['tahun_anggaran']),
+					ARRAY_A
+				);
+				
+				foreach ($ret['data'] as $key => $value) {
+					$table_content .= '<option value="'.$value['id_skpd'].'">'.$value['nama_label'].'</option>';
+				}
+				$ret['table_content'] = $table_content;
+				$ret['query'] = $wpdb->last_query;
+			} else {
+				$ret['status'] = 'error';
+				$ret['message'] = 'APIKEY tidak sesuai!';
+			}
+		} else {
+			$ret['status'] = 'error';
+			$ret['message'] = 'Format Salah!';
+		}
+		die(json_encode($ret));
+	}
+
 	public function get_data_pendapatan_renja(){
 		global $wpdb;
 		$ret = array(

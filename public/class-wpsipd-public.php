@@ -11522,13 +11522,18 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						}
 						$id_skpd_sipd = $get_id['id_skpd_sipd'];
 						if(!empty($id_skpd_sipd)){
-							$cek_aktivitas = array();
 							$singkron_rincian_fmis = get_option( '_crb_backup_rincian_fmis' );
 							if(
 								$singkron_rincian_fmis == 1
 								|| $data_fmis['rincian'][0]['kdrek1'] == 4
 								|| $data_fmis['rincian'][0]['kdrek1'] == 6
 							){
+								$wpdb->update('data_rincian_fmis', array(
+									'active' => 0
+								), array(
+									'nama_sub_giat' => $data_fmis['sub_kegiatan'],
+									'id_sub_skpd' => $id_skpd_sipd[0],
+								));
 								foreach($data_fmis['rincian'] as $key => $rinci){
 									foreach($rek_mapping as $rek_mapping_sipd => $rek_mapping_fmis){
 										$_kode_akun = explode('.', $rinci['kode_rekening']);
@@ -11543,14 +11548,6 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 											$rinci['kdrek1'] = $rek_mapping_sipd[0];
 											$data_fmis['rincian'][$key] = $rinci;
 										}
-									}
-									if(empty($cek_aktivitas[$rinci['idaktivitas']])){
-										$wpdb->update('data_rincian_fmis', array(
-											'active' => 0
-										), array(
-											'idaktivitas' => $rinci['idaktivitas']
-										));
-										$cek_aktivitas[$rinci['idaktivitas']] = true;
 									}
 									$get_rinci = $wpdb->get_results($wpdb->prepare("
 										SELECT
@@ -17697,16 +17694,29 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		//Verifikasi Request
 
 		//end verifikasi request
-		$data= $wpdb->get_results($wpdb->prepare("SELECT distinct concat(id_urusan,'_') as unitkey,kode_urusan kdunit,nama_urusan nmunit,1 kdlevel,'H' as TYPE FROM data_sub_keg_bl
-		where tahun_anggaran=%d
-		union ALL
-		SELECT distinct concat(id_bidang_urusan,'_'),kode_bidang_urusan,nama_bidang_urusan,2,'H' FROM data_sub_keg_bl
-		where tahun_anggaran=%d
-		union all
-		SELECT distinct concat(id_skpd,'_'),kode_skpd,nama_skpd,3,'D' FROM data_sub_keg_bl
-		where tahun_anggaran=%d
-		union ALL
-		SELECT distinct concat(id_sub_skpd,'_'),kode_sub_skpd,nama_sub_skpd,4,'D' FROM data_sub_keg_bl where tahun_anggaran=%d and id_sub_skpd<>id_skpd order by kdunit",$_POST['tahun_anggaran'],$_POST['tahun_anggaran'],$_POST['tahun_anggaran'],$_POST['tahun_anggaran']));
+		$data= $wpdb->get_results($wpdb->prepare("
+			SELECT distinct 
+				concat(id_urusan,'_') as unitkey,kode_urusan kdunit,nama_urusan nmunit,1 kdlevel,'H' as TYPE 
+			FROM data_sub_keg_bl
+			where tahun_anggaran=%d
+			union ALL
+			SELECT distinct 
+				concat(id_bidang_urusan,'_'),kode_bidang_urusan,nama_bidang_urusan,2,'H' 
+			FROM data_sub_keg_bl
+			where tahun_anggaran=%d
+			union all
+			SELECT distinct 
+				concat(id_skpd,'_'),kode_skpd,nama_skpd,3,'D' 
+			FROM data_sub_keg_bl
+			where tahun_anggaran=%d
+			union ALL
+			SELECT distinct 
+				concat(id_sub_skpd,'_'),kode_sub_skpd,nama_sub_skpd,4,'D' 
+			FROM data_sub_keg_bl 
+			where tahun_anggaran=%d 
+				and id_sub_skpd<>id_skpd 
+			order by kdunit
+		", $_POST['tahun_anggaran'], $_POST['tahun_anggaran'], $_POST['tahun_anggaran'], $_POST['tahun_anggaran']));
 		
 		//$data=$wpdb->get_result($qr);
 		$ret=[
@@ -17734,8 +17744,17 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 					}else{
 						$label = $_POST['label'];
 					}
+					$wpdb->update('data_prioritas_kokab', array('active' => 0) , array(
+						'tahun_anggaran' => $_POST['tahun_anggaran']
+					));
 					foreach ($label as $k => $v) {
-						$cek = $wpdb->get_var("SELECT id_label_kokab from data_prioritas_kokab where tahun_anggaran=".$_POST['tahun_anggaran']." AND id_label_kokab=" . $v['id_label_kokab']);
+						$cek = $wpdb->get_var($wpdb->prepare("
+							SELECT 
+								id_label_kokab 
+							from data_prioritas_kokab 
+							where tahun_anggaran=%d 
+								AND id_label_kokab=%d
+						", $_POST['tahun_anggaran'], $v['id_label_kokab']));
 						$opsi = array(
 							'id_prioritas' => $v['id_prioritas'],
 							'id_label_kokab' => $v['id_label_kokab'],
@@ -17744,7 +17763,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 							'is_locked' => $v['is_locked'],
 							'nama_label' => $v['nama_label'],
 							'status' => $v['status'],
-							'active' => $v['active'],	
+							'active' => 1,
 							'update_at' => current_time('mysql'),
 							'tahun_anggaran' => $_POST['tahun_anggaran']
 						);
@@ -17788,8 +17807,17 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 					}else{
 						$label = $_POST['label'];
 					}
+					$wpdb->update('data_prioritas_prov', array('active' => 0) , array(
+						'tahun_anggaran' => $_POST['tahun_anggaran']
+					));
 					foreach ($label as $k => $v) {
-						$cek = $wpdb->get_var("SELECT id_label_prov from data_prioritas_prov where tahun_anggaran=".$_POST['tahun_anggaran']." AND id_label_prov=" . $v['id_label_prov']);
+						$cek = $wpdb->get_var($wpdb->prepare("
+							SELECT 
+								id_label_prov 
+							from data_prioritas_prov 
+							where tahun_anggaran=%d 
+								AND id_label_prov=%d
+						", $_POST['tahun_anggaran'], $v['id_label_prov']));
 						$opsi = array(
 							'id_prioritas' => $v['id_prioritas'],
 							'id_label_prov' => $v['id_label_prov'],
@@ -17798,7 +17826,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 							'is_locked' => $v['is_locked'],
 							'nama_label' => $v['nama_label'],
 							'status' => $v['status'],
-							'active' => $v['active'],														
+							'active' => 1,
 							'update_at' => current_time('mysql'),
 							'tahun_anggaran' => $_POST['tahun_anggaran']
 						);
@@ -17842,8 +17870,17 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 					}else{
 						$label = $_POST['label'];
 					}
+					$wpdb->update('data_prioritas_pusat', array('active' => 0) , array(
+						'tahun_anggaran' => $_POST['tahun_anggaran']
+					));
 					foreach ($label as $k => $v) {
-						$cek = $wpdb->get_var("SELECT id_label_pusat from data_prioritas_pusat where tahun_anggaran=".$_POST['tahun_anggaran']." AND id_label_pusat=" . $v['id_label_pusat']);
+						$cek = $wpdb->get_var($wpdb->prepare("
+							SELECT 
+								id_label_pusat 
+							from data_prioritas_pusat 
+							where tahun_anggaran=%d 
+								AND id_label_pusat=%d
+						", $_POST['tahun_anggaran'], $v['id_label_pusat']));
 						$opsi = array(
 							'id_prioritas' => $v['id_prioritas'],
 							'id_label_pusat' => $v['id_label_pusat'],
@@ -17854,7 +17891,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 							'tahun_awal' => $v['tahun_awal'],
 							'tahun_akhir' => $v['tahun_akhir'],
 							'set_urut' => $v['set_urut'],
-							'active' => $v['active'],														
+							'active' => 1,
 							'update_at' => current_time('mysql'),
 							'tahun_anggaran' => $_POST['tahun_anggaran']
 						);
@@ -17899,14 +17936,24 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 					}else{
 						$label = $_POST['label'];
 					}
+					$wpdb->update('data_label_giat', array('active' => 0) , array(
+						'tahun_anggaran' => $_POST['tahun_anggaran']
+					));
 					foreach ($label as $k => $v) {
-						$cek = $wpdb->get_var("SELECT id_label_giat from data_label_giat where tahun_anggaran=".$_POST['tahun_anggaran']." AND id_label_giat=" . $v['id_label_giat']);
+						$cek = $wpdb->get_var($wpdb->prepare("
+							SELECT 
+								id_label_giat 
+							from data_label_giat 
+							where tahun_anggaran=%d 
+								AND id_label_giat=%d
+						", $_POST['tahun_anggaran'], $v['id_label_giat']));
 						$opsi = array(							
 							'id_label_giat' => $v['id_label_giat'],							
 							'id_unik' => $v['id_unik'],
 							'is_locked' => $v['is_locked'],
 							'nama_label' => $v['nama_label'],
 							'status' => $v['status'],							
+							'active' => 1,
 							'update_at' => current_time('mysql'),
 							'tahun_anggaran' => $_POST['tahun_anggaran']
 						);
