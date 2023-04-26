@@ -3691,7 +3691,49 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 					}else{
 						$data_unit = $_POST['data'];
 					}
-					$cek = $wpdb->get_var($wpdb->prepare("SELECT kode_skpd from data_unit_pagu where tahun_anggaran=%d AND kode_skpd=%s", $_POST['tahun_anggaran'], $data_unit['kode_skpd']));
+					$cek = $wpdb->get_var($wpdb->prepare("
+						SELECT 
+							kode_skpd 
+						from data_unit_pagu 
+						where tahun_anggaran=%d 
+							AND kode_skpd=%s
+					", $_POST['tahun_anggaran'], $data_unit['kode_skpd']));
+					if(!isset($data_unit['id_user'])){
+						$data_unit['id_user'] = 0;
+					}
+					if(!isset($data_unit['totalgiat'])){
+						$data_unit['totalgiat'] = 0;
+					}
+					if(!isset($data_unit['realisasi'])){
+						$data_unit['realisasi'] = 0;
+					}
+					if(!isset($data_unit['pagu_giat'])){
+						$data_unit['pagu_giat'] = 0;
+					}
+					if(!isset($data_unit['nilaipagumurni'])){
+						$data_unit['nilaipagumurni'] = 0;
+					}
+					if(!isset($data_unit['kunciblrinci'])){
+						$data_unit['kunciblrinci'] = 0;
+					}
+					if(!isset($data_unit['kuncibl'])){
+						$data_unit['kuncibl'] = 0;
+					}
+					if(!isset($data_unit['kunci_bl_rinci'])){
+						$data_unit['kunci_bl_rinci'] = 0;
+					}
+					if(!isset($data_unit['kunci_bl'])){
+						$data_unit['kunci_bl'] = 0;
+					}
+					if(!isset($data_unit['is_komponen'])){
+						$data_unit['is_komponen'] = 0;
+					}
+					if(!isset($data_unit['is_deleted'])){
+						$data_unit['is_deleted'] = 0;
+					}
+					if(!isset($data_unit['is_anggaran'])){
+						$data_unit['is_anggaran'] = 0;
+					}
 					$opsi = array(
 						'batasanpagu' => $data_unit['batasanpagu'],
 						'id_daerah' => $data_unit['id_daerah'],
@@ -4007,14 +4049,18 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 				$kodeunit = '';
 				if (!empty($_POST['data_unit'])) {
 					if(!empty($_POST['type']) && $_POST['type'] == 'ri'){
-						$data_unit = json_decode(stripslashes(html_entity_decode($_POST['data_unit'])), true);						
+						$data_unit = json_decode(stripslashes(html_entity_decode($_POST['data_unit'])), true);
+						$data_unit = $data_unit[0];
+						$kodeunit = $data_unit['kode_unit'];
+						$_POST['nama_skpd'] = $data_unit['nama_skpd'];
+						$_POST['kode_sub_skpd'] = $data_unit['kode_skpd'];
 					}else{
 						$data_unit = $_POST['data_unit'];
+						$kodeunit = $data_unit['kodeunit'];
+						$_POST['nama_skpd'] = $data_unit['namaunit'];
+						$_POST['kode_sub_skpd'] = $data_unit['kodeunit'];
 					}
 					//$data_unit = $_POST['data_unit'];
-					$kodeunit = $data_unit['kodeunit'];
-					$_POST['nama_skpd'] = $data_unit['namaunit'];
-					$_POST['kode_sub_skpd'] = $data_unit['kodeunit'];
 				} else if ($ret['status'] != 'error') {
 					$ret['status'] = 'error';
 					$ret['message'] = 'Format data Unit Salah!';
@@ -4031,12 +4077,18 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 
 				if (!empty($_POST['dataBl']) && $ret['status'] != 'error') {
 					if(!empty($_POST['type']) && $_POST['type'] == 'ri'){
-						$dataBl = json_decode(stripslashes(html_entity_decode($_POST['dataBl'])), true);						
+						$dataBl = json_decode(stripslashes(html_entity_decode($_POST['dataBl'])), true);
 					}else{
 						$dataBl = $_POST['dataBl'];
 					}					
 					foreach ($dataBl as $k => $v) {
-						$cek = $wpdb->get_var("SELECT kode_sbl from data_sub_keg_bl where tahun_anggaran=".$_POST['tahun_anggaran']." AND kode_sbl='" . $_POST['kode_sbl'] . "'");
+						$cek = $wpdb->get_var($wpdb->prepare("
+							SELECT 
+								kode_sbl 
+							from data_sub_keg_bl 
+							where tahun_anggaran=%d 
+								AND kode_sbl=%s
+						", $_POST['tahun_anggaran'], $_POST['kode_sbl']));
 
 						$kode_program = $v['kode_bidang_urusan'].substr($v['kode_program'], 4, strlen($v['kode_program']));
 						$kode_giat = $v['kode_bidang_urusan'].substr($v['kode_giat'], 4, strlen($v['kode_giat']));
@@ -4065,6 +4117,75 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						}
 						if(!isset($v['id_dana'])){
 							$v['id_dana'] = '';
+						}
+						if(!isset($v['id_label_kokab'])){
+							$v['id_label_kokab'] = 0;
+						}
+						if(!isset($v['no_program'])){
+							$v['no_program'] = '';
+						}
+						if(!isset($v['target_1'])){
+							$v['target_1'] = '';
+						}
+						if(!isset($v['target_2'])){
+							$v['target_2'] = '';
+						}
+						if(!isset($v['target_3'])){
+							$v['target_3'] = '';
+						}
+						if(!isset($v['target_4'])){
+							$v['target_4'] = '';
+						}
+						if(!isset($v['target_5'])){
+							$v['target_5'] = '';
+						}
+						if(!isset($v['nama_bidang_urusan'])){
+							$v['nama_bidang_urusan'] = '';
+						}
+						if(!isset($v['no_giat'])){
+							$v['no_giat'] = '';
+						}
+						if(!isset($v['id_label_prov'])){
+							$v['id_label_prov'] = 0;
+						}
+						if(!isset($v['label_prov'])){
+							$v['label_prov'] = '';
+						}
+						if(!isset($v['output_sub_giat'])){
+							$v['output_sub_giat'] = '';
+						}
+						if(!isset($v['sasaran'])){
+							$v['sasaran'] = '';
+						}
+						if(!isset($v['indikator'])){
+							$v['indikator'] = '';
+						}
+						if(!isset($v['pagu_n_depan'])){
+							$v['pagu_n_depan'] = 0;
+						}
+						if(!isset($v['satuan'])){
+							$v['satuan'] = '';
+						}
+						if(!isset($v['id_rpjmd'])){
+							$v['id_rpjmd'] = 0;
+						}
+						if(!isset($v['id_giat'])){
+							$v['id_giat'] = 0;
+						}
+						if(!isset($v['id_label_pusat'])){
+							$v['id_label_pusat'] = '';
+						}
+						if(!isset($_POST['nama_skpd'])){
+							$_POST['nama_skpd'] = '';
+						}
+						if(!isset($v['kode_skpd'])){
+							$v['kode_skpd'] = '';
+						}
+						if(!isset($v['label_pusat'])){
+							$v['label_pusat'] = '';
+						}
+						if(!isset($v['label_kokab'])){
+							$v['label_kokab'] = '';
 						}
 
 						$opsi = array(
@@ -11401,13 +11522,18 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						}
 						$id_skpd_sipd = $get_id['id_skpd_sipd'];
 						if(!empty($id_skpd_sipd)){
-							$cek_aktivitas = array();
 							$singkron_rincian_fmis = get_option( '_crb_backup_rincian_fmis' );
 							if(
 								$singkron_rincian_fmis == 1
 								|| $data_fmis['rincian'][0]['kdrek1'] == 4
 								|| $data_fmis['rincian'][0]['kdrek1'] == 6
 							){
+								$wpdb->update('data_rincian_fmis', array(
+									'active' => 0
+								), array(
+									'nama_sub_giat' => $data_fmis['sub_kegiatan'],
+									'id_sub_skpd' => $id_skpd_sipd[0],
+								));
 								foreach($data_fmis['rincian'] as $key => $rinci){
 									foreach($rek_mapping as $rek_mapping_sipd => $rek_mapping_fmis){
 										$_kode_akun = explode('.', $rinci['kode_rekening']);
@@ -11422,14 +11548,6 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 											$rinci['kdrek1'] = $rek_mapping_sipd[0];
 											$data_fmis['rincian'][$key] = $rinci;
 										}
-									}
-									if(empty($cek_aktivitas[$rinci['idaktivitas']])){
-										$wpdb->update('data_rincian_fmis', array(
-											'active' => 0
-										), array(
-											'idaktivitas' => $rinci['idaktivitas']
-										));
-										$cek_aktivitas[$rinci['idaktivitas']] = true;
 									}
 									$get_rinci = $wpdb->get_results($wpdb->prepare("
 										SELECT
@@ -17576,16 +17694,29 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		//Verifikasi Request
 
 		//end verifikasi request
-		$data= $wpdb->get_results($wpdb->prepare("SELECT distinct concat(id_urusan,'_') as unitkey,kode_urusan kdunit,nama_urusan nmunit,1 kdlevel,'H' as TYPE FROM data_sub_keg_bl
-		where tahun_anggaran=%d
-		union ALL
-		SELECT distinct concat(id_bidang_urusan,'_'),kode_bidang_urusan,nama_bidang_urusan,2,'H' FROM data_sub_keg_bl
-		where tahun_anggaran=%d
-		union all
-		SELECT distinct concat(id_skpd,'_'),kode_skpd,nama_skpd,3,'D' FROM data_sub_keg_bl
-		where tahun_anggaran=%d
-		union ALL
-		SELECT distinct concat(id_sub_skpd,'_'),kode_sub_skpd,nama_sub_skpd,4,'D' FROM data_sub_keg_bl where tahun_anggaran=%d and id_sub_skpd<>id_skpd order by kdunit",$_POST['tahun_anggaran'],$_POST['tahun_anggaran'],$_POST['tahun_anggaran'],$_POST['tahun_anggaran']));
+		$data= $wpdb->get_results($wpdb->prepare("
+			SELECT distinct 
+				concat(id_urusan,'_') as unitkey,kode_urusan kdunit,nama_urusan nmunit,1 kdlevel,'H' as TYPE 
+			FROM data_sub_keg_bl
+			where tahun_anggaran=%d
+			union ALL
+			SELECT distinct 
+				concat(id_bidang_urusan,'_'),kode_bidang_urusan,nama_bidang_urusan,2,'H' 
+			FROM data_sub_keg_bl
+			where tahun_anggaran=%d
+			union all
+			SELECT distinct 
+				concat(id_skpd,'_'),kode_skpd,nama_skpd,3,'D' 
+			FROM data_sub_keg_bl
+			where tahun_anggaran=%d
+			union ALL
+			SELECT distinct 
+				concat(id_sub_skpd,'_'),kode_sub_skpd,nama_sub_skpd,4,'D' 
+			FROM data_sub_keg_bl 
+			where tahun_anggaran=%d 
+				and id_sub_skpd<>id_skpd 
+			order by kdunit
+		", $_POST['tahun_anggaran'], $_POST['tahun_anggaran'], $_POST['tahun_anggaran'], $_POST['tahun_anggaran']));
 		
 		//$data=$wpdb->get_result($qr);
 		$ret=[
@@ -17613,8 +17744,17 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 					}else{
 						$label = $_POST['label'];
 					}
+					$wpdb->update('data_prioritas_kokab', array('active' => 0) , array(
+						'tahun_anggaran' => $_POST['tahun_anggaran']
+					));
 					foreach ($label as $k => $v) {
-						$cek = $wpdb->get_var("SELECT id_label_kokab from data_prioritas_kokab where tahun_anggaran=".$_POST['tahun_anggaran']." AND id_label_kokab=" . $v['id_label_kokab']);
+						$cek = $wpdb->get_var($wpdb->prepare("
+							SELECT 
+								id_label_kokab 
+							from data_prioritas_kokab 
+							where tahun_anggaran=%d 
+								AND id_label_kokab=%d
+						", $_POST['tahun_anggaran'], $v['id_label_kokab']));
 						$opsi = array(
 							'id_prioritas' => $v['id_prioritas'],
 							'id_label_kokab' => $v['id_label_kokab'],
@@ -17623,7 +17763,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 							'is_locked' => $v['is_locked'],
 							'nama_label' => $v['nama_label'],
 							'status' => $v['status'],
-							'active' => $v['active'],	
+							'active' => 1,
 							'update_at' => current_time('mysql'),
 							'tahun_anggaran' => $_POST['tahun_anggaran']
 						);
@@ -17667,8 +17807,17 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 					}else{
 						$label = $_POST['label'];
 					}
+					$wpdb->update('data_prioritas_prov', array('active' => 0) , array(
+						'tahun_anggaran' => $_POST['tahun_anggaran']
+					));
 					foreach ($label as $k => $v) {
-						$cek = $wpdb->get_var("SELECT id_label_prov from data_prioritas_prov where tahun_anggaran=".$_POST['tahun_anggaran']." AND id_label_prov=" . $v['id_label_prov']);
+						$cek = $wpdb->get_var($wpdb->prepare("
+							SELECT 
+								id_label_prov 
+							from data_prioritas_prov 
+							where tahun_anggaran=%d 
+								AND id_label_prov=%d
+						", $_POST['tahun_anggaran'], $v['id_label_prov']));
 						$opsi = array(
 							'id_prioritas' => $v['id_prioritas'],
 							'id_label_prov' => $v['id_label_prov'],
@@ -17677,7 +17826,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 							'is_locked' => $v['is_locked'],
 							'nama_label' => $v['nama_label'],
 							'status' => $v['status'],
-							'active' => $v['active'],														
+							'active' => 1,
 							'update_at' => current_time('mysql'),
 							'tahun_anggaran' => $_POST['tahun_anggaran']
 						);
@@ -17721,8 +17870,17 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 					}else{
 						$label = $_POST['label'];
 					}
+					$wpdb->update('data_prioritas_pusat', array('active' => 0) , array(
+						'tahun_anggaran' => $_POST['tahun_anggaran']
+					));
 					foreach ($label as $k => $v) {
-						$cek = $wpdb->get_var("SELECT id_label_pusat from data_prioritas_pusat where tahun_anggaran=".$_POST['tahun_anggaran']." AND id_label_pusat=" . $v['id_label_pusat']);
+						$cek = $wpdb->get_var($wpdb->prepare("
+							SELECT 
+								id_label_pusat 
+							from data_prioritas_pusat 
+							where tahun_anggaran=%d 
+								AND id_label_pusat=%d
+						", $_POST['tahun_anggaran'], $v['id_label_pusat']));
 						$opsi = array(
 							'id_prioritas' => $v['id_prioritas'],
 							'id_label_pusat' => $v['id_label_pusat'],
@@ -17733,7 +17891,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 							'tahun_awal' => $v['tahun_awal'],
 							'tahun_akhir' => $v['tahun_akhir'],
 							'set_urut' => $v['set_urut'],
-							'active' => $v['active'],														
+							'active' => 1,
 							'update_at' => current_time('mysql'),
 							'tahun_anggaran' => $_POST['tahun_anggaran']
 						);
@@ -17750,6 +17908,68 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 				} else {
 					$ret['status'] = 'error';
 					$ret['message'] = 'Format Label/Prioritas Pusat Salah!';
+				}
+			} else {
+				$ret['status'] = 'error';
+				$ret['message'] = 'APIKEY tidak sesuai!';
+			}
+		} else {
+			$ret['status'] = 'error';
+			$ret['message'] = 'Format Salah!';
+		}
+		die(json_encode($ret));
+	}
+
+	public function singkron_label_giat()
+	{
+		global $wpdb;
+		$ret = array(
+			'status'	=> 'success',
+			'message'	=> 'Berhasil export Master Label Giat!'
+		);
+		if (!empty($_POST)) {
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+				if (!empty($_POST['label'])) {
+					if(!empty($_POST['type']) && $_POST['type'] == 'ri'){
+						$label = json_decode(stripslashes(html_entity_decode($_POST['label'])), true);			
+						// $label = $_POST['label'];		
+					}else{
+						$label = $_POST['label'];
+					}
+					$wpdb->update('data_label_giat', array('active' => 0) , array(
+						'tahun_anggaran' => $_POST['tahun_anggaran']
+					));
+					foreach ($label as $k => $v) {
+						$cek = $wpdb->get_var($wpdb->prepare("
+							SELECT 
+								id_label_giat 
+							from data_label_giat 
+							where tahun_anggaran=%d 
+								AND id_label_giat=%d
+						", $_POST['tahun_anggaran'], $v['id_label_giat']));
+						$opsi = array(							
+							'id_label_giat' => $v['id_label_giat'],							
+							'id_unik' => $v['id_unik'],
+							'is_locked' => $v['is_locked'],
+							'nama_label' => $v['nama_label'],
+							'status' => $v['status'],							
+							'active' => 1,
+							'update_at' => current_time('mysql'),
+							'tahun_anggaran' => $_POST['tahun_anggaran']
+						);
+						if (!empty($cek)) {
+							$wpdb->update('data_label_giat', $opsi, array(
+								'id_label_giat' => $v['id_label_giat'],
+								'tahun_anggaran' => $_POST['tahun_anggaran']
+							));
+						} else {
+							$wpdb->insert('data_label_giat', $opsi);
+						}
+					}
+					// print_r($ssh); die();
+				} else {
+					$ret['status'] = 'error';
+					$ret['message'] = 'Format Master Label Giat Salah!';
 				}
 			} else {
 				$ret['status'] = 'error';

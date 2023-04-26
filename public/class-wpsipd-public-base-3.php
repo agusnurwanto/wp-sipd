@@ -8001,9 +8001,7 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 
     public function view_pagu_total_renja(){
     	global $wpdb;
-
     	try{
-
     		$nama_pemda = get_option('_crb_daerah');
 			$id_unit = $_POST['id_unit'];
 	        $tahun_anggaran = $_POST['tahun_anggaran'];
@@ -8040,7 +8038,7 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 				WHERE tahun_anggaran=%d
 					".$where_skpd."
 					AND active=1
-				ORDER BY id_skpd ASC
+				ORDER BY kode_skpd ASC
 			", $tahun_anggaran);
 
 			$units = $wpdb->get_results($sql, ARRAY_A);
@@ -8048,7 +8046,8 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 			$data_all = array(
 				'data' => array(),
 				'pagu_usulan_kab' => 0,
-				'pagu_penetapan_kab' => 0
+				'pagu_penetapan_kab' => 0,
+				'pagu_sipd' => 0
 			);
 
 			foreach ($units as $key => $unit) {
@@ -8065,35 +8064,57 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 				$pagu = $wpdb->get_row($sql, ARRAY_A);
 
 				if(empty($data_all['data'][$unit['kode_skpd']])){
+				    $pagu_sipd = $wpdb->get_row($wpdb->prepare("
+				        select 
+				            sum(pagu) as pagu
+				        from data_sub_keg_bl
+				        where tahun_anggaran=%d
+				            and active=1
+				            and id_sub_skpd=%d
+				        order by id ASC
+				    ", $tahun_anggaran, $unit['id_skpd']), ARRAY_A);
+				    
 					$data_all['data'][$unit['kode_skpd']] = [
 						'kode_skpd' => $unit['kode_skpd'],
 						'nama_skpd' => $unit['nama_skpd'],
 						'pagu_usulan' => $pagu['pagu_usulan'],
 						'pagu_penetapan' => $pagu['pagu_penetapan'],
+						'pagu_sipd' => $pagu_sipd['pagu']
 					];
 
 					$data_all['pagu_usulan_kab'] += $pagu['pagu_usulan'];
 					$data_all['pagu_penetapan_kab'] += $pagu['pagu_penetapan'];
+					$data_all['pagu_sipd'] += $pagu_sipd['pagu'];
 				}
 			}
 
 			$body = '';
 			$no=1;
 			foreach ($data_all['data'] as $key => $unit) {
+				$warning = '';
+				if($unit['pagu_penetapan'] != $unit['pagu_sipd']){
+					$warning = 'background: #f9d9d9;';
+				}
 				$body.='
 					<tr>
-						<td class="kiri atas kanan bawah text_tengah">'.$no.'.</td>
-						<td class="atas kanan bawah">'.$unit['nama_skpd'].'</td>
-						<td class="atas kanan bawah">'.$this->_number_format($unit['pagu_usulan']).'</td>
-						<td class="atas kanan bawah">'.$this->_number_format($unit['pagu_penetapan']).'</td>
+						<td class="kiri atas kanan bawah text_tengah">'.$no.'</td>
+						<td class="atas kanan bawah">'.$unit['kode_skpd'].' '.$unit['nama_skpd'].'</td>
+						<td class="atas kanan bawah text_kanan">'.$this->_number_format($unit['pagu_usulan']).'</td>
+						<td class="atas kanan bawah text_kanan">'.$this->_number_format($unit['pagu_penetapan']).'</td>
+						<td style="'.$warning.'" class="atas kanan bawah text_kanan">'.$this->_number_format($unit['pagu_sipd']).'</td>
 					</tr>';
 					$no++;
 			}
 			
+			$warning = '';
+			if($data_all['pagu_penetapan_kab'] != $data_all['pagu_sipd']){
+				$warning = 'background: #f9d9d9;';
+			}
 			$footer='<tr>
 						<td class="kiri atas kanan bawah text_tengah" colspan="2"><b>TOTAL PAGU KABUPATEN</b></td>
-						<td class="atas kanan bawah"><b>'.$this->_number_format($data_all['pagu_usulan_kab']).'</b></td>
-						<td class="atas kanan bawah"><b>'.$this->_number_format($data_all['pagu_penetapan_kab']).'</b></td>
+						<td class="atas kanan bawah text_kanan"><b>'.$this->_number_format($data_all['pagu_usulan_kab']).'</b></td>
+						<td class="atas kanan bawah text_kanan"><b>'.$this->_number_format($data_all['pagu_penetapan_kab']).'</b></td>
+						<td style="'.$warning.'" class="atas kanan bawah text_kanan"><b>'.$this->_number_format($data_all['pagu_sipd']).'</b></td>
 					</tr>';
 
 			$html='<div id="preview" style="padding: 5px; overflow: auto; height: 80vh;">
@@ -8104,11 +8125,11 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 					<table id="table-renja" cellpadding="2" cellspacing="0" style="font-family:\'Open Sans\',-apple-system,BlinkMacSystemFont,\'Segoe UI\',sans-serif; border-collapse: collapse; font-size: 90%; border: 0; table-layout: fixed;" contenteditable="false">
 						<thead>
 							<tr>
-								<th style="width: 10px;" class="kiri atas kanan bawah text_tengah text_blok">No.</th>
-								<th style="width: 150px;" class="atas kanan bawah text_tengah text_blok">Nama SKPD</th>
-								<th style="width: 80px;" class="atas kanan bawah text_tengah text_blok">Pagu Usulan</th>
-								<th style="width: 80px;" class="atas kanan bawah text_tengah text_blok">Pagu Penetapan
-								</th>
+								<th style="width: 19px;" class="kiri atas kanan bawah text_tengah text_blok">No</th>
+								<th class="atas kanan bawah text_tengah text_blok">Nama SKPD</th>
+								<th style="width: 140px;" class="atas kanan bawah text_tengah text_blok">Pagu Usulan</th>
+								<th style="width: 140px;" class="atas kanan bawah text_tengah text_blok">Pagu Penetapan</th>
+								<th style="width: 140px;" class="atas kanan bawah text_tengah text_blok">Pagu SIPD</th>
 							</tr>
 						</thead>
 						<tbody>'.$body.'</tbody>

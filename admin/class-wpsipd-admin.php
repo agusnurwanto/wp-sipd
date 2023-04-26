@@ -324,6 +324,10 @@ class Wpsipd_Admin {
 		$monev_fmis = Container::make( 'theme_options', __( 'MONEV FMIS' ) )
 			->set_page_menu_position( 5 )
 		    ->add_fields( $this->get_ajax_field(array('type' => 'register_sp2d_fmis')) );
+
+		$keu_pemdes = Container::make( 'theme_options', __( 'Keuangan PEMDES' ) )
+			->set_page_menu_position( 5 )
+		    ->add_fields( $this->get_setting_keu_pemdes() );
 	}
 
 	public function options_basic(){
@@ -374,6 +378,9 @@ class Wpsipd_Admin {
             	->set_attribute('placeholder', '628xxxxxxxxx')
             	->set_required( true )
 				->set_help_text('Nomor whatsapp untuk menerima pesan dari server WP-SIPD. Format nomor diawali dengan 62xxxxxxxxxx tanpa perlu ada + di depan nomor.'),
+			Field::make( 'text', 'crb_lokasi', 'Nama Kota / Kabupaten' )
+            	->set_default_value('')
+            	->set_help_text('Diisi dengan nama daerah tanpa Kota / Kabupaten'),
             Field::make( 'text', 'crb_daerah', 'Nama Pemda' )
             	->set_default_value($nama_pemda)
             	->set_required( true ),
@@ -734,6 +741,19 @@ class Wpsipd_Admin {
 			$mapping_unit[] = Field::make( 'text', 'crb_unit_fmis_'.$tahun_anggaran.'_'.$v['id_skpd'], ($k+1).'. Kode Sub Unit FMIS untuk '.$v['kode_skpd'].' '.$v['nama_skpd'] );
 		}
 		return $mapping_unit;
+	}
+
+	public function get_setting_keu_pemdes(){
+		global $wpdb;
+		$tahun_anggaran = get_option('_crb_tahun_anggaran_sipd');
+		$url_bhpd =$this->generatePage('Laporan Keuangan Pemerintah Desa Bagi Hasil Pajak Desa (BHPD) '.$tahun_anggaran, false, '[keu_pemdes_bhpd]');
+		$setting = array(
+			Field::make('html','crb_keu_pemdes_page')
+				->set_html('<ul>
+				<li><a href="'.$url_bhpd.'" target="__blank__">Laporan Keuangan Pemerintah Desa Bagi Hasil Pajak Desa (BHPD) '.$tahun_anggaran.'</a></li>
+			</ul>')
+		);
+		return $setting;
 	}
 
 	public function get_setting_sipkd(){

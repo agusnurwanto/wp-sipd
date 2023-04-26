@@ -4458,6 +4458,19 @@ CREATE TABLE `data_prioritas_kokab` (
   PRIMARY KEY (id)
 );
 
+CREATE TABLE `data_label_giat` (
+  `id` int(11) NOT NULL auto_increment,  
+  `id_label_giat` int(11) DEFAULT NULL,
+  `id_unik` text DEFAULT NULL,
+  `is_locked` int(11) DEFAULT NULL,
+  `nama_label` text DEFAULT NULL,
+  `status` text(11) DEFAULT NULL,
+  `tahun_anggaran` year(4) NOT NULL,
+  `active` tinyint(4) DEFAULT NULL,
+  `update_at` datetime NOT NULL,
+  PRIMARY KEY (id)
+);
+
 CREATE TABLE `data_renstra_sub_kegiatan_lokal` (
   `id` int(11) NOT NULL auto_increment,
   `bidur_lock` tinyint(4) DEFAULT NULL,
