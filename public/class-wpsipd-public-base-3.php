@@ -8183,4 +8183,31 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 			]);exit();
 		}
     }
+
+    public function get_jenis_standar_harga(){
+    	global $wpdb;
+
+    	try{
+			if (!empty($_POST)) {
+				if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+
+					$data = $wpdb->get_results($wpdb->prepare("SELECT * FROM data_jenis_standar_harga ORDER BY id"), ARRAY_A);
+
+					echo json_encode([
+						'status' => true,
+						'items' => $data
+					]);exit();
+				}else{
+					throw new Exception("Api key tidak sesuai", 1);
+				}
+			}else{
+				throw new Exception("Format tidak sesuai", 1);	
+			}
+		}catch(Exception $e){
+			echo json_encode([
+				'status' => false,
+				'message' => $e->getMessage()
+			]);exit();
+		}
+    }
 }
