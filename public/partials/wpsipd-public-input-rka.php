@@ -51,7 +51,7 @@ $subkeg = $wpdb->get_row($wpdb->prepare($sql, $input['tahun_anggaran'], $input['
 	    </tr>
 	    <tr class="no_padding">
 	        <td colspan="2">
-	            <table width="100%" class="cellpadding_5" style="border-spacing: 1px;">
+	            <table id="tabel-rincian" width="100%" class="cellpadding_5" style="border-spacing: 1px;">
 	                <tr class="tr-urusan-pemerintahan">
 	                    <td width="150">Urusan Pemerintahan</td>
 	                    <td width="10">:</td>
@@ -233,72 +233,76 @@ $subkeg = $wpdb->get_row($wpdb->prepare($sql, $input['tahun_anggaran'], $input['
 				</table>
 			</td>
 		</tr>        
-	    <tr class="no_padding">
-	        <td colspan="2" style="">
-	            <table width="100%" class="cellpadding_5" style="border-spacing: 0px;">
-	                <tbody>
+	  <tr class="no_padding">
+	    <td colspan="2" style="">
+	      <table width="100%" class="cellpadding_5" style="border-spacing: 0px;">
+	        <tbody>
 						<tr class="no_padding">
-				            <td colspan="13">
-				                <table class="cellpadding_5">
-				                    <tbody>
-					                    <tr class="">
-					                        <td width="130">Sub Kegiatan</td>
-					                        <td width="10">:</td>
-					                        <td class="subkeg" data-kdsbl=""><span class="nama_sub"></span></td>
-					                    </tr>
-					                    <tr class="">
-					                        <td width="130">Sumber Pendanaan</td>
-					                        <td width="10">:</td>
-					                        <td class="subkeg-sumberdana" data-kdsbl="" data-idsumberdana=""><span class="kode-dana"></span></td>
-					                    </tr>
-					                    <tr class="">
-					                        <td width="130">Lokasi</td>
-					                        <td width="10">:</td>
-					                        <td></td>
-					                    </tr>
-					                    <tr class="">
-					                        <td width="130">Waktu Pelaksanaan</td>
-					                        <td width="10">:</td>
-					                        <td>Januari s.d. Desember</td>
-					                    </tr>
-					                    <tr valign="top" class="">
-					                        <td width="150">Keluaran Sub Kegiatan</td>
-					                        <td width="10">:</td>
-					                        <td>
-					                        	<table class="tabel-indikator" width="100%" border="0" style="border-spacing: 0px;">
-									                <tbody>
-									                	<tr>
-									                		<th class="kiri kanan bawah atas text_tengah" width="495">Indikator</th>
-									                		<th class="kiri kanan bawah atas text_tengah" width="495">Target</th>
-									               		</tr>
-									                	<tr>
-									                		<td class="kiri kanan bawah atas"></td>
-									                		<td class="kiri kanan bawah atas"></td>
-									            		</tr>
-									            	</tbody>
-									            </table>
-					                         </td>
-					                    </tr>
-				                	</tbody>
-				            	</table>
-				            </td>
-				    	</tr>
+			        <td colspan="13">
+			          <table id="table-sub-kegiatan" class="cellpadding_5">
+				            <tbody>
+					            <tr class="tr-sub-kegiatan">
+					              <td width="130">Sub Kegiatan</td>
+			                  <td width="10">:</td>
+									      <td class="subkeg" data-kdsbl=""><span class="nama_sub"><?php echo $subkeg->nama_sub_giat; ?></span></td>
+									    </tr>
+									    <tr class="tr-sumber-pendanaan">
+									      <td width="130">Sumber Pendanaan</td>
+									      <td width="10">:</td>
+									      <td class="subkeg-sumberdana" data-kdsbl="" data-idsumberdana=""><span class="kode-dana"></span></td>
+									    </tr>
+									    <tr class="tr-lokasi">
+									      <td width="130">Lokasi</td>
+									      <td width="10">:</td>
+									      <td><?php echo $subkeg->nama_lokasi; ?></td>
+									    </tr>
+									    <tr class="tr-waktu-pelaksanaan">
+									      <td width="130">Waktu Pelaksanaan</td>
+										    <td width="10">:</td>
+										    <td>Januari s.d. Desember</td>
+									    </tr>
+									    <tr valign="top" class="">
+									        <td width="150">Keluaran Sub Kegiatan</td>
+									        <td width="10">:</td>
+									        <td>
+									            <table class="tabel-indikator" width="100%" border="0" style="border-spacing: 0px;">
+													      <tbody>
+													        <tr>
+													          <th class="kiri kanan bawah atas text_tengah" width="495">Indikator</th>
+													          <th class="kiri kanan bawah atas text_tengah" width="495">Target</th>
+													        </tr>
+													        <tr>
+													          <td class="kiri kanan bawah atas"></td>
+													          <td class="kiri kanan bawah atas"></td>
+													        </tr>
+													      </tbody>
+													    </table>
+									       	</td>
+									      </tr>
+								      </tbody>
+								    </table>
+							</td>
+						</tr>
 						<tr>
-				            <td class="kiri kanan bawah atas text_tengah text_blok" rowspan="2">Kode Rekening</td>
-				            <td class="kanan bawah atas text_tengah text_blok" rowspan="2">Uraian</td>
-				            <td class="kanan bawah atas text_tengah text_blok" colspan="4">Rincian Perhitungan</td>
-				            <td class="kanan bawah atas text_tengah text_blok" rowspan="2">Jumlah</td>
-				        </tr>
-				        <tr>
-				            <td class="kanan bawah text_tengah text_blok">Koefisien</td>
-				            <td class="kanan bawah text_tengah text_blok">Satuan</td>
-				            <td class="kanan bawah text_tengah text_blok">Harga</td>
-				            <td class="kanan bawah text_tengah text_blok">PPN</td>
-				        </tr>
-		<tr>
-            <td colspan="6" class="kiri kanan bawah text_kanan text_blok">Jumlah Anggaran Sub Kegiatan :</td>
-            <td class="kanan bawah text_blok text_kanan subkeg-total" style="white-space:nowrap" data-kdsbl=""></td>
-        </tr>
+				      <td class="kiri kanan bawah atas text_tengah text_blok" rowspan="2">Kode Rekening</td>
+				      <td class="kanan bawah atas text_tengah text_blok" rowspan="2">Uraian</td>
+				      <td class="kanan bawah atas text_tengah text_blok" colspan="4">Rincian Perhitungan</td>
+				      <td class="kanan bawah atas text_tengah text_blok" rowspan="2">Jumlah</td>
+				    </tr>
+				    <tr>
+				      <td class="kanan bawah text_tengah text_blok">Koefisien</td>
+				      <td class="kanan bawah text_tengah text_blok">Satuan</td>
+				      <td class="kanan bawah text_tengah text_blok">Harga</td>
+				      <td class="kanan bawah text_tengah text_blok">PPN</td>
+				    </tr>
+						<tr>
+						  <td colspan="6" class="kiri kanan bawah text_kanan text_blok">Jumlah Anggaran Sub Kegiatan :</td>
+						  <td class="kanan bawah text_blok text_kanan subkeg-total" style="white-space:nowrap" data-kdsbl=""></td>
+						</tr>
+					</tbody>
+				</table>
+			</td>
+		</tr>
 	</table>
 </div>
 
@@ -350,23 +354,23 @@ $subkeg = $wpdb->get_row($wpdb->prepare($sql, $input['tahun_anggaran'], $input['
 			    +'<thead>'
 			        +'<tr>'
 			          	+'<th class="text-center" style="width: 160px;">Bidang</th>'
-			          	+'<th></th>'
+			          	+'<th>'+jQuery("#tabel-rincian tr[class=tr-urusan-pemerintahan]").find('>td').eq(2).html()+'</th>'
 			        +'</tr>'
 					+'<tr>'
 				        +'<th class="text-center" style="width: 160px;">Sub Unit</th>'
-				        +'<th></th>'
+				        +'<th>'+jQuery("#tabel-rincian tr[class=tr-unit]").find('>td').eq(2).html()+'</th>'
 				    +'</tr>'
 			        +'<tr>'
 			          	+'<th class="text-center" style="width: 160px;">Program</th>'
-			          	+'<th></th>'
+			          	+'<th>'+jQuery("#tabel-rincian tr[class=tr-program]").find('>td').eq(2).html()+'</th>'
 			        +'</tr>'
 			        +'<tr>'
 			          	+'<th class="text-center" style="width: 160px;">Kegiatan</th>'
-			        	+'<th></th>'
+			        	+'<th>'+jQuery("#tabel-rincian tr[class=tr-kegiatan]").find('>td').eq(2).html()+'</th>'
 			        +'</tr>'
 			        +'<tr>'
 			          	+'<th class="text-center" style="width: 160px;">Sub Kegiatan</th>'
-			          	+'<th></th>'
+			          	+'<th>'+jQuery("#table-sub-kegiatan tr[class=tr-sub-kegiatan]").find('>td').eq(2).html()+'</th>'
 			        +'</tr>'
 			        +'<tr>'
 			          	+'<th class="text-center" style="width: 160px;">Total Rincian Belanja</th>'
@@ -410,23 +414,159 @@ $subkeg = $wpdb->get_row($wpdb->prepare($sql, $input['tahun_anggaran'], $input['
 			+'<form id="form-input-rincian">'
 				+'<input type="hidden" name="bidur-all" value="">'
 				+'<div class="form-group">'
-					+'<label for="tujuan_teks">Pilih Objek Belanja</label>'
-					+'<select class="form-control select-option" id="daftar-objek-belanja" name="daftar-objek-belanja"></select>'
+					+'<label for="daftar-objek-belanja">Pilih Objek Belanja</label>'
+					+'<select class="form-control select-option" id="daftar-objek-belanja" name="daftar_objek_belanja"></select>'
+				+'</div>'
+				+'<div class="form-group">'
+					+'<label for="daftar-rekening-akun">Rekening / Akun</label>'
+					+'<select class="form-control select-option" id="daftar-rekening-akun" name="daftar_rekening_akun"></select>'
+				+'</div>'
+				+'<div class="form-group">'
+					+'<label for="pengelompokan-belanja-paket-pekerjaan">Pengelompokan Belanja / Paket Pekerjaan</label>'
+					+'<select class="form-control select-option" id="pengelompokan-belanja-paket-pekerjaan" name="pengelompokan_belanja_paket_pekerjaan"></select>'
+				+'</div>'
+				+'<div class="form-group">'
+					+'<label for="jenis-standar-harga">Jenis Standar Harga</label>'
+					+'<select class="form-control select-option" id="jenis-standar-harga" name="jenis_standar_harga"></select>'
+				+'</div>'
+				+'<div class="form-group">'
+					+'<label for="komponen">Komponen</label>'
+					+'<div class="row">'
+						+'<div class="col-lg-10">'
+							+'<input type="text" class="form-control" id="komponen" name="komponen">'
+						+'</div>'
+						+'<div class="col-lg-2">'
+							+'<button class="btn btn-primary cari-ssh">Cari</button>'
+						+'</div>'
+					+'</div>'
+				+'</div>'
+				+'<div class="form-group">'
+					+'<label for="spesifikasi-komponen">Spesifikasi Komponen</label>'
+					+'<input type="text" class="form-control" id="spesifikasi-komponen" name="spesifikasi_komponen">'
+				+'</div>'
+				+'<div class="form-group">'
+					+'<div class="row">'
+						+'<div class="col-lg-6">'
+							+'<label for="satuan">Satuan</label>'
+							+'<input type="text" class="form-control" id="satuan" name="satuan">'
+						+'</div>'
+						+'<div class="col-lg-6">'
+							+'<label for="satuan">Harga Satuan</label>'
+							+'<input type="text" class="form-control" id="harga-satuan" name="harga_satuan">'
+						+'</div>'
+					+'</div>'
+				+'</div>'
+				+'<div class="form-group">'
+					+'<label for="tambahkan-pajak">Tambahkan Pajak</label>'
+				+'</div>'
+				+'<div class="form-group">'
+					+'<label for="koefisien">Koefisien (Perkalian)</label>'
+					+'<div class="row">'
+						+'<div class="col-lg-6">'
+							+'<input type="number" class="form-control" id="volume-1" name="volume_1">'
+						+'</div>'
+						+'<div class="col-lg-6">'
+							+'<select class="form-control select-option" id="satuan-volume-1" name="satuan_volume_1"></select>'
+						+'</div>'
+					+'</div>'
+					+'<div class="row">'
+						+'<div class="col-lg-6">'
+							+'<input type="number" class="form-control" id="volume-2" name="volume_2">'
+						+'</div>'
+						+'<div class="col-lg-6">'
+							+'<select class="form-control select-option" id="satuan-volume-2" name="satuan_volume_2"></select>'
+						+'</div>'
+					+'</div>'
+					+'<div class="row">'
+						+'<div class="col-lg-6">'
+							+'<input type="number" class="form-control" id="volume-3" name="volume_3">'
+						+'</div>'
+						+'<div class="col-lg-6">'
+							+'<select class="form-control select-option" id="satuan-volume-3" name="satuan_volume_3"></select>'
+						+'</div>'
+					+'</div>'
+					+'<div class="row">'
+						+'<div class="col-lg-6">'
+							+'<input type="number" class="form-control" id="volume-4" name="volume_4">'
+						+'</div>'
+						+'<div class="col-lg-6">'
+							+'<select class="form-control select-option" id="satuan-volume-4" name="satuan_volume_4"></select>'
+						+'</div>'
+					+'</div>'
 				+'</div>'
 			+'</form>';
 
 		jQuery("#modal-input-rincian").find('.modal-title').html('Input Rincian RKA');
 		jQuery("#modal-input-rincian").find('.modal-body').html(form);
+		jQuery("#modal-input-rincian").find('.modal-footer').html(''
+			+'<button type="button" class="btn btn-warning" data-dismiss="modal">Tutup'
+			+'</button>'
+			+'<button type="button" class="btn btn-success" id="btn-simpan-data-rka" '
+				+'data-action="submit_rka" '
+			+'>Simpan'
+			+'</button>');
 		jQuery("#modal-input-rincian").css('margin-top', 20);
 		jQuery("#modal-input-rincian").css('margin-top', 20);
 		jQuery(".select-option").select2({width:'100%'});
 		jQuery("#modal-input-rincian").modal('show');
 
-		objekBelanja(); 
+		objekBelanja().then(function(){
+			jenisStandarHarga();
+		});
 	});
+
+	jQuery(document).on('change', "#daftar-objek-belanja", function(){
+		
+		jQuery("#wrap-loading").show();
+
+		let objekBelanja = jQuery("#daftar-objek-belanja").val();
+		
+		jQuery.ajax({
+				url:ajax.url,
+				type:"post",
+				data:{
+					"action":"get_rekening_akun",
+					"api_key":"<?php echo $api_key; ?>",
+					"kode_akun":objekBelanja,
+					"tahun_anggaran":"<?php echo $input['tahun_anggaran']; ?>",
+				},
+				dataType:"json",
+				success:function(response){
+
+					jQuery("#wrap-loading").hide();
+
+					let opt=`<option value="-">Pilih Rekening / Akun</option>`;
+					response.items.map(function(item, index){
+						opt+=`<option value="${item.kode_akun}">${item.kode_akun} ${item.nama_akun}</option>`;
+					});
+					jQuery("#daftar-rekening-akun").html(opt);
+				}
+			})
+	})
+
+	jQuery(document).on('change', "#daftar-rekening-akun", function(){
+				
+	})
+
+	jQuery(document).on('click', '.cari-ssh', function(){
+		jQuery.ajax({
+				url:ajax.url,
+				type:"post",
+				data:{
+					"action":"get_data_ssh",
+					"api_key":"<?php echo $api_key; ?>",
+					"tahun_anggaran":"<?php echo $input['tahun_anggaran']; ?>",
+				},
+				dataType:"json",
+				success:function(response){
+						console.log(response);
+				}
+			})
+	})
 
 	function objekBelanja(){
 		return new Promise(function(resolve, reject){
+			jQuery("#wrap-loading").show();
 			jQuery.ajax({
 				url:ajax.url,
 				type:"post",
@@ -437,15 +577,38 @@ $subkeg = $wpdb->get_row($wpdb->prepare($sql, $input['tahun_anggaran'], $input['
 				},
 				dataType:"json",
 				success:function(response){
-					
+					jQuery("#wrap-loading").hide();
 					let opt=`<option value="-">Pilih Objek Belanja</option>`;
 					response.items.map(function(item, index){
 						opt+=`<option value="${item.kode_akun}">${item.nama_akun}</option>`;
 					});
 					jQuery("#daftar-objek-belanja").html(opt);
+					resolve();
 				}
 			})
 		});
+	}
+
+	function jenisStandarHarga(){
+		return new Promise(function(resolve, reject) {
+			jQuery.ajax({
+				url:ajax.url,
+				type:"post",
+				data:{
+					"action":"get_jenis_standar_harga",
+					"api_key":"<?php echo $api_key; ?>",
+				},
+				dataType:"json",
+				success:function(response){
+					
+					let opt=`<option value="-">Pilih Jenis Standar Harga</option>`;
+					response.items.map(function(value, index){
+							opt+=`<option value="${value.id}">${value.jenis_standar_harga}</option>`;
+					})
+					jQuery("#jenis-standar-harga").html(opt);
+				}
+			})
+		})
 	}
 
 </script>

@@ -5059,3 +5059,9 @@ CREATE TABLE `data_keg_indikator_hasil_lokal_history` (
   `catatan_usulan` text DEFAULT NULL,
   PRIMARY KEY  (id)
 );
+
+CREATE TABLE `data_jenis_standar_harga`(
+  `id` int(11) NOT NULL auto_increment,
+  `jenis_standar_harga` varchar(50) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+);
