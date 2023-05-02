@@ -1907,6 +1907,26 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 					$kode_bl = $data_sub_unit->id_unit.".".$data_sub_unit->id_skpd.".".$data_prog_keg->id_program.".".$data_prog_keg->id_giat;
 					$kode_sbl = $kode_bl.".".$data_prog_keg->id_sub_giat;
 
+					$data_prio_prov = $wpdb->get_row($wpdb->prepare(
+						'SELECT *
+						FROM data_prioritas_prov
+						WHERE id_label_prov=%d',
+						$data['input_prioritas_provinsi']
+					));
+
+					$id_prio_prov = (!empty($data_prio_prov)) ? $data_prio_prov->id_label_prov : 0;
+					$label_prio_prov = (!empty($data_prio_prov)) ? $data_prio_prov->nama_label : NULL;
+
+					$data_prio_kabkot = $wpdb->get_row($wpdb->prepare(
+						'SELECT *
+						FROM data_prioritas_kokab
+						WHERE id_label_kokab=%d',
+						$data['input_prioritas_kab_kota']
+					));
+
+					$id_prio_kabkot = (!empty($data_prio_kabkot)) ? $data_prio_kabkot->id_label_kokab : 0;
+					$label_prio_kabkot = (!empty($data_prio_kabkot)) ? $data_prio_kabkot->nama_label : NULL;
+
 					$opsi_sub_keg_bl = array(
 						'id_sub_skpd' => $data['input_sub_unit'],
 						'id_sub_giat' => $data['input_sub_kegiatan'],
@@ -1942,7 +1962,11 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 						'waktu_akhir_usulan' => $data['input_bulan_akhir_usulan'],
 						'active' => 1,
 						'tahun_anggaran' => $tahun_anggaran,
-						'update_at' => current_time('mysql')
+						'update_at' => current_time('mysql'),
+						'id_label_prov' => $id_prio_prov,
+						'label_prov' => $label_prio_prov,
+						'id_label_kokab' => $id_prio_kabkot,
+						'label_kokab' => $label_prio_kabkot
 					);
 
 					// insert sub kegiatan
@@ -3008,7 +3032,43 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 				);
 				
 				foreach ($ret['data'] as $key => $value) {
-					$table_content .= '<option value="'.$value['id_skpd'].'">'.$value['nama_label'].'</option>';
+					$table_content .= '<option value="'.$value['id_label_prov'].'">'.$value['nama_label'].'</option>';
+				}
+				$ret['table_content'] = $table_content;
+				$ret['query'] = $wpdb->last_query;
+			} else {
+				$ret['status'] = 'error';
+				$ret['message'] = 'APIKEY tidak sesuai!';
+			}
+		} else {
+			$ret['status'] = 'error';
+			$ret['message'] = 'Format Salah!';
+		}
+		die(json_encode($ret));
+	}
+
+	public function get_prioritas_kab_kot(){
+		global $wpdb;
+		$ret = array(
+			'status'	=> 'success',
+			'action'	=> $_POST['action'],
+			'data'	=> array()
+		);
+		if (!empty($_POST)) {
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+				$table_content = '<option value="">Pilih Prioritas Pembangunan Kabupaten/Kota</option>';
+
+				$ret['data'] = $wpdb->get_results(
+					$wpdb->prepare(
+					'SELECT *
+					FROM data_prioritas_kokab
+					WHERE tahun_anggaran=%d
+						AND active=1', $_POST['tahun_anggaran']),
+					ARRAY_A
+				);
+				
+				foreach ($ret['data'] as $key => $value) {
+					$table_content .= '<option value="'.$value['id_label_kokab'].'">'.$value['nama_label'].'</option>';
 				}
 				$ret['table_content'] = $table_content;
 				$ret['query'] = $wpdb->last_query;
