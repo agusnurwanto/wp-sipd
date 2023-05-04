@@ -5065,3 +5065,75 @@ CREATE TABLE `data_jenis_standar_harga`(
   `jenis_standar_harga` varchar(50) DEFAULT NULL,
   PRIMARY KEY (`id`)
 );
+
+CREATE TABLE `data_label_sub_keg` (
+  `id` int(11) NOT NULL auto_increment,
+  `id_label_giat` int(11) DEFAULT NULL,
+  `id_unik` text,
+  `is_locked` int(11) DEFAULT NULL,
+  `nama_label` text,
+  `status` tinytext,
+  `tahun_anggaran` year(4) NOT NULL,
+  `update_at` datetime NOT NULL,
+  `active` tinyint(4) DEFAULT NULL,
+  `kode_sbl` varchar(50) DEFAULT NULL,
+  `id_label_giat_usulan` int(11) DEFAULT NULL,
+  `id_unik_usulan` text DEFAULT NULL,
+  `nama_label_usulan` text DEFAULT NULL,
+  PRIMARY KEY  (id)
+);
+
+CREATE TABLE `data_label_sub_keg_history` (
+  `id` int(11) NOT NULL auto_increment,
+  `id_label_giat` int(11) DEFAULT NULL,
+  `id_unik` text,
+  `is_locked` int(11) DEFAULT NULL,
+  `nama_label` text,
+  `status` tinytext,
+  `tahun_anggaran` year(4) NOT NULL,
+  `update_at` datetime NOT NULL,
+  `active` tinyint(4) DEFAULT NULL,
+  `kode_sbl` varchar(50) DEFAULT NULL,
+  `id_label_giat_usulan` int(11) DEFAULT NULL,
+  `id_unik_usulan` text DEFAULT NULL,
+  `nama_label_usulan` text DEFAULT NULL,
+  `id_asli` int(11) NOT NULL,
+  `id_jadwal` int(11) NOT NULL,
+  PRIMARY KEY  (id)
+);
+
+CREATE TABLE `data_label_sub_keg_lokal` (
+  `id` int(11) NOT NULL auto_increment,
+  `id_label_giat` int(11) DEFAULT NULL,
+  `id_unik` text,
+  `is_locked` int(11) DEFAULT NULL,
+  `nama_label` text,
+  `status` tinytext,
+  `tahun_anggaran` year(4) NOT NULL,
+  `update_at` datetime NOT NULL,
+  `active` tinyint(4) DEFAULT NULL,
+  `kode_sbl` varchar(50) DEFAULT NULL,
+  `id_label_giat_usulan` int(11) DEFAULT NULL,
+  `id_unik_usulan` text DEFAULT NULL,
+  `nama_label_usulan` text DEFAULT NULL,
+  PRIMARY KEY  (id)
+);
+
+CREATE TABLE `data_label_sub_keg_lokal_history` (
+  `id` int(11) NOT NULL auto_increment,
+  `id_label_giat` int(11) DEFAULT NULL,
+  `id_unik` text,
+  `is_locked` int(11) DEFAULT NULL,
+  `nama_label` text,
+  `status` tinytext,
+  `tahun_anggaran` year(4) NOT NULL,
+  `update_at` datetime NOT NULL,
+  `active` tinyint(4) DEFAULT NULL,
+  `kode_sbl` varchar(50) DEFAULT NULL,
+  `id_label_giat_usulan` int(11) DEFAULT NULL,
+  `id_unik_usulan` text DEFAULT NULL,
+  `nama_label_usulan` text DEFAULT NULL,
+  `id_asli` int(11) NOT NULL,
+  `id_jadwal` int(11) NOT NULL,
+  PRIMARY KEY  (id)
+);

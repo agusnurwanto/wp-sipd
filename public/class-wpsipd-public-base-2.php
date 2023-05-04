@@ -2240,6 +2240,58 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 							$wpdb->update('data_lokasi_sub_keg_lokal', $opsi_lokasi, array('id' => $cek_ids[$k_lok]['id']));
 						}
 					}
+
+					// insert label tag
+					$wpdb->update('data_label_sub_keg_lokal', array('active' => 0), array(
+						'kode_sbl' => $kode_sbl,
+						'tahun_anggaran' => $tahun_anggaran
+					));
+					foreach ($data['input_label_sub_keg'] as $k_label_tag => $v_label_tag) {
+						$data_label_tag = $wpdb->get_row($wpdb->prepare('
+							SELECT *
+							FROM data_label_giat
+							WHERE id_label_giat=%d
+								AND tahun_anggaran=%d
+						', $v_label_tag, $tahun_anggaran));
+
+						$data_label_tag_usulan = $wpdb->get_row($wpdb->prepare('
+							SELECT *
+							FROM data_label_giat
+							WHERE id_label_giat=%d
+								AND tahun_anggaran=%d
+						', $data['input_label_sub_keg_usulan'][$k_label_tag], $tahun_anggaran));
+
+						$cek_ids = $wpdb->get_results($wpdb->prepare('
+							SELECT 
+								id
+							FROM data_label_sub_keg_lokal
+							WHERE kode_sbl=%s
+								AND id_label_giat=%d
+								AND tahun_anggaran=%d
+						', $kode_sbl, $data['input_label_sub_keg_usulan'][$k_label_tag], $tahun_anggaran), ARRAY_A);
+						$opsi_label_tag = array(
+							'id_label_giat' => $data_label_tag->id_label_giat,
+							'id_unik' => $data_label_tag->id_unik,
+							'is_locked' => $data_label_tag->is_locked,
+							'nama_label' => $data_label_tag->nama_label,
+							'kode_sbl' => $kode_sbl,
+							'active' => 1,
+							'update_at' => current_time('mysql'),
+							'tahun_anggaran' => $tahun_anggaran,
+							'id_label_giat_usulan' => $data_label_tag_usulan->id_label_giat,
+							'id_unik_usulan' => $data_label_tag_usulan->id_unik,
+							'nama_label_usulan' => $data_label_tag_usulan->nama_label
+						);
+						
+						if(
+							empty($cek_ids)
+							|| empty($cek_ids[$k_label_tag])
+						){
+							$wpdb->insert('data_label_sub_keg_lokal', $opsi_label_tag);
+						}else{
+							$wpdb->update('data_label_sub_keg_lokal', $opsi_label_tag, array('id' => $cek_ids[$k_label_tag]['id']));
+						}
+					}
 				}
 			}else{
 				$ret['status'] = 'error';
@@ -2375,6 +2427,19 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 					if(!empty($data_sub_keg_indikator)){
 						$ret['data']['indikator_sub_keg'] = $data_sub_keg_indikator;
 					}
+					
+					$ret['data']['label_tag'] = array();
+					$data_label_tag = $wpdb->get_results($wpdb->prepare(
+						'SELECT *
+						FROM data_label_sub_keg_lokal
+						WHERE kode_sbl=%s
+						AND tahun_anggaran=%d
+						AND active=1',
+						$data_sub_giat['kode_sbl'], $tahun_anggaran
+					));
+					if(!empty($data_label_tag)){
+						$ret['data']['label_tag'] = $data_label_tag;
+					}
 				}else{
 					$ret['status'] = 'error';
 					$ret['message'] = 'Ada param yang kosong!';
@@ -2413,6 +2478,7 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 					$status_indi_sub_keg = $wpdb->update('data_sub_keg_indikator_lokal', array('active' => 0), array('kode_sbl' => $kode_sbl, 'tahun_anggaran' => $tahun_anggaran));
 					$status_dana_sub_keg = $wpdb->update('data_dana_sub_keg_lokal', array('active' => 0), array('kode_sbl' => $kode_sbl, 'tahun_anggaran' => $tahun_anggaran));
 					$status_lokasi_sub_keg = $wpdb->update('data_lokasi_sub_keg_lokal', array('active' => 0), array('kode_sbl' => $kode_sbl, 'tahun_anggaran' => $tahun_anggaran));
+					$status_label_tag_sub_keg = $wpdb->update('data_label_sub_keg_lokal', array('active' => 0), array('kode_sbl' => $kode_sbl, 'tahun_anggaran' => $tahun_anggaran));
 	
 					if($status === false){
 						$ret['status'] = 'error';
@@ -3080,6 +3146,44 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 			$ret['status'] = 'error';
 			$ret['message'] = 'Format Salah!';
 		}
+		die(json_encode($ret));
+	}
+
+	public function get_label_sub_keg(){
+		global $wpdb;
+		$ret = array(
+			'status'	=> 'success',
+			'message' 	=> 'Berhasil mendapapatkan data label (tag)!',
+			'data'		=> array(),
+		);
+
+		if(!empty($_POST)){
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+				if(!empty($_POST['tahun_anggaran'])){
+					$tahun_anggaran = $_POST['tahun_anggaran'];
+	
+					$data_label_tag = $wpdb->get_results($wpdb->prepare(
+						'SELECT *
+						FROM data_label_giat
+						WHERE tahun_anggaran=%d
+					', $tahun_anggaran),ARRAY_A);
+	
+					if(!empty($data_label_tag)){
+						$ret['data'] = $data_label_tag;
+					}
+				}else{
+					$ret['status'] = 'error';
+					$ret['message'] = 'Ada param yang kosong!';
+				}
+			}else{
+				$ret['status'] = 'error';
+				$ret['message'] = 'APIKEY tidak sesuai!';
+			}
+		}else{
+			$ret['status']	= 'error';
+			$ret['message']	= 'Format Salah!';
+		}
+
 		die(json_encode($ret));
 	}
 

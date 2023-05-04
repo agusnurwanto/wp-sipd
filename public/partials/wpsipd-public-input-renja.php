@@ -787,9 +787,18 @@ echo '
                                 <td>
                                     <div class="form-group">
                                         <label for="label_tag_usulan">Label (Tag) Sub Kegiatan</label>
-                                        <select class="form-control input_select_2" name="input_label_sub_keg_usulan" id="label_tag_usulan">
-                                            <option value="">Pilih Label (Tag)</option>
-                                        </select>
+                                        <table id="label_tag_usulan" class="input_label_tag_usulan" style="margin: 0;">
+                                            <tr data-id="1">
+                                                <td style="max-width:100px;">
+                                                    <select class="form-control input_select_2 label_tag_usulan" name="input_label_sub_keg_usulan[1]" id="label_tag_usulan_1" onchange="set_penetapan(this);">
+                                                        <option value="">Pilih Label (Tag)</option>
+                                                    </select>
+                                                </td>
+                                                <td style="width: 70px;" class="text-center detail_tambah">
+                                                    <button class="btn btn-warning btn-sm" onclick="tambahLabelTag(); return false;"><i class="dashicons dashicons-plus"></i></button>
+                                                </td>
+                                            </tr>
+                                        </table>
                                     </div>
                                     <div class="form-group">
                                         <label for="sumber_dana_usulan">Sumber Dana</label>
@@ -895,9 +904,15 @@ echo '
                                 <td>
                                     <div class="form-group">
                                         <label for="label_tag">Label (Tag) Sub Kegiatan</label>
-                                        <select class="form-control input_select_2" name="input_label_sub_keg" id="label_tag" <?php echo $disabled; ?>>
-                                            <option value="">Pilih Label (Tag)</option>
-                                        </select>
+                                        <table id="label_tag" class="input_label_tag" style="margin: 0;">
+                                            <tr data-id="1">
+                                                <td style="width: 60%; max-width:100px;">
+                                                    <select class="form-control input_select_2 label_tag" name="input_label_sub_keg[1]" id="label_tag_1" disabled>
+                                                        <option value="">Pilih Label (Tag)</option>
+                                                    </select>
+                                                </td>
+                                            </tr>
+                                        </table>
                                     </div>
                                     <div class="form-group">
                                         <label for="sumber_dana">Sumber Dana</label>
@@ -1090,39 +1105,42 @@ echo '
                 .then(function(){
                     get_data_prioritas_kabkot()
                     .then(function(){
-                        get_data_sumber_dana()
+                        get_data_label_tag()
                         .then(function(){
-                            get_data_lokasi(false, 'prov', false, false, 1)
+                            get_data_sumber_dana()
                             .then(function(){
-                                jQuery("#modalTambahRenja .modal-title").html("Tambah Sub Kegiatan");
-                                jQuery("#modalTambahRenja .submitBtn")
-                                    .attr("onclick", 'submitTambahRenjaForm()')
-                                    .attr("disabled", false)
-                                    .text("Simpan");
-                                jQuery('#modalTambahRenja').modal('show');
-                                jQuery('#input_sub_unit').prop('disabled', false);
-                                jQuery('#sub_kegiatan').prop('disabled', false);
-                                jQuery('#input_sub_unit').val('').trigger("change");
-                                jQuery('#sub_kegiatan').empty().trigger("change");
-                                jQuery('.bulan_awal').val("1");
-                                jQuery('.bulan_akhir').val("12");
-                                jQuery('.input_number').val(0);
-                                jQuery('.input_text').val('');
-                                jQuery('.input_select').val('');
-                                var iddf = jQuery('.indi_sub_keg_table_usulan tr').last().attr('data-id');
-                                if(iddf > 1){
-                                    for (let index = iddf; index > 1; index--) {
-                                        jQuery('.indi_sub_keg_table_usulan > tbody').find('tr[data-id="'+index+'"]').remove();
-                                        jQuery('.indi_sub_keg_table > tbody').find('tr[data-id="'+index+'"]').remove();
+                                get_data_lokasi(false, 'prov', false, false, 1)
+                                .then(function(){
+                                    jQuery("#modalTambahRenja .modal-title").html("Tambah Sub Kegiatan");
+                                    jQuery("#modalTambahRenja .submitBtn")
+                                        .attr("onclick", 'submitTambahRenjaForm()')
+                                        .attr("disabled", false)
+                                        .text("Simpan");
+                                    jQuery('#modalTambahRenja').modal('show');
+                                    jQuery('#input_sub_unit').prop('disabled', false);
+                                    jQuery('#sub_kegiatan').prop('disabled', false);
+                                    jQuery('#input_sub_unit').val('').trigger("change");
+                                    jQuery('#sub_kegiatan').empty().trigger("change");
+                                    jQuery('.bulan_awal').val("1");
+                                    jQuery('.bulan_akhir').val("12");
+                                    jQuery('.input_number').val(0);
+                                    jQuery('.input_text').val('');
+                                    jQuery('.input_select').val('');
+                                    var iddf = jQuery('.indi_sub_keg_table_usulan tr').last().attr('data-id');
+                                    if(iddf > 1){
+                                        for (let index = iddf; index > 1; index--) {
+                                            jQuery('.indi_sub_keg_table_usulan > tbody').find('tr[data-id="'+index+'"]').remove();
+                                            jQuery('.indi_sub_keg_table > tbody').find('tr[data-id="'+index+'"]').remove();
+                                        }
                                     }
-                                }
-                                var html = '<button class="btn btn-warning btn-sm" onclick="tambahIndikator(); return false;"><i class="dashicons dashicons-plus"></i></button>';
-                                jQuery('.indi_sub_keg_table_usulan tr:first-child').find('>td').last().html(html);
-                                jQuery('#kecamatan_usulan_1').val('').trigger('change');
-                                jQuery('#kecamatan_1').val('').trigger('change');
+                                    var html = '<button class="btn btn-warning btn-sm" onclick="tambahIndikator(); return false;"><i class="dashicons dashicons-plus"></i></button>';
+                                    jQuery('.indi_sub_keg_table_usulan tr:first-child').find('>td').last().html(html);
+                                    jQuery('#kecamatan_usulan_1').val('').trigger('change');
+                                    jQuery('#kecamatan_1').val('').trigger('change');
 
-                            });
-                        })
+                                });
+                            })
+                        });
                     });
                 });
             });
@@ -1555,6 +1573,56 @@ echo '
         var id = jQuery(that).closest('tr').attr('data-id');
         jQuery('.input_sumber_dana_usulan > tbody').find('tr[data-id="'+id+'"]').remove();
         jQuery('.input_sumber_dana > tbody').find('tr[data-id="'+id+'"]').remove();
+    }
+
+    function tambahLabelTag(){
+        return new Promise(function(resolve, reject){
+            var id = +jQuery('.input_label_tag_usulan > tbody tr').last().attr('data-id');
+            var newId = id+1;
+            var trNewUsulan = jQuery('.input_label_tag_usulan > tbody tr').last().html();
+            trNewUsulan = ''
+                +'<tr data-id="'+newId+'">'
+                    +trNewUsulan
+                +'</tr>';
+            trNewUsulan = trNewUsulan.replaceAll('_'+id+'"', '_'+newId+'"');
+            trNewUsulan = trNewUsulan.replaceAll('['+id+']', '['+newId+']');
+            var tbody = jQuery('.input_label_tag_usulan > tbody');
+            tbody.append(trNewUsulan);
+            jQuery('.input_label_tag_usulan > tbody tr[data-id="'+newId+'"] .select2').remove();
+            jQuery('.input_label_tag_usulan > tbody tr[data-id="'+newId+'"] select').select2({width: '100%'});
+            var tr = tbody.find('>tr');
+            var length = tr.length-1;
+            tr.map(function(i, b){
+                if(i == 0){
+                    var html = '<button class="btn btn-warning btn-sm" onclick="tambahLabelTag(); return false;"><i class="dashicons dashicons-plus"></i></button>';
+                }else{
+                    var html = '<button class="btn btn-danger btn-sm" onclick="hapusLabelTag(this); return false;"><i class="dashicons dashicons-trash"></i></button>';
+                }
+                jQuery(b).find('>td').last().html(html);
+            });
+
+            /** tambah input label tag */
+            var id = +jQuery('.input_label_tag > tbody tr').last().attr('data-id');
+            var newId = id+1;
+            var trNew = jQuery('.input_label_tag > tbody tr').last().html();
+            trNew = ''
+                +'<tr data-id="'+newId+'">'
+                    +trNew
+                +'</tr>';
+            trNew = trNew.replaceAll('_'+id+'"', '_'+newId+'"');
+            trNew = trNew.replaceAll('['+id+']', '['+newId+']');
+            var tbody = jQuery('.input_label_tag > tbody');
+            tbody.append(trNew);
+            jQuery('.input_label_tag > tbody tr[data-id="'+newId+'"] .select2').remove();
+            jQuery('.input_label_tag > tbody tr[data-id="'+newId+'"] select').select2({width: '100%'});
+            resolve();
+        });
+    }
+
+    function hapusLabelTag(that){
+        var id = jQuery(that).closest('tr').attr('data-id');
+        jQuery('.input_label_tag_usulan > tbody').find('tr[data-id="'+id+'"]').remove();
+        jQuery('.input_label_tag > tbody').find('tr[data-id="'+id+'"]').remove();
     }
 
     function get_data_sub_unit(id_skpd){
@@ -2024,169 +2092,205 @@ echo '
     function edit_renja(kode_sbl){
         get_data_sub_unit(id_skpd)
         .then(function(){
-            get_data_sumber_dana()
+            get_data_prioritas_prov()
             .then(function(){
-                get_data_lokasi(false, 'prov', false, false, 1)
+                get_data_prioritas_kabkot()
                 .then(function(){
-                    jQuery('#wrap-loading').show();
-                    jQuery.ajax({
-                        method: 'post',
-                        url: '<?php echo admin_url('admin-ajax.php'); ?>',
-                        dataType: 'json',
-                        data: {
-                            'action': 'edit_renja',
-                            'api_key': jQuery('#api_key').val(),
-                            'kode_sbl': kode_sbl,
-                            'tahun_anggaran': tahun_anggaran
-                        },
-                        success: function(response){
-                            jQuery('#pagu_sub_kegiatan_usulan').val(response.data.pagu_usulan);
-                            jQuery('#pagu_sub_kegiatan_1_usulan').val(response.data.pagu_n_depan_usulan);
-                            jQuery('#pagu_sub_kegiatan').val(response.data.pagu);
-                            jQuery('#pagu_sub_kegiatan_1').val(response.data.pagu_n_depan);
-                            jQuery('#catatan_usulan').val(response.data.catatan_usulan);
-                            jQuery('#catatan').val(response.data.catatan);
-                            let input_sub_unit = `<option selected value="${response.data.id_sub_skpd}">${response.data.nama_sub_skpd}</option>`;
-                            jQuery('#input_sub_unit').html(input_sub_unit);
-                            jQuery('#input_sub_unit').prop('disabled', true);
-                            let input_sub_kegiatan = `<option selected value="${response.data.id_sub_giat}">${response.data.nama_sub_giat}</option>`;
-                            jQuery('#sub_kegiatan').html(input_sub_kegiatan);
-                            jQuery('#sub_kegiatan').prop('disabled', true);
-                            jQuery('select[name="input_bulan_awal_usulan"] option[value="'+response.data.waktu_awal_usulan+'"]').attr("selected","selected");
-                            jQuery('select[name="input_bulan_akhir_usulan"] option[value="'+response.data.waktu_akhir_usulan+'"]').attr("selected","selected");
-                            jQuery('select[name="input_bulan_awal"] option[value="'+response.data.waktu_awal+'"]').attr("selected","selected");
-                            jQuery('select[name="input_bulan_akhir"] option[value="'+response.data.waktu_akhir+'"]').attr("selected","selected");
+                    get_data_label_tag()
+                    .then(function(){
+                        get_data_sumber_dana()
+                        .then(function(){
+                            get_data_lokasi(false, 'prov', false, false, 1)
+                            .then(function(){
+                                jQuery('#wrap-loading').show();
+                                jQuery.ajax({
+                                    method: 'post',
+                                    url: '<?php echo admin_url('admin-ajax.php'); ?>',
+                                    dataType: 'json',
+                                    data: {
+                                        'action': 'edit_renja',
+                                        'api_key': jQuery('#api_key').val(),
+                                        'kode_sbl': kode_sbl,
+                                        'tahun_anggaran': tahun_anggaran
+                                    },
+                                    success: function(response){
+                                        jQuery('#pagu_sub_kegiatan_usulan').val(response.data.pagu_usulan);
+                                        jQuery('#pagu_sub_kegiatan_1_usulan').val(response.data.pagu_n_depan_usulan);
+                                        jQuery('#pagu_sub_kegiatan').val(response.data.pagu);
+                                        jQuery('#pagu_sub_kegiatan_1').val(response.data.pagu_n_depan);
+                                        jQuery('#catatan_usulan').val(response.data.catatan_usulan);
+                                        jQuery('#catatan').val(response.data.catatan);
+                                        let input_sub_unit = `<option selected value="${response.data.id_sub_skpd}">${response.data.nama_sub_skpd}</option>`;
+                                        jQuery('#input_sub_unit').html(input_sub_unit);
+                                        jQuery('#input_sub_unit').prop('disabled', true);
+                                        let input_sub_kegiatan = `<option selected value="${response.data.id_sub_giat}">${response.data.nama_sub_giat}</option>`;
+                                        jQuery('#sub_kegiatan').html(input_sub_kegiatan);
+                                        jQuery('#sub_kegiatan').prop('disabled', true);
+                                        jQuery('select[name="input_bulan_awal_usulan"] option[value="'+response.data.waktu_awal_usulan+'"]').attr("selected","selected");
+                                        jQuery('select[name="input_bulan_akhir_usulan"] option[value="'+response.data.waktu_akhir_usulan+'"]').attr("selected","selected");
+                                        jQuery('select[name="input_bulan_awal"] option[value="'+response.data.waktu_awal+'"]').attr("selected","selected");
+                                        jQuery('select[name="input_bulan_akhir"] option[value="'+response.data.waktu_akhir+'"]').attr("selected","selected");
 
-                            /** Memunculkan data indikator sub kegiatan */
-                            let optionIndikator='<option value="">Pilih Nama Indikator</option>';
-                            response.data.master_sub_keg_indikator.map(function(value, index){
-                                optionIndikator+='<option value="'+value.id_sub_keg+'">'+value.indikator+'</option>';
-                            });
-                            let optionSatuan='<option value="">Pilih Satuan</option>';
-                            response.data.master_sub_keg_indikator.map(function(value, index){
-                                optionSatuan+='<option value="'+value.id_sub_keg+'">'+value.satuan+'</option>';
-                            });
-                            jQuery("#pagu_ind_sub_keg_usulan_1").html(optionIndikator).select2({width: '100%'});
-                            jQuery("#pagu_indi_sub_keg_penetapan_1").html(optionIndikator).select2({width: '100%'});
-                            jQuery("#satuan_pagu_indi_sub_keg_usulan_1").html(optionSatuan).select2({width: '100%'});
-                            jQuery("#satuan_pagu_indi_sub_keg_penetapan_1").html(optionSatuan).select2({width: '100%'});
+                                        if(response.data.id_label_prov != 0){
+                                            jQuery('select[name="input_prioritas_provinsi"]').val(response.data.id_label_prov).trigger('change');
+                                        }
+                                        if(response.data.id_label_kokab != 0){
+                                            jQuery('select[name="input_prioritas_kab_kota"]').val(response.data.id_label_kokab).trigger('change');
+                                        }
 
-                            response.data.indikator_sub_keg.map(function(value, index){
-                                let id = index+1;
-                                new Promise(function(resolve, reject){
-                                    if(id > 1){
-                                        tambahIndikator()
-                                        .then(function(){
-                                            resolve(value);
+                                        /** Memunculkan data indikator sub kegiatan */
+                                        let optionIndikator='<option value="">Pilih Nama Indikator</option>';
+                                        response.data.master_sub_keg_indikator.map(function(value, index){
+                                            optionIndikator+='<option value="'+value.id_sub_keg+'">'+value.indikator+'</option>';
+                                        });
+                                        let optionSatuan='<option value="">Pilih Satuan</option>';
+                                        response.data.master_sub_keg_indikator.map(function(value, index){
+                                            optionSatuan+='<option value="'+value.id_sub_keg+'">'+value.satuan+'</option>';
+                                        });
+                                        jQuery("#pagu_ind_sub_keg_usulan_1").html(optionIndikator).select2({width: '100%'});
+                                        jQuery("#pagu_indi_sub_keg_penetapan_1").html(optionIndikator).select2({width: '100%'});
+                                        jQuery("#satuan_pagu_indi_sub_keg_usulan_1").html(optionSatuan).select2({width: '100%'});
+                                        jQuery("#satuan_pagu_indi_sub_keg_penetapan_1").html(optionSatuan).select2({width: '100%'});
+
+                                        response.data.indikator_sub_keg.map(function(value, index){
+                                            let id = index+1;
+                                            new Promise(function(resolve, reject){
+                                                if(id > 1){
+                                                    tambahIndikator()
+                                                    .then(function(){
+                                                        resolve(value);
+                                                    })
+                                                }else{
+                                                    resolve(value);
+                                                }
+                                            })
+                                            .then(function(value){
+                                                jQuery("#ind_sub_keg_id_"+id).val(value.id);
+                                                jQuery("#indikator_pagu_indi_sub_keg_usulan_"+id).val(value.targetoutput_usulan).prop('disabled', false);
+                                                jQuery("#pagu_ind_sub_keg_usulan_"+id).val(value.id_indikator_sub_giat).trigger('change').prop('disabled', false);
+                                                jQuery("#satuan_pagu_indi_sub_keg_usulan_"+id).val(value.id_indikator_sub_giat).trigger('change');
+                                                jQuery("#indikator_pagu_indi_sub_keg_"+id).val(value.targetoutput).prop('disabled', false);
+                                                jQuery("#pagu_indi_sub_keg_penetapan_"+id).val(value.id_indikator_sub_giat).trigger('change');
+                                                jQuery("#satuan_pagu_indi_sub_keg_penetapan_"+id).val(value.id_indikator_sub_giat).trigger('change');
+                                            });
                                         })
-                                    }else{
-                                        resolve(value);
+                                        /** -- end -- */
+
+                                        /** Memunculkan data sumber dana */
+                                        response.data.sumber_dana.map(function(value, index){
+                                            let id = index+1;
+                                            new Promise(function(resolve, reject){
+                                                if(id > 1){
+                                                    tambahSumberDana()
+                                                    .then(function(){
+                                                        resolve(value);
+                                                    })
+                                                }else{
+                                                    resolve(value);
+                                                }
+                                            })
+                                            .then(function(value){
+                                                jQuery("#sumber_dana_usulan_"+id).val(value.id_dana_usulan).trigger('change').prop('disabled', false);
+                                                jQuery("#pagu_sumber_dana_usulan_"+id).val(value.pagu_dana_usulan).prop('disabled', false);
+                                                jQuery("#sumber_dana_"+id).val(value.iddana).trigger('change');
+                                                jQuery("#pagu_sumber_dana_"+id).val(value.pagudana).prop('disabled', false);
+                                            });
+                                        })
+                                        /** -- end -- */
+
+                                        /** Memunculkan data lokasi */
+                                        response.data.lokasi.map(function(value, index){
+                                            let urutan = index+1;
+                                            let id = value.id;
+                                            new Promise(function(resolve, reject){
+                                                if(urutan > 1){
+                                                    tambahLokasi()
+                                                    .then(function(){
+                                                        resolve(value);
+                                                    })
+                                                }else{
+                                                    resolve(value);
+                                                }
+                                            })
+                                            .then(function(value){
+                                                // setting opsi master kecamatan
+                                                let option_kec='<option value="">Pilih Kecamatan</option>';
+                                                response.data.data_master_kec[id].map(function(value, index){
+                                                    option_kec+='<option value="'+value.id_alamat+'">'+value.nama+'</option>'
+                                                });
+                                                jQuery("#kecamatan_usulan_"+urutan).html(option_kec).prop('disabled', false);
+                                                jQuery("#kecamatan_usulan_"+urutan).select2({width: '100%'});
+                                                jQuery("#kecamatan_"+urutan).html(option_kec);
+                                                jQuery("#kecamatan_"+urutan).select2({width: '100%'});
+
+                                                // setting opsi master desa
+                                                let option_desa='<option value="">Pilih Desa</option>';
+                                                response.data.data_master_desa[id].map(function(value, index){
+                                                    option_desa+='<option value="'+value.id_alamat+'">'+value.nama+'</option>'
+                                                });
+                                                jQuery("#desa_usulan_"+urutan).html(option_desa).prop('disabled', false);
+                                                jQuery("#desa_usulan_"+urutan).select2({width: '100%'});
+                                                jQuery("#desa_"+urutan).html(option_desa);
+                                                jQuery("#desa_"+urutan).select2({width: '100%'});
+
+                                                jQuery("#kabupaten_kota_usulan_"+urutan).prop('disabled', false);
+                                                
+                                                // set value edit lokasi renja
+                                                if(value.idkabkota_usulan != null){
+                                                    setOnchangeFalse("#kabupaten_kota_usulan_"+urutan, value.idkabkota_usulan);
+                                                }
+                                                if(value.idkabkota != null){
+                                                    setOnchangeFalse("#kabupaten_kota_"+urutan, value.idkabkota);
+                                                }
+                                                if(value.idcamat_usulan != null){
+                                                    setOnchangeFalse("#kecamatan_usulan_"+urutan, value.idcamat_usulan);
+                                                }
+                                                if(value.idcamat != null){
+                                                    setOnchangeFalse("#kecamatan_"+urutan, value.idcamat);
+                                                }
+                                                if(value.idlurah_usulan != null){
+                                                    setOnchangeFalse("#desa_usulan_"+urutan, value.idlurah_usulan);
+                                                }
+                                                if(value.idlurah != null){
+                                                    setOnchangeFalse("#desa_"+urutan, value.idlurah);
+                                                }
+                                            })
+
+                                        })
+                                        /** -- end -- */
+
+                                         /** Memunculkan data label tag */
+                                         response.data.label_tag.map(function(value, index){
+                                            let id = index+1;
+                                            new Promise(function(resolve, reject){
+                                                if(id > 1){
+                                                    tambahLabelTag()
+                                                    .then(function(){
+                                                        resolve(value);
+                                                    })
+                                                }else{
+                                                    resolve(value);
+                                                }
+                                            })
+                                            .then(function(value){
+                                                jQuery("#label_tag_usulan_"+id).val(value.id_label_giat_usulan).trigger('change').prop('disabled', false);
+                                                jQuery("#label_tag_"+id).val(value.id_label_giat).trigger('change');
+                                            });
+                                        })
+                                        /** -- end -- */
+
+                                        jQuery("#modalTambahRenja .modal-title").html("Edit Sub Kegiatan");
+                                        jQuery("#modalTambahRenja .submitBtn")
+                                            .attr("onclick", `submitEditRenjaForm('${kode_sbl}')`)
+                                            .attr("disabled", false)
+                                            .text("Simpan");
+                                        jQuery('#modalTambahRenja').modal('show');
+                                        jQuery('#wrap-loading').hide();
                                     }
-                                })
-                                .then(function(value){
-                                    jQuery("#ind_sub_keg_id_"+id).val(value.id);
-                                    jQuery("#indikator_pagu_indi_sub_keg_usulan_"+id).val(value.targetoutput_usulan).prop('disabled', false);
-                                    jQuery("#pagu_ind_sub_keg_usulan_"+id).val(value.id_indikator_sub_giat).trigger('change').prop('disabled', false);
-                                    jQuery("#satuan_pagu_indi_sub_keg_usulan_"+id).val(value.id_indikator_sub_giat).trigger('change');
-                                    jQuery("#indikator_pagu_indi_sub_keg_"+id).val(value.targetoutput).prop('disabled', false);
-                                    jQuery("#pagu_indi_sub_keg_penetapan_"+id).val(value.id_indikator_sub_giat).trigger('change');
-                                    jQuery("#satuan_pagu_indi_sub_keg_penetapan_"+id).val(value.id_indikator_sub_giat).trigger('change');
                                 });
-                            })
-                            /** -- end -- */
-
-                            /** Memunculkan data sumber dana */
-                            response.data.sumber_dana.map(function(value, index){
-                                let id = index+1;
-                                new Promise(function(resolve, reject){
-                                    if(id > 1){
-                                        tambahSumberDana()
-                                        .then(function(){
-                                            resolve(value);
-                                        })
-                                    }else{
-                                        resolve(value);
-                                    }
-                                })
-                                .then(function(value){
-                                    jQuery("#sumber_dana_usulan_"+id).val(value.id_dana_usulan).trigger('change').prop('disabled', false);
-                                    jQuery("#pagu_sumber_dana_usulan_"+id).val(value.pagu_dana_usulan).prop('disabled', false);
-                                    jQuery("#sumber_dana_"+id).val(value.iddana).trigger('change');
-                                    jQuery("#pagu_sumber_dana_"+id).val(value.pagudana).prop('disabled', false);
-                                });
-                            })
-                            /** -- end -- */
-
-                            /** Memunculkan data lokasi */
-                            response.data.lokasi.map(function(value, index){
-                                let urutan = index+1;
-                                let id = value.id;
-                                new Promise(function(resolve, reject){
-                                    if(urutan > 1){
-                                        tambahLokasi()
-                                        .then(function(){
-                                            resolve(value);
-                                        })
-                                    }else{
-                                        resolve(value);
-                                    }
-                                })
-                                .then(function(value){
-                                    // setting opsi master kecamatan
-                                    let option_kec='<option value="">Pilih Kecamatan</option>';
-                                    response.data.data_master_kec[id].map(function(value, index){
-                                        option_kec+='<option value="'+value.id_alamat+'">'+value.nama+'</option>'
-                                    });
-                                    jQuery("#kecamatan_usulan_"+urutan).html(option_kec).prop('disabled', false);
-                                    jQuery("#kecamatan_usulan_"+urutan).select2({width: '100%'});
-                                    jQuery("#kecamatan_"+urutan).html(option_kec);
-                                    jQuery("#kecamatan_"+urutan).select2({width: '100%'});
-
-                                    // setting opsi master desa
-                                    let option_desa='<option value="">Pilih Desa</option>';
-                                    response.data.data_master_desa[id].map(function(value, index){
-                                        option_desa+='<option value="'+value.id_alamat+'">'+value.nama+'</option>'
-                                    });
-                                    jQuery("#desa_usulan_"+urutan).html(option_desa).prop('disabled', false);
-                                    jQuery("#desa_usulan_"+urutan).select2({width: '100%'});
-                                    jQuery("#desa_"+urutan).html(option_desa);
-                                    jQuery("#desa_"+urutan).select2({width: '100%'});
-
-                                    jQuery("#kabupaten_kota_usulan_"+urutan).prop('disabled', false);
-                                    
-                                    // set value edit lokasi renja
-                                    if(value.idkabkota_usulan != null){
-                                        setOnchangeFalse("#kabupaten_kota_usulan_"+urutan, value.idkabkota_usulan);
-                                    }
-                                    if(value.idkabkota != null){
-                                        setOnchangeFalse("#kabupaten_kota_"+urutan, value.idkabkota);
-                                    }
-                                    if(value.idcamat_usulan != null){
-                                        setOnchangeFalse("#kecamatan_usulan_"+urutan, value.idcamat_usulan);
-                                    }
-                                    if(value.idcamat != null){
-                                        setOnchangeFalse("#kecamatan_"+urutan, value.idcamat);
-                                    }
-                                    if(value.idlurah_usulan != null){
-                                        setOnchangeFalse("#desa_usulan_"+urutan, value.idlurah_usulan);
-                                    }
-                                    if(value.idlurah != null){
-                                        setOnchangeFalse("#desa_"+urutan, value.idlurah);
-                                    }
-                                })
-
-                            })
-                            /** -- end -- */
-
-                            jQuery("#modalTambahRenja .modal-title").html("Edit Sub Kegiatan");
-                            jQuery("#modalTambahRenja .submitBtn")
-                                .attr("onclick", `submitEditRenjaForm('${kode_sbl}')`)
-                                .attr("disabled", false)
-                                .text("Simpan");
-                            jQuery('#modalTambahRenja').modal('show');
-                            jQuery('#wrap-loading').hide();
-                        }
-                    })
+                            });
+                        });
+                    });
                 });
             });
         });
@@ -2195,179 +2299,214 @@ echo '
     function detail_renja(kode_sbl){
         get_data_sub_unit(id_skpd)
         .then(function(){
-            get_data_sumber_dana()
+            get_data_prioritas_prov()
             .then(function(){
-                get_data_lokasi(false, 'prov', false, false, 1)
+                get_data_prioritas_kabkot()
                 .then(function(){
-                    jQuery('#wrap-loading').show();
-                    jQuery.ajax({
-                        method: 'post',
-                        url: '<?php echo admin_url('admin-ajax.php'); ?>',
-                        dataType: 'json',
-                        data: {
-                            'action': 'edit_renja',
-                            'api_key': jQuery('#api_key').val(),
-                            'kode_sbl': kode_sbl,
-                            'tahun_anggaran': tahun_anggaran
-                        },
-                        success: function(response){
-                            jQuery('#pagu_sub_kegiatan_usulan').val(response.data.pagu_usulan).prop('disabled', true);
-                            // jQuery('#pagu_sub_kegiatan_usulan').prop('disabled', true);
-                            jQuery('#pagu_sub_kegiatan_1_usulan').val(response.data.pagu_n_depan_usulan).prop('disabled', true);
-                            jQuery('#pagu_sub_kegiatan').val(response.data.pagu).prop('disabled', true);
-                            jQuery('#pagu_sub_kegiatan_1').val(response.data.pagu_n_depan).prop('disabled', true);
-                            jQuery('#catatan_usulan').val(response.data.catatan_usulan).prop('disabled', true);
-                            jQuery('#catatan').val(response.data.catatan).prop('disabled', true);
-                            let input_sub_unit = `<option selected value="${response.data.id_sub_skpd}">${response.data.nama_sub_skpd}</option>`;
-                            jQuery('#input_sub_unit').html(input_sub_unit);
-                            jQuery('#input_sub_unit').prop('disabled', true);
-                            let input_sub_kegiatan = `<option selected value="${response.data.id_sub_giat}">${response.data.nama_sub_giat}</option>`;
-                            jQuery('#sub_kegiatan').html(input_sub_kegiatan);
-                            jQuery('#sub_kegiatan').prop('disabled', true);
-                            jQuery('select[name="input_bulan_awal_usulan"] option[value="'+response.data.waktu_awal_usulan+'"]').attr("selected","selected");
-                            jQuery('select[name="input_bulan_awal_usulan"]').prop('disabled', true);
-                            jQuery('select[name="input_bulan_akhir_usulan"] option[value="'+response.data.waktu_akhir_usulan+'"]').attr("selected","selected");
-                            jQuery('select[name="input_bulan_akhir_usulan"]').prop('disabled', true);
-                            jQuery('select[name="input_bulan_awal"] option[value="'+response.data.waktu_awal+'"]').attr("selected","selected").prop('disabled', true);
-                            jQuery('select[name="input_bulan_akhir"] option[value="'+response.data.waktu_akhir+'"]').attr("selected","selected").prop('disabled', true);
-                            jQuery('#input_prioritas_provinsi').prop('disabled', true);
-                            jQuery('#input_prioritas_kab_kota').prop('disabled', true);
-                            jQuery('#label_tag_usulan').prop('disabled', true);
-                            jQuery('#label_tag').prop('disabled', true);
+                    get_data_label_tag()
+                    .then(function(){
+                        get_data_sumber_dana()
+                        .then(function(){
+                            get_data_lokasi(false, 'prov', false, false, 1)
+                            .then(function(){
+                                jQuery('#wrap-loading').show();
+                                jQuery.ajax({
+                                    method: 'post',
+                                    url: '<?php echo admin_url('admin-ajax.php'); ?>',
+                                    dataType: 'json',
+                                    data: {
+                                        'action': 'edit_renja',
+                                        'api_key': jQuery('#api_key').val(),
+                                        'kode_sbl': kode_sbl,
+                                        'tahun_anggaran': tahun_anggaran
+                                    },
+                                    success: function(response){
+                                        jQuery('#pagu_sub_kegiatan_usulan').val(response.data.pagu_usulan).prop('disabled', true);
+                                        // jQuery('#pagu_sub_kegiatan_usulan').prop('disabled', true);
+                                        jQuery('#pagu_sub_kegiatan_1_usulan').val(response.data.pagu_n_depan_usulan).prop('disabled', true);
+                                        jQuery('#pagu_sub_kegiatan').val(response.data.pagu).prop('disabled', true);
+                                        jQuery('#pagu_sub_kegiatan_1').val(response.data.pagu_n_depan).prop('disabled', true);
+                                        jQuery('#catatan_usulan').val(response.data.catatan_usulan).prop('disabled', true);
+                                        jQuery('#catatan').val(response.data.catatan).prop('disabled', true);
+                                        let input_sub_unit = `<option selected value="${response.data.id_sub_skpd}">${response.data.nama_sub_skpd}</option>`;
+                                        jQuery('#input_sub_unit').html(input_sub_unit);
+                                        jQuery('#input_sub_unit').prop('disabled', true);
+                                        let input_sub_kegiatan = `<option selected value="${response.data.id_sub_giat}">${response.data.nama_sub_giat}</option>`;
+                                        jQuery('#sub_kegiatan').html(input_sub_kegiatan);
+                                        jQuery('#sub_kegiatan').prop('disabled', true);
+                                        jQuery('select[name="input_bulan_awal_usulan"] option[value="'+response.data.waktu_awal_usulan+'"]').attr("selected","selected");
+                                        jQuery('select[name="input_bulan_awal_usulan"]').prop('disabled', true);
+                                        jQuery('select[name="input_bulan_akhir_usulan"] option[value="'+response.data.waktu_akhir_usulan+'"]').attr("selected","selected");
+                                        jQuery('select[name="input_bulan_akhir_usulan"]').prop('disabled', true);
+                                        jQuery('select[name="input_bulan_awal"] option[value="'+response.data.waktu_awal+'"]').attr("selected","selected").prop('disabled', true);
+                                        jQuery('select[name="input_bulan_akhir"] option[value="'+response.data.waktu_akhir+'"]').attr("selected","selected").prop('disabled', true);
+                                        jQuery('#input_prioritas_provinsi').prop('disabled', true);
+                                        jQuery('#input_prioritas_kab_kota').prop('disabled', true);
+                                        jQuery('#label_tag_usulan').prop('disabled', true);
+                                        jQuery('#label_tag').prop('disabled', true);
 
-                            /** Memunculkan data indikator sub kegiatan */
-                            let optionIndikator='<option value="">Pilih Nama Indikator</option>';
-                            response.data.master_sub_keg_indikator.map(function(value, index){
-                                optionIndikator+='<option value="'+value.id_sub_keg+'">'+value.indikator+'</option>';
+                                        if(response.data.id_label_prov != 0){
+                                            jQuery('select[name="input_prioritas_provinsi"]').val(response.data.id_label_prov).trigger('change');
+                                        }
+                                        if(response.data.id_label_kokab != 0){
+                                            jQuery('select[name="input_prioritas_kab_kota"]').val(response.data.id_label_kokab).trigger('change');
+                                        }
+
+                                        /** Memunculkan data indikator sub kegiatan */
+                                        let optionIndikator='<option value="">Pilih Nama Indikator</option>';
+                                        response.data.master_sub_keg_indikator.map(function(value, index){
+                                            optionIndikator+='<option value="'+value.id_sub_keg+'">'+value.indikator+'</option>';
+                                        });
+                                        let optionSatuan='<option value="">Pilih Satuan</option>';
+                                        response.data.master_sub_keg_indikator.map(function(value, index){
+                                            optionSatuan+='<option value="'+value.id_sub_keg+'">'+value.satuan+'</option>';
+                                        });
+                                        jQuery("#pagu_ind_sub_keg_usulan_1").html(optionIndikator).select2({width: '100%'}).prop('disabled', true);
+                                        jQuery("#pagu_indi_sub_keg_penetapan_1").html(optionIndikator).select2({width: '100%'}).prop('disabled', true);
+                                        jQuery("#satuan_pagu_indi_sub_keg_usulan_1").html(optionSatuan).select2({width: '100%'}).prop('disabled', true);
+                                        jQuery("#satuan_pagu_indi_sub_keg_penetapan_1").html(optionSatuan).select2({width: '100%'}).prop('disabled', true);
+
+                                        response.data.indikator_sub_keg.map(function(value, index){
+                                            let id = index+1;
+                                            new Promise(function(resolve, reject){
+                                                if(id > 1){
+                                                    tambahIndikator()
+                                                    .then(function(){
+                                                        resolve(value);
+                                                    })
+                                                }else{
+                                                    resolve(value);
+                                                }
+                                            })
+                                            .then(function(value){
+                                                jQuery("#ind_sub_keg_id_"+id).val(value.id).prop('disabled', true);
+                                                jQuery("#indikator_pagu_indi_sub_keg_usulan_"+id).val(value.targetoutput_usulan).prop('disabled', true);
+                                                jQuery("#pagu_ind_sub_keg_usulan_"+id).val(value.id_indikator_sub_giat).trigger('change').prop('disabled', true);
+                                                jQuery("#satuan_pagu_indi_sub_keg_usulan_"+id).val(value.id_indikator_sub_giat).trigger('change').prop('disabled', true);
+                                                jQuery("#indikator_pagu_indi_sub_keg_"+id).val(value.targetoutput).prop('disabled', true);
+                                                jQuery("#pagu_indi_sub_keg_penetapan_"+id).val(value.id_indikator_sub_giat).trigger('change').prop('disabled', true);
+                                                jQuery("#satuan_pagu_indi_sub_keg_penetapan_"+id).val(value.id_indikator_sub_giat).trigger('change').prop('disabled', true);
+                                            });
+                                        })
+                                        /** -- end -- */
+
+                                        /** Memunculkan data sumber dana */
+                                        response.data.sumber_dana.map(function(value, index){
+                                            let id = index+1;
+                                            new Promise(function(resolve, reject){
+                                                if(id > 1){
+                                                    tambahSumberDana()
+                                                    .then(function(){
+                                                        resolve(value);
+                                                    })
+                                                }else{
+                                                    resolve(value);
+                                                }
+                                            })
+                                            .then(function(value){
+                                                jQuery("#sumber_dana_usulan_"+id).val(value.id_dana_usulan).trigger('change').prop('disabled', true);
+                                                jQuery("#pagu_sumber_dana_usulan_"+id).val(value.pagu_dana_usulan).prop('disabled', true);
+                                                jQuery("#sumber_dana_"+id).val(value.iddana).trigger('change').prop('disabled', true);
+                                                jQuery("#pagu_sumber_dana_"+id).val(value.pagudana).prop('disabled', true);
+                                            });
+                                        })
+                                        /** -- end -- */
+
+                                        /** Memunculkan data lokasi */
+                                        response.data.lokasi.map(function(value, index){
+                                            let urutan = index+1;
+                                            let id = value.id;
+                                            new Promise(function(resolve, reject){
+                                                if(urutan > 1){
+                                                    tambahLokasi()
+                                                    .then(function(){
+                                                        resolve(value);
+                                                    })
+                                                }else{
+                                                    resolve(value);
+                                                }
+                                            })
+                                            .then(function(value){
+                                                // setting opsi master kecamatan
+                                                let option_kec='<option value="">Pilih Kecamatan</option>';
+                                                response.data.data_master_kec[id].map(function(value, index){
+                                                    option_kec+='<option value="'+value.id_alamat+'">'+value.nama+'</option>'
+                                                });
+                                                jQuery("#kecamatan_usulan_"+urutan).html(option_kec).prop('disabled', true);
+                                                jQuery("#kecamatan_usulan_"+urutan).select2({width: '100%'});
+                                                jQuery("#kecamatan_"+urutan).html(option_kec).prop('disabled', true);
+                                                jQuery("#kecamatan_"+urutan).select2({width: '100%'});
+
+                                                // setting opsi master desa
+                                                let option_desa='<option value="">Pilih Desa</option>';
+                                                response.data.data_master_desa[id].map(function(value, index){
+                                                    option_desa+='<option value="'+value.id_alamat+'">'+value.nama+'</option>'
+                                                });
+                                                jQuery("#desa_usulan_"+urutan).html(option_desa).prop('disabled', true);
+                                                jQuery("#desa_usulan_"+urutan).select2({width: '100%'});
+                                                jQuery("#desa_"+urutan).html(option_desa).prop('disabled', true);
+                                                jQuery("#desa_"+urutan).select2({width: '100%'});
+
+                                                jQuery("#kabupaten_kota_usulan_"+urutan).prop('disabled', true);
+                                                
+                                                // set value edit lokasi renja
+                                                if(value.idkabkota_usulan != null){
+                                                    setOnchangeFalse("#kabupaten_kota_usulan_"+urutan, value.idkabkota_usulan);
+                                                }
+                                                if(value.idkabkota != null){
+                                                    setOnchangeFalse("#kabupaten_kota_"+urutan, value.idkabkota);
+                                                }
+                                                if(value.idcamat_usulan != null){
+                                                    setOnchangeFalse("#kecamatan_usulan_"+urutan, value.idcamat_usulan);
+                                                }
+                                                if(value.idcamat != null){
+                                                    setOnchangeFalse("#kecamatan_"+urutan, value.idcamat);
+                                                }
+                                                if(value.idlurah_usulan != null){
+                                                    setOnchangeFalse("#desa_usulan_"+urutan, value.idlurah_usulan);
+                                                }
+                                                if(value.idlurah != null){
+                                                    setOnchangeFalse("#desa_"+urutan, value.idlurah);
+                                                }
+                                            })
+
+                                        })
+                                        /** -- end -- */
+
+                                        /** Memunculkan data label tag */
+                                        response.data.label_tag.map(function(value, index){
+                                            let id = index+1;
+                                            new Promise(function(resolve, reject){
+                                                if(id > 1){
+                                                    tambahLabelTag()
+                                                    .then(function(){
+                                                        resolve(value);
+                                                    })
+                                                }else{
+                                                    resolve(value);
+                                                }
+                                            })
+                                            .then(function(value){
+                                                jQuery("#label_tag_usulan_"+id).val(value.id_label_giat_usulan).trigger('change').prop('disabled', true);
+                                                jQuery("#label_tag_"+id).val(value.id_label_giat).trigger('change');
+                                            });
+                                        })
+
+                                        jQuery(".detail_tambah").hide();
+                                        jQuery("#button_copy_renja").hide();
+                                        jQuery("#modalTambahRenja .modal-title").html("Detail Sub Kegiatan");
+                                        jQuery("#modalTambahRenja .submitBtn")
+                                            .attr("onclick", `showEditRenjaForm('${kode_sbl}')`)
+                                            .attr("disabled", false)
+                                            .text("Simpan")
+                                            .hide();
+                                        jQuery('#modalTambahRenja').modal('show');
+                                        jQuery('#wrap-loading').hide();
+                                    }
+                                })
                             });
-                            let optionSatuan='<option value="">Pilih Satuan</option>';
-                            response.data.master_sub_keg_indikator.map(function(value, index){
-                                optionSatuan+='<option value="'+value.id_sub_keg+'">'+value.satuan+'</option>';
-                            });
-                            jQuery("#pagu_ind_sub_keg_usulan_1").html(optionIndikator).select2({width: '100%'}).prop('disabled', true);
-                            jQuery("#pagu_indi_sub_keg_penetapan_1").html(optionIndikator).select2({width: '100%'}).prop('disabled', true);
-                            jQuery("#satuan_pagu_indi_sub_keg_usulan_1").html(optionSatuan).select2({width: '100%'}).prop('disabled', true);
-                            jQuery("#satuan_pagu_indi_sub_keg_penetapan_1").html(optionSatuan).select2({width: '100%'}).prop('disabled', true);
-
-                            response.data.indikator_sub_keg.map(function(value, index){
-                                let id = index+1;
-                                new Promise(function(resolve, reject){
-                                    if(id > 1){
-                                        tambahIndikator()
-                                        .then(function(){
-                                            resolve(value);
-                                        })
-                                    }else{
-                                        resolve(value);
-                                    }
-                                })
-                                .then(function(value){
-                                    jQuery("#ind_sub_keg_id_"+id).val(value.id).prop('disabled', true);
-                                    jQuery("#indikator_pagu_indi_sub_keg_usulan_"+id).val(value.targetoutput_usulan).prop('disabled', true);
-                                    jQuery("#pagu_ind_sub_keg_usulan_"+id).val(value.id_indikator_sub_giat).trigger('change').prop('disabled', true);
-                                    jQuery("#satuan_pagu_indi_sub_keg_usulan_"+id).val(value.id_indikator_sub_giat).trigger('change').prop('disabled', true);
-                                    jQuery("#indikator_pagu_indi_sub_keg_"+id).val(value.targetoutput).prop('disabled', true);
-                                    jQuery("#pagu_indi_sub_keg_penetapan_"+id).val(value.id_indikator_sub_giat).trigger('change').prop('disabled', true);
-                                    jQuery("#satuan_pagu_indi_sub_keg_penetapan_"+id).val(value.id_indikator_sub_giat).trigger('change').prop('disabled', true);
-                                });
-                            })
-                            /** -- end -- */
-
-                            /** Memunculkan data sumber dana */
-                            response.data.sumber_dana.map(function(value, index){
-                                let id = index+1;
-                                new Promise(function(resolve, reject){
-                                    if(id > 1){
-                                        tambahSumberDana()
-                                        .then(function(){
-                                            resolve(value);
-                                        })
-                                    }else{
-                                        resolve(value);
-                                    }
-                                })
-                                .then(function(value){
-                                    jQuery("#sumber_dana_usulan_"+id).val(value.id_dana_usulan).trigger('change').prop('disabled', true);
-                                    jQuery("#pagu_sumber_dana_usulan_"+id).val(value.pagu_dana_usulan).prop('disabled', true);
-                                    jQuery("#sumber_dana_"+id).val(value.iddana).trigger('change').prop('disabled', true);
-                                    jQuery("#pagu_sumber_dana_"+id).val(value.pagudana).prop('disabled', true);
-                                });
-                            })
-                            /** -- end -- */
-
-                            /** Memunculkan data lokasi */
-                            response.data.lokasi.map(function(value, index){
-                                let urutan = index+1;
-                                let id = value.id;
-                                new Promise(function(resolve, reject){
-                                    if(urutan > 1){
-                                        tambahLokasi()
-                                        .then(function(){
-                                            resolve(value);
-                                        })
-                                    }else{
-                                        resolve(value);
-                                    }
-                                })
-                                .then(function(value){
-                                    // setting opsi master kecamatan
-                                    let option_kec='<option value="">Pilih Kecamatan</option>';
-                                    response.data.data_master_kec[id].map(function(value, index){
-                                        option_kec+='<option value="'+value.id_alamat+'">'+value.nama+'</option>'
-                                    });
-                                    jQuery("#kecamatan_usulan_"+urutan).html(option_kec).prop('disabled', true);
-                                    jQuery("#kecamatan_usulan_"+urutan).select2({width: '100%'});
-                                    jQuery("#kecamatan_"+urutan).html(option_kec).prop('disabled', true);
-                                    jQuery("#kecamatan_"+urutan).select2({width: '100%'});
-
-                                    // setting opsi master desa
-                                    let option_desa='<option value="">Pilih Desa</option>';
-                                    response.data.data_master_desa[id].map(function(value, index){
-                                        option_desa+='<option value="'+value.id_alamat+'">'+value.nama+'</option>'
-                                    });
-                                    jQuery("#desa_usulan_"+urutan).html(option_desa).prop('disabled', true);
-                                    jQuery("#desa_usulan_"+urutan).select2({width: '100%'});
-                                    jQuery("#desa_"+urutan).html(option_desa).prop('disabled', true);
-                                    jQuery("#desa_"+urutan).select2({width: '100%'});
-
-                                    jQuery("#kabupaten_kota_usulan_"+urutan).prop('disabled', true);
-                                    
-                                    // set value edit lokasi renja
-                                    if(value.idkabkota_usulan != null){
-                                        setOnchangeFalse("#kabupaten_kota_usulan_"+urutan, value.idkabkota_usulan);
-                                    }
-                                    if(value.idkabkota != null){
-                                        setOnchangeFalse("#kabupaten_kota_"+urutan, value.idkabkota);
-                                    }
-                                    if(value.idcamat_usulan != null){
-                                        setOnchangeFalse("#kecamatan_usulan_"+urutan, value.idcamat_usulan);
-                                    }
-                                    if(value.idcamat != null){
-                                        setOnchangeFalse("#kecamatan_"+urutan, value.idcamat);
-                                    }
-                                    if(value.idlurah_usulan != null){
-                                        setOnchangeFalse("#desa_usulan_"+urutan, value.idlurah_usulan);
-                                    }
-                                    if(value.idlurah != null){
-                                        setOnchangeFalse("#desa_"+urutan, value.idlurah);
-                                    }
-                                })
-
-                            })
-                            /** -- end -- */
-
-                            jQuery(".detail_tambah").hide();
-                            jQuery("#button_copy_renja").hide();
-                            jQuery("#modalTambahRenja .modal-title").html("Detail Sub Kegiatan");
-                            jQuery("#modalTambahRenja .submitBtn")
-                                .attr("onclick", `showEditRenjaForm('${kode_sbl}')`)
-                                .attr("disabled", false)
-                                .text("Simpan")
-                                .hide();
-                            jQuery('#modalTambahRenja').modal('show');
-                            jQuery('#wrap-loading').hide();
-                        }
-                    })
+                        });
+                    });
                 });
             });
         });
@@ -3368,4 +3507,48 @@ echo '
             }
 		}
 	}
+
+    function get_data_label_tag(){
+        return new Promise(function(resolve, reject){
+            if(typeof master_label_tag == 'undefined'){
+                jQuery("#wrap-loading").show();
+                jQuery.ajax({
+                    method: 'POST',
+                    url: '<?php echo admin_url('admin-ajax.php'); ?>',
+                    dataType: 'json',
+                    data: {
+                        'action': 'get_label_sub_keg',
+                        'api_key': jQuery('#api_key').val(),
+                        'tahun_anggaran': tahun_anggaran
+                    },
+                    success:function(response){
+                        window.master_label_tag = response.data;
+                        jQuery("#wrap-loading").hide();
+                        let option='<option value="">Pilih Label (Tag)</option>';
+        				response.data.map(function(value, index){
+                            option+='<option value="'+value.id_label_giat+'">'+value.nama_label+'</option>';
+                        })
+
+        				jQuery(".label_tag_usulan").html(option);
+                        jQuery(".label_tag_usulan").select2({width: '100%'});
+                        jQuery(".label_tag").html(option);
+                        jQuery(".label_tag").select2({width: '100%'});
+                        resolve();
+                    }
+                });
+            }else{
+                jQuery('.input_label_tag_usulan tbody tr').map(function(i, b){
+                    if(i >= 1){
+                        jQuery(b).remove();
+                    }
+                });
+                jQuery('.input_label_tag tbody tr').map(function(i, b){
+                    if(i >= 1){
+                        jQuery(b).remove();
+                    }
+                });
+                resolve();
+            }
+        });
+    }
 </script>
