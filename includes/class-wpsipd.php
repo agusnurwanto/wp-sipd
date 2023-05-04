@@ -792,6 +792,7 @@ class Wpsipd
 		add_shortcode('input_rka_lokal', array($plugin_public, 'input_rka_lokal'));
 		add_shortcode('surat_usulan_ssh', array($plugin_public, 'surat_usulan_ssh'));
 		add_shortcode('halaman_pendapatan', array($plugin_public, 'halaman_pendapatan'));
+		add_shortcode('keu_pemdes_bhpd', array($plugin_public, 'keu_pemdes_bhpd'));
 
 		//shortcode SIPKD
 		add_shortcode('data_akun',array($plugin_public,'sipkd_akun'));

@@ -503,6 +503,9 @@ class Wpsipd_Admin {
 		);
 		if (!empty($_POST)) {
 			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option('_crb_api_key_extension' )) {
+				if($_POST['type'] == 'keu_pemdes'){
+					return $this->load_ajax_carbon_pemdes($ret);
+				}
 				$sumber_pagu_dpa = get_option('_crb_default_sumber_pagu_dpa');
 				$url_nilai_dpa = '&pagu_dpa=simda';
 				if($sumber_pagu_dpa == 2){
@@ -687,6 +690,99 @@ class Wpsipd_Admin {
 		die(json_encode($ret));
 	}
 
+	public function load_ajax_carbon_pemdes($ret){
+		global $wpdb;
+		$tahun = $wpdb->get_results('
+			SELECT 
+				tahun_anggaran 
+			from data_unit 
+			group by tahun_anggaran 
+			order by tahun_anggaran DESC
+		', ARRAY_A);
+		$id_kab = get_option('_crb_id_lokasi_kokab');
+        $body_all = '';
+		foreach ($tahun as $k => $v) {
+			$url_bhpd =$this->generatePage('Laporan Keuangan Pemerintah Desa Bagi Hasil Pajak Daerah (BHPD) '.$v['tahun_anggaran'], false, '[keu_pemdes_bhpd tahun_anggaran="'.$v['tahun_anggaran'].'"]');
+			$url_bhrd =$this->generatePage('Laporan Keuangan Pemerintah Desa Bagi Hasil Retribusi Daerah (BHRD) '.$v['tahun_anggaran'], false, '[keu_pemdes_bhrd tahun_anggaran="'.$v['tahun_anggaran'].'"]');
+			$url_dd =$this->generatePage('Laporan Keuangan Pemerintah Desa Bantuan Keuangan Umum (BKU) Desa Dana Desa (DD) '.$v['tahun_anggaran'], false, '[keu_pemdes_bku_dd tahun_anggaran="'.$v['tahun_anggaran'].'"]');
+			$url_add =$this->generatePage('Laporan Keuangan Pemerintah Desa Bantuan Keuangan Umum (BKU) Anggaran Dana Desa (ADD) '.$v['tahun_anggaran'], false, '[keu_pemdes_bku_add tahun_anggaran="'.$v['tahun_anggaran'].'"]');
+			$url_bkk_inf =$this->generatePage('Laporan Keuangan Pemerintah Desa Bantuan Keuangan Khusus (BKK) Infrastruktur '.$v['tahun_anggaran'], false, '[keu_pemdes_bkk_inf tahun_anggaran="'.$v['tahun_anggaran'].'"]');
+			$url_bkk_pilkades =$this->generatePage('Laporan Keuangan Pemerintah Desa Bantuan Keuangan Khusus (BKK) Pilkades '.$v['tahun_anggaran'], false, '[keu_pemdes_bkk_pilkades tahun_anggaran="'.$v['tahun_anggaran'].'"]');
+            $unit = $wpdb->get_results("
+            	SELECT 
+            		nama_skpd, 
+            		id_skpd, 
+            		kode_skpd, 
+            		nipkepala 
+            	from data_unit 
+            	where active=1 
+            		and tahun_anggaran=".$v['tahun_anggaran']." 
+            		and is_skpd=1 
+            		and nama_skpd like 'KECAMATAN %' 
+            	order by kode_skpd ASC
+            ", ARRAY_A);
+            $body_pemda = '<ul style="margin-left: 20px;">';
+			$body_pemda .= '
+				<li><a href="'.$url_bhpd.'" target="__blank__">Laporan Keuangan Pemerintah Desa Bagi Hasil Pajak Daerah (BHPD) '.$v['tahun_anggaran'].'</a></li>
+				<li><a href="'.$url_bhrd.'" target="__blank__">Laporan Keuangan Pemerintah Desa Bagi Hasil Retribusi Daerah (BHRD) '.$v['tahun_anggaran'].'</a></li>
+				<li><a href="'.$url_dd.'" target="__blank__">Laporan Keuangan Pemerintah Desa BKU Dana Desa (DD) '.$v['tahun_anggaran'].'</a></li>
+				<li><a href="'.$url_add.'" target="__blank__">Laporan Keuangan Pemerintah Desa BKU Anggaran Dana Desa (ADD) '.$v['tahun_anggaran'].'</a></li>
+				<li><a href="'.$url_bkk_inf.'" target="__blank__">Laporan Keuangan Pemerintah Desa BKK Infrastruktur '.$v['tahun_anggaran'].'</a></li>
+				<li><a href="'.$url_bkk_pilkades.'" target="__blank__">Laporan Keuangan Pemerintah Desa BKK Pilkades '.$v['tahun_anggaran'].'</a></li>
+			';
+            foreach($unit as $kk => $vv){
+            	$url_skpd = $this->generatePage($vv['nama_skpd'].' '.$vv['kode_skpd'].' | '.$v['tahun_anggaran'], $v['tahun_anggaran'], '[monitor_keu_pemdes tahun_anggaran="'.$v['tahun_anggaran'].'" id_skpd="'.$vv['id_skpd'].'"]');
+        		$body_pemda .= '<li><a target="_blank" href="'.$url_skpd.'">'.$vv['kode_skpd'].' '.$vv['nama_skpd'].' | '.$v['tahun_anggaran'].'</a> (NIP: '.$vv['nipkepala'].')';
+            	if(!empty($id_kab)){
+            		$nama_kec = str_replace('KECAMATAN ', '', $vv['nama_skpd']);
+	            	$id_kec = $wpdb->get_var("
+	            		SELECT 
+	            			id_alamat 
+	            		from data_alamat 
+	            		where tahun=".$v['tahun_anggaran']." 
+	            			and is_kec=1 
+	            			and id_kab=".$id_kab." 
+	            			and nama='".$nama_kec."'
+	            	");
+	            	if(!empty($id_kec)){
+	            		$desa = $wpdb->get_results("
+		            		SELECT 
+		            			id_alamat,
+		            			nama 
+		            		from data_alamat 
+		            		where tahun=".$v['tahun_anggaran']." 
+		            			and is_kel=1 
+		            			and id_kab=".$id_kab." 
+		            			and id_kec=".$id_kec."
+		            	", ARRAY_A);
+		            	$body_pemda .= '<li>';
+		            	if(!empty($desa)){
+		            		$body_pemda .= '<ul style="margin: 5px 20px;">';
+		            	}
+		            	foreach($desa as $kkk => $vvv){
+			            	$url_skpd = $this->generatePage($vvv['nama'].' | '.$v['tahun_anggaran'], $v['tahun_anggaran'], '[monitor_keu_pemdes tahun_anggaran="'.$v['tahun_anggaran'].'" id_kec="'.$id_kec.'" id_kel="'.$vvv['id_alamat'].'"]');
+			        		$body_pemda .= '<li><a target="_blank" href="'.$url_skpd.'">'.$vvv['nama'].' | '.$v['tahun_anggaran'].'</a>';
+			        	}
+		            	if(!empty($desa)){
+		            		$body_pemda .= '</ul>';
+		            	}
+		            	$body_pemda .= '</li>';
+	            	}
+	            }
+            }
+            $body_pemda .= '</ul>';
+            $body_all .= '
+            	<h3 class="header-tahun" tahun="'.$v['tahun_anggaran'].'">Tahun Anggaran '.$v['tahun_anggaran'].'</h3>
+            	<div class="body-tahun" tahun="'.$v['tahun_anggaran'].'">';
+			if(empty($id_kab)){
+				$body_all .= '<h4>ID Lokasi Kota/Kabupaten Belum diisi di halaman SIPD Options!</h4>';
+			}
+            $body_all .= $body_pemda.'</div>';
+        }
+        $ret['message'] = $body_all;
+		die(json_encode($ret));
+	}
+
 	public function get_setting_fmis(){
 		global $wpdb;
 		$unit = array();
@@ -745,14 +841,14 @@ class Wpsipd_Admin {
 
 	public function get_setting_keu_pemdes(){
 		global $wpdb;
-		$tahun_anggaran = get_option('_crb_tahun_anggaran_sipd');
-		$url_bhpd =$this->generatePage('Laporan Keuangan Pemerintah Desa Bagi Hasil Pajak Desa (BHPD) '.$tahun_anggaran, false, '[keu_pemdes_bhpd]');
+		$url_beranda =$this->generatePage('Halaman Beranda', false, '[keu_pemdes_beranda]');
 		$setting = array(
 			Field::make('html','crb_keu_pemdes_page')
 				->set_html('<ul>
-				<li><a href="'.$url_bhpd.'" target="__blank__">Laporan Keuangan Pemerintah Desa Bagi Hasil Pajak Desa (BHPD) '.$tahun_anggaran.'</a></li>
+				<li><a href="'.$url_beranda.'" target="__blank__">Halaman Beranda</a></li>
 			</ul>')
 		);
+		$setting = array_merge($setting, $this->get_ajax_field(array('type' => 'keu_pemdes')));;
 		return $setting;
 	}
 
