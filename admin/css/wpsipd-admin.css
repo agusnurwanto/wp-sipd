@@ -113,3 +113,6 @@
 .header-tahun.active {
     background: #9e9e9e4f;
 }
+.hide {
+    display: none;
+}
