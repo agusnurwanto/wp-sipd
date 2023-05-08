@@ -788,14 +788,11 @@ echo '
                                     <div class="form-group">
                                         <label for="label_tag_usulan">Label (Tag) Sub Kegiatan</label>
                                         <table id="label_tag_usulan" class="input_label_tag_usulan" style="margin: 0;">
-                                            <tr data-id="1">
-                                                <td style="max-width:100px;">
-                                                    <select class="form-control input_select_2 label_tag_usulan" name="input_label_sub_keg_usulan[1]" id="label_tag_usulan_1" onchange="set_penetapan(this);">
+                                            <tr>
+                                                <td style="width: 100%;">
+                                                    <select class="form-control input_select_2 label_tag_usulan" name="input_label_sub_keg_usulan[]" id="label_tag_usulan" multiple="multiple" onchange="set_penetapan_multiple(this);">
                                                         <option value="">Pilih Label (Tag)</option>
                                                     </select>
-                                                </td>
-                                                <td style="width: 70px;" class="text-center detail_tambah">
-                                                    <button class="btn btn-warning btn-sm" onclick="tambahLabelTag(); return false;"><i class="dashicons dashicons-plus"></i></button>
                                                 </td>
                                             </tr>
                                         </table>
@@ -810,7 +807,7 @@ echo '
                                                     </select>
                                                 </td>
                                                 <td>
-                                                    <input class="form-control input_number" id="pagu_sumber_dana_usulan_1" type="number" name="input_pagu_sumber_dana_usulan[1]"/>
+                                                    <input class="form-control input_number" id="pagu_sumber_dana_usulan_1" type="number" name="input_pagu_sumber_dana_usulan[1]" onkeyup="set_anggaran(this);"/>
                                                 </td>
                                                 <td style="width: 70px" class="text-center detail_tambah">
                                                     <button class="btn btn-warning btn-sm" onclick="tambahSumberDana(); return false;"><i class="dashicons dashicons-plus"></i></button>
@@ -864,7 +861,8 @@ echo '
                                     </div>
                                     <div class="form-group">
                                         <label for="pagu_sub_kegiatan_usulan">Anggaran Sub Kegiatan</label>
-                                        <input class="form-control input_number" type="number" name="input_pagu_sub_keg_usulan" id="pagu_sub_kegiatan_usulan"/>
+                                        <input class="form-control input_number" type="number" name="input_pagu_sub_keg_usulan" id="pagu_sub_kegiatan_usulan" disabled />
+                                        <small class="form-text text-muted">Anggaran Sub Kegiatan diambil dari akumulasi sumber dana.</small>
                                     </div>
                                     <div class="form-group">
                                         <label for="pagu_sub_kegiatan_1_usulan">Anggaran Sub Kegiatan Tahun Berikutnya</label>
@@ -905,9 +903,9 @@ echo '
                                     <div class="form-group">
                                         <label for="label_tag">Label (Tag) Sub Kegiatan</label>
                                         <table id="label_tag" class="input_label_tag" style="margin: 0;">
-                                            <tr data-id="1">
-                                                <td style="width: 60%; max-width:100px;">
-                                                    <select class="form-control input_select_2 label_tag" name="input_label_sub_keg[1]" id="label_tag_1" disabled>
+                                            <tr>
+                                                <td style="width: 100%;">
+                                                    <select class="form-control input_select_2 label_tag" name="input_label_sub_keg[]" id="label_tag" multiple="multiple">
                                                         <option value="">Pilih Label (Tag)</option>
                                                     </select>
                                                 </td>
@@ -924,7 +922,7 @@ echo '
                                                     </select>
                                                 </td>
                                                 <td>
-                                                    <input class="form-control input_number" id="pagu_sumber_dana_1" type="number" name="input_pagu_sumber_dana[1]"<?php echo $disabled; ?>/>
+                                                    <input class="form-control input_number" id="pagu_sumber_dana_1" type="number" name="input_pagu_sumber_dana[1]"  onkeyup="set_anggaran(this);"<?php echo $disabled; ?>/>
                                                 </td>
                                             </tr>
                                         </table>
@@ -972,7 +970,8 @@ echo '
                                     </div>
                                     <div class="form-group">
                                         <label for="pagu_sub_kegiatan">Anggaran Sub Kegiatan</label>
-                                        <input class="form-control input_number" type="number" name="input_pagu_sub_keg" id="pagu_sub_kegiatan" <?php echo $disabled; ?>/>
+                                        <input class="form-control input_number" type="number" name="input_pagu_sub_keg" id="pagu_sub_kegiatan" disabled/>
+                                        <small class="form-text text-muted">Anggaran Sub Kegiatan diambil dari akumulasi sumber dana.</small>
                                     </div>
                                     <div class="form-group">
                                         <label for="pagu_sub_kegiatan_1">Anggaran Sub Kegiatan Tahun Berikutnya</label>
@@ -1176,14 +1175,19 @@ echo '
     <?php endif; ?>
     });
 
+    //untuk membuka input yang defaultnya tidak "disabled"
     jQuery('#modalTambahRenja').on('hidden.bs.modal', function (e) {
         jQuery("#button_copy_renja").show();
         jQuery("#modalTambahRenja .submitBtn").show();
         jQuery(".detail_tambah").show();
 
-        jQuery('#pagu_sub_kegiatan_usulan').prop('disabled', false);
+        jQuery("#sumber_dana_usulan_1").prop('disabled', false);
+        jQuery("#pagu_sumber_dana_usulan_1").prop('disabled', false);
+        jQuery("#pagu_sumber_dana_1").prop('disabled', false);
+        jQuery("#kabupaten_kota_usulan_1").prop('disabled', false);
+        jQuery("#kecamatan_usulan_1").prop('disabled', false);
+        jQuery("#desa_usulan_1").prop('disabled', false);
         jQuery('#pagu_sub_kegiatan_1_usulan').prop('disabled', false);
-        jQuery('#pagu_sub_kegiatan').prop('disabled', false);
         jQuery('#pagu_sub_kegiatan_1').prop('disabled', false);
         jQuery('#catatan_usulan').prop('disabled', false);
         jQuery('#catatan').prop('disabled', false);
@@ -1193,6 +1197,9 @@ echo '
         jQuery('#input_prioritas_kab_kota').prop('disabled', false);
         jQuery('#label_tag_usulan').prop('disabled', false);
         jQuery('#label_tag').prop('disabled', false);
+        jQuery('#pagu_ind_sub_keg_usulan_1').prop('disabled', false);
+        jQuery('#indikator_pagu_indi_sub_keg_usulan_1').prop('disabled', false);
+        jQuery('#indikator_pagu_indi_sub_keg_1').prop('disabled', false);
     })
 
     jQuery('#modal-indikator-renja').on('hidden.bs.modal', function (e) {
@@ -2259,24 +2266,13 @@ echo '
                                         })
                                         /** -- end -- */
 
-                                         /** Memunculkan data label tag */
-                                         response.data.label_tag.map(function(value, index){
-                                            let id = index+1;
-                                            new Promise(function(resolve, reject){
-                                                if(id > 1){
-                                                    tambahLabelTag()
-                                                    .then(function(){
-                                                        resolve(value);
-                                                    })
-                                                }else{
-                                                    resolve(value);
-                                                }
-                                            })
-                                            .then(function(value){
-                                                jQuery("#label_tag_usulan_"+id).val(value.id_label_giat_usulan).trigger('change').prop('disabled', false);
-                                                jQuery("#label_tag_"+id).val(value.id_label_giat).trigger('change');
-                                            });
+                                        /** Memunculkan data label tag */
+                                        let id_label_tag = [];
+                                        response.data.label_tag.map(function(value, index){  
+                                            id_label_tag.push(value.id_label_giat);
                                         })
+                                        jQuery('#label_tag_usulan').val(id_label_tag).trigger('change');
+                                        jQuery('#label_tag').val(id_label_tag).trigger('change'); 
                                         /** -- end -- */
 
                                         jQuery("#modalTambahRenja .modal-title").html("Edit Sub Kegiatan");
@@ -2474,23 +2470,13 @@ echo '
                                         /** -- end -- */
 
                                         /** Memunculkan data label tag */
-                                        response.data.label_tag.map(function(value, index){
-                                            let id = index+1;
-                                            new Promise(function(resolve, reject){
-                                                if(id > 1){
-                                                    tambahLabelTag()
-                                                    .then(function(){
-                                                        resolve(value);
-                                                    })
-                                                }else{
-                                                    resolve(value);
-                                                }
-                                            })
-                                            .then(function(value){
-                                                jQuery("#label_tag_usulan_"+id).val(value.id_label_giat_usulan).trigger('change').prop('disabled', true);
-                                                jQuery("#label_tag_"+id).val(value.id_label_giat).trigger('change');
-                                            });
+                                        let id_label_tag = [];
+                                        response.data.label_tag.map(function(value, index){  
+                                            id_label_tag.push(value.id_label_giat);
                                         })
+                                        jQuery('#label_tag_usulan').val(id_label_tag).trigger('change');
+                                        jQuery('#label_tag').val(id_label_tag).trigger('change'); 
+                                        /** -- end -- */
 
                                         jQuery(".detail_tambah").hide();
                                         jQuery("#button_copy_renja").hide();
@@ -3360,6 +3346,43 @@ echo '
         if(is_admin == 1){
             var id_penetapan = jQuery(that).attr('id').replaceAll('_usulan', '');
             jQuery('#'+id_penetapan).val(jQuery(that).val()).trigger('change');
+        }
+    }
+
+    function set_anggaran(that){
+        let that_id = jQuery(that).attr('id');
+        if(that_id.includes("_usulan")){
+            var tbody = jQuery('.input_sumber_dana_usulan > tbody');
+            var tr = tbody.find('>tr');
+            let total = 0;
+            tr.map(function(i, b){
+                let id = i+1;
+                let dana = jQuery("#pagu_sumber_dana_usulan_"+id).val()
+                total = total + parseInt(dana);
+            });
+            jQuery("#pagu_sub_kegiatan_usulan").val(total);
+        }else{
+            var tbody = jQuery('.input_sumber_dana > tbody');
+            var tr = tbody.find('>tr');
+            let total = 0;
+            tr.map(function(i, b){
+                let id = i+1;
+                let dana = jQuery("#pagu_sumber_dana_"+id).val()
+                total = total + parseInt(dana);
+            });
+            jQuery("#pagu_sub_kegiatan").val(total);
+        }
+    }
+
+    function set_penetapan_multiple(that){
+        var is_admin = <?php echo $js_check_admin; ?>;
+        if(is_admin == 1){
+            console.log(jQuery(that).val()+' cek');
+            jQuery('#label_tag').val(['212', '213']);
+            jQuery('#label_tag').trigger('change');
+            // var id_penetapan = jQuery(that).attr('id').replaceAll('_usulan', '');
+            // jQuery('#'+id_penetapan).val(['212','213']).trigger('change');
+            // console.log(id_penetapan+' dan '+ jQuery(that).val())
         }
     }
 
