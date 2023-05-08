@@ -5137,3 +5137,20 @@ CREATE TABLE `data_label_sub_keg_lokal_history` (
   `id_jadwal` int(11) NOT NULL,
   PRIMARY KEY  (id)
 );
+
+CREATE TABLE `data_bkk_desa` (
+  `id` int(11) NOT NULL auto_increment,
+  `id_kecamatan` int(11) DEFAULT NULL,
+  `id_desa` int(11) DEFAULT NULL,
+  `kecamatan` text DEFAULT NULL,
+  `desa` text DEFAULT NULL,
+  `kegiatan` text DEFAULT NULL,
+  `alamat` text DEFAULT NULL,
+  `total` double(20, 0) DEFAULT NULL,
+  `id_dana` text DEFAULT NULL,
+  `sumber_dana` text DEFAULT NULL,
+  `tahun_anggaran` year(4) NOT NULL,
+  `update_at` datetime NOT NULL,
+  `active` tinyint(4) DEFAULT 1,
+  PRIMARY KEY  (id)
+);

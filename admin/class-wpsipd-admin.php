@@ -24,7 +24,9 @@
 use Carbon_Fields\Container;
 use Carbon_Fields\Field;
 
-class Wpsipd_Admin {
+require_once WPSIPD_PLUGIN_PATH."admin/class-wpsipd-keu_pemdes.php";
+
+class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes {
 
 	/**
 	 * The ID of this plugin.
@@ -103,6 +105,8 @@ class Wpsipd_Admin {
 		 * class.
 		 */
 
+		wp_enqueue_script( $this->plugin_name.'jszip', plugin_dir_url( __FILE__ ) . 'js/jszip.js', array( 'jquery' ), $this->version, false );
+		wp_enqueue_script( $this->plugin_name.'xlsx', plugin_dir_url( __FILE__ ) . 'js/xlsx.js', array( 'jquery' ), $this->version, false );
 		wp_enqueue_script( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'js/wpsipd-admin.js', array( 'jquery' ), $this->version, false );
 		wp_localize_script( $this->plugin_name, 'wpsipd', array(
 		    'api_key' => get_option( '_crb_api_key_extension' )
@@ -328,6 +332,29 @@ class Wpsipd_Admin {
 		$keu_pemdes = Container::make( 'theme_options', __( 'Keuangan PEMDES' ) )
 			->set_page_menu_position( 5 )
 		    ->add_fields( $this->get_setting_keu_pemdes() );
+
+		$management_data_bkk_infrastruktur = $this->generatePage('Management Data BKK Infrastruktur', false, '[management_data_bkk_infrastruktur]');
+	    Container::make( 'theme_options', __( 'Import BKK' ) )
+		    ->set_page_parent( $keu_pemdes )
+		    ->add_fields( array(
+				Field::make( 'html', 'crb_halaman_terkait_bkk_infrastruktur' )
+		        	->set_html( '
+	        		<style>
+	        			.postbox-container { display: none; }
+	        			#poststuff #post-body.columns-2 { margin: 0 !important; }
+	        		</style>
+					<h5>HALAMAN TERKAIT</h5>
+	            	<ol>
+	            		<li><a target="_blank" href="'.$management_data_bkk_infrastruktur.'">Management Data BKK Infrastruktur</a></li>
+	            	</ol>
+		        	' ),
+		        Field::make( 'html', 'crb_bkk_infrastruktur_upload_html' )
+	            	->set_html( '<h3>Import EXCEL data Bantuan Keuangan Khusus</h3>Pilih file excel .xlsx : <input type="file" id="file-excel" onchange="filePickedWpsipd(event);"><br>Contoh format file excel bisa <a target="_blank" href="'.WPSIPD_PLUGIN_URL. 'excel/contoh_bkk_infrastruktur.xlsx">download di sini</a>. Sheet file excel yang akan diimport harus diberi nama <b>data</b>. Untuk kolom nilai angka ditulis tanpa tanda titik.' ),
+		        Field::make( 'html', 'crb_bkk_infrastruktur_satset' )
+	            	->set_html( 'Data JSON : <textarea id="data-excel" class="cf-select__input"></textarea>' ),
+		        Field::make( 'html', 'crb_bkk_infrastruktur_save_button' )
+	            	->set_html( '<a onclick="import_excel_bkk_infrastruktur(); return false" href="javascript:void(0);" class="button button-primary">Import WP</a>' )
+	        ) );
 	}
 
 	public function options_basic(){
@@ -363,7 +390,7 @@ class Wpsipd_Admin {
 			$nama_pemda = '';
 		}
 		$options_basic = array(
-			Field::make( 'text', 'crb_server_wp_sipd', 'Server WP-SIPD' )
+			Field::make( 'text', 'crb_server_wp_sipd', 'Server Generate Lisensi WP-SIPD' )
             	->set_attribute('placeholder', 'https://wpsipd.qodrbee.com/wp-admin/admin-ajax.php')
             	->set_default_value('https://wpsipd.qodrbee.com/wp-admin/admin-ajax.php')
             	->set_attribute('readOnly', 'true')
@@ -371,6 +398,7 @@ class Wpsipd_Admin {
 			Field::make( 'text', 'crb_server_wp_sipd_api_key', 'API KEY WP-SIPD' )
             	->set_attribute('placeholder', 'xxxxxxx-xx-xxx-xxxx-xxxxxxxxxx')
             	->set_default_value('bcvbsdfr12-ret-ert-dfg-hghj6575')
+            	->set_classes('hide')
             	->set_attribute('readOnly', 'true')
             	->set_required( true ),
 			Field::make( 'text', 'crb_no_wa', 'No Whatsapp' )
@@ -387,7 +415,7 @@ class Wpsipd_Admin {
 	        Field::make( 'image', 'crb_logo_dashboard', __( 'Logo Pemda' ) )
 	        	->set_value_type('url')
     			->set_default_value('https://via.placeholder.com/233x268'),
-            Field::make( 'text', 'crb_api_key_extension', 'Lisensi key chrome extension' )
+            Field::make( 'text', 'crb_api_key_extension', 'Lisensi key chrome extension / API KEY' )
             	->set_required( true )
             	->set_attribute('readOnly', 'true')
             	->set_help_text('Lisensi key ini dipakai untuk <a href="https://github.com/agusnurwanto/sipd-chrome-extension" target="_blank">SIPD chrome extension</a>.'),
