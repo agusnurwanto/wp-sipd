@@ -2246,29 +2246,66 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 						'kode_sbl' => $kode_sbl,
 						'tahun_anggaran' => $tahun_anggaran
 					));
+					$data_label_tag_all = array();
+					foreach ($data['input_label_sub_keg_usulan'] as $k_label_tag => $v_label_tag) {
+						if(empty($data_label_tag_all[$k_label_tag])){
+							$data_label_tag_all[$k_label_tag] = array(
+								'usulan' => '',
+								'penetapan' => ''
+							);
+						}
+						$data_label_tag_all[$k_label_tag]['usulan'] = $v_label_tag;
+					}
 					foreach ($data['input_label_sub_keg'] as $k_label_tag => $v_label_tag) {
-						$data_label_tag = $wpdb->get_row($wpdb->prepare('
-							SELECT *
-							FROM data_label_giat
-							WHERE id_label_giat=%d
-								AND tahun_anggaran=%d
-						', $v_label_tag, $tahun_anggaran));
+						if(empty($data_label_tag_all[$k_label_tag])){
+							$data_label_tag_all[$k_label_tag] = array(
+								'usulan' => '',
+								'penetapan' => ''
+							);
+						}
+						$data_label_tag_all[$k_label_tag]['penetapan'] = $v_label_tag;
+					}
+					foreach ($data_label_tag_all as $k_label_tag => $v_label_tag) {
+						if(!empty($v_label_tag['penetapan'])){
+							$data_label_tag = $wpdb->get_row($wpdb->prepare('
+								SELECT *
+								FROM data_label_giat
+								WHERE id_label_giat=%d
+									AND tahun_anggaran=%d
+							', $v_label_tag['penetapan'], $tahun_anggaran));
+						}else{
+							$data_label_tag = (object) array(
+								'id_label_giat' => '',
+								'id_unik' => '',
+								'is_locked' => '',
+								'nama_label' => ''
+							);
+						}
 
-						$data_label_tag_usulan = $wpdb->get_row($wpdb->prepare('
-							SELECT *
-							FROM data_label_giat
-							WHERE id_label_giat=%d
-								AND tahun_anggaran=%d
-						', $data['input_label_sub_keg_usulan'][$k_label_tag], $tahun_anggaran));
+						if(!empty($v_label_tag['usulan'])){
+							$data_label_tag_usulan = $wpdb->get_row($wpdb->prepare('
+								SELECT *
+								FROM data_label_giat
+								WHERE id_label_giat=%d
+									AND tahun_anggaran=%d
+							', $v_label_tag['usulan'], $tahun_anggaran));
+						}else{
+							$data_label_tag = (object) array(
+								'id_label_giat_usulan' => '',
+								'id_unik_usulan' => '',
+								'nama_label_usulan' => ''
+							);
+						}
 
-						$cek_ids = $wpdb->get_results($wpdb->prepare('
+						$cek_id = $wpdb->get_var($wpdb->prepare('
 							SELECT 
 								id
 							FROM data_label_sub_keg_lokal
 							WHERE kode_sbl=%s
 								AND id_label_giat=%d
+								AND id_label_giat_usulan=%d
 								AND tahun_anggaran=%d
-						', $kode_sbl, $data['input_label_sub_keg_usulan'][$k_label_tag], $tahun_anggaran), ARRAY_A);
+						', $kode_sbl, $v_label_tag['penetapan'], $v_label_tag['usulan'], $tahun_anggaran));
 						$opsi_label_tag = array(
 							'id_label_giat' => $data_label_tag->id_label_giat,
 							'id_unik' => $data_label_tag->id_unik,
@@ -2283,13 +2320,10 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 							'nama_label_usulan' => $data_label_tag_usulan->nama_label
 						);
 						
-						if(
-							empty($cek_ids)
-							|| empty($cek_ids[$k_label_tag])
-						){
+						if(empty($cek_id)){
 							$wpdb->insert('data_label_sub_keg_lokal', $opsi_label_tag);
 						}else{
-							$wpdb->update('data_label_sub_keg_lokal', $opsi_label_tag, array('id' => $cek_ids[$k_label_tag]['id']));
+							$wpdb->update('data_label_sub_keg_lokal', $opsi_label_tag, array('id' => $cek_id));
 						}
 					}
 				}
