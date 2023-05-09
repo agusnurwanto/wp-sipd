@@ -800,6 +800,7 @@ class Wpsipd
 		add_shortcode('surat_usulan_ssh', array($plugin_public, 'surat_usulan_ssh'));
 		add_shortcode('halaman_pendapatan', array($plugin_public, 'halaman_pendapatan'));
 		add_shortcode('keu_pemdes_bhpd', array($plugin_public, 'keu_pemdes_bhpd'));
+		add_shortcode('keu_pemdes_bkk_inf', array($plugin_public, 'keu_pemdes_bkk_inf'));
 		add_shortcode('management_data_bkk_infrastruktur', array($plugin_public, 'management_data_bkk_infrastruktur'));
 
 		//shortcode SIPKD
