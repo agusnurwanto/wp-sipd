@@ -787,15 +787,7 @@ echo '
                                 <td>
                                     <div class="form-group">
                                         <label for="label_tag_usulan">Label (Tag) Sub Kegiatan</label>
-                                        <table id="label_tag_usulan" class="input_label_tag_usulan" style="margin: 0;">
-                                            <tr>
-                                                <td style="width: 100%;">
-                                                    <select class="form-control input_select_2 label_tag_usulan" name="input_label_sub_keg_usulan[]" id="label_tag_usulan" multiple="multiple" onchange="set_penetapan_multiple(this);">
-                                                        <option value="">Pilih Label (Tag)</option>
-                                                    </select>
-                                                </td>
-                                            </tr>
-                                        </table>
+                                        <select class="form-control input_select_2 label_tag_usulan" name="input_label_sub_keg_usulan[]" id="label_tag_usulan" multiple="multiple" onchange="set_penetapan_multiple(this);"></select>
                                     </div>
                                     <div class="form-group">
                                         <label for="sumber_dana_usulan">Sumber Dana</label>
@@ -902,15 +894,7 @@ echo '
                                 <td>
                                     <div class="form-group">
                                         <label for="label_tag">Label (Tag) Sub Kegiatan</label>
-                                        <table id="label_tag" class="input_label_tag" style="margin: 0;">
-                                            <tr>
-                                                <td style="width: 100%;">
-                                                    <select class="form-control input_select_2 label_tag" name="input_label_sub_keg[]" id="label_tag" multiple="multiple">
-                                                        <option value="">Pilih Label (Tag)</option>
-                                                    </select>
-                                                </td>
-                                            </tr>
-                                        </table>
+                                        <select class="form-control input_select_2 label_tag" name="input_label_sub_keg[]" id="label_tag" multiple="multiple"></select>
                                     </div>
                                     <div class="form-group">
                                         <label for="sumber_dana">Sumber Dana</label>
@@ -1181,22 +1165,35 @@ echo '
         jQuery("#modalTambahRenja .submitBtn").show();
         jQuery(".detail_tambah").show();
 
-        jQuery("#sumber_dana_usulan_1").prop('disabled', false);
-        jQuery("#pagu_sumber_dana_usulan_1").prop('disabled', false);
-        jQuery("#pagu_sumber_dana_1").prop('disabled', false);
-        jQuery("#kabupaten_kota_usulan_1").prop('disabled', false);
-        jQuery("#kecamatan_usulan_1").prop('disabled', false);
-        jQuery("#desa_usulan_1").prop('disabled', false);
+        // kosongkan label provinsi dan kabupaten
+        jQuery("#input_prioritas_provinsi").val('');
+        jQuery("#input_prioritas_kab_kota").val('');
+
+        // kosongkan label tag
+        jQuery("#label_tag_usulan").val('').trigger('change').prop('disabled', false);
+        jQuery("#label_tag").val('').trigger('change').prop('disabled', false);
+
+        // kosongkan sumber dana
+        jQuery("#sumber_dana_usulan_1").val('').trigger('change').prop('disabled', false);
+        jQuery("#pagu_sumber_dana_usulan_1").val('').prop('disabled', false);
+        jQuery("#sumber_dana_1").val('').trigger('change');
+        jQuery("#pagu_sumber_dana_1").val('').prop('disabled', false);
+
+        // kosongkan alamat
+        jQuery("#kabupaten_kota_usulan_1").val('').prop('disabled', false);
+        jQuery("#kecamatan_usulan_1").val('').prop('disabled', false);
+        jQuery("#desa_usulan_1").val('').prop('disabled', false);
+        
+        // kosongkan pagu
         jQuery('#pagu_sub_kegiatan_1_usulan').prop('disabled', false);
         jQuery('#pagu_sub_kegiatan_1').prop('disabled', false);
+
         jQuery('#catatan_usulan').prop('disabled', false);
         jQuery('#catatan').prop('disabled', false);
         jQuery('select[name="input_bulan_awal_usulan"]').prop('disabled', false);
         jQuery('select[name="input_bulan_akhir_usulan"]').prop('disabled', false);
         jQuery('#input_prioritas_provinsi').prop('disabled', false);
         jQuery('#input_prioritas_kab_kota').prop('disabled', false);
-        jQuery('#label_tag_usulan').prop('disabled', false);
-        jQuery('#label_tag').prop('disabled', false);
         jQuery('#pagu_ind_sub_keg_usulan_1').prop('disabled', false);
         jQuery('#indikator_pagu_indi_sub_keg_usulan_1').prop('disabled', false);
         jQuery('#indikator_pagu_indi_sub_keg_1').prop('disabled', false);
@@ -1580,56 +1577,6 @@ echo '
         var id = jQuery(that).closest('tr').attr('data-id');
         jQuery('.input_sumber_dana_usulan > tbody').find('tr[data-id="'+id+'"]').remove();
         jQuery('.input_sumber_dana > tbody').find('tr[data-id="'+id+'"]').remove();
-    }
-
-    function tambahLabelTag(){
-        return new Promise(function(resolve, reject){
-            var id = +jQuery('.input_label_tag_usulan > tbody tr').last().attr('data-id');
-            var newId = id+1;
-            var trNewUsulan = jQuery('.input_label_tag_usulan > tbody tr').last().html();
-            trNewUsulan = ''
-                +'<tr data-id="'+newId+'">'
-                    +trNewUsulan
-                +'</tr>';
-            trNewUsulan = trNewUsulan.replaceAll('_'+id+'"', '_'+newId+'"');
-            trNewUsulan = trNewUsulan.replaceAll('['+id+']', '['+newId+']');
-            var tbody = jQuery('.input_label_tag_usulan > tbody');
-            tbody.append(trNewUsulan);
-            jQuery('.input_label_tag_usulan > tbody tr[data-id="'+newId+'"] .select2').remove();
-            jQuery('.input_label_tag_usulan > tbody tr[data-id="'+newId+'"] select').select2({width: '100%'});
-            var tr = tbody.find('>tr');
-            var length = tr.length-1;
-            tr.map(function(i, b){
-                if(i == 0){
-                    var html = '<button class="btn btn-warning btn-sm" onclick="tambahLabelTag(); return false;"><i class="dashicons dashicons-plus"></i></button>';
-                }else{
-                    var html = '<button class="btn btn-danger btn-sm" onclick="hapusLabelTag(this); return false;"><i class="dashicons dashicons-trash"></i></button>';
-                }
-                jQuery(b).find('>td').last().html(html);
-            });
-
-            /** tambah input label tag */
-            var id = +jQuery('.input_label_tag > tbody tr').last().attr('data-id');
-            var newId = id+1;
-            var trNew = jQuery('.input_label_tag > tbody tr').last().html();
-            trNew = ''
-                +'<tr data-id="'+newId+'">'
-                    +trNew
-                +'</tr>';
-            trNew = trNew.replaceAll('_'+id+'"', '_'+newId+'"');
-            trNew = trNew.replaceAll('['+id+']', '['+newId+']');
-            var tbody = jQuery('.input_label_tag > tbody');
-            tbody.append(trNew);
-            jQuery('.input_label_tag > tbody tr[data-id="'+newId+'"] .select2').remove();
-            jQuery('.input_label_tag > tbody tr[data-id="'+newId+'"] select').select2({width: '100%'});
-            resolve();
-        });
-    }
-
-    function hapusLabelTag(that){
-        var id = jQuery(that).closest('tr').attr('data-id');
-        jQuery('.input_label_tag_usulan > tbody').find('tr[data-id="'+id+'"]').remove();
-        jQuery('.input_label_tag > tbody').find('tr[data-id="'+id+'"]').remove();
     }
 
     function get_data_sub_unit(id_skpd){
@@ -2086,9 +2033,9 @@ echo '
                 },
                 success:function(response){
                     jQuery('#wrap-loading').hide();
-                    jQuery('#modalTambahRenja').modal('hide');
                     alert(response.message);
                     if(response.status == 'success'){
+                        jQuery('#modalTambahRenja').modal('hide');
                         refresh_page();
                     }
                 }
@@ -2267,11 +2214,13 @@ echo '
                                         /** -- end -- */
 
                                         /** Memunculkan data label tag */
+                                        let id_label_tag_usulan = [];
                                         let id_label_tag = [];
                                         response.data.label_tag.map(function(value, index){  
+                                            id_label_tag_usulan.push(value.id_label_giat_usulan);
                                             id_label_tag.push(value.id_label_giat);
                                         })
-                                        jQuery('#label_tag_usulan').val(id_label_tag).trigger('change');
+                                        jQuery('#label_tag_usulan').val(id_label_tag_usulan).trigger('change');
                                         jQuery('#label_tag').val(id_label_tag).trigger('change'); 
                                         /** -- end -- */
 
@@ -2523,9 +2472,9 @@ echo '
                 },
                 success: function(response){
                     jQuery('#wrap-loading').hide();
-                    jQuery('#modalTambahRenja').modal('hide');
                     alert(response.message);
                     if(response.status == 'success'){
+                        jQuery('#modalTambahRenja').modal('hide');
                         refresh_page();
                     }
                 }
@@ -2549,9 +2498,9 @@ echo '
                 },
                 success: function(response){
                     jQuery('#wrap-loading').hide();
-                    jQuery('#modalTambahRenja').modal('hide');
                     alert(response.message);
                     if(response.status == 'success'){
+                        jQuery('#modalTambahRenja').modal('hide');
                         refresh_page();
                     }
                 }
@@ -3283,9 +3232,9 @@ echo '
                 },
                 success: function(response){
                     jQuery('#wrap-loading').hide();
-                    jQuery('#modal-indikator-renja').modal('hide');
                     alert(response.message);
                     if(response.status == 'success'){
+                        jQuery('#modal-indikator-renja').modal('hide');
                         refresh_page();
                     }
                 }
@@ -3377,12 +3326,9 @@ echo '
     function set_penetapan_multiple(that){
         var is_admin = <?php echo $js_check_admin; ?>;
         if(is_admin == 1){
-            console.log(jQuery(that).val()+' cek');
-            jQuery('#label_tag').val(['212', '213']);
+            var val = jQuery(that).val();
+            jQuery('#label_tag').val(val);
             jQuery('#label_tag').trigger('change');
-            // var id_penetapan = jQuery(that).attr('id').replaceAll('_usulan', '');
-            // jQuery('#'+id_penetapan).val(['212','213']).trigger('change');
-            // console.log(id_penetapan+' dan '+ jQuery(that).val())
         }
     }
 
@@ -3547,7 +3493,7 @@ echo '
                     success:function(response){
                         window.master_label_tag = response.data;
                         jQuery("#wrap-loading").hide();
-                        let option='<option value="">Pilih Label (Tag)</option>';
+                        let option='';
         				response.data.map(function(value, index){
                             option+='<option value="'+value.id_label_giat+'">'+value.nama_label+'</option>';
                         })
