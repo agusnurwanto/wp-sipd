@@ -482,6 +482,254 @@ jQuery(document).ready(function(){
 	});
 });
 
+function import_excel_bhrd(){
+	var data = jQuery('#data-excel').val();
+    if(!data){
+        return alert('Excel Data can not empty!');
+    }else{
+        data = JSON.parse(data);
+        jQuery('#wrap-loading').show();
+
+        var data_all = [];
+        var data_sementara = [];
+        var max = 100;
+        data.map(function(b, i){
+            data_sementara.push(b);
+            if(data_sementara.length%max == 0){
+                data_all.push(data_sementara);
+                data_sementara = [];
+            }
+        });
+        if(data_sementara.length > 0){
+            data_all.push(data_sementara);
+        }
+        var last = data_all.length - 1;
+        data_all.reduce(function(sequence, nextData){
+            return sequence.then(function(current_data){
+                return new Promise(function(resolve_reduce, reject_reduce){
+                    relayAjax({
+                        url: ajaxurl,
+                        type: 'post',
+                        data: {
+                            action: 'import_excel_bhrd',
+                            data: current_data
+                        },
+                        success: function(res){
+                            resolve_reduce(nextData);
+                        },
+                        error: function(e){
+                            console.log('Error import excel', e);
+                        }
+                    });
+                })
+                .catch(function(e){
+                    console.log(e);
+                    return Promise.resolve(nextData);
+                });
+            })
+            .catch(function(e){
+                console.log(e);
+                return Promise.resolve(nextData);
+            });
+        }, Promise.resolve(data_all[last]))
+        .then(function(data_last){
+            jQuery('#wrap-loading').hide();
+            alert('Success import data BHRD dari excel!');
+        })
+        .catch(function(e){
+            console.log(e);
+            jQuery('#wrap-loading').hide();
+            alert('Error!');
+        });
+    }
+}
+
+function import_excel_bhpd(){
+	var data = jQuery('#data-excel').val();
+    if(!data){
+        return alert('Excel Data can not empty!');
+    }else{
+        data = JSON.parse(data);
+        jQuery('#wrap-loading').show();
+
+        var data_all = [];
+        var data_sementara = [];
+        var max = 100;
+        data.map(function(b, i){
+            data_sementara.push(b);
+            if(data_sementara.length%max == 0){
+                data_all.push(data_sementara);
+                data_sementara = [];
+            }
+        });
+        if(data_sementara.length > 0){
+            data_all.push(data_sementara);
+        }
+        var last = data_all.length - 1;
+        data_all.reduce(function(sequence, nextData){
+            return sequence.then(function(current_data){
+                return new Promise(function(resolve_reduce, reject_reduce){
+                    relayAjax({
+                        url: ajaxurl,
+                        type: 'post',
+                        data: {
+                            action: 'import_excel_bhpd',
+                            data: current_data
+                        },
+                        success: function(res){
+                            resolve_reduce(nextData);
+                        },
+                        error: function(e){
+                            console.log('Error import excel', e);
+                        }
+                    });
+                })
+                .catch(function(e){
+                    console.log(e);
+                    return Promise.resolve(nextData);
+                });
+            })
+            .catch(function(e){
+                console.log(e);
+                return Promise.resolve(nextData);
+            });
+        }, Promise.resolve(data_all[last]))
+        .then(function(data_last){
+            jQuery('#wrap-loading').hide();
+            alert('Success import data BHPD dari excel!');
+        })
+        .catch(function(e){
+            console.log(e);
+            jQuery('#wrap-loading').hide();
+            alert('Error!');
+        });
+    }
+}
+
+function import_excel_bku_add(){
+	var data = jQuery('#data-excel').val();
+    if(!data){
+        return alert('Excel Data can not empty!');
+    }else{
+        data = JSON.parse(data);
+        jQuery('#wrap-loading').show();
+
+        var data_all = [];
+        var data_sementara = [];
+        var max = 100;
+        data.map(function(b, i){
+            data_sementara.push(b);
+            if(data_sementara.length%max == 0){
+                data_all.push(data_sementara);
+                data_sementara = [];
+            }
+        });
+        if(data_sementara.length > 0){
+            data_all.push(data_sementara);
+        }
+        var last = data_all.length - 1;
+        data_all.reduce(function(sequence, nextData){
+            return sequence.then(function(current_data){
+                return new Promise(function(resolve_reduce, reject_reduce){
+                    relayAjax({
+                        url: ajaxurl,
+                        type: 'post',
+                        data: {
+                            action: 'import_excel_bku_add',
+                            data: current_data
+                        },
+                        success: function(res){
+                            resolve_reduce(nextData);
+                        },
+                        error: function(e){
+                            console.log('Error import excel', e);
+                        }
+                    });
+                })
+                .catch(function(e){
+                    console.log(e);
+                    return Promise.resolve(nextData);
+                });
+            })
+            .catch(function(e){
+                console.log(e);
+                return Promise.resolve(nextData);
+            });
+        }, Promise.resolve(data_all[last]))
+        .then(function(data_last){
+            jQuery('#wrap-loading').hide();
+            alert('Success import data BKU ADD dari excel!');
+        })
+        .catch(function(e){
+            console.log(e);
+            jQuery('#wrap-loading').hide();
+            alert('Error!');
+        });
+    }
+}
+
+function import_excel_bku_dd(){
+	var data = jQuery('#data-excel').val();
+    if(!data){
+        return alert('Excel Data can not empty!');
+    }else{
+        data = JSON.parse(data);
+        jQuery('#wrap-loading').show();
+
+        var data_all = [];
+        var data_sementara = [];
+        var max = 100;
+        data.map(function(b, i){
+            data_sementara.push(b);
+            if(data_sementara.length%max == 0){
+                data_all.push(data_sementara);
+                data_sementara = [];
+            }
+        });
+        if(data_sementara.length > 0){
+            data_all.push(data_sementara);
+        }
+        var last = data_all.length - 1;
+        data_all.reduce(function(sequence, nextData){
+            return sequence.then(function(current_data){
+                return new Promise(function(resolve_reduce, reject_reduce){
+                    relayAjax({
+                        url: ajaxurl,
+                        type: 'post',
+                        data: {
+                            action: 'import_excel_bku_dd',
+                            data: current_data
+                        },
+                        success: function(res){
+                            resolve_reduce(nextData);
+                        },
+                        error: function(e){
+                            console.log('Error import excel', e);
+                        }
+                    });
+                })
+                .catch(function(e){
+                    console.log(e);
+                    return Promise.resolve(nextData);
+                });
+            })
+            .catch(function(e){
+                console.log(e);
+                return Promise.resolve(nextData);
+            });
+        }, Promise.resolve(data_all[last]))
+        .then(function(data_last){
+            jQuery('#wrap-loading').hide();
+            alert('Success import data BKU DD dari excel!');
+        })
+        .catch(function(e){
+            console.log(e);
+            jQuery('#wrap-loading').hide();
+            alert('Error!');
+        });
+    }
+}
+
 function import_excel_bkk_infrastruktur(){
 	var data = jQuery('#data-excel').val();
     if(!data){
