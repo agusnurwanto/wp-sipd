@@ -46,7 +46,7 @@ $data_skpd = $wpdb->get_row($wpdb->prepare("
         and tahun_anggaran=%d
         and active=1
     order by id ASC
-    ", $input['id_skpd'], $input['tahun_anggaran']), ARRAY_A);
+", $input['id_skpd'], $input['tahun_anggaran']), ARRAY_A);
 $id_unit = (!empty($data_skpd['id_unit'])) ? $data_skpd['id_unit'] : '';
 
 $url_pendapatan = $this->generatePage('Halaman Pendapatan '.$data_skpd['nama_skpd'].' | '.$input['tahun_anggaran'], $input['tahun_anggaran'], '[halaman_pendapatan id_skpd="'.$input['id_skpd'].'" tahun_anggaran="'.$input['tahun_anggaran'].'"]');
@@ -434,7 +434,7 @@ $body = '';
 
                     $tombol_aksi = '';
                     if(!empty($add_renja)){
-                        $tombol_aksi = '<button class="btn-sm btn-warning" style="margin: 1px;" onclick="edit_program(\''.$program['sub']['kode_sbl'].'\');" title="Edit Program"><i class="dashicons dashicons-plus"></i></button>';
+                        $tombol_aksi = '<button class="btn-sm btn-warning" style="margin: 1px;" onclick="edit_program(\''.$program['sub']['kode_sbl'].'\');" title="Edit Program"><i class="dashicons dashicons-edit"></i></button>';
                     }
                     $tombol_aksi .= '<button class="btn-sm btn-primary" style="margin: 1px;" onclick="detail_program(\''.$program['sub']['kode_sbl'].'\')" title="Detail Program"><i class="dashicons dashicons-ellipsis"></i></button>';
                     $data_check_program = explode('.', $program['sub']['kode_sbl']);
@@ -465,7 +465,7 @@ $body = '';
                         
                         $tombol_aksi = '';
                         if(!empty($add_renja)){
-                            $tombol_aksi = '<button class="btn-sm btn-warning" style="margin: 1px;" onclick="edit_kegiatan(\''.$giat['sub']['kode_sbl'].'\');" title="Edit Kegiatan"><i class="dashicons dashicons-plus"></i></button>';
+                            $tombol_aksi = '<button class="btn-sm btn-warning" style="margin: 1px;" onclick="edit_kegiatan(\''.$giat['sub']['kode_sbl'].'\');" title="Edit Kegiatan"><i class="dashicons dashicons-edit"></i></button>';
                         }
                         $tombol_aksi .= '<button class="btn-sm btn-primary" style="margin: 1px;" onclick="detail_kegiatan(\''.$giat['sub']['kode_sbl'].'\');" title="Detail Kegiatan"><i class="dashicons dashicons-ellipsis"></i></button>';
 
@@ -1611,36 +1611,61 @@ echo '
         });
 	}
 
-    function get_data_prioritas_prov(){
+    function get_data_prioritas_pusat(){
         return new Promise(function(resolve, reject){
-            if(typeof dataPrioritasProv == 'undefined'){
+            if(typeof dataPrioritasPusat == 'undefined'){
                 jQuery('#wrap-loading').show();
         		jQuery.ajax({
         			url: "<?php echo admin_url('admin-ajax.php'); ?>",
         			type:"post",
         			data:{
-        				'action'            : "get_prioritas_prov",
+        				'action'            : "get_prioritas_pusat",
         				'api_key'           : jQuery("#api_key").val(),
         				'tahun_anggaran'    : tahun_anggaran,
         			},
         			dataType: "json",
         			success:function(response){
                         jQuery('#wrap-loading').hide();
-                        window.dataPrioritasProv = response;
-                        jQuery("#input_prioritas_provinsi").html(dataPrioritasProv.table_content);
-        			    jQuery('#input_prioritas_provinsi').select2({width: '100%'});
-                        // console.log(dataPrioritasProv.table_content);
-        				// enable_button();
+                        window.dataPrioritasPusat = response;
                         resolve();
         			}
         		});
+            }else{
+                resolve();
+            }
+        });
+	}
+
+    function get_data_prioritas_prov(){
+        return new Promise(function(resolve, reject){
+            if(typeof dataPrioritasProv == 'undefined'){
+                jQuery('#wrap-loading').show();
+                jQuery.ajax({
+                    url: "<?php echo admin_url('admin-ajax.php'); ?>",
+                    type:"post",
+                    data:{
+                        'action'            : "get_prioritas_prov",
+                        'api_key'           : jQuery("#api_key").val(),
+                        'tahun_anggaran'    : tahun_anggaran,
+                    },
+                    dataType: "json",
+                    success:function(response){
+                        jQuery('#wrap-loading').hide();
+                        window.dataPrioritasProv = response;
+                        jQuery("#input_prioritas_provinsi").html(dataPrioritasProv.table_content);
+                        jQuery('#input_prioritas_provinsi').select2({width: '100%'});
+                        // console.log(dataPrioritasProv.table_content);
+                        // enable_button();
+                        resolve();
+                    }
+                });
             }else{
                 jQuery("#input_prioritas_provinsi").html(dataPrioritasProv.table_content);
                 jQuery('#input_prioritas_provinsi').select2({width: '100%'});
                 resolve();
             }
         });
-	}
+    }
 
     function get_data_prioritas_kabkot(){
         return new Promise(function(resolve, reject){
@@ -2788,234 +2813,246 @@ echo '
     }
 
     function indikatorKegiatan(data){
-        jQuery('#wrap-loading').show();
-        let checkProgram = data.split('.')
-        checkProgram = checkProgram[0]+'.'+checkProgram[1]+'.'+checkProgram[2];
-        jQuery.ajax({
-            method: 'post',
-            url: '<?php echo admin_url('admin-ajax.php'); ?>',
-            dataType: 'json',
-            data: {
-                'action': 'get_indikator_kegiatan_renja',
-                'api_key': jQuery('#api_key').val(),
-                'tahun_anggaran': tahun_anggaran,
-                'kode_sbl': data  
-            },
-            success:function(response){
-                
-                let sasaran = sasaran_usulan = "";
-                if(response.data.sasaran.sasaran !=  null){
-                    sasaran = response.data.sasaran.sasaran;
-                }
-                if(response.data.sasaran.sasaran_usulan != null){
-                        sasaran_usulan = response.data.sasaran.sasaran_usulan;
-                }
-                let html=""
-                +'<form>'
-          			+'<table class="table" style="margin-top:10px">'
-	          			+'<thead>'
-	          				+'<tr>'
-	          					+'<th class="text-center" style="width: 160px;">Perangkat Daerah</th>'
-	          					+'<th>'+jQuery('tr[tipe="sub_unit"]').find('td').eq(1).text().replace('Sub Unit Organisasi : ', '')+'</th>'
-	          				+'</tr>'
-	          				+'<tr>'
-          						+'<th class="text-center" style="width: 160px;">Bidang Urusan</th>'
-          						+'<th>'+jQuery('tr[tipe="bidang"]').find('td').eq(5).text()+'</th>'
-          					+'</tr>'
-	          				+'<tr>'
-	          					+'<th class="text-center" style="width: 160px;">Program</th>'
-	          					+'<th>'+jQuery('tr[tipe="program"][checkprogram="'+checkProgram+'"]').find('td').eq(5).text()+'</th>'
-	          				+'</tr>'
-	          				+'<tr>'
-	          					+'<th class="text-center" style="width: 160px;">Kegiatan</th>'
-	          					+'<th>'+jQuery('tr[tipe="kegiatan"][kode="'+data+'"]').find('td').eq(5).text()+'</th>'
-	          				+'</tr>'
-	          				+'<tr>'
-                                +'<th class="text-center" style="width: 160px;">Pagu</th>'
-	          					+'<th>'+jQuery('tr[tipe="program"][checkprogram="'+checkProgram+'"]').find('td').eq(6).html()+'</th>'
-	          				+'</tr>'
-	          			+'</thead>'
-          			+'</table>'
-                    +'</br><h4>Kelompok Sasaran Kegiatan</h4>'
-                    +'<table class="table">'
-						+'<thead>'
-							+'<tr>'
-								+'<th class="text-center" style="width:200px;">Tipe</th>'
-								+'<th class="text-center">Kelompok Sasaran</th>'
-							+'</tr>'
-						+'</thead>'
-                        +'<tbody id="kelompok_sasaran">'
-                            +'<tr>'
-                                +'<td class="text-center">Usulan</td>'
-                                +'<td><textarea class="form-control" id="kelompok_sasaran_usulan" name="kelompok_sasaran_renja_usulan">'+sasaran_usulan+'</textarea></td>'
-                            +'</tr>'
-                            +'<tr>'
-                                +'<td class="text-center">Penetapan</td>'
-                                +'<td><textarea class="form-control" id="kelompok_sasaran_usulan" name="kelompok_sasaran_renja_penetapan" <?php echo $disabled; ?>>'+sasaran+'</textarea></td>'
-                            +'</tr>'
-                        +'</tbody>'
-                    +'</table>'
-                    +'</br><h4>Indikator Keluaran Kegiatan</h4>'
-					+"<table class='table'>"
-						+"<thead>"
-							+"<tr>"
-								+"<th class='text-center'>No</th>"
-								+"<th class='text-center'>Tipe</th>"
-                                +"<th class='text-center'>Indikator</th>"
-								+"<th class='text-center' style='width: 120px;'>Target</th>"
-								+"<th class='text-center' style='width: 120px;'>Satuan</th>"
-								+"<th class='text-center'>Catatan</th>"
-                                +"<th class='text-center'>Aksi</th>"
-							+"</tr>"
-						+"</thead>"
-						+"<tbody id='indikator_kegiatan'>";
+        get_data_prioritas_pusat()
+        .then(function(){
+            jQuery('#wrap-loading').show();
+            let checkProgram = data.split('.')
+            checkProgram = checkProgram[0]+'.'+checkProgram[1]+'.'+checkProgram[2];
+            jQuery.ajax({
+                method: 'post',
+                url: '<?php echo admin_url('admin-ajax.php'); ?>',
+                dataType: 'json',
+                data: {
+                    'action': 'get_indikator_kegiatan_renja',
+                    'api_key': jQuery('#api_key').val(),
+                    'tahun_anggaran': tahun_anggaran,
+                    'kode_sbl': data  
+                },
+                success:function(response){
+                    
+                    let sasaran = sasaran_usulan = "";
+                    if(response.data.sasaran.sasaran !=  null){
+                        sasaran = response.data.sasaran.sasaran;
+                    }
+                    if(response.data.sasaran.sasaran_usulan != null){
+                            sasaran_usulan = response.data.sasaran.sasaran_usulan;
+                    }
+                    let html=""
+                    +'<form>'
+              			+'<table class="table" style="margin-top:10px">'
+    	          			+'<thead>'
+    	          				+'<tr>'
+    	          					+'<th class="text-center" style="width: 160px;">Perangkat Daerah</th>'
+    	          					+'<th>'+jQuery('tr[tipe="sub_unit"]').find('td').eq(1).text().replace('Sub Unit Organisasi : ', '')+'</th>'
+    	          				+'</tr>'
+    	          				+'<tr>'
+              						+'<th class="text-center" style="width: 160px;">Bidang Urusan</th>'
+              						+'<th>'+jQuery('tr[tipe="bidang"]').find('td').eq(5).text()+'</th>'
+              					+'</tr>'
+    	          				+'<tr>'
+    	          					+'<th class="text-center" style="width: 160px;">Program</th>'
+    	          					+'<th>'+jQuery('tr[tipe="program"][checkprogram="'+checkProgram+'"]').find('td').eq(5).text()+'</th>'
+    	          				+'</tr>'
+    	          				+'<tr>'
+    	          					+'<th class="text-center" style="width: 160px;">Kegiatan</th>'
+    	          					+'<th>'+jQuery('tr[tipe="kegiatan"][kode="'+data+'"]').find('td').eq(5).text()+'</th>'
+    	          				+'</tr>'
+    	          				+'<tr>'
+                                    +'<th class="text-center" style="width: 160px;">Pagu</th>'
+    	          					+'<th>'+jQuery('tr[tipe="program"][checkprogram="'+checkProgram+'"]').find('td').eq(6).html()+'</th>'
+    	          				+'</tr>'
+    	          			+'</thead>'
+              			+'</table>'
+                        +'</br><h4>Kelompok Sasaran Kegiatan</h4>'
+                        +'<table class="table">'
+    						+'<thead>'
+    							+'<tr>'
+    								+'<th class="text-center" style="width:200px;">Tipe</th>'
+    								+'<th class="text-center">Kelompok Sasaran</th>'
+    							+'</tr>'
+    						+'</thead>'
+                            +'<tbody id="kelompok_sasaran">'
+                                +'<tr>'
+                                    +'<td class="text-center">Usulan</td>'
+                                    +'<td><textarea class="form-control" id="kelompok_sasaran_usulan" name="kelompok_sasaran_renja_usulan">'+sasaran_usulan+'</textarea></td>'
+                                +'</tr>'
+                                +'<tr>'
+                                    +'<td class="text-center">Penetapan</td>'
+                                    +'<td><textarea class="form-control" id="kelompok_sasaran_usulan" name="kelompok_sasaran_renja_penetapan" <?php echo $disabled; ?>>'+sasaran+'</textarea></td>'
+                                +'</tr>'
+                            +'</tbody>'
+                        +'</table>'
+                        +'</br><h4>Indikator Keluaran Kegiatan</h4>'
+    					+"<table class='table'>"
+    						+"<thead>"
+    							+"<tr>"
+    								+"<th class='text-center'>No</th>"
+    								+"<th class='text-center'>Tipe</th>"
+                                    +"<th class='text-center'>Indikator</th>"
+    								+"<th class='text-center' style='width: 120px;'>Target</th>"
+    								+"<th class='text-center' style='width: 120px;'>Satuan</th>"
+    								+"<th class='text-center'>Catatan</th>"
+                                    +"<th class='text-center'>Aksi</th>"
+    							+"</tr>"
+    						+"</thead>"
+    						+"<tbody id='indikator_kegiatan'>";
 
-                        var tombol_tambah = ''
-                            +'<button type="button" class="btn btn-warning" onclick="tambahIndikatorKegiatan();">'
-                                +'<i class="dashicons dashicons-plus" style="margin-top: 2px;"></i>'
-                            +'</button>';
+                            var tombol_tambah = ''
+                                +'<button type="button" class="btn btn-warning" onclick="tambahIndikatorKegiatan();">'
+                                    +'<i class="dashicons dashicons-plus" style="margin-top: 2px;"></i>'
+                                +'</button>';
 
-                        if(response.data.indi_kegiatan.length == 0){
-                            html +=''
-                                +"<tr data-id='1' type='usulan'>"
-                                    +"<td class='text-center' rowspan='2' style='vertical-align: middle;'>1</td>"
-                                    +"<td class='text-center'>Usulan</td>"
-                                    +"<td><textarea class='form-control' type='text' id='indikator_kegiatan_usulan_1' name='indikator_kegiatan_usulan[1]'></textarea></td>"
-                                    +"<td><input class='form-control' type='number' id='target_indikator_kegiatan_usulan_1' name='target_indikator_kegiatan_usulan[1]'></td>"
-                                    +"<td><input class='form-control' type='text' id='satuan_indikator_kegiatan_usulan_1' name='satuan_indikator_kegiatan_usulan[1]'></td>"
-                                    +"<td><textarea class='form-control' id='catatan_kegiatan_usulan_1' name='catatan_indikator_kegiatan_usulan[1]'></textarea></td>"
-                                    +"<td rowspan='2' class='text-center' style='vertical-align: middle;'>"+tombol_tambah+"</td>"
-                                +"</tr>"
-                                +"<tr data-id='1' type='penetapan'>"
-                                    +"<td class='text-center'>Penetapan</td>"
-                                    +"<td><textarea class='form-control' type='text' id='indikator_kegiatan_penetapan_1' name='indikator_kegiatan_penetapan[1]' <?php echo $disabled; ?>></textarea></td>"
-                                    +"<td><input class='form-control' type='number' id='target_indikator_kegiatan_penetapan_1' name='target_indikator_kegiatan_penetapan[1]' <?php echo $disabled; ?>></td>"
-                                    +"<td><input class='form-control' type='text' id='satuan_indikator_kegiatan_penetapan_1' name='satuan_indikator_kegiatan_penetapan[1]' <?php echo $disabled; ?>></td>"
-                                    +"<td><textarea class='form-control' id='catatan_kegiatan_penetapan_1' name='catatan_indikator_kegiatan_penetapan[1]' <?php echo $disabled; ?>></textarea></td>"
-                                +"</tr>";
-                        }else{
-    						response.data.indi_kegiatan.map(function(value, index){
-                                let id = index+1;
-                                if(index == 0){
-                                    var aksi = tombol_tambah;
-                                }else{
-                                    var aksi = ''
-                                        +'<button type="button" class="btn btn-danger" onclick="hapusIndikatorKegiatan(this);">'
-                                            +'<i class="dashicons dashicons-trash" style="margin-top: 2px;"></i>'
-                                        +'</button>';
-                                }
-    		          			html +=''
-    		          				+"<tr data-id='"+id+"' type='usulan'>"
-    					          		+"<td class='text-center' rowspan='2' style='vertical-align: middle;'>"+id+"</td>"
+                            if(response.data.indi_kegiatan.length == 0){
+                                html +=''
+                                    +"<tr data-id='1' type='usulan'>"
+                                        +"<td class='text-center' rowspan='2' style='vertical-align: middle;'>1</td>"
                                         +"<td class='text-center'>Usulan</td>"
-    					          		+"<td><textarea class='form-control' type='text' id='indikator_kegiatan_usulan_"+id+"' name='indikator_kegiatan_usulan["+id+"]'>"+value.outputteks_usulan+"</textarea></td>"
-    					          		+"<td><input class='form-control' type='number' id='target_indikator_kegiatan_usulan_"+id+"' name='target_indikator_kegiatan_usulan["+id+"]' value='"+value.targetoutput_usulan+"'></td>"
-    					          		+"<td><input class='form-control' type='text' id='satuan_indikator_kegiatan_usulan_"+id+"' name='satuan_indikator_kegiatan_usulan["+id+"]' value='"+value.satuanoutput_usulan+"'></td>"
-    									+"<td><textarea class='form-control' id='catatan_kegiatan_usulan_"+id+"' name='catatan_indikator_kegiatan_usulan["+id+"]'>"+value.catatan_usulan+"</textarea></td>"
-                                        +"<td rowspan='2' class='text-center' style='vertical-align: middle;'>"+aksi+"</td>"
-    					          	+"</tr>"
-    		          				+"<tr data-id='"+id+"' type='penetapan'>"
+                                        +"<td><textarea class='form-control' type='text' id='indikator_kegiatan_usulan_1' name='indikator_kegiatan_usulan[1]'></textarea></td>"
+                                        +"<td><input class='form-control' type='number' id='target_indikator_kegiatan_usulan_1' name='target_indikator_kegiatan_usulan[1]'></td>"
+                                        +"<td><input class='form-control' type='text' id='satuan_indikator_kegiatan_usulan_1' name='satuan_indikator_kegiatan_usulan[1]'></td>"
+                                        +"<td><textarea class='form-control' id='catatan_kegiatan_usulan_1' name='catatan_indikator_kegiatan_usulan[1]'></textarea></td>"
+                                        +"<td rowspan='2' class='text-center' style='vertical-align: middle;'>"+tombol_tambah+"</td>"
+                                    +"</tr>"
+                                    +"<tr data-id='1' type='penetapan'>"
                                         +"<td class='text-center'>Penetapan</td>"
-                                        +"<td><textarea class='form-control' type='text' id='indikator_kegiatan_penetapan_"+id+"' name='indikator_kegiatan_penetapan["+id+"]' <?php echo $disabled; ?>>"+value.outputteks+"</textarea></td>"
-                                        +"<td><input class='form-control' type='number' id='target_indikator_kegiatan_penetapan_"+id+"' name='target_indikator_kegiatan_penetapan["+id+"]' value='"+value.targetoutput+"' <?php echo $disabled; ?>></td>"
-                                        +"<td><input class='form-control' type='text' id='satuan_indikator_kegiatan_penetapan_"+id+"' name='satuan_indikator_kegiatan_penetapan["+id+"]' value='"+value.satuanoutput+"' <?php echo $disabled; ?>></td>"
-                                        +"<td><textarea class='form-control' id='catatan_kegiatan_penetapan_"+id+"' name='catatan_indikator_kegiatan_penetapan["+id+"]' <?php echo $disabled; ?>>"+value.catatan+"</textarea></td>"
-    					          	+"</tr>";
-    		          		});
-                        }
-		          	html+=''
-		          		+'</tbody>'
-		          	+'</table>'
-                    +'</br><h4>Indikator Hasil Kegiatan</h4>'
-					+"<table class='table'>"
-						+"<thead>"
-							+"<tr>"
-								+"<th class='text-center'>No</th>"
-								+"<th class='text-center'>Tipe</th>"
-                                +"<th class='text-center'>Indikator</th>"
-								+"<th class='text-center' style='width: 120px;'>Target</th>"
-								+"<th class='text-center' style='width: 120px;'>Satuan</th>"
-								+"<th class='text-center'>Catatan</th>"
-                                +"<th class='text-center'>Aksi</th>"
-							+"</tr>"
-						+"</thead>"
-						+"<tbody id='indikator_hasil_kegiatan'>";
+                                        +"<td><textarea class='form-control' type='text' id='indikator_kegiatan_penetapan_1' name='indikator_kegiatan_penetapan[1]' <?php echo $disabled; ?>></textarea></td>"
+                                        +"<td><input class='form-control' type='number' id='target_indikator_kegiatan_penetapan_1' name='target_indikator_kegiatan_penetapan[1]' <?php echo $disabled; ?>></td>"
+                                        +"<td><input class='form-control' type='text' id='satuan_indikator_kegiatan_penetapan_1' name='satuan_indikator_kegiatan_penetapan[1]' <?php echo $disabled; ?>></td>"
+                                        +"<td><textarea class='form-control' id='catatan_kegiatan_penetapan_1' name='catatan_indikator_kegiatan_penetapan[1]' <?php echo $disabled; ?>></textarea></td>"
+                                    +"</tr>";
+                            }else{
+        						response.data.indi_kegiatan.map(function(value, index){
+                                    let id = index+1;
+                                    if(index == 0){
+                                        var aksi = tombol_tambah;
+                                    }else{
+                                        var aksi = ''
+                                            +'<button type="button" class="btn btn-danger" onclick="hapusIndikatorKegiatan(this);">'
+                                                +'<i class="dashicons dashicons-trash" style="margin-top: 2px;"></i>'
+                                            +'</button>';
+                                    }
+        		          			html +=''
+        		          				+"<tr data-id='"+id+"' type='usulan'>"
+        					          		+"<td class='text-center' rowspan='2' style='vertical-align: middle;'>"+id+"</td>"
+                                            +"<td class='text-center'>Usulan</td>"
+        					          		+"<td><textarea class='form-control' type='text' id='indikator_kegiatan_usulan_"+id+"' name='indikator_kegiatan_usulan["+id+"]'>"+value.outputteks_usulan+"</textarea></td>"
+        					          		+"<td><input class='form-control' type='number' id='target_indikator_kegiatan_usulan_"+id+"' name='target_indikator_kegiatan_usulan["+id+"]' value='"+value.targetoutput_usulan+"'></td>"
+        					          		+"<td><input class='form-control' type='text' id='satuan_indikator_kegiatan_usulan_"+id+"' name='satuan_indikator_kegiatan_usulan["+id+"]' value='"+value.satuanoutput_usulan+"'></td>"
+        									+"<td><textarea class='form-control' id='catatan_kegiatan_usulan_"+id+"' name='catatan_indikator_kegiatan_usulan["+id+"]'>"+value.catatan_usulan+"</textarea></td>"
+                                            +"<td rowspan='2' class='text-center' style='vertical-align: middle;'>"+aksi+"</td>"
+        					          	+"</tr>"
+        		          				+"<tr data-id='"+id+"' type='penetapan'>"
+                                            +"<td class='text-center'>Penetapan</td>"
+                                            +"<td><textarea class='form-control' type='text' id='indikator_kegiatan_penetapan_"+id+"' name='indikator_kegiatan_penetapan["+id+"]' <?php echo $disabled; ?>>"+value.outputteks+"</textarea></td>"
+                                            +"<td><input class='form-control' type='number' id='target_indikator_kegiatan_penetapan_"+id+"' name='target_indikator_kegiatan_penetapan["+id+"]' value='"+value.targetoutput+"' <?php echo $disabled; ?>></td>"
+                                            +"<td><input class='form-control' type='text' id='satuan_indikator_kegiatan_penetapan_"+id+"' name='satuan_indikator_kegiatan_penetapan["+id+"]' value='"+value.satuanoutput+"' <?php echo $disabled; ?>></td>"
+                                            +"<td><textarea class='form-control' id='catatan_kegiatan_penetapan_"+id+"' name='catatan_indikator_kegiatan_penetapan["+id+"]' <?php echo $disabled; ?>>"+value.catatan+"</textarea></td>"
+        					          	+"</tr>";
+        		          		});
+                            }
+    		          	html+=''
+    		          		+'</tbody>'
+    		          	+'</table>'
+                        +'</br><h4>Indikator Hasil Kegiatan</h4>'
+    					+"<table class='table'>"
+    						+"<thead>"
+    							+"<tr>"
+    								+"<th class='text-center'>No</th>"
+    								+"<th class='text-center'>Tipe</th>"
+                                    +"<th class='text-center'>Indikator</th>"
+    								+"<th class='text-center' style='width: 120px;'>Target</th>"
+    								+"<th class='text-center' style='width: 120px;'>Satuan</th>"
+    								+"<th class='text-center'>Catatan</th>"
+                                    +"<th class='text-center'>Aksi</th>"
+    							+"</tr>"
+    						+"</thead>"
+    						+"<tbody id='indikator_hasil_kegiatan'>";
 
-                        var tombol_tambah = ''
-                            +'<button type="button" class="btn btn-warning" onclick="tambahIndikatorHasilKegiatan();">'
-                                +'<i class="dashicons dashicons-plus" style="margin-top: 2px;"></i>'
-                            +'</button>';
+                            var tombol_tambah = ''
+                                +'<button type="button" class="btn btn-warning" onclick="tambahIndikatorHasilKegiatan();">'
+                                    +'<i class="dashicons dashicons-plus" style="margin-top: 2px;"></i>'
+                                +'</button>';
 
-                        if(response.data.indi_kegiatan_hasil.length == 0){
-                            html +=''
-                                +"<tr data-id='1' type='usulan'>"
-                                    +"<td class='text-center' rowspan='2' style='vertical-align: middle;'>1</td>"
-                                    +"<td class='text-center'>Usulan</td>"
-                                    +"<td><textarea class='form-control' type='text' id='indikator_hasil_kegiatan_usulan_1' name='indikator_hasil_kegiatan_usulan[1]'></textarea></td>"
-                                    +"<td><input class='form-control' type='number' id='target_indikator_hasil_kegiatan_usulan_1' name='target_indikator_hasil_kegiatan_usulan[1]'></td>"
-                                    +"<td><input class='form-control' type='text' id='satuan_indikator_hasil_kegiatan_usulan_1' name='satuan_indikator_hasil_kegiatan_usulan[1]'></td>"
-                                    +"<td><textarea class='form-control' id='catatan_hasil_kegiatan_usulan_1' name='catatan_indikator_hasil_kegiatan_usulan[1]'></textarea></td>"
-                                    +"<td rowspan='2' class='text-center' style='vertical-align: middle;'>"+tombol_tambah+"</td>"
-                                +"</tr>"
-                                +"<tr data-id='1' type='penetapan'>"
-                                    +"<td class='text-center'>Penetapan</td>"
-                                    +"<td><textarea class='form-control' type='text' id='indikator_hasil_kegiatan_penetapan_1' name='indikator_hasil_kegiatan_penetapan[1]' <?php echo $disabled; ?>></textarea></td>"
-                                    +"<td><input class='form-control' type='number' id='target_indikator_hasil_kegiatan_penetapan_1' name='target_indikator_hasil_kegiatan_penetapan[1]' <?php echo $disabled; ?>></td>"
-                                    +"<td><input class='form-control' type='text' id='satuan_indikator_hasil_kegiatan_penetapan_1' name='satuan_indikator_hasil_kegiatan_penetapan[1]' <?php echo $disabled; ?>></td>"
-                                    +"<td><textarea class='form-control' id='catatan_hasil_kegiatan_penetapan_1' name='catatan_indikator_hasil_kegiatan_penetapan[1]' <?php echo $disabled; ?>></textarea></td>"
-                                +"</tr>";
-                        }else{
-    						response.data.indi_kegiatan_hasil.map(function(value, index){
-                                let id = index+1;
-                                if(index == 0){
-                                    var aksi = tombol_tambah;
-                                }else{
-                                    var aksi = ''
-                                        +'<button type="button" class="btn btn-danger" onclick="hapusIndikatorHasilKegiatan(this);">'
-                                            +'<i class="dashicons dashicons-trash" style="margin-top: 2px;"></i>'
-                                        +'</button>';
-                                }
-    		          			html +=''
-    		          				+"<tr data-id='"+id+"' type='usulan'>"
-    					          		+"<td class='text-center' rowspan='2' style='vertical-align: middle;'>"+id+"</td>"
+                            if(response.data.indi_kegiatan_hasil.length == 0){
+                                html +=''
+                                    +"<tr data-id='1' type='usulan'>"
+                                        +"<td class='text-center' rowspan='2' style='vertical-align: middle;'>1</td>"
                                         +"<td class='text-center'>Usulan</td>"
-    					          		+"<td><textarea class='form-control' type='text' id='indikator_hasil_kegiatan_usulan_"+id+"' name='indikator_hasil_kegiatan_usulan["+id+"]'>"+value.hasilteks_usulan+"</textarea></td>"
-    					          		+"<td><input class='form-control' type='number' id='target_indikator_hasil_kegiatan_usulan_"+id+"' name='target_indikator_hasil_kegiatan_usulan["+id+"]' value='"+value.targethasil_usulan+"'></td>"
-    					          		+"<td><input class='form-control' type='text' id='satuan_indikator_hasil_kegiatan_usulan_"+id+"' name='satuan_indikator_hasil_kegiatan_usulan["+id+"]' value='"+value.satuanhasil_usulan+"'></td>"
-    									+"<td><textarea class='form-control' id='catatan_hasil_kegiatan_usulan_"+id+"' name='catatan_indikator_hasil_kegiatan_usulan["+id+"]'>"+value.catatan_usulan+"</textarea></td>"
-                                        +"<td rowspan='2' class='text-center' style='vertical-align: middle;'>"+aksi+"</td>"
-    					          	+"</tr>"
-    		          				+"<tr data-id='"+id+"' type='penetapan'>"
+                                        +"<td><textarea class='form-control' type='text' id='indikator_hasil_kegiatan_usulan_1' name='indikator_hasil_kegiatan_usulan[1]'></textarea></td>"
+                                        +"<td><input class='form-control' type='number' id='target_indikator_hasil_kegiatan_usulan_1' name='target_indikator_hasil_kegiatan_usulan[1]'></td>"
+                                        +"<td><input class='form-control' type='text' id='satuan_indikator_hasil_kegiatan_usulan_1' name='satuan_indikator_hasil_kegiatan_usulan[1]'></td>"
+                                        +"<td><textarea class='form-control' id='catatan_hasil_kegiatan_usulan_1' name='catatan_indikator_hasil_kegiatan_usulan[1]'></textarea></td>"
+                                        +"<td rowspan='2' class='text-center' style='vertical-align: middle;'>"+tombol_tambah+"</td>"
+                                    +"</tr>"
+                                    +"<tr data-id='1' type='penetapan'>"
                                         +"<td class='text-center'>Penetapan</td>"
-                                        +"<td><textarea class='form-control' type='text' id='indikator_hasil_kegiatan_penetapan_"+id+"' name='indikator_hasil_kegiatan_penetapan["+id+"]' <?php echo $disabled; ?>>"+value.hasilteks+"</textarea></td>"
-                                        +"<td><input class='form-control' type='number' id='target_indikator_hasil_kegiatan_penetapan_"+id+"' name='target_indikator_hasil_kegiatan_penetapan["+id+"]' value='"+value.targethasil+"' <?php echo $disabled; ?>></td>"
-                                        +"<td><input class='form-control' type='text' id='satuan_indikator_hasil_kegiatan_penetapan_"+id+"' name='satuan_indikator_hasil_kegiatan_penetapan["+id+"]' value='"+value.satuanhasil+"' <?php echo $disabled; ?>></td>"
-                                        +"<td><textarea class='form-control' id='catatan_hasil_kegiatan_penetapan_"+id+"' name='catatan_indikator_hasil_kegiatan_penetapan["+id+"]' <?php echo $disabled; ?>>"+value.catatan+"</textarea></td>"
-    					          	+"</tr>";
-    		          		});
-                        }
-		          	html+=''
-		          		+'</tbody>'
-		          	+'</table>'
-					<?php if($is_admin): ?>
-						+'<div class="row">'
-							+'<div class="col-md-12 text-center">'
-								+'<button onclick="copy_usulan(this); return false;" type="button" class="btn btn-danger" style="margin-top: 20px;">'
-									+'<i class="dashicons dashicons-arrow-right-alt" style="margin-top: 2px;"></i> Copy Data Usulan ke Penetapan'
-								+'</button>'
-							+'</div>'
-						+'</div>'
-					<?php endif; ?>
-                +'</form>';
+                                        +"<td><textarea class='form-control' type='text' id='indikator_hasil_kegiatan_penetapan_1' name='indikator_hasil_kegiatan_penetapan[1]' <?php echo $disabled; ?>></textarea></td>"
+                                        +"<td><input class='form-control' type='number' id='target_indikator_hasil_kegiatan_penetapan_1' name='target_indikator_hasil_kegiatan_penetapan[1]' <?php echo $disabled; ?>></td>"
+                                        +"<td><input class='form-control' type='text' id='satuan_indikator_hasil_kegiatan_penetapan_1' name='satuan_indikator_hasil_kegiatan_penetapan[1]' <?php echo $disabled; ?>></td>"
+                                        +"<td><textarea class='form-control' id='catatan_hasil_kegiatan_penetapan_1' name='catatan_indikator_hasil_kegiatan_penetapan[1]' <?php echo $disabled; ?>></textarea></td>"
+                                    +"</tr>";
+                            }else{
+        						response.data.indi_kegiatan_hasil.map(function(value, index){
+                                    let id = index+1;
+                                    if(index == 0){
+                                        var aksi = tombol_tambah;
+                                    }else{
+                                        var aksi = ''
+                                            +'<button type="button" class="btn btn-danger" onclick="hapusIndikatorHasilKegiatan(this);">'
+                                                +'<i class="dashicons dashicons-trash" style="margin-top: 2px;"></i>'
+                                            +'</button>';
+                                    }
+        		          			html +=''
+        		          				+"<tr data-id='"+id+"' type='usulan'>"
+        					          		+"<td class='text-center' rowspan='2' style='vertical-align: middle;'>"+id+"</td>"
+                                            +"<td class='text-center'>Usulan</td>"
+        					          		+"<td><textarea class='form-control' type='text' id='indikator_hasil_kegiatan_usulan_"+id+"' name='indikator_hasil_kegiatan_usulan["+id+"]'>"+value.hasilteks_usulan+"</textarea></td>"
+        					          		+"<td><input class='form-control' type='number' id='target_indikator_hasil_kegiatan_usulan_"+id+"' name='target_indikator_hasil_kegiatan_usulan["+id+"]' value='"+value.targethasil_usulan+"'></td>"
+        					          		+"<td><input class='form-control' type='text' id='satuan_indikator_hasil_kegiatan_usulan_"+id+"' name='satuan_indikator_hasil_kegiatan_usulan["+id+"]' value='"+value.satuanhasil_usulan+"'></td>"
+        									+"<td><textarea class='form-control' id='catatan_hasil_kegiatan_usulan_"+id+"' name='catatan_indikator_hasil_kegiatan_usulan["+id+"]'>"+value.catatan_usulan+"</textarea></td>"
+                                            +"<td rowspan='2' class='text-center' style='vertical-align: middle;'>"+aksi+"</td>"
+        					          	+"</tr>"
+        		          				+"<tr data-id='"+id+"' type='penetapan'>"
+                                            +"<td class='text-center'>Penetapan</td>"
+                                            +"<td><textarea class='form-control' type='text' id='indikator_hasil_kegiatan_penetapan_"+id+"' name='indikator_hasil_kegiatan_penetapan["+id+"]' <?php echo $disabled; ?>>"+value.hasilteks+"</textarea></td>"
+                                            +"<td><input class='form-control' type='number' id='target_indikator_hasil_kegiatan_penetapan_"+id+"' name='target_indikator_hasil_kegiatan_penetapan["+id+"]' value='"+value.targethasil+"' <?php echo $disabled; ?>></td>"
+                                            +"<td><input class='form-control' type='text' id='satuan_indikator_hasil_kegiatan_penetapan_"+id+"' name='satuan_indikator_hasil_kegiatan_penetapan["+id+"]' value='"+value.satuanhasil+"' <?php echo $disabled; ?>></td>"
+                                            +"<td><textarea class='form-control' id='catatan_hasil_kegiatan_penetapan_"+id+"' name='catatan_indikator_hasil_kegiatan_penetapan["+id+"]' <?php echo $disabled; ?>>"+value.catatan+"</textarea></td>"
+        					          	+"</tr>";
+        		          		});
+                            }
+    		          	html+=''
+    		          		+'</tbody>'
+    		          	+'</table>'
+                        +'</br><h4>Prioritas Pembangunan Nasional</h4>'
+                        +"<select class='form-control' name='input_prioritas_nasional' id='input_prioritas_nasional'></select>"
+    					<?php if($is_admin): ?>
+    						+'<div class="row">'
+    							+'<div class="col-md-12 text-center">'
+    								+'<button onclick="copy_usulan(this); return false;" type="button" class="btn btn-danger" style="margin-top: 20px;">'
+    									+'<i class="dashicons dashicons-arrow-right-alt" style="margin-top: 2px;"></i> Copy Data Usulan ke Penetapan'
+    								+'</button>'
+    							+'</div>'
+    						+'</div>'
+    					<?php endif; ?>
+                    +'</form>';
 
-                jQuery('#modal-indikator-renja').find('.modal-title').html('Indikator Kegiatan');
-                jQuery('#modal-indikator-renja').find('.modal-body').html(html);
-                jQuery('#modal-indikator-renja').find('.modal-footer .submitBtn').attr('onclick', 'submitIndikatorKegiatan("'+data+'")');
-                jQuery('#modal-indikator-renja').find('.modal-dialog').css('maxWidth','1250px');
-                jQuery('#modal-indikator-renja').find('.modal-dialog').css('width','100%');
-                jQuery('#modal-indikator-renja').modal('show');
-                jQuery('#wrap-loading').hide();
-            }
+                    jQuery('#modal-indikator-renja').find('.modal-title').html('Indikator Kegiatan');
+                    jQuery('#modal-indikator-renja').find('.modal-body').html(html);
+                    jQuery('#modal-indikator-renja').find('.modal-footer .submitBtn').attr('onclick', 'submitIndikatorKegiatan("'+data+'")');
+                    jQuery('#modal-indikator-renja').find('.modal-dialog').css('maxWidth','1250px');
+                    jQuery('#modal-indikator-renja').find('.modal-dialog').css('width','100%');
+                    jQuery('#modal-indikator-renja').modal('show');
+
+                    jQuery("#input_prioritas_nasional").html(dataPrioritasPusat.table_content);
+                    jQuery('#input_prioritas_nasional').select2({width: '100%'});
+                    if(response.data.sasaran.id_label_pusat && response.data.sasaran.id_label_pusat != 0){
+                        jQuery("#input_prioritas_nasional").val(response.data.sasaran.id_label_pusat).trigger('change');
+                    }
+
+                    jQuery('#wrap-loading').hide();
+                }
+            })
         })
     }
 
@@ -3199,9 +3236,11 @@ echo '
     					          	+"</tr>";
     		          		});
                         }
-		          	html+=''
-		          		+'</tbody>'
-		          	+'</table>'
+                    html+=''
+                        +'</tbody>'
+                    +'</table>'
+                    +'</br><h4>Prioritas Pembangunan Nasional</h4>'
+                    +"<textarea class='form-control' id='input_prioritas_nasional' readonly>"+response.data.sasaran.label_pusat+"</textarea>"
                 +'</form>';
 
                 jQuery('#modal-indikator-renja').find('.modal-title').html('Detail Indikator Kegiatan');
