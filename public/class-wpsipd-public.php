@@ -91,7 +91,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 
 		wp_enqueue_style( 'dashicons' );
 	}
-
+	
 	/**
 	 * Register the JavaScript for the public-facing side of the site.
 	 *

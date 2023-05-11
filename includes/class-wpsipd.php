@@ -193,6 +193,10 @@ class Wpsipd
 		$this->loader->add_action('wp_ajax_get_sinkron_modul_migrasi_data',  $plugin_admin, 'get_sinkron_modul_migrasi_data');
 		$this->loader->add_action('wp_ajax_get_sinkron_data_sirup',  $plugin_admin, 'get_sinkron_data_sirup');
 		$this->loader->add_action('wp_ajax_import_excel_bkk',  $plugin_admin, 'import_excel_bkk');
+		$this->loader->add_action('wp_ajax_import_excel_bhpd',  $plugin_admin, 'import_excel_bhpd');
+		$this->loader->add_action('wp_ajax_import_excel_bhrd',  $plugin_admin, 'import_excel_bhrd');
+		$this->loader->add_action('wp_ajax_import_excel_bku_add',  $plugin_admin, 'import_excel_bku_add');
+		$this->loader->add_action('wp_ajax_import_excel_bku_dd',  $plugin_admin, 'import_excel_bku_dd');
 
 		// https://github.com/wp-cli/wp-cli/issues/5623 error deprecated function di php 8.1
 		add_filter( 'deprecated_constructor_trigger_error', '__return_false' );
@@ -690,6 +694,7 @@ class Wpsipd
 		$this->loader->add_action('wp_ajax_copy_data_renstra_ke_renja',  $plugin_public, 'copy_data_renstra_ke_renja');
 		$this->loader->add_action('wp_ajax_view_rekap_renstra',  $plugin_public, 'view_rekap_renstra');
 		$this->loader->add_action('wp_ajax_view_pagu_akumulasi_renstra',  $plugin_public, 'view_pagu_akumulasi_renstra');
+		$this->loader->add_action('wp_ajax_get_prioritas_pusat',  $plugin_public, 'get_prioritas_pusat');
 		$this->loader->add_action('wp_ajax_get_prioritas_prov',  $plugin_public, 'get_prioritas_prov');
 		$this->loader->add_action('wp_ajax_get_prioritas_kab_kot',  $plugin_public, 'get_prioritas_kab_kot');
 		$this->loader->add_action('wp_ajax_get_label_sub_keg',  $plugin_public, 'get_label_sub_keg');
@@ -753,6 +758,11 @@ class Wpsipd
 
 		$this->loader->add_action('wp_ajax_get_rekening_akun',  $plugin_public, 'get_rekening_akun');
 		$this->loader->add_action('wp_ajax_get_jenis_standar_harga',  $plugin_public, 'get_jenis_standar_harga');
+
+		$this->loader->add_action('wp_ajax_get_datatable_bkk_infrastruktur', $plugin_public, 'get_datatable_bkk_infrastruktur');
+		$this->loader->add_action('wp_ajax_hapus_data_bkk_infrastruktur_by_id', $plugin_public, 'hapus_data_bkk_infrastruktur_by_id');
+		$this->loader->add_action('wp_ajax_get_data_bkk_infrastruktur_by_id', $plugin_public, 'get_data_bkk_infrastruktur_by_id');
+		$this->loader->add_action('wp_ajax_tambah_data_bkk_infrastruktur', $plugin_public, 'tambah_data_bkk_infrastruktur');
 		
 		add_shortcode('menu_monev',  array($plugin_public, 'menu_monev'));
 		add_shortcode('datassh', array($plugin_public, 'datassh'));
@@ -799,6 +809,9 @@ class Wpsipd
 		add_shortcode('surat_usulan_ssh', array($plugin_public, 'surat_usulan_ssh'));
 		add_shortcode('halaman_pendapatan', array($plugin_public, 'halaman_pendapatan'));
 		add_shortcode('keu_pemdes_bhpd', array($plugin_public, 'keu_pemdes_bhpd'));
+		add_shortcode('keu_pemdes_bkk_inf', array($plugin_public, 'keu_pemdes_bkk_inf'));
+		add_shortcode('monitor_keu_pemdes', array($plugin_public, 'monitor_keu_pemdes'));
+		add_shortcode('management_data_bkk_infrastruktur', array($plugin_public, 'management_data_bkk_infrastruktur'));
 
 		//shortcode SIPKD
 		add_shortcode('data_akun',array($plugin_public,'sipkd_akun'));

@@ -2246,29 +2246,66 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 						'kode_sbl' => $kode_sbl,
 						'tahun_anggaran' => $tahun_anggaran
 					));
+					$data_label_tag_all = array();
+					foreach ($data['input_label_sub_keg_usulan'] as $k_label_tag => $v_label_tag) {
+						if(empty($data_label_tag_all[$k_label_tag])){
+							$data_label_tag_all[$k_label_tag] = array(
+								'usulan' => '',
+								'penetapan' => ''
+							);
+						}
+						$data_label_tag_all[$k_label_tag]['usulan'] = $v_label_tag;
+					}
 					foreach ($data['input_label_sub_keg'] as $k_label_tag => $v_label_tag) {
-						$data_label_tag = $wpdb->get_row($wpdb->prepare('
-							SELECT *
-							FROM data_label_giat
-							WHERE id_label_giat=%d
-								AND tahun_anggaran=%d
-						', $v_label_tag, $tahun_anggaran));
+						if(empty($data_label_tag_all[$k_label_tag])){
+							$data_label_tag_all[$k_label_tag] = array(
+								'usulan' => '',
+								'penetapan' => ''
+							);
+						}
+						$data_label_tag_all[$k_label_tag]['penetapan'] = $v_label_tag;
+					}
+					foreach ($data_label_tag_all as $k_label_tag => $v_label_tag) {
+						if(!empty($v_label_tag['penetapan'])){
+							$data_label_tag = $wpdb->get_row($wpdb->prepare('
+								SELECT *
+								FROM data_label_giat
+								WHERE id_label_giat=%d
+									AND tahun_anggaran=%d
+							', $v_label_tag['penetapan'], $tahun_anggaran));
+						}else{
+							$data_label_tag = (object) array(
+								'id_label_giat' => '',
+								'id_unik' => '',
+								'is_locked' => '',
+								'nama_label' => ''
+							);
+						}
 
-						$data_label_tag_usulan = $wpdb->get_row($wpdb->prepare('
-							SELECT *
-							FROM data_label_giat
-							WHERE id_label_giat=%d
-								AND tahun_anggaran=%d
-						', $data['input_label_sub_keg_usulan'][$k_label_tag], $tahun_anggaran));
+						if(!empty($v_label_tag['usulan'])){
+							$data_label_tag_usulan = $wpdb->get_row($wpdb->prepare('
+								SELECT *
+								FROM data_label_giat
+								WHERE id_label_giat=%d
+									AND tahun_anggaran=%d
+							', $v_label_tag['usulan'], $tahun_anggaran));
+						}else{
+							$data_label_tag = (object) array(
+								'id_label_giat_usulan' => '',
+								'id_unik_usulan' => '',
+								'nama_label_usulan' => ''
+							);
+						}
 
-						$cek_ids = $wpdb->get_results($wpdb->prepare('
+						$cek_id = $wpdb->get_var($wpdb->prepare('
 							SELECT 
 								id
 							FROM data_label_sub_keg_lokal
 							WHERE kode_sbl=%s
 								AND id_label_giat=%d
+								AND id_label_giat_usulan=%d
 								AND tahun_anggaran=%d
-						', $kode_sbl, $data['input_label_sub_keg_usulan'][$k_label_tag], $tahun_anggaran), ARRAY_A);
+						', $kode_sbl, $v_label_tag['penetapan'], $v_label_tag['usulan'], $tahun_anggaran));
 						$opsi_label_tag = array(
 							'id_label_giat' => $data_label_tag->id_label_giat,
 							'id_unik' => $data_label_tag->id_unik,
@@ -2283,13 +2320,10 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 							'nama_label_usulan' => $data_label_tag_usulan->nama_label
 						);
 						
-						if(
-							empty($cek_ids)
-							|| empty($cek_ids[$k_label_tag])
-						){
+						if(empty($cek_id)){
 							$wpdb->insert('data_label_sub_keg_lokal', $opsi_label_tag);
 						}else{
-							$wpdb->update('data_label_sub_keg_lokal', $opsi_label_tag, array('id' => $cek_ids[$k_label_tag]['id']));
+							$wpdb->update('data_label_sub_keg_lokal', $opsi_label_tag, array('id' => $cek_id));
 						}
 					}
 				}
@@ -2735,6 +2769,8 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 						$data_sasaran = $wpdb->get_row($wpdb->prepare(
 							'SELECT sasaran,
 								sasaran_usulan,
+								id_label_pusat,
+								label_pusat,
 								kode_sbl
 							FROM data_sub_keg_bl_lokal
 							WHERE tahun_anggaran=%d
@@ -2790,15 +2826,31 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 								if(in_array("administrator", $user_meta->roles)){
 									$sasaran = !empty($data_post['kelompok_sasaran_renja_penetapan']) ? $data_post['kelompok_sasaran_renja_penetapan'] : NULL;
 								}
+								$id_label_pusat = !empty($data_post['input_prioritas_nasional']) ? $data_post['input_prioritas_nasional'] : 0;
+								$label_pusat = NULL;
+								if(!empty($id_label_pusat)){
+									$label_pusat = $wpdb->get_var($wpdb->prepare('
+										SELECT
+											nama_label
+										FROM data_prioritas_pusat
+										WHERE id_label_pusat=%d
+											AND tahun_anggaran=%d
+											AND active=1
+									', $id_label_pusat, $tahun_anggaran));
+								}
 
 								$wpdb->query($wpdb->prepare(
-									'UPDATE data_sub_keg_bl_lokal
-									SET sasaran=%s,
-										sasaran_usulan=%s
+									'UPDATE data_sub_keg_bl_lokal SET 
+										sasaran=%s,
+										sasaran_usulan=%s,
+										id_label_pusat=%s,
+										label_pusat=%s
 									WHERE tahun_anggaran=%d
 									AND kode_sbl LIKE %s',
 									$sasaran,
 									$sasaran_usulan,
+									$id_label_pusat,
+									$label_pusat,
 									$tahun_anggaran,
 									$kode_kegiatan.'%'
 								));
@@ -3075,6 +3127,40 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 			return '';
 		}
 		require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/wpsipd-public-pendapatan.php';
+	}
+
+	public function get_prioritas_pusat(){
+		global $wpdb;
+		$ret = array(
+			'status'	=> 'success',
+			'action'	=> $_POST['action'],
+			'data'	=> array()
+		);
+		if (!empty($_POST)) {
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+				$table_content = '<option value="">Pilih Prioritas Pembangunan Nasional</option>';
+				$ret['data'] = $wpdb->get_results($wpdb->prepare('
+					SELECT *
+					FROM data_prioritas_pusat
+					WHERE tahun_anggaran=%d
+						AND tahun_akhir>=%d
+						AND active=1
+				', $_POST['tahun_anggaran'], $_POST['tahun_anggaran']), ARRAY_A);
+				
+				foreach ($ret['data'] as $key => $value) {
+					$table_content .= '<option value="'.$value['id_label_pusat'].'">'.$value['nama_label'].'</option>';
+				}
+				$ret['table_content'] = $table_content;
+				$ret['query'] = $wpdb->last_query;
+			} else {
+				$ret['status'] = 'error';
+				$ret['message'] = 'APIKEY tidak sesuai!';
+			}
+		} else {
+			$ret['status'] = 'error';
+			$ret['message'] = 'Format Salah!';
+		}
+		die(json_encode($ret));
 	}
 
 	public function get_prioritas_prov(){
