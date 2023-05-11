@@ -334,6 +334,10 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes {
 		    ->add_fields( $this->get_setting_keu_pemdes() );
 
 		$management_data_bkk_infrastruktur = $this->generatePage('Management Data BKK Infrastruktur', false, '[management_data_bkk_infrastruktur]');
+		$management_data_bhpd = $this->generatePage('Management Data BHPD', false, '[management_data_bhpd]');
+		$management_data_bhrd = $this->generatePage('Management Data BHRD', false, '[management_data_bhrd]');
+		$management_data_bku_dd = $this->generatePage('Management Data BKU DD', false, '[management_data_bku_dd]');
+		$management_data_bku_add = $this->generatePage('Management Data BKU DD', false, '[management_data_bku_add]');
 	    Container::make( 'theme_options', __( 'Import BKK' ) )
 		    ->set_page_parent( $keu_pemdes )
 		    ->add_fields( array(
@@ -354,6 +358,90 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes {
 	            	->set_html( 'Data JSON : <textarea id="data-excel" class="cf-select__input"></textarea>' ),
 		        Field::make( 'html', 'crb_bkk_infrastruktur_save_button' )
 	            	->set_html( '<a onclick="import_excel_bkk_infrastruktur(); return false" href="javascript:void(0);" class="button button-primary">Import WP</a>' )
+	        ) );
+	    Container::make( 'theme_options', __( 'Import BHPD' ) )
+		    ->set_page_parent( $keu_pemdes )
+		    ->add_fields( array(
+				Field::make( 'html', 'crb_halaman_terkait_bhpd' )
+		        	->set_html( '
+	        		<style>
+	        			.postbox-container { display: none; }
+	        			#poststuff #post-body.columns-2 { margin: 0 !important; }
+	        		</style>
+					<h5>HALAMAN TERKAIT</h5>
+	            	<ol>
+	            		<li><a target="_blank" href="'.$management_data_bhpd.'">Management Data BHPD</a></li>
+	            	</ol>
+		        	' ),
+		        Field::make( 'html', 'crb_bhpd_upload_html' )
+	            	->set_html( '<h3>Import EXCEL data Bagi Hasil Pajak Daerah (BHPD)</h3>Pilih file excel .xlsx : <input type="file" id="file-excel" onchange="filePickedWpsipd(event);"><br>Contoh format file excel bisa <a target="_blank" href="'.WPSIPD_PLUGIN_URL. 'excel/contoh_bku_bh.xlsx">download di sini</a>. Sheet file excel yang akan diimport harus diberi nama <b>data</b>. Untuk kolom nilai angka ditulis tanpa tanda titik.' ),
+		        Field::make( 'html', 'crb_bhpd_satset' )
+	            	->set_html( 'Data JSON : <textarea id="data-excel" class="cf-select__input"></textarea>' ),
+		        Field::make( 'html', 'crb_bhpd_save_button' )
+	            	->set_html( '<a onclick="import_excel_bhpd(); return false" href="javascript:void(0);" class="button button-primary">Import WP</a>' )
+	        ) );
+	    Container::make( 'theme_options', __( 'Import BHRD' ) )
+		    ->set_page_parent( $keu_pemdes )
+		    ->add_fields( array(
+				Field::make( 'html', 'crb_halaman_terkait_bhrd' )
+		        	->set_html( '
+	        		<style>
+	        			.postbox-container { display: none; }
+	        			#poststuff #post-body.columns-2 { margin: 0 !important; }
+	        		</style>
+					<h5>HALAMAN TERKAIT</h5>
+	            	<ol>
+	            		<li><a target="_blank" href="'.$management_data_bhrd.'">Management Data BHRD</a></li>
+	            	</ol>
+		        	' ),
+		        Field::make( 'html', 'crb_bhrd_upload_html' )
+	            	->set_html( '<h3>Import EXCEL data Bagi Hasil Retribusi Daerah (BHRD)</h3>Pilih file excel .xlsx : <input type="file" id="file-excel" onchange="filePickedWpsipd(event);"><br>Contoh format file excel bisa <a target="_blank" href="'.WPSIPD_PLUGIN_URL. 'excel/contoh_bku_bh.xlsx">download di sini</a>. Sheet file excel yang akan diimport harus diberi nama <b>data</b>. Untuk kolom nilai angka ditulis tanpa tanda titik.' ),
+		        Field::make( 'html', 'crb_bhrd_satset' )
+	            	->set_html( 'Data JSON : <textarea id="data-excel" class="cf-select__input"></textarea>' ),
+		        Field::make( 'html', 'crb_bhrd_save_button' )
+	            	->set_html( '<a onclick="import_excel_bhrd(); return false" href="javascript:void(0);" class="button button-primary">Import WP</a>' )
+	        ) );
+	    Container::make( 'theme_options', __( 'Import BKU DD' ) )
+		    ->set_page_parent( $keu_pemdes )
+		    ->add_fields( array(
+				Field::make( 'html', 'crb_halaman_terkait_bku_dd' )
+		        	->set_html( '
+	        		<style>
+	        			.postbox-container { display: none; }
+	        			#poststuff #post-body.columns-2 { margin: 0 !important; }
+	        		</style>
+					<h5>HALAMAN TERKAIT</h5>
+	            	<ol>
+	            		<li><a target="_blank" href="'.$management_data_bku_dd.'">Management Data BKU DD</a></li>
+	            	</ol>
+		        	' ),
+		        Field::make( 'html', 'crb_bku_dd_upload_html' )
+	            	->set_html( '<h3>Import EXCEL data Bantuan Keuangan Umum (BKU) Dana Desa (DD)</h3>Pilih file excel .xlsx : <input type="file" id="file-excel" onchange="filePickedWpsipd(event);"><br>Contoh format file excel bisa <a target="_blank" href="'.WPSIPD_PLUGIN_URL. 'excel/contoh_bku_bh.xlsx">download di sini</a>. Sheet file excel yang akan diimport harus diberi nama <b>data</b>. Untuk kolom nilai angka ditulis tanpa tanda titik.' ),
+		        Field::make( 'html', 'crb_bku_dd_satset' )
+	            	->set_html( 'Data JSON : <textarea id="data-excel" class="cf-select__input"></textarea>' ),
+		        Field::make( 'html', 'crb_bku_dd_save_button' )
+	            	->set_html( '<a onclick="import_excel_bku_dd(); return false" href="javascript:void(0);" class="button button-primary">Import WP</a>' )
+	        ) );
+	    Container::make( 'theme_options', __( 'Import BKU ADD' ) )
+		    ->set_page_parent( $keu_pemdes )
+		    ->add_fields( array(
+				Field::make( 'html', 'crb_halaman_terkait_bku_add' )
+		        	->set_html( '
+	        		<style>
+	        			.postbox-container { display: none; }
+	        			#poststuff #post-body.columns-2 { margin: 0 !important; }
+	        		</style>
+					<h5>HALAMAN TERKAIT</h5>
+	            	<ol>
+	            		<li><a target="_blank" href="'.$management_data_bku_add.'">Management Data BKU ADD</a></li>
+	            	</ol>
+		        	' ),
+		        Field::make( 'html', 'crb_bku_add_upload_html' )
+	            	->set_html( '<h3>Import EXCEL data Bantuan Keuangan Umum (BKU) Anggaran Dana Desa (ADD)</h3>Pilih file excel .xlsx : <input type="file" id="file-excel" onchange="filePickedWpsipd(event);"><br>Contoh format file excel bisa <a target="_blank" href="'.WPSIPD_PLUGIN_URL. 'excel/contoh_bku_bh.xlsx">download di sini</a>. Sheet file excel yang akan diimport harus diberi nama <b>data</b>. Untuk kolom nilai angka ditulis tanpa tanda titik.' ),
+		        Field::make( 'html', 'crb_bku_add_satset' )
+	            	->set_html( 'Data JSON : <textarea id="data-excel" class="cf-select__input"></textarea>' ),
+		        Field::make( 'html', 'crb_bku_add_save_button' )
+	            	->set_html( '<a onclick="import_excel_bku_add(); return false" href="javascript:void(0);" class="button button-primary">Import WP</a>' )
 	        ) );
 	}
 

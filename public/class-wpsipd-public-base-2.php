@@ -2769,6 +2769,8 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 						$data_sasaran = $wpdb->get_row($wpdb->prepare(
 							'SELECT sasaran,
 								sasaran_usulan,
+								id_label_pusat,
+								label_pusat,
 								kode_sbl
 							FROM data_sub_keg_bl_lokal
 							WHERE tahun_anggaran=%d
@@ -2824,15 +2826,31 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 								if(in_array("administrator", $user_meta->roles)){
 									$sasaran = !empty($data_post['kelompok_sasaran_renja_penetapan']) ? $data_post['kelompok_sasaran_renja_penetapan'] : NULL;
 								}
+								$id_label_pusat = !empty($data_post['input_prioritas_nasional']) ? $data_post['input_prioritas_nasional'] : 0;
+								$label_pusat = NULL;
+								if(!empty($id_label_pusat)){
+									$label_pusat = $wpdb->get_var($wpdb->prepare('
+										SELECT
+											nama_label
+										FROM data_prioritas_pusat
+										WHERE id_label_pusat=%d
+											AND tahun_anggaran=%d
+											AND active=1
+									', $id_label_pusat, $tahun_anggaran));
+								}
 
 								$wpdb->query($wpdb->prepare(
-									'UPDATE data_sub_keg_bl_lokal
-									SET sasaran=%s,
-										sasaran_usulan=%s
+									'UPDATE data_sub_keg_bl_lokal SET 
+										sasaran=%s,
+										sasaran_usulan=%s,
+										id_label_pusat=%s,
+										label_pusat=%s
 									WHERE tahun_anggaran=%d
 									AND kode_sbl LIKE %s',
 									$sasaran,
 									$sasaran_usulan,
+									$id_label_pusat,
+									$label_pusat,
 									$tahun_anggaran,
 									$kode_kegiatan.'%'
 								));
@@ -3109,6 +3127,40 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 			return '';
 		}
 		require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/wpsipd-public-pendapatan.php';
+	}
+
+	public function get_prioritas_pusat(){
+		global $wpdb;
+		$ret = array(
+			'status'	=> 'success',
+			'action'	=> $_POST['action'],
+			'data'	=> array()
+		);
+		if (!empty($_POST)) {
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+				$table_content = '<option value="">Pilih Prioritas Pembangunan Nasional</option>';
+				$ret['data'] = $wpdb->get_results($wpdb->prepare('
+					SELECT *
+					FROM data_prioritas_pusat
+					WHERE tahun_anggaran=%d
+						AND tahun_akhir>=%d
+						AND active=1
+				', $_POST['tahun_anggaran'], $_POST['tahun_anggaran']), ARRAY_A);
+				
+				foreach ($ret['data'] as $key => $value) {
+					$table_content .= '<option value="'.$value['id_label_pusat'].'">'.$value['nama_label'].'</option>';
+				}
+				$ret['table_content'] = $table_content;
+				$ret['query'] = $wpdb->last_query;
+			} else {
+				$ret['status'] = 'error';
+				$ret['message'] = 'APIKEY tidak sesuai!';
+			}
+		} else {
+			$ret['status'] = 'error';
+			$ret['message'] = 'Format Salah!';
+		}
+		die(json_encode($ret));
 	}
 
 	public function get_prioritas_prov(){
