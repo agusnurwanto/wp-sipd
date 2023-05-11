@@ -3431,7 +3431,11 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		if (!empty($_POST)) {
 			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
 				if (!empty($_POST['alamat'])) {
-					$alamat = $_POST['alamat'];
+					if(!empty($_POST['type']) && $_POST['type'] == 'ri'){
+						$alamat = json_decode(stripslashes(html_entity_decode($_POST['alamat'])), true);					
+					}else{
+						$alamat = $_POST['alamat'];
+					}
 					foreach ($alamat as $k => $v) {
 						$where = '';
 						$where_a = array(
