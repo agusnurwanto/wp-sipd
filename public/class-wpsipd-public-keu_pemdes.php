@@ -23,6 +23,13 @@ class Wpsipd_Public_Keu_Pemdes
         require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/keu_pemdes/wpsipd-public-keu-pemdes-bkk-rekapitulasi.php';
     }
 
+    public function monitor_keu_pemdes($atts){
+        if(!empty($_GET) && !empty($_GET['post'])){
+            return '';
+        }
+        require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/keu_pemdes/wpsipd-public-keu-pemdes-desa.php';
+    }
+
     public function get_data_bkk_infrastruktur_by_id(){
         global $wpdb;
         $ret = array(

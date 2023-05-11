@@ -801,6 +801,7 @@ class Wpsipd
 		add_shortcode('halaman_pendapatan', array($plugin_public, 'halaman_pendapatan'));
 		add_shortcode('keu_pemdes_bhpd', array($plugin_public, 'keu_pemdes_bhpd'));
 		add_shortcode('keu_pemdes_bkk_inf', array($plugin_public, 'keu_pemdes_bkk_inf'));
+		add_shortcode('monitor_keu_pemdes', array($plugin_public, 'monitor_keu_pemdes'));
 		add_shortcode('management_data_bkk_infrastruktur', array($plugin_public, 'management_data_bkk_infrastruktur'));
 
 		//shortcode SIPKD
