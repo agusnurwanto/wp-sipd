@@ -6,14 +6,14 @@ if ( ! defined( 'WPINC' ) ) {
 global $wpdb;
 
 $input = shortcode_atts( array(
-    'tahun_anggaran' => '2023'
+    'tahun_anggaran' => '2024'
 ), $atts );
 
 $data = $wpdb->get_results($wpdb->prepare("
     SELECT 
         kecamatan, 
         sum(total) as total 
-    from data_bhpd_desa 
+    from data_bhrd_desa 
     WHERE tahun_anggaran=%d
         and active=1
     group by kecamatan 
@@ -77,7 +77,7 @@ if($realisasi_all == 0){
 }
 ?>
 
-<h1 class="text-center">Bagi Hasil Pajak Daerah<br>Rekapitulasi Per Kecamatan<br>Tahun <?php echo $input['tahun_anggaran']; ?></h1>
+<h1 class="text-center">Bagi Hasil Retribusi Daerah<br>Rekapitulasi Per Kecamatan<br>Tahun <?php echo $input['tahun_anggaran']; ?></h1>
 <div class="cetak">
     <div style="padding: 10px;">
         <div class="row">
@@ -89,7 +89,7 @@ if($realisasi_all == 0){
         </div>
         <div class="row">
             <div class="col-md-12">
-                <h2 class="text-center">Tabel Bagi Hasil Pajak Daerah<br>Rekapitulasi Per Kecamatan<br>Tahun <?php echo $input['tahun_anggaran']; ?></h2>
+                <h2 class="text-center">Tabel Bagi Hasil Retribusi Daerah<br>Rekapitulasi Per Kecamatan<br>Tahun <?php echo $input['tahun_anggaran']; ?></h2>
                 <table class="table table-bordered">
                     <thead>
                         <tr>
