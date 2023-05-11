@@ -3191,73 +3191,383 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 		global $wpdb;
 		$ret = array(
 			'status'	=> 'success',
-			'message'	=> 'ON PROGRESS PENDAPATAN',//'berhasil get data pendapatan renja',
+			'message'	=> 'Berhasil get data pendapatan renja',
 			'data'	=> array()
 		);
-		// if(!empty($_POST)) {
-		// 	if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
-		// 		if(!empty($_POST['id_skpd']) && !empty($_POST['tahun_anggaran'])){
-		// 			$params = $_REQUEST;
+		if(!empty($_POST)) {
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+				if(!empty($_POST['id_skpd']) && !empty($_POST['tahun_anggaran'])){
+					$params = $_REQUEST;
 
-		// 			$pendapatan = $wpdb->get_results(
-		// 				$wpdb->prepare("
-		// 				SELECT 
-		// 					kode_akun,
-		// 					nama_akun,
-		// 					total,
-		// 					keterangan
-		// 				from data_pendapatan_lokal
-		// 				where id_skpd=%d
-		// 					AND tahun_anggaran=%d
-		// 					AND active=1", $_POST['id_skpd'], $_POST['tahun_anggaran']),
-		// 				ARRAY_A
-		// 			);
+					$pendapatan = $wpdb->get_results(
+						$wpdb->prepare("
+						SELECT 
+							id,
+							kode_akun,
+							nama_akun,
+							total,
+							keterangan
+						from data_pendapatan_lokal
+						where id_skpd=%d
+							AND tahun_anggaran=%d
+							AND active=1", $_POST['id_skpd'], $_POST['tahun_anggaran']),
+						ARRAY_A
+					);
 
-		// 			$total_pendapatan = $wpdb->get_results(
-		// 				$wpdb->prepare("
-		// 				SELECT 
-		// 					count(id) as jml
-		// 				from data_pendapatan_lokal
-		// 				where id_skpd=%d
-		// 					AND tahun_anggaran=%d
-		// 					AND active=1", $_POST['id_skpd'], $_POST['tahun_anggaran']),
-		// 				ARRAY_A
-		// 			);
+					$total_pendapatan = $wpdb->get_results(
+						$wpdb->prepare("
+						SELECT 
+							count(id) as jml
+						from data_pendapatan_lokal
+						where id_skpd=%d
+							AND tahun_anggaran=%d
+							AND active=1", $_POST['id_skpd'], $_POST['tahun_anggaran']),
+						ARRAY_A
+					);
 
-		// 			$totalRecords = $total_pendapatan[0]['jml'] ?: 0;
-		// 			if(!empty($pendapatan)){
-		// 				foreach($pendapatan as $k_pend => $v_pend){
-		// 					$edit = '<button class="btn btn-sm btn-primary">Ubah</button>';
-		// 					$delete = '<button style="margin-left: 5px;" class="btn btn-sm btn-danger">Hapus</button>';
-		// 					$pendapatan[$k_pend]['aksi'] = $edit.$delete;
-		// 				}
-		// 				$json_data = array(
-		// 					// "draw"            => intval( $params['draw'] ),
-		// 					"recordsTotal"    => intval( $totalRecords ), 
-		// 					"recordsFiltered" => intval( $totalRecords ),
-		// 					"data"            => $pendapatan
-		// 				);
+					$totalRecords = $total_pendapatan[0]['jml'] ?: 0;
+					if(!empty($pendapatan)){
+						foreach($pendapatan as $k_pend => $v_pend){
+							$edit = '<a class="btn btn-sm btn-warning mr-2" style="text-decoration: none;" onclick="edit_data_pendapatan(\''.$v_pend['id'].'\'); return false;" href="#" title="Edit data pendapatan"><i class="dashicons dashicons-edit"></i></a>';
+							$delete = '<a class="btn btn-sm btn-danger" style="text-decoration: none;" onclick="hapus_data_pendapatan(\''.$v_pend['id'].'\'); return false;" href="#" title="Hapus data pendapatan"><i class="dashicons dashicons-trash"></i></a>';
+							$pendapatan[$k_pend]['aksi'] = $edit.$delete;
+						}
+						$json_data = array(
+							"draw"            => intval( $params['draw'] ),
+							"recordsTotal"    => intval( $totalRecords ), 
+							"recordsFiltered" => intval( $totalRecords ),
+							"data"            => $pendapatan
+						);
 
-		// 				die(json_encode($json_data));
-		// 			}else{
-		// 				$ret = array(
-		// 					'status' => 'error',
-		// 					'message'	=> 'Data tidak ditemukan!',
-		// 					'sql' => $wpdb->last_query
-		// 				);
-		// 			}
-		// 		}else{
-		// 			$ret['status'] = 'error';
-		// 			$ret['message'] = 'Ada Parameter Yang Kosong!';
-		// 		}
-		// 	} else {
-		// 		$ret['status'] = 'error';
-		// 		$ret['message'] = 'APIKEY tidak sesuai!';
-		// 	}
-		// } else {
-		// 	$ret['status'] = 'error';
-		// 	$ret['message'] = 'Format Salah!';
-		// }
+						die(json_encode($json_data));
+					}else{
+						$ret = array(
+							'status' => 'error',
+							'message'	=> 'Data tidak ditemukan!',
+							'sql' => $wpdb->last_query
+						);
+					}
+				}else{
+					$ret['status'] = 'error';
+					$ret['message'] = 'Ada Parameter Yang Kosong!';
+				}
+			} else {
+				$ret['status'] = 'error';
+				$ret['message'] = 'APIKEY tidak sesuai!';
+			}
+		} else {
+			$ret['status'] = 'error';
+			$ret['message'] = 'Format Salah!';
+		}
 		die(json_encode($ret));
-	}	
+	}
+
+	public function get_data_rekening_pendapatan(){
+		global $wpdb;
+		$ret = array(
+			'status'	=> 'success',
+			'message' 	=> 'Berhasil mendapapatkan data rekening pendapatan!',
+			'data'		=> array(),
+		);
+
+		if(!empty($_POST)){
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+				if(!empty($_POST['tahun_anggaran'])){
+					$tahun_anggaran = $_POST['tahun_anggaran'];
+	
+					$data_akun = $wpdb->get_results($wpdb->prepare(
+						'SELECT *
+						FROM data_akun
+						WHERE tahun_anggaran=%d
+						AND kode_akun LIKE "4%"
+						AND set_input=1
+					', $tahun_anggaran),ARRAY_A);
+	
+					if(!empty($data_akun)){
+						$ret['data'] = $data_akun;
+					}
+				}else{
+					$ret['status'] = 'error';
+					$ret['message'] = 'Ada param yang kosong!';
+				}
+			}else{
+				$ret['status'] = 'error';
+				$ret['message'] = 'APIKEY tidak sesuai!';
+			}
+		}else{
+			$ret['status']	= 'error';
+			$ret['message']	= 'Format Salah!';
+		}
+
+		die(json_encode($ret));
+	}
+
+	public function submit_pendapatan(){
+		global $wpdb;
+		$ret = array(
+			'status'	=> 'success',
+			'message' 	=> 'Berhasil menambahkan data Pendapatan!'
+		);
+
+		if(!empty($_POST)){
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )){
+
+				$tahun_anggaran = $_POST['tahun_anggaran'];
+				$data = json_decode(stripslashes($_POST['data']), true);
+
+				if(empty($_POST['tahun_anggaran'])){
+					$ret['status'] = 'error';
+					$ret['message'] = 'Tahun Anggaran tidak boleh kosong';
+				}elseif(empty($_POST['id_skpd'])){
+					$ret['status'] = 'error';
+					$ret['message'] = 'Id Skpd tidak boleh kosong';
+				}elseif(empty($data['pend_rekening'])){
+					$ret['status'] = 'error';
+					$ret['message'] = 'Rekening tidak boleh kosong';
+				}elseif(empty($data['pend_keterangan'])){
+					$ret['status'] = 'error';
+					$ret['message'] = 'Keterangan tidak boleh kosong';
+				}elseif(empty($data['pend_nilai'])){
+					$ret['status'] = 'error';
+					$ret['message'] = 'Nilai tidak boleh kosong';
+				}
+
+				/** Data Akun */
+				$data_akun = $wpdb->get_row($wpdb->prepare("
+						SELECT 
+							kode_akun,
+							nama_akun 
+						from data_akun 
+						where kode_akun=%s
+							and tahun_anggaran=%d
+					",$data['pend_rekening'], $tahun_anggaran
+				), ARRAY_A);
+
+				if($ret['status'] != 'error'){
+					$opsi_pendapatan = array(
+						'keterangan'	=> $data['pend_keterangan'],
+						'kode_akun'		=> $data_akun['kode_akun'],
+						'nama_akun'		=> $data_akun['nama_akun'],
+						'rekening'		=> $data_akun['kode_akun']." ".$data_akun['nama_akun'],
+						'total'			=> $data['pend_nilai'],
+						'id_skpd'		=> $_POST['id_skpd'],
+						'active'		=> 1,
+						'update_at'		=> current_time('mysql'),
+						'tahun_anggaran'=> $tahun_anggaran
+					);
+					// cek data sama
+					// $cek_id = $wpdb->get_var($wpdb->prepare("
+					// 	SELECT 
+					// 		id 
+					// 	from data_sub_keg_bl_lokal 
+					// 	where kode_sbl='$kode_sbl' 
+					// 		and tahun_anggaran=%d
+					// ", $tahun_anggaran));
+	
+					// if(!$cek_id){
+						$wpdb->insert('data_pendapatan_lokal',$opsi_pendapatan);
+					// }else{
+					// 	$wpdb->update('data_sub_keg_bl_lokal', $opsi_sub_keg_bl, array('id' => $cek_id));
+					// 	$ret['message'] = 'Berhasil update data RENJA!';
+					// }
+				}
+
+			}else{
+				$ret['status'] = 'error';
+				$ret['message'] = 'APIKEY tidak sesuai!';
+			}
+		}else{
+			$ret['status']	= 'error';
+			$ret['message']	= 'Format Salah!';
+		}
+
+		die(json_encode($ret));
+	}
+
+	/** get data pendapatan by id */
+	public function get_data_pendapatan_by_id(){
+		global $wpdb;
+		$return = array(
+			'status' => 'success',
+			'data'	=> array()
+		);
+
+		if(!empty($_POST)){
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+				if(empty($_POST['id_pendapatan'])){
+					$ret['status'] = 'error';
+					$ret['message'] = 'Id pendapatan tidak boleh kosong';
+				}
+
+				if($ret['status'] != 'error'){
+					$id_pendapatan = $_POST['id_pendapatan'];
+					
+					$data_pendapatan_by_id = $wpdb->get_row($wpdb->prepare('SELECT * FROM data_pendapatan_lokal WHERE id = %d',$id_pendapatan), ARRAY_A);
+
+					$return = array(
+						'status'	=> 'success',
+						'data'		=> $data_pendapatan_by_id
+					);
+				}
+			}else{
+				$return = array(
+					'status'	=> 'error',
+					'message'	=> 'Api Key tidak sesuai!'
+				);
+			}
+		}else{
+			$return = array(
+				'status'	=> 'error',
+				'message'	=> 'Format tidak sesuai!'
+			);
+		}
+		die(json_encode($return));
+	}
+
+	/** Submit data pendapatan */
+	public function submit_edit_pendapatan(){
+		global $wpdb;
+		$return = array(
+			'status' => 'success',
+			'data'	=> array()
+		);
+
+		if(!empty($_POST)){
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+				
+				$tahun_anggaran = $_POST['tahun_anggaran'];
+				$id_pendapatan = $_POST['id_pendapatan'];
+				$data = json_decode(stripslashes($_POST['data']), true);
+
+				if(empty($_POST['tahun_anggaran'])){
+					$ret['status'] = 'error';
+					$ret['message'] = 'Tahun Anggaran tidak boleh kosong';
+				}elseif(empty($_POST['id_skpd'])){
+					$ret['status'] = 'error';
+					$ret['message'] = 'Id Skpd tidak boleh kosong';
+				}elseif(empty($data['pend_rekening'])){
+					$ret['status'] = 'error';
+					$ret['message'] = 'Rekening tidak boleh kosong';
+				}elseif(empty($data['pend_keterangan'])){
+					$ret['status'] = 'error';
+					$ret['message'] = 'Keterangan tidak boleh kosong';
+				}elseif(empty($data['pend_nilai'])){
+					$ret['status'] = 'error';
+					$ret['message'] = 'Nilai tidak boleh kosong';
+				}elseif(empty($_POST['id_pendapatan'])){
+					$ret['status'] = 'error';
+					$ret['message'] = 'Id Pendapatan tidak boleh kosong';
+				}
+
+				if($ret['status'] != 'error'){
+					$data_this_id = $wpdb->get_row($wpdb->prepare('SELECT * FROM data_pendapatan_lokal WHERE id = %d',$id_pendapatan), ARRAY_A);
+
+					if(!empty($data_this_id)){
+						/** Data Akun */
+						$data_akun = $wpdb->get_row($wpdb->prepare("
+								SELECT 
+									kode_akun,
+									nama_akun 
+								from data_akun 
+								where kode_akun=%s
+									and tahun_anggaran=%d
+							",$data['pend_rekening'], $tahun_anggaran
+						), ARRAY_A);
+
+						$opsi_pendapatan = array(
+							'keterangan'	=> $data['pend_keterangan'],
+							'kode_akun'		=> $data_akun['kode_akun'],
+							'nama_akun'		=> $data_akun['nama_akun'],
+							'rekening'		=> $data_akun['kode_akun']." ".$data_akun['nama_akun'],
+							'total'			=> $data['pend_nilai'],
+							'id_skpd'		=> $_POST['id_skpd'],
+							'active'		=> 1,
+							'update_at'		=> current_time('mysql'),
+							'tahun_anggaran'=> $tahun_anggaran
+						);
+
+						$wpdb->update('data_pendapatan_lokal', $opsi_pendapatan, array(
+							'id'	=> $id_pendapatan
+						));
+							
+						$return = array(
+							'status'			=> 'success',
+							'message'			=> 'Berhasil!',
+							'data_pendapatan'	=> $opsi_pendapatan,
+						);
+					}else{
+						$return = array(
+							'status'	=> 'error',
+							'message'	=> "Data tidak ditemukan!",
+						);
+					}
+				}
+			}else{
+				$return = array(
+					'status' => 'error',
+					'message'	=> 'Api Key tidak sesuai!'
+				);
+			}
+		}else{
+			$return = array(
+				'status' => 'error',
+				'message'	=> 'Format tidak sesuai!'
+			);
+		}
+		die(json_encode($return));
+	}
+
+	/** delete data pendapatan */
+	public function submit_delete_pendapatan(){
+		global $wpdb;
+		$return = array(
+			'status' => 'success',
+			'data'	=> array()
+		);
+
+		if(!empty($_POST)){
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+				if(!empty($_POST['id_pendapatan'])){
+						$id_pendapatan = $_POST['id_pendapatan'];
+
+						$data_this_id = $wpdb->get_results($wpdb->prepare('SELECT * FROM data_pendapatan_lokal WHERE id = %d',$id_pendapatan), ARRAY_A);
+
+						if(!empty($data_this_id)){
+							$wpdb->update('data_pendapatan_lokal', array(
+								'active' => 0
+							), array(
+								'id' => $id_pendapatan
+							));
+
+							$return = array(
+								'status' => 'success',
+								'message'	=> 'Berhasil!',
+							);
+						}else{
+							$return = array(
+								'status' => 'error',
+								'message'	=> "Data tidak ditemukan!",
+							);
+						}
+					
+				}else{
+					$return = array(
+						'status' => 'error',
+						'message'	=> 'Harap diisi semua,tidak boleh ada yang kosong!'
+					);
+				}
+			}else{
+				$return = array(
+					'status' => 'error',
+					'message'	=> 'Api Key tidak sesuai!'
+				);
+			}
+		}else{
+			$return = array(
+				'status' => 'error',
+				'message'	=> 'Format tidak sesuai!'
+			);
+		}
+		die(json_encode($return));
+	}
 }

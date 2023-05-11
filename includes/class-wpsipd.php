@@ -743,6 +743,11 @@ class Wpsipd
 		$this->loader->add_action('wp_ajax_view_pagu_total_renja',  $plugin_public, 'view_pagu_total_renja');
 
 		$this->loader->add_action('wp_ajax_get_data_pendapatan_renja', $plugin_public, 'get_data_pendapatan_renja');
+		$this->loader->add_action('wp_ajax_get_data_rekening_pendapatan', $plugin_public, 'get_data_rekening_pendapatan');
+		$this->loader->add_action('wp_ajax_submit_pendapatan', $plugin_public, 'submit_pendapatan');
+		$this->loader->add_action('wp_ajax_get_data_pendapatan_by_id', $plugin_public, 'get_data_pendapatan_by_id');
+		$this->loader->add_action('wp_ajax_submit_edit_pendapatan', $plugin_public, 'submit_edit_pendapatan');
+		$this->loader->add_action('wp_ajax_submit_delete_pendapatan', $plugin_public, 'submit_delete_pendapatan');
 
 		$this->loader->add_action('wp_ajax_get_data_summary_ssh_sipd',  $plugin_public, 'get_data_summary_ssh_sipd');
 

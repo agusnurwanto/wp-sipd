@@ -10,6 +10,20 @@ $input = shortcode_atts( array(
 ), $atts );
 
 global $wpdb;
+$data_skpd = [];
+if(!empty($input['id_skpd'])){
+	$data_skpd = $wpdb->get_row($wpdb->prepare(
+				'SELECT nama_skpd
+				FROM data_unit
+				WHERE
+					id_skpd=%d
+					AND tahun_anggaran=%d',
+				$input['id_skpd'],
+				$input['tahun_anggaran']
+			), ARRAY_A);
+}
+
+$nama_skpd = (!empty($data_skpd['nama_skpd'])) ? $data_skpd['nama_skpd'] : '';
 
 
 $body = '';
@@ -25,7 +39,9 @@ $body = '';
 <div class="cetak">
 	<div style="padding: 10px;margin:0 0 3rem 0;">
 		<input type="hidden" value="<?php echo get_option( '_crb_api_key_extension' ); ?>" id="api_key">
-		<h1 class="text-center" style="margin:3rem;">Halaman Pendapatan  <?php echo $input['tahun_anggaran']; ?></h1>
+		<!-- <h4 style="text-align: center; margin: 10px auto; min-width: 450px; max-width: 570px; font-weight: bold;">'.$nama_laporan.'</h4> -->
+		<h3 class="text-center" style="margin:3rem 0 0 0;">Halaman Pendapatan  <?php echo $nama_skpd; ?></h3>
+		<h3 class="text-center" style="margin:0 0 3rem 0;">Tahun Anggaran  <?php echo $input['tahun_anggaran']; ?></h3>
 		<div style="margin-bottom: 25px;">
 			<button class="btn btn-primary tambah_pendapatan" onclick="tambah_pendapatan();">Tambah Pendapatan</button>
 		</div>
@@ -45,34 +61,39 @@ $body = '';
 	</div>
 </div>
 
-<div class="modal fade mt-4" id="modalTambahJadwal" tabindex="-1" role="dialog" aria-labelledby="modalTambahJadwalLabel" aria-hidden="true">
+<div class="modal fade mt-4" id="modalPendapatan" role="dialog" aria-labelledby="modalPendapatanLabel" aria-hidden="true">
 	<div class="modal-dialog modal-lg" role="document">
 		<div class="modal-content">
 			<div class="modal-header">
-				<h5 class="modal-title" id="modalTambahJadwalLabel">Tambah Penjadwalan</h5>
+				<h5 class="modal-title" id="modalPendapatanLabel">Tambah Pendapatan</h5>
 				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
 				<span aria-hidden="true">&times;</span>
 				</button>
 			</div>
 			<div class="modal-body">
-				<div>
-					<label for='jadwal_nama' style='display:inline-block'>Nama Tahapan</label>
-					<input type='text' id='jadwal_nama' style='display:block;width:100%;' placeholder='Nama Tahapan'>
-				</div>
-				<div>
-					<label for='jadwal_tanggal' style='display:inline-block'>Jadwal Pelaksanaan</label>
-					<input type="text" id='jadwal_tanggal' name="datetimes" style='display:block;width:100%;'/>
-				</div>
-				<div>
-					<label for="link_renstra" style='display:inline-block'>Pilih Jadwal RENSTRA</label>
-					<select id="link_renstra" style='display:block;width: 100%;'>
-						<option value="">Pilih RENSTRA</option>
-						<?php echo $select_renstra; ?>
-					</select>
-				</div>
+                <form id="form-pendapatan">
+					<div>
+						<label for='pend_perangkat_daerah' style='display:inline-block'>Perangkat Daerah</label>
+						<input type='text' id='pend_perangkat_daerah' name="pend_perangkat_daerah" style='display:block;width:100%;' value="<?php echo $nama_skpd; ?>" placeholder='Perangkat Daerah'>
+					</div>
+					<div>
+						<label for="pend_rekening" style='display:inline-block'>Rekening</label>
+						<select id="pend_rekening" class="pend_rekening" name="pend_rekening">
+							<option value="">Pilih Rekening</option>
+						</select>
+					</div>
+					<div>
+						<label for="pend_keterangan" style="display:inline-block">Keterangan</label>
+						<textarea name="pend_keterangan" id="pend_keterangan" rows="5" style="display:inline-block;width:100%;"></textarea>
+					</div>
+					<div>
+						<label for="pend_nilai" style='display:inline-block'>Nilai</label>
+						<input type="number" id="pend_nilai" name="pend_nilai" style="display:inline-block;width:100%;">
+					</div>
+				</form>
 			</div> 
 			<div class="modal-footer">
-				<button class="btn btn-primary submitBtn" onclick="submitTambahJadwalForm()">Simpan</button>
+				<button class="btn btn-primary submitBtn" onclick="submitTambahPendapatanForm()">Simpan</button>
 				<button type="submit" class="components-button btn btn-secondary" data-dismiss="modal">Tutup</button>
 			</div>
 		</div>
@@ -93,11 +114,40 @@ $body = '';
 
 		get_data_pendapatan();
 
-		jQuery('#modalTambahJadwal').on('hidden.bs.modal', function () {
-			jQuery("#jadwal_nama").val("");
-			jQuery("#link_renstra").val("");
-		})
+		// jQuery('#modalPendapatan').on('hidden.bs.modal', function () {
+			
+		// })
 	});
+
+	function rekening_akun(){
+        return new Promise(function(resolve, reject){
+            if(typeof master_rekening_akun == 'undefined'){
+                jQuery("#wrap-loading").show();
+                jQuery.ajax({
+                    method: 'POST',
+                    url: this_ajax_url,
+                    dataType: 'json',
+                    data: {
+                        'action': 'get_data_rekening_pendapatan',
+                        'api_key': jQuery('#api_key').val(),
+                        'tahun_anggaran': tahun_anggaran
+                    },
+                    success:function(response){
+                        window.master_rekening_akun = response.data;
+                        jQuery("#wrap-loading").hide();
+                        let option='<option value="">Pilih Rekening</option>';
+        				response.data.map(function(value, index){
+                            option+='<option value="'+value.kode_akun+'">'+value.kode_akun+' '+value.nama_akun+'</option>';
+                        })
+
+        				jQuery(".pend_rekening").html(option);
+                        jQuery(".pend_rekening").select2({width: '100%'});
+                    }
+                });
+            }
+			resolve();
+        });
+	}
 
 	/** get data pendapatan */
 	function get_data_pendapatan(){
@@ -143,196 +193,168 @@ $body = '';
 		});
 	}
 
-	/** show modal tambah jadwal */
-	function tambah_jadwal(){
-		jQuery("#modalTambahJadwal .modal-title").html("Tambah Penjadwalan");
-		jQuery("#modalTambahJadwal .submitBtn")
-			.attr("onclick", 'submitTambahJadwalForm()')
-			.attr("disabled", false)
-			.text("Simpan");
-		jQuery('#modalTambahJadwal').modal('show');
-	}
-
-	/** Submit tambah jadwal */
-	function submitTambahJadwalForm(){
-		jQuery("#wrap-loading").show()
-		let nama = jQuery('#jadwal_nama').val()
-		let jadwalMulai = jQuery("#jadwal_tanggal").data('daterangepicker').startDate.format('YYYY-MM-DD HH:mm:ss')
-		let jadwalSelesai = jQuery("#jadwal_tanggal").data('daterangepicker').endDate.format('YYYY-MM-DD HH:mm:ss')
-		let this_tahun_anggaran = tahun_anggaran
-		let relasi_perencanaan = jQuery("#link_renstra").val()
-		if(nama.trim() == '' || jadwalMulai == '' || jadwalSelesai == '' || this_tahun_anggaran == ''){
-			jQuery("#wrap-loading").hide()
-			alert("Ada yang kosong, Harap diisi semua")
-			return false
-		}else{
-			jQuery.ajax({
-				url:thisAjaxUrl,
-				type: 'post',
-				dataType: 'json',
-				data:{
-					'action'			: 'submit_add_schedule',
-					'api_key'			: jQuery("#api_key").val(),
-					'nama'				: nama,
-					'jadwal_mulai'		: jadwalMulai,
-					'jadwal_selesai'	: jadwalSelesai,
-					'tahun_anggaran'	: this_tahun_anggaran,
-					'tipe_perencanaan'	: tipe_perencanaan,
-					'relasi_perencanaan': relasi_perencanaan,
-				},
-				beforeSend: function() {
-					jQuery('.submitBtn').attr('disabled','disabled')
-				},
-				success: function(response){
-					jQuery('#modalTambahJadwal').modal('hide')
-					jQuery('#wrap-loading').hide()
-					if(response.status == 'success'){
-						alert('Data berhasil ditambahkan')
-						penjadwalanTable.ajax.reload()
-					}else{
-						alert(response.message)
-					}
-					jQuery('#jadwal_nama').val('')
-					jQuery("#link_renstra").val('')
-				}
-			})
-		}
-		jQuery('#modalTambahJadwal').modal('hide');
-	}
-
-	/** edit akun ssh usulan */
-	function edit_data_penjadwalan(id_jadwal_lokal){
-		jQuery('#modalTambahJadwal').modal('show');
-		jQuery("#modalTambahJadwal .modal-title").html("Edit Penjadwalan");
-		jQuery("#modalTambahJadwal .submitBtn")
-			.attr("onclick", 'submitEditJadwalForm('+id_jadwal_lokal+')')
-			.attr("disabled", false)
-			.text("Simpan");
-		jQuery("#wrap-loading").show()
-		jQuery.ajax({
-			url: thisAjaxUrl,
-			type:"post",
-			data:{
-				'action' 			: "get_data_jadwal_by_id",
-				'api_key' 			: jQuery("#api_key").val(),
-				'id_jadwal_lokal' 	: id_jadwal_lokal
-			},
-			dataType: "json",
-			success:function(response){
-				jQuery("#wrap-loading").hide()
-				jQuery("#jadwal_nama").val(response.data.nama);
-				jQuery('#jadwal_tanggal').data('daterangepicker').setStartDate(moment(response.data.waktu_awal).format('DD-MM-YYYY HH:mm'));
-				jQuery('#jadwal_tanggal').data('daterangepicker').setEndDate(moment(response.data.waktu_akhir).format('DD-MM-YYYY HH:mm'));
-				jQuery("#link_renstra").val(response.data.relasi_perencanaan).change();
-			}
+	/** show modal tambah pendapatan */
+	function tambah_pendapatan(){
+		rekening_akun()
+		.then(function(){
+			jQuery("#modalPendapatan .modal-title").html("Tambah Pendapatan");
+			jQuery("#modalPendapatan .submitBtn")
+				.attr("onclick", 'submitTambahPendapatanForm()')
+				.attr("disabled", false)
+				.text("Simpan");
+			jQuery('#modalPendapatan').modal('show');
 		})
 	}
 
-	function submitEditJadwalForm(id_jadwal_lokal){
+	/** Submit tambah pendapatan */
+	function submitTambahPendapatanForm(){
 		jQuery("#wrap-loading").show()
-		let nama = jQuery('#jadwal_nama').val()
-		let jadwalMulai = jQuery("#jadwal_tanggal").data('daterangepicker').startDate.format('YYYY-MM-DD HH:mm:ss')
-		let jadwalSelesai = jQuery("#jadwal_tanggal").data('daterangepicker').endDate.format('YYYY-MM-DD HH:mm:ss')
-		let this_tahun_anggaran = tahun_anggaran
-		let relasi_perencanaan = jQuery("#link_renstra").val()
-		if(nama.trim() == '' || jadwalMulai == '' || jadwalSelesai == '' || this_tahun_anggaran == ''){
+		let form = get_form_data(jQuery("#form-pendapatan"));
+		if(form.id_rekening == '' || form.keterangan == '' || form.nilai == '' || tahun_anggaran == '' || id_skpd == ''){
 			jQuery("#wrap-loading").hide()
 			alert("Ada yang kosong, Harap diisi semua")
 			return false
 		}else{
 			jQuery.ajax({
-				url:thisAjaxUrl,
-				type: 'post',
+				url:this_ajax_url,
+				method: 'post',
 				dataType: 'json',
 				data:{
-					'action'			: 'submit_edit_schedule',
+					'action'			: 'submit_pendapatan',
 					'api_key'			: jQuery("#api_key").val(),
-					'nama'				: nama,
-					'jadwal_mulai'		: jadwalMulai,
-					'jadwal_selesai'	: jadwalSelesai,
-					'id_jadwal_lokal'	: id_jadwal_lokal,
-					'tahun_anggaran'	: this_tahun_anggaran,
-					'tipe_perencanaan'	: tipe_perencanaan,
-					'relasi_perencanaan': relasi_perencanaan
+                    'data'				: JSON.stringify(form),
+					'tahun_anggaran'	: tahun_anggaran,
+					'id_skpd'			: id_skpd
 				},
 				beforeSend: function() {
 					jQuery('.submitBtn').attr('disabled','disabled')
 				},
 				success: function(response){
-					jQuery('#modalTambahJadwal').modal('hide')
+					jQuery('#modalPendapatan').modal('hide')
 					jQuery('#wrap-loading').hide()
 					if(response.status == 'success'){
-						alert('Data berhasil diperbarui')
-						penjadwalanTable.ajax.reload()
+						alert('Data berhasil ditambahkan')
+						pendapatanTable.ajax.reload()
 					}else{
-						alert(`GAGAL! \n${response.message}`)
+						alert(response.message)
 					}
-					jQuery('#jadwal_nama').val('')
-					jQuery("#link_renstra").val('')
+					reset_form();
 				}
 			})
 		}
-		jQuery('#modalTambahJadwal').modal('hide');
+		jQuery('#modalPendapatan').modal('hide');
 	}
 
-	function hapus_data_penjadwalan(id_jadwal_lokal){
-		let confirmDelete = confirm("Apakah anda yakin akan menghapus penjadwalan?");
+	function get_form_data($form){
+		let unindexed_array = $form.serializeArray();
+		let data = {};
+        unindexed_array.map(function(b, i){
+			data[b.name] = b.value;
+        })
+		console.log(data);
+        return data;
+	}
+
+	function reset_form(){
+		jQuery('.pend_rekening').val(null).trigger('change');
+		jQuery("#pend_keterangan").val("")
+		jQuery("#pend_keterangan").val("")
+	}
+
+	/** edit pendapatan */
+	function edit_data_pendapatan(id){
+		rekening_akun()
+		.then(function(){
+			jQuery('#modalPendapatan').modal('show');
+			jQuery("#modalPendapatan .modal-title").html("Edit Pendapatan");
+			jQuery("#modalPendapatan .submitBtn")
+				.attr("onclick", 'submitEditPendapatan('+id+')')
+				.attr("disabled", false)
+				.text("Simpan");
+			jQuery("#wrap-loading").show()
+			jQuery.ajax({
+				url: this_ajax_url,
+				method: 'post',
+				dataType: 'json',
+				data:{
+					'action' 			: "get_data_pendapatan_by_id",
+					'api_key' 			: jQuery("#api_key").val(),
+					'id_pendapatan' 	: id
+				},
+				dataType: "json",
+				success:function(response){
+					jQuery("#wrap-loading").hide()
+					jQuery("#pend_rekening").val(response.data.kode_akun).trigger('change');
+					jQuery("#pend_keterangan").val(response.data.keterangan);
+					jQuery("#pend_nilai").val(response.data.total);
+				}
+			})
+		})
+	}
+
+	function submitEditPendapatan(id_pendapatan){
+		jQuery("#wrap-loading").show()
+		let form = get_form_data(jQuery("#form-pendapatan"));
+		if(form.id_rekening == '' || form.keterangan == '' || form.nilai == '' || tahun_anggaran == '' || id_skpd == '' || id_pendapatan == ''){
+			jQuery("#wrap-loading").hide()
+			alert("Ada yang kosong, Harap diisi semua")
+			return false
+		}else{
+			jQuery.ajax({
+				url:this_ajax_url,
+				method: 'post',
+				dataType: 'json',
+				data:{
+					'action'			: 'submit_edit_pendapatan',
+					'api_key'			: jQuery("#api_key").val(),
+                    'data'				: JSON.stringify(form),
+					'tahun_anggaran'	: tahun_anggaran,
+					'id_skpd'			: id_skpd,
+					'id_pendapatan'		: id_pendapatan
+				},
+				beforeSend: function() {
+					jQuery('.submitBtn').attr('disabled','disabled')
+				},
+				success: function(response){
+					jQuery('#modalPendapatan').modal('hide')
+					jQuery('#wrap-loading').hide()
+					if(response.status == 'success'){
+						alert('Data berhasil diperbarui')
+						pendapatanTable.ajax.reload()
+					}else{
+						alert(`GAGAL! \n${response.message}`)
+					}
+					reset_form();
+				}
+			})
+		}
+		jQuery('#modalPendapatan').modal('hide');
+	}
+
+	function hapus_data_pendapatan(id_pendapatan){
+		let confirmDelete = confirm("Apakah anda yakin akan menghapus pendatapan?");
 		if(confirmDelete){
 			jQuery('#wrap-loading').show();
 			jQuery.ajax({
-				url: thisAjaxUrl,
-				type:'post',
+				url:this_ajax_url,
+				method: 'post',
 				data:{
-					'action' 				: 'submit_delete_schedule',
-					'api_key'				: jQuery("#api_key").val(),
-					'id_jadwal_lokal'		: id_jadwal_lokal
+					'action' 			: 'submit_delete_pendapatan',
+					'api_key'			: jQuery("#api_key").val(),
+					'id_pendapatan'		: id_pendapatan
 				},
 				dataType: 'json',
 				success:function(response){
 					jQuery('#wrap-loading').hide();
 					if(response.status == 'success'){
 						alert('Data berhasil dihapus!.');
-						penjadwalanTable.ajax.reload();	
+						pendapatanTable.ajax.reload();	
 					}else{
 						alert(`GAGAL! \n${response.message}`);
 					}
 				}
 			});
 		}
-	}
-
-	function list_perangkat_daerah(){
-		jQuery('#wrap-loading').show();
-		return new Promise(function(resolve, reject){
-			if(typeof list_perangkat_daerah_global == 'undefined'){
-				jQuery.ajax({
-					url:ajax.url,
-					type:'post',
-					dataType:'json',
-					data:{
-						action:'list_perangkat_daerah',
-						tahun_anggaran:tahun_anggaran,
-						api_key:jQuery("#api_key").val(),
-					},
-					success:function(response){
-						jQuery('#wrap-loading').hide();
-						if(response.status){
-							list_perangkat_daerah_global = response.list_skpd_options;
-							jQuery("#list_perangkat_daerah").html(list_perangkat_daerah_global);
-							jQuery('#list_perangkat_daerah').select2({width: '100%'});
-							return resolve();
-						}
-
-						alert('Oops ada kesalahan load data Unit kerja');
-						return resolve();
-					}
-				})
-			}else{
-				jQuery("#list_perangkat_daerah").html(list_perangkat_daerah_global);
-				jQuery('#list_perangkat_daerah').select2({width: '100%'});
-				return resolve();
-			}
-		})
 	}
 
 </script> 
