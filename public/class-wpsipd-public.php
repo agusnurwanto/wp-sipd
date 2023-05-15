@@ -3561,7 +3561,11 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		if (!empty($_POST)) {
 			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
 				if (!empty($_POST['profile'])) {
-					$profile = $_POST['profile'];
+					if(!empty($_POST['type']) && $_POST['type'] == 'ri'){
+						$profile = json_decode(stripslashes(html_entity_decode($_POST['profile'])), true);						
+					}else{
+						$profile = $_POST['profile'];
+					}
 					foreach ($profile as $k => $v) {
 						$cek = $wpdb->get_var("SELECT id_profil from data_profile_penerima_bantuan where tahun=".$_POST['tahun_anggaran']." AND id_profil=" . $v['id_profil']);
 						$nama_teks = $this->replace_char($v['nama_teks']);
