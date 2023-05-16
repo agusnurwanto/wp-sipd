@@ -82,7 +82,7 @@ if($realisasi_all == 0){
     <div style="padding: 10px;">
         <div class="row">
             <div class="col-md-12">
-                <div style="width: 100%; margin:auto 10px;">
+                <div style="width: 100%; margin:auto 5px;">
                     <canvas id="chart_per_kec"></canvas>
                 </div>
             </div>

@@ -65,27 +65,27 @@
                     <input type="text" id='desa' name="desa" class="form-control" placeholder=''/>
                 </div>
                 <div class="form-group">
-                    <label for='kegiatan' style='display:inline-block'>kegiatan</label>
+                    <label for='kegiatan' style='display:inline-block'>Kegiatan</label>
                     <input type='text' id='kegiatan' name="kegiatan" class="form-control" placeholder=''>
                 </div> 
                 <div class="form-group">
-                    <label for='alamat' style='display:inline-block'>alamat</label>
+                    <label for='alamat' style='display:inline-block'>Alamat</label>
                     <input type="text" id='alamat' name="alamat" class="form-control" placeholder=''/>
                 </div>
                 <div class="form-group">
-                    <label for='total' style='display:inline-block'>total</label>
+                    <label for='total' style='display:inline-block'>Total</label>
                     <input type="text" id='total' name="total" class="form-control" placeholder=''/>
                 </div>
                 <div class="form-group">
-                    <label for='id_dana' style='display:inline-block'>id_dana</label>
+                    <label for='id_dana' style='display:inline-block'>Id Dana</label>
                     <input type="text" id='id_dana' name="id_dana" class="form-control" placeholder=''/>
                 </div>
                 <div class="form-group">
-                    <label for='sumber_dana' style='display:inline-block'>sumber_dana</label>
+                    <label for='sumber_dana' style='display:inline-block'>Sumber Dana</label>
                     <input type="text" id='sumber_dana' name="sumber_dana" class="form-control" placeholder=''/>
                 </div>
                 <div class="form-group">
-                    <label for='tahun_anggaran' style='display:inline-block'>tahun_anggaran</label>
+                    <label for='tahun_anggaran' style='display:inline-block'>Tahun Anggaran</label>
                     <input type="text" id='tahun_anggaran' name="tahun_anggaran" class="form-control" placeholder=''/>
                 </div>
             </div> 
