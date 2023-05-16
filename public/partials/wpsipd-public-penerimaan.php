@@ -40,11 +40,11 @@ $body = '';
 	<div style="padding: 10px;margin:0 0 3rem 0;">
 		<input type="hidden" value="<?php echo get_option( '_crb_api_key_extension' ); ?>" id="api_key">
 		<!-- <h4 style="text-align: center; margin: 10px auto; min-width: 450px; max-width: 570px; font-weight: bold;">'.$nama_laporan.'</h4> -->
-		<h3 class="text-center" style="margin:3rem 0;">Halaman Pendapatan  </br><?php echo $nama_skpd; ?> </br>Tahun Anggaran  <?php echo $input['tahun_anggaran']; ?></h3>
+		<h3 class="text-center" style="margin:3rem 0;">Halaman Penerimaan  </br><?php echo $nama_skpd; ?> </br>Tahun Anggaran  <?php echo $input['tahun_anggaran']; ?></h3>
 		<div style="margin-bottom: 25px;">
-			<button class="btn btn-primary tambah_pendapatan" onclick="tambah_pendapatan();">Tambah Pendapatan</button>
+			<button class="btn btn-primary tambah_penerimaan" onclick="tambah_penerimaan();">Tambah Penerimaan</button>
 		</div>
-		<table id="data_pendapatan_table" cellpadding="2" cellspacing="0" style="font-family:\'Open Sans\',-apple-system,BlinkMacSystemFont,\'Segoe UI\',sans-serif; border-collapse: collapse; width:100%; overflow-wrap: break-word;" class="table table-bordered">
+		<table id="data_penerimaan_table" cellpadding="2" cellspacing="0" style="font-family:\'Open Sans\',-apple-system,BlinkMacSystemFont,\'Segoe UI\',sans-serif; border-collapse: collapse; width:100%; overflow-wrap: break-word;" class="table table-bordered">
 			<thead id="data_header">
 				<tr>
 					<th class="text-center">Rekening</th>
@@ -60,17 +60,17 @@ $body = '';
 	</div>
 </div>
 
-<div class="modal fade mt-4" id="modalPendapatan" role="dialog" aria-labelledby="modalPendapatanLabel" aria-hidden="true">
+<div class="modal fade mt-4" id="modalPenerimaan" role="dialog" aria-labelledby="modalPenerimaanLabel" aria-hidden="true">
 	<div class="modal-dialog modal-lg" role="document">
 		<div class="modal-content">
 			<div class="modal-header">
-				<h5 class="modal-title" id="modalPendapatanLabel">Tambah Pendapatan</h5>
+				<h5 class="modal-title" id="modalPenerimaanLabel">Tambah Penerimaan</h5>
 				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
 				<span aria-hidden="true">&times;</span>
 				</button>
 			</div>
 			<div class="modal-body">
-                <form id="form-pendapatan">
+                <form id="form-penerimaan">
 					<div>
 						<label for='pend_perangkat_daerah' style='display:inline-block'>Perangkat Daerah</label>
 						<input type='text' id='pend_perangkat_daerah' name="pend_perangkat_daerah" style='display:block;width:100%;' value="<?php echo $nama_skpd; ?>" placeholder='Perangkat Daerah'>
@@ -92,7 +92,7 @@ $body = '';
 				</form>
 			</div> 
 			<div class="modal-footer">
-				<button class="btn btn-primary submitBtn" onclick="submitTambahPendapatanForm()">Simpan</button>
+				<button class="btn btn-primary submitBtn" onclick="submitTambahPenerimaanForm()">Simpan</button>
 				<button type="submit" class="components-button btn btn-secondary" data-dismiss="modal">Tutup</button>
 			</div>
 		</div>
@@ -111,9 +111,9 @@ $body = '';
 		window.this_ajax_url = "<?php echo admin_url('admin-ajax.php'); ?>"
 		window.id_skpd = "<?php echo $input['id_skpd']; ?>"
 
-		get_data_pendapatan();
+		get_data_penerimaan();
 
-		// jQuery('#modalPendapatan').on('hidden.bs.modal', function () {
+		// jQuery('#modalPenerimaan').on('hidden.bs.modal', function () {
 			
 		// })
 	});
@@ -127,7 +127,7 @@ $body = '';
                     url: this_ajax_url,
                     dataType: 'json',
                     data: {
-                        'action': 'get_data_rekening_pendapatan',
+                        'action': 'get_data_rekening_penerimaan',
                         'api_key': jQuery('#api_key').val(),
                         'tahun_anggaran': tahun_anggaran
                     },
@@ -148,17 +148,17 @@ $body = '';
         });
 	}
 
-	/** get data pendapatan */
-	function get_data_pendapatan(){
+	/** get data penerimaan */
+	function get_data_penerimaan(){
 		jQuery("#wrap-loading").show();
-		window.pendapatanTable = jQuery('#data_pendapatan_table').DataTable({
+		window.penerimaanTable = jQuery('#data_penerimaan_table').DataTable({
 			"processing": true,
 			"serverSide": true,
 			"ajax": {
 				url: this_ajax_url,
 				type:"post",
 				data:{
-					'action' 		: "get_data_pendapatan_renja",
+					'action' 		: "get_data_penerimaan_renja",
 					'api_key' 		: jQuery("#api_key").val(),
 					'id_skpd' 		: id_skpd,
 					'tahun_anggaran': tahun_anggaran
@@ -192,23 +192,23 @@ $body = '';
 		});
 	}
 
-	/** show modal tambah pendapatan */
-	function tambah_pendapatan(){
+	/** show modal tambah penerimaan */
+	function tambah_penerimaan(){
 		rekening_akun()
 		.then(function(){
-			jQuery("#modalPendapatan .modal-title").html("Tambah Pendapatan");
-			jQuery("#modalPendapatan .submitBtn")
-				.attr("onclick", 'submitTambahPendapatanForm()')
+			jQuery("#modalPenerimaan .modal-title").html("Tambah Penerimaan");
+			jQuery("#modalPenerimaan .submitBtn")
+				.attr("onclick", 'submitTambahPenerimaanForm()')
 				.attr("disabled", false)
 				.text("Simpan");
-			jQuery('#modalPendapatan').modal('show');
+			jQuery('#modalPenerimaan').modal('show');
 		})
 	}
 
-	/** Submit tambah pendapatan */
-	function submitTambahPendapatanForm(){
+	/** Submit tambah penerimaan */
+	function submitTambahPenerimaanForm(){
 		jQuery("#wrap-loading").show()
-		let form = get_form_data(jQuery("#form-pendapatan"));
+		let form = get_form_data(jQuery("#form-penerimaan"));
 		if(confirm('Apakah anda yakin untuk menyimpan data ini?')){
 			if(form.id_rekening == '' || form.keterangan == '' || form.nilai == '' || tahun_anggaran == '' || id_skpd == ''){
 				jQuery("#wrap-loading").hide()
@@ -220,7 +220,7 @@ $body = '';
 					method: 'post',
 					dataType: 'json',
 					data:{
-						'action'			: 'submit_pendapatan',
+						'action'			: 'submit_penerimaan',
 						'api_key'			: jQuery("#api_key").val(),
 						'data'				: JSON.stringify(form),
 						'tahun_anggaran'	: tahun_anggaran,
@@ -230,11 +230,11 @@ $body = '';
 						jQuery('.submitBtn').attr('disabled','disabled')
 					},
 					success: function(response){
-						jQuery('#modalPendapatan').modal('hide')
+						jQuery('#modalPenerimaan').modal('hide')
 						jQuery('#wrap-loading').hide()
 						if(response.status == 'success'){
 							alert('Data berhasil ditambahkan')
-							pendapatanTable.ajax.reload()
+							penerimaanTable.ajax.reload()
 						}else{
 							alert(response.message)
 						}
@@ -243,7 +243,7 @@ $body = '';
 				})
 			}
 		}
-		jQuery('#modalPendapatan').modal('hide');
+		jQuery('#modalPenerimaan').modal('hide');
 	}
 
 	function get_form_data($form){
@@ -262,14 +262,14 @@ $body = '';
 		jQuery("#pend_keterangan").val("")
 	}
 
-	/** edit pendapatan */
-	function edit_data_pendapatan(id){
+	/** edit penerimaan */
+	function edit_data_penerimaan(id){
 		rekening_akun()
 		.then(function(){
-			jQuery('#modalPendapatan').modal('show');
-			jQuery("#modalPendapatan .modal-title").html("Edit Pendapatan");
-			jQuery("#modalPendapatan .submitBtn")
-				.attr("onclick", 'submitEditPendapatan('+id+')')
+			jQuery('#modalPenerimaan').modal('show');
+			jQuery("#modalPenerimaan .modal-title").html("Edit Penerimaan");
+			jQuery("#modalPenerimaan .submitBtn")
+				.attr("onclick", 'submitEditPenerimaan('+id+')')
 				.attr("disabled", false)
 				.text("Simpan");
 			jQuery("#wrap-loading").show()
@@ -278,9 +278,9 @@ $body = '';
 				method: 'post',
 				dataType: 'json',
 				data:{
-					'action' 			: "get_data_pendapatan_by_id",
+					'action' 			: "get_data_penerimaan_by_id",
 					'api_key' 			: jQuery("#api_key").val(),
-					'id_pendapatan' 	: id
+					'id_penerimaan' 	: id
 				},
 				dataType: "json",
 				success:function(response){
@@ -293,11 +293,11 @@ $body = '';
 		})
 	}
 
-	function submitEditPendapatan(id_pendapatan){
+	function submitEditPenerimaan(id_penerimaan){
 		jQuery("#wrap-loading").show()
-		let form = get_form_data(jQuery("#form-pendapatan"));
+		let form = get_form_data(jQuery("#form-penerimaan"));
 		if(confirm('Apakah anda yakin untuk mengubah data ini?')){
-			if(form.id_rekening == '' || form.keterangan == '' || form.nilai == '' || tahun_anggaran == '' || id_skpd == '' || id_pendapatan == ''){
+			if(form.id_rekening == '' || form.keterangan == '' || form.nilai == '' || tahun_anggaran == '' || id_skpd == '' || id_penerimaan == ''){
 				jQuery("#wrap-loading").hide()
 				alert("Ada yang kosong, Harap diisi semua")
 				return false
@@ -307,22 +307,22 @@ $body = '';
 					method: 'post',
 					dataType: 'json',
 					data:{
-						'action'			: 'submit_edit_pendapatan',
+						'action'			: 'submit_edit_penerimaan',
 						'api_key'			: jQuery("#api_key").val(),
 						'data'				: JSON.stringify(form),
 						'tahun_anggaran'	: tahun_anggaran,
 						'id_skpd'			: id_skpd,
-						'id_pendapatan'		: id_pendapatan
+						'id_penerimaan'		: id_penerimaan
 					},
 					beforeSend: function() {
 						jQuery('.submitBtn').attr('disabled','disabled')
 					},
 					success: function(response){
-						jQuery('#modalPendapatan').modal('hide')
+						jQuery('#modalPenerimaan').modal('hide')
 						jQuery('#wrap-loading').hide()
 						if(response.status == 'success'){
 							alert('Data berhasil diperbarui')
-							pendapatanTable.ajax.reload()
+							penerimaanTable.ajax.reload()
 						}else{
 							alert(`GAGAL! \n${response.message}`)
 						}
@@ -331,27 +331,27 @@ $body = '';
 				})
 			}
 		}
-		jQuery('#modalPendapatan').modal('hide');
+		jQuery('#modalPenerimaan').modal('hide');
 	}
 
-	function hapus_data_pendapatan(id_pendapatan){
-		let confirmDelete = confirm("Apakah anda yakin akan menghapus data pendatapan?");
+	function hapus_data_penerimaan(id_penerimaan){
+		let confirmDelete = confirm("Apakah anda yakin akan menghapus data penerimaan?");
 		if(confirmDelete){
 			jQuery('#wrap-loading').show();
 			jQuery.ajax({
 				url:this_ajax_url,
 				method: 'post',
 				data:{
-					'action' 			: 'submit_delete_pendapatan',
+					'action' 			: 'submit_delete_penerimaan',
 					'api_key'			: jQuery("#api_key").val(),
-					'id_pendapatan'		: id_pendapatan
+					'id_penerimaan'		: id_penerimaan
 				},
 				dataType: 'json',
 				success:function(response){
 					jQuery('#wrap-loading').hide();
 					if(response.status == 'success'){
 						alert('Data berhasil dihapus!.');
-						pendapatanTable.ajax.reload();	
+						penerimaanTable.ajax.reload();	
 					}else{
 						alert(`GAGAL! \n${response.message}`);
 					}

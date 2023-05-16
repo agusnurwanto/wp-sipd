@@ -3129,6 +3129,24 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 		require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/wpsipd-public-pendapatan.php';
 	}
 
+	public function halaman_pembiayaan_penerimaan($atts)
+	{
+		// untuk disable render shortcode di halaman edit page/post
+		if(!empty($_GET) && !empty($_GET['post'])){
+			return '';
+		}
+		require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/wpsipd-public-penerimaan.php';
+	}
+
+	public function halaman_pembiayaan_pengeluaran($atts)
+	{
+		// untuk disable render shortcode di halaman edit page/post
+		if(!empty($_GET) && !empty($_GET['post'])){
+			return '';
+		}
+		require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/wpsipd-public-pengeluaran.php';
+	}
+
 	public function get_prioritas_pusat(){
 		global $wpdb;
 		$ret = array(
@@ -3430,12 +3448,19 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 				), ARRAY_A);
 
 				if($ret['status'] != 'error'){
+
+					$user_id = um_user( 'ID' );
+					$user_meta = get_userdata($user_id);
+
 					$opsi_pendapatan = array(
+						'created_user'	=> $user_meta->data->ID,
+						'user1'			=> $user_meta->data->display_name,
 						'keterangan'	=> $data['pend_keterangan'],
 						'kode_akun'		=> $data_akun['kode_akun'],
 						'nama_akun'		=> $data_akun['nama_akun'],
 						'rekening'		=> $data_akun['kode_akun']." ".$data_akun['nama_akun'],
 						'total'			=> $data['pend_nilai'],
+						'uraian'		=> $data_akun['nama_akun'],
 						'id_skpd'		=> $_POST['id_skpd'],
 						'active'		=> 1,
 						'update_at'		=> current_time('mysql'),
@@ -3549,6 +3574,10 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 					$data_this_id = $wpdb->get_row($wpdb->prepare('SELECT * FROM data_pendapatan_lokal WHERE id = %d',$id_pendapatan), ARRAY_A);
 
 					if(!empty($data_this_id)){
+
+						$user_id = um_user( 'ID' );
+						$user_meta = get_userdata($user_id);
+						
 						/** Data Akun */
 						$data_akun = $wpdb->get_row($wpdb->prepare("
 								SELECT 
@@ -3561,11 +3590,14 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 						), ARRAY_A);
 
 						$opsi_pendapatan = array(
+							'updated_user'	=> $user_meta->data->ID,
+							'user2'			=> $user_meta->data->display_name,
 							'keterangan'	=> $data['pend_keterangan'],
 							'kode_akun'		=> $data_akun['kode_akun'],
 							'nama_akun'		=> $data_akun['nama_akun'],
 							'rekening'		=> $data_akun['kode_akun']." ".$data_akun['nama_akun'],
 							'total'			=> $data['pend_nilai'],
+							'uraian'		=> $data_akun['nama_akun'],
 							'id_skpd'		=> $_POST['id_skpd'],
 							'active'		=> 1,
 							'update_at'		=> current_time('mysql'),
@@ -3623,6 +3655,808 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 								'active' => 0
 							), array(
 								'id' => $id_pendapatan
+							));
+
+							$return = array(
+								'status' => 'success',
+								'message'	=> 'Berhasil!',
+							);
+						}else{
+							$return = array(
+								'status' => 'error',
+								'message'	=> "Data tidak ditemukan!",
+							);
+						}
+					
+				}else{
+					$return = array(
+						'status' => 'error',
+						'message'	=> 'Harap diisi semua,tidak boleh ada yang kosong!'
+					);
+				}
+			}else{
+				$return = array(
+					'status' => 'error',
+					'message'	=> 'Api Key tidak sesuai!'
+				);
+			}
+		}else{
+			$return = array(
+				'status' => 'error',
+				'message'	=> 'Format tidak sesuai!'
+			);
+		}
+		die(json_encode($return));
+	}
+
+	public function get_data_penerimaan_renja(){
+		global $wpdb;
+		$ret = array(
+			'status'	=> 'success',
+			'message'	=> 'Berhasil get data penerimaan renja',
+			'data'	=> array()
+		);
+		if(!empty($_POST)) {
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+				if(!empty($_POST['id_skpd']) && !empty($_POST['tahun_anggaran'])){
+					$params = $_REQUEST;
+
+					$penerimaan = $wpdb->get_results(
+						$wpdb->prepare("
+						SELECT 
+							id,
+							kode_akun,
+							nama_akun,
+							total,
+							keterangan
+						from data_pembiayaan_lokal
+						where id_skpd=%d
+							AND tahun_anggaran=%d
+							AND active=1
+							AND type='penerimaan'", $_POST['id_skpd'], $_POST['tahun_anggaran']),
+						ARRAY_A
+					);
+
+					$total_penerimaan = $wpdb->get_results(
+						$wpdb->prepare("
+						SELECT 
+							count(id) as jml
+						from data_pembiayaan_lokal
+						where id_skpd=%d
+							AND tahun_anggaran=%d
+							AND active=1
+							AND type='penerimaan'", $_POST['id_skpd'], $_POST['tahun_anggaran']),
+						ARRAY_A
+					);
+
+					$totalRecords = $total_penerimaan[0]['jml'] ?: 0;
+					if(!empty($penerimaan)){
+						foreach($penerimaan as $k_pend => $v_pend){
+							$edit = '<a class="btn btn-sm btn-warning mr-2" style="text-decoration: none;" onclick="edit_data_penerimaan(\''.$v_pend['id'].'\'); return false;" href="#" title="Edit data penerimaan"><i class="dashicons dashicons-edit"></i></a>';
+							$delete = '<a class="btn btn-sm btn-danger" style="text-decoration: none;" onclick="hapus_data_penerimaan(\''.$v_pend['id'].'\'); return false;" href="#" title="Hapus data penerimaan"><i class="dashicons dashicons-trash"></i></a>';
+							$penerimaan[$k_pend]['aksi'] = $edit.$delete;
+						}
+						$json_data = array(
+							"draw"            => intval( $params['draw'] ),
+							"recordsTotal"    => intval( $totalRecords ), 
+							"recordsFiltered" => intval( $totalRecords ),
+							"data"            => $penerimaan
+						);
+
+						die(json_encode($json_data));
+					}else{
+						$ret = array(
+							'status' => 'error',
+							'message'	=> 'Data tidak ditemukan!',
+							'sql' => $wpdb->last_query
+						);
+					}
+				}else{
+					$ret['status'] = 'error';
+					$ret['message'] = 'Ada Parameter Yang Kosong!';
+				}
+			} else {
+				$ret['status'] = 'error';
+				$ret['message'] = 'APIKEY tidak sesuai!';
+			}
+		} else {
+			$ret['status'] = 'error';
+			$ret['message'] = 'Format Salah!';
+		}
+		die(json_encode($ret));
+	}
+
+	public function get_data_rekening_penerimaan(){
+		global $wpdb;
+		$ret = array(
+			'status'	=> 'success',
+			'message' 	=> 'Berhasil mendapapatkan data rekening penerimaan!',
+			'data'		=> array(),
+		);
+
+		if(!empty($_POST)){
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+				if(!empty($_POST['tahun_anggaran'])){
+					$tahun_anggaran = $_POST['tahun_anggaran'];
+	
+					$data_akun = $wpdb->get_results($wpdb->prepare(
+						'SELECT *
+						FROM data_akun
+						WHERE tahun_anggaran=%d
+						AND kode_akun LIKE "6.1%"
+						AND set_input=1
+					', $tahun_anggaran),ARRAY_A);
+	
+					if(!empty($data_akun)){
+						$ret['data'] = $data_akun;
+					}
+				}else{
+					$ret['status'] = 'error';
+					$ret['message'] = 'Ada param yang kosong!';
+				}
+			}else{
+				$ret['status'] = 'error';
+				$ret['message'] = 'APIKEY tidak sesuai!';
+			}
+		}else{
+			$ret['status']	= 'error';
+			$ret['message']	= 'Format Salah!';
+		}
+
+		die(json_encode($ret));
+	}
+
+	public function submit_penerimaan(){
+		global $wpdb;
+		$ret = array(
+			'status'	=> 'success',
+			'message' 	=> 'Berhasil menambahkan data Penerimaan!'
+		);
+
+		if(!empty($_POST)){
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )){
+
+				$tahun_anggaran = $_POST['tahun_anggaran'];
+				$data = json_decode(stripslashes($_POST['data']), true);
+
+				if(empty($_POST['tahun_anggaran'])){
+					$ret['status'] = 'error';
+					$ret['message'] = 'Tahun Anggaran tidak boleh kosong';
+				}elseif(empty($_POST['id_skpd'])){
+					$ret['status'] = 'error';
+					$ret['message'] = 'Id Skpd tidak boleh kosong';
+				}elseif(empty($data['pend_rekening'])){
+					$ret['status'] = 'error';
+					$ret['message'] = 'Rekening tidak boleh kosong';
+				}elseif(empty($data['pend_keterangan'])){
+					$ret['status'] = 'error';
+					$ret['message'] = 'Keterangan tidak boleh kosong';
+				}elseif(empty($data['pend_nilai'])){
+					$ret['status'] = 'error';
+					$ret['message'] = 'Nilai tidak boleh kosong';
+				}
+
+				/** Data Akun */
+				$data_akun = $wpdb->get_row($wpdb->prepare("
+						SELECT 
+							kode_akun,
+							nama_akun 
+						from data_akun 
+						where kode_akun=%s
+							and tahun_anggaran=%d
+					",$data['pend_rekening'], $tahun_anggaran
+				), ARRAY_A);
+
+				if($ret['status'] != 'error'){
+
+					$user_id = um_user( 'ID' );
+					$user_meta = get_userdata($user_id);
+
+					$opsi_penerimaan = array(
+						'created_user'	=> $user_meta->data->ID,
+						'user1'			=> $user_meta->data->display_name,
+						'keterangan'	=> $data['pend_keterangan'],
+						'kode_akun'		=> $data_akun['kode_akun'],
+						'nama_akun'		=> $data_akun['nama_akun'],
+						'rekening'		=> $data_akun['kode_akun']." ".$data_akun['nama_akun'],
+						'total'			=> $data['pend_nilai'],
+						'uraian'		=> $data_akun['nama_akun'],
+						'type'			=> 'penerimaan',
+						'id_skpd'		=> $_POST['id_skpd'],
+						'active'		=> 1,
+						'update_at'		=> current_time('mysql'),
+						'tahun_anggaran'=> $tahun_anggaran
+					);
+					// cek data sama
+					// $cek_id = $wpdb->get_var($wpdb->prepare("
+					// 	SELECT 
+					// 		id 
+					// 	from data_sub_keg_bl_lokal 
+					// 	where kode_sbl='$kode_sbl' 
+					// 		and tahun_anggaran=%d
+					// ", $tahun_anggaran));
+	
+					// if(!$cek_id){
+						$wpdb->insert('data_pembiayaan_lokal',$opsi_penerimaan);
+					// }else{
+					// 	$wpdb->update('data_sub_keg_bl_lokal', $opsi_sub_keg_bl, array('id' => $cek_id));
+					// 	$ret['message'] = 'Berhasil update data RENJA!';
+					// }
+				}
+
+			}else{
+				$ret['status'] = 'error';
+				$ret['message'] = 'APIKEY tidak sesuai!';
+			}
+		}else{
+			$ret['status']	= 'error';
+			$ret['message']	= 'Format Salah!';
+		}
+
+		die(json_encode($ret));
+	}
+
+	/** get data penerimaan by id */
+	public function get_data_penerimaan_by_id(){
+		global $wpdb;
+		$return = array(
+			'status' => 'success',
+			'data'	=> array()
+		);
+
+		if(!empty($_POST)){
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+				if(empty($_POST['id_penerimaan'])){
+					$ret['status'] = 'error';
+					$ret['message'] = 'Id penerimaan tidak boleh kosong';
+				}
+
+				if($ret['status'] != 'error'){
+					$id_penerimaan = $_POST['id_penerimaan'];
+					
+					$data_penerimaan_by_id = $wpdb->get_row($wpdb->prepare('SELECT * FROM data_pembiayaan_lokal WHERE id = %d',$id_penerimaan), ARRAY_A);
+
+					$return = array(
+						'status'	=> 'success',
+						'data'		=> $data_penerimaan_by_id
+					);
+				}
+			}else{
+				$return = array(
+					'status'	=> 'error',
+					'message'	=> 'Api Key tidak sesuai!'
+				);
+			}
+		}else{
+			$return = array(
+				'status'	=> 'error',
+				'message'	=> 'Format tidak sesuai!'
+			);
+		}
+		die(json_encode($return));
+	}
+
+	/** Submit data penerimaan */
+	public function submit_edit_penerimaan(){
+		global $wpdb;
+		$return = array(
+			'status' => 'success',
+			'data'	=> array()
+		);
+
+		if(!empty($_POST)){
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+				
+				$tahun_anggaran = $_POST['tahun_anggaran'];
+				$id_penerimaan = $_POST['id_penerimaan'];
+				$data = json_decode(stripslashes($_POST['data']), true);
+
+				if(empty($_POST['tahun_anggaran'])){
+					$ret['status'] = 'error';
+					$ret['message'] = 'Tahun Anggaran tidak boleh kosong';
+				}elseif(empty($_POST['id_skpd'])){
+					$ret['status'] = 'error';
+					$ret['message'] = 'Id Skpd tidak boleh kosong';
+				}elseif(empty($data['pend_rekening'])){
+					$ret['status'] = 'error';
+					$ret['message'] = 'Rekening tidak boleh kosong';
+				}elseif(empty($data['pend_keterangan'])){
+					$ret['status'] = 'error';
+					$ret['message'] = 'Keterangan tidak boleh kosong';
+				}elseif(empty($data['pend_nilai'])){
+					$ret['status'] = 'error';
+					$ret['message'] = 'Nilai tidak boleh kosong';
+				}elseif(empty($_POST['id_penerimaan'])){
+					$ret['status'] = 'error';
+					$ret['message'] = 'Id Penerimaan tidak boleh kosong';
+				}
+
+				if($ret['status'] != 'error'){
+					$data_this_id = $wpdb->get_row($wpdb->prepare('SELECT * FROM data_pembiayaan_lokal WHERE id = %d',$id_penerimaan), ARRAY_A);
+
+					if(!empty($data_this_id)){
+
+						$user_id = um_user( 'ID' );
+						$user_meta = get_userdata($user_id);
+						
+						/** Data Akun */
+						$data_akun = $wpdb->get_row($wpdb->prepare("
+								SELECT 
+									kode_akun,
+									nama_akun 
+								from data_akun 
+								where kode_akun=%s
+									and tahun_anggaran=%d
+							",$data['pend_rekening'], $tahun_anggaran
+						), ARRAY_A);
+
+						$opsi_penerimaan = array(
+							'updated_user'	=> $user_meta->data->ID,
+							'user2'			=> $user_meta->data->display_name,
+							'keterangan'	=> $data['pend_keterangan'],
+							'kode_akun'		=> $data_akun['kode_akun'],
+							'nama_akun'		=> $data_akun['nama_akun'],
+							'rekening'		=> $data_akun['kode_akun']." ".$data_akun['nama_akun'],
+							'total'			=> $data['pend_nilai'],
+							'uraian'		=> $data_akun['nama_akun'],
+							'id_skpd'		=> $_POST['id_skpd'],
+							'active'		=> 1,
+							'update_at'		=> current_time('mysql'),
+							'tahun_anggaran'=> $tahun_anggaran
+						);
+
+						$wpdb->update('data_pembiayaan_lokal', $opsi_penerimaan, array(
+							'id'	=> $id_penerimaan
+						));
+							
+						$return = array(
+							'status'			=> 'success',
+							'message'			=> 'Berhasil!',
+							'data_penerimaan'	=> $opsi_penerimaan,
+						);
+					}else{
+						$return = array(
+							'status'	=> 'error',
+							'message'	=> "Data tidak ditemukan!",
+						);
+					}
+				}
+			}else{
+				$return = array(
+					'status' => 'error',
+					'message'	=> 'Api Key tidak sesuai!'
+				);
+			}
+		}else{
+			$return = array(
+				'status' => 'error',
+				'message'	=> 'Format tidak sesuai!'
+			);
+		}
+		die(json_encode($return));
+	}
+
+	/** delete data penerimaan */
+	public function submit_delete_penerimaan(){
+		global $wpdb;
+		$return = array(
+			'status' => 'success',
+			'data'	=> array()
+		);
+
+		if(!empty($_POST)){
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+				if(!empty($_POST['id_penerimaan'])){
+						$id_penerimaan = $_POST['id_penerimaan'];
+
+						$data_this_id = $wpdb->get_results($wpdb->prepare('SELECT * FROM data_pembiayaan_lokal WHERE id = %d',$id_penerimaan), ARRAY_A);
+
+						if(!empty($data_this_id)){
+							$wpdb->update('data_pembiayaan_lokal', array(
+								'active' => 0
+							), array(
+								'id' => $id_penerimaan
+							));
+
+							$return = array(
+								'status' => 'success',
+								'message'	=> 'Berhasil!',
+							);
+						}else{
+							$return = array(
+								'status' => 'error',
+								'message'	=> "Data tidak ditemukan!",
+							);
+						}
+					
+				}else{
+					$return = array(
+						'status' => 'error',
+						'message'	=> 'Harap diisi semua,tidak boleh ada yang kosong!'
+					);
+				}
+			}else{
+				$return = array(
+					'status' => 'error',
+					'message'	=> 'Api Key tidak sesuai!'
+				);
+			}
+		}else{
+			$return = array(
+				'status' => 'error',
+				'message'	=> 'Format tidak sesuai!'
+			);
+		}
+		die(json_encode($return));
+	}
+
+	public function get_data_pengeluaran_renja(){
+		global $wpdb;
+		$ret = array(
+			'status'	=> 'success',
+			'message'	=> 'Berhasil get data pengeluaran renja',
+			'data'	=> array()
+		);
+		if(!empty($_POST)) {
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+				if(!empty($_POST['id_skpd']) && !empty($_POST['tahun_anggaran'])){
+					$params = $_REQUEST;
+
+					$pengeluaran = $wpdb->get_results(
+						$wpdb->prepare("
+						SELECT 
+							id,
+							kode_akun,
+							nama_akun,
+							total,
+							keterangan
+						from data_pembiayaan_lokal
+						where id_skpd=%d
+							AND tahun_anggaran=%d
+							AND active=1
+							AND type='pengeluaran'", $_POST['id_skpd'], $_POST['tahun_anggaran']),
+						ARRAY_A
+					);
+
+					$total_pengeluaran = $wpdb->get_results(
+						$wpdb->prepare("
+						SELECT 
+							count(id) as jml
+						from data_pembiayaan_lokal
+						where id_skpd=%d
+							AND tahun_anggaran=%d
+							AND active=1
+							AND type='pengeluaran'", $_POST['id_skpd'], $_POST['tahun_anggaran']),
+						ARRAY_A
+					);
+
+					$totalRecords = $total_pengeluaran[0]['jml'] ?: 0;
+					if(!empty($pengeluaran)){
+						foreach($pengeluaran as $k_pend => $v_pend){
+							$edit = '<a class="btn btn-sm btn-warning mr-2" style="text-decoration: none;" onclick="edit_data_pengeluaran(\''.$v_pend['id'].'\'); return false;" href="#" title="Edit data penerimaan"><i class="dashicons dashicons-edit"></i></a>';
+							$delete = '<a class="btn btn-sm btn-danger" style="text-decoration: none;" onclick="hapus_data_pengeluaran(\''.$v_pend['id'].'\'); return false;" href="#" title="Hapus data penerimaan"><i class="dashicons dashicons-trash"></i></a>';
+							$pengeluaran[$k_pend]['aksi'] = $edit.$delete;
+						}
+						$json_data = array(
+							"draw"            => intval( $params['draw'] ),
+							"recordsTotal"    => intval( $totalRecords ), 
+							"recordsFiltered" => intval( $totalRecords ),
+							"data"            => $pengeluaran
+						);
+
+						die(json_encode($json_data));
+					}else{
+						$ret = array(
+							'status' => 'error',
+							'message'	=> 'Data tidak ditemukan!',
+							'sql' => $wpdb->last_query
+						);
+					}
+				}else{
+					$ret['status'] = 'error';
+					$ret['message'] = 'Ada Parameter Yang Kosong!';
+				}
+			} else {
+				$ret['status'] = 'error';
+				$ret['message'] = 'APIKEY tidak sesuai!';
+			}
+		} else {
+			$ret['status'] = 'error';
+			$ret['message'] = 'Format Salah!';
+		}
+		die(json_encode($ret));
+	}
+
+	public function get_data_rekening_pengeluaran(){
+		global $wpdb;
+		$ret = array(
+			'status'	=> 'success',
+			'message' 	=> 'Berhasil mendapapatkan data rekening pengeluaran!',
+			'data'		=> array(),
+		);
+
+		if(!empty($_POST)){
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+				if(!empty($_POST['tahun_anggaran'])){
+					$tahun_anggaran = $_POST['tahun_anggaran'];
+	
+					$data_akun = $wpdb->get_results($wpdb->prepare(
+						'SELECT *
+						FROM data_akun
+						WHERE tahun_anggaran=%d
+						AND kode_akun LIKE "6.2%"
+						AND set_input=1
+					', $tahun_anggaran),ARRAY_A);
+	
+					if(!empty($data_akun)){
+						$ret['data'] = $data_akun;
+					}
+				}else{
+					$ret['status'] = 'error';
+					$ret['message'] = 'Ada param yang kosong!';
+				}
+			}else{
+				$ret['status'] = 'error';
+				$ret['message'] = 'APIKEY tidak sesuai!';
+			}
+		}else{
+			$ret['status']	= 'error';
+			$ret['message']	= 'Format Salah!';
+		}
+
+		die(json_encode($ret));
+	}
+
+	public function submit_pengeluaran(){
+		global $wpdb;
+		$ret = array(
+			'status'	=> 'success',
+			'message' 	=> 'Berhasil menambahkan data pengeluaran!'
+		);
+
+		if(!empty($_POST)){
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )){
+
+				$tahun_anggaran = $_POST['tahun_anggaran'];
+				$data = json_decode(stripslashes($_POST['data']), true);
+
+				if(empty($_POST['tahun_anggaran'])){
+					$ret['status'] = 'error';
+					$ret['message'] = 'Tahun Anggaran tidak boleh kosong';
+				}elseif(empty($_POST['id_skpd'])){
+					$ret['status'] = 'error';
+					$ret['message'] = 'Id Skpd tidak boleh kosong';
+				}elseif(empty($data['pend_rekening'])){
+					$ret['status'] = 'error';
+					$ret['message'] = 'Rekening tidak boleh kosong';
+				}elseif(empty($data['pend_keterangan'])){
+					$ret['status'] = 'error';
+					$ret['message'] = 'Keterangan tidak boleh kosong';
+				}elseif(empty($data['pend_nilai'])){
+					$ret['status'] = 'error';
+					$ret['message'] = 'Nilai tidak boleh kosong';
+				}
+
+				/** Data Akun */
+				$data_akun = $wpdb->get_row($wpdb->prepare("
+						SELECT 
+							kode_akun,
+							nama_akun 
+						from data_akun 
+						where kode_akun=%s
+							and tahun_anggaran=%d
+					",$data['pend_rekening'], $tahun_anggaran
+				), ARRAY_A);
+
+				if($ret['status'] != 'error'){
+
+					$user_id = um_user( 'ID' );
+					$user_meta = get_userdata($user_id);
+
+					$opsi_pengeluaran = array(
+						'created_user'	=> $user_meta->data->ID,
+						'user1'			=> $user_meta->data->display_name,
+						'keterangan'	=> $data['pend_keterangan'],
+						'kode_akun'		=> $data_akun['kode_akun'],
+						'nama_akun'		=> $data_akun['nama_akun'],
+						'rekening'		=> $data_akun['kode_akun']." ".$data_akun['nama_akun'],
+						'total'			=> $data['pend_nilai'],
+						'uraian'		=> $data_akun['nama_akun'],
+						'type'			=> 'pengeluaran',
+						'id_skpd'		=> $_POST['id_skpd'],
+						'active'		=> 1,
+						'update_at'		=> current_time('mysql'),
+						'tahun_anggaran'=> $tahun_anggaran
+					);
+					// cek data sama
+					// $cek_id = $wpdb->get_var($wpdb->prepare("
+					// 	SELECT 
+					// 		id 
+					// 	from data_sub_keg_bl_lokal 
+					// 	where kode_sbl='$kode_sbl' 
+					// 		and tahun_anggaran=%d
+					// ", $tahun_anggaran));
+	
+					// if(!$cek_id){
+						$wpdb->insert('data_pembiayaan_lokal',$opsi_pengeluaran);
+					// }else{
+					// 	$wpdb->update('data_sub_keg_bl_lokal', $opsi_sub_keg_bl, array('id' => $cek_id));
+					// 	$ret['message'] = 'Berhasil update data RENJA!';
+					// }
+				}
+
+			}else{
+				$ret['status'] = 'error';
+				$ret['message'] = 'APIKEY tidak sesuai!';
+			}
+		}else{
+			$ret['status']	= 'error';
+			$ret['message']	= 'Format Salah!';
+		}
+
+		die(json_encode($ret));
+	}
+
+	/** get data pengeluaran by id */
+	public function get_data_pengeluaran_by_id(){
+		global $wpdb;
+		$return = array(
+			'status' => 'success',
+			'data'	=> array()
+		);
+
+		if(!empty($_POST)){
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+				if(empty($_POST['id_pengeluaran'])){
+					$ret['status'] = 'error';
+					$ret['message'] = 'Id pengeluaran tidak boleh kosong';
+				}
+
+				if($ret['status'] != 'error'){
+					$id_pengeluaran = $_POST['id_pengeluaran'];
+					
+					$data_pengeluaran_by_id = $wpdb->get_row($wpdb->prepare('SELECT * FROM data_pembiayaan_lokal WHERE id = %d',$id_pengeluaran), ARRAY_A);
+
+					$return = array(
+						'status'	=> 'success',
+						'data'		=> $data_pengeluaran_by_id
+					);
+				}
+			}else{
+				$return = array(
+					'status'	=> 'error',
+					'message'	=> 'Api Key tidak sesuai!'
+				);
+			}
+		}else{
+			$return = array(
+				'status'	=> 'error',
+				'message'	=> 'Format tidak sesuai!'
+			);
+		}
+		die(json_encode($return));
+	}
+
+	/** Submit data pengeluaran */
+	public function submit_edit_pengeluaran(){
+		global $wpdb;
+		$return = array(
+			'status' => 'success',
+			'data'	=> array()
+		);
+
+		if(!empty($_POST)){
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+				
+				$tahun_anggaran = $_POST['tahun_anggaran'];
+				$id_pengeluaran = $_POST['id_pengeluaran'];
+				$data = json_decode(stripslashes($_POST['data']), true);
+
+				if(empty($_POST['tahun_anggaran'])){
+					$ret['status'] = 'error';
+					$ret['message'] = 'Tahun Anggaran tidak boleh kosong';
+				}elseif(empty($_POST['id_skpd'])){
+					$ret['status'] = 'error';
+					$ret['message'] = 'Id Skpd tidak boleh kosong';
+				}elseif(empty($data['pend_rekening'])){
+					$ret['status'] = 'error';
+					$ret['message'] = 'Rekening tidak boleh kosong';
+				}elseif(empty($data['pend_keterangan'])){
+					$ret['status'] = 'error';
+					$ret['message'] = 'Keterangan tidak boleh kosong';
+				}elseif(empty($data['pend_nilai'])){
+					$ret['status'] = 'error';
+					$ret['message'] = 'Nilai tidak boleh kosong';
+				}elseif(empty($_POST['id_pengeluaran'])){
+					$ret['status'] = 'error';
+					$ret['message'] = 'Id pengeluaran tidak boleh kosong';
+				}
+
+				if($ret['status'] != 'error'){
+					$data_this_id = $wpdb->get_row($wpdb->prepare('SELECT * FROM data_pembiayaan_lokal WHERE id = %d',$id_pengeluaran), ARRAY_A);
+
+					if(!empty($data_this_id)){
+
+						$user_id = um_user( 'ID' );
+						$user_meta = get_userdata($user_id);
+						
+						/** Data Akun */
+						$data_akun = $wpdb->get_row($wpdb->prepare("
+								SELECT 
+									kode_akun,
+									nama_akun 
+								from data_akun 
+								where kode_akun=%s
+									and tahun_anggaran=%d
+							",$data['pend_rekening'], $tahun_anggaran
+						), ARRAY_A);
+
+						$opsi_pengeluaran = array(
+							'updated_user'	=> $user_meta->data->ID,
+							'user2'			=> $user_meta->data->display_name,
+							'keterangan'	=> $data['pend_keterangan'],
+							'kode_akun'		=> $data_akun['kode_akun'],
+							'nama_akun'		=> $data_akun['nama_akun'],
+							'rekening'		=> $data_akun['kode_akun']." ".$data_akun['nama_akun'],
+							'total'			=> $data['pend_nilai'],
+							'uraian'		=> $data_akun['nama_akun'],
+							'id_skpd'		=> $_POST['id_skpd'],
+							'active'		=> 1,
+							'update_at'		=> current_time('mysql'),
+							'tahun_anggaran'=> $tahun_anggaran
+						);
+
+						$wpdb->update('data_pembiayaan_lokal', $opsi_pengeluaran, array(
+							'id'	=> $id_pengeluaran
+						));
+							
+						$return = array(
+							'status'			=> 'success',
+							'message'			=> 'Berhasil!',
+							'data_pengeluaran'	=> $opsi_pengeluaran,
+						);
+					}else{
+						$return = array(
+							'status'	=> 'error',
+							'message'	=> "Data tidak ditemukan!",
+						);
+					}
+				}
+			}else{
+				$return = array(
+					'status' => 'error',
+					'message'	=> 'Api Key tidak sesuai!'
+				);
+			}
+		}else{
+			$return = array(
+				'status' => 'error',
+				'message'	=> 'Format tidak sesuai!'
+			);
+		}
+		die(json_encode($return));
+	}
+
+	/** delete data pengeluaran */
+	public function submit_delete_pengeluaran(){
+		global $wpdb;
+		$return = array(
+			'status' => 'success',
+			'data'	=> array()
+		);
+
+		if(!empty($_POST)){
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+				if(!empty($_POST['id_pengeluaran'])){
+						$id_pengeluaran = $_POST['id_pengeluaran'];
+
+						$data_this_id = $wpdb->get_results($wpdb->prepare('SELECT * FROM data_pembiayaan_lokal WHERE id = %d',$id_pengeluaran), ARRAY_A);
+
+						if(!empty($data_this_id)){
+							$wpdb->update('data_pembiayaan_lokal', array(
+								'active' => 0
+							), array(
+								'id' => $id_pengeluaran
 							));
 
 							$return = array(

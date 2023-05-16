@@ -754,6 +754,20 @@ class Wpsipd
 		$this->loader->add_action('wp_ajax_submit_edit_pendapatan', $plugin_public, 'submit_edit_pendapatan');
 		$this->loader->add_action('wp_ajax_submit_delete_pendapatan', $plugin_public, 'submit_delete_pendapatan');
 
+		$this->loader->add_action('wp_ajax_get_data_penerimaan_renja', $plugin_public, 'get_data_penerimaan_renja');
+		$this->loader->add_action('wp_ajax_get_data_rekening_penerimaan', $plugin_public, 'get_data_rekening_penerimaan');
+		$this->loader->add_action('wp_ajax_submit_penerimaan', $plugin_public, 'submit_penerimaan');
+		$this->loader->add_action('wp_ajax_get_data_penerimaan_by_id', $plugin_public, 'get_data_penerimaan_by_id');
+		$this->loader->add_action('wp_ajax_submit_edit_penerimaan', $plugin_public, 'submit_edit_penerimaan');
+		$this->loader->add_action('wp_ajax_submit_delete_penerimaan', $plugin_public, 'submit_delete_penerimaan');
+
+		$this->loader->add_action('wp_ajax_get_data_pengeluaran_renja', $plugin_public, 'get_data_pengeluaran_renja');
+		$this->loader->add_action('wp_ajax_get_data_rekening_pengeluaran', $plugin_public, 'get_data_rekening_pengeluaran');
+		$this->loader->add_action('wp_ajax_submit_pengeluaran', $plugin_public, 'submit_pengeluaran');
+		$this->loader->add_action('wp_ajax_get_data_pengeluaran_by_id', $plugin_public, 'get_data_pengeluaran_by_id');
+		$this->loader->add_action('wp_ajax_submit_edit_pengeluaran', $plugin_public, 'submit_edit_pengeluaran');
+		$this->loader->add_action('wp_ajax_submit_delete_pengeluaran', $plugin_public, 'submit_delete_pengeluaran');
+
 		$this->loader->add_action('wp_ajax_get_data_summary_ssh_sipd',  $plugin_public, 'get_data_summary_ssh_sipd');
 
 		$this->loader->add_action('wp_ajax_get_rekening_akun',  $plugin_public, 'get_rekening_akun');
@@ -812,6 +826,8 @@ class Wpsipd
 		add_shortcode('keu_pemdes_bkk_inf', array($plugin_public, 'keu_pemdes_bkk_inf'));
 		add_shortcode('monitor_keu_pemdes', array($plugin_public, 'monitor_keu_pemdes'));
 		add_shortcode('management_data_bkk_infrastruktur', array($plugin_public, 'management_data_bkk_infrastruktur'));
+		add_shortcode('halaman_pembiayaan_penerimaan', array($plugin_public, 'halaman_pembiayaan_penerimaan'));
+		add_shortcode('halaman_pembiayaan_pengeluaran', array($plugin_public, 'halaman_pembiayaan_pengeluaran'));
 
 		//shortcode SIPKD
 		add_shortcode('data_akun',array($plugin_public,'sipkd_akun'));
