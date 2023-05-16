@@ -777,6 +777,16 @@ class Wpsipd
 		$this->loader->add_action('wp_ajax_hapus_data_bkk_infrastruktur_by_id', $plugin_public, 'hapus_data_bkk_infrastruktur_by_id');
 		$this->loader->add_action('wp_ajax_get_data_bkk_infrastruktur_by_id', $plugin_public, 'get_data_bkk_infrastruktur_by_id');
 		$this->loader->add_action('wp_ajax_tambah_data_bkk_infrastruktur', $plugin_public, 'tambah_data_bkk_infrastruktur');
+
+		$this->loader->add_action('wp_ajax_get_datatable_bhpd', $plugin_public, 'get_datatable_bhpd');
+		$this->loader->add_action('wp_ajax_hapus_data_bhpd_by_id', $plugin_public, 'hapus_data_bhpd_by_id');
+		$this->loader->add_action('wp_ajax_get_data_bhpd_by_id', $plugin_public, 'get_data_bhpd_by_id');
+		$this->loader->add_action('wp_ajax_tambah_data_bhpd', $plugin_public, 'tambah_data_bhpd');
+
+		$this->loader->add_action('wp_ajax_get_datatable_bhrd', $plugin_public, 'get_datatable_bhrd');
+		$this->loader->add_action('wp_ajax_hapus_data_bhrd_by_id', $plugin_public, 'hapus_data_bhrd_by_id');
+		$this->loader->add_action('wp_ajax_get_data_bhrd_by_id', $plugin_public, 'get_data_bhrd_by_id');
+		$this->loader->add_action('wp_ajax_tambah_data_bhrd', $plugin_public, 'tambah_data_bhrd');
 		
 		add_shortcode('menu_monev',  array($plugin_public, 'menu_monev'));
 		add_shortcode('datassh', array($plugin_public, 'datassh'));
@@ -823,11 +833,14 @@ class Wpsipd
 		add_shortcode('surat_usulan_ssh', array($plugin_public, 'surat_usulan_ssh'));
 		add_shortcode('halaman_pendapatan', array($plugin_public, 'halaman_pendapatan'));
 		add_shortcode('keu_pemdes_bhpd', array($plugin_public, 'keu_pemdes_bhpd'));
+		add_shortcode('keu_pemdes_bhrd', array($plugin_public, 'keu_pemdes_bhrd'));
 		add_shortcode('keu_pemdes_bkk_inf', array($plugin_public, 'keu_pemdes_bkk_inf'));
 		add_shortcode('monitor_keu_pemdes', array($plugin_public, 'monitor_keu_pemdes'));
 		add_shortcode('management_data_bkk_infrastruktur', array($plugin_public, 'management_data_bkk_infrastruktur'));
 		add_shortcode('halaman_pembiayaan_penerimaan', array($plugin_public, 'halaman_pembiayaan_penerimaan'));
 		add_shortcode('halaman_pembiayaan_pengeluaran', array($plugin_public, 'halaman_pembiayaan_pengeluaran'));
+		add_shortcode('management_data_bhpd', array($plugin_public, 'management_data_bhpd'));
+		add_shortcode('management_data_bhrd', array($plugin_public, 'management_data_bhrd'));
 
 		//shortcode SIPKD
 		add_shortcode('data_akun',array($plugin_public,'sipkd_akun'));
