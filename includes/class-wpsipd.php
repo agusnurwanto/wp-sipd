@@ -197,6 +197,7 @@ class Wpsipd
 		$this->loader->add_action('wp_ajax_import_excel_bhrd',  $plugin_admin, 'import_excel_bhrd');
 		$this->loader->add_action('wp_ajax_import_excel_bku_add',  $plugin_admin, 'import_excel_bku_add');
 		$this->loader->add_action('wp_ajax_import_excel_bku_dd',  $plugin_admin, 'import_excel_bku_dd');
+		$this->loader->add_action('wp_ajax_singkron_bku_dd',  $plugin_admin, 'singkron_bku_dd');
 
 		// https://github.com/wp-cli/wp-cli/issues/5623 error deprecated function di php 8.1
 		add_filter( 'deprecated_constructor_trigger_error', '__return_false' );

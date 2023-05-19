@@ -3008,7 +3008,22 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
 				if(!empty($_POST['tahun_anggaran']) && !empty($_POST['id_skpd'])){				
 					$tahun_anggaran = $_POST['tahun_anggaran'];
-					$id_skpd = $_POST['id_skpd'];
+					$id_skpd = $wpdb->prepare('%d', $_POST['id_skpd']);
+					$id_sub_skpd_db = $wpdb->get_results($wpdb->prepare('
+						SELECT 
+							id_skpd
+						FROM `data_unit` 
+						WHERE tahun_anggaran=%d
+							AND id_unit=%d
+							AND set_input=0
+					', $tahun_anggaran, $id_skpd), ARRAY_A);
+					$id_sub_skpd = array();
+					$id_sub_skpd[] = $id_skpd;
+					if(!empty($id_sub_skpd_db)){
+						foreach($id_sub_skpd_db as $id){
+							$id_sub_skpd[] = $id['id_skpd'];
+						}
+					}
 					$cek_jadwal = $this->get_last_jadwal_kunci('renja',$_POST['tahun_anggaran']);
 					if($cek_jadwal['status'] == 'error'){
 						return die(json_encode($cek_jadwal));
@@ -3043,11 +3058,11 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 						SELECT 
 							*
 						FROM data_sub_keg_bl_lokal_history sk
-						WHERE sk.id_sub_skpd=%d
+						WHERE sk.id_sub_skpd IN ('.implode(',', $id_sub_skpd).')
 							AND sk.tahun_anggaran=%d
 							AND sk.active=1
 							AND sk.id_jadwal=%d
-					', $id_skpd, $tahun_anggaran, $cek_jadwal['data']['id_jadwal_lokal']), ARRAY_A);
+					', $tahun_anggaran, $cek_jadwal['data']['id_jadwal_lokal']), ARRAY_A);
 					foreach($data_sub_giat as $k => $sub){
 						if($sub['kode_bidang_urusan'] == 'X.XX'){
 							$urusan_utama = explode('.', $sub['kode_sub_skpd']);
@@ -3745,11 +3760,14 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 
 						die(json_encode($json_data));
 					}else{
-						$ret = array(
-							'status' => 'error',
-							'message'	=> 'Data tidak ditemukan!',
-							'sql' => $wpdb->last_query
+						$json_data = array(
+							"draw"            => intval( $params['draw'] ),
+							"recordsTotal"    => intval( 0 ), 
+							"recordsFiltered" => intval( 0 ),
+							"data"            => array()
 						);
+
+						die(json_encode($json_data));
 					}
 				}else{
 					$ret['status'] = 'error';
@@ -4146,11 +4164,14 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 
 						die(json_encode($json_data));
 					}else{
-						$ret = array(
-							'status' => 'error',
-							'message'	=> 'Data tidak ditemukan!',
-							'sql' => $wpdb->last_query
+						$json_data = array(
+							"draw"            => intval( $params['draw'] ),
+							"recordsTotal"    => intval( 0 ), 
+							"recordsFiltered" => intval( 0 ),
+							"data"            => array()
 						);
+
+						die(json_encode($json_data));
 					}
 				}else{
 					$ret['status'] = 'error';
