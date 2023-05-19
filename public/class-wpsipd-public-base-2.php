@@ -3745,11 +3745,14 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 
 						die(json_encode($json_data));
 					}else{
-						$ret = array(
-							'status' => 'error',
-							'message'	=> 'Data tidak ditemukan!',
-							'sql' => $wpdb->last_query
+						$json_data = array(
+							"draw"            => intval( $params['draw'] ),
+							"recordsTotal"    => intval( 0 ), 
+							"recordsFiltered" => intval( 0 ),
+							"data"            => array()
 						);
+
+						die(json_encode($json_data));
 					}
 				}else{
 					$ret['status'] = 'error';
@@ -4146,11 +4149,14 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 
 						die(json_encode($json_data));
 					}else{
-						$ret = array(
-							'status' => 'error',
-							'message'	=> 'Data tidak ditemukan!',
-							'sql' => $wpdb->last_query
+						$json_data = array(
+							"draw"            => intval( $params['draw'] ),
+							"recordsTotal"    => intval( 0 ), 
+							"recordsFiltered" => intval( 0 ),
+							"data"            => array()
 						);
+
+						die(json_encode($json_data));
 					}
 				}else{
 					$ret['status'] = 'error';

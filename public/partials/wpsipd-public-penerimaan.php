@@ -25,6 +25,30 @@ if(!empty($input['id_skpd'])){
 
 $nama_skpd = (!empty($data_skpd['nama_skpd'])) ? $data_skpd['nama_skpd'] : '';
 
+$namaJadwal = '-';
+$mulaiJadwal = '-';
+$selesaiJadwal = '-';
+
+$timezone = get_option('timezone_string');
+
+$cek_jadwal = $this->validasi_jadwal_perencanaan('renja',$input['tahun_anggaran']);
+$jadwal_lokal = $cek_jadwal['data'];
+$add_renja = '';
+if(!empty($jadwal_lokal)){
+    if(!empty($jadwal_lokal[0]['relasi_perencanaan'])){
+        $relasi = $wpdb->get_row("
+            SELECT 
+                id_tipe 
+            FROM `data_jadwal_lokal`
+            WHERE id_jadwal_lokal=".$jadwal_lokal[0]['relasi_perencanaan']);
+
+        $relasi_perencanaan = $jadwal_lokal[0]['relasi_perencanaan'];
+        $id_tipe_relasi = $relasi->id_tipe;
+    }
+	$namaJadwal = $jadwal_lokal[0]['nama'];
+	$mulaiJadwal = $jadwal_lokal[0]['waktu_awal'];
+	$selesaiJadwal = $jadwal_lokal[0]['waktu_akhir'];
+}
 
 $body = '';
 ?>
@@ -111,6 +135,17 @@ $body = '';
 		window.this_ajax_url = "<?php echo admin_url('admin-ajax.php'); ?>"
 		window.id_skpd = "<?php echo $input['id_skpd']; ?>"
 
+		var mySpace = '<div style="padding:3rem;"></div>';
+    	jQuery('body').prepend(mySpace);
+
+    	var dataHitungMundur = {
+    		'namaJadwal' : '<?php echo ucwords($namaJadwal)  ?>',
+    		'mulaiJadwal' : '<?php echo $mulaiJadwal  ?>',
+    		'selesaiJadwal' : '<?php echo $selesaiJadwal  ?>',
+    		'thisTimeZone' : '<?php echo $timezone ?>'
+    	}
+    	penjadwalanHitungMundur(dataHitungMundur);
+
 		get_data_penerimaan();
 
 		// jQuery('#modalPenerimaan').on('hidden.bs.modal', function () {
@@ -141,10 +176,14 @@ $body = '';
 
         				jQuery(".pend_rekening").html(option);
                         jQuery(".pend_rekening").select2({width: '100%'});
+
+						resolve();
                     }
                 });
-            }
-			resolve();
+            }else{
+				console.log('data rekening sudah ada')
+				resolve();
+			}
         });
 	}
 
@@ -188,7 +227,19 @@ $body = '';
 					"data": "aksi",
 					className: "text-center"
 				}
-			]
+			],
+			drawCallback: function(settings) {
+				var pagination = jQuery(this).closest('.dataTables_wrapper').find('.dataTables_paginate');
+				pagination.toggle(this.api().page.info().pages > 1);
+
+				let data_ajax = this.api().data();
+				let total_nilai = 0;
+				data_ajax.map(function(b, i){
+					total_nilai = total_nilai + parseInt(b.total)
+				})
+				jQuery("#data_penerimaan_table .total_nilai").remove()
+				jQuery("#data_penerimaan_table").append('<tfoot class="total_nilai"><tr><th class="text-center" colspan="3">total nilai</th><th class="text-center">'+total_nilai+'</th><th class="text-center"></th></tr></tfoot>');
+			}
 		});
 	}
 
