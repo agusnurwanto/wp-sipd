@@ -1,4 +1,4 @@
-asad<style type="text/css">
+<style type="text/css">
     .wrap-table{
         overflow: auto;
         max-height: 100vh; 
@@ -37,7 +37,7 @@ asad<style type="text/css">
     <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="modalTambahDataBHRDLabel">Data BKK Infrastruktur</h5>
+                <h5 class="modal-title" id="modalTambahDataBHRDLabel">Data BHRD</h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
@@ -61,11 +61,11 @@ asad<style type="text/css">
                     <input type="text" id='desa' name="desa" class="form-control" placeholder=''/>
                 </div>
                 <div class="form-group">
-                    <label for='total' style='display:inline-block'>total</label>
+                    <label for='total' style='display:inline-block'>Total</label>
                     <input type="text" id='total' name="total" class="form-control" placeholder=''/>
                 </div>
                 <div class="form-group">
-                    <label for='tahun_anggaran' style='display:inline-block'>tahun_anggaran</label>
+                    <label for='tahun_anggaran' style='display:inline-block'>Tahun Anggaran</label>
                     <input type="text" id='tahun_anggaran' name="tahun_anggaran" class="form-control" placeholder=''/>
                 </div>
             </div> 

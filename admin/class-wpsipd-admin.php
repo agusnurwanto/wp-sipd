@@ -401,6 +401,21 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes {
 		        Field::make( 'html', 'crb_bhrd_save_button' )
 	            	->set_html( '<a onclick="import_excel_bhrd(); return false" href="javascript:void(0);" class="button button-primary">Import WP</a>' )
 	        ) );
+
+		global $wpdb;
+		$akun_hibah_uang = $wpdb->get_results("
+			SELECT DISTINCT
+				kode_akun, 
+				nama_akun 
+			FROM `data_akun` 
+			where is_bankeu_umum=1 
+				and kode_akun='5.4.02.05.01.0001'
+			order by kode_akun ASC
+		", ARRAY_A);
+		$pilih_akun = "<option value=''>Pilih rekening</option>";
+		foreach($akun_hibah_uang as $akun){
+			$pilih_akun .= "<option value='$akun[kode_akun]'>$akun[kode_akun] $akun[nama_akun]</option>";
+		}
 	    Container::make( 'theme_options', __( 'Import BKU DD' ) )
 		    ->set_page_parent( $keu_pemdes )
 		    ->add_fields( array(
@@ -415,6 +430,16 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes {
 	            		<li><a target="_blank" href="'.$management_data_bku_dd.'">Management Data BKU DD</a></li>
 	            	</ol>
 		        	' ),
+		        Field::make( 'html', 'crb_bku_dd_singkron_button' )
+	            	->set_html( '
+	            	<h3>Singkronisasi dari data WP-SIPD</h3>
+	            	<label>Tahun anggaran: <input type="number" value="'.date('Y').'" id="tahun_anggaran"/></label>
+	            	<br>
+	            	<br>
+	            	<label>Filter kelompok belanja: <input type="text" value="" id="kelompok_belanja"></label>
+	            	<br>
+	            	<br>
+	            	<a onclick="singkron_bku_dd(); return false" href="javascript:void(0);" class="button button-primary">Proses</a>' ),
 		        Field::make( 'html', 'crb_bku_dd_upload_html' )
 	            	->set_html( '<h3>Import EXCEL data Bantuan Keuangan Umum (BKU) Dana Desa (DD)</h3>Pilih file excel .xlsx : <input type="file" id="file-excel" onchange="filePickedWpsipd(event);"><br>Contoh format file excel bisa <a target="_blank" href="'.WPSIPD_PLUGIN_URL. 'excel/contoh_bku_bh.xlsx">download di sini</a>. Sheet file excel yang akan diimport harus diberi nama <b>data</b>. Untuk kolom nilai angka ditulis tanpa tanda titik.' ),
 		        Field::make( 'html', 'crb_bku_dd_satset' )
