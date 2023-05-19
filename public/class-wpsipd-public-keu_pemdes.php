@@ -51,6 +51,13 @@ class Wpsipd_Public_Keu_Pemdes
         require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/keu_pemdes/wpsipd-public-keu-pemdes-management-bhrd.php';
     }
 
+    public function input_pencairan_bkk($atts){
+        if(!empty($_GET) && !empty($_GET['post'])){
+            return '';
+        }
+        require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/keu_pemdes/wpsipd-public-keu-pemdes-input-pencairan-bkk.php';
+    }
+
     public function get_data_bkk_infrastruktur_by_id(){
         global $wpdb;
         $ret = array(
@@ -783,17 +790,49 @@ public function get_datatable_bhpd(){
 
                 die(json_encode($json_data));
             }else{
-                $return = array(
+                $ret = array(
                     'status' => 'error',
                     'message'   => 'Api Key tidak sesuai!'
                 );
             }
         }else{
-            $return = array(
+            $ret = array(
                 'status' => 'error',
                 'message'   => 'Format tidak sesuai!'
             );
         }
-        die(json_encode($return));
+        die(json_encode($ret));
+    }  
+
+    public function get_pemdes_bkk(){
+        global $wpdb;
+        $ret = array(
+            'status' => 'success',
+            'message' => 'Berhasil get data!',
+            'data'  => array()
+        );
+
+        if(!empty($_POST)){
+            if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+                $data = $wpdb->get_results($wpdb->prepare("
+                    SELECT
+                        *
+                    FROM data_bkk_desa
+                    WHERE tahun_anggaran=%d
+                ", $_POST['tahun_anggaran']), ARRAY_A);
+                $ret['data'] = $data;
+            }else{
+                $ret = array(
+                    'status' => 'error',
+                    'message'   => 'Api Key tidak sesuai!'
+                );
+            }
+        }else{
+            $ret = array(
+                'status' => 'error',
+                'message'   => 'Format tidak sesuai!'
+            );
+        }
+        die(json_encode($ret));
     }  
 }

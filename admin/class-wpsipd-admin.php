@@ -338,6 +338,7 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes {
 		$management_data_bhrd = $this->generatePage('Management Data BHRD', false, '[management_data_bhrd]');
 		$management_data_bku_dd = $this->generatePage('Management Data BKU DD', false, '[management_data_bku_dd]');
 		$management_data_bku_add = $this->generatePage('Management Data BKU DD', false, '[management_data_bku_add]');
+		$input_pencairan_bkk = $this->generatePage('Halaman Input Pencairan BKK', false, '[input_pencairan_bkk]');
 	    Container::make( 'theme_options', __( 'Import BKK' ) )
 		    ->set_page_parent( $keu_pemdes )
 		    ->add_fields( array(
@@ -350,6 +351,7 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes {
 					<h5>HALAMAN TERKAIT</h5>
 	            	<ol>
 	            		<li><a target="_blank" href="'.$management_data_bkk_infrastruktur.'">Management Data BKK Infrastruktur</a></li>
+	            		<li><a target="_blank" href="'.$input_pencairan_bkk.'">Halaman Input Pencairan BKK</a></li>
 	            	</ol>
 		        	' ),
 		        Field::make( 'html', 'crb_bkk_infrastruktur_upload_html' )

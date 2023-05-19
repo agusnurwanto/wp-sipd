@@ -788,6 +788,8 @@ class Wpsipd
 		$this->loader->add_action('wp_ajax_get_data_bhrd_by_id', $plugin_public, 'get_data_bhrd_by_id');
 		$this->loader->add_action('wp_ajax_tambah_data_bhrd', $plugin_public, 'tambah_data_bhrd');
 		
+		$this->loader->add_action('wp_ajax_get_pemdes_bkk', $plugin_public, 'get_pemdes_bkk');
+		
 		add_shortcode('menu_monev',  array($plugin_public, 'menu_monev'));
 		add_shortcode('datassh', array($plugin_public, 'datassh'));
 		add_shortcode('rekbelanja', array($plugin_public, 'rekbelanja'));
@@ -841,6 +843,7 @@ class Wpsipd
 		add_shortcode('halaman_pembiayaan_pengeluaran', array($plugin_public, 'halaman_pembiayaan_pengeluaran'));
 		add_shortcode('management_data_bhpd', array($plugin_public, 'management_data_bhpd'));
 		add_shortcode('management_data_bhrd', array($plugin_public, 'management_data_bhrd'));
+		add_shortcode('input_pencairan_bkk', array($plugin_public, 'input_pencairan_bkk'));
 
 		//shortcode SIPKD
 		add_shortcode('data_akun',array($plugin_public,'sipkd_akun'));
