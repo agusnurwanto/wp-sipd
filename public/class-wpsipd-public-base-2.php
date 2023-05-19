@@ -3014,17 +3014,15 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 							id_skpd
 						FROM `data_unit` 
 						WHERE tahun_anggaran=%d
-							AND is_skpd=1
 							AND id_unit=%d
 							AND set_input=0
 					', $tahun_anggaran, $id_skpd), ARRAY_A);
 					$id_sub_skpd = array();
+					$id_sub_skpd[] = $id_skpd;
 					if(!empty($id_sub_skpd_db)){
 						foreach($id_sub_skpd_db as $id){
 							$id_sub_skpd[] = $id['id_skpd'];
 						}
-					}else{
-						$id_sub_skpd[] = $id_skpd;
 					}
 					$cek_jadwal = $this->get_last_jadwal_kunci('renja',$_POST['tahun_anggaran']);
 					if($cek_jadwal['status'] == 'error'){
