@@ -3789,24 +3789,53 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 		$ret = array(
 			'status'	=> 'success',
 			'message' 	=> 'Berhasil mendapapatkan data rekening penerimaan!',
-			'data'		=> array(),
+			'results'	=> array(),
+			'pagination'=> array(
+			    "more" => false
+			)
 		);
 
 		if(!empty($_POST)){
 			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
 				if(!empty($_POST['tahun_anggaran'])){
 					$tahun_anggaran = $_POST['tahun_anggaran'];
-	
+					$where = '';
+					if(!empty($_POST['search'])){
+						$_POST['search'] = '%'.$_POST['search'].'%';
+						$where = $wpdb->prepare('
+							AND (
+								kode_akun LIKE %s
+								OR nama_akun LIKE %s
+							)
+						', $_POST['search'], $_POST['search']);
+					}
+
 					$data_akun = $wpdb->get_results($wpdb->prepare(
 						'SELECT *
 						FROM data_akun
 						WHERE tahun_anggaran=%d
 						AND kode_akun LIKE "6.1%"
-						AND set_input=1
-					', $tahun_anggaran),ARRAY_A);
-	
+						AND set_input=1 '.
+						$where
+							.' LIMIT %d,20
+					', $tahun_anggaran, $_POST['page']),ARRAY_A);
+					$ret['sql'] = $wpdb->last_query;
+					
 					if(!empty($data_akun)){
-						$ret['data'] = $data_akun;
+
+						foreach ($data_akun as $key => $value) {
+							$ret['results'][] = array(
+								'id' => $value['kode_akun'],
+								'text' => $value['kode_akun'].' '.$value['nama_akun']
+							);
+						}
+
+						if(count($ret['results']) > 0){
+							$ret['pagination']['more'] = true;
+						}
+					}else{
+						$ret['status'] = 'error';
+						$ret['message'] = 'Tabel data kosong!';
 					}
 				}else{
 					$ret['status'] = 'error';
@@ -3934,9 +3963,18 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 					
 					$data_penerimaan_by_id = $wpdb->get_row($wpdb->prepare('SELECT * FROM data_pembiayaan_lokal WHERE id = %d',$id_penerimaan), ARRAY_A);
 
+					$data_akun = $wpdb->get_results($wpdb->prepare(
+						'SELECT *
+						FROM data_akun
+						WHERE tahun_anggaran=%d
+							AND kode_akun LIKE "6.1%"
+							AND set_input=1
+					', $data_penerimaan_by_id['tahun_anggaran']),ARRAY_A);
+
 					$return = array(
 						'status'	=> 'success',
-						'data'		=> $data_penerimaan_by_id
+						'data'		=> $data_penerimaan_by_id,
+						'data_akun'	=> $data_akun
 					);
 				}
 			}else{
@@ -4193,24 +4231,53 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 		$ret = array(
 			'status'	=> 'success',
 			'message' 	=> 'Berhasil mendapapatkan data rekening pengeluaran!',
-			'data'		=> array(),
+			'results'	=> array(),
+			'pagination'=> array(
+			    "more" => false
+			)
 		);
 
 		if(!empty($_POST)){
 			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
 				if(!empty($_POST['tahun_anggaran'])){
 					$tahun_anggaran = $_POST['tahun_anggaran'];
-	
+					$where = '';
+					if(!empty($_POST['search'])){
+						$_POST['search'] = '%'.$_POST['search'].'%';
+						$where = $wpdb->prepare('
+							AND (
+								kode_akun LIKE %s
+								OR nama_akun LIKE %s
+							)
+						', $_POST['search'], $_POST['search']);
+					}
+
 					$data_akun = $wpdb->get_results($wpdb->prepare(
 						'SELECT *
 						FROM data_akun
 						WHERE tahun_anggaran=%d
-						AND kode_akun LIKE "6.2%"
-						AND set_input=1
-					', $tahun_anggaran),ARRAY_A);
-	
+							AND kode_akun LIKE "6.2%"
+							AND set_input=1 '.
+						$where
+							.' LIMIT %d,20
+					', $tahun_anggaran, $_POST['page']),ARRAY_A);
+					$ret['sql'] = $wpdb->last_query;
+					
 					if(!empty($data_akun)){
-						$ret['data'] = $data_akun;
+
+						foreach ($data_akun as $key => $value) {
+							$ret['results'][] = array(
+								'id' => $value['kode_akun'],
+								'text' => $value['kode_akun'].' '.$value['nama_akun']
+							);
+						}
+
+						if(count($ret['results']) > 0){
+							$ret['pagination']['more'] = true;
+						}
+					}else{
+						$ret['status'] = 'error';
+						$ret['message'] = 'Tabel data kosong!';
 					}
 				}else{
 					$ret['status'] = 'error';
@@ -4338,9 +4405,18 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 					
 					$data_pengeluaran_by_id = $wpdb->get_row($wpdb->prepare('SELECT * FROM data_pembiayaan_lokal WHERE id = %d',$id_pengeluaran), ARRAY_A);
 
+					$data_akun = $wpdb->get_results($wpdb->prepare(
+						'SELECT *
+						FROM data_akun
+						WHERE tahun_anggaran=%d
+							AND kode_akun LIKE "6.2%"
+							AND set_input=1
+					', $data_pengeluaran_by_id['tahun_anggaran']),ARRAY_A);
+
 					$return = array(
 						'status'	=> 'success',
-						'data'		=> $data_pengeluaran_by_id
+						'data'		=> $data_pengeluaran_by_id,
+						'data_akun'	=> $data_akun
 					);
 				}
 			}else{

@@ -101,9 +101,7 @@ $body = '';
 					</div>
 					<div>
 						<label for="pend_rekening" style='display:inline-block'>Rekening</label>
-						<select id="pend_rekening" class="pend_rekening" name="pend_rekening">
-							<option value="">Pilih Rekening</option>
-						</select>
+						<select id="pend_rekening" class="pend_rekening" style='display:block;width:100%;' name="pend_rekening"></select>
 					</div>
 					<div>
 						<label for="pend_keterangan" style="display:inline-block">Keterangan</label>
@@ -167,24 +165,57 @@ $body = '';
                         'tahun_anggaran': tahun_anggaran
                     },
                     success:function(response){
-                        window.master_rekening_akun = response.data;
+                        window.master_rekening_akun = response;
                         jQuery("#wrap-loading").hide();
-                        let option='<option value="">Pilih Rekening</option>';
-        				response.data.map(function(value, index){
-                            option+='<option value="'+value.kode_akun+'">'+value.kode_akun+' '+value.nama_akun+'</option>';
-                        })
 
-        				jQuery(".pend_rekening").html(option);
-                        jQuery(".pend_rekening").select2({width: '100%'});
+						enable_button();
 
 						resolve();
                     }
                 });
             }else{
 				console.log('data rekening sudah ada')
+				enable_button();
 				resolve();
 			}
         });
+	}
+
+	function enable_button(){
+		if(
+			typeof master_rekening_akun != 'undefined'
+		){
+			var ajax_kategori = {
+				ajax: {
+					url: "<?php echo admin_url('admin-ajax.php'); ?>",
+					type: 'post',
+					dataType: 'json',
+					data: function (params) {
+							var query = {
+							search: params.term,
+							page: params.page || 0,
+							action: 'get_data_rekening_pengeluaran',
+							api_key : jQuery("#api_key").val(),
+							tahun_anggaran : tahun_anggaran
+							}
+							return query;
+					},
+					processResults: function (data, params) {
+						console.log('data', data);
+							return {
+							results: data.results,
+							pagination: {
+									more: data.pagination.more
+							}
+							};
+					}
+				},
+				placeholder: 'Cari Rekening',
+				minimumInputLength: 3,
+				width: '100%'
+			};
+			jQuery('.pend_rekening').select2(ajax_kategori);
+		}
 	}
 
 	/** get data pengeluaran */
@@ -311,7 +342,7 @@ $body = '';
 	function reset_form(){
 		jQuery('.pend_rekening').val(null).trigger('change');
 		jQuery("#pend_keterangan").val("")
-		jQuery("#pend_keterangan").val("")
+		jQuery("#pend_nilai").val("")
 	}
 
 	/** edit pengeluaran */
@@ -337,9 +368,14 @@ $body = '';
 				dataType: "json",
 				success:function(response){
 					jQuery("#wrap-loading").hide()
-					jQuery("#pend_rekening").val(response.data.kode_akun).trigger('change');
 					jQuery("#pend_keterangan").val(response.data.keterangan);
 					jQuery("#pend_nilai").val(response.data.total);
+					response.data_akun.map(function(b, i){
+						var myText = b.kode_akun+" "+b.nama_akun;
+						var option = new Option(myText,b.kode_akun, true, true);
+						jQuery("#pend_rekening").append(option).trigger('change');
+						jQuery("#pend_rekening").val(response.data.kode_akun).trigger('change');
+					});
 				}
 			})
 		})
