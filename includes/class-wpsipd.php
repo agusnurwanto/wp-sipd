@@ -779,6 +779,11 @@ class Wpsipd
 		$this->loader->add_action('wp_ajax_get_data_bkk_infrastruktur_by_id', $plugin_public, 'get_data_bkk_infrastruktur_by_id');
 		$this->loader->add_action('wp_ajax_tambah_data_bkk_infrastruktur', $plugin_public, 'tambah_data_bkk_infrastruktur');
 
+		$this->loader->add_action('wp_ajax_get_datatable_data_pencairan_bkk', $plugin_public, 'get_datatable_data_pencairan_bkk');
+		$this->loader->add_action('wp_ajax_hapus_data_pencairan_bkk_by_id', $plugin_public, 'hapus_data_pencairan_bkk_by_id');
+		$this->loader->add_action('wp_ajax_get_data_pencairan_bkk_by_id', $plugin_public, 'get_data_pencairan_bkk_by_id');
+		$this->loader->add_action('wp_ajax_tambah_data_pencairan_bkk', $plugin_public, 'tambah_data_pencairan_bkk');
+
 		$this->loader->add_action('wp_ajax_get_datatable_bhpd', $plugin_public, 'get_datatable_bhpd');
 		$this->loader->add_action('wp_ajax_hapus_data_bhpd_by_id', $plugin_public, 'hapus_data_bhpd_by_id');
 		$this->loader->add_action('wp_ajax_get_data_bhpd_by_id', $plugin_public, 'get_data_bhpd_by_id');
