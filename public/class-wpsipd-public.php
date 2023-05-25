@@ -12446,7 +12446,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		die(json_encode($return));
 	}
 
-	public function cek_api_key(){
+	public function cek_api_key($no_return = false){
 		global $wpdb;
 		$return = array(
 			'action' => $_POST['action'],
@@ -12469,7 +12469,11 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 			$return['status'] = 'error';
 			$return['message']	= 'Format tidak sesuai!';
 		}
-		die(json_encode($return));
+		if($no_return){
+			return $return;
+		}else{
+			die(json_encode($return));
+		}
 	}
 
 	public function get_data_ssh_analisis_skpd(){
@@ -17979,6 +17983,35 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 					$ret['status'] = 'error';
 					$ret['message'] = 'Format Master Label Giat Salah!';
 				}
+			} else {
+				$ret['status'] = 'error';
+				$ret['message'] = 'APIKEY tidak sesuai!';
+			}
+		} else {
+			$ret['status'] = 'error';
+			$ret['message'] = 'Format Salah!';
+		}
+		die(json_encode($ret));
+	}
+
+	public function cek_lisensi_ext()
+	{
+		global $wpdb;
+		$ret = array(
+			'status'	=> 'success',
+			'action'	=> $_POST['action'],
+			'run'		=> $_POST['run'],
+			'data'		=> '',
+			'message'	=> 'Berhasil cek lisensi aktif!'
+		);
+		if (!empty($_POST)) {
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+				$sipd_url = get_option('_crb_server_wp_sipd');
+				$sipd_url = explode('/wp-admin', $sipd_url);
+				$ret['sipd_url'] = $sipd_url[0];
+				$cek = $this->cek_api_key(true);
+				$ret['cek'] = $cek;
+				// belum selesai
 			} else {
 				$ret['status'] = 'error';
 				$ret['message'] = 'APIKEY tidak sesuai!';

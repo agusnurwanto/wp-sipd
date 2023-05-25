@@ -3056,14 +3056,20 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 
 					$data_sub_giat = $wpdb->get_results($wpdb->prepare('
 						SELECT 
-							*
+							sk.*,
+							u.kode_skpd as kode_skpd_asli
 						FROM data_sub_keg_bl_lokal_history sk
+						INNER JOIN data_unit u ON sk.id_sub_skpd=u.id_skpd
+							AND sk.tahun_anggaran=u.tahun_anggaran
+							AND sk.active=u.active
 						WHERE sk.id_sub_skpd IN ('.implode(',', $id_sub_skpd).')
 							AND sk.tahun_anggaran=%d
 							AND sk.active=1
 							AND sk.id_jadwal=%d
 					', $tahun_anggaran, $cek_jadwal['data']['id_jadwal_lokal']), ARRAY_A);
 					foreach($data_sub_giat as $k => $sub){
+						$sub['kode_sub_skpd'] = $sub['kode_skpd_asli'];
+						$data_sub_giat[$k]['kode_sub_skpd'] = $sub['kode_skpd_asli'];
 						if($sub['kode_bidang_urusan'] == 'X.XX'){
 							$urusan_utama = explode('.', $sub['kode_sub_skpd']);
 							$urusan_utama = $urusan_utama[0].'.'.$urusan_utama[1];

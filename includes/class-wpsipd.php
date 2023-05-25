@@ -524,6 +524,9 @@ class Wpsipd
 		$this->loader->add_action('wp_ajax_get_data_json',  $plugin_public, 'get_data_json');
 		$this->loader->add_action('wp_ajax_nopriv_get_data_json',  $plugin_public, 'get_data_json');
 		
+		$this->loader->add_action('wp_ajax_cek_lisensi_ext',  $plugin_public, 'cek_lisensi_ext');
+		$this->loader->add_action('wp_ajax_nopriv_cek_lisensi_ext',  $plugin_public, 'cek_lisensi_ext');
+		
 		$this->loader->add_action('wp_ajax_simpan_rfk',  $plugin_public, 'simpan_rfk');
 		$this->loader->add_action('wp_ajax_reset_rfk',  $plugin_public, 'reset_rfk');
 		$this->loader->add_action('wp_ajax_reset_catatan_verifkator_rfk',  $plugin_public, 'reset_catatan_verifkator_rfk');
