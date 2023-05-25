@@ -3081,6 +3081,48 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 						$data_sub_giat[$k]['sumber_dana'] = array();
 						$data_sub_giat[$k]['lokasi'] = array();
 						$data_sub_giat[$k]['indikator'] = array();
+						$data_sub_giat[$k]['indikator_kegiatan'] = array();
+						$data_sub_giat[$k]['indikator_program'] = array();
+						$data_sub_giat[$k]['indikator_hasil'] = array();
+
+						$indikator_hasil = $wpdb->get_results($wpdb->prepare('
+							SELECT 
+								*
+							FROM data_keg_indikator_hasil_lokal_history
+							WHERE kode_sbl=%s
+								AND tahun_anggaran=%d
+								AND active=1
+								AND id_jadwal=%d
+						', $sub['kode_sbl'], $tahun_anggaran, $cek_jadwal['data']['id_jadwal_lokal']));
+						if(!empty($indikator_hasil)){
+							$data_sub_giat[$k]['indikator_hasil'] = $indikator_hasil;
+						}
+
+						$indikator_program = $wpdb->get_results($wpdb->prepare('
+							SELECT 
+								*
+							FROM data_capaian_prog_sub_keg_lokal_history
+							WHERE kode_sbl=%s
+								AND tahun_anggaran=%d
+								AND active=1
+								AND id_jadwal=%d
+						', $sub['kode_sbl'], $tahun_anggaran, $cek_jadwal['data']['id_jadwal_lokal']));
+						if(!empty($indikator_program)){
+							$data_sub_giat[$k]['indikator_program'] = $indikator_program;
+						}
+
+						$indikator_kegiatan = $wpdb->get_results($wpdb->prepare('
+							SELECT 
+								*
+							FROM data_output_giat_sub_keg_lokal_history
+							WHERE kode_sbl=%s
+								AND tahun_anggaran=%d
+								AND active=1
+								AND id_jadwal=%d
+						', $sub['kode_sbl'], $tahun_anggaran, $cek_jadwal['data']['id_jadwal_lokal']));
+						if(!empty($indikator_kegiatan)){
+							$data_sub_giat[$k]['indikator_kegiatan'] = $indikator_kegiatan;
+						}
 
 						$data_sumber_dana = $wpdb->get_results($wpdb->prepare('
 							SELECT 
