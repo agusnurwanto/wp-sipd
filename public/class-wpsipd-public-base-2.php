@@ -2686,7 +2686,10 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 										'catatan_usulan'=> $data_post['catatan_program_usulan'][$key],
 									);
 
-									if(in_array("administrator", $user_meta->roles)){
+									if(
+										in_array("administrator", $user_meta->roles)
+										|| in_array("mitra_bappeda", $user_meta->roles)
+									){
 										$data_indikator['satuancapaian'] = $data_post['satuan_indikator_program_penetapan'][$key];
 										$data_indikator['targetcapaianteks'] = $data_post['target_indikator_program_penetapan'][$key].' '.$data_post['satuan_indikator_program_penetapan'][$key];
 										$data_indikator['capaianteks'] = $data_post['indikator_program_penetapan'][$key];
@@ -2823,7 +2826,10 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 							/** Insert sasaran kegiatan */
 								$sasaran_usulan = !empty($data_post['kelompok_sasaran_renja_usulan']) ? $data_post['kelompok_sasaran_renja_usulan'] : NULL;
 								$sasaran = NULL;
-								if(in_array("administrator", $user_meta->roles)){
+								if(
+									in_array("administrator", $user_meta->roles)
+									|| in_array("mitra_bappeda", $user_meta->roles)
+								){
 									$sasaran = !empty($data_post['kelompok_sasaran_renja_penetapan']) ? $data_post['kelompok_sasaran_renja_penetapan'] : NULL;
 								}
 								$id_label_pusat = !empty($data_post['input_prioritas_nasional']) ? $data_post['input_prioritas_nasional'] : 0;
@@ -2894,7 +2900,10 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 												'catatan_usulan' => $data_post['catatan_indikator_kegiatan_usulan'][$k_indi]
 											);
 
-											if(in_array("administrator", $user_meta->roles)){
+											if(
+												in_array("administrator", $user_meta->roles)
+												|| in_array("mitra_bappeda", $user_meta->roles)
+											){
 												$data_indikator['outputteks'] = $data_post['indikator_kegiatan_penetapan'][$k_indi];
 												$data_indikator['satuanoutput'] = $data_post['satuan_indikator_kegiatan_penetapan'][$k_indi];
 												$data_indikator['targetoutput'] = $data_post['target_indikator_kegiatan_penetapan'][$k_indi];
@@ -2952,7 +2961,10 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 												'catatan_usulan' => $data_post['catatan_indikator_hasil_kegiatan_usulan'][$k_indi]
 											);
 
-											if(in_array("administrator", $user_meta->roles)){
+											if(
+												in_array("administrator", $user_meta->roles)
+												|| in_array("mitra_bappeda", $user_meta->roles)
+											){
 												$data_indikator_hasil['hasilteks'] = $data_post['indikator_hasil_kegiatan_penetapan'][$k_indi];
 												$data_indikator_hasil['satuanhasil'] = $data_post['satuan_indikator_hasil_kegiatan_penetapan'][$k_indi];
 												$data_indikator_hasil['targethasil'] = $data_post['target_indikator_hasil_kegiatan_penetapan'][$k_indi];
