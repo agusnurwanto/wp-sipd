@@ -10045,7 +10045,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 					$title = 'RFK '.$skpd[0]['nama_skpd'].' '.$skpd[0]['kode_skpd'].' | '.$_POST['tahun_anggaran'];
 					$shortcode = '[monitor_rfk tahun_anggaran="'.$_POST['tahun_anggaran'].'" id_skpd="'.$skpd[0]['id_skpd'].'"]';
 					$update = false;
-					$url_skpd = $this->generatePage($title, $_POST['tahun_anggaran'], $shortcodee, $update);
+					$url_skpd = $this->generatePage($title, $_POST['tahun_anggaran'], $shortcode, $update);
 
 					$master_sumberdana .= "
 						<tr>

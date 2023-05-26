@@ -853,6 +853,8 @@ class Wpsipd
 		add_shortcode('management_data_bhpd', array($plugin_public, 'management_data_bhpd'));
 		add_shortcode('management_data_bhrd', array($plugin_public, 'management_data_bhrd'));
 		add_shortcode('input_pencairan_bkk', array($plugin_public, 'input_pencairan_bkk'));
+		add_shortcode('renja_sipd_merah', array($plugin_public, 'renja_sipd_merah'));
+		add_shortcode('renja_sipd_ri', array($plugin_public, 'renja_sipd_ri'));
 
 		//shortcode SIPKD
 		add_shortcode('data_akun',array($plugin_public,'sipkd_akun'));

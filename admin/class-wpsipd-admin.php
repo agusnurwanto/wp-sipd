@@ -1366,7 +1366,7 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes {
 				$title = 'RFK '.$skpd[0]['nama_skpd'].' '.$skpd[0]['kode_skpd'].' | '.$tahun;
 				$shortcode = '[monitor_rfk tahun_anggaran="'.$tahun.'" id_skpd="'.$skpd[0]['id_skpd'].'"]';
 				$update = false;
-				$url_skpd = $this->generatePage($title, $tahun, $shortcodee, $update);
+				$url_skpd = $this->generatePage($title, $tahun, $shortcode, $update);
 			}else{
 				$total_rka = $wpdb->get_results($wpdb->prepare('
 					select 
@@ -1378,7 +1378,7 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes {
 				$title = 'Realisasi Fisik dan Keuangan Pemerintah Daerah | '.$tahun;
 				$shortcode = '[monitor_rfk tahun_anggaran="'.$tahun.'"]';
 				$update = false;
-				$url_skpd = $this->generatePage($title, $tahun, $shortcodee, $update);
+				$url_skpd = $this->generatePage($title, $tahun, $shortcode, $update);
 			}
 			$master_sumberdana .= '
 				<tr class="text_blok">
