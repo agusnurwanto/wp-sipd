@@ -101,7 +101,13 @@ if(!empty($jadwal_lokal)){
     $idJadwalRenja = $jadwal_lokal[0]['id_jadwal_lokal'];
     $jenisJadwal = $jadwal_lokal[0]['jenis_jadwal'];
 
-    if($jenisJadwal == 'penetapan' && in_array("administrator", $user_meta->roles)){
+    if(
+        $jenisJadwal == 'penetapan' 
+        && (
+            in_array("administrator", $user_meta->roles)
+            || in_array("mitra_bappeda", $user_meta->roles)
+        )
+    ){
         /** Penetapan */
         $mulaiJadwal = $jadwal_lokal[0]['waktu_awal'];
         $selesaiJadwal = $jadwal_lokal[0]['waktu_akhir'];
