@@ -1503,6 +1503,9 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						$data = $_POST['data'];
 					}
 					$cek = $wpdb->get_var("SELECT iduser from data_dewan where tahun_anggaran=".$_POST['tahun_anggaran']." AND iduser=" . $data['iduser']);
+					if(!isset($data['active'])){
+						$data['active'] = 1;
+					}
 					$opsi = array(
 						'accasmas' => $data['accasmas'],
 						'accbankeu' => $data['accbankeu'],
@@ -1542,7 +1545,6 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						'notelp' => $data['notelp'],
 						'npwp' => $data['npwp'],
 						'id_sub_skpd' => $data['id_sub_skpd'],
-						// 'active' => 1,
 						'active' => $data['active'],
 						'is_locked' => $data['is_locked'],
 						'accmonitor' => $data['accmonitor'],
@@ -6817,6 +6819,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 					|| in_array("KPA", $user_meta->roles)
 					|| in_array("tapd_pp", $user_meta->roles)
 					|| in_array("tapd_keu", $user_meta->roles)
+					|| in_array("mitra_bappeda", $user_meta->roles)
 				){
 					$nama_page = 'RFK '.$vv['nama_skpd'].' '.$vv['kode_skpd'].' | '.$tahun;
 					$custom_post = get_page_by_title($nama_page, OBJECT, 'page');
