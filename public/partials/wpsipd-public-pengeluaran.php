@@ -63,11 +63,11 @@ $body = '';
 <div class="cetak">
 	<div style="padding: 10px;margin:0 0 3rem 0;">
 		<input type="hidden" value="<?php echo get_option( '_crb_api_key_extension' ); ?>" id="api_key">
-		<!-- <h4 style="text-align: center; margin: 10px auto; min-width: 450px; max-width: 570px; font-weight: bold;">'.$nama_laporan.'</h4> -->
 		<h3 class="text-center" style="margin:3rem 0;">Halaman Pengeluaran  </br><?php echo $nama_skpd; ?> </br>Tahun Anggaran  <?php echo $input['tahun_anggaran']; ?></h3>
-		<h4 class="text-center">Total Pengeluaran : Rp. <span id="total_pengeluaran">000.000.000</span></h4>
-		<div style="margin-bottom: 25px;">
-			<button class="btn btn-primary tambah_pengeluaran" onclick="tambah_pengeluaran();">Tambah Pengeluaran</button>
+		<div style="margin-bottom: 25px;" class="text-center">
+			<h4 class="btn btn-warning">Total Pembiayaan Pengeluaran: Rp <span id="total_pengeluaran">000.000.000</span></h4>
+			<br>
+			<button class="btn btn-primary tambah_pendapatan" onclick="tambah_pendapatan();"><i class="dashicons dashicons-plus" style="margin: 3px;"></i> Tambah Data</button>
 		</div>
 		<table id="data_pengeluaran_table" cellpadding="2" cellspacing="0" style="font-family:\'Open Sans\',-apple-system,BlinkMacSystemFont,\'Segoe UI\',sans-serif; border-collapse: collapse; width:100%; overflow-wrap: break-word;" class="table table-bordered">
 			<thead id="data_header">
@@ -264,7 +264,7 @@ $body = '';
 			[
 				{
 					targets: 3,
-					render: jQuery.fn.dataTable.render.number(',', '.', 0, '')
+					render: jQuery.fn.dataTable.render.number('.', ',', 0, '')
 				}
 			],
 			dom: 'Bfrtip',
@@ -281,8 +281,8 @@ $body = '';
 					total_nilai = total_nilai + parseInt(b.total)
 				})
 				
-				let total_pengeluaran = new Intl.NumberFormat('en-US').format(settings.json.total_pengeluaran);
-				let new_total_nilai = new Intl.NumberFormat('en-US').format(total_nilai);
+				let total_pengeluaran = formatRupiah(settings.json.total_pengeluaran);
+				let new_total_nilai = formatRupiah(total_nilai);
 
 				jQuery("#data_pengeluaran_table .total_nilai").remove()
 				jQuery("#data_pengeluaran_table").append('<tfoot class="total_nilai"><tr><th class="text-right" colspan="3">Total Nilai</th><th class="text-right">'+new_total_nilai+'</th><th class="text-center"></th></tr></tfoot>');

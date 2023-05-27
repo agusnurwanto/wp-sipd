@@ -31,7 +31,7 @@ if($input['id_skpd'] == 'all'){
         order by kode_skpd ASC
     ", $input['tahun_anggaran']), ARRAY_A);
 }else{
-    $data_skpd = array('id_skpd' => $input['id_skpd']);
+    $data_skpd = array(array('id_skpd' => $input['id_skpd']));
 }
 $nama_pemda = get_option('_crb_daerah');
 $nama_excel = 'RENJA TAHUN ANGGARAN '.$input['tahun_anggaran'].' '.strtoupper($nama_pemda);
