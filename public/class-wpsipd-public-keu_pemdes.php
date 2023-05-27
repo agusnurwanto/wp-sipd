@@ -920,11 +920,19 @@ public function get_datatable_bhpd(){
                 }
                 if($ret['status'] != 'error' && !empty($_POST['proposal'])){
                     $proposal = $_POST['proposal'];
-                 }
+                }
+                $status_pagu = $_POST['status_pagu'];
+                $keterangan_status_pagu = $_POST['keterangan_status_pagu'];
+                $status_file = $_POST['status_file'];
+                $keterangan_status_file = $_POST['keterangan_status_file'];
                 if($ret['status'] != 'error'){
                     $data = array(
                         'id_kegiatan' => $id_kegiatan,
                         'total_pencairan' => $pagu_anggaran,
+                        'status_ver_total' => $status_pagu,
+                        'ket_ver_total' => $keterangan_status_pagu,
+                        'status_ver_proposal' => $status_file,
+                        'ket_ver_proposal' => $keterangan_status_file,
                         'file_proposal' => '',
                         'status' => 1,
                         'update_at' => current_time('mysql')

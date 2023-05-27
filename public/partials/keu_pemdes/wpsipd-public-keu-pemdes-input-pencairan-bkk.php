@@ -6,6 +6,13 @@ foreach($idtahun as $val){
     $tahun .= "<option value='$val[tahun_anggaran]'>$val[tahun_anggaran]</option>";
 }
 
+$user_id = um_user( 'ID' );
+$user_meta = get_userdata($user_id);
+$disabled = 'disabled';
+if(in_array("administrator", $user_meta->roles)){
+    $disabled = '';
+}
+
 // print_r($total_pencairan); die($wpdb->last_query);
 ?>
 <style type="text/css">
@@ -86,9 +93,25 @@ foreach($idtahun as $val){
                     <label>Pagu Anggaran</label>
                     <input type="number" class="form-control" id="pagu_anggaran" />
                 </div>
+                <div class="form-check form-switch">
+                    <input class="form-check-input" value="1" type="checkbox" id="status_pagu" onclick="set_keterangan(this);" <?php echo $disabled; ?>>
+                    <label class="form-check-label" for="status_pagu">Disetujui</label>
+                </div>
+                <div class="form-group" style="display:none;">
+                    <label>Keterangan ditolak</label>
+                    <textarea class="form-control" id="keterangan_status_pagu" <?php echo $disabled; ?>></textarea>
+                </div>
                 <div class="form-group">
                     <label for="">Proposal BKK Infrastruktur</label>
                     <input type="file" class="form-control-file" id="proposal">
+                </div>
+                <div class="form-check form-switch">
+                    <input class="form-check-input" value="1" type="checkbox" id="status_file" onclick="set_keterangan(this);" <?php echo $disabled; ?>>
+                    <label class="form-check-label" for="status_file">Disetujui</label>
+                </div>
+                <div class="form-group" style="display:none;">
+                    <label>Keterangan ditolak</label>
+                    <textarea class="form-control" id="keterangan_status_file" <?php echo $disabled; ?>></textarea>
                 </div>
                   <button type="submit" onclick="submitTambahDataFormPencairanBKK();" class="btn btn-primary">Kirim</button>
                   <button type="button" class="btn btn-default" data-dismiss="modal" aria-label="Close">Tutup</button>
@@ -100,6 +123,15 @@ foreach($idtahun as $val){
 jQuery(document).ready(function(){
     get_data_pencairan_bkk();
 });
+
+function set_keterangan(that){
+    var id = jQuery(that).attr('id');
+    if(jQuery(that).is(':checked')){
+        jQuery('#keterangan_'+id).closest('.form-group').hide();
+    }else{
+        jQuery('#keterangan_'+id).closest('.form-group').show();
+    }
+}
 
 function get_data_pencairan_bkk(){
     if(typeof datapencairan_bkk == 'undefined'){
@@ -207,8 +239,23 @@ function edit_data(_id){
                     jQuery('#kec').val(res.data.kecamatan).trigger('change');
                     jQuery('#desa').val(res.data.desa).trigger('change');
                     jQuery('#uraian_kegiatan').val(res.data.kegiatan).trigger('change');
+                    jQuery('#id_kegiatan').val(res.data.id_kegiatan);
                     jQuery('#alamat').val(res.data.alamat);
                     jQuery('#pagu_anggaran').val(res.data.total_pencairan);
+                    if(res.data.status_ver_total == 0){
+                        jQuery('#status_pagu').prop('checked', false);
+                    }else{
+                        jQuery('#status_pagu').prop('checked', true);
+                    }
+                    jQuery('#keterangan_status_pagu').val(res.data.ket_ver_total);
+                    if(res.data.status_ver_proposal == 0){
+                        jQuery('#status_file').prop('checked', false);
+                    }else{
+                        jQuery('#status_file').prop('checked', true);
+                    }
+                    jQuery('#keterangan_status_file').val(res.data.ket_ver_proposal);
+                    jQuery('#status_pagu').closest('.form-check').show();
+                    jQuery('#status_file').closest('.form-check').show();
                     jQuery('#modalTambahDataPencairanBKK').modal('show');
                 })
             }else{
@@ -229,6 +276,14 @@ function tambah_data_pencairan_bkk(){
     jQuery('#alamat').val('');
     jQuery('#pagu_anggaran').val('');
     jQuery('#proposal').val('');
+    jQuery('#status_pagu').closest('.form-check').hide();
+    jQuery('#keterangan_status_pagu').closest('.form-group').hide();
+    jQuery('#status_file').closest('.form-check').hide();
+    jQuery('#keterangan_status_file').closest('.form-group').hide();
+    jQuery('#status_pagu').prop('checked', false);
+    jQuery('#keterangan_status_pagu').val('');
+    jQuery('#status_file').prop('checked', false);
+    jQuery('#keterangan_status_file').val('');
     jQuery('#modalTambahDataPencairanBKK').modal('show');
 }
 
@@ -262,6 +317,16 @@ function submitTambahDataFormPencairanBKK(){
     if(proposal == ''){
         // return alert('Isi Proposal Dulu!');
     }
+    var status_pagu = jQuery('#status_pagu').val();
+    if(jQuery('#status_pagu').is(':checked') == false){
+        status_pagu = 0;
+    }
+    var keterangan_status_pagu = jQuery('#keterangan_status_pagu').val();
+    var status_file = jQuery('#status_file').val();
+    if(jQuery('#status_file').is(':checked') == false){
+        status_file = 0;
+    }
+    var keterangan_status_file = jQuery('#keterangan_status_file').val();
 
     jQuery('#wrap-loading').show();
     jQuery.ajax({
@@ -274,6 +339,10 @@ function submitTambahDataFormPencairanBKK(){
             'id_data': id_data,
             'id_kegiatan': id_kegiatan,
             'pagu_anggaran': pagu_anggaran,
+            'status_pagu': status_pagu,
+            'keterangan_status_pagu': keterangan_status_pagu,
+            'status_file': status_file,
+            'keterangan_status_file': keterangan_status_file
         },
         success: function(res){
             alert(res.message);
