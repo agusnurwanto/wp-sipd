@@ -29,7 +29,10 @@ $is_admin = false;
 $user_id = um_user( 'ID' );
 $user_meta = get_userdata($user_id);
 $js_check_admin = 0;
-if(in_array("administrator", $user_meta->roles)){
+if(
+    in_array("administrator", $user_meta->roles)
+    || in_array("mitra_bappeda", $user_meta->roles)
+){
 	$is_admin = true;
 	$disabled='';
     $js_check_admin = 1;
@@ -98,7 +101,13 @@ if(!empty($jadwal_lokal)){
     $idJadwalRenja = $jadwal_lokal[0]['id_jadwal_lokal'];
     $jenisJadwal = $jadwal_lokal[0]['jenis_jadwal'];
 
-    if($jenisJadwal == 'penetapan' && in_array("administrator", $user_meta->roles)){
+    if(
+        $jenisJadwal == 'penetapan' 
+        && (
+            in_array("administrator", $user_meta->roles)
+            || in_array("mitra_bappeda", $user_meta->roles)
+        )
+    ){
         /** Penetapan */
         $mulaiJadwal = $jadwal_lokal[0]['waktu_awal'];
         $selesaiJadwal = $jadwal_lokal[0]['waktu_akhir'];

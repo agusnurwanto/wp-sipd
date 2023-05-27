@@ -34,31 +34,39 @@ foreach($tahun as $tahun_value){
 $select_renstra = '';
 
 $sqlTipe = $wpdb->get_results($wpdb->prepare("
-				SELECT 
-					* 
-				FROM 
-					`data_tipe_perencanaan` 
-				WHERE 
-					nama_tipe=%s",
-					'renstra'
-				), ARRAY_A);
+	SELECT 
+		* 
+	FROM 
+		`data_tipe_perencanaan` 
+	WHERE 
+		nama_tipe=%s",
+		'renstra'
+	), ARRAY_A);
 $data_renstra = $wpdb->get_results($wpdb->prepare('
-				SELECT
-					id_jadwal_lokal,
-					nama
-				FROM
-					data_jadwal_lokal
-				WHERE
-					status=1
-					and id_tipe=%d',
-					$sqlTipe[0]['id']
-				),ARRAY_A);
+	SELECT
+		id_jadwal_lokal,
+		nama
+	FROM
+		data_jadwal_lokal
+	WHERE
+		status=1
+		and id_tipe=%d',
+		$sqlTipe[0]['id']
+	),ARRAY_A);
 				
 if(!empty($data_renstra)){
 	foreach($data_renstra as $val_renstra){
 		$select_renstra .= '<option value="'.$val_renstra['id_jadwal_lokal'].'">'.$val_renstra['nama'].'</option>';
 	}
 }
+
+$title = 'RENJA SIPD Merah | '.$input['tahun_anggaran'];
+$shortcode = '[renja_sipd_merah tahun_anggaran="'.$input['tahun_anggaran'].'"]';
+$url_renja_merah = $this->generatePage($title, $input['tahun_anggaran'], $shortcode, false);
+
+$title = 'RENJA SIPD RI | '.$input['tahun_anggaran'];
+$shortcode = '[renja_sipd_ri tahun_anggaran="'.$input['tahun_anggaran'].'"]';
+$url_renja_ri = $this->generatePage($title, $input['tahun_anggaran'], $shortcode, false);
 
 $body = '';
 ?>
@@ -165,6 +173,16 @@ $body = '';
 			jQuery("#jadwal_nama").val("");
 			jQuery("#link_renstra").val("");
 		})
+
+		jQuery('#jadwal_tanggal').daterangepicker({
+			timePicker: true,
+			timePicker24Hour: true,
+			startDate: moment().startOf('hour'),
+			endDate: moment().startOf('hour').add(32, 'hour'),
+			locale: {
+				format: 'DD-MM-YYYY HH:mm'
+			}
+		});
 	});
 
 	/** get data penjadwalan */
@@ -413,18 +431,6 @@ $body = '';
 		}
 	}
 
-	jQuery(function() {
-		jQuery('#jadwal_tanggal').daterangepicker({
-			timePicker: true,
-			timePicker24Hour: true,
-			startDate: moment().startOf('hour'),
-			endDate: moment().startOf('hour').add(32, 'hour'),
-			locale: {
-				format: 'DD-MM-YYYY HH:mm'
-			}
-		});
-	});
-
 	function cannot_change_schedule(jenis){
 		if(jenis == 'kunci'){
 			alert('Tidak bisa kunci karena penjadwalan sudah dikunci');
@@ -501,6 +507,8 @@ $body = '';
 					      		<select class="form-control jenis" id="jenis">
 					      			<option value="-">Pilih Jenis</option>
 					      			<option value="pagu_total">Format Pagu Total Per Unit Kerja</option>
+					      			<option value="renja_sipd_merah">Format RENJA SIPD Merah</option>
+					      			<option value="renja_sipd_ri">Format RENJA SIPD RI</option>
 				      			</select>
 					    	</div>
 					    </div></br>
@@ -538,6 +546,14 @@ $body = '';
 		switch(jenis){
 			case 'pagu_total':
 				generate(id_unit, id_jadwal_lokal, 'view_pagu_total_renja', 'Laporan Pagu Akumulasi Per Unit Kerja');
+				break;
+
+			case 'renja_sipd_merah':
+				window.open('<?php echo $url_renja_merah; ?>'+'&id_unit='+id_unit+'&id_jadwal_lokal='+id_jadwal_lokal,'_blank');
+				break;
+
+			case 'renja_sipd_ri':
+				window.open('<?php echo $url_renja_ri; ?>'+'&id_unit='+id_unit+'&id_jadwal_lokal='+id_jadwal_lokal,'_blank');
 				break;
 
 			case '-':
@@ -594,9 +610,9 @@ $body = '';
 	}
 
 	function list_perangkat_daerah(){
-		jQuery('#wrap-loading').show();
 		return new Promise(function(resolve, reject){
 			if(typeof list_perangkat_daerah_global == 'undefined'){
+				jQuery('#wrap-loading').show();
 				jQuery.ajax({
 					url:ajax.url,
 					type:'post',
@@ -618,7 +634,7 @@ $body = '';
 						alert('Oops ada kesalahan load data Unit kerja');
 						return resolve();
 					}
-				})
+				});
 			}else{
 				jQuery("#list_perangkat_daerah").html(list_perangkat_daerah_global);
 				jQuery('#list_perangkat_daerah').select2({width: '100%'});

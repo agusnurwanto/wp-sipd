@@ -1503,6 +1503,9 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						$data = $_POST['data'];
 					}
 					$cek = $wpdb->get_var("SELECT iduser from data_dewan where tahun_anggaran=".$_POST['tahun_anggaran']." AND iduser=" . $data['iduser']);
+					if(!isset($data['active'])){
+						$data['active'] = 1;
+					}
 					$opsi = array(
 						'accasmas' => $data['accasmas'],
 						'accbankeu' => $data['accbankeu'],
@@ -1542,7 +1545,6 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						'notelp' => $data['notelp'],
 						'npwp' => $data['npwp'],
 						'id_sub_skpd' => $data['id_sub_skpd'],
-						// 'active' => 1,
 						'active' => $data['active'],
 						'is_locked' => $data['is_locked'],
 						'accmonitor' => $data['accmonitor'],
@@ -6817,6 +6819,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 					|| in_array("KPA", $user_meta->roles)
 					|| in_array("tapd_pp", $user_meta->roles)
 					|| in_array("tapd_keu", $user_meta->roles)
+					|| in_array("mitra_bappeda", $user_meta->roles)
 				){
 					$nama_page = 'RFK '.$vv['nama_skpd'].' '.$vv['kode_skpd'].' | '.$tahun;
 					$custom_post = get_page_by_title($nama_page, OBJECT, 'page');
@@ -10042,7 +10045,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 					$title = 'RFK '.$skpd[0]['nama_skpd'].' '.$skpd[0]['kode_skpd'].' | '.$_POST['tahun_anggaran'];
 					$shortcode = '[monitor_rfk tahun_anggaran="'.$_POST['tahun_anggaran'].'" id_skpd="'.$skpd[0]['id_skpd'].'"]';
 					$update = false;
-					$url_skpd = $this->generatePage($title, $_POST['tahun_anggaran'], $shortcodee, $update);
+					$url_skpd = $this->generatePage($title, $_POST['tahun_anggaran'], $shortcode, $update);
 
 					$master_sumberdana .= "
 						<tr>
@@ -12446,7 +12449,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		die(json_encode($return));
 	}
 
-	public function cek_api_key(){
+	public function cek_api_key($no_return = false){
 		global $wpdb;
 		$return = array(
 			'action' => $_POST['action'],
@@ -12469,7 +12472,11 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 			$return['status'] = 'error';
 			$return['message']	= 'Format tidak sesuai!';
 		}
-		die(json_encode($return));
+		if($no_return){
+			return $return;
+		}else{
+			die(json_encode($return));
+		}
 	}
 
 	public function get_data_ssh_analisis_skpd(){
@@ -17979,6 +17986,35 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 					$ret['status'] = 'error';
 					$ret['message'] = 'Format Master Label Giat Salah!';
 				}
+			} else {
+				$ret['status'] = 'error';
+				$ret['message'] = 'APIKEY tidak sesuai!';
+			}
+		} else {
+			$ret['status'] = 'error';
+			$ret['message'] = 'Format Salah!';
+		}
+		die(json_encode($ret));
+	}
+
+	public function cek_lisensi_ext()
+	{
+		global $wpdb;
+		$ret = array(
+			'status'	=> 'success',
+			'action'	=> $_POST['action'],
+			'run'		=> $_POST['run'],
+			'data'		=> '',
+			'message'	=> 'Berhasil cek lisensi aktif!'
+		);
+		if (!empty($_POST)) {
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+				$sipd_url = get_option('_crb_server_wp_sipd');
+				$sipd_url = explode('/wp-admin', $sipd_url);
+				$ret['sipd_url'] = $sipd_url[0];
+				$cek = $this->cek_api_key(true);
+				$ret['cek'] = $cek;
+				// belum selesai
 			} else {
 				$ret['status'] = 'error';
 				$ret['message'] = 'APIKEY tidak sesuai!';

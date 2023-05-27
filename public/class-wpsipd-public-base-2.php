@@ -14,6 +14,26 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 		require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/wpsipd-public-monitoring-rup.php';
 	}
 
+	public function renja_sipd_merah($atts)
+	{
+		// untuk disable render shortcode di halaman edit page/post
+		if(!empty($_GET) && !empty($_GET['post'])){
+			return '';
+		}
+		
+		require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/renja/wpsipd-public-laporan-renja-sipd-merah.php';
+	}
+
+	public function renja_sipd_ri($atts)
+	{
+		// untuk disable render shortcode di halaman edit page/post
+		if(!empty($_GET) && !empty($_GET['post'])){
+			return '';
+		}
+		
+		require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/renja/wpsipd-public-laporan-renja-sipd-ri.php';
+	}
+
 	public function get_data_monitoring_rup(){
 		global $wpdb;
 		$return = array(
@@ -2686,7 +2706,10 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 										'catatan_usulan'=> $data_post['catatan_program_usulan'][$key],
 									);
 
-									if(in_array("administrator", $user_meta->roles)){
+									if(
+										in_array("administrator", $user_meta->roles)
+										|| in_array("mitra_bappeda", $user_meta->roles)
+									){
 										$data_indikator['satuancapaian'] = $data_post['satuan_indikator_program_penetapan'][$key];
 										$data_indikator['targetcapaianteks'] = $data_post['target_indikator_program_penetapan'][$key].' '.$data_post['satuan_indikator_program_penetapan'][$key];
 										$data_indikator['capaianteks'] = $data_post['indikator_program_penetapan'][$key];
@@ -2823,7 +2846,10 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 							/** Insert sasaran kegiatan */
 								$sasaran_usulan = !empty($data_post['kelompok_sasaran_renja_usulan']) ? $data_post['kelompok_sasaran_renja_usulan'] : NULL;
 								$sasaran = NULL;
-								if(in_array("administrator", $user_meta->roles)){
+								if(
+									in_array("administrator", $user_meta->roles)
+									|| in_array("mitra_bappeda", $user_meta->roles)
+								){
 									$sasaran = !empty($data_post['kelompok_sasaran_renja_penetapan']) ? $data_post['kelompok_sasaran_renja_penetapan'] : NULL;
 								}
 								$id_label_pusat = !empty($data_post['input_prioritas_nasional']) ? $data_post['input_prioritas_nasional'] : 0;
@@ -2894,7 +2920,10 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 												'catatan_usulan' => $data_post['catatan_indikator_kegiatan_usulan'][$k_indi]
 											);
 
-											if(in_array("administrator", $user_meta->roles)){
+											if(
+												in_array("administrator", $user_meta->roles)
+												|| in_array("mitra_bappeda", $user_meta->roles)
+											){
 												$data_indikator['outputteks'] = $data_post['indikator_kegiatan_penetapan'][$k_indi];
 												$data_indikator['satuanoutput'] = $data_post['satuan_indikator_kegiatan_penetapan'][$k_indi];
 												$data_indikator['targetoutput'] = $data_post['target_indikator_kegiatan_penetapan'][$k_indi];
@@ -2952,7 +2981,10 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 												'catatan_usulan' => $data_post['catatan_indikator_hasil_kegiatan_usulan'][$k_indi]
 											);
 
-											if(in_array("administrator", $user_meta->roles)){
+											if(
+												in_array("administrator", $user_meta->roles)
+												|| in_array("mitra_bappeda", $user_meta->roles)
+											){
 												$data_indikator_hasil['hasilteks'] = $data_post['indikator_hasil_kegiatan_penetapan'][$k_indi];
 												$data_indikator_hasil['satuanhasil'] = $data_post['satuan_indikator_hasil_kegiatan_penetapan'][$k_indi];
 												$data_indikator_hasil['targethasil'] = $data_post['target_indikator_hasil_kegiatan_penetapan'][$k_indi];
@@ -3056,14 +3088,20 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 
 					$data_sub_giat = $wpdb->get_results($wpdb->prepare('
 						SELECT 
-							*
+							sk.*,
+							u.kode_skpd as kode_skpd_asli
 						FROM data_sub_keg_bl_lokal_history sk
+						INNER JOIN data_unit u ON sk.id_sub_skpd=u.id_skpd
+							AND sk.tahun_anggaran=u.tahun_anggaran
+							AND sk.active=u.active
 						WHERE sk.id_sub_skpd IN ('.implode(',', $id_sub_skpd).')
 							AND sk.tahun_anggaran=%d
 							AND sk.active=1
 							AND sk.id_jadwal=%d
 					', $tahun_anggaran, $cek_jadwal['data']['id_jadwal_lokal']), ARRAY_A);
 					foreach($data_sub_giat as $k => $sub){
+						$sub['kode_sub_skpd'] = $sub['kode_skpd_asli'];
+						$data_sub_giat[$k]['kode_sub_skpd'] = $sub['kode_skpd_asli'];
 						if($sub['kode_bidang_urusan'] == 'X.XX'){
 							$urusan_utama = explode('.', $sub['kode_sub_skpd']);
 							$urusan_utama = $urusan_utama[0].'.'.$urusan_utama[1];
@@ -3075,6 +3113,48 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 						$data_sub_giat[$k]['sumber_dana'] = array();
 						$data_sub_giat[$k]['lokasi'] = array();
 						$data_sub_giat[$k]['indikator'] = array();
+						$data_sub_giat[$k]['indikator_kegiatan'] = array();
+						$data_sub_giat[$k]['indikator_program'] = array();
+						$data_sub_giat[$k]['indikator_hasil'] = array();
+
+						$indikator_hasil = $wpdb->get_results($wpdb->prepare('
+							SELECT 
+								*
+							FROM data_keg_indikator_hasil_lokal_history
+							WHERE kode_sbl=%s
+								AND tahun_anggaran=%d
+								AND active=1
+								AND id_jadwal=%d
+						', $sub['kode_sbl'], $tahun_anggaran, $cek_jadwal['data']['id_jadwal_lokal']));
+						if(!empty($indikator_hasil)){
+							$data_sub_giat[$k]['indikator_hasil'] = $indikator_hasil;
+						}
+
+						$indikator_program = $wpdb->get_results($wpdb->prepare('
+							SELECT 
+								*
+							FROM data_capaian_prog_sub_keg_lokal_history
+							WHERE kode_sbl=%s
+								AND tahun_anggaran=%d
+								AND active=1
+								AND id_jadwal=%d
+						', $sub['kode_sbl'], $tahun_anggaran, $cek_jadwal['data']['id_jadwal_lokal']));
+						if(!empty($indikator_program)){
+							$data_sub_giat[$k]['indikator_program'] = $indikator_program;
+						}
+
+						$indikator_kegiatan = $wpdb->get_results($wpdb->prepare('
+							SELECT 
+								*
+							FROM data_output_giat_sub_keg_lokal_history
+							WHERE kode_sbl=%s
+								AND tahun_anggaran=%d
+								AND active=1
+								AND id_jadwal=%d
+						', $sub['kode_sbl'], $tahun_anggaran, $cek_jadwal['data']['id_jadwal_lokal']));
+						if(!empty($indikator_kegiatan)){
+							$data_sub_giat[$k]['indikator_kegiatan'] = $indikator_kegiatan;
+						}
 
 						$data_sumber_dana = $wpdb->get_results($wpdb->prepare('
 							SELECT 

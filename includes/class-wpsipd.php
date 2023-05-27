@@ -524,6 +524,9 @@ class Wpsipd
 		$this->loader->add_action('wp_ajax_get_data_json',  $plugin_public, 'get_data_json');
 		$this->loader->add_action('wp_ajax_nopriv_get_data_json',  $plugin_public, 'get_data_json');
 		
+		$this->loader->add_action('wp_ajax_cek_lisensi_ext',  $plugin_public, 'cek_lisensi_ext');
+		$this->loader->add_action('wp_ajax_nopriv_cek_lisensi_ext',  $plugin_public, 'cek_lisensi_ext');
+		
 		$this->loader->add_action('wp_ajax_simpan_rfk',  $plugin_public, 'simpan_rfk');
 		$this->loader->add_action('wp_ajax_reset_rfk',  $plugin_public, 'reset_rfk');
 		$this->loader->add_action('wp_ajax_reset_catatan_verifkator_rfk',  $plugin_public, 'reset_catatan_verifkator_rfk');
@@ -779,6 +782,11 @@ class Wpsipd
 		$this->loader->add_action('wp_ajax_get_data_bkk_infrastruktur_by_id', $plugin_public, 'get_data_bkk_infrastruktur_by_id');
 		$this->loader->add_action('wp_ajax_tambah_data_bkk_infrastruktur', $plugin_public, 'tambah_data_bkk_infrastruktur');
 
+		$this->loader->add_action('wp_ajax_get_datatable_data_pencairan_bkk', $plugin_public, 'get_datatable_data_pencairan_bkk');
+		$this->loader->add_action('wp_ajax_hapus_data_pencairan_bkk_by_id', $plugin_public, 'hapus_data_pencairan_bkk_by_id');
+		$this->loader->add_action('wp_ajax_get_data_pencairan_bkk_by_id', $plugin_public, 'get_data_pencairan_bkk_by_id');
+		$this->loader->add_action('wp_ajax_tambah_data_pencairan_bkk', $plugin_public, 'tambah_data_pencairan_bkk');
+
 		$this->loader->add_action('wp_ajax_get_datatable_bhpd', $plugin_public, 'get_datatable_bhpd');
 		$this->loader->add_action('wp_ajax_hapus_data_bhpd_by_id', $plugin_public, 'hapus_data_bhpd_by_id');
 		$this->loader->add_action('wp_ajax_get_data_bhpd_by_id', $plugin_public, 'get_data_bhpd_by_id');
@@ -845,6 +853,8 @@ class Wpsipd
 		add_shortcode('management_data_bhpd', array($plugin_public, 'management_data_bhpd'));
 		add_shortcode('management_data_bhrd', array($plugin_public, 'management_data_bhrd'));
 		add_shortcode('input_pencairan_bkk', array($plugin_public, 'input_pencairan_bkk'));
+		add_shortcode('renja_sipd_merah', array($plugin_public, 'renja_sipd_merah'));
+		add_shortcode('renja_sipd_ri', array($plugin_public, 'renja_sipd_ri'));
 
 		//shortcode SIPKD
 		add_shortcode('data_akun',array($plugin_public,'sipkd_akun'));
