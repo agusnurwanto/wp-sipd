@@ -65,17 +65,18 @@ $body = '';
 		<input type="hidden" value="<?php echo get_option( '_crb_api_key_extension' ); ?>" id="api_key">
 		<!-- <h4 style="text-align: center; margin: 10px auto; min-width: 450px; max-width: 570px; font-weight: bold;">'.$nama_laporan.'</h4> -->
 		<h3 class="text-center" style="margin:3rem 0;">Halaman Penerimaan  </br><?php echo $nama_skpd; ?> </br>Tahun Anggaran  <?php echo $input['tahun_anggaran']; ?></h3>
+		<h4 class="text-center">Total Penerimaan : Rp. <span id="total_penerimaan">000.000.000</span></h4>
 		<div style="margin-bottom: 25px;">
 			<button class="btn btn-primary tambah_penerimaan" onclick="tambah_penerimaan();">Tambah Penerimaan</button>
 		</div>
 		<table id="data_penerimaan_table" cellpadding="2" cellspacing="0" style="font-family:\'Open Sans\',-apple-system,BlinkMacSystemFont,\'Segoe UI\',sans-serif; border-collapse: collapse; width:100%; overflow-wrap: break-word;" class="table table-bordered">
 			<thead id="data_header">
 				<tr>
-					<th class="text-center">Rekening</th>
-					<th class="text-center">Uraian</th>
+					<th class="text-center" style="width: 100px;">Rekening</th>
+					<th class="text-center" style="width: 700px;">Uraian</th>
 					<th class="text-center">Keterangan</th>
-					<th class="text-center">Nilai</th>
-					<th class="text-center" style="width: 250px;">Aksi</th>
+					<th class="text-center" style="width: 115px;">Nilai</th>
+					<th class="text-center" style="width: 77px;">Aksi</th>
 				</tr>
 			</thead>
 			<tbody id="data_body">
@@ -124,7 +125,7 @@ $body = '';
 <div class="report"></div>
 <script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
 <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
-<script type="text/javascript" src="https://cdn.datatables.net/buttons/1.3.1/js/dataTables.buttons.min.js"></script> 
+<script type="text/javascript" src="https://cdn.datatables.net/buttons/2.3.6/js/dataTables.buttons.min.js"></script> 
 <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.3/jszip.min.js"></script>
 <script type="text/javascript" src="https://cdn.datatables.net/buttons/1.3.1/js/buttons.html5.min.js"></script>
 <script>
@@ -240,24 +241,35 @@ $body = '';
 			"columns": [
 				{ 
 					"data": "kode_akun",
-					className: "text-center"
+					className: "text-left"
 				},
 				{ 
 					"data": "nama_akun",
-					className: "text-center"
+					className: "text-left"
 				},
 				{ 
 					"data": "keterangan",
-					className: "text-center"
+					className: "text-left"
 				},
 				{ 
 					"data": "total",
-					className: "text-center"
+					className: "text-right"
 				},
 				{ 
 					"data": "aksi",
 					className: "text-center"
 				}
+			],
+			columnDefs:
+			[
+				{
+					targets: 3,
+					render: jQuery.fn.dataTable.render.number(',', '.', 0, '')
+				}
+			],
+			dom: 'Bfrtip',
+			buttons: [
+					'excel'
 			],
 			drawCallback: function(settings) {
 				var pagination = jQuery(this).closest('.dataTables_wrapper').find('.dataTables_paginate');
@@ -269,8 +281,12 @@ $body = '';
 					total_nilai = total_nilai + parseInt(b.total)
 				})
 
+				let total_penerimaan = new Intl.NumberFormat('en-US').format(settings.json.total_penerimaan);
+				let new_total_nilai = new Intl.NumberFormat('en-US').format(total_nilai);
+
 				jQuery("#data_penerimaan_table .total_nilai").remove()
-				jQuery("#data_penerimaan_table").append('<tfoot class="total_nilai"><tr><th class="text-center" colspan="3">total nilai</th><th class="text-center">'+total_nilai+'</th><th class="text-center"></th></tr></tfoot>');
+				jQuery("#data_penerimaan_table").append('<tfoot class="total_nilai"><tr><th class="text-right" colspan="3">Total Nilai</th><th class="text-right">'+new_total_nilai+'</th><th class="text-center"></th></tr></tfoot>');
+				jQuery("#total_penerimaan").html(total_penerimaan)
 			}
 		});
 	}

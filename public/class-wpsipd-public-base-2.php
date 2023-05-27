@@ -3316,35 +3316,41 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 		if(!empty($_POST)) {
 			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
 				if(!empty($_POST['id_skpd']) && !empty($_POST['tahun_anggaran'])){
+					$params = $columns = array();
 					$params = $_REQUEST;
 
-					$pendapatan = $wpdb->get_results(
-						$wpdb->prepare("
-						SELECT 
-							id,
-							kode_akun,
-							nama_akun,
-							total,
-							keterangan
-						from data_pendapatan_lokal
-						where id_skpd=%d
-							AND tahun_anggaran=%d
-							AND active=1", $_POST['id_skpd'], $_POST['tahun_anggaran']),
-						ARRAY_A
+					$columns = array(
+						0 => 'id',
+						1 => 'kode_akun',
+						2 => 'nama_akun',
+						3 => 'total',
+						4 => 'keterangan'
 					);
 
-					$total_pendapatan = $wpdb->get_results(
-						$wpdb->prepare("
-						SELECT 
-							count(id) as jml
-						from data_pendapatan_lokal
-						where id_skpd=%d
-							AND tahun_anggaran=%d
-							AND active=1", $_POST['id_skpd'], $_POST['tahun_anggaran']),
-						ARRAY_A
-					);
+					$where = $sqlTot= $sqlRec = $sqlTotPendapatan = "";
 
-					$totalRecords = $total_pendapatan[0]['jml'] ?: 0;
+					$sql_tot = "SELECT count(*) as jml FROM data_pendapatan_lokal";
+					$sql = "SELECT ".implode(', ', $columns)." FROM data_pendapatan_lokal";
+					$sql_tot_pendapatan = "SELECT SUM(total) as total_pendapatan FROM data_pendapatan_lokal";
+					$where_first = " WHERE active=1 AND id_skpd=".$wpdb->prepare('%d', $_POST['id_skpd'])." AND tahun_anggaran=".$wpdb->prepare('%d', $_POST['tahun_anggaran']);
+
+					$sqlTot .= $sql_tot.$where_first;
+					$sqlRec .= $sql.$where_first;
+					$sqlTotPendapatan .= $sql_tot_pendapatan.$where_first;
+
+					$order = 'DESC';
+					if(!empty($params['order'][0]['dir'])){
+						$order = $params['order'][0]['dir'];
+					}
+
+					$sqlRec .=  " ORDER BY ". $columns[$params['order'][0]['column']]." ".$order." LIMIT ".$wpdb->prepare('%d', $params['start'])." ,".$wpdb->prepare('%d', $params['length'])." ";
+					
+					$queryTot = $wpdb->get_results($sqlTot, ARRAY_A);
+					$totalPendapatan = $queryTot[0]['jml'] ?: 0;
+					$pendapatan = $wpdb->get_results($sqlRec, ARRAY_A);
+					$total_pendapatan_rec = $wpdb->get_results($sqlTotPendapatan, ARRAY_A);
+					$total_pendapatan = $total_pendapatan_rec[0]['total_pendapatan'] ?: 0;
+
 					if(!empty($pendapatan)){
 						foreach($pendapatan as $k_pend => $v_pend){
 							$edit = '<a class="btn btn-sm btn-warning mr-2" style="text-decoration: none;" onclick="edit_data_pendapatan(\''.$v_pend['id'].'\'); return false;" href="#" title="Edit data pendapatan"><i class="dashicons dashicons-edit"></i></a>';
@@ -3353,18 +3359,23 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 						}
 						$json_data = array(
 							"draw"            => intval( $params['draw'] ),
-							"recordsTotal"    => intval( $totalRecords ), 
-							"recordsFiltered" => intval( $totalRecords ),
-							"data"            => $pendapatan
+							"recordsTotal"    => intval( $totalPendapatan ), 
+							"recordsFiltered" => intval( $totalPendapatan ),
+							"data"            => $pendapatan,
+							"total_pendapatan"=> $total_pendapatan
 						);
 
 						die(json_encode($json_data));
 					}else{
-						$ret = array(
-							'status' => 'error',
-							'message'	=> 'Data tidak ditemukan!',
-							'sql' => $wpdb->last_query
+						$json_data = array(
+							"draw"            => intval( $params['draw'] ),
+							"recordsTotal"    => intval( 0 ), 
+							"recordsFiltered" => intval( 0 ),
+							"data"            => array(),
+							"total_pendapatan"=> $total_pendapatan
 						);
+
+						die(json_encode($json_data));
 					}
 				}else{
 					$ret['status'] = 'error';
@@ -3386,24 +3397,53 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 		$ret = array(
 			'status'	=> 'success',
 			'message' 	=> 'Berhasil mendapapatkan data rekening pendapatan!',
-			'data'		=> array(),
+			'results'	=> array(),
+			'pagination'=> array(
+				"more" => false
+			)
 		);
 
 		if(!empty($_POST)){
 			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
 				if(!empty($_POST['tahun_anggaran'])){
 					$tahun_anggaran = $_POST['tahun_anggaran'];
-	
+					$where = '';
+					if(!empty($_POST['search'])){
+						$_POST['search'] = '%'.$_POST['search'].'%';
+						$where = $wpdb->prepare('
+							AND (
+								kode_akun LIKE %s
+								OR nama_akun LIKE %s
+							)
+						', $_POST['search'], $_POST['search']);
+					}
+
 					$data_akun = $wpdb->get_results($wpdb->prepare(
 						'SELECT *
 						FROM data_akun
 						WHERE tahun_anggaran=%d
 						AND kode_akun LIKE "4%"
-						AND set_input=1
-					', $tahun_anggaran),ARRAY_A);
+						AND set_input=1 '.
+						$where
+							.' LIMIT %d,20
+					', $tahun_anggaran, $_POST['page']),ARRAY_A);
+					$ret['sql'] = $wpdb->last_query;
 	
 					if(!empty($data_akun)){
-						$ret['data'] = $data_akun;
+
+						foreach ($data_akun as $key => $value) {
+							$ret['results'][] = array(
+								'id' => $value['kode_akun'],
+								'text' => $value['kode_akun'].' '.$value['nama_akun']
+							);
+						}
+	
+						if(count($ret['results']) > 0){
+							$ret['pagination']['more'] = true;
+						}
+					}else{
+						$ret['status'] = 'error';
+						$ret['message'] = 'Tabel data kosong!';
 					}
 				}else{
 					$ret['status'] = 'error';
@@ -3529,10 +3569,18 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 					$id_pendapatan = $_POST['id_pendapatan'];
 					
 					$data_pendapatan_by_id = $wpdb->get_row($wpdb->prepare('SELECT * FROM data_pendapatan_lokal WHERE id = %d',$id_pendapatan), ARRAY_A);
+					$data_akun = $wpdb->get_results($wpdb->prepare(
+						'SELECT *
+						FROM data_akun
+						WHERE tahun_anggaran=%d
+							AND kode_akun LIKE "4%"
+							AND set_input=1
+					', $data_pendapatan_by_id['tahun_anggaran']),ARRAY_A);
 
 					$return = array(
 						'status'	=> 'success',
-						'data'		=> $data_pendapatan_by_id
+						'data'		=> $data_pendapatan_by_id,
+						'data_akun'	=> $data_akun
 					);
 				}
 			}else{
@@ -3714,37 +3762,41 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 		if(!empty($_POST)) {
 			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
 				if(!empty($_POST['id_skpd']) && !empty($_POST['tahun_anggaran'])){
+					$params = $columns = array();
 					$params = $_REQUEST;
 
-					$penerimaan = $wpdb->get_results(
-						$wpdb->prepare("
-						SELECT 
-							id,
-							kode_akun,
-							nama_akun,
-							total,
-							keterangan
-						from data_pembiayaan_lokal
-						where id_skpd=%d
-							AND tahun_anggaran=%d
-							AND active=1
-							AND type='penerimaan'", $_POST['id_skpd'], $_POST['tahun_anggaran']),
-						ARRAY_A
+					$columns = array(
+						0 => 'id',
+						1 => 'kode_akun',
+						2 => 'nama_akun',
+						3 => 'total',
+						4 => 'keterangan'
 					);
 
-					$total_penerimaan = $wpdb->get_results(
-						$wpdb->prepare("
-						SELECT 
-							count(id) as jml
-						from data_pembiayaan_lokal
-						where id_skpd=%d
-							AND tahun_anggaran=%d
-							AND active=1
-							AND type='penerimaan'", $_POST['id_skpd'], $_POST['tahun_anggaran']),
-						ARRAY_A
-					);
+					$where = $sqlTot= $sqlRec = $sqlTotPenerimaan = "";
 
-					$totalRecords = $total_penerimaan[0]['jml'] ?: 0;
+					$sql_tot = "SELECT count(*) as jml FROM data_pembiayaan_lokal";
+					$sql = "SELECT ".implode(', ', $columns)." FROM data_pembiayaan_lokal";
+					$sql_tot_penerimaan = "SELECT SUM(total) as total_penerimaan FROM data_pembiayaan_lokal";
+					$where_first = " WHERE active=1 AND type='penerimaan' AND id_skpd=".$wpdb->prepare('%d', $_POST['id_skpd'])." AND tahun_anggaran=".$wpdb->prepare('%d', $params['tahun_anggaran']);
+
+					$sqlTot .= $sql_tot.$where_first;
+					$sqlRec .= $sql.$where_first;
+					$sqlTotPenerimaan .= $sql_tot_penerimaan.$where_first;
+
+					$order = 'DESC';
+					if(!empty($params['order'][0]['dir'])){
+						$order = $params['order'][0]['dir'];
+					}
+
+					$sqlRec .=  " ORDER BY ". $columns[$params['order'][0]['column']]." ".$order." LIMIT ".$wpdb->prepare('%d', $params['start'])." ,".$wpdb->prepare('%d', $params['length'])." ";
+					
+					$queryTot = $wpdb->get_results($sqlTot, ARRAY_A);
+					$totalPenerimaan = $queryTot[0]['jml'] ?: 0;
+					$penerimaan = $wpdb->get_results($sqlRec, ARRAY_A);
+					$total_penerimaan_rec = $wpdb->get_results($sqlTotPenerimaan, ARRAY_A);
+					$total_penerimaan = $total_penerimaan_rec[0]['total_penerimaan'] ?: 0;
+
 					if(!empty($penerimaan)){
 						foreach($penerimaan as $k_pend => $v_pend){
 							$edit = '<a class="btn btn-sm btn-warning mr-2" style="text-decoration: none;" onclick="edit_data_penerimaan(\''.$v_pend['id'].'\'); return false;" href="#" title="Edit data penerimaan"><i class="dashicons dashicons-edit"></i></a>';
@@ -3753,9 +3805,10 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 						}
 						$json_data = array(
 							"draw"            => intval( $params['draw'] ),
-							"recordsTotal"    => intval( $totalRecords ), 
-							"recordsFiltered" => intval( $totalRecords ),
-							"data"            => $penerimaan
+							"recordsTotal"    => intval( $totalPenerimaan ), 
+							"recordsFiltered" => intval( $totalPenerimaan ),
+							"data"            => $penerimaan,
+							"total_penerimaan"=> $total_penerimaan
 						);
 
 						die(json_encode($json_data));
@@ -3764,7 +3817,8 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 							"draw"            => intval( $params['draw'] ),
 							"recordsTotal"    => intval( 0 ), 
 							"recordsFiltered" => intval( 0 ),
-							"data"            => array()
+							"data"            => array(),
+							"total_penerimaan"=> $total_penerimaan
 						);
 
 						die(json_encode($json_data));
@@ -4156,37 +4210,41 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 		if(!empty($_POST)) {
 			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
 				if(!empty($_POST['id_skpd']) && !empty($_POST['tahun_anggaran'])){
+					$params = $columns = array();
 					$params = $_REQUEST;
 
-					$pengeluaran = $wpdb->get_results(
-						$wpdb->prepare("
-						SELECT 
-							id,
-							kode_akun,
-							nama_akun,
-							total,
-							keterangan
-						from data_pembiayaan_lokal
-						where id_skpd=%d
-							AND tahun_anggaran=%d
-							AND active=1
-							AND type='pengeluaran'", $_POST['id_skpd'], $_POST['tahun_anggaran']),
-						ARRAY_A
+					$columns = array(
+						0 => 'id',
+						1 => 'kode_akun',
+						2 => 'nama_akun',
+						3 => 'total',
+						4 => 'keterangan'
 					);
 
-					$total_pengeluaran = $wpdb->get_results(
-						$wpdb->prepare("
-						SELECT 
-							count(id) as jml
-						from data_pembiayaan_lokal
-						where id_skpd=%d
-							AND tahun_anggaran=%d
-							AND active=1
-							AND type='pengeluaran'", $_POST['id_skpd'], $_POST['tahun_anggaran']),
-						ARRAY_A
-					);
+					$where = $sqlTot= $sqlRec = $sqlTotPengeluaran = "";
 
-					$totalRecords = $total_pengeluaran[0]['jml'] ?: 0;
+					$sql_tot = "SELECT count(*) as jml FROM data_pembiayaan_lokal";
+					$sql = "SELECT ".implode(', ', $columns)." FROM data_pembiayaan_lokal";
+					$sql_tot_pengeluaran = "SELECT SUM(total) as total_pengeluaran FROM data_pembiayaan_lokal";
+					$where_first = " WHERE active=1 AND type='pengeluaran' AND id_skpd=".$wpdb->prepare('%d', $_POST['id_skpd'])." AND tahun_anggaran=".$wpdb->prepare('%d', $_POST['tahun_anggaran']);
+
+					$sqlTot .= $sql_tot.$where_first;
+					$sqlRec .= $sql.$where_first;
+					$sqlTotPengeluaran .= $sql_tot_pengeluaran.$where_first;
+
+					$order = 'DESC';
+					if(!empty($params['order'][0]['dir'])){
+						$order = $params['order'][0]['dir'];
+					}
+
+					$sqlRec .=  " ORDER BY ". $columns[$params['order'][0]['column']]." ".$order." LIMIT ".$wpdb->prepare('%d', $params['start'])." ,".$wpdb->prepare('%d', $params['length'])." ";
+					
+					$queryTot = $wpdb->get_results($sqlTot, ARRAY_A);
+					$totalPengeluran = $queryTot[0]['jml'] ?: 0;
+					$pengeluaran = $wpdb->get_results($sqlRec, ARRAY_A);
+					$total_pengeluaran_rec = $wpdb->get_results($sqlTotPengeluaran, ARRAY_A);
+					$total_pengeluaran = $total_pengeluaran_rec[0]['total_pengeluaran'] ?: 0;
+
 					if(!empty($pengeluaran)){
 						foreach($pengeluaran as $k_pend => $v_pend){
 							$edit = '<a class="btn btn-sm btn-warning mr-2" style="text-decoration: none;" onclick="edit_data_pengeluaran(\''.$v_pend['id'].'\'); return false;" href="#" title="Edit data penerimaan"><i class="dashicons dashicons-edit"></i></a>';
@@ -4195,9 +4253,10 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 						}
 						$json_data = array(
 							"draw"            => intval( $params['draw'] ),
-							"recordsTotal"    => intval( $totalRecords ), 
-							"recordsFiltered" => intval( $totalRecords ),
-							"data"            => $pengeluaran
+							"recordsTotal"    => intval( $totalPengeluran ), 
+							"recordsFiltered" => intval( $totalPengeluran ),
+							"data"            => $pengeluaran,
+							"total_pengeluaran"=> $total_pengeluaran
 						);
 
 						die(json_encode($json_data));
@@ -4206,7 +4265,8 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 							"draw"            => intval( $params['draw'] ),
 							"recordsTotal"    => intval( 0 ), 
 							"recordsFiltered" => intval( 0 ),
-							"data"            => array()
+							"data"            => array(),
+							"total_pengeluaran"=> $total_pengeluaran
 						);
 
 						die(json_encode($json_data));

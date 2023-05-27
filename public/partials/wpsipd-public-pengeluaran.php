@@ -65,17 +65,18 @@ $body = '';
 		<input type="hidden" value="<?php echo get_option( '_crb_api_key_extension' ); ?>" id="api_key">
 		<!-- <h4 style="text-align: center; margin: 10px auto; min-width: 450px; max-width: 570px; font-weight: bold;">'.$nama_laporan.'</h4> -->
 		<h3 class="text-center" style="margin:3rem 0;">Halaman Pengeluaran  </br><?php echo $nama_skpd; ?> </br>Tahun Anggaran  <?php echo $input['tahun_anggaran']; ?></h3>
+		<h4 class="text-center">Total Pengeluaran : Rp. <span id="total_pengeluaran">000.000.000</span></h4>
 		<div style="margin-bottom: 25px;">
 			<button class="btn btn-primary tambah_pengeluaran" onclick="tambah_pengeluaran();">Tambah Pengeluaran</button>
 		</div>
 		<table id="data_pengeluaran_table" cellpadding="2" cellspacing="0" style="font-family:\'Open Sans\',-apple-system,BlinkMacSystemFont,\'Segoe UI\',sans-serif; border-collapse: collapse; width:100%; overflow-wrap: break-word;" class="table table-bordered">
 			<thead id="data_header">
 				<tr>
-					<th class="text-center">Rekening</th>
-					<th class="text-center">Uraian</th>
+					<th class="text-center" style="width: 100px;">Rekening</th>
+					<th class="text-center" style="width: 700px;">Uraian</th>
 					<th class="text-center">Keterangan</th>
-					<th class="text-center">Nilai</th>
-					<th class="text-center" style="width: 250px;">Aksi</th>
+					<th class="text-center" style="width: 115px;">Nilai</th>
+					<th class="text-center" style="width: 77px;">Aksi</th>
 				</tr>
 			</thead>
 			<tbody id="data_body">
@@ -124,7 +125,7 @@ $body = '';
 <div class="report"></div>
 <script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
 <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
-<script type="text/javascript" src="https://cdn.datatables.net/buttons/1.3.1/js/dataTables.buttons.min.js"></script> 
+<script type="text/javascript" src="https://cdn.datatables.net/buttons/2.3.6/js/dataTables.buttons.min.js"></script> 
 <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.3/jszip.min.js"></script>
 <script type="text/javascript" src="https://cdn.datatables.net/buttons/1.3.1/js/buttons.html5.min.js"></script>
 <script>
@@ -174,7 +175,7 @@ $body = '';
                     }
                 });
             }else{
-				console.log('data rekening sudah ada')
+				console.log('generate data rekening')
 				enable_button();
 				resolve();
 			}
@@ -185,7 +186,7 @@ $body = '';
 		if(
 			typeof master_rekening_akun != 'undefined'
 		){
-			var ajax_kategori = {
+			var ajax_rekening = {
 				ajax: {
 					url: "<?php echo admin_url('admin-ajax.php'); ?>",
 					type: 'post',
@@ -214,7 +215,7 @@ $body = '';
 				minimumInputLength: 3,
 				width: '100%'
 			};
-			jQuery('.pend_rekening').select2(ajax_kategori);
+			jQuery('.pend_rekening').select2(ajax_rekening);
 		}
 	}
 
@@ -240,24 +241,35 @@ $body = '';
 			"columns": [
 				{ 
 					"data": "kode_akun",
-					className: "text-center"
+					className: "text-left"
 				},
 				{ 
 					"data": "nama_akun",
-					className: "text-center"
+					className: "text-left"
 				},
 				{ 
 					"data": "keterangan",
-					className: "text-center"
+					className: "text-left"
 				},
 				{ 
 					"data": "total",
-					className: "text-center"
+					className: "text-right"
 				},
 				{ 
 					"data": "aksi",
 					className: "text-center"
 				}
+			],
+			columnDefs:
+			[
+				{
+					targets: 3,
+					render: jQuery.fn.dataTable.render.number(',', '.', 0, '')
+				}
+			],
+			dom: 'Bfrtip',
+			buttons: [
+					'excel'
 			],
 			drawCallback: function(settings) {
 				var pagination = jQuery(this).closest('.dataTables_wrapper').find('.dataTables_paginate');
@@ -268,9 +280,13 @@ $body = '';
 				data_ajax.map(function(b, i){
 					total_nilai = total_nilai + parseInt(b.total)
 				})
+				
+				let total_pengeluaran = new Intl.NumberFormat('en-US').format(settings.json.total_pengeluaran);
+				let new_total_nilai = new Intl.NumberFormat('en-US').format(total_nilai);
 
 				jQuery("#data_pengeluaran_table .total_nilai").remove()
-				jQuery("#data_pengeluaran_table").append('<tfoot class="total_nilai"><tr><th class="text-center" colspan="3">total nilai</th><th class="text-center">'+total_nilai+'</th><th class="text-center"></th></tr></tfoot>');
+				jQuery("#data_pengeluaran_table").append('<tfoot class="total_nilai"><tr><th class="text-right" colspan="3">Total Nilai</th><th class="text-right">'+new_total_nilai+'</th><th class="text-center"></th></tr></tfoot>');
+				jQuery("#total_pengeluaran").html(total_pengeluaran)
 			}
 		});
 	}
