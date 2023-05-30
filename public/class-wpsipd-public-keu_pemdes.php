@@ -836,153 +836,162 @@ public function get_datatable_bhpd(){
         die(json_encode($ret));
     }
 
-    public function get_data_pencairan_bkk_by_id(){
-        global $wpdb;
-        $ret = array(
-            'status' => 'success',
-            'message' => 'Berhasil get data!',
-            'data' => array()
-        );
-        if(!empty($_POST)){
-            if(!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
-                $data = $wpdb->get_row($wpdb->prepare("
-                    select 
-                        p.total_pencairan, 
-                        p.id_kegiatan, 
-                        p.id,
-                        p.file_proposal,
-                        d.tahun_anggaran,
-                        d.kecamatan,
-                        d.desa,
-                        d.kegiatan, 
-                        d.alamat
-                    from data_pencairan_bkk_desa p
-                    inner join data_bkk_desa d on p.id_kegiatan=d.id
-                    where p.id=%d
-                ", $_POST['id']), ARRAY_A);
-                $ret['data'] = $data;
-            }else{
-                $ret['status']  = 'error';
-                $ret['message'] = 'Api key tidak ditemukan!';
-            }
+public function get_data_pencairan_bkk_by_id(){
+    global $wpdb;
+    $ret = array(
+        'status' => 'success',
+        'message' => 'Berhasil get data!',
+        'data' => array()
+    );
+    if(!empty($_POST)){
+        if(!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+            $data = $wpdb->get_row($wpdb->prepare("
+                select 
+                    p.total_pencairan, 
+                    p.id_kegiatan, 
+                    p.id,
+                    p.file_proposal,
+                    p.status,
+                    p.status_ver_total,
+                    p.ket_ver_total,
+                    p.status_ver_proposal,
+                    p.ket_ver_proposal,
+                    d.tahun_anggaran,
+                    d.kecamatan,
+                    d.desa,
+                    d.kegiatan, 
+                    d.alamat
+                from data_pencairan_bkk_desa p
+                inner join data_bkk_desa d on p.id_kegiatan=d.id
+                where p.id=%d
+            ", $_POST['id']), ARRAY_A);
+            $ret['data'] = $data;
         }else{
             $ret['status']  = 'error';
-            $ret['message'] = 'Format Salah!';
+            $ret['message'] = 'Api key tidak ditemukan!';
         }
-
-        die(json_encode($ret));
+    }else{
+        $ret['status']  = 'error';
+        $ret['message'] = 'Format Salah!';
     }
 
-    public function hapus_data_pencairan_bkk_by_id(){
-        global $wpdb;
-        $ret = array(
-            'status' => 'success',
-            'message' => 'Berhasil hapus data!',
-            'data' => array()
-        );
-        if(!empty($_POST)){
-            if(!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
-                $ret['data'] = $wpdb->update('data_pencairan_bkk_desa', array('status' => 0), array(
-                    'id' => $_POST['id']
-                ));
-            }else{
-                $ret['status']  = 'error';
-                $ret['message'] = 'Api key tidak ditemukan!';
-            }
+    die(json_encode($ret));   
+}
+
+public function hapus_data_pencairan_bkk_by_id(){
+    global $wpdb;
+    $ret = array(
+        'status' => 'success',
+        'message' => 'Berhasil hapus data!',
+        'data' => array()
+    );
+    if(!empty($_POST)){
+        if(!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+            $ret['data'] = $wpdb->update('data_pencairan_bkk_desa', array('status' => 0), array(
+                'id' => $_POST['id']
+            ));
         }else{
             $ret['status']  = 'error';
-            $ret['message'] = 'Format Salah!';
+            $ret['message'] = 'Api key tidak ditemukan!';
         }
-
-        die(json_encode($ret));
+    }else{
+        $ret['status']  = 'error';
+        $ret['message'] = 'Format Salah!';
     }
 
-    public function tambah_data_pencairan_bkk(){
-        global $wpdb;
-        $ret = array(
-            'status' => 'success',
-            'message' => 'Berhasil simpan data!',
-            'data' => array()
-        );
-        if(!empty($_POST)){
-            if(!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
-                if($ret['status'] != 'error' && !empty($_POST['id_kegiatan'])){
-                    $id_kegiatan = $_POST['id_kegiatan'];
+    die(json_encode($ret));
+}
+
+public function tambah_data_pencairan_bkk(){
+    global $wpdb;
+    $ret = array(
+        'status' => 'success',
+        'message' => 'Berhasil simpan data!',
+        'data' => array()
+    );
+    if(!empty($_POST)){
+        if(!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+            if($ret['status'] != 'error' && !empty($_POST['id_kegiatan'])){
+                $id_kegiatan = $_POST['id_kegiatan'];
+            }else{
+                $ret['status'] = 'error';
+                $ret['message'] = 'Pilih Uraian Kegiatan Dulu!';
+            }
+            if($ret['status'] != 'error' && !empty($_POST['pagu_anggaran'])){
+                $pagu_anggaran = $_POST['pagu_anggaran'];
+            }else{
+                $ret['status'] = 'error';
+                $ret['message'] = 'Pagu tidak boleh kosong!';
+            }
+            if($ret['status'] != 'error' && !empty($_POST['proposal'])){
+                $proposal = $_POST['proposal'];
+            }
+            $status_pagu = $_POST['status_pagu'];
+            $keterangan_status_pagu = $_POST['keterangan_status_pagu'];
+            $status_file = $_POST['status_file'];
+            $keterangan_status_file = $_POST['keterangan_status_file'];
+            if($ret['status'] != 'error'){
+                $status = 1;
+                if($status_pagu == 0 || $status_file == 0){
+                    $status = 2;
+                }
+                $data = array(
+                    'id_kegiatan' => $id_kegiatan,
+                    'total_pencairan' => $pagu_anggaran,
+                    'status_ver_total' => $status_pagu,
+                    'ket_ver_total' => $keterangan_status_pagu,
+                    'status_ver_proposal' => $status_file,
+                    'ket_ver_proposal' => $keterangan_status_file,
+                    'file_proposal' => '',
+                    'status' => $status,
+                    'update_at' => current_time('mysql')
+                );
+                if(!empty($_POST['id_data'])){
+                    $wpdb->update('data_pencairan_bkk_desa', $data, array(
+                        'id' => $_POST['id_data']
+                    ));
+                    $ret['message'] = 'Berhasil update data!';
                 }else{
-                    $ret['status'] = 'error';
-                    $ret['message'] = 'Pilih Uraian Kegiatan Dulu!';
-                }
-                if($ret['status'] != 'error' && !empty($_POST['pagu_anggaran'])){
-                    $pagu_anggaran = $_POST['pagu_anggaran'];
-                }else{
-                    $ret['status'] = 'error';
-                    $ret['message'] = 'Pagu tidak boleh kosong!';
-                }
-                if($ret['status'] != 'error' && !empty($_POST['proposal'])){
-                    $proposal = $_POST['proposal'];
-                }
-                $status_pagu = $_POST['status_pagu'];
-                $keterangan_status_pagu = $_POST['keterangan_status_pagu'];
-                $status_file = $_POST['status_file'];
-                $keterangan_status_file = $_POST['keterangan_status_file'];
-                if($ret['status'] != 'error'){
-                    $data = array(
-                        'id_kegiatan' => $id_kegiatan,
-                        'total_pencairan' => $pagu_anggaran,
-                        'status_ver_total' => $status_pagu,
-                        'ket_ver_total' => $keterangan_status_pagu,
-                        'status_ver_proposal' => $status_file,
-                        'ket_ver_proposal' => $keterangan_status_file,
-                        'file_proposal' => '',
-                        'status' => 1,
-                        'update_at' => current_time('mysql')
-                    );
-                    if(!empty($_POST['id_data'])){
-                        $wpdb->update('data_pencairan_bkk_desa', $data, array(
-                            'id' => $_POST['id_data']
-                        ));
-                        $ret['message'] = 'Berhasil update data!';
+                    $cek_id = $wpdb->get_row($wpdb->prepare('
+                        SELECT
+                            id,
+                            active
+                        FROM data_pencairan_bkk_desa
+                        WHERE id_bkk_desa=%s
+                    ', $id_bkk_desa), ARRAY_A);
+                    if(empty($cek_id)){
+                        $wpdb->insert('data_pencairan_bkk_desa', $data);
                     }else{
-                        $cek_id = $wpdb->get_row($wpdb->prepare('
-                            SELECT
-                                id,
-                                active
-                            FROM data_pencairan_bkk_desa
-                            WHERE id_bkk_desa=%s
-                        ', $id_bkk_desa), ARRAY_A);
-                        if(empty($cek_id)){
-                            $wpdb->insert('data_pencairan_bkk_desa', $data);
+                        if($cek_id['active'] == 0){
+                            $wpdb->update('data_pencairan_bkk_desa', $data, array(
+                                'id' => $cek_id['id']
+                            ));
                         }else{
-                            if($cek_id['active'] == 0){
-                                $wpdb->update('data_pencairan_bkk_desa', $data, array(
-                                    'id' => $cek_id['id']
-                                ));
-                            }else{
-                                $ret['status'] = 'error';
-                                $ret['message'] = 'Gagal disimpan. Data bkk_desa dengan id_bkk_desa="'.$id_bkk_desa.'" sudah ada!';
-                            }
+                            $ret['status'] = 'error';
+                            $ret['message'] = 'Gagal disimpan. Data bkk_desa dengan id_bkk_desa="'.$id_bkk_desa.'" sudah ada!';
                         }
                     }
                 }
-            }else{
-                $ret['status']  = 'error';
-                $ret['message'] = 'Api key tidak ditemukan!';
             }
         }else{
             $ret['status']  = 'error';
-            $ret['message'] = 'Format Salah!';
+            $ret['message'] = 'Api key tidak ditemukan!';
         }
-
-        die(json_encode($ret));
+    }else{
+        $ret['status']  = 'error';
+        $ret['message'] = 'Format Salah!';
     }
+
+    die(json_encode($ret));
+}
     
-    public function get_datatable_data_pencairan_bkk(){
-        global $wpdb;
-        $ret = array(
-            'status' => 'success',
-            'message' => 'Berhasil get data!',
-            'data'  => array()
-        );
+public function get_datatable_data_pencairan_bkk(){
+    global $wpdb;
+    $ret = array(
+        'status' => 'success',
+        'message' => 'Berhasil get data!',
+        'data'  => array()
+    );
 
         if(!empty($_POST)){
             if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
@@ -998,8 +1007,13 @@ public function get_datatable_bhpd(){
                   4 => 'd.alamat',
                   5 => 'p.total_pencairan',
                   6 => 'p.file_proposal',
-                  7 => 'p.id_kegiatan',
-                  8 => 'p.id'
+                  7 => 'p.status',
+                  8 => 'p.id_kegiatan',
+                  9 => 'p.status_ver_total',
+                 10 => 'p.ket_ver_total',
+                 11 => 'p.status_ver_proposal',
+                 12 => 'p.ket_ver_proposal',
+                 13 => 'p.id'
                 );
                 $where = $sqlTot = $sqlRec = "";
 
@@ -1035,6 +1049,20 @@ public function get_datatable_bhpd(){
                     $btn = '<a class="btn btn-sm btn-warning" onclick="edit_data(\''.$recVal['id'].'\'); return false;" href="#" title="Edit Data"><i class="dashicons dashicons-edit"></i></a>';
                     $btn .= '<a style="margin-left: 10px;" class="btn btn-sm btn-danger" onclick="hapus_data(\''.$recVal['id'].'\'); return false;" href="#" title="Edit Data"><i class="dashicons dashicons-trash"></i></a>';
                     $queryRecords[$recKey]['aksi'] = $btn;
+                    if($recVal['status'] == 0){
+                        $queryRecords[$recKey]['status'] = 'Belum dicek';
+                    }elseif ($recVal['status'] == 1) {
+                        $queryRecords[$recKey]['status'] = 'Diterima';
+                    }elseif ($recVal['status'] == 2) {
+                        $pesan = '';
+                        if ($recVal['status_ver_total'] == 0){
+                            $pesan .= '<br>Keterangan Pagu: '.$recVal['ket_ver_total']; 
+                        }
+                        if ($recVal['status_ver_proposal'] == 0){
+                            $pesan .= '<br>Keterangan Proposal: '.$recVal['ket_ver_proposal'];
+                        }
+                        $queryRecords[$recKey]['status'] = 'Ditolak <br>'.$pesan;
+                    }
                 }
 
                 $json_data = array(
@@ -1059,5 +1087,5 @@ public function get_datatable_bhpd(){
             );
         }
         die(json_encode($return));
-    }    
+    } 
 }
