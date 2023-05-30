@@ -41,6 +41,7 @@ if(in_array("administrator", $user_meta->roles)){
                     <th class="text-center">Alamat</th>
                     <th class="text-center">Pagu Anggaran</th>
                     <th class="text-center">Proposal BKK</th>
+                    <th class="text-center">Status</th>
                     <th class="text-center" style="width: 150px;">Aksi</th>
                 </tr>
             </thead>
@@ -184,6 +185,10 @@ function get_data_pencairan_bkk(){
                     className: "text-center"
                 },
                 {
+                    "data": 'status',
+                    className: "text-center"
+                },
+                {
                     "data": 'aksi',
                     className: "text-center"
                 }
@@ -243,14 +248,18 @@ function edit_data(_id){
                     jQuery('#alamat').val(res.data.alamat);
                     jQuery('#pagu_anggaran').val(res.data.total_pencairan);
                     if(res.data.status_ver_total == 0){
+                        jQuery('#keterangan_status_pagu').closest('.form-group').show();
                         jQuery('#status_pagu').prop('checked', false);
                     }else{
+                        jQuery('#keterangan_status_pagu').closest('.form-group').hide();
                         jQuery('#status_pagu').prop('checked', true);
                     }
                     jQuery('#keterangan_status_pagu').val(res.data.ket_ver_total);
                     if(res.data.status_ver_proposal == 0){
+                        jQuery('#keterangan_status_file').closest('.form-group').show();
                         jQuery('#status_file').prop('checked', false);
                     }else{
+                        jQuery('#keterangan_status_file').closest('.form-group').hide();
                         jQuery('#status_file').prop('checked', true);
                     }
                     jQuery('#keterangan_status_file').val(res.data.ket_ver_proposal);
@@ -471,4 +480,25 @@ function get_pagu() {
     jQuery('#pagu_anggaran').val(kecamatan_all[kec][desa][kegiatan][alamat][0].total);
 }
 
+// filter
+// jQuery(document).ready(function(){
+//     jQuery('#wrap-loading').show();
+//     .then(function(){
+//         let html_filter = 
+//             "<select name='filter_status' class='ml-3 bulk-action' id='filter_action'>"+
+//             "<option value='0'>Tindakan Massal</option>"+
+//             "<option value='approve'>Setuju</option>"+
+//             "<option value='notapprove'>Tolak</option>"+
+//             "<option value='delete'>Hapus</option></select>"+
+//         "<select name='filter_status_bkk' class='ml-3 bulk-action' id='filter_action_bkk'>"+
+//             "<option value='diterima'>Diterima</option>"+
+//             "<option value='ditolak'>Ditolak</option>"+
+//             "<option value='diterima_admin'>Diterima Admin</option>"+
+//             "<option value='ditolak_admin'>Ditolak Admin</option>"+
+//             "<option value='menunggu'>Menunggu</option>"+
+//             "<option value='sudah_upload'>Sudah upload</option>"+
+//             "<option value='belum_upload'>Belum upload</option>"+
+//         "</select>;"
+//     });
+// }
 </script>
