@@ -2891,8 +2891,8 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 						'kode_kategori' => $v['kode_kategori'],
 						'uraian_kategori' => $v['uraian_kategori'],
 						'tipe_kelompok' => $v['kelompok'],
-						// 'active' => 1,
-						'active' => $v['active'],
+						'active' => 1,
+						//'active' => $v['active'],
 						'tahun_anggaran'	=> $_POST['tahun_anggaran']
 					);
 					if (!empty($cek)) {
