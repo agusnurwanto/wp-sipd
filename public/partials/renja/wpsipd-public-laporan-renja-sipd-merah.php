@@ -21,6 +21,21 @@ $input = shortcode_atts( array(
 	'tahun_anggaran' => '2022'
 ), $atts );
 
+$jadwal_lokal = $wpdb->get_row($wpdb->prepare("
+    SELECT 
+        nama AS nama_jadwal,
+        tahun_anggaran,
+        status 
+    FROM `data_jadwal_lokal` 
+    WHERE id_jadwal_lokal=%d", $id_jadwal_lokal));
+
+$_suffix='';
+$where_jadwal='';
+if($jadwal_lokal->status == 1){
+    $_suffix='_history';
+    $where_jadwal=' AND id_jadwal='.$wpdb->prepare("%d", $id_jadwal_lokal);
+}
+
 if($input['id_skpd'] == 'all'){
     $data_skpd = $wpdb->get_results($wpdb->prepare("
         select 
@@ -41,10 +56,11 @@ foreach($data_skpd as $skpd){
     $sql = "
         SELECT 
             *
-        FROM data_sub_keg_bl_lokal
+        FROM data_sub_keg_bl_lokal".$_suffix."
         WHERE id_sub_skpd=%d
             AND tahun_anggaran=%d
             AND active=1
+            ".$where_jadwal."
             ORDER BY kode_giat ASC, kode_sub_giat ASC";
     $subkeg = $wpdb->get_results($wpdb->prepare($sql, $skpd['id_skpd'], $input['tahun_anggaran']), ARRAY_A);
 
@@ -66,50 +82,55 @@ foreach($data_skpd as $skpd){
         $capaian_prog = $wpdb->get_results($wpdb->prepare("
             select 
                 * 
-            from data_capaian_prog_sub_keg_lokal 
+            from data_capaian_prog_sub_keg_lokal".$_suffix."
             where tahun_anggaran=%d
                 and active=1
                 and kode_sbl=%s
+                ".$where_jadwal."
             order by id ASC
         ", $input['tahun_anggaran'], $sub['kode_sbl']), ARRAY_A);
 
         $output_giat = $wpdb->get_results($wpdb->prepare("
             select 
                 * 
-            from data_output_giat_sub_keg_lokal 
+            from data_output_giat_sub_keg_lokal".$_suffix."
             where tahun_anggaran=%d
                 and active=1
                 and kode_sbl=%s
+                ".$where_jadwal."
             order by id ASC
         ", $input['tahun_anggaran'], $sub['kode_sbl']), ARRAY_A);
 
         $output_sub_giat = $wpdb->get_results($wpdb->prepare("
             select 
                 * 
-            from data_sub_keg_indikator_lokal
+            from data_sub_keg_indikator_lokal".$_suffix."
             where tahun_anggaran=%d
                 and active=1
                 and kode_sbl=%s
+                ".$where_jadwal."
             order by id DESC
         ", $input['tahun_anggaran'], $sub['kode_sbl']), ARRAY_A);
 
         $lokasi_sub_giat = $wpdb->get_results($wpdb->prepare("
             select 
                 * 
-            from data_lokasi_sub_keg_lokal
+            from data_lokasi_sub_keg_lokal".$_suffix."
             where tahun_anggaran=%d
                 and active=1
                 and kode_sbl=%s
+                ".$where_jadwal."
             order by id ASC
         ", $input['tahun_anggaran'], $sub['kode_sbl']), ARRAY_A);
 
         $dana_sub_giat = $wpdb->get_results($wpdb->prepare("
             select 
                 * 
-            from data_dana_sub_keg_lokal
+            from data_dana_sub_keg_lokal".$_suffix."
             where tahun_anggaran=%d
                 and active=1
                 and kode_sbl=%s
+                ".$where_jadwal."
             order by id ASC
         ", $input['tahun_anggaran'], $sub['kode_sbl']), ARRAY_A);
 
@@ -528,9 +549,9 @@ foreach($data_skpd as $skpd){
                 '.$body.'
                 <tr>
                     <td class="kiri kanan bawah text_blok text_kanan" colspan="13">TOTAL</td>
-                    <td class="kanan bawah text_kanan text_blok"><span class="nilai_penetapan">'.number_format($data_all['total'],0,",",".").'</span><span class="nilai_usulan">'.number_format($data_all['total_usulan'],0,",",".").'</span></td>
+                    <td class="kanan bawah text_kanan text_blok"><span class="nilai_penetapan">'.number_format($data_all['total'],0,",",".").'</span></td>
                     <td class="kanan bawah" colspan="4"></td>
-                    <td class="kanan bawah text_kanan text_blok"><span class="nilai_penetapan">'.number_format($data_all['total_n_plus'],0,",",".").'</span><span class="nilai_usulan">'.number_format($data_all['total_n_plus_usulan'],0,",",".").'</span></td>
+                    <td class="kanan bawah text_kanan text_blok"><span class="nilai_penetapan">'.number_format($data_all['total_n_plus'],0,",",".").'</span></td>
                 </tr>
             </tbody>
         </table>
