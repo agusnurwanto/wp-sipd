@@ -3129,15 +3129,12 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 							$v['kelompok']
 						));
 					}
-					if(isset($v['active'])){
-						$v['active'] = 1;
-					}
 					$opsi = array(
 						'id_kategori' => $v['id_kategori'],
 						'kode_kategori' => $v['kode_kategori'],
 						'uraian_kategori' => $v['uraian_kategori'],
 						'tipe_kelompok' => $v['kelompok'],
-						'active' => $v['active'],
+						'active' => 1,
 						'tahun_anggaran'	=> $_POST['tahun_anggaran']
 					);
 					if (!empty($cek)) {
