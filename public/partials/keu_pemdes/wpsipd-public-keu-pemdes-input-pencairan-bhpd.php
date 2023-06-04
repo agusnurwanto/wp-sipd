@@ -26,9 +26,9 @@ if(in_array("administrator", $user_meta->roles)){
 <div class="cetak">
     <div style="padding: 10px;margin:0 0 3rem 0;">
         <input type="hidden" value="<?php echo get_option( '_crb_api_key_extension' ); ?>" id="api_key">
-    <h1 class="text-center" style="margin:3rem;">Pencairan Bantuan Keuangan Khusus (BKK)</h1>
+    <h1 class="text-center" style="margin:3rem;">Pencairan Bagi Hasil Pajak Daerah ( BHPD )</h1>
         <div style="margin-bottom: 25px;">
-            <button class="btn btn-primary" onclick="tambah_data_pencairan_bkk();"><i class="dashicons dashicons-plus"></i> Tambah Data</button>
+            <button class="btn btn-primary" onclick="tambah_data_pencairan_bhpd();"><i class="dashicons dashicons-plus"></i> Tambah Data</button>
         </div>
         <div class="wrap-table">
         <table id="management_data_table" cellpadding="2" cellspacing="0" style="font-family:\'Open Sans\',-apple-system,BlinkMacSystemFont,\'Segoe UI\',sans-serif; border-collapse: collapse; width:100%; overflow-wrap: break-word;" class="table table-bordered">
@@ -37,10 +37,8 @@ if(in_array("administrator", $user_meta->roles)){
                     <th class="text-center">Tahun Anggaran</th>
                     <th class="text-center">Kecamatan</th>
                     <th class="text-center">Desa</th>
-                    <th class="text-center">Uraian Kegiatan</th>
-                    <th class="text-center">Alamat</th>
                     <th class="text-center">Pagu Anggaran</th>
-                    <th class="text-center">Proposal BKK</th>
+                    <th class="text-center">Keterangan</th>
                     <th class="text-center">Status</th>
                     <th class="text-center" style="width: 150px;">Aksi</th>
                 </tr>
@@ -52,11 +50,11 @@ if(in_array("administrator", $user_meta->roles)){
     </div>          
 </div>
 
-<div class="modal fade mt-4" id="modalTambahDataPencairanBKK" tabindex="-1" role="dialog" aria-labelledby="modalTambahDataPencairanBKKLabel" aria-hidden="true">
+<div class="modal fade mt-4" id="modalTambahDataPencairanBHPD" tabindex="-1" role="dialog" aria-labelledby="modalTambahDataPencairanBHPDLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="modalTambahDataPencairanBKKLabel">Data Pencairan BKK</h5>
+                <h5 class="modal-title" id="modalTambahDataPencairanBHPDLabel">Data Pencairan BHPD</h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
@@ -65,7 +63,7 @@ if(in_array("administrator", $user_meta->roles)){
                 <input type='hidden' id='id_data' name="id_data" placeholder=''>
                 <div class="form-group">
                     <label>Tahun Anggaran</label>
-                    <select class="form-control" id="tahun" onchange="get_bkk();">
+                    <select class="form-control" id="tahun" onchange="get_bhpd();">
                         <?php echo $tahun ?>
                     </select>
                 </div>
@@ -76,23 +74,17 @@ if(in_array("administrator", $user_meta->roles)){
                 </div>
                 <div class="form-group">
                     <label>Pilih Desa</label>
-                    <select class="form-control" id="desa" onchange="get_kegiatan();">
+                    <select class="form-control" id="desa" onchange="get_pagu();">
+                    <input type="hidden" class="form-control" id="id_bhpd" />
                     </select>
-                </div>
-                <div class="form-group">
-                    <label>Uraian Kegiatan</label>
-                    <select class="form-control" id="uraian_kegiatan" onchange="get_alamat();">
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label>Alamat</label>
-                    <select class="form-control" id="alamat" onchange="get_pagu();">
-                    </select>
-                    <input type="hidden" class="form-control" id="id_kegiatan" />
                 </div>
                 <div class="form-group">
                     <label>Pagu Anggaran</label>
                     <input type="number" class="form-control" id="pagu_anggaran" />
+                </div>
+                <div class="form-group">
+                    <label for="">Keterangan Pencairan</label>
+                    <textarea class="form-control" id="keterangan"></textarea>
                 </div>
                 <div class="form-check form-switch">
                     <input class="form-check-input" value="1" type="checkbox" id="status_pagu" onclick="set_keterangan(this);" <?php echo $disabled; ?>>
@@ -101,28 +93,16 @@ if(in_array("administrator", $user_meta->roles)){
                 <div class="form-group" style="display:none;">
                     <label>Keterangan ditolak</label>
                     <textarea class="form-control" id="keterangan_status_pagu" <?php echo $disabled; ?>></textarea>
-                </div>
-                <div class="form-group">
-                    <label for="">Proposal BKK Infrastruktur</label>
-                    <input type="file" class="form-control-file" id="proposal">
-                </div>
-                <div class="form-check form-switch">
-                    <input class="form-check-input" value="1" type="checkbox" id="status_file" onclick="set_keterangan(this);" <?php echo $disabled; ?>>
-                    <label class="form-check-label" for="status_file">Disetujui</label>
-                </div>
-                <div class="form-group" style="display:none;">
-                    <label>Keterangan ditolak</label>
-                    <textarea class="form-control" id="keterangan_status_file" <?php echo $disabled; ?>></textarea>
-                </div>
-                  <button type="submit" onclick="submitTambahDataFormPencairanBKK();" class="btn btn-primary">Kirim</button>
-                  <button type="button" class="btn btn-default" data-dismiss="modal" aria-label="Close">Tutup</button>
+                </div> 
+                <button type="submit" onclick="submitTambahDataFormPencairanBHPD();" class="btn btn-primary">Kirim</button>
+                 <button type="button" class="btn btn-default" data-dismiss="modal" aria-label="Close">Tutup</button>
             </form>
         </div>
     </div>
 </div>   
 <script>    
 jQuery(document).ready(function(){
-    get_data_pencairan_bkk();
+    get_data_pencairan_bhpd();
 });
 
 function set_keterangan(that){
@@ -134,9 +114,9 @@ function set_keterangan(that){
     }
 }
 
-function get_data_pencairan_bkk(){
-    if(typeof datapencairan_bkk == 'undefined'){
-        window.datapencairan_bkk = jQuery('#management_data_table').on('preXhr.dt', function(e, settings, data){
+function get_data_pencairan_bhpd(){
+    if(typeof datapencairan_bhpd == 'undefined'){
+        window.datapencairan_bhpd = jQuery('#management_data_table').on('preXhr.dt', function(e, settings, data){
             jQuery("#wrap-loading").show();
         }).DataTable({
             "processing": true,
@@ -146,7 +126,7 @@ function get_data_pencairan_bkk(){
                 type: 'post',
                 dataType: 'json',
                 data:{
-                    'action': 'get_datatable_data_pencairan_bkk',
+                    'action': 'get_datatable_data_pencairan_bhpd',
                     'api_key': '<?php echo get_option( '_crb_api_key_extension' ); ?>',
                 }
             },
@@ -169,19 +149,11 @@ function get_data_pencairan_bkk(){
                     className: "text-center"
                 },
                 {
-                    "data": 'kegiatan',
-                    className: "text-center"
-                },
-                {
-                    "data": 'alamat',
-                    className: "text-center"
-                },
-                {
                     "data": 'total_pencairan',
                     className: "text-center"
                 },
                 {
-                    "data": 'file_proposal',
+                    "data": 'keterangan',
                     className: "text-center"
                 },
                 {
@@ -195,7 +167,7 @@ function get_data_pencairan_bkk(){
             ]
         });
     }else{
-        datapencairan_bkk.draw();
+        datapencairan_bhpd.draw();
     }
 }
 
@@ -207,7 +179,7 @@ function hapus_data(id){
             url: '<?php echo admin_url('admin-ajax.php'); ?>',
             type:'post',
             data:{
-                'action' : 'hapus_data_pencairan_bkk_by_id',
+                'action' : 'hapus_data_pencairan_bhpd_by_id',
                 'api_key': '<?php echo get_option( '_crb_api_key_extension' ); ?>',
                 'id'     : id
             },
@@ -215,7 +187,7 @@ function hapus_data(id){
             success:function(response){
                 jQuery('#wrap-loading').hide();
                 if(response.status == 'success'){
-                    get_data_pencairan_bkk(); 
+                    get_data_pencairan_bhpd(); 
                 }else{
                     alert(`GAGAL! \n${response.message}`);
                 }
@@ -231,7 +203,7 @@ function edit_data(_id){
         url: '<?php echo admin_url('admin-ajax.php'); ?>',
         dataType: 'json',
         data:{
-            'action': 'get_data_pencairan_bkk_by_id',
+            'action': 'get_data_pencairan_bhpd_by_id',
             'api_key': '<?php echo get_option( '_crb_api_key_extension' ); ?>',
             'id': _id,
         },
@@ -239,12 +211,12 @@ function edit_data(_id){
             if(res.status == 'success'){
                 jQuery('#id_data').val(res.data.id);
                 jQuery('#tahun').val(res.data.tahun_anggaran);
-                get_bkk()
+                get_bhpd()
                 .then(function(){
                     jQuery('#kec').val(res.data.kecamatan).trigger('change');
                     jQuery('#desa').val(res.data.desa).trigger('change');
                     jQuery('#uraian_kegiatan').val(res.data.kegiatan).trigger('change');
-                    jQuery('#id_kegiatan').val(res.data.id_kegiatan);
+                    jQuery('#id_bhpd').val(res.data.id_bhpd);
                     jQuery('#alamat').val(res.data.alamat);
                     jQuery('#pagu_anggaran').val(res.data.total_pencairan);
                     if(res.data.status_ver_total == 0){
@@ -255,17 +227,9 @@ function edit_data(_id){
                         jQuery('#status_pagu').prop('checked', true);
                     }
                     jQuery('#keterangan_status_pagu').val(res.data.ket_ver_total);
-                    if(res.data.status_ver_proposal == 0){
-                        jQuery('#keterangan_status_file').closest('.form-group').show();
-                        jQuery('#status_file').prop('checked', false);
-                    }else{
-                        jQuery('#keterangan_status_file').closest('.form-group').hide();
-                        jQuery('#status_file').prop('checked', true);
-                    }
-                    jQuery('#keterangan_status_file').val(res.data.ket_ver_proposal);
+                    jQuery('#keterangan').val(res.data.keterangan);
                     jQuery('#status_pagu').closest('.form-check').show();
-                    jQuery('#status_file').closest('.form-check').show();
-                    jQuery('#modalTambahDataPencairanBKK').modal('show');
+                    jQuery('#modalTambahDataPencairanBHPD').modal('show');
                 })
             }else{
                 alert(res.message);
@@ -276,27 +240,21 @@ function edit_data(_id){
 }
 
 //show tambah data
-function tambah_data_pencairan_bkk(){
+function tambah_data_pencairan_bhpd(){
     jQuery('#id_data').val('');
     jQuery('#tahun').val('');
     jQuery('#kec').val('');
     jQuery('#desa').val('');
-    jQuery('#uraian_kegiatan').val('');
-    jQuery('#alamat').val('');
     jQuery('#pagu_anggaran').val('');
-    jQuery('#proposal').val('');
+    jQuery('#keterangan').val('');
     jQuery('#status_pagu').closest('.form-check').hide();
     jQuery('#keterangan_status_pagu').closest('.form-group').hide();
-    jQuery('#status_file').closest('.form-check').hide();
-    jQuery('#keterangan_status_file').closest('.form-group').hide();
     jQuery('#status_pagu').prop('checked', false);
     jQuery('#keterangan_status_pagu').val('');
-    jQuery('#status_file').prop('checked', false);
-    jQuery('#keterangan_status_file').val('');
-    jQuery('#modalTambahDataPencairanBKK').modal('show');
+    jQuery('#modalTambahDataPencairanBHPD').modal('show');
 }
 
-function submitTambahDataFormPencairanBKK(){
+function submitTambahDataFormPencairanBHPD(){
     var id_data = jQuery('#id_data').val();
     var desa = jQuery('#desa').val();
     if(desa == ''){
@@ -310,32 +268,20 @@ function submitTambahDataFormPencairanBKK(){
     if(tahun == ''){
         return alert('Pilih Tahun Dulu!');
     }
-    var alamat = jQuery('#alamat').val();
-    if(alamat == ''){
-        return alert('Pilih Alamat Dulu!');
-    }
-    var id_kegiatan = jQuery('#id_kegiatan').val();
-    if(id_kegiatan == ''){
-        return alert('Pilih Kegiatan Dulu!');
-    }
+    var id_bhpd = jQuery('#id_bhpd').val();
     var pagu_anggaran = jQuery('#pagu_anggaran').val();
     if(pagu_anggaran == ''){
         return alert('Pilih Pagu Anggaran Dulu!');
-    }
-    var proposal = jQuery('#proposal').val();
-    if(proposal == ''){
-        // return alert('Isi Proposal Dulu!');
     }
     var status_pagu = jQuery('#status_pagu').val();
     if(jQuery('#status_pagu').is(':checked') == false){
         status_pagu = 0;
     }
     var keterangan_status_pagu = jQuery('#keterangan_status_pagu').val();
-    var status_file = jQuery('#status_file').val();
-    if(jQuery('#status_file').is(':checked') == false){
-        status_file = 0;
+    var keterangan = jQuery('#keterangan').val();
+    if(keterangan == ''){
+        // return alert('Isi keterangan Dulu!');
     }
-    var keterangan_status_file = jQuery('#keterangan_status_file').val();
 
     jQuery('#wrap-loading').show();
     jQuery.ajax({
@@ -343,28 +289,27 @@ function submitTambahDataFormPencairanBKK(){
         url: '<?php echo admin_url('admin-ajax.php'); ?>',
         dataType: 'json',
         data:{
-            'action': 'tambah_data_pencairan_bkk',
+            'action': 'tambah_data_pencairan_bhpd',
             'api_key': '<?php echo get_option( '_crb_api_key_extension' ); ?>',
             'id_data': id_data,
-            'id_kegiatan': id_kegiatan,
+            'id_bhpd': id_bhpd,
             'pagu_anggaran': pagu_anggaran,
             'status_pagu': status_pagu,
             'keterangan_status_pagu': keterangan_status_pagu,
-            'status_file': status_file,
-            'keterangan_status_file': keterangan_status_file
+            'keterangan': keterangan,
         },
         success: function(res){
             alert(res.message);
-            jQuery('#modalTambahDataPencairanBKK').modal('hide');
+            jQuery('#modalTambahDataPencairanBHPD').modal('hide');
             if(res.status == 'success'){
-                get_data_pencairan_bkk();
+                get_data_pencairan_bhpd();
             }else{
                 jQuery('#wrap-loading').hide();
             }
         }
     });
 }
- function get_bkk(){
+ function get_bhpd(){
     return new Promise(function(resolve, reject){
         var tahun = jQuery('#tahun').val();
         if(tahun == '' || tahun == '-1'){
@@ -376,7 +321,7 @@ function submitTambahDataFormPencairanBKK(){
             url: "<?php echo admin_url('admin-ajax.php'); ?>",
             type:"post",
             data:{
-                'action' : "get_pemdes_bkk",
+                'action' : "get_pemdes_bhpd",
                 'api_key' : jQuery("#api_key").val(),
                 'tahun_anggaran' : tahun,
             },
@@ -476,7 +421,7 @@ function get_pagu() {
     if(alamat == '' || alamat == '-1'){
         return alert('Pilih alamat dulu!');
     }
-    jQuery('#id_kegiatan').val(kecamatan_all[kec][desa][kegiatan][alamat][0].id);
+    jQuery('#id_bhpd').val(kecamatan_all[kec][desa][kegiatan][alamat][0].id);
     jQuery('#pagu_anggaran').val(kecamatan_all[kec][desa][kegiatan][alamat][0].total);
 }
 </script>

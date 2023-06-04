@@ -5361,3 +5361,28 @@ CREATE TABLE `data_pencairan_bkk_desa` (
   `status` tinyint(4) DEFAULT 1,
   PRIMARY KEY  (id)
 );
+
+CREATE TABLE `data_pencairan_bhpd_desa` (
+  `id` int(11) NOT NULL auto_increment,
+  `id_bhpd` int(11) DEFAULT NULL,
+  `total_pencairan` double(20,0) DEFAULT NULL,
+  `keterangan` text DEFAULT NULL,
+  `nama_user` text DEFAULT NULL,
+  `status_ver_total` tinyint(4) DEFAULT 0,
+  `ket_ver_total` text DEFAULT NULL,
+  `update_at` datetime NOT NULL,
+  `status` tinyint(4) DEFAULT 1,
+  PRIMARY KEY  (id)
+);
+
+CREATE TABLE `data_pencairan_bhrd_desa` (
+  `id` int(11) NOT NULL auto_increment,
+  `total_pencairan` double(20,0) DEFAULT NULL,
+  `keterangan` text DEFAULT NULL,
+  `nama_user` text DEFAULT NULL,
+  `status_ver_total` tinyint(4) DEFAULT 0,
+  `ket_ver_total` text DEFAULT NULL,
+  `update_at` datetime NOT NULL,
+  `status` tinyint(4) DEFAULT 1,
+  PRIMARY KEY  (id)
+);

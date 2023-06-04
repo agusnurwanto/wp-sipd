@@ -58,6 +58,20 @@ class Wpsipd_Public_Keu_Pemdes
         require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/keu_pemdes/wpsipd-public-keu-pemdes-input-pencairan-bkk.php';
     }
 
+    public function input_pencairan_bhpd($atts){
+        if(!empty($_GET) && !empty($_GET['post'])){
+            return '';
+        }
+        require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/keu_pemdes/wpsipd-public-keu-pemdes-input-pencairan-bhpd.php';
+    }
+
+    public function input_pencairan_bhrd($atts){
+        if(!empty($_GET) && !empty($_GET['post'])){
+            return '';
+        }
+        require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/keu_pemdes/wpsipd-public-keu-pemdes-input-pencairan-bhrd.php';
+    }
+
     public function get_data_bkk_infrastruktur_by_id(){
         global $wpdb;
         $ret = array(
@@ -804,37 +818,37 @@ public function get_datatable_bhpd(){
         die(json_encode($ret));
     }  
 
-    public function get_pemdes_bkk(){
-        global $wpdb;
-        $ret = array(
-            'status' => 'success',
-            'message' => 'Berhasil get data!',
-            'data'  => array()
-        );
+public function get_pemdes_bkk(){
+    global $wpdb;
+    $ret = array(
+        'status' => 'success',
+        'message' => 'Berhasil get data!',
+        'data'  => array()
+    );
 
-        if(!empty($_POST)){
-            if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
-                $data = $wpdb->get_results($wpdb->prepare("
-                    SELECT
-                        *
-                    FROM data_bkk_desa
-                    WHERE tahun_anggaran=%d
-                ", $_POST['tahun_anggaran']), ARRAY_A);
-                $ret['data'] = $data;
-            }else{
-                $ret = array(
-                    'status' => 'error',
-                    'message'   => 'Api Key tidak sesuai!'
-                );
-            }
+    if(!empty($_POST)){
+        if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+            $data = $wpdb->get_results($wpdb->prepare("
+                SELECT
+                    *
+                FROM data_bkk_desa
+                WHERE tahun_anggaran=%d
+            ", $_POST['tahun_anggaran']), ARRAY_A);
+            $ret['data'] = $data;
         }else{
             $ret = array(
                 'status' => 'error',
-                'message'   => 'Format tidak sesuai!'
+                'message'   => 'Api Key tidak sesuai!'
             );
         }
-        die(json_encode($ret));
+    }else{
+        $ret = array(
+            'status' => 'error',
+            'message'   => 'Format tidak sesuai!'
+        );
     }
+    die(json_encode($ret));
+}
 
 public function get_data_pencairan_bkk_by_id(){
     global $wpdb;
@@ -1062,6 +1076,543 @@ public function get_datatable_data_pencairan_bkk(){
                             $pesan .= '<br>Keterangan Proposal: '.$recVal['ket_ver_proposal'];
                         }
                         $queryRecords[$recKey]['status'] = 'Ditolak <br>'.$pesan;
+                    }
+                }
+
+                $json_data = array(
+                    "draw"            => intval( $params['draw'] ),   
+                    "recordsTotal"    => intval( $totalRecords ),  
+                    "recordsFiltered" => intval($totalRecords),
+                    "data"            => $queryRecords,
+                    "sql"             => $sqlRec
+                );
+
+                die(json_encode($json_data));
+            }else{
+                $return = array(
+                    'status' => 'error',
+                    'message'   => 'Api Key tidak sesuai!'
+                );
+            }
+        }else{
+            $return = array(
+                'status' => 'error',
+                'message'   => 'Format tidak sesuai!'
+            );
+        }
+        die(json_encode($return));
+    } 
+
+public function get_pemdes_bhpd(){
+    global $wpdb;
+    $ret = array(
+        'status' => 'success',
+        'message' => 'Berhasil get data!',
+        'data'  => array()
+    );
+
+    if(!empty($_POST)){
+        if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+            $data = $wpdb->get_results($wpdb->prepare("
+                SELECT
+                    *
+                FROM data_bhpd_desa
+                WHERE tahun_anggaran=%d
+            ", $_POST['tahun_anggaran']), ARRAY_A);
+            $ret['data'] = $data;
+        }else{
+            $ret = array(
+                'status' => 'error',
+                'message'   => 'Api Key tidak sesuai!'
+            );
+        }
+    }else{
+        $ret = array(
+            'status' => 'error',
+            'message'   => 'Format tidak sesuai!'
+        );
+    }
+    die(json_encode($ret));
+}
+
+public function get_data_pencairan_bhpd_by_id(){
+    global $wpdb;
+    $ret = array(
+        'status' => 'success',
+        'message' => 'Berhasil get data!',
+        'data' => array()
+    );
+    if(!empty($_POST)){
+        if(!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+            $data = $wpdb->get_row($wpdb->prepare("
+                select 
+                    p.total_pencairan, 
+                    p.id_bhpd, 
+                    p.id,
+                    p.keterangan,
+                    p.status,
+                    p.status_ver_total,
+                    p.ket_ver_total,
+                    d.tahun_anggaran,
+                    d.kecamatan,
+                    d.desa
+                from data_pencairan_bhpd_desa p
+                inner join data_bhpd_desa d on p.id_bhpd=d.id
+                where p.id=%d
+            ", $_POST['id']), ARRAY_A);
+            $ret['data'] = $data;
+        }else{
+            $ret['status']  = 'error';
+            $ret['message'] = 'Api key tidak ditemukan!';
+        }
+    }else{
+        $ret['status']  = 'error';
+        $ret['message'] = 'Format Salah!';
+    }
+
+    die(json_encode($ret));   
+}
+
+public function hapus_data_pencairan_bhpd_by_id(){
+    global $wpdb;
+    $ret = array(
+        'status' => 'success',
+        'message' => 'Berhasil hapus data!',
+        'data' => array()
+    );
+    if(!empty($_POST)){
+        if(!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+            $ret['data'] = $wpdb->update('data_pencairan_bhpd_desa', array('status' => 0), array(
+                'id' => $_POST['id']
+            ));
+        }else{
+            $ret['status']  = 'error';
+            $ret['message'] = 'Api key tidak ditemukan!';
+        }
+    }else{
+        $ret['status']  = 'error';
+        $ret['message'] = 'Format Salah!';
+    }
+
+    die(json_encode($ret));
+}
+
+public function tambah_data_pencairan_bhpd(){
+    global $wpdb;
+    $ret = array(
+        'status' => 'success',
+        'message' => 'Berhasil simpan data!',
+        'data' => array()
+    );
+    if(!empty($_POST)){
+        if(!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+            if($ret['status'] != 'error' && !empty($_POST['id_bhpd'])){
+                $id_bhpd = $_POST['id_bhpd'];
+            }
+            if($ret['status'] != 'error' && !empty($_POST['pagu_anggaran'])){
+                $pagu_anggaran = $_POST['pagu_anggaran'];
+            }else{
+                $ret['status'] = 'error';
+                $ret['message'] = 'Pagu tidak boleh kosong!';
+            }
+            if($ret['status'] != 'error' && !empty($_POST['keterangan'])){
+                $keterangan = $_POST['keterangan'];
+            }
+            $status_pagu = $_POST['status_pagu'];
+            $keterangan_status_pagu = $_POST['keterangan_status_pagu'];
+            if($ret['status'] != 'error'){
+                $status = 1;
+                if($status_pagu == 0){
+                    $status = 2;
+                }
+                $data = array(
+                    'id_bhpd' => $id_bhpd,
+                    'total_pencairan' => $pagu_anggaran,
+                    'status_ver_total' => $status_pagu,
+                    'ket_ver_total' => $keterangan_status_pagu,
+                    'keterangan' => $keterangan,
+                    'status' => $status,
+                    'update_at' => current_time('mysql')
+                );
+                if(!empty($_POST['id_data'])){
+                    $wpdb->update('data_pencairan_bhpd_desa', $data, array(
+                        'id' => $_POST['id_data']
+                    ));
+                    $ret['message'] = 'Berhasil update data!';
+                }else{
+                    $cek_id = $wpdb->get_row($wpdb->prepare('
+                        SELECT
+                            id,
+                            active
+                        FROM data_pencairan_bhpd_desa
+                        WHERE id_bhpd_desa=%s
+                    ', $id_bhpd_desa), ARRAY_A);
+                    if(empty($cek_id)){
+                        $wpdb->insert('data_pencairan_bhpd_desa', $data);
+                    }else{
+                        if($cek_id['active'] == 0){
+                            $wpdb->update('data_pencairan_bhpd_desa', $data, array(
+                                'id' => $cek_id['id']
+                            ));
+                        }else{
+                            $ret['status'] = 'error';
+                            $ret['message'] = 'Gagal disimpan. Data bhpd_desa dengan id_bhpd_desa="'.$id_bhpd_desa.'" sudah ada!';
+                        }
+                    }
+                }
+            }
+        }else{
+            $ret['status']  = 'error';
+            $ret['message'] = 'Api key tidak ditemukan!';
+        }
+    }else{
+        $ret['status']  = 'error';
+        $ret['message'] = 'Format Salah!';
+    }
+
+    die(json_encode($ret));
+}
+    
+public function get_datatable_data_pencairan_bhpd(){
+    global $wpdb;
+    $ret = array(
+        'status' => 'success',
+        'message' => 'Berhasil get data!',
+        'data'  => array()
+    );
+
+        if(!empty($_POST)){
+            if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+                $user_id = um_user( 'ID' );
+                $user_meta = get_userdata($user_id);
+                $params = $columns = $totalRecords = $data = array();
+                $params = $_REQUEST;
+                $columns = array( 
+                  0 => 'd.tahun_anggaran',
+                  1 => 'd.kecamatan',
+                  2 => 'd.desa',
+                  3 => 'p.total_pencairan',
+                  4 => 'p.keterangan',
+                  5 => 'p.status',
+                  6 => 'p.id_bhpd',
+                  7 => 'p.status_ver_total',
+                  8 => 'p.ket_ver_total',
+                  9 => 'p.id'
+                );
+                $where = $sqlTot = $sqlRec = "";
+
+                // check search value exist
+                if( !empty($params['search']['value']) ) { 
+                    $where .=" OR d.desa LIKE ".$wpdb->prepare('%s', "%".$params['search']['value']."%");
+                }
+
+                // getting total number records without any search
+                $sql_tot = "SELECT count(p.id) as jml FROM `data_pencairan_bhpd_desa` p inner join data_bhpd_desa d on p.id_bhpd=d.id";
+                $sql = "SELECT ".implode(', ', $columns)." FROM `data_pencairan_bhpd_desa` p inner join data_bhpd_desa d on p.id_bhpd=d.id";
+                $where_first = " WHERE 1=1 AND status >= 1";
+                $sqlTot .= $sql_tot.$where_first;
+                $sqlRec .= $sql.$where_first;
+                if(isset($where) && $where != '') {
+                    $sqlTot .= $where;
+                    $sqlRec .= $where;
+                }
+
+                $limit = '';
+                if($params['length'] != -1){
+                    $limit = "  LIMIT ".$wpdb->prepare('%d', $params['start'])." ,".$wpdb->prepare('%d', $params['length']);
+                }
+                $sqlRec .=  " ORDER BY ". $columns[$params['order'][0]['column']]."   ".str_replace("'", '', $wpdb->prepare('%s', $params['order'][0]['dir'])).$limit;
+
+                $queryTot = $wpdb->get_results($sqlTot, ARRAY_A);
+                $totalRecords = $queryTot[0]['jml'];
+                $queryRecords = $wpdb->get_results($sqlRec, ARRAY_A);
+
+                foreach($queryRecords as $recKey => $recVal){
+                    $btn = '<a class="btn btn-sm btn-warning" onclick="edit_data(\''.$recVal['id'].'\'); return false;" href="#" title="Edit Data"><i class="dashicons dashicons-edit"></i></a>';
+                    $btn .= '<a style="margin-left: 10px;" class="btn btn-sm btn-danger" onclick="hapus_data(\''.$recVal['id'].'\'); return false;" href="#" title="Edit Data"><i class="dashicons dashicons-trash"></i></a>';
+                    $queryRecords[$recKey]['aksi'] = $btn;
+                    if($recVal['status'] == 0){
+                        $queryRecords[$recKey]['status'] = 'Belum dicek';
+                    }elseif ($recVal['status'] == 1) {
+                        $queryRecords[$recKey]['status'] = 'Diterima';
+                    }elseif ($recVal['status'] == 2) {
+                        $pesan = '';
+                        if ($recVal['status_ver_total'] == 0){
+                            $pesan .= '<br>Keterangan Pagu: '.$recVal['ket_ver_total']; 
+                        }
+                        $queryRecords[$recKey]['status'] = 'Ditolak <br>'.$pesan;
+                    }
+                }
+
+                $json_data = array(
+                    "draw"            => intval( $params['draw'] ),   
+                    "recordsTotal"    => intval( $totalRecords ),  
+                    "recordsFiltered" => intval($totalRecords),
+                    "data"            => $queryRecords,
+                    "sql"             => $sqlRec
+                );
+
+                die(json_encode($json_data));
+            }else{
+                $return = array(
+                    'status' => 'error',
+                    'message'   => 'Api Key tidak sesuai!'
+                );
+            }
+        }else{
+            $return = array(
+                'status' => 'error',
+                'message'   => 'Format tidak sesuai!'
+            );
+        }
+        die(json_encode($return));
+    } 
+
+public function get_pemdes_bhrd(){
+    global $wpdb;
+    $ret = array(
+        'status' => 'success',
+        'message' => 'Berhasil get data!',
+        'data'  => array()
+    );
+
+    if(!empty($_POST)){
+        if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+            $data = $wpdb->get_results($wpdb->prepare("
+                SELECT
+                    *
+                FROM data_bhrd_desa
+                WHERE tahun_anggaran=%d
+            ", $_POST['tahun_anggaran']), ARRAY_A);
+            $ret['data'] = $data;
+        }else{
+            $ret = array(
+                'status' => 'error',
+                'message'   => 'Api Key tidak sesuai!'
+            );
+        }
+    }else{
+        $ret = array(
+            'status' => 'error',
+            'message'   => 'Format tidak sesuai!'
+        );
+    }
+    die(json_encode($ret));
+}
+
+public function get_data_pencairan_bhrd_by_id(){
+    global $wpdb;
+    $ret = array(
+        'status' => 'success',
+        'message' => 'Berhasil get data!',
+        'data' => array()
+    );
+    if(!empty($_POST)){
+        if(!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+            $data = $wpdb->get_row($wpdb->prepare("
+                select 
+                    p.total_pencairan, 
+                    p.id_bhrd, 
+                    p.id,
+                    p.keterangan,
+                    p.status,
+                    p.status_ver_total,
+                    p.ket_ver_total,
+                    d.tahun_anggaran,
+                    d.kecamatan,
+                    d.desa
+                from data_pencairan_bhrd_desa p
+                inner join data_bhrd_desa d on p.id_bhrd=d.id
+                where p.id=%d
+            ", $_POST['id']), ARRAY_A);
+            $ret['data'] = $data;
+        }else{
+            $ret['status']  = 'error';
+            $ret['message'] = 'Api key tidak ditemukan!';
+        }
+    }else{
+        $ret['status']  = 'error';
+        $ret['message'] = 'Format Salah!';
+    }
+
+    die(json_encode($ret));   
+}
+
+public function hapus_data_pencairan_bhrd_by_id(){
+    global $wpdb;
+    $ret = array(
+        'status' => 'success',
+        'message' => 'Berhasil hapus data!',
+        'data' => array()
+    );
+    if(!empty($_POST)){
+        if(!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+            $ret['data'] = $wpdb->update('data_pencairan_bhrd_desa', array('status' => 3), array(
+                'id' => $_POST['id']
+            ));
+        }else{
+            $ret['status']  = 'error';
+            $ret['message'] = 'Api key tidak ditemukan!';
+        }
+    }else{
+        $ret['status']  = 'error';
+        $ret['message'] = 'Format Salah!';
+    }
+
+    die(json_encode($ret));
+}
+
+public function tambah_data_pencairan_bhrd(){
+    global $wpdb;
+    $ret = array(
+        'status' => 'success',
+        'message' => 'Berhasil simpan data!',
+        'data' => array()
+    );
+    if(!empty($_POST)){
+        if(!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+            if($ret['status'] != 'error' && !empty($_POST['id_bhrd'])){
+                $id_bhrd = $_POST['id_bhrd'];
+            }
+            if($ret['status'] != 'error' && !empty($_POST['pagu_anggaran'])){
+                $pagu_anggaran = $_POST['pagu_anggaran'];
+            }else{
+                $ret['status'] = 'error';
+                $ret['message'] = 'Pagu tidak boleh kosong!';
+            }
+            if($ret['status'] != 'error' && !empty($_POST['keterangan'])){
+                $keterangan = $_POST['keterangan'];
+            }
+            $status_pagu = $_POST['status_pagu'];
+            $keterangan_status_pagu = $_POST['keterangan_status_pagu'];
+            if($ret['status'] != 'error'){
+                if(empty($_POST['id_data'])){
+                    $status = 0;
+                }else{
+                    $status = 1;
+                    if($status_pagu == 0){
+                        $status = 2;
+                    }
+                }
+                $data = array(
+                    'id_bhrd' => $id_bhrd,
+                    'total_pencairan' => $pagu_anggaran,
+                    'status_ver_total' => $status_pagu,
+                    'ket_ver_total' => $keterangan_status_pagu,
+                    'keterangan' => $keterangan,
+                    'status' => $status,
+                    'update_at' => current_time('mysql')
+                );
+                if(!empty($_POST['id_data'])){
+                    $wpdb->update('data_pencairan_bhrd_desa', $data, array(
+                        'id' => $_POST['id_data']
+                    ));
+                    $ret['message'] = 'Berhasil update data!';
+                }else{
+                    $cek_id = $wpdb->get_row($wpdb->prepare('
+                        SELECT
+                            id,
+                            active
+                        FROM data_pencairan_bhrd_desa
+                        WHERE id_bhrd_desa=%s
+                    ', $id_bhrd_desa), ARRAY_A);
+                    if(empty($cek_id)){
+                        $wpdb->insert('data_pencairan_bhrd_desa', $data);
+                    }else{
+                        if($cek_id['active'] == 0){
+                            $wpdb->update('data_pencairan_bhrd_desa', $data, array(
+                                'id' => $cek_id['id']
+                            ));
+                        }else{
+                            $ret['status'] = 'error';
+                            $ret['message'] = 'Gagal disimpan. Data bhrd_desa dengan id_bhrd_desa="'.$id_bhrd_desa.'" sudah ada!';
+                        }
+                    }
+                }
+            }
+        }else{
+            $ret['status']  = 'error';
+            $ret['message'] = 'Api key tidak ditemukan!';
+        }
+    }else{
+        $ret['status']  = 'error';
+        $ret['message'] = 'Format Salah!';
+    }
+
+    die(json_encode($ret));
+}
+    
+public function get_datatable_data_pencairan_bhrd(){
+    global $wpdb;
+    $ret = array(
+        'status' => 'success',
+        'message' => 'Berhasil get data!',
+        'data'  => array()
+    );
+
+        if(!empty($_POST)){
+            if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+                $user_id = um_user( 'ID' );
+                $user_meta = get_userdata($user_id);
+                $params = $columns = $totalRecords = $data = array();
+                $params = $_REQUEST;
+                $columns = array( 
+                  0 => 'd.tahun_anggaran',
+                  1 => 'd.kecamatan',
+                  2 => 'd.desa',
+                  3 => 'p.total_pencairan',
+                  4 => 'p.keterangan',
+                  5 => 'p.status',
+                  6 => 'p.id_bhrd',
+                  7 => 'p.status_ver_total',
+                  8 => 'p.ket_ver_total',
+                  9 => 'p.id'
+                );
+                $where = $sqlTot = $sqlRec = "";
+
+                // check search value exist
+                if( !empty($params['search']['value']) ) { 
+                    $where .=" OR d.desa LIKE ".$wpdb->prepare('%s', "%".$params['search']['value']."%");
+                }
+
+                // getting total number records without any search
+                $sql_tot = "SELECT count(p.id) as jml FROM `data_pencairan_bhrd_desa` p inner join data_bhrd_desa d on p.id_bhrd=d.id";
+                $sql = "SELECT ".implode(', ', $columns)." FROM `data_pencairan_bhrd_desa` p inner join data_bhrd_desa d on p.id_bhrd=d.id";
+                $where_first = " WHERE 1=1 AND status != 3";
+                $sqlTot .= $sql_tot.$where_first;
+                $sqlRec .= $sql.$where_first;
+                if(isset($where) && $where != '') {
+                    $sqlTot .= $where;
+                    $sqlRec .= $where;
+                }
+
+                $limit = '';
+                if($params['length'] != -1){
+                    $limit = "  LIMIT ".$wpdb->prepare('%d', $params['start'])." ,".$wpdb->prepare('%d', $params['length']);
+                }
+                $sqlRec .=  " ORDER BY ". $columns[$params['order'][0]['column']]."   ".str_replace("'", '', $wpdb->prepare('%s', $params['order'][0]['dir'])).$limit;
+
+                $queryTot = $wpdb->get_results($sqlTot, ARRAY_A);
+                $totalRecords = $queryTot[0]['jml'];
+                $queryRecords = $wpdb->get_results($sqlRec, ARRAY_A);
+
+                foreach($queryRecords as $recKey => $recVal){
+                    $btn = '<a class="btn btn-sm btn-primary" onclick="detail_data(\''.$recVal['id'].'\'); return false;" href="#" title="Detail Data"><i class="dashicons dashicons-search"></i></a>';
+                    if ($recVal['status'] != 1) {
+                        $btn = '<a class="btn btn-sm btn-warning" onclick="edit_data(\''.$recVal['id'].'\'); return false;" href="#" title="Edit Data"><i class="dashicons dashicons-edit"></i></a>';
+                        $btn .= '<a style="margin-left: 10px;" class="btn btn-sm btn-danger" onclick="hapus_data(\''.$recVal['id'].'\'); return false;" href="#" title="Edit Data"><i class="dashicons dashicons-trash"></i></a>';
+                    }
+                    $queryRecords[$recKey]['aksi'] = $btn;
+                    if($recVal['status'] == 0){
+                        $queryRecords[$recKey]['status'] = '<span class="btn btn-primary btn-sm">Belum dicek</span>';
+                    }elseif ($recVal['status'] == 1) {
+                        $queryRecords[$recKey]['status'] = '<span class="btn btn-success btn-sm">Diterima</span>';
+                    }elseif ($recVal['status'] == 2) {
+                        $pesan = '';
+                        if ($recVal['status_ver_total'] == 0){
+                            $pesan .= '<br>Keterangan Pagu: '.$recVal['ket_ver_total']; 
+                        }
+                        $queryRecords[$recKey]['status'] = '<span class="btn btn-danger btn-sm">Ditolak</span>'.$pesan;
                     }
                 }
 

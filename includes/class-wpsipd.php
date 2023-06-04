@@ -792,12 +792,24 @@ class Wpsipd
 		$this->loader->add_action('wp_ajax_get_data_bhpd_by_id', $plugin_public, 'get_data_bhpd_by_id');
 		$this->loader->add_action('wp_ajax_tambah_data_bhpd', $plugin_public, 'tambah_data_bhpd');
 
+		$this->loader->add_action('wp_ajax_get_datatable_data_pencairan_bhpd', $plugin_public, 'get_datatable_data_pencairan_bhpd');
+		$this->loader->add_action('wp_ajax_hapus_data_pencairan_bhpd_by_id', $plugin_public, 'hapus_data_pencairan_bhpd_by_id');
+		$this->loader->add_action('wp_ajax_get_data_pencairan_bhpd_by_id', $plugin_public, 'get_data_pencairan_bhpd_by_id');
+		$this->loader->add_action('wp_ajax_tambah_data_pencairan_bhpd', $plugin_public, 'tambah_data_pencairan_bhpd');
+
 		$this->loader->add_action('wp_ajax_get_datatable_bhrd', $plugin_public, 'get_datatable_bhrd');
 		$this->loader->add_action('wp_ajax_hapus_data_bhrd_by_id', $plugin_public, 'hapus_data_bhrd_by_id');
 		$this->loader->add_action('wp_ajax_get_data_bhrd_by_id', $plugin_public, 'get_data_bhrd_by_id');
 		$this->loader->add_action('wp_ajax_tambah_data_bhrd', $plugin_public, 'tambah_data_bhrd');
+
+		$this->loader->add_action('wp_ajax_get_datatable_data_pencairan_bhrd', $plugin_public, 'get_datatable_data_pencairan_bhrd');
+		$this->loader->add_action('wp_ajax_hapus_data_pencairan_bhrd_by_id', $plugin_public, 'hapus_data_pencairan_bhrd_by_id');
+		$this->loader->add_action('wp_ajax_get_data_pencairan_bhrd_by_id', $plugin_public, 'get_data_pencairan_bhrd_by_id');
+		$this->loader->add_action('wp_ajax_tambah_data_pencairan_bhrd', $plugin_public, 'tambah_data_pencairan_bhrd');
 		
 		$this->loader->add_action('wp_ajax_get_pemdes_bkk', $plugin_public, 'get_pemdes_bkk');
+		$this->loader->add_action('wp_ajax_get_pemdes_bhpd', $plugin_public, 'get_pemdes_bhpd');
+		$this->loader->add_action('wp_ajax_get_pemdes_bhrd', $plugin_public, 'get_pemdes_bhrd');
 		
 		add_shortcode('menu_monev',  array($plugin_public, 'menu_monev'));
 		add_shortcode('datassh', array($plugin_public, 'datassh'));
@@ -853,6 +865,8 @@ class Wpsipd
 		add_shortcode('management_data_bhpd', array($plugin_public, 'management_data_bhpd'));
 		add_shortcode('management_data_bhrd', array($plugin_public, 'management_data_bhrd'));
 		add_shortcode('input_pencairan_bkk', array($plugin_public, 'input_pencairan_bkk'));
+		add_shortcode('input_pencairan_bhpd', array($plugin_public, 'input_pencairan_bhpd'));
+		add_shortcode('input_pencairan_bhrd', array($plugin_public, 'input_pencairan_bhrd'));
 		add_shortcode('renja_sipd_merah', array($plugin_public, 'renja_sipd_merah'));
 		add_shortcode('renja_sipd_ri', array($plugin_public, 'renja_sipd_ri'));
 
