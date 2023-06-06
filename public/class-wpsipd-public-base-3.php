@@ -8050,8 +8050,26 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 				'pagu_sipd' => 0
 			);
 
+			$data_pendapatan = array(
+				'data' => array(),
+				'total_pendapatan' => 0,
+				'total_pendapatan_sipd' => 0
+			);
+
+			$data_pembiayaan_penerimaan = array(
+				'data' => array(),
+				'total_penerimaan' => 0,
+				'total_penerimaan_sipd' => 0,
+			);
+
+			$data_pembiayaan_pengeluaran = array(
+				'data' => array(),
+				'total_pengeluaran' => 0,
+				'total_pengeluaran_sipd' => 0,
+			);
+
 			foreach ($units as $key => $unit) {
-				
+				/** Mendapatkan data belanja */
 				$sql = $wpdb->prepare("
 					SELECT 
 					  COALESCE(SUM(s.pagu_usulan), 0) as pagu_usulan,
@@ -8086,8 +8104,107 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 					$data_all['pagu_penetapan_kab'] += $pagu['pagu_penetapan'];
 					$data_all['pagu_sipd'] += $pagu_sipd['pagu'];
 				}
+
+				/** Mendapatkan data pendapatan */
+				$sql_pendapatan = $wpdb->prepare("
+					SELECT
+						COALESCE(SUM(total), 0) as total_pendapatan
+					FROM data_pendapatan_lokal".$_suffix."
+					WHERE tahun_anggaran=%d
+						AND id_skpd=%d
+						AND active=1", $tahun_anggaran, $unit['id_skpd']);
+				$total_pendapatan = $wpdb->get_row($sql_pendapatan, ARRAY_A);
+
+				if(empty($data_pendapatan['data'][$unit['kode_skpd']])){
+				    $total_pendapatan_sipd = $wpdb->get_row($wpdb->prepare("
+				        select 
+				            sum(total) as total
+				        from data_pendapatan
+				        where tahun_anggaran=%d
+				            and active=1
+				            and id_skpd=%d
+				        order by id ASC
+				    ", $tahun_anggaran, $unit['id_skpd']), ARRAY_A);
+				    
+					$data_pendapatan['data'][$unit['kode_skpd']] = [
+						'kode_skpd' => $unit['kode_skpd'],
+						'nama_skpd' => $unit['nama_skpd'],
+						'total_pendapatan' => $total_pendapatan['total_pendapatan'],
+						'total_pendapatan_sipd' => $total_pendapatan_sipd['total']
+					];
+
+					$data_pendapatan['total_pendapatan'] += $total_pendapatan['total_pendapatan'];
+					$data_pendapatan['total_pendapatan_sipd'] += $total_pendapatan_sipd['total'];
+				}
+				/** Mendapatkan data pembiayaan penerimaan*/
+				$sql_penerimaan = $wpdb->prepare("
+					SELECT
+						COALESCE(SUM(total), 0) as total_penerimaan
+					FROM data_pembiayaan_lokal".$_suffix."
+					WHERE tahun_anggaran=%d
+						AND id_skpd=%d
+						AND active=1
+						AND type='penerimaan'", $tahun_anggaran, $unit['id_skpd']);
+				$total_penerimaan = $wpdb->get_row($sql_penerimaan, ARRAY_A);
+
+				if(empty($data_pembiayaan_penerimaan['data'][$unit['kode_skpd']])){
+				    $total_penerimaan_sipd = $wpdb->get_row($wpdb->prepare("
+				        select 
+				            sum(total) as total
+				        from data_pembiayaan
+				        where tahun_anggaran=%d
+				            and active=1
+				            and id_skpd=%d
+							and type='penerimaan'
+				        order by id ASC
+				    ", $tahun_anggaran, $unit['id_skpd']), ARRAY_A);
+				    
+					$data_pembiayaan_penerimaan['data'][$unit['kode_skpd']] = [
+						'kode_skpd' => $unit['kode_skpd'],
+						'nama_skpd' => $unit['nama_skpd'],
+						'total_penerimaan' => $total_penerimaan['total_penerimaan'],
+						'total_penerimaan_sipd' => $total_penerimaan_sipd['total']
+					];
+
+					$data_pembiayaan_penerimaan['total_penerimaan'] += $total_penerimaan['total_penerimaan'];
+					$data_pembiayaan_penerimaan['total_penerimaan_sipd'] += $total_penerimaan_sipd['total'];
+				}
+				/** Mendapatkan data pembiayaan pengeluaran*/
+				$sql_pengeluaran = $wpdb->prepare("
+					SELECT
+						COALESCE(SUM(total), 0) as total_pengeluaran
+					FROM data_pembiayaan_lokal".$_suffix."
+					WHERE tahun_anggaran=%d
+						AND id_skpd=%d
+						AND active=1
+						AND type='pengeluaran'", $tahun_anggaran, $unit['id_skpd']);
+				$total_pengeluaran = $wpdb->get_row($sql_pengeluaran, ARRAY_A);
+
+				if(empty($data_pembiayaan_pengeluaran['data'][$unit['kode_skpd']])){
+				    $total_pengeluaran_sipd = $wpdb->get_row($wpdb->prepare("
+				        select 
+				            sum(total) as total
+				        from data_pembiayaan
+				        where tahun_anggaran=%d
+				            and active=1
+				            and id_skpd=%d
+							and type='pengeluaran'
+				        order by id ASC
+				    ", $tahun_anggaran, $unit['id_skpd']), ARRAY_A);
+				    
+					$data_pembiayaan_pengeluaran['data'][$unit['kode_skpd']] = [
+						'kode_skpd' => $unit['kode_skpd'],
+						'nama_skpd' => $unit['nama_skpd'],
+						'total_pengeluaran' => $total_pengeluaran['total_pengeluaran'],
+						'total_pengeluaran_sipd' => $total_pengeluaran_sipd['total']
+					];
+
+					$data_pembiayaan_pengeluaran['total_pengeluaran'] += $total_pengeluaran['total_pengeluaran'];
+					$data_pembiayaan_pengeluaran['total_pengeluaran_sipd'] += $total_pengeluaran_sipd['total'];
+				}
 			}
 
+			/** Tabel belanja */
 			$body = '';
 			$no=1;
 			foreach ($data_all['data'] as $key => $unit) {
@@ -8111,14 +8228,14 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 				$warning = 'background: #f9d9d9;';
 			}
 			$footer='<tr>
-						<td class="kiri atas kanan bawah text_tengah" colspan="2"><b>TOTAL PAGU KABUPATEN</b></td>
+						<td class="kiri atas kanan bawah text_tengah" colspan="2"><b>TOTAL PAGU BELANJA</b></td>
 						<td class="atas kanan bawah text_kanan"><b>'.$this->_number_format($data_all['pagu_usulan_kab']).'</b></td>
 						<td class="atas kanan bawah text_kanan"><b>'.$this->_number_format($data_all['pagu_penetapan_kab']).'</b></td>
 						<td style="'.$warning.'" class="atas kanan bawah text_kanan"><b>'.$this->_number_format($data_all['pagu_sipd']).'</b></td>
 					</tr>';
 
 			$html='<div id="preview" style="padding: 5px; overflow: auto; height: 80vh;">
-					<h4 style="text-align: center; margin: 0; font-weight: bold;">PAGU TOTAL RENJA Per Unit Kerja 
+					<h4 style="text-align: center; margin: 0; font-weight: bold;">PAGU TOTAL BELANJA RENJA Per Unit Kerja 
 					<br>Tahun '.$jadwal_lokal->tahun_anggaran.' '.$nama_pemda.'
 					<br>'.$jadwal_lokal->nama_jadwal.'
 					</h4><br>
@@ -8134,6 +8251,147 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 						</thead>
 						<tbody>'.$body.'</tbody>
 						<tfoot>'.$footer.'</tfoot>
+					</table>';
+
+			/** Tabel pendapatan */
+			$body_pend = '';
+			$no_pendapatan=1;
+			foreach ($data_pendapatan['data'] as $key => $unit) {
+				$warning = '';
+				if($unit['total_pendapatan'] != $unit['total_pendapatan_sipd']){
+					$warning = 'background: #f9d9d9;';
+				}
+				$body_pend.='
+					<tr>
+						<td class="kiri atas kanan bawah text_tengah">'.$no_pendapatan.'</td>
+						<td class="atas kanan bawah">'.$unit['kode_skpd'].' '.$unit['nama_skpd'].'</td>
+						<td class="atas kanan bawah text_kanan">'.$this->_number_format($unit['total_pendapatan']).'</td>
+						<td style="'.$warning.'" class="atas kanan bawah text_kanan">'.$this->_number_format($unit['total_pendapatan_sipd']).'</td>
+					</tr>';
+					$no++;
+			}
+			
+			$warning = '';
+			if($data_pendapatan['total_pendapatan'] != $data_pendapatan['total_pendapatan_sipd']){
+				$warning = 'background: #f9d9d9;';
+			}
+			$footer_pend='<tr>
+					<td class="kiri atas kanan bawah text_tengah" colspan="2"><b>TOTAL PAGU PENDAPATAN</b></td>
+					<td class="atas kanan bawah text_kanan"><b>'.$this->_number_format($data_pendapatan['total_pendapatan']).'</b></td>
+					<td style="'.$warning.'" class="atas kanan bawah text_kanan"><b>'.$this->_number_format($data_pendapatan['total_pendapatan_sipd']).'</b></td>
+				</tr>';
+
+			$html.='<br>
+					<br>
+					<h4 style="text-align: center; margin: 0; font-weight: bold;">PAGU TOTAL PENDAPATAN Per Unit Kerja 
+					<br>Tahun '.$jadwal_lokal->tahun_anggaran.' '.$nama_pemda.'
+					<br>'.$jadwal_lokal->nama_jadwal.'
+					</h4><br>
+					<table id="table-renja-pendapatan" cellpadding="2" cellspacing="0" style="font-family:\'Open Sans\',-apple-system,BlinkMacSystemFont,\'Segoe UI\',sans-serif; border-collapse: collapse; font-size: 90%; border: 0; table-layout: fixed;" contenteditable="false">
+						<thead>
+							<tr>
+								<th style="width: 19px;" class="kiri atas kanan bawah text_tengah text_blok">No</th>
+								<th class="atas kanan bawah text_tengah text_blok">Nama SKPD</th>
+								<th style="width: 140px;" class="atas kanan bawah text_tengah text_blok">Total Pendapatan</th>
+								<th style="width: 140px;" class="atas kanan bawah text_tengah text_blok">Total Pendapatan SIPD</th>
+							</tr>
+						</thead>
+						<tbody>'.$body_pend.'</tbody>
+						<tfoot>'.$footer_pend.'</tfoot>
+					</table>';
+
+			/** Tabel pembiayaan penerimaan */
+			$body_penerimaan = '';
+			$no_penerimaan=1;
+			foreach ($data_pembiayaan_penerimaan['data'] as $key => $unit) {
+				$warning = '';
+				if($unit['total_penerimaan'] != $unit['total_penerimaan_sipd']){
+					$warning = 'background: #f9d9d9;';
+				}
+				$body_penerimaan.='
+					<tr>
+						<td class="kiri atas kanan bawah text_tengah">'.$no_penerimaan.'</td>
+						<td class="atas kanan bawah">'.$unit['kode_skpd'].' '.$unit['nama_skpd'].'</td>
+						<td class="atas kanan bawah text_kanan">'.$this->_number_format($unit['total_penerimaan']).'</td>
+						<td style="'.$warning.'" class="atas kanan bawah text_kanan">'.$this->_number_format($unit['total_penerimaan_sipd']).'</td>
+					</tr>';
+					$no++;
+			}
+			
+			$warning = '';
+			if($data_pembiayaan_penerimaan['total_penerimaan'] != $data_pembiayaan_penerimaan['total_penerimaan_sipd']){
+				$warning = 'background: #f9d9d9;';
+			}
+			$footer_penerimaan='<tr>
+					<td class="kiri atas kanan bawah text_tengah" colspan="2"><b>TOTAL PAGU PEMBIAYAAN PENERIMAAN</b></td>
+					<td class="atas kanan bawah text_kanan"><b>'.$this->_number_format($data_pembiayaan_penerimaan['total_penerimaan']).'</b></td>
+					<td style="'.$warning.'" class="atas kanan bawah text_kanan"><b>'.$this->_number_format($data_pembiayaan_penerimaan['total_penerimaan_sipd']).'</b></td>
+				</tr>';
+
+			$html.='<br>
+					<br>
+					<h4 style="text-align: center; margin: 0; font-weight: bold;">PAGU TOTAL PEMBIAYAAN PENERIMAAN Per Unit Kerja 
+					<br>Tahun '.$jadwal_lokal->tahun_anggaran.' '.$nama_pemda.'
+					<br>'.$jadwal_lokal->nama_jadwal.'
+					</h4><br>
+					<table id="table-renja-penerimaan" cellpadding="2" cellspacing="0" style="font-family:\'Open Sans\',-apple-system,BlinkMacSystemFont,\'Segoe UI\',sans-serif; border-collapse: collapse; font-size: 90%; border: 0; table-layout: fixed;" contenteditable="false">
+						<thead>
+							<tr>
+								<th style="width: 19px;" class="kiri atas kanan bawah text_tengah text_blok">No</th>
+								<th class="atas kanan bawah text_tengah text_blok">Nama SKPD</th>
+								<th style="width: 140px;" class="atas kanan bawah text_tengah text_blok">Total Penerimaan</th>
+								<th style="width: 140px;" class="atas kanan bawah text_tengah text_blok">Total Penerimaan SIPD</th>
+							</tr>
+						</thead>
+						<tbody>'.$body_penerimaan.'</tbody>
+						<tfoot>'.$footer_penerimaan.'</tfoot>
+					</table>';
+
+			/** Tabel pembiayaan pengeluaran */
+			$body_pengeluaran = '';
+			$no_pengeluaran=1;
+			foreach ($data_pembiayaan_pengeluaran['data'] as $key => $unit) {
+				$warning = '';
+				if($unit['total_pengeluaran'] != $unit['total_pengeluaran_sipd']){
+					$warning = 'background: #f9d9d9;';
+				}
+				$body_pengeluaran.='
+					<tr>
+						<td class="kiri atas kanan bawah text_tengah">'.$no_pengeluaran.'</td>
+						<td class="atas kanan bawah">'.$unit['kode_skpd'].' '.$unit['nama_skpd'].'</td>
+						<td class="atas kanan bawah text_kanan">'.$this->_number_format($unit['total_pengeluaran']).'</td>
+						<td style="'.$warning.'" class="atas kanan bawah text_kanan">'.$this->_number_format($unit['total_pengeluaran_sipd']).'</td>
+					</tr>';
+					$no++;
+			}
+			
+			$warning = '';
+			if($data_pembiayaan_pengeluaran['total_pengeluaran'] != $data_pembiayaan_pengeluaran['total_pengeluaran_sipd']){
+				$warning = 'background: #f9d9d9;';
+			}
+			$footer_pengeluaran='<tr>
+					<td class="kiri atas kanan bawah text_tengah" colspan="2"><b>TOTAL PAGU PEMBIAYAAN PENGELUARAN</b></td>
+					<td class="atas kanan bawah text_kanan"><b>'.$this->_number_format($data_pembiayaan_pengeluaran['total_pengeluaran']).'</b></td>
+					<td style="'.$warning.'" class="atas kanan bawah text_kanan"><b>'.$this->_number_format($data_pembiayaan_pengeluaran['total_pengeluaran_sipd']).'</b></td>
+				</tr>';
+
+			$html.='<br>
+					<br>
+					<h4 style="text-align: center; margin: 0; font-weight: bold;">PAGU TOTAL PEMBIAYAAN PENGELUARAN Per Unit Kerja 
+					<br>Tahun '.$jadwal_lokal->tahun_anggaran.' '.$nama_pemda.'
+					<br>'.$jadwal_lokal->nama_jadwal.'
+					</h4><br>
+					<table id="table-renja-pengeluaran" cellpadding="2" cellspacing="0" style="font-family:\'Open Sans\',-apple-system,BlinkMacSystemFont,\'Segoe UI\',sans-serif; border-collapse: collapse; font-size: 90%; border: 0; table-layout: fixed;" contenteditable="false">
+						<thead>
+							<tr>
+								<th style="width: 19px;" class="kiri atas kanan bawah text_tengah text_blok">No</th>
+								<th class="atas kanan bawah text_tengah text_blok">Nama SKPD</th>
+								<th style="width: 140px;" class="atas kanan bawah text_tengah text_blok">Total Pengeluaran</th>
+								<th style="width: 140px;" class="atas kanan bawah text_tengah text_blok">Total Pengeluaran SIPD</th>
+							</tr>
+						</thead>
+						<tbody>'.$body_pengeluaran.'</tbody>
+						<tfoot>'.$footer_pengeluaran.'</tfoot>
 					</table>
 					</div>';
 

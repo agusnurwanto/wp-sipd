@@ -493,6 +493,7 @@ foreach($data_skpd as $skpd){
 
     $nama_laporan = 'RENJA '.strtoupper($nama_sub_skpd).'<br>TAHUN ANGGARAN '.$input['tahun_anggaran'].' '.strtoupper($nama_pemda);
     echo '
+    <button type="button" style="background-color:#FFD670; text-align: center; margin: 10px auto; display: block;" class="btn">Laporan Jadwal '.$jadwal_lokal->nama_jadwal.'</button>
     <h4 style="text-align: center; margin: 10px auto; min-width: 450px; max-width: 570px; font-weight: bold;">'.$nama_laporan.'</h4>
     <div id="wrap-table">
         <table cellpadding="2" cellspacing="0" style="font-family:\'Open Sans\',-apple-system,BlinkMacSystemFont,\'Segoe UI\',sans-serif; border-collapse: collapse; width: 1800px; table-layout: fixed; overflow-wrap: break-word; font-size: 60%; border: 0;">
