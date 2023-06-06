@@ -1194,12 +1194,12 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
 				success:function(response){
 					if(response.status == 'success'){
 						alert('Data berhasil disimpan.');
+						jQuery('#tambahUsulanSshModal').modal('hide');
+						usulanSSHTable.ajax.reload();
 					}else{
 						alert(response.message);
 					}
-					jQuery('#tambahUsulanSshModal').modal('hide');
 					jQuery("#wrap-loading").hide();
-					usulanSSHTable.ajax.reload();
 				}
 			});
 		}
@@ -1231,19 +1231,17 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
 				dataType: 'json',
 				beforeSend: function () {
 					jQuery('.submitBtn').attr("disabled","disabled");
-					jQuery('.modal-body').css('opacity', '.5');
 				},
 				success:function(response){
 					if(response.status == 'success'){
 						alert('Data berhasil disimpan.');
+						jQuery('#tambahUsulanSsh').modal('hide');
+						usulanSSHTable.ajax.reload();
 					}else{
 						alert(response.message);
 					}
-					jQuery('#tambahUsulanSsh').modal('hide')
 					jQuery('.submitBtn').removeAttr("disabled");
-					jQuery('.modal-body').css('opacity', '');
 					jQuery("#wrap-loading").hide();
-					usulanSSHTable.ajax.reload();
 				}
 			});
 		}
@@ -1295,19 +1293,17 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
 					dataType: 'json',
 					beforeSend: function () {
 						jQuery('.btn_submit_verify_ssh').attr("disabled","disabled");
-						jQuery('.modal-body').css('opacity', '.5');
 					},
 					success:function(response){
 						if(response.status == 'success'){
 							alert('Data berhasil diverifikasi.');
+							jQuery('#tambahUsulanSsh').modal('hide')
+							usulanSSHTable.ajax.reload();
 						}else{
 							alert("GAGAL! "+response.message);
 						}
-						jQuery('#tambahUsulanSsh').modal('hide')
 						jQuery('.submitBtn').removeAttr("disabled");
-						jQuery('.modal-body').css('opacity', '');
 						jQuery("#wrap-loading").hide();
-						usulanSSHTable.ajax.reload();
 					}
 				});
 			}
@@ -1360,13 +1356,13 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
 				success:function(response){
 					if(response.status == 'success'){
 						alert('Data berhasil disimpan.');
+						jQuery('#tambahUsulanHargaByKompSSH').modal('hide')
+						usulanSSHTable.ajax.reload();
 					}else{
 						alert(response.message);
 					}
-					jQuery('#tambahUsulanHargaByKompSSH').modal('hide')
 					jQuery('.submitBtn').removeAttr("disabled");
 					jQuery("#wrap-loading").hide();
-					usulanSSHTable.ajax.reload();
 				}
 			});
 		}
@@ -1395,19 +1391,17 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
 				dataType: 'json',
 				beforeSend: function () {
 					jQuery('.submitBtn').attr("disabled","disabled");
-					jQuery('.modal-body').css('opacity', '.5');
 				},
 				success:function(response){
 					if(response.status == 'success'){
 						alert('Data berhasil disimpan.');
+						jQuery('#tambahUsulanAkunByKompSSH').modal('hide')
+						usulanSSHTable.ajax.reload();
 					}else{
 						alert(response.message);
 					}
-					jQuery('#tambahUsulanAkunByKompSSH').modal('hide')
 					jQuery('.submitBtn').removeAttr("disabled");
-					jQuery('.modal-body').css('opacity', '');
 					jQuery("#wrap-loading").hide();
-					usulanSSHTable.ajax.reload();
 				}
 			});
 		}
@@ -1639,12 +1633,12 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
 				success:function(response){
 					if(response.status == 'success'){
 						alert('Data berhasil disimpan.');
+						jQuery('#tambahUsulanSshModal').modal('hide')
+						usulanSSHTable.ajax.reload();
 					}else{
 						alert(`GAGAL! ${response.message}`);
 					}
 					jQuery("#wrap-loading").hide();
-					jQuery('#tambahUsulanSshModal').modal('hide')
-					usulanSSHTable.ajax.reload();	
 				}
 			});
 		}
@@ -1699,11 +1693,11 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
 				success:function(response){
 					if(response.status == 'success'){
 						alert('Data berhasil disimpan.');
+						jQuery('#tambahUsulanHargaByKompSSH').modal('hide');
+						usulanSSHTable.ajax.reload();
 					}else{
 						alert(response.message);
 					}
-					usulanSSHTable.ajax.reload();
-					jQuery('#tambahUsulanHargaByKompSSH').modal('hide')
 					jQuery('.submitBtn').removeAttr("disabled");
 					jQuery("#wrap-loading").hide();
 				}
@@ -1733,19 +1727,17 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
 				dataType: 'json',
 				beforeSend: function () {
 					jQuery('.submitBtn').attr("disabled","disabled");
-					jQuery('.modal-body').css('opacity', '.5');
 				},
 				success:function(response){
 					if(response.status == 'success'){
 						alert('Data berhasil disimpan.');
+						jQuery('#tambahUsulanAkunByKompSSH').modal('hide')
+						usulanSSHTable.ajax.reload();
 					}else{
 						alert(response.message);
 					}
-					jQuery('#tambahUsulanAkunByKompSSH').modal('hide')
 					jQuery('.submitBtn').removeAttr("disabled");
-					jQuery('.modal-body').css('opacity', '');
 					jQuery("#wrap-loading").hide();
-					usulanSSHTable.ajax.reload();
 				}
 			});
 		}
@@ -1768,11 +1760,11 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
 				success:function(response){
 					if(response.status == 'success'){
 						alert('Data berhasil dihapus!.');
+						usulanSSHTable.ajax.reload();
 					}else{
 						alert(`GAGAL! ${response.message}`);
 					}
 					jQuery('#wrap-loading').hide();
-					usulanSSHTable.ajax.reload();	
 				}
 			});
 		}
@@ -1802,10 +1794,10 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
 						if(response.status == 'success'){
 							alert('Data berhasil dihapus!.');
 							jQuery(`#rek_akun_${id}`).remove()
+							usulanSSHTable.ajax.reload();
 						}else{
 							alert(`GAGAL! ${response.message}`);
 						}
-						usulanSSHTable.ajax.reload();	
 					}
 				});
 			}
@@ -1861,10 +1853,10 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
 							jQuery("#wrap-loading").hide();
 							if(response.status == 'success'){
 								alert('Data berhasil dihapus.');
+								usulanSSHTable.ajax.reload();
 							}else{
 								alert(`GAGAL! ${response.message}`);
 							}
-							usulanSSHTable.ajax.reload();
 						}
 					})
 				}else{
@@ -1889,10 +1881,10 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
 							jQuery("#wrap-loading").hide();
 							if(response.status == 'success'){
 								alert('Data berhasil disetujui.');
+								usulanSSHTable.ajax.reload();
 							}else{
 								alert(`GAGAL! ${response.message}`);
 							}
-							usulanSSHTable.ajax.reload();
 						}
 					})
 				}else{
@@ -1919,10 +1911,10 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
 								jQuery("#wrap-loading").hide();
 								if(response.status == 'success'){
 									alert('Data berhasil ditolak.');
+									usulanSSHTable.ajax.reload();
 								}else{
 									alert(`GAGAL! ${response.message}`);
 								}
-								usulanSSHTable.ajax.reload();
 							}
 						})
 					}

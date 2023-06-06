@@ -1652,13 +1652,12 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 					$tahun_anggaran = $_POST['tahun_anggaran'];
 					$where = '';
 					if(!empty($_POST['search'])){
-						$_POST['search'] = '%'.$_POST['search'].'%';
 						$where = $wpdb->prepare('
 							AND (
 								kode_kategori LIKE %s
 								OR uraian_kategori LIKE %s
 							)
-						', $_POST['search'], $_POST['search'], $_POST['search']);
+						', $_POST['search'], '%'.$_POST['search'].'%');
 					}
 
 					$data_kategori = $wpdb->get_results($wpdb->prepare("
@@ -2255,13 +2254,7 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 					",$kategori), ARRAY_A);
 					$data_this_id_ssh = $wpdb->get_results($wpdb->prepare('
 						SELECT 
-							id_standar_harga,
-							kode_kel_standar_harga,
-							kode_standar_harga,
-							status,
-							status_upload_sipd,
-							status_by_admin,
-							status_by_tapdkeu 
+							* 
 						FROM data_ssh_usulan 
 						WHERE id = %d
 					',$id), ARRAY_A);
@@ -2349,25 +2342,23 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 	
 								die(json_encode($return));
 							}
-		
+
+							// ketika update kategori kelompok usulan ssh, maka update juga usulan kode ssh nya
 							if($data_this_id_ssh[0]['kode_kel_standar_harga'] != $data_kategori[0]['kode_kategori']){
 								$last_kode_standar_harga = $wpdb->get_results($wpdb->prepare("
 									SELECT 
-										id_standar_harga,
-										kode_standar_harga 
+										MAX(kode_standar_harga) as kode_standar_harga
 									FROM `data_ssh_usulan` 
-									WHERE kode_standar_harga=(
-											SELECT 
-												MAX(kode_standar_harga) 
-											FROM `data_ssh_usulan` 
-											WHERE kode_kel_standar_harga = %s
-										)
-								",$data_kategori[0]['kode_kategori']), ARRAY_A);
-								$last_kode_standar_harga = (empty($last_kode_standar_harga[0]['kode_standar_harga'])) ? "0" : explode(".",$last_kode_standar_harga[0]['kode_standar_harga']);
-								$last_kode_standar_harga = (int) end($last_kode_standar_harga);
-								$last_kode_standar_harga = $last_kode_standar_harga+1;
-								$last_kode_standar_harga = sprintf("%05d",$last_kode_standar_harga);
-								$last_kode_standar_harga = $data_kategori[0]['kode_kategori'].'.'.$last_kode_standar_harga;
+									WHERE kode_kel_standar_harga = %s
+										AND tahun_anggaran = %d
+								",$data_kategori[0]['kode_kategori'], $tahun_anggaran), ARRAY_A);
+								if(empty($last_kode_standar_harga[0]['kode_standar_harga'])){
+									$last_kode_standar_harga = 0;
+								}else{
+									$last_kode_standar_harga = explode(".",$last_kode_standar_harga[0]['kode_standar_harga']);
+									$last_kode_standar_harga = (int) end($last_kode_standar_harga);
+								}
+								$last_kode_standar_harga = $data_kategori[0]['kode_kategori'].'.'.($last_kode_standar_harga+1);
 							}else{
 								$last_kode_standar_harga = $data_this_id_ssh[0]['kode_standar_harga'];
 							}
@@ -2396,10 +2387,10 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 								if($upload_1['status']){
 									$opsi_edit_ssh['lampiran_1'] = $upload_1['filename'];
 									if(
-										!empty($_POST['lapiran_usulan_ssh_1_old']) && 
-										is_file(WPSIPD_PLUGIN_PATH.'public/media/ssh/'.$_POST['lapiran_usulan_ssh_1_old']))
-									{
-										unlink(WPSIPD_PLUGIN_PATH.'public/media/ssh/'.$_POST['lapiran_usulan_ssh_1_old']);
+										!empty($data_this_id_ssh[0]['lampiran_1'])
+										&& is_file(WPSIPD_PLUGIN_PATH.'public/media/ssh/'.$data_this_id_ssh[0]['lampiran_1'])
+									){
+										unlink(WPSIPD_PLUGIN_PATH.'public/media/ssh/'.$data_this_id_ssh[0]['lampiran_1']);
 									}
 								}
 							}
@@ -2409,10 +2400,10 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 								if($upload_2['status']){
 									$opsi_edit_ssh['lampiran_2'] = $upload_2['filename'];
 									if(
-										!empty($_POST['lapiran_usulan_ssh_2_old']) && 
-										is_file(WPSIPD_PLUGIN_PATH.'public/media/ssh/'.$_POST['lapiran_usulan_ssh_2_old']))
-									{
-										unlink(WPSIPD_PLUGIN_PATH.'public/media/ssh/'.$_POST['lapiran_usulan_ssh_2_old']);
+										!empty($data_this_id_ssh[0]['lampiran_2'])
+										&& is_file(WPSIPD_PLUGIN_PATH.'public/media/ssh/'.$data_this_id_ssh[0]['lampiran_2'])
+									){
+										unlink(WPSIPD_PLUGIN_PATH.'public/media/ssh/'.$data_this_id_ssh[0]['lampiran_2']);
 									}
 								}
 							}
@@ -2422,10 +2413,10 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 								if($upload_3['status']){
 									$opsi_edit_ssh['lampiran_3'] = $upload_3['filename'];
 									if(
-										!empty($_POST['lapiran_usulan_ssh_3_old']) && 
-										is_file(WPSIPD_PLUGIN_PATH.'public/media/ssh/'.$_POST['lapiran_usulan_ssh_3_old']))
-									{
-										unlink(WPSIPD_PLUGIN_PATH.'public/media/ssh/'.$_POST['lapiran_usulan_ssh_3_old']);
+										!empty($data_this_id_ssh[0]['lampiran_3'])
+										&& is_file(WPSIPD_PLUGIN_PATH.'public/media/ssh/'.$data_this_id_ssh[0]['lampiran_3'])
+									){
+										unlink(WPSIPD_PLUGIN_PATH.'public/media/ssh/'.$data_this_id_ssh[0]['lampiran_3']);
 									}
 								}
 							}
@@ -2560,15 +2551,7 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 					
 					$data_this_id_ssh = $wpdb->get_results($wpdb->prepare('
 						SELECT 
-							id_standar_harga,
-							kode_kel_standar_harga,
-							kode_standar_harga,
-							nama_standar_harga,
-							satuan,
-							spek,
-							harga,
-							status,
-							status_upload_sipd 
+							*
 						FROM data_ssh_usulan 
 						WHERE id = %d
 					',$id), ARRAY_A);
@@ -2637,6 +2620,12 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 								$upload_1 = CustomTrait::uploadFile($_POST['api_key'], $path = WPSIPD_PLUGIN_PATH.'public/media/ssh/', $_FILES['lapiran_usulan_ssh_1'], ['jpg', 'jpeg', 'png', 'pdf']);
 								if($upload_1['status']){
 									$opsi_edit_ssh['lampiran_1'] = $upload_1['filename'];
+									if(
+										!empty($data_this_id_ssh[0]['lampiran_1'])
+										&& is_file(WPSIPD_PLUGIN_PATH.'public/media/ssh/'.$data_this_id_ssh[0]['lampiran_1'])
+									){
+										unlink(WPSIPD_PLUGIN_PATH.'public/media/ssh/'.$data_this_id_ssh[0]['lampiran_1']);
+									}
 								}
 							}
 
@@ -2644,6 +2633,12 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 								$upload_2 = CustomTrait::uploadFile($_POST['api_key'], $path = WPSIPD_PLUGIN_PATH.'public/media/ssh/', $_FILES['lapiran_usulan_ssh_2'], ['jpg', 'jpeg', 'png', 'pdf']);
 								if($upload_2['status']){
 									$opsi_edit_ssh['lampiran_2'] = $upload_2['filename'];
+									if(
+										!empty($data_this_id_ssh[0]['lampiran_2'])
+										&& is_file(WPSIPD_PLUGIN_PATH.'public/media/ssh/'.$data_this_id_ssh[0]['lampiran_2'])
+									){
+										unlink(WPSIPD_PLUGIN_PATH.'public/media/ssh/'.$data_this_id_ssh[0]['lampiran_2']);
+									}
 								}
 							}
 
@@ -2651,6 +2646,12 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 								$upload_3 = CustomTrait::uploadFile($_POST['api_key'], $path = WPSIPD_PLUGIN_PATH.'public/media/ssh/', $_FILES['lapiran_usulan_ssh_3'], ['jpg', 'jpeg', 'png', 'pdf']);
 								if($upload_3['status']){
 									$opsi_edit_ssh['lampiran_3'] = $upload_3['filename'];
+									if(
+										!empty($data_this_id_ssh[0]['lampiran_3'])
+										&& is_file(WPSIPD_PLUGIN_PATH.'public/media/ssh/'.$data_this_id_ssh[0]['lampiran_3'])
+									){
+										unlink(WPSIPD_PLUGIN_PATH.'public/media/ssh/'.$data_this_id_ssh[0]['lampiran_3']);
+									}
 								}
 							}
 	
@@ -3393,14 +3394,16 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 					}else{
 						$ids = explode(',', $_POST['ids']);
 					}
-					$cek_surat_id = $wpdb->get_var($wpdb->prepare("
+					$cek_surat = $wpdb->get_row($wpdb->prepare("
 						SELECT
-							id
+							id,
+							nama_file
 						FROM data_surat_usulan_ssh
 						WHERE nomor_surat=%s
 							AND tahun_anggaran=%d
 							AND active=1
-					", $nomor_surat, $tahun_anggaran));
+					", $nomor_surat, $tahun_anggaran), ARRAY_A);
+					$cek_surat_id = $cek_surat['id'];
 
 					// jika surat id ditemukan dan bukan proses update
 					if(!empty($cek_surat_id) && empty($_POST['ubah'])){
@@ -3439,9 +3442,10 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 					if(!empty($_POST['ubah'])){
 						$data['catatan_verifikator'] = $catatan_verifikator;
 						if(!empty($_FILES['file'])){
+							$folder = WPSIPD_PLUGIN_PATH.'public/media/ssh/';
 							$upload = CustomTrait::uploadFile(
 								$_POST['api_key'], 
-								WPSIPD_PLUGIN_PATH.'public/media/ssh/', 
+								$folder, 
 								$_FILES['file'], 
 								array('jpg', 'jpeg', 'png', 'pdf'), 
 								2097152, 
@@ -3449,6 +3453,15 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 							);
 							if($upload['status']){
 								$data['nama_file'] = $upload['filename'];
+
+								// karena nama file custom maka perlu dicek apakan namanya sama dengan file yang lama
+								if(
+									!empty($cek_surat['nama_file'])
+									&& $cek_surat['nama_file'] != $data['nama_file']
+									&& is_file($folder.$cek_surat['nama_file'])
+								){
+									unlink($folder.$cek_surat['nama_file']);
+								}
 							}
 						}
 					}else{
