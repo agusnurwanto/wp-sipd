@@ -945,13 +945,23 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 				}
 
 				$current_user = wp_get_current_user();
-				$data_ssh = $wpdb->get_results("SELECT id_unit FROM `data_unit` where nipkepala=".$wpdb->prepare('%d', $current_user->user_login),ARRAY_A);
+				$data_ssh = $wpdb->get_results("
+					SELECT 
+						id_unit 
+					FROM `data_unit` 
+					where nipkepala=".$wpdb->prepare('%d', $current_user->user_login)
+				,ARRAY_A);
 				
 				// mengambil data per skpd
 				$sqlKodeBl = '';
 				if(!empty($data_ssh[0]['id_unit']) && $current_user->roles != 'administrator'){
 					$data_bl = array();
-					$sql = "SELECT kode_bl FROM data_sub_keg_bl WHERE id_skpd = ".$wpdb->prepare('%s', $data_ssh[0]['id_unit'])." GROUP BY id_skpd,kode_bl";
+					$sql = "
+						SELECT 
+							kode_bl 
+						FROM data_sub_keg_bl 
+						WHERE id_skpd = ".$wpdb->prepare('%s', $data_ssh[0]['id_unit'])." 
+						GROUP BY id_skpd,kode_bl";
 					$run = $wpdb->get_results($sql,ARRAY_A);
 					foreach ($run as $value) {
 						array_push($data_bl,strval($value['kode_bl']));
@@ -1020,13 +1030,22 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
 				$tahun_anggaran = $_POST['tahun_anggaran'];
 				$current_user = wp_get_current_user();
-				$data_ssh = $wpdb->get_results("SELECT id_unit FROM `data_unit` where nipkepala=".$wpdb->prepare('%d', $current_user->user_login),ARRAY_A);
+				$data_ssh = $wpdb->get_results("
+					SELECT 
+						id_unit 
+					FROM `data_unit` 
+					where nipkepala=".$wpdb->prepare('%d', $current_user->user_login),ARRAY_A);
 				
 				// mengambil data per skpd
 				$sqlKodeBl = '';
 				if(!empty($data_ssh[0]['id_unit']) && $current_user->roles != 'administrator'){
 					$data_bl = array();
-					$sql = "SELECT kode_bl FROM data_sub_keg_bl WHERE id_skpd = ".$wpdb->prepare('%s', $data_ssh[0]['id_unit'])." GROUP BY id_skpd,kode_bl";
+					$sql = "
+						SELECT 
+							kode_bl 
+						FROM data_sub_keg_bl 
+						WHERE id_skpd = ".$wpdb->prepare('%s', $data_ssh[0]['id_unit'])." 
+						GROUP BY id_skpd,kode_bl";
 					$run = $wpdb->get_results($sql,ARRAY_A);
 					foreach ($run as $value) {
 						array_push($data_bl,strval($value['kode_bl']));
@@ -1034,7 +1053,22 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 					$sqlKodeBl = " and kode_bl in ('".implode("','", $data_bl)."')";
 				}
 
-				$data_ssh = $wpdb->get_results("SELECT nama_komponen, spek_komponen, harga_satuan, satuan, volume, sum(total_harga) as total FROM `data_rka` where active=1 and tahun_anggaran=".$wpdb->prepare('%d', $tahun_anggaran).$sqlKodeBl." GROUP by nama_komponen, spek_komponen, harga_satuan order by total desc limit 20",ARRAY_A);
+				$data_ssh = $wpdb->get_results("
+					SELECT 
+						nama_komponen, 
+						spek_komponen, 
+						harga_satuan, 
+						satuan, 
+						volume, 
+						sum(total_harga) as total 
+					FROM `data_rka` 
+					where active=1 
+						and tahun_anggaran=".$wpdb->prepare('%d', $tahun_anggaran).$sqlKodeBl." 
+					GROUP by nama_komponen, 
+						spek_komponen, 
+						harga_satuan 
+					order by total desc limit 20
+				",ARRAY_A);
 
 				$return = array(
 					'status' => 'success',
@@ -1069,13 +1103,51 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 				$user_id = um_user( 'ID' );
 				$user_meta = get_userdata($user_id);
 
-				$data_ssh = $wpdb->get_row($wpdb->prepare("SELECT keterangan_status_admin, keterangan_status_tapdkeu FROM data_ssh_usulan WHERE id_standar_harga=%d", $_POST['id_standar_harga']));
+				$data_ssh = $wpdb->get_row($wpdb->prepare("
+					SELECT 
+						keterangan_status_admin, 
+						keterangan_status_tapdkeu 
+					FROM data_ssh_usulan 
+					WHERE id=%d
+				", $_POST['id_standar_harga']));
 
 				$return = array(
 					'status' => 'success',
 					'role' => $user_meta->roles[0],
 					'data' => $data_ssh
 				);
+			}else{
+				$return = array(
+					'status' => 'error',
+					'message'	=> 'Api Key tidak sesuai!'
+				);
+			}
+		}else{
+			$return = array(
+				'status' => 'error',
+				'message'	=> 'Format tidak sesuai!'
+			);
+		}
+		die(json_encode($return));
+	}
+
+	public function get_data_usulan_ssh_surat_by_id(){
+		global $wpdb;
+		$return = array(
+			'status' => 'success',
+			'data'	=> array()
+		);
+
+		if(!empty($_POST)){
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+				$data_ssh = $wpdb->get_results($wpdb->prepare("
+					SELECT 
+						*
+					FROM data_ssh_usulan 
+					WHERE no_surat_usulan=%s
+				", $_POST['nomor_surat']));
+				$return['data'] = $data_ssh;
+				$return['sql'] = $wpdb->last_query;
 			}else{
 				$return = array(
 					'status' => 'error',
@@ -1170,7 +1242,8 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 					$queryRecords[$k]['aksi'] = '
 						<a class="btn btn-sm btn-warning" target="_blank" href="'.$url_surat."&idskpd=".$val['idskpd'].'" title="Cetak Surat Usulan"><i class="dashicons dashicons-printer"></i></a>
 						<a class="btn btn-sm btn-primary" href="#" onclick="return simpan_surat_usulan(\''.$val['id'].'\');" title="Simpan Surat Usulan"><i class="dashicons dashicons-saved"></i></a>
-						<a class="btn btn-sm btn-warning" href="#" onclick="return edit_surat_usulan(this);" title="Edit Surat Usulan" data-id="'.$val['id'].'" data-nomorsurat="'.$val['nomor_surat'].'" data-idskpd="'.$val['idskpd'].'"><i class="dashicons dashicons-edit"></i></a>';
+						<a class="btn btn-sm btn-warning" href="#" onclick="return edit_surat_usulan(this);" title="Edit Surat Usulan" data-id="'.$val['id'].'" data-nomorsurat="'.$val['nomor_surat'].'" data-idskpd="'.$val['idskpd'].'"><i class="dashicons dashicons-edit"></i></a>
+						<a class="btn btn-sm btn-danger" href="#" onclick="return hapus_surat_usulan(this);" title="Hapus Surat Usulan" data-id="'.$val['id'].'" data-nomorsurat="'.$val['nomor_surat'].'" data-idskpd="'.$val['idskpd'].'"><i class="dashicons dashicons-trash"></i></a>';
 					$queryRecords[$k]['jml_usulan'] = 0;
 					$queryRecords[$k]['ids_usulan'] = array();
 					if(!empty($val['nama_file'])){
@@ -1486,29 +1559,29 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 					$riwayat_admin='-';
 					if(!empty($recVal['keterangan_status_admin'])){
 						$data_riwayat_admin = explode("|", $recVal['keterangan_status_admin']);
-						$riwayat_admin='<ul style="margin:15px">';
+						$riwayat_admin='<ul style="margin:0">';
 						foreach ($data_riwayat_admin as $key => $value) {
-							$riwayat_admin.='<li>'.$value.'</li>';
+							$value = trim($value);
+							if(!empty($value)){
+								$riwayat_admin.='<li style="margin-left: 15px;">'.$value.'</li>';
+							}
 						}
 						$riwayat_admin.='</ul>';
 					}
 					
 					if($recVal['status_by_admin'] == 'approved'){
-						$status_verif_admin .= '<tr>
-													<td style="border-color:white;" class="text-center"><span class="medium-bold-2">Disetujui</span></td>
-												</tr>
-												<tr>
-													<td style="border-color:white;">Riwayat Alasan : <span class="medium-bold-2">' .$riwayat_admin. '</span></td>
-												</tr>
-												';
+						$status_verif_admin .= '
+							<tr>
+								<td style="border-color:white; padding:0;" class="text-center"><span class="btn btn-sm btn-success">Disetujui</span></td>
+							</tr>';
 					}else if($recVal['status_by_admin'] == 'rejected'){
 						$status_verif_admin .= '
-										<tr>
-											<td style="border-color:white;" class="text-center"><span class="medium-bold-2">Ditolak</span></td>
-										</tr>
-										<tr>
-											<td style="border-color:white;">Alasan Admin : <span class="medium-bold-2">' .$riwayat_admin. '</span></td>
-										</tr>';
+							<tr>
+								<td style="border-color:white; padding:0;" class="text-center"><span class="btn btn-sm btn-danger">Ditolak</span></td>
+							</tr>
+							<tr>
+								<td style="border-color:white; padding:0;">Alasan: '.$riwayat_admin.'</td>
+							</tr>';
 					}
 					$status_verif_admin .= '</tbody></table>';
 
@@ -1516,30 +1589,29 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 					$riwayat_tapdkeu='-';
 					if(!empty($recVal['keterangan_status_tapdkeu'])){
 						$data_riwayat_tapdkeu = explode("|", $recVal['keterangan_status_tapdkeu']);
-						$riwayat_tapdkeu='<ul style="margin:15px">';
+						$riwayat_tapdkeu='<ul style="margin:0">';
 						foreach ($data_riwayat_tapdkeu as $key => $value) {
-							$riwayat_tapdkeu.='<li>'.$value.'</li>';
+							$value = trim($value);
+							if(!empty($value)){
+								$riwayat_tapdkeu.='<li style="margin-left: 15px;">'.$value.'</li>';
+							}
 						}
 						$riwayat_tapdkeu.='</ul>';
 					}
 					
 					if($recVal['status_by_tapdkeu'] == 'approved'){
-						$status_verif_tapdkeu .= '<tr>
-													<td style="border-color:white;" class="text-center"><span class="medium-bold-2">Disetujui</span></td>
-												</tr>
-												<tr>
-													<td style="border-color:white;" class="text-center">Riwayat Alasan : <span class="medium-bold-2">' . $riwayat_tapdkeu . '</span></td>
-												</tr>
-												';
+						$status_verif_tapdkeu .= '
+							<tr>
+								<td style="border-color:white; padding:0;" class="text-center"><span class="btn btn-sm btn-success>Disetujui</span></td>
+							</tr>';
 					}else if($recVal['status_by_tapdkeu'] == 'rejected'){
 						$status_verif_tapdkeu .= 
-										'
-										<tr>
-											<td style="border-color:white;" class="text-center"><span class="medium-bold-2">Ditolak</span></td>
-										</tr>
-										<tr>
-											<td style="border-color:white;">Alasan TAPD Keuangan : <span class="medium-bold-2">' . $riwayat_tapdkeu . '</span></td>
-										</tr>';
+							'<tr>
+								<td style="border-color:white; padding:0;" class="text-center"><span class="btn btn-sm btn-danger">Ditolak</span></td>
+							</tr>
+							<tr>
+								<td style="border-color:white; padding:0;">Alasan: '.$riwayat_tapdkeu.'</td>
+							</tr>';
 					}
 					$status_verif_tapdkeu .= '</tbody></table>';
 
@@ -1548,11 +1620,11 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 						in_array("tapd_keu", $user_meta->roles)
 					){
 						$iconFilter = '<i class="dashicons dashicons-yes"></i>';
-						$verify = '<a class="btn btn-sm btn-success" onclick="verify_ssh_usulan(\''.$recVal['id_standar_harga'].'\'); return false;" href="#" title="Verifikasi Item Usulan SSH" style="text-decoration:none">'.$iconFilter.'</a>&nbsp';
+						$verify = '<a class="btn btn-sm btn-success" onclick="verify_ssh_usulan(\''.$recVal['id'].'\'); return false;" href="#" title="Verifikasi Item Usulan SSH" style="text-decoration:none">'.$iconFilter.'</a>&nbsp';
 					}else{
 						$verify = '';
 					}
-					$deleteCheck = '<input type="checkbox" class="delete_check" id="delcheck_'.$recVal['id_standar_harga'].'" onclick="checkcheckbox(); return true;" value="'.$recVal['id_standar_harga'].'" no-surat="'.$recVal['no_surat_usulan'].'">';
+					$deleteCheck = '<input type="checkbox" class="delete_check" id="delcheck_'.$recVal['id'].'" onclick="checkcheckbox(); return true;" value="'.$recVal['id'].'" no-surat="'.$recVal['no_surat_usulan'].'">';
 
 					$kode_komponen = '
 						<table style="margin: 0;">

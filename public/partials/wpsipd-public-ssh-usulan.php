@@ -168,11 +168,11 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
 					<th class="text-center">Dibuat Oleh</th>
 					<th class="text-center">Nomor Surat</th>
 					<th class="text-center">File</th>
-					<th class="text-center">Jumlah Usulan</th>
-					<th class="text-center">Acuan Penyusunan SSH</th>
+					<th class="text-center">Jumlah</th>
+					<th class="text-center">Dasar Pengusulan</th>
 					<th class="text-center">Catatan</th>
 					<th class="text-center">Catatan Verifikator</th>
-					<th class="text-center">Aksi</th>
+					<th class="text-center" style="width: 65px;">Aksi</th>
 				</tr>
 			</thead>
 			<tbody id="data_body_surat" class="data_body_ssh_surat">
@@ -655,7 +655,8 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
 		return new Promise(function(resolve, reject){
 			globalThis.usulanSSHTable = jQuery('#usulan_ssh_table')
 			.on('preXhr.dt', function ( e, settings, data ) {
-				// jQuery("#wrap-loading").show();
+				jQuery("#wrap-loading").show();
+				console.log('preXhr.dt');
 				data.filter = jQuery("#search_filter_action").val();
 				data.filter_opd = jQuery("#search_filter_action_opd").val();
 			} )
@@ -750,11 +751,10 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
 			    	var dateOrder = dataCell.find('td:eq(0)').text().split(': ')[1];
 			    	dataCell.attr('data-order', dateOrder);
 			  	},
-				"preDrawCallback": function(argument) {
-					// jQuery("#wrap-loading").show();
-				},
-				"initComplete":function( settings, json){
-					// jQuery("#wrap-loading").hide();
+				"drawCallback": function(settings) {
+					var api = this.api();
+					console.log('drawCallback');
+					jQuery("#wrap-loading").hide();
 					resolve();
 				}
 			});
@@ -787,8 +787,7 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
 					{
 						"data": 'nama_skpd',
 						"targets": 'no-sort',
-						"orderable": false,
-		            	className: "text-center"
+						"orderable": false
 		            },
 					{
 						"data": 'nomor_surat',
@@ -811,20 +810,18 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
 					{
 						"data": 'acuan_ssh',
 						"targets": 'no-sort',
-						"orderable": false,
-		            	className: "text-center"
+						"orderable": false
 		            },
 					{
 						"data": 'catatan',
 						"targets": 'no-sort',
-						"orderable": false,
-		            	className: "text-left"
+						"orderable": false
 		            },
 					{
 						"data": 'catatan_verifikator',
 						"targets": 'no-sort',
 						"orderable": false,
-		            	className: "text-left"
+		            	className: "text-center"
 		            },
 					{
 						"data": 'aksi',
@@ -833,13 +830,10 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
 		            	className: "text-center"
 		            }
 		        ],
-				"preDrawCallback": function(argument) {
-					// jQuery("#wrap-loading").show();
-				},
-				"initComplete":function( settings, json){
-					// jQuery("#wrap-loading").hide();
-					resolve();
-				}
+		        "drawCallback": function(settings){
+		        	var api = this.api();
+		        	resolve();
+		        }
 			});
 		});
 	}
@@ -1248,7 +1242,7 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
 	}
 
 	//verify akun ssh usulan
-	function verify_ssh_usulan(id_standar_ssh){
+	function verify_ssh_usulan(id){
 		jQuery('#tambahUsulanSsh').modal('show');
 		jQuery("#tambahUsulanSshLabel").html("Verifikasi SSH");
 		jQuery("#tambahUsulanSsh .modal-dialog").removeClass("modal-lg modal-xl");
@@ -1257,7 +1251,7 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
 					"<tr><td><input class=\'verify-ssh\' id=\'verify-ssh-yes\' name=\'verify_ssh\' value=\'1\' type=\'radio\' checked><label for=\'verify-ssh-yes\'>Terima</label></td>"+
 					"<td><input class=\'verify-ssh\' id=\'verify-ssh-no\' name=\'verify_ssh\' value=\'0\' type=\'radio\'><label for=\'verify-ssh-no\'>Tolak</label></td></tr>"+
 					"<tr class=\'add-desc-verify-ssh\' style=\'display:none;\'><td colspan=\'2\'><label for=\'alasan_verify_ssh\' style=\'display:inline-block;\'>Alasan</label><textarea id=\'alasan_verify_ssh\'></textarea></td></tr></div>");
-		jQuery("#tambahUsulanSsh .modal-footer").html("<button style=\'margin: 0 0 2rem 0.5rem;border-radius:0.2rem;\' class=\'btn_submit_verify_ssh\' onclick=\'submit_verify_ssh("+id_standar_ssh+")\'>Simpan</button>");
+		jQuery("#tambahUsulanSsh .modal-footer").html("<button style=\'margin: 0 0 2rem 0.5rem;border-radius:0.2rem;\' class=\'btn_submit_verify_ssh\' onclick=\'submit_verify_ssh("+id+")\'>Simpan</button>");
 		jQuery("#verify-ssh-no").on("click", function() {
 			jQuery(".add-desc-verify-ssh").show();
 			jQuery(".catatan-verify-ssh").show();
@@ -1267,7 +1261,7 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
 			jQuery(".catatan-verify-ssh").hide();
 		})
 
-		getDataUsulanSshByIdStandarHarga(id_standar_ssh);
+		getDataUsulanSshByIdStandarHarga(id);
 	}
 
 	/** submit verifikasi usulan ssh */
@@ -1963,7 +1957,7 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
 		return true;
 	}
 
-	function getDataUsulanSshByIdStandarHarga(id_standar_harga){
+	function getDataUsulanSshByIdStandarHarga(id){
 		return new Promise(function(resolve, reject){
 			jQuery.ajax({
 				url: ajax.url,
@@ -1971,7 +1965,7 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
 			    data: {
 			          "action": "get_data_usulan_ssh_by_id_standar_harga",
 			          "api_key": jQuery("#api_key").val(),
-			          "id_standar_harga": id_standar_harga,
+			          "id": id
 			    },
 			    dataType: "json",
 			    success: function(res){
@@ -2096,12 +2090,12 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
 		    dataType: "json",
 		    success: function(res){
 		    	alert(res.message);
+				jQuery("#wrap-loading").hide();
 		    	if(res.status == 'success'){
 					usulanSSHTable.ajax.reload();
 					suratUsulanSSHTable.ajax.reload();
     				jQuery('#tambahSuratUsulan').modal('hide');
 				}
-				jQuery("#wrap-loading").hide();
 		    }
 		});
 	}
@@ -2111,62 +2105,77 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
 		var id = jQuery(that).data('id');
 		var idskpd = jQuery(that).data('idskpd');
 		var nomor_surat = jQuery(that).data('nomorsurat');
+		jQuery('#wrap-loading').show();
+		jQuery.ajax({
+			url: ajax.url,
+		    type: "post",
+		    data: {
+		        "action": "get_data_usulan_ssh_surat_by_id",
+		        "api_key": jQuery("#api_key").val(),
+		        "tahun_anggaran": tahun,
+		        "nomor_surat": nomor_surat,
+		        "id": id
+		  	},
+		    dataType: "json",
+		    success: function(res){
+				jQuery("#wrap-loading").hide();
+		    	if(res.status == 'success'){
+					jQuery("#tambahSuratUsulan #ubah").val('ubah');
+					jQuery("#tambahSuratUsulan #surat_skpd").val(idskpd);
+					jQuery("#tambahSuratUsulan #nomor_surat").val(tr.find('>td').eq(2).html());
+					jQuery("#tambahSuratUsulan #catatan_surat").val(tr.find('>td').eq(6).html());
 
-		jQuery("#tambahSuratUsulan #ubah").val('ubah');
-		jQuery("#tambahSuratUsulan #surat_skpd").val(idskpd);
-		jQuery("#tambahSuratUsulan #nomor_surat").val(tr.find('>td').eq(2).html());
-		jQuery("#tambahSuratUsulan #catatan_surat").val(tr.find('>td').eq(6).html());
+					if(tr.find('.jenis_survey').length > 0){
+						jQuery("#jenis_survey").prop('checked', true);
+					}
 
-		if(tr.find('.jenis_survey').length > 0){
-			jQuery("#jenis_survey").prop('checked', true);
-		}
+					if(tr.find('.jenis_juknis').length > 0){
+						jQuery("#jenis_juknis").prop('checked', true);
+					}
+					
+					var ids = [];
+					res.data.map(function(b, i){
+		            	var data = {
+		            		id: b.id,
+		            		kelompok: b.nama_kel_standar_harga,
+		            		komponen: b.nama_standar_harga,
+		            		spesifikasi: b.spek,
+		            		harga: b.harga,
+		            		rekening: '',
+		            		jenis: b.status_jenis_usulan
+		            	}
+		                ids.push(data);
+			        });
 
-		if(tr.find('.jenis_juknis').length > 0){
-			jQuery("#jenis_juknis").prop('checked', true);
-		}
-		
-		var ids = [];
-		jQuery('.delete_check').each(function(){
-			if(
-            	jQuery(this).attr('no-surat') == nomor_surat
-            ){
-            	var tr = jQuery(this).closest('tr');
-            	var data = {
-            		id: jQuery(this).val(),
-            		kelompok: tr.find('>td').eq(1).html(),
-            		komponen: tr.find('>td').eq(2).html(),
-            		spesifikasi: tr.find('>td').eq(3).html(),
-            		harga: tr.find('>td').eq(4).html(),
-            		rekening: '',
-            		jenis: tr.find('>td').eq(8).html()
-            	}
-                ids.push(data);
-            }
-        });
+			        if(ids.length == 0){
+			        	alert('Usulan standar harga dengan nomor surat '+nomor_surat+' tidak ditemukan');
+			        }else{
+			        	jQuery('#wrap-loading').show();
+			        	var data = '';
+			        	var data_ids = [];
+			        	ids.map(function(b, i){
+			        		data_ids.push(b.id);
+			        		data += ''
+			        			+'<tr>'
+			        				+'<td>'+b.kelompok+'</td>'
+			        				+'<td>'+b.komponen+'</td>'
+			        				+'<td>'+b.spesifikasi+'</td>'
+			        				+'<td>'+b.harga+'</td>'
+			        				+'<td>'+b.rekening+'</td>'
+			        				+'<td>'+b.jenis+'</td>'
+			        			+'</tr>'
+			        	});
+			        	jQuery('#ids_surat_usulan').val(data_ids);
+			        	jQuery('#tbody_data_usulan').html(data);
+			        	jQuery('#tambahSuratUsulan').modal('show');
+			        	jQuery('#wrap-loading').hide();
+			        }
+				}else{
+		    		alert(res.message);
+				}
+		    }
+		});
 
-        if(ids.length == 0){
-        	alert('Usulan standar harga dengan nomor surat '+nomor_surat+' tidak ditemukan');
-        }else{
-        	jQuery('#wrap-loading').show();
-        	var data = '';
-        	var data_ids = [];
-        	ids.map(function(b, i){
-        		data_ids.push(b.id);
-        		data += ''
-        			+'<tr>'
-        				+'<td>'+b.kelompok+'</td>'
-        				+'<td>'+b.komponen+'</td>'
-        				+'<td>'+b.spesifikasi+'</td>'
-        				+'<td>'+b.harga+'</td>'
-        				+'<td>'+b.rekening+'</td>'
-        				+'<td>'+b.jenis+'</td>'
-        			+'</tr>'
-        	});
-        	jQuery('#ids_surat_usulan').val(data_ids);
-        	jQuery('#tbody_data_usulan').html(data);
-        	jQuery('#tambahSuratUsulan').modal('show');
-        	jQuery('#wrap-loading').hide();
-        }
 	}
 
 	function generateSuratUsulanSsh(that){
@@ -2175,13 +2184,20 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
 		jQuery("#tambahUsulanSshLabel").html("Pilih Acuan Penyusunan SSH");
 		jQuery("#tambahUsulanSsh .modal-dialog").removeClass("modal-lg modal-xl");
 		jQuery("#tambahUsulanSsh .modal-dialog").addClass("modal-md");
-		jQuery("#tambahUsulanSsh .modal-body").html("<div class=\'akun-ssh-verify\'><table>"+
-					"<tr><td><input class=\'type-sumber-ssh\' id=\'jenis_survey\' name=\'jenis[]\' value=\'1\' type=\'checkbox\' ><label for=\'verify-ssh-yes\'>Survey harga pasar yang telah kami lakukan secara mandiri.</label></td>"+
+		jQuery("#tambahUsulanSsh .modal-body").html(
+			"<div class=\'akun-ssh-verify\'>"+
+				"<table>"+
+					"<tr>"+
+						"<td><input class=\'type-sumber-ssh\' id=\'jenis_survey\' name=\'jenis[]\' value=\'1\' type=\'checkbox\' ><label for=\'verify-ssh-yes\'>Survey harga pasar yang telah kami lakukan secara mandiri.</label></td>"+
 					"</tr>"+
 					"<tr>"+
-					"<td><input class=\'type-sumber-ssh\' id=\'jenis_juknis\' name=\'jenis[]\' value=\'2\' type=\'checkbox\'><label for=\'verify-ssh-no\'>Petunjuk Teknis yang kami terima dari kementrian/provinsi.</label></td></tr>"+
-					"<tr><td colspan='2'><small style='color:red'>* Pilih salah satu atau keduanya. </small></td></tr>"+
-					"</div>");
+						"<td><input class=\'type-sumber-ssh\' id=\'jenis_juknis\' name=\'jenis[]\' value=\'2\' type=\'checkbox\'><label for=\'verify-ssh-no\'>Petunjuk Teknis yang kami terima dari kementrian/provinsi.</label></td>"+
+					"</tr>"+
+					"<tr>"+
+						"<td colspan='2'><small style='color:red'>* Pilih salah satu atau keduanya. </small></td>"+
+					"</tr>"+
+				"</table>"+
+			"</div>");
 		jQuery("#tambahUsulanSsh .modal-footer").html("<a target='_blank' style=\'margin: 0 0 2rem 0.5rem;border-radius:0.2rem;\' class=\' btn btn-primary\' url='"+url+"' onclick='openGenerate(this)'>Cetak</a>");
 	}
 
@@ -2195,5 +2211,25 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
 			url = url+'&type='+checkedValues;
 		}
 		window.open(url, '_blank');
+	}
+
+	function hapus_surat_usulan(that){
+		var id = jQuery(that).attr('data-id');
+		var nomor_surat = jQuery(that).attr('data-nomorsurat');
+		jQuery('#wrap-loading').show();
+		jQuery.ajax({
+			url: ajax.url,
+		    type: "post",
+		    data: {
+		        "action": "cek_hapus_surat_usulan",
+		        "api_key": jQuery("#api_key").val(),
+		        "nomor_surat": nomor_surat,
+		        "id": id
+		  	},
+		    dataType: "json",
+		    success: function(res){
+		    	alert(res.message);
+		    }
+		});
 	}
 </script> 
