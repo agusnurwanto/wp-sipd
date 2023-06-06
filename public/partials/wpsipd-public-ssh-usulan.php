@@ -444,8 +444,8 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
 					<span aria-hidden="true">&times;</span>
 				</button>
 			</div>
-			<form id="form-usulan-ssh">
-				<div class="modal-body">
+			<div class="modal-body">
+				<form id="form-usulan-ssh" onsubmit="return false;">
 					<div class="row form-group">
 						<label for='id_u_sub_skpd' class="col-md-12">Sub Unit <span class="required">*</span></label>
 						<div class="col-md-12">
@@ -529,19 +529,16 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
 						</div>
 					</div>
 					<div class="row form-group">
-						<label for='u_keterangan_lampiran' class="col-md-12">Catatan</label>
+						<label for='u_keterangan_lampiran' class="col-md-12">Keterangan</label>
 						<div class="col-md-12">
-							<textarea id='u_keterangan_lampiran' class="form-control" placeholder='Catatan'></textarea>
-							<small style="color:red">*Wajib diisi</small><br>
-							<small style="color:red">*Lampiran wajib ber-type png, jpeg, jpg, atau pdf.</small><br>
-							<small style="color:red">*Ukuran lampiran maksimal 1MB.</small>
+							<input type="text" id='u_keterangan_lampiran' class="form-control" placeholder="Keterangan">
 						</div>
 					</div>
-				</div> 
-				<div class="modal-footer">
-	                <button type="button" class="components-button btn btn-default" data-dismiss="modal">Tutup</button>
-				</div>
-			</form>
+				</form>
+			</div>
+			<div class="modal-footer">
+                <button type="button" class="components-button btn btn-secondary" data-dismiss="modal">Tutup</button>
+			</div>
 		</div>
 	</div>
 </div>
@@ -974,7 +971,7 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
 					        page: params.page || 0,
 					        action: 'get_data_akun_ssh',
 					        api_key : jQuery("#api_key").val(),
-					        id_standar_harga : jQuery("#tambah_new_akun_komp").attr('id_standar_harga'),
+					        id : jQuery("#tambah_new_akun_komp").attr('id_standar_harga'),
 							tahun_anggaran : tahun
 				      	}
 				      	return query;
@@ -990,7 +987,7 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
 				    }
 			  	},
 			    placeholder: 'Cari komponen',
-			    minimumInputLength: 3,
+			    minimumInputLength: 6,
 			    width: '100%'
 			};
 			jQuery('#tambah_harga_komp_nama_komponent').select2(ajax_nama_komponen);
@@ -1197,12 +1194,12 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
 				success:function(response){
 					if(response.status == 'success'){
 						alert('Data berhasil disimpan.');
+						jQuery('#tambahUsulanSshModal').modal('hide');
+						usulanSSHTable.ajax.reload();
 					}else{
 						alert(response.message);
 					}
-					jQuery('#tambahUsulanSshModal').modal('hide');
 					jQuery("#wrap-loading").hide();
-					usulanSSHTable.ajax.reload();
 				}
 			});
 		}
@@ -1234,19 +1231,17 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
 				dataType: 'json',
 				beforeSend: function () {
 					jQuery('.submitBtn').attr("disabled","disabled");
-					jQuery('.modal-body').css('opacity', '.5');
 				},
 				success:function(response){
 					if(response.status == 'success'){
 						alert('Data berhasil disimpan.');
+						jQuery('#tambahUsulanSsh').modal('hide');
+						usulanSSHTable.ajax.reload();
 					}else{
 						alert(response.message);
 					}
-					jQuery('#tambahUsulanSsh').modal('hide')
 					jQuery('.submitBtn').removeAttr("disabled");
-					jQuery('.modal-body').css('opacity', '');
 					jQuery("#wrap-loading").hide();
-					usulanSSHTable.ajax.reload();
 				}
 			});
 		}
@@ -1298,19 +1293,17 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
 					dataType: 'json',
 					beforeSend: function () {
 						jQuery('.btn_submit_verify_ssh').attr("disabled","disabled");
-						jQuery('.modal-body').css('opacity', '.5');
 					},
 					success:function(response){
 						if(response.status == 'success'){
 							alert('Data berhasil diverifikasi.');
+							jQuery('#tambahUsulanSsh').modal('hide')
+							usulanSSHTable.ajax.reload();
 						}else{
 							alert("GAGAL! "+response.message);
 						}
-						jQuery('#tambahUsulanSsh').modal('hide')
 						jQuery('.submitBtn').removeAttr("disabled");
-						jQuery('.modal-body').css('opacity', '');
 						jQuery("#wrap-loading").hide();
-						usulanSSHTable.ajax.reload();
 					}
 				});
 			}
@@ -1363,13 +1356,13 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
 				success:function(response){
 					if(response.status == 'success'){
 						alert('Data berhasil disimpan.');
+						jQuery('#tambahUsulanHargaByKompSSH').modal('hide')
+						usulanSSHTable.ajax.reload();
 					}else{
 						alert(response.message);
 					}
-					jQuery('#tambahUsulanHargaByKompSSH').modal('hide')
 					jQuery('.submitBtn').removeAttr("disabled");
 					jQuery("#wrap-loading").hide();
-					usulanSSHTable.ajax.reload();
 				}
 			});
 		}
@@ -1398,19 +1391,17 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
 				dataType: 'json',
 				beforeSend: function () {
 					jQuery('.submitBtn').attr("disabled","disabled");
-					jQuery('.modal-body').css('opacity', '.5');
 				},
 				success:function(response){
 					if(response.status == 'success'){
 						alert('Data berhasil disimpan.');
+						jQuery('#tambahUsulanAkunByKompSSH').modal('hide')
+						usulanSSHTable.ajax.reload();
 					}else{
 						alert(response.message);
 					}
-					jQuery('#tambahUsulanAkunByKompSSH').modal('hide')
 					jQuery('.submitBtn').removeAttr("disabled");
-					jQuery('.modal-body').css('opacity', '');
 					jQuery("#wrap-loading").hide();
-					usulanSSHTable.ajax.reload();
 				}
 			});
 		}
@@ -1445,7 +1436,7 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
 					jQuery("#tambah_akun_komp_tkdn").val(response.data.tkdn);
 					jQuery("#tambah_akun_komp_keterangan_lampiran").val(response.data.keterangan_lampiran);
 					jQuery("#tambah_akun_komp_akun").html(response.table_content_akun);
-					jQuery("#tambah_new_akun_komp").attr('id_standar_harga', response.data.id_standar_harga);
+					jQuery("#tambah_new_akun_komp").attr('id_standar_harga', response.data.id);
 					response.data_akun_usulan.map(function(b, i){
 						var myText = b.id_akun+" "+b.nama_akun;
 						var option = new Option(myText,b.id_akun, true, true);
@@ -1642,12 +1633,12 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
 				success:function(response){
 					if(response.status == 'success'){
 						alert('Data berhasil disimpan.');
+						jQuery('#tambahUsulanSshModal').modal('hide')
+						usulanSSHTable.ajax.reload();
 					}else{
 						alert(`GAGAL! ${response.message}`);
 					}
 					jQuery("#wrap-loading").hide();
-					jQuery('#tambahUsulanSshModal').modal('hide')
-					usulanSSHTable.ajax.reload();	
 				}
 			});
 		}
@@ -1661,7 +1652,7 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
 		var lapiran_usulan_ssh_2 = jQuery('#u_lapiran_usulan_harga_ssh_2')[0].files[0];
 		var lapiran_usulan_ssh_3 = jQuery('#u_lapiran_usulan_harga_ssh_3')[0].files[0];
 
-		if(id.trim() == ''){
+		if(!id){
 			alert('ID tidak tidak boleh kosong!');
 			return false;
 		}else if(harga_satuan.trim() == ''){
@@ -1702,11 +1693,11 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
 				success:function(response){
 					if(response.status == 'success'){
 						alert('Data berhasil disimpan.');
+						jQuery('#tambahUsulanHargaByKompSSH').modal('hide');
+						usulanSSHTable.ajax.reload();
 					}else{
 						alert(response.message);
 					}
-					usulanSSHTable.ajax.reload();
-					jQuery('#tambahUsulanHargaByKompSSH').modal('hide')
 					jQuery('.submitBtn').removeAttr("disabled");
 					jQuery("#wrap-loading").hide();
 				}
@@ -1736,19 +1727,17 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
 				dataType: 'json',
 				beforeSend: function () {
 					jQuery('.submitBtn').attr("disabled","disabled");
-					jQuery('.modal-body').css('opacity', '.5');
 				},
 				success:function(response){
 					if(response.status == 'success'){
 						alert('Data berhasil disimpan.');
+						jQuery('#tambahUsulanAkunByKompSSH').modal('hide')
+						usulanSSHTable.ajax.reload();
 					}else{
 						alert(response.message);
 					}
-					jQuery('#tambahUsulanAkunByKompSSH').modal('hide')
 					jQuery('.submitBtn').removeAttr("disabled");
-					jQuery('.modal-body').css('opacity', '');
 					jQuery("#wrap-loading").hide();
-					usulanSSHTable.ajax.reload();
 				}
 			});
 		}
@@ -1757,6 +1746,7 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
 	function delete_ssh_usulan(id){
 		let confirmDelete = confirm("Apakah anda yakin akan menghapus usulan SSH?");
 		if(confirmDelete){
+			jQuery('#wrap-loading').show();
 			jQuery.ajax({
 				url: "<?php echo admin_url('admin-ajax.php'); ?>",
 				type:'post',
@@ -1770,16 +1760,17 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
 				success:function(response){
 					if(response.status == 'success'){
 						alert('Data berhasil dihapus!.');
+						usulanSSHTable.ajax.reload();
 					}else{
 						alert(`GAGAL! ${response.message}`);
 					}
-					usulanSSHTable.ajax.reload();	
+					jQuery('#wrap-loading').hide();
 				}
 			});
 		}
 	}
 
-	function delete_akun_ssh_usulan(id_standar_harga,id){
+	function delete_akun_ssh_usulan(id, id_rek){
 		let confirmDelete = confirm("Apakah anda yakin akan menghapus rekening akun usulan SSH?");
 		if(confirmDelete){
 			jQuery("#wrap-loading").show();
@@ -1793,9 +1784,9 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
 					data:{
 						'action': 'submit_delete_akun_usulan_ssh',
 						'api_key': jQuery("#api_key").val(),
-						'id_standar_harga': id_standar_harga,
+						'id': id_standar_harga,
 						'tahun_anggaran': tahun,
-						'id_rek_akun_usulan_ssh': id
+						'id_rek_akun_usulan_ssh': id_rek
 					},
 					dataType: 'json',
 					success:function(response){
@@ -1803,10 +1794,10 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
 						if(response.status == 'success'){
 							alert('Data berhasil dihapus!.');
 							jQuery(`#rek_akun_${id}`).remove()
+							usulanSSHTable.ajax.reload();
 						}else{
 							alert(`GAGAL! ${response.message}`);
 						}
-						usulanSSHTable.ajax.reload();	
 					}
 				});
 			}
@@ -1838,7 +1829,7 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
 
 		var check_id_arr = [];
 
-		jQuery("input:checkbox[class=delete_check]:checked").each(function () {
+		jQuery("input[type='checkbox'].delete_check:checked").each(function () {
 			check_id_arr.push(jQuery(this).val());
 		});
 		jQuery("#wrap-loading").show();
@@ -1862,10 +1853,10 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
 							jQuery("#wrap-loading").hide();
 							if(response.status == 'success'){
 								alert('Data berhasil dihapus.');
+								usulanSSHTable.ajax.reload();
 							}else{
 								alert(`GAGAL! ${response.message}`);
 							}
-							usulanSSHTable.ajax.reload();
 						}
 					})
 				}else{
@@ -1890,10 +1881,10 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
 							jQuery("#wrap-loading").hide();
 							if(response.status == 'success'){
 								alert('Data berhasil disetujui.');
+								usulanSSHTable.ajax.reload();
 							}else{
 								alert(`GAGAL! ${response.message}`);
 							}
-							usulanSSHTable.ajax.reload();
 						}
 					})
 				}else{
@@ -1920,10 +1911,10 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
 								jQuery("#wrap-loading").hide();
 								if(response.status == 'success'){
 									alert('Data berhasil ditolak.');
+									usulanSSHTable.ajax.reload();
 								}else{
 									alert(`GAGAL! ${response.message}`);
 								}
-								usulanSSHTable.ajax.reload();
 							}
 						})
 					}
