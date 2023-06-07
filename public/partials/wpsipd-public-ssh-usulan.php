@@ -1993,11 +1993,10 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
         var ids = [];
         var status = false;
         jQuery('.delete_check').each(function(){
-
         	if(
         		jQuery(this).is(':checked')
-	            && jQuery(this).attr('no-surat') !== ''){
-        		
+	            && jQuery(this).attr('no-surat') !== ''
+	        ){
         		alert('Salah satu usulan standar harga sudah memiliki nomor surat, mohon dicermati ulang!');
         		return false;
         	}else{
@@ -2014,7 +2013,7 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
 	            		spesifikasi: tr.find('>td').eq(3).html(),
 	            		harga: tr.find('>td').eq(4).html(),
 	            		rekening: '',
-	            		jenis: tr.find('>td').eq(8).html()
+	            		jenis: tr.find('>td').eq(9).html()
 	            	}
 	                ids.push(data);
 	            }
@@ -2040,6 +2039,10 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
 	        				+'<td>'+b.jenis+'</td>'
 	        			+'</tr>'
 	        	});
+	        	jQuery('.type-sumber-ssh').prop('checked', false);
+	        	jQuery('#surat_skpd').val('');
+	        	jQuery('#catatan_surat').val('');
+	        	jQuery('#nomor_surat').val(jQuery('#nomor_surat').attr('placeholder'));
 	        	jQuery('#ids_surat_usulan').val(data_ids);
 	        	jQuery('#tbody_data_usulan').html(data);
 	        	jQuery('#tambahSuratUsulan').modal('show');
@@ -2122,8 +2125,8 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
 		    	if(res.status == 'success'){
 					jQuery("#tambahSuratUsulan #ubah").val('ubah');
 					jQuery("#tambahSuratUsulan #surat_skpd").val(idskpd);
-					jQuery("#tambahSuratUsulan #nomor_surat").val(tr.find('>td').eq(2).html());
-					jQuery("#tambahSuratUsulan #catatan_surat").val(tr.find('>td').eq(6).html());
+					jQuery("#tambahSuratUsulan #nomor_surat").val(nomor_surat);
+					jQuery("#tambahSuratUsulan #catatan_surat").val(tr.find('>td').eq(6).text());
 
 					if(tr.find('.jenis_survey').length > 0){
 						jQuery("#jenis_survey").prop('checked', true);
@@ -2239,8 +2242,26 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
 					if(cek_ids.length >= 1){
 						alert('Tidak bisa hapus surat usulan karena sudah ada usulan Standar Harga yang disetujui!');
 					}else{
-						if(confirm("Apakah anda yakin untuk menghapus surat usulan ini! Data tidak bisa dikembalikan.")){
-
+						if(confirm("Apakah anda yakin untuk menghapus surat usulan ini? Data tidak bisa dikembalikan.")){
+							jQuery('#wrap-loading').show();
+							jQuery.ajax({
+								url: ajax.url,
+							    type: "post",
+							    data: {
+							        "action": "hapus_surat_usulan_ssh",
+							        "api_key": jQuery("#api_key").val(),
+							        "nomor_surat": nomor_surat,
+							        "id": id
+							  	},
+							    dataType: "json",
+							    success: function(res){
+									jQuery('#wrap-loading').hide();
+									alert(res.message);
+									if(res.status != 'error'){
+										suratUsulanSSHTable.ajax.reload();
+									}
+								}
+							});
 						}
 					}
 				}else{

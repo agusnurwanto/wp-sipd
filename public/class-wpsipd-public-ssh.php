@@ -1315,11 +1315,18 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 					$url_surat = $this->generatePage($title, $tahun_anggaran, '[surat_usulan_ssh id_surat="'.$val['id'].'"]');
 					$queryRecords[$k]['aksi'] = '
 						<a class="btn btn-sm btn-warning" target="_blank" href="'.$url_surat."&idskpd=".$val['idskpd'].'" title="Cetak Surat Usulan"><i class="dashicons dashicons-printer"></i></a>
-						<a class="btn btn-sm btn-primary" href="#" onclick="return simpan_surat_usulan(\''.$val['id'].'\');" title="Simpan Surat Usulan"><i class="dashicons dashicons-saved"></i></a>
-						<a class="btn btn-sm btn-warning" href="#" onclick="return edit_surat_usulan(this);" title="Edit Surat Usulan" data-id="'.$val['id'].'" data-nomorsurat="'.$val['nomor_surat'].'" data-idskpd="'.$val['idskpd'].'"><i class="dashicons dashicons-edit"></i></a>
-						<a class="btn btn-sm btn-danger" href="#" onclick="return hapus_surat_usulan(this);" title="Hapus Surat Usulan" data-id="'.$val['id'].'" data-nomorsurat="'.$val['nomor_surat'].'" data-idskpd="'.$val['idskpd'].'"><i class="dashicons dashicons-trash"></i></a>';
-					$queryRecords[$k]['jml_usulan'] = 0;
-					$queryRecords[$k]['ids_usulan'] = array();
+						<a class="btn btn-sm btn-primary" onclick="simpan_surat_usulan(\''.$val['id'].'\'); return false;" href="#" title="Simpan Surat Usulan"><i class="dashicons dashicons-saved"></i></a>
+						<a class="btn btn-sm btn-warning" onclick="edit_surat_usulan(this); return false;" href="#" title="Edit Surat Usulan" data-id="'.$val['id'].'" data-nomorsurat="'.$val['nomor_surat'].'" data-idskpd="'.$val['idskpd'].'"><i class="dashicons dashicons-edit"></i></a>
+						<a class="btn btn-sm btn-danger" onclick="hapus_surat_usulan(this); return false;" href="#" title="Hapus Surat Usulan" data-id="'.$val['id'].'" data-nomorsurat="'.$val['nomor_surat'].'" data-idskpd="'.$val['idskpd'].'"><i class="dashicons dashicons-trash"></i></a>';
+
+					$ids_usulan = $wpdb->get_results($wpdb->prepare("
+						SELECT
+							id
+						FROM data_ssh_usulan
+						WHERE no_surat_usulan=%s
+					", $val['nomor_surat']), ARRAY_A);
+					$queryRecords[$k]['jml_usulan'] = count($ids_usulan);
+					$queryRecords[$k]['ids_usulan'] = $ids_usulan;
 					if(!empty($val['nama_file'])){
 						$queryRecords[$k]['nama_file'] = '<a href="'.WPSIPD_PLUGIN_URL.'/public/media/ssh/'.$val['nama_file'].'" target="_blank">'.$val['nama_file']."</a>";
 					}else{
@@ -1332,13 +1339,14 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 						$queryRecords[$k]['catatan_verifikator'] = '<textarea id="catatan_verifikator_surat_edit" class="form-control">'.$val['catatan_verifikator'].'</textarea>';
 					}
 
+					$queryRecords[$k]['acuan_ssh'] = '<ul style="margin-left: 15px;">';
 					if(!empty($val['jenis_survey']) && $val['jenis_survey'] == 1){
-						$queryRecords[$k]['acuan_ssh'] = '<span class="jenis_survey" data-id="'.$val['jenis_survey'].'">-Survey harga pasar</span>';
+						$queryRecords[$k]['acuan_ssh'] .= '<li class="jenis_survey" data-id="'.$val['jenis_survey'].'">Survey harga pasar</li>';
 					}
-
 					if(!empty($val['jenis_juknis']) && $val['jenis_juknis'] == 2){
-						$queryRecords[$k]['acuan_ssh'] .= '</br><span class="jenis_juknis" data-id="'.$val['jenis_juknis'].'">-Petunjuk Teknis</span>';
+						$queryRecords[$k]['acuan_ssh'] .= '<li class="jenis_juknis" data-id="'.$val['jenis_juknis'].'">Petunjuk Teknis</li>';
 					}
+					$queryRecords[$k]['acuan_ssh'] .= '</ul>';
 				}
 
 				$json_data = array(
@@ -3663,7 +3671,7 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 							$wpdb->update('data_ssh_usulan', array(
 								'no_surat_usulan' => $nomor_surat
 							), array(
-								'id_standar_harga' => $id
+								'id' => $id
 							));
 						}
 					}else{
