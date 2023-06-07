@@ -1852,10 +1852,16 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 					}elseif(empty($data['input_sub_kegiatan'])){
 						$ret['status'] = 'error';
 						$ret['message'] = 'Sub kegiatan tidak boleh kosong';
-					}elseif(!isset($data['input_pagu_sub_keg_usulan'])){
+					}elseif(
+						!isset($data['input_pagu_sub_keg_usulan'])
+						|| $data['input_pagu_sub_keg_usulan'] == ''
+					){
 						$ret['status'] = 'error';
 						$ret['message'] = 'Pagu usulan tidak boleh kosong';
-					}elseif(!isset($data['input_pagu_sub_keg_1_usulan'])){
+					}elseif(
+						!isset($data['input_pagu_sub_keg_1_usulan'])
+						|| $data['input_pagu_sub_keg_1_usulan'] == ''
+					){
 						$ret['status'] = 'error';
 						$ret['message'] = 'Pagu usulan tahun depan tidak boleh kosong';
 					}elseif(empty($data['input_satuan_usulan'])){
@@ -1867,10 +1873,16 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 						in_array("administrator", $user_meta->roles)
 						|| in_array("mitra_bappeda", $user_meta->roles)
 					){
-						if(!isset($data['input_pagu_sub_keg'])){
+						if(
+							!isset($data['input_pagu_sub_keg'])
+							|| $data['input_pagu_sub_keg'] == ''
+						){
 							$ret['status'] = 'error';
 							$ret['message'] = 'Pagu penetapan tidak boleh kosong!';
-						}else if(!isset($data['input_pagu_sub_keg_1'])){
+						}else if(
+							!isset($data['input_pagu_sub_keg_1'])
+							|| $data['input_pagu_sub_keg_1'] == ''
+						){
 							$ret['status'] = 'error';
 							$ret['message'] = 'Pagu penetapan tahun depan tidak boleh kosong!';
 						}
@@ -1881,7 +1893,10 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 							if(empty($data['input_indikator_sub_keg_usulan'][$k_sub_keg])){
 								$ret['status'] = 'error';
 								$ret['message'] = 'Indikator usulan tidak boleh kosong';
-							}elseif(!isset($data['input_target_usulan'][$k_sub_keg])){
+							}elseif(
+								!isset($data['input_target_usulan'][$k_sub_keg])
+								|| $data['input_target_usulan'][$k_sub_keg] == ''
+							){
 								$ret['status'] = 'error';
 								$ret['message'] = 'Target indikator usulan tidak boleh kosong';
 							}
@@ -1889,7 +1904,10 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 								in_array("administrator", $user_meta->roles)
 								|| in_array("mitra_bappeda", $user_meta->roles)
 							){
-								if(!isset($data['input_target'][$k_sub_keg])){
+								if(
+									!isset($data['input_target'][$k_sub_keg])
+									|| $data['input_target'][$k_sub_keg] == ''
+								){
 									$ret['status'] = 'error';
 									$ret['message'] = 'Target indikator penetapan tidak boleh kosong';
 								}
@@ -1910,7 +1928,10 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 								in_array("administrator", $user_meta->roles)
 								|| in_array("mitra_bappeda", $user_meta->roles)
 							){
-								if(!isset($data['input_pagu_sumber_dana'][$k_sumber_dana])){
+								if(
+									!isset($data['input_pagu_sumber_dana'][$k_sumber_dana])
+									|| $data['input_pagu_sumber_dana'][$k_sumber_dana] == ''
+								){
 									$ret['status'] = 'error';
 									$ret['message'] = 'Pagu Sumber Dana penetapan tidak boleh kosong';
 								}
@@ -2414,6 +2435,8 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 							$wpdb->update('data_label_sub_keg_lokal', $opsi_label_tag, array('id' => $cek_id));
 						}
 					}
+
+					$ret['data_post'] = $data;
 				}
 			}else{
 				$ret['status'] = 'error';
