@@ -1608,6 +1608,9 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						'tahun_anggaran' => $_POST['tahun_anggaran']
 					));
 					foreach ($data as $k => $v) {
+						if(empty($v['id_user'])){
+							continue;
+						}
 						$cek = $wpdb->get_var("
 							SELECT 
 								id_user 

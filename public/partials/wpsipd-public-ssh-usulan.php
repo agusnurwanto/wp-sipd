@@ -2221,14 +2221,31 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
 			url: ajax.url,
 		    type: "post",
 		    data: {
-		        "action": "cek_hapus_surat_usulan",
+		        "action": "get_data_usulan_ssh_surat_by_id",
 		        "api_key": jQuery("#api_key").val(),
 		        "nomor_surat": nomor_surat,
 		        "id": id
 		  	},
 		    dataType: "json",
 		    success: function(res){
-		    	alert(res.message);
+				jQuery('#wrap-loading').hide();
+				if(res.status != 'error'){
+					var cek_ids = [];
+					res.data.map(function(b, i){
+						if(b.status == 'approved'){
+							cek_ids.push(b);
+						}
+					});
+					if(cek_ids.length >= 1){
+						alert('Tidak bisa hapus surat usulan karena sudah ada usulan Standar Harga yang disetujui!');
+					}else{
+						if(confirm("Apakah anda yakin untuk menghapus surat usulan ini! Data tidak bisa dikembalikan.")){
+
+						}
+					}
+				}else{
+		    		alert(res.message);
+				}
 		    }
 		});
 	}
