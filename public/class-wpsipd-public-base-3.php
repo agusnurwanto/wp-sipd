@@ -441,24 +441,12 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 		global $wpdb;
 		$user_id = um_user( 'ID' );
 		$user_meta = get_userdata($user_id);
-		$skpd_db = false;
+		$skpd_db = array();
 		$bidur_db = false;
-		if(in_array("administrator", $user_meta->roles)){
-			$skpd_db = $wpdb->get_results($wpdb->prepare("
-				SELECT 
-					nama_skpd, 
-					id_skpd, 
-					kode_skpd,
-					bidur_1,
-					bidur_2,
-					bidur_3,
-					is_skpd
-				from data_unit 
-				where tahun_anggaran=%d
-					and id_skpd=%d
-				group by id_skpd", $_POST['tahun_anggaran'], $_POST['id_unit']), ARRAY_A);
-		}else if(
-			in_array("PLT", $user_meta->roles) 
+		if(
+			in_array("administrator", $user_meta->roles)
+			|| in_array("mitra_bappeda", $user_meta->roles)
+			|| in_array("PLT", $user_meta->roles) 
 			|| in_array("PA", $user_meta->roles) 
 			|| in_array("KPA", $user_meta->roles)
 		){
