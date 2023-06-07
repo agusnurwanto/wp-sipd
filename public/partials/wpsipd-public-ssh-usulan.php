@@ -562,7 +562,7 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
 					"<option value='delete'>Hapus</option></select>"+
 				"<button type='submit' class='ml-1 btn btn-secondary' onclick='action_check_data_usulan_ssh()'>Terapkan</button>&nbsp;"+
 				"<select name='filter_status' class='ml-3 bulk-action' id='search_filter_action' onchange='action_filter_data_usulan_ssh()'>"+
-					"<option value=''>Pilih Filter</option>"+
+					"<option value=''>Pilih Status</option>"+
 					"<option value='diterima'>Diterima</option>"+
 					"<option value='ditolak'>Ditolak</option>"+
 					"<option value='diterima_admin'>Diterima Admin</option>"+
@@ -574,12 +574,14 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
 					"<option value='belum_upload_sipd'>Belum upload SIPD</option>"+
 				"</select>&nbsp;"
 				+"<select name='filter_opd' class='ml-3 bulk-action' id='search_filter_action_opd' style='width:50%' onchange='action_filter_data_usulan_ssh()'></select>";
+				+"<select name='filter_surat' class='ml-3 bulk-action' id='search_filter_surat' style='width:50%' onchange='action_filter_data_usulan_ssh()'></select>";
 				
 				// jQuery("#usulan_ssh_table_length").append(html_filter);
 				
 				jQuery(".h-100").after(html_filter);
 				jQuery("#multi_select_action").select2();
 				jQuery("#search_filter_action").select2();
+				jQuery("#search_filter_surat").select2();
 				jQuery("#search_filter_action_opd").html('<?php echo $list_skpd_options; ?>');
 			    jQuery("#search_filter_action_opd").select2();
 			});
@@ -659,6 +661,7 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
 				console.log('preXhr.dt');
 				data.filter = jQuery("#search_filter_action").val();
 				data.filter_opd = jQuery("#search_filter_action_opd").val();
+				data.filter_surat = jQuery("#search_filter_surat").val();
 			} )
 			.DataTable({
 				"processing": true,

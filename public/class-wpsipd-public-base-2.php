@@ -1839,6 +1839,9 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 				// catatan:
 				// user OPD dan user admin harus dibedakan cara kewenangan insertnya
 				
+				$user_id = um_user( 'ID' );
+				$user_meta = get_userdata($user_id);
+
 				$cek_jadwal = $this->validasi_jadwal_perencanaan('renja',$_POST['tahun_anggaran']);
                 if($cek_jadwal['status'] == 'success'){
 					$tahun_anggaran = $_POST['tahun_anggaran'];
@@ -1849,15 +1852,28 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 					}elseif(empty($data['input_sub_kegiatan'])){
 						$ret['status'] = 'error';
 						$ret['message'] = 'Sub kegiatan tidak boleh kosong';
-					}elseif(
-						!isset($data['input_pagu_sub_keg_usulan']) 
-						|| $data['input_pagu_sub_keg_usulan'] == 0
-					){
+					}elseif(!isset($data['input_pagu_sub_keg_usulan'])){
 						$ret['status'] = 'error';
 						$ret['message'] = 'Pagu usulan tidak boleh kosong';
+					}elseif(!isset($data['input_pagu_sub_keg_1_usulan'])){
+						$ret['status'] = 'error';
+						$ret['message'] = 'Pagu usulan tahun depan tidak boleh kosong';
 					}elseif(empty($data['input_satuan_usulan'])){
 						$ret['status'] = 'error';
 						$ret['message'] = 'Satuan indikator usulan tidak boleh kosong';
+					}
+
+					if(
+						in_array("administrator", $user_meta->roles)
+						|| in_array("mitra_bappeda", $user_meta->roles)
+					){
+						if(!isset($data['input_pagu_sub_keg'])){
+							$ret['status'] = 'error';
+							$ret['message'] = 'Pagu penetapan tidak boleh kosong!';
+						}else if(!isset($data['input_pagu_sub_keg_1'])){
+							$ret['status'] = 'error';
+							$ret['message'] = 'Pagu penetapan tahun depan tidak boleh kosong!';
+						}
 					}
 
 					foreach($data['input_indikator_sub_keg_usulan'] as $k_sub_keg => $v_sub_keg){
@@ -1865,9 +1881,18 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 							if(empty($data['input_indikator_sub_keg_usulan'][$k_sub_keg])){
 								$ret['status'] = 'error';
 								$ret['message'] = 'Indikator usulan tidak boleh kosong';
-							}elseif(empty($data['input_target_usulan'][$k_sub_keg])){
+							}elseif(!isset($data['input_target_usulan'][$k_sub_keg])){
 								$ret['status'] = 'error';
 								$ret['message'] = 'Target indikator usulan tidak boleh kosong';
+							}
+							if(
+								in_array("administrator", $user_meta->roles)
+								|| in_array("mitra_bappeda", $user_meta->roles)
+							){
+								if(!isset($data['input_target'][$k_sub_keg])){
+									$ret['status'] = 'error';
+									$ret['message'] = 'Target indikator penetapan tidak boleh kosong';
+								}
 							}
 						}
 					}
@@ -1880,6 +1905,15 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 							}elseif(empty($data['input_pagu_sumber_dana_usulan'][$k_sumber_dana])){
 								$ret['status'] = 'error';
 								$ret['message'] = 'Pagu Sumber Dana usulan tidak boleh kosong';
+							}
+							if(
+								in_array("administrator", $user_meta->roles)
+								|| in_array("mitra_bappeda", $user_meta->roles)
+							){
+								if(!isset($data['input_pagu_sumber_dana'][$k_sumber_dana])){
+									$ret['status'] = 'error';
+									$ret['message'] = 'Pagu Sumber Dana penetapan tidak boleh kosong';
+								}
 							}
 						}
 					}
@@ -1957,9 +1991,7 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 						'kode_skpd' => $kode_skpd,
 						'nama_sub_skpd' => $data_sub_unit->nama_skpd,
 						'kode_sub_skpd' => $data_sub_unit->kode_skpd,
-						'pagu' => $data['input_pagu_sub_keg'],
 						'pagu_usulan' => $data['input_pagu_sub_keg_usulan'],
-						'pagu_n_depan' => $data['input_pagu_sub_keg_1'],
 						'pagu_n_depan_usulan' => $data['input_pagu_sub_keg_1_usulan'],
 						'kode_urusan' => $data_prog_keg->kode_urusan,
 						'id_urusan' => $data_prog_keg->id_urusan,
@@ -1974,10 +2006,7 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 						'nama_giat' => $data_prog_keg->nama_giat,
 						'kode_sub_giat' => $data_prog_keg->kode_sub_giat,
 						'nama_sub_giat' => $data_prog_keg->nama_sub_giat,
-						'catatan' => $data['input_catatan'],
 						'catatan_usulan' => $data['input_catatan_usulan'],
-						'waktu_awal' => $data['input_bulan_awal'],
-						'waktu_akhir' => $data['input_bulan_akhir'],
 						'waktu_awal_usulan' => $data['input_bulan_awal_usulan'],
 						'waktu_akhir_usulan' => $data['input_bulan_akhir_usulan'],
 						'active' => 1,
@@ -1988,6 +2017,19 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 						'id_label_kokab' => $id_prio_kabkot,
 						'label_kokab' => $label_prio_kabkot
 					);
+
+					if(
+						in_array("administrator", $user_meta->roles)
+						|| in_array("mitra_bappeda", $user_meta->roles)
+					){
+						$opsi_sub_keg_bl['pagu'] = $data['input_pagu_sub_keg'];
+						$opsi_sub_keg_bl['pagu_n_depan'] = $data['input_pagu_sub_keg_1'];
+						$opsi_sub_keg_bl['catatan'] = $data['input_catatan'];
+					}
+
+					// bulan awal dan akhir ototmasi dibuat sama dengan usulan
+					$opsi_sub_keg_bl['waktu_awal'] = $data['input_bulan_awal'];
+					$opsi_sub_keg_bl['waktu_akhir'] = $data['input_bulan_akhir'];
 
 					// insert sub kegiatan
 					$cek_id = $wpdb->get_var($wpdb->prepare("
@@ -2048,7 +2090,6 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 							'namadana' => $data_sumber_dana->nama_dana,
 							'kodedana' => $data_sumber_dana->kode_dana,
 							'iddana' => $data_sumber_dana->id_dana,
-							'pagudana' => $data['input_pagu_sumber_dana'][$k_sumber_dana],
 							'kode_sbl' => $kode_sbl,
 							'active' => 1,
 							'update_at' => current_time('mysql'),
@@ -2058,6 +2099,13 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 							'id_dana_usulan' => $data_sumber_dana_usulan->id_dana,
 							'pagu_dana_usulan' => $data['input_pagu_sumber_dana_usulan'][$k_sumber_dana],
 						);
+
+						if(
+							in_array("administrator", $user_meta->roles)
+							|| in_array("mitra_bappeda", $user_meta->roles)
+						){
+							$opsi_sumber_dana['pagudana'] = $data['input_pagu_sumber_dana'][$k_sumber_dana];
+						}
 						
 						if(
 							empty($cek_ids)
@@ -2091,12 +2139,10 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 							$opsi_sub_keg_indikator = array(
 								'outputteks' => $indikator_sub_keg->indikator,
 								'outputteks_usulan' => $indikator_sub_keg->indikator,
-								'targetoutput' => $data['input_target'][$k_sub_keg],
 								'targetoutput_usulan' => $data['input_target_usulan'][$k_sub_keg],
 								'satuanoutput' => $indikator_sub_keg->satuan,
 								'satuanoutput_usulan' => $indikator_sub_keg->satuan,
 								'idoutputbl' => 0,
-								'targetoutputteks' => $data['input_target'][$k_sub_keg].' '.$indikator_sub_keg->satuan,
 								'targetoutputteks_usulan' => $data['input_target_usulan'][$k_sub_keg].' '.$indikator_sub_keg->satuan,
 								'kode_sbl' => $kode_sbl,
 								'idsubbl' => 0,
@@ -2105,6 +2151,14 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 								'tahun_anggaran' => $tahun_anggaran,
 								'id_indikator_sub_giat' => $indikator_sub_keg->id_sub_keg
 							);
+
+							if(
+								in_array("administrator", $user_meta->roles)
+								|| in_array("mitra_bappeda", $user_meta->roles)
+							){
+								$opsi_sub_keg_indikator['targetoutput'] = $data['input_target'][$k_sub_keg];
+								$opsi_sub_keg_indikator['targetoutputteks'] = $data['input_target'][$k_sub_keg].' '.$indikator_sub_keg->satuan;
+							}
 							
 							$cek_ids = $wpdb->get_results($wpdb->prepare("
 								SELECT
@@ -2243,6 +2297,14 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 							'update_at' => current_time('mysql'),
 							'tahun_anggaran' => $tahun_anggaran
 						);
+
+						// lokasi penetapan didisable karena otomatis sama dengan usulan
+						// if(
+						// 	in_array("administrator", $user_meta->roles)
+						// 	|| in_array("mitra_bappeda", $user_meta->roles)
+						// ){
+
+						// }
 		
 						$cek_ids = $wpdb->get_results($wpdb->prepare('
 							SELECT
@@ -2327,10 +2389,7 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 								AND tahun_anggaran=%d
 						', $kode_sbl, $v_label_tag['penetapan'], $v_label_tag['usulan'], $tahun_anggaran));
 						$opsi_label_tag = array(
-							'id_label_giat' => $data_label_tag->id_label_giat,
-							'id_unik' => $data_label_tag->id_unik,
 							'is_locked' => $data_label_tag->is_locked,
-							'nama_label' => $data_label_tag->nama_label,
 							'kode_sbl' => $kode_sbl,
 							'active' => 1,
 							'update_at' => current_time('mysql'),
@@ -2339,6 +2398,15 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 							'id_unik_usulan' => $data_label_tag_usulan->id_unik,
 							'nama_label_usulan' => $data_label_tag_usulan->nama_label
 						);
+
+						if(
+							in_array("administrator", $user_meta->roles)
+							|| in_array("mitra_bappeda", $user_meta->roles)
+						){
+							$opsi_label_tag['id_label_giat'] = $data_label_tag->id_label_giat;
+							$opsi_label_tag['id_unik'] = $data_label_tag->id_unik;
+							$opsi_label_tag['nama_label'] = $data_label_tag->nama_label;
+						}
 						
 						if(empty($cek_id)){
 							$wpdb->insert('data_label_sub_keg_lokal', $opsi_label_tag);

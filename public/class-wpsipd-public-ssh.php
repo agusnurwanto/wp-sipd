@@ -1315,7 +1315,7 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 					$url_surat = $this->generatePage($title, $tahun_anggaran, '[surat_usulan_ssh id_surat="'.$val['id'].'"]');
 					$queryRecords[$k]['aksi'] = '
 						<a class="btn btn-sm btn-warning" target="_blank" href="'.$url_surat."&idskpd=".$val['idskpd'].'" title="Cetak Surat Usulan"><i class="dashicons dashicons-printer"></i></a>
-						<a class="btn btn-sm btn-primary" onclick="simpan_surat_usulan(\''.$val['id'].'\'); return false;" href="#" title="Simpan Surat Usulan"><i class="dashicons dashicons-saved"></i></a>
+						<a class="btn btn-sm btn-primary" href="#usulan_ssh_table" onclick="filter_surat_usulan(\''.$val['id'].'\'); return false;"  title="Filter Surat Usulan"><i class="dashicons dashicons-search"></i></a>
 						<a class="btn btn-sm btn-warning" onclick="edit_surat_usulan(this); return false;" href="#" title="Edit Surat Usulan" data-id="'.$val['id'].'" data-nomorsurat="'.$val['nomor_surat'].'" data-idskpd="'.$val['idskpd'].'"><i class="dashicons dashicons-edit"></i></a>
 						<a class="btn btn-sm btn-danger" onclick="hapus_surat_usulan(this); return false;" href="#" title="Hapus Surat Usulan" data-id="'.$val['id'].'" data-nomorsurat="'.$val['nomor_surat'].'" data-idskpd="'.$val['idskpd'].'"><i class="dashicons dashicons-trash"></i></a>';
 
