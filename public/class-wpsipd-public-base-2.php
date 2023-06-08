@@ -1848,25 +1848,25 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 					$data = json_decode(stripslashes($_POST['data']), true);
 					if(empty($data['input_sub_unit'])){
 						$ret['status'] = 'error';
-						$ret['message'] = 'Sub Unit tidak boleh kosong';
+						$ret['message'] = 'Sub Unit tidak boleh kosong!';
 					}elseif(empty($data['input_sub_kegiatan'])){
 						$ret['status'] = 'error';
-						$ret['message'] = 'Sub kegiatan tidak boleh kosong';
+						$ret['message'] = 'Sub kegiatan tidak boleh kosong!';
 					}elseif(
 						!isset($data['input_pagu_sub_keg_usulan'])
 						|| $data['input_pagu_sub_keg_usulan'] == ''
 					){
 						$ret['status'] = 'error';
-						$ret['message'] = 'Pagu usulan tidak boleh kosong';
+						$ret['message'] = 'Pagu usulan tidak boleh kosong!';
 					}elseif(
 						!isset($data['input_pagu_sub_keg_1_usulan'])
 						|| $data['input_pagu_sub_keg_1_usulan'] == ''
 					){
 						$ret['status'] = 'error';
-						$ret['message'] = 'Pagu usulan tahun depan tidak boleh kosong';
+						$ret['message'] = 'Pagu usulan tahun depan tidak boleh kosong!';
 					}elseif(empty($data['input_satuan_usulan'])){
 						$ret['status'] = 'error';
-						$ret['message'] = 'Satuan indikator usulan tidak boleh kosong';
+						$ret['message'] = 'Satuan indikator usulan tidak boleh kosong!';
 					}
 
 					if(
@@ -1892,13 +1892,13 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 						if($ret['status'] != 'error'){
 							if(empty($data['input_indikator_sub_keg_usulan'][$k_sub_keg])){
 								$ret['status'] = 'error';
-								$ret['message'] = 'Indikator usulan tidak boleh kosong';
+								$ret['message'] = 'Indikator usulan tidak boleh kosong!';
 							}elseif(
 								!isset($data['input_target_usulan'][$k_sub_keg])
 								|| $data['input_target_usulan'][$k_sub_keg] == ''
 							){
 								$ret['status'] = 'error';
-								$ret['message'] = 'Target indikator usulan tidak boleh kosong';
+								$ret['message'] = 'Target indikator usulan tidak boleh kosong!';
 							}
 							if(
 								in_array("administrator", $user_meta->roles)
@@ -1909,7 +1909,7 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 									|| $data['input_target'][$k_sub_keg] == ''
 								){
 									$ret['status'] = 'error';
-									$ret['message'] = 'Target indikator penetapan tidak boleh kosong';
+									$ret['message'] = 'Target indikator penetapan tidak boleh kosong!';
 								}
 							}
 						}
@@ -1919,10 +1919,10 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 						if($ret['status'] != 'error'){
 							if(empty($data['input_sumber_dana_usulan'][$k_sumber_dana])){
 								$ret['status'] = 'error';
-								$ret['message'] = 'Sumber Dana usulan tidak boleh kosong';
+								$ret['message'] = 'Sumber Dana usulan tidak boleh kosong!';
 							}elseif(empty($data['input_pagu_sumber_dana_usulan'][$k_sumber_dana])){
 								$ret['status'] = 'error';
-								$ret['message'] = 'Pagu Sumber Dana usulan tidak boleh kosong';
+								$ret['message'] = 'Pagu Sumber Dana usulan tidak boleh kosong!';
 							}
 							if(
 								in_array("administrator", $user_meta->roles)
@@ -1933,7 +1933,7 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 									|| $data['input_pagu_sumber_dana'][$k_sumber_dana] == ''
 								){
 									$ret['status'] = 'error';
-									$ret['message'] = 'Pagu Sumber Dana penetapan tidak boleh kosong';
+									$ret['message'] = 'Pagu Sumber Dana penetapan tidak boleh kosong!';
 								}
 							}
 						}
