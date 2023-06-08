@@ -555,32 +555,36 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
 	            get_data_satuan_ssh(tahun);
 	            get_data_nama_ssh(tahun);
 				jQuery("#usulan_ssh_table_wrapper div:first").addClass("h-100 align-items-center");
-				let html_filter = "<div class='row'><div class='col-sm-12 col-md-10'><select name='filter_action' class='ml-3 bulk-action' id='multi_select_action'>"+
-					"<option value='0'>Tindakan Massal</option>"+
-					"<option value='approve'>Setuju</option>"+
-					"<option value='notapprove'>Tolak</option>"+
-					"<option value='delete'>Hapus</option></select>"+
-				"<button type='submit' class='ml-1 btn btn-secondary' onclick='action_check_data_usulan_ssh()'>Terapkan</button>&nbsp;"+
-				"<select name='filter_status' class='ml-3 bulk-action' id='search_filter_action' onchange='action_filter_data_usulan_ssh()'>"+
-					"<option value=''>Pilih Status</option>"+
-					"<option value='diterima'>Diterima</option>"+
-					"<option value='ditolak'>Ditolak</option>"+
-					"<option value='diterima_admin'>Diterima Admin</option>"+
-					"<option value='ditolak_admin'>Ditolak Admin</option>"+
-					"<option value='diterima_tapdkeu'>Diterima TAPD Keuangan</option>"+
-					"<option value='ditolak_tapdkeu'>Ditolak TAPD Keuangan</option>"+
-					"<option value='menunggu'>Menunggu</option>"+
-					"<option value='sudah_upload_sipd'>Sudah upload SIPD</option>"+
-					"<option value='belum_upload_sipd'>Belum upload SIPD</option>"+
-				"</select>&nbsp;"
-				+"<select name='filter_opd' class='ml-3 bulk-action' id='search_filter_action_opd' style='width:50%' onchange='action_filter_data_usulan_ssh()'></select>";
-				+"<select name='filter_surat' class='ml-3 bulk-action' id='search_filter_surat' style='width:50%' onchange='action_filter_data_usulan_ssh()'></select>";
-				
-				// jQuery("#usulan_ssh_table_length").append(html_filter);
+				let html_filter = ""
+				+"<select name='filter_action' class='ml-3 bulk-action' id='multi_select_action'>"
+					+"<option value='0'>Tindakan Massal</option>"
+					+"<option value='approve'>Setuju</option>"
+					+"<option value='notapprove'>Tolak</option>"
+					+"<option value='delete'>Hapus</option>"
+				+"</select>"
+				+"<button type='submit' class='ml-1 btn btn-secondary' onclick='action_check_data_usulan_ssh()'>Terapkan</button>&nbsp;"
+				+"<select name='filter_status' class='ml-3 bulk-action' id='search_filter_action' onchange='action_filter_data_usulan_ssh()'>"
+					+"<option value=''>Pilih Status</option>"
+					+"<option value='diterima'>Diterima</option>"
+					+"<option value='ditolak'>Ditolak</option>"
+					+"<option value='diterima_admin'>Diterima Admin</option>"
+					+"<option value='ditolak_admin'>Ditolak Admin</option>"
+					+"<option value='diterima_tapdkeu'>Diterima TAPD Keuangan</option>"
+					+"<option value='ditolak_tapdkeu'>Ditolak TAPD Keuangan</option>"
+					+"<option value='menunggu'>Menunggu</option>"
+					+"<option value='sudah_upload_sipd'>Sudah upload SIPD</option>"
+					+"<option value='belum_upload_sipd'>Belum upload SIPD</option>"
+				+"</select>&nbsp;"
+				+"<select name='filter_opd' class='ml-3 bulk-action' id='search_filter_action_opd' style='min-width:400px' onchange='action_filter_data_usulan_ssh()'>"
+				+"</select>&nbsp;"
+				+"<select name='filter_surat' class='ml-3 bulk-action' id='search_filter_surat' style='min-width:200px' onchange='action_filter_data_usulan_ssh()'>"
+					+"<option value=''>Pilih Surat</option>"
+				+"</select>";
 				
 				jQuery(".h-100").after(html_filter);
 				jQuery("#multi_select_action").select2();
 				jQuery("#search_filter_action").select2();
+				jQuery('#search_filter_surat').html(html_surat_usulan);
 				jQuery("#search_filter_surat").select2();
 				jQuery("#search_filter_action_opd").html('<?php echo $list_skpd_options; ?>');
 			    jQuery("#search_filter_action_opd").select2();
@@ -835,6 +839,13 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
 		        ],
 		        "drawCallback": function(settings){
 		        	var api = this.api();
+		        	console.log('api', api.rows().data());
+		        	window.html_surat_usulan = ""
+		        		+"<option value=''>Pilih Surat</option>";
+		        	api.rows().data().map(function(b, i){
+		        		html_surat_usulan += "<option value='"+b.nomor_surat+"'>"+b.nomor_surat+"</option>";
+		        	});
+		        	jQuery('#search_filter_surat').html(html_surat_usulan);
 		        	resolve();
 		        }
 			});

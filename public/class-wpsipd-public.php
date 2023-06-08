@@ -6909,19 +6909,43 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 			if(!empty($id_user_sipd)){
 				$skpd_mitra = $wpdb->get_results($wpdb->prepare("
 					SELECT 
-						nama_skpd, 
-						id_unit, 
-						kode_skpd 
-					from data_skpd_mitra_bappeda 
-					where active=1 
-						and id_user=".$id_user_sipd[0]." 
-						and tahun_anggaran=%d 
+						m.nama_skpd, 
+						m.id_unit, 
+						m.kode_skpd,
+						u.is_skpd
+					from data_skpd_mitra_bappeda m
+						inner join data_unit u on m.id_unit=u.id_skpd
+							and u.active=1
+							and u.tahun_anggaran=m.tahun_anggaran
+					where m.active=1 
+						and m.id_user=".$id_user_sipd[0]." 
+						and m.tahun_anggaran=%d 
+						and u.is_skpd=1
 					group by id_unit", $_GET['tahun']), ARRAY_A);
 				foreach ($skpd_mitra as $k => $v) {
 					$this->menu_monev_skpd(array(
 						'id_skpd' => $v['id_unit'],
 						'nama_skpd' => $v['nama_skpd']
 					));
+					if($v['is_skpd'] == 1){
+						$sub_skpd_db = $wpdb->get_results($wpdb->prepare("
+							SELECT 
+								nama_skpd, 
+								id_skpd, 
+								kode_skpd,
+								is_skpd
+							from data_unit 
+							where id_unit=%d 
+								and tahun_anggaran=%d
+								and is_skpd=0
+							group by id_skpd", $v['id_unit'], $_GET['tahun']), ARRAY_A);
+						foreach ($sub_skpd_db as $sub_skpd) {
+							$this->menu_monev_skpd(array(
+								'id_skpd' => $sub_skpd['id_skpd'],
+								'nama_skpd' => $sub_skpd['nama_skpd']
+							));
+						}
+					}
 				}
 			}else{
 				echo 'User ID SIPD tidak ditemukan!';
