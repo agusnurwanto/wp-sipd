@@ -154,6 +154,15 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
 	button[disabled], input[disabled], textarea[disabled] {
 	    background: #dfdfdf;
 	}
+	#toolbar_ssh_usulan {
+		margin: 0;
+	}
+	#toolbar_ssh_usulan li{
+		list-style: none;
+		display: inline-block;
+		margin-left: 10px;
+		margin-top: 5px;
+	}
 </style>
 <div class="cetak">
 	<div style="padding: 10px;">
@@ -556,30 +565,40 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
 	            get_data_nama_ssh(tahun);
 				jQuery("#usulan_ssh_table_wrapper div:first").addClass("h-100 align-items-center");
 				let html_filter = ""
-				+"<select name='filter_action' class='ml-3 bulk-action' id='multi_select_action'>"
-					+"<option value='0'>Tindakan Massal</option>"
-					+"<option value='approve'>Setuju</option>"
-					+"<option value='notapprove'>Tolak</option>"
-					+"<option value='delete'>Hapus</option>"
-				+"</select>"
-				+"<button type='submit' class='ml-1 btn btn-secondary' onclick='action_check_data_usulan_ssh()'>Terapkan</button>&nbsp;"
-				+"<select name='filter_status' class='ml-3 bulk-action' id='search_filter_action' onchange='action_filter_data_usulan_ssh()'>"
-					+"<option value=''>Pilih Status</option>"
-					+"<option value='diterima'>Diterima</option>"
-					+"<option value='ditolak'>Ditolak</option>"
-					+"<option value='diterima_admin'>Diterima Admin</option>"
-					+"<option value='ditolak_admin'>Ditolak Admin</option>"
-					+"<option value='diterima_tapdkeu'>Diterima TAPD Keuangan</option>"
-					+"<option value='ditolak_tapdkeu'>Ditolak TAPD Keuangan</option>"
-					+"<option value='menunggu'>Menunggu</option>"
-					+"<option value='sudah_upload_sipd'>Sudah upload SIPD</option>"
-					+"<option value='belum_upload_sipd'>Belum upload SIPD</option>"
-				+"</select>&nbsp;"
-				+"<select name='filter_opd' class='ml-3 bulk-action' id='search_filter_action_opd' style='min-width:400px' onchange='action_filter_data_usulan_ssh()'>"
-				+"</select>&nbsp;"
-				+"<select name='filter_surat' class='ml-3 bulk-action' id='search_filter_surat' style='min-width:200px' onchange='action_filter_data_usulan_ssh()'>"
-					+"<option value=''>Pilih Surat</option>"
-				+"</select>";
+				+"<ul id='toolbar_ssh_usulan'>"
+					+"<li>"
+						+"<select name='filter_action' class='ml-3 bulk-action' id='multi_select_action'>"
+							+"<option value='0'>Tindakan Massal</option>"
+							+"<option value='approve'>Setuju</option>"
+							+"<option value='notapprove'>Tolak</option>"
+							+"<option value='delete'>Hapus</option>"
+						+"</select>"
+						+"<button style='margin-left: 10px;' type='submit' class='ml-1 btn btn-secondary' onclick='action_check_data_usulan_ssh()'>Terapkan</button>"
+					+"</li>"
+					+"<li>"
+						+"<select name='filter_status' class='ml-3 bulk-action' id='search_filter_action' onchange='action_filter_data_usulan_ssh()'>"
+							+"<option value=''>Pilih Status</option>"
+							+"<option value='diterima'>Diterima</option>"
+							+"<option value='ditolak'>Ditolak</option>"
+							+"<option value='diterima_admin'>Diterima Admin</option>"
+							+"<option value='ditolak_admin'>Ditolak Admin</option>"
+							+"<option value='diterima_tapdkeu'>Diterima TAPD Keuangan</option>"
+							+"<option value='ditolak_tapdkeu'>Ditolak TAPD Keuangan</option>"
+							+"<option value='menunggu'>Menunggu</option>"
+							+"<option value='sudah_upload_sipd'>Sudah upload SIPD</option>"
+							+"<option value='belum_upload_sipd'>Belum upload SIPD</option>"
+						+"</select>"
+					+"</li>"
+					+"<li>"
+						+"<select name='filter_opd' class='ml-3 bulk-action' id='search_filter_action_opd' style='margin-left: 10px;' onchange='action_filter_data_usulan_ssh()'>"
+						+"</select>"
+					+"</li>"
+					+"<li>"
+						+"<select name='filter_surat' class='ml-3 bulk-action' id='search_filter_surat' style='margin-left: 10px; width:200px;' onchange='action_filter_data_usulan_ssh()'>"
+							+"<option value=''>Pilih Surat</option>"
+						+"</select>"
+					+"</li>"
+				+"</ul>";
 				
 				jQuery(".h-100").after(html_filter);
 				jQuery("#multi_select_action").select2();
@@ -662,7 +681,7 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
 			globalThis.usulanSSHTable = jQuery('#usulan_ssh_table')
 			.on('preXhr.dt', function ( e, settings, data ) {
 				jQuery("#wrap-loading").show();
-				console.log('preXhr.dt');
+				// console.log('preXhr.dt');
 				data.filter = jQuery("#search_filter_action").val();
 				data.filter_opd = jQuery("#search_filter_action_opd").val();
 				data.filter_surat = jQuery("#search_filter_surat").val();
@@ -760,7 +779,7 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
 			  	},
 				"drawCallback": function(settings) {
 					var api = this.api();
-					console.log('drawCallback');
+					// console.log('drawCallback');
 					jQuery("#wrap-loading").hide();
 					resolve();
 				}
@@ -839,7 +858,7 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
 		        ],
 		        "drawCallback": function(settings){
 		        	var api = this.api();
-		        	console.log('api', api.rows().data());
+		        	// console.log('api', api.rows().data());
 		        	window.html_surat_usulan = ""
 		        		+"<option value=''>Pilih Surat</option>";
 		        	api.rows().data().map(function(b, i){
@@ -1941,7 +1960,6 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
 
 	function action_filter_data_usulan_ssh(){
 		usulanSSHTable.draw();
-		jQuery("#wrap-loading").hide();
 	}
 
 	function readMore(btn){
@@ -2283,5 +2301,13 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
 				}
 		    }
 		});
+	}
+	
+	function filter_surat_usulan(nomor_surat){
+		jQuery('#search_filter_surat').val(nomor_surat).trigger('change');
+		jQuery('html, body').animate({
+	        scrollTop: jQuery("#usulan_ssh_table").offset().top
+	    }, 1000);
+		return false;
 	}
 </script> 

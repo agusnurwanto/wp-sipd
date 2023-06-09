@@ -1315,7 +1315,7 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 					$url_surat = $this->generatePage($title, $tahun_anggaran, '[surat_usulan_ssh id_surat="'.$val['id'].'"]');
 					$queryRecords[$k]['aksi'] = '
 						<a class="btn btn-sm btn-warning" target="_blank" href="'.$url_surat."&idskpd=".$val['idskpd'].'" title="Cetak Surat Usulan"><i class="dashicons dashicons-printer"></i></a>
-						<a class="btn btn-sm btn-primary" href="#usulan_ssh_table" onclick="filter_surat_usulan(\''.$val['id'].'\'); return false;"  title="Filter Surat Usulan"><i class="dashicons dashicons-search"></i></a>
+						<a class="btn btn-sm btn-primary" onclick="filter_surat_usulan(\''.$val['nomor_surat'].'\'); return false;" href="#" title="Filter Surat Usulan"><i class="dashicons dashicons-search"></i></a>
 						<a class="btn btn-sm btn-warning" onclick="edit_surat_usulan(this); return false;" href="#" title="Edit Surat Usulan" data-id="'.$val['id'].'" data-nomorsurat="'.$val['nomor_surat'].'" data-idskpd="'.$val['idskpd'].'"><i class="dashicons dashicons-edit"></i></a>
 						<a class="btn btn-sm btn-danger" onclick="hapus_surat_usulan(this); return false;" href="#" title="Hapus Surat Usulan" data-id="'.$val['id'].'" data-nomorsurat="'.$val['nomor_surat'].'" data-idskpd="'.$val['idskpd'].'"><i class="dashicons dashicons-trash"></i></a>';
 
@@ -1475,7 +1475,11 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 				}
 				
 				if(!empty($_POST['filter_opd'])){
-					$where .=" AND id_sub_skpd = " . $_POST['filter_opd'];
+					$where .=" AND id_sub_skpd = ".$wpdb->prepare('%s', $_POST['filter_opd']);
+				}
+				
+				if(!empty($_POST['filter_surat'])){
+					$where .=" AND no_surat_usulan = ".$wpdb->prepare('%s', $_POST['filter_surat']);
 				}
 
 				/** Jika admin tampilkan semua data */
