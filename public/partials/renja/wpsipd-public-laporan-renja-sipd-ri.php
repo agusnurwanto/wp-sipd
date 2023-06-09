@@ -522,6 +522,10 @@ foreach($data_skpd as $skpd){
                             if(!empty($sub_giat['data']['label_pusat'])){
                                 $labe_pusat = $sub_giat['data']['label_pusat'];
                             }
+                            $label_kokab = '-';
+                            if(!empty($sub_giat['data']['label_kokab'])){
+                                $labe_kokab = $sub_giat['data']['label_kokab'];
+                            }
                             $kode_sbl = $sub_giat['data']['kode_sbl'];
                             $body .= '
                                 <tr tipe="sub-kegiatan" kode="'.$kode_sbl.'">
@@ -545,7 +549,7 @@ foreach($data_skpd as $skpd){
                                     <td class="kanan bawah">'.$lokasi_sub_giat.'</td>
                                     <td class="kanan bawah">'.$dana_sub_giat.'</td>
                                     <td class="kanan bawah text_tengah">'.$label_pusat.'</td>
-                                    <td class="kanan bawah text_tengah">-</td>
+                                    <td class="kanan bawah text_tengah">'.$label_kokab.'</td>
                                     <td class="kanan bawah">'.$sasaran.'</td>
                                     <td class="kanan bawah"></td>
                                     <td class="kanan bawah text_kanan text_blok">'.number_format($sub_giat['total_n_plus'],0,",",".").'</td>
@@ -561,6 +565,7 @@ foreach($data_skpd as $skpd){
 
     $nama_laporan = 'RENJA '.strtoupper($nama_sub_skpd).'<br>TAHUN ANGGARAN '.$input['tahun_anggaran'].' '.strtoupper($nama_pemda);
     echo '
+    <button type="button" style="background-color:#FFD670; text-align: center; margin: 10px auto; display: block;" class="btn">Laporan Jadwal '.$jadwal_lokal->nama_jadwal.'</button>
     <h4 style="text-align: center; margin: 10px auto; min-width: 450px; max-width: 570px; font-weight: bold;">'.$nama_laporan.'</h4>
     <div id="wrap-table">
         <table cellpadding="2" cellspacing="0" style="font-family:\'Open Sans\',-apple-system,BlinkMacSystemFont,\'Segoe UI\',sans-serif; border-collapse: collapse; width: 1800px; table-layout: fixed; overflow-wrap: break-word; font-size: 60%; border: 0;">

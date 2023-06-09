@@ -329,6 +329,26 @@ $body = '';
 		})
 	}
 
+	function get_jadwal_by_id(id_jadwal_lokal){
+		return new Promise(function(resolve, reject){
+			jQuery("#wrap-loading").show()
+			jQuery.ajax({
+				url: thisAjaxUrl,
+				type:"post",
+				data:{
+					'action' 			: "get_data_jadwal_by_id",
+					'api_key' 			: jQuery("#api_key").val(),
+					'id_jadwal_lokal' 	: id_jadwal_lokal
+				},
+				dataType: "json",
+				success:function(response){
+					jQuery("#wrap-loading").hide()
+					return resolve(response);
+				}
+			})
+		})
+	}
+
 	function submitEditJadwalForm(id_jadwal_lokal){
 		jQuery("#wrap-loading").show()
 		let nama = jQuery('#jadwal_nama').val()
@@ -487,7 +507,7 @@ $body = '';
 			  <div class="modal-dialog modal-lg" role="document" style="min-width:1450px">
 			    <div class="modal-content">
 			      <div class="modal-header">
-			        <h5 class="modal-title">Report</h5>
+			        <h5 class="modal-title">Laporan</h5>
 			        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
 			          <span aria-hidden="true">&times;</span>
 			        </button>
@@ -526,10 +546,14 @@ $body = '';
 			</div>`;
 
 		jQuery("body .report").html(modal);
-		list_perangkat_daerah()
-		.then(function(){
-			jQuery("#modal-report").modal('show');
-			jQuery('.jenis').select2({width: '100%'});
+		get_jadwal_by_id(id_jadwal_lokal)
+		.then(function(response){
+			jQuery(".modal-title").html("Laporan Jadwal "+response.data.nama)
+			list_perangkat_daerah()
+			.then(function(){
+				jQuery("#modal-report").modal('show');
+				jQuery('.jenis').select2({width: '100%'});
+			})
 		});
 	}
 
@@ -603,6 +627,27 @@ $body = '';
 				    jQuery('#modal-report .action-footer .dt-buttons').css('margin-left', '5px');
 				    jQuery('#modal-report .action-footer .buttons-excel').addClass('btn btn-primary');
 				    jQuery('#modal-report .action-footer .buttons-excel span').html('Export Excel');
+
+					var table = jQuery("#table-renja-pendapatan").DataTable( {
+				        lengthMenu: [
+				            [10, 25, 50, -1],
+				            [10, 25, 50, 'All'],
+				        ]
+				    } );
+
+					var table = jQuery("#table-renja-penerimaan").DataTable( {
+				        lengthMenu: [
+				            [10, 25, 50, -1],
+				            [10, 25, 50, 'All'],
+				        ]
+				    } );
+
+					var table = jQuery("#table-renja-pengeluaran").DataTable( {
+				        lengthMenu: [
+				            [10, 25, 50, -1],
+				            [10, 25, 50, 'All'],
+				        ]
+				    } );
 				}
 				jQuery("#wrap-loading").hide();
 			}

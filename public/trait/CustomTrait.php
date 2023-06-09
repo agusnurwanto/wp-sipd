@@ -22,8 +22,8 @@ trait CustomTrait {
 					throw new Exception('Lokasi folder belum ditentukan');
 				}
 
-				$fileExt = explode(".", $file['name']);
-				if(!in_array(strtolower(end($fileExt)), $ext)){
+				$imageFileType = strtolower(pathinfo($path.basename($file["name"]),PATHINFO_EXTENSION));
+				if(!in_array($imageFileType, $ext)){
 					throw new Exception('Lampiran wajib ber-type ' . implode(", ", $ext));
 				}
 
@@ -32,7 +32,10 @@ trait CustomTrait {
 				}
 
 				if(!empty($nama_file)){
-					$file['name'] = $nama_file.'.'.$fileExt;
+					$file['name'] = $nama_file.'.'.$imageFileType;
+				}else{
+					$nama_file = date('Y-m-d-H-i-s');
+					$file['name'] = $nama_file.'-'.$file['name'];
 				}
 				$target = $path .  $file['name'];
 				if(move_uploaded_file($file['tmp_name'], $target)){
