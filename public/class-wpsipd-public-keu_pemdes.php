@@ -850,6 +850,50 @@ public function get_pemdes_bkk(){
     die(json_encode($ret));
 }
 
+public function get_pencairan_pemdes_bkk($return = false){
+    global $wpdb;
+    $ret = array(
+        'status' => 'success',
+        'message' => 'Berhasil get data!'
+    );
+    if(!empty($_POST)){
+        if(!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+            $ret['total_pencairan'] = $wpdb->get_var($wpdb->prepare('
+                SELECT 
+                    SUM(total_pencairan) 
+                FROM data_pencairan_bkk_desa
+                WHERE id_kegiatan=%d
+                    AND status=1
+            ', $_POST['id']));
+            $ret['sql'] = $wpdb->last_query;
+            $ret['pagu_anggaran'] = $wpdb->get_var($wpdb->prepare('
+                SELECT 
+                    total 
+                FROM data_bkk_desa
+                WHERE id=%d
+                    AND active=1
+            ', $_POST['id']));
+            if(empty($ret['total_pencairan'])){
+                $ret['total_pencairan'] = 0;
+            }
+            if(empty($ret['pagu_anggaran'])){
+                $ret['pagu_anggaran'] = 0;
+            }
+        }else{
+            $ret['status']  = 'error';
+            $ret['message'] = 'Api key tidak ditemukan!';
+        }
+    }else{
+        $ret['status']  = 'error';
+        $ret['message'] = 'Format Salah!';
+    }
+    if(!empty($return)){
+        return $ret;
+    }else{
+        die(json_encode($ret));
+    }
+}
+
 public function get_data_pencairan_bkk_by_id(){
     global $wpdb;
     $ret = array(
@@ -901,7 +945,7 @@ public function hapus_data_pencairan_bkk_by_id(){
     );
     if(!empty($_POST)){
         if(!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
-            $ret['data'] = $wpdb->update('data_pencairan_bkk_desa', array('status' => 0), array(
+            $ret['data'] = $wpdb->update('data_pencairan_bkk_desa', array('status' => 3), array(
                 'id' => $_POST['id']
             ));
         }else{
@@ -940,14 +984,24 @@ public function tambah_data_pencairan_bkk(){
             if($ret['status'] != 'error' && !empty($_POST['proposal'])){
                 $proposal = $_POST['proposal'];
             }
+            $_POST['id'] = $id_kegiatan;
+            $pencairan = $this->get_pencairan_pemdes_bkk(true);
+            if(($pencairan['total_pencairan']+$pagu_anggaran) > $pencairan['pagu_anggaran']){
+                $ret['status'] = 'error';
+                $ret['message'] = 'Total pencairan tidak boleh lebih dari sisa pencairan!';
+            }
             $status_pagu = $_POST['status_pagu'];
             $keterangan_status_pagu = $_POST['keterangan_status_pagu'];
             $status_file = $_POST['status_file'];
             $keterangan_status_file = $_POST['keterangan_status_file'];
             if($ret['status'] != 'error'){
-                $status = 1;
-                if($status_pagu == 0 || $status_file == 0){
-                    $status = 2;
+                if(empty($_POST['id_data'])){
+                    $status = 0;
+                }else{
+                    $status = 1;
+                    if($status_pagu == 0){
+                        $status = 2;
+                    }
                 }
                 $data = array(
                     'id_kegiatan' => $id_kegiatan,
@@ -1041,7 +1095,7 @@ public function get_datatable_data_pencairan_bkk(){
                 // getting total number records without any search
                 $sql_tot = "SELECT count(p.id) as jml FROM `data_pencairan_bkk_desa` p inner join data_bkk_desa d on p.id_kegiatan=d.id";
                 $sql = "SELECT ".implode(', ', $columns)." FROM `data_pencairan_bkk_desa` p inner join data_bkk_desa d on p.id_kegiatan=d.id";
-                $where_first = " WHERE 1=1 AND status >= 1";
+                $where_first = " WHERE 1=1 AND status != 3";
                 $sqlTot .= $sql_tot.$where_first;
                 $sqlRec .= $sql.$where_first;
                 if(isset($where) && $where != '') {
@@ -1060,22 +1114,23 @@ public function get_datatable_data_pencairan_bkk(){
                 $queryRecords = $wpdb->get_results($sqlRec, ARRAY_A);
 
                 foreach($queryRecords as $recKey => $recVal){
-                    $btn = '<a class="btn btn-sm btn-warning" onclick="edit_data(\''.$recVal['id'].'\'); return false;" href="#" title="Edit Data"><i class="dashicons dashicons-edit"></i></a>';
-                    $btn .= '<a style="margin-left: 10px;" class="btn btn-sm btn-danger" onclick="hapus_data(\''.$recVal['id'].'\'); return false;" href="#" title="Edit Data"><i class="dashicons dashicons-trash"></i></a>';
+                    $btn = '<a class="btn btn-sm btn-primary" onclick="detail_data(\''.$recVal['id'].'\'); return false;" href="#" title="Detail Data"><i class="dashicons dashicons-search"></i></a>';
+                    if ($recVal['status'] != 1) {
+                        $btn .= '<a style="margin-left: 10px;" class="btn btn-sm btn-warning" onclick="edit_data(\''.$recVal['id'].'\'); return false;" href="#" title="Edit Data"><i class="dashicons dashicons-edit"></i></a>';
+                        $btn .= '<a style="margin-left: 10px;" class="btn btn-sm btn-danger" onclick="hapus_data(\''.$recVal['id'].'\'); return false;" href="#" title="Edit Data"><i class="dashicons dashicons-trash"></i></a>';
+                    }
                     $queryRecords[$recKey]['aksi'] = $btn;
                     if($recVal['status'] == 0){
-                        $queryRecords[$recKey]['status'] = 'Belum dicek';
+                        $queryRecords[$recKey]['status'] = '<span class="btn btn-primary btn-sm">Belum dicek</span>';
                     }elseif ($recVal['status'] == 1) {
-                        $queryRecords[$recKey]['status'] = 'Diterima';
+                        $queryRecords[$recKey]['status'] = '<span class="btn btn-success btn-sm">Diterima</span>';
                     }elseif ($recVal['status'] == 2) {
                         $pesan = '';
-                        if ($recVal['status_ver_total'] == 0){
+                        if ($recVal['status_ver_total' && 'status_ver_proposal'] == 0){
                             $pesan .= '<br>Keterangan Pagu: '.$recVal['ket_ver_total']; 
+                            $pesan .= '<br>Keterangan File: '.$recVal['ket_ver_proposal']; 
                         }
-                        if ($recVal['status_ver_proposal'] == 0){
-                            $pesan .= '<br>Keterangan Proposal: '.$recVal['ket_ver_proposal'];
-                        }
-                        $queryRecords[$recKey]['status'] = 'Ditolak <br>'.$pesan;
+                        $queryRecords[$recKey]['status'] = '<span class="btn btn-danger btn-sm">Ditolak</span>'.$pesan;
                     }
                 }
 
@@ -1135,6 +1190,50 @@ public function get_pemdes_bhpd(){
     die(json_encode($ret));
 }
 
+public function get_pencairan_pemdes_bhpd($return = false){
+    global $wpdb;
+    $ret = array(
+        'status' => 'success',
+        'message' => 'Berhasil get data!'
+    );
+    if(!empty($_POST)){
+        if(!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+            $ret['total_pencairan'] = $wpdb->get_var($wpdb->prepare('
+                SELECT 
+                    SUM(total_pencairan) 
+                FROM data_pencairan_bhpd_desa
+                WHERE id_bhpd=%d
+                    AND status=1
+            ', $_POST['id']));
+            $ret['sql'] = $wpdb->last_query;
+            $ret['pagu_anggaran'] = $wpdb->get_var($wpdb->prepare('
+                SELECT 
+                    total 
+                FROM data_bhpd_desa
+                WHERE id=%d
+                    AND active=1
+            ', $_POST['id']));
+            if(empty($ret['total_pencairan'])){
+                $ret['total_pencairan'] = 0;
+            }
+            if(empty($ret['pagu_anggaran'])){
+                $ret['pagu_anggaran'] = 0;
+            }
+        }else{
+            $ret['status']  = 'error';
+            $ret['message'] = 'Api key tidak ditemukan!';
+        }
+    }else{
+        $ret['status']  = 'error';
+        $ret['message'] = 'Format Salah!';
+    }
+    if(!empty($return)){
+        return $ret;
+    }else{
+        die(json_encode($ret));
+    }
+}
+
 public function get_data_pencairan_bhpd_by_id(){
     global $wpdb;
     $ret = array(
@@ -1182,7 +1281,7 @@ public function hapus_data_pencairan_bhpd_by_id(){
     );
     if(!empty($_POST)){
         if(!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
-            $ret['data'] = $wpdb->update('data_pencairan_bhpd_desa', array('status' => 0), array(
+            $ret['data'] = $wpdb->update('data_pencairan_bhpd_desa', array('status' => 3), array(
                 'id' => $_POST['id']
             ));
         }else{
@@ -1208,6 +1307,9 @@ public function tambah_data_pencairan_bhpd(){
         if(!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
             if($ret['status'] != 'error' && !empty($_POST['id_bhpd'])){
                 $id_bhpd = $_POST['id_bhpd'];
+            }else{
+                $ret['status'] = 'error';
+                $ret['message'] = 'Pilih Uraian Kegiatan Dulu!';
             }
             if($ret['status'] != 'error' && !empty($_POST['pagu_anggaran'])){
                 $pagu_anggaran = $_POST['pagu_anggaran'];
@@ -1215,15 +1317,23 @@ public function tambah_data_pencairan_bhpd(){
                 $ret['status'] = 'error';
                 $ret['message'] = 'Pagu tidak boleh kosong!';
             }
-            if($ret['status'] != 'error' && !empty($_POST['keterangan'])){
-                $keterangan = $_POST['keterangan'];
+            $_POST['id'] = $id_bhpd;
+            $pencairan = $this->get_pencairan_pemdes_bhpd(true);
+            if(($pencairan['total_pencairan']+$pagu_anggaran) > $pencairan['pagu_anggaran']){
+                $ret['status'] = 'error';
+                $ret['message'] = 'Total pencairan tidak boleh lebih dari sisa pencairan!';
             }
+            $validasi_pagu = $_POST['validasi_pagu'];
             $status_pagu = $_POST['status_pagu'];
             $keterangan_status_pagu = $_POST['keterangan_status_pagu'];
             if($ret['status'] != 'error'){
-                $status = 1;
-                if($status_pagu == 0){
-                    $status = 2;
+                if(empty($_POST['id_data'])){
+                    $status = 0;
+                }else{
+                    $status = 1;
+                    if($status_pagu == 0){
+                        $status = 2;
+                    }
                 }
                 $data = array(
                     'id_bhpd' => $id_bhpd,
@@ -1309,7 +1419,7 @@ public function get_datatable_data_pencairan_bhpd(){
                 // getting total number records without any search
                 $sql_tot = "SELECT count(p.id) as jml FROM `data_pencairan_bhpd_desa` p inner join data_bhpd_desa d on p.id_bhpd=d.id";
                 $sql = "SELECT ".implode(', ', $columns)." FROM `data_pencairan_bhpd_desa` p inner join data_bhpd_desa d on p.id_bhpd=d.id";
-                $where_first = " WHERE 1=1 AND status >= 1";
+                $where_first = " WHERE 1=1 AND status != 3";
                 $sqlTot .= $sql_tot.$where_first;
                 $sqlRec .= $sql.$where_first;
                 if(isset($where) && $where != '') {
@@ -1328,19 +1438,22 @@ public function get_datatable_data_pencairan_bhpd(){
                 $queryRecords = $wpdb->get_results($sqlRec, ARRAY_A);
 
                 foreach($queryRecords as $recKey => $recVal){
-                    $btn = '<a class="btn btn-sm btn-warning" onclick="edit_data(\''.$recVal['id'].'\'); return false;" href="#" title="Edit Data"><i class="dashicons dashicons-edit"></i></a>';
-                    $btn .= '<a style="margin-left: 10px;" class="btn btn-sm btn-danger" onclick="hapus_data(\''.$recVal['id'].'\'); return false;" href="#" title="Edit Data"><i class="dashicons dashicons-trash"></i></a>';
+                    $btn = '<a class="btn btn-sm btn-primary" onclick="detail_data(\''.$recVal['id'].'\'); return false;" href="#" title="Detail Data"><i class="dashicons dashicons-search"></i></a>';
+                    if ($recVal['status'] != 1) {
+                        $btn = '<a class="btn btn-sm btn-warning" onclick="edit_data(\''.$recVal['id'].'\'); return false;" href="#" title="Edit Data"><i class="dashicons dashicons-edit"></i></a>';
+                        $btn .= '<a style="margin-left: 10px;" class="btn btn-sm btn-danger" onclick="hapus_data(\''.$recVal['id'].'\'); return false;" href="#" title="Edit Data"><i class="dashicons dashicons-trash"></i></a>';
+                    }
                     $queryRecords[$recKey]['aksi'] = $btn;
                     if($recVal['status'] == 0){
-                        $queryRecords[$recKey]['status'] = 'Belum dicek';
+                        $queryRecords[$recKey]['status'] = '<span class="btn btn-primary btn-sm">Belum dicek</span>';
                     }elseif ($recVal['status'] == 1) {
-                        $queryRecords[$recKey]['status'] = 'Diterima';
+                        $queryRecords[$recKey]['status'] = '<span class="btn btn-success btn-sm">Diterima</span>';
                     }elseif ($recVal['status'] == 2) {
                         $pesan = '';
                         if ($recVal['status_ver_total'] == 0){
                             $pesan .= '<br>Keterangan Pagu: '.$recVal['ket_ver_total']; 
                         }
-                        $queryRecords[$recKey]['status'] = 'Ditolak <br>'.$pesan;
+                        $queryRecords[$recKey]['status'] = '<span class="btn btn-danger btn-sm">Ditolak</span>'.$pesan;
                     }
                 }
 
@@ -1366,7 +1479,7 @@ public function get_datatable_data_pencairan_bhpd(){
             );
         }
         die(json_encode($return));
-    } 
+    }  
 
 public function get_pemdes_bhrd(){
     global $wpdb;
@@ -1398,6 +1511,50 @@ public function get_pemdes_bhrd(){
         );
     }
     die(json_encode($ret));
+}
+
+public function get_pencairan_pemdes_bhrd($return = false){
+    global $wpdb;
+    $ret = array(
+        'status' => 'success',
+        'message' => 'Berhasil get data!'
+    );
+    if(!empty($_POST)){
+        if(!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+            $ret['total_pencairan'] = $wpdb->get_var($wpdb->prepare('
+                SELECT 
+                    SUM(total_pencairan) 
+                FROM data_pencairan_bhrd_desa
+                WHERE id_bhrd=%d
+                    AND status=1
+            ', $_POST['id']));
+            $ret['sql'] = $wpdb->last_query;
+            $ret['pagu_anggaran'] = $wpdb->get_var($wpdb->prepare('
+                SELECT 
+                    total 
+                FROM data_bhrd_desa
+                WHERE id=%d
+                    AND active=1
+            ', $_POST['id']));
+            if(empty($ret['total_pencairan'])){
+                $ret['total_pencairan'] = 0;
+            }
+            if(empty($ret['pagu_anggaran'])){
+                $ret['pagu_anggaran'] = 0;
+            }
+        }else{
+            $ret['status']  = 'error';
+            $ret['message'] = 'Api key tidak ditemukan!';
+        }
+    }else{
+        $ret['status']  = 'error';
+        $ret['message'] = 'Format Salah!';
+    }
+    if(!empty($return)){
+        return $ret;
+    }else{
+        die(json_encode($ret));
+    }
 }
 
 public function get_data_pencairan_bhrd_by_id(){
@@ -1473,6 +1630,9 @@ public function tambah_data_pencairan_bhrd(){
         if(!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
             if($ret['status'] != 'error' && !empty($_POST['id_bhrd'])){
                 $id_bhrd = $_POST['id_bhrd'];
+            }else{
+                $ret['status'] = 'error';
+                $ret['message'] = 'Pilih Uraian Kegiatan Dulu!';
             }
             if($ret['status'] != 'error' && !empty($_POST['pagu_anggaran'])){
                 $pagu_anggaran = $_POST['pagu_anggaran'];
@@ -1480,9 +1640,13 @@ public function tambah_data_pencairan_bhrd(){
                 $ret['status'] = 'error';
                 $ret['message'] = 'Pagu tidak boleh kosong!';
             }
-            if($ret['status'] != 'error' && !empty($_POST['keterangan'])){
-                $keterangan = $_POST['keterangan'];
+            $_POST['id'] = $id_bhrd;
+            $pencairan = $this->get_pencairan_pemdes_bhrd(true);
+            if(($pencairan['total_pencairan']+$pagu_anggaran) > $pencairan['pagu_anggaran']){
+                $ret['status'] = 'error';
+                $ret['message'] = 'Total pencairan tidak boleh lebih dari sisa pencairan!';
             }
+            $validasi_pagu = $_POST['validasi_pagu'];
             $status_pagu = $_POST['status_pagu'];
             $keterangan_status_pagu = $_POST['keterangan_status_pagu'];
             if($ret['status'] != 'error'){
