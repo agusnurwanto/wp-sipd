@@ -43,7 +43,15 @@ $chart_kec = array(
     'color2' => array()
 );
 foreach($data as $i => $val){
-    $realisasi = 0;
+    $realisasi = $wpdb->get_var($wpdb->prepare("
+        SELECT 
+            SUM(p.total_pencairan) 
+        FROM data_pencairan_bhpd_desa p
+        INNER JOIN data_bhpd_desa b on p.id_kegiatan=b.id
+            AND b.active=1
+            AND b.tahun_anggaran=%d
+        WHERE b.kecamatan=%s
+        ", $input['tahun_anggaran'], $val['kecamatan']));
     $belum_realisasi = $val['total'] - $realisasi;
     if($realisasi == 0){
         $persen = 0;
@@ -79,7 +87,7 @@ if($realisasi_all == 0){
 
 <h1 class="text-center">Bagi Hasil Pajak Daerah<br>Rekapitulasi Per Kecamatan<br>Tahun <?php echo $input['tahun_anggaran']; ?></h1>
 <div class="cetak">
-    <div style="padding: 10px;">
+    <div style="padding: 5px;">
         <div class="row">
             <div class="col-md-12">
                 <div style="width: 100%; margin:auto 5px;">

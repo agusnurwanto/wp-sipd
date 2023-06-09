@@ -813,6 +813,10 @@ class Wpsipd
 		$this->loader->add_action('wp_ajax_get_pemdes_bhpd', $plugin_public, 'get_pemdes_bhpd');
 		$this->loader->add_action('wp_ajax_get_pemdes_bhrd', $plugin_public, 'get_pemdes_bhrd');
 		
+		$this->loader->add_action('wp_ajax_get_pencairan_pemdes_bkk', $plugin_public, 'get_pencairan_pemdes_bkk');
+		$this->loader->add_action('wp_ajax_get_pencairan_pemdes_bhpd', $plugin_public, 'get_pencairan_pemdes_bhpd');
+		$this->loader->add_action('wp_ajax_get_pencairan_pemdes_bhrd', $plugin_public, 'get_pencairan_pemdes_bhrd');
+		
 		add_shortcode('menu_monev',  array($plugin_public, 'menu_monev'));
 		add_shortcode('datassh', array($plugin_public, 'datassh'));
 		add_shortcode('rekbelanja', array($plugin_public, 'rekbelanja'));
@@ -866,6 +870,8 @@ class Wpsipd
 		add_shortcode('halaman_pembiayaan_pengeluaran', array($plugin_public, 'halaman_pembiayaan_pengeluaran'));
 		add_shortcode('management_data_bhpd', array($plugin_public, 'management_data_bhpd'));
 		add_shortcode('management_data_bhrd', array($plugin_public, 'management_data_bhrd'));
+		add_shortcode('management_data_bku_add', array($plugin_public, 'management_data_bku_add'));
+		add_shortcode('management_data_bku_dd', array($plugin_public, 'management_data_bku_dd'));
 		add_shortcode('input_pencairan_bkk', array($plugin_public, 'input_pencairan_bkk'));
 		add_shortcode('input_pencairan_bhpd', array($plugin_public, 'input_pencairan_bhpd'));
 		add_shortcode('input_pencairan_bhrd', array($plugin_public, 'input_pencairan_bhrd'));

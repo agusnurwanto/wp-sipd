@@ -43,12 +43,20 @@ $chart_kec = array(
     'color2' => array()
 );
 foreach($data as $i => $val){
-    $realisasi = 0;
+    $realisasi = $wpdb->get_var($wpdb->prepare("
+        SELECT 
+            SUM(p.total_pencairan) 
+        FROM data_pencairan_bkk_desa p
+        INNER JOIN data_bkk_desa b on p.id_kegiatan=b.id
+            AND b.active=1
+            AND b.tahun_anggaran=%d
+        WHERE b.kecamatan=%s
+        ", $input['tahun_anggaran'], $val['kecamatan']));
     $belum_realisasi = $val['total'] - $realisasi;
     if($realisasi == 0){
         $persen = 0;
     }else{
-        $persen = ($realisasi/$val['total']) * 100;
+        $persen = round(($realisasi/$val['total']) * 100, 2);
     }
     $body .= '
     <tr>
@@ -73,7 +81,7 @@ foreach($data as $i => $val){
 if($realisasi_all == 0){
     $persen_all = 0;
 }else{
-    $persen_all = ($realisasi_all/$total_all)*100;
+    $persen_all = round(($realisasi_all/$total_all)*100, 2);
 }
 ?>
 
