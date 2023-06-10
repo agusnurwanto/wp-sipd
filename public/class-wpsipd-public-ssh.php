@@ -1164,7 +1164,14 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 					FROM data_ssh_usulan 
 					WHERE no_surat_usulan=%s
 				", $_POST['nomor_surat']));
+				$data_surat = $wpdb->get_row($wpdb->prepare("
+					SELECT 
+						*
+					FROM data_surat_usulan_ssh 
+					WHERE id=%s
+				", $_POST['id']));
 				$return['data'] = $data_ssh;
+				$return['surat'] = $data_surat;
 				$return['sql'] = $wpdb->last_query;
 			}else{
 				$return = array(
@@ -1332,12 +1339,8 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 					}else{
 						$queryRecords[$k]['nama_file'] = '';
 					}
-					if(!$is_admin){
-						$queryRecords[$k]['nama_file'] .= '<br><input type="file" id="surat_file">';
-						$queryRecords[$k]['catatan'] = '<textarea id="catatan_surat_edit" class="form-control">'.$val['catatan'].'</textarea>';
-					}else{
-						$queryRecords[$k]['catatan_verifikator'] = '<textarea id="catatan_verifikator_surat_edit" class="form-control">'.$val['catatan_verifikator'].'</textarea>';
-					}
+					$queryRecords[$k]['catatan'] = $val['catatan'];
+					$queryRecords[$k]['catatan_verifikator'] = $val['catatan_verifikator'];
 
 					$queryRecords[$k]['acuan_ssh'] = '<ul style="margin-left: 15px;">';
 					if(!empty($val['jenis_survey']) && $val['jenis_survey'] == 1){
@@ -3566,6 +3569,8 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 			'status' => 'success',
 			'message' => 'Berhasil simpan surat usulan SSH!'
 		);
+		$user_id = um_user( 'ID' );
+		$user_meta = get_userdata($user_id);
 
 		if(!empty($_POST)){
 			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
@@ -3592,7 +3597,12 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 					$catatan = $_POST['catatan'];
 					$idskpd = $_POST['idskpd'];
 					if(!empty($_POST['ubah'])){
-						$catatan_verifikator = $_POST['catatan_verifikator'];
+						if(
+							in_array("administrator", $user_meta->roles) ||
+							in_array("tapd_keu", $user_meta->roles)
+						){
+							$catatan_verifikator = $_POST['catatan_verifikator'];
+						}
 					}else{
 						$ids = explode(',', $_POST['ids']);
 					}
@@ -3633,7 +3643,8 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 						'jenis_juknis' => 0,
 					);
 
-					foreach ($_POST['acuanSsh'] as $key => $value) {
+					$dasar_usulan = explode(',', $_POST['acuanSsh']);
+					foreach ($dasar_usulan as $key => $value) {
 						if($value==1){
 							$data['jenis_survey']=$value;
 						}elseif ($value==2) {
@@ -3643,15 +3654,15 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 
 					if(!empty($_POST['ubah'])){
 						$data['catatan_verifikator'] = $catatan_verifikator;
-						if(!empty($_FILES['file'])){
+						if(!empty($_FILES['lapiran_surat'])){
 							$folder = WPSIPD_PLUGIN_PATH.'public/media/ssh/';
 							$upload = CustomTrait::uploadFile(
 								$_POST['api_key'], 
 								$folder, 
-								$_FILES['file'], 
+								$_FILES['lapiran_surat'], 
 								array('jpg', 'jpeg', 'png', 'pdf'), 
 								2097152, 
-								$nomor_surat
+								str_replace('/','-', $nomor_surat)
 							);
 							if($upload['status']){
 								$data['nama_file'] = $upload['filename'];
