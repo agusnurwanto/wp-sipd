@@ -214,9 +214,17 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes {
 		if( !is_admin() ){
         	return;
         }
-		$basic_options_container = Container::make( 'theme_options', __( 'SIPD Options' ) )
+		$basic_options_container = Container::make( 'theme_options', __( 'WP-SIPD Settings' ) )
 			->set_page_menu_position( 4 )
 	        ->add_fields( $this->options_basic() );
+
+		Container::make( 'theme_options', __( 'API Setting' ) )
+		    ->set_page_parent( $basic_options_container )
+		    ->add_fields( $this->get_api_setting() );
+
+	    Container::make( 'theme_options', __( 'SKPD Setting' ) )
+		    ->set_page_parent( $basic_options_container )
+		    ->add_fields( $this->get_skpd_settings() );
 
 	    Container::make( 'theme_options', __( 'SIMDA Setting' ) )
 		    ->set_page_parent( $basic_options_container )
@@ -229,10 +237,6 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes {
 	    Container::make( 'theme_options', __( 'SIPKD Setting' ) )
 		    ->set_page_parent( $basic_options_container )
 		    ->add_fields( $this->get_setting_sipkd() );
-
-		Container::make( 'theme_options', __( 'API Setting' ) )
-		    ->set_page_parent( $basic_options_container )
-		    ->add_fields( $this->get_api_setting() );
 
 		Container::make( 'theme_options', __( 'SIRUP Setting' ) )
 		    ->set_page_parent( $basic_options_container )
@@ -597,17 +601,7 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes {
 			Field::make( 'text', 'crb_id_lokasi_prov', 'ID Lokasi Provinsi')
             	->set_default_value(0),
 			Field::make( 'text', 'crb_id_lokasi_kokab', 'ID Lokasi Kota/Kabupaten' )
-            	->set_default_value(0),
-            /*Field::make( 'html', 'crb_siencang' )
-            	->set_html( '<a target="_blank" href="'.$siencang_link.'">SIPD to SIENCANG</a> | <a href="https://github.com/ganjarnugraha/perencanaan-penganggaran" target="_blank">https://github.com/ganjarnugraha/perencanaan-penganggaran</a>' ),
-            Field::make( 'html', 'crb_simda' )
-            	->set_html( '<a target="_blank" href="'.$simda_link.'">SIPD to SIMDA BPKP</a>' ),
-            Field::make( 'html', 'crb_sibangda' )
-            	->set_html( '<a target="_blank" href="'.$sibangda_link.'">SIPD to SIBANGDA Bina Pembangunan Kemendagri</a>' ),
-            Field::make( 'html', 'crb_sirup' )
-            	->set_html( '<a target="_blank" href="'.$sirup_link.'">SIPD to SIRUP LKPP</a>' ),
-            Field::make( 'html', 'crb_sinergi' )
-            	->set_html( '<a target="_blank" href="'.$sinergi_link.'">SIPD to SINERGI DJPK Kementrian Keuangan</a>' ),*/
+            	->set_default_value(0)
         );
         $tahun = $wpdb->get_results('select tahun_anggaran from data_unit group by tahun_anggaran order by tahun_anggaran ASC', ARRAY_A);
         foreach ($tahun as $k => $v) {
@@ -664,12 +658,41 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes {
 				if($_POST['type'] == 'input_renstra'){
 					$limit = ' LIMIT 1';
 				}
-				$tahun = $wpdb->get_results('select tahun_anggaran from data_unit group by tahun_anggaran order by tahun_anggaran DESC '.$limit, ARRAY_A);
+				$tahun = $wpdb->get_results('
+					select 
+						tahun_anggaran 
+					from data_unit 
+					group by tahun_anggaran 
+					order by tahun_anggaran DESC '.$limit
+				, ARRAY_A);
 				foreach ($tahun as $k => $v) {
-		            $unit = $wpdb->get_results("SELECT nama_skpd, id_skpd, kode_skpd, nipkepala from data_unit where active=1 and tahun_anggaran=".$v['tahun_anggaran'].' and is_skpd=1 order by kode_skpd ASC', ARRAY_A);
+		            $unit = $wpdb->get_results("
+		            	SELECT 
+		            		nama_skpd, 
+		            		id_skpd, 
+		            		kode_skpd, 
+		            		nipkepala 
+		            	from data_unit 
+		            	where active=1 
+		            		and tahun_anggaran=".$v['tahun_anggaran'].' 
+		            		and is_skpd=1 
+		            	order by kode_skpd ASC
+		            ', ARRAY_A);
 		            $body_pemda = '<ul style="margin-left: 20px;">';
 		            foreach ($unit as $kk => $vv) {
-		            	$subunit = $wpdb->get_results("SELECT nama_skpd, id_skpd, kode_skpd, nipkepala from data_unit where active=1 and tahun_anggaran=".$v['tahun_anggaran']." and is_skpd=0 and id_unit=".$vv["id_skpd"]." order by kode_skpd ASC", ARRAY_A);
+		            	$subunit = $wpdb->get_results("
+		            		SELECT 
+		            			nama_skpd, 
+		            			id_skpd, 
+		            			kode_skpd, 
+		            			nipkepala 
+		            		from data_unit 
+		            		where active=1 
+		            			and tahun_anggaran=".$v['tahun_anggaran']." 
+		            			and is_skpd=0 
+		            			and id_unit=".$vv["id_skpd"]." 
+		            		order by kode_skpd ASC
+		            	", ARRAY_A);
 
 						if($_POST['type'] == 'rfk'){
 							$url_skpd = $this->generatePage('RFK '.$vv['nama_skpd'].' '.$vv['kode_skpd'].' | '.$v['tahun_anggaran'], $v['tahun_anggaran'], '[monitor_rfk tahun_anggaran="'.$v['tahun_anggaran'].'" id_skpd="'.$vv['id_skpd'].'"]');
@@ -935,7 +958,16 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes {
 		$unit = array();
 		$tahun_anggaran = get_option('_crb_tahun_anggaran_sipd');
 		if(empty(!$tahun_anggaran)){
-			$unit = $wpdb->get_results("SELECT nama_skpd, id_skpd, kode_skpd from data_unit where active=1 and tahun_anggaran=".$tahun_anggaran.' order by id_skpd ASC', ARRAY_A);
+			$unit = $wpdb->get_results("
+				SELECT 
+					nama_skpd, 
+					id_skpd, 
+					kode_skpd 
+				from data_unit 
+				where active=1 
+					and tahun_anggaran=".$tahun_anggaran.' 
+				order by id_skpd ASC
+			', ARRAY_A);
 		}
 		$url_mapping_program = $this->generatePage('Data Mapping Data Master FMIS Program', false, '[data_mapping_master_fmis type="program"]');
 		$url_mapping_kegiatan = $this->generatePage('Data Mapping Data Master FMIS Kegiatan', false, '[data_mapping_master_fmis type="kegiatan"]');
@@ -946,8 +978,6 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes {
 	        ->set_html( '<h3>Tahun anggaran WP-SIPD: '.$tahun_anggaran.'</h3>Informasi terkait integrasi data WP-SIPD ke FMIS bisa dicek di <a href="https://smkasiyahhomeschooling.blogspot.com/2021/12/fmis-chrome-extension-untuk-integrasi.html" target="blank">https://smkasiyahhomeschooling.blogspot.com/2021/12/fmis-chrome-extension-untuk-integrasi.html</a>.' );
 	    $mapping_unit[] = Field::make( 'textarea', 'crb_custom_mapping_rekening_fmis', 'Custom Mapping Rekening Antara SIPD dan FMIS' )
             	->set_help_text('Data ini untuk mengakomodir perbedaan kode rekening yang ada di SIPD dan FMIS. Contoh pengisian data sebagai berikut 5.1.01.88.88.8888-5.2.2.16.1.3 data dipisah dengan pemisah "," (koma). Formatnya adalah <b>kode_rek_sipd-kode_rek_fmis</b>. <h4><a target="_blank" href="'.$url_mapping_rekening.'">Data Mapping Data Master FMIS Rekening</a></h4>');
-	    // $mapping_unit[] = Field::make( 'textarea', 'crb_custom_mapping_sumberdana_fmis', 'Custom Mapping Sumber Dana Antara SIPD dan FMIS' )
-        //     	->set_help_text('Data ini untuk mengakomodir perbedaan kode sumber dana yang ada di SIPD dan FMIS. Contoh pengisian data sebagai berikut [xxx]-[xxx] data dipisah dengan pemisah "," (koma). Formatnya adalah <b>[nama sumber dana sipd]-[nama sumber dana fmis]</b>.');
 	    $mapping_unit[] = Field::make( 'textarea', 'crb_custom_mapping_subkeg_fmis', 'Custom Mapping Sub Kegiatan SIPD dan FMIS' )
             	->set_help_text('Data ini untuk mengakomodir perbedaan nama sub kegiatan yang ada di SIPD dan FMIS. Contoh pengisian data sebagai berikut [nama_subkeg]-[nama_subkeg] data dipisah dengan pemisah "," (koma). Video tutorial <a href="https://youtu.be/7J_k8NEAZLM" target="_blank">https://youtu.be/7J_k8NEAZLM</a>. <h4><a target="_blank" href="'.$url_mapping_sub_kegiatan.'">Data Mapping Data Master FMIS Sub Kegiatan</a></h4>');
 	    $mapping_unit[] = Field::make( 'textarea', 'crb_custom_mapping_keg_fmis', 'Custom Mapping Kegiatan SIPD dan FMIS' )
@@ -1051,7 +1081,16 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes {
 		$unit = array();
 		$tahun_anggaran = get_option('_crb_tahun_anggaran_sipd');
 		if(empty(!$tahun_anggaran)){
-			$unit = $wpdb->get_results("SELECT nama_skpd, id_skpd, kode_skpd from data_unit where active=1 and tahun_anggaran=".$tahun_anggaran.' order by id_skpd ASC', ARRAY_A);
+			$unit = $wpdb->get_results("
+				SELECT 
+					nama_skpd, 
+					id_skpd, 
+					kode_skpd 
+				from data_unit 
+				where active=1 
+					and tahun_anggaran=".$tahun_anggaran.' 
+				order by id_skpd ASC
+			', ARRAY_A);
 		}
 		$mapping_unit = array(
 	        Field::make( 'radio', 'crb_singkron_simda', __( 'Auto Singkron ke DB SIMDA' ) )
@@ -1136,12 +1175,51 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes {
 		return $mapping_unit;
 	}
 
+	public function get_skpd_settings(){
+		global $wpdb;
+		$unit = array();
+		$tahun_anggaran = get_option('_crb_tahun_anggaran_sipd');
+		if(empty(!$tahun_anggaran)){
+			$unit = $wpdb->get_results("
+				SELECT 
+					nama_skpd, 
+					id_skpd, 
+					kode_skpd 
+				from data_unit 
+				where active=1 
+					and tahun_anggaran=".$tahun_anggaran.' 
+				order by id_skpd ASC
+			', ARRAY_A);
+		}
+		$sub_unit = array();
+		$pilih_skpd = array();
+		foreach ($unit as $k => $v) {
+			$sub_unit[] = Field::make( 'text', 'crb_skpd_alamat_'.$v['id_skpd'], ($k+1).'. Alamat kantor untuk '.$v['kode_skpd'].' '.$v['nama_skpd'] );
+			$pilih_skpd[$v['id_skpd']] = $v['kode_skpd'].' '.$v['nama_skpd'];
+		}
+		$settings = array(
+			Field::make( 'select', 'crb_skpd_admin_ssh', 'Pilih unit kerja penyusun Standar Harga (SSH / SBU / HSPK / ASB)' )
+            	->add_options( $pilih_skpd )
+            	->set_help_text('Nama unit kerja ini untuk ditampilkan di surat usulan Standar Harga.')
+        );
+		return array_merge($settings, $sub_unit);
+	}
+
 	public function get_api_setting(){
 		global $wpdb;
 		$unit = array();
 		$tahun_anggaran = get_option('_crb_tahun_anggaran_sipd');
 		if(empty(!$tahun_anggaran)){
-			$unit = $wpdb->get_results("SELECT nama_skpd, id_skpd, kode_skpd from data_unit where active=1 and tahun_anggaran=".$tahun_anggaran.' order by id_skpd ASC', ARRAY_A);
+			$unit = $wpdb->get_results("
+				SELECT 
+					nama_skpd, 
+					id_skpd, 
+					kode_skpd 
+				from data_unit 
+				where active=1 
+					and tahun_anggaran=".$tahun_anggaran.' 
+				order by id_skpd ASC
+			', ARRAY_A);
 		}
 
 		$disabled = 'onclick="get_sinkron_modul_migrasi_data(); return false;"';
@@ -1169,7 +1247,17 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes {
 		$unit = array();
 		$tahun_anggaran = get_option('_crb_tahun_anggaran_sipd');
 		if(empty(!$tahun_anggaran)){
-			$unit = $wpdb->get_results("SELECT nama_skpd, id_skpd, kode_skpd from data_unit where active=1 and tahun_anggaran=".$tahun_anggaran.' and is_skpd=1 order by id_skpd ASC', ARRAY_A);
+			$unit = $wpdb->get_results("
+				SELECT 
+					nama_skpd, 
+					id_skpd, 
+					kode_skpd 
+				from data_unit 
+				where active=1 
+					and tahun_anggaran=".$tahun_anggaran.' 
+					and is_skpd=1 
+				order by id_skpd ASC
+			', ARRAY_A);
 		}
 
 		$disabled_sirup = 'onclick="get_sinkron_data_sirup(); return false;"';
@@ -1194,7 +1282,14 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes {
 		foreach ($unit as $k => $v) {
 			$unit_sirup = get_option('_crb_unit_sirup_'.$v['id_skpd']);
 			// if(empty($unit_sirup) || $unit_sirup == '.'){
-				$id = $wpdb->get_var("select id_satuan_kerja from data_skpd_sirup where active=1 and tahun_anggaran=".$tahun_anggaran." and satuan_kerja='".strtoupper($v['nama_skpd'])."'");
+				$id = $wpdb->get_var("
+					select 
+						id_satuan_kerja 
+					from data_skpd_sirup 
+					where active=1 
+						and tahun_anggaran=".$tahun_anggaran." 
+						and satuan_kerja='".strtoupper($v['nama_skpd'])."'
+				");
 				if(!empty($id)){
 					update_option( '_crb_unit_sirup_'.$v['id_skpd'], $id );
 				}
@@ -1264,10 +1359,33 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes {
 		global $wpdb;
 		$tahun = $_POST['tahun_anggaran'];
 		$options_skpd = array();
-		$unit = $wpdb->get_results("SELECT nama_skpd, id_skpd, kode_skpd, nipkepala from data_unit where active=1 and tahun_anggaran=".$tahun.' and is_skpd=1 order by kode_skpd ASC', ARRAY_A);
+		$unit = $wpdb->get_results("
+			SELECT 
+				nama_skpd, 
+				id_skpd, 
+				kode_skpd, 
+				nipkepala 
+			from data_unit 
+			where active=1 
+				and tahun_anggaran=".$tahun.' 
+				and is_skpd=1 
+			order by kode_skpd ASC
+		', ARRAY_A);
         foreach ($unit as $kk => $vv) {
 			$options_skpd[] = $vv;
-        	$subunit = $wpdb->get_results("SELECT nama_skpd, id_skpd, kode_skpd, nipkepala from data_unit where active=1 and tahun_anggaran=".$tahun." and is_skpd=0 and id_unit=".$vv["id_skpd"]." order by kode_skpd ASC", ARRAY_A);
+        	$subunit = $wpdb->get_results("
+        		SELECT 
+        			nama_skpd, 
+        			id_skpd, 
+        			kode_skpd, 
+        			nipkepala 
+        		from data_unit 
+        		where active=1 
+        			and tahun_anggaran=".$tahun." 
+        			and is_skpd=0 
+        			and id_unit=".$vv["id_skpd"]." 
+        		order by kode_skpd ASC
+        	", ARRAY_A);
         	foreach ($subunit as $kkk => $vvv) {
         		$vvv['kode_skpd'] = '-- '.$vvv['kode_skpd'];
 				$options_skpd[] = $vvv;
