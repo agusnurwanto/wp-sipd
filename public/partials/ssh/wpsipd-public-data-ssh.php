@@ -32,11 +32,11 @@ $body = '';
 	    font-weight: bold;
 	}
 </style>
-<div class="cetak">
+<div class="cetak container-fluid">
 	<div style="padding: 10px;margin:0 0 3rem 0;">
 		<input type="hidden" value="<?php echo get_option( '_crb_api_key_extension' ); ?>" id="api_key">
 		<input type="hidden" value="<?php echo $input['tahun_anggaran']; ?>" id="tahun_anggaran">
-		<h1 id="judul" class="text-center" style="margin:3rem;">Data Standar Harga<br>Tahun Anggaran <?php echo $input['tahun_anggaran']; ?></h1>
+		<h1 id="judul" class="text-center" style="margin:3rem;">Standar Harga<br>Tahun Anggaran <?php echo $input['tahun_anggaran']; ?></h1>
 		<div class="summary mb-5" style="">
 			<h2 class="text-center">Rekapitulasi Usulan Standar Harga</h2>
 			<table>
@@ -57,15 +57,30 @@ $body = '';
 				<thead>
 					<tr>
 						<th class="text-center" style="width: 25%;">Satuan Standar Harga (SSH)</th>
-						<th class="text-center" style="width: 25%;">Standar Biaya Umum (SBU)</th>
 						<th class="text-center" style="width: 25%;">Harga Satuan Paket Pekerjaan (HSPK)</th>
 						<th class="text-center" style="width: 25%;">Analisis Standar Biaya (ASB)</th>
+						<th class="text-center" style="width: 25%;">Standar Biaya Umum (SBU)</th>
 					</tr>
 				</thead>
 				<tbody id="summary_sipd_body" style="text-align:center;"></tbody>
 			</table>
 		</div>
 		<div class="data-ssh">
+			<h2 class="text-center">Data Standar Harga SIPD</h2>
+			<div class="row" style="margin: 20px 0;">
+				<div style="width: 200px;">
+					<label for="filter_kelompok">Filter Jenis Standar Harga</label>
+				</div>
+				<div style="width: 200px;">
+					<select id="filter_kelompok" class="form-control" onchange="ajaxSSH.ajax.reload();">
+						<option value="0">Pilih Semua</option>
+						<option value="1">SSH</option>
+						<option value="2">HSPK</option>
+						<option value="3">ASB</option>
+						<option value="4">SBU</option>
+					</select>
+				</div>
+			</div>
 			<table id="data_ssh_sipd_table" cellpadding="2" cellspacing="0" style="font-family:\'Open Sans\',-apple-system,BlinkMacSystemFont,\'Segoe UI\',sans-serif; border-collapse: collapse; width:100%; overflow-wrap: break-word;" class="table table-bordered">
 				<thead id="data_header">
 					<tr>
@@ -134,8 +149,9 @@ $body = '';
 	});
 
 	function get_data_ssh_sipd(tahun){
-		jQuery('#data_ssh_sipd_table').on('preXhr.dt', function ( e, settings, data ) {
+		window.ajaxSSH = jQuery('#data_ssh_sipd_table').on('preXhr.dt', function ( e, settings, data ) {
 			jQuery("#wrap-loading").show();
+			data.kelompok = jQuery("#filter_kelompok").val();
 	    } ).DataTable({
 			"processing": true,
     		"serverSide": true,
@@ -252,10 +268,10 @@ $body = '';
 					}else{
 						jQuery("#summary_ssh_body").html(`
 							<tr>
-								<td class="text-center summary_ssh bg-info text-white">${response.data.total}</td>
-								<td class="text-center summary_ssh bg-warning text-white">${response.data.waiting}</td>
-								<td class="text-center summary_ssh bg-success text-white">${response.data.approved}</td>
-								<td class="text-center summary_ssh bg-danger text-white">${response.data.rejected}</td>
+								<td class="text-center summary_ssh bg-info text-white">${formatRupiah(response.data.total)}</td>
+								<td class="text-center summary_ssh bg-warning text-white">${formatRupiah(response.data.waiting)}</td>
+								<td class="text-center summary_ssh bg-success text-white">${formatRupiah(response.data.approved)}</td>
+								<td class="text-center summary_ssh bg-danger text-white">${formatRupiah(response.data.rejected)}</td>
 							</tr>`);
 					}
 					jQuery('#wrap-loading').hide();
@@ -283,10 +299,10 @@ $body = '';
 					}else{
 						jQuery("#summary_sipd_body").html(`
 							<tr>
-								<td class="text-center summary_ssh bg-info text-white">${response.data.ssh}</td>
-								<td class="text-center summary_ssh bg-info text-white">${response.data.sbu}</td>
-								<td class="text-center summary_ssh bg-info text-white">${response.data.hspk}</td>
-								<td class="text-center summary_ssh bg-info text-white">${response.data.asb}</td>
+								<td class="text-center summary_ssh bg-info"><a class="text-white" onclick="filter_kelompok(this); return false;" data-type="1" href="#">${formatRupiah(response.data.ssh)}</a></td>
+								<td class="text-center summary_ssh bg-info"><a class="text-white" onclick="filter_kelompok(this); return false;" data-type="2" href="#">${formatRupiah(response.data.hspk)}</a></td>
+								<td class="text-center summary_ssh bg-info"><a class="text-white" onclick="filter_kelompok(this); return false;" data-type="3" href="#">${formatRupiah(response.data.asb)}</a></td>
+								<td class="text-center summary_ssh bg-info"><a class="text-white" onclick="filter_kelompok(this); return false;" data-type="4" href="#">${formatRupiah(response.data.sbu)}</a></td>
 							</tr>`);
 					}
 					jQuery('#wrap-loading').hide();
@@ -295,5 +311,12 @@ $body = '';
 			});
 		});
 	}
-
+	function filter_kelompok(that) {
+		var kelompok = jQuery(that).attr('data-type');
+		jQuery('#filter_kelompok').val(kelompok);
+		ajaxSSH.ajax.reload();
+		jQuery('html, body').animate({
+	        scrollTop: jQuery("#data_ssh_sipd_table").offset().top
+	    }, 1000);
+	}
 </script> 
