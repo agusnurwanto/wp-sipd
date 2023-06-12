@@ -8256,7 +8256,7 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 						<td class="atas kanan bawah text_kanan">'.$this->_number_format($unit['total_pendapatan']).'</td>
 						<td style="'.$warning.'" class="atas kanan bawah text_kanan">'.$this->_number_format($unit['total_pendapatan_sipd']).'</td>
 					</tr>';
-					$no++;
+					$no_pendapatan++;
 			}
 			
 			$warning = '';
@@ -8281,7 +8281,7 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 								<th style="width: 19px;" class="kiri atas kanan bawah text_tengah text_blok">No</th>
 								<th class="atas kanan bawah text_tengah text_blok">Nama SKPD</th>
 								<th style="width: 140px;" class="atas kanan bawah text_tengah text_blok">Total Pendapatan</th>
-								<th style="width: 140px;" class="atas kanan bawah text_tengah text_blok">Total Pendapatan SIPD</th>
+								<th style="width: 145px;" class="atas kanan bawah text_tengah text_blok">Total Pendapatan SIPD</th>
 							</tr>
 						</thead>
 						<tbody>'.$body_pend.'</tbody>
@@ -8303,7 +8303,7 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 						<td class="atas kanan bawah text_kanan">'.$this->_number_format($unit['total_penerimaan']).'</td>
 						<td style="'.$warning.'" class="atas kanan bawah text_kanan">'.$this->_number_format($unit['total_penerimaan_sipd']).'</td>
 					</tr>';
-					$no++;
+					$no_penerimaan++;
 			}
 			
 			$warning = '';
@@ -8328,7 +8328,7 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 								<th style="width: 19px;" class="kiri atas kanan bawah text_tengah text_blok">No</th>
 								<th class="atas kanan bawah text_tengah text_blok">Nama SKPD</th>
 								<th style="width: 140px;" class="atas kanan bawah text_tengah text_blok">Total Penerimaan</th>
-								<th style="width: 140px;" class="atas kanan bawah text_tengah text_blok">Total Penerimaan SIPD</th>
+								<th style="width: 145px;" class="atas kanan bawah text_tengah text_blok">Total Penerimaan SIPD</th>
 							</tr>
 						</thead>
 						<tbody>'.$body_penerimaan.'</tbody>
@@ -8350,7 +8350,7 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 						<td class="atas kanan bawah text_kanan">'.$this->_number_format($unit['total_pengeluaran']).'</td>
 						<td style="'.$warning.'" class="atas kanan bawah text_kanan">'.$this->_number_format($unit['total_pengeluaran_sipd']).'</td>
 					</tr>';
-					$no++;
+					$no_pengeluaran++;
 			}
 			
 			$warning = '';
@@ -8375,7 +8375,7 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 								<th style="width: 19px;" class="kiri atas kanan bawah text_tengah text_blok">No</th>
 								<th class="atas kanan bawah text_tengah text_blok">Nama SKPD</th>
 								<th style="width: 140px;" class="atas kanan bawah text_tengah text_blok">Total Pengeluaran</th>
-								<th style="width: 140px;" class="atas kanan bawah text_tengah text_blok">Total Pengeluaran SIPD</th>
+								<th style="width: 145px;" class="atas kanan bawah text_tengah text_blok">Total Pengeluaran SIPD</th>
 							</tr>
 						</thead>
 						<tbody>'.$body_pengeluaran.'</tbody>

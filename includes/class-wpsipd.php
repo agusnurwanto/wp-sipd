@@ -193,6 +193,7 @@ class Wpsipd
 		$this->loader->add_action('wp_ajax_get_sinkron_modul_migrasi_data',  $plugin_admin, 'get_sinkron_modul_migrasi_data');
 		$this->loader->add_action('wp_ajax_get_sinkron_data_sirup',  $plugin_admin, 'get_sinkron_data_sirup');
 		$this->loader->add_action('wp_ajax_import_excel_bkk',  $plugin_admin, 'import_excel_bkk');
+		$this->loader->add_action('wp_ajax_import_excel_bkk_pilkades',  $plugin_admin, 'import_excel_bkk_pilkades');
 		$this->loader->add_action('wp_ajax_import_excel_bhpd',  $plugin_admin, 'import_excel_bhpd');
 		$this->loader->add_action('wp_ajax_import_excel_bhrd',  $plugin_admin, 'import_excel_bhrd');
 		$this->loader->add_action('wp_ajax_import_excel_bku_add',  $plugin_admin, 'import_excel_bku_add');
@@ -794,6 +795,16 @@ class Wpsipd
 		$this->loader->add_action('wp_ajax_get_data_pencairan_bkk_by_id', $plugin_public, 'get_data_pencairan_bkk_by_id');
 		$this->loader->add_action('wp_ajax_tambah_data_pencairan_bkk', $plugin_public, 'tambah_data_pencairan_bkk');
 
+		$this->loader->add_action('wp_ajax_get_datatable_bkk_pilkades', $plugin_public, 'get_datatable_bkk_pilkades');
+		$this->loader->add_action('wp_ajax_hapus_data_bkk_pilkades_by_id', $plugin_public, 'hapus_data_bkk_pilkades_by_id');
+		$this->loader->add_action('wp_ajax_get_data_bkk_pilkades_by_id', $plugin_public, 'get_data_bkk_pilkades_by_id');
+		$this->loader->add_action('wp_ajax_tambah_data_bkk_pilkades', $plugin_public, 'tambah_data_bkk_pilkades');
+
+		$this->loader->add_action('wp_ajax_get_datatable_data_pencairan_bkk_pilkades', $plugin_public, 'get_datatable_data_pencairan_bkk_pilkades');
+		$this->loader->add_action('wp_ajax_hapus_data_pencairan_bkk_pilkades_by_id', $plugin_public, 'hapus_data_pencairan_bkk_pilkades_by_id');
+		$this->loader->add_action('wp_ajax_get_data_pencairan_bkk_pilkades_by_id', $plugin_public, 'get_data_pencairan_bkk_pilkades_by_id');
+		$this->loader->add_action('wp_ajax_tambah_data_pencairan_bkk_pilkades', $plugin_public, 'tambah_data_pencairan_bkk_pilkades');
+
 		$this->loader->add_action('wp_ajax_get_datatable_bhpd', $plugin_public, 'get_datatable_bhpd');
 		$this->loader->add_action('wp_ajax_hapus_data_bhpd_by_id', $plugin_public, 'hapus_data_bhpd_by_id');
 		$this->loader->add_action('wp_ajax_get_data_bhpd_by_id', $plugin_public, 'get_data_bhpd_by_id');
@@ -836,12 +847,14 @@ class Wpsipd
 		$this->loader->add_action('wp_ajax_tambah_data_bku_add', $plugin_public, 'tambah_data_bku_add');
 		
 		$this->loader->add_action('wp_ajax_get_pemdes_bkk', $plugin_public, 'get_pemdes_bkk');
+		$this->loader->add_action('wp_ajax_get_pemdes_bkk_pilkades', $plugin_public, 'get_pemdes_bkk_pilkades');
 		$this->loader->add_action('wp_ajax_get_pemdes_bhpd', $plugin_public, 'get_pemdes_bhpd');
 		$this->loader->add_action('wp_ajax_get_pemdes_bhrd', $plugin_public, 'get_pemdes_bhrd');
 		$this->loader->add_action('wp_ajax_get_pemdes_bku_dd', $plugin_public, 'get_pemdes_bku_dd');
 		$this->loader->add_action('wp_ajax_get_pemdes_bku_add', $plugin_public, 'get_pemdes_bku_add');
 		
 		$this->loader->add_action('wp_ajax_get_pencairan_pemdes_bkk', $plugin_public, 'get_pencairan_pemdes_bkk');
+		$this->loader->add_action('wp_ajax_get_pencairan_pemdes_bkk_pilkades', $plugin_public, 'get_pencairan_pemdes_bkk_pilkades');
 		$this->loader->add_action('wp_ajax_get_pencairan_pemdes_bhpd', $plugin_public, 'get_pencairan_pemdes_bhpd');
 		$this->loader->add_action('wp_ajax_get_pencairan_pemdes_bhrd', $plugin_public, 'get_pencairan_pemdes_bhrd');
 		$this->loader->add_action('wp_ajax_get_pencairan_pemdes_bku_dd', $plugin_public, 'get_pencairan_pemdes_bku_dd');
@@ -896,6 +909,7 @@ class Wpsipd
 		add_shortcode('keu_pemdes_bku_dd', array($plugin_public, 'keu_pemdes_bku_dd'));
 		add_shortcode('keu_pemdes_bku_add', array($plugin_public, 'keu_pemdes_bku_add'));
 		add_shortcode('keu_pemdes_bkk_inf', array($plugin_public, 'keu_pemdes_bkk_inf'));
+		add_shortcode('keu_pemdes_bkk_pilkades', array($plugin_public, 'keu_pemdes_bkk_pilkades'));
 		add_shortcode('monitor_keu_pemdes', array($plugin_public, 'monitor_keu_pemdes'));
 		add_shortcode('management_data_bkk_infrastruktur', array($plugin_public, 'management_data_bkk_infrastruktur'));
 		add_shortcode('halaman_pembiayaan_penerimaan', array($plugin_public, 'halaman_pembiayaan_penerimaan'));
@@ -904,7 +918,9 @@ class Wpsipd
 		add_shortcode('management_data_bhrd', array($plugin_public, 'management_data_bhrd'));
 		add_shortcode('management_data_bku_add', array($plugin_public, 'management_data_bku_add'));
 		add_shortcode('management_data_bku_dd', array($plugin_public, 'management_data_bku_dd'));
+		add_shortcode('management_data_bkk_pilkades', array($plugin_public, 'management_data_bkk_pilkades'));
 		add_shortcode('input_pencairan_bkk', array($plugin_public, 'input_pencairan_bkk'));
+		add_shortcode('input_pencairan_bkk_pilkades', array($plugin_public, 'input_pencairan_bkk_pilkades'));
 		add_shortcode('input_pencairan_bhpd', array($plugin_public, 'input_pencairan_bhpd'));
 		add_shortcode('input_pencairan_bhrd', array($plugin_public, 'input_pencairan_bhrd'));
 		add_shortcode('input_pencairan_bku_dd', array($plugin_public, 'input_pencairan_bku_dd'));
