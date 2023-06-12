@@ -6775,6 +6775,32 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		die(json_encode($ret));
 	}
 
+	function simpan_meta_skpd(){
+		global $wpdb;
+		$ret = array();
+		$ret['status'] = 'success';
+		$ret['message'] = 'Berhasil simda data SKPD!';
+		if (!empty($_POST)) {
+			if(!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+				$id_skpd = $_POST['id_skpd'];
+				if(empty($id_skpd)){
+					$ret['status'] = 'error';
+					$ret['message'] = 'ID SKPD tidak boleh kosong!';
+				}else{
+					$alamat = $_POST['alamat'];
+					update_option('_crb_skpd_alamat_'.$id_skpd, $alamat);
+				}
+			} else {
+				$ret['status'] = 'error';
+				$ret['message'] = 'APIKEY tidak sesuai!';
+			}
+		} else {
+			$ret['status'] = 'error';
+			$ret['message'] = 'Format Salah!';
+		}
+		die(json_encode($ret));
+	}
+
 	public function get_carbon_multiselect($field){
 		global $wpdb;
 		$table = $wpdb->prefix."options";
@@ -6790,9 +6816,24 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		global $wpdb;
 		$id_skpd = $options['id_skpd'];
 		$nama_skpd = $options['nama_skpd'];
+		$api_key = get_option('_crb_api_key_extension');
+		$alamat = get_option('_crb_skpd_alamat_'.$id_skpd);
+		$ajax_url = admin_url('admin-ajax.php');
 		echo '<div>';
 		if(!empty($id_skpd)){ 
-			echo "<h5 class='text_tengah' style='margin-bottom: 10px;'>$nama_skpd</h5>";
+			echo "
+			<h5 class='text_tengah' style='margin-bottom: 10px;'>$nama_skpd</h5>
+			<div class='container'>
+				<div class='row'>
+					<div class='col-md-2'>
+						<label for='alamat_skpd_$id_skpd' style='display: block;'>Alamat SKPD : </label>
+						<button class='btn btn-primary' onclick='simpan_alamat($id_skpd, \"$api_key\", \"$ajax_url\");'>Simpan</button>
+					</div>
+					<div class='col-md-9'>
+						<textarea class='form-control' id='alamat_skpd_$id_skpd' placeholder='Jalan ...'>$alamat</textarea>
+					</div>
+				</div>
+			</div>";
 			$daftar_tombol = $this->get_carbon_multiselect('crb_daftar_tombol_user_dashboard');
 			$daftar_tombol_list = array();
 			foreach ($daftar_tombol as $v) {

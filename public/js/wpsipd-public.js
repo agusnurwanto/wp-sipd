@@ -389,3 +389,26 @@ function penjadwalanHitungMundur(dataHitungMundur = {}) {
 		jQuery("#seconds").html("00 <span>Detik</span>");
 	}
 }
+
+function simpan_alamat(id_skpd, api_key, ajaxurl){
+	jQuery('#wrap-loading').show();
+	jQuery.ajax({
+		url: ajaxurl,
+      	type: "post",
+      	data: {
+      		"action": "simpan_meta_skpd",
+      		"api_key": api_key,
+      		"id_skpd": id_skpd,
+      		"alamat": jQuery('#alamat_skpd_'+id_skpd).val()
+      	},
+      	dataType: "json",
+      	success: function(data){
+			jQuery('#wrap-loading').hide();
+			return alert(data.message);
+		},
+		error: function(e) {
+			console.log(e);
+			return alert(data.message);
+		}
+	});
+}
