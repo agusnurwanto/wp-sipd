@@ -337,11 +337,13 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes {
 		$management_data_bhpd = $this->generatePage('Management Data BHPD', false, '[management_data_bhpd]');
 		$management_data_bhrd = $this->generatePage('Management Data BHRD', false, '[management_data_bhrd]');
 		$management_data_bku_dd = $this->generatePage('Management Data BKU DD', false, '[management_data_bku_dd]');
-		$management_data_bku_add = $this->generatePage('Management Data BKU DD', false, '[management_data_bku_add]');
+		$management_data_bku_add = $this->generatePage('Management Data BKU ADD', false, '[management_data_bku_add]');
 		$input_pencairan_bkk = $this->generatePage('Halaman Input Pencairan BKK', false, '[input_pencairan_bkk]');
 		$input_pencairan_bhpd = $this->generatePage('Halaman Input Pencairan bhpd', false, '[input_pencairan_bhpd]');
 		$input_pencairan_bhrd = $this->generatePage('Halaman Input Pencairan bhrd', false, '[input_pencairan_bhrd]');
-	    Container::make( 'theme_options', __( 'Import BKK' ) )
+		$input_pencairan_bku_dd = $this->generatePage('Halaman Input Pencairan BKU DD', false, '[input_pencairan_bku_dd]');
+		$input_pencairan_bku_add = $this->generatePage('Halaman Input Pencairan BKU ADD', false, '[input_pencairan_bku_add]');
+	    Container::make( 'theme_options', __( 'Import BKK Infrastruktur' ) )
 		    ->set_page_parent( $keu_pemdes )
 		    ->add_fields( array(
 				Field::make( 'html', 'crb_halaman_terkait_bkk_infrastruktur' )
@@ -353,11 +355,11 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes {
 					<h5>HALAMAN TERKAIT</h5>
 	            	<ol>
 	            		<li><a target="_blank" href="'.$management_data_bkk_infrastruktur.'">Management Data BKK Infrastruktur</a></li>
-	            		<li><a target="_blank" href="'.$input_pencairan_bkk.'">Halaman Input Pencairan BKK</a></li>
+	            		<li><a target="_blank" href="'.$input_pencairan_bkk.'">Halaman Input Pencairan BKK Infrastruktur</a></li>
 	            	</ol>
 		        	' ),
 		        Field::make( 'html', 'crb_bkk_infrastruktur_upload_html' )
-	            	->set_html( '<h3>Import EXCEL data Bantuan Keuangan Khusus</h3>Pilih file excel .xlsx : <input type="file" id="file-excel" onchange="filePickedWpsipd(event);"><br>Contoh format file excel bisa <a target="_blank" href="'.WPSIPD_PLUGIN_URL. 'excel/contoh_bkk_infrastruktur.xlsx">download di sini</a>. Sheet file excel yang akan diimport harus diberi nama <b>data</b>. Untuk kolom nilai angka ditulis tanpa tanda titik.' ),
+	            	->set_html( '<h3>Import EXCEL data Bantuan Keuangan Khusus Infrastruktur</h3>Pilih file excel .xlsx : <input type="file" id="file-excel" onchange="filePickedWpsipd(event);"><br>Contoh format file excel bisa <a target="_blank" href="'.WPSIPD_PLUGIN_URL. 'excel/contoh_bkk_infrastruktur.xlsx">download di sini</a>. Sheet file excel yang akan diimport harus diberi nama <b>data</b>. Untuk kolom nilai angka ditulis tanpa tanda titik.' ),
 		        Field::make( 'html', 'crb_bkk_infrastruktur_satset' )
 	            	->set_html( 'Data JSON : <textarea id="data-excel" class="cf-select__input"></textarea>' ),
 		        Field::make( 'html', 'crb_bkk_infrastruktur_save_button' )
@@ -434,6 +436,7 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes {
 					<h5>HALAMAN TERKAIT</h5>
 	            	<ol>
 	            		<li><a target="_blank" href="'.$management_data_bku_dd.'">Management Data BKU DD</a></li>
+	            		<li><a target="_blank" href="'.$input_pencairan_bku_dd.'">Halaman Input Pencairan BKU DD</a></li>
 	            	</ol>
 		        	' ),
 		        Field::make( 'html', 'crb_bku_dd_singkron_button' )
@@ -465,6 +468,7 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes {
 					<h5>HALAMAN TERKAIT</h5>
 	            	<ol>
 	            		<li><a target="_blank" href="'.$management_data_bku_add.'">Management Data BKU ADD</a></li>
+	            		<li><a target="_blank" href="'.$input_pencairan_bku_add.'">Halaman Input Pencairan BKU ADD</a></li>
 	            	</ol>
 		        	' ),
 		        Field::make( 'html', 'crb_bku_add_upload_html' )
