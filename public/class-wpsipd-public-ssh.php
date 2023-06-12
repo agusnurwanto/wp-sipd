@@ -62,7 +62,6 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
 				$params = $columns = $totalRecords = $data = array();
 				$params = $_REQUEST;
-				$tidak_terpakai = '';
 				$tidak_terpakai_where = '';
 				if(
 					!empty($_POST['tidak_terpakai']) 
@@ -131,9 +130,14 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 				}
 
 				// getting total number records without any search
-				$sql_tot = "SELECT count(s.id) as jml FROM `data_ssh` s".$tidak_terpakai;
-				$sql = "SELECT ".implode(', ', $columns)." FROM `data_ssh` s".$tidak_terpakai;
-				$where_first = " WHERE s.id_standar_harga IS NOT NULL AND s.tahun_anggaran=".$wpdb->prepare('%d', $params['tahun_anggaran']).$tidak_terpakai_where;
+				$sql_tot = "SELECT count(s.id) as jml FROM `data_ssh` s";
+				$sql = "SELECT ".implode(', ', $columns)." FROM `data_ssh` s";
+
+				$where_first = " WHERE 1=1";
+				if(!empty($_POST['kelompok'])){
+					$where_first .= $wpdb->prepare(" AND kelompok=%d", $_POST['kelompok']);
+				}
+				$where_first .= " AND s.id_standar_harga IS NOT NULL AND s.tahun_anggaran=".$wpdb->prepare('%d', $params['tahun_anggaran']).$tidak_terpakai_where;
 				$sqlTot .= $sql_tot.$where_first;
 				$sqlRec .= $sql.$where_first;
 				if(isset($where) && $where != '') {
@@ -3798,11 +3802,11 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 						if($ssh['kelompok'] == 1){
 							$return['data']['ssh'] = $ssh['total'];
 						}else if($ssh['kelompok'] == 2){
-							$return['data']['sbu'] = $ssh['total'];
-						}else if($ssh['kelompok'] == 3){
 							$return['data']['hspk'] = $ssh['total'];
-						}else if($ssh['kelompok'] == 4){
+						}else if($ssh['kelompok'] == 3){
 							$return['data']['asb'] = $ssh['total'];
+						}else if($ssh['kelompok'] == 4){
+							$return['data']['sbu'] = $ssh['total'];
 						}
 					}
 				}
