@@ -3710,34 +3710,102 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 		die(json_encode($return));
 	}
 
-	public function get_data_summary_ssh_sipd(){
+	public function get_data_summary_ssh_usulan(){
 		global $wpdb;
 		$return = array(
 			'status' => 'success',
-			'message' => 'Berhasil get data summary rekapitulasi SSH!'
+			'message' => 'Berhasil get data summary rekapitulasi SSH!',
+			'data' => array(
+				'rejected' => 0,
+				'approved' => 0,
+				'waiting' => 0,
+				'total' => 0
+			)
 		);
 
 		if(!empty($_POST)){
 			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
-
 				if(empty($_POST['tahun_anggaran'])){
 					$return = array(
 						'status' => 'error',
 						'message'	=> 'Tahun anggaran tidak boleh kosong!'
 					);
+				}else{
+					$data = $wpdb->get_results($wpdb->prepare("
+						SELECT 
+							count(id) as total, 
+							status 
+						FROM `data_ssh_usulan` 
+						WHERE tahun_anggaran=%d
+						GROUP BY status
+					", $_POST['tahun_anggaran']), ARRAY_A);
+					foreach($data as $ssh){
+						$return['data']['total'] += $ssh['total'];
+						if($ssh['status'] == 'rejected'){
+							$return['data']['rejected'] = $ssh['total'];
+						}else if($ssh['status'] == 'approved'){
+							$return['data']['approved'] = $ssh['total'];
+						}else if($ssh['status'] == 'waiting'){
+							$return['data']['waiting'] = $ssh['total'];
+						}
+					}
 				}
+			}else{
+				$return = array(
+					'status' => 'error',
+					'message'	=> 'Api Key tidak sesuai!'
+				);
+			}
+		}else{
+			$return = array(
+				'status' => 'error',
+				'message'	=> 'Format tidak sesuai!'
+			);
+		}
+		die(json_encode($return));
+	}
 
-				$data = $wpdb->get_row($wpdb->prepare("
-					SELECT 
-						(SELECT COUNT(id) FROM `data_ssh_usulan` WHERE tahun_anggaran=%d AND status='rejected') AS rejected,
-    					(SELECT COUNT(id) FROM `data_ssh_usulan` WHERE tahun_anggaran=%d AND status='approved') AS approved,
-    					(SELECT COUNT(id) FROM `data_ssh_usulan` WHERE tahun_anggaran=%d AND status='waiting') AS waiting;", 
-    					$_POST['tahun_anggaran'],
-    					$_POST['tahun_anggaran'],
-    					$_POST['tahun_anggaran']));
+	public function get_data_summary_ssh_sipd(){
+		global $wpdb;
+		$return = array(
+			'status' => 'success',
+			'message' => 'Berhasil get data summary rekapitulasi SSH!',
+			'data' => array(
+				'ssh' => 0,
+				'sbu' => 0,
+				'hspk' => 0,
+				'asb' => 0
+			)
+		);
 
-				$return['data'] = $data;
-
+		if(!empty($_POST)){
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+				if(empty($_POST['tahun_anggaran'])){
+					$return = array(
+						'status' => 'error',
+						'message'	=> 'Tahun anggaran tidak boleh kosong!'
+					);
+				}else{
+					$data = $wpdb->get_results($wpdb->prepare("
+						SELECT 
+							count(id) as total,
+							kelompok 
+						FROM `data_ssh` 
+						WHERE tahun_anggaran=%d
+						group by kelompok
+					", $_POST['tahun_anggaran']), ARRAY_A);
+					foreach($data as $ssh){
+						if($ssh['kelompok'] == 1){
+							$return['data']['ssh'] = $ssh['total'];
+						}else if($ssh['kelompok'] == 2){
+							$return['data']['sbu'] = $ssh['total'];
+						}else if($ssh['kelompok'] == 3){
+							$return['data']['hspk'] = $ssh['total'];
+						}else if($ssh['kelompok'] == 4){
+							$return['data']['asb'] = $ssh['total'];
+						}
+					}
+				}
 			}else{
 				$return = array(
 					'status' => 'error',
