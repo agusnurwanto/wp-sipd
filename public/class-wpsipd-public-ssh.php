@@ -1164,7 +1164,14 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 					FROM data_ssh_usulan 
 					WHERE no_surat_usulan=%s
 				", $_POST['nomor_surat']));
+				$data_surat = $wpdb->get_row($wpdb->prepare("
+					SELECT 
+						*
+					FROM data_surat_usulan_ssh 
+					WHERE id=%s
+				", $_POST['id']));
 				$return['data'] = $data_ssh;
+				$return['surat'] = $data_surat;
 				$return['sql'] = $wpdb->last_query;
 			}else{
 				$return = array(
@@ -1315,7 +1322,7 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 					$url_surat = $this->generatePage($title, $tahun_anggaran, '[surat_usulan_ssh id_surat="'.$val['id'].'"]');
 					$queryRecords[$k]['aksi'] = '
 						<a class="btn btn-sm btn-warning" target="_blank" href="'.$url_surat."&idskpd=".$val['idskpd'].'" title="Cetak Surat Usulan"><i class="dashicons dashicons-printer"></i></a>
-						<a class="btn btn-sm btn-primary" href="#usulan_ssh_table" onclick="filter_surat_usulan(\''.$val['id'].'\'); return false;"  title="Filter Surat Usulan"><i class="dashicons dashicons-search"></i></a>
+						<a class="btn btn-sm btn-primary" onclick="filter_surat_usulan(\''.$val['nomor_surat'].'\'); return false;" href="#" title="Filter Surat Usulan"><i class="dashicons dashicons-search"></i></a>
 						<a class="btn btn-sm btn-warning" onclick="edit_surat_usulan(this); return false;" href="#" title="Edit Surat Usulan" data-id="'.$val['id'].'" data-nomorsurat="'.$val['nomor_surat'].'" data-idskpd="'.$val['idskpd'].'"><i class="dashicons dashicons-edit"></i></a>
 						<a class="btn btn-sm btn-danger" onclick="hapus_surat_usulan(this); return false;" href="#" title="Hapus Surat Usulan" data-id="'.$val['id'].'" data-nomorsurat="'.$val['nomor_surat'].'" data-idskpd="'.$val['idskpd'].'"><i class="dashicons dashicons-trash"></i></a>';
 
@@ -1332,12 +1339,8 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 					}else{
 						$queryRecords[$k]['nama_file'] = '';
 					}
-					if(!$is_admin){
-						$queryRecords[$k]['nama_file'] .= '<br><input type="file" id="surat_file">';
-						$queryRecords[$k]['catatan'] = '<textarea id="catatan_surat_edit" class="form-control">'.$val['catatan'].'</textarea>';
-					}else{
-						$queryRecords[$k]['catatan_verifikator'] = '<textarea id="catatan_verifikator_surat_edit" class="form-control">'.$val['catatan_verifikator'].'</textarea>';
-					}
+					$queryRecords[$k]['catatan'] = $val['catatan'];
+					$queryRecords[$k]['catatan_verifikator'] = $val['catatan_verifikator'];
 
 					$queryRecords[$k]['acuan_ssh'] = '<ul style="margin-left: 15px;">';
 					if(!empty($val['jenis_survey']) && $val['jenis_survey'] == 1){
@@ -1475,7 +1478,11 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 				}
 				
 				if(!empty($_POST['filter_opd'])){
-					$where .=" AND id_sub_skpd = " . $_POST['filter_opd'];
+					$where .=" AND id_sub_skpd = ".$wpdb->prepare('%s', $_POST['filter_opd']);
+				}
+				
+				if(!empty($_POST['filter_surat'])){
+					$where .=" AND no_surat_usulan = ".$wpdb->prepare('%s', $_POST['filter_surat']);
 				}
 
 				/** Jika admin tampilkan semua data */
@@ -3562,6 +3569,8 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 			'status' => 'success',
 			'message' => 'Berhasil simpan surat usulan SSH!'
 		);
+		$user_id = um_user( 'ID' );
+		$user_meta = get_userdata($user_id);
 
 		if(!empty($_POST)){
 			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
@@ -3588,7 +3597,12 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 					$catatan = $_POST['catatan'];
 					$idskpd = $_POST['idskpd'];
 					if(!empty($_POST['ubah'])){
-						$catatan_verifikator = $_POST['catatan_verifikator'];
+						if(
+							in_array("administrator", $user_meta->roles) ||
+							in_array("tapd_keu", $user_meta->roles)
+						){
+							$catatan_verifikator = $_POST['catatan_verifikator'];
+						}
 					}else{
 						$ids = explode(',', $_POST['ids']);
 					}
@@ -3629,7 +3643,8 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 						'jenis_juknis' => 0,
 					);
 
-					foreach ($_POST['acuanSsh'] as $key => $value) {
+					$dasar_usulan = explode(',', $_POST['acuanSsh']);
+					foreach ($dasar_usulan as $key => $value) {
 						if($value==1){
 							$data['jenis_survey']=$value;
 						}elseif ($value==2) {
@@ -3639,15 +3654,15 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 
 					if(!empty($_POST['ubah'])){
 						$data['catatan_verifikator'] = $catatan_verifikator;
-						if(!empty($_FILES['file'])){
+						if(!empty($_FILES['lapiran_surat'])){
 							$folder = WPSIPD_PLUGIN_PATH.'public/media/ssh/';
 							$upload = CustomTrait::uploadFile(
 								$_POST['api_key'], 
 								$folder, 
-								$_FILES['file'], 
+								$_FILES['lapiran_surat'], 
 								array('jpg', 'jpeg', 'png', 'pdf'), 
 								2097152, 
-								$nomor_surat
+								str_replace('/','-', $nomor_surat)
 							);
 							if($upload['status']){
 								$data['nama_file'] = $upload['filename'];
@@ -3695,34 +3710,102 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 		die(json_encode($return));
 	}
 
-	public function get_data_summary_ssh_sipd(){
+	public function get_data_summary_ssh_usulan(){
 		global $wpdb;
 		$return = array(
 			'status' => 'success',
-			'message' => 'Berhasil get data summary rekapitulasi SSH!'
+			'message' => 'Berhasil get data summary rekapitulasi SSH!',
+			'data' => array(
+				'rejected' => 0,
+				'approved' => 0,
+				'waiting' => 0,
+				'total' => 0
+			)
 		);
 
 		if(!empty($_POST)){
 			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
-
 				if(empty($_POST['tahun_anggaran'])){
 					$return = array(
 						'status' => 'error',
 						'message'	=> 'Tahun anggaran tidak boleh kosong!'
 					);
+				}else{
+					$data = $wpdb->get_results($wpdb->prepare("
+						SELECT 
+							count(id) as total, 
+							status 
+						FROM `data_ssh_usulan` 
+						WHERE tahun_anggaran=%d
+						GROUP BY status
+					", $_POST['tahun_anggaran']), ARRAY_A);
+					foreach($data as $ssh){
+						$return['data']['total'] += $ssh['total'];
+						if($ssh['status'] == 'rejected'){
+							$return['data']['rejected'] = $ssh['total'];
+						}else if($ssh['status'] == 'approved'){
+							$return['data']['approved'] = $ssh['total'];
+						}else if($ssh['status'] == 'waiting'){
+							$return['data']['waiting'] = $ssh['total'];
+						}
+					}
 				}
+			}else{
+				$return = array(
+					'status' => 'error',
+					'message'	=> 'Api Key tidak sesuai!'
+				);
+			}
+		}else{
+			$return = array(
+				'status' => 'error',
+				'message'	=> 'Format tidak sesuai!'
+			);
+		}
+		die(json_encode($return));
+	}
 
-				$data = $wpdb->get_row($wpdb->prepare("
-					SELECT 
-						(SELECT COUNT(id) FROM `data_ssh_usulan` WHERE tahun_anggaran=%d AND status='rejected') AS rejected,
-    					(SELECT COUNT(id) FROM `data_ssh_usulan` WHERE tahun_anggaran=%d AND status='approved') AS approved,
-    					(SELECT COUNT(id) FROM `data_ssh_usulan` WHERE tahun_anggaran=%d AND status='waiting') AS waiting;", 
-    					$_POST['tahun_anggaran'],
-    					$_POST['tahun_anggaran'],
-    					$_POST['tahun_anggaran']));
+	public function get_data_summary_ssh_sipd(){
+		global $wpdb;
+		$return = array(
+			'status' => 'success',
+			'message' => 'Berhasil get data summary rekapitulasi SSH!',
+			'data' => array(
+				'ssh' => 0,
+				'sbu' => 0,
+				'hspk' => 0,
+				'asb' => 0
+			)
+		);
 
-				$return['data'] = $data;
-
+		if(!empty($_POST)){
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+				if(empty($_POST['tahun_anggaran'])){
+					$return = array(
+						'status' => 'error',
+						'message'	=> 'Tahun anggaran tidak boleh kosong!'
+					);
+				}else{
+					$data = $wpdb->get_results($wpdb->prepare("
+						SELECT 
+							count(id) as total,
+							kelompok 
+						FROM `data_ssh` 
+						WHERE tahun_anggaran=%d
+						group by kelompok
+					", $_POST['tahun_anggaran']), ARRAY_A);
+					foreach($data as $ssh){
+						if($ssh['kelompok'] == 1){
+							$return['data']['ssh'] = $ssh['total'];
+						}else if($ssh['kelompok'] == 2){
+							$return['data']['sbu'] = $ssh['total'];
+						}else if($ssh['kelompok'] == 3){
+							$return['data']['hspk'] = $ssh['total'];
+						}else if($ssh['kelompok'] == 4){
+							$return['data']['asb'] = $ssh['total'];
+						}
+					}
+				}
 			}else{
 				$return = array(
 					'status' => 'error',

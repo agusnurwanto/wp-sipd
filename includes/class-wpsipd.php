@@ -526,6 +526,12 @@ class Wpsipd
 		
 		$this->loader->add_action('wp_ajax_cek_lisensi_ext',  $plugin_public, 'cek_lisensi_ext');
 		$this->loader->add_action('wp_ajax_nopriv_cek_lisensi_ext',  $plugin_public, 'cek_lisensi_ext');
+
+		$this->loader->add_action('wp_ajax_get_data_summary_ssh_usulan',  $plugin_public, 'get_data_summary_ssh_usulan');
+		$this->loader->add_action('wp_ajax_nopriv_get_data_summary_ssh_usulan',  $plugin_public, 'get_data_summary_ssh_usulan');
+
+		$this->loader->add_action('wp_ajax_get_data_summary_ssh_sipd',  $plugin_public, 'get_data_summary_ssh_sipd');
+		$this->loader->add_action('wp_ajax_nopriv_get_data_summary_ssh_sipd',  $plugin_public, 'get_data_summary_ssh_sipd');
 		
 		$this->loader->add_action('wp_ajax_simpan_rfk',  $plugin_public, 'simpan_rfk');
 		$this->loader->add_action('wp_ajax_reset_rfk',  $plugin_public, 'reset_rfk');
@@ -773,8 +779,6 @@ class Wpsipd
 		$this->loader->add_action('wp_ajax_get_data_pengeluaran_by_id', $plugin_public, 'get_data_pengeluaran_by_id');
 		$this->loader->add_action('wp_ajax_submit_edit_pengeluaran', $plugin_public, 'submit_edit_pengeluaran');
 		$this->loader->add_action('wp_ajax_submit_delete_pengeluaran', $plugin_public, 'submit_delete_pengeluaran');
-
-		$this->loader->add_action('wp_ajax_get_data_summary_ssh_sipd',  $plugin_public, 'get_data_summary_ssh_sipd');
 
 		$this->loader->add_action('wp_ajax_get_rekening_akun',  $plugin_public, 'get_rekening_akun');
 		$this->loader->add_action('wp_ajax_get_jenis_standar_harga',  $plugin_public, 'get_jenis_standar_harga');
