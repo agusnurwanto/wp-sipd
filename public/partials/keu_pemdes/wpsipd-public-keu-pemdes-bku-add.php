@@ -13,7 +13,7 @@ $data = $wpdb->get_results($wpdb->prepare("
     SELECT 
         kecamatan, 
         sum(total) as total 
-    from data_bhrd_desa 
+    from data_bku_add_desa 
     WHERE tahun_anggaran=%d
         and active=1
     group by kecamatan 
@@ -46,8 +46,8 @@ foreach($data as $i => $val){
     $realisasi = $wpdb->get_var($wpdb->prepare("
         SELECT 
             SUM(p.total_pencairan) 
-        FROM data_pencairan_bhrd_desa p
-        INNER JOIN data_bhrd_desa b on p.id_bhrd=b.id
+        FROM data_pencairan_bku_add_desa p
+        INNER JOIN data_bku_add_desa b on p.id_bku_add=b.id
             AND b.active=1
             AND b.tahun_anggaran=%d
         WHERE b.kecamatan=%s
@@ -85,7 +85,7 @@ if($realisasi_all == 0){
 }
 ?>
 
-<h1 class="text-center">Bagi Hasil Retribusi Daerah<br>Rekapitulasi Per Kecamatan<br>Tahun <?php echo $input['tahun_anggaran']; ?></h1>
+<h1 class="text-center">BKU Anggaran Dana Desa ( ADD )<br>Rekapitulasi Per Kecamatan<br>Tahun <?php echo $input['tahun_anggaran']; ?></h1>
 <div class="cetak">
     <div style="padding: 10px;">
         <div class="row">
@@ -97,7 +97,7 @@ if($realisasi_all == 0){
         </div>
         <div class="row">
             <div class="col-md-12">
-                <h2 class="text-center">Tabel Bagi Hasil Retribusi Daerah<br>Rekapitulasi Per Kecamatan<br>Tahun <?php echo $input['tahun_anggaran']; ?></h2>
+                <h2 class="text-center">Tabel BKU Anggaran Dana Desa ( ADD )<br>Rekapitulasi Per Kecamatan<br>Tahun <?php echo $input['tahun_anggaran']; ?></h2>
                 <table class="table table-bordered">
                     <thead>
                         <tr>

@@ -154,6 +154,15 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
 	button[disabled], input[disabled], textarea[disabled] {
 	    background: #dfdfdf;
 	}
+	#toolbar_ssh_usulan {
+		margin: 0;
+	}
+	#toolbar_ssh_usulan li{
+		list-style: none;
+		display: inline-block;
+		margin-left: 10px;
+		margin-top: 5px;
+	}
 </style>
 <div class="cetak">
 	<div style="padding: 10px;">
@@ -168,11 +177,11 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
 					<th class="text-center">Dibuat Oleh</th>
 					<th class="text-center">Nomor Surat</th>
 					<th class="text-center">File</th>
-					<th class="text-center">Jumlah Usulan</th>
-					<th class="text-center">Acuan Penyusunan SSH</th>
+					<th class="text-center">Jumlah</th>
+					<th class="text-center">Dasar Pengusulan</th>
 					<th class="text-center">Catatan</th>
 					<th class="text-center">Catatan Verifikator</th>
-					<th class="text-center">Aksi</th>
+					<th class="text-center" style="width: 65px;">Aksi</th>
 				</tr>
 			</thead>
 			<tbody id="data_body_surat" class="data_body_ssh_surat">
@@ -237,11 +246,25 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
 					</div>
 				</div>
 				<div class="row form-group">
+					<label class="col-md-2" for="catatan_verifikator">Catatan Verifikator</label>
+					<div class="col-md-10">
+						<textarea type="text" id="catatan_verifikator" class="form-control"></textarea>
+					</div>
+				</div>
+				<div class="row form-group">
 					<label class="col-md-2" for="Acuan penyusunan SSH">Acuan Penyusunan SSH</label>
 					<div class="col-md-10">
 						<input class="type-sumber-ssh" id="jenis_survey" name="jenis[]" value="1" type="checkbox" >&nbsp;<label for="verify-ssh-yes">Survey harga pasar yang telah kami lakukan secara mandiri.</label></br>
 						<input class="type-sumber-ssh" id="jenis_juknis" name="jenis[]" value="2" type="checkbox">&nbsp;<label for="verify-ssh-no">Petunjuk Teknis yang kami terima dari kementrian/provinsi.</label></br>
 						<small style='color:red'>* Pilih salah satu atau keduanya. </small>
+					</div>
+				</div>
+				<div class="row form-group">
+					<label for='u_surat_usulan_ssh' class="col-md-2">Soft File Surat Usulan SSH</label>
+					<div class="col-md-10">
+						<input type='file' id='u_surat_usulan_ssh' accept="image/png, image/jpeg, image/jpg, application/pdf" style='display:block;width:100%;' onchange="checkFileType(this)">
+						<small>Tipe file adalah .jpg .jpeg .png .pdf dengan maksimal ukuran 2MB.</small>
+						<div style="padding-top: 10px; padding-bottom: 10px;"><a id="file_surat_usulan_ssh"></a></div>
 					</div>
 				</div>
 				<div class="row form-group">
@@ -555,31 +578,47 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
 	            get_data_satuan_ssh(tahun);
 	            get_data_nama_ssh(tahun);
 				jQuery("#usulan_ssh_table_wrapper div:first").addClass("h-100 align-items-center");
-				let html_filter = "<div class='row'><div class='col-sm-12 col-md-10'><select name='filter_action' class='ml-3 bulk-action' id='multi_select_action'>"+
-					"<option value='0'>Tindakan Massal</option>"+
-					"<option value='approve'>Setuju</option>"+
-					"<option value='notapprove'>Tolak</option>"+
-					"<option value='delete'>Hapus</option></select>"+
-				"<button type='submit' class='ml-1 btn btn-secondary' onclick='action_check_data_usulan_ssh()'>Terapkan</button>&nbsp;"+
-				"<select name='filter_status' class='ml-3 bulk-action' id='search_filter_action' onchange='action_filter_data_usulan_ssh()'>"+
-					"<option value=''>Pilih Filter</option>"+
-					"<option value='diterima'>Diterima</option>"+
-					"<option value='ditolak'>Ditolak</option>"+
-					"<option value='diterima_admin'>Diterima Admin</option>"+
-					"<option value='ditolak_admin'>Ditolak Admin</option>"+
-					"<option value='diterima_tapdkeu'>Diterima TAPD Keuangan</option>"+
-					"<option value='ditolak_tapdkeu'>Ditolak TAPD Keuangan</option>"+
-					"<option value='menunggu'>Menunggu</option>"+
-					"<option value='sudah_upload_sipd'>Sudah upload SIPD</option>"+
-					"<option value='belum_upload_sipd'>Belum upload SIPD</option>"+
-				"</select>&nbsp;"
-				+"<select name='filter_opd' class='ml-3 bulk-action' id='search_filter_action_opd' style='width:50%' onchange='action_filter_data_usulan_ssh()'></select>";
-				
-				// jQuery("#usulan_ssh_table_length").append(html_filter);
+				let html_filter = ""
+				+"<ul id='toolbar_ssh_usulan'>"
+					+"<li>"
+						+"<select name='filter_action' class='ml-3 bulk-action' id='multi_select_action'>"
+							+"<option value='0'>Tindakan Massal</option>"
+							+"<option value='approve'>Setuju</option>"
+							+"<option value='notapprove'>Tolak</option>"
+							+"<option value='delete'>Hapus</option>"
+						+"</select>"
+						+"<button style='margin-left: 10px;' type='submit' class='ml-1 btn btn-secondary' onclick='action_check_data_usulan_ssh()'>Terapkan</button>"
+					+"</li>"
+					+"<li>"
+						+"<select name='filter_status' class='ml-3 bulk-action' id='search_filter_action' onchange='action_filter_data_usulan_ssh()'>"
+							+"<option value=''>Pilih Status</option>"
+							+"<option value='diterima'>Diterima</option>"
+							+"<option value='ditolak'>Ditolak</option>"
+							+"<option value='diterima_admin'>Diterima Admin</option>"
+							+"<option value='ditolak_admin'>Ditolak Admin</option>"
+							+"<option value='diterima_tapdkeu'>Diterima TAPD Keuangan</option>"
+							+"<option value='ditolak_tapdkeu'>Ditolak TAPD Keuangan</option>"
+							+"<option value='menunggu'>Menunggu</option>"
+							+"<option value='sudah_upload_sipd'>Sudah upload SIPD</option>"
+							+"<option value='belum_upload_sipd'>Belum upload SIPD</option>"
+						+"</select>"
+					+"</li>"
+					+"<li>"
+						+"<select name='filter_opd' class='ml-3 bulk-action' id='search_filter_action_opd' style='margin-left: 10px;' onchange='action_filter_data_usulan_ssh()'>"
+						+"</select>"
+					+"</li>"
+					+"<li>"
+						+"<select name='filter_surat' class='ml-3 bulk-action' id='search_filter_surat' style='margin-left: 10px; width:200px;' onchange='action_filter_data_usulan_ssh()'>"
+							+"<option value=''>Pilih Surat</option>"
+						+"</select>"
+					+"</li>"
+				+"</ul>";
 				
 				jQuery(".h-100").after(html_filter);
 				jQuery("#multi_select_action").select2();
 				jQuery("#search_filter_action").select2();
+				jQuery('#search_filter_surat').html(html_surat_usulan);
+				jQuery("#search_filter_surat").select2();
 				jQuery("#search_filter_action_opd").html('<?php echo $list_skpd_options; ?>');
 			    jQuery("#search_filter_action_opd").select2();
 			});
@@ -589,6 +628,19 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
 			jQuery("#tambahSuratUsulan #surat_skpd").val("");
 			jQuery("#tambahSuratUsulan #nomor_surat").val(jQuery("#tambahSuratUsulan #nomor_surat").attr('value'));
 			jQuery("#tambahSuratUsulan #catatan_surat").val("");
+			jQuery("#tambahSuratUsulan #u_surat_usulan_ssh").val("").closest('.row').hide();
+        	<?php 
+        		if(
+					in_array("administrator", $user_meta->roles)
+					|| in_array("tapd_keu", $user_meta->roles)
+				){
+        			echo "jQuery('#tambahSuratUsulan #catatan_verifikator').prop('disabled', false);";
+        			echo "jQuery('#tambahSuratUsulan #catatan_surat').prop('disabled', true);";
+        		}else{
+        			echo "jQuery('#tambahSuratUsulan #catatan_verifikator').prop('disabled', true);";
+        			echo "jQuery('#tambahSuratUsulan #catatan_surat').prop('disabled', false);";
+        		}
+        	?>
 		});
 		jQuery('#tambahUsulanSsh').on('hidden.bs.modal', function () {
 			jQuery("#tambahUsulanSsh .modal-dialog").removeClass("modal-lg");
@@ -655,9 +707,11 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
 		return new Promise(function(resolve, reject){
 			globalThis.usulanSSHTable = jQuery('#usulan_ssh_table')
 			.on('preXhr.dt', function ( e, settings, data ) {
-				// jQuery("#wrap-loading").show();
+				jQuery("#wrap-loading").show();
+				// console.log('preXhr.dt');
 				data.filter = jQuery("#search_filter_action").val();
 				data.filter_opd = jQuery("#search_filter_action_opd").val();
+				data.filter_surat = jQuery("#search_filter_surat").val();
 			} )
 			.DataTable({
 				"processing": true,
@@ -750,11 +804,10 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
 			    	var dateOrder = dataCell.find('td:eq(0)').text().split(': ')[1];
 			    	dataCell.attr('data-order', dateOrder);
 			  	},
-				"preDrawCallback": function(argument) {
-					// jQuery("#wrap-loading").show();
-				},
-				"initComplete":function( settings, json){
-					// jQuery("#wrap-loading").hide();
+				"drawCallback": function(settings) {
+					var api = this.api();
+					// console.log('drawCallback');
+					jQuery("#wrap-loading").hide();
 					resolve();
 				}
 			});
@@ -787,8 +840,7 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
 					{
 						"data": 'nama_skpd',
 						"targets": 'no-sort',
-						"orderable": false,
-		            	className: "text-center"
+						"orderable": false
 		            },
 					{
 						"data": 'nomor_surat',
@@ -811,20 +863,18 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
 					{
 						"data": 'acuan_ssh',
 						"targets": 'no-sort',
-						"orderable": false,
-		            	className: "text-center"
+						"orderable": false
 		            },
 					{
 						"data": 'catatan',
 						"targets": 'no-sort',
-						"orderable": false,
-		            	className: "text-left"
+						"orderable": false
 		            },
 					{
 						"data": 'catatan_verifikator',
 						"targets": 'no-sort',
 						"orderable": false,
-		            	className: "text-left"
+		            	className: "text-center"
 		            },
 					{
 						"data": 'aksi',
@@ -833,13 +883,17 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
 		            	className: "text-center"
 		            }
 		        ],
-				"preDrawCallback": function(argument) {
-					// jQuery("#wrap-loading").show();
-				},
-				"initComplete":function( settings, json){
-					// jQuery("#wrap-loading").hide();
-					resolve();
-				}
+		        "drawCallback": function(settings){
+		        	var api = this.api();
+		        	// console.log('api', api.rows().data());
+		        	window.html_surat_usulan = ""
+		        		+"<option value=''>Pilih Surat</option>";
+		        	api.rows().data().map(function(b, i){
+		        		html_surat_usulan += "<option value='"+b.nomor_surat+"'>"+b.nomor_surat+"</option>";
+		        	});
+		        	jQuery('#search_filter_surat').html(html_surat_usulan);
+		        	resolve();
+		        }
 			});
 		});
 	}
@@ -1148,17 +1202,31 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
 		var lapiran_usulan_ssh_2 = jQuery('#u_lapiran_usulan_ssh_2')[0].files[0];
 		var lapiran_usulan_ssh_3 = jQuery('#u_lapiran_usulan_ssh_3')[0].files[0];
 		var id_sub_skpd = jQuery("#id_sub_skpd").val(); 
-		jQuery("#wrap-loading").show();
 
-		if(kategori == '' || nama_komponen == '' || spesifikasi == '' || satuan == '' || harga_satuan == '' || jenis_produk == '' || tkdn == '' || akun == '' || typeof lapiran_usulan_ssh_1 == 'undefined' || typeof lapiran_usulan_ssh_2 == 'undefined' || id_sub_skpd == ''){
-			jQuery("#wrap-loading").hide();
-			alert('Harap diisi semua, tidak ada yang kosong, lampiran 1 dan 2 wajib terisi..');
-			return false;
-		}else if(kategori.trim() == '' || nama_komponen.trim() == '' || spesifikasi.trim() == '' || satuan.trim() == '' || harga_satuan.trim() == '' || jenis_produk.trim() == '' || tkdn.trim() == '' || akun == '' || id_sub_skpd.trim() == ''){
-			jQuery("#wrap-loading").hide();
-			alert('Harap diisi semua, tidak ada yang kosong...');
-			return false;
+		if(kategori == '' || kategori.trim('') == ''){
+			alert('Kategori kelompok tidak boleh kosong!');
+		}else if(nama_komponen == '' || nama_komponen.trim('') == ''){
+			alert('Nama Komponen tidak boleh kosong!');
+		}else if(spesifikasi == '' || spesifikasi.trim('') == ''){
+			alert('Spesifikasi tidak boleh kosong!');
+		}else if(satuan == '' || satuan.trim('') == ''){
+			alert('Satuan tidak boleh kosong!');
+		}else if(harga_satuan == '' || harga_satuan.trim('') == ''){
+			alert('Harga satuan tidak boleh kosong!');
+		}else if(jenis_produk == '' || jenis_produk.trim('') == ''){
+			alert('Jenis produk harus dipilih!');
+		}else if(tkdn == '' || tkdn.trim('') == ''){
+			alert('TKDN tidak boleh kosong!');
+		}else if(akun == '' || akun.trim('') == ''){
+			alert('Akun rekening tidak boleh kosong!');
+		}else if(typeof lapiran_usulan_ssh_1 == 'undefined'){
+			alert('Lampiran 1 tidak boleh kosong!');
+		}else if(typeof lapiran_usulan_ssh_2 == 'undefined'){
+			alert('Lampiran 2 tidak boleh kosong!');
+		}else if(typeof id_sub_skpd == 'undefined'){
+			alert('id_sub_skpd tidak boleh kosong!');
 		}else{
+			jQuery("#wrap-loading").show();
 			let tempData = new FormData();
 			tempData.append('action', 'submit_usulan_ssh');
 			tempData.append('api_key', jQuery("#api_key").val());
@@ -1248,7 +1316,7 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
 	}
 
 	//verify akun ssh usulan
-	function verify_ssh_usulan(id_standar_ssh){
+	function verify_ssh_usulan(id){
 		jQuery('#tambahUsulanSsh').modal('show');
 		jQuery("#tambahUsulanSshLabel").html("Verifikasi SSH");
 		jQuery("#tambahUsulanSsh .modal-dialog").removeClass("modal-lg modal-xl");
@@ -1257,7 +1325,7 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
 					"<tr><td><input class=\'verify-ssh\' id=\'verify-ssh-yes\' name=\'verify_ssh\' value=\'1\' type=\'radio\' checked><label for=\'verify-ssh-yes\'>Terima</label></td>"+
 					"<td><input class=\'verify-ssh\' id=\'verify-ssh-no\' name=\'verify_ssh\' value=\'0\' type=\'radio\'><label for=\'verify-ssh-no\'>Tolak</label></td></tr>"+
 					"<tr class=\'add-desc-verify-ssh\' style=\'display:none;\'><td colspan=\'2\'><label for=\'alasan_verify_ssh\' style=\'display:inline-block;\'>Alasan</label><textarea id=\'alasan_verify_ssh\'></textarea></td></tr></div>");
-		jQuery("#tambahUsulanSsh .modal-footer").html("<button style=\'margin: 0 0 2rem 0.5rem;border-radius:0.2rem;\' class=\'btn_submit_verify_ssh\' onclick=\'submit_verify_ssh("+id_standar_ssh+")\'>Simpan</button>");
+		jQuery("#tambahUsulanSsh .modal-footer").html("<button style=\'margin: 0 0 2rem 0.5rem;border-radius:0.2rem;\' class=\'btn_submit_verify_ssh\' onclick=\'submit_verify_ssh("+id+")\'>Simpan</button>");
 		jQuery("#verify-ssh-no").on("click", function() {
 			jQuery(".add-desc-verify-ssh").show();
 			jQuery(".catatan-verify-ssh").show();
@@ -1267,7 +1335,7 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
 			jQuery(".catatan-verify-ssh").hide();
 		})
 
-		getDataUsulanSshByIdStandarHarga(id_standar_ssh);
+		getDataUsulanSshByIdStandarHarga(id);
 	}
 
 	/** submit verifikasi usulan ssh */
@@ -1933,7 +2001,6 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
 
 	function action_filter_data_usulan_ssh(){
 		usulanSSHTable.draw();
-		jQuery("#wrap-loading").hide();
 	}
 
 	function readMore(btn){
@@ -1963,7 +2030,7 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
 		return true;
 	}
 
-	function getDataUsulanSshByIdStandarHarga(id_standar_harga){
+	function getDataUsulanSshByIdStandarHarga(id){
 		return new Promise(function(resolve, reject){
 			jQuery.ajax({
 				url: ajax.url,
@@ -1971,7 +2038,7 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
 			    data: {
 			          "action": "get_data_usulan_ssh_by_id_standar_harga",
 			          "api_key": jQuery("#api_key").val(),
-			          "id_standar_harga": id_standar_harga,
+			          "id": id
 			    },
 			    dataType: "json",
 			    success: function(res){
@@ -1999,11 +2066,10 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
         var ids = [];
         var status = false;
         jQuery('.delete_check').each(function(){
-
         	if(
         		jQuery(this).is(':checked')
-	            && jQuery(this).attr('no-surat') !== ''){
-        		
+	            && jQuery(this).attr('no-surat') !== ''
+	        ){
         		alert('Salah satu usulan standar harga sudah memiliki nomor surat, mohon dicermati ulang!');
         		return false;
         	}else{
@@ -2020,7 +2086,7 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
 	            		spesifikasi: tr.find('>td').eq(3).html(),
 	            		harga: tr.find('>td').eq(4).html(),
 	            		rekening: '',
-	            		jenis: tr.find('>td').eq(8).html()
+	            		jenis: tr.find('>td').eq(9).html()
 	            	}
 	                ids.push(data);
 	            }
@@ -2046,9 +2112,26 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
 	        				+'<td>'+b.jenis+'</td>'
 	        			+'</tr>'
 	        	});
+	        	jQuery('.type-sumber-ssh').prop('checked', false);
+	        	jQuery('#surat_skpd').val('');
+	        	jQuery('#catatan_surat').val('');
+	        	jQuery('#catatan_verifikator').val('');
+	        	jQuery('#nomor_surat').val(jQuery('#nomor_surat').attr('placeholder'));
 	        	jQuery('#ids_surat_usulan').val(data_ids);
 	        	jQuery('#tbody_data_usulan').html(data);
 	        	jQuery('#tambahSuratUsulan').modal('show');
+        	<?php 
+        		if(
+					in_array("administrator", $user_meta->roles)
+					|| in_array("tapd_keu", $user_meta->roles)
+				){
+        			echo "jQuery('#tambahSuratUsulan #catatan_verifikator').prop('disabled', false);";
+        			echo "jQuery('#tambahSuratUsulan #catatan_surat').prop('disabled', true);";
+        		}else{
+        			echo "jQuery('#tambahSuratUsulan #catatan_verifikator').prop('disabled', true);";
+        			echo "jQuery('#tambahSuratUsulan #catatan_surat').prop('disabled', false);";
+        		}
+        	?>
 	        	jQuery('#wrap-loading').hide();
 	        }
         }
@@ -2069,39 +2152,46 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
 			return alert('Perangkat daerah tidak boleh kosong!');
 		}
 		var catatan = jQuery('#catatan_surat').val();
+		var catatan_verifikator = jQuery('#catatan_verifikator').val();
 		var acuanSsh = jQuery('#tambahSuratUsulan input:checkbox:checked').map(function() {
 		    return this.value;
 		}).get();
 		var ubah = jQuery("#tambahSuratUsulan #ubah").val();
-		var data = {
-		        "action": "simpan_surat_usulan_ssh",
-		        "api_key": jQuery("#api_key").val(),
-		        "tahun_anggaran": tahun,
-		        "nomor_surat": nomor_surat,
-		        "catatan": catatan,
-		        "idskpd": idskpd,
-		        "ids": ids,
-		        "acuanSsh":acuanSsh
-		  };
+		var lapiran_surat = jQuery('#u_surat_usulan_ssh')[0].files[0];
+		let tempData = new FormData();
+		tempData.append('action', 'simpan_surat_usulan_ssh');
+		tempData.append('api_key', jQuery("#api_key").val());
+		tempData.append('tahun_anggaran', tahun);
+		tempData.append('nomor_surat', nomor_surat);
+		tempData.append('catatan', catatan);
+		tempData.append('idskpd', idskpd);
+		tempData.append('ids', ids);
+		tempData.append('acuanSsh', acuanSsh);
 
+		if(typeof lapiran_surat != 'undefined'){
+			tempData.append('lapiran_surat', lapiran_surat);
+		}
 		if(ubah=='ubah'){
-			data['ubah']='ubah';
+			tempData.append('ubah', ubah);
+			tempData.append('catatan_verifikator', catatan_verifikator);
 		}
 
 		jQuery('#wrap-loading').show();
 		jQuery.ajax({
 			url: ajax.url,
 		    type: "post",
-		    data: data,
-		    dataType: "json",
+			data: tempData,
+			dataType: 'json',
+		    processData: false,
+		    contentType: false,
+		    cache: false,
 		    success: function(res){
 		    	alert(res.message);
+				jQuery("#wrap-loading").hide();
 		    	if(res.status == 'success'){
-					usulanSSHTable.ajax.reload();
 					suratUsulanSSHTable.ajax.reload();
     				jQuery('#tambahSuratUsulan').modal('hide');
 				}
-				jQuery("#wrap-loading").hide();
 		    }
 		});
 	}
@@ -2111,62 +2201,95 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
 		var id = jQuery(that).data('id');
 		var idskpd = jQuery(that).data('idskpd');
 		var nomor_surat = jQuery(that).data('nomorsurat');
+		jQuery('#wrap-loading').show();
+		jQuery.ajax({
+			url: ajax.url,
+		    type: "post",
+		    data: {
+		        "action": "get_data_usulan_ssh_surat_by_id",
+		        "api_key": jQuery("#api_key").val(),
+		        "tahun_anggaran": tahun,
+		        "nomor_surat": nomor_surat,
+		        "id": id
+		  	},
+		    dataType: "json",
+		    success: function(res){
+				jQuery("#wrap-loading").hide();
+		    	if(res.status == 'success'){
+					jQuery("#tambahSuratUsulan #ubah").val('ubah');
+					jQuery("#tambahSuratUsulan #surat_skpd").val(idskpd);
+					jQuery("#tambahSuratUsulan #nomor_surat").val(nomor_surat);
+					jQuery("#tambahSuratUsulan #catatan_surat").val(tr.find('>td').eq(6).text());
+					jQuery("#tambahSuratUsulan #u_surat_usulan_ssh").val("").closest('.row').show();
+					var file = '';
+					if(res.surat.nama_file){
+						file = "<a href='<?php echo esc_url(plugin_dir_url(__DIR__).'media/ssh/') ?>"+res.surat.nama_file+"' target='_blank'>"+res.surat.nama_file+"</a>";
+					}
+					jQuery("#tambahSuratUsulan #file_surat_usulan_ssh").html(file);
 
-		jQuery("#tambahSuratUsulan #ubah").val('ubah');
-		jQuery("#tambahSuratUsulan #surat_skpd").val(idskpd);
-		jQuery("#tambahSuratUsulan #nomor_surat").val(tr.find('>td').eq(2).html());
-		jQuery("#tambahSuratUsulan #catatan_surat").val(tr.find('>td').eq(6).html());
+					if(tr.find('.jenis_survey').length > 0){
+						jQuery("#jenis_survey").prop('checked', true);
+					}
 
-		if(tr.find('.jenis_survey').length > 0){
-			jQuery("#jenis_survey").prop('checked', true);
-		}
+					if(tr.find('.jenis_juknis').length > 0){
+						jQuery("#jenis_juknis").prop('checked', true);
+					}
+					
+					var ids = [];
+					res.data.map(function(b, i){
+		            	var data = {
+		            		id: b.id,
+		            		kelompok: b.nama_kel_standar_harga,
+		            		komponen: b.nama_standar_harga,
+		            		spesifikasi: b.spek,
+		            		harga: b.harga,
+		            		rekening: '',
+		            		jenis: b.status_jenis_usulan
+		            	}
+		                ids.push(data);
+			        });
 
-		if(tr.find('.jenis_juknis').length > 0){
-			jQuery("#jenis_juknis").prop('checked', true);
-		}
-		
-		var ids = [];
-		jQuery('.delete_check').each(function(){
-			if(
-            	jQuery(this).attr('no-surat') == nomor_surat
-            ){
-            	var tr = jQuery(this).closest('tr');
-            	var data = {
-            		id: jQuery(this).val(),
-            		kelompok: tr.find('>td').eq(1).html(),
-            		komponen: tr.find('>td').eq(2).html(),
-            		spesifikasi: tr.find('>td').eq(3).html(),
-            		harga: tr.find('>td').eq(4).html(),
-            		rekening: '',
-            		jenis: tr.find('>td').eq(8).html()
-            	}
-                ids.push(data);
-            }
-        });
+			        if(ids.length == 0){
+			        	alert('Usulan standar harga dengan nomor surat '+nomor_surat+' tidak ditemukan');
+			        }else{
+			        	jQuery('#wrap-loading').show();
+			        	var data = '';
+			        	var data_ids = [];
+			        	ids.map(function(b, i){
+			        		data_ids.push(b.id);
+			        		data += ''
+			        			+'<tr>'
+			        				+'<td>'+b.kelompok+'</td>'
+			        				+'<td>'+b.komponen+'</td>'
+			        				+'<td>'+b.spesifikasi+'</td>'
+			        				+'<td>'+b.harga+'</td>'
+			        				+'<td>'+b.rekening+'</td>'
+			        				+'<td>'+b.jenis+'</td>'
+			        			+'</tr>'
+			        	});
+			        	jQuery('#ids_surat_usulan').val(data_ids);
+			        	jQuery('#tbody_data_usulan').html(data);
+			        	jQuery('#tambahSuratUsulan').modal('show');
+		        	<?php 
+		        		if(
+							in_array("administrator", $user_meta->roles)
+							|| in_array("tapd_keu", $user_meta->roles)
+						){
+		        			echo "jQuery('#tambahSuratUsulan #catatan_verifikator').prop('disabled', false);";
+		        			echo "jQuery('#tambahSuratUsulan #catatan_surat').prop('disabled', true);";
+		        		}else{
+		        			echo "jQuery('#tambahSuratUsulan #catatan_verifikator').prop('disabled', true);";
+		        			echo "jQuery('#tambahSuratUsulan #catatan_surat').prop('disabled', false);";
+		        		}
+		        	?>
+			        	jQuery('#wrap-loading').hide();
+			        }
+				}else{
+		    		alert(res.message);
+				}
+		    }
+		});
 
-        if(ids.length == 0){
-        	alert('Usulan standar harga dengan nomor surat '+nomor_surat+' tidak ditemukan');
-        }else{
-        	jQuery('#wrap-loading').show();
-        	var data = '';
-        	var data_ids = [];
-        	ids.map(function(b, i){
-        		data_ids.push(b.id);
-        		data += ''
-        			+'<tr>'
-        				+'<td>'+b.kelompok+'</td>'
-        				+'<td>'+b.komponen+'</td>'
-        				+'<td>'+b.spesifikasi+'</td>'
-        				+'<td>'+b.harga+'</td>'
-        				+'<td>'+b.rekening+'</td>'
-        				+'<td>'+b.jenis+'</td>'
-        			+'</tr>'
-        	});
-        	jQuery('#ids_surat_usulan').val(data_ids);
-        	jQuery('#tbody_data_usulan').html(data);
-        	jQuery('#tambahSuratUsulan').modal('show');
-        	jQuery('#wrap-loading').hide();
-        }
 	}
 
 	function generateSuratUsulanSsh(that){
@@ -2175,13 +2298,20 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
 		jQuery("#tambahUsulanSshLabel").html("Pilih Acuan Penyusunan SSH");
 		jQuery("#tambahUsulanSsh .modal-dialog").removeClass("modal-lg modal-xl");
 		jQuery("#tambahUsulanSsh .modal-dialog").addClass("modal-md");
-		jQuery("#tambahUsulanSsh .modal-body").html("<div class=\'akun-ssh-verify\'><table>"+
-					"<tr><td><input class=\'type-sumber-ssh\' id=\'jenis_survey\' name=\'jenis[]\' value=\'1\' type=\'checkbox\' ><label for=\'verify-ssh-yes\'>Survey harga pasar yang telah kami lakukan secara mandiri.</label></td>"+
+		jQuery("#tambahUsulanSsh .modal-body").html(
+			"<div class=\'akun-ssh-verify\'>"+
+				"<table>"+
+					"<tr>"+
+						"<td><input class=\'type-sumber-ssh\' id=\'jenis_survey\' name=\'jenis[]\' value=\'1\' type=\'checkbox\' ><label for=\'verify-ssh-yes\'>Survey harga pasar yang telah kami lakukan secara mandiri.</label></td>"+
 					"</tr>"+
 					"<tr>"+
-					"<td><input class=\'type-sumber-ssh\' id=\'jenis_juknis\' name=\'jenis[]\' value=\'2\' type=\'checkbox\'><label for=\'verify-ssh-no\'>Petunjuk Teknis yang kami terima dari kementrian/provinsi.</label></td></tr>"+
-					"<tr><td colspan='2'><small style='color:red'>* Pilih salah satu atau keduanya. </small></td></tr>"+
-					"</div>");
+						"<td><input class=\'type-sumber-ssh\' id=\'jenis_juknis\' name=\'jenis[]\' value=\'2\' type=\'checkbox\'><label for=\'verify-ssh-no\'>Petunjuk Teknis yang kami terima dari kementrian/provinsi.</label></td>"+
+					"</tr>"+
+					"<tr>"+
+						"<td colspan='2'><small style='color:red'>* Pilih salah satu atau keduanya. </small></td>"+
+					"</tr>"+
+				"</table>"+
+			"</div>");
 		jQuery("#tambahUsulanSsh .modal-footer").html("<a target='_blank' style=\'margin: 0 0 2rem 0.5rem;border-radius:0.2rem;\' class=\' btn btn-primary\' url='"+url+"' onclick='openGenerate(this)'>Cetak</a>");
 	}
 
@@ -2195,5 +2325,68 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
 			url = url+'&type='+checkedValues;
 		}
 		window.open(url, '_blank');
+	}
+
+	function hapus_surat_usulan(that){
+		var id = jQuery(that).attr('data-id');
+		var nomor_surat = jQuery(that).attr('data-nomorsurat');
+		jQuery('#wrap-loading').show();
+		jQuery.ajax({
+			url: ajax.url,
+		    type: "post",
+		    data: {
+		        "action": "get_data_usulan_ssh_surat_by_id",
+		        "api_key": jQuery("#api_key").val(),
+		        "nomor_surat": nomor_surat,
+		        "id": id
+		  	},
+		    dataType: "json",
+		    success: function(res){
+				jQuery('#wrap-loading').hide();
+				if(res.status != 'error'){
+					var cek_ids = [];
+					res.data.map(function(b, i){
+						if(b.status == 'approved'){
+							cek_ids.push(b);
+						}
+					});
+					if(cek_ids.length >= 1){
+						alert('Tidak bisa hapus surat usulan karena sudah ada usulan Standar Harga yang disetujui!');
+					}else{
+						if(confirm("Apakah anda yakin untuk menghapus surat usulan ini? Data tidak bisa dikembalikan.")){
+							jQuery('#wrap-loading').show();
+							jQuery.ajax({
+								url: ajax.url,
+							    type: "post",
+							    data: {
+							        "action": "hapus_surat_usulan_ssh",
+							        "api_key": jQuery("#api_key").val(),
+							        "nomor_surat": nomor_surat,
+							        "id": id
+							  	},
+							    dataType: "json",
+							    success: function(res){
+									jQuery('#wrap-loading').hide();
+									alert(res.message);
+									if(res.status != 'error'){
+										suratUsulanSSHTable.ajax.reload();
+									}
+								}
+							});
+						}
+					}
+				}else{
+		    		alert(res.message);
+				}
+		    }
+		});
+	}
+	
+	function filter_surat_usulan(nomor_surat){
+		jQuery('#search_filter_surat').val(nomor_surat).trigger('change');
+		jQuery('html, body').animate({
+	        scrollTop: jQuery("#usulan_ssh_table").offset().top
+	    }, 1000);
+		return false;
 	}
 </script> 

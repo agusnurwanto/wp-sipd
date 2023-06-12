@@ -6,7 +6,7 @@ if ( ! defined( 'WPINC' ) ) {
 global $wpdb;
 
 $input = shortcode_atts( array(
-    'tahun_anggaran' => '2023'
+    'tahun_anggaran' => '2022'
 ), $atts );
 
 $data = $wpdb->get_results($wpdb->prepare("
@@ -19,6 +19,10 @@ $data = $wpdb->get_results($wpdb->prepare("
     group by kecamatan 
     order by kecamatan ASC
 ", $input['tahun_anggaran']), ARRAY_A);
+
+function link_detail($link_admin, $jenis){
+    return "<a target='_blank' href='".$link_admin."?".$jenis['key']."=".$jenis['value']."'>".$jenis['label']."</a>";
+}
 
 function generateRandomColor($k){
     $color = array('#f44336', '#9c27b0', '#2196f3', '#009688', '#4caf50', '#cddc39', '#ff9800', '#795548', '#9e9e9e', '#607d8b');
@@ -43,12 +47,21 @@ $chart_kec = array(
     'color2' => array()
 );
 foreach($data as $i => $val){
-    $realisasi = 0;
+    $realisasi = $wpdb->get_var($wpdb->prepare("
+        SELECT 
+            SUM(p.total_pencairan) 
+        FROM data_pencairan_bhpd_desa p
+        INNER JOIN data_bhpd_desa b on p.id_bhpd=b.id
+            AND b.active=1
+            AND b.tahun_anggaran=%d
+        WHERE b.kecamatan=%s
+        ", $input['tahun_anggaran'], $val['kecamatan']));
+
     $belum_realisasi = $val['total'] - $realisasi;
     if($realisasi == 0){
         $persen = 0;
     }else{
-        $persen = ($realisasi/$val['total']) * 100;
+        $persen = round(($realisasi/$val['total']) * 100, 2);
     }
     $body .= '
     <tr>
@@ -73,13 +86,13 @@ foreach($data as $i => $val){
 if($realisasi_all == 0){
     $persen_all = 0;
 }else{
-    $persen_all = ($realisasi_all/$total_all)*100;
+    $persen_all = round(($realisasi_all/$total_all)*100, 2);
 }
 ?>
 
-<h1 class="text-center">Bagi Hasil Pajak Daerah<br>Rekapitulasi Per Kecamatan<br>Tahun <?php echo $input['tahun_anggaran']; ?></h1>
+<h1 class="text-center">Bantuan Keuangan Khusus Kepada Desa<br>Rekapitulasi Per Kecamatan<br>Tahun <?php echo $input['tahun_anggaran']; ?></h1>
 <div class="cetak">
-    <div style="padding: 10px;">
+    <div style="padding: 5px;">
         <div class="row">
             <div class="col-md-12">
                 <div style="width: 100%; margin:auto 5px;">
@@ -89,27 +102,27 @@ if($realisasi_all == 0){
         </div>
         <div class="row">
             <div class="col-md-12">
-                <h2 class="text-center">Tabel Bagi Hasil Pajak Daerah<br>Rekapitulasi Per Kecamatan<br>Tahun <?php echo $input['tahun_anggaran']; ?></h2>
+                <h2 class="text-center">Tabel Bantuan Keuangan Khusus<br>Rekapitulasi Per Kecamatan<br>Tahun <?php echo $input['tahun_anggaran']; ?></h2>
                 <table class="table table-bordered">
                     <thead>
                         <tr>
                             <th class="atas kanan bawah kiri text_tengah text_blok" style="width: 30px;">No</th>
-                            <th class="atas kanan bawah text_tengah text_blok" >Kecamatan</th>
+                            <th class="text-center">Kecamatan</th>
                             <th class="atas kanan bawah text_tengah text_blok">Anggaran</th>
                             <th class="atas kanan bawah text_tengah text_blok">Realisasi</th>
                             <th class="atas kanan bawah text_tengah text_blok">Belum Realisasi</th>
                             <th class="atas kanan bawah text_tengah text_blok">% Realisasi</th>
                         </tr>
                     </thead>
-                    <tbody><?php echo $body; ?></tbody>
+                    <tbody>
+                        <?php echo $body; ?>
+                    </tbody>
                     <tfoot>
-                        <tr>
-                            <th colspan="2">JUMLAH</th>
-                            <th class="text-right"><?php echo number_format($total_all,0,",","."); ?></th>
-                            <th class="text-right"><?php echo number_format($realisasi_all,0,",","."); ?></th>
-                            <th class="text-right"><?php echo number_format($belum_all,0,",","."); ?></th>
-                            <th class="text-center"><?php echo $persen_all; ?>%</th>
-                        </tr>
+                        <th colspan="2">JUMLAH</th>
+                        <th class="text-right"><?php echo number_format($total_all,0,",","."); ?></th>
+                        <th class="text-right"><?php echo number_format($realisasi_all,0,",","."); ?></th>
+                        <th class="text-right"><?php echo number_format($belum_all,0,",","."); ?></th>
+                        <th class="text-center"><?php echo $persen_all; ?>%</th>
                     </tfoot>
                 </table>
             </div>
