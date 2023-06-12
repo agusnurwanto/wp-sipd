@@ -26,9 +26,9 @@ if(in_array("administrator", $user_meta->roles)){
 <div class="cetak">
     <div style="padding: 10px;margin:0 0 3rem 0;">
         <input type="hidden" value="<?php echo get_option( '_crb_api_key_extension' ); ?>" id="api_key">
-    <h1 class="text-center" style="margin:3rem;">Pencairan BKU Dana Desa ( DD )</h1>
+    <h1 class="text-center" style="margin:3rem;">Pencairan BKK Pemilihan Kepala Desa</h1>
         <div style="margin-bottom: 25px;">
-            <button class="btn btn-primary" onclick="tambah_data_pencairan_bku_dd();"><i class="dashicons dashicons-plus"></i> Tambah Data</button>
+            <button class="btn btn-primary" onclick="tambah_data_pencairan_bkk_pilkades();"><i class="dashicons dashicons-plus"></i> Tambah Data</button>
         </div>
         <div class="wrap-table">
         <table id="management_data_table" cellpadding="2" cellspacing="0" style="font-family:\'Open Sans\',-apple-system,BlinkMacSystemFont,\'Segoe UI\',sans-serif; border-collapse: collapse; width:100%; overflow-wrap: break-word;" class="table table-bordered">
@@ -50,11 +50,11 @@ if(in_array("administrator", $user_meta->roles)){
     </div>          
 </div>
 
-<div class="modal fade mt-4" id="modalTambahDataPencairanBKUDD" tabindex="-1" role="dialog" aria-labelledby="modalTambahDataPencairanBKUDDLabel" aria-hidden="true">
+<div class="modal fade mt-4" id="modalTambahDataPencairanBKKPilkades" tabindex="-1" role="dialog" aria-labelledby="modalTambahDataPencairanBKKPilkadesLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="modalTambahDataPencairanBKUDDLabel">Data Pencairan BKU Dana Desa</h5>
+                <h5 class="modal-title" id="modalTambahDataPencairanBKKPilkadesLabel">Data Pencairan BKK Pemilihan Kepala Desa</h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
@@ -63,7 +63,7 @@ if(in_array("administrator", $user_meta->roles)){
                 <input type='hidden' id='id_data' name="id_data" placeholder=''>
                 <div class="form-group">
                     <label>Tahun Anggaran</label>
-                    <select class="form-control" id="tahun" onchange="get_bku_dd();">
+                    <select class="form-control" id="tahun" onchange="get_bkk_pilkades();">
                         <?php echo $tahun ?>
                     </select>
                 </div>
@@ -75,7 +75,7 @@ if(in_array("administrator", $user_meta->roles)){
                 <div class="form-group">
                     <label>Pilih Desa</label>
                     <select class="form-control" id="desa" onchange="get_pagu();">
-                    <input type="hidden" class="form-control" id="id_bku_dd" />
+                    <input type="hidden" class="form-control" id="id_bkk_pilkades" />
                     </select>
                 </div>
                 <div class="form-group">
@@ -107,7 +107,7 @@ if(in_array("administrator", $user_meta->roles)){
                     <label>Keterangan ditolak</label>
                     <textarea class="form-control" id="keterangan_status_pagu" <?php echo $disabled; ?>></textarea>
                 </div> 
-                <button type="submit" onclick="submitTambahDataFormPencairanBKUDD();" class="btn btn-primary send_data">Kirim</button>
+                <button type="submit" onclick="submitTambahDataFormPencairanBKKPilkades();" class="btn btn-primary send_data">Kirim</button>
                  <button type="button" class="btn btn-danger" data-dismiss="modal" aria-label="Close">Tutup</button>
             </form>
         </div>
@@ -115,7 +115,7 @@ if(in_array("administrator", $user_meta->roles)){
 </div>   
 <script>    
 jQuery(document).ready(function(){
-    get_data_pencairan_bku_dd();
+    get_data_pencairan_bkk_pilkades();
 });
 
 function set_keterangan(that){
@@ -127,9 +127,9 @@ function set_keterangan(that){
     }
 }
 
-function get_data_pencairan_bku_dd(){
-    if(typeof datapencairan_bku_dd == 'undefined'){
-        window.datapencairan_bku_dd = jQuery('#management_data_table').on('preXhr.dt', function(e, settings, data){
+function get_data_pencairan_bkk_pilkades(){
+    if(typeof datapencairan_bkk_pilkades == 'undefined'){
+        window.datapencairan_bkk_pilkades = jQuery('#management_data_table').on('preXhr.dt', function(e, settings, data){
             jQuery("#wrap-loading").show();
         }).DataTable({
             "processing": true,
@@ -139,7 +139,7 @@ function get_data_pencairan_bku_dd(){
                 type: 'post',
                 dataType: 'json',
                 data:{
-                    'action': 'get_datatable_data_pencairan_bku_dd',
+                    'action': 'get_datatable_data_pencairan_bkk_pilkades',
                     'api_key': '<?php echo get_option( '_crb_api_key_extension' ); ?>',
                 }
             },
@@ -180,7 +180,7 @@ function get_data_pencairan_bku_dd(){
             ]
         });
     }else{
-        datapencairan_bku_dd.draw();
+        datapencairan_bkk_pilkades.draw();
     }
 }
 
@@ -192,7 +192,7 @@ function hapus_data(id){
             url: '<?php echo admin_url('admin-ajax.php'); ?>',
             type:'post',
             data:{
-                'action' : 'hapus_data_pencairan_bku_dd_by_id',
+                'action' : 'hapus_data_pencairan_bkk_pilkades_by_id',
                 'api_key': '<?php echo get_option( '_crb_api_key_extension' ); ?>',
                 'id'     : id
             },
@@ -200,7 +200,7 @@ function hapus_data(id){
             success:function(response){
                 jQuery('#wrap-loading').hide();
                 if(response.status == 'success'){
-                    get_data_pencairan_bku_dd(); 
+                    get_data_pencairan_bkk_pilkades(); 
                 }else{
                     alert(`GAGAL! \n${response.message}`);
                 }
@@ -216,7 +216,7 @@ function edit_data(_id){
         url: '<?php echo admin_url('admin-ajax.php'); ?>',
         dataType: 'json',
         data:{
-            'action': 'get_data_pencairan_bku_dd_by_id',
+            'action': 'get_data_pencairan_bkk_pilkades_by_id',
             'api_key': '<?php echo get_option( '_crb_api_key_extension' ); ?>',
             'id': _id,
         },
@@ -224,11 +224,11 @@ function edit_data(_id){
             if(res.status == 'success'){
                 jQuery('#id_data').val(res.data.id).prop('disabled', false);
                 jQuery('#tahun').val(res.data.tahun_anggaran).prop('disabled', false);
-                get_bku_dd()
+                get_bkk_pilkades()
                 .then(function(){
                     jQuery('#kec').val(res.data.kecamatan).trigger('change').prop('disabled', false);
                     jQuery('#desa').val(res.data.desa).prop('disabled', false);
-                    jQuery('#id_bku_dd').val(res.data.id_bku_dd).prop('disabled', false);
+                    jQuery('#id_bkk_pilkades').val(res.data.id_bkk_pilkades).prop('disabled', false);
                     jQuery('#validasi_pagu').closest('.form-group').show().prop('disabled', false);
                     jQuery('#pagu_anggaran').val(res.data.total_pencairan).prop('disabled', false);
                     if(res.data.status_ver_total == 0){
@@ -241,8 +241,8 @@ function edit_data(_id){
                     jQuery('#keterangan_status_pagu').val(res.data.ket_ver_total).prop('disabled', false);
                     jQuery('#keterangan').val(res.data.keterangan).prop('disabled', false);
                     jQuery('#status_pagu').closest('.form-check').show().prop('disabled', false);
-                    jQuery('#modalTambahDataPencairanBKUDD .send_data').show();
-                    jQuery('#modalTambahDataPencairanBKUDD').modal('show');
+                    jQuery('#modalTambahDataPencairanBKKPilkades .send_data').show();
+                    jQuery('#modalTambahDataPencairanBKKPilkades').modal('show');
                 })
             }else{
                 alert(res.message);
@@ -259,7 +259,7 @@ function detail_data(_id){
         url: '<?php echo admin_url('admin-ajax.php'); ?>',
         dataType: 'json',
         data:{
-            'action': 'get_data_pencairan_bku_dd_by_id',
+            'action': 'get_data_pencairan_bkk_pilkades_by_id',
             'api_key': '<?php echo get_option( '_crb_api_key_extension' ); ?>',
             'id': _id,
         },
@@ -267,12 +267,12 @@ function detail_data(_id){
             if(res.status == 'success'){
                 jQuery('#id_data').val(res.data.id).prop('disabled', true);
                 jQuery('#tahun').val(res.data.tahun_anggaran).prop('disabled', true);
-                get_bku_dd()
+                get_bkk_pilkades()
                 .then(function(){
                     jQuery('#kec').val(res.data.kecamatan).trigger('change').prop('disabled', true);
                     jQuery('#desa').val(res.data.desa).trigger('change').prop('disabled', true);
                     jQuery('#uraian_kegiatan').val(res.data.kegiatan).trigger('change').prop('disabled', true);
-                    jQuery('#id_bku_dd').val(res.data.id_bku_dd).prop('disabled', true);
+                    jQuery('#id_bkk_pilkades').val(res.data.id_bkk_pilkades).prop('disabled', true);
                     jQuery('#alamat').val(res.data.alamat).prop('disabled', true);
                     jQuery('#pagu_anggaran').val(res.data.total_pencairan).prop('disabled', true);
                     if(res.data.status_ver_total == 0){
@@ -285,8 +285,8 @@ function detail_data(_id){
                     jQuery('#keterangan_status_pagu').val(res.data.ket_ver_total).prop('disabled', true);
                     jQuery('#keterangan').val(res.data.keterangan).prop('disabled', true);
                     jQuery('#status_pagu').closest('.form-check').show().prop('disabled', true);
-                    jQuery('#modalTambahDataPencairanBKUDD .send_data').hide();
-                    jQuery('#modalTambahDataPencairanBKUDD').modal('show');
+                    jQuery('#modalTambahDataPencairanBKKPilkades .send_data').hide();
+                    jQuery('#modalTambahDataPencairanBKKPilkades').modal('show');
                 })
             }else{
                 alert(res.message);
@@ -297,7 +297,7 @@ function detail_data(_id){
 }
 
 //show tambah data
-function tambah_data_pencairan_bku_dd(){
+function tambah_data_pencairan_bkk_pilkades(){
     jQuery('#id_data').val('').prop('disabled', false);
     jQuery('#tahun').val('').prop('disabled', false);
     jQuery('#kec').val('').prop('disabled', false);
@@ -309,11 +309,11 @@ function tambah_data_pencairan_bku_dd(){
     jQuery('#keterangan_status_pagu').closest('.form-group').hide().prop('disabled', false);
     jQuery('#status_pagu').prop('checked', false);
     jQuery('#keterangan_status_pagu').val('').prop('disabled', false);
-    jQuery('#modalTambahDataPencairanBKUDD .send_data').show();
-    jQuery('#modalTambahDataPencairanBKUDD').modal('show');
+    jQuery('#modalTambahDataPencairanBKKPilkades .send_data').show();
+    jQuery('#modalTambahDataPencairanBKKPilkades').modal('show');
 }
 
-function submitTambahDataFormPencairanBKUDD(){
+function submitTambahDataFormPencairanBKKPilkades(){
     var id_data = jQuery('#id_data').val();
     var desa = jQuery('#desa').val();
     if(desa == ''){
@@ -327,7 +327,7 @@ function submitTambahDataFormPencairanBKUDD(){
     if(tahun == ''){
         return alert('Pilih Tahun Dulu!');
     }
-    var id_bku_dd = jQuery('#id_bku_dd').val();
+    var id_bkk_pilkades = jQuery('#id_bkk_pilkades').val();
     var pagu_anggaran = jQuery('#pagu_anggaran').val();
     if(pagu_anggaran == ''){
         return alert('Pilih Pagu Anggaran Dulu!');
@@ -348,10 +348,10 @@ function submitTambahDataFormPencairanBKUDD(){
         url: '<?php echo admin_url('admin-ajax.php'); ?>',
         dataType: 'json',
         data:{
-            'action': 'tambah_data_pencairan_bku_dd',
+            'action': 'tambah_data_pencairan_bkk_pilkades',
             'api_key': '<?php echo get_option( '_crb_api_key_extension' ); ?>',
             'id_data': id_data,
-            'id_bku_dd': id_bku_dd,
+            'id_bkk_pilkades': id_bkk_pilkades,
             'pagu_anggaran': pagu_anggaran,
             'status_pagu': status_pagu,
             'keterangan_status_pagu': keterangan_status_pagu,
@@ -359,16 +359,16 @@ function submitTambahDataFormPencairanBKUDD(){
         },
         success: function(res){
             alert(res.message);
-            jQuery('#modalTambahDataPencairanBKUDD').modal('hide');
+            jQuery('#modalTambahDataPencairanBKKPilkades').modal('hide');
             if(res.status == 'success'){
-                get_data_pencairan_bku_dd();
+                get_data_pencairan_bkk_pilkades();
             }else{
                 jQuery('#wrap-loading').hide();
             }
         }
     });
 }
- function get_bku_dd(){
+ function get_bkk_pilkades(){
     return new Promise(function(resolve, reject){
         var tahun = jQuery('#tahun').val();
         if(tahun == '' || tahun == '-1'){
@@ -380,7 +380,7 @@ function submitTambahDataFormPencairanBKUDD(){
             url: "<?php echo admin_url('admin-ajax.php'); ?>",
             type:"post",
             data:{
-                'action' : "get_pemdes_bku_dd",
+                'action' : "get_pemdes_bkk_pilkades",
                 'api_key' : jQuery("#api_key").val(),
                 'tahun_anggaran' : tahun,
             },
@@ -488,7 +488,7 @@ function get_pagu() {
         url: "<?php echo admin_url('admin-ajax.php'); ?>",
         type:"post",
         data:{
-            'action' : "get_pencairan_pemdes_bku_dd",
+            'action' : "get_pencairan_pemdes_bkk_pilkades",
             'api_key' : jQuery("#api_key").val(),
             'tahun_anggaran' : tahun,
             'id' : id,
@@ -505,7 +505,7 @@ function get_pagu() {
                         +'<td class="text-right">'+formatRupiah(global_sisa)+'</td>'
                     +'</tr>';
                 jQuery('#validasi_pagu').html(tbody);
-                jQuery('#id_bku_dd').val(id);
+                jQuery('#id_bkk_pilkades').val(id);
                 jQuery('#pagu_anggaran').val(global_sisa);
             }else{
                 alert(response.message);
