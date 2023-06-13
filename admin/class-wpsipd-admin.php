@@ -164,7 +164,7 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes {
 	}
 
 	public function generatePage($nama_page, $tahun_anggaran, $content = false, $update = false, $post_status = 'private'){
-		$custom_post = get_page_by_title($nama_page, OBJECT, 'page');
+		$custom_post = $this->get_page_by_title($nama_page, OBJECT, 'page');
 		if(empty($content)){
 			$content = '[monitor_sipd tahun_anggaran="'.$tahun_anggaran.'"]';
 		}
@@ -180,7 +180,7 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes {
 			$id = wp_insert_post($_post);
 			$_post['insert'] = 1;
 			$_post['ID'] = $id;
-			$custom_post = get_page_by_title($nama_page, OBJECT, 'page');
+			$custom_post = $this->get_page_by_title($nama_page, OBJECT, 'page');
 			update_post_meta($custom_post->ID, 'ast-breadcrumbs-content', 'disabled');
 			update_post_meta($custom_post->ID, 'ast-featured-img', 'disabled');
 			update_post_meta($custom_post->ID, 'ast-main-header-display', 'disabled');
@@ -1959,7 +1959,7 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes {
 		foreach ($tahun as $k => $v) {
 			$no++;
 			$nama_page = 'Mandatory Spending | '.$v['tahun_anggaran'];
-			$custom_post = get_page_by_title($nama_page, OBJECT, 'page');
+			$custom_post = $this->get_page_by_title($nama_page, OBJECT, 'page');
 			$master_tag .= '
 				<tr>
 					<td class="text_tengah">'.$no.'</td>
@@ -2089,7 +2089,7 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes {
 
 	public function generate_siencang_page(){
 		$nama_page = 'SIPD to SIENCANG';
-		$custom_post = get_page_by_title($nama_page, OBJECT, 'page');
+		$custom_post = $this->get_page_by_title($nama_page, OBJECT, 'page');
 		// print_r($custom_post); die();
 
 		if (empty($custom_post) || empty($custom_post->ID)) {
@@ -2099,7 +2099,7 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes {
 				'post_type'		=> 'page',
 				'post_status'	=> 'publish'
 			));
-			$custom_post = get_page_by_title($nama_page, OBJECT, 'page');
+			$custom_post = $this->get_page_by_title($nama_page, OBJECT, 'page');
 			update_post_meta($custom_post->ID, 'ast-breadcrumbs-content', 'disabled');
 			update_post_meta($custom_post->ID, 'ast-featured-img', 'disabled');
 			update_post_meta($custom_post->ID, 'ast-main-header-display', 'disabled');
@@ -2114,7 +2114,7 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes {
 
 	public function generate_simda_page(){
 		$nama_page = 'SIPD to SIMDA BPKP';
-		$custom_post = get_page_by_title($nama_page, OBJECT, 'page');
+		$custom_post = $this->get_page_by_title($nama_page, OBJECT, 'page');
 		// print_r($custom_post); die();
 
 		if (empty($custom_post) || empty($custom_post->ID)) {
@@ -2124,7 +2124,7 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes {
 				'post_type'		=> 'page',
 				'post_status'	=> 'publish'
 			));
-			$custom_post = get_page_by_title($nama_page, OBJECT, 'page');
+			$custom_post = $this->get_page_by_title($nama_page, OBJECT, 'page');
 			update_post_meta($custom_post->ID, 'ast-breadcrumbs-content', 'disabled');
 			update_post_meta($custom_post->ID, 'ast-featured-img', 'disabled');
 			update_post_meta($custom_post->ID, 'ast-main-header-display', 'disabled');
@@ -2139,7 +2139,7 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes {
 
 	public function generate_sibangda_page(){
 		$nama_page = 'SIPD to SIBANGDA Bina Pembangunan Kemendagri';
-		$custom_post = get_page_by_title($nama_page, OBJECT, 'page');
+		$custom_post = $this->get_page_by_title($nama_page, OBJECT, 'page');
 		// print_r($custom_post); die();
 
 		if (empty($custom_post) || empty($custom_post->ID)) {
@@ -2149,7 +2149,7 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes {
 				'post_type'		=> 'page',
 				'post_status'	=> 'publish'
 			));
-			$custom_post = get_page_by_title($nama_page, OBJECT, 'page');
+			$custom_post = $this->get_page_by_title($nama_page, OBJECT, 'page');
 			update_post_meta($custom_post->ID, 'ast-breadcrumbs-content', 'disabled');
 			update_post_meta($custom_post->ID, 'ast-featured-img', 'disabled');
 			update_post_meta($custom_post->ID, 'ast-main-header-display', 'disabled');
@@ -2164,7 +2164,7 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes {
 
 	public function generate_sinergi_page(){
 		$nama_page = 'SIPD to SINERGI DJPK Kementrian Keuangan';
-		$custom_post = get_page_by_title($nama_page, OBJECT, 'page');
+		$custom_post = $this->get_page_by_title($nama_page, OBJECT, 'page');
 		// print_r($custom_post); die();
 
 		if (empty($custom_post) || empty($custom_post->ID)) {
@@ -2174,7 +2174,7 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes {
 				'post_type'		=> 'page',
 				'post_status'	=> 'publish'
 			));
-			$custom_post = get_page_by_title($nama_page, OBJECT, 'page');
+			$custom_post = $this->get_page_by_title($nama_page, OBJECT, 'page');
 			update_post_meta($custom_post->ID, 'ast-breadcrumbs-content', 'disabled');
 			update_post_meta($custom_post->ID, 'ast-featured-img', 'disabled');
 			update_post_meta($custom_post->ID, 'ast-main-header-display', 'disabled');
@@ -2189,7 +2189,7 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes {
 
 	public function generate_sirup_page(){
 		$nama_page = 'SIPD to SIRUP LKPP';
-		$custom_post = get_page_by_title($nama_page, OBJECT, 'page');
+		$custom_post = $this->get_page_by_title($nama_page, OBJECT, 'page');
 		// print_r($custom_post); die();
 
 		if (empty($custom_post) || empty($custom_post->ID)) {
@@ -2199,7 +2199,7 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes {
 				'post_type'		=> 'page',
 				'post_status'	=> 'publish'
 			));
-			$custom_post = get_page_by_title($nama_page, OBJECT, 'page');
+			$custom_post = $this->get_page_by_title($nama_page, OBJECT, 'page');
 			update_post_meta($custom_post->ID, 'ast-breadcrumbs-content', 'disabled');
 			update_post_meta($custom_post->ID, 'ast-featured-img', 'disabled');
 			update_post_meta($custom_post->ID, 'ast-main-header-display', 'disabled');
@@ -3263,5 +3263,31 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes {
 	
 	public function last_sinkron_data_sirup(){
 		return "<span id='last_sinkron_data_sirup'>Terakhir sinkron data: ".get_option('last_sinkron_data_sirup')."</span>";
+	}
+
+	function get_page_by_title( $page_title, $output = OBJECT, $post_type = 'page' ) {
+		global $wpdb;
+		if ( is_array( $post_type ) ) {
+			$post_type = esc_sql( $post_type );
+			$post_type_in_string = "'" . implode( "','", $post_type ) . "'";
+			$sql = $wpdb->prepare("
+				SELECT ID
+				FROM $wpdb->posts
+				WHERE post_title = %s
+					AND post_type IN ($post_type_in_string)
+			", $page_title);
+		} else {
+			$sql = $wpdb->prepare("
+				SELECT ID
+				FROM $wpdb->posts
+				WHERE post_title = %s
+					AND post_type = %s
+			", $page_title, $post_type);
+		}
+		$page = $wpdb->get_var( $sql );
+		if ( $page ) {
+			return get_post( $page, $output );
+		}
+		return null;
 	}
 }
