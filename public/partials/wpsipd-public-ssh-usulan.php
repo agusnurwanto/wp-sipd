@@ -168,8 +168,8 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
 	<div style="padding: 10px;">
 		<input type="hidden" value="<?php echo get_option( '_crb_api_key_extension' ); ?>" id="api_key">
 		<input type="hidden" value="<?php echo $input['tahun_anggaran']; ?>" id="tahun_anggaran">
-		<h1 class="text-center">Data Usulan Standar Harga<?php echo $nama_skpd; ?><br>Tahun Anggaran <?php echo $input['tahun_anggaran']; ?></h1>
-		<h2 class="text-center">Surat Usulan Standar Harga</h2>
+		<h1 class="text-center">Usulan Standar Harga<?php echo $nama_skpd; ?><br>Tahun Anggaran <?php echo $input['tahun_anggaran']; ?></h1>
+		<h2 class="text-center">Daftar Surat Usulan</h2>
 		<table id="surat_usulan_ssh_table" class="table table-bordered">
 			<thead>
 				<tr>
@@ -187,6 +187,7 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
 			<tbody id="data_body_surat" class="data_body_ssh_surat">
 			</tbody>
 		</table>
+		<h2 class="text-center">Daftar Data Usulan</h2>
 		<div style="margin-bottom: 25px;">
 			<button class="btn btn-primary tambah_ssh" disabled onclick="tambah_new_ssh(<?php echo $input['tahun_anggaran']; ?>);">Tambah Item SSH</button>
 			<button class="btn btn-primary tambah_new_ssh" disabled onclick="get_data_by_name_komponen_ssh('harga',<?php echo $input['tahun_anggaran']; ?>)">Tambah Harga SSH</button>

@@ -783,6 +783,7 @@ class Wpsipd
 
 		$this->loader->add_action('wp_ajax_get_rekening_akun',  $plugin_public, 'get_rekening_akun');
 		$this->loader->add_action('wp_ajax_get_jenis_standar_harga',  $plugin_public, 'get_jenis_standar_harga');
+		$this->loader->add_action('wp_ajax_simpan_meta_skpd', $plugin_public, 'simpan_meta_skpd');
 
 		$this->loader->add_action('wp_ajax_get_datatable_bkk_infrastruktur', $plugin_public, 'get_datatable_bkk_infrastruktur');
 		$this->loader->add_action('wp_ajax_hapus_data_bkk_infrastruktur_by_id', $plugin_public, 'hapus_data_bkk_infrastruktur_by_id');

@@ -22,6 +22,8 @@ if(empty($_GET['idskpd'])){
 	die('<h1>Unit kerja tidak boleh kosong!</h1>');
 }
 
+$id_skpd = $wpdb->prepare('%d', $_GET['idskpd']);
+
 $skpd = $wpdb->get_row($wpdb->prepare("
 		SELECT
 			namaunit, 
@@ -31,7 +33,7 @@ $skpd = $wpdb->get_row($wpdb->prepare("
 		FROM data_unit
 		WHERE id_skpd=%d
 			and tahun_anggaran=%d
-", $_GET['idskpd'], $input['tahun_anggaran']));
+", $id_skpd, $input['tahun_anggaran']));
 if(empty($skpd)){
 	die('<h1>Unit kerja tidak ditemukan!</h1>');
 }
@@ -129,6 +131,10 @@ if(!empty($ssh[0]['jenis_juknis']) && $ssh[0]['jenis_juknis']==2){
 }
 
 $waktu_surat = $this->tanggalan(date("Y-m-d", strtotime($ssh[0]['waktu_surat'])));
+$alamat = get_option('_crb_skpd_alamat_'.$id_skpd);
+if(empty($alamat)){
+	$alamat = 'Isi sesuai alamat unit kerja';
+}
 ?>
 <style type="text/css">
 	@media print {
@@ -169,7 +175,7 @@ $waktu_surat = $this->tanggalan(date("Y-m-d", strtotime($ssh[0]['waktu_surat']))
 					<h4 class="tengah" style="text-transform: uppercase;">Pemerintah <?php echo get_option('_crb_daerah') ?></h4>
 					<h2 class="tengah jarak-atas"><?php echo $skpd->namaunit ?></h2>
 					<div class="tengah jarak-atas" contenteditable="true">
-					    <span class="alamat">Isi sesuai alamat unit kerja</span>
+					    <span class="alamat"><?php echo $alamat; ?></span>
 					</div>
 				</div>
 			</div>
