@@ -349,6 +349,7 @@ function tambah_data_pencairan_bkk(){
     jQuery('#desa').val('').prop('disabled', false);
     jQuery('#uraian_kegiatan').val('').prop('disabled', false);
     jQuery('#alamat').val('').prop('disabled', false);
+    jQuery('#validasi_pagu').html('');
     jQuery('#pagu_anggaran').val('').prop('disabled', false);
     jQuery('#proposal').val('').prop('disabled', false);
     jQuery('#status_pagu').closest('.form-check').hide().prop('disabled', false);

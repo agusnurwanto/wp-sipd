@@ -933,7 +933,7 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes {
             	$url_skpd = $this->generatePage($vv['nama_skpd'].' '.$vv['kode_skpd'].' | '.$v['tahun_anggaran'], $v['tahun_anggaran'], '[monitor_keu_pemdes tahun_anggaran="'.$v['tahun_anggaran'].'" id_skpd="'.$vv['id_skpd'].'"]');
         		$body_pemda .= '<li><a target="_blank" href="'.$url_skpd.'">'.$vv['kode_skpd'].' '.$vv['nama_skpd'].' | '.$v['tahun_anggaran'].'</a> (NIP: '.$vv['nipkepala'].')';
             	if(!empty($id_kab)){
-            		$nama_kec = str_replace('KECAMATAN ', '', $vv['nama_skpd']);
+            		$nama_kec = str_replace('kecamatan ', '', strtolower($vv['nama_skpd']));
 	            	$id_kec = $wpdb->get_var("
 	            		SELECT 
 	            			id_alamat 
@@ -966,6 +966,8 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes {
 		            		$body_pemda .= '</ul>';
 		            	}
 		            	$body_pemda .= '</li>';
+	            	}else{
+		            	$body_pemda .= '<li>Desa/Kelurahan tidak ditemukan!. '.$wpdb->last_query.'</li>';
 	            	}
 	            }
             }

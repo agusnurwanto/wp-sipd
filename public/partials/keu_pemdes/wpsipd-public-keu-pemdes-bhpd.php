@@ -6,7 +6,7 @@ if ( ! defined( 'WPINC' ) ) {
 global $wpdb;
 
 $input = shortcode_atts( array(
-    'tahun_anggaran' => '2022'
+    'tahun_anggaran' => '2023'
 ), $atts );
 
 $data = $wpdb->get_results($wpdb->prepare("
