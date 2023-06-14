@@ -117,7 +117,9 @@ if(in_array("administrator", $user_meta->roles)){
                 </div>
                 <div class="form-group">
                     <label for="">Proposal BKK Infrastruktur</label>
-                    <input type="file" class="form-control-file" id="proposal">
+                    <input type="file" name="file" class="form-control-file" id="proposal">
+                    <small>Tipe file adalah .jpg .jpeg .png .pdf dengan maksimal ukuran 1MB.</small>
+                    <div style="padding-top: 10px; padding-bottom: 10px;"><a id="file_proposal_existing"></a></div>
                 </div>
                 <div class="form-check form-switch">
                     <input class="form-check-input" value="1" type="checkbox" id="status_file" onclick="set_keterangan(this);" <?php echo $disabled; ?>>
@@ -275,6 +277,11 @@ function edit_data(_id){
                         jQuery('#keterangan_status_file').closest('.form-group').hide().prop('disabled', false);
                         jQuery('#status_file').prop('checked', true);
                     }
+
+                    jQuery("#file_proposal_existing").html(res.data.file_proposal);
+                    jQuery("#file_proposal_existing").attr('target', '_blank');
+                    jQuery("#file_proposal_existing").attr('href', '<?php echo WPSIPD_PLUGIN_URL.'public/media/keu_pemdes/'; ?>' + res.data.file_proposal);
+
                     jQuery('#keterangan_status_file').val(res.data.ket_ver_proposal).prop('disabled', false);
                     jQuery('#status_pagu').closest('.form-check').show().prop('disabled', false);
                     jQuery('#status_file').closest('.form-check').show().prop('disabled', false);
@@ -327,6 +334,11 @@ function detail_data(_id){
                         jQuery('#keterangan_status_file').closest('.form-group').hide().prop('disabled', true);
                         jQuery('#status_file').prop('checked', true).prop('disabled', true);
                     }
+
+                    jQuery("#file_proposal_existing").html(res.data.file_proposal);
+                    jQuery("#file_proposal_existing").attr('target', '_blank');
+                    jQuery("#file_proposal_existing").attr('href', '<?php echo WPSIPD_PLUGIN_URL.'public/media/keu_pemdes/'; ?>' + res.data.file_proposal);
+
                     jQuery('#keterangan_status_file').val(res.data.ket_ver_proposal).prop('disabled', true);
                     jQuery('#status_pagu').closest('.form-check').show().prop('disabled', true);
                     jQuery('#status_file').closest('.form-check').show().prop('disabled', true);
@@ -356,6 +368,11 @@ function tambah_data_pencairan_bkk(){
     jQuery('#keterangan_status_pagu').closest('.form-group').hide().prop('disabled', false);
     jQuery('#status_file').closest('.form-check').hide().prop('disabled', false);
     jQuery('#keterangan_status_file').closest('.form-group').hide().prop('disabled', false);
+
+    jQuery("#file_proposal_existing").html('');
+    jQuery("#file_proposal_existing").attr('target', '_blank');
+    jQuery("#file_proposal_existing").attr('href', '');
+
     jQuery('#status_pagu').prop('checked', false);
     jQuery('#keterangan_status_pagu').val('').prop('disabled', false);
     jQuery('#status_file').prop('checked', false);
@@ -390,9 +407,9 @@ function submitTambahDataFormPencairanBKK(){
     if(pagu_anggaran == ''){
         return alert('Pilih Pagu Anggaran Dulu!');
     }
-    var proposal = jQuery('#proposal').val();
-    if(proposal == ''){
-        // return alert('Isi Proposal Dulu!');
+    var proposal = jQuery('#proposal')[0].files[0];;
+    if(typeof proposal == 'undefined'){
+        return alert('Upload file Proposal dulu!');
     }
     var status_pagu = jQuery('#status_pagu').val();
     if(jQuery('#status_pagu').is(':checked') == false){
@@ -405,22 +422,27 @@ function submitTambahDataFormPencairanBKK(){
     }
     var keterangan_status_file = jQuery('#keterangan_status_file').val();
 
+    let tempData = new FormData();
+    tempData.append('action', 'tambah_data_pencairan_bkk');
+    tempData.append('api_key', '<?php echo get_option( '_crb_api_key_extension' ); ?>');
+    tempData.append('id_data', id_data);
+    tempData.append('id_kegiatan', id_kegiatan);
+    tempData.append('pagu_anggaran', pagu_anggaran);
+    tempData.append('status_pagu', status_pagu);
+    tempData.append('keterangan_status_pagu', keterangan_status_pagu);
+    tempData.append('status_file', status_file);
+    tempData.append('keterangan_status_file', keterangan_status_file);
+    tempData.append('proposal', proposal);
+
     jQuery('#wrap-loading').show();
     jQuery.ajax({
         method: 'post',
         url: '<?php echo admin_url('admin-ajax.php'); ?>',
         dataType: 'json',
-        data:{
-            'action': 'tambah_data_pencairan_bkk',
-            'api_key': '<?php echo get_option( '_crb_api_key_extension' ); ?>',
-            'id_data': id_data,
-            'id_kegiatan': id_kegiatan,
-            'pagu_anggaran': pagu_anggaran,
-            'status_pagu': status_pagu,
-            'keterangan_status_pagu': keterangan_status_pagu,
-            'status_file': status_file,
-            'keterangan_status_file': keterangan_status_file
-        },
+        data: tempData,
+        processData: false,
+        contentType: false,
+        cache: false,
         success: function(res){
             alert(res.message);
             jQuery('#modalTambahDataPencairanBKK').modal('hide');
@@ -585,5 +607,5 @@ function validasi_pagu(){
         alert('Nilai pencairan tidak boleh lebih besar dari sisa anggaran!');
         jQuery('#pagu_anggaran').val(global_sisa);
     }
-}
+}  
 </script>

@@ -1761,8 +1761,11 @@ public function tambah_data_pencairan_bkk(){
                 $ret['status'] = 'error';
                 $ret['message'] = 'Pagu tidak boleh kosong!';
             }
-            if($ret['status'] != 'error' && !empty($_POST['proposal'])){
-                $proposal = $_POST['proposal'];
+            if($ret['status'] != 'error' && !empty($_FILES['proposal'])){
+                $proposal = $_FILES['proposal'];
+            }else{
+                $ret['status'] = 'error';
+                $ret['message'] = 'Proposal tidak boleh kosong!';
             }
             $_POST['id'] = $id_kegiatan;
             $pencairan = $this->get_pencairan_pemdes_bkk(true);
@@ -1794,7 +1797,29 @@ public function tambah_data_pencairan_bkk(){
                     'status' => $status,
                     'update_at' => current_time('mysql')
                 );
+                $path = WPSIPD_PLUGIN_PATH.'public/media/keu_pemdes/';
+                $upload = CustomTrait::uploadFile($_POST['api_key'], $path, $_FILES['proposal'], ['jpg', 'jpeg', 'png', 'pdf']);
+
+                if($upload['status']){
+                    $data['file_proposal'] = $upload['filename'];
+                }
                 if(!empty($_POST['id_data'])){
+                    $file_lama = $wpdb->get_var($wpdb->prepare('
+                        SELECT
+                            file_proposal
+                        FROM data_pencairan_bkk_desa
+                        WHERE id=%d
+                    ', $_POST['id_data']));
+
+                    // hapus file lama
+                    if(
+                        $upload['status'] 
+                        && $file_lama != $upload['filename'] 
+                        && is_file($path.$file_name)
+                    ){
+                        unlink($path.$file_name);
+                    }
+
                     $wpdb->update('data_pencairan_bkk_desa', $data, array(
                         'id' => $_POST['id_data']
                     ));
@@ -1899,6 +1924,7 @@ public function get_datatable_data_pencairan_bkk(){
                         $btn .= '<a style="margin-left: 10px;" class="btn btn-sm btn-warning" onclick="edit_data(\''.$recVal['id'].'\'); return false;" href="#" title="Edit Data"><i class="dashicons dashicons-edit"></i></a>';
                         $btn .= '<a style="margin-left: 10px;" class="btn btn-sm btn-danger" onclick="hapus_data(\''.$recVal['id'].'\'); return false;" href="#" title="Edit Data"><i class="dashicons dashicons-trash"></i></a>';
                     }
+                    $queryRecords[$recKey]['file_proposal'] = '<a href="'.esc_url(plugin_dir_url(__DIR__).'public/media/keu_pemdes/').$recVal['file_proposal'].'" target="_blank">'.$recVal['file_proposal'].'</a>';
                     $queryRecords[$recKey]['aksi'] = $btn;
                     if($recVal['status'] == 0){
                         $queryRecords[$recKey]['status'] = '<span class="btn btn-primary btn-sm">Belum dicek</span>';
@@ -3551,5 +3577,5 @@ public function get_datatable_data_pencairan_bkk_pilkades(){
             );
         }
         die(json_encode($return));
-    }  
+    }
 }
