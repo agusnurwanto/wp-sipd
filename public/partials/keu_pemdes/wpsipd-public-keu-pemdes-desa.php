@@ -21,17 +21,6 @@ function generateRandomColor($k){
     return $color[$k%10];
 }
 
-// grafik kec
-// $chart_desa = array(
-//     'label' => array(),
-//     'label1' => 'Anggaran',
-//     'label2' => 'Realisasi',
-//     'data1'  => array(),
-//     'color1' => array(),
-//     'data2'  => array(),
-//     'color2' => array()
-// );
-
 if(empty($input['id_kel']) && empty($input['id_skpd'])){
     die('<h1 class="text-center">id_skpd, id_kec dan id_kel tidak boleh kosong!</h1>');
 }else if(!empty($input['id_skpd'])){
@@ -390,24 +379,3 @@ if($total_all > 0 && $realisasi_all > 0){
         </tfoot>
     </table>
 </div>
-<!-- <script type="text/javascript">
-window.desa = <?php echo json_encode($chart_desa); ?>;
-window.pieChartdesa = new Chart(document.getElementById('chart_per_desa'), {
-    type: 'bar',
-    data: {
-        labels: desa.label,
-        datasets: [
-            {
-                label: desa.label1,
-                data: desa.data1,
-                backgroundColor: desa.color1
-            },
-            {
-                label: desa.label2,
-                data: desa.data2,
-                backgroundColor: desa.color2
-            }
-        ]
-    }
-});
-</script> -->
