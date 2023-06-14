@@ -278,6 +278,7 @@ function edit_data(_id){
                         jQuery('#status_file').prop('checked', true);
                     }
 
+                    jQuery("#proposal").val('');
                     jQuery("#file_proposal_existing").html(res.data.file_proposal);
                     jQuery("#file_proposal_existing").attr('target', '_blank');
                     jQuery("#file_proposal_existing").attr('href', '<?php echo WPSIPD_PLUGIN_URL.'public/media/keu_pemdes/'; ?>' + res.data.file_proposal);
@@ -369,6 +370,7 @@ function tambah_data_pencairan_bkk(){
     jQuery('#status_file').closest('.form-check').hide().prop('disabled', false);
     jQuery('#keterangan_status_file').closest('.form-group').hide().prop('disabled', false);
 
+    jQuery("#proposal").val('');
     jQuery("#file_proposal_existing").html('');
     jQuery("#file_proposal_existing").attr('target', '_blank');
     jQuery("#file_proposal_existing").attr('href', '');
@@ -445,8 +447,8 @@ function submitTambahDataFormPencairanBKK(){
         cache: false,
         success: function(res){
             alert(res.message);
-            jQuery('#modalTambahDataPencairanBKK').modal('hide');
             if(res.status == 'success'){
+                jQuery('#modalTambahDataPencairanBKK').modal('hide');
                 get_data_pencairan_bkk();
             }else{
                 jQuery('#wrap-loading').hide();

@@ -1802,48 +1802,51 @@ public function tambah_data_pencairan_bkk(){
 
                 if($upload['status']){
                     $data['file_proposal'] = $upload['filename'];
-                }
-                if(!empty($_POST['id_data'])){
-                    $file_lama = $wpdb->get_var($wpdb->prepare('
-                        SELECT
-                            file_proposal
-                        FROM data_pencairan_bkk_desa
-                        WHERE id=%d
-                    ', $_POST['id_data']));
+                    if(!empty($_POST['id_data'])){
+                        $file_lama = $wpdb->get_var($wpdb->prepare('
+                            SELECT
+                                file_proposal
+                            FROM data_pencairan_bkk_desa
+                            WHERE id=%d
+                        ', $_POST['id_data']));
 
-                    // hapus file lama
-                    if(
-                        $upload['status'] 
-                        && $file_lama != $upload['filename'] 
-                        && is_file($path.$file_name)
-                    ){
-                        unlink($path.$file_name);
-                    }
+                        // hapus file lama
+                        if(
+                            $upload['status'] 
+                            && $file_lama != $upload['filename'] 
+                            && is_file($path.$file_lama)
+                        ){
+                            unlink($path.$file_lama);
+                        }
 
-                    $wpdb->update('data_pencairan_bkk_desa', $data, array(
-                        'id' => $_POST['id_data']
-                    ));
-                    $ret['message'] = 'Berhasil update data!';
-                }else{
-                    $cek_id = $wpdb->get_row($wpdb->prepare('
-                        SELECT
-                            id,
-                            active
-                        FROM data_pencairan_bkk_desa
-                        WHERE id_bkk_desa=%s
-                    ', $id_bkk_desa), ARRAY_A);
-                    if(empty($cek_id)){
-                        $wpdb->insert('data_pencairan_bkk_desa', $data);
+                        $wpdb->update('data_pencairan_bkk_desa', $data, array(
+                            'id' => $_POST['id_data']
+                        ));
+                        $ret['message'] = 'Berhasil update data!';
                     }else{
-                        if($cek_id['active'] == 0){
-                            $wpdb->update('data_pencairan_bkk_desa', $data, array(
-                                'id' => $cek_id['id']
-                            ));
+                        $cek_id = $wpdb->get_row($wpdb->prepare('
+                            SELECT
+                                id,
+                                active
+                            FROM data_pencairan_bkk_desa
+                            WHERE id_bkk_desa=%s
+                        ', $id_bkk_desa), ARRAY_A);
+                        if(empty($cek_id)){
+                            $wpdb->insert('data_pencairan_bkk_desa', $data);
                         }else{
-                            $ret['status'] = 'error';
-                            $ret['message'] = 'Gagal disimpan. Data bkk_desa dengan id_bkk_desa="'.$id_bkk_desa.'" sudah ada!';
+                            if($cek_id['active'] == 0){
+                                $wpdb->update('data_pencairan_bkk_desa', $data, array(
+                                    'id' => $cek_id['id']
+                                ));
+                            }else{
+                                $ret['status'] = 'error';
+                                $ret['message'] = 'Gagal disimpan. Data bkk_desa dengan id_bkk_desa="'.$id_bkk_desa.'" sudah ada!';
+                            }
                         }
                     }
+                }else{
+                    $ret['status'] = 'error';
+                    $ret['message'] = $upload['message'];
                 }
             }
         }else{
