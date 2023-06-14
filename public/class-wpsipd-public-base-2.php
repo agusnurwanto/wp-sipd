@@ -1954,10 +1954,10 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 							id_skpd,
 							is_skpd
 						FROM data_unit
+						WHERE id_skpd=%d
 							AND tahun_anggaran=%d
 							AND active=1
-						WHERE id_skpd=%d',
-					$data['input_sub_unit'], $tahun_anggaran));
+					', $data['input_sub_unit'], $tahun_anggaran));
 
 					$nama_skpd = $data_sub_unit->nama_skpd;
 					$kode_skpd = $data_sub_unit->kode_skpd;

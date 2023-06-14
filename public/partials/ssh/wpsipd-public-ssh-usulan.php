@@ -2456,9 +2456,13 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
 		            		komponen: b.nama_standar_harga,
 		            		spesifikasi: b.spek,
 		            		harga: b.harga,
-		            		rekening: '',
+		            		rekening: '<ul style="margin-bottom: 0; margin-left: 20px;">',
 		            		jenis: b.status_jenis_usulan
 		            	}
+		            	b.rekening.map(function(bb, ii){
+		            		data.rekening += '<li>'+bb.nama_akun+'</li>';
+		            	})
+		            	data.rekening += '</ul>';
 		                ids.push(data);
 			        });
 

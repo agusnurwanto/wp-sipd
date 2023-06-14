@@ -33,6 +33,7 @@ $skpd = $wpdb->get_row($wpdb->prepare("
 		FROM data_unit
 		WHERE id_skpd=%d
 			and tahun_anggaran=%d
+			and active=1
 ", $id_skpd, $input['tahun_anggaran']));
 if(empty($skpd)){
 	die('<h1>Unit kerja tidak ditemukan!</h1>');
@@ -48,6 +49,7 @@ $skpd_penyusun = $wpdb->get_var($wpdb->prepare("
 		FROM data_unit
 		WHERE id_skpd=%d
 			and tahun_anggaran=%d
+			and active=1
 ", $skpd_admin_ssh, $input['tahun_anggaran']));
 
 $ssh = $wpdb->get_results($wpdb->prepare("
@@ -70,24 +72,18 @@ if(empty($ssh)){
 
 foreach($ssh as $k => $val){
 	$no = $k+1;
-	$akun_belanja = "";
+	$akun_belanja = "<ul style='margin-bottom: 0; margin-left: 20px;'>";
 	$akun_db = $wpdb->get_results("
 		SELECT
 			kode_akun,
 			nama_akun
 		FROM data_ssh_rek_belanja_usulan
-		WHERE id_standar_harga=$val[id_standar_harga]
+		WHERE id_standar_harga=$val[id]
 	", ARRAY_A);
 	foreach($akun_db as $kk => $akun){
-		$no2 = $kk+1;
-		$akun_belanja .= "
-			<tr>
-				<td>$no2</td>
-				<td>$akun[kode_akun]</td>
-				<td>$akun[nama_akun]</td>
-			</tr>
-		";
+		$akun_belanja .= "<li>$akun[nama_akun]</li>";
 	}
+	$akun_belanja .="</ul>";
 	$body_html .= "
 	<tr>
 		<td>$no</td>
@@ -97,21 +93,8 @@ foreach($ssh as $k => $val){
 		<td>$val[spek]</td>
 		<td>$val[satuan]</td>
 		<td>$val[harga]</td>
-		<td style='padding: 4px;'>
-			<table class='table table-bordered' style='margin: 0;'>
-				<thead>
-					<tr>
-						<th class='text-center'>No</th>
-						<th class='text-center'>Kode Akun</th>
-						<th class='text-center'>Uraian</th>
-					</tr>
-				</thead>
-				<tbody>
-					$akun_belanja
-				</tbody>
-			</table>
-		</td>
-		<td>$val[ket_teks]</td>
+		<td>$akun_belanja</td>
+		<td>$val[keterangan_lampiran]</td>
 	</tr>
 	";
 }

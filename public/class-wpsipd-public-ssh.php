@@ -2605,7 +2605,8 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 							uraian_kategori 
 						FROM data_kelompok_satuan_harga 
 						WHERE id_kategori = %d
-					",$kategori), ARRAY_A);
+							AND tahun_anggaran=%d
+					", $kategori, $tahun_anggaran), ARRAY_A);
 					$data_this_id_ssh = $wpdb->get_results($wpdb->prepare('
 						SELECT 
 							* 
@@ -2651,13 +2652,14 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 								SELECT 
 									id 
 								FROM data_ssh
-								WHERE 
+								WHERE tahun_anggaran=%d AND
 									nama_standar_harga = %s AND
 									satuan = %s AND
 									spek = %s AND
 									harga = %s AND
 									kode_kel_standar_harga = %s AND
 									NOT id_standar_harga = %d",
+								$tahun_anggaran,
 								$nama_standar_harga,
 								$satuan,
 								$spek,
@@ -2671,13 +2673,14 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 								SELECT 
 									id 
 								FROM data_ssh_usulan 
-								WHERE 
+								WHERE tahun_anggaran=%d AND
 									nama_standar_harga = %s AND
 									satuan = %s AND
 									spek = %s AND
 									harga = %s AND
 									kode_kel_standar_harga = %s AND
 									NOT id_standar_harga = %d",
+								$tahun_anggaran,
 								$nama_standar_harga,
 								$satuan,
 								$spek,
@@ -2788,7 +2791,7 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 								FROM data_ssh_rek_belanja_usulan 
 								WHERE id_standar_harga = %s
 									AND tahun_anggaran = %s",
-								$data_this_id_ssh[0]['id_standar_harga'],
+								$id,
 								$tahun_anggaran
 							), ARRAY_A);
 							$cek_akun = array();
@@ -2798,33 +2801,37 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 	
 							// get data detail akun
 							$data_akun = array();
-							foreach(explode(",", $akun) as $v_akun){
-								$data_akun[$v_akun] = $wpdb->get_results($wpdb->prepare("
-									SELECT 
-										id_akun,
-										kode_akun,
-										nama_akun 
-									FROM data_akun 
-									WHERE id_akun = %d
-								",$v_akun), ARRAY_A);
-							}
-	
-							// input dan update akun
-							foreach(explode(",", $akun) as $id_akun){
-								$opsi_akun = array(
-									'id_akun' => $data_akun[$id_akun][0]['id_akun'],
-									'kode_akun' => $data_akun[$id_akun][0]['kode_akun'],
-									'nama_akun' => $data_akun[$id_akun][0]['kode_akun'].' '.$data_akun[$id_akun][0]['nama_akun'],
-									'id_standar_harga' => $id_standar_harga,
-									'tahun_anggaran' => $tahun_anggaran,
-								);
-								if(empty($cek_akun[$id_akun])){
-									$wpdb->insert('data_ssh_rek_belanja_usulan', $opsi_akun);
-								}else{
-									$wpdb->update('data_ssh_rek_belanja_usulan', $opsi_akun, array(
-										'id' => $cek_akun[$id_akun]['id']
-									));
-									unset($cek_akun[$id_akun]);
+							if(!empty($akun)){
+								$akun_all = explode(",", $akun);
+								foreach($akun_all as $v_akun){
+									$data_akun[$v_akun] = $wpdb->get_results($wpdb->prepare("
+										SELECT 
+											id_akun,
+											kode_akun,
+											nama_akun 
+										FROM data_akun 
+										WHERE id_akun = %d
+											AND tahun_anggaran=%d
+									",$v_akun, $tahun_anggaran), ARRAY_A);
+								}
+
+								// input dan update akun
+								foreach($akun_all as $id_akun){
+									$opsi_akun = array(
+										'id_akun' => $data_akun[$id_akun][0]['id_akun'],
+										'kode_akun' => $data_akun[$id_akun][0]['kode_akun'],
+										'nama_akun' => $data_akun[$id_akun][0]['kode_akun'].' '.$data_akun[$id_akun][0]['nama_akun'],
+										'id_standar_harga' => $id,
+										'tahun_anggaran' => $tahun_anggaran,
+									);
+									if(empty($cek_akun[$id_akun])){
+										$wpdb->insert('data_ssh_rek_belanja_usulan', $opsi_akun);
+									}else{
+										$wpdb->update('data_ssh_rek_belanja_usulan', $opsi_akun, array(
+											'id' => $cek_akun[$id_akun]['id']
+										));
+										unset($cek_akun[$id_akun]);
+									}
 								}
 							}
 	
@@ -2920,12 +2927,13 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 								SELECT 
 									id 
 								FROM data_ssh
-								WHERE 
+								WHERE tahun_anggaran=%d AND
 									nama_standar_harga = %s AND
 									satuan = %s AND
 									spek = %s AND
 									harga = %s AND
 									kode_kel_standar_harga = %s",
+								$tahun_anggaran,
 								$data_this_id_ssh[0]['nama_standar_harga'],
 								$data_this_id_ssh[0]['satuan'],
 								$data_this_id_ssh[0]['spek'],
@@ -2938,13 +2946,14 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 								SELECT 
 									id 
 								FROM data_ssh_usulan 
-								WHERE 
+								WHERE tahun_anggaran=%d AND
 									nama_standar_harga = %s AND
 									satuan = %s AND
 									spek = %s AND
 									harga = %s AND
 									kode_kel_standar_harga = %s AND
 									NOT id_standar_harga = %d",
+								$tahun_anggaran,
 								$data_this_id_ssh[0]['nama_standar_harga'],
 								$data_this_id_ssh[0]['satuan'],
 								$data_this_id_ssh[0]['spek'],
