@@ -1954,8 +1954,10 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 							id_skpd,
 							is_skpd
 						FROM data_unit
+							AND tahun_anggaran=%d
+							AND active=1
 						WHERE id_skpd=%d',
-					$data['input_sub_unit']));
+					$data['input_sub_unit'], $tahun_anggaran));
 
 					$nama_skpd = $data_sub_unit->nama_skpd;
 					$kode_skpd = $data_sub_unit->kode_skpd;
@@ -1966,8 +1968,10 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 								kode_skpd
 							FROM data_unit
 							WHERE id_unit=%d
-								AND is_skpd=1',
-						$data_sub_unit->id_unit));
+								AND is_skpd=1
+								AND tahun_anggaran=%d
+								AND active=1',
+						$data_sub_unit->id_unit, $tahun_anggaran));
 						$nama_skpd = $data_unit->nama_skpd;
 						$kode_skpd = $data_unit->kode_skpd;
 					}
@@ -1977,7 +1981,8 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 							*
 						FROM data_prog_keg
 						WHERE id_sub_giat=%d
-					', $data['input_sub_kegiatan']));
+							AND tahun_anggaran=%d
+					', $data['input_sub_kegiatan'], $tahun_anggaran));
 
 					$kode_bl = $data_sub_unit->id_unit.".".$data_sub_unit->id_skpd.".".$data_prog_keg->id_program.".".$data_prog_keg->id_giat;
 					$kode_sbl = $kode_bl.".".$data_prog_keg->id_sub_giat;
@@ -1985,8 +1990,10 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 					$data_prio_prov = $wpdb->get_row($wpdb->prepare(
 						'SELECT *
 						FROM data_prioritas_prov
-						WHERE id_label_prov=%d',
-						$data['input_prioritas_provinsi']
+						WHERE id_label_prov=%d
+							AND tahun_anggaran=%d
+							AND active=1',
+						$data['input_prioritas_provinsi'], $tahun_anggaran
 					));
 
 					$id_prio_prov = (!empty($data_prio_prov)) ? $data_prio_prov->id_label_prov : 0;
@@ -1995,8 +2002,10 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 					$data_prio_kabkot = $wpdb->get_row($wpdb->prepare(
 						'SELECT *
 						FROM data_prioritas_kokab
-						WHERE id_label_kokab=%d',
-						$data['input_prioritas_kab_kota']
+						WHERE id_label_kokab=%d
+							AND tahun_anggaran=%d
+							AND active=1',
+						$data['input_prioritas_kab_kota'], $tahun_anggaran
 					));
 
 					$id_prio_kabkot = (!empty($data_prio_kabkot)) ? $data_prio_kabkot->id_label_kokab : 0;

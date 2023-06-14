@@ -1162,6 +1162,7 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 
 		if(!empty($_POST)){
 			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+				$tahun_anggaran = $_POST['tahun_anggaran'];
 				$data_surat = $wpdb->get_row($wpdb->prepare("
 					SELECT 
 						*
@@ -1173,7 +1174,17 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 						*
 					FROM data_ssh_usulan 
 					WHERE no_surat_usulan=%s
-				", $data_surat['nomor_surat']), ARRAY_A);
+						AND tahun_anggaran=%d
+				", $data_surat['nomor_surat'], $tahun_anggaran), ARRAY_A);
+				foreach($data_ssh as $k => $ssh){
+					$data_ssh[$k]['rekening'] = $wpdb->get_results($wpdb->prepare("
+						SELECT 
+							*
+						FROM data_ssh_rek_belanja_usulan 
+						WHERE id_standar_harga=%d
+							AND tahun_anggaran=%d
+					", $ssh['id'], $tahun_anggaran), ARRAY_A);
+				}
 				$return['data'] = $data_ssh;
 				$return['surat'] = $data_surat;
 				$return['sql'] = $wpdb->last_query;
