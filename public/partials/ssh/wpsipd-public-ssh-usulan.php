@@ -696,7 +696,7 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
 							+"</select>"
 						+"</li>"
 						+"<li>"
-							+"<select name='filter_surat' class='ml-3 bulk-action' id='search_nota_dinas_filter_surat' style='margin-left: 10px; width:200px;' onchange='action_filter_data_usulan_ssh()'>"
+							+"<select name='filter_nota_dinas' class='ml-3 bulk-action' id='search_nota_dinas_filter_surat' style='margin-left: 10px; width:200px;' onchange='action_filter_data_usulan_ssh()'>"
 								+"<option value=''>Pilih Nota Dinas</option>"
 							+"</select>"
 						+"</li>"
@@ -798,12 +798,13 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
 	function get_data_ssh(tahun){
 		return new Promise(function(resolve, reject){
 			globalThis.usulanSSHTable = jQuery('#usulan_ssh_table')
-			.on('preXhr.dt', function ( e, settings, data ) {
+			.on('preXhr.dt', function( e, settings, data ) {
 				jQuery("#wrap-loading").show();
 				// console.log('preXhr.dt');
 				data.filter = jQuery("#search_filter_action").val();
 				data.filter_opd = jQuery("#search_filter_action_opd").val();
 				data.filter_surat = jQuery("#search_filter_surat").val();
+				data.filter_nota_dinas = jQuery("#search_nota_dinas_filter_surat").val();
 			} )
 			.DataTable({
 				"processing": true,
@@ -812,9 +813,9 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
 					url: "<?php echo admin_url('admin-ajax.php'); ?>",
 					type:"post",
 					data:{
-						'action' : "get_data_usulan_ssh",
-						'api_key' : jQuery("#api_key").val(),
-						'tahun_anggaran' : tahun
+						'action': "get_data_usulan_ssh",
+						'api_key': jQuery("#api_key").val(),
+						'tahun_anggaran': tahun
 					}
 				},
   				order: [[5, 'desc']], // order by waktu input descending
@@ -1426,7 +1427,7 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
 			alert('Jenis produk harus dipilih!');
 		}else if(tkdn == '' || tkdn.trim('') == ''){
 			alert('TKDN tidak boleh kosong!');
-		}else if(akun == '' || akun.trim('') == ''){
+		}else if(akun.length == 0){
 			alert('Akun rekening tidak boleh kosong!');
 		}else if(typeof lapiran_usulan_ssh_1 == 'undefined'){
 			alert('Lampiran 1 tidak boleh kosong!');
@@ -1530,19 +1531,41 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
 		jQuery("#tambahUsulanSshLabel").html("Verifikasi SSH");
 		jQuery("#tambahUsulanSsh .modal-dialog").removeClass("modal-lg modal-xl");
 		jQuery("#tambahUsulanSsh .modal-dialog").addClass("modal-sm");
-		jQuery("#tambahUsulanSsh .modal-body").html("<div class=\'akun-ssh-verify\'><table>"+
-					"<tr><td><input class=\'verify-ssh\' id=\'verify-ssh-yes\' name=\'verify_ssh\' value=\'1\' type=\'radio\' checked><label for=\'verify-ssh-yes\'>Terima</label></td>"+
-					"<td><input class=\'verify-ssh\' id=\'verify-ssh-no\' name=\'verify_ssh\' value=\'0\' type=\'radio\'><label for=\'verify-ssh-no\'>Tolak</label></td></tr>"+
-					"<tr class=\'add-desc-verify-ssh\' style=\'display:none;\'><td colspan=\'2\'><label for=\'alasan_verify_ssh\' style=\'display:inline-block;\'>Alasan</label><textarea id=\'alasan_verify_ssh\'></textarea></td></tr></div>");
+		jQuery("#tambahUsulanSsh .modal-body").html(""
+			+"<div class='akun-ssh-verify'><table>"
+				+"<tr>"
+					+"<td><input class='verify-ssh' id='verify-ssh-yes' name='verify_ssh' value='1' type='radio' checked><label for='verify-ssh-yes'>Terima</label></td>"
+					+"<td><input class='verify-ssh' id='verify-ssh-no' name='verify_ssh' value='0' type='radio'><label for='verify-ssh-no'>Tolak</label></td>"
+				+"</tr>"
+				+"<tr class='add-desc-verify-ssh' style='display:none;'>"
+					+"<td colspan='2'><label for='alasan_verify_ssh' style='display:inline-block;'>Alasan</label><textarea id='alasan_verify_ssh'></textarea></td>"
+				+"</tr>"
+				+"<tr class='add-nota-dinas-verify-ssh'>"
+					+"<td colspan='2'>"
+						+"<label for='pilih-nota-dinas' style='display:inline-block;'>Nota Dinas</label>"
+						+"<select id='pilih-nota-dinas' class='form-control'>"
+							+html_surat_usulan_nota_dinas
+						+"</select>"
+					+"</td>"
+				+"</tr>"
+			+"</div>");
 		jQuery("#tambahUsulanSsh .modal-footer").html("<button style=\'margin: 0 0 2rem 0.5rem;border-radius:0.2rem;\' class=\'btn_submit_verify_ssh\' onclick=\'submit_verify_ssh("+id+")\'>Simpan</button>");
 		jQuery("#verify-ssh-no").on("click", function() {
-			jQuery(".add-desc-verify-ssh").show();
-			jQuery(".catatan-verify-ssh").show();
-		})
+			var check = jQuery(this).is(':checked');
+			if(check){
+				jQuery(".add-desc-verify-ssh").show();
+				jQuery(".catatan-verify-ssh").show();
+				jQuery(".add-nota-dinas-verify-ssh").hide();
+			}
+		});
 		jQuery("#verify-ssh-yes").on("click", function() {
-			jQuery(".add-desc-verify-ssh").hide();
-			jQuery(".catatan-verify-ssh").hide();
-		})
+			var check = jQuery(this).is(':checked');
+			if(check){
+				jQuery(".add-desc-verify-ssh").hide();
+				jQuery(".catatan-verify-ssh").hide();
+				jQuery(".add-nota-dinas-verify-ssh").show();
+			}
+		});
 
 		getDataUsulanSshByIdStandarHarga(id);
 	}
@@ -1551,39 +1574,45 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
 	function submit_verify_ssh(id_standar_ssh){
 		var verify_ssh = jQuery("input[name=\'verify_ssh\']:checked").val();
 		var reason_verify_ssh = jQuery("#alasan_verify_ssh").val();
-		jQuery("#wrap-loading").show();
+		var nota_dinas = jQuery('#pilih-nota-dinas').val();
 		if(verify_ssh == 0 && reason_verify_ssh.trim() == ''){
-				jQuery("#wrap-loading").hide();
-				alert('Harap diisi semua, tidak ada yang kosong.');
-				return false;
-			}else{
-				jQuery.ajax({
-					url: "<?php echo admin_url('admin-ajax.php'); ?>",
-					type:'post',
-					data:{
-						'action' : 'submit_verify_ssh',
-						'api_key' : jQuery("#api_key").val(),
-						'verify_ssh' : verify_ssh,
-						'reason_verify_ssh' : reason_verify_ssh,
-						'id_ssh_verify_ssh' : id_standar_ssh,
-					},
-					dataType: 'json',
-					beforeSend: function () {
-						jQuery('.btn_submit_verify_ssh').attr("disabled","disabled");
-					},
-					success:function(response){
-						if(response.status == 'success'){
-							alert('Data berhasil diverifikasi.');
-							jQuery('#tambahUsulanSsh').modal('hide')
+			alert('Alasan ditolak tidak boleh kosong.');
+			return false;
+		}else if(verify_ssh==1 && nota_dinas==''){
+			alert('Nota Dinas tidak boleh kosong.');
+			return false;
+		}else{
+			jQuery("#wrap-loading").show();
+			jQuery.ajax({
+				url: "<?php echo admin_url('admin-ajax.php'); ?>",
+				type:'post',
+				data:{
+					'action': 'submit_verify_ssh',
+					'api_key': jQuery("#api_key").val(),
+					'verify_ssh': verify_ssh,
+					'reason_verify_ssh': reason_verify_ssh,
+					'id_ssh_verify_ssh': id_standar_ssh,
+					'nota_dinas': nota_dinas
+				},
+				dataType: 'json',
+				beforeSend: function () {
+					jQuery('.btn_submit_verify_ssh').attr("disabled","disabled");
+				},
+				success:function(response){
+					if(response.status == 'success'){
+						alert('Data berhasil diverifikasi.');
+						jQuery('#tambahUsulanSsh').modal('hide')
+						suratNotaDinasUsulanSSHTable.ajax.reload(function(){
 							usulanSSHTable.ajax.reload();
-						}else{
-							alert("GAGAL! "+response.message);
-						}
-						jQuery('.submitBtn').removeAttr("disabled");
-						jQuery("#wrap-loading").hide();
+						});
+					}else{
+						alert("GAGAL! "+response.message);
 					}
-				});
-			}
+					jQuery('.submitBtn').removeAttr("disabled");
+					jQuery("#wrap-loading").hide();
+				}
+			});
+		}
 	}
 
 	/** submit tambah usulan harga ssh */
@@ -2241,18 +2270,18 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
 
 	function getDataUsulanSshByIdStandarHarga(id){
 		return new Promise(function(resolve, reject){
+			jQuery('#wrap-loading').show();
 			jQuery.ajax({
 				url: ajax.url,
 			    type: "post",
 			    data: {
-			          "action": "get_data_usulan_ssh_by_id_standar_harga",
-			          "api_key": jQuery("#api_key").val(),
-			          "id": id
+			        "action": "get_data_usulan_ssh_by_id_standar_harga",
+			        "api_key": jQuery("#api_key").val(),
+			        "id": id
 			    },
 			    dataType: "json",
 			    success: function(res){
 			    	if(res.status){
-
 			    		let user='';
 			    		let catatan='';
 			    		if(res.role==='administrator'){
@@ -2262,9 +2291,21 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
 			    			user = 'Administrator';
 			    			catatan = res.data.keterangan_status_admin!=null ? res.data.keterangan_status_admin : '';
 			    		}
-			    		let html="<tr class=\'catatan-verify-ssh\' style='display:none'><td colspan=\'2\'><label for=\'catatan_verify_ssh\' style=\'display:inline-block;\'>Alasan "+user+"</label><br><span class=\'medium-bold-2\' id=\'catatan_verify_ssh\'>"+catatan+"</span></td></tr>"
+			    		let html=""
+			    			+"<tr class='catatan-verify-ssh' style='display:none'>"
+			    				+"<td colspan='2'>"
+			    					+"<label for='catatan_verify_ssh' style='display:inline-block;'>Alasan "+user+"</label><br><span class='medium-bold-2' id='catatan_verify_ssh'>"+catatan+"</span>"
+			    				+"</td>"
+			    			+"</tr>";
 			    		jQuery(".add-desc-verify-ssh").after(html);
+			    		jQuery("#pilih-nota-dinas").val(res.data.no_nota_dinas);
+			    	<?php
+			    		if(!in_array("administrator", $user_meta->roles)){
+			    			echo 'jQuery(".add-nota-dinas-verify-ssh").hide();';
+			    		}
+			    	?>
 			    	}
+					jQuery('#wrap-loading').hide();
 			    	resolve();
 			    }
 			});
@@ -2725,6 +2766,14 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
 	
 	function filter_surat_usulan(nomor_surat){
 		jQuery('#search_filter_surat').val(nomor_surat).trigger('change');
+		jQuery('html, body').animate({
+	        scrollTop: jQuery("#usulan_ssh_table").offset().top
+	    }, 1000);
+		return false;
+	}
+	
+	function filter_nota_dinas(nomor_surat){
+		jQuery('#search_nota_dinas_filter_surat').val(nomor_surat).trigger('change');
 		jQuery('html, body').animate({
 	        scrollTop: jQuery("#usulan_ssh_table").offset().top
 	    }, 1000);

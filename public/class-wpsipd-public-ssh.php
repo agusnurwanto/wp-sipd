@@ -656,6 +656,7 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 						if($data_ssh[0]['status_upload_sipd'] != 1){
 							$opsi_ssh = array();
 							if(in_array("administrator", $user_meta->roles)){
+								$opsi_ssh['no_nota_dinas']=$_POST['nota_dinas'];
 								$opsi_ssh['update_at_admin']=date("Y-m-d H:i:s");
 								$opsi_ssh['verified_by_admin']=um_user( 'ID' );
 								if($verify_ssh){
@@ -1128,15 +1129,18 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 				$data_ssh = $wpdb->get_row($wpdb->prepare("
 					SELECT 
 						keterangan_status_admin, 
-						keterangan_status_tapdkeu 
+						keterangan_status_tapdkeu,
+						no_nota_dinas,
+						no_surat_usulan 
 					FROM data_ssh_usulan 
 					WHERE id=%d
-				", $_POST['id_standar_harga']));
+				", $_POST['id']));
 
 				$return = array(
 					'status' => 'success',
 					'role' => $user_meta->roles[0],
-					'data' => $data_ssh
+					'data' => $data_ssh,
+					'sql' => $wpdb->last_query
 				);
 			}else{
 				$return = array(
@@ -1539,7 +1543,7 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 					", $val['idskpd']));
 					$queryRecords[$k]['nama_skpd'] = $nama_skpd;
 					$queryRecords[$k]['aksi'] = '
-						<a class="btn btn-sm btn-primary" onclick="filter_surat_usulan(\''.$val['nomor_surat'].'\'); return false;" href="#" title="Filter Nota Dinas"><i class="dashicons dashicons-search"></i></a>
+						<a class="btn btn-sm btn-primary" onclick="filter_nota_dinas(\''.$val['nomor_surat'].'\'); return false;" href="#" title="Filter Nota Dinas"><i class="dashicons dashicons-search"></i></a>
 						<a class="btn btn-sm btn-warning" onclick="edit_nota_dinas(this); return false;" href="#" title="Edit Nota Dinas" data-id="'.$val['id'].'" data-nomorsurat="'.$val['nomor_surat'].'"><i class="dashicons dashicons-edit"></i></a>
 						<a class="btn btn-sm btn-danger" onclick="hapus_nota_dinas(this); return false;" href="#" title="Hapus Nota Dinas" data-id="'.$val['id'].'" data-nomorsurat="'.$val['nomor_surat'].'"><i class="dashicons dashicons-trash"></i></a>';
 
@@ -1702,6 +1706,10 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 				
 				if(!empty($_POST['filter_surat'])){
 					$where .=" AND no_surat_usulan = ".$wpdb->prepare('%s', $_POST['filter_surat']);
+				}
+				
+				if(!empty($_POST['filter_nota_dinas'])){
+					$where .=" AND no_nota_dinas = ".$wpdb->prepare('%s', $_POST['filter_nota_dinas']);
 				}
 
 				/** Jika admin tampilkan semua data */
