@@ -751,6 +751,7 @@ class Wpsipd
 		$this->loader->add_action('wp_ajax_get_data_usulan_ssh_surat',  $plugin_public, 'get_data_usulan_ssh_surat');
 		$this->loader->add_action('wp_ajax_simpan_surat_usulan_ssh',  $plugin_public, 'simpan_surat_usulan_ssh');
 		
+		$this->loader->add_action('wp_ajax_hapus_nota_dinas',  $plugin_public, 'hapus_nota_dinas');
 		$this->loader->add_action('wp_ajax_get_data_usulan_ssh_surat_nota_dinas',  $plugin_public, 'get_data_usulan_ssh_surat_nota_dinas');
 		$this->loader->add_action('wp_ajax_submit_nota_dinas',  $plugin_public, 'submit_nota_dinas');
 		$this->loader->add_action('wp_ajax_get_data_nota_dinas_by_id',  $plugin_public, 'get_data_nota_dinas_by_id');

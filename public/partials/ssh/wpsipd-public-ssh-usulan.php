@@ -1045,6 +1045,7 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
 		            }
 		        ],
 		        "drawCallback": function(settings){
+					jQuery("#wrap-loading").hide();
 		        	var api = this.api();
 		        	// console.log('api', api.rows().data());
 		        	window.html_surat_usulan_nota_dinas = ""
@@ -2608,6 +2609,63 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
 		window.open(url, '_blank');
 	}
 
+	function hapus_nota_dinas(that){
+		var id = jQuery(that).attr('data-id');
+		var nomor_surat = jQuery(that).attr('data-nomorsurat');
+		jQuery('#wrap-loading').show();
+		jQuery.ajax({
+			url: ajax.url,
+		    type: "post",
+		    data: {
+		        "action": "get_data_nota_dinas_by_id",
+		        "api_key": jQuery("#api_key").val(),
+		        "nomor_surat": nomor_surat,
+		        "tahun_anggaran": tahun,
+		        "id": id
+		  	},
+		    dataType: "json",
+		    success: function(res){
+				jQuery('#wrap-loading').hide();
+				if(res.status != 'error'){
+					var cek_ids = [];
+					res.data.map(function(b, i){
+						if(b.status == 'approved'){
+							cek_ids.push(b);
+						}
+					});
+					if(cek_ids.length >= 1){
+						alert('Tidak bisa hapus Nota Dinas karena sudah ada usulan Standar Harga yang disetujui!');
+					}else{
+						if(confirm("Apakah anda yakin untuk menghapus Nota Dinas ini? Data tidak bisa dikembalikan.")){
+							jQuery('#wrap-loading').show();
+							jQuery.ajax({
+								url: ajax.url,
+							    type: "post",
+							    data: {
+							        "action": "hapus_nota_dinas",
+							        "api_key": jQuery("#api_key").val(),
+							        "nomor_surat": nomor_surat,
+							        "tahun_anggaran": tahun,
+							        "id": id
+							  	},
+							    dataType: "json",
+							    success: function(res){
+									jQuery('#wrap-loading').hide();
+									alert(res.message);
+									if(res.status != 'error'){
+										suratNotaDinasUsulanSSHTable.ajax.reload();
+									}
+								}
+							});
+						}
+					}
+				}else{
+		    		alert(res.message);
+				}
+		    }
+		});
+	}
+
 	function hapus_surat_usulan(that){
 		var id = jQuery(that).attr('data-id');
 		var nomor_surat = jQuery(that).attr('data-nomorsurat');
@@ -2619,6 +2677,7 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
 		        "action": "get_data_usulan_ssh_surat_by_id",
 		        "api_key": jQuery("#api_key").val(),
 		        "nomor_surat": nomor_surat,
+		        "tahun_anggaran": tahun,
 		        "id": id
 		  	},
 		    dataType: "json",
@@ -2643,6 +2702,7 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
 							        "action": "hapus_surat_usulan_ssh",
 							        "api_key": jQuery("#api_key").val(),
 							        "nomor_surat": nomor_surat,
+							        "tahun_anggaran": tahun,
 							        "id": id
 							  	},
 							    dataType: "json",

@@ -1257,7 +1257,8 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 					FROM data_ssh_usulan 
 					WHERE no_surat_usulan=%s
 						AND status='approved'
-				", $_POST['nomor_surat']));
+						AND tahun_anggaran=%d
+				", $_POST['nomor_surat'], $_POST['tahun_anggaran']));
 				if(!empty($data_ssh)){
 					$return['status'] = 'error';
 					$return['message'] = 'Tidak bisa hapus surat usulan karena sudah ada usulan Standar Harga yang disetujui!';
@@ -1270,7 +1271,8 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 						FROM data_surat_usulan_ssh 
 						WHERE id=%d
 							AND nomor_surat=%s
-					", $_POST['id'], $_POST['nomor_surat']));
+							AND tahun_anggaran=%d
+					", $_POST['id'], $_POST['nomor_surat'], $_POST['tahun_anggaran']));
 					$folder = WPSIPD_PLUGIN_PATH.'public/media/ssh/';
 					if(
 						!empty($file_surat)
@@ -1280,8 +1282,53 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 					}
 					$wpdb->delete('data_surat_usulan_ssh', array(
 						'id' => $_POST['id'],
-						'nomor_surat' => $_POST['nomor_surat']
+						'nomor_surat' => $_POST['nomor_surat'],
+						'tahun_anggaran' => $_POST['tahun_anggaran']
 					), array('%d'));
+				}
+			}else{
+				$return = array(
+					'status' => 'error',
+					'message'	=> 'Api Key tidak sesuai!'
+				);
+			}
+		}else{
+			$return = array(
+				'status' => 'error',
+				'message'	=> 'Format tidak sesuai!'
+			);
+		}
+		die(json_encode($return));
+	}
+
+	public function hapus_nota_dinas(){
+		global $wpdb;
+		$return = array(
+			'status' => 'success',
+			'message' => 'Berhasil hapus data!'
+		);
+
+		if(!empty($_POST)){
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+				$data_ssh = $wpdb->get_results($wpdb->prepare("
+					SELECT 
+						*
+					FROM data_ssh_usulan 
+					WHERE no_nota_dinas=%s
+						AND status='approved'
+						AND tahun_anggaran=%d
+				", $_POST['nomor_surat'], $_POST['tahun_anggaran']));
+				if(!empty($data_ssh)){
+					$return['status'] = 'error';
+					$return['message'] = 'Tidak bisa hapus surat usulan karena sudah ada usulan Standar Harga yang disetujui!';
+					$return['data'] = $data_ssh;
+					$return['sql'] = $wpdb->last_query;
+				}else{
+					$wpdb->delete('data_nota_dinas_usulan_ssh', array(
+						'id' => $_POST['id'],
+						'nomor_surat' => $_POST['nomor_surat'],
+						'tahun_anggaran' => $_POST['tahun_anggaran']
+					), array('%d', '%s', '%d'));
 				}
 			}else{
 				$return = array(
@@ -1455,24 +1502,6 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 				);
 				$where = $sqlTot = $sqlRec = "";
 
-				$is_admin = true;
-				/** Jika admin tampilkan semua data */
-				if(
-					!in_array("administrator",$user_meta->roles) &&
-					!in_array("tapd_keu", $user_meta->roles)
-				){
-					$is_admin = false;
-					$this_user_meta = get_user_meta($user_id);
-					/** cari data user berdasarkan nama skpd */
-					if(
-						$this_user_meta['_id_sub_skpd'][0] != ''
-					){
-						$where .=" AND idskpd = '".$this_user_meta['_id_sub_skpd'][0]."' ";
-					}else{
-						$where .=" AND idskpd = '-' ";
-					}
-				}
-
 				$tahun_anggaran = $wpdb->prepare('%d', $params['tahun_anggaran']);
 				// getting total number records without any search
 				$sql_tot = "SELECT count(*) as jml FROM `data_nota_dinas_usulan_ssh`";
@@ -1512,7 +1541,7 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 					$queryRecords[$k]['aksi'] = '
 						<a class="btn btn-sm btn-primary" onclick="filter_surat_usulan(\''.$val['nomor_surat'].'\'); return false;" href="#" title="Filter Nota Dinas"><i class="dashicons dashicons-search"></i></a>
 						<a class="btn btn-sm btn-warning" onclick="edit_nota_dinas(this); return false;" href="#" title="Edit Nota Dinas" data-id="'.$val['id'].'" data-nomorsurat="'.$val['nomor_surat'].'"><i class="dashicons dashicons-edit"></i></a>
-						<a class="btn btn-sm btn-danger" onclick="hapus_surat_usulan(this); return false;" href="#" title="Hapus Nota Dinas" data-id="'.$val['id'].'" data-nomorsurat="'.$val['nomor_surat'].'"><i class="dashicons dashicons-trash"></i></a>';
+						<a class="btn btn-sm btn-danger" onclick="hapus_nota_dinas(this); return false;" href="#" title="Hapus Nota Dinas" data-id="'.$val['id'].'" data-nomorsurat="'.$val['nomor_surat'].'"><i class="dashicons dashicons-trash"></i></a>';
 
 					$ids_usulan = $wpdb->get_results($wpdb->prepare("
 						SELECT
