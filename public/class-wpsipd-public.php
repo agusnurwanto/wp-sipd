@@ -2484,7 +2484,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						$ret['request_data'][] = $opsi;
 
 						$nama_page = $_POST['tahun_anggaran'] . ' | ' . $v['kode_skpd'] . ' | ' . $v['nama_skpd'];
-						$custom_post = get_page_by_title($nama_page, OBJECT, 'page');
+						$custom_post = $this->get_page_by_title($nama_page, OBJECT, 'page');
 
 						$_post = array(
 							'post_title'	=> $nama_page,
@@ -2502,7 +2502,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 							wp_update_post( $_post );
 							$_post['update'] = 1;
 						}
-						$custom_post = get_page_by_title($nama_page, OBJECT, 'page');
+						$custom_post = $this->get_page_by_title($nama_page, OBJECT, 'page');
 						update_post_meta($custom_post->ID, 'ast-breadcrumbs-content', 'disabled');
 						update_post_meta($custom_post->ID, 'ast-featured-img', 'disabled');
 						update_post_meta($custom_post->ID, 'ast-main-header-display', 'disabled');
@@ -2519,7 +2519,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 					}
 
 					$nama_page = 'RKPD '.$_POST['tahun_anggaran'];
-					$custom_post = get_page_by_title($nama_page, OBJECT, 'page');
+					$custom_post = $this->get_page_by_title($nama_page, OBJECT, 'page');
 
 					$_post = array(
 						'post_title'	=> $nama_page,
@@ -2537,7 +2537,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						wp_update_post( $_post );
 						$_post['update'] = 1;
 					}
-					$custom_post = get_page_by_title($nama_page, OBJECT, 'page');
+					$custom_post = $this->get_page_by_title($nama_page, OBJECT, 'page');
 					update_post_meta($custom_post->ID, 'ast-breadcrumbs-content', 'disabled');
 					update_post_meta($custom_post->ID, 'ast-featured-img', 'disabled');
 					update_post_meta($custom_post->ID, 'ast-main-header-display', 'disabled');
@@ -2587,7 +2587,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
 
 				$nama_page = 'Mandatory Spending | '.$_POST['tahun_anggaran'];
-				$custom_post = get_page_by_title($nama_page, OBJECT, 'page');
+				$custom_post = $this->get_page_by_title($nama_page, OBJECT, 'page');
 
 				$_post = array(
 					'post_title'	=> $nama_page,
@@ -2605,7 +2605,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 					wp_update_post( $_post );
 					$_post['update'] = 1;
 				}
-				$custom_post = get_page_by_title($nama_page, OBJECT, 'page');
+				$custom_post = $this->get_page_by_title($nama_page, OBJECT, 'page');
 				update_post_meta($custom_post->ID, 'ast-breadcrumbs-content', 'disabled');
 				update_post_meta($custom_post->ID, 'ast-featured-img', 'disabled');
 				update_post_meta($custom_post->ID, 'ast-main-header-display', 'disabled');
@@ -4274,7 +4274,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						}
 
 						$nama_page = $_POST['tahun_anggaran'] . ' | ' . $kodeunit . ' | ' . $kode_giat . ' | ' . $v['nama_giat'];
-						$custom_post = get_page_by_title($nama_page, OBJECT, 'post');
+						$custom_post = $this->get_page_by_title($nama_page, OBJECT, 'post');
 						// print_r($custom_post); die();
 
 						$cat_name = $_POST['kode_sub_skpd'] . ' ' . $v['nama_sub_skpd'];
@@ -4308,7 +4308,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 							$_post['update'] = 1;
 						}
 						$ret['post'] = $_post;
-						$custom_post = get_page_by_title($nama_page, OBJECT, 'post');
+						$custom_post = $this->get_page_by_title($nama_page, OBJECT, 'post');
 						update_post_meta($custom_post->ID, 'ast-breadcrumbs-content', 'disabled');
 						update_post_meta($custom_post->ID, 'ast-featured-img', 'disabled');
 						update_post_meta($custom_post->ID, 'ast-main-header-display', 'disabled');
@@ -6384,7 +6384,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 					$kodeunit = $bl[0]['kode_skpd'];
 					$kode_giat = $bl[0]['kode_bidang_urusan'].substr($bl[0]['kode_giat'], 4, strlen($bl[0]['kode_giat']));
 					$nama_page = $_POST['tahun_anggaran'] . ' | ' . $kodeunit . ' | ' . $kode_giat . ' | ' . $bl[0]['nama_giat'];
-					$custom_post = get_page_by_title($nama_page, OBJECT, 'post');
+					$custom_post = $this->get_page_by_title($nama_page, OBJECT, 'post');
 					$ret['link'] = $this->get_link_post($custom_post);
 					$ret['text_link'] = 'Print DPA Lokal';
 					$ret['judul'] = $nama_page;
@@ -6455,7 +6455,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 	}
 
 	function save_update_post($nama_page, $cat_name, $post_content){
-		$custom_post = get_page_by_title($nama_page, OBJECT, 'page');
+		$custom_post = $this->get_page_by_title($nama_page, OBJECT, 'page');
 		$taxonomy = 'category';
 		$cat  = get_term_by('name', $cat_name, $taxonomy);
 		if ($cat == false) {
@@ -6481,7 +6481,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 			wp_update_post( $_post );
 			$_post['update'] = 1;
 		}
-		$custom_post = get_page_by_title($nama_page, OBJECT, 'page');
+		$custom_post = $this->get_page_by_title($nama_page, OBJECT, 'page');
 		update_post_meta($custom_post->ID, 'ast-breadcrumbs-content', 'disabled');
 		update_post_meta($custom_post->ID, 'ast-featured-img', 'disabled');
 		update_post_meta($custom_post->ID, 'ast-main-header-display', 'disabled');
@@ -6866,7 +6866,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 					|| in_array("mitra_bappeda", $user_meta->roles)
 				){
 					$nama_page = 'RFK '.$vv['nama_skpd'].' '.$vv['kode_skpd'].' | '.$tahun;
-					$custom_post = get_page_by_title($nama_page, OBJECT, 'page');
+					$custom_post = $this->get_page_by_title($nama_page, OBJECT, 'page');
 					$url_rfk = $this->get_link_post($custom_post);
 
 					if(!empty($daftar_tombol_list[1])){
@@ -6874,21 +6874,21 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 					}
 
 					$nama_page_sd = 'Sumber Dana '.$vv['nama_skpd'].' '.$vv['kode_skpd'].' | '.$tahun;
-					$custom_post = get_page_by_title($nama_page_sd, OBJECT, 'page');
+					$custom_post = $this->get_page_by_title($nama_page_sd, OBJECT, 'page');
 					$url_sd = $this->get_link_post($custom_post);
 					if(!empty($daftar_tombol_list[2])){
 						echo '<li><a href="'.$url_sd.'" target="_blank" class="btn btn-info">MONEV SUMBER DANA</a></li>';
 					}
 
 					$nama_page_label = 'Label Komponen '.$vv['nama_skpd'].' '.$vv['kode_skpd'].' | '.$tahun;
-					$custom_post = get_page_by_title($nama_page_label, OBJECT, 'page');
+					$custom_post = $this->get_page_by_title($nama_page_label, OBJECT, 'page');
 					$url_label = $this->get_link_post($custom_post);
 					if(!empty($daftar_tombol_list[3])){
 						echo '<li><a href="'.$url_label.'" target="_blank" class="btn btn-info">MONEV LABEL KOMPONEN</a></li>';
 					}
 
 					$nama_page_monev_renja = 'MONEV '.$vv['nama_skpd'].' '.$vv['kode_skpd'].' | '.$tahun;
-					$custom_post = get_page_by_title($nama_page_monev_renja, OBJECT, 'page');
+					$custom_post = $this->get_page_by_title($nama_page_monev_renja, OBJECT, 'page');
 					$url_monev_renja = $this->get_link_post($custom_post);
 					if(!empty($daftar_tombol_list[4])){
 						echo '<li><a href="'.$url_monev_renja.'" target="_blank" class="btn btn-info">MONEV INDIKATOR RENJA</a></li>';
@@ -6896,7 +6896,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 
 					if($vv['is_skpd'] == 1){
 						$nama_page_monev_renstra = 'MONEV RENSTRA '.$vv['nama_skpd'].' '.$vv['kode_skpd'].' | '.$tahun;
-						$custom_post = get_page_by_title($nama_page_monev_renstra, OBJECT, 'page');
+						$custom_post = $this->get_page_by_title($nama_page_monev_renstra, OBJECT, 'page');
 						$url_monev_renstra = $this->get_link_post($custom_post);
 						if(!empty($daftar_tombol_list[5])){
 							echo '<li><a href="'.$url_monev_renstra.'" target="_blank" class="btn btn-info">MONEV INDIKATOR RENSTRA</a></li>';
@@ -6904,7 +6904,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 					}
 
 					$nama_page_menu_ssh = 'Rekapitulasi Rincian Belanja '.$vv['nama_skpd'].' '.$vv['kode_skpd'].' | '.$tahun;
-					$custom_post = get_page_by_title($nama_page_menu_ssh, OBJECT, 'page');
+					$custom_post = $this->get_page_by_title($nama_page_menu_ssh, OBJECT, 'page');
 					$url_menu_ssh = $this->get_link_post($custom_post);
 					if(!empty($daftar_tombol_list[7])){
 						echo '<li><a href="'.$url_menu_ssh.'" target="_blank" class="btn btn-info">MENU SSH</a></li>';
@@ -6912,7 +6912,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 
 					if($vv['is_skpd'] == 1){
 						$nama_page = 'Input RENSTRA '.$vv['nama_skpd'].' '.$vv['kode_skpd'];
-						$custom_post = get_page_by_title($nama_page, OBJECT, 'page');
+						$custom_post = $this->get_page_by_title($nama_page, OBJECT, 'page');
 						$url_menu = $this->get_link_post($custom_post);
 						if(!empty($daftar_tombol_list[8])){
 							echo '<li><a href="'.$url_menu.'" target="_blank" class="btn btn-info">INPUT RENSTRA</a></li>';
@@ -6920,7 +6920,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 					}
 
 					$nama_page = 'Input RENJA '.$vv['nama_skpd'].' '.$vv['kode_skpd'].' | '.$tahun;
-					$custom_post = get_page_by_title($nama_page, OBJECT, 'page');
+					$custom_post = $this->get_page_by_title($nama_page, OBJECT, 'page');
 					$url_menu = $this->get_link_post($custom_post);
 					if(!empty($daftar_tombol_list[9])){
 						echo '<li><a href="'.$url_menu.'" target="_blank" class="btn btn-info">INPUT RENJA</a></li>';
@@ -7082,7 +7082,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 			}
 			if(!empty($daftar_tombol_list[6])){
 				$tahun_aktif = $_GET['tahun'];
-				$custom_post = get_page_by_title('MONEV RPJM Pemerintah Daerah | '.$tahun_aktif);
+				$custom_post = $this->get_page_by_title('MONEV RPJM Pemerintah Daerah | '.$tahun_aktif);
 				$url_pemda = $this->get_link_post($custom_post);
 				echo '
 				<ul class="daftar-tahun text_tengah">
@@ -9027,21 +9027,51 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 	}
 
 	public function get_link_post($custom_post){
-		$link = get_permalink($custom_post);
-		if(false == $link){
+		if(null == $custom_post){
 			$link = '#';
 		}else{
-			$options = array();
-			if(!empty($custom_post->custom_url)){
-				$options['custom_url'] = $custom_post->custom_url;
-			}
-			if(strpos($link, '?') === false){
-				$link .= '?key=' . $this->gen_key(false, $options);
+			$link = get_permalink($custom_post);
+			if(false == $link){
+				$link = '#';
 			}else{
-				$link .= '&key=' . $this->gen_key(false, $options);
+				$options = array();
+				if(!empty($custom_post->custom_url)){
+					$options['custom_url'] = $custom_post->custom_url;
+				}
+				if(strpos($link, '?') === false){
+					$link .= '?key=' . $this->gen_key(false, $options);
+				}else{
+					$link .= '&key=' . $this->gen_key(false, $options);
+				}
 			}
 		}
 		return $link;
+	}
+
+	function get_page_by_title( $page_title, $output = OBJECT, $post_type = 'page' ) {
+		global $wpdb;
+		if ( is_array( $post_type ) ) {
+			$post_type = esc_sql( $post_type );
+			$post_type_in_string = "'" . implode( "','", $post_type ) . "'";
+			$sql = $wpdb->prepare("
+				SELECT ID
+				FROM $wpdb->posts
+				WHERE post_title = %s
+					AND post_type IN ($post_type_in_string)
+			", $page_title);
+		} else {
+			$sql = $wpdb->prepare("
+				SELECT ID
+				FROM $wpdb->posts
+				WHERE post_title = %s
+					AND post_type = %s
+			", $page_title, $post_type);
+		}
+		$page = $wpdb->get_var( $sql );
+		if ( $page ) {
+			return get_post( $page, $output );
+		}
+		return null;
 	}
 
 	public function decode_key($value){
@@ -9076,7 +9106,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 					}
 					if($type_page == 'rfk_pemda'){
 						$title = 'Realisasi Fisik dan Keuangan Pemerintah Daerah | '.$tahun_anggaran;
-						$custom_post = get_page_by_title($title);
+						$custom_post = $this->get_page_by_title($title);
 						$custom_post->custom_url = array(array('key' => 'public', 'value' => 1));
 						$url = $this->get_link_post($custom_post);
 						$ret['url'] = $url;
@@ -10069,7 +10099,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 					foreach ($sumberdana as $key => $val) {
 						$no++;
 						$title = 'Laporan APBD Per Sumber Dana '.$val['kodedana'].' '.$val['namadana'].' | '.$_POST['tahun_anggaran'];
-						$custom_post = get_page_by_title($title, OBJECT, 'page');
+						$custom_post = $this->get_page_by_title($title, OBJECT, 'page');
 						$url_skpd = $this->get_link_post($custom_post);
 						if(empty($val['kodedana'])){
 							$val['kodedana'] = '';
@@ -10585,7 +10615,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 	}
 
 	public function generatePage($nama_page, $tahun_anggaran, $content = false, $update = false){
-		$custom_post = get_page_by_title($nama_page, OBJECT, 'page');
+		$custom_post = $this->get_page_by_title($nama_page, OBJECT, 'page');
 		if(empty($content)){
 			$content = '[monitor_sipd tahun_anggaran="'.$tahun_anggaran.'"]';
 		}
@@ -10601,7 +10631,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 			$id = wp_insert_post($_post);
 			$_post['insert'] = 1;
 			$_post['ID'] = $id;
-			$custom_post = get_page_by_title($nama_page, OBJECT, 'page');
+			$custom_post = $this->get_page_by_title($nama_page, OBJECT, 'page');
 			update_post_meta($custom_post->ID, 'ast-breadcrumbs-content', 'disabled');
 			update_post_meta($custom_post->ID, 'ast-featured-img', 'disabled');
 			update_post_meta($custom_post->ID, 'ast-main-header-display', 'disabled');

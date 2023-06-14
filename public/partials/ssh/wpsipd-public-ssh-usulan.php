@@ -12,6 +12,7 @@ global $wpdb;
 $all_skpd = array();
 $list_skpd_options = '<option value="">Pilih Perangkat Daerah</option>';
 $nama_skpd = "";
+$is_admin = false;
 if(
 	in_array("PA", $user_meta->roles)
 	|| in_array("KPA", $user_meta->roles)
@@ -54,6 +55,7 @@ if(
 	in_array("administrator", $user_meta->roles)
 	|| in_array("tapd_keu", $user_meta->roles)
 ){
+	$is_admin = true;
 	$skpd_mitra = $wpdb->get_results($wpdb->prepare("
 		SELECT 
 			nama_skpd, 
@@ -73,6 +75,8 @@ if(
 			$list_skpd_options .= '<option value="'.$v['id_skpd'].'">-- '.$v['kode_skpd'].' '.$v['nama_skpd'].'</option>';
 		}
 	}
+}else{
+	echo "<h1>Anda tidak mempunyai akses untuk melihat halaman ini!</h1>";
 }
 
 $nama_skpd .= "<br>".get_option('_crb_daerah');
@@ -169,55 +173,130 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
 		<input type="hidden" value="<?php echo get_option( '_crb_api_key_extension' ); ?>" id="api_key">
 		<input type="hidden" value="<?php echo $input['tahun_anggaran']; ?>" id="tahun_anggaran">
 		<h1 class="text-center">Usulan Standar Harga<?php echo $nama_skpd; ?><br>Tahun Anggaran <?php echo $input['tahun_anggaran']; ?></h1>
-		<h2 class="text-center">Daftar Surat Usulan</h2>
-		<table id="surat_usulan_ssh_table" class="table table-bordered">
-			<thead>
-				<tr>
-					<th class="text-center">Waktu Update</th>
-					<th class="text-center">Dibuat Oleh</th>
-					<th class="text-center">Nomor Surat</th>
-					<th class="text-center">File</th>
-					<th class="text-center">Jumlah</th>
-					<th class="text-center">Dasar Pengusulan</th>
-					<th class="text-center">Catatan</th>
-					<th class="text-center">Catatan Verifikator</th>
-					<th class="text-center" style="width: 65px;">Aksi</th>
-				</tr>
-			</thead>
-			<tbody id="data_body_surat" class="data_body_ssh_surat">
-			</tbody>
-		</table>
-		<h2 class="text-center">Daftar Data Usulan</h2>
-		<div style="margin-bottom: 25px;">
-			<button class="btn btn-primary tambah_ssh" disabled onclick="tambah_new_ssh(<?php echo $input['tahun_anggaran']; ?>);">Tambah Item SSH</button>
-			<button class="btn btn-primary tambah_new_ssh" disabled onclick="get_data_by_name_komponen_ssh('harga',<?php echo $input['tahun_anggaran']; ?>)">Tambah Harga SSH</button>
-			<button class="btn btn-primary tambah_new_ssh" disabled onclick="get_data_by_name_komponen_ssh('akun',<?php echo $input['tahun_anggaran']; ?>)">Tambah Akun SSH</button>
-			<button class="btn btn-warning" onclick="buat_surat_usulan(<?php echo $input['tahun_anggaran']; ?>)">Buat Surat Usulan</button>
+		<div>
+			<h2 class="text-center">Daftar Nota Dinas</h2>
+		<?php if($is_admin == true): ?>
+			<div style="margin-bottom: 25px;">
+				<button class="btn btn-primary" onclick="tambah_nota_dinas(<?php echo $input['tahun_anggaran']; ?>);">Tambah Nota Dinas</button>
+			</div>
+		<?php endif; ?>
+			<table id="surat_nota_dinas_usulan_ssh_table" class="table table-bordered">
+				<thead>
+					<tr>
+						<th class="text-center">Waktu Update</th>
+						<th class="text-center">Nomor Surat</th>
+						<th class="text-center">Jumlah Usulan</th>
+						<th class="text-center">Catatan</th>
+						<th class="text-center" style="width: 200px;">Aksi</th>
+					</tr>
+				</thead>
+				<tbody id="data_body_surat_nota_dinas" class="data_body_ssh_surat_nota_dinas">
+				</tbody>
+			</table>
 		</div>
-		<table id="usulan_ssh_table" class="table table-bordered" style="font-size:90%">
-			<thead id="data_header">
-				<tr>
-					<th class="text-center"><input type="checkbox" id="checkall"></th>
-					<th class="text-center">Kode Komponen</th>
-					<th class="text-center">Uraian Komponen</th>
-					<th class="text-center">Spesifikasi Satuan</th>
-					<th class="text-center">Harga Satuan</th>
-					<th class="text-center">Keterangan</th>
-					<th class="text-center">Lampiran</th>
-					<th class="text-center">Verifikator 1</th>
-					<th class="text-center">Verifikator 2</th>
-					<th class="text-center">Status</th>
-					<th class="text-right" style="width: 100px">Aksi</th>
-				</tr>
-			</thead>
-			<tbody id="data_body" class="data_body_ssh">
-			</tbody>
-		</table>
+		<div>
+			<h2 class="text-center">Daftar Surat Usulan</h2>
+			<table id="surat_usulan_ssh_table" class="table table-bordered">
+				<thead>
+					<tr>
+						<th class="text-center">Waktu Update</th>
+						<th class="text-center">Dibuat Oleh</th>
+						<th class="text-center">Nomor Surat</th>
+						<th class="text-center">File</th>
+						<th class="text-center">Jumlah</th>
+						<th class="text-center">Dasar Pengusulan</th>
+						<th class="text-center">Catatan</th>
+						<th class="text-center">Catatan Verifikator</th>
+						<th class="text-center" style="width: 65px;">Aksi</th>
+					</tr>
+				</thead>
+				<tbody id="data_body_surat" class="data_body_ssh_surat">
+				</tbody>
+			</table>
+		</div>
+		<div>
+			<h2 class="text-center">Daftar Data Usulan</h2>
+			<div style="margin-bottom: 25px;">
+				<button class="btn btn-primary tambah_ssh" disabled onclick="tambah_new_ssh(<?php echo $input['tahun_anggaran']; ?>);">Tambah Item SSH</button>
+				<button class="btn btn-primary tambah_new_ssh" disabled onclick="get_data_by_name_komponen_ssh('harga',<?php echo $input['tahun_anggaran']; ?>)">Tambah Harga SSH</button>
+				<button class="btn btn-primary tambah_new_ssh" disabled onclick="get_data_by_name_komponen_ssh('akun',<?php echo $input['tahun_anggaran']; ?>)">Tambah Akun SSH</button>
+				<button class="btn btn-warning" onclick="buat_surat_usulan(<?php echo $input['tahun_anggaran']; ?>)">Buat Surat Usulan</button>
+			</div>
+			<table id="usulan_ssh_table" class="table table-bordered" style="font-size:90%">
+				<thead id="data_header">
+					<tr>
+						<th class="text-center"><input type="checkbox" id="checkall"></th>
+						<th class="text-center">Kode Komponen</th>
+						<th class="text-center">Uraian Komponen</th>
+						<th class="text-center">Spesifikasi Satuan</th>
+						<th class="text-center">Harga Satuan</th>
+						<th class="text-center">Keterangan</th>
+						<th class="text-center">Lampiran</th>
+						<th class="text-center">Verifikator 1</th>
+						<th class="text-center">Verifikator 2</th>
+						<th class="text-center">Status</th>
+						<th class="text-right" style="width: 100px">Aksi</th>
+					</tr>
+				</thead>
+				<tbody id="data_body" class="data_body_ssh">
+				</tbody>
+			</table>
+		</div>
+	</div>
+</div>
+
+<div class="modal fade" id="tambahNotaDinasModal" role="dialog" data-backdrop="static" aria-hidden="true">
+	<div class="modal-dialog modal-xl" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title">Form Nota Dinas</h5>
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+					<span aria-hidden="true">&times;</span>
+				</button>
+			</div>
+			<div class="modal-body">
+				<div class="row form-group">
+					<label class="col-md-2" for="nomor_surat_nota_dinas">Nomor Surat</label>
+					<div class="col-md-10">
+						<input type="text" id="nomor_surat_nota_dinas" class="form-control" placeholder="kode_surat/no_urut/kode_opd/tahun" value="kode_surat/no_urut/kode_opd/<?php echo $input['tahun_anggaran']; ?>">
+						<input type="hidden" id="ids_nota_dinas">
+						<input type="hidden" name="ubah_id" value="">
+					</div>
+				</div>
+				<div class="row form-group">
+					<label class="col-md-2" for="catatan_surat_nota_dinas">Catatan</label>
+					<div class="col-md-10">
+						<textarea type="text" id="catatan_surat_nota_dinas" class="form-control"></textarea>
+					</div>
+				</div>
+				<div class="row form-group">
+					<div class="col-md-12">
+						<table class="table table-bordered">
+							<thead>
+								<tr>
+									<th>Uraian Kelompok</th>
+									<th>Nama Komponen</th>
+									<th>Spesifikasi</th>
+									<th>Harga</th>
+									<th>Rekening</th>
+									<th>Nomor Surat SKPD</th>
+									<th>Jenis Usulan</th>
+								</tr>
+							</thead>
+							<tbody id="tbody_data_usulan_nota_dinas"></tbody>
+						</table>
+					</div>
+				</div>
+			</div> 
+			<div class="modal-footer">
+				<button class="btn btn-primary submitBtn" onclick="submitNotaDinas(<?php echo $input['tahun_anggaran']; ?>)">Simpan</button>
+				<button type="button" class="components-button btn btn-secondary" data-dismiss="modal">Tutup</button>
+			</div>
+		</div>
 	</div>
 </div>
 
 <div class="modal fade" id="tambahSuratUsulan" role="dialog" data-backdrop="static" aria-hidden="true">
-	<input type="hidden" id="ubah" value="">
 	<div class="modal-dialog modal-xl" role="document">
 		<div class="modal-content">
 			<div class="modal-header">
@@ -238,6 +317,7 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
 					<div class="col-md-10">
 						<input type="text" id="nomor_surat" class="form-control" placeholder="kode_surat/no_urut/kode_opd/tahun" value="kode_surat/no_urut/kode_opd/<?php echo $input['tahun_anggaran']; ?>">
 						<input type="hidden" id="ids_surat_usulan">
+						<input type="hidden" name="ubah_id" value="">
 					</div>
 				</div>
 				<div class="row form-group">
@@ -572,60 +652,71 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
 		jQuery('#wrap-loading').show();
 		window.tahun = <?php echo $input['tahun_anggaran']; ?>;
 		window.all_skpd = <?php echo json_encode($all_skpd); ?>;
-		get_data_ssh_surat(tahun)
+		get_data_ssh_surat_nota_dinas(tahun)
 		.then(function(){
-			get_data_ssh(tahun)
+			get_data_ssh_surat(tahun)
 			.then(function(){
-	            get_data_satuan_ssh(tahun);
-	            get_data_nama_ssh(tahun);
-				jQuery("#usulan_ssh_table_wrapper div:first").addClass("h-100 align-items-center");
-				let html_filter = ""
-				+"<ul id='toolbar_ssh_usulan'>"
-					+"<li>"
-						+"<select name='filter_action' class='ml-3 bulk-action' id='multi_select_action'>"
-							+"<option value='0'>Tindakan Massal</option>"
-							+"<option value='approve'>Setuju</option>"
-							+"<option value='notapprove'>Tolak</option>"
-							+"<option value='delete'>Hapus</option>"
-						+"</select>"
-						+"<button style='margin-left: 10px;' type='submit' class='ml-1 btn btn-secondary' onclick='action_check_data_usulan_ssh()'>Terapkan</button>"
-					+"</li>"
-					+"<li>"
-						+"<select name='filter_status' class='ml-3 bulk-action' id='search_filter_action' onchange='action_filter_data_usulan_ssh()'>"
-							+"<option value=''>Pilih Status</option>"
-							+"<option value='diterima'>Diterima</option>"
-							+"<option value='ditolak'>Ditolak</option>"
-							+"<option value='diterima_admin'>Diterima Admin</option>"
-							+"<option value='ditolak_admin'>Ditolak Admin</option>"
-							+"<option value='diterima_tapdkeu'>Diterima TAPD Keuangan</option>"
-							+"<option value='ditolak_tapdkeu'>Ditolak TAPD Keuangan</option>"
-							+"<option value='menunggu'>Menunggu</option>"
-							+"<option value='sudah_upload_sipd'>Sudah upload SIPD</option>"
-							+"<option value='belum_upload_sipd'>Belum upload SIPD</option>"
-						+"</select>"
-					+"</li>"
-					+"<li>"
-						+"<select name='filter_opd' class='ml-3 bulk-action' id='search_filter_action_opd' style='margin-left: 10px;' onchange='action_filter_data_usulan_ssh()'>"
-						+"</select>"
-					+"</li>"
-					+"<li>"
-						+"<select name='filter_surat' class='ml-3 bulk-action' id='search_filter_surat' style='margin-left: 10px; width:200px;' onchange='action_filter_data_usulan_ssh()'>"
-							+"<option value=''>Pilih Surat</option>"
-						+"</select>"
-					+"</li>"
-				+"</ul>";
-				
-				jQuery(".h-100").after(html_filter);
-				jQuery("#multi_select_action").select2();
-				jQuery("#search_filter_action").select2();
-				jQuery('#search_filter_surat').html(html_surat_usulan);
-				jQuery("#search_filter_surat").select2();
-				jQuery("#search_filter_action_opd").html('<?php echo $list_skpd_options; ?>');
-			    jQuery("#search_filter_action_opd").select2();
+				get_data_ssh(tahun)
+				.then(function(){
+		            get_data_satuan_ssh(tahun);
+		            get_data_nama_ssh(tahun);
+					jQuery("#usulan_ssh_table_wrapper div:first").addClass("h-100 align-items-center");
+					let html_filter = ""
+					+"<ul id='toolbar_ssh_usulan'>"
+						+"<li>"
+							+"<select name='filter_action' class='ml-3 bulk-action' id='multi_select_action'>"
+								+"<option value='0'>Tindakan Massal</option>"
+								+"<option value='approve'>Setuju</option>"
+								+"<option value='notapprove'>Tolak</option>"
+								+"<option value='delete'>Hapus</option>"
+							+"</select>"
+							+"<button style='margin-left: 10px;' type='submit' class='ml-1 btn btn-secondary' onclick='action_check_data_usulan_ssh()'>Terapkan</button>"
+						+"</li>"
+						+"<li>"
+							+"<select name='filter_status' class='ml-3 bulk-action' id='search_filter_action' onchange='action_filter_data_usulan_ssh()'>"
+								+"<option value=''>Pilih Status</option>"
+								+"<option value='diterima'>Diterima</option>"
+								+"<option value='ditolak'>Ditolak</option>"
+								+"<option value='diterima_admin'>Diterima Admin</option>"
+								+"<option value='ditolak_admin'>Ditolak Admin</option>"
+								+"<option value='diterima_tapdkeu'>Diterima TAPD Keuangan</option>"
+								+"<option value='ditolak_tapdkeu'>Ditolak TAPD Keuangan</option>"
+								+"<option value='menunggu'>Menunggu</option>"
+								+"<option value='sudah_upload_sipd'>Sudah upload SIPD</option>"
+								+"<option value='belum_upload_sipd'>Belum upload SIPD</option>"
+							+"</select>"
+						+"</li>"
+						+"<li>"
+							+"<select name='filter_opd' class='ml-3 bulk-action' id='search_filter_action_opd' style='margin-left: 10px;' onchange='action_filter_data_usulan_ssh()'>"
+							+"</select>"
+						+"</li>"
+						+"<li>"
+							+"<select name='filter_surat' class='ml-3 bulk-action' id='search_filter_surat' style='margin-left: 10px; width:200px;' onchange='action_filter_data_usulan_ssh()'>"
+								+"<option value=''>Pilih Surat</option>"
+							+"</select>"
+						+"</li>"
+						+"<li>"
+							+"<select name='filter_surat' class='ml-3 bulk-action' id='search_nota_dinas_filter_surat' style='margin-left: 10px; width:200px;' onchange='action_filter_data_usulan_ssh()'>"
+								+"<option value=''>Pilih Nota Dinas</option>"
+							+"</select>"
+						+"</li>"
+					+"</ul>";
+					
+					jQuery(".h-100").after(html_filter);
+					jQuery("#multi_select_action").select2();
+					jQuery("#search_filter_action").select2();
+					jQuery('#search_filter_surat').html(html_surat_usulan);
+					jQuery("#search_filter_surat").select2();
+					jQuery('#search_nota_dinas_filter_surat').html(html_surat_usulan_nota_dinas);
+					jQuery("#search_nota_dinas_filter_surat").select2();
+					jQuery("#search_filter_action_opd").html('<?php echo $list_skpd_options; ?>');
+				    jQuery("#search_filter_action_opd").select2();
+				});
 			});
 		});
 		let get_data = 1;
 		jQuery('#tambahSuratUsulan').on('hidden.bs.modal', function () {
+			jQuery("#tambahSuratUsulan input[name='ubah_id']").val("");
 			jQuery("#tambahSuratUsulan #surat_skpd").val("");
 			jQuery("#tambahSuratUsulan #nomor_surat").val(jQuery("#tambahSuratUsulan #nomor_surat").attr('value'));
 			jQuery("#tambahSuratUsulan #catatan_surat").val("");
@@ -818,6 +909,9 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
 	function get_data_ssh_surat(tahun){
 		return new Promise(function(resolve, reject){
 			window.suratUsulanSSHTable = jQuery('#surat_usulan_ssh_table')
+			.on('preXhr.dt', function ( e, settings, data ) {
+				jQuery("#wrap-loading").show();
+			})
 			.DataTable({
 				"processing": true,
         		"serverSide": true,
@@ -893,6 +987,72 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
 		        		html_surat_usulan += "<option value='"+b.nomor_surat+"'>"+b.nomor_surat+"</option>";
 		        	});
 		        	jQuery('#search_filter_surat').html(html_surat_usulan);
+					jQuery("#wrap-loading").hide();
+		        	resolve();
+		        }
+			});
+		});
+	}
+
+	function get_data_ssh_surat_nota_dinas(tahun){
+		return new Promise(function(resolve, reject){
+			window.suratNotaDinasUsulanSSHTable = jQuery('#surat_nota_dinas_usulan_ssh_table')
+			.on('preXhr.dt', function ( e, settings, data ) {
+				jQuery("#wrap-loading").show();
+			})
+			.DataTable({
+				"processing": true,
+        		"serverSide": true,
+		        "ajax": {
+					url: "<?php echo admin_url('admin-ajax.php'); ?>",
+					type:"post",
+					data:{
+						'action' : "get_data_usulan_ssh_surat_nota_dinas",
+						'api_key' : jQuery("#api_key").val(),
+						'tahun_anggaran' : tahun
+					}
+				},
+  				order: [[0, 'desc']],
+				"columns": [
+					{
+						"data": 'update_at',
+						"targets": 'no-sort',
+						"orderable": false,
+		            	className: "text-center"
+		            },
+					{
+						"data": 'nomor_surat',
+						"targets": 'no-sort',
+						"orderable": false,
+		            	className: "text-center"
+		            },
+					{
+						"data": 'jml_usulan',
+						"targets": 'no-sort',
+						"orderable": false,
+		            	className: "text-center"
+		            },
+					{
+						"data": 'catatan',
+						"targets": 'no-sort',
+						"orderable": false
+		            },
+					{
+						"data": 'aksi',
+						"targets": 'no-sort',
+						"orderable": false,
+		            	className: "text-center"
+		            }
+		        ],
+		        "drawCallback": function(settings){
+		        	var api = this.api();
+		        	// console.log('api', api.rows().data());
+		        	window.html_surat_usulan_nota_dinas = ""
+		        		+"<option value=''>Pilih Nota Dinas</option>";
+		        	api.rows().data().map(function(b, i){
+		        		html_surat_usulan_nota_dinas += "<option value='"+b.nomor_surat+"'>"+b.nomor_surat+"</option>";
+		        	});
+		        	jQuery('#search_nota_dinas_filter_surat').html(html_surat_usulan_nota_dinas);
 		        	resolve();
 		        }
 			});
@@ -1091,6 +1251,53 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
 		jQuery('#tambahUsulanSshModal').modal('show');
 		jQuery("#id_sub_skpd").select2({width:'100%'});
 		jQuery("#id_sub_skpd").val('').trigger('change');
+	}
+
+	function tambah_nota_dinas(tahun){
+		jQuery("#tambahNotaDinasModal .modal-title").html("Tambah Nota Dinas");
+		jQuery('#tbody_data_usulan_nota_dinas').closest('.row.form-group').hide();
+		jQuery('#nomor_surat_nota_dinas').val(jQuery('#nomor_surat_nota_dinas').attr('placeholder'));
+		jQuery('#catatan_surat_nota_dinas').val('');
+		jQuery('.submitBtn').prop("disabled", false);
+		jQuery('#tambahNotaDinasModal').modal('show');
+	}
+
+	function submitNotaDinas(tahun){
+		var nomor_surat = jQuery('#nomor_surat_nota_dinas').val();
+		if(nomor_surat == ''){
+			return alert('Nomor surat Nota Dinas tidak boleh kosong!');
+		}
+		var catatan = jQuery('#catatan_surat_nota_dinas').val();
+		if(catatan == ''){
+			return alert('Catatan Nota Dinas tidak boleh kosong!');
+		}
+		jQuery('#wrap-loading').show();
+		jQuery.ajax({
+			url: "<?php echo admin_url('admin-ajax.php'); ?>",
+			type:'post',
+			data: {
+				'action' : "submit_nota_dinas",
+				'api_key' : jQuery("#api_key").val(),
+				'tahun_anggaran' : tahun,
+				'nomor_surat': nomor_surat,
+				'catatan': catatan,
+				'ubah': jQuery("#tambahNotaDinasModal input[name='ubah_id']").val(),
+				'ids': jQuery("#tambahNotaDinasModal #ids_nota_dinas").val()
+			},
+			dataType: 'json',
+			beforeSend: function () {
+				jQuery('.submitBtn').attr("disabled","disabled");
+			},
+			success:function(response){
+				jQuery('.submitBtn').prop("disabled", false);
+				alert(response.message);
+				if(response.status == 'success'){
+					jQuery('#tambahNotaDinasModal').modal('hide');
+					suratNotaDinasUsulanSSHTable.ajax.reload();
+				}
+				jQuery("#wrap-loading").hide();
+			}
+		});
 	}
 
 	/** Menampilkan data SSH sesuai komponen */
@@ -2157,7 +2364,7 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
 		var acuanSsh = jQuery('#tambahSuratUsulan input:checkbox:checked').map(function() {
 		    return this.value;
 		}).get();
-		var ubah = jQuery("#tambahSuratUsulan #ubah").val();
+		var ubah = jQuery("#tambahSuratUsulan input[name='ubah_id']").val();
 		var lapiran_surat = jQuery('#u_surat_usulan_ssh')[0].files[0];
 		let tempData = new FormData();
 		tempData.append('action', 'simpan_surat_usulan_ssh');
@@ -2172,7 +2379,7 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
 		if(typeof lapiran_surat != 'undefined'){
 			tempData.append('lapiran_surat', lapiran_surat);
 		}
-		if(ubah=='ubah'){
+		if(ubah != ''){
 			tempData.append('ubah', ubah);
 			tempData.append('catatan_verifikator', catatan_verifikator);
 		}
@@ -2217,10 +2424,11 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
 		    success: function(res){
 				jQuery("#wrap-loading").hide();
 		    	if(res.status == 'success'){
-					jQuery("#tambahSuratUsulan #ubah").val('ubah');
-					jQuery("#tambahSuratUsulan #surat_skpd").val(idskpd);
-					jQuery("#tambahSuratUsulan #nomor_surat").val(nomor_surat);
-					jQuery("#tambahSuratUsulan #catatan_surat").val(tr.find('>td').eq(6).text());
+					jQuery("#tambahSuratUsulan input[name='ubah_id']").val(res.surat.id);
+					jQuery("#tambahSuratUsulan #surat_skpd").val(res.surat.idskpd);
+					jQuery("#tambahSuratUsulan #nomor_surat").val(res.surat.nomor_surat);
+					jQuery("#tambahSuratUsulan #catatan_surat").val(res.surat.catatan);
+					jQuery("#tambahSuratUsulan #catatan_verifikator").val(res.surat.catatan_verifikator);
 					jQuery("#tambahSuratUsulan #u_surat_usulan_ssh").val("").closest('.row').show();
 					var file = '';
 					if(res.surat.nama_file){
@@ -2228,12 +2436,16 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
 					}
 					jQuery("#tambahSuratUsulan #file_surat_usulan_ssh").html(file);
 
-					if(tr.find('.jenis_survey').length > 0){
+					if(res.surat.jenis_survey == 1){
 						jQuery("#jenis_survey").prop('checked', true);
+					}else{
+						jQuery("#jenis_survey").prop('checked', false);
 					}
 
-					if(tr.find('.jenis_juknis').length > 0){
+					if(res.surat.jenis_juknis == 2){
 						jQuery("#jenis_juknis").prop('checked', true);
+					}else{
+						jQuery("#jenis_juknis").prop('checked', false);
 					}
 					
 					var ids = [];
@@ -2250,12 +2462,11 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
 		                ids.push(data);
 			        });
 
+		        	var data = '';
+		        	var data_ids = [];
 			        if(ids.length == 0){
 			        	alert('Usulan standar harga dengan nomor surat '+nomor_surat+' tidak ditemukan');
 			        }else{
-			        	jQuery('#wrap-loading').show();
-			        	var data = '';
-			        	var data_ids = [];
 			        	ids.map(function(b, i){
 			        		data_ids.push(b.id);
 			        		data += ''
@@ -2268,29 +2479,94 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
 			        				+'<td>'+b.jenis+'</td>'
 			        			+'</tr>'
 			        	});
-			        	jQuery('#ids_surat_usulan').val(data_ids);
-			        	jQuery('#tbody_data_usulan').html(data);
-			        	jQuery('#tambahSuratUsulan').modal('show');
-		        	<?php 
-		        		if(
-							in_array("administrator", $user_meta->roles)
-							|| in_array("tapd_keu", $user_meta->roles)
-						){
-		        			echo "jQuery('#tambahSuratUsulan #catatan_verifikator').prop('disabled', false);";
-		        			echo "jQuery('#tambahSuratUsulan #catatan_surat').prop('disabled', true);";
-		        		}else{
-		        			echo "jQuery('#tambahSuratUsulan #catatan_verifikator').prop('disabled', true);";
-		        			echo "jQuery('#tambahSuratUsulan #catatan_surat').prop('disabled', false);";
-		        		}
-		        	?>
-			        	jQuery('#wrap-loading').hide();
 			        }
+		        	jQuery('#ids_surat_usulan').val(data_ids);
+		        	jQuery('#tbody_data_usulan').html(data);
+	        	<?php 
+	        		if(
+						in_array("administrator", $user_meta->roles)
+						|| in_array("tapd_keu", $user_meta->roles)
+					){
+	        			echo "jQuery('#tambahSuratUsulan #catatan_verifikator').prop('disabled', false);";
+	        			echo "jQuery('#tambahSuratUsulan #catatan_surat').prop('disabled', true);";
+	        		}else{
+	        			echo "jQuery('#tambahSuratUsulan #catatan_verifikator').prop('disabled', true);";
+	        			echo "jQuery('#tambahSuratUsulan #catatan_surat').prop('disabled', false);";
+	        		}
+	        	?>
+		        	jQuery('#tambahSuratUsulan').modal('show');
+		        	jQuery('#wrap-loading').hide();
 				}else{
 		    		alert(res.message);
 				}
 		    }
 		});
+	}
 
+	function edit_nota_dinas(that){
+		var tr = jQuery(that).parent().parent();
+		var id = jQuery(that).data('id');
+		var nomor_surat = jQuery(that).data('nomorsurat');
+		jQuery('#wrap-loading').show();
+		jQuery.ajax({
+			url: ajax.url,
+		    type: "post",
+		    data: {
+		        "action": "get_data_nota_dinas_by_id",
+		        "api_key": jQuery("#api_key").val(),
+		        "tahun_anggaran": tahun,
+		        "nomor_surat": nomor_surat,
+		        "id": id
+		  	},
+		    dataType: "json",
+		    success: function(res){
+				jQuery("#wrap-loading").hide();
+		    	if(res.status == 'success'){
+					jQuery("#tambahNotaDinasModal input[name='ubah_id']").val(res.nota_dinas.id);
+					jQuery("#tambahNotaDinasModal #nomor_surat").val(res.nota_dinas.nomor_surat);
+					jQuery("#tambahNotaDinasModal #catatan_surat_nota_dinas").val(res.nota_dinas.catatan);
+					jQuery("#tambahNotaDinasModal #tbody_data_usulan_nota_dinas").val("").closest('.row').show();
+					
+					var ids = [];
+					res.data.map(function(b, i){
+		            	var data = {
+		            		id: b.id,
+		            		kelompok: b.nama_kel_standar_harga,
+		            		komponen: b.nama_standar_harga,
+		            		spesifikasi: b.spek,
+		            		harga: b.harga,
+		            		rekening: '',
+		            		nomor_surat: b.nomor_surat,
+		            		jenis: b.status_jenis_usulan
+		            	}
+		                ids.push(data);
+			        });
+
+		        	var data = '';
+		        	var data_ids = [];
+		        	ids.map(function(b, i){
+		        		data_ids.push(b.id);
+		        		data += ''
+		        			+'<tr>'
+		        				+'<td>'+b.kelompok+'</td>'
+		        				+'<td>'+b.komponen+'</td>'
+		        				+'<td>'+b.spesifikasi+'</td>'
+		        				+'<td>'+b.harga+'</td>'
+		        				+'<td>'+b.rekening+'</td>'
+		        				+'<td>'+b.nomor_surat+'</td>'
+		        				+'<td>'+b.jenis+'</td>'
+		        			+'</tr>';
+		        	});
+		        	jQuery('.submitBtn').prop("disabled", false);
+		        	jQuery('#ids_nota_dinas').val(data_ids);
+		        	jQuery('#tbody_data_usulan_nota_dinas').html(data);
+		        	jQuery('#tambahNotaDinasModal').modal('show');
+			        jQuery('#wrap-loading').hide();
+				}else{
+		    		alert(res.message);
+				}
+		    }
+		});
 	}
 
 	function generateSuratUsulanSsh(that){

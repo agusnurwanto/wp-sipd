@@ -1162,20 +1162,70 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 
 		if(!empty($_POST)){
 			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
-				$data_ssh = $wpdb->get_results($wpdb->prepare("
-					SELECT 
-						*
-					FROM data_ssh_usulan 
-					WHERE no_surat_usulan=%s
-				", $_POST['nomor_surat']));
+				$tahun_anggaran = $_POST['tahun_anggaran'];
 				$data_surat = $wpdb->get_row($wpdb->prepare("
 					SELECT 
 						*
 					FROM data_surat_usulan_ssh 
 					WHERE id=%s
-				", $_POST['id']));
+				", $_POST['id']), ARRAY_A);
+				$data_ssh = $wpdb->get_results($wpdb->prepare("
+					SELECT 
+						*
+					FROM data_ssh_usulan 
+					WHERE no_surat_usulan=%s
+						AND tahun_anggaran=%d
+				", $data_surat['nomor_surat'], $tahun_anggaran), ARRAY_A);
+				foreach($data_ssh as $k => $ssh){
+					$data_ssh[$k]['rekening'] = $wpdb->get_results($wpdb->prepare("
+						SELECT 
+							*
+						FROM data_ssh_rek_belanja_usulan 
+						WHERE id_standar_harga=%d
+							AND tahun_anggaran=%d
+					", $ssh['id'], $tahun_anggaran), ARRAY_A);
+				}
 				$return['data'] = $data_ssh;
 				$return['surat'] = $data_surat;
+				$return['sql'] = $wpdb->last_query;
+			}else{
+				$return = array(
+					'status' => 'error',
+					'message'	=> 'Api Key tidak sesuai!'
+				);
+			}
+		}else{
+			$return = array(
+				'status' => 'error',
+				'message'	=> 'Format tidak sesuai!'
+			);
+		}
+		die(json_encode($return));
+	}
+
+	public function get_data_nota_dinas_by_id(){
+		global $wpdb;
+		$return = array(
+			'status' => 'success',
+			'data'	=> array()
+		);
+
+		if(!empty($_POST)){
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+				$data_surat = $wpdb->get_row($wpdb->prepare("
+					SELECT 
+						*
+					FROM data_nota_dinas_usulan_ssh 
+					WHERE id=%s
+				", $_POST['id']), ARRAY_A);
+				$data_ssh = $wpdb->get_results($wpdb->prepare("
+					SELECT 
+						*
+					FROM data_ssh_usulan 
+					WHERE no_nota_dinas=%s
+				", $data_surat['nomor_surat']), ARRAY_A);
+				$return['data'] = $data_ssh;
+				$return['nota_dinas'] = $data_surat;
 				$return['sql'] = $wpdb->last_query;
 			}else{
 				$return = array(
@@ -1335,7 +1385,142 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 							id
 						FROM data_ssh_usulan
 						WHERE no_surat_usulan=%s
-					", $val['nomor_surat']), ARRAY_A);
+							AND tahun_anggaran=%d
+					", $val['nomor_surat'], $tahun_anggaran), ARRAY_A);
+					$queryRecords[$k]['jml_usulan'] = count($ids_usulan);
+					$queryRecords[$k]['ids_usulan'] = $ids_usulan;
+					if(!empty($val['nama_file'])){
+						$queryRecords[$k]['nama_file'] = '<a href="'.WPSIPD_PLUGIN_URL.'/public/media/ssh/'.$val['nama_file'].'" target="_blank">'.$val['nama_file']."</a>";
+					}else{
+						$queryRecords[$k]['nama_file'] = '';
+					}
+					$queryRecords[$k]['catatan'] = $val['catatan'];
+					$queryRecords[$k]['catatan_verifikator'] = $val['catatan_verifikator'];
+
+					$queryRecords[$k]['acuan_ssh'] = '<ul style="margin-left: 15px;">';
+					if(!empty($val['jenis_survey']) && $val['jenis_survey'] == 1){
+						$queryRecords[$k]['acuan_ssh'] .= '<li class="jenis_survey" data-id="'.$val['jenis_survey'].'">Survey harga pasar</li>';
+					}
+					if(!empty($val['jenis_juknis']) && $val['jenis_juknis'] == 2){
+						$queryRecords[$k]['acuan_ssh'] .= '<li class="jenis_juknis" data-id="'.$val['jenis_juknis'].'">Petunjuk Teknis</li>';
+					}
+					$queryRecords[$k]['acuan_ssh'] .= '</ul>';
+				}
+
+				$json_data = array(
+					"draw" => intval( $params['draw'] ),   
+					"recordsTotal" => intval( $totalRecords ),  
+					"recordsFiltered" => intval($totalRecords),
+					"data" => $queryRecords,
+					"sql" => $sqlRec
+				);
+
+				die(json_encode($json_data));
+			}else{
+				$return = array(
+					'status' => 'error',
+					'message'	=> 'Api Key tidak sesuai!'
+				);
+			}
+		}else{
+			$return = array(
+				'status' => 'error',
+				'message'	=> 'Format tidak sesuai!'
+			);
+		}
+		die(json_encode($return));
+	}
+
+	public function get_data_usulan_ssh_surat_nota_dinas(){
+		global $wpdb;
+		$user_id = um_user( 'ID' );
+		$user_meta = get_userdata($user_id);
+
+		$return = array(
+			'status' => 'success',
+			'message' => 'Berhasil get data surat usulan!',
+			'data'	=> array()
+		);
+
+		if(!empty($_POST)){
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+				$params = $columns = $totalRecords = array();
+				$params = $_REQUEST;
+				$columns = array( 
+					0 => 'update_at',
+					1 => 'nomor_surat',
+					3 => 'catatan',
+					4 => 'tahun_anggaran',
+					5 => 'id'
+				);
+				$where = $sqlTot = $sqlRec = "";
+
+				$is_admin = true;
+				/** Jika admin tampilkan semua data */
+				if(
+					!in_array("administrator",$user_meta->roles) &&
+					!in_array("tapd_keu", $user_meta->roles)
+				){
+					$is_admin = false;
+					$this_user_meta = get_user_meta($user_id);
+					/** cari data user berdasarkan nama skpd */
+					if(
+						$this_user_meta['_id_sub_skpd'][0] != ''
+					){
+						$where .=" AND idskpd = '".$this_user_meta['_id_sub_skpd'][0]."' ";
+					}else{
+						$where .=" AND idskpd = '-' ";
+					}
+				}
+
+				$tahun_anggaran = $wpdb->prepare('%d', $params['tahun_anggaran']);
+				// getting total number records without any search
+				$sql_tot = "SELECT count(*) as jml FROM `data_nota_dinas_usulan_ssh`";
+				$sql = "
+					SELECT 
+						".implode(', ', $columns).", 
+						(
+							SELECT 
+								count(id) 
+							FROM data_ssh_usulan u 
+							WHERE u.no_nota_dinas=nomor_surat
+								AND u.tahun_anggaran=tahun_anggaran
+						) as jml_usulan 
+					FROM `data_nota_dinas_usulan_ssh`";
+				$columns[2] = 'jml_usulan';
+				$where_first = " WHERE active=1 AND tahun_anggaran=".$tahun_anggaran;
+				$sqlTot .= $sql_tot.$where_first;
+				$sqlRec .= $sql.$where_first;
+				if(isset($where) && $where != '') {
+					$sqlTot .= $where;
+					$sqlRec .= $where;
+				}
+
+			 	$sqlRec .=  " ORDER BY ". $columns[$params['order'][0]['column']]."   ".$params['order'][0]['dir']."  LIMIT ".$wpdb->prepare('%d', $params['start'])." ,".$wpdb->prepare('%d', $params['length'])." ";
+
+				$queryTot = $wpdb->get_results($sqlTot, ARRAY_A);
+				$totalRecords = $queryTot[0]['jml'];
+				$queryRecords = $wpdb->get_results($sqlRec, ARRAY_A);
+				foreach($queryRecords as $k => $val){
+					$nama_skpd = $wpdb->get_var($wpdb->prepare("
+						SELECT
+							nama_skpd
+						FROM data_unit
+						WHERE id_skpd=%d
+					", $val['idskpd']));
+					$queryRecords[$k]['nama_skpd'] = $nama_skpd;
+					$queryRecords[$k]['aksi'] = '
+						<a class="btn btn-sm btn-primary" onclick="filter_surat_usulan(\''.$val['nomor_surat'].'\'); return false;" href="#" title="Filter Nota Dinas"><i class="dashicons dashicons-search"></i></a>
+						<a class="btn btn-sm btn-warning" onclick="edit_nota_dinas(this); return false;" href="#" title="Edit Nota Dinas" data-id="'.$val['id'].'" data-nomorsurat="'.$val['nomor_surat'].'"><i class="dashicons dashicons-edit"></i></a>
+						<a class="btn btn-sm btn-danger" onclick="hapus_surat_usulan(this); return false;" href="#" title="Hapus Nota Dinas" data-id="'.$val['id'].'" data-nomorsurat="'.$val['nomor_surat'].'"><i class="dashicons dashicons-trash"></i></a>';
+
+					$ids_usulan = $wpdb->get_results($wpdb->prepare("
+						SELECT
+							id
+						FROM data_ssh_usulan
+						WHERE no_nota_dinas=%s
+							AND tahun_anggaran=%d
+					", $val['nomor_surat'], $tahun_anggaran), ARRAY_A);
 					$queryRecords[$k]['jml_usulan'] = count($ids_usulan);
 					$queryRecords[$k]['ids_usulan'] = $ids_usulan;
 					if(!empty($val['nama_file'])){
@@ -1397,7 +1582,7 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 			|| in_array("KPA", $user_meta->roles)
 			|| in_array("tapd_keu", $user_meta->roles)
 		){
-			require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/wpsipd-public-ssh-usulan.php';
+			require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/ssh/wpsipd-public-ssh-usulan.php';
 		}else{
 			echo 'User ini tidak dapat akses ke halaman ini :)';
 		}
@@ -1445,7 +1630,8 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 					24 => 'lampiran_1',
 					25 => 'lampiran_2',
 					26 => 'lampiran_3',
-					27 => 'id'
+					27 => 'no_nota_dinas',
+					28 => 'id'
 				);
 				$where = $sqlTot = $sqlRec = "";
 
@@ -1723,6 +1909,9 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 						<table style="margin: 0;">
 							<tr>
 								<td>No Surat: '.$recVal['no_surat_usulan'].'</td>
+							</tr>
+							<tr>
+								<td>Nota Dinas: '.$recVal['no_nota_dinas'].'</td>
 							</tr>
 							<tr>
 								<td>'.$recVal['kode_kel_standar_harga'].' '.$recVal['nama_kel_standar_harga'].'</td>
@@ -2992,6 +3181,118 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 		die(json_encode($return));
 	}
 
+	public function submit_nota_dinas(){
+		global $wpdb;
+		$return = array(
+			'status' => 'success',
+			'message'	=> 'Data berhasil disimpan!'
+		);
+
+		$user_id = um_user( 'ID' );
+		$user_meta = get_userdata($user_id);
+
+		$table_content = '';
+		if(!empty($_POST)){
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+				$tahun_anggaran	= $_POST['tahun_anggaran'];
+				if(
+					in_array("administrator", $user_meta->roles)
+					|| in_array("administrator", $user_meta->roles)
+				){
+					if(empty($_POST['nomor_surat'])){
+						$return['status'] = 'error';
+						$return['message'] = 'Nomor surat Nota Dinas tidak boleh kosong!';
+					}else if(empty($_POST['tahun_anggaran'])){
+						$return['status'] = 'error';
+						$return['message'] = 'Tahun anggaran tidak boleh kosong!';
+					}else if(empty($_POST['catatan'])){
+						$return['status'] = 'error';
+						$return['message'] = 'Catatan Nota Dinas tidak boleh kosong!';
+					}
+					$ids = array();
+					if(!empty($_POST['$ids'])){
+						$ids = $_POST['$ids'];
+					}
+
+					if($return['status'] == 'success'){
+						$nomor_surat = $_POST['nomor_surat'];
+						$tahun_anggaran = $_POST['tahun_anggaran'];
+						$catatan = $_POST['catatan'];
+						if(empty($_POST['ubah'])){
+							$cek_surat_id = $wpdb->get_var($wpdb->prepare("
+								SELECT
+									id
+								FROM data_nota_dinas_usulan_ssh
+								WHERE nomor_surat=%s
+									AND tahun_anggaran=%d
+									AND active=1
+							", $nomor_surat, $tahun_anggaran));
+							if(!empty($cek_surat_id)){
+								$return['status'] = 'error';
+								$return['message'] = 'Nomor Nota Dinas sudah digunakan!';
+							}
+						}else{
+							$cek_surat_id = $wpdb->get_var($wpdb->prepare("
+								SELECT
+									id
+								FROM data_nota_dinas_usulan_ssh
+								WHERE id=%d
+									AND tahun_anggaran=%d
+									AND active=1
+							", $_POST['ubah'], $tahun_anggaran));
+							if(empty($cek_surat_id)){
+								$return['status'] = 'error';
+								$return['message'] = 'Nota Dinas tidak ditemukan!';
+								$return['sql'] = $wpdb->last_query;
+							}
+						}
+					}
+					if($return['status'] == 'success'){
+						$user_id = um_user( 'ID' );
+						$data = array(
+							'nomor_surat' => $nomor_surat,
+							'catatan' => $catatan,
+							'active' => 1,
+							'update_at' => date("Y-m-d H:i:s"),
+							'tahun_anggaran' => $tahun_anggaran,
+							'created_user' => $user_meta->display_name
+						);
+						if(empty($cek_surat_id)){
+							$wpdb->insert('data_nota_dinas_usulan_ssh', $data);
+						}else{
+							$wpdb->update('data_nota_dinas_usulan_ssh', $data, array(
+								'id' => $cek_surat_id
+							));
+							foreach($ids as $id){
+								$wpdb->update('data_ssh_usulan', array(
+									'no_nota_dinas' => $nomor_surat
+								), array(
+									'id' => $id
+								));
+							}
+						}
+					}
+				}else{
+					$return = array(
+						'status' => 'error',
+						'message'	=> "User tidak diijinkan!",
+					);
+				}
+			}else{
+				$return = array(
+					'status' => 'error',
+					'message'	=> 'Api Key tidak sesuai!'
+				);
+			}
+		}else{
+			$return = array(
+				'status' => 'error',
+				'message'	=> 'Format tidak sesuai!'
+			);
+		}
+		die(json_encode($return));
+	}
+
 	public function submit_delete_usulan_ssh(){
 		global $wpdb;
 		$return = array(
@@ -3607,18 +3908,28 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 						){
 							$catatan_verifikator = $_POST['catatan_verifikator'];
 						}
+						$cek_surat = $wpdb->get_row($wpdb->prepare("
+							SELECT
+								id,
+								nama_file
+							FROM data_surat_usulan_ssh
+							WHERE id=%d
+								AND tahun_anggaran=%d
+								AND active=1
+						", $_POST['ubah'], $tahun_anggaran), ARRAY_A);
 					}else{
+						// id data usulan ssh hanya diset saat buat surat
 						$ids = explode(',', $_POST['ids']);
+						$cek_surat = $wpdb->get_row($wpdb->prepare("
+							SELECT
+								id,
+								nama_file
+							FROM data_surat_usulan_ssh
+							WHERE nomor_surat=%s
+								AND tahun_anggaran=%d
+								AND active=1
+						", $nomor_surat, $tahun_anggaran), ARRAY_A);
 					}
-					$cek_surat = $wpdb->get_row($wpdb->prepare("
-						SELECT
-							id,
-							nama_file
-						FROM data_surat_usulan_ssh
-						WHERE nomor_surat=%s
-							AND tahun_anggaran=%d
-							AND active=1
-					", $nomor_surat, $tahun_anggaran), ARRAY_A);
 					$cek_surat_id = $cek_surat['id'];
 
 					// jika surat id ditemukan dan bukan proses update
@@ -3686,16 +3997,16 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 					}
 					if(empty($cek_surat_id)){
 						$wpdb->insert('data_surat_usulan_ssh', $data);
-						foreach($ids as $id){
-							$wpdb->update('data_ssh_usulan', array(
-								'no_surat_usulan' => $nomor_surat
-							), array(
-								'id' => $id
-							));
-						}
 					}else{
 						$wpdb->update('data_surat_usulan_ssh', $data, array(
 							'id' => $cek_surat_id
+						));
+					}
+					foreach($ids as $id){
+						$wpdb->update('data_ssh_usulan', array(
+							'no_surat_usulan' => $nomor_surat
+						), array(
+							'id' => $id
 						));
 					}
 				}
