@@ -21,6 +21,15 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 			require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/ssh/wpsipd-public-monitor-satuan-harga.php';
 		}
 	}
+	
+	public function cetak_usulan_standar_harga($atts)
+	{
+		// untuk disable render shortcode di halaman edit page/post
+		if(!empty($_GET) && !empty($_GET['post'])){
+			return '';
+		}
+		require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/ssh/wpsipd-public-cetak-usulan-ssh.php';
+	}
 
 	public function laporan_per_item_ssh($atts)
 	{
@@ -1701,7 +1710,7 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 				}
 				
 				if(!empty($_POST['filter_opd'])){
-					$where .=" AND id_sub_skpd = ".$wpdb->prepare('%s', $_POST['filter_opd']);
+					$where .=" AND id_sub_skpd = ".$wpdb->prepare('%d', $_POST['filter_opd']);
 				}
 				
 				if(!empty($_POST['filter_surat'])){

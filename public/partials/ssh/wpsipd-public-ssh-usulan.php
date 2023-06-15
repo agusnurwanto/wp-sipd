@@ -9,6 +9,11 @@ $input = shortcode_atts( array(
 ), $atts );
 
 global $wpdb;
+
+$title = 'Cetak Usulan Standar Harga';
+$shortcode = '[cetak_usulan_standar_harga]';
+$url_cetak_usulan = $this->generatePage($title, false, $shortcode, false);
+
 $all_skpd = array();
 $list_skpd_options = '<option value="">Pilih Perangkat Daerah</option>';
 $nama_skpd = "";
@@ -177,7 +182,7 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
 			<h2 class="text-center">Daftar Nota Dinas</h2>
 		<?php if($is_admin == true): ?>
 			<div style="margin-bottom: 25px;">
-				<button class="btn btn-primary" onclick="tambah_nota_dinas(<?php echo $input['tahun_anggaran']; ?>);">Tambah Nota Dinas</button>
+				<button class="btn btn-primary" onclick="tambah_nota_dinas(<?php echo $input['tahun_anggaran']; ?>);"><i class="dashicons dashicons-plus"></i> Tambah Nota Dinas</button>
 			</div>
 		<?php endif; ?>
 			<table id="surat_nota_dinas_usulan_ssh_table" class="table table-bordered">
@@ -215,12 +220,13 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
 			</table>
 		</div>
 		<div>
-			<h2 class="text-center">Daftar Data Usulan</h2>
+			<h2 class="text-center">Daftar Usulan</h2>
 			<div style="margin-bottom: 25px;">
-				<button class="btn btn-primary tambah_ssh" disabled onclick="tambah_new_ssh(<?php echo $input['tahun_anggaran']; ?>);">Tambah Item SSH</button>
-				<button class="btn btn-primary tambah_new_ssh" disabled onclick="get_data_by_name_komponen_ssh('harga',<?php echo $input['tahun_anggaran']; ?>)">Tambah Harga SSH</button>
-				<button class="btn btn-primary tambah_new_ssh" disabled onclick="get_data_by_name_komponen_ssh('akun',<?php echo $input['tahun_anggaran']; ?>)">Tambah Akun SSH</button>
-				<button class="btn btn-warning" onclick="buat_surat_usulan(<?php echo $input['tahun_anggaran']; ?>)">Buat Surat Usulan</button>
+				<button class="btn btn-primary tambah_ssh" disabled onclick="tambah_new_ssh(<?php echo $input['tahun_anggaran']; ?>);"><i class="dashicons dashicons-plus"></i> Tambah Item SSH</button>
+				<button class="btn btn-primary tambah_new_ssh" disabled onclick="get_data_by_name_komponen_ssh('harga',<?php echo $input['tahun_anggaran']; ?>)"><i class="dashicons dashicons-plus"></i> Tambah Harga SSH</button>
+				<button class="btn btn-primary tambah_new_ssh" disabled onclick="get_data_by_name_komponen_ssh('akun',<?php echo $input['tahun_anggaran']; ?>)"><i class="dashicons dashicons-plus"></i> Tambah Akun SSH</button>
+				<button class="btn btn-warning" onclick="buat_surat_usulan(<?php echo $input['tahun_anggaran']; ?>)"><i class="dashicons dashicons-welcome-add-page"></i> Buat Surat Usulan</button>
+				<button class="btn btn-success" onclick="cetak_usulan()"><i class="dashicons dashicons-edit"></i> Cetak/Print Laporan</button>
 			</div>
 			<table id="usulan_ssh_table" class="table table-bordered" style="font-size:90%">
 				<thead id="data_header">
@@ -2778,5 +2784,17 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
 	        scrollTop: jQuery("#usulan_ssh_table").offset().top
 	    }, 1000);
 		return false;
+	}
+
+	function cetak_usulan(){
+		var status = jQuery('#search_filter_action').val();
+		if(status == ''){
+			return alert('Filter status usulan harus dipilih!');
+		}
+		var id_skpd = jQuery('#search_filter_action_opd').val();
+		var no_surat = jQuery('#search_filter_surat').val();
+		var nota_dinas = jQuery('#search_nota_dinas_filter_surat').val();
+		var url = '<?php echo $url_cetak_usulan; ?>'+'&tahun='+tahun+'&status='+status+'&id_skpd='+id_skpd+'&no_surat='+no_surat+'&nota_dinas='+nota_dinas;
+		window.open(url, '_blank').focus();
 	}
 </script> 
