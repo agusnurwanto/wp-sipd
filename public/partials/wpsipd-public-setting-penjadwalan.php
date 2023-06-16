@@ -481,6 +481,26 @@ $body = '';
 		}
 	}
 
+	function copy_penetapan(){
+		if(confirm('Apakah anda yakin untuk melakukan ini? data usulan akan diupdate sama dengan data penetapan.')){
+			jQuery('#wrap-loading').show();
+			jQuery.ajax({
+				url: ajax.url,
+	          	type: "post",
+	          	data: {
+	          		"action": "copy_penetapan_renja",
+	          		"api_key": jQuery("#api_key").val(),
+					"tahun_anggaran": tahun_anggaran
+	          	},
+	          	dataType: "json",
+	          	success: function(res){
+	          		alert(res.message);
+	          		jQuery('#wrap-loading').hide();
+	          	}
+	        });
+		}
+	}
+
 	function copy_data_renstra(id_jadwal){
 		if(confirm('Apakah anda yakin untuk melakukan ini? data RENJA akan diisi sesuai data RENSTRA tahun berjalan!.')){
 			jQuery('#wrap-loading').show();

@@ -116,9 +116,9 @@ if(!empty($jadwal_lokal)){
         $now = new DateTime(date('Y-m-d H:i:s'));
 
         if($now >= $awal && $now <= $akhir){
-            if($is_admin){
-                $add_renja .='<a style="margin-left: 10px;" onclick="copy_usulan_all(); return false;" href="#" class="btn btn-danger">Copy Data Usulan ke Penetapan</a>';
-            }
+
+            $add_renja .='<a style="margin-left: 10px;" onclick="copy_usulan_all(); return false;" href="#" class="btn btn-danger">Copy Data Usulan ke Penetapan</a>';
+
             $add_renja .= '<a style="margin-left: 10px;" id="tambah-data" onclick="return false;" href="#" class="btn btn-success">Tambah Data RENJA</a>';
             if(!empty($jadwal_lokal[0]['relasi_perencanaan'])){
                 $add_renja .= '<a style="margin-left: 10px;" id="copy-data-renstra-skpd" data-jadwal="'.$idJadwalRenja.'" data-skpd="'.$input['id_skpd'].'" onclick="return false;" href="#" class="btn btn-danger">Copy Data Renstra per SKPD</a>';
@@ -140,8 +140,11 @@ if(!empty($jadwal_lokal)){
         $now = new DateTime(date('Y-m-d H:i:s'));
         
         if($now >= $awal && $now <= $akhir){
+            /** copy data usulan ke penetapan hanya di admin, copy data penetapan ke usulan hanya di user */
             if($is_admin){
                 $add_renja .='<a style="margin-left: 10px;" onclick="copy_usulan_all(); return false;" href="#" class="btn btn-danger">Copy Data Usulan ke Penetapan</a>';
+            }else{
+                $add_renja .='<a style="margin-left: 10px;" onclick="copy_penetapan_all(); return false;" href="#" class="btn btn-danger">Copy Data Penetapan ke Usulan</a>';
             }
             $add_renja .= '<a style="margin-left: 10px;" id="tambah-data" onclick="return false;" href="#" class="btn btn-success">Tambah Data RENJA</a>';
             if(!empty($jadwal_lokal[0]['relasi_perencanaan'])){
@@ -1019,6 +1022,14 @@ echo '
 							<div class="col-md-12 text-center">
 								<button id="button_copy_renja" onclick="copy_usulan(this); return false;" type="button" class="btn btn-danger" style="margin-top: 20px;">
 									<i class="dashicons dashicons-arrow-right-alt" style="margin-top: 2px;"></i> Copy Data Usulan ke Penetapan
+								</button>
+							</div>
+                        </div>
+					<?php else: ?>
+						<div class="row">
+							<div class="col-md-12 text-center">
+								<button id="button_copy_renja" onclick="copy_penetapan(this); return false;" type="button" class="btn btn-danger" style="margin-top: 20px;">
+									<i class="dashicons dashicons-arrow-right-alt" style="margin-top: 2px;"></i> Copy Data Penetapan ke Usulan
 								</button>
 							</div>
                         </div>
@@ -2703,6 +2714,14 @@ echo '
 								+'</button>'
 							+'</div>'
 						+'</div>'
+					<?php else: ?>
+						+'<div class="row">'
+							+'<div class="col-md-12 text-center">'
+								+'<button onclick="copy_penetapan(this); return false;" type="button" class="btn btn-danger" style="margin-top: 20px;">'
+									+'<i class="dashicons dashicons-arrow-right-alt" style="margin-top: 2px;"></i> Copy Data Penetapan ke Usulan'
+								+'</button>'
+							+'</div>'
+						+'</div>'
 					<?php endif; ?>
                 +'</form>';
 
@@ -3057,7 +3076,15 @@ echo '
     								+'</button>'
     							+'</div>'
     						+'</div>'
-    					<?php endif; ?>
+                        <?php else: ?>
+                            +'<div class="row">'
+                                +'<div class="col-md-12 text-center">'
+                                    +'<button onclick="copy_penetapan(this); return false;" type="button" class="btn btn-danger" style="margin-top: 20px;">'
+                                        +'<i class="dashicons dashicons-arrow-right-alt" style="margin-top: 2px;"></i> Copy Data Penetapan ke Usulan'
+                                    +'</button>'
+                                +'</div>'
+                            +'</div>'
+                        <?php endif; ?>
                     +'</form>';
 
                     jQuery('#modal-indikator-renja').find('.modal-title').html('Indikator Kegiatan');
@@ -3510,6 +3537,69 @@ echo '
         modal.find('textarea[name="input_catatan"]').val(usulan);
 	}
 
+    function copy_penetapan(that){
+		var modal = jQuery(that).closest('.modal-dialog');
+        //program
+        var total_prog = modal.find('#indikator_program tr:last-child').attr('data-id');
+        total_prog = total_prog+1;
+        for (let step = 1; step < total_prog; step++) {
+            var penetapan = modal.find('textarea[name="indikator_program_penetapan['+step+']"]').val();
+            modal.find('textarea[name="indikator_program_usulan['+step+']"]').val(penetapan);
+            var penetapan = modal.find('input[name="target_indikator_program_penetapan['+step+']"]').val();
+            modal.find('input[name="target_indikator_program_usulan['+step+']"]').val(penetapan);
+            var penetapan = modal.find('input[name="satuan_indikator_program_penetapan['+step+']"]').val();
+            modal.find('input[name="satuan_indikator_program_usulan['+step+']"]').val(penetapan);
+            var penetapan = modal.find('textarea[name="catatan_program_penetapan['+step+']"]').val();
+            modal.find('textarea[name="catatan_program_usulan['+step+']"]').val(penetapan);
+        }
+        //kegiatan
+		var penetapan = modal.find('textarea[name="kelompok_sasaran_renja_penetapan"]').val();
+		modal.find('textarea[name="kelompok_sasaran_renja_usulan"]').val(penetapan);
+        var total_giat = modal.find('#indikator_kegiatan tr:last-child').attr('data-id');
+        total_giat = total_giat+1;
+        for (let step = 1; step < total_giat; step++) {
+            var penetapan = modal.find('textarea[name="indikator_kegiatan_penetapan['+step+']"]').val();
+            modal.find('textarea[name="indikator_kegiatan_usulan['+step+']"]').val(penetapan);
+            var penetapan = modal.find('input[name="target_indikator_kegiatan_penetapan['+step+']"]').val();
+            modal.find('input[name="target_indikator_kegiatan_usulan['+step+']"]').val(penetapan);
+            var penetapan = modal.find('input[name="satuan_indikator_kegiatan_penetapan['+step+']"]').val();
+            modal.find('input[name="satuan_indikator_kegiatan_usulan['+step+']"]').val(penetapan);
+            var penetapan = modal.find('textarea[name="catatan_indikator_kegiatan_penetapan['+step+']"]').val();
+            modal.find('textarea[name="catatan_indikator_kegiatan_usulan['+step+']"]').val(penetapan);
+        }
+        var total_hasil = modal.find('#indikator_kegiatan tr:last-child').attr('data-id');
+        total_hasil = total_hasil+1;
+        for (let step = 1; step < total_hasil; step++) {
+            var penetapan = modal.find('textarea[name="indikator_hasil_kegiatan_penetapan['+step+']"]').val();
+            modal.find('textarea[name="indikator_hasil_kegiatan_usulan['+step+']"]').val(penetapan);
+            var penetapan = modal.find('input[name="target_indikator_hasil_kegiatan_penetapan['+step+']"]').val();
+            modal.find('input[name="target_indikator_hasil_kegiatan_usulan['+step+']"]').val(penetapan);
+            var penetapan = modal.find('input[name="satuan_indikator_hasil_kegiatan_penetapan['+step+']"]').val();
+            modal.find('input[name="satuan_indikator_hasil_kegiatan_usulan['+step+']"]').val(penetapan);
+            var penetapan = modal.find('textarea[name="catatan_indikator_hasil_kegiatan_penetapan['+step+']"]').val();
+            modal.find('textarea[name="catatan_indikator_hasil_kegiatan_usulan['+step+']"]').val(penetapan);
+        }
+        //sub_kegiatan
+        var total_sumber = modal.find('#sumber_dana_usulan tr:last-child').attr('data-id');
+        total_sumber = total_sumber+1;
+        for (let step = 1; step < total_sumber; step++) {
+            var penetapan = modal.find('input[name="input_pagu_sumber_dana['+step+']"]').val();
+            modal.find('input[name="input_pagu_sumber_dana_usulan['+step+']"]').val(penetapan);
+        }
+        var total_sub_keg = modal.find('#pagu_ind_sub_keg_usulan tr:last-child').attr('data-id');
+        total_sub_keg = total_sub_keg+1;
+        for (let step = 1; step < total_sub_keg; step++) {
+            var penetapan = modal.find('input[name="input_target['+step+']"]').val();
+            modal.find('input[name="input_target_usulan['+step+']"]').val(penetapan);
+        }
+        var penetapan = modal.find('input[name="input_pagu_sub_keg"]').val();
+        modal.find('input[name="input_pagu_sub_keg_usulan"]').val(penetapan)
+        var penetapan = modal.find('input[name="input_pagu_sub_keg_1"]').val();
+        modal.find('input[name="input_pagu_sub_keg_1_usulan"]').val(penetapan)
+        var penetapan = modal.find('textarea[name="input_catatan"]').val();
+        modal.find('textarea[name="input_catatan_usulan"]').val(penetapan);
+	}
+
     function copy_usulan_all(){
 		if(confirm('Apakah anda yakin untuk melakukan ini? data penetapan akan diupdate sama dengan data usulan.')){
             let id_skpd = "<?php echo $input['id_skpd']; ?>";
@@ -3523,6 +3613,35 @@ echo '
                     dataType: "json",
                     data: {
                     "action": "copy_usulan_renja",
+                    "api_key": jQuery('#api_key').val(),
+                    "id_skpd": id_skpd,
+                    "tahun_anggaran": tahun_anggaran
+                    },
+                    success: function(res){
+                        jQuery('#wrap-loading').hide();
+                        alert(res.message);
+                        if(res.status == 'success'){
+                            refresh_page();
+                        }
+                    }
+                });
+            }
+		}
+	}
+
+    function copy_penetapan_all(){
+		if(confirm('Apakah anda yakin untuk melakukan ini? data usulan akan diupdate sama dengan data penetapan.')){
+            let id_skpd = "<?php echo $input['id_skpd']; ?>";
+            if(id_skpd == ''){
+                alert('Id SKPD Kosong')
+            }else{
+                jQuery('#wrap-loading').show();
+                jQuery.ajax({
+                    method: 'post',
+                    url: '<?php echo admin_url('admin-ajax.php'); ?>',
+                    dataType: "json",
+                    data: {
+                    "action": "copy_penetapan_renja",
                     "api_key": jQuery('#api_key').val(),
                     "id_skpd": id_skpd,
                     "tahun_anggaran": tahun_anggaran
