@@ -67,7 +67,7 @@ $body = '';
 		<div style="margin-bottom: 25px;" class="text-center">
 			<h4 class="btn btn-warning">Total Pembiayaan Pengeluaran: Rp <span id="total_pengeluaran">000.000.000</span></h4>
 			<br>
-			<button class="btn btn-primary tambah_pendapatan" onclick="tambah_pendapatan();"><i class="dashicons dashicons-plus" style="margin: 3px;"></i> Tambah Data</button>
+			<button class="btn btn-primary tambah_pengeluaran" onclick="tambah_pengeluaran();"><i class="dashicons dashicons-plus" style="margin: 3px;"></i> Tambah Data</button>
 		</div>
 		<table id="data_pengeluaran_table" cellpadding="2" cellspacing="0" style="font-family:\'Open Sans\',-apple-system,BlinkMacSystemFont,\'Segoe UI\',sans-serif; border-collapse: collapse; width:100%; overflow-wrap: break-word;" class="table table-bordered">
 			<thead id="data_header">
