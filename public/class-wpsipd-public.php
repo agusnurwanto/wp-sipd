@@ -12853,6 +12853,9 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 									|| $tipe_perencanaan == 'renja'
 								){
 									$delete	.= '<a class="btn btn-sm btn-danger mr-2" style="text-decoration: none;" onclick="copy_usulan(); return false;" href="#" title="Copy Data Usulan ke Penetapan">Copy Data Usulan</a>';
+									if($tipe_perencanaan == 'renja'){
+										$delete	.= '<a class="btn btn-sm btn-danger mr-2" style="text-decoration: none;" onclick="copy_penetapan(); return false;" href="#" title="Copy Data Penetapan ke Usulan">Copy Data Penetapan</a>';
+									}
 									if($tipe_perencanaan == 'renja' && !empty($recVal['relasi_perencanaan'])){
 										$delete	.= '<a class="btn btn-sm btn-danger" style="text-decoration: none;" onclick="copy_data_renstra(\''.$recVal['id_jadwal_lokal'].'\'); return false;" href="#" title="Copy Data RENSTRA ke RENJA">Copy Data RENSTRA</a>';
 									}
