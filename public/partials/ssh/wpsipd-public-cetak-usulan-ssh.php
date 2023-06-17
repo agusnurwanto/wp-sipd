@@ -12,8 +12,15 @@ if(empty($_GET['tahun'])){
 }
 
 $where = '';
-
 $tahun_anggaran = $wpdb->prepare('%d', $_GET['tahun']);
+$tipe_laporan = 1; 
+/*
+	1 = Laporan upload SIPD
+	2 = Laporan format WP-SIPD
+*/
+if(!empty($_GET['tipe_laporan'])){
+	$tipe_laporan = $_GET['tipe_laporan'];
+}
 
 $status = $_GET['status'];
 if($status == 'diterima'){
@@ -61,16 +68,24 @@ $body_html = "";
 
 if(empty($ssh)){
 	echo "<span style='display: none'>$wpdb->last_query</span>";
-	$body_html .= "
-	<tr>
-		<td colspan='9' class='text-center'>Data tidak ditemukan!</td>
-	</tr>
-	";
+	if($tipe_laporan == 1){
+		$body_html .= "
+		<tr>
+			<td colspan='17' class='text-center'>Data tidak ditemukan!</td>
+		</tr>
+		";
+	}else{
+		$body_html .= "
+		<tr>
+			<td colspan='9' class='text-center'>Data tidak ditemukan!</td>
+		</tr>
+		";
+	}
 }
 
 foreach($ssh as $k => $val){
 	$no = $k+1;
-	$akun_belanja = "<ul style='margin-bottom: 0; margin-left: 20px;'>";
+	$akun_belanja = "";
 	$akun_db = $wpdb->get_results("
 		SELECT
 			kode_akun,
@@ -78,23 +93,45 @@ foreach($ssh as $k => $val){
 		FROM data_ssh_rek_belanja_usulan
 		WHERE id_standar_harga=$val[id]
 	", ARRAY_A);
-	foreach($akun_db as $kk => $akun){
-		$akun_belanja .= "<li>$akun[nama_akun]</li>";
+	if($tipe_laporan == 1){
+		for($i=0; $i<10; $i++){
+			if(!empty($akun_db[$i])){
+				$akun_belanja .= "<td>".$akun_db[$i]['kode_akun']."</td>";
+			}else{
+				$akun_belanja .= "<td></td>";
+			}
+		}
+		$body_html .= "
+		<tr>
+			<td>$val[kode_kel_standar_harga]</td>
+			<td>$val[nama_standar_harga]</td>
+			<td>$val[spek]</td>
+			<td>$val[satuan]</td>
+			<td>$val[harga]</td>
+			$akun_belanja
+			<td>$val[kelompok]</td>
+			<td>$val[tkdn]</td>
+		</tr>
+		";
+	}else{
+		foreach($akun_db as $kk => $akun){
+			$akun_belanja .= "<li>$akun[nama_akun]</li>";
+		}
+		$akun_belanja .="</ul>";
+		$body_html .= "
+		<tr>
+			<td>$no</td>
+			<td>$val[kode_kel_standar_harga]</td>
+			<td>$val[nama_kel_standar_harga]</td>
+			<td>$val[nama_standar_harga]</td>
+			<td>$val[spek]</td>
+			<td>$val[satuan]</td>
+			<td>$val[harga]</td>
+			<td>$akun_belanja</td>
+			<td>$val[keterangan_lampiran]</td>
+		</tr>
+		";
 	}
-	$akun_belanja .="</ul>";
-	$body_html .= "
-	<tr>
-		<td>$no</td>
-		<td>$val[kode_kel_standar_harga]</td>
-		<td>$val[nama_kel_standar_harga]</td>
-		<td>$val[nama_standar_harga]</td>
-		<td>$val[spek]</td>
-		<td>$val[satuan]</td>
-		<td>$val[harga]</td>
-		<td>$akun_belanja</td>
-		<td>$val[keterangan_lampiran]</td>
-	</tr>
-	";
 }
 ?>
 <style type="text/css">
@@ -121,9 +158,32 @@ foreach($ssh as $k => $val){
 </style>
 <div id="cetak">
 	<div style="padding: 10px;">
+	<?php if($tipe_laporan == 2): ?>
 		<h1 class="text-center">Daftar Usulan Standar Harga</h1>
+	<?php endif; ?>
 		<table id="surat_usulan_ssh_table" class="table table-bordered">
 			<thead>
+			<?php if($tipe_laporan == 1): ?>
+				<tr>
+					<th class="text-center">Kode</th>
+					<th class="text-center">Uraian</th>
+					<th class="text-center">Spek</th>
+					<th class="text-center">Satuan</th>
+					<th class="text-center">Harga</th>
+					<th class="text-center">Rekening 1</th>
+					<th class="text-center">Rekening 2</th>
+					<th class="text-center">Rekening 3</th>
+					<th class="text-center">Rekening 4</th>
+					<th class="text-center">Rekening 5</th>
+					<th class="text-center">Rekening 6</th>
+					<th class="text-center">Rekening 7</th>
+					<th class="text-center">Rekening 8</th>
+					<th class="text-center">Rekening 9</th>
+					<th class="text-center">Rekening 10</th>
+					<th class="text-center">Kelompok</th>
+					<th class="text-center">Nilai TKDN</th>
+				</tr>
+			<?php else: ?>
 				<tr>
 					<th class="text-center">NO</th>
 					<th class="text-center">KODE KELOMPOK BARANG</th>
@@ -146,6 +206,7 @@ foreach($ssh as $k => $val){
 					<th class="text-center">8</th>
 					<th class="text-center">9</th>
 				</tr>
+			<?php endif; ?>
 			</thead>
 			<tbody>
 				<?php echo $body_html; ?>
