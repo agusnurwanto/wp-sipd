@@ -18123,4 +18123,9 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		}
 		die(json_encode($ret));
 	}
+
+	function cekKode($kata) {
+    	$pola = '/^[0-9.]+$/';
+		return preg_match($pola, $kata);
+	}
 }

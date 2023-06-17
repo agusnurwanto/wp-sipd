@@ -1551,10 +1551,14 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 						WHERE id_skpd=%d
 					", $val['idskpd']));
 					$queryRecords[$k]['nama_skpd'] = $nama_skpd;
-					$queryRecords[$k]['aksi'] = '
-						<a class="btn btn-sm btn-primary" onclick="filter_nota_dinas(\''.$val['nomor_surat'].'\'); return false;" href="#" title="Filter Nota Dinas"><i class="dashicons dashicons-search"></i></a>
+					$aksi = '
+						<a class="btn btn-sm btn-primary" onclick="filter_nota_dinas(\''.$val['nomor_surat'].'\'); return false;" href="#" title="Filter Nota Dinas"><i class="dashicons dashicons-search"></i></a>';
+					if(in_array("administrator", $user_meta->roles)){
+						$aksi .= '
 						<a class="btn btn-sm btn-warning" onclick="edit_nota_dinas(this); return false;" href="#" title="Edit Nota Dinas" data-id="'.$val['id'].'" data-nomorsurat="'.$val['nomor_surat'].'"><i class="dashicons dashicons-edit"></i></a>
 						<a class="btn btn-sm btn-danger" onclick="hapus_nota_dinas(this); return false;" href="#" title="Hapus Nota Dinas" data-id="'.$val['id'].'" data-nomorsurat="'.$val['nomor_surat'].'"><i class="dashicons dashicons-trash"></i></a>';
+					}
+					$queryRecords[$k]['aksi'] = $aksi;
 
 					$ids_usulan = $wpdb->get_results($wpdb->prepare("
 						SELECT
@@ -2052,20 +2056,27 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 					$tahun_anggaran = $_POST['tahun_anggaran'];
 					$where = '';
 					if(!empty($_POST['search'])){
-						$where = $wpdb->prepare('
-							AND (
-								kode_kategori LIKE %s
-								OR uraian_kategori LIKE %s
-							)
-						', $_POST['search'], '%'.$_POST['search'].'%');
+						if($this->cekKode($_POST['search'])){
+							$where = $wpdb->prepare('
+								AND kode_kategori LIKE %s
+							', $_POST['search']);
+						}else{
+							$where = $wpdb->prepare('
+								AND uraian_kategori LIKE %s
+							', '%'.$_POST['search'].'%');
+						}
 					}
 
 					$data_kategori = $wpdb->get_results($wpdb->prepare("
 						SELECT 
-							* 
+							id_kategori,
+							tipe_kelompok,
+							kode_kategori,
+							uraian_kategori 
 						FROM data_kelompok_satuan_harga 
 						WHERE active=1
 							AND tahun_anggaran = %d
+							AND tipe_kelompok is not null
 							$where
 						LIMIT %d, 20",
 						$tahun_anggaran,
@@ -2109,7 +2120,13 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 		if(!empty($_POST)){
 			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
 					$tahun_anggaran = $_POST['tahun_anggaran'];
-					$data_satuan = $wpdb->get_results($wpdb->prepare('SELECT id_satuan,nama_satuan FROM data_satuan WHERE tahun_anggaran = %s',$tahun_anggaran), ARRAY_A);
+					$data_satuan = $wpdb->get_results($wpdb->prepare('
+						SELECT 
+							id_satuan,
+							nama_satuan 
+						FROM data_satuan 
+						WHERE tahun_anggaran = %s
+					',$tahun_anggaran), ARRAY_A);
 			    	$no = 0;
 			    	foreach ($data_satuan as $key => $value) {
 			    		$no++;
@@ -2194,13 +2211,15 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 						$where .= ' AND id_akun NOT IN ('.implode(',', $filter).')';
 					}
 					if(!empty($_POST['search'])){
-						$_POST['search'] = '%'.$_POST['search'].'%';
-						$where .= $wpdb->prepare('
-							AND (
-								kode_akun LIKE %s
-								OR nama_akun LIKE %s
-							)
-						', $_POST['search'], $_POST['search']);
+						if($this->cekKode($_POST['search'])){
+							$where .= $wpdb->prepare('
+								AND kode_akun LIKE %s
+							', $_POST['search']);
+						}else{
+							$where .= $wpdb->prepare('
+								AND nama_akun LIKE %s
+							', '%'.$_POST['search'].'%');
+						}
 					}
 
 					$data_akun = $wpdb->get_results($wpdb->prepare("
