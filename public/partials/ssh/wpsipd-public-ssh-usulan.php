@@ -1569,7 +1569,11 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
 			if(check){
 				jQuery(".add-desc-verify-ssh").hide();
 				jQuery(".catatan-verify-ssh").hide();
-				jQuery(".add-nota-dinas-verify-ssh").show();
+			<?php 
+				if(in_array("administrator", $user_meta->roles)){
+					echo 'jQuery(".add-nota-dinas-verify-ssh").show();';
+				}
+			?>
 			}
 		});
 

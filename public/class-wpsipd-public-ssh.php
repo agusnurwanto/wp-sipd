@@ -3868,6 +3868,18 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 
 		if(!empty($_POST)){
 			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+				$where = '';
+				if(!empty($_POST['tipe'])){
+					if($_POST['tipe'] == 'SSH'){
+						$where .= ' AND kelompok=1';
+					}else if($_POST['tipe'] == 'HSPK'){
+						$where .= ' AND kelompok=2';
+					}else if($_POST['tipe'] == 'ASB'){
+						$where .= ' AND kelompok=3';
+					}else if($_POST['tipe'] == 'SBU'){
+						$where .= ' AND kelompok=4';
+					}
+				}
 				$data = $wpdb->get_results($wpdb->prepare("
 					SELECT 
 						s.*
@@ -3878,6 +3890,7 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 							s.status_upload_sipd is null
 							OR s.status_upload_sipd=0
 						)
+						$where
 					",
 					$_POST['tahun_anggaran']
 				), ARRAY_A);
@@ -3923,7 +3936,7 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 					$wpdb->update('data_ssh_usulan', array(
 						'status_upload_sipd' => 1
 					), array(
-						'id_standar_harga' => $id_standar_harga,
+						'id' => $id_standar_harga,
 						'tahun_anggaran' => $_POST['tahun_anggaran']
 					));
 				}
