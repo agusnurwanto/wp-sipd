@@ -623,6 +623,7 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 		global $wpdb;
 		$return = array(
 			'status' => 'success',
+			'message' => 'Data verifikasi berhasil disimpan!',
 			'data'	=> array()
 		);
 
@@ -640,7 +641,7 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 						if(($_POST['verify_ssh'] == 0) && empty($_POST['reason_verify_ssh'])){
 							$return = array(
 								'status' => 'error',
-								'message'	=> 'Harap diisi semua, tidak boleh ada yang kosong!'
+								'message'	=> 'Alasan ditolak tidak boleh kosong!'
 							);
 
 							die(json_encode($return));
@@ -1901,12 +1902,12 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 					if($recVal['status_by_admin'] == 'approved'){
 						$status_verif_admin .= '
 							<tr>
-								<td style="border-color:white; padding:0;" class="text-center"><span class="btn btn-sm btn-success">Disetujui</span></td>
+								<td style="border-color:white; padding:0;" class="text-center"><i class="dashicons dashicons-yes bg-success text-white"></i></td>
 							</tr>';
 					}else if($recVal['status_by_admin'] == 'rejected'){
 						$status_verif_admin .= '
 							<tr>
-								<td style="border-color:white; padding:0;" class="text-center"><span class="btn btn-sm btn-danger">Ditolak</span></td>
+								<td style="border-color:white; padding:0;" class="text-center"><i class="dashicons dashicons-no bg-danger text-white"></i></td>
 							</tr>
 							<tr>
 								<td style="border-color:white; padding:0;">Alasan: '.$riwayat_admin.'</td>
@@ -1931,12 +1932,12 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 					if($recVal['status_by_tapdkeu'] == 'approved'){
 						$status_verif_tapdkeu .= '
 							<tr>
-								<td style="border-color:white; padding:0;" class="text-center"><span class="btn btn-sm btn-success>Disetujui</span></td>
+								<td style="border-color:white; padding:0;" class="text-center"><i class="dashicons dashicons-yes bg-success text-white"></i></td>
 							</tr>';
 					}else if($recVal['status_by_tapdkeu'] == 'rejected'){
 						$status_verif_tapdkeu .= 
 							'<tr>
-								<td style="border-color:white; padding:0;" class="text-center"><span class="btn btn-sm btn-danger">Ditolak</span></td>
+								<td style="border-color:white; padding:0;" class="text-center"><i class="dashicons dashicons-no bg-danger text-white"></i></td>
 							</tr>
 							<tr>
 								<td style="border-color:white; padding:0;">Alasan: '.$riwayat_tapdkeu.'</td>
@@ -2009,7 +2010,7 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 					$queryRecords[$recKey]['show_kode_komponen'] = $kode_komponen;
 					$queryRecords[$recKey]['spek_satuan'] = $spek_satuan;
 					$queryRecords[$recKey]['verify_admin'] = $status_verif_admin;
-					$queryRecords[$recKey]['varify_tapdkeu'] = $status_verif_tapdkeu;
+					$queryRecords[$recKey]['verify_tapdkeu'] = $status_verif_tapdkeu;
 					$queryRecords[$recKey]['show_status'] = $show_status;
 					$queryRecords[$recKey]['show_keterangan'] = '<table style="margin: 0;">'.$created_at.$created_user.$keterangan_status.$keterangan_lampiran.'</table>';
 					$queryRecords[$recKey]['show_keterangan'] = $queryRecords[$recKey]['show_keterangan'] == '' ? '-' : $queryRecords[$recKey]['show_keterangan'];
@@ -3888,7 +3889,7 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 						where r.id_standar_harga=%d
 							and r.tahun_anggaran=%d
 						",
-						$v['id_standar_harga'],
+						$v['id'],
 						$_POST['tahun_anggaran']
 					), ARRAY_A);
 				}

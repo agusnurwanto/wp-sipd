@@ -880,8 +880,8 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
 						"orderable": false
 		            },
 		            { 
-		            	"data": "varify_tapdkeu",
-		            	className: "text-left varify_tapdkeu",
+		            	"data": "verify_tapdkeu",
+		            	className: "text-left verify_tapdkeu",
 						"targets": "no-sort",
 						"orderable": false
 		            },
@@ -1546,7 +1546,7 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
 				+"<tr class='add-desc-verify-ssh' style='display:none;'>"
 					+"<td colspan='2'><label for='alasan_verify_ssh' style='display:inline-block;'>Alasan</label><textarea id='alasan_verify_ssh'></textarea></td>"
 				+"</tr>"
-				+"<tr class='add-nota-dinas-verify-ssh'>"
+				+"<tr class='add-nota-dinas-verify-ssh' style='display:none;'>"
 					+"<td colspan='2'>"
 						+"<label for='pilih-nota-dinas' style='display:inline-block;'>Nota Dinas</label>"
 						+"<select id='pilih-nota-dinas' class='form-control'>"
@@ -1605,8 +1605,9 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
 					jQuery('.btn_submit_verify_ssh').attr("disabled","disabled");
 				},
 				success:function(response){
+					jQuery("#wrap-loading").hide();
 					if(response.status == 'success'){
-						alert('Data berhasil diverifikasi.');
+						alert(response.message);
 						jQuery('#tambahUsulanSsh').modal('hide')
 						suratNotaDinasUsulanSSHTable.ajax.reload(function(){
 							usulanSSHTable.ajax.reload();
@@ -1615,7 +1616,6 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
 						alert("GAGAL! "+response.message);
 					}
 					jQuery('.submitBtn').removeAttr("disabled");
-					jQuery("#wrap-loading").hide();
 				}
 			});
 		}
@@ -2291,11 +2291,23 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
 			    		let user='';
 			    		let catatan='';
 			    		if(res.role==='administrator'){
-			    			user = 'Tapd Keuangan';
-			    			catatan = res.data.keterangan_status_tapdkeu!=null ? res.data.keterangan_status_tapdkeu : '';
+			    			user = 'Verifikator 2';
+			    			if(res.data.keterangan_status_tapdkeu != null){
+			    				catatan += '<ol>';
+			    				res.data.keterangan_status_tapdkeu.split(' | ').map(function(b, i){
+			    					catatan += '<li>'+b+'</li>';
+			    				});
+			    				catatan += '</ol>';
+			    			}
 			    		}else if(res.role==='tapd_keu'){
-			    			user = 'Administrator';
-			    			catatan = res.data.keterangan_status_admin!=null ? res.data.keterangan_status_admin : '';
+			    			user = 'Verifikator 1';
+			    			if(res.data.keterangan_status_admin != null){
+			    				catatan += '<ol>';
+			    				res.data.keterangan_status_admin.split(' | ').map(function(b, i){
+			    					catatan += '<li>'+b+'</li>';
+			    				});
+			    				catatan += '</ol>';
+			    			}
 			    		}
 			    		let html=""
 			    			+"<tr class='catatan-verify-ssh' style='display:none'>"
@@ -2306,8 +2318,8 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
 			    		jQuery(".add-desc-verify-ssh").after(html);
 			    		jQuery("#pilih-nota-dinas").val(res.data.no_nota_dinas);
 			    	<?php
-			    		if(!in_array("administrator", $user_meta->roles)){
-			    			echo 'jQuery(".add-nota-dinas-verify-ssh").hide();';
+			    		if(in_array("administrator", $user_meta->roles)){
+			    			echo 'jQuery(".add-nota-dinas-verify-ssh").show();';
 			    		}
 			    	?>
 			    	}
