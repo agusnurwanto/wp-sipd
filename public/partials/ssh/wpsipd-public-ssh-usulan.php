@@ -180,7 +180,7 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
 		<h1 class="text-center">Usulan Standar Harga<?php echo $nama_skpd; ?><br>Tahun Anggaran <?php echo $input['tahun_anggaran']; ?></h1>
 		<div>
 			<h2 class="text-center">Daftar Nota Dinas</h2>
-		<?php if($is_admin == true): ?>
+		<?php if(in_array("administrator", $user_meta->roles)): ?>
 			<div style="margin-bottom: 25px;">
 				<button class="btn btn-primary" onclick="tambah_nota_dinas(<?php echo $input['tahun_anggaran']; ?>);"><i class="dashicons dashicons-plus"></i> Tambah Nota Dinas</button>
 			</div>
@@ -1267,6 +1267,8 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
 		jQuery('#nomor_surat_nota_dinas').val(jQuery('#nomor_surat_nota_dinas').attr('placeholder'));
 		jQuery('#catatan_surat_nota_dinas').val('');
 		jQuery('.submitBtn').prop("disabled", false);
+		jQuery("#tambahNotaDinasModal input[name='ubah_id']").val('');
+		jQuery("#tambahNotaDinasModal #ids_nota_dinas").val('');
 		jQuery('#tambahNotaDinasModal').modal('show');
 	}
 
