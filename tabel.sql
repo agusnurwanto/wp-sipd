@@ -443,6 +443,7 @@ CREATE TABLE `data_prog_keg` (
   `mulai_tahun` int(11) DEFAULT NULL,
   `set_kab_kota` int(11) DEFAULT NULL,
   `set_prov` int(11) DEFAULT NULL,
+  `active` enum ('0', '1') DEFAULT '1' COMMENT '0=hapus, 1=aktif',
   `update_at` datetime DEFAULT NULL,
   `tahun_anggaran` year(4) NOT NULL DEFAULT '2021',
   PRIMARY KEY  (id)

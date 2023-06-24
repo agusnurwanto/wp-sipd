@@ -2638,9 +2638,18 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
 				if (!empty($_POST['subgiat'])) {
 					if(!empty($_POST['type']) && $_POST['type'] == 'ri'){
-						$sub_giat = json_decode(stripslashes(html_entity_decode($_POST['subgiat'])), true);						
+						$sub_giat = json_decode(stripslashes(html_entity_decode($_POST['subgiat'])), true);
 					}else{
 						$sub_giat = $_POST['subgiat'];
+					}
+					if(!empty($_POST['page']) && $_POST['page'] == 1){
+						$wpdb->update('data_master_indikator_subgiat', array('active' => 0), array(
+							'tahun_anggaran' => $_POST['tahun_anggaran']
+						));
+					}else if(empty($_POST['page'])){
+						$wpdb->update('data_master_indikator_subgiat', array('active' => 0), array(
+							'tahun_anggaran' => $_POST['tahun_anggaran']
+						));
 					}
 					foreach ($sub_giat as $k => $v) {
 						// nama program kegiatan disertakan dengan kodenya agar sesuai dengan format sebelumnya
@@ -2690,6 +2699,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 							'mulai_tahun' => $v['mulai_tahun'],
 							'set_kab_kota' => $v['set_kab_kota'],
 							'set_prov' => $v['set_prov'],
+							'active' => 1,
 							'update_at' => current_time('mysql'),
 							'tahun_anggaran' => $_POST['tahun_anggaran']
 						);
@@ -2713,7 +2723,6 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 									AND tahun_anggaran=%d
 							", trim($v['indikator']), $v['id_sub_giat'], $_POST['tahun_anggaran']));
 							$opsi = array(
-								// 'id_skpd' => null,
 								'id_sub_keg' => $v['id_sub_giat'],
 								'indikator' => trim($v['indikator']),
 								'satuan' => trim($v['satuan']),

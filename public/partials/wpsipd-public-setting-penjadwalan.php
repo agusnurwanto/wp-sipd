@@ -284,16 +284,14 @@ $body = '';
 					jQuery('.submitBtn').attr('disabled','disabled')
 				},
 				success: function(response){
-					jQuery('#modalTambahJadwal').modal('hide')
 					jQuery('#wrap-loading').hide()
+					alert(response.message);
 					if(response.status == 'success'){
-						alert('Data berhasil ditambahkan')
-						penjadwalanTable.ajax.reload()
-					}else{
-						alert(response.message)
+						jQuery('#modalTambahJadwal').modal('hide');
+						jQuery('#jadwal_nama').val('');
+						jQuery("#link_renstra").val('');
+						penjadwalanTable.ajax.reload();
 					}
-					jQuery('#jadwal_nama').val('')
-					jQuery("#link_renstra").val('')
 				}
 			})
 		}
