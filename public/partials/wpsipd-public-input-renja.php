@@ -625,7 +625,11 @@ foreach ($data_all['data'] as $sub_skpd) {
 
                         $tombol_aksi = '<a href="'.$url_rka_lokal.'" target="_blank"><button class="btn-sm btn-info" style="margin: 1px;" title="Detail Renja"><i class="dashicons dashicons-search"></i></button></a>';
                         if(!empty($add_renja)){
-                            $tombol_aksi .= '<button class="btn-sm btn-warning" style="margin: 1px;" onclick="edit_renja(\''.$kode_sbl.'\');" title="Edit Renja"><i class="dashicons dashicons-edit"></i></button>';
+                            if($sub_giat['data']['status_sub_keg'] != 1){
+                                $tombol_aksi .= '<button class="btn-sm btn-warning" style="margin: 1px;" onclick="edit_renja_pemutakhiran(\''.$kode_sbl.'\');" title="Edit Renja"><i class="dashicons dashicons-edit"></i></button>';
+                            }else{
+                                $tombol_aksi .= '<button class="btn-sm btn-warning" style="margin: 1px;" onclick="edit_renja(\''.$kode_sbl.'\');" title="Edit Renja"><i class="dashicons dashicons-edit"></i></button>';
+                            }
                             $tombol_aksi .= '<button class="btn-sm btn-danger" style="margin: 1px;" onclick="delete_renja(\''.$kode_sbl.'\');" title="Hapus Renja"><i class="dashicons dashicons-trash"></i></button>';
                         }
                         $tombol_aksi .= '<button class="btn-sm btn-primary" style="margin: 1px;" onclick="detail_renja(\''.$kode_sbl.'\');" title="Detail Renja"><i class="dashicons dashicons-ellipsis"></i></button>';
@@ -642,18 +646,18 @@ foreach ($data_all['data'] as $sub_skpd) {
                         }
                         $body .= '
                             <tr tipe="sub-kegiatan" kode="'.$kode_sbl.'">
-                                <td class="kiri kanan bawah">'.$kd_urusan.'</td>
-                                <td class="kanan bawah">'.$kd_bidang.'</td>
-                                <td class="kanan bawah">'.$kd_program.'</td>
-                                <td class="kanan bawah">'.$kd_giat.'</td>
-                                <td class="kanan bawah">'.$kd_sub_giat.'</td>
+                                <td class="kiri kanan bawah '.$warning_pemutakhiran.'">'.$kd_urusan.'</td>
+                                <td class="kanan bawah '.$warning_pemutakhiran.'">'.$kd_bidang.'</td>
+                                <td class="kanan bawah '.$warning_pemutakhiran.'">'.$kd_program.'</td>
+                                <td class="kanan bawah '.$warning_pemutakhiran.'">'.$kd_giat.'</td>
+                                <td class="kanan bawah '.$warning_pemutakhiran.'">'.$kd_sub_giat.'</td>
                                 <td class="kanan bawah '.$warning_pemutakhiran.'">'.$sub_giat['nama'].'</td>
                                 <td class="kanan bawah">'.$capaian_prog.'</td>
-                                <td class="kanan bawah">'.$output_sub_giat.'</td>
+                                <td class="kanan bawah '.$warning_pemutakhiran.'">'.$output_sub_giat.'</td>
                                 <td class="kanan bawah">'.$output_giat.'</td>
                                 <td class="kanan bawah">'.$lokasi_sub_giat.'</td>
                                 <td class="kanan bawah">'.$target_capaian_prog.'</td>
-                                <td class="kanan bawah">'.$target_output_sub_giat.'</td>
+                                <td class="kanan bawah '.$warning_pemutakhiran.'">'.$target_output_sub_giat.'</td>
                                 <td class="kanan bawah">'.$target_output_giat.'</td>
                                 <td class="kanan bawah text_kanan"><span class="nilai_penetapan">'.number_format($sub_giat['total'],0,",",".").'</span><span class="nilai_usulan">'.number_format($sub_giat['total_usulan'],0,",",".").'</span></td>
                                 <td class="kanan bawah">'.$dana_sub_giat.'</td>
@@ -816,7 +820,7 @@ echo '
     }
 </style>
 <div class="modal fade mt-4" id="modalTambahRenja" role="dialog" aria-labelledby="modalTambahRenjaLabel" aria-hidden="true">
-	<div class="modal-dialog modal-xl" role="document">
+	<div class="modal-dialog" style="min-width: 90vw;" role="document">
 		<div class="modal-content">
 			<div class="modal-header">
 				<h5 class="modal-title" id="modalTambahRenjaLabel">Tambah Sub Kegiatan</h5>
@@ -1261,6 +1265,9 @@ echo '
         jQuery('#pagu_sub_kegiatan_1_usulan').prop('disabled', false);
         jQuery('#pagu_sub_kegiatan_1').prop('disabled', false);
 
+        // hapus html pemutakhiran
+        jQuery('#wrap-pemutakhiran').remove();
+
         jQuery('#catatan_usulan').prop('disabled', false);
         jQuery('#catatan').prop('disabled', false);
         jQuery('select[name="input_bulan_awal_usulan"]').prop('disabled', false);
@@ -1646,6 +1653,72 @@ echo '
         });
     }
 
+    function tambahSubKegBaru(){
+        return new Promise(function(resolve, reject){
+            var id = +jQuery('#wrap-pemutakhiran > tbody tr').last().attr('data-id');
+            var newId = id+1;
+            var trNewUsulan = jQuery('#wrap-pemutakhiran > tbody tr').last().html();
+            trNewUsulan = ''
+                +'<tr data-id="'+newId+'">'
+                    +'<td style="overflow: auto;">'
+                        +'<div class="form-group input_sub_unit_baru">'
+                            +'<label for="input_sub_unit_baru_'+newId+'">Sub Unit Baru</label>'
+                            +'<select id="input_sub_unit_baru_'+newId+'" name="input_sub_unit_baru['+newId+']" onchange="get_sub_keg(this, \'sub_kegiatan_baru_'+newId+'\')">'
+                                +dataSubUnit.table_content
+                            +'</select>'
+                        +'</div>'
+                        +'<div class="form-group">'
+                            +'<label for="sub_kegiatan_baru_'+newId+'">Sub Kegiatan Baru</label>'
+                            +'<select id="sub_kegiatan_baru_'+newId+'" name="input_sub_kegiatan_baru['+newId+']" onchange="get_indikator_sub_keg(this, \''+newId+'\')">'
+                            +'</select>'
+                        +'</div>'
+                        +'<div class="form-group">'
+                            +'<label>Indikator Sub Kegiatan</label>'
+                            +'<table class="table table-bordered">'
+                                +'<tr>'
+                                    +'<td>'
+                                        +'<select class="form-control" name="input_indikator_sub_keg_baru['+newId+']">'
+                                            +'<option value="">Nama Indikator</option>'
+                                        +'</select>'
+                                    +'</td>'
+                                    +'<td style="width: 150px;">'
+                                        +'<input class="form-control" type="number" name="input_target_baru['+newId+']" placeholder="Target Indikator"/>'
+                                    +'</td>'
+                                    +'<td style="width: 200px;">'
+                                        +'<select class="form-control" name="input_satuan_baru['+newId+']">'
+                                            +'<option value="">Satuan</option>'
+                                        +'</select>'
+                                    +'</td>'
+                                +'</tr>'
+                            +'</table>'
+                        +'</div>'
+                    +'</td>'
+                    +'<td style="width: 65px;" class="text-center">'
+                        +'<button class="btn btn-warning btn-sm" onclick="hapusSubKegBaru(this); return false;"><i class="dashicons dashicons-plus"></i></button>'
+                    +'</td>'
+                +'</tr>';
+            var tbody = jQuery('#wrap-pemutakhiran > tbody');
+            tbody.append(trNewUsulan);
+            jQuery('#wrap-pemutakhiran > tbody tr[data-id="'+newId+'"] select').select2({width: '100%'});
+            var tr = tbody.find('>tr');
+            var length = tr.length-1;
+            tr.map(function(i, b){
+                if(i == 0){
+                    var html = '<button class="btn btn-warning btn-sm" onclick="tambahSubKegBaru(); return false;"><i class="dashicons dashicons-plus"></i></button>';
+                }else{
+                    var html = '<button class="btn btn-danger btn-sm" onclick="hapusSubKegBaru(this); return false;"><i class="dashicons dashicons-trash"></i></button>';
+                }
+                jQuery(b).find('>td').last().html(html);
+            });
+            resolve();
+        });
+    }
+
+    function hapusSubKegBaru(that){
+        var id = jQuery(that).closest('tr').attr('data-id');
+        jQuery('#wrap-pemutakhiran > tbody').find('tr[data-id="'+id+'"]').remove();
+    }
+
     function hapusSumberDana(that){
         var id = jQuery(that).closest('tr').attr('data-id');
         jQuery('.input_sumber_dana_usulan > tbody').find('tr[data-id="'+id+'"]').remove();
@@ -1771,7 +1844,7 @@ echo '
         });
 	}
 
-    function get_sub_keg(that){
+    function get_sub_keg(that, target='sub_kegiatan'){
 		let kode_sub_unit = jQuery(that).val();
         if(kode_sub_unit == ''){
             return;
@@ -1809,13 +1882,13 @@ echo '
                 });
             })
 
-            jQuery("#sub_kegiatan").html(option);
-            jQuery("#sub_kegiatan").select2({width: '100%'});
+            jQuery("#"+target).html(option);
+            jQuery("#"+target).select2({width: '100%'});
             jQuery("#wrap-loading").hide();
         })
     }
 
-    function get_indikator_sub_keg(that){
+    function get_indikator_sub_keg(that, target=false){
 		let id_sub_keg = jQuery(that).val();
         if(id_sub_keg == '' || typeof id_sub_keg == 'undefined'){
             return;
@@ -1846,19 +1919,24 @@ echo '
             }
         })
         .then(function(data){
-            let option='<option value="">Pilih Nama Indikator</option>';
+            let option='';
             data.map(function(value, index){
                 option+='<option value="'+value.id_sub_keg+'">'+value.indikator+'</option>';
             })
 
-            let optionSatuan='<option value="">Pilih Satuan</option>';
+            let optionSatuan='';
             data.map(function(value, index){
                 optionSatuan+='<option value="'+value.id_sub_keg+'">'+value.satuan+'</option>';
             })
 
-            jQuery(".pagu_indi_sub_keg").html(option);
-            jQuery(".pagu_indi_sub_keg").select2({width: '100%'});
-            jQuery(".satuan_pagu_indi_sub_keg").html(optionSatuan);
+            if(target){
+                jQuery('select[name="input_indikator_sub_keg_baru['+target+']"]').html(option);
+                jQuery('select[name="input_satuan_baru['+target+']"]').html(optionSatuan);
+            }else{
+                jQuery(".pagu_indi_sub_keg").html(option);
+                jQuery(".pagu_indi_sub_keg").select2({width: '100%'});
+                jQuery(".satuan_pagu_indi_sub_keg").html(optionSatuan);
+            }
             jQuery("#wrap-loading").hide();
         });
     }
@@ -2141,7 +2219,7 @@ echo '
         }
     }
 
-    function edit_renja(kode_sbl){
+    function edit_renja(kode_sbl, pemutakhiran=0){
         get_data_sub_unit(id_skpd)
         .then(function(){
             get_data_prioritas_prov()
@@ -2166,6 +2244,10 @@ echo '
                                         'tahun_anggaran': tahun_anggaran
                                     },
                                     success: function(response){
+                                        if(response.status == 'error'){
+                                            jQuery('#wrap-loading').hide();
+                                            return alert(response.message);
+                                        }
                                         jQuery('#pagu_sub_kegiatan_usulan').val(response.data.pagu_usulan);
                                         jQuery('#pagu_sub_kegiatan_1_usulan').val(response.data.pagu_n_depan_usulan);
                                         jQuery('#pagu_sub_kegiatan').val(response.data.pagu);
@@ -2322,11 +2404,19 @@ echo '
                                         jQuery('#label_tag').val(id_label_tag).trigger('change'); 
                                         /** -- end -- */
 
-                                        jQuery("#modalTambahRenja .modal-title").html("Edit Sub Kegiatan");
-                                        jQuery("#modalTambahRenja .submitBtn")
-                                            .attr("onclick", `submitEditRenjaForm('${kode_sbl}')`)
-                                            .attr("disabled", false)
-                                            .text("Simpan");
+                                        if(pemutakhiran == 1){
+                                            jQuery("#modalTambahRenja .modal-title").html("Edit Sub Kegiatan Pemutakhiran");
+                                            jQuery("#modalTambahRenja .submitBtn")
+                                                .attr("onclick", `submitEditRenjaPemutakhiranForm('${kode_sbl}')`)
+                                                .attr("disabled", false)
+                                                .text("Simpan");
+                                        }else{
+                                            jQuery("#modalTambahRenja .modal-title").html("Edit Sub Kegiatan");
+                                            jQuery("#modalTambahRenja .submitBtn")
+                                                .attr("onclick", `submitEditRenjaForm('${kode_sbl}')`)
+                                                .attr("disabled", false)
+                                                .text("Simpan");
+                                        }
                                         jQuery('#modalTambahRenja').modal('show');
                                         jQuery('#wrap-loading').hide();
                                     }
@@ -2336,6 +2426,58 @@ echo '
                     });
                 });
             });
+        });
+    }
+
+    function edit_renja_pemutakhiran(kode_sbl){
+        get_data_sub_unit(id_skpd)
+        .then(function(){
+            var html = ''
+                +'<table id="wrap-pemutakhiran" class="table table-bordered">'
+                    +'<tbody>'
+                        +'<tr data-id="1">'
+                            +'<td style="overflow: auto;">'
+                                +'<div class="form-group input_sub_unit_baru">'
+                                    +'<label for="input_sub_unit_baru_1">Sub Unit Baru</label>'
+                                    +'<select id="input_sub_unit_baru_1" name="input_sub_unit_baru[1]" onchange="get_sub_keg(this, \'sub_kegiatan_baru_1\')"></select>'
+                                +'</div>'
+                                +'<div class="form-group">'
+                                    +'<label for="sub_kegiatan_baru_1">Sub Kegiatan Baru</label>'
+                                    +'<select id="sub_kegiatan_baru_1" name="input_sub_kegiatan_baru[1]" onchange="get_indikator_sub_keg(this, \'1\')">'
+                                    +'</select>'
+                                +'</div>'
+                                +'<div class="form-group">'
+                                    +'<label>Indikator Sub Kegiatan</label>'
+                                    +'<table class="table table-bordered">'
+                                        +'<tr>'
+                                            +'<td>'
+                                                +'<select class="form-control" name="input_indikator_sub_keg_baru[1]">'
+                                                    +'<option value="">Indikator</option>'
+                                                +'</select>'
+                                            +'</td>'
+                                            +'<td style="width: 150px;">'
+                                                +'<input class="form-control" type="number" name="input_target_baru[1]" placeholder="Target Indikator"/>'
+                                            +'</td>'
+                                            +'<td style="width: 200px;">'
+                                                +'<select class="form-control" name="input_satuan_baru[1]">'
+                                                    +'<option value="">Satuan</option>'
+                                                +'</select>'
+                                            +'</td>'
+                                        +'</tr>'
+                                    +'</table>'
+                                +'</div>'
+                            +'</td>'
+                            +'<td style="width: 65px;" class="text-center">'
+                                +'<button class="btn btn-warning btn-sm" onclick="tambahSubKegBaru(); return false;"><i class="dashicons dashicons-plus"></i></button>'
+                            +'</td>'
+                        +'</tr>'
+                    +'</tbody>'
+                +'</table>';
+            jQuery('#sub_kegiatan').closest('.form-group').after(html);
+            jQuery("#input_sub_unit_baru_1").html(dataSubUnit.table_content);
+            jQuery('#input_sub_unit_baru_1').select2({width: '100%'});
+            jQuery('#sub_kegiatan_baru_1').select2({width: '100%'});
+            edit_renja(kode_sbl, 1);
         });
     }
 
@@ -2566,6 +2708,34 @@ echo '
                     'api_key': jQuery('#api_key').val(),
                     'data': JSON.stringify(form),
                     'kode_sbl': kode_sbl,
+                    'tahun_anggaran': tahun_anggaran
+                },
+                success: function(response){
+                    jQuery('#wrap-loading').hide();
+                    alert(response.message);
+                    if(response.status == 'success'){
+                        jQuery('#modalTambahRenja').modal('hide');
+                        refresh_page();
+                    }
+                }
+            })
+        }
+    }
+
+    function submitEditRenjaPemutakhiranForm(kode_sbl){
+        if(confirm('Apakah anda yakin untuk mengubah data ini?')){
+            jQuery('#wrap-loading').show();
+            let form = getFormData(jQuery("#form-renja"));
+            jQuery.ajax({
+                method: 'post',
+                url: '<?php echo admin_url('admin-ajax.php'); ?>',
+                dataType: 'json',
+                data: {
+                    'action': 'submit_edit_renja_pemutakhiran',
+                    'api_key': jQuery('#api_key').val(),
+                    'data': JSON.stringify(form),
+                    'kode_sbl': kode_sbl,
+                    'pemutakhiran': 1,
                     'tahun_anggaran': tahun_anggaran
                 },
                 success: function(response){
