@@ -2643,11 +2643,11 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						$sub_giat = $_POST['subgiat'];
 					}
 					if(!empty($_POST['page']) && $_POST['page'] == 1){
-						$wpdb->update('data_master_indikator_subgiat', array('active' => 0), array(
+						$wpdb->update('data_prog_keg', array('active' => 0), array(
 							'tahun_anggaran' => $_POST['tahun_anggaran']
 						));
 					}else if(empty($_POST['page'])){
-						$wpdb->update('data_master_indikator_subgiat', array('active' => 0), array(
+						$wpdb->update('data_prog_keg', array('active' => 0), array(
 							'tahun_anggaran' => $_POST['tahun_anggaran']
 						));
 					}
