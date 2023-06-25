@@ -2798,7 +2798,12 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		if (!empty($_POST)) {
 			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
 				if (!empty($_POST['rpjmd'])) {
-					$data_rpjmd = $_POST['rpjmd'];
+					//$data_rpjmd = $_POST['rpjmd'];
+					if(!empty($_POST['type']) && $_POST['type'] == 'ri'){
+						$data_rpjmd = json_decode(stripslashes(html_entity_decode($_POST['rpjmd'])), true);
+					}else{
+						$data_rpjmd = $_POST['rpjmd'];
+					}
 					foreach ($data_rpjmd as $k => $v) {
 						$cek = $wpdb->get_var("SELECT id_rpjmd from data_rpjmd where tahun_anggaran=".$_POST['tahun_anggaran']." AND id_rpjmd=" . $v['id_rpjmd']);
 						$opsi = array(
@@ -2845,7 +2850,12 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 				}
 
 				if (!empty($_POST['visi'])) {
-					$visi = $_POST['visi'];
+					// $visi = $_POST['visi'];
+					if(!empty($_POST['type']) && $_POST['type'] == 'ri'){
+						$visi = json_decode(stripslashes(html_entity_decode($_POST['visi'])), true);
+					}else{
+						$visi = $_POST['visi'];
+					}
 					$wpdb->update('data_rpjmd_visi', array('active' => 0), array(
 						'tahun_anggaran' => $_POST['tahun_anggaran']
 					));
@@ -2859,6 +2869,10 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 							'is_locked' => $v['is_locked'],
 							'status' => $v['status'],
 							'visi_teks' => $v['visi_teks'],
+							'id_unik' => $v['id_unik'],
+							'id_tahap' => $v['id_tahap'],
+							'tahun_awal' => $v['tahun_awal'],
+							'tahun_akhir' => $v['tahun_akhir'],
 							'active' => 1,
 							'update_at' => current_time('mysql'),
 							'tahun_anggaran' => $_POST['tahun_anggaran']
@@ -2876,7 +2890,12 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 				}
 				
 				if (!empty($_POST['misi'])) {
-					$misi = $_POST['misi'];
+					// $misi = $_POST['misi'];
+					if(!empty($_POST['type']) && $_POST['type'] == 'ri'){
+						$misi = json_decode(stripslashes(html_entity_decode($_POST['misi'])), true);
+					}else{
+						$misi = $_POST['misi'];
+					}
 					$wpdb->update('data_rpjmd_misi', array('active' => 0), array(
 						'tahun_anggaran' => $_POST['tahun_anggaran']
 					));
@@ -2895,6 +2914,10 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 							'urut_misi' => $v['urut_misi'],
 							'visi_lock' => $v['visi_lock'],
 							'visi_teks' => $v['visi_teks'],
+							'id_unik' => $v['id_unik'],
+							'id_tahap' => $v['id_tahap'],
+							'tahun_awal' => $v['tahun_awal'],
+							'tahun_akhir' => $v['tahun_akhir'],
 							'active' => 1,
 							'update_at' => current_time('mysql'),
 							'tahun_anggaran' => $_POST['tahun_anggaran']
@@ -2912,7 +2935,12 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 				}
 
 				if (!empty($_POST['tujuan'])) {
-					$tujuan = $_POST['tujuan'];
+					// $tujuan = $_POST['tujuan'];
+					if(!empty($_POST['type']) && $_POST['type'] == 'ri'){
+						$tujuan = json_decode(stripslashes(html_entity_decode($_POST['tujuan'])), true);
+					}else{
+						$tujuan = $_POST['tujuan'];
+					}
 					$wpdb->update('data_rpjmd_tujuan', array('active' => 0), array(
 						'tahun_anggaran' => $_POST['tahun_anggaran']
 					));
@@ -2946,6 +2974,9 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
                             'urut_misi' => $v['urut_misi'],
                             'urut_tujuan' => $v['urut_tujuan'],
                             'visi_teks' => $v['visi_teks'],
+							'id_tahap' => $v['id_tahap'],
+							'tahun_awal' => $v['tahun_awal'],
+							'tahun_akhir' => $v['tahun_akhir'],
 							'active' => 1,
 							'update_at' => current_time('mysql'),
 							'tahun_anggaran' => $_POST['tahun_anggaran']
@@ -2963,7 +2994,12 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 					}
 				}
 				if (!empty($_POST['sasaran'])) {
-					$sasaran = $_POST['sasaran'];
+					// $sasaran = $_POST['sasaran'];
+					if(!empty($_POST['type']) && $_POST['type'] == 'ri'){
+						$sasaran = json_decode(stripslashes(html_entity_decode($_POST['sasaran'])), true);
+					}else{
+						$sasaran = $_POST['sasaran'];
+					}
 					$wpdb->update('data_rpjmd_sasaran', array('active' => 0), array(
 						'tahun_anggaran' => $_POST['tahun_anggaran']
 					));
@@ -3000,6 +3036,9 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
                             'urut_sasaran' => $v['urut_sasaran'],
                             'urut_tujuan' => $v['urut_tujuan'],
                             'visi_teks' => $v['visi_teks'],
+							'id_tahap' => $v['id_tahap'],
+							'tahun_awal' => $v['tahun_awal'],
+							'tahun_akhir' => $v['tahun_akhir'],
 							'active' => 1,
 							'update_at' => current_time('mysql'),
 							'tahun_anggaran' => $_POST['tahun_anggaran']
@@ -3017,7 +3056,12 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 					}
 				}
 				if (!empty($_POST['program'])) {
-					$program = $_POST['program'];
+					// $program = $_POST['program'];
+					if(!empty($_POST['type']) && $_POST['type'] == 'ri'){
+						$program = json_decode(stripslashes(html_entity_decode($_POST['program'])), true);
+					}else{
+						$program = $_POST['program'];
+					}
 					$wpdb->update('data_rpjmd_program', array('active' => 0), array(
 						'tahun_anggaran' => $_POST['tahun_anggaran']
 					));
@@ -3066,6 +3110,13 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		                    'urut_sasaran' => $v['urut_sasaran'],
 		                    'urut_tujuan' => $v['urut_tujuan'],
 		                    'visi_teks' => $v['visi_teks'],
+							'id_rpjmd' => $v['id_rpjmd'],
+							'pagu_awal' => $v['pagu_awal'],
+							'pagu_akhir' => $v['pagu_akhir'],
+							'id_sasaran_indikator' => $v['id_sasaran_indikator'],
+							'id_tahap' => $v['id_tahap'],
+							'tahun_awal' => $v['tahun_awal'],
+							'tahun_akhir' => $v['tahun_akhir'],
 							'active' => 1,
 							'update_at' => current_time('mysql'),
 							'tahun_anggaran' => $_POST['tahun_anggaran']
@@ -3854,7 +3905,12 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		if (!empty($_POST)) {
 			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
 				if (!empty($_POST['data'])) {
-					$data = $_POST['data'];
+					//$data = $_POST['data'];
+					if(!empty($_POST['type']) && $_POST['type'] == 'ri'){
+						$data = json_decode(stripslashes(html_entity_decode($_POST['data'])), true);
+					}else{
+						$data = $_POST['data'];
+					}
 					$unit = array();
 					foreach ($data as $k => $v) {
 						$unit[$v['id_unit']] = $v['id_unit'];
@@ -8069,7 +8125,12 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 				$wpdb->update('data_renstra_tujuan', array('active' => 0), array(
 					'tahun_anggaran' => $_POST['tahun_anggaran']
 				));
-				foreach ($_POST['tujuan'] as $k => $v) {
+				if(!empty($_POST['type']) && $_POST['type'] == 'ri'){
+					$tujuan = json_decode(stripslashes(html_entity_decode($_POST['tujuan'])), true);
+				}else{
+					$tujuan = $_POST['tujuan'];
+				}
+				foreach ($tujuan as $k => $v) {
 					if(empty($v['id_unik_indikator'])){
 						$v['id_unik_indikator'] = '';
 					}
@@ -8114,6 +8175,13 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						'target_awal' => $v['target_awal'],
 						'tujuan_teks' => $v['tujuan_teks'],
 						'urut_tujuan' => $v['urut_tujuan'],
+						'id_tujuan' => $v['id_tujuan'],
+						'perlu_mutakhirkan' => $v['perlu_mutakhirkan'],
+						'id_visi' => $v['id_visi'],
+						'id_misi' => $v['id_misi'],
+						'id_tahap' => $v['id_tahap'],
+						'tahun_awal' => $v['tahun_awal'],
+						'tahun_akhir' => $v['tahun_akhir'],
 						'active' => 1,
 						'update_at' => current_time('mysql'),
 						'tahun_anggaran' => $_POST['tahun_anggaran']
@@ -8152,7 +8220,12 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 				$wpdb->update('data_renstra_sasaran', array('active' => 0), array(
 					'tahun_anggaran' => $_POST['tahun_anggaran']
 				));
-				foreach ($_POST['sasaran'] as $k => $v) {
+				if(!empty($_POST['type']) && $_POST['type'] == 'ri'){
+					$sasaran = json_decode(stripslashes(html_entity_decode($_POST['sasaran'])), true);
+				}else{
+					$sasaran = $_POST['sasaran'];
+				}
+				foreach ($sasaran as $k => $v) {
 					if(empty($v['id_unik'])){
 						$v['id_unik'] = '0';
 					}
@@ -8201,6 +8274,12 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						'tujuan_teks' => $v['tujuan_teks'],
 						'urut_sasaran' => $v['urut_sasaran'],
 						'urut_tujuan' => $v['urut_tujuan'],
+						'id_sasaran' => $v['id_sasaran'],
+						'id_tujuan_indikator' => $v['id_tujuan_indikator'],
+						'kode_sasaran_rpjm' => $v['kode_sasaran_rpjm'],
+						'id_tahap' => $v['id_tahap'],
+						'tahun_awal' => $v['tahun_awal'],
+						'tahun_akhir' => $v['tahun_akhir'],
 						'active' => 1,
 						'update_at' => current_time('mysql'),
 						'tahun_anggaran' => $_POST['tahun_anggaran']
@@ -8243,7 +8322,12 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						'tahun_anggaran' => $_POST['tahun_anggaran']
 					));
 				}
-				foreach ($_POST['program'] as $k => $v) {
+				if(!empty($_POST['type']) && $_POST['type'] == 'ri'){
+					$program = json_decode(stripslashes(html_entity_decode($_POST['program'])), true);
+				}else{
+					$program = $_POST['program'];
+				}
+				foreach ($program as $k => $v) {
 					if(empty($v['id_unik'])){
 						$v['id_unik'] = '0';
 					}
@@ -8322,7 +8406,15 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						'tujuan_lock' => $v['tujuan_lock'],
 						'tujuan_teks' => $v['tujuan_teks'],
 						'urut_sasaran' => $v['urut_sasaran'],
-						'urut_tujuan' => $v['urut_tujuan'],
+						'urut_tujuan' => $v['urut_tujuan'],						
+						'pagu_awal' => $v['pagu_awal'],
+						'pagu_akhir' => $v['pagu_akhir'],
+						'id_sasaran_indikator' => $v['id_sasaran_indikator'],
+						'id_renstra_program' => $v['id_renstra_program'],
+						'kode_sasaran_rpjm' => $v['kode_sasaran_rpjm'],
+						'id_tahap' => $v['id_tahap'],
+						'tahun_awal' => $v['tahun_awal'],
+						'tahun_akhir' => $v['tahun_akhir'],
 						'active' => 1,
 						'update_at' => current_time('mysql'),
 						'tahun_anggaran' => $_POST['tahun_anggaran']
@@ -8370,7 +8462,14 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						'tahun_anggaran' => $_POST['tahun_anggaran']
 					));
 				}
-				foreach ($_POST['kegiatan'] as $k => $v) {
+
+				if(!empty($_POST['type']) && $_POST['type'] == 'ri'){
+					$kegiatan = json_decode(stripslashes(html_entity_decode($_POST['kegiatan'])), true);
+				}else{
+					$kegiatan = $_POST['kegiatan'];
+				}
+
+				foreach ($kegiatan as $k => $v) {
 					if(empty($v['id_unik'])){
 						$v['id_unik'] = '0';
 					}
@@ -8451,7 +8550,14 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						'tujuan_lock' => $v['tujuan_lock'],
 						'tujuan_teks' => $v['tujuan_teks'],
 						'urut_sasaran' => $v['urut_sasaran'],
-						'urut_tujuan' => $v['urut_tujuan'],
+						'urut_tujuan' => $v['urut_tujuan'],						
+						'pagu_awal' => $v['pagu_awal'],
+						'pagu_akhir' => $v['pagu_akhir'],
+						'id_rpjm_indikator' => $v['id_rpjm_indikator'],
+						'kode_sasaran_rpjm' => $v['kode_sasaran_rpjm'],
+						'id_tahap' => $v['id_tahap'],
+						'tahun_awal' => $v['tahun_awal'],
+						'tahun_akhir' => $v['tahun_akhir'],
 						'active' => 1,
 						'update_at' => current_time('mysql'),
 						'tahun_anggaran' => $_POST['tahun_anggaran']
