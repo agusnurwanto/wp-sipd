@@ -2131,12 +2131,28 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
 				if (!empty($_POST['akun'])) {
 					if(!empty($_POST['type']) && $_POST['type'] == 'ri'){
-						$akun = json_decode(stripslashes(html_entity_decode($_POST['akun'])), true);						
+						$akun = json_decode(stripslashes(html_entity_decode($_POST['akun'])), true);
 					}else{
 						$akun = $_POST['akun'];
 					}
+
+					if(!empty($_POST['page']) && $_POST['page'] == 1){
+						$wpdb->update('data_akun', array('active' => 0), array(
+							'tahun_anggaran' => $_POST['tahun_anggaran']
+						));
+					}else if(empty($_POST['page'])){
+						$wpdb->update('data_akun', array('active' => 0), array(
+							'tahun_anggaran' => $_POST['tahun_anggaran']
+						));
+					}
 					foreach ($akun as $k => $v) {
-						$cek = $wpdb->get_var("SELECT id_akun from data_akun where tahun_anggaran=".$_POST['tahun_anggaran']." AND id_akun=" . $v['id_akun']);
+						$cek = $wpdb->get_var($wpdb->prepare("
+							SELECT 
+								id_akun 
+							from data_akun 
+							where tahun_anggaran=%d 
+								AND id_akun=%d
+						", $_POST['tahun_anggaran'], $v['id_akun']));
 						$opsi = array(
 							'belanja' => $v['belanja'],
 							'id_akun' => $v['id_akun'],
@@ -2173,6 +2189,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 							'set_kab_kota' => $v['set_kab_kota'],
 							'set_prov' => $v['set_prov'],
 							'status' => $v['status'],
+							'active' => 1,
 							'update_at' => current_time('mysql'),
 							'tahun_anggaran' => $_POST['tahun_anggaran']
 						);
@@ -3280,12 +3297,27 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
 				if (!empty($_POST['dana'])) {
 					if(!empty($_POST['type']) && $_POST['type'] == 'ri'){
-						$sumber_dana = json_decode(stripslashes(html_entity_decode($_POST['dana'])), true);						
+						$sumber_dana = json_decode(stripslashes(html_entity_decode($_POST['dana'])), true);
 					}else{
 						$sumber_dana = $_POST['dana'];
 					}
+					if(!empty($_POST['page']) && $_POST['page'] == 1){
+						$wpdb->update('data_sumber_dana', array('active' => 0), array(
+							'tahun_anggaran' => $_POST['tahun_anggaran']
+						));
+					}else if(empty($_POST['page'])){
+						$wpdb->update('data_sumber_dana', array('active' => 0), array(
+							'tahun_anggaran' => $_POST['tahun_anggaran']
+						));
+					}
 					foreach ($sumber_dana as $k => $v) {
-						$cek = $wpdb->get_var("SELECT id_dana from data_sumber_dana where tahun_anggaran=".$_POST['tahun_anggaran']." AND id_dana=" . $v['id_dana']);
+						$cek = $wpdb->get_var($wpdb->prepare("
+							SELECT 
+								id_dana 
+							from data_sumber_dana 
+							where tahun_anggaran=%d
+								AND id_dana=%d
+						", $_POST['tahun_anggaran'], $v['id_dana']));
 						$opsi = array(
 							'created_at' => $v['created_at'],
 							'created_user' => $v['created_user'],
@@ -3300,6 +3332,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 							'status' => $v['status'],
 							'tahun' => $v['tahun'],
 							'updated_user' => $v['updated_user'],
+							'active' => 1,
 							'updated_at' => current_time('mysql'),
 							'tahun_anggaran' => $_POST['tahun_anggaran']
 						);

@@ -131,6 +131,7 @@ CREATE TABLE `data_akun` (
   `set_kab_kota` tinyint(4) DEFAULT NULL,
   `set_prov` tinyint(4) DEFAULT NULL,
   `status` varchar(20) DEFAULT NULL,
+  `active` enum ('0', '1') DEFAULT '1' COMMENT '0=hapus, 1=aktif',
   `update_at` datetime DEFAULT NULL,
   `tahun_anggaran` year(4) NOT NULL DEFAULT '2021',
   PRIMARY KEY  (id)
@@ -692,6 +693,7 @@ CREATE TABLE `data_sumber_dana` (
   `status` varchar(50) DEFAULT NULL,
   `tahun` year(4) DEFAULT NULL DEFAULT '2021',
   `updated_at` datetime DEFAULT NULL,
+  `active` enum ('0', '1') DEFAULT '1' COMMENT '0=hapus, 1=aktif',
   `updated_user` int(11) DEFAULT NULL DEFAULT '0',
   `tahun_anggaran` year(4) DEFAULT NULL,
   PRIMARY KEY  (id)
@@ -1470,6 +1472,7 @@ CREATE TABLE `data_sub_keg_bl_lokal` (
   `id_bl` int(11) DEFAULT NULL,
   `kode_bl` varchar(50) NOT NULL,
   `kode_sbl` varchar(50) NOT NULL,
+  `kode_sbl_lama` varchar(50) DEFAULT NULL,
   `active` tinyint(4) DEFAULT '1',
   `update_at` datetime NOT NULL,
   `tahun_anggaran` year(4) NOT NULL DEFAULT '2021',

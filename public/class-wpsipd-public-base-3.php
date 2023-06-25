@@ -8081,6 +8081,7 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 				    ", $tahun_anggaran, $unit['id_skpd']), ARRAY_A);
 				    
 					$data_all['data'][$unit['kode_skpd']] = [
+						'id_skpd' => $unit['id_skpd'],
 						'kode_skpd' => $unit['kode_skpd'],
 						'nama_skpd' => $unit['nama_skpd'],
 						'pagu_usulan' => $pagu['pagu_usulan'],
@@ -8115,6 +8116,7 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 				    ", $tahun_anggaran, $unit['id_skpd']), ARRAY_A);
 				    
 					$data_pendapatan['data'][$unit['kode_skpd']] = [
+						'id_skpd' => $unit['id_skpd'],
 						'kode_skpd' => $unit['kode_skpd'],
 						'nama_skpd' => $unit['nama_skpd'],
 						'total_pendapatan' => $total_pendapatan['total_pendapatan'],
@@ -8148,6 +8150,7 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 				    ", $tahun_anggaran, $unit['id_skpd']), ARRAY_A);
 				    
 					$data_pembiayaan_penerimaan['data'][$unit['kode_skpd']] = [
+						'id_skpd' => $unit['id_skpd'],
 						'kode_skpd' => $unit['kode_skpd'],
 						'nama_skpd' => $unit['nama_skpd'],
 						'total_penerimaan' => $total_penerimaan['total_penerimaan'],
@@ -8181,6 +8184,7 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 				    ", $tahun_anggaran, $unit['id_skpd']), ARRAY_A);
 				    
 					$data_pembiayaan_pengeluaran['data'][$unit['kode_skpd']] = [
+						'id_skpd' => $unit['id_skpd'],
 						'kode_skpd' => $unit['kode_skpd'],
 						'nama_skpd' => $unit['nama_skpd'],
 						'total_pengeluaran' => $total_pengeluaran['total_pengeluaran'],
@@ -8201,7 +8205,7 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 					$warning = 'background: #f9d9d9;';
 				}
 				$body.='
-					<tr>
+					<tr data-idskpd="'.$unit['id_skpd'].'">
 						<td class="kiri atas kanan bawah text_tengah">'.$no.'</td>
 						<td class="atas kanan bawah">'.$unit['kode_skpd'].' '.$unit['nama_skpd'].'</td>
 						<td class="atas kanan bawah text_kanan">'.$this->_number_format($unit['pagu_usulan']).'</td>
@@ -8226,7 +8230,11 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 					<h4 style="text-align: center; margin: 0; font-weight: bold;">PAGU TOTAL BELANJA RENJA Per Unit Kerja 
 					<br>Tahun '.$jadwal_lokal->tahun_anggaran.' '.$nama_pemda.'
 					<br>'.$jadwal_lokal->nama_jadwal.'
-					</h4><br>
+					</h4>
+					<br>
+					<button class="btn btn-warning" onclick="cek_pemutakhiran();">Cek Pemutakhiran</button>
+					<div id="tabel-pemutakhiran-belanja"></div>
+					<br>
 					<table id="table-renja" cellpadding="2" cellspacing="0" style="font-family:\'Open Sans\',-apple-system,BlinkMacSystemFont,\'Segoe UI\',sans-serif; border-collapse: collapse; font-size: 90%; border: 0; table-layout: fixed;" contenteditable="false">
 						<thead>
 							<tr>
@@ -8250,7 +8258,7 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 					$warning = 'background: #f9d9d9;';
 				}
 				$body_pend.='
-					<tr>
+					<tr data-idskpd-pendapatan="'.$unit['id_skpd'].'">
 						<td class="kiri atas kanan bawah text_tengah">'.$no_pendapatan.'</td>
 						<td class="atas kanan bawah">'.$unit['kode_skpd'].' '.$unit['nama_skpd'].'</td>
 						<td class="atas kanan bawah text_kanan">'.$this->_number_format($unit['total_pendapatan']).'</td>
@@ -8297,7 +8305,7 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 					$warning = 'background: #f9d9d9;';
 				}
 				$body_penerimaan.='
-					<tr>
+					<tr data-idskpd-pembiayaan-penerimaan="'.$unit['id_skpd'].'">
 						<td class="kiri atas kanan bawah text_tengah">'.$no_penerimaan.'</td>
 						<td class="atas kanan bawah">'.$unit['kode_skpd'].' '.$unit['nama_skpd'].'</td>
 						<td class="atas kanan bawah text_kanan">'.$this->_number_format($unit['total_penerimaan']).'</td>
@@ -8344,7 +8352,7 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 					$warning = 'background: #f9d9d9;';
 				}
 				$body_pengeluaran.='
-					<tr>
+					<tr data-idskpd-pembiayaan-pengeluaran="'.$unit['id_skpd'].'">
 						<td class="kiri atas kanan bawah text_tengah">'.$no_pengeluaran.'</td>
 						<td class="atas kanan bawah">'.$unit['kode_skpd'].' '.$unit['nama_skpd'].'</td>
 						<td class="atas kanan bawah text_kanan">'.$this->_number_format($unit['total_pengeluaran']).'</td>
@@ -8394,6 +8402,38 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 				'message' => $e->getMessage()
 			]);exit();
     	}
+    }
+
+    public function cek_pemutakhiran_total(){
+    	global $wpdb;
+		$ret = array(
+			'status'	=> 'success',
+			'message'	=> 'Berhasil get data cek pemutakhiran!'
+		);
+		if (!empty($_POST)) {
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+				$sub_keg = $wpdb->get_results($wpdb->prepare("
+					SELECT
+						count(s.id) as jml,
+						id_sub_skpd
+					FROM data_sub_keg_bl_lokal s
+					LEFT JOIN data_prog_keg k on s.id_sub_giat=k.id_sub_giat
+						AND s.tahun_anggaran=k.tahun_anggaran
+					WHERE s.active=1
+						AND s.tahun_anggaran=%d
+						AND k.active != 1
+					GROUP BY id_sub_skpd
+				", $_POST['tahun_anggaran']), ARRAY_A);
+				$ret['sub_keg'] = $sub_keg;
+			} else {
+				$ret['status'] = 'error';
+				$ret['message'] = 'APIKEY tidak sesuai!';
+			}
+		} else {
+			$ret['status'] = 'error';
+			$ret['message'] = 'Format Salah!';
+		}
+		die(json_encode($ret));
     }
 
     public function get_rekening_akun(){

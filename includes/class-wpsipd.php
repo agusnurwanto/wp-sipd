@@ -868,6 +868,8 @@ class Wpsipd
 		$this->loader->add_action('wp_ajax_get_pencairan_pemdes_bku_dd', $plugin_public, 'get_pencairan_pemdes_bku_dd');
 		$this->loader->add_action('wp_ajax_get_pencairan_pemdes_bku_add', $plugin_public, 'get_pencairan_pemdes_bku_add');
 		
+		$this->loader->add_action('wp_ajax_cek_pemutakhiran_total', $plugin_public, 'cek_pemutakhiran_total');
+		
 		add_shortcode('menu_monev',  array($plugin_public, 'menu_monev'));
 		add_shortcode('datassh', array($plugin_public, 'datassh'));
 		add_shortcode('rekbelanja', array($plugin_public, 'rekbelanja'));
