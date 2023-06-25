@@ -63,21 +63,27 @@ $hide_penetapan = (!empty($_GET['hide_penetapan'])) ?: 0;
 if(!empty($id_sub_skpd)){
     $sql = "
         SELECT 
-            *
-        FROM data_sub_keg_bl_lokal
-        WHERE id_skpd=%d
-            AND tahun_anggaran=%d
-            AND active=1
-            ORDER BY id_sub_skpd ASC, kode_giat ASC, kode_sub_giat ASC";
+            s.*,
+            k.active as status_sub_keg
+        FROM data_sub_keg_bl_lokal s
+        LEFT JOIN data_prog_keg k on s.id_sub_giat=k.id_sub_giat
+            AND s.tahun_anggaran=k.tahun_anggaran
+        WHERE s.id_skpd=%d
+            AND s.tahun_anggaran=%d
+            AND s.active=1
+            ORDER BY s.id_sub_skpd ASC, s.kode_giat ASC, s.kode_sub_giat ASC";
 }else{
     $sql = "
         SELECT 
-            *
-        FROM data_sub_keg_bl_lokal
-        WHERE id_sub_skpd=%d
-            AND tahun_anggaran=%d
-            AND active=1
-            ORDER BY kode_giat ASC, kode_sub_giat ASC";
+            s.*,
+            k.active as status_sub_keg
+        FROM data_sub_keg_bl_lokal s
+        LEFT JOIN data_prog_keg k on s.id_sub_giat=k.id_sub_giat
+            AND s.tahun_anggaran=k.tahun_anggaran
+        WHERE s.id_sub_skpd=%d
+            AND s.tahun_anggaran=%d
+            AND s.active=1
+            ORDER BY s.kode_giat ASC, s.kode_sub_giat ASC";
 }
 
 $subkeg = $wpdb->get_results($wpdb->prepare($sql,$input['id_skpd'], $input['tahun_anggaran']), ARRAY_A);
@@ -116,9 +122,9 @@ if(!empty($jadwal_lokal)){
         $now = new DateTime(date('Y-m-d H:i:s'));
 
         if($now >= $awal && $now <= $akhir){
-
-            $add_renja .='<a style="margin-left: 10px;" onclick="copy_usulan_all(); return false;" href="#" class="btn btn-danger">Copy Data Usulan ke Penetapan</a>';
-
+            if($is_admin){
+                $add_renja .='<a style="margin-left: 10px;" onclick="copy_usulan_all(); return false;" href="#" class="btn btn-danger">Copy Data Usulan ke Penetapan</a>';
+            }
             $add_renja .= '<a style="margin-left: 10px;" id="tambah-data" onclick="return false;" href="#" class="btn btn-success">Tambah Data RENJA</a>';
             if(!empty($jadwal_lokal[0]['relasi_perencanaan'])){
                 $add_renja .= '<a style="margin-left: 10px;" id="copy-data-renstra-skpd" data-jadwal="'.$idJadwalRenja.'" data-skpd="'.$input['id_skpd'].'" onclick="return false;" href="#" class="btn btn-danger">Copy Data Renstra per SKPD</a>';
@@ -140,11 +146,8 @@ if(!empty($jadwal_lokal)){
         $now = new DateTime(date('Y-m-d H:i:s'));
         
         if($now >= $awal && $now <= $akhir){
-            /** copy data usulan ke penetapan hanya di admin, copy data penetapan ke usulan hanya di user */
             if($is_admin){
                 $add_renja .='<a style="margin-left: 10px;" onclick="copy_usulan_all(); return false;" href="#" class="btn btn-danger">Copy Data Usulan ke Penetapan</a>';
-            }else{
-                $add_renja .='<a style="margin-left: 10px;" onclick="copy_penetapan_all(); return false;" href="#" class="btn btn-danger">Copy Data Penetapan ke Usulan</a>';
             }
             $add_renja .= '<a style="margin-left: 10px;" id="tambah-data" onclick="return false;" href="#" class="btn btn-success">Tambah Data RENJA</a>';
             if(!empty($jadwal_lokal[0]['relasi_perencanaan'])){
@@ -395,275 +398,283 @@ foreach ($subkeg as $kk => $sub) {
     $data_all['data'][$sub['id_sub_skpd']]['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']]['data'][$sub['kode_giat']]['data'][$sub['kode_sub_giat']]['pagu_sipd'] += $sub_keg_sipd['pagu'];
 }
 
+$total_sub_keg = 0;
+$total_sumber_dana = '-';
 $body = '';
-    foreach ($data_all['data'] as $sub_skpd) {
-        $pagu_unit_sipd = $sub_skpd['pagu_sipd'];
-        $warning = '';
-        if($sub_skpd['total'] != $pagu_unit_sipd){
-            $warning = 'background: #f9d9d9;';
-        }
+foreach ($data_all['data'] as $sub_skpd) {
+    $pagu_unit_sipd = $sub_skpd['pagu_sipd'];
+    $warning = '';
+    if($sub_skpd['total'] != $pagu_unit_sipd){
+        $warning = 'background: #f9d9d9;';
+    }
+    $body .= '
+        <tr tipe="unit">
+            <td class="kiri kanan bawah text_blok" colspan="19">Unit Organisasi : '.$sub_skpd['nama_skpd'].'</td>
+            <td class="kanan bawah hide-print"></td>
+            <td class="kanan bawah hide-print"></td>
+        </tr>
+        <tr tipe="sub_unit">
+            <td class="kiri kanan bawah text_blok"></td>
+            <td class="kanan bawah text_blok" colspan="12">Sub Unit Organisasi : '.$sub_skpd['nama'].'</td>
+            <td class="kanan bawah text_kanan text_blok"><span class="nilai_penetapan">'.number_format($sub_skpd['total'],0,",",".").'</span><span class="nilai_usulan">'.number_format($sub_skpd['total_usulan'],0,",",".").'</span></td>
+            <td class="kanan bawah" colspan="4"></td>
+            <td class="kanan bawah text_kanan text_blok"><span class="nilai_penetapan">'.number_format($sub_skpd['total_n_plus'],0,",",".").'</span><span class="nilai_usulan">'.number_format($sub_skpd['total_n_plus_usulan'],0,",",".").'</span></td>
+            <td class="kanan bawah hide-print"></td>
+            <td style="'.$warning.'" class="kanan bawah text_kanan hide-print">'.number_format($pagu_unit_sipd,0,",",".").'</td>
+        </tr>
+    ';
+    foreach ($sub_skpd['data'] as $kd_urusan => $urusan) {
         $body .= '
-            <tr tipe="unit">
-                <td class="kiri kanan bawah text_blok" colspan="19">Unit Organisasi : '.$sub_skpd['nama_skpd'].'</td>
+            <tr tipe="urusan" kode="'.$urusan['sub']['kode_sbl'].'">
+                <td class="kiri kanan bawah text_blok">'.$kd_urusan.'</td>
+                <td class="kanan bawah"></td>
+                <td class="kanan bawah"></td>
+                <td class="kanan bawah"></td>
+                <td class="kanan bawah"></td>
+                <td class="kanan bawah text_blok" colspan="14">'.$urusan['nama'].'</td>
                 <td class="kanan bawah hide-print"></td>
                 <td class="kanan bawah hide-print"></td>
-            </tr>
-            <tr tipe="sub_unit">
-                <td class="kiri kanan bawah text_blok"></td>
-                <td class="kanan bawah text_blok" colspan="12">Sub Unit Organisasi : '.$sub_skpd['nama'].'</td>
-                <td class="kanan bawah text_kanan text_blok"><span class="nilai_penetapan">'.number_format($sub_skpd['total'],0,",",".").'</span><span class="nilai_usulan">'.number_format($sub_skpd['total_usulan'],0,",",".").'</span></td>
-                <td class="kanan bawah" colspan="4"></td>
-                <td class="kanan bawah text_kanan text_blok"><span class="nilai_penetapan">'.number_format($sub_skpd['total_n_plus'],0,",",".").'</span><span class="nilai_usulan">'.number_format($sub_skpd['total_n_plus_usulan'],0,",",".").'</span></td>
-                <td class="kanan bawah hide-print"></td>
-                <td style="'.$warning.'" class="kanan bawah text_kanan hide-print">'.number_format($pagu_unit_sipd,0,",",".").'</td>
             </tr>
         ';
-        foreach ($sub_skpd['data'] as $kd_urusan => $urusan) {
+        foreach ($urusan['data'] as $kd_bidang => $bidang) {
+            $kd_bidang = explode('.', $kd_bidang);
+            $kd_bidang = $kd_bidang[count($kd_bidang)-1];
+            $pagu_bidang_sipd = $bidang['pagu_sipd'];
+            $warning = '';
+            if($bidang['total'] != $pagu_bidang_sipd){
+                $warning = 'background: #f9d9d9;';
+            }
             $body .= '
-                <tr tipe="urusan" kode="'.$urusan['sub']['kode_sbl'].'">
+                <tr tipe="bidang" kode="'.$bidang['sub']['kode_sbl'].'">
                     <td class="kiri kanan bawah text_blok">'.$kd_urusan.'</td>
+                    <td class="kanan bawah text_blok">'.$kd_bidang.'</td>
                     <td class="kanan bawah"></td>
                     <td class="kanan bawah"></td>
                     <td class="kanan bawah"></td>
-                    <td class="kanan bawah"></td>
-                    <td class="kanan bawah text_blok" colspan="14">'.$urusan['nama'].'</td>
+                    <td class="kanan bawah text_blok" colspan="8">'.$bidang['nama'].'</td>
+                    <td class="kanan bawah text_kanan text_blok"><span class="nilai_penetapan">'.number_format($bidang['total'],0,",",".").'</span><span class="nilai_usulan">'.number_format($bidang['total_usulan'],0,",",".").'</span></td>
+                    <td class="kanan bawah" colspan="4"></td>
+                    <td class="kanan bawah text_kanan text_blok"><span class="nilai_penetapan">'.number_format($bidang['total_n_plus'],0,",",".").'</span><span class="nilai_usulan">'.number_format($bidang['total_n_plus_usulan'],0,",",".").'</span></td>
                     <td class="kanan bawah hide-print"></td>
-                    <td class="kanan bawah hide-print"></td>
+                    <td style="'.$warning.'" class="kanan bawah text_kanan hide-print">'.number_format($pagu_bidang_sipd,0,",",".").'</td>
                 </tr>
             ';
-            foreach ($urusan['data'] as $kd_bidang => $bidang) {
-                $kd_bidang = explode('.', $kd_bidang);
-                $kd_bidang = $kd_bidang[count($kd_bidang)-1];
-                $pagu_bidang_sipd = $bidang['pagu_sipd'];
+            foreach ($bidang['data'] as $kd_program => $program) {
+                $kd_program = explode('.', $kd_program);
+                $kd_program = $kd_program[count($kd_program)-1];
+
+                $tombol_aksi = '';
+                if(!empty($add_renja)){
+                    $tombol_aksi = '<button class="btn-sm btn-warning" style="margin: 1px;" onclick="edit_program(\''.$program['sub']['kode_sbl'].'\');" title="Edit Program"><i class="dashicons dashicons-edit"></i></button>';
+                }
+                $tombol_aksi .= '<button class="btn-sm btn-primary" style="margin: 1px;" onclick="detail_program(\''.$program['sub']['kode_sbl'].'\')" title="Detail Program"><i class="dashicons dashicons-ellipsis"></i></button>';
+                $data_check_program = explode('.', $program['sub']['kode_sbl']);
+                $data_check_program = $data_check_program[0].'.'.$data_check_program[1].'.'.$data_check_program[2];
+                $pagu_prog_sipd = $program['pagu_sipd'];
                 $warning = '';
-                if($bidang['total'] != $pagu_bidang_sipd){
+                if($program['total'] != $pagu_prog_sipd){
                     $warning = 'background: #f9d9d9;';
                 }
                 $body .= '
-                    <tr tipe="bidang" kode="'.$bidang['sub']['kode_sbl'].'">
+                    <tr tipe="program" kode="'.$program['sub']['kode_sbl'].'" checkprogram="'.$data_check_program.'">
                         <td class="kiri kanan bawah text_blok">'.$kd_urusan.'</td>
                         <td class="kanan bawah text_blok">'.$kd_bidang.'</td>
+                        <td class="kanan bawah text_blok">'.$kd_program.'</td>
                         <td class="kanan bawah"></td>
                         <td class="kanan bawah"></td>
-                        <td class="kanan bawah"></td>
-                        <td class="kanan bawah text_blok" colspan="8">'.$bidang['nama'].'</td>
-                        <td class="kanan bawah text_kanan text_blok"><span class="nilai_penetapan">'.number_format($bidang['total'],0,",",".").'</span><span class="nilai_usulan">'.number_format($bidang['total_usulan'],0,",",".").'</span></td>
+                        <td class="kanan bawah text_blok" colspan="8">'.$program['nama'].'</td>
+                        <td class="kanan bawah text_kanan text_blok"><span class="nilai_penetapan">'.number_format($program['total'],0,",",".").'</span><span class="nilai_usulan">'.number_format($program['total_usulan'],0,",",".").'</span></td>
                         <td class="kanan bawah" colspan="4"></td>
-                        <td class="kanan bawah text_kanan text_blok"><span class="nilai_penetapan">'.number_format($bidang['total_n_plus'],0,",",".").'</span><span class="nilai_usulan">'.number_format($bidang['total_n_plus_usulan'],0,",",".").'</span></td>
-                        <td class="kanan bawah hide-print"></td>
-                        <td style="'.$warning.'" class="kanan bawah text_kanan hide-print">'.number_format($pagu_bidang_sipd,0,",",".").'</td>
+                        <td class="kanan bawah text_kanan text_blok"><span class="nilai_penetapan">'.number_format($program['total_n_plus'],0,",",".").'</span><span class="nilai_usulan">'.number_format($program['total_n_plus_usulan'],0,",",".").'</span></td>
+                        <td class="kanan bawah text_tengah hide-print">'.$tombol_aksi.'</td>
+                        <td style="'.$warning.'" class="kanan bawah text_kanan hide-print">'.number_format($pagu_prog_sipd,0,",",".").'</td>
                     </tr>
                 ';
-                foreach ($bidang['data'] as $kd_program => $program) {
-                    $kd_program = explode('.', $kd_program);
-                    $kd_program = $kd_program[count($kd_program)-1];
-
+                foreach ($program['data'] as $kd_giat => $giat) {
+                    $kd_giat = explode('.', $kd_giat);
+                    $kd_giat = $kd_giat[count($kd_giat)-2].'.'.$kd_giat[count($kd_giat)-1];
+                    
                     $tombol_aksi = '';
                     if(!empty($add_renja)){
-                        $tombol_aksi = '<button class="btn-sm btn-warning" style="margin: 1px;" onclick="edit_program(\''.$program['sub']['kode_sbl'].'\');" title="Edit Program"><i class="dashicons dashicons-edit"></i></button>';
+                        $tombol_aksi = '<button class="btn-sm btn-warning" style="margin: 1px;" onclick="edit_kegiatan(\''.$giat['sub']['kode_sbl'].'\');" title="Edit Kegiatan"><i class="dashicons dashicons-edit"></i></button>';
                     }
-                    $tombol_aksi .= '<button class="btn-sm btn-primary" style="margin: 1px;" onclick="detail_program(\''.$program['sub']['kode_sbl'].'\')" title="Detail Program"><i class="dashicons dashicons-ellipsis"></i></button>';
-                    $data_check_program = explode('.', $program['sub']['kode_sbl']);
-                    $data_check_program = $data_check_program[0].'.'.$data_check_program[1].'.'.$data_check_program[2];
-                    $pagu_prog_sipd = $program['pagu_sipd'];
+                    $tombol_aksi .= '<button class="btn-sm btn-primary" style="margin: 1px;" onclick="detail_kegiatan(\''.$giat['sub']['kode_sbl'].'\');" title="Detail Kegiatan"><i class="dashicons dashicons-ellipsis"></i></button>';
+
+                    $pagu_keg_sipd = $giat['pagu_sipd'];
                     $warning = '';
-                    if($program['total'] != $pagu_prog_sipd){
+                    if($giat['total'] != $pagu_keg_sipd){
                         $warning = 'background: #f9d9d9;';
                     }
                     $body .= '
-                        <tr tipe="program" kode="'.$program['sub']['kode_sbl'].'" checkprogram="'.$data_check_program.'">
+                        <tr tipe="kegiatan" kode="'.$giat['sub']['kode_sbl'].'">
                             <td class="kiri kanan bawah text_blok">'.$kd_urusan.'</td>
                             <td class="kanan bawah text_blok">'.$kd_bidang.'</td>
                             <td class="kanan bawah text_blok">'.$kd_program.'</td>
+                            <td class="kanan bawah text_blok">'.$kd_giat.'</td>
                             <td class="kanan bawah"></td>
-                            <td class="kanan bawah"></td>
-                            <td class="kanan bawah text_blok" colspan="8">'.$program['nama'].'</td>
-                            <td class="kanan bawah text_kanan text_blok"><span class="nilai_penetapan">'.number_format($program['total'],0,",",".").'</span><span class="nilai_usulan">'.number_format($program['total_usulan'],0,",",".").'</span></td>
+                            <td class="kanan bawah" colspan="8">'.$giat['nama'].'</td>
+                            <td class="kanan bawah text_blok text_kanan"><span class="nilai_penetapan">'.number_format($giat['total'],0,",",".").'</span><span class="nilai_usulan">'.number_format($giat['total_usulan'],0,",",".").'</span></td>
                             <td class="kanan bawah" colspan="4"></td>
-                            <td class="kanan bawah text_kanan text_blok"><span class="nilai_penetapan">'.number_format($program['total_n_plus'],0,",",".").'</span><span class="nilai_usulan">'.number_format($program['total_n_plus_usulan'],0,",",".").'</span></td>
+                            <td class="kanan bawah text_blok text_kanan"><span class="nilai_penetapan">'.number_format($giat['total_n_plus'],0,",",".").'</span><span class="nilai_usulan">'.number_format($giat['total_n_plus_usulan'],0,",",".").'</span></td>
                             <td class="kanan bawah text_tengah hide-print">'.$tombol_aksi.'</td>
-                            <td style="'.$warning.'" class="kanan bawah text_kanan hide-print">'.number_format($pagu_prog_sipd,0,",",".").'</td>
+                            <td style="'.$warning.'" class="kanan bawah text_kanan hide-print">'.number_format($pagu_keg_sipd,0,",",".").'</td>
                         </tr>
                     ';
-                    foreach ($program['data'] as $kd_giat => $giat) {
-                        $kd_giat = explode('.', $kd_giat);
-                        $kd_giat = $kd_giat[count($kd_giat)-2].'.'.$kd_giat[count($kd_giat)-1];
-                        
-                        $tombol_aksi = '';
-                        if(!empty($add_renja)){
-                            $tombol_aksi = '<button class="btn-sm btn-warning" style="margin: 1px;" onclick="edit_kegiatan(\''.$giat['sub']['kode_sbl'].'\');" title="Edit Kegiatan"><i class="dashicons dashicons-edit"></i></button>';
+                    foreach ($giat['data'] as $kd_sub_giat => $sub_giat) {
+                        $kode_sub_giat = $kd_sub_giat;
+                        $kd_sub_giat = explode('.', $kd_sub_giat);
+                        $kd_sub_giat = $kd_sub_giat[count($kd_sub_giat)-1];
+                        $capaian_prog = '';
+                        $target_capaian_prog = '';
+                        if(!empty($sub_giat['capaian_prog'])){
+                            $capaian_prog = array();
+                            $target_capaian_prog = array();
+                            foreach ($sub_giat['capaian_prog'] as $k_sub => $v_sub) {
+                                $capaian_prog[] = '<span class="nilai_penetapan">'.$v_sub['capaianteks'].'</span><span class="nilai_usulan">'.$v_sub['capaianteks_usulan'].'</span>';
+                                $target_capaian_prog[] = '<span class="nilai_penetapan">'.$v_sub['targetcapaianteks'].'</span><span class="nilai_usulan">'.$v_sub['targetcapaianteks_usulan'].'</span>';
+                            }
+                            $capaian_prog = implode('<br>', $capaian_prog);
+                            $target_capaian_prog = implode('<br>', $target_capaian_prog);
                         }
-                        $tombol_aksi .= '<button class="btn-sm btn-primary" style="margin: 1px;" onclick="detail_kegiatan(\''.$giat['sub']['kode_sbl'].'\');" title="Detail Kegiatan"><i class="dashicons dashicons-ellipsis"></i></button>';
+                        $output_giat = '';
+                        $target_output_giat = '';
+                        if(!empty($sub_giat['output_giat'])){
+                            $output_giat = array();
+                            $target_output_giat = array();
+                            foreach ($sub_giat['output_giat'] as $k_sub => $v_sub) {
+                                $output_giat[] = '<span class="nilai_penetapan">'.$v_sub['outputteks'].'</span><span class="nilai_usulan">'.$v_sub['outputteks_usulan'].'</span>';
+                                $target_output_giat[] = '<span class="nilai_penetapan">'.$v_sub['targetoutputteks'].'</span><span class="nilai_usulan">'.$v_sub['targetoutputteks_usulan'].'</span>';
+                            }
+                            $output_giat = implode('<br>', $output_giat);
+                            $target_output_giat = implode('<br>', $target_output_giat);
+                        }
+                        $output_sub_giat = '';
+                        $target_output_sub_giat = '';
+                        if(!empty($sub_giat['output_sub_giat'])){
+                            $output_sub_giat = array();
+                            $target_output_sub_giat = array();
+                            foreach ($sub_giat['output_sub_giat'] as $k_sub => $v_sub) {
+                                $output_sub_giat[] = $v_sub['outputteks'];
+                                $target_output_sub_giat[] = '<span class="nilai_penetapan">'.$v_sub['targetoutputteks'].'</span><span class="nilai_usulan">'.$v_sub['targetoutputteks_usulan'].'</span>';
+                            }
+                            $output_sub_giat = implode('<br>', $output_sub_giat);
+                            $target_output_sub_giat = implode('<br>', $target_output_sub_giat);
+                        }
 
-                        $pagu_keg_sipd = $giat['pagu_sipd'];
+                        // get lokasi sub kegiatan
+                        $lokasi_sub_giat_array = array();
+                        if(!empty($sub_giat['lokasi_sub_giat'])){
+                            foreach($sub_giat['lokasi_sub_giat'] as $v_lokasi){
+                                $lokasi_sub_giat = $v_lokasi['daerahteks'];
+                                if(!empty($v_lokasi['camatteks'])){
+                                    $lokasi_sub_giat .= ', Kec. '.$v_lokasi['camatteks'];
+                                }
+                                if(!empty($v_lokasi['lurahteks'])){
+                                    $lokasi_sub_giat .= ', '.$v_lokasi['lurahteks'];
+                                }
+                                $lokasi_sub_giat_array[] = $lokasi_sub_giat;
+                            }
+                        }
+                        $lokasi_sub_giat = implode('<br>', $lokasi_sub_giat_array);
+
+                        // get sumber dana sub kegiatan
+                        $dana_sub_giat_array = array();
+                        if(!empty($sub_giat['dana_sub_giat'])){
+                            foreach($sub_giat['dana_sub_giat'] as $v_dana){
+                                // cek jika ada sumber dana di penetapan
+                                if(!empty($v_dana['namadana'])){
+                                    $dana_sub_giat = explode('] - ', $v_dana['namadana']);
+                                    if(!empty($dana_sub_giat[1])){
+                                        $dana_sub_giat_array[] = $dana_sub_giat[1];
+                                    }else{
+                                        $dana_sub_giat_array[] = $v_dana['namadana'];
+                                    }
+                                // cek jika ada sumber dana di usulan
+                                }else if(!empty($v_dana['nama_dana_usulan'])){
+                                    $dana_sub_giat = explode('] - ', $v_dana['nama_dana_usulan']);
+                                    if(!empty($dana_sub_giat[1])){
+                                        $dana_sub_giat_array[] = $dana_sub_giat[1];
+                                    }else{
+                                        $dana_sub_giat_array[] = $v_dana['nama_dana_usulan'];
+                                    }
+                                }
+                            }
+                        }
+                        $dana_sub_giat = implode('<br>', $dana_sub_giat_array);
+
+                        $catatan = '<span class="nilai_penetapan">'.$sub_giat['data']['catatan'].'</span><span class="nilai_usulan">'.$sub_giat['data']['catatan_usulan'].'</span>';
+                        $ind_n_plus = '';
+                        $target_ind_n_plus = '';
+                        /*
+                        if(!empty($sub_giat['data_renstra'])){
+                            $ind_n_plus = $sub_giat['data_renstra'][0]['indikator_sub'];
+                            if($urut<=5){
+                                $target_ind_n_plus = $sub_giat['data_renstra'][0]['target_sub_'.($urut+1)];
+                            }
+                        }
+                        */
+                        if(!empty($sub_giat['data_rpjmd'])){
+                            $ind_n_plus = $sub_giat['data_rpjmd'][0]['indikator'];
+                            if($urut<=5){
+                                $target_ind_n_plus = $sub_giat['data_rpjmd'][0]['target_'.($urut+1)];
+                            }
+                        }
+
+                        $kode_sbl = $sub_giat['data']['kode_sbl'];
+                        $url_rka_lokal = $this->generatePage('Data RKA Lokal | '.$kode_sbl.' | '.$input['tahun_anggaran'],$input['tahun_anggaran'],'[input_rka_lokal kode_sbl="'.$kode_sbl.'" tahun_anggaran="'.$input['tahun_anggaran'].'"]');
+
+                        $tombol_aksi = '<a href="'.$url_rka_lokal.'" target="_blank"><button class="btn-sm btn-info" style="margin: 1px;" title="Detail Renja"><i class="dashicons dashicons-search"></i></button></a>';
+                        if(!empty($add_renja)){
+                            $tombol_aksi .= '<button class="btn-sm btn-warning" style="margin: 1px;" onclick="edit_renja(\''.$kode_sbl.'\');" title="Edit Renja"><i class="dashicons dashicons-edit"></i></button>';
+                            $tombol_aksi .= '<button class="btn-sm btn-danger" style="margin: 1px;" onclick="delete_renja(\''.$kode_sbl.'\');" title="Hapus Renja"><i class="dashicons dashicons-trash"></i></button>';
+                        }
+                        $tombol_aksi .= '<button class="btn-sm btn-primary" style="margin: 1px;" onclick="detail_renja(\''.$kode_sbl.'\');" title="Detail Renja"><i class="dashicons dashicons-ellipsis"></i></button>';
+                        $pagu_sub_sipd = $sub_giat['pagu_sipd'];
                         $warning = '';
-                        if($giat['total'] != $pagu_keg_sipd){
+                        if($sub_giat['total'] != $pagu_sub_sipd){
                             $warning = 'background: #f9d9d9;';
                         }
+
+                        $warning_pemutakhiran = '';
+                        if($sub_giat['data']['status_sub_keg'] != 1){
+                            $warning_pemutakhiran = 'mutakhirkan';
+                            $total_sub_keg++;
+                        }
                         $body .= '
-                            <tr tipe="kegiatan" kode="'.$giat['sub']['kode_sbl'].'">
-                                <td class="kiri kanan bawah text_blok">'.$kd_urusan.'</td>
-                                <td class="kanan bawah text_blok">'.$kd_bidang.'</td>
-                                <td class="kanan bawah text_blok">'.$kd_program.'</td>
-                                <td class="kanan bawah text_blok">'.$kd_giat.'</td>
-                                <td class="kanan bawah"></td>
-                                <td class="kanan bawah" colspan="8">'.$giat['nama'].'</td>
-                                <td class="kanan bawah text_blok text_kanan"><span class="nilai_penetapan">'.number_format($giat['total'],0,",",".").'</span><span class="nilai_usulan">'.number_format($giat['total_usulan'],0,",",".").'</span></td>
-                                <td class="kanan bawah" colspan="4"></td>
-                                <td class="kanan bawah text_blok text_kanan"><span class="nilai_penetapan">'.number_format($giat['total_n_plus'],0,",",".").'</span><span class="nilai_usulan">'.number_format($giat['total_n_plus_usulan'],0,",",".").'</span></td>
+                            <tr tipe="sub-kegiatan" kode="'.$kode_sbl.'">
+                                <td class="kiri kanan bawah">'.$kd_urusan.'</td>
+                                <td class="kanan bawah">'.$kd_bidang.'</td>
+                                <td class="kanan bawah">'.$kd_program.'</td>
+                                <td class="kanan bawah">'.$kd_giat.'</td>
+                                <td class="kanan bawah">'.$kd_sub_giat.'</td>
+                                <td class="kanan bawah '.$warning_pemutakhiran.'">'.$sub_giat['nama'].'</td>
+                                <td class="kanan bawah">'.$capaian_prog.'</td>
+                                <td class="kanan bawah">'.$output_sub_giat.'</td>
+                                <td class="kanan bawah">'.$output_giat.'</td>
+                                <td class="kanan bawah">'.$lokasi_sub_giat.'</td>
+                                <td class="kanan bawah">'.$target_capaian_prog.'</td>
+                                <td class="kanan bawah">'.$target_output_sub_giat.'</td>
+                                <td class="kanan bawah">'.$target_output_giat.'</td>
+                                <td class="kanan bawah text_kanan"><span class="nilai_penetapan">'.number_format($sub_giat['total'],0,",",".").'</span><span class="nilai_usulan">'.number_format($sub_giat['total_usulan'],0,",",".").'</span></td>
+                                <td class="kanan bawah">'.$dana_sub_giat.'</td>
+                                <td class="kanan bawah">'.$catatan.'</td>
+                                <td class="kanan bawah">'.$ind_n_plus.'</td>
+                                <td class="kanan bawah">'.$target_ind_n_plus.'</td>
+                                <td class="kanan bawah text_kanan"><span class="nilai_penetapan">'.number_format($sub_giat['total_n_plus'],0,",",".").'</span><span class="nilai_usulan">'.number_format($sub_giat['total_n_plus_usulan'],0,",",".").'</span></td>
                                 <td class="kanan bawah text_tengah hide-print">'.$tombol_aksi.'</td>
-                                <td style="'.$warning.'" class="kanan bawah text_kanan hide-print">'.number_format($pagu_keg_sipd,0,",",".").'</td>
+                                <td style="'.$warning.'" class="kanan bawah text_kanan hide-print">'.number_format($pagu_sub_sipd,0,",",".").'</td>
                             </tr>
                         ';
-                        foreach ($giat['data'] as $kd_sub_giat => $sub_giat) {
-                            $kode_sub_giat = $kd_sub_giat;
-                            $kd_sub_giat = explode('.', $kd_sub_giat);
-                            $kd_sub_giat = $kd_sub_giat[count($kd_sub_giat)-1];
-                            $capaian_prog = '';
-                            $target_capaian_prog = '';
-                            if(!empty($sub_giat['capaian_prog'])){
-                                $capaian_prog = array();
-                                $target_capaian_prog = array();
-                                foreach ($sub_giat['capaian_prog'] as $k_sub => $v_sub) {
-                                    $capaian_prog[] = '<span class="nilai_penetapan">'.$v_sub['capaianteks'].'</span><span class="nilai_usulan">'.$v_sub['capaianteks_usulan'].'</span>';
-                                    $target_capaian_prog[] = '<span class="nilai_penetapan">'.$v_sub['targetcapaianteks'].'</span><span class="nilai_usulan">'.$v_sub['targetcapaianteks_usulan'].'</span>';
-                                }
-                                $capaian_prog = implode('<br>', $capaian_prog);
-                                $target_capaian_prog = implode('<br>', $target_capaian_prog);
-                            }
-                            $output_giat = '';
-                            $target_output_giat = '';
-                            if(!empty($sub_giat['output_giat'])){
-                                $output_giat = array();
-                                $target_output_giat = array();
-                                foreach ($sub_giat['output_giat'] as $k_sub => $v_sub) {
-                                    $output_giat[] = '<span class="nilai_penetapan">'.$v_sub['outputteks'].'</span><span class="nilai_usulan">'.$v_sub['outputteks_usulan'].'</span>';
-                                    $target_output_giat[] = '<span class="nilai_penetapan">'.$v_sub['targetoutputteks'].'</span><span class="nilai_usulan">'.$v_sub['targetoutputteks_usulan'].'</span>';
-                                }
-                                $output_giat = implode('<br>', $output_giat);
-                                $target_output_giat = implode('<br>', $target_output_giat);
-                            }
-                            $output_sub_giat = '';
-                            $target_output_sub_giat = '';
-                            if(!empty($sub_giat['output_sub_giat'])){
-                                $output_sub_giat = array();
-                                $target_output_sub_giat = array();
-                                foreach ($sub_giat['output_sub_giat'] as $k_sub => $v_sub) {
-                                    $output_sub_giat[] = $v_sub['outputteks'];
-                                    $target_output_sub_giat[] = '<span class="nilai_penetapan">'.$v_sub['targetoutputteks'].'</span><span class="nilai_usulan">'.$v_sub['targetoutputteks_usulan'].'</span>';
-                                }
-                                $output_sub_giat = implode('<br>', $output_sub_giat);
-                                $target_output_sub_giat = implode('<br>', $target_output_sub_giat);
-                            }
-
-                            // get lokasi sub kegiatan
-                            $lokasi_sub_giat_array = array();
-                            if(!empty($sub_giat['lokasi_sub_giat'])){
-                                foreach($sub_giat['lokasi_sub_giat'] as $v_lokasi){
-                                    $lokasi_sub_giat = $v_lokasi['daerahteks'];
-                                    if(!empty($v_lokasi['camatteks'])){
-                                        $lokasi_sub_giat .= ', Kec. '.$v_lokasi['camatteks'];
-                                    }
-                                    if(!empty($v_lokasi['lurahteks'])){
-                                        $lokasi_sub_giat .= ', '.$v_lokasi['lurahteks'];
-                                    }
-                                    $lokasi_sub_giat_array[] = $lokasi_sub_giat;
-                                }
-                            }
-                            $lokasi_sub_giat = implode('<br>', $lokasi_sub_giat_array);
-
-                            // get sumber dana sub kegiatan
-                            $dana_sub_giat_array = array();
-                            if(!empty($sub_giat['dana_sub_giat'])){
-                                foreach($sub_giat['dana_sub_giat'] as $v_dana){
-                                    // cek jika ada sumber dana di penetapan
-                                    if(!empty($v_dana['namadana'])){
-                                        $dana_sub_giat = explode('] - ', $v_dana['namadana']);
-                                        if(!empty($dana_sub_giat[1])){
-                                            $dana_sub_giat_array[] = $dana_sub_giat[1];
-                                        }else{
-                                            $dana_sub_giat_array[] = $v_dana['namadana'];
-                                        }
-                                    // cek jika ada sumber dana di usulan
-                                    }else if(!empty($v_dana['nama_dana_usulan'])){
-                                        $dana_sub_giat = explode('] - ', $v_dana['nama_dana_usulan']);
-                                        if(!empty($dana_sub_giat[1])){
-                                            $dana_sub_giat_array[] = $dana_sub_giat[1];
-                                        }else{
-                                            $dana_sub_giat_array[] = $v_dana['nama_dana_usulan'];
-                                        }
-                                    }
-                                }
-                            }
-                            $dana_sub_giat = implode('<br>', $dana_sub_giat_array);
-
-                            $catatan = '<span class="nilai_penetapan">'.$sub_giat['data']['catatan'].'</span><span class="nilai_usulan">'.$sub_giat['data']['catatan_usulan'].'</span>';
-                            $ind_n_plus = '';
-                            $target_ind_n_plus = '';
-                            /*
-                            if(!empty($sub_giat['data_renstra'])){
-                                $ind_n_plus = $sub_giat['data_renstra'][0]['indikator_sub'];
-                                if($urut<=5){
-                                    $target_ind_n_plus = $sub_giat['data_renstra'][0]['target_sub_'.($urut+1)];
-                                }
-                            }
-                            */
-                            if(!empty($sub_giat['data_rpjmd'])){
-                                $ind_n_plus = $sub_giat['data_rpjmd'][0]['indikator'];
-                                if($urut<=5){
-                                    $target_ind_n_plus = $sub_giat['data_rpjmd'][0]['target_'.($urut+1)];
-                                }
-                            }
-
-                            $kode_sbl = $sub_giat['data']['kode_sbl'];
-                            $url_rka_lokal = $this->generatePage('Data RKA Lokal | '.$kode_sbl.' | '.$input['tahun_anggaran'],$input['tahun_anggaran'],'[input_rka_lokal kode_sbl="'.$kode_sbl.'" tahun_anggaran="'.$input['tahun_anggaran'].'"]');
-
-                            $tombol_aksi = '<a href="'.$url_rka_lokal.'" target="_blank"><button class="btn-sm btn-info" style="margin: 1px;" title="Detail Renja"><i class="dashicons dashicons-search"></i></button></a>';
-                            if(!empty($add_renja)){
-                                $tombol_aksi .= '<button class="btn-sm btn-warning" style="margin: 1px;" onclick="edit_renja(\''.$kode_sbl.'\');" title="Edit Renja"><i class="dashicons dashicons-edit"></i></button>';
-                                $tombol_aksi .= '<button class="btn-sm btn-danger" style="margin: 1px;" onclick="delete_renja(\''.$kode_sbl.'\');" title="Hapus Renja"><i class="dashicons dashicons-trash"></i></button>';
-                            }
-                            $tombol_aksi .= '<button class="btn-sm btn-primary" style="margin: 1px;" onclick="detail_renja(\''.$kode_sbl.'\');" title="Detail Renja"><i class="dashicons dashicons-ellipsis"></i></button>';
-                            $pagu_sub_sipd = $sub_giat['pagu_sipd'];
-                            $warning = '';
-                            if($sub_giat['total'] != $pagu_sub_sipd){
-                                $warning = 'background: #f9d9d9;';
-                            }
-                            $body .= '
-                                <tr tipe="sub-kegiatan" kode="'.$kode_sbl.'">
-                                    <td class="kiri kanan bawah">'.$kd_urusan.'</td>
-                                    <td class="kanan bawah">'.$kd_bidang.'</td>
-                                    <td class="kanan bawah">'.$kd_program.'</td>
-                                    <td class="kanan bawah">'.$kd_giat.'</td>
-                                    <td class="kanan bawah">'.$kd_sub_giat.'</td>
-                                    <td class="kanan bawah">'.$sub_giat['nama'].'</td>
-                                    <td class="kanan bawah">'.$capaian_prog.'</td>
-                                    <td class="kanan bawah">'.$output_sub_giat.'</td>
-                                    <td class="kanan bawah">'.$output_giat.'</td>
-                                    <td class="kanan bawah">'.$lokasi_sub_giat.'</td>
-                                    <td class="kanan bawah">'.$target_capaian_prog.'</td>
-                                    <td class="kanan bawah">'.$target_output_sub_giat.'</td>
-                                    <td class="kanan bawah">'.$target_output_giat.'</td>
-                                    <td class="kanan bawah text_kanan"><span class="nilai_penetapan">'.number_format($sub_giat['total'],0,",",".").'</span><span class="nilai_usulan">'.number_format($sub_giat['total_usulan'],0,",",".").'</span></td>
-                                    <td class="kanan bawah">'.$dana_sub_giat.'</td>
-                                    <td class="kanan bawah">'.$catatan.'</td>
-                                    <td class="kanan bawah">'.$ind_n_plus.'</td>
-                                    <td class="kanan bawah">'.$target_ind_n_plus.'</td>
-                                    <td class="kanan bawah text_kanan"><span class="nilai_penetapan">'.number_format($sub_giat['total_n_plus'],0,",",".").'</span><span class="nilai_usulan">'.number_format($sub_giat['total_n_plus_usulan'],0,",",".").'</span></td>
-                                    <td class="kanan bawah text_tengah hide-print">'.$tombol_aksi.'</td>
-                                    <td style="'.$warning.'" class="kanan bawah text_kanan hide-print">'.number_format($pagu_sub_sipd,0,",",".").'</td>
-                                </tr>
-                            ';
-                            $sasaran_text = '';
-                            if(!empty($sub_giat['data_renstra'])){
-                                $sasaran_text = $sub_giat['data_renstra'][0]['sasaran_teks'];
-                            }
+                        $sasaran_text = '';
+                        if(!empty($sub_giat['data_renstra'])){
+                            $sasaran_text = $sub_giat['data_renstra'][0]['sasaran_teks'];
                         }
                     }
                 }
             }
         }
     }
+}
 
 $nama_excel = 'INPUT RENJA '.strtoupper($nama_sub_skpd).'<br>TAHUN ANGGARAN '.$input['tahun_anggaran'].' '.strtoupper($nama_pemda);
 $nama_laporan = 'INPUT RENJA '.strtoupper($nama_sub_skpd).'<br>TAHUN ANGGARAN '.$input['tahun_anggaran'].' '.strtoupper($nama_pemda);
@@ -672,9 +683,42 @@ $warning = '';
 if($data_all['total'] != $data_all['pagu_sipd']){
     $warning = 'background: #f9d9d9;';
 }
+$warning_total_sub_keg = '';
+if($total_sub_keg >= 1){
+    $warning_total_sub_keg = 'bg-danger';
+}
+$warning_total_sumber_dana = '';
+if($total_sumber_dana >= 1){
+    $warning_total_sumber_dana = 'bg-danger';
+}
 echo '
     <div id="cetak" title="'.$nama_excel.'" style="padding: 5px;">
         <input type="hidden" value="'. get_option( "_crb_api_key_extension" ) .'" id="api_key">
+        <h4 class="text-center">Informasi Pemutakhiran Data</h4>
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th class="text-center">Sub Kegiatan</th>
+                    <th class="text-center">Sumber Dana</th>
+                    <th class="text-center">Rekening Belanja</th>
+                    <th class="text-center">Pendapatan</th>
+                    <th class="text-center">Pembiayaan Penerimaan</th>
+                    <th class="text-center">Pembiayaan Pengeluaran</th>
+                    <th class="text-center">Komponen Belanja</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td style="font-weight:bold;" class="text-center '.$warning_total_sub_keg.'">'.$total_sub_keg.'</td>
+                    <td style="font-weight:bold;" class="text-center '.$warning_total_sumber_dana.'">'.$total_sumber_dana.'</td>
+                    <td style="font-weight:bold;" class="text-center '.$warning_total_sumber_dana.'">'.$total_sumber_dana.'</td>
+                    <td style="font-weight:bold;" class="text-center '.$warning_total_sumber_dana.'">'.$total_sumber_dana.'</td>
+                    <td style="font-weight:bold;" class="text-center '.$warning_total_sumber_dana.'">'.$total_sumber_dana.'</td>
+                    <td style="font-weight:bold;" class="text-center '.$warning_total_sumber_dana.'">'.$total_sumber_dana.'</td>
+                    <td style="font-weight:bold;" class="text-center '.$warning_total_sumber_dana.'">'.$total_sumber_dana.'</td>
+                </tr>
+            </tbody>
+        </table>
         <h4 style="text-align: center; margin: 10px auto; min-width: 450px; max-width: 570px; font-weight: bold;">'.$nama_laporan.'</h4>
         <div id="wrap-table">
             <table cellpadding="2" cellspacing="0" style="font-family:\'Open Sans\',-apple-system,BlinkMacSystemFont,\'Segoe UI\',sans-serif; border-collapse: collapse; width: 2000px; table-layout: fixed; overflow-wrap: break-word; font-size: 60%; border: 0;">
@@ -748,6 +792,9 @@ echo '
 ';
 ?>
 <style type="text/css">
+    .mutakhirkan {
+        background: #f9d9d9;
+    }
     .nilai_usulan:before {
         content: "( ";
     }
@@ -1022,14 +1069,6 @@ echo '
 							<div class="col-md-12 text-center">
 								<button id="button_copy_renja" onclick="copy_usulan(this); return false;" type="button" class="btn btn-danger" style="margin-top: 20px;">
 									<i class="dashicons dashicons-arrow-right-alt" style="margin-top: 2px;"></i> Copy Data Usulan ke Penetapan
-								</button>
-							</div>
-                        </div>
-					<?php else: ?>
-						<div class="row">
-							<div class="col-md-12 text-center">
-								<button id="button_copy_renja" onclick="copy_penetapan(this); return false;" type="button" class="btn btn-danger" style="margin-top: 20px;">
-									<i class="dashicons dashicons-arrow-right-alt" style="margin-top: 2px;"></i> Copy Data Penetapan ke Usulan
 								</button>
 							</div>
                         </div>
@@ -2714,14 +2753,6 @@ echo '
 								+'</button>'
 							+'</div>'
 						+'</div>'
-					<?php else: ?>
-						+'<div class="row">'
-							+'<div class="col-md-12 text-center">'
-								+'<button onclick="copy_penetapan(this); return false;" type="button" class="btn btn-danger" style="margin-top: 20px;">'
-									+'<i class="dashicons dashicons-arrow-right-alt" style="margin-top: 2px;"></i> Copy Data Penetapan ke Usulan'
-								+'</button>'
-							+'</div>'
-						+'</div>'
 					<?php endif; ?>
                 +'</form>';
 
@@ -3076,15 +3107,7 @@ echo '
     								+'</button>'
     							+'</div>'
     						+'</div>'
-                        <?php else: ?>
-                            +'<div class="row">'
-                                +'<div class="col-md-12 text-center">'
-                                    +'<button onclick="copy_penetapan(this); return false;" type="button" class="btn btn-danger" style="margin-top: 20px;">'
-                                        +'<i class="dashicons dashicons-arrow-right-alt" style="margin-top: 2px;"></i> Copy Data Penetapan ke Usulan'
-                                    +'</button>'
-                                +'</div>'
-                            +'</div>'
-                        <?php endif; ?>
+    					<?php endif; ?>
                     +'</form>';
 
                     jQuery('#modal-indikator-renja').find('.modal-title').html('Indikator Kegiatan');
@@ -3537,69 +3560,6 @@ echo '
         modal.find('textarea[name="input_catatan"]').val(usulan);
 	}
 
-    function copy_penetapan(that){
-		var modal = jQuery(that).closest('.modal-dialog');
-        //program
-        var total_prog = modal.find('#indikator_program tr:last-child').attr('data-id');
-        total_prog = total_prog+1;
-        for (let step = 1; step < total_prog; step++) {
-            var penetapan = modal.find('textarea[name="indikator_program_penetapan['+step+']"]').val();
-            modal.find('textarea[name="indikator_program_usulan['+step+']"]').val(penetapan);
-            var penetapan = modal.find('input[name="target_indikator_program_penetapan['+step+']"]').val();
-            modal.find('input[name="target_indikator_program_usulan['+step+']"]').val(penetapan);
-            var penetapan = modal.find('input[name="satuan_indikator_program_penetapan['+step+']"]').val();
-            modal.find('input[name="satuan_indikator_program_usulan['+step+']"]').val(penetapan);
-            var penetapan = modal.find('textarea[name="catatan_program_penetapan['+step+']"]').val();
-            modal.find('textarea[name="catatan_program_usulan['+step+']"]').val(penetapan);
-        }
-        //kegiatan
-		var penetapan = modal.find('textarea[name="kelompok_sasaran_renja_penetapan"]').val();
-		modal.find('textarea[name="kelompok_sasaran_renja_usulan"]').val(penetapan);
-        var total_giat = modal.find('#indikator_kegiatan tr:last-child').attr('data-id');
-        total_giat = total_giat+1;
-        for (let step = 1; step < total_giat; step++) {
-            var penetapan = modal.find('textarea[name="indikator_kegiatan_penetapan['+step+']"]').val();
-            modal.find('textarea[name="indikator_kegiatan_usulan['+step+']"]').val(penetapan);
-            var penetapan = modal.find('input[name="target_indikator_kegiatan_penetapan['+step+']"]').val();
-            modal.find('input[name="target_indikator_kegiatan_usulan['+step+']"]').val(penetapan);
-            var penetapan = modal.find('input[name="satuan_indikator_kegiatan_penetapan['+step+']"]').val();
-            modal.find('input[name="satuan_indikator_kegiatan_usulan['+step+']"]').val(penetapan);
-            var penetapan = modal.find('textarea[name="catatan_indikator_kegiatan_penetapan['+step+']"]').val();
-            modal.find('textarea[name="catatan_indikator_kegiatan_usulan['+step+']"]').val(penetapan);
-        }
-        var total_hasil = modal.find('#indikator_kegiatan tr:last-child').attr('data-id');
-        total_hasil = total_hasil+1;
-        for (let step = 1; step < total_hasil; step++) {
-            var penetapan = modal.find('textarea[name="indikator_hasil_kegiatan_penetapan['+step+']"]').val();
-            modal.find('textarea[name="indikator_hasil_kegiatan_usulan['+step+']"]').val(penetapan);
-            var penetapan = modal.find('input[name="target_indikator_hasil_kegiatan_penetapan['+step+']"]').val();
-            modal.find('input[name="target_indikator_hasil_kegiatan_usulan['+step+']"]').val(penetapan);
-            var penetapan = modal.find('input[name="satuan_indikator_hasil_kegiatan_penetapan['+step+']"]').val();
-            modal.find('input[name="satuan_indikator_hasil_kegiatan_usulan['+step+']"]').val(penetapan);
-            var penetapan = modal.find('textarea[name="catatan_indikator_hasil_kegiatan_penetapan['+step+']"]').val();
-            modal.find('textarea[name="catatan_indikator_hasil_kegiatan_usulan['+step+']"]').val(penetapan);
-        }
-        //sub_kegiatan
-        var total_sumber = modal.find('#sumber_dana_usulan tr:last-child').attr('data-id');
-        total_sumber = total_sumber+1;
-        for (let step = 1; step < total_sumber; step++) {
-            var penetapan = modal.find('input[name="input_pagu_sumber_dana['+step+']"]').val();
-            modal.find('input[name="input_pagu_sumber_dana_usulan['+step+']"]').val(penetapan);
-        }
-        var total_sub_keg = modal.find('#pagu_ind_sub_keg_usulan tr:last-child').attr('data-id');
-        total_sub_keg = total_sub_keg+1;
-        for (let step = 1; step < total_sub_keg; step++) {
-            var penetapan = modal.find('input[name="input_target['+step+']"]').val();
-            modal.find('input[name="input_target_usulan['+step+']"]').val(penetapan);
-        }
-        var penetapan = modal.find('input[name="input_pagu_sub_keg"]').val();
-        modal.find('input[name="input_pagu_sub_keg_usulan"]').val(penetapan)
-        var penetapan = modal.find('input[name="input_pagu_sub_keg_1"]').val();
-        modal.find('input[name="input_pagu_sub_keg_1_usulan"]').val(penetapan)
-        var penetapan = modal.find('textarea[name="input_catatan"]').val();
-        modal.find('textarea[name="input_catatan_usulan"]').val(penetapan);
-	}
-
     function copy_usulan_all(){
 		if(confirm('Apakah anda yakin untuk melakukan ini? data penetapan akan diupdate sama dengan data usulan.')){
             let id_skpd = "<?php echo $input['id_skpd']; ?>";
@@ -3613,35 +3573,6 @@ echo '
                     dataType: "json",
                     data: {
                     "action": "copy_usulan_renja",
-                    "api_key": jQuery('#api_key').val(),
-                    "id_skpd": id_skpd,
-                    "tahun_anggaran": tahun_anggaran
-                    },
-                    success: function(res){
-                        jQuery('#wrap-loading').hide();
-                        alert(res.message);
-                        if(res.status == 'success'){
-                            refresh_page();
-                        }
-                    }
-                });
-            }
-		}
-	}
-
-    function copy_penetapan_all(){
-		if(confirm('Apakah anda yakin untuk melakukan ini? data usulan akan diupdate sama dengan data penetapan.')){
-            let id_skpd = "<?php echo $input['id_skpd']; ?>";
-            if(id_skpd == ''){
-                alert('Id SKPD Kosong')
-            }else{
-                jQuery('#wrap-loading').show();
-                jQuery.ajax({
-                    method: 'post',
-                    url: '<?php echo admin_url('admin-ajax.php'); ?>',
-                    dataType: "json",
-                    data: {
-                    "action": "copy_penetapan_renja",
                     "api_key": jQuery('#api_key').val(),
                     "id_skpd": id_skpd,
                     "tahun_anggaran": tahun_anggaran
