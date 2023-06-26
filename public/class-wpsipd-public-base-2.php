@@ -2630,11 +2630,11 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 							LEFT join data_prog_keg p on i.id_sub_keg=p.id_sub_giat
 							WHERE p.kode_sub_giat=%s
 								AND i.tahun_anggaran=%d
-								AND i.active=1
+								AND i.active=p.active
 							GROUP BY p.kode_sub_giat
 						', $data_sub_giat['kode_sub_giat'], $tahun_anggaran),ARRAY_A);
 						$ret['data']['master_sub_keg_indikator'] = array();
-						// $ret['data']['master_sub_keg_indikator_sql'] = $wpdb->last_query;
+						$ret['data']['master_sub_keg_indikator_sql'] = $wpdb->last_query;
 						if(!empty($data_master_sub_keg_indikator)){
 							$ret['data']['master_sub_keg_indikator'] = $data_master_sub_keg_indikator;
 						}
