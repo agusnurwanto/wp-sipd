@@ -2663,6 +2663,11 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						$wpdb->update('data_prog_keg', array('active' => 0), array(
 							'tahun_anggaran' => $_POST['tahun_anggaran']
 						));
+						if(!empty($_POST['type']) && $_POST['type'] == 'ri'){
+							$wpdb->update('data_master_indikator_subgiat', array('active' => 0), array(
+								'tahun_anggaran' => $_POST['tahun_anggaran']
+							));
+						}
 					}else if(empty($_POST['page'])){
 						$wpdb->update('data_prog_keg', array('active' => 0), array(
 							'tahun_anggaran' => $_POST['tahun_anggaran']
