@@ -1874,6 +1874,7 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 					if(
 						in_array("administrator", $user_meta->roles)
 						|| in_array("mitra_bappeda", $user_meta->roles)
+						|| !empty($_POST['input_pemutakhiran'])
 					){
 						if(
 							!isset($data['input_pagu_sub_keg'])
@@ -1905,6 +1906,7 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 							if(
 								in_array("administrator", $user_meta->roles)
 								|| in_array("mitra_bappeda", $user_meta->roles)
+								|| !empty($_POST['input_pemutakhiran'])
 							){
 								if(
 									!isset($data['input_target'][$k_sub_keg])
@@ -1929,6 +1931,7 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 							if(
 								in_array("administrator", $user_meta->roles)
 								|| in_array("mitra_bappeda", $user_meta->roles)
+								|| !empty($_POST['input_pemutakhiran'])
 							){
 								if(
 									!isset($data['input_pagu_sumber_dana'][$k_sumber_dana])
@@ -1962,6 +1965,7 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 								$newData['input_sub_unit'] = $data['input_sub_unit_baru'][$index];
 								$newData['input_sub_kegiatan'] = $sub_keg_baru;
 								unset($_POST['pemutakhiran']);
+								$_POST['input_pemutakhiran'] = 1;
 
 								$new_ret = array();
 								if(
@@ -2115,6 +2119,7 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 					if(
 						in_array("administrator", $user_meta->roles)
 						|| in_array("mitra_bappeda", $user_meta->roles)
+						|| !empty($_POST['input_pemutakhiran'])
 					){
 						$opsi_sub_keg_bl['pagu'] = $data['input_pagu_sub_keg'];
 						$opsi_sub_keg_bl['pagu_n_depan'] = $data['input_pagu_sub_keg_1'];
@@ -2197,6 +2202,7 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 						if(
 							in_array("administrator", $user_meta->roles)
 							|| in_array("mitra_bappeda", $user_meta->roles)
+							|| !empty($_POST['input_pemutakhiran'])
 						){
 							$opsi_sumber_dana['pagudana'] = $data['input_pagu_sumber_dana'][$k_sumber_dana];
 						}
@@ -2249,6 +2255,7 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 							if(
 								in_array("administrator", $user_meta->roles)
 								|| in_array("mitra_bappeda", $user_meta->roles)
+								|| !empty($_POST['input_pemutakhiran'])
 							){
 								$opsi_sub_keg_indikator['targetoutput'] = $data['input_target'][$k_sub_keg];
 								$opsi_sub_keg_indikator['targetoutputteks'] = $data['input_target'][$k_sub_keg].' '.$indikator_sub_keg->satuan;
@@ -2496,6 +2503,7 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 						if(
 							in_array("administrator", $user_meta->roles)
 							|| in_array("mitra_bappeda", $user_meta->roles)
+							|| !empty($_POST['input_pemutakhiran'])
 						){
 							$opsi_label_tag['id_label_giat'] = $data_label_tag->id_label_giat;
 							$opsi_label_tag['id_unik'] = $data_label_tag->id_unik;
