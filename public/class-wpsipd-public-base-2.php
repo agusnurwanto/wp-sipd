@@ -2091,16 +2091,24 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 											AND active=1
 									', $tahun_anggaran, $_POST['kode_sbl_lama']), ARRAY_A);
 
+									$newData['satuan_indikator_program_usulan'] = array();
+									$newData['target_indikator_program_usulan'] = array();
+									$newData['indikator_program_usulan'] = array();
+									$newData['catatan_program_usulan'] = array();
+									$newData['satuan_indikator_program_penetapan'] = array();
+									$newData['target_indikator_program_penetapan'] = array();
+									$newData['indikator_program_penetapan'] = array();
+									$newData['catatan_program_penetapan'] = array();
 									foreach($data_lama_capaian as $key => $capaian){
-										$newData['satuan_indikator_program_usulan'] = $capaian['satuancapaian_usulan'];
-										$newData['target_indikator_program_usulan'] = $capaian['targetcapaian_usulan'];
-										$newData['capaianteks_usulan'] = $capaian['indikator_program_usulan'];
-										$newData['catatan_program_usulan'] = $capaian['catatan_usulan'];
+										$newData['satuan_indikator_program_usulan'][] = $capaian['satuancapaian_usulan'];
+										$newData['target_indikator_program_usulan'][] = $capaian['targetcapaian_usulan'];
+										$newData['indikator_program_usulan'][] = $capaian['capaianteks_usulan'];
+										$newData['catatan_program_usulan'][] = $capaian['catatan_usulan'];
 
-										$newData['satuan_indikator_program_penetapan'] = $capaian['satuancapaian'];
-										$newData['target_indikator_program_penetapan'] = $capaian['targetcapaian'];
-										$newData['capaianteks'] = $capaian['indikator_program_penetapan'];
-										$newData['catatan_program_penetapan'] = $capaian['catatan'];
+										$newData['satuan_indikator_program_penetapan'][] = $capaian['satuancapaian'];
+										$newData['target_indikator_program_penetapan'][] = $capaian['targetcapaian'];
+										$newData['indikator_program_penetapan'][] = $capaian['capaianteks'];
+										$newData['catatan_program_penetapan'][] = $capaian['catatan'];
 									}
 
 									$newData['kode_sbl'] = $_POST['kode_sbl'];
