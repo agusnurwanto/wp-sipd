@@ -1993,6 +1993,11 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 									$new_ret = $this->submit_tambah_renja(true);
 									$new_ret['fungsi'] = 'submit_tambah_renja';
 								}
+
+								// nonaktifkan sub kegiatan lama. harus dibawah submit renja karena kode sbl akan dirubah
+								if($ret['status'] != 'error'){
+									$this->delete_renja(true);
+								}
 									
 								if($new_ret['status'] == 'success'){
 									$data_lama_sub_keg = $wpdb->get_row($wpdb->prepare("
@@ -2004,7 +2009,7 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 										WHERE kode_sbl=%s
 											AND tahun_anggaran=%d
 											AND active=1
-									", $_POST['kode_sbl'], $tahun_anggaran), ARRAY_A);
+									", $_POST['kode_sbl_lama'], $tahun_anggaran), ARRAY_A);
 
 									$newData['kelompok_sasaran_renja_usulan'] = $data_lama_sub_keg['sasaran_usulan'];
 									$newData['kelompok_sasaran_renja_penetapan'] = $data_lama_sub_keg['sasaran'];
@@ -2017,7 +2022,7 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 										WHERE tahun_anggaran=%d
 											AND kode_sbl=%s
 											AND active=1
-									', $tahun_anggaran, $_POST['kode_sbl']),ARRAY_A);
+									', $tahun_anggaran, $_POST['kode_sbl_lama']),ARRAY_A);
 
 									$newData['indikator_kegiatan_usulan'] = array();
 									$newData['satuan_indikator_kegiatan_usulan'] = array();
@@ -2045,7 +2050,7 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 										WHERE tahun_anggaran=%d
 											AND kode_sbl=%s
 											AND active=1
-									', $tahun_anggaran, $v_sub['kode_sbl']),ARRAY_A);
+									', $tahun_anggaran, $_POST['kode_sbl_lama']),ARRAY_A);
 
 									$newData['indikator_hasil_kegiatan_usulan'] = array();
 									$newData['satuan_indikator_hasil_kegiatan_usulan'] = array();
@@ -2067,6 +2072,8 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 									}
 
 									$_POST['data'] = json_encode($newData);
+
+									// setting kode_sbl lama untuk get data sub keg lama
 									$_POST['kode_sbl'] = $new_ret['kode_sbl'];
 
 									// simpan / update indikator kegiatan
@@ -2082,7 +2089,7 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 										WHERE tahun_anggaran=%d
 											AND kode_sbl=%s
 											AND active=1
-									', $tahun_anggaran, $_POST['kode_sbl']), ARRAY_A);
+									', $tahun_anggaran, $_POST['kode_sbl_lama']), ARRAY_A);
 
 									foreach($data_lama_capaian as $key => $capaian){
 										$newData['satuan_indikator_program_usulan'] = $capaian['satuancapaian_usulan'];
@@ -2110,10 +2117,6 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 							}
 						}
 
-						// nonaktifkan sub kegiatan lama
-						if($ret['status'] != 'error'){
-							$this->delete_renja(true);
-						}
 						if($ret['status'] != 'error'){
 							$ret['message'] = 'Sukses melakukan pemutakhiran data sub kegiatan!';
 						}
