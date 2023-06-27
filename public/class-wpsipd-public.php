@@ -18291,4 +18291,8 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
     	$pola = '/^[0-9.]+$/';
 		return preg_match($pola, $kata);
 	}
+
+	public function to_number($value=''){
+		return str_replace(',', '.', $value);
+	}
 }

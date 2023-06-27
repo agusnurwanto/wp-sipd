@@ -2401,6 +2401,8 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 						', $v_sub_keg, $tahun_anggaran));
 			
 						if(!empty($indikator_sub_keg)){
+							$data['input_target_usulan'][$k_sub_keg] = $this->to_number($data['input_target_usulan'][$k_sub_keg]);
+							$data['input_target'][$k_sub_keg] = $this->to_number($data['input_target'][$k_sub_keg]);
 							$opsi_sub_keg_indikator = array(
 								'outputteks' => $indikator_sub_keg->indikator,
 								'outputteks_usulan' => $indikator_sub_keg->indikator,
@@ -3266,7 +3268,12 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 									),ARRAY_A);
 	
 									foreach ($data_post['indikator_kegiatan_penetapan'] as $k_indi => $v_indi) {
-										if(!empty($data_post['indikator_kegiatan_usulan'][$k_indi]) || !empty($data_post['indikator_kegiatan_penetapan'][$k_indi])){
+										if(
+											!empty($data_post['indikator_kegiatan_usulan'][$k_indi]) 
+											|| !empty($data_post['indikator_kegiatan_penetapan'][$k_indi])
+										){
+											$data_post['indikator_kegiatan_usulan'][$k_indi] = $this->to_number($data_post['indikator_kegiatan_usulan'][$k_indi]);
+											$data_post['target_indikator_kegiatan_penetapan'][$k_indi] = $this->to_number($data_post['target_indikator_kegiatan_penetapan'][$k_indi]);
 											$data_indikator = array(
 												'kode_sbl' => $v_sub['kode_sbl'],
 												'idsubbl' => $v_sub['id_sub_bl'],
