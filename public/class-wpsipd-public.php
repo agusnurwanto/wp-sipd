@@ -2982,6 +2982,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 							'id_tahap' => $v['id_tahap'],
 							'tahun_awal' => $v['tahun_awal'],
 							'tahun_akhir' => $v['tahun_akhir'],
+							'id_tujuan_old' => $v['id_tujuan_old'],
 							'active' => 1,
 							'update_at' => current_time('mysql'),
 							'tahun_anggaran' => $_POST['tahun_anggaran']
@@ -3044,6 +3045,9 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 							'id_tahap' => $v['id_tahap'],
 							'tahun_awal' => $v['tahun_awal'],
 							'tahun_akhir' => $v['tahun_akhir'],
+							'id_tujuan_old' => $v['id_tujuan_old'],
+							'id_sasaran_old' => $v['id_sasaran_old'],
+							'id_tujuan_indikator' => $v['id_tujuan_indikator'],
 							'active' => 1,
 							'update_at' => current_time('mysql'),
 							'tahun_anggaran' => $_POST['tahun_anggaran']
@@ -3122,6 +3126,9 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 							'id_tahap' => $v['id_tahap'],
 							'tahun_awal' => $v['tahun_awal'],
 							'tahun_akhir' => $v['tahun_akhir'],
+							'id_tujuan_old' => $v['id_tujuan_old'],
+							'id_sasaran_old' => $v['id_sasaran_old'],
+							'id_bidang_urusan' => $v['id_bidang_urusan'],
 							'active' => 1,
 							'update_at' => current_time('mysql'),
 							'tahun_anggaran' => $_POST['tahun_anggaran']
