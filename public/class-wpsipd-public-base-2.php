@@ -2237,10 +2237,6 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 						'label_kokab' => $label_prio_kabkot
 					);
 
-					if(!empty($_POST['kode_sbl_lama'])){
-						$opsi_sub_keg_bl['kode_sbl_lama'] = $_POST['kode_sbl_lama'];
-					}
-
 					if(
 						in_array("administrator", $user_meta->roles)
 						|| in_array("mitra_bappeda", $user_meta->roles)
@@ -2249,6 +2245,50 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 						$opsi_sub_keg_bl['pagu'] = $data['input_pagu_sub_keg'];
 						$opsi_sub_keg_bl['pagu_n_depan'] = $data['input_pagu_sub_keg_1'];
 						$opsi_sub_keg_bl['catatan'] = $data['input_catatan'];
+					}
+
+					if(!empty($_POST['kode_sbl_lama'])){
+						$kode_sbl_lama_all = array($_POST['kode_sbl_lama']);
+						$cek_sub_keg = $wpdb->get_row($wpdb->prepare("
+							SELECT 
+								*
+							from data_sub_keg_bl_lokal 
+							where kode_sbl='$kode_sbl' 
+								and tahun_anggaran=%d
+						", $tahun_anggaran), ARRAY_A);
+						if(
+							!empty($cek_sub_keg) 
+							&& !empty($cek_sub_keg['kode_sbl_lama'])
+						){
+							$kode_sbl_exist = explode('|', $cek_sub_keg['kode_sbl_lama']);
+
+							// jika kode sbl lama tidak ada di kode sbl existing maka nilai pagu ditambahkan
+							if(!in_array($_POST['kode_sbl_lama'], $kode_sbl_exist)){
+								$kode_sbl_lama_all = array_merge($kode_sbl_lama_all, $kode_sbl_exist);
+
+								$opsi_sub_keg_bl['pagu_usulan'] = $cek_sub_keg['pagu_usulan']+$data['input_pagu_sub_keg_usulan'];
+								$opsi_sub_keg_bl['pagu_n_depan_usulan'] = $cek_sub_keg['pagu_n_depan_usulan']+$data['input_pagu_sub_keg_1_usulan'];
+
+								$opsi_sub_keg_bl['pagu'] = $cek_sub_keg['pagu']+$data['input_pagu_sub_keg'];
+								$opsi_sub_keg_bl['pagu_n_depan'] = $cek_sub_keg['pagu_n_depan']+$data['input_pagu_sub_keg_1'];
+
+								$catatan_all = array($data['input_catatan']);
+								if(!empty(trim($cek_sub_keg['catatan']))){
+									$catatan_all = array_merge($catatan_all, explode('|', $cek_sub_keg['catatan']));
+								}
+								$opsi_sub_keg_bl['catatan'] = implode('|', $catatan_all);
+							}else{
+								$kode_sbl_lama_all = $kode_sbl_exist;
+								$opsi_sub_keg_bl['pagu_usulan'] = $cek_sub_keg['pagu_usulan'];
+								$opsi_sub_keg_bl['pagu_n_depan_usulan'] = $cek_sub_keg['pagu_n_depan_usulan'];
+
+								$opsi_sub_keg_bl['pagu'] = $cek_sub_keg['pagu'];
+								$opsi_sub_keg_bl['pagu_n_depan'] = $cek_sub_keg['pagu_n_depan'];
+								$opsi_sub_keg_bl['catatan'] = $cek_sub_keg['catatan'];
+							}
+						}
+
+						$opsi_sub_keg_bl['kode_sbl_lama'] = implode('|', $kode_sbl_lama_all);
 					}
 
 					// bulan awal dan akhir ototmasi dibuat sama dengan usulan
