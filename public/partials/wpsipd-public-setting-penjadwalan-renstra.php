@@ -557,7 +557,7 @@ $body = '';
 	}
 
 	function all_skpd(){
-
+		jQuery('#wrap-loading').show();
 		jQuery.ajax({
 			url:ajax.url,
 			type:'post',
@@ -574,6 +574,7 @@ $body = '';
 				jQuery("#list_opd").html(list_opd);
 				jQuery('.list_opd').select2({width: '100%'});
 				jQuery('.jenis_pagu').select2({width: '100%'});
+				jQuery('#wrap-loading').hide();
 			}
 		})
 	}
@@ -657,4 +658,67 @@ $body = '';
 		tableHtmlToExcel("preview", name);
 	}
 
+	function cek_pemutakhiran(){
+		jQuery('#wrap-loading').show();
+		jQuery.ajax({
+			url:ajax.url,
+			type:'post',
+			dataType:'json',
+			data:{
+				action:'cek_pemutakhiran_total_renstra',
+				tahun_anggaran:tahun_anggaran,
+				api_key:jQuery("#api_key").val(),
+			},
+			success:function(response){
+				jQuery('#wrap-loading').hide();
+				if(response.status == 'success'){
+					var total_sub_keg = 0;
+					var total_sumber_dana = '-';
+					response.sub_keg.map(function(b, i){
+						if(b.jml >= 1){
+							var row = table_renja.row('[data-idskpd='+b.id_sub_skpd+']' );
+							var index_row = row.index();
+							var index_td = 1;
+							var new_data = row.data();
+							var nama_skpd = new_data[index_td].split(' <span')[0];
+							new_data[index_td] = nama_skpd+' <span class="notif badge badge-danger">'+b.jml+'</span>';
+							table_renja.row(index_row).data(new_data).draw();
+							jQuery(row.node()).find('>td').eq(1).css('background', '#f9d9d9');
+							
+							total_sub_keg += +(b.jml);
+						}
+					});
+					var html = ''
+						+'<h4 class="text-center">Data rekapitulasi pemutakhiran</h4>'
+						+'<table class="table table-bordered">'
+							+'<thead>'
+								+'<tr>'
+									+'<th class="text-center">Sub Kegiatan</th>'
+									+'<th class="text-center">Sumber Dana</th>'
+									+'<th class="text-center">Rekening Belanja</th>'
+									+'<th class="text-center">Pendapatan</th>'
+									+'<th class="text-center">Pembiayaan Penerimaan</th>'
+									+'<th class="text-center">Pembiayaan Pengeluaran</th>'
+									+'<th class="text-center">Komponen Belanja</th>'
+								+'</tr>'
+							+'</thead>'
+							+'<tbody>'
+								+'<tr>'
+									+'<td class="text-center">'+total_sub_keg+'</td>'
+									+'<td class="text-center">'+total_sumber_dana+'</td>'
+									+'<td class="text-center">'+total_sumber_dana+'</td>'
+									+'<td class="text-center">'+total_sumber_dana+'</td>'
+									+'<td class="text-center">'+total_sumber_dana+'</td>'
+									+'<td class="text-center">'+total_sumber_dana+'</td>'
+									+'<td class="text-center">'+total_sumber_dana+'</td>'
+								+'</tr>'
+							+'</tbody>'
+						+'</table>';
+					jQuery('#tabel-pemutakhiran-belanja').html(html);
+					return;
+				}
+				alert(response.message);
+			}
+		});
+	}
 </script> 

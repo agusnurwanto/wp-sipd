@@ -6585,10 +6585,12 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 				$body.='</tr>';
 
 				$html='<div id="preview" style="padding: 5px; overflow: auto; height: 80vh;">
-						<h4 style="text-align: center; margin: 0; font-weight: bold;">PAGU AKUMULASI RENSTRA Per Unit Kerja 
-						<br>Tahun '.$jadwal_lokal->awal_renstra.' - '.$jadwal_lokal->akhir_renstra.' '.$nama_pemda.'
-						<br>'.$jadwal_lokal->nama_jadwal.'
+						<h4 style="text-align: center; margin: 0; font-weight: bold;">PAGU AKUMULASI RENSTRA Per Unit Kerja<br>Tahun '.$jadwal_lokal->awal_renstra.' - '.$jadwal_lokal->akhir_renstra.' '.$nama_pemda.'<br>'.$jadwal_lokal->nama_jadwal.'
 						</h4>
+						<br>
+						<button class="btn btn-warning" onclick="cek_pemutakhiran();">Cek Pemutakhiran</button>
+						<div id="tabel-pemutakhiran-belanja"></div>
+						<br>
 						<table id="table-renstra" cellpadding="2" cellspacing="0" style="font-family:\'Open Sans\',-apple-system,BlinkMacSystemFont,\'Segoe UI\',sans-serif; border-collapse: collapse; font-size: 70%; border: 0; table-layout: fixed;" contenteditable="false">
 							<thead><tr>
 									<th style="width: 85px;" class="atas kiri kanan bawah text_tengah text_blok" rowspan="2">No</th>
@@ -8425,6 +8427,40 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 					GROUP BY id_sub_skpd
 				", $_POST['tahun_anggaran']), ARRAY_A);
 				$ret['sub_keg'] = $sub_keg;
+			} else {
+				$ret['status'] = 'error';
+				$ret['message'] = 'APIKEY tidak sesuai!';
+			}
+		} else {
+			$ret['status'] = 'error';
+			$ret['message'] = 'Format Salah!';
+		}
+		die(json_encode($ret));
+    }
+
+    public function cek_pemutakhiran_total_renstra(){
+    	global $wpdb;
+		$ret = array(
+			'status'	=> 'success',
+			'message'	=> 'Berhasil get data cek pemutakhiran!'
+		);
+		if (!empty($_POST)) {
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+				$sub_keg = $wpdb->get_results($wpdb->prepare("
+					SELECT
+						count(s.id) as jml,
+						id_unit
+					FROM data_renstra_sub_kegiatan_lokal s
+					LEFT JOIN data_prog_keg k on s.id_sub_giat=k.id_sub_giat
+						AND s.tahun_anggaran=k.tahun_anggaran
+					WHERE s.active=1
+						AND s.tahun_anggaran=%d
+						AND k.active != 1
+					GROUP BY id_unit
+				", $_POST['tahun_anggaran']), ARRAY_A);
+				$ret['sub_keg'] = $sub_keg;
+				$ret['kegiatan'] = '';
+				$ret['program'] = '';
 			} else {
 				$ret['status'] = 'error';
 				$ret['message'] = 'APIKEY tidak sesuai!';
