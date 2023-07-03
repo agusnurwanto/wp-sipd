@@ -68,6 +68,18 @@ $title = 'RENJA SIPD RI | '.$input['tahun_anggaran'];
 $shortcode = '[renja_sipd_ri tahun_anggaran="'.$input['tahun_anggaran'].'"]';
 $url_renja_ri = $this->generatePage($title, $input['tahun_anggaran'], $shortcode, false);
 
+$title = 'Analisis Belanja per-Program | '.$input['tahun_anggaran'];
+$shortcode = '[analisis_belanja_program tahun_anggaran="'.$input['tahun_anggaran'].'"]';
+$url_analisis_belanja_program = $this->generatePage($title, $input['tahun_anggaran'], $shortcode, false);
+
+$title = 'Analisis Belanja per-Kegiatan | '.$input['tahun_anggaran'];
+$shortcode = '[analisis_belanja_kegiatan tahun_anggaran="'.$input['tahun_anggaran'].'"]';
+$url_analisis_belanja_kegiatan = $this->generatePage($title, $input['tahun_anggaran'], $shortcode, false);
+
+$title = 'Analisis Belanja per-Sub Kegiatan | '.$input['tahun_anggaran'];
+$shortcode = '[analisis_belanja_sub_kegiatan tahun_anggaran="'.$input['tahun_anggaran'].'"]';
+$url_analisis_belanja_sub_kegiatan = $this->generatePage($title, $input['tahun_anggaran'], $shortcode, false);
+
 $body = '';
 ?>
 <style>
@@ -284,14 +296,16 @@ $body = '';
 					jQuery('.submitBtn').attr('disabled','disabled')
 				},
 				success: function(response){
+					jQuery('#modalTambahJadwal').modal('hide')
 					jQuery('#wrap-loading').hide()
-					alert(response.message);
 					if(response.status == 'success'){
-						jQuery('#modalTambahJadwal').modal('hide');
-						jQuery('#jadwal_nama').val('');
-						jQuery("#link_renstra").val('');
-						penjadwalanTable.ajax.reload();
+						alert('Data berhasil ditambahkan')
+						penjadwalanTable.ajax.reload()
+					}else{
+						alert(response.message)
 					}
+					jQuery('#jadwal_nama').val('')
+					jQuery("#link_renstra").val('')
 				}
 			})
 		}
@@ -547,6 +561,9 @@ $body = '';
 					      			<option value="pagu_total">Format Pagu Total Per Unit Kerja</option>
 					      			<option value="renja_sipd_merah">Format RENJA SIPD Merah</option>
 					      			<option value="renja_sipd_ri">Format RENJA SIPD RI</option>
+					      			<option value="analisis_belanja_program">Analisis Belanja Pagu per-Program</option>
+					      			<option value="analisis_belanja_kegiatan">Analisis Belanja Pagu per-Kegiatan</option>
+					      			<option value="analisis_belanja_sub_kegiatan">Analisis Belanja Pagu per-Sub Kegiatan</option>
 				      			</select>
 					    	</div>
 					    </div></br>
@@ -597,6 +614,18 @@ $body = '';
 			case 'renja_sipd_ri':
 				window.open('<?php echo $url_renja_ri; ?>'+'&id_unit='+id_unit+'&id_jadwal_lokal='+id_jadwal_lokal,'_blank');
 				break;
+				
+			case 'analisis_belanja_program':
+				window.open('<?php echo $url_analisis_belanja_program; ?>'+'&id_unit='+id_unit+'&id_jadwal_lokal='+id_jadwal_lokal,'_blank');
+				break;
+				
+			case 'analisis_belanja_kegiatan':
+				window.open('<?php echo $url_analisis_belanja_kegiatan; ?>'+'&id_unit='+id_unit+'&id_jadwal_lokal='+id_jadwal_lokal,'_blank');
+				break;
+				
+			case 'analisis_belanja_sub_kegiatan':
+				window.open('<?php echo $url_analisis_belanja_sub_kegiatan; ?>'+'&id_unit='+id_unit+'&id_jadwal_lokal='+id_jadwal_lokal,'_blank');
+				break;
 
 			case '-':
 				alert('Jenis laporan belum dipilih');
@@ -628,7 +657,7 @@ $body = '';
 					jQuery('#modal-report .export-excel').attr("disabled", false);
 					jQuery('#modal-report .export-excel').attr("title", title);
 
-					window.table_renja = jQuery("#table-renja").DataTable( {
+					var table = jQuery("#table-renja").DataTable( {
 				        dom: 'Blfrtip',
 				        lengthMenu: [
 				            [10, 25, 50, -1],
@@ -641,26 +670,26 @@ $body = '';
 				    jQuery('#modal-report .action-footer .dt-buttons').remove();
 					jQuery('#modal-report .action-footer').html(
 				    	"<button type=\"button\" class=\"btn btn-success btn-preview\" onclick=\"preview('"+id_jadwal_lokal+"')\">Preview</button>");
-				    jQuery('#modal-report .action-footer').append(table_renja.buttons().container());
+				    jQuery('#modal-report .action-footer').append(table.buttons().container());
 				    jQuery('#modal-report .action-footer .dt-buttons').css('margin-left', '5px');
 				    jQuery('#modal-report .action-footer .buttons-excel').addClass('btn btn-primary');
 				    jQuery('#modal-report .action-footer .buttons-excel span').html('Export Excel');
 
-					window.table_renja_pendapatan = jQuery("#table-renja-pendapatan").DataTable( {
+					var table = jQuery("#table-renja-pendapatan").DataTable( {
 				        lengthMenu: [
 				            [10, 25, 50, -1],
 				            [10, 25, 50, 'All'],
 				        ]
 				    } );
 
-					window.table_renja_penerimaan = jQuery("#table-renja-penerimaan").DataTable( {
+					var table = jQuery("#table-renja-penerimaan").DataTable( {
 				        lengthMenu: [
 				            [10, 25, 50, -1],
 				            [10, 25, 50, 'All'],
 				        ]
 				    } );
 
-					window.table_renja_pengeluaran = jQuery("#table-renja-pengeluaran").DataTable( {
+					var table = jQuery("#table-renja-pengeluaran").DataTable( {
 				        lengthMenu: [
 				            [10, 25, 50, -1],
 				            [10, 25, 50, 'All'],
@@ -706,67 +735,4 @@ $body = '';
 		})
 	}
 
-	function cek_pemutakhiran(){
-		jQuery('#wrap-loading').show();
-		jQuery.ajax({
-			url:ajax.url,
-			type:'post',
-			dataType:'json',
-			data:{
-				action:'cek_pemutakhiran_total',
-				tahun_anggaran:tahun_anggaran,
-				api_key:jQuery("#api_key").val(),
-			},
-			success:function(response){
-				jQuery('#wrap-loading').hide();
-				if(response.status == 'success'){
-					var total_sub_keg = 0;
-					var total_sumber_dana = '-';
-					response.sub_keg.map(function(b, i){
-						if(b.jml >= 1){
-							var row = table_renja.row('[data-idskpd='+b.id_sub_skpd+']' );
-							var index_row = row.index();
-							var index_td = 1;
-							var new_data = row.data();
-							var nama_skpd = new_data[index_td].split(' <span')[0];
-							new_data[index_td] = nama_skpd+' <span class="notif badge badge-danger">'+b.jml+'</span>';
-							table_renja.row(index_row).data(new_data).draw();
-							jQuery(row.node()).find('>td').eq(1).css('background', '#f9d9d9');
-							
-							total_sub_keg += +(b.jml);
-						}
-					});
-					var html = ''
-						+'<h4 class="text-center">Data rekapitulasi pemutakhiran</h4>'
-						+'<table class="table table-bordered">'
-							+'<thead>'
-								+'<tr>'
-									+'<th class="text-center">Sub Kegiatan</th>'
-									+'<th class="text-center">Sumber Dana</th>'
-									+'<th class="text-center">Rekening Belanja</th>'
-									+'<th class="text-center">Pendapatan</th>'
-									+'<th class="text-center">Pembiayaan Penerimaan</th>'
-									+'<th class="text-center">Pembiayaan Pengeluaran</th>'
-									+'<th class="text-center">Komponen Belanja</th>'
-								+'</tr>'
-							+'</thead>'
-							+'<tbody>'
-								+'<tr>'
-									+'<td class="text-center">'+total_sub_keg+'</td>'
-									+'<td class="text-center">'+total_sumber_dana+'</td>'
-									+'<td class="text-center">'+total_sumber_dana+'</td>'
-									+'<td class="text-center">'+total_sumber_dana+'</td>'
-									+'<td class="text-center">'+total_sumber_dana+'</td>'
-									+'<td class="text-center">'+total_sumber_dana+'</td>'
-									+'<td class="text-center">'+total_sumber_dana+'</td>'
-								+'</tr>'
-							+'</tbody>'
-						+'</table>';
-					jQuery('#tabel-pemutakhiran-belanja').html(html);
-					return;
-				}
-				alert(response.message);
-			}
-		});
-	}
 </script> 

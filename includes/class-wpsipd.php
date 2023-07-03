@@ -939,6 +939,9 @@ class Wpsipd
 		add_shortcode('renja_sipd_merah', array($plugin_public, 'renja_sipd_merah'));
 		add_shortcode('renja_sipd_ri', array($plugin_public, 'renja_sipd_ri'));
 		add_shortcode('cetak_usulan_standar_harga', array($plugin_public, 'cetak_usulan_standar_harga'));
+		add_shortcode('analisis_belanja_program', array($plugin_public, 'analisis_belanja_program'));
+		add_shortcode('analisis_belanja_kegiatan', array($plugin_public, 'analisis_belanja_kegiatan'));
+		add_shortcode('analisis_belanja_sub_kegiatan', array($plugin_public, 'analisis_belanja_sub_kegiatan'));
 
 		//shortcode SIPKD
 		add_shortcode('data_akun',array($plugin_public,'sipkd_akun'));
