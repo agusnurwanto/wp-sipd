@@ -68,6 +68,18 @@ $title = 'RENJA SIPD RI | '.$input['tahun_anggaran'];
 $shortcode = '[renja_sipd_ri tahun_anggaran="'.$input['tahun_anggaran'].'"]';
 $url_renja_ri = $this->generatePage($title, $input['tahun_anggaran'], $shortcode, false);
 
+$title = 'Analisis Belanja per-Program | '.$input['tahun_anggaran'];
+$shortcode = '[analisis_belanja_program tahun_anggaran="'.$input['tahun_anggaran'].'"]';
+$url_analisis_belanja_program = $this->generatePage($title, $input['tahun_anggaran'], $shortcode, false);
+
+$title = 'Analisis Belanja per-Kegiatan | '.$input['tahun_anggaran'];
+$shortcode = '[analisis_belanja_kegiatan tahun_anggaran="'.$input['tahun_anggaran'].'"]';
+$url_analisis_belanja_kegiatan = $this->generatePage($title, $input['tahun_anggaran'], $shortcode, false);
+
+$title = 'Analisis Belanja per-Sub Kegiatan | '.$input['tahun_anggaran'];
+$shortcode = '[analisis_belanja_sub_kegiatan tahun_anggaran="'.$input['tahun_anggaran'].'"]';
+$url_analisis_belanja_sub_kegiatan = $this->generatePage($title, $input['tahun_anggaran'], $shortcode, false);
+
 $body = '';
 ?>
 <style>
@@ -293,6 +305,7 @@ $body = '';
 						penjadwalanTable.ajax.reload();
 					}
 				}
+
 			})
 		}
 		jQuery('#modalTambahJadwal').modal('hide');
@@ -547,6 +560,9 @@ $body = '';
 					      			<option value="pagu_total">Format Pagu Total Per Unit Kerja</option>
 					      			<option value="renja_sipd_merah">Format RENJA SIPD Merah</option>
 					      			<option value="renja_sipd_ri">Format RENJA SIPD RI</option>
+					      			<option value="analisis_belanja_program">Analisis Belanja Pagu per-Program</option>
+					      			<option value="analisis_belanja_kegiatan">Analisis Belanja Pagu per-Kegiatan</option>
+					      			<option value="analisis_belanja_sub_kegiatan">Analisis Belanja Pagu per-Sub Kegiatan</option>
 				      			</select>
 					    	</div>
 					    </div></br>
@@ -597,6 +613,18 @@ $body = '';
 			case 'renja_sipd_ri':
 				window.open('<?php echo $url_renja_ri; ?>'+'&id_unit='+id_unit+'&id_jadwal_lokal='+id_jadwal_lokal,'_blank');
 				break;
+				
+			case 'analisis_belanja_program':
+				window.open('<?php echo $url_analisis_belanja_program; ?>'+'&id_unit='+id_unit+'&id_jadwal_lokal='+id_jadwal_lokal,'_blank');
+				break;
+				
+			case 'analisis_belanja_kegiatan':
+				window.open('<?php echo $url_analisis_belanja_kegiatan; ?>'+'&id_unit='+id_unit+'&id_jadwal_lokal='+id_jadwal_lokal,'_blank');
+				break;
+				
+			case 'analisis_belanja_sub_kegiatan':
+				window.open('<?php echo $url_analisis_belanja_sub_kegiatan; ?>'+'&id_unit='+id_unit+'&id_jadwal_lokal='+id_jadwal_lokal,'_blank');
+				break;
 
 			case '-':
 				alert('Jenis laporan belum dipilih');
@@ -641,7 +669,7 @@ $body = '';
 				    jQuery('#modal-report .action-footer .dt-buttons').remove();
 					jQuery('#modal-report .action-footer').html(
 				    	"<button type=\"button\" class=\"btn btn-success btn-preview\" onclick=\"preview('"+id_jadwal_lokal+"')\">Preview</button>");
-				    jQuery('#modal-report .action-footer').append(table_renja.buttons().container());
+					jQuery('#modal-report .action-footer').append(table_renja.buttons().container());
 				    jQuery('#modal-report .action-footer .dt-buttons').css('margin-left', '5px');
 				    jQuery('#modal-report .action-footer .buttons-excel').addClass('btn btn-primary');
 				    jQuery('#modal-report .action-footer .buttons-excel span').html('Export Excel');
@@ -732,7 +760,7 @@ $body = '';
 							new_data[index_td] = nama_skpd+' <span class="notif badge badge-danger">'+b.jml+'</span>';
 							table_renja.row(index_row).data(new_data).draw();
 							jQuery(row.node()).find('>td').eq(1).css('background', '#f9d9d9');
-							
+
 							total_sub_keg += +(b.jml);
 						}
 					});
@@ -769,4 +797,5 @@ $body = '';
 			}
 		});
 	}
+
 </script> 

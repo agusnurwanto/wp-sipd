@@ -34,6 +34,36 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 		require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/renja/wpsipd-public-laporan-renja-sipd-ri.php';
 	}
 
+	public function analisis_belanja_program($atts)
+	{
+		// untuk disable render shortcode di halaman edit page/post
+		if(!empty($_GET) && !empty($_GET['post'])){
+			return '';
+		}
+		
+		require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/renja/wpsipd-public-analisis-belanja-program.php';
+	}
+
+	public function analisis_belanja_kegiatan($atts)
+	{
+		// untuk disable render shortcode di halaman edit page/post
+		if(!empty($_GET) && !empty($_GET['post'])){
+			return '';
+		}
+		
+		require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/renja/wpsipd-public-analisis-belanja-kegiatan.php';
+	}
+
+	public function analisis_belanja_sub_kegiatan($atts)
+	{
+		// untuk disable render shortcode di halaman edit page/post
+		if(!empty($_GET) && !empty($_GET['post'])){
+			return '';
+		}
+		
+		require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/renja/wpsipd-public-analisis-belanja-sub-kegiatan.php';
+	}
+
 	public function get_data_monitoring_rup(){
 		global $wpdb;
 		$return = array(
