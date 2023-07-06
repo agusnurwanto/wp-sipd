@@ -783,10 +783,10 @@ function singkron_bku_add(){
         },
         success: function(res){
 		    jQuery('#wrap-loading').hide();
-		    alert('Berhasil singkron BKU DD dari WP-SIPD!');
+		    alert('Berhasil singkron BKU ADD dari WP-SIPD!');
         },
         error: function(e){
-            console.log('Error singkron BKU DD dari WP-SIPD!', e);
+            console.log('Error singkron BKU ADD dari WP-SIPD!', e);
         }
     });
 }

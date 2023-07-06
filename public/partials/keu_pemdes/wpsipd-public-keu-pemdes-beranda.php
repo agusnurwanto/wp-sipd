@@ -123,16 +123,15 @@ if($cek_login){
 $data_all[BKU_DD]['pagu'] = $wpdb->get_var($wpdb->prepare("
     SELECT 
         sum(total) as total 
-    FROM data_pencairan_bku_dd_desa p
-    INNER JOIN data_bku_dd_desa b on p.id_bku_dd=b.id
+    from data_bku_dd_desa 
     WHERE tahun_anggaran=%d
         and active=1
 ", $input['tahun_anggaran']));
 $data_all[BKU_DD]['pencairan'] = $wpdb->get_var($wpdb->prepare("
     SELECT 
         SUM(p.total_pencairan) 
-    FROM data_pencairan_bhrd_desa p
-    INNER JOIN data_bhrd_desa b on p.id_bhrd=b.id
+    FROM data_pencairan_bku_dd_desa p
+    INNER JOIN data_bku_dd_desa b on p.id_bku_dd=b.id
     WHERE b.active=1
         AND b.tahun_anggaran=%d
 ", $input['tahun_anggaran']));

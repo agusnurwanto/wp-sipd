@@ -520,10 +520,10 @@ class Wpsipd_Admin_Keu_Pemdes {
                         and tahun_anggaran=%d
                 ", $data['lokus_akun_teks'], $kecamatan, $_POST['tahun_anggaran']));
                 if(empty($cek_id)){
-                    $wpdb->insert("data_bku_dd_desa", $data_db);
+                    $wpdb->insert("data_bku_add_desa", $data_db);
                     $ret['data']['insert']++;
                 }else{
-                    $wpdb->update("data_bku_dd_desa", $data_db, array(
+                    $wpdb->update("data_bku_add_desa", $data_db, array(
                         "id" => $cek_id
                     ));
                     $ret['data']['update']++;
