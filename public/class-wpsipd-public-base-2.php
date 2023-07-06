@@ -3521,7 +3521,7 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 								WHERE kode_sbl=%s
 									AND sk.tahun_anggaran=%d
 									AND sk.id_jadwal=%d
-							", $sub['kode_sbl_lama'], $tahun_anggaran, $cek_jadwal['data']['id_jadwal_lokal']));
+							", $sub['kode_sbl_lama'], $tahun_anggaran, $cek_jadwal['data']['id_jadwal_lokal']), ARRAY_A);
 							if($data_lama['kode_bidang_urusan'] == 'X.XX'){
 								$urusan_utama_lama = explode('.', $data_lama['kode_sub_skpd']);
 								$urusan_utama_lama = $urusan_utama_lama[0].'.'.$urusan_utama_lama[1];
