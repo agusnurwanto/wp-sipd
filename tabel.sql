@@ -2390,6 +2390,7 @@ CREATE TABLE `data_sub_keg_bl_lokal_history` (
   `waktu_awal_usulan` int(11) DEFAULT NULL,
   `waktu_akhir_usulan` int(11) DEFAULT NULL,
   `sasaran_usulan` text DEFAULT NULL,
+  `kode_sbl_lama` varchar(50) CHARACTER SET latin1 DEFAULT NULL,
   PRIMARY KEY  (id)
 );
 
