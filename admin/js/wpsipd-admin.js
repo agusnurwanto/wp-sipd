@@ -771,6 +771,26 @@ function singkron_bku_dd(){
     });
 }
 
+function singkron_bku_add(){
+    jQuery('#wrap-loading').show();
+    relayAjax({
+        url: ajaxurl,
+        type: 'post',
+        data: {
+            action: 'singkron_bku_add',
+            tahun_anggaran: jQuery('#tahun_anggaran').val(),
+        	kelompok: jQuery('#kelompok_belanja').val()
+        },
+        success: function(res){
+		    jQuery('#wrap-loading').hide();
+		    alert('Berhasil singkron BKU DD dari WP-SIPD!');
+        },
+        error: function(e){
+            console.log('Error singkron BKU DD dari WP-SIPD!', e);
+        }
+    });
+}
+
 function import_excel_bkk_infrastruktur(){
 	var data = jQuery('#data-excel').val();
     if(!data){

@@ -104,7 +104,7 @@ $bkk_infrastruktur = $wpdb->get_row($wpdb->prepare('
         and active=1
         and id_desa=%d
     group by desa
-', $input['tahun_anggaran'], $input['id_kel'],$input['id_kec']), ARRAY_A);
+', $input['tahun_anggaran'], $input['id_kel']), ARRAY_A);
 if (empty($bkk_infrastruktur)) {
     $bkk_infrastruktur = array('total' => 0);
 }
@@ -119,7 +119,7 @@ $bhpd = $wpdb->get_row($wpdb->prepare('
         and active=1
         and id_desa=%d
     group by desa
-', $input['tahun_anggaran'], $input['id_kel'],$input['id_kec']), ARRAY_A);
+', $input['tahun_anggaran'], $input['id_kel']), ARRAY_A);
 if (empty($bhpd)) {
     $bhpd = array('total' => 0);
 }
@@ -134,7 +134,7 @@ $bhrd = $wpdb->get_row($wpdb->prepare('
         and active=1
         and id_desa=%d
     group by desa
-', $input['tahun_anggaran'], $input['id_kel'],$input['id_kec']), ARRAY_A);
+', $input['tahun_anggaran'], $input['id_kel']), ARRAY_A);
 if (empty($bhrd)) {
     $bhrd = array('total' => 0);
 }
@@ -149,7 +149,7 @@ $bku_dd = $wpdb->get_row($wpdb->prepare('
         and active=1
         and id_desa=%d
     group by desa
-', $input['tahun_anggaran'], $input['id_kel'],$input['id_kec']), ARRAY_A);
+', $input['tahun_anggaran'], $input['id_kel']), ARRAY_A);
 if (empty($bku_dd)) {
     $bku_dd = array('total' => 0);
 }
@@ -164,7 +164,7 @@ $bku_add = $wpdb->get_row($wpdb->prepare('
         and active=1
         and id_desa=%d
     group by desa
-', $input['tahun_anggaran'], $input['id_kel'],$input['id_kec']), ARRAY_A);
+', $input['tahun_anggaran'], $input['id_kel']), ARRAY_A);
 if (empty($bku_add)) {
     $bku_add = array('total' => 0);
 }

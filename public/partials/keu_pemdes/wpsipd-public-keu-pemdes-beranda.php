@@ -9,17 +9,20 @@ $input = array(
     'tahun_anggaran' => '2023'
 );
 
-$user_id = um_user( 'ID' );
-$user_meta = get_userdata($user_id);
-$cek_login = false;
-if(
-    in_array("administrator", $user_meta->roles)
-    || in_array("PLT", $user_meta->roles) 
-    || in_array("PA", $user_meta->roles) 
-    || in_array("KPA", $user_meta->roles)
-){
-    $cek_login = true;
-}
+$cek_login = true;
+// $user_id = um_user( 'ID' );
+// $user_meta = get_userdata($user_id);
+// if(
+//     !empty($user_id)
+//     && (
+//         in_array("administrator", $user_meta->roles)
+//         || in_array("PLT", $user_meta->roles) 
+//         || in_array("PA", $user_meta->roles) 
+//         || in_array("KPA", $user_meta->roles)
+//     )
+// ){
+//     $cek_login = true;
+// }
 
 if(!empty($_GET) && !empty($_GET['tahun'])){
     $input['tahun_anggaran'] = $_GET['tahun'];
