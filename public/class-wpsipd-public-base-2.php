@@ -3514,23 +3514,27 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 							}
 						}
 						if(!empty($sub['kode_sbl_lama'])){
-							$data_lama = $wpdb->get_row($wpdb->prepare("
-								SELECT 
-									sk.*
-								FROM data_sub_keg_bl_lokal_history sk
-								WHERE kode_sbl=%s
-									AND sk.tahun_anggaran=%d
-									AND sk.id_jadwal=%d
-							", $sub['kode_sbl_lama'], $tahun_anggaran, $cek_jadwal['data']['id_jadwal_lokal']), ARRAY_A);
-							if($data_lama['kode_bidang_urusan'] == 'X.XX'){
-								$urusan_utama_lama = explode('.', $data_lama['kode_sub_skpd']);
-								$urusan_utama_lama = $urusan_utama_lama[0].'.'.$urusan_utama_lama[1];
-								if(!empty($master_bidang_urusan[$urusan_utama_lama])){
-									$data_lama['kode_bidang_urusan'] = $master_bidang_urusan[$urusan_utama_lama]['kode_bidang_urusan'];
-									$data_lama['nama_bidang_urusan'] = $master_bidang_urusan[$urusan_utama_lama]['nama_bidang_urusan'];
+							$data_sub_giat[$k]['sub_keg_lama'] = array();
+							$kode_sbl_lama = explode('|', $sub['kode_sbl_lama']);
+							foreach($kode_sbl_lama as $kd_lama){
+								$data_lama = $wpdb->get_row($wpdb->prepare("
+									SELECT 
+										sk.*
+									FROM data_sub_keg_bl_lokal_history sk
+									WHERE kode_sbl=%s
+										AND sk.tahun_anggaran=%d
+										AND sk.id_jadwal=%d
+								", $kd_lama, $tahun_anggaran, $cek_jadwal['data']['id_jadwal_lokal']), ARRAY_A);
+								if($data_lama['kode_bidang_urusan'] == 'X.XX'){
+									$urusan_utama_lama = explode('.', $data_lama['kode_sub_skpd']);
+									$urusan_utama_lama = $urusan_utama_lama[0].'.'.$urusan_utama_lama[1];
+									if(!empty($master_bidang_urusan[$urusan_utama_lama])){
+										$data_lama['kode_bidang_urusan'] = $master_bidang_urusan[$urusan_utama_lama]['kode_bidang_urusan'];
+										$data_lama['nama_bidang_urusan'] = $master_bidang_urusan[$urusan_utama_lama]['nama_bidang_urusan'];
+									}
 								}
+								$data_sub_giat[$k]['sub_keg_lama'][] = $data_lama;
 							}
-							$data_sub_giat[$k]['sub_keg_lama'] = $data_lama;
 						}
 						$data_sub_giat[$k]['sumber_dana'] = array();
 						$data_sub_giat[$k]['lokasi'] = array();
