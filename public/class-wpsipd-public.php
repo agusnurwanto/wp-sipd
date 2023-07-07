@@ -6931,23 +6931,28 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		$ajax_url = admin_url('admin-ajax.php');
 		echo '<div>';
 		if(!empty($id_skpd)){ 
-			echo "
-			<h5 class='text_tengah' style='margin-bottom: 10px;'>$nama_skpd</h5>
-			<div class='container'>
-				<div class='row'>
-					<div class='col-md-2'>
-						<label for='alamat_skpd_$id_skpd' style='display: block;'>Alamat SKPD : </label>
-						<button class='btn btn-primary' onclick='simpan_alamat($id_skpd, \"$api_key\", \"$ajax_url\");'>Simpan</button>
-					</div>
-					<div class='col-md-9'>
-						<textarea class='form-control' id='alamat_skpd_$id_skpd' placeholder='Jalan ...'>$alamat</textarea>
-					</div>
-				</div>
-			</div>";
+			echo "<h5 class='text_tengah' style='margin-bottom: 10px;'>$nama_skpd</h5>";
+
 			$daftar_tombol = $this->get_carbon_multiselect('crb_daftar_tombol_user_dashboard');
 			$daftar_tombol_list = array();
 			foreach ($daftar_tombol as $v) {
 				$daftar_tombol_list[$v['value']] = $v['value'];
+			}
+
+			// jika menu input usulan ssh aktiv
+			if(!empty($daftar_tombol_list[7])){
+				echo "
+				<div class='container'>
+					<div class='row'>
+						<div class='col-md-2'>
+							<label for='alamat_skpd_$id_skpd' style='display: block;'>Alamat SKPD : </label>
+							<button class='btn btn-primary' onclick='simpan_alamat($id_skpd, \"$api_key\", \"$ajax_url\");'>Simpan</button>
+						</div>
+						<div class='col-md-9'>
+							<textarea class='form-control' id='alamat_skpd_$id_skpd' placeholder='Jalan ...'>$alamat</textarea>
+						</div>
+					</div>
+				</div>";
 			}
 
 			$tahun = $_GET['tahun'];
@@ -7035,6 +7040,35 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 					if(!empty($daftar_tombol_list[9])){
 						echo '<li><a href="'.$url_menu.'" target="_blank" class="btn btn-info">INPUT RENJA</a></li>';
 					}
+
+					if(!empty($daftar_tombol_list[10])){
+						if(strpos(strtolower($vv['nama_skpd']), 'kecamatan ') !== false){
+							$tampil_pilkades = get_option("_bkk_pilkades_".$tahun);
+
+							$url_skpd = $this->generatePage($vv['nama_skpd'].' '.$vv['kode_skpd'].' | '.$tahun, $tahun, '[monitor_keu_pemdes tahun_anggaran="'.$tahun.'" id_skpd="'.$vv['id_skpd'].'"]');
+        					echo '<li style="display: block;"><a target="_blank" href="'.$url_skpd.'" class="btn btn-info">Keuangan PEMDES</a>';
+
+							$input_pencairan_bkk = $this->generatePage('Halaman Input Pencairan BKK', false, '[input_pencairan_bkk]');
+							echo '<li><a target="_blank" href="'.$input_pencairan_bkk.'" class="btn btn-info">Pencairan BKK Infrastruktur</a></li>';
+
+							if(!empty($tampil_pilkades)){
+								$input_pencairan_bkk_pilkades = $this->generatePage('Halaman Input Pencairan BKK Pilkades', false, '[input_pencairan_bkk_pilkades]');
+								echo '<li><a target="_blank" href="'.$input_pencairan_bkk_pilkades.'" class="btn btn-info">Pencairan BKK Pilkades</a></li>';
+							}
+
+							$input_pencairan_bhpd = $this->generatePage('Halaman Input Pencairan bhpd', false, '[input_pencairan_bhpd]');
+							echo '<li><a target="_blank" href="'.$input_pencairan_bhpd.'" class="btn btn-info">Pencairan BHPD</a></li>';
+
+							$input_pencairan_bhrd = $this->generatePage('Halaman Input Pencairan bhrd', false, '[input_pencairan_bhrd]');
+							echo '<li><a target="_blank" href="'.$input_pencairan_bhrd.'" class="btn btn-info">Pencairan BHRD</a></li>';
+
+							$input_pencairan_bku_dd = $this->generatePage('Halaman Input Pencairan BKU DD', false, '[input_pencairan_bku_dd]');
+							echo '<li><a target="_blank" href="'.$input_pencairan_bku_dd.'" class="btn btn-info">Pencairan BKU DD</a></li>';
+
+							$input_pencairan_bku_add = $this->generatePage('Halaman Input Pencairan BKU ADD', false, '[input_pencairan_bku_add]');
+							echo '<li><a target="_blank" href="'.$input_pencairan_bku_add.'" class="btn btn-info">Pencairan BKU ADD</a></li>';
+						}
+					}
 				}
 			}
 			echo '</ul>';
@@ -7109,14 +7143,26 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 			$this->pilih_tahun_anggaran();
 			if(empty($_GET) || empty($_GET['tahun'])){ return; }
 
-			$month = date('m');
-			$triwulan = floor($month/3);
-			$notif = '<h5 style="text-align: center; padding: 10px; border: 5px; background: #f5d3d3; text-decoration: underline; border-radius: 5px;">Sekarang awal bulan triwulan baru. Waktunya mengisi <b>MONEV indikator RENJA triwulan '.$triwulan.'</b>.<br>Jaga kesehatan & semangat!</h5>';
-			if($month%3 == 1){
-				if($triwulan == 0){
-					$triwulan = 4;
+			$daftar_tombol = $this->get_carbon_multiselect('crb_daftar_tombol_user_dashboard');
+			$daftar_tombol_list = array();
+			foreach ($daftar_tombol as $v) {
+				$daftar_tombol_list[$v['value']] = $v['value'];
+			}
+
+			// tampil di menu monev renja dan renstra
+			if(
+				!empty($daftar_tombol_list[4])
+				|| !empty($daftar_tombol_list[5])
+			){
+				$month = date('m');
+				$triwulan = floor($month/3);
+				$notif = '<h5 style="text-align: center; padding: 10px; border: 5px; background: #f5d3d3; text-decoration: underline; border-radius: 5px;">Sekarang awal bulan triwulan baru. Waktunya mengisi <b>MONEV indikator RENJA triwulan '.$triwulan.'</b>.<br>Jaga kesehatan & semangat!</h5>';
+				if($month%3 == 1){
+					if($triwulan == 0){
+						$triwulan = 4;
+					}
+					echo $notif;
 				}
-				echo $notif;
 			}
 			$nipkepala = get_user_meta($user_id, '_nip');
 			$skpd_db = $wpdb->get_results($wpdb->prepare("

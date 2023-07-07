@@ -42,6 +42,34 @@ function load_label(tahun_anggaran){
 	});
 }
 
+function set_setting_ajax(that){
+	jQuery("#wrap-loading").show();
+	var type = jQuery(that).attr('type');
+	var val = '';
+	if(type == 'checkbox'){
+		if(jQuery(that).is(':checked')){
+			val = 1;
+		}
+	}
+	jQuery.ajax({
+		url: ajaxurl,
+      	type: "post",
+      	data: {
+      		"action": "set_setting_ajax",
+      		"api_key": wpsipd.api_key,
+      		"key": jQuery(that).attr('data-id'),
+      		"val": val
+      	},
+		dataType: "json",
+      	success: function(data){
+			jQuery("#wrap-loading").hide();
+		},
+		error: function(e) {
+			console.log(e);
+		}
+	});
+}
+
 function format_sumberdana(){
 	var tahun = jQuery('#pilih_tahun').val();
 	var id_skpd = jQuery('#pilih_skpd').val();

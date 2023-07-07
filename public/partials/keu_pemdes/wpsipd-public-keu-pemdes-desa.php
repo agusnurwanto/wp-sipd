@@ -12,6 +12,8 @@ $input = shortcode_atts( array(
     'id_kel' => ''
 ), $atts );
 
+$tampil_pilkades = get_option("_bkk_pilkades_".$input['tahun_anggaran']);
+
 function link_detail($link_admin, $jenis){
     return "<a target='_blank' href='".$link_admin."?".$jenis['key']."=".$jenis['value']."'>".$jenis['label']."</a>";
 }
@@ -66,7 +68,9 @@ if(empty($input['id_kel']) && empty($input['id_skpd'])){
     if (empty($desa)) {
         die('<h1 class="text-center">Desa dengan id_kec ='.$input['id_kec'].' tidak ditemukan!</h1>'.$wpdb->last_query);
     }else{
-        echo '<ul>';
+        echo '
+        <h1 class="text-center">Desa/Kelurahan di '.$unit['nama_skpd'].'</h1>
+        <ul style="margin: 20px auto; width: 400px;">';
         foreach($desa as $val){
             $url_skpd = $this->generatePage($val['nama'].' | '.$input['tahun_anggaran'], $input['tahun_anggaran'], '[monitor_keu_pemdes tahun_anggaran="'.$input['tahun_anggaran'].'" id_kec="'.$id_kec.'" id_kel="'.$val['id_alamat'].'"]');
             echo '<li><a target="_blank" href="'.$url_skpd.'">'.$val['nama'].' | '.$input['tahun_anggaran'].'</a>';
@@ -97,91 +101,179 @@ $kecamatan = $wpdb->get_row("
 $bkk_infrastruktur = $wpdb->get_row($wpdb->prepare('
     SELECT 
         desa,
+        id_desa,
         kecamatan, 
         sum(total) as total 
     from data_bkk_desa 
     WHERE tahun_anggaran=%d
         and active=1
-        and id_desa=%d
+        and (
+            id_desa=%d
+            or (desa=%s and kecamatan=%s)
+        )
     group by desa
-', $input['tahun_anggaran'], $input['id_kel']), ARRAY_A);
+', $input['tahun_anggaran'], $input['id_kel'], $desa['nama'], $kecamatan['nama']), ARRAY_A);
 if (empty($bkk_infrastruktur)) {
     $bkk_infrastruktur = array('total' => 0);
+}else if(empty($bkk_infrastruktur['id_desa'])){
+    $wpdb->update('data_bkk_desa', array(
+        'id_desa' => $input['id_kel'],
+        'id_kecamatan' => $desa['id_kec']
+    ), array(
+        'active' => 1,
+        'tahun_anggaran' => $input['tahun_anggaran'],
+        'desa' => $desa['nama'],
+        'kecamatan' => $kecamatan['nama']
+    ));
 }
 
 $bhpd = $wpdb->get_row($wpdb->prepare('
     SELECT 
+        id_desa,
         desa,
         kecamatan, 
         sum(total) as total 
     from data_bhpd_desa 
     WHERE tahun_anggaran=%d
         and active=1
-        and id_desa=%d
+        and (
+            id_desa=%d
+            or (desa=%s and kecamatan=%s)
+        )
     group by desa
-', $input['tahun_anggaran'], $input['id_kel']), ARRAY_A);
+', $input['tahun_anggaran'], $input['id_kel'], $desa['nama'], $kecamatan['nama']), ARRAY_A);
 if (empty($bhpd)) {
     $bhpd = array('total' => 0);
+}else if(empty($bhpd['id_desa'])){
+    $wpdb->update('data_bhpd_desa', array(
+        'id_desa' => $input['id_kel'],
+        'id_kecamatan' => $desa['id_kec']
+    ), array(
+        'active' => 1,
+        'tahun_anggaran' => $input['tahun_anggaran'],
+        'desa' => $desa['nama'],
+        'kecamatan' => $kecamatan['nama']
+    ));
 }
 
 $bhrd = $wpdb->get_row($wpdb->prepare('
     SELECT 
+        id_desa,
         desa,
         kecamatan, 
         sum(total) as total 
     from data_bhrd_desa 
     WHERE tahun_anggaran=%d
         and active=1
-        and id_desa=%d
+        and (
+            id_desa=%d
+            or (desa=%s and kecamatan=%s)
+        )
     group by desa
-', $input['tahun_anggaran'], $input['id_kel']), ARRAY_A);
+', $input['tahun_anggaran'], $input['id_kel'], $desa['nama'], $kecamatan['nama']), ARRAY_A);
 if (empty($bhrd)) {
     $bhrd = array('total' => 0);
+}else if(empty($bhrd['id_desa'])){
+    $wpdb->update('data_bhrd_desa', array(
+        'id_desa' => $input['id_kel'],
+        'id_kecamatan' => $desa['id_kec']
+    ), array(
+        'active' => 1,
+        'tahun_anggaran' => $input['tahun_anggaran'],
+        'desa' => $desa['nama'],
+        'kecamatan' => $kecamatan['nama']
+    ));
 }
 
 $bku_dd = $wpdb->get_row($wpdb->prepare('
     SELECT 
+        id_desa,
         desa,
         kecamatan, 
         sum(total) as total 
     from data_bku_dd_desa 
     WHERE tahun_anggaran=%d
         and active=1
-        and id_desa=%d
+        and (
+            id_desa=%d
+            or (desa=%s and kecamatan=%s)
+        )
     group by desa
-', $input['tahun_anggaran'], $input['id_kel']), ARRAY_A);
+', $input['tahun_anggaran'], $input['id_kel'], $desa['nama'], $kecamatan['nama']), ARRAY_A);
 if (empty($bku_dd)) {
     $bku_dd = array('total' => 0);
+}else if(empty($bku_dd['id_desa'])){
+    $wpdb->update('data_bku_dd_desa', array(
+        'id_desa' => $input['id_kel'],
+        'id_kecamatan' => $desa['id_kec']
+    ), array(
+        'active' => 1,
+        'tahun_anggaran' => $input['tahun_anggaran'],
+        'desa' => $desa['nama'],
+        'kecamatan' => $kecamatan['nama']
+    ));
 }
 
 $bku_add = $wpdb->get_row($wpdb->prepare('
     SELECT 
+        id_desa,
         desa,
         kecamatan, 
         sum(total) as total 
     from data_bku_add_desa 
     WHERE tahun_anggaran=%d
         and active=1
-        and id_desa=%d
+        and (
+            id_desa=%d
+            or (desa=%s and kecamatan=%s)
+        )
     group by desa
-', $input['tahun_anggaran'], $input['id_kel']), ARRAY_A);
+', $input['tahun_anggaran'], $input['id_kel'], $desa['nama'], $kecamatan['nama']), ARRAY_A);
 if (empty($bku_add)) {
     $bku_add = array('total' => 0);
+}else if(empty($bku_add['id_desa'])){
+    $wpdb->update('data_bku_add_desa', array(
+        'id_desa' => $input['id_kel'],
+        'id_kecamatan' => $desa['id_kec']
+    ), array(
+        'active' => 1,
+        'tahun_anggaran' => $input['tahun_anggaran'],
+        'desa' => $desa['nama'],
+        'kecamatan' => $kecamatan['nama']
+    ));
 }
 
-$bkk_pilkades = $wpdb->get_row($wpdb->prepare('
-    SELECT 
-        desa,
-        kecamatan, 
-        sum(total) as total 
-    from data_bkk_pilkades_desa 
-    WHERE tahun_anggaran=%d
-        and active=1
-        and id_desa=%d
-    group by desa
-', $input['tahun_anggaran'], $input['id_kel']), ARRAY_A);
+if(!empty($tampil_pilkades)){
+    $bkk_pilkades = $wpdb->get_row($wpdb->prepare('
+        SELECT 
+            id_desa,
+            desa,
+            kecamatan, 
+            sum(total) as total 
+        from data_bkk_pilkades_desa 
+        WHERE tahun_anggaran=%d
+            and active=1
+        and (
+            id_desa=%d
+            or (desa=%s and kecamatan=%s)
+        )
+        group by desa
+    ', $input['tahun_anggaran'], $input['id_kel'], $desa['nama'], $kecamatan['nama']), ARRAY_A);
+}else{
+    $bkk_pilkades = false;
+}
 if (empty($bkk_pilkades)) {
     $bkk_pilkades = array('total' => 0);
+}else if(empty($bkk_pilkades['id_desa'])){
+    $wpdb->update('data_bkk_pilkades_desa', array(
+        'id_desa' => $input['id_kel'],
+        'id_kecamatan' => $desa['id_kec']
+    ), array(
+        'active' => 1,
+        'tahun_anggaran' => $input['tahun_anggaran'],
+        'desa' => $desa['nama'],
+        'kecamatan' => $kecamatan['nama']
+    ));
 }
 
 $bkk_infrastruktur_r = $wpdb->get_row($wpdb->prepare("
@@ -192,20 +284,28 @@ $bkk_infrastruktur_r = $wpdb->get_row($wpdb->prepare("
         AND b.active=1
         AND b.tahun_anggaran=%d
     WHERE b.id_desa=%d
-    ", $input['tahun_anggaran'], $input['id_kel']), ARRAY_A);
+        or (b.desa=%s and b.kecamatan=%s)
+    group by desa
+", $input['tahun_anggaran'], $input['id_kel'], $desa['nama'], $kecamatan['nama']), ARRAY_A);
 if (empty($bkk_infrastruktur_r)) {
     $bkk_infrastruktur_r = array('total' => 0);
 }
 
-$bkk_pilkades_r = $wpdb->get_row($wpdb->prepare("
-    SELECT 
-        SUM(p.total_pencairan) as total
-    FROM data_pencairan_bkk_pilkades_desa p
-    INNER JOIN data_bkk_pilkades_desa b on p.id_bkk_pilkades=b.id
-        AND b.active=1
-        AND b.tahun_anggaran=%d
-    WHERE b.id_desa=%d
-    ", $input['tahun_anggaran'], $input['id_kel']), ARRAY_A);
+if(!empty($tampil_pilkades)){
+    $bkk_pilkades_r = $wpdb->get_row($wpdb->prepare("
+        SELECT 
+            SUM(p.total_pencairan) as total
+        FROM data_pencairan_bkk_pilkades_desa p
+        INNER JOIN data_bkk_pilkades_desa b on p.id_bkk_pilkades=b.id
+            AND b.active=1
+            AND b.tahun_anggaran=%d
+        WHERE b.id_desa=%d
+            or (b.desa=%s and b.kecamatan=%s)
+        group by desa
+    ", $input['tahun_anggaran'], $input['id_kel'], $desa['nama'], $kecamatan['nama']), ARRAY_A);
+}else{
+    $bkk_pilkades_r = false;   
+}
 if (empty($bkk_pilkades_r)) {
     $bkk_pilkades_r = array('total' => 0);
 }
@@ -218,7 +318,9 @@ $bhpd_r = $wpdb->get_row($wpdb->prepare("
         AND b.active=1
         AND b.tahun_anggaran=%d
     WHERE b.id_desa=%d
-    ", $input['tahun_anggaran'], $input['id_kel']), ARRAY_A);
+        or (b.desa=%s and b.kecamatan=%s)
+    group by desa
+", $input['tahun_anggaran'], $input['id_kel'], $desa['nama'], $kecamatan['nama']), ARRAY_A);
 if (empty($bhpd_r)) {
     $bhpd_r = array('total' => 0);
 }
@@ -231,7 +333,9 @@ $bhrd_r = $wpdb->get_row($wpdb->prepare("
         AND b.active=1
         AND b.tahun_anggaran=%d
     WHERE b.id_desa=%d
-    ", $input['tahun_anggaran'], $input['id_kel']), ARRAY_A);
+        or (b.desa=%s and b.kecamatan=%s)
+    group by desa
+", $input['tahun_anggaran'], $input['id_kel'], $desa['nama'], $kecamatan['nama']), ARRAY_A);
 if (empty($bhrd_r)) {
     $bhrd_r = array('total' => 0);
 }
@@ -244,7 +348,9 @@ $bku_dd_r = $wpdb->get_row($wpdb->prepare("
         AND b.active=1
         AND b.tahun_anggaran=%d
     WHERE b.id_desa=%d
-    ", $input['tahun_anggaran'], $input['id_kel']), ARRAY_A);
+        or (b.desa=%s and b.kecamatan=%s)
+    group by desa
+", $input['tahun_anggaran'], $input['id_kel'], $desa['nama'], $kecamatan['nama']), ARRAY_A);
 if (empty($bku_dd_r)) {
     $bku_dd_r = array('total' => 0);
 }
@@ -257,7 +363,9 @@ $bku_add_r = $wpdb->get_row($wpdb->prepare("
         AND b.active=1
         AND b.tahun_anggaran=%d
     WHERE b.id_desa=%d
-    ", $input['tahun_anggaran'], $input['id_kel']), ARRAY_A);
+        or (b.desa=%s and b.kecamatan=%s)
+    group by desa
+", $input['tahun_anggaran'], $input['id_kel'], $desa['nama'], $kecamatan['nama']), ARRAY_A);
 if (empty($bku_add_r)) {
     $bku_add_r = array('total' => 0);
 }
@@ -303,6 +411,7 @@ if($total_all > 0 && $realisasi_all > 0){
     $persen_all = round(($realisasi_all/$total_all)*100, 2);
 }
 // print_r($body);die($wpdb->last_query);
+$nomor = 1;
 ?>
 
 <h1 class="text-center">Laporan<br>Desa <?php echo $desa['nama'] ?> Kecamatan <?php echo $kecamatan['nama'] ?><br>Tahun <?php echo $input['tahun_anggaran']; ?></h1>
@@ -320,48 +429,50 @@ if($total_all > 0 && $realisasi_all > 0){
         </thead>
         <tbody>
             <tr>
-                <td class="text-center">1</td>
+                <td class="text-center"><?php echo $nomor++; ?></td>
                 <td>BKK Infrastruktur</td>
                 <td class="text-right"><?php echo number_format($bkk_infrastruktur['total'],0,",","."); ?></td>
                 <td class="text-right"><?php echo number_format($bkk_infrastruktur_r['total'],0,",","."); ?></td>
                 <td class="text-right"><?php echo number_format($bkk_infrastruktur_b,0,",","."); ?></td>
                 <th class="text-center"><?php echo $bkk_infrastruktur_p; ?>%</th>
             </tr>
+        <?php if(!empty($tampil_pilkades)): ?>
             <tr>
-                <td class="text-center">2</td>
+                <td class="text-center"><?php echo $nomor++; ?></td>
                 <td>BKK PILKADES</td>
                 <td class="text-right"><?php echo number_format($bkk_pilkades['total'],0,",","."); ?></td>
                 <td class="text-right"><?php echo number_format($bkk_pilkades_r['total'],0,",","."); ?></td>
                 <td class="text-right"><?php echo number_format($bkk_pilkades_b,0,",","."); ?></td>
                 <th class="text-center"><?php echo $bkk_pilkades_p; ?>%</th>
             </tr>
+        <?php endif; ?>
             <tr>
-                <td class="text-center">3</td>
-                <td>BHPD</td>
+                <td class="text-center"><?php echo $nomor++; ?></td>
+                <td>Bagi Hasil Pajak Daerah</td>
                 <td class="text-right"><?php echo number_format($bhpd['total'],0,",","."); ?></td>
                 <td class="text-right"><?php echo number_format($bhpd_r['total'],0,",","."); ?></td>
                 <td class="text-right"><?php echo number_format($bhpd_b,0,",","."); ?></td>
                 <th class="text-center"><?php echo $bhpd_p; ?>%</th>
             </tr>
             <tr>
-                <td class="text-center">4</td>
-                <td>BHRD</td>
+                <td class="text-center"><?php echo $nomor++; ?></td>
+                <td>Bagi Hasil Retribusi Daerah</td>
                 <td class="text-right"><?php echo number_format($bhrd['total'],0,",","."); ?></td>
                 <td class="text-right"><?php echo number_format($bhrd_r['total'],0,",","."); ?></td>
                 <td class="text-right"><?php echo number_format($bhrd_b,0,",","."); ?></td>
                 <th class="text-center"><?php echo $bhrd_p; ?>%</th>
             </tr>
             <tr>
-                <td class="text-center">5</td>
-                <td>BKU DD</td>
+                <td class="text-center"><?php echo $nomor++; ?></td>
+                <td>BKU Dana Desa</td>
                 <td class="text-right"><?php echo number_format($bku_dd['total'],0,",","."); ?></td>
                 <td class="text-right"><?php echo number_format($bku_dd_r['total'],0,",","."); ?></td>
                 <td class="text-right"><?php echo number_format($bku_dd_b,0,",","."); ?></td>
                 <th class="text-center"><?php echo $bku_dd_p; ?>%</th>
             </tr>
             <tr>
-                <td class="text-center">6</td>
-                <td>BKU ADD</td>
+                <td class="text-center"><?php echo $nomor++; ?></td>
+                <td>BKU Alokasi Dana Desa</td>
                 <td class="text-right"><?php echo number_format($bku_add['total'],0,",","."); ?></td>
                 <td class="text-right"><?php echo number_format($bku_add_r['total'],0,",","."); ?></td>
                 <td class="text-right"><?php echo number_format($bku_add_b,0,",","."); ?></td>
