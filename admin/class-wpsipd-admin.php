@@ -500,6 +500,16 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes {
 	            		<li><a target="_blank" href="'.$input_pencairan_bku_add.'">Halaman Input Pencairan BKU ADD</a></li>
 	            	</ol>
 		        	' ),
+		        Field::make( 'html', 'crb_bku_add_singkron_button' )
+	            	->set_html( '
+	            	<h3>Singkronisasi dari data WP-SIPD</h3>
+	            	<label>Tahun anggaran: <input type="number" value="'.date('Y').'" id="tahun_anggaran"/></label>
+	            	<br>
+	            	<br>
+	            	<label>Filter kelompok belanja: <input type="text" value="" id="kelompok_belanja"></label>
+	            	<br>
+	            	<br>
+	            	<a onclick="singkron_bku_add(); return false" href="javascript:void(0);" class="button button-primary">Proses</a>' ),
 		        Field::make( 'html', 'crb_bku_add_upload_html' )
 	            	->set_html( '<h3>Import EXCEL data Bantuan Keuangan Umum (BKU) Anggaran Dana Desa (ADD)</h3>Pilih file excel .xlsx : <input type="file" id="file-excel" onchange="filePickedWpsipd(event);"><br>Contoh format file excel bisa <a target="_blank" href="'.WPSIPD_PLUGIN_URL. 'excel/contoh_bku_bh.xlsx">download di sini</a>. Sheet file excel yang akan diimport harus diberi nama <b>data</b>. Untuk kolom nilai angka ditulis tanpa tanda titik.' ),
 		        Field::make( 'html', 'crb_bku_add_satset' )

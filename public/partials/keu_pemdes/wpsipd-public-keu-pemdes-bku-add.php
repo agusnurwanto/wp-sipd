@@ -9,6 +9,40 @@ $input = shortcode_atts( array(
     'tahun_anggaran' => '2024'
 ), $atts );
 
+$user_id = um_user( 'ID' );
+$user_meta = get_userdata($user_id);
+$cek_login = false;
+$url_all_kec = array();
+if(
+    !empty($user_id)
+    && (
+        in_array("administrator", $user_meta->roles)
+        || in_array("PLT", $user_meta->roles) 
+        || in_array("PA", $user_meta->roles) 
+        || in_array("KPA", $user_meta->roles)
+    )
+){
+    $cek_login = true;
+    $unit = $wpdb->get_results($wpdb->prepare("
+        SELECT 
+            nama_skpd, 
+            id_skpd, 
+            kode_skpd, 
+            nipkepala 
+        from data_unit 
+        where active=1 
+            and tahun_anggaran=%d 
+            and is_skpd=1 
+            and nama_skpd like 'KECAMATAN %' 
+        order by kode_skpd ASC
+    ", $input['tahun_anggaran']), ARRAY_A);
+    foreach($unit as $kk => $vv){
+        $url_skpd = $this->generatePage($vv['nama_skpd'].' '.$vv['kode_skpd'].' | '.$input['tahun_anggaran'], $input['tahun_anggaran'], '[monitor_keu_pemdes tahun_anggaran="'.$input['tahun_anggaran'].'" id_skpd="'.$vv['id_skpd'].'"]');
+        $nama_kec = str_replace('kecamatan ', '', strtolower($vv['nama_skpd']));
+        $url_all_kec[$nama_kec] = $url_skpd;
+    }
+}
+
 $data = $wpdb->get_results($wpdb->prepare("
     SELECT 
         kecamatan, 
@@ -58,10 +92,17 @@ foreach($data as $i => $val){
     }else{
         $persen = round(($realisasi/$val['total']) * 100, 2);
     }
+    $nama_kec_render = $val['kecamatan'];
+    if(
+        $cek_login
+        && !empty($url_all_kec[strtolower($val['kecamatan'])])
+    ){
+        $nama_kec_render = "<a href='".$url_all_kec[strtolower($val['kecamatan'])]."' target='_blank'>".$val['kecamatan']."</a>";
+    }
     $body .= '
     <tr>
         <td class="text-center">'.($i+1).'</td>
-        <td>'.$val['kecamatan'].'</td>
+        <td>'.$nama_kec_render.'</td>
         <td class="text-right">'.number_format($val['total'],0,",",".").'</td>
         <td class="text-right">'.number_format($realisasi,0,",",".").'</td>
         <td class="text-right">'.number_format($belum_realisasi,0,",",".").'</td>

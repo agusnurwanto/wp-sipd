@@ -13492,7 +13492,71 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 
 								$delete_lokal_history = $this->delete_data_lokal_history('data_rka_lokal', $data_this_id[0]['id_jadwal_lokal']);
 
-								$columns_1 = array('created_user','createddate','createdtime','harga_satuan','harga_satuan_murni','id_daerah','id_rinci_sub_bl','id_standar_nfs','is_locked','jenis_bl','ket_bl_teks','kode_akun','koefisien','koefisien_murni','lokus_akun_teks','nama_akun','nama_komponen','spek_komponen','satuan','spek','sat1','sat2','sat3','sat4','volum1','volum2','volum3','volum4','volume','volume_murni','subs_bl_teks','subtitle_teks','kode_dana','is_paket','nama_dana','id_dana','substeks','total_harga','rincian','rincian_murni','totalpajak','pajak','pajak_murni','updated_user','updateddate','updatedtime','user1','user2','active','update_at','tahun_anggaran','idbl','idsubbl','kode_bl','kode_sbl','id_prop_penerima','id_camat_penerima','id_kokab_penerima','id_lurah_penerima','id_penerima','idkomponen','idketerangan','idsubtitle');
+								$columns_1 = array(
+									'created_user',
+									'createddate',
+									'createdtime',
+									'harga_satuan',
+									'harga_satuan_murni',
+									'id_daerah',
+									'id_rinci_sub_bl',
+									'id_standar_nfs',
+									'is_locked',
+									'jenis_bl',
+									'ket_bl_teks',
+									'kode_akun',
+									'koefisien',
+									'koefisien_murni',
+									'lokus_akun_teks',
+									'nama_akun',
+									'nama_komponen',
+									'spek_komponen',
+									'satuan',
+									'spek',
+									'sat1',
+									'sat2',
+									'sat3',
+									'sat4',
+									'volum1',
+									'volum2',
+									'volum3',
+									'volum4',
+									'volume',
+									'volume_murni',
+									'subs_bl_teks',
+									'subtitle_teks',
+									'kode_dana',
+									'is_paket',
+									'nama_dana',
+									'id_dana',
+									'substeks',
+									'total_harga',
+									'rincian',
+									'rincian_murni',
+									'totalpajak',
+									'pajak',
+									'pajak_murni',
+									'updated_user',
+									'updateddate',
+									'updatedtime',
+									'user1',
+									'user2',
+									'active',
+									'update_at',
+									'tahun_anggaran',
+									'idbl',
+									'idsubbl',
+									'kode_bl',
+									'kode_sbl',
+									'id_prop_penerima',
+									'id_camat_penerima',
+									'id_kokab_penerima',
+									'id_lurah_penerima',
+									'id_penerima',
+									'idkomponen',
+									'idketerangan',
+									'idsubtitle'
+								);
 	
 								$sql_backup_data_rka =  "INSERT INTO data_rka_lokal_history (".implode(', ', $columns_1).",id_asli,id_jadwal)
 											SELECT ".implode(', ', $columns_1).",id as id_asli,".$data_this_id[0]['id_jadwal_lokal']."
@@ -13502,7 +13566,77 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 
 								$delete_lokal_history = $this->delete_data_lokal_history('data_sub_keg_bl_lokal', $data_this_id[0]['id_jadwal_lokal']);
 
-								$columns_2 = array('id_sub_skpd','id_lokasi','id_label_kokab','nama_dana','no_sub_giat','kode_giat','id_program','nama_lokasi','waktu_akhir','pagu_n_lalu','id_urusan','id_unik_sub_bl','id_sub_giat','label_prov','kode_program','kode_sub_giat','no_program','kode_urusan','kode_bidang_urusan','nama_program','target_4','target_5','id_bidang_urusan','nama_bidang_urusan','target_3','no_giat','id_label_prov','waktu_awal','pagumurni','pagu','pagu_simda','output_sub_giat','sasaran','indikator','id_dana','nama_sub_giat','pagu_n_depan','satuan','id_rpjmd','id_giat','id_label_pusat','nama_giat','kode_skpd','nama_skpd','kode_sub_skpd','id_skpd','id_sub_bl','nama_sub_skpd','target_1','nama_urusan','target_2','label_kokab','label_pusat','pagu_keg','pagu_fmis','id_bl','kode_bl','kode_sbl','active','update_at','tahun_anggaran','catatan','catatan_usulan','pagu_usulan','pagu_n_depan_usulan','waktu_awal_usulan','waktu_akhir_usulan','sasaran_usulan');
+								$columns_2 = array(
+									'id_sub_skpd',
+									'id_lokasi',
+									'id_label_kokab',
+									'nama_dana',
+									'no_sub_giat',
+									'kode_giat',
+									'id_program',
+									'nama_lokasi',
+									'waktu_akhir',
+									'pagu_n_lalu',
+									'id_urusan',
+									'id_unik_sub_bl',
+									'id_sub_giat',
+									'label_prov',
+									'kode_program',
+									'kode_sub_giat',
+									'no_program',
+									'kode_urusan',
+									'kode_bidang_urusan',
+									'nama_program',
+									'target_4',
+									'target_5',
+									'id_bidang_urusan',
+									'nama_bidang_urusan',
+									'target_3',
+									'no_giat',
+									'id_label_prov',
+									'waktu_awal',
+									'pagumurni',
+									'pagu',
+									'pagu_simda',
+									'output_sub_giat',
+									'sasaran',
+									'indikator',
+									'id_dana',
+									'nama_sub_giat',
+									'pagu_n_depan',
+									'satuan',
+									'id_rpjmd',
+									'id_giat',
+									'id_label_pusat',
+									'nama_giat',
+									'kode_skpd',
+									'nama_skpd',
+									'kode_sub_skpd',
+									'id_skpd',
+									'id_sub_bl',
+									'nama_sub_skpd',
+									'target_1',
+									'nama_urusan',
+									'target_2',
+									'label_kokab',
+									'label_pusat',
+									'pagu_keg',
+									'pagu_fmis',
+									'id_bl',
+									'kode_bl',
+									'kode_sbl',
+									'active',
+									'update_at',
+									'tahun_anggaran',
+									'catatan',
+									'catatan_usulan',
+									'pagu_usulan',
+									'pagu_n_depan_usulan',
+									'waktu_awal_usulan',
+									'waktu_akhir_usulan',
+									'sasaran_usulan',
+									'kode_sbl_lama'
+								);
 
 								$sql_backup_data_sub_keg_bl =  "INSERT INTO data_sub_keg_bl_lokal_history (".implode(', ', $columns_2).",id_asli,id_jadwal)
 											SELECT ".implode(', ', $columns_2).",id as id_asli,".$data_this_id[0]['id_jadwal_lokal']."
@@ -13512,7 +13646,23 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 
 								$delete_lokal_history = $this->delete_data_lokal_history('data_sub_keg_indikator_lokal', $data_this_id[0]['id_jadwal_lokal']);
 
-								$oclumns_3 = array('outputteks','targetoutput','satuanoutput','idoutputbl','targetoutputteks','kode_sbl','idsubbl','active','update_at','tahun_anggaran','outputteks_usulan','targetoutput_usulan','satuanoutput_usulan','targetoutputteks_usulan','id_indikator_sub_giat');
+								$oclumns_3 = array(
+									'outputteks',
+									'targetoutput',
+									'satuanoutput',
+									'idoutputbl',
+									'targetoutputteks',
+									'kode_sbl',
+									'idsubbl',
+									'active',
+									'update_at',
+									'tahun_anggaran',
+									'outputteks_usulan',
+									'targetoutput_usulan',
+									'satuanoutput_usulan',
+									'targetoutputteks_usulan',
+									'id_indikator_sub_giat'
+								);
 
 								$sql_backup_data_sub_keg_indikator =  "INSERT INTO data_sub_keg_indikator_lokal_history (".implode(', ', $oclumns_3).",id_asli,id_jadwal)
 											SELECT ".implode(', ', $oclumns_3).",id as id_asli,".$data_this_id[0]['id_jadwal_lokal']."
@@ -13522,7 +13672,23 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 
 								$delete_lokal_history = $this->delete_data_lokal_history('data_keg_indikator_hasil_lokal', $data_this_id[0]['id_jadwal_lokal']);
 
-								$oclumns_4 = array('hasilteks','satuanhasil','targethasil','targethasilteks','kode_sbl','idsubbl','active','update_at','tahun_anggaran','hasilteks_usulan','satuanhasil_usulan','targethasil_usulan','targethasilteks_usulan','catatan','catatan_usulan');
+								$oclumns_4 = array(
+									'hasilteks',
+									'satuanhasil',
+									'targethasil',
+									'targethasilteks',
+									'kode_sbl',
+									'idsubbl',
+									'active',
+									'update_at',
+									'tahun_anggaran',
+									'hasilteks_usulan',
+									'satuanhasil_usulan',
+									'targethasil_usulan',
+									'targethasilteks_usulan',
+									'catatan',
+									'catatan_usulan'
+								);
 
 								$sql_backup_data_keg_indikator_hasil =  "INSERT INTO data_keg_indikator_hasil_lokal_history (".implode(', ', $oclumns_4).",id_asli,id_jadwal)
 											SELECT ".implode(', ', $oclumns_4).",id as id_asli,".$data_this_id[0]['id_jadwal_lokal']."
@@ -13542,7 +13708,23 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 
 								$delete_lokal_history = $this->delete_data_lokal_history('data_capaian_prog_sub_keg_lokal', $data_this_id[0]['id_jadwal_lokal']);
 
-								$oclumns_6 = array('satuancapaian','targetcapaianteks','capaianteks','targetcapaian','kode_sbl','idsubbl','active','update_at','tahun_anggaran','satuancapaian_usulan','targetcapaianteks_usulan','capaianteks_usulan','targetcapaian_usulan','catatan','catatan_usulan');
+								$oclumns_6 = array(
+									'satuancapaian',
+									'targetcapaianteks',
+									'capaianteks',
+									'targetcapaian',
+									'kode_sbl',
+									'idsubbl',
+									'active',
+									'update_at',
+									'tahun_anggaran',
+									'satuancapaian_usulan',
+									'targetcapaianteks_usulan',
+									'capaianteks_usulan',
+									'targetcapaian_usulan',
+									'catatan',
+									'catatan_usulan'
+								);
 
 								$sql_backup_data_capaian_prog_sub_keg =  "INSERT INTO data_capaian_prog_sub_keg_lokal_history (".implode(', ', $oclumns_6).",id_asli,id_jadwal)
 											SELECT ".implode(', ', $oclumns_6).",id as id_asli,".$data_this_id[0]['id_jadwal_lokal']."
@@ -13552,7 +13734,23 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 
 								$delete_lokal_history = $this->delete_data_lokal_history('data_output_giat_sub_keg_lokal', $data_this_id[0]['id_jadwal_lokal']);
 
-								$oclumns_7 = array('outputteks','satuanoutput','targetoutput','targetoutputteks','kode_sbl','idsubbl','active','update_at','tahun_anggaran','outputteks_usulan','satuanoutput_usulan','targetoutput_usulan','targetoutputteks_usulan','catatan','catatan_usulan');
+								$oclumns_7 = array(
+									'outputteks',
+									'satuanoutput',
+									'targetoutput',
+									'targetoutputteks',
+									'kode_sbl',
+									'idsubbl',
+									'active',
+									'update_at',
+									'tahun_anggaran',
+									'outputteks_usulan',
+									'satuanoutput_usulan',
+									'targetoutput_usulan',
+									'targetoutputteks_usulan',
+									'catatan',
+									'catatan_usulan'
+								);
 
 								$sql_backup_data_output_giat_sub_keg =  "INSERT INTO data_output_giat_sub_keg_lokal_history (".implode(', ', $oclumns_7).",id_asli,id_jadwal)
 											SELECT ".implode(', ', $oclumns_7).",id as id_asli,".$data_this_id[0]['id_jadwal_lokal']."
@@ -13562,7 +13760,22 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 
 								$delete_lokal_history = $this->delete_data_lokal_history('data_dana_sub_keg_lokal', $data_this_id[0]['id_jadwal_lokal']);
 
-								$oclumns_8 = array('namadana','kodedana','iddana','iddanasubbl','pagudana','kode_sbl','idsubbl','active','update_at','tahun_anggaran','nama_dana_usulan','kode_dana_usulan','id_dana_usulan','pagu_dana_usulan');
+								$oclumns_8 = array(
+									'namadana',
+									'kodedana',
+									'iddana',
+									'iddanasubbl',
+									'pagudana',
+									'kode_sbl',
+									'idsubbl',
+									'active',
+									'update_at',
+									'tahun_anggaran',
+									'nama_dana_usulan',
+									'kode_dana_usulan',
+									'id_dana_usulan',
+									'pagu_dana_usulan'
+								);
 
 								$sql_backup_data_dana_sub_keg =  "INSERT INTO data_dana_sub_keg_lokal_history (".implode(', ', $oclumns_8).",id_asli,id_jadwal)
 											SELECT ".implode(', ', $oclumns_8).",id as id_asli,".$data_this_id[0]['id_jadwal_lokal']."
@@ -13572,7 +13785,27 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 
 								$delete_lokal_history = $this->delete_data_lokal_history('data_lokasi_sub_keg_lokal', $data_this_id[0]['id_jadwal_lokal']);
 
-								$oclumns_9 = array('camatteks','daerahteks','idcamat','iddetillokasi','idkabkota','idlurah','lurahteks','kode_sbl','idsubbl','active','update_at','tahun_anggaran','camatteks_usulan','daerahteks_usulan','idcamat_usulan','iddetillokasi_usulan','idkabkota_usulan','idlurah_usulan','lurahteks_usulan');
+								$oclumns_9 = array(
+									'camatteks',
+									'daerahteks',
+									'idcamat',
+									'iddetillokasi',
+									'idkabkota',
+									'idlurah',
+									'lurahteks',
+									'kode_sbl',
+									'idsubbl',
+									'active',
+									'update_at',
+									'tahun_anggaran',
+									'camatteks_usulan',
+									'daerahteks_usulan',
+									'idcamat_usulan',
+									'iddetillokasi_usulan',
+									'idkabkota_usulan',
+									'idlurah_usulan',
+									'lurahteks_usulan'
+								);
 
 								$sql_backup_data_lokasi_sub_keg =  "INSERT INTO data_lokasi_sub_keg_lokal_history (".implode(', ', $oclumns_9).",id_asli,id_jadwal)
 											SELECT ".implode(', ', $oclumns_9).",id as id_asli,".$data_this_id[0]['id_jadwal_lokal']."
@@ -13592,7 +13825,32 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 
 								$delete_lokal_history = $this->delete_data_lokal_history('data_pendapatan', $data_this_id[0]['id_jadwal_lokal']);
 
-								$oclumns_11 = array('created_user','createddate','createdtime','id_pendapatan','keterangan','kode_akun','nama_akun','nilaimurni','program_koordinator','rekening','skpd_koordinator','total','pagu_fmis','updated_user','updateddate','updatedtime','uraian','urusan_koordinator','user1','user2','id_skpd','active','update_at','tahun_anggaran');
+								$oclumns_11 = array(
+									'created_user',
+									'createddate',
+									'createdtime',
+									'id_pendapatan',
+									'keterangan',
+									'kode_akun',
+									'nama_akun',
+									'nilaimurni',
+									'program_koordinator',
+									'rekening',
+									'skpd_koordinator',
+									'total',
+									'pagu_fmis',
+									'updated_user',
+									'updateddate',
+									'updatedtime',
+									'uraian',
+									'urusan_koordinator',
+									'user1',
+									'user2',
+									'id_skpd',
+									'active',
+									'update_at',
+									'tahun_anggaran'
+								);
 
 								$sql_backup_data_pendapatan =  "INSERT INTO data_pendapatan_history (".implode(', ', $oclumns_11).",id_jadwal,id_asli)
 											SELECT ".implode(', ', $oclumns_11).",".$data_this_id[0]['id_jadwal_lokal'].",id as id_asli
@@ -13602,7 +13860,33 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 
 								$delete_lokal_history = $this->delete_data_lokal_history('data_pembiayaan', $data_this_id[0]['id_jadwal_lokal']);
 
-								$oclumns_12 = array('created_user','createddate','createdtime','id_pembiayaan','keterangan','kode_akun','nama_akun','nilaimurni','program_koordinator','rekening','skpd_koordinator','total','pagu_fmis','updated_user','updateddate','updatedtime','uraian','urusan_koordinator','type','user1','user2','id_skpd','active','update_at','tahun_anggaran');
+								$oclumns_12 = array(
+									'created_user',
+									'createddate',
+									'createdtime',
+									'id_pembiayaan',
+									'keterangan',
+									'kode_akun',
+									'nama_akun',
+									'nilaimurni',
+									'program_koordinator',
+									'rekening',
+									'skpd_koordinator',
+									'total',
+									'pagu_fmis',
+									'updated_user',
+									'updateddate',
+									'updatedtime',
+									'uraian',
+									'urusan_koordinator',
+									'type',
+									'user1',
+									'user2',
+									'id_skpd',
+									'active',
+									'update_at',
+									'tahun_anggaran'
+								);
 
 								$sql_backup_data_pembiayaan =  "INSERT INTO data_pembiayaan_history (".implode(', ', $oclumns_12).",id_jadwal,id_asli)
 											SELECT ".implode(', ', $oclumns_12).",".$data_this_id[0]['id_jadwal_lokal'].",id as id_asli

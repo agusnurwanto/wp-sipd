@@ -1,3 +1,24 @@
+function relayAjax(options, retries=20, delay=30000, timeout=1090000){
+	options.timeout = timeout;
+	if(!options.success_rewrite){
+		options.success_rewrite = options.success;
+	}
+	options.success = function(response, status, xhr){ 
+	    options.success_rewrite(response);
+	}
+    jQuery.ajax(options)
+    .fail(function(){
+        if (retries > 0) {
+            console.log('Koneksi error. Coba lagi '+retries);
+            setTimeout(function(){ 
+                relayAjax(options, --retries, delay, timeout);
+            },delay);
+        } else {
+            alert('Capek. Sudah dicoba berkali-kali error terus. Maaf, berhenti mencoba.');
+        }
+    });
+}
+
 function load_label(tahun_anggaran){
 	jQuery("#wrap-loading").show();
 	jQuery.ajax({
@@ -746,6 +767,26 @@ function singkron_bku_dd(){
         },
         error: function(e){
             console.log('Error singkron BKU DD dari WP-SIPD!', e);
+        }
+    });
+}
+
+function singkron_bku_add(){
+    jQuery('#wrap-loading').show();
+    relayAjax({
+        url: ajaxurl,
+        type: 'post',
+        data: {
+            action: 'singkron_bku_add',
+            tahun_anggaran: jQuery('#tahun_anggaran').val(),
+        	kelompok: jQuery('#kelompok_belanja').val()
+        },
+        success: function(res){
+		    jQuery('#wrap-loading').hide();
+		    alert('Berhasil singkron BKU ADD dari WP-SIPD!');
+        },
+        error: function(e){
+            console.log('Error singkron BKU ADD dari WP-SIPD!', e);
         }
     });
 }
