@@ -79,7 +79,7 @@ if(in_array("administrator", $user_meta->roles)){
                     </select>
                 </div>
                 <div class="form-group">
-                    <label>Validasi Pagu Anggaran</label>
+                    <label>Validasi Pagu Anggaran</label>`
                     <table class="table table-bordered">
                         <thead>
                             <tr>

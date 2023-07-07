@@ -5309,6 +5309,19 @@ CREATE TABLE `data_bhpd_desa` (
   PRIMARY KEY  (id)
 );
 
+CREATE TABLE `data_bkk_pilkades_desa` (
+  `id` int(11) NOT NULL auto_increment,
+  `id_kecamatan` int(11) DEFAULT NULL,
+  `id_desa` int(11) DEFAULT NULL,
+  `kecamatan` text DEFAULT NULL,
+  `desa` text DEFAULT NULL,
+  `total` double(20, 0) DEFAULT NULL,
+  `tahun_anggaran` year(4) NOT NULL,
+  `update_at` datetime NOT NULL,
+  `active` tinyint(4) DEFAULT 1,
+  PRIMARY KEY  (id)
+);
+
 CREATE TABLE `data_bhrd_desa` (
   `id` int(11) NOT NULL auto_increment,
   `id_kecamatan` int(11) DEFAULT NULL,
@@ -5447,8 +5460,22 @@ CREATE TABLE `data_pencairan_bhpd_desa` (
   PRIMARY KEY  (id)
 );
 
+CREATE TABLE `data_pencairan_bkk_pilkades_desa` (
+  `id` int(11) NOT NULL auto_increment,
+  `id_bkk_pilkades` int(11) DEFAULT NULL,
+  `total_pencairan` double(20,0) DEFAULT NULL,
+  `keterangan` text DEFAULT NULL,
+  `nama_user` text DEFAULT NULL,
+  `status_ver_total` tinyint(4) DEFAULT 0,
+  `ket_ver_total` text DEFAULT NULL,
+  `update_at` datetime NOT NULL,
+  `status` tinyint(4) DEFAULT 1,
+  PRIMARY KEY  (id)
+);
+
 CREATE TABLE `data_pencairan_bhrd_desa` (
   `id` int(11) NOT NULL auto_increment,
+  `id_bhrd` int(11) DEFAULT NULL
   `total_pencairan` double(20,0) DEFAULT NULL,
   `keterangan` text DEFAULT NULL,
   `nama_user` text DEFAULT NULL,
