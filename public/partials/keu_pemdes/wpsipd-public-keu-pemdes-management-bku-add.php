@@ -9,7 +9,7 @@
 <div class="cetak">
     <div style="padding: 10px;margin:0 0 3rem 0;">
         <input type="hidden" value="<?php echo get_option( '_crb_api_key_extension' ); ?>" id="api_key">
-    <h1 class="text-center" style="margin:3rem;">Manajemen Data BKU Anggaran Dana Desa ( ADD )</h1>
+    <h1 class="text-center" style="margin:3rem;">Manajemen Data BKU Alokasi Dana Desa ( ADD )</h1>
         <div style="margin-bottom: 25px;">
             <button class="btn btn-primary" onclick="tambah_data_bku_add();"><i class="dashicons dashicons-plus"></i> Tambah Data</button>
         </div>
@@ -37,7 +37,7 @@
     <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="modalTambahDataBKUADDLabel">Data BKU Dana Desa</h5>
+                <h5 class="modal-title" id="modalTambahDataBKUADDLabel">Data BKU Alokasi Dana Desa</h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
