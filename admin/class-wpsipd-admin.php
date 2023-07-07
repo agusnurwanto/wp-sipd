@@ -1060,10 +1060,12 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes {
 	public function get_setting_keu_pemdes(){
 		global $wpdb;
 		$url_beranda =$this->generatePage('Halaman Beranda', false, '[keu_pemdes_beranda]');
+		$url_per_kecamatan =$this->generatePage('Laporan Realisasi Keuangan Desa per Kecamatan', false, '[laporan_keu_pemdes_per_kecamatan]');
 		$setting = array(
 			Field::make('html','crb_keu_pemdes_page')
 				->set_html('<ul>
 				<li><a href="'.$url_beranda.'" target="__blank__">Halaman Beranda</a></li>
+				<li><a href="'.$url_per_kecamatan.'" target="__blank__">Laporan Realisasi Keuangan Desa per Kecamatan</a></li>
 			</ul>')
 		);
 		$setting = array_merge($setting, $this->get_ajax_field(array('type' => 'keu_pemdes')));;

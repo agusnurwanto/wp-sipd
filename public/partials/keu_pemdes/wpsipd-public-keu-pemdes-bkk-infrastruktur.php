@@ -131,7 +131,7 @@ if($realisasi_all == 0){
 }
 ?>
 
-<h1 class="text-center">Bantuan Keuangan Khusus Kepada Desa<br>Rekapitulasi Per Kecamatan<br>Tahun <?php echo $input['tahun_anggaran']; ?></h1>
+<h1 class="text-center">Bantuan Keuangan Khusus Infrastruktur<br>Rekapitulasi Per Kecamatan<br>Tahun <?php echo $input['tahun_anggaran']; ?></h1>
 <div class="cetak">
     <div style="padding: 5px;">
         <div class="row">
@@ -143,7 +143,7 @@ if($realisasi_all == 0){
         </div>
         <div class="row">
             <div class="col-md-12">
-                <h2 class="text-center">Tabel Bantuan Keuangan Khusus<br>Rekapitulasi Per Kecamatan<br>Tahun <?php echo $input['tahun_anggaran']; ?></h2>
+                <h2 class="text-center">Tabel Bantuan Keuangan Khusus Infrastruktur<br>Rekapitulasi Per Kecamatan<br>Tahun <?php echo $input['tahun_anggaran']; ?></h2>
                 <table class="table table-bordered">
                     <thead>
                         <tr>
