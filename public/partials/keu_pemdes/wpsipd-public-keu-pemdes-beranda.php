@@ -227,6 +227,8 @@ if($realisasi_all == 0){
 }else{
     $persen_all = round(($realisasi_all/$total_all)*100, 2);
 }
+
+$url_per_kecamatan = $this->generatePage('Laporan Realisasi Keuangan Desa per Kecamatan', false, '[laporan_keu_pemdes_per_kecamatan]');
 ?>
 
 <h1 class="text-center">Keuangan Pemerintah Desa<br>Rekapitulasi Per Jenis Keuangan<br>Tahun <?php echo $input['tahun_anggaran']; ?></h1>
@@ -264,6 +266,11 @@ if($realisasi_all == 0){
                         <th class="text-center"><?php echo $persen_all; ?>%</th>
                     </tfoot>
                 </table>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12 text-center">
+                <a style="margin: 20px; text-decoration: none;"> href="<?php echo $url_per_kecamatan; ?>" target="_blank" class="btn btn-primary">Laporan Relisasi Keuangan Pemerintah Desa Per Kecamatan</a>
             </div>
         </div>
     </div>

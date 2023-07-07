@@ -1073,8 +1073,8 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes {
 		$setting = array(
 			Field::make('html','crb_keu_pemdes_page')
 				->set_html('<ul>
-				<li><a href="'.$url_beranda.'" target="__blank__">Halaman Beranda</a></li>
-				<li><a href="'.$url_per_kecamatan.'" target="__blank__">Laporan Realisasi Keuangan Desa per Kecamatan</a></li>
+				<li><a href="'.$url_beranda.'" target="_blank">Halaman Beranda</a></li>
+				<li><a href="'.$url_per_kecamatan.'" target="_blank">Laporan Realisasi Keuangan Desa per Kecamatan</a></li>
 			</ul>')
 		);
 		$setting = array_merge($setting, $this->get_ajax_field(array('type' => 'keu_pemdes')));;
@@ -1096,15 +1096,15 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes {
 		$setting = array(
 			Field::make('html','crb_singkron_sipkd')
 				->set_html('<ul>
-				<li><a href="'.$url_akun.'" target="__blank__">Singkron Akun</a></li>
-				<li><a href="'.$url_urusan.'" target="__blank__">Singkron Urusan/Bidang Urusan/SKPD</a></li>
-				<li><a href="'.$url_program.'" target="__blank__">Singkron Program</a></li>
-				<li><a href="'.$url_giat.'" target="__blank__">Singkron Kegiatan/ Sub Kegiatan</a></li>
-				<li><a href="'.$url_dana.'" target="__blank__">Singkron Sumber Dana</a></li>
-				<li><a href="'.$url_kua.'" target="__blank__">Singkron KUA/PPAS</a></li>
-				<li><a href="'.$url_raskd.'" target="__blank__">Singkron RKA Pendapatan</a></li>
-				<li><a href="'.$url_raskr.'" target="__blank__">Singkron RKA Belanja</a></li>
-				<li><a href="'.$url_raskb.'" target="__blank__">Singkron RKA Pembiayaan</a></li>
+				<li><a href="'.$url_akun.'" target="_blank">Singkron Akun</a></li>
+				<li><a href="'.$url_urusan.'" target="_blank">Singkron Urusan/Bidang Urusan/SKPD</a></li>
+				<li><a href="'.$url_program.'" target="_blank">Singkron Program</a></li>
+				<li><a href="'.$url_giat.'" target="_blank">Singkron Kegiatan/ Sub Kegiatan</a></li>
+				<li><a href="'.$url_dana.'" target="_blank">Singkron Sumber Dana</a></li>
+				<li><a href="'.$url_kua.'" target="_blank">Singkron KUA/PPAS</a></li>
+				<li><a href="'.$url_raskd.'" target="_blank">Singkron RKA Pendapatan</a></li>
+				<li><a href="'.$url_raskr.'" target="_blank">Singkron RKA Belanja</a></li>
+				<li><a href="'.$url_raskb.'" target="_blank">Singkron RKA Pembiayaan</a></li>
 			</ul>'),
 			Field::make('text','crb_host_sipkd',"IP Server Database SIPKD")
 				->set_help_text("Alamat server Database SIPKD"),
