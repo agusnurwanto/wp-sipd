@@ -68,7 +68,9 @@ if(empty($input['id_kel']) && empty($input['id_skpd'])){
     if (empty($desa)) {
         die('<h1 class="text-center">Desa dengan id_kec ='.$input['id_kec'].' tidak ditemukan!</h1>'.$wpdb->last_query);
     }else{
-        echo '<ul>';
+        echo '
+        <h1 class="text-center">Desa/Kelurahan di '.$unit['nama_skpd'].'</h1>
+        <ul style="margin: 20px auto; width: 400px;">';
         foreach($desa as $val){
             $url_skpd = $this->generatePage($val['nama'].' | '.$input['tahun_anggaran'], $input['tahun_anggaran'], '[monitor_keu_pemdes tahun_anggaran="'.$input['tahun_anggaran'].'" id_kec="'.$id_kec.'" id_kel="'.$val['id_alamat'].'"]');
             echo '<li><a target="_blank" href="'.$url_skpd.'">'.$val['nama'].' | '.$input['tahun_anggaran'].'</a>';
@@ -99,6 +101,7 @@ $kecamatan = $wpdb->get_row("
 $bkk_infrastruktur = $wpdb->get_row($wpdb->prepare('
     SELECT 
         desa,
+        id_desa,
         kecamatan, 
         sum(total) as total 
     from data_bkk_desa 
@@ -112,10 +115,21 @@ $bkk_infrastruktur = $wpdb->get_row($wpdb->prepare('
 ', $input['tahun_anggaran'], $input['id_kel'], $desa['nama'], $kecamatan['nama']), ARRAY_A);
 if (empty($bkk_infrastruktur)) {
     $bkk_infrastruktur = array('total' => 0);
+}else if(empty($bkk_infrastruktur['id_desa'])){
+    $wpdb->update('data_bkk_desa', array(
+        'id_desa' => $input['id_kel'],
+        'id_kecamatan' => $desa['id_kec']
+    ), array(
+        'active' => 1,
+        'tahun_anggaran' => $input['tahun_anggaran'],
+        'desa' => $desa['nama'],
+        'kecamatan' => $kecamatan['nama']
+    ));
 }
 
 $bhpd = $wpdb->get_row($wpdb->prepare('
     SELECT 
+        id_desa,
         desa,
         kecamatan, 
         sum(total) as total 
@@ -130,10 +144,21 @@ $bhpd = $wpdb->get_row($wpdb->prepare('
 ', $input['tahun_anggaran'], $input['id_kel'], $desa['nama'], $kecamatan['nama']), ARRAY_A);
 if (empty($bhpd)) {
     $bhpd = array('total' => 0);
+}else if(empty($bhpd['id_desa'])){
+    $wpdb->update('data_bhpd_desa', array(
+        'id_desa' => $input['id_kel'],
+        'id_kecamatan' => $desa['id_kec']
+    ), array(
+        'active' => 1,
+        'tahun_anggaran' => $input['tahun_anggaran'],
+        'desa' => $desa['nama'],
+        'kecamatan' => $kecamatan['nama']
+    ));
 }
 
 $bhrd = $wpdb->get_row($wpdb->prepare('
     SELECT 
+        id_desa,
         desa,
         kecamatan, 
         sum(total) as total 
@@ -148,10 +173,21 @@ $bhrd = $wpdb->get_row($wpdb->prepare('
 ', $input['tahun_anggaran'], $input['id_kel'], $desa['nama'], $kecamatan['nama']), ARRAY_A);
 if (empty($bhrd)) {
     $bhrd = array('total' => 0);
+}else if(empty($bhrd['id_desa'])){
+    $wpdb->update('data_bhrd_desa', array(
+        'id_desa' => $input['id_kel'],
+        'id_kecamatan' => $desa['id_kec']
+    ), array(
+        'active' => 1,
+        'tahun_anggaran' => $input['tahun_anggaran'],
+        'desa' => $desa['nama'],
+        'kecamatan' => $kecamatan['nama']
+    ));
 }
 
 $bku_dd = $wpdb->get_row($wpdb->prepare('
     SELECT 
+        id_desa,
         desa,
         kecamatan, 
         sum(total) as total 
@@ -166,10 +202,21 @@ $bku_dd = $wpdb->get_row($wpdb->prepare('
 ', $input['tahun_anggaran'], $input['id_kel'], $desa['nama'], $kecamatan['nama']), ARRAY_A);
 if (empty($bku_dd)) {
     $bku_dd = array('total' => 0);
+}else if(empty($bku_dd['id_desa'])){
+    $wpdb->update('data_bku_dd_desa', array(
+        'id_desa' => $input['id_kel'],
+        'id_kecamatan' => $desa['id_kec']
+    ), array(
+        'active' => 1,
+        'tahun_anggaran' => $input['tahun_anggaran'],
+        'desa' => $desa['nama'],
+        'kecamatan' => $kecamatan['nama']
+    ));
 }
 
 $bku_add = $wpdb->get_row($wpdb->prepare('
     SELECT 
+        id_desa,
         desa,
         kecamatan, 
         sum(total) as total 
@@ -184,11 +231,22 @@ $bku_add = $wpdb->get_row($wpdb->prepare('
 ', $input['tahun_anggaran'], $input['id_kel'], $desa['nama'], $kecamatan['nama']), ARRAY_A);
 if (empty($bku_add)) {
     $bku_add = array('total' => 0);
+}else if(empty($bku_add['id_desa'])){
+    $wpdb->update('data_bku_add_desa', array(
+        'id_desa' => $input['id_kel'],
+        'id_kecamatan' => $desa['id_kec']
+    ), array(
+        'active' => 1,
+        'tahun_anggaran' => $input['tahun_anggaran'],
+        'desa' => $desa['nama'],
+        'kecamatan' => $kecamatan['nama']
+    ));
 }
 
 if(!empty($tampil_pilkades)){
     $bkk_pilkades = $wpdb->get_row($wpdb->prepare('
         SELECT 
+            id_desa,
             desa,
             kecamatan, 
             sum(total) as total 
@@ -206,6 +264,16 @@ if(!empty($tampil_pilkades)){
 }
 if (empty($bkk_pilkades)) {
     $bkk_pilkades = array('total' => 0);
+}else if(empty($bkk_pilkades['id_desa'])){
+    $wpdb->update('data_bkk_pilkades_desa', array(
+        'id_desa' => $input['id_kel'],
+        'id_kecamatan' => $desa['id_kec']
+    ), array(
+        'active' => 1,
+        'tahun_anggaran' => $input['tahun_anggaran'],
+        'desa' => $desa['nama'],
+        'kecamatan' => $kecamatan['nama']
+    ));
 }
 
 $bkk_infrastruktur_r = $wpdb->get_row($wpdb->prepare("
