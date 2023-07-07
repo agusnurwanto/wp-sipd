@@ -616,7 +616,8 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes {
 			        '6' => __( 'MONEV INDIKATOR RPJM' ),
 					'7' => __( 'MENU SSH' ),
 					'8' => __( 'INPUT RENSTRA' ),
-					'9' => __( 'INPUT RENJA' )
+					'9' => __( 'INPUT RENJA' ),
+					'10' => __( 'INPUT REALISASI KEU PEMDES' )
 			    ) )
             	->set_default_value(array('1','2','3','4','5'))
             	->set_help_text('Daftar fitur ini akan ditampilkan dalam bentuk tombol di halaman dasboard user setelah berhasil login.'),
@@ -914,7 +915,7 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes {
 			$url_bhpd =$this->generatePage('Laporan Keuangan Pemerintah Desa Bagi Hasil Pajak Daerah (BHPD) '.$v['tahun_anggaran'], false, '[keu_pemdes_bhpd tahun_anggaran="'.$v['tahun_anggaran'].'"]');
 			$url_bhrd =$this->generatePage('Laporan Keuangan Pemerintah Desa Bagi Hasil Retribusi Daerah (BHRD) '.$v['tahun_anggaran'], false, '[keu_pemdes_bhrd tahun_anggaran="'.$v['tahun_anggaran'].'"]');
 			$url_dd =$this->generatePage('Laporan Keuangan Pemerintah Desa Bantuan Keuangan Umum (BKU) Desa Dana Desa (DD) '.$v['tahun_anggaran'], false, '[keu_pemdes_bku_dd tahun_anggaran="'.$v['tahun_anggaran'].'"]');
-			$url_add =$this->generatePage('Laporan Keuangan Pemerintah Desa Bantuan Keuangan Umum (BKU) Anggaran Dana Desa (ADD) '.$v['tahun_anggaran'], false, '[keu_pemdes_bku_add tahun_anggaran="'.$v['tahun_anggaran'].'"]');
+			$url_add =$this->generatePage('Laporan Keuangan Pemerintah Desa Bantuan Keuangan Umum (BKU) Alokasi Dana Desa (ADD) '.$v['tahun_anggaran'], false, '[keu_pemdes_bku_add tahun_anggaran="'.$v['tahun_anggaran'].'"]');
 			$url_bkk_inf =$this->generatePage('Laporan Keuangan Pemerintah Desa Bantuan Keuangan Khusus (BKK) Infrastruktur '.$v['tahun_anggaran'], false, '[keu_pemdes_bkk_inf tahun_anggaran="'.$v['tahun_anggaran'].'"]');
 			$url_bkk_pilkades =$this->generatePage('Laporan Keuangan Pemerintah Desa Bantuan Keuangan Khusus (BKK) Pilkades '.$v['tahun_anggaran'], false, '[keu_pemdes_bkk_pilkades tahun_anggaran="'.$v['tahun_anggaran'].'"]');
             $unit = $wpdb->get_results("
@@ -930,14 +931,22 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes {
             		and nama_skpd like 'KECAMATAN %' 
             	order by kode_skpd ASC
             ", ARRAY_A);
+            $key_pilkades = "_bkk_pilkades_".$v['tahun_anggaran'];
+            $cek_bkk_pilkades = get_option($key_pilkades, false);
+            if(!empty($cek_bkk_pilkades)){
+            	$cek_bkk_pilkades = 'checked';
+            }else{
+            	$cek_bkk_pilkades = '';
+            }
             $body_pemda = '<ul style="margin-left: 20px;">';
 			$body_pemda .= '
-				<li><a href="'.$url_bhpd.'" target="__blank__">Laporan Keuangan Pemerintah Desa Bagi Hasil Pajak Daerah (BHPD) '.$v['tahun_anggaran'].'</a></li>
-				<li><a href="'.$url_bhrd.'" target="__blank__">Laporan Keuangan Pemerintah Desa Bagi Hasil Retribusi Daerah (BHRD) '.$v['tahun_anggaran'].'</a></li>
-				<li><a href="'.$url_dd.'" target="__blank__">Laporan Keuangan Pemerintah Desa BKU Dana Desa (DD) '.$v['tahun_anggaran'].'</a></li>
-				<li><a href="'.$url_add.'" target="__blank__">Laporan Keuangan Pemerintah Desa BKU Anggaran Dana Desa (ADD) '.$v['tahun_anggaran'].'</a></li>
-				<li><a href="'.$url_bkk_inf.'" target="__blank__">Laporan Keuangan Pemerintah Desa BKK Infrastruktur '.$v['tahun_anggaran'].'</a></li>
-				<li><a href="'.$url_bkk_pilkades.'" target="__blank__">Laporan Keuangan Pemerintah Desa BKK Pilkades '.$v['tahun_anggaran'].'</a></li>
+				<li><label><input type="checkbox" data-id="'.$key_pilkades.'" '.$cek_bkk_pilkades.' onclick="set_setting_ajax(this);"> Tampilkan Data BKK Pilkades</label></li>
+				<li><a href="'.$url_bhpd.'" target="_blank">Laporan Keuangan Pemerintah Desa Bagi Hasil Pajak Daerah (BHPD) '.$v['tahun_anggaran'].'</a></li>
+				<li><a href="'.$url_bhrd.'" target="_blank">Laporan Keuangan Pemerintah Desa Bagi Hasil Retribusi Daerah (BHRD) '.$v['tahun_anggaran'].'</a></li>
+				<li><a href="'.$url_dd.'" target="_blank">Laporan Keuangan Pemerintah Desa BKU Dana Desa (DD) '.$v['tahun_anggaran'].'</a></li>
+				<li><a href="'.$url_add.'" target="_blank">Laporan Keuangan Pemerintah Desa BKU Alokasi Dana Desa (ADD) '.$v['tahun_anggaran'].'</a></li>
+				<li><a href="'.$url_bkk_inf.'" target="_blank">Laporan Keuangan Pemerintah Desa BKK Infrastruktur '.$v['tahun_anggaran'].'</a></li>
+				<li><a href="'.$url_bkk_pilkades.'" target="_blank">Laporan Keuangan Pemerintah Desa BKK Pilkades '.$v['tahun_anggaran'].'</a></li>
 			';
             foreach($unit as $kk => $vv){
             	$url_skpd = $this->generatePage($vv['nama_skpd'].' '.$vv['kode_skpd'].' | '.$v['tahun_anggaran'], $v['tahun_anggaran'], '[monitor_keu_pemdes tahun_anggaran="'.$v['tahun_anggaran'].'" id_skpd="'.$vv['id_skpd'].'"]');

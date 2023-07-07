@@ -28,11 +28,13 @@ if(!empty($_GET) && !empty($_GET['tahun'])){
     $input['tahun_anggaran'] = $_GET['tahun'];
 }
 
+$tampil_pilkades = get_option("_bkk_pilkades_".$input['tahun_anggaran']);
+
 define('BKK_INF', 'BKK Infrastruktur');
 define('BKK_PIL', 'BKK Pilkades');
 define('BHPD', 'Bagi Hasil Pajak Daerah');
 define('BHRD', 'Bagi Hasil Retribusi Daerah');
-define('BKU_ADD', 'BKU Anggaran Dana Desa');
+define('BKU_ADD', 'BKU Alokasi Dana Desa');
 define('BKU_DD', 'BKU Dana Desa');
 
 $data_all = array(
@@ -63,23 +65,25 @@ if($cek_login){
     $data_all[BKK_INF]['url'] =$this->generatePage('Laporan Keuangan Pemerintah Desa Bantuan Keuangan Khusus (BKK) Infrastruktur '.$input['tahun_anggaran'], false, '[keu_pemdes_bkk_inf tahun_anggaran="'.$input['tahun_anggaran'].'"]');
 }
 
-$data_all[BKK_PIL]['pagu'] = $wpdb->get_var($wpdb->prepare("
-    SELECT 
-        sum(total) as total 
-    from data_bkk_pilkades_desa 
-    WHERE tahun_anggaran=%d
-        and active=1
-", $input['tahun_anggaran']));
-$data_all[BKK_PIL]['pencairan'] = $wpdb->get_var($wpdb->prepare("
-    SELECT 
-        SUM(p.total_pencairan) 
-    FROM data_pencairan_bkk_pilkades_desa p
-    INNER JOIN data_bkk_pilkades_desa b on p.id_bkk_pilkades=b.id
-    WHERE b.active=1
-        AND b.tahun_anggaran=%d
-", $input['tahun_anggaran']));
-if($cek_login){
-    $data_all[BKK_PIL]['url'] = $this->generatePage('Laporan Keuangan Pemerintah Desa Bantuan Keuangan Khusus (BKK) Pilkades '.$input['tahun_anggaran'], false, '[keu_pemdes_bkk_pilkades tahun_anggaran="'.$input['tahun_anggaran'].'"]');
+if(!empty($tampil_pilkades)){
+    $data_all[BKK_PIL]['pagu'] = $wpdb->get_var($wpdb->prepare("
+        SELECT 
+            sum(total) as total 
+        from data_bkk_pilkades_desa 
+        WHERE tahun_anggaran=%d
+            and active=1
+    ", $input['tahun_anggaran']));
+    $data_all[BKK_PIL]['pencairan'] = $wpdb->get_var($wpdb->prepare("
+        SELECT 
+            SUM(p.total_pencairan) 
+        FROM data_pencairan_bkk_pilkades_desa p
+        INNER JOIN data_bkk_pilkades_desa b on p.id_bkk_pilkades=b.id
+        WHERE b.active=1
+            AND b.tahun_anggaran=%d
+    ", $input['tahun_anggaran']));
+    if($cek_login){
+        $data_all[BKK_PIL]['url'] = $this->generatePage('Laporan Keuangan Pemerintah Desa Bantuan Keuangan Khusus (BKK) Pilkades '.$input['tahun_anggaran'], false, '[keu_pemdes_bkk_pilkades tahun_anggaran="'.$input['tahun_anggaran'].'"]');
+    }
 }
 
 $data_all[BHPD]['pagu'] = $wpdb->get_var($wpdb->prepare("
@@ -155,12 +159,16 @@ $data_all[BKU_ADD]['pencairan'] = $wpdb->get_var($wpdb->prepare("
         AND b.tahun_anggaran=%d
 ", $input['tahun_anggaran']));
 if($cek_login){
-    $data_all[BKU_ADD]['url'] = $this->generatePage('Laporan Keuangan Pemerintah Desa Bantuan Keuangan Umum (BKU) Anggaran Dana Desa (ADD) '.$input['tahun_anggaran'], false, '[keu_pemdes_bku_add tahun_anggaran="'.$input['tahun_anggaran'].'"]');
+    $data_all[BKU_ADD]['url'] = $this->generatePage('Laporan Keuangan Pemerintah Desa Bantuan Keuangan Umum (BKU) Alokasi Dana Desa (ADD) '.$input['tahun_anggaran'], false, '[keu_pemdes_bku_add tahun_anggaran="'.$input['tahun_anggaran'].'"]');
 }
 
 function generateRandomColor($k){
     $color = array('#f44336', '#9c27b0', '#2196f3', '#009688', '#4caf50', '#cddc39', '#ff9800', '#795548', '#9e9e9e', '#607d8b');
     return $color[$k%10];
+}
+
+if(empty($tampil_pilkades)){
+    unset($data_all[BKK_PIL]);
 }
 
 $body = '';

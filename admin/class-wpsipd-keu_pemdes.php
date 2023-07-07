@@ -539,4 +539,19 @@ class Wpsipd_Admin_Keu_Pemdes {
         }
         die(json_encode($ret));
     }
+
+    public function set_setting_ajax(){
+        global $wpdb;
+        $ret = array(
+            'status'    => 'success',
+            'message'   => 'Berhasil disimpan!'
+        );
+        if (!empty($_POST) && !empty($_POST['key'])) {
+            update_option($_POST['key'], $_POST['val']);
+        } else {
+            $ret['status'] = 'error';
+            $ret['message'] = 'Format Salah!';
+        }
+        die(json_encode($ret));
+    }
 }

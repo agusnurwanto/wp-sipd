@@ -126,7 +126,7 @@ if($realisasi_all == 0){
 }
 ?>
 
-<h1 class="text-center">BKU Anggaran Dana Desa ( ADD )<br>Rekapitulasi Per Kecamatan<br>Tahun <?php echo $input['tahun_anggaran']; ?></h1>
+<h1 class="text-center">BKU Alokasi Dana Desa ( ADD )<br>Rekapitulasi Per Kecamatan<br>Tahun <?php echo $input['tahun_anggaran']; ?></h1>
 <div class="cetak">
     <div style="padding: 10px;">
         <div class="row">
@@ -138,7 +138,7 @@ if($realisasi_all == 0){
         </div>
         <div class="row">
             <div class="col-md-12">
-                <h2 class="text-center">Tabel BKU Anggaran Dana Desa ( ADD )<br>Rekapitulasi Per Kecamatan<br>Tahun <?php echo $input['tahun_anggaran']; ?></h2>
+                <h2 class="text-center">Tabel BKU Alokasi Dana Desa ( ADD )<br>Rekapitulasi Per Kecamatan<br>Tahun <?php echo $input['tahun_anggaran']; ?></h2>
                 <table class="table table-bordered">
                     <thead>
                         <tr>
