@@ -365,7 +365,12 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes {
 	            	</ol>
 		        	' ),
 		        Field::make( 'html', 'crb_bkk_infrastruktur_upload_html' )
-	            	->set_html( '<h3>Import EXCEL data Bantuan Keuangan Khusus Infrastruktur</h3>Pilih file excel .xlsx : <input type="file" id="file-excel" onchange="filePickedWpsipd(event);"><br>Contoh format file excel bisa <a target="_blank" href="'.WPSIPD_PLUGIN_URL. 'excel/contoh_bkk_infrastruktur.xlsx">download di sini</a>. Sheet file excel yang akan diimport harus diberi nama <b>data</b>. Untuk kolom nilai angka ditulis tanpa tanda titik.' ),
+	            	->set_html( '<h3>Import EXCEL data Bantuan Keuangan Khusus Infrastruktur</h3>
+	            		<label><input type="checkbox" id="pencairan"> Pencairan Anggaran</label>
+	            		<br>
+	            		Pilih file excel .xlsx : <input type="file" id="file-excel" onchange="filePickedWpsipd(event);">
+	            		<br>
+	            		Contoh format file excel bisa <a target="_blank" href="'.WPSIPD_PLUGIN_URL. 'excel/contoh_bkk_infrastruktur.xlsx">download di sini</a>. Sheet file excel yang akan diimport harus diberi nama <b>data</b>. Untuk kolom nilai angka ditulis tanpa tanda titik.' ),
 		        Field::make( 'html', 'crb_bkk_infrastruktur_satset' )
 	            	->set_html( 'Data JSON : <textarea id="data-excel" class="cf-select__input"></textarea>' ),
 		        Field::make( 'html', 'crb_bkk_infrastruktur_save_button' )
@@ -388,7 +393,12 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes {
 	            	</ol>
 		        	' ),
 		        Field::make( 'html', 'crb_bkk_pilkades_upload_html' )
-	            	->set_html( '<h3>Import EXCEL data Bantuan Keuangan Khusus pilkades</h3>Pilih file excel .xlsx : <input type="file" id="file-excel" onchange="filePickedWpsipd(event);"><br>Contoh format file excel bisa <a target="_blank" href="'.WPSIPD_PLUGIN_URL. 'excel/contoh_bkk_pilkades.xlsx">download di sini</a>. Sheet file excel yang akan diimport harus diberi nama <b>data</b>. Untuk kolom nilai angka ditulis tanpa tanda titik.' ),
+	            	->set_html( '<h3>Import EXCEL data Bantuan Keuangan Khusus pilkades</h3>
+	            		<label><input type="checkbox" id="pencairan"> Pencairan Anggaran</label>
+	            		<br>
+	            		Pilih file excel .xlsx : <input type="file" id="file-excel" onchange="filePickedWpsipd(event);">
+	            		<br>
+	            		Contoh format file excel bisa <a target="_blank" href="'.WPSIPD_PLUGIN_URL. 'excel/contoh_bku_dd.xlsx">download di sini</a>. Sheet file excel yang akan diimport harus diberi nama <b>data</b>. Untuk kolom nilai angka ditulis tanpa tanda titik.' ),
 		        Field::make( 'html', 'crb_bkk_pilkades_satset' )
 	            	->set_html( 'Data JSON : <textarea id="data-excel" class="cf-select__input"></textarea>' ),
 		        Field::make( 'html', 'crb_bkk_pilkades_save_button' )
@@ -410,7 +420,12 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes {
 	            	</ol>
 		        	' ),
 		        Field::make( 'html', 'crb_bhpd_upload_html' )
-	            	->set_html( '<h3>Import EXCEL data Bagi Hasil Pajak Daerah (BHPD)</h3>Pilih file excel .xlsx : <input type="file" id="file-excel" onchange="filePickedWpsipd(event);"><br>Contoh format file excel bisa <a target="_blank" href="'.WPSIPD_PLUGIN_URL. 'excel/contoh_bku_bh.xlsx">download di sini</a>. Sheet file excel yang akan diimport harus diberi nama <b>data</b>. Untuk kolom nilai angka ditulis tanpa tanda titik.' ),
+	            	->set_html( '<h3>Import EXCEL data Bagi Hasil Pajak Daerah (BHPD)</h3>
+	            		<label><input type="checkbox" id="pencairan"> Pencairan Anggaran</label>
+	            		<br>
+	            		Pilih file excel .xlsx : <input type="file" id="file-excel" onchange="filePickedWpsipd(event);">
+	            		<br>
+	            		Contoh format file excel bisa <a target="_blank" href="'.WPSIPD_PLUGIN_URL. 'excel/contoh_bku_dd.xlsx">download di sini</a>. Sheet file excel yang akan diimport harus diberi nama <b>data</b>. Untuk kolom nilai angka ditulis tanpa tanda titik.' ),
 		        Field::make( 'html', 'crb_bhpd_satset' )
 	            	->set_html( 'Data JSON : <textarea id="data-excel" class="cf-select__input"></textarea>' ),
 		        Field::make( 'html', 'crb_bhpd_save_button' )
@@ -432,7 +447,12 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes {
 	            	</ol>
 		        	' ),
 		        Field::make( 'html', 'crb_bhrd_upload_html' )
-	            	->set_html( '<h3>Import EXCEL data Bagi Hasil Retribusi Daerah (BHRD)</h3>Pilih file excel .xlsx : <input type="file" id="file-excel" onchange="filePickedWpsipd(event);"><br>Contoh format file excel bisa <a target="_blank" href="'.WPSIPD_PLUGIN_URL. 'excel/contoh_bku_bh.xlsx">download di sini</a>. Sheet file excel yang akan diimport harus diberi nama <b>data</b>. Untuk kolom nilai angka ditulis tanpa tanda titik.' ),
+	            	->set_html( '<h3>Import EXCEL data Bagi Hasil Retribusi Daerah (BHRD)</h3>
+	            		<label><input type="checkbox" id="pencairan"> Pencairan Anggaran</label>
+	            		<br>
+	            		Pilih file excel .xlsx : <input type="file" id="file-excel" onchange="filePickedWpsipd(event);">
+	            		<br>
+	            		Contoh format file excel bisa <a target="_blank" href="'.WPSIPD_PLUGIN_URL. 'excel/contoh_bku_dd.xlsx">download di sini</a>. Sheet file excel yang akan diimport harus diberi nama <b>data</b>. Untuk kolom nilai angka ditulis tanpa tanda titik.' ),
 		        Field::make( 'html', 'crb_bhrd_satset' )
 	            	->set_html( 'Data JSON : <textarea id="data-excel" class="cf-select__input"></textarea>' ),
 		        Field::make( 'html', 'crb_bhrd_save_button' )
@@ -479,7 +499,14 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes {
 	            	<br>
 	            	<a onclick="singkron_bku_dd(); return false" href="javascript:void(0);" class="button button-primary">Proses</a>' ),
 		        Field::make( 'html', 'crb_bku_dd_upload_html' )
-	            	->set_html( '<h3>Import EXCEL data Bantuan Keuangan Umum (BKU) Dana Desa (DD)</h3>Pilih file excel .xlsx : <input type="file" id="file-excel" onchange="filePickedWpsipd(event);"><br>Contoh format file excel bisa <a target="_blank" href="'.WPSIPD_PLUGIN_URL. 'excel/contoh_bku_bh.xlsx">download di sini</a>. Sheet file excel yang akan diimport harus diberi nama <b>data</b>. Untuk kolom nilai angka ditulis tanpa tanda titik.' ),
+	            	->set_html( '
+	            		<h3>Import EXCEL data Bantuan Keuangan Umum (BKU) Dana Desa (DD)</h3>
+	            		<label><input type="checkbox" id="pencairan"> Pencairan Anggaran</label>
+	            		<br>
+	            		Pilih file excel .xlsx : <input type="file" id="file-excel" onchange="filePickedWpsipd(event);">
+	            		<br>
+	            		Contoh format file excel bisa <a target="_blank" href="'.WPSIPD_PLUGIN_URL. 'excel/contoh_bku_dd.xlsx">download di sini</a>. Sheet file excel yang akan diimport harus diberi nama <b>data</b>. Untuk kolom nilai angka ditulis tanpa tanda titik.
+	            	' ),
 		        Field::make( 'html', 'crb_bku_dd_satset' )
 	            	->set_html( 'Data JSON : <textarea id="data-excel" class="cf-select__input"></textarea>' ),
 		        Field::make( 'html', 'crb_bku_dd_save_button' )
@@ -511,7 +538,12 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes {
 	            	<br>
 	            	<a onclick="singkron_bku_add(); return false" href="javascript:void(0);" class="button button-primary">Proses</a>' ),
 		        Field::make( 'html', 'crb_bku_add_upload_html' )
-	            	->set_html( '<h3>Import EXCEL data Bantuan Keuangan Umum (BKU) Alokasi Dana Desa (ADD)</h3>Pilih file excel .xlsx : <input type="file" id="file-excel" onchange="filePickedWpsipd(event);"><br>Contoh format file excel bisa <a target="_blank" href="'.WPSIPD_PLUGIN_URL. 'excel/contoh_bku_bh.xlsx">download di sini</a>. Sheet file excel yang akan diimport harus diberi nama <b>data</b>. Untuk kolom nilai angka ditulis tanpa tanda titik.' ),
+	            	->set_html( '<h3>Import EXCEL data Bantuan Keuangan Umum (BKU) Alokasi Dana Desa (ADD)</h3>
+	            		<label><input type="checkbox" id="pencairan"> Pencairan Anggaran</label>
+	            		<br>
+	            		Pilih file excel .xlsx : <input type="file" id="file-excel" onchange="filePickedWpsipd(event);">
+	            		<br>
+	            		Contoh format file excel bisa <a target="_blank" href="'.WPSIPD_PLUGIN_URL. 'excel/contoh_bku_dd.xlsx">download di sini</a>. Sheet file excel yang akan diimport harus diberi nama <b>data</b>. Untuk kolom nilai angka ditulis tanpa tanda titik.' ),
 		        Field::make( 'html', 'crb_bku_add_satset' )
 	            	->set_html( 'Data JSON : <textarea id="data-excel" class="cf-select__input"></textarea>' ),
 		        Field::make( 'html', 'crb_bku_add_save_button' )

@@ -270,7 +270,7 @@ $url_per_kecamatan = $this->generatePage('Laporan Realisasi Keuangan Desa per Ke
         </div>
         <div class="row">
             <div class="col-md-12 text-center">
-                <a style="margin: 20px; text-decoration: none;"> href="<?php echo $url_per_kecamatan; ?>" target="_blank" class="btn btn-primary">Laporan Relisasi Keuangan Pemerintah Desa Per Kecamatan</a>
+                <a style="margin: 20px; text-decoration: none;" href="<?php echo $url_per_kecamatan; ?>" target="_blank" class="btn btn-primary">Laporan Relisasi Keuangan Pemerintah Desa Per Kecamatan</a>
             </div>
         </div>
     </div>

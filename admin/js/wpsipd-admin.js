@@ -657,6 +657,10 @@ function import_excel_bhpd(){
 
 function import_excel_bku_add(){
 	var data = jQuery('#data-excel').val();
+	var pencairan = 0;
+	if(jQuery('#pencairan').is(':checked')){
+		pencairan = 1;
+	}
     if(!data){
         return alert('Excel Data can not empty!');
     }else{
@@ -685,6 +689,7 @@ function import_excel_bku_add(){
                         type: 'post',
                         data: {
                             action: 'import_excel_bku_add',
+                            pencairan: pencairan,
                             data: current_data
                         },
                         success: function(res){
@@ -719,6 +724,11 @@ function import_excel_bku_add(){
 
 function import_excel_bku_dd(){
 	var data = jQuery('#data-excel').val();
+	var pencairan = 0;
+	if(jQuery('#pencairan').is(':checked')){
+		pencairan = 1;
+	}
+
     if(!data){
         return alert('Excel Data can not empty!');
     }else{
@@ -747,6 +757,7 @@ function import_excel_bku_dd(){
                         type: 'post',
                         data: {
                             action: 'import_excel_bku_dd',
+                            pencairan: pencairan,
                             data: current_data
                         },
                         success: function(res){
