@@ -8009,7 +8009,7 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 			$where='';
 			if($jadwal_lokal->status == 1){
 				$_suffix='_history';
-				$where='AND id_jadwal='.$wpdb->prepare("%d", $id_jadwal_lokal);
+				$where=' AND id_jadwal='.$wpdb->prepare("%d", $id_jadwal_lokal);
 			}
 
 			$where_skpd = '';
@@ -8067,6 +8067,7 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 					FROM data_sub_keg_bl_lokal".$_suffix." s
 					WHERE s.tahun_anggaran=%d
 					  AND s.id_sub_skpd=%d
+					  ".$where."
 					  AND s.active=1", $tahun_anggaran, $unit['id_skpd']);
 
 				$pagu = $wpdb->get_row($sql, ARRAY_A);
@@ -8103,6 +8104,7 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 					FROM data_pendapatan_lokal".$_suffix."
 					WHERE tahun_anggaran=%d
 						AND id_skpd=%d
+						".$where."
 						AND active=1", $tahun_anggaran, $unit['id_skpd']);
 				$total_pendapatan = $wpdb->get_row($sql_pendapatan, ARRAY_A);
 
@@ -8136,6 +8138,7 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 					WHERE tahun_anggaran=%d
 						AND id_skpd=%d
 						AND active=1
+						".$where."
 						AND type='penerimaan'", $tahun_anggaran, $unit['id_skpd']);
 				$total_penerimaan = $wpdb->get_row($sql_penerimaan, ARRAY_A);
 
@@ -8170,6 +8173,7 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 					WHERE tahun_anggaran=%d
 						AND id_skpd=%d
 						AND active=1
+						".$where."
 						AND type='pengeluaran'", $tahun_anggaran, $unit['id_skpd']);
 				$total_pengeluaran = $wpdb->get_row($sql_pengeluaran, ARRAY_A);
 

@@ -1860,4 +1860,364 @@ class Wpsipd_Public_Base_1 extends Wpsipd_Public_Base_2{
         }
         die(json_encode($ret));
     }
+
+    public function show_skpd_program_analisis(){
+    	global $wpdb;
+    	try{
+            $nama_pemda = get_option('_crb_daerah');
+    		$kode_program = $_POST['kode_program'];
+            $id_jadwal_lokal = $_POST['id_jadwal_lokal'];
+            $id_sub_skpd =  $_POST['id_sub_skpd'];
+	        $tahun_anggaran = $_POST['tahun_anggaran'];
+
+			$jadwal_lokal = $wpdb->get_row($wpdb->prepare("
+				SELECT 
+					nama AS nama_jadwal,
+					tahun_anggaran,
+					status 
+				FROM `data_jadwal_lokal` 
+					WHERE id_jadwal_lokal=%d", $id_jadwal_lokal));
+
+			$_suffix='';
+			$where='';
+			if($jadwal_lokal->status == 1){
+				$_suffix='_history';
+				$where='AND id_jadwal='.$wpdb->prepare("%d", $id_jadwal_lokal);
+			}
+
+			$where_skpd = '';
+			if(!empty($id_sub_skpd)){
+				if($id_sub_skpd !='all'){
+					$where_skpd = "AND id_skpd=".$wpdb->prepare("%d", $id_sub_skpd);
+				}
+			}
+
+			$sql = $wpdb->prepare("
+                SELECT 
+                    nama_program,
+                    nama_sub_skpd, 
+                    id_sub_skpd,
+                    sum(pagu) as pagu_skpd  
+                FROM data_sub_keg_bl_lokal".$_suffix."
+                WHERE kode_program=%s 
+                    AND tahun_anggaran=%d
+                    AND active=1
+                    ".$where." 
+                    ".$where_skpd."
+                GROUP by id_sub_skpd 
+                ORDER BY id_sub_skpd ASC
+			",$kode_program, $tahun_anggaran);
+
+			$skpds = $wpdb->get_results($sql, ARRAY_A);
+
+			$data_all = array(
+				'data' => array(),
+				'pagu_total' => 0
+			);
+
+            $title = !empty($skpds) ? 'Daftar SKPD Program '.$skpds[0]['nama_program'] : '';
+
+			foreach ($skpds as $key => $skpd) {
+				if(empty($data_all['data'][$skpd['id_sub_skpd']])){
+				    
+					$data_all['data'][$skpd['id_sub_skpd']] = [
+						'id_sub_skpd' => $skpd['id_sub_skpd'],
+						'nama_program' => $skpd['nama_program'],
+						'nama_sub_skpd' => $skpd['nama_sub_skpd'],
+						'pagu_skpd' => $skpd['pagu_skpd']
+					];
+
+					$data_all['pagu_total'] += $skpd['pagu_skpd'];
+				}
+			}
+
+			/** Tabel skpd program */
+			$body = '';
+			$no=1;
+			foreach ($data_all['data'] as $key => $skpd) {
+				$body.='
+					<tr data-idsubskpd="'.$skpd['id_sub_skpd'].'">
+						<td class="kiri atas kanan bawah text_tengah">'.$no.'</td>
+						<td class="atas kanan bawah">'.$skpd['nama_sub_skpd'].'</td>
+						<td class="atas kanan bawah text_kanan">'.$this->_number_format($skpd['pagu_skpd']).'</td>
+					</tr>';
+					$no++;
+			}
+
+			$footer='<tr>
+						<td class="kiri atas kanan bawah text_tengah" colspan="2"><b>TOTAL PAGU PROGRAM</b></td>
+						<td class="atas kanan bawah text_kanan"><b>'.$this->_number_format($data_all['pagu_total']).'</b></td>
+					</tr>';
+
+			$html='<div id="preview" style="padding: 5px; overflow: auto; height: 100%;">
+					<h4 style="text-align: center; margin: 0; font-weight: bold;">SKPD Per Program
+					<br>Tahun '.$jadwal_lokal->tahun_anggaran.' '.$nama_pemda.'
+					<br>'.$jadwal_lokal->nama_jadwal.'
+					</h4>
+					<br>
+					<table id="table-skpd-program" cellpadding="2" cellspacing="0" style="font-family:\'Open Sans\',-apple-system,BlinkMacSystemFont,\'Segoe UI\',sans-serif; border-collapse: collapse; font-size: 90%; border: 0; table-layout: fixed;" contenteditable="false">
+						<thead>
+							<tr>
+								<th style="width: 19px;" class="kiri atas kanan bawah text_tengah text_blok">No</th>
+								<th class="atas kanan bawah text_tengah text_blok">Nama Sub SKPD</th>
+								<th style="width: 140px;" class="atas kanan bawah text_tengah text_blok">Total Pagu</th>
+							</tr>
+						</thead>
+						<tbody>'.$body.'</tbody>
+						<tfoot>'.$footer.'</tfoot>
+					</table>';
+
+    		echo json_encode([
+				'status' => true,
+				'html' => $html,
+                'title' => $title
+			]);exit();
+
+    	}catch(Exception $e){
+    		echo json_encode([
+				'status' => false,
+				'message' => $e->getMessage()
+			]);exit();
+    	}
+    }
+
+    public function show_skpd_kegiatan_analisis(){
+    	global $wpdb;
+    	try{
+            $nama_pemda = get_option('_crb_daerah');
+    		$kode_giat = $_POST['kode_giat'];
+            $id_jadwal_lokal = $_POST['id_jadwal_lokal'];
+            $id_sub_skpd =  $_POST['id_sub_skpd'];
+	        $tahun_anggaran = $_POST['tahun_anggaran'];
+
+			$jadwal_lokal = $wpdb->get_row($wpdb->prepare("
+				SELECT 
+					nama AS nama_jadwal,
+					tahun_anggaran,
+					status 
+				FROM `data_jadwal_lokal` 
+					WHERE id_jadwal_lokal=%d", $id_jadwal_lokal));
+
+			$_suffix='';
+			$where='';
+			if($jadwal_lokal->status == 1){
+				$_suffix='_history';
+				$where='AND id_jadwal='.$wpdb->prepare("%d", $id_jadwal_lokal);
+			}
+
+			$where_skpd = '';
+			if(!empty($id_sub_skpd)){
+				if($id_sub_skpd !='all'){
+					$where_skpd = "AND id_skpd=".$wpdb->prepare("%d", $id_sub_skpd);
+				}
+			}
+
+			$sql = $wpdb->prepare("
+                SELECT 
+                    nama_giat,
+                    nama_sub_skpd, 
+                    id_sub_skpd,
+                    sum(pagu) as pagu_skpd  
+                FROM data_sub_keg_bl_lokal".$_suffix."
+                WHERE kode_giat=%s 
+                    AND tahun_anggaran=%d
+                    AND active=1
+                    ".$where." 
+                    ".$where_skpd."
+                GROUP by id_sub_skpd 
+                ORDER BY id_sub_skpd ASC
+			",$kode_giat, $tahun_anggaran);
+
+			$skpds = $wpdb->get_results($sql, ARRAY_A);
+
+			$data_all = array(
+				'data' => array(),
+				'pagu_total' => 0
+			);
+
+            $title = !empty($skpds) ? 'Daftar SKPD Kegiatan '.$skpds[0]['nama_giat'] : '';
+
+			foreach ($skpds as $key => $skpd) {
+				if(empty($data_all['data'][$skpd['id_sub_skpd']])){
+				    
+					$data_all['data'][$skpd['id_sub_skpd']] = [
+						'id_sub_skpd' => $skpd['id_sub_skpd'],
+						'nama_giat' => $skpd['nama_giat'],
+						'nama_sub_skpd' => $skpd['nama_sub_skpd'],
+						'pagu_skpd' => $skpd['pagu_skpd']
+					];
+
+					$data_all['pagu_total'] += $skpd['pagu_skpd'];
+				}
+			}
+
+			/** Tabel skpd kegiatan */
+			$body = '';
+			$no=1;
+			foreach ($data_all['data'] as $key => $skpd) {
+				$body.='
+					<tr data-idsubskpd="'.$skpd['id_sub_skpd'].'">
+						<td class="kiri atas kanan bawah text_tengah">'.$no.'</td>
+						<td class="atas kanan bawah">'.$skpd['nama_sub_skpd'].'</td>
+						<td class="atas kanan bawah text_kanan">'.$this->_number_format($skpd['pagu_skpd']).'</td>
+					</tr>';
+					$no++;
+			}
+
+			$footer='<tr>
+						<td class="kiri atas kanan bawah text_tengah" colspan="2"><b>TOTAL PAGU KEGIATAN</b></td>
+						<td class="atas kanan bawah text_kanan"><b>'.$this->_number_format($data_all['pagu_total']).'</b></td>
+					</tr>';
+
+			$html='<div id="preview" style="padding: 5px; overflow: auto; height: 100%;">
+					<h4 style="text-align: center; margin: 0; font-weight: bold;">SKPD Per Program
+					<br>Tahun '.$jadwal_lokal->tahun_anggaran.' '.$nama_pemda.'
+					<br>'.$jadwal_lokal->nama_jadwal.'
+					</h4>
+					<br>
+					<table id="table-skpd-giat" cellpadding="2" cellspacing="0" style="font-family:\'Open Sans\',-apple-system,BlinkMacSystemFont,\'Segoe UI\',sans-serif; border-collapse: collapse; font-size: 90%; border: 0; table-layout: fixed;" contenteditable="false">
+						<thead>
+							<tr>
+								<th style="width: 19px;" class="kiri atas kanan bawah text_tengah text_blok">No</th>
+								<th class="atas kanan bawah text_tengah text_blok">Nama Sub SKPD</th>
+								<th style="width: 140px;" class="atas kanan bawah text_tengah text_blok">Total Pagu</th>
+							</tr>
+						</thead>
+						<tbody>'.$body.'</tbody>
+						<tfoot>'.$footer.'</tfoot>
+					</table>';
+
+    		echo json_encode([
+				'status' => true,
+				'html' => $html,
+                'title' => $title
+			]);exit();
+
+    	}catch(Exception $e){
+    		echo json_encode([
+				'status' => false,
+				'message' => $e->getMessage()
+			]);exit();
+    	}
+    }
+
+    public function show_skpd_sub_giat_analisis(){
+    	global $wpdb;
+    	try{
+            $nama_pemda = get_option('_crb_daerah');
+    		$kode_sub_giat = $_POST['kode_sub_giat'];
+            $id_jadwal_lokal = $_POST['id_jadwal_lokal'];
+            $id_sub_skpd =  $_POST['id_sub_skpd'];
+	        $tahun_anggaran = $_POST['tahun_anggaran'];
+
+			$jadwal_lokal = $wpdb->get_row($wpdb->prepare("
+				SELECT 
+					nama AS nama_jadwal,
+					tahun_anggaran,
+					status 
+				FROM `data_jadwal_lokal` 
+					WHERE id_jadwal_lokal=%d", $id_jadwal_lokal));
+
+			$_suffix='';
+			$where='';
+			if($jadwal_lokal->status == 1){
+				$_suffix='_history';
+				$where='AND id_jadwal='.$wpdb->prepare("%d", $id_jadwal_lokal);
+			}
+
+			$where_skpd = '';
+			if(!empty($id_sub_skpd)){
+				if($id_sub_skpd !='all'){
+					$where_skpd = "AND id_skpd=".$wpdb->prepare("%d", $id_sub_skpd);
+				}
+			}
+
+			$sql = $wpdb->prepare("
+                SELECT 
+                    nama_sub_giat,
+                    nama_sub_skpd, 
+                    id_sub_skpd,
+                    sum(pagu) as pagu_skpd  
+                FROM data_sub_keg_bl_lokal".$_suffix."
+                WHERE kode_sub_giat=%s 
+                    AND tahun_anggaran=%d
+                    AND active=1
+                    ".$where." 
+                    ".$where_skpd."
+                GROUP by id_sub_skpd 
+                ORDER BY id_sub_skpd ASC
+			",$kode_sub_giat, $tahun_anggaran);
+
+			$skpds = $wpdb->get_results($sql, ARRAY_A);
+
+			$data_all = array(
+				'data' => array(),
+				'pagu_total' => 0
+			);
+
+            $title = !empty($skpds) ? 'Daftar SKPD Sub Kegiatan '.$skpds[0]['nama_sub_giat'] : '';
+
+			foreach ($skpds as $key => $skpd) {
+				if(empty($data_all['data'][$skpd['id_sub_skpd']])){
+				    
+					$data_all['data'][$skpd['id_sub_skpd']] = [
+						'id_sub_skpd' => $skpd['id_sub_skpd'],
+						'nama_giat' => $skpd['nama_sub_giat'],
+						'nama_sub_skpd' => $skpd['nama_sub_skpd'],
+						'pagu_skpd' => $skpd['pagu_skpd']
+					];
+
+					$data_all['pagu_total'] += $skpd['pagu_skpd'];
+				}
+			}
+
+			/** Tabel skpd sub giat */
+			$body = '';
+			$no=1;
+			foreach ($data_all['data'] as $key => $skpd) {
+				$body.='
+					<tr data-idsubskpd="'.$skpd['id_sub_skpd'].'">
+						<td class="kiri atas kanan bawah text_tengah">'.$no.'</td>
+						<td class="atas kanan bawah">'.$skpd['nama_sub_skpd'].'</td>
+						<td class="atas kanan bawah text_kanan">'.$this->_number_format($skpd['pagu_skpd']).'</td>
+					</tr>';
+					$no++;
+			}
+			
+			$footer='<tr>
+						<td class="kiri atas kanan bawah text_tengah" colspan="2"><b>TOTAL PAGU SUB KEGIATAN</b></td>
+						<td class="atas kanan bawah text_kanan"><b>'.$this->_number_format($data_all['pagu_total']).'</b></td>
+					</tr>';
+
+			$html='<div id="preview" style="padding: 5px; overflow: auto; height: 100%;">
+					<h4 style="text-align: center; margin: 0; font-weight: bold;">SKPD Per Program
+					<br>Tahun '.$jadwal_lokal->tahun_anggaran.' '.$nama_pemda.'
+					<br>'.$jadwal_lokal->nama_jadwal.'
+					</h4>
+					<br>
+					<table id="table-skpd-sub-giat" cellpadding="2" cellspacing="0" style="font-family:\'Open Sans\',-apple-system,BlinkMacSystemFont,\'Segoe UI\',sans-serif; border-collapse: collapse; font-size: 90%; border: 0; table-layout: fixed;" contenteditable="false">
+						<thead>
+							<tr>
+								<th style="width: 19px;" class="kiri atas kanan bawah text_tengah text_blok">No</th>
+								<th class="atas kanan bawah text_tengah text_blok">Nama Sub SKPD</th>
+								<th style="width: 140px;" class="atas kanan bawah text_tengah text_blok">Total Pagu</th>
+							</tr>
+						</thead>
+						<tbody>'.$body.'</tbody>
+						<tfoot>'.$footer.'</tfoot>
+					</table>';
+
+    		echo json_encode([
+				'status' => true,
+				'html' => $html,
+                'title' => $title
+			]);exit();
+
+    	}catch(Exception $e){
+    		echo json_encode([
+				'status' => false,
+				'message' => $e->getMessage()
+			]);exit();
+    	}
+    }
 }

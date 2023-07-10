@@ -77,12 +77,13 @@ if(!empty($analisis_program)){
 $body = '';
 $urut = 1;
 foreach ($data_all['data'] as $k => $all_ap) {
+    $skpd   = '<a style="text-decoration: none;" onclick="show_analisis(\''.$all_ap['kode_program'].'\'); return false;" href="#" title="Menampilkan Analisis Program">'.$all_ap['skpd'].'</a>';
     $body .='
     <tr>
         <td class="kiri kanan bawah text_tengah">'.$urut.'</td>
         <td class="kiri kanan bawah text_tengah">'.$all_ap['kode_program'].'</td>
         <td class="kiri kanan bawah text_kiri">'.$all_ap['nama_program'].'</td>
-        <td class="kiri kanan bawah text_tengah">'.$all_ap['skpd'].'</td>
+        <td class="kiri kanan bawah text_tengah">'.$skpd.'</td>
         <td class="kiri kanan bawah text_kanan">'.number_format($all_ap['total_pagu'],0,",",".").'</td>
     </tr>';
     $urut++;
@@ -112,7 +113,24 @@ echo '
     </tbody>
 </table>
 </div>';
-echo '</div>';
+echo '</div>
+<div class="modal fade mt-4" id="modalAnalisis" tabindex="-1" role="dialog" aria-labelledby="modalmodalAnalisisLabel" aria-hidden="true">
+	<div class="modal-dialog modal-lg" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title" id="modalmodalAnalisisLabel">Laporan Skpd Program</h5>
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+				<span aria-hidden="true">&times;</span>
+				</button>
+			</div>
+			<div class="modal-body">
+			</div> 
+			<div class="modal-footer">
+				<button type="submit" class="components-button btn btn-secondary" data-dismiss="modal">Tutup</button>
+			</div>
+		</div>
+	</div>
+</div>';
 ?>
 <style type="text/css">
     #wrap-table {
@@ -130,4 +148,53 @@ echo '</div>';
     jQuery(document).ready(function(){
         run_download_excel();
     });
+
+    /** modal menampilkan analisis program */
+	function show_analisis(kode_program){
+		jQuery('#modalAnalisis').modal('show');
+		jQuery("#modalAnalisis .modal-title").html("Daftar SKPD Program "+kode_program);
+        jQuery("#wrap-loading").show();
+		jQuery.ajax({
+			url:ajax.url,
+			type:'post',
+			dataType:'json',
+			data:{
+				action:"show_skpd_program_analisis",
+				kode_program:kode_program,
+                id_jadwal_lokal:<?php echo $input['id_jadwal_lokal']; ?>,
+                id_sub_skpd:'<?php echo $input['id_skpd']; ?>',
+				tahun_anggaran:<?php echo $input['tahun_anggaran']; ?>,
+				api_key:jQuery("#api_key").val(),
+			},
+			success:function(response){
+				if(response.status=='error'){
+					alert(response.message);
+				}else{
+					jQuery("#modalAnalisis .modal-body").html(response.html);
+					jQuery("#modalAnalisis .modal-body").css('overflow-x', 'auto');
+					jQuery("#modalAnalisis .modal-body").css('margin-right','15px');
+					jQuery("#modalAnalisis .modal-body").css('padding', '15px');
+                    jQuery("#modalAnalisis .modal-title").html(response.title);
+					// jQuery('#modalAnalisis .export-excel').attr("disabled", false);
+					// jQuery('#modalAnalisis .export-excel').attr("title", title);
+
+					window.table_skpd_program = jQuery("#table-skpd-program").DataTable( {
+				        dom: 'Blfrtip',
+				        lengthMenu: [
+				            [10, 25, 50, -1],
+				            [10, 25, 50, 'All'],
+				        ]
+				    } );
+				    // jQuery('#modal-report .action-footer .dt-buttons').remove();
+					// jQuery('#modal-report .action-footer').html(
+				    // 	"<button type=\"button\" class=\"btn btn-success btn-preview\" onclick=\"preview('"+id_jadwal_lokal+"')\">Preview</button>");
+					// jQuery('#modal-report .action-footer').append(table_renja.buttons().container());
+				    // jQuery('#modal-report .action-footer .dt-buttons').css('margin-left', '5px');
+				    // jQuery('#modal-report .action-footer .buttons-excel').addClass('btn btn-primary');
+				    // jQuery('#modal-report .action-footer .buttons-excel span').html('Export Excel');
+				}
+				jQuery("#wrap-loading").hide();
+			}
+		})
+    }
 </script>
