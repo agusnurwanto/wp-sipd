@@ -154,7 +154,7 @@ foreach($unit as $i => $kec){
 	    INNER JOIN data_bkk_desa b on p.id_kegiatan=b.id
 	        AND b.active=1
 	        AND b.tahun_anggaran=%d
-	    WHERE b.nama_kec=%d
+	    WHERE b.kecamatan=%s
 	    ", $input['tahun_anggaran'], $nama_kec), ARRAY_A);
 	if (empty($bkk_infrastruktur_r)) {
 	    $bkk_infrastruktur_r = array('total' => 0);
@@ -167,7 +167,7 @@ foreach($unit as $i => $kec){
 	    INNER JOIN data_bkk_pilkades_desa b on p.id_bkk_pilkades=b.id
 	        AND b.active=1
 	        AND b.tahun_anggaran=%d
-	    WHERE b.nama_kec=%d
+	    WHERE b.kecamatan=%s
 	    ", $input['tahun_anggaran'], $nama_kec), ARRAY_A);
 	if (empty($bkk_pilkades_r)) {
 	    $bkk_pilkades_r = array('total' => 0);
@@ -180,7 +180,7 @@ foreach($unit as $i => $kec){
 	    INNER JOIN data_bhpd_desa b on p.id_bhpd=b.id
 	        AND b.active=1
 	        AND b.tahun_anggaran=%d
-	    WHERE b.nama_kec=%d
+	    WHERE b.kecamatan=%s
 	    ", $input['tahun_anggaran'], $nama_kec), ARRAY_A);
 	if (empty($bhpd_r)) {
 	    $bhpd_r = array('total' => 0);
@@ -193,7 +193,7 @@ foreach($unit as $i => $kec){
 	    INNER JOIN data_bhrd_desa b on p.id_bhrd=b.id
 	        AND b.active=1
 	        AND b.tahun_anggaran=%d
-	    WHERE b.nama_kec=%d
+	    WHERE b.kecamatan=%s
 	    ", $input['tahun_anggaran'], $nama_kec), ARRAY_A);
 	if (empty($bhrd_r)) {
 	    $bhrd_r = array('total' => 0);
@@ -206,7 +206,7 @@ foreach($unit as $i => $kec){
 	    INNER JOIN data_bku_dd_desa b on p.id_bku_dd=b.id
 	        AND b.active=1
 	        AND b.tahun_anggaran=%d
-	    WHERE b.nama_kec=%d
+	    WHERE b.kecamatan=%s
 	    ", $input['tahun_anggaran'], $nama_kec), ARRAY_A);
 	if (empty($bku_dd_r)) {
 	    $bku_dd_r = array('total' => 0);
@@ -219,7 +219,7 @@ foreach($unit as $i => $kec){
 	    INNER JOIN data_bku_add_desa b on p.id_bku_add=b.id
 	        AND b.active=1
 	        AND b.tahun_anggaran=%d
-	    WHERE b.nama_kec=%d
+	    WHERE b.kecamatan=%s
 	    ", $input['tahun_anggaran'], $nama_kec), ARRAY_A);
 	if (empty($bku_add_r)) {
 	    $bku_add_r = array('total' => 0);

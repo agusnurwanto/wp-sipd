@@ -872,6 +872,10 @@ class Wpsipd
 		
 		$this->loader->add_action('wp_ajax_cek_pemutakhiran_total', $plugin_public, 'cek_pemutakhiran_total');
 		$this->loader->add_action('wp_ajax_submit_edit_renja_pemutakhiran', $plugin_public, 'submit_edit_renja_pemutakhiran');
+
+		$this->loader->add_action('wp_ajax_show_skpd_program_analisis',  $plugin_public, 'show_skpd_program_analisis');
+		$this->loader->add_action('wp_ajax_show_skpd_kegiatan_analisis',  $plugin_public, 'show_skpd_kegiatan_analisis');
+		$this->loader->add_action('wp_ajax_show_skpd_sub_giat_analisis',  $plugin_public, 'show_skpd_sub_giat_analisis');
 		
 		add_shortcode('menu_monev',  array($plugin_public, 'menu_monev'));
 		add_shortcode('datassh', array($plugin_public, 'datassh'));

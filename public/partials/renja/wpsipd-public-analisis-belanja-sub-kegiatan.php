@@ -77,12 +77,13 @@ if(!empty($analisis_sub_giat)){
 $body = '';
 $urut = 1;
 foreach ($data_all['data'] as $k => $all_ap) {
+    $skpd   = '<a style="text-decoration: none;" onclick="show_analisis(\''.$all_ap['kode_sub_giat'].'\'); return false;" href="#" title="Menampilkan Analisis Sub Kegiatan">'.$all_ap['skpd'].'</a>';
     $body .='
     <tr>
         <td class="kiri kanan bawah text_tengah">'.$urut.'</td>
         <td class="kiri kanan bawah text_tengah">'.$all_ap['kode_sub_giat'].'</td>
         <td class="kiri kanan bawah text_kiri">'.$all_ap['nama_sub_giat'].'</td>
-        <td class="kiri kanan bawah text_tengah">'.$all_ap['skpd'].'</td>
+        <td class="kiri kanan bawah text_tengah">'.$skpd.'</td>
         <td class="kiri kanan bawah text_kanan">'.number_format($all_ap['total_pagu'],0,",",".").'</td>
     </tr>';
     $urut++;
@@ -112,7 +113,24 @@ echo '
     </tbody>
 </table>
 </div>';
-echo '</div>';
+echo '</div>
+<div class="modal fade mt-4" id="modalAnalisis" tabindex="-1" role="dialog" aria-labelledby="modalmodalAnalisisLabel" aria-hidden="true">
+	<div class="modal-dialog modal-lg" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title" id="modalmodalAnalisisLabel">Laporan Skpd Sub Kegiatan</h5>
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+				<span aria-hidden="true">&times;</span>
+				</button>
+			</div>
+			<div class="modal-body">
+			</div> 
+			<div class="modal-footer">
+				<button type="submit" class="components-button btn btn-secondary" data-dismiss="modal">Tutup</button>
+			</div>
+		</div>
+	</div>
+</div>';
 ?>
 <style type="text/css">
     #wrap-table {
@@ -130,4 +148,43 @@ echo '</div>';
     jQuery(document).ready(function(){
         run_download_excel();
     });
+    /** modal menampilkan analisis sub giat */
+	function show_analisis(kode_sub_giat){
+		jQuery('#modalAnalisis').modal('show');
+		jQuery("#modalAnalisis .modal-title").html("Daftar SKPD Sub Kegiatan "+kode_sub_giat);
+        jQuery("#wrap-loading").show();
+		jQuery.ajax({
+			url:ajax.url,
+			type:'post',
+			dataType:'json',
+			data:{
+				action:"show_skpd_sub_giat_analisis",
+				kode_sub_giat:kode_sub_giat,
+                id_jadwal_lokal:<?php echo $input['id_jadwal_lokal']; ?>,
+                id_sub_skpd:'<?php echo $input['id_skpd']; ?>',
+				tahun_anggaran:<?php echo $input['tahun_anggaran']; ?>,
+				api_key:jQuery("#api_key").val(),
+			},
+			success:function(response){
+				if(response.status=='error'){
+					alert(response.message);
+				}else{
+					jQuery("#modalAnalisis .modal-body").html(response.html);
+					jQuery("#modalAnalisis .modal-body").css('overflow-x', 'auto');
+					jQuery("#modalAnalisis .modal-body").css('margin-right','15px');
+					jQuery("#modalAnalisis .modal-body").css('padding', '15px');
+                    jQuery("#modalAnalisis .modal-title").html(response.title);
+
+					window.table_skpd_sub_giat = jQuery("#table-skpd-sub-giat").DataTable( {
+				        dom: 'Blfrtip',
+				        lengthMenu: [
+				            [10, 25, 50, -1],
+				            [10, 25, 50, 'All'],
+				        ]
+				    } );
+				}
+				jQuery("#wrap-loading").hide();
+			}
+		})
+    }
 </script>
