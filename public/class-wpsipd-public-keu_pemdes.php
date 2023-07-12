@@ -595,8 +595,8 @@ public function get_datatable_bhpd(){
 
                 // check search value exist
                 if( !empty($params['search']['value']) ) {
-                    $where .=" AND ( id_bhpd_desa LIKE ".$wpdb->prepare('%s', "%".$params['search']['value']."%");  
-                    $where .=" OR total LIKE ".$wpdb->prepare('%s', "%".$params['search']['value']."%");
+                    $where .=" AND ( desa LIKE ".$wpdb->prepare('%s', "%".$params['search']['value']."%");  
+                    $where .=" OR kecamatan LIKE ".$wpdb->prepare('%s', "%".$params['search']['value']."%");
                 }
 
                 // getting total number records without any search
@@ -1583,8 +1583,8 @@ public function get_datatable_bkk_pilkades(){
 
                 // check search value exist
                 if( !empty($params['search']['value']) ) {
-                    $where .=" AND ( id_bkk_pilkades_desa LIKE ".$wpdb->prepare('%s', "%".$params['search']['value']."%");  
-                    $where .=" OR total LIKE ".$wpdb->prepare('%s', "%".$params['search']['value']."%");
+                    $where .=" AND kecamatan LIKE ".$wpdb->prepare('%s', "%".$params['search']['value']."%");
+                    $where .=" OR desa LIKE ".$wpdb->prepare('%s', "%".$params['search']['value']."%");
                 }
 
                 // getting total number records without any search
@@ -1775,6 +1775,13 @@ public function tambah_data_pencairan_bkk(){
                 $ret['status'] = 'error';
                 $ret['message'] = 'Proposal tidak boleh kosong!';
             }
+            if($ret['status'] != 'error' && !empty($_POST['keterangan'])){
+                $keterangan = $_POST['keterangan'];
+            }
+            // else{
+            //     $ret['status'] = 'error';
+            //     $ret['message'] = 'Pagu tidak boleh kosong!';
+            // }
             $_POST['id'] = $id_kegiatan;
             $pencairan = $this->get_pencairan_pemdes_bkk(true);
             if(($pencairan['total_pencairan']+$pagu_anggaran) > $pencairan['pagu_anggaran']){
@@ -1903,9 +1910,9 @@ public function get_datatable_data_pencairan_bkk(){
 
                 // check search value exist
                 if( !empty($params['search']['value']) ) {
-                    $where .=" AND ( d.kegiatan LIKE ".$wpdb->prepare('%s', "%".$params['search']['value']."%");  
-                    $where .=" OR d.desa LIKE ".$wpdb->prepare('%s', "%".$params['search']['value']."%");
-                    $where .=" OR d.alamat LIKE ".$wpdb->prepare('%s', "%".$params['search']['value']."%");
+                    $where .=" AND d.kegiatan LIKE ".$wpdb->prepare('%s', "%".$params['search']['value']."%");
+                    $where .=" AND kecamatan LIKE ".$wpdb->prepare('%s', "%".$params['search']['value']."%");
+                    $where .=" AND alamat LIKE ".$wpdb->prepare('%s', "%".$params['search']['value']."%");
                 }
 
                 // getting total number records without any search
@@ -2134,6 +2141,13 @@ public function tambah_data_pencairan_bhpd(){
                 $ret['status'] = 'error';
                 $ret['message'] = 'Pagu tidak boleh kosong!';
             }
+            if($ret['status'] != 'error' && !empty($_POST['keterangan'])){
+                $keterangan = $_POST['keterangan'];
+            }
+            // else{
+            //     $ret['status'] = 'error';
+            //     $ret['message'] = 'Pagu tidak boleh kosong!';
+            // }
             $_POST['id'] = $id_bhpd;
             $pencairan = $this->get_pencairan_pemdes_bhpd(true);
             if(($pencairan['total_pencairan']+$pagu_anggaran) > $pencairan['pagu_anggaran']){
@@ -2457,6 +2471,13 @@ public function tambah_data_pencairan_bhrd(){
                 $ret['status'] = 'error';
                 $ret['message'] = 'Pagu tidak boleh kosong!';
             }
+            if($ret['status'] != 'error' && !empty($_POST['keterangan'])){
+                $keterangan = $_POST['keterangan'];
+            }
+            // else{
+            //     $ret['status'] = 'error';
+            //     $ret['message'] = 'Pagu tidak boleh kosong!';
+            // }
             $_POST['id'] = $id_bhrd;
             $pencairan = $this->get_pencairan_pemdes_bhrd(true);
             if(($pencairan['total_pencairan']+$pagu_anggaran) > $pencairan['pagu_anggaran']){
@@ -2780,6 +2801,13 @@ public function tambah_data_pencairan_bku_dd(){
                 $ret['status'] = 'error';
                 $ret['message'] = 'Pagu tidak boleh kosong!';
             }
+            if($ret['status'] != 'error' && !empty($_POST['keterangan'])){
+                $keterangan = $_POST['keterangan'];
+            }
+            // else{
+            //     $ret['status'] = 'error';
+            //     $ret['message'] = 'Pagu tidak boleh kosong!';
+            // }
             $_POST['id'] = $id_bku_dd;
             $pencairan = $this->get_pencairan_pemdes_bku_dd(true);
             if(($pencairan['total_pencairan']+$pagu_anggaran) > $pencairan['pagu_anggaran']){
@@ -3103,6 +3131,13 @@ public function tambah_data_pencairan_bku_add(){
                 $ret['status'] = 'error';
                 $ret['message'] = 'Pagu tidak boleh kosong!';
             }
+            if($ret['status'] != 'error' && !empty($_POST['keterangan'])){
+                $keterangan = $_POST['keterangan'];
+            }
+            // else{
+            //     $ret['status'] = 'error';
+            //     $ret['message'] = 'Pagu tidak boleh kosong!';
+            // }
             $_POST['id'] = $id_bku_add;
             $pencairan = $this->get_pencairan_pemdes_bku_add(true);
             if(($pencairan['total_pencairan']+$pagu_anggaran) > $pencairan['pagu_anggaran']){
@@ -3426,6 +3461,13 @@ public function tambah_data_pencairan_bkk_pilkades(){
                 $ret['status'] = 'error';
                 $ret['message'] = 'Pagu tidak boleh kosong!';
             }
+            if($ret['status'] != 'error' && !empty($_POST['keterangan'])){
+                $keterangan = $_POST['keterangan'];
+            }
+            // else{
+            //     $ret['status'] = 'error';
+            //     $ret['message'] = 'Pagu tidak boleh kosong!';
+            // }
             $_POST['id'] = $id_bkk_pilkades;
             $pencairan = $this->get_pencairan_pemdes_bkk_pilkades(true);
             if(($pencairan['total_pencairan']+$pagu_anggaran) > $pencairan['pagu_anggaran']){
@@ -3521,10 +3563,9 @@ public function get_datatable_data_pencairan_bkk_pilkades(){
                 $where = $sqlTot = $sqlRec = "";
 
                 // check search value exist
-                if( !empty($params['search']['value']) ) { 
-                    $where .=" OR d.desa LIKE ".$wpdb->prepare('%s', "%".$params['search']['value']."%");
+                if( !empty($params['search']['value']) ) {
+                    $where .=" AND ( d.desa LIKE ".$wpdb->prepare('%s', "%".$params['search']['value']."%").")";  
                 }
-
                 // getting total number records without any search
                 $sql_tot = "SELECT count(p.id) as jml FROM `data_pencairan_bkk_pilkades_desa` p inner join data_bkk_pilkades_desa d on p.id_bkk_pilkades=d.id";
                 $sql = "SELECT ".implode(', ', $columns)." FROM `data_pencairan_bkk_pilkades_desa` p inner join data_bkk_pilkades_desa d on p.id_bkk_pilkades=d.id";
