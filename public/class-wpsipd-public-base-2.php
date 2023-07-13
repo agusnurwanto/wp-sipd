@@ -3754,9 +3754,9 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 					'SELECT *
 					FROM data_prioritas_kokab
 					WHERE tahun_anggaran=%d
-						AND active=1', $_POST['tahun_anggaran']),
-					ARRAY_A
-				);
+						AND active=1
+					ORDER BY nama_label ASC
+				', $_POST['tahun_anggaran']), ARRAY_A);
 				
 				foreach ($ret['data'] as $key => $value) {
 					$table_content .= '<option value="'.$value['id_label_kokab'].'">'.$value['nama_label'].'</option>';

@@ -20,6 +20,16 @@ if(isset($tipe_perencanaan)){
 	$judul = 'Penganggaran';
 }
 
+$is_admin = false;
+$user_id = um_user( 'ID' );
+$user_meta = get_userdata($user_id);
+$js_check_admin = 0;
+if(
+	in_array("administrator", $user_meta->roles)
+){
+	$is_admin = true;
+}
+
 global $wpdb;
 $tahun = $wpdb->get_results('select tahun_anggaran from data_unit group by tahun_anggaran order by tahun_anggaran ASC', ARRAY_A);
 $select_tahun = "<option value=''>Pilih berdasarkan tahun anggaran</option>";
@@ -94,9 +104,11 @@ $body = '';
 	<div style="padding: 10px;margin:0 0 3rem 0;">
 		<input type="hidden" value="<?php echo get_option( '_crb_api_key_extension' ); ?>" id="api_key">
 		<h1 class="text-center" style="margin:3rem;">Halaman Setting Penjadwalan <?php echo $judul; ?>  <?php echo $input['tahun_anggaran']; ?></h1>
+	<?php if($is_admin): ?>
 		<div style="margin-bottom: 25px;">
 			<button class="btn btn-primary tambah_ssh" onclick="tambah_jadwal();">Tambah Jadwal</button>
 		</div>
+	<?php endif; ?>
 		<table id="data_penjadwalan_table" cellpadding="2" cellspacing="0" style="font-family:\'Open Sans\',-apple-system,BlinkMacSystemFont,\'Segoe UI\',sans-serif; border-collapse: collapse; width:100%; overflow-wrap: break-word;" class="table table-bordered">
 			<thead id="data_header">
 				<tr>
@@ -253,6 +265,7 @@ $body = '';
 		});
 	}
 
+<?php if($is_admin): ?>
 	/** show modal tambah jadwal */
 	function tambah_jadwal(){
 		jQuery("#modalTambahJadwal .modal-title").html("Tambah Penjadwalan");
@@ -337,26 +350,6 @@ $body = '';
 				jQuery("#link_renstra").val(response.data.relasi_perencanaan).change();
 				jQuery("#jenis_jadwal").val(response.data.jenis_jadwal).change();
 			}
-		})
-	}
-
-	function get_jadwal_by_id(id_jadwal_lokal){
-		return new Promise(function(resolve, reject){
-			jQuery("#wrap-loading").show()
-			jQuery.ajax({
-				url: thisAjaxUrl,
-				type:"post",
-				data:{
-					'action' 			: "get_data_jadwal_by_id",
-					'api_key' 			: jQuery("#api_key").val(),
-					'id_jadwal_lokal' 	: id_jadwal_lokal
-				},
-				dataType: "json",
-				success:function(response){
-					jQuery("#wrap-loading").hide()
-					return resolve(response);
-				}
-			})
 		})
 	}
 
@@ -530,6 +523,27 @@ $body = '';
 	          	}
 	        });
 		}
+	}
+<?php endif; ?>
+
+	function get_jadwal_by_id(id_jadwal_lokal){
+		return new Promise(function(resolve, reject){
+			jQuery("#wrap-loading").show()
+			jQuery.ajax({
+				url: thisAjaxUrl,
+				type:"post",
+				data:{
+					'action' 			: "get_data_jadwal_by_id",
+					'api_key' 			: jQuery("#api_key").val(),
+					'id_jadwal_lokal' 	: id_jadwal_lokal
+				},
+				dataType: "json",
+				success:function(response){
+					jQuery("#wrap-loading").hide()
+					return resolve(response);
+				}
+			})
+		})
 	}
 
 	function report(id_jadwal_lokal){

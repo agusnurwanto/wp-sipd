@@ -7092,6 +7092,14 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 
 			$id_user_sipd = get_user_meta($user_id, 'id_user_sipd');
 			if(!empty($id_user_sipd)){
+				$title = 'Jadwal Input Perencanaan RENJA | '.$_GET['tahun'];
+				$shortcode = '[jadwal_renja tahun_anggaran="'.$_GET['tahun'].'"]';
+				$update = false;
+				$page_url = $this->generatePage($title, $_GET['tahun'], $shortcode, $update);
+				echo '
+					<ul class="daftar-tahun text_tengah">
+						<li><a href="'.$page_url.'" target="_blank" class="btn btn-warning">'.$title.'</a></li>
+					</ul>';
 				$skpd_mitra = $wpdb->get_results($wpdb->prepare("
 					SELECT 
 						m.nama_skpd, 
@@ -13042,14 +13050,25 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 					$totalRecords = $queryTot[0]['jml'];
 					$queryRecords = $wpdb->get_results($sqlRec, ARRAY_A);
 
+					$is_admin = false;
+					$user_id = um_user( 'ID' );
+					$user_meta = get_userdata($user_id);
+					$js_check_admin = 0;
+					if(
+						in_array("administrator", $user_meta->roles)
+					){
+						$is_admin = true;
+					}
+
 					if(!empty($queryRecords)){
 						foreach($queryRecords as $recKey => $recVal){
 							$report = '<a class="btn btn-sm btn-primary mr-2" style="text-decoration: none;" onclick="report(\''.$recVal['id_jadwal_lokal'].'\'); return false;" href="#" title="Cetak Laporan"><i class="dashicons dashicons-printer"></i></a>';
+							$edit	= '';
+							$delete	= '';
+							$lock	= '';
 							if($recVal['status'] == 1){
 								$lock	= '<a class="btn btn-sm btn-success disabled" style="text-decoration: none;" onclick="cannot_change_schedule(\'kunci\'); return false;" href="#" title="Kunci data penjadwalan" aria-disabled="true"><i class="dashicons dashicons-lock"></i></a>';
-								$edit	= '';
-								$delete	= '';
-							}else{
+							}else if($is_admin){
 								$lock	= '<a class="btn btn-sm btn-success mr-2" style="text-decoration: none;" onclick="lock_data_penjadwalan(\''.$recVal['id_jadwal_lokal'].'\'); return false;" href="#" title="Kunci data penjadwalan"><i class="dashicons dashicons-unlock"></i></a>';
 								$edit	= '<a class="btn btn-sm btn-warning mr-2" style="text-decoration: none;" onclick="edit_data_penjadwalan(\''.$recVal['id_jadwal_lokal'].'\'); return false;" href="#" title="Edit data penjadwalan"><i class="dashicons dashicons-edit"></i></a>';
 								$delete	= '<a class="btn btn-sm btn-danger" style="text-decoration: none;" onclick="hapus_data_penjadwalan(\''.$recVal['id_jadwal_lokal'].'\'); return false;" href="#" title="Hapus data penjadwalan"><i class="dashicons dashicons-trash"></i></a>';
