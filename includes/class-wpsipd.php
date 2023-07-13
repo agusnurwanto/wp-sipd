@@ -876,6 +876,7 @@ class Wpsipd
 		$this->loader->add_action('wp_ajax_show_skpd_program_analisis',  $plugin_public, 'show_skpd_program_analisis');
 		$this->loader->add_action('wp_ajax_show_skpd_kegiatan_analisis',  $plugin_public, 'show_skpd_kegiatan_analisis');
 		$this->loader->add_action('wp_ajax_show_skpd_sub_giat_analisis',  $plugin_public, 'show_skpd_sub_giat_analisis');
+		$this->loader->add_action('wp_ajax_show_skpd_bidang_urusan_analisis',  $plugin_public, 'show_skpd_bidang_urusan_analisis');
 		
 		add_shortcode('menu_monev',  array($plugin_public, 'menu_monev'));
 		add_shortcode('datassh', array($plugin_public, 'datassh'));
@@ -950,6 +951,7 @@ class Wpsipd
 		add_shortcode('analisis_belanja_program', array($plugin_public, 'analisis_belanja_program'));
 		add_shortcode('analisis_belanja_kegiatan', array($plugin_public, 'analisis_belanja_kegiatan'));
 		add_shortcode('analisis_belanja_sub_kegiatan', array($plugin_public, 'analisis_belanja_sub_kegiatan'));
+		add_shortcode('analisis_belanja_bidang_urusan', array($plugin_public, 'analisis_belanja_bidang_urusan'));
 
 		//shortcode SIPKD
 		add_shortcode('data_akun',array($plugin_public,'sipkd_akun'));

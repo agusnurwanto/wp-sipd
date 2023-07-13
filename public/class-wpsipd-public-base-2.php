@@ -64,6 +64,16 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 		require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/renja/wpsipd-public-analisis-belanja-sub-kegiatan.php';
 	}
 
+	public function analisis_belanja_bidang_urusan($atts)
+	{
+		// untuk disable render shortcode di halaman edit page/post
+		if(!empty($_GET) && !empty($_GET['post'])){
+			return '';
+		}
+		
+		require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/renja/wpsipd-public-analisis-belanja-bidang-urusan.php';
+	}
+
 	public function get_data_monitoring_rup(){
 		global $wpdb;
 		$return = array(
@@ -1707,6 +1717,9 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 						&& $tahun_anggaran >= 2024
 					){
 						$where .= ' AND set_kab_kota=1';
+
+						// sementara, kalau daerah khusus perlu diset query dengan id_daerah_khusus
+						$where .= ' AND id_daerah_khusus=0';
 					}else if($cek_pemda['status'] == 2){
 						$where .= ' AND set_prov=1';
 					}

@@ -90,6 +90,10 @@ $title = 'Analisis Belanja per-Sub Kegiatan | '.$input['tahun_anggaran'];
 $shortcode = '[analisis_belanja_sub_kegiatan tahun_anggaran="'.$input['tahun_anggaran'].'"]';
 $url_analisis_belanja_sub_kegiatan = $this->generatePage($title, $input['tahun_anggaran'], $shortcode, false);
 
+$title = 'Analisis Belanja per-Bidang Urusan | '.$input['tahun_anggaran'];
+$shortcode = '[analisis_belanja_bidang_urusan tahun_anggaran="'.$input['tahun_anggaran'].'"]';
+$url_analisis_belanja_bidang_urusan = $this->generatePage($title, $input['tahun_anggaran'], $shortcode, false);
+
 $body = '';
 ?>
 <style>
@@ -577,6 +581,7 @@ $body = '';
 					      			<option value="analisis_belanja_program">Analisis Belanja Pagu per-Program</option>
 					      			<option value="analisis_belanja_kegiatan">Analisis Belanja Pagu per-Kegiatan</option>
 					      			<option value="analisis_belanja_sub_kegiatan">Analisis Belanja Pagu per-Sub Kegiatan</option>
+									<option value="analisis_belanja_bidang_urusan">Analisis Belanja Pagu per-Bidang Urusan</option>
 				      			</select>
 					    	</div>
 					    </div></br>
@@ -638,6 +643,9 @@ $body = '';
 				
 			case 'analisis_belanja_sub_kegiatan':
 				window.open('<?php echo $url_analisis_belanja_sub_kegiatan; ?>'+'&id_unit='+id_unit+'&id_jadwal_lokal='+id_jadwal_lokal,'_blank');
+				break;
+			case 'analisis_belanja_bidang_urusan':
+				window.open('<?php echo $url_analisis_belanja_bidang_urusan; ?>'+'&id_unit='+id_unit+'&id_jadwal_lokal='+id_jadwal_lokal,'_blank');
 				break;
 
 			case '-':
