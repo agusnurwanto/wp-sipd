@@ -7949,6 +7949,7 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 					}else if(
 						in_array("administrator", $this->role())
 						|| in_array("tapd_keu", $this->role())
+						|| in_array("mitra_bappeda", $this->role())
 					){
 						$skpd_mitra = $wpdb->get_results($wpdb->prepare("
 							SELECT 
