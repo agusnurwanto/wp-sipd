@@ -3472,9 +3472,20 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 							$id_sub_skpd[] = $id['id_skpd'];
 						}
 					}
-					$cek_jadwal = $this->get_last_jadwal_kunci('renja',$_POST['tahun_anggaran']);
-					if($cek_jadwal['status'] == 'error'){
-						return die(json_encode($cek_jadwal));
+					$jadwal_terbaru = false;
+					$id_jadwal_lokal = false;
+					if(!empty($_POST['id_jadwal'])){
+						if($_POST['id_jadwal'] == 'terbaru'){
+							$jadwal_terbaru = true;
+						}else{
+							$id_jadwal_lokal = $_POST['id_jadwal'];
+						}
+					}else{
+						$cek_jadwal = $this->get_last_jadwal_kunci('renja',$_POST['tahun_anggaran']);
+						if($cek_jadwal['status'] == 'error'){
+							return die(json_encode($cek_jadwal));
+						}
+						$id_jadwal_lokal = $cek_jadwal['data']['id_jadwal_lokal'];
 					}
 
 					$where = '';
@@ -3502,19 +3513,34 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 						$master_bidang_urusan[$bidang['kode_bidang_urusan']] = $bidang;
 					}
 
-					$data_sub_giat = $wpdb->get_results($wpdb->prepare('
-						SELECT 
-							sk.*,
-							u.kode_skpd as kode_skpd_asli
-						FROM data_sub_keg_bl_lokal_history sk
-						INNER JOIN data_unit u ON sk.id_sub_skpd=u.id_skpd
-							AND sk.tahun_anggaran=u.tahun_anggaran
-							AND sk.active=u.active
-						WHERE sk.id_sub_skpd IN ('.implode(',', $id_sub_skpd).')
-							AND sk.tahun_anggaran=%d
-							AND sk.active=1
-							AND sk.id_jadwal=%d
-					', $tahun_anggaran, $cek_jadwal['data']['id_jadwal_lokal']), ARRAY_A);
+					if(!empty($jadwal_terbaru)){
+						$data_sub_giat = $wpdb->get_results($wpdb->prepare('
+							SELECT 
+								sk.*,
+								u.kode_skpd as kode_skpd_asli
+							FROM data_sub_keg_bl_lokal sk
+							INNER JOIN data_unit u ON sk.id_sub_skpd=u.id_skpd
+								AND sk.tahun_anggaran=u.tahun_anggaran
+								AND sk.active=u.active
+							WHERE sk.id_sub_skpd IN ('.implode(',', $id_sub_skpd).')
+								AND sk.tahun_anggaran=%d
+								AND sk.active=1
+						', $tahun_anggaran), ARRAY_A);
+					}else{
+						$data_sub_giat = $wpdb->get_results($wpdb->prepare('
+							SELECT 
+								sk.*,
+								u.kode_skpd as kode_skpd_asli
+							FROM data_sub_keg_bl_lokal_history sk
+							INNER JOIN data_unit u ON sk.id_sub_skpd=u.id_skpd
+								AND sk.tahun_anggaran=u.tahun_anggaran
+								AND sk.active=u.active
+							WHERE sk.id_sub_skpd IN ('.implode(',', $id_sub_skpd).')
+								AND sk.tahun_anggaran=%d
+								AND sk.active=1
+								AND sk.id_jadwal=%d
+						', $tahun_anggaran, $id_jadwal_lokal), ARRAY_A);
+					}
 					foreach($data_sub_giat as $k => $sub){
 						$sub['kode_sub_skpd'] = $sub['kode_skpd_asli'];
 						$data_sub_giat[$k]['kode_sub_skpd'] = $sub['kode_skpd_asli'];
@@ -3530,14 +3556,24 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 							$data_sub_giat[$k]['sub_keg_lama'] = array();
 							$kode_sbl_lama = explode('|', $sub['kode_sbl_lama']);
 							foreach($kode_sbl_lama as $kd_lama){
-								$data_lama = $wpdb->get_row($wpdb->prepare("
-									SELECT 
-										sk.*
-									FROM data_sub_keg_bl_lokal_history sk
-									WHERE kode_sbl=%s
-										AND sk.tahun_anggaran=%d
-										AND sk.id_jadwal=%d
-								", $kd_lama, $tahun_anggaran, $cek_jadwal['data']['id_jadwal_lokal']), ARRAY_A);
+								if(!empty($jadwal_terbaru)){
+									$data_lama = $wpdb->get_row($wpdb->prepare("
+										SELECT 
+											sk.*
+										FROM data_sub_keg_bl_lokal sk
+										WHERE kode_sbl=%s
+											AND sk.tahun_anggaran=%d
+									", $kd_lama, $tahun_anggaran), ARRAY_A);
+								}else{
+									$data_lama = $wpdb->get_row($wpdb->prepare("
+										SELECT 
+											sk.*
+										FROM data_sub_keg_bl_lokal_history sk
+										WHERE kode_sbl=%s
+											AND sk.tahun_anggaran=%d
+											AND sk.id_jadwal=%d
+									", $kd_lama, $tahun_anggaran, $id_jadwal_lokal), ARRAY_A);
+								}
 								if($data_lama['kode_bidang_urusan'] == 'X.XX'){
 									$urusan_utama_lama = explode('.', $data_lama['kode_sub_skpd']);
 									$urusan_utama_lama = $urusan_utama_lama[0].'.'.$urusan_utama_lama[1];
@@ -3556,82 +3592,156 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 						$data_sub_giat[$k]['indikator_program'] = array();
 						$data_sub_giat[$k]['indikator_hasil'] = array();
 
-						$indikator_hasil = $wpdb->get_results($wpdb->prepare('
-							SELECT 
-								*
-							FROM data_keg_indikator_hasil_lokal_history
-							WHERE kode_sbl=%s
-								AND tahun_anggaran=%d
-								AND active=1
-								AND id_jadwal=%d
-						', $sub['kode_sbl'], $tahun_anggaran, $cek_jadwal['data']['id_jadwal_lokal']));
-						if(!empty($indikator_hasil)){
-							$data_sub_giat[$k]['indikator_hasil'] = $indikator_hasil;
-						}
+						if(!empty($jadwal_terbaru)){
+							$indikator_hasil = $wpdb->get_results($wpdb->prepare('
+								SELECT 
+									*
+								FROM data_keg_indikator_hasil_lokal
+								WHERE kode_sbl=%s
+									AND tahun_anggaran=%d
+									AND active=1
+							', $sub['kode_sbl'], $tahun_anggaran));
+							if(!empty($indikator_hasil)){
+								$data_sub_giat[$k]['indikator_hasil'] = $indikator_hasil;
+							}
 
-						$indikator_program = $wpdb->get_results($wpdb->prepare('
-							SELECT 
-								*
-							FROM data_capaian_prog_sub_keg_lokal_history
-							WHERE kode_sbl=%s
-								AND tahun_anggaran=%d
-								AND active=1
-								AND id_jadwal=%d
-						', $sub['kode_sbl'], $tahun_anggaran, $cek_jadwal['data']['id_jadwal_lokal']));
-						if(!empty($indikator_program)){
-							$data_sub_giat[$k]['indikator_program'] = $indikator_program;
-						}
+							$indikator_program = $wpdb->get_results($wpdb->prepare('
+								SELECT 
+									*
+								FROM data_capaian_prog_sub_keg_lokal
+								WHERE kode_sbl=%s
+									AND tahun_anggaran=%d
+									AND active=1
+							', $sub['kode_sbl'], $tahun_anggaran));
+							if(!empty($indikator_program)){
+								$data_sub_giat[$k]['indikator_program'] = $indikator_program;
+							}
 
-						$indikator_kegiatan = $wpdb->get_results($wpdb->prepare('
-							SELECT 
-								*
-							FROM data_output_giat_sub_keg_lokal_history
-							WHERE kode_sbl=%s
-								AND tahun_anggaran=%d
-								AND active=1
-								AND id_jadwal=%d
-						', $sub['kode_sbl'], $tahun_anggaran, $cek_jadwal['data']['id_jadwal_lokal']));
-						if(!empty($indikator_kegiatan)){
-							$data_sub_giat[$k]['indikator_kegiatan'] = $indikator_kegiatan;
-						}
+							$indikator_kegiatan = $wpdb->get_results($wpdb->prepare('
+								SELECT 
+									*
+								FROM data_output_giat_sub_keg_lokal
+								WHERE kode_sbl=%s
+									AND tahun_anggaran=%d
+									AND active=1
+							', $sub['kode_sbl'], $tahun_anggaran));
+							if(!empty($indikator_kegiatan)){
+								$data_sub_giat[$k]['indikator_kegiatan'] = $indikator_kegiatan;
+							}
 
-						$data_sumber_dana = $wpdb->get_results($wpdb->prepare('
-							SELECT 
-								*
-							FROM data_dana_sub_keg_lokal_history
-							WHERE kode_sbl=%s
-								AND tahun_anggaran=%d
-								AND active=1
-								AND id_jadwal=%d
-						', $sub['kode_sbl'], $tahun_anggaran, $cek_jadwal['data']['id_jadwal_lokal']));
-						if(!empty($data_sumber_dana)){
-							$data_sub_giat[$k]['sumber_dana'] = $data_sumber_dana;
-						}
+							$data_sumber_dana = $wpdb->get_results($wpdb->prepare('
+								SELECT 
+									*
+								FROM data_dana_sub_keg_lokal
+								WHERE kode_sbl=%s
+									AND tahun_anggaran=%d
+									AND active=1
+							', $sub['kode_sbl'], $tahun_anggaran));
+							if(!empty($data_sumber_dana)){
+								$data_sub_giat[$k]['sumber_dana'] = $data_sumber_dana;
+							}
 
-						$data_lokasi = $wpdb->get_results($wpdb->prepare('
-							SELECT 
-								*
-							FROM data_lokasi_sub_keg_lokal_history
-							WHERE kode_sbl=%s
-								AND tahun_anggaran=%d
-								AND active=1
-								AND id_jadwal=%d
-						',$sub['kode_sbl'], $tahun_anggaran, $cek_jadwal['data']['id_jadwal_lokal']));
-						if(!empty($data_lokasi)){
-							$data_sub_giat[$k]['lokasi'] = $data_lokasi;
-						}
+							$data_lokasi = $wpdb->get_results($wpdb->prepare('
+								SELECT 
+									*
+								FROM data_lokasi_sub_keg_lokal
+								WHERE kode_sbl=%s
+									AND tahun_anggaran=%d
+									AND active=1
+							',$sub['kode_sbl'], $tahun_anggaran));
+							if(!empty($data_lokasi)){
+								$data_sub_giat[$k]['lokasi'] = $data_lokasi;
+							}
 
-						$data_sub_keg_indikator = $wpdb->get_results($wpdb->prepare('
-							SELECT 
-								*
-							FROM data_sub_keg_indikator_lokal_history
-							WHERE kode_sbl=%s
-								AND tahun_anggaran=%s
-								AND active=1
-								AND id_jadwal=%d
-						', $sub['kode_sbl'], $tahun_anggaran, $cek_jadwal['data']['id_jadwal_lokal']), ARRAY_A);
-						if(!empty($data_sub_keg_indikator)){
-							$data_sub_giat[$k]['indikator'] = $data_sub_keg_indikator;
+							$data_sub_keg_indikator = $wpdb->get_results($wpdb->prepare('
+								SELECT 
+									*
+								FROM data_sub_keg_indikator_lokal
+								WHERE kode_sbl=%s
+									AND tahun_anggaran=%s
+									AND active=1
+							', $sub['kode_sbl'], $tahun_anggaran), ARRAY_A);
+							if(!empty($data_sub_keg_indikator)){
+								$data_sub_giat[$k]['indikator'] = $data_sub_keg_indikator;
+							}
+						}else{
+							$indikator_hasil = $wpdb->get_results($wpdb->prepare('
+								SELECT 
+									*
+								FROM data_keg_indikator_hasil_lokal_history
+								WHERE kode_sbl=%s
+									AND tahun_anggaran=%d
+									AND active=1
+									AND id_jadwal=%d
+							', $sub['kode_sbl'], $tahun_anggaran, $id_jadwal_lokal));
+							if(!empty($indikator_hasil)){
+								$data_sub_giat[$k]['indikator_hasil'] = $indikator_hasil;
+							}
+
+							$indikator_program = $wpdb->get_results($wpdb->prepare('
+								SELECT 
+									*
+								FROM data_capaian_prog_sub_keg_lokal_history
+								WHERE kode_sbl=%s
+									AND tahun_anggaran=%d
+									AND active=1
+									AND id_jadwal=%d
+							', $sub['kode_sbl'], $tahun_anggaran, $id_jadwal_lokal));
+							if(!empty($indikator_program)){
+								$data_sub_giat[$k]['indikator_program'] = $indikator_program;
+							}
+
+							$indikator_kegiatan = $wpdb->get_results($wpdb->prepare('
+								SELECT 
+									*
+								FROM data_output_giat_sub_keg_lokal_history
+								WHERE kode_sbl=%s
+									AND tahun_anggaran=%d
+									AND active=1
+									AND id_jadwal=%d
+							', $sub['kode_sbl'], $tahun_anggaran, $id_jadwal_lokal));
+							if(!empty($indikator_kegiatan)){
+								$data_sub_giat[$k]['indikator_kegiatan'] = $indikator_kegiatan;
+							}
+
+							$data_sumber_dana = $wpdb->get_results($wpdb->prepare('
+								SELECT 
+									*
+								FROM data_dana_sub_keg_lokal_history
+								WHERE kode_sbl=%s
+									AND tahun_anggaran=%d
+									AND active=1
+									AND id_jadwal=%d
+							', $sub['kode_sbl'], $tahun_anggaran, $id_jadwal_lokal));
+							if(!empty($data_sumber_dana)){
+								$data_sub_giat[$k]['sumber_dana'] = $data_sumber_dana;
+							}
+
+							$data_lokasi = $wpdb->get_results($wpdb->prepare('
+								SELECT 
+									*
+								FROM data_lokasi_sub_keg_lokal_history
+								WHERE kode_sbl=%s
+									AND tahun_anggaran=%d
+									AND active=1
+									AND id_jadwal=%d
+							',$sub['kode_sbl'], $tahun_anggaran, $id_jadwal_lokal));
+							if(!empty($data_lokasi)){
+								$data_sub_giat[$k]['lokasi'] = $data_lokasi;
+							}
+
+							$data_sub_keg_indikator = $wpdb->get_results($wpdb->prepare('
+								SELECT 
+									*
+								FROM data_sub_keg_indikator_lokal_history
+								WHERE kode_sbl=%s
+									AND tahun_anggaran=%s
+									AND active=1
+									AND id_jadwal=%d
+							', $sub['kode_sbl'], $tahun_anggaran, $id_jadwal_lokal), ARRAY_A);
+							if(!empty($data_sub_keg_indikator)){
+								$data_sub_giat[$k]['indikator'] = $data_sub_keg_indikator;
+							}
 						}
 					}
 					if(!empty($data_sub_giat)){
