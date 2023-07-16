@@ -412,6 +412,7 @@ foreach ($data_all['data'] as $sub_skpd) {
             <td class="kiri kanan bawah text_blok" colspan="19">Unit Organisasi : '.$sub_skpd['nama_skpd'].'</td>
             <td class="kanan bawah hide-print"></td>
             <td class="kanan bawah hide-print"></td>
+            <td colspan="3" class="kanan bawah text_tengah hide-print"></td>
         </tr>
         <tr tipe="sub_unit">
             <td class="kiri kanan bawah text_blok"></td>
@@ -421,6 +422,7 @@ foreach ($data_all['data'] as $sub_skpd) {
             <td class="kanan bawah text_kanan text_blok"><span class="nilai_penetapan">'.number_format($sub_skpd['total_n_plus'],0,",",".").'</span><span class="nilai_usulan">'.number_format($sub_skpd['total_n_plus_usulan'],0,",",".").'</span></td>
             <td class="kanan bawah hide-print"></td>
             <td style="'.$warning.'" class="kanan bawah text_kanan hide-print">'.number_format($pagu_unit_sipd,0,",",".").'</td>
+            <td colspan="3" class="kanan bawah text_tengah hide-print"></td>
         </tr>
     ';
     foreach ($sub_skpd['data'] as $kd_urusan => $urusan) {
@@ -434,6 +436,7 @@ foreach ($data_all['data'] as $sub_skpd) {
                 <td class="kanan bawah text_blok" colspan="14">'.$urusan['nama'].'</td>
                 <td class="kanan bawah hide-print"></td>
                 <td class="kanan bawah hide-print"></td>
+                <td colspan="3" class="kanan bawah text_tengah hide-print"></td>
             </tr>
         ';
         foreach ($urusan['data'] as $kd_bidang => $bidang) {
@@ -457,6 +460,7 @@ foreach ($data_all['data'] as $sub_skpd) {
                     <td class="kanan bawah text_kanan text_blok"><span class="nilai_penetapan">'.number_format($bidang['total_n_plus'],0,",",".").'</span><span class="nilai_usulan">'.number_format($bidang['total_n_plus_usulan'],0,",",".").'</span></td>
                     <td class="kanan bawah hide-print"></td>
                     <td style="'.$warning.'" class="kanan bawah text_kanan hide-print">'.number_format($pagu_bidang_sipd,0,",",".").'</td>
+                    <td colspan="3" class="kanan bawah text_tengah hide-print"></td>
                 </tr>
             ';
             foreach ($bidang['data'] as $kd_program => $program) {
@@ -488,6 +492,7 @@ foreach ($data_all['data'] as $sub_skpd) {
                         <td class="kanan bawah text_kanan text_blok"><span class="nilai_penetapan">'.number_format($program['total_n_plus'],0,",",".").'</span><span class="nilai_usulan">'.number_format($program['total_n_plus_usulan'],0,",",".").'</span></td>
                         <td class="kanan bawah text_tengah hide-print">'.$tombol_aksi.'</td>
                         <td style="'.$warning.'" class="kanan bawah text_kanan hide-print">'.number_format($pagu_prog_sipd,0,",",".").'</td>
+                        <td colspan="3" class="kanan bawah text_tengah hide-print"></td>
                     </tr>
                 ';
                 foreach ($program['data'] as $kd_giat => $giat) {
@@ -518,6 +523,7 @@ foreach ($data_all['data'] as $sub_skpd) {
                             <td class="kanan bawah text_blok text_kanan"><span class="nilai_penetapan">'.number_format($giat['total_n_plus'],0,",",".").'</span><span class="nilai_usulan">'.number_format($giat['total_n_plus_usulan'],0,",",".").'</span></td>
                             <td class="kanan bawah text_tengah hide-print">'.$tombol_aksi.'</td>
                             <td style="'.$warning.'" class="kanan bawah text_kanan hide-print">'.number_format($pagu_keg_sipd,0,",",".").'</td>
+                            <td colspan="3" class="kanan bawah text_tengah hide-print"></td>
                         </tr>
                     ';
                     foreach ($giat['data'] as $kd_sub_giat => $sub_giat) {
@@ -667,6 +673,9 @@ foreach ($data_all['data'] as $sub_skpd) {
                                 <td class="kanan bawah text_kanan"><span class="nilai_penetapan">'.number_format($sub_giat['total_n_plus'],0,",",".").'</span><span class="nilai_usulan">'.number_format($sub_giat['total_n_plus_usulan'],0,",",".").'</span></td>
                                 <td class="kanan bawah text_tengah hide-print">'.$tombol_aksi.'</td>
                                 <td style="'.$warning.'" class="kanan bawah text_kanan hide-print">'.number_format($pagu_sub_sipd,0,",",".").'</td>
+                                <td class="kanan bawah hide-print">'.$sub_giat['data']['label_kokab'].'</td>
+                                <td class="kanan bawah hide-print">'.$sub_giat['data']['label_prov'].'</td>
+                                <td class="kanan bawah hide-print">'.$sub_giat['data']['label_pusat'].'</td>
                             </tr>
                         ';
                         $sasaran_text = '';
@@ -725,30 +734,33 @@ echo '
         </table>
         <h4 style="text-align: center; margin: 10px auto; min-width: 450px; max-width: 570px; font-weight: bold;">'.$nama_laporan.'</h4>
         <div id="wrap-table">
-            <table cellpadding="2" cellspacing="0" style="font-family:\'Open Sans\',-apple-system,BlinkMacSystemFont,\'Segoe UI\',sans-serif; border-collapse: collapse; width: 2000px; table-layout: fixed; overflow-wrap: break-word; font-size: 60%; border: 0;">
+            <table cellpadding="2" cellspacing="0" style="font-family:\'Open Sans\',-apple-system,BlinkMacSystemFont,\'Segoe UI\',sans-serif; border-collapse: collapse; width: 2900px; table-layout: fixed; overflow-wrap: break-word; font-size: 60%; border: 0;">
                 <thead>
                     <tr>
-                        <th style="padding: 0; border: 0; width:1%"></th>
-                        <th style="padding: 0; border: 0; width:1.2%"></th>
-                        <th style="padding: 0; border: 0; width:1.5%"></th>
-                        <th style="padding: 0; border: 0; width:1.5%"></th>
-                        <th style="padding: 0; border: 0; width:1.5%"></th>
+                        <th style="padding: 0; border: 0; width:25px"></th>
+                        <th style="padding: 0; border: 0; width:30px"></th>
+                        <th style="padding: 0; border: 0; width:30px"></th>
+                        <th style="padding: 0; border: 0; width:40px"></th>
+                        <th style="padding: 0; border: 0; width:40px"></th>
                         <th style="padding: 0; border: 0;"></th>
-                        <th style="padding: 0; border: 0; width:7.5%"></th>
-                        <th style="padding: 0; border: 0; width:7.5%"></th>
-                        <th style="padding: 0; border: 0; width:7.5%"></th>
-                        <th style="padding: 0; border: 0; width:4%"></th>
-                        <th style="padding: 0; border: 0; width:3.5%"></th>
-                        <th style="padding: 0; border: 0; width:3.5%"></th>
-                        <th style="padding: 0; border: 0; width:3.5%"></th>
-                        <th style="padding: 0; border: 0; width:5.5%"></th>
-                        <th style="padding: 0; border: 0; width:6.5%"></th>
-                        <th style="padding: 0; border: 0; width:4%"></th>
-                        <th style="padding: 0; border: 0; width:3.5%"></th>
-                        <th style="padding: 0; border: 0; width:3.5%"></th>
-                        <th style="padding: 0; border: 0; width:5.5%"></th>
-                        <th style="padding: 0; border: 0; width:4.5%" class="hide-print"></th>
+                        <th style="padding: 0; border: 0; width:170px"></th>
+                        <th style="padding: 0; border: 0; width:170px"></th>
+                        <th style="padding: 0; border: 0; width:170px"></th>
+                        <th style="padding: 0; border: 0; width:100px"></th>
+                        <th style="padding: 0; border: 0; width:95px"></th>
+                        <th style="padding: 0; border: 0; width:95px"></th>
+                        <th style="padding: 0; border: 0; width:95px"></th>
+                        <th style="padding: 0; border: 0; width:130px"></th>
+                        <th style="padding: 0; border: 0; width:150px"></th>
+                        <th style="padding: 0; border: 0; width:95px"></th>
+                        <th style="padding: 0; border: 0; width:95px"></th>
+                        <th style="padding: 0; border: 0; width:95px"></th>
+                        <th style="padding: 0; border: 0; width:130px"></th>
+                        <th style="padding: 0; border: 0; width:60px" class="hide-print"></th>
                         <th style="padding: 0; border: 0; width:140px" class="hide-print"></th>
+                        <th style="padding: 0; border: 0; width:170px" class="hide-print"></th>
+                        <th style="padding: 0; border: 0; width:170px" class="hide-print"></th>
+                        <th style="padding: 0; border: 0; width:170px" class="hide-print"></th>
                     </tr>
                     <tr>
                         <td class="atas kanan bawah kiri text_tengah text_blok" colspan="5" rowspan="3">Kode</td>
@@ -759,6 +771,9 @@ echo '
                         <td class="atas kanan bawah text_tengah text_blok" colspan="3">Prakiraan Maju Rencana Tahun '.($input['tahun_anggaran']+1).'</td>
                         <td class="atas kanan bawah text_tengah text_blok hide-print" rowspan="3">Aksi</td>
                         <td class="atas kanan bawah kiri text_tengah text_blok hide-print" rowspan="3">Pagu SIPD</td>
+                        <td class="atas kanan bawah kiri text_tengah text_blok hide-print" rowspan="3">Prioritas Daerah</td>
+                        <td class="atas kanan bawah kiri text_tengah text_blok hide-print" rowspan="3">Prioritas Provinsi</td>
+                        <td class="atas kanan bawah kiri text_tengah text_blok hide-print" rowspan="3">Prioritas Pusat</td>
                     </tr>
                     <tr>
                         <td class="kanan bawah text_tengah text_blok" rowspan="2">Capaian Program</td>
