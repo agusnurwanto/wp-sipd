@@ -337,6 +337,104 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes {
 			->set_page_menu_position( 5 )
 		    ->add_fields( $this->get_setting_keu_pemdes() );
 
+		$tahun_anggaran = get_option('_crb_tahun_anggaran_sipd');
+		if(empty($tahun_anggaran)){
+			$tahun_anggaran = date('Y');
+		}
+		$url_per_kecamatan = $this->generatePage('Laporan Realisasi Keuangan Desa per Kecamatan', false, '[laporan_keu_pemdes_per_kecamatan]');
+		$url_bku_add = $this->generatePage('Laporan Keuangan Pemerintah Desa Bantuan Keuangan Umum (BKU) Alokasi Dana Desa (ADD) '.$tahun_anggaran, false, '[keu_pemdes_bku_add tahun_anggaran="'.$tahun_anggaran.'"]');
+		$url_bku_dd = $this->generatePage('Laporan Keuangan Pemerintah Desa Bantuan Keuangan Umum (BKU) Desa Dana Desa (DD) '.$tahun_anggaran, false, '[keu_pemdes_bku_dd tahun_anggaran="'.$tahun_anggaran.'"]');
+		$url_bhrd = $this->generatePage('Laporan Keuangan Pemerintah Desa Bagi Hasil Retribusi Daerah (BHRD) '.$tahun_anggaran, false, '[keu_pemdes_bhrd tahun_anggaran="'.$tahun_anggaran.'"]');
+		$url_bhpd = $this->generatePage('Laporan Keuangan Pemerintah Desa Bagi Hasil Pajak Daerah (BHPD) '.$tahun_anggaran, false, '[keu_pemdes_bhpd tahun_anggaran="'.$tahun_anggaran.'"]');
+		$url_bkk_pilkades = $this->generatePage('Laporan Keuangan Pemerintah Desa Bantuan Keuangan Khusus (BKK) Pilkades '.$tahun_anggaran, false, '[keu_pemdes_bkk_pilkades tahun_anggaran="'.$tahun_anggaran.'"]');
+		$url_bkk_inf = $this->generatePage('Laporan Keuangan Pemerintah Desa Bantuan Keuangan Khusus (BKK) Infrastruktur '.$tahun_anggaran, false, '[keu_pemdes_bkk_inf tahun_anggaran="'.$tahun_anggaran.'"]');
+	    Container::make( 'theme_options', __( 'Tampilan Beranda' ) )
+			->set_page_parent( $keu_pemdes )
+			->add_tab( __( 'Logo' ), array(
+		        Field::make( 'image', 'crb_keu_pemdes_menu_logo_dashboard', __( 'Gambar Logo' ) )
+		        	->set_value_type('url')
+	    			->set_default_value('https://via.placeholder.com/135x25'),
+		        Field::make( 'textarea', 'crb_keu_pemdes_judul_header', __( 'Judul' ) )
+		        	->set_default_value('SIDETIK DESA<br>Sistem Deteksi Informasi Keuangan Pemerintah Desa'),
+		        Field::make( 'text', 'crb_keu_pemdes_menu_video_loading', __( 'Video Loading' ) )
+	    			->set_default_value(WPSIPD_PLUGIN_URL.'public/images/video-loading.mp4'),
+		        Field::make( 'text', 'crb_keu_pemdes_lama_loading', __( 'Lama Loading' ) )
+	    			->set_default_value('10000')
+	        		->set_attribute('type', 'number')
+	    			->set_help_text('Lama waktu untuk menghilangkan gambar atau video intro. Satuan dalam mili detik.'),
+		    	Field::make( 'complex', 'crb_keu_pemdes_background_beranda', 'Background Beranda' )
+		    		->add_fields( 'beranda', array(
+				        Field::make( 'image', 'gambar', 'Gambar' )
+		        			->set_value_type('url')
+		        			->set_default_value(WPSIPD_PLUGIN_URL.'public/images/bg_video.jpg')
+		        		) ),
+		    ) )
+			->add_tab( __( 'Icon & Menu' ), array(
+		        Field::make( 'image', 'crb_keu_pemdes_menu_logo_1', __( 'Gambar Menu Penyaluran Keuangan Pemerintah Desa' ) )
+		        	->set_value_type('url')
+	    			->set_default_value(WPSIPD_PLUGIN_URL . 'public/images/penyaluran-keuangan.png'),
+		        Field::make( 'text', 'crb_keu_pemdes_menu_text_1', __( 'Text Menu Penyaluran Keuangan Pemerintah Desa' ) )
+	    			->set_default_value('Penyaluran Keuangan Pemerintah Desa'),
+		        Field::make( 'text', 'crb_keu_pemdes_menu_url_1', __( 'URL Menu Penyaluran Keuangan Pemerintah Desa' ) )
+	    			->set_default_value(wp_login_url()),
+		        Field::make( 'image', 'crb_keu_pemdes_menu_logo_2', __( 'Gambar Menu Informasi Keuangan Pemerintah Desa' ) )
+		        	->set_value_type('url')
+	    			->set_default_value(WPSIPD_PLUGIN_URL . 'public/images/informasi-keuangan.png'),
+		        Field::make( 'text', 'crb_keu_pemdes_menu_text_2', __( 'Text Menu Informasi Keuangan Pemerintah Desa' ) )
+	    			->set_default_value('Informasi Keuangan Pemerintah Desa'),
+		        Field::make( 'text', 'crb_keu_pemdes_menu_url_2', __( 'URL Menu Informasi Keuangan Pemerintah Desa' ) )
+	    			->set_default_value($url_per_kecamatan),
+		        Field::make( 'image', 'crb_keu_pemdes_menu_logo_3', __( 'Gambar Menu DBHPD' ) )
+		        	->set_value_type('url')
+	    			->set_default_value(WPSIPD_PLUGIN_URL . 'public/images/dbhpd.png'),
+		        Field::make( 'text', 'crb_keu_pemdes_menu_text_3', __( 'Text Menu DBHPD' ) )
+	    			->set_default_value('Dana Bagi Hasil Pajak Daerah'),
+		        Field::make( 'text', 'crb_keu_pemdes_menu_url_3', __( 'URL Menu DBHPD' ) )
+	    			->set_default_value($url_bhpd),
+		        Field::make( 'image', 'crb_keu_pemdes_menu_logo_4', __( 'Gambar Menu DBHRD' ) )
+		        	->set_value_type('url')
+	    			->set_default_value(WPSIPD_PLUGIN_URL . 'public/images/dbhrd.png'),
+		        Field::make( 'text', 'crb_keu_pemdes_menu_text_4', __( 'Text Menu DBHRD' ) )
+	    			->set_default_value('Dana Bagi Hasil Retribusi Daerah'),
+		        Field::make( 'text', 'crb_keu_pemdes_menu_url_4', __( 'URL Menu DBHRD' ) )
+	    			->set_default_value($url_bhrd),
+		        Field::make( 'image', 'crb_keu_pemdes_menu_logo_5', __( 'Gambar Menu BKU ADD' ) )
+		        	->set_value_type('url')
+	    			->set_default_value(WPSIPD_PLUGIN_URL . 'public/images/bku-add.png'),
+		        Field::make( 'text', 'crb_keu_pemdes_menu_text_5', __( 'Text Menu BKU ADD' ) )
+	    			->set_default_value('Bantuan Keuangan Umum Alokasi Dana Desa'),
+		        Field::make( 'text', 'crb_keu_pemdes_menu_url_5', __( 'URL Menu BKU ADD' ) )
+	    			->set_default_value($url_bku_add),
+		        Field::make( 'image', 'crb_keu_pemdes_menu_logo_6', __( 'Gambar Menu BKU DD' ) )
+		        	->set_value_type('url')
+	    			->set_default_value(WPSIPD_PLUGIN_URL . 'public/images/bku-dd.png'),
+		        Field::make( 'text', 'crb_keu_pemdes_menu_text_6', __( 'Text Menu BKU DD' ) )
+	    			->set_default_value('Bantuan Keuangan Umum Dana Desa'),
+		        Field::make( 'text', 'crb_keu_pemdes_menu_url_6', __( 'URL Menu BKU DD' ) )
+	    			->set_default_value($url_bku_dd),
+		        Field::make( 'image', 'crb_keu_pemdes_menu_logo_7', __( 'Gambar Menu BKK Infrastruktur' ) )
+		        	->set_value_type('url')
+	    			->set_default_value(WPSIPD_PLUGIN_URL . 'public/images/bkk-infrastruktur.png'),
+		        Field::make( 'text', 'crb_keu_pemdes_menu_text_7', __( 'Text Menu BKK Infrastruktur' ) )
+	    			->set_default_value('Bantuan Keuangan Khusus Infrastruktur'),
+		        Field::make( 'text', 'crb_keu_pemdes_menu_url_7', __( 'URL Menu BKK Infrastruktur' ) )
+	    			->set_default_value($url_bkk_inf),
+		        Field::make( 'image', 'crb_keu_pemdes_menu_logo_8', __( 'Gambar Menu BKK Pilkades' ) )
+		        	->set_value_type('url')
+	    			->set_default_value(WPSIPD_PLUGIN_URL . 'public/images/bkk-pilkades.png'),
+		        Field::make( 'text', 'crb_keu_pemdes_menu_text_8', __( 'Text Menu BKK Pilkades' ) )
+	    			->set_default_value('Bantuan Keuangan Khusus Pilkades'),
+		        Field::make( 'text', 'crb_keu_pemdes_menu_url_8', __( 'URL Menu BKK Pilkades' ) )
+	    			->set_default_value($url_bkk_pilkades),
+		        Field::make( 'image', 'crb_keu_pemdes_menu_logo_9', __( 'Gambar Menu Total Keuangan Per Kecamatan' ) )
+		        	->set_value_type('url')
+	    			->set_default_value(WPSIPD_PLUGIN_URL . 'public/images/total-perkecamatan.png'),
+		        Field::make( 'text', 'crb_keu_pemdes_menu_text_9', __( 'Text Menu Total Keuangan Per Kecamatan' ) )
+	    			->set_default_value('Total Keuangan Per Kecamatan'),
+		        Field::make( 'text', 'crb_keu_pemdes_menu_url_9', __( 'URL Menu Total Keuangan Per Kecamatan' ) )
+	    			->set_default_value($url_per_kecamatan)
+	    	) );
+
 		$management_data_bkk_infrastruktur = $this->generatePage('Management Data BKK Infrastruktur', false, '[management_data_bkk_infrastruktur]');
 		$management_data_bkk_pilkades = $this->generatePage('Management Data BKK Pilkades', false, '[management_data_bkk_pilkades]');
 		$management_data_bhpd = $this->generatePage('Management Data BHPD', false, '[management_data_bhpd]');

@@ -34,6 +34,14 @@ define( 'WPSIPD_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
 define( 'WPSIPD_PLUGIN_PATH', plugin_dir_path(__FILE__) );
 define( 'WPSIPD_API_KEY', '_crb_api_key_extension' );
 
+// Menambahkan filter wp_headers
+add_filter('wp_headers', 'add_xss_protection_header');
+
+function add_xss_protection_header($headers) {
+    $headers['X-XSS-Protection'] = '1; mode=block';
+    return $headers;
+}
+
 // ============== https://carbonfields.net/ ================
 if(!defined('Carbon_Fields_Plugin\PLUGIN_FILE')){
 	define( 'Carbon_Fields_Plugin\PLUGIN_FILE', __FILE__ );

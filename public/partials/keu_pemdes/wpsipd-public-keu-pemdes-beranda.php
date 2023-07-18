@@ -230,21 +230,95 @@ if($realisasi_all == 0){
 
 $url_per_kecamatan = $this->generatePage('Laporan Realisasi Keuangan Desa per Kecamatan', false, '[laporan_keu_pemdes_per_kecamatan]');
 ?>
+<link href="<?php echo WPSIPD_PLUGIN_URL ?>public/css/animate.min.css" rel="stylesheet" type="text/css" />
+<link href="<?php echo WPSIPD_PLUGIN_URL ?>public/css/vegas.min.css" rel="stylesheet" type="text/css" />
 
-<h1 class="text-center">Keuangan Pemerintah Desa<br>Rekapitulasi Per Jenis Keuangan<br>Tahun <?php echo $input['tahun_anggaran']; ?></h1>
+<script type="text/javascript" src="<?php echo WPSIPD_PLUGIN_URL; ?>public/js/loadingoverlay.min.js"></script>
+<script type="text/javascript">
+<?php
+    $src = 'src="'.get_option('_crb_keu_pemdes_menu_video_loading').'"';
+?>
+    var $ = jQuery;
+    function siteUrl(){ 
+        return "<?php echo plugin_dir_url(dirname(__FILE__)); ?>"; 
+    }
+    function progressLoading() {
+        $.LoadingOverlay('show', { 
+            image : '', 
+            custom : '<video style="position: absolute; width: 90%; top: 0; margin: auto;" autoplay muted><source <?php echo $src; ?> type="video/mp4">Your browser does not support the video tag.</video>', 
+            imageAnimation : false,
+            background : "rgba(0, 0, 0, 1)" 
+        });
+    }
+    progressLoading();
+    setTimeout(function(){
+        $(document).ready(function() { $.LoadingOverlay('hide'); });
+        jQuery('body').addClass('bg-infinity');
+    }, <?php echo get_option('_crb_keu_pemdes_lama_loading'); ?>);
+</script>
+<style type="text/css">
+    .setbulet {
+        border-radius: 50%;
+        padding: 15%;
+    }
+</style>
 <div class="cetak">
-    <div style="padding: 5px;">
+    <div class="container-fluid intro-text">
+        <div class="row text-center">
+            <div class="col-md-12" style="margin-top: 35px;">
+                <a class="main animated" data-animation="fadeInUp" data-animation-delay="1000" href="<?php echo site_url(); ?>">
+                    <img class="site-logo" style="max-width: 350px;" src="<?php echo get_option('_crb_keu_pemdes_menu_logo_dashboard'); ?>" alt="SIDETIK DESA" />
+                </a>
+            </div>
+        </div>
         <div class="row">
             <div class="col-md-12">
+                <div class="main animated" data-animation="fadeInUp" data-animation-delay="1000">
+                    <h1 class="text-shadow text-center" style="padding-top: 0 !important;padding-bottom: 50px; margin-top: 20px !important;"><?php echo get_option('_crb_keu_pemdes_judul_header'); ?></h1>
+                </div>
+            </div>
+        </div>
+        <div class="row" style="align-items: center;">
+            <div class="col-md-8">
+                <h2 class="text-center">Rekapitulasi Per Jenis Keuangan<br>Tahun <?php echo $input['tahun_anggaran']; ?></h2>
                 <div style="width: 100%; margin:auto 5px;">
                     <canvas id="chart_per_jenis"></canvas>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="row" style="align-items: center;">
+                    <div class="col-md-4">
+                        <div class="setbulet bg-info pull-up">
+                            <a href="<?php echo get_option('_crb_keu_pemdes_menu_url_1'); ?>" target="_blank">
+                                <img src="<?php echo get_option('_crb_keu_pemdes_menu_logo_1'); ?>">
+                            </a>
+                        </div>
+                    </div>
+                    <div class="col-md-8">
+                        <a href="<?php echo get_option('_crb_keu_pemdes_menu_url_1'); ?>" target="_blank">
+                            <h3><?php echo get_option('_crb_keu_pemdes_menu_text_1'); ?></h3>
+                        </a>
+                    </div>
+                </div>
+                <div class="row" style="align-items: center; margin-top: 25px;">
+                    <div class="col-md-4">
+                        <div class="setbulet bg-info pull-up">
+                            <a href="<?php echo get_option('_crb_keu_pemdes_menu_url_2'); ?>" target="_blank">
+                                <img src="<?php echo get_option('_crb_keu_pemdes_menu_logo_2'); ?>">
+                            </a>
+                        </div>
+                    </div>
+                    <div class="col-md-8">
+                        <a href="<?php echo get_option('_crb_keu_pemdes_menu_url_2'); ?>" target="_blank">
+                            <h3><?php echo get_option('_crb_keu_pemdes_menu_text_2'); ?></h3>
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>
         <div class="row">
             <div class="col-md-12">
-                <h2 class="text-center" style="margin-top: 25px;">Tabel Keuangan Pemerintah Desa<br>Rekapitulasi Per Jenis Keuangan<br>Tahun <?php echo $input['tahun_anggaran']; ?></h2>
-                <table class="table table-bordered">
+                <table class="table table-bordered" style="margin: 40px 0;">
                     <thead>
                         <tr>
                             <th class="atas kanan bawah kiri text_tengah text_blok" style="width: 30px;">No</th>
@@ -268,13 +342,9 @@ $url_per_kecamatan = $this->generatePage('Laporan Realisasi Keuangan Desa per Ke
                 </table>
             </div>
         </div>
-        <div class="row">
-            <div class="col-md-12 text-center">
-                <a style="margin: 20px; text-decoration: none;" href="<?php echo $url_per_kecamatan; ?>" target="_blank" class="btn btn-primary">Laporan Relisasi Keuangan Pemerintah Desa Per Kecamatan</a>
-            </div>
-        </div>
     </div>
 </div>
+<script type="text/javascript" src="<?php echo WPSIPD_PLUGIN_URL ?>public/js/vegas.min.js"></script>
 <script type="text/javascript">
 window.keu = <?php echo json_encode($chart_keuangan); ?>;
 window.pieChartkeua = new Chart(document.getElementById('chart_per_jenis'), {
@@ -294,5 +364,18 @@ window.pieChartkeua = new Chart(document.getElementById('chart_per_jenis'), {
             }
         ]
     }
+});
+<?php
+    $background_header_db = $this->get_option_complex('_crb_keu_pemdes_background_beranda', 'beranda');
+    $background_header = array();
+    foreach($background_header_db as $background){
+        $background_header[] = array('src' => $background['gambar']);
+    }
+    echo 'var background_header = '.json_encode($background_header).';';
+?>
+jQuery('document').ready(function(){
+    jQuery('body').vegas({
+        slides: background_header
+    });
 });
 </script>

@@ -18644,4 +18644,37 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 	public function to_number($value=''){
 		return str_replace(',', '.', $value);
 	}
+
+	function get_option_complex($key, $type){
+		global $wpdb;
+        $ret = $wpdb->get_results('select option_name, option_value from '.$wpdb->prefix.'options where option_name like \''.$key.'|%\'', ARRAY_A);
+        $res = array();
+        $types = array();
+        foreach($ret as $v){
+            $k = explode('|', $v['option_name']);
+            $column = $k[1];
+            $group = $k[3];
+            if($column == ''){
+            	$types[$group] = $v['option_value'];
+            }
+        }
+        foreach($ret as $v){
+            $k = explode('|', $v['option_name']);
+            $column = $k[1];
+            $loop = $k[2];
+            $group = $k[3];
+            if($column != ''){
+	            if(
+	            	isset($types[$loop])
+	            	&& $type == $types[$loop]
+	            ){
+		            if(empty($res[$loop])){
+		                $res[$loop] = array();
+		            }
+		            $res[$loop][$column] = $v['option_value'];
+		        }
+		    }
+        }
+        return $res;
+    }
 }

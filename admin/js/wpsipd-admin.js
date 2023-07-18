@@ -832,6 +832,11 @@ function singkron_bku_add(){
 
 function import_excel_bkk_infrastruktur(){
 	var data = jQuery('#data-excel').val();
+	var pencairan = 0;
+	if(jQuery('#pencairan').is(':checked')){
+		pencairan = 1;
+	}
+	
     if(!data){
         return alert('Excel Data can not empty!');
     }else{
@@ -860,6 +865,7 @@ function import_excel_bkk_infrastruktur(){
                         type: 'post',
                         data: {
                             action: 'import_excel_bkk',
+                            pencairan: pencairan,
                             data: current_data
                         },
                         success: function(res){
