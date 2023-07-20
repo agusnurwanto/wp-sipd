@@ -295,7 +295,7 @@ $url_per_kecamatan = $this->generatePage('Laporan Realisasi Keuangan Desa per Ke
                         </div>
                     </div>
                     <div class="col-md-8">
-                        <a href="<?php echo get_option('_crb_keu_pemdes_menu_url_1'); ?>" target="_blank">
+                        <a href="<?php echo $this->get_link_post(false, get_option('_crb_keu_pemdes_menu_url_1')); ?>" target="_blank">
                             <h3><?php echo get_option('_crb_keu_pemdes_menu_text_1'); ?></h3>
                         </a>
                     </div>
@@ -309,7 +309,7 @@ $url_per_kecamatan = $this->generatePage('Laporan Realisasi Keuangan Desa per Ke
                         </div>
                     </div>
                     <div class="col-md-8">
-                        <a href="<?php echo get_option('_crb_keu_pemdes_menu_url_2'); ?>" target="_blank">
+                        <a href="<?php echo $this->get_link_post(false, get_option('_crb_keu_pemdes_menu_url_2')); ?>" target="_blank">
                             <h3><?php echo get_option('_crb_keu_pemdes_menu_text_2'); ?></h3>
                         </a>
                     </div>

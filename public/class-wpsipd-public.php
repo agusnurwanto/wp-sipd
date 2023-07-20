@@ -9240,23 +9240,28 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		die(json_encode($ret));
 	}
 
-	public function get_link_post($custom_post){
+	public function get_link_post($custom_post, $link=false){
 		if(null == $custom_post){
-			$link = '#';
+			if(empty($link)){
+				$link = '#';
+			}
 		}else{
-			$link = get_permalink($custom_post);
+			if(empty($link)){
+				$link = get_permalink($custom_post);
+			}
 			if(false == $link){
 				$link = '#';
+			}
+		}
+		if($link != '#'){
+			$options = array();
+			if(!empty($custom_post->custom_url)){
+				$options['custom_url'] = $custom_post->custom_url;
+			}
+			if(strpos($link, '?') === false){
+				$link .= '?key=' . $this->gen_key(false, $options);
 			}else{
-				$options = array();
-				if(!empty($custom_post->custom_url)){
-					$options['custom_url'] = $custom_post->custom_url;
-				}
-				if(strpos($link, '?') === false){
-					$link .= '?key=' . $this->gen_key(false, $options);
-				}else{
-					$link .= '&key=' . $this->gen_key(false, $options);
-				}
+				$link .= '&key=' . $this->gen_key(false, $options);
 			}
 		}
 		return $link;

@@ -13,15 +13,15 @@ $user_id = um_user( 'ID' );
 $user_meta = get_userdata($user_id);
 $cek_login = false;
 $url_all_kec = array();
-if(
-    !empty($user_id)
-    && (
-        in_array("administrator", $user_meta->roles)
-        || in_array("PLT", $user_meta->roles) 
-        || in_array("PA", $user_meta->roles) 
-        || in_array("KPA", $user_meta->roles)
-    )
-){
+// if(
+//     !empty($user_id)
+//     && (
+//         in_array("administrator", $user_meta->roles)
+//         || in_array("PLT", $user_meta->roles) 
+//         || in_array("PA", $user_meta->roles) 
+//         || in_array("KPA", $user_meta->roles)
+//     )
+// ){
     $cek_login = true;
     $unit = $wpdb->get_results($wpdb->prepare("
         SELECT 
@@ -41,7 +41,7 @@ if(
         $nama_kec = str_replace('kecamatan ', '', strtolower($vv['nama_skpd']));
         $url_all_kec[$nama_kec] = $url_skpd;
     }
-}
+// }
 
 $data = $wpdb->get_results($wpdb->prepare("
     SELECT 
