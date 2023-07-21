@@ -196,6 +196,9 @@ foreach($data_all as $jenis_keuangan => $val){
         $jenis_keuangan_render = '<a href="'.$val['url'].'" target="_blank">'.$jenis_keuangan.'</a>';
     }
     $realisasi = $val['pencairan'];
+    if(empty($realisasi)){
+        $realisasi = 0;
+    }
     $belum_realisasi = $val['pagu'] - $realisasi;
     if($realisasi == 0){
         $persen = 0;

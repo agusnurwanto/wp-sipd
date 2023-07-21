@@ -86,6 +86,9 @@ foreach($data as $i => $val){
             AND b.tahun_anggaran=%d
         WHERE b.kecamatan=%s
         ", $input['tahun_anggaran'], $val['kecamatan']));
+    if(empty($realisasi)){
+        $realisasi = 0;
+    }
     $belum_realisasi = $val['total'] - $realisasi;
     if($realisasi == 0){
         $persen = 0;
