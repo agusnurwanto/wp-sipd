@@ -877,6 +877,7 @@ class Wpsipd
 		$this->loader->add_action('wp_ajax_show_skpd_kegiatan_analisis',  $plugin_public, 'show_skpd_kegiatan_analisis');
 		$this->loader->add_action('wp_ajax_show_skpd_sub_giat_analisis',  $plugin_public, 'show_skpd_sub_giat_analisis');
 		$this->loader->add_action('wp_ajax_show_skpd_bidang_urusan_analisis',  $plugin_public, 'show_skpd_bidang_urusan_analisis');
+		$this->loader->add_action('wp_ajax_show_skpd_sumber_dana_analisis',  $plugin_public, 'show_skpd_sumber_dana_analisis');
 		
 		add_shortcode('menu_monev',  array($plugin_public, 'menu_monev'));
 		add_shortcode('datassh', array($plugin_public, 'datassh'));
