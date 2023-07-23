@@ -33,13 +33,14 @@ $_suffix='';
 $where_jadwal='';
 if($jadwal_lokal->status == 1){
     $_suffix='_history';
-    $where_jadwal=' AND id_jadwal='.$wpdb->prepare("%d", $id_jadwal_lokal);
+    $where_jadwal=' AND dana.id_jadwal='.$wpdb->prepare("%d", $id_jadwal_lokal);
+    $where_jadwal.=' AND sub_keg.id_jadwal='.$wpdb->prepare("%d", $id_jadwal_lokal);
 }
 
 if($input['id_skpd'] == 'all'){
     $where_skpd = '';
 }else{
-    $where_skpd = ' AND id_sub_skpd = '.$input['id_skpd'].' ';
+    $where_skpd = ' AND sub_keg.id_sub_skpd = '.$input['id_skpd'].' ';
 }
 
 $nama_pemda = get_option('_crb_daerah');
@@ -47,19 +48,26 @@ $nama_excel = 'Analisis Belanja per-Sumber Dana '.$input['tahun_anggaran'].' '.s
 echo '<div id="cetak" title="'.$nama_excel.'" style="padding: 5px;">';
 
 $sql = "
-    SELECT
-        namadana,
-        kodedana,
-        SUM(pagudana) as total_pagu
-    FROM data_dana_sub_keg_lokal".$_suffix." dana
-    WHERE dana.tahun_anggaran=%d
-    AND dana.active=1
-    AND dana.kode_sbl IN (SELECT DISTINCT kode_sbl FROM data_sub_keg_bl_lokal WHERE active=1 AND tahun_anggaran=2023) 
-    AND dana.kodedana IS NOT NULL
-    ".$where_jadwal."
-    GROUP by dana.kodedana
-    ORDER BY dana.kodedana ASC";
-$analisis_sumber_dana = $wpdb->get_results($wpdb->prepare($sql,$input['tahun_anggaran']), ARRAY_A);
+    SELECT 
+        dana.id, 
+        dana.namadana, 
+        dana.kodedana, 
+        SUM(dana.pagudana) as total_pagu, 
+        sub_keg.kode_sbl, 
+        COUNT(DISTINCT sub_keg.id_sub_skpd) as skpd 
+    FROM data_dana_sub_keg_lokal".$_suffix." AS dana 
+    INNER JOIN data_sub_keg_bl_lokal".$_suffix." AS sub_keg 
+    ON dana.kode_sbl = sub_keg.kode_sbl 
+    WHERE dana.tahun_anggaran=%d 
+        AND dana.active=1
+        AND sub_keg.tahun_anggaran=%d 
+        AND sub_keg.active=1 
+        AND dana.kodedana IS NOT NULL 
+        ".$where_jadwal."
+        ".$where_skpd."
+        GROUP by dana.kodedana 
+        ORDER BY dana.kodedana ASC";
+$analisis_sumber_dana = $wpdb->get_results($wpdb->prepare($sql,$input['tahun_anggaran'],$input['tahun_anggaran']), ARRAY_A);
 
 $data_all = array(
     'total' => 0,
@@ -77,12 +85,13 @@ if(!empty($analisis_sumber_dana)){
 $body = '';
 $urut = 1;
 foreach ($data_all['data'] as $k => $all_ap) {
-    $skpd   = '-';
+    $skpd   = '<a style="text-decoration: none;" onclick="show_analisis(\''.$all_ap['kodedana'].'\'); return false;" href="#" title="Menampilkan Analisis Sumber Dana">'.$all_ap['skpd'].'</a>';
     $body .='
     <tr>
         <td class="kiri kanan bawah text_tengah">'.$urut.'</td>
         <td class="kiri kanan bawah">'.$all_ap['kodedana'].'</td>
         <td class="kiri kanan bawah text_kiri">'.$all_ap['namadana'].'</td>
+        <td class="kiri kanan bawah text_tengah">'.$skpd.'</td>
         <td class="kiri kanan bawah text_kanan">'.number_format($all_ap['total_pagu'],0,",",".").'</td>
     </tr>';
     $urut++;
@@ -99,13 +108,14 @@ echo '
             <th class="atas kiri kanan bawah text_tengah" style=" width:45px;">No</th>
             <th class="atas kiri kanan bawah text_tengah" style=" width:300px;">Kode</th>
             <th class="atas kiri kanan bawah text_tengah">Sumber Dana</th>
+            <th class="atas kiri kanan bawah text_tengah" style="width:100px;">SKPD</th>
             <th class="atas kiri kanan bawah text_tengah" style=" width:200px;">Pagu</th>
         </tr>
     </thead>
     <tbody>
         '.$body.'
         <tr>
-            <td class="kiri kanan bawah text_kanan text_blok" colspan="3">Jumlah</td>
+            <td class="kiri kanan bawah text_kanan text_blok" colspan="4">Jumlah</td>
             <td class="kiri kanan bawah text_kanan text_blok">'.number_format($data_all['total'],0,",",".").'</td>
         </tr>
     </tbody>
@@ -157,7 +167,7 @@ echo '</div>
 			type:'post',
 			dataType:'json',
 			data:{
-				action:"show_skpd_dana_analisis",
+				action:"show_skpd_sumber_dana_analisis",
 				kode_dana:kode_dana,
                 id_jadwal_lokal:<?php echo $input['id_jadwal_lokal']; ?>,
                 id_sub_skpd:'<?php echo $input['id_skpd']; ?>',
@@ -176,7 +186,7 @@ echo '</div>
 					// jQuery('#modalAnalisis .export-excel').attr("disabled", false);
 					// jQuery('#modalAnalisis .export-excel').attr("title", title);
 
-					window.table_skpd_dana = jQuery("#table-skpd-dana").DataTable( {
+					window.table_skpd_sumber_dana = jQuery("#table-skpd-sumber-dana").DataTable( {
 				        dom: 'Blfrtip',
 				        lengthMenu: [
 				            [10, 25, 50, -1],
