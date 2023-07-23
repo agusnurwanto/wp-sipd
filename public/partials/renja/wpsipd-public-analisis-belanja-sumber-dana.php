@@ -81,7 +81,7 @@ foreach ($data_all['data'] as $k => $all_ap) {
     $body .='
     <tr>
         <td class="kiri kanan bawah text_tengah">'.$urut.'</td>
-        <td class="kiri kanan bawah text_tengah">'.$all_ap['kodedana'].'</td>
+        <td class="kiri kanan bawah">'.$all_ap['kodedana'].'</td>
         <td class="kiri kanan bawah text_kiri">'.$all_ap['namadana'].'</td>
         <td class="kiri kanan bawah text_kanan">'.number_format($all_ap['total_pagu'],0,",",".").'</td>
     </tr>';
@@ -93,13 +93,13 @@ echo '
 <button type="button" style="background-color:#FFD670; text-align: center; margin: 10px auto 20px; display: block;" class="btn">Laporan Jadwal '.$jadwal_lokal->nama_jadwal.'</button>
 <h4 style="text-align: center; margin: 10px auto; min-width: 450px; max-width: 570px; font-weight: bold;">'.$nama_laporan.'</h4>
 <div id="wrap-table">
-<table cellpadding="2" cellspacing="0" style="font-family:\'Open Sans\',-apple-system,BlinkMacSystemFont,\'Segoe UI\',sans-serif; border-collapse: collapse; width: 100%; table-layout: fixed; overflow-wrap: break-word; font-size: 60%; border: 0;">
+<table cellpadding="2" cellspacing="0" style="font-family:\'Open Sans\',-apple-system,BlinkMacSystemFont,\'Segoe UI\',sans-serif; border-collapse: collapse; width: 100%; table-layout: fixed; overflow-wrap: break-word; border: 0;">
     <thead>
         <tr>    
-            <th class="atas kiri kanan bawah text_tengah" style=" width:35px;">No</th>
+            <th class="atas kiri kanan bawah text_tengah" style=" width:45px;">No</th>
             <th class="atas kiri kanan bawah text_tengah" style=" width:300px;">Kode</th>
             <th class="atas kiri kanan bawah text_tengah">Sumber Dana</th>
-            <th class="atas kiri kanan bawah text_tengah" style=" width:400px;">Pagu</th>
+            <th class="atas kiri kanan bawah text_tengah" style=" width:200px;">Pagu</th>
         </tr>
     </thead>
     <tbody>
