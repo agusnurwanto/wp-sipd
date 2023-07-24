@@ -2362,14 +2362,14 @@ class Wpsipd_Public_Base_1 extends Wpsipd_Public_Base_2{
 			$where='';
 			if($jadwal_lokal->status == 1){
 				$_suffix='_history';
-				$where='AND dana.id_jadwal='.$wpdb->prepare("%d", $id_jadwal_lokal);
-                $where.='AND sub_keg.id_jadwal='.$wpdb->prepare("%d", $id_jadwal_lokal);
+				$where=' AND dana.id_jadwal='.$wpdb->prepare("%d", $id_jadwal_lokal);
+                $where.=' AND sub_keg.id_jadwal='.$wpdb->prepare("%d", $id_jadwal_lokal);
 			}
 
 			$where_skpd = '';
 			if(!empty($id_sub_skpd)){
 				if($id_sub_skpd !='all'){
-					$where_skpd = "AND sub_keg.id_skpd=".$wpdb->prepare("%d", $id_sub_skpd);
+					$where_skpd = " AND sub_keg.id_skpd=".$wpdb->prepare("%d", $id_sub_skpd);
 				}
 			}
 
@@ -2416,7 +2416,7 @@ class Wpsipd_Public_Base_1 extends Wpsipd_Public_Base_2{
 				}
 			}
 
-			/** Tabel skpd bidang urusan */
+			/** Tabel skpd sumber dana */
 			$body = '';
 			$no=1;
 			foreach ($data_all['data'] as $key => $skpd) {
@@ -2440,7 +2440,7 @@ class Wpsipd_Public_Base_1 extends Wpsipd_Public_Base_2{
 					<br>'.$jadwal_lokal->nama_jadwal.'
 					</h4>
 					<br>
-					<table id="table-skpd-bidang-sumber-dana" cellpadding="2" cellspacing="0" style="font-family:\'Open Sans\',-apple-system,BlinkMacSystemFont,\'Segoe UI\',sans-serif; border-collapse: collapse; font-size: 90%; border: 0; table-layout: fixed;" contenteditable="false">
+					<table id="table-skpd-sumber-dana" cellpadding="2" cellspacing="0" style="font-family:\'Open Sans\',-apple-system,BlinkMacSystemFont,\'Segoe UI\',sans-serif; border-collapse: collapse; font-size: 90%; border: 0; table-layout: fixed;" contenteditable="false">
 						<thead>
 							<tr>
 								<th style="width: 19px;" class="kiri atas kanan bawah text_tengah text_blok">No</th>

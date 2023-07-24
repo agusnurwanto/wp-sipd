@@ -38,8 +38,16 @@ if($jadwal_lokal->status == 1){
 
 if($input['id_skpd'] == 'all'){
     $where_skpd = '';
+    $nama_skpd = '';
 }else{
     $where_skpd = ' AND id_sub_skpd = '.$input['id_skpd'].' ';
+    $nama_skpd_tunggal = $wpdb->get_row($wpdb->prepare("
+    SELECT 
+        nama_skpd
+    FROM `data_unit` 
+    WHERE id_skpd=%d
+        AND tahun_anggaran=%d", $input['id_skpd'], $input['tahun_anggaran']));
+    $nama_skpd = '<br>'.$nama_skpd_tunggal->nama_skpd;
 }
 
 $nama_pemda = get_option('_crb_daerah');
@@ -89,12 +97,12 @@ foreach ($data_all['data'] as $k => $all_ap) {
     $urut++;
 }
 
-$nama_laporan = 'ANALISIS BELANJA PAGU per-BIDANG URUSAN<br>TAHUN ANGGARAN '.$input['tahun_anggaran'].' '.strtoupper($nama_pemda);
+$nama_laporan = 'ANALISIS BELANJA PAGU per-BIDANG URUSAN'.$nama_skpd.'<br>TAHUN ANGGARAN '.$input['tahun_anggaran'].' '.strtoupper($nama_pemda);
 echo '
 <button type="button" style="background-color:#FFD670; text-align: center; margin: 10px auto 20px; display: block;" class="btn">Laporan Jadwal '.$jadwal_lokal->nama_jadwal.'</button>
 <h4 style="text-align: center; margin: 10px auto; min-width: 450px; max-width: 570px; font-weight: bold;">'.$nama_laporan.'</h4>
 <div id="wrap-table">
-<table cellpadding="2" cellspacing="0" style="font-family:\'Open Sans\',-apple-system,BlinkMacSystemFont,\'Segoe UI\',sans-serif; border-collapse: collapse; width: 100%; table-layout: fixed; overflow-wrap: break-word; font-size: 60%; border: 0;">
+<table cellpadding="2" cellspacing="0" style="font-family:\'Open Sans\',-apple-system,BlinkMacSystemFont,\'Segoe UI\',sans-serif; border-collapse: collapse; width: 100%; table-layout: fixed; overflow-wrap: break-word; font-size: 100%; border: 0;">
     <thead>
         <tr>    
             <th class="atas kiri kanan bawah text_tengah" style=" width:35px;">No</th>
