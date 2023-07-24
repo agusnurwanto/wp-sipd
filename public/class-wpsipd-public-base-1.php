@@ -1888,7 +1888,7 @@ class Wpsipd_Public_Base_1 extends Wpsipd_Public_Base_2{
 			$where_skpd = '';
 			if(!empty($id_sub_skpd)){
 				if($id_sub_skpd !='all'){
-					$where_skpd = "AND id_skpd=".$wpdb->prepare("%d", $id_sub_skpd);
+					$where_skpd = "AND id_sub_skpd=".$wpdb->prepare("%d", $id_sub_skpd);
 				}
 			}
 
@@ -2008,7 +2008,7 @@ class Wpsipd_Public_Base_1 extends Wpsipd_Public_Base_2{
 			$where_skpd = '';
 			if(!empty($id_sub_skpd)){
 				if($id_sub_skpd !='all'){
-					$where_skpd = "AND id_skpd=".$wpdb->prepare("%d", $id_sub_skpd);
+					$where_skpd = "AND id_sub_skpd=".$wpdb->prepare("%d", $id_sub_skpd);
 				}
 			}
 
@@ -2128,7 +2128,7 @@ class Wpsipd_Public_Base_1 extends Wpsipd_Public_Base_2{
 			$where_skpd = '';
 			if(!empty($id_sub_skpd)){
 				if($id_sub_skpd !='all'){
-					$where_skpd = "AND id_skpd=".$wpdb->prepare("%d", $id_sub_skpd);
+					$where_skpd = "AND id_sub_skpd=".$wpdb->prepare("%d", $id_sub_skpd);
 				}
 			}
 
@@ -2248,7 +2248,7 @@ class Wpsipd_Public_Base_1 extends Wpsipd_Public_Base_2{
 			$where_skpd = '';
 			if(!empty($id_sub_skpd)){
 				if($id_sub_skpd !='all'){
-					$where_skpd = "AND id_skpd=".$wpdb->prepare("%d", $id_sub_skpd);
+					$where_skpd = "AND id_sub_skpd=".$wpdb->prepare("%d", $id_sub_skpd);
 				}
 			}
 
@@ -2369,7 +2369,7 @@ class Wpsipd_Public_Base_1 extends Wpsipd_Public_Base_2{
 			$where_skpd = '';
 			if(!empty($id_sub_skpd)){
 				if($id_sub_skpd !='all'){
-					$where_skpd = " AND sub_keg.id_skpd=".$wpdb->prepare("%d", $id_sub_skpd);
+					$where_skpd = " AND sub_keg.id_sub_skpd=".$wpdb->prepare("%d", $id_sub_skpd);
 				}
 			}
 
