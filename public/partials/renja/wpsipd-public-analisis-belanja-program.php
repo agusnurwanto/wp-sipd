@@ -123,7 +123,7 @@ echo '
 </div>';
 echo '</div>
 <div class="modal fade mt-4" id="modalAnalisis" tabindex="-1" role="dialog" aria-labelledby="modalmodalAnalisisLabel" aria-hidden="true">
-	<div class="modal-dialog modal-lg" role="document">
+	<div class="modal-dialog modal-lg" role="document" style="min-width:1400px">
 		<div class="modal-content">
 			<div class="modal-header">
 				<h5 class="modal-title" id="modalmodalAnalisisLabel">Laporan Skpd Program</h5>

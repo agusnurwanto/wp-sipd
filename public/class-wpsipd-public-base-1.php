@@ -1960,7 +1960,7 @@ class Wpsipd_Public_Base_1 extends Wpsipd_Public_Base_2{
 							<tr>
 								<th style="width: 19px;" class="kiri atas kanan bawah text_tengah text_blok">No</th>
 								<th class="atas kanan bawah text_tengah text_blok">Nama Sub SKPD</th>
-								<th style="width: 140px;" class="atas kanan bawah text_tengah text_blok">Total Pagu</th>
+								<th style="width: 140px;" class="atas kanan bawah text_tengah text_blok">Pagu Program</th>
 							</tr>
 						</thead>
 						<tbody>'.$body.'</tbody>
@@ -2080,7 +2080,7 @@ class Wpsipd_Public_Base_1 extends Wpsipd_Public_Base_2{
 							<tr>
 								<th style="width: 19px;" class="kiri atas kanan bawah text_tengah text_blok">No</th>
 								<th class="atas kanan bawah text_tengah text_blok">Nama Sub SKPD</th>
-								<th style="width: 140px;" class="atas kanan bawah text_tengah text_blok">Total Pagu</th>
+								<th style="width: 140px;" class="atas kanan bawah text_tengah text_blok">Pagu Kegiatan</th>
 							</tr>
 						</thead>
 						<tbody>'.$body.'</tbody>
@@ -2200,7 +2200,7 @@ class Wpsipd_Public_Base_1 extends Wpsipd_Public_Base_2{
 							<tr>
 								<th style="width: 19px;" class="kiri atas kanan bawah text_tengah text_blok">No</th>
 								<th class="atas kanan bawah text_tengah text_blok">Nama Sub SKPD</th>
-								<th style="width: 140px;" class="atas kanan bawah text_tengah text_blok">Total Pagu</th>
+								<th style="width: 140px;" class="atas kanan bawah text_tengah text_blok">Pagu Sub Kegiatan</th>
 							</tr>
 						</thead>
 						<tbody>'.$body.'</tbody>
@@ -2320,7 +2320,7 @@ class Wpsipd_Public_Base_1 extends Wpsipd_Public_Base_2{
 							<tr>
 								<th style="width: 19px;" class="kiri atas kanan bawah text_tengah text_blok">No</th>
 								<th class="atas kanan bawah text_tengah text_blok">Nama Sub SKPD</th>
-								<th style="width: 140px;" class="atas kanan bawah text_tengah text_blok">Total Pagu</th>
+								<th style="width: 140px;" class="atas kanan bawah text_tengah text_blok">Pagu Bidang Urusan</th>
 							</tr>
 						</thead>
 						<tbody>'.$body.'</tbody>
@@ -2445,7 +2445,7 @@ class Wpsipd_Public_Base_1 extends Wpsipd_Public_Base_2{
 							<tr>
 								<th style="width: 19px;" class="kiri atas kanan bawah text_tengah text_blok">No</th>
 								<th class="atas kanan bawah text_tengah text_blok">Nama Sub SKPD</th>
-								<th style="width: 140px;" class="atas kanan bawah text_tengah text_blok">Total Pagu</th>
+								<th style="width: 140px;" class="atas kanan bawah text_tengah text_blok">Pagu Sumber Dana</th>
 							</tr>
 						</thead>
 						<tbody>'.$body.'</tbody>
