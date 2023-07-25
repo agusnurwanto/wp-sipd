@@ -2378,6 +2378,7 @@ class Wpsipd_Public_Base_1 extends Wpsipd_Public_Base_2{
                     dana.kodedana, 
                     sub_keg.nama_sub_skpd, 
                     sub_keg.id_sub_skpd, 
+                    sum(sub_keg.pagu) as pagu_renja, 
                     sum(dana.pagudana) as pagu_skpd 
                 FROM data_dana_sub_keg_lokal".$_suffix." AS dana 
                 INNER JOIN data_sub_keg_bl_lokal".$_suffix." AS sub_keg 
@@ -2409,7 +2410,8 @@ class Wpsipd_Public_Base_1 extends Wpsipd_Public_Base_2{
 						'id_sub_skpd' => $skpd['id_sub_skpd'],
 						'namadana' => $skpd['namadana'],
 						'nama_sub_skpd' => $skpd['nama_sub_skpd'],
-						'pagu_skpd' => $skpd['pagu_skpd']
+						'pagu_skpd' => $skpd['pagu_skpd'],
+                        'pagu_renja' => $skpd['pagu_renja']
 					];
 
 					$data_all['pagu_total'] += $skpd['pagu_skpd'];
@@ -2420,11 +2422,15 @@ class Wpsipd_Public_Base_1 extends Wpsipd_Public_Base_2{
 			$body = '';
 			$no=1;
 			foreach ($data_all['data'] as $key => $skpd) {
+                $warning = '';
+                if($skpd['pagu_skpd'] != $skpd['pagu_renja']){
+                    $warning = 'background: #f9d9d9;';
+                }
 				$body.='
 					<tr data-idsubskpd="'.$skpd['id_sub_skpd'].'">
 						<td class="kiri atas kanan bawah text_tengah">'.$no.'</td>
 						<td class="atas kanan bawah">'.$skpd['nama_sub_skpd'].'</td>
-						<td class="atas kanan bawah text_kanan">'.$this->_number_format($skpd['pagu_skpd']).'</td>
+						<td style="'.$warning.'" class="atas kanan bawah text_kanan">'.$this->_number_format($skpd['pagu_skpd']).'</td>
 					</tr>';
 					$no++;
 			}
