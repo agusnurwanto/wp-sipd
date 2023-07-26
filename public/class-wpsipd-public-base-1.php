@@ -2349,6 +2349,7 @@ class Wpsipd_Public_Base_1 extends Wpsipd_Public_Base_2{
             $id_jadwal_lokal = $_POST['id_jadwal_lokal'];
             $id_sub_skpd =  $_POST['id_sub_skpd'];
 	        $tahun_anggaran = $_POST['tahun_anggaran'];
+            $sub_keg = $_POST['sub_keg'];
 
 			$jadwal_lokal = $wpdb->get_row($wpdb->prepare("
 				SELECT 
@@ -2359,11 +2360,14 @@ class Wpsipd_Public_Base_1 extends Wpsipd_Public_Base_2{
 					WHERE id_jadwal_lokal=%d", $id_jadwal_lokal));
 
 			$_suffix='';
-			$where='';
+			$where_jadwal='';
+            $where_jadwal_dana='';
+            $where_jadwal_dana_single='';
 			if($jadwal_lokal->status == 1){
 				$_suffix='_history';
-				$where=' AND dana.id_jadwal='.$wpdb->prepare("%d", $id_jadwal_lokal);
-                $where.=' AND sub_keg.id_jadwal='.$wpdb->prepare("%d", $id_jadwal_lokal);
+                $where_jadwal.=' AND sub_keg.id_jadwal='.$wpdb->prepare("%d", $id_jadwal_lokal);
+                $where_jadwal_dana=' AND dana.id_jadwal=sub_keg.id_jadwal';
+                $where_jadwal_dana_single=' AND id_jadwal='.$wpdb->prepare("%d", $id_jadwal_lokal);
 			}
 
 			$where_skpd = '';
@@ -2373,75 +2377,187 @@ class Wpsipd_Public_Base_1 extends Wpsipd_Public_Base_2{
 				}
 			}
 
-			$sql = $wpdb->prepare("
-                SELECT dana.namadana, 
-                    dana.kodedana, 
-                    sub_keg.nama_sub_skpd, 
-                    sub_keg.id_sub_skpd, 
-                    sum(sub_keg.pagu) as pagu_renja, 
-                    sum(dana.pagudana) as pagu_skpd 
-                FROM data_dana_sub_keg_lokal".$_suffix." AS dana 
-                INNER JOIN data_sub_keg_bl_lokal".$_suffix." AS sub_keg 
-                ON dana.kode_sbl = sub_keg.kode_sbl 
-                WHERE dana.kodedana=%s 
-                    AND dana.tahun_anggaran=%d 
-                    AND dana.active=1 
-                    AND sub_keg.tahun_anggaran=%d 
-                    AND sub_keg.active=1 
-                    ".$where." 
-                    ".$where_skpd."
-                    GROUP by sub_keg.id_sub_skpd 
-                    ORDER BY sub_keg.id_sub_skpd ASC;
-			",$kode_dana, $tahun_anggaran, $tahun_anggaran);
+            if($kode_dana == '-'){
+                $sql = "
+                    SELECT 
+                        dana.id, 
+                        dana.namadana, 
+                        dana.kodedana, 
+                        dana.pagudana, 
+                        sub_keg.kode_sbl, 
+                        sub_keg.nama_sub_giat, 
+                        sub_keg.nama_sub_skpd, 
+                        sub_keg.pagu, 
+                        sub_keg.id_sub_skpd 
+                    FROM data_sub_keg_bl_lokal".$_suffix." AS sub_keg 
+                    LEFT JOIN data_dana_sub_keg_lokal".$_suffix." AS dana 
+                        ON dana.kode_sbl = sub_keg.kode_sbl 
+                        AND dana.tahun_anggaran=sub_keg.tahun_anggaran 
+                        AND dana.active=sub_keg.active
+                        ".$where_jadwal_dana."
+                    WHERE sub_keg.tahun_anggaran=%d 
+                        AND sub_keg.active=1
+                        AND dana.kode_sbl IS NULL
+                        ".$where_jadwal."
+                        ".$where_skpd."
+                    ORDER BY dana.kodedana ASC";
+                 $sql = $wpdb->prepare($sql, $tahun_anggaran);
+            }else{
+                $sql = "
+                    SELECT 
+                        dana.id, 
+                        dana.namadana, 
+                        dana.kodedana, 
+                        dana.pagudana, 
+                        sub_keg.kode_sbl, 
+                        sub_keg.nama_sub_giat, 
+                        sub_keg.kode_sub_skpd, 
+                        sub_keg.nama_sub_skpd, 
+                        sub_keg.pagu, 
+                        sub_keg.id_sub_skpd 
+                    FROM data_sub_keg_bl_lokal".$_suffix." AS sub_keg 
+                    INNER JOIN data_dana_sub_keg_lokal".$_suffix." AS dana 
+                        ON dana.kode_sbl = sub_keg.kode_sbl 
+                        AND dana.tahun_anggaran=sub_keg.tahun_anggaran 
+                        AND dana.active=sub_keg.active
+                        AND dana.kodedana=%s
+                        ".$where_jadwal_dana."
+                    WHERE sub_keg.tahun_anggaran=%d 
+                        AND sub_keg.active=1
+                        ".$where_jadwal."
+                        ".$where_skpd."
+                    ORDER BY dana.kodedana ASC";
+			     $sql = $wpdb->prepare($sql, $kode_dana, $tahun_anggaran);
+            }
+			$analisis_sumber_dana = $wpdb->get_results($sql, ARRAY_A);
+            $sql_dana = $wpdb->last_query;
 
-			$skpds = $wpdb->get_results($sql, ARRAY_A);
+            $nama_dana = "";
+            if(!empty($analisis_sumber_dana)){
+                $nama_dana = $analisis_sumber_dana[0]['namadana'];
+                if(empty($nama_dana)){
+                    $nama_dana = "Kosong / Belum diset";
+                }
+            }
+            $title = 'Daftar SKPD yang menggunakan Sumber Dana ( '.$nama_dana.' )';
 
-			$data_all = array(
-				'data' => array(),
-				'pagu_total' => 0
-			);
+            $data_all = array(
+                'total' => 0,
+                'total_sub_keg' => 0,
+                'data'  => array()
+            );
+            $cek_sub_keg = array();
+            $double_sub_keg = array();
+            foreach($analisis_sumber_dana as $k => $ap){
+                $key = $ap['id_sub_skpd'];
+                if(!empty($sub_keg)){
+                    $key = $ap['kode_sbl'];
+                }
+                if(empty($cek_sub_keg[$ap['kode_sbl']])){
+                    $cek_sub_keg[$ap['kode_sbl']] = $ap;
+                    $data_all['total_sub_keg'] += $ap['pagu'];
+                }else{
+                    $double_sub_keg[] = $ap;
+                }
+                if(empty($data_all['data'][$key])){
+                    $data_all['data'][$key] = $ap;
+                    if(empty($ap['kodedana'])){
+                        $data_all['data'][$key]['kodedana'] = '-';
+                        $data_all['data'][$key]['namadana'] = 'Sumber Dana belum diset!';
+                    }
+                    $data_all['data'][$key]['skpd_id'] = array();
+                    $data_all['data'][$key]['sub_keg_id'] = array();
+                    $data_all['data'][$key]['sub_keg'] = 0;
+                    $data_all['data'][$key]['skpd'] = 0;
+                    $data_all['data'][$key]['total_pagu'] = 0;
+                    $data_all['data'][$key]['total_pagu_sub_keg'] = 0;
+                    $data_all['data'][$key]['pagudana_all'] = 0;
+                }
+                if(empty($data_all['data'][$key]['skpd_id'][$ap['id_sub_skpd']])){
+                    $data_all['data'][$key]['skpd_id'][$ap['id_sub_skpd']] = $ap['id_sub_skpd'];
+                    $data_all['data'][$key]['skpd']++;
+                }
+                if(empty($data_all['data'][$key]['sub_keg_id'][$ap['kode_sbl']])){
+                    $data_all['data'][$key]['sub_keg_id'][$ap['kode_sbl']] = $ap['kode_sbl'];
+                    $data_all['data'][$key]['sub_keg']++;
+                }
 
-            $title = !empty($skpds) ? 'Daftar SKPD Sumber Dana '.$skpds[0]['namadana'] : '';
+                $pagudana_all = $wpdb->get_results($wpdb->prepare("
+                    SELECT
+                        pagudana
+                    FROM data_dana_sub_keg_lokal".$_suffix."
+                    WHERE kode_sbl=%s
+                        AND tahun_anggaran=%d
+                        ".$where_jadwal_dana_single."
+                ", $ap['kode_sbl'], $tahun_anggaran), ARRAY_A);
+                if(empty($pagudana_all)){
+                    $data_all['data'][$key]['pagudana_all'] += $ap['pagu'];
+                }else{
+                    foreach($pagudana_all as $kk => $vv){
+                        $data_all['data'][$key]['pagudana_all'] += $vv['pagudana'];
+                    }
+                }
 
-			foreach ($skpds as $key => $skpd) {
-				if(empty($data_all['data'][$skpd['id_sub_skpd']])){
-				    
-					$data_all['data'][$skpd['id_sub_skpd']] = [
-						'id_sub_skpd' => $skpd['id_sub_skpd'],
-						'namadana' => $skpd['namadana'],
-						'nama_sub_skpd' => $skpd['nama_sub_skpd'],
-						'pagu_skpd' => $skpd['pagu_skpd'],
-                        'pagu_renja' => $skpd['pagu_renja']
-					];
+                // jika sumber dana belum diset, maka total pagu diambil dari pagu sub kegiatan
+                if(empty($ap['kodedana'])){
+                    $data_all['data'][$key]['total_pagu'] += $ap['pagu'];
+                    $data_all['total'] += $ap['pagu'];
+                }else{
+                    $data_all['data'][$key]['total_pagu'] += $ap['pagudana'];
+                    $data_all['total'] += $ap['pagudana'];
+                }
 
-					$data_all['pagu_total'] += $skpd['pagu_skpd'];
-				}
-			}
+                $data_all['data'][$key]['total_pagu_sub_keg'] += $ap['pagu'];
+            }
 
 			/** Tabel skpd sumber dana */
 			$body = '';
 			$no=1;
 			foreach ($data_all['data'] as $key => $skpd) {
                 $warning = '';
-                if($skpd['pagu_skpd'] != $skpd['pagu_renja']){
+                if($skpd['pagudana_all'] != $skpd['total_pagu_sub_keg']){
                     $warning = 'background: #f9d9d9;';
+                }
+                $url_skpd = $this->generatePage('Input RENJA '.$skpd['nama_sub_skpd'].' '.$skpd['kode_sub_skpd'].' | '.$tahun_anggaran, $tahun_anggaran, '[input_renja tahun_anggaran="'.$tahun_anggaran.'" id_skpd="'.$skpd['id_sub_skpd'].'"]');
+                $nama_skpd = '<a href="'.$url_skpd.'" target="_blank">'.$skpd['nama_sub_skpd'].'</a>';
+                if(!empty($sub_keg)){
+                    $td_sub_keg = '
+                        <td class="atas kanan bawah">'.$skpd['nama_sub_giat'].'</td>
+                    ';
                 }
 				$body.='
 					<tr data-idsubskpd="'.$skpd['id_sub_skpd'].'">
 						<td class="kiri atas kanan bawah text_tengah">'.$no.'</td>
-						<td class="atas kanan bawah">'.$skpd['nama_sub_skpd'].'</td>
-						<td style="'.$warning.'" class="atas kanan bawah text_kanan">'.$this->_number_format($skpd['pagu_skpd']).'</td>
+						<td class="atas kanan bawah">'.$nama_skpd.'</td>
+                        '.$td_sub_keg.'
+						<td style="'.$warning.'" class="atas kanan bawah text_kanan">'.$this->_number_format($skpd['total_pagu']).'</td>
+                        <td style="'.$warning.'" class="atas kanan bawah text_kanan">'.$this->_number_format($skpd['total_pagu_sub_keg']).'</td>
+                        <td style="'.$warning.'" class="atas kanan bawah text_kanan">'.$this->_number_format($skpd['pagudana_all']).'</td>
 					</tr>';
 					$no++;
 			}
-			
-			$footer='<tr>
-						<td class="kiri atas kanan bawah text_tengah" colspan="2"><b>TOTAL PAGU SUMBER DANA</b></td>
-						<td class="atas kanan bawah text_kanan"><b>'.$this->_number_format($data_all['pagu_total']).'</b></td>
-					</tr>';
+
+            $colspan = 2;
+            $judul = 'Sumber Dana per SKPD';
+            $th_sub_giat = '';
+            if(!empty($sub_keg)){
+                $colspan = 3;
+                $th_sub_giat = '<th class="atas kanan bawah text_tengah text_blok" style="width: 200px;">Sub Kegiatan</th>';
+                $judul = 'Sumber Dana per Sub Kegiatan';
+            }
+
+			$footer='
+                <tr>
+					<td class="kiri atas kanan bawah text_kiri" colspan="'.$colspan.'"><b>TOTAL PAGU SUMBER DANA</b></td>
+					<td class="atas kanan bawah text_kanan" colspan="3"><b>'.$this->_number_format($data_all['total']).'</b></td>
+				</tr>
+                <tr>
+                    <td class="kiri atas kanan bawah text_kiri" colspan="'.$colspan.'"><b>TOTAL PAGU SUB KEGIATAN</b></td>
+                    <td class="atas kanan bawah text_kanan" colspan="3"><b>'.$this->_number_format($data_all['total_sub_keg']).'</b></td>
+                </tr>';
 
 			$html='<div id="preview" style="padding: 5px; overflow: auto; height: 100%;">
-					<h4 style="text-align: center; margin: 0; font-weight: bold;">SKPD Per Sumber Dana
+					<h4 style="text-align: center; margin: 0; font-weight: bold;">'.$judul.'
 					<br>Tahun '.$jadwal_lokal->tahun_anggaran.' '.$nama_pemda.'
 					<br>'.$jadwal_lokal->nama_jadwal.'
 					</h4>
@@ -2451,7 +2567,10 @@ class Wpsipd_Public_Base_1 extends Wpsipd_Public_Base_2{
 							<tr>
 								<th style="width: 19px;" class="kiri atas kanan bawah text_tengah text_blok">No</th>
 								<th class="atas kanan bawah text_tengah text_blok">Nama Sub SKPD</th>
+                                '.$th_sub_giat.'
 								<th style="width: 140px;" class="atas kanan bawah text_tengah text_blok">Pagu Sumber Dana</th>
+                                <th style="width: 140px;" class="atas kanan bawah text_tengah text_blok">Pagu Sub Kegiatan</th>
+                                <th style="width: 140px;" class="atas kanan bawah text_tengah text_blok">Pagu Sumber Dana Dalam Satu Sub Kegiatan</th>
 							</tr>
 						</thead>
 						<tbody>'.$body.'</tbody>
@@ -2461,7 +2580,8 @@ class Wpsipd_Public_Base_1 extends Wpsipd_Public_Base_2{
     		echo json_encode([
 				'status' => true,
 				'html' => $html,
-                'title' => $title
+                'title' => $title,
+                'query' => $sql_dana
 			]);exit();
 
     	}catch(Exception $e){
