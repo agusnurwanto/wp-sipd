@@ -2377,13 +2377,14 @@ class Wpsipd_Public_Base_1 extends Wpsipd_Public_Base_2{
 				}
 			}
 
-            if($kode_dana == '-'){
+            if($kode_dana == '...'){
                 $sql = "
                     SELECT 
                         dana.id, 
                         dana.namadana, 
                         dana.kodedana, 
                         dana.pagudana, 
+                        dana.kode_sbl as kode_sbl_dana, 
                         sub_keg.kode_sbl, 
                         sub_keg.nama_sub_giat, 
                         sub_keg.nama_sub_skpd, 
@@ -2402,6 +2403,32 @@ class Wpsipd_Public_Base_1 extends Wpsipd_Public_Base_2{
                         ".$where_skpd."
                     ORDER BY dana.kodedana ASC";
                  $sql = $wpdb->prepare($sql, $tahun_anggaran);
+            }else if($kode_dana == '-'){
+                $sql = "
+                    SELECT 
+                        dana.id, 
+                        dana.namadana, 
+                        dana.kodedana, 
+                        dana.pagudana, 
+                        dana.kode_sbl as kode_sbl_dana, 
+                        sub_keg.kode_sbl, 
+                        sub_keg.nama_sub_giat, 
+                        sub_keg.nama_sub_skpd, 
+                        sub_keg.pagu, 
+                        sub_keg.id_sub_skpd 
+                    FROM data_sub_keg_bl_lokal".$_suffix." AS sub_keg 
+                    LEFT JOIN data_dana_sub_keg_lokal".$_suffix." AS dana 
+                        ON dana.kode_sbl = sub_keg.kode_sbl 
+                        AND dana.tahun_anggaran=sub_keg.tahun_anggaran 
+                        AND dana.active=sub_keg.active
+                        ".$where_jadwal_dana."
+                    WHERE sub_keg.tahun_anggaran=%d 
+                        AND sub_keg.active=1
+                        AND dana.pagudana IS NULL
+                        ".$where_jadwal."
+                        ".$where_skpd."
+                    ORDER BY dana.kodedana ASC";
+                 $sql = $wpdb->prepare($sql, $tahun_anggaran);
             }else{
                 $sql = "
                     SELECT 
@@ -2409,6 +2436,7 @@ class Wpsipd_Public_Base_1 extends Wpsipd_Public_Base_2{
                         dana.namadana, 
                         dana.kodedana, 
                         dana.pagudana, 
+                        dana.kode_sbl as kode_sbl_dana, 
                         sub_keg.kode_sbl, 
                         sub_keg.nama_sub_giat, 
                         sub_keg.kode_sub_skpd, 
@@ -2432,11 +2460,14 @@ class Wpsipd_Public_Base_1 extends Wpsipd_Public_Base_2{
 			$analisis_sumber_dana = $wpdb->get_results($sql, ARRAY_A);
             $sql_dana = $wpdb->last_query;
 
-            $nama_dana = "";
-            if(!empty($analisis_sumber_dana)){
-                $nama_dana = $analisis_sumber_dana[0]['namadana'];
-                if(empty($nama_dana)){
-                    $nama_dana = "Kosong / Belum diset";
+            $nama_dana = "Nama Sumber Dana tidak ditemukan!";
+            if($kode_dana == '...'){
+                $nama_dana = "Sumber Dana belum diset!";
+            }else if($kode_dana == '-'){
+                $nama_dana = "Sumber Dana belum ditetapkan!";
+            }else{
+                if(!empty($analisis_sumber_dana)){
+                    $nama_dana = $analisis_sumber_dana[0]['namadana'];
                 }
             }
             $title = 'Daftar SKPD yang menggunakan Sumber Dana ( '.$nama_dana.' )';
@@ -2444,6 +2475,7 @@ class Wpsipd_Public_Base_1 extends Wpsipd_Public_Base_2{
             $data_all = array(
                 'total' => 0,
                 'total_sub_keg' => 0,
+                'total_sub_keg_sumber_dana' => 0,
                 'data'  => array()
             );
             $cek_sub_keg = array();
@@ -2453,18 +2485,16 @@ class Wpsipd_Public_Base_1 extends Wpsipd_Public_Base_2{
                 if(!empty($sub_keg)){
                     $key = $ap['kode_sbl'];
                 }
-                if(empty($cek_sub_keg[$ap['kode_sbl']])){
-                    $cek_sub_keg[$ap['kode_sbl']] = $ap;
-                    $data_all['total_sub_keg'] += $ap['pagu'];
-                }else{
-                    $double_sub_keg[] = $ap;
+                if(empty($ap['kode_sbl_dana'])){
+                    $ap['kodedana'] = '...';
+                    $ap['namadana'] = 'Sumber Dana belum diset!';
+                }else if(empty($ap['kodedana'])){
+                    $ap['kodedana'] = '-';
+                    $ap['namadana'] = 'Sumber Dana belum ditetapkan!';
                 }
+                
                 if(empty($data_all['data'][$key])){
                     $data_all['data'][$key] = $ap;
-                    if(empty($ap['kodedana'])){
-                        $data_all['data'][$key]['kodedana'] = '-';
-                        $data_all['data'][$key]['namadana'] = 'Sumber Dana belum diset!';
-                    }
                     $data_all['data'][$key]['skpd_id'] = array();
                     $data_all['data'][$key]['sub_keg_id'] = array();
                     $data_all['data'][$key]['sub_keg'] = 0;
@@ -2473,6 +2503,15 @@ class Wpsipd_Public_Base_1 extends Wpsipd_Public_Base_2{
                     $data_all['data'][$key]['total_pagu_sub_keg'] = 0;
                     $data_all['data'][$key]['pagudana_all'] = 0;
                 }
+
+                if(empty($cek_sub_keg[$ap['kode_sbl']])){
+                    $cek_sub_keg[$ap['kode_sbl']] = $ap;
+                    $data_all['total_sub_keg'] += $ap['pagu'];
+                    $data_all['data'][$key]['total_pagu_sub_keg'] += $ap['pagu'];
+                }else{
+                    $double_sub_keg[] = $ap;
+                }
+
                 if(empty($data_all['data'][$key]['skpd_id'][$ap['id_sub_skpd']])){
                     $data_all['data'][$key]['skpd_id'][$ap['id_sub_skpd']] = $ap['id_sub_skpd'];
                     $data_all['data'][$key]['skpd']++;
@@ -2488,26 +2527,27 @@ class Wpsipd_Public_Base_1 extends Wpsipd_Public_Base_2{
                     FROM data_dana_sub_keg_lokal".$_suffix."
                     WHERE kode_sbl=%s
                         AND tahun_anggaran=%d
+                        AND active=1
                         ".$where_jadwal_dana_single."
                 ", $ap['kode_sbl'], $tahun_anggaran), ARRAY_A);
                 if(empty($pagudana_all)){
                     $data_all['data'][$key]['pagudana_all'] += $ap['pagu'];
+                    $data_all['total_sub_keg_sumber_dana'] += $ap['pagu'];
                 }else{
                     foreach($pagudana_all as $kk => $vv){
                         $data_all['data'][$key]['pagudana_all'] += $vv['pagudana'];
+                        $data_all['total_sub_keg_sumber_dana'] += $vv['pagudana'];
                     }
                 }
 
                 // jika sumber dana belum diset, maka total pagu diambil dari pagu sub kegiatan
-                if(empty($ap['kodedana'])){
+                if(empty($ap['kode_sbl_dana'])){
                     $data_all['data'][$key]['total_pagu'] += $ap['pagu'];
                     $data_all['total'] += $ap['pagu'];
                 }else{
                     $data_all['data'][$key]['total_pagu'] += $ap['pagudana'];
                     $data_all['total'] += $ap['pagudana'];
                 }
-
-                $data_all['data'][$key]['total_pagu_sub_keg'] += $ap['pagu'];
             }
 
 			/** Tabel skpd sumber dana */
@@ -2519,7 +2559,7 @@ class Wpsipd_Public_Base_1 extends Wpsipd_Public_Base_2{
                     $warning = 'background: #f9d9d9;';
                 }
                 $url_skpd = $this->generatePage('Input RENJA '.$skpd['nama_sub_skpd'].' '.$skpd['kode_sub_skpd'].' | '.$tahun_anggaran, $tahun_anggaran, '[input_renja tahun_anggaran="'.$tahun_anggaran.'" id_skpd="'.$skpd['id_sub_skpd'].'"]');
-                $nama_skpd = '<a href="'.$url_skpd.'" target="_blank">'.$skpd['nama_sub_skpd'].'</a>';
+                $nama_skpd = '<a href="'.$url_skpd.'" target="_blank">'.$skpd['kode_sub_skpd'].' '.$skpd['nama_sub_skpd'].'</a>';
                 if(!empty($sub_keg)){
                     $td_sub_keg = '
                         <td class="atas kanan bawah">'.$skpd['nama_sub_giat'].'</td>
@@ -2546,15 +2586,17 @@ class Wpsipd_Public_Base_1 extends Wpsipd_Public_Base_2{
                 $judul = 'Sumber Dana per Sub Kegiatan';
             }
 
+            $warning = '';
+            if($data_all['total_sub_keg_sumber_dana'] != $data_all['total_sub_keg']){
+                $warning = 'background: #f9d9d9;';
+            }
 			$footer='
                 <tr>
-					<td class="kiri atas kanan bawah text_kiri" colspan="'.$colspan.'"><b>TOTAL PAGU SUMBER DANA</b></td>
-					<td class="atas kanan bawah text_kanan" colspan="3"><b>'.$this->_number_format($data_all['total']).'</b></td>
-				</tr>
-                <tr>
-                    <td class="kiri atas kanan bawah text_kiri" colspan="'.$colspan.'"><b>TOTAL PAGU SUB KEGIATAN</b></td>
-                    <td class="atas kanan bawah text_kanan" colspan="3"><b>'.$this->_number_format($data_all['total_sub_keg']).'</b></td>
-                </tr>';
+					<td class="kiri atas kanan bawah text_kiri" colspan="'.$colspan.'"><b>TOTAL</b></td>
+					<td style="'.$warning.'" class="atas kanan bawah text_kanan"><b>'.$this->_number_format($data_all['total']).'</b></td>
+                    <td style="'.$warning.'" class="atas kanan bawah text_kanan"><b>'.$this->_number_format($data_all['total_sub_keg']).'</b></td>
+                    <td style="'.$warning.'" class="atas kanan bawah text_kanan"><b>'.$this->_number_format($data_all['total_sub_keg_sumber_dana']).'</b></td>
+				</tr>';
 
 			$html='<div id="preview" style="padding: 5px; overflow: auto; height: 100%;">
 					<h4 style="text-align: center; margin: 0; font-weight: bold;">'.$judul.'

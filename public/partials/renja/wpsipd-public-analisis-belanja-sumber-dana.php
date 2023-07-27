@@ -62,6 +62,7 @@ $sql = "
         dana.namadana, 
         dana.kodedana, 
         dana.pagudana, 
+        dana.kode_sbl as kode_sbl_dana, 
         sub_keg.kode_sbl, 
         sub_keg.nama_sub_giat, 
         sub_keg.nama_sub_skpd, 
@@ -94,12 +95,15 @@ foreach($analisis_sumber_dana as $k => $ap){
     }else{
         $double_sub_keg[] = $ap;
     }
+    if(empty($ap['kode_sbl_dana'])){
+        $ap['kodedana'] = '...';
+        $ap['namadana'] = 'Sumber Dana belum diset!';
+    }else if(empty($ap['kodedana'])){
+        $ap['kodedana'] = '-';
+        $ap['namadana'] = 'Sumber Dana belum ditetapkan!';
+    }
     if(empty($data_all['data'][$ap['kodedana']])){
         $data_all['data'][$ap['kodedana']] = $ap;
-        if(empty($ap['kodedana'])){
-            $data_all['data'][$ap['kodedana']]['kodedana'] = '-';
-            $data_all['data'][$ap['kodedana']]['namadana'] = 'Sumber Dana belum diset!';
-        }
         $data_all['data'][$ap['kodedana']]['skpd_id'] = array();
         $data_all['data'][$ap['kodedana']]['sub_keg_id'] = array();
         $data_all['data'][$ap['kodedana']]['sub_keg'] = 0;
@@ -116,7 +120,7 @@ foreach($analisis_sumber_dana as $k => $ap){
     }
 
     // jika sumber dana belum diset, maka total pagu diambil dari pagu sub kegiatan
-    if(empty($ap['kodedana'])){
+    if(empty($ap['kode_sbl_dana'])){
         $data_all['data'][$ap['kodedana']]['total_pagu'] += $ap['pagu'];
         $data_all['total'] += $ap['pagu'];
     }else{
