@@ -2424,7 +2424,7 @@ class Wpsipd_Public_Base_1 extends Wpsipd_Public_Base_2{
                         ".$where_jadwal_dana."
                     WHERE sub_keg.tahun_anggaran=%d 
                         AND sub_keg.active=1
-                        AND dana.pagudana IS NULL
+                        AND dana.kodedana IS NULL
                         ".$where_jadwal."
                         ".$where_skpd."
                     ORDER BY dana.kodedana ASC";
