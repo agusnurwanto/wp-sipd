@@ -440,174 +440,170 @@ if(!empty($subkeg['waktu_akhir']) && !empty($bulan[$subkeg['waktu_akhir']-1])){
 <script src="https://cdnjs.cloudflare.com/ajax/libs/slim-select/1.27.1/slimselect.min.js"></script>
 <script type="text/javascript">
 jQuery(document).ready(function(){
-
 	run_download_excel();
-	
 	var aksi = ''
 		+'<a style="margin-left: 10px;" id="tambah-data" onclick="return false;" href="#" class="btn btn-success">Tambah Data RKA</a>';
 	jQuery("#action-sipd").append(aksi);
-
 	jQuery("#tambah-data").on('click', function(){
-		
-		let rincian = '<table class="table" style="font-size:14px">'
-			    +'<thead>'
+		let rincian = ''
+			+'<table class="table table-bordered">'
+			    +'<tbody>'
 			        +'<tr>'
-			          	+'<th class="text-center" style="width: 160px;">Bidang</th>'
+			          	+'<th style="width: 160px;">Bidang</th>'
+			          	+'<th class="tex-center" style="width: 20px;">:</th>'
 			          	+'<th>'+jQuery("#tabel-rincian tr[class=tr-urusan-pemerintahan]").find('>td').eq(2).html()+'</th>'
 			        +'</tr>'
 					+'<tr>'
-				        +'<th class="text-center" style="width: 160px;">Sub Unit</th>'
+				        +'<th style="width: 160px;">Sub Unit</th>'
+				        +'<th class="tex-center" style="width: 20px;">:</th>'
 				        +'<th>'+jQuery("#tabel-rincian tr[class=tr-unit]").find('>td').eq(2).html()+'</th>'
 				    +'</tr>'
 			        +'<tr>'
-			          	+'<th class="text-center" style="width: 160px;">Program</th>'
+			          	+'<th style="width: 160px;">Program</th>'
+			          	+'<th class="tex-center" style="width: 20px;">:</th>'
 			          	+'<th>'+jQuery("#tabel-rincian tr[class=tr-program]").find('>td').eq(2).html()+'</th>'
 			        +'</tr>'
 			        +'<tr>'
-			          	+'<th class="text-center" style="width: 160px;">Kegiatan</th>'
+			          	+'<th style="width: 160px;">Kegiatan</th>'
+			          	+'<th class="tex-center" style="width: 20px;">:</th>'
 			        	+'<th>'+jQuery("#tabel-rincian tr[class=tr-kegiatan]").find('>td').eq(2).html()+'</th>'
 			        +'</tr>'
 			        +'<tr>'
-			          	+'<th class="text-center" style="width: 160px;">Sub Kegiatan</th>'
+			          	+'<th style="width: 160px;">Sub Kegiatan</th>'
+			          	+'<th class="tex-center" style="width: 20px;">:</th>'
 			          	+'<th>'+jQuery("#table-sub-kegiatan tr[class=tr-sub-kegiatan]").find('>td').eq(2).html()+'</th>'
 			        +'</tr>'
 			        +'<tr>'
-			          	+'<th class="text-center" style="width: 160px;">Total Rincian Belanja</th>'
-			          	+'<th></th>'
-			        +'</tr>'
-			    +'</thead>'
+			        	+'<td colspan="3">'
+							+'<form id="form-input-rincian">'
+								+'<input type="hidden" name="bidur-all" value="">'
+								+'<div class="form-group">'
+									+'<label for="daftar-objek-belanja">Pilih Objek Belanja</label>'
+									+'<select class="form-control select-option" id="daftar-objek-belanja" name="daftar_objek_belanja"></select>'
+								+'</div>'
+								+'<div class="form-group">'
+									+'<label for="daftar-rekening-akun">Rekening / Akun</label>'
+									+'<select class="form-control select-option" id="daftar-rekening-akun" name="daftar_rekening_akun"></select>'
+								+'</div>'
+								+'<div class="form-group">'
+									+'<label for="pengelompokan-belanja-paket-pekerjaan">Pengelompokan Belanja / Paket Pekerjaan</label>'
+									+'<select class="form-control select-option" id="pengelompokan-belanja-paket-pekerjaan" name="pengelompokan_belanja_paket_pekerjaan"></select>'
+								+'</div>'
+								+'<div class="form-group">'
+									+'<label for="sumber_dana">Sumber Dana</label>'
+									+'<select class="form-control select-option" id="sumber_dana" name="sumber_dana">'
+										+'<option value="">Pilih Sumber Dana...</option>'
+									+'</select>'
+								+'</div>'
+								+'<div class="form-group">'
+									+'<label for="jenis-standar-harga">Jenis Standar Harga</label>'
+									+'<select class="form-control select-option" id="jenis-standar-harga" name="jenis_standar_harga">'
+										+'<option value="">Pilih Standar Harga...</option>'
+										+'<option value="SSH">SSH</option>'
+										+'<option value="SBU">SBU</option>'
+										+'<option value="HSPK">HSPK</option>'
+										+'<option value="ASB">ASB</option>'
+									+'</select>'
+								+'</div>'
+								+'<div class="form-group">'
+									+'<label for="komponen">Komponen</label>'
+									+'<div class="row">'
+										+'<div class="col-lg-10">'
+											+'<input type="text" class="form-control" id="komponen" name="komponen">'
+										+'</div>'
+										+'<div class="col-lg-2">'
+											+'<button class="btn btn-primary cari-ssh">Cari</button>'
+										+'</div>'
+									+'</div>'
+								+'</div>'
+								+'<div class="form-group">'
+									+'<label for="tkdn">TKDN</label>'
+									+'<input type="text" class="form-control" id="tkdn" name="tkdn">'
+								+'</div>'
+								+'<div class="form-group">'
+									+'<label for="spesifikasi-komponen">Spesifikasi Komponen</label>'
+									+'<input type="text" class="form-control" id="spesifikasi-komponen" name="spesifikasi_komponen">'
+								+'</div>'
+								+'<div class="form-group">'
+									+'<div class="row">'
+										+'<div class="col-lg-6">'
+											+'<label for="satuan">Satuan</label>'
+											+'<input type="text" class="form-control" id="satuan" name="satuan">'
+										+'</div>'
+										+'<div class="col-lg-6">'
+											+'<label for="satuan">Harga Satuan</label>'
+											+'<input type="text" class="form-control" id="harga-satuan" name="harga_satuan">'
+										+'</div>'
+									+'</div>'
+								+'</div>'
+								+'<div class="form-group">'
+									+'<label for="tambahkan-pajak"><input type="checkbox" value=""> Tambahkan Pajak</label>'
+								+'</div>'
+								+'<div class="form-group">'
+									+'<label for="koefisien">Koefisien (Perkalian)</label>'
+									+'<div class="row">'
+										+'<div class="col-lg-6">'
+											+'<input type="number" class="form-control" id="volume-1" name="volume_1" placeholder="Volume 1">'
+										+'</div>'
+										+'<div class="col-lg-6">'
+											+'<select class="form-control select-option" id="satuan-volume-1" name="satuan_volume_1" placeholder="Satuan 1"></select>'
+										+'</div>'
+									+'</div>'
+									+'<div class="row" style="margin-top: 5px;">'
+										+'<div class="col-lg-6">'
+											+'<input type="number" class="form-control" id="volume-2" name="volume_2" placeholder="Volume 2">'
+										+'</div>'
+										+'<div class="col-lg-6">'
+											+'<select class="form-control select-option" id="satuan-volume-2" name="satuan_volume_2" placeholder="Satuan 2"></select>'
+										+'</div>'
+									+'</div>'
+									+'<div class="row" style="margin-top: 5px;">'
+										+'<div class="col-lg-6">'
+											+'<input type="number" class="form-control" id="volume-3" name="volume_3" placeholder="Volume 3">'
+										+'</div>'
+										+'<div class="col-lg-6">'
+											+'<select class="form-control select-option" id="satuan-volume-3" name="satuan_volume_3" placeholder="Satuan 3"></select>'
+										+'</div>'
+									+'</div>'
+									+'<div class="row" style="margin-top: 5px;">'
+										+'<div class="col-lg-6">'
+											+'<input type="number" class="form-control" id="volume-4" name="volume_4" placeholder="Volume 4">'
+										+'</div>'
+										+'<div class="col-lg-6">'
+											+'<select class="form-control select-option" id="satuan-volume-4" name="satuan_volume_4" placeholder="Satuan 4"></select>'
+										+'</div>'
+									+'</div>'
+								+'</div>'
+								+'<div class="form-group">'
+									+'<label for="volume">Volume</label>'
+									+'<input type="text" class="form-control" id="volume" name="volume">'
+								+'</div>'
+								+'<div class="form-group">'
+									+'<label for="ket_jumlah">Koefisien (Keterangan Jumlah)</label>'
+									+'<input type="text" class="form-control" id="ket_jumlah" name="ket_jumlah">'
+								+'</div>'
+								+'<div class="form-group">'
+									+'<label for="total">Total Belanja</label>'
+									+'<input type="text" class="form-control" id="total" name="total">'
+								+'</div>'
+							+'</form>'
+						+'</td>'
+					+'</tr>'
+			    +'</tbody>'
 			+'</table>'
-			+'<div style="margin-top:10px"><button type="button" class="btn btn-primary mb-2 btn-tambah-rincian"><i class="dashicons dashicons-plus" style="margin-top: 2px;"></i> Tambah Rincian</button>'
-			+'</div>'
-			+'<table style="font-size:14px">'
-				+'<thead>'
-					+'<tr>'
-						+'<th rowspan="2" class="text-center">URAIAN</th>'
-						+'<th rowspan="2" class="text-center">SATUAN</th>'
-						+'<th colspan="4" class="text-center">SEBELUM</th>'
-						+'<th colspan="4" class="text-center">SESUDAH</th>'
-						+'<th rowspan="2" class="text-center">AKSI</th>'
-					+'</tr>'
-					+'<tr>'
-						+'<th class="text-center">KOEFISIEN</th>'
-						+'<th class="text-center">HARGA</th>'
-						+'<th class="text-center">PAJAK</th>'
-						+'<th class="text-center">TOTAL</th>'
-						+'<th class="text-center">KOEFISIEN</th>'
-						+'<th class="text-center">HARGA</th>'
-						+'<th class="text-center">PAJAK</th>'
-						+'<th class="text-center">TOTAL</th>'
-					+'</tr>'
-				+'</thead>'
-			+'</table>';
 
+		jQuery("#modal-rincian").find('.modal-title').html('Input Rincian RKA');
 		jQuery("#modal-rincian").find('.modal-body').html(rincian);
-		jQuery("#modal-rincian").find('.modal-title').html('Tambah Rincian RKA');
-		jQuery("#modal-rincian").css('margin-top', 20);
-		jQuery("#modal-rincian").modal('show');
-	});
-
-	jQuery(document).on('click', '.btn-tambah-rincian', function(){
-
-		let form = ''
-			+'<form id="form-input-rincian">'
-				+'<input type="hidden" name="bidur-all" value="">'
-				+'<div class="form-group">'
-					+'<label for="daftar-objek-belanja">Pilih Objek Belanja</label>'
-					+'<select class="form-control select-option" id="daftar-objek-belanja" name="daftar_objek_belanja"></select>'
-				+'</div>'
-				+'<div class="form-group">'
-					+'<label for="daftar-rekening-akun">Rekening / Akun</label>'
-					+'<select class="form-control select-option" id="daftar-rekening-akun" name="daftar_rekening_akun"></select>'
-				+'</div>'
-				+'<div class="form-group">'
-					+'<label for="pengelompokan-belanja-paket-pekerjaan">Pengelompokan Belanja / Paket Pekerjaan</label>'
-					+'<select class="form-control select-option" id="pengelompokan-belanja-paket-pekerjaan" name="pengelompokan_belanja_paket_pekerjaan"></select>'
-				+'</div>'
-				+'<div class="form-group">'
-					+'<label for="jenis-standar-harga">Jenis Standar Harga</label>'
-					+'<select class="form-control select-option" id="jenis-standar-harga" name="jenis_standar_harga"></select>'
-				+'</div>'
-				+'<div class="form-group">'
-					+'<label for="komponen">Komponen</label>'
-					+'<div class="row">'
-						+'<div class="col-lg-10">'
-							+'<input type="text" class="form-control" id="komponen" name="komponen">'
-						+'</div>'
-						+'<div class="col-lg-2">'
-							+'<button class="btn btn-primary cari-ssh">Cari</button>'
-						+'</div>'
-					+'</div>'
-				+'</div>'
-				+'<div class="form-group">'
-					+'<label for="spesifikasi-komponen">Spesifikasi Komponen</label>'
-					+'<input type="text" class="form-control" id="spesifikasi-komponen" name="spesifikasi_komponen">'
-				+'</div>'
-				+'<div class="form-group">'
-					+'<div class="row">'
-						+'<div class="col-lg-6">'
-							+'<label for="satuan">Satuan</label>'
-							+'<input type="text" class="form-control" id="satuan" name="satuan">'
-						+'</div>'
-						+'<div class="col-lg-6">'
-							+'<label for="satuan">Harga Satuan</label>'
-							+'<input type="text" class="form-control" id="harga-satuan" name="harga_satuan">'
-						+'</div>'
-					+'</div>'
-				+'</div>'
-				+'<div class="form-group">'
-					+'<label for="tambahkan-pajak">Tambahkan Pajak</label>'
-				+'</div>'
-				+'<div class="form-group">'
-					+'<label for="koefisien">Koefisien (Perkalian)</label>'
-					+'<div class="row">'
-						+'<div class="col-lg-6">'
-							+'<input type="number" class="form-control" id="volume-1" name="volume_1">'
-						+'</div>'
-						+'<div class="col-lg-6">'
-							+'<select class="form-control select-option" id="satuan-volume-1" name="satuan_volume_1"></select>'
-						+'</div>'
-					+'</div>'
-					+'<div class="row">'
-						+'<div class="col-lg-6">'
-							+'<input type="number" class="form-control" id="volume-2" name="volume_2">'
-						+'</div>'
-						+'<div class="col-lg-6">'
-							+'<select class="form-control select-option" id="satuan-volume-2" name="satuan_volume_2"></select>'
-						+'</div>'
-					+'</div>'
-					+'<div class="row">'
-						+'<div class="col-lg-6">'
-							+'<input type="number" class="form-control" id="volume-3" name="volume_3">'
-						+'</div>'
-						+'<div class="col-lg-6">'
-							+'<select class="form-control select-option" id="satuan-volume-3" name="satuan_volume_3"></select>'
-						+'</div>'
-					+'</div>'
-					+'<div class="row">'
-						+'<div class="col-lg-6">'
-							+'<input type="number" class="form-control" id="volume-4" name="volume_4">'
-						+'</div>'
-						+'<div class="col-lg-6">'
-							+'<select class="form-control select-option" id="satuan-volume-4" name="satuan_volume_4"></select>'
-						+'</div>'
-					+'</div>'
-				+'</div>'
-			+'</form>';
-
-		jQuery("#modal-input-rincian").find('.modal-title').html('Input Rincian RKA');
-		jQuery("#modal-input-rincian").find('.modal-body').html(form);
-		jQuery("#modal-input-rincian").find('.modal-footer').html(''
+		jQuery("#modal-rincian").find('.modal-footer').html(''
 			+'<button type="button" class="btn btn-warning" data-dismiss="modal">Tutup'
 			+'</button>'
 			+'<button type="button" class="btn btn-success" id="btn-simpan-data-rka" '
 				+'data-action="submit_rka" '
 			+'>Simpan'
 			+'</button>');
-		jQuery("#modal-input-rincian").css('margin-top', 20);
-		jQuery("#modal-input-rincian").css('margin-top', 20);
+		jQuery("#modal-rincian").css('margin-top', 20);
+		jQuery("#modal-rincian").modal('show');
 		jQuery(".select-option").select2({width:'100%'});
-		jQuery("#modal-input-rincian").modal('show');
 
 		objekBelanja().then(function(){
 			jenisStandarHarga();
@@ -615,32 +611,35 @@ jQuery(document).ready(function(){
 	});
 
 	jQuery(document).on('change', "#daftar-objek-belanja", function(){
-		
-		jQuery("#wrap-loading").show();
-
+		if(typeof global_akun_belanja == 'undefined'){
+			global_akun_belanja = {};
+		}
 		let objekBelanja = jQuery("#daftar-objek-belanja").val();
-		
-		jQuery.ajax({
-			url:ajax.url,
-			type:"post",
-			data:{
-				"action":"get_rekening_akun",
-				"api_key":"<?php echo $api_key; ?>",
-				"kode_akun":objekBelanja,
-				"tahun_anggaran":"<?php echo $input['tahun_anggaran']; ?>",
-			},
-			dataType:"json",
-			success:function(response){
-
-				jQuery("#wrap-loading").hide();
-
-				let opt=`<option value="-">Pilih Rekening / Akun</option>`;
-				response.items.map(function(item, index){
-					opt+=`<option value="${item.kode_akun}">${item.kode_akun} ${item.nama_akun}</option>`;
-				});
-				jQuery("#daftar-rekening-akun").html(opt);
-			}
-		})
+		if(!global_akun_belanja[objekBelanja]){
+			jQuery("#wrap-loading").show();
+			jQuery.ajax({
+				url:ajax.url,
+				type:"post",
+				data:{
+					"action":"get_rekening_akun",
+					"api_key":"<?php echo $api_key; ?>",
+					"kode_akun":objekBelanja,
+					"tahun_anggaran":"<?php echo $input['tahun_anggaran']; ?>",
+				},
+				dataType:"json",
+				success:function(response){
+					let opt = "<option value=''>Pilih Rekening / Akun</option>";
+					response.items.map(function(item, index){
+						opt += `<option value="${item.kode_akun}">${item.kode_akun} ${item.nama_akun}</option>`;
+					});
+					global_akun_belanja[objekBelanja] = opt;
+					jQuery("#daftar-rekening-akun").html(global_akun_belanja[objekBelanja]).trigger('change');
+					jQuery("#wrap-loading").hide();
+				}
+			});
+		}else{
+			jQuery("#daftar-rekening-akun").html(global_akun_belanja[objekBelanja]).trigger('change');
+		}
 	})
 
 	jQuery(document).on('change', "#daftar-rekening-akun", function(){
@@ -688,26 +687,32 @@ function get_rinc_rka_lokal(kode_sbl){
 
 function objekBelanja(){
 	return new Promise(function(resolve, reject){
-		jQuery("#wrap-loading").show();
-		jQuery.ajax({
-			url:ajax.url,
-			type:"post",
-			data:{
-				"action":"get_objek_belanja",
-				"api_key":"<?php echo $api_key; ?>",
-				"tahun_anggaran":"<?php echo $input['tahun_anggaran']; ?>",
-			},
-			dataType:"json",
-			success:function(response){
-				jQuery("#wrap-loading").hide();
-				let opt=`<option value="-">Pilih Objek Belanja</option>`;
-				response.items.map(function(item, index){
-					opt+=`<option value="${item.kode_akun}">${item.nama_akun}</option>`;
-				});
-				jQuery("#daftar-objek-belanja").html(opt);
-				resolve();
-			}
-		})
+		if(typeof global_jenis_objek_belanja == 'undefined'){
+			jQuery("#wrap-loading").show();
+			jQuery.ajax({
+				url:ajax.url,
+				type:"post",
+				data:{
+					"action":"get_objek_belanja",
+					"api_key":"<?php echo $api_key; ?>",
+					"tahun_anggaran":"<?php echo $input['tahun_anggaran']; ?>",
+				},
+				dataType:"json",
+				success:function(response){
+					jQuery("#wrap-loading").hide();
+					let opt = "<option value="-">Pilih Objek Belanja</option>";
+					for( var i in response.items){
+						opt += "<option value="+i+">"+response.items[i]+"</option>";
+					};
+					global_jenis_objek_belanja = opt;
+					jQuery("#daftar-objek-belanja").html(global_jenis_objek_belanja);
+					resolve();
+				}
+			});
+		}else{
+			jQuery("#daftar-objek-belanja").html(global_jenis_objek_belanja);
+			resolve();
+		}
 	});
 }
 

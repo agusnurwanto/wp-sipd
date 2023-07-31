@@ -7870,19 +7870,27 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
     	try{
 			if (!empty($_POST)) {
 				if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
-
-					$data = $wpdb->get_results($wpdb->prepare("SELECT * FROM data_akun WHERE tahun_anggaran=%d AND char_length(kode_akun)=6", $_POST['tahun_anggaran']), ARRAY_A);
-
-					$items=[];
-					foreach ($data as $key => $value) {
-						if(empty($items[$value['id_akun']])){
-							$items[$value['id_akun']]=$value;
-						}
-					}
+					$items = array();
+					$item[""] = "Pilih Objek";
+					$item["BTL-GAJI"] = "Belanja Gaji dan Tunjangan ASN";
+					$item["BARJAS-MODAL"] = "Belanja Barang Jasa dan Modal";
+					$item["BUNGA"] = "Belanja Bunga";
+					$item["SUBSIDI"] = "Belanja Subsidi";
+					$item["HIBAH-BRG"] = "Belanja Hibah (Barang/Jasa";
+					$item["HIBAH"] = "Belanja Hibah (Uang";
+					$item["BANSOS-BRG"] = "Belanja Bantuan Sosial (Barang/Jasa";
+					$item["BANSOS"] = "Belanja Bantuan Sosial (Uang";
+					$item["BAGI-HASIL"] = "Belanja Bagi Hasil";
+					$item["BANKEU"] = "Belanja Bantuan Keuangan Umum";
+					$item["BANKEU-KHUSUS"] = "Belanja Bantuan Keuangan Khusus";
+					$item["BTT"] = "Belanja Tidak Terduga (BTT";
+					$item["BOS"] = "Dana BOS (BOS Pusat";
+					$item["BLUD"] = "Belanja Operasional (BLUD";
+					$item["TANAH"] = "Pembebasan Tanah/ Lahan";
 
 					echo json_encode([
 						'status' => true,
-						'items' => $data
+						'items' => $item
 					]);exit();
 				}else{
 					throw new Exception("Api key tidak sesuai", 1);
@@ -8484,14 +8492,49 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 			if (!empty($_POST)) {
 				if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
 
-					$data = $wpdb->get_results($wpdb->prepare("SELECT * FROM data_akun WHERE tahun_anggaran=%d AND kode_akun LIKE %s AND set_input=1", $_POST['tahun_anggaran'], $_POST['kode_akun'].'%'), ARRAY_A);
-
-					$items=[];
-					foreach ($data as $key => $value) {
-						if(empty($items[$value['id_akun']])){
-							$items[$value['id_akun']]=$value;
-						}
+					$where = '';
+					if($_POST['kode_akun'] == 'BTL-GAJI'){
+						$where = 'AND is_gaji_asn = 1';
+					}else if($_POST['kode_akun'] == 'BARJAS-MODAL'){
+						$where = 'AND is_barjas = 1';
+					}else if($_POST['kode_akun'] == 'BUNGA'){
+						$where = 'AND is_bunga = 1';
+					}else if($_POST['kode_akun'] == 'SUBSIDI'){
+						$where = 'AND is_subsidi = 1';
+					}else if($_POST['kode_akun'] == 'HIBAH-BRG'){
+						$where = 'AND is_hibah_brg = 1';
+					}else if($_POST['kode_akun'] == 'HIBAH'){
+						$where = 'AND is_hibah_uang = 1';
+					}else if($_POST['kode_akun'] == 'BANSOS-BRG'){
+						$where = 'AND is_sosial_brg = 1';
+					}else if($_POST['kode_akun'] == 'BANSOS'){
+						$where = 'AND is_sosial_uang = 1';
+					}else if($_POST['kode_akun'] == 'BAGI-HASIL'){
+						$where = 'AND is_bagi_hasil = 1';
+					}else if($_POST['kode_akun'] == 'BANKEU'){
+						$where = 'AND is_bankeu_umum = 1';
+					}else if($_POST['kode_akun'] == 'BANKEU-KHUSUS'){
+						$where = 'AND is_bankeu_khusus = 1';
+					}else if($_POST['kode_akun'] == 'BTT'){
+						$where = 'AND is_btt = 1';
+					}else if($_POST['kode_akun'] == 'BOS'){
+						$where = 'AND is_bos = 1';
+					}else if($_POST['kode_akun'] == 'BLUD'){
+						$where = 'AND is_bl = 1';
+					}else if($_POST['kode_akun'] == 'BLUD'){
+						$where = 'AND is_modal_tanah = 1';
 					}
+
+					$data = $wpdb->get_results($wpdb->prepare("
+						SELECT 
+							id_akun,
+							kode_akun,
+							nama_akun
+						FROM data_akun 
+						WHERE tahun_anggaran=%d 
+							AND set_input=1
+							".$where."
+					", $_POST['tahun_anggaran']), ARRAY_A);
 
 					echo json_encode([
 						'status' => true,
