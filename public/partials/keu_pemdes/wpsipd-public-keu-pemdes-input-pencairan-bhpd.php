@@ -99,6 +99,72 @@ if(in_array("administrator", $user_meta->roles)){
                     <label for="">Keterangan Pencairan</label>
                     <textarea class="form-control" id="keterangan"></textarea>
                 </div>
+                <div class="form-group">
+                    <label for="">Nota Dinas Permohonan beserta lampirannya</label>
+                    <input type="file" name="file" class="form-control-file" id="nota_dinas">
+                    <div style="padding-top: 10px; padding-bottom: 10px;"><a id="file_nota_dinas_existing"></a></div>
+                </div>
+                <div class="form-group">
+                    <label for="">Surat Pernyataan Tanggung Jawab</label>
+                    <input type="file" name="file" class="form-control-file" id="sptj">
+                    <div style="padding-top: 10px; padding-bottom: 10px;"><a id="file_sptj_existing"></a></div>
+                </div>
+                <div class="form-group">
+                    <label for="">Pakta Integritas</label>
+                    <input type="file" name="file" class="form-control-file" id="pakta_integritas">
+                    <div style="padding-top: 10px; padding-bottom: 10px;"><a id="file_pakta_integritas_existing"></a></div>
+                </div>
+                <div class="form-group">
+                    <label for="">Surat Permohonan Transfer</label>
+                    <input type="file" name="file" class="form-control-file" id="permohonan_transfer">
+                    <div style="padding-top: 10px; padding-bottom: 10px;"><a id="file_permohonan_transfer_existing"></a></div>
+                </div>
+                <div class="form-group">
+                    <label for="">Surat Rekomendasi dari Camat</label>
+                    <input type="file" name="file" class="form-control-file" id="rekomendasi">
+                    <div style="padding-top: 10px; padding-bottom: 10px;"><a id="file_rekomendasi_existing"></a></div>
+                </div>
+                <div class="form-group">
+                    <label for="">Surat Permohonan Penyaluran dari Kepala Desa</label>
+                    <input type="file" name="file" class="form-control-file" id="permohonan_penyaluran_kades">
+                    <div style="padding-top: 10px; padding-bottom: 10px;"><a id="file_permohonan_penyaluran_kades_existing"></a></div>
+                </div>
+                <div class="form-group">
+                    <label for="">Surat Pernyataan Tanggung Jawab Kepala Desa bermaterai</label>
+                    <input type="file" name="file" class="form-control-file" id="sptj_kades">
+                    <div style="padding-top: 10px; padding-bottom: 10px;"><a id="file_sptj_kades_existing"></a></div>
+                </div>
+                <div class="form-group">
+                    <label for="">Pakta Integritas Kepala Desa bermaterai</label>
+                    <input type="file" name="file" class="form-control-file" id="pakta_integritas_kades">
+                    <div style="padding-top: 10px; padding-bottom: 10px;"><a id="file_pakta_integritas_kades_existing"></a></div>
+                </div>
+                <div class="form-group">
+                    <label for="">Surat Pernyataan Kepala Desa bahwa SPJ DBH Pajak Daerah telah selesai 100% bermaterai</label>
+                    <input type="file" name="file" class="form-control-file" id="pernyataaan_kades_spj_dbhpd">
+                    <div style="padding-top: 10px; padding-bottom: 10px;"><a id="file_pernyataaan_kades_spj_dbhpd_existing"></a></div>
+                </div>
+                <div class="form-group">
+                    <label for="">Keputusan Kepala Desa tentang Pengangkatan Bendahara Desa</label>
+                    <input type="file" name="file" class="form-control-file" id="sk_bendahara_desa">
+                    <div style="padding-top: 10px; padding-bottom: 10px;"><a id="file_sk_bendahara_desa_existing"></a></div>
+                </div>
+                <div class="form-group">
+                    <label for="">Foto Copy KTP Kepala Desa</label>
+                    <input type="file" name="file" class="form-control-file" id="fc_ktp_kades">
+                    <div style="padding-top: 10px; padding-bottom: 10px;"><a id="file_fc_ktp_kades_existing"></a></div>
+                </div>
+                <div class="form-group">
+                    <label for="">Foto Copy Rekening Kas Desa</label>
+                    <input type="file" name="file" class="form-control-file" id="fc_rek_kas_desa">
+                    <div style="padding-top: 10px; padding-bottom: 10px;"><a id="file_fc_rek_kas_desa_existing"></a></div>
+                </div>
+                <div class="form-group">
+                    <label for="">Laporan Realisasi Tahun Sebelumnya</label>
+                    <input type="file" name="file" class="form-control-file" id="laporan_realisasi_tahun_sebelumnya">
+                    <div style="padding-top: 10px; padding-bottom: 10px;"><a id="file_laporan_realisasi_sebelumnya_existing"></a></div>
+                </div>
+                <div><small>Upload file maksimal 1 Mb, berformat .pdf</small></div>
                 <div class="form-check form-switch">
                     <input class="form-check-input" value="1" type="checkbox" id="status_pagu" onclick="set_keterangan(this);" <?php echo $disabled; ?>>
                     <label class="form-check-label" for="status_pagu">Disetujui</label>

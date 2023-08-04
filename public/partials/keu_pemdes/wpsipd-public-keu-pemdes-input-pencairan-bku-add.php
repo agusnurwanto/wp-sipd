@@ -99,6 +99,42 @@ if(in_array("administrator", $user_meta->roles)){
                     <label for="">Keterangan Pencairan</label>
                     <textarea class="form-control" id="keterangan"></textarea>
                 </div>
+                <div class="form-group">
+                    <label for="">Nota Dinas Permohonan beserta lampirannya</label>
+                    <input type="file" name="file" class="form-control-file" id="nota_dinas">
+                    <div style="padding-top: 10px; padding-bottom: 10px;"><a id="file_nota_dinas_existing"></a></div>
+                </div>
+                <div class="form-group">
+                    <label for="">Surat Pernyataan Tanggung Jawab</label>
+                    <input type="file" name="file" class="form-control-file" id="sptjm">
+                    <div style="padding-top: 10px; padding-bottom: 10px;"><a id="file_sptjm_existing"></a></div>
+                </div>
+                <div class="form-group">
+                    <label for="">Pakta Integritas</label>
+                    <input type="file" name="file" class="form-control-file" id="pakta_integritas">
+                    <div style="padding-top: 10px; padding-bottom: 10px;"><a id="file_pakta_integritas_existing"></a></div>
+                </div>
+                <div class="form-group">
+                    <label for="">Surat Permohonan Transfer</label>
+                    <input type="file" name="file" class="form-control-file" id="permohonan_transfer">
+                    <div style="padding-top: 10px; padding-bottom: 10px;"><a id="file_permohonan_transfer_existing"></a></div>
+                </div>
+                <div class="form-group">
+                    <label for="">Realisasi Tahap Sebelumnya (Tahap II dan III)</label>
+                    <input type="file" name="file" class="form-control-file" id="realisasi_tahap_sebelumnya">
+                    <div style="padding-top: 10px; padding-bottom: 10px;"><a id="file_realisasi_tahap_sebelumnya_existing"></a></div>
+                </div>
+                <div class="form-group">
+                    <label for="">Dokumen Syarat Umum</label>
+                    <input type="file" name="file" class="form-control-file" id="dokumen_syarat_umum">
+                    <div style="padding-top: 10px; padding-bottom: 10px;"><a id="file_dokumen_syarat_umum_existing"></a></div>
+                </div>
+                <div class="form-group">
+                    <label for="">Dokumen Syarat Khusus</label>
+                    <input type="file" name="file" class="form-control-file" id="dokumen_syarat_khusus">
+                    <div style="padding-top: 10px; padding-bottom: 10px;"><a id="file_dokumen_syarat_khusus_existing"></a></div>
+                </div>
+                <div>File maksimal berukuran 1 Mb, berformat .pdf</div>
                 <div class="form-check form-switch">
                     <input class="form-check-input" value="1" type="checkbox" id="status_pagu" onclick="set_keterangan(this);" <?php echo $disabled; ?>>
                     <label class="form-check-label" for="status_pagu">Disetujui</label>
