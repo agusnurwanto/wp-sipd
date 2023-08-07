@@ -173,9 +173,11 @@ if(in_array("administrator", $user_meta->roles)){
                     <label>Keterangan ditolak</label>
                     <textarea class="form-control" id="keterangan_status_pagu" <?php echo $disabled; ?>></textarea>
                 </div> 
+            </div>
+            <div class="modal-footer">
                 <button type="submit" onclick="submitTambahDataFormPencairanBHRD();" class="btn btn-primary send_data">Kirim</button>
                  <button type="button" class="btn btn-danger" data-dismiss="modal" aria-label="Close">Tutup</button>
-            </form>
+            </div>
         </div>
     </div>
 </div>   

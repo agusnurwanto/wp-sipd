@@ -1765,23 +1765,31 @@ public function tambah_data_pencairan_bkk(){
             }
             if($ret['status'] != 'error' && !empty($_POST['pagu_anggaran'])){
                 $pagu_anggaran = $_POST['pagu_anggaran'];
-            }else{
+            }elseif($ret['status'] != 'error'){
                 $ret['status'] = 'error';
                 $ret['message'] = 'Pagu tidak boleh kosong!';
             }
-            if($ret['status'] != 'error' && !empty($_FILES['proposal'])){
-                $proposal = $_FILES['proposal'];
-            }else{
+            if($ret['status'] != 'error' && !empty($_FILES['nota_dinas'])){
+                $nota_dinas = $_FILES['nota_dinas'];
+            }elseif($ret['status'] != 'error'){
                 $ret['status'] = 'error';
-                $ret['message'] = 'Proposal tidak boleh kosong!';
+                $ret['message'] = 'Nota dinas tidak boleh kosong!';
+            }
+            if($ret['status'] != 'error' && !empty($_FILES['sptjm'])){
+                $sptjm = $_FILES['sptjm'];
+            }elseif($ret['status'] != 'error'){
+                $ret['status'] = 'error';
+                $ret['message'] = 'SPTJM tidak boleh kosong!';
+            }
+            if($ret['status'] != 'error' && !empty($_FILES['pakta_integritas'])){
+                $pakta_integritas = $_FILES['pakta_integritas'];
+            }elseif($ret['status'] != 'error'){
+                $ret['status'] = 'error';
+                $ret['message'] = 'Pakta integritas tidak boleh kosong!';
             }
             if($ret['status'] != 'error' && !empty($_POST['keterangan'])){
                 $keterangan = $_POST['keterangan'];
             }
-            // else{
-            //     $ret['status'] = 'error';
-            //     $ret['message'] = 'Pagu tidak boleh kosong!';
-            // }
             $_POST['id'] = $id_kegiatan;
             $pencairan = $this->get_pencairan_pemdes_bkk(true);
             if(($pencairan['total_pencairan']+$pagu_anggaran) > $pencairan['pagu_anggaran']){
@@ -1808,30 +1816,68 @@ public function tambah_data_pencairan_bkk(){
                     'ket_ver_total' => $keterangan_status_pagu,
                     'status_ver_proposal' => $status_file,
                     'ket_ver_proposal' => $keterangan_status_file,
-                    'file_proposal' => '',
+                    'file_nota_dinas' => '',
+                    'file_sptjm' => '',
+                    'file_pakta_integritas' => '',
                     'status' => $status,
                     'update_at' => current_time('mysql')
                 );
                 $path = WPSIPD_PLUGIN_PATH.'public/media/keu_pemdes/';
-                $upload = CustomTrait::uploadFile($_POST['api_key'], $path, $_FILES['proposal'], ['jpg', 'jpeg', 'png', 'pdf']);
 
+                $upload = CustomTrait::uploadFile($_POST['api_key'], $path, $_FILES['nota_dinas'], ['pdf']);
                 if($upload['status']){
-                    $data['file_proposal'] = $upload['filename'];
+                    $data['file_nota_dinas'] = $upload['filename'];
+                }else{
+                    $ret['status'] = 'error';
+                    $ret['message'] = $upload['message'];
+                }
+
+                $upload = CustomTrait::uploadFile($_POST['api_key'], $path, $_FILES['sptjm'], ['pdf']);
+                if($upload['status']){
+                    $data['file_sptjm'] = $upload['filename'];
+                }else{
+                    $ret['status'] = 'error';
+                    $ret['message'] = $upload['message'];
+                }
+                
+                $upload = CustomTrait::uploadFile($_POST['api_key'], $path, $_FILES['pakta_integritas'], ['pdf']);
+                if($upload['status']){
+                    $data['file_pakta_integritas'] = $upload['filename'];
+                }else{
+                    $ret['status'] = 'error';
+                    $ret['message'] = $upload['message'];
+                }
+
+                if($ret['status'] != 'error'){
                     if(!empty($_POST['id_data'])){
-                        $file_lama = $wpdb->get_var($wpdb->prepare('
+                        $file_lama = $wpdb->get_row($wpdb->prepare('
                             SELECT
-                                file_proposal
+                                file_nota_dinas,
+                                sptjm,
+                                pakta_integritas
                             FROM data_pencairan_bkk_desa
                             WHERE id=%d
-                        ', $_POST['id_data']));
+                        ', $_POST['id_data']), ARRAY_A);
 
-                        // hapus file lama
                         if(
-                            $upload['status'] 
-                            && $file_lama != $upload['filename'] 
-                            && is_file($path.$file_lama)
+                            $file_lama['file_nota_dinas'] != $data['file_nota_dinas'] 
+                            && is_file($path.$file_lama['file_nota_dinas'])
                         ){
-                            unlink($path.$file_lama);
+                            unlink($path.$file_lama['file_nota_dinas']);
+                        }
+
+                        if(
+                            $file_lama['file_sptjm'] != $data['file_sptjm'] 
+                            && is_file($path.$file_lama['file_sptjm'])
+                        ){
+                            unlink($path.$file_lama['file_sptjm']);
+                        }
+
+                        if(
+                            $file_lama['file_pakta_integritas'] != $data['file_pakta_integritas'] 
+                            && is_file($path.$file_lama['file_pakta_integritas'])
+                        ){
+                            unlink($path.$file_lama['file_pakta_integritas']);
                         }
 
                         $wpdb->update('data_pencairan_bkk_desa', $data, array(
@@ -1859,9 +1905,6 @@ public function tambah_data_pencairan_bkk(){
                             }
                         }
                     }
-                }else{
-                    $ret['status'] = 'error';
-                    $ret['message'] = $upload['message'];
                 }
             }
         }else{
