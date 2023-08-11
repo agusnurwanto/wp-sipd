@@ -98,6 +98,10 @@ $title = 'Analisis Belanja per-Sumber Dana | '.$input['tahun_anggaran'];
 $shortcode = '[analisis_belanja_sumber_dana tahun_anggaran="'.$input['tahun_anggaran'].'"]';
 $url_analisis_belanja_sumber_dana = $this->generatePage($title, $input['tahun_anggaran'], $shortcode, false);
 
+$title = 'Rekap Sumber Dana Per Rekening Belanja | '.$input['tahun_anggaran'];
+$shortcode = '[rekap_sumber_dana_per_rekening tahun_anggaran="'.$input['tahun_anggaran'].'"]';
+$url_rekap_sumber_dana_per_rekening = $this->generatePage($title, $input['tahun_anggaran'], $shortcode, false);
+
 $body = '';
 ?>
 <style>
@@ -587,6 +591,7 @@ $body = '';
 					      			<option value="analisis_belanja_sub_kegiatan">Analisis Belanja Pagu per-Sub Kegiatan</option>
 									<option value="analisis_belanja_bidang_urusan">Analisis Belanja Pagu per-Bidang Urusan</option>
 									<option value="analisis_belanja_sumber_dana">Analisis Belanja Pagu per-Sumber Dana</option>
+									<option value="rekap_sumber_dana_per_rekening">Rekap Sumber Dana Per Rekening</option>
 				      			</select>
 					    	</div>
 					    </div></br>
@@ -654,6 +659,9 @@ $body = '';
 				break;
 			case 'analisis_belanja_sumber_dana':
 				window.open('<?php echo $url_analisis_belanja_sumber_dana; ?>'+'&id_unit='+id_unit+'&id_jadwal_lokal='+id_jadwal_lokal,'_blank');
+				break;
+			case 'rekap_sumber_dana_per_rekening':
+				window.open('<?php echo $url_rekap_sumber_dana_per_rekening; ?>'+'&id_unit='+id_unit+'&id_jadwal_lokal='+id_jadwal_lokal,'_blank');
 				break;
 
 			case '-':
