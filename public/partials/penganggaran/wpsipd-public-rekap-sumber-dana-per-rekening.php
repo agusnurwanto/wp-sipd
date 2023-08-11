@@ -72,8 +72,10 @@ foreach($data_skpd as $skpd){
     $total_all = 0;
     foreach ($subkeg as $kk => $sub) {
     	$where_jadwal_new = '';
+    	$where_jadwal_join = '';
     	if(!empty($where_jadwal)){
     		$where_jadwal_new = str_replace('AND id_jadwal', 'AND r.id_jadwal', $where_jadwal);
+    		$where_jadwal_join = 'and s.id_jadwal = r.id_jadwal';
     	}
     	$rincian_all = $wpdb->get_results($wpdb->prepare("
             select 
@@ -87,6 +89,7 @@ foreach($data_skpd as $skpd){
            	left join data_mapping_sumberdana".$_suffix." s on r.id_rinci_sub_bl = s.id_rinci_sub_bl
            		and s.active = r.active
            		and s.tahun_anggaran = r.tahun_anggaran
+           		".$where_jadwal_join."
            	left join data_sumber_dana d on d.id_dana=s.id_sumber_dana
            		and d.active = s.active
            		and d.tahun_anggaran = s.tahun_anggaran
