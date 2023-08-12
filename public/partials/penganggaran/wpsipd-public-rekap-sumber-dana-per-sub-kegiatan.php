@@ -81,8 +81,6 @@ foreach($data_skpd as $skpd){
     	$rincian_all = $wpdb->get_results($wpdb->prepare("
             select 
                 sum(r.rincian) as total,
-                r.kode_akun,
-                r.nama_akun,
                 s.id_sumber_dana,
                 d.nama_dana,
                 d.kode_dana
@@ -98,8 +96,8 @@ foreach($data_skpd as $skpd){
                 and r.active=1
                 and r.kode_sbl=%s
                 ".$where_jadwal_new."
-            group by d.kode_dana, r.kode_akun
-            order by d.kode_dana ASC, r.kode_akun ASC
+            group by d.kode_dana
+            order by d.kode_dana ASC
         ", $input['tahun_anggaran'], $sub['kode_sbl']), ARRAY_A);
     	// die($wpdb->last_query);
         foreach($rincian_all as $rincian){
@@ -113,7 +111,6 @@ foreach($data_skpd as $skpd){
 	    			<td>'.$sub['kode_program'].' '.$sub['nama_program'].'</td>
 	    			<td>'.$sub['kode_giat'].' '.$sub['nama_giat'].'</td>
 	    			<td>'.$sub['nama_sub_giat'].'</td>
-	    			<td>'.$rincian['nama_akun'].'</td>
 	    			<td class="text-right">'.$this->_number_format($rincian['total']).'</td>
 	    		</tr>
 	    	';
@@ -135,7 +132,6 @@ foreach($data_skpd as $skpd){
 				<th class="text-center">Program</th>
 				<th class="text-center">Kegiatan</th>
 				<th class="text-center">Sub Kegiatan</th>
-				<th class="text-center">Rekening</th>
 				<th class="text-center">Rincian </th>
 			</tr>
 		</thead>
@@ -144,7 +140,7 @@ foreach($data_skpd as $skpd){
 		</tbody>
 		<tfoot>
 			<tr>
-				<th colspan="9" class="text-center">Total</th>
+				<th colspan="8" class="text-center">Total</th>
 				<th class="text-right"><?php echo $this->_number_format($total_all); ?></th>
 			</tr>
 		</tfoot>

@@ -955,6 +955,10 @@ class Wpsipd
 		add_shortcode('analisis_belanja_sub_kegiatan', array($plugin_public, 'analisis_belanja_sub_kegiatan'));
 		add_shortcode('analisis_belanja_bidang_urusan', array($plugin_public, 'analisis_belanja_bidang_urusan'));
 		add_shortcode('analisis_belanja_sumber_dana', array($plugin_public, 'analisis_belanja_sumber_dana'));
+		add_shortcode('rekap_sumber_dana_per_skpd', array($plugin_public, 'rekap_sumber_dana_per_skpd'));
+		add_shortcode('rekap_sumber_dana_per_program', array($plugin_public, 'rekap_sumber_dana_per_program'));
+		add_shortcode('rekap_sumber_dana_per_kegiatan', array($plugin_public, 'rekap_sumber_dana_per_kegiatan'));
+		add_shortcode('rekap_sumber_dana_per_sub_kegiatan', array($plugin_public, 'rekap_sumber_dana_per_sub_kegiatan'));
 		add_shortcode('rekap_sumber_dana_per_rekening', array($plugin_public, 'rekap_sumber_dana_per_rekening'));
 
 		//shortcode SIPKD

@@ -12,12 +12,12 @@ if(isset($tipe_perencanaan)){
 	if($tipe_perencanaan == 'renja'){
 		$judul = 'Renja';
 	}else{
-		$tipe_perencanaan = 'penganggaran';
-		$judul = 'Penganggaran';
+		$tipe_perencanaan = 'penganggaran_sipd';
+		$judul = 'Penganggaran SIPD';
 	}
 }else{
-	$tipe_perencanaan = 'penganggaran';
-	$judul = 'Penganggaran';
+	$tipe_perencanaan = 'penganggaran_sipd';
+	$judul = 'Penganggaran SIPD';
 }
 
 $is_admin = false;
@@ -97,6 +97,22 @@ $url_analisis_belanja_bidang_urusan = $this->generatePage($title, $input['tahun_
 $title = 'Analisis Belanja per-Sumber Dana | '.$input['tahun_anggaran'];
 $shortcode = '[analisis_belanja_sumber_dana tahun_anggaran="'.$input['tahun_anggaran'].'"]';
 $url_analisis_belanja_sumber_dana = $this->generatePage($title, $input['tahun_anggaran'], $shortcode, false);
+
+$title = 'Rekap Sumber Dana Per SKPD | '.$input['tahun_anggaran'];
+$shortcode = '[rekap_sumber_dana_per_skpd tahun_anggaran="'.$input['tahun_anggaran'].'"]';
+$url_rekap_sumber_dana_per_skpd = $this->generatePage($title, $input['tahun_anggaran'], $shortcode, false);
+
+$title = 'Rekap Sumber Dana Per Program | '.$input['tahun_anggaran'];
+$shortcode = '[rekap_sumber_dana_per_program tahun_anggaran="'.$input['tahun_anggaran'].'"]';
+$url_rekap_sumber_dana_per_program = $this->generatePage($title, $input['tahun_anggaran'], $shortcode, false);
+
+$title = 'Rekap Sumber Dana Per Kegiatan | '.$input['tahun_anggaran'];
+$shortcode = '[rekap_sumber_dana_per_kegiatan tahun_anggaran="'.$input['tahun_anggaran'].'"]';
+$url_rekap_sumber_dana_per_kegiatan = $this->generatePage($title, $input['tahun_anggaran'], $shortcode, false);
+
+$title = 'Rekap Sumber Dana Per Sub Kegiatan | '.$input['tahun_anggaran'];
+$shortcode = '[rekap_sumber_dana_per_sub_kegiatan tahun_anggaran="'.$input['tahun_anggaran'].'"]';
+$url_rekap_sumber_dana_per_sub_kegiatan = $this->generatePage($title, $input['tahun_anggaran'], $shortcode, false);
 
 $title = 'Rekap Sumber Dana Per Rekening Belanja | '.$input['tahun_anggaran'];
 $shortcode = '[rekap_sumber_dana_per_rekening tahun_anggaran="'.$input['tahun_anggaran'].'"]';
@@ -591,6 +607,10 @@ $body = '';
 					      			<option value="analisis_belanja_sub_kegiatan">Analisis Belanja Pagu per-Sub Kegiatan</option>
 									<option value="analisis_belanja_bidang_urusan">Analisis Belanja Pagu per-Bidang Urusan</option>
 									<option value="analisis_belanja_sumber_dana">Analisis Belanja Pagu per-Sumber Dana</option>
+									<option value="rekap_sumber_dana_per_skpd">Rekap Sumber Dana Per SKPD</option>
+									<option value="rekap_sumber_dana_per_program">Rekap Sumber Dana Per Program</option>
+									<option value="rekap_sumber_dana_per_kegiatan">Rekap Sumber Dana Per Kegiatan</option>
+									<option value="rekap_sumber_dana_per_sub_kegiatan">Rekap Sumber Dana Per Sub Kegiatan</option>
 									<option value="rekap_sumber_dana_per_rekening">Rekap Sumber Dana Per Rekening</option>
 				      			</select>
 					    	</div>
@@ -659,6 +679,18 @@ $body = '';
 				break;
 			case 'analisis_belanja_sumber_dana':
 				window.open('<?php echo $url_analisis_belanja_sumber_dana; ?>'+'&id_unit='+id_unit+'&id_jadwal_lokal='+id_jadwal_lokal,'_blank');
+				break;
+			case 'rekap_sumber_dana_per_skpd':
+				window.open('<?php echo $url_rekap_sumber_dana_per_skpd; ?>'+'&id_unit='+id_unit+'&id_jadwal_lokal='+id_jadwal_lokal,'_blank');
+				break;
+			case 'rekap_sumber_dana_per_program':
+				window.open('<?php echo $url_rekap_sumber_dana_per_program; ?>'+'&id_unit='+id_unit+'&id_jadwal_lokal='+id_jadwal_lokal,'_blank');
+				break;
+			case 'rekap_sumber_dana_per_kegiatan':
+				window.open('<?php echo $url_rekap_sumber_dana_per_kegiatan; ?>'+'&id_unit='+id_unit+'&id_jadwal_lokal='+id_jadwal_lokal,'_blank');
+				break;
+			case 'rekap_sumber_dana_per_sub_kegiatan':
+				window.open('<?php echo $url_rekap_sumber_dana_per_sub_kegiatan; ?>'+'&id_unit='+id_unit+'&id_jadwal_lokal='+id_jadwal_lokal,'_blank');
 				break;
 			case 'rekap_sumber_dana_per_rekening':
 				window.open('<?php echo $url_rekap_sumber_dana_per_rekening; ?>'+'&id_unit='+id_unit+'&id_jadwal_lokal='+id_jadwal_lokal,'_blank');

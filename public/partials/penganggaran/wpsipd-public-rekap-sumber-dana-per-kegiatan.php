@@ -66,10 +66,7 @@ foreach($data_skpd as $skpd){
     $subkeg = $wpdb->get_results($wpdb->prepare($sql, $skpd['id_skpd'], $input['tahun_anggaran']), ARRAY_A);
     // die($wpdb->last_query);
 
-    // nomor urut tahun anggaran RENJA sesuai jadwal tahun awal di RENSTRA
-    $urut = 0;
-    $nama_skpd = "";
-    $nama_sub_skpd = "";
+    $data_all = array();
     $total_all = 0;
     foreach ($subkeg as $kk => $sub) {
     	$where_jadwal_new = '';
@@ -81,8 +78,6 @@ foreach($data_skpd as $skpd){
     	$rincian_all = $wpdb->get_results($wpdb->prepare("
             select 
                 sum(r.rincian) as total,
-                r.kode_akun,
-                r.nama_akun,
                 s.id_sumber_dana,
                 d.nama_dana,
                 d.kode_dana
@@ -98,26 +93,43 @@ foreach($data_skpd as $skpd){
                 and r.active=1
                 and r.kode_sbl=%s
                 ".$where_jadwal_new."
-            group by d.kode_dana, r.kode_akun
-            order by d.kode_dana ASC, r.kode_akun ASC
+            group by d.kode_dana
+            order by d.kode_dana ASC
         ", $input['tahun_anggaran'], $sub['kode_sbl']), ARRAY_A);
     	// die($wpdb->last_query);
+
+        if(empty($data_all[$sub['kode_giat']])){
+            $data_all[$sub['kode_giat']] = array();
+        }
         foreach($rincian_all as $rincian){
-	    	$body .= '
-	    		<tr data-kodesbl="'.$sub['kode_sbl'].'">
-	    			<td>'.$rincian['kode_dana'].' '.$rincian['nama_dana'].'</td>
-	    			<td>'.$sub['kode_urusan'].' '.$sub['nama_urusan'].'</td>
-	    			<td>'.$sub['kode_skpd'].' '.$sub['nama_skpd'].'</td>
-	    			<td>'.$sub['kode_bidang_urusan'].' '.$sub['nama_bidang_urusan'].'</td>
-	    			<td>'.$sub['kode_sub_skpd'].' '.$sub['nama_sub_skpd'].'</td>
-	    			<td>'.$sub['kode_program'].' '.$sub['nama_program'].'</td>
-	    			<td>'.$sub['kode_giat'].' '.$sub['nama_giat'].'</td>
-	    			<td>'.$sub['nama_sub_giat'].'</td>
-	    			<td>'.$rincian['nama_akun'].'</td>
-	    			<td class="text-right">'.$this->_number_format($rincian['total']).'</td>
-	    		</tr>
-	    	';
-	    	$total_all += $rincian['total'];
+            if(empty($data_all[$sub['kode_giat']][$rincian['kode_dana']])){
+                $data_all[$sub['kode_giat']][$rincian['kode_dana']] = array(
+                    'sumber_dana' => $rincian['kode_dana'].' '.$rincian['nama_dana'],
+                    'total' => 0,
+                    'data' => array()
+                );
+            }
+            $data_all[$sub['kode_giat']][$rincian['kode_dana']]['total'] += $rincian['total'];
+            $data_all[$sub['kode_giat']][$rincian['kode_dana']]['data'][] = $rincian;
+
+        }
+    }
+
+    foreach($data_all as $kode => $data){
+        foreach($data as $sd){
+	    	$total_all += $sd['total'];
+            $body .= '
+                <tr data-kode="'.$kode.'">
+                    <td>'.$sd['sumber_dana'].'</td>
+                    <td>'.$data['kode_urusan'].' '.$data['nama_urusan'].'</td>
+                    <td>'.$data['kode_skpd'].' '.$data['nama_skpd'].'</td>
+                    <td>'.$data['kode_bidang_urusan'].' '.$data['nama_bidang_urusan'].'</td>
+                    <td>'.$data['kode_sub_skpd'].' '.$data['nama_sub_skpd'].'</td>
+                    <td>'.$data['kode_program'].' '.$data['nama_program'].'</td>
+                    <td>'.$data['kode_giat'].' '.$data['nama_giat'].'</td>
+                    <td class="text-right">'.$this->_number_format($sd['total']).'</td>
+                </tr>
+            ';
         }
     }
 }
@@ -134,8 +146,6 @@ foreach($data_skpd as $skpd){
 				<th class="text-center">Sub Unit</th>
 				<th class="text-center">Program</th>
 				<th class="text-center">Kegiatan</th>
-				<th class="text-center">Sub Kegiatan</th>
-				<th class="text-center">Rekening</th>
 				<th class="text-center">Rincian </th>
 			</tr>
 		</thead>
@@ -144,7 +154,7 @@ foreach($data_skpd as $skpd){
 		</tbody>
 		<tfoot>
 			<tr>
-				<th colspan="9" class="text-center">Total</th>
+				<th colspan="7" class="text-center">Total</th>
 				<th class="text-right"><?php echo $this->_number_format($total_all); ?></th>
 			</tr>
 		</tfoot>
