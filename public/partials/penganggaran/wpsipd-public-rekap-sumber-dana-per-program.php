@@ -53,6 +53,7 @@ $nama_pemda = get_option('_crb_daerah');
 $nama_excel = 'TAHUN ANGGARAN '.$input['tahun_anggaran'].' '.strtoupper($nama_pemda);
 
 $body = '';
+$total_all = 0;
 foreach($data_skpd as $skpd){
 	$sql = "
         SELECT 
@@ -67,7 +68,6 @@ foreach($data_skpd as $skpd){
     // die($wpdb->last_query);
 
     $data_all = array();
-    $total_all = 0;
     foreach ($subkeg as $kk => $sub) {
     	$where_jadwal_new = '';
     	$where_jadwal_join = '';

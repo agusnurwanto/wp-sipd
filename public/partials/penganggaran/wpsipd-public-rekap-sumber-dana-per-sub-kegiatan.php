@@ -53,6 +53,7 @@ $nama_pemda = get_option('_crb_daerah');
 $nama_excel = 'TAHUN ANGGARAN '.$input['tahun_anggaran'].' '.strtoupper($nama_pemda);
 
 $body = '';
+$total_all = 0;
 foreach($data_skpd as $skpd){
 	$sql = "
         SELECT 
@@ -66,11 +67,6 @@ foreach($data_skpd as $skpd){
     $subkeg = $wpdb->get_results($wpdb->prepare($sql, $skpd['id_skpd'], $input['tahun_anggaran']), ARRAY_A);
     // die($wpdb->last_query);
 
-    // nomor urut tahun anggaran RENJA sesuai jadwal tahun awal di RENSTRA
-    $urut = 0;
-    $nama_skpd = "";
-    $nama_sub_skpd = "";
-    $total_all = 0;
     foreach ($subkeg as $kk => $sub) {
     	$where_jadwal_new = '';
     	$where_jadwal_join = '';
