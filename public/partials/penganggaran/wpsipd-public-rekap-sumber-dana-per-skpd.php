@@ -106,7 +106,8 @@ foreach($data_skpd as $skpd){
                 $data_all[$sub['kode_sub_skpd']][$rincian['kode_dana']] = array(
                     'sumber_dana' => $rincian['kode_dana'].' '.$rincian['nama_dana'],
                     'total' => 0,
-                    'data' => array()
+                    'data' => array(),
+                    'sub' => $sub
                 );
             }
             $data_all[$sub['kode_sub_skpd']][$rincian['kode_dana']]['total'] += $rincian['total'];
@@ -121,10 +122,10 @@ foreach($data_skpd as $skpd){
             $body .= '
                 <tr data-kode="'.$kode.'">
                     <td>'.$sd['sumber_dana'].'</td>
-                    <td>'.$data['kode_urusan'].' '.$data['nama_urusan'].'</td>
-                    <td>'.$data['kode_skpd'].' '.$data['nama_skpd'].'</td>
-                    <td>'.$data['kode_bidang_urusan'].' '.$data['nama_bidang_urusan'].'</td>
-                    <td>'.$data['kode_sub_skpd'].' '.$data['nama_sub_skpd'].'</td>
+                    <td>'.$sd['sub']['kode_urusan'].' '.$sd['sub']['nama_urusan'].'</td>
+                    <td>'.$sd['sub']['kode_skpd'].' '.$sd['sub']['nama_skpd'].'</td>
+                    <td>'.$sd['sub']['kode_bidang_urusan'].' '.$sd['sub']['nama_bidang_urusan'].'</td>
+                    <td>'.$sd['sub']['kode_sub_skpd'].' '.$sd['sub']['nama_sub_skpd'].'</td>
                     <td class="text-right">'.$this->_number_format($sd['total']).'</td>
                 </tr>
             ';
@@ -150,8 +151,8 @@ foreach($data_skpd as $skpd){
 		</tbody>
 		<tfoot>
 			<tr>
-				<td colspan="5">Total</td>
-				<td class="text-right"><?php echo $this->_number_format($total_all); ?></td>
+				<th colspan="5" class="text-center">Total</th>
+				<th class="text-right"><?php echo $this->_number_format($total_all); ?></th>
 			</tr>
 		</tfoot>
 	</table>
