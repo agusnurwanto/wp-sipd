@@ -154,12 +154,9 @@ $body = '';
 					<label for='jadwal_tanggal' style='display:inline-block'>Jadwal Pelaksanaan</label>
 					<input type="text" id='jadwal_tanggal' name="datetimes" style='display:block;width:100%;'/>
 				</div>
-				<div>
-					<label for="jenis_jadwal" style='display:inline-block'>Pilih Jenis Jadwal</label>
-					<select id="jenis_jadwal" style='display:block;width: 100%;'>
-						<option value="usulan" selected>Usulan</option>
-						<option value="penetapan">Penetapan</option>
-					</select>
+				<div class="mt-3 form-input">
+					<input type="checkbox" value="1" id="pergeseran_renja">
+					<label for="pergeseran_renja" style="display: inline-block;">Tampilkan Pergeseran/Perubahan</label>
 				</div>
 				<div>
 					<label for="link_renstra" style='display:inline-block'>Pilih Jadwal RENSTRA</label>
@@ -293,6 +290,7 @@ $body = '';
 		let this_tahun_anggaran = tahun_anggaran
 		let jenis_jadwal = jQuery("#jenis_jadwal").val()
 		let relasi_perencanaan = jQuery("#link_renstra").val()
+		let pergeseran_renja = jQuery("#pergeseran_renja").prop('checked')
 		if(nama.trim() == '' || jadwalMulai == '' || jadwalSelesai == '' || this_tahun_anggaran == '' || jenis_jadwal == ''){
 			jQuery("#wrap-loading").hide()
 			alert("Ada yang kosong, Harap diisi semua")
@@ -311,7 +309,8 @@ $body = '';
 					'tahun_anggaran'	: this_tahun_anggaran,
 					'tipe_perencanaan'	: tipe_perencanaan,
 					'relasi_perencanaan': relasi_perencanaan,
-					'jenis_jadwal'		: jenis_jadwal
+					'jenis_jadwal'		: jenis_jadwal,
+					'pergeseran_renja'	: pergeseran_renja
 				},
 				beforeSend: function() {
 					jQuery('.submitBtn').attr('disabled','disabled')
@@ -357,6 +356,11 @@ $body = '';
 				jQuery('#jadwal_tanggal').data('daterangepicker').setEndDate(moment(response.data.waktu_akhir).format('DD-MM-YYYY HH:mm'));
 				jQuery("#link_renstra").val(response.data.relasi_perencanaan).change();
 				jQuery("#jenis_jadwal").val(response.data.jenis_jadwal).change();
+				if(response.data.pergeseran_renja == 'tampil'){
+					jQuery( "#pergeseran_renja" ).prop( "checked", true );
+				}else{
+					jQuery( "#pergeseran_renja" ).prop( "checked", false );
+				}
 			}
 		})
 	}
@@ -368,6 +372,7 @@ $body = '';
 		let jadwalSelesai = jQuery("#jadwal_tanggal").data('daterangepicker').endDate.format('YYYY-MM-DD HH:mm:ss')
 		let this_tahun_anggaran = tahun_anggaran
 		let relasi_perencanaan = jQuery("#link_renstra").val()
+		let pergeseran_renja = jQuery("#pergeseran_renja").prop('checked')
 		let jenis_jadwal = jQuery("#jenis_jadwal").val()
 		if(nama.trim() == '' || jadwalMulai == '' || jadwalSelesai == '' || this_tahun_anggaran == '' || jenis_jadwal == ''){
 			jQuery("#wrap-loading").hide()
@@ -388,7 +393,8 @@ $body = '';
 					'tahun_anggaran'	: this_tahun_anggaran,
 					'tipe_perencanaan'	: tipe_perencanaan,
 					'relasi_perencanaan': relasi_perencanaan,
-					'jenis_jadwal'		: jenis_jadwal
+					'jenis_jadwal'		: jenis_jadwal,
+					'pergeseran_renja'	: pergeseran_renja
 				},
 				beforeSend: function() {
 					jQuery('.submitBtn').attr('disabled','disabled')

@@ -16,6 +16,8 @@ if($id_lokasi_prov == 0 || empty($id_lokasi_prov)){
     die('Setting ID lokasi Provinsi di SIPD Options tidak boleh kosong!');
 }
 
+$nilai_pergeseran_renja = get_option('_nilai_pergeseran_renja');
+
 $tahun_anggaran = '2022';
 $namaJadwal = '-';
 $mulaiJadwal = '-';

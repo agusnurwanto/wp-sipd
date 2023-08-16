@@ -13212,6 +13212,13 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						$tipe_perencanaan	= trim(htmlspecialchars($_POST['tipe_perencanaan']));
 						$relasi_perencanaan = (!empty($_POST['relasi_perencanaan'])) ? trim(htmlspecialchars($_POST['relasi_perencanaan'])) : NULL;
 						$jenis_jadwal		= trim(htmlspecialchars($_POST['jenis_jadwal']));
+						$pergeseran_renja	= $_POST['pergeseran_renja'];
+
+						if($pergeseran_renja == 'true'){
+							$nilai_pergeseran_renja = update_option('_nilai_pergeseran_renja', 'tampil');
+						}else{
+							$nilai_pergeseran_renja = update_option('_nilai_pergeseran_renja', 'tidak_tampil');
+						}
 
 						$arr_jadwal = ['usulan','penetapan'];
 						$jenis_jadwal = in_array($jenis_jadwal,$arr_jadwal) ? $jenis_jadwal : 'usulan';
@@ -13306,7 +13313,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 				$id_jadwal_lokal = $_POST['id_jadwal_lokal'];
 				
 				$data_penjadwalan_by_id = $wpdb->get_results($wpdb->prepare('SELECT * FROM data_jadwal_lokal WHERE id_jadwal_lokal = %d',$id_jadwal_lokal), ARRAY_A);
-
+				$data_penjadwalan_by_id[0]['pergeseran_renja'] = get_option('_nilai_pergeseran_renja');
 				$return = array(
 					'status' 						=> 'success',
 					'data' 							=> $data_penjadwalan_by_id[0]
@@ -13350,6 +13357,13 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						$tahun_anggaran	= trim(htmlspecialchars($_POST['tahun_anggaran']));
 						$relasi_perencanaan = (!empty($_POST['relasi_perencanaan'])) ? trim(htmlspecialchars($_POST['relasi_perencanaan'])) : NULL;
 						$jenis_jadwal		= trim(htmlspecialchars($_POST['jenis_jadwal']));
+						$pergeseran_renja	= $_POST['pergeseran_renja'];
+
+						if($pergeseran_renja == 'true'){
+							$nilai_pergeseran_renja = update_option('_nilai_pergeseran_renja', 'tampil');
+						}else{
+							$nilai_pergeseran_renja = update_option('_nilai_pergeseran_renja', 'tidak_tampil');
+						}
 
 						$arr_jadwal = ['usulan','penetapan'];
 						$jenis_jadwal = in_array($jenis_jadwal,$arr_jadwal) ? $jenis_jadwal : 'usulan';
@@ -13377,7 +13391,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 								$return = array(
 									'status'		=> 'success',
 									'message'		=> 'Berhasil!',
-									'data_jadwal'	=> $data_jadwal,
+									'data_jadwal'	=> $data_jadwal
 								);
 							}else{
 								$return = array(
@@ -13444,6 +13458,8 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 									'id_jadwal_lokal' => $id_jadwal_lokal
 								), array('%d'));
 	
+								$nilai_pergeseran_renja = update_option('_nilai_pergeseran_renja', 'tidak_tampil');
+
 								$return = array(
 									'status' => 'success',
 									'message'	=> 'Berhasil!',
