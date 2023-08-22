@@ -13214,10 +13214,12 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						$jenis_jadwal		= trim(htmlspecialchars($_POST['jenis_jadwal']));
 						$pergeseran_renja	= $_POST['pergeseran_renja'];
 
-						if($pergeseran_renja == 'true'){
-							$nilai_pergeseran_renja = update_option('_nilai_pergeseran_renja', 'tampil');
+						if($pergeseran_renja == 'true' && !empty($_POST['id_jadwal_pergeseran_renja'])){
+							$status_pergeseran_renja = 'tampil';
+							$id_jadwal_pergeseran_renja = $_POST['id_jadwal_pergeseran_renja'];
 						}else{
-							$nilai_pergeseran_renja = update_option('_nilai_pergeseran_renja', 'tidak_tampil');
+							$status_pergeseran_renja = 'tidak_tampil';
+							$id_jadwal_pergeseran_renja = NULL;
 						}
 
 						$arr_jadwal = ['usulan','penetapan'];
@@ -13257,7 +13259,9 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 								'id_tipe'			=> $id_tipe,
 								'relasi_perencanaan'=> $relasi_perencanaan,
 								'lama_pelaksanaan'	=> $lama_pelaksanaan,
-								'jenis_jadwal'		=> $jenis_jadwal
+								'jenis_jadwal'		=> $jenis_jadwal,
+								'id_jadwal_pergeseran'	=> $id_jadwal_pergeseran_renja,
+								'status_jadwal_pergeseran'=> $status_pergeseran_renja
 							);
 	
 							$wpdb->insert('data_jadwal_lokal',$data_jadwal);
@@ -13313,7 +13317,26 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 				$id_jadwal_lokal = $_POST['id_jadwal_lokal'];
 				
 				$data_penjadwalan_by_id = $wpdb->get_results($wpdb->prepare('SELECT * FROM data_jadwal_lokal WHERE id_jadwal_lokal = %d',$id_jadwal_lokal), ARRAY_A);
-				$data_penjadwalan_by_id[0]['pergeseran_renja'] = get_option('_nilai_pergeseran_renja');
+
+				$select_option_renja_pergeseran = '<option value="">Pilih RENJA Pergeseran</option>';
+				$data_renja_pergeseran = $wpdb->get_results($wpdb->prepare('
+					SELECT
+						*
+					FROM
+						data_jadwal_lokal
+					WHERE
+						id_jadwal_lokal NOT IN ('.$id_jadwal_lokal.')
+						AND status=1
+						AND id_tipe=5
+						AND tahun_anggaran=%d', $data_penjadwalan_by_id[0]['tahun_anggaran']), ARRAY_A);
+
+				if(!empty($data_renja_pergeseran)){
+					foreach($data_renja_pergeseran as $val_renja){
+						$select_option_renja_pergeseran .= '<option value="'.$val_renja['id_jadwal_lokal'].'">'.$val_renja['nama'].'</option>';
+					}
+				}
+				$data_penjadwalan_by_id[0]['select_option_pergeseran_renja'] = $select_option_renja_pergeseran;
+
 				$return = array(
 					'status' 						=> 'success',
 					'data' 							=> $data_penjadwalan_by_id[0]
@@ -13359,10 +13382,13 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						$jenis_jadwal		= trim(htmlspecialchars($_POST['jenis_jadwal']));
 						$pergeseran_renja	= $_POST['pergeseran_renja'];
 
-						if($pergeseran_renja == 'true'){
-							$nilai_pergeseran_renja = update_option('_nilai_pergeseran_renja', 'tampil');
+						
+						if($pergeseran_renja == 'true' && !empty($_POST['id_jadwal_pergeseran_renja'])){
+							$status_pergeseran_renja = 'tampil';
+							$id_jadwal_pergeseran_renja = $_POST['id_jadwal_pergeseran_renja'];
 						}else{
-							$nilai_pergeseran_renja = update_option('_nilai_pergeseran_renja', 'tidak_tampil');
+							$status_pergeseran_renja = 'tidak_tampil';
+							$id_jadwal_pergeseran_renja = NULL;
 						}
 
 						$arr_jadwal = ['usulan','penetapan'];
@@ -13381,7 +13407,9 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 									'tahun_anggaran'		=> $tahun_anggaran,
 									'relasi_perencanaan' 	=> $relasi_perencanaan,
 									'lama_pelaksanaan'		=> $lama_pelaksanaan,
-									'jenis_jadwal'			=> $jenis_jadwal
+									'jenis_jadwal'			=> $jenis_jadwal,
+									'id_jadwal_pergeseran'	=> $id_jadwal_pergeseran_renja,
+									'status_jadwal_pergeseran'=> $status_pergeseran_renja
 								);
 	
 								$wpdb->update('data_jadwal_lokal', $data_jadwal, array(

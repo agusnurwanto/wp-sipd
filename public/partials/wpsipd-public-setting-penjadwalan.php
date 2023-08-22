@@ -42,6 +42,7 @@ foreach($tahun as $tahun_value){
 }
 
 $select_renstra = '';
+$select_renja_pergeseran = "<option value=''>Pilih RENJA Pergeseran</option>";
 
 $sqlTipe = $wpdb->get_results($wpdb->prepare("
 	SELECT 
@@ -67,6 +68,32 @@ $data_renstra = $wpdb->get_results($wpdb->prepare('
 if(!empty($data_renstra)){
 	foreach($data_renstra as $val_renstra){
 		$select_renstra .= '<option value="'.$val_renstra['id_jadwal_lokal'].'">'.$val_renstra['nama'].'</option>';
+	}
+}
+
+$data_renja_pergeseran = $wpdb->get_results($wpdb->prepare('
+	SELECT
+		*
+	FROM
+		data_jadwal_lokal
+	WHERE
+		id_jadwal_lokal NOT IN (
+			SELECT
+				MAX(id_jadwal_lokal)
+			FROM
+				data_jadwal_lokal
+			WHERE
+				status=1
+				AND id_tipe=5
+				AND tahun_anggaran=%d
+		)
+		AND status=1
+		AND id_tipe=5
+		AND tahun_anggaran=%d',$input['tahun_anggaran'], $input['tahun_anggaran']), ARRAY_A);
+
+if(!empty($data_renja_pergeseran)){
+	foreach($data_renja_pergeseran as $val_renja){
+		$select_renja_pergeseran .= "<option value='".$val_renja["id_jadwal_lokal"]."'>".$val_renja["nama"]."</option>";
 	}
 }
 
@@ -174,15 +201,21 @@ $body = '';
 					<label for='jadwal_tanggal' style='display:inline-block'>Jadwal Pelaksanaan</label>
 					<input type="text" id='jadwal_tanggal' name="datetimes" style='display:block;width:100%;'/>
 				</div>
-				<div class="mt-3 form-input">
-					<input type="checkbox" value="1" id="pergeseran_renja">
-					<label for="pergeseran_renja" style="display: inline-block;">Tampilkan Pergeseran/Perubahan</label>
-				</div>
 				<div>
 					<label for="link_renstra" style='display:inline-block'>Pilih Jadwal RENSTRA</label>
 					<select id="link_renstra" style='display:block;width: 100%;'>
 						<option value="">Pilih RENSTRA</option>
 						<?php echo $select_renstra; ?>
+					</select>
+				</div>
+				<div class="mt-3 form-input">
+					<input type="checkbox" value="1" id="pergeseran_renja" onclick="set_setting_pergeseran(this);">
+					<label for="pergeseran_renja" style="display: inline-block;">Tampilkan Pergeseran/Perubahan</label>
+				</div>
+				<div>
+					<label for="id_jadwal_pergeseran_renja" class="class_renja_pergeseran" style='display:inline-block'>Pilih Jadwal RENJA Pergeseran</label>
+					<select id="id_jadwal_pergeseran_renja" class="class_renja_pergeseran" style='display:block;width: 100%;'>
+						<?php echo $select_renja_pergeseran; ?>
 					</select>
 				</div>
 			</div> 
@@ -232,6 +265,8 @@ $body = '';
 				format: 'DD-MM-YYYY HH:mm'
 			}
 		});
+
+		jQuery(".class_renja_pergeseran").hide();
 	});
 
 	/** get data penjadwalan */
@@ -299,6 +334,10 @@ $body = '';
 			.attr("disabled", false)
 			.text("Simpan");
 		jQuery('#modalTambahJadwal').modal('show');
+
+		let pergeseran = "<?php echo $select_renja_pergeseran; ?>";
+		jQuery("#renja_pergeseran").html(pergeseran);
+
 	}
 
 	/** Submit tambah jadwal */
@@ -311,9 +350,14 @@ $body = '';
 		let jenis_jadwal = jQuery("#jenis_jadwal").val()
 		let relasi_perencanaan = jQuery("#link_renstra").val()
 		let pergeseran_renja = jQuery("#pergeseran_renja").prop('checked')
+		let id_jadwal_pergeseran_renja = jQuery("#id_jadwal_pergeseran_renja").val()
 		if(nama.trim() == '' || jadwalMulai == '' || jadwalSelesai == '' || this_tahun_anggaran == '' || jenis_jadwal == ''){
 			jQuery("#wrap-loading").hide()
 			alert("Ada yang kosong, Harap diisi semua")
+			return false
+		}else if(pergeseran_renja == true && id_jadwal_pergeseran_renja == ''){
+			jQuery("#wrap-loading").hide()
+			alert("Jadwal Renja Pergeseran Wajib Diisi!")
 			return false
 		}else{
 			jQuery.ajax({
@@ -330,7 +374,8 @@ $body = '';
 					'tipe_perencanaan'	: tipe_perencanaan,
 					'relasi_perencanaan': relasi_perencanaan,
 					'jenis_jadwal'		: jenis_jadwal,
-					'pergeseran_renja'	: pergeseran_renja
+					'pergeseran_renja'	: pergeseran_renja,
+					'id_jadwal_pergeseran_renja' : id_jadwal_pergeseran_renja
 				},
 				beforeSend: function() {
 					jQuery('.submitBtn').attr('disabled','disabled')
@@ -376,10 +421,14 @@ $body = '';
 				jQuery('#jadwal_tanggal').data('daterangepicker').setEndDate(moment(response.data.waktu_akhir).format('DD-MM-YYYY HH:mm'));
 				jQuery("#link_renstra").val(response.data.relasi_perencanaan).change();
 				jQuery("#jenis_jadwal").val(response.data.jenis_jadwal).change();
-				if(response.data.pergeseran_renja == 'tampil'){
+				jQuery("#renja_pergeseran").html(response.data.select_option_pergeseran_renja);
+				if(response.data.status_jadwal_pergeseran == 'tampil'){
 					jQuery( "#pergeseran_renja" ).prop( "checked", true );
+					jQuery(".class_renja_pergeseran").show();
+					jQuery("#id_jadwal_pergeseran_renja").val(response.data.id_jadwal_pergeseran)
 				}else{
 					jQuery( "#pergeseran_renja" ).prop( "checked", false );
+					jQuery(".class_renja_pergeseran").hide();
 				}
 			}
 		})
@@ -393,10 +442,15 @@ $body = '';
 		let this_tahun_anggaran = tahun_anggaran
 		let relasi_perencanaan = jQuery("#link_renstra").val()
 		let pergeseran_renja = jQuery("#pergeseran_renja").prop('checked')
+		let id_jadwal_pergeseran_renja = jQuery("#id_jadwal_pergeseran_renja").val()
 		let jenis_jadwal = jQuery("#jenis_jadwal").val()
 		if(nama.trim() == '' || jadwalMulai == '' || jadwalSelesai == '' || this_tahun_anggaran == '' || jenis_jadwal == ''){
 			jQuery("#wrap-loading").hide()
 			alert("Ada yang kosong, Harap diisi semua")
+			return false
+		}else if(pergeseran_renja == true && id_jadwal_pergeseran_renja == ''){
+			jQuery("#wrap-loading").hide()
+			alert("Jadwal Renja Pergeseran Wajib Diisi!")
 			return false
 		}else{
 			jQuery.ajax({
@@ -414,7 +468,8 @@ $body = '';
 					'tipe_perencanaan'	: tipe_perencanaan,
 					'relasi_perencanaan': relasi_perencanaan,
 					'jenis_jadwal'		: jenis_jadwal,
-					'pergeseran_renja'	: pergeseran_renja
+					'pergeseran_renja'	: pergeseran_renja,
+					'id_jadwal_pergeseran_renja' : id_jadwal_pergeseran_renja
 				},
 				beforeSend: function() {
 					jQuery('.submitBtn').attr('disabled','disabled')
@@ -872,6 +927,15 @@ $body = '';
 				alert(response.message);
 			}
 		});
+	}
+
+	function set_setting_pergeseran(that) {
+		let pergeseran = jQuery("#pergeseran_renja").prop('checked');
+		if(pergeseran){
+			jQuery(".class_renja_pergeseran").show();
+		}else{
+			jQuery(".class_renja_pergeseran").hide();
+		}
 	}
 
 </script> 
