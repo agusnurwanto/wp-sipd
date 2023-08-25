@@ -336,7 +336,7 @@ $body = '';
 		jQuery('#modalTambahJadwal').modal('show');
 
 		let pergeseran = "<?php echo $select_renja_pergeseran; ?>";
-		jQuery("#renja_pergeseran").html(pergeseran);
+		jQuery("#id_jadwal_pergeseran_renja").html(pergeseran);
 
 	}
 
@@ -421,7 +421,7 @@ $body = '';
 				jQuery('#jadwal_tanggal').data('daterangepicker').setEndDate(moment(response.data.waktu_akhir).format('DD-MM-YYYY HH:mm'));
 				jQuery("#link_renstra").val(response.data.relasi_perencanaan).change();
 				jQuery("#jenis_jadwal").val(response.data.jenis_jadwal).change();
-				jQuery("#renja_pergeseran").html(response.data.select_option_pergeseran_renja);
+				jQuery("#id_jadwal_pergeseran_renja").html(response.data.select_option_pergeseran_renja);
 				if(response.data.status_jadwal_pergeseran == 'tampil'){
 					jQuery( "#pergeseran_renja" ).prop( "checked", true );
 					jQuery(".class_renja_pergeseran").show();

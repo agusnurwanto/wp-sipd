@@ -184,7 +184,9 @@ $data_all = array(
     'total_usulan' => 0,
     'total_n_plus' => 0,
     'total_n_plus_usulan' => 0,
-    'data' => array()
+    'data' => array(),
+    'total_pergeseran' => 0,
+    'total_usulan_pergeseran' => 0
 );
 foreach ($subkeg as $kk => $sub) {
     $nama_skpd = $sub['nama_skpd'];
@@ -238,6 +240,34 @@ foreach ($subkeg as $kk => $sub) {
             and kode_sbl=%s
         order by id ASC
     ", $input['tahun_anggaran'], $sub['kode_sbl']), ARRAY_A);
+    
+    $status_pergeseran_renja = $jadwal_lokal[0]['status_jadwal_pergeseran'];
+    $pagu_pergeseran = 0;
+    $pagu_usulan_pergeseran = 0;
+    $thead_pergeseran = '';
+    $thead_pergeseran1 = 6;
+    $thead_pergeseran2 = '';
+    if($status_pergeseran_renja == 'tampil'){
+        $thead_pergeseran1 = 7;
+        $thead_pergeseran2 = '<th style="padding: 0; border: 0; width:130px"></th>';
+        $data_pagu_pergeseran = $wpdb->get_results($wpdb->prepare("
+            select 
+                nama_sub_giat as nama_sub_giat_pergeseran,
+                pagu as pagu_pergeseran,
+                pagu_usulan as pagu_usulan_pergeseran
+            from data_sub_keg_bl_lokal_history 
+            where tahun_anggaran=%d
+                AND active=1
+                AND kode_sbl=%s
+                AND id_jadwal=%d
+            order by id ASC
+        ", $input['tahun_anggaran'], $sub['kode_sbl'], $jadwal_lokal[0]['id_jadwal_pergeseran']), ARRAY_A);
+        if(!empty($data_pagu_pergeseran)){
+            $pagu_pergeseran = $data_pagu_pergeseran[0]['pagu_pergeseran'];
+            $pagu_usulan_pergeseran = $data_pagu_pergeseran[0]['pagu_usulan_pergeseran'];
+        }
+        $thead_pergeseran ='<td class="kanan bawah text_tengah text_blok" rowspan="2">Pagu Indikatif Pergeseran (Rp.)</td>';
+    }
 
     if($sub['kode_bidang_urusan'] == 'X.XX'){
         $urusan_utama_x = explode('.', $sub['kode_sub_skpd']);
@@ -287,7 +317,9 @@ foreach ($subkeg as $kk => $sub) {
             'total_usulan' => 0,
             'total_n_plus_usulan' => 0,
             'pagu_sipd' => 0,
-            'data'  => array()
+            'data'  => array(),
+            'total_pergeseran' => 0,
+            'total_usulan_pergeseran' => 0
         );
     }
 
@@ -300,7 +332,9 @@ foreach ($subkeg as $kk => $sub) {
             'total_usulan' => 0,
             'total_n_plus_usulan' => 0,
             'pagu_sipd' => 0,
-            'data'  => array()
+            'data'  => array(),
+            'total_pergeseran' => 0,
+            'total_usulan_pergeseran' => 0
         );
     }
     if(empty($data_all['data'][$sub['id_sub_skpd']]['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']])){
@@ -312,7 +346,9 @@ foreach ($subkeg as $kk => $sub) {
             'total_usulan' => 0,
             'total_n_plus_usulan' => 0,
             'pagu_sipd' => 0,
-            'data'  => array()
+            'data'  => array(),
+            'total_pergeseran' => 0,
+            'total_usulan_pergeseran' => 0
         );
     }
     if(empty($data_all['data'][$sub['id_sub_skpd']]['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']])){
@@ -324,7 +360,9 @@ foreach ($subkeg as $kk => $sub) {
             'total_usulan' => 0,
             'total_n_plus_usulan' => 0,
             'pagu_sipd' => 0,
-            'data'  => array()
+            'data'  => array(),
+            'total_pergeseran' => 0,
+            'total_usulan_pergeseran' => 0
         );
     }
     if(empty($data_all['data'][$sub['id_sub_skpd']]['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']]['data'][$sub['kode_giat']])){
@@ -336,7 +374,9 @@ foreach ($subkeg as $kk => $sub) {
             'total_usulan' => 0,
             'total_n_plus_usulan' => 0,
             'pagu_sipd' => 0,
-            'data'  => array()
+            'data'  => array(),
+            'total_pergeseran' => 0,
+            'total_usulan_pergeseran' => 0
         );
     }
     if(empty($data_all['data'][$sub['id_sub_skpd']]['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']]['data'][$sub['kode_giat']]['data'][$sub['kode_sub_giat']])){
@@ -345,8 +385,10 @@ foreach ($subkeg as $kk => $sub) {
         $data_all['data'][$sub['id_sub_skpd']]['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']]['data'][$sub['kode_giat']]['data'][$sub['kode_sub_giat']] = array(
             'nama'  => implode(' ', $nama),
             'total' => 0,
+            'total_pergeseran' => 0,
             'total_n_plus' => 0,
             'total_usulan' => 0,
+            'total_usulan_pergeseran' => 0,
             'total_n_plus_usulan' => 0,
             'capaian_prog' => $capaian_prog,
             'output_giat' => $output_giat,
@@ -367,6 +409,15 @@ foreach ($subkeg as $kk => $sub) {
     $data_all['data'][$sub['id_sub_skpd']]['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']]['data'][$sub['kode_giat']]['total'] += $sub['pagu'];
     $data_all['data'][$sub['id_sub_skpd']]['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']]['data'][$sub['kode_giat']]['data'][$sub['kode_sub_giat']]['total'] += $sub['pagu'];
 
+    /** Total Dari Pergeseran */
+    $data_all['total_pergeseran'] += $pagu_pergeseran;
+    $data_all['data'][$sub['id_sub_skpd']]['total_pergeseran'] += $pagu_pergeseran;
+    $data_all['data'][$sub['id_sub_skpd']]['data'][$sub['kode_urusan']]['total_pergeseran'] += $pagu_pergeseran;
+    $data_all['data'][$sub['id_sub_skpd']]['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['total_pergeseran'] += $pagu_pergeseran;
+    $data_all['data'][$sub['id_sub_skpd']]['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']]['total_pergeseran'] += $pagu_pergeseran;
+    $data_all['data'][$sub['id_sub_skpd']]['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']]['data'][$sub['kode_giat']]['total_pergeseran'] += $pagu_pergeseran;
+    $data_all['data'][$sub['id_sub_skpd']]['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']]['data'][$sub['kode_giat']]['data'][$sub['kode_sub_giat']]['total_pergeseran'] += $pagu_pergeseran;
+
     $data_all['total_n_plus'] += $sub['pagu_n_depan'];
     $data_all['data'][$sub['id_sub_skpd']]['total_n_plus'] += $sub['pagu_n_depan'];
     $data_all['data'][$sub['id_sub_skpd']]['data'][$sub['kode_urusan']]['total_n_plus'] += $sub['pagu_n_depan'];
@@ -382,6 +433,14 @@ foreach ($subkeg as $kk => $sub) {
     $data_all['data'][$sub['id_sub_skpd']]['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']]['total_usulan'] += $sub['pagu_usulan'];
     $data_all['data'][$sub['id_sub_skpd']]['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']]['data'][$sub['kode_giat']]['total_usulan'] += $sub['pagu_usulan'];
     $data_all['data'][$sub['id_sub_skpd']]['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']]['data'][$sub['kode_giat']]['data'][$sub['kode_sub_giat']]['total_usulan'] += $sub['pagu_usulan'];
+
+    $data_all['total_usulan_pergeseran'] += $pagu_usulan_pergeseran;
+    $data_all['data'][$sub['id_sub_skpd']]['total_usulan_pergeseran'] += $pagu_usulan_pergeseran;
+    $data_all['data'][$sub['id_sub_skpd']]['data'][$sub['kode_urusan']]['total_usulan_pergeseran'] += $pagu_usulan_pergeseran;
+    $data_all['data'][$sub['id_sub_skpd']]['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['total_usulan_pergeseran'] += $pagu_usulan_pergeseran;
+    $data_all['data'][$sub['id_sub_skpd']]['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']]['total_usulan_pergeseran'] += $pagu_usulan_pergeseran;
+    $data_all['data'][$sub['id_sub_skpd']]['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']]['data'][$sub['kode_giat']]['total_usulan_pergeseran'] += $pagu_usulan_pergeseran;
+    $data_all['data'][$sub['id_sub_skpd']]['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']]['data'][$sub['kode_giat']]['data'][$sub['kode_sub_giat']]['total_usulan_pergeseran'] += $pagu_usulan_pergeseran;
 
     $data_all['total_n_plus_usulan'] += $sub['pagu_n_depan_usulan'];
     $data_all['data'][$sub['id_sub_skpd']]['total_n_plus_usulan'] += $sub['pagu_n_depan_usulan'];
@@ -409,9 +468,17 @@ foreach ($data_all['data'] as $sub_skpd) {
     if($sub_skpd['total'] != $pagu_unit_sipd){
         $warning = 'background: #f9d9d9;';
     }
+    if($status_pergeseran_renja == 'tampil'){
+        $body_pergeseran1 = '<td class="kanan bawah text_kanan text_blok"><span class="nilai_penetapan">'.number_format($sub_skpd['total_pergeseran'],0,",",".").'</span><span class="nilai_usulan">'.number_format($sub_skpd['total_usulan_pergeseran'],0,",",".").'</span></td>';
+        $thead_pergeseran_unit = 20;
+    }else{
+        $body_pergeseran1 = '';
+        $thead_pergeseran_unit = 19;
+    }
+    
     $body .= '
         <tr tipe="unit">
-            <td class="kiri kanan bawah text_blok" colspan="19">Unit Organisasi : '.$sub_skpd['nama_skpd'].'</td>
+            <td class="kiri kanan bawah text_blok" colspan="'.$thead_pergeseran_unit.'">Unit Organisasi : '.$sub_skpd['nama_skpd'].'</td>
             <td class="kanan bawah hide-print"></td>
             <td class="kanan bawah hide-print"></td>
             <td colspan="3" class="kanan bawah text_tengah hide-print"></td>
@@ -420,6 +487,7 @@ foreach ($data_all['data'] as $sub_skpd) {
             <td class="kiri kanan bawah text_blok"></td>
             <td class="kanan bawah text_blok" colspan="12">Sub Unit Organisasi : '.$sub_skpd['nama'].'</td>
             <td class="kanan bawah text_kanan text_blok"><span class="nilai_penetapan">'.number_format($sub_skpd['total'],0,",",".").'</span><span class="nilai_usulan">'.number_format($sub_skpd['total_usulan'],0,",",".").'</span></td>
+            '.$body_pergeseran1.'
             <td class="kanan bawah" colspan="4"></td>
             <td class="kanan bawah text_kanan text_blok"><span class="nilai_penetapan">'.number_format($sub_skpd['total_n_plus'],0,",",".").'</span><span class="nilai_usulan">'.number_format($sub_skpd['total_n_plus_usulan'],0,",",".").'</span></td>
             <td class="kanan bawah hide-print"></td>
@@ -428,6 +496,11 @@ foreach ($data_all['data'] as $sub_skpd) {
         </tr>
     ';
     foreach ($sub_skpd['data'] as $kd_urusan => $urusan) {
+        if($status_pergeseran_renja == 'tampil'){
+            $thead_urusan_pergeseran = 15;
+        }else{
+            $thead_urusan_pergeseran = 14;
+        }
         $body .= '
             <tr tipe="urusan" kode="'.$urusan['sub']['kode_sbl'].'">
                 <td class="kiri kanan bawah text_blok">'.$kd_urusan.'</td>
@@ -435,7 +508,7 @@ foreach ($data_all['data'] as $sub_skpd) {
                 <td class="kanan bawah"></td>
                 <td class="kanan bawah"></td>
                 <td class="kanan bawah"></td>
-                <td class="kanan bawah text_blok" colspan="14">'.$urusan['nama'].'</td>
+                <td class="kanan bawah text_blok" colspan="'.$thead_urusan_pergeseran.'">'.$urusan['nama'].'</td>
                 <td class="kanan bawah hide-print"></td>
                 <td class="kanan bawah hide-print"></td>
                 <td colspan="3" class="kanan bawah text_tengah hide-print"></td>
@@ -449,6 +522,7 @@ foreach ($data_all['data'] as $sub_skpd) {
             if($bidang['total'] != $pagu_bidang_sipd){
                 $warning = 'background: #f9d9d9;';
             }
+            $body_pergeseran2 = ($status_pergeseran_renja == 'tampil') ? '<td class="kanan bawah text_kanan text_blok"><span class="nilai_penetapan">'.number_format($bidang['total_pergeseran'],0,",",".").'</span><span class="nilai_usulan">'.number_format($bidang['total_usulan_pergeseran'],0,",",".").'</span></td>' : '';
             $body .= '
                 <tr tipe="bidang" kode="'.$bidang['sub']['kode_sbl'].'">
                     <td class="kiri kanan bawah text_blok">'.$kd_urusan.'</td>
@@ -458,6 +532,7 @@ foreach ($data_all['data'] as $sub_skpd) {
                     <td class="kanan bawah"></td>
                     <td class="kanan bawah text_blok" colspan="8">'.$bidang['nama'].'</td>
                     <td class="kanan bawah text_kanan text_blok"><span class="nilai_penetapan">'.number_format($bidang['total'],0,",",".").'</span><span class="nilai_usulan">'.number_format($bidang['total_usulan'],0,",",".").'</span></td>
+                    '.$body_pergeseran2.'
                     <td class="kanan bawah" colspan="4"></td>
                     <td class="kanan bawah text_kanan text_blok"><span class="nilai_penetapan">'.number_format($bidang['total_n_plus'],0,",",".").'</span><span class="nilai_usulan">'.number_format($bidang['total_n_plus_usulan'],0,",",".").'</span></td>
                     <td class="kanan bawah hide-print"></td>
@@ -481,6 +556,7 @@ foreach ($data_all['data'] as $sub_skpd) {
                 if($program['total'] != $pagu_prog_sipd){
                     $warning = 'background: #f9d9d9;';
                 }
+                $body_pergeseran3 = ($status_pergeseran_renja == 'tampil') ? '<td class="kanan bawah text_kanan text_blok"><span class="nilai_penetapan">'.number_format($program['total_pergeseran'],0,",",".").'</span><span class="nilai_usulan">'.number_format($program['total_usulan_pergeseran'],0,",",".").'</span></td>' : '';
                 $body .= '
                     <tr tipe="program" kode="'.$program['sub']['kode_sbl'].'" checkprogram="'.$data_check_program.'">
                         <td class="kiri kanan bawah text_blok">'.$kd_urusan.'</td>
@@ -490,6 +566,7 @@ foreach ($data_all['data'] as $sub_skpd) {
                         <td class="kanan bawah"></td>
                         <td class="kanan bawah text_blok" colspan="8">'.$program['nama'].'</td>
                         <td class="kanan bawah text_kanan text_blok"><span class="nilai_penetapan">'.number_format($program['total'],0,",",".").'</span><span class="nilai_usulan">'.number_format($program['total_usulan'],0,",",".").'</span></td>
+                        '.$body_pergeseran3.'
                         <td class="kanan bawah" colspan="4"></td>
                         <td class="kanan bawah text_kanan text_blok"><span class="nilai_penetapan">'.number_format($program['total_n_plus'],0,",",".").'</span><span class="nilai_usulan">'.number_format($program['total_n_plus_usulan'],0,",",".").'</span></td>
                         <td class="kanan bawah text_tengah hide-print">'.$tombol_aksi.'</td>
@@ -512,6 +589,7 @@ foreach ($data_all['data'] as $sub_skpd) {
                     if($giat['total'] != $pagu_keg_sipd){
                         $warning = 'background: #f9d9d9;';
                     }
+                    $body_pergeseran4 = ($status_pergeseran_renja == 'tampil') ? '<td class="kanan bawah text_kanan text_blok"><span class="nilai_penetapan">'.number_format($giat['total_pergeseran'],0,",",".").'</span><span class="nilai_usulan">'.number_format($giat['total_usulan_pergeseran'],0,",",".").'</span></td>' : '';
                     $body .= '
                         <tr tipe="kegiatan" kode="'.$giat['sub']['kode_sbl'].'">
                             <td class="kiri kanan bawah text_blok">'.$kd_urusan.'</td>
@@ -521,6 +599,7 @@ foreach ($data_all['data'] as $sub_skpd) {
                             <td class="kanan bawah"></td>
                             <td class="kanan bawah" colspan="8">'.$giat['nama'].'</td>
                             <td class="kanan bawah text_blok text_kanan"><span class="nilai_penetapan">'.number_format($giat['total'],0,",",".").'</span><span class="nilai_usulan">'.number_format($giat['total_usulan'],0,",",".").'</span></td>
+                            '.$body_pergeseran4.'
                             <td class="kanan bawah" colspan="4"></td>
                             <td class="kanan bawah text_blok text_kanan"><span class="nilai_penetapan">'.number_format($giat['total_n_plus'],0,",",".").'</span><span class="nilai_usulan">'.number_format($giat['total_n_plus_usulan'],0,",",".").'</span></td>
                             <td class="kanan bawah text_tengah hide-print">'.$tombol_aksi.'</td>
@@ -628,6 +707,8 @@ foreach ($data_all['data'] as $sub_skpd) {
                             }
                         }
 
+                        $tbody_pergeseran = ($status_pergeseran_renja == 'tampil') ? '<td class="kanan bawah text_kanan"><span class="nilai_penetapan">'.number_format($sub_giat['total_pergeseran'],0,",",".").'</span><span class="nilai_usulan">'.number_format($sub_giat['total_usulan_pergeseran'],0,",",".").'</span></td>' : '';
+
                         $kode_sbl = $sub_giat['data']['kode_sbl'];
                         $url_rka_lokal = $this->generatePage('Data RKA Lokal | '.$kode_sbl.' | '.$input['tahun_anggaran'],$input['tahun_anggaran'],'[input_rka_lokal kode_sbl="'.$kode_sbl.'" tahun_anggaran="'.$input['tahun_anggaran'].'"]');
 
@@ -668,6 +749,7 @@ foreach ($data_all['data'] as $sub_skpd) {
                                 <td class="kanan bawah '.$warning_pemutakhiran.'">'.$target_output_sub_giat.'</td>
                                 <td class="kanan bawah">'.$target_output_giat.'</td>
                                 <td class="kanan bawah text_kanan"><span class="nilai_penetapan">'.number_format($sub_giat['total'],0,",",".").'</span><span class="nilai_usulan">'.number_format($sub_giat['total_usulan'],0,",",".").'</span></td>
+                                '.$tbody_pergeseran.'
                                 <td class="kanan bawah">'.$dana_sub_giat.'</td>
                                 <td class="kanan bawah">'.$catatan.'</td>
                                 <td class="kanan bawah">'.$ind_n_plus.'</td>
@@ -706,6 +788,8 @@ $warning_total_sumber_dana = '';
 if($total_sumber_dana >= 1){
     $warning_total_sumber_dana = 'bg-danger';
 }
+
+$tfoot_pergeseran = $status_pergeseran_renja == 'tampil' ? '<td class="kanan bawah text_kanan text_blok"><span class="nilai_penetapan">'.number_format($data_all['total_pergeseran'],0,",",".").'</span><span class="nilai_usulan">'.number_format($data_all['total_usulan_pergeseran'],0,",",".").'</span></td>' : '';
 echo '
     <div id="cetak" title="'.$nama_excel.'" style="padding: 5px;">
         <input type="hidden" value="'. get_option( "_crb_api_key_extension" ) .'" id="api_key">
@@ -753,6 +837,7 @@ echo '
                         <th style="padding: 0; border: 0; width:95px"></th>
                         <th style="padding: 0; border: 0; width:95px"></th>
                         <th style="padding: 0; border: 0; width:130px"></th>
+                        '.$thead_pergeseran2.'
                         <th style="padding: 0; border: 0; width:150px"></th>
                         <th style="padding: 0; border: 0; width:95px"></th>
                         <th style="padding: 0; border: 0; width:95px"></th>
@@ -768,7 +853,7 @@ echo '
                         <td class="atas kanan bawah kiri text_tengah text_blok" colspan="5" rowspan="3">Kode</td>
                         <td class="atas kanan bawah text_tengah text_blok" rowspan="3">Urusan/ Bidang Urusan Pemerintahan Daerah Dan Program/ Kegiatan</td>
                         <td class="atas kanan bawah text_tengah text_blok" colspan="3">Indikator Kinerja</td>
-                        <td class="atas kanan bawah text_tengah text_blok" colspan="6">Rencana Tahun '.$input['tahun_anggaran'].'</td>
+                        <td class="atas kanan bawah text_tengah text_blok" colspan="'.$thead_pergeseran1.'">Rencana Tahun '.$input['tahun_anggaran'].'</td>
                         <td class="atas kanan bawah text_tengah text_blok" rowspan="3">Catatan Penting</td>
                         <td class="atas kanan bawah text_tengah text_blok" colspan="3">Prakiraan Maju Rencana Tahun '.($input['tahun_anggaran']+1).'</td>
                         <td class="atas kanan bawah text_tengah text_blok hide-print" rowspan="3">Aksi</td>
@@ -784,6 +869,7 @@ echo '
                         <td class="kanan bawah text_tengah text_blok" rowspan="2">Lokasi Output Kegiatan</td>
                         <td class="kanan bawah text_tengah text_blok" colspan="3">Target Capaian Kinerja</td>
                         <td class="kanan bawah text_tengah text_blok" rowspan="2">Pagu Indikatif (Rp.)</td>
+                        '.$thead_pergeseran.'
                         <td class="kanan bawah text_tengah text_blok" rowspan="2">Sumber Dana</td>
                         <td class="kanan bawah text_tengah text_blok" colspan="2">Target Capaian Kinerja</td>
                         <td class="kanan bawah text_tengah text_blok" rowspan="2">Kebutuhan Dana/<br/>Pagu Indikatif (Rp.)</td>
@@ -801,6 +887,7 @@ echo '
                     <tr>
                         <td class="kiri kanan bawah text_blok text_kanan" colspan="13">TOTAL</td>
                         <td class="kanan bawah text_kanan text_blok"><span class="nilai_penetapan">'.number_format($data_all['total'],0,",",".").'</span><span class="nilai_usulan">'.number_format($data_all['total_usulan'],0,",",".").'</span></td>
+                        '.$tfoot_pergeseran.'
                         <td class="kanan bawah" colspan="4"></td>
                         <td class="kanan bawah text_kanan text_blok"><span class="nilai_penetapan">'.number_format($data_all['total_n_plus'],0,",",".").'</span><span class="nilai_usulan">'.number_format($data_all['total_n_plus_usulan'],0,",",".").'</span></td>
                         <td class="kanan bawah hide-print"></td>
