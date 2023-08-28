@@ -907,12 +907,22 @@ public function get_pemdes_bkk(){
 
     if(!empty($_POST)){
         if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
-            $data = $wpdb->get_results($wpdb->prepare("
-                SELECT
-                    *
-                FROM data_bkk_desa
-                WHERE tahun_anggaran=%d
-            ", $_POST['tahun_anggaran']), ARRAY_A);
+            if(!empty($_POST['nama_kec'])){
+                $data = $wpdb->get_results($wpdb->prepare("
+                    SELECT
+                        *
+                    FROM data_bkk_desa
+                    WHERE tahun_anggaran=%d
+                        AND kecamatan=%s
+                ", $_POST['tahun_anggaran'], $_POST['nama_kec']), ARRAY_A);
+            }else{
+                $data = $wpdb->get_results($wpdb->prepare("
+                    SELECT
+                        *
+                    FROM data_bkk_desa
+                    WHERE tahun_anggaran=%d
+                ", $_POST['tahun_anggaran']), ARRAY_A);
+            }
             $ret['data'] = $data;
         }else{
             $ret = array(
@@ -2249,7 +2259,6 @@ public function get_datatable_data_pencairan_bkk(){
                 || in_array("PLT", $user_meta->roles)
                 || in_array("KPA", $user_meta->roles)
             ){
-                $nipkepala = get_user_meta($user_id, '_nip');
                 $skpd_db = $wpdb->get_results($wpdb->prepare("
                     SELECT 
                         nama_skpd, 
@@ -2257,9 +2266,10 @@ public function get_datatable_data_pencairan_bkk(){
                         kode_skpd,
                         is_skpd
                     from data_unit 
-                    where nipkepala=%s
+                    where id_skpd=%d
                         and active=1
-                    group by id_skpd", $nipkepala[0]), ARRAY_A);
+                        and tahun_anggaran=%d
+                    group by id_skpd", $params['id_skpd'], $params['tahun_anggaran']), ARRAY_A);
                 $where_array = array();
                 foreach($skpd_db as $skpd){
                     $nama_kec = str_replace('kecamatan ', '', strtolower($skpd['nama_skpd']));
