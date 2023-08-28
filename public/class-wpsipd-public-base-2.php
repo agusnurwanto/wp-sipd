@@ -84,6 +84,56 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 		require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/renja/wpsipd-public-analisis-belanja-sumber-dana.php';
 	}
 
+	public function rekap_sumber_dana_per_skpd($atts)
+	{
+		// untuk disable render shortcode di halaman edit page/post
+		if(!empty($_GET) && !empty($_GET['post'])){
+			return '';
+		}
+		
+		require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/penganggaran/wpsipd-public-rekap-sumber-dana-per-skpd.php';
+	}
+
+	public function rekap_sumber_dana_per_program($atts)
+	{
+		// untuk disable render shortcode di halaman edit page/post
+		if(!empty($_GET) && !empty($_GET['post'])){
+			return '';
+		}
+		
+		require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/penganggaran/wpsipd-public-rekap-sumber-dana-per-program.php';
+	}
+
+	public function rekap_sumber_dana_per_kegiatan($atts)
+	{
+		// untuk disable render shortcode di halaman edit page/post
+		if(!empty($_GET) && !empty($_GET['post'])){
+			return '';
+		}
+		
+		require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/penganggaran/wpsipd-public-rekap-sumber-dana-per-kegiatan.php';
+	}
+
+	public function rekap_sumber_dana_per_sub_kegiatan($atts)
+	{
+		// untuk disable render shortcode di halaman edit page/post
+		if(!empty($_GET) && !empty($_GET['post'])){
+			return '';
+		}
+		
+		require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/penganggaran/wpsipd-public-rekap-sumber-dana-per-sub-kegiatan.php';
+	}
+
+	public function rekap_sumber_dana_per_rekening($atts)
+	{
+		// untuk disable render shortcode di halaman edit page/post
+		if(!empty($_GET) && !empty($_GET['post'])){
+			return '';
+		}
+		
+		require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/penganggaran/wpsipd-public-rekap-sumber-dana-per-rekening.php';
+	}
+
 	public function get_data_monitoring_rup(){
 		global $wpdb;
 		$return = array(
@@ -534,6 +584,7 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 			'action'	=> $_POST['action'],
 			'data'		=> array(),
 			'status_insert' => array(),
+			'status_update' => array(),
 			'cek_query' => array()
 		);
 		if(!empty($_POST)){
@@ -552,7 +603,7 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 											AND tahun_anggaran=%d',
 											$val_data['id'],$val_data['rumus'],$_POST['tahun_anggaran']), ARRAY_A);
 								if(empty($data_rumus_indikator)){
-									$ret['status_insert'] = $wpdb->insert($nama_tabel, array('id'=>$val_data['id'],'rumus'=>$val_data['rumus'],'keterangan'=>$val_data['keterangan'],'user'=>$val_data['user'],'active'=>$val_data['active'],'update_at'=>current_time('mysql'),'tahun_anggaran'=>$_POST['tahun_anggaran']));
+									$ret['status_insert'][] = $wpdb->insert($nama_tabel, array('id'=>$val_data['id'],'rumus'=>$val_data['rumus'],'keterangan'=>$val_data['keterangan'],'user'=>$val_data['user'],'active'=>$val_data['active'],'update_at'=>current_time('mysql'),'tahun_anggaran'=>$_POST['tahun_anggaran']));
 								}
 							}
 						}
@@ -567,7 +618,7 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 											AND tahun_anggaran=%d',
 											$val_data['nama'],$_POST['tahun_anggaran']), ARRAY_A);
 								if(empty($data_rumus_indikator)){
-									$ret['status_insert'] = $wpdb->insert($nama_tabel, array('nama'=>$val_data['nama'],'keterangan'=>$val_data['keterangan'],'id_skpd'=>$val_data['id_skpd'],'user'=>$val_data['user'],'active'=>$val_data['active'],'update_at'=>current_time('mysql'),'tahun_anggaran'=>$_POST['tahun_anggaran']));
+									$ret['status_insert'][] = $wpdb->insert($nama_tabel, array('nama'=>$val_data['nama'],'keterangan'=>$val_data['keterangan'],'id_skpd'=>$val_data['id_skpd'],'user'=>$val_data['user'],'active'=>$val_data['active'],'update_at'=>current_time('mysql'),'tahun_anggaran'=>$_POST['tahun_anggaran']));
 								}
 							}
 						}
@@ -581,9 +632,9 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 															WHERE id=%d',
 															$val_data['id']), ARRAY_A);
 								if(empty($data_tipe_perencanaan)){
-									$ret['status_insert'] = $wpdb->insert($nama_tabel, array('nama_tipe'=>$val_data['nama_tipe'],'keterangan_tipe'=>$val_data['keterangan_tipe'],'lama_pelaksanaan'=>$val_data['lama_pelaksanaan']));
+									$ret['status_insert'][] = $wpdb->insert($nama_tabel, array('nama_tipe'=>$val_data['nama_tipe'],'keterangan_tipe'=>$val_data['keterangan_tipe'],'lama_pelaksanaan'=>$val_data['lama_pelaksanaan']));
 								}else{
-									$ret['status_insert'] = $wpdb->update($nama_tabel, array('nama_tipe'=>$val_data['nama_tipe'],'keterangan_tipe'=>$val_data['keterangan_tipe'],'lama_pelaksanaan'=>$val_data['lama_pelaksanaan']), array('id'=>$val_data['id']));
+									$ret['status_update'][] = $wpdb->update($nama_tabel, array('nama_tipe'=>$val_data['nama_tipe'],'keterangan_tipe'=>$val_data['keterangan_tipe'],'lama_pelaksanaan'=>$val_data['lama_pelaksanaan']), array('id'=>$val_data['id']));
 								}
 							}
 						}
