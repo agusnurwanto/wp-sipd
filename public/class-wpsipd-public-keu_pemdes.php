@@ -2240,8 +2240,8 @@ public function get_datatable_data_pencairan_bkk(){
               23 => 'p.ket_ver_proposal',
               24 => 'p.id'
             );
-
             $where = $sqlTot = $sqlRec = "";
+            
             // check search value exist
             if( !empty($params['search']['value']) ) {
                 $where .=" AND d.kegiatan LIKE ".$wpdb->prepare('%s', "%".$params['search']['value']."%");
@@ -2301,7 +2301,6 @@ public function get_datatable_data_pencairan_bkk(){
                     $btn .= '<a style="margin-left: 10px;" class="btn btn-sm btn-warning" onclick="edit_data(\''.$recVal['id'].'\'); return false;" href="#" title="Edit Data"><i class="dashicons dashicons-edit"></i></a>';
                     $btn .= '<a style="margin-left: 10px;" class="btn btn-sm btn-danger" onclick="hapus_data(\''.$recVal['id'].'\'); return false;" href="#" title="Edit Data"><i class="dashicons dashicons-trash"></i></a>';
                 }
-                $queryRecords[$recKey]['file_proposal'] = '<a href="'.esc_url(plugin_dir_url(__DIR__).'public/media/keu_pemdes/').$recVal['file_proposal'].'" target="_blank">'.$recVal['file_proposal'].'</a>';
                 $queryRecords[$recKey]['aksi'] = $btn;
                 if($recVal['status'] == 0){
                     $queryRecords[$recKey]['status'] = '<span class="btn btn-primary btn-sm">Belum dicek</span>';
@@ -2350,14 +2349,24 @@ public function get_pemdes_bhpd(){
         'data'  => array()
     );
 
-    if(!empty($_POST)){
+   if(!empty($_POST)){
         if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
-            $data = $wpdb->get_results($wpdb->prepare("
-                SELECT
-                    *
-                FROM data_bhpd_desa
-                WHERE tahun_anggaran=%d
-            ", $_POST['tahun_anggaran']), ARRAY_A);
+            if(!empty($_POST['nama_kec'])){
+                $data = $wpdb->get_results($wpdb->prepare("
+                    SELECT
+                        *
+                    FROM data_bhpd_desa
+                    WHERE tahun_anggaran=%d
+                        AND kecamatan=%s
+                ", $_POST['tahun_anggaran'], $_POST['nama_kec']), ARRAY_A);
+            }else{
+                $data = $wpdb->get_results($wpdb->prepare("
+                    SELECT
+                        *
+                    FROM data_bhpd_desa
+                    WHERE tahun_anggaran=%d
+                ", $_POST['tahun_anggaran']), ARRAY_A);
+            }
             $ret['data'] = $data;
         }else{
             $ret = array(
@@ -2957,13 +2966,40 @@ public function get_datatable_data_pencairan_bhpd(){
 
             // check search value exist
             if( !empty($params['search']['value']) ) { 
-                $where .=" OR d.desa LIKE ".$wpdb->prepare('%s', "%".$params['search']['value']."%");
+                $where .=" AND d.kegiatan LIKE ".$wpdb->prepare('%s', "%".$params['search']['value']."%");
+                $where .=" AND d.kecamatan LIKE ".$wpdb->prepare('%s', "%".$params['search']['value']."%");
+                $where .=" AND d.alamat LIKE ".$wpdb->prepare('%s', "%".$params['search']['value']."%");
             }
 
             // getting total number records without any search
             $sql_tot = "SELECT count(p.id) as jml FROM `data_pencairan_bhpd_desa` p inner join data_bhpd_desa d on p.id_bhpd=d.id";
             $sql = "SELECT ".implode(', ', $columns)." FROM `data_pencairan_bhpd_desa` p inner join data_bhpd_desa d on p.id_bhpd=d.id";
             $where_first = " WHERE 1=1 AND status != 3";
+
+            if(
+                in_array("PA", $user_meta->roles)
+                || in_array("PLT", $user_meta->roles)
+                || in_array("KPA", $user_meta->roles)
+            ){
+                $skpd_db = $wpdb->get_results($wpdb->prepare("
+                    SELECT 
+                        nama_skpd, 
+                        id_skpd, 
+                        kode_skpd,
+                        is_skpd
+                    from data_unit 
+                    where id_skpd=%d
+                        and active=1
+                        and tahun_anggaran=%d
+                    group by id_skpd", $params['id_skpd'], $params['tahun_anggaran']), ARRAY_A);
+                $where_array = array();
+                foreach($skpd_db as $skpd){
+                    $nama_kec = str_replace('kecamatan ', '', strtolower($skpd['nama_skpd']));
+                    $where_array[] =" d.kecamatan LIKE '".$nama_kec."'";
+                }
+                $where .=" AND (".implode(' OR ', $where_array).")";
+            }
+
             $sqlTot .= $sql_tot.$where_first;
             $sqlRec .= $sql.$where_first;
             if(isset($where) && $where != '') {
@@ -2976,7 +3012,7 @@ public function get_datatable_data_pencairan_bhpd(){
                 $limit = "  LIMIT ".$wpdb->prepare('%d', $params['start'])." ,".$wpdb->prepare('%d', $params['length']);
             }
             $sqlRec .=  " ORDER BY ". $columns[$params['order'][0]['column']]."   ".str_replace("'", '', $wpdb->prepare('%s', $params['order'][0]['dir'])).$limit;
-
+            
             $queryTot = $wpdb->get_results($sqlTot, ARRAY_A);
             $totalRecords = $queryTot[0]['jml'];
             $queryRecords = $wpdb->get_results($sqlRec, ARRAY_A);
@@ -3035,12 +3071,22 @@ public function get_pemdes_bhrd(){
 
     if(!empty($_POST)){
         if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
-            $data = $wpdb->get_results($wpdb->prepare("
-                SELECT
-                    *
-                FROM data_bhrd_desa
-                WHERE tahun_anggaran=%d
-            ", $_POST['tahun_anggaran']), ARRAY_A);
+            if(!empty($_POST['nama_kec'])){
+                $data = $wpdb->get_results($wpdb->prepare("
+                    SELECT
+                        *
+                    FROM data_bhrd_desa
+                    WHERE tahun_anggaran=%d
+                        AND kecamatan=%s
+                ", $_POST['tahun_anggaran'], $_POST['nama_kec']), ARRAY_A);
+            }else{
+                $data = $wpdb->get_results($wpdb->prepare("
+                    SELECT
+                        *
+                    FROM data_bhrd_desa
+                    WHERE tahun_anggaran=%d
+                ", $_POST['tahun_anggaran']), ARRAY_A);
+            }
             $ret['data'] = $data;
         }else{
             $ret = array(
@@ -3296,6 +3342,7 @@ public function tambah_data_pencairan_bhrd(){
                     'total_pencairan' => $pagu_anggaran,
                     'status_ver_total' => $status_pagu,
                     'ket_ver_total' => $keterangan_status_pagu,
+                    'keterangan' => $keterangan,
                     'file_nota_dinas' => '',
                     'file_sptj' => '',
                     'file_pakta_integritas' => '',
@@ -3607,108 +3654,134 @@ public function get_datatable_data_pencairan_bhrd(){
         'data'  => array()
     );
 
-        if(!empty($_POST)){
-            if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
-                $user_id = um_user( 'ID' );
-                $user_meta = get_userdata($user_id);
-                $params = $columns = $totalRecords = $data = array();
-                $params = $_REQUEST;
-                $columns = array( 
-                  0 => 'd.tahun_anggaran',
-                  1 => 'd.kecamatan',
-                  2 => 'd.desa',
-                  3 => 'p.total_pencairan',
-                  4 => 'p.keterangan',
-                  5 => 'p.file_nota_dinas',
-                  6 => 'p.file_sptj',
-                  7 => 'p.file_pakta_integritas',
-                  8 => 'p.file_permohonan_transfer',
-                  9 => 'p.file_rekomendasi',
-                  10 => 'p.file_permohonan_penyaluran_kades',
-                  11 => 'p.file_sptj_kades',
-                  12 => 'p.file_pakta_integritas_kades',
-                  13 => 'p.file_pernyataaan_kades_spj_dbhpd',
-                  14 => 'p.file_sk_bendahara_desa',
-                  15 => 'p.file_fc_ktp_kades',
-                  16 => 'p.file_fc_rek_kas_desa',
-                  17 => 'p.file_laporan_realisasi_sebelumnya',
-                  18 => 'p.status',
-                  19 => 'p.id_bhrd',
-                  20 => 'p.status_ver_total',
-                  21 => 'p.ket_ver_total',
-                  22 => 'p.id'
-                );
-                $where = $sqlTot = $sqlRec = "";
+    if(!empty($_POST)){
+        if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+            $user_id = um_user( 'ID' );
+            $user_meta = get_userdata($user_id);
+            $params = $columns = $totalRecords = $data = array();
+            $params = $_REQUEST;
+            $columns = array( 
+              0 => 'd.tahun_anggaran',
+              1 => 'd.kecamatan',
+              2 => 'd.desa',
+              3 => 'p.total_pencairan',
+              4 => 'p.keterangan',
+              5 => 'p.file_nota_dinas',
+              6 => 'p.file_sptj',
+              7 => 'p.file_pakta_integritas',
+              8 => 'p.file_permohonan_transfer',
+              9 => 'p.file_rekomendasi',
+              10 => 'p.file_permohonan_penyaluran_kades',
+              11 => 'p.file_sptj_kades',
+              12 => 'p.file_pakta_integritas_kades',
+              13 => 'p.file_pernyataaan_kades_spj_dbhpd',
+              14 => 'p.file_sk_bendahara_desa',
+              15 => 'p.file_fc_ktp_kades',
+              16 => 'p.file_fc_rek_kas_desa',
+              17 => 'p.file_laporan_realisasi_sebelumnya',
+              18 => 'p.status',
+              19 => 'p.id_bhrd',
+              20 => 'p.status_ver_total',
+              21 => 'p.ket_ver_total',
+              22 => 'p.id'
+            );
+            $where = $sqlTot = $sqlRec = "";
 
-                // check search value exist
-                if( !empty($params['search']['value']) ) { 
-                    $where .=" OR d.desa LIKE ".$wpdb->prepare('%s', "%".$params['search']['value']."%");
-                }
-
-                // getting total number records without any search
-                $sql_tot = "SELECT count(p.id) as jml FROM `data_pencairan_bhrd_desa` p inner join data_bhrd_desa d on p.id_bhrd=d.id";
-                $sql = "SELECT ".implode(', ', $columns)." FROM `data_pencairan_bhrd_desa` p inner join data_bhrd_desa d on p.id_bhrd=d.id";
-                $where_first = " WHERE 1=1 AND status != 3";
-                $sqlTot .= $sql_tot.$where_first;
-                $sqlRec .= $sql.$where_first;
-                if(isset($where) && $where != '') {
-                    $sqlTot .= $where;
-                    $sqlRec .= $where;
-                }
-
-                $limit = '';
-                if($params['length'] != -1){
-                    $limit = "  LIMIT ".$wpdb->prepare('%d', $params['start'])." ,".$wpdb->prepare('%d', $params['length']);
-                }
-                $sqlRec .=  " ORDER BY ". $columns[$params['order'][0]['column']]."   ".str_replace("'", '', $wpdb->prepare('%s', $params['order'][0]['dir'])).$limit;
-
-                $queryTot = $wpdb->get_results($sqlTot, ARRAY_A);
-                $totalRecords = $queryTot[0]['jml'];
-                $queryRecords = $wpdb->get_results($sqlRec, ARRAY_A);
-
-                foreach($queryRecords as $recKey => $recVal){
-                    $btn = '<a class="btn btn-sm btn-primary" onclick="detail_data(\''.$recVal['id'].'\'); return false;" href="#" title="Detail Data"><i class="dashicons dashicons-search"></i></a>';
-                    if ($recVal['status'] != 1) {
-                        $btn .= '<a style="margin-left: 10px;" class="btn btn-sm btn-warning" onclick="edit_data(\''.$recVal['id'].'\'); return false;" href="#" title="Edit Data"><i class="dashicons dashicons-edit"></i></a>';
-                        $btn .= '<a style="margin-left: 10px;" class="btn btn-sm btn-danger" onclick="hapus_data(\''.$recVal['id'].'\'); return false;" href="#" title="Edit Data"><i class="dashicons dashicons-trash"></i></a>';
-                    }
-                    $queryRecords[$recKey]['aksi'] = $btn;
-                    if($recVal['status'] == 0){
-                        $queryRecords[$recKey]['status'] = '<span class="btn btn-primary btn-sm">Belum dicek</span>';
-                    }elseif ($recVal['status'] == 1) {
-                        $queryRecords[$recKey]['status'] = '<span class="btn btn-success btn-sm">Diterima</span>';
-                    }elseif ($recVal['status'] == 2) {
-                        $pesan = '';
-                        if ($recVal['status_ver_total' && 'status_ver_proposal'] == 0){
-                            $pesan .= '<br>Keterangan Pagu: '.$recVal['ket_ver_total']; 
-                        }
-                        $queryRecords[$recKey]['status'] = '<span class="btn btn-danger btn-sm">Ditolak</span>'.$pesan;
-                    }
-                }
-
-                $json_data = array(
-                    "draw"            => intval( $params['draw'] ),   
-                    "recordsTotal"    => intval( $totalRecords ),  
-                    "recordsFiltered" => intval($totalRecords),
-                    "data"            => $queryRecords,
-                    "sql"             => $sqlRec
-                );
-
-                die(json_encode($json_data));
-            }else{
-                $return = array(
-                    'status' => 'error',
-                    'message'   => 'Api Key tidak sesuai!'
-                );
+            // check search value exist
+            if( !empty($params['search']['value']) ) { 
+                $where .=" OR d.desa LIKE ".$wpdb->prepare('%s', "%".$params['search']['value']."%");
+                $where .=" AND d.kecamatan LIKE ".$wpdb->prepare('%s', "%".$params['search']['value']."%");
             }
+
+            // getting total number records without any search
+            $sql_tot = "SELECT count(p.id) as jml FROM `data_pencairan_bhrd_desa` p inner join data_bhrd_desa d on p.id_bhrd=d.id";
+            $sql = "SELECT ".implode(', ', $columns)." FROM `data_pencairan_bhrd_desa` p inner join data_bhrd_desa d on p.id_bhrd=d.id";
+            $where_first = " WHERE 1=1 AND status != 3";
+
+            if(
+                in_array("PA", $user_meta->roles)
+                || in_array("PLT", $user_meta->roles)
+                || in_array("KPA", $user_meta->roles)
+            ){
+                $skpd_db = $wpdb->get_results($wpdb->prepare("
+                    SELECT 
+                        nama_skpd, 
+                        id_skpd,
+                        kode_skpd,
+                        is_skpd
+                    from data_unit 
+                    where id_skpd=%d
+                        and active=1
+                        and tahun_anggaran=%d
+                    group by id_skpd", $params['id_skpd'], $params['tahun_anggaran']), ARRAY_A);
+                $where_array = array();
+                foreach($skpd_db as $skpd){
+                    $nama_kec = str_replace('kecamatan ', '', strtolower($skpd['nama_skpd']));
+                    $where_array[] =" d.kecamatan LIKE '".$nama_kec."'";
+                }
+                $where .=" AND (".implode(' OR ', $where_array).")";
+            }
+
+            $sqlTot .= $sql_tot.$where_first;
+            $sqlRec .= $sql.$where_first;
+            if(isset($where) && $where != '') {
+                $sqlTot .= $where;
+                $sqlRec .= $where;
+            }
+
+            $limit = '';
+            if($params['length'] != -1){
+                $limit = "  LIMIT ".$wpdb->prepare('%d', $params['start'])." ,".$wpdb->prepare('%d', $params['length']);
+            }
+            $sqlRec .=  " ORDER BY ". $columns[$params['order'][0]['column']]."   ".str_replace("'", '', $wpdb->prepare('%s', $params['order'][0]['dir'])).$limit;
+
+            $queryTot = $wpdb->get_results($sqlTot, ARRAY_A);
+            $totalRecords = $queryTot[0]['jml'];
+            $queryRecords = $wpdb->get_results($sqlRec, ARRAY_A);
+
+            foreach($queryRecords as $recKey => $recVal){
+                $btn = '<a class="btn btn-sm btn-primary" onclick="detail_data(\''.$recVal['id'].'\'); return false;" href="#" title="Detail Data"><i class="dashicons dashicons-search"></i></a>';
+                if ($recVal['status'] != 1) {
+                    $btn .= '<a style="margin-left: 10px;" class="btn btn-sm btn-warning" onclick="edit_data(\''.$recVal['id'].'\'); return false;" href="#" title="Edit Data"><i class="dashicons dashicons-edit"></i></a>';
+                    $btn .= '<a style="margin-left: 10px;" class="btn btn-sm btn-danger" onclick="hapus_data(\''.$recVal['id'].'\'); return false;" href="#" title="Edit Data"><i class="dashicons dashicons-trash"></i></a>';
+                }
+                $queryRecords[$recKey]['aksi'] = $btn;
+                if($recVal['status'] == 0){
+                    $queryRecords[$recKey]['status'] = '<span class="btn btn-primary btn-sm">Belum dicek</span>';
+                }elseif ($recVal['status'] == 1) {
+                    $queryRecords[$recKey]['status'] = '<span class="btn btn-success btn-sm">Diterima</span>';
+                }elseif ($recVal['status'] == 2) {
+                    $pesan = '';
+                    if ($recVal['status_ver_total' && 'status_ver_proposal'] == 0){
+                        $pesan .= '<br>Keterangan Pagu: '.$recVal['ket_ver_total']; 
+                    }
+                    $queryRecords[$recKey]['status'] = '<span class="btn btn-danger btn-sm">Ditolak</span>'.$pesan;
+                }
+            }
+
+            $json_data = array(
+                "draw"            => intval( $params['draw'] ),   
+                "recordsTotal"    => intval( $totalRecords ),  
+                "recordsFiltered" => intval($totalRecords),
+                "data"            => $queryRecords,
+                "sql"             => $sqlRec
+            );
+
+            die(json_encode($json_data));
         }else{
             $return = array(
                 'status' => 'error',
-                'message'   => 'Format tidak sesuai!'
+                'message'   => 'Api Key tidak sesuai!'
             );
         }
-        die(json_encode($return));
-    } 
+    }else{
+        $return = array(
+            'status' => 'error',
+            'message'   => 'Format tidak sesuai!'
+        );
+    }
+    die(json_encode($return));
+} 
 
 public function get_pemdes_bku_dd(){
     global $wpdb;
@@ -4092,12 +4165,22 @@ public function get_pemdes_bku_add(){
 
     if(!empty($_POST)){
         if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
-            $data = $wpdb->get_results($wpdb->prepare("
-                SELECT
-                    *
-                FROM data_bku_add_desa
-                WHERE tahun_anggaran=%d
-            ", $_POST['tahun_anggaran']), ARRAY_A);
+            if(!empty($_POST['nama_kec'])){
+                $data = $wpdb->get_results($wpdb->prepare("
+                    SELECT
+                        *
+                    FROM data_bku_add_desa
+                    WHERE tahun_anggaran=%d
+                        AND kecamatan=%s
+                ", $_POST['tahun_anggaran'], $_POST['nama_kec']), ARRAY_A);
+            }else{
+                $data = $wpdb->get_results($wpdb->prepare("
+                    SELECT
+                        *
+                    FROM data_bku_add_desa
+                    WHERE tahun_anggaran=%d
+                ", $_POST['tahun_anggaran']), ARRAY_A);
+            }
             $ret['data'] = $data;
         }else{
             $ret = array(
@@ -4545,18 +4628,43 @@ public function get_datatable_data_pencairan_bku_add(){
                 $sql_tot = "SELECT count(p.id) as jml FROM `data_pencairan_bku_add_desa` p inner join data_bku_add_desa d on p.id_bku_add=d.id";
                 $sql = "SELECT ".implode(', ', $columns)." FROM `data_pencairan_bku_add_desa` p inner join data_bku_add_desa d on p.id_bku_add=d.id";
                 $where_first = " WHERE 1=1 AND status != 3";
-                $sqlTot .= $sql_tot.$where_first;
-                $sqlRec .= $sql.$where_first;
-                if(isset($where) && $where != '') {
-                    $sqlTot .= $where;
-                    $sqlRec .= $where;
-                }
 
-                $limit = '';
-                if($params['length'] != -1){
-                    $limit = "  LIMIT ".$wpdb->prepare('%d', $params['start'])." ,".$wpdb->prepare('%d', $params['length']);
+                    if(
+                    in_array("PA", $user_meta->roles)
+                    || in_array("PLT", $user_meta->roles)
+                    || in_array("KPA", $user_meta->roles)
+                ){
+                    $skpd_db = $wpdb->get_results($wpdb->prepare("
+                        SELECT 
+                            nama_skpd, 
+                            id_skpd, 
+                            kode_skpd,
+                            is_skpd
+                        from data_unit 
+                        where id_skpd=%d
+                            and active=1
+                            and tahun_anggaran=%d
+                        group by id_skpd", $params['id_skpd'], $params['tahun_anggaran']), ARRAY_A);
+                    $where_array = array();
+                    foreach($skpd_db as $skpd){
+                        $nama_kec = str_replace('kecamatan ', '', strtolower($skpd['nama_skpd']));
+                        $where_array[] =" d.kecamatan LIKE '".$nama_kec."'";
+                    }
+                    $where .=" AND (".implode(' OR ', $where_array).")";
                 }
-                $sqlRec .=  " ORDER BY ". $columns[$params['order'][0]['column']]."   ".str_replace("'", '', $wpdb->prepare('%s', $params['order'][0]['dir'])).$limit;
+                
+                    $sqlTot .= $sql_tot.$where_first;
+                    $sqlRec .= $sql.$where_first;
+                    if(isset($where) && $where != '') {
+                        $sqlTot .= $where;
+                        $sqlRec .= $where;
+                    }
+
+                    $limit = '';
+                    if($params['length'] != -1){
+                        $limit = "  LIMIT ".$wpdb->prepare('%d', $params['start'])." ,".$wpdb->prepare('%d', $params['length']);
+                    }
+                    $sqlRec .=  " ORDER BY ". $columns[$params['order'][0]['column']]."   ".str_replace("'", '', $wpdb->prepare('%s', $params['order'][0]['dir'])).$limit;
 
                 $queryTot = $wpdb->get_results($sqlTot, ARRAY_A);
                 $totalRecords = $queryTot[0]['jml'];

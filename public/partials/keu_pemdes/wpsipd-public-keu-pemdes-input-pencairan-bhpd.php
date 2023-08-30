@@ -1,16 +1,61 @@
 <?php
 global $wpdb;
-$idtahun = $wpdb->get_results("select distinct tahun_anggaran from data_unit", ARRAY_A);
-$tahun = "<option value='-1'>Pilih Tahun</option>";
-foreach($idtahun as $val){
-    $tahun .= "<option value='$val[tahun_anggaran]'>$val[tahun_anggaran]</option>";
+
+$input = shortcode_atts( array(
+    'id_skpd' => '',
+    'tahun_anggaran' => ''
+), $atts );
+if(!empty($_GET) && !empty($_GET['tahun_anggaran'])){
+    $input['tahun_anggaran'] = $wpdb->prepare('%d', $_GET['tahun_anggaran']);
+}
+if(!empty($_GET) && !empty($_GET['id_skpd'])){
+    $input['id_skpd'] = $wpdb->prepare('%d', $_GET['id_skpd']);
 }
 
+$idtahun = $wpdb->get_results("select distinct tahun_anggaran from data_unit", ARRAY_A);
+$tahun = "<option value='-1'>Pilih Tahun</option>";
+foreach ($idtahun as $val) {
+    $selected = '';
+    if(!empty($input['tahun_anggaran']) && $val['tahun_anggaran'] == $input['tahun_anggaran']){
+        $selected = 'selected';
+    }
+    $tahun .= "<option value='$val[tahun_anggaran]' $selected>$val[tahun_anggaran]</option>";
+}
+
+$nama_skpd = '';
+$nama_kec = '';
 $user_id = um_user( 'ID' );
 $user_meta = get_userdata($user_id);
 $disabled = 'disabled';
 if(in_array("administrator", $user_meta->roles)){
     $disabled = '';
+}else if(
+    in_array("PA", $user_meta->roles)
+    || in_array("PLT", $user_meta->roles)
+    || in_array("KPA", $user_meta->roles)
+){
+    if(
+        empty($input['id_skpd'])
+        || empty($input['tahun_anggaran'])
+    ){
+        die('<h1>ID SKPD dan tahun anggaran tidak boleh kosong!</h1>');
+    }
+    $nipkepala = get_user_meta($user_id, '_nip');
+    $skpd = $wpdb->get_row($wpdb->prepare("
+        SELECT 
+            nama_skpd, 
+            id_skpd, 
+            kode_skpd,
+            is_skpd
+        from data_unit 
+        where id_skpd=%d
+            and active=1
+            and tahun_anggaran=%d
+        group by id_skpd", $input['id_skpd'], $input['tahun_anggaran']), ARRAY_A);
+    $nama_skpd = '<br>'.$skpd['nama_skpd'].'<br>Tahun '.$input['tahun_anggaran'];
+    $nama_kec = str_replace('kecamatan ', '', strtolower($skpd['nama_skpd']));
+}else{
+    die('<h1>Anda tidak punya akses untuk melihat halaman ini!</h1>');
 }
 
 // print_r($total_pencairan); die($wpdb->last_query);
@@ -26,7 +71,7 @@ if(in_array("administrator", $user_meta->roles)){
 <div class="cetak">
     <div style="padding: 10px;margin:0 0 3rem 0;">
         <input type="hidden" value="<?php echo get_option( '_crb_api_key_extension' ); ?>" id="api_key">
-    <h1 class="text-center" style="margin:3rem;">Pencairan Bagi Hasil Pajak Daerah ( BHPD )</h1>
+    <h1 class="text-center" style="margin:3rem;">Pencairan Bagi Hasil Pajak Daerah ( BHPD )<?php echo $nama_skpd; ?></h1>
         <div style="margin-bottom: 25px;">
             <button class="btn btn-primary" onclick="tambah_data_pencairan_bhpd();"><i class="dashicons dashicons-plus"></i> Tambah Data</button>
         </div>
@@ -188,10 +233,6 @@ jQuery(document).ready(function(){
     window.global_file_upload = "<?php echo WPSIPD_PLUGIN_URL.'public/media/keu_pemdes/'; ?>";
 });
    
-jQuery(document).ready(function(){
-    get_data_pencairan_bhpd();
-});
-
 function set_keterangan(that){
     var id = jQuery(that).attr('id');
     if(jQuery(that).is(':checked')){
@@ -215,10 +256,17 @@ function get_data_pencairan_bhpd(){
                 data:{
                     'action': 'get_datatable_data_pencairan_bhpd',
                     'api_key': '<?php echo get_option( '_crb_api_key_extension' ); ?>',
+                    'tahun_anggaran': '<?php echo $input['tahun_anggaran']; ?>',
+                    'id_skpd': '<?php echo $input['id_skpd']; ?>'
                 }
             },
-            lengthMenu: [[20, 50, 100, -1], [20, 50, 100, "All"]],
-            order: [[0, 'asc']],
+            lengthMenu: [
+                [20, 50, 100, -1]
+                [20, 50, 100, "All"]
+            ],
+            order:
+                [[0, 'asc']
+            ],
             "drawCallback": function( settings ){
                 jQuery("#wrap-loading").hide();
             },
@@ -461,20 +509,32 @@ function detail_data(_id){
 }
 
 //show tambah data
-function tambah_data_pencairan_bhpd(){
+function tambah_data_pencairan_bhpd() {
     jQuery('#id_data').val('').prop('disabled', false);
-    jQuery('#tahun').val('').prop('disabled', false);
-    jQuery('#kec').val('').prop('disabled', false);
-    jQuery('#desa').val('').prop('disabled', false);
-    jQuery('#validasi_pagu').html('');
-    jQuery('#pagu_anggaran').val('').prop('disabled', false);
-    jQuery('#keterangan').val('').prop('disabled', false);
-    jQuery('#status_pagu').closest('.form-check').hide().prop('disabled', false);
-    jQuery('#keterangan_status_pagu').closest('.form-group').hide().prop('disabled', false);
-    jQuery('#status_pagu').prop('checked', false);
-    jQuery('#keterangan_status_pagu').val('').prop('disabled', false);
-    jQuery('#modalTambahDataPencairanBHPD .send_data').show();
-    jQuery('#modalTambahDataPencairanBHPD').modal('show');
+    jQuery('#tahun').val('<?php echo $input['tahun_anggaran']; ?>').prop('disabled', false);
+    new Promise(function(resolve, reject){
+        if('<?php echo $input['tahun_anggaran']; ?>' != ''){
+            get_bhpd().then(function(){
+                resolve();
+            });
+        }else{
+            resolve();
+        }
+    })
+    .then(function(){
+        jQuery('#id_data').val('').prop('disabled', false);
+        jQuery('#kec').val('-1').prop('disabled', false);
+        jQuery('#desa').val('').prop('disabled', false);
+        jQuery('#validasi_pagu').html('');
+        jQuery('#pagu_anggaran').val('').prop('disabled', false);
+        jQuery('#keterangan').val('').prop('disabled', false);
+        jQuery('#status_pagu').closest('.form-check').hide().prop('disabled', false);
+        jQuery('#keterangan_status_pagu').closest('.form-group').hide().prop('disabled', false);
+        jQuery('#status_pagu').prop('checked', false);
+        jQuery('#keterangan_status_pagu').val('').prop('disabled', false);
+        jQuery('#modalTambahDataPencairanBHPD .send_data').show();
+        jQuery('#modalTambahDataPencairanBHPD').modal('show');
+    });
 }
 
 function submitTambahDataFormPencairanBHPD(){
@@ -611,41 +671,51 @@ function submitTambahDataFormPencairanBHPD(){
  function get_bhpd(){
     return new Promise(function(resolve, reject){
         var tahun = jQuery('#tahun').val();
-        if(tahun == '' || tahun == '-1'){
+        if (tahun == '' || tahun == '-1') {
             alert('Pilih tahun anggaran dulu!');
             return resolve();
         }
-        jQuery('#wrap-loading').show();
-        jQuery.ajax({
-            url: "<?php echo admin_url('admin-ajax.php'); ?>",
-            type:"post",
-            data:{
-                'action' : "get_pemdes_bhpd",
-                'api_key' : jQuery("#api_key").val(),
-                'tahun_anggaran' : tahun,
-            },
-            dataType: "json",
-            success:function(response){
-                window.data_pemdes = response.data;
-                window.kecamatan_all = {};
-                data_pemdes.map(function(b, i){
-                    if(!kecamatan_all[b.kecamatan]){
-                        kecamatan_all[b.kecamatan] = {};
+        if(typeof bkk_global == 'undefined'){
+            window.bkk_global = {};
+        }
+
+        if(!bkk_global[tahun]){
+            jQuery('#wrap-loading').show();
+            jQuery.ajax({
+                url: "<?php echo admin_url('admin-ajax.php'); ?>",
+                type:"post", 
+                data:{
+                    'action' : "get_pemdes_bhpd",
+                    'api_key' : jQuery("#api_key").val(),
+                    'tahun_anggaran' : tahun,
+                    'nama_kec': '<?php echo $nama_kec; ?>'
+
+                },
+                dataType: "json",
+                success: function(response) {
+                    bkk_global[tahun] = response.data;
+                    window.kecamatan_all = {};
+                    bkk_global[tahun].map(function(b, i) {
+                        if (!kecamatan_all[b.kecamatan]) {
+                            kecamatan_all[b.kecamatan] = {};
+                        }
+                        if (!kecamatan_all[b.kecamatan][b.desa]) {
+                            kecamatan_all[b.kecamatan][b.desa] = [];
+                        }
+                        kecamatan_all[b.kecamatan][b.desa].push(b);
+                    });
+                    var kecamatan = '<option value="-1">Pilih Kecamatan</option>';
+                    for(var i in kecamatan_all){
+                        kecamatan += '<option value="'+i+'">'+i+'</option>';
                     }
-                    if(!kecamatan_all[b.kecamatan][b.desa]){
-                        kecamatan_all[b.kecamatan][b.desa] = [];
-                    }
-                    kecamatan_all[b.kecamatan][b.desa].push(b);
-                });
-                var kecamatan = '<option value="-1">Pilih Kecamatan</option>';
-                for(var i in kecamatan_all){
-                    kecamatan += '<option value="'+i+'">'+i+'</option>';
+                    jQuery('#kec').html(kecamatan);
+                    jQuery('#wrap-loading').hide();
+                    return resolve();
                 }
-                jQuery('#kec').html(kecamatan);
-                jQuery('#wrap-loading').hide();
-                return resolve();
-            }
-        });
+            });
+        }else{
+            return resolve();
+        }
     })
 }
 

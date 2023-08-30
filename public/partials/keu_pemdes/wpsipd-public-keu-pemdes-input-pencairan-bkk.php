@@ -660,8 +660,7 @@ if (in_array("administrator", $user_meta->roles)) {
         tempData.append('pakta_integritas_3_orang', pakta_integritas_3_orang);
         tempData.append('proposal_rencana_anggaran', proposal_rencana_anggaran);
         tempData.append('apbdes', apbdes);
-        tempData.append('fc_rek_kas_desa', fc_rek_kas_desa);
-
+        tempData.append('fc_rek_kas_desa', fc_rek_kas_desa)
 
         jQuery('#wrap-loading').show();
         jQuery.ajax({
