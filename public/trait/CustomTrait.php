@@ -16,20 +16,20 @@ trait CustomTrait {
 				if(!empty($file)){
 
 					if(empty($ext)){
-						throw new Exception('Extensi file belum ditentukan');
+						throw new Exception('Extensi file belum ditentukan '.json_encode($file));
 					}
 
 					if(empty($path)){
-						throw new Exception('Lokasi folder belum ditentukan');
+						throw new Exception('Lokasi folder belum ditentukan '.json_encode($file));
 					}
 
 					$imageFileType = strtolower(pathinfo($path.basename($file["name"]),PATHINFO_EXTENSION));
 					if(!in_array($imageFileType, $ext)){
-						throw new Exception('Lampiran wajib ber-type ' . implode(", ", $ext));
+						throw new Exception('Lampiran wajib ber-type ' . implode(", ", $ext).' '.json_encode($file));
 					}
 
 					if($file['size'] > $maxSize){
-						throw new Exception('Ukuran file melebihi ukuran maksimal');
+						throw new Exception('Ukuran file melebihi ukuran maksimal '.json_encode($file));
 					}
 
 					if(!empty($nama_file)){
@@ -39,13 +39,15 @@ trait CustomTrait {
 						$file['name'] = $nama_file.'-'.$file['name'];
 					}
 					$target = $path .  $file['name'];
-					if(move_uploaded_file($file['tmp_name'], $target)){
+					$moved = move_uploaded_file($file['tmp_name'], $target);
+					if( $moved ) {
 						return [
 							'status' => true,
 							'filename' => $file['name']
 						];
+					} else {
+						throw new Exception("Oops, gagal upload file ".$file['name'].", hubungi admin. Not uploaded because of error #".$file["error"].' '.json_encode($file));
 					}
-					throw new Exception('Oops, gagal upload file, hubungi admin');
 				}
 				throw new Exception('Oops, file belum dipilih');
 			}

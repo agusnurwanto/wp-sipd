@@ -84,6 +84,56 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 		require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/renja/wpsipd-public-analisis-belanja-sumber-dana.php';
 	}
 
+	public function rekap_sumber_dana_per_skpd($atts)
+	{
+		// untuk disable render shortcode di halaman edit page/post
+		if(!empty($_GET) && !empty($_GET['post'])){
+			return '';
+		}
+		
+		require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/penganggaran/wpsipd-public-rekap-sumber-dana-per-skpd.php';
+	}
+
+	public function rekap_sumber_dana_per_program($atts)
+	{
+		// untuk disable render shortcode di halaman edit page/post
+		if(!empty($_GET) && !empty($_GET['post'])){
+			return '';
+		}
+		
+		require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/penganggaran/wpsipd-public-rekap-sumber-dana-per-program.php';
+	}
+
+	public function rekap_sumber_dana_per_kegiatan($atts)
+	{
+		// untuk disable render shortcode di halaman edit page/post
+		if(!empty($_GET) && !empty($_GET['post'])){
+			return '';
+		}
+		
+		require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/penganggaran/wpsipd-public-rekap-sumber-dana-per-kegiatan.php';
+	}
+
+	public function rekap_sumber_dana_per_sub_kegiatan($atts)
+	{
+		// untuk disable render shortcode di halaman edit page/post
+		if(!empty($_GET) && !empty($_GET['post'])){
+			return '';
+		}
+		
+		require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/penganggaran/wpsipd-public-rekap-sumber-dana-per-sub-kegiatan.php';
+	}
+
+	public function rekap_sumber_dana_per_rekening($atts)
+	{
+		// untuk disable render shortcode di halaman edit page/post
+		if(!empty($_GET) && !empty($_GET['post'])){
+			return '';
+		}
+		
+		require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/penganggaran/wpsipd-public-rekap-sumber-dana-per-rekening.php';
+	}
+
 	public function get_data_monitoring_rup(){
 		global $wpdb;
 		$return = array(
@@ -534,6 +584,7 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 			'action'	=> $_POST['action'],
 			'data'		=> array(),
 			'status_insert' => array(),
+			'status_update' => array(),
 			'cek_query' => array()
 		);
 		if(!empty($_POST)){
@@ -552,7 +603,7 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 											AND tahun_anggaran=%d',
 											$val_data['id'],$val_data['rumus'],$_POST['tahun_anggaran']), ARRAY_A);
 								if(empty($data_rumus_indikator)){
-									$ret['status_insert'] = $wpdb->insert($nama_tabel, array('id'=>$val_data['id'],'rumus'=>$val_data['rumus'],'keterangan'=>$val_data['keterangan'],'user'=>$val_data['user'],'active'=>$val_data['active'],'update_at'=>current_time('mysql'),'tahun_anggaran'=>$_POST['tahun_anggaran']));
+									$ret['status_insert'][] = $wpdb->insert($nama_tabel, array('id'=>$val_data['id'],'rumus'=>$val_data['rumus'],'keterangan'=>$val_data['keterangan'],'user'=>$val_data['user'],'active'=>$val_data['active'],'update_at'=>current_time('mysql'),'tahun_anggaran'=>$_POST['tahun_anggaran']));
 								}
 							}
 						}
@@ -567,7 +618,7 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 											AND tahun_anggaran=%d',
 											$val_data['nama'],$_POST['tahun_anggaran']), ARRAY_A);
 								if(empty($data_rumus_indikator)){
-									$ret['status_insert'] = $wpdb->insert($nama_tabel, array('nama'=>$val_data['nama'],'keterangan'=>$val_data['keterangan'],'id_skpd'=>$val_data['id_skpd'],'user'=>$val_data['user'],'active'=>$val_data['active'],'update_at'=>current_time('mysql'),'tahun_anggaran'=>$_POST['tahun_anggaran']));
+									$ret['status_insert'][] = $wpdb->insert($nama_tabel, array('nama'=>$val_data['nama'],'keterangan'=>$val_data['keterangan'],'id_skpd'=>$val_data['id_skpd'],'user'=>$val_data['user'],'active'=>$val_data['active'],'update_at'=>current_time('mysql'),'tahun_anggaran'=>$_POST['tahun_anggaran']));
 								}
 							}
 						}
@@ -581,9 +632,9 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 															WHERE id=%d',
 															$val_data['id']), ARRAY_A);
 								if(empty($data_tipe_perencanaan)){
-									$ret['status_insert'] = $wpdb->insert($nama_tabel, array('nama_tipe'=>$val_data['nama_tipe'],'keterangan_tipe'=>$val_data['keterangan_tipe'],'lama_pelaksanaan'=>$val_data['lama_pelaksanaan']));
+									$ret['status_insert'][] = $wpdb->insert($nama_tabel, array('nama_tipe'=>$val_data['nama_tipe'],'keterangan_tipe'=>$val_data['keterangan_tipe'],'lama_pelaksanaan'=>$val_data['lama_pelaksanaan']));
 								}else{
-									$ret['status_insert'] = $wpdb->update($nama_tabel, array('nama_tipe'=>$val_data['nama_tipe'],'keterangan_tipe'=>$val_data['keterangan_tipe'],'lama_pelaksanaan'=>$val_data['lama_pelaksanaan']), array('id'=>$val_data['id']));
+									$ret['status_update'][] = $wpdb->update($nama_tabel, array('nama_tipe'=>$val_data['nama_tipe'],'keterangan_tipe'=>$val_data['keterangan_tipe'],'lama_pelaksanaan'=>$val_data['lama_pelaksanaan']), array('id'=>$val_data['id']));
 								}
 							}
 						}
@@ -5272,6 +5323,516 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 						'message'	=> 'Harap diisi semua,tidak boleh ada yang kosong!'
 					);
 				}
+			}else{
+				$return = array(
+					'status' => 'error',
+					'message'	=> 'Api Key tidak sesuai!'
+				);
+			}
+		}else{
+			$return = array(
+				'status' => 'error',
+				'message'	=> 'Format tidak sesuai!'
+			);
+		}
+		die(json_encode($return));
+	}
+
+	function get_rinc_rka_lokal(){
+		global $wpdb;
+		$return = array(
+			'status' => 'success',
+			'data'	=> array()
+		);
+
+		if(!empty($_POST)){
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+				$kode_sbl = $_POST['kode_sbl'];
+				$tahun_anggaran = $_POST['tahun_anggaran'];
+				$type = '';
+
+				$rinc = $wpdb->get_results("
+					SELECT 
+						* 
+					from data_rka_lokal 
+					where kode_sbl='".$kode_sbl."'
+						AND tahun_anggaran=".$tahun_anggaran."
+						AND active=1
+					Order by kode_akun ASC, subs_bl_teks ASC, ket_bl_teks ASC, id_rinci_sub_bl ASC"
+				, ARRAY_A);
+				// print_r($rinc); die();
+				$rin_sub_item = '';
+				$total_sub_rinc = 0;
+				$total_sub_rinc_murni = 0;
+				$akun = array();
+				$total_subs_bl_teks = array();
+				foreach ($rinc as $key => $item) {
+					if(empty($item['kode_akun'])){
+						continue;
+					}
+					$akun_all = explode('.', $item['kode_akun']);
+					$akun_1 = $akun_all[0].'.'.$akun_all[1];
+					$akun_2 = $akun_1.'.'.$akun_all[2];
+					$akun_3 = $akun_2.'.'.$akun_all[3];
+					$akun_4 = $akun_3.'.'.$akun_all[4];
+					$akun_1_db = $wpdb->get_results("
+						SELECT 
+							kode_akun,
+							nama_akun 
+						from data_akun 
+						where kode_akun='".$akun_1."'"
+					, ARRAY_A);
+					$akun_2_db = $wpdb->get_results("
+						SELECT 
+							kode_akun,
+							nama_akun 
+						from data_akun 
+						where kode_akun='".$akun_2."'"
+					, ARRAY_A);
+					$akun_3_db = $wpdb->get_results("
+						SELECT 
+							kode_akun,
+							nama_akun 
+						from data_akun 
+						where kode_akun='".$akun_3."'"
+					, ARRAY_A);
+					$akun_4_db = $wpdb->get_results("
+						SELECT 
+							kode_akun,
+							nama_akun 
+						from data_akun 
+						where kode_akun='".$akun_4."'"
+					, ARRAY_A);
+					if(empty($akun[$akun_1_db[0]['kode_akun']])){
+						$akun[$akun_1_db[0]['kode_akun']] = array(
+							'total' => 0,
+							'total_murni' => 0,
+							'status' => 0,
+							'kode_akun' => $akun_1_db[0]['kode_akun'],
+							'nama_akun' => $akun_1_db[0]['nama_akun']
+						);
+					}
+					if(empty($akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']])){
+						$akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']] = array(
+							'total' => 0,
+							'total_murni' => 0,
+							'status' => 0,
+							'kode_akun' => $akun_2_db[0]['kode_akun'],
+							'nama_akun' => $akun_2_db[0]['nama_akun']
+						);
+					}
+					if(empty($akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']])){
+						$akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']] = array(
+							'total' => 0,
+							'total_murni' => 0,
+							'status' => 0,
+							'kode_akun' => $akun_3_db[0]['kode_akun'],
+							'nama_akun' => $akun_3_db[0]['nama_akun']
+						);
+					}
+					if(empty($akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']][$akun_4_db[0]['kode_akun']])){
+						$akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']][$akun_4_db[0]['kode_akun']] = array(
+							'total' => 0,
+							'total_murni' => 0,
+							'status' => 0,
+							'kode_akun' => $akun_4_db[0]['kode_akun'],
+							'nama_akun' => $akun_4_db[0]['nama_akun']
+						);
+					}
+					if(empty($akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']][$akun_4_db[0]['kode_akun']][$item['nama_akun']])){
+						$nama_akun = str_replace($item['kode_akun'], '', $item['nama_akun']);
+						$akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']][$akun_4_db[0]['kode_akun']][$item['nama_akun']] = array(
+							'total' => 0,
+							'total_murni' => 0,
+							'status' => 0,
+							'kode_akun' => $item['kode_akun'],
+							'nama_akun' => $nama_akun
+						);
+					}
+					if(empty($akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']][$akun_4_db[0]['kode_akun']][$item['nama_akun']][$item['subs_bl_teks']])){
+						$akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']][$akun_4_db[0]['kode_akun']][$item['nama_akun']][$item['subs_bl_teks']] = array(
+							'total' => 0,
+							'total_murni' => 0,
+							'status' => 0,
+							'kode_akun' => '&nbsp;',
+							'nama_akun' => $item['subs_bl_teks']
+						);
+					}
+					if(empty($akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']][$akun_4_db[0]['kode_akun']][$item['nama_akun']][$item['subs_bl_teks']][$item['ket_bl_teks']])){
+						$akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']][$akun_4_db[0]['kode_akun']][$item['nama_akun']][$item['subs_bl_teks']][$item['ket_bl_teks']] = array(
+							'total' => 0,
+							'total_murni' => 0,
+							'status' => 0,
+							'kode_akun' => '&nbsp;',
+							'nama_akun' => $item['ket_bl_teks']
+						);
+					}
+					$akun[$akun_1_db[0]['kode_akun']]['total'] += $item['total_harga'];
+					$akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']]['total'] += $item['total_harga'];
+					$akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']]['total'] += $item['total_harga'];
+					$akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']][$akun_4_db[0]['kode_akun']]['total'] += $item['total_harga'];
+					$akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']][$akun_4_db[0]['kode_akun']][$item['nama_akun']]['total'] += $item['total_harga'];
+					$akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']][$akun_4_db[0]['kode_akun']][$item['nama_akun']][$item['subs_bl_teks']]['total'] += $item['total_harga'];
+					$akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']][$akun_4_db[0]['kode_akun']][$item['nama_akun']][$item['subs_bl_teks']][$item['ket_bl_teks']]['total'] += $item['total_harga'];
+					$akun[$akun_1_db[0]['kode_akun']]['total_murni'] += $item['rincian_murni'];
+					$akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']]['total_murni'] += $item['rincian_murni'];
+					$akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']]['total_murni'] += $item['rincian_murni'];
+					$akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']][$akun_4_db[0]['kode_akun']]['total_murni'] += $item['rincian_murni'];
+					$akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']][$akun_4_db[0]['kode_akun']][$item['nama_akun']]['total_murni'] += $item['rincian_murni'];
+					$akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']][$akun_4_db[0]['kode_akun']][$item['nama_akun']][$item['subs_bl_teks']]['total_murni'] += $item['rincian_murni'];
+					$akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']][$akun_4_db[0]['kode_akun']][$item['nama_akun']][$item['subs_bl_teks']][$item['ket_bl_teks']]['total_murni'] += $item['rincian_murni'];
+				}
+				// print_r($akun); die();
+				$id_subtitle = array();
+				$id_keterangan = array();
+				foreach ($rinc as $key => $item) {
+					if(empty($item['kode_akun'])){
+						continue;
+					}
+					$alamat_array = $this->get_alamat($bl[0], $item);
+			        $alamat = $alamat_array['alamat'];
+			        $lokus_akun_teks = $alamat_array['lokus_akun_teks_decode'];
+					if(empty($alamat)){
+						$alamat = array();
+			            if(!empty($item['id_lurah_penerima'])){
+			                $db_alamat = $wpdb->get_row("SELECT nama from data_alamat where id_alamat=".$item['id_lurah_penerima']." and is_kel=1", ARRAY_A);
+			                $alamat[] = $db_alamat['nama'];
+			            }
+			            if(!empty($item['id_camat_penerima'])){
+			                $db_alamat = $wpdb->get_row("SELECT nama from data_alamat where id_alamat=".$item['id_camat_penerima']." and is_kec=1", ARRAY_A);
+			                $alamat[] = $db_alamat['nama'];
+			            }
+			            if(!empty($item['id_kokab_penerima'])){
+			                $db_alamat = $wpdb->get_row("SELECT nama from data_alamat where id_alamat=".$item['id_kokab_penerima']." and is_kab=1", ARRAY_A);
+			                $alamat[] = $db_alamat['nama'];
+			            }
+			            if(!empty($item['id_prop_penerima'])){
+			                $db_alamat = $wpdb->get_row("SELECT nama from data_alamat where id_alamat=".$item['id_prop_penerima']." and is_prov=1", ARRAY_A);
+			                $alamat[] = $db_alamat['nama'];
+			            }
+			            $profile_penerima = implode(', ', $alamat);
+					}else{
+						if(strpos($item['nama_komponen'], $lokus_akun_teks) !== false ){
+							$profile_penerima = $alamat;
+						}else{
+							$profile_penerima = $lokus_akun_teks.', '.$alamat;
+						}
+					}
+
+					$akun_all = explode('.', $item['kode_akun']);
+					$akun_1 = $akun_all[0].'.'.$akun_all[1];
+					$akun_2 = $akun_1.'.'.$akun_all[2];
+					$akun_3 = $akun_2.'.'.$akun_all[3];
+					$akun_4 = $akun_3.'.'.$akun_all[4];
+					$akun_1_db = $wpdb->get_results("
+						SELECT 
+							kode_akun,
+							nama_akun 
+						from data_akun 
+						where kode_akun='".$akun_1."'"
+					, ARRAY_A);
+					$akun_2_db = $wpdb->get_results("
+						SELECT 
+							kode_akun,
+							nama_akun 
+						from data_akun 
+						where kode_akun='".$akun_2."'"
+					, ARRAY_A);
+					$akun_3_db = $wpdb->get_results("
+						SELECT 
+							kode_akun,
+							nama_akun 
+						from data_akun 
+						where kode_akun='".$akun_3."'"
+					, ARRAY_A);
+					$akun_4_db = $wpdb->get_results("
+						SELECT 
+							kode_akun,
+							nama_akun 
+						from data_akun 
+						where kode_akun='".$akun_4."'"
+					, ARRAY_A);
+
+					$key_ket = $kode_sbl.'-'.$akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']][$akun_4_db[0]['kode_akun']][$item['nama_akun']]['kode_akun'].'-'.$item['subs_bl_teks'].'-'.$item['ket_bl_teks'];
+					if(empty($id_subtitle[$key_ket])){
+						$id_subtitle[$key_ket] = $item['id'];
+					}
+					if(empty($id_keterangan[$key_ket])){
+						$id_keterangan[$key_ket] = $item['id'];
+					}
+
+					// rekening 1
+					if($akun[$akun_1_db[0]['kode_akun']]['status'] == 0){
+						$akun[$akun_1_db[0]['kode_akun']]['status'] = 1;
+						$rin_murni = '';
+						$selisih_murni = '';
+						if(
+			        		$type == 'rka_perubahan'
+			        		|| $type == 'dpa_perubahan'
+			        	){
+							$rin_murni = '
+			                    <td class="kanan bawah text_kanan text_blok" style="white-space:nowrap">Rp. '.number_format($akun[$akun_1_db[0]['kode_akun']]['total_murni'],0,",",".").'</td>
+			                    <td colspan="4" class="kanan bawah text_blok"></td>
+							';
+							$selisih_murni = '
+								<td class="kanan bawah text_blok text_kanan">Rp. '.$this->ubah_minus($akun[$akun_1_db[0]['kode_akun']]['total']-$akun[$akun_1_db[0]['kode_akun']]['total_murni']).'
+							';
+						}
+						$rin_sub_item .= '
+							<tr>
+				                <td class="kiri kanan bawah text_blok">'.$akun[$akun_1_db[0]['kode_akun']]['kode_akun'].'</td>
+			                    <td class="kanan bawah text_blok" colspan="5"><span class="nama">'.$akun[$akun_1_db[0]['kode_akun']]['nama_akun'].'</span>'.button_mapping($kode_sbl.'-'.$akun_1_db[0]['kode_akun']).'</td>
+			                    '.$rin_murni.'
+			                    <td class="kanan bawah text_kanan text_blok" style="white-space:nowrap">Rp. '.number_format($akun[$akun_1_db[0]['kode_akun']]['total'],0,",",".").'</td>
+			                    '.$selisih_murni.'
+			                </tr>
+						';
+					}
+
+					// rekening 2
+					if($akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']]['status'] == 0){
+						$akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']]['status'] = 1;
+						$rin_murni = '';
+						$selisih_murni = '';
+						if(
+			        		$type == 'rka_perubahan'
+			        		|| $type == 'dpa_perubahan'
+			        	){
+							$rin_murni = '
+			                    <td class="kanan bawah text_kanan text_blok" style="white-space:nowrap">Rp. '.number_format($akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']]['total_murni'],0,",",".").'</td>
+			                    <td colspan="4" class="kanan bawah text_blok"></td>
+							';
+							$selisih_murni = '
+								<td class="kanan bawah text_blok text_kanan">Rp. '.$this->ubah_minus($akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']]['total']-$akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']]['total_murni']).'
+							';
+						}
+						$rin_sub_item .= '
+							<tr>
+				                <td class="kiri kanan bawah text_blok">'.$akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']]['kode_akun'].'</td>
+			                    <td class="kanan bawah text_blok" colspan="5"><span class="nama">'.$akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']]['nama_akun'].'</span>'.button_mapping($kode_sbl.'-'.$akun_2_db[0]['kode_akun']).'</td>
+			                    '.$rin_murni.'
+			                    <td class="kanan bawah text_kanan text_blok" style="white-space:nowrap">Rp. '.number_format($akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']]['total'],0,",",".").'</td>
+			                    '.$selisih_murni.'
+			                </tr>
+						';
+					}
+
+					// rekening 3
+					if($akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']]['status'] == 0){
+						$akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']]['status'] = 1;
+						$rin_murni = '';
+						$selisih_murni = '';
+						if(
+			        		$type == 'rka_perubahan'
+			        		|| $type == 'dpa_perubahan'
+			        	){
+							$rin_murni = '
+			                    <td class="kanan bawah text_kanan text_blok" style="white-space:nowrap">Rp. '.number_format($akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']]['total_murni'],0,",",".").'</td>
+			                    <td colspan="4" class="kanan bawah text_blok"></td>
+							';
+							$selisih_murni = '
+								<td class="kanan bawah text_blok text_kanan">Rp. '.$this->ubah_minus($akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']]['total']-$akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']]['total_murni']).'
+							';
+						}
+						$rin_sub_item .= '
+							<tr>
+				                <td class="kiri kanan bawah text_blok">'.$akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']]['kode_akun'].'</td>
+			                    <td class="kanan bawah text_blok" colspan="5"><span class="nama">'.$akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']]['nama_akun'].'</span>'.button_mapping($kode_sbl.'-'.$akun_3_db[0]['kode_akun']).'</td>
+			                    '.$rin_murni.'
+			                    <td class="kanan bawah text_kanan text_blok" style="white-space:nowrap">Rp. '.number_format($akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']]['total'],0,",",".").'</td>
+			                    '.$selisih_murni.'
+			                </tr>
+						';
+					}
+
+					// rekening 4
+					if($akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']][$akun_4_db[0]['kode_akun']]['status'] == 0){
+						$akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']][$akun_4_db[0]['kode_akun']]['status'] = 1;
+						$rin_murni = '';
+						$selisih_murni = '';
+						if(
+			        		$type == 'rka_perubahan'
+			        		|| $type == 'dpa_perubahan'
+			        	){
+							$rin_murni = '
+			                    <td class="kanan bawah text_kanan text_blok" style="white-space:nowrap">Rp. '.number_format($akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']][$akun_4_db[0]['kode_akun']]['total_murni'],0,",",".").'</td>
+			                    <td colspan="4" class="kanan bawah text_blok"></td>
+							';
+							$selisih_murni = '
+								<td class="kanan bawah text_blok text_kanan">Rp. '.$this->ubah_minus($akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']][$akun_4_db[0]['kode_akun']]['total']-$akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']][$akun_4_db[0]['kode_akun']]['total_murni']).'
+							';
+						}
+						$rin_sub_item .= '
+							<tr>
+				                <td class="kiri kanan bawah text_blok">'.$akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']][$akun_4_db[0]['kode_akun']]['kode_akun'].'</td>
+			                    <td class="kanan bawah text_blok" colspan="5"><span class="nama">'.$akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']][$akun_4_db[0]['kode_akun']]['nama_akun'].'</span>'.button_mapping($kode_sbl.'-'.$akun_4_db[0]['kode_akun']).'</td>
+			                    '.$rin_murni.'
+			                    <td class="kanan bawah text_kanan text_blok" style="white-space:nowrap">Rp. '.number_format($akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']][$akun_4_db[0]['kode_akun']]['total'],0,",",".").'</td>
+			                    '.$selisih_murni.'
+			                </tr>
+						';
+					}
+
+					// rekening 5
+					if($akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']][$akun_4_db[0]['kode_akun']][$item['nama_akun']]['status'] == 0){
+						$akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']][$akun_4_db[0]['kode_akun']][$item['nama_akun']]['status'] = 1;
+						$rin_murni = '';
+						$selisih_murni = '';
+						if(
+			        		$type == 'rka_perubahan'
+			        		|| $type == 'dpa_perubahan'
+			        	){
+							$rin_murni = '
+			                    <td class="kanan bawah text_kanan text_blok" style="white-space:nowrap">Rp. '.number_format($akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']][$akun_4_db[0]['kode_akun']][$item['nama_akun']]['total_murni'],0,",",".").'</td>
+			                    <td colspan="4" class="kanan bawah text_blok"></td>
+							';
+							$selisih_murni = '
+								<td class="kanan bawah text_blok text_kanan">Rp. '.$this->ubah_minus($akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']][$akun_4_db[0]['kode_akun']][$item['nama_akun']]['total']-$akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']][$akun_4_db[0]['kode_akun']][$item['nama_akun']]['total_murni']).'
+							';
+						}
+						$rin_sub_item .= '
+							<tr>
+				                <td class="kiri kanan bawah text_blok">'.$akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']][$akun_4_db[0]['kode_akun']][$item['nama_akun']]['kode_akun'].'</td>
+			                    <td class="kanan bawah text_blok kode_akun_td" colspan="5"><span class="nama">'.$akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']][$akun_4_db[0]['kode_akun']][$item['nama_akun']]['nama_akun'].'</span>'.button_mapping($kode_sbl.'-'.$akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']][$akun_4_db[0]['kode_akun']][$item['nama_akun']]['kode_akun']).'</td>
+			                    '.$rin_murni.'
+			                    <td class="kanan bawah text_kanan text_blok" style="white-space:nowrap">Rp. '.number_format($akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']][$akun_4_db[0]['kode_akun']][$item['nama_akun']]['total'],0,",",".").'</td>
+			                    '.$selisih_murni.'
+			                </tr>
+						';
+					}
+
+					// kelompok / paket
+					if($akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']][$akun_4_db[0]['kode_akun']][$item['nama_akun']][$item['subs_bl_teks']]['status'] == 0){
+						$akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']][$akun_4_db[0]['kode_akun']][$item['nama_akun']][$item['subs_bl_teks']]['status'] = 1;
+						$rin_murni = '';
+						$selisih_murni = '';
+						if(
+			        		$type == 'rka_perubahan'
+			        		|| $type == 'dpa_perubahan'
+			        	){
+							$rin_murni = '
+			                    <td class="kanan bawah text_kanan text_blok nilai_kelompok" style="white-space:nowrap">Rp. '.number_format($akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']][$akun_4_db[0]['kode_akun']][$item['nama_akun']][$item['subs_bl_teks']]['total_murni'],0,",",".").'</td>
+			                    <td colspan="4" class="kanan bawah text_blok"></td>
+							';
+							$selisih_murni = '
+								<td class="kanan bawah text_blok text_kanan nilai_kelompok">Rp. '.$this->ubah_minus($akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']][$akun_4_db[0]['kode_akun']][$item['nama_akun']][$item['subs_bl_teks']]['total']-$akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']][$akun_4_db[0]['kode_akun']][$item['nama_akun']][$item['subs_bl_teks']]['total_murni']).'
+							';
+						}
+						$dana = $wpdb->get_row("
+							SELECT 
+								d.id_sumber_dana,
+								m.nama_dana,
+								m.kode_dana
+							from data_mapping_sumberdana_lokal d
+							left join data_sumber_dana m on d.id_sumber_dana=m.id_dana
+								and d.tahun_anggaran = m.tahun_anggaran
+							where id_rinci_sub_bl='".$item['id_rinci_sub_bl']."'
+								AND d.tahun_anggaran=".$item['tahun_anggaran']."
+								AND d.active=1
+						", ARRAY_A);
+						$rin_sub_item .= '
+							<tr>
+				                <td class="kiri kanan bawah text_blok">'.$akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']][$akun_4_db[0]['kode_akun']][$item['nama_akun']][$item['subs_bl_teks']]['kode_akun'].'</td>
+			                    <td class="kanan bawah text_blok" colspan="5"><span class="nama">'.$akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']][$akun_4_db[0]['kode_akun']][$item['nama_akun']][$item['subs_bl_teks']]['nama_akun'].'</span>'.button_mapping($kode_sbl.'-'.$akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']][$akun_4_db[0]['kode_akun']][$item['nama_akun']]['kode_akun'].'-'.$id_subtitle[$key_ket]).'<div style="margin-left: 25px;">Sumber Dana: '.$dana['nama_dana'].'</div></td>
+			                    '.$rin_murni.'
+			                    <td class="kanan bawah text_kanan text_blok nilai_kelompok" style="white-space:nowrap">Rp. '.number_format($akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']][$akun_4_db[0]['kode_akun']][$item['nama_akun']][$item['subs_bl_teks']]['total'],0,",",".").'</td>
+			                    '.$selisih_murni.'
+			                </tr>
+						';
+					}
+
+					// keterangan
+					if($akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']][$akun_4_db[0]['kode_akun']][$item['nama_akun']][$item['subs_bl_teks']][$item['ket_bl_teks']]['status'] == 0){
+						$akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']][$akun_4_db[0]['kode_akun']][$item['nama_akun']][$item['subs_bl_teks']][$item['ket_bl_teks']]['status'] = 1;
+						$rin_murni = '';
+						$selisih_murni = '';
+						if(
+			        		$type == 'rka_perubahan'
+			        		|| $type == 'dpa_perubahan'
+			        	){
+							$rin_murni = '
+			                    <td class="kanan bawah text_kanan text_blok nilai_keterangan" style="white-space:nowrap">Rp. '.number_format($akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']][$akun_4_db[0]['kode_akun']][$item['nama_akun']][$item['subs_bl_teks']][$item['ket_bl_teks']]['total_murni'],0,",",".").'</td>
+			                    <td colspan="4" class="kanan bawah text_blok"></td>
+							';
+							$selisih_murni = '
+								<td class="kanan bawah text_blok text_kanan nilai_keterangan">Rp. '.$this->ubah_minus($akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']][$akun_4_db[0]['kode_akun']][$item['nama_akun']][$item['subs_bl_teks']][$item['ket_bl_teks']]['total']-$akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']][$akun_4_db[0]['kode_akun']][$item['nama_akun']][$item['subs_bl_teks']][$item['ket_bl_teks']]['total_murni']).'
+							';
+						}
+						$rin_sub_item .= '
+							<tr>
+				                <td class="kiri kanan bawah text_blok">'.$akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']][$akun_4_db[0]['kode_akun']][$item['nama_akun']][$item['subs_bl_teks']][$item['ket_bl_teks']]['kode_akun'].'</td>
+			                    <td class="kanan bawah text_blok" colspan="5"><span class="nama">'.$akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']][$akun_4_db[0]['kode_akun']][$item['nama_akun']][$item['subs_bl_teks']][$item['ket_bl_teks']]['nama_akun'].'</span>'.button_mapping($kode_sbl.'-'.$akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']][$akun_4_db[0]['kode_akun']][$item['nama_akun']]['kode_akun'].'-'.$id_subtitle[$key_ket].'-'.$id_keterangan[$key_ket]).'</td>
+			                    '.$rin_murni.'
+			                    <td class="kanan bawah text_kanan text_blok nilai_keterangan" style="white-space:nowrap">Rp. '.number_format($akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']][$akun_4_db[0]['kode_akun']][$item['nama_akun']][$item['subs_bl_teks']][$item['ket_bl_teks']]['total'],0,",",".").'</td>
+			                    '.$selisih_murni.'
+			                </tr>
+						';
+					}
+
+					// kommponen
+					$rin_murni = '';
+					$selisih_murni = '';
+					if(
+			    		$type == 'rka_perubahan'
+			    		|| $type == 'dpa_perubahan'
+			    	){
+						$rin_murni = '
+			                <td class="kanan bawah" style="vertical-align: middle;">'.$item['koefisien_murni'].'</td>
+			                <td class="kanan bawah" style="vertical-align: middle;">'.$item['satuan'].'</td>
+			                <td class="kanan bawah text_kanan" style="vertical-align: middle;">'.number_format($item['harga_satuan_murni'],0,",",".").'</td>
+			                <td class="kanan bawah text_kanan" style="vertical-align: middle;">'.number_format($item['pajak_murni'],0,",",".").'</td>
+			                <td class="kanan bawah text_kanan" style="vertical-align: middle;white-space:nowrap">Rp. '.number_format($item['rincian_murni'],0,",",".").'</td>
+						';
+						$selisih_murni = '
+							<td class="kanan bawah text_kanan" style="vertical-align: middle;white-space:nowrap">Rp. '.$this->ubah_minus($item['total_harga']-$item['rincian_murni']).'</td>
+						';
+					}
+					$rin_sub_item .= '
+						<tr class="data-komponen">
+							<td class="kiri kanan bawah text_blok">&nbsp;</td>
+			                <td class="kanan bawah">
+			                    <div><span class="nama">'.$item['nama_komponen'].'</span>'.button_mapping($kode_sbl.'-'.$akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']][$akun_4_db[0]['kode_akun']][$item['nama_akun']]['kode_akun'].'-'.$id_subtitle[$key_ket].'-'.$id_keterangan[$key_ket].'-'.$item['id_rinci_sub_bl']).'</div>
+			                    <div style="margin-left: 20px">'.$item['spek_komponen'].'</div>
+			                    <div style="margin-left: 40px" class="profile-penerima" id-profile="'.$item['id_penerima'].'" id-prop="'.$item['id_prop_penerima'].'" id-kokab="'.$item['id_kokab_penerima'].'" id-camat="'.$item['id_camat_penerima'].'" id-lurah="'.$item['id_lurah_penerima'].'">'.$profile_penerima.'</div>
+			                </td>
+			                '.$rin_murni.'
+			                <td class="kanan bawah volume_satuan" style="vertical-align: middle;">'.$item['koefisien'].'</td>
+			                <td class="kanan bawah" style="vertical-align: middle;">'.$item['satuan'].'</td>
+			                <td class="kanan bawah text_kanan" style="vertical-align: middle;">'.number_format($item['harga_satuan'],0,",",".").'</td>
+			                <td class="kanan bawah text_kanan" style="vertical-align: middle;">'.number_format($item['totalpajak'],0,",",".").'</td>
+			                <td class="kanan bawah text_kanan total_rinci" data-total="'.$item['total_harga'].'" style="vertical-align: middle;white-space:nowrap">Rp. '.number_format($item['total_harga'],0,",",".").'</td>
+			                '.$selisih_murni.'
+			            </tr>
+					';
+					$total_sub_rinc += $item['total_harga'];
+					$total_sub_rinc_murni += $item['rincian_murni'];
+				}
+				
+				$rin_murni = '';
+				$selisih_murni = '';
+				$colspan = 6;
+				if(
+					$type == 'rka_perubahan'
+					|| $type == 'dpa_perubahan'
+				){
+					$colspan = 4;
+					$rin_murni = '
+						<td colspan="6" class="kiri kanan bawah text_kanan text_blok">Jumlah Anggaran Sub Kegiatan :</td>
+			            <td class="kanan bawah text_blok text_kanan" style="white-space:nowrap">Rp. '.number_format($total_sub_rinc_murni,0,",",".").'</td>
+					';
+					$selisih_murni = '
+						<td class="kanan bawah text_blok text_kanan" style="white-space:nowrap">Rp. '.$this->ubah_minus($total_sub_rinc - $total_sub_rinc_murni).'</td>
+					';
+				}
+				$rin_sub_item .= '
+					<tr>
+			            '.$rin_murni.'
+			            <td colspan="'.$colspan.'" class="kiri kanan bawah text_kanan text_blok">Jumlah Anggaran Sub Kegiatan :</td>
+			            <td class="kanan bawah text_blok text_kanan subkeg-total" style="white-space:nowrap" data-kdsbl="'.$sub_bl['kode_sbl'].'">Rp. '.number_format($total_sub_rinc,0,",",".").'</td>
+			            '.$selisih_murni.'
+			        </tr>
+				';
+				$return['rin_sub_item'] = $rin_sub_item;
 			}else{
 				$return = array(
 					'status' => 'error',

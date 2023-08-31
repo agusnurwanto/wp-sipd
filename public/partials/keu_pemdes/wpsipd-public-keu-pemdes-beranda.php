@@ -196,6 +196,9 @@ foreach($data_all as $jenis_keuangan => $val){
         $jenis_keuangan_render = '<a href="'.$val['url'].'" target="_blank">'.$jenis_keuangan.'</a>';
     }
     $realisasi = $val['pencairan'];
+    if(empty($realisasi)){
+        $realisasi = 0;
+    }
     $belum_realisasi = $val['pagu'] - $realisasi;
     if($realisasi == 0){
         $persen = 0;
@@ -245,7 +248,7 @@ $url_per_kecamatan = $this->generatePage('Laporan Realisasi Keuangan Desa per Ke
     function progressLoading() {
         $.LoadingOverlay('show', { 
             image : '', 
-            custom : '<video style="position: absolute; width: 90%; top: 0; margin: auto;" autoplay muted><source <?php echo $src; ?> type="video/mp4">Your browser does not support the video tag.</video>', 
+            custom : '<video style="position: absolute; width: 100vw; height: 100vh; left:0; top: 0; margin: auto;" autoplay muted><source <?php echo $src; ?> type="video/mp4">Your browser does not support the video tag.</video>', 
             imageAnimation : false,
             background : "rgba(0, 0, 0, 1)" 
         });
@@ -286,29 +289,29 @@ $url_per_kecamatan = $this->generatePage('Laporan Realisasi Keuangan Desa per Ke
                 </div>
             </div>
             <div class="col-md-4">
-                <div class="row" style="align-items: center;">
-                    <div class="col-md-4">
+                <div class="row" style="align-items: center; margin-top: 25px;">
+                    <div class="col-4">
                         <div class="setbulet bg-info pull-up">
                             <a href="<?php echo get_option('_crb_keu_pemdes_menu_url_1'); ?>" target="_blank">
                                 <img src="<?php echo get_option('_crb_keu_pemdes_menu_logo_1'); ?>">
                             </a>
                         </div>
                     </div>
-                    <div class="col-md-8">
+                    <div class="col-8">
                         <a href="<?php echo get_option('_crb_keu_pemdes_menu_url_1'); ?>" target="_blank">
                             <h3><?php echo get_option('_crb_keu_pemdes_menu_text_1'); ?></h3>
                         </a>
                     </div>
                 </div>
                 <div class="row" style="align-items: center; margin-top: 25px;">
-                    <div class="col-md-4">
+                    <div class="col-4">
                         <div class="setbulet bg-info pull-up">
                             <a href="<?php echo get_option('_crb_keu_pemdes_menu_url_2'); ?>" target="_blank">
                                 <img src="<?php echo get_option('_crb_keu_pemdes_menu_logo_2'); ?>">
                             </a>
                         </div>
                     </div>
-                    <div class="col-md-8">
+                    <div class="col-8">
                         <a href="<?php echo get_option('_crb_keu_pemdes_menu_url_2'); ?>" target="_blank">
                             <h3><?php echo get_option('_crb_keu_pemdes_menu_text_2'); ?></h3>
                         </a>
