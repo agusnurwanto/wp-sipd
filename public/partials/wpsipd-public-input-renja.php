@@ -266,7 +266,7 @@ foreach ($subkeg as $kk => $sub) {
             $pagu_pergeseran = $data_pagu_pergeseran[0]['pagu_pergeseran'];
             $pagu_usulan_pergeseran = $data_pagu_pergeseran[0]['pagu_usulan_pergeseran'];
         }
-        $thead_pergeseran ='<td class="kanan bawah text_tengah text_blok" rowspan="2">Pagu Indikatif Pergeseran (Rp.)</td>';
+        $thead_pergeseran ='<td class="kanan bawah text_tengah text_blok" rowspan="2">Pagu Sebelum (Rp.)</td>';
     }
 
     if($sub['kode_bidang_urusan'] == 'X.XX'){
@@ -486,8 +486,8 @@ foreach ($data_all['data'] as $sub_skpd) {
         <tr tipe="sub_unit">
             <td class="kiri kanan bawah text_blok"></td>
             <td class="kanan bawah text_blok" colspan="12">Sub Unit Organisasi : '.$sub_skpd['nama'].'</td>
-            <td class="kanan bawah text_kanan text_blok"><span class="nilai_penetapan">'.number_format($sub_skpd['total'],0,",",".").'</span><span class="nilai_usulan">'.number_format($sub_skpd['total_usulan'],0,",",".").'</span></td>
             '.$body_pergeseran1.'
+            <td class="kanan bawah text_kanan text_blok"><span class="nilai_penetapan">'.number_format($sub_skpd['total'],0,",",".").'</span><span class="nilai_usulan">'.number_format($sub_skpd['total_usulan'],0,",",".").'</span></td>
             <td class="kanan bawah" colspan="4"></td>
             <td class="kanan bawah text_kanan text_blok"><span class="nilai_penetapan">'.number_format($sub_skpd['total_n_plus'],0,",",".").'</span><span class="nilai_usulan">'.number_format($sub_skpd['total_n_plus_usulan'],0,",",".").'</span></td>
             <td class="kanan bawah hide-print"></td>
@@ -531,8 +531,8 @@ foreach ($data_all['data'] as $sub_skpd) {
                     <td class="kanan bawah"></td>
                     <td class="kanan bawah"></td>
                     <td class="kanan bawah text_blok" colspan="8">'.$bidang['nama'].'</td>
-                    <td class="kanan bawah text_kanan text_blok"><span class="nilai_penetapan">'.number_format($bidang['total'],0,",",".").'</span><span class="nilai_usulan">'.number_format($bidang['total_usulan'],0,",",".").'</span></td>
                     '.$body_pergeseran2.'
+                    <td class="kanan bawah text_kanan text_blok"><span class="nilai_penetapan">'.number_format($bidang['total'],0,",",".").'</span><span class="nilai_usulan">'.number_format($bidang['total_usulan'],0,",",".").'</span></td>
                     <td class="kanan bawah" colspan="4"></td>
                     <td class="kanan bawah text_kanan text_blok"><span class="nilai_penetapan">'.number_format($bidang['total_n_plus'],0,",",".").'</span><span class="nilai_usulan">'.number_format($bidang['total_n_plus_usulan'],0,",",".").'</span></td>
                     <td class="kanan bawah hide-print"></td>
@@ -565,8 +565,8 @@ foreach ($data_all['data'] as $sub_skpd) {
                         <td class="kanan bawah"></td>
                         <td class="kanan bawah"></td>
                         <td class="kanan bawah text_blok" colspan="8">'.$program['nama'].'</td>
-                        <td class="kanan bawah text_kanan text_blok"><span class="nilai_penetapan">'.number_format($program['total'],0,",",".").'</span><span class="nilai_usulan">'.number_format($program['total_usulan'],0,",",".").'</span></td>
                         '.$body_pergeseran3.'
+                        <td class="kanan bawah text_kanan text_blok"><span class="nilai_penetapan">'.number_format($program['total'],0,",",".").'</span><span class="nilai_usulan">'.number_format($program['total_usulan'],0,",",".").'</span></td>
                         <td class="kanan bawah" colspan="4"></td>
                         <td class="kanan bawah text_kanan text_blok"><span class="nilai_penetapan">'.number_format($program['total_n_plus'],0,",",".").'</span><span class="nilai_usulan">'.number_format($program['total_n_plus_usulan'],0,",",".").'</span></td>
                         <td class="kanan bawah text_tengah hide-print">'.$tombol_aksi.'</td>
@@ -598,8 +598,8 @@ foreach ($data_all['data'] as $sub_skpd) {
                             <td class="kanan bawah text_blok">'.$kd_giat.'</td>
                             <td class="kanan bawah"></td>
                             <td class="kanan bawah" colspan="8">'.$giat['nama'].'</td>
-                            <td class="kanan bawah text_blok text_kanan"><span class="nilai_penetapan">'.number_format($giat['total'],0,",",".").'</span><span class="nilai_usulan">'.number_format($giat['total_usulan'],0,",",".").'</span></td>
                             '.$body_pergeseran4.'
+                            <td class="kanan bawah text_blok text_kanan"><span class="nilai_penetapan">'.number_format($giat['total'],0,",",".").'</span><span class="nilai_usulan">'.number_format($giat['total_usulan'],0,",",".").'</span></td>
                             <td class="kanan bawah" colspan="4"></td>
                             <td class="kanan bawah text_blok text_kanan"><span class="nilai_penetapan">'.number_format($giat['total_n_plus'],0,",",".").'</span><span class="nilai_usulan">'.number_format($giat['total_n_plus_usulan'],0,",",".").'</span></td>
                             <td class="kanan bawah text_tengah hide-print">'.$tombol_aksi.'</td>
@@ -748,8 +748,8 @@ foreach ($data_all['data'] as $sub_skpd) {
                                 <td class="kanan bawah">'.$target_capaian_prog.'</td>
                                 <td class="kanan bawah '.$warning_pemutakhiran.'">'.$target_output_sub_giat.'</td>
                                 <td class="kanan bawah">'.$target_output_giat.'</td>
-                                <td class="kanan bawah text_kanan"><span class="nilai_penetapan">'.number_format($sub_giat['total'],0,",",".").'</span><span class="nilai_usulan">'.number_format($sub_giat['total_usulan'],0,",",".").'</span></td>
                                 '.$tbody_pergeseran.'
+                                <td class="kanan bawah text_kanan"><span class="nilai_penetapan">'.number_format($sub_giat['total'],0,",",".").'</span><span class="nilai_usulan">'.number_format($sub_giat['total_usulan'],0,",",".").'</span></td>
                                 <td class="kanan bawah">'.$dana_sub_giat.'</td>
                                 <td class="kanan bawah">'.$catatan.'</td>
                                 <td class="kanan bawah">'.$ind_n_plus.'</td>
@@ -836,8 +836,8 @@ echo '
                         <th style="padding: 0; border: 0; width:95px"></th>
                         <th style="padding: 0; border: 0; width:95px"></th>
                         <th style="padding: 0; border: 0; width:95px"></th>
-                        <th style="padding: 0; border: 0; width:130px"></th>
                         '.$thead_pergeseran2.'
+                        <th style="padding: 0; border: 0; width:130px"></th>
                         <th style="padding: 0; border: 0; width:150px"></th>
                         <th style="padding: 0; border: 0; width:95px"></th>
                         <th style="padding: 0; border: 0; width:95px"></th>
@@ -868,8 +868,8 @@ echo '
                         <td class="kanan bawah text_tengah text_blok" rowspan="2">Hasil Kegiatan</td>
                         <td class="kanan bawah text_tengah text_blok" rowspan="2">Lokasi Output Kegiatan</td>
                         <td class="kanan bawah text_tengah text_blok" colspan="3">Target Capaian Kinerja</td>
-                        <td class="kanan bawah text_tengah text_blok" rowspan="2">Pagu Indikatif (Rp.)</td>
                         '.$thead_pergeseran.'
+                        <td class="kanan bawah text_tengah text_blok" rowspan="2">Pagu Indikatif (Rp.)</td>
                         <td class="kanan bawah text_tengah text_blok" rowspan="2">Sumber Dana</td>
                         <td class="kanan bawah text_tengah text_blok" colspan="2">Target Capaian Kinerja</td>
                         <td class="kanan bawah text_tengah text_blok" rowspan="2">Kebutuhan Dana/<br/>Pagu Indikatif (Rp.)</td>
@@ -886,8 +886,8 @@ echo '
                     '.$body.'
                     <tr>
                         <td class="kiri kanan bawah text_blok text_kanan" colspan="13">TOTAL</td>
-                        <td class="kanan bawah text_kanan text_blok"><span class="nilai_penetapan">'.number_format($data_all['total'],0,",",".").'</span><span class="nilai_usulan">'.number_format($data_all['total_usulan'],0,",",".").'</span></td>
                         '.$tfoot_pergeseran.'
+                        <td class="kanan bawah text_kanan text_blok"><span class="nilai_penetapan">'.number_format($data_all['total'],0,",",".").'</span><span class="nilai_usulan">'.number_format($data_all['total_usulan'],0,",",".").'</span></td>
                         <td class="kanan bawah" colspan="4"></td>
                         <td class="kanan bawah text_kanan text_blok"><span class="nilai_penetapan">'.number_format($data_all['total_n_plus'],0,",",".").'</span><span class="nilai_usulan">'.number_format($data_all['total_n_plus_usulan'],0,",",".").'</span></td>
                         <td class="kanan bawah hide-print"></td>

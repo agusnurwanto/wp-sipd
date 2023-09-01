@@ -76,24 +76,14 @@ $data_renja_pergeseran = $wpdb->get_results($wpdb->prepare('
 		*
 	FROM
 		data_jadwal_lokal
-	WHERE
-		id_jadwal_lokal NOT IN (
-			SELECT
-				MAX(id_jadwal_lokal)
-			FROM
-				data_jadwal_lokal
-			WHERE
-				status=1
-				AND id_tipe=5
-				AND tahun_anggaran=%d
-		)
-		AND status=1
+	WHERE status=1
 		AND id_tipe=5
-		AND tahun_anggaran=%d',$input['tahun_anggaran'], $input['tahun_anggaran']), ARRAY_A);
+		AND tahun_anggaran=%d', $input['tahun_anggaran']), ARRAY_A);
 
 if(!empty($data_renja_pergeseran)){
 	foreach($data_renja_pergeseran as $val_renja){
-		$select_renja_pergeseran .= "<option value='".$val_renja["id_jadwal_lokal"]."'>".$val_renja["nama"]."</option>";
+		$tanggal_kunci = substr($val_renja['waktu_akhir'],0,10);
+		$select_renja_pergeseran .= "<option value='".$val_renja["id_jadwal_lokal"]."'>".$val_renja["nama"]." || ".$tanggal_kunci."</option>";
 	}
 }
 
@@ -161,7 +151,7 @@ $body = '';
 		<h1 class="text-center" style="margin:3rem;">Halaman Setting Penjadwalan <?php echo $judul; ?>  <?php echo $input['tahun_anggaran']; ?></h1>
 	<?php if($is_admin): ?>
 		<div style="margin-bottom: 25px;">
-			<button class="btn btn-primary tambah_ssh" onclick="tambah_jadwal();">Tambah Jadwal</button>
+			<button class="btn btn-primary tambah_jadwal tambah_ssh" onclick="tambah_jadwal();" hidden>Tambah Jadwal</button>
 		</div>
 	<?php endif; ?>
 		<table id="data_penjadwalan_table" cellpadding="2" cellspacing="0" style="font-family:\'Open Sans\',-apple-system,BlinkMacSystemFont,\'Segoe UI\',sans-serif; border-collapse: collapse; width:100%; overflow-wrap: break-word;" class="table table-bordered">
@@ -210,7 +200,7 @@ $body = '';
 				</div>
 				<div class="mt-3 form-input">
 					<input type="checkbox" value="1" id="pergeseran_renja" onclick="set_setting_pergeseran(this);">
-					<label for="pergeseran_renja" style="display: inline-block;">Tampilkan Pergeseran/Perubahan</label>
+					<label for="pergeseran_renja" style="display: inline-block;">Pergeseran/Perubahan</label>
 				</div>
 				<div>
 					<label for="id_jadwal_pergeseran_renja" class="class_renja_pergeseran" style='display:inline-block'>Pilih Jadwal RENJA Pergeseran</label>
@@ -287,6 +277,11 @@ $body = '';
 			},
 			"initComplete":function( settings, json){
 				jQuery("#wrap-loading").hide();
+				if(json.checkOpenedSchedule == 0){
+					jQuery(".tambah_jadwal").prop('hidden', false);
+				}else{
+					jQuery(".tambah_jadwal").prop('hidden', true);
+				}
 			},
 			"columns": [
 				{ 
@@ -388,6 +383,7 @@ $body = '';
 						jQuery('#jadwal_nama').val('');
 						jQuery("#link_renstra").val('');
 						penjadwalanTable.ajax.reload();
+						jQuery(".tambah_jadwal").prop('hidden', true);
 					}
 				}
 
@@ -509,7 +505,8 @@ $body = '';
 					jQuery('#wrap-loading').hide();
 					if(response.status == 'success'){
 						alert('Data berhasil dihapus!.');
-						penjadwalanTable.ajax.reload();	
+						penjadwalanTable.ajax.reload();
+						jQuery(".tambah_jadwal").prop('hidden', false);	
 					}else{
 						alert(`GAGAL! \n${response.message}`);
 					}
@@ -536,6 +533,7 @@ $body = '';
 					if(response.status == 'success'){
 						alert('Data berhasil dikunci!.');
 						penjadwalanTable.ajax.reload();	
+						jQuery(".tambah_jadwal").prop('hidden', false);
 					}else{
 						alert(`GAGAL! \n${response.message}`);
 					}

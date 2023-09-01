@@ -13065,6 +13065,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						$is_admin = true;
 					}
 
+					$checkOpenedSchedule = 0;
 					if(!empty($queryRecords)){
 						foreach($queryRecords as $recKey => $recVal){
 							$report = '<a class="btn btn-sm btn-primary mr-2" style="text-decoration: none;" onclick="report(\''.$recVal['id_jadwal_lokal'].'\'); return false;" href="#" title="Cetak Laporan"><i class="dashicons dashicons-printer"></i></a>';
@@ -13074,6 +13075,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 							if($recVal['status'] == 1){
 								$lock	= '<a class="btn btn-sm btn-success disabled" style="text-decoration: none;" onclick="cannot_change_schedule(\'kunci\'); return false;" href="#" title="Kunci data penjadwalan" aria-disabled="true"><i class="dashicons dashicons-lock"></i></a>';
 							}else if($is_admin){
+								$checkOpenedSchedule++;
 								$lock	= '<a class="btn btn-sm btn-success mr-2" style="text-decoration: none;" onclick="lock_data_penjadwalan(\''.$recVal['id_jadwal_lokal'].'\'); return false;" href="#" title="Kunci data penjadwalan"><i class="dashicons dashicons-unlock"></i></a>';
 								$edit	= '<a class="btn btn-sm btn-warning mr-2" style="text-decoration: none;" onclick="edit_data_penjadwalan(\''.$recVal['id_jadwal_lokal'].'\'); return false;" href="#" title="Edit data penjadwalan"><i class="dashicons dashicons-edit"></i></a>';
 								$delete	= '<a class="btn btn-sm btn-danger" style="text-decoration: none;" onclick="hapus_data_penjadwalan(\''.$recVal['id_jadwal_lokal'].'\'); return false;" href="#" title="Hapus data penjadwalan"><i class="dashicons dashicons-trash"></i></a>';
@@ -13143,7 +13145,8 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 							"draw"            => intval( $params['draw'] ),  
 							"recordsTotal"    => intval( $totalRecords ), 
 							"recordsFiltered" => intval( $totalRecords ),
-							"data"            => $queryRecords
+							"data"            => $queryRecords,
+							"checkOpenedSchedule"=> $checkOpenedSchedule
 						);
 	
 						die(json_encode($json_data));
@@ -13332,7 +13335,8 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 
 				if(!empty($data_renja_pergeseran)){
 					foreach($data_renja_pergeseran as $val_renja){
-						$select_option_renja_pergeseran .= '<option value="'.$val_renja['id_jadwal_lokal'].'">'.$val_renja['nama'].'</option>';
+						$tanggal_kunci = substr($val_renja['waktu_akhir'],0,10);
+						$select_option_renja_pergeseran .= '<option value="'.$val_renja['id_jadwal_lokal'].'">'.$val_renja['nama'].' || '.$tanggal_kunci.'</option>';
 					}
 				}
 				$data_penjadwalan_by_id[0]['select_option_pergeseran_renja'] = $select_option_renja_pergeseran;
