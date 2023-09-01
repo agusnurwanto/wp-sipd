@@ -11,7 +11,7 @@
         <input type="hidden" value="<?php echo get_option( '_crb_api_key_extension' ); ?>" id="api_key">
     <h1 class="text-center" style="margin:3rem;">Manajemen Data BHRD</h1>
         <div style="margin-bottom: 25px;">
-            <button class="btn btn-primary" onclick="tambah_data_bhrd();"><i class="dashicons dashicons-plus"></i> Tambah Data BHRD</button>
+            <button class="btn btn-primary" onclick="tambah_data_bhrd();"><i class="dashicons dashicons-plus"></i> Tambah Data</button>
         </div>
         <div class="wrap-table">
         <table id="management_data_table" cellpadding="2" cellspacing="0" style="font-family:\'Open Sans\',-apple-system,BlinkMacSystemFont,\'Segoe UI\',sans-serif; border-collapse: collapse; width:100%; overflow-wrap: break-word;" class="table table-bordered">

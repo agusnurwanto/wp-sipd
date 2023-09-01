@@ -7049,24 +7049,24 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
         					echo '<li style="display: block;"><a target="_blank" href="'.$url_skpd.'" class="btn btn-info">Keuangan PEMDES</a>';
 
 							$input_pencairan_bkk = $this->generatePage('Halaman Input Pencairan BKK', false, '[input_pencairan_bkk]');
-							echo '<li><a target="_blank" href="'.$input_pencairan_bkk.'" class="btn btn-info">Pencairan BKK Infrastruktur</a></li>';
+							echo '<li><a target="_blank" href="'.$input_pencairan_bkk.'&tahun_anggaran='.$tahun.'&id_skpd='.$vv['id_skpd'].'" class="btn btn-info">Pencairan BKK Infrastruktur</a></li>';
 
 							if(!empty($tampil_pilkades)){
 								$input_pencairan_bkk_pilkades = $this->generatePage('Halaman Input Pencairan BKK Pilkades', false, '[input_pencairan_bkk_pilkades]');
-								echo '<li><a target="_blank" href="'.$input_pencairan_bkk_pilkades.'" class="btn btn-info">Pencairan BKK Pilkades</a></li>';
+								echo '<li><a target="_blank" href="'.$input_pencairan_bkk_pilkades.'&tahun_anggaran='.$tahun.'&id_skpd='.$vv['id_skpd'].'" class="btn btn-info">Pencairan BKK Pilkades</a></li>';
 							}
 
 							$input_pencairan_bhpd = $this->generatePage('Halaman Input Pencairan bhpd', false, '[input_pencairan_bhpd]');
-							echo '<li><a target="_blank" href="'.$input_pencairan_bhpd.'" class="btn btn-info">Pencairan BHPD</a></li>';
+							echo '<li><a target="_blank" href="'.$input_pencairan_bhpd.'&tahun_anggaran='.$tahun.'&id_skpd='.$vv['id_skpd'].'" class="btn btn-info">Pencairan BHPD</a></li>';
 
 							$input_pencairan_bhrd = $this->generatePage('Halaman Input Pencairan bhrd', false, '[input_pencairan_bhrd]');
-							echo '<li><a target="_blank" href="'.$input_pencairan_bhrd.'" class="btn btn-info">Pencairan BHRD</a></li>';
+							echo '<li><a target="_blank" href="'.$input_pencairan_bhrd.'&tahun_anggaran='.$tahun.'&id_skpd='.$vv['id_skpd'].'" class="btn btn-info">Pencairan BHRD</a></li>';
 
 							$input_pencairan_bku_dd = $this->generatePage('Halaman Input Pencairan BKU DD', false, '[input_pencairan_bku_dd]');
-							echo '<li><a target="_blank" href="'.$input_pencairan_bku_dd.'" class="btn btn-info">Pencairan BKU DD</a></li>';
+							echo '<li><a target="_blank" href="'.$input_pencairan_bku_dd.'&tahun_anggaran='.$tahun.'&id_skpd='.$vv['id_skpd'].'" class="btn btn-info">Pencairan BKU DD</a></li>';
 
 							$input_pencairan_bku_add = $this->generatePage('Halaman Input Pencairan BKU ADD', false, '[input_pencairan_bku_add]');
-							echo '<li><a target="_blank" href="'.$input_pencairan_bku_add.'" class="btn btn-info">Pencairan BKU ADD</a></li>';
+							echo '<li><a target="_blank" href="'.$input_pencairan_bku_add.'&tahun_anggaran='.$tahun.'&id_skpd='.$vv['id_skpd'].'" class="btn btn-info">Pencairan BKU ADD</a></li>';
 						}
 					}
 				}
