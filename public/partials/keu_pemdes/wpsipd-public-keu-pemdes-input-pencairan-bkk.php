@@ -153,10 +153,10 @@ if (in_array("administrator", $user_meta->roles)) {
                 </div>
                 <div class="form-check form-switch">
                     <input class="form-check-input" value="1" type="checkbox" id="status_pagu" onclick="set_keterangan(this);" <?php echo $disabled; ?>>
-                    <label class="form-check-label" for="status_pagu">Disetujui</label>
+                    <label class="form-check-label" for="status_pagu">Nilai pencairan disetujui</label>
                 </div>
                 <div class="form-group" style="display:none;">
-                    <label>Keterangan ditolak</label>
+                    <label>Keterangan nilai pencairan</label>
                     <textarea class="form-control" id="keterangan_status_pagu" <?php echo $disabled; ?>></textarea>
                 </div>
                 <div class="form-group">
@@ -222,15 +222,15 @@ if (in_array("administrator", $user_meta->roles)) {
                 <div><small>Tipe file adalah .pdf dengan maksimal ukuran 1 Mb.</small></div>
                 <div class="form-check form-switch">
                     <input class="form-check-input" value="1" type="checkbox" id="status_file" onclick="set_keterangan(this);" <?php echo $disabled; ?>>
-                    <label class="form-check-label" for="status_file">Disetujui</label>
+                    <label class="form-check-label" for="status_file">Dokumen lampiran disetujui</label>
                 </div>
                 <div class="form-group" style="display:none;">
-                    <label>Keterangan ditolak</label>
+                    <label>Keterangan dokumen lampiran</label>
                     <textarea class="form-control" id="keterangan_status_file" <?php echo $disabled; ?>></textarea>
                 </div>
             </div>
         <div class="modal-footer">
-            <button type="submit" onclick="submitTambahDataFormPencairanBKK();" class="btn btn-primary send_data">Kirim</button>
+            <button type="submit" onclick="submitTambahDataFormPencairanBKK(this);" class="btn btn-primary send_data">Kirim</button>
             <button type="button" class="btn btn-danger" data-dismiss="modal" aria-label="Close">Tutup</button>
         </div>
     </div>
@@ -250,6 +250,96 @@ if (in_array("administrator", $user_meta->roles)) {
             jQuery('#keterangan_' + id).closest('.form-group').show();
         }
     }
+
+    function submit_pencairan(id) {
+        if(confirm("Apakah anda yakin untuk mensubmit pencairan ini?")){
+            jQuery('#wrap-loading').show();
+            jQuery.ajax({
+                url: '<?php echo admin_url('admin-ajax.php'); ?>',
+                type: 'post',
+                data: {
+                    'action': 'verifikasi_pencairan_desa',
+                    'api_key': '<?php echo get_option('_crb_api_key_extension'); ?>',
+                    'id': id,
+                    'tipe': 'submit_pencairan',
+                    'jenis_belanja': 'bkk'
+                },
+                dataType: 'json',
+                success: function(response) {
+                    jQuery('#wrap-loading').hide();
+                    if (response.status == 'success') {
+                        get_data_pencairan_bkk();
+                    } else {
+                        alert(`GAGAL! \n${response.message}`);
+                    }
+                }
+            });
+        }
+    }
+
+<?php if (in_array("administrator", $user_meta->roles)): ?>
+    function verifikasi_data(_id) {
+        detail_data(_id)
+        .then(function(status){
+            if(status){
+                jQuery('#keterangan_status_file').prop('disabled', false).closest('.form-group').show();
+                jQuery('#status_file').prop('disabled', false);
+                jQuery('#keterangan_status_pagu').prop('disabled', false).closest('.form-group').show();
+                jQuery('#status_pagu').prop('disabled', false);
+                jQuery('#modalTambahDataPencairanBKK .send_data').attr('tipe_verifikasi', 'verikasi_admin').show();
+            }
+        });
+    }
+
+    function submit_verifikasi(){
+        var id = jQuery('#id_data').val();
+        if(id == ''){
+            return alert('ID tidak boleh kosong!');
+        }
+        var keterangan_status_pagu = jQuery('#keterangan_status_pagu').val();
+        var status_pagu = 2;
+        if(jQuery('#status_pagu').is(':checked')){
+            status_pagu = 1;
+        }else if(keterangan_status_pagu == ''){
+            return alert('Keterangan status pagu tidak boleh kosong!');
+        }
+        var keterangan_status_file = jQuery('#keterangan_status_file').val();
+        var status_file = 2;
+        if(jQuery('#status_file').is(':checked')){
+            status_file = 1;
+        }else if(keterangan_status_file == ''){
+            return alert('Keterangan status file tidak boleh kosong!');
+        }
+        if(confirm('Apakah anda yakin untuk memverifikasi pencairan ini?')){
+            jQuery('#wrap-loading').show();
+            jQuery.ajax({
+                url: '<?php echo admin_url('admin-ajax.php'); ?>',
+                type: 'post',
+                data: {
+                    'action': 'verifikasi_pencairan_desa',
+                    'api_key': '<?php echo get_option('_crb_api_key_extension'); ?>',
+                    'id': id,
+                    'tipe': 'verikasi_admin',
+                    'status_file': status_file,
+                    'keterangan_status_file': keterangan_status_file,
+                    'status_pagu': status_pagu,
+                    'keterangan_status_pagu': keterangan_status_pagu,
+                    'jenis_belanja': 'bkk'
+                },
+                dataType: 'json',
+                success: function(response) {
+                    jQuery('#wrap-loading').hide();
+                    if (response.status == 'success') {
+                        jQuery('#modalTambahDataPencairanBKK').modal('hide');
+                        get_data_pencairan_bkk();
+                    } else {
+                        alert(`GAGAL! \n${response.message}`);
+                    }
+                }
+            });
+        }
+    }
+<?php endif; ?>
 
     function get_data_pencairan_bkk() {
         if (typeof datapencairan_bkk == 'undefined') {
@@ -345,6 +435,7 @@ if (in_array("administrator", $user_meta->roles)) {
 
     function edit_data(_id) {
         jQuery('#wrap-loading').show();
+        jQuery('#modalTambahDataPencairanBKK .send_data').attr('tipe_verifikasi', '');
         jQuery.ajax({
             method: 'post',
             url: '<?php echo admin_url('admin-ajax.php'); ?>',
@@ -433,96 +524,102 @@ if (in_array("administrator", $user_meta->roles)) {
     }
 
     function detail_data(_id) {
-        jQuery('#wrap-loading').show();
-        jQuery.ajax({
-            method: 'post',
-            url: '<?php echo admin_url('admin-ajax.php'); ?>',
-            dataType: 'json',
-            data: {
-                'action': 'get_data_pencairan_bkk_by_id',
-                'api_key': '<?php echo get_option('_crb_api_key_extension'); ?>',
-                'id': _id,
-            },
-            success: function(res) {
-                if (res.status == 'success') {
-                    jQuery('#id_data').val(res.data.id);
-                    jQuery('#tahun').val(res.data.tahun_anggaran).prop('disabled', true);
-                    get_bkk()
-                        .then(function() {
-                            jQuery('#kec').val(res.data.kecamatan).trigger('change').prop('disabled', true);
-                            jQuery('#desa').val(res.data.desa).trigger('change').prop('disabled', true);
-                            jQuery('#uraian_kegiatan').val(res.data.kegiatan).trigger('change').prop('disabled', true);
-                            jQuery('#id_kegiatan').val(res.data.id_kegiatan).prop('disabled', true);
-                            jQuery('#alamat').val(res.data.alamat).trigger('change').prop('disabled', true);
-                            jQuery('#pagu_anggaran').val(res.data.total_pencairan).prop('disabled', true);
-                            if (res.data.status_ver_total == 0) {
-                                jQuery('#keterangan_status_pagu').closest('.form-group').show().prop('disabled', true);
-                                jQuery('#status_pagu').prop('checked', false).prop('disabled', true);
-                            } else {
-                                jQuery('#keterangan_status_pagu').closest('.form-group').hide().prop('disabled', true);
-                                jQuery('#status_pagu').prop('checked', true).prop('disabled', true);
-                            }
-                            jQuery('#keterangan_status_pagu').val(res.data.ket_ver_total).prop('disabled', true);
-                            if (res.data.status_ver_proposal == 0) {
-                                jQuery('#keterangan_status_file').closest('.form-group').show().prop('disabled', true);
-                                jQuery('#status_file').prop('checked', false).prop('disabled', true);
-                            } else {
-                                jQuery('#keterangan_status_file').closest('.form-group').hide().prop('disabled', true);
-                                jQuery('#status_file').prop('checked', true).prop('disabled', true);
-                            }
+        return new Promise(function(resolve, reject){
+            jQuery('#wrap-loading').show();
+            jQuery('#modalTambahDataPencairanBKK .send_data').attr('tipe_verifikasi', '');
+            jQuery.ajax({
+                method: 'post',
+                url: '<?php echo admin_url('admin-ajax.php'); ?>',
+                dataType: 'json',
+                data: {
+                    'action': 'get_data_pencairan_bkk_by_id',
+                    'api_key': '<?php echo get_option('_crb_api_key_extension'); ?>',
+                    'id': _id,
+                },
+                success: function(res) {
+                    if (res.status == 'success') {
+                        jQuery('#id_data').val(res.data.id);
+                        jQuery('#tahun').val(res.data.tahun_anggaran).prop('disabled', true);
+                        get_bkk()
+                            .then(function() {
+                                jQuery('#kec').val(res.data.kecamatan).trigger('change').prop('disabled', true);
+                                jQuery('#desa').val(res.data.desa).trigger('change').prop('disabled', true);
+                                jQuery('#uraian_kegiatan').val(res.data.kegiatan).trigger('change').prop('disabled', true);
+                                jQuery('#id_kegiatan').val(res.data.id_kegiatan).prop('disabled', true);
+                                jQuery('#alamat').val(res.data.alamat).trigger('change').prop('disabled', true);
+                                jQuery('#pagu_anggaran').val(res.data.total_pencairan).prop('disabled', true);
+                                if (res.data.status_ver_total == 0) {
+                                    jQuery('#keterangan_status_pagu').closest('.form-group').show().prop('disabled', true);
+                                    jQuery('#status_pagu').prop('checked', false).prop('disabled', true);
+                                } else {
+                                    jQuery('#keterangan_status_pagu').closest('.form-group').hide().prop('disabled', true);
+                                    jQuery('#status_pagu').prop('checked', true).prop('disabled', true);
+                                }
+                                jQuery('#keterangan_status_pagu').val(res.data.ket_ver_total).prop('disabled', true);
+                                if (res.data.status_ver_proposal == 0) {
+                                    jQuery('#keterangan_status_file').closest('.form-group').show().prop('disabled', true);
+                                    jQuery('#status_file').prop('checked', false).prop('disabled', true);
+                                } else {
+                                    jQuery('#keterangan_status_file').closest('.form-group').hide().prop('disabled', true);
+                                    jQuery('#status_file').prop('checked', true).prop('disabled', true);
+                                }
 
-                            jQuery('#file_nota_dinas_existing').attr('href', global_file_upload+res.data.file_nota_dinas).html(res.data.file_nota_dinas);
-                            jQuery('#nota_dinas').val('').hide();
+                                jQuery('#file_nota_dinas_existing').attr('href', global_file_upload+res.data.file_nota_dinas).html(res.data.file_nota_dinas);
+                                jQuery('#nota_dinas').val('').hide();
 
-                            jQuery('#file_sptj_existing').attr('href', global_file_upload+res.data.file_sptj).html(res.data.file_sptj);
-                            jQuery('#sptj').val('').hide();
+                                jQuery('#file_sptj_existing').attr('href', global_file_upload+res.data.file_sptj).html(res.data.file_sptj);
+                                jQuery('#sptj').val('').hide();
 
-                            jQuery('#file_pakta_integritas_existing').attr('href', global_file_upload+res.data.file_pakta_integritas).html(res.data.file_pakta_integritas);
-                            jQuery('#pakta_integritas').val('').hide();
+                                jQuery('#file_pakta_integritas_existing').attr('href', global_file_upload+res.data.file_pakta_integritas).html(res.data.file_pakta_integritas);
+                                jQuery('#pakta_integritas').val('').hide();
 
-                            jQuery('#file_permohonan_transfer_existing').attr('href', global_file_upload+res.data.file_permohonan_transfer).html(res.data.file_permohonan_transfer);
-                            jQuery('#permohonan_transfer').val('').hide();
+                                jQuery('#file_permohonan_transfer_existing').attr('href', global_file_upload+res.data.file_permohonan_transfer).html(res.data.file_permohonan_transfer);
+                                jQuery('#permohonan_transfer').val('').hide();
 
-                            jQuery('#file_verifikasi_rekomendasi_existing').attr('href', global_file_upload+res.data.file_verifikasi_rekomendasi).html(res.data.file_verifikasi_rekomendasi);
-                            jQuery('#verifikasi_rekomendasi').val('').hide();
+                                jQuery('#file_verifikasi_rekomendasi_existing').attr('href', global_file_upload+res.data.file_verifikasi_rekomendasi).html(res.data.file_verifikasi_rekomendasi);
+                                jQuery('#verifikasi_rekomendasi').val('').hide();
 
-                            jQuery('#file_permohonan_penyaluran_kades_existing').attr('href', global_file_upload+res.data.file_permohonan_penyaluran_kades).html(res.data.file_permohonan_penyaluran_kades);
-                            jQuery('#permohonan_penyaluran_kades').val('').hide();
+                                jQuery('#file_permohonan_penyaluran_kades_existing').attr('href', global_file_upload+res.data.file_permohonan_penyaluran_kades).html(res.data.file_permohonan_penyaluran_kades);
+                                jQuery('#permohonan_penyaluran_kades').val('').hide();
 
-                            jQuery('#file_sptj_kades_existing').attr('href', global_file_upload+res.data.file_sptj_kades).html(res.data.file_sptj_kades);
-                            jQuery('#sptj_kades').val('').hide();
+                                jQuery('#file_sptj_kades_existing').attr('href', global_file_upload+res.data.file_sptj_kades).html(res.data.file_sptj_kades);
+                                jQuery('#sptj_kades').val('').hide();
 
-                            jQuery('#file_pakta_integritas_kades_existing').attr('href', global_file_upload+res.data.file_pakta_integritas_kades).html(res.data.file_pakta_integritas_kades);
-                            jQuery('#pakta_integritas_kades').val('').hide();
+                                jQuery('#file_pakta_integritas_kades_existing').attr('href', global_file_upload+res.data.file_pakta_integritas_kades).html(res.data.file_pakta_integritas_kades);
+                                jQuery('#pakta_integritas_kades').val('').hide();
 
-                            jQuery('#file_pakta_integritas_3_orang_existing').attr('href', global_file_upload+res.data.file_pakta_integritas_3_orang).html(res.data.file_pakta_integritas_3_orang);
-                            jQuery('#pakta_integritas_3_orang').val('').hide();
+                                jQuery('#file_pakta_integritas_3_orang_existing').attr('href', global_file_upload+res.data.file_pakta_integritas_3_orang).html(res.data.file_pakta_integritas_3_orang);
+                                jQuery('#pakta_integritas_3_orang').val('').hide();
 
-                            jQuery('#file_proposal_rencana_anggaran_existing').attr('href', global_file_upload+res.data.file_proposal_rencana_anggaran).html(res.data.file_proposal_rencana_anggaran);
-                            jQuery('#proposal_rencana_anggaran').val('').hide();
+                                jQuery('#file_proposal_rencana_anggaran_existing').attr('href', global_file_upload+res.data.file_proposal_rencana_anggaran).html(res.data.file_proposal_rencana_anggaran);
+                                jQuery('#proposal_rencana_anggaran').val('').hide();
 
-                            jQuery('#file_apbdes_existing').attr('href', global_file_upload+res.data.file_apbdes).html(res.data.file_apbdes);
-                            jQuery('#apbdes').val('').hide();
+                                jQuery('#file_apbdes_existing').attr('href', global_file_upload+res.data.file_apbdes).html(res.data.file_apbdes);
+                                jQuery('#apbdes').val('').hide();
 
-                            jQuery('#file_fc_rek_kas_desa_existing').attr('href', global_file_upload+res.data.file_fc_rek_kas_desa).html(res.data.file_fc_rek_kas_desa);
-                            jQuery('#fc_rek_kas_desa').val('').hide();
+                                jQuery('#file_fc_rek_kas_desa_existing').attr('href', global_file_upload+res.data.file_fc_rek_kas_desa).html(res.data.file_fc_rek_kas_desa);
+                                jQuery('#fc_rek_kas_desa').val('').hide();
 
-                            jQuery('#keterangan_status_file').val(res.data.ket_ver_proposal).prop('disabled', true);
-                            jQuery('#status_pagu').closest('.form-check').show().prop('disabled', true);
-                            jQuery('#status_file').closest('.form-check').show().prop('disabled', true);
-                            jQuery('#modalTambahDataPencairanBKK .send_data').hide();
-                            jQuery('#modalTambahDataPencairanBKK').modal('show');
-                        })
-                } else {
-                    alert(res.message);
-                    jQuery('#wrap-loading').hide();
+                                jQuery('#keterangan_status_file').val(res.data.ket_ver_proposal).prop('disabled', true);
+                                jQuery('#status_pagu').closest('.form-check').show().prop('disabled', true);
+                                jQuery('#status_file').closest('.form-check').show().prop('disabled', true);
+                                jQuery('#modalTambahDataPencairanBKK .send_data').hide();
+                                jQuery('#modalTambahDataPencairanBKK').modal('show');
+                                resolve(true);
+                            })
+                    } else {
+                        alert(res.message);
+                        jQuery('#wrap-loading').hide();
+                        resolve(false);
+                    }
                 }
-            }
+            });
         });
     }
 
     //show tambah data
     function tambah_data_pencairan_bkk() {
+        jQuery('#modalTambahDataPencairanBKK .send_data').attr('tipe_verifikasi', '');
         jQuery('#id_data').val('').prop('disabled', false);
         jQuery('#tahun').val('<?php echo $input['tahun_anggaran']; ?>').prop('disabled', false);
         new Promise(function(resolve, reject){
@@ -554,7 +651,12 @@ if (in_array("administrator", $user_meta->roles)) {
         });
     }
 
-    function submitTambahDataFormPencairanBKK() {
+    function submitTambahDataFormPencairanBKK(that) {
+        var tipe_verifikasi = jQuery(that).attr('tipe_verifikasi');
+        console.log('tipe_verifikasi', tipe_verifikasi);
+        if(tipe_verifikasi != ''){
+            return submit_verifikasi();
+        }
         var id_data = jQuery('#id_data').val();
         var desa = jQuery('#desa').val();
         if (desa == '') {
