@@ -13193,6 +13193,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 					if(
 						$_POST['tipe_perencanaan'] == 'renja'
 						|| $_POST['tipe_perencanaan'] == 'penganggaran'
+						|| $_POST['tipe_perencanaan'] == 'penganggaran_sipd'
 					){
 						$lama_pelaksanaan = 1;
 					}else{
@@ -13373,7 +13374,14 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		if(!empty($_POST)){
 			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
 				if(in_array("administrator", $user_meta->roles)){
-					$lama_pelaksanaan = ($_POST['tipe_perencanaan'] == 'renja') ? 1 : trim(htmlspecialchars($_POST['lama_pelaksanaan']));
+					if(
+						$_POST['tipe_perencanaan'] == 'renja' 
+						|| $_POST['tipe_perencanaan'] == 'penganggaran_sipd'
+					){
+						$lama_pelaksanaan = 1;
+					}else{
+						$lama_pelaksanaan = trim(htmlspecialchars($_POST['lama_pelaksanaan']));
+					} 
 					if(!empty($_POST['id_jadwal_lokal']) && !empty($_POST['nama']) && !empty($_POST['jadwal_mulai']) && !empty($_POST['jadwal_selesai']) && !empty($_POST['tahun_anggaran']) && !empty($lama_pelaksanaan)){
 						$id_jadwal_lokal= trim(htmlspecialchars($_POST['id_jadwal_lokal']));
 						$nama			= trim(htmlspecialchars($_POST['nama']));

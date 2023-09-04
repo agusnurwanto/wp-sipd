@@ -277,10 +277,10 @@ $body = '';
 			},
 			"initComplete":function( settings, json){
 				jQuery("#wrap-loading").hide();
-				if(json.checkOpenedSchedule == 0){
-					jQuery(".tambah_jadwal").prop('hidden', false);
-				}else{
+				if(json.checkOpenedSchedule != 'undefined' && json.checkOpenedSchedule > 0){
 					jQuery(".tambah_jadwal").prop('hidden', true);
+				}else{
+					jQuery(".tambah_jadwal").prop('hidden', false);
 				}
 			},
 			"columns": [
