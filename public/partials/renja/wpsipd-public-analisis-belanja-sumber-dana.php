@@ -23,11 +23,13 @@ $input = shortcode_atts( array(
 
 $jadwal_lokal = $wpdb->get_row($wpdb->prepare("
     SELECT 
-        nama AS nama_jadwal,
-        tahun_anggaran,
-        status 
-    FROM `data_jadwal_lokal` 
-    WHERE id_jadwal_lokal=%d", $id_jadwal_lokal));
+        j.nama AS nama_jadwal,
+        j.tahun_anggaran,
+        j.status ,
+        t.nama_tipe
+    FROM `data_jadwal_lokal` j
+    INNER JOIN `data_tipe_perencanaan` t on t.id=j.id_tipe
+    WHERE j.id_jadwal_lokal=%d", $id_jadwal_lokal));
 
 $_suffix='';
 $where_jadwal='';
@@ -36,6 +38,11 @@ if($jadwal_lokal->status == 1){
     $_suffix='_history';
     $where_jadwal.=' AND sub_keg.id_jadwal='.$wpdb->prepare("%d", $id_jadwal_lokal);
     $where_jadwal_dana=' AND dana.id_jadwal=sub_keg.id_jadwal';
+}
+
+$_suffix_sipd='';
+if(strpos($jadwal_lokal->nama_tipe, '_sipd') == false){
+    $_suffix_sipd = '_lokal';
 }
 
 if($input['id_skpd'] == 'all'){
@@ -68,8 +75,8 @@ $sql = "
         sub_keg.nama_sub_skpd, 
         sub_keg.pagu, 
         sub_keg.id_sub_skpd 
-    FROM data_sub_keg_bl_lokal".$_suffix." AS sub_keg 
-    LEFT JOIN data_dana_sub_keg_lokal".$_suffix." AS dana 
+    FROM data_sub_keg_bl".$_suffix_sipd."".$_suffix." AS sub_keg 
+    LEFT JOIN data_dana_sub_keg".$_suffix_sipd."".$_suffix." AS dana 
         ON dana.kode_sbl = sub_keg.kode_sbl 
         AND dana.tahun_anggaran=sub_keg.tahun_anggaran 
         AND dana.active=sub_keg.active
