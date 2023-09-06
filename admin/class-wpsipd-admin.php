@@ -294,6 +294,10 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes {
 		    ->set_page_parent( $laporan )
 		    ->add_fields( $this->get_ajax_field(array('type' => 'apbdpenjabaran')) );
 
+		Container::make( 'theme_options', __( 'APBD Perda' ) )
+		    ->set_page_parent( $laporan )
+		    ->add_fields( $this->get_ajax_field(array('type' => 'apbdperda')) );
+
 	    Container::make( 'theme_options', __( 'RPJM & RENSTRA' ) )
 		    ->set_page_parent( $laporan );
 
@@ -976,6 +980,18 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes {
 						$body_all .= '<a style="font-weight: bold;" target="_blank" href="'.$url_penjabaran5.'">Halaman APBD PENJABARAN Lampiran 5 Tahun '.$v['tahun_anggaran'].'</a><br>';
 						$body_all .= '<a style="font-weight: bold;" target="_blank" href="'.$url_penjabaran6.'">Halaman APBD PENJABARAN Lampiran 6 Tahun '.$v['tahun_anggaran'].'</a>';
 						$body_all .= $body_pemda;
+					}else if($_POST['type'] == 'apbdperda'){
+			        	$url_perda1 = $this->generatePage($v['tahun_anggaran'] . ' | APBD PERDA Lampiran 1', $v['tahun_anggaran'], '[apbdperda tahun_anggaran="'.$v['tahun_anggaran'].'" lampiran="1"]');
+			        	$url_perda3 = $this->generatePage($v['tahun_anggaran'] . ' | APBD PERDA Lampiran 3', $v['tahun_anggaran'], '[apbdperda tahun_anggaran="'.$v['tahun_anggaran'].'" lampiran="3"]');
+			        	$url_perda4 = $this->generatePage($v['tahun_anggaran'] . ' | APBD PERDA Lampiran 4', $v['tahun_anggaran'], '[apbdperda tahun_anggaran="'.$v['tahun_anggaran'].'" lampiran="4"]');
+			        	$url_perda5 = $this->generatePage($v['tahun_anggaran'] . ' | APBD PERDA Lampiran 5', $v['tahun_anggaran'], '[apbdpenjabaran tahun_anggaran="'.$v['tahun_anggaran'].'" lampiran="5"]');
+			        	$url_perda6 = $this->generatePage($v['tahun_anggaran'] . ' | APBD PERDA Lampiran 6', $v['tahun_anggaran'], '[apbdperda tahun_anggaran="'.$v['tahun_anggaran'].'" lampiran="6"]');
+						$body_all .= '<a style="font-weight: bold;" target="_blank" href="'.$url_perda1.'">Halaman APBD PERDA Lampiran 1 Tahun '.$v['tahun_anggaran'].'</a><br>';
+						$body_all .= '<a style="font-weight: bold;" target="_blank" href="'.$url_perda3.'">Halaman APBD PERDA Lampiran 3 Tahun '.$v['tahun_anggaran'].'</a><br>';
+						$body_all .= '<a style="font-weight: bold;" target="_blank" href="'.$url_perda4.'">Halaman APBD PERDA Lampiran 4 Tahun '.$v['tahun_anggaran'].'</a><br>';
+						$body_all .= '<a style="font-weight: bold;" target="_blank" href="'.$url_perda5.'">Halaman APBD PERDA Lampiran 5 Tahun '.$v['tahun_anggaran'].'</a><br>';
+						$body_all .= '<a style="font-weight: bold;" target="_blank" href="'.$url_perda6.'">Halaman APBD PERDA Lampiran 6 Tahun '.$v['tahun_anggaran'].'</a>';
+						$body_all .= $body_pemda;
 			        }else if($_POST['type'] == 'monev_satuan_harga'){
 						$url_add_new_ssh = $this->generatePage('Data Usulan Standar Satuan Harga (SSH) | '.$v['tahun_anggaran'], $v['tahun_anggaran'], '[data_ssh_usulan tahun_anggaran="'.$v['tahun_anggaran'].'"]');
 						$body_all .= '<div style="padding:.75rem 0 0 .75rem;"><a style="font-weight: bold;" target="_blank" href="'.$url_add_new_ssh.'">Halaman Data Usulan SSH '.$v['tahun_anggaran'].'</a></div>'.$body_pemda;
@@ -1012,6 +1028,7 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes {
 					|| $_POST['type'] == 'monev_renstra'
 					|| $_POST['type'] == 'monev_rpjm'
 					|| $_POST['type'] == 'apbdpenjabaran'
+					|| $_POST['type'] == 'apbdperda'
 					|| $_POST['type'] == 'monev_satuan_harga'
 					|| $_POST['type'] == 'rekap_satuan_harga'
 					|| $_POST['type'] == 'tidak_terpakai_satuan_harga'
