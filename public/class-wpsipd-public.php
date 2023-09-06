@@ -5278,42 +5278,42 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 			require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/penganggaran/wpsipd-public-apbdperda-3.php';
 		}
 
-		// DAFTAR NAMA CALON PENERIMA, ALAMAT DAN BESARAN ALOKASI BANTUAN SOSIAL BERUPA UANG YANG DITERIMA SERTA SKPD PEMBERI BANTUAN SOSIAL
+		// REKAPITULASI BELANJA MENURUT URUSAN PEMERINTAHAN DAERAH, ORGANISASI, PROGRAM, KEGIATAN BESERTA HASIL DAN SUB KEGIATAN BESERTA SUB KELUARAN
 		if($input['lampiran'] == 4){
 			require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/penganggaran/wpsipd-public-apbdperda-4.php';
 		}
 
-		// DAFTAR NAMA CALON PENERIMA, ALAMAT DAN BESARAN ALOKASI BANTUAN KEUANGAN BERSIFAT UMUM/KHUSUS YANG DITERIMA SERTA SKPD PEMBERI BANTUAN KEUANGAN
+		// REKAPITULASI BELANJA DAERAH UNTUK KESELARASAN DAN KETERPADUAN URUSAN PEMERINTAHAN DAERAH DAN FUNGSI DALAM KERANGKA PENGELOLAAN KEUANGAN NEGARA
 		if($input['lampiran'] == 5){
 			require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/penganggaran/wpsipd-public-apbdperda-5.php';
 		}
 
-		// DAFTAR NAMA CALON PENERIMA, ALAMAT DAN BESARAN PERUBAHAN ALOKASI BELANJA BAGI HASIL PAJAK DAERAH KEPADA PEMERINTAH KABUPATEN, KOTA DAN DESA
+		// REKAPITULASI BELANJA UNTUK PEMENUHAN SPM
 		if($input['lampiran'] == 6){
 			require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/penganggaran/wpsipd-public-apbdperda-6.php';
 		}
 
-		// 
+		// SINKRONISASI PROGRAM PADA RPJMD/RPD DENGAN RANCANGAN APBD
 		if($input['lampiran'] == 7){
 			require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/penganggaran/wpsipd-public-apbdperda-7.php';
 		}
 
-		// 
+		// SINKRONISASI PROGRAM, KEGIATAN DAN SUB KEGIATAN PADA RKPD DAN PPAS DENGAN RANCANGAN PERATURAN DAERAH TENTANG APBD
 		if($input['lampiran'] == 8){
 			require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/penganggaran/wpsipd-public-apbdperda-8.php';
 		}
 
-		// 
+		// SIKRONISASI PROGRAM PRIORITAS NASIONAL DAN PRIORITAS PROVINSI DENGAN PROGRAM PRIORITAS KABUPATEN/KOTA
 		if($input['lampiran'] == 9){
 			require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/penganggaran/wpsipd-public-apbdperda-9.php';
 		}
 
-		// 
+		// DAFTAR JUMLAH PEGAWAI PER GOLONGAN DAN PER JABATAN
 		if($input['lampiran'] == 10){
 			require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/penganggaran/wpsipd-public-apbdperda-10.php';
 		}
 
-		// 
+		// DAFTAR PIUTANG DAERAH
 		if($input['lampiran'] == 11){
 			require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/penganggaran/wpsipd-public-apbdperda-11.php';
 		}
