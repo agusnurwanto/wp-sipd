@@ -5263,7 +5263,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 			'tahun_anggaran' => '2021',
 		), $atts );
 
-		// RINGKASAN PENJABARAN APBD YANG DIKLASIFIKASI MENURUT KELOMPOK DAN JENIS PENDAPATAN, BELANJA, DAN PEMBIAYAAN
+		// RINGKASAN APBD YANG DIKLASIFIKASI MENURUT KELOMPOK DAN JENIS PENDAPATAN, BELANJA, DAN PEMBIAYAAN
 		if($input['lampiran'] == 1){
 			require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/wpsipd-public-apbdperda.php';
 		}
@@ -5291,6 +5291,31 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		// DAFTAR NAMA CALON PENERIMA, ALAMAT DAN BESARAN PERUBAHAN ALOKASI BELANJA BAGI HASIL PAJAK DAERAH KEPADA PEMERINTAH KABUPATEN, KOTA DAN DESA
 		if($input['lampiran'] == 6){
 			require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/wpsipd-public-apbdperda-6.php';
+		}
+
+		// 
+		if($input['lampiran'] == 7){
+			require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/wpsipd-public-apbdperda-7.php';
+		}
+
+		// 
+		if($input['lampiran'] == 8){
+			require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/wpsipd-public-apbdperda-8.php';
+		}
+
+		// 
+		if($input['lampiran'] == 9){
+			require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/wpsipd-public-apbdperda-9.php';
+		}
+
+		// 
+		if($input['lampiran'] == 10){
+			require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/wpsipd-public-apbdperda-10.php';
+		}
+
+		// 
+		if($input['lampiran'] == 11){
+			require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/wpsipd-public-apbdperda-11.php';
 		}
 
 		// APBD dikelompokan berdasarkan mandatory spending atau tag label yang dipilih user ketika membuat sub kegiatan
