@@ -5265,62 +5265,62 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 
 		// RINGKASAN APBD YANG DIKLASIFIKASI MENURUT KELOMPOK DAN JENIS PENDAPATAN, BELANJA, DAN PEMBIAYAAN
 		if($input['lampiran'] == 1){
-			require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/wpsipd-public-apbdperda.php';
+			require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/penganggaran/wpsipd-public-apbdperda.php';
 		}
 
 		// RINCIAN APBD MENURUT URUSAN PEMERINTAHAN DAERAH, ORGANISASI, PENDAPATAN, BELANJA DAN PEMBIAYAAN
 		if($input['lampiran'] == 2){
-			require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/wpsipd-public-apbdperda-2.php';
+			require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/penganggaran/wpsipd-public-apbdperda-2.php';
 		}
 
 		// DAFTAR NAMA CALON PENERIMA, ALAMAT DAN BESARAN ALOKASI HIBAH BERUPA UANG & BARANG YANG DITERIMA SERTA SKPD PEMBERI HIBAH
 		if($input['lampiran'] == 3){
-			require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/wpsipd-public-apbdperda-3.php';
+			require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/penganggaran/wpsipd-public-apbdperda-3.php';
 		}
 
 		// DAFTAR NAMA CALON PENERIMA, ALAMAT DAN BESARAN ALOKASI BANTUAN SOSIAL BERUPA UANG YANG DITERIMA SERTA SKPD PEMBERI BANTUAN SOSIAL
 		if($input['lampiran'] == 4){
-			require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/wpsipd-public-apbdperda-4.php';
+			require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/penganggaran/wpsipd-public-apbdperda-4.php';
 		}
 
 		// DAFTAR NAMA CALON PENERIMA, ALAMAT DAN BESARAN ALOKASI BANTUAN KEUANGAN BERSIFAT UMUM/KHUSUS YANG DITERIMA SERTA SKPD PEMBERI BANTUAN KEUANGAN
 		if($input['lampiran'] == 5){
-			require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/wpsipd-public-apbdperda-5.php';
+			require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/penganggaran/wpsipd-public-apbdperda-5.php';
 		}
 
 		// DAFTAR NAMA CALON PENERIMA, ALAMAT DAN BESARAN PERUBAHAN ALOKASI BELANJA BAGI HASIL PAJAK DAERAH KEPADA PEMERINTAH KABUPATEN, KOTA DAN DESA
 		if($input['lampiran'] == 6){
-			require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/wpsipd-public-apbdperda-6.php';
+			require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/penganggaran/wpsipd-public-apbdperda-6.php';
 		}
 
 		// 
 		if($input['lampiran'] == 7){
-			require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/wpsipd-public-apbdperda-7.php';
+			require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/penganggaran/wpsipd-public-apbdperda-7.php';
 		}
 
 		// 
 		if($input['lampiran'] == 8){
-			require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/wpsipd-public-apbdperda-8.php';
+			require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/penganggaran/wpsipd-public-apbdperda-8.php';
 		}
 
 		// 
 		if($input['lampiran'] == 9){
-			require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/wpsipd-public-apbdperda-9.php';
+			require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/penganggaran/wpsipd-public-apbdperda-9.php';
 		}
 
 		// 
 		if($input['lampiran'] == 10){
-			require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/wpsipd-public-apbdperda-10.php';
+			require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/penganggaran/wpsipd-public-apbdperda-10.php';
 		}
 
 		// 
 		if($input['lampiran'] == 11){
-			require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/wpsipd-public-apbdperda-11.php';
+			require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/penganggaran/wpsipd-public-apbdperda-11.php';
 		}
 
 		// APBD dikelompokan berdasarkan mandatory spending atau tag label yang dipilih user ketika membuat sub kegiatan
 		if($input['lampiran'] == 99){
-			require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/wpsipd-public-apbdperda-99.php';
+			require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/penganggaran/wpsipd-public-apbdperda-99.php';
 		}
 	}
 
@@ -6623,6 +6623,22 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 								'link' => $this->get_link_post($custom_post)
 							);
 						}
+					}else if(
+						$_POST['jenis'] == '1'
+							|| $_POST['jenis'] == '3'
+							|| $_POST['jenis'] == '4'
+							|| $_POST['jenis'] == '5'
+							|| $_POST['jenis'] == '6'
+						&& $_POST['model'] == 'perda'
+						&& $_POST['cetak'] == 'apbd'
+					){
+						$nama_page = $_POST['tahun_anggaran'] . ' | APBD PERDA Lampiran '.$_POST['jenis'];
+						$cat_name = $_POST['tahun_anggaran'] . ' APBD';
+						$post_content = '[apbdperda tahun_anggaran="'.$_POST['tahun_anggaran'].'" lampiran="'.$_POST['jenis'].'"]';
+						$ret['text_link'] = 'Print APBD PERDA Lampiran '.$_POST['jenis'];
+						$custom_post = $this->save_update_post($nama_page, $cat_name, $post_content);
+						$ret['link'] = $this->get_link_post($custom_post);
+
 					}else{
 						$ret['status'] = 'error';
 						$ret['message'] = 'Page tidak ditemukan!';
