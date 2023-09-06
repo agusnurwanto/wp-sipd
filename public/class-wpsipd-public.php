@@ -5268,12 +5268,12 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 			require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/penganggaran/wpsipd-public-apbdperda.php';
 		}
 
-		// RINCIAN APBD MENURUT URUSAN PEMERINTAHAN DAERAH, ORGANISASI, PENDAPATAN, BELANJA DAN PEMBIAYAAN
+		// RINGKASAN APBD YANG DIKLASIFIKASIKAN MENURUT URUSAN PEMERINTAHAN DAERAH DAN ORGANISASI
 		if($input['lampiran'] == 2){
 			require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/penganggaran/wpsipd-public-apbdperda-2.php';
 		}
 
-		// DAFTAR NAMA CALON PENERIMA, ALAMAT DAN BESARAN ALOKASI HIBAH BERUPA UANG & BARANG YANG DITERIMA SERTA SKPD PEMBERI HIBAH
+		// RINCIAN APBD MENURUT URUSAN PEMERINTAHAN DAERAH, ORGANISASI, PROGRAM, KEGIATAN, SUB KEGIATAN, KELOMPOK, JENIS PENDAPATAN, BELANJA, DAN PEMBIAYAAN
 		if($input['lampiran'] == 3){
 			require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/penganggaran/wpsipd-public-apbdperda-3.php';
 		}
@@ -6625,10 +6625,16 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						}
 					}else if(
 						$_POST['jenis'] == '1'
+							|| $_POST['jenis'] == '2'
 							|| $_POST['jenis'] == '3'
 							|| $_POST['jenis'] == '4'
 							|| $_POST['jenis'] == '5'
 							|| $_POST['jenis'] == '6'
+							|| $_POST['jenis'] == '7'
+							|| $_POST['jenis'] == '8'
+							|| $_POST['jenis'] == '9'
+							|| $_POST['jenis'] == '10'
+							|| $_POST['jenis'] == '11'
 						&& $_POST['model'] == 'perda'
 						&& $_POST['cetak'] == 'apbd'
 					){

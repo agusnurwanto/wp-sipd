@@ -982,6 +982,7 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes {
 						$body_all .= $body_pemda;
 					}else if($_POST['type'] == 'apbdperda'){
 			        	$url_perda1 = $this->generatePage($v['tahun_anggaran'] . ' | APBD PERDA Lampiran 1', $v['tahun_anggaran'], '[apbdperda tahun_anggaran="'.$v['tahun_anggaran'].'" lampiran="1"]');
+			        	$url_perda2 = $this->generatePage($v['tahun_anggaran'] . ' | APBD PERDA Lampiran 2', $v['tahun_anggaran'], '[apbdperda tahun_anggaran="'.$v['tahun_anggaran'].'" lampiran="2"]');
 			        	$url_perda3 = $this->generatePage($v['tahun_anggaran'] . ' | APBD PERDA Lampiran 3', $v['tahun_anggaran'], '[apbdperda tahun_anggaran="'.$v['tahun_anggaran'].'" lampiran="3"]');
 			        	$url_perda4 = $this->generatePage($v['tahun_anggaran'] . ' | APBD PERDA Lampiran 4', $v['tahun_anggaran'], '[apbdperda tahun_anggaran="'.$v['tahun_anggaran'].'" lampiran="4"]');
 			        	$url_perda5 = $this->generatePage($v['tahun_anggaran'] . ' | APBD PERDA Lampiran 5', $v['tahun_anggaran'], '[apbdperda tahun_anggaran="'.$v['tahun_anggaran'].'" lampiran="5"]');
@@ -992,6 +993,7 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes {
 			        	$url_perda10 = $this->generatePage($v['tahun_anggaran'] . ' | APBD PERDA Lampiran 10', $v['tahun_anggaran'], '[apbdperda tahun_anggaran="'.$v['tahun_anggaran'].'" lampiran="10"]');
 			        	$url_perda11 = $this->generatePage($v['tahun_anggaran'] . ' | APBD PERDA Lampiran 11', $v['tahun_anggaran'], '[apbdperda tahun_anggaran="'.$v['tahun_anggaran'].'" lampiran="11"]');
 						$body_all .= '<a style="font-weight: bold;" target="_blank" href="'.$url_perda1.'">Halaman APBD PERDA Lampiran 1 Tahun '.$v['tahun_anggaran'].'</a><br>';
+						$body_all .= '<a style="font-weight: bold;" target="_blank" href="'.$url_perda2.'">Halaman APBD PERDA Lampiran 2 Tahun '.$v['tahun_anggaran'].'</a><br>';
 						$body_all .= '<a style="font-weight: bold;" target="_blank" href="'.$url_perda3.'">Halaman APBD PERDA Lampiran 3 Tahun '.$v['tahun_anggaran'].'</a><br>';
 						$body_all .= '<a style="font-weight: bold;" target="_blank" href="'.$url_perda4.'">Halaman APBD PERDA Lampiran 4 Tahun '.$v['tahun_anggaran'].'</a><br>';
 						$body_all .= '<a style="font-weight: bold;" target="_blank" href="'.$url_perda5.'">Halaman APBD PERDA Lampiran 5 Tahun '.$v['tahun_anggaran'].'</a><br>';
