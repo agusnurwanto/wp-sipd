@@ -23,11 +23,13 @@ $input = shortcode_atts( array(
 
 $jadwal_lokal = $wpdb->get_row($wpdb->prepare("
     SELECT 
-        nama AS nama_jadwal,
-        tahun_anggaran,
-        status 
-    FROM `data_jadwal_lokal` 
-    WHERE id_jadwal_lokal=%d", $id_jadwal_lokal));
+        j.nama AS nama_jadwal,
+        j.tahun_anggaran,
+        j.status,
+        t.nama_tipe 
+    FROM `data_jadwal_lokal` j
+    INNER JOIN `data_tipe_perencanaan` t on t.id=j.id_tipe 
+    WHERE j.id_jadwal_lokal=%d", $id_jadwal_lokal));
 
 $_suffix='';
 $where_jadwal='';
@@ -36,6 +38,11 @@ if($jadwal_lokal->status == 1){
     $where_jadwal=' AND id_jadwal='.$wpdb->prepare("%d", $id_jadwal_lokal);
 }
 $input['tahun_anggaran'] = $jadwal_lokal->tahun_anggaran;
+
+$_suffix_sipd='';
+if(strpos($jadwal_lokal->nama_tipe, '_sipd') == false){
+    $_suffix_sipd = '_lokal';
+}
 
 if($input['id_skpd'] == 'all'){
     $data_skpd = $wpdb->get_results($wpdb->prepare("
@@ -58,7 +65,7 @@ foreach($data_skpd as $skpd){
 	$sql = "
         SELECT 
             *
-        FROM data_sub_keg_bl".$_suffix."
+        FROM data_sub_keg_bl".$_suffix_sipd."".$_suffix."
         WHERE id_sub_skpd=%d
             AND tahun_anggaran=%d
             AND active=1
@@ -81,8 +88,8 @@ foreach($data_skpd as $skpd){
                 s.id_sumber_dana,
                 d.nama_dana,
                 d.kode_dana
-            from data_rka".$_suffix." r
-           	left join data_mapping_sumberdana".$_suffix." s on r.id_rinci_sub_bl = s.id_rinci_sub_bl
+            from data_rka".$_suffix_sipd."".$_suffix." r
+           	left join data_mapping_sumberdana".$_suffix_sipd."".$_suffix." s on r.id_rinci_sub_bl = s.id_rinci_sub_bl
            		and s.active = r.active
            		and s.tahun_anggaran = r.tahun_anggaran
            		".$where_jadwal_join."

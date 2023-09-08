@@ -4609,6 +4609,7 @@ CREATE TABLE `data_renstra_sub_kegiatan_lokal` (
   `active` tinyint(4) NOT NULL,
   `update_at` datetime NOT NULL,
   `tahun_anggaran` year(4) NOT NULL,
+  `id_sub_giat_lama` int(11) DEFAULT NULL,
   PRIMARY KEY  (id)
 );
 
@@ -4689,6 +4690,7 @@ CREATE TABLE `data_renstra_sub_kegiatan_lokal_history` (
   `tahun_anggaran` year(4) NOT NULL,
   `id_jadwal` int(11) NOT NULL,
   `id_asli` int(11) NOT NULL,
+  `id_sub_giat_lama` int(11) DEFAULT NULL,
   PRIMARY KEY  (id)
 );
 
@@ -5588,5 +5590,29 @@ CREATE TABLE `data_pencairan_bku_add_desa` (
   `ket_ver_total` text DEFAULT NULL,
   `update_at` datetime NOT NULL,
   `status` tinyint(4) DEFAULT 1,
+  PRIMARY KEY  (id)
+);
+
+CREATE TABLE `data_mapping_sumberdana_lokal` (
+  `id` int(11) NOT NULL auto_increment,
+  `id_rinci_sub_bl` int(11) NOT NULL,
+  `id_sumber_dana` int(11) NOT NULL,
+  `user` text DEFAULT NULL,
+  `active` tinyint(4) NOT NULL,
+  `update_at` datetime NOT NULL,
+  `tahun_anggaran` year(4) NOT NULL,
+  PRIMARY KEY  (id)
+);
+
+CREATE TABLE `data_mapping_sumberdana_lokal_history` (
+  `id` int(11) NOT NULL auto_increment,
+  `id_rinci_sub_bl` int(11) NOT NULL,
+  `id_sumber_dana` int(11) NOT NULL,
+  `user` text DEFAULT NULL,
+  `active` tinyint(4) NOT NULL,
+  `update_at` datetime NOT NULL,
+  `tahun_anggaran` year(4) NOT NULL,
+  `id_asli` int(11) NOT NULL,
+  `id_jadwal` int(11) NOT NULL,
   PRIMARY KEY  (id)
 );

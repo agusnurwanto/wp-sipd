@@ -504,7 +504,7 @@ foreach($data_skpd as $skpd){
                             }
                             $dana_sub_giat = implode('<br>', $dana_sub_giat_array);
 
-                            $catatan = ''.$sub_giat['data']['catatan'].'';
+                            $catatan = ($_suffix_sipd == '_lokal') ? ''.$sub_giat['data']['catatan'].'' : '';
                             $ind_n_plus = '';
                             $target_ind_n_plus = '';
                             /*

@@ -881,6 +881,8 @@ class Wpsipd
 		$this->loader->add_action('wp_ajax_show_skpd_bidang_urusan_analisis',  $plugin_public, 'show_skpd_bidang_urusan_analisis');
 		$this->loader->add_action('wp_ajax_show_skpd_sumber_dana_analisis',  $plugin_public, 'show_skpd_sumber_dana_analisis');
 		$this->loader->add_action('wp_ajax_get_rinc_rka_lokal',  $plugin_public, 'get_rinc_rka_lokal');
+
+		$this->loader->add_action('wp_ajax_mutakhirkan_sub_kegiatan_renstra',  $plugin_public, 'mutakhirkan_sub_kegiatan_renstra');
 		
 		add_shortcode('menu_monev',  array($plugin_public, 'menu_monev'));
 		add_shortcode('datassh', array($plugin_public, 'datassh'));

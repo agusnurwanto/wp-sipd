@@ -26,7 +26,7 @@ $jadwal_lokal = $wpdb->get_row($wpdb->prepare("
         j.nama AS nama_jadwal,
         j.tahun_anggaran,
         j.status,
-        t.nama_tipe
+        t.nama_tipe 
     FROM `data_jadwal_lokal` j
     INNER JOIN `data_tipe_perencanaan` t on t.id=j.id_tipe
     WHERE j.id_jadwal_lokal=%d", $id_jadwal_lokal));
