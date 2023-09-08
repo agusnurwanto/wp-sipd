@@ -5249,6 +5249,81 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		}
 	}
 
+	public function apbdperda($atts)
+	{
+		// untuk disable render shortcode di halaman edit page/post
+		if(!empty($_GET) && !empty($_GET['post'])){
+			return '';
+		}
+
+		$input = shortcode_atts( array(
+			'idlabelgiat' => '',
+			'lampiran' => '1',
+			'id_skpd' => false,
+			'tahun_anggaran' => '2021',
+		), $atts );
+
+		// RINGKASAN APBD YANG DIKLASIFIKASI MENURUT KELOMPOK DAN JENIS PENDAPATAN, BELANJA, DAN PEMBIAYAAN
+		if($input['lampiran'] == 1){
+			require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/penganggaran/wpsipd-public-apbdperda.php';
+		}
+
+		// RINGKASAN APBD YANG DIKLASIFIKASIKAN MENURUT URUSAN PEMERINTAHAN DAERAH DAN ORGANISASI
+		if($input['lampiran'] == 2){
+			require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/penganggaran/wpsipd-public-apbdperda-2.php';
+		}
+
+		// RINCIAN APBD MENURUT URUSAN PEMERINTAHAN DAERAH, ORGANISASI, PROGRAM, KEGIATAN, SUB KEGIATAN, KELOMPOK, JENIS PENDAPATAN, BELANJA, DAN PEMBIAYAAN
+		if($input['lampiran'] == 3){
+			require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/penganggaran/wpsipd-public-apbdperda-3.php';
+		}
+
+		// REKAPITULASI BELANJA MENURUT URUSAN PEMERINTAHAN DAERAH, ORGANISASI, PROGRAM, KEGIATAN BESERTA HASIL DAN SUB KEGIATAN BESERTA SUB KELUARAN
+		if($input['lampiran'] == 4){
+			require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/penganggaran/wpsipd-public-apbdperda-4.php';
+		}
+
+		// REKAPITULASI BELANJA DAERAH UNTUK KESELARASAN DAN KETERPADUAN URUSAN PEMERINTAHAN DAERAH DAN FUNGSI DALAM KERANGKA PENGELOLAAN KEUANGAN NEGARA
+		if($input['lampiran'] == 5){
+			require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/penganggaran/wpsipd-public-apbdperda-5.php';
+		}
+
+		// REKAPITULASI BELANJA UNTUK PEMENUHAN SPM
+		if($input['lampiran'] == 6){
+			require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/penganggaran/wpsipd-public-apbdperda-6.php';
+		}
+
+		// SINKRONISASI PROGRAM PADA RPJMD/RPD DENGAN RANCANGAN APBD
+		if($input['lampiran'] == 7){
+			require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/penganggaran/wpsipd-public-apbdperda-7.php';
+		}
+
+		// SINKRONISASI PROGRAM, KEGIATAN DAN SUB KEGIATAN PADA RKPD DAN PPAS DENGAN RANCANGAN PERATURAN DAERAH TENTANG APBD
+		if($input['lampiran'] == 8){
+			require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/penganggaran/wpsipd-public-apbdperda-8.php';
+		}
+
+		// SIKRONISASI PROGRAM PRIORITAS NASIONAL DAN PRIORITAS PROVINSI DENGAN PROGRAM PRIORITAS KABUPATEN/KOTA
+		if($input['lampiran'] == 9){
+			require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/penganggaran/wpsipd-public-apbdperda-9.php';
+		}
+
+		// DAFTAR JUMLAH PEGAWAI PER GOLONGAN DAN PER JABATAN
+		if($input['lampiran'] == 10){
+			require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/penganggaran/wpsipd-public-apbdperda-10.php';
+		}
+
+		// DAFTAR PIUTANG DAERAH
+		if($input['lampiran'] == 11){
+			require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/penganggaran/wpsipd-public-apbdperda-11.php';
+		}
+
+		// APBD dikelompokan berdasarkan mandatory spending atau tag label yang dipilih user ketika membuat sub kegiatan
+		if($input['lampiran'] == 99){
+			require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/penganggaran/wpsipd-public-apbdperda-99.php';
+		}
+	}
+
 	public function setting_penjadwalan($atts)
 	{
 		// untuk disable render shortcode di halaman edit page/post
@@ -6548,6 +6623,28 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 								'link' => $this->get_link_post($custom_post)
 							);
 						}
+					}else if(
+						$_POST['jenis'] == '1'
+							|| $_POST['jenis'] == '2'
+							|| $_POST['jenis'] == '3'
+							|| $_POST['jenis'] == '4'
+							|| $_POST['jenis'] == '5'
+							|| $_POST['jenis'] == '6'
+							|| $_POST['jenis'] == '7'
+							|| $_POST['jenis'] == '8'
+							|| $_POST['jenis'] == '9'
+							|| $_POST['jenis'] == '10'
+							|| $_POST['jenis'] == '11'
+						&& $_POST['model'] == 'perda'
+						&& $_POST['cetak'] == 'apbd'
+					){
+						$nama_page = $_POST['tahun_anggaran'] . ' | APBD PERDA Lampiran '.$_POST['jenis'];
+						$cat_name = $_POST['tahun_anggaran'] . ' APBD';
+						$post_content = '[apbdperda tahun_anggaran="'.$_POST['tahun_anggaran'].'" lampiran="'.$_POST['jenis'].'"]';
+						$ret['text_link'] = 'Print APBD PERDA Lampiran '.$_POST['jenis'];
+						$custom_post = $this->save_update_post($nama_page, $cat_name, $post_content);
+						$ret['link'] = $this->get_link_post($custom_post);
+
 					}else{
 						$ret['status'] = 'error';
 						$ret['message'] = 'Page tidak ditemukan!';

@@ -23,17 +23,24 @@ $input = shortcode_atts( array(
 
 $jadwal_lokal = $wpdb->get_row($wpdb->prepare("
     SELECT 
-        nama AS nama_jadwal,
-        tahun_anggaran,
-        status 
-    FROM `data_jadwal_lokal` 
-    WHERE id_jadwal_lokal=%d", $id_jadwal_lokal));
+        j.nama AS nama_jadwal,
+        j.tahun_anggaran,
+        j.status,
+        t.nama_tipe  
+    FROM `data_jadwal_lokal` j
+    INNER JOIN `data_tipe_perencanaan` t on t.id=j.id_tipe
+    WHERE j.id_jadwal_lokal=%d", $id_jadwal_lokal));
 
 $_suffix='';
 $where_jadwal='';
 if($jadwal_lokal->status == 1){
     $_suffix='_history';
     $where_jadwal=' AND id_jadwal='.$wpdb->prepare("%d", $id_jadwal_lokal);
+}
+
+$_suffix_sipd='';
+if(strpos($jadwal_lokal->nama_tipe, '_sipd') == false){
+    $_suffix_sipd = '_lokal';
 }
 
 if($input['id_skpd'] == 'all'){
@@ -57,7 +64,7 @@ foreach($data_skpd as $skpd){
     $sql = "
         SELECT 
             *
-        FROM data_sub_keg_bl_lokal".$_suffix."
+        FROM data_sub_keg_bl".$_suffix_sipd."".$_suffix."
         WHERE id_sub_skpd=%d
             AND tahun_anggaran=%d
             AND active=1
@@ -83,7 +90,7 @@ foreach($data_skpd as $skpd){
         $capaian_prog = $wpdb->get_results($wpdb->prepare("
             select 
                 * 
-            from data_capaian_prog_sub_keg_lokal".$_suffix."
+            from data_capaian_prog_sub_keg".$_suffix_sipd."".$_suffix."
             where tahun_anggaran=%d
                 and active=1
                 and kode_sbl=%s
@@ -94,7 +101,7 @@ foreach($data_skpd as $skpd){
         $output_giat = $wpdb->get_results($wpdb->prepare("
             select 
                 * 
-            from data_output_giat_sub_keg_lokal".$_suffix."
+            from data_output_giat_sub_keg".$_suffix_sipd."".$_suffix."
             where tahun_anggaran=%d
                 and active=1
                 and kode_sbl=%s
@@ -105,7 +112,7 @@ foreach($data_skpd as $skpd){
         $output_sub_giat = $wpdb->get_results($wpdb->prepare("
             select 
                 * 
-            from data_sub_keg_indikator_lokal".$_suffix."
+            from data_sub_keg_indikator".$_suffix_sipd."".$_suffix."
             where tahun_anggaran=%d
                 and active=1
                 and kode_sbl=%s
@@ -116,7 +123,7 @@ foreach($data_skpd as $skpd){
         $lokasi_sub_giat = $wpdb->get_results($wpdb->prepare("
             select 
                 * 
-            from data_lokasi_sub_keg_lokal".$_suffix."
+            from data_lokasi_sub_keg".$_suffix_sipd."".$_suffix."
             where tahun_anggaran=%d
                 and active=1
                 and kode_sbl=%s
@@ -127,7 +134,7 @@ foreach($data_skpd as $skpd){
         $dana_sub_giat = $wpdb->get_results($wpdb->prepare("
             select 
                 * 
-            from data_dana_sub_keg_lokal".$_suffix."
+            from data_dana_sub_keg".$_suffix_sipd."".$_suffix."
             where tahun_anggaran=%d
                 and active=1
                 and kode_sbl=%s
@@ -279,22 +286,23 @@ foreach($data_skpd as $skpd){
         $data_all['data'][$sub['id_sub_skpd']]['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']]['data'][$sub['kode_giat']]['total_n_plus'] += $sub['pagu_n_depan'];
         $data_all['data'][$sub['id_sub_skpd']]['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']]['data'][$sub['kode_giat']]['data'][$sub['kode_sub_giat']]['total_n_plus'] += $sub['pagu_n_depan'];
 
-        $data_all['total_usulan'] += $sub['pagu_usulan'];
-        $data_all['data'][$sub['id_sub_skpd']]['total_usulan'] += $sub['pagu_usulan'];
-        $data_all['data'][$sub['id_sub_skpd']]['data'][$sub['kode_urusan']]['total_usulan'] += $sub['pagu_usulan'];
-        $data_all['data'][$sub['id_sub_skpd']]['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['total_usulan'] += $sub['pagu_usulan'];
-        $data_all['data'][$sub['id_sub_skpd']]['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']]['total_usulan'] += $sub['pagu_usulan'];
-        $data_all['data'][$sub['id_sub_skpd']]['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']]['data'][$sub['kode_giat']]['total_usulan'] += $sub['pagu_usulan'];
-        $data_all['data'][$sub['id_sub_skpd']]['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']]['data'][$sub['kode_giat']]['data'][$sub['kode_sub_giat']]['total_usulan'] += $sub['pagu_usulan'];
+        if($_suffix_sipd == '_lokal'){
+            $data_all['total_usulan'] += $sub['pagu_usulan'];
+            $data_all['data'][$sub['id_sub_skpd']]['total_usulan'] += $sub['pagu_usulan'];
+            $data_all['data'][$sub['id_sub_skpd']]['data'][$sub['kode_urusan']]['total_usulan'] += $sub['pagu_usulan'];
+            $data_all['data'][$sub['id_sub_skpd']]['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['total_usulan'] += $sub['pagu_usulan'];
+            $data_all['data'][$sub['id_sub_skpd']]['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']]['total_usulan'] += $sub['pagu_usulan'];
+            $data_all['data'][$sub['id_sub_skpd']]['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']]['data'][$sub['kode_giat']]['total_usulan'] += $sub['pagu_usulan'];
+            $data_all['data'][$sub['id_sub_skpd']]['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']]['data'][$sub['kode_giat']]['data'][$sub['kode_sub_giat']]['total_usulan'] += $sub['pagu_usulan'];
 
-        $data_all['total_n_plus_usulan'] += $sub['pagu_n_depan_usulan'];
-        $data_all['data'][$sub['id_sub_skpd']]['total_n_plus_usulan'] += $sub['pagu_n_depan_usulan'];
-        $data_all['data'][$sub['id_sub_skpd']]['data'][$sub['kode_urusan']]['total_n_plus_usulan'] += $sub['pagu_n_depan_usulan'];
-        $data_all['data'][$sub['id_sub_skpd']]['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['total_n_plus_usulan'] += $sub['pagu_n_depan_usulan'];
-        $data_all['data'][$sub['id_sub_skpd']]['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']]['total_n_plus_usulan'] += $sub['pagu_n_depan_usulan'];
-        $data_all['data'][$sub['id_sub_skpd']]['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']]['data'][$sub['kode_giat']]['total_n_plus_usulan'] += $sub['pagu_n_depan_usulan'];
-        $data_all['data'][$sub['id_sub_skpd']]['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']]['data'][$sub['kode_giat']]['data'][$sub['kode_sub_giat']]['total_n_plus_usulan'] += $sub['pagu_n_depan_usulan'];
-
+            $data_all['total_n_plus_usulan'] += $sub['pagu_n_depan_usulan'];
+            $data_all['data'][$sub['id_sub_skpd']]['total_n_plus_usulan'] += $sub['pagu_n_depan_usulan'];
+            $data_all['data'][$sub['id_sub_skpd']]['data'][$sub['kode_urusan']]['total_n_plus_usulan'] += $sub['pagu_n_depan_usulan'];
+            $data_all['data'][$sub['id_sub_skpd']]['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['total_n_plus_usulan'] += $sub['pagu_n_depan_usulan'];
+            $data_all['data'][$sub['id_sub_skpd']]['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']]['total_n_plus_usulan'] += $sub['pagu_n_depan_usulan'];
+            $data_all['data'][$sub['id_sub_skpd']]['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']]['data'][$sub['kode_giat']]['total_n_plus_usulan'] += $sub['pagu_n_depan_usulan'];
+            $data_all['data'][$sub['id_sub_skpd']]['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']]['data'][$sub['kode_giat']]['data'][$sub['kode_sub_giat']]['total_n_plus_usulan'] += $sub['pagu_n_depan_usulan'];
+        }
         $data_all['pagu_sipd'] += $sub_keg_sipd['pagu'];
         $data_all['data'][$sub['id_sub_skpd']]['pagu_sipd'] += $sub_keg_sipd['pagu'];
         $data_all['data'][$sub['id_sub_skpd']]['data'][$sub['kode_urusan']]['pagu_sipd'] += $sub_keg_sipd['pagu'];
@@ -496,7 +504,7 @@ foreach($data_skpd as $skpd){
                             }
                             $dana_sub_giat = implode('<br>', $dana_sub_giat_array);
 
-                            $catatan = ''.$sub_giat['data']['catatan'].'';
+                            $catatan = ($_suffix_sipd == '_lokal') ? ''.$sub_giat['data']['catatan'].'' : '';
                             $ind_n_plus = '';
                             $target_ind_n_plus = '';
                             /*

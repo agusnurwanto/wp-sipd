@@ -8008,17 +8008,24 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 
 			$jadwal_lokal = $wpdb->get_row($wpdb->prepare("
 				SELECT 
-					nama AS nama_jadwal,
-					tahun_anggaran,
-					status 
-				FROM `data_jadwal_lokal` 
-					WHERE id_jadwal_lokal=%d", $id_jadwal_lokal));
+					j.nama AS nama_jadwal,
+					j.tahun_anggaran,
+					j.status,
+					t.nama_tipe 
+				FROM `data_jadwal_lokal` j
+				INNER JOIN `data_tipe_perencanaan` t on t.id=j.id_tipe 
+					WHERE j.id_jadwal_lokal=%d", $id_jadwal_lokal));
 
 			$_suffix='';
 			$where='';
 			if($jadwal_lokal->status == 1){
 				$_suffix='_history';
 				$where=' AND id_jadwal='.$wpdb->prepare("%d", $id_jadwal_lokal);
+			}
+			
+			$_suffix_sipd='';
+			if(strpos($jadwal_lokal->nama_tipe, '_sipd') == false){
+				$_suffix_sipd = '_lokal';
 			}
 
 			$where_skpd = '';
@@ -8068,12 +8075,14 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 			);
 
 			foreach ($units as $key => $unit) {
+
+				$pagu_usulan = $_suffix_sipd == '_lokal' ? 'COALESCE(SUM(s.pagu_usulan), 0) as pagu_usulan,' : '';
 				/** Mendapatkan data belanja */
 				$sql = $wpdb->prepare("
 					SELECT 
-					  COALESCE(SUM(s.pagu_usulan), 0) as pagu_usulan,
+					  ".$pagu_usulan."
 					  COALESCE(SUM(s.pagu), 0) as pagu_penetapan
-					FROM data_sub_keg_bl_lokal".$_suffix." s
+					FROM data_sub_keg_bl".$_suffix_sipd."".$_suffix." s
 					WHERE s.tahun_anggaran=%d
 					  AND s.id_sub_skpd=%d
 					  ".$where."
@@ -8092,16 +8101,18 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 				        order by id ASC
 				    ", $tahun_anggaran, $unit['id_skpd']), ARRAY_A);
 				    
+					$data_pagu_usulan = !empty($pagu['pagu_usulan']) ?: 0;
+
 					$data_all['data'][$unit['kode_skpd']] = [
 						'id_skpd' => $unit['id_skpd'],
 						'kode_skpd' => $unit['kode_skpd'],
 						'nama_skpd' => $unit['nama_skpd'],
-						'pagu_usulan' => $pagu['pagu_usulan'],
+						'pagu_usulan' => $data_pagu_usulan,
 						'pagu_penetapan' => $pagu['pagu_penetapan'],
 						'pagu_sipd' => $pagu_sipd['pagu']
 					];
 
-					$data_all['pagu_usulan_kab'] += $pagu['pagu_usulan'];
+					$data_all['pagu_usulan_kab'] += $data_pagu_usulan;
 					$data_all['pagu_penetapan_kab'] += $pagu['pagu_penetapan'];
 					$data_all['pagu_sipd'] += $pagu_sipd['pagu'];
 				}
@@ -8110,7 +8121,7 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 				$sql_pendapatan = $wpdb->prepare("
 					SELECT
 						COALESCE(SUM(total), 0) as total_pendapatan
-					FROM data_pendapatan_lokal".$_suffix."
+					FROM data_pendapatan".$_suffix_sipd."".$_suffix."
 					WHERE tahun_anggaran=%d
 						AND id_skpd=%d
 						".$where."
@@ -8143,7 +8154,7 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 				$sql_penerimaan = $wpdb->prepare("
 					SELECT
 						COALESCE(SUM(total), 0) as total_penerimaan
-					FROM data_pembiayaan_lokal".$_suffix."
+					FROM data_pembiayaan".$_suffix_sipd."".$_suffix."
 					WHERE tahun_anggaran=%d
 						AND id_skpd=%d
 						AND active=1
@@ -8178,7 +8189,7 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 				$sql_pengeluaran = $wpdb->prepare("
 					SELECT
 						COALESCE(SUM(total), 0) as total_pengeluaran
-					FROM data_pembiayaan_lokal".$_suffix."
+					FROM data_pembiayaan".$_suffix_sipd."".$_suffix."
 					WHERE tahun_anggaran=%d
 						AND id_skpd=%d
 						AND active=1
