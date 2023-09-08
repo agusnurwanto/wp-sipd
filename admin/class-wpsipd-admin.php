@@ -663,6 +663,10 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes {
 
 		$url_sql_migrate = $this->generatePage('Monitoring SQL migrate WP-SIPD', false, '[monitoring_sql_migrate]');
 		$sumber_dana_all = array();
+		$status_lisensi = get_option('_crb_status_lisensi_ket');
+		if(!empty($status_lisensi)){
+			$status_lisensi = ' Status: <b>'.$status_lisensi.'</b>';
+		}
 		$tahun_anggaran = get_option('_crb_tahun_anggaran_sipd');
 		if(empty($tahun_anggaran)){
 			$tahun_anggaran = date('Y');
@@ -702,9 +706,6 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes {
             	->set_attribute('placeholder', '628xxxxxxxxx')
             	->set_required( true )
 				->set_help_text('Nomor whatsapp untuk menerima pesan dari server WP-SIPD. Format nomor diawali dengan 62xxxxxxxxxx tanpa perlu ada + di depan nomor.'),
-			Field::make( 'text', 'crb_lokasi', 'Nama Kota / Kabupaten' )
-            	->set_default_value('')
-            	->set_help_text('Diisi dengan nama daerah tanpa Kota / Kabupaten'),
             Field::make( 'text', 'crb_daerah', 'Nama Pemda' )
             	->set_default_value($nama_pemda)
             	->set_required( true ),
@@ -714,7 +715,7 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes {
             Field::make( 'text', 'crb_api_key_extension', 'Lisensi key chrome extension / API KEY' )
             	->set_required( true )
             	->set_attribute('readOnly', 'true')
-            	->set_help_text('Lisensi key ini dipakai untuk <a href="https://github.com/agusnurwanto/sipd-chrome-extension" target="_blank">SIPD chrome extension</a>.'),
+            	->set_help_text('Lisensi key ini dipakai untuk <a href="https://github.com/agusnurwanto/sipd-chrome-extension" target="_blank">SIPD chrome extension</a>.<span id="ket_lisensi_wpsipd">'.$status_lisensi.'</span>'),
            	Field::make( 'html', 'crb_html_set_lisensi' )
             	->set_html( '<a onclick="generate_lisensi(); return false;" href="#" class="button button-primary">Generate Lisensi WP-SIPD</a>' ),
             Field::make( 'text', 'crb_awal_rpjmd', 'Tahun Awal RPJMD' )
@@ -3064,6 +3065,13 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes {
 	            	!empty($ret)
 	            	&& $ret->status == 'success'
 	            ){
+	            	if($ret->order->bn_status_wpsipd == 'active'){
+	            		update_option('_crb_waktu_lisensi_selesai', $ret->order->bn_waktu_selesai);
+	            	}else{
+	            		update_option('_crb_waktu_lisensi_selesai', '');
+	            	}
+	            	update_option('_crb_status_lisensi', $ret->order->bn_status_wpsipd);
+	            	update_option('_crb_status_lisensi_ket', $ret->message);
 	            	update_option('_crb_api_key_extension', $ret->lisensi);
 	            }else{
 	            	if(
