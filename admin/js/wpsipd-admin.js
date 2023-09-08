@@ -167,6 +167,7 @@ function generate_lisensi(){
 			if(data.response.status == 'success'){
 				jQuery('#load_ajax_carbon').html(data.response.message);
 				jQuery('input[name="carbon_fields_compact_input[_crb_api_key_extension]"]').val(data.response.lisensi);
+				jQuery('#ket_lisensi_wpsipd').html(' <b>Status: '+data.response.message+'</b>');
 			}
 		},
 		error: function(e) {
