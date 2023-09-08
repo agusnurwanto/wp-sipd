@@ -6921,7 +6921,7 @@ $table='<table cellpadding="2" cellspacing="0" style="font-family:\'Open Sans\',
           	},
           	dataType: "json",
           	success: function(response){
-
+          		console.log(response);
           		get_list_sub_kegiatan({
           			'kode_giat':response.sub_kegiatan.kode_giat,
           			'id_unit': response.sub_kegiatan.id_unit,
@@ -6981,7 +6981,7 @@ $table='<table cellpadding="2" cellspacing="0" style="font-family:\'Open Sans\',
          })
 	}
 
-	function mutakhirkanSubKegiatan(id_sub_kegiatan_old, id){
+	function mutakhirkanSubKegiatan(id_sub_kegiatan_lama, id){
 		
 		let id_sub_kegiatan = jQuery("#select-sub-kegiatan").val();
 		let id_indikator_sub_kegiatan = jQuery("#select-indikator-sub-kegiatan").val();
@@ -7000,7 +7000,7 @@ $table='<table cellpadding="2" cellspacing="0" style="font-family:\'Open Sans\',
 	          		"api_key": "<?php echo $api_key; ?>",
 	          		'id': id,
 					'id_sub_kegiatan': id_sub_kegiatan,
-					'id_sub_kegiatan_old': id_sub_kegiatan_old,
+					'id_sub_kegiatan_lama': id_sub_kegiatan_lama,
 					'id_indikator_sub_kegiatan': id_indikator_sub_kegiatan,
 			       	'tahun_anggaran': '<?php echo $tahun_anggaran; ?>'
 	          	},
@@ -7008,7 +7008,7 @@ $table='<table cellpadding="2" cellspacing="0" style="font-family:\'Open Sans\',
 	          	success: function(response){
 	          		jQuery('#wrap-loading').hide();
 	          		alert(response.message);
-	          		location.reload();
+	          		// location.reload();
 	          	}
 	        });
 		}
