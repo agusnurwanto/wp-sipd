@@ -8660,7 +8660,7 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 					$result1 = $wpdb->insert('data_renstra_sub_kegiatan_lokal', [
 							'bidur_lock' => $subKegiatanRenstraLama->bidur_lock,
 							'giat_lock' => $subKegiatanRenstraLama->giat_lock,
-							'id_bidang_urusan' => $subKegiatanRenstraLama->id_bidang_urusan,
+							'id_bidang_urusan' => $subKegiatanBaru->id_bidang_urusan,
 							'id_sub_giat' => $subKegiatanBaru->id_sub_giat,
 							'id_giat' => $subKegiatanBaru->id_giat,
 							'id_misi' => $subKegiatanRenstraLama->id_misi,
