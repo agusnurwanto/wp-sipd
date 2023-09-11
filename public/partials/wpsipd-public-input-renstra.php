@@ -1733,7 +1733,6 @@ foreach ($data_all['data'] as $tujuan) {
 				<td class="atas kanan bawah"></td>
 				<td class="atas kanan bawah"></td>
 				<td class="atas kanan bawah">'.$indikator_tujuan.'</td>
-				<td class="atas kanan bawah"></td>
 				<td class="atas kanan bawah text_tengah">'.$target_awal.'</td>';
 				for ($i=0; $i < $lama_pelaksanaan; $i++) { 
 					$body.="<td class=\"atas kanan bawah text_tengah\">".$target_arr[$i]."</td><td class=\"atas kanan bawah text_kanan\"><b>(".$this->_number_format($tujuan['pagu_akumulasi_'.($i+1)]).")</b></td>";
@@ -1816,7 +1815,6 @@ foreach ($data_all['data'] as $tujuan) {
 					<td class="atas kanan bawah"></td>
 					<td class="atas kanan bawah"></td>
 					<td class="atas kanan bawah">'.$indikator_sasaran.'</td>
-					<td class="atas kanan bawah"></td>
 					<td class="atas kanan bawah text_tengah">'.$target_awal.'</td>';
 					for ($i=0; $i < $lama_pelaksanaan; $i++) { 
 						$body.="<td class=\"atas kanan bawah text_tengah\">".$target_arr[$i]."</td><td class=\"atas kanan bawah text_kanan\"><b>(".$this->_number_format($sasaran['pagu_akumulasi_'.($i+1)]).")</b></td>";
@@ -2131,7 +2129,7 @@ foreach ($data_all['data'] as $tujuan) {
 					$bgIsMutakhir='';
 					if(!$sub_kegiatan['statusMutakhirSubKeg']){
 						$bgIsMutakhir='#d013133d';
-						$isMutakhir='<button class="btn-sm btn-warning" style="margin: 1px;"><i class="dashicons dashicons-update" onclick="tampilSubKegiatan(\''.$sub_kegiatan['id'].'\')" title="Mutakhirkan"></i></button>';
+						$isMutakhir='<button class="btn-sm btn-warning" onclick="tampilSubKegiatan(\''.$sub_kegiatan['id'].'\')" style="margin: 1px; display:none;"><i class="dashicons dashicons-update" title="Mutakhirkan"></i></button>';
 					}
 
 					foreach ($sub_kegiatan['indikator'] as $key => $indikator) {
@@ -2168,9 +2166,8 @@ foreach ($data_all['data'] as $tujuan) {
 								<td class="atas kanan bawah"></td>
 								<td class="atas kanan bawah"></td>
 								<td class="atas kanan bawah"></td>
-								<td class="atas kanan bawah">'.$sub_kegiatan['sub_kegiatan_teks'].'</td>
+								<td class="atas kanan bawah">'.$sub_kegiatan['sub_kegiatan_teks']."".$isMutakhir.'</td>
 								<td class="atas kanan bawah"><br>'.$indikator_sub_kegiatan.'</td>
-								<td class="atas kanan bawah">'.$isMutakhir.'</td>
 								<td class="atas kanan bawah text_tengah"><br>'.$target_awal.'</td>';
 								for ($i=0; $i < $lama_pelaksanaan; $i++) {
 									$body.="<td class=\"atas kanan bawah text_tengah\"><br>".$target_arr[$i]."</td><td class=\"atas kanan bawah text_kanan\">".$this->_number_format($sub_kegiatan['pagu_'.($i+1)])."</td>";
@@ -2302,7 +2299,6 @@ $table='<table cellpadding="2" cellspacing="0" style="font-family:\'Open Sans\',
 				<th style="width: 200px;" class="row_head_1 atas kanan bawah text_tengah text_blok">Kegiatan</th>
 				<th style="width: 200px;" class="row_head_1 atas kanan bawah text_tengah text_blok">Sub Kegiatan</th>
 				<th style="width: 400px;" class="row_head_1 atas kanan bawah text_tengah text_blok">Indikator</th>
-				<th style="width: 50px;" class="row_head_1 atas kanan bawah text_tengah text_blok">Aksi</th>
 				<th style="width: 100px;" class="row_head_1 atas kanan bawah text_tengah text_blok">Target Awal</th>';
 				for ($i=1; $i <= $lama_pelaksanaan; $i++) { 
 				$row_head.='<th style="width: 200px;" class="row_head_1_tahun atas kanan bawah text_tengah text_blok">Tahun '.$i.'</th>';
@@ -2352,9 +2348,8 @@ $table='<table cellpadding="2" cellspacing="0" style="font-family:\'Open Sans\',
 				<th class='atas kanan bawah text_tengah text_blok'>7</th>
 				<th class='atas kanan bawah text_tengah text_blok'>8</th>
 				<th class='atas kanan bawah text_tengah text_blok'>9</th>
-				<th class='atas kanan bawah text_tengah text_blok'>10</th>
 			<?php 
-				$target_temp = 11;
+				$target_temp = 10;
 				for ($i=1; $i <= $lama_pelaksanaan; $i++) { 
 					if($i!=1){
 						$target_temp=$pagu_temp+1; 
