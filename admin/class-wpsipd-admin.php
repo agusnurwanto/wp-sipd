@@ -663,9 +663,18 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes {
 
 		$url_sql_migrate = $this->generatePage('Monitoring SQL migrate WP-SIPD', false, '[monitoring_sql_migrate]');
 		$sumber_dana_all = array();
-		$status_lisensi = get_option('_crb_status_lisensi_ket');
-		if(!empty($status_lisensi)){
-			$status_lisensi = ' Status: <b>'.$status_lisensi.'</b>';
+		$status_lisensi = get_option('_crb_status_lisensi');
+		$warna = "";
+		if($status_lisensi == 'pending'){
+			$warna = "color: #979700;";
+		}else if($status_lisensi == 'active'){
+			$warna = "color: green;";
+		}else if($status_lisensi == 'expired'){
+			$warna = "color: red;";
+		}
+		$status_lisensi_ket = get_option('_crb_status_lisensi_ket');
+		if(!empty($status_lisensi_ket)){
+			$status_lisensi_ket = ' Status: <b style="'.$warna.'">'.$status_lisensi_ket.'</b>';
 		}
 		$tahun_anggaran = get_option('_crb_tahun_anggaran_sipd');
 		if(empty($tahun_anggaran)){
@@ -715,7 +724,7 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes {
             Field::make( 'text', 'crb_api_key_extension', 'Lisensi key chrome extension / API KEY' )
             	->set_required( true )
             	->set_attribute('readOnly', 'true')
-            	->set_help_text('Lisensi key ini dipakai untuk <a href="https://github.com/agusnurwanto/sipd-chrome-extension" target="_blank">SIPD chrome extension</a>.<span id="ket_lisensi_wpsipd">'.$status_lisensi.'</span>'),
+            	->set_help_text('Lisensi key ini dipakai untuk <a href="https://github.com/agusnurwanto/sipd-chrome-extension" target="_blank">SIPD chrome extension</a>.<span id="ket_lisensi_wpsipd">'.$status_lisensi_ket.'</span>'),
            	Field::make( 'html', 'crb_html_set_lisensi' )
             	->set_html( '<a onclick="generate_lisensi(); return false;" href="#" class="button button-primary">Generate Lisensi WP-SIPD</a>' ),
             Field::make( 'text', 'crb_awal_rpjmd', 'Tahun Awal RPJMD' )
@@ -3002,7 +3011,7 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes {
 		die(json_encode($ret));
     }
 
-    function generate_lisensi(){
+    function generate_lisensi($callback = false){
 		$cek = true;
 		if(empty($_POST['server'])){
 			$cek = false;
@@ -3026,14 +3035,13 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes {
 	    	update_option('_crb_server_wp_sipd_api_key', $api_key_wp_sipd);
 	    	update_option('_crb_no_wa', $no_wa);
 			update_option('_crb_daerah', $nama_pemda);
-			$domain = $_SERVER['SERVER_NAME'];
 			$api_params = array(
 				'action' => 'generate_lisensi_bn',
 				'api_key' => $api_key_wp_sipd,
 				'no_wa' => $no_wa,
 				'nama_pemda' => $nama_pemda,
 				'produk' => 'WP-SIPD',
-				'domain' => $domain,
+				'domain' => site_url(),
 			);
 			$req = http_build_query($api_params);
 			$curl = curl_init();
@@ -3042,7 +3050,6 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes {
 	            CURLOPT_RETURNTRANSFER => true,
 	            CURLOPT_ENCODING => "",
 	            CURLOPT_MAXREDIRS => 10,
-	            CURLOPT_TIMEOUT => 30,
 	            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
 	            CURLOPT_CUSTOMREQUEST => "POST",
 	            CURLOPT_POSTFIELDS => $req,
@@ -3092,12 +3099,61 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes {
         		'message' => $pesan
         	);
 	    }
-		die(json_encode(array(
-			'url' => $url,
-			'params' => $api_params,
-			'response' => $ret
-		)));
+	    if($callback){
+	    	return json_encode($ret);
+	    }else{
+			die(json_encode(array(
+				'url' => $url,
+				'params' => $api_params,
+				'response' => $ret
+			)));
+	    }
     }
+
+	public function cek_lisensi_ext(){
+		global $wpdb;
+		$ret = array(
+			'status'	=> 'success',
+			'action'	=> $_POST['action'],
+			'run'		=> $_POST['run'],
+			'message'	=> 'Berhasil cek lisensi aktif!'
+		);
+		if (!empty($_POST)) {
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+				$sipd_url = get_option('_crb_server_wp_sipd');
+				$sipd_url = explode('/wp-admin', $sipd_url);
+				$ret['sipd_url'] = $sipd_url[0];
+
+				$_POST['server'] = get_option('_crb_server_wp_sipd');
+		    	$_POST['api_key_server'] = get_option('_crb_server_wp_sipd_api_key');
+		    	$_POST['no_wa'] = get_option('_crb_no_wa');
+				$_POST['pemda'] = get_option('_crb_daerah');
+				$response = json_decode($this->generate_lisensi(true));
+
+				$ret['status'] = $response->status;
+				if($response->status == 'success'){
+					$ret['api_key'] = $response->lisensi;
+					$ret['status_key'] = $response->order->bn_status_wpsipd;
+					$ret['pesan_key'] = $response->order->bn_status_wpsipd_message;
+					if($ret['status_key'] != 'active'){
+						$ret['sipd_url'] = site_url().'/'.$ret['status_key'].'/';
+						$ret['status'] = $ret['status_key'];
+						$ret['message'] = $ret['pesan_key'];
+					}
+				}else{
+					$ret['sipd_url'] = site_url();
+					$ret['message'] = $response->message;
+				}
+			} else {
+				$ret['status'] = 'error';
+				$ret['message'] = 'APIKEY tidak sesuai!';
+			}
+		} else {
+			$ret['status'] = 'error';
+			$ret['message'] = 'Format Salah!';
+		}
+		die(json_encode($ret));
+	}
 
 	function get_api_modul_migrasi_data(){
 		global $wpdb;
