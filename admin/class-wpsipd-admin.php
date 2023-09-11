@@ -653,16 +653,7 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes {
 	        ) );
 	}
 
-	public function options_basic(){
-		global $wpdb;
-		// $sinergi_link = $this->generate_sinergi_page();
-		// $sirup_link = $this->generate_sirup_page();
-		// $sibangda_link = $this->generate_sibangda_page();
-		// $simda_link = $this->generate_simda_page();
-		// $siencang_link = $this->generate_siencang_page();
-
-		$url_sql_migrate = $this->generatePage('Monitoring SQL migrate WP-SIPD', false, '[monitoring_sql_migrate]');
-		$sumber_dana_all = array();
+	public function cek_lisensi_backend(){
 		$status_lisensi = get_option('_crb_status_lisensi');
 		$warna = "";
 		if($status_lisensi == 'pending'){
@@ -675,12 +666,47 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes {
 		$status_lisensi_ket = get_option('_crb_status_lisensi_ket');
 		if(!empty($status_lisensi_ket)){
 			$status_lisensi_ket = ' Status: <b style="'.$warna.'">'.$status_lisensi_ket.'</b>';
+		}else{
+			$_POST['server'] = get_option('_crb_server_wp_sipd');
+	    	$_POST['api_key_server'] = get_option('_crb_server_wp_sipd_api_key');
+	    	$_POST['no_wa'] = get_option('_crb_no_wa');
+			$_POST['pemda'] = get_option('_crb_daerah');
+			$response = json_decode($this->generate_lisensi(true));
+			if($response->status == 'success'){
+				$status_lisensi = get_option('_crb_status_lisensi');
+				$warna = "";
+				if($status_lisensi == 'pending'){
+					$warna = "color: #979700;";
+				}else if($status_lisensi == 'active'){
+					$warna = "color: green;";
+				}else if($status_lisensi == 'expired'){
+					$warna = "color: red;";
+				}
+				$status_lisensi_ket = get_option('_crb_status_lisensi_ket');
+				if(!empty($status_lisensi_ket)){
+					$status_lisensi_ket = ' Status: <b style="'.$warna.'">'.$status_lisensi_ket.'</b>';
+				}
+			}
 		}
+		return $status_lisensi_ket;
+	}
+
+	public function options_basic(){
+		global $wpdb;
+		// $sinergi_link = $this->generate_sinergi_page();
+		// $sirup_link = $this->generate_sirup_page();
+		// $sibangda_link = $this->generate_sibangda_page();
+		// $simda_link = $this->generate_simda_page();
+		// $siencang_link = $this->generate_siencang_page();
+
+		$url_sql_migrate = $this->generatePage('Monitoring SQL migrate WP-SIPD', false, '[monitoring_sql_migrate]');
+		$status_lisensi_ket = $this->cek_lisensi_backend();
 		$tahun_anggaran = get_option('_crb_tahun_anggaran_sipd');
 		if(empty($tahun_anggaran)){
 			$tahun_anggaran = date('Y');
 		}
 
+		$sumber_dana_all = array();
 		$sumber_dana = $wpdb->get_results("
 			SELECT
 				id_dana,
@@ -694,6 +720,24 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes {
 		foreach ($sumber_dana as $k => $v) {
 			$sumber_dana_all[$v['id_dana']] = $v['kode_dana'].' '.$v['nama_dana'].' ['.$v['id_dana'].']';
 		}
+
+		$provinsi_all = array();
+		$kab_kot_all = array();
+		$alamat = $wpdb->get_results("
+			SELECT
+				d.id_prov, 
+				d.id_alamat as id_kab, 
+				(SELECT nama from data_alamat where is_prov=1 and id_alamat=d.id_prov and tahun=d.tahun) as provinsi, 
+				d.nama as kabupaten
+			FROM `data_alamat` d 
+			where d.is_kab=1 
+				and tahun_anggaran=".$tahun_anggaran."
+		", ARRAY_A);
+		foreach ($alamat as $k => $v) {
+			$provinsi_all[$v['id_prov']] = $v['provinsi'];
+			$kab_kot_all[$v['id_kab']] = $v['kabupaten'];
+		}
+
 		$nama_pemda = get_option('_crb_daerah' );
 		if(empty($nama_pemda) || $nama_pemda == 'false'){
 			$nama_pemda = '';
@@ -781,12 +825,19 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes {
             	->set_help_text('Data user active yang ada di table data_dewan akan digenerate menjadi user wordpress.'),
             Field::make( 'html', 'crb_sql_migrate' )
             	->set_html( '<a target="_blank" href="'.$url_sql_migrate.'" class="button button-primary button-large">SQL Migrate WP-SIPD</a>' )
-            	->set_help_text('Status SQL migrate WP-SIPD jika ada update struktur database.'),
-			Field::make( 'text', 'crb_id_lokasi_prov', 'ID Lokasi Provinsi')
-            	->set_default_value(0),
-			Field::make( 'text', 'crb_id_lokasi_kokab', 'ID Lokasi Kota/Kabupaten' )
-            	->set_default_value(0)
+            	->set_help_text('Status SQL migrate WP-SIPD jika ada update struktur database.')
         );
+		if(!empty($provinsi_all)){
+			$options_basic[] = Field::make( 'select', 'crb_id_lokasi_prov', 'ID Lokasi Provinsi')
+				->add_options( $provinsi_all );
+			$options_basic[] = Field::make( 'select', 'crb_id_lokasi_kokab', 'ID Lokasi Kota/Kabupaten' )
+				->add_options( $kab_kot_all );
+		}else{
+			$options_basic[] = Field::make( 'text', 'crb_id_lokasi_prov', 'ID Lokasi Provinsi')
+				->set_default_value(0);
+			$options_basic[] = Field::make( 'text', 'crb_id_lokasi_kokab', 'ID Lokasi Kota/Kabupaten' )
+				->set_default_value(0);
+		}
         $tahun = $wpdb->get_results('select tahun_anggaran from data_unit group by tahun_anggaran order by tahun_anggaran ASC', ARRAY_A);
         foreach ($tahun as $k => $v) {
 			$url = $this->generatePage('Monitoring Update Data SIPD lokal Berdasar Waktu Terakhir Melakukan Singkronisasi Data | '.$v['tahun_anggaran'], $v['tahun_anggaran']);
