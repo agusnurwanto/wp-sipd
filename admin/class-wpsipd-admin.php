@@ -3011,7 +3011,7 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes {
 		die(json_encode($ret));
     }
 
-    function generate_lisensi(){
+    function generate_lisensi($callback = false){
 		$cek = true;
 		if(empty($_POST['server'])){
 			$cek = false;
@@ -3099,12 +3099,61 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes {
         		'message' => $pesan
         	);
 	    }
-		die(json_encode(array(
-			'url' => $url,
-			'params' => $api_params,
-			'response' => $ret
-		)));
+	    if($callback){
+	    	return json_encode($ret);
+	    }else{
+			die(json_encode(array(
+				'url' => $url,
+				'params' => $api_params,
+				'response' => $ret
+			)));
+	    }
     }
+
+	public function cek_lisensi_ext(){
+		global $wpdb;
+		$ret = array(
+			'status'	=> 'success',
+			'action'	=> $_POST['action'],
+			'run'		=> $_POST['run'],
+			'message'	=> 'Berhasil cek lisensi aktif!'
+		);
+		if (!empty($_POST)) {
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+				$sipd_url = get_option('_crb_server_wp_sipd');
+				$sipd_url = explode('/wp-admin', $sipd_url);
+				$ret['sipd_url'] = $sipd_url[0];
+
+				$_POST['server'] = get_option('_crb_server_wp_sipd');
+		    	$_POST['api_key_server'] = get_option('_crb_server_wp_sipd_api_key');
+		    	$_POST['no_wa'] = get_option('_crb_no_wa');
+				$_POST['pemda'] = get_option('_crb_daerah');
+				$response = json_decode($this->generate_lisensi(true));
+
+				$ret['status'] = $response->status;
+				if($response->status == 'success'){
+					$ret['api_key'] = $response->lisensi;
+					$ret['status_key'] = $response->order->bn_status_wpsipd;
+					$ret['pesan_key'] = $response->order->bn_status_wpsipd_message;
+					if($ret['status_key'] != 'active'){
+						$ret['sipd_url'] = site_url().'/'.$ret['status_key'].'/';
+						$ret['status'] = $ret['status_key'];
+						$ret['message'] = $ret['pesan_key'];
+					}
+				}else{
+					$ret['sipd_url'] = site_url();
+					$ret['message'] = $response->message;
+				}
+			} else {
+				$ret['status'] = 'error';
+				$ret['message'] = 'APIKEY tidak sesuai!';
+			}
+		} else {
+			$ret['status'] = 'error';
+			$ret['message'] = 'Format Salah!';
+		}
+		die(json_encode($ret));
+	}
 
 	function get_api_modul_migrasi_data(){
 		global $wpdb;

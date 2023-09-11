@@ -201,6 +201,8 @@ class Wpsipd
 		$this->loader->add_action('wp_ajax_singkron_bku_dd',  $plugin_admin, 'singkron_bku_dd');
 		$this->loader->add_action('wp_ajax_singkron_bku_add',  $plugin_admin, 'singkron_bku_add');
 		$this->loader->add_action('wp_ajax_set_setting_ajax',  $plugin_admin, 'set_setting_ajax');
+		$this->loader->add_action('wp_ajax_cek_lisensi_ext',  $plugin_admin, 'cek_lisensi_ext');
+		$this->loader->add_action('wp_ajax_nopriv_cek_lisensi_ext',  $plugin_admin, 'cek_lisensi_ext');
 
 		// https://github.com/wp-cli/wp-cli/issues/5623 error deprecated function di php 8.1
 		add_filter( 'deprecated_constructor_trigger_error', '__return_false' );
@@ -526,9 +528,6 @@ class Wpsipd
 		
 		$this->loader->add_action('wp_ajax_get_data_json',  $plugin_public, 'get_data_json');
 		$this->loader->add_action('wp_ajax_nopriv_get_data_json',  $plugin_public, 'get_data_json');
-		
-		$this->loader->add_action('wp_ajax_cek_lisensi_ext',  $plugin_public, 'cek_lisensi_ext');
-		$this->loader->add_action('wp_ajax_nopriv_cek_lisensi_ext',  $plugin_public, 'cek_lisensi_ext');
 
 		$this->loader->add_action('wp_ajax_get_data_summary_ssh_usulan',  $plugin_public, 'get_data_summary_ssh_usulan');
 		$this->loader->add_action('wp_ajax_nopriv_get_data_summary_ssh_usulan',  $plugin_public, 'get_data_summary_ssh_usulan');
