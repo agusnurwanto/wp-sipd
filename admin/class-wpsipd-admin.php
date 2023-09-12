@@ -731,7 +731,7 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes {
 				d.nama as kabupaten
 			FROM `data_alamat` d 
 			where d.is_kab=1 
-				and tahun_anggaran=".$tahun_anggaran."
+				and tahun=".$tahun_anggaran."
 		", ARRAY_A);
 		foreach ($alamat as $k => $v) {
 			$provinsi_all[$v['id_prov']] = $v['provinsi'];
