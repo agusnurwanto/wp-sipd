@@ -497,7 +497,16 @@ CREATE TABLE `data_alamat` (
   `is_kel` tinyint(4) NOT NULL,
   `updated_at` datetime NOT NULL,
   `tahun` year(4) NOT NULL,
-  PRIMARY KEY  (id)
+  PRIMARY KEY  (id),
+  KEY `id_alamat` (`id_alamat`),
+  KEY `id_prov` (`id_prov`),
+  KEY `id_kab` (`id_kab`),
+  KEY `id_kec` (`id_kec`),
+  KEY `is_prov` (`is_prov`),
+  KEY `is_kab` (`is_kab`),
+  KEY `is_kec` (`is_kec`),
+  KEY `is_kel` (`is_kel`),
+  KEY `tahun` (`tahun`)
 );
 
 CREATE TABLE `data_profile_penerima_bantuan` (
