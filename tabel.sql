@@ -2212,7 +2212,7 @@ CREATE TABLE `data_rka_history` (
   `nama_komponen` text CHARACTER SET latin1,
   `spek_komponen` text CHARACTER SET latin1,
   `satuan` varchar(150) CHARACTER SET latin1 DEFAULT NULL,
-  `spek` text CHARACTER SET latin1,
+  `spek` text CHARACTER SET latin1 DEFAULT NULL,
   `sat1` text CHARACTER SET latin1,
   `sat2` text CHARACTER SET latin1,
   `sat3` text CHARACTER SET latin1,

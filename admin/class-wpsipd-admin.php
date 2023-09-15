@@ -839,21 +839,26 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes {
 				->set_default_value(0);
 		}
         $tahun = $wpdb->get_results('select tahun_anggaran from data_unit group by tahun_anggaran order by tahun_anggaran ASC', ARRAY_A);
+        $html = '';
         foreach ($tahun as $k => $v) {
-			$url = $this->generatePage('Monitoring Update Data SIPD lokal Berdasar Waktu Terakhir Melakukan Singkronisasi Data | '.$v['tahun_anggaran'], $v['tahun_anggaran']);
-			$options_basic[] = Field::make( 'html', 'crb_monitor_update_'.$k )
-            	->set_html( '<a target="_blank" href="'.$url.'">Halaman Monitor Update Data Lokal SIPD Merah Tahun '.$v['tahun_anggaran'].'</a>' );
-
-			$url = $this->generatePage('Monitoring Data SPD | '.$v['tahun_anggaran'], $v['tahun_anggaran'], '[monitoring_data_spd tahun_anggaran="'.$v['tahun_anggaran'].'"]');
-			$options_basic[] = Field::make( 'html', 'crb_monitor_spd_'.$k )
-            	->set_html( '<a target="_blank" href="'.$url.'">Halaman Monitor Data SPD (Surat Penyediaan Dana) '.$v['tahun_anggaran'].'</a>' );
-			$url = $this->generatePage('Setting penjadwalan | '.$v['tahun_anggaran'], $v['tahun_anggaran'], '[setting_penjadwalan tahun_anggaran="'.$v['tahun_anggaran'].'"]');
-			$options_basic[] = Field::make( 'html', 'crb_penjadwalan_'.$k )
-				->set_html( '<a target="_blank" href="'.$url.'">Halaman Pengaturan Penjadwalan '.$v['tahun_anggaran'].'</a>' );
+			$url_monitor_update = $this->generatePage('Monitoring Update Data SIPD lokal Berdasar Waktu Terakhir Melakukan Singkronisasi Data | '.$v['tahun_anggaran'], $v['tahun_anggaran']);
+			$url_monitor_spd = $this->generatePage('Monitoring Data SPD | '.$v['tahun_anggaran'], $v['tahun_anggaran'], '[monitoring_data_spd tahun_anggaran="'.$v['tahun_anggaran'].'"]');
+			$url_jadwal = $this->generatePage('Setting penjadwalan | '.$v['tahun_anggaran'], $v['tahun_anggaran'], '[setting_penjadwalan tahun_anggaran="'.$v['tahun_anggaran'].'"]');
 			$url_monitoring_rup = $this->generatePage('Monitoring RUP | '.$v['tahun_anggaran'], $v['tahun_anggaran'], '[monitoring_rup tahun_anggaran="'.$v['tahun_anggaran'].'"]');
-			$options_basic[] = Field::make( 'html', 'crb_monitoring_rup_'.$k )
-				->set_html( '<a target="_blank" href="'.$url_monitoring_rup.'">Halaman Monitoring RUP '.$v['tahun_anggaran'].'</a>' );
+			$html .= '
+				<h3 class="header-tahun" tahun="'.$v['tahun_anggaran'].'">Tahun Anggaran '.$v['tahun_anggaran'].'</h3>
+				<div class="body-tahun" tahun="'.$v['tahun_anggaran'].'">
+					<ul>
+						<li><a target="_blank" href="'.$url_monitor_update.'">Halaman Monitor Update Data Lokal SIPD Merah Tahun '.$v['tahun_anggaran'].'</a></li>
+						<li><a target="_blank" href="'.$url_monitor_spd.'">Halaman Monitor Data SPD (Surat Penyediaan Dana) '.$v['tahun_anggaran'].'</a></li>
+						<li><a target="_blank" href="'.$url_jadwal.'">Halaman Pengaturan Penjadwalan '.$v['tahun_anggaran'].'</a></li>
+						<li><a target="_blank" href="'.$url_monitoring_rup.'">Halaman Monitoring RUP '.$v['tahun_anggaran'].'</a></li>
+					</ul>
+				</div>
+			';
 		}
+		$options_basic[] = Field::make( 'html', 'crb_monitoring_sipd' )
+			->set_html($html);
         return $options_basic;
 	}
 
