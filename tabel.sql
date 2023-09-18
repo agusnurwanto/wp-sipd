@@ -497,7 +497,16 @@ CREATE TABLE `data_alamat` (
   `is_kel` tinyint(4) NOT NULL,
   `updated_at` datetime NOT NULL,
   `tahun` year(4) NOT NULL,
-  PRIMARY KEY  (id)
+  PRIMARY KEY  (id),
+  KEY `id_alamat` (`id_alamat`),
+  KEY `id_prov` (`id_prov`),
+  KEY `id_kab` (`id_kab`),
+  KEY `id_kec` (`id_kec`),
+  KEY `is_prov` (`is_prov`),
+  KEY `is_kab` (`is_kab`),
+  KEY `is_kec` (`is_kec`),
+  KEY `is_kel` (`is_kel`),
+  KEY `tahun` (`tahun`)
 );
 
 CREATE TABLE `data_profile_penerima_bantuan` (
@@ -2203,7 +2212,7 @@ CREATE TABLE `data_rka_history` (
   `nama_komponen` text CHARACTER SET latin1,
   `spek_komponen` text CHARACTER SET latin1,
   `satuan` varchar(150) CHARACTER SET latin1 DEFAULT NULL,
-  `spek` text CHARACTER SET latin1,
+  `spek` text CHARACTER SET latin1 DEFAULT NULL,
   `sat1` text CHARACTER SET latin1,
   `sat2` text CHARACTER SET latin1,
   `sat3` text CHARACTER SET latin1,

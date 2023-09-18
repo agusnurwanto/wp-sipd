@@ -63,7 +63,7 @@ if (in_array("administrator", $user_meta->roles)) {
 <div class="cetak">
     <div style="padding: 10px;margin:0 0 3rem 0;">
         <input type="hidden" value="<?php echo get_option('_crb_api_key_extension'); ?>" id="api_key">
-        <h1 class="text-center" style="margin:3rem;">Pencairan BKU Dana Desa ( DD )</h1>
+        <h1 class="text-center" style="margin:3rem;">Pencairan BKU Dana Desa ( DD )<?php echo $nama_skpd; ?></h1>
         <div style="margin-bottom: 25px;">
             <button class="btn btn-primary" onclick="tambah_data_pencairan_bku_dd();"><i class="dashicons dashicons-plus"></i> Tambah Data</button>
         </div>
@@ -215,7 +215,7 @@ if (in_array("administrator", $user_meta->roles)) {
             if (jQuery('#status_pencairan').is(':checked')) {
                 status_pencairan = 1;
             } else if (keterangan_status_pencairan == '') {
-                return alert('Keterangan status file tidak boleh kosong!');
+                return alert('Keterangan status pencairan tidak boleh kosong!');
             }
             if (confirm('Apakah anda yakin untuk memverifikasi pencairan ini?')) {
                 jQuery('#wrap-loading').show();

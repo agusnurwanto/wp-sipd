@@ -68,7 +68,7 @@ if (in_array("administrator", $user_meta->roles)) {
 <div class="cetak">
     <div style="padding: 10px;margin:0 0 3rem 0;">
         <input type="hidden" value="<?php echo get_option('_crb_api_key_extension'); ?>" id="api_key">
-        <h1 class="text-center" style="margin:3rem;">Pencairan BKK Pemilihan Kepala Desa</h1>
+        <h1 class="text-center" style="margin:3rem;">Pencairan BKK Pemilihan Kepala Desa <?php echo $nama_skpd; ?></h1>
         <div style="margin-bottom: 25px;">
             <button class="btn btn-primary" onclick="tambah_data_pencairan_bkk_pilkades();"><i class="dashicons dashicons-plus"></i> Tambah Data</button>
         </div>

@@ -1702,6 +1702,15 @@ foreach ($bl as $k => $sub_bl) {
 			}
 		});
 	}
+	function tampil_verifikasi(that){
+		jQuery('.verifikasi').remove();
+		if(jQuery(that).is(':checked')){
+			jQuery('.cetak').attr('contenteditable', false);
+			jQuery('.subkeg > .nama_sub').after('<buton class="btn btn-warning btn-sm verifikasi text_12" style="margin-left: 10px">Verifikasi<buton>');
+		}else{
+			jQuery('.cetak').attr('contenteditable', true);
+		}
+	}
 	function mapping_label_sumberdana(that){
 		jQuery('.mapping').remove();
 		if(jQuery(that).is(':checked')){
@@ -1834,7 +1843,8 @@ foreach ($bl as $k => $sub_bl) {
 		    		+'<option value="dpa_perubahan">DPA Perubahan</option>'
 		    	+'</select>'
 		    +'</label>'
-			+'<label style="margin-left: 20px;"><input type="checkbox" onclick="mapping_label_sumberdana(this);"> Mapping Label & Sumber Dana</label>';
+			+'<label style="margin-left: 20px;"><input type="checkbox" onclick="mapping_label_sumberdana(this);"> Mapping Label & Sumber Dana</label>'
+			+'<label style="margin-left: 20px;"><input type="checkbox" onclick="tampil_verifikasi(this);"> Tampilkan Tombol Verifikasi</label>';
 		var aksi = ''
 			+'<div id="action-sipd" class="hide-print">'
 				+body
@@ -2062,7 +2072,12 @@ foreach ($bl as $k => $sub_bl) {
 	    	var total_realiasi_rincian = +jQuery(this).attr('data-realisasi-all');
 	    	var val = +jQuery(this).val();
 	    	jQuery('#total_realiasi_rincian').text(formatRupiah(total_realiasi_rincian+val, 1));
-	    })
+	    });
+
+	    jQuery('body').on('click', '.verifikasi', function(){
+	    	var kode_sbl = jQuery(this).closest('.subkeg').attr('data-kdsbl');
+	    	alert('verifikasi sub kegiatan dengan kode '+kode_sbl);
+	    });
 	});
 
 </script>

@@ -1776,8 +1776,6 @@ class Wpsipd_Public_Keu_Pemdes
                         p.status,
                         p.status_ver_total,
                         p.ket_ver_total,
-                        p.status_ver_proposal,
-                        p.ket_ver_proposal,
                         d.tahun_anggaran,
                         d.kecamatan,
                         d.desa,
@@ -1847,138 +1845,119 @@ class Wpsipd_Public_Keu_Pemdes
                     $ret['status'] = 'error';
                     $ret['message'] = 'Pagu tidak boleh kosong!';
                 }
-                if ($ret['status'] != 'error' && !empty($_FILES['nota_dinas'])) {
-                    $nota_dinas = $_FILES['nota_dinas'];
-                } elseif ($ret['status'] != 'error') {
-                    $ret['status'] = 'error';
-                    $ret['message'] = 'Nota dinas tidak boleh kosong!';
-                }
-                if ($ret['status'] != 'error' && !empty($_FILES['sptj'])) {
-                    $sptj = $_FILES['sptj'];
-                } elseif ($ret['status'] != 'error') {
-                    $ret['status'] = 'error';
-                    $ret['message'] = 'SPTJ tidak boleh kosong!';
-                }
-                if ($ret['status'] != 'error' && !empty($_FILES['pakta_integritas'])) {
-                    $pakta_integritas = $_FILES['pakta_integritas'];
-                } elseif ($ret['status'] != 'error') {
-                    $ret['status'] = 'error';
-                    $ret['message'] = 'Pakta integritas tidak boleh kosong!';
-                }
-                if ($ret['status'] != 'error' && !empty($_FILES['permohonan_transfer'])) {
-                    $permohonan_transfer = $_FILES['permohonan_transfer'];
-                } elseif ($ret['status'] != 'error') {
-                    $ret['status'] = 'error';
-                    $ret['message'] = 'Surat permohonan transfer tidak boleh kosong!';
-                }
-
-                if ($ret['status'] != 'error' && !empty($_FILES['verifikasi_rekomendasi'])) {
-                    $verifikasi_rekomendasi = $_FILES['verifikasi_rekomendasi'];
-                } elseif ($ret['status'] != 'error') {
-                    $ret['status'] = 'error';
-                    $ret['message'] = 'Surat verifikasi rekomendasi tidak boleh kosong!';
-                }
-
-                if ($ret['status'] != 'error' && !empty($_FILES['permohonan_penyaluran_kades'])) {
-                    $permohonan_penyaluran_kades = $_FILES['permohonan_penyaluran_kades'];
-                } elseif ($ret['status'] != 'error') {
-                    $ret['status'] = 'error';
-                    $ret['message'] = 'Surat permohonan penyaluran Kepala Desa tidak boleh kosong!';
-                }
-
-                if ($ret['status'] != 'error' && !empty($_FILES['sptj_kades'])) {
-                    $sptj_kades = $_FILES['sptj_kades'];
-                } elseif ($ret['status'] != 'error') {
-                    $ret['status'] = 'error';
-                    $ret['message'] = 'SPTJ Kepala Desa tidak boleh kosong!';
-                }
-
-                if ($ret['status'] != 'error' && !empty($_FILES['pakta_integritas_kades'])) {
-                    $pakta_integritas_kades = $_FILES['pakta_integritas_kades'];
-                } elseif ($ret['status'] != 'error') {
-                    $ret['status'] = 'error';
-                    $ret['message'] = 'Pakta integritas Kepala Desa tidak boleh kosong!';
-                }
-
-                if ($ret['status'] != 'error' && !empty($_FILES['pakta_integritas_3_orang'])) {
-                    $pakta_integritas_3_orang = $_FILES['pakta_integritas_3_orang'];
-                } elseif ($ret['status'] != 'error') {
-                    $ret['status'] = 'error';
-                    $ret['message'] = 'Pakta integritas 3 orang tidak boleh kosong!';
-                }
-
-                if ($ret['status'] != 'error' && !empty($_FILES['proposal_rencana_anggaran'])) {
-                    $proposal_rencana_anggaran = $_FILES['proposal_rencana_anggaran'];
-                } elseif ($ret['status'] != 'error') {
-                    $ret['status'] = 'error';
-                    $ret['message'] = 'Proposal rencana anggaran tidak boleh kosong!';
-                }
-
-                if ($ret['status'] != 'error' && !empty($_FILES['pakta_integritas'])) {
-                    $pakta_integritas = $_FILES['pakta_integritas'];
-                } elseif ($ret['status'] != 'error') {
-                    $ret['status'] = 'error';
-                    $ret['message'] = 'Pakta integritas tidak boleh kosong!';
-                }
-
-                if ($ret['status'] != 'error' && !empty($_FILES['apbdes'])) {
-                    $apbdes = $_FILES['apbdes'];
-                } elseif ($ret['status'] != 'error') {
-                    $ret['status'] = 'error';
-                    $ret['message'] = 'Peraturan Desa tentang APBDesa tidak boleh kosong!';
-                }
-
-                if ($ret['status'] != 'error' && !empty($_FILES['fc_rek_kas_desa'])) {
-                    $fc_rek_kas_desa = $_FILES['fc_rek_kas_desa'];
-                } elseif ($ret['status'] != 'error') {
-                    $ret['status'] = 'error';
-                    $ret['message'] = 'Foto copy rekening kas desa tidak boleh kosong!';
-                }
-
                 if ($ret['status'] != 'error' && !empty($_POST['keterangan'])) {
                     $keterangan = $_POST['keterangan'];
                 }
+                if (empty($_POST['id_data'])) {
+                    if ($ret['status'] != 'error' && !empty($_FILES['nota_dinas'])) {
+                        $nota_dinas = $_FILES['nota_dinas'];
+                    } elseif ($ret['status'] != 'error') {
+                        $ret['status'] = 'error';
+                        $ret['message'] = 'Nota dinas tidak boleh kosong!';
+                    }
+                    if ($ret['status'] != 'error' && !empty($_FILES['sptj'])) {
+                        $sptj = $_FILES['sptj'];
+                    } elseif ($ret['status'] != 'error') {
+                        $ret['status'] = 'error';
+                        $ret['message'] = 'SPTJ tidak boleh kosong!';
+                    }
+                    if ($ret['status'] != 'error' && !empty($_FILES['pakta_integritas'])) {
+                        $pakta_integritas = $_FILES['pakta_integritas'];
+                    } elseif ($ret['status'] != 'error') {
+                        $ret['status'] = 'error';
+                        $ret['message'] = 'Pakta integritas tidak boleh kosong!';
+                    }
+                    if ($ret['status'] != 'error' && !empty($_FILES['permohonan_transfer'])) {
+                        $permohonan_transfer = $_FILES['permohonan_transfer'];
+                    } elseif ($ret['status'] != 'error') {
+                        $ret['status'] = 'error';
+                        $ret['message'] = 'Surat permohonan transfer tidak boleh kosong!';
+                    }
+                    if ($ret['status'] != 'error' && !empty($_FILES['verifikasi_rekomendasi'])) {
+                        $verifikasi_rekomendasi = $_FILES['verifikasi_rekomendasi'];
+                    } elseif ($ret['status'] != 'error') {
+                        $ret['status'] = 'error';
+                        $ret['message'] = 'Surat verifikasi rekomendasi tidak boleh kosong!';
+                    }
+                    if ($ret['status'] != 'error' && !empty($_FILES['permohonan_penyaluran_kades'])) {
+                        $permohonan_penyaluran_kades = $_FILES['permohonan_penyaluran_kades'];
+                    } elseif ($ret['status'] != 'error') {
+                        $ret['status'] = 'error';
+                        $ret['message'] = 'Surat permohonan penyaluran Kepala Desa tidak boleh kosong!';
+                    }
+                    if ($ret['status'] != 'error' && !empty($_FILES['sptj_kades'])) {
+                        $sptj_kades = $_FILES['sptj_kades'];
+                    } elseif ($ret['status'] != 'error') {
+                        $ret['status'] = 'error';
+                        $ret['message'] = 'SPTJ Kepala Desa tidak boleh kosong!';
+                    }
+                    if ($ret['status'] != 'error' && !empty($_FILES['pakta_integritas_kades'])) {
+                        $pakta_integritas_kades = $_FILES['pakta_integritas_kades'];
+                    } elseif ($ret['status'] != 'error') {
+                        $ret['status'] = 'error';
+                        $ret['message'] = 'Pakta integritas Kepala Desa tidak boleh kosong!';
+                    }
+                    if ($ret['status'] != 'error' && !empty($_FILES['pakta_integritas_3_orang'])) {
+                        $pakta_integritas_3_orang = $_FILES['pakta_integritas_3_orang'];
+                    } elseif ($ret['status'] != 'error') {
+                        $ret['status'] = 'error';
+                        $ret['message'] = 'Pakta integritas 3 orang tidak boleh kosong!';
+                    }
+                    if ($ret['status'] != 'error' && !empty($_FILES['proposal_rencana_anggaran'])) {
+                        $proposal_rencana_anggaran = $_FILES['proposal_rencana_anggaran'];
+                    } elseif ($ret['status'] != 'error') {
+                        $ret['status'] = 'error';
+                        $ret['message'] = 'Proposal rencana anggaran tidak boleh kosong!';
+                    }
+                    if ($ret['status'] != 'error' && !empty($_FILES['pakta_integritas'])) {
+                        $pakta_integritas = $_FILES['pakta_integritas'];
+                    } elseif ($ret['status'] != 'error') {
+                        $ret['status'] = 'error';
+                        $ret['message'] = 'Pakta integritas tidak boleh kosong!';
+                    }
+                    if ($ret['status'] != 'error' && !empty($_FILES['apbdes'])) {
+                        $apbdes = $_FILES['apbdes'];
+                    } elseif ($ret['status'] != 'error') {
+                        $ret['status'] = 'error';
+                        $ret['message'] = 'Peraturan Desa tentang APBDesa tidak boleh kosong!';
+                    }
+                    if ($ret['status'] != 'error' && !empty($_FILES['fc_rek_kas_desa'])) {
+                        $fc_rek_kas_desa = $_FILES['fc_rek_kas_desa'];
+                    } elseif ($ret['status'] != 'error') {
+                        $ret['status'] = 'error';
+                        $ret['message'] = 'Foto copy rekening kas desa tidak boleh kosong!';
+                    }
+                }
+
+                $status_pencairan = $_POST['status_pencairan'];
+                $keterangan_status_pencairan = $_POST['keterangan_status_pencairan'];
+
                 $_POST['id'] = $id_kegiatan;
                 $pencairan = $this->get_pencairan_pemdes_bkk(true);
                 if (($pencairan['total_pencairan'] + $pagu_anggaran) > $pencairan['pagu_anggaran']) {
                     $ret['status'] = 'error';
                     $ret['message'] = 'Total pencairan tidak boleh lebih dari sisa pencairan!';
                 }
-                $status_pencairan = $_POST['status_pencairan'];
-                $keterangan_status_pencairan = $_POST['keterangan_status_pencairan'];
+
                 if ($ret['status'] != 'error') {
-                    if (empty($_POST['id_data'])) {
-                        $status = 0; // 0 berati belum dicek
-                    } else {
-                        $status = 1; // 1 diterima
-                        if ($status_pencairan == 0) {
-                            $status = 2; // 2 ditolak
-                        }
-                    }
                     $data = array(
                         'id_kegiatan' => $id_kegiatan,
                         'total_pencairan' => $pagu_anggaran,
-                        'status_ver_proposal' => $status_pencairan,
-                        'ket_ver_proposal' => $keterangan_status_pencairan,
-                        'file_nota_dinas' => '',
-                        'file_sptj' => '',
-                        'file_pakta_integritas' => '',
-                        'file_permohonan_transfer' => '',
-                        'file_verifikasi_rekomendasi' => '',
-                        'file_permohonan_penyaluran_kades' => '',
-                        'file_sptj_kades' => '',
-                        'file_pakta_integritas_kades' => '',
-                        'file_pakta_integritas_3_orang' => '',
-                        'file_proposal_rencana_anggaran' => '',
-                        'file_apbdes' => '',
-                        'file_fc_rek_kas_desa' => '',
-                        'status' => $status,
+                        'status_ver_total' => $status_pencairan,
+                        'ket_ver_total' => $keterangan_status_pencairan,
                         'update_at' => current_time('mysql')
                     );
-                    $path = WPSIPD_PLUGIN_PATH . 'public/media/keu_pemdes/';
+                    if (empty($_POST['id_data'])) {
+                        $data['status'] = 0; // 0 berati belum dicek
+                    }
 
+                    $path = WPSIPD_PLUGIN_PATH . 'public/media/keu_pemdes/';
                     $cek_file = array();
-                    if ($ret['status'] != 'error') {
+
+                    if (
+                        $ret['status'] != 'error'
+                        && !empty($_FILES['nota_dinas'])
+                    ) {
                         $upload = CustomTrait::uploadFile($_POST['api_key'], $path, $_FILES['nota_dinas'], ['pdf']);
                         if ($upload['status'] == true) {
                             $data['file_nota_dinas'] = $upload['filename'];
@@ -1989,7 +1968,10 @@ class Wpsipd_Public_Keu_Pemdes
                         }
                     }
 
-                    if ($ret['status'] != 'error') {
+                    if (
+                        $ret['status'] != 'error'
+                        && !empty($_FILES['sptj'])
+                    ) {
                         $upload = CustomTrait::uploadFile($_POST['api_key'], $path, $_FILES['sptj'], ['pdf']);
                         if ($upload['status'] == true) {
                             $data['file_sptj'] = $upload['filename'];
@@ -2000,7 +1982,11 @@ class Wpsipd_Public_Keu_Pemdes
                         }
                     }
 
-                    if ($ret['status'] != 'error') {
+
+                    if (
+                        $ret['status'] != 'error'
+                        && !empty($_FILES['pakta_integritas'])
+                    ) {
                         $upload = CustomTrait::uploadFile($_POST['api_key'], $path, $_FILES['pakta_integritas'], ['pdf']);
                         if ($upload['status'] == true) {
                             $data['file_pakta_integritas'] = $upload['filename'];
@@ -2011,7 +1997,11 @@ class Wpsipd_Public_Keu_Pemdes
                         }
                     }
 
-                    if ($ret['status'] != 'error') {
+
+                    if (
+                        $ret['status'] != 'error'
+                        && !empty($_FILES['permohonan_transfer'])
+                    ) {
                         $upload = CustomTrait::uploadFile($_POST['api_key'], $path, $_FILES['permohonan_transfer'], ['pdf']);
                         if ($upload['status'] == true) {
                             $data['file_permohonan_transfer'] = $upload['filename'];
@@ -2022,7 +2012,11 @@ class Wpsipd_Public_Keu_Pemdes
                         }
                     }
 
-                    if ($ret['status'] != 'error') {
+
+                    if (
+                        $ret['status'] != 'error'
+                        && !empty($_FILES['verifikasi_rekomendasi'])
+                    ) {
                         $upload = CustomTrait::uploadFile($_POST['api_key'], $path, $_FILES['verifikasi_rekomendasi'], ['pdf']);
                         if ($upload['status'] == true) {
                             $data['file_verifikasi_rekomendasi'] = $upload['filename'];
@@ -2033,7 +2027,11 @@ class Wpsipd_Public_Keu_Pemdes
                         }
                     }
 
-                    if ($ret['status'] != 'error') {
+
+                    if (
+                        $ret['status'] != 'error'
+                        && !empty($_FILES['permohonan_penyaluran_kades'])
+                    ) {
                         $upload = CustomTrait::uploadFile($_POST['api_key'], $path, $_FILES['permohonan_penyaluran_kades'], ['pdf']);
                         if ($upload['status'] == true) {
                             $data['file_permohonan_penyaluran_kades'] = $upload['filename'];
@@ -2044,7 +2042,11 @@ class Wpsipd_Public_Keu_Pemdes
                         }
                     }
 
-                    if ($ret['status'] != 'error') {
+
+                    if (
+                        $ret['status'] != 'error'
+                        && !empty($_FILES['sptj_kades'])
+                    ) {
                         $upload = CustomTrait::uploadFile($_POST['api_key'], $path, $_FILES['sptj_kades'], ['pdf']);
                         if ($upload['status'] == true) {
                             $data['file_sptj_kades'] = $upload['filename'];
@@ -2055,7 +2057,11 @@ class Wpsipd_Public_Keu_Pemdes
                         }
                     }
 
-                    if ($ret['status'] != 'error') {
+
+                    if (
+                        $ret['status'] != 'error'
+                        && !empty($_FILES['pakta_integritas_kades'])
+                    ) {
                         $upload = CustomTrait::uploadFile($_POST['api_key'], $path, $_FILES['pakta_integritas_kades'], ['pdf']);
                         if ($upload['status'] == true) {
                             $data['file_pakta_integritas_kades'] = $upload['filename'];
@@ -2066,7 +2072,11 @@ class Wpsipd_Public_Keu_Pemdes
                         }
                     }
 
-                    if ($ret['status'] != 'error') {
+
+                    if (
+                        $ret['status'] != 'error'
+                        && !empty($_FILES['pakta_integritas_3_orang'])
+                    ) {
                         $upload = CustomTrait::uploadFile($_POST['api_key'], $path, $_FILES['pakta_integritas_3_orang'], ['pdf']);
                         if ($upload['status'] == true) {
                             $data['file_pakta_integritas_3_orang'] = $upload['filename'];
@@ -2077,7 +2087,11 @@ class Wpsipd_Public_Keu_Pemdes
                         }
                     }
 
-                    if ($ret['status'] != 'error') {
+
+                    if (
+                        $ret['status'] != 'error'
+                        && !empty($_FILES['proposal_rencana_anggaran'])
+                    ) {
                         $upload = CustomTrait::uploadFile($_POST['api_key'], $path, $_FILES['proposal_rencana_anggaran'], ['pdf']);
                         if ($upload['status'] == true) {
                             $data['file_proposal_rencana_anggaran'] = $upload['filename'];
@@ -2088,7 +2102,11 @@ class Wpsipd_Public_Keu_Pemdes
                         }
                     }
 
-                    if ($ret['status'] != 'error') {
+
+                    if (
+                        $ret['status'] != 'error'
+                        && !empty($_FILES['apbdes'])
+                    ) {
                         $upload = CustomTrait::uploadFile($_POST['api_key'], $path, $_FILES['apbdes'], ['pdf']);
                         if ($upload['status'] == true) {
                             $data['file_apbdes'] = $upload['filename'];
@@ -2099,7 +2117,10 @@ class Wpsipd_Public_Keu_Pemdes
                         }
                     }
 
-                    if ($ret['status'] != 'error') {
+                    if (
+                        $ret['status'] != 'error'
+                        && !empty($_FILES['fc_rek_kas_desa'])
+                    ) {
                         $upload = CustomTrait::uploadFile($_POST['api_key'], $path, $_FILES['fc_rek_kas_desa'], ['pdf']);
                         if ($upload['status'] == true) {
                             $data['file_fc_rek_kas_desa'] = $upload['filename'];
@@ -2282,8 +2303,6 @@ class Wpsipd_Public_Keu_Pemdes
                     19 => 'p.id_kegiatan',
                     20 => 'p.status_ver_total',
                     21 => 'p.ket_ver_total',
-                    22 => 'p.status_ver_proposal',
-                    23 => 'p.ket_ver_proposal',
                     24 => 'p.update_at',
                     25 => 'p.id'
                 );
@@ -2350,11 +2369,10 @@ class Wpsipd_Public_Keu_Pemdes
                         $btn .= '<a style="margin-left: 10px;" class="btn btn-sm btn-primary" onclick="submit_pencairan(\'' . $recVal['id'] . '\'); return false;" href="#" title="Submit Pencairan"><i class="dashicons dashicons-yes"></i></a>';
                         // 0 belum dicek, 1 diterima dan 2 ditolak
                         if (
-                            $recVal['status_ver_proposal'] == 2
-                            || $recVal['status_ver_total'] == 2
+                            $recVal['status_ver_total'] == 2
                         ) {
                             $pesan = '';
-                            if ($recVal['status_ver_proposal'] == 2) {
+                            if ($recVal['status_ver_total'] == 2) {
                                 $pesan .= '<br>Keterangan status pencairan: ' . $recVal['ket_ver_total'];
                             }
                             $queryRecords[$recKey]['status'] = '<span class="btn btn-danger btn-sm">Ditolak</span>' . $pesan;
@@ -2572,97 +2590,110 @@ class Wpsipd_Public_Keu_Pemdes
         );
         if (!empty($_POST)) {
             if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option('_crb_api_key_extension')) {
-                if ($ret['status'] != 'error' && empty($_POST['id_bhpd'])) {
+                if ($ret['status'] != 'error' && !empty($_POST['id_bhpd'])) {
+                    $id_bhpd = $_POST['id_bhpd'];
+                } else {
                     $ret['status'] = 'error';
                     $ret['message'] = 'Pilih desa dulu!';
                 }
-                if ($ret['status'] != 'error' && empty($_POST['pagu_anggaran'])) {
+                if ($ret['status'] != 'error' && !empty($_POST['pagu_anggaran'])) {
+                    $pagu_anggaran = $_POST['pagu_anggaran'];
+                } elseif ($ret['status'] != 'error') {
                     $ret['status'] = 'error';
                     $ret['message'] = 'Pagu tidak boleh kosong!';
                 }
-                if ($ret['status'] != 'error' && empty($_POST['keterangan'])) {
+                if ($ret['status'] != 'error' && !empty($_POST['keterangan'])) {
+                    $keterangan = $_POST['keterangan'];
+                } elseif ($ret['status'] != 'error') {
                     $ret['status'] = 'error';
                     $ret['message'] = 'keterangan tidak boleh kosong';
                 }
-                if ($ret['status'] != 'error' && empty($_FILES['nota_dinas'])) {
-                    $ret['status'] = 'error';
-                    $ret['message'] = 'Nota Dinas tidak boleh kosong!';
-                }
-                if ($ret['status'] != 'error' && empty($_FILES['sptj'])) {
-                    $ret['status'] = 'error';
-                    $ret['message'] = 'SPTJ tidak boleh kosong!';
-                }
-                if ($ret['status'] != 'error' && empty($_FILES['pakta_integritas'])) {
-                    $ret['status'] = 'error';
-                    $ret['message'] = 'Pakta integritas tidak boleh kosong!';
-                }
-                if ($ret['status'] != 'error' && empty($_FILES['permohonan_transfer'])) {
-                    $ret['status'] = 'error';
-                    $ret['message'] = 'Surat permohonan transfer tidak boleh kosong!';
-                }
-                if ($ret['status'] != 'error' && empty($_FILES['rekomendasi'])) {
-                    $ret['status'] = 'error';
-                    $ret['message'] = 'Surat rekomendasi tidak boleh kosong!';
-                }
-                if ($ret['status'] != 'error' && empty($_FILES['permohonan_penyaluran_kades'])) {
-                    $ret['status'] = 'error';
-                    $ret['message'] = 'Surat permohonan penyaluran Kepala Desa tidak boleh kosong!';
-                }
-                if ($ret['status'] != 'error' && empty($_FILES['pakta_integritas_kades'])) {
-                    $ret['status'] = 'error';
-                    $ret['message'] = 'Pakta integritas Kepala Desa tidak boleh kosong!';
-                }
-                if ($ret['status'] != 'error' && empty($_FILES['pernyataaan_kades_spj_dbhpd'])) {
-                    $ret['status'] = 'error';
-                    $ret['message'] = ' Surat Pernyataan Kepala Desa bahwa SPJ DBH Pajak Daerah telah selesai 100% bermaterai tidak boleh kosong!';
-                }
-                if ($ret['status'] != 'error' && empty($_FILES['sk_bendahara_desa'])) {
-                    $ret['status'] = 'error';
-                    $ret['message'] = ' Surat Keputusan Bendahara Desa tidak bolehkosong!';
-                }
-                if ($ret['status'] != 'error' && empty($_FILES['fc_ktp_kades'])) {
-                    $ret['status'] = 'error';
-                    $ret['message'] = ' Foto copy KTP Kepala Desa tidak boleh kosong!';
-                }
-                if ($ret['status'] != 'error' && empty($_FILES['fc_rek_kas_desa'])) {
-                    $ret['status'] = 'error';
-                    $ret['message'] = ' Foto copy rekening kas Desa tidak boleh kosong!';
+                if (empty($_POST['id_data'])) {
+                    if ($ret['status'] != 'error' && !empty($_FILES['nota_dinas'])) {
+                        $nota_dinas = $_FILES['nota_dinas'];
+                    } elseif ($ret['status'] != 'error') {
+                        $ret['status'] = 'error';
+                        $ret['message'] = 'Nota Dinas tidak boleh kosong!';
+                    }
+                    if ($ret['status'] != 'error' && !empty($_FILES['sptj'])) {
+                        $sptj = $_FILES['sptj'];
+                    } elseif ($ret['status'] != 'error') {
+                        $ret['status'] = 'error';
+                        $ret['message'] = 'SPTJ tidak boleh kosong!';
+                    }
+                    if ($ret['status'] != 'error' && !empty($_FILES['pakta_integritas'])) {
+                        $pakta_integritas = $_FILES['pakta_integritas'];
+                    } elseif ($ret['status'] != 'error') {
+                        $ret['status'] = 'error';
+                        $ret['message'] = 'Pakta integritas tidak boleh kosong!';
+                    }
+                    if ($ret['status'] != 'error' && !empty($_FILES['permohonan_transfer'])) {
+                        $permohonan_transfer = $_FILES['permohonan_transfer'];
+                    } elseif ($ret['status'] != 'error') {
+                        $ret['status'] = 'error';
+                        $ret['message'] = 'Surat permohonan transfer tidak boleh kosong!';
+                    }
+                    if ($ret['status'] != 'error' && !empty($_FILES['rekomendasi'])) {
+                        $rekomendasi = $_FILES['rekomendasi'];
+                    } elseif ($ret['status'] != 'error') {
+                        $ret['status'] = 'error';
+                        $ret['message'] = 'Surat rekomendasi tidak boleh kosong!';
+                    }
+                    if ($ret['status'] != 'error' && !empty($_FILES['permohonan_penyaluran_kades'])) {
+                        $permohonan_penyaluran_kades = $_FILES['permohonan_penyaluran_kades'];
+                    } elseif ($ret['status'] != 'error') {
+                        $ret['status'] = 'error';
+                        $ret['message'] = 'Surat permohonan penyaluran Kepala Desa tidak boleh kosong!';
+                    }
+                    if ($ret['status'] != 'error' && !empty($_FILES['pakta_integritas_kades'])) {
+                        $pakta_integritas_kades = $_FILES['pakta_integritas_kades'];
+                    } elseif ($ret['status'] != 'error') {
+                        $ret['status'] = 'error';
+                        $ret['message'] = 'Pakta integritas Kepala Desa tidak boleh kosong!';
+                    }
+                    if ($ret['status'] != 'error' && !empty($_FILES['pernyataaan_kades_spj_dbhpd'])) {
+                        $pernyataaan_kades_spj_dbhpd = $_FILES['pernyataaan_kades_spj_dbhpd'];
+                    } elseif ($ret['status'] != 'error') {
+                        $ret['status'] = 'error';
+                        $ret['message'] = ' Surat Pernyataan Kepala Desa bahwa SPJ DBH Pajak Daerah telah selesai 100% bermaterai tidak boleh kosong!';
+                    }
+                    if ($ret['status'] != 'error' && !empty($_FILES['sk_bendahara_desa'])) {
+                        $sk_bendahara_desa = $_FILES['sk_bendahara_desa'];
+                    } elseif ($ret['status'] != 'error') {
+                        $ret['status'] = 'error';
+                        $ret['message'] = ' Surat Keputusan Bendahara Desa tidak boleh kosong!';
+                    }
+                    if ($ret['status'] != 'error' && !empty($_FILES['fc_ktp_kades'])) {
+                        $fc_ktp_kades = $_FILES['fc_ktp_kades'];
+                    } elseif ($ret['status'] != 'error') {
+                        $ret['status'] = 'error';
+                        $ret['message'] = ' Foto copy KTP Kepala Desa tidak boleh kosong!';
+                    }
+                    if ($ret['status'] != 'error' && !empty($_FILES['fc_rek_kas_desa'])) {
+                        $fc_rek_kas_desa = $_FILES['fc_rek_kas_desa'];
+                    } elseif ($ret['status'] != 'error') {
+                        $ret['status'] = 'error';
+                        $ret['message'] = ' Foto copy rekening kas Desa tidak boleh kosong!';
+                    }
                 }
 
-                if ($ret['status'] != 'error') {
-                    $pagu_anggaran = $_POST['pagu_anggaran'];
-                    $validasi_pagu = $_POST['validasi_pagu'];
-                    $status_pencairan = $_POST['status_pencairan'];
-                    $keterangan_status_pencairan = $_POST['keterangan_status_pencairan'];
-                    $keterangan = $_POST['keterangan'];
-                    $nota_dinas = $_FILES['nota_dinas'];
-                    $sptj = $_FILES['sptj'];
-                    $pakta_integritas = $_FILES['pakta_integritas'];
-                    $permohonan_transfer = $_FILES['permohonan_transfer'];
-                    $rekomendasi = $_FILES['rekomendasi'];
-                    $permohonan_penyaluran_kades = $_FILES['permohonan_penyaluran_kades'];
-                    $pakta_integritas_kades = $_FILES['pakta_integritas_kades'];
-                    $pernyataaan_kades_spj_dbhpd = $_FILES['pernyataaan_kades_spj_dbhpd'];
-                    $sk_bendahara_desa = $_FILES['sk_bendahara_desa'];
-                    $fc_ktp_kades = $_FILES['fc_ktp_kades'];
-                    $fc_rek_kas_desa = $_FILES['fc_rek_kas_desa'];
-                    $laporan_realisasi_tahun_sebelumnya = $_FILES['laporan_realisasi_tahun_sebelumnya'];
-                    $id_bhpd = $_POST['id_bhpd'];
-                    $_POST['id'] = $id_bhpd;
-                    $pencairan = $this->get_pencairan_pemdes_bhpd(true);
-                    if (($pencairan['total_pencairan'] + $pagu_anggaran) > $pencairan['pagu_anggaran']) {
-                        $ret['status'] = 'error';
-                        $ret['message'] = 'Total pencairan tidak boleh lebih dari sisa pencairan!';
-                    }
-                    if (
-                        $ret['status'] != 'error'
-                        && $pencairan['total_pencairan'] > 0
-                        && empty($_FILES['realisasi_tahun_sebelumnya'])
-                    ) {
-                        $ret['status'] = 'error';
-                        $ret['message'] = 'Dokumen realisasi tahun sebelumnya tidak boleh kosong!';
-                    }
+                $_POST['id'] = $id_bhpd;
+                $pencairan = $this->get_pencairan_pemdes_bhpd(true);
+                if (($pencairan['total_pencairan'] + $pagu_anggaran) > $pencairan['pagu_anggaran']) {
+                    $ret['status'] = 'error';
+                    $ret['message'] = 'Total pencairan tidak boleh lebih dari sisa pencairan!';
                 }
+                if (
+                    $ret['status'] != 'error'
+                    && $pencairan['total_pencairan'] > 0
+                    && empty($_FILES['realisasi_tahun_sebelumnya'])
+                ) {
+                    $ret['status'] = 'error';
+                    $ret['message'] = 'Dokumen realisasi tahun sebelumnya tidak boleh kosong!';
+                }
+                $status_pencairan = $_POST['status_pencairan'];
+                $keterangan_status_pencairan = $_POST['keterangan_status_pencairan'];
+
                 if ($ret['status'] != 'error') {
                     if (empty($_POST['id_data'])) {
                         $status = 0;
@@ -2679,26 +2710,18 @@ class Wpsipd_Public_Keu_Pemdes
                     'status_ver_total' => $status_pencairan,
                     'ket_ver_total' => $keterangan_status_pencairan,
                     'keterangan' => $keterangan,
-                    'file_nota_dinas' => '',
-                    'file_sptj' => '',
-                    'file_pakta_integritas' => '',
-                    'file_permohonan_transfer' => '',
-                    'file_rekomendasi' => '',
-                    'file_permohonan_penyaluran_kades' => '',
-                    'file_sptj_kades' => '',
-                    'file_pakta_integritas_kades' => '',
-                    'file_pernyataaan_kades_spj_dbhpd' => '',
-                    'file_sk_bendahara_desa' => '',
-                    'file_fc_ktp_kades' => '',
-                    'file_fc_rek_kas_desa' => '',
-                    'file_laporan_realisasi_tahun_sebelumnya' => '',
-                    'status' => $status,
                     'update_at' => current_time('mysql')
                 );
+                if (empty($_POST['id_data'])) {
+                    $data['status'] = 0; // 0 berati belum dicek
+                }
                 $path = WPSIPD_PLUGIN_PATH . 'public/media/keu_pemdes/';
 
                 $cek_file = array();
-                if ($ret['status'] != 'error') {
+                if (
+                    $ret['status'] != 'error'
+                    && !empty($_FILES['nota_dinas'])
+                ) {
                     $upload = CustomTrait::uploadFile($_POST['api_key'], $path, $_FILES['nota_dinas'], ['pdf']);
                     if ($upload['status'] == true) {
                         $data['file_nota_dinas'] = $upload['filename'];
@@ -2709,7 +2732,10 @@ class Wpsipd_Public_Keu_Pemdes
                     }
                 }
 
-                if ($ret['status'] != 'error') {
+                if (
+                    $ret['status'] != 'error'
+                    && !empty($_FILES['sptj'])
+                ) {
                     $upload = CustomTrait::uploadFile($_POST['api_key'], $path, $_FILES['sptj'], ['pdf']);
                     if ($upload['status'] == true) {
                         $data['file_sptj'] = $upload['filename'];
@@ -2720,7 +2746,10 @@ class Wpsipd_Public_Keu_Pemdes
                     }
                 }
 
-                if ($ret['status'] != 'error') {
+                if (
+                    $ret['status'] != 'error'
+                    && !empty($_FILES['pakta_integritas'])
+                ) {
                     $upload = CustomTrait::uploadFile($_POST['api_key'], $path, $_FILES['pakta_integritas'], ['pdf']);
                     if ($upload['status'] == true) {
                         $data['file_pakta_integritas'] = $upload['filename'];
@@ -2731,7 +2760,10 @@ class Wpsipd_Public_Keu_Pemdes
                     }
                 }
 
-                if ($ret['status'] != 'error') {
+                if (
+                    $ret['status'] != 'error'
+                    && !empty($_FILES['permohonan_transfer'])
+                ) {
                     $upload = CustomTrait::uploadFile($_POST['api_key'], $path, $_FILES['permohonan_transfer'], ['pdf']);
                     if ($upload['status'] == true) {
                         $data['file_permohonan_transfer'] = $upload['filename'];
@@ -2742,7 +2774,10 @@ class Wpsipd_Public_Keu_Pemdes
                     }
                 }
 
-                if ($ret['status'] != 'error') {
+                if (
+                    $ret['status'] != 'error'
+                    && !empty($_FILES['rekomendasi'])
+                ) {
                     $upload = CustomTrait::uploadFile($_POST['api_key'], $path, $_FILES['rekomendasi'], ['pdf']);
                     if ($upload['status'] == true) {
                         $data['file_rekomendasi'] = $upload['filename'];
@@ -2753,7 +2788,10 @@ class Wpsipd_Public_Keu_Pemdes
                     }
                 }
 
-                if ($ret['status'] != 'error') {
+                if (
+                    $ret['status'] != 'error'
+                    && !empty($_FILES['permohonan_penyaluran_kades'])
+                ) {
                     $upload = CustomTrait::uploadFile($_POST['api_key'], $path, $_FILES['permohonan_penyaluran_kades'], ['pdf']);
                     if ($upload['status'] == true) {
                         $data['file_permohonan_penyaluran_kades'] = $upload['filename'];
@@ -2764,7 +2802,10 @@ class Wpsipd_Public_Keu_Pemdes
                     }
                 }
 
-                if ($ret['status'] != 'error') {
+                if (
+                    $ret['status'] != 'error'
+                    && !empty($_FILES['sptj_kades'])
+                ) {
                     $upload = CustomTrait::uploadFile($_POST['api_key'], $path, $_FILES['sptj_kades'], ['pdf']);
                     if ($upload['status'] == true) {
                         $data['file_sptj_kades'] = $upload['filename'];
@@ -2775,7 +2816,10 @@ class Wpsipd_Public_Keu_Pemdes
                     }
                 }
 
-                if ($ret['status'] != 'error') {
+                if (
+                    $ret['status'] != 'error'
+                    && !empty($_FILES['pakta_integritas_kades'])
+                ) {
                     $upload = CustomTrait::uploadFile($_POST['api_key'], $path, $_FILES['pakta_integritas_kades'], ['pdf']);
                     if ($upload['status'] == true) {
                         $data['file_pakta_integritas_kades'] = $upload['filename'];
@@ -2786,7 +2830,10 @@ class Wpsipd_Public_Keu_Pemdes
                     }
                 }
 
-                if ($ret['status'] != 'error') {
+                if (
+                    $ret['status'] != 'error'
+                    && !empty($_FILES['pernyataaan_kades_spj_dbhpd'])
+                ) {
                     $upload = CustomTrait::uploadFile($_POST['api_key'], $path, $_FILES['pernyataaan_kades_spj_dbhpd'], ['pdf']);
                     if ($upload['status'] == true) {
                         $data['file_pernyataaan_kades_spj_dbhpd'] = $upload['filename'];
@@ -2797,7 +2844,10 @@ class Wpsipd_Public_Keu_Pemdes
                     }
                 }
 
-                if ($ret['status'] != 'error') {
+                if (
+                    $ret['status'] != 'error'
+                    && !empty($_FILES['sk_bendahara_desa'])
+                ) {
                     $upload = CustomTrait::uploadFile($_POST['api_key'], $path, $_FILES['sk_bendahara_desa'], ['pdf']);
                     if ($upload['status'] == true) {
                         $data['file_sk_bendahara_desa'] = $upload['filename'];
@@ -2808,7 +2858,10 @@ class Wpsipd_Public_Keu_Pemdes
                     }
                 }
 
-                if ($ret['status'] != 'error') {
+                if (
+                    $ret['status'] != 'error'
+                    && !empty($_FILES['fc_ktp_kades'])
+                ) {
                     $upload = CustomTrait::uploadFile($_POST['api_key'], $path, $_FILES['fc_ktp_kades'], ['pdf']);
                     if ($upload['status'] == true) {
                         $data['file_fc_ktp_kades'] = $upload['filename'];
@@ -2819,7 +2872,10 @@ class Wpsipd_Public_Keu_Pemdes
                     }
                 }
 
-                if ($ret['status'] != 'error') {
+                if (
+                    $ret['status'] != 'error'
+                    && !empty($_FILES['fc_rek_kas_desa'])
+                ) {
                     $upload = CustomTrait::uploadFile($_POST['api_key'], $path, $_FILES['fc_rek_kas_desa'], ['pdf']);
                     if ($upload['status'] == true) {
                         $data['file_fc_rek_kas_desa'] = $upload['filename'];
@@ -2859,7 +2915,8 @@ class Wpsipd_Public_Keu_Pemdes
                                 SELECT
                                     file_nota_dinas,
                                     file_sptj,
-                                    file_pakta_integritas,file_permohonan_transfer,
+                                    file_pakta_integritas,
+                                    file_permohonan_transfer,
                                     file_verifikasi_rekomendasi,
                                     file_permohonan_penyaluran_kades,
                                     file_sptj_kades,
@@ -3086,12 +3143,9 @@ class Wpsipd_Public_Keu_Pemdes
                         $btn .= '<a style="margin-left: 10px;" class="btn btn-sm btn-danger" onclick="hapus_data(\'' . $recVal['id'] . '\'); return false;" href="#" title="Hapus Data"><i class="dashicons dashicons-trash"></i></a>';
                         $btn .= '<a style="margin-left: 10px;" class="btn btn-sm btn-primary" onclick="submit_pencairan(\'' . $recVal['id'] . '\'); return false;" href="#" title="Submit Pencairan"><i class="dashicons dashicons-yes"></i></a>';
                         // 0 belum dicek, 1 diterima dan 2 ditolak
-                        if (
-                            $recVal['status_ver_proposal'] == 2
-                            || $recVal['status_ver_total'] == 2
-                        ) {
+                        if ($recVal['status_ver_total'] == 2) {
                             $pesan = '';
-                            if ($recVal['status_ver_proposal'] == 2) {
+                            if ($recVal['status_ver_total'] == 2) {
                                 $pesan .= '<br>Keterangan status pencairan: ' . $recVal['ket_ver_total'];
                             }
                             $queryRecords[$recKey]['status'] = '<span class="btn btn-danger btn-sm">Ditolak</span>' . $pesan;
@@ -3308,139 +3362,134 @@ class Wpsipd_Public_Keu_Pemdes
         );
         if (!empty($_POST)) {
             if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option('_crb_api_key_extension')) {
-                if ($ret['status'] != 'error' && empty($_POST['id_bhrd'])) {
+                if ($ret['status'] != 'error' && !empty($_POST['id_bhrd'])) {
+                    $id_bhrd = $_POST['id_bhrd'];
+                } else {
                     $ret['status'] = 'error';
                     $ret['message'] = 'Pilih Uraian Kegiatan Dulu!';
                 }
-                if ($ret['status'] != 'error' && empty($_POST['pagu_anggaran'])) {
-                    $ret['status'] = 'error';
-                    $ret['message'] = 'Pagu tidak boleh kosong!';
-                }
-                if ($ret['status'] != 'error' && empty($_POST['keterangan'])) {
-                    $ret['status'] = 'error';
-                    $ret['message'] = 'Pagu tidak boleh kosong!';
-                }
-                if ($ret['status'] != 'error' && empty($_FILES['nota_dinas'])) {
-                    $ret['status'] = 'error';
-                    $ret['message'] = 'Nota Dinas tidak boleh kosong!';
-                }
-                if ($ret['status'] != 'error' && empty($_FILES['sptj'])) {
-                    $ret['status'] = 'error';
-                    $ret['message'] = 'SPTJ tidak boleh kosong!';
-                }
-                if ($ret['status'] != 'error' && empty($_FILES['pakta_integritas'])) {
-                    $ret['status'] = 'error';
-                    $ret['message'] = 'Pakta integritas tidak boleh kosong!';
-                }
-                if ($ret['status'] != 'error' && empty($_FILES['permohonan_transfer'])) {
-                    $ret['status'] = 'error';
-                    $ret['message'] = 'Surat Permohonan transfer tidak boleh kosong!';
-                }
-                if ($ret['status'] != 'error' && empty($_FILES['rekomendasi'])) {
-                    $ret['status'] = 'error';
-                    $ret['message'] = 'Surat Rekomendasi Camat tidak boleh kosong!';
-                }
-                if ($ret['status'] != 'error' && empty($_FILES['permohonan_penyaluran_kades'])) {
-                    $ret['status'] = 'error';
-                    $ret['message'] = 'Surat permohonan penyaluran Kepala Desa tidak boleh kosong!';
-                }
-                if ($ret['status'] != 'error' && empty($_FILES['sptj_kades'])) {
-                    $ret['status'] = 'error';
-                    $ret['message'] = 'SPTJ Kepala Desa tidak boleh kosong!';
-                }
-                if ($ret['status'] != 'error' && empty($_FILES['pakta_integritas_kades'])) {
-                    $ret['status'] = 'error';
-                    $ret['message'] = 'Pakta interitas Kepala Desa tidak boleh kosong!';
-                }
-                if ($ret['status'] != 'error' && empty($_FILES['pernyataaan_kades_spj_dbhpd'])) {
-                    $ret['status'] = 'error';
-                    $ret['message'] = 'Surat Pernyataan Kepala Desa bahwa SPJ DBH Pajak Daerah telah selesai 100% bermaterai tidak boleh kosong!';
-                }
-                if ($ret['status'] != 'error' && empty($_FILES['sk_bendahara_desa'])) {
-                    $ret['status'] = 'error';
-                    $ret['message'] = 'Surat Keputusan Bendahara Desa tidak boleh kosong!';
-                }
-                if ($ret['status'] != 'error' && empty($_FILES['fc_ktp_kades'])) {
-                    $ret['status'] = 'error';
-                    $ret['message'] = 'Foto copy KTP Kepala Desa tidak boleh kosong!';
-                }
-                if ($ret['status'] != 'error' && empty($_FILES['fc_rek_kas_desa'])) {
-                    $ret['status'] = 'error';
-                    $ret['message'] = 'Foto copy rekening kas Desa tidak boleh kosong!';
-                }
-
-                if ($ret['status'] != 'error') {
-                    $validasi_pagu = $_POST['validasi_pagu'];
-                    $status_pencairan = $_POST['status_pencairan'];
-                    $keterangan_status_pencairan = $_POST['keterangan_status_pencairan'];
-                    $keterangan_ = $_POST['keterangan_'];
-                    $id_bhrd = $_POST['id_bhrd'];
+                if ($ret['status'] != 'error' && !empty($_POST['pagu_anggaran'])) {
                     $pagu_anggaran = $_POST['pagu_anggaran'];
+                } elseif ($ret['status'] != 'error') {
+                    $ret['status'] = 'error';
+                    $ret['message'] = 'Pagu tidak boleh kosong!';
+                }
+                if ($ret['status'] != 'error' && !empty($_POST['keterangan'])) {
                     $keterangan = $_POST['keterangan'];
-                    $nota_dinas = $_FILES['nota_dinas'];
-                    $sptj = $_FILES['sptj'];
-                    $pakta_integritas = $_FILES['pakta_integritas'];
-                    $permohonan_transfer = $_FILES['permohonan_transfer'];
-                    $rekomendasi = $_FILES['rekomendasi'];
-                    $permohonan_penyaluran_kades = $_FILES['permohonan_penyaluran_kades'];
-                    $sptj_kades = $_FILES['sptj_kades'];
-                    $pakta_integritas_kades = $_FILES['pakta_integritas_kades'];
-                    $pernyataaan_kades_spj_dbhpd = $_FILES['pernyataaan_kades_spj_dbhpd'];
-                    $sk_bendahara_desa = $_FILES['sk_bendahara_desa'];
-                    $fc_ktp_kades = $_FILES['fc_ktp_kades'];
-                    $fc_rek_kas_desa = $_FILES['fc_rek_kas_desa'];
-                    $laporan_realisasi_tahun_sebelumnya = $_FILES['laporan_realisasi_tahun_sebelumnya'];
-                    $_POST['id'] = $id_bhrd;
-                    $pencairan = $this->get_pencairan_pemdes_bhrd(true);
-                    if (($pencairan['total_pencairan'] + $pagu_anggaran) > $pencairan['pagu_anggaran']) {
+                } elseif ($ret['status'] != 'error') {
+                    $ret['status'] = 'error';
+                    $ret['message'] = 'Pagu tidak boleh kosong!';
+                }
+                if (empty($_POST['id_data'])) {
+                    if ($ret['status'] != 'error' && !empty($_FILES['nota_dinas'])) {
+                        $nota_dinas = $_FILES['nota_dinas'];
+                    } elseif ($ret['status'] != 'error') {
                         $ret['status'] = 'error';
-                        $ret['message'] = 'Total pencairan tidak boleh lebih dari sisa pencairan!';
+                        $ret['message'] = 'Nota Dinas tidak boleh kosong!';
                     }
-                    if (
-                        $ret['status'] != 'error'
-                        && $pencairan['total_pencairan'] > 0
-                        && empty($_FILES['realisasi_tahun_sebelumnya'])
-                    ) {
+                    if ($ret['status'] != 'error' && !empty($_FILES['sptj'])) {
+                        $sptj = $_FILES['sptj'];
+                    } elseif ($ret['status'] != 'error') {
                         $ret['status'] = 'error';
-                        $ret['message'] = 'Dokumen realisasi tahun sebelumnya tidak boleh kosong!';
+                        $ret['message'] = 'SPTJ tidak boleh kosong!';
+                    }
+                    if ($ret['status'] != 'error' && !empty($_FILES['pakta_integritas'])) {
+                        $pakta_integritas = $_FILES['pakta_integritas'];
+                    } elseif ($ret['status'] != 'error') {
+                        $ret['status'] = 'error';
+                        $ret['message'] = 'Pakta integritas tidak boleh kosong!';
+                    }
+                    if ($ret['status'] != 'error' && !empty($_FILES['permohonan_transfer'])) {
+                        $permohonan_transfer = $_FILES['permohonan_transfer'];
+                    } elseif ($ret['status'] != 'error') {
+                        $ret['status'] = 'error';
+                        $ret['message'] = 'Surat Permohonan transfer tidak boleh kosong!';
+                    }
+                    if ($ret['status'] != 'error' && !empty($_FILES['rekomendasi'])) {
+                        $rekomendasi = $_FILES['rekomendasi'];
+                    } elseif ($ret['status'] != 'error') {
+                        $ret['status'] = 'error';
+                        $ret['message'] = 'Surat Rekomendasi Camat tidak boleh kosong!';
+                    }
+                    if ($ret['status'] != 'error' && !empty($_FILES['permohonan_penyaluran_kades'])) {
+                        $permohonan_penyaluran_kades = $_FILES['permohonan_penyaluran_kades'];
+                    } elseif ($ret['status'] != 'error') {
+                        $ret['status'] = 'error';
+                        $ret['message'] = 'Surat permohonan penyaluran Kepala Desa tidak boleh kosong!';
+                    }
+                    if ($ret['status'] != 'error' && !empty($_FILES['sptj_kades'])) {
+                        $sptj_kades = $_FILES['sptj_kades'];
+                    } elseif ($ret['status'] != 'error') {
+                        $ret['status'] = 'error';
+                        $ret['message'] = 'SPTJ Kepala Desa tidak boleh kosong!';
+                    }
+                    if ($ret['status'] != 'error' && !empty($_FILES['pakta_integritas_kades'])) {
+                        $pakta_integritas_kades = $_FILES['pakta_integritas_kades'];
+                    } elseif ($ret['status'] != 'error') {
+                        $ret['status'] = 'error';
+                        $ret['message'] = 'Pakta interitas Kepala Desa tidak boleh kosong!';
+                    }
+                    if ($ret['status'] != 'error' && !empty($_FILES['pernyataaan_kades_spj_dbhpd'])) {
+                        $pernyataaan_kades_spj_dbhpd = $_FILES['pernyataaan_kades_spj_dbhpd'];
+                    } elseif ($ret['status'] != 'error') {
+                        $ret['status'] = 'error';
+                        $ret['message'] = 'Surat Pernyataan Kepala Desa bahwa SPJ DBH Pajak Daerah telah selesai 100% bermaterai tidak boleh kosong!';
+                    }
+                    if ($ret['status'] != 'error' && !empty($_FILES['sk_bendahara_desa'])) {
+                        $sk_bendahara_desa = $_FILES['sk_bendahara_desa'];
+                    } elseif ($ret['status'] != 'error') {
+                        $ret['status'] = 'error';
+                        $ret['message'] = 'Surat Keputusan Bendahara Desa tidak boleh kosong!';
+                    }
+                    if ($ret['status'] != 'error' && !empty($_FILES['fc_ktp_kades'])) {
+                        $fc_ktp_kades = $_FILES['fc_ktp_kades'];
+                    } elseif ($ret['status'] != 'error') {
+                        $ret['status'] = 'error';
+                        $ret['message'] = 'Foto copy KTP Kepala Desa tidak boleh kosong!';
+                    }
+                    if ($ret['status'] != 'error' && !empty($_FILES['fc_rek_kas_desa'])) {
+                        $fc_rek_kas_desa = $_FILES['fc_rek_kas_desa'];
+                    } elseif ($ret['status'] != 'error') {
+                        $ret['status'] = 'error';
+                        $ret['message'] = 'Foto copy rekening kas Desa tidak boleh kosong!';
                     }
                 }
 
+                $_POST['id'] = $id_bhrd;
+                $pencairan = $this->get_pencairan_pemdes_bhrd(true);
+                if (($pencairan['total_pencairan'] + $pagu_anggaran) > $pencairan['pagu_anggaran']) {
+                    $ret['status'] = 'error';
+                    $ret['message'] = 'Total pencairan tidak boleh lebih dari sisa pencairan!';
+                }
+                if (
+                    $ret['status'] != 'error'
+                    && $pencairan['total_pencairan'] > 0
+                    && empty($_FILES['realisasi_tahun_sebelumnya'])
+                ) {
+                    $ret['status'] = 'error';
+                    $ret['message'] = 'Dokumen realisasi tahun sebelumnya tidak boleh kosong!';
+                }
+                $status_pencairan = $_POST['status_pencairan'];
+                $keterangan_status_pencairan = $_POST['keterangan_status_pencairan'];
+
                 if ($ret['status'] != 'error') {
-                    if (empty($_POST['id_data'])) {
-                        $status = 0;
-                    } else {
-                        $status = 1;
-                        if ($status == 0) {
-                            $status = 2;
-                        }
-                    }
                     $data = array(
                         'id_bhrd' => $id_bhrd,
                         'total_pencairan' => $pagu_anggaran,
                         'status_ver_total' => $status_pencairan,
                         'ket_ver_total' => $keterangan_status_pencairan,
                         'keterangan' => $keterangan,
-                        'file_nota_dinas' => '',
-                        'file_sptj' => '',
-                        'file_pakta_integritas' => '',
-                        'file_permohonan_transfer' => '',
-                        'file_rekomendasi' => '',
-                        'file_permohonan_penyaluran_kades' => '',
-                        'file_sptj_kades' => '',
-                        'file_pakta_integritas_kades' => '',
-                        'file_pernyataaan_kades_spj_dbhpd' => '',
-                        'file_sk_bendahara_desa' => '',
-                        'file_fc_ktp_kades' => '',
-                        'file_fc_rek_kas_desa' => '',
-                        'file_laporan_realisasi_sebelumnya' => '',
-                        'status' => $status,
                         'update_at' => current_time('mysql')
                     );
+                    if (empty($_POST['id_data'])) {
+                        $data['status'] = 0; // 0 berati belum dicek
+                    }
                     $path = WPSIPD_PLUGIN_PATH . 'public/media/keu_pemdes/';
-
                     $cek_file = array();
-                    if ($ret['status'] != 'error') {
+                    if (
+                        $ret['status'] != 'error'
+                        && !empty($_FILES['nota_dinas'])
+                    ) {
                         $upload = CustomTrait::uploadFile($_POST['api_key'], $path, $_FILES['nota_dinas'], ['pdf']);
                         if ($upload['status'] == true) {
                             $data['file_nota_dinas'] = $upload['filename'];
@@ -3450,8 +3499,10 @@ class Wpsipd_Public_Keu_Pemdes
                             $ret['message'] = $upload['message'];
                         }
                     }
-
-                    if ($ret['status'] != 'error') {
+                    if (
+                        $ret['status'] != 'error'
+                        && !empty($_FILES['sptj'])
+                    ) {
                         $upload = CustomTrait::uploadFile($_POST['api_key'], $path, $_FILES['sptj'], ['pdf']);
                         if ($upload['status'] == true) {
                             $data['file_sptj'] = $upload['filename'];
@@ -3461,8 +3512,10 @@ class Wpsipd_Public_Keu_Pemdes
                             $ret['message'] = $upload['message'];
                         }
                     }
-
-                    if ($ret['status'] != 'error') {
+                    if (
+                        $ret['status'] != 'error'
+                        && !empty($_FILES['pakta_integritas'])
+                    ) {
                         $upload = CustomTrait::uploadFile($_POST['api_key'], $path, $_FILES['pakta_integritas'], ['pdf']);
                         if ($upload['status'] == true) {
                             $data['file_pakta_integritas'] = $upload['filename'];
@@ -3472,8 +3525,10 @@ class Wpsipd_Public_Keu_Pemdes
                             $ret['message'] = $upload['message'];
                         }
                     }
-
-                    if ($ret['status'] != 'error') {
+                    if (
+                        $ret['status'] != 'error'
+                        && !empty($_FILES['permohonan_transfer'])
+                    ) {
                         $upload = CustomTrait::uploadFile($_POST['api_key'], $path, $_FILES['permohonan_transfer'], ['pdf']);
                         if ($upload['status'] == true) {
                             $data['file_permohonan_transfer'] = $upload['filename'];
@@ -3483,8 +3538,10 @@ class Wpsipd_Public_Keu_Pemdes
                             $ret['message'] = $upload['message'];
                         }
                     }
-
-                    if ($ret['status'] != 'error') {
+                    if (
+                        $ret['status'] != 'error'
+                        && !empty($_FILES['rekomendasi'])
+                    ) {
                         $upload = CustomTrait::uploadFile($_POST['api_key'], $path, $_FILES['rekomendasi'], ['pdf']);
                         if ($upload['status'] == true) {
                             $data['file_rekomendasi'] = $upload['filename'];
@@ -3494,8 +3551,10 @@ class Wpsipd_Public_Keu_Pemdes
                             $ret['message'] = $upload['message'];
                         }
                     }
-
-                    if ($ret['status'] != 'error') {
+                    if (
+                        $ret['status'] != 'error'
+                        && !empty($_FILES['permohonan_penyaluran_kades'])
+                    ) {
                         $upload = CustomTrait::uploadFile($_POST['api_key'], $path, $_FILES['permohonan_penyaluran_kades'], ['pdf']);
                         if ($upload['status'] == true) {
                             $data['file_permohonan_penyaluran_kades'] = $upload['filename'];
@@ -3505,8 +3564,10 @@ class Wpsipd_Public_Keu_Pemdes
                             $ret['message'] = $upload['message'];
                         }
                     }
-
-                    if ($ret['status'] != 'error') {
+                    if (
+                        $ret['status'] != 'error'
+                        && !empty($_FILES['sptj_kades'])
+                    ) {
                         $upload = CustomTrait::uploadFile($_POST['api_key'], $path, $_FILES['sptj_kades'], ['pdf']);
                         if ($upload['status'] == true) {
                             $data['file_sptj_kades'] = $upload['filename'];
@@ -3516,8 +3577,10 @@ class Wpsipd_Public_Keu_Pemdes
                             $ret['message'] = $upload['message'];
                         }
                     }
-
-                    if ($ret['status'] != 'error') {
+                    if (
+                        $ret['status'] != 'error'
+                        && !empty($_FILES['pakta_integritas_kades'])
+                    ) {
                         $upload = CustomTrait::uploadFile($_POST['api_key'], $path, $_FILES['pakta_integritas_kades'], ['pdf']);
                         if ($upload['status'] == true) {
                             $data['file_pakta_integritas_kades'] = $upload['filename'];
@@ -3527,8 +3590,10 @@ class Wpsipd_Public_Keu_Pemdes
                             $ret['message'] = $upload['message'];
                         }
                     }
-
-                    if ($ret['status'] != 'error') {
+                    if (
+                        $ret['status'] != 'error'
+                        && !empty($_FILES['pernyataaan_kades_spj_dbhpd'])
+                    ) {
                         $upload = CustomTrait::uploadFile($_POST['api_key'], $path, $_FILES['pernyataaan_kades_spj_dbhpd'], ['pdf']);
                         if ($upload['status'] == true) {
                             $data['file_pernyataaan_kades_spj_dbhpd'] = $upload['filename'];
@@ -3538,8 +3603,10 @@ class Wpsipd_Public_Keu_Pemdes
                             $ret['message'] = $upload['message'];
                         }
                     }
-
-                    if ($ret['status'] != 'error') {
+                    if (
+                        $ret['status'] != 'error'
+                        && !empty($_FILES['sk_bendahara_desa'])
+                    ) {
                         $upload = CustomTrait::uploadFile($_POST['api_key'], $path, $_FILES['sk_bendahara_desa'], ['pdf']);
                         if ($upload['status'] == true) {
                             $data['file_sk_bendahara_desa'] = $upload['filename'];
@@ -3549,8 +3616,10 @@ class Wpsipd_Public_Keu_Pemdes
                             $ret['message'] = $upload['message'];
                         }
                     }
-
-                    if ($ret['status'] != 'error') {
+                    if (
+                        $ret['status'] != 'error'
+                        && !empty($_FILES['fc_ktp_kades'])
+                    ) {
                         $upload = CustomTrait::uploadFile($_POST['api_key'], $path, $_FILES['fc_ktp_kades'], ['pdf']);
                         if ($upload['status'] == true) {
                             $data['file_fc_ktp_kades'] = $upload['filename'];
@@ -3560,8 +3629,10 @@ class Wpsipd_Public_Keu_Pemdes
                             $ret['message'] = $upload['message'];
                         }
                     }
-
-                    if ($ret['status'] != 'error') {
+                    if (
+                        $ret['status'] != 'error'
+                        && !empty($_FILES['fc_rek_kas_desa'])
+                    ) {
                         $upload = CustomTrait::uploadFile($_POST['api_key'], $path, $_FILES['fc_rek_kas_desa'], ['pdf']);
                         if ($upload['status'] == true) {
                             $data['file_fc_rek_kas_desa'] = $upload['filename'];
@@ -3825,12 +3896,9 @@ class Wpsipd_Public_Keu_Pemdes
                         $btn .= '<a style="margin-left: 10px;" class="btn btn-sm btn-danger" onclick="hapus_data(\'' . $recVal['id'] . '\'); return false;" href="#" title="Hapus Data"><i class="dashicons dashicons-trash"></i></a>';
                         $btn .= '<a style="margin-left: 10px;" class="btn btn-sm btn-primary" onclick="submit_pencairan(\'' . $recVal['id'] . '\'); return false;" href="#" title="Submit Pencairan"><i class="dashicons dashicons-yes"></i></a>';
                         // 0 belum dicek, 1 diterima dan 2 ditolak
-                        if (
-                            $recVal['status_ver_proposal'] == 2
-                            || $recVal['status_ver_total'] == 2
-                        ) {
+                        if ($recVal['status_ver_total'] == 2) {
                             $pesan = '';
-                            if ($recVal['status_ver_proposal'] == 2) {
+                            if ($recVal['status_ver_total'] == 2) {
                                 $pesan .= '<br>Keterangan status pencairan: ' . $recVal['ket_ver_total'];
                             }
                             $queryRecords[$recKey]['status'] = '<span class="btn btn-danger btn-sm">Ditolak</span>' . $pesan;
@@ -4042,48 +4110,6 @@ class Wpsipd_Public_Keu_Pemdes
                     $ret['status'] = 'error';
                     $ret['message'] = 'Keterangan tidak boleh kosong!';
                 }
-                // if ($ret['status'] != 'error' && !empty($_FILES['nota_dinas'])) {
-                //     $nota_dinas = $_FILES['nota_dinas'];
-                // } elseif ($ret['status'] != 'error') {
-                //     $ret['status'] = 'error';
-                //     $ret['message'] = 'Nota dinas tidak boleh kosong!';
-                // }
-                // if ($ret['status'] != 'error' && !empty($_FILES['sptj'])) {
-                //     $sptj = $_FILES['sptj'];
-                // } elseif ($ret['status'] != 'error') {
-                //     $ret['status'] = 'error';
-                //     $ret['message'] = 'SPTJ tidak boleh kosong!';
-                // }
-                // if ($ret['status'] != 'error' && !empty($_FILES['pakta_integritas'])) {
-                //     $pakta_integritas = $_FILES['pakta_integritas'];
-                // } elseif ($ret['status'] != 'error') {
-                //     $ret['status'] = 'error';
-                //     $ret['message'] = 'Pakta integritas tidak boleh kosong!';
-                // }
-                // if ($ret['status'] != 'error' && !empty($_FILES['permohonan_transfer'])) {
-                //     $permohonan_transfer = $_FILES['permohonan_transfer'];
-                // } elseif ($ret['status'] != 'error') {
-                //     $ret['status'] = 'error';
-                //     $ret['message'] = 'Surat Permohonan transfer tidak boleh kosong!';
-                // }
-                // if ($ret['status'] != 'error' && !empty($_FILES['realisasi_tahap_sebelumnya'])) {
-                //     $realisasi_tahap_sebelumnya = $_FILES['realisasi_tahap_sebelumnya'];
-                // } elseif ($ret['status'] != 'error') {
-                //     $ret['status'] = 'error';
-                //     $ret['message'] = 'Realisasi tahap sebelumnya tidak boleh kosong!';
-                // }
-                // if ($ret['status'] != 'error' && !empty($_FILES['dokumen_syarat_umum'])) {
-                //     $dokumen_syarat_umum = $_FILES['dokumen_syarat_umum'];
-                // } elseif ($ret['status'] != 'error') {
-                //     $ret['status'] = 'error';
-                //     $ret['message'] = 'Dokumen syarat umum tidak boleh kosong!';
-                // }
-                // if ($ret['status'] != 'error' && !empty($_FILES['dokumen_syarat_khusus'])) {
-                //     $dokumen_syarat_khusus = $_FILES['dokumen_syarat_khusus'];
-                // } elseif ($ret['status'] != 'error') {
-                //     $ret['status'] = 'error';
-                //     $ret['message'] = 'Dokumen syarat khusus tidak boleh kosong!';
-                // }
                 $_POST['id'] = $id_bku_dd;
                 $pencairan = $this->get_pencairan_pemdes_bku_dd(true);
                 if (($pencairan['total_pencairan'] + $pagu_anggaran) > $pencairan['pagu_anggaran']) {
@@ -4453,95 +4479,102 @@ class Wpsipd_Public_Keu_Pemdes
         );
         if (!empty($_POST)) {
             if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option('_crb_api_key_extension')) {
-                if ($ret['status'] != 'error' && empty($_POST['id_bku_add'])) {
+                if ($ret['status'] != 'error' && !empty($_POST['id_bku_add'])) {
+                    $id_bku_add = $_POST['id_bku_add'];
+                } else {
                     $ret['status'] = 'error';
                     $ret['message'] = 'Pilih Desa Dulu!';
                 }
-                if ($ret['status'] != 'error' && empty($_POST['pagu_anggaran'])) {
+                if ($ret['status'] != 'error' && !empty($_POST['pagu_anggaran'])) {
+                    $pagu_anggaran = $_POST['pagu_anggaran'];
+                } elseif ($ret['status'] != 'error') {
                     $ret['status'] = 'error';
                     $ret['message'] = 'Pagu tidak boleh kosong!';
                 }
-                if ($ret['status'] != 'error' && empty($_POST['keterangan'])) {
+                if ($ret['status'] != 'error' && !empty($_POST['keterangan'])) {
+                    $keterangan = $_POST['keterangan'];
+                } elseif ($ret['status'] != 'error') {
                     $ret['status'] = 'error';
                     $ret['message'] = 'keterangan tidak boleh kosong!';
                 }
-                if ($ret['status'] != 'error' && empty($_FILES['nota_dinas'])) {
-                    $ret['status'] = 'error';
-                    $ret['message'] = 'Nota dinas tidak boleh kosong!';
-                }
-                if ($ret['status'] != 'error' && empty($_FILES['sptj'])) {
-                    $ret['status'] = 'error';
-                    $ret['message'] = 'SPTJ tidak boleh kosong!';
-                }
-                if ($ret['status'] != 'error' && empty($_FILES['pakta_integritas'])) {
-                    $ret['status'] = 'error';
-                    $ret['message'] = 'Pakta integritas tidak boleh kosong!';
-                }
-                if ($ret['status'] != 'error' && empty($_FILES['permohonan_transfer'])) {
-                    $ret['status'] = 'error';
-                    $ret['message'] = 'Surat Permohonan transfer tidak boleh kosong!';
-                }
-                if ($ret['status'] != 'error' && empty($_FILES['dokumen_syarat_umum'])) {
-                    $ret['status'] = 'error';
-                    $ret['message'] = 'Dokumen syarat umum tidak boleh kosong!';
-                }
-                if ($ret['status'] != 'error' && empty($_FILES['dokumen_syarat_khusus'])) {
-                    $ret['status'] = 'error';
-                    $ret['message'] = 'Dokumen syarat khusus tidak boleh kosong!';
-                }
-
-                if ($ret['status'] != 'error') {
-                    $validasi_pagu = $_POST['validasi_pagu'];
-                    $status_pencairan = $_POST['status_pencairan'];
-                    $keterangan_status_pencairan = $_POST['keterangan_status_pencairan'];
-                    $id_bku_add = $_POST['id_bku_add'];
-                    $pagu_anggaran = $_POST['pagu_anggaran'];
-                    $keterangan = $_POST['keterangan'];
-                    $_POST['id'] = $id_bku_add;
-                    $pencairan = $this->get_pencairan_pemdes_bku_add(true);
-                    if (($pencairan['total_pencairan'] + $pagu_anggaran) > $pencairan['pagu_anggaran']) {
+                if (empty($_POST['id_data'])) {
+                    if ($ret['status'] != 'error' && !empty($_FILES['nota_dinas'])) {
+                        $nota_dinas = $_FILES['nota_dinas'];
+                    } elseif ($ret['status'] != 'error') {
                         $ret['status'] = 'error';
-                        $ret['message'] = 'Total pencairan tidak boleh lebih dari sisa pencairan!';
+                        $ret['message'] = 'Nota dinas tidak boleh kosong!';
+                    }
+                    if ($ret['status'] != 'error' && !empty($_FILES['sptj'])) {
+                        $sptj = $_FILES['sptj'];
+                    } elseif ($ret['status'] != 'error') {
+                        $ret['status'] = 'error';
+                        $ret['message'] = 'SPTJ tidak boleh kosong!';
+                    }
+                    if ($ret['status'] != 'error' && !empty($_FILES['pakta_integritas'])) {
+                        $pakta_integritas = $_FILES['pakta_integritas'];
+                    } elseif ($ret['status'] != 'error') {
+                        $ret['status'] = 'error';
+                        $ret['message'] = 'Pakta integritas tidak boleh kosong!';
+                    }
+                    if ($ret['status'] != 'error' && !empty($_FILES['permohonan_transfer'])) {
+                        $permohonan_transfer = $_FILES['permohonan_transfer'];
+                    } elseif ($ret['status'] != 'error') {
+                        $ret['status'] = 'error';
+                        $ret['message'] = 'Surat Permohonan transfer tidak boleh kosong!';
+                    }
+                    if ($ret['status'] != 'error' && !empty($_FILES['dokumen_syarat_umum'])) {
+                        $dokumen_syarat_umum = $_FILES['dokumen_syarat_umum'];
+                    } elseif ($ret['status'] != 'error') {
+                        $ret['status'] = 'error';
+                        $ret['message'] = 'Dokumen syarat umum tidak boleh kosong!';
+                    }
+                    if ($ret['status'] != 'error' && !empty($_FILES['dokumen_syarat_khusus'])) {
+                        $dokumen_syarat_khusus = $_FILES['dokumen_syarat_khusus'];
+                    } elseif ($ret['status'] != 'error') {
+                        $ret['status'] = 'error';
+                        $ret['message'] = 'Dokumen syarat khusus tidak boleh kosong!';
                     }
                     if (
                         $ret['status'] != 'error'
                         && $pencairan['total_pencairan'] > 0
-                        && empty($_FILES['realisasi_tahap_sebelumnya'])
+                        && !empty($_FILES['realisasi_tahap_sebelumnya'])
                     ) {
                         $ret['status'] = 'error';
                         $ret['message'] = 'Dokumen realisasi tahap sebelumnya tidak boleh kosong!';
-                    }
+                    }   
                 }
+                
+                $_POST['id'] = $id_bku_add;
+                $pencairan = $this->get_pencairan_pemdes_bku_add(true);
+                if (($pencairan['total_pencairan'] + $pagu_anggaran) > $pencairan['pagu_anggaran']) {
+                    $ret['status'] = 'error';
+                    $ret['message'] = 'Total pencairan tidak boleh lebih dari sisa pencairan!';
+                }
+
+                $status_pencairan = $_POST['status_pencairan'];
+                $keterangan_status_pencairan = $_POST['keterangan_status_pencairan'];
+
                 if ($ret['status'] != 'error') {
-                    if (empty($_POST['id_data'])) {
-                        $status = 0;
-                    } else {
-                        $status = 1;
-                        if ($status_pencairan == 0) {
-                            $status = 2;
-                        }
-                    }
                     $data = array(
                         'id_bku_add' => $id_bku_add,
                         'total_pencairan' => $pagu_anggaran,
                         'status_ver_total' => $status_pencairan,
                         'ket_ver_total' => $keterangan_status_pencairan,
                         'keterangan' => $keterangan,
-                        'file_nota_dinas' => '',
-                        'file_sptj' => '',
-                        'file_pakta_integritas' => '',
-                        'file_permohonan_transfer' => '',
-                        'file_realisasi_tahap_sebelumnya' => '',
-                        'file_dokumen_syarat_umum' => '',
-                        'file_dokumen_syarat_khusus' => '',
-                        'status' => $status,
                         'update_at' => current_time('mysql')
                     );
 
-                    $path = WPSIPD_PLUGIN_PATH . 'public/media/keu_pemdes/';
+                    if (empty($_POST['id_data'])) {
+                        $data['status'] = 0; // 0 berati belum dicek
+                    }
 
+                    $path = WPSIPD_PLUGIN_PATH . 'public/media/keu_pemdes/';
                     $cek_file = array();
-                    if ($ret['status'] != 'error') {
+
+                    if (
+                        $ret['status'] != 'error'
+                        && !empty($_FILES['nota_dinas'])
+                    ) {
                         $upload = CustomTrait::uploadFile($_POST['api_key'], $path, $_FILES['nota_dinas'], ['pdf']);
                         if ($upload['status'] == true) {
                             $data['file_nota_dinas'] = $upload['filename'];
@@ -4552,7 +4585,10 @@ class Wpsipd_Public_Keu_Pemdes
                         }
                     }
 
-                    if ($ret['status'] != 'error') {
+                    if (
+                        $ret['status'] != 'error'
+                        && !empty($_FILES['sptj'])
+                    ) {
                         $upload = CustomTrait::uploadFile($_POST['api_key'], $path, $_FILES['sptj'], ['pdf']);
                         if ($upload['status'] == true) {
                             $data['file_sptj'] = $upload['filename'];
@@ -4563,7 +4599,10 @@ class Wpsipd_Public_Keu_Pemdes
                         }
                     }
 
-                    if ($ret['status'] != 'error') {
+                    if (
+                        $ret['status'] != 'error'
+                        && !empty($_FILES['pakta_integritas'])
+                    ) {
                         $upload = CustomTrait::uploadFile($_POST['api_key'], $path, $_FILES['pakta_integritas'], ['pdf']);
                         if ($upload['status'] == true) {
                             $data['file_pakta_integritas'] = $upload['filename'];
@@ -4574,7 +4613,10 @@ class Wpsipd_Public_Keu_Pemdes
                         }
                     }
 
-                    if ($ret['status'] != 'error') {
+                    if (
+                        $ret['status'] != 'error'
+                        && !empty($_FILES['permohonan_transfer'])
+                    ) {
                         $upload = CustomTrait::uploadFile($_POST['api_key'], $path, $_FILES['permohonan_transfer'], ['pdf']);
                         if ($upload['status'] == true) {
                             $data['file_permohonan_transfer'] = $upload['filename'];
@@ -4588,6 +4630,7 @@ class Wpsipd_Public_Keu_Pemdes
                     if (
                         $ret['status'] != 'error'
                         && $pencairan['total_pencairan'] > 0
+                        && !empty($_FILES['realisasi_tahap_sebelumnya'])
                     ) {
                         $upload = CustomTrait::uploadFile($_POST['api_key'], $path, $_FILES['realisasi_tahap_sebelumnya'], ['pdf']);
                         if ($upload['status'] == true) {
@@ -4599,7 +4642,10 @@ class Wpsipd_Public_Keu_Pemdes
                         }
                     }
 
-                    if ($ret['status'] != 'error') {
+                    if (
+                        $ret['status'] != 'error'
+                        && !empty($_FILES['dokumen_syarat_umum'])
+                    ) {
                         $upload = CustomTrait::uploadFile($_POST['api_key'], $path, $_FILES['dokumen_syarat_umum'], ['pdf']);
                         if ($upload['status'] == true) {
                             $data['file_dokumen_syarat_umum'] = $upload['filename'];
@@ -4610,7 +4656,10 @@ class Wpsipd_Public_Keu_Pemdes
                         }
                     }
 
-                    if ($ret['status'] != 'error') {
+                    if (
+                        $ret['status'] != 'error'
+                        && !empty($_FILES['dokumen_syarat_khusus'])
+                    ) {
                         $upload = CustomTrait::uploadFile($_POST['api_key'], $path, $_FILES['dokumen_syarat_khusus'], ['pdf']);
                         if ($upload['status'] == true) {
                             $data['file_dokumen_syarat_khusus'] = $upload['filename'];
@@ -4636,11 +4685,11 @@ class Wpsipd_Public_Keu_Pemdes
                                 SELECT
                                     file_nota_dinas,
                                     file_sptj,
-                                    file_pakta_integritas
+                                    file_pakta_integritas,
                                     file_permohonan_transfer,
                                     file_realisasi_tahap_sebelumnya,
                                     file_dokumen_syarat_umum,
-                                    file_dokumen_syarat_khusus,
+                                    file_dokumen_syarat_khusus
                                 FROM data_pencairan_bku_add_desa
                                 WHERE id=%d
                             ', $_POST['id_data']), ARRAY_A);
@@ -4694,7 +4743,7 @@ class Wpsipd_Public_Keu_Pemdes
                             unlink($path . $file_lama['file_dokumen_syarat_khusus']);
                         }
 
-                        $wpdb->update('data_pencairan_bkk_desa', $data, array(
+                        $wpdb->update('data_pencairan_bku_add_desa', $data, array(
                             'id' => $_POST['id_data']
                         ));
                         $ret['message'] = 'Berhasil update data!';
@@ -4814,12 +4863,9 @@ class Wpsipd_Public_Keu_Pemdes
                         $btn .= '<a style="margin-left: 10px;" class="btn btn-sm btn-danger" onclick="hapus_data(\'' . $recVal['id'] . '\'); return false;" href="#" title="Hapus Data"><i class="dashicons dashicons-trash"></i></a>';
                         $btn .= '<a style="margin-left: 10px;" class="btn btn-sm btn-primary" onclick="submit_pencairan(\'' . $recVal['id'] . '\'); return false;" href="#" title="Submit Pencairan"><i class="dashicons dashicons-yes"></i></a>';
                         // 0 belum dicek, 1 diterima dan 2 ditolak
-                        if (
-                            $recVal['status_ver_proposal'] == 2
-                            || $recVal['status_ver_total'] == 2
-                        ) {
+                        if ($recVal['status_ver_total'] == 2) {
                             $pesan = '';
-                            if ($recVal['status_ver_proposal'] == 2) {
+                            if ($recVal['status_ver_total'] == 2) {
                                 $pesan .= '<br>Keterangan status pencairan: ' . $recVal['ket_ver_total'];
                             }
                             $queryRecords[$recKey]['status'] = '<span class="btn btn-danger btn-sm">Ditolak</span>' . $pesan;
@@ -5194,12 +5240,9 @@ class Wpsipd_Public_Keu_Pemdes
                         $btn .= '<a style="margin-left: 10px;" class="btn btn-sm btn-danger" onclick="hapus_data(\'' . $recVal['id'] . '\'); return false;" href="#" title="Hapus Data"><i class="dashicons dashicons-trash"></i></a>';
                         $btn .= '<a style="margin-left: 10px;" class="btn btn-sm btn-primary" onclick="submit_pencairan(\'' . $recVal['id'] . '\'); return false;" href="#" title="Submit Pencairan"><i class="dashicons dashicons-yes"></i></a>';
                         // 0 belum dicek, 1 diterima dan 2 ditolak
-                        if (
-                            $recVal['status_ver_proposal'] == 2
-                            || $recVal['status_ver_total'] == 2
-                        ) {
+                        if ($recVal['status_ver_total'] == 2) {
                             $pesan = '';
-                            if ($recVal['status_ver_proposal'] == 2) {
+                            if ($recVal['status_ver_total'] == 2) {
                                 $pesan .= '<br>Keterangan status pencairan: ' . $recVal['ket_ver_total'];
                             }
                             $queryRecords[$recKey]['status'] = '<span class="btn btn-danger btn-sm">Ditolak</span>' . $pesan;
