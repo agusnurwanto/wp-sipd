@@ -345,6 +345,29 @@ foreach ($tujuan_all as $keyTujuan => $tujuan_value) {
 
 					foreach ($program_all as $keyProgram => $program_value) {
 						if(empty($data_all['data'][$tujuan_value['id_unik']]['data'][$sasaran_value['id_unik']]['data'][$program_value['id_unik']])){
+
+
+							// check program ke master data_prog_keg
+							$checkProgram = $wpdb->get_row($wpdb->prepare("
+											SELECT 
+												id_program 
+											FROM 
+												data_prog_keg 
+											WHERE 
+												id_program=%d AND
+												active=%d AND
+												tahun_anggaran=%d
+												", 
+										$program_value['id_program'],
+										1,
+										$input['tahun_anggaran']
+							), ARRAY_A);
+										
+							$statusMutakhirProgram = 1;
+							if(empty($checkProgram['id_program'])){
+								$statusMutakhirProgram = 0;
+							}
+
 							$data_all['data'][$tujuan_value['id_unik']]['data'][$sasaran_value['id_unik']]['data'][$program_value['id_unik']] = [
 								'id' => $program_value['id'],
 								'id_unik' => $program_value['id_unik'],
@@ -372,6 +395,7 @@ foreach ($tujuan_all as $keyTujuan => $tujuan_value) {
 								'pagu_akumulasi_indikator_4_usulan' => 0,
 								'pagu_akumulasi_indikator_5_usulan' => 0,
 								'indikator' => array(),
+								'statusMutakhirProgram' => $statusMutakhirProgram,
 								'data' => array()
 							];
 						}
@@ -447,6 +471,27 @@ foreach ($tujuan_all as $keyTujuan => $tujuan_value) {
 										
 							if(empty($data_all['data'][$tujuan_value['id_unik']]['data'][$sasaran_value['id_unik']]['data'][$program_value['id_unik']]['data'][$kegiatan_value['id_unik']])){
 
+								// check kegiatan ke master data_prog_keg
+								$checkKegiatan = $wpdb->get_row($wpdb->prepare("
+													SELECT 
+														id_giat 
+													FROM 
+														data_prog_keg 
+													WHERE 
+														id_giat=%d AND
+														active=%d AND
+														tahun_anggaran=%d
+														", 
+												$kegiatan_value['id_giat'],
+												1,
+												$input['tahun_anggaran']
+											), ARRAY_A);
+											
+								$statusMutakhirKegiatan = 1;
+								if(empty($checkKegiatan['id_giat'])){
+									$statusMutakhirKegiatan = 0;
+								}
+
 								$data_all['data'][$tujuan_value['id_unik']]['data'][$sasaran_value['id_unik']]['data'][$program_value['id_unik']]['data'][$kegiatan_value['id_unik']] = [
 									'id' => $kegiatan_value['id'],
 									'id_unik' => $kegiatan_value['id_unik'],
@@ -474,6 +519,7 @@ foreach ($tujuan_all as $keyTujuan => $tujuan_value) {
 									'pagu_akumulasi_indikator_4_usulan' => 0,
 									'pagu_akumulasi_indikator_5_usulan' => 0,
 									'indikator' => array(),
+									'statusMutakhirKegiatan' => $statusMutakhirKegiatan,
 									'data' => array(),
 								];
 							}
@@ -1881,6 +1927,14 @@ foreach ($data_all['data'] as $tujuan) {
 			$target_akhir_usulan = '';
 			$satuan_usulan = '';
 			$catatan_indikator_usulan = '';
+
+			$isMutakhir='';
+			if(!empty($add_renstra)){
+				if(!$program['statusMutakhirProgram']){
+					$isMutakhir='<button class="btn-sm btn-warning" onclick="tampilProgram(\''.$program['id_unik'].'\')" style="margin: 1px;"><i class="dashicons dashicons-update" title="Mutakhirkan"></i></button>';
+				}
+			}
+
 			foreach($program['indikator'] as $key => $indikator){
 				$indikator_program .= '<div class="indikator">'.$indikator['indikator_teks'].'</div>';
 				$target_awal .= '<div class="indikator">'.$indikator['target_awal'].'</div>';
@@ -1935,7 +1989,7 @@ foreach ($data_all['data'] as $tujuan) {
 						<td class="atas kanan bawah"></td>
 						<td class="atas kanan bawah"></td>
 						<td class="atas kanan bawah"></td>
-						<td class="atas kanan bawah">'.$program['program_teks'].'</td>
+						<td class="atas kanan bawah">'.$program['program_teks']."".$isMutakhir.'</td>
 						<td class="atas kanan bawah"></td>
 						<td class="atas kanan bawah"></td>
 						<td class="atas kanan bawah"><br>'.$indikator_program.'</td>
@@ -2008,6 +2062,16 @@ foreach ($data_all['data'] as $tujuan) {
 				$target_akhir_usulan = '';
 				$satuan_usulan = '';
 				$catatan_indikator_usulan = '';
+
+				$isMutakhir='';
+				$bgIsMutakhir='';
+				if(!empty($add_renstra)){
+					if(!$kegiatan['statusMutakhirKegiatan']){
+						$bgIsMutakhir='#d013133d';
+						$isMutakhir='<button class="btn-sm btn-warning" onclick="tampilKegiatan(\''.$kegiatan['id'].'\')" style="margin: 1px;"><i class="dashicons dashicons-update" title="Mutakhirkan"></i></button>';
+					}
+				}
+
 				foreach($kegiatan['indikator'] as $key => $indikator){
 					$indikator_kegiatan .= '<div class="indikator">'.$indikator['indikator_teks'].'</div>';
 					$target_awal .= '<div class="indikator">'.$indikator['target_awal'].'</div>';
@@ -2053,7 +2117,7 @@ foreach ($data_all['data'] as $tujuan) {
 							<td class="atas kanan bawah"></td>
 							<td class="atas kanan bawah"></td>
 							<td class="atas kanan bawah"></td>
-							<td class="atas kanan bawah">'.$kegiatan['kegiatan_teks'].'</td>
+							<td class="atas kanan bawah">'.$kegiatan['kegiatan_teks']."".$isMutakhir.'</td>
 							<td class="atas kanan bawah"></td>
 							<td class="atas kanan bawah"><br>'.$indikator_kegiatan.'</td>
 							<td class="atas kanan bawah text_tengah"><br>'.$target_awal.'</td>';
@@ -2127,9 +2191,11 @@ foreach ($data_all['data'] as $tujuan) {
 
 					$isMutakhir='';
 					$bgIsMutakhir='';
-					if(!$sub_kegiatan['statusMutakhirSubKeg']){
-						$bgIsMutakhir='#d013133d';
-						$isMutakhir='<button class="btn-sm btn-warning" onclick="tampilSubKegiatan(\''.$sub_kegiatan['id'].'\')" style="margin: 1px; display:none;"><i class="dashicons dashicons-update" title="Mutakhirkan"></i></button>';
+					if(!empty($add_renstra)){
+						if(!$sub_kegiatan['statusMutakhirSubKeg']){
+							$bgIsMutakhir='#d013133d';
+							$isMutakhir='<button class="btn-sm btn-warning" onclick="tampilSubKegiatan(\''.$sub_kegiatan['id'].'\')" style="margin: 1px;"><i class="dashicons dashicons-update" title="Mutakhirkan"></i></button>';
+						}
 					}
 
 					foreach ($sub_kegiatan['indikator'] as $key => $indikator) {
@@ -6904,6 +6970,94 @@ $table='<table cellpadding="2" cellspacing="0" style="font-family:\'Open Sans\',
 		})
 	}
 
+	function tampilProgram(id_unik){
+		jQuery('#wrap-loading').show();
+		jQuery.ajax({
+			url: ajax.url,
+          	type: "post",
+          	data: {
+          		"action": "edit_program_renstra",
+          		"api_key": "<?php echo $api_key; ?>",
+				'id_unik': id_unik,
+          	},
+          	dataType: "json",
+          	success: function(response){
+          		get_bidang_urusan().then(function(){
+		  			jQuery('#wrap-loading').hide();
+					jQuery("#modal-crud-renstra .modal-title").html('Mutakhirkan Program');
+		          		jQuery("#modal-crud-renstra .modal-body").html('<table class="table">'
+					      			+'<thead>'
+						          		+'<tr>'
+						          			+'<th class="text-center" style="width: 160px;">Perangkat Daerah</th>'
+						          			+'<th>'+response.data.nama_skpd+'</th>'
+						          		+'</tr>'
+					          			+'<tr>'
+					          				+'<th class="text-center" style="width: 160px;">Urusan</th>'
+					          				+'<th><select class="form-control" name="id_urusan" id="urusan-teks" readonly></select></th>'
+					          			+'</tr>'
+					          			+'<tr>'
+					          				+'<th class="text-center" style="width: 160px;">Bidang</th>'
+					          				+'<th><select class="form-control" name="id_bidang" id="bidang-teks" readonly></select></th>'
+					          			+'</tr>'
+					          			+'<tr>'
+					          				+'<th class="text-center" style="width: 160px;">Tujuan</th>'
+					          				+'<th>'+response.data.tujuan_teks+'</th>'
+					          			+'</tr>'
+					          			+'<tr>'
+					          				+'<th class="text-center" style="width: 160px;">Sasaran</th>'
+					          				+'<th>'+response.data.sasaran_teks+'</th>'
+					          			+'</tr>'
+					          			+'<tr>'
+					          				+'<th class="text-center" style="width: 160px;">Program</th>'
+					          				+'<th><select id="program-teks" name="id_program"></select></th>'
+					          			+'</tr>'
+					      			+'</thead>'
+					      		+'</table>');
+
+						jQuery("#modal-crud-renstra").find('.modal-dialog').css('maxWidth','1350px');
+						jQuery("#modal-crud-renstra").find('.modal-dialog').css('width','100%');
+						jQuery("#modal-crud-renstra").find('.modal-footer').html(''
+								+'<button type="button" class="btn btn-danger" data-dismiss="modal">Tutup</button>'
+								+'<button type="button" class="btn btn-success" onclick=\'mutakhirkanProgram("'+response.data.id_program+'","'+id_unik+'", "'+response.data.id+'")\'>Mutakhirkan</button>');
+		          		jQuery("#modal-crud-renstra").modal('show');
+						get_urusan();
+						get_bidang();
+						get_program();
+						jQuery('#bidang-teks').val(response.data.nama_bidang_urusan).trigger('change');
+		  			});	
+	          	}
+         })
+	}
+
+	function mutakhirkanProgram(id_program_lama, id_unik, id){
+
+		let id_program = jQuery("#program-teks").val();
+		if(id_program == null || id_program=="" || id_program=="undefined"){
+			alert('Wajib memilih program!');
+		}else{
+			jQuery('#wrap-loading').show();
+			jQuery.ajax({
+				url: ajax.url,
+	          	type: "post",
+	          	data: {
+	          		"action": "mutakhirkan_program_renstra",
+	          		"api_key": "<?php echo $api_key; ?>",
+	          		'id': id,
+	          		'id_unik': id_unik,
+					'id_program': id_program,
+					'id_program_lama': id_program_lama,
+			       	'tahun_anggaran': '<?php echo $tahun_anggaran; ?>'
+	          	},
+	          	dataType: "json",
+	          	success: function(response){
+	          		jQuery('#wrap-loading').hide();
+	          		alert(response.message);
+	          		location.reload();
+	          	}
+	        });
+		}
+	}
+
 	function tampilSubKegiatan(id){
 		jQuery('#wrap-loading').show();
 		jQuery.ajax({
@@ -6916,7 +7070,6 @@ $table='<table cellpadding="2" cellspacing="0" style="font-family:\'Open Sans\',
           	},
           	dataType: "json",
           	success: function(response){
-          		console.log(response);
           		get_list_sub_kegiatan({
           			'kode_giat':response.sub_kegiatan.kode_giat,
           			'id_unit': response.sub_kegiatan.id_unit,
@@ -6976,6 +7129,17 @@ $table='<table cellpadding="2" cellspacing="0" style="font-family:\'Open Sans\',
          })
 	}
 
+	function listIndikatorSubKegiatan(){
+		jQuery('#wrap-loading').show();
+		get_master_indikator_subgiat({
+		       'id_sub_giat':jQuery("#select-sub-kegiatan").val(),
+		       'tahun_anggaran':'<?php echo $tahun_anggaran; ?>',
+		}, 'select-indikator-sub-kegiatan').then(function(){
+			jQuery('#wrap-loading').hide();
+	        jQuery(".select-indikator-sub-kegiatan").select2({width: '100%'});
+		});
+	}
+
 	function mutakhirkanSubKegiatan(id_sub_kegiatan_lama, id){
 		
 		let id_sub_kegiatan = jQuery("#select-sub-kegiatan").val();
@@ -7003,20 +7167,9 @@ $table='<table cellpadding="2" cellspacing="0" style="font-family:\'Open Sans\',
 	          	success: function(response){
 	          		jQuery('#wrap-loading').hide();
 	          		alert(response.message);
-	          		// location.reload();
+	          		location.reload();
 	          	}
 	        });
 		}
-	}
-
-	function listIndikatorSubKegiatan(){
-		jQuery('#wrap-loading').show();
-		get_master_indikator_subgiat({
-		       'id_sub_giat':jQuery("#select-sub-kegiatan").val(),
-		       'tahun_anggaran':'<?php echo $tahun_anggaran; ?>',
-		}, 'select-indikator-sub-kegiatan').then(function(){
-			jQuery('#wrap-loading').hide();
-	        jQuery(".select-indikator-sub-kegiatan").select2({width: '100%'});
-		});
 	}
 </script>
