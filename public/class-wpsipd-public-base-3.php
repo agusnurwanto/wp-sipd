@@ -3169,8 +3169,9 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 						FROM data_prog_keg
 						WHERE kode_program=%s
 							AND tahun_anggaran=%d
+							AND active=%d
 							$where
-					", $kode_program, $tahun_anggaran);
+					", $kode_program, $tahun_anggaran, 1);
 					$data = $wpdb->get_results($sql, ARRAY_A);
 
 					$kegiatan = [];
@@ -8984,29 +8985,53 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 						}
 					}
 
-					// update kegiatan sesuai program yang dipilih
-					$result2=$wpdb->query($wpdb->prepare("
-						UPDATE data_renstra_kegiatan_lokal 
-							SET 
-								kode_program='".$programRenstraBaru->id_unik."',
-								id_program=".$programRenstraBaru->id_program.",
-								nama_program='".$programRenstraBaru->nama_program."',
-								update_at='".date('Y-m-d H:i:s')."'
+					// cek kegiatan
+					$checkKegiatan = $wpdb->get_row($wpdb->prepare("
+						SELECT 
+							id 
+						FROM data_renstra_kegiatan_lokal 
 						WHERE 
 							kode_program=%s AND 
 							active=%d", $programRenstraLama->id_unik, 1));
 
-					// update sub kegiatan sesuai program yang dipilih
-					$result3=$wpdb->query($wpdb->prepare("
-						UPDATE data_renstra_sub_kegiatan_lokal 
-							SET 
-								kode_program='".$programRenstraBaru->id_unik."',
-								id_program=".$programRenstraBaru->id_program.",
-								nama_program='".$programRenstraBaru->nama_program."',
-								update_at='".date('Y-m-d H:i:s')."'
+					if(!empty($checkKegiatan)){
+
+						// update kegiatan sesuai program yang dipilih
+						$result2=$wpdb->query($wpdb->prepare("
+							UPDATE data_renstra_kegiatan_lokal 
+								SET 
+									kode_program='".$programRenstraBaru->id_unik."',
+									id_program=".$programRenstraBaru->id_program.",
+									nama_program='".$programRenstraBaru->nama_program."',
+									update_at='".date('Y-m-d H:i:s')."'
+							WHERE 
+								kode_program=%s AND 
+								active=%d", $programRenstraLama->id_unik, 1));
+					}
+
+					// cek sub kegiatan
+					$checkSubKegiatan = $wpdb->get_row($wpdb->prepare("
+						SELECT 
+							id 
+						FROM data_renstra_sub_kegiatan_lokal 
 						WHERE 
 							kode_program=%s AND 
 							active=%d", $programRenstraLama->id_unik, 1));
+
+					if(!empty($checkSubKegiatan)){
+
+						// update sub kegiatan sesuai program yang dipilih
+						$result3=$wpdb->query($wpdb->prepare("
+							UPDATE data_renstra_sub_kegiatan_lokal 
+								SET 
+									kode_program='".$programRenstraBaru->id_unik."',
+									id_program=".$programRenstraBaru->id_program.",
+									nama_program='".$programRenstraBaru->nama_program."',
+									update_at='".date('Y-m-d H:i:s')."'
+							WHERE 
+								kode_program=%s AND 
+								active=%d", $programRenstraLama->id_unik, 1));
+					}
 
 					// non aktifkan program lama dan indikatornya
 					$result4=$wpdb->query($wpdb->prepare("
@@ -9019,19 +9044,61 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 							id_unik=%s AND 
 							active=%d", $programRenstraLama->id_unik, 1));
 
-					if($result1 && $result2 && $result3 && $result4){
-						if(!empty($indikatorprogramRenstraLama)){
-							$res = array_unique($arrStatus);
-							if(count($res) === 1 && $res[0]) {
-							  $wpdb->query('COMMIT');
+					if(!empty($checkKegiatan) && !empty($checkSubKegiatan)){
+						if($result1 && $result2 && $result3 && $result4){
+							if(!empty($indikatorprogramRenstraLama)){
+								$res = array_unique($arrStatus);
+								if(count($res) === 1 && $res[0]) {
+								  $wpdb->query('COMMIT');
+								}else{
+								  $wpdb->query('ROLLBACK');
+								  throw new Exception("Oops terjadi kesalahan mengambil indikator program lama!", 1);
+								}
 							}else{
-							  $wpdb->query('ROLLBACK');
+								$wpdb->query('COMMIT');
 							}
 						}else{
-							$wpdb->query('COMMIT');
+							$wpdb->query('ROLLBACK');
+							throw new Exception("Oops terjadi kesalahan pemutakhiran program baru, cek kegiatan dan sub kegiatan!", 1);
 						}
-					}else{
-						$wpdb->query('ROLLBACK');
+					}
+
+					if(!empty($checkKegiatan) && empty($checkSubKegiatan)){
+						if($result1 && $result2 && $result4){
+							if(!empty($indikatorprogramRenstraLama)){
+								$res = array_unique($arrStatus);
+								if(count($res) === 1 && $res[0]) {
+								  $wpdb->query('COMMIT');
+								}else{
+								  $wpdb->query('ROLLBACK');
+								  throw new Exception("Oops terjadi kesalahan mengambil indikator program lama!", 1);
+								}
+							}else{
+								$wpdb->query('COMMIT');
+							}
+						}else{
+							$wpdb->query('ROLLBACK');
+							throw new Exception("Oops terjadi kesalahan pemutakhiran program baru, cek kegiatan", 1);
+						}
+					}
+
+					if(empty($checkKegiatan) && empty($checkSubKegiatan)){
+						if($result1 && $result4){
+							if(!empty($indikatorprogramRenstraLama)){
+								$res = array_unique($arrStatus);
+								if(count($res) === 1 && $res[0]) {
+								  $wpdb->query('COMMIT');
+								}else{
+								  $wpdb->query('ROLLBACK');
+								  throw new Exception("Oops terjadi kesalahan mengambil indikator program lama!", 1);
+								}
+							}else{
+								$wpdb->query('COMMIT');
+							}
+						}else{
+							$wpdb->query('ROLLBACK');
+							throw new Exception("Oops terjadi kesalahan pemutakhiran program baru", 1);
+						}
 					}
 
 					echo json_encode([
@@ -9050,5 +9117,329 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 				'message' => $e->getMessage()
 			]);exit();
 		}
+    }
+
+    public function listKegiatanByProgram(){
+    	global $wpdb;
+
+    	try{
+
+    		if (!empty($_POST)) {
+				if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+					$tahun_anggaran = get_option('_crb_tahun_anggaran_sipd');
+					$kode_program = $wpdb->get_var($wpdb->prepare("
+						SELECT 
+							kode_program 
+						FROM data_prog_keg
+						WHERE id_program=%d", $_POST['id_program']));
+
+					$where = '';
+					$cek_pemda = $this->cek_kab_kot();
+					// tahun 2024 sudah menggunakan sipd-ri
+					
+					if(
+						$cek_pemda['status'] == 1 
+						&& $tahun_anggaran >= 2024
+					){
+						$where .= ' AND set_kab_kota=1';
+					}else if($cek_pemda['status'] == 2){
+						$where .= ' AND set_prov=1';
+					}
+
+					$sql = $wpdb->prepare("
+							SELECT 
+								* 
+							FROM data_prog_keg
+							WHERE kode_program=%s
+								AND tahun_anggaran=%d
+								AND active=%d
+								$where
+						", $kode_program, $tahun_anggaran, 1);
+					$data = $wpdb->get_results($sql, ARRAY_A);
+
+					$kegiatan = [];
+					foreach ($data as $key => $value) {
+						if(empty($kegiatan[$value['kode_giat']])){
+							$kegiatan[$value['kode_giat']] = [
+								'id' => $value['id_giat'],
+								'kegiatan_teks' => $value['nama_giat']
+							];
+						}
+					}
+
+					echo json_encode([
+						'status' => true,
+						'data' => array_values($kegiatan)
+					]);exit();
+				}else{
+					throw new Exception("Api key tidak sesuai", 1);
+				}
+			}else{
+				throw new Exception("Format tidak sesuai", 1);	
+			}
+    	}catch(Exception $e){
+    		echo json_encode([
+				'status' => false,
+				'message' => $e->getMessage()
+			]);exit();
+    	}
+    }
+
+    public function mutakhirkan_kegiatan_renstra(){
+    	global $wpdb;
+
+    	try{
+    		if (!empty($_POST)) {
+				if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+
+					$kegiatanRenstraLama = $wpdb->get_row($wpdb->prepare("
+											SELECT 
+												* 
+											FROM data_renstra_kegiatan_lokal
+											WHERE id=%d 
+												AND active=1 
+											order by id ASC
+										", $_POST['id']));
+
+					if(empty($kegiatanRenstraLama)){
+						throw new Exception('Kegiatan lama tidak ditemukan!');
+					}
+
+					$kegiatanBaru = $wpdb->get_row($wpdb->prepare("
+											SELECT 
+												* 
+											FROM data_prog_keg 
+											WHERE id_giat=%d 
+												AND tahun_anggaran=%d 
+												AND active=1 
+											order by id ASC
+										", $_POST['id_giat'], $_POST['tahun_anggaran']));
+					
+					if(empty($kegiatanBaru)){
+						throw new Exception('Kegiatan baru tidak ditemukan di data master tahun anggaran '.$_POST['tahun_anggaran'].'!');
+					}
+
+					$result1 = $wpdb->insert('data_renstra_kegiatan_lokal', [
+							'bidur_lock' => $kegiatanRenstraLama->bidur_lock,
+							'giat_lock' => $kegiatanRenstraLama->giat_lock,
+							'id_bidang_urusan' => $kegiatanBaru->id_bidang_urusan,
+							'id_giat' => $kegiatanBaru->id_giat,
+							'id_misi' => $kegiatanRenstraLama->id_misi,
+							'id_program' => $kegiatanBaru->id_program,
+							'id_unik' => $this->generateRandomString(), // kode_kegiatan
+							'id_unit' => $kegiatanRenstraLama->id_unit,
+							'id_visi' => $kegiatanRenstraLama->id_visi,
+							'is_locked' => $kegiatanRenstraLama->is_locked,
+							'is_locked_indikator' => $kegiatanRenstraLama->is_locked_indikator,
+							'kode_bidang_urusan' => $kegiatanBaru->kode_bidang_urusan,
+							'kode_giat' => $kegiatanBaru->kode_giat,
+							'kode_program' => $kegiatanRenstraLama->kode_program,
+							'kode_sasaran' => $kegiatanRenstraLama->kode_sasaran,
+							'kode_skpd' => $kegiatanRenstraLama->kode_skpd,
+							'kode_tujuan' => $kegiatanRenstraLama->kode_tujuan,
+							'nama_bidang_urusan' => $kegiatanBaru->nama_bidang_urusan,
+							'nama_giat' => $kegiatanBaru->nama_giat,
+							'nama_program' => $kegiatanBaru->nama_program,
+							'nama_skpd' => $kegiatanRenstraLama->nama_skpd,
+							'program_lock' => $kegiatanRenstraLama->program_lock,
+							'renstra_prog_lock' => $kegiatanRenstraLama->program_lock,
+							'sasaran_lock' => $kegiatanRenstraLama->sasaran_lock,
+							'sasaran_teks' => $kegiatanRenstraLama->sasaran_teks,
+							'status' => $kegiatanRenstraLama->status,
+							'tujuan_lock' => $kegiatanRenstraLama->tujuan_lock,
+							'tujuan_teks' => $kegiatanRenstraLama->tujuan_teks,
+							'urut_sasaran' => $kegiatanRenstraLama->urut_sasaran,
+							'urut_tujuan' => $kegiatanRenstraLama->urut_tujuan,
+							'catatan_usulan' => $kegiatanRenstraLama->catatan_usulan,
+							'catatan' => $kegiatanRenstraLama->catatan,
+							'active' => $kegiatanRenstraLama->active,
+							'id_giat_lama' => $_POST['id_giat_lama']
+					]);
+
+					$kegiatanRenstraBaru = $wpdb->get_row($wpdb->prepare("
+											SELECT 
+												* 
+											FROM data_renstra_kegiatan_lokal
+											WHERE id_giat=%d 
+												AND active=1 
+											order by id ASC
+										", $_POST['id_giat']));
+
+					if(empty($kegiatanRenstraBaru)){
+						throw new Exception('Kegiatan baru tidak ditemukan!');
+					}
+
+					$indikatorKegiatanRenstraLama = $wpdb->get_results($wpdb->prepare("
+											SELECT 
+												* 
+											FROM data_renstra_kegiatan_lokal
+											WHERE id_unik=%s 
+												AND id_unik_indikator IS NOT NULL
+												AND active=1 
+											order by id ASC
+										", $_POST['id_unik']));
+
+					if(!empty($indikatorKegiatanRenstraLama)){
+						
+						// insert indikator kegiatan baru
+						$arrStatus = [];
+						foreach ($indikatorKegiatanRenstraLama as $key => $indikatorKegiatan) {
+							$arrStatus[] = $wpdb->insert('data_renstra_kegiatan_lokal', [
+									'bidur_lock' => $indikatorKegiatan->bidur_lock,
+									'giat_lock' => $indikatorKegiatan->giat_lock,
+									'id_bidang_urusan' => $kegiatanRenstraBaru->id_bidang_urusan,
+									'id_giat' => $kegiatanRenstraBaru->id_giat,
+									'id_misi' => $kegiatanRenstraLama->id_misi,
+									'id_program' => $kegiatanRenstraBaru->id_program,
+									'id_unik' => $kegiatanRenstraBaru->id_unik,
+									'id_unik_indikator' => $this->generateRandomString(),
+									'id_unit' => $kegiatanRenstraLama->id_unit,
+									'id_visi' => $kegiatanRenstraLama->id_visi,
+									'is_locked' => $kegiatanRenstraLama->is_locked,
+									'is_locked_indikator' => $kegiatanRenstraLama->is_locked_indikator,
+									'kode_bidang_urusan' => $kegiatanRenstraBaru->kode_bidang_urusan,
+									'kode_giat' => $kegiatanRenstraBaru->kode_giat,
+									'kode_program' => $kegiatanRenstraLama->kode_program,
+									'kode_sasaran' => $kegiatanRenstraLama->kode_sasaran,
+									'kode_skpd' => $kegiatanRenstraLama->kode_skpd,
+									'kode_tujuan' => $kegiatanRenstraLama->kode_tujuan,
+									'nama_bidang_urusan' => $kegiatanRenstraBaru->nama_bidang_urusan,
+									'nama_giat' => $kegiatanRenstraBaru->nama_giat,
+									'nama_program' => $kegiatanRenstraBaru->nama_program,
+									'nama_skpd' => $kegiatanRenstraLama->nama_skpd,
+
+									'indikator' => $indikatorKegiatan->indikator,
+									'satuan' => $indikatorKegiatan->satuan,
+									'pagu_1' => $indikatorKegiatan->pagu_1,
+									'pagu_2' => $indikatorKegiatan->pagu_2,
+									'pagu_3' => $indikatorKegiatan->pagu_3,
+									'pagu_4' => $indikatorKegiatan->pagu_4,
+									'pagu_5' => $indikatorKegiatan->pagu_5,
+									'target_1' => $indikatorKegiatan->target_1,
+									'target_2' => $indikatorKegiatan->target_2,
+									'target_3' => $indikatorKegiatan->target_3,
+									'target_4' => $indikatorKegiatan->target_4,
+									'target_5' => $indikatorKegiatan->target_5,
+									'target_akhir' => $indikatorKegiatan->target_akhir,
+									'target_awal' => $indikatorKegiatan->target_awal,
+
+									'indikator_usulan' => $indikatorKegiatan->indikator_usulan,
+									'satuan_usulan' => $indikatorKegiatan->satuan_usulan,
+									'pagu_1_usulan' => $indikatorKegiatan->pagu_1_usulan,
+									'pagu_2_usulan' => $indikatorKegiatan->pagu_2_usulan,
+									'pagu_3_usulan' => $indikatorKegiatan->pagu_3_usulan,
+									'pagu_4_usulan' => $indikatorKegiatan->pagu_4_usulan,
+									'pagu_5_usulan' => $indikatorKegiatan->pagu_5_usulan,
+									'target_1_usulan' => $indikatorKegiatan->target_1_usulan,
+									'target_2_usulan' => $indikatorKegiatan->target_2_usulan,
+									'target_3_usulan' => $indikatorKegiatan->target_3_usulan,
+									'target_4_usulan' => $indikatorKegiatan->target_4_usulan,
+									'target_5_usulan' => $indikatorKegiatan->target_5_usulan,
+									'target_akhir_usulan' => $indikatorKegiatan->target_akhir_usulan,
+									'target_awal_usulan' => $indikatorKegiatan->target_awal_usulan,
+
+									'program_lock' => $kegiatanRenstraLama->program_lock,
+									'renstra_prog_lock' => $kegiatanRenstraLama->program_lock,
+									'sasaran_lock' => $kegiatanRenstraLama->sasaran_lock,
+									'sasaran_teks' => $kegiatanRenstraLama->sasaran_teks,
+									'status' => $kegiatanRenstraLama->status,
+									'tujuan_lock' => $kegiatanRenstraLama->tujuan_lock,
+									'tujuan_teks' => $kegiatanRenstraLama->tujuan_teks,
+									'urut_sasaran' => $kegiatanRenstraLama->urut_sasaran,
+									'urut_tujuan' => $kegiatanRenstraLama->urut_tujuan,
+									'active' => $kegiatanRenstraLama->active,
+									'id_giat_lama' => $_POST['id_giat_lama']
+							]);
+						}
+					}
+
+					// cek sub kegiatan
+					$checkSubKegiatan = $wpdb->get_row($wpdb->prepare("
+						SELECT 
+							id 
+						FROM data_renstra_sub_kegiatan_lokal 
+						WHERE 
+							kode_kegiatan=%s AND 
+							active=%d", $kegiatanRenstraLama->id_unik, 1));
+
+					if(!empty($checkSubKegiatan)){
+
+						// update sub kegiatan sesuai kegiatan yang dipilih
+						$result2=$wpdb->query($wpdb->prepare("
+							UPDATE data_renstra_sub_kegiatan_lokal 
+								SET 
+									kode_giat='".$kegiatanRenstraBaru->id_unik."',
+									id_giat=".$kegiatanRenstraBaru->id_program.",
+									nama_giat='".$kegiatanRenstraBaru->nama_giat."',
+									update_at='".date('Y-m-d H:i:s')."'
+							WHERE 
+								kode_kegiatan=%s AND 
+								active=%d", $kegiatanRenstraLama->id_unik, 1));
+					}
+
+					// non aktifkan kegiatan lama dan indikatornya
+					$result3=$wpdb->query($wpdb->prepare("
+						UPDATE data_renstra_kegiatan_lokal 
+							SET 
+								active=0,
+								status=0,
+								update_at='".date('Y-m-d H:i:s')."'
+						WHERE 
+							id_unik=%s AND 
+							active=%d", $kegiatanRenstraLama->id_unik, 1));
+
+					if(!empty($checkSubKegiatan)){
+						if($result1 && $result2 && $result3){
+							if(!empty($indikatorKegiatanRenstraLama)){
+								$res = array_unique($arrStatus);
+								if(count($res) === 1 && $res[0]) {
+								  $wpdb->query('COMMIT');
+								}else{
+								  $wpdb->query('ROLLBACK');
+								  throw new Exception("Oops terjadi kesalahan mengambil indikator kegiatan lama!", 1);
+								}
+							}else{
+								$wpdb->query('COMMIT');
+							}
+						}else{
+							$wpdb->query('ROLLBACK');
+							throw new Exception("Oops terjadi kesalahan pemutakhiran kegiatan baru, cek sub kegiatan!", 1);
+						}
+					}else{
+						if($result1 && $result3){
+							if(!empty($indikatorKegiatanRenstraLama)){
+								$res = array_unique($arrStatus);
+								if(count($res) === 1 && $res[0]) {
+								  $wpdb->query('COMMIT');
+								}else{
+								  $wpdb->query('ROLLBACK');
+								  throw new Exception("Oops terjadi kesalahan mengambil indikator kegiatan lama!", 1);
+								}
+							}else{
+								$wpdb->query('COMMIT');
+							}
+						}else{
+							$wpdb->query('ROLLBACK');
+							throw new Exception("Oops terjadi kesalahan pemutakhiran kegiatan baru, cek sub kegiatan!", 1);
+						}
+					}
+
+					echo json_encode([
+						'status' => true,
+						'message' => 'Sukses mutakhirkan kegiatan!'
+					]);exit();
+
+				}else{
+					throw new Exception("Api key tidak sesuai", 1);
+				}
+			}else{
+				throw new Exception("Format tidak sesuai", 1);
+			}
+    	}catch(Exception $e){
+    		echo json_encode([
+				'status' => false,
+				'message' => $e->getMessage()
+			]);exit();
+    	}
     }
 }

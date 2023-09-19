@@ -883,6 +883,8 @@ class Wpsipd
 
 		$this->loader->add_action('wp_ajax_mutakhirkan_sub_kegiatan_renstra',  $plugin_public, 'mutakhirkan_sub_kegiatan_renstra');
 		$this->loader->add_action('wp_ajax_mutakhirkan_program_renstra',  $plugin_public, 'mutakhirkan_program_renstra');
+		$this->loader->add_action('wp_ajax_list_kegiatan_by_program_renstra',  $plugin_public, 'listKegiatanByProgram');
+		$this->loader->add_action('wp_ajax_mutakhirkan_kegiatan_renstra',  $plugin_public, 'mutakhirkan_kegiatan_renstra');
 		
 		add_shortcode('menu_monev',  array($plugin_public, 'menu_monev'));
 		add_shortcode('datassh', array($plugin_public, 'datassh'));
