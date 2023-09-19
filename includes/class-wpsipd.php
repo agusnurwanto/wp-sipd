@@ -59,6 +59,7 @@ class Wpsipd
 	protected $version;
 
 	protected $simda;
+	protected $sipkd;
 
 	/**
 	 * Define the core functionality of the plugin.
