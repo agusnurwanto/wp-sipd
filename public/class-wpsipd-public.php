@@ -47,6 +47,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 	private $version;
 
 	private $simda;
+	private $sipkd;
 
 	/**
 	 * Initialize the class and set its properties.

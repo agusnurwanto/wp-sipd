@@ -28,6 +28,8 @@ class Wpsipd_Sipkd
 	 * @param      string    $version    The version of this plugin.
 	 */
 
+	private $status_koneksi_sipkd;
+
 	public function __construct($plugin_name, $version){
 
 		$this->plugin_name = $plugin_name;

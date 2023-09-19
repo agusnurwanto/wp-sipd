@@ -47,6 +47,7 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes {
 	private $version;
 
 	private $simda;
+	private $sipkd;
 
 	/**
 	 * Initialize the class and set its properties.
@@ -667,25 +668,31 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes {
 		if(!empty($status_lisensi_ket)){
 			$status_lisensi_ket = ' Status: <b style="'.$warna.'">'.$status_lisensi_ket.'</b>';
 		}else{
-			$_POST['server'] = get_option('_crb_server_wp_sipd');
-	    	$_POST['api_key_server'] = get_option('_crb_server_wp_sipd_api_key');
-	    	$_POST['no_wa'] = get_option('_crb_no_wa');
-			$_POST['pemda'] = get_option('_crb_daerah');
-			$response = json_decode($this->generate_lisensi(true));
-			if($response->status == 'success'){
-				$status_lisensi = get_option('_crb_status_lisensi');
-				$warna = "";
-				if($status_lisensi == 'pending'){
-					$warna = "color: #979700;";
-				}else if($status_lisensi == 'active'){
-					$warna = "color: green;";
-				}else if($status_lisensi == 'expired'){
-					$warna = "color: red;";
+			$server = get_option('_crb_server_wp_sipd');
+			if(!empty($server)){
+				$_POST['server'] = $server;
+		    	$_POST['api_key_server'] = get_option('_crb_server_wp_sipd_api_key');
+		    	$_POST['no_wa'] = get_option('_crb_no_wa');
+				$_POST['pemda'] = get_option('_crb_daerah');
+				$response = json_decode($this->generate_lisensi(true));
+				if($response->status == 'success'){
+					$status_lisensi = get_option('_crb_status_lisensi');
+					$warna = "";
+					if($status_lisensi == 'pending'){
+						$warna = "color: #979700;";
+					}else if($status_lisensi == 'active'){
+						$warna = "color: green;";
+					}else if($status_lisensi == 'expired'){
+						$warna = "color: red;";
+					}
+					$status_lisensi_ket = get_option('_crb_status_lisensi_ket');
+					if(!empty($status_lisensi_ket)){
+						$status_lisensi_ket = ' Status: <b style="'.$warna.'">'.$status_lisensi_ket.'</b>';
+					}
 				}
-				$status_lisensi_ket = get_option('_crb_status_lisensi_ket');
-				if(!empty($status_lisensi_ket)){
-					$status_lisensi_ket = ' Status: <b style="'.$warna.'">'.$status_lisensi_ket.'</b>';
-				}
+			}else{
+				$warna = "color: red;";
+				$status_lisensi_ket = ' Status: <b style="'.$warna.'">Proses inisiasi data awal!</b>';
 			}
 		}
 		return $status_lisensi_ket;
