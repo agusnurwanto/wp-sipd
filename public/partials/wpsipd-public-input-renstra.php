@@ -163,6 +163,9 @@ $data_all = array(
 	'pagu_akumulasi_3_usulan' => 0,
 	'pagu_akumulasi_4_usulan' => 0,
 	'pagu_akumulasi_5_usulan' => 0,
+	'pemutakhiran_program' => 0,
+	'pemutakhiran_kegiatan' => 0,
+	'pemutakhiran_sub_kegiatan' => 0,
 );
 
 $tujuan_ids = array();
@@ -344,6 +347,30 @@ foreach ($tujuan_all as $keyTujuan => $tujuan_value) {
 
 					foreach ($program_all as $keyProgram => $program_value) {
 						if(empty($data_all['data'][$tujuan_value['id_unik']]['data'][$sasaran_value['id_unik']]['data'][$program_value['id_unik']])){
+
+
+							// check program ke master data_prog_keg
+							$checkProgram = $wpdb->get_row($wpdb->prepare("
+											SELECT 
+												id_program 
+											FROM 
+												data_prog_keg 
+											WHERE 
+												kode_program=%s AND
+												active=%d AND
+												tahun_anggaran=%d
+												", 
+										$program_value['kode_program'],
+										1,
+										$input['tahun_anggaran']
+							), ARRAY_A);
+										
+							$statusMutakhirProgram = 1;
+							if(empty($checkProgram['id_program'])){
+								$statusMutakhirProgram = 0;
+								$data_all['pemutakhiran_program']++;
+							}
+
 							$data_all['data'][$tujuan_value['id_unik']]['data'][$sasaran_value['id_unik']]['data'][$program_value['id_unik']] = [
 								'id' => $program_value['id'],
 								'id_unik' => $program_value['id_unik'],
@@ -371,6 +398,7 @@ foreach ($tujuan_all as $keyTujuan => $tujuan_value) {
 								'pagu_akumulasi_indikator_4_usulan' => 0,
 								'pagu_akumulasi_indikator_5_usulan' => 0,
 								'indikator' => array(),
+								'statusMutakhirProgram' => $statusMutakhirProgram,
 								'data' => array()
 							];
 						}
@@ -446,6 +474,28 @@ foreach ($tujuan_all as $keyTujuan => $tujuan_value) {
 										
 							if(empty($data_all['data'][$tujuan_value['id_unik']]['data'][$sasaran_value['id_unik']]['data'][$program_value['id_unik']]['data'][$kegiatan_value['id_unik']])){
 
+								// check kegiatan ke master data_prog_keg
+								$checkKegiatan = $wpdb->get_row($wpdb->prepare("
+													SELECT 
+														id_giat 
+													FROM 
+														data_prog_keg 
+													WHERE 
+														kode_giat=%s AND
+														active=%d AND
+														tahun_anggaran=%d
+														", 
+												$kegiatan_value['kode_giat'],
+												1,
+												$input['tahun_anggaran']
+											), ARRAY_A);
+											
+								$statusMutakhirKegiatan = 1;
+								if(empty($checkKegiatan['id_giat'])){
+									$statusMutakhirKegiatan = 0;
+									$data_all['pemutakhiran_kegiatan']++;
+								}
+
 								$data_all['data'][$tujuan_value['id_unik']]['data'][$sasaran_value['id_unik']]['data'][$program_value['id_unik']]['data'][$kegiatan_value['id_unik']] = [
 									'id' => $kegiatan_value['id'],
 									'id_unik' => $kegiatan_value['id_unik'],
@@ -473,6 +523,7 @@ foreach ($tujuan_all as $keyTujuan => $tujuan_value) {
 									'pagu_akumulasi_indikator_4_usulan' => 0,
 									'pagu_akumulasi_indikator_5_usulan' => 0,
 									'indikator' => array(),
+									'statusMutakhirKegiatan' => $statusMutakhirKegiatan,
 									'data' => array(),
 								];
 							}
@@ -605,6 +656,28 @@ foreach ($tujuan_all as $keyTujuan => $tujuan_value) {
 										$data_all['pagu_akumulasi_4_usulan']+=$sub_kegiatan_value['pagu_4_usulan'];
 										$data_all['pagu_akumulasi_5_usulan']+=$sub_kegiatan_value['pagu_5_usulan'];
 
+										// check sub kegiatan ke master data_prog_keg
+										$checkSubKeg = $wpdb->get_row($wpdb->prepare("
+												SELECT 
+													id_sub_giat 
+												FROM 
+													data_prog_keg 
+												WHERE 
+													kode_sub_giat=%s AND
+													active=%d AND
+													tahun_anggaran=%d
+													", 
+												$sub_kegiatan_value['kode_sub_giat'],
+												1,
+												$input['tahun_anggaran']
+											), ARRAY_A);
+										
+										$statusMutakhirSubKeg = 1;
+										if(empty($checkSubKeg['id_sub_giat'])){
+											$statusMutakhirSubKeg = 0;
+											$data_all['pemutakhiran_sub_kegiatan']++;
+										}
+
 										$data_all['data'][$tujuan_value['id_unik']]['data'][$sasaran_value['id_unik']]['data'][$program_value['id_unik']]['data'][$kegiatan_value['id_unik']]['data'][$sub_kegiatan_value['id_unik']] = [
 											'id' => $sub_kegiatan_value['id'],
 											'id_unik' => $sub_kegiatan_value['id_unik'],
@@ -623,6 +696,7 @@ foreach ($tujuan_all as $keyTujuan => $tujuan_value) {
 											'pagu_5_usulan' => $sub_kegiatan_value['pagu_5_usulan'],
 											'id_sub_unit' => $sub_kegiatan_value['id_sub_unit'],
 											'nama_sub_unit' => $sub_kegiatan_value['nama_sub_unit'],
+											'statusMutakhirSubKeg' => $statusMutakhirSubKeg,
 											'indikator' => array(),
 										];
 									}
@@ -1857,6 +1931,14 @@ foreach ($data_all['data'] as $tujuan) {
 			$target_akhir_usulan = '';
 			$satuan_usulan = '';
 			$catatan_indikator_usulan = '';
+
+			$isMutakhir='';
+			if(!empty($add_renstra)){
+				if(!$program['statusMutakhirProgram']){
+					$isMutakhir='<button class="btn-sm btn-warning" onclick="tampilProgram(\''.$program['id_unik'].'\')" style="margin: 1px;"><i class="dashicons dashicons-update" title="Mutakhirkan"></i></button>';
+				}
+			}
+
 			foreach($program['indikator'] as $key => $indikator){
 				$indikator_program .= '<div class="indikator">'.$indikator['indikator_teks'].'</div>';
 				$target_awal .= '<div class="indikator">'.$indikator['target_awal'].'</div>';
@@ -1911,7 +1993,7 @@ foreach ($data_all['data'] as $tujuan) {
 						<td class="atas kanan bawah"></td>
 						<td class="atas kanan bawah"></td>
 						<td class="atas kanan bawah"></td>
-						<td class="atas kanan bawah">'.$program['program_teks'].'</td>
+						<td class="atas kanan bawah">'.$program['program_teks']."".$isMutakhir.'</td>
 						<td class="atas kanan bawah"></td>
 						<td class="atas kanan bawah"></td>
 						<td class="atas kanan bawah"><br>'.$indikator_program.'</td>
@@ -1932,6 +2014,7 @@ foreach ($data_all['data'] as $tujuan) {
 						<td class="atas kanan bawah">'.$program['catatan'].'</td>
 						<td class="atas kanan bawah"><br>'.$catatan_indikator.'</td>
 						<td class="atas kanan bawah td-usulan"><br>'.$indikator_program_usulan.'</td>
+						<td class="atas kanan bawah"></td>
 						<td class="atas kanan bawah text_tengah td-usulan"><br>'.$target_awal_usulan.'</td>';
 						for ($i=0; $i < $lama_pelaksanaan; $i++) {
 							$class_warning = '';
@@ -1983,6 +2066,16 @@ foreach ($data_all['data'] as $tujuan) {
 				$target_akhir_usulan = '';
 				$satuan_usulan = '';
 				$catatan_indikator_usulan = '';
+
+				$isMutakhir='';
+				$bgIsMutakhir='';
+				if(!empty($add_renstra)){
+					if(!$kegiatan['statusMutakhirKegiatan']){
+						$bgIsMutakhir='#d013133d';
+						$isMutakhir='<button class="btn-sm btn-warning" onclick="tampilKegiatan(\''.$kegiatan['id'].'\')" style="margin: 1px;"><i class="dashicons dashicons-update" title="Mutakhirkan"></i></button>';
+					}
+				}
+
 				foreach($kegiatan['indikator'] as $key => $indikator){
 					$indikator_kegiatan .= '<div class="indikator">'.$indikator['indikator_teks'].'</div>';
 					$target_awal .= '<div class="indikator">'.$indikator['target_awal'].'</div>';
@@ -2028,7 +2121,7 @@ foreach ($data_all['data'] as $tujuan) {
 							<td class="atas kanan bawah"></td>
 							<td class="atas kanan bawah"></td>
 							<td class="atas kanan bawah"></td>
-							<td class="atas kanan bawah">'.$kegiatan['kegiatan_teks'].'</td>
+							<td class="atas kanan bawah">'.$kegiatan['kegiatan_teks']."".$isMutakhir.'</td>
 							<td class="atas kanan bawah"></td>
 							<td class="atas kanan bawah"><br>'.$indikator_kegiatan.'</td>
 							<td class="atas kanan bawah text_tengah"><br>'.$target_awal.'</td>';
@@ -2047,6 +2140,7 @@ foreach ($data_all['data'] as $tujuan) {
 							<td class="atas kanan bawah">'.$kegiatan['catatan'].'</td>
 							<td class="atas kanan bawah"><br>'.$catatan_indikator.'</td>
 							<td class="atas kanan bawah td-usulan"><br>'.$indikator_kegiatan_usulan.'</td>
+							<td class="atas kanan bawah"></td>
 							<td class="atas kanan bawah text_tengah td-usulan"><br>'.$target_awal_usulan.'</td>';
 							for ($i=0; $i < $lama_pelaksanaan; $i++) {
 								$class_warning = '';
@@ -2099,6 +2193,15 @@ foreach ($data_all['data'] as $tujuan) {
 					$satuan_usulan = '';
 					$catatan_indikator_usulan = '';
 
+					$isMutakhir='';
+					$bgIsMutakhir='';
+					if(!empty($add_renstra)){
+						if(!$sub_kegiatan['statusMutakhirSubKeg']){
+							$bgIsMutakhir='#d013133d';
+							$isMutakhir='<button class="btn-sm btn-warning" onclick="tampilSubKegiatan(\''.$sub_kegiatan['id'].'\')" style="margin: 1px;"><i class="dashicons dashicons-update" title="Mutakhirkan"></i></button>';
+						}
+					}
+
 					foreach ($sub_kegiatan['indikator'] as $key => $indikator) {
 						$indikator_sub_kegiatan .= '<div class="indikator">'.$indikator['indikator_teks'].'</div>';
 						$target_awal .= '<div class="indikator">'.$indikator['target_awal'].'</div>';
@@ -2125,7 +2228,7 @@ foreach ($data_all['data'] as $tujuan) {
 					$target_arr = [$target_1, $target_2, $target_3, $target_4, $target_5];
 					$target_arr_usulan = [$target_1_usulan, $target_2_usulan, $target_3_usulan, $target_4_usulan, $target_5_usulan];
 					$body .= '
-							<tr class="tr-sub-kegiatan">
+							<tr class="tr-sub-kegiatan" style="background:'.$bgIsMutakhir.'">
 								<td class="kiri atas kanan bawah'.$bg_rpjm.'">'.$no_tujuan.'.'.$no_sasaran.'.'.$no_program.'.'.$no_kegiatan.'.'.$no_sub_kegiatan.'</td>
 								<td class="atas kanan bawah'.$bg_rpjm.'"></td>
 								<td class="atas kanan bawah"></td>
@@ -2133,7 +2236,7 @@ foreach ($data_all['data'] as $tujuan) {
 								<td class="atas kanan bawah"></td>
 								<td class="atas kanan bawah"></td>
 								<td class="atas kanan bawah"></td>
-								<td class="atas kanan bawah">'.$sub_kegiatan['sub_kegiatan_teks'].'</td>
+								<td class="atas kanan bawah">'.$sub_kegiatan['sub_kegiatan_teks']."".$isMutakhir.'</td>
 								<td class="atas kanan bawah"><br>'.$indikator_sub_kegiatan.'</td>
 								<td class="atas kanan bawah text_tengah"><br>'.$target_awal.'</td>';
 								for ($i=0; $i < $lama_pelaksanaan; $i++) {
@@ -2163,6 +2266,11 @@ foreach ($data_all['data'] as $tujuan) {
 			}
 		}
 	}
+}
+
+$warning_pemutakhiran = 'bg-success';
+if($data_all['pemutakhiran_program'] > 0 || $data_all['pemutakhiran_kegiatan'] > 0 || $data_all['pemutakhiran_sub_kegiatan'] > 0){
+	$warning_pemutakhiran = 'bg-danger';
 }
 
 $table='<table cellpadding="2" cellspacing="0" style="font-family:\'Open Sans\',-apple-system,BlinkMacSystemFont,\'Segoe UI\',sans-serif; border-collapse: collapse; font-size: 80%; border: 0; table-layout: fixed;margin:30px 0px 30px 0px" contenteditable="false">
@@ -2197,7 +2305,24 @@ $table='<table cellpadding="2" cellspacing="0" style="font-family:\'Open Sans\',
 		$table.='
 				</tr>
 			</tbody>
-		</table>';
+		</table>
+		<h4 class="text-center">Informasi Pemutakhiran Data</h4>
+		<table class="table table-bordered" cellpadding="2" cellspacing="0" style="font-family:\'Open Sans\',-apple-system,BlinkMacSystemFont,\'Segoe UI\',sans-serif; border-collapse: collapse; font-size: 80%; border: 0; table-layout: fixed;margin:30px 0px 30px 0px" contenteditable="false">
+            <thead>
+                <tr>
+                    <th class="text-center">Program</th>
+                    <th class="text-center">Kegiatan</th>
+                    <th class="text-center">Sub Kegiatan</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr class="'.$warning_pemutakhiran.'">
+                    <td style="font-weight:bold;; mso-number-format:\@;" class="text-center">'.$data_all['pemutakhiran_program'].'</td>
+                    <td style="font-weight:bold;; mso-number-format:\@;" class="text-center">'.$data_all['pemutakhiran_kegiatan'].'</td>
+                    <td style="font-weight:bold;; mso-number-format:\@;" class="text-center">'.$data_all['pemutakhiran_sub_kegiatan'].'</td>
+                </tr>
+            </tbody>
+        </table>';
 ?>
 <link href="https://cdnjs.cloudflare.com/ajax/libs/slim-select/1.27.1/slimselect.min.css" rel="stylesheet">
 <style type="text/css">
@@ -6177,9 +6302,7 @@ $table='<table cellpadding="2" cellspacing="0" style="font-family:\'Open Sans\',
 	}
 
 	function subKegiatanRenstra(params){
-
 		jQuery('#wrap-loading').show();
-
 		jQuery.ajax({
 			method:'POST',
 			url:ajax.url,
@@ -6276,7 +6399,6 @@ $table='<table cellpadding="2" cellspacing="0" style="font-family:\'Open Sans\',
 						jQuery('.nav-tabs a[href="#nav-sub-kegiatan"]').tab('show');
 			}
 		})
-
 	}
 
 	function indikatorSubKegiatanRenstra(params){
@@ -6852,5 +6974,319 @@ $table='<table cellpadding="2" cellspacing="0" style="font-family:\'Open Sans\',
 			        }
 			});
 		})
+	}
+
+	function tampilProgram(id_unik){
+		jQuery('#wrap-loading').show();
+		jQuery.ajax({
+			url: ajax.url,
+          	type: "post",
+          	data: {
+          		"action": "edit_program_renstra",
+          		"api_key": "<?php echo $api_key; ?>",
+				'id_unik': id_unik,
+          	},
+          	dataType: "json",
+          	success: function(response){
+          		get_bidang_urusan().then(function(){
+		  			jQuery('#wrap-loading').hide();
+					jQuery("#modal-crud-renstra .modal-title").html('Mutakhirkan Program');
+		          		jQuery("#modal-crud-renstra .modal-body").html('<table class="table">'
+					      			+'<thead>'
+						          		+'<tr>'
+						          			+'<th class="text-center" style="width: 160px;">Perangkat Daerah</th>'
+						          			+'<th>'+response.data.nama_skpd+'</th>'
+						          		+'</tr>'
+					          			+'<tr>'
+					          				+'<th class="text-center" style="width: 160px;">Urusan</th>'
+					          				+'<th><select class="form-control" name="id_urusan" id="urusan-teks" readonly></select></th>'
+					          			+'</tr>'
+					          			+'<tr>'
+					          				+'<th class="text-center" style="width: 160px;">Bidang</th>'
+					          				+'<th><select class="form-control" name="id_bidang" id="bidang-teks" readonly></select></th>'
+					          			+'</tr>'
+					          			+'<tr>'
+					          				+'<th class="text-center" style="width: 160px;">Tujuan</th>'
+					          				+'<th>'+response.data.tujuan_teks+'</th>'
+					          			+'</tr>'
+					          			+'<tr>'
+					          				+'<th class="text-center" style="width: 160px;">Sasaran</th>'
+					          				+'<th>'+response.data.sasaran_teks+'</th>'
+					          			+'</tr>'
+					          			+'<tr>'
+					          				+'<th class="text-center" style="width: 160px;">Program</th>'
+					          				+'<th><select id="program-teks" name="id_program"></select></th>'
+					          			+'</tr>'
+					      			+'</thead>'
+					      		+'</table>');
+
+						jQuery("#modal-crud-renstra").find('.modal-dialog').css('maxWidth','1350px');
+						jQuery("#modal-crud-renstra").find('.modal-dialog').css('width','100%');
+						jQuery("#modal-crud-renstra").find('.modal-footer').html(''
+								+'<button type="button" class="btn btn-danger" data-dismiss="modal">Tutup</button>'
+								+'<button type="button" class="btn btn-success" onclick=\'mutakhirkanProgram("'+response.data.id_program+'","'+id_unik+'", "'+response.data.id+'")\'>Mutakhirkan</button>');
+		          		jQuery("#modal-crud-renstra").modal('show');
+						get_urusan();
+						get_bidang();
+						get_program();
+						jQuery('#bidang-teks').val(response.data.nama_bidang_urusan).trigger('change');
+		  			});	
+	          	}
+         })
+	}
+
+	function mutakhirkanProgram(id_program_lama, id_unik, id){
+
+		let id_program = jQuery("#program-teks").val();
+		if(id_program == null || id_program=="" || id_program=="undefined"){
+			alert('Wajib memilih program!');
+		}else{
+			jQuery('#wrap-loading').show();
+			jQuery.ajax({
+				url: ajax.url,
+	          	type: "post",
+	          	data: {
+	          		"action": "mutakhirkan_program_renstra",
+	          		"api_key": "<?php echo $api_key; ?>",
+	          		'id': id,
+	          		'id_unik': id_unik,
+					'id_program': id_program,
+					'id_program_lama': id_program_lama,
+			       	'tahun_anggaran': '<?php echo $tahun_anggaran; ?>'
+	          	},
+	          	dataType: "json",
+	          	success: function(response){
+	          		jQuery('#wrap-loading').hide();
+	          		alert(response.message);
+	          		location.reload();
+	          	}
+	        });
+		}
+	}
+
+	function tampilKegiatan(id){
+		jQuery('#wrap-loading').show();
+		jQuery.ajax({
+			url: ajax.url,
+          	type: "post",
+          	data: {
+          		"action": "edit_kegiatan_renstra",
+          		"api_key": "<?php echo $api_key; ?>",
+				'id_kegiatan': id,
+          	},
+          	dataType: "json",
+          	success: function(response){
+
+          		jQuery('#wrap-loading').hide();
+          		jQuery("#modal-crud-renstra .modal-title").html('Mutakhirkan Kegiatan');
+	          	jQuery("#modal-crud-renstra .modal-body").html('<table class="table">'
+						+'<thead>'
+				       		+'<tr>'
+				       			+'<th class="text-center" style="width: 160px;">Perangkat Daerah</th>'
+				       			+'<th>'+response.kegiatan.nama_skpd+'</th>'
+				       		+'</tr>'
+				   			+'<tr>'
+				  				+'<th class="text-center" style="width: 160px;">Bidang Urusan</th>'
+				          		+'<th>'+response.kegiatan.nama_bidang_urusan+'</th>'
+				          	+'</tr>'
+				          	+'<tr>'
+				          		+'<th class="text-center" style="width: 160px;">Tujuan</th>'
+				          		+'<th>'+response.kegiatan.tujuan_teks+'</th>'
+				          	+'</tr>'
+				          	+'<tr>'
+				          		+'<th class="text-center" style="width: 160px;">Sasaran</th>'
+				          		+'<th>'+response.kegiatan.sasaran_teks+'</th>'
+				          	+'</tr>'
+				          	+'<tr>'
+				          		+'<th class="text-center" style="width: 160px;">Program</th>'
+				          		+'<th>'+response.kegiatan.nama_program+'</th>'
+				          	+'</tr>'
+				          	+'<tr>'
+				          		+'<th class="text-center" style="width: 160px;">Kegiatan</th>'
+				          		+'<th><select id="list-kegiatan"></select></th>'
+				          	+'</tr>'
+				      	+'</thead>'
+				    +'</table>');
+
+				jQuery("#modal-crud-renstra").find('.modal-dialog').css('maxWidth','1350px');
+				jQuery("#modal-crud-renstra").find('.modal-dialog').css('width','100%');
+				jQuery("#modal-crud-renstra").find('.modal-footer').html(''
+						+'<button type="button" class="btn btn-danger" data-dismiss="modal">Tutup</button>'
+						+'<button type="button" class="btn btn-success" onclick=\'mutakhirkanKegiatan("'+response.kegiatan.id_giat+'", "'+response.kegiatan.id_unik+'", "'+id+'")\'>Mutakhirkan</button>');
+	          	jQuery("#modal-crud-renstra").modal('show');
+
+          		listKegiatanByProgram(response.kegiatan.id_program).then(function(){
+          			jQuery("#list-kegiatan").select2({'min-width':'100%'});
+          		});
+          	}
+        })
+	}
+
+		function listKegiatanByProgram(id_program){
+		return new Promise(function(resolve, reject){
+			jQuery('#wrap-loading').show();
+			jQuery.ajax({
+				url: ajax.url,
+	          	type: "post",
+	          	data: {
+	          		"action": "list_kegiatan_by_program_renstra",
+	          		"api_key": "<?php echo $api_key; ?>",
+					'id_program': id_program,
+	          	},
+	          	dataType: "json",
+	          	success: function(response){
+	          		jQuery('#wrap-loading').hide();
+	          		let option = `<option value="">Pilih Kegiatan</option>`;
+	          		response.data.map(function(value, index){
+						option +='<option value="'+value.id+'">'+value.kegiatan_teks+'</option>';
+					})
+	          		jQuery("#list-kegiatan").html(option);
+	          		resolve();
+	          	}
+	        })
+		});
+	}
+
+	function mutakhirkanKegiatan(id_giat_lama, id_unik, id){		
+		let id_giat = jQuery("#list-kegiatan").val();
+		if(id_giat == null || id_giat=="" || id_giat=="undefined"){
+			alert('Wajib memilih kegiatan!');
+		}else{
+			jQuery('#wrap-loading').show();
+			jQuery.ajax({
+				url: ajax.url,
+	          	type: "post",
+	          	data: {
+	          		"action": "mutakhirkan_kegiatan_renstra",
+	          		"api_key": "<?php echo $api_key; ?>",
+	          		'id': id,
+	          		'id_unik': id_unik,
+					'id_giat': id_giat,
+					'id_giat_lama': id_giat_lama,
+			       	'tahun_anggaran': '<?php echo $tahun_anggaran; ?>'
+	          	},
+	          	dataType: "json",
+	          	success: function(response){
+	          		jQuery('#wrap-loading').hide();
+	          		alert(response.message);
+	          		location.reload();
+	          	}
+	        });
+		}
+	}
+
+	function tampilSubKegiatan(id){
+		jQuery('#wrap-loading').show();
+		jQuery.ajax({
+			url: ajax.url,
+          	type: "post",
+          	data: {
+          		"action": "edit_sub_kegiatan_renstra",
+          		"api_key": "<?php echo $api_key; ?>",
+				'id_sub_kegiatan': id,
+          	},
+          	dataType: "json",
+          	success: function(response){
+          		get_list_sub_kegiatan({
+          			'kode_giat':response.sub_kegiatan.kode_giat,
+          			'id_unit': response.sub_kegiatan.id_unit,
+			       	'kode_unit': response.sub_kegiatan.kode_unit,
+			       	'kode_sub_unit': response.sub_kegiatan.kode_unit,
+			       	'tahun_anggaran': '<?php echo $tahun_anggaran; ?>'
+          		}, "select-sub-kegiatan").then(function(){
+          			jQuery('#wrap-loading').hide();
+          		});
+
+          		jQuery("#modal-crud-renstra .modal-title").html('Mutakhirkan Sub Kegiatan');
+          		jQuery("#modal-crud-renstra .modal-body").html('<table class="table">'
+			      			+'<thead>'
+				          		+'<tr>'
+				          			+'<th class="text-center" style="width: 160px;">Perangkat Daerah</th>'
+				          			+'<th>'+response.sub_kegiatan.nama_sub_unit+'</th>'
+				          		+'</tr>'
+			          			+'<tr>'
+			          				+'<th class="text-center" style="width: 160px;">Bidang Urusan</th>'
+			          				+'<th>'+response.sub_kegiatan.nama_bidang_urusan+'</th>'
+			          			+'</tr>'
+			          			+'<tr>'
+			          				+'<th class="text-center" style="width: 160px;">Tujuan</th>'
+			          				+'<th>'+response.sub_kegiatan.tujuan_teks+'</th>'
+			          			+'</tr>'
+			          			+'<tr>'
+			          				+'<th class="text-center" style="width: 160px;">Sasaran</th>'
+			          				+'<th>'+response.sub_kegiatan.sasaran_teks+'</th>'
+			          			+'</tr>'
+			          			+'<tr>'
+			          				+'<th class="text-center" style="width: 160px;">Program</th>'
+			          				+'<th>'+response.sub_kegiatan.nama_program+'</th>'
+			          			+'</tr>'
+			          			+'<tr>'
+			          				+'<th class="text-center" style="width: 160px;">Kegiatan</th>'
+			          				+'<th>'+response.sub_kegiatan.nama_giat+'</th>'
+			          			+'</tr>'
+			          			+'<tr>'
+			          				+'<th class="text-center" style="width: 160px;">Sub Kegiatan</th>'
+			          				+'<th><select id="select-sub-kegiatan" onchange="listIndikatorSubKegiatan()"></select></th>'
+			          			+'</tr>'
+			          			+'<tr>'
+			          				+'<th class="text-center" style="width: 160px;">Indikator Sub Kegiatan</th>'
+			          				+'<th><select id="select-indikator-sub-kegiatan" class="select-indikator-sub-kegiatan"></select></th>'
+			          			+'</tr>'
+			      			+'</thead>'
+			      		+'</table>');
+
+				jQuery("#modal-crud-renstra").find('.modal-dialog').css('maxWidth','1350px');
+				jQuery("#modal-crud-renstra").find('.modal-dialog').css('width','100%');
+				jQuery("#modal-crud-renstra").find('.modal-footer').html(''
+						+'<button type="button" class="btn btn-danger" data-dismiss="modal">Tutup</button>'
+						+'<button type="button" class="btn btn-success" onclick=\'mutakhirkanSubKegiatan("'+response.sub_kegiatan.id_sub_giat+'", "'+id+'")\'>Mutakhirkan</button>');
+          		jQuery("#modal-crud-renstra").modal('show');
+          		jQuery("#select-sub-kegiatan").select2({width: '100%'});
+          	}
+         })
+	}
+
+	function listIndikatorSubKegiatan(){
+		jQuery('#wrap-loading').show();
+		get_master_indikator_subgiat({
+		       'id_sub_giat':jQuery("#select-sub-kegiatan").val(),
+		       'tahun_anggaran':'<?php echo $tahun_anggaran; ?>',
+		}, 'select-indikator-sub-kegiatan').then(function(){
+			jQuery('#wrap-loading').hide();
+	        jQuery(".select-indikator-sub-kegiatan").select2({width: '100%'});
+		});
+	}
+
+	function mutakhirkanSubKegiatan(id_sub_kegiatan_lama, id){
+		
+		let id_sub_kegiatan = jQuery("#select-sub-kegiatan").val();
+		let id_indikator_sub_kegiatan = jQuery("#select-indikator-sub-kegiatan").val();
+
+		if(id_sub_kegiatan == null || id_sub_kegiatan=="" || id_sub_kegiatan=="undefined"){
+			alert('Wajib memilih sub kegiatan!');
+		}if(id_indikator_sub_kegiatan == null || id_indikator_sub_kegiatan=="" || id_indikator_sub_kegiatan=="undefined"){
+			alert('Wajib memilih indikator sub kegiatan!');
+		}else{
+			jQuery('#wrap-loading').show();
+			jQuery.ajax({
+				url: ajax.url,
+	          	type: "post",
+	          	data: {
+	          		"action": "mutakhirkan_sub_kegiatan_renstra",
+	          		"api_key": "<?php echo $api_key; ?>",
+	          		'id': id,
+					'id_sub_kegiatan': id_sub_kegiatan,
+					'id_sub_kegiatan_lama': id_sub_kegiatan_lama,
+					'id_indikator_sub_kegiatan': id_indikator_sub_kegiatan,
+			       	'tahun_anggaran': '<?php echo $tahun_anggaran; ?>'
+	          	},
+	          	dataType: "json",
+	          	success: function(response){
+	          		jQuery('#wrap-loading').hide();
+	          		alert(response.message);
+	          		location.reload();
+	          	}
+	        });
+		}
 	}
 </script>

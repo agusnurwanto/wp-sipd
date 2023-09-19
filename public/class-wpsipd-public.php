@@ -47,6 +47,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 	private $version;
 
 	private $simda;
+	private $sipkd;
 
 	/**
 	 * Initialize the class and set its properties.
@@ -12863,36 +12864,6 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		die(json_encode($return));
 	}
 
-	public function cek_api_key($no_return = false){
-		global $wpdb;
-		$return = array(
-			'action' => $_POST['action'],
-			'status' => 'success',
-			'api_key' => '',
-			'message' => 'Berhasil cek lisensi!'
-		);
-
-		if(!empty($_POST)){
-			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
-				$res = $this->simda->cek_lisensi(array(
-					'api_key' => $_POST['api_key']
-				));
-				$return = array_merge($return, $res);
-			}else{
-				$return['status'] = 'error';
-				$return['message']	= 'Api Key tidak sesuai!';
-			}
-		}else{
-			$return['status'] = 'error';
-			$return['message']	= 'Format tidak sesuai!';
-		}
-		if($no_return){
-			return $return;
-		}else{
-			die(json_encode($return));
-		}
-	}
-
 	public function get_data_ssh_analisis_skpd(){
 		global $wpdb;
 		$return = array(
@@ -14501,7 +14472,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 
 								$delete_lokal_history = $this->delete_data_lokal_history('data_renstra_sub_kegiatan_lokal', $data_this_id['id_jadwal_lokal']);
 
-								$columns_0 = array('bidur_lock','giat_lock','id_bidang_urusan','id_sub_giat','id_giat','id_misi','id_program','id_unik','id_unik_indikator','id_unit','id_sub_unit','id_visi','id_indikator','indikator','id_indikator_usulan','indikator_usulan','is_locked','is_locked_indikator','kode_bidang_urusan','kode_sub_giat','kode_giat','kode_program','kode_sasaran','kode_skpd','kode_tujuan','kode_unik_program','nama_bidang_urusan','nama_sub_giat','nama_giat','nama_program','nama_skpd','nama_sub_unit','pagu_1','pagu_2','pagu_3','pagu_4','pagu_5','pagu_1_usulan','pagu_2_usulan','pagu_3_usulan','pagu_4_usulan','pagu_5_usulan','program_lock','renstra_prog_lock','sasaran_lock','sasaran_teks','satuan','status','target_1','target_2','target_3','target_4','target_5','target_akhir','target_awal','satuan_usulan','target_1_usulan','target_2_usulan','target_3_usulan','target_4_usulan','target_5_usulan','target_akhir_usulan','target_awal_usulan','catatan_usulan','catatan','tujuan_lock','tujuan_teks','urut_sasaran','urut_tujuan','active','update_at','tahun_anggaran','kode_kegiatan');
+								$columns_0 = array('bidur_lock','giat_lock','id_bidang_urusan','id_sub_giat','id_giat','id_misi','id_program','id_unik','id_unik_indikator','id_unit','id_sub_unit','id_visi','id_indikator','indikator','id_indikator_usulan','indikator_usulan','is_locked','is_locked_indikator','kode_bidang_urusan','kode_sub_giat','kode_giat','kode_program','kode_sasaran','kode_skpd','kode_tujuan','kode_unik_program','nama_bidang_urusan','nama_sub_giat','nama_giat','nama_program','nama_skpd','nama_sub_unit','pagu_1','pagu_2','pagu_3','pagu_4','pagu_5','pagu_1_usulan','pagu_2_usulan','pagu_3_usulan','pagu_4_usulan','pagu_5_usulan','program_lock','renstra_prog_lock','sasaran_lock','sasaran_teks','satuan','status','target_1','target_2','target_3','target_4','target_5','target_akhir','target_awal','satuan_usulan','target_1_usulan','target_2_usulan','target_3_usulan','target_4_usulan','target_5_usulan','target_akhir_usulan','target_awal_usulan','catatan_usulan','catatan','tujuan_lock','tujuan_teks','urut_sasaran','urut_tujuan','active','update_at','tahun_anggaran','kode_kegiatan', 'id_sub_giat_lama');
 	
 								$sql_backup_data_renstra_sub_kegiatan_lokal =  "INSERT INTO data_renstra_sub_kegiatan_lokal_history (".implode(', ', $columns_0).",id_jadwal,id_asli)
 											SELECT ".implode(', ', $columns_0).", ".$data_this_id['id_jadwal_lokal'].", id as id_asli
@@ -18916,35 +18887,6 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 					$ret['status'] = 'error';
 					$ret['message'] = 'Format Master Label Giat Salah!';
 				}
-			} else {
-				$ret['status'] = 'error';
-				$ret['message'] = 'APIKEY tidak sesuai!';
-			}
-		} else {
-			$ret['status'] = 'error';
-			$ret['message'] = 'Format Salah!';
-		}
-		die(json_encode($ret));
-	}
-
-	public function cek_lisensi_ext()
-	{
-		global $wpdb;
-		$ret = array(
-			'status'	=> 'success',
-			'action'	=> $_POST['action'],
-			'run'		=> $_POST['run'],
-			'data'		=> '',
-			'message'	=> 'Berhasil cek lisensi aktif!'
-		);
-		if (!empty($_POST)) {
-			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
-				$sipd_url = get_option('_crb_server_wp_sipd');
-				$sipd_url = explode('/wp-admin', $sipd_url);
-				$ret['sipd_url'] = $sipd_url[0];
-				$cek = $this->cek_api_key(true);
-				$ret['cek'] = $cek;
-				// belum selesai
 			} else {
 				$ret['status'] = 'error';
 				$ret['message'] = 'APIKEY tidak sesuai!';

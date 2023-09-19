@@ -9,7 +9,7 @@
 <div class="cetak">
     <div style="padding: 10px;margin:0 0 3rem 0;">
         <input type="hidden" value="<?php echo get_option( '_crb_api_key_extension' ); ?>" id="api_key">
-    <h1 class="text-center" style="margin:3rem;">Manajemen Data BKU Dana Desa ( DD )</h1>
+    <h1 class="text-center" style="margin:3rem;">Manajemen Data BKU Dana Desa ( DD ) <?php echo $nama_skpd; ?></h1>
         <div style="margin-bottom: 25px;">
             <button class="btn btn-primary" onclick="tambah_data_bku_dd();"><i class="dashicons dashicons-plus"></i> Tambah Data</button>
         </div>
@@ -228,7 +228,7 @@ function submitTambahDataFormBKUDD(){
     }
     var tahun_anggaran = jQuery('#tahun_anggaran').val();
     if(tahun_anggaran == ''){
-        return alert('Data tahun_anggaran tidak boleh kosong!');
+        return alert('Data tahun anggaran tidak boleh kosong!');
     }
 
     jQuery('#wrap-loading').show();

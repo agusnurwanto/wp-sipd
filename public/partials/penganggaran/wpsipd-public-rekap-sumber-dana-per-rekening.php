@@ -72,7 +72,7 @@ foreach($data_skpd as $skpd){
             ".$where_jadwal."
             ORDER BY kode_giat ASC, kode_sub_giat ASC";
     $subkeg = $wpdb->get_results($wpdb->prepare($sql, $skpd['id_skpd'], $input['tahun_anggaran']), ARRAY_A);
-    // die($wpdb->last_query);
+    // print_r($subkeg); die($wpdb->last_query);
 
     foreach ($subkeg as $kk => $sub) {
     	$where_jadwal_new = '';
@@ -104,7 +104,7 @@ foreach($data_skpd as $skpd){
             group by d.kode_dana, r.kode_akun
             order by d.kode_dana ASC, r.kode_akun ASC
         ", $input['tahun_anggaran'], $sub['kode_sbl']), ARRAY_A);
-    	// die($wpdb->last_query);
+    	// print_r($rincian_all); die($wpdb->last_query);
         foreach($rincian_all as $rincian){
 	    	$body .= '
 	    		<tr data-kodesbl="'.$sub['kode_sbl'].'">
