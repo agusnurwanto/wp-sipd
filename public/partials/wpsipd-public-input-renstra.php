@@ -163,7 +163,9 @@ $data_all = array(
 	'pagu_akumulasi_3_usulan' => 0,
 	'pagu_akumulasi_4_usulan' => 0,
 	'pagu_akumulasi_5_usulan' => 0,
-	'pemutakhiran_sub_kegiatan' => 0
+	'pemutakhiran_program' => 0,
+	'pemutakhiran_kegiatan' => 0,
+	'pemutakhiran_sub_kegiatan' => 0,
 );
 
 $tujuan_ids = array();
@@ -366,6 +368,7 @@ foreach ($tujuan_all as $keyTujuan => $tujuan_value) {
 							$statusMutakhirProgram = 1;
 							if(empty($checkProgram['id_program'])){
 								$statusMutakhirProgram = 0;
+								$data_all['pemutakhiran_program']++;
 							}
 
 							$data_all['data'][$tujuan_value['id_unik']]['data'][$sasaran_value['id_unik']]['data'][$program_value['id_unik']] = [
@@ -490,6 +493,7 @@ foreach ($tujuan_all as $keyTujuan => $tujuan_value) {
 								$statusMutakhirKegiatan = 1;
 								if(empty($checkKegiatan['id_giat'])){
 									$statusMutakhirKegiatan = 0;
+									$data_all['pemutakhiran_kegiatan']++;
 								}
 
 								$data_all['data'][$tujuan_value['id_unik']]['data'][$sasaran_value['id_unik']]['data'][$program_value['id_unik']]['data'][$kegiatan_value['id_unik']] = [
@@ -2264,9 +2268,9 @@ foreach ($data_all['data'] as $tujuan) {
 	}
 }
 
-$warning_pemutakhiran_sub_keg = 'bg-danger';
-if($data_all['pemutakhiran_sub_kegiatan'] > 0){
-	$warning_pemutakhiran_sub_keg = 'background:#d013133d';
+$warning_pemutakhiran = 'bg-success';
+if($data_all['pemutakhiran_program'] > 0 || $data_all['pemutakhiran_kegiatan'] > 0 || $data_all['pemutakhiran_sub_kegiatan'] > 0){
+	$warning_pemutakhiran = 'bg-danger';
 }
 
 $table='<table cellpadding="2" cellspacing="0" style="font-family:\'Open Sans\',-apple-system,BlinkMacSystemFont,\'Segoe UI\',sans-serif; border-collapse: collapse; font-size: 80%; border: 0; table-layout: fixed;margin:30px 0px 30px 0px" contenteditable="false">
@@ -2306,14 +2310,16 @@ $table='<table cellpadding="2" cellspacing="0" style="font-family:\'Open Sans\',
 		<table class="table table-bordered" cellpadding="2" cellspacing="0" style="font-family:\'Open Sans\',-apple-system,BlinkMacSystemFont,\'Segoe UI\',sans-serif; border-collapse: collapse; font-size: 80%; border: 0; table-layout: fixed;margin:30px 0px 30px 0px" contenteditable="false">
             <thead>
                 <tr>
+                    <th class="text-center">Program</th>
+                    <th class="text-center">Kegiatan</th>
                     <th class="text-center">Sub Kegiatan</th>
-                    <th class="text-center">Tahun Anggaran</th>
                 </tr>
             </thead>
             <tbody>
-                <tr style="'.$warning_pemutakhiran_sub_keg.'">
+                <tr class="'.$warning_pemutakhiran.'">
+                    <td style="font-weight:bold;; mso-number-format:\@;" class="text-center">'.$data_all['pemutakhiran_program'].'</td>
+                    <td style="font-weight:bold;; mso-number-format:\@;" class="text-center">'.$data_all['pemutakhiran_kegiatan'].'</td>
                     <td style="font-weight:bold;; mso-number-format:\@;" class="text-center">'.$data_all['pemutakhiran_sub_kegiatan'].'</td>
-                    <td style="font-weight:bold;; mso-number-format:\@;" class="text-center">'.$input['tahun_anggaran'].'</td>
                 </tr>
             </tbody>
         </table>';
