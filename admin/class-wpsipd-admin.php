@@ -47,6 +47,7 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes {
 	private $version;
 
 	private $simda;
+	private $sipkd;
 
 	/**
 	 * Initialize the class and set its properties.
@@ -667,25 +668,31 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes {
 		if(!empty($status_lisensi_ket)){
 			$status_lisensi_ket = ' Status: <b style="'.$warna.'">'.$status_lisensi_ket.'</b>';
 		}else{
-			$_POST['server'] = get_option('_crb_server_wp_sipd');
-	    	$_POST['api_key_server'] = get_option('_crb_server_wp_sipd_api_key');
-	    	$_POST['no_wa'] = get_option('_crb_no_wa');
-			$_POST['pemda'] = get_option('_crb_daerah');
-			$response = json_decode($this->generate_lisensi(true));
-			if($response->status == 'success'){
-				$status_lisensi = get_option('_crb_status_lisensi');
-				$warna = "";
-				if($status_lisensi == 'pending'){
-					$warna = "color: #979700;";
-				}else if($status_lisensi == 'active'){
-					$warna = "color: green;";
-				}else if($status_lisensi == 'expired'){
-					$warna = "color: red;";
+			$server = get_option('_crb_server_wp_sipd');
+			if(!empty($server)){
+				$_POST['server'] = $server;
+		    	$_POST['api_key_server'] = get_option('_crb_server_wp_sipd_api_key');
+		    	$_POST['no_wa'] = get_option('_crb_no_wa');
+				$_POST['pemda'] = get_option('_crb_daerah');
+				$response = json_decode($this->generate_lisensi(true));
+				if($response->status == 'success'){
+					$status_lisensi = get_option('_crb_status_lisensi');
+					$warna = "";
+					if($status_lisensi == 'pending'){
+						$warna = "color: #979700;";
+					}else if($status_lisensi == 'active'){
+						$warna = "color: green;";
+					}else if($status_lisensi == 'expired'){
+						$warna = "color: red;";
+					}
+					$status_lisensi_ket = get_option('_crb_status_lisensi_ket');
+					if(!empty($status_lisensi_ket)){
+						$status_lisensi_ket = ' Status: <b style="'.$warna.'">'.$status_lisensi_ket.'</b>';
+					}
 				}
-				$status_lisensi_ket = get_option('_crb_status_lisensi_ket');
-				if(!empty($status_lisensi_ket)){
-					$status_lisensi_ket = ' Status: <b style="'.$warna.'">'.$status_lisensi_ket.'</b>';
-				}
+			}else{
+				$warna = "color: red;";
+				$status_lisensi_ket = ' Status: <b style="'.$warna.'">Proses inisiasi data awal!</b>';
 			}
 		}
 		return $status_lisensi_ket;
@@ -839,21 +846,26 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes {
 				->set_default_value(0);
 		}
         $tahun = $wpdb->get_results('select tahun_anggaran from data_unit group by tahun_anggaran order by tahun_anggaran ASC', ARRAY_A);
+        $html = '';
         foreach ($tahun as $k => $v) {
-			$url = $this->generatePage('Monitoring Update Data SIPD lokal Berdasar Waktu Terakhir Melakukan Singkronisasi Data | '.$v['tahun_anggaran'], $v['tahun_anggaran']);
-			$options_basic[] = Field::make( 'html', 'crb_monitor_update_'.$k )
-            	->set_html( '<a target="_blank" href="'.$url.'">Halaman Monitor Update Data Lokal SIPD Merah Tahun '.$v['tahun_anggaran'].'</a>' );
-
-			$url = $this->generatePage('Monitoring Data SPD | '.$v['tahun_anggaran'], $v['tahun_anggaran'], '[monitoring_data_spd tahun_anggaran="'.$v['tahun_anggaran'].'"]');
-			$options_basic[] = Field::make( 'html', 'crb_monitor_spd_'.$k )
-            	->set_html( '<a target="_blank" href="'.$url.'">Halaman Monitor Data SPD (Surat Penyediaan Dana) '.$v['tahun_anggaran'].'</a>' );
-			$url = $this->generatePage('Setting penjadwalan | '.$v['tahun_anggaran'], $v['tahun_anggaran'], '[setting_penjadwalan tahun_anggaran="'.$v['tahun_anggaran'].'"]');
-			$options_basic[] = Field::make( 'html', 'crb_penjadwalan_'.$k )
-				->set_html( '<a target="_blank" href="'.$url.'">Halaman Pengaturan Penjadwalan '.$v['tahun_anggaran'].'</a>' );
+			$url_monitor_update = $this->generatePage('Monitoring Update Data SIPD lokal Berdasar Waktu Terakhir Melakukan Singkronisasi Data | '.$v['tahun_anggaran'], $v['tahun_anggaran']);
+			$url_monitor_spd = $this->generatePage('Monitoring Data SPD | '.$v['tahun_anggaran'], $v['tahun_anggaran'], '[monitoring_data_spd tahun_anggaran="'.$v['tahun_anggaran'].'"]');
+			$url_jadwal = $this->generatePage('Setting penjadwalan | '.$v['tahun_anggaran'], $v['tahun_anggaran'], '[setting_penjadwalan tahun_anggaran="'.$v['tahun_anggaran'].'"]');
 			$url_monitoring_rup = $this->generatePage('Monitoring RUP | '.$v['tahun_anggaran'], $v['tahun_anggaran'], '[monitoring_rup tahun_anggaran="'.$v['tahun_anggaran'].'"]');
-			$options_basic[] = Field::make( 'html', 'crb_monitoring_rup_'.$k )
-				->set_html( '<a target="_blank" href="'.$url_monitoring_rup.'">Halaman Monitoring RUP '.$v['tahun_anggaran'].'</a>' );
+			$html .= '
+				<h3 class="header-tahun" tahun="'.$v['tahun_anggaran'].'">Tahun Anggaran '.$v['tahun_anggaran'].'</h3>
+				<div class="body-tahun" tahun="'.$v['tahun_anggaran'].'">
+					<ul>
+						<li><a target="_blank" href="'.$url_monitor_update.'">Halaman Monitor Update Data Lokal SIPD Merah Tahun '.$v['tahun_anggaran'].'</a></li>
+						<li><a target="_blank" href="'.$url_monitor_spd.'">Halaman Monitor Data SPD (Surat Penyediaan Dana) '.$v['tahun_anggaran'].'</a></li>
+						<li><a target="_blank" href="'.$url_jadwal.'">Halaman Pengaturan Penjadwalan '.$v['tahun_anggaran'].'</a></li>
+						<li><a target="_blank" href="'.$url_monitoring_rup.'">Halaman Monitoring RUP '.$v['tahun_anggaran'].'</a></li>
+					</ul>
+				</div>
+			';
 		}
+		$options_basic[] = Field::make( 'html', 'crb_monitoring_sipd' )
+			->set_html($html);
         return $options_basic;
 	}
 

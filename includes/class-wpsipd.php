@@ -59,6 +59,7 @@ class Wpsipd
 	protected $version;
 
 	protected $simda;
+	protected $sipkd;
 
 	/**
 	 * Define the core functionality of the plugin.
@@ -880,9 +881,16 @@ class Wpsipd
 		$this->loader->add_action('wp_ajax_show_skpd_bidang_urusan_analisis',  $plugin_public, 'show_skpd_bidang_urusan_analisis');
 		$this->loader->add_action('wp_ajax_show_skpd_sumber_dana_analisis',  $plugin_public, 'show_skpd_sumber_dana_analisis');
 		$this->loader->add_action('wp_ajax_get_rinc_rka_lokal',  $plugin_public, 'get_rinc_rka_lokal');
+		$this->loader->add_action('wp_ajax_show_skpd_rekening_analisis',  $plugin_public, 'show_skpd_rekening_analisis');
 
 		$this->loader->add_action('wp_ajax_mutakhirkan_sub_kegiatan_renstra',  $plugin_public, 'mutakhirkan_sub_kegiatan_renstra');
+<<<<<<< HEAD
 		$this->loader->add_action('wp_ajax_get_pemdes_alamat',  $plugin_public, 'get_pemdes_alamat');
+=======
+		$this->loader->add_action('wp_ajax_mutakhirkan_program_renstra',  $plugin_public, 'mutakhirkan_program_renstra');
+		$this->loader->add_action('wp_ajax_list_kegiatan_by_program_renstra',  $plugin_public, 'listKegiatanByProgram');
+		$this->loader->add_action('wp_ajax_mutakhirkan_kegiatan_renstra',  $plugin_public, 'mutakhirkan_kegiatan_renstra');
+>>>>>>> e6b36e6c8a125411b3ff145191cb3247274a0da4
 		
 		add_shortcode('menu_monev',  array($plugin_public, 'menu_monev'));
 		add_shortcode('datassh', array($plugin_public, 'datassh'));
@@ -960,6 +968,7 @@ class Wpsipd
 		add_shortcode('analisis_belanja_sub_kegiatan', array($plugin_public, 'analisis_belanja_sub_kegiatan'));
 		add_shortcode('analisis_belanja_bidang_urusan', array($plugin_public, 'analisis_belanja_bidang_urusan'));
 		add_shortcode('analisis_belanja_sumber_dana', array($plugin_public, 'analisis_belanja_sumber_dana'));
+		add_shortcode('analisis_belanja_rekening', array($plugin_public, 'analisis_belanja_rekening'));
 		add_shortcode('rekap_sumber_dana_per_skpd', array($plugin_public, 'rekap_sumber_dana_per_skpd'));
 		add_shortcode('rekap_sumber_dana_per_program', array($plugin_public, 'rekap_sumber_dana_per_program'));
 		add_shortcode('rekap_sumber_dana_per_kegiatan', array($plugin_public, 'rekap_sumber_dana_per_kegiatan'));

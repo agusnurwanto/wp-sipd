@@ -2212,7 +2212,7 @@ CREATE TABLE `data_rka_history` (
   `nama_komponen` text CHARACTER SET latin1,
   `spek_komponen` text CHARACTER SET latin1,
   `satuan` varchar(150) CHARACTER SET latin1 DEFAULT NULL,
-  `spek` text CHARACTER SET latin1,
+  `spek` text CHARACTER SET latin1 DEFAULT NULL,
   `sat1` text CHARACTER SET latin1,
   `sat2` text CHARACTER SET latin1,
   `sat3` text CHARACTER SET latin1,
@@ -2930,6 +2930,7 @@ CREATE TABLE `data_renstra_program_lokal` (
   `active` tinyint(4) NOT NULL,
   `update_at` datetime NOT NULL,
   `tahun_anggaran` year(4) NOT NULL,
+  `id_program_lama` int(11) DEFAULT NULL,
   PRIMARY KEY  (id)
 );
 
@@ -3000,6 +3001,7 @@ CREATE TABLE `data_renstra_kegiatan_lokal` (
   `active` tinyint(4) NOT NULL,
   `update_at` datetime NOT NULL,
   `tahun_anggaran` year(4) NOT NULL,
+  `id_giat_lama` int(11) DEFAULT NULL,
   PRIMARY KEY  (id)
 );
 
@@ -3315,6 +3317,7 @@ CREATE TABLE `data_renstra_program_lokal_history` (
   `tahun_anggaran` year(4) NOT NULL,
   `id_jadwal` int(11) NOT NULL,
   `id_asli` int(11) NOT NULL,
+  `id_program_lama` int(11) DEFAULT NULL,
   PRIMARY KEY  (id)
 );
 
@@ -3387,6 +3390,7 @@ CREATE TABLE `data_renstra_kegiatan_lokal_history` (
   `tahun_anggaran` year(4) NOT NULL,
   `id_jadwal` int(11) NOT NULL,
   `id_asli` int(11) NOT NULL,
+  `id_giat_lama` int(11) DEFAULT NULL,
   PRIMARY KEY  (id)
 );
 

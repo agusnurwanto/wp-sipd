@@ -47,6 +47,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 	private $version;
 
 	private $simda;
+	private $sipkd;
 
 	/**
 	 * Initialize the class and set its properties.
@@ -18511,6 +18512,90 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 					    ORDER BY k.kode_sub_skpd ASC, k.kode_sub_giat ASC
 					    ",$_POST["tahun_anggaran"], $_POST['id_skpd']);
 					$return['data'] = $wpdb->get_results($sql_anggaran);
+				}else if($_POST['tipe'] == 'json_rek_p3dn'){
+					$sql_anggaran = $wpdb->prepare("
+					    SELECT 
+					        k.nama_skpd,
+					        k.nama_program,
+					        k.nama_giat,
+					        k.nama_sub_giat,
+					        r.kode_akun,
+					        r.nama_akun,
+					        r.subs_bl_teks,
+					        r.ket_bl_teks,
+					        concat(r.nama_komponen, ' ', r.spek_komponen) as komponen,
+					        ms.nama_dana,
+					        r.rincian_murni,
+					        r.rincian,
+					        0 as realisasi,
+					        0 as realisasi_akun,
+					        '' as uraian_spm,
+					        '' as sisa,
+					        '' as keterangan
+					    FROM data_sub_keg_bl as k 
+					    INNER JOIN data_rka as r on k.kode_sbl=r.kode_sbl 
+					        and r.active=k.active 
+					        and r.tahun_anggaran=k.tahun_anggaran 
+					    LEFT JOIN data_mapping_sumberdana as s on r.id_rinci_sub_bl=s.id_rinci_sub_bl 
+					        and s.active=k.active 
+					        and s.tahun_anggaran=k.tahun_anggaran 
+					    LEFT JOIN data_sumber_dana as ms on ms.id_dana=s.id_sumber_dana 
+					        and ms.tahun_anggaran=k.tahun_anggaran 
+					    LEFT JOIN data_realisasi_akun as a on k.kode_sbl=a.kode_sbl 
+					        and a.tahun_anggaran=k.tahun_anggaran 
+					    LEFT JOIN data_sub_keg_bl as u on k.kode_sbl=u.kode_sbl 
+					        and u.tahun_anggaran=k.tahun_anggaran
+					    WHERE
+					        k.tahun_anggaran=%d
+					        AND k.active=1
+					        AND k.id_sub_skpd=%d
+					    GROUP BY k.kode_sub_skpd ASC, k.kode_sub_giat, r.subs_bl_teks
+					    ORDER BY k.kode_sub_skpd ASC, k.kode_sub_giat ASC
+					",$input["tahun_anggaran"], $input['id_skpd']);
+					$data = $wpdb->get_results($sql_anggaran);
+
+					$spm = $wpdb->get_results($wpdb->prepare("
+						SELECT
+							s.*
+						FROM data_spm_sipd as s
+						WHERE s.tahun_anggaran=%d
+							AND s.id_skpd=%d
+					", $input['tahun_anggaran'], $input['id_skpd']));
+
+					$realisasi = $wpdb->get_results($wpdb->prepare("
+						SELECT
+							a.nilai,
+							a.realisasi,
+							a.kode_akun,
+							a.kode_sbl,
+							0 as realisasi_rincian
+						FROM data_realisasi_akun_sipd as a
+						WHERE a.active=1
+							AND a.tahun_anggaran=%d
+							AND a.id_sub_skpd=%d
+					", $input['tahun_anggaran'], $input['id_skpd']));
+					$new_realisasi = array();
+					foreach($realisasi as $key => $val){
+						$new_realisasi[$val['kode_akun']] = $val;
+					}
+
+					foreach($data as $key => $val){
+						if(
+							!empty($new_realisasi[$val['kode_akun']])
+							&& $new_realisasi[$val['kode_akun']]['realisasi_rincian'] < $new_realisasi[$val['kode_akun']]['realisasi']
+						){
+							if($new_realisasi[$val['kode_akun']]['realisasi_rincian']+$val['rincian'] <= $new_realisasi[$val['kode_akun']]['realisasi']){
+								$data[$key]['realisasi'] = $val['rincian'];
+								$new_realisasi[$val['kode_akun']]['realisasi_rincian'] += $data[$key]['realisasi'];
+							}else{
+								$data[$key]['realisasi'] = $new_realisasi[$val['kode_akun']]['realisasi'] - $new_realisasi[$val['kode_akun']]['realisasi_rincian'];
+								$new_realisasi[$val['kode_akun']]['realisasi_rincian'] += $data[$key]['realisasi'];
+							}
+							$data[$key]['sisa'] = $data[$key]['rincian'] - $data[$key]['realisasi'];
+							$data[$key]['realisasi_akun'] = $new_realisasi[$val['kode_akun']]['realisasi'];
+						}
+					}
+					$return['data'] = $data;
 				}
 			}else{
 				$return = array(
