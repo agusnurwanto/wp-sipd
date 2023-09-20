@@ -2633,4 +2633,305 @@ class Wpsipd_Public_Base_1 extends Wpsipd_Public_Base_2{
 			]);exit();
     	}
     }
+
+    public function show_skpd_rekening_analisis(){
+    	global $wpdb;
+    	try{
+            $nama_pemda = get_option('_crb_daerah');
+    		$kode_akun = $_POST['kode_akun'];
+            $id_jadwal_lokal = $_POST['id_jadwal_lokal'];
+            $id_sub_skpd =  $_POST['id_sub_skpd'];
+	        $tahun_anggaran = $_POST['tahun_anggaran'];
+            $sub_keg = $_POST['sub_keg'];
+
+			$jadwal_lokal = $wpdb->get_row($wpdb->prepare("
+				SELECT 
+					j.nama AS nama_jadwal,
+					j.tahun_anggaran,
+					j.status ,
+                    t.nama_tipe
+                FROM `data_jadwal_lokal` j
+                INNER JOIN `data_tipe_perencanaan` t on t.id=j.id_tipe 
+                WHERE j.id_jadwal_lokal=%d", $id_jadwal_lokal));
+
+			$_suffix='';
+			$where_jadwal='';
+            $where_jadwal_rekening='';
+            $where_jadwal_rekening_single='';
+			if($jadwal_lokal->status == 1){
+				$_suffix='_history';
+                $where_jadwal.=' AND sub_keg.id_jadwal='.$wpdb->prepare("%d", $id_jadwal_lokal);
+                $where_jadwal_rekening=' AND rekening.id_jadwal=sub_keg.id_jadwal';
+                $where_jadwal_rekening_single=' AND id_jadwal='.$wpdb->prepare("%d", $id_jadwal_lokal);
+			}
+
+            $_suffix_sipd='';
+            if(strpos($jadwal_lokal->nama_tipe, '_sipd') == false){
+                $_suffix_sipd = '_lokal';
+            }
+
+			$where_skpd = '';
+			if(!empty($id_sub_skpd)){
+				if($id_sub_skpd !='all'){
+					$where_skpd = " AND sub_keg.id_sub_skpd=".$wpdb->prepare("%d", $id_sub_skpd);
+				}
+			}
+
+            if($kode_akun == '...'){
+                $sql = "
+                    SELECT 
+                        rekening.id, 
+                        rekening.nama_akun, 
+                        rekening.kode_akun, 
+                        rekening.total_harga, 
+                        rekening.kode_sbl as kode_sbl_rekening, 
+                        sub_keg.kode_sbl, 
+                        sub_keg.nama_sub_giat, 
+                        sub_keg.nama_sub_skpd, 
+                        sub_keg.pagu, 
+                        sub_keg.id_sub_skpd 
+                    FROM data_sub_keg_bl".$_suffix_sipd."".$_suffix." AS sub_keg 
+                    LEFT JOIN data_rka".$_suffix_sipd."".$_suffix." AS rekening 
+                        ON rekening.kode_sbl = sub_keg.kode_sbl 
+                        AND rekening.tahun_anggaran=sub_keg.tahun_anggaran 
+                        AND rekening.active=sub_keg.active
+                        ".$where_jadwal_rekening."
+                    WHERE sub_keg.tahun_anggaran=%d 
+                        AND sub_keg.active=1
+                        AND rekening.kode_sbl IS NULL
+                        ".$where_jadwal."
+                        ".$where_skpd."
+                    ORDER BY rekening.kode_akun ASC";
+                 $sql = $wpdb->prepare($sql, $tahun_anggaran);
+            }else if($kode_akun == '-'){
+                $sql = "
+                    SELECT 
+                        rekening.id, 
+                        rekening.nama_akun, 
+                        rekening.kode_akun, 
+                        rekening.total_harga, 
+                        rekening.kode_sbl as kode_sbl_rekening, 
+                        sub_keg.kode_sbl, 
+                        sub_keg.nama_sub_giat, 
+                        sub_keg.nama_sub_skpd, 
+                        sub_keg.pagu, 
+                        sub_keg.id_sub_skpd 
+                    FROM data_sub_keg_bl".$_suffix_sipd."".$_suffix." AS sub_keg 
+                    LEFT JOIN data_rka".$_suffix_sipd."".$_suffix." AS rekening 
+                        ON rekening.kode_sbl = sub_keg.kode_sbl 
+                        AND rekening.tahun_anggaran=sub_keg.tahun_anggaran 
+                        AND rekening.active=sub_keg.active
+                        ".$where_jadwal_rekening."
+                    WHERE sub_keg.tahun_anggaran=%d 
+                        AND sub_keg.active=1
+                        AND rekening.kode_akun IS NULL
+                        ".$where_jadwal."
+                        ".$where_skpd."
+                    ORDER BY rekening.kode_akun ASC";
+                 $sql = $wpdb->prepare($sql, $tahun_anggaran);
+            }else{
+                $sql = "
+                    SELECT 
+                    rekening.id, 
+                    rekening.nama_akun, 
+                    rekening.kode_akun, 
+                    rekening.total_harga, 
+                    rekening.kode_sbl as kode_sbl_rekening, 
+                        sub_keg.kode_sbl, 
+                        sub_keg.nama_sub_giat, 
+                        sub_keg.kode_sub_skpd, 
+                        sub_keg.nama_sub_skpd, 
+                        sub_keg.pagu, 
+                        sub_keg.id_sub_skpd 
+                    FROM data_sub_keg_bl".$_suffix_sipd."".$_suffix." AS sub_keg 
+                    INNER JOIN data_rka".$_suffix_sipd."".$_suffix." AS rekening 
+                        ON rekening.kode_sbl = sub_keg.kode_sbl 
+                        AND rekening.tahun_anggaran=sub_keg.tahun_anggaran 
+                        AND rekening.active=sub_keg.active
+                        AND rekening.kode_akun=%s
+                        ".$where_jadwal_rekening."
+                    WHERE sub_keg.tahun_anggaran=%d 
+                        AND sub_keg.active=1
+                        ".$where_jadwal."
+                        ".$where_skpd."
+                    ORDER BY rekening.kode_akun ASC";
+			     $sql = $wpdb->prepare($sql, $kode_akun, $tahun_anggaran);
+            }
+			$analisis_rekening = $wpdb->get_results($sql, ARRAY_A);
+            $sql_rekening = $wpdb->last_query;
+
+            $nama_akun = "Nama Rekening tidak ditemukan!";
+            if($kode_akun == '...'){
+                $nama_akun = "Rekening belum diset!";
+            }else if($kode_akun == '-'){
+                $nama_akun = "Rekening belum ditetapkan!";
+            }else{
+                if(!empty($analisis_rekening)){
+                    $nama_akun = $analisis_rekening[0]['nama_akun'];
+                }
+            }
+            $title = 'Daftar SKPD yang menggunakan Rekening ( '.$nama_akun.' )';
+
+            $data_all = array(
+                'total' => 0,
+                'total_sub_keg' => 0,
+                'total_sub_keg_rekening' => 0,
+                'data'  => array()
+            );
+            $cek_sub_keg = array();
+            $double_sub_keg = array();
+            foreach($analisis_rekening as $k => $ap){
+                $key = $ap['id_sub_skpd'];
+                if(!empty($sub_keg)){
+                    $key = $ap['kode_sbl'];
+                }
+                if(empty($ap['kode_sbl_rekening'])){
+                    $ap['kode_akun'] = '...';
+                    $ap['nama_akun'] = 'Rekening belum diset!';
+                }else if(empty($ap['kode_akun'])){
+                    $ap['kode_akun'] = '-';
+                    $ap['nama_akun'] = 'Rekening belum ditetapkan!';
+                }
+                
+                if(empty($data_all['data'][$key])){
+                    $data_all['data'][$key] = $ap;
+                    $data_all['data'][$key]['skpd_id'] = array();
+                    $data_all['data'][$key]['sub_keg_id'] = array();
+                    $data_all['data'][$key]['sub_keg'] = 0;
+                    $data_all['data'][$key]['skpd'] = 0;
+                    $data_all['data'][$key]['total_pagu'] = 0;
+                    $data_all['data'][$key]['total_pagu_sub_keg'] = 0;
+                    $data_all['data'][$key]['pagurekening_all'] = 0;
+                }
+
+                if(empty($cek_sub_keg[$ap['kode_sbl']])){
+                    $cek_sub_keg[$ap['kode_sbl']] = $ap;
+                    $data_all['total_sub_keg'] += $ap['pagu'];
+                    $data_all['data'][$key]['total_pagu_sub_keg'] += $ap['pagu'];
+                }else{
+                    $double_sub_keg[] = $ap;
+                }
+
+                if(empty($data_all['data'][$key]['skpd_id'][$ap['id_sub_skpd']])){
+                    $data_all['data'][$key]['skpd_id'][$ap['id_sub_skpd']] = $ap['id_sub_skpd'];
+                    $data_all['data'][$key]['skpd']++;
+                }
+                if(empty($data_all['data'][$key]['sub_keg_id'][$ap['kode_sbl']])){
+                    $data_all['data'][$key]['sub_keg_id'][$ap['kode_sbl']] = $ap['kode_sbl'];
+                    $data_all['data'][$key]['sub_keg']++;
+                }
+
+                $pagurekening_all = $wpdb->get_results($wpdb->prepare("
+                    SELECT
+                        total_harga
+                    FROM data_rka".$_suffix_sipd."".$_suffix."
+                    WHERE kode_sbl=%s
+                        AND tahun_anggaran=%d
+                        AND active=1
+                        ".$where_jadwal_rekening_single."
+                ", $ap['kode_sbl'], $tahun_anggaran), ARRAY_A);
+                if(empty($pagurekening_all)){
+                    $data_all['data'][$key]['pagurekening_all'] += $ap['pagu'];
+                    $data_all['total_sub_keg_rekening'] += $ap['pagu'];
+                }else{
+                    foreach($pagurekening_all as $kk => $vv){
+                        $data_all['data'][$key]['pagurekening_all'] += $vv['total_harga'];
+                        $data_all['total_sub_keg_rekening'] += $vv['total_harga'];
+                    }
+                }
+
+                // jika rekening belum diset, maka total pagu diambil dari pagu sub kegiatan
+                if(empty($ap['kode_sbl_rekening'])){
+                    $data_all['data'][$key]['total_pagu'] += $ap['pagu'];
+                    $data_all['total'] += $ap['pagu'];
+                }else{
+                    $data_all['data'][$key]['total_pagu'] += $ap['total_harga'];
+                    $data_all['total'] += $ap['total_harga'];
+                }
+            }
+
+			/** Tabel skpd rekening */
+			$body = '';
+			$no=1;
+			foreach ($data_all['data'] as $key => $skpd) {
+                $warning = '';
+                if($skpd['pagurekening_all'] != $skpd['total_pagu_sub_keg']){
+                    $warning = 'background: #f9d9d9;';
+                }
+                $url_skpd = $this->generatePage('Input RENJA '.$skpd['nama_sub_skpd'].' '.$skpd['kode_sub_skpd'].' | '.$tahun_anggaran, $tahun_anggaran, '[input_renja tahun_anggaran="'.$tahun_anggaran.'" id_skpd="'.$skpd['id_sub_skpd'].'"]');
+                /** Cek apakah data lokal atau sipd */
+                $nama_skpd = ($_suffix_sipd == '_lokal') ? '<a href="'.$url_skpd.'" target="_blank">'.$skpd['kode_sub_skpd'].' '.$skpd['nama_sub_skpd'].'</a>' : $skpd['nama_sub_skpd'];
+                if(!empty($sub_keg)){
+                    $td_sub_keg = '
+                        <td class="atas kanan bawah">'.$skpd['nama_sub_giat'].'</td>
+                    ';
+                }
+				$body.='
+					<tr data-idsubskpd="'.$skpd['id_sub_skpd'].'">
+						<td class="kiri atas kanan bawah text_tengah">'.$no.'</td>
+						<td class="atas kanan bawah">'.$nama_skpd.'</td>
+                        '.$td_sub_keg.'
+						<td style="'.$warning.'" class="atas kanan bawah text_kanan">'.$this->_number_format($skpd['total_pagu']).'</td>
+                        <td style="'.$warning.'" class="atas kanan bawah text_kanan">'.$this->_number_format($skpd['total_pagu_sub_keg']).'</td>
+                        <td style="'.$warning.'" class="atas kanan bawah text_kanan">'.$this->_number_format($skpd['pagurekening_all']).'</td>
+					</tr>';
+					$no++;
+			}
+
+            $colspan = 2;
+            $judul = 'Rekening per SKPD';
+            $th_sub_giat = '';
+            if(!empty($sub_keg)){
+                $colspan = 3;
+                $th_sub_giat = '<th class="atas kanan bawah text_tengah text_blok" style="width: 200px;">Sub Kegiatan</th>';
+                $judul = 'Rekening per Sub Kegiatan';
+            }
+
+            $warning = '';
+            if($data_all['total_sub_keg_rekening'] != $data_all['total_sub_keg']){
+                $warning = 'background: #f9d9d9;';
+            }
+			$footer='
+                <tr>
+					<td class="kiri atas kanan bawah text_kiri" colspan="'.$colspan.'"><b>TOTAL</b></td>
+					<td style="'.$warning.'" class="atas kanan bawah text_kanan"><b>'.$this->_number_format($data_all['total']).'</b></td>
+                    <td style="'.$warning.'" class="atas kanan bawah text_kanan"><b>'.$this->_number_format($data_all['total_sub_keg']).'</b></td>
+                    <td style="'.$warning.'" class="atas kanan bawah text_kanan"><b>'.$this->_number_format($data_all['total_sub_keg_rekening']).'</b></td>
+				</tr>';
+
+			$html='<div id="preview" style="padding: 5px; overflow: auto; height: 100%;">
+					<h4 style="text-align: center; margin: 0; font-weight: bold;">'.$judul.'
+					<br>Tahun '.$jadwal_lokal->tahun_anggaran.' '.$nama_pemda.'
+					<br>'.$jadwal_lokal->nama_jadwal.'
+					</h4>
+					<br>
+					<table id="table-skpd-rekening" cellpadding="2" cellspacing="0" style="font-family:\'Open Sans\',-apple-system,BlinkMacSystemFont,\'Segoe UI\',sans-serif; border-collapse: collapse; font-size: 90%; border: 0; table-layout: fixed;" contenteditable="false">
+						<thead>
+							<tr>
+								<th style="width: 19px;" class="kiri atas kanan bawah text_tengah text_blok">No</th>
+								<th class="atas kanan bawah text_tengah text_blok">Nama Sub SKPD</th>
+                                '.$th_sub_giat.'
+								<th style="width: 140px;" class="atas kanan bawah text_tengah text_blok">Pagu Rekening</th>
+                                <th style="width: 140px;" class="atas kanan bawah text_tengah text_blok">Pagu Sub Kegiatan</th>
+                                <th style="width: 140px;" class="atas kanan bawah text_tengah text_blok">Pagu Rekening Dalam Satu Sub Kegiatan</th>
+							</tr>
+						</thead>
+						<tbody>'.$body.'</tbody>
+						<tfoot>'.$footer.'</tfoot>
+					</table>';
+
+    		echo json_encode([
+				'status' => true,
+				'html' => $html,
+                'title' => $title,
+                'query' => $sql_rekening
+			]);exit();
+
+    	}catch(Exception $e){
+    		echo json_encode([
+				'status' => false,
+				'message' => $e->getMessage()
+			]);exit();
+    	}
+    }
 }
