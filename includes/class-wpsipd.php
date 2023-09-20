@@ -884,13 +884,10 @@ class Wpsipd
 		$this->loader->add_action('wp_ajax_show_skpd_rekening_analisis',  $plugin_public, 'show_skpd_rekening_analisis');
 
 		$this->loader->add_action('wp_ajax_mutakhirkan_sub_kegiatan_renstra',  $plugin_public, 'mutakhirkan_sub_kegiatan_renstra');
-<<<<<<< HEAD
 		$this->loader->add_action('wp_ajax_get_pemdes_alamat',  $plugin_public, 'get_pemdes_alamat');
-=======
 		$this->loader->add_action('wp_ajax_mutakhirkan_program_renstra',  $plugin_public, 'mutakhirkan_program_renstra');
 		$this->loader->add_action('wp_ajax_list_kegiatan_by_program_renstra',  $plugin_public, 'listKegiatanByProgram');
 		$this->loader->add_action('wp_ajax_mutakhirkan_kegiatan_renstra',  $plugin_public, 'mutakhirkan_kegiatan_renstra');
->>>>>>> e6b36e6c8a125411b3ff145191cb3247274a0da4
 		
 		add_shortcode('menu_monev',  array($plugin_public, 'menu_monev'));
 		add_shortcode('datassh', array($plugin_public, 'datassh'));
