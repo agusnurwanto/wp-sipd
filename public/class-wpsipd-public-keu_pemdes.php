@@ -198,11 +198,28 @@ class Wpsipd_Public_Keu_Pemdes
             'message' => 'Berhasil hapus data!',
             'data' => array()
         );
+
         if (!empty($_POST)) {
             if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option('_crb_api_key_extension')) {
-                $ret['data'] = $wpdb->update('data_bkk_desa', array('active' => 0), array(
-                    'id' => $_POST['id']
-                ));
+                // Menggunakan API key yang sesuai
+                $idToDelete = $_POST['id'];
+
+                // Periksa apakah data dengan ID yang akan dihapus ada di tabel data_pencairan_bkk_desa
+                $idInOtherTable = $wpdb->get_var($wpdb->prepare('
+                    SELECT id_bkk
+                    FROM data_pencairan_bkk_desa
+                    WHERE id_bkk=%d
+                ', $idToDelete));
+                if ($idInOtherTable) {
+                    // Jika data dengan ID yang sama ditemukan di tabel lain, tampilkan pesan
+                    $ret['status'] = 'confirm';
+                    $ret['message'] = 'Data dengan ID = ' . $idInOtherTable . ' sudah pernah dicairkan.';
+                } else {
+                    // Jika tidak ada data dengan ID yang sama di tabel lain, lanjutkan penghapusan seperti biasa
+                    $ret['data'] = $wpdb->update('data_bkk_desa', array('active' => 0), array(
+                        'id' => $idToDelete
+                    ));
+                }
             } else {
                 $ret['status']  = 'error';
                 $ret['message'] = 'Api key tidak ditemukan!';
@@ -211,7 +228,6 @@ class Wpsipd_Public_Keu_Pemdes
             $ret['status']  = 'error';
             $ret['message'] = 'Format Salah!';
         }
-
         die(json_encode($ret));
     }
 
@@ -225,87 +241,56 @@ class Wpsipd_Public_Keu_Pemdes
         );
         if (!empty($_POST)) {
             if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option('_crb_api_key_extension')) {
-                if ($ret['status'] != 'error' && !empty($_POST['id_desa'])) {
-                    $id_desa = $_POST['id_desa'];
-                } else {
+                if (empty($_POST['id_desa'])) {
                     $ret['status'] = 'error';
-                    $ret['message'] = 'Data id_desa tidak boleh kosong!';
-                }
-                if ($ret['status'] != 'error' && !empty($_POST['desa'])) {
-                    $desa = $_POST['desa'];
-                }
-                // else{
-                //  $ret['status'] = 'error';
-                //  $ret['message'] = 'Data desa tidak boleh kosong!';
-                // }
-                if ($ret['status'] != 'error' && !empty($_POST['kecamatan'])) {
-                    $kecamatan = $_POST['kecamatan'];
-                }
-                // else{
-                //  $ret['status'] = 'error';
-                //  $ret['message'] = 'Data kecamatan tidak boleh kosong!';
-                // }
-                if ($ret['status'] != 'error' && !empty($_POST['id_kecamatan'])) {
-                    $id_kecamatan = $_POST['id_kecamatan'];
-                }
-                // else{
-                //  $ret['status'] = 'error';
-                //  $ret['message'] = 'Data id_kecamatan tidak boleh kosong!';
-                // }
-                if ($ret['status'] != 'error' && !empty($_POST['kegiatan'])) {
-                    $kegiatan = $_POST['kegiatan'];
-                }
-                // else{
-                //  $ret['status'] = 'error';
-                //  $ret['message'] = 'Data kegiatan tidak boleh kosong!';
-                // }
-                if ($ret['status'] != 'error' && !empty($_POST['alamat'])) {
-                    $alamat = $_POST['alamat'];
-                }
-                // else{
-                //  $ret['status'] = 'error';
-                //  $ret['message'] = 'Data alamat tidak boleh kosong!';
-                // }
-                if ($ret['status'] != 'error' && !empty($_POST['total'])) {
-                    $total = $_POST['total'];
-                }
-                // else{
-                //  $ret['status'] = 'error';
-                //  $ret['message'] = 'Data total tidak boleh kosong!';
-                // }
-                if ($ret['status'] != 'error' && !empty($_POST['id_dana'])) {
-                    $id_dana = $_POST['id_dana'];
-                }
-                // else{
-                //  $ret['status'] = 'error';
-                //  $ret['message'] = 'Data id_dana tidak boleh kosong!';
-                // }
-                if ($ret['status'] != 'error' && !empty($_POST['sumber_dana'])) {
-                    $sumber_dana = $_POST['sumber_dana'];
-                }
-                // else{
-                //  $ret['status'] = 'error';
-                //  $ret['message'] = 'Data sumber_dana tidak boleh kosong!';
-                // }
-                if ($ret['status'] != 'error' && !empty($_POST['tahun_anggaran'])) {
+                    $ret['message'] = 'Data id desa tidak boleh kosong!';
+                } else if (empty($_POST['id_kec'])) {
+                    $ret['status'] = 'error';
+                    $ret['message'] = 'Data id kecamatan tidak boleh kosong!';
+                } else if (empty($_POST['desa'])) {
+                    $ret['status'] = 'error';
+                    $ret['message'] = 'Data desa tidak boleh kosong!';
+                } else if (empty($_POST['kecamatan'])) {
+                    $ret['status'] = 'error';
+                    $ret['message'] = 'Data kecamatan tidak boleh kosong!';
+                } else if (empty($_POST['kegiatan'])) {
+                    $ret['status'] = 'error';
+                    $ret['message'] = 'Data kegiatan tidak boleh kosong!';
+                } else if (empty($_POST['alamat'])) {
+                    $ret['status'] = 'error';
+                    $ret['message'] = 'Data alamat tidak boleh kosong!';
+                } else if (empty($_POST['total'])) {
+                    $ret['status'] = 'error';
+                    $ret['message'] = 'Data total tidak boleh kosong!';
+                } else if (empty($_POST['id_dana'])) {
+                    // $ret['status'] = 'error';
+                    // $ret['message'] = 'Data id_dana tidak boleh kosong!';
+                } else if (empty($_POST['sumber_dana'])) {
+                    // $ret['status'] = 'error';
+                    // $ret['message'] = 'Data sumber_dana tidak boleh kosong!';
+                } else if (empty($_POST['tahun_anggaran'])) {
+                    $ret['status'] = 'error';
+                    $ret['message'] = 'Data tahun anggaran tidak boleh kosong!';
+                } else {
                     $tahun_anggaran = $_POST['tahun_anggaran'];
-                }
-                // else{
-                //  $ret['status'] = 'error';
-                //  $ret['message'] = 'Data tahun_anggaran tidak boleh kosong!';
-                // }
-                if ($ret['status'] != 'error') {
+                    $total = $_POST['total'];
+                    $id_kecamatan = $_POST['id_kec'];
+                    $kecamatan = $_POST['kecamatan'];
+                    $desa = $_POST['desa'];
+                    $kegiatan = $_POST['kegiatan'];
+                    $alamat = $_POST['alamat'];
+                    $id_dana = $_POST['id_dana'];
+                    $sumber_dana = $_POST['sumber_dana'];
+                    $id_desa = $_POST['id_desa'];
                     $data = array(
                         'id_desa' => $id_desa,
+                        'id_kecamatan' => $id_kecamatan,
                         'desa' => $desa,
                         'kecamatan' => $kecamatan,
-                        'id_kecamatan' => $id_kecamatan,
-                        'kegiatan' => $kegiatan,
-                        'alamat' => $alamat,
                         'total' => $total,
+                        'tahun_anggaran' => $tahun_anggaran,
                         'id_dana' => $id_dana,
                         'sumber_dana' => $sumber_dana,
-                        'tahun_anggaran' => $tahun_anggaran,
                         'active' => 1,
                         'update_at' => current_time('mysql')
                     );
@@ -317,26 +302,21 @@ class Wpsipd_Public_Keu_Pemdes
                     } else {
                         $cek_id = $wpdb->get_row($wpdb->prepare('
                             SELECT
-                                id,
-                                status
+                                id_desa,
+                                active
                             FROM data_bkk_desa
-                            WHERE kegiatan=%s
-                                AND alamat=%s
-                                AND desa=%s
-                                AND kecamatan=%s
-                                AND total=%s
-                                AND tahun_anggaran=%s
-                        ', $kegiatan, $alamat, $desa, $kecamatan, $total, $tahun_anggaran), ARRAY_A);
+                            WHERE id_desa=%s
+                        ', $id_desa), ARRAY_A);
                         if (empty($cek_id)) {
                             $wpdb->insert('data_bkk_desa', $data);
                         } else {
-                            if ($cek_id['status'] == 3) {
+                            if ($cek_id['active'] == 0) {
                                 $wpdb->update('data_bkk_desa', $data, array(
-                                    'id' => $cek_id['id']
+                                    'id' => $cek_id['id_desa']
                                 ));
                             } else {
                                 $ret['status'] = 'error';
-                                $ret['message'] = 'Gagal disimpan. Data bkk_desa dengan kegiatan="' . $kegiatan . '", alamat="' . $alamat . '", desa="' . $desa . '", kecamatan="' . $kecamatan . '", total="' . $total . '", tahun_anggaran="' . $tahun_anggaran . '" sudah ada!';
+                                $ret['message'] = 'Gagal disimpan. Data bkk_infrastruktur dengan id_desa="' . $id_desa . '" sudah ada!';
                             }
                         }
                     }
@@ -417,6 +397,7 @@ class Wpsipd_Public_Keu_Pemdes
                     $btn = '<a class="btn btn-sm btn-warning" onclick="edit_data(\'' . $recVal['id'] . '\'); return false;" href="#" title="Edit Data"><i class="dashicons dashicons-edit"></i></a>';
                     $btn .= '<a class="btn btn-sm btn-danger" onclick="hapus_data(\'' . $recVal['id'] . '\'); return false;" href="#" title="Edit Data"><i class="dashicons dashicons-trash"></i></a>';
                     $queryRecords[$recKey]['aksi'] = $btn;
+                    $queryRecords[$recKey]['total'] = number_format($recVal['total'], 0, ",", ".");
                 }
 
                 $json_data = array(
@@ -479,11 +460,28 @@ class Wpsipd_Public_Keu_Pemdes
             'message' => 'Berhasil hapus data!',
             'data' => array()
         );
+
         if (!empty($_POST)) {
             if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option('_crb_api_key_extension')) {
-                $ret['data'] = $wpdb->update('data_bhpd_desa', array('active' => 0), array(
-                    'id' => $_POST['id']
-                ));
+                // Menggunakan API key yang sesuai
+                $idToDelete = $_POST['id'];
+
+                // Periksa apakah data dengan ID yang akan dihapus ada di tabel data_pencairan_bhpd_desa
+                $idInOtherTable = $wpdb->get_var($wpdb->prepare('
+                    SELECT id_bhpd
+                    FROM data_pencairan_bhpd_desa
+                    WHERE id_bhpd=%d
+                ', $idToDelete));
+                if ($idInOtherTable) {
+                    // Jika data dengan ID yang sama ditemukan di tabel lain, tampilkan pesan
+                    $ret['status'] = 'confirm';
+                    $ret['message'] = 'Data dengan ID = ' . $idInOtherTable . ' sudah pernah dicairkan.';
+                } else {
+                    // Jika tidak ada data dengan ID yang sama di tabel lain, lanjutkan penghapusan seperti biasa
+                    $ret['data'] = $wpdb->update('data_bhpd_desa', array('active' => 0), array(
+                        'id' => $idToDelete
+                    ));
+                }
             } else {
                 $ret['status']  = 'error';
                 $ret['message'] = 'Api key tidak ditemukan!';
@@ -492,7 +490,6 @@ class Wpsipd_Public_Keu_Pemdes
             $ret['status']  = 'error';
             $ret['message'] = 'Format Salah!';
         }
-
         die(json_encode($ret));
     }
 
@@ -506,54 +503,31 @@ class Wpsipd_Public_Keu_Pemdes
         );
         if (!empty($_POST)) {
             if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option('_crb_api_key_extension')) {
-                if ($ret['status'] != 'error' && !empty($_POST['id_desa'])) {
-                    $id_desa = $_POST['id_desa'];
-                } else {
+                if (empty($_POST['id_desa'])) {
                     $ret['status'] = 'error';
-                    $ret['message'] = 'Data id_desa tidak boleh kosong!';
-                }
-                if ($ret['status'] != 'error' && !empty($_POST['desa'])) {
-                    $desa = $_POST['desa'];
-                }
-                // else{
-                //  $ret['status'] = 'error';
-                //  $ret['message'] = 'Data desa tidak boleh kosong!';
-                // }
-                if ($ret['status'] != 'error' && !empty($_POST['kecamatan'])) {
-                    $kecamatan = $_POST['kecamatan'];
-                }
-                // else{
-                //  $ret['status'] = 'error';
-                //  $ret['message'] = 'Data kecamatan tidak boleh kosong!';
-                // }
-                if ($ret['status'] != 'error' && !empty($_POST['id_kecamatan'])) {
-                    $id_kecamatan = $_POST['id_kecamatan'];
-                }
-                // else{
-                //  $ret['status'] = 'error';
-                //  $ret['message'] = 'Data id_kecamatan tidak boleh kosong!';
-                // }
-                if ($ret['status'] != 'error' && !empty($_POST['kegiatan'])) {
-                    $kegiatan = $_POST['kegiatan'];
-                }
-                if ($ret['status'] != 'error' && !empty($_POST['total'])) {
-                    $total = $_POST['total'];
-                }
-                // else{
-                //  $ret['status'] = 'error';
-                //  $ret['message'] = 'Data total tidak boleh kosong!';
-                // }
-                if ($ret['status'] != 'error' && !empty($_POST['id_dana'])) {
-                    $id_dana = $_POST['id_dana'];
-                }
-                if ($ret['status'] != 'error' && !empty($_POST['tahun_anggaran'])) {
+                    $ret['message'] = 'Data id desa tidak boleh kosong!';
+                } else if (empty($_POST['id_kec'])) {
+                    $ret['status'] = 'error';
+                    $ret['message'] = 'Data id kecamatan tidak boleh kosong!';
+                } else if (empty($_POST['desa'])) {
+                    $ret['status'] = 'error';
+                    $ret['message'] = 'Data desa tidak boleh kosong!';
+                } else if (empty($_POST['kecamatan'])) {
+                    $ret['status'] = 'error';
+                    $ret['message'] = 'Data kecamatan tidak boleh kosong!';
+                } else if (empty($_POST['total'])) {
+                    $ret['status'] = 'error';
+                    $ret['message'] = 'Data total tidak boleh kosong!';
+                } else if (empty($_POST['tahun_anggaran'])) {
+                    $ret['status'] = 'error';
+                    $ret['message'] = 'Data tahun anggaran tidak boleh kosong!';
+                } else {
                     $tahun_anggaran = $_POST['tahun_anggaran'];
-                }
-                // else{
-                //  $ret['status'] = 'error';
-                //  $ret['message'] = 'Data tahun_anggaran tidak boleh kosong!';
-                // }
-                if ($ret['status'] != 'error') {
+                    $total = $_POST['total'];
+                    $id_kecamatan = $_POST['id_kec'];
+                    $kecamatan = $_POST['kecamatan'];
+                    $desa = $_POST['desa'];
+                    $id_desa = $_POST['id_desa'];
                     $data = array(
                         'id_desa' => $id_desa,
                         'desa' => $desa,
@@ -572,21 +546,21 @@ class Wpsipd_Public_Keu_Pemdes
                     } else {
                         $cek_id = $wpdb->get_row($wpdb->prepare('
                             SELECT
-                                id,
+                                id_desa,
                                 active
                             FROM data_bhpd_desa
-                            WHERE id_bhpd_desa=%s
-                        ', $id_bhpd_desa), ARRAY_A);
+                            WHERE id_desa=%s
+                        ', $id_desa), ARRAY_A);
                         if (empty($cek_id)) {
                             $wpdb->insert('data_bhpd_desa', $data);
                         } else {
                             if ($cek_id['active'] == 0) {
                                 $wpdb->update('data_bhpd_desa', $data, array(
-                                    'id' => $cek_id['id']
+                                    'id' => $cek_id['id_desa']
                                 ));
                             } else {
                                 $ret['status'] = 'error';
-                                $ret['message'] = 'Gagal disimpan. Data bhpd_desa dengan id_bhpd_desa="' . $id_bhpd_desa . '" sudah ada!';
+                                $ret['message'] = 'Gagal disimpan. Data bhpd_desa dengan id_desa="' . $id_desa . '" sudah ada!';
                             }
                         }
                     }
@@ -600,6 +574,57 @@ class Wpsipd_Public_Keu_Pemdes
             $ret['message'] = 'Format Salah!';
         }
 
+        die(json_encode($ret));
+    }
+
+    public function get_pemdes_alamat()
+    {
+        global $wpdb;
+        $ret = array(
+            'status' => 'success',
+            'message' => 'Berhasil get data!',
+            'data'  => array()
+        );
+
+        if (!empty($_POST)) {
+            if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option('_crb_api_key_extension')) {
+                $id_kab = get_option('_crb_id_lokasi_kokab');
+                $all_kec = $wpdb->get_results($wpdb->prepare("
+                    SELECT 
+                        id_alamat as id_kec,
+                        nama as kecamatan 
+                    from data_alamat 
+                    where tahun=%d 
+                        and is_kec=1 
+                        and id_kab=" . $id_kab . "
+                ", $_POST['tahun']), ARRAY_A);
+                $data = $all_kec;
+                foreach ($all_kec as $key => $kec) {
+                    $desa = $wpdb->get_results($wpdb->prepare("
+                        SELECT 
+                            id_alamat as id_kel,
+                            nama as desa
+                        from data_alamat 
+                        where tahun=%d
+                            and is_kel=1 
+                            and id_kab=" . $id_kab . " 
+                            and id_kec=" . $kec['id_kec'] . "
+                    ", $_POST['tahun']), ARRAY_A);
+                    $data[$key]['desa'] = $desa;
+                }
+                $ret['data'] = $data;
+            } else {
+                $ret = array(
+                    'status' => 'error',
+                    'message'   => 'Api Key tidak sesuai!'
+                );
+            }
+        } else {
+            $ret = array(
+                'status' => 'error',
+                'message'   => 'Format tidak sesuai!'
+            );
+        }
         die(json_encode($ret));
     }
 
@@ -631,8 +656,8 @@ class Wpsipd_Public_Keu_Pemdes
 
                 // check search value exist
                 if (!empty($params['search']['value'])) {
-                    $where .= " AND ( desa LIKE " . $wpdb->prepare('%s', "%" . $params['search']['value'] . "%");
-                    $where .= " OR kecamatan LIKE " . $wpdb->prepare('%s', "%" . $params['search']['value'] . "%");
+                    $where .= " AND d.kecamatan LIKE " . $wpdb->prepare('%s', "%" . $params['search']['value'] . "%");
+                    $where .= " AND d.desa LIKE " . $wpdb->prepare('%s', "%" . $params['search']['value'] . "%");
                 }
 
                 // getting total number records without any search
@@ -650,7 +675,7 @@ class Wpsipd_Public_Keu_Pemdes
                 if ($params['length'] != -1) {
                     $limit = "  LIMIT " . $wpdb->prepare('%d', $params['start']) . " ," . $wpdb->prepare('%d', $params['length']);
                 }
-                $sqlRec .=  " ORDER BY " . $columns[$params['order'][0]['column']] . "   " . $params['order'][0]['dir'] . $limit;
+                $sqlRec .= " ORDER BY update_at DESC" . $limit;
 
                 $queryTot = $wpdb->get_results($sqlTot, ARRAY_A);
                 $totalRecords = $queryTot[0]['jml'];
@@ -660,6 +685,7 @@ class Wpsipd_Public_Keu_Pemdes
                     $btn = '<a class="btn btn-sm btn-warning" onclick="edit_data(\'' . $recVal['id'] . '\'); return false;" href="#" title="Edit Data"><i class="dashicons dashicons-edit"></i></a>';
                     $btn .= '<a class="btn btn-sm btn-danger" onclick="hapus_data(\'' . $recVal['id'] . '\'); return false;" href="#" title="Edit Data"><i class="dashicons dashicons-trash"></i></a>';
                     $queryRecords[$recKey]['aksi'] = $btn;
+                    $queryRecords[$recKey]['total'] = number_format($recVal['total'], 0, ",", ".");
                 }
 
                 $json_data = array(
@@ -722,11 +748,28 @@ class Wpsipd_Public_Keu_Pemdes
             'message' => 'Berhasil hapus data!',
             'data' => array()
         );
+
         if (!empty($_POST)) {
             if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option('_crb_api_key_extension')) {
-                $ret['data'] = $wpdb->update('data_bhrd_desa', array('active' => 0), array(
-                    'id' => $_POST['id']
-                ));
+                // Menggunakan API key yang sesuai
+                $idToDelete = $_POST['id'];
+
+                // Periksa apakah data dengan ID yang akan dihapus ada di tabel data_pencairan_bhrd_desa
+                $idInOtherTable = $wpdb->get_var($wpdb->prepare('
+                    SELECT id_bhrd
+                    FROM data_pencairan_bhrd_desa
+                    WHERE id_bhrd=%d
+                ', $idToDelete));
+                if ($idInOtherTable) {
+                    // Jika data dengan ID yang sama ditemukan di tabel lain, tampilkan pesan
+                    $ret['status'] = 'confirm';
+                    $ret['message'] = 'Data dengan ID = ' . $idInOtherTable . ' sudah pernah dicairkan.';
+                } else {
+                    // Jika tidak ada data dengan ID yang sama di tabel lain, lanjutkan penghapusan seperti biasa
+                    $ret['data'] = $wpdb->update('data_bhrd_desa', array('active' => 0), array(
+                        'id' => $idToDelete
+                    ));
+                }
             } else {
                 $ret['status']  = 'error';
                 $ret['message'] = 'Api key tidak ditemukan!';
@@ -735,7 +778,6 @@ class Wpsipd_Public_Keu_Pemdes
             $ret['status']  = 'error';
             $ret['message'] = 'Format Salah!';
         }
-
         die(json_encode($ret));
     }
 
@@ -749,54 +791,31 @@ class Wpsipd_Public_Keu_Pemdes
         );
         if (!empty($_POST)) {
             if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option('_crb_api_key_extension')) {
-                if ($ret['status'] != 'error' && !empty($_POST['id_desa'])) {
-                    $id_desa = $_POST['id_desa'];
-                } else {
+                if (empty($_POST['id_desa'])) {
                     $ret['status'] = 'error';
-                    $ret['message'] = 'Data id_desa tidak boleh kosong!';
-                }
-                if ($ret['status'] != 'error' && !empty($_POST['desa'])) {
-                    $desa = $_POST['desa'];
-                }
-                // else{
-                //  $ret['status'] = 'error';
-                //  $ret['message'] = 'Data desa tidak boleh kosong!';
-                // }
-                if ($ret['status'] != 'error' && !empty($_POST['kecamatan'])) {
-                    $kecamatan = $_POST['kecamatan'];
-                }
-                // else{
-                //  $ret['status'] = 'error';
-                //  $ret['message'] = 'Data kecamatan tidak boleh kosong!';
-                // }
-                if ($ret['status'] != 'error' && !empty($_POST['id_kecamatan'])) {
-                    $id_kecamatan = $_POST['id_kecamatan'];
-                }
-                // else{
-                //  $ret['status'] = 'error';
-                //  $ret['message'] = 'Data id_kecamatan tidak boleh kosong!';
-                // }
-                if ($ret['status'] != 'error' && !empty($_POST['kegiatan'])) {
-                    $kegiatan = $_POST['kegiatan'];
-                }
-                if ($ret['status'] != 'error' && !empty($_POST['total'])) {
-                    $total = $_POST['total'];
-                }
-                // else{
-                //  $ret['status'] = 'error';
-                //  $ret['message'] = 'Data total tidak boleh kosong!';
-                // }
-                if ($ret['status'] != 'error' && !empty($_POST['id_dana'])) {
-                    $id_dana = $_POST['id_dana'];
-                }
-                if ($ret['status'] != 'error' && !empty($_POST['tahun_anggaran'])) {
+                    $ret['message'] = 'Data id desa tidak boleh kosong!';
+                } else if (empty($_POST['id_kec'])) {
+                    $ret['status'] = 'error';
+                    $ret['message'] = 'Data id kecamatan tidak boleh kosong!';
+                } else if (empty($_POST['desa'])) {
+                    $ret['status'] = 'error';
+                    $ret['message'] = 'Data desa tidak boleh kosong!';
+                } else if (empty($_POST['kecamatan'])) {
+                    $ret['status'] = 'error';
+                    $ret['message'] = 'Data kecamatan tidak boleh kosong!';
+                } else if (empty($_POST['total'])) {
+                    $ret['status'] = 'error';
+                    $ret['message'] = 'Data total tidak boleh kosong!';
+                } else if (empty($_POST['tahun_anggaran'])) {
+                    $ret['status'] = 'error';
+                    $ret['message'] = 'Data tahun anggaran tidak boleh kosong!';
+                } else {
                     $tahun_anggaran = $_POST['tahun_anggaran'];
-                }
-                // else{
-                //  $ret['status'] = 'error';
-                //  $ret['message'] = 'Data tahun_anggaran tidak boleh kosong!';
-                // }
-                if ($ret['status'] != 'error') {
+                    $total = $_POST['total'];
+                    $id_kecamatan = $_POST['id_kec'];
+                    $kecamatan = $_POST['kecamatan'];
+                    $desa = $_POST['desa'];
+                    $id_desa = $_POST['id_desa'];
                     $data = array(
                         'id_desa' => $id_desa,
                         'desa' => $desa,
@@ -814,18 +833,18 @@ class Wpsipd_Public_Keu_Pemdes
                         $ret['message'] = 'Berhasil update data!';
                     } else {
                         $cek_id = $wpdb->get_row($wpdb->prepare('
-                                SELECT
-                                    id,
-                                    active
-                                FROM data_bhrd_desa
-                                WHERE id_bhrd_desa=%s
-                            ', $id_bhrd_desa), ARRAY_A);
+                            SELECT
+                                id_desa,
+                                active
+                            FROM data_bhrd_desa
+                            WHERE id_desa=%s
+                        ', $id_desa), ARRAY_A);
                         if (empty($cek_id)) {
                             $wpdb->insert('data_bhrd_desa', $data);
                         } else {
                             if ($cek_id['active'] == 0) {
                                 $wpdb->update('data_bhrd_desa', $data, array(
-                                    'id' => $cek_id['id']
+                                    'id' => $cek_id['id_desa']
                                 ));
                             } else {
                                 $ret['status'] = 'error';
@@ -903,6 +922,7 @@ class Wpsipd_Public_Keu_Pemdes
                     $btn = '<a class="btn btn-sm btn-warning" onclick="edit_data(\'' . $recVal['id'] . '\'); return false;" href="#" title="Edit Data"><i class="dashicons dashicons-edit"></i></a>';
                     $btn .= '<a class="btn btn-sm btn-danger" onclick="hapus_data(\'' . $recVal['id'] . '\'); return false;" href="#" title="Edit Data"><i class="dashicons dashicons-trash"></i></a>';
                     $queryRecords[$recKey]['aksi'] = $btn;
+                    $queryRecords[$recKey]['total'] = number_format($recVal['total'], 0, ",", ".");
                 }
 
                 $json_data = array(
@@ -1008,11 +1028,28 @@ class Wpsipd_Public_Keu_Pemdes
             'message' => 'Berhasil hapus data!',
             'data' => array()
         );
+
         if (!empty($_POST)) {
             if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option('_crb_api_key_extension')) {
-                $ret['data'] = $wpdb->update('data_bku_dd_desa', array('active' => 0), array(
-                    'id' => $_POST['id']
-                ));
+                // Menggunakan API key yang sesuai
+                $idToDelete = $_POST['id'];
+
+                // Periksa apakah data dengan ID yang akan dihapus ada di tabel data_pencairan_bku_dd_desa
+                $idInOtherTable = $wpdb->get_var($wpdb->prepare('
+                    SELECT id_bku_dd
+                    FROM data_pencairan_bku_dd_desa
+                    WHERE id_bku_dd=%d
+                ', $idToDelete));
+                if ($idInOtherTable) {
+                    // Jika data dengan ID yang sama ditemukan di tabel lain, tampilkan pesan
+                    $ret['status'] = 'confirm';
+                    $ret['message'] = 'Data dengan ID = ' . $idInOtherTable . ' sudah pernah dicairkan.';
+                } else {
+                    // Jika tidak ada data dengan ID yang sama di tabel lain, lanjutkan penghapusan seperti biasa
+                    $ret['data'] = $wpdb->update('data_bku_dd_desa', array('active' => 0), array(
+                        'id' => $idToDelete
+                    ));
+                }
             } else {
                 $ret['status']  = 'error';
                 $ret['message'] = 'Api key tidak ditemukan!';
@@ -1021,7 +1058,6 @@ class Wpsipd_Public_Keu_Pemdes
             $ret['status']  = 'error';
             $ret['message'] = 'Format Salah!';
         }
-
         die(json_encode($ret));
     }
 
@@ -1035,54 +1071,31 @@ class Wpsipd_Public_Keu_Pemdes
         );
         if (!empty($_POST)) {
             if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option('_crb_api_key_extension')) {
-                if ($ret['status'] != 'error' && !empty($_POST['id_desa'])) {
-                    $id_desa = $_POST['id_desa'];
-                } else {
+                if (empty($_POST['id_desa'])) {
                     $ret['status'] = 'error';
-                    $ret['message'] = 'Data id_desa tidak boleh kosong!';
-                }
-                if ($ret['status'] != 'error' && !empty($_POST['desa'])) {
-                    $desa = $_POST['desa'];
-                }
-                // else{
-                //  $ret['status'] = 'error';
-                //  $ret['message'] = 'Data desa tidak boleh kosong!';
-                // }
-                if ($ret['status'] != 'error' && !empty($_POST['kecamatan'])) {
-                    $kecamatan = $_POST['kecamatan'];
-                }
-                // else{
-                //  $ret['status'] = 'error';
-                //  $ret['message'] = 'Data kecamatan tidak boleh kosong!';
-                // }
-                if ($ret['status'] != 'error' && !empty($_POST['id_kecamatan'])) {
-                    $id_kecamatan = $_POST['id_kecamatan'];
-                }
-                // else{
-                //  $ret['status'] = 'error';
-                //  $ret['message'] = 'Data id_kecamatan tidak boleh kosong!';
-                // }
-                if ($ret['status'] != 'error' && !empty($_POST['kegiatan'])) {
-                    $kegiatan = $_POST['kegiatan'];
-                }
-                if ($ret['status'] != 'error' && !empty($_POST['total'])) {
-                    $total = $_POST['total'];
-                }
-                // else{
-                //  $ret['status'] = 'error';
-                //  $ret['message'] = 'Data total tidak boleh kosong!';
-                // }
-                if ($ret['status'] != 'error' && !empty($_POST['id_dana'])) {
-                    $id_dana = $_POST['id_dana'];
-                }
-                if ($ret['status'] != 'error' && !empty($_POST['tahun_anggaran'])) {
+                    $ret['message'] = 'Data id desa tidak boleh kosong!';
+                } else if (empty($_POST['id_kec'])) {
+                    $ret['status'] = 'error';
+                    $ret['message'] = 'Data id kecamatan tidak boleh kosong!';
+                } else if (empty($_POST['desa'])) {
+                    $ret['status'] = 'error';
+                    $ret['message'] = 'Data desa tidak boleh kosong!';
+                } else if (empty($_POST['kecamatan'])) {
+                    $ret['status'] = 'error';
+                    $ret['message'] = 'Data kecamatan tidak boleh kosong!';
+                } else if (empty($_POST['total'])) {
+                    $ret['status'] = 'error';
+                    $ret['message'] = 'Data total tidak boleh kosong!';
+                } else if (empty($_POST['tahun_anggaran'])) {
+                    $ret['status'] = 'error';
+                    $ret['message'] = 'Data tahun anggaran tidak boleh kosong!';
+                } else {
                     $tahun_anggaran = $_POST['tahun_anggaran'];
-                }
-                // else{
-                //  $ret['status'] = 'error';
-                //  $ret['message'] = 'Data tahun_anggaran tidak boleh kosong!';
-                // }
-                if ($ret['status'] != 'error') {
+                    $total = $_POST['total'];
+                    $id_kecamatan = $_POST['id_kec'];
+                    $kecamatan = $_POST['kecamatan'];
+                    $desa = $_POST['desa'];
+                    $id_desa = $_POST['id_desa'];
                     $data = array(
                         'id_desa' => $id_desa,
                         'desa' => $desa,
@@ -1101,21 +1114,21 @@ class Wpsipd_Public_Keu_Pemdes
                     } else {
                         $cek_id = $wpdb->get_row($wpdb->prepare('
                             SELECT
-                                id,
+                                id_desa,
                                 active
                             FROM data_bku_dd_desa
-                            WHERE id_bku_dd_desa=%s
-                        ', $id_bku_dd_desa), ARRAY_A);
+                            WHERE id_desa=%s
+                        ', $id_desa), ARRAY_A);
                         if (empty($cek_id)) {
                             $wpdb->insert('data_bku_dd_desa', $data);
                         } else {
                             if ($cek_id['active'] == 0) {
                                 $wpdb->update('data_bku_dd_desa', $data, array(
-                                    'id' => $cek_id['id']
+                                    'id' => $cek_id['id_desa']
                                 ));
                             } else {
                                 $ret['status'] = 'error';
-                                $ret['message'] = 'Gagal disimpan. Data bku_dd_desa dengan id_bku_dd_desa="' . $id_bku_dd_desa . '" sudah ada!';
+                                $ret['message'] = 'Gagal disimpan. Data bku_dd_desa dengan id_desa="' . $id_desa . '" sudah ada!';
                             }
                         }
                     }
@@ -1189,6 +1202,7 @@ class Wpsipd_Public_Keu_Pemdes
                     $btn = '<a class="btn btn-sm btn-warning" onclick="edit_data(\'' . $recVal['id'] . '\'); return false;" href="#" title="Edit Data"><i class="dashicons dashicons-edit"></i></a>';
                     $btn .= '<a style="margin-left: 10px;" class="btn btn-sm btn-danger" onclick="hapus_data(\'' . $recVal['id'] . '\'); return false;" href="#" title="Edit Data"><i class="dashicons dashicons-trash"></i></a>';
                     $queryRecords[$recKey]['aksi'] = $btn;
+                    $queryRecords[$recKey]['total'] = number_format($recVal['total'], 0, ",", ".");
                 }
 
                 $json_data = array(
@@ -1251,11 +1265,28 @@ class Wpsipd_Public_Keu_Pemdes
             'message' => 'Berhasil hapus data!',
             'data' => array()
         );
+
         if (!empty($_POST)) {
             if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option('_crb_api_key_extension')) {
-                $ret['data'] = $wpdb->update('data_bku_add_desa', array('active' => 0), array(
-                    'id' => $_POST['id']
-                ));
+                // Menggunakan API key yang sesuai
+                $idToDelete = $_POST['id'];
+
+                // Periksa apakah data dengan ID yang akan dihapus ada di tabel data_pencairan_bku_add_desa
+                $idInOtherTable = $wpdb->get_var($wpdb->prepare('
+                    SELECT id_bku_add
+                    FROM data_pencairan_bku_add_desa
+                    WHERE id_bku_add=%d
+                ', $idToDelete));
+                if ($idInOtherTable) {
+                    // Jika data dengan ID yang sama ditemukan di tabel lain, tampilkan pesan
+                    $ret['status'] = 'confirm';
+                    $ret['message'] = 'Data dengan ID = ' . $idInOtherTable . ' sudah pernah dicairkan.';
+                } else {
+                    // Jika tidak ada data dengan ID yang sama di tabel lain, lanjutkan penghapusan seperti biasa
+                    $ret['data'] = $wpdb->update('data_bku_add_desa', array('active' => 0), array(
+                        'id' => $idToDelete
+                    ));
+                }
             } else {
                 $ret['status']  = 'error';
                 $ret['message'] = 'Api key tidak ditemukan!';
@@ -1264,7 +1295,6 @@ class Wpsipd_Public_Keu_Pemdes
             $ret['status']  = 'error';
             $ret['message'] = 'Format Salah!';
         }
-
         die(json_encode($ret));
     }
 
@@ -1278,54 +1308,31 @@ class Wpsipd_Public_Keu_Pemdes
         );
         if (!empty($_POST)) {
             if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option('_crb_api_key_extension')) {
-                if ($ret['status'] != 'error' && !empty($_POST['id_desa'])) {
-                    $id_desa = $_POST['id_desa'];
-                } else {
+                if (empty($_POST['id_desa'])) {
                     $ret['status'] = 'error';
-                    $ret['message'] = 'Data id_desa tidak boleh kosong!';
-                }
-                if ($ret['status'] != 'error' && !empty($_POST['desa'])) {
-                    $desa = $_POST['desa'];
-                }
-                // else{
-                //  $ret['status'] = 'error';
-                //  $ret['message'] = 'Data desa tidak boleh kosong!';
-                // }
-                if ($ret['status'] != 'error' && !empty($_POST['kecamatan'])) {
-                    $kecamatan = $_POST['kecamatan'];
-                }
-                // else{
-                //  $ret['status'] = 'error';
-                //  $ret['message'] = 'Data kecamatan tidak boleh kosong!';
-                // }
-                if ($ret['status'] != 'error' && !empty($_POST['id_kecamatan'])) {
-                    $id_kecamatan = $_POST['id_kecamatan'];
-                }
-                // else{
-                //  $ret['status'] = 'error';
-                //  $ret['message'] = 'Data id_kecamatan tidak boleh kosong!';
-                // }
-                if ($ret['status'] != 'error' && !empty($_POST['kegiatan'])) {
-                    $kegiatan = $_POST['kegiatan'];
-                }
-                if ($ret['status'] != 'error' && !empty($_POST['total'])) {
-                    $total = $_POST['total'];
-                }
-                // else{
-                //  $ret['status'] = 'error';
-                //  $ret['message'] = 'Data total tidak boleh kosong!';
-                // }
-                if ($ret['status'] != 'error' && !empty($_POST['id_dana'])) {
-                    $id_dana = $_POST['id_dana'];
-                }
-                if ($ret['status'] != 'error' && !empty($_POST['tahun_anggaran'])) {
+                    $ret['message'] = 'Data id desa tidak boleh kosong!';
+                } else if (empty($_POST['id_kec'])) {
+                    $ret['status'] = 'error';
+                    $ret['message'] = 'Data id kecamatan tidak boleh kosong!';
+                } else if (empty($_POST['desa'])) {
+                    $ret['status'] = 'error';
+                    $ret['message'] = 'Data desa tidak boleh kosong!';
+                } else if (empty($_POST['kecamatan'])) {
+                    $ret['status'] = 'error';
+                    $ret['message'] = 'Data kecamatan tidak boleh kosong!';
+                } else if (empty($_POST['total'])) {
+                    $ret['status'] = 'error';
+                    $ret['message'] = 'Data total tidak boleh kosong!';
+                } else if (empty($_POST['tahun_anggaran'])) {
+                    $ret['status'] = 'error';
+                    $ret['message'] = 'Data tahun anggaran tidak boleh kosong!';
+                } else {
                     $tahun_anggaran = $_POST['tahun_anggaran'];
-                }
-                // else{
-                //  $ret['status'] = 'error';
-                //  $ret['message'] = 'Data tahun_anggaran tidak boleh kosong!';
-                // }
-                if ($ret['status'] != 'error') {
+                    $total = $_POST['total'];
+                    $id_kecamatan = $_POST['id_kec'];
+                    $kecamatan = $_POST['kecamatan'];
+                    $desa = $_POST['desa'];
+                    $id_desa = $_POST['id_desa'];
                     $data = array(
                         'id_desa' => $id_desa,
                         'desa' => $desa,
@@ -1344,21 +1351,21 @@ class Wpsipd_Public_Keu_Pemdes
                     } else {
                         $cek_id = $wpdb->get_row($wpdb->prepare('
                             SELECT
-                                id,
+                                id_desa,
                                 active
                             FROM data_bku_add_desa
-                            WHERE id_bku_add_desa=%s
-                        ', $id_bku_add_desa), ARRAY_A);
+                            WHERE id_desa=%s
+                        ', $id_desa), ARRAY_A);
                         if (empty($cek_id)) {
                             $wpdb->insert('data_bku_add_desa', $data);
                         } else {
                             if ($cek_id['active'] == 0) {
                                 $wpdb->update('data_bku_add_desa', $data, array(
-                                    'id' => $cek_id['id']
+                                    'id' => $cek_id['id_desa']
                                 ));
                             } else {
                                 $ret['status'] = 'error';
-                                $ret['message'] = 'Gagal disimpan. Data bku_add_desa dengan id_bku_add_desa="' . $id_bku_add_desa . '" sudah ada!';
+                                $ret['message'] = 'Gagal disimpan. Data bku_add_desa dengan id_desa="' . $id_desa . '" sudah ada!';
                             }
                         }
                     }
@@ -1432,6 +1439,7 @@ class Wpsipd_Public_Keu_Pemdes
                     $btn = '<a class="btn btn-sm btn-warning" onclick="edit_data(\'' . $recVal['id'] . '\'); return false;" href="#" title="Edit Data"><i class="dashicons dashicons-edit"></i></a>';
                     $btn .= '<a class="btn btn-sm btn-danger" onclick="hapus_data(\'' . $recVal['id'] . '\'); return false;" href="#" title="Edit Data"><i class="dashicons dashicons-trash"></i></a>';
                     $queryRecords[$recKey]['aksi'] = $btn;
+                    $queryRecords[$recKey]['total'] = number_format($recVal['total'], 0, ",", ".");
                 }
 
                 $json_data = array(
@@ -1494,11 +1502,28 @@ class Wpsipd_Public_Keu_Pemdes
             'message' => 'Berhasil hapus data!',
             'data' => array()
         );
+
         if (!empty($_POST)) {
             if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option('_crb_api_key_extension')) {
-                $ret['data'] = $wpdb->update('data_bkk_pilkades_desa', array('active' => 0), array(
-                    'id' => $_POST['id']
-                ));
+                // Menggunakan API key yang sesuai
+                $idToDelete = $_POST['id'];
+
+                // Periksa apakah data dengan ID yang akan dihapus ada di tabel data_pencairan_bkk_pilkades_desa
+                $idInOtherTable = $wpdb->get_var($wpdb->prepare('
+                    SELECT id_bkk_pilkades
+                    FROM data_pencairan_bkk_pilkades_desa
+                    WHERE id_bkk_pilkades=%d
+                ', $idToDelete));
+                if ($idInOtherTable) {
+                    // Jika data dengan ID yang sama ditemukan di tabel lain, tampilkan pesan
+                    $ret['status'] = 'confirm';
+                    $ret['message'] = 'Data dengan ID = ' . $idInOtherTable . ' sudah pernah dicairkan.';
+                } else {
+                    // Jika tidak ada data dengan ID yang sama di tabel lain, lanjutkan penghapusan seperti biasa
+                    $ret['data'] = $wpdb->update('data_bkk_pilkades_desa', array('active' => 0), array(
+                        'id' => $idToDelete
+                    ));
+                }
             } else {
                 $ret['status']  = 'error';
                 $ret['message'] = 'Api key tidak ditemukan!';
@@ -1507,7 +1532,6 @@ class Wpsipd_Public_Keu_Pemdes
             $ret['status']  = 'error';
             $ret['message'] = 'Format Salah!';
         }
-
         die(json_encode($ret));
     }
 
@@ -1521,54 +1545,31 @@ class Wpsipd_Public_Keu_Pemdes
         );
         if (!empty($_POST)) {
             if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option('_crb_api_key_extension')) {
-                if ($ret['status'] != 'error' && !empty($_POST['id_desa'])) {
-                    $id_desa = $_POST['id_desa'];
-                } else {
+                if (empty($_POST['id_desa'])) {
                     $ret['status'] = 'error';
-                    $ret['message'] = 'Data id_desa tidak boleh kosong!';
-                }
-                if ($ret['status'] != 'error' && !empty($_POST['desa'])) {
-                    $desa = $_POST['desa'];
-                }
-                // else{
-                //  $ret['status'] = 'error';
-                //  $ret['message'] = 'Data desa tidak boleh kosong!';
-                // }
-                if ($ret['status'] != 'error' && !empty($_POST['kecamatan'])) {
-                    $kecamatan = $_POST['kecamatan'];
-                }
-                // else{
-                //  $ret['status'] = 'error';
-                //  $ret['message'] = 'Data kecamatan tidak boleh kosong!';
-                // }
-                if ($ret['status'] != 'error' && !empty($_POST['id_kecamatan'])) {
-                    $id_kecamatan = $_POST['id_kecamatan'];
-                }
-                // else{
-                //  $ret['status'] = 'error';
-                //  $ret['message'] = 'Data id_kecamatan tidak boleh kosong!';
-                // }
-                if ($ret['status'] != 'error' && !empty($_POST['kegiatan'])) {
-                    $kegiatan = $_POST['kegiatan'];
-                }
-                if ($ret['status'] != 'error' && !empty($_POST['total'])) {
-                    $total = $_POST['total'];
-                }
-                // else{
-                //  $ret['status'] = 'error';
-                //  $ret['message'] = 'Data total tidak boleh kosong!';
-                // }
-                if ($ret['status'] != 'error' && !empty($_POST['id_dana'])) {
-                    $id_dana = $_POST['id_dana'];
-                }
-                if ($ret['status'] != 'error' && !empty($_POST['tahun_anggaran'])) {
+                    $ret['message'] = 'Data id desa tidak boleh kosong!';
+                } else if (empty($_POST['id_kec'])) {
+                    $ret['status'] = 'error';
+                    $ret['message'] = 'Data id kecamatan tidak boleh kosong!';
+                } else if (empty($_POST['desa'])) {
+                    $ret['status'] = 'error';
+                    $ret['message'] = 'Data desa tidak boleh kosong!';
+                } else if (empty($_POST['kecamatan'])) {
+                    $ret['status'] = 'error';
+                    $ret['message'] = 'Data kecamatan tidak boleh kosong!';
+                } else if (empty($_POST['total'])) {
+                    $ret['status'] = 'error';
+                    $ret['message'] = 'Data total tidak boleh kosong!';
+                } else if (empty($_POST['tahun_anggaran'])) {
+                    $ret['status'] = 'error';
+                    $ret['message'] = 'Data tahun anggaran tidak boleh kosong!';
+                } else {
                     $tahun_anggaran = $_POST['tahun_anggaran'];
-                }
-                // else{
-                //  $ret['status'] = 'error';
-                //  $ret['message'] = 'Data tahun_anggaran tidak boleh kosong!';
-                // }
-                if ($ret['status'] != 'error') {
+                    $total = $_POST['total'];
+                    $id_kecamatan = $_POST['id_kec'];
+                    $kecamatan = $_POST['kecamatan'];
+                    $desa = $_POST['desa'];
+                    $id_desa = $_POST['id_desa'];
                     $data = array(
                         'id_desa' => $id_desa,
                         'desa' => $desa,
@@ -1587,21 +1588,21 @@ class Wpsipd_Public_Keu_Pemdes
                     } else {
                         $cek_id = $wpdb->get_row($wpdb->prepare('
                             SELECT
-                                id,
+                                id_desa,
                                 active
                             FROM data_bkk_pilkades_desa
-                            WHERE id_bkk_pilkades_desa=%s
-                        ', $id_bkk_pilkades_desa), ARRAY_A);
+                            WHERE id_desa=%s
+                        ', $id_desa), ARRAY_A);
                         if (empty($cek_id)) {
                             $wpdb->insert('data_bkk_pilkades_desa', $data);
                         } else {
                             if ($cek_id['active'] == 0) {
                                 $wpdb->update('data_bkk_pilkades_desa', $data, array(
-                                    'id' => $cek_id['id']
+                                    'id' => $cek_id['id_desa']
                                 ));
                             } else {
                                 $ret['status'] = 'error';
-                                $ret['message'] = 'Gagal disimpan. Data bkk_pilkades_desa dengan id_bkk_pilkades_desa="' . $id_bkk_pilkades_desa . '" sudah ada!';
+                                $ret['message'] = 'Gagal disimpan. Data bkk_pilkades_desa dengan id_desa="' . $id_desa . '" sudah ada!';
                             }
                         }
                     }
@@ -1675,6 +1676,7 @@ class Wpsipd_Public_Keu_Pemdes
                     $btn = '<a class="btn btn-sm btn-warning" onclick="edit_data(\'' . $recVal['id'] . '\'); return false;" href="#" title="Edit Data"><i class="dashicons dashicons-edit"></i></a>';
                     $btn .= '<a style="margin-left: 10px;" class="btn btn-sm btn-danger" onclick="hapus_data(\'' . $recVal['id'] . '\'); return false;" href="#" title="Edit Data"><i class="dashicons dashicons-trash"></i></a>';
                     $queryRecords[$recKey]['aksi'] = $btn;
+                    $queryRecords[$recKey]['total'] = number_format($recVal['total'], 0, ",", ".");
                 }
 
                 $json_data = array(
@@ -2388,6 +2390,7 @@ class Wpsipd_Public_Keu_Pemdes
                         }
                     }
                     $queryRecords[$recKey]['aksi'] = $btn;
+                    $queryRecords[$recKey]['total_pencairan'] = number_format($recVal['total_pencairan'], 0, ",", ".");
                 }
 
                 $json_data = array(
@@ -2917,13 +2920,13 @@ class Wpsipd_Public_Keu_Pemdes
                                     file_sptj,
                                     file_pakta_integritas,
                                     file_permohonan_transfer,
-                                    file_verifikasi_rekomendasi,
+                                    file_rekomendasi,
                                     file_permohonan_penyaluran_kades,
                                     file_sptj_kades,
                                     file_pakta_integritas_kades,
-                                    file_pakta_integritas_3_orang,
-                                    file_proposal_rencana_anggaran,
-                                    file_apbdes,
+                                    file_pernyataaan_kades_spj_dbhpd,
+                                    file_sk_bendahara_desa,
+                                    file_fc_ktp_kades,
                                     file_fc_rek_kas_desa
                                 FROM data_pencairan_bhpd_desa
                                 WHERE id=%d
@@ -3075,11 +3078,10 @@ class Wpsipd_Public_Keu_Pemdes
                     16 => 'p.file_fc_ktp_kades',
                     17 => 'p.file_fc_rek_kas_desa',
                     18 => 'p.file_laporan_realisasi_tahun_sebelumnya',
-                    19 => 'p.status',
-                    20 => 'p.id_bhpd',
-                    21 => 'p.status_ver_total',
-                    22 => 'p.ket_ver_total',
-                    23 => 'p.id'
+                    19 => 'p.id_bhpd',
+                    20 => 'p.status_ver_total',
+                    21 => 'p.ket_ver_total',
+                    22 => 'p.id'
                 );
                 $where = $sqlTot = $sqlRec = "";
 
@@ -3087,7 +3089,6 @@ class Wpsipd_Public_Keu_Pemdes
                 if (!empty($params['search']['value'])) {
                     $where .= " AND d.kegiatan LIKE " . $wpdb->prepare('%s', "%" . $params['search']['value'] . "%");
                     $where .= " AND d.kecamatan LIKE " . $wpdb->prepare('%s', "%" . $params['search']['value'] . "%");
-                    $where .= " AND d.alamat LIKE " . $wpdb->prepare('%s', "%" . $params['search']['value'] . "%");
                 }
 
                 // getting total number records without any search
@@ -3161,6 +3162,7 @@ class Wpsipd_Public_Keu_Pemdes
                         }
                     }
                     $queryRecords[$recKey]['aksi'] = $btn;
+                    $queryRecords[$recKey]['total_pencairan'] = number_format($recVal['total_pencairan'], 0, ",", ".");
                 }
 
                 $json_data = array(
@@ -3914,6 +3916,7 @@ class Wpsipd_Public_Keu_Pemdes
                         }
                     }
                     $queryRecords[$recKey]['aksi'] = $btn;
+                    $queryRecords[$recKey]['total_pencairan'] = number_format($recVal['total_pencairan'], 0, ",", ".");
                 }
 
                 $json_data = array(
@@ -4284,6 +4287,7 @@ class Wpsipd_Public_Keu_Pemdes
                         }
                     }
                     $queryRecords[$recKey]['aksi'] = $btn;
+                    $queryRecords[$recKey]['total_pencairan'] = number_format($recVal['total_pencairan'], 0, ",", ".");
                 }
 
                 $json_data = array(
@@ -4541,9 +4545,9 @@ class Wpsipd_Public_Keu_Pemdes
                     ) {
                         $ret['status'] = 'error';
                         $ret['message'] = 'Dokumen realisasi tahap sebelumnya tidak boleh kosong!';
-                    }   
+                    }
                 }
-                
+
                 $_POST['id'] = $id_bku_add;
                 $pencairan = $this->get_pencairan_pemdes_bku_add(true);
                 if (($pencairan['total_pencairan'] + $pagu_anggaran) > $pencairan['pagu_anggaran']) {
@@ -4881,6 +4885,7 @@ class Wpsipd_Public_Keu_Pemdes
                         }
                     }
                     $queryRecords[$recKey]['aksi'] = $btn;
+                    $queryRecords[$recKey]['total_pencairan'] = number_format($recVal['total_pencairan'], 0, ",", ".");
                 }
 
                 $json_data = array(
@@ -5258,6 +5263,7 @@ class Wpsipd_Public_Keu_Pemdes
                         }
                     }
                     $queryRecords[$recKey]['aksi'] = $btn;
+                    $queryRecords[$recKey]['total_pencairan'] = number_format($recVal['total_pencairan'], 0, ",", ".");
                 }
 
                 $json_data = array(
