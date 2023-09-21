@@ -18732,7 +18732,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 					    GROUP BY k.kode_sub_skpd ASC, k.kode_sub_giat, r.kode_akun
 					    ORDER BY k.kode_sub_skpd ASC, k.kode_sub_giat ASC
 					    ",$_POST["tahun_anggaran"], $_POST['id_skpd']);
-					$return['data'] = $wpdb->get_results($sql_anggaran);
+					$return['data'] = $wpdb->get_results($sql_anggaran, ARRAY_A);
 				}else if($_POST['tipe'] == 'json_rek_p3dn'){
 					$sql_anggaran = $wpdb->prepare("
 					    SELECT 
@@ -18744,10 +18744,12 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 					        r.nama_akun,
 					        r.subs_bl_teks,
 					        r.ket_bl_teks,
-					        concat(r.nama_komponen, ' ', r.spek_komponen) as komponen,
+					        r.lokus_akun_teks, 
+					        r.nama_komponen, 
+					        r.spek_komponen,
 					        ms.nama_dana,
-					        r.rincian_murni,
-					        r.rincian,
+					        coalesce(r.rincian_murni, 0) as rincian_murni,
+					        coalesce(r.rincian, 0) as rincian,
 					        0 as realisasi,
 					        0 as realisasi_akun,
 					        '' as uraian_spm,
@@ -18772,8 +18774,8 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 					        AND k.id_sub_skpd=%d
 					    GROUP BY k.kode_sub_skpd ASC, k.kode_sub_giat, r.subs_bl_teks
 					    ORDER BY k.kode_sub_skpd ASC, k.kode_sub_giat ASC
-					",$input["tahun_anggaran"], $input['id_skpd']);
-					$data = $wpdb->get_results($sql_anggaran);
+					",$_POST["tahun_anggaran"], $_POST['id_skpd']);
+					$data = $wpdb->get_results($sql_anggaran, ARRAY_A);
 
 					$spm = $wpdb->get_results($wpdb->prepare("
 						SELECT
@@ -18781,7 +18783,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						FROM data_spm_sipd as s
 						WHERE s.tahun_anggaran=%d
 							AND s.id_skpd=%d
-					", $input['tahun_anggaran'], $input['id_skpd']));
+					", $_POST['tahun_anggaran'], $_POST['id_skpd']), ARRAY_A);
 
 					$realisasi = $wpdb->get_results($wpdb->prepare("
 						SELECT
@@ -18794,7 +18796,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						WHERE a.active=1
 							AND a.tahun_anggaran=%d
 							AND a.id_sub_skpd=%d
-					", $input['tahun_anggaran'], $input['id_skpd']));
+					", $_POST['tahun_anggaran'], $_POST['id_skpd']), ARRAY_A);
 					$new_realisasi = array();
 					foreach($realisasi as $key => $val){
 						$new_realisasi[$val['kode_akun']] = $val;
@@ -18812,9 +18814,22 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 								$data[$key]['realisasi'] = $new_realisasi[$val['kode_akun']]['realisasi'] - $new_realisasi[$val['kode_akun']]['realisasi_rincian'];
 								$new_realisasi[$val['kode_akun']]['realisasi_rincian'] += $data[$key]['realisasi'];
 							}
-							$data[$key]['sisa'] = $data[$key]['rincian'] - $data[$key]['realisasi'];
-							$data[$key]['realisasi_akun'] = $new_realisasi[$val['kode_akun']]['realisasi'];
+							$data[$key]['sisa'] = number_format($data[$key]['rincian'] - $data[$key]['realisasi'], 0, ",", ".");
+							$data[$key]['realisasi_akun'] = number_format($new_realisasi[$val['kode_akun']]['realisasi'], 0, ",", ".");
 						}
+						$komponen = array();
+						if(!empty($val['lokus_akun_teks'])){
+							$komponen[] = $val['lokus_akun_teks'];
+						}
+						if(!empty($val['nama_komponen'])){
+							$komponen[] = $val['nama_komponen'];
+						}
+						if(!empty($val['spek_komponen'])){
+							$komponen[] = $val['spek_komponen'];
+						}
+						$data[$key]['komponen'] = implode(' ', $komponen);
+						$data[$key]['rincian_murni'] = number_format($val['rincian_murni'], 0, ",", ".");
+						$data[$key]['rincian'] = number_format($val['rincian'], 0, ",", ".");
 					}
 					$return['data'] = $data;
 				}
