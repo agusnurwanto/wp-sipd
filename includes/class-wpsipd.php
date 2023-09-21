@@ -329,6 +329,12 @@ class Wpsipd
 		
 		$this->loader->add_action('wp_ajax_singkron_spm',  $plugin_public, 'singkron_spm');
 		$this->loader->add_action('wp_ajax_nopriv_singkron_spm',  $plugin_public, 'singkron_spm');
+		
+		$this->loader->add_action('wp_ajax_singkron_spp',  $plugin_public, 'singkron_spp');
+		$this->loader->add_action('wp_ajax_nopriv_singkron_spp',  $plugin_public, 'singkron_spp');
+		
+		$this->loader->add_action('wp_ajax_singkron_spp_detail',  $plugin_public, 'singkron_spp_detail');
+		$this->loader->add_action('wp_ajax_nopriv_singkron_spp_detail',  $plugin_public, 'singkron_spp_detail');
 
 		$this->loader->add_action('wp_ajax_singkron_pendapatan',  $plugin_public, 'singkron_pendapatan');
 		$this->loader->add_action('wp_ajax_nopriv_singkron_pendapatan',  $plugin_public, 'singkron_pendapatan');
