@@ -18777,22 +18777,25 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 					",$_POST["tahun_anggaran"], $_POST['id_skpd']);
 					$data = $wpdb->get_results($sql_anggaran, ARRAY_A);
 
-					$spm = $wpdb->get_results($wpdb->prepare("
-						SELECT
-							s.*
-						FROM data_spm_sipd as s
-						WHERE s.tahun_anggaran=%d
-							AND s.id_skpd=%d
-					", $_POST['tahun_anggaran'], $_POST['id_skpd']), ARRAY_A);
-
 					$realisasi = $wpdb->get_results($wpdb->prepare("
 						SELECT
 							a.nilai,
 							a.realisasi,
 							a.kode_akun,
 							a.kode_sbl,
-							0 as realisasi_rincian
+							0 as realisasi_rincian,
+							coalesce(sp.keteranganSpp, '') as keteranganSpp,
+							coalesce(sp.nomorSpp, '') as nomorSpp,
+							coalesce(sp.tanggalDisetujuiSpp, '') as tanggalDisetujuiSpp
 						FROM data_realisasi_akun_sipd as a
+						LEFT JOIN data_spp_sipd_detail as s on a.kode_akun=s.kode_rekening
+							AND s.active=a.active
+							AND s.tahun_anggaran=a.tahun_anggaran
+							AND s.id_sub_skpd=a.id_sub_skpd
+							AND s.id_sub_kegiatan=a.id_sub_giat
+						LEFT JOIN data_spp_sipd as sp on sp.idSpp=s.idSpp
+							AND sp.active=s.active
+							AND sp.tahun_anggaran=s.tahun_anggaran
 						WHERE a.active=1
 							AND a.tahun_anggaran=%d
 							AND a.id_sub_skpd=%d
@@ -18815,7 +18818,12 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 								$new_realisasi[$val['kode_akun']]['realisasi_rincian'] += $data[$key]['realisasi'];
 							}
 							$data[$key]['sisa'] = number_format($data[$key]['rincian'] - $data[$key]['realisasi'], 0, ",", ".");
+							$data[$key]['realisasi'] = number_format($data[$key]['realisasi'], 0, ",", ".");
 							$data[$key]['realisasi_akun'] = number_format($new_realisasi[$val['kode_akun']]['realisasi'], 0, ",", ".");
+							$data[$key]['keteranganSpp'] = $new_realisasi[$val['kode_akun']]['keteranganSpp'];
+							$data[$key]['nomorSpp'] = $new_realisasi[$val['kode_akun']]['nomorSpp'];
+							$data[$key]['tanggalDisetujuiSpp'] = $new_realisasi[$val['kode_akun']]['tanggalDisetujuiSpp'];
+							$data[$key]['uraian_spm'] = $data[$key]['keteranganSpp'].' '.$data[$key]['nomorSpp'].' '.$data[$key]['tanggalDisetujuiSpp'];
 						}
 						$komponen = array();
 						if(!empty($val['lokus_akun_teks'])){
