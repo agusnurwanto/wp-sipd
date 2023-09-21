@@ -263,11 +263,11 @@ class Wpsipd_Public_Keu_Pemdes
                     $ret['status'] = 'error';
                     $ret['message'] = 'Data total tidak boleh kosong!';
                 } else if (empty($_POST['id_dana'])) {
-                    // $ret['status'] = 'error';
-                    // $ret['message'] = 'Data id_dana tidak boleh kosong!';
+                    $ret['status'] = 'error';
+                    $ret['message'] = 'Data id_dana tidak boleh kosong!';
                 } else if (empty($_POST['sumber_dana'])) {
-                    // $ret['status'] = 'error';
-                    // $ret['message'] = 'Data sumber_dana tidak boleh kosong!';
+                    $ret['status'] = 'error';
+                    $ret['message'] = 'Data sumber_dana tidak boleh kosong!';
                 } else if (empty($_POST['tahun_anggaran'])) {
                     $ret['status'] = 'error';
                     $ret['message'] = 'Data tahun anggaran tidak boleh kosong!';
@@ -289,6 +289,8 @@ class Wpsipd_Public_Keu_Pemdes
                         'kecamatan' => $kecamatan,
                         'total' => $total,
                         'tahun_anggaran' => $tahun_anggaran,
+                        'kegiatan' => $kegiatan,
+                        'alamat' => $alamat,
                         'id_dana' => $id_dana,
                         'sumber_dana' => $sumber_dana,
                         'active' => 1,
@@ -5389,6 +5391,42 @@ class Wpsipd_Public_Keu_Pemdes
                         'message'   => 'Tipe verifikasi tidak ditemukan!'
                     );
                 }
+            } else {
+                $ret = array(
+                    'status' => 'error',
+                    'message'   => 'Api Key tidak sesuai!'
+                );
+            }
+        } else {
+            $ret = array(
+                'status' => 'error',
+                'message'   => 'Format tidak sesuai!'
+            );
+        }
+        die(json_encode($ret));
+    }
+
+    public function get_sumber_dana_desa()
+    {
+        global $wpdb;
+        $ret = array(
+            'status' => 'success',
+            'message' => 'Berhasil get data sumber dana!',
+            'data'  => array()
+        );
+
+        if (!empty($_POST)) {
+            if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option('_crb_api_key_extension')) {
+                $ret['data'] = $wpdb->get_results($wpdb->prepare("
+                    SELECT
+                        id_dana,
+                        kode_dana,
+                        nama_dana
+                    FROM data_sumber_dana 
+                    WHERE active = 1
+                        AND tahun_anggaran=%d
+                        AND set_input='Ya'
+                ", $_POST['tahun']), ARRAY_A);
             } else {
                 $ret = array(
                     'status' => 'error',
