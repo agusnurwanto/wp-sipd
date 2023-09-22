@@ -329,6 +329,12 @@ class Wpsipd
 		
 		$this->loader->add_action('wp_ajax_singkron_spm',  $plugin_public, 'singkron_spm');
 		$this->loader->add_action('wp_ajax_nopriv_singkron_spm',  $plugin_public, 'singkron_spm');
+		
+		$this->loader->add_action('wp_ajax_singkron_spp',  $plugin_public, 'singkron_spp');
+		$this->loader->add_action('wp_ajax_nopriv_singkron_spp',  $plugin_public, 'singkron_spp');
+		
+		$this->loader->add_action('wp_ajax_singkron_spp_detail',  $plugin_public, 'singkron_spp_detail');
+		$this->loader->add_action('wp_ajax_nopriv_singkron_spp_detail',  $plugin_public, 'singkron_spp_detail');
 
 		$this->loader->add_action('wp_ajax_singkron_pendapatan',  $plugin_public, 'singkron_pendapatan');
 		$this->loader->add_action('wp_ajax_nopriv_singkron_pendapatan',  $plugin_public, 'singkron_pendapatan');
@@ -872,6 +878,7 @@ class Wpsipd
 		$this->loader->add_action('wp_ajax_get_pencairan_pemdes_bku_add', $plugin_public, 'get_pencairan_pemdes_bku_add');
 		
 		$this->loader->add_action('wp_ajax_verifikasi_pencairan_desa', $plugin_public, 'verifikasi_pencairan_desa');
+		$this->loader->add_action('wp_ajax_get_sumber_dana_desa', $plugin_public, 'get_sumber_dana_desa');
 		
 		$this->loader->add_action('wp_ajax_cek_pemutakhiran_total', $plugin_public, 'cek_pemutakhiran_total');
 		$this->loader->add_action('wp_ajax_submit_edit_renja_pemutakhiran', $plugin_public, 'submit_edit_renja_pemutakhiran');
@@ -885,6 +892,7 @@ class Wpsipd
 		$this->loader->add_action('wp_ajax_show_skpd_rekening_analisis',  $plugin_public, 'show_skpd_rekening_analisis');
 
 		$this->loader->add_action('wp_ajax_mutakhirkan_sub_kegiatan_renstra',  $plugin_public, 'mutakhirkan_sub_kegiatan_renstra');
+		$this->loader->add_action('wp_ajax_get_pemdes_alamat',  $plugin_public, 'get_pemdes_alamat');
 		$this->loader->add_action('wp_ajax_mutakhirkan_program_renstra',  $plugin_public, 'mutakhirkan_program_renstra');
 		$this->loader->add_action('wp_ajax_list_kegiatan_by_program_renstra',  $plugin_public, 'listKegiatanByProgram');
 		$this->loader->add_action('wp_ajax_mutakhirkan_kegiatan_renstra',  $plugin_public, 'mutakhirkan_kegiatan_renstra');

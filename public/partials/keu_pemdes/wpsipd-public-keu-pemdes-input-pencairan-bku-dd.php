@@ -288,7 +288,7 @@ if (in_array("administrator", $user_meta->roles)) {
                     },
                     {
                         "data": 'total_pencairan',
-                        className: "text-center"
+                        className: "text-right"
                     },
                     {
                         "data": 'keterangan',

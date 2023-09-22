@@ -471,7 +471,7 @@ foreach ($tujuan_all as $keyTujuan => $tujuan_value) {
 							), ARRAY_A);
 
 						foreach ($kegiatan_all as $keyKegiatan => $kegiatan_value) {
-										
+
 							if(empty($data_all['data'][$tujuan_value['id_unik']]['data'][$sasaran_value['id_unik']]['data'][$program_value['id_unik']]['data'][$kegiatan_value['id_unik']])){
 
 								// check kegiatan ke master data_prog_keg

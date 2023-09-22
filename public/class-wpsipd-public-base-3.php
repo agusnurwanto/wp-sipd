@@ -9368,8 +9368,8 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 						$result2=$wpdb->query($wpdb->prepare("
 							UPDATE data_renstra_sub_kegiatan_lokal 
 								SET 
-									kode_giat='".$kegiatanRenstraBaru->id_unik."',
-									id_giat=".$kegiatanRenstraBaru->id_program.",
+									kode_kegiatan='".$kegiatanRenstraBaru->id_unik."',
+									id_giat=".$kegiatanRenstraBaru->id_giat.",
 									nama_giat='".$kegiatanRenstraBaru->nama_giat."',
 									update_at='".date('Y-m-d H:i:s')."'
 							WHERE 

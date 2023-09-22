@@ -287,6 +287,50 @@ $sql_anggaran = $wpdb->prepare("
 echo '
     <h2>SQL untuk select semua rincian</h2>
     <pre>'.$sql_anggaran.'</pre>';
+
+$sql_anggaran = $wpdb->prepare("
+    SELECT 
+        k.nama_skpd as OPD,
+        k.nama_program as PROGRAM,
+        k.nama_giat as KEGIATAN,
+        k.nama_sub_giat as \"SUB KEGIATAN\",
+        r.nama_akun as BELANJA,
+        r.subs_bl_teks as \"[#]\",
+        r.ket_bl_teks as \"[-]\",
+        concat(r.nama_komponen, ' ', r.spek_komponen) as \"SPESIFIKASI BELANJA\",
+        ms.nama_dana as \"SUMBER DANA\",
+        r.rincian_murni as \"ANGGARAN SEBELUM PERUBAHAN\",
+        r.rincian as \"ANGGARAN SETELAH PERUBAHAN\",
+        '' as \"REALISASI (Rp)\",
+        '' as \"Uraian SPM\",
+        '' as \"SISA\",
+        '' as \"KETERANGAN\"
+    FROM data_sub_keg_bl as k 
+    INNER JOIN data_rka as r on k.kode_sbl=r.kode_sbl 
+        and r.active=k.active 
+        and r.tahun_anggaran=k.tahun_anggaran 
+    LEFT JOIN data_mapping_sumberdana as s on r.id_rinci_sub_bl=s.id_rinci_sub_bl 
+        and s.active=k.active 
+        and s.tahun_anggaran=k.tahun_anggaran 
+    LEFT JOIN data_sumber_dana as ms on ms.id_dana=s.id_sumber_dana 
+        and ms.tahun_anggaran=k.tahun_anggaran 
+    LEFT JOIN data_realisasi_akun as a on k.kode_sbl=a.kode_sbl 
+        and a.tahun_anggaran=k.tahun_anggaran 
+    LEFT JOIN data_sub_keg_bl as u on k.kode_sbl=u.kode_sbl 
+        and u.tahun_anggaran=k.tahun_anggaran
+    WHERE
+        k.tahun_anggaran=%d
+        AND k.active=1
+        AND k.id_sub_skpd=%d
+    GROUP BY k.kode_sub_skpd ASC, k.kode_sub_giat, r.subs_bl_teks
+    ORDER BY k.kode_sub_skpd ASC, k.kode_sub_giat ASC
+    ",$input["tahun_anggaran"], $input['id_skpd']);
+
+echo '
+<h2>SQL untuk select kontrol realisasi dan P3DN</h2>
+<button onclick="get_data('.$input['tahun_anggaran'].', '.$input['id_skpd'].', \'json_rek_p3dn\');" class="btn btn-success" style="margin: 0 10px 10px;">Get Data</button>
+<div id="json_rek_p3dn" style="overflow: auto; max-height: 100vh;"></div>
+<pre>'.$sql_anggaran.'</pre>';
 ?>
 <script type="text/javascript">
     function get_data(tahun_anggaran, id_unit, tipe){
@@ -304,58 +348,106 @@ echo '
             dataType: "json",
             success: function(ret){
                 var html_data = '';
-                ret.data.map(function(b, i){
-                    html_data += ''
-                        +'<tr>'
-                            +'<td>'+b.kode_urusan+'</td>'
-                            +'<td>'+b.nama_urusan+'</td>'
-                            +'<td>'+b.kode_bidang_urusan+'</td>'
-                            +'<td>'+b.nama_bidang_urusan+'</td>'
-                            +'<td>'+b.kode_program+'</td>'
-                            +'<td>'+b.nama_program+'</td>'
-                            +'<td>'+b.kode_giat+'</td>'
-                            +'<td>'+b.nama_giat+'</td>'
-                            +'<td>'+b.kode_skpd+'</td>'
-                            +'<td>'+b.nama_skpd+'</td>'
-                            +'<td>'+b.kode_sub_skpd+'</td>'
-                            +'<td>'+b.nama_sub_skpd+'</td>'
-                            +'<td>'+b.kode_sub_giat+'</td>'
-                            +'<td>'+b.nama_sub_giat+'</td>'
-                            +'<td>'+b.kode_akun+'</td>'
-                            +'<td>'+b.nama_akun+'</td>'
-                            +'<td>'+b.rincian+'</td>'
-                            +'<td>'+b.id_dana+'</td>'
-                            +'<td>'+b.nama_dana+'</td>'
-                        +'</tr>';
-                });
-                var html = ''
-                    +'<table class="table table-bordered">'
-                        +'<thead>'
+                var html = '';
+                if(tipe == 'json_rek_sd'){
+                    ret.data.map(function(b, i){
+                        html_data += ''
                             +'<tr>'
-                                +'<th>kode_urusan</th>'
-                                +'<th>nama_urusan</th>'
-                                +'<th>kode_bidang_urusan</th>'
-                                +'<th>nama_bidang_urusan</th>'
-                                +'<th>kode_program</th>'
-                                +'<th>nama_program</th>'
-                                +'<th>kode_giat</th>'
-                                +'<th>nama_giat</th>'
-                                +'<th>kode_skpd</th>'
-                                +'<th>nama_skpd</th>'
-                                +'<th>kode_sub_skpd</th>'
-                                +'<th>nama_sub_skpd</th>'
-                                +'<th>kode_sub_giat</th>'
-                                +'<th>nama_sub_giat</th>'
-                                +'<th>kode_akun</th>'
-                                +'<th>nama_akun</th>'
-                                +'<th>rincian</th>'
-                                +'<th>id_dana</th>'
-                                +'<th>nama_dana</th>'
-                            +'</tr>'
-                        +'</thead>'
-                        +'<tbody>'+html_data+'</tbody>'
-                    +'</table>';
-                jQuery('#json_rek_sd').html(html);
+                                +'<td>'+b.kode_urusan+'</td>'
+                                +'<td>'+b.nama_urusan+'</td>'
+                                +'<td>'+b.kode_bidang_urusan+'</td>'
+                                +'<td>'+b.nama_bidang_urusan+'</td>'
+                                +'<td>'+b.kode_program+'</td>'
+                                +'<td>'+b.nama_program+'</td>'
+                                +'<td>'+b.kode_giat+'</td>'
+                                +'<td>'+b.nama_giat+'</td>'
+                                +'<td>'+b.kode_skpd+'</td>'
+                                +'<td>'+b.nama_skpd+'</td>'
+                                +'<td>'+b.kode_sub_skpd+'</td>'
+                                +'<td>'+b.nama_sub_skpd+'</td>'
+                                +'<td>'+b.kode_sub_giat+'</td>'
+                                +'<td>'+b.nama_sub_giat+'</td>'
+                                +'<td>'+b.kode_akun+'</td>'
+                                +'<td>'+b.nama_akun+'</td>'
+                                +'<td>'+b.rincian+'</td>'
+                                +'<td>'+b.id_dana+'</td>'
+                                +'<td>'+b.nama_dana+'</td>'
+                            +'</tr>';
+                    });
+                    var html = ''
+                        +'<table class="table table-bordered">'
+                            +'<thead>'
+                                +'<tr>'
+                                    +'<th>kode_urusan</th>'
+                                    +'<th>nama_urusan</th>'
+                                    +'<th>kode_bidang_urusan</th>'
+                                    +'<th>nama_bidang_urusan</th>'
+                                    +'<th>kode_program</th>'
+                                    +'<th>nama_program</th>'
+                                    +'<th>kode_giat</th>'
+                                    +'<th>nama_giat</th>'
+                                    +'<th>kode_skpd</th>'
+                                    +'<th>nama_skpd</th>'
+                                    +'<th>kode_sub_skpd</th>'
+                                    +'<th>nama_sub_skpd</th>'
+                                    +'<th>kode_sub_giat</th>'
+                                    +'<th>nama_sub_giat</th>'
+                                    +'<th>kode_akun</th>'
+                                    +'<th>nama_akun</th>'
+                                    +'<th>rincian</th>'
+                                    +'<th>id_dana</th>'
+                                    +'<th>nama_dana</th>'
+                                +'</tr>'
+                            +'</thead>'
+                            +'<tbody>'+html_data+'</tbody>'
+                        +'</table>';
+                    jQuery('#json_rek_sd').html(html);
+                }else if(tipe == 'json_rek_p3dn'){
+                    ret.data.map(function(b, i){
+                        html_data += ''
+                            +'<tr>'
+                                +'<td>'+b.nama_skpd+'</td>'
+                                +'<td>'+b.nama_program+'</td>'
+                                +'<td>'+b.nama_giat+'</td>'
+                                +'<td>'+b.nama_sub_giat+'</td>'
+                                +'<td>'+b.nama_akun+'</td>'
+                                +'<td>'+b.subs_bl_teks+'</td>'
+                                +'<td>'+b.ket_bl_teks+'</td>'
+                                +'<td>'+b.komponen+'</td>'
+                                +'<td>'+b.nama_dana+'</td>'
+                                +'<td class="text-right">'+b.rincian_murni+'</td>'
+                                +'<td class="text-right">'+b.rincian+'</td>'
+                                +'<td class="text-right">'+b.realisasi+'</td>'
+                                +'<td>'+b.uraian_spm+'</td>'
+                                +'<td class="text-right">'+b.sisa+'</td>'
+                                +'<td>'+b.keterangan+'</td>'
+                            +'</tr>';
+                    });
+                    var html = ''
+                        +'<table class="table table-bordered">'
+                            +'<thead>'
+                                +'<tr>'
+                                    +'<th>OPD</th>'
+                                    +'<th>PROGRAM</th>'
+                                    +'<th>KEGIATAN</th>'
+                                    +'<th>SUB KEGIATAN</th>'
+                                    +'<th>BELANJA</th>'
+                                    +'<th>[#]</th>'
+                                    +'<th>[-]</th>'
+                                    +'<th>SPESIFIKASI BELANJA</th>'
+                                    +'<th>SUMBER DANA</th>'
+                                    +'<th>ANGGARAN SEBELUM PERUBAHAN</th>'
+                                    +'<th>ANGGARAN SETELAH PERUBAHAN</th>'
+                                    +'<th>REALISASI (Rp)</th>'
+                                    +'<th>Uraian SPM</th>'
+                                    +'<th>SISA</th>'
+                                    +'<th>KETERANGAN</th>'
+                                +'</tr>'
+                            +'</thead>'
+                            +'<tbody>'+html_data+'</tbody>'
+                        +'</table>';
+                    jQuery('#json_rek_p3dn').html(html);
+                }
                 alert(ret.message);
                 jQuery('#wrap-loading').hide();
             }
