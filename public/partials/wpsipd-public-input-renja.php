@@ -710,7 +710,7 @@ foreach ($data_all['data'] as $sub_skpd) {
                         $tbody_pergeseran = ($status_pergeseran_renja == 'tampil') ? '<td class="kanan bawah text_kanan"><span class="nilai_penetapan">'.number_format($sub_giat['total_pergeseran'],0,",",".").'</span><span class="nilai_usulan">'.number_format($sub_giat['total_usulan_pergeseran'],0,",",".").'</span></td>' : '';
 
                         $kode_sbl = $sub_giat['data']['kode_sbl'];
-                        $url_rka_lokal = $this->generatePage('Data RKA Lokal | '.$kode_sbl.' | '.$input['tahun_anggaran'],$input['tahun_anggaran'],'[input_rka_lokal kode_sbl="'.$kode_sbl.'" tahun_anggaran="'.$input['tahun_anggaran'].'"]');
+                        $url_rka_lokal = $this->generatePage('Data RKA Lokal | '.$kode_sbl.' | '.$input['tahun_anggaran'],$input['tahun_anggaran'],'[input_rka_lokal id_skpd="'.$input['id_skpd'].'" kode_sbl="'.$kode_sbl.'" tahun_anggaran="'.$input['tahun_anggaran'].'"]');
 
                         $tombol_aksi = '<a href="'.$url_rka_lokal.'" target="_blank"><button class="btn-sm btn-info" style="margin: 1px;" title="Detail Renja"><i class="dashicons dashicons-search"></i></button></a>';
                         if(!empty($add_renja)){
