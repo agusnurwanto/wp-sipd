@@ -968,7 +968,7 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes {
 		            		$body_pemda .= '<li><a target="_blank" href="'.$url_skpd.'">Halaman RAK '.$vv['kode_skpd'].' '.$vv['nama_skpd'].' '.$v['tahun_anggaran'].'</a> (NIP: '.$vv['nipkepala'].')';
 						}else if($_POST['type'] == 'monev_json_rka'){
 							$url_skpd = $this->generatePage('Data JSON RKA '.$vv['nama_skpd'].' '.$vv['kode_skpd'].' | '.$v['tahun_anggaran'], $v['tahun_anggaran'], '[monitor_json_rka tahun_anggaran="'.$v['tahun_anggaran'].'" id_skpd="'.$vv['id_skpd'].'"]');
-		            		$body_pemda .= '<li><a target="_blank" href="'.$url_skpd.'">Halaman RAK '.$vv['kode_skpd'].' '.$vv['nama_skpd'].' '.$v['tahun_anggaran'].'</a> (NIP: '.$vv['nipkepala'].')';
+		            		$body_pemda .= '<li><input type="checkbox" value="'.$vv['id_skpd'].'"> <a target="_blank" href="'.$url_skpd.'">Halaman JSON RKA '.$vv['kode_skpd'].' '.$vv['nama_skpd'].' '.$v['tahun_anggaran'].'</a> (NIP: '.$vv['nipkepala'].') ID = '.$vv['id_skpd'];
 						}else if($_POST['type'] == 'input_renstra'){
 							if(empty($unit_renstra[$vv['kode_skpd']])){
 								$unit_renstra[$vv['kode_skpd']] = $vv['kode_skpd'];
@@ -1011,7 +1011,7 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes {
 								$body_pemda .= '<li><a target="_blank" href="'.$url_skpd.'">Halaman RAK '.$vvv['kode_skpd'].' '.$vvv['nama_skpd'].' '.$v['tahun_anggaran'].'</a> (NIP: '.$vvv['nipkepala'].')';
 							}else if($_POST['type'] == 'monev_json_rka'){
 								$url_skpd = $this->generatePage('Data JSON RKA '.$vvv['nama_skpd'].' '.$vvv['kode_skpd'].' | '.$v['tahun_anggaran'], $v['tahun_anggaran'], '[monitor_json_rka tahun_anggaran="'.$v['tahun_anggaran'].'" id_skpd="'.$vvv['id_skpd'].'"]');
-								$body_pemda .= '<li><a target="_blank" href="'.$url_skpd.'">Halaman RAK '.$vvv['kode_skpd'].' '.$vvv['nama_skpd'].' '.$v['tahun_anggaran'].'</a> (NIP: '.$vvv['nipkepala'].')';
+								$body_pemda .= '<li><input type="checkbox" value="'.$vvv['id_skpd'].'"> <a target="_blank" href="'.$url_skpd.'">Halaman JSON RKA '.$vvv['kode_skpd'].' '.$vvv['nama_skpd'].' '.$v['tahun_anggaran'].'</a> (NIP: '.$vvv['nipkepala'].') ID = '.$vvv['id_skpd'];
 							}else if($_POST['type'] == 'rkpd_renja'){
 								$url_skpd = $this->generatePage('RKPD & RENJA '.$vvv['nama_skpd'].' '.$vvv['kode_skpd'].' | '.$v['tahun_anggaran'], $v['tahun_anggaran'], '[monitor_rkpd_renja tahun_anggaran="'.$v['tahun_anggaran'].'" id_skpd="'.$vvv['id_skpd'].'"]');
 			            		$body_pemda .= '<li><a target="_blank" href="'.$url_skpd.'">Halaman RKPD & RENJA '.$vvv['kode_skpd'].' '.$vvv['nama_skpd'].' '.$v['tahun_anggaran'].'</a> (NIP: '.$vvv['nipkepala'].')</li>';
@@ -1097,6 +1097,8 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes {
 					}else if($_POST['type'] == 'monev_rak'){
 						$body_all .= $body_pemda;
 					}else if($_POST['type'] == 'monev_json_rka'){
+						$url_skpd = $this->generatePage('Data JSON RKA | '.$v['tahun_anggaran'], $v['tahun_anggaran'], '[monitor_json_rka tahun_anggaran="'.$v['tahun_anggaran'].'"]');
+	            		$body_all .= '<input type="checkbox" class="select-all"> <a onclick="run_url(this); return false;" target="_blank" href="'.$url_skpd.'">Halaman JSON RKA Tahun '.$v['tahun_anggaran'];
 						$body_all .= $body_pemda;
 					}else if($_POST['type'] == 'input_renstra'){
 			        	$body_all .= $body_pemda;
