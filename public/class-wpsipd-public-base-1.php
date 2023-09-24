@@ -2934,4 +2934,147 @@ class Wpsipd_Public_Base_1 extends Wpsipd_Public_Base_2{
 			]);exit();
     	}
     }
+
+    public function copy_rka_sipd(){
+        global $wpdb;
+        $ret = array(
+            'status'    => 'success',
+            'message'   => 'Berhasil copy data RKA SIPD!'
+        );
+        if (!empty($_POST)) {
+            if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( WPSIPD_API_KEY )) {
+                if(!empty($_POST['tahun_anggaran']) && !empty($_POST['id_skpd']) && !empty($_POST['kode_sbl'])){
+                    if(in_array('administrator', $this->role()) || in_array('PA', $this->role()) || in_array('PLT', $this->role())){
+                        $tahun_anggaran = $_POST['tahun_anggaran'];
+                        $kode_sbl = $_POST['kode_sbl'];
+                        // if(empty($_POST['id_skpd'])){
+                            $sql = $wpdb->prepare("
+                                SELECT 
+                                    * 
+                                FROM data_sub_keg_bl_lokal 
+                                WHERE kode_sbl='%s'
+                                AND active=1 
+                                AND tahun_anggaran=%d
+                            ", $kode_sbl, $tahun_anggaran);
+                        // }else{
+                        //     $sql = $wpdb->prepare("
+                        //         SELECT 
+                        //             * 
+                        //         FROM data_sub_keg_bl_lokal 
+                        //         WHERE id_sub_skpd=%d 
+                        //         AND active=1
+                        //         AND tahun_anggaran=%d
+                        //     ", $_POST['id_skpd'], $tahun_anggaran);
+                        // }
+                        $data_sub_keg = $wpdb->get_results($sql, ARRAY_A);
+                        $ret['data'] = array();
+                        if(!empty($data_sub_keg)){
+                            $wpdb->update('data_sub_keg_bl_lokal', array('active'=>0), array('kode_sbl' => $kode_sbl, 'active' => 1));
+                            foreach ($data_sub_keg as $keySubKeg => $valueSubKeg) {
+                                $columns_rka = array(
+                                    'created_user',
+                                    'createddate',
+                                    'createdtime',
+                                    'harga_satuan',
+                                    'harga_satuan_murni',
+                                    'id_daerah',
+                                    'id_rinci_sub_bl',
+                                    'id_standar_nfs',
+                                    'is_locked',
+                                    'jenis_bl',
+                                    'ket_bl_teks',
+                                    'kode_akun',
+                                    'koefisien',
+                                    'koefisien_murni',
+                                    'lokus_akun_teks',
+                                    'nama_akun',
+                                    'nama_komponen',
+                                    'spek_komponen',
+                                    'satuan',
+                                    'spek',
+                                    'sat1',
+                                    'sat2',
+                                    'sat3',
+                                    'sat4',
+                                    'volum1',
+                                    'volum2',
+                                    'volum3',
+                                    'volum4',
+                                    'volume',
+                                    'volume_murni',
+                                    'subs_bl_teks',
+                                    'subtitle_teks',
+                                    'kode_dana',
+                                    'is_paket',
+                                    'nama_dana',
+                                    'id_dana',
+                                    'substeks',
+                                    'total_harga',
+                                    'rincian',
+                                    'rincian_murni',
+                                    'totalpajak',
+                                    'pajak',
+                                    'pajak_murni',
+                                    'updated_user',
+                                    'updateddate',
+                                    'updatedtime',
+                                    'user1',
+                                    'user2',
+                                    'active',
+                                    'update_at',
+                                    'tahun_anggaran',
+                                    'idbl',
+                                    'idsubbl',
+                                    'kode_bl',
+                                    'kode_sbl',
+                                    'id_prop_penerima',
+                                    'id_camat_penerima',
+                                    'id_kokab_penerima',
+                                    'id_lurah_penerima',
+                                    'id_penerima',
+                                    'idkomponen',
+                                    'idketerangan',
+                                    'idsubtitle'
+                                );
+    
+                                $sql_backup_data_rka =  "
+                                    INSERT INTO data_rka_lokal (".implode(', ', $columns_rka).")
+                                    SELECT 
+                                        ".implode(', ', $columns_rka)."
+                                    FROM data_rka 
+                                    WHERE
+                                        kode_sbl='".$valueSubKeg['kode_sbl']."' 
+                                        AND tahun_anggaran='".$tahun_anggaran."' 
+                                        AND active=1
+                                ";
+    
+                                $query_backup = $wpdb->query($sql_backup_data_rka);
+                            }
+                        }
+                    }else{
+                        $ret = array(
+                            'status' => 'error',
+                            'message'   => 'Anda tidak punya kewenangan untuk melakukan ini!'
+                        );
+                    }
+                }else{
+                    $ret = array(
+                        'status' => 'error',
+                        'message'   => 'Tahun Anggaran Kosong!'
+                    );
+                }
+            }else{
+                $ret = array(
+                    'status' => 'error',
+                    'message'   => 'Api Key tidak sesuai!'
+                );
+            }
+        }else{
+            $ret = array(
+                'status' => 'error',
+                'message'   => 'Format tidak sesuai!'
+            );
+        }
+        die(json_encode($ret));
+    }
 }

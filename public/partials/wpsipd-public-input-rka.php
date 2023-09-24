@@ -11,6 +11,8 @@ $input = shortcode_atts( array(
 	'kode_sbl' => '',
 	'tahun_anggaran' => get_option('_crb_tahun_anggaran_sipd')
 ), $atts );
+$pecah_kode_sbl = explode(".",$input['kode_sbl']);
+$id_skpd = (!empty($input['id_skpd'])) ?: $pecah_kode_sbl[1]; 
 
 if(empty($input['kode_sbl'])){
 	die('<h1>Kode SBL Kosong</h1>');
@@ -442,7 +444,8 @@ if(!empty($subkeg['waktu_akhir']) && !empty($bulan[$subkeg['waktu_akhir']-1])){
 jQuery(document).ready(function(){
 	run_download_excel();
 	var aksi = ''
-		+'<a style="margin-left: 10px;" id="tambah-data" onclick="return false;" href="#" class="btn btn-success">Tambah Data RKA</a>';
+		+'<a style="margin-left: 10px;" id="tambah-data" onclick="return false;" href="#" class="btn btn-success">Tambah Data RKA</a>'
+		+'</br></br><a style="margin-left: 10px;" id="copy-data" onclick="return false;" href="#" class="btn btn-danger">Copy Data RKA SIPD ke Lokal</a>';
 	jQuery("#action-sipd").append(aksi);
 	jQuery("#tambah-data").on('click', function(){
 		let rincian = ''
@@ -608,6 +611,37 @@ jQuery(document).ready(function(){
 		objekBelanja().then(function(){
 			jenisStandarHarga();
 		});
+	});
+
+	jQuery("#copy-data").on("click", function(){
+		if(confirm('Apakah anda yakin untuk melakukan ini? data RKA Lokal akan diupdate sama dengan data RKA SIPD.')){
+            let id_skpd = "<?php echo $id_skpd; ?>";
+			let kode_sbl = "<?php echo $input['kode_sbl']; ?>";
+            if(id_skpd == '' && kode_sbl==''){
+                alert('Id SKPD dan kode sbl Kosong')
+            }else{
+                jQuery('#wrap-loading').show();
+                jQuery.ajax({
+                    method: 'post',
+                    url: '<?php echo admin_url('admin-ajax.php'); ?>',
+                    dataType: "json",
+                    data: {
+                    "action": "copy_rka_sipd",
+                    "api_key": jQuery('#api_key').val(),
+                    "id_skpd": id_skpd,
+					"kode_sbl": kode_sbl,
+                    "tahun_anggaran": tahun_anggaran
+                    },
+                    success: function(res){
+                        jQuery('#wrap-loading').hide();
+                        alert(res.message);
+                        // if(res.status == 'success'){
+                        //     refresh_page();
+                        // }
+                    }
+                });
+            }
+		}
 	});
 
 	jQuery(document).on('change', "#daftar-objek-belanja", function(){

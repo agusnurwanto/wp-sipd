@@ -206,9 +206,9 @@ class Wpsipd_Public_Keu_Pemdes
 
                 // Periksa apakah data dengan ID yang akan dihapus ada di tabel data_pencairan_bkk_desa
                 $idInOtherTable = $wpdb->get_var($wpdb->prepare('
-                    SELECT id_bkk
+                    SELECT id_kegiatan
                     FROM data_pencairan_bkk_desa
-                    WHERE id_bkk=%d
+                    WHERE id_kegiatan=%d
                 ', $idToDelete));
                 if ($idInOtherTable) {
                     // Jika data dengan ID yang sama ditemukan di tabel lain, tampilkan pesan
@@ -297,18 +297,39 @@ class Wpsipd_Public_Keu_Pemdes
                         'update_at' => current_time('mysql')
                     );
                     if (!empty($_POST['id_data'])) {
-                        $wpdb->update('data_bkk_desa', $data, array(
-                            'id' => $_POST['id_data']
-                        ));
-                        $ret['message'] = 'Berhasil update data!';
+                        $cek_id = $wpdb->get_row($wpdb->prepare("
+                        SELECT 
+                            id,
+                            active
+                        from data_bkk_desa 
+                        where desa=%s 
+                            and kecamatan=%s
+                            and kegiatan=%s
+                            and alamat=%s
+                            and tahun_anggaran=%d
+                            and id!=%d
+                        ", $desa, $kecamatan, $kegiatan, $alamat, $tahun_anggaran, $_POST['id_data']), ARRAY_A);
+                        if ($cek_id['active'] == 0) {
+                            $wpdb->update('data_bkk_desa', $data, array(
+                                'id' => $_POST['id_data']
+                            ));
+                            $ret['message'] = 'Berhasil update data!';
+                        } else {
+                            $ret['status'] = 'error';
+                            $ret['message'] = 'Gagal disimpan. Data bkk_infrastruktur dengan id_desa="' . $id_desa . '" kecamatan ="'.$kecamatan.'" kegiatan ="'.$kegiatan.'" alamat ="'.$alamat.'" tahun anggaran = "'.$tahun_anggaran.'"sudah ada!';
+                        }
                     } else {
-                        $cek_id = $wpdb->get_row($wpdb->prepare('
-                            SELECT
-                                id_desa,
-                                active
-                            FROM data_bkk_desa
-                            WHERE id_desa=%s
-                        ', $id_desa), ARRAY_A);
+                        $cek_id = $wpdb->get_row($wpdb->prepare("
+                        SELECT 
+                            id,
+                            active
+                        from data_bkk_desa 
+                        where desa=%s 
+                            and kecamatan=%s
+                            and kegiatan=%s
+                            and alamat=%s
+                            and tahun_anggaran=%d
+                        ", $desa, $kecamatan, $kegiatan, $alamat, $tahun_anggaran), ARRAY_A);
                         if (empty($cek_id)) {
                             $wpdb->insert('data_bkk_desa', $data);
                         } else {
@@ -318,7 +339,7 @@ class Wpsipd_Public_Keu_Pemdes
                                 ));
                             } else {
                                 $ret['status'] = 'error';
-                                $ret['message'] = 'Gagal disimpan. Data bkk_infrastruktur dengan id_desa="' . $id_desa . '" sudah ada!';
+                                $ret['message'] = 'Gagal disimpan. Data bkk_infrastruktur dengan id_desa="' . $id_desa . '" kecamatan ="'.$kecamatan.'" kegiatan ="'.$kegiatan.'" alamat ="'.$alamat.'" tahun anggaran = "'.$tahun_anggaran.'"sudah ada!';
                             }
                         }
                     }
@@ -367,11 +388,11 @@ class Wpsipd_Public_Keu_Pemdes
 
                 // check search value exist
                 if (!empty($params['search']['value'])) {
-                    $where .= " AND ( desa LIKE " . $wpdb->prepare('%s', "%" . $params['search']['value'] . "%");
-                    $where .= " OR kecamatan LIKE " . $wpdb->prepare('%s', "%" . $params['search']['value'] . "%");
-                    $where .= " OR kegiatan LIKE " . $wpdb->prepare('%s', "%" . $params['search']['value'] . "%");
-                    $where .= " OR total LIKE " . $wpdb->prepare('%s', "%" . $params['search']['value'] . "%");
-                    $where .= " )";
+                    $search_value = $wpdb->prepare('%s', "%" . $params['search']['value'] . "%");
+                    $where .= " AND (kecamatan LIKE " . $search_value;
+                    $where .= " OR desa LIKE " . $search_value;
+                    $where .= " OR kegiatan LIKE " . $search_value;
+                    $where .= " OR alamat LIKE " . $search_value . ")";
                 }
 
                 // getting total number records without any search
@@ -389,7 +410,7 @@ class Wpsipd_Public_Keu_Pemdes
                 if ($params['length'] != -1) {
                     $limit = "  LIMIT " . $wpdb->prepare('%d', $params['start']) . " ," . $wpdb->prepare('%d', $params['length']);
                 }
-                $sqlRec .=  " ORDER BY " . $columns[$params['order'][0]['column']] . "   " . $params['order'][0]['dir'] . $limit;
+                $sqlRec .= " ORDER BY update_at DESC" . $limit;
 
                 $queryTot = $wpdb->get_results($sqlTot, ARRAY_A);
                 $totalRecords = $queryTot[0]['jml'];
@@ -397,7 +418,7 @@ class Wpsipd_Public_Keu_Pemdes
 
                 foreach ($queryRecords as $recKey => $recVal) {
                     $btn = '<a class="btn btn-sm btn-warning" onclick="edit_data(\'' . $recVal['id'] . '\'); return false;" href="#" title="Edit Data"><i class="dashicons dashicons-edit"></i></a>';
-                    $btn .= '<a class="btn btn-sm btn-danger" onclick="hapus_data(\'' . $recVal['id'] . '\'); return false;" href="#" title="Edit Data"><i class="dashicons dashicons-trash"></i></a>';
+                    $btn .= '<a style="margin-left: 10px;" class="btn btn-sm btn-danger" onclick="hapus_data(\'' . $recVal['id'] . '\'); return false;" href="#" title="Edit Data"><i class="dashicons dashicons-trash"></i></a>';
                     $queryRecords[$recKey]['aksi'] = $btn;
                     $queryRecords[$recKey]['total'] = number_format($recVal['total'], 0, ",", ".");
                 }
@@ -658,8 +679,9 @@ class Wpsipd_Public_Keu_Pemdes
 
                 // check search value exist
                 if (!empty($params['search']['value'])) {
-                    $where .= " AND d.kecamatan LIKE " . $wpdb->prepare('%s', "%" . $params['search']['value'] . "%");
-                    $where .= " AND d.desa LIKE " . $wpdb->prepare('%s', "%" . $params['search']['value'] . "%");
+                    $search_value = $wpdb->prepare('%s', "%" . $params['search']['value'] . "%");
+                    $where .= " AND (kecamatan LIKE " . $search_value;
+                    $where .= " OR desa LIKE " . $search_value . ")";
                 }
 
                 // getting total number records without any search
@@ -685,7 +707,7 @@ class Wpsipd_Public_Keu_Pemdes
 
                 foreach ($queryRecords as $recKey => $recVal) {
                     $btn = '<a class="btn btn-sm btn-warning" onclick="edit_data(\'' . $recVal['id'] . '\'); return false;" href="#" title="Edit Data"><i class="dashicons dashicons-edit"></i></a>';
-                    $btn .= '<a class="btn btn-sm btn-danger" onclick="hapus_data(\'' . $recVal['id'] . '\'); return false;" href="#" title="Edit Data"><i class="dashicons dashicons-trash"></i></a>';
+                    $btn .= '<a style="margin-left: 10px;" class="btn btn-sm btn-danger" onclick="hapus_data(\'' . $recVal['id'] . '\'); return false;" href="#" title="Edit Data"><i class="dashicons dashicons-trash"></i></a>';
                     $queryRecords[$recKey]['aksi'] = $btn;
                     $queryRecords[$recKey]['total'] = number_format($recVal['total'], 0, ",", ".");
                 }
@@ -895,8 +917,9 @@ class Wpsipd_Public_Keu_Pemdes
 
                 // check search value exist
                 if (!empty($params['search']['value'])) {
-                    $where .= " AND ( id_bhrd_desa LIKE " . $wpdb->prepare('%s', "%" . $params['search']['value'] . "%");
-                    $where .= " OR total LIKE " . $wpdb->prepare('%s', "%" . $params['search']['value'] . "%");
+                    $search_value = $wpdb->prepare('%s', "%" . $params['search']['value'] . "%");
+                    $where .= " AND (kecamatan LIKE " . $search_value;
+                    $where .= " OR desa LIKE " . $search_value . ")";
                 }
 
                 // getting total number records without any search
@@ -914,7 +937,7 @@ class Wpsipd_Public_Keu_Pemdes
                 if ($params['length'] != -1) {
                     $limit = "  LIMIT " . $wpdb->prepare('%d', $params['start']) . " ," . $wpdb->prepare('%d', $params['length']);
                 }
-                $sqlRec .=  " ORDER BY " . $columns[$params['order'][0]['column']] . "   " . $params['order'][0]['dir'] . $limit;
+                $sqlRec .= " ORDER BY update_at DESC" . $limit;
 
                 $queryTot = $wpdb->get_results($sqlTot, ARRAY_A);
                 $totalRecords = $queryTot[0]['jml'];
@@ -922,7 +945,7 @@ class Wpsipd_Public_Keu_Pemdes
 
                 foreach ($queryRecords as $recKey => $recVal) {
                     $btn = '<a class="btn btn-sm btn-warning" onclick="edit_data(\'' . $recVal['id'] . '\'); return false;" href="#" title="Edit Data"><i class="dashicons dashicons-edit"></i></a>';
-                    $btn .= '<a class="btn btn-sm btn-danger" onclick="hapus_data(\'' . $recVal['id'] . '\'); return false;" href="#" title="Edit Data"><i class="dashicons dashicons-trash"></i></a>';
+                    $btn .= '<a style="margin-left: 10px;" class="btn btn-sm btn-danger" onclick="hapus_data(\'' . $recVal['id'] . '\'); return false;" href="#" title="Edit Data"><i class="dashicons dashicons-trash"></i></a>';
                     $queryRecords[$recKey]['aksi'] = $btn;
                     $queryRecords[$recKey]['total'] = number_format($recVal['total'], 0, ",", ".");
                 }
@@ -1175,8 +1198,9 @@ class Wpsipd_Public_Keu_Pemdes
 
                 // check search value exist
                 if (!empty($params['search']['value'])) {
-                    $where .= " AND ( id_bku_dd_desa LIKE " . $wpdb->prepare('%s', "%" . $params['search']['value'] . "%");
-                    $where .= " OR total LIKE " . $wpdb->prepare('%s', "%" . $params['search']['value'] . "%");
+                    $search_value = $wpdb->prepare('%s', "%" . $params['search']['value'] . "%");
+                    $where .= " AND (kecamatan LIKE " . $search_value;
+                    $where .= " OR desa LIKE " . $search_value . ")";
                 }
 
                 // getting total number records without any search
@@ -1194,7 +1218,7 @@ class Wpsipd_Public_Keu_Pemdes
                 if ($params['length'] != -1) {
                     $limit = "  LIMIT " . $wpdb->prepare('%d', $params['start']) . " ," . $wpdb->prepare('%d', $params['length']);
                 }
-                $sqlRec .=  " ORDER BY " . $columns[$params['order'][0]['column']] . "   " . $params['order'][0]['dir'] . $limit;
+                $sqlRec .= " ORDER BY update_at DESC" . $limit;
 
                 $queryTot = $wpdb->get_results($sqlTot, ARRAY_A);
                 $totalRecords = $queryTot[0]['jml'];
@@ -1412,8 +1436,9 @@ class Wpsipd_Public_Keu_Pemdes
 
                 // check search value exist
                 if (!empty($params['search']['value'])) {
-                    $where .= " AND ( id_bku_add_desa LIKE " . $wpdb->prepare('%s', "%" . $params['search']['value'] . "%");
-                    $where .= " OR total LIKE " . $wpdb->prepare('%s', "%" . $params['search']['value'] . "%");
+                    $search_value = $wpdb->prepare('%s', "%" . $params['search']['value'] . "%");
+                    $where .= " AND (kecamatan LIKE " . $search_value;
+                    $where .= " OR desa LIKE " . $search_value . ")";
                 }
 
                 // getting total number records without any search
@@ -1431,7 +1456,7 @@ class Wpsipd_Public_Keu_Pemdes
                 if ($params['length'] != -1) {
                     $limit = "  LIMIT " . $wpdb->prepare('%d', $params['start']) . " ," . $wpdb->prepare('%d', $params['length']);
                 }
-                $sqlRec .=  " ORDER BY " . $columns[$params['order'][0]['column']] . "   " . $params['order'][0]['dir'] . $limit;
+                $sqlRec .= " ORDER BY update_at DESC" . $limit;
 
                 $queryTot = $wpdb->get_results($sqlTot, ARRAY_A);
                 $totalRecords = $queryTot[0]['jml'];
@@ -1439,7 +1464,7 @@ class Wpsipd_Public_Keu_Pemdes
 
                 foreach ($queryRecords as $recKey => $recVal) {
                     $btn = '<a class="btn btn-sm btn-warning" onclick="edit_data(\'' . $recVal['id'] . '\'); return false;" href="#" title="Edit Data"><i class="dashicons dashicons-edit"></i></a>';
-                    $btn .= '<a class="btn btn-sm btn-danger" onclick="hapus_data(\'' . $recVal['id'] . '\'); return false;" href="#" title="Edit Data"><i class="dashicons dashicons-trash"></i></a>';
+                    $btn .= '<a style="margin-left: 10px;" class="btn btn-sm btn-danger" onclick="hapus_data(\'' . $recVal['id'] . '\'); return false;" href="#" title="Edit Data"><i class="dashicons dashicons-trash"></i></a>';
                     $queryRecords[$recKey]['aksi'] = $btn;
                     $queryRecords[$recKey]['total'] = number_format($recVal['total'], 0, ",", ".");
                 }
@@ -1649,8 +1674,9 @@ class Wpsipd_Public_Keu_Pemdes
 
                 // check search value exist
                 if (!empty($params['search']['value'])) {
-                    $where .= " AND kecamatan LIKE " . $wpdb->prepare('%s', "%" . $params['search']['value'] . "%");
-                    $where .= " OR desa LIKE " . $wpdb->prepare('%s', "%" . $params['search']['value'] . "%");
+                    $search_value = $wpdb->prepare('%s', "%" . $params['search']['value'] . "%");
+                    $where .= " AND (kecamatan LIKE " . $search_value;
+                    $where .= " OR desa LIKE " . $search_value . ")";
                 }
 
                 // getting total number records without any search
@@ -1668,7 +1694,7 @@ class Wpsipd_Public_Keu_Pemdes
                 if ($params['length'] != -1) {
                     $limit = "  LIMIT " . $wpdb->prepare('%d', $params['start']) . " ," . $wpdb->prepare('%d', $params['length']);
                 }
-                $sqlRec .=  " ORDER BY " . $columns[$params['order'][0]['column']] . "   " . $params['order'][0]['dir'] . $limit;
+                $sqlRec .= " ORDER BY update_at DESC" . $limit;
 
                 $queryTot = $wpdb->get_results($sqlTot, ARRAY_A);
                 $totalRecords = $queryTot[0]['jml'];
@@ -2314,9 +2340,11 @@ class Wpsipd_Public_Keu_Pemdes
 
                 // check search value exist
                 if (!empty($params['search']['value'])) {
-                    $where .= " AND d.kegiatan LIKE " . $wpdb->prepare('%s', "%" . $params['search']['value'] . "%");
-                    $where .= " AND d.kecamatan LIKE " . $wpdb->prepare('%s', "%" . $params['search']['value'] . "%");
-                    $where .= " AND d.alamat LIKE " . $wpdb->prepare('%s', "%" . $params['search']['value'] . "%");
+                    $search_value = $wpdb->prepare('%s', "%" . $params['search']['value'] . "%");
+                    $where .= " AND (kecamatan LIKE " . $search_value;
+                    $where .= " OR desa LIKE " . $search_value;
+                    $where .= " OR kegiatan LIKE " . $search_value;
+                    $where .= " OR alamat LIKE " . $search_value . ")";
                 }
 
                 // getting total number records without any search
@@ -3089,8 +3117,9 @@ class Wpsipd_Public_Keu_Pemdes
 
                 // check search value exist
                 if (!empty($params['search']['value'])) {
-                    $where .= " AND d.kegiatan LIKE " . $wpdb->prepare('%s', "%" . $params['search']['value'] . "%");
-                    $where .= " AND d.kecamatan LIKE " . $wpdb->prepare('%s', "%" . $params['search']['value'] . "%");
+                    $search_value = $wpdb->prepare('%s', "%" . $params['search']['value'] . "%");
+                    $where .= " AND (kecamatan LIKE " . $search_value;
+                    $where .= " OR desa LIKE " . $search_value . ")";
                 }
 
                 // getting total number records without any search
@@ -3843,8 +3872,9 @@ class Wpsipd_Public_Keu_Pemdes
 
                 // check search value exist
                 if (!empty($params['search']['value'])) {
-                    $where .= " OR d.desa LIKE " . $wpdb->prepare('%s', "%" . $params['search']['value'] . "%");
-                    $where .= " AND d.kecamatan LIKE " . $wpdb->prepare('%s', "%" . $params['search']['value'] . "%");
+                    $search_value = $wpdb->prepare('%s', "%" . $params['search']['value'] . "%");
+                    $where .= " AND (kecamatan LIKE " . $search_value;
+                    $where .= " OR desa LIKE " . $search_value . ")";
                 }
 
                 // getting total number records without any search
@@ -4153,8 +4183,8 @@ class Wpsipd_Public_Keu_Pemdes
                                 id,
                                 active
                             FROM data_pencairan_bku_dd_desa
-                            WHERE id_bku_dd_desa=%s
-                        ', $id_bku_dd_desa), ARRAY_A);
+                            WHERE id_bku_dd=%s
+                        ', $id_bku_dd), ARRAY_A);
                         if (empty($cek_id)) {
                             $wpdb->insert('data_pencairan_bku_dd_desa', $data);
                         } else {
@@ -4164,7 +4194,7 @@ class Wpsipd_Public_Keu_Pemdes
                                 ));
                             } else {
                                 $ret['status'] = 'error';
-                                $ret['message'] = 'Gagal disimpan. Data bku_dd_desa dengan id_bku_dd_desa="' . $id_bku_dd_desa . '" sudah ada!';
+                                $ret['message'] = 'Gagal disimpan. Data bku_dd_desa dengan id_bku_dd="' . $id_bku_dd . '" sudah ada!';
                             }
                         }
                     }
@@ -4212,8 +4242,9 @@ class Wpsipd_Public_Keu_Pemdes
 
                 // check search value exist
                 if (!empty($params['search']['value'])) {
-                    $where .= " OR d.desa LIKE " . $wpdb->prepare('%s', "%" . $params['search']['value'] . "%");
-                    $where .= " AND d.kecamatan LIKE " . $wpdb->prepare('%s', "%" . $params['search']['value'] . "%");
+                    $search_value = $wpdb->prepare('%s', "%" . $params['search']['value'] . "%");
+                    $where .= " AND (kecamatan LIKE " . $search_value;
+                    $where .= " OR desa LIKE " . $search_value . ")";
                 }
 
                 // getting total number records without any search
@@ -4811,9 +4842,9 @@ class Wpsipd_Public_Keu_Pemdes
 
                 // check search value exist
                 if (!empty($params['search']['value'])) {
-                    $where .= " OR d.desa LIKE " . $wpdb->prepare('%s', "%" . $params['search']['value'] . "%");
-                    $where .= " AND d.kecamatan LIKE " . $wpdb->prepare('%s', "%" . $params['search']['value'] . "%");
-                    $where .= " AND d.alamat LIKE " . $wpdb->prepare('%s', "%" . $params['search']['value'] . "%");
+                    $search_value = $wpdb->prepare('%s', "%" . $params['search']['value'] . "%");
+                    $where .= " AND (kecamatan LIKE " . $search_value;
+                    $where .= " OR desa LIKE " . $search_value . ")";
                 }
 
                 // getting total number records without any search
@@ -5132,8 +5163,8 @@ class Wpsipd_Public_Keu_Pemdes
                                 id,
                                 active
                             FROM data_pencairan_bkk_pilkades_desa
-                            WHERE id_bkk_pilkades_desa=%s
-                        ', $id_bkk_pilkades_desa), ARRAY_A);
+                            WHERE id_bkk_pilkades=%s
+                        ', $id_bkk_pilkades), ARRAY_A);
                         if (empty($cek_id)) {
                             $wpdb->insert('data_pencairan_bkk_pilkades_desa', $data);
                         } else {
@@ -5143,7 +5174,7 @@ class Wpsipd_Public_Keu_Pemdes
                                 ));
                             } else {
                                 $ret['status'] = 'error';
-                                $ret['message'] = 'Gagal disimpan. Data bkk_pilkades_desa dengan id_bkk_pilkades_desa="' . $id_bkk_pilkades_desa . '" sudah ada!';
+                                $ret['message'] = 'Gagal disimpan. Data bkk_pilkades_desa dengan id_bkk_pilkades="' . $id_bkk_pilkades . '" sudah ada!';
                             }
                         }
                     }
@@ -5191,8 +5222,9 @@ class Wpsipd_Public_Keu_Pemdes
 
                 // check search value exist
                 if (!empty($params['search']['value'])) {
-                    $where .= " AND ( d.desa LIKE " . $wpdb->prepare('%s', "%" . $params['search']['value'] . "%") . ")";
-                    $where .= " AND d.kecamatan LIKE " . $wpdb->prepare('%s', "%" . $params['search']['value'] . "%");
+                    $search_value = $wpdb->prepare('%s', "%" . $params['search']['value'] . "%");
+                    $where .= " AND (kecamatan LIKE " . $search_value;
+                    $where .= " OR desa LIKE " . $search_value . ")";
                 }
                 // getting total number records without any search
                 $sql_tot = "SELECT count(p.id) as jml FROM `data_pencairan_bkk_pilkades_desa` p inner join data_bkk_pilkades_desa d on p.id_bkk_pilkades=d.id";
