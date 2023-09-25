@@ -1098,7 +1098,7 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes {
 						$body_all .= $body_pemda;
 					}else if($_POST['type'] == 'monev_json_rka'){
 						$url_skpd = $this->generatePage('Data JSON RKA | '.$v['tahun_anggaran'], $v['tahun_anggaran'], '[monitor_json_rka tahun_anggaran="'.$v['tahun_anggaran'].'"]');
-	            		$body_all .= '<input type="checkbox" class="select-all"> <a onclick="run_url(this); return false;" target="_blank" href="'.$url_skpd.'">Halaman JSON RKA Tahun '.$v['tahun_anggaran'];
+	            		$body_all .= '<input type="checkbox" class="select-all"> <a onclick="run_url(this); return false;" target="_blank" href="'.$url_skpd.'">Halaman JSON RKA Tahun '.$v['tahun_anggaran'].'</a>';
 						$body_all .= $body_pemda;
 					}else if($_POST['type'] == 'input_renstra'){
 			        	$body_all .= $body_pemda;

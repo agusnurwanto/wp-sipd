@@ -153,6 +153,7 @@ $sql_anggaran = $wpdb->prepare("
 echo '
 <h2>SQL untuk select total rincian per kode akun dan sumber dana untuk keperluan SPD FMIS</h2>
 <button onclick="get_data('.$input['tahun_anggaran'].', \''.$input['id_skpd'].'\', \'json_rek_sd\');" class="btn btn-success" style="margin: 0 10px 10px;">Get Data</button>
+<button class="btn btn-primary" style="margin: 0 0 10px; display: none;" id="json_rek_sd_excel" onclick="tableHtmlToExcel(\'json_rek_sd\', \'Data P3DN\');">Download Excel</button>
 <div id="json_rek_sd" style="overflow: auto; max-height: 100vh;"></div>
 <pre>'.$sql_anggaran.'</pre>';
 
@@ -420,6 +421,7 @@ echo '
                             +'<tbody>'+html_data+'</tbody>'
                         +'</table>';
                     jQuery('#json_rek_sd').html(html);
+                    jQuery('#json_rek_sd_excel').show();
                 }else if(tipe == 'json_rek_p3dn'){
                     ret.data.map(function(b, i){
                         html_data += ''
