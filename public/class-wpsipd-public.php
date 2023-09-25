@@ -18782,6 +18782,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 					    ORDER BY k.kode_sub_skpd ASC, k.kode_sub_giat ASC
 					",$_POST["tahun_anggaran"]);
 					$data = $wpdb->get_results($sql_anggaran, ARRAY_A);
+					$return['sql'] = $wpdb->last_query;
 
 					$realisasi = $wpdb->get_results($wpdb->prepare("
 						SELECT
