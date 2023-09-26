@@ -18684,6 +18684,12 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		$table_content = '';
 		if(!empty($_POST)){
 			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+				$id_skpd = array();
+		        foreach(explode(',', $_POST['id_skpd']) as $val){
+		            $id_skpd[] = $wpdb->prepare('%d', $val);
+		        };
+		        $new_id_skpd = implode(',', $id_skpd);
+
 				$id_sumber_dana_default = get_option('_crb_default_sumber_dana' );
 				$sumber_dana_default = $wpdb->get_row($wpdb->prepare('
 				    SELECT 
@@ -18728,10 +18734,10 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 					    WHERE
 					        k.tahun_anggaran=%d
 					        AND k.active=1
-					        AND k.id_sub_skpd=%d
+					        AND k.id_sub_skpd IN ($new_id_skpd)
 					    GROUP BY k.kode_sub_skpd ASC, k.kode_sub_giat, r.kode_akun
 					    ORDER BY k.kode_sub_skpd ASC, k.kode_sub_giat ASC
-					    ",$_POST["tahun_anggaran"], $_POST['id_skpd']);
+					    ",$_POST["tahun_anggaran"]);
 					$return['data'] = $wpdb->get_results($sql_anggaran, ARRAY_A);
 				}else if($_POST['tipe'] == 'json_rek_p3dn'){
 					$sql_anggaran = $wpdb->prepare("
@@ -18771,11 +18777,12 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 					    WHERE
 					        k.tahun_anggaran=%d
 					        AND k.active=1
-					        AND k.id_sub_skpd=%d
+					        AND k.id_sub_skpd IN ($new_id_skpd)
 					    GROUP BY k.kode_sub_skpd ASC, k.kode_sub_giat, r.subs_bl_teks
 					    ORDER BY k.kode_sub_skpd ASC, k.kode_sub_giat ASC
-					",$_POST["tahun_anggaran"], $_POST['id_skpd']);
+					",$_POST["tahun_anggaran"]);
 					$data = $wpdb->get_results($sql_anggaran, ARRAY_A);
+					$return['sql'] = $wpdb->last_query;
 
 					$realisasi = $wpdb->get_results($wpdb->prepare("
 						SELECT
@@ -18798,8 +18805,8 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 							AND sp.tahun_anggaran=s.tahun_anggaran
 						WHERE a.active=1
 							AND a.tahun_anggaran=%d
-							AND a.id_sub_skpd=%d
-					", $_POST['tahun_anggaran'], $_POST['id_skpd']), ARRAY_A);
+							AND a.id_sub_skpd IN ($new_id_skpd)
+					", $_POST['tahun_anggaran']), ARRAY_A);
 					$new_realisasi = array();
 					foreach($realisasi as $key => $val){
 						$new_realisasi[$val['kode_akun']] = $val;

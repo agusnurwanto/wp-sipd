@@ -2,8 +2,7 @@
 global $wpdb;
 
 $input = shortcode_atts(array(
-    'tahun_anggaran' => '',
-    'sumber_dana' => ''
+    'tahun_anggaran' => ''
 ), $atts);
 
 $tahun_anggaran = isset($_GET['tahun_anggaran']) ? $wpdb->prepare('%d', $_GET['tahun_anggaran']) : '';

@@ -9,6 +9,34 @@ $input = shortcode_atts( array(
 	'tahun_anggaran' => '2022'
 ), $atts );
 
+if(empty($input['id_skpd'])){
+    if(!empty($_GET['id_skpd'])){
+        $id_skpd = array();
+        foreach(explode(',', $_GET['id_skpd']) as $val){
+            $id_skpd[] = $wpdb->prepare('%d', $val);
+        };
+        $input['id_skpd'] = implode(',', $id_skpd);
+    }
+}
+
+if(empty($input['id_skpd'])){
+    $sql_unit = $wpdb->prepare("
+        SELECT 
+            id_skpd
+        FROM data_unit 
+        WHERE 
+            tahun_anggaran=%d
+            AND active=1
+        order by kode_skpd ASC
+        ", $input['tahun_anggaran']);
+    $unit_db = $wpdb->get_results($sql_unit, ARRAY_A);
+    $id_skpd = array();
+    foreach($unit_db as $u){
+        $id_skpd[] = $u['id_skpd'];
+    }
+    $input['id_skpd'] = implode(',', $id_skpd);
+}
+
 $api_key = get_option('_crb_api_key_extension');
 $id_sumber_dana_default = get_option('_crb_default_sumber_dana' );
 $sumber_dana_default = $wpdb->get_row($wpdb->prepare('
@@ -23,36 +51,25 @@ $sumber_dana_default = $wpdb->get_row($wpdb->prepare('
 
 $body_json = '';
 $nama_pemda = get_option('_crb_daerah');
+echo "<h1 class='text-center'>Data JSON RKA<br>$nama_pemda";
 
-$sql_unit = $wpdb->prepare("
-	SELECT 
-		*
-	FROM data_unit 
-	WHERE 
-        tahun_anggaran=%d
-		AND id_skpd =%d
-		AND active=1
-	order by id_skpd ASC
-    ", $input['tahun_anggaran'], $input['id_skpd']);
-$unit = $wpdb->get_results($sql_unit, ARRAY_A);
-
-$unit_utama = $unit;
-if($unit[0]['id_unit'] != $unit[0]['id_skpd']){
-    $sql_unit_utama = $wpdb->prepare("
-        SELECT 
-            *
-        FROM data_unit
-        WHERE 
+if(count(explode(',', $input['id_skpd'])) == 1){
+    $sql_unit = $wpdb->prepare("
+    	SELECT 
+    		*
+    	FROM data_unit 
+    	WHERE 
             tahun_anggaran=%d
-            AND id_skpd=%d
-            AND active=1
-        order by id_skpd ASC
-        ", $input['tahun_anggaran'], $unit[0]['id_unit']);
-    $unit_utama = $wpdb->get_results($sql_unit_utama, ARRAY_A);
+    		AND id_skpd IN ($input[id_skpd])
+    		AND active=1
+    	order by id_skpd ASC
+        ", $input['tahun_anggaran']);
+    $unit = $wpdb->get_row($sql_unit, ARRAY_A);
+    if(!empty($unit['nama_skpd'])){
+        echo '<br>'.$unit['kode_skpd'].' '.$unit['nama_skpd'];
+    }
 }
-
-$unit = (!empty($unit)) ? $unit : array();
-$nama_skpd = (!empty($unit[0]['nama_skpd'])) ? $unit[0]['nama_skpd'] : '-';
+echo "</h1>";
 
 $sql_anggaran = $wpdb->prepare("
     SELECT 
@@ -86,10 +103,10 @@ $sql_anggaran = $wpdb->prepare("
     WHERE
         k.tahun_anggaran=%d
         AND k.active=1
-        AND k.id_sub_skpd=%d
+        AND k.id_sub_skpd IN ($input[id_skpd])
     GROUP BY k.kode_sub_skpd ASC, k.kode_sub_giat, r.subs_bl_teks
     ORDER BY k.kode_sub_skpd ASC, k.kode_sub_giat ASC
-    ",$input["tahun_anggaran"], $input['id_skpd']);
+    ",$input["tahun_anggaran"]);
 
 echo '
     <h2>SQL untuk select total rincian per kelompok belanja (#)</h2>
@@ -128,14 +145,15 @@ $sql_anggaran = $wpdb->prepare("
     WHERE
         k.tahun_anggaran=%d
         AND k.active=1
-        AND k.id_sub_skpd=%d
+        AND k.id_sub_skpd IN ($input[id_skpd])
     GROUP BY k.kode_sub_skpd ASC, k.kode_sub_giat, r.kode_akun
     ORDER BY k.kode_sub_skpd ASC, k.kode_sub_giat ASC
-    ",$input["tahun_anggaran"], $input['id_skpd']);
+    ",$input["tahun_anggaran"]);
 
 echo '
 <h2>SQL untuk select total rincian per kode akun dan sumber dana untuk keperluan SPD FMIS</h2>
-<button onclick="get_data('.$input['tahun_anggaran'].', '.$input['id_skpd'].', \'json_rek_sd\');" class="btn btn-success" style="margin: 0 10px 10px;">Get Data</button>
+<button onclick="get_data('.$input['tahun_anggaran'].', \''.$input['id_skpd'].'\', \'json_rek_sd\');" class="btn btn-success" style="margin: 0 10px 10px;">Get Data</button>
+<button class="btn btn-primary" style="margin: 0 0 10px; display: none;" id="json_rek_sd_excel" onclick="tableHtmlToExcel(\'json_rek_sd\', \'Data P3DN\');">Download Excel</button>
 <div id="json_rek_sd" style="overflow: auto; max-height: 100vh;"></div>
 <pre>'.$sql_anggaran.'</pre>';
 
@@ -281,8 +299,8 @@ $sql_anggaran = $wpdb->prepare("
     WHERE
         k.tahun_anggaran=%d
         AND k.active=1
-        AND k.id_sub_skpd=%d
-    ",$input["tahun_anggaran"], $input['id_skpd']);
+        AND k.id_sub_skpd IN ($input[id_skpd])
+    ",$input["tahun_anggaran"]);
 
 echo '
     <h2>SQL untuk select semua rincian</h2>
@@ -321,14 +339,15 @@ $sql_anggaran = $wpdb->prepare("
     WHERE
         k.tahun_anggaran=%d
         AND k.active=1
-        AND k.id_sub_skpd=%d
+        AND k.id_sub_skpd IN ($input[id_skpd])
     GROUP BY k.kode_sub_skpd ASC, k.kode_sub_giat, r.subs_bl_teks
     ORDER BY k.kode_sub_skpd ASC, k.kode_sub_giat ASC
-    ",$input["tahun_anggaran"], $input['id_skpd']);
+    ",$input["tahun_anggaran"]);
 
 echo '
 <h2>SQL untuk select kontrol realisasi dan P3DN</h2>
-<button onclick="get_data('.$input['tahun_anggaran'].', '.$input['id_skpd'].', \'json_rek_p3dn\');" class="btn btn-success" style="margin: 0 10px 10px;">Get Data</button>
+<button onclick="get_data('.$input['tahun_anggaran'].', \''.$input['id_skpd'].'\', \'json_rek_p3dn\');" class="btn btn-success" style="margin: 0 10px 10px;">Get Data</button>
+<button class="btn btn-primary" style="margin: 0 0 10px; display: none;" id="json_rek_p3dn_excel" onclick="tableHtmlToExcel(\'json_rek_p3dn\', \'Data P3DN\');">Download Excel</button>
 <div id="json_rek_p3dn" style="overflow: auto; max-height: 100vh;"></div>
 <pre>'.$sql_anggaran.'</pre>';
 ?>
@@ -402,6 +421,7 @@ echo '
                             +'<tbody>'+html_data+'</tbody>'
                         +'</table>';
                     jQuery('#json_rek_sd').html(html);
+                    jQuery('#json_rek_sd_excel').show();
                 }else if(tipe == 'json_rek_p3dn'){
                     ret.data.map(function(b, i){
                         html_data += ''
@@ -447,6 +467,7 @@ echo '
                             +'<tbody>'+html_data+'</tbody>'
                         +'</table>';
                     jQuery('#json_rek_p3dn').html(html);
+                    jQuery('#json_rek_p3dn_excel').show();
                 }
                 alert(ret.message);
                 jQuery('#wrap-loading').hide();
