@@ -712,7 +712,7 @@ foreach ($data_all['data'] as $sub_skpd) {
                         $kode_sbl = $sub_giat['data']['kode_sbl'];
                         $url_rka_lokal = $this->generatePage('Data RKA Lokal | '.$kode_sbl.' | '.$input['tahun_anggaran'],$input['tahun_anggaran'],'[input_rka_lokal id_skpd="'.$input['id_skpd'].'" kode_sbl="'.$kode_sbl.'" tahun_anggaran="'.$input['tahun_anggaran'].'"]');
 
-                        $tombol_aksi = '<a href="'.$url_rka_lokal.'" target="_blank"><button class="btn-sm btn-info" style="margin: 1px;" title="Detail Renja"><i class="dashicons dashicons-search"></i></button></a>';
+                        $tombol_aksi = '<a href="'.$url_rka_lokal.'" target="_blank"><button class="btn-sm btn-info" style="margin: 1px;" title="Rincian Belanja"><i class="dashicons dashicons-search"></i></button></a>';
                         if(!empty($add_renja)){
                             if($sub_giat['data']['status_sub_keg'] != 1){
                                 $tombol_aksi .= '<button class="btn-sm btn-warning" style="margin: 1px;" onclick="edit_renja_pemutakhiran(\''.$kode_sbl.'\');" title="Edit Renja"><i class="dashicons dashicons-edit"></i></button>';
@@ -721,7 +721,7 @@ foreach ($data_all['data'] as $sub_skpd) {
                             }
                             $tombol_aksi .= '<button class="btn-sm btn-danger" style="margin: 1px;" onclick="delete_renja(\''.$kode_sbl.'\');" title="Hapus Renja"><i class="dashicons dashicons-trash"></i></button>';
                         }
-                        $tombol_aksi .= '<button class="btn-sm btn-primary" style="margin: 1px;" onclick="detail_renja(\''.$kode_sbl.'\');" title="Detail Renja"><i class="dashicons dashicons-ellipsis"></i></button>';
+                        $tombol_aksi .= '<button class="btn-sm btn-primary" style="margin: 1px;" onclick="detail_renja(\''.$kode_sbl.'\');" title="Detail Sub Kegiatan"><i class="dashicons dashicons-ellipsis"></i></button>';
                         $pagu_sub_sipd = $sub_giat['pagu_sipd'];
                         $warning = '';
                         if($sub_giat['total'] != $pagu_sub_sipd){

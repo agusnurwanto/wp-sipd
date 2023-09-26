@@ -627,17 +627,19 @@ jQuery(document).ready(function(){
                     dataType: "json",
                     data: {
                     "action": "copy_rka_sipd",
-                    "api_key": jQuery('#api_key').val(),
+                    "api_key": "<?php echo $api_key; ?>",
                     "id_skpd": id_skpd,
 					"kode_sbl": kode_sbl,
-                    "tahun_anggaran": tahun_anggaran
+                    "tahun_anggaran": "<?php echo $input['tahun_anggaran']; ?>"
                     },
                     success: function(res){
                         jQuery('#wrap-loading').hide();
                         alert(res.message);
-                        // if(res.status == 'success'){
-                        //     refresh_page();
-                        // }
+                        if(res.status == 'success'){
+							if(confirm('Ada data yang berubah, apakah mau merefresh halaman ini?')){
+								window.location = "";
+							}
+                        }
                     }
                 });
             }
