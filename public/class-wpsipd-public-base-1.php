@@ -2970,7 +2970,7 @@ class Wpsipd_Public_Base_1 extends Wpsipd_Public_Base_2{
                         $ret['data'] = array();
                         if(!empty($data_sub_keg)){
                             $ret['data'] = $data_sub_keg;
-                            $wpdb->update('data_sub_keg_bl_lokal', array('active'=>0), array('kode_sbl' => $kode_sbl, 'active' => 1));
+                            $wpdb->update('data_rka_lokal', array('active'=>0), array('kode_sbl' => $kode_sbl, 'active' => 1));
                             foreach ($data_sub_keg as $keySubKeg => $valueSubKeg) {
                                 $columns_rka = array(
                                     'created_user',
