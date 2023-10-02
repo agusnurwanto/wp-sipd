@@ -195,7 +195,11 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes {
 			wp_update_post( $_post );
 			$_post['update'] = 1;
 		}
-		return $this->get_link_post($custom_post);
+		if($custom_post->post_status == 'publish'){
+			return get_permalink($custom_post);
+		}else{
+			return $this->get_link_post($custom_post);
+		}
 	}
 
 	function wp_sipd_admin_notice(){

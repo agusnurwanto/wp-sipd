@@ -9560,30 +9560,34 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 	}
 
 	public function get_link_post($custom_post, $link=false){
-		if(null == $custom_post){
-			if(empty($link)){
-				$link = '#';
-			}
+		if($custom_post->post_status == 'publish'){
+			return get_permalink($custom_post);
 		}else{
-			if(empty($link)){
-				$link = get_permalink($custom_post);
-			}
-			if(false == $link){
-				$link = '#';
-			}
-		}
-		if($link != '#'){
-			$options = array();
-			if(!empty($custom_post->custom_url)){
-				$options['custom_url'] = $custom_post->custom_url;
-			}
-			if(strpos($link, '?') === false){
-				$link .= '?key=' . $this->gen_key(false, $options);
+			if(null == $custom_post){
+				if(empty($link)){
+					$link = '#';
+				}
 			}else{
-				$link .= '&key=' . $this->gen_key(false, $options);
+				if(empty($link)){
+					$link = get_permalink($custom_post);
+				}
+				if(false == $link){
+					$link = '#';
+				}
 			}
+			if($link != '#'){
+				$options = array();
+				if(!empty($custom_post->custom_url)){
+					$options['custom_url'] = $custom_post->custom_url;
+				}
+				if(strpos($link, '?') === false){
+					$link .= '?key=' . $this->gen_key(false, $options);
+				}else{
+					$link .= '&key=' . $this->gen_key(false, $options);
+				}
+			}
+			return $link;
 		}
-		return $link;
 	}
 
 	function get_page_by_title( $page_title, $output = OBJECT, $post_type = 'page' ) {
