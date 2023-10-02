@@ -8,7 +8,7 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 		if(!empty($_GET) && !empty($_GET['post'])){
 			return '';
 		}
-		require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/ssh/wpsipd-public-data-ssh.php';
+		require_once WPSIPD_PLUGIN_PATH . 'public/partials/ssh/wpsipd-public-data-ssh.php';
 	}
 	
 	public function monitor_satuan_harga($atts)
@@ -18,7 +18,7 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 			return '';
 		}
 		if(!empty($atts['id_skpd'])){
-			require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/ssh/wpsipd-public-monitor-satuan-harga.php';
+			require_once WPSIPD_PLUGIN_PATH . 'public/partials/ssh/wpsipd-public-monitor-satuan-harga.php';
 		}
 	}
 	
@@ -28,7 +28,7 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 		if(!empty($_GET) && !empty($_GET['post'])){
 			return '';
 		}
-		require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/ssh/wpsipd-public-cetak-usulan-ssh.php';
+		require_once WPSIPD_PLUGIN_PATH . 'public/partials/ssh/wpsipd-public-cetak-usulan-ssh.php';
 	}
 
 	public function laporan_per_item_ssh($atts)
@@ -38,7 +38,7 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 			return '';
 		}
 		
-		require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/ssh/wpsipd-public-laporan-per-item-ssh.php';
+		require_once WPSIPD_PLUGIN_PATH . 'public/partials/ssh/wpsipd-public-laporan-per-item-ssh.php';
 	}
 
 	function ssh_tidak_terpakai($atts){
@@ -47,7 +47,7 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 		if(!empty($_GET) && !empty($_GET['post'])){
 			return '';
 		}
-		require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/ssh/wpsipd-public-ssh-tidak-terpakai.php';
+		require_once WPSIPD_PLUGIN_PATH . 'public/partials/ssh/wpsipd-public-ssh-tidak-terpakai.php';
 	}
 
 	function surat_usulan_ssh($atts){
@@ -56,7 +56,7 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 		if(!empty($_GET) && !empty($_GET['post'])){
 			return '';
 		}
-		require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/ssh/wpsipd-public-surat-usulan-ssh.php';
+		require_once WPSIPD_PLUGIN_PATH . 'public/partials/ssh/wpsipd-public-surat-usulan-ssh.php';
 	}
 
 	public function get_data_ssh_sipd(){
@@ -749,7 +749,7 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 		if(empty($user_meta->roles)){
 			echo 'User ini tidak dapat akses sama sekali :)';
 		}else if(in_array("administrator", $user_meta->roles) || in_array("PLT", $user_meta->roles)){
-			require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/wpsipd-public-data-halaman-ssh.php';
+			require_once WPSIPD_PLUGIN_PATH . 'public/partials/wpsipd-public-data-halaman-ssh.php';
 		}
 	}
 
@@ -1629,7 +1629,7 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 			|| in_array("KPA", $user_meta->roles)
 			|| in_array("tapd_keu", $user_meta->roles)
 		){
-			require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/ssh/wpsipd-public-ssh-usulan.php';
+			require_once WPSIPD_PLUGIN_PATH . 'public/partials/ssh/wpsipd-public-ssh-usulan.php';
 		}else{
 			echo 'User ini tidak dapat akses ke halaman ini :)';
 		}

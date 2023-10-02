@@ -11,7 +11,7 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 			return '';
 		}
 		
-		require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/wpsipd-public-monitoring-rup.php';
+		require_once WPSIPD_PLUGIN_PATH . 'public/partials/wpsipd-public-monitoring-rup.php';
 	}
 
 	public function renja_sipd_merah($atts)
@@ -21,7 +21,7 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 			return '';
 		}
 		
-		require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/renja/wpsipd-public-laporan-renja-sipd-merah.php';
+		require_once WPSIPD_PLUGIN_PATH . 'public/partials/renja/wpsipd-public-laporan-renja-sipd-merah.php';
 	}
 
 	public function renja_sipd_ri($atts)
@@ -31,7 +31,7 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 			return '';
 		}
 		
-		require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/renja/wpsipd-public-laporan-renja-sipd-ri.php';
+		require_once WPSIPD_PLUGIN_PATH . 'public/partials/renja/wpsipd-public-laporan-renja-sipd-ri.php';
 	}
 
 	public function analisis_belanja_program($atts)
@@ -41,7 +41,7 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 			return '';
 		}
 		
-		require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/renja/wpsipd-public-analisis-belanja-program.php';
+		require_once WPSIPD_PLUGIN_PATH . 'public/partials/renja/wpsipd-public-analisis-belanja-program.php';
 	}
 
 	public function analisis_belanja_kegiatan($atts)
@@ -51,7 +51,7 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 			return '';
 		}
 		
-		require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/renja/wpsipd-public-analisis-belanja-kegiatan.php';
+		require_once WPSIPD_PLUGIN_PATH . 'public/partials/renja/wpsipd-public-analisis-belanja-kegiatan.php';
 	}
 
 	public function analisis_belanja_sub_kegiatan($atts)
@@ -61,7 +61,7 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 			return '';
 		}
 		
-		require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/renja/wpsipd-public-analisis-belanja-sub-kegiatan.php';
+		require_once WPSIPD_PLUGIN_PATH . 'public/partials/renja/wpsipd-public-analisis-belanja-sub-kegiatan.php';
 	}
 
 	public function analisis_belanja_bidang_urusan($atts)
@@ -71,7 +71,7 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 			return '';
 		}
 		
-		require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/renja/wpsipd-public-analisis-belanja-bidang-urusan.php';
+		require_once WPSIPD_PLUGIN_PATH . 'public/partials/renja/wpsipd-public-analisis-belanja-bidang-urusan.php';
 	}
 
 	public function analisis_belanja_sumber_dana($atts)
@@ -81,7 +81,7 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 			return '';
 		}
 		
-		require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/renja/wpsipd-public-analisis-belanja-sumber-dana.php';
+		require_once WPSIPD_PLUGIN_PATH . 'public/partials/renja/wpsipd-public-analisis-belanja-sumber-dana.php';
 	}
 	
 	public function analisis_belanja_rekening($atts)
@@ -91,7 +91,7 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 			return '';
 		}
 		
-		require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/renja/wpsipd-public-analisis-belanja-rekening.php';
+		require_once WPSIPD_PLUGIN_PATH . 'public/partials/renja/wpsipd-public-analisis-belanja-rekening.php';
 	}
 
 	public function rekap_sumber_dana_per_skpd($atts)
@@ -101,7 +101,7 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 			return '';
 		}
 		
-		require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/penganggaran/wpsipd-public-rekap-sumber-dana-per-skpd.php';
+		require_once WPSIPD_PLUGIN_PATH . 'public/partials/penganggaran/wpsipd-public-rekap-sumber-dana-per-skpd.php';
 	}
 
 	public function rekap_sumber_dana_per_program($atts)
@@ -111,7 +111,7 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 			return '';
 		}
 		
-		require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/penganggaran/wpsipd-public-rekap-sumber-dana-per-program.php';
+		require_once WPSIPD_PLUGIN_PATH . 'public/partials/penganggaran/wpsipd-public-rekap-sumber-dana-per-program.php';
 	}
 
 	public function rekap_sumber_dana_per_kegiatan($atts)
@@ -121,7 +121,7 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 			return '';
 		}
 		
-		require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/penganggaran/wpsipd-public-rekap-sumber-dana-per-kegiatan.php';
+		require_once WPSIPD_PLUGIN_PATH . 'public/partials/penganggaran/wpsipd-public-rekap-sumber-dana-per-kegiatan.php';
 	}
 
 	public function rekap_sumber_dana_per_sub_kegiatan($atts)
@@ -131,7 +131,7 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 			return '';
 		}
 		
-		require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/penganggaran/wpsipd-public-rekap-sumber-dana-per-sub-kegiatan.php';
+		require_once WPSIPD_PLUGIN_PATH . 'public/partials/penganggaran/wpsipd-public-rekap-sumber-dana-per-sub-kegiatan.php';
 	}
 
 	public function rekap_sumber_dana_per_rekening($atts)
@@ -141,7 +141,7 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 			return '';
 		}
 		
-		require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/penganggaran/wpsipd-public-rekap-sumber-dana-per-rekening.php';
+		require_once WPSIPD_PLUGIN_PATH . 'public/partials/penganggaran/wpsipd-public-rekap-sumber-dana-per-rekening.php';
 	}
 
 	public function get_data_monitoring_rup(){
@@ -488,7 +488,7 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 			return '';
 		}
 		
-		require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/wpsipd-public-input-renja.php';
+		require_once WPSIPD_PLUGIN_PATH . 'public/partials/wpsipd-public-input-renja.php';
 	}
 
 	public function monitor_rak($atts)
@@ -498,7 +498,7 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 			return '';
 		}
 		if(!empty($atts['id_skpd'])){
-			require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/wpsipd-public-monitor-rak.php';
+			require_once WPSIPD_PLUGIN_PATH . 'public/partials/wpsipd-public-monitor-rak.php';
 		}
 	}
 
@@ -514,7 +514,7 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 			'tahun_anggaran' => '2022',
 		), $atts );
 
-		require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/wpsipd-public-monitor-rkpd-renja.php';
+		require_once WPSIPD_PLUGIN_PATH . 'public/partials/wpsipd-public-monitor-rkpd-renja.php';
 	}
 
 	public function get_sub_unit_by_id(){
@@ -3841,7 +3841,7 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 		if(!empty($_GET) && !empty($_GET['post'])){
 			return '';
 		}
-		require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/wpsipd-public-pendapatan.php';
+		require_once WPSIPD_PLUGIN_PATH . 'public/partials/wpsipd-public-pendapatan.php';
 	}
 
 	public function halaman_pembiayaan_penerimaan($atts)
@@ -3850,7 +3850,7 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 		if(!empty($_GET) && !empty($_GET['post'])){
 			return '';
 		}
-		require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/wpsipd-public-penerimaan.php';
+		require_once WPSIPD_PLUGIN_PATH . 'public/partials/wpsipd-public-penerimaan.php';
 	}
 
 	public function halaman_pembiayaan_pengeluaran($atts)
@@ -3859,7 +3859,7 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 		if(!empty($_GET) && !empty($_GET['post'])){
 			return '';
 		}
-		require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/wpsipd-public-pengeluaran.php';
+		require_once WPSIPD_PLUGIN_PATH . 'public/partials/wpsipd-public-pengeluaran.php';
 	}
 
 	public function get_prioritas_pusat(){
