@@ -1734,7 +1734,6 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 					!in_array("administrator",$user_meta->roles) &&
 					!in_array("tapd_keu", $user_meta->roles)
 				){
-
 					$nipkepala = get_user_meta($user_id, '_nip');
 					$skpd_db = $wpdb->get_results($wpdb->prepare("
 						SELECT 
@@ -1747,24 +1746,15 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 							and tahun_anggaran=%d
 						group by id_skpd", $nipkepala[0], $params['tahun_anggaran']), ARRAY_A);
 					/** cari data user berdasarkan nama skpd */
-					$id_user_skpd = array();
 					if(!empty($skpd_db)){
+						$get_by_skpd = array();
 						foreach ($skpd_db as $skpd) {
-							array_push($id_user_skpd, $skpd['nama_skpd']);
+							$get_by_skpd[] = $skpd['id_skpd'];
 						}
-						$get_by_skpd = $id_user_skpd;
 					}else{
-						$get_by_skpd = array($user_meta->display_name);
+						$get_by_skpd = array('-');
 					}
-
-					/** menambahkan filter data usulan ssh berdasarkan skpd terkait */
-					if(count($get_by_skpd) >= 1){
-						$new_where = array();
-						foreach($get_by_skpd as $skpd_key => $skpd_val){
-							$new_where[] ="created_user = ".$skpd_val;
-						}
-						$where .= " AND ( ".implode(' OR ', $new_where)." ) ";
-					}
+					$where .= " AND id_sub_skpd IN (".implode(',', $get_by_skpd).") ";
 				}
 
 				// getting total number records without any search
