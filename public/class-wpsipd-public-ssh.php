@@ -1397,12 +1397,22 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 					!in_array("tapd_keu", $user_meta->roles)
 				){
 					$is_admin = false;
-					$this_user_meta = get_user_meta($user_id);
+					$nipkepala = get_user_meta($user_id, '_nip');
+					$skpd_db = $wpdb->get_results($wpdb->prepare("
+						SELECT 
+							nama_skpd, 
+							id_skpd, 
+							kode_skpd,
+							is_skpd
+						from data_unit 
+						where nipkepala=%s 
+							and tahun_anggaran=%d
+						group by id_skpd", $nipkepala[0], $params['tahun_anggaran']), ARRAY_A);
 					/** cari data user berdasarkan nama skpd */
-					if(
-						$this_user_meta['_id_sub_skpd'][0] != ''
-					){
-						$where .=" AND idskpd = '".$this_user_meta['_id_sub_skpd'][0]."' ";
+					if(!empty($skpd_db)){
+						foreach ($skpd_db as $skpd) {
+							$where .=" AND idskpd = '".$this_user_meta['_id_sub_skpd'][0]."' ";
+						}
 					}else{
 						$where .=" AND idskpd = '-' ";
 					}
@@ -1779,7 +1789,7 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 				foreach($queryRecords as $recKey => $recVal){
 					$iconX		= '<i class="dashicons dashicons-trash"></i>';
 					$iconEdit 	= '<i class="dashicons dashicons-edit"></i>';
-					$detilUsulanSSH = '<a class="btn btn-sm btn-primary" href="#" onclick="return edit_ssh_usulan(\''.$recVal['status_jenis_usulan'].'\',\''.$recVal['id'].'\', \'detil\');" title="Detil komponen usulan SSH" style="text-decoration:none"><i class="dashicons dashicons-search" style="text-decoration:none"></i></a>&nbsp;';
+					$detilUsulanSSH = '<a class="btn btn-sm btn-primary" href="#" onclick="return edit_ssh_usulan(\''.$recVal['status_jenis_usulan'].'\',\''.$recVal['id'].'\', \'detil\');" title="Detail komponen usulan SSH" style="text-decoration:none"><i class="dashicons dashicons-search" style="text-decoration:none"></i></a>&nbsp;';
 					$jenis = ($recVal['status_upload_sipd'] == 1) ? 'upload' : 'usulan';
 					if(
 						$recVal['status'] == 'waiting' || 
