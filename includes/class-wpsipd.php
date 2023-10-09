@@ -980,6 +980,7 @@ class Wpsipd
 		add_shortcode('rekap_sumber_dana_per_sub_kegiatan', array($plugin_public, 'rekap_sumber_dana_per_sub_kegiatan'));
 		add_shortcode('rekap_sumber_dana_per_rekening', array($plugin_public, 'rekap_sumber_dana_per_rekening'));
 		add_shortcode('verifikasi_rka', array($plugin_public, 'verifikasi_rka'));
+		add_shortcode('user_verikasi_rka', array($plugin_public, 'user_verikasi_rka'));
 
 		//shortcode SIPKD
 		add_shortcode('data_akun',array($plugin_public,'sipkd_akun'));
