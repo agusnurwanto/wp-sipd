@@ -1279,6 +1279,14 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 					$return['data'] = $data_ssh;
 					$return['sql'] = $wpdb->last_query;
 				}else{
+					// update no_surat_usulan jadi kosong ketika hapus surat usulan
+					$wpdb->update('data_ssh_usulan', array(
+						'no_surat_usulan' => ''
+					), array(
+						'no_surat_usulan' => $_POST['nomor_surat'], 
+						'tahun_anggaran' => $_POST['tahun_anggaran']
+					));
+
 					$file_surat = $wpdb->get_var($wpdb->prepare("
 						SELECT 
 							nama_file
@@ -1288,12 +1296,16 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 							AND tahun_anggaran=%d
 					", $_POST['id'], $_POST['nomor_surat'], $_POST['tahun_anggaran']));
 					$folder = WPSIPD_PLUGIN_PATH.'public/media/ssh/';
+
+					// hapus file surat usulan
 					if(
 						!empty($file_surat)
 						&& is_file($folder.$file_surat)
 					){
 						unlink($folder.$file_surat);
 					}
+
+					// hapus database
 					$wpdb->delete('data_surat_usulan_ssh', array(
 						'id' => $_POST['id'],
 						'nomor_surat' => $_POST['nomor_surat'],
