@@ -2590,8 +2590,8 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 						SELECT 
 							kode_bl 
 						FROM data_sub_keg_bl 
-						WHERE id_skpd = ".$wpdb->prepare('%s', $_POST['id_skpd'])." 
-						GROUP BY id_skpd,kode_bl
+						WHERE id_sub_skpd = ".$wpdb->prepare('%s', $_POST['id_skpd'])." 
+						GROUP BY id_sub_skpd,kode_bl
 					";
 					$run = $wpdb->get_results($sql,ARRAY_A);
 					foreach ($run as $value) {

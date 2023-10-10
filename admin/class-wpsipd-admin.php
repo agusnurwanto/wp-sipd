@@ -322,15 +322,15 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes {
 		    ->set_page_parent( $input_perencanaan )
 		    ->add_fields( $this->generate_input_renja() );
 
-		$satuan_harga = Container::make( 'theme_options', __( 'Satuan Harga' ) )
+		$satuan_harga = Container::make( 'theme_options', __( 'Standar Harga' ) )
 			->set_page_menu_position( 5 )
 		    ->add_fields( $this->get_ajax_field(array('type' => 'rekap_satuan_harga')) );
 
-	    Container::make( 'theme_options', __( 'Usulan Satuan Harga' ) )
+	    Container::make( 'theme_options', __( 'Usulan Standar Harga' ) )
 		    ->set_page_parent( $satuan_harga )
 		    ->add_fields( $this->get_ajax_field(array('type' => 'monev_satuan_harga')) );
 
-	    Container::make( 'theme_options', __( 'Satuan Harga di SIPD' ) )
+	    Container::make( 'theme_options', __( 'Rekap Usulan dan Standar Harga SIPD' ) )
 		    ->set_page_parent( $satuan_harga )
 		    ->add_fields( $this->get_ajax_field(array('type' => 'satuan_harga_sipd')) );
 
@@ -973,9 +973,9 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes {
 						}else if($_POST['type'] == 'apbdpenjabaran'){
 							$url_skpd = $this->generatePage($v['tahun_anggaran'] .' | '.$vv['kode_skpd'].' | '.$vv['nama_skpd'].' | '. ' | APBD PENJABARAN Lampiran 2', $v['tahun_anggaran'], '[apbdpenjabaran tahun_anggaran="'.$v['tahun_anggaran'].'" lampiran="2" id_skpd="'.$vv['id_skpd'].'"]');
 		            		$body_pemda .= '<li><a target="_blank" href="'.$url_skpd.'">Halaman APBD PENJABARAN Lampiran 2 '.$vv['kode_skpd'].' '.$vv['nama_skpd'].' '.$v['tahun_anggaran'].'</a> (NIP: '.$vv['nipkepala'].')';
-						}else if($_POST['type'] == 'monev_satuan_harga'){
+						}else if($_POST['type'] == 'rekap_satuan_harga'){
 							$url_skpd = $this->generatePage('Rekapitulasi Rincian Belanja '.$vv['nama_skpd'].' '.$vv['kode_skpd'].' | '.$v['tahun_anggaran'], $v['tahun_anggaran'], '[monitor_satuan_harga tahun_anggaran="'.$v['tahun_anggaran'].'" id_skpd="'.$vv['id_skpd'].'"]');
-		            		$body_pemda .= '<li><a target="_blank" href="'.$url_skpd.'">Halaman Rekapitulasi Rincian Belanja '.$vv['kode_skpd'].' '.$vv['nama_skpd'].' '.$v['tahun_anggaran'].'</a> (NIP: '.$vv['nipkepala'].')';
+		            		$body_pemda .= '<li><a target="_blank" href="'.$url_skpd.'">Halaman Chart dan Rekapitulasi Rincian Belanja '.$vv['kode_skpd'].' '.$vv['nama_skpd'].' '.$v['tahun_anggaran'].'</a> (NIP: '.$vv['nipkepala'].')';
 						}else if($_POST['type'] == 'input_renja'){
 							$url_skpd = $this->generatePage('Input RENJA '.$vv['nama_skpd'].' '.$vv['kode_skpd'].' | '.$v['tahun_anggaran'], $v['tahun_anggaran'], '[input_renja tahun_anggaran="'.$v['tahun_anggaran'].'" id_skpd="'.$vv['id_skpd'].'"]');
 		            		$body_pemda .= '<li><a target="_blank" href="'.$url_skpd.'">Halaman Input RENJA '.$vv['kode_skpd'].' '.$vv['nama_skpd'].' '.$v['tahun_anggaran'].'</a> (NIP: '.$vv['nipkepala'].')';
@@ -1016,9 +1016,9 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes {
 							}else if($_POST['type'] == 'apbdpenjabaran'){
 								$url_skpd = $this->generatePage($v['tahun_anggaran'] .' | '.$vvv['kode_skpd'].' | '.$vvv['nama_skpd'].' | '. ' | APBD PENJABARAN Lampiran 2', $v['tahun_anggaran'], '[apbdpenjabaran tahun_anggaran="'.$v['tahun_anggaran'].'" lampiran="2" id_skpd="'.$vvv['id_skpd'].'"]');
 			            		$body_pemda .= '<li><a target="_blank" href="'.$url_skpd.'">Halaman APBD PENJABARAN Lampiran 2 '.$vv['kode_skpd'].' '.$vvv['nama_skpd'].' '.$v['tahun_anggaran'].'</a> (NIP: '.$vvv['nipkepala'].')';
-							}else if($_POST['type'] == 'monev_satuan_harga'){
+							}else if($_POST['type'] == 'rekap_satuan_harga'){
 								$url_skpd = $this->generatePage('Rekapitulasi Rincian Belanja '.$vvv['nama_skpd'].' '.$vvv['kode_skpd'].' | '.$v['tahun_anggaran'], $v['tahun_anggaran'], '[monitor_satuan_harga tahun_anggaran="'.$v['tahun_anggaran'].'" id_skpd="'.$vvv['id_skpd'].'"]');
-								$body_pemda .= '<li><a target="_blank" href="'.$url_skpd.'">Halaman Rekapitulasi Rincian Belanja '.$vvv['kode_skpd'].' '.$vvv['nama_skpd'].' '.$v['tahun_anggaran'].'</a> (NIP: '.$vvv['nipkepala'].')';
+								$body_pemda .= '<li><a target="_blank" href="'.$url_skpd.'">Halaman Chart dan Rekapitulasi Rincian Belanja '.$vvv['kode_skpd'].' '.$vvv['nama_skpd'].' '.$v['tahun_anggaran'].'</a> (NIP: '.$vvv['nipkepala'].')';
 							}else if($_POST['type'] == 'input_renja'){
 								$url_skpd = $this->generatePage('Input RENJA '.$vvv['nama_skpd'].' '.$vvv['kode_skpd'].' | '.$v['tahun_anggaran'], $v['tahun_anggaran'], '[input_renja tahun_anggaran="'.$v['tahun_anggaran'].'" id_skpd="'.$vvv['id_skpd'].'"]');
 								$body_pemda .= '<li><a target="_blank" href="'.$url_skpd.'">Halaman Input RENJA '.$vvv['kode_skpd'].' '.$vvv['nama_skpd'].' '.$v['tahun_anggaran'].'</a> (NIP: '.$vvv['nipkepala'].')';
@@ -1095,16 +1095,16 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes {
 						$body_all .= $body_pemda;
 			        }else if($_POST['type'] == 'monev_satuan_harga'){
 						$url_add_new_ssh = $this->generatePage('Data Usulan Standar Satuan Harga (SSH) | '.$v['tahun_anggaran'], $v['tahun_anggaran'], '[data_ssh_usulan tahun_anggaran="'.$v['tahun_anggaran'].'"]');
-						$body_all .= '<div style="padding:.75rem 0 0 .75rem;"><a style="font-weight: bold;" target="_blank" href="'.$url_add_new_ssh.'">Halaman Data Usulan SSH '.$v['tahun_anggaran'].'</a></div>'.$body_pemda;
+						$body_all .= '<div style="padding:.75rem 0 0 .75rem;"><a style="font-weight: bold;" target="_blank" href="'.$url_add_new_ssh.'">Halaman Data Usulan SSH '.$v['tahun_anggaran'].'</a></div>';
 			        }else if($_POST['type'] == 'rekap_satuan_harga'){
 						$url_pemda = $this->generatePage('Rekapitulasi Rincian Belanja Pemerintah Daerah '.$v['tahun_anggaran'], $v['tahun_anggaran'], '[data_halaman_menu_ssh tahun_anggaran="'.$v['tahun_anggaran'].'"]');
-						$body_all .= '<a style="font-weight: bold;" target="_blank" href="'.$url_pemda.'">Halaman Rekapitulasi Rincian Belanja '.$v['tahun_anggaran'].'</a><br>';
+						$body_all .= '<a style="font-weight: bold;" target="_blank" href="'.$url_pemda.'">Halaman Chart dan Rekapitulasi Rincian Belanja '.$v['tahun_anggaran'].'</a><br>'.$body_pemda;
 			        }else if($_POST['type'] == 'tidak_terpakai_satuan_harga'){
 						$url_pemda = $this->generatePage('Standar Harga Tidak Terpakai '.$v['tahun_anggaran'], $v['tahun_anggaran'], '[ssh_tidak_terpakai tahun_anggaran="'.$v['tahun_anggaran'].'"]');
 						$body_all .= '<a style="font-weight: bold;" target="_blank" href="'.$url_pemda.'">Standar Harga Tidak Terpakai '.$v['tahun_anggaran'].'</a><br>';
 			        }else if($_POST['type'] == 'satuan_harga_sipd'){
 						$url_pemda = $this->generatePage('Data Standar Satuan Harga SIPD | '.$v['tahun_anggaran'], $v['tahun_anggaran'], '[data_ssh_sipd tahun_anggaran="'.$v['tahun_anggaran'].'"]', false, 'publish');
-						$body_all .= '<a style="font-weight: bold;" target="_blank" href="'.$url_pemda.'">Data Standar Satuan Harga SIPD | '.$v['tahun_anggaran'].'</a><br>';
+						$body_all .= '<a style="font-weight: bold;" target="_blank" href="'.$url_pemda.'">Rekapitulasi Usulan dan Standar Satuan Harga SIPD | '.$v['tahun_anggaran'].'</a><br>';
 			        }else if($_POST['type'] == 'register_sp2d_fmis'){
 						$url_pemda = $this->generatePage('Register Surat Perintah Pencairan Dana (SP2D) Cair FMIS | '.$v['tahun_anggaran'], $v['tahun_anggaran'], '[register_sp2d_fmis tahun_anggaran="'.$v['tahun_anggaran'].'"]');
 						$body_all .= '<a style="font-weight: bold;" target="_blank" href="'.$url_pemda.'">Register Surat Perintah Pencairan Dana (SP2D) Cair FMIS | '.$v['tahun_anggaran'].'</a><br>';
