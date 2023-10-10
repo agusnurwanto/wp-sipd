@@ -9771,10 +9771,8 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 					// update kolom id sub giat lama di sub giat pemutakhiran 
 					if(!empty($subKegiatanPemutakhiranRenstra['id_sub_giat_lama'])){
 						$sub_giat_lama = explode(",", $subKegiatanPemutakhiranRenstra['id_sub_giat_lama']);
-						foreach ($sub_giat_lama as $key => $value) {
-							if($data['sub_kegiatan_1']!=$value){
-								$sub_giat_lama[] = $data['sub_kegiatan_1'];
-							}
+						if(!in_array($value, $sub_giat_lama)){
+							$sub_giat_lama[] = $data['sub_kegiatan_1'];
 						}
 						$list_sub_giat_lama = implode(",", $sub_giat_lama);
 						$inputs['id_sub_giat_lama'] = $list_sub_giat_lama;
@@ -9799,7 +9797,6 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 						$inputs['pagu_5_usulan'] = intval($data['pagu_5_usulan']) + intval($subKegiatanPemutakhiranRenstra['pagu_5_usulan']);
 					}
 
-
 					if(in_array('administrator', $this->role())){
 						if(isset($data['pagu_1'])){
 							$inputs['pagu_1'] = !empty($data['pagu_1']) || $data['pagu_1']==0 ? $data['pagu_1'] : $data['pagu_1_usulan'];
@@ -9823,7 +9820,6 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 						}
 					}
 
-
 					// action update pagu sub giat pemutakhiran
 					$result1 = $wpdb->update('data_renstra_sub_kegiatan_lokal', $inputs, array(
 						'id' => $subKegiatanPemutakhiranRenstra['id']
@@ -9832,7 +9828,7 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 					$inputs = [];	
 					if($data['disable_subgiat']){
 
-						// non aktivkan sub giat existing
+						// non aktivkan sub giat dan indikator existing
 						$result2 = $wpdb->update('data_renstra_sub_kegiatan_lokal', [
 							'active' => 0,
 							'status' => 0
@@ -9841,6 +9837,7 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 						));
 
 					}else{
+						
 						// update pagu sub giat existing, dengan mengurangi sebesar pagu sub giat pemutakhiran 
 						if(isset($data['pagu_1_usulan'])){
 							$inputs['pagu_1_usulan'] = intval($subKegiatanRenstraExisting['pagu_1_usulan']) - intval($data['pagu_1_usulan']);
