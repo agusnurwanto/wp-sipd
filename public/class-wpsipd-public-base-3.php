@@ -9676,12 +9676,12 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 					}
 
 					for ($i=1; $i<=$data['lama_pelaksanaan']; $i++) { 
-						if(is_null($data['pagu_'.$i.'_usulan'])){
-							throw new Exception("Pagu usulan tahun ke-". $i . " wajib diisi!", 1);
+						if(is_null($data['pagu_'.$i.'_usulan']) || ($data['pagu_'.$i.'_usulan'] == "")){
+							throw new Exception("Pagu usulan tahun ke-". $i . " pemutakhiran wajib diisi!", 1);
 						}
 
 						if(intval($data['pagu_'.$i.'_usulan']) < 0){
-							throw new Exception("Pagu usulan tahun ke-". $i . " tidak boleh negatif!", 1);
+							throw new Exception("Pagu usulan tahun ke-". $i . " pemutakhiran tidak boleh negatif!", 1);
 						}
 
 						// jika non aktivkan sub giat lama pagu mutakhir wajib == pagu lama
@@ -9837,7 +9837,7 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 						));
 
 					}else{
-						
+
 						// update pagu sub giat existing, dengan mengurangi sebesar pagu sub giat pemutakhiran 
 						if(isset($data['pagu_1_usulan'])){
 							$inputs['pagu_1_usulan'] = intval($subKegiatanRenstraExisting['pagu_1_usulan']) - intval($data['pagu_1_usulan']);
