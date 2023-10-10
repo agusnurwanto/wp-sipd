@@ -195,7 +195,11 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes {
 			wp_update_post( $_post );
 			$_post['update'] = 1;
 		}
-		return $this->get_link_post($custom_post);
+		if($custom_post->post_status == 'publish'){
+			return get_permalink($custom_post);
+		}else{
+			return $this->get_link_post($custom_post);
+		}
 	}
 
 	function wp_sipd_admin_notice(){
@@ -652,6 +656,18 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes {
 		        Field::make( 'html', 'crb_bku_add_save_button' )
 	            	->set_html( '<a onclick="import_excel_bku_add(); return false" href="javascript:void(0);" class="button button-primary">Import WP</a>' )
 	        ) );
+
+		$url_user_verifikator =$this->generatePage('User Verifikasi RKA', false, '[user_verikasi_rka]');
+		Container::make( 'theme_options', __( 'Verifikasi RKA' ) )
+			->set_page_menu_position( 5 )
+		    ->add_fields( array(
+				Field::make('html','crb_verifikasi_rka_page')
+				->set_html('
+				<ul>
+					<li><a href="'.$url_user_verifikator.'" target="_blank">Halaman User Verifikasi RKA</a></li>
+				</ul>')
+			)
+		);
 	}
 
 	public function cek_lisensi_backend(){
@@ -1311,7 +1327,7 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes {
 				<li><a href="'.$url_per_kecamatan.'" target="_blank">Laporan Realisasi Keuangan Desa per Kecamatan</a></li>
 			</ul>')
 		);
-		$setting = array_merge($setting, $this->get_ajax_field(array('type' => 'keu_pemdes')));;
+		$setting = array_merge($setting, $this->get_ajax_field(array('type' => 'keu_pemdes')));
 		return $setting;
 	}
 

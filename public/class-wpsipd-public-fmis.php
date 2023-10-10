@@ -10,7 +10,7 @@ class Wpsipd_Public_FMIS extends Wpsipd_public_sipkd
 		if(!empty($_GET) && !empty($_GET['post'])){
 			return '';
 		}
-		require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/fmis/wpsipd-public-sp2d-fmis.php';
+		require_once WPSIPD_PLUGIN_PATH . 'public/partials/fmis/wpsipd-public-sp2d-fmis.php';
 	}
 
 	public function get_data_register_sp2d_fmis()

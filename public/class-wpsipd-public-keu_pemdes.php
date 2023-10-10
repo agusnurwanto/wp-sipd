@@ -1,5 +1,8 @@
 <?php
-class Wpsipd_Public_Keu_Pemdes
+
+require_once WPSIPD_PLUGIN_PATH."/public/class-wpsipd-public-rka.php";
+
+class Wpsipd_Public_Keu_Pemdes extends Wpsipd_Public_RKA
 {
 
     public function keu_pemdes_bhpd($atts)
@@ -7,7 +10,7 @@ class Wpsipd_Public_Keu_Pemdes
         if (!empty($_GET) && !empty($_GET['post'])) {
             return '';
         }
-        require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/keu_pemdes/wpsipd-public-keu-pemdes-bhpd.php';
+        require_once WPSIPD_PLUGIN_PATH . 'public/partials/keu_pemdes/wpsipd-public-keu-pemdes-bhpd.php';
     }
 
     public function keu_pemdes_bhrd($atts)
@@ -15,7 +18,7 @@ class Wpsipd_Public_Keu_Pemdes
         if (!empty($_GET) && !empty($_GET['post'])) {
             return '';
         }
-        require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/keu_pemdes/wpsipd-public-keu-pemdes-bhrd.php';
+        require_once WPSIPD_PLUGIN_PATH . 'public/partials/keu_pemdes/wpsipd-public-keu-pemdes-bhrd.php';
     }
 
     public function laporan_keu_pemdes_per_kecamatan($atts)
@@ -23,7 +26,7 @@ class Wpsipd_Public_Keu_Pemdes
         if (!empty($_GET) && !empty($_GET['post'])) {
             return '';
         }
-        require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/keu_pemdes/wpsipd-public-keu-pemdes-laporan-per-kecamatan.php';
+        require_once WPSIPD_PLUGIN_PATH . 'public/partials/keu_pemdes/wpsipd-public-keu-pemdes-laporan-per-kecamatan.php';
     }
 
     public function keu_pemdes_bku_add($atts)
@@ -31,7 +34,7 @@ class Wpsipd_Public_Keu_Pemdes
         if (!empty($_GET) && !empty($_GET['post'])) {
             return '';
         }
-        require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/keu_pemdes/wpsipd-public-keu-pemdes-bku-add.php';
+        require_once WPSIPD_PLUGIN_PATH . 'public/partials/keu_pemdes/wpsipd-public-keu-pemdes-bku-add.php';
     }
 
     public function keu_pemdes_beranda($atts)
@@ -39,7 +42,7 @@ class Wpsipd_Public_Keu_Pemdes
         if (!empty($_GET) && !empty($_GET['post'])) {
             return '';
         }
-        require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/keu_pemdes/wpsipd-public-keu-pemdes-beranda.php';
+        require_once WPSIPD_PLUGIN_PATH . 'public/partials/keu_pemdes/wpsipd-public-keu-pemdes-beranda.php';
     }
 
     public function keu_pemdes_bku_dd($atts)
@@ -47,7 +50,7 @@ class Wpsipd_Public_Keu_Pemdes
         if (!empty($_GET) && !empty($_GET['post'])) {
             return '';
         }
-        require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/keu_pemdes/wpsipd-public-keu-pemdes-bku-dd.php';
+        require_once WPSIPD_PLUGIN_PATH . 'public/partials/keu_pemdes/wpsipd-public-keu-pemdes-bku-dd.php';
     }
 
     public function management_data_bkk_infrastruktur($atts)
@@ -55,7 +58,7 @@ class Wpsipd_Public_Keu_Pemdes
         if (!empty($_GET) && !empty($_GET['post'])) {
             return '';
         }
-        require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/keu_pemdes/wpsipd-public-keu-pemdes-management-bkk-infrastruktur.php';
+        require_once WPSIPD_PLUGIN_PATH . 'public/partials/keu_pemdes/wpsipd-public-keu-pemdes-management-bkk-infrastruktur.php';
     }
 
     public function keu_pemdes_bkk_pilkades($atts)
@@ -63,7 +66,7 @@ class Wpsipd_Public_Keu_Pemdes
         if (!empty($_GET) && !empty($_GET['post'])) {
             return '';
         }
-        require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/keu_pemdes/wpsipd-public-keu-pemdes-bkk-pilkades.php';
+        require_once WPSIPD_PLUGIN_PATH . 'public/partials/keu_pemdes/wpsipd-public-keu-pemdes-bkk-pilkades.php';
     }
 
     public function monitor_keu_pemdes($atts)
@@ -71,7 +74,7 @@ class Wpsipd_Public_Keu_Pemdes
         if (!empty($_GET) && !empty($_GET['post'])) {
             return '';
         }
-        require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/keu_pemdes/wpsipd-public-keu-pemdes-desa.php';
+        require_once WPSIPD_PLUGIN_PATH . 'public/partials/keu_pemdes/wpsipd-public-keu-pemdes-desa.php';
     }
 
     public function management_data_bhpd($atts)
@@ -79,7 +82,7 @@ class Wpsipd_Public_Keu_Pemdes
         if (!empty($_GET) && !empty($_GET['post'])) {
             return '';
         }
-        require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/keu_pemdes/wpsipd-public-keu-pemdes-management-bhpd.php';
+        require_once WPSIPD_PLUGIN_PATH . 'public/partials/keu_pemdes/wpsipd-public-keu-pemdes-management-bhpd.php';
     }
 
     public function management_data_bhrd($atts)
@@ -87,7 +90,7 @@ class Wpsipd_Public_Keu_Pemdes
         if (!empty($_GET) && !empty($_GET['post'])) {
             return '';
         }
-        require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/keu_pemdes/wpsipd-public-keu-pemdes-management-bhrd.php';
+        require_once WPSIPD_PLUGIN_PATH . 'public/partials/keu_pemdes/wpsipd-public-keu-pemdes-management-bhrd.php';
     }
 
     public function management_data_bku_dd($atts)
@@ -95,7 +98,7 @@ class Wpsipd_Public_Keu_Pemdes
         if (!empty($_GET) && !empty($_GET['post'])) {
             return '';
         }
-        require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/keu_pemdes/wpsipd-public-keu-pemdes-management-bku-dd.php';
+        require_once WPSIPD_PLUGIN_PATH . 'public/partials/keu_pemdes/wpsipd-public-keu-pemdes-management-bku-dd.php';
     }
 
     public function management_data_bku_add($atts)
@@ -103,7 +106,7 @@ class Wpsipd_Public_Keu_Pemdes
         if (!empty($_GET) && !empty($_GET['post'])) {
             return '';
         }
-        require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/keu_pemdes/wpsipd-public-keu-pemdes-management-bku-add.php';
+        require_once WPSIPD_PLUGIN_PATH . 'public/partials/keu_pemdes/wpsipd-public-keu-pemdes-management-bku-add.php';
     }
 
     public function management_data_bkk_pilkades($atts)
@@ -111,7 +114,7 @@ class Wpsipd_Public_Keu_Pemdes
         if (!empty($_GET) && !empty($_GET['post'])) {
             return '';
         }
-        require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/keu_pemdes/wpsipd-public-keu-pemdes-management-bkk-pilkades.php';
+        require_once WPSIPD_PLUGIN_PATH . 'public/partials/keu_pemdes/wpsipd-public-keu-pemdes-management-bkk-pilkades.php';
     }
 
     public function input_pencairan_bkk($atts)
@@ -119,7 +122,7 @@ class Wpsipd_Public_Keu_Pemdes
         if (!empty($_GET) && !empty($_GET['post'])) {
             return '';
         }
-        require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/keu_pemdes/wpsipd-public-keu-pemdes-input-pencairan-bkk.php';
+        require_once WPSIPD_PLUGIN_PATH . 'public/partials/keu_pemdes/wpsipd-public-keu-pemdes-input-pencairan-bkk.php';
     }
 
     public function input_pencairan_bhpd($atts)
@@ -127,7 +130,7 @@ class Wpsipd_Public_Keu_Pemdes
         if (!empty($_GET) && !empty($_GET['post'])) {
             return '';
         }
-        require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/keu_pemdes/wpsipd-public-keu-pemdes-input-pencairan-bhpd.php';
+        require_once WPSIPD_PLUGIN_PATH . 'public/partials/keu_pemdes/wpsipd-public-keu-pemdes-input-pencairan-bhpd.php';
     }
 
     public function input_pencairan_bhrd($atts)
@@ -135,7 +138,7 @@ class Wpsipd_Public_Keu_Pemdes
         if (!empty($_GET) && !empty($_GET['post'])) {
             return '';
         }
-        require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/keu_pemdes/wpsipd-public-keu-pemdes-input-pencairan-bhrd.php';
+        require_once WPSIPD_PLUGIN_PATH . 'public/partials/keu_pemdes/wpsipd-public-keu-pemdes-input-pencairan-bhrd.php';
     }
 
     public function input_pencairan_bku_dd($atts)
@@ -143,7 +146,7 @@ class Wpsipd_Public_Keu_Pemdes
         if (!empty($_GET) && !empty($_GET['post'])) {
             return '';
         }
-        require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/keu_pemdes/wpsipd-public-keu-pemdes-input-pencairan-bku-dd.php';
+        require_once WPSIPD_PLUGIN_PATH . 'public/partials/keu_pemdes/wpsipd-public-keu-pemdes-input-pencairan-bku-dd.php';
     }
 
     public function input_pencairan_bku_add($atts)
@@ -151,7 +154,7 @@ class Wpsipd_Public_Keu_Pemdes
         if (!empty($_GET) && !empty($_GET['post'])) {
             return '';
         }
-        require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/keu_pemdes/wpsipd-public-keu-pemdes-input-pencairan-bku-add.php';
+        require_once WPSIPD_PLUGIN_PATH . 'public/partials/keu_pemdes/wpsipd-public-keu-pemdes-input-pencairan-bku-add.php';
     }
 
     public function input_pencairan_bkk_pilkades($atts)
@@ -159,7 +162,7 @@ class Wpsipd_Public_Keu_Pemdes
         if (!empty($_GET) && !empty($_GET['post'])) {
             return '';
         }
-        require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/keu_pemdes/wpsipd-public-keu-pemdes-input-pencairan-bkk-pilkades.php';
+        require_once WPSIPD_PLUGIN_PATH . 'public/partials/keu_pemdes/wpsipd-public-keu-pemdes-input-pencairan-bkk-pilkades.php';
     }
 
     public function get_data_bkk_infrastruktur_by_id()

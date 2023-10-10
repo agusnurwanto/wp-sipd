@@ -76,7 +76,7 @@ $sql = "
         sub_keg.pagu, 
         sub_keg.id_sub_skpd 
     FROM data_sub_keg_bl".$_suffix_sipd."".$_suffix." AS sub_keg 
-    LEFT JOIN data_rka".$_suffix_sipd."".$_suffix." AS rekening 
+    INNER JOIN data_rka".$_suffix_sipd."".$_suffix." AS rekening 
         ON rekening.kode_sbl = sub_keg.kode_sbl 
         AND rekening.tahun_anggaran=sub_keg.tahun_anggaran 
         AND rekening.active=sub_keg.active

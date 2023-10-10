@@ -1856,6 +1856,23 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
 
 					jQuery("#id_sub_skpd").val(response.data.id_sub_skpd).trigger('change');
 					if(mod==='edit'){
+						jQuery('#id_u_sub_skpd').prop('disabled', false);
+						jQuery('#u_kategori').prop('disabled', false);
+						jQuery('#u_nama_komponen').prop('disabled', false);
+						jQuery('#u_spesifikasi').prop('disabled', false);
+						jQuery('#u_satuan').prop('disabled', false);
+						jQuery('#u_harga_satuan').prop('disabled', false);
+						jQuery('#u_jenis_produk').prop('disabled', false);
+						jQuery('#u_tkdn').prop('disabled', false);
+						jQuery('#u_akun').prop('disabled', false);
+						jQuery('#u_lapiran_usulan_ssh_1').show();
+						jQuery('#u_lapiran_usulan_ssh_1').parent().find('small').show();
+						jQuery('#u_lapiran_usulan_ssh_2').show();
+						jQuery('#u_lapiran_usulan_ssh_2').parent().find('small').show();
+						jQuery('#u_lapiran_usulan_ssh_3').show();
+						jQuery('#u_lapiran_usulan_ssh_3').parent().find('small').show();
+						jQuery('#u_keterangan_lampiran').prop('disabled', false);
+
 						jQuery("#tambahUsulanSshModal .modal-footer").find('.submitBtn').remove();
 						jQuery("#tambahUsulanSshModal .modal-footer").prepend('<button class=\'btn btn-primary submitBtn\' onclick=\'return false;\'>Simpan</button>');
 						jQuery("#tambahUsulanSshModal .submitBtn")
@@ -1863,6 +1880,23 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
 							.attr('disabled', false)
 							.text('Simpan');
 					}else if(mod==='detil'){
+						jQuery('#id_u_sub_skpd').prop('disabled', true);
+						jQuery('#u_kategori').prop('disabled', true);
+						jQuery('#u_nama_komponen').prop('disabled', true);
+						jQuery('#u_spesifikasi').prop('disabled', true);
+						jQuery('#u_satuan').prop('disabled', true);
+						jQuery('#u_harga_satuan').prop('disabled', true);
+						jQuery('#u_jenis_produk').prop('disabled', true);
+						jQuery('#u_tkdn').prop('disabled', true);
+						jQuery('#u_akun').prop('disabled', true);
+						jQuery('#u_lapiran_usulan_ssh_1').hide();
+						jQuery('#u_lapiran_usulan_ssh_1').parent().find('small').hide();
+						jQuery('#u_lapiran_usulan_ssh_2').hide();
+						jQuery('#u_lapiran_usulan_ssh_2').parent().find('small').hide();
+						jQuery('#u_lapiran_usulan_ssh_3').hide();
+						jQuery('#u_lapiran_usulan_ssh_3').parent().find('small').hide();
+						jQuery('#u_keterangan_lampiran').prop('disabled', true);
+						
 						jQuery("#tambahUsulanSshModal .modal-footer").find('.submitBtn').remove();
 					}
 				}

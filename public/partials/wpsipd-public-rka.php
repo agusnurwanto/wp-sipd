@@ -2074,9 +2074,10 @@ foreach ($bl as $k => $sub_bl) {
 	    	jQuery('#total_realiasi_rincian').text(formatRupiah(total_realiasi_rincian+val, 1));
 	    });
 
+	    window.url_verifikasi = '<?php echo $this->generatePage('Verifikasi Sub Kegiatan', $input['tahun_anggaran'], '[verifikasi_rka]'); ?>';
 	    jQuery('body').on('click', '.verifikasi', function(){
 	    	var kode_sbl = jQuery(this).closest('.subkeg').attr('data-kdsbl');
-	    	alert('verifikasi sub kegiatan dengan kode '+kode_sbl);
+	    	window.open(url_verifikasi+'&tahun=<?php echo $input['tahun_anggaran']; ?>&kode_sbl='+kode_sbl, '_blank');
 	    });
 	});
 

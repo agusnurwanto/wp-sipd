@@ -9560,30 +9560,34 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 	}
 
 	public function get_link_post($custom_post, $link=false){
-		if(null == $custom_post){
-			if(empty($link)){
-				$link = '#';
-			}
+		if($custom_post->post_status == 'publish'){
+			return get_permalink($custom_post);
 		}else{
-			if(empty($link)){
-				$link = get_permalink($custom_post);
-			}
-			if(false == $link){
-				$link = '#';
-			}
-		}
-		if($link != '#'){
-			$options = array();
-			if(!empty($custom_post->custom_url)){
-				$options['custom_url'] = $custom_post->custom_url;
-			}
-			if(strpos($link, '?') === false){
-				$link .= '?key=' . $this->gen_key(false, $options);
+			if(null == $custom_post){
+				if(empty($link)){
+					$link = '#';
+				}
 			}else{
-				$link .= '&key=' . $this->gen_key(false, $options);
+				if(empty($link)){
+					$link = get_permalink($custom_post);
+				}
+				if(false == $link){
+					$link = '#';
+				}
 			}
+			if($link != '#'){
+				$options = array();
+				if(!empty($custom_post->custom_url)){
+					$options['custom_url'] = $custom_post->custom_url;
+				}
+				if(strpos($link, '?') === false){
+					$link .= '?key=' . $this->gen_key(false, $options);
+				}else{
+					$link .= '&key=' . $this->gen_key(false, $options);
+				}
+			}
+			return $link;
 		}
-		return $link;
 	}
 
 	function get_page_by_title( $page_title, $output = OBJECT, $post_type = 'page' ) {
@@ -13070,98 +13074,6 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 					}
 				}
 				$return['data'] = $data_pegawai;
-			}else{
-				$return = array(
-					'status' => 'error',
-					'message'	=> 'Api Key tidak sesuai!'
-				);
-			}
-		}else{
-			$return = array(
-				'status' => 'error',
-				'message'	=> 'Format tidak sesuai!'
-			);
-		}
-		die(json_encode($return));
-	}
-
-	public function get_data_ssh_analisis_skpd(){
-		global $wpdb;
-		$return = array(
-			'status' => 'success',
-			'data'	=> array()
-		);
-
-		$table_content = '';
-		if(!empty($_POST)){
-			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
-				$params = $columns = $totalRecords = $data = array();
-				$params = $_REQUEST;
-				$columns = array( 
-					0 =>'nama_komponen',
-					1 =>'spek_komponen', 
-					2 => 'harga_satuan',
-					3 => 'satuan',
-					4 => 'SUM(volume) as volume',
-					5 => 'SUM(total_harga) as total'
-				);
-				$where = $sqlTot = $sqlRec = "";
-
-				// check search value exist
-				if( !empty($params['search']['value']) ) {
-					$where .=" AND ( nama_komponen LIKE ".$wpdb->prepare('%s', "%".$params['search']['value']."%");    
-					$where .=" OR spek_komponen LIKE ".$wpdb->prepare('%s', "%".$params['search']['value']."%");
-					$where .=" OR harga_satuan LIKE ".$wpdb->prepare('%s', "%".$params['search']['value']."%");
-					$where .=" OR satuan LIKE ".$wpdb->prepare('%s', "%".$params['search']['value']."%").")";
-				}
-
-				// mengambil data per skpd
-				$sqlKodeBl = '';
-				if($_POST['id_skpd'] != 0){
-					$data_bl = array();
-					$sql = "SELECT kode_bl FROM data_sub_keg_bl WHERE id_skpd = ".$wpdb->prepare('%s', $_POST['id_skpd'])." GROUP BY id_skpd,kode_bl";
-					$run = $wpdb->get_results($sql,ARRAY_A);
-					foreach ($run as $value) {
-						array_push($data_bl,strval($value['kode_bl']));
-					}
-					$sqlKodeBl = " and kode_bl in ('".implode("','", $data_bl)."')";
-				}
-
-				// getting total number records without any search
-				$sql_tot = "SELECT count(*) as jml FROM `data_rka`";
-				$sql = "SELECT ".implode(', ', $columns)." FROM `data_rka`";
-				$where_first = " WHERE active=1 and tahun_anggaran=".$wpdb->prepare('%d', $params['tahun_anggaran']).$sqlKodeBl;
-				$sqlTot .= $sql_tot.$where_first;
-				$sqlRec .= $sql.$where_first;
-				if(isset($where) && $where != '') {
-					$sqlTot .= $where;
-					$sqlRec .= $where;
-				}
-
-			 	$sqlRec .=  " GROUP by nama_komponen, spek_komponen, harga_satuan ORDER BY total DESC, ". $columns[$params['order'][0]['column']]."   ".$params['order'][0]['dir']."  LIMIT ".$params['start']." ,".$params['length']." ";
-				$sqlTot .=  " GROUP by nama_komponen, spek_komponen, harga_satuan";
-
-				$queryTot = $wpdb->get_results($sqlTot, ARRAY_A);
-				$totalRecords = count($queryTot);
-				$queryRecords = $wpdb->get_results($sqlRec, ARRAY_A);
-
-				$title = 'Laporan Data per Item SSH';
-				$shortcode = '[laporan_per_item_ssh]';
-				$update = false;
-				$url_skpd = $this->generatePage($title, $params['tahun_anggaran'], $shortcode, $update);
-
-				foreach($queryRecords as $key => $val){
-					$queryRecords[$key]['nama_komponen'] = '<a href="'.$url_skpd.'&nama_komponen='.$val['nama_komponen'].'&spek_komponen='.$val['spek_komponen'].'&harga_satuan='.$val['harga_satuan'].'&satuan='.$val['satuan'].'&id_skpd='.$_POST['id_skpd'].'" target="_blank" style="text-decoration: none;">'.$val['nama_komponen'].'</a>';
-				}
-
-				$json_data = array(
-					"draw"            => intval( $params['draw'] ),   
-					"recordsTotal"    => intval( $totalRecords ),  
-					"recordsFiltered" => intval($totalRecords),
-					"data"            => $queryRecords
-				);
-
-				die(json_encode($json_data));
 			}else{
 				$return = array(
 					'status' => 'error',

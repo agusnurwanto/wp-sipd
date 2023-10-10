@@ -8,7 +8,7 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 		if(!empty($_GET) && !empty($_GET['post'])){
 			return '';
 		}
-		require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/ssh/wpsipd-public-data-ssh.php';
+		require_once WPSIPD_PLUGIN_PATH . 'public/partials/ssh/wpsipd-public-data-ssh.php';
 	}
 	
 	public function monitor_satuan_harga($atts)
@@ -18,7 +18,7 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 			return '';
 		}
 		if(!empty($atts['id_skpd'])){
-			require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/ssh/wpsipd-public-monitor-satuan-harga.php';
+			require_once WPSIPD_PLUGIN_PATH . 'public/partials/ssh/wpsipd-public-monitor-satuan-harga.php';
 		}
 	}
 	
@@ -28,7 +28,7 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 		if(!empty($_GET) && !empty($_GET['post'])){
 			return '';
 		}
-		require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/ssh/wpsipd-public-cetak-usulan-ssh.php';
+		require_once WPSIPD_PLUGIN_PATH . 'public/partials/ssh/wpsipd-public-cetak-usulan-ssh.php';
 	}
 
 	public function laporan_per_item_ssh($atts)
@@ -38,7 +38,7 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 			return '';
 		}
 		
-		require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/ssh/wpsipd-public-laporan-per-item-ssh.php';
+		require_once WPSIPD_PLUGIN_PATH . 'public/partials/ssh/wpsipd-public-laporan-per-item-ssh.php';
 	}
 
 	function ssh_tidak_terpakai($atts){
@@ -47,7 +47,7 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 		if(!empty($_GET) && !empty($_GET['post'])){
 			return '';
 		}
-		require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/ssh/wpsipd-public-ssh-tidak-terpakai.php';
+		require_once WPSIPD_PLUGIN_PATH . 'public/partials/ssh/wpsipd-public-ssh-tidak-terpakai.php';
 	}
 
 	function surat_usulan_ssh($atts){
@@ -56,7 +56,7 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 		if(!empty($_GET) && !empty($_GET['post'])){
 			return '';
 		}
-		require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/ssh/wpsipd-public-surat-usulan-ssh.php';
+		require_once WPSIPD_PLUGIN_PATH . 'public/partials/ssh/wpsipd-public-surat-usulan-ssh.php';
 	}
 
 	public function get_data_ssh_sipd(){
@@ -749,7 +749,7 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 		if(empty($user_meta->roles)){
 			echo 'User ini tidak dapat akses sama sekali :)';
 		}else if(in_array("administrator", $user_meta->roles) || in_array("PLT", $user_meta->roles)){
-			require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/wpsipd-public-data-halaman-ssh.php';
+			require_once WPSIPD_PLUGIN_PATH . 'public/partials/wpsipd-public-data-halaman-ssh.php';
 		}
 	}
 
@@ -1279,6 +1279,14 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 					$return['data'] = $data_ssh;
 					$return['sql'] = $wpdb->last_query;
 				}else{
+					// update no_surat_usulan jadi kosong ketika hapus surat usulan
+					$wpdb->update('data_ssh_usulan', array(
+						'no_surat_usulan' => ''
+					), array(
+						'no_surat_usulan' => $_POST['nomor_surat'], 
+						'tahun_anggaran' => $_POST['tahun_anggaran']
+					));
+
 					$file_surat = $wpdb->get_var($wpdb->prepare("
 						SELECT 
 							nama_file
@@ -1288,12 +1296,16 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 							AND tahun_anggaran=%d
 					", $_POST['id'], $_POST['nomor_surat'], $_POST['tahun_anggaran']));
 					$folder = WPSIPD_PLUGIN_PATH.'public/media/ssh/';
+
+					// hapus file surat usulan
 					if(
 						!empty($file_surat)
 						&& is_file($folder.$file_surat)
 					){
 						unlink($folder.$file_surat);
 					}
+
+					// hapus database
 					$wpdb->delete('data_surat_usulan_ssh', array(
 						'id' => $_POST['id'],
 						'nomor_surat' => $_POST['nomor_surat'],
@@ -1397,12 +1409,22 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 					!in_array("tapd_keu", $user_meta->roles)
 				){
 					$is_admin = false;
-					$this_user_meta = get_user_meta($user_id);
+					$nipkepala = get_user_meta($user_id, '_nip');
+					$skpd_db = $wpdb->get_results($wpdb->prepare("
+						SELECT 
+							nama_skpd, 
+							id_skpd, 
+							kode_skpd,
+							is_skpd
+						from data_unit 
+						where nipkepala=%s 
+							and tahun_anggaran=%d
+						group by id_skpd", $nipkepala[0], $params['tahun_anggaran']), ARRAY_A);
 					/** cari data user berdasarkan nama skpd */
-					if(
-						$this_user_meta['_id_sub_skpd'][0] != ''
-					){
-						$where .=" AND idskpd = '".$this_user_meta['_id_sub_skpd'][0]."' ";
+					if(!empty($skpd_db)){
+						foreach ($skpd_db as $skpd) {
+							$where .=" AND idskpd = '".$skpd['id_skpd']."' ";
+						}
 					}else{
 						$where .=" AND idskpd = '-' ";
 					}
@@ -1545,13 +1567,6 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 				$totalRecords = $queryTot[0]['jml'];
 				$queryRecords = $wpdb->get_results($sqlRec, ARRAY_A);
 				foreach($queryRecords as $k => $val){
-					$nama_skpd = $wpdb->get_var($wpdb->prepare("
-						SELECT
-							nama_skpd
-						FROM data_unit
-						WHERE id_skpd=%d
-					", $val['idskpd']));
-					$queryRecords[$k]['nama_skpd'] = $nama_skpd;
 					$aksi = '
 						<a class="btn btn-sm btn-primary" onclick="filter_nota_dinas(\''.$val['nomor_surat'].'\'); return false;" href="#" title="Filter Nota Dinas"><i class="dashicons dashicons-search"></i></a>';
 					if(in_array("administrator", $user_meta->roles)){
@@ -1629,7 +1644,7 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 			|| in_array("KPA", $user_meta->roles)
 			|| in_array("tapd_keu", $user_meta->roles)
 		){
-			require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/ssh/wpsipd-public-ssh-usulan.php';
+			require_once WPSIPD_PLUGIN_PATH . 'public/partials/ssh/wpsipd-public-ssh-usulan.php';
 		}else{
 			echo 'User ini tidak dapat akses ke halaman ini :)';
 		}
@@ -1731,34 +1746,27 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 					!in_array("administrator",$user_meta->roles) &&
 					!in_array("tapd_keu", $user_meta->roles)
 				){
-					$this_user_meta = get_user_meta($user_id);
+					$nipkepala = get_user_meta($user_id, '_nip');
+					$skpd_db = $wpdb->get_results($wpdb->prepare("
+						SELECT 
+							nama_skpd, 
+							id_skpd, 
+							kode_skpd,
+							is_skpd
+						from data_unit 
+						where nipkepala=%s 
+							and tahun_anggaran=%d
+						group by id_skpd", $nipkepala[0], $params['tahun_anggaran']), ARRAY_A);
 					/** cari data user berdasarkan nama skpd */
-					if(
-						$this_user_meta['_crb_nama_skpd'][0] != ''
-					){
-						$user_meta = get_users(array(
-							'meta_key' => '_crb_nama_skpd',
-							'meta_value' => $this_user_meta['_crb_nama_skpd'][0]
-						));
-						
-						$id_user_skpd = array();
-						foreach ($user_meta as $metaVal) {
-							array_push($id_user_skpd,$metaVal->data->ID);
+					if(!empty($skpd_db)){
+						$get_by_skpd = array();
+						foreach ($skpd_db as $skpd) {
+							$get_by_skpd[] = $skpd['id_skpd'];
 						}
-						$get_by_skpd = $id_user_skpd;
 					}else{
-						$get_by_skpd = array($user_id);
+						$get_by_skpd = array('-');
 					}
-					/** menambahkan filter data usulan ssh berdasarkan skpd terkait */
-					if(count($get_by_skpd) >= 1){
-						foreach($get_by_skpd as $skpd_key => $skpd_val){
-							if($skpd_key == 0){
-								$where .=" AND created_user = ".$skpd_val." ";
-							}else if($skpd_key > 1){
-								$where .=" OR created_user = ".$skpd_val." ";
-							}
-						}
-					}
+					$where .= " AND id_sub_skpd IN (".implode(',', $get_by_skpd).") ";
 				}
 
 				// getting total number records without any search
@@ -1786,7 +1794,8 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 				foreach($queryRecords as $recKey => $recVal){
 					$iconX		= '<i class="dashicons dashicons-trash"></i>';
 					$iconEdit 	= '<i class="dashicons dashicons-edit"></i>';
-					$detilUsulanSSH = '<a class="btn btn-sm btn-primary" href="#" onclick="return edit_ssh_usulan(\''.$recVal['status_jenis_usulan'].'\',\''.$recVal['id'].'\', \'detil\');" title="Detil komponen usulan SSH" style="text-decoration:none"><i class="dashicons dashicons-search" style="text-decoration:none"></i></a>&nbsp;';
+					$detilUsulanSSH = '<a class="btn btn-sm btn-primary" href="#" onclick="return edit_ssh_usulan(\''.$recVal['status_jenis_usulan'].'\',\''.$recVal['id'].'\', \'detil\');" title="Detail komponen usulan SSH" style="text-decoration:none"><i class="dashicons dashicons-search" style="text-decoration:none"></i></a>&nbsp;';
+					$jenis = ($recVal['status_upload_sipd'] == 1) ? 'upload' : 'usulan';
 					if(
 						$recVal['status'] == 'waiting' || 
 						$recVal['status'] == 'rejected'  
@@ -1815,7 +1824,6 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 						if($can_edit){
 							$editUsulanSSH = '<a class="btn btn-sm btn-warning" onclick="edit_ssh_usulan(\''.$recVal['status_jenis_usulan'].'\',\''.$recVal['id'].'\'); return false;" href="#" title="Edit komponen usulan SSH" style="text-decoration:none">'.$iconEdit.'</a>&nbsp;';
 						}else{
-							$jenis = ($recVal['status_upload_sipd'] == 1) ? 'upload' : 'usulan';
 							$editUsulanSSH = '<a style="display:none" class="btn btn-sm btn-warning" onclick="cannot_change_ssh_usulan(\'ubah\',\''.$jenis.'\'); return false;" href="#" title="Edit komponen usulan SSH" style="text-decoration:none">'.$iconEdit.'</a>&nbsp;';
 						}
 
@@ -1830,7 +1838,6 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 						}
 
 					}else{
-						$jenis = ($recVal['status_upload_sipd'] == 1) ? 'upload' : 'usulan';
 						$editUsulanSSH = '<a style="display:none" class="btn btn-sm btn-warning" href="#" onclick="return cannot_change_ssh_usulan(\'ubah\',\''.$jenis.'\');" title="Edit komponen usulan SSH" style="text-decoration:none">'.$iconEdit.'</a>&nbsp;';
 						$deleteUsulanSSH = '<a style="display:none" class="btn btn-sm btn-danger" href="#" onclick="return cannot_change_ssh_usulan(\'hapus\',\''.$jenis.'\');" title="Delete komponen usulan SSH" style="text-decoration:none">'.$iconX.'</a>&nbsp;';
 					}
@@ -1839,7 +1846,15 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 					if(!empty($recVal['created_user'])){
 						$created_user_data = get_userdata($recVal['created_user']);
 						$created_user_meta = get_user_meta($recVal['created_user']);
-						$pengusul = ($created_user_meta['_crb_nama_skpd'][0] == '') ? $created_user_data->display_name : $created_user_meta['_crb_nama_skpd'][0];
+						if(
+							!empty($created_user_meta)
+							&& !empty($created_user_meta['_crb_nama_skpd'])
+							&& !empty($created_user_meta['_crb_nama_skpd'][0])
+						){
+							$pengusul = $created_user_meta['_crb_nama_skpd'][0];
+						}else{
+							$pengusul = $created_user_data->display_name;
+						}
 
 						$created_user = '<tr><td>Pengusul: '.$pengusul.'</td></tr>';
 					}
@@ -2571,7 +2586,13 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 				$sqlKodeBl = '';
 				if($_POST['id_skpd'] != 0){
 					$data_bl = array();
-					$sql = "SELECT kode_bl FROM data_sub_keg_bl WHERE id_skpd = ".$wpdb->prepare('%s', $_POST['id_skpd'])." GROUP BY id_skpd,kode_bl";
+					$sql = "
+						SELECT 
+							kode_bl 
+						FROM data_sub_keg_bl 
+						WHERE id_skpd = ".$wpdb->prepare('%s', $_POST['id_skpd'])." 
+						GROUP BY id_skpd,kode_bl
+					";
 					$run = $wpdb->get_results($sql,ARRAY_A);
 					foreach ($run as $value) {
 						array_push($data_bl,strval($value['kode_bl']));
@@ -2579,7 +2600,22 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 					$sqlKodeBl = " and kode_bl in ('".implode("','", $data_bl)."')";
 				}
 
-				$data_ssh = $wpdb->get_results("SELECT nama_komponen, spek_komponen, harga_satuan, satuan, volume, sum(total_harga) as total FROM `data_rka` where active=1 and tahun_anggaran=".$wpdb->prepare('%d', $_POST['tahun_anggaran']).$sqlKodeBl." GROUP by nama_komponen, spek_komponen, harga_satuan order by total desc limit 20",ARRAY_A);
+				$data_ssh = $wpdb->get_results("
+					SELECT 
+						COALESCE(nama_komponen,'-') AS nama_komponen, 
+						COALESCE(spek_komponen,'-') AS spek_komponen, 
+						harga_satuan, 
+						satuan, 
+						volume, 
+						sum(total_harga) as total 
+					FROM `data_rka` 
+					where active=1 
+						and tahun_anggaran=".$wpdb->prepare('%d', $_POST['tahun_anggaran']).$sqlKodeBl." 
+					GROUP by nama_komponen, 
+						spek_komponen, 
+						harga_satuan 
+					order by total desc limit 20
+				",ARRAY_A);
 
 				$return = array(
 					'status' => 'success',
@@ -4209,6 +4245,99 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 						}
 					}
 				}
+			}else{
+				$return = array(
+					'status' => 'error',
+					'message'	=> 'Api Key tidak sesuai!'
+				);
+			}
+		}else{
+			$return = array(
+				'status' => 'error',
+				'message'	=> 'Format tidak sesuai!'
+			);
+		}
+		die(json_encode($return));
+	}
+
+	public function get_data_ssh_analisis_skpd(){
+		global $wpdb;
+		$return = array(
+			'status' => 'success',
+			'data'	=> array()
+		);
+
+		$table_content = '';
+		if(!empty($_POST)){
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+				$params = $columns = $totalRecords = $data = array();
+				$params = $_REQUEST;
+				$columns = array( 
+					0 =>'nama_komponen',
+					1 =>'spek_komponen', 
+					2 => 'harga_satuan',
+					3 => 'satuan',
+					4 => 'SUM(volume) as volume',
+					5 => 'SUM(total_harga) as total'
+				);
+				$where = $sqlTot = $sqlRec = "";
+
+				// check search value exist
+				if( !empty($params['search']['value']) ) {
+					$where .=" AND ( nama_komponen LIKE ".$wpdb->prepare('%s', "%".$params['search']['value']."%");    
+					$where .=" OR spek_komponen LIKE ".$wpdb->prepare('%s', "%".$params['search']['value']."%");
+					$where .=" OR harga_satuan LIKE ".$wpdb->prepare('%s', "%".$params['search']['value']."%");
+					$where .=" OR satuan LIKE ".$wpdb->prepare('%s', "%".$params['search']['value']."%").")";
+				}
+
+				// mengambil data per skpd
+				$sqlKodeBl = '';
+				if($_POST['id_skpd'] != 0){
+					$data_bl = array();
+					$sql = "SELECT kode_bl FROM data_sub_keg_bl WHERE id_sub_skpd = ".$wpdb->prepare('%s', $_POST['id_skpd'])." GROUP BY kode_bl";
+					$run = $wpdb->get_results($sql,ARRAY_A);
+					foreach ($run as $value) {
+						array_push($data_bl,strval($value['kode_bl']));
+					}
+					$sqlKodeBl = " and kode_bl in ('".implode("','", $data_bl)."')";
+				}
+
+				// getting total number records without any search
+				$wpdb->last_error = null;
+				$sql_tot = "SELECT count(*) as jml FROM `data_rka`";
+				$sql = "SELECT ".implode(', ', $columns)." FROM `data_rka`";
+				$where_first = " WHERE active=1 and tahun_anggaran=".$wpdb->prepare('%d', $params['tahun_anggaran']).$sqlKodeBl;
+				$sqlTot .= $sql_tot.$where_first;
+				$sqlRec .= $sql.$where_first;
+				if(isset($where) && $where != '') {
+					$sqlTot .= $where;
+					$sqlRec .= $where;
+				}
+
+			 	$sqlRec .=  " GROUP by nama_komponen, spek_komponen, harga_satuan ORDER BY total DESC, ". $columns[$params['order'][0]['column']]."   ".$params['order'][0]['dir']."  LIMIT ".$params['start']." ,".$params['length']." ";
+				$sqlTot .=  " GROUP by nama_komponen, spek_komponen, harga_satuan";
+
+				$queryTot = $wpdb->get_results($sqlTot, ARRAY_A);
+				$totalRecords = count($queryTot);
+				$queryRecords = $wpdb->get_results($sqlRec, ARRAY_A);
+
+				$title = 'Laporan Data per Item SSH';
+				$shortcode = '[laporan_per_item_ssh]';
+				$update = false;
+				$url_skpd = $this->generatePage($title, $params['tahun_anggaran'], $shortcode, $update);
+
+				foreach($queryRecords as $key => $val){
+					$queryRecords[$key]['nama_komponen'] = '<a href="'.$url_skpd.'&nama_komponen='.$val['nama_komponen'].'&spek_komponen='.$val['spek_komponen'].'&harga_satuan='.$val['harga_satuan'].'&satuan='.$val['satuan'].'&id_skpd='.$_POST['id_skpd'].'" target="_blank" style="text-decoration: none;">'.$val['nama_komponen'].'</a>';
+				}
+
+				$json_data = array(
+					"draw" => intval( $params['draw'] ),   
+					"recordsTotal" => intval( $totalRecords ),  
+					"recordsFiltered" => intval($totalRecords),
+					"data" => $queryRecords,
+					"sql" => $sqlRec
+				);
+				die(json_encode($json_data));
 			}else{
 				$return = array(
 					'status' => 'error',
