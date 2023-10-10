@@ -7586,7 +7586,7 @@ $table='<table cellpadding="2" cellspacing="0" style="font-family:\'Open Sans\',
 					jQuery('#wrap-loading').hide();
 					alert(response.message);
 		          	if(response.status){
-		          		// location.reload();
+		          		location.reload();
 		          	}
 				}
 			})
