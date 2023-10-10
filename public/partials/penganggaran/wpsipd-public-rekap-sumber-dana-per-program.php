@@ -44,6 +44,7 @@ if(strpos($jadwal_lokal->nama_tipe, '_sipd') == false){
     $_suffix_sipd = '_lokal';
 }
 
+$nama_skpd = '';
 if($input['id_skpd'] == 'all'){
     $data_skpd = $wpdb->get_results($wpdb->prepare("
         select 
@@ -55,9 +56,22 @@ if($input['id_skpd'] == 'all'){
     ", $input['tahun_anggaran']), ARRAY_A);
 }else{
     $data_skpd = array(array('id_skpd' => $input['id_skpd']));
+    $nama_skpd = $wpdb->get_var($wpdb->prepare("
+        SELECT 
+            CONCAT(kode_skpd, ' ',nama_skpd)
+        FROM data_unit
+        WHERE tahun_anggaran=%d
+            and active=1
+            and id_skpd=%d
+    ", $input['tahun_anggaran'], $input['id_skpd']));
+    if(!empty($nama_skpd)){
+        $nama_skpd = '<br>'.$nama_skpd;
+    }else{
+        die('<h1 class="text-center">SKPD tidak ditemukan!</h1>');
+    }
 }
 $nama_pemda = get_option('_crb_daerah');
-$nama_excel = 'TAHUN ANGGARAN '.$input['tahun_anggaran'].' '.strtoupper($nama_pemda);
+$nama_excel = 'REKAPITULASI SUMBER DANA PER PROGRAM<br>TAHUN ANGGARAN '.$input['tahun_anggaran'].'<br>'.strtoupper($nama_pemda).$nama_skpd.'<br>'.$jadwal_lokal->nama_jadwal;
 
 $body = '';
 $total_all = 0;
