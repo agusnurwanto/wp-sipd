@@ -538,7 +538,7 @@ $body = '';
 					    <div class="row">
 					    	<div class="col-md-2"></div>
 					    	<div class="col-md-6">
-					      		<button type="button" class="btn btn-success btn-preview" onclick="preview('${id_jadwal_lokal}')">Preview</button>
+					      		<button type="button" class="btn btn-success btn-preview" onclick="preview('${id_jadwal_lokal}')" data-jadwal="${id_jadwal_lokal}">Preview</button>
 					      		<button type="button" class="btn btn-primary export-excel" onclick="exportExcel()" disabled>Export Excel</button>
 					    	</div>
 					    </div></br>
@@ -659,66 +659,92 @@ $body = '';
 	}
 
 	function cek_pemutakhiran(){
-		jQuery('#wrap-loading').show();
-		jQuery.ajax({
-			url:ajax.url,
-			type:'post',
-			dataType:'json',
-			data:{
-				action:'cek_pemutakhiran_total_renstra',
-				tahun_anggaran:tahun_anggaran,
-				api_key:jQuery("#api_key").val(),
-			},
-			success:function(response){
-				jQuery('#wrap-loading').hide();
-				if(response.status == 'success'){
-					var total_sub_keg = 0;
-					var total_sumber_dana = '-';
-					response.sub_keg.map(function(b, i){
-						if(b.jml >= 1){
-							var row = table_renja.row('[data-idskpd='+b.id_sub_skpd+']' );
-							var index_row = row.index();
-							var index_td = 1;
-							var new_data = row.data();
-							var nama_skpd = new_data[index_td].split(' <span')[0];
-							new_data[index_td] = nama_skpd+' <span class="notif badge badge-danger">'+b.jml+'</span>';
-							table_renja.row(index_row).data(new_data).draw();
-							jQuery(row.node()).find('>td').eq(1).css('background', '#f9d9d9');
-							
-							total_sub_keg += +(b.jml);
-						}
-					});
-					var html = ''
-						+'<h4 class="text-center">Data rekapitulasi pemutakhiran</h4>'
-						+'<table class="table table-bordered">'
-							+'<thead>'
-								+'<tr>'
-									+'<th class="text-center">Sub Kegiatan</th>'
-									+'<th class="text-center">Sumber Dana</th>'
-									+'<th class="text-center">Rekening Belanja</th>'
-									+'<th class="text-center">Pendapatan</th>'
-									+'<th class="text-center">Pembiayaan Penerimaan</th>'
-									+'<th class="text-center">Pembiayaan Pengeluaran</th>'
-									+'<th class="text-center">Komponen Belanja</th>'
-								+'</tr>'
-							+'</thead>'
-							+'<tbody>'
-								+'<tr>'
-									+'<td class="text-center">'+total_sub_keg+'</td>'
-									+'<td class="text-center">'+total_sumber_dana+'</td>'
-									+'<td class="text-center">'+total_sumber_dana+'</td>'
-									+'<td class="text-center">'+total_sumber_dana+'</td>'
-									+'<td class="text-center">'+total_sumber_dana+'</td>'
-									+'<td class="text-center">'+total_sumber_dana+'</td>'
-									+'<td class="text-center">'+total_sumber_dana+'</td>'
-								+'</tr>'
-							+'</tbody>'
-						+'</table>';
-					jQuery('#tabel-pemutakhiran-belanja').html(html);
-					return;
+		list_pemutakhiran({
+			'unit':jQuery("#list_opd").val(),
+			'tahun_anggaran':tahunAnggaran,
+			'id_jadwal_lokal':jQuery('.btn-preview').data('jadwal')
+		}).then(function(){
+			jQuery("#list-pemutakhiran").DataTable();
+		});
+	}
+
+	function list_pemutakhiran(obj){
+		return new Promise(function(resolve, reject){
+			jQuery('#wrap-loading').show();
+			jQuery.ajax({
+				url:ajax.url,
+				type:'post',
+				dataType:'json',
+				data:{
+					action:'cek_pemutakhiran_total_renstra',
+					id_unit:obj.unit,
+					tahun_anggaran:obj.tahun_anggaran,
+					id_jadwal_lokal:obj.id_jadwal_lokal,
+					api_key:jQuery("#api_key").val(),
+				},
+				success:function(response){
+					
+					jQuery('#wrap-loading').hide();
+					if(response.status){
+						var html = ''
+							+'<h4 class="text-center">Data Rekapitulasi Pemutakhiran</h4>'
+							+'<table class="table table-bordered" id="list-pemutakhiran" cellpadding="2" cellspacing="0" style="font-family:\'Open Sans\',-apple-system,BlinkMacSystemFont,\'Segoe UI\',sans-serif; border-collapse: collapse; font-size: 80%; border: 0; table-layout: fixed;" contenteditable="false">'
+								+'<thead>'
+									+'<tr>'
+										+'<th class="text-center" style="width: 85px;">No.</th>'
+										+'<th class="text-left">Unit Kerja</th>'
+										+'<th class="text-center">Program</th>'
+										+'<th class="text-center">Kegiatan</th>'
+										+'<th class="text-center">Sub Kegiatan</th>'
+									+'</tr>'
+								+'</thead>'
+								+'<tbody>';
+
+								let i=1;
+								Object.keys(response.data.data).forEach(key => {
+
+									let statusProgram='btn-success';
+									if(response.data.data[key].pemutakhiran_program > 0){
+										statusProgram="btn-danger";
+									}
+
+									let statusKegiatan='btn-success';
+									if(response.data.data[key].pemutakhiran_kegiatan > 0){
+										statusKegiatan="btn-danger";
+									}
+
+									let statusSubgiat='btn-success';
+									if(response.data.data[key].pemutakhiran_sub_kegiatan > 0){
+										statusSubgiat="btn-danger";
+									}
+
+									html+='<tr>'
+											+'<td class="text-center">'+i+'.</td>'
+											+'<td class="text-left">'+response.data.data[key].nama_skpd+'</td>'
+											+'<td class="text-center '+statusProgram+'">'+response.data.data[key].pemutakhiran_program+'</td>'
+											+'<td class="text-center '+statusKegiatan+'">'+response.data.data[key].pemutakhiran_kegiatan+'</td>'
+											+'<td class="text-center '+statusSubgiat+'">'+response.data.data[key].pemutakhiran_sub_kegiatan+'</td>'
+										+'</tr>';
+									i++;
+								});
+
+									html+=''
+								+'</tbody>'
+									+'<tfoot>'
+										+'<tr>'
+											+'<th class="text-center" colspan="2">TOTAL</th>'
+											+'<th class="text-center">'+response.data.pemutakhiran_program+'</th>'
+											+'<th class="text-center">'+response.data.pemutakhiran_kegiatan+'</th>'
+											+'<th class="text-center">'+response.data.pemutakhiran_sub_kegiatan+'</th>'
+										+'</tr>';
+									+'</tfoot>'
+							+'</table>';
+
+						jQuery('#tabel-pemutakhiran-belanja').html(html);
+					}
+					resolve();
 				}
-				alert(response.message);
-			}
+			});
 		});
 	}
 </script> 

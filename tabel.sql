@@ -4624,7 +4624,7 @@ CREATE TABLE `data_renstra_sub_kegiatan_lokal` (
   `active` tinyint(4) NOT NULL,
   `update_at` datetime NOT NULL,
   `tahun_anggaran` year(4) NOT NULL,
-  `id_sub_giat_lama` int(11) DEFAULT NULL,
+  `id_sub_giat_lama` text DEFAULT NULL,
   PRIMARY KEY  (id)
 );
 
@@ -4705,7 +4705,7 @@ CREATE TABLE `data_renstra_sub_kegiatan_lokal_history` (
   `tahun_anggaran` year(4) NOT NULL,
   `id_jadwal` int(11) NOT NULL,
   `id_asli` int(11) NOT NULL,
-  `id_sub_giat_lama` int(11) DEFAULT NULL,
+  `id_sub_giat_lama` text DEFAULT NULL,
   PRIMARY KEY  (id)
 );
 
