@@ -44,8 +44,8 @@ $body = '';
 			</div>
 			<h2 class="text-center" style="margin:3rem;">Manajemen Satuan Harga</h2>
 			<div style="margin: 0 0 2rem 0;" class="text-center">
-				<a href="<?php echo $url_data_ssh ?>" style="text-decoration:none;" class="button button-primary button-large tambah_ssh" target="_blank">Data SSH SIPD</a>
-				<a href="<?php echo $url_data_ssh_usulan ?>" style="text-decoration:none;" class="button button-primary button-large tambah_ssh" target="_blank">Data Usulan SSH</a>
+				<a href="<?php echo $url_data_ssh ?>" style="text-decoration:none;" class="button button-primary button-large tambah_ssh" target="_blank">Rekapitulasi Usulan dan Data Standar Harga SIPD</a>
+				<a href="<?php echo $url_data_ssh_usulan ?>" style="text-decoration:none;" class="button button-primary button-large tambah_ssh" target="_blank">Usulan Standar Harga</a>
 			</div>
 			<h2 class="text-center" style="margin:3rem;">Data Rekapitulasi Rincian Belanja Tahun Anggaran <?php echo $input['tahun_anggaran']; ?></h2>
 			<table id="data_ssh_analisis" cellpadding="2" cellspacing="0" style="font-family:\'Open Sans\',-apple-system,BlinkMacSystemFont,\'Segoe UI\',sans-serif; border-collapse: collapse; width:100%; overflow-wrap: break-word;" class="table table-bordered">
