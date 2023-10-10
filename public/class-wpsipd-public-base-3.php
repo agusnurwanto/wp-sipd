@@ -6502,7 +6502,7 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 								$kegiatan_all = $wpdb->get_results($wpdb->prepare("
 									SELECT 
 										DISTINCT id_unik
-									FROM data_renstra_kegiatan_lokal
+									FROM data_renstra_kegiatan_lokal".$_suffix."
 									WHERE 
 										kode_program=%s AND
 										kode_sasaran=%s AND
@@ -6537,6 +6537,7 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 										), ARRAY_A);
 
 									foreach ($sub_kegiatan_all as $keySubKegiatan => $sub_kegiatan_value) {
+
 										$data_all['data'][$unit['id_skpd']]['pagu_1']+=$sub_kegiatan_value['pagu_1'];
 										$data_all['data'][$unit['id_skpd']]['pagu_2']+=$sub_kegiatan_value['pagu_2'];
 										$data_all['data'][$unit['id_skpd']]['pagu_3']+=$sub_kegiatan_value['pagu_3'];
@@ -6593,7 +6594,7 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 						<button class="btn btn-warning" onclick="cek_pemutakhiran();">Cek Pemutakhiran</button>
 						<div id="tabel-pemutakhiran-belanja"></div>
 						<br>
-						<table id="table-renstra" cellpadding="2" cellspacing="0" style="font-family:\'Open Sans\',-apple-system,BlinkMacSystemFont,\'Segoe UI\',sans-serif; border-collapse: collapse; font-size: 70%; border: 0; table-layout: fixed;" contenteditable="false">
+						<table id="table-renstra" cellpadding="2" cellspacing="0" style="font-family:\'Open Sans\',-apple-system,BlinkMacSystemFont,\'Segoe UI\',sans-serif; border-collapse: collapse; font-size: 80%; border: 0; table-layout: fixed;" contenteditable="false">
 							<thead><tr>
 									<th style="width: 85px;" class="atas kiri kanan bawah text_tengah text_blok" rowspan="2">No</th>
 									<th style="width: 200px;" class="atas kanan bawah text_tengah text_blok" rowspan="2">Unit Kerja</th>';
@@ -6825,8 +6826,18 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 
 					$dataSubKegiatan = $wpdb->get_row($wpdb->prepare("
 						SELECT 
-							* 
-						FROM data_renstra_sub_kegiatan_lokal
+							d.*,
+							COALESCE(d.pagu_1_usulan, 0) AS pagu_1_usulan_temp, 
+							COALESCE(d.pagu_1, 0) AS pagu_1_temp, 
+							COALESCE(d.pagu_2_usulan, 0) AS pagu_2_usulan_temp, 
+							COALESCE(d.pagu_2, 0) AS pagu_2_temp, 
+							COALESCE(d.pagu_3_usulan, 0) AS pagu_3_usulan_temp, 
+							COALESCE(d.pagu_3, 0) AS pagu_3_temp, 
+							COALESCE(d.pagu_4_usulan, 0) AS pagu_4_usulan_temp, 
+							COALESCE(d.pagu_4, 0) AS pagu_4_temp, 
+							COALESCE(d.pagu_5_usulan, 0) AS pagu_5_usulan_temp, 
+							COALESCE(d.pagu_5, 0) AS pagu_5_temp 
+						FROM data_renstra_sub_kegiatan_lokal d
 						WHERE id=%d
 					", $_POST['id_sub_kegiatan']));
 
@@ -8466,36 +8477,192 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 
     public function cek_pemutakhiran_total_renstra(){
     	global $wpdb;
-		$ret = array(
-			'status'	=> 'success',
-			'message'	=> 'Berhasil get data cek pemutakhiran!'
-		);
-		if (!empty($_POST)) {
-			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
-				$sub_keg = $wpdb->get_results($wpdb->prepare("
-					SELECT
-						count(s.id) as jml,
-						id_unit
-					FROM data_renstra_sub_kegiatan_lokal s
-					LEFT JOIN data_prog_keg k on s.id_sub_giat=k.id_sub_giat
-						AND s.tahun_anggaran=k.tahun_anggaran
-					WHERE s.active=1
-						AND s.tahun_anggaran=%d
-						AND k.active != 1
-					GROUP BY id_unit
-				", $_POST['tahun_anggaran']), ARRAY_A);
-				$ret['sub_keg'] = $sub_keg;
-				$ret['kegiatan'] = '';
-				$ret['program'] = '';
+
+		try {
+			if (!empty($_POST)) {
+				if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+
+					$id_unit = $_POST['id_unit'];
+		        	$tahun_anggaran = $_POST['tahun_anggaran'];
+					$id_jadwal_lokal = $_POST['id_jadwal_lokal'];
+
+					$jadwal_lokal = $wpdb->get_row($wpdb->prepare("
+						SELECT 
+							nama AS nama_jadwal,
+							tahun_anggaran AS awal_renstra,
+							(tahun_anggaran+lama_pelaksanaan-1) AS akhir_renstra,
+							lama_pelaksanaan,
+							status 
+						FROM `data_jadwal_lokal` 
+							WHERE id_jadwal_lokal=%d", $id_jadwal_lokal));
+
+					$_suffix='';
+					$where='';
+					if($jadwal_lokal->status == 1){
+						$_suffix='_history';
+						$where='AND id_jadwal='.$wpdb->prepare("%d", $id_jadwal_lokal);
+					}
+
+					$where_skpd = '';
+					if(!empty($id_unit)){
+						if($id_unit !='all'){
+							$where_skpd = "and id_skpd=".$wpdb->prepare("%d", $id_unit);
+						}
+					}
+
+					$sql = $wpdb->prepare("
+						SELECT 
+							id_skpd, kode_skpd, nama_skpd
+						FROM data_unit 
+						WHERE tahun_anggaran=%d
+							".$where_skpd."
+							AND is_skpd=1
+							AND active=1
+						ORDER BY id_skpd ASC
+					", $tahun_anggaran);
+
+					$units = $wpdb->get_results($sql, ARRAY_A);
+
+					$data_all = array(
+						'data' => array(),
+						'pemutakhiran_program' => 0,
+						'pemutakhiran_kegiatan' => 0,
+						'pemutakhiran_sub_kegiatan' => 0
+					);
+
+					foreach ($units as $unit) {
+
+						if(empty($data_all['data'][$unit['id_skpd']])){
+							$data_all['data'][$unit['id_skpd']] = [
+								'kode_skpd' => $unit['kode_skpd'],
+								'nama_skpd' => $unit['nama_skpd'],
+								'pemutakhiran_program' => 0,
+								'pemutakhiran_kegiatan' => 0,
+								'pemutakhiran_sub_kegiatan' => 0
+							];
+						}
+						
+						$tujuan_all = $wpdb->get_results($wpdb->prepare("
+							SELECT 
+								DISTINCT id_unik 
+							FROM data_renstra_tujuan_lokal".$_suffix." 
+							WHERE 
+								id_unit=%d AND 
+								active=1 $where ORDER BY urut_tujuan
+						", $unit['id_skpd']), ARRAY_A);
+
+						foreach ($tujuan_all as $keyTujuan => $tujuan_value) {
+							
+							$sasaran_all = $wpdb->get_results($wpdb->prepare("
+									SELECT 
+										DISTINCT id_unik 
+									FROM data_renstra_sasaran_lokal".$_suffix." 
+									WHERE 
+										kode_tujuan=%s AND 
+										active=1 $where ORDER BY urut_sasaran
+								", $tujuan_value['id_unik']), ARRAY_A);
+
+							foreach ($sasaran_all as $keySasaran => $sasaran_value) {
+									
+								$program_all = $wpdb->get_results($wpdb->prepare("
+									SELECT 
+										id_unik, kode_program 
+									FROM data_renstra_program_lokal".$_suffix." 
+									WHERE 
+										kode_sasaran=%s AND 
+										kode_tujuan=%s AND 
+										active=1 AND
+										id_unik_indikator IS NULL $where ORDER BY id",
+										$sasaran_value['id_unik'], $tujuan_value['id_unik']), ARRAY_A);
+
+								foreach ($program_all as $keyProgram => $program_value) {
+
+									$programExist = $this->program_exist([
+										'kode_program' => $program_value['kode_program'],
+										'tahun_anggaran' => $tahun_anggaran
+									]);
+
+									if($programExist['status'] && empty($programExist['count'])){
+										$data_all['data'][$unit['id_skpd']]['pemutakhiran_program']++;
+										$data_all['pemutakhiran_program']++;
+									}
+
+									$kegiatan_all = $wpdb->get_results($wpdb->prepare("
+										SELECT 
+											id_unik, kode_giat
+										FROM data_renstra_kegiatan_lokal".$_suffix."
+										WHERE 
+											kode_program=%s AND
+											kode_sasaran=%s AND
+											kode_tujuan=%s AND 
+											active=1 AND
+											id_unik_indikator IS NULL $where ORDER BY id", 
+											$program_value['id_unik'], $sasaran_value['id_unik'], $tujuan_value['id_unik']), ARRAY_A);
+
+									foreach ($kegiatan_all as $keyKegiatan => $kegiatan_value) {
+
+										$kegiatanExist = $this->kegiatan_exist([
+											'kode_giat' => $kegiatan_value['kode_giat'],
+											'tahun_anggaran' => $tahun_anggaran
+										]);
+
+										if($kegiatanExist['status'] && empty($kegiatanExist['count'])){
+											$data_all['data'][$unit['id_skpd']]['pemutakhiran_kegiatan']++;
+											$data_all['pemutakhiran_kegiatan']++;
+										}
+										
+										$sub_kegiatan_all = $wpdb->get_results($wpdb->prepare("
+											SELECT 
+												kode_sub_giat
+											FROM data_renstra_sub_kegiatan_lokal".$_suffix." 
+											WHERE 
+												kode_kegiatan=%s AND 
+												kode_program=%s AND 
+												kode_sasaran=%s AND 
+												kode_tujuan=%s AND 
+												active=1 AND
+												id_unik_indikator IS NULL $where ORDER BY id",
+												$kegiatan_value['id_unik'],
+												$program_value['id_unik'],
+												$sasaran_value['id_unik'],
+												$tujuan_value['id_unik']
+											), ARRAY_A);
+
+										foreach ($sub_kegiatan_all as $keySubKegiatan => $sub_kegiatan_value) {
+
+											$subkegiatanExist = $this->subgiat_exist([
+												'kode_sub_giat' => $sub_kegiatan_value['kode_sub_giat'],
+												'tahun_anggaran' => $tahun_anggaran
+											]);
+
+											if($subkegiatanExist['status'] && empty($subkegiatanExist['count'])){
+												$data_all['data'][$unit['id_skpd']]['pemutakhiran_sub_kegiatan']++;
+												$data_all['pemutakhiran_sub_kegiatan']++;
+											}
+										}
+									}
+								}	
+							}
+						}
+					}
+
+					echo json_encode([
+						'status' => true,
+						'data' => $data_all
+					]);exit();
+
+				} else {
+					throw new Exception("APIKEY tidak sesuai!", 1);
+				}
 			} else {
-				$ret['status'] = 'error';
-				$ret['message'] = 'APIKEY tidak sesuai!';
-			}
-		} else {
-			$ret['status'] = 'error';
-			$ret['message'] = 'Format Salah!';
+				throw new Exception("Format Salah!", 1);
+			}	
+		} catch (Exception $e) {
+			echo json_encode([
+				'status' => false,
+				'message' => $e->getMessage()
+			]);exit();
 		}
-		die(json_encode($ret));
     }
 
     public function get_rekening_akun(){
@@ -8613,7 +8780,7 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 										", $_POST['id']));
 
 					if(empty($subKegiatanRenstraLama)){
-						throw new Exception('Sub kegiatan lama tidak ditemukan!');
+						throw new Exception('Sub kegiatan existing tidak ditemukan!');
 					}
 
 					$indikatorSubKegiatanRenstraLama = $wpdb->get_row($wpdb->prepare("
@@ -8627,7 +8794,7 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 										", $subKegiatanRenstraLama->id_unik));
 
 					if(empty($indikatorSubKegiatanRenstraLama)){
-						throw new Exception('Indikator sub kegiatan lama tidak ditemukan!');
+						throw new Exception('Indikator sub kegiatan existing tidak ditemukan!');
 					}
 
 					$subKegiatanBaru = $wpdb->get_row($wpdb->prepare("
@@ -8641,7 +8808,7 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 										", $_POST['id_sub_kegiatan'], $_POST['tahun_anggaran']));
 
 					if(empty($subKegiatanBaru)){
-						throw new Exception('Sub kegiatan baru tidak ditemukan di data master tahun anggaran '.$_POST['tahun_anggaran'].'!');
+						throw new Exception('Sub kegiatan pemutakhiran tidak ditemukan di data master tahun anggaran '.$_POST['tahun_anggaran'].'!');
 					}
 
 					$indikatorSubKegiatanBaru = $wpdb->get_row($wpdb->prepare("
@@ -8655,7 +8822,7 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 										", $_POST['id_indikator_sub_kegiatan'], $_POST['tahun_anggaran']));
 
 					if(empty($indikatorSubKegiatanBaru)){
-						throw new Exception('Indikator sub kegiatan baru tidak ditemukan di data master tahun anggaran '.$_POST['tahun_anggaran'].'!');
+						throw new Exception('Indikator sub kegiatan pemutakhiran tidak ditemukan di data master tahun anggaran '.$_POST['tahun_anggaran'].'!');
 					}
 
 					// insert sub keg baru
@@ -8676,7 +8843,7 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 							'kode_bidang_urusan' => $subKegiatanBaru->kode_bidang_urusan,
 							'kode_sub_giat' => $subKegiatanBaru->kode_sub_giat,
 							'kode_giat' => $subKegiatanBaru->kode_giat,
-							'kode_kegiatan' => $subKegiatanRenstraLama->id_unik,
+							'kode_kegiatan' => $subKegiatanRenstraLama->kode_kegiatan,
 							'kode_program' => $subKegiatanRenstraLama->kode_program,
 							'kode_sasaran' => $subKegiatanRenstraLama->kode_sasaran,
 							'kode_skpd' => $subKegiatanRenstraLama->kode_skpd,
@@ -8715,12 +8882,13 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 												* 
 											FROM data_renstra_sub_kegiatan_lokal
 											WHERE id_sub_giat=%d 
-												AND active=1 
+												AND active=1
+												AND id_unik_indikator IS NULL 
 											order by id ASC
 										", $_POST['id_sub_kegiatan']));
 
 					if(empty($subKegiatanRenstraBaru)){
-						throw new Exception('Sub kegiatan baru tidak ditemukan!');
+						throw new Exception('Sub kegiatan pemutakhiran tidak ditemukan!');
 					}
 
 					// insert indikator sub keg baru
@@ -9186,11 +9354,14 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
     }
 
     public function mutakhirkan_kegiatan_renstra(){
+    	
     	global $wpdb;
 
     	try{
     		if (!empty($_POST)) {
 				if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+
+					$wpdb->query('START TRANSACTION');
 
 					$kegiatanRenstraLama = $wpdb->get_row($wpdb->prepare("
 											SELECT 
@@ -9440,6 +9611,458 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 				'status' => false,
 				'message' => $e->getMessage()
 			]);exit();
+    	}
+    }
+
+    public function mutakhirkan_lintas_sub_kegiatan_renstra(){
+    	global $wpdb;
+
+    	try {
+
+    		if (!empty($_POST)) {
+				if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+
+					$wpdb->query('START TRANSACTION');
+
+					$data = json_decode(stripslashes($_POST['data']), true);
+
+					if(empty($data['id_program']) || !isset($data['id_program'])){
+						throw new Exception('Program wajib dipilih!');
+					}
+
+					if(empty($data['kegiatan']) || !isset($data['kegiatan'])){
+						throw new Exception('Kegiatan wajib dipilih');
+					}
+
+					if(empty($data['sub_kegiatan_2']) || !isset($data['sub_kegiatan_2'])){
+						throw new Exception('Sub Kegiatan wajib dipilih');
+					}
+
+					$subKegiatanRenstraExisting = $wpdb->get_row($wpdb->prepare("
+						SELECT 
+							id,
+							id_unik,
+							id_visi, 
+							id_misi, 
+							kode_tujuan, 
+							kode_sub_giat,
+							tujuan_lock, 
+							tujuan_teks, 
+							urut_tujuan, 
+							kode_sasaran, 
+							sasaran_lock, 
+							sasaran_teks, 
+							urut_sasaran,
+							COALESCE(pagu_1, 0) AS pagu_1, 
+							COALESCE(pagu_2, 0) AS pagu_2, 
+							COALESCE(pagu_3, 0) AS pagu_3, 
+							COALESCE(pagu_4, 0) AS pagu_4, 
+							COALESCE(pagu_5, 0) AS pagu_5,
+							COALESCE(pagu_1_usulan, 0) AS pagu_1_usulan, 
+							COALESCE(pagu_2_usulan, 0) AS pagu_2_usulan, 
+							COALESCE(pagu_3_usulan, 0) AS pagu_3_usulan, 
+							COALESCE(pagu_4_usulan, 0) AS pagu_4_usulan, 
+							COALESCE(pagu_5_usulan, 0) AS pagu_5_usulan 
+						FROM 
+							data_renstra_sub_kegiatan_lokal 
+						WHERE 
+							id=%d AND 
+							active=1", 
+						$data['id']), 
+					ARRAY_A);
+
+					if(empty($subKegiatanRenstraExisting)){
+						throw new Exception('Sub kegiatan existing tidak ditemukan!');
+					}
+
+					for ($i=1; $i<=$data['lama_pelaksanaan']; $i++) { 
+						if(is_null($data['pagu_'.$i.'_usulan'])){
+							throw new Exception("Pagu usulan tahun ke-". $i . " wajib diisi!", 1);
+						}
+
+						if(intval($data['pagu_'.$i.'_usulan']) < 0){
+							throw new Exception("Pagu usulan tahun ke-". $i . " tidak boleh negatif!", 1);
+						}
+
+						// jika non aktivkan sub giat lama pagu mutakhir wajib == pagu lama
+						if($data['disable_subgiat']){
+							if(intval($data['pagu_'.$i.'_usulan']) != intval($subKegiatanRenstraExisting['pagu_'.$i.'_usulan'])){
+								throw new Exception("Pagu usulan tahun ke-".$i." pemutakhiran wajib sama dengan pagu usulan tahun ke-".$i." existing!", 1);
+							}
+
+							if(in_array('administrator', $this->role())){
+								if(intval($data['pagu_'.$i]) != intval($subKegiatanRenstraExisting['pagu_'.$i])){
+									throw new Exception("Pagu tahun ke-".$i." pemutakhiran wajib sama dengan pagu tahun ke-".$i." existing!", 1);
+								}								
+							}
+						}else{
+							if(intval($data['pagu_'.$i.'_usulan']) > intval($subKegiatanRenstraExisting['pagu_'.$i.'_usulan'])){
+								throw new Exception("Pagu usulan tahun ke-".$i." pemutakhiran tidak boleh lebih besar dari pagu usulan tahun ke-".$i." existing!", 1);
+							}
+
+							if(in_array('administrator', $this->role())){
+								if(intval($data['pagu_'.$i]) > intval($subKegiatanRenstraExisting['pagu_'.$i])){
+									throw new Exception("Pagu tahun ke-".$i." pemutakhiran tidak boleh lebih besar dari pagu tahun ke-".$i." existing!", 1);
+								}								
+							}
+						}
+					}
+
+					$program = $wpdb->get_row($wpdb->prepare("SELECT id_bidang_urusan, id_program, id_urusan, kode_bidang_urusan, kode_program, kode_urusan, nama_bidang_urusan, nama_program, nama_urusan FROM data_prog_keg WHERE id_program=%d AND tahun_anggaran=%d AND active=%d", $data['id_program'], $data['tahun_anggaran'], 1), ARRAY_A);
+
+					if(empty($program)){
+						throw new Exception('Program pemutakhiran yang dipilih di tahun '.$data['tahun_anggaran'].' tidak ditemukan, harap hubungi Admin!');
+					}
+
+					$kegiatan = $wpdb->get_row($wpdb->prepare("SELECT id_bidang_urusan, id_urusan, id_program, id_giat, kode_bidang_urusan, kode_program, kode_giat, kode_urusan, nama_bidang_urusan, nama_giat, nama_program, nama_urusan FROM data_prog_keg WHERE id_giat=%d AND tahun_anggaran=%d AND active=%d", $data['kegiatan'], $data['tahun_anggaran'], 1), ARRAY_A);
+
+					if(empty($kegiatan)){
+						throw new Exception('Kegiatan pemutakhiran yang dipilih di tahun '.$data['tahun_anggaran'].' tidak ditemukan, harap hubungi Admin!');
+					}
+
+					$subKegiatan = $wpdb->get_row($wpdb->prepare("SELECT id_bidang_urusan, id_sub_giat, id_urusan, id_giat, id_program, kode_program, nama_program, kode_giat, kode_bidang_urusan, kode_sub_giat, kode_urusan, nama_bidang_urusan, nama_giat, nama_sub_giat, nama_urusan FROM data_prog_keg WHERE id_sub_giat=%d AND tahun_anggaran=%d AND active=%d", $data['sub_kegiatan_2'], $data['tahun_anggaran'], 1), ARRAY_A);
+
+					if(empty($subKegiatan)){
+						throw new Exception('Sub Kegiatan pemutakhiran yang dipilih di tahun '.$data['tahun_anggaran'].' tidak ditemukan, harap hubungi Admin!');
+					}
+
+					$programPemutakhiranRenstra = $wpdb->get_row($wpdb->prepare("SELECT id FROM data_renstra_program_lokal WHERE kode_bidang_urusan=%s AND kode_program=%s AND id_unit=%d AND active=1", $program['kode_bidang_urusan'], $program['kode_program'], $data['id_unit']), ARRAY_A);
+
+					if(empty($programPemutakhiranRenstra)){
+						throw new Exception("Program pemutakhiran yang dipilih tidak ditemukan di program renstra lokal, lakukan pengecekan sesuai nomenklatur dan kode program, jika merah lakukan pemutakhiran program terlebih dahulu!", 1);
+					}
+
+					$kegiatanPemutakhiranRenstra = $wpdb->get_row($wpdb->prepare("SELECT id FROM data_renstra_kegiatan_lokal WHERE kode_bidang_urusan=%s AND kode_giat=%s AND id_unit=%d AND active=1", $kegiatan['kode_bidang_urusan'], $kegiatan['kode_giat'], $data['id_unit']), ARRAY_A);
+
+					if(empty($kegiatanPemutakhiranRenstra)){
+						throw new Exception("Kegiatan pemutakhiran yang dipilih tidak ditemukan di kegiatan renstra lokal, lakukan pengecekan sesuai nomenklatur dan kode kegiatan, jika merah lakukan pemutakhiran kegiatan terlebih dahulu!", 1);
+					}
+
+					$subKegiatanPemutakhiranRenstra = $wpdb->get_row($wpdb->prepare("SELECT 
+							id, 
+							COALESCE(pagu_1, 0) AS pagu_1, 
+							COALESCE(pagu_2, 0) AS pagu_2, 
+							COALESCE(pagu_3, 0) AS pagu_3, 
+							COALESCE(pagu_4, 0) AS pagu_4, 
+							COALESCE(pagu_5, 0) AS pagu_5,
+							COALESCE(pagu_1_usulan, 0) AS pagu_1_usulan, 
+							COALESCE(pagu_2_usulan, 0) AS pagu_2_usulan, 
+							COALESCE(pagu_3_usulan, 0) AS pagu_3_usulan, 
+							COALESCE(pagu_4_usulan, 0) AS pagu_4_usulan, 
+							COALESCE(pagu_5_usulan, 0) AS pagu_5_usulan,
+							id_sub_giat_lama
+						FROM 
+							data_renstra_sub_kegiatan_lokal 
+						WHERE 
+							kode_bidang_urusan=%s AND 
+							kode_sub_giat=%s AND 
+							id_unit=%d AND 
+							active=1", 
+							$subKegiatan['kode_bidang_urusan'], 
+							$subKegiatan['kode_sub_giat'], 
+							$data['id_unit']
+					), ARRAY_A);
+
+					$inputs = [];
+					if(empty($subKegiatanPemutakhiranRenstra)){
+						throw new Exception("Sub kegiatan pemutakhiran yang dipilih tidak ditemukan di sub kegiatan renstra lokal, lakukan pengecekan sesuai nomenklatur jika merah lakukan pemutakhiran sub giat yang ditarget di tab Default terlebih dahulu!", 1);
+					}
+
+					// update kolom id sub giat lama di sub giat pemutakhiran 
+					if(!empty($subKegiatanPemutakhiranRenstra['id_sub_giat_lama'])){
+						$sub_giat_lama = explode(",", $subKegiatanPemutakhiranRenstra['id_sub_giat_lama']);
+						foreach ($sub_giat_lama as $key => $value) {
+							if($data['sub_kegiatan_1']!=$value){
+								$sub_giat_lama[] = $data['sub_kegiatan_1'];
+							}
+						}
+						$list_sub_giat_lama = implode(",", $sub_giat_lama);
+						$inputs['id_sub_giat_lama'] = $list_sub_giat_lama;
+					}else{
+						$inputs['id_sub_giat_lama'] = $data['sub_kegiatan_1'];
+					}
+
+					// update pagu sub giat pemutakhiran
+					if(isset($data['pagu_1_usulan'])){
+						$inputs['pagu_1_usulan'] = intval($data['pagu_1_usulan']) + intval($subKegiatanPemutakhiranRenstra['pagu_1_usulan']);
+					}
+					if(isset($data['pagu_2_usulan'])){
+						$inputs['pagu_2_usulan'] = intval($data['pagu_2_usulan']) + intval($subKegiatanPemutakhiranRenstra['pagu_2_usulan']);
+					}
+					if(isset($data['pagu_3_usulan'])){
+						$inputs['pagu_3_usulan'] = intval($data['pagu_3_usulan']) + intval($subKegiatanPemutakhiranRenstra['pagu_3_usulan']);
+					}
+					if(isset($data['pagu_4_usulan'])){
+						$inputs['pagu_4_usulan'] = intval($data['pagu_4_usulan']) + intval($subKegiatanPemutakhiranRenstra['pagu_4_usulan']);
+					}
+					if(isset($data['pagu_5_usulan'])){
+						$inputs['pagu_5_usulan'] = intval($data['pagu_5_usulan']) + intval($subKegiatanPemutakhiranRenstra['pagu_5_usulan']);
+					}
+
+
+					if(in_array('administrator', $this->role())){
+						if(isset($data['pagu_1'])){
+							$inputs['pagu_1'] = !empty($data['pagu_1']) || $data['pagu_1']==0 ? $data['pagu_1'] : $data['pagu_1_usulan'];
+							$inputs['pagu_1'] = intval($inputs['pagu_1']) + intval($subKegiatanPemutakhiranRenstra['pagu_1']);
+						}
+						if(isset($data['pagu_2'])){
+							$inputs['pagu_2'] = !empty($data['pagu_2']) || $data['pagu_2']==0 ? $data['pagu_2'] : $data['pagu_2_usulan'];
+							$inputs['pagu_2'] = intval($inputs['pagu_2']) + intval($subKegiatanPemutakhiranRenstra['pagu_2']);
+						}
+						if(isset($data['pagu_3'])){
+							$inputs['pagu_3'] = !empty($data['pagu_3']) || $data['pagu_3']==0 ? $data['pagu_3'] : $data['pagu_3_usulan'];
+							$inputs['pagu_3'] = intval($inputs['pagu_3']) + intval($subKegiatanPemutakhiranRenstra['pagu_3']);
+						}
+						if(isset($data['pagu_4'])){
+							$inputs['pagu_4'] = !empty($data['pagu_4']) || $data['pagu_4']==0 ? $data['pagu_4'] : $data['pagu_4_usulan'];
+							$inputs['pagu_4'] = intval($inputs['pagu_4']) + intval($subKegiatanPemutakhiranRenstra['pagu_4']);
+						}
+						if(isset($data['pagu_5'])){
+							$inputs['pagu_5'] = !empty($data['pagu_5']) || $data['pagu_5']==0 ? $data['pagu_5'] : $data['pagu_5_usulan'];
+							$inputs['pagu_5'] = intval($inputs['pagu_5']) + intval($subKegiatanPemutakhiranRenstra['pagu_5']);
+						}
+					}
+
+
+					// action update pagu sub giat pemutakhiran
+					$result1 = $wpdb->update('data_renstra_sub_kegiatan_lokal', $inputs, array(
+						'id' => $subKegiatanPemutakhiranRenstra['id']
+					));
+
+					$inputs = [];	
+					if($data['disable_subgiat']){
+
+						// non aktivkan sub giat existing
+						$result2 = $wpdb->update('data_renstra_sub_kegiatan_lokal', [
+							'active' => 0,
+							'status' => 0
+						], array(
+							'id_unik' => $subKegiatanRenstraExisting['id_unik']
+						));
+
+					}else{
+						// update pagu sub giat existing, dengan mengurangi sebesar pagu sub giat pemutakhiran 
+						if(isset($data['pagu_1_usulan'])){
+							$inputs['pagu_1_usulan'] = intval($subKegiatanRenstraExisting['pagu_1_usulan']) - intval($data['pagu_1_usulan']);
+						}
+						if(isset($data['pagu_2_usulan'])){
+							$inputs['pagu_2_usulan'] = intval($subKegiatanRenstraExisting['pagu_2_usulan']) - intval($data['pagu_2_usulan']);
+						}
+						if(isset($data['pagu_3_usulan'])){
+							$inputs['pagu_3_usulan'] = intval($subKegiatanRenstraExisting['pagu_3_usulan']) - intval($data['pagu_3_usulan']);
+						}
+						if(isset($data['pagu_4_usulan'])){
+							$inputs['pagu_4_usulan'] = intval($subKegiatanRenstraExisting['pagu_4_usulan']) - intval($data['pagu_4_usulan']);
+						}
+						if(isset($data['pagu_5_usulan'])){
+							$inputs['pagu_5_usulan'] = intval($subKegiatanRenstraExisting['pagu_5_usulan']) - intval($data['pagu_5_usulan']);
+						}
+
+						if(in_array('administrator', $this->role())){
+							if(isset($data['pagu_1'])){
+								$inputs['pagu_1'] = !empty($data['pagu_1']) || $data['pagu_1']==0 ? $data['pagu_1'] : $data['pagu_1_usulan'];
+								$inputs['pagu_1'] = intval($subKegiatanRenstraExisting['pagu_1']) - intval($inputs['pagu_1']);
+							}
+							if(isset($data['pagu_2'])){
+								$inputs['pagu_2'] = !empty($data['pagu_2']) || $data['pagu_2']==0 ? $data['pagu_2'] : $data['pagu_2_usulan'];
+								$inputs['pagu_2'] = intval($subKegiatanRenstraExisting['pagu_2']) - intval($inputs['pagu_2']);
+							}
+							if(isset($data['pagu_3'])){
+								$inputs['pagu_3'] = !empty($data['pagu_3']) || $data['pagu_3']==0 ? $data['pagu_3'] : $data['pagu_3_usulan'];
+								$inputs['pagu_3'] = intval($subKegiatanRenstraExisting['pagu_3']) - intval($inputs['pagu_3']);
+							}
+							if(isset($data['pagu_4'])){
+								$inputs['pagu_4'] = !empty($data['pagu_4']) || $data['pagu_4']==0 ? $data['pagu_4'] : $data['pagu_4_usulan'];
+								$inputs['pagu_4'] = intval($subKegiatanRenstraExisting['pagu_4']) - intval($inputs['pagu_4']);
+							}
+							if(isset($data['pagu_5'])){
+								$inputs['pagu_5'] = !empty($data['pagu_5']) || $data['pagu_5']==0 ? $data['pagu_5'] : $data['pagu_5_usulan'];
+								$inputs['pagu_5'] = intval($subKegiatanRenstraExisting['pagu_5']) - intval($inputs['pagu_5']);
+							}
+						}
+
+						$result2 = $wpdb->update('data_renstra_sub_kegiatan_lokal', $inputs, array(
+							'id' => $subKegiatanRenstraExisting['id']
+						));
+					}
+
+					if($result1 && $result2){
+						$wpdb->query('COMMIT');
+					}else{
+						$wpdb->query('ROLLBACK');
+						throw new Exception("Oops terjadi kesalahan saat melakukan pemutakhiran, code:123", 1);
+					}
+
+					echo json_encode([
+						'status' => true,
+						'message' => 'Sukses mutakhirkan sub kegiatan!'
+					]);exit();
+
+				}else{
+					throw new Exception("Api key tidak sesuai", 1);
+				}
+			}else{
+				throw new Exception("Format tidak sesuai", 1);
+			}
+    	} catch (Exception $e) {
+    		echo json_encode([
+				'status' => false,
+				'message' => $e->getMessage()
+			]);exit();
+    	}
+    }
+
+    public function program_exist(array $data = []){
+    	global $wpdb;
+
+    	try {
+
+    		if(empty($data)){
+    			throw new Exception("Parameter kosong!", 1);
+    		}
+
+    		$program = $wpdb->get_row($wpdb->prepare("SELECT id_program FROM data_prog_keg WHERE kode_program=%s AND active=%d AND tahun_anggaran=%d", $data['kode_program'], 1, $data['tahun_anggaran']), ARRAY_A);
+
+    		if(empty($program)){
+    			return [
+					'status' => true,
+					'count' => 0
+				];
+    		}else{
+				return [
+					'status' => true,
+					'count' => 1
+				];
+    		}
+			
+    	} catch (Exception $e) {
+    		return [
+    			'status' => false,
+				'message' => $e->getMessage()
+    		];
+    	}
+    }
+
+    public function kegiatan_exist(array $data = []){
+    	global $wpdb;
+
+		try {
+
+    		if(empty($data)){
+    			throw new Exception("Parameter kosong!", 1);
+    		}
+
+    		$kegiatan = $wpdb->get_row($wpdb->prepare("SELECT id_giat FROM data_prog_keg WHERE kode_giat=%s AND active=%d AND tahun_anggaran=%d", $data['kode_giat'], 1, $data['tahun_anggaran']), ARRAY_A);
+
+    		if(empty($kegiatan)){
+    			return [
+					'status' => true,
+					'count' => 0
+				];
+    		}else{
+				return [
+					'status' => true,
+					'count' => 1
+				];
+    		}
+    	} catch (Exception $e) {
+    		return [
+    			'status' => false,
+				'message' => $e->getMessage()
+    		];
+    	}
+    }
+
+    public function subgiat_exist(array $data = []){
+    	global $wpdb;
+    	
+    	try {
+
+    		if(empty($data)){
+    			throw new Exception("Parameter kosong!", 1);
+    		}
+
+    		$subgiat = $wpdb->get_row($wpdb->prepare("SELECT id_sub_giat FROM data_prog_keg WHERE kode_sub_giat=%s AND active=%d AND tahun_anggaran=%d", $data['kode_sub_giat'], 1, $data['tahun_anggaran']), ARRAY_A);
+
+    		if(empty($subgiat)){
+    			return [
+					'status' => true,
+					'count' => 0
+				];
+    		}else{
+				return [
+					'status' => true,
+					'count' => 1
+				];
+    		}
+			
+			return [
+				'status' => true,
+				'count' => 0
+			];
+    	} catch (Exception $e) {
+    		return [
+    			'status' => false,
+				'message' => $e->getMessage()
+    		];
+    	}
+    }
+
+    public function subgiat_renstra_local_exist(){
+    	global $wpdb;
+    	
+    	try {
+
+    		if (!empty($_POST)) {
+				if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+					$data = $wpdb->get_row($wpdb->prepare("SELECT 
+							id, 
+							COALESCE(pagu_1, 0) AS pagu_1, 
+							COALESCE(pagu_2, 0) AS pagu_2, 
+							COALESCE(pagu_3, 0) AS pagu_3, 
+							COALESCE(pagu_4, 0) AS pagu_4, 
+							COALESCE(pagu_5, 0) AS pagu_5,
+							COALESCE(pagu_1_usulan, 0) AS pagu_1_usulan, 
+							COALESCE(pagu_2_usulan, 0) AS pagu_2_usulan, 
+							COALESCE(pagu_3_usulan, 0) AS pagu_3_usulan, 
+							COALESCE(pagu_4_usulan, 0) AS pagu_4_usulan, 
+							COALESCE(pagu_5_usulan, 0) AS pagu_5_usulan
+						FROM 
+							data_renstra_sub_kegiatan_lokal 
+						WHERE 
+							kode_bidang_urusan=%s AND 
+							kode_sub_giat=%s AND 
+							id_unit=%d AND 
+							active=1", 
+							$_POST['kode_bidang_urusan'], 
+							$_POST['kode_sub_giat'], 
+							$_POST['id_unit']
+					), ARRAY_A);
+
+					if(!empty($data)){
+			    		echo json_encode([
+			    			'status' => true,
+			    			'count' => 1,
+			    			'data' => $data
+			    		]);exit();
+					}else{
+						echo json_encode([
+			    			'status' => true,
+			    			'count' => 0,
+			    			'data' => $data
+			    		]);exit();
+					}
+				}else{
+					throw new Exception("API tidak ditemukan!", 1);
+				}
+			}else{
+				throw new Exception("Format tidak sesuai!", 1);
+			}
+    	} catch (Exception $e) {
+    		echo json_encode([
+    			'status' => false,
+    			'message' => $e->getMessage()
+    		]);exit();
     	}
     }
 }
