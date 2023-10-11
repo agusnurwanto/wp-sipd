@@ -37,7 +37,7 @@ if ($data_rka) {
 	$kode_bidang_urusan = $data_rka['kode_bidang_urusan'];
 	$nama_sub_kegiatan = $data_rka['nama_sub_giat'];
 	$nama_sub_kegiatan = str_replace('X.XX', $kode_bidang_urusan, $nama_sub_kegiatan);
-	$pagu_kegiatan = number_format($data_rka['pagu'],0,",",".");
+	$pagu_kegiatan = number_format($data_rka['pagu'], 0, ",", ".");
 	$sql = $wpdb->prepare("
 		SELECT 
 			d.iddana,
@@ -53,8 +53,8 @@ if ($data_rka) {
 	$sd_sub = array();
 	foreach ($sd_sub_keg as $key => $sd) {
 		$new_sd = explode(' - ', $sd['namadana']);
-		if(!empty($new_sd[1])){
-			$sd_sub[] = '<span class="kode-dana">'.$sd['kode_dana'].'</span> '.$new_sd[1];
+		if (!empty($new_sd[1])) {
+			$sd_sub[] = '<span class="kode-dana">' . $sd['kode_dana'] . '</span> ' . $new_sd[1];
 		}
 	}
 } else {
@@ -62,9 +62,12 @@ if ($data_rka) {
 }
 ?>
 <style>
-	#tabel_detail_sub, #tabel_detail_sub td, #tabel_detail_sub th {
+	#tabel_detail_sub,
+	#tabel_detail_sub td,
+	#tabel_detail_sub th {
 		border: 0;
 	}
+
 	#tabel_verifikasi {
 		border-collapse: collapse;
 		width: 100%;
