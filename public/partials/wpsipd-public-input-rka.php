@@ -716,7 +716,7 @@ function get_rinc_rka_lokal(kode_sbl){
 		success:function(response){
 			jQuery('#tabel_rincian_sub_keg').html(response.rin_sub_item);
 			jQuery("#wrap-loading").hide();
-			resolve();
+			// resolve();
 		}
 	});
 }
