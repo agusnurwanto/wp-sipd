@@ -18,7 +18,13 @@ foreach ($roles as $val) {
 }
 $api_key = get_option('_crb_api_key_extension');
 ?>
-
+<style>
+.modal-content label:after {
+    content: ' *';
+    color: red;
+    margin-right: 5px;
+}
+</style>
 <h1 class="text-center" style="margin-top: 50px;">Manajemen User Verifikasi RKA (Rencana Kerja dan Anggaran)</h1>
 
 <!-- Button trigger modal -->
@@ -136,7 +142,7 @@ $api_key = get_option('_crb_api_key_extension');
                     },
                     {
                         "data": 'email',
-                        className: "text-right"
+                        className: "text-center"
                     },
                     {
                         "data": 'role',
@@ -152,7 +158,6 @@ $api_key = get_option('_crb_api_key_extension');
             load_data_user.draw();
         }
     }
-
     jQuery(document).ready(function(){
         load_data();
     });
