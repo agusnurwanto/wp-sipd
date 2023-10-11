@@ -9560,7 +9560,10 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 	}
 
 	public function get_link_post($custom_post, $link=false){
-		if($custom_post->post_status == 'publish'){
+		if(
+			!empty($custom_post) 
+			&& $custom_post->post_status == 'publish'
+		){
 			return get_permalink($custom_post);
 		}else{
 			if(null == $custom_post){

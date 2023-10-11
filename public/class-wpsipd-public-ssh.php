@@ -304,6 +304,7 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 					$tahun_anggaran = trim(htmlspecialchars($_POST['tahun_anggaran']));
 					$harga_satuan = trim(htmlspecialchars($_POST['harga_satuan']));
 					$keterangan_lampiran = trim(htmlspecialchars($_POST['keterangan_lampiran']));
+					$id_sub_skpd = $_POST['id_sub_skpd'];
 					
 					// get data dari tabel data_ssh_usulan
 					if(strpos($id_standar_harga, 'usulan-') !== false){
@@ -358,7 +359,7 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 						}
 					}
 	
-					$date_now = date("Y-m-d H:i:s");
+					$date_now = current_datetime()->format('Y-m-d H:i:s');
 	
 					// cek apakah sudah ada ssh di master SSH SIPD
 					$data_avoid = $wpdb->get_results($wpdb->prepare("
@@ -465,6 +466,7 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 						'kode_standar_harga_sipd' => $kode_standar_harga_sipd,
 						'status_jenis_usulan' => 'tambah_harga',
 						'jenis_produk' => $data_old_ssh[0]['jenis_produk'],
+						'id_sub_skpd' => $id_sub_skpd,
 						'tkdn'	=> $data_old_ssh[0]['tkdn']
 					);
 					$upload_1 = CustomTrait::uploadFile($_POST['api_key'], $path = WPSIPD_PLUGIN_PATH.'public/media/ssh/', $_FILES['lapiran_usulan_ssh_1'], ['jpg', 'jpeg', 'png', 'pdf']);
@@ -528,6 +530,7 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 					$id_standar_harga = trim(htmlspecialchars($_POST['id_standar_harga']));
 					$tahun_anggaran = trim(htmlspecialchars($_POST['tahun_anggaran']));
 					$new_akun = $_POST['new_akun'];
+					$id_sub_skpd = $_POST['id_sub_skpd'];
 					
 					$data_old_ssh = $wpdb->get_results($wpdb->prepare("SELECT * FROM data_ssh WHERE id_standar_harga = %d",$id_standar_harga), ARRAY_A);
 					$kode_standar_harga_sipd = $data_old_ssh[0]['kode_standar_harga'];
@@ -541,7 +544,7 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 						$data_akun[$v_new_akun] = $wpdb->get_results($wpdb->prepare("SELECT id_akun,kode_akun,nama_akun FROM data_akun WHERE id_akun = %d",$v_new_akun), ARRAY_A);
 					}
 	
-					$date_now = date("Y-m-d H:i:s");
+					$date_now = current_datetime()->format('Y-m-d H:i:s');
 
 					//insert data ke usulan ssh jika komponen berasal dari data existing SIPD
 					if(!empty($kode_standar_harga_sipd)){
@@ -573,6 +576,7 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 							'kode_standar_harga_sipd' => $kode_standar_harga_sipd,
 							'status_jenis_usulan' => 'tambah_akun',
 							'jenis_produk'	=> $data_old_ssh[0]['jenis_produk'],
+							'id_sub_skpd' => $id_sub_skpd,
 							'tkdn'	=> $data_old_ssh[0]['tkdn']
 						);
 		
@@ -667,7 +671,7 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 							$opsi_ssh = array();
 							if(in_array("administrator", $user_meta->roles)){
 								$opsi_ssh['no_nota_dinas']=$_POST['nota_dinas'];
-								$opsi_ssh['update_at_admin']=date("Y-m-d H:i:s");
+								$opsi_ssh['update_at_admin']=current_datetime()->format('Y-m-d H:i:s');
 								$opsi_ssh['verified_by_admin']=um_user( 'ID' );
 								if($verify_ssh){
 									if(trim($data_ssh[0]['status_by_tapdkeu'])==='approved'){
@@ -682,7 +686,7 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 							}
 
 							if(in_array("tapd_keu", $user_meta->roles)){
-								$opsi_ssh['update_at_tapdkeu']=date("Y-m-d H:i:s");
+								$opsi_ssh['update_at_tapdkeu']=current_datetime()->format('Y-m-d H:i:s');
 								$opsi_ssh['verified_by_tapdkeu']=um_user( 'ID' );
 								if($verify_ssh){
 									if(trim($data_ssh[0]['status_by_admin'])==='approved'){
@@ -906,7 +910,7 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 						$data_akun[$v_akun] = $wpdb->get_results($wpdb->prepare("SELECT id_akun,kode_akun,nama_akun FROM data_akun WHERE id_akun = %d",$v_akun), ARRAY_A);
 					}
 	
-					$date_now = date("Y-m-d H:i:s");
+					$date_now = current_datetime()->format('Y-m-d H:i:s');
 					//insert data new akun usulan ssh
 	
 					foreach($akun as $v_akun){
@@ -2334,7 +2338,7 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 							",$v_akun), ARRAY_A);
 						}
 
-						$date_now = date("Y-m-d H:i:s");
+						$date_now = current_datetime()->format('Y-m-d H:i:s');
 
 						//avoid double data ssh
 						$data_avoid = $wpdb->get_results($wpdb->prepare("
@@ -2747,7 +2751,7 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 
 					if($status_edit){
 						if($data_this_id_ssh[0]['status_upload_sipd'] != 1){
-							$date_now = date("Y-m-d H:i:s");
+							$date_now = current_datetime()->format('Y-m-d H:i:s');
 	
 							//avoid double data ssh
 							$data_avoid = $wpdb->get_results($wpdb->prepare("
@@ -3364,7 +3368,7 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 							'nomor_surat' => $nomor_surat,
 							'catatan' => $catatan,
 							'active' => 1,
-							'update_at' => date("Y-m-d H:i:s"),
+							'update_at' => current_datetime()->format('Y-m-d H:i:s'),
 							'tahun_anggaran' => $tahun_anggaran,
 							'created_user' => $user_meta->display_name
 						);
@@ -3701,7 +3705,7 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 								|| in_array("administrator", $user_meta->roles)
 							){
 								if($data_this_id_ssh[0]['status_upload_sipd'] != 1){
-									$date_now = date("Y-m-d H:i:s");
+									$date_now = current_datetime()->format('Y-m-d H:i:s');
 					
 									$status_usulan_ssh = ($status == 'approve') ? 'approved' : 'rejected';
 					
@@ -4076,7 +4080,7 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 						'idskpd' => $idskpd,
 						'catatan' => $catatan,
 						'active' => 1,
-						'update_at' => date("Y-m-d H:i:s"),
+						'update_at' => current_datetime()->format('Y-m-d H:i:s'),
 						'tahun_anggaran' => $tahun_anggaran,
 						'jenis_survey' => 0,
 						'jenis_juknis' => 0,
