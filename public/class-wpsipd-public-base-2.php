@@ -5591,7 +5591,7 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 						$rin_sub_item .= '
 							<tr>
 				                <td class="kiri kanan bawah text_blok">'.$akun[$akun_1_db[0]['kode_akun']]['kode_akun'].'</td>
-			                    <td class="kanan bawah text_blok" colspan="5"><span class="nama">'.$akun[$akun_1_db[0]['kode_akun']]['nama_akun'].'</span>'.button_mapping($kode_sbl.'-'.$akun_1_db[0]['kode_akun']).'</td>
+			                    <td class="kanan bawah text_blok" colspan="5"><span class="nama">'.$akun[$akun_1_db[0]['kode_akun']]['nama_akun'].'</span>'.$this->button_mapping($kode_sbl.'-'.$akun_1_db[0]['kode_akun']).'</td>
 			                    '.$rin_murni.'
 			                    <td class="kanan bawah text_kanan text_blok" style="white-space:nowrap">Rp. '.number_format($akun[$akun_1_db[0]['kode_akun']]['total'],0,",",".").'</td>
 			                    '.$selisih_murni.'
@@ -5838,7 +5838,7 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 					<tr>
 			            '.$rin_murni.'
 			            <td colspan="'.$colspan.'" class="kiri kanan bawah text_kanan text_blok">Jumlah Anggaran Sub Kegiatan :</td>
-			            <td class="kanan bawah text_blok text_kanan subkeg-total" style="white-space:nowrap" data-kdsbl="'.$sub_bl['kode_sbl'].'">Rp. '.number_format($total_sub_rinc,0,",",".").'</td>
+			            <td class="kanan bawah text_blok text_kanan subkeg-total" style="white-space:nowrap" data-kdsbl="'.$kode_sbl.'">Rp. '.number_format($total_sub_rinc,0,",",".").'</td>
 			            '.$selisih_murni.'
 			        </tr>
 				';
