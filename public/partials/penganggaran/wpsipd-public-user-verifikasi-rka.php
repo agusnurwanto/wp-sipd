@@ -12,18 +12,18 @@ foreach ($roles as $val) {
             'delete_posts' => false
         ));
     }
-    if($val != 'pptk'){
+    if ($val != 'pptk') {
         $options_role[] = "<option value='$val'>$val</option>";
     }
 }
 $api_key = get_option('_crb_api_key_extension');
 ?>
 <style>
-.modal-content label:after {
-    content: ' *';
-    color: red;
-    margin-right: 5px;
-}
+    .modal-content label:after {
+        content: ' *';
+        color: red;
+        margin-right: 5px;
+    }
 </style>
 <h1 class="text-center" style="margin-top: 50px;">Manajemen User Verifikasi RKA (Rencana Kerja dan Anggaran)</h1>
 
@@ -46,10 +46,17 @@ $api_key = get_option('_crb_api_key_extension');
                 <div class="form-group">
                     <label>Username</label>
                     <input type="text" class="form-control" id="username" required>
+                    <small class="form-text text-muted">
+                        Username minimal 5 karakter
+                    </small>
                 </div>
                 <div class="form-group">
                     <label>Password</label>
-                    <input type="text" class="form-control" id="password" required>
+                    <input type="password" class="form-control" id="password" required>
+                    <input type="checkbox" class="form-check-input" onclick="pass_visibility()">Lihat Password
+                    <small class="form-text text-muted">
+                        Password minimal 8 karakter, mengandung huruf, angka, dan karakter unik
+                    </small>
                 </div>
                 <div class="form-group">
                     <label>Nama</label>
@@ -57,11 +64,15 @@ $api_key = get_option('_crb_api_key_extension');
                 </div>
                 <div class="form-group">
                     <label>E-mail</label>
-                    <input type="text" class="form-control" id="email" required>
+                    <input type="email" class="form-control" id="email" required>
                 </div>
-                <div class="form-group" required>
+                <div class="form-group">
+                    <label>Nomor WA</label>
+                    <input type="number" class="form-control" id="nomorwa" required>
+                </div>
+                <div class="form-group">
                     <label>Role</label>
-                    <select class="form-control" id="role">
+                    <select class="form-control" id="role" required>
                         <?php echo implode('', $options_role); ?>
                     </select>
                 </div>
@@ -83,12 +94,14 @@ $api_key = get_option('_crb_api_key_extension');
                 <th class="text-center">Username</th>
                 <th class="text-center">Nama</th>
                 <th class="text-center">E-mail</th>
+                <th class="text-center">Nomor WA</th>
                 <th class="text-center">Role</th>
-                <th class="text-center">Aksi</th>
+                <th class="text-center" style="width: 150px;">Aksi</th>
             </tr>
         </thead>
         <tbody>
             <tr>
+                <td></td>
                 <td></td>
                 <td></td>
                 <td></td>
@@ -101,6 +114,15 @@ $api_key = get_option('_crb_api_key_extension');
 </div>
 
 <script>
+    function pass_visibility() {
+        var pass = jQuery("#password");
+        if (pass.attr('type') === "password") {
+            pass.attr('type', 'text');
+        } else {
+            pass.attr('type', 'password');
+        }
+    }
+
     function load_data() {
         if (typeof load_data_user == 'undefined') {
             window.load_data_user = jQuery('#daftar-user').on('preXhr.dt', function(e, settings, data) {
@@ -127,8 +149,7 @@ $api_key = get_option('_crb_api_key_extension');
                 "drawCallback": function(settings) {
                     jQuery("#wrap-loading").hide();
                 },
-                "columns": [
-                    {
+                "columns": [{
                         "data": 'id',
                         className: "text-center"
                     },
@@ -145,6 +166,10 @@ $api_key = get_option('_crb_api_key_extension');
                         className: "text-center"
                     },
                     {
+                        "data": 'nomorwa',
+                        className: "text-center"
+                    },
+                    {
                         "data": 'role',
                         className: "text-center"
                     },
@@ -158,7 +183,7 @@ $api_key = get_option('_crb_api_key_extension');
             load_data_user.draw();
         }
     }
-    jQuery(document).ready(function(){
+    jQuery(document).ready(function() {
         load_data();
     });
 
@@ -168,6 +193,7 @@ $api_key = get_option('_crb_api_key_extension');
         const password = jQuery('#password').val();
         const nama = jQuery('#nama').val();
         const email = jQuery('#email').val();
+        const nomorwa = jQuery('#nomorwa').val();
         const role = jQuery('#role').val();
 
         jQuery.ajax({
@@ -180,6 +206,7 @@ $api_key = get_option('_crb_api_key_extension');
                 nama: nama,
                 email: email,
                 role: role,
+                nomorwa: nomorwa,
                 action: 'tambah_user_verifikator'
             },
             success: function(data) {
@@ -195,6 +222,59 @@ $api_key = get_option('_crb_api_key_extension');
             },
             error: function(xhr, status, error) {
                 console.error('AJAX Error:', status, error);
+            }
+        });
+    }
+
+    function delete_data(id) {
+        let confirmDelete = confirm("Apakah anda yakin akan menghapus user ini?");
+        if (confirmDelete) {
+            jQuery('#wrap-loading').show();
+            jQuery.ajax({
+                url: '<?php echo admin_url('admin-ajax.php'); ?>',
+                type: 'post',
+                data: {
+                    'action': 'delete_user_verifikator',
+                    'api_key': '<?php echo get_option('_crb_api_key_extension'); ?>',
+                    'id': id
+                },
+                dataType: 'json',
+                success: function(response) {
+                    jQuery('#wrap-loading').hide();
+                    if (response.status == 'success') {
+                        load_data();
+                    } else {
+                        alert(`GAGAL! \n${response.message}`);
+                    }
+                }
+            });
+        }
+    }
+
+    function edit_data(_id) {
+        jQuery('#wrap-loading').show();
+        jQuery.ajax({
+            method: 'post',
+            url: '<?php echo admin_url('admin-ajax.php'); ?>',
+            dataType: 'json',
+            data: {
+                'action': 'get_user_verifikator',
+                'api_key': '<?php echo get_option('_crb_api_key_extension'); ?>',
+                'id': _id,
+            },
+            success: function(res) {
+                if (res.status == 'success') {
+                    jQuery('#username').val(res.data.username);
+                    jQuery('#password').val(res.data.password);
+                    jQuery('#nama').val(res.data.nama);
+                    jQuery('#email').val(res.data.email);
+                    jQuery('#nomorwa').val(res.data.nomorwa);
+                    jQuery('#role').val(res.data.role);
+                    jQuery('#modal_tambah_data').modal('show');
+                } else {
+                    alert(res.message);
+                }
+                jQuery('#wrap-loading').hide();
             }
         });
     }

@@ -899,6 +899,7 @@ class Wpsipd
 		$this->loader->add_action('wp_ajax_mutakhirkan_kegiatan_renstra',  $plugin_public, 'mutakhirkan_kegiatan_renstra');
 		$this->loader->add_action('wp_ajax_tambah_user_verifikator',  $plugin_public, 'tambah_user_verifikator');
 		$this->loader->add_action('wp_ajax_get_user_verifikator',  $plugin_public, 'get_user_verifikator');
+		$this->loader->add_action('wp_ajax_delete_user_verifikator',  $plugin_public, 'delete_user_verifikator');
 		
 		$this->loader->add_action('wp_ajax_mutakhirkan_sub_kegiatan_renstra',  $plugin_public, 'mutakhirkan_sub_kegiatan_renstra');
 		$this->loader->add_action('wp_ajax_mutakhirkan_lintas_sub_kegiatan_renstra',  $plugin_public, 'mutakhirkan_lintas_sub_kegiatan_renstra');
