@@ -461,7 +461,7 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 						'kode_kel_standar_harga' => $data_old_ssh[0]['kode_kel_standar_harga'],
 						'nama_kel_standar_harga' => $data_old_ssh[0]['nama_kel_standar_harga'],
 						'tahun_anggaran' => $tahun_anggaran,
-						'status' => 'waiting',
+						'status' => 'draft',
 						'keterangan_lampiran' => $keterangan_lampiran,
 						'kode_standar_harga_sipd' => $kode_standar_harga_sipd,
 						'status_jenis_usulan' => 'tambah_harga',
@@ -571,7 +571,7 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 							'kode_kel_standar_harga' => $data_old_ssh[0]['kode_kel_standar_harga'],
 							'nama_kel_standar_harga' => $data_old_ssh[0]['nama_kel_standar_harga'],
 							'tahun_anggaran' => $tahun_anggaran,
-							'status' => 'waiting',
+							'status' => 'draft',
 							'keterangan_lampiran' => NULL,
 							'kode_standar_harga_sipd' => $kode_standar_harga_sipd,
 							'status_jenis_usulan' => 'tambah_akun',
@@ -1283,9 +1283,10 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 					$return['data'] = $data_ssh;
 					$return['sql'] = $wpdb->last_query;
 				}else{
-					// update no_surat_usulan jadi kosong ketika hapus surat usulan
+					// update no_surat_usulan jadi kosong ketika hapus surat usulan dan update status jadi draft kembali
 					$wpdb->update('data_ssh_usulan', array(
-						'no_surat_usulan' => ''
+						'no_surat_usulan' => '',
+						'status' => 'draft'
 					), array(
 						'no_surat_usulan' => $_POST['nomor_surat'], 
 						'tahun_anggaran' => $_POST['tahun_anggaran']
@@ -1800,50 +1801,42 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 					$iconEdit 	= '<i class="dashicons dashicons-edit"></i>';
 					$detilUsulanSSH = '<a class="btn btn-sm btn-primary" href="#" onclick="return edit_ssh_usulan(\''.$recVal['status_jenis_usulan'].'\',\''.$recVal['id'].'\', \'detil\');" title="Detail komponen usulan SSH" style="text-decoration:none"><i class="dashicons dashicons-search" style="text-decoration:none"></i></a>&nbsp;';
 					$jenis = ($recVal['status_upload_sipd'] == 1) ? 'upload' : 'usulan';
-					if(
+					$can_edit = false;
+					$can_delete = false;
+
+					// jika status usulan masih berstatus draft maka siapa saja bisa mengedit dan menghapus usulan
+					if($recVal['status'] == 'draft'){
+						$can_edit = true;
+						$can_delete = true;
+					}else if(
 						$recVal['status'] == 'waiting' || 
-						$recVal['status'] == 'rejected'  
-						// $recVal['status_upload_sipd'] != 1 
-						// || in_array("administrator", $user_meta->roles) && $recVal['status_upload_sipd'] != 1
+						$recVal['status'] == 'rejected'
 					){
-						
-						$can_edit = false;
-						$can_delete = false;
+						// jika status usulan waiting atau rejected dan user adalah verifikator maka bisa edit usulan
 						if(
-							in_array("administrator", $user_meta->roles) ||
-							in_array("tapd_keu", $user_meta->roles)
+							in_array("administrator", $user_meta->roles) 
+							|| in_array("tapd_keu", $user_meta->roles)
 						){
 							$can_edit = true;
-							$can_delete = true;
-						}elseif (in_array("pa", $user_meta->roles)) {
-							if(
-								$recVal['status_by_admin']=='' &&
-								$recVal['status_by_tapdkeu']==''
-							){
-								$can_edit = true;
+							// jika nomor surat belum ada maka boleh dihapus
+							if(empty($recVal['no_surat_usulan'])){
 								$can_delete = true;
 							}
+						}else if(
+							in_array("pa", $user_meta->roles)
+							&& $recVal['status'] == 'rejected'
+						){
+							$can_edit = true;
 						}
+
+					}
 						
-						if($can_edit){
-							$editUsulanSSH = '<a class="btn btn-sm btn-warning" onclick="edit_ssh_usulan(\''.$recVal['status_jenis_usulan'].'\',\''.$recVal['id'].'\'); return false;" href="#" title="Edit komponen usulan SSH" style="text-decoration:none">'.$iconEdit.'</a>&nbsp;';
-						}else{
-							$editUsulanSSH = '<a style="display:none" class="btn btn-sm btn-warning" onclick="cannot_change_ssh_usulan(\'ubah\',\''.$jenis.'\'); return false;" href="#" title="Edit komponen usulan SSH" style="text-decoration:none">'.$iconEdit.'</a>&nbsp;';
-						}
+					if($can_edit){
+						$editUsulanSSH = '<a class="btn btn-sm btn-warning" onclick="edit_ssh_usulan(\''.$recVal['status_jenis_usulan'].'\',\''.$recVal['id'].'\'); return false;" href="#" title="Edit komponen usulan SSH" style="text-decoration:none">'.$iconEdit.'</a>&nbsp;';
+					}
 
-						if($can_delete){
-							if(empty($recVal['no_surat_usulan'])){
-								$deleteUsulanSSH = '<a class="btn btn-sm btn-danger" onclick="delete_ssh_usulan(\''.$recVal['id'].'\'); return false;" href="#" title="Delete komponen usulan SSH" style="text-decoration:none">'.$iconX.'</a>&nbsp;';
-							}else{
-								$deleteUsulanSSH = '<a style="display:none" class="btn btn-sm btn-danger" onclick="cannot_change_ssh_usulan(\'hapus\',\''.$jenis.'\'); return false;" href="#" title="Delete komponen usulan SSH" style="text-decoration:none">'.$iconX.'</a>&nbsp;';
-							}
-						}else{
-							$deleteUsulanSSH = '<a style="display:none" class="btn btn-sm btn-danger" onclick="cannot_change_ssh_usulan(\'hapus\',\''.$jenis.'\'); return false;" href="#" title="Delete komponen usulan SSH" style="text-decoration:none">'.$iconX.'</a>&nbsp;';
-						}
-
-					}else{
-						$editUsulanSSH = '<a style="display:none" class="btn btn-sm btn-warning" href="#" onclick="return cannot_change_ssh_usulan(\'ubah\',\''.$jenis.'\');" title="Edit komponen usulan SSH" style="text-decoration:none">'.$iconEdit.'</a>&nbsp;';
-						$deleteUsulanSSH = '<a style="display:none" class="btn btn-sm btn-danger" href="#" onclick="return cannot_change_ssh_usulan(\'hapus\',\''.$jenis.'\');" title="Delete komponen usulan SSH" style="text-decoration:none">'.$iconX.'</a>&nbsp;';
+					if($can_delete){
+						$deleteUsulanSSH = '<a class="btn btn-sm btn-danger" onclick="delete_ssh_usulan(\''.$recVal['id'].'\'); return false;" href="#" title="Delete komponen usulan SSH" style="text-decoration:none">'.$iconX.'</a>&nbsp;';
 					}
 
 					$created_user = "";
@@ -1902,6 +1895,8 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 						$status_verif = '<span class="btn btn-sm btn-danger">Ditolak</span>';
 					}else if($recVal['status'] == 'waiting'){
 						$status_verif = '<span class="btn btn-sm btn-warning">Menunggu</span>';
+					}else if($recVal['status'] == 'draft'){
+						$status_verif = '<span class="btn btn-sm btn-primary">Draft</span>';
 					}
 
 					$status_verif_admin = '<table style="margin: 0;border-color:white;"><tbody>';
@@ -2420,7 +2415,7 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 							'kode_kel_standar_harga' => $data_kategori[0]['kode_kategori'],
 							'nama_kel_standar_harga' => $data_kategori[0]['uraian_kategori'],
 							'tahun_anggaran' => $tahun_anggaran,
-							'status' => 'waiting',
+							'status' => 'draft',
 							'keterangan_lampiran' => $keterangan_lampiran,
 							'status_jenis_usulan' => 'tambah_baru',
 							'jenis_produk' => $jenis_produk,
@@ -3439,7 +3434,7 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 				',$id), ARRAY_A);
 
 				if(
-					$data_this_id_ssh['status'] == 'waiting' 
+					$data_this_id_ssh['status'] == 'draft' 
 					|| in_array("administrator", $user_meta->roles)
 				){
 					if($data_this_id_ssh['status_upload_sipd'] != 1){
@@ -4131,9 +4126,20 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 						));
 					}
 					foreach($ids as $id){
-						$wpdb->update('data_ssh_usulan', array(
+						$status = $wpdb->get_var($wpdb->prepare('
+							select 
+								status 
+							from data_ssh_usulan 
+							where id=%d
+						', $id));
+						$opsi_db = array(
 							'no_surat_usulan' => $nomor_surat
-						), array(
+						);
+						// rubah status usulan jadi waiting jika masih draft atau biarkan saja jika statusnya sudah waiting, approved atau rejected
+						if($status == 'draft'){
+							$opsi_db['status'] = 'waiting';
+						}
+						$wpdb->update('data_ssh_usulan', $opsi_db, array(
 							'id' => $id
 						));
 					}
