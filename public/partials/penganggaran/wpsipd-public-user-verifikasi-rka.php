@@ -28,7 +28,7 @@ $api_key = get_option('_crb_api_key_extension');
 <h1 class="text-center" style="margin-top: 50px;">Manajemen User Verifikasi RKA (Rencana Kerja dan Anggaran)</h1>
 
 <!-- Button trigger modal -->
-<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#modal_tambah_data" style="margin-left: 15px;">
+<button type="button" class="btn btn-primary" onclick="tambah_data();" style="margin-left: 15px;">
     + Tambah Data
 </button>
 
@@ -43,6 +43,7 @@ $api_key = get_option('_crb_api_key_extension');
                 </button>
             </div>
             <div class="modal-body">
+                <input type="hidden" class="form-control" id="id_user">
                 <div class="form-group">
                     <label>Username</label>
                     <input type="text" class="form-control" id="username" required>
@@ -52,8 +53,8 @@ $api_key = get_option('_crb_api_key_extension');
                 </div>
                 <div class="form-group">
                     <label>Password</label>
-                    <input type="password" class="form-control" id="password" required>
-                    <input type="checkbox" class="form-check-input" onclick="pass_visibility()">Lihat Password
+                    <input type="password" class="form-control" id="password">
+                    <input type="checkbox" onclick="pass_visibility()" style="margin-right: 2px;"> Lihat Password
                     <small class="form-text text-muted">
                         Password minimal 8 karakter, mengandung huruf, angka, dan karakter unik
                     </small>
@@ -68,7 +69,10 @@ $api_key = get_option('_crb_api_key_extension');
                 </div>
                 <div class="form-group">
                     <label>Nomor WA</label>
-                    <input type="number" class="form-control" id="nomorwa" required>
+                    <input type="text" class="form-control" id="nomorwa" required>
+                    <small class="form-text text-muted">
+                        Nomor WhatsApp harus dimulai dengan +62 dan berisi maksimal 15 angka.
+                    </small>
                 </div>
                 <div class="form-group">
                     <label>Role</label>
@@ -121,6 +125,17 @@ $api_key = get_option('_crb_api_key_extension');
         } else {
             pass.attr('type', 'password');
         }
+    }
+
+    function tambah_data(){
+        jQuery('#id_user').val('');
+        jQuery('#username').val('').prop('disabled', false);
+        jQuery('#password').val('').prop('disabled', false);
+        jQuery('#nama').val('').prop('disabled', false);
+        jQuery('#email').val('').prop('disabled', false);
+        jQuery('#nomorwa').val('').prop('disabled', false);
+        jQuery('#role').val('').prop('disabled', false);
+        jQuery('#modal_tambah_data').modal('show');
     }
 
     function load_data() {
@@ -195,6 +210,7 @@ $api_key = get_option('_crb_api_key_extension');
         const email = jQuery('#email').val();
         const nomorwa = jQuery('#nomorwa').val();
         const role = jQuery('#role').val();
+        const id_user = jQuery('#id_user').val();
 
         jQuery.ajax({
             type: 'POST',
@@ -243,6 +259,7 @@ $api_key = get_option('_crb_api_key_extension');
                     jQuery('#wrap-loading').hide();
                     if (response.status == 'success') {
                         load_data();
+                        alert(`User berhasil dihapus!`);
                     } else {
                         alert(`GAGAL! \n${response.message}`);
                     }
@@ -251,25 +268,27 @@ $api_key = get_option('_crb_api_key_extension');
         }
     }
 
-    function edit_data(_id) {
+    function edit_data(id) {
         jQuery('#wrap-loading').show();
+        jQuery('#id_user').val('');
         jQuery.ajax({
             method: 'post',
             url: '<?php echo admin_url('admin-ajax.php'); ?>',
             dataType: 'json',
             data: {
-                'action': 'get_user_verifikator',
+                'action': 'get_user_verifikator_by_id',
                 'api_key': '<?php echo get_option('_crb_api_key_extension'); ?>',
-                'id': _id,
+                'id': id,
             },
             success: function(res) {
                 if (res.status == 'success') {
-                    jQuery('#username').val(res.data.username);
-                    jQuery('#password').val(res.data.password);
-                    jQuery('#nama').val(res.data.nama);
-                    jQuery('#email').val(res.data.email);
-                    jQuery('#nomorwa').val(res.data.nomorwa);
-                    jQuery('#role').val(res.data.role);
+                    jQuery('#id_user').val(res.data.id);
+                    jQuery('#username').val(res.data.user_login).prop('disabled', false);
+                    jQuery('#password').val(res.data.password).prop('disabled', true);
+                    jQuery('#nama').val(res.data.display_name).prop('disabled', false);
+                    jQuery('#email').val(res.data.user_email).prop('disabled', false);
+                    jQuery('#nomorwa').val(res.data.nomorwa).prop('disabled', false);
+                    jQuery('#role').val(res.data.roles).prop('disabled', false);
                     jQuery('#modal_tambah_data').modal('show');
                 } else {
                     alert(res.message);
