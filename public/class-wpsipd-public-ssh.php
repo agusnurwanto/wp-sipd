@@ -1799,7 +1799,7 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 				foreach($queryRecords as $recKey => $recVal){
 					$iconX		= '<i class="dashicons dashicons-trash"></i>';
 					$iconEdit 	= '<i class="dashicons dashicons-edit"></i>';
-					$detilUsulanSSH = '<a class="btn btn-sm btn-primary" href="#" onclick="return edit_ssh_usulan(\''.$recVal['status_jenis_usulan'].'\',\''.$recVal['id'].'\', \'detil\');" title="Detail komponen usulan SSH" style="text-decoration:none"><i class="dashicons dashicons-search" style="text-decoration:none"></i></a>&nbsp;';
+					$detilUsulanSSH = '<a class="btn btn-sm btn-primary" onclick="edit_ssh_usulan(\''.$recVal['status_jenis_usulan'].'\',\''.$recVal['id'].'\', \'detil\'); return false;" href="#" title="Detail komponen usulan SSH" style="text-decoration:none"><i class="dashicons dashicons-search" style="text-decoration:none"></i></a>&nbsp;';
 					$jenis = ($recVal['status_upload_sipd'] == 1) ? 'upload' : 'usulan';
 					$can_edit = false;
 					$can_delete = false;
@@ -2534,14 +2534,35 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 		if(!empty($_POST)){
 			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
 					$id_standar_harga = $_POST['id_standar_harga'];
-					
-					$data_ssh_by_id = $wpdb->get_results($wpdb->prepare('SELECT * FROM data_ssh WHERE id_standar_harga = %d',$id_standar_harga), ARRAY_A);
+					if(str_contains($id_standar_harga, 'usulan-')){
+						// jika data_ssh_usulan yang menjadi keynya adalah id bukan id_standar_harga
+						$data_ssh_by_id = $wpdb->get_results($wpdb->prepare('
+							SELECT 
+								* 
+							FROM data_ssh_usulan 
+							WHERE id = %d
+						',$id_standar_harga), ARRAY_A);
 
-					$data_ssh_akun_by_id = $wpdb->get_results($wpdb->prepare('SELECT * FROM data_ssh_rek_belanja WHERE id_standar_harga = %d',$id_standar_harga), ARRAY_A);
-					
-					if(empty($data_ssh_by_id)){
-						$data_ssh_by_id = $wpdb->get_results($wpdb->prepare('SELECT * FROM data_ssh_usulan WHERE id_standar_harga = %d',$id_standar_harga), ARRAY_A);
-						$data_ssh_akun_by_id = $wpdb->get_results($wpdb->prepare('SELECT * FROM data_ssh_rek_belanja_usulan WHERE id_standar_harga = %d',$id_standar_harga), ARRAY_A);
+						$data_ssh_akun_by_id = $wpdb->get_results($wpdb->prepare('
+							SELECT 
+								* 
+							FROM data_ssh_rek_belanja_usulan 
+							WHERE id_standar_harga = %d
+						',$id_standar_harga), ARRAY_A);
+					}else{
+						$data_ssh_by_id = $wpdb->get_results($wpdb->prepare('
+							SELECT 
+								* 
+							FROM data_ssh 
+							WHERE id_standar_harga = %d
+						',$id_standar_harga), ARRAY_A);
+
+						$data_ssh_akun_by_id = $wpdb->get_results($wpdb->prepare('
+							SELECT 
+								* 
+							FROM data_ssh_rek_belanja 
+							WHERE id_standar_harga = %d
+						',$id_standar_harga), ARRAY_A);
 					}
 
 				    ksort($data_ssh_by_id);
