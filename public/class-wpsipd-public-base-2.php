@@ -143,6 +143,16 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 		
 		require_once WPSIPD_PLUGIN_PATH . 'public/partials/penganggaran/wpsipd-public-rekap-sumber-dana-per-rekening.php';
 	}
+	
+	public function laporan_konsistensi_rpjm($atts)
+	{
+		// untuk disable render shortcode di halaman edit page/post
+		if(!empty($_GET) && !empty($_GET['post'])){
+			return '';
+		}
+		
+		require_once WPSIPD_PLUGIN_PATH . 'public/partials/penganggaran/wpsipd-public-laporan-konsistensi-rpjm.php';
+	}
 
 	public function get_data_monitoring_rup(){
 		global $wpdb;

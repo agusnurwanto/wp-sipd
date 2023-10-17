@@ -28,50 +28,106 @@ class Wpsipd_Public_RKA
 
         if (!empty($_POST)) {
             if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option('_crb_api_key_extension')) {
+                //validasi tidak boleh kosong
+                if (empty($_POST['username'])) {
+                    $ret['status'] = 'error';
+                    $ret['message'] = 'Username tidak boleh kosong!';
+                    die(json_encode($ret));
+                }
+                if (empty($_POST['nama'])) {
+                    $ret['status'] = 'error';
+                    $ret['message'] = 'nama tidak boleh kosong!';
+                    die(json_encode($ret));
+                }
+                if (empty($_POST['nomorwa'])) {
+                    $ret['status'] = 'error';
+                    $ret['message'] = 'nomorwa tidak boleh kosong!';
+                    die(json_encode($ret));
+                }
+                if (empty($_POST['email'])) {
+                    $ret['status'] = 'error';
+                    $ret['message'] = 'email tidak boleh kosong!';
+                    die(json_encode($ret));
+                }
+                if (empty($_POST['role'])) {
+                    $ret['status'] = 'error';
+                    $ret['message'] = 'role tidak boleh kosong!';
+                    die(json_encode($ret));
+                }
+
+                $password = '';
+                if (
+                    empty($_POST['id_user'])
+                    && empty($_POST['password'])
+                ) {
+                    $ret['status'] = 'error';
+                    $ret['message'] = 'Password tidak boleh kosong!';
+                    die(json_encode($ret));
+                } else {
+                    $password = $_POST['password'];
+                }
+
+                //
                 $username = $_POST['username'];
-                $password = $_POST['password'];
                 $nama = $_POST['nama'];
                 $nomorwa = $_POST['nomorwa'];
                 $email = $_POST['email'];
                 $role = $_POST['role'];
-                $insert_user = username_exists($username);
 
-                // Validasi panjang karakter username dan password
+                //validasi input
                 if (strlen($username) < 5) {
                     $ret['status'] = 'error';
                     $ret['message'] = 'Username harus minimal 5 karakter.';
                     die(json_encode($ret));
                 }
-                if (strlen($password) < 8) {
-                    $ret['status'] = 'error';
-                    $ret['message'] = 'Password harus minimal 8 karakter.';
-                    die(json_encode($ret));
-                }
-
-                // Validasi minimal 1 angka dan 1 karakter unik pada password
-                if (!preg_match('/[0-9]/', $password) || !preg_match('/[^a-zA-Z\d]/', $password)) {
-                    $ret['status'] = 'error';
-                    $ret['message'] = 'Password harus mengandung angka dan karakter unik.';
-                    die(json_encode($ret));
+                if (!empty($password)) {
+                    if (strlen($password) < 8) {
+                        $ret['status'] = 'error';
+                        $ret['message'] = 'Password harus minimal 8 karakter.';
+                        die(json_encode($ret));
+                    }
+                    if (!preg_match('/[0-9]/', $password) || !preg_match('/[^a-zA-Z\d]/', $password)) {
+                        $ret['status'] = 'error';
+                        $ret['message'] = 'Password harus mengandung angka dan karakter unik.';
+                        die(json_encode($ret));
+                    }
                 }
                 if (!is_email($email)) {
                     $ret['status'] = 'error';
                     $ret['message'] = 'Format email tidak valid.';
                     die(json_encode($ret));
                 }
+                if (!preg_match('/^\+62\d{9,15}$/', $nomorwa)) {
+                    $ret['status'] = 'error';
+                    $ret['message'] = 'Nomor WhatsApp harus dimulai dengan +62, masukan 9 - 15 karakter!.';
+                    die(json_encode($ret));
+                }
 
+                //
+                if (!empty($_POST['id_user'])) {
+                    $insert_user = $_POST['id_user'];
+                    $current_user = get_userdata($insert_user);
+                    if (empty($current_user)) {
+                        $ret['status'] = 'error';
+                        $ret['message'] = 'User dengan id=' . $insert_user . ', tidak ditemukan!';
+                        die(json_encode($ret));
+                    }
+                } else {
+                    $insert_user = username_exists($username);
+                }
+
+                $option = array(
+                    'user_login' => $username,
+                    'user_pass' => $password,
+                    'user_email' => $email,
+                    'first_name' => $nama,
+                    'display_name' => $nama,
+                    'role' => $role
+                );
                 //proses tambah user
                 if (!$insert_user) {
-                    $option = array(
-                        'user_login' => $username,
-                        'user_pass' => $password,
-                        'user_email' => $email,
-                        'first_name' => $nama,
-                        'last_name' => $nomorwa,
-                        'display_name' => $nama,
-                        'role' => $role
-                    );
                     $insert_user = wp_insert_user($option);
+                    update_user_meta($insert_user, 'nomor_wa', $nomorwa);
 
                     if (is_wp_error($insert_user)) {
                         $ret['status'] = 'error';
@@ -81,8 +137,43 @@ class Wpsipd_Public_RKA
                         $ret['message'] = 'User berhasil ditambahkan.';
                     }
                 } else {
-                    $ret['status'] = 'error';
-                    $ret['message'] = 'Username sudah ada!';
+                    if (
+                        !empty($_POST['id_user'])
+                        && ($current_user->user_login == $username
+                            || !username_exists($username)
+                        )
+                    ) {
+                        // update password jika password tidak kosong
+                        if (
+                            empty($password)
+                        ) {
+                            unset($option['user_pass']);
+                        } else {
+                            wp_set_password($password, $_POST['id_user']);
+                        }
+
+                        // update data meta user
+                        $option['ID'] = $_POST['id_user'];
+                        wp_update_user($option);
+
+                        // update username jika namanya beda
+                        $new_user_login = $username;
+                        if ($current_user->user_login != $username) {
+                            $wpdb->update(
+                                $wpdb->users,
+                                array('user_login' => $new_user_login),
+                                array('ID' => $_POST['id_user'])
+                            );
+                        }
+
+                        // update nomor WA
+                        update_user_meta($_POST['id_user'], 'nomor_wa', $nomorwa);
+
+                        $ret['message'] = 'Berhasil update data!';
+                    } else {
+                        $ret['status'] = 'error';
+                        $ret['message'] = 'Username sudah ada!';
+                    }
                 }
             } else {
                 $ret['status'] = 'error';
@@ -107,7 +198,7 @@ class Wpsipd_Public_RKA
                 $user_meta = get_userdata($user_id);
                 $params = $columns = $totalRecords = $data = array();
                 $params = $_REQUEST;
-                $roles = array('verifikator_bappeda', 'verifikator_bppkad', 'verifikator_pbj', 'verifikator_adbang', 'verifikator_inspektorat', 'verifikator_pupr');
+                $roles = $this->role_verifikator();
                 $args = array(
                     'role__in' => $roles,
                     'orderby' => 'user_nicename',
@@ -128,16 +219,17 @@ class Wpsipd_Public_RKA
                 foreach ($users as $recKey => $recVal) {
                     $btn = '<a class="btn btn-sm btn-warning" onclick="edit_data(\'' . $recVal->ID . '\'); return false;" href="#" style="margin-right: 10px;" title="Edit Data">
                     <i class="dashicons dashicons-edit"></i></a>';
-                    $btn .= '<a class="btn btn-sm btn-danger" onclick="delete_data(\'' . $recVal->ID . '\'); return false;" href="#" title="Hapus Data">
+                    if (in_array("administrator", $user_meta->roles)) {
+                        $btn .= '<a class="btn btn-sm btn-danger" onclick="delete_data(\'' . $recVal->ID . '\'); return false;" href="#" title="Hapus Data">
                     <i class="dashicons dashicons-trash"></i></a>';
+                    }
                     $data_user[$recKey]['aksi'] = $btn;
                     $data_user[$recKey]['id'] = $recVal->ID;
                     $data_user[$recKey]['user'] = $recVal->user_login;
                     $data_user[$recKey]['nama'] = $recVal->display_name;
                     $data_user[$recKey]['email'] = $recVal->user_email;
+                    $data_user[$recKey]['nomorwa'] = get_user_meta($recVal->ID, 'nomor_wa');
                     $data_user[$recKey]['role'] = implode(', ', $recVal->roles);
-                    $data_user[$recKey]['nomorwa'] = $recVal->last_name;
-                    // $data_user[$recKey]['all'] = $recVal;
                 }
 
                 $json_data = array(
@@ -159,16 +251,114 @@ class Wpsipd_Public_RKA
         die(json_encode($ret));
     }
 
+    function role_verifikator()
+    {
+        return array('verifikator_bappeda', 'verifikator_bppkad', 'verifikator_pbj', 'verifikator_adbang', 'verifikator_inspektorat', 'verifikator_pupr');
+    }
+
+    function get_user_verifikator_by_id()
+    {
+        global $wpdb;
+        $ret = array();
+        $ret['status'] = 'success';
+        $ret['message'] = 'Berhasil get user by id!';
+
+        if (empty($_POST['id'])) {
+            $ret['status'] = 'error';
+            $ret['message'] = 'id user tidak boleh kosong!';
+            die(json_encode($ret));
+        }
+        if (!empty($_POST)) {
+            if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option('_crb_api_key_extension')) {
+                $user = get_userdata($_POST['id']);
+                if (!empty($user)) {
+                    $roles = $this->role_verifikator();
+                    $cek_role = false;
+                    foreach ($roles as $role) {
+                        if (in_array($role, $user->roles)) {
+                            $cek_role = true;
+                        }
+                    }
+                    if ($cek_role) {
+                        $new_user = array();
+                        $new_user['id_user'] = $user->ID;
+                        $new_user['user_login'] = $user->data->user_login;
+                        $new_user['display_name'] = $user->data->display_name;
+                        $new_user['user_email'] = $user->data->user_email;
+                        $new_user['nomorwa'] = get_user_meta($user->ID, 'nomor_wa');
+                        $new_user['roles'] = $user->roles;
+                        $ret['data'] = $new_user;
+                    } else {
+                        $ret['status'] = 'error';
+                        $ret['message'] = 'Grup user verifikator tidak ditemukan!';
+                    }
+                } else {
+                    $ret['status'] = 'error';
+                    $ret['message'] = 'User tidak ditemukan!';
+                }
+            } else {
+                $ret['status'] = 'error';
+                $ret['message'] = 'APIKEY tidak sesuai!';
+            }
+        } else {
+            $ret['status'] = 'error';
+            $ret['message'] = 'Format Salah!';
+        }
+        die(json_encode($ret));
+    }
+
     function delete_user_verifikator()
     {
         global $wpdb;
+
         $ret = array(
             'status' => 'success',
             'message' => 'Berhasil hapus data!',
             'data' => array()
         );
+
+        $allowed_roles = $this->role_verifikator();
+
+        $current_user = wp_get_current_user();
+        if (!in_array('administrator', $current_user->roles)) {
+            $ret['status'] = 'error';
+            $ret['message'] = 'Akses ditolak - hanya administrator yang dapat mengakses fitur ini!';
+            die(json_encode($ret));
+        }
+
+        if (empty($_POST['id'])) {
+            $ret['status'] = 'error';
+            $ret['message'] = 'id user tidak boleh kosong!';
+            die(json_encode($ret));
+        }
+
         if (!empty($_POST)) {
             if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option('_crb_api_key_extension')) {
+                $current_user = get_userdata($_POST['id']);
+                if (!empty($current_user)) {
+                    $user_roles = $current_user->roles;
+                    $is_allowed = false;
+                    foreach ($user_roles as $role) {
+                        if (in_array($role, $allowed_roles)) {
+                            $is_allowed = true;
+                            break;
+                        }
+                    }
+                    if ($is_allowed) {
+                        if ($current_user->ID) {
+                            wp_delete_user($current_user->ID);
+                        } else {
+                            $ret['status']  = 'error';
+                            $ret['message'] = 'User tidak ditemukan!';
+                        }
+                    } else {
+                        $ret['status']  = 'error';
+                        $ret['message'] = 'User ini tidak dapat dihapus!';
+                    }
+                } else {
+                    $ret['status']  = 'error';
+                    $ret['message'] = 'User tidak ditemukan!';
+                }
             } else {
                 $ret['status']  = 'error';
                 $ret['message'] = 'Api key tidak ditemukan!';
