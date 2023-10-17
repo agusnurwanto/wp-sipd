@@ -1,7 +1,7 @@
 <?php
 global $wpdb;
 
-$roles = array('verifikator_bappeda', 'verifikator_bppkad', 'verifikator_pbj', 'verifikator_adbang', 'verifikator_inspektorat', 'verifikator_pupr', 'pptk');
+$roles = $this->role_verifikator();
 $options_role = array();
 foreach ($roles as $val) {
     $role = get_role($val);
@@ -51,7 +51,7 @@ $api_key = get_option('_crb_api_key_extension');
                         Username minimal 5 karakter
                     </small>
                 </div>
-                <div class="form-group">
+                <div class="form-group" id="passForm">
                     <label>Password</label>
                     <input type="password" class="form-control" id="password">
                     <input type="checkbox" onclick="pass_visibility()" style="margin-right: 2px;"> Lihat Password
@@ -118,6 +118,10 @@ $api_key = get_option('_crb_api_key_extension');
 </div>
 
 <script>
+    jQuery(document).ready(function() {
+        load_data();
+    });
+
     function pass_visibility() {
         var pass = jQuery("#password");
         if (pass.attr('type') === "password") {
@@ -127,7 +131,17 @@ $api_key = get_option('_crb_api_key_extension');
         }
     }
 
-    function tambah_data(){
+    // function edit_pass_visibility() {
+    //     var pass = jQuery("#passForm");
+    //     var cekBox = jQuery("#edit_pass");
+    //     if (cekBox.prop("checked")) {
+    //         pass.prop('disabled', false).show();
+    //     } else {
+    //         pass.prop('disabled', true).hide();
+    //     }
+    // }
+
+    function tambah_data() {
         jQuery('#id_user').val('');
         jQuery('#username').val('').prop('disabled', false);
         jQuery('#password').val('').prop('disabled', false);
@@ -135,6 +149,7 @@ $api_key = get_option('_crb_api_key_extension');
         jQuery('#email').val('').prop('disabled', false);
         jQuery('#nomorwa').val('').prop('disabled', false);
         jQuery('#role').val('').prop('disabled', false);
+        jQuery('#edit_pass').prop('disabled', true).hide();
         jQuery('#modal_tambah_data').modal('show');
     }
 
@@ -198,9 +213,7 @@ $api_key = get_option('_crb_api_key_extension');
             load_data_user.draw();
         }
     }
-    jQuery(document).ready(function() {
-        load_data();
-    });
+
 
     function submit_data(that) {
         jQuery('#wrap-loading').show();
@@ -223,6 +236,7 @@ $api_key = get_option('_crb_api_key_extension');
                 email: email,
                 role: role,
                 nomorwa: nomorwa,
+                id_user: id_user,
                 action: 'tambah_user_verifikator'
             },
             success: function(data) {
@@ -282,9 +296,10 @@ $api_key = get_option('_crb_api_key_extension');
             },
             success: function(res) {
                 if (res.status == 'success') {
-                    jQuery('#id_user').val(res.data.id);
+                    jQuery('#id_user').val(res.data.id_user);
                     jQuery('#username').val(res.data.user_login).prop('disabled', false);
-                    jQuery('#password').val(res.data.password).prop('disabled', true);
+                    jQuery('#password').val(res.data.password).prop('disabled', false);
+                    jQuery('#edit_pass').prop('disabled', false).show();
                     jQuery('#nama').val(res.data.display_name).prop('disabled', false);
                     jQuery('#email').val(res.data.user_email).prop('disabled', false);
                     jQuery('#nomorwa').val(res.data.nomorwa).prop('disabled', false);
