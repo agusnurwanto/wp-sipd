@@ -59,6 +59,9 @@ $api_key = get_option('_crb_api_key_extension');
                         Password minimal 8 karakter, mengandung huruf, angka, dan karakter unik
                     </small>
                 </div>
+                <div class="form-group" id="checkbox_edit_pass">
+                    <input type="checkbox" id="edit_pass" onclick="edit_pass_visibility()" style="margin-right: 2px;" checked> Edit Password
+                </div>
                 <div class="form-group">
                     <label>Nama</label>
                     <input type="text" class="form-control" id="nama" required>
@@ -123,7 +126,7 @@ $api_key = get_option('_crb_api_key_extension');
     });
 
     function pass_visibility() {
-        var pass = jQuery("#password");
+        let pass = jQuery("#password");
         if (pass.attr('type') === "password") {
             pass.attr('type', 'text');
         } else {
@@ -131,25 +134,26 @@ $api_key = get_option('_crb_api_key_extension');
         }
     }
 
-    // function edit_pass_visibility() {
-    //     var pass = jQuery("#passForm");
-    //     var cekBox = jQuery("#edit_pass");
-    //     if (cekBox.prop("checked")) {
-    //         pass.prop('disabled', false).show();
-    //     } else {
-    //         pass.prop('disabled', true).hide();
-    //     }
-    // }
+    function edit_pass_visibility() {
+        let pass = jQuery("#passForm");
+        let cekBox = jQuery("#edit_pass");
+        if (cekBox.prop("checked")) {
+            pass.prop('disabled', false).show();
+        } else {
+            pass.prop('disabled', true).hide();
+        }
+    }
 
     function tambah_data() {
         jQuery('#id_user').val('');
         jQuery('#username').val('').prop('disabled', false);
-        jQuery('#password').val('').prop('disabled', false);
+        jQuery('#password').val('').prop('disabled', false).show();
         jQuery('#nama').val('').prop('disabled', false);
         jQuery('#email').val('').prop('disabled', false);
         jQuery('#nomorwa').val('').prop('disabled', false);
         jQuery('#role').val('').prop('disabled', false);
         jQuery('#edit_pass').prop('disabled', true).hide();
+        jQuery('#checkbox_edit_pass').prop('disabled', true).hide();
         jQuery('#modal_tambah_data').modal('show');
     }
 
@@ -299,11 +303,12 @@ $api_key = get_option('_crb_api_key_extension');
                     jQuery('#id_user').val(res.data.id_user);
                     jQuery('#username').val(res.data.user_login).prop('disabled', false);
                     jQuery('#password').val(res.data.password).prop('disabled', false);
-                    jQuery('#edit_pass').prop('disabled', false).show();
                     jQuery('#nama').val(res.data.display_name).prop('disabled', false);
                     jQuery('#email').val(res.data.user_email).prop('disabled', false);
                     jQuery('#nomorwa').val(res.data.nomorwa).prop('disabled', false);
                     jQuery('#role').val(res.data.roles).prop('disabled', false);
+                    jQuery('#edit_pass').prop('disabled', false).show();
+                    jQuery('#checkbox_edit_pass').prop('disabled', false).show();
                     jQuery('#modal_tambah_data').modal('show');
                 } else {
                     alert(res.message);
