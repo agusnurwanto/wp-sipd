@@ -119,6 +119,10 @@ $title = 'Analisis Belanja per-Rekening Belanja | '.$input['tahun_anggaran'];
 $shortcode = '[analisis_belanja_rekening tahun_anggaran="'.$input['tahun_anggaran'].'"]';
 $url_analisis_belanja_rekening = $this->generatePage($title, $input['tahun_anggaran'], $shortcode, false);
 
+$title = 'Laporan Konsistensi RPJM | '.$input['tahun_anggaran'];
+$shortcode = '[laporan_konsistensi_rpjm tahun_anggaran="'.$input['tahun_anggaran'].'"]';
+$url_laporan_konsistensi_rpjm = $this->generatePage($title, $input['tahun_anggaran'], $shortcode, false);
+
 $title = 'Rekap Sumber Dana Per SKPD | '.$input['tahun_anggaran'];
 $shortcode = '[rekap_sumber_dana_per_skpd tahun_anggaran="'.$input['tahun_anggaran'].'"]';
 $url_rekap_sumber_dana_per_skpd = $this->generatePage($title, $input['tahun_anggaran'], $shortcode, false);
@@ -662,6 +666,7 @@ $body = '';
 					    	<div class="col-md-6">
 					      		<select class="form-control jenis" id="jenis">
 					      			<option value="-">Pilih Jenis</option>
+									<option value="laporan_konsistensi_rpjm">Laporan Konsistensi RPJM</option>
 					      			<option value="pagu_total">Format Pagu Total Per Unit Kerja</option>
 					      			<option value="renja_sipd_merah">Format RENJA SIPD Merah</option>
 					      			<option value="renja_sipd_ri">Format RENJA SIPD RI</option>
@@ -715,6 +720,9 @@ $body = '';
 		}
 
 		switch(jenis){
+			case 'laporan_konsistensi_rpjm':
+				window.open('<?php echo $url_laporan_konsistensi_rpjm; ?>'+'&id_unit='+id_unit+'&id_jadwal_lokal='+id_jadwal_lokal,'_blank');
+				break;
 			case 'pagu_total':
 				generate(id_unit, id_jadwal_lokal, 'view_pagu_total_renja', 'Laporan Pagu Akumulasi Per Unit Kerja');
 				break;
