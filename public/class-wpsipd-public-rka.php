@@ -54,6 +54,7 @@ class Wpsipd_Public_RKA
                     $ret['message'] = 'role tidak boleh kosong!';
                     die(json_encode($ret));
                 }
+
                 $password = '';
                 if (
                     empty($_POST['id_user'])
@@ -156,6 +157,7 @@ class Wpsipd_Public_RKA
                         wp_update_user($option);
 
                         // update username jika namanya beda
+                        $new_user_login = $username;
                         if ($current_user->user_login != $username) {
                             $wpdb->update(
                                 $wpdb->users,
