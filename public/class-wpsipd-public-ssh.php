@@ -1772,6 +1772,8 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 						$get_by_skpd = array('-');
 					}
 					$where .= " AND id_sub_skpd IN (".implode(',', $get_by_skpd).") ";
+				}else{
+					$where .=" AND no_surat_usulan IS NOT NULL";
 				}
 
 				// getting total number records without any search

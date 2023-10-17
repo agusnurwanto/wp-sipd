@@ -222,10 +222,12 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
 		<div>
 			<h2 class="text-center">Daftar Usulan</h2>
 			<div style="margin-bottom: 25px;">
+			<?php if(false == $is_admin): ?>
 				<button class="btn btn-primary tambah_ssh" disabled onclick="tambah_new_ssh(<?php echo $input['tahun_anggaran']; ?>);"><i class="dashicons dashicons-plus"></i> Tambah Item SSH</button>
 				<button class="btn btn-primary tambah_new_ssh" disabled onclick="get_data_by_name_komponen_ssh('harga',<?php echo $input['tahun_anggaran']; ?>)"><i class="dashicons dashicons-plus"></i> Tambah Harga SSH</button>
 				<button class="btn btn-primary tambah_new_ssh" disabled onclick="get_data_by_name_komponen_ssh('akun',<?php echo $input['tahun_anggaran']; ?>)"><i class="dashicons dashicons-plus"></i> Tambah Akun SSH</button>
 				<button class="btn btn-warning" onclick="buat_surat_usulan(<?php echo $input['tahun_anggaran']; ?>)"><i class="dashicons dashicons-welcome-add-page"></i> Buat Surat Usulan</button>
+			<?php endif; ?>
 				<button class="btn btn-success" onclick="cetak_usulan()"><i class="dashicons dashicons-edit"></i> Cetak/Print Laporan</button>
 			</div>
 			<table id="usulan_ssh_table" class="table table-bordered" style="font-size:90%">
@@ -709,12 +711,12 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
 							+"</select>"
 						+"</li>"
 						+"<li>"
-							+"<select name='filter_surat' class='ml-3 bulk-action' id='search_filter_surat' style='margin-left: 10px; width:200px;' onchange='action_filter_data_usulan_ssh()'>"
+							+"<select name='filter_surat' class='ml-3 bulk-action' id='search_filter_surat' style='margin-left: 10px; width:300px;' onchange='action_filter_data_usulan_ssh()'>"
 								+"<option value=''>Pilih Surat</option>"
 							+"</select>"
 						+"</li>"
 						+"<li>"
-							+"<select name='filter_nota_dinas' class='ml-3 bulk-action' id='search_nota_dinas_filter_surat' style='margin-left: 10px; width:200px;' onchange='action_filter_data_usulan_ssh()'>"
+							+"<select name='filter_nota_dinas' class='ml-3 bulk-action' id='search_nota_dinas_filter_surat' style='margin-left: 10px; width:300px;' onchange='action_filter_data_usulan_ssh()'>"
 								+"<option value=''>Pilih Nota Dinas</option>"
 							+"</select>"
 						+"</li>"
@@ -1256,6 +1258,7 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
 		})
 	}
 
+<?php if(false == $is_admin): ?>
 	function tambah_new_ssh(tahun){
 		jQuery("#u_tkdn").val(null);
 		jQuery("#u_lapiran_usulan_ssh_1").val(null);
@@ -1355,6 +1358,7 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
 				.text("Simpan");
 		}
 	}
+<?php endif; ?>
 
 	function get_komponen_and_id_kel_ssh(tahun){
 		jQuery.ajax({
@@ -1537,7 +1541,7 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
 			});
 		}
 	}
-
+<?php if(true == $is_admin): ?>
 	//verify akun ssh usulan
 	function verify_ssh_usulan(id){
 		jQuery('#tambahUsulanSsh').modal('show');
@@ -1631,6 +1635,7 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
 			});
 		}
 	}
+<?php endif; ?>
 
 	/** submit tambah usulan harga ssh */
 	function submitUsulanTambahHargaSshForm(tahun){
