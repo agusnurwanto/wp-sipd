@@ -73,12 +73,12 @@ $fokus_uraian = array(
     <table class="table table-bordered" id="daftar-user">
         <thead>
             <tr>
-                <th class="text-center">Id</th>
                 <th class="text-center">Username</th>
                 <th class="text-center">Nama</th>
-                <th class="text-center">E-mail</th>
                 <th class="text-center">Nomor WA</th>
                 <th class="text-center">Role</th>
+                <th class="text-center">Nama Bidang</th>
+                <th class="text-center">Fokus Uraian</th>
                 <th class="text-center" style="width: 150px;">Aksi</th>
             </tr>
         </thead>
@@ -194,6 +194,7 @@ $fokus_uraian = array(
         jQuery('#id_user').val('');
         jQuery('#username').val('').prop('disabled', false);
         jQuery('#password').val('').prop('disabled', false).show();
+        jQuery('#passForm').val('').prop('disabled', false).show();
         jQuery('#nama').val('').prop('disabled', false);
         jQuery('#email').val('').prop('disabled', false);
         jQuery('#nomorwa').val('').prop('disabled', false);
@@ -220,6 +221,7 @@ $fokus_uraian = array(
                         action: 'get_user_verifikator'
                     }
                 },
+                "bPaginate": false,
                 lengthMenu: [
                     [20, 50, 100, -1]
                     [20, 50, 100, "All"]
@@ -230,10 +232,7 @@ $fokus_uraian = array(
                 "drawCallback": function(settings) {
                     jQuery("#wrap-loading").hide();
                 },
-                "columns": [{
-                        "data": 'id',
-                        className: "text-center"
-                    },
+                "columns": [
                     {
                         "data": 'user',
                         className: "text-center"
@@ -243,15 +242,19 @@ $fokus_uraian = array(
                         className: "text-center"
                     },
                     {
-                        "data": 'email',
-                        className: "text-center"
-                    },
-                    {
                         "data": 'nomorwa',
                         className: "text-center"
                     },
                     {
                         "data": 'role',
+                        className: "text-center"
+                    },
+                    {
+                        "data": 'nama_bidang_skpd',
+                        className: "text-center"
+                    },
+                    {
+                        "data": 'fokus_uraian',
                         className: "text-center"
                     },
                     {
@@ -274,8 +277,13 @@ $fokus_uraian = array(
         const email = jQuery('#email').val();
         const nomorwa = jQuery('#nomorwa').val();
         const role = jQuery('#role').val();
+        const namaBidang = jQuery('#nama_bidang_skpd').val();
+        const fokusUraian = jQuery('#fokus_uraian').val();
         const id_user = jQuery('#id_user').val();
 
+        console.log(namaBidang);
+        console.log(fokusUraian);
+        
         jQuery.ajax({
             type: 'POST',
             url: '<?php echo admin_url('admin-ajax.php'); ?>',
@@ -287,6 +295,8 @@ $fokus_uraian = array(
                 email: email,
                 role: role,
                 nomorwa: nomorwa,
+                nama_bidang_skpd: namaBidang,
+                fokus_uraian: fokusUraian,
                 id_user: id_user,
                 action: 'tambah_user_verifikator'
             },
@@ -353,6 +363,8 @@ $fokus_uraian = array(
                     jQuery('#nama').val(res.data.display_name).prop('disabled', false);
                     jQuery('#email').val(res.data.user_email).prop('disabled', false);
                     jQuery('#nomorwa').val(res.data.nomorwa).prop('disabled', false);
+                    jQuery('#nama_bidang_skpd').val(res.data.nama_bidang_skpd).prop('disabled', false);
+                    jQuery('#fokus_uraian').val(res.data.fokus_uraian).prop('disabled', false);
                     jQuery('#role').val(res.data.roles).prop('disabled', false);
                     jQuery('#edit_pass').prop('disabled', false).show();
                     jQuery('#checkbox_edit_pass').prop('disabled', false).show();
