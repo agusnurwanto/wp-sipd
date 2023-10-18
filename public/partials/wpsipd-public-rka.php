@@ -817,6 +817,9 @@ foreach ($bl as $k => $sub_bl) {
 					AND d.tahun_anggaran=".$item['tahun_anggaran']."
 					AND d.active=1
 			", ARRAY_A);
+			if(empty($data)){
+				$dana = array('nama_dana' => '');
+			}
 			$rin_sub_item .= '
 				<tr>
 	                <td class="kiri kanan bawah text_blok">'.$akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']][$akun_4_db[0]['kode_akun']][$item['nama_akun']][$item['subs_bl_teks']]['kode_akun'].'</td>

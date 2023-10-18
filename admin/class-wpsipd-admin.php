@@ -658,9 +658,27 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes {
 	        ) );
 
 		$url_user_verifikator =$this->generatePage('User Verifikasi RKA', false, '[user_verikasi_rka]');
+		$user_verifikator = array(
+			'verifikator_bappeda' => 'Verifikator Perencanaan', 
+			'verifikator_bppkad' => 'Verifikator Keuangan', 
+			'verifikator_pbj' => 'Verifikator Pengadaan Barang dan Jasa', 
+			'verifikator_adbang' => 'Verifikator Administrasi Pembangunan', 
+			'verifikator_inspektorat' => 'Verifikator Inspektorat', 
+			'verifikator_pupr' => 'Verifikator Pekerjaan Umum (PUPR)'
+		);
 		Container::make( 'theme_options', __( 'Verifikasi RKA' ) )
 			->set_page_menu_position( 5 )
 		    ->add_fields( array(
+	            Field::make( 'multiselect', 'crb_daftar_user_verifikator', 'Daftar grup user verifikator RKA/DPA yang diaktfikan' )
+            	->add_options( $user_verifikator )
+            	->set_default_value(array(
+            		'verifikator_bappeda', 
+            		'verifikator_bppkad', 
+            		'verifikator_pbj', 
+            		'verifikator_adbang', 
+            		'verifikator_inspektorat', 
+            		'verifikator_pupr'
+            	)),
 				Field::make('html','crb_verifikasi_rka_page')
 				->set_html('
 				<ul>

@@ -2,6 +2,9 @@
 global $wpdb;
 
 $roles = $this->role_verifikator();
+if(empty($roles)){
+    die('<h1 class="text-center" style="margin-top: 50px;">Daftar user verifikator belum diset dihalaman dashboard Verifikasi RKA!</h1>');
+}
 $options_role = array();
 foreach ($roles as $val) {
     $role = get_role($val);
@@ -17,6 +20,41 @@ foreach ($roles as $val) {
     }
 }
 $api_key = get_option('_crb_api_key_extension');
+$fokus_uraian = array(
+    // bappeda
+    'Indikator Masukan',
+    'Indikator Keluaran Kegiatan',
+    'Indikator Hasil',
+    'Kelompok Sasaran',
+    'Sub Kegiatan',
+    'Sumber Pendanaan',
+    'Lokasi',
+    'Indikator Keluaran Sub Kegiatan',
+    'Waktu Pelaksanaan',
+    'Kesesuaian Anggaran Musrenbang RKPD',
+    'Kesesuaian Anggaran POKIR RKPD',
+    'Kesesuaian Anggaran Hibah RKPD',
+    'Kesesuaian Anggaran Prioritas RKPD',
+    'Kesesuaian Belanja dengan Keluaran Sub Kegiatan',
+    // bpkad
+    'Kesesuaian Rekening Belanja dengan Output Sub Kegiatan',
+    'Belanja Rutin sudah dianggarkan selama 12 bulan',
+    'Kesesuaian Belanja dengan Standar Satuan Harga (SSH)',
+    'Kesesuaian Belanja dengan Standar Biaya Umum (SBU)',
+    'Kesesuaian Belanja dengan Harga Satuan Pekerjaan Konstruksi (HSPK)',
+    'Kesesuaian Belanja dengan Analisis Standar Belanja (ASB)',
+    'Belanja Modal dianggarkan berdasarkan harga perolehan',
+    'Belanja Modal masuk dalam Rencana Kebutuhan Barang Milik Daerah (RKBMD) dan merupakan Aset Pemerintah Daerah',
+    'Belanja Pemeliharaan sebagai Belanja Barang dan Jasa apabila hanya mengembalikan pada kondisi semula',
+    'Belanja Pemeliharaan sebagai Belanja Modal apabila menambah volume, luas, kualitas, mutu dan umur masa manfaat',
+    // pbj
+    'Penggunaan Produk Dalam Negri (PDN)',
+    'Penganggaran Belanja Jasa Konsultan Perancang',
+    'Pengadaan Wajib Menggunakan Fasilitas Katalog Konsolidasi Nasional',
+    'Identifikasi Rekening Belanja yang dapat Dikonsolidasi pada Proses Pengadaan',
+    'Input RUP pada Aplikasi SIRUP',
+    'Penggunaan Metode E-purchasing melalui Transaksi Katalog Elektronik Lokal'
+);
 ?>
 <style>
     .modal-content label:after {
@@ -28,13 +66,39 @@ $api_key = get_option('_crb_api_key_extension');
 <h1 class="text-center" style="margin-top: 50px;">Manajemen User Verifikasi RKA (Rencana Kerja dan Anggaran)</h1>
 
 <!-- Button trigger modal -->
-<button type="button" class="btn btn-primary" onclick="tambah_data();" style="margin-left: 15px;">
-    + Tambah Data
-</button>
+<button type="button" class="btn btn-primary" onclick="tambah_data();" style="margin-left: 15px;"><i class="dashicons dashicons-plus-alt"></i> Tambah Data</button>
+
+<!-- table -->
+<div style="padding: 15px;margin:0 0 3rem 0;">
+    <table class="table table-bordered" id="daftar-user">
+        <thead>
+            <tr>
+                <th class="text-center">Id</th>
+                <th class="text-center">Username</th>
+                <th class="text-center">Nama</th>
+                <th class="text-center">E-mail</th>
+                <th class="text-center">Nomor WA</th>
+                <th class="text-center">Role</th>
+                <th class="text-center" style="width: 150px;">Aksi</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+        </tbody>
+    </table>
+</div>
 
 <!-- Modal -->
 <div class="modal fade" id="modal_tambah_data" tabindex="-1" role="dialog" aria-labelledby="exampleModalScrollableTitle" aria-hidden="true">
-    <div class="modal-dialog .modal-lg" role="document">
+    <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="exampleModalScrollableTitle">Tambah Data User Verifikasi RKA</h5>
@@ -80,8 +144,18 @@ $api_key = get_option('_crb_api_key_extension');
                 <div class="form-group">
                     <label>Role</label>
                     <select class="form-control" id="role" required>
+                        <option value="">Pilih role user</option>
                         <?php echo implode('', $options_role); ?>
                     </select>
+                </div>
+                <div class="form-group">
+                    <label>Nama Bidang atau SKPD</label>
+                    <input type="text" class="form-control" id="nama_bidang_skpd" required>
+                </div>
+                <div class="form-group">
+                    <label>Fokus uraian yang verifikasi</label>
+                    <textarea class="form-control" id="fokus_uraian" required value=""></textarea>
+                    <small class="form-text text-muted">Diinput bisa lebih dari satu, dipisah dengan tanda garis lurus berspasi ( | )</small>
                 </div>
             </div>
             <div class="modal-footer">
@@ -90,34 +164,6 @@ $api_key = get_option('_crb_api_key_extension');
             </div>
         </div>
     </div>
-</div>
-
-<!-- table -->
-<div style="padding: 15px;margin:0 0 3rem 0;">
-    <table class="table table-bordered" id="daftar-user">
-        <thead>
-            <tr>
-                <th class="text-center">Id</th>
-                <th class="text-center">Username</th>
-                <th class="text-center">Nama</th>
-                <th class="text-center">E-mail</th>
-                <th class="text-center">Nomor WA</th>
-                <th class="text-center">Role</th>
-                <th class="text-center" style="width: 150px;">Aksi</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-            </tr>
-        </tbody>
-    </table>
 </div>
 
 <script>
@@ -154,6 +200,7 @@ $api_key = get_option('_crb_api_key_extension');
         jQuery('#role').val('').prop('disabled', false);
         jQuery('#edit_pass').prop('disabled', true).hide();
         jQuery('#checkbox_edit_pass').prop('disabled', true).hide();
+        jQuery('#fokus_uraian').val('<?php echo implode(' | ', $fokus_uraian); ?>');
         jQuery('#modal_tambah_data').modal('show');
     }
 

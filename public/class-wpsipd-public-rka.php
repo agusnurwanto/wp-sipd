@@ -251,9 +251,13 @@ class Wpsipd_Public_RKA
         die(json_encode($ret));
     }
 
-    function role_verifikator()
-    {
-        return array('verifikator_bappeda', 'verifikator_bppkad', 'verifikator_pbj', 'verifikator_adbang', 'verifikator_inspektorat', 'verifikator_pupr');
+    function role_verifikator(){
+        $daftar_user = $this->get_carbon_multiselect('crb_daftar_user_verifikator');
+        $daftar_user_list = array();
+        foreach ($daftar_user as $v) {
+            $daftar_user_list[] = $v['value'];
+        }
+        return $daftar_user_list;
     }
 
     function get_user_verifikator_by_id()
@@ -263,13 +267,13 @@ class Wpsipd_Public_RKA
         $ret['status'] = 'success';
         $ret['message'] = 'Berhasil get user by id!';
 
-        if (empty($_POST['id'])) {
-            $ret['status'] = 'error';
-            $ret['message'] = 'id user tidak boleh kosong!';
-            die(json_encode($ret));
-        }
         if (!empty($_POST)) {
             if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option('_crb_api_key_extension')) {
+                if (empty($_POST['id'])) {
+                    $ret['status'] = 'error';
+                    $ret['message'] = 'id user tidak boleh kosong!';
+                    die(json_encode($ret));
+                }
                 $user = get_userdata($_POST['id']);
                 if (!empty($user)) {
                     $roles = $this->role_verifikator();
@@ -317,23 +321,24 @@ class Wpsipd_Public_RKA
             'data' => array()
         );
 
-        $allowed_roles = $this->role_verifikator();
-
-        $current_user = wp_get_current_user();
-        if (!in_array('administrator', $current_user->roles)) {
-            $ret['status'] = 'error';
-            $ret['message'] = 'Akses ditolak - hanya administrator yang dapat mengakses fitur ini!';
-            die(json_encode($ret));
-        }
-
-        if (empty($_POST['id'])) {
-            $ret['status'] = 'error';
-            $ret['message'] = 'id user tidak boleh kosong!';
-            die(json_encode($ret));
-        }
-
         if (!empty($_POST)) {
             if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option('_crb_api_key_extension')) {
+
+                $allowed_roles = $this->role_verifikator();
+
+                $current_user = wp_get_current_user();
+                if (!in_array('administrator', $current_user->roles)) {
+                    $ret['status'] = 'error';
+                    $ret['message'] = 'Akses ditolak - hanya administrator yang dapat mengakses fitur ini!';
+                    die(json_encode($ret));
+                }
+
+                if (empty($_POST['id'])) {
+                    $ret['status'] = 'error';
+                    $ret['message'] = 'id user tidak boleh kosong!';
+                    die(json_encode($ret));
+                }
+
                 $current_user = get_userdata($_POST['id']);
                 if (!empty($current_user)) {
                     $user_roles = $current_user->roles;
@@ -368,6 +373,82 @@ class Wpsipd_Public_RKA
             $ret['message'] = 'Format Salah!';
         }
 
+        die(json_encode($ret));
+    }
+
+    function get_data_verifikasi_rka(){
+        global $wpdb;
+        $ret = array();
+        $ret['status'] = 'success';
+        $ret['message'] = 'Berhasil get data verifikasi!';
+
+        if (!empty($_POST)) {
+            if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option('_crb_api_key_extension')) {
+                if (empty($_POST['kode_sbl'])) {
+                    $ret['status'] = 'error';
+                    $ret['message'] = 'kode_sbl tidak boleh kosong!';
+                    die(json_encode($ret));
+                }else if (empty($_POST['tahun_anggaran'])) {
+                    $ret['status'] = 'error';
+                    $ret['message'] = 'tahun_anggaran tidak boleh kosong!';
+                    die(json_encode($ret));
+                }
+                $kode_sbl = $_POST['kode_sbl'];
+                $tahun_anggaran = $_POST['tahun_anggaran'];
+                $ret['html'] = '
+                    <tr>
+                        <th colspan="4">Indikator</th>
+                        <th class="aksi"></th>
+                    </tr>
+                    <tr>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td class="aksi"></td>
+                    </tr>
+                    <tr>
+                        <th colspan="4">Kesesuaian</th>
+                        <th class="aksi"></th>
+                    </tr>
+                    <tr>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td class="aksi"></td>
+                    </tr>
+                    <tr>
+                        <th colspan="4">Rekening</th>
+                        <th class="aksi"></th>
+                    </tr>
+                    <tr>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td class="aksi"></td>
+                    </tr>
+                    <tr>
+                        <th colspan="4">Keseluruhan</th>
+                        <th class="aksi"></th>
+                    </tr>
+                    <tr>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td class="aksi"></td>
+                    </tr>
+                ';
+            } else {
+                $ret['status'] = 'error';
+                $ret['message'] = 'APIKEY tidak sesuai!';
+            }
+        } else {
+            $ret['status'] = 'error';
+            $ret['message'] = 'Format Salah!';
+        }
         die(json_encode($ret));
     }
 }
