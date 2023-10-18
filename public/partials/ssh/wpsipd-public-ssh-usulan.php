@@ -1599,9 +1599,11 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
 		if(verify_ssh == 0 && reason_verify_ssh.trim() == ''){
 			alert('Alasan ditolak tidak boleh kosong.');
 			return false;
+	<?php if(in_array("administrator", $user_meta->roles)): ?>
 		}else if(verify_ssh==1 && nota_dinas==''){
 			alert('Nota Dinas tidak boleh kosong.');
 			return false;
+	<?php endif; ?>
 		}else{
 			jQuery("#wrap-loading").show();
 			jQuery.ajax({
