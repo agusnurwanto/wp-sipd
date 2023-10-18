@@ -1279,6 +1279,37 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
 		jQuery("#id_sub_skpd").val('').trigger('change');
 	}
 
+	/** Menampilkan data SSH sesuai komponen */
+	function get_data_by_name_komponen_ssh(jenis, tahun){
+		if(jenis === 'harga'){
+			jQuery("#tambah_harga_komp_nama_komponent").on("change", function(){
+				var id_standar_harga = jQuery(this).val();
+				if(id_standar_harga != null){
+					get_data_usulan_ssh_by_komponen('harga',id_standar_harga)
+				}
+			});
+			jQuery('#tambahUsulanHargaByKompSSH').modal('show');
+			jQuery("#tambahUsulanHargaByKompSSH .modal-title").html('Tambah Harga usulan SSH');
+			jQuery("#tambahUsulanHargaByKompSSH .submitBtn")
+				.attr("onclick", 'submitUsulanTambahHargaSshForm('+tahun+')')
+				.attr("disabled", false)
+				.text("Simpan");
+		}else if(jenis === 'akun'){
+			jQuery("#tambah_akun_komp_nama_komponent").on("change", function(){
+				var id_standar_harga = jQuery(this).val();
+				if(id_standar_harga != null){
+					get_data_usulan_ssh_by_komponen('akun',id_standar_harga)
+				}
+			});
+			jQuery('#tambahUsulanAkunByKompSSH').modal('show');
+			jQuery("#tambahUsulanAkunByKompSSH .modal-title").html('Tambah Rekening Akun usulan SSH');
+			jQuery("#tambahUsulanAkunByKompSSH .submitBtn")
+				.attr("onclick", 'submitUsulanTambahAkunSshForm('+tahun+')')
+				.attr("disabled", false)
+				.text("Simpan");
+		}
+	}
+<?php else: ?>
 	function tambah_nota_dinas(tahun){
 		jQuery("#tambahNotaDinasModal .modal-title").html("Tambah Nota Dinas");
 		jQuery('#tbody_data_usulan_nota_dinas').closest('.row.form-group').hide();
@@ -1326,37 +1357,6 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
 				jQuery("#wrap-loading").hide();
 			}
 		});
-	}
-
-	/** Menampilkan data SSH sesuai komponen */
-	function get_data_by_name_komponen_ssh(jenis, tahun){
-		if(jenis === 'harga'){
-			jQuery("#tambah_harga_komp_nama_komponent").on("change", function(){
-				var id_standar_harga = jQuery(this).val();
-				if(id_standar_harga != null){
-					get_data_usulan_ssh_by_komponen('harga',id_standar_harga)
-				}
-			});
-			jQuery('#tambahUsulanHargaByKompSSH').modal('show');
-			jQuery("#tambahUsulanHargaByKompSSH .modal-title").html('Tambah Harga usulan SSH');
-			jQuery("#tambahUsulanHargaByKompSSH .submitBtn")
-				.attr("onclick", 'submitUsulanTambahHargaSshForm('+tahun+')')
-				.attr("disabled", false)
-				.text("Simpan");
-		}else if(jenis === 'akun'){
-			jQuery("#tambah_akun_komp_nama_komponent").on("change", function(){
-				var id_standar_harga = jQuery(this).val();
-				if(id_standar_harga != null){
-					get_data_usulan_ssh_by_komponen('akun',id_standar_harga)
-				}
-			});
-			jQuery('#tambahUsulanAkunByKompSSH').modal('show');
-			jQuery("#tambahUsulanAkunByKompSSH .modal-title").html('Tambah Rekening Akun usulan SSH');
-			jQuery("#tambahUsulanAkunByKompSSH .submitBtn")
-				.attr("onclick", 'submitUsulanTambahAkunSshForm('+tahun+')')
-				.attr("disabled", false)
-				.text("Simpan");
-		}
 	}
 <?php endif; ?>
 

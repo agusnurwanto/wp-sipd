@@ -7182,6 +7182,10 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 								|| $user['idlevel'] == 7
 							){
 								$user['jabatan'] = 'mitra_bappeda';
+							}else if($user['jabatan'] == 'ADMIN PERENCANAAN'){
+								$user['jabatan'] = 'tapd_pp';
+							}else if($user['jabatan'] == 'TAPD KEUANGAN'){
+								$user['jabatan'] = 'tapd_keu';
 							}
 							$this->gen_user_sipd_merah($user);
 						}
