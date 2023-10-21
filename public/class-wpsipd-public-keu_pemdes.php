@@ -1,6 +1,6 @@
 <?php
 
-require_once WPSIPD_PLUGIN_PATH."/public/class-wpsipd-public-rka.php";
+require_once WPSIPD_PLUGIN_PATH . "/public/class-wpsipd-public-rka.php";
 
 class Wpsipd_Public_Keu_Pemdes extends Wpsipd_Public_RKA
 {
@@ -319,7 +319,7 @@ class Wpsipd_Public_Keu_Pemdes extends Wpsipd_Public_RKA
                             $ret['message'] = 'Berhasil update data!';
                         } else {
                             $ret['status'] = 'error';
-                            $ret['message'] = 'Gagal disimpan. Data bkk_infrastruktur dengan id_desa="' . $id_desa . '" kecamatan ="'.$kecamatan.'" kegiatan ="'.$kegiatan.'" alamat ="'.$alamat.'" tahun anggaran = "'.$tahun_anggaran.'"sudah ada!';
+                            $ret['message'] = 'Gagal disimpan. Data bkk_infrastruktur dengan id_desa="' . $id_desa . '" kecamatan ="' . $kecamatan . '" kegiatan ="' . $kegiatan . '" alamat ="' . $alamat . '" tahun anggaran = "' . $tahun_anggaran . '"sudah ada!';
                         }
                     } else {
                         $cek_id = $wpdb->get_row($wpdb->prepare("
@@ -342,7 +342,7 @@ class Wpsipd_Public_Keu_Pemdes extends Wpsipd_Public_RKA
                                 ));
                             } else {
                                 $ret['status'] = 'error';
-                                $ret['message'] = 'Gagal disimpan. Data bkk_infrastruktur dengan id_desa="' . $id_desa . '" kecamatan ="'.$kecamatan.'" kegiatan ="'.$kegiatan.'" alamat ="'.$alamat.'" tahun anggaran = "'.$tahun_anggaran.'"sudah ada!';
+                                $ret['message'] = 'Gagal disimpan. Data bkk_infrastruktur dengan id_desa="' . $id_desa . '" kecamatan ="' . $kecamatan . '" kegiatan ="' . $kegiatan . '" alamat ="' . $alamat . '" tahun anggaran = "' . $tahun_anggaran . '"sudah ada!';
                             }
                         }
                     }

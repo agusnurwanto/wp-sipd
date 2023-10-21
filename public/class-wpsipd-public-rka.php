@@ -61,7 +61,7 @@ class Wpsipd_Public_RKA
                 }
                 if (empty($_POST['nama_bidang_skpd'])) {
                     $ret['status'] = 'error';
-                    $ret['message'] = 'nama bidang  skpd tidak boleh kosong!';
+                    $ret['message'] = 'nama bidang skpd tidak boleh kosong!';
                     die(json_encode($ret));
                 }
 
@@ -228,7 +228,7 @@ class Wpsipd_Public_RKA
                         $search_value = sanitize_text_field($params['search']['value']);
                         $args['search'] = "*{$search_value}*";
                         $users = get_users($args);
-                    }else{
+                    } else {
                         $users = get_users($args);
                     }
                 }
@@ -408,67 +408,143 @@ class Wpsipd_Public_RKA
             if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option('_crb_api_key_extension')) {
                 if (empty($_POST['kode_sbl'])) {
                     $ret['status'] = 'error';
-                    $ret['message'] = 'kode_sbl tidak boleh kosong!';
+                    $ret['message'] = 'kode sbl tidak boleh kosong!';
                     die(json_encode($ret));
                 } else if (empty($_POST['tahun_anggaran'])) {
                     $ret['status'] = 'error';
-                    $ret['message'] = 'tahun_anggaran tidak boleh kosong!';
+                    $ret['message'] = 'tahun anggaran tidak boleh kosong!';
                     die(json_encode($ret));
                 }
+
                 $kode_sbl = $_POST['kode_sbl'];
                 $tahun_anggaran = $_POST['tahun_anggaran'];
-                $ret['html'] = '
-                    <tr>
-                        <th colspan="4">Indikator</th>
-                        <th class="aksi"></th>
-                    </tr>
-                    <tr>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td class="aksi"></td>
-                    </tr>
-                    <tr>
-                        <th colspan="4">Kesesuaian</th>
-                        <th class="aksi"></th>
-                    </tr>
-                    <tr>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td class="aksi"></td>
-                    </tr>
-                    <tr>
-                        <th colspan="4">Rekening</th>
-                        <th class="aksi"></th>
-                    </tr>
-                    <tr>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td class="aksi"></td>
-                    </tr>
-                    <tr>
-                        <th colspan="4">Keseluruhan</th>
-                        <th class="aksi"></th>
-                    </tr>
-                    <tr>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td class="aksi"></td>
-                    </tr>
-                ';
+
+                $datas = $wpdb->get_results($wpdb->prepare("
+                    SELECT 
+                        *
+                    FROM data_verifikasi_rka
+                    WHERE kode_sbl = %s
+                    AND tahun_anggaran = %d
+                    ORDER BY update_at DESC", $kode_sbl, $tahun_anggaran), ARRAY_A);
+                $new_data = array();
+                foreach ($datas as $data) {
+                    if (empty($new_data[$data['fokus_uraian']])) {
+                        $new_data[$data['fokus_uraian']] = array();
+                    }
+                    $new_data[$data['fokus_uraian']][] = $data;
+                }
+                $ret['html'] = '';
+                foreach ($new_data as $key => $data) {
+                    $ret['html'] .= '
+                        <tr>
+                            <th colspan="4">' . $key . '</th>
+                            <th class="aksi"></th>
+                        </tr>';
+                    foreach ($data as $val) {
+                        $ret['html'] .= '
+                            <tr>
+                                <td></td>
+                                <td>' . $val['catatan_verifikasi'] . '</td>
+                                <td>' . $val['nama_verifikator'] . ' ' . $val['update_at'] . '</td>
+                                <td></td>
+                                <td class="aksi">
+                                    $btn = 
+                                    <a class="btn btn-sm btn-warning" onclick="edit_data(\'' . $recVal['id'] . '\'); return false;" href="#" title="Edit Data">
+                                    <i class="dashicons dashicons-edit"></i></a>';
+                                    $btn .= '<a style="margin-left: 10px;" class="btn btn-sm btn-danger" onclick="hapus_data(\'' . $recVal['id'] . '\'); return false;" href="#" title="delete data">
+                                    <i class="dashicons dashicons-trash"></i></a>;
+                                </td>
+                            </tr>';
+                    }
+                }
             } else {
                 $ret['status'] = 'error';
                 $ret['message'] = 'APIKEY tidak sesuai!';
             }
         } else {
             $ret['status'] = 'error';
+            $ret['message'] = 'Format Salah!';
+        }
+        die(json_encode($ret));
+    }
+
+    function tambah_catatan_verifikator()
+    {
+        global $wpdb;
+        $ret = array();
+        $ret['status'] = 'success';
+        $ret['message'] = 'Berhasil tambah data catatan verifikator!';
+
+        if (!empty($_POST)) {
+            if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option('_crb_api_key_extension')) {
+                if (empty($_POST['kode_sbl'])) {
+                    $ret['status'] = 'error';
+                    $ret['message'] = 'kode sbl field harus diisi!';
+                    die(json_encode($ret));
+                }
+                if (empty($_POST['id_user'])) {
+                    $ret['status'] = 'error';
+                    $ret['message'] = 'id user tidak boleh kosong!';
+                    die(json_encode($ret));
+                }
+                if (empty($_POST['tahun_anggaran'])) {
+                    $ret['status'] = 'error';
+                    $ret['message'] = 'tahun anggaran tidak boleh kosong!';
+                    die(json_encode($ret));
+                }
+                if (empty($_POST['sub_kegiatan'])) {
+                    $ret['status'] = 'error';
+                    $ret['message'] = 'sub kegiatan field harus diisi!';
+                    die(json_encode($ret));
+                }
+                if (empty($_POST['nama_verifikator'])) {
+                    $ret['status'] = 'error';
+                    $ret['message'] = 'nama verifikator field harus diisi!';
+                    die(json_encode($ret));
+                }
+                // if (empty($_POST['fokus_uraian'])) {
+                //     $ret['status'] = 'error';
+                //     $ret['message'] = 'fokus uraian field harus diisi!';
+                //     die(json_encode($ret));
+                // }
+                if (empty($_POST['catatan_verifikasi'])) {
+                    $ret['status'] = 'error';
+                    $ret['message'] = 'catatan verifikasi field harus diisi!';
+                    die(json_encode($ret));
+                }
+
+                $kode_sbl = $_POST['kode_sbl'];
+                $tahun_anggaran = $_POST['tahun_anggaran'];
+                $id = $_POST['id_catatan'];
+                $sub_kegiatan = $_POST['sub_kegiatan'];
+                $id_user = $_POST['id_user'];
+                $nama_verifikator = $_POST['nama_verifikator'];
+                $fokus_uraian = $_POST['fokus_uraian'];
+                $catatan_verifikasi = $_POST['catatan_verifikasi'];
+
+                $data = array(
+                    'id' => $id,
+                    'tahun_anggaran' => $tahun_anggaran,
+                    'kode_sbl' => $kode_sbl,
+                    'sub_kegiatan' => $sub_kegiatan,
+                    'id_user' => $id_user,
+                    'nama_verifikator' => $nama_verifikator,
+                    'fokus_uraian' => $fokus_uraian,
+                    'catatan_verifikasi' => $catatan_verifikasi,
+                    'create_at' => current_time('mysql')
+                );
+                if ($data) {
+                    $wpdb->insert('data_verifikasi_rka', $data);
+                } else {
+                    $ret['status'] = 'error';
+                    $ret['message'] = 'Gagal menambahkan data ke database.';
+                }
+            } else {
+                $ret['status']  = 'error';
+                $ret['message'] = 'Api key tidak valid!';
+            }
+        } else {
+            $ret['status']  = 'error';
             $ret['message'] = 'Format Salah!';
         }
         die(json_encode($ret));

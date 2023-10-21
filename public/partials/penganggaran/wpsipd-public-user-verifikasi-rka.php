@@ -280,9 +280,6 @@ $fokus_uraian = array(
         const namaBidang = jQuery('#nama_bidang_skpd').val();
         const fokusUraian = jQuery('#fokus_uraian').val();
         const id_user = jQuery('#id_user').val();
-
-        console.log(namaBidang);
-        console.log(fokusUraian);
         
         jQuery.ajax({
             type: 'POST',
@@ -326,7 +323,7 @@ $fokus_uraian = array(
                 type: 'post',
                 data: {
                     'action': 'delete_user_verifikator',
-                    'api_key': '<?php echo get_option('_crb_api_key_extension'); ?>',
+                    'api_key':'<?php echo $api_key; ?>',
                     'id': id
                 },
                 dataType: 'json',
@@ -352,7 +349,7 @@ $fokus_uraian = array(
             dataType: 'json',
             data: {
                 'action': 'get_user_verifikator_by_id',
-                'api_key': '<?php echo get_option('_crb_api_key_extension'); ?>',
+                'api_key': '<?php echo $api_key; ?>',
                 'id': id,
             },
             success: function(res) {
