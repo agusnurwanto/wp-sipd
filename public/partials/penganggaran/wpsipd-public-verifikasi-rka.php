@@ -9,11 +9,11 @@ if (!empty($_GET) && !empty($_GET['tahun']) && !empty($_GET['kode_sbl'])) {
 }
 
 $api_key = get_option('_crb_api_key_extension');
-$user_id = um_user( 'ID' );
+$user_id = um_user('ID');
 $user_meta = get_userdata($user_id);
 
 $is_admin = false;
-if(in_array("administrator", $user_meta->roles)){
+if (in_array("administrator", $user_meta->roles)) {
 	$is_admin = true;
 }
 
@@ -70,6 +70,22 @@ if ($data_rka) {
 } else {
 	die('<h1 class="text-center">Sub Kegiatan tidak ditemukan!</h1>');
 }
+
+$api_key = get_option('_crb_api_key_extension');
+
+$current_user = wp_get_current_user();
+$fokus_uraian = get_user_meta($current_user->ID, 'fokus_uraian', true);
+$fokus_uraian_values = $fokus_uraian ? explode('|', $fokus_uraian) : array();
+
+if ($current_user) {
+	$nama_user = $current_user->display_name;
+	$id_user = $current_user->ID;
+	$username = $current_user->user_login;
+	$role_user = $current_user->roles;
+	$nama_bidang = get_user_meta($current_user->ID, 'fokus_uraian');
+	$fokus_uraian = get_user_meta($current_user->ID, 'fokus_uraian');
+}
+
 ?>
 <style>
 	#tabel_detail_sub,
@@ -89,6 +105,7 @@ if ($data_rka) {
 		padding: 8px;
 		text-align: left;
 	}
+
 	.aksi {
 		text-align: center;
 		vertical-align: middle;
@@ -193,76 +210,190 @@ if ($data_rka) {
 	</table>
 </div>
 
-
 <!-- Modal -->
 <div class="modal fade" id="modal_tambah_catatan" tabindex="-1" role="dialog" aria-labelledby="exampleModalScrollableTitle" aria-hidden="true">
-    <div class="modal-dialog modal-lg" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="exampleModalScrollableTitle">Tambah Catatan Verifikasi</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                <input type="hidden" class="form-control" id="kode_sbl">
-                <div class="form-group">
-                    <label>Sub Kegiatan</label>
-                    <input type="text" class="form-control" id="sub_kegiatan" disabled>
-                </div>
-                <div class="form-group">
-                    <label>Nama Verifikator</label>
-                    <input type="text" class="form-control" id="sub_kegiatan" disabled>
-                </div>
-                <div class="form-group">
-                    <label>Fokus Uraian</label>
-                    <select class="form-control">
+	<div class="modal-dialog modal-lg" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title" id="exampleModalScrollableTitle">Tambah Catatan Verifikasi</h5>
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+					<span aria-hidden="true">&times;</span>
+				</button>
+			</div>
+			<div class="modal-body">
+				<input type="hidden" class="form-control" id="kode_sbl">
+				<input type="hidden" class="form-control" id="id_user">
+				<input type="hidden" class="form-control" id="tahun_anggaran">
+				<input type="hidden" class="form-control" id="id_catatan">
+				<div class="form-group">
+					<label>Sub Kegiatan</label>
+					<input type="text" class="form-control" id="sub_kegiatan" value="" disabled>
+				</div>
+				<div class="form-group">
+					<label>Nama Verifikator</label>
+					<input type="text" class="form-control" id="nama_verifikator" disabled>
+				</div>
+				<div class="form-group">
+					<label>Fokus Uraian</label>
+					<select class="form-control" id="fokus_uraian">
+						<option value="" selected disabled>Pilih Salah Satu</option>
 
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label>Catatan Verifikasi</label>
-                    <textarea class="form-control" id="catatan_verifikasi" required value=""></textarea>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Tutup</button>
-                <button type="button" class="btn btn-primary" onclick="submit_data(this)">Simpan</button>
-            </div>
-        </div>
-    </div>
+						<?php foreach ($fokus_uraian_values as $value) : ?>
+							<option value="<?php echo esc_attr($value); ?>"><?php echo esc_html($value); ?></option>
+						<?php endforeach; ?>
+
+						<?php if (empty($fokus_uraian_values)) : ?>
+							<option value="" disabled>Tidak ada nilai fokus uraian ditemukan.</option>
+						<?php endif; ?>
+					</select>
+				</div>
+				<div class="form-group">
+					<label>Catatan Verifikasi</label>
+					<textarea class="form-control" id="catatan_verifikasi" required value=""></textarea>
+				</div>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-secondary" data-dismiss="modal">Tutup</button>
+				<button type="button" class="btn btn-primary" onclick="submit_data(this)">Simpan</button>
+			</div>
+		</div>
+	</div>
 </div>
 <script>
-jQuery(document).ready(function() {
-	load_data();
-});
-function load_data() {
-    jQuery('#wrap-loading').show();
-    jQuery.ajax({
-        type: 'POST',
-        url: '<?php echo admin_url('admin-ajax.php'); ?>',
-        data: {
-            api_key: '<?php echo $api_key; ?>',
-            action: 'get_data_verifikasi_rka',
-            kode_sbl: '<?php echo $kode_sbl; ?>',
-            tahun_anggaran: <?php echo $tahun_anggaran; ?>
-        },
-        success: function(data) {
-            jQuery('#wrap-loading').hide();
-            const response = JSON.parse(data);
-            if (response.status === 'success') {
-                jQuery('#tabel_verifikasi > tbody').html(response.html);
-            } else {
-                alert('Error: ' + response.message);
-            }
-        },
-        error: function(xhr, status, error) {
-            console.error('AJAX Error:', status, error);
-        }
-    });
-}
+	jQuery(document).ready(function() {
+		load_data();
+	});
 
-function tambah_catatan(){
-    jQuery('#modal_tambah_catatan').modal('show');
-}
+	function load_data() {
+		jQuery('#wrap-loading').show();
+		jQuery.ajax({
+			type: 'POST',
+			url: '<?php echo admin_url('admin-ajax.php'); ?>',
+			data: {
+				api_key: '<?php echo $api_key; ?>',
+				action: 'get_data_verifikasi_rka',
+				kode_sbl: '<?php echo $kode_sbl; ?>',
+				tahun_anggaran: <?php echo $tahun_anggaran; ?>
+			},
+			success: function(data) {
+				jQuery('#wrap-loading').hide();
+				const response = JSON.parse(data);
+				if (response.status === 'success') {
+					jQuery('#tabel_verifikasi > tbody').html(response.html);
+				} else {
+					alert('Error: ' + response.message);
+				}
+			}
+
+		});
+	}
+
+	function tambah_catatan() {
+		jQuery('#kode_sbl').val('<?php echo $kode_sbl ?>').prop('disabled', true);;
+		jQuery('#tahun_anggaran').val('<?php echo $tahun_anggaran; ?>').prop('disabled', true);;
+		jQuery('#id_catatan').val('').prop('disabled', true);;
+		jQuery('#sub_kegiatan').val('<?php echo $nama_sub_kegiatan; ?>').prop('disabled', true);;
+		jQuery('#id_user').val('<?php echo $id_user; ?>').prop('disabled', true);;
+		jQuery('#nama_verifikator').val('<?php echo $nama_user; ?>').prop('disabled', true);;
+		jQuery('#fokus_uraian').val('').prop('disabled', false);
+		jQuery('#catatan_verifikasi').val('').prop('disabled', false);
+		jQuery('#modal_tambah_catatan').modal('show');
+	}
+
+	function submit_data(that) {
+		jQuery('#wrap-loading').show();
+		const kode_sbl = jQuery('#kode_sbl').val();
+		const tahun_anggaran = jQuery('#tahun_anggaran').val();
+		const id_catatan = jQuery('#id_catatan').val();
+		const id_user = jQuery('#id_user').val();
+		const nama_verifikator = jQuery('#nama_verifikator').val();
+		const fokus_uraian = jQuery('#fokus_uraian').val();
+		const catatan_verifikasi = jQuery('#catatan_verifikasi').val();
+
+		jQuery.ajax({
+			type: 'POST',
+			url: '<?php echo admin_url('admin-ajax.php'); ?>',
+			data: {
+				api_key: '<?php echo $api_key; ?>',
+				kode_sbl: kode_sbl,
+				tahun_anggaran: tahun_anggaran,
+				id_catatan: id_catatan,
+				id_user: id_user,
+				nama_verifikator: nama_verifikator,
+				fokus_uraian: fokus_uraian,
+				catatan_verifikasi: catatan_verifikasi,
+				action: 'tambah_catatan_verifikator'
+			},
+			success: function(data) {
+				jQuery('#wrap-loading').hide();
+				const response = JSON.parse(data);
+				if (response.status === 'success') {
+					alert(response.message);
+					jQuery('#modal_tambah_catatan').modal('hide');
+					load_data();
+				} else {
+					alert('Error: ' + response.message);
+				}
+			},
+			error: function(xhr, status, error) {
+				console.error('AJAX Error:', status, error);
+			}
+		});
+	}
+
+	function delete_data(id) {
+		let confirmDelete = confirm("Apakah anda yakin akan menghapus catatan ini?");
+		if (confirmDelete) {
+			jQuery('#wrap-loading').show();
+			jQuery.ajax({
+				url: '<?php echo admin_url('admin-ajax.php'); ?>',
+				type: 'post',
+				data: {
+					'action': 'hapus_catatan_verifikasi',
+					'api_key': '<?php echo $api_key; ?>',
+					'id': id
+				},
+				dataType: 'json',
+				success: function(response) {
+					jQuery('#wrap-loading').hide();
+					if (response.status == 'success') {
+						load_data();
+						alert(response.message);
+					} else {
+						alert(`GAGAL! \n${response.message}`);
+					}
+				}
+			});
+		}
+	}
+
+	function edit_data(id) {
+		jQuery('#wrap-loading').show();
+		jQuery.ajax({
+			method: 'post',
+			url: '<?php echo admin_url('admin-ajax.php'); ?>',
+			dataType: 'json',
+			data: {
+				'action': 'get_catatan_verifikasi_by_id',
+				'api_key': '<?php echo $api_key; ?>',
+				'id': id,
+			},
+			success: function(res) {
+				if (res.status == 'success') {
+					jQuery('#kode_sbl').val(res.data.kode_sbl).prop('disabled', true);
+					jQuery('#tahun_anggaran').val(res.data.tahun_anggaran).prop('disabled', true);
+					jQuery('#id_catatan').val(res.data.id).prop('disabled', true);
+					jQuery('#sub_kegiatan').val('<?php echo $nama_sub_kegiatan; ?>').prop('disabled', true);
+					jQuery('#id_user').val(res.data.id_user).prop('disabled', true);
+					jQuery('#nama_verifikator').val(res.data.nama_verifikator).prop('disabled', true);
+					jQuery('#fokus_uraian').val('').val(res.data.fokus_uraian);
+					jQuery('#catatan_verifikasi').val(res.data.catatan_verifikasi);
+					jQuery('#modal_tambah_catatan').modal('show');
+				} else {
+					alert(res.message);
+				}
+				jQuery('#wrap-loading').hide();
+			}
+		});
+	}
 </script>

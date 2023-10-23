@@ -7264,7 +7264,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 	public function menu_monev_skpd($options){
 		global $wpdb;
 		$id_skpd = $options['id_skpd'];
-		$nama_skpd = $options['nama_skpd'];
+		$nama_skpd = $options['kode_skpd'].' '.$options['nama_skpd'];
 		$api_key = get_option('_crb_api_key_extension');
 		$alamat = get_option('_crb_skpd_alamat_'.$id_skpd);
 		$ajax_url = admin_url('admin-ajax.php');
@@ -7272,7 +7272,11 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		if(!empty($id_skpd)){ 
 			echo "<h5 class='text_tengah' style='margin-bottom: 10px;'>$nama_skpd</h5>";
 
-			$daftar_tombol = $this->get_carbon_multiselect('crb_daftar_tombol_user_dashboard');
+			if(!empty($options['menu'])){
+				$daftar_tombol = $options['menu'];
+			}else{
+				$daftar_tombol = $this->get_carbon_multiselect('crb_daftar_tombol_user_dashboard');
+			}
 			$daftar_tombol_list = array();
 			foreach ($daftar_tombol as $v) {
 				$daftar_tombol_list[$v['value']] = $v['value'];
@@ -7306,6 +7310,12 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 					and tahun_anggaran=%d
 					and id_skpd=%d",
 				$tahun, $id_skpd), ARRAY_A);
+
+			$sumber_pagu_dpa = get_option('_crb_default_sumber_pagu_dpa');
+			$url_nilai_dpa = '&pagu_dpa=simda';
+			if($sumber_pagu_dpa == 2){
+				$url_nilai_dpa = '&pagu_dpa=fmis';
+			}
 			echo '<ul class="aksi-monev text_tengah">';
             foreach ($unit as $kk => $vv) {
 				$user_id = um_user( 'ID' );
@@ -7318,13 +7328,14 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 					|| in_array("tapd_pp", $user_meta->roles)
 					|| in_array("tapd_keu", $user_meta->roles)
 					|| in_array("mitra_bappeda", $user_meta->roles)
+					|| !empty($options['menu'])
 				){
 					$nama_page = 'RFK '.$vv['nama_skpd'].' '.$vv['kode_skpd'].' | '.$tahun;
 					$custom_post = $this->get_page_by_title($nama_page, OBJECT, 'page');
 					$url_rfk = $this->get_link_post($custom_post);
 
 					if(!empty($daftar_tombol_list[1])){
-						echo '<li><a href="'.$url_rfk.'" target="_blank" class="btn btn-info">MONEV RFK</a></li>';
+						echo '<li><a href="'.$url_rfk.$url_nilai_dpa.'" target="_blank" class="btn btn-info">MONEV RFK</a></li>';
 					}
 
 					$nama_page_sd = 'Sumber Dana '.$vv['nama_skpd'].' '.$vv['kode_skpd'].' | '.$tahun;
@@ -7457,7 +7468,8 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 				foreach ($skpd_mitra as $k => $v) {
 					$this->menu_monev_skpd(array(
 						'id_skpd' => $v['id_unit'],
-						'nama_skpd' => $v['nama_skpd']
+						'nama_skpd' => $v['nama_skpd'],
+						'kode_skpd' => $v['kode_skpd']
 					));
 					if($v['is_skpd'] == 1){
 						$sub_skpd_db = $wpdb->get_results($wpdb->prepare("
@@ -7474,7 +7486,8 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						foreach ($sub_skpd_db as $sub_skpd) {
 							$this->menu_monev_skpd(array(
 								'id_skpd' => $sub_skpd['id_skpd'],
-								'nama_skpd' => $sub_skpd['nama_skpd']
+								'nama_skpd' => $sub_skpd['nama_skpd'],
+								'kode_skpd' => $sub_skpd['kode_skpd']
 							));
 						}
 					}
@@ -7542,7 +7555,8 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 					foreach ($sub_skpd_db as $sub_skpd) {
 						$this->menu_monev_skpd(array(
 							'id_skpd' => $sub_skpd['id_skpd'],
-							'nama_skpd' => $sub_skpd['nama_skpd']
+							'nama_skpd' => $sub_skpd['nama_skpd'],
+							'kode_skpd' => $sub_skpd['kode_skpd']
 						));
 					}
 				}
@@ -7567,11 +7581,43 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 			foreach ($skpd_mitra as $k => $v) {
 				$this->menu_monev_skpd(array(
 					'id_skpd' => $v['id_skpd'],
-					'nama_skpd' => $v['nama_skpd']
+					'nama_skpd' => $v['nama_skpd'],
+					'kode_skpd' => $v['kode_skpd']
 				));
 			}
 		}else{
-			echo 'User ini tidak dapat akses halaman ini :)';
+			$role_verifikator = $this->role_verifikator();
+			$cek_verifiktor = false;
+			foreach($user_meta->roles as $role){
+				if(in_array($role, $role_verifikator)){
+					$cek_verifiktor = true;
+				}
+			}
+			if($cek_verifiktor){
+				$this->pilih_tahun_anggaran();
+				if(empty($_GET) || empty($_GET['tahun'])){ return; }
+				$skpd_mitra = $wpdb->get_results($wpdb->prepare("
+					SELECT 
+						nama_skpd, 
+						id_skpd, 
+						kode_skpd 
+					from data_unit 
+					where active=1 
+						and tahun_anggaran=%d
+					group by id_skpd", $_GET['tahun']), ARRAY_A);
+				foreach ($skpd_mitra as $k => $v) {
+					$this->menu_monev_skpd(array(
+						'id_skpd' => $v['id_skpd'],
+						'nama_skpd' => $v['nama_skpd'],
+						'kode_skpd' => $v['kode_skpd'],
+						'menu' => array(
+							array('value'=> 1)
+						)
+					));
+				}
+			}else{
+				echo 'User ini tidak dapat akses halaman ini :)';
+			}
 		}
 	}
 

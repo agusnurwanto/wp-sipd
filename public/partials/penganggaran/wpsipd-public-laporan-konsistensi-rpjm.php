@@ -240,7 +240,7 @@ foreach($data_all['data'] as $urusan){
     // urusan
     $body .= '
         <tr>
-            <td class="text-left kiri kanan bawah atas" colspan="10"><small><b>'.$urusan['nama'].'</b></small></td>
+            <td class="text-left kiri kanan bawah atas" colspan="10"><medium><b>'.$urusan['nama'].'</b></medium></td>
             <td class="text-left kiri kanan bawah atas" colspan="10"></td>
         </tr>
     ';
@@ -279,7 +279,7 @@ foreach($data_all['data'] as $urusan){
                     <td class="text-left kanan bawah">&nbsp</td>
                     <td class="text-left kanan bawah">&nbsp</td>
                     <td class="text-left kanan bawah">&nbsp</td>
-                    <td class="text-left kanan bawah">'.$skpd['nama'].'</td>
+                    <td class="text-left kanan bawah"><b>'.$skpd['nama'].'</b></td>
                     <td class="text-right kanan bawah">'.number_format($skpd['total_rkpd'],0,",",".").'</td>
                     <td class="text-left kanan bawah">&nbsp</td>
                     <td class="text-left kanan bawah">&nbsp</td>
@@ -305,7 +305,7 @@ foreach($data_all['data'] as $urusan){
                         <td class="text-left kanan bawah">&nbsp</td>
                         <td class="text-left kanan bawah">&nbsp</td>
                         <td class="text-left kanan bawah">&nbsp</td>
-                        <td class="text-left kanan bawah atas">'.$sub_skpd['nama'].'</td>
+                        <td class="text-left kanan bawah atas"><b>'.$sub_skpd['nama'].'</b></td>
                         <td class="text-right kanan bawah">'.number_format($sub_skpd['total_rkpd'],0,",",".").'</td>
                         <td class="text-left kanan bawah">&nbsp</td>
                         <td class="text-left kanan bawah">&nbsp</td>
@@ -411,7 +411,7 @@ foreach($data_all['data'] as $urusan){
 }
 ?>
     <h4 style="text-align: center; margin: 0; font-weight: bold;"><?php echo $nama_excel; ?></h4>
-        <table cellpadding="2" cellspacing="0" style="font-family:\'Open Sans\',-apple-system,BlinkMacSystemFont,\'Segoe UI\',sans-serif; border-collapse: collapse; width:100%; overflow-wrap: break-word; font-size: 70%; border: 0;">
+        <table cellpadding="2" cellspacing="0" style="font-family:\'Open Sans\',-apple-system,BlinkMacSystemFont,\'Segoe UI\',sans-serif; border-collapse: collapse; width:100%; overflow-wrap: break-word; font-size: 70%; border: 0; margin-top: 20px;">
         <thead>
             <tr>
                 <th class="text-center kiri kanan bawah atas" rowspan="2">No</th>

@@ -5754,3 +5754,16 @@ CREATE TABLE `data_spp_sipd_detail` (
   `tahun_anggaran` year(4) NOT NULL,
   PRIMARY KEY  (id)
 );
+
+CREATE TABLE `data_verifikasi_rka` (
+  `id` int(11) NOT NULL,
+  `kode_sbl` text NOT NULL,
+  `tahun_anggaran` year(4) NOT NULL,
+  `id_user` int(11) NOT NULL,
+  `nama_verifikator` varchar(100) NOT NULL,
+  `fokus_uraian` text NOT NULL,
+  `catatan_verifikasi` text NOT NULL,
+  `tanggapan_opd` text NOT NULL,
+  `create_at` datetime NOT NULL DEFAULT current_timestamp(),
+  `update_at` datetime DEFAULT current_timestamp()
+);
