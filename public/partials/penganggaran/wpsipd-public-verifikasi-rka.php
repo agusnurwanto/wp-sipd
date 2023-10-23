@@ -274,7 +274,6 @@ if ($current_user) {
 				tahun_anggaran: <?php echo $tahun_anggaran; ?>
 			},
 			success: function(data) {
-				console.log(data); // Mencetak respons JSON ke konsol
 				jQuery('#wrap-loading').hide();
 				const response = JSON.parse(data);
 				if (response.status === 'success') {
@@ -304,7 +303,6 @@ if ($current_user) {
 		const kode_sbl = jQuery('#kode_sbl').val();
 		const tahun_anggaran = jQuery('#tahun_anggaran').val();
 		const id_catatan = jQuery('#id_catatan').val();
-		const sub_kegiatan = jQuery('#sub_kegiatan').val();
 		const id_user = jQuery('#id_user').val();
 		const nama_verifikator = jQuery('#nama_verifikator').val();
 		const fokus_uraian = jQuery('#fokus_uraian').val();
@@ -318,7 +316,6 @@ if ($current_user) {
 				kode_sbl: kode_sbl,
 				tahun_anggaran: tahun_anggaran,
 				id_catatan: id_catatan,
-				sub_kegiatan: sub_kegiatan,
 				id_user: id_user,
 				nama_verifikator: nama_verifikator,
 				fokus_uraian: fokus_uraian,
@@ -338,6 +335,62 @@ if ($current_user) {
 			},
 			error: function(xhr, status, error) {
 				console.error('AJAX Error:', status, error);
+			}
+		});
+	}
+
+	function delete_data(id) {
+		let confirmDelete = confirm("Apakah anda yakin akan menghapus catatan ini?");
+		if (confirmDelete) {
+			jQuery('#wrap-loading').show();
+			jQuery.ajax({
+				url: '<?php echo admin_url('admin-ajax.php'); ?>',
+				type: 'post',
+				data: {
+					'action': 'hapus_catatan_verifikasi',
+					'api_key': '<?php echo $api_key; ?>',
+					'id': id
+				},
+				dataType: 'json',
+				success: function(response) {
+					jQuery('#wrap-loading').hide();
+					if (response.status == 'success') {
+						load_data();
+						alert(response.message);
+					} else {
+						alert(`GAGAL! \n${response.message}`);
+					}
+				}
+			});
+		}
+	}
+
+	function edit_data(id) {
+		jQuery('#wrap-loading').show();
+		jQuery.ajax({
+			method: 'post',
+			url: '<?php echo admin_url('admin-ajax.php'); ?>',
+			dataType: 'json',
+			data: {
+				'action': 'get_catatan_verifikasi_by_id',
+				'api_key': '<?php echo $api_key; ?>',
+				'id': id,
+			},
+			success: function(res) {
+				if (res.status == 'success') {
+					jQuery('#kode_sbl').val(res.data.kode_sbl);
+					jQuery('#tahun_anggaran').val(res.data.tahun_anggaran);
+					jQuery('#id_catatan').val(res.data.id);
+					jQuery('#sub_kegiatan').val('<?php echo $nama_sub_kegiatan; ?>').prop('disabled', false);
+					jQuery('#id_user').val(res.data.id_user);
+					jQuery('#nama_verifikator').val(res.data.nama_verifikator).prop('disabled', false);
+					jQuery('#fokus_uraian').val('').val(res.data.fokus_uraian);
+					jQuery('#catatan_verifikasi').val(res.data.catatan_verifikasi);
+					jQuery('#modal_tambah_catatan').modal('show');
+				} else {
+					alert(res.message);
+				}
+				jQuery('#wrap-loading').hide();
 			}
 		});
 	}
