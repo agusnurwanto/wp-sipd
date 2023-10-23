@@ -7,6 +7,16 @@ if (!empty($_GET) && !empty($_GET['tahun']) && !empty($_GET['kode_sbl'])) {
 } else {
 	die('<h1 class="text-center">Tahun Anggaran dan Kode Sub Kegiatan tidak boleh kosong!</h1>');
 }
+
+$api_key = get_option('_crb_api_key_extension');
+$user_id = um_user('ID');
+$user_meta = get_userdata($user_id);
+
+$is_admin = false;
+if (in_array("administrator", $user_meta->roles)) {
+	$is_admin = true;
+}
+
 $data_rka = $wpdb->get_row($wpdb->prepare('
 	SELECT 
 		s.*,
@@ -60,6 +70,22 @@ if ($data_rka) {
 } else {
 	die('<h1 class="text-center">Sub Kegiatan tidak ditemukan!</h1>');
 }
+
+$api_key = get_option('_crb_api_key_extension');
+
+$current_user = wp_get_current_user();
+$fokus_uraian = get_user_meta($current_user->ID, 'fokus_uraian', true);
+$fokus_uraian_values = $fokus_uraian ? explode('|', $fokus_uraian) : array();
+
+if ($current_user) {
+	$nama_user = $current_user->display_name;
+	$id_user = $current_user->ID;
+	$username = $current_user->user_login;
+	$role_user = $current_user->roles;
+	$nama_bidang = get_user_meta($current_user->ID, 'fokus_uraian');
+	$fokus_uraian = get_user_meta($current_user->ID, 'fokus_uraian');
+}
+
 ?>
 <style>
 	#tabel_detail_sub,
@@ -79,10 +105,14 @@ if ($data_rka) {
 		padding: 8px;
 		text-align: left;
 	}
-</style>
 
-<h1 class="text-center">LEMBAR ASISTENSI RKA SKPD<br>TAHUN ANGGARAN <?php echo $tahun_anggaran ?></h1>
-<div class="container">
+	.aksi {
+		text-align: center;
+		vertical-align: middle;
+	}
+</style>
+<div style="padding: 15px;">
+	<h1 class="text-center">LEMBAR ASISTENSI RKA SKPD<br>TAHUN ANGGARAN <?php echo $tahun_anggaran ?></h1>
 	<table id='tabel_detail_sub'>
 		<tbody>
 			<tr>
@@ -158,55 +188,157 @@ if ($data_rka) {
 		</tbody>
 	</table>
 
+	<div id="aksi_page" class="text-center aksi" style="margin-bottom: 10px;">
+		<button class="btn btn-sm btn-warning" onclick="tambah_catatan()"><i class="dashicons dashicons-admin-comments"></i> Tambah Catatan</button>
+		<button class="btn btn-sm btn-success"><i class="dashicons dashicons-yes"></i> Verifikasi Tanpa Catatan</button>
+		<button class="btn btn-sm btn-info" onclick="jQuery('.aksi').hide(); window.print(); setTimeout(function(){ jQuery('.aksi').show(); }, 10000);"><i class="dashicons dashicons-printer"></i> Print Lembar Verifikasi</button>
+	</div>
 	<table id="tabel_verifikasi">
 		<thead>
 			<tr>
 				<th class="text-center" style="vertical-align: middle;" rowspan="2">URAIAN</th>
-				<th class="text-center" style="width :250px" colspan="2">CATATAN TIM ASISTENSI</th>
-				<th class="text-center" style="vertical-align: middle;" rowspan="2">CATATAN OPD</th>
+				<th class="text-center" style="width :500px" colspan="2">CATATAN TIM ASISTENSI</th>
+				<th class="text-center" style="vertical-align: middle; width: 300px;" rowspan="2">TANGGAPAN OPD</th>
+				<th class="text-center aksi" style="vertical-align: middle; width: 50px;" rowspan="2">AKSI</th>
 			</tr>
 			<tr>
 				<th class="text-center">Komentar</th>
-				<th class="text-center" style="width: 100px;">Tim</th>
+				<th class="text-center" style="width: 200px;">Tim</th>
 			</tr>
 		</thead>
-		<tbody>
-			<tr>
-				<th colspan="4">Indikator</th>
-			</tr>
-			<tr>
-				<td></td>
-				<td></td>
-				<td></td>
-				<td></td>
-			</tr>
-			<tr>
-				<th colspan="4">Kesesuaian</th>
-			</tr>
-			<tr>
-				<td></td>
-				<td></td>
-				<td></td>
-				<td></td>
-			</tr>
-			<tr>
-				<th colspan="4">Rekening</th>
-			</tr>
-			<tr>
-				<td></td>
-				<td></td>
-				<td></td>
-				<td></td>
-			</tr>
-			<tr>
-				<th colspan="4">Keseluruhan</th>
-			</tr>
-			<tr>
-				<td></td>
-				<td></td>
-				<td></td>
-				<td></td>
-			</tr>
-		</tbody>
+		<tbody></tbody>
 	</table>
 </div>
+
+<!-- Modal -->
+<div class="modal fade" id="modal_tambah_catatan" tabindex="-1" role="dialog" aria-labelledby="exampleModalScrollableTitle" aria-hidden="true">
+	<div class="modal-dialog modal-lg" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title" id="exampleModalScrollableTitle">Tambah Catatan Verifikasi</h5>
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+					<span aria-hidden="true">&times;</span>
+				</button>
+			</div>
+			<div class="modal-body">
+				<input type="hidden" class="form-control" id="kode_sbl">
+				<input type="hidden" class="form-control" id="id_user">
+				<input type="hidden" class="form-control" id="tahun_anggaran">
+				<input type="hidden" class="form-control" id="id_catatan">
+				<div class="form-group">
+					<label>Sub Kegiatan</label>
+					<input type="text" class="form-control" id="sub_kegiatan" value="" disabled>
+				</div>
+				<div class="form-group">
+					<label>Nama Verifikator</label>
+					<input type="text" class="form-control" id="nama_verifikator" disabled>
+				</div>
+				<div class="form-group">
+					<label>Fokus Uraian</label>
+					<select class="form-control" id="fokus_uraian">
+						<?php foreach ($fokus_uraian_values as $value) : ?>
+							<option value="<?php echo esc_attr($value); ?>"><?php echo esc_html($value); ?></option>
+						<?php endforeach; ?>
+
+						<?php if (empty($fokus_uraian_values)) : ?>
+							<option value="">Tidak ada nilai fokus uraian ditemukan.</option>
+						<?php endif; ?>
+					</select>
+				</div>
+				<div class="form-group">
+					<label>Catatan Verifikasi</label>
+					<textarea class="form-control" id="catatan_verifikasi" required value=""></textarea>
+				</div>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-secondary" data-dismiss="modal">Tutup</button>
+				<button type="button" class="btn btn-primary" onclick="submit_data(this)">Simpan</button>
+			</div>
+		</div>
+	</div>
+</div>
+<script>
+	jQuery(document).ready(function() {
+		load_data();
+	});
+
+	function load_data() {
+		jQuery('#wrap-loading').show();
+		jQuery.ajax({
+			type: 'POST',
+			url: '<?php echo admin_url('admin-ajax.php'); ?>',
+			data: {
+				api_key: '<?php echo $api_key; ?>',
+				action: 'get_data_verifikasi_rka',
+				kode_sbl: '<?php echo $kode_sbl; ?>',
+				tahun_anggaran: <?php echo $tahun_anggaran; ?>
+			},
+			success: function(data) {
+				console.log(data); // Mencetak respons JSON ke konsol
+				jQuery('#wrap-loading').hide();
+				const response = JSON.parse(data);
+				if (response.status === 'success') {
+					jQuery('#tabel_verifikasi > tbody').html(response.html);
+				} else {
+					alert('Error: ' + response.message);
+				}
+			}
+
+		});
+	}
+
+	function tambah_catatan() {
+		jQuery('#kode_sbl').val('<?php echo $kode_sbl ?>');
+		jQuery('#tahun_anggaran').val('<?php echo $tahun_anggaran; ?>');
+		jQuery('#id_catatan').val('');
+		jQuery('#sub_kegiatan').val('<?php echo $nama_sub_kegiatan; ?>');
+		jQuery('#id_user').val('<?php echo $id_user; ?>');
+		jQuery('#nama_verifikator').val('<?php echo $nama_user; ?>');
+		jQuery('#fokus_uraian').val('').prop('disabled', false);
+		jQuery('#catatan_verifikasi').val('').prop('disabled', false);
+		jQuery('#modal_tambah_catatan').modal('show');
+	}
+
+	function submit_data(that) {
+		jQuery('#wrap-loading').show();
+		const kode_sbl = jQuery('#kode_sbl').val();
+		const tahun_anggaran = jQuery('#tahun_anggaran').val();
+		const id_catatan = jQuery('#id_catatan').val();
+		const sub_kegiatan = jQuery('#sub_kegiatan').val();
+		const id_user = jQuery('#id_user').val();
+		const nama_verifikator = jQuery('#nama_verifikator').val();
+		const fokus_uraian = jQuery('#fokus_uraian').val();
+		const catatan_verifikasi = jQuery('#catatan_verifikasi').val();
+
+		jQuery.ajax({
+			type: 'POST',
+			url: '<?php echo admin_url('admin-ajax.php'); ?>',
+			data: {
+				api_key: '<?php echo $api_key; ?>',
+				kode_sbl: kode_sbl,
+				tahun_anggaran: tahun_anggaran,
+				id_catatan: id_catatan,
+				sub_kegiatan: sub_kegiatan,
+				id_user: id_user,
+				nama_verifikator: nama_verifikator,
+				fokus_uraian: fokus_uraian,
+				catatan_verifikasi: catatan_verifikasi,
+				action: 'tambah_catatan_verifikator'
+			},
+			success: function(data) {
+				jQuery('#wrap-loading').hide();
+				const response = JSON.parse(data);
+				if (response.status === 'success') {
+					alert(response.message);
+					jQuery('#modal_tambah_catatan').modal('hide');
+					load_data();
+				} else {
+					alert('Error: ' + response.message);
+				}
+			},
+			error: function(xhr, status, error) {
+				console.error('AJAX Error:', status, error);
+			}
+		});
+	}
+</script>
