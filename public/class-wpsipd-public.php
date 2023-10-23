@@ -7372,7 +7372,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 					$custom_post = $this->get_page_by_title($nama_page_menu_ssh, OBJECT, 'page');
 					$url_menu_ssh = $this->get_link_post($custom_post);
 					if(!empty($daftar_tombol_list[7])){
-						echo '<li><a href="'.$url_menu_ssh.'" target="_blank" class="btn btn-info">MENU SSH</a></li>';
+						echo '<li><a href="'.$url_menu_ssh.'" target="_blank" class="btn btn-info">MANAJEMEN STANDAR HARGA</a></li>';
 					}
 
 					if($vv['is_skpd'] == 1){
@@ -7538,7 +7538,8 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 			foreach ($skpd_db as $skpd) {
 				$this->menu_monev_skpd(array(
 					'id_skpd' => $skpd['id_skpd'],
-					'nama_skpd' => $skpd['nama_skpd']
+					'nama_skpd' => $skpd['nama_skpd'],
+					'kode_skpd' => $skpd['kode_skpd']
 				));
 				if($skpd['is_skpd'] == 1){
 					$sub_skpd_db = $wpdb->get_results($wpdb->prepare("
