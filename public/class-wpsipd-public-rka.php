@@ -448,11 +448,8 @@ class Wpsipd_Public_RKA
                                 <td>' . $val['nama_verifikator'] . ' ' . $val['update_at'] . '</td>
                                 <td></td>
                                 <td class="aksi">
-                                    $btn = 
-                                    <a class="btn btn-sm btn-warning" onclick="edit_data(\'' . $recVal['id'] . '\'); return false;" href="#" title="Edit Data">
-                                    <i class="dashicons dashicons-edit"></i></a>';
-                                    $btn .= '<a style="margin-left: 10px;" class="btn btn-sm btn-danger" onclick="hapus_data(\'' . $recVal['id'] . '\'); return false;" href="#" title="delete data">
-                                    <i class="dashicons dashicons-trash"></i></a>;
+                                    <a class="btn btn-sm btn-warning" onclick="edit_data(\'' . $val['id'] . '\'); return false;" href="#" title="Edit Data"><i class="dashicons dashicons-edit"></i></a>
+                                    <a class="btn btn-sm btn-danger" onclick="delete_data(\'' . $val['id'] . '\'); return false;" href="#" title="delete data"><i class="dashicons dashicons-trash"></i></a>
                                 </td>
                             </tr>';
                     }
@@ -479,7 +476,7 @@ class Wpsipd_Public_RKA
             if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option('_crb_api_key_extension')) {
                 if (empty($_POST['kode_sbl'])) {
                     $ret['status'] = 'error';
-                    $ret['message'] = 'kode sbl field harus diisi!';
+                    $ret['message'] = 'kode sbl tidak boleh kosong!';
                     die(json_encode($ret));
                 }
                 if (empty($_POST['id_user'])) {
@@ -490,11 +487,6 @@ class Wpsipd_Public_RKA
                 if (empty($_POST['tahun_anggaran'])) {
                     $ret['status'] = 'error';
                     $ret['message'] = 'tahun anggaran tidak boleh kosong!';
-                    die(json_encode($ret));
-                }
-                if (empty($_POST['sub_kegiatan'])) {
-                    $ret['status'] = 'error';
-                    $ret['message'] = 'sub kegiatan field harus diisi!';
                     die(json_encode($ret));
                 }
                 if (empty($_POST['nama_verifikator'])) {
@@ -516,29 +508,99 @@ class Wpsipd_Public_RKA
                 $kode_sbl = $_POST['kode_sbl'];
                 $tahun_anggaran = $_POST['tahun_anggaran'];
                 $id = $_POST['id_catatan'];
-                $sub_kegiatan = $_POST['sub_kegiatan'];
                 $id_user = $_POST['id_user'];
                 $nama_verifikator = $_POST['nama_verifikator'];
                 $fokus_uraian = $_POST['fokus_uraian'];
                 $catatan_verifikasi = $_POST['catatan_verifikasi'];
 
                 $data = array(
-                    'id' => $id,
                     'tahun_anggaran' => $tahun_anggaran,
                     'kode_sbl' => $kode_sbl,
-                    'sub_kegiatan' => $sub_kegiatan,
                     'id_user' => $id_user,
                     'nama_verifikator' => $nama_verifikator,
                     'fokus_uraian' => $fokus_uraian,
                     'catatan_verifikasi' => $catatan_verifikasi,
                     'create_at' => current_time('mysql')
                 );
-                if ($data) {
-                    $wpdb->insert('data_verifikasi_rka', $data);
+                if (empty($id)) {
+                    // Insert new data
+                    $result = $wpdb->insert('data_verifikasi_rka', $data);
+                    if (!$result) {
+                        $ret['status'] = 'error';
+                        $ret['message'] = 'Gagal menambahkan data ke database.';
+                    }
                 } else {
-                    $ret['status'] = 'error';
-                    $ret['message'] = 'Gagal menambahkan data ke database.';
+                    // Update existing data and set update_at
+                    $data['update_at'] = current_time('mysql');
+                    $result = $wpdb->update('data_verifikasi_rka', $data, ['id' => $id]);
+                    if ($result === false) {
+                        $ret['status'] = 'error';
+                        $ret['message'] = 'Gagal memperbarui data di database.';
+                    }
                 }
+                die(json_encode($ret));
+            } else {
+                $ret['status']  = 'error';
+                $ret['message'] = 'Api key tidak valid!';
+            }
+        } else {
+            $ret['status']  = 'error';
+            $ret['message'] = 'Format Salah!';
+        }
+        die(json_encode($ret));
+    }
+
+    function get_catatan_verifikasi_by_id()
+    {
+        global $wpdb;
+        $ret = array();
+        $ret['status'] = 'success';
+        $ret['message'] = 'Berhasil get catatan verifikasi!';
+
+        if (!empty($_POST)) {
+            if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option('_crb_api_key_extension')) {
+                if (empty($_POST['id'])) {
+                    $ret['status'] = 'error';
+                    $ret['message'] = 'id catatan tidak boleh kosong';
+                    die(json_encode($ret));
+                }
+                $ret['data'] = $wpdb->get_row($wpdb->prepare('
+                    SELECT
+                        *
+                    FROM data_verifikasi_rka
+                    WHERE id=%d
+                ', $_POST['id']), ARRAY_A);
+            } else {
+                $ret['status']  = 'error';
+                $ret['message'] = 'Api key tidak valid!';
+            }
+        } else {
+            $ret['status']  = 'error';
+            $ret['message'] = 'Format Salah!';
+        }
+        die(json_encode($ret));
+    }
+
+    function hapus_catatan_verifikasi()
+    {
+        global $wpdb;
+        $ret = array();
+        $ret['status'] = 'success';
+        $ret['message'] = 'Berhasil hapus catatan verifikasi!';
+
+
+        if (!empty($_POST)) {
+            if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option('_crb_api_key_extension')) {
+                if (empty($_POST['id'])) {
+                    $ret['status'] = 'error';
+                    $ret['message'] = 'id catatan tidak boleh kosong';
+                    die(json_encode($ret));
+                }
+                $ret['data'] = $wpdb->delete('data_verifikasi_rka', array(
+                    'id' => $_POST['id']
+                ));
+                $ret['status']  = 'success';
+                $ret['message'] = 'catatan verifikasi berhasil dihapus!';
             } else {
                 $ret['status']  = 'error';
                 $ret['message'] = 'Api key tidak valid!';
