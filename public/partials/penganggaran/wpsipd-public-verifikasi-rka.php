@@ -236,12 +236,14 @@ if ($current_user) {
 				<div class="form-group">
 					<label>Fokus Uraian</label>
 					<select class="form-control" id="fokus_uraian">
+						<option value="" selected disabled>Pilih Salah Satu</option>
+
 						<?php foreach ($fokus_uraian_values as $value) : ?>
 							<option value="<?php echo esc_attr($value); ?>"><?php echo esc_html($value); ?></option>
 						<?php endforeach; ?>
 
 						<?php if (empty($fokus_uraian_values)) : ?>
-							<option value="">Tidak ada nilai fokus uraian ditemukan.</option>
+							<option value="" disabled>Tidak ada nilai fokus uraian ditemukan.</option>
 						<?php endif; ?>
 					</select>
 				</div>
@@ -287,12 +289,12 @@ if ($current_user) {
 	}
 
 	function tambah_catatan() {
-		jQuery('#kode_sbl').val('<?php echo $kode_sbl ?>');
-		jQuery('#tahun_anggaran').val('<?php echo $tahun_anggaran; ?>');
-		jQuery('#id_catatan').val('');
-		jQuery('#sub_kegiatan').val('<?php echo $nama_sub_kegiatan; ?>');
-		jQuery('#id_user').val('<?php echo $id_user; ?>');
-		jQuery('#nama_verifikator').val('<?php echo $nama_user; ?>');
+		jQuery('#kode_sbl').val('<?php echo $kode_sbl ?>').prop('disabled', true);;
+		jQuery('#tahun_anggaran').val('<?php echo $tahun_anggaran; ?>').prop('disabled', true);;
+		jQuery('#id_catatan').val('').prop('disabled', true);;
+		jQuery('#sub_kegiatan').val('<?php echo $nama_sub_kegiatan; ?>').prop('disabled', true);;
+		jQuery('#id_user').val('<?php echo $id_user; ?>').prop('disabled', true);;
+		jQuery('#nama_verifikator').val('<?php echo $nama_user; ?>').prop('disabled', true);;
 		jQuery('#fokus_uraian').val('').prop('disabled', false);
 		jQuery('#catatan_verifikasi').val('').prop('disabled', false);
 		jQuery('#modal_tambah_catatan').modal('show');
@@ -378,12 +380,12 @@ if ($current_user) {
 			},
 			success: function(res) {
 				if (res.status == 'success') {
-					jQuery('#kode_sbl').val(res.data.kode_sbl);
-					jQuery('#tahun_anggaran').val(res.data.tahun_anggaran);
-					jQuery('#id_catatan').val(res.data.id);
-					jQuery('#sub_kegiatan').val('<?php echo $nama_sub_kegiatan; ?>').prop('disabled', false);
-					jQuery('#id_user').val(res.data.id_user);
-					jQuery('#nama_verifikator').val(res.data.nama_verifikator).prop('disabled', false);
+					jQuery('#kode_sbl').val(res.data.kode_sbl).prop('disabled', true);
+					jQuery('#tahun_anggaran').val(res.data.tahun_anggaran).prop('disabled', true);
+					jQuery('#id_catatan').val(res.data.id).prop('disabled', true);
+					jQuery('#sub_kegiatan').val('<?php echo $nama_sub_kegiatan; ?>').prop('disabled', true);
+					jQuery('#id_user').val(res.data.id_user).prop('disabled', true);
+					jQuery('#nama_verifikator').val(res.data.nama_verifikator).prop('disabled', true);
 					jQuery('#fokus_uraian').val('').val(res.data.fokus_uraian);
 					jQuery('#catatan_verifikasi').val(res.data.catatan_verifikasi);
 					jQuery('#modal_tambah_catatan').modal('show');
