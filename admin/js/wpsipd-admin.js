@@ -749,7 +749,8 @@ jQuery(document).ready(function(){
 	          	data: {
 	          		"action": "generate_user_sipd_merah",
 	          		"api_key": wpsipd.api_key,
-	          		"pass": prompt('Masukan password default untuk User yang akan dibuat')
+	          		"pass": prompt('Masukan password default untuk User yang akan dibuat'),
+	          		"update_pass": confirm("Apakah anda mau mereset password user existing juga?")
 	          	},
 	          	dataType: "json",
 	          	success: function(data){

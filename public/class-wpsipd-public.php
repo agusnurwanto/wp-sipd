@@ -7111,12 +7111,13 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 	    }
 	}
 
-	function gen_user_sipd_merah($user = array()){
+	function gen_user_sipd_merah($user = array(), $update_pass = false){
 		global $wpdb;
 		if(!empty($user)){
 			$username = $user['loginname'];
-			$email = $user['emailteks'];
-			if(empty($email)){
+			if(empty($user['emailteks'])){
+				$email = $user['emailteks'];
+			}else{
 				$email = $username.'@sipdlocal.com';
 			}
 			$role = get_role($user['jabatan']);
@@ -7140,14 +7141,22 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 				$insert_user = wp_insert_user($option);
 			}
 
-			$skpd = $wpdb->get_var("SELECT nama_skpd from data_unit where id_skpd=".$user['id_sub_skpd']." AND active=1");
+			if(!empty($update_pass)){
+				wp_set_password($user['pass'], $insert_user);
+			}
+
 			$meta = array(
-			    '_crb_nama_skpd' => $skpd,
-			    '_id_sub_skpd' => $user['id_sub_skpd'],
 			    '_nip' => $user['nip'],
-			    'id_user_sipd' => $user['iduser'],
 			    'description' => 'User dibuat dari data SIPD Merah'
 			);
+			if(!empty($user['id_sub_skpd'])){
+				$skpd = $wpdb->get_var("SELECT nama_skpd from data_unit where id_skpd=".$user['id_sub_skpd']." AND active=1");
+				$meta['_crb_nama_skpd'] = $skpd;
+				$meta['_id_sub_skpd'] = $user['id_sub_skpd'];
+			}
+			if(!empty($user['iduser'])){
+				$meta['id_user_sipd'] = $user['iduser'];
+			}
 		    foreach( $meta as $key => $val ) {
 		      	update_user_meta( $insert_user, $key, $val ); 
 		    }
@@ -7162,6 +7171,13 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		if (!empty($_POST)) {
 			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
 				$users_pa = $wpdb->get_results("SELECT * from data_unit where active=1", ARRAY_A);
+				$update_pass = false;
+				if(
+					!empty($_POST['update_pass']) 
+					&& $_POST['update_pass'] == 'true'
+				){
+					$update_pass = true;
+				}
 				if(!empty($users_pa)){
 					foreach ($users_pa as $k => $user) {
 						$user['pass'] = $_POST['pass'];
@@ -7170,7 +7186,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						$user['nama'] = $user['namakepala'];
 						$user['id_sub_skpd'] = $user['id_skpd'];
 						$user['nip'] = $user['nipkepala'];
-						$this->gen_user_sipd_merah($user);
+						$this->gen_user_sipd_merah($user, $update_pass);
 					}
 
 					$users = $wpdb->get_results("SELECT * from data_dewan where active=1", ARRAY_A);
@@ -7187,7 +7203,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 							}else if($user['jabatan'] == 'TAPD KEUANGAN'){
 								$user['jabatan'] = 'tapd_keu';
 							}
-							$this->gen_user_sipd_merah($user);
+							$this->gen_user_sipd_merah($user, $update_pass);
 						}
 					}else{
 						$ret['status'] = 'error';
@@ -7356,7 +7372,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 					$custom_post = $this->get_page_by_title($nama_page_menu_ssh, OBJECT, 'page');
 					$url_menu_ssh = $this->get_link_post($custom_post);
 					if(!empty($daftar_tombol_list[7])){
-						echo '<li><a href="'.$url_menu_ssh.'" target="_blank" class="btn btn-info">MENU SSH</a></li>';
+						echo '<li><a href="'.$url_menu_ssh.'" target="_blank" class="btn btn-info">MANAJEMEN STANDAR HARGA</a></li>';
 					}
 
 					if($vv['is_skpd'] == 1){
@@ -7522,7 +7538,8 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 			foreach ($skpd_db as $skpd) {
 				$this->menu_monev_skpd(array(
 					'id_skpd' => $skpd['id_skpd'],
-					'nama_skpd' => $skpd['nama_skpd']
+					'nama_skpd' => $skpd['nama_skpd'],
+					'kode_skpd' => $skpd['kode_skpd']
 				));
 				if($skpd['is_skpd'] == 1){
 					$sub_skpd_db = $wpdb->get_results($wpdb->prepare("

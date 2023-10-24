@@ -435,18 +435,13 @@ class Wpsipd_Public_RKA
                 }
                 $ret['html'] = '';
                 foreach ($new_data as $key => $data) {
-                    $ret['html'] .= '
-                        <tr>
-                            <th colspan="4">' . $key . '</th>
-                            <th class="aksi"></th>
-                        </tr>';
                     foreach ($data as $val) {
                         $ret['html'] .= '
                             <tr>
-                                <td></td>
+                            <th>' . $key . '</th>
                                 <td>' . $val['catatan_verifikasi'] . '</td>
                                 <td>' . $val['nama_verifikator'] . ' ' . $val['update_at'] . '</td>
-                                <td></td>
+                                <td>' . $val['tanggapan_opd'] . '</td>
                                 <td class="aksi">
                                     <a class="btn btn-sm btn-warning" onclick="edit_data(\'' . $val['id'] . '\'); return false;" href="#" title="Edit Data"><i class="dashicons dashicons-edit"></i></a>
                                     <a class="btn btn-sm btn-danger" onclick="delete_data(\'' . $val['id'] . '\'); return false;" href="#" title="delete data"><i class="dashicons dashicons-trash"></i></a>
@@ -494,26 +489,26 @@ class Wpsipd_Public_RKA
                     $ret['message'] = 'nama verifikator field harus diisi!';
                     die(json_encode($ret));
                 }
-                // if (empty($_POST['fokus_uraian'])) {
-                //     $ret['status'] = 'error';
-                //     $ret['message'] = 'fokus uraian field harus diisi!';
-                //     die(json_encode($ret));
-                // }
+                if (empty($_POST['fokus_uraian'])) {
+                    $ret['status'] = 'error';
+                    $ret['message'] = 'fokus uraian field harus diisi!';
+                    die(json_encode($ret));
+                }
                 if (empty($_POST['catatan_verifikasi'])) {
                     $ret['status'] = 'error';
                     $ret['message'] = 'catatan verifikasi field harus diisi!';
                     die(json_encode($ret));
                 }
 
+                $id_catatan = $_POST['id_catatan'];
                 $kode_sbl = $_POST['kode_sbl'];
                 $tahun_anggaran = $_POST['tahun_anggaran'];
-                $id = $_POST['id_catatan'];
                 $id_user = $_POST['id_user'];
                 $nama_verifikator = $_POST['nama_verifikator'];
                 $fokus_uraian = $_POST['fokus_uraian'];
                 $catatan_verifikasi = $_POST['catatan_verifikasi'];
 
-                $data = array(
+                $data = [
                     'tahun_anggaran' => $tahun_anggaran,
                     'kode_sbl' => $kode_sbl,
                     'id_user' => $id_user,
@@ -521,24 +516,22 @@ class Wpsipd_Public_RKA
                     'fokus_uraian' => $fokus_uraian,
                     'catatan_verifikasi' => $catatan_verifikasi,
                     'create_at' => current_time('mysql')
-                );
-                if (empty($id)) {
+                ];
+
+                if (empty($id_catatan)) {
                     // Insert new data
                     $result = $wpdb->insert('data_verifikasi_rka', $data);
-                    if (!$result) {
-                        $ret['status'] = 'error';
-                        $ret['message'] = 'Gagal menambahkan data ke database.';
-                    }
                 } else {
                     // Update existing data and set update_at
                     $data['update_at'] = current_time('mysql');
-                    $result = $wpdb->update('data_verifikasi_rka', $data, ['id' => $id]);
-                    if ($result === false) {
-                        $ret['status'] = 'error';
-                        $ret['message'] = 'Gagal memperbarui data di database.';
-                    }
+                    $result = $wpdb->update('data_verifikasi_rka', $data, ['id' => $id_catatan]);
+                    $ret['message'] = 'Berhasil Update Catatan Verifikasi';
                 }
-                die(json_encode($ret));
+
+                if ($result === false) {
+                    $ret['status'] = 'error';
+                    $ret['message'] = empty($id_catatan) ? 'Gagal menambahkan data ke database.' : 'Gagal memperbarui data di database.';
+                }
             } else {
                 $ret['status']  = 'error';
                 $ret['message'] = 'Api key tidak valid!';
@@ -547,6 +540,7 @@ class Wpsipd_Public_RKA
             $ret['status']  = 'error';
             $ret['message'] = 'Format Salah!';
         }
+
         die(json_encode($ret));
     }
 

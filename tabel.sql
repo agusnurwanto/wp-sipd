@@ -5763,6 +5763,7 @@ CREATE TABLE `data_verifikasi_rka` (
   `nama_verifikator` varchar(100) NOT NULL,
   `fokus_uraian` text NOT NULL,
   `catatan_verifikasi` text NOT NULL,
+  `tanggapan_opd` text NOT NULL,
   `create_at` datetime NOT NULL DEFAULT current_timestamp(),
   `update_at` datetime DEFAULT current_timestamp()
 );

@@ -36,16 +36,16 @@ $body = '';
 		<div style="padding: 10px;margin:0 0 3rem 0;">
 			<input type="hidden" value="<?php echo get_option( '_crb_api_key_extension' ); ?>" id="api_key">
 			<input type="hidden" value="<?php echo $input['tahun_anggaran']; ?>" id="tahun_anggaran">
+			<h2 class="text-center" style="margin:3rem;">Manajemen Satuan Harga</h2>
+			<div style="margin: 0 0 2rem 0;" class="text-center">
+				<a href="<?php echo $url_data_ssh ?>" style="text-decoration:none;" class="button button-primary button-large tambah_ssh" target="_blank">Rekapitulasi Usulan dan Data Standar Harga SIPD</a>
+				<a href="<?php echo $url_data_ssh_usulan ?>" style="text-decoration:none;" class="button button-primary button-large tambah_ssh" target="_blank">Usulan Standar Harga</a>
+			</div>
 			<h2 class="text-center" style="margin:3rem;">Daftar 20 Rincian Belanja Terbesar<br><?php echo get_option('_crb_daerah'); ?><br>Tahun Anggaran <?php echo $input['tahun_anggaran']; ?><br><?php echo $skpd[0]['kode_skpd'].' '.$skpd[0]['nama_skpd']; ?></h2>
 			<div class="card" style="width:100%;margin:0 0 2rem 0">
 				<div class="card-body">
 					<canvas id="mycanvas"></canvas>
 				</div>
-			</div>
-			<h2 class="text-center" style="margin:3rem;">Manajemen Satuan Harga</h2>
-			<div style="margin: 0 0 2rem 0;" class="text-center">
-				<a href="<?php echo $url_data_ssh ?>" style="text-decoration:none;" class="button button-primary button-large tambah_ssh" target="_blank">Rekapitulasi Usulan dan Data Standar Harga SIPD</a>
-				<a href="<?php echo $url_data_ssh_usulan ?>" style="text-decoration:none;" class="button button-primary button-large tambah_ssh" target="_blank">Usulan Standar Harga</a>
 			</div>
 			<h2 class="text-center" style="margin:3rem;">Data Rekapitulasi Rincian Belanja Tahun Anggaran <?php echo $input['tahun_anggaran']; ?></h2>
 			<table id="data_ssh_analisis" cellpadding="2" cellspacing="0" style="font-family:\'Open Sans\',-apple-system,BlinkMacSystemFont,\'Segoe UI\',sans-serif; border-collapse: collapse; width:100%; overflow-wrap: break-word;" class="table table-bordered">
