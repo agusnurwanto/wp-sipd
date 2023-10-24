@@ -92,7 +92,7 @@ foreach($ssh as $k => $val){
 		<td>'.$val['nama_standar_harga'].'</td>
 		<td>'.$val['spek'].'</td>
 		<td>'.$val['satuan'].'</td>
-		<td>'.number_format($val['harga'],2,",",".",).'</td>
+		<td class="text-right">'.number_format($val['harga'],2,",",".",).'</td>
 		<td>'.$akun_belanja.'</td>
 		<td>'.$val['keterangan_lampiran'].'</td>
 	</tr>
@@ -213,10 +213,10 @@ if(empty($alamat)){
 				<?php echo $body_html; ?>
 			</tbody>
 		</table>
-		<div class="surat-usulan break-print" id="content" contenteditable="true" style="margin-right: 12px;">
+		<div contenteditable="true">
 			<div class="ttd-surat row">
-				<div class="col-md-6"></div>
-				<div class="col-md-6 text-center">
+				<div class="col-md-8"></div>
+				<div class="col-md-4 text-center">
 					<p><?php echo get_option('_crb_lokasi'); ?>, <?php echo $waktu_surat; ?><br>Kepala <?php echo $skpd->namaunit ?><br><?php echo get_option('_crb_daerah') ?></p><br><br><br><br><p><?php echo $skpd->namakepala ?><br><?php echo $skpd->pangkatkepala ?><br>NIP : <?php echo $skpd->nipkepala ?></p>
 				</div>
 			</div>
