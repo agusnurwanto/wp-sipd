@@ -10072,20 +10072,21 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
     		if (!empty($_POST)) {
 				if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
 
-					//check program baru
 					$checkProgramRpjm = $wpdb->get_var($wpdb->prepare("SELECT id FROM data_rpjmd_program_lokal WHERE id_program=%d AND active=1 AND status=1 AND id_unik_indikator IS NULL ORDER BY id ASC", $_POST['id_program']));
 
 					if(!empty($checkProgramRpjm)){
 						throw new Exception('Program Pemutakhiran sudah pernah ditambahkan!');
 					}
 
-					// select program lama by id
 					$programRpjmLama = $wpdb->get_row($wpdb->prepare("SELECT * FROM data_rpjmd_program_lokal WHERE id=%d", $_POST['id']), ARRAY_A);
 
-					//ambil data program baru
-					$program_baru = $wpdb->get_row($wpdb->prepare("SELECT DISTINCT id_program, kode_program, nama_program, kode_bidang_urusan, nama_bidang_urusan, nama_urusan, tahun_anggaran, kode_urusan FROM data_prog_keg WHERE id_program=%d AND active=%d", $_POST['id_program'], 1), ARRAY_A);
+					$program_baru = $wpdb->get_row($wpdb->prepare("SELECT DISTINCT id_program, kode_program, nama_program, kode_bidang_urusan, nama_bidang_urusan, nama_urusan, tahun_anggaran, kode_urusan FROM data_prog_keg WHERE id_program=%d AND active=%d AND tahun_anggaran=%d", $_POST['id_program'], 1, $_POST['tahun_anggaran']), ARRAY_A);
 
-					//ambil data program lama untuk di check kesamaan urusan & bidang
+					if(empty($program_baru)){
+						throw new Exception('Program Pemutakhiran di tahun '.$_POST['tahun_anggaran'].' tidak ditemukan, perlu melakukan updating master program tahun '.$_POST['tahun_anggaran'].'!');
+					}
+
+					// tahun anggaran n-1 ?
 					$program_lama = $wpdb->get_row($wpdb->prepare("SELECT DISTINCT id_program, kode_program, nama_program, kode_bidang_urusan, nama_bidang_urusan, nama_urusan, tahun_anggaran, kode_urusan FROM data_prog_keg WHERE id_program=%d AND active=%d", $programRpjmLama['id_program'], 1), ARRAY_A);
 
 					if(
@@ -10095,12 +10096,11 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 						throw new Exception("Urusan atau Bidang Urusan tidak linear antara Program Existing dan Program Pemutakhiran", 1);
 					}
 
-					// insert program yang baru berdasarkan program yang dipilih + id program lama
 					$id_unik_program = $this->generateRandomString();
 					$result1 = $wpdb->insert('data_rpjmd_program_lokal', [
 						'id_misi' => $programRpjmLama['id_misi'],
 					    'id_misi_old' => $programRpjmLama['id_misi_old'],
-					    'id_program' => $programRpjmLama['id_program'],
+					    'id_program' => $program_baru['id_program'],
 					    'id_unik' => $id_unik_program,
 					    'id_unit' => $programRpjmLama['id_unit'],
 					    'id_visi' => $programRpjmLama['id_visi'],
@@ -10138,7 +10138,6 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 							throw new Exception('Program Pemutakhiran tidak ditemukan!');
 						}
 
-						// insert indikator sebagai indikator program baru
 						$arrStatus = [];
 						foreach ($indikatorProgramRpjm as $key => $indikatorProgram) {
 
@@ -10187,12 +10186,134 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 						}
 					}
 
-					// non aktifkan program lama
 					$result2=$wpdb->query($wpdb->prepare("UPDATE data_rpjmd_program_lokal SET active=0, status=0, update_at='".date('Y-m-d H:i:s')."' WHERE id_unik=%s AND active=%d", $programRpjmLama['id_unik'], 1));
 
-					// commit & rollback
 					if($result1 && $result2){
 						if(!empty($indikatorProgramRpjm)){
+							$res = array_unique($arrStatus);
+							if(count($res) === 1 && $res[0]) {
+							  $wpdb->query('COMMIT');
+							}else{
+							  $wpdb->query('ROLLBACK');
+							  throw new Exception("Oops terjadi kesalahan mengambil indikator program lama!", 1);
+							}
+						}else{
+							$wpdb->query('COMMIT');
+						}
+					}else{
+						$wpdb->query('ROLLBACK');
+					}
+
+					echo json_encode([
+		    			'status' => true,
+		    			'message' => 'Sukses mutakhirkan program!'
+		    		]);exit();
+				}else{
+					throw new Exception("API tidak ditemukan!", 1);
+				}
+			}else{
+				throw new Exception("Format tidak sesuai!", 1);
+			}
+		} catch (Exception $e) {
+    		echo json_encode([
+    			'status' => false,
+    			'message' => $e->getMessage()
+    		]);exit();
+    	}
+    }
+
+    public function mutakhirkan_program_rpd(){
+    	global $wpdb;
+    	
+    	try {
+
+    		if (!empty($_POST)) {
+				if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+
+					$checkProgramRpd = $wpdb->get_var($wpdb->prepare("SELECT id FROM data_rpd_program_lokal WHERE id_program=%d AND active=1 AND id_unik_indikator IS NULL ORDER BY id ASC", $_POST['id_program']));
+
+					if(!empty($checkProgramRpd)){
+						throw new Exception('Program Pemutakhiran sudah pernah ditambahkan!');
+					}
+
+					$programRpdLama = $wpdb->get_row($wpdb->prepare("SELECT * FROM data_rpd_program_lokal WHERE id=%d", $_POST['id']), ARRAY_A);
+					
+					$program_baru = $wpdb->get_row($wpdb->prepare("SELECT DISTINCT id_program, kode_program, nama_program, kode_bidang_urusan, nama_bidang_urusan, nama_urusan, tahun_anggaran, kode_urusan FROM data_prog_keg WHERE id_program=%d AND active=%d AND tahun_anggaran=%d", $_POST['id_program'], 1, $_POST['tahun_anggaran']), ARRAY_A);
+
+					if(empty($program_baru)){
+						throw new Exception('Program Pemutakhiran di tahun '.$_POST['tahun_anggaran'].' tidak ditemukan, perlu melakukan updating master program tahun '.$_POST['tahun_anggaran'].'!');
+					}
+					
+					// tahun anggaran n-1 ?
+					$program_lama = $wpdb->get_row($wpdb->prepare("SELECT DISTINCT id_program, kode_program, nama_program, kode_bidang_urusan, nama_bidang_urusan, nama_urusan, tahun_anggaran, kode_urusan FROM data_prog_keg WHERE id_program=%d AND active=%d", $programRpdLama['id_program'], 1), ARRAY_A);
+
+					if(
+						$program_baru['kode_bidang_urusan'] != $program_lama['kode_bidang_urusan'] || 
+						$program_baru['kode_urusan'] != $program_lama['kode_urusan']
+					){
+						throw new Exception("Urusan atau Bidang Urusan tidak linear antara Program Existing dan Program Pemutakhiran", 1);
+					}
+
+					$id_unik_program = $this->generateRandomString();
+					$result1 = $wpdb->insert('data_rpd_program_lokal', [
+						'id_unik' => $id_unik_program,
+					    'kode_sasaran' => $programRpdLama['kode_sasaran'],
+                        'nama_program' => $program_baru['nama_program'],
+                        'catatan' => $programRpdLama['catatan'],
+                        'id_program' => $program_baru['id_program'],
+                        'active' => 1,
+					    'update_at' => "'".date('Y-m-d H:i:s')."'",
+					    'id_program_lama' => $programRpdLama['id_program']
+					]);
+
+					$indikatorProgramRpd = $wpdb->get_results($wpdb->prepare("SELECT * FROM data_rpd_program_lokal WHERE id_unik=%s AND id_unik_indikator IS NOT NULL AND active=1 ORDER BY id ASC", $_POST['id_unik']), ARRAY_A);
+
+					if(!empty($indikatorProgramRpd)){
+
+						$programRpdBaru = $wpdb->get_row($wpdb->prepare("SELECT * FROM data_rpd_program_lokal WHERE id_program=%d AND active=1 AND id_unik_indikator IS NULL ORDER BY id ASC", $_POST['id_program']));
+
+						if(empty($programRpdBaru)){
+							throw new Exception('Program Pemutakhiran tidak ditemukan!');
+						}
+
+						$arrStatus = [];
+						foreach ($indikatorProgramRpd as $key => $indikatorProgram) {
+
+							$arrStatus[] = $wpdb->insert('data_rpd_program_lokal', [
+								'kode_sasaran' => $programRpdBaru->kode_sasaran,
+                                'nama_program' => $programRpdBaru->nama_program,
+                                'id_program' => $programRpdBaru->id_program,
+                                'id_unik' => $id_unik_program,
+								'id_unik_indikator' => $this->generateRandomString(),
+                                'id_unit' => $indikatorProgram['id_unit'],
+                                'kode_skpd' => $indikatorProgram['kode_skpd'],
+                                'nama_skpd' => $indikatorProgram['nama_skpd'],
+                                'indikator' => $indikatorProgram['indikator'],
+                                'target_awal' => $indikatorProgram['target_awal'],
+                                'target_1' => $indikatorProgram['target_1'],
+                                'pagu_1' => $indikatorProgram['pagu_1'],
+                                'target_2' => $indikatorProgram['target_2'],
+                                'pagu_2' => $indikatorProgram['pagu_2'],
+                                'target_3' => $indikatorProgram['target_3'],
+                                'pagu_3' => $indikatorProgram['pagu_3'],
+                                'target_4' => $indikatorProgram['target_4'],
+                                'pagu_4' => $indikatorProgram['pagu_4'],
+                                'target_5' => $indikatorProgram['target_5'],
+                                'pagu_5' => $indikatorProgram['pagu_5'],
+                                'target_akhir' => $indikatorProgram['target_akhir'],
+                                'catatan' => $indikatorProgram['catatan'],
+                                'satuan' => $indikatorProgram['satuan'],
+                                'update_at' => date('Y-m-d H:i:s'),
+                                'active' => 1,
+								'id_program_lama' => $programRpdBaru->id_program_lama
+							]);
+						}
+					}
+
+					$result2=$wpdb->query($wpdb->prepare("UPDATE data_rpd_program_lokal SET active=0, update_at='".date('Y-m-d H:i:s')."' WHERE id_unik=%s AND active=%d", $programRpdLama['id_unik'], 1));
+
+					if($result1 && $result2){
+						if(!empty($indikatorProgramRpd)){
 							$res = array_unique($arrStatus);
 							if(count($res) === 1 && $res[0]) {
 							  $wpdb->query('COMMIT');

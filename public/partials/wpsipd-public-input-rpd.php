@@ -1966,15 +1966,15 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
 		get_program(jQuery(this).val());
 	});
 
-	function get_urusan() {
+	function get_urusan(tag = 'urusan-teks') {
 		var html = '<option value="">Pilih Urusan</option>';
 		for(var nm_urusan in all_program){
 			html += '<option>'+nm_urusan+'</option>';
 		}
-		jQuery('#urusan-teks').html(html).select2({width: '100%'});
+		jQuery('#'+tag).html(html).select2({width: '100%'});
 	}
 
-	function get_bidang(nm_urusan) {
+	function get_bidang(nm_urusan, tag = 'bidang-teks') {
 		var html = '<option value="">Pilih Bidang</option>';
 		if(nm_urusan){
 			for(var nm_bidang in all_program[nm_urusan.trim()]){
@@ -1987,12 +1987,12 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
 				}
 			}
 		}
-		jQuery('#bidang-teks').html(html).select2({width: '100%'});
+		jQuery('#'+tag).html(html).select2({width: '100%'});
 	}
 
-	function get_program(nm_bidang, val) {
+	function get_program(nm_bidang, val, tag = 'program-teks', tag2 = 'urusan-teks') {
 		var html = '<option value="">Pilih Program</option>';
-		var current_nm_urusan = jQuery('#urusan-teks').val().trim();
+		var current_nm_urusan = jQuery('#'+tag2).val().trim();
 		if(current_nm_urusan){
 			if(nm_bidang){
 				for(var nm_program in all_program[current_nm_urusan][nm_bidang]){
@@ -2040,7 +2040,7 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
 				}
 			}
 		}
-		jQuery('#program-teks').html(html).select2({width: '100%'});
+		jQuery('#'+tag).html(html).select2({width: '100%'});
 	}
 
 	function edit_tujuan(id_unik_tujuan){
@@ -3041,22 +3041,12 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
           	},
           	dataType: "json",
           	success: function(res){
-          		get_bidang_urusan().then(function(){
-          			console.log(all_program);
-	          		jQuery('#wrap-loading').hide();
-					jQuery("#modal-raw .modal-title").html('Mutakhirkan Program RPD');
-			        jQuery("#modal-raw .modal-body").html(
+
+				jQuery("#modal-raw .modal-title").html('Mutakhirkan Program RPD');
+			    jQuery("#modal-raw .modal-body").html(
 		        		'<h4 style="text-align:center"><span>EXISTING</span></h4>'
 		        		+'<table class="table">'
 				   			+'<thead>'
-					          	// +'<tr>'
-					          	// 	+'<th class="text-center" style="width: 160px;">Tujuan</th>'
-					          	// 	+'<td>'+res.data[0].tujuan_teks+'</td>'
-					          	// +'</tr>'
-					          	// +'<tr>'
-					          	// 	+'<th class="text-center" style="width: 160px;">Sasaran</th>'
-					          	// 	+'<td>'+res.data[0].sasaran_teks+'</td>'
-					          	// +'</tr>'
 					          	+'<tr>'
 					          		+'<th class="text-center" style="width: 160px;">Program</th>'
 					          		+'<td>'+res.data[0].nama_program+'</td>'
@@ -3068,15 +3058,15 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
 					      	+'<thead>'
 					      		+'<tr>'
 					        		+'<th class="text-center" style="width: 160px;">Urusan</th>'
-					          		+'<td><select class="form-control" name="id_urusan" id="urusan-teks" readonly></select></td>'
+					          		+'<td><select class="form-control" name="id_urusan" id="urusan-teks-mutakhir" readonly></select></td>'
 					          	+'</tr>'
 					          	+'<tr>'
 					          		+'<th class="text-center" style="width: 160px;">Bidang</th>'
-					          		+'<td><select class="form-control" name="id_bidang" id="bidang-teks" readonly></select></td>'
+					          		+'<td><select class="form-control" name="id_bidang" id="bidang-teks-mutakhir" readonly></select></td>'
 					          	+'</tr>'
 					          	+'<tr>'
 					          		+'<th class="text-center" style="width: 160px;">Program</th>'
-					          		+'<td><select id="program-teks" name="id_program"></select></td>'
+					          		+'<td><select id="program-teks-mutakhir" name="id_program"></select></td>'
 					          	+'</tr>'
 					      	+'</thead>'
 					    +'</table>'
@@ -3088,16 +3078,19 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
 							+'<button type="button" class="btn btn-danger" data-dismiss="modal">Tutup</button>'
 							+'<button type="button" class="btn btn-success" onclick=\'mutakhirkanProgram("'+id_unik+'", "'+res.data[0].id+'")\'>Mutakhirkan</button>');
 		          	jQuery("#modal-raw").modal('show');
-					get_urusan();
-					get_bidang();
-					get_program(false, res.data[0].id_program);
-          		});
+
+	          		get_bidang_urusan().then(function(){
+						get_urusan('urusan-teks-mutakhir')
+						get_bidang(false, 'bidang-teks-mutakhir');
+						get_program(false, '', 'program-teks-mutakhir', 'urusan-teks-mutakhir');
+						jQuery('#wrap-loading').hide();
+					});
           	}
         });
 	}
 
 	function mutakhirkanProgram(id_unik, id){
-		let id_program = jQuery("#program-teks").val();
+		let id_program = jQuery("#program-teks-mutakhir").val();
 		if(id_program == null || id_program=="" || id_program=="undefined"){
 			alert('Wajib memilih program!');
 		}else{
@@ -3106,7 +3099,7 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
 				url: ajax.url,
 	          	type: "post",
 	          	data: {
-	          		"action": "mutakhirkan_program_rpjm",
+	          		"action": "mutakhirkan_program_rpd",
 	          		"api_key": "<?php echo $api_key; ?>",
 	          		'id': id,
 	          		'id_program': id_program,

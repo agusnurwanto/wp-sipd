@@ -913,6 +913,8 @@ class Wpsipd
 		$this->loader->add_action('wp_ajax_subgiat_renstra_local_exist',  $plugin_public, 'subgiat_renstra_local_exist');
 		
 		$this->loader->add_action('wp_ajax_mutakhirkan_program_rpjm',  $plugin_public, 'mutakhirkan_program_rpjm');
+
+		$this->loader->add_action('wp_ajax_mutakhirkan_program_rpd',  $plugin_public, 'mutakhirkan_program_rpd');
 		
 		add_shortcode('menu_monev',  array($plugin_public, 'menu_monev'));
 		add_shortcode('datassh', array($plugin_public, 'datassh'));

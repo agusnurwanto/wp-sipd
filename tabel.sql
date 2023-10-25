@@ -3984,6 +3984,7 @@ CREATE TABLE `data_rpd_program_lokal` (
   `catatan` text DEFAULT NULL,
   `update_at` datetime NOT NULL,
   `active` tinyint(4) NOT NULL,
+  `id_program_lama` int(11) DEFAULT NULL,
   PRIMARY KEY  (id)
 );
 
