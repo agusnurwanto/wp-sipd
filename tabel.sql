@@ -5762,7 +5762,7 @@ CREATE TABLE `data_spp_sipd_detail` (
 );
 
 CREATE TABLE `data_verifikasi_rka` (
-  `id` int(11) NOT NULL,
+  `id` int(11) NOT NULL auto_increment,
   `kode_sbl` text NOT NULL,
   `tahun_anggaran` year(4) NOT NULL,
   `id_user` int(11) NOT NULL,
@@ -5771,5 +5771,17 @@ CREATE TABLE `data_verifikasi_rka` (
   `catatan_verifikasi` text NOT NULL,
   `tanggapan_opd` text NOT NULL,
   `create_at` datetime NOT NULL DEFAULT current_timestamp(),
-  `update_at` datetime DEFAULT current_timestamp()
+  `update_at` datetime DEFAULT current_timestamp(),
+  `active` tinyint(4) NOT NULL,
+  PRIMARY KEY  (id)
+);
+
+CREATE TABLE `data_pptk_sub_keg` (
+  `id` int(11) NOT NULL auto_increment,
+  `id_user` int(11) NOT NULL,
+  `kode_sbl` text NOT NULL,
+  `tahun_anggaran` year(4) NOT NULL,
+  `active` tinyint(4) NOT NULL,
+  `update_at` datetime DEFAULT current_timestamp(),
+  PRIMARY KEY  (id)
 );

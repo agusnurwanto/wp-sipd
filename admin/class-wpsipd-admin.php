@@ -658,6 +658,7 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes {
 	        ) );
 
 		$url_user_verifikator =$this->generatePage('User Verifikasi RKA', false, '[user_verikasi_rka]');
+		$url_user_pptk =$this->generatePage('User PPTK', false, '[user_pptk]');
 		$user_verifikator = array(
 			'verifikator_bappeda' => 'Verifikator Perencanaan', 
 			'verifikator_bppkad' => 'Verifikator Keuangan', 
@@ -683,6 +684,11 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes {
 				->set_html('
 				<ul>
 					<li><a href="'.$url_user_verifikator.'" target="_blank">Halaman User Verifikasi RKA</a></li>
+				</ul>'),
+				Field::make('html','crb_pptk_page')
+				->set_html('
+				<ul>
+					<li><a href="'.$url_user_pptk.'" target="_blank">Halaman User PPTK</a></li>
 				</ul>')
 			)
 		);
