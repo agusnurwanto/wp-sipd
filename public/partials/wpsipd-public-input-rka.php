@@ -53,6 +53,9 @@ foreach ($sd_sub_keg as $key => $sd) {
 	if(!empty($new_sd[1])){
 		$sd_sub[] = '<span class="kode-dana">'.$sd['kode_dana'].'</span> '.$new_sd[1];
 		$sd_sub_id[] = $sd['iddana'];
+	}else{
+		$sd_sub[] = '<span class="kode-dana">'.$sd['kode_dana'].'</span> '.$sd['namadana'];
+		$sd_sub_id[] = $sd['iddana'];
 	}
 }
 
