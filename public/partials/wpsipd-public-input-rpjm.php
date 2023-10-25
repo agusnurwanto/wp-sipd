@@ -31,19 +31,60 @@ function parsing_nama_kode($nama_kode){
 }
 
 $api_key = get_option('_crb_api_key_extension' );
+$user_id = um_user( 'ID' );
+$user_meta = get_userdata($user_id);
 
-$jadwal_lokal = $wpdb->get_results("SELECT * from data_jadwal_lokal where id_jadwal_lokal = (select max(id_jadwal_lokal) from data_jadwal_lokal where id_tipe=2)", ARRAY_A);
+$cek_jadwal = $this->validasi_jadwal_perencanaan('rpjm');
+$jadwal_lokal = $cek_jadwal['data'];
+$add_rpjm = '';
+$tahun_anggaran = '2022';
+$namaJadwal = '-';
+$mulaiJadwal = '-';
+$selesaiJadwal = '-';
+
 if(!empty($jadwal_lokal)){
-	$tahun_anggaran = $jadwal_lokal[0]['tahun_anggaran'];
-	$namaJadwal = $jadwal_lokal[0]['nama'];
-	$mulaiJadwal = $jadwal_lokal[0]['waktu_awal'];
-	$selesaiJadwal = $jadwal_lokal[0]['waktu_akhir'];
-}else{
-	$tahun_anggaran = '2022';
-	$namaJadwal = '-';
-	$mulaiJadwal = '-';
-	$selesaiJadwal = '-';
+	if(!empty($jadwal_lokal[0]['relasi_perencanaan'])){
+		$relasi = $wpdb->get_row("
+					SELECT 
+						id_tipe 
+					FROM `data_jadwal_lokal`
+					WHERE id_jadwal_lokal=".$jadwal_lokal[0]['relasi_perencanaan']);
+
+		$relasi_perencanaan = $jadwal_lokal[0]['relasi_perencanaan'];
+		$id_tipe_relasi = $relasi->id_tipe;
+	}
+
+	$tahun_anggaran = !empty($jadwal_lokal[0]['tahun_anggaran']) ? $jadwal_lokal[0]['tahun_anggaran'] : 2022;
+	$awal_rpjmd = $jadwal_lokal[0]['tahun_anggaran'];
+	$namaJadwal = !empty($jadwal_lokal[0]['nama']) ? $jadwal_lokal[0]['nama'] : '-';
+	$lama_pelaksanaan = $jadwal_lokal[0]['lama_pelaksanaan'];
+    $jenisJadwal = $jadwal_lokal[0]['jenis_jadwal'];
+
+    if(in_array("administrator", $user_meta->roles)){
+    	$mulaiJadwal = $jadwal_lokal[0]['waktu_awal'];
+		$selesaiJadwal = $jadwal_lokal[0]['waktu_akhir'];
+		$awal = new DateTime($mulaiJadwal);
+		$akhir = new DateTime($selesaiJadwal);
+		$now = new DateTime(date('Y-m-d H:i:s'));
+
+		if($now >= $awal && $now <= $akhir){
+			$add_rpjm = '<a style="margin-left: 10px;" id="tambah-data" onclick="return false;" href="#" class="btn btn-success">Tambah Data RPJM</a>';
+		}
+    }
 }
+
+// $jadwal_lokal = $wpdb->get_results("SELECT * from data_jadwal_lokal where id_jadwal_lokal = (select max(id_jadwal_lokal) from data_jadwal_lokal where id_tipe=2)", ARRAY_A);
+// if(!empty($jadwal_lokal)){
+// 	$tahun_anggaran = $jadwal_lokal[0]['tahun_anggaran'];
+// 	$namaJadwal = $jadwal_lokal[0]['nama'];
+// 	$mulaiJadwal = $jadwal_lokal[0]['waktu_awal'];
+// 	$selesaiJadwal = $jadwal_lokal[0]['waktu_akhir'];
+// }else{
+// 	$tahun_anggaran = '2022';
+// 	$namaJadwal = '-';
+// 	$mulaiJadwal = '-';
+// 	$selesaiJadwal = '-';
+// }
 
 $timezone = get_option('timezone_string');
 
@@ -95,7 +136,8 @@ $bulan = date('m');
 $body_monev = '';
 
 $data_all = array(
-	'data' => array()
+	'data' => array(),
+	'pemutakhiran_program' => 0
 );
 $bulan = date('m');
 
@@ -204,14 +246,27 @@ foreach ($visi_all as $visi) {
 				", $sasaran['id_unik']);
 				$program_all = $wpdb->get_results($sql, ARRAY_A);
 				foreach ($program_all as $program) {
+					
 					$program_ids[$program['id_unik']] = "'".$program['id_unik']."'";
 					if(empty($data_all['data'][$visi['id']]['data'][$misi['id']]['data'][$tujuan['id_unik']]['data'][$sasaran['id_unik']]['data'][$program['id_unik']])){
+
+						$kode_program = explode(" ", $program['nama_program']);
+						$checkProgram = $wpdb->get_row($wpdb->prepare("SELECT distinct kode_program FROM data_prog_keg WHERE kode_program=%s AND active=%d AND tahun_anggaran=%d", $kode_program[0], 1,$tahun_anggaran), ARRAY_A);
+											
+						$statusMutakhirProgram = 0;
+						if(empty($checkProgram['kode_program'])){
+							$statusMutakhirProgram = 1;
+							$data_all['pemutakhiran_program']++;
+						}
+
 						$data_all['data'][$visi['id']]['data'][$misi['id']]['data'][$tujuan['id_unik']]['data'][$sasaran['id_unik']]['data'][$program['id_unik']] = array(
 							'nama' => $program['nama_program'],
+							'id_unik' => $program['id_unik'],
+							'statusMutakhirProgram' => $statusMutakhirProgram,
 							'data' => array()
 						);
 					}
-					
+
 					$sql = $wpdb->prepare("
 						select 
 							* 
@@ -790,6 +845,13 @@ foreach ($data_all['data'] as $visi) {
 					$target_akhir = implode('', $target_akhir);
 					$satuan = implode('', $satuan);
 					$skpd = implode('', $skpd);
+
+					$isMutakhir='';
+					if(!empty($add_rpjm)){
+						if($program['statusMutakhirProgram']){
+							$isMutakhir='<button class="btn-sm btn-warning" onclick="tampilProgram(\''.$program['id_unik'].'\')" style="margin: 1px;"><i class="dashicons dashicons-update" title="Mutakhirkan"></i></button>';
+						}
+					}
 					$body .= '
 						<tr class="tr-program">
 							<td class="kiri atas kanan bawah">'.$no_visi.'.'.$no_misi.'.'.$no_tujuan.'.'.$no_sasaran.'.'.$no_program.'</td>
@@ -797,7 +859,7 @@ foreach ($data_all['data'] as $visi) {
 							<td class="atas kanan bawah"><span class="debug-misi">'.$misi['nama'].'</span></td>
 							<td class="atas kanan bawah"><span class="debug-tujuan">'.$tujuan['nama'].'</span></td>
 							<td class="atas kanan bawah"><span class="debug-sasaran">'.$sasaran['nama'].'</span></td>
-							<td class="atas kanan bawah">'.parsing_nama_kode($program['nama']).'</td>
+							<td class="atas kanan bawah">'.parsing_nama_kode($program['nama'])." ".$isMutakhir.'</td>
 							<td class="atas kanan bawah">'.$text_indikator.'</td>
 							<td class="atas kanan bawah text_tengah">'.$target_awal.'</td>
 							<td class="atas kanan bawah text_tengah">'.$target_1.'</td>
@@ -816,6 +878,24 @@ foreach ($data_all['data'] as $visi) {
 	}
 }
 
+$warning_pemutakhiran_program = 'bg-success';
+if($data_all['pemutakhiran_program'] > 0){
+	$warning_pemutakhiran_program = 'bg-danger';
+}
+$table='<h4 class="text-center" style="margin-top:30px">Informasi Pemutakhiran Data</h4>
+		<table class="table table-bordered" cellpadding="2" cellspacing="0" style="font-family:\'Open Sans\',-apple-system,BlinkMacSystemFont,\'Segoe UI\',sans-serif; border-collapse: collapse; font-size: 80%; border: 0; table-layout: fixed;margin:30px 0px 30px 0px; width:20%; margin-left:40%" contenteditable="false">
+            <thead>
+                <tr>
+                    <th class="text-center">Program</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td style="font-weight:bold;; mso-number-format:\@;color:white;font-size:20px" class="text-center '.$warning_pemutakhiran_program.'">'.$data_all['pemutakhiran_program'].'</td>
+                </tr>
+            </tbody>
+        </table>';
+
 ksort($skpd_filter);
 $skpd_filter_html = '<option value="">Pilih SKPD</option>';
 foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
@@ -831,6 +911,7 @@ $tahun_selesai = (!empty($tahun_anggaran)) ? $tahun_anggaran + 5 : '-';
 	.modal {overflow-y:auto;}
 </style>
 <h4 style="text-align: center; margin: 0; font-weight: bold;">Monitoring dan Evaluasi RPJMD (Rencana Pembangunan Jangka Menengah Daerah) <br><?php echo $judul_skpd.'Tahun '.$tahun_anggaran.' - '.$tahun_selesai.' '.$nama_pemda; ?></h4>
+<?php echo $table; ?>
 <div id="cetak" title="Laporan MONEV RENJA" style="padding: 5px; overflow: auto; height: 80vh;">
 	<table cellpadding="2" cellspacing="0" style="font-family:\'Open Sans\',-apple-system,BlinkMacSystemFont,\'Segoe UI\',sans-serif; border-collapse: collapse; font-size: 70%; border: 0; table-layout: fixed;" contenteditable="false">
 		<thead>
@@ -961,7 +1042,7 @@ $tahun_selesai = (!empty($tahun_anggaran)) ? $tahun_anggaran + 5 : '-';
 
 	var aksi = ''
 		+'<a style="margin-left: 10px;" id="singkron-sipd" onclick="return false;" href="#" class="btn btn-danger">Ambil data dari SIPD lokal</a>'
-		+'<a style="margin-left: 10px;" id="tambah-data" onclick="return false;" href="#" class="btn btn-success">Tambah Data RPJM</a>'
+		+'<?php echo $add_rpjm; ?>'
 		+'<a style="margin-left: 10px;" id="generate-data-program-renstra" onclick="return false;" href="#" class="btn btn-warning">Generate Data Program Dari RENSTRA</a>'
 		+'<h3 style="margin-top: 20px;">SETTING</h3>'
 		+'<label><input type="checkbox" onclick="tampilkan_edit(this);"> Edit Data RPJM</label>'
@@ -2349,6 +2430,7 @@ $tahun_selesai = (!empty($tahun_anggaran)) ? $tahun_anggaran + 5 : '-';
 	});
 
 	jQuery(document).on('change', '#bidang-teks', function(){
+		console.log('ok');
 		get_program(jQuery(this).val());
 	});
 
@@ -3106,5 +3188,108 @@ $tahun_selesai = (!empty($tahun_anggaran)) ? $tahun_anggaran + 5 : '-';
 	    		window.location = "";
 			}
 	    }
+	}
+
+	function tampilProgram(id_unik){
+		jQuery('#wrap-loading').show();		
+		jQuery.ajax({
+			url: ajax.url,
+          	type: "post",
+          	data: {
+          		"action": "edit_program_rpjm",
+          		"api_key": "<?php echo $api_key; ?>",
+				'id_unik': id_unik
+          	},
+          	dataType: "json",
+          	success: function(res){
+          		get_bidang_urusan().then(function(){
+	          		jQuery('#wrap-loading').hide();
+					jQuery("#modal-crud-rpjm .modal-title").html('Mutakhirkan Program RPJMD');
+			        jQuery("#modal-crud-rpjm .modal-body").html(
+		        		'<h4 style="text-align:center"><span>EXISTING</span></h4>'
+		        		+'<table class="table">'
+				   			+'<thead>'
+				   				+'<tr>'
+					          		+'<th class="text-center" style="width: 160px;">Visi</th>'
+					          		+'<td>'+res.data.visi_teks+'</td>'
+					          	+'</tr>'
+					          	+'<tr>'
+					          		+'<th class="text-center" style="width: 160px;">Misi</th>'
+					          		+'<td>'+res.data.misi_teks+'</td>'
+					          	+'</tr>'
+					          	+'<tr>'
+					          		+'<th class="text-center" style="width: 160px;">Tujuan</th>'
+					          		+'<td>'+res.data.tujuan_teks+'</td>'
+					          	+'</tr>'
+					          	+'<tr>'
+					          		+'<th class="text-center" style="width: 160px;">Sasaran</th>'
+					          		+'<td>'+res.data.sasaran_teks+'</td>'
+					          	+'</tr>'
+					          	+'<tr>'
+					          		+'<th class="text-center" style="width: 160px;">Program</th>'
+					          		+'<td>'+res.data.nama_program+'</td>'
+					          	+'</tr>'
+					      	+'</thead>'
+					      +'</table>'
+					      +'<h4 style="text-align:center"><span>PEMUTAKHIRAN</span></h4>'
+					      +'<table class="table">'
+					      	+'<thead>'
+					      		+'<tr>'
+					        		+'<th class="text-center" style="width: 160px;">Urusan</th>'
+					          		+'<td><select class="form-control" name="id_urusan" id="urusan-teks" readonly></select></td>'
+					          	+'</tr>'
+					          	+'<tr>'
+					          		+'<th class="text-center" style="width: 160px;">Bidang</th>'
+					          		+'<td><select class="form-control" name="id_bidang" id="bidang-teks" readonly></select></td>'
+					          	+'</tr>'
+					          	+'<tr>'
+					          		+'<th class="text-center" style="width: 160px;">Program</th>'
+					          		+'<td><select id="program-teks" name="id_program"></select></td>'
+					          	+'</tr>'
+					      	+'</thead>'
+					    +'</table>'
+					);
+
+					jQuery("#modal-crud-rpjm").find('.modal-dialog').css('maxWidth','1350px');
+					jQuery("#modal-crud-rpjm").find('.modal-dialog').css('width','100%');
+					jQuery("#modal-crud-rpjm").find('.modal-footer').html(''
+							+'<button type="button" class="btn btn-danger" data-dismiss="modal">Tutup</button>'
+							+'<button type="button" class="btn btn-success" onclick=\'mutakhirkanProgram("'+id_unik+'", "'+res.data.id+'")\'>Mutakhirkan</button>');
+		          	jQuery("#modal-crud-rpjm").modal('show');
+					get_urusan();
+					get_bidang();
+					get_program(false, res.data.id_program);
+          		});
+          	}
+        });
+	}
+
+	function mutakhirkanProgram(id_unik, id){
+		let id_program = jQuery("#program-teks").val();
+		if(id_program == null || id_program=="" || id_program=="undefined"){
+			alert('Wajib memilih program!');
+		}else{
+			jQuery('#wrap-loading').show();
+			jQuery.ajax({
+				url: ajax.url,
+	          	type: "post",
+	          	data: {
+	          		"action": "mutakhirkan_program_rpjm",
+	          		"api_key": "<?php echo $api_key; ?>",
+	          		'id': id,
+	          		'id_program': id_program,
+	          		'id_unik': id_unik,
+			       	'tahun_anggaran': '<?php echo $tahun_anggaran; ?>'
+	          	},
+	          	dataType: "json",
+	          	success: function(response){
+	          		jQuery('#wrap-loading').hide();
+	          		alert(response.message);
+	          		if(response.status){
+	          			location.reload();
+	          		}
+	          	}
+	        });
+		}
 	}
 </script>

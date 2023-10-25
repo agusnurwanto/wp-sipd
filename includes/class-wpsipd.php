@@ -906,11 +906,20 @@ class Wpsipd
 		$this->loader->add_action('wp_ajax_hapus_catatan_verifikasi',  $plugin_public, 'hapus_catatan_verifikasi');
 		
 		$this->loader->add_action('wp_ajax_get_data_verifikasi_rka',  $plugin_public, 'get_data_verifikasi_rka');
-		
+		$this->loader->add_action('wp_ajax_tambah_user_pptk',  $plugin_public, 'tambah_user_pptk');
+		$this->loader->add_action('wp_ajax_get_user_pptk',  $plugin_public, 'get_user_pptk');
+		$this->loader->add_action('wp_ajax_delete_user_pptk',  $plugin_public, 'delete_user_pptk');
+		$this->loader->add_action('wp_ajax_get_user_pptk_by_id',  $plugin_public, 'get_user_pptk_by_id');
+		$this->loader->add_action('wp_ajax_tambah_catatan_pptk',  $plugin_public, 'tambah_catatan_pptk');
+
 		$this->loader->add_action('wp_ajax_mutakhirkan_sub_kegiatan_renstra',  $plugin_public, 'mutakhirkan_sub_kegiatan_renstra');
 		$this->loader->add_action('wp_ajax_mutakhirkan_lintas_sub_kegiatan_renstra',  $plugin_public, 'mutakhirkan_lintas_sub_kegiatan_renstra');
 		$this->loader->add_action('wp_ajax_cek_pemutakhiran_total_renstra',  $plugin_public, 'cek_pemutakhiran_total_renstra');
 		$this->loader->add_action('wp_ajax_subgiat_renstra_local_exist',  $plugin_public, 'subgiat_renstra_local_exist');
+		
+		$this->loader->add_action('wp_ajax_mutakhirkan_program_rpjm',  $plugin_public, 'mutakhirkan_program_rpjm');
+
+		$this->loader->add_action('wp_ajax_mutakhirkan_program_rpd',  $plugin_public, 'mutakhirkan_program_rpd');
 		
 		add_shortcode('menu_monev',  array($plugin_public, 'menu_monev'));
 		add_shortcode('datassh', array($plugin_public, 'datassh'));
@@ -997,6 +1006,7 @@ class Wpsipd
 		add_shortcode('rekap_sumber_dana_per_rekening', array($plugin_public, 'rekap_sumber_dana_per_rekening'));
 		add_shortcode('verifikasi_rka', array($plugin_public, 'verifikasi_rka'));
 		add_shortcode('user_verikasi_rka', array($plugin_public, 'user_verikasi_rka'));
+		add_shortcode('user_pptk', array($plugin_public, 'user_pptk'));
 
 		//shortcode SIPKD
 		add_shortcode('data_akun',array($plugin_public,'sipkd_akun'));

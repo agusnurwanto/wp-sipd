@@ -35,6 +35,8 @@ $tahun_anggaran = '2022';
 $namaJadwal = '-';
 $mulaiJadwal = '-';
 $selesaiJadwal = '-';
+
+$add_rpd='';
 if(!empty($jadwal_lokal)){
 	$tahun_anggaran = $jadwal_lokal[0]['tahun_anggaran'];
 	$namaJadwal = $jadwal_lokal[0]['nama'];
@@ -42,6 +44,14 @@ if(!empty($jadwal_lokal)){
 	$selesaiJadwal = $jadwal_lokal[0]['waktu_akhir'];
     $id_jadwal_rpjpd = $jadwal_lokal[0]['relasi_perencanaan'];
     $lama_pelaksanaan = $jadwal_lokal[0]['lama_pelaksanaan'];
+
+    $awal = new DateTime($mulaiJadwal);
+	$akhir = new DateTime($selesaiJadwal);
+	$now = new DateTime(date('Y-m-d H:i:s'));
+
+	if($now >= $awal && $now <= $akhir){
+		$add_rpd = '<a style="margin-left: 10px;" id="tambah-data" onclick="return false;" href="#" class="btn btn-success">Tambah Data RPD</a><br><br>';
+	}
 }
 
 $timezone = get_option('timezone_string');
@@ -55,7 +65,8 @@ $bulan = date('m');
 $body_monev = '';
 
 $data_all = array(
-	'data' => array()
+	'data' => array(),
+	'pemutakhiran_program' => 0
 );
 $bulan = date('m');
 
@@ -137,10 +148,23 @@ foreach ($tujuan_all as $tujuan) {
 					}
 					$skpd_filter[$program['kode_skpd']] = $program['nama_skpd'];
 					if(empty($data_all['data'][$tujuan['id_unik']]['data'][$sasaran['id_unik']]['data'][$program['id_unik']])){
+
+						//check program
+						$kode_program = explode(" ", $program['nama_program']);
+						$checkProgram = $wpdb->get_row($wpdb->prepare("SELECT kode_program FROM data_prog_keg WHERE kode_program=%s AND tahun_anggaran=%d AND active=%d", $kode_program[0], $tahun_anggaran, 1), ARRAY_A);
+
+						$statusMutakhirProgram=0;
+						if(empty($checkProgram['kode_program'])){
+							$statusMutakhirProgram=1;
+							$data_all['pemutakhiran_program']++;
+						}
+
 						$data_all['data'][$tujuan['id_unik']]['data'][$sasaran['id_unik']]['data'][$program['id_unik']] = array(
+							'id_unik' => $program['id_unik'],
 							'nama' => $program['nama_program'],
 							'kode_skpd' => $program['kode_skpd'],
 							'nama_skpd' => $program['nama_skpd'],
+							'statusMutakhirProgram' => $statusMutakhirProgram,
 							'total_akumulasi_1' => 0,
 							'total_akumulasi_2' => 0,
 							'total_akumulasi_3' => 0,
@@ -694,13 +718,21 @@ foreach ($data_all['data'] as $tujuan) {
 			if(!empty($program['detail'][0]['catatan'])){
 				$catatan_program = $program['detail'][0]['catatan'];
 			}
+
+			$isMutakhir='';
+			if(!empty($add_rpd)){
+				if($program['statusMutakhirProgram']){
+					$isMutakhir='<button class="btn-sm btn-warning" onclick="tampilProgram(\''.$program['id_unik'].'\')" style="margin: 1px;"><i class="dashicons dashicons-update" title="Mutakhirkan"></i></button>';
+				}
+			}
+			
 			$body .= '
 				<tr class="tr-program" data-kode-skpd="'.$program['kode_skpd'].'" '.$warning.'>
 					<td class="kiri atas kanan bawah">'.$no_tujuan.'.'.$no_sasaran.'.'.$no_program.'</td>
 					<td class="atas kanan bawah"><span class="debug-tujuan">'.$tujuan['detail'][0]['isu_teks'].'</span></td>
 					<td class="atas kanan bawah"><span class="debug-tujuan">'.$tujuan['nama'].'</span></td>
 					<td class="atas kanan bawah"><span class="debug-sasaran">'.$sasaran['nama'].'</span></td>
-					<td class="atas kanan bawah">'.parsing_nama_kode($program['nama']).button_edit_monev($tujuan['detail'][0]['id_unik'].'||'.$sasaran['detail'][0]['id_unik'].'||'.$program['detail'][0]['id_unik']).'</td>
+					<td class="atas kanan bawah">'.parsing_nama_kode($program['nama']).button_edit_monev($tujuan['detail'][0]['id_unik'].'||'.$sasaran['detail'][0]['id_unik'].'||'.$program['detail'][0]['id_unik'])." ".$isMutakhir.'</td>
 					<td class="atas kanan bawah">'.$text_indikator.'</td>
 					<td class="atas kanan bawah text_tengah">'.$target_awal.'</td>
 					'.$target_html.'
@@ -715,6 +747,24 @@ foreach ($data_all['data'] as $tujuan) {
 		}
 	}
 }
+
+$warning_pemutakhiran_program = 'bg-success';
+if($data_all['pemutakhiran_program'] > 0){
+	$warning_pemutakhiran_program = 'bg-danger';
+}
+$table='<h4 class="text-center" style="margin-top:30px">Informasi Pemutakhiran Data</h4>
+		<table class="table table-bordered" cellpadding="2" cellspacing="0" style="font-family:\'Open Sans\',-apple-system,BlinkMacSystemFont,\'Segoe UI\',sans-serif; border-collapse: collapse; font-size: 80%; border: 0; table-layout: fixed;margin:30px 0px 30px 0px; width:20%; margin-left:40%" contenteditable="false">
+            <thead>
+                <tr>
+                    <th class="text-center">Program</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td style="font-weight:bold;; mso-number-format:\@;color:white;font-size:20px" class="text-center '.$warning_pemutakhiran_program.'">'.$data_all['pemutakhiran_program'].'</td>
+                </tr>
+            </tbody>
+        </table>';
 
 ksort($skpd_filter);
 $skpd_filter_html = '<option value="">Pilih SKPD</option>';
@@ -743,6 +793,7 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
 	}
 </style>
 <h4 style="text-align: center; margin: 0; font-weight: bold;">Monitoring dan Evaluasi RPD (Rencana Pembangunan Daerah) <br><?php echo $nama_pemda; ?><br><?php echo $awal_rpd.' - '.$akhir_rpd; ?></h4>
+<?php echo $table; ?>
 <div id="cetak" title="Laporan MONEV RENJA" style="padding: 5px; overflow: auto; height: 80vh;">
 	<table cellpadding="2" cellspacing="0" style="font-family:\'Open Sans\',-apple-system,BlinkMacSystemFont,\'Segoe UI\',sans-serif; border-collapse: collapse; font-size: 70%; border: 0; table-layout: fixed;" contenteditable="false">
 		<thead>
@@ -1162,6 +1213,22 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
         </div>
     </div>
 </div>
+<div class="modal fade" id="modal-raw" tabindex="-2" role="dialog" aria-labelledby="modal-crud-rpjm-label" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Modal title</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+      </div>
+      <div class="modal-footer"></div>
+    </div>
+  </div>
+</div>
+
 <script type="text/javascript">
 	run_download_excel();
 	let data_all = <?php echo json_encode($data_all); ?>;
@@ -1182,7 +1249,7 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
 
 	var aksi = ''
 		+'<?php if($cek_jadwal['status'] == 'success'): ?><a style="margin-left: 10px;" id="singkron-sipd" onclick="return false;" href="#" class="btn btn-danger">Ambil data dari SIPD lokal</a><?php endif; ?>'
-		+'<?php if($cek_jadwal['status'] == 'success'): ?><a style="margin-left: 10px;" id="tambah-data" onclick="return false;" href="#" class="btn btn-success">Tambah Data RPD</a><br><br><?php endif; ?>'
+		+'<?php if($cek_jadwal['status'] == 'success'): ?><?php echo $add_rpd; ?><?php endif; ?>'
 		+'<?php if($cek_jadwal['status'] == 'success'): ?><a style="margin-left: 10px;" id="generate-data-program-renstra" onclick="return false;" href="#" class="btn btn-warning">Generate Data Program Dari RENSTRA</a><?php endif; ?>'
 		+'<h3 style="margin-top: 20px;">SETTING</h3>'
 		+'<?php if($cek_jadwal['status'] == 'success'): ?><label><input type="checkbox" onclick="tampilkan_edit(this);"> Edit Data RPD</label><?php endif; ?>'
@@ -1899,15 +1966,15 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
 		get_program(jQuery(this).val());
 	});
 
-	function get_urusan() {
+	function get_urusan(tag = 'urusan-teks') {
 		var html = '<option value="">Pilih Urusan</option>';
 		for(var nm_urusan in all_program){
 			html += '<option>'+nm_urusan+'</option>';
 		}
-		jQuery('#urusan-teks').html(html).select2({width: '100%'});
+		jQuery('#'+tag).html(html).select2({width: '100%'});
 	}
 
-	function get_bidang(nm_urusan) {
+	function get_bidang(nm_urusan, tag = 'bidang-teks') {
 		var html = '<option value="">Pilih Bidang</option>';
 		if(nm_urusan){
 			for(var nm_bidang in all_program[nm_urusan.trim()]){
@@ -1920,12 +1987,12 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
 				}
 			}
 		}
-		jQuery('#bidang-teks').html(html).select2({width: '100%'});
+		jQuery('#'+tag).html(html).select2({width: '100%'});
 	}
 
-	function get_program(nm_bidang, val) {
+	function get_program(nm_bidang, val, tag = 'program-teks', tag2 = 'urusan-teks') {
 		var html = '<option value="">Pilih Program</option>';
-		var current_nm_urusan = jQuery('#urusan-teks').val().trim();
+		var current_nm_urusan = jQuery('#'+tag2).val().trim();
 		if(current_nm_urusan){
 			if(nm_bidang){
 				for(var nm_program in all_program[current_nm_urusan][nm_bidang]){
@@ -1973,7 +2040,7 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
 				}
 			}
 		}
-		jQuery('#program-teks').html(html).select2({width: '100%'});
+		jQuery('#'+tag).html(html).select2({width: '100%'});
 	}
 
 	function edit_tujuan(id_unik_tujuan){
@@ -2958,5 +3025,96 @@ foreach ($skpd_filter as $kode_skpd => $nama_skpd) {
 	    		window.location = "";
 			}
 	    }
+	}
+
+	function tampilProgram(id_unik){
+		jQuery('#wrap-loading').show();		
+		jQuery.ajax({
+			url: ajax.url,
+          	type: "post",
+          	data: {
+          		"action": "get_rpd",
+          		"table": "data_rpd_program_lokal",
+          		"api_key": "<?php echo $api_key; ?>",
+				'id_unik_program': id_unik,
+				'type':1
+          	},
+          	dataType: "json",
+          	success: function(res){
+
+				jQuery("#modal-raw .modal-title").html('Mutakhirkan Program RPD');
+			    jQuery("#modal-raw .modal-body").html(
+		        		'<h4 style="text-align:center"><span>EXISTING</span></h4>'
+		        		+'<table class="table">'
+				   			+'<thead>'
+					          	+'<tr>'
+					          		+'<th class="text-center" style="width: 160px;">Program</th>'
+					          		+'<td>'+res.data[0].nama_program+'</td>'
+					          	+'</tr>'
+					      	+'</thead>'
+					      +'</table>'
+					      +'<h4 style="text-align:center"><span>PEMUTAKHIRAN</span></h4>'
+					      +'<table class="table">'
+					      	+'<thead>'
+					      		+'<tr>'
+					        		+'<th class="text-center" style="width: 160px;">Urusan</th>'
+					          		+'<td><select class="form-control" name="id_urusan" id="urusan-teks-mutakhir" readonly></select></td>'
+					          	+'</tr>'
+					          	+'<tr>'
+					          		+'<th class="text-center" style="width: 160px;">Bidang</th>'
+					          		+'<td><select class="form-control" name="id_bidang" id="bidang-teks-mutakhir" readonly></select></td>'
+					          	+'</tr>'
+					          	+'<tr>'
+					          		+'<th class="text-center" style="width: 160px;">Program</th>'
+					          		+'<td><select id="program-teks-mutakhir" name="id_program"></select></td>'
+					          	+'</tr>'
+					      	+'</thead>'
+					    +'</table>'
+					);
+
+					jQuery("#modal-raw").find('.modal-dialog').css('maxWidth','1350px');
+					jQuery("#modal-raw").find('.modal-dialog').css('width','100%');
+					jQuery("#modal-raw").find('.modal-footer').html(''
+							+'<button type="button" class="btn btn-danger" data-dismiss="modal">Tutup</button>'
+							+'<button type="button" class="btn btn-success" onclick=\'mutakhirkanProgram("'+id_unik+'", "'+res.data[0].id+'")\'>Mutakhirkan</button>');
+		          	jQuery("#modal-raw").modal('show');
+
+	          		get_bidang_urusan().then(function(){
+						get_urusan('urusan-teks-mutakhir')
+						get_bidang(false, 'bidang-teks-mutakhir');
+						get_program(false, '', 'program-teks-mutakhir', 'urusan-teks-mutakhir');
+						jQuery('#wrap-loading').hide();
+					});
+          	}
+        });
+	}
+
+	function mutakhirkanProgram(id_unik, id){
+		let id_program = jQuery("#program-teks-mutakhir").val();
+		if(id_program == null || id_program=="" || id_program=="undefined"){
+			alert('Wajib memilih program!');
+		}else{
+			jQuery('#wrap-loading').show();
+			jQuery.ajax({
+				url: ajax.url,
+	          	type: "post",
+	          	data: {
+	          		"action": "mutakhirkan_program_rpd",
+	          		"api_key": "<?php echo $api_key; ?>",
+	          		'id': id,
+	          		'id_program': id_program,
+	          		'id_unik': id_unik,
+			       	'tahun_anggaran': '<?php echo $tahun_anggaran; ?>'
+	          	},
+	          	dataType: "json",
+	          	success: function(response){
+	          		jQuery('#wrap-loading').hide();
+	          		alert(response.message);
+	          		if(response.status){
+	          			location.reload();
+	          		}
+	          	}
+	        });
+		}
 	}
 </script>
