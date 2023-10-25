@@ -143,6 +143,16 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 		
 		require_once WPSIPD_PLUGIN_PATH . 'public/partials/penganggaran/wpsipd-public-rekap-sumber-dana-per-rekening.php';
 	}
+	
+	public function laporan_konsistensi_rpjm($atts)
+	{
+		// untuk disable render shortcode di halaman edit page/post
+		if(!empty($_GET) && !empty($_GET['post'])){
+			return '';
+		}
+		
+		require_once WPSIPD_PLUGIN_PATH . 'public/partials/penganggaran/wpsipd-public-laporan-konsistensi-rpjm.php';
+	}
 
 	public function get_data_monitoring_rup(){
 		global $wpdb;
@@ -5360,6 +5370,15 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 				$kode_sbl = $_POST['kode_sbl'];
 				$tahun_anggaran = $_POST['tahun_anggaran'];
 				$type = '';
+				$bl = $wpdb->get_results($wpdb->prepare("
+					SELECT 
+						* 
+					from data_sub_keg_bl_lokal 
+					where kode_sbl = %s
+						AND tahun_anggaran = %d
+						AND active=1
+					order by kode_sub_giat ASC
+				", $kode_sbl, $tahun_anggaran), ARRAY_A);
 
 				$rinc = $wpdb->get_results("
 					SELECT 
@@ -5591,7 +5610,7 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 						$rin_sub_item .= '
 							<tr>
 				                <td class="kiri kanan bawah text_blok">'.$akun[$akun_1_db[0]['kode_akun']]['kode_akun'].'</td>
-			                    <td class="kanan bawah text_blok" colspan="5"><span class="nama">'.$akun[$akun_1_db[0]['kode_akun']]['nama_akun'].'</span>'.button_mapping($kode_sbl.'-'.$akun_1_db[0]['kode_akun']).'</td>
+			                    <td class="kanan bawah text_blok" colspan="5"><span class="nama">'.$akun[$akun_1_db[0]['kode_akun']]['nama_akun'].'</span>'.$this->button_mapping($kode_sbl.'-'.$akun_1_db[0]['kode_akun']).'</td>
 			                    '.$rin_murni.'
 			                    <td class="kanan bawah text_kanan text_blok" style="white-space:nowrap">Rp. '.number_format($akun[$akun_1_db[0]['kode_akun']]['total'],0,",",".").'</td>
 			                    '.$selisih_murni.'
@@ -5619,7 +5638,7 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 						$rin_sub_item .= '
 							<tr>
 				                <td class="kiri kanan bawah text_blok">'.$akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']]['kode_akun'].'</td>
-			                    <td class="kanan bawah text_blok" colspan="5"><span class="nama">'.$akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']]['nama_akun'].'</span>'.button_mapping($kode_sbl.'-'.$akun_2_db[0]['kode_akun']).'</td>
+			                    <td class="kanan bawah text_blok" colspan="5"><span class="nama">'.$akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']]['nama_akun'].'</span>'.$this->button_mapping($kode_sbl.'-'.$akun_2_db[0]['kode_akun']).'</td>
 			                    '.$rin_murni.'
 			                    <td class="kanan bawah text_kanan text_blok" style="white-space:nowrap">Rp. '.number_format($akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']]['total'],0,",",".").'</td>
 			                    '.$selisih_murni.'
@@ -5647,7 +5666,7 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 						$rin_sub_item .= '
 							<tr>
 				                <td class="kiri kanan bawah text_blok">'.$akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']]['kode_akun'].'</td>
-			                    <td class="kanan bawah text_blok" colspan="5"><span class="nama">'.$akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']]['nama_akun'].'</span>'.button_mapping($kode_sbl.'-'.$akun_3_db[0]['kode_akun']).'</td>
+			                    <td class="kanan bawah text_blok" colspan="5"><span class="nama">'.$akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']]['nama_akun'].'</span>'.$this->button_mapping($kode_sbl.'-'.$akun_3_db[0]['kode_akun']).'</td>
 			                    '.$rin_murni.'
 			                    <td class="kanan bawah text_kanan text_blok" style="white-space:nowrap">Rp. '.number_format($akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']]['total'],0,",",".").'</td>
 			                    '.$selisih_murni.'
@@ -5675,7 +5694,7 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 						$rin_sub_item .= '
 							<tr>
 				                <td class="kiri kanan bawah text_blok">'.$akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']][$akun_4_db[0]['kode_akun']]['kode_akun'].'</td>
-			                    <td class="kanan bawah text_blok" colspan="5"><span class="nama">'.$akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']][$akun_4_db[0]['kode_akun']]['nama_akun'].'</span>'.button_mapping($kode_sbl.'-'.$akun_4_db[0]['kode_akun']).'</td>
+			                    <td class="kanan bawah text_blok" colspan="5"><span class="nama">'.$akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']][$akun_4_db[0]['kode_akun']]['nama_akun'].'</span>'.$this->button_mapping($kode_sbl.'-'.$akun_4_db[0]['kode_akun']).'</td>
 			                    '.$rin_murni.'
 			                    <td class="kanan bawah text_kanan text_blok" style="white-space:nowrap">Rp. '.number_format($akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']][$akun_4_db[0]['kode_akun']]['total'],0,",",".").'</td>
 			                    '.$selisih_murni.'
@@ -5703,7 +5722,7 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 						$rin_sub_item .= '
 							<tr>
 				                <td class="kiri kanan bawah text_blok">'.$akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']][$akun_4_db[0]['kode_akun']][$item['nama_akun']]['kode_akun'].'</td>
-			                    <td class="kanan bawah text_blok kode_akun_td" colspan="5"><span class="nama">'.$akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']][$akun_4_db[0]['kode_akun']][$item['nama_akun']]['nama_akun'].'</span>'.button_mapping($kode_sbl.'-'.$akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']][$akun_4_db[0]['kode_akun']][$item['nama_akun']]['kode_akun']).'</td>
+			                    <td class="kanan bawah text_blok kode_akun_td" colspan="5"><span class="nama">'.$akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']][$akun_4_db[0]['kode_akun']][$item['nama_akun']]['nama_akun'].'</span>'.$this->button_mapping($kode_sbl.'-'.$akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']][$akun_4_db[0]['kode_akun']][$item['nama_akun']]['kode_akun']).'</td>
 			                    '.$rin_murni.'
 			                    <td class="kanan bawah text_kanan text_blok" style="white-space:nowrap">Rp. '.number_format($akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']][$akun_4_db[0]['kode_akun']][$item['nama_akun']]['total'],0,",",".").'</td>
 			                    '.$selisih_murni.'
@@ -5743,7 +5762,7 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 						$rin_sub_item .= '
 							<tr>
 				                <td class="kiri kanan bawah text_blok">'.$akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']][$akun_4_db[0]['kode_akun']][$item['nama_akun']][$item['subs_bl_teks']]['kode_akun'].'</td>
-			                    <td class="kanan bawah text_blok" colspan="5"><span class="nama">'.$akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']][$akun_4_db[0]['kode_akun']][$item['nama_akun']][$item['subs_bl_teks']]['nama_akun'].'</span>'.button_mapping($kode_sbl.'-'.$akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']][$akun_4_db[0]['kode_akun']][$item['nama_akun']]['kode_akun'].'-'.$id_subtitle[$key_ket]).'<div style="margin-left: 25px;">Sumber Dana: '.$dana['nama_dana'].'</div></td>
+			                    <td class="kanan bawah text_blok" colspan="5"><span class="nama">'.$akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']][$akun_4_db[0]['kode_akun']][$item['nama_akun']][$item['subs_bl_teks']]['nama_akun'].'</span>'.$this->button_mapping($kode_sbl.'-'.$akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']][$akun_4_db[0]['kode_akun']][$item['nama_akun']]['kode_akun'].'-'.$id_subtitle[$key_ket]).'<div style="margin-left: 25px;">Sumber Dana: '.$dana['nama_dana'].'</div></td>
 			                    '.$rin_murni.'
 			                    <td class="kanan bawah text_kanan text_blok nilai_kelompok" style="white-space:nowrap">Rp. '.number_format($akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']][$akun_4_db[0]['kode_akun']][$item['nama_akun']][$item['subs_bl_teks']]['total'],0,",",".").'</td>
 			                    '.$selisih_murni.'
@@ -5771,7 +5790,7 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 						$rin_sub_item .= '
 							<tr>
 				                <td class="kiri kanan bawah text_blok">'.$akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']][$akun_4_db[0]['kode_akun']][$item['nama_akun']][$item['subs_bl_teks']][$item['ket_bl_teks']]['kode_akun'].'</td>
-			                    <td class="kanan bawah text_blok" colspan="5"><span class="nama">'.$akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']][$akun_4_db[0]['kode_akun']][$item['nama_akun']][$item['subs_bl_teks']][$item['ket_bl_teks']]['nama_akun'].'</span>'.button_mapping($kode_sbl.'-'.$akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']][$akun_4_db[0]['kode_akun']][$item['nama_akun']]['kode_akun'].'-'.$id_subtitle[$key_ket].'-'.$id_keterangan[$key_ket]).'</td>
+			                    <td class="kanan bawah text_blok" colspan="5"><span class="nama">'.$akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']][$akun_4_db[0]['kode_akun']][$item['nama_akun']][$item['subs_bl_teks']][$item['ket_bl_teks']]['nama_akun'].'</span>'.$this->button_mapping($kode_sbl.'-'.$akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']][$akun_4_db[0]['kode_akun']][$item['nama_akun']]['kode_akun'].'-'.$id_subtitle[$key_ket].'-'.$id_keterangan[$key_ket]).'</td>
 			                    '.$rin_murni.'
 			                    <td class="kanan bawah text_kanan text_blok nilai_keterangan" style="white-space:nowrap">Rp. '.number_format($akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']][$akun_4_db[0]['kode_akun']][$item['nama_akun']][$item['subs_bl_teks']][$item['ket_bl_teks']]['total'],0,",",".").'</td>
 			                    '.$selisih_murni.'
@@ -5801,7 +5820,7 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 						<tr class="data-komponen">
 							<td class="kiri kanan bawah text_blok">&nbsp;</td>
 			                <td class="kanan bawah">
-			                    <div><span class="nama">'.$item['nama_komponen'].'</span>'.button_mapping($kode_sbl.'-'.$akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']][$akun_4_db[0]['kode_akun']][$item['nama_akun']]['kode_akun'].'-'.$id_subtitle[$key_ket].'-'.$id_keterangan[$key_ket].'-'.$item['id_rinci_sub_bl']).'</div>
+			                    <div><span class="nama">'.$item['nama_komponen'].'</span>'.$this->button_mapping($kode_sbl.'-'.$akun[$akun_1_db[0]['kode_akun']][$akun_2_db[0]['kode_akun']][$akun_3_db[0]['kode_akun']][$akun_4_db[0]['kode_akun']][$item['nama_akun']]['kode_akun'].'-'.$id_subtitle[$key_ket].'-'.$id_keterangan[$key_ket].'-'.$item['id_rinci_sub_bl']).'</div>
 			                    <div style="margin-left: 20px">'.$item['spek_komponen'].'</div>
 			                    <div style="margin-left: 40px" class="profile-penerima" id-profile="'.$item['id_penerima'].'" id-prop="'.$item['id_prop_penerima'].'" id-kokab="'.$item['id_kokab_penerima'].'" id-camat="'.$item['id_camat_penerima'].'" id-lurah="'.$item['id_lurah_penerima'].'">'.$profile_penerima.'</div>
 			                </td>
@@ -5838,7 +5857,7 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 					<tr>
 			            '.$rin_murni.'
 			            <td colspan="'.$colspan.'" class="kiri kanan bawah text_kanan text_blok">Jumlah Anggaran Sub Kegiatan :</td>
-			            <td class="kanan bawah text_blok text_kanan subkeg-total" style="white-space:nowrap" data-kdsbl="'.$sub_bl['kode_sbl'].'">Rp. '.number_format($total_sub_rinc,0,",",".").'</td>
+			            <td class="kanan bawah text_blok text_kanan subkeg-total" style="white-space:nowrap" data-kdsbl="'.$kode_sbl.'">Rp. '.number_format($total_sub_rinc,0,",",".").'</td>
 			            '.$selisih_murni.'
 			        </tr>
 				';
@@ -5856,5 +5875,15 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 			);
 		}
 		die(json_encode($return));
+	}
+
+	function button_mapping($class=false){
+		$ids = explode('-', $class);
+		$data_akun = '';
+		if(count($ids) == 5){
+			$data_akun = 'data-akun="'.$ids[0].'-'.$ids[1].'"';
+		}
+		$button_mapping = '<span style="display: none;" data-id="'.$class.'" '.$data_akun.' class="edit-mapping"><i class="dashicons dashicons-edit"></i></span>';
+		return $button_mapping;
 	}
 }

@@ -2081,13 +2081,13 @@ CREATE TABLE `data_ssh_usulan` (
   `update_at_admin` datetime DEFAULT NULL,
   `update_at_tapdkeu` datetime DEFAULT NULL,
   `tahun_anggaran` year(4) NOT NULL DEFAULT '2022',
-  `status` varchar(20) DEFAULT NULL,
-  `status_by_admin` varchar(20) DEFAULT NULL,
-  `status_by_tapdkeu` varchar(20) DEFAULT NULL,
+  `status` varchar(20) DEFAULT NULL COMMENT 'draft, waiting, approved, rejected',
+  `status_by_admin` varchar(20) DEFAULT NULL COMMENT 'approved, rejected',
+  `status_by_tapdkeu` varchar(20) DEFAULT NULL COMMENT 'approved, rejected',
   `keterangan_status` text,
   `keterangan_status_admin` text,
   `keterangan_status_tapdkeu` text,
-  `status_upload_sipd` varchar(20) DEFAULT NULL,
+  `status_upload_sipd` varchar(20) DEFAULT NULL COMMENT 'null atau 0 = belum diupload ke sipd, 1 = sudah diupload sipd',
   `keterangan_lampiran` text,
   `kode_standar_harga_sipd` varchar(30) DEFAULT NULL,
   `status_jenis_usulan` varchar(30) DEFAULT NULL,
@@ -5758,4 +5758,17 @@ CREATE TABLE `data_spp_sipd_detail` (
   `update_at` datetime NOT NULL,
   `tahun_anggaran` year(4) NOT NULL,
   PRIMARY KEY  (id)
+);
+
+CREATE TABLE `data_verifikasi_rka` (
+  `id` int(11) NOT NULL,
+  `kode_sbl` text NOT NULL,
+  `tahun_anggaran` year(4) NOT NULL,
+  `id_user` int(11) NOT NULL,
+  `nama_verifikator` varchar(100) NOT NULL,
+  `fokus_uraian` text NOT NULL,
+  `catatan_verifikasi` text NOT NULL,
+  `tanggapan_opd` text NOT NULL,
+  `create_at` datetime NOT NULL DEFAULT current_timestamp(),
+  `update_at` datetime DEFAULT current_timestamp()
 );

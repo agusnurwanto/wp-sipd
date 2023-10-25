@@ -3050,6 +3050,48 @@ class Wpsipd_Public_Base_1 extends Wpsipd_Public_Base_2{
                                 ";
     
                                 $query_backup = $wpdb->query($sql_backup_data_rka);
+
+                                /** copy data dari sumber dana 
+                                 * mencari id_rinci_sub_bl
+                                */
+                                $sql_sumber_dana = $wpdb->prepare("
+                                    SELECT 
+                                        * 
+                                    FROM data_rka 
+                                    WHERE 
+                                        kode_sbl='%s'
+                                        AND tahun_anggaran=%d
+                                        AND active=1 
+                                ", $valueSubKeg['kode_sbl'], $tahun_anggaran);
+
+                                $data_copy_rka = $wpdb->get_results($sql_sumber_dana, ARRAY_A);
+
+                                $columns_sumber_dana = array(
+                                    'id_rinci_sub_bl',
+                                    'id_sumber_dana',
+                                    'user',
+                                    'active',
+                                    'update_at',
+                                    'tahun_anggaran',
+                                );
+
+                                if(!empty($data_copy_rka)){
+                                    foreach ($data_copy_rka as $key_rka => $value_rka) {
+                                        $wpdb->update('data_mapping_sumberdana_lokal', array('active'=>0), array('id_rinci_sub_bl' => $value_rka['id_rinci_sub_bl'], 'active' => 1, 'tahun_anggaran' => $tahun_anggaran));
+                                        $sql_backup_data_sumber_dana =  "
+                                            INSERT INTO data_mapping_sumberdana_lokal (".implode(', ', $columns_sumber_dana).")
+                                            SELECT 
+                                                ".implode(', ', $columns_sumber_dana)."
+                                            FROM data_mapping_sumberdana 
+                                            WHERE
+                                                id_rinci_sub_bl='".$value_rka['id_rinci_sub_bl']."' 
+                                                AND tahun_anggaran='".$tahun_anggaran."' 
+                                                AND active=1
+                                        ";
+            
+                                        $query_backup = $wpdb->query($sql_backup_data_sumber_dana);
+                                    }
+                                }
                             }
                         }
                     }else{

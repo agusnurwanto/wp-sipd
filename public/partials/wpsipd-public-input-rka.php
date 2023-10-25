@@ -53,6 +53,9 @@ foreach ($sd_sub_keg as $key => $sd) {
 	if(!empty($new_sd[1])){
 		$sd_sub[] = '<span class="kode-dana">'.$sd['kode_dana'].'</span> '.$new_sd[1];
 		$sd_sub_id[] = $sd['iddana'];
+	}else{
+		$sd_sub[] = '<span class="kode-dana">'.$sd['kode_dana'].'</span> '.$sd['namadana'];
+		$sd_sub_id[] = $sd['iddana'];
 	}
 }
 
@@ -716,7 +719,7 @@ function get_rinc_rka_lokal(kode_sbl){
 		success:function(response){
 			jQuery('#tabel_rincian_sub_keg').html(response.rin_sub_item);
 			jQuery("#wrap-loading").hide();
-			resolve();
+			// resolve();
 		}
 	});
 }

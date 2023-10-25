@@ -84,19 +84,19 @@ foreach($ssh as $k => $val){
 		$akun_belanja .= "<li>$akun[nama_akun]</li>";
 	}
 	$akun_belanja .="</ul>";
-	$body_html .= "
+	$body_html .= '
 	<tr>
-		<td>$no</td>
-		<td>$val[kode_kel_standar_harga]</td>
-		<td>$val[nama_kel_standar_harga]</td>
-		<td>$val[nama_standar_harga]</td>
-		<td>$val[spek]</td>
-		<td>$val[satuan]</td>
-		<td>$val[harga]</td>
-		<td>$akun_belanja</td>
-		<td>$val[keterangan_lampiran]</td>
+		<td>'.$no.'</td>
+		<td>'.$val['kode_kel_standar_harga'].'</td>
+		<td>'.$val['nama_kel_standar_harga'].'</td>
+		<td>'.$val['nama_standar_harga'].'</td>
+		<td>'.$val['spek'].'</td>
+		<td>'.$val['satuan'].'</td>
+		<td class="text-right">'.number_format($val['harga'],2,",",".",).'</td>
+		<td>'.$akun_belanja.'</td>
+		<td>'.$val['keterangan_lampiran'].'</td>
 	</tr>
-	";
+	';
 }
 
 $sambung='';
@@ -213,5 +213,13 @@ if(empty($alamat)){
 				<?php echo $body_html; ?>
 			</tbody>
 		</table>
+		<div contenteditable="true">
+			<div class="ttd-surat row">
+				<div class="col-md-8"></div>
+				<div class="col-md-4 text-center">
+					<p><?php echo get_option('_crb_lokasi'); ?>, <?php echo $waktu_surat; ?><br>Kepala <?php echo $skpd->namaunit ?><br><?php echo get_option('_crb_daerah') ?></p><br><br><br><br><p><?php echo $skpd->namakepala ?><br><?php echo $skpd->pangkatkepala ?><br>NIP : <?php echo $skpd->nipkepala ?></p>
+				</div>
+			</div>
+		</div>
 	</div>
 </div>
