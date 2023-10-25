@@ -12197,6 +12197,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 					$tahun_anggaran = $_POST['tahun_anggaran'];
 					$sub_keg_fmis = json_decode(stripslashes($_POST['data']));
 					$ret['message_rinci'] = array();
+					$ret['sql'] = array();
 					// cek jika sub kegiatan di mapping
 					$subkeg_mapping = $this->get_fmis_mapping(array(
 						'name' => '_crb_custom_mapping_subkeg_fmis'
@@ -12211,8 +12212,10 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						'name' => '_crb_custom_mapping_rekening_fmis'
 					));
 					$cek_sub_unit_fmis = array();
+					$cek_sub_keg_fmis_id_sub_asli = array();
 					foreach($sub_keg_fmis as $fmis){
 						$data_fmis = (array) $fmis;
+
 						$new_rincian = array();
 						foreach($data_fmis['rincian'] as $rincian){
 							$new_rincian[] = (array) $rincian;
@@ -12238,11 +12241,47 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						}
 						$id_mapping = $data_fmis['idsubunit'];
 						// cek mapping di id_mapping sub unit
-						$get_id = $this->get_id_skpd_fmis($id_mapping, $tahun_anggaran, true);
-						if(empty($get_id['id_skpd_sipd'])){
-							$id_mapping = $data_fmis['idunit'];
-							// cek mapping di id_mapping unit
-							$get_id = $this->get_id_skpd_fmis($id_mapping, $tahun_anggaran, false);
+						$get_id_asli = $this->get_id_skpd_fmis($id_mapping, $tahun_anggaran, true);
+						if(empty($get_id_asli['id_skpd_sipd'])){
+							$get_id_by_nama_sub = false;
+							if(
+								!empty($data_fmis['rincian'][0])
+								&& !empty($data_fmis['rincian'][0]['aktivitas'])
+							){
+								$nama_sub_skpd = explode(' | ', $data_fmis['rincian'][0]['aktivitas']);
+								if(count($nama_sub_skpd) >= 2){
+									$get_id_by_nama_sub = $wpdb->get_row($wpdb->prepare("
+										SELECT
+											kode_skpd,
+											nama_skpd,
+											id_skpd
+										FROM data_unit
+										where active=1
+											AND tahun_anggaran=%d
+											AND nama_skpd=%s
+									", $tahun_anggaran, $nama_sub_skpd[1]), ARRAY_A);
+									$ret['sql'][] = $wpdb->last_query;
+								}
+							}
+							if(empty($get_id_by_nama_sub)){
+								// cek jika id_sub_skpd asli belum ketemu
+								if(empty($cek_sub_keg_fmis_id_sub_asli[$data_fmis['sub_kegiatan']])){
+									$id_mapping = $data_fmis['idunit'];
+									// cek mapping di id_mapping unit
+									$get_id = $this->get_id_skpd_fmis($id_mapping, $tahun_anggaran, false);
+								}else{
+									$get_id = array('id_skpd_sipd' => false);
+								}
+							}else{
+								// get id skpd dari nama skpd di aktivitas
+								$get_id = array('id_skpd_sipd' => array($get_id_by_nama_sub['id_skpd']));
+							}
+						}else{
+							// get id skpd dari mapping id sub unit
+							$get_id = $get_id_asli;
+							if(empty($cek_sub_keg_fmis_id_sub_asli[$data_fmis['sub_kegiatan']])){
+								$cek_sub_keg_fmis_id_sub_asli[$data_fmis['sub_kegiatan']] = true;
+							}
 						}
 						$id_skpd_sipd = $get_id['id_skpd_sipd'];
 						if(!empty($id_skpd_sipd)){
@@ -12373,7 +12412,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 										AND s.active = 1
 										AND s.id_sub_skpd = %d
 								", $_POST['tahun_anggaran'], $id_skpd_sipd[0]), ARRAY_A);
-								$ret['sql'] = $wpdb->last_query;
+								$ret['sql'][] = $wpdb->last_query;
 								$sub = array();
 								foreach($sub_sipd as $v){
 									// pengecekan karena sub kegiatan belum dimutakhirkan sedangkan master program kegiatan sudah dimutakhirkan
@@ -12394,6 +12433,12 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 											foreach($bl as $vv){
 												$nm_sub_x = explode(' ', $vv['nama_sub_giat']);
 												unset($nm_sub_x[0]);
+
+												if(!empty($_POST['debug'])){
+													echo $this->replace_text(implode(' ', $nm_sub_x)).' == '.$this->replace_text($data_fmis['sub_kegiatan'])."\n";
+													echo $this->replace_text(implode(' ', $nm_sub_x)).' == '.$this->replace_text($data_fmis['sub_kegiatan_asli'])."\n";
+												}
+
 												if(
 													$this->replace_text(implode(' ', $nm_sub_x)) == $this->replace_text($data_fmis['sub_kegiatan'])
 													|| $this->replace_text(implode(' ', $nm_sub_x)) == $this->replace_text($data_fmis['sub_kegiatan_asli'])
@@ -12414,6 +12459,16 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 									unset($nm_giat[0]);
 									$nm_prog = explode(' ', $v['nama_program']);
 									unset($nm_prog[0]);
+
+									if(!empty($_POST['debug'])){
+										echo $this->replace_text(implode(' ', $nm_sub)).' == '.$this->replace_text($data_fmis['sub_kegiatan'])."\n";
+										echo $this->replace_text(implode(' ', $nm_sub)).' == '.$this->replace_text($data_fmis['sub_kegiatan_asli'])."\n";
+										echo $this->replace_text(implode(' ', $nm_sub)).' == '.$this->replace_text($data_fmis['kegiatan'])."\n";
+										echo $this->replace_text(implode(' ', $nm_sub)).' == '.$this->replace_text($data_fmis['kegiatan_asli'])."\n";
+										echo $this->replace_text(implode(' ', $nm_sub)).' == '.$this->replace_text($data_fmis['program'])."\n";
+										echo $this->replace_text(implode(' ', $nm_sub)).' == '.$this->replace_text($data_fmis['program_asli'])."\n\n";
+									}
+
 									if(
 										(
 											$this->replace_text(implode(' ', $nm_sub)) == $this->replace_text($data_fmis['sub_kegiatan'])
@@ -12439,7 +12494,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 									));
 								}else{
 									$ret['status'] = 'error';
-									$ret['message'] = 'Sub Kegiatan SIPD dari id_sub_skpd='.$id_skpd_sipd[0].' dan sub kegiatan="'.$data_fmis['sub_kegiatan'].'" tidak ditemukan';
+									$ret['message_rinci'][] = 'Sub Kegiatan SIPD dari id_sub_skpd='.$id_skpd_sipd[0].' dan sub kegiatan="'.$data_fmis['sub_kegiatan'].'" tidak ditemukan | '.$wpdb->last_query;
 								}
 							// pendapatan
 							}else if($data_fmis['rincian'][0]['kdrek1'] == 4){
