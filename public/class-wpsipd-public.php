@@ -12210,6 +12210,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 					$rek_mapping = $this->get_fmis_mapping(array(
 						'name' => '_crb_custom_mapping_rekening_fmis'
 					));
+					$cek_sub_unit_fmis = array();
 					foreach($sub_keg_fmis as $fmis){
 						$data_fmis = (array) $fmis;
 						$new_rincian = array();
@@ -12236,10 +12237,12 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 							}
 						}
 						$id_mapping = $data_fmis['idsubunit'];
+						// cek mapping di id_mapping sub unit
 						$get_id = $this->get_id_skpd_fmis($id_mapping, $tahun_anggaran, true);
 						if(empty($get_id['id_skpd_sipd'])){
 							$id_mapping = $data_fmis['idunit'];
-							$get_id = $this->get_id_skpd_fmis($id_mapping, $tahun_anggaran, true);
+							// cek mapping di id_mapping unit
+							$get_id = $this->get_id_skpd_fmis($id_mapping, $tahun_anggaran, false);
 						}
 						$id_skpd_sipd = $get_id['id_skpd_sipd'];
 						if(!empty($id_skpd_sipd)){
@@ -12249,12 +12252,20 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 								|| $data_fmis['rincian'][0]['kdrek1'] == 4
 								|| $data_fmis['rincian'][0]['kdrek1'] == 6
 							){
-								$wpdb->update('data_rincian_fmis', array(
-									'active' => 0
-								), array(
-									'nama_sub_giat' => $data_fmis['sub_kegiatan'],
-									'id_sub_skpd' => $id_skpd_sipd[0],
-								));
+								// perlu dicek agar data sebelumnya tidak dirubah active jadi 0
+								if(empty($cek_sub_unit_fmis[$id_skpd_sipd[0]])){
+									$cek_sub_unit_fmis[$id_skpd_sipd[0]] = true;
+
+									// untuk membedakan pembiyaan pengeluaran dan penerimaa maka perlu ditambahkan param kdrek1 dan kdrek2
+									$wpdb->update('data_rincian_fmis', array(
+										'active' => 0
+									), array(
+										'nama_sub_giat' => $data_fmis['sub_kegiatan'],
+										'id_sub_skpd' => $id_skpd_sipd[0],
+										'kdrek1' => $data_fmis['rincian'][0]['kdrek1'],
+										'kdrek2' => $data_fmis['rincian'][0]['kdrek2']
+									));
+								}
 								foreach($data_fmis['rincian'] as $key => $rinci){
 									foreach($rek_mapping as $rek_mapping_sipd => $rek_mapping_fmis){
 										$_kode_akun = explode('.', $rinci['kode_rekening']);
@@ -12448,9 +12459,14 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 											AND kode_akun = %s
 									", $tahun_anggaran, $id_skpd_sipd[0], $rinci['kode_rekening']), ARRAY_A);
 									$new_sub_sipd = array();
+									$data_db = array();
 									foreach ($sub_sipd as $val) {
 										$uraian_db = str_replace('&', 'dan', html_entity_decode($val['uraian']));
 										$keterangan_db = str_replace('&', 'dan', html_entity_decode($val['keterangan']));
+										$data_db[] = array(
+											'uraian' => $uraian_db,
+											'keterangan' => $keterangan_db
+										);
 										if(
 											$this->removeNewline($uraian) == $this->removeNewline($uraian_db)
 											&& $this->removeNewline($keterangan) == $this->removeNewline($keterangan_db)
@@ -12465,7 +12481,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 											'id' => $new_sub_sipd['id']
 										));
 									}else{
-										$ret['message_rinci'][] = 'Rekening Pendapatan SIPD dari kode_akun='.$rinci['kode_rekening'].', id_skpd='.$id_skpd_sipd[0].' dan aktivitas="'.$rinci['aktivitas'].'" tidak ditemukan | '.$wpdb->last_query;
+										$ret['message_rinci'][] = 'Rekening Pendapatan SIPD dari kode_akun='.$rinci['kode_rekening'].', id_skpd='.$id_skpd_sipd[0].' dan aktivitas="'.$rinci['aktivitas'].'" tidak ditemukan | '.$wpdb->last_query.' | uraian='.$uraian.' | keterangan='.$keterangan.' | '.json_encode($data_db);
 									}
 								}
 							// pembiayaan
@@ -12486,9 +12502,14 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 											AND kode_akun = %s
 									", $tahun_anggaran, $id_skpd_sipd[0], $rinci['kode_rekening']), ARRAY_A);
 									$new_sub_sipd = array();
+									$data_db = array();
 									foreach ($sub_sipd as $val) {
 										$uraian_db = str_replace('&', 'dan', html_entity_decode($val['uraian']));
 										$keterangan_db = str_replace('&', 'dan', html_entity_decode($val['keterangan']));
+										$data_db[] = array(
+											'uraian' => $uraian_db,
+											'keterangan' => $keterangan_db
+										);
 										if(
 											$this->removeNewline($uraian) == $this->removeNewline($uraian_db)
 											&& $this->removeNewline($keterangan) == $this->removeNewline($keterangan_db)
@@ -12503,7 +12524,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 											'id' => $new_sub_sipd['id']
 										));
 									}else{
-										$ret['message_rinci'][] = 'Rekening Pembiayaan SIPD dari kode_akun='.$rinci['kode_rekening'].', id_skpd='.$id_skpd_sipd[0].' dan aktivitas="'.$rinci['aktivitas'].'" tidak ditemukan | '.$wpdb->last_query;
+										$ret['message_rinci'][] = 'Rekening Pembiayaan SIPD dari kode_akun='.$rinci['kode_rekening'].', id_skpd='.$id_skpd_sipd[0].' dan aktivitas="'.$rinci['aktivitas'].'" tidak ditemukan | '.$wpdb->last_query.' | uraian='.$uraian.' | keterangan='.$keterangan.' | '.json_encode($data_db);
 									}
 								}
 							}else{
