@@ -9227,7 +9227,8 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 							}
 						}else{
 							$wpdb->query('ROLLBACK');
-							throw new Exception("Oops terjadi kesalahan pemutakhiran program baru, cek kegiatan dan sub kegiatan!", 1);
+							throw new Exception("Oops te
+								rjadi kesalahan pemutakhiran program baru, cek kegiatan dan sub kegiatan!", 1);
 						}
 					}
 
@@ -10056,6 +10057,167 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
 				throw new Exception("Format tidak sesuai!", 1);
 			}
     	} catch (Exception $e) {
+    		echo json_encode([
+    			'status' => false,
+    			'message' => $e->getMessage()
+    		]);exit();
+    	}
+    }
+
+    public function mutakhirkan_program_rpjm(){
+    	global $wpdb;
+    	
+    	try {
+
+    		if (!empty($_POST)) {
+				if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+
+					//check program baru
+					$checkProgramRpjm = $wpdb->get_var($wpdb->prepare("SELECT id FROM data_rpjmd_program_lokal WHERE id_program=%d AND active=1 AND status=1 AND id_unik_indikator IS NULL ORDER BY id ASC", $_POST['id_program']));
+
+					if(!empty($checkProgramRpjm)){
+						throw new Exception('Program Pemutakhiran sudah pernah ditambahkan!');
+					}
+
+					// select program lama by id
+					$programRpjmLama = $wpdb->get_row($wpdb->prepare("SELECT * FROM data_rpjmd_program_lokal WHERE id=%d", $_POST['id']), ARRAY_A);
+
+					//ambil data program baru
+					$program_baru = $wpdb->get_row($wpdb->prepare("SELECT DISTINCT id_program, kode_program, nama_program, kode_bidang_urusan, nama_bidang_urusan, nama_urusan, tahun_anggaran, kode_urusan FROM data_prog_keg WHERE id_program=%d AND active=%d", $_POST['id_program'], 1), ARRAY_A);
+
+					//ambil data program lama untuk di check kesamaan urusan & bidang
+					$program_lama = $wpdb->get_row($wpdb->prepare("SELECT DISTINCT id_program, kode_program, nama_program, kode_bidang_urusan, nama_bidang_urusan, nama_urusan, tahun_anggaran, kode_urusan FROM data_prog_keg WHERE id_program=%d AND active=%d", $programRpjmLama['id_program'], 1), ARRAY_A);
+
+					if(
+						$program_baru['kode_bidang_urusan'] != $program_lama['kode_bidang_urusan'] || 
+						$program_baru['kode_urusan'] != $program_lama['kode_urusan']
+					){
+						throw new Exception("Urusan atau Bidang Urusan tidak linear antara Program Existing dan Program Pemutakhiran", 1);
+					}
+
+					// insert program yang baru berdasarkan program yang dipilih + id program lama
+					$id_unik_program = $this->generateRandomString();
+					$result1 = $wpdb->insert('data_rpjmd_program_lokal', [
+						'id_misi' => $programRpjmLama['id_misi'],
+					    'id_misi_old' => $programRpjmLama['id_misi_old'],
+					    'id_program' => $programRpjmLama['id_program'],
+					    'id_unik' => $id_unik_program,
+					    'id_unit' => $programRpjmLama['id_unit'],
+					    'id_visi' => $programRpjmLama['id_visi'],
+					    'is_locked' => $programRpjmLama['is_locked'],
+					    'is_locked_indikator' => $programRpjmLama['is_locked_indikator'],
+					    'kode_sasaran' => $programRpjmLama['kode_sasaran'],
+					    'kode_skpd' => $programRpjmLama['kode_skpd'],
+					    'kode_tujuan' => $programRpjmLama['kode_tujuan'],
+					    'misi_teks' => $programRpjmLama['misi_teks'],
+					    'nama_program' => $program_baru['nama_program'],
+					    'nama_skpd' => $programRpjmLama['nama_skpd'],
+					    'program_lock' => $programRpjmLama['program_lock'],
+					    'sasaran_lock' => $programRpjmLama['sasaran_lock'],
+					    'sasaran_teks' => $programRpjmLama['sasaran_teks'],
+					    'satuan' => $programRpjmLama['satuan'],
+					    'status' => 1,
+					    'tujuan_lock' => $programRpjmLama['tujuan_lock'],
+					    'tujuan_teks' => $programRpjmLama['tujuan_teks'],
+					    'urut_misi' => $programRpjmLama['urut_misi'],
+					    'urut_sasaran' => $programRpjmLama['urut_sasaran'],
+					    'urut_tujuan' => $programRpjmLama['urut_tujuan'],
+					    'visi_teks' => $programRpjmLama['visi_teks'],
+					    'active' => 1,
+					    'update_at' => "'".date('Y-m-d H:i:s')."'",
+					    'id_program_lama' => $programRpjmLama['id_program']
+					]);
+
+					$indikatorProgramRpjm = $wpdb->get_results($wpdb->prepare("SELECT * FROM data_rpjmd_program_lokal WHERE id_unik=%s AND id_unik_indikator IS NOT NULL AND active=1 AND status=1 ORDER BY id ASC", $_POST['id_unik']), ARRAY_A);
+
+					if(!empty($indikatorProgramRpjm)){
+
+						$programRpjmBaru = $wpdb->get_row($wpdb->prepare("SELECT * FROM data_rpjmd_program_lokal WHERE id_program=%d AND active=1 AND status=1 AND id_unik_indikator IS NULL ORDER BY id ASC", $_POST['id_program']));
+
+						if(empty($programRpjmBaru)){
+							throw new Exception('Program Pemutakhiran tidak ditemukan!');
+						}
+
+						// insert indikator sebagai indikator program baru
+						$arrStatus = [];
+						foreach ($indikatorProgramRpjm as $key => $indikatorProgram) {
+
+							$arrStatus[] = $wpdb->insert('data_rpjmd_program_lokal', [
+								'id_misi' => $programRpjmBaru->id_misi,
+								'id_program' => $programRpjmBaru->id_program,
+								'id_unik' => $id_unik_program,
+								'id_unik_indikator' => $this->generateRandomString(),
+								'id_unit' => $indikatorProgram['id_unit'],
+								'id_visi' => $programRpjmBaru->id_visi,
+								'is_locked' => 0,
+								'is_locked_indikator' => 0,
+								'indikator' => $indikatorProgram['indikator'],
+								'kode_sasaran' => $programRpjmBaru->kode_sasaran,
+								'kode_skpd' => $indikatorProgram['kode_skpd'],
+								'kode_tujuan' => $programRpjmBaru->id_unik,
+								'misi_teks' => $programRpjmBaru->misi_teks,
+								'nama_program' => $programRpjmBaru->nama_program,
+								'nama_skpd' => $indikatorProgram['nama_skpd'],
+								'pagu_1' => $indikatorProgram['pagu_1'],
+								'pagu_2' => $indikatorProgram['pagu_2'],
+								'pagu_3' => $indikatorProgram['pagu_3'],
+								'pagu_4' => $indikatorProgram['pagu_4'],
+								'pagu_5' => $indikatorProgram['pagu_5'],
+								'program_lock' => 0,
+								'sasaran_lock' => $programRpjmBaru->sasaran_lock,
+								'sasaran_teks' => $programRpjmBaru->sasaran_teks,
+								'satuan' => $indikatorProgram['satuan'],
+								'target_1' => $indikatorProgram['target_1'],
+								'target_2' => $indikatorProgram['target_2'],
+								'target_3' => $indikatorProgram['target_3'],
+								'target_4' => $indikatorProgram['target_4'],
+								'target_5' => $indikatorProgram['target_5'],
+								'target_awal' => $indikatorProgram['target_awal'],
+								'target_akhir' => $indikatorProgram['target_akhir'],
+								'tujuan_lock' => $programRpjmBaru->tujuan_lock,
+								'tujuan_teks' => $programRpjmBaru->tujuan_teks,
+								'urut_misi' => $programRpjmBaru->urut_misi,
+								'urut_sasaran' => $programRpjmBaru->urut_sasaran,
+								'urut_tujuan' => $programRpjmBaru->urut_tujuan,
+								'visi_teks' => $programRpjmBaru->visi_teks,
+								'status' => 1,
+								'active' => 1,
+								'id_program_lama' => $programRpjmBaru->id_program_lama
+							]);
+						}
+					}
+
+					// non aktifkan program lama
+					$result2=$wpdb->query($wpdb->prepare("UPDATE data_rpjmd_program_lokal SET active=0, status=0, update_at='".date('Y-m-d H:i:s')."' WHERE id_unik=%s AND active=%d", $programRpjmLama['id_unik'], 1));
+
+					// commit & rollback
+					if($result1 && $result2){
+						if(!empty($indikatorProgramRpjm)){
+							$res = array_unique($arrStatus);
+							if(count($res) === 1 && $res[0]) {
+							  $wpdb->query('COMMIT');
+							}else{
+							  $wpdb->query('ROLLBACK');
+							  throw new Exception("Oops terjadi kesalahan mengambil indikator program lama!", 1);
+							}
+						}else{
+							$wpdb->query('COMMIT');
+						}
+					}else{
+						$wpdb->query('ROLLBACK');
+					}
+
+					echo json_encode([
+		    			'status' => true,
+		    			'message' => 'Sukses mutakhirkan program!'
+		    		]);exit();
+				}else{
+					throw new Exception("API tidak ditemukan!", 1);
+				}
+			}else{
+				throw new Exception("Format tidak sesuai!", 1);
+			}
+		} catch (Exception $e) {
     		echo json_encode([
     			'status' => false,
     			'message' => $e->getMessage()

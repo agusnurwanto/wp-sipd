@@ -903,6 +903,8 @@ class Wpsipd
 		$this->loader->add_action('wp_ajax_cek_pemutakhiran_total_renstra',  $plugin_public, 'cek_pemutakhiran_total_renstra');
 		$this->loader->add_action('wp_ajax_subgiat_renstra_local_exist',  $plugin_public, 'subgiat_renstra_local_exist');
 		
+		$this->loader->add_action('wp_ajax_mutakhirkan_program_rpjm',  $plugin_public, 'mutakhirkan_program_rpjm');
+		
 		add_shortcode('menu_monev',  array($plugin_public, 'menu_monev'));
 		add_shortcode('datassh', array($plugin_public, 'datassh'));
 		add_shortcode('rekbelanja', array($plugin_public, 'rekbelanja'));

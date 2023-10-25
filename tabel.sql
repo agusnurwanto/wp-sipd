@@ -2776,6 +2776,7 @@ CREATE TABLE `data_rpjmd_program_lokal` (
   `active` tinyint(4) NOT NULL,
   `update_at` datetime NOT NULL,
   `tahun_anggaran` year(4) NOT NULL,
+  `id_program_lama` int(11) DEFAULT NULL
   PRIMARY KEY  (id)
 );
 
@@ -3108,6 +3109,7 @@ CREATE TABLE `data_rpjmd_sasaran_lokal_history` (
   `tahun_anggaran` year(4) NOT NULL,
   `id_jadwal` int(11) NOT NULL,
   `id_asli` int(11) NOT NULL,
+  `id_program_lama` int(11) NOT NULL,
   PRIMARY KEY  (id)
 );
 
@@ -3157,6 +3159,7 @@ CREATE TABLE `data_rpjmd_program_lokal_history` (
   `tahun_anggaran` year(4) NOT NULL,
   `id_jadwal` int(11) NOT NULL,
   `id_asli` int(11) NOT NULL,
+  `id_program_lama` int(11) DEFAULT NULL,
   PRIMARY KEY  (id)
 );
 
@@ -4194,6 +4197,7 @@ CREATE TABLE `data_rpd_sasaran_lokal_history` (
   `sasaran_catatan` text NOT NULL,
   `indikator_catatan_teks` text NOT NULL,
   `active` tinyint(4) NOT NULL,
+  `id_program_lama` int(11) DEFAULT NULL,
   PRIMARY KEY  (id)
 );
 
@@ -4249,6 +4253,7 @@ CREATE TABLE `data_rpd_program_lokal_history` (
   `id_jadwal` int(11) NOT NULL,
   `id_asli` int(11) NOT NULL,
   `active` tinyint(4) NOT NULL,
+  `id_program_lama` int(11) DEFAULT NULL,
   PRIMARY KEY  (id)
 );
 

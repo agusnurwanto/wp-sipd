@@ -7048,8 +7048,8 @@ $table='<table cellpadding="2" cellspacing="0" style="font-family:\'Open Sans\',
 						get_bidang();
 						get_program();
 						jQuery('#bidang-teks').val(response.data.nama_bidang_urusan).trigger('change');
-		  			});	
-	          	}
+		  		});	
+	        }
          })
 	}
 
