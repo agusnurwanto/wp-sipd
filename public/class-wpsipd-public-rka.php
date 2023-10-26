@@ -432,7 +432,8 @@ class Wpsipd_Public_RKA
                         *
                     FROM data_verifikasi_rka
                     WHERE kode_sbl = %s
-                    AND tahun_anggaran = %d
+                        AND tahun_anggaran = %d
+                        AND active = 1
                     ORDER BY update_at DESC", $kode_sbl, $tahun_anggaran), ARRAY_A);
                 $new_data = array();
                 foreach ($datas as $data) {
@@ -523,6 +524,7 @@ class Wpsipd_Public_RKA
                     'nama_verifikator' => $nama_verifikator,
                     'fokus_uraian' => $fokus_uraian,
                     'catatan_verifikasi' => $catatan_verifikasi,
+                    'active' => 1,
                     'create_at' => current_time('mysql')
                 ];
 
@@ -552,6 +554,71 @@ class Wpsipd_Public_RKA
         die(json_encode($ret));
     }
 
+    function verifikasi_tanpa_catatan()
+    {
+        global $wpdb;
+        $ret = array();
+        $ret['status'] = 'success';
+        $ret['message'] = 'Berhasil verifikasi tanpa catatan!';
+
+        if (!empty($_POST)) {
+            if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option('_crb_api_key_extension')) {
+                if (empty($_POST['kode_sbl'])) {
+                    $ret['status'] = 'error';
+                    $ret['message'] = 'kode_sbl catatan tidak boleh kosong';
+                    die(json_encode($ret));
+                }
+                $user_id = um_user('ID');
+                $user_meta = get_userdata($user_id);
+                $roles = $this->role_verifikator();
+                $cek_role = false;
+                foreach ($roles as $role) {
+                    if (in_array($role, $user_meta->roles)) {
+                        $cek_role = true;
+                    }
+                }
+                if (!$cek_role) {
+                    $ret['status'] = 'error';
+                    $ret['message'] = 'Anda tidak memiliki hak akses untuk melakukan ini!';
+                    die(json_encode($ret));
+                }
+
+                $kode_sbl = $_POST['kode_sbl'];
+                $tahun_anggaran = $_POST['tahun_anggaran'];
+                $data = array(
+                    'kode_sbl' => $kode_sbl,
+                    'tahun_anggaran' => $tahun_anggaran,
+                    'id_user' => $user_id,
+                    'nama_bidang' => get_usermeta($user_id, 'nama_bidang_skpd'),
+                    'update_at' => current_time('mysql')
+                );
+                $cek_data = $wpdb->get_var($wpdb->prepare("
+                    SELECT
+                        id
+                    FROM data_validasi_verifikasi_rka
+                    WHERE kode_sbl = %s
+                        AND tahun_anggaran= %d
+                ", $kode_sbl, $tahun_anggaran));
+                if (empty($cek_data)) {
+                    $wpdb->insert('data_validasi_verifikasi_rka', $data);
+                } else {
+                    $wpdb->update('data_validasi_verifikasi_rka', $data, array(
+                        'id' => $cek_data
+                    ));
+                }
+            } else {
+                $ret['status']  = 'error';
+                $ret['message'] = 'Api key tidak valid!';
+            }
+        } else {
+            $ret['status']  = 'error';
+            $ret['message'] = 'Format Salah!';
+        }
+
+        die(json_encode($ret));
+    }
+
+
     function get_catatan_verifikasi_by_id()
     {
         global $wpdb;
@@ -571,6 +638,7 @@ class Wpsipd_Public_RKA
                         *
                     FROM data_verifikasi_rka
                     WHERE id=%d
+                     AND active=1
                 ', $_POST['id']), ARRAY_A);
             } else {
                 $ret['status']  = 'error';
@@ -598,7 +666,7 @@ class Wpsipd_Public_RKA
                     $ret['message'] = 'id catatan tidak boleh kosong';
                     die(json_encode($ret));
                 }
-                $ret['data'] = $wpdb->delete('data_verifikasi_rka', array(
+                $ret['data'] = $wpdb->update('data_verifikasi_rka', array('active' => 0), array(
                     'id' => $_POST['id']
                 ));
                 $ret['status']  = 'success';
@@ -769,7 +837,7 @@ class Wpsipd_Public_RKA
                         }
 
                         // update user meta
-                        update_user_meta($_POST['id_user'], 'nomor_wa', $nomorwa);                    
+                        update_user_meta($_POST['id_user'], 'nomor_wa', $nomorwa);
                         update_user_meta($insert_user, 'skpd', $skpd);
 
 
@@ -796,6 +864,7 @@ class Wpsipd_Public_RKA
         $ret = array();
         $ret['status'] = 'success';
         $ret['message'] = 'Berhasil get user!';
+
         if (!empty($_POST)) {
             if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option('_crb_api_key_extension')) {
                 $user_id = um_user('ID');
@@ -837,7 +906,7 @@ class Wpsipd_Public_RKA
                             and tahun_anggaran=%d
                         group by id_skpd", $val['tahun_anggaran']), ARRAY_A);
                     foreach ($skpd as $v) {
-                        if(empty($data_skpd[$val['tahun_anggaran']])){
+                        if (empty($data_skpd[$val['tahun_anggaran']])) {
                             $data_skpd[$val['tahun_anggaran']] = array();
                         }
                         $data_skpd[$val['tahun_anggaran']][$v['id_skpd']] = $v['kode_skpd'] . ' ' . $v['nama_skpd'];
@@ -856,8 +925,8 @@ class Wpsipd_Public_RKA
                     $data_user[$recKey]['nomorwa'] = get_user_meta($recVal->ID, 'nomor_wa');
                     $skpd_html = array();
                     $skpd = get_user_meta($recVal->ID, 'skpd');
-                    foreach($skpd[0] as $tahun => $id_skpd){
-                        $skpd_html[] = $data_skpd[$tahun][$id_skpd].' ( '.$tahun.' )';
+                    foreach ($skpd[0] as $tahun => $id_skpd) {
+                        $skpd_html[] = $data_skpd[$tahun][$id_skpd] . ' ( ' . $tahun . ' )';
                     }
                     $data_user[$recKey]['skpd'] = implode('<br>', $skpd_html);
                 }

@@ -53,10 +53,10 @@ if ($data_rka) {
 			d.iddana,
 			d.namadana,
 			m.kode_dana
-		from data_dana_sub_keg d
+		FROM data_dana_sub_keg d
 			left join data_sumber_dana m on d.iddana=m.id_dana
 				and d.tahun_anggaran = m.tahun_anggaran
-		where kode_sbl=%s
+		WHERE kode_sbl=%s
 			AND d.tahun_anggaran=%d
 			AND d.active=1", $kode_sbl, $tahun_anggaran);
 	$sd_sub_keg = $wpdb->get_results($sql, ARRAY_A);
@@ -71,6 +71,32 @@ if ($data_rka) {
 	die('<h1 class="text-center">Sub Kegiatan tidak ditemukan!</h1>');
 }
 
+$result_verifikasi = $wpdb->get_results($wpdb->prepare("
+	SELECT 
+		nama_bidang,
+		update_at,
+		id_user
+	FROM data_validasi_verifikasi_rka 
+	WHERE tahun_anggaran =%d
+		AND kode_sbl =%s
+", $tahun_anggaran, $kode_sbl), ARRAY_A);
+
+$html_ver = '';
+foreach($result_verifikasi as $ver){
+	$nama = get_userdata($ver['id_user']);
+	$html_ver .= "
+		<tr>
+			<td style='text-transform: uppercase;'>$ver[nama_bidang]</td>
+			<td>:</td>
+			<td>Diverifikasi oleh $nama->display_name pada $ver[update_at]</td>
+		</tr>
+	";
+}
+// Jika ada data yang ditemukan, gunakan data tersebut. Jika tidak, gunakan placeholder default.
+$verif_bappeda = !empty($result_bappeda) ? "Diverifikasi oleh " . $result_bappeda->nama_bidang . " pada " . $result_bappeda->update_at : "Diverifikasi oleh pada";
+
+
+
 $api_key = get_option('_crb_api_key_extension');
 
 $current_user = wp_get_current_user();
@@ -82,7 +108,7 @@ if ($current_user) {
 	$id_user = $current_user->ID;
 	$username = $current_user->user_login;
 	$role_user = $current_user->roles;
-	$nama_bidang = get_user_meta($current_user->ID, 'fokus_uraian');
+	$nama_bidang = get_user_meta($current_user->ID, 'nama_bidang');
 	$fokus_uraian = get_user_meta($current_user->ID, 'fokus_uraian');
 }
 
@@ -150,49 +176,16 @@ if ($current_user) {
 				<td>:</td>
 				<td><?php echo implode(', ', $sd_sub); ?></td>
 			</tr>
-			<tr>
-				<td>BAPPEDA LITBANG</td>
-				<td>:</td>
-				<td><?php echo "Diverifikasi oleh pada"  ?></td>
-			</tr>
-			<tr>
-				<td>BPPKAD</td>
-				<td>:</td>
-				<td><?php echo "Diverifikasi oleh pada"  ?></td>
-			</tr>
-			<tr>
-				<td>BAGIAN ADBANG</td>
-				<td>:</td>
-				<td><?php echo "Diverifikasi oleh pada"  ?></td>
-			</tr>
-			<tr>
-				<td>DINAS PUPR</td>
-				<td>:</td>
-				<td><?php echo "Diverifikasi oleh pada"  ?></td>
-			</tr>
-			<tr>
-				<td>BAGIAN PBJ</td>
-				<td>:</td>
-				<td><?php echo "Diverifikasi oleh pada"  ?></td>
-			</tr>
-			<tr>
-				<td>INSPEKTORAT</td>
-				<td>:</td>
-				<td><?php echo "Diverifikasi oleh pada"  ?></td>
-			</tr>
-			<tr>
-				<td>PPTK OPD</td>
-				<td>:</td>
-				<td><?php echo "Ditanggapi oleh pada"  ?></td>
-			</tr>
+			<?php echo $html_ver; ?>
 		</tbody>
 	</table>
 
 	<div id="aksi_page" class="text-center aksi" style="margin-bottom: 10px;">
 		<button class="btn btn-sm btn-warning" onclick="tambah_catatan()"><i class="dashicons dashicons-admin-comments"></i> Tambah Catatan</button>
-		<button class="btn btn-sm btn-success"><i class="dashicons dashicons-yes"></i> Verifikasi Tanpa Catatan</button>
+		<button class="btn btn-sm btn-success" onclick="verifikasi_tanpa_catatan()"><i class="dashicons dashicons-yes"></i> Verifikasi Tanpa Catatan</button>
 		<button class="btn btn-sm btn-info" onclick="jQuery('.aksi').hide(); window.print(); setTimeout(function(){ jQuery('.aksi').show(); }, 10000);"><i class="dashicons dashicons-printer"></i> Print Lembar Verifikasi</button>
 	</div>
+
 	<table id="tabel_verifikasi">
 		<thead>
 			<tr>
@@ -225,6 +218,7 @@ if ($current_user) {
 				<input type="hidden" class="form-control" id="id_user">
 				<input type="hidden" class="form-control" id="tahun_anggaran">
 				<input type="hidden" class="form-control" id="id_catatan">
+				<input type="hidden" class="form-control" id="nama_bidang">
 				<div class="form-group">
 					<label>Sub Kegiatan</label>
 					<input type="text" class="form-control" id="sub_kegiatan" value="" disabled>
@@ -288,13 +282,44 @@ if ($current_user) {
 		});
 	}
 
+	function verifikasi_tanpa_catatan() {
+		if (confirm('Apakah anda yakin ingin mem verifikasi tanpa catatan?')) {
+			jQuery('#wrap-loading').show();
+			jQuery.ajax({
+				type: 'POST',
+				url: '<?php echo admin_url('admin-ajax.php'); ?>',
+				data: {
+					api_key: '<?php echo $api_key; ?>',
+					kode_sbl: '<?php echo $kode_sbl ?>',
+					tahun_anggaran: '<?php echo $tahun_anggaran ?>',
+					action: 'verifikasi_tanpa_catatan'
+				},
+				success: function(data) {
+					jQuery('#wrap-loading').hide();
+					const response = JSON.parse(data);
+					if (response.status === 'success') {
+						alert(response.message);
+						jQuery('#modal_tambah_catatan').modal('hide');
+						load_data();
+					} else {
+						alert('Error: ' + response.message);
+					}
+				},
+				error: function(xhr, status, error) {
+					console.error('AJAX Error:', status, error);
+				}
+			});
+		}
+
+	}
+
 	function tambah_catatan() {
-		jQuery('#kode_sbl').val('<?php echo $kode_sbl ?>').prop('disabled', true);;
-		jQuery('#tahun_anggaran').val('<?php echo $tahun_anggaran; ?>').prop('disabled', true);;
-		jQuery('#id_catatan').val('').prop('disabled', true);;
-		jQuery('#sub_kegiatan').val('<?php echo $nama_sub_kegiatan; ?>').prop('disabled', true);;
+		jQuery('#kode_sbl').val('<?php echo $kode_sbl ?>').prop('disabled', true);
+		jQuery('#tahun_anggaran').val('<?php echo $tahun_anggaran; ?>').prop('disabled', true);
+		jQuery('#id_catatan').val('').prop('disabled', true);
+		jQuery('#sub_kegiatan').val('<?php echo $nama_sub_kegiatan; ?>').prop('disabled', true);
 		jQuery('#id_user').val('<?php echo $id_user; ?>').prop('disabled', true);;
-		jQuery('#nama_verifikator').val('<?php echo $nama_user; ?>').prop('disabled', true);;
+		jQuery('#nama_verifikator').val('<?php echo $nama_user; ?>').prop('disabled', true);
 		jQuery('#fokus_uraian').val('').prop('disabled', false);
 		jQuery('#catatan_verifikasi').val('').prop('disabled', false);
 		jQuery('#modal_tambah_catatan').modal('show');

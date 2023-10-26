@@ -904,6 +904,7 @@ class Wpsipd
 		$this->loader->add_action('wp_ajax_tambah_catatan_verifikator',  $plugin_public, 'tambah_catatan_verifikator');
 		$this->loader->add_action('wp_ajax_get_catatan_verifikasi_by_id',  $plugin_public, 'get_catatan_verifikasi_by_id');
 		$this->loader->add_action('wp_ajax_hapus_catatan_verifikasi',  $plugin_public, 'hapus_catatan_verifikasi');
+		$this->loader->add_action('wp_ajax_verifikasi_tanpa_catatan',  $plugin_public, 'verifikasi_tanpa_catatan');
 		
 		$this->loader->add_action('wp_ajax_get_data_verifikasi_rka',  $plugin_public, 'get_data_verifikasi_rka');
 		$this->loader->add_action('wp_ajax_tambah_user_pptk',  $plugin_public, 'tambah_user_pptk');

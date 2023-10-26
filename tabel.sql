@@ -5781,7 +5781,18 @@ CREATE TABLE `data_pptk_sub_keg` (
   `id_user` int(11) NOT NULL,
   `kode_sbl` text NOT NULL,
   `tahun_anggaran` year(4) NOT NULL,
-  `active` tinyint(4) NOT NULL,
   `update_at` datetime DEFAULT current_timestamp(),
+  `active` tinyint(4) NOT NULL,
+  PRIMARY KEY  (id)
+);
+
+CREATE TABLE `data_validasi_verifikasi_rka` (
+  `id` int(11) NOT NULL auto_increment,
+  `id_user` int(11) NOT NULL,
+  `kode_sbl` text NOT NULL,
+  `nama_bidang` text NOT NULL,
+  `tahun_anggaran` year(4) NOT NULL,
+  `update_at` datetime DEFAULT current_timestamp(),
+  `status_verifikasi` int(11) NOT NULL,
   PRIMARY KEY  (id)
 );
