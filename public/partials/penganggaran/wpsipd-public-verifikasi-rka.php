@@ -330,8 +330,6 @@ if ($current_user) {
 		const kode_sbl = jQuery('#kode_sbl').val();
 		const tahun_anggaran = jQuery('#tahun_anggaran').val();
 		const id_catatan = jQuery('#id_catatan').val();
-		const id_user = jQuery('#id_user').val();
-		const nama_verifikator = jQuery('#nama_verifikator').val();
 		const fokus_uraian = jQuery('#fokus_uraian').val();
 		const catatan_verifikasi = jQuery('#catatan_verifikasi').val();
 
@@ -343,11 +341,9 @@ if ($current_user) {
 				kode_sbl: kode_sbl,
 				tahun_anggaran: tahun_anggaran,
 				id_catatan: id_catatan,
-				id_user: id_user,
-				nama_verifikator: nama_verifikator,
 				fokus_uraian: fokus_uraian,
 				catatan_verifikasi: catatan_verifikasi,
-				action: 'tambah_catatan_verifikator'
+				action: 'tambah_catatan_verifikator',
 			},
 			success: function(data) {
 				jQuery('#wrap-loading').hide();

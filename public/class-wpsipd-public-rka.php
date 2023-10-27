@@ -478,31 +478,26 @@ class Wpsipd_Public_RKA
 
         if (!empty($_POST)) {
             if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option('_crb_api_key_extension')) {
+
+                $current_user = wp_get_current_user();
+                if ($current_user) {
+                    $nama_user = $current_user->display_name;
+                    $id_user = $current_user->ID;
+                    $nama_bidang = get_user_meta($current_user->ID, 'nama_bidang_skpd', true);
+                }
+
                 if (empty($_POST['kode_sbl'])) {
                     $ret['status'] = 'error';
-                    $ret['message'] = 'kode sbl tidak boleh kosong!';
+                    $ret['message'] = 'kode_sbl catatan tidak boleh kosong';
                     die(json_encode($ret));
                 }
-                if (empty($_POST['id_user'])) {
-                    $ret['status'] = 'error';
-                    $ret['message'] = 'id user tidak boleh kosong!';
-                    die(json_encode($ret));
-                }
+
                 if (empty($_POST['tahun_anggaran'])) {
                     $ret['status'] = 'error';
                     $ret['message'] = 'tahun anggaran tidak boleh kosong!';
                     die(json_encode($ret));
                 }
-                if (empty($_POST['nama_verifikator'])) {
-                    $ret['status'] = 'error';
-                    $ret['message'] = 'nama verifikator field harus diisi!';
-                    die(json_encode($ret));
-                }
-                if (empty($_POST['fokus_uraian'])) {
-                    $ret['status'] = 'error';
-                    $ret['message'] = 'fokus uraian field harus diisi!';
-                    die(json_encode($ret));
-                }
+
                 if (empty($_POST['catatan_verifikasi'])) {
                     $ret['status'] = 'error';
                     $ret['message'] = 'catatan verifikasi field harus diisi!';
@@ -512,21 +507,19 @@ class Wpsipd_Public_RKA
                 $id_catatan = $_POST['id_catatan'];
                 $kode_sbl = $_POST['kode_sbl'];
                 $tahun_anggaran = $_POST['tahun_anggaran'];
-                $id_user = $_POST['id_user'];
-                $nama_verifikator = $_POST['nama_verifikator'];
                 $fokus_uraian = $_POST['fokus_uraian'];
                 $catatan_verifikasi = $_POST['catatan_verifikasi'];
 
-                $data = [
+                $data = array(
                     'tahun_anggaran' => $tahun_anggaran,
                     'kode_sbl' => $kode_sbl,
                     'id_user' => $id_user,
-                    'nama_verifikator' => $nama_verifikator,
+                    'nama_verifikator' => $nama_user,
                     'fokus_uraian' => $fokus_uraian,
                     'catatan_verifikasi' => $catatan_verifikasi,
                     'active' => 1,
                     'create_at' => current_time('mysql')
-                ];
+                );
 
                 if (empty($id_catatan)) {
                     // Insert new data
@@ -534,13 +527,49 @@ class Wpsipd_Public_RKA
                 } else {
                     // Update existing data and set update_at
                     $data['update_at'] = current_time('mysql');
-                    $result = $wpdb->update('data_verifikasi_rka', $data, ['id' => $id_catatan]);
+                    $result = $wpdb->update('data_verifikasi_rka', $data, array('id' => $id_catatan));
                     $ret['message'] = 'Berhasil Update Catatan Verifikasi';
                 }
 
-                if ($result === false) {
+                if ($result !== false) {
+                    // Insert or Update data in second table
+                    $data_validasi = array(
+                        'id_user' => $id_user,
+                        'kode_sbl' => $kode_sbl,
+                        'nama_bidang' => $nama_bidang,
+                        'tahun_anggaran' => $tahun_anggaran
+                    );
+
+                    $existing_validasi = $wpdb->get_row($wpdb->prepare("
+                        SELECT * 
+                        FROM data_validasi_verifikasi_rka 
+                        WHERE kode_sbl = %s 
+                          AND tahun_anggaran = %d
+                          AND id_user = %d",
+                        $kode_sbl,$tahun_anggaran,$id_user));
+
+                    if ($existing_validasi) {
+                        // Update existing data
+                        $data_validasi['update_at'] = current_time('mysql');
+                        $result_validasi = $wpdb->update('data_validasi_verifikasi_rka', $data_validasi, array('id' => $existing_validasi->id));
+                        if ($result_validasi === false) {
+                            $ret['status'] = 'error';
+                            $ret['message'] = 'Gagal memperbarui data validasi di database.';
+                            die(json_encode($ret));
+                        }
+                    } else {
+                        // Insert new data
+                        $result_validasi = $wpdb->insert('data_validasi_verifikasi_rka', $data_validasi);
+                        if ($result_validasi === false) {
+                            $ret['status'] = 'error';
+                            $ret['message'] = 'Gagal menambahkan data validasi ke database.';
+                            die(json_encode($ret));
+                        }
+                    }
+                } else {
                     $ret['status'] = 'error';
                     $ret['message'] = empty($id_catatan) ? 'Gagal menambahkan data ke database.' : 'Gagal memperbarui data di database.';
+                    die(json_encode($ret));
                 }
             } else {
                 $ret['status']  = 'error';
@@ -553,6 +582,7 @@ class Wpsipd_Public_RKA
 
         die(json_encode($ret));
     }
+
 
     function verifikasi_tanpa_catatan()
     {

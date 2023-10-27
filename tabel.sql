@@ -5793,6 +5793,5 @@ CREATE TABLE `data_validasi_verifikasi_rka` (
   `nama_bidang` text NOT NULL,
   `tahun_anggaran` year(4) NOT NULL,
   `update_at` datetime DEFAULT current_timestamp(),
-  `status_verifikasi` int(11) NOT NULL,
   PRIMARY KEY  (id)
 );
