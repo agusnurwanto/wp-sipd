@@ -817,7 +817,7 @@ foreach ($bl as $k => $sub_bl) {
 					AND d.tahun_anggaran=".$item['tahun_anggaran']."
 					AND d.active=1
 			", ARRAY_A);
-			if(empty($data)){
+			if(empty($dana)){
 				$dana = array('nama_dana' => '');
 			}
 			$rin_sub_item .= '
