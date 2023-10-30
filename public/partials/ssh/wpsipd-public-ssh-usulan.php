@@ -343,8 +343,8 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
 				<div class="row form-group">
 					<label class="col-md-2" for="Acuan penyusunan SSH">Acuan Penyusunan SSH</label>
 					<div class="col-md-10">
-						<input class="type-sumber-ssh" id="jenis_survey" name="jenis[]" value="1" type="checkbox" >&nbsp;<label for="verify-ssh-yes">Survey harga pasar yang telah kami lakukan secara mandiri.</label></br>
-						<input class="type-sumber-ssh" id="jenis_juknis" name="jenis[]" value="2" type="checkbox">&nbsp;<label for="verify-ssh-no">Petunjuk Teknis yang kami terima dari kementrian/provinsi.</label></br>
+						<input class="type-sumber-ssh" id="jenis_survey" name="jenis[]" value="1" type="checkbox" >&nbsp;<label for="jenis_survey">Survey harga pasar yang telah kami lakukan secara mandiri.</label></br>
+						<input class="type-sumber-ssh" id="jenis_juknis" name="jenis[]" value="2" type="checkbox">&nbsp;<label for="jenis_juknis">Petunjuk Teknis yang kami terima dari kementrian/provinsi.</label></br>
 						<small style='color:red'>* Pilih salah satu atau keduanya. </small>
 					</div>
 				</div>
@@ -375,7 +375,7 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
 				</div>
 			</div> 
 			<div class="modal-footer">
-				<button class="btn btn-primary submitBtn" onclick="submitSuratUsulan(<?php echo $input['tahun_anggaran']; ?>)">Simpan</button>
+				<button class="btn btn-primary submitBtn" id="submitSuratUsulan" onclick="submitSuratUsulan(<?php echo $input['tahun_anggaran']; ?>)">Simpan</button>
 				<button type="button" class="components-button btn btn-secondary" data-dismiss="modal">Tutup</button>
 			</div>
 		</div>
@@ -1494,6 +1494,7 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
 					}else{
 						alert(response.message);
 					}
+					jQuery('.submitBtn').removeAttr("disabled");
 					jQuery("#wrap-loading").hide();
 				}
 			});
@@ -2540,6 +2541,7 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
 	        	jQuery('#ids_surat_usulan').val(data_ids);
 	        	jQuery('#tbody_data_usulan').html(data);
 	        	jQuery('#tambahSuratUsulan').modal('show');
+				jQuery('#jenis_survey').prop('checked', true);
         	<?php 
         		if(
 					in_array("administrator", $user_meta->roles)
