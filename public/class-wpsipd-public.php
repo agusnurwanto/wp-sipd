@@ -5225,23 +5225,44 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		}
 
 		// DAFTAR NAMA CALON PENERIMA, ALAMAT DAN BESARAN ALOKASI HIBAH BERUPA UANG & BARANG YANG DITERIMA SERTA SKPD PEMBERI HIBAH
-		if($input['lampiran'] == 3){
-			require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/wpsipd-public-apbdpenjabaran-3.php';
+		if($input['lampiran'] == '3a'){
+			require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/wpsipd-public-apbdpenjabaran-3a.php';
+		}
+
+		// DAFTAR NAMA CALON PENERIMA, ALAMAT DAN BESARAN ALOKASI HIBAH BERUPA UANG & BARANG YANG DITERIMA SERTA SKPD PEMBERI HIBAH
+		if($input['lampiran'] == '3b'){
+			require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/wpsipd-public-apbdpenjabaran-3b.php';
+		}
+
+		if($input['lampiran'] == '4a'){
+			require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/wpsipd-public-apbdpenjabaran-4a.php';
 		}
 
 		// DAFTAR NAMA CALON PENERIMA, ALAMAT DAN BESARAN ALOKASI BANTUAN SOSIAL BERUPA UANG YANG DITERIMA SERTA SKPD PEMBERI BANTUAN SOSIAL
-		if($input['lampiran'] == 4){
-			require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/wpsipd-public-apbdpenjabaran-4.php';
+		if($input['lampiran'] == '4b'){
+			require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/wpsipd-public-apbdpenjabaran-4b.php';
 		}
 
 		// DAFTAR NAMA CALON PENERIMA, ALAMAT DAN BESARAN ALOKASI BANTUAN KEUANGAN BERSIFAT UMUM/KHUSUS YANG DITERIMA SERTA SKPD PEMBERI BANTUAN KEUANGAN
-		if($input['lampiran'] == 5){
-			require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/wpsipd-public-apbdpenjabaran-5.php';
+		if($input['lampiran'] == '5a'){
+			require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/wpsipd-public-apbdpenjabaran-5a.php';
+		}
+
+		if($input['lampiran'] == '5b'){
+			require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/wpsipd-public-apbdpenjabaran-5b.php';
 		}
 
 		// DAFTAR NAMA CALON PENERIMA, ALAMAT DAN BESARAN PERUBAHAN ALOKASI BELANJA BAGI HASIL PAJAK DAERAH KEPADA PEMERINTAH KABUPATEN, KOTA DAN DESA
-		if($input['lampiran'] == 6){
-			require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/wpsipd-public-apbdpenjabaran-6.php';
+		if($input['lampiran'] == '6a'){
+			require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/wpsipd-public-apbdpenjabaran-6a.php';
+		}
+
+		if($input['lampiran'] == '6b'){
+			require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/wpsipd-public-apbdpenjabaran-6b.php';
+		}
+
+		if($input['lampiran'] == '6c'){
+			require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/wpsipd-public-apbdpenjabaran-6c.php';
 		}
 
 		// APBD dikelompokan berdasarkan mandatory spending atau tag label yang dipilih user ketika membuat sub kegiatan
@@ -6804,10 +6825,16 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 					if(
 						(
 							$_POST['jenis'] == '1'
-							|| $_POST['jenis'] == '3'
-							|| $_POST['jenis'] == '4'
-							|| $_POST['jenis'] == '5'
-							|| $_POST['jenis'] == '6'
+							|| $_POST['jenis'] == '2'							
+							|| $_POST['jenis'] == '3a'
+							|| $_POST['jenis'] == '3b'
+							|| $_POST['jenis'] == '4a'
+							|| $_POST['jenis'] == '4b'
+							|| $_POST['jenis'] == '5a'
+							|| $_POST['jenis'] == '5b'	
+							|| $_POST['jenis'] == '6a'
+							|| $_POST['jenis'] == '6b'
+							|| $_POST['jenis'] == '6c'
 						)
 						&& $_POST['model'] == 'perkada'
 						&& $_POST['cetak'] == 'apbd'
@@ -6818,33 +6845,33 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						$ret['text_link'] = 'Print APBD PENJABARAN Lampiran '.$_POST['jenis'];
 						$custom_post = $this->save_update_post($nama_page, $cat_name, $post_content);
 						$ret['link'] = $this->get_link_post($custom_post);
-					}else if(
-						$_POST['jenis'] == '2'
-						&& $_POST['model'] == 'perkada'
-						&& $_POST['cetak'] == 'apbd'
-					){
-						$sql = $wpdb->prepare("
-						    select 
-						        id_skpd,
-						        kode_skpd,
-						        nama_skpd
-						    from data_unit
-						    where tahun_anggaran=%d
-						        and active=1
-						", $_POST['tahun_anggaran']);
-						$unit = $wpdb->get_results($sql, ARRAY_A);
-						$ret['link'] = array();
-						foreach ($unit as $k => $v) {
-							$nama_page = $_POST['tahun_anggaran'] .' | '.$v['kode_skpd'].' | '.$v['nama_skpd'].' | '. ' | APBD PENJABARAN Lampiran 2';
-							$cat_name = $_POST['tahun_anggaran'] . ' APBD';
-							$post_content = '[apbdpenjabaran tahun_anggaran="'.$_POST['tahun_anggaran'].'" lampiran="'.$_POST['jenis'].'" id_skpd="'.$v['id_skpd'].'"]';
-							$custom_post = $this->save_update_post($nama_page, $cat_name, $post_content);
-							$ret['link'][$v['id_skpd']] = array(
-								'id_skpd' => $v['id_skpd'],
-								'text_link' => 'Print APBD PENJABARAN Lampiran 2',
-								'link' => $this->get_link_post($custom_post)
-							);
-						}
+					// }else if(
+					// 	$_POST['jenis'] == '2'
+					// 	&& $_POST['model'] == 'perkada'
+					// 	&& $_POST['cetak'] == 'apbd'
+					// ){
+					// 	$sql = $wpdb->prepare("
+					// 	    select 
+					// 	        id_skpd,
+					// 	        kode_skpd,
+					// 	        nama_skpd
+					// 	    from data_unit
+					// 	    where tahun_anggaran=%d
+					// 	        and active=1
+					// 	", $_POST['tahun_anggaran']);
+					// 	$unit = $wpdb->get_results($sql, ARRAY_A);
+					// 	$ret['link'] = array();
+					// 	foreach ($unit as $k => $v) {
+					// 		$nama_page = $_POST['tahun_anggaran'] .' | '.$v['kode_skpd'].' | '.$v['nama_skpd'].' | '. ' | APBD PENJABARAN Lampiran 2';
+					// 		$cat_name = $_POST['tahun_anggaran'] . ' APBD';
+					// 		$post_content = '[apbdpenjabaran tahun_anggaran="'.$_POST['tahun_anggaran'].'" lampiran="'.$_POST['jenis'].'" id_skpd="'.$v['id_skpd'].'"]';
+					// 		$custom_post = $this->save_update_post($nama_page, $cat_name, $post_content);
+					// 		$ret['link'][$v['id_skpd']] = array(
+					// 			'id_skpd' => $v['id_skpd'],
+					// 			'text_link' => 'Print APBD PENJABARAN Lampiran 2',
+					// 			'link' => $this->get_link_post($custom_post)
+					// 		);
+					// 	}
 					}else if(
 						$_POST['jenis'] == '1'
 							|| $_POST['jenis'] == '2'
