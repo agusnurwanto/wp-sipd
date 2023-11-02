@@ -414,7 +414,7 @@ foreach ($units as $k => $unit):
 				'kd_keg' => $kd_keg
 			);
 			$data_all['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']]['data'][$sub['kode_giat']]['data'][$sub['kode_sub_giat']] = array(
-				'nama'	=> implode(' ', $nama).$debug_pagu.'<span class="detail_simda hide-excel">'.json_encode($detail_simda).'</span><span class="badge badge-danger simpan-per-sub-keg hide-excel">SIMPAN</span>',
+				'nama'	=> implode(' ', $nama).$debug_pagu.'<span class="detail_simda hide-excel">'.json_encode($detail_simda).'</span><span class="badge badge-danger simpan-per-sub-keg hide-excel">SIMPAN</span><span class="badge badge-success set-pptk-per-sub-keg hide-excel">SET PPTK</span>',
 				'total' => 0,
 				'total_simda' => 0,
 				'total_fmis' => 0,
@@ -869,9 +869,67 @@ if(
 		<li>Baris dengan background kuning menandakan ada yang tidak sama antara pagu sub kegiatan DPA dengan pagu sub kegiatan di SIPD</li>
 	</ul>
 </div>
+
+<!-- Modal -->
+<div class="modal fade" id="modal-set-pptk" tabindex="-1" role="dialog" aria-labelledby="exampleModalScrollableTitle" aria-hidden="true">
+	<div class="modal-dialog modal-lg" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title" id="exampleModalScrollableTitle">Set User PPTK per Sub Kegiatan</h5>
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+					<span aria-hidden="true">&times;</span>
+				</button>
+			</div>
+			<div class="modal-body">
+				<input type="hidden" class="form-control" id="kode_sbl">
+				<input type="hidden" class="form-control" id="tahun_anggaran">
+				<input type="hidden" class="form-control" id="id_skpd">
+				<div class="form-group">
+					<label>Sub Kegiatan</label>
+					<input type="text" class="form-control" id="nama_sub_kegiatan" value="" disabled>
+				</div>
+				<div class="form-group">
+					<label>Nama PPTK</label>
+					<select class="form-control" id="user_pptk">
+						<option value="" selected disabled>Pilih User</option>
+					</select>
+				</div>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-secondary" data-dismiss="modal">Tutup</button>
+				<button type="button" class="btn btn-primary" onclick="submit_data_pptk(this)">Simpan</button>
+			</div>
+		</div>
+	</div>
+</div>
+
 <script type="text/javascript">
 	var data_input = <?php echo json_encode($data_input); ?>;
 	run_download_excel();
+
+	function submit_data_pptk(that){
+		jQuery('#wrap-loading').show();
+		var kode_sbl = '';
+		var id_user = '';
+		jQuery.ajax({
+			url: "<?php echo admin_url('admin-ajax.php'); ?>",
+			type: "post",
+			data: {
+				"action": "simpan_sub_keg_pptk",
+				"api_key": jQuery('#api_key').val(),
+				"tahun_anggaran": jQuery('#tahun_anggaran').val(),
+				kode_sbl: kd_sbl,
+				id_user: id_user
+			},
+			dataType: "json",
+			success: function(data){
+				// menampilkan popup
+				jQuery('#modal-set-pptk').modal('show');
+				jQuery('#wrap-loading').hide();
+			}
+		});
+	}
+
     function generate_total(){
     	window.total_parent = {};
     	window.total_simda = 0;
@@ -1184,6 +1242,32 @@ if(
 				});
 		    }
 	    });
+
+		// fungsi set PPTK per sub kegiatan
+	    jQuery('.set-pptk-per-sub-keg').on('click', function(){
+	    	var tr = jQuery(this).closest('tr');
+	    	var nama_sub = tr.find('.nama_sub_giat').text();
+			var kd_sbl = tr.attr('data-kdsbl');
+			jQuery('#wrap-loading').show();
+			jQuery.ajax({
+				url: "<?php echo admin_url('admin-ajax.php'); ?>",
+				type: "post",
+				data: {
+					"action": "get_sub_keg_pptk",
+					"api_key": jQuery('#api_key').val(),
+					"tahun_anggaran": jQuery('#tahun_anggaran').val(),
+					id_skpd: tr.attr('data-idskpd'),
+					kode_sbl: kd_sbl,
+				},
+				dataType: "json",
+				success: function(data){
+					// menampilkan popup
+					jQuery('#modal-set-pptk').modal('show');
+					jQuery('#wrap-loading').hide();
+				}
+			});
+	    });
+
 	    jQuery('#reset-rfk').on('click', function(){
 	    	if(confirm('Apakah anda yakin untuk reset data RFK sesuai bulan sebelumnya? Data RFK saat ini akan disamakan dengan bulan sebelumnya!')){
 	    		jQuery('#wrap-loading').show();
