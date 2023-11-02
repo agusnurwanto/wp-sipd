@@ -4215,6 +4215,7 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 				'rejected' => 0,
 				'approved' => 0,
 				'waiting' => 0,
+				'draft' => 0,
 				'total' => 0
 			)
 		);
@@ -4243,6 +4244,8 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 							$return['data']['approved'] = $ssh['total'];
 						}else if($ssh['status'] == 'waiting'){
 							$return['data']['waiting'] = $ssh['total'];
+						}else if($ssh['status'] == 'draft'){
+							$return['data']['draft'] = $ssh['total'];
 						}
 					}
 				}
