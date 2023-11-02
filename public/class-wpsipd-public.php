@@ -12230,6 +12230,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						);
 					}
 
+					$total_fmis = 0;
 					$cek_sub_unit_fmis = array();
 					$cek_sub_keg_fmis_id_sub_asli = array();
 					foreach($sub_keg_fmis as $fmis){
@@ -12288,6 +12289,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						$id_skpd_sipd = $get_id['id_skpd_sipd'];
 
 						if(!empty($id_skpd_sipd)){
+
 							$data_fmis['sub_kegiatan_asli'] = $data_fmis['sub_kegiatan'];
 							$data_fmis['kegiatan_asli'] = $data_fmis['kegiatan'];
 							$data_fmis['program_asli'] = $data_fmis['program'];
@@ -12335,8 +12337,6 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 							){
 								// perlu dicek agar data sebelumnya tidak dirubah active jadi 0
 								if(empty($cek_sub_unit_fmis[$id_skpd_sipd[0]])){
-									$cek_sub_unit_fmis[$id_skpd_sipd[0]] = true;
-
 									// untuk membedakan pembiyaan pengeluaran dan penerimaa maka perlu ditambahkan param kdrek1 dan kdrek2
 									$wpdb->update('data_rincian_fmis', array(
 										'active' => 0
@@ -12435,6 +12435,14 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 								}
 							}
 
+							// jika sub kegiatan dengan id sub unit sudah ada sebelumnya maka total fmis ditambahkan
+							if(empty($cek_sub_unit_fmis[$id_skpd_sipd[0]])){
+								$cek_sub_unit_fmis[$id_skpd_sipd[0]] = true;
+								$total_fmis = $data_fmis['total'];
+							}else{
+								$total_fmis += $data_fmis['total'];
+							}
+
 							// belanja
 							if(
 								$data_fmis['rincian'][0]['kdrek1'] == 5
@@ -12530,7 +12538,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 								}
 								if(!empty($sub)){
 									$wpdb->update('data_sub_keg_bl', array(
-										'pagu_fmis' => $data_fmis['total']
+										'pagu_fmis' => $total_fmis
 									), array(
 										'id' => $sub['id']
 									));
