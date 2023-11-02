@@ -994,9 +994,9 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes {
 							$this->generatePage('Sumber Dana '.$vv['nama_skpd'].' '.$vv['kode_skpd'].' | '.$v['tahun_anggaran'], $v['tahun_anggaran'], '[monitor_daftar_sumber_dana tahun_anggaran="'.$v['tahun_anggaran'].'" id_skpd="'.$vv['id_skpd'].'"]');
 						}else if($_POST['type'] == 'label_komponen'){
 							$this->generatePage('Label Komponen '.$vv['nama_skpd'].' '.$vv['kode_skpd'].' | '.$v['tahun_anggaran'], $v['tahun_anggaran'], '[monitor_daftar_label_komponen tahun_anggaran="'.$v['tahun_anggaran'].'" id_skpd="'.$vv['id_skpd'].'"]');
-						}else if($_POST['type'] == 'apbdpenjabaran'){
-							$url_skpd = $this->generatePage($v['tahun_anggaran'] .' | '.$vv['kode_skpd'].' | '.$vv['nama_skpd'].' | '. ' | APBD PENJABARAN Lampiran 2', $v['tahun_anggaran'], '[apbdpenjabaran tahun_anggaran="'.$v['tahun_anggaran'].'" lampiran="2" id_skpd="'.$vv['id_skpd'].'"]');
-		            		$body_pemda .= '<li><a target="_blank" href="'.$url_skpd.'">Halaman APBD PENJABARAN Lampiran 2 '.$vv['kode_skpd'].' '.$vv['nama_skpd'].' '.$v['tahun_anggaran'].'</a> (NIP: '.$vv['nipkepala'].')';
+						// }else if($_POST['type'] == 'apbdpenjabaran'){
+						// 	$url_skpd = $this->generatePage($v['tahun_anggaran'] .' | '.$vv['kode_skpd'].' | '.$vv['nama_skpd'].' | '. ' | APBD PENJABARAN Lampiran 2', $v['tahun_anggaran'], '[apbdpenjabaran tahun_anggaran="'.$v['tahun_anggaran'].'" lampiran="2" id_skpd="'.$vv['id_skpd'].'"]');
+		            	// 	$body_pemda .= '<li><a target="_blank" href="'.$url_skpd.'">Halaman APBD PENJABARAN Lampiran 2 '.$vv['kode_skpd'].' '.$vv['nama_skpd'].' '.$v['tahun_anggaran'].'</a> (NIP: '.$vv['nipkepala'].')';
 						}else if($_POST['type'] == 'rekap_satuan_harga'){
 							$url_skpd = $this->generatePage('Rekapitulasi Rincian Belanja '.$vv['nama_skpd'].' '.$vv['kode_skpd'].' | '.$v['tahun_anggaran'], $v['tahun_anggaran'], '[monitor_satuan_harga tahun_anggaran="'.$v['tahun_anggaran'].'" id_skpd="'.$vv['id_skpd'].'"]');
 		            		$body_pemda .= '<li><a target="_blank" href="'.$url_skpd.'">Halaman Chart dan Rekapitulasi Rincian Belanja '.$vv['kode_skpd'].' '.$vv['nama_skpd'].' '.$v['tahun_anggaran'].'</a> (NIP: '.$vv['nipkepala'].')';
@@ -1037,9 +1037,9 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes {
 		            			$this->generatePage('Sumber Dana '.$vvv['nama_skpd'].' '.$vvv['kode_skpd'].' | '.$v['tahun_anggaran'], $v['tahun_anggaran'], '[monitor_daftar_sumber_dana tahun_anggaran="'.$v['tahun_anggaran'].'" id_skpd="'.$vvv['id_skpd'].'"]');
 							}else if($_POST['type'] == 'label_komponen'){
 								$this->generatePage('Label Komponen '.$vvv['nama_skpd'].' '.$vvv['kode_skpd'].' | '.$v['tahun_anggaran'], $v['tahun_anggaran'], '[monitor_daftar_label_komponen tahun_anggaran="'.$v['tahun_anggaran'].'" id_skpd="'.$vvv['id_skpd'].'"]');
-							}else if($_POST['type'] == 'apbdpenjabaran'){
-								$url_skpd = $this->generatePage($v['tahun_anggaran'] .' | '.$vvv['kode_skpd'].' | '.$vvv['nama_skpd'].' | '. ' | APBD PENJABARAN Lampiran 2', $v['tahun_anggaran'], '[apbdpenjabaran tahun_anggaran="'.$v['tahun_anggaran'].'" lampiran="2" id_skpd="'.$vvv['id_skpd'].'"]');
-			            		$body_pemda .= '<li><a target="_blank" href="'.$url_skpd.'">Halaman APBD PENJABARAN Lampiran 2 '.$vv['kode_skpd'].' '.$vvv['nama_skpd'].' '.$v['tahun_anggaran'].'</a> (NIP: '.$vvv['nipkepala'].')';
+							// }else if($_POST['type'] == 'apbdpenjabaran'){
+							// 	$url_skpd = $this->generatePage($v['tahun_anggaran'] .' | '.$vvv['kode_skpd'].' | '.$vvv['nama_skpd'].' | '. ' | APBD PENJABARAN Lampiran 2', $v['tahun_anggaran'], '[apbdpenjabaran tahun_anggaran="'.$v['tahun_anggaran'].'" lampiran="2" id_skpd="'.$vvv['id_skpd'].'"]');
+			            	// 	$body_pemda .= '<li><a target="_blank" href="'.$url_skpd.'">Halaman APBD PENJABARAN Lampiran 2 '.$vv['kode_skpd'].' '.$vvv['nama_skpd'].' '.$v['tahun_anggaran'].'</a> (NIP: '.$vvv['nipkepala'].')';
 							}else if($_POST['type'] == 'rekap_satuan_harga'){
 								$url_skpd = $this->generatePage('Rekapitulasi Rincian Belanja '.$vvv['nama_skpd'].' '.$vvv['kode_skpd'].' | '.$v['tahun_anggaran'], $v['tahun_anggaran'], '[monitor_satuan_harga tahun_anggaran="'.$v['tahun_anggaran'].'" id_skpd="'.$vvv['id_skpd'].'"]');
 								$body_pemda .= '<li><a target="_blank" href="'.$url_skpd.'">Halaman Chart dan Rekapitulasi Rincian Belanja '.$vvv['kode_skpd'].' '.$vvv['nama_skpd'].' '.$v['tahun_anggaran'].'</a> (NIP: '.$vvv['nipkepala'].')';
@@ -1083,15 +1083,27 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes {
 						$body_all .= '<a style="font-weight: bold;" target="_blank" href="'.$url_pemda.'">Halaman MONEV RPJM Daerah Tahun '.$v['tahun_anggaran'].'</a>'.$body_pemda;
 			        }else if($_POST['type'] == 'apbdpenjabaran'){
 			        	$url_penjabaran1 = $this->generatePage($v['tahun_anggaran'] . ' | APBD PENJABARAN Lampiran 1', $v['tahun_anggaran'], '[apbdpenjabaran tahun_anggaran="'.$v['tahun_anggaran'].'" lampiran="1"]');
-			        	$url_penjabaran3 = $this->generatePage($v['tahun_anggaran'] . ' | APBD PENJABARAN Lampiran 3', $v['tahun_anggaran'], '[apbdpenjabaran tahun_anggaran="'.$v['tahun_anggaran'].'" lampiran="3"]');
-			        	$url_penjabaran4 = $this->generatePage($v['tahun_anggaran'] . ' | APBD PENJABARAN Lampiran 4', $v['tahun_anggaran'], '[apbdpenjabaran tahun_anggaran="'.$v['tahun_anggaran'].'" lampiran="4"]');
-			        	$url_penjabaran5 = $this->generatePage($v['tahun_anggaran'] . ' | APBD PENJABARAN Lampiran 5', $v['tahun_anggaran'], '[apbdpenjabaran tahun_anggaran="'.$v['tahun_anggaran'].'" lampiran="5"]');
-			        	$url_penjabaran6 = $this->generatePage($v['tahun_anggaran'] . ' | APBD PENJABARAN Lampiran 6', $v['tahun_anggaran'], '[apbdpenjabaran tahun_anggaran="'.$v['tahun_anggaran'].'" lampiran="6"]');
+			        	$url_penjabaran2 = $this->generatePage($v['tahun_anggaran'] . ' | APBD PENJABARAN Lampiran 2', $v['tahun_anggaran'], '[apbdpenjabaran tahun_anggaran="'.$v['tahun_anggaran'].'" lampiran="2"]');
+			        	$url_penjabaran3a = $this->generatePage($v['tahun_anggaran'] . ' | APBD PENJABARAN Lampiran 3a - Hibah Uang', $v['tahun_anggaran'], '[apbdpenjabaran tahun_anggaran="'.$v['tahun_anggaran'].'" lampiran="3a"]');
+			        	$url_penjabaran3b = $this->generatePage($v['tahun_anggaran'] . ' | APBD PENJABARAN Lampiran 3b - Hibang Barang / Jasa', $v['tahun_anggaran'], '[apbdpenjabaran tahun_anggaran="'.$v['tahun_anggaran'].'" lampiran="3b"]');
+			        	$url_penjabaran4a = $this->generatePage($v['tahun_anggaran'] . ' | APBD PENJABARAN Lampiran 4a - Bansos Uang', $v['tahun_anggaran'], '[apbdpenjabaran tahun_anggaran="'.$v['tahun_anggaran'].'" lampiran="4a"]');
+			        	$url_penjabaran4b = $this->generatePage($v['tahun_anggaran'] . ' | APBD PENJABARAN Lampiran 4b - Bansos Barang / Jasa', $v['tahun_anggaran'], '[apbdpenjabaran tahun_anggaran="'.$v['tahun_anggaran'].'" lampiran="4b"]');
+			        	$url_penjabaran5a = $this->generatePage($v['tahun_anggaran'] . ' | APBD PENJABARAN Lampiran 5a - Bankeu', $v['tahun_anggaran'], '[apbdpenjabaran tahun_anggaran="'.$v['tahun_anggaran'].'" lampiran="5a"]');
+			        	$url_penjabaran5b = $this->generatePage($v['tahun_anggaran'] . ' | APBD PENJABARAN Lampiran 5b - Bankeu Khusus', $v['tahun_anggaran'], '[apbdpenjabaran tahun_anggaran="'.$v['tahun_anggaran'].'" lampiran="5b"]');
+			        	$url_penjabaran6a = $this->generatePage($v['tahun_anggaran'] . ' | APBD PENJABARAN Lampiran 6a  - Bagi Hasil Kab', $v['tahun_anggaran'], '[apbdpenjabaran tahun_anggaran="'.$v['tahun_anggaran'].'" lampiran="6a"]');
+			        	$url_penjabaran6b = $this->generatePage($v['tahun_anggaran'] . ' | APBD PENJABARAN Lampiran 6b  - Bagi Hasil Kota', $v['tahun_anggaran'], '[apbdpenjabaran tahun_anggaran="'.$v['tahun_anggaran'].'" lampiran="6b"]');
+			        	$url_penjabaran6c = $this->generatePage($v['tahun_anggaran'] . ' | APBD PENJABARAN Lampiran 6c  - Bagi Hasil Desa', $v['tahun_anggaran'], '[apbdpenjabaran tahun_anggaran="'.$v['tahun_anggaran'].'" lampiran="6c"]');
 						$body_all .= '<a style="font-weight: bold;" target="_blank" href="'.$url_penjabaran1.'">Halaman APBD PENJABARAN Lampiran 1 Tahun '.$v['tahun_anggaran'].'</a><br>';
-						$body_all .= '<a style="font-weight: bold;" target="_blank" href="'.$url_penjabaran3.'">Halaman APBD PENJABARAN Lampiran 3 Tahun '.$v['tahun_anggaran'].'</a><br>';
-						$body_all .= '<a style="font-weight: bold;" target="_blank" href="'.$url_penjabaran4.'">Halaman APBD PENJABARAN Lampiran 4 Tahun '.$v['tahun_anggaran'].'</a><br>';
-						$body_all .= '<a style="font-weight: bold;" target="_blank" href="'.$url_penjabaran5.'">Halaman APBD PENJABARAN Lampiran 5 Tahun '.$v['tahun_anggaran'].'</a><br>';
-						$body_all .= '<a style="font-weight: bold;" target="_blank" href="'.$url_penjabaran6.'">Halaman APBD PENJABARAN Lampiran 6 Tahun '.$v['tahun_anggaran'].'</a>';
+						$body_all .= '<a style="font-weight: bold;" target="_blank" href="'.$url_penjabaran2.'">Halaman APBD PENJABARAN Lampiran 2 Tahun '.$v['tahun_anggaran'].'</a><br>';
+						$body_all .= '<a style="font-weight: bold;" target="_blank" href="'.$url_penjabaran3a.'">Halaman APBD PENJABARAN Lampiran 3a - Hibah Uang Tahun '.$v['tahun_anggaran'].'</a><br>';
+						$body_all .= '<a style="font-weight: bold;" target="_blank" href="'.$url_penjabaran3b.'">Halaman APBD PENJABARAN Lampiran 3b - Hibang Barang / Jasa Tahun '.$v['tahun_anggaran'].'</a><br>';
+						$body_all .= '<a style="font-weight: bold;" target="_blank" href="'.$url_penjabaran4a.'">Halaman APBD PENJABARAN Lampiran 4a - Bansos Uang Tahun '.$v['tahun_anggaran'].'</a><br>';
+						$body_all .= '<a style="font-weight: bold;" target="_blank" href="'.$url_penjabaran4b.'">Halaman APBD PENJABARAN Lampiran 4b - Bansos Barang / Jasa Tahun '.$v['tahun_anggaran'].'</a><br>';
+						$body_all .= '<a style="font-weight: bold;" target="_blank" href="'.$url_penjabaran5a.'">Halaman APBD PENJABARAN Lampiran 5a - Bankeu Tahun '.$v['tahun_anggaran'].'</a><br>';
+						$body_all .= '<a style="font-weight: bold;" target="_blank" href="'.$url_penjabaran5b.'">Halaman APBD PENJABARAN Lampiran 5b - Bankeu Khusus Tahun '.$v['tahun_anggaran'].'</a><br>';
+						$body_all .= '<a style="font-weight: bold;" target="_blank" href="'.$url_penjabaran6a.'">Halaman APBD PENJABARAN Lampiran 6a - Bagi Hasil Kab Tahun '.$v['tahun_anggaran'].'</a><br>';
+						$body_all .= '<a style="font-weight: bold;" target="_blank" href="'.$url_penjabaran6b.'">Halaman APBD PENJABARAN Lampiran 6b - Bagi Hasil Kota Tahun '.$v['tahun_anggaran'].'</a><br>';
+						$body_all .= '<a style="font-weight: bold;" target="_blank" href="'.$url_penjabaran6c.'">Halaman APBD PENJABARAN Lampiran 6c - Bagi Hasil Desa Tahun '.$v['tahun_anggaran'].'</a>';
 						$body_all .= $body_pemda;
 					}else if($_POST['type'] == 'apbdperda'){
 			        	$url_perda1 = $this->generatePage($v['tahun_anggaran'] . ' | APBD PERDA Lampiran 1', $v['tahun_anggaran'], '[apbdperda tahun_anggaran="'.$v['tahun_anggaran'].'" lampiran="1"]');

@@ -71,6 +71,15 @@ if ($data_rka) {
 	die('<h1 class="text-center">Sub Kegiatan tidak ditemukan!</h1>');
 }
 
+function role_verifikator()
+{
+	$daftar_user = $this->get_carbon_multiselect('crb_daftar_user_verifikator');
+	$daftar_user_list = array();
+	foreach ($daftar_user as $v) {
+		$daftar_user_list[] = $v['value'];
+	}
+	return $daftar_user_list;
+}
 $result_verifikasi = $wpdb->get_results($wpdb->prepare("
 	SELECT 
 		nama_bidang,
@@ -82,7 +91,7 @@ $result_verifikasi = $wpdb->get_results($wpdb->prepare("
 ", $tahun_anggaran, $kode_sbl), ARRAY_A);
 
 $html_ver = '';
-foreach($result_verifikasi as $ver){
+foreach ($result_verifikasi as $ver) {
 	$nama = get_userdata($ver['id_user']);
 	$html_ver .= "
 		<tr>
@@ -92,11 +101,6 @@ foreach($result_verifikasi as $ver){
 		</tr>
 	";
 }
-// Jika ada data yang ditemukan, gunakan data tersebut. Jika tidak, gunakan placeholder default.
-$verif_bappeda = !empty($result_bappeda) ? "Diverifikasi oleh " . $result_bappeda->nama_bidang . " pada " . $result_bappeda->update_at : "Diverifikasi oleh pada";
-
-
-
 $api_key = get_option('_crb_api_key_extension');
 
 $current_user = wp_get_current_user();
@@ -181,8 +185,14 @@ if ($current_user) {
 	</table>
 
 	<div id="aksi_page" class="text-center aksi" style="margin-bottom: 10px;">
-		<button class="btn btn-sm btn-warning" onclick="tambah_catatan()"><i class="dashicons dashicons-admin-comments"></i> Tambah Catatan</button>
-		<button class="btn btn-sm btn-success" onclick="verifikasi_tanpa_catatan()"><i class="dashicons dashicons-yes"></i> Verifikasi Tanpa Catatan</button>
+		<?php
+		$roles = $this->role_verifikator();
+		if ($roles) {
+			echo '<button class="btn btn-sm btn-warning" onclick="tambah_catatan()" style="margin-inline: 5px;"><i class="dashicons dashicons-admin-comments"></i> Tambah Catatan</button>';
+			echo '<button class="btn btn-sm btn-success" onclick="verifikasi_tanpa_catatan()"><i class="dashicons dashicons-yes"></i> Verifikasi Tanpa Catatan</button>';
+		}
+		?>
+		<button class="btn btn-sm btn-warning" onclick="tambah_tanggapan()" style="margin-inline: 5px;"><i class="dashicons dashicons-admin-comments"></i> Tambah Tanggapan</button>
 		<button class="btn btn-sm btn-info" onclick="jQuery('.aksi').hide(); window.print(); setTimeout(function(){ jQuery('.aksi').show(); }, 10000);"><i class="dashicons dashicons-printer"></i> Print Lembar Verifikasi</button>
 	</div>
 
@@ -274,6 +284,7 @@ if ($current_user) {
 				const response = JSON.parse(data);
 				if (response.status === 'success') {
 					jQuery('#tabel_verifikasi > tbody').html(response.html);
+					jQuery('#tabel_detail_sub');
 				} else {
 					alert('Error: ' + response.message);
 				}
@@ -283,7 +294,7 @@ if ($current_user) {
 	}
 
 	function verifikasi_tanpa_catatan() {
-		if (confirm('Apakah anda yakin ingin mem verifikasi tanpa catatan?')) {
+		if (confirm('Apakah anda yakin ingin memverifikasi tanpa catatan?')) {
 			jQuery('#wrap-loading').show();
 			jQuery.ajax({
 				type: 'POST',
@@ -313,6 +324,10 @@ if ($current_user) {
 
 	}
 
+	function tambaah_tanggapan(){
+		jQuery('#kode_sbl').val('<?php echo $kode_sbl ?>').prop('disabled', true);
+		jQuery('#tahun_anggaran').val('<?php echo $tahun_anggaran; ?>').prop('disabled', true);
+	}
 	function tambah_catatan() {
 		jQuery('#kode_sbl').val('<?php echo $kode_sbl ?>').prop('disabled', true);
 		jQuery('#tahun_anggaran').val('<?php echo $tahun_anggaran; ?>').prop('disabled', true);
