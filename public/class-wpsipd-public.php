@@ -11287,6 +11287,100 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		return $this->get_link_post($custom_post);
 	}
 
+	public function get_sub_keg_sipd(){
+		global $wpdb;
+		$ret = array(
+			'action'	=> $_POST['action'],
+			'status'	=> 'success',
+			'message'	=> 'Berhasil get sub kegiatan!'
+		);
+		if (!empty($_POST)) {
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+				$tahun_anggaran = $_POST['tahun_anggaran'];
+				$id_skpd = $_POST['id_skpd'];
+				$idsumber = $_POST['idsumber'];
+				$data_sub_keg = $wpdb->get_results($wpdb->prepare("
+					SELECT 
+						s.*,
+						u.nama_skpd as nama_skpd_data_unit
+					from data_sub_keg_bl s 
+					inner join data_unit u on s.id_sub_skpd = u.id_skpd
+						and u.tahun_anggaran = s.tahun_anggaran
+						and u.active = s.active
+					where s.tahun_anggaran=%d
+						and u.id_skpd=%d
+						and s.active=1", 
+				$tahun_anggaran, $id_skpd), ARRAY_A);
+				foreach ($data_sub_keg as $k => $v) {
+					$data_sub_keg[$k]['sub_keg_indikator'] = $wpdb->get_results("
+						select 
+							* 
+						from data_sub_keg_indikator 
+						where tahun_anggaran=".$v['tahun_anggaran']."
+							and kode_sbl='".$v['kode_sbl']."'
+							and active=1", ARRAY_A);
+					$data_sub_keg[$k]['sub_keg_indikator_hasil'] = $wpdb->get_results("
+						select 
+							* 
+						from data_keg_indikator_hasil 
+						where tahun_anggaran=".$v['tahun_anggaran']."
+							and kode_sbl='".$v['kode_sbl']."'
+							and active=1", ARRAY_A);
+					$data_sub_keg[$k]['tag_sub_keg'] = $wpdb->get_results("
+						select 
+							* 
+						from data_tag_sub_keg 
+						where tahun_anggaran=".$v['tahun_anggaran']."
+							and kode_sbl='".$v['kode_sbl']."'
+							and active=1", ARRAY_A);
+					$data_sub_keg[$k]['capaian_prog_sub_keg'] = $wpdb->get_results("
+						select 
+							* 
+						from data_capaian_prog_sub_keg 
+						where tahun_anggaran=".$v['tahun_anggaran']."
+							and kode_sbl='".$v['kode_sbl']."'
+							and active=1", ARRAY_A);
+					$data_sub_keg[$k]['output_giat'] = $wpdb->get_results("
+						select 
+							* 
+						from data_output_giat_sub_keg 
+						where tahun_anggaran=".$v['tahun_anggaran']."
+							and kode_sbl='".$v['kode_sbl']."'
+							and active=1", ARRAY_A);
+					$data_sub_keg[$k]['lokasi_sub_keg'] = $wpdb->get_results("
+						select 
+							* 
+						from data_lokasi_sub_keg 
+						where tahun_anggaran=".$v['tahun_anggaran']."
+							and kode_sbl='".$v['kode_sbl']."'
+							and active=1", ARRAY_A);
+					$data_sub_keg[$k]['sumber_dana'] = $wpdb->get_results($wpdb->prepare('
+						SELECT 
+							m.id_sumber_dana,
+							s.kode_dana,
+							s.nama_dana
+						FROM data_mapping_sumberdana m
+						INNER JOIN data_sumber_dana s on s.id_dana=m.id_sumber_dana
+							and s.tahun_anggaran=m.tahun_anggaran
+						INNER JOIN data_rka r on r.tahun_anggaran=m.tahun_anggaran
+							and r.active=m.active
+							and m.id_rinci_sub_bl=r.id_rinci_sub_bl
+						WHERE m.tahun_anggaran=%d
+							AND m.active=1
+							and r.kode_sbl=%s
+						GROUP BY m.id_sumber_dana
+						LIMIT 1
+					', $v['tahun_anggaran'], $v['kode_sbl']), ARRAY_A);
+				}
+				$ret['data'] = $data_sub_keg;
+			} else {
+				$ret['status'] = 'error';
+				$ret['message'] = 'APIKEY tidak sesuai!';
+			}
+		}
+		die(json_encode($ret));
+	}
+
 	public function get_sub_keg(){
 		global $wpdb;
 		$ret = array(

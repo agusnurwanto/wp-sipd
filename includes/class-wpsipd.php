@@ -435,6 +435,9 @@ class Wpsipd
 		$this->loader->add_action('wp_ajax_get_sub_keg',  $plugin_public, 'get_sub_keg');
 		$this->loader->add_action('wp_ajax_nopriv_get_sub_keg',  $plugin_public, 'get_sub_keg');
 
+		$this->loader->add_action('wp_ajax_get_sub_keg_sipd',  $plugin_public, 'get_sub_keg_sipd');
+		$this->loader->add_action('wp_ajax_nopriv_get_sub_keg_sipd',  $plugin_public, 'get_sub_keg_sipd');
+
 		$this->loader->add_action('wp_ajax_get_sub_keg_rka',  $plugin_public, 'get_sub_keg_rka');
 		$this->loader->add_action('wp_ajax_nopriv_get_sub_keg_rka',  $plugin_public, 'get_sub_keg_rka');
 
@@ -744,7 +747,6 @@ class Wpsipd
 		$this->loader->add_action('wp_ajax_update_indikator_sub_kegiatan_renstra',  $plugin_public, 'update_indikator_sub_kegiatan_renstra');
 		$this->loader->add_action('wp_ajax_delete_indikator_sub_kegiatan_renstra',  $plugin_public, 'delete_indikator_sub_kegiatan_renstra');
 		
-		$this->loader->add_action('wp_ajax_get_list_sub_kegiatan',  $plugin_public, 'get_list_sub_kegiatan');
 		$this->loader->add_action('wp_ajax_get_master_indikator_subgiat',  $plugin_public, 'get_master_indikator_subgiat');
 		
 		$this->loader->add_action('wp_ajax_singkronisasi_kegiatan_renstra',  $plugin_public, 'singkronisasi_kegiatan_renstra');
