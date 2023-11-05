@@ -324,7 +324,7 @@ if ($current_user) {
 
 	}
 
-	function tambaah_tanggapan(){
+	function tambah_tanggapan(){
 		jQuery('#kode_sbl').val('<?php echo $kode_sbl ?>').prop('disabled', true);
 		jQuery('#tahun_anggaran').val('<?php echo $tahun_anggaran; ?>').prop('disabled', true);
 	}

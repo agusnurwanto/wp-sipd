@@ -890,10 +890,9 @@ if(
 				</div>
 				<div class="form-group">
 					<label>Nama PPTK</label>
-					<select class="form-control" id="user_pptk">
-						<option value="" selected disabled>Pilih User</option>
-					</select>
+					<select class="form-control" id="user_pptk"></select>
 				</div>
+				
 			</div>
 			<div class="modal-footer">
 				<button type="button" class="btn btn-secondary" data-dismiss="modal">Tutup</button>
@@ -923,8 +922,8 @@ if(
 			},
 			dataType: "json",
 			success: function(data){
-				// menampilkan popup
-				jQuery('#modal-set-pptk').modal('show');
+				alert(response.message);
+				jQuery('#modal-set-pptk').modal('hide');
 				jQuery('#wrap-loading').hide();
 			}
 		});
@@ -1246,7 +1245,9 @@ if(
 		// fungsi set PPTK per sub kegiatan
 	    jQuery('.set-pptk-per-sub-keg').on('click', function(){
 	    	var tr = jQuery(this).closest('tr');
-	    	var nama_sub = tr.find('.nama_sub_giat').text();
+			var full_text = tr.find('.nama_sub_giat').text();
+			var nama_sub = full_text.split(/ \d{9}/)[0];
+			console.log(nama_sub);
 			var kd_sbl = tr.attr('data-kdsbl');
 			jQuery('#wrap-loading').show();
 			jQuery.ajax({
@@ -1262,7 +1263,13 @@ if(
 				dataType: "json",
 				success: function(data){
 					// menampilkan popup
-					jQuery('#modal-set-pptk').modal('show');
+					if(data.status == 'success'){
+						jQuery('#nama_sub_kegiatan').val(data.sub_keg.nama_sub_giat);
+						jQuery('#user_pptk').html(data.user_pptk_html);
+						jQuery('#modal-set-pptk').modal('show');
+					}else{
+						alert(data.message);
+					}
 					jQuery('#wrap-loading').hide();
 				}
 			});
