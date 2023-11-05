@@ -744,7 +744,11 @@ foreach ($units as $k => $unit):
 
 	echo '
 	<style>
-		.detail_simda, .simpan-per-sub-keg { display: none; }
+		.nama_sub_giat .detail_simda, 
+		.nama_sub_giat .simpan-per-sub-keg, 
+		.nama_sub_giat .set-pptk-per-sub-keg { 
+			display: none; 
+		}
 		.simpan-per-sub-keg {
 		    font-size: 10px;
 		    margin-left: 10px;
@@ -752,6 +756,9 @@ foreach ($units as $k => $unit):
 		}
 		.tr-belum-save {
 			background: #ffbc0073;
+		}
+		.set-pptk-per-sub-keg {
+		    margin-left: 5px;
 		}
 	</style>
 	<input type="hidden" value="'.get_option( '_crb_api_key_extension' ).'" id="api_key">
@@ -1073,6 +1080,14 @@ if(
     	}
 	}
 
+	function tampil_set_pptk(that){
+		if(jQuery(that).is(':checked')){
+			jQuery('.set-pptk-per-sub-keg').show();
+		}else{
+			jQuery('.set-pptk-per-sub-keg').hide();
+		}
+	}
+
 	function tampil_nilai_fisik(){
 		if(jQuery('#tampil-nilai-fisik').is(':checked')){
     		jQuery('.nama_urusan').attr('colspan', 12);
@@ -1116,12 +1131,13 @@ if(
 			+'<label style="margin-left: 20px;"><input type="checkbox" id="tampil-detail-fisik" checked onclick="tampil_detail_fisik();"> Tampilkan Detail Realisasi Fisik</label>'
 			+'<label style="margin-left: 20px;"><input type="checkbox" id="tampil-nilai-fisik" onclick="tampil_nilai_fisik();"> Tampilkan Nilai Realisasi Fisik</label>'
 			+'<label style="margin-left: 20px;">Pagu DPA: '
-				+'<select id="pagu_dpa" style="padding: 5px;">'
+				+'<select id="pagu_dpa" style="padding: 5px; width: 200px;">'
 					+'<option value="rka_simda">RKA SIMDA</option>'
 					+'<option value="simda">APBD SIMDA</option>'
 					+'<option value="fmis">APBD FMIS</option>'
 				+'</select>'
 			+'</label>'
+			+'<label style="margin-left: 20px;"><input type="checkbox" onclick="tampil_set_pptk(this);"> Tampilkan Set PPTK</label>'
 		+'</div>';
 	jQuery(document).ready(function(){
 	    jQuery('#action-sipd').append(extend_action);

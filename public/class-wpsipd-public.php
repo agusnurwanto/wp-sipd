@@ -7411,10 +7411,10 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						}
 					}
 
-					$nama_page = 'Input RENJA '.$vv['nama_skpd'].' '.$vv['kode_skpd'].' | '.$tahun;
-					$custom_post = $this->get_page_by_title($nama_page, OBJECT, 'page');
-					$url_menu = $this->get_link_post($custom_post);
 					if(!empty($daftar_tombol_list[9])){
+						$nama_page = 'Input RENJA '.$vv['nama_skpd'].' '.$vv['kode_skpd'].' | '.$tahun;
+						$custom_post = $this->get_page_by_title($nama_page, OBJECT, 'page');
+						$url_menu = $this->get_link_post($custom_post);
 						echo '<li><a href="'.$url_menu.'" target="_blank" class="btn btn-info">INPUT RENJA</a></li>';
 					}
 
@@ -7445,6 +7445,10 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 							$input_pencairan_bku_add = $this->generatePage('Halaman Input Pencairan BKU ADD', false, '[input_pencairan_bku_add]');
 							echo '<li><a target="_blank" href="'.$input_pencairan_bku_add.'&tahun_anggaran='.$tahun.'&id_skpd='.$vv['id_skpd'].'" class="btn btn-info">Pencairan BKU ADD</a></li>';
 						}
+					}
+					if(!empty($daftar_tombol_list[11])){
+						$url_menu = $this->generatePage('User PPTK', false, '[user_pptk]');
+						echo '<li><a href="'.$url_menu.'&id_skpd='.$vv['id_skpd'].'" target="_blank" class="btn btn-info">User PPTK</a></li>';
 					}
 				}
 			}
@@ -11369,7 +11373,6 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 							AND m.active=1
 							and r.kode_sbl=%s
 						GROUP BY m.id_sumber_dana
-						LIMIT 1
 					', $v['tahun_anggaran'], $v['kode_sbl']), ARRAY_A);
 				}
 				$ret['data'] = $data_sub_keg;
