@@ -435,6 +435,9 @@ class Wpsipd
 		$this->loader->add_action('wp_ajax_get_sub_keg',  $plugin_public, 'get_sub_keg');
 		$this->loader->add_action('wp_ajax_nopriv_get_sub_keg',  $plugin_public, 'get_sub_keg');
 
+		$this->loader->add_action('wp_ajax_get_sub_keg_sipd',  $plugin_public, 'get_sub_keg_sipd');
+		$this->loader->add_action('wp_ajax_nopriv_get_sub_keg_sipd',  $plugin_public, 'get_sub_keg_sipd');
+
 		$this->loader->add_action('wp_ajax_get_sub_keg_rka',  $plugin_public, 'get_sub_keg_rka');
 		$this->loader->add_action('wp_ajax_nopriv_get_sub_keg_rka',  $plugin_public, 'get_sub_keg_rka');
 
@@ -744,7 +747,6 @@ class Wpsipd
 		$this->loader->add_action('wp_ajax_update_indikator_sub_kegiatan_renstra',  $plugin_public, 'update_indikator_sub_kegiatan_renstra');
 		$this->loader->add_action('wp_ajax_delete_indikator_sub_kegiatan_renstra',  $plugin_public, 'delete_indikator_sub_kegiatan_renstra');
 		
-		$this->loader->add_action('wp_ajax_get_list_sub_kegiatan',  $plugin_public, 'get_list_sub_kegiatan');
 		$this->loader->add_action('wp_ajax_get_master_indikator_subgiat',  $plugin_public, 'get_master_indikator_subgiat');
 		
 		$this->loader->add_action('wp_ajax_singkronisasi_kegiatan_renstra',  $plugin_public, 'singkronisasi_kegiatan_renstra');
@@ -912,6 +914,8 @@ class Wpsipd
 		$this->loader->add_action('wp_ajax_delete_user_pptk',  $plugin_public, 'delete_user_pptk');
 		$this->loader->add_action('wp_ajax_get_user_pptk_by_id',  $plugin_public, 'get_user_pptk_by_id');
 		$this->loader->add_action('wp_ajax_tambah_catatan_pptk',  $plugin_public, 'tambah_catatan_pptk');
+		$this->loader->add_action('wp_ajax_get_sub_keg_pptk',  $plugin_public, 'get_sub_keg_pptk');
+		$this->loader->add_action('wp_ajax_simpan_sub_keg_pptk',  $plugin_public, 'simpan_sub_keg_pptk');
 
 		$this->loader->add_action('wp_ajax_mutakhirkan_sub_kegiatan_renstra',  $plugin_public, 'mutakhirkan_sub_kegiatan_renstra');
 		$this->loader->add_action('wp_ajax_mutakhirkan_lintas_sub_kegiatan_renstra',  $plugin_public, 'mutakhirkan_lintas_sub_kegiatan_renstra');

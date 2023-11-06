@@ -445,17 +445,20 @@ class Wpsipd_Public_RKA
                 $ret['html'] = '';
                 foreach ($new_data as $key => $data) {
                     foreach ($data as $val) {
+                        $current_user_id = get_current_user_id();
                         $ret['html'] .= '
                             <tr>
-                            <th>' . $key . '</th>
+                                <th>' . $key . '</th>
                                 <td>' . $val['catatan_verifikasi'] . '</td>
                                 <td>' . $val['nama_verifikator'] . ' ' . $val['update_at'] . '</td>
                                 <td>' . $val['tanggapan_opd'] . '</td>
-                                <td class="aksi">
-                                    <a class="btn btn-sm btn-warning" onclick="edit_data(\'' . $val['id'] . '\'); return false;" href="#" title="Edit Data"><i class="dashicons dashicons-edit"></i></a>
-                                    <a class="btn btn-sm btn-danger" onclick="delete_data(\'' . $val['id'] . '\'); return false;" href="#" title="delete data"><i class="dashicons dashicons-trash"></i></a>
-                                </td>
-                            </tr>';
+                                <td class="aksi">';
+
+                        if ($current_user_id == $val['id_user']) {
+                            $ret['html'] .= '
+                                <a class="btn btn-sm btn-warning" onclick="edit_data(\'' . $val['id'] . '\'); return false;" href="#" title="Edit Data"><i class="dashicons dashicons-edit"></i></a>
+                                <a class="btn btn-sm btn-danger" onclick="delete_data(\'' . $val['id'] . '\'); return false;" href="#" title="delete data"><i class="dashicons dashicons-trash"></i></a>';
+                        }
                     }
                 }
             } else {
@@ -540,13 +543,17 @@ class Wpsipd_Public_RKA
                         'tahun_anggaran' => $tahun_anggaran
                     );
 
-                    $existing_validasi = $wpdb->get_row($wpdb->prepare("
+                    $existing_validasi = $wpdb->get_row($wpdb->prepare(
+                        "
                         SELECT * 
                         FROM data_validasi_verifikasi_rka 
                         WHERE kode_sbl = %s 
                           AND tahun_anggaran = %d
                           AND id_user = %d",
-                        $kode_sbl,$tahun_anggaran,$id_user));
+                        $kode_sbl,
+                        $tahun_anggaran,
+                        $id_user
+                    ));
 
                     if ($existing_validasi) {
                         // Update existing data
@@ -688,7 +695,6 @@ class Wpsipd_Public_RKA
         $ret['status'] = 'success';
         $ret['message'] = 'Berhasil hapus catatan verifikasi!';
 
-
         if (!empty($_POST)) {
             if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option('_crb_api_key_extension')) {
                 if (empty($_POST['id'])) {
@@ -696,11 +702,41 @@ class Wpsipd_Public_RKA
                     $ret['message'] = 'id catatan tidak boleh kosong';
                     die(json_encode($ret));
                 }
-                $ret['data'] = $wpdb->update('data_verifikasi_rka', array('active' => 0), array(
-                    'id' => $_POST['id']
-                ));
-                $ret['status']  = 'success';
-                $ret['message'] = 'catatan verifikasi berhasil dihapus!';
+                $id = intval($_POST['id']);
+                $data = $wpdb->get_row($wpdb->prepare("
+                SELECT
+                    id_user,
+                    kode_sbl,
+                    tahun_anggaran
+                FROM data_verifikasi_rka
+                WHERE id = %d", $id));
+
+                if ($data) {
+                    // Update tabel data_verifikasi_rka
+                    $result = $wpdb->update(
+                        'data_verifikasi_rka',
+                        array('active' => 0),
+                        array('id' => $id)
+                    );
+
+                    if ($result !== false) {
+                        // Update tabel data_validasi_verifikasi_rka
+                        $result_validasi = $wpdb->update(
+                            'data_validasi_verifikasi_rka',
+                            array('update_at' => current_time('mysql')),
+                            array(
+                                'id_user' => $data->id_user,
+                                'kode_sbl' => $data->kode_sbl,
+                                'tahun_anggaran' => $data->tahun_anggaran
+                            )
+                        );
+
+                        if ($result_validasi === false) {
+                            $ret['status'] = 'error';
+                            $ret['message'] = 'Gagal hapus data di database.';
+                        }
+                    }
+                }
             } else {
                 $ret['status']  = 'error';
                 $ret['message'] = 'Api key tidak valid!';
@@ -1086,6 +1122,116 @@ class Wpsipd_Public_RKA
                     $ret['status'] = 'error';
                     $ret['message'] = 'User tidak ditemukan!';
                 }
+            } else {
+                $ret['status'] = 'error';
+                $ret['message'] = 'APIKEY tidak sesuai!';
+            }
+        } else {
+            $ret['status'] = 'error';
+            $ret['message'] = 'Format Salah!';
+        }
+        die(json_encode($ret));
+    }
+
+    function get_sub_keg_pptk()
+    {
+        global $wpdb;
+        $ret = array();
+        $ret['status'] = 'success';
+        $ret['message'] = 'Berhasil get user PPTK!';
+
+        if (!empty($_POST)) {
+            if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option('_crb_api_key_extension')) {
+                if (empty($_POST['id_skpd'])) {
+                    $ret['status'] = 'error';
+                    $ret['message'] = 'id skpd tidak boleh kosong!';
+                    die(json_encode($ret));
+                }
+                if (empty($_POST['tahun_anggaran'])) {
+                    $ret['status'] = 'error';
+                    $ret['message'] = 'tahun anggaran tidak boleh kosong!';
+                    die(json_encode($ret));
+                }
+                // cek role user existing harus administrator atau PA, PLT, KPA
+                $current_user = wp_get_current_user();
+                $allowed_roles = array('administrator', 'PA', 'KPA', 'PLT');
+
+                // Periksa apakah ada perpotongan antara peran yang diizinkan dan peran pengguna saat ini.
+                if (empty(array_intersect($allowed_roles, $current_user->roles))) {
+                    $ret['status'] = 'error';
+                    $ret['message'] = 'Akses ditolak - hanya pengguna dengan peran tertentu yang dapat mengakses fitur ini!';
+                    die(json_encode($ret));
+                }
+                $sub_keg = $wpdb->get_row($wpdb->prepare("
+                SELECT
+                    p.*,
+                    s.nama_sub_giat,
+                    s.kode_urusan
+                FROM data_pptk_sub_keg p
+                RIGHT JOIN data_sub_keg_bl s on p.kode_sbl = s.kode_sbl
+                    and p.tahun_anggaran = s.tahun_anggaran
+                    and s.active=1
+                WHERE s.tahun_anggaran=%d
+                    and s.kode_sbl=%s
+                ", $_POST['tahun_anggaran'], $_POST['kode_sbl']), ARRAY_A);
+                if ($sub_keg && isset($sub_keg['kode_urusan'])) {
+                    $sub_keg['nama_sub_giat'] = str_replace("X.XX", $sub_keg['kode_urusan'], $sub_keg['nama_sub_giat']);
+                }
+                $ret['sub_keg'] = $sub_keg;
+
+
+                $args = array(
+                    'role'    => 'pptk',
+                    'orderby' => 'user_nicename',
+                    'order'   => 'ASC',
+                    'skpd'   => $_POST['id_skpd']
+                );
+                $users = get_users($args);
+                $user_pptk_opt = '<option value="">Pilih User</option>';
+                foreach ($users as $user) {
+                    $selected = '';
+                    if ($user->ID == $sub_keg['id_user']) {
+                        $selected = 'selected';
+                    }
+                    $user_pptk_opt .= '<option value="' . esc_attr($user->ID) . '" ' . $selected . '>' . esc_html($user->display_name) . '</option>';
+                }
+                $ret['user_pptk_html'] = $user_pptk_opt;
+            } else {
+                $ret['status'] = 'error';
+                $ret['message'] = 'APIKEY tidak sesuai!';
+            }
+        } else {
+            $ret['status'] = 'error';
+            $ret['message'] = 'Format Salah!';
+        }
+        die(json_encode($ret));
+    }
+
+    function simpan_sub_keg_pptk()
+    {
+        global $wpdb;
+        $ret = array();
+        $ret['status'] = 'success';
+        $ret['message'] = 'Berhasil simpan user PPTK!';
+
+        if (!empty($_POST)) {
+            if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option('_crb_api_key_extension')) {
+                if (empty($_POST['kode_sbl'])) {
+                    $ret['status'] = 'error';
+                    $ret['message'] = 'kode_sbl tidak boleh kosong!';
+                    die(json_encode($ret));
+                }
+                // cek role user existing harus administrator atau PA, PLT, KPA
+                $current_user = wp_get_current_user();
+                $allowed_roles = array('administrator', 'PA', 'KPA', 'PLT');
+
+                // Periksa apakah ada perpotongan antara peran yang diizinkan dan peran pengguna saat ini.
+                if (empty(array_intersect($allowed_roles, $current_user->roles))) {
+                    $ret['status'] = 'error';
+                    $ret['message'] = 'Akses ditolak - hanya pengguna dengan peran tertentu yang dapat mengakses fitur ini!';
+                    die(json_encode($ret));
+                }
+                // simpan atau update user pptk berdasarkan kode sbl
             } else {
                 $ret['status'] = 'error';
                 $ret['message'] = 'APIKEY tidak sesuai!';

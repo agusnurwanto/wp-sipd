@@ -7411,10 +7411,10 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						}
 					}
 
-					$nama_page = 'Input RENJA '.$vv['nama_skpd'].' '.$vv['kode_skpd'].' | '.$tahun;
-					$custom_post = $this->get_page_by_title($nama_page, OBJECT, 'page');
-					$url_menu = $this->get_link_post($custom_post);
 					if(!empty($daftar_tombol_list[9])){
+						$nama_page = 'Input RENJA '.$vv['nama_skpd'].' '.$vv['kode_skpd'].' | '.$tahun;
+						$custom_post = $this->get_page_by_title($nama_page, OBJECT, 'page');
+						$url_menu = $this->get_link_post($custom_post);
 						echo '<li><a href="'.$url_menu.'" target="_blank" class="btn btn-info">INPUT RENJA</a></li>';
 					}
 
@@ -7445,6 +7445,10 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 							$input_pencairan_bku_add = $this->generatePage('Halaman Input Pencairan BKU ADD', false, '[input_pencairan_bku_add]');
 							echo '<li><a target="_blank" href="'.$input_pencairan_bku_add.'&tahun_anggaran='.$tahun.'&id_skpd='.$vv['id_skpd'].'" class="btn btn-info">Pencairan BKU ADD</a></li>';
 						}
+					}
+					if(!empty($daftar_tombol_list[11])){
+						$url_menu = $this->generatePage('User PPTK', false, '[user_pptk]');
+						echo '<li><a href="'.$url_menu.'&id_skpd='.$vv['id_skpd'].'" target="_blank" class="btn btn-info">User PPTK</a></li>';
 					}
 				}
 			}
@@ -11287,6 +11291,99 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		return $this->get_link_post($custom_post);
 	}
 
+	public function get_sub_keg_sipd(){
+		global $wpdb;
+		$ret = array(
+			'action'	=> $_POST['action'],
+			'status'	=> 'success',
+			'message'	=> 'Berhasil get sub kegiatan!'
+		);
+		if (!empty($_POST)) {
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+				$tahun_anggaran = $_POST['tahun_anggaran'];
+				$id_skpd = $_POST['id_skpd'];
+				$idsumber = $_POST['idsumber'];
+				$data_sub_keg = $wpdb->get_results($wpdb->prepare("
+					SELECT 
+						s.*,
+						u.nama_skpd as nama_skpd_data_unit
+					from data_sub_keg_bl s 
+					inner join data_unit u on s.id_sub_skpd = u.id_skpd
+						and u.tahun_anggaran = s.tahun_anggaran
+						and u.active = s.active
+					where s.tahun_anggaran=%d
+						and u.id_skpd=%d
+						and s.active=1", 
+				$tahun_anggaran, $id_skpd), ARRAY_A);
+				foreach ($data_sub_keg as $k => $v) {
+					$data_sub_keg[$k]['sub_keg_indikator'] = $wpdb->get_results("
+						select 
+							* 
+						from data_sub_keg_indikator 
+						where tahun_anggaran=".$v['tahun_anggaran']."
+							and kode_sbl='".$v['kode_sbl']."'
+							and active=1", ARRAY_A);
+					$data_sub_keg[$k]['sub_keg_indikator_hasil'] = $wpdb->get_results("
+						select 
+							* 
+						from data_keg_indikator_hasil 
+						where tahun_anggaran=".$v['tahun_anggaran']."
+							and kode_sbl='".$v['kode_sbl']."'
+							and active=1", ARRAY_A);
+					$data_sub_keg[$k]['tag_sub_keg'] = $wpdb->get_results("
+						select 
+							* 
+						from data_tag_sub_keg 
+						where tahun_anggaran=".$v['tahun_anggaran']."
+							and kode_sbl='".$v['kode_sbl']."'
+							and active=1", ARRAY_A);
+					$data_sub_keg[$k]['capaian_prog_sub_keg'] = $wpdb->get_results("
+						select 
+							* 
+						from data_capaian_prog_sub_keg 
+						where tahun_anggaran=".$v['tahun_anggaran']."
+							and kode_sbl='".$v['kode_sbl']."'
+							and active=1", ARRAY_A);
+					$data_sub_keg[$k]['output_giat'] = $wpdb->get_results("
+						select 
+							* 
+						from data_output_giat_sub_keg 
+						where tahun_anggaran=".$v['tahun_anggaran']."
+							and kode_sbl='".$v['kode_sbl']."'
+							and active=1", ARRAY_A);
+					$data_sub_keg[$k]['lokasi_sub_keg'] = $wpdb->get_results("
+						select 
+							* 
+						from data_lokasi_sub_keg 
+						where tahun_anggaran=".$v['tahun_anggaran']."
+							and kode_sbl='".$v['kode_sbl']."'
+							and active=1", ARRAY_A);
+					$data_sub_keg[$k]['sumber_dana'] = $wpdb->get_results($wpdb->prepare('
+						SELECT 
+							m.id_sumber_dana,
+							s.kode_dana,
+							s.nama_dana
+						FROM data_mapping_sumberdana m
+						INNER JOIN data_sumber_dana s on s.id_dana=m.id_sumber_dana
+							and s.tahun_anggaran=m.tahun_anggaran
+						INNER JOIN data_rka r on r.tahun_anggaran=m.tahun_anggaran
+							and r.active=m.active
+							and m.id_rinci_sub_bl=r.id_rinci_sub_bl
+						WHERE m.tahun_anggaran=%d
+							AND m.active=1
+							and r.kode_sbl=%s
+						GROUP BY m.id_sumber_dana
+					', $v['tahun_anggaran'], $v['kode_sbl']), ARRAY_A);
+				}
+				$ret['data'] = $data_sub_keg;
+			} else {
+				$ret['status'] = 'error';
+				$ret['message'] = 'APIKEY tidak sesuai!';
+			}
+		}
+		die(json_encode($ret));
+	}
+
 	public function get_sub_keg(){
 		global $wpdb;
 		$ret = array(
@@ -12257,6 +12354,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						);
 					}
 
+					$total_fmis = 0;
 					$cek_sub_unit_fmis = array();
 					$cek_sub_keg_fmis_id_sub_asli = array();
 					foreach($sub_keg_fmis as $fmis){
@@ -12315,6 +12413,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						$id_skpd_sipd = $get_id['id_skpd_sipd'];
 
 						if(!empty($id_skpd_sipd)){
+
 							$data_fmis['sub_kegiatan_asli'] = $data_fmis['sub_kegiatan'];
 							$data_fmis['kegiatan_asli'] = $data_fmis['kegiatan'];
 							$data_fmis['program_asli'] = $data_fmis['program'];
@@ -12362,8 +12461,6 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 							){
 								// perlu dicek agar data sebelumnya tidak dirubah active jadi 0
 								if(empty($cek_sub_unit_fmis[$id_skpd_sipd[0]])){
-									$cek_sub_unit_fmis[$id_skpd_sipd[0]] = true;
-
 									// untuk membedakan pembiyaan pengeluaran dan penerimaa maka perlu ditambahkan param kdrek1 dan kdrek2
 									$wpdb->update('data_rincian_fmis', array(
 										'active' => 0
@@ -12462,6 +12559,14 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 								}
 							}
 
+							// jika sub kegiatan dengan id sub unit sudah ada sebelumnya maka total fmis ditambahkan
+							if(empty($cek_sub_unit_fmis[$id_skpd_sipd[0]])){
+								$cek_sub_unit_fmis[$id_skpd_sipd[0]] = true;
+								$total_fmis = $data_fmis['total'];
+							}else{
+								$total_fmis += $data_fmis['total'];
+							}
+
 							// belanja
 							if(
 								$data_fmis['rincian'][0]['kdrek1'] == 5
@@ -12557,7 +12662,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 								}
 								if(!empty($sub)){
 									$wpdb->update('data_sub_keg_bl', array(
-										'pagu_fmis' => $data_fmis['total']
+										'pagu_fmis' => $total_fmis
 									), array(
 										'id' => $sub['id']
 									));

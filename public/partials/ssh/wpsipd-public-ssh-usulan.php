@@ -2556,7 +2556,9 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
         	?>
 	        	jQuery('#wrap-loading').hide();
 	        }
-        }
+        }else{
+			alert('Usulan standar harga tidak ditemukan! Pastikan ada data usulan yang akan dibuat surat usulan.');
+		}
 
 	}
 
