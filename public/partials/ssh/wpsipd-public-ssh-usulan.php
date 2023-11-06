@@ -56,6 +56,7 @@ if(
 			}
 		}
 	}
+	$input['id_skpd'] = $skpd_db[0]['id_skpd'];
 }else if(
 	in_array("administrator", $user_meta->roles)
 	|| in_array("tapd_keu", $user_meta->roles)
@@ -85,7 +86,7 @@ if(
 }
 
 $nama_skpd .= "<br>".get_option('_crb_daerah');
-
+echo $this->menu_ssh($input);
 ?>
 
 <style type="text/css">
