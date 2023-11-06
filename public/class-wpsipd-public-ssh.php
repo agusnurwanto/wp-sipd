@@ -4409,4 +4409,105 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 		}
 		die(json_encode($return));
 	}
+
+	function menu_ssh($options = array('menu' => array())){
+		$current_url = $this->current_url();
+		$menu = array();
+		foreach($options['menu'] as $val){
+			$active = '';
+			if($current_url == $this->current_url($val['url'])){
+				$active = 'active';
+			}
+			$menu[] = '<a class="'.$active.'" href="'.$val['url'].'" target="_blank">'.$val['text'].'</a>';
+		}
+		$user_id = get_current_user_id();
+    	$user_profile_url = um_user_profile_url($user_id);
+		$ret = '
+			<style>
+				body {
+				  font-family: "Lato", sans-serif;
+				}
+
+				.sidebar {
+				  height: 100%;
+				  width: 0;
+				  position: fixed;
+				  z-index: 1;
+				  top: 0;
+				  left: 0;
+				  background-color: #111827;
+				  overflow-x: hidden;
+				  transition: 0.5s;
+				  padding-top: 60px;
+				}
+
+				.sidebar a {
+				  padding: 8px 8px 8px 32px;
+				  text-decoration: none;
+				  font-size: 15px;
+				  color: #FFFFFF;
+				  display: block;
+				  transition: 0.3s;
+				}
+
+				.sidebar a:hover {
+				  color: #FF9900;
+				}
+
+				.sidebar .closebtn {
+				  position: absolute;
+				  top: 15px;
+				  right: 25px;
+				  font-size: 25px;
+				  margin-left: 50px;
+				}
+
+				.openbtn {
+				  font-size: 10px;
+				  cursor: pointer;
+				  background-color: #111;
+				  color: white;
+				  padding: 10px 15px;
+				  border: none;
+				}
+
+				.openbtn:hover {
+				  background-color: #444;
+				}
+
+				#main {
+				  transition: margin-left .5s;
+				  padding: 2px;
+				}
+
+				/* On smaller screens, where height is less than 450px, change the style of the sidenav (less padding and a smaller font size) */
+				@media screen and (max-height: 450px) {
+				  .sidebar {padding-top: 15px;}
+				  .sidebar a {font-size: 18px;}
+				}
+			</style>
+
+						<div id="mySidebar" class="sidebar">
+				  <a href="javascript:void(0)" class="closebtn" onclick="closeNav()" style="width:20px;height:20px;">×</a>
+				  <a href="'.$user_profile_url.'">User</a>
+				  '.implode('', $menu).'
+				</div>
+
+				<div id="main">
+				  <button class="openbtn" onclick="openNav()">☰ Menu</button>
+				</div>
+			<script>
+				function openNav() {
+				  	document.getElementById("mySidebar").style.width = "250px";
+				  	document.getElementById("main").style.marginLeft = "250px";
+				}
+
+				function closeNav() {
+				  	document.getElementById("mySidebar").style.width = "0";
+				  	document.getElementById("main").style.marginLeft= "0";
+				}
+			</script>
+		';
+		return $ret;
+	}
 }

@@ -19401,4 +19401,18 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
         }
         return $res;
     }
+
+    function current_url($url = false){
+    	$current_url = '';
+    	if(empty($url)){
+			$protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http";
+			$host = $_SERVER['HTTP_HOST'];
+			$path = rtrim(dirname($_SERVER['PHP_SELF']), '/');
+			$current_url = $protocol . "://" . $host . $path;
+    	}else{
+    		$current_url = explode('?', $url);
+    		$current_url = $current_url[0];
+    	}
+		return $current_url;
+    }
 }
