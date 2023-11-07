@@ -7,6 +7,17 @@ $roles = array(
 if (empty($roles)) {
     die('<h1 class="text-center" style="margin-top: 50px;">Daftar user pptk belum diset dihalaman dashboard Verifikasi RKA!</h1>');
 }
+
+$id_skpd = 'all';
+if(!empty($_GET) && !empty($_GET['id_skpd'])){
+    $id_skpd = $wpdb->prepare('%d', $_GET['id_skpd']);
+}
+
+$where_skpd = '';
+if($id_skpd != 'all'){
+    $where_skpd = ' and id_skpd='.$id_skpd;
+}
+
 $options_role = array();
 foreach ($roles as $val) {
     $role = get_role($val);
@@ -33,6 +44,7 @@ foreach ($idtahun as $val) {
         from data_unit 
         where active=1
             and tahun_anggaran=%d
+            $where_skpd
         group by id_skpd", $val['tahun_anggaran']), ARRAY_A);
     $opsi_skpd = '<option value="">Pilih SKPD</option>';
     foreach ($skpd as $v) {

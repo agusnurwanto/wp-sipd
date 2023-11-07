@@ -954,7 +954,8 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes {
 					'7' => __( 'MENU SSH' ),
 					'8' => __( 'INPUT RENSTRA' ),
 					'9' => __( 'INPUT RENJA' ),
-					'10' => __( 'INPUT REALISASI KEU PEMDES' )
+					'10' => __( 'INPUT REALISASI KEU PEMDES' ),
+					'11' => __( 'USER PPTK' )
 			    ) )
             	->set_default_value(array('1','2','3','4','5'))
             	->set_help_text('Daftar fitur ini akan ditampilkan dalam bentuk tombol di halaman dasboard user setelah berhasil login.'),

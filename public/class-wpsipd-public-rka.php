@@ -1147,10 +1147,55 @@ class Wpsipd_Public_RKA
                     $ret['message'] = 'id skpd tidak boleh kosong!';
                     die(json_encode($ret));
                 }
+                if (empty($_POST['tahun_anggaran'])) {
+                    $ret['status'] = 'error';
+                    $ret['message'] = 'tahun anggaran tidak boleh kosong!';
+                    die(json_encode($ret));
+                }
                 // cek role user existing harus administrator atau PA, PLT, KPA
-                // get user pptk berdasarkan kode sbl
-                // get all user pptk berdasarkan id_skpd
-                // return data all user pptk dan detail user pptk di sub keg ini
+                $current_user = wp_get_current_user();
+                $allowed_roles = array('administrator', 'PA', 'KPA', 'PLT');
+
+                // Periksa apakah ada perpotongan antara peran yang diizinkan dan peran pengguna saat ini.
+                if (empty(array_intersect($allowed_roles, $current_user->roles))) {
+                    $ret['status'] = 'error';
+                    $ret['message'] = 'Akses ditolak - hanya pengguna dengan peran tertentu yang dapat mengakses fitur ini!';
+                    die(json_encode($ret));
+                }
+                $sub_keg = $wpdb->get_row($wpdb->prepare("
+                SELECT
+                    p.*,
+                    s.nama_sub_giat,
+                    s.kode_urusan
+                FROM data_pptk_sub_keg p
+                RIGHT JOIN data_sub_keg_bl s on p.kode_sbl = s.kode_sbl
+                    and p.tahun_anggaran = s.tahun_anggaran
+                    and s.active=1
+                WHERE s.tahun_anggaran=%d
+                    and s.kode_sbl=%s
+                ", $_POST['tahun_anggaran'], $_POST['kode_sbl']), ARRAY_A);
+                if ($sub_keg && isset($sub_keg['kode_urusan'])) {
+                    $sub_keg['nama_sub_giat'] = str_replace("X.XX", $sub_keg['kode_urusan'], $sub_keg['nama_sub_giat']);
+                }
+                $ret['sub_keg'] = $sub_keg;
+
+
+                $args = array(
+                    'role'    => 'pptk',
+                    'orderby' => 'user_nicename',
+                    'order'   => 'ASC',
+                    'skpd'   => $_POST['id_skpd']
+                );
+                $users = get_users($args);
+                $user_pptk_opt = '<option value="">Pilih User</option>';
+                foreach ($users as $user) {
+                    $selected = '';
+                    if ($user->ID == $sub_keg['id_user']) {
+                        $selected = 'selected';
+                    }
+                    $user_pptk_opt .= '<option value="' . esc_attr($user->ID) . '" ' . $selected . '>' . esc_html($user->display_name) . '</option>';
+                }
+                $ret['user_pptk_html'] = $user_pptk_opt;
             } else {
                 $ret['status'] = 'error';
                 $ret['message'] = 'APIKEY tidak sesuai!';
@@ -1176,8 +1221,53 @@ class Wpsipd_Public_RKA
                     $ret['message'] = 'kode_sbl tidak boleh kosong!';
                     die(json_encode($ret));
                 }
+                if (empty($_POST['id_user'])) {
+                    $ret['status'] = 'error';
+                    $ret['message'] = 'id_user tidak boleh kosong!';
+                    die(json_encode($ret));
+                }
+                if (empty($_POST['tahun_anggaran'])) {
+                    $ret['status'] = 'error';
+                    $ret['message'] = 'tahun anggaran tidak boleh kosong!';
+                    die(json_encode($ret));
+                }
                 // cek role user existing harus administrator atau PA, PLT, KPA
-                // simpan atau update user pptk berdasarkan kode sbl
+                $current_user = wp_get_current_user();
+                $allowed_roles = array('administrator', 'PA', 'KPA', 'PLT');
+                // Periksa apakah ada perpotongan antara peran yang diizinkan dan peran pengguna saat ini.
+                if (empty(array_intersect($allowed_roles, $current_user->roles))) {
+                    $ret['status'] = 'error';
+                    $ret['message'] = 'Akses ditolak - hanya pengguna dengan peran tertentu yang dapat mengakses fitur ini!';
+                    die(json_encode($ret));
+                }
+                $kode_sbl = $_POST['kode_sbl'];
+                $id_user = $_POST['id_user'];
+                $tahun_anggaran = $_POST['tahun_anggaran'];
+                
+                get_userdata($id_user);
+
+                $data = array(
+                    'kode_sbl' => $kode_sbl,
+                    'id_user' => $id_user,
+                    'tahun_anggaran' => $tahun_anggaran,
+                    'active' => 1,
+                    'update_at' => current_time('mysql')
+                );
+
+                $cek_pptk = $wpdb->get_var($wpdb->prepare("
+                    SELECT
+                        id
+                    FROM data_pptk_sub_keg
+                    WHERE active=1
+                        and tahun_anggaran=%d
+                        and kode_sbl=%s
+                ", $tahun_anggaran, $kode_sbl));
+                
+                if (empty($cek_pptk)) {
+                    $result = $wpdb->insert('data_pptk_sub_keg', $data);
+                } else {
+                    $wpdb->update('data_pptk_sub_keg', $data, array('id' => $cek_pptk));
+                }
             } else {
                 $ret['status'] = 'error';
                 $ret['message'] = 'APIKEY tidak sesuai!';

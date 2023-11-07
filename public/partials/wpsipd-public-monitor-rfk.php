@@ -413,8 +413,20 @@ foreach ($units as $k => $unit):
 				'id_prog' => $id_prog,
 				'kd_keg' => $kd_keg
 			);
+			$data_pptk = $wpdb->get_var($wpdb->prepare("
+				SELECT
+					id
+				FROM data_pptk_sub_keg
+				WHERE active=1
+					and tahun_anggaran=%d
+					and kode_sbl=%s
+			", $sub['tahun_anggaran'], $sub['kode_sbl']));
+			$cek_pptk = 'badge-primary';
+			if(!empty($data_pptk)){
+				$cek_pptk = 'badge-success';
+			}
 			$data_all['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']]['data'][$sub['kode_giat']]['data'][$sub['kode_sub_giat']] = array(
-				'nama'	=> implode(' ', $nama).$debug_pagu.'<span class="detail_simda hide-excel">'.json_encode($detail_simda).'</span><span class="badge badge-danger simpan-per-sub-keg hide-excel">SIMPAN</span><span class="badge badge-success set-pptk-per-sub-keg hide-excel">SET PPTK</span>',
+				'nama'	=> implode(' ', $nama).$debug_pagu.'<span class="detail_simda hide-excel">'.json_encode($detail_simda).'</span><span class="badge badge-danger simpan-per-sub-keg hide-excel">SIMPAN</span><span class="badge '.$cek_pptk.' set-pptk-per-sub-keg hide-excel">SET PPTK</span>',
 				'total' => 0,
 				'total_simda' => 0,
 				'total_fmis' => 0,
@@ -744,7 +756,11 @@ foreach ($units as $k => $unit):
 
 	echo '
 	<style>
-		.detail_simda, .simpan-per-sub-keg { display: none; }
+		.nama_sub_giat .detail_simda, 
+		.nama_sub_giat .simpan-per-sub-keg, 
+		.nama_sub_giat .set-pptk-per-sub-keg { 
+			display: none; 
+		}
 		.simpan-per-sub-keg {
 		    font-size: 10px;
 		    margin-left: 10px;
@@ -752,6 +768,9 @@ foreach ($units as $k => $unit):
 		}
 		.tr-belum-save {
 			background: #ffbc0073;
+		}
+		.set-pptk-per-sub-keg {
+		    margin-left: 5px;
 		}
 	</style>
 	<input type="hidden" value="'.get_option( '_crb_api_key_extension' ).'" id="api_key">
@@ -881,18 +900,14 @@ if(
 				</button>
 			</div>
 			<div class="modal-body">
-				<input type="hidden" class="form-control" id="kode_sbl">
-				<input type="hidden" class="form-control" id="tahun_anggaran">
-				<input type="hidden" class="form-control" id="id_skpd">
+				<input type="hidden" id="kode_sbl">
 				<div class="form-group">
 					<label>Sub Kegiatan</label>
 					<input type="text" class="form-control" id="nama_sub_kegiatan" value="" disabled>
 				</div>
 				<div class="form-group">
 					<label>Nama PPTK</label>
-					<select class="form-control" id="user_pptk">
-						<option value="" selected disabled>Pilih User</option>
-					</select>
+					<select class="form-control" id="user_pptk"></select>
 				</div>
 			</div>
 			<div class="modal-footer">
@@ -902,33 +917,47 @@ if(
 		</div>
 	</div>
 </div>
-
+ 
 <script type="text/javascript">
 	var data_input = <?php echo json_encode($data_input); ?>;
 	run_download_excel();
 
-	function submit_data_pptk(that){
+	function submit_data_pptk(){
 		jQuery('#wrap-loading').show();
-		var kode_sbl = '';
-		var id_user = '';
+		let id_user = jQuery('#user_pptk').val();
+		var kode_sbl = jQuery('#kode_sbl').val();
+		// dicek dulu id user dan kode sbl tidak boleh kosong
 		jQuery.ajax({
 			url: "<?php echo admin_url('admin-ajax.php'); ?>",
-			type: "post",
+			type: "POST",
 			data: {
 				"action": "simpan_sub_keg_pptk",
 				"api_key": jQuery('#api_key').val(),
 				"tahun_anggaran": jQuery('#tahun_anggaran').val(),
-				kode_sbl: kd_sbl,
+				kode_sbl: kode_sbl,
 				id_user: id_user
 			},
 			dataType: "json",
-			success: function(data){
-				// menampilkan popup
-				jQuery('#modal-set-pptk').modal('show');
+			success: function(response) { 
+				alert(response.message);
+				if(response.status=='success'){
+					jQuery('tr[data-kdsbl="'+kode_sbl+'"] .set-pptk-per-sub-keg').removeClass('badge-primary').addClass('badge-success');
+					jQuery('#modal-set-pptk').modal('hide');
+				}
 				jQuery('#wrap-loading').hide();
+			},
+			error: function(jqXHR) { 
+				var errorMsg = 'Error: ';
+				if (jqXHR.responseJSON && jqXHR.responseJSON.message) {
+					errorMsg += jqXHR.responseJSON.message;
+				} else {
+					errorMsg += 'Terjadi kesalahan.';
+				}
+				alert(errorMsg);
 			}
 		});
 	}
+
 
     function generate_total(){
     	window.total_parent = {};
@@ -1074,6 +1103,14 @@ if(
     	}
 	}
 
+	function tampil_set_pptk(that){
+		if(jQuery(that).is(':checked')){
+			jQuery('.set-pptk-per-sub-keg').show();
+		}else{
+			jQuery('.set-pptk-per-sub-keg').hide();
+		}
+	}
+
 	function tampil_nilai_fisik(){
 		if(jQuery('#tampil-nilai-fisik').is(':checked')){
     		jQuery('.nama_urusan').attr('colspan', 12);
@@ -1117,12 +1154,13 @@ if(
 			+'<label style="margin-left: 20px;"><input type="checkbox" id="tampil-detail-fisik" checked onclick="tampil_detail_fisik();"> Tampilkan Detail Realisasi Fisik</label>'
 			+'<label style="margin-left: 20px;"><input type="checkbox" id="tampil-nilai-fisik" onclick="tampil_nilai_fisik();"> Tampilkan Nilai Realisasi Fisik</label>'
 			+'<label style="margin-left: 20px;">Pagu DPA: '
-				+'<select id="pagu_dpa" style="padding: 5px;">'
+				+'<select id="pagu_dpa" style="padding: 5px; width: 200px;">'
 					+'<option value="rka_simda">RKA SIMDA</option>'
 					+'<option value="simda">APBD SIMDA</option>'
 					+'<option value="fmis">APBD FMIS</option>'
 				+'</select>'
 			+'</label>'
+			+'<label style="margin-left: 20px;"><input type="checkbox" onclick="tampil_set_pptk(this);"> Tampilkan Set PPTK</label>'
 		+'</div>';
 	jQuery(document).ready(function(){
 	    jQuery('#action-sipd').append(extend_action);
@@ -1246,8 +1284,10 @@ if(
 		// fungsi set PPTK per sub kegiatan
 	    jQuery('.set-pptk-per-sub-keg').on('click', function(){
 	    	var tr = jQuery(this).closest('tr');
-	    	var nama_sub = tr.find('.nama_sub_giat').text();
+			var full_text = tr.find('.nama_sub_giat').text();
+			var nama_sub = full_text.split(/ \d{9}/)[0];
 			var kd_sbl = tr.attr('data-kdsbl');
+			var tahun_anggaran = jQuery('#tahun_anggaran').val();
 			jQuery('#wrap-loading').show();
 			jQuery.ajax({
 				url: "<?php echo admin_url('admin-ajax.php'); ?>",
@@ -1255,14 +1295,21 @@ if(
 				data: {
 					"action": "get_sub_keg_pptk",
 					"api_key": jQuery('#api_key').val(),
-					"tahun_anggaran": jQuery('#tahun_anggaran').val(),
+					"tahun_anggaran": tahun_anggaran,
 					id_skpd: tr.attr('data-idskpd'),
 					kode_sbl: kd_sbl,
 				},
 				dataType: "json",
 				success: function(data){
 					// menampilkan popup
-					jQuery('#modal-set-pptk').modal('show');
+					if(data.status == 'success'){
+						jQuery('#nama_sub_kegiatan').val(data.sub_keg.nama_sub_giat);
+						jQuery('#user_pptk').html(data.user_pptk_html);
+						jQuery('#kode_sbl').val(kd_sbl);
+						jQuery('#modal-set-pptk').modal('show');
+					}else{
+						alert(data.message);
+					}
 					jQuery('#wrap-loading').hide();
 				}
 			});

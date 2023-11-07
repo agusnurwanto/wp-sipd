@@ -790,7 +790,7 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 		if(empty($user_meta->roles)){
 			echo 'User ini tidak dapat akses sama sekali :)';
 		}else if(in_array("administrator", $user_meta->roles) || in_array("PLT", $user_meta->roles)){
-			require_once WPSIPD_PLUGIN_PATH . 'public/partials/wpsipd-public-data-halaman-ssh.php';
+			require_once WPSIPD_PLUGIN_PATH . 'public/partials/ssh/wpsipd-public-monitor-satuan-harga.php';
 		}
 	}
 
@@ -4411,5 +4411,172 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 			);
 		}
 		die(json_encode($return));
+	}
+
+	function menu_ssh($input = array('tahun_anggaran' => '', 'id_skpd' => '')){
+		global $wpdb;
+		$nama_page_menu_ssh = 'Data Standar Satuan Harga SIPD | '.$input['tahun_anggaran'];
+		$custom_post = get_page_by_title($nama_page_menu_ssh, OBJECT, 'page');
+		$url_data_ssh = $this->get_link_post($custom_post);
+
+		$nama_page_menu_ssh_usulan = 'Data Usulan Standar Satuan Harga (SSH) | '.$input['tahun_anggaran'];
+		$custom_post_usulan = get_page_by_title($nama_page_menu_ssh_usulan, OBJECT, 'page');
+		$url_data_ssh_usulan = $this->get_link_post($custom_post_usulan);
+
+		if(!empty($input['id_skpd'])){
+			$sql = $wpdb->prepare("
+				SELECT 
+					du.kode_skpd,
+					du.nama_skpd
+					FROM data_unit as du 
+					WHERE du.active=1 
+						and du.tahun_anggaran=%d 
+						AND du.id_skpd=%d",
+					$input['tahun_anggaran'],
+					$input['id_skpd']
+				);
+			$skpd = $wpdb->get_results($sql, ARRAY_A);
+
+			$chart_ssh = 'Rekapitulasi Rincian Belanja '.$skpd[0]['nama_skpd'].' '.$skpd[0]['kode_skpd'].' | '.$input['tahun_anggaran'];
+			$custom_post_chart_ssh = $this->get_page_by_title($chart_ssh, OBJECT, 'page');
+			$url_chart_ssh = $this->get_link_post($custom_post_chart_ssh);
+		}else{
+			$chart_ssh = 'Rekapitulasi Rincian Belanja Pemerintah Daerah '.$input['tahun_anggaran'];
+			$custom_post_chart_ssh = $this->get_page_by_title($chart_ssh, OBJECT, 'page');
+			$url_chart_ssh = $this->get_link_post($custom_post_chart_ssh);
+		}
+
+		return $this->menu_wpsipd(array(
+			'menu' => array(
+				array(
+					'icon' => '<span class="dashicons dashicons-chart-bar"></span>',
+					'url' => $url_chart_ssh,
+					'text' => 'Chart dan Data Standar Harga'
+				),
+				array(
+					'icon' => '<span class="dashicons dashicons-admin-page"></span>',
+					'url' => $url_data_ssh,
+					'text' => 'Rekapitulasi Usulan dan Data Standar Harga SIPD'
+				), array(
+					'icon' => '<span class="dashicons dashicons-admin-comments"></span>',
+					'url' => $url_data_ssh_usulan,
+					'text' => 'Usulan Standar Harga'
+				)
+			)
+		));
+	}
+
+	function menu_wpsipd($options = array('menu' => array())){
+		$current_url = $this->current_url();
+		$menu = array();
+		foreach($options['menu'] as $val){
+			$active = '';
+			if($current_url == $this->current_url($val['url'])){
+				$active = 'active';
+			}
+			$icon = '';
+			if(!empty($val['icon'])){
+				$icon = $val['icon'];
+			}
+			$menu[] = '<a class="'.$active.'" href="'.$val['url'].'" target="_blank">'.$icon.' '.$val['text'].'</a>';
+		}
+		$user_id = get_current_user_id();
+    	$user_profile_url = um_user_profile_url($user_id);
+		$ret = '
+			<style>
+				.sidebar {
+					height: 100%;
+					width: 0;
+					position: fixed;
+					margin-top: 31px;
+					top: 0;
+					left: 0;
+					background-color: #000000d6;
+					overflow-x: hidden;
+					transition: 0.5s;
+					padding-top: 45px;
+				}
+
+				.sidebar a {
+					padding: 8px 10px 8px 32px;
+					text-decoration: none;
+					font-size: 15px;
+					color: #FFFFFF;
+					display: block;
+					transition: 0.3s;
+					text-decoration: none !important;
+				}
+
+				.sidebar a:hover, .sidebar a.active:hover {
+					color: #FF9900;
+				}
+
+				.sidebar a.active {
+					background-color: #111;
+    				color: #fed79c;
+				}
+
+				.sidebar .closebtn {
+					position: absolute;
+					top: 2px;
+					right: 25px;
+					font-size: 25px;
+				}
+
+				.openbtn {
+					cursor: pointer;
+					background-color: #111;
+					color: white;
+					margin-top: 31px;
+					padding: 10px 15px;
+					border: none;
+				}
+
+				.openbtn:hover {
+					background-color: #444;
+				}
+
+				#main-menu {
+					position: fixed;
+					top: 0;
+					left: 0;
+					transition: margin-left .5s;
+					padding: 2px;
+				}
+
+				#mySidebar, #main-menu {
+    				z-index: 99999999;
+				}
+
+				#mySidebar span.dashicons {
+				    margin: 0 5px;
+				}
+
+				@media screen and (max-height: 450px) {
+					.sidebar {padding-top: 15px;}
+					.sidebar a {font-size: 18px;}
+				}
+			</style>
+			<div id="mySidebar" class="sidebar">
+			  	<a href="javascript:void(0)" class="closebtn" onclick="closeNav()" style="width:20px;height:20px;"><span class="dashicons dashicons-no-alt"></span></a>
+			  	<a href="'.$user_profile_url.'"><span class="dashicons dashicons-admin-users"></span> User</a>
+			  '.implode('', $menu).'
+			</div>
+			<div id="main-menu">
+			  	<button class="openbtn" onclick="openNav()"><span class="dashicons dashicons-menu" style="font-size: 31px; margin: -5px 5px 0 -8px;"></span></button>
+			</div>
+			<script>
+				function openNav() {
+				  	document.getElementById("mySidebar").style.width = "250px";
+				  	document.getElementById("main-menu").style.display = "none";
+				}
+
+				function closeNav() {
+				  	document.getElementById("mySidebar").style.width = "0";
+				  	document.getElementById("main-menu").style.display = "block";
+				}
+			</script>
+		';
+		return $ret;
 	}
 }
