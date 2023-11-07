@@ -4503,6 +4503,7 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 					color: #FFFFFF;
 					display: block;
 					transition: 0.3s;
+					text-decoration: none !important;
 				}
 
 				.sidebar a:hover, .sidebar a.active:hover {
