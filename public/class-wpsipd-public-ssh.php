@@ -790,7 +790,7 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 		if(empty($user_meta->roles)){
 			echo 'User ini tidak dapat akses sama sekali :)';
 		}else if(in_array("administrator", $user_meta->roles) || in_array("PLT", $user_meta->roles)){
-			require_once WPSIPD_PLUGIN_PATH . 'public/partials/ssh/wpsipd-public-monitor-satuah-harga-pemda.php';
+			require_once WPSIPD_PLUGIN_PATH . 'public/partials/ssh/wpsipd-public-monitor-satuan-harga.php';
 		}
 	}
 
@@ -4488,6 +4488,7 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 					height: 100%;
 					width: 0;
 					position: fixed;
+					margin-top: 31px;
 					top: 0;
 					left: 0;
 					background-color: #000000d6;
@@ -4497,7 +4498,7 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 				}
 
 				.sidebar a {
-					padding: 8px 8px 8px 32px;
+					padding: 8px 10px 8px 32px;
 					text-decoration: none;
 					font-size: 15px;
 					color: #FFFFFF;
@@ -4525,6 +4526,7 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 					cursor: pointer;
 					background-color: #111;
 					color: white;
+					margin-top: 31px;
 					padding: 10px 15px;
 					border: none;
 				}
@@ -4546,7 +4548,7 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 				}
 
 				#mySidebar span.dashicons {
-				    margin-top: 3px;
+				    margin: 0 5px;
 				}
 
 				@media screen and (max-height: 450px) {
