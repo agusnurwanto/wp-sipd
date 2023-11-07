@@ -1221,17 +1221,53 @@ class Wpsipd_Public_RKA
                     $ret['message'] = 'kode_sbl tidak boleh kosong!';
                     die(json_encode($ret));
                 }
+                if (empty($_POST['id_user'])) {
+                    $ret['status'] = 'error';
+                    $ret['message'] = 'id_user tidak boleh kosong!';
+                    die(json_encode($ret));
+                }
+                if (empty($_POST['tahun_anggaran'])) {
+                    $ret['status'] = 'error';
+                    $ret['message'] = 'tahun anggaran tidak boleh kosong!';
+                    die(json_encode($ret));
+                }
                 // cek role user existing harus administrator atau PA, PLT, KPA
                 $current_user = wp_get_current_user();
                 $allowed_roles = array('administrator', 'PA', 'KPA', 'PLT');
-
                 // Periksa apakah ada perpotongan antara peran yang diizinkan dan peran pengguna saat ini.
                 if (empty(array_intersect($allowed_roles, $current_user->roles))) {
                     $ret['status'] = 'error';
                     $ret['message'] = 'Akses ditolak - hanya pengguna dengan peran tertentu yang dapat mengakses fitur ini!';
                     die(json_encode($ret));
                 }
-                // simpan atau update user pptk berdasarkan kode sbl
+                $kode_sbl = $_POST['kode_sbl'];
+                $id_user = $_POST['id_user'];
+                $tahun_anggaran = $_POST['tahun_anggaran'];
+                
+                get_userdata($id_user);
+
+                $data = array(
+                    'kode_sbl' => $kode_sbl,
+                    'id_user' => $id_user,
+                    'tahun_anggaran' => $tahun_anggaran,
+                    'active' => 1,
+                    'update_at' => current_time('mysql')
+                );
+
+                $cek_pptk = $wpdb->get_var($wpdb->prepare("
+                    SELECT
+                        id
+                    FROM data_pptk_sub_keg
+                    WHERE active=1
+                        and tahun_anggaran=%d
+                        and kode_sbl=%s
+                ", $tahun_anggaran, $kode_sbl));
+                
+                if (empty($cek_pptk)) {
+                    $result = $wpdb->insert('data_pptk_sub_keg', $data);
+                } else {
+                    $wpdb->update('data_pptk_sub_keg', $data, array('id' => $cek_pptk));
+                }
             } else {
                 $ret['status'] = 'error';
                 $ret['message'] = 'APIKEY tidak sesuai!';
