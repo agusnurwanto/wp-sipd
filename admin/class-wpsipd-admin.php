@@ -943,22 +943,6 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes {
 			    ) )
             	->set_default_value('1')
             	->set_help_text('Jika dipilih manual maka SKPD perlu melakuan input manual realisasi anggaran.'),
-            Field::make( 'multiselect', 'crb_daftar_tombol_user_dashboard', 'Daftar tombol di halaman dashboard user' )
-            	->add_options( array(
-			        '1' => __( 'MONEV RFK' ),
-			        '2' => __( 'MONEV SUMBER DANA' ),
-			        '3' => __( 'MONEV LABEL KOMPONEN' ),
-			        '4' => __( 'MONEV INDIKATOR RENJA' ),
-			        '5' => __( 'MONEV INDIKATOR RENSTRA' ),
-			        '6' => __( 'MONEV INDIKATOR RPJM' ),
-					'7' => __( 'MENU SSH' ),
-					'8' => __( 'INPUT RENSTRA' ),
-					'9' => __( 'INPUT RENJA' ),
-					'10' => __( 'INPUT REALISASI KEU PEMDES' ),
-					'11' => __( 'USER PPTK' )
-			    ) )
-            	->set_default_value(array('1','2','3','4','5'))
-            	->set_help_text('Daftar fitur ini akan ditampilkan dalam bentuk tombol di halaman dasboard user setelah berhasil login.'),
             Field::make( 'select', 'crb_default_sumber_dana', 'Sumber dana default ketika sumber dana di sub kegiatan belum disetting' )
             	->add_options( $sumber_dana_all )
             	->set_default_value(1)
@@ -1837,6 +1821,24 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes {
 			Field::make( 'separator', 'crb_show_menu_monev_fmis_settings', 'MONEV FMIS' ),
 				Field::make( 'checkbox', 'crb_show_menu_monev_fmis_check_settings', 'MONEV FMIS' )
 					->set_option_value( 'true' ),
+
+			Field::make( 'separator', 'crb_show_menu_dashboard_user_settings', 'Mernu Dashboard User' ),
+				Field::make( 'multiselect', 'crb_daftar_tombol_user_dashboard', 'Daftar tombol di halaman dashboard user' )
+				->add_options( array(
+					'1' => __( 'MONEV RFK' ),
+					'2' => __( 'MONEV SUMBER DANA' ),
+					'3' => __( 'MONEV LABEL KOMPONEN' ),
+					'4' => __( 'MONEV INDIKATOR RENJA' ),
+					'5' => __( 'MONEV INDIKATOR RENSTRA' ),
+					'6' => __( 'MONEV INDIKATOR RPJM' ),
+					'7' => __( 'MENU SSH' ),
+					'8' => __( 'INPUT RENSTRA' ),
+					'9' => __( 'INPUT RENJA' ),
+					'10' => __( 'INPUT REALISASI KEU PEMDES' ),
+					'11' => __( 'USER PPTK' )
+				) )
+				->set_default_value(array('1','2','3','4','5'))
+				->set_help_text('Daftar fitur ini akan ditampilkan dalam bentuk tombol di halaman dasboard user setelah berhasil login.'),
 		);
 		return $field;
 	}
