@@ -1849,12 +1849,15 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 								$can_delete = true;
 							}
 						}else if(
-							in_array("pa", $user_meta->roles)
+							(
+								in_array("PA", $user_meta->roles)
+								|| in_array("KPA", $user_meta->roles)
+								|| in_array("PLT", $user_meta->roles)
+							)
 							&& $recVal['status'] == 'rejected'
 						){
 							$can_edit = true;
 						}
-
 					}
 						
 					if($can_edit){
