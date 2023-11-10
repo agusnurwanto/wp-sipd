@@ -418,16 +418,16 @@ echo $this->menu_ssh($input);
 					</div>
 				</div>
 				<div class="row form-group">
-					<label for="tambah_harga_komp_kategori" class="col-md-12">Kategori</label>
-					<div class="col-md-12">
-						<input type="text" id="tambah_harga_komp_kategori" class="form-control" placeholder="Kategori" disabled>
-					</div>
-				</div>
-				<div class="row form-group">
 					<label for="tambah_harga_komp_nama_komponent" class="col-md-12">Nama Komponen</label>
 					<div class="col-md-12">
 						<select id="tambah_harga_komp_nama_komponent" class="js-example-basic-single" class="form-control" placeholder="Nama Komponen"></select>
 						<input type="text" id="tambah_harga_show_komp_nama" class="hide form-control" placeholder="Nama Komponen" disabled>
+					</div>
+				</div>
+				<div class="row form-group">
+					<label for="tambah_harga_komp_kategori" class="col-md-12">Kategori</label>
+					<div class="col-md-12">
+						<input type="text" id="tambah_harga_komp_kategori" class="form-control" placeholder="Kategori" disabled>
 					</div>
 				</div>
 				<div class="row form-group">
@@ -527,16 +527,16 @@ echo $this->menu_ssh($input);
 					</div>
 				</div>
 				<div class="row form-group">
-					<label for="tambah_akun_komp_kategori" class="col-md-12">Kategori</label>
-					<div class="col-md-12">
-						<input type="text" id="tambah_akun_komp_kategori" style="display:block;width:100%;" placeholder="Kategori" disabled>
-					</div>
-				</div>
-				<div class="row form-group">
 					<label for="tambah_akun_komp_nama_komponent" class="col-md-12">Nama Komponen</label>
 					<div class="col-md-12">
 						<select id="tambah_akun_komp_nama_komponent" class="form-control" placeholder="Nama Komponen"></select>
 						<input type="text" id="tambah_akun_show_komp_nama" class="hide form-control" placeholder="Nama Komponen" disabled>
+					</div>
+				</div>
+				<div class="row form-group">
+					<label for="tambah_akun_komp_kategori" class="col-md-12">Kategori</label>
+					<div class="col-md-12">
+						<input type="text" id="tambah_akun_komp_kategori" style="display:block;width:100%;" placeholder="Kategori" disabled>
 					</div>
 				</div>
 				<div class="row form-group">
