@@ -5770,6 +5770,7 @@ CREATE TABLE `data_verifikasi_rka` (
   `fokus_uraian` text NOT NULL,
   `catatan_verifikasi` text NOT NULL,
   `tanggapan_opd` text NOT NULL,
+  `update_at_tanggapan` datetime DEFAULT current_timestamp(),
   `create_at` datetime NOT NULL DEFAULT current_timestamp(),
   `update_at` datetime DEFAULT current_timestamp(),
   `active` tinyint(4) NOT NULL,
