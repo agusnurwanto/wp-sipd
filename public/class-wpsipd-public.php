@@ -2074,17 +2074,13 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						from data_pengaturan_sipd 
 						where tahun_anggaran=%d 
 							AND id_daerah=%d
-					", $data['tahun_anggaran'], $data['id_daerah']));
+					", $_POST['tahun_anggaran'], $data['id_daerah']));
 					$opsi = array(
 						'id_daerah' => $data['id_daerah'],
-						'daerah' => $data['daerah'],
 						'kepala_daerah' => $data['kepala_daerah'],
 						'wakil_kepala_daerah' => $data['wakil_kepala_daerah'],
 						'awal_rpjmd' => $data['awal_rpjmd'],
 						'akhir_rpjmd' => $data['akhir_rpjmd'],
-						'pelaksana_rkpd' => $data['pelaksana_rkpd'],
-						'pelaksana_kua' => $data['pelaksana_kua'],
-						'pelaksana_apbd' => $data['pelaksana_apbd'],
 						'set_kpa_sekda' => $data['set_kpa_sekda'],
 						'set_kpa_sub_sekda'  => $data['set_kpa_sub_sekda'],
 						'id_setup_anggaran'  => $data['id_setup_anggaran'],
@@ -2102,15 +2098,40 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						'tahun_aksi'  => $data['tahun_aksi'],
 						'status_kd'  => $data['status_kd'],
 						'update_at' => current_time('mysql'),
-						'tahun_anggaran' => $data['tahun_anggaran']
+						'tahun_anggaran' => $_POST['tahun_anggaran']
 					);
-					update_option( '_crb_daerah', $data['daerah'] );
+					// sipd merah
+					if(!empty($data['daerah'])){
+						$opsi['daerah'] = $data['daerah'];
+						update_option( '_crb_daerah', $data['daerah'] );
+					}
+					// sipd ri
+					if(!empty($data['id_prop'])){
+						update_option( '_crb_id_lokasi_prov', $data['id_prop'] );
+					}
+					// sipd ri
+					if(
+						!empty($data['id_kab']) 
+						&& empty($data['is_prop'])
+					){
+						update_option( '_crb_id_lokasi_kokab', $data['id_kab'] );
+					}
+
+					if(!empty($data['pelaksana_rkpd'])){
+						$opsi['pelaksana_rkpd'] = $data['pelaksana_rkpd'];
+					}
+					if(!empty($data['pelaksana_kua'])){
+						$opsi['pelaksana_kua'] = $data['pelaksana_kua'];
+					}
+					if(!empty($data['pelaksana_apbd'])){
+						$opsi['pelaksana_apbd'] = $data['pelaksana_apbd'];
+					}
 					update_option( '_crb_kepala_daerah', $data['kepala_daerah'] );
 					update_option( '_crb_wakil_daerah', $data['wakil_kepala_daerah'] );
 					if (!empty($cek)) {
 						$wpdb->update('data_pengaturan_sipd', $opsi, array(
 							'id_daerah' => $data['id_daerah'],
-							'tahun_anggaran' => $data['tahun_anggaran']
+							'tahun_anggaran' => $_POST['tahun_anggaran']
 						));
 					} else {
 						$wpdb->insert('data_pengaturan_sipd', $opsi);
