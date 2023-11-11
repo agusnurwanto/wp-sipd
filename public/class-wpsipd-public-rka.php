@@ -1179,14 +1179,22 @@ class Wpsipd_Public_RKA
                 }
                 $ret['sub_keg'] = $sub_keg;
 
-
+                $data_skpd = array();
+                $data_skpd[$_POST['tahun_anggaran']] = $_POST['id_skpd'];
                 $args = array(
                     'role'    => 'pptk',
                     'orderby' => 'user_nicename',
                     'order'   => 'ASC',
-                    'skpd'   => $_POST['id_skpd']
+                    'meta_query' => array(
+                        array(
+                            'key' => 'skpd',
+                            'value' => 'i:'.$_POST['tahun_anggaran'].';s:4:"'.$_POST['id_skpd'].'"',
+                            'compare' => 'LIKE'
+                        )
+                    )
                 );
                 $users = get_users($args);
+                $ret['sql'] = $wpdb->last_query;
                 $user_pptk_opt = '<option value="">Pilih User</option>';
                 foreach ($users as $user) {
                     $selected = '';

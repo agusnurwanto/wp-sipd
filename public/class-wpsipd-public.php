@@ -2063,8 +2063,18 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		if (!empty($_POST)) {
 			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
 				if (!empty($_POST['data'])) {
-					$data = $_POST['data'];
-					$cek = $wpdb->get_var("SELECT kepala_daerah from data_pengaturan_sipd where tahun_anggaran=".$_POST['tahun_anggaran']." AND id_daerah='".$data['id_daerah']."'");
+					if(!empty($_POST['type']) && $_POST['type'] == 'ri'){
+						$data = json_decode(stripslashes(html_entity_decode($_POST['data'])), true);
+					}else{
+						$data = $_POST['data'];
+					}
+					$cek = $wpdb->get_var($wpdb->prepare("
+						SELECT 
+							kepala_daerah 
+						from data_pengaturan_sipd 
+						where tahun_anggaran=%d 
+							AND id_daerah=%d
+					", $data['tahun_anggaran'], $data['id_daerah']));
 					$opsi = array(
 						'id_daerah' => $data['id_daerah'],
 						'daerah' => $data['daerah'],
@@ -2092,7 +2102,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						'tahun_aksi'  => $data['tahun_aksi'],
 						'status_kd'  => $data['status_kd'],
 						'update_at' => current_time('mysql'),
-						'tahun_anggaran' => $_POST['tahun_anggaran']
+						'tahun_anggaran' => $data['tahun_anggaran']
 					);
 					update_option( '_crb_daerah', $data['daerah'] );
 					update_option( '_crb_kepala_daerah', $data['kepala_daerah'] );
@@ -2100,7 +2110,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 					if (!empty($cek)) {
 						$wpdb->update('data_pengaturan_sipd', $opsi, array(
 							'id_daerah' => $data['id_daerah'],
-							'tahun_anggaran' => $_POST['tahun_anggaran']
+							'tahun_anggaran' => $data['tahun_anggaran']
 						));
 					} else {
 						$wpdb->insert('data_pengaturan_sipd', $opsi);
