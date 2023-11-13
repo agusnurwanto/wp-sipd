@@ -7375,9 +7375,9 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 				$url_nilai_dpa = '&pagu_dpa=fmis';
 			}
 			echo '<ul class="aksi-monev text_tengah">';
+			$user_id = um_user( 'ID' );
+			$user_meta = get_userdata($user_id);
             foreach ($unit as $kk => $vv) {
-				$user_id = um_user( 'ID' );
-				$user_meta = get_userdata($user_id);
 				if(
 					in_array("administrator", $user_meta->roles) 
 					|| in_array("PLT", $user_meta->roles) 
@@ -7388,32 +7388,31 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 					|| in_array("mitra_bappeda", $user_meta->roles)
 					|| !empty($options['menu'])
 				){
-					$nama_page = 'RFK '.$vv['nama_skpd'].' '.$vv['kode_skpd'].' | '.$tahun;
-					$custom_post = $this->get_page_by_title($nama_page, OBJECT, 'page');
-					$url_rfk = $this->get_link_post($custom_post);
-
 					if(!empty($daftar_tombol_list[1])){
+						$nama_page = 'RFK '.$vv['nama_skpd'].' '.$vv['kode_skpd'].' | '.$tahun;
+						$custom_post = $this->get_page_by_title($nama_page, OBJECT, 'page');
+						$url_rfk = $this->get_link_post($custom_post);
 						echo '<li><a href="'.$url_rfk.$url_nilai_dpa.'" target="_blank" class="btn btn-info">MONEV RFK</a></li>';
 					}
 
-					$nama_page_sd = 'Sumber Dana '.$vv['nama_skpd'].' '.$vv['kode_skpd'].' | '.$tahun;
-					$custom_post = $this->get_page_by_title($nama_page_sd, OBJECT, 'page');
-					$url_sd = $this->get_link_post($custom_post);
 					if(!empty($daftar_tombol_list[2])){
+						$nama_page_sd = 'Sumber Dana '.$vv['nama_skpd'].' '.$vv['kode_skpd'].' | '.$tahun;
+						$custom_post = $this->get_page_by_title($nama_page_sd, OBJECT, 'page');
+						$url_sd = $this->get_link_post($custom_post);
 						echo '<li><a href="'.$url_sd.'" target="_blank" class="btn btn-info">MONEV SUMBER DANA</a></li>';
 					}
 
-					$nama_page_label = 'Label Komponen '.$vv['nama_skpd'].' '.$vv['kode_skpd'].' | '.$tahun;
-					$custom_post = $this->get_page_by_title($nama_page_label, OBJECT, 'page');
-					$url_label = $this->get_link_post($custom_post);
 					if(!empty($daftar_tombol_list[3])){
+						$nama_page_label = 'Label Komponen '.$vv['nama_skpd'].' '.$vv['kode_skpd'].' | '.$tahun;
+						$custom_post = $this->get_page_by_title($nama_page_label, OBJECT, 'page');
+						$url_label = $this->get_link_post($custom_post);
 						echo '<li><a href="'.$url_label.'" target="_blank" class="btn btn-info">MONEV LABEL KOMPONEN</a></li>';
 					}
 
-					$nama_page_monev_renja = 'MONEV '.$vv['nama_skpd'].' '.$vv['kode_skpd'].' | '.$tahun;
-					$custom_post = $this->get_page_by_title($nama_page_monev_renja, OBJECT, 'page');
-					$url_monev_renja = $this->get_link_post($custom_post);
 					if(!empty($daftar_tombol_list[4])){
+						$nama_page_monev_renja = 'MONEV '.$vv['nama_skpd'].' '.$vv['kode_skpd'].' | '.$tahun;
+						$custom_post = $this->get_page_by_title($nama_page_monev_renja, OBJECT, 'page');
+						$url_monev_renja = $this->get_link_post($custom_post);
 						echo '<li><a href="'.$url_monev_renja.'" target="_blank" class="btn btn-info">MONEV INDIKATOR RENJA</a></li>';
 					}
 
@@ -7426,18 +7425,18 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						}
 					}
 
-					$nama_page_menu_ssh = 'Rekapitulasi Rincian Belanja '.$vv['nama_skpd'].' '.$vv['kode_skpd'].' | '.$tahun;
-					$custom_post = $this->get_page_by_title($nama_page_menu_ssh, OBJECT, 'page');
-					$url_menu_ssh = $this->get_link_post($custom_post);
 					if(!empty($daftar_tombol_list[7])){
+						$nama_page_menu_ssh = 'Rekapitulasi Rincian Belanja '.$vv['nama_skpd'].' '.$vv['kode_skpd'].' | '.$tahun;
+						$custom_post = $this->get_page_by_title($nama_page_menu_ssh, OBJECT, 'page');
+						$url_menu_ssh = $this->get_link_post($custom_post);
 						echo '<li><a href="'.$url_menu_ssh.'" target="_blank" class="btn btn-info">MANAJEMEN STANDAR HARGA</a></li>';
 					}
 
 					if($vv['is_skpd'] == 1){
-						$nama_page = 'Input RENSTRA '.$vv['nama_skpd'].' '.$vv['kode_skpd'];
-						$custom_post = $this->get_page_by_title($nama_page, OBJECT, 'page');
-						$url_menu = $this->get_link_post($custom_post);
 						if(!empty($daftar_tombol_list[8])){
+							$nama_page = 'Input RENSTRA '.$vv['nama_skpd'].' '.$vv['kode_skpd'];
+							$custom_post = $this->get_page_by_title($nama_page, OBJECT, 'page');
+							$url_menu = $this->get_link_post($custom_post);
 							echo '<li><a href="'.$url_menu.'" target="_blank" class="btn btn-info">INPUT RENSTRA</a></li>';
 						}
 					}
@@ -7646,6 +7645,38 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 					'id_skpd' => $v['id_skpd'],
 					'nama_skpd' => $v['nama_skpd'],
 					'kode_skpd' => $v['kode_skpd']
+				));
+			}
+		}else if(in_array("pptk", $user_meta->roles)){
+			$this->pilih_tahun_anggaran();
+			if(empty($_GET) || empty($_GET['tahun'])){ return; }
+
+			$skpd_ids = get_user_meta($user_id, 'skpd');
+			$ids = array();
+			foreach ($skpd_ids[0] as $tahun => $id_skpd) {
+				// filter hanya yang tahunnya sesuai saja
+				if($tahun == $_GET['tahun']){
+					$ids[] = $id_skpd;
+				}
+			}
+			$skpd_mitra = $wpdb->get_results($wpdb->prepare("
+				SELECT 
+					nama_skpd, 
+					id_skpd, 
+					kode_skpd 
+				from data_unit 
+				where active=1 
+					and tahun_anggaran=%d
+					and id_skpd IN (".implode(',', $ids).")
+				group by id_skpd", $_GET['tahun']), ARRAY_A);
+			foreach ($skpd_mitra as $k => $v) {
+				$this->menu_monev_skpd(array(
+					'id_skpd' => $v['id_skpd'],
+					'nama_skpd' => $v['nama_skpd'],
+					'kode_skpd' => $v['kode_skpd'],
+					'menu' => array(
+						array('value'=> 1) // menu 1 adalah halaman RFK saja
+					)
 				));
 			}
 		}else{
@@ -11334,10 +11365,35 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 				$tahun_anggaran = $_POST['tahun_anggaran'];
 				$id_skpd = $_POST['id_skpd'];
 				$idsumber = $_POST['idsumber'];
+				$column = 's.*, u.nama_skpd as nama_skpd_data_unit';
+				$tipe = false;
+				if(!empty($_POST['tipe'])){
+					if($_POST['tipe'] == 'pt_tati'){
+						$tipe = $_POST['tipe'];
+						$column = "
+							s.id_skpd,
+							s.kode_skpd,
+							s.nama_skpd,
+							s.id_sub_skpd,
+							u.kode_skpd as kode_sub_skpd,
+							u.nama_skpd as nama_sub_skpd,
+							s.kode_bidang_urusan,
+							s.nama_bidang_urusan,
+							s.kode_program,
+							s.nama_program,
+							s.kode_giat as kode_kegiatan,
+							s.nama_giat as nama_kegiatan,
+							s.kode_sub_giat as kode_sub_kegiatan,
+							s.nama_sub_giat as nama_sub_kegiatan,
+							s.pagu as pagu_anggaran,
+							s.tahun_anggaran,
+							s.kode_sbl
+						";
+					}
+				}
 				$data_sub_keg = $wpdb->get_results($wpdb->prepare("
 					SELECT 
-						s.*,
-						u.nama_skpd as nama_skpd_data_unit
+						$column
 					from data_sub_keg_bl s 
 					inner join data_unit u on s.id_sub_skpd = u.id_skpd
 						and u.tahun_anggaran = s.tahun_anggaran
@@ -11347,48 +11403,53 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						and s.active=1", 
 				$tahun_anggaran, $id_skpd), ARRAY_A);
 				foreach ($data_sub_keg as $k => $v) {
-					$data_sub_keg[$k]['sub_keg_indikator'] = $wpdb->get_results("
-						select 
-							* 
-						from data_sub_keg_indikator 
-						where tahun_anggaran=".$v['tahun_anggaran']."
-							and kode_sbl='".$v['kode_sbl']."'
-							and active=1", ARRAY_A);
-					$data_sub_keg[$k]['sub_keg_indikator_hasil'] = $wpdb->get_results("
-						select 
-							* 
-						from data_keg_indikator_hasil 
-						where tahun_anggaran=".$v['tahun_anggaran']."
-							and kode_sbl='".$v['kode_sbl']."'
-							and active=1", ARRAY_A);
-					$data_sub_keg[$k]['tag_sub_keg'] = $wpdb->get_results("
-						select 
-							* 
-						from data_tag_sub_keg 
-						where tahun_anggaran=".$v['tahun_anggaran']."
-							and kode_sbl='".$v['kode_sbl']."'
-							and active=1", ARRAY_A);
-					$data_sub_keg[$k]['capaian_prog_sub_keg'] = $wpdb->get_results("
-						select 
-							* 
-						from data_capaian_prog_sub_keg 
-						where tahun_anggaran=".$v['tahun_anggaran']."
-							and kode_sbl='".$v['kode_sbl']."'
-							and active=1", ARRAY_A);
-					$data_sub_keg[$k]['output_giat'] = $wpdb->get_results("
-						select 
-							* 
-						from data_output_giat_sub_keg 
-						where tahun_anggaran=".$v['tahun_anggaran']."
-							and kode_sbl='".$v['kode_sbl']."'
-							and active=1", ARRAY_A);
-					$data_sub_keg[$k]['lokasi_sub_keg'] = $wpdb->get_results("
-						select 
-							* 
-						from data_lokasi_sub_keg 
-						where tahun_anggaran=".$v['tahun_anggaran']."
-							and kode_sbl='".$v['kode_sbl']."'
-							and active=1", ARRAY_A);
+					if(empty($tipe)){
+						$data_sub_keg[$k]['sub_keg_indikator'] = $wpdb->get_results("
+							select 
+								* 
+							from data_sub_keg_indikator 
+							where tahun_anggaran=".$v['tahun_anggaran']."
+								and kode_sbl='".$v['kode_sbl']."'
+								and active=1", ARRAY_A);
+						$data_sub_keg[$k]['sub_keg_indikator_hasil'] = $wpdb->get_results("
+							select 
+								* 
+							from data_keg_indikator_hasil 
+							where tahun_anggaran=".$v['tahun_anggaran']."
+								and kode_sbl='".$v['kode_sbl']."'
+								and active=1", ARRAY_A);
+						$data_sub_keg[$k]['tag_sub_keg'] = $wpdb->get_results("
+							select 
+								* 
+							from data_tag_sub_keg 
+							where tahun_anggaran=".$v['tahun_anggaran']."
+								and kode_sbl='".$v['kode_sbl']."'
+								and active=1", ARRAY_A);
+						$data_sub_keg[$k]['capaian_prog_sub_keg'] = $wpdb->get_results("
+							select 
+								* 
+							from data_capaian_prog_sub_keg 
+							where tahun_anggaran=".$v['tahun_anggaran']."
+								and kode_sbl='".$v['kode_sbl']."'
+								and active=1", ARRAY_A);
+						$data_sub_keg[$k]['output_giat'] = $wpdb->get_results("
+							select 
+								* 
+							from data_output_giat_sub_keg 
+							where tahun_anggaran=".$v['tahun_anggaran']."
+								and kode_sbl='".$v['kode_sbl']."'
+								and active=1", ARRAY_A);
+						$data_sub_keg[$k]['lokasi_sub_keg'] = $wpdb->get_results("
+							select 
+								* 
+							from data_lokasi_sub_keg 
+							where tahun_anggaran=".$v['tahun_anggaran']."
+								and kode_sbl='".$v['kode_sbl']."'
+								and active=1", ARRAY_A);
+					}else if($tipe == 'pt_tati'){
+						$data_sub_keg[$k]['nama_sub_kegiatan'] = $this->remove_kode($v['nama_sub_kegiatan']);
+						unset($data_sub_keg[$k]['kode_sbl']);
+					}
 					$data_sub_keg[$k]['sumber_dana'] = $wpdb->get_results($wpdb->prepare('
 						SELECT 
 							m.id_sumber_dana,
