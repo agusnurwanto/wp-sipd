@@ -11386,7 +11386,8 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 							s.kode_sub_giat as kode_sub_kegiatan,
 							s.nama_sub_giat as nama_sub_kegiatan,
 							s.pagu as pagu_anggaran,
-							s.tahun_anggaran
+							s.tahun_anggaran,
+							s.kode_sbl
 						";
 					}
 				}
@@ -11446,7 +11447,8 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 								and kode_sbl='".$v['kode_sbl']."'
 								and active=1", ARRAY_A);
 					}else if($tipe == 'pt_tati'){
-						$data_sub_keg[$k]['nama_sub_giat'] = $this->remove_kode($v['nama_sub_giat']);
+						$data_sub_keg[$k]['nama_sub_kegiatan'] = $this->remove_kode($v['nama_sub_kegiatan']);
+						unset($data_sub_keg[$k]['kode_sbl']);
 					}
 					$data_sub_keg[$k]['sumber_dana'] = $wpdb->get_results($wpdb->prepare('
 						SELECT 
