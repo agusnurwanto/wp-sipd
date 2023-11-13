@@ -11334,10 +11334,34 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 				$tahun_anggaran = $_POST['tahun_anggaran'];
 				$id_skpd = $_POST['id_skpd'];
 				$idsumber = $_POST['idsumber'];
+				$column = 's.*, u.nama_skpd as nama_skpd_data_unit';
+				$tipe = false;
+				if(!empty($_POST['tipe'])){
+					if($_POST['tipe'] == 'pt_tati'){
+						$tipe = $_POST['tipe'];
+						$column = "
+							s.id_skpd,
+							s.kode_skpd,
+							s.nama_skpd,
+							s.id_sub_skpd,
+							u.kode_skpd as kode_sub_skpd,
+							u.nama_skpd as nama_sub_skpd,
+							s.kode_bidang_urusan,
+							s.nama_bidang_urusan,
+							s.kode_program,
+							s.nama_program,
+							s.kode_giat as kode_kegiatan,
+							s.nama_giat as nama_kegiatan,
+							s.kode_sub_giat as kode_sub_kegiatan,
+							s.nama_sub_giat as nama_sub_kegiatan,
+							s.pagu as pagu_anggaran,
+							s.tahun_anggaran
+						";
+					}
+				}
 				$data_sub_keg = $wpdb->get_results($wpdb->prepare("
 					SELECT 
-						s.*,
-						u.nama_skpd as nama_skpd_data_unit
+						$column
 					from data_sub_keg_bl s 
 					inner join data_unit u on s.id_sub_skpd = u.id_skpd
 						and u.tahun_anggaran = s.tahun_anggaran
@@ -11347,48 +11371,52 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						and s.active=1", 
 				$tahun_anggaran, $id_skpd), ARRAY_A);
 				foreach ($data_sub_keg as $k => $v) {
-					$data_sub_keg[$k]['sub_keg_indikator'] = $wpdb->get_results("
-						select 
-							* 
-						from data_sub_keg_indikator 
-						where tahun_anggaran=".$v['tahun_anggaran']."
-							and kode_sbl='".$v['kode_sbl']."'
-							and active=1", ARRAY_A);
-					$data_sub_keg[$k]['sub_keg_indikator_hasil'] = $wpdb->get_results("
-						select 
-							* 
-						from data_keg_indikator_hasil 
-						where tahun_anggaran=".$v['tahun_anggaran']."
-							and kode_sbl='".$v['kode_sbl']."'
-							and active=1", ARRAY_A);
-					$data_sub_keg[$k]['tag_sub_keg'] = $wpdb->get_results("
-						select 
-							* 
-						from data_tag_sub_keg 
-						where tahun_anggaran=".$v['tahun_anggaran']."
-							and kode_sbl='".$v['kode_sbl']."'
-							and active=1", ARRAY_A);
-					$data_sub_keg[$k]['capaian_prog_sub_keg'] = $wpdb->get_results("
-						select 
-							* 
-						from data_capaian_prog_sub_keg 
-						where tahun_anggaran=".$v['tahun_anggaran']."
-							and kode_sbl='".$v['kode_sbl']."'
-							and active=1", ARRAY_A);
-					$data_sub_keg[$k]['output_giat'] = $wpdb->get_results("
-						select 
-							* 
-						from data_output_giat_sub_keg 
-						where tahun_anggaran=".$v['tahun_anggaran']."
-							and kode_sbl='".$v['kode_sbl']."'
-							and active=1", ARRAY_A);
-					$data_sub_keg[$k]['lokasi_sub_keg'] = $wpdb->get_results("
-						select 
-							* 
-						from data_lokasi_sub_keg 
-						where tahun_anggaran=".$v['tahun_anggaran']."
-							and kode_sbl='".$v['kode_sbl']."'
-							and active=1", ARRAY_A);
+					if(empty($tipe)){
+						$data_sub_keg[$k]['sub_keg_indikator'] = $wpdb->get_results("
+							select 
+								* 
+							from data_sub_keg_indikator 
+							where tahun_anggaran=".$v['tahun_anggaran']."
+								and kode_sbl='".$v['kode_sbl']."'
+								and active=1", ARRAY_A);
+						$data_sub_keg[$k]['sub_keg_indikator_hasil'] = $wpdb->get_results("
+							select 
+								* 
+							from data_keg_indikator_hasil 
+							where tahun_anggaran=".$v['tahun_anggaran']."
+								and kode_sbl='".$v['kode_sbl']."'
+								and active=1", ARRAY_A);
+						$data_sub_keg[$k]['tag_sub_keg'] = $wpdb->get_results("
+							select 
+								* 
+							from data_tag_sub_keg 
+							where tahun_anggaran=".$v['tahun_anggaran']."
+								and kode_sbl='".$v['kode_sbl']."'
+								and active=1", ARRAY_A);
+						$data_sub_keg[$k]['capaian_prog_sub_keg'] = $wpdb->get_results("
+							select 
+								* 
+							from data_capaian_prog_sub_keg 
+							where tahun_anggaran=".$v['tahun_anggaran']."
+								and kode_sbl='".$v['kode_sbl']."'
+								and active=1", ARRAY_A);
+						$data_sub_keg[$k]['output_giat'] = $wpdb->get_results("
+							select 
+								* 
+							from data_output_giat_sub_keg 
+							where tahun_anggaran=".$v['tahun_anggaran']."
+								and kode_sbl='".$v['kode_sbl']."'
+								and active=1", ARRAY_A);
+						$data_sub_keg[$k]['lokasi_sub_keg'] = $wpdb->get_results("
+							select 
+								* 
+							from data_lokasi_sub_keg 
+							where tahun_anggaran=".$v['tahun_anggaran']."
+								and kode_sbl='".$v['kode_sbl']."'
+								and active=1", ARRAY_A);
+					}else if($tipe == 'pt_tati'){
+						$data_sub_keg[$k]['nama_sub_giat'] = $this->remove_kode($v['nama_sub_giat']);
+					}
 					$data_sub_keg[$k]['sumber_dana'] = $wpdb->get_results($wpdb->prepare('
 						SELECT 
 							m.id_sumber_dana,
