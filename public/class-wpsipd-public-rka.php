@@ -463,12 +463,12 @@ class Wpsipd_Public_RKA
                         where nipkepala=%s 
                             and tahun_anggaran=%d
                         group by id_skpd", $nipkepala[0], $tahun_anggaran), ARRAY_A);
-                    foreach($skpd_db as $skpd){
-                        if($skpd['id_skpd'] == $id_skpd_rka){
+                    foreach ($skpd_db as $skpd) {
+                        if ($skpd['id_skpd'] == $id_skpd_rka) {
                             $btn_tanggapan = true;
                         }
                     }
-                }else if(in_array('pptk', $current_user->roles)){
+                } else if (in_array('pptk', $current_user->roles)) {
                     $pptk_sub_keg = $wpdb->get_row($wpdb->prepare("
                         SELECT
                             p.*
@@ -477,7 +477,7 @@ class Wpsipd_Public_RKA
                             and tahun_anggaran=%d
                             and kode_sbl=%s
                     ", $tahun_anggaran, $kode_sbl), ARRAY_A);
-                    if($pptk_sub_keg['id_user'] == $current_user->ID){
+                    if ($pptk_sub_keg['id_user'] == $current_user->ID) {
                         $btn_tanggapan = true;
                     }
                 }
@@ -502,7 +502,7 @@ class Wpsipd_Public_RKA
                         }
 
                         // tampilkan tombol tanggapan untuk PA dan PPTK
-                        if($btn_tanggapan){
+                        if ($btn_tanggapan) {
                             $ret['html'] .= '<a class="btn btn-sm btn-warning" onclick="tambah_tanggapan(\'' . $val['id'] . '\'); return false;" href="#" title="Tanggapi"><i class="dashicons dashicons-editor-quote"></i></a>';
                         }
 
@@ -651,6 +651,13 @@ class Wpsipd_Public_RKA
                 if (empty($_POST['id_catatan'])) {
                     $ret['status'] = 'error';
                     $ret['message'] = 'id catatan tidak boleh kosong';
+                    die(json_encode($ret));
+                }
+                // Validasi user_pptk
+                $user_pptk_status = $_POST['user_pptk_status'] ?? ''; // Gunakan null coalescing operator untuk menghindari undefined index
+                if (empty($user_pptk_status) || $user_pptk_status == 'User PPTK belum disetting!') {
+                    $ret['status'] = 'error';
+                    $ret['message'] = 'PPTK belum di set! Harap diset terlebih dahulu!';
                     die(json_encode($ret));
                 }
                 if (empty($_POST['tanggapan_verifikasi'])) {
@@ -1062,41 +1069,78 @@ class Wpsipd_Public_RKA
                     'orderby' => 'user_nicename',
                     'order'   => 'ASC'
                 );
+                if (!empty($params['search']['value'])) {
+                    $args['search'] = $params['search']['value'];
+                }
 
+                $idtahun = $wpdb->get_results("select distinct tahun_anggaran from data_unit", ARRAY_A);
                 $users = array();
+                $data_skpd = array();
                 // get data user harus login sebagai admin
                 if (in_array("administrator", $user_meta->roles)) {
-                    if (!empty($params['search']['value'])) {
-                        $search_value = sanitize_text_field($params['search']['value']);
-                        $args['search'] = "*{$search_value}*";
-                        $users = get_users($args);
-                    } else {
-                        $users = get_users($args);
+                    $users = get_users($args);
+
+                    foreach ($idtahun as $val) {
+                        $skpd = $wpdb->get_results($wpdb->prepare("
+                            SELECT 
+                                nama_skpd, 
+                                id_skpd, 
+                                kode_skpd,
+                                is_skpd
+                            from data_unit 
+                            where active=1
+                                and tahun_anggaran=%d
+                            group by id_skpd", $val['tahun_anggaran']), ARRAY_A);
+                        foreach ($skpd as $v) {
+                            if (empty($data_skpd[$val['tahun_anggaran']])) {
+                                $data_skpd[$val['tahun_anggaran']] = array();
+                            }
+                            $data_skpd[$val['tahun_anggaran']][$v['id_skpd']] = $v['kode_skpd'] . ' ' . $v['nama_skpd'];
+                        }
                     }
+                }else if(
+                    in_array("PA", $user_meta->roles)
+                    || in_array("KPA", $user_meta->roles)
+                    || in_array("PLT", $user_meta->roles)
+                ){
+                    $args['meta_query'] = array();
+                    $args['meta_query']['relation'] = 'OR';
+                    $nipkepala = get_user_meta($user_id, '_nip');
+                    foreach ($idtahun as $val) {
+                        $skpd = $wpdb->get_results($wpdb->prepare("
+                            SELECT 
+                                nama_skpd, 
+                                id_skpd, 
+                                kode_skpd,
+                                is_skpd
+                            from data_unit 
+                            where active=1
+                                and nipkepala=%s
+                                and tahun_anggaran=%d
+                            group by id_skpd
+                        ", $nipkepala[0], $val['tahun_anggaran']), ARRAY_A);
+                        foreach ($skpd as $v) {
+                            if (empty($data_skpd[$val['tahun_anggaran']])) {
+                                $data_skpd[$val['tahun_anggaran']] = array();
+                            }
+                            $data_skpd[$val['tahun_anggaran']][$v['id_skpd']] = $v['kode_skpd'] . ' ' . $v['nama_skpd'];
+                            $args['meta_query'][] = array(
+                                'key' => 'skpd',
+                                'value' => 'i:' . $val['tahun_anggaran'] . ';s:4:"' . $v['id_skpd'] . '"',
+                                'compare' => 'LIKE'
+                            );
+                        }
+                    }
+                    $args['meta_query'][] = array(
+                        'key' => 'skpd',
+                        'value' => 'i:' . date('Y') . ';s:4:',
+                        'compare' => 'NOT LIKE'
+                    );
+                    $users = get_users($args);
                 }
+                $sql_user = $wpdb->last_query.' | '.json_encode($args['meta_query']);
 
                 $data_user = array();
-
-                $data_skpd = array();
-                $idtahun = $wpdb->get_results("select distinct tahun_anggaran from data_unit", ARRAY_A);
-                foreach ($idtahun as $val) {
-                    $skpd = $wpdb->get_results($wpdb->prepare("
-                        SELECT 
-                            nama_skpd, 
-                            id_skpd, 
-                            kode_skpd,
-                            is_skpd
-                        from data_unit 
-                        where active=1
-                            and tahun_anggaran=%d
-                        group by id_skpd", $val['tahun_anggaran']), ARRAY_A);
-                    foreach ($skpd as $v) {
-                        if (empty($data_skpd[$val['tahun_anggaran']])) {
-                            $data_skpd[$val['tahun_anggaran']] = array();
-                        }
-                        $data_skpd[$val['tahun_anggaran']][$v['id_skpd']] = $v['kode_skpd'] . ' ' . $v['nama_skpd'];
-                    }
-                }
                 foreach ($users as $recKey => $recVal) {
                     $btn = '<a class="btn btn-sm btn-warning" onclick="edit_data(\'' . $recVal->ID . '\'); return false;" href="#" style="margin-right: 10px;" title="Edit Data">
                     <i class="dashicons dashicons-edit"></i></a>';
@@ -1120,7 +1164,8 @@ class Wpsipd_Public_RKA
                     "draw"            => intval($params['draw']),
                     "recordsTotal"    => intval(count($data_user)),
                     "recordsFiltered" => intval(count($data_user)),
-                    "data"            => $data_user
+                    "data"            => $data_user,
+                    "sql"             => $sql_user
                 );
 
                 die(json_encode($json_data));
@@ -1306,7 +1351,7 @@ class Wpsipd_Public_RKA
                     'meta_query' => array(
                         array(
                             'key' => 'skpd',
-                            'value' => 'i:'.$_POST['tahun_anggaran'].';s:4:"'.$_POST['id_skpd'].'"',
+                            'value' => 'i:' . $_POST['tahun_anggaran'] . ';s:4:"' . $_POST['id_skpd'] . '"',
                             'compare' => 'LIKE'
                         )
                     )

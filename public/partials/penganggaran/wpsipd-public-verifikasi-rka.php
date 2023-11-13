@@ -20,7 +20,7 @@ if (in_array("administrator", $user_meta->roles)) {
 }
 
 $is_verifikator = false;
-foreach($roles as $role){
+foreach ($roles as $role) {
 	if (in_array($role, $user_meta->roles)) {
 		$is_verifikator = true;
 	}
@@ -118,7 +118,7 @@ $pptk_sub_keg = $wpdb->get_row($wpdb->prepare("
 		and tahun_anggaran=%d
 		and kode_sbl=%s
 ", $tahun_anggaran, $kode_sbl), ARRAY_A);
-if(!empty($pptk_sub_keg)){
+if (!empty($pptk_sub_keg)) {
 	$nama = get_userdata($pptk_sub_keg['id_user']);
 	$user_pptk = $nama->display_name;
 }
@@ -235,6 +235,7 @@ if(!empty($pptk_sub_keg)){
 				<input type="hidden" class="form-control" id="tahun_anggaran">
 				<input type="hidden" class="form-control" id="id_catatan">
 				<input type="hidden" class="form-control" id="nama_bidang">
+				<input type="hidden" id="user_pptk_status" value="<?php echo $user_pptk; ?>">
 				<div class="form-group">
 					<label>Sub Kegiatan</label>
 					<input type="text" class="form-control" id="sub_kegiatan" value="" disabled>
@@ -273,7 +274,7 @@ if(!empty($pptk_sub_keg)){
 			<div class="modal-footer">
 				<button type="button" class="btn btn-secondary" data-dismiss="modal">Tutup</button>
 				<button type="button" class="btn btn-primary" id="submit_data" onclick="submit_data(this)">Simpan</button>
-				<button type="button" class="btn btn-primary" id="submit_data_tanggapan" onclick="submit_tanggapan(this)">Simpan Tanggapan</button>
+				<button type="button" class="btn btn-primary" id="submit_tanggapan" onclick="submit_tanggapan(this)" <?php echo ($user_pptk == 'User PPTK belum disetting!') ? 'disabled' : ''; ?>>Simpan Tanggapan</button>
 			</div>
 		</div>
 	</div>
@@ -365,7 +366,7 @@ if(!empty($pptk_sub_keg)){
 					jQuery('#submit_data').hide();
 
 					jQuery('#nama_pptk').prop('disabled', true).closest('.form-group').show();
-					jQuery('#tanggapan_verifikasi').val('').prop('disabled', false).closest('.form-group').show();
+					jQuery('#tanggapan_verifikasi').val(res.data.tanggapan_opd).prop('disabled', false).closest('.form-group').show();
 					jQuery('#exampleModalScrollableTitle_pptk').show();
 					jQuery('#submit_data_tanggapan').show();
 					jQuery('#modal_tambah_catatan').modal('show');
@@ -436,10 +437,14 @@ if(!empty($pptk_sub_keg)){
 	}
 
 	function submit_tanggapan(that) {
-		jQuery('#wrap-loading').show();
 		const id_catatan = jQuery('#id_catatan').val();
 		const tanggapan_verifikasi = jQuery('#tanggapan_verifikasi').val();
-
+		let userPptkStatus = jQuery('#user_pptk_status').val();
+		if (userPptkStatus === 'User PPTK belum disetting!') {
+			return alert('Harap set user PPTK pada halaman set user PPTK');
+		}
+		
+		jQuery('#wrap-loading').show();
 		jQuery.ajax({
 			type: 'POST',
 			url: '<?php echo admin_url('admin-ajax.php'); ?>',
@@ -447,7 +452,8 @@ if(!empty($pptk_sub_keg)){
 				api_key: '<?php echo $api_key; ?>',
 				tanggapan_verifikasi: tanggapan_verifikasi,
 				action: 'tambah_data_tanggapan',
-				'id_catatan': id_catatan
+				'id_catatan': id_catatan,
+				'user_pptk_status': userPptkStatus
 			},
 			success: function(data) {
 				jQuery('#wrap-loading').hide();
