@@ -3120,4 +3120,275 @@ class Wpsipd_Public_Base_1 extends Wpsipd_Public_Base_2{
         }
         die(json_encode($ret));
     }
+
+    public function copy_renja_sipd_to_lokal(){
+        global $wpdb;
+        $ret = array(
+            'status'    => 'success',
+            'message'   => 'Berhasil copy data RENJA SIPD ke lokal!'
+        );
+        if (!empty($_POST)) {
+            if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( WPSIPD_API_KEY )) {
+                if(!empty($_POST['tahun_anggaran'])){
+                    if(in_array('administrator', $this->role())){
+                        $tahun_anggaran = $_POST['tahun_anggaran'];
+                        $id_skpd = $_POST['id_skpd'];
+                        if(!empty($id_skpd)){
+                            $per_skpd = ' AND id_sub_skpd='.$id_skpd;
+                        }else{
+                            $per_skpd = '';
+                        }
+
+                        $sql_sub_keg_bl = "
+                            SELECT 
+                                * 
+                            FROM data_sub_keg_bl
+                            WHERE active=1
+                            AND tahun_anggaran=".$tahun_anggaran."
+                            ".$per_skpd;
+
+                        $query_sub_keg_bl = $wpdb->query($sql_sub_keg_bl);
+
+                        if(!empty($query_sub_keg_bl)){
+                            /** copy data sub keg */
+                            $update_per_skpd = (!empty($id_skpd)) ? array('id_sub_skpd' => $id_skpd,'active' => 1, 'tahun_anggaran' => $tahun_anggaran) : array('active' => 1, 'tahun_anggaran' => $tahun_anggaran); 
+                            $wpdb->update('data_sub_keg_bl_lokal', array('active'=>0), $update_per_skpd);
+                            
+                            $columns_sub_keg = array(
+                                'id_sub_skpd',
+                                'id_lokasi',
+                                'id_label_kokab',
+                                'nama_dana',
+                                'no_sub_giat',
+                                'kode_giat',
+                                'id_program',
+                                'nama_lokasi',
+                                'waktu_akhir',
+                                'pagu_n_lalu',
+                                'id_urusan',
+                                'id_unik_sub_bl',
+                                'id_sub_giat',
+                                'label_prov',
+                                'kode_program',
+                                'kode_sub_giat',
+                                'no_program',
+                                'kode_urusan',
+                                'kode_bidang_urusan',
+                                'nama_program',
+                                'target_4',
+                                'target_5',
+                                'id_bidang_urusan',
+                                'nama_bidang_urusan',
+                                'target_3',
+                                'no_giat',
+                                'id_label_prov',
+                                'waktu_awal',
+                                'pagumurni',
+                                'pagu',
+                                'pagu_simda',
+                                'output_sub_giat',
+                                'sasaran',
+                                'indikator',
+                                'id_dana',
+                                'nama_sub_giat',
+                                'pagu_n_depan',
+                                'satuan',
+                                'id_rpjmd',
+                                'id_giat',
+                                'id_label_pusat',
+                                'nama_giat',
+                                'kode_skpd',
+                                'nama_skpd',
+                                'kode_sub_skpd',
+                                'id_skpd',
+                                'id_sub_bl',
+                                'nama_sub_skpd',
+                                'target_1',
+                                'nama_urusan',
+                                'target_2',
+                                'label_kokab',
+                                'label_pusat',
+                                'pagu_keg',
+                                'pagu_fmis',
+                                'id_bl',
+                                'kode_bl',
+                                'kode_sbl',
+                                'active',
+                                'update_at',
+                                'tahun_anggaran'
+                            );
+    
+                            $sql_copy_data_sub_keg_bl =  "
+                                INSERT INTO data_sub_keg_bl_lokal (".implode(', ', $columns_sub_keg).")
+                                SELECT 
+                                    ".implode(', ', $columns_sub_keg)."
+                                FROM data_sub_keg_bl
+                                WHERE active=1
+                                AND tahun_anggaran='".$tahun_anggaran."' ".$per_skpd;
+    
+                            $querySubKeg = $wpdb->query($sql_copy_data_sub_keg_bl);
+
+                            foreach ($query_sub_keg_bl as $v_sub_keg_bl) {
+
+                                /** copy data indikator sub keg */
+                                $wpdb->update('data_sub_keg_indikator_lokal', array('active'=>0), array('active' => 1, 'tahun_anggaran' => $tahun_anggaran, 'kode_sbl' => $v_sub_keg_bl['kode_sbl']));
+        
+                                $columns_indi_lokal = array(
+                                    'outputteks',
+                                    'targetoutput',
+                                    'satuanoutput',
+                                    'idoutputbl',
+                                    'targetoutputteks',
+                                    'kode_sbl',
+                                    'idsubbl',
+                                    'active',
+                                    'update_at',
+                                    'tahun_anggaran'
+                                );
+
+                                $sql_copy_data_sub_keg_indikator =  "
+                                    INSERT INTO data_sub_keg_indikator_lokal (".implode(', ', $columns_indi_lokal).")
+                                    SELECT 
+                                        ".implode(', ', $columns_indi_lokal)."
+                                    FROM data_sub_keg_indikator 
+                                    WHERE active=1
+                                    AND tahun_anggaran='".$tahun_anggaran."'
+                                    AND kode_sbl='".$v_sub_keg_bl['kode_sbl']."'";
+
+                                $queryIndikatorSubKeg = $wpdb->query($sql_copy_data_sub_keg_indikator);
+                                
+                                /** copy data capaian prog */
+                                $wpdb->update('data_capaian_prog_sub_keg_lokal', array('active'=>0), array('active' => 1, 'tahun_anggaran' => $tahun_anggaran, 'kode_sbl' => $v_sub_keg_bl['kode_sbl']));
+
+                                $columns_capaian_prog = array(
+                                    'satuancapaian',
+                                    'targetcapaianteks',
+                                    'capaianteks',
+                                    'targetcapaian',
+                                    'kode_sbl',
+                                    'idsubbl',
+                                    'active',
+                                    'update_at',
+                                    'tahun_anggaran'
+                                );
+
+                                $sql_copy_data_capaian_prog_sub_keg =  "
+                                    INSERT INTO data_capaian_prog_sub_keg_lokal (".implode(', ', $columns_capaian_prog).")
+                                    SELECT 
+                                        ".implode(', ', $columns_capaian_prog)."
+                                    FROM data_capaian_prog_sub_keg
+                                    WHERE active=1
+                                    AND tahun_anggaran='".$tahun_anggaran."'
+                                    AND kode_sbl='".$v_sub_keg_bl['kode_sbl']."'";
+
+                                $queryCapaianProg = $wpdb->query($sql_copy_data_capaian_prog_sub_keg);
+                                
+                                /** copy data sumber dana */
+                                $wpdb->update('data_dana_sub_keg_lokal', array('active'=>0), array('active' => 1, 'tahun_anggaran' => $tahun_anggaran, 'kode_sbl' => $v_sub_keg_bl['kode_sbl']));
+
+                                $columns_dana = array(
+									'namadana',
+									'kodedana',
+									'iddana',
+									'iddanasubbl',
+									'pagudana',
+									'kode_sbl',
+									'idsubbl',
+									'active',
+									'update_at',
+									'tahun_anggaran'
+                                );
+
+                                $sql_copy_data_dana_sub_keg =  "
+                                    INSERT INTO data_dana_sub_keg_lokal (".implode(', ', $columns_dana).")
+                                    SELECT 
+                                        ".implode(', ', $columns_dana)."
+                                    FROM data_dana_sub_keg
+                                    WHERE active=1
+                                    AND tahun_anggaran='".$tahun_anggaran."'
+                                    AND kode_sbl='".$v_sub_keg_bl['kode_sbl']."'";
+
+                                $queryDana = $wpdb->query($sql_copy_data_dana_sub_keg);
+
+                                /** copy data lokasi */
+                                $wpdb->update('data_lokasi_sub_keg_lokal', array('active'=>0), array('active' => 1, 'tahun_anggaran' => $tahun_anggaran, 'kode_sbl' => $v_sub_keg_bl['kode_sbl']));
+
+                                $columns_lokasi = array(
+									'camatteks',
+									'daerahteks',
+									'idcamat',
+									'iddetillokasi',
+									'idkabkota',
+									'idlurah',
+									'lurahteks',
+									'kode_sbl',
+									'idsubbl',
+									'active',
+									'update_at',
+									'tahun_anggaran'
+                                );
+
+                                $sql_copy_data_lokasi_sub_keg =  "
+                                    INSERT INTO data_lokasi_sub_keg_lokal (".implode(', ', $columns_lokasi).")
+                                    SELECT 
+                                        ".implode(', ', $columns_lokasi)."
+                                    FROM data_lokasi_sub_keg
+                                    WHERE active=1
+                                    AND tahun_anggaran='".$tahun_anggaran."'
+                                    AND kode_sbl='".$v_sub_keg_bl['kode_sbl']."'";
+
+                                $queryLokasi = $wpdb->query($sql_copy_data_lokasi_sub_keg);
+                            }
+
+                        }
+
+                        /** copy data output giat */
+                        
+                        $oclumns_7 = array(
+                            'outputteks',
+                            'satuanoutput',
+                            'targetoutput',
+                            'targetoutputteks',
+                            'kode_sbl',
+                            'idsubbl',
+                            'active',
+                            'update_at',
+                            'tahun_anggaran'
+                        );
+
+                        $sql_backup_data_output_giat_sub_keg =  "
+                            INSERT INTO data_output_giat_sub_keg_lokal (".implode(', ', $oclumns_7).")
+                            SELECT 
+                                ".implode(', ', $oclumns_7)."
+                            FROM data_output_giat_sub_keg
+                            WHERE tahun_anggaran='".$tahun_anggaran."'
+                        ";
+
+                        $queryRecords7 = $wpdb->query($sql_backup_data_output_giat_sub_keg);
+                    }else{
+                        $ret = array(
+                            'status' => 'error',
+                            'message'   => 'Anda tidak punya kewenangan untuk melakukan ini!'
+                        );
+                    }
+                }else{
+                    $ret = array(
+                        'status' => 'error',
+                        'message'   => 'Tahun Anggaran Kosong!'
+                    );
+                }
+            }else{
+                $ret = array(
+                    'status' => 'error',
+                    'message'   => 'Api Key tidak sesuai!'
+                );
+            }
+        }else{
+            $ret = array(
+                'status' => 'error',
+                'message'   => 'Format tidak sesuai!'
+            );
+        }
+        die(json_encode($ret));
+    }
 }
