@@ -126,6 +126,7 @@ if(!empty($jadwal_lokal)){
         if($now >= $awal && $now <= $akhir){
             if($is_admin){
                 $add_renja .='<a style="margin-left: 10px;" onclick="copy_usulan_all(); return false;" href="#" class="btn btn-danger">Copy Data Usulan ke Penetapan</a>';
+                $add_renja .='<a style="margin-left: 10px;" onclick="copy_renja_sipd_to_lokal(); return false;" href="#" class="btn btn-danger">Copy Data Renja SIPD ke Lokal</a>';
             }
             $add_renja .= '<a style="margin-left: 10px;" id="tambah-data" onclick="return false;" href="#" class="btn btn-success">Tambah Data RENJA</a>';
             if(!empty($jadwal_lokal[0]['relasi_perencanaan'])){
@@ -150,6 +151,7 @@ if(!empty($jadwal_lokal)){
         if($now >= $awal && $now <= $akhir){
             if($is_admin){
                 $add_renja .='<a style="margin-left: 10px;" onclick="copy_usulan_all(); return false;" href="#" class="btn btn-danger">Copy Data Usulan ke Penetapan</a>';
+                $add_renja .='<a style="margin-left: 10px;" onclick="copy_renja_sipd_to_lokal(); return false;" href="#" class="btn btn-danger">Copy Data Renja SIPD ke Lokal</a>';
             }
             $add_renja .= '<a style="margin-left: 10px;" id="tambah-data" onclick="return false;" href="#" class="btn btn-success">Tambah Data RENJA</a>';
             if(!empty($jadwal_lokal[0]['relasi_perencanaan'])){
@@ -3906,4 +3908,33 @@ echo '
             }
         });
     }
+
+    function copy_renja_sipd_to_lokal(){
+		if(confirm('Apakah anda yakin untuk melakukan ini? data RENJA lokal akan diupdate sama dengan data RENJA SIPD.')){
+            let id_skpd = "<?php echo $input['id_skpd']; ?>";
+            if(id_skpd == ''){
+                alert('Id SKPD Kosong')
+            }else{
+                jQuery('#wrap-loading').show();
+                jQuery.ajax({
+                    method: 'post',
+                    url: '<?php echo admin_url('admin-ajax.php'); ?>',
+                    dataType: "json",
+                    data: {
+                    "action": "copy_renja_sipd_to_lokal",
+                    "api_key": jQuery('#api_key').val(),
+                    "id_skpd": id_skpd,
+                    "tahun_anggaran": tahun_anggaran
+                    },
+                    success: function(res){
+                        jQuery('#wrap-loading').hide();
+                        alert(res.message);
+                        if(res.status == 'success'){
+                            refresh_page();
+                        }
+                    }
+                });
+            }
+		}
+	}
 </script>

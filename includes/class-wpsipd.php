@@ -721,6 +721,7 @@ class Wpsipd
 		$this->loader->add_action('wp_ajax_get_prioritas_kab_kot',  $plugin_public, 'get_prioritas_kab_kot');
 		$this->loader->add_action('wp_ajax_get_label_sub_keg',  $plugin_public, 'get_label_sub_keg');
 		$this->loader->add_action('wp_ajax_copy_penetapan_renja',  $plugin_public, 'copy_penetapan_renja');
+		$this->loader->add_action('wp_ajax_copy_renja_sipd_to_lokal',  $plugin_public, 'copy_renja_sipd_to_lokal');
 		
 		$this->loader->add_action('wp_ajax_view_rekap_rpd',  $plugin_public, 'view_rekap_rpd');
 		$this->loader->add_action('wp_ajax_view_pagu_akumulasi_rpd',  $plugin_public, 'view_pagu_akumulasi_rpd');
@@ -907,6 +908,7 @@ class Wpsipd
 		$this->loader->add_action('wp_ajax_get_catatan_verifikasi_by_id',  $plugin_public, 'get_catatan_verifikasi_by_id');
 		$this->loader->add_action('wp_ajax_hapus_catatan_verifikasi',  $plugin_public, 'hapus_catatan_verifikasi');
 		$this->loader->add_action('wp_ajax_verifikasi_tanpa_catatan',  $plugin_public, 'verifikasi_tanpa_catatan');
+		$this->loader->add_action('wp_ajax_tambah_data_tanggapan',  $plugin_public, 'tambah_data_tanggapan');
 		
 		$this->loader->add_action('wp_ajax_get_data_verifikasi_rka',  $plugin_public, 'get_data_verifikasi_rka');
 		$this->loader->add_action('wp_ajax_tambah_user_pptk',  $plugin_public, 'tambah_user_pptk');

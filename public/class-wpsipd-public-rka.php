@@ -442,10 +442,49 @@ class Wpsipd_Public_RKA
                     }
                     $new_data[$data['fokus_uraian']][] = $data;
                 }
+                $id_skpd_rka = explode('.', $kode_sbl);
+                $id_skpd_rka = $id_skpd_rka[1];
+
+                $current_user = wp_get_current_user();
+                $btn_tanggapan = false;
+                if (
+                    in_array('PA', $current_user->roles)
+                    || in_array('KPA', $current_user->roles)
+                    || in_array('PLT', $current_user->roles)
+                ) {
+                    $nipkepala = get_user_meta($current_user->ID, '_nip');
+                    $skpd_db = $wpdb->get_results($wpdb->prepare("
+                        SELECT 
+                            nama_skpd, 
+                            id_skpd, 
+                            kode_skpd,
+                            is_skpd
+                        from data_unit 
+                        where nipkepala=%s 
+                            and tahun_anggaran=%d
+                        group by id_skpd", $nipkepala[0], $tahun_anggaran), ARRAY_A);
+                    foreach ($skpd_db as $skpd) {
+                        if ($skpd['id_skpd'] == $id_skpd_rka) {
+                            $btn_tanggapan = true;
+                        }
+                    }
+                } else if (in_array('pptk', $current_user->roles)) {
+                    $pptk_sub_keg = $wpdb->get_row($wpdb->prepare("
+                        SELECT
+                            p.*
+                        FROM data_pptk_sub_keg p
+                        WHERE active=1
+                            and tahun_anggaran=%d
+                            and kode_sbl=%s
+                    ", $tahun_anggaran, $kode_sbl), ARRAY_A);
+                    if ($pptk_sub_keg['id_user'] == $current_user->ID) {
+                        $btn_tanggapan = true;
+                    }
+                }
+
                 $ret['html'] = '';
                 foreach ($new_data as $key => $data) {
                     foreach ($data as $val) {
-                        $current_user_id = get_current_user_id();
                         $ret['html'] .= '
                             <tr>
                                 <th>' . $key . '</th>
@@ -454,11 +493,20 @@ class Wpsipd_Public_RKA
                                 <td>' . $val['tanggapan_opd'] . '</td>
                                 <td class="aksi">';
 
-                        if ($current_user_id == $val['id_user']) {
+                        // tampilkan tombol verifikator edit dan hapus
+                        if ($current_user->ID == $val['id_user']) {
                             $ret['html'] .= '
-                                <a class="btn btn-sm btn-warning" onclick="edit_data(\'' . $val['id'] . '\'); return false;" href="#" title="Edit Data"><i class="dashicons dashicons-edit"></i></a>
+                                <a class="btn btn-sm btn-warning" onclick="edit_data(\'' . $val['id'] . '\'); return false;" href="#" title="Edit Data"><i class="dashicons dashicons-edit"></i></a>';
+                            $ret['html'] .= '
                                 <a class="btn btn-sm btn-danger" onclick="delete_data(\'' . $val['id'] . '\'); return false;" href="#" title="delete data"><i class="dashicons dashicons-trash"></i></a>';
                         }
+
+                        // tampilkan tombol tanggapan untuk PA dan PPTK
+                        if ($btn_tanggapan) {
+                            $ret['html'] .= '<a class="btn btn-sm btn-warning" onclick="tambah_tanggapan(\'' . $val['id'] . '\'); return false;" href="#" title="Tanggapi"><i class="dashicons dashicons-editor-quote"></i></a>';
+                        }
+
+                        $ret['html'] .= '</td></tr>';
                     }
                 }
             } else {
@@ -590,6 +638,81 @@ class Wpsipd_Public_RKA
         die(json_encode($ret));
     }
 
+    function tambah_data_tanggapan()
+    {
+        global $wpdb;
+        $ret = array();
+        $ret['status'] = 'success';
+        $ret['message'] = 'Berhasil simpan tanggapan PPTK!';
+
+        if (!empty($_POST)) {
+            if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option('_crb_api_key_extension')) {
+
+                if (empty($_POST['id_catatan'])) {
+                    $ret['status'] = 'error';
+                    $ret['message'] = 'id catatan tidak boleh kosong';
+                    die(json_encode($ret));
+                }
+                // Validasi user_pptk
+                $user_pptk_status = $_POST['user_pptk_status'] ?? ''; // Gunakan null coalescing operator untuk menghindari undefined index
+                if (empty($user_pptk_status) || $user_pptk_status == 'User PPTK belum disetting!') {
+                    $ret['status'] = 'error';
+                    $ret['message'] = 'PPTK belum di set! Harap diset terlebih dahulu!';
+                    die(json_encode($ret));
+                }
+                if (empty($_POST['tanggapan_verifikasi'])) {
+                    $ret['status'] = 'error';
+                    $ret['message'] = 'tanggapan verifikasi harus diisi!';
+                    die(json_encode($ret));
+                }
+                $current_user = wp_get_current_user();
+                $allowed_roles = array('pptk', 'PA', 'KPA', 'PLT');
+                // Periksa apakah ada perpotongan antara peran yang diizinkan dan peran pengguna saat ini.
+                if (empty(array_intersect($allowed_roles, $current_user->roles))) {
+                    $ret['status'] = 'error';
+                    $ret['message'] = 'Akses ditolak - hanya pengguna dengan peran tertentu yang dapat mengakses fitur ini!';
+                    die(json_encode($ret));
+                }
+                $id_catatan = $_POST['id_catatan'];
+                $tanggapan_verifikasi = $_POST['tanggapan_verifikasi'];
+
+                // Cek apakah id_catatan ada di database
+                $id_tanggapan = $wpdb->get_var($wpdb->prepare("
+                    SELECT 
+                        id
+                    FROM data_verifikasi_rka
+                    WHERE id = %d 
+                    and active = 1", $id_catatan));
+
+                if ($id_tanggapan) {
+                    // Update tabel data_verifikasi_rka
+                    $result = $wpdb->update(
+                        'data_verifikasi_rka',
+                        array(
+                            'tanggapan_opd' => $tanggapan_verifikasi,
+                            'update_at_tanggapan' => current_time('mysql')
+                        ),
+                        array('id' => $id_catatan) // WHERE condition
+                    );
+
+                    if ($result == false) {
+                        $ret['status']  = 'error';
+                        $ret['message'] = 'gagal menanggapi catatan verifikasi!';
+                        die(json_encode($ret));
+                    }
+                }
+            } else {
+                $ret['status']  = 'error';
+                $ret['message'] = 'Api key tidak valid!';
+            }
+        } else {
+            $ret['status']  = 'error';
+            $ret['message'] = 'Format Salah!';
+        }
+
+        die(json_encode($ret));
+    }
+
 
     function verifikasi_tanpa_catatan()
     {
@@ -704,12 +827,12 @@ class Wpsipd_Public_RKA
                 }
                 $id = intval($_POST['id']);
                 $data = $wpdb->get_row($wpdb->prepare("
-                SELECT
-                    id_user,
-                    kode_sbl,
-                    tahun_anggaran
-                FROM data_verifikasi_rka
-                WHERE id = %d", $id));
+                    SELECT
+                        id_user,
+                        kode_sbl,
+                        tahun_anggaran
+                    FROM data_verifikasi_rka
+                    WHERE id = %d", $id));
 
                 if ($data) {
                     // Update tabel data_verifikasi_rka
@@ -736,6 +859,9 @@ class Wpsipd_Public_RKA
                             $ret['message'] = 'Gagal hapus data di database.';
                         }
                     }
+                } else {
+                    $ret['status'] = 'error';
+                    $ret['message'] = 'Gagal menemukan data di database.';
                 }
             } else {
                 $ret['status']  = 'error';
@@ -943,41 +1069,78 @@ class Wpsipd_Public_RKA
                     'orderby' => 'user_nicename',
                     'order'   => 'ASC'
                 );
+                if (!empty($params['search']['value'])) {
+                    $args['search'] = $params['search']['value'];
+                }
 
+                $idtahun = $wpdb->get_results("select distinct tahun_anggaran from data_unit", ARRAY_A);
                 $users = array();
+                $data_skpd = array();
                 // get data user harus login sebagai admin
                 if (in_array("administrator", $user_meta->roles)) {
-                    if (!empty($params['search']['value'])) {
-                        $search_value = sanitize_text_field($params['search']['value']);
-                        $args['search'] = "*{$search_value}*";
-                        $users = get_users($args);
-                    } else {
-                        $users = get_users($args);
+                    $users = get_users($args);
+
+                    foreach ($idtahun as $val) {
+                        $skpd = $wpdb->get_results($wpdb->prepare("
+                            SELECT 
+                                nama_skpd, 
+                                id_skpd, 
+                                kode_skpd,
+                                is_skpd
+                            from data_unit 
+                            where active=1
+                                and tahun_anggaran=%d
+                            group by id_skpd", $val['tahun_anggaran']), ARRAY_A);
+                        foreach ($skpd as $v) {
+                            if (empty($data_skpd[$val['tahun_anggaran']])) {
+                                $data_skpd[$val['tahun_anggaran']] = array();
+                            }
+                            $data_skpd[$val['tahun_anggaran']][$v['id_skpd']] = $v['kode_skpd'] . ' ' . $v['nama_skpd'];
+                        }
                     }
+                }else if(
+                    in_array("PA", $user_meta->roles)
+                    || in_array("KPA", $user_meta->roles)
+                    || in_array("PLT", $user_meta->roles)
+                ){
+                    $args['meta_query'] = array();
+                    $args['meta_query']['relation'] = 'OR';
+                    $nipkepala = get_user_meta($user_id, '_nip');
+                    foreach ($idtahun as $val) {
+                        $skpd = $wpdb->get_results($wpdb->prepare("
+                            SELECT 
+                                nama_skpd, 
+                                id_skpd, 
+                                kode_skpd,
+                                is_skpd
+                            from data_unit 
+                            where active=1
+                                and nipkepala=%s
+                                and tahun_anggaran=%d
+                            group by id_skpd
+                        ", $nipkepala[0], $val['tahun_anggaran']), ARRAY_A);
+                        foreach ($skpd as $v) {
+                            if (empty($data_skpd[$val['tahun_anggaran']])) {
+                                $data_skpd[$val['tahun_anggaran']] = array();
+                            }
+                            $data_skpd[$val['tahun_anggaran']][$v['id_skpd']] = $v['kode_skpd'] . ' ' . $v['nama_skpd'];
+                            $args['meta_query'][] = array(
+                                'key' => 'skpd',
+                                'value' => 'i:' . $val['tahun_anggaran'] . ';s:4:"' . $v['id_skpd'] . '"',
+                                'compare' => 'LIKE'
+                            );
+                        }
+                    }
+                    $args['meta_query'][] = array(
+                        'key' => 'skpd',
+                        'value' => 'i:' . date('Y') . ';s:4:',
+                        'compare' => 'NOT LIKE'
+                    );
+                    $users = get_users($args);
                 }
+                $sql_user = $wpdb->last_query.' | '.json_encode($args['meta_query']);
 
                 $data_user = array();
-
-                $data_skpd = array();
-                $idtahun = $wpdb->get_results("select distinct tahun_anggaran from data_unit", ARRAY_A);
-                foreach ($idtahun as $val) {
-                    $skpd = $wpdb->get_results($wpdb->prepare("
-                        SELECT 
-                            nama_skpd, 
-                            id_skpd, 
-                            kode_skpd,
-                            is_skpd
-                        from data_unit 
-                        where active=1
-                            and tahun_anggaran=%d
-                        group by id_skpd", $val['tahun_anggaran']), ARRAY_A);
-                    foreach ($skpd as $v) {
-                        if (empty($data_skpd[$val['tahun_anggaran']])) {
-                            $data_skpd[$val['tahun_anggaran']] = array();
-                        }
-                        $data_skpd[$val['tahun_anggaran']][$v['id_skpd']] = $v['kode_skpd'] . ' ' . $v['nama_skpd'];
-                    }
-                }
                 foreach ($users as $recKey => $recVal) {
                     $btn = '<a class="btn btn-sm btn-warning" onclick="edit_data(\'' . $recVal->ID . '\'); return false;" href="#" style="margin-right: 10px;" title="Edit Data">
                     <i class="dashicons dashicons-edit"></i></a>';
@@ -1001,7 +1164,8 @@ class Wpsipd_Public_RKA
                     "draw"            => intval($params['draw']),
                     "recordsTotal"    => intval(count($data_user)),
                     "recordsFiltered" => intval(count($data_user)),
-                    "data"            => $data_user
+                    "data"            => $data_user,
+                    "sql"             => $sql_user
                 );
 
                 die(json_encode($json_data));
@@ -1030,7 +1194,6 @@ class Wpsipd_Public_RKA
             if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option('_crb_api_key_extension')) {
 
                 $allowed_roles = array('pptk');
-
                 $current_user = wp_get_current_user();
                 if (!in_array('administrator', $current_user->roles)) {
                     $ret['status'] = 'error';
@@ -1179,14 +1342,22 @@ class Wpsipd_Public_RKA
                 }
                 $ret['sub_keg'] = $sub_keg;
 
-
+                $data_skpd = array();
+                $data_skpd[$_POST['tahun_anggaran']] = $_POST['id_skpd'];
                 $args = array(
                     'role'    => 'pptk',
                     'orderby' => 'user_nicename',
                     'order'   => 'ASC',
-                    'skpd'   => $_POST['id_skpd']
+                    'meta_query' => array(
+                        array(
+                            'key' => 'skpd',
+                            'value' => 'i:' . $_POST['tahun_anggaran'] . ';s:4:"' . $_POST['id_skpd'] . '"',
+                            'compare' => 'LIKE'
+                        )
+                    )
                 );
                 $users = get_users($args);
+                $ret['sql'] = $wpdb->last_query;
                 $user_pptk_opt = '<option value="">Pilih User</option>';
                 foreach ($users as $user) {
                     $selected = '';
@@ -1243,7 +1414,7 @@ class Wpsipd_Public_RKA
                 $kode_sbl = $_POST['kode_sbl'];
                 $id_user = $_POST['id_user'];
                 $tahun_anggaran = $_POST['tahun_anggaran'];
-                
+
                 get_userdata($id_user);
 
                 $data = array(
@@ -1262,7 +1433,7 @@ class Wpsipd_Public_RKA
                         and tahun_anggaran=%d
                         and kode_sbl=%s
                 ", $tahun_anggaran, $kode_sbl));
-                
+
                 if (empty($cek_pptk)) {
                     $result = $wpdb->insert('data_pptk_sub_keg', $data);
                 } else {
