@@ -11365,15 +11365,15 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 				$tahun_anggaran = $_POST['tahun_anggaran'];
 				$id_skpd = $_POST['id_skpd'];
 				$idsumber = $_POST['idsumber'];
-				$column = 's.*, u.nama_skpd as nama_skpd_data_unit';
+				$column = 's.*, u.nama_skpd as nama_skpd_data_unit, uu.nama_skpd as nama_skpd_data_unit_utama';
 				$tipe = false;
 				if(!empty($_POST['tipe'])){
 					if($_POST['tipe'] == 'pt_tati'){
 						$tipe = $_POST['tipe'];
 						$column = "
 							s.id_skpd,
-							s.kode_skpd,
-							s.nama_skpd,
+							uu.kode_skpd,
+							uu.nama_skpd,
 							s.id_sub_skpd,
 							u.kode_skpd as kode_sub_skpd,
 							u.nama_skpd as nama_sub_skpd,
@@ -11398,6 +11398,9 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 					inner join data_unit u on s.id_sub_skpd = u.id_skpd
 						and u.tahun_anggaran = s.tahun_anggaran
 						and u.active = s.active
+					inner join data_unit uu on s.id_skpd = uu.id_skpd
+						and uu.tahun_anggaran = s.tahun_anggaran
+						and uu.active = s.active
 					where s.tahun_anggaran=%d
 						and u.id_skpd=%d
 						and s.active=1", 
