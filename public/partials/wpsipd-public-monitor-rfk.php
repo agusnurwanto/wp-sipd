@@ -885,19 +885,12 @@ $simpan_rfk = '<button style="margin-left: 20px;" class="components-button butto
 if (
 	in_array("mitra_bappeda", $current_user->roles)
 	|| true == $cek_verifiktor
+	|| in_array("pptk", $current_user->roles)
 ) {
 	$reset_rfk = '';
 	$simpan_rfk = '';
 } else if (!current_user_can('administrator')) {
 	$reset_rfk = '<button style="margin-left: 20px;" class="components-button button button-default" id="reset-rfk">Reset RFK Bulan Sebelumnya</button>';
-}
-if (
-	current_user_can('administrator') ||
-	current_user_can('PA') ||
-	current_user_can('KPA') ||
-	current_user_can('PLT')
-) {
-	$extend_action .= '<label style="margin-left: 20px;"><input type="checkbox" onclick="tampil_set_pptk(this);"> Tampilkan Set PPTK</label>';
 }
 ?>
 
