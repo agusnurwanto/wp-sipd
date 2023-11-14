@@ -2772,7 +2772,7 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 					){
 						$status_edit=true;
 					}elseif (in_array("pa", $user_meta->roles)) {
-						if($data_this_id_ssh[0]['status'] == 'waiting'){
+						if($data_this_id_ssh[0]['status'] == 'draft'){
 							if(
 								$data_this_id_ssh[0]['status_by_admin']=='' && 
 								$data_this_id_ssh[0]['status_by_tapdkeu']==''

@@ -1870,7 +1870,7 @@ echo $this->menu_ssh($input);
 
 						jQuery("#tambahUsulanAkunByKompSSH .modal-footer").prepend('<button class=\'btn btn-primary submitBtn\' onclick=\'return false;\'>Simpan</button>');
 						jQuery("#tambahUsulanAkunByKompSSH .submitBtn")
-							.attr('onclick', 'submitEditUsulanSshForm('+id+', '+tahun+')')
+							.attr('onclick', 'submitEditTambahAkunUsulanSshForm('+id+', '+tahun+')')
 							.attr('disabled', false)
 							.text('Simpan');
 						jQuery('#tambahUsulanAkunByKompSSH').modal('show');
@@ -1943,7 +1943,7 @@ echo $this->menu_ssh($input);
 
 						jQuery("#tambahUsulanHargaByKompSSH .modal-footer").prepend('<button class=\'btn btn-primary submitBtn\' onclick=\'return false;\'>Simpan</button>');
 						jQuery("#tambahUsulanHargaByKompSSH .submitBtn")
-							.attr('onclick', 'submitEditUsulanSshForm('+id+', '+tahun+')')
+							.attr('onclick', 'submitEditTambahHargaUsulanSshForm('+id+', '+tahun+')')
 							.attr('disabled', false)
 							.text('Simpan');
 						jQuery('#tambahUsulanHargaByKompSSH').modal('show');
