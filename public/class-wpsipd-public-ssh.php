@@ -1837,8 +1837,8 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 					}else if(
 						$recVal['status'] == 'waiting' || 
 						$recVal['status'] == 'rejected'
-					){
-						// jika status usulan waiting atau rejected dan user adalah verifikator maka bisa edit usulan
+					){	
+					// jika status usulan waiting atau rejected dan user adalah verifikator maka bisa edit usulan
 						if(
 							in_array("administrator", $user_meta->roles) 
 							|| in_array("tapd_keu", $user_meta->roles)
@@ -1859,7 +1859,7 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 							$can_edit = true;
 						}
 					}
-						
+					
 					if($can_edit){
 						$editUsulanSSH = '<a class="btn btn-sm btn-warning" onclick="edit_ssh_usulan(\''.$recVal['status_jenis_usulan'].'\',\''.$recVal['id'].'\'); return false;" href="#" title="Edit komponen usulan SSH" style="text-decoration:none">'.$iconEdit.'</a>&nbsp;';
 					}
@@ -2768,11 +2768,14 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 					$status_edit=false;
 					if(
 						in_array("administrator", $user_meta->roles) ||
-						in_array("tapd_keu", $user_meta->roles)
+						in_array("tapd_keu", $user_meta->roles) ||
+						in_array("PA", $user_meta->roles) ||
+						in_array("KPA", $user_meta->roles) ||
+						in_array("PLT", $user_meta->roles)
 					){
 						$status_edit=true;
 					}elseif (in_array("pa", $user_meta->roles)) {
-						if($data_this_id_ssh[0]['status'] == 'draft'){
+						if($data_this_id_ssh[0]['status'] == 'waiting'){
 							if(
 								$data_this_id_ssh[0]['status_by_admin']=='' && 
 								$data_this_id_ssh[0]['status_by_tapdkeu']==''
@@ -3071,6 +3074,10 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 					if(
 						$data_this_id_ssh[0]['status'] == 'waiting' 
 						|| in_array("administrator", $user_meta->roles)
+						|| in_array("tapd_keu", $user_meta->roles)
+						|| in_array("PA", $user_meta->roles)
+						|| in_array("KPA", $user_meta->roles)
+						|| in_array("PLT", $user_meta->roles)
 					){
 						if($data_this_id_ssh[0]['status_upload_sipd'] != 1){
 							//avoid double data ssh
@@ -3244,6 +3251,9 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 					if(
 						$data_this_id_ssh[0]['status'] == 'waiting' 
 						|| in_array("administrator", $user_meta->roles)
+						|| in_array("PA", $user_meta->roles)
+						|| in_array("KPA", $user_meta->roles)
+						|| in_array("PLT", $user_meta->roles)
 					){
 						if($data_this_id_ssh[0]['status_upload_sipd'] != 1){
 							// get all data usulan akun existing
