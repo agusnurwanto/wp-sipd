@@ -190,6 +190,9 @@ $data_all = array(
     'total_pergeseran' => 0,
     'total_usulan_pergeseran' => 0
 );
+$thead_pergeseran = '';
+$thead_pergeseran1 = 6;
+$thead_pergeseran2 = '';
 foreach ($subkeg as $kk => $sub) {
     $nama_skpd = $sub['nama_skpd'];
     $kode = explode('.', $sub['kode_sbl']);
@@ -243,7 +246,7 @@ foreach ($subkeg as $kk => $sub) {
         order by id ASC
     ", $input['tahun_anggaran'], $sub['kode_sbl']), ARRAY_A);
     
-    $status_pergeseran_renja = $jadwal_lokal[0]['status_jadwal_pergeseran'];
+    $status_pergeseran_renja = (!empty($jadwal_lokal[0]['status_jadwal_pergeseran'])) ? $jadwal_lokal[0]['status_jadwal_pergeseran'] : '';
     $pagu_pergeseran = 0;
     $pagu_usulan_pergeseran = 0;
     $thead_pergeseran = '';
