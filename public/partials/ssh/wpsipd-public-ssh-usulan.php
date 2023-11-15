@@ -1858,19 +1858,19 @@ echo $this->menu_ssh($input);
 					jQuery("#tambahUsulanAkunByKompSSH .modal-footer").find('.submitBtn').remove();
 					if(mod==='edit'){
 						jQuery('#tambah_akun_id_sub_unit').prop('disabled', false);
-						jQuery('#tambah_akun_komp_kategori').prop('disabled', false);
+						jQuery('#tambah_akun_komp_kategori').prop('disabled', true);
 						jQuery('#tambah_akun_komp_nama_komponent').prop('disabled', false);
-						jQuery('#tambah_akun_komp_spesifikasi').prop('disabled', false);
-						jQuery('#tambah_akun_komp_satuan').prop('disabled', false);
-						jQuery('#tambah_akun_komp_harga_satuan').prop('disabled', false);
-						jQuery('input[name="tambah_harga_komp_jenis_produk"][value="'+response.data.jenis_produk+'"]').prop('disabled', false);
-						jQuery('#tambah_akun_komp_tkdn').prop('disabled', false);
+						jQuery('#tambah_akun_komp_spesifikasi').prop('disabled', true);
+						jQuery('#tambah_akun_komp_satuan').prop('disabled', true);
+						jQuery('#tambah_akun_komp_harga_satuan').prop('disabled', true);
+						jQuery('input[name="tambah_harga_komp_jenis_produk"][value="'+response.data.jenis_produk+'"]').prop('disabled', true);
+						jQuery('#tambah_akun_komp_tkdn').prop('disabled', true);
 						jQuery('#tambah_akun_komp_akun').prop('disabled', false);
 						jQuery('#tambah_akun_komp_keterangan_lampiran').prop('disabled', false);
 
 						jQuery("#tambahUsulanAkunByKompSSH .modal-footer").prepend('<button class=\'btn btn-primary submitBtn\' onclick=\'return false;\'>Simpan</button>');
 						jQuery("#tambahUsulanAkunByKompSSH .submitBtn")
-							.attr('onclick', 'submitEditUsulanSshForm('+id+', '+tahun+')')
+							.attr('onclick', 'submitEditTambahAkunUsulanSshForm('+id+', '+tahun+')')
 							.attr('disabled', false)
 							.text('Simpan');
 						jQuery('#tambahUsulanAkunByKompSSH').modal('show');
@@ -1925,14 +1925,14 @@ echo $this->menu_ssh($input);
 					jQuery("#tambahUsulanHargaByKompSSH .modal-footer").find('.submitBtn').remove();
 					if(mod==='edit'){
 						jQuery('#tambah_harga_id_sub_unit').prop('disabled', false);
-						jQuery('#tambah_harga_komp_kategori').prop('disabled', false);
+						jQuery('#tambah_harga_komp_kategori').prop('disabled', true);
 						jQuery('#tambah_harga_komp_nama_komponent').prop('disabled', false);
-						jQuery('#tambah_harga_komp_spesifikasi').prop('disabled', false);
-						jQuery('#tambah_harga_komp_satuan').prop('disabled', false);
+						jQuery('#tambah_harga_komp_spesifikasi').prop('disabled', true);
+						jQuery('#tambah_harga_komp_satuan').prop('disabled', true);
 						jQuery('#tambah_harga_komp_harga_satuan').prop('disabled', false);
-						jQuery(`#tambah_harga_komp_jenis_produk_${response.data.jenis_produk}`).prop('disabled', false);
-						jQuery('#tambah_harga_komp_tkdn').prop('disabled', false);
-						jQuery('#tambah_harga_komp_akun').prop('disabled', false);
+						jQuery(`#tambah_harga_komp_jenis_produk_${response.data.jenis_produk}`).prop('disabled', true);
+						jQuery('#tambah_harga_komp_tkdn').prop('disabled', true);
+						jQuery('#tambah_harga_komp_akun').prop('disabled', true);
 						jQuery('#u_lapiran_usulan_harga_ssh_1').show();
 						jQuery('#u_lapiran_usulan_harga_ssh_1').parent().find('small').show();
 						jQuery('#u_lapiran_usulan_harga_ssh_2').show();
@@ -1943,7 +1943,7 @@ echo $this->menu_ssh($input);
 
 						jQuery("#tambahUsulanHargaByKompSSH .modal-footer").prepend('<button class=\'btn btn-primary submitBtn\' onclick=\'return false;\'>Simpan</button>');
 						jQuery("#tambahUsulanHargaByKompSSH .submitBtn")
-							.attr('onclick', 'submitEditUsulanSshForm('+id+', '+tahun+')')
+							.attr('onclick', 'submitEditTambahHargaUsulanSshForm('+id+', '+tahun+')')
 							.attr('disabled', false)
 							.text('Simpan');
 						jQuery('#tambahUsulanHargaByKompSSH').modal('show');

@@ -190,6 +190,10 @@ $data_all = array(
     'total_pergeseran' => 0,
     'total_usulan_pergeseran' => 0
 );
+$status_pergeseran_renja = '';
+$thead_pergeseran = '';
+$thead_pergeseran1 = 6;
+$thead_pergeseran2 = '';
 foreach ($subkeg as $kk => $sub) {
     $nama_skpd = $sub['nama_skpd'];
     $kode = explode('.', $sub['kode_sbl']);
