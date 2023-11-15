@@ -223,37 +223,37 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes {
 			->set_page_menu_position( 4 )
 	        ->add_fields( $this->options_basic() );
 
-		if(get_option('_crb_show_menu_wpsipd_api_settings') == true){
+		if(get_option('_crb_show_menu_wpsipd_api_settings') != true){
 			Container::make( 'theme_options', __( 'API Setting' ) )
 				->set_page_parent( $basic_options_container )
 				->add_fields( $this->get_api_setting() );
 		}
 
-		if(get_option('_crb_show_menu_wpsipd_skpd_settings') == true){
+		if(get_option('_crb_show_menu_wpsipd_skpd_settings') != true){
 			Container::make( 'theme_options', __( 'SKPD Setting' ) )
 				->set_page_parent( $basic_options_container )
 				->add_fields( $this->get_skpd_settings() );
 		}
 
-		if(get_option('_crb_show_menu_wpsipd_simda_settings') == true){
+		if(get_option('_crb_show_menu_wpsipd_simda_settings') != true){
 			Container::make( 'theme_options', __( 'SIMDA Setting' ) )
 				->set_page_parent( $basic_options_container )
 				->add_fields( $this->get_mapping_unit() );
 		}
 
-		if(get_option('_crb_show_menu_wpsipd_fmis_settings') == true){
+		if(get_option('_crb_show_menu_wpsipd_fmis_settings') != true){
 			Container::make( 'theme_options', __( 'FMIS Setting' ) )
 				->set_page_parent( $basic_options_container )
 				->add_fields( $this->get_setting_fmis() );
 		}
 
-		if(get_option('_crb_show_menu_wpsipd_sipkd_settings') == true){
+		if(get_option('_crb_show_menu_wpsipd_sipkd_settings') != true){
 			Container::make( 'theme_options', __( 'SIPKD Setting' ) )
 				->set_page_parent( $basic_options_container )
 				->add_fields( $this->get_setting_sipkd() );
 		}
 
-		if(get_option('_crb_show_menu_wpsipd_sirup_settings') == true){
+		if(get_option('_crb_show_menu_wpsipd_sirup_settings') != true){
 			Container::make( 'theme_options', __( 'SIRUP Setting' ) )
 				->set_page_parent( $basic_options_container )
 				->add_fields( $this->get_sirup_setting() );
@@ -265,54 +265,54 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes {
 		
 		$show_monev_sipd_menu = get_option('_crb_show_menu_monev_monev_sipd_settings');
 
-		if($show_monev_sipd_menu == true){
+		if($show_monev_sipd_menu != true){
 			$monev = Container::make( 'theme_options', __( 'MONEV SIPD' ) )
 				->set_page_menu_position( 4 )
 				->add_fields( $this->get_ajax_field(array('type' => 'rfk')) );
 
-			if(get_option('_crb_show_menu_monev_rfk_settings') == true){
+			if(get_option('_crb_show_menu_monev_rfk_settings') != true){
 				Container::make( 'theme_options', __( 'RFK' ) )
 					->set_page_parent( $monev )
 					->add_fields( $this->get_ajax_field(array('type' => 'rfk')) );
 			}
 
-			if(get_option('_crb_show_menu_monev_indi_rpjm_settings') == true){
+			if(get_option('_crb_show_menu_monev_indi_rpjm_settings') != true){
 				Container::make( 'theme_options', __( 'Indikator RPJM' ) )
 					->set_page_parent( $monev )
 					->add_fields( $this->get_ajax_field(array('type' => 'monev_rpjm')) );
 			}
 
-			if(get_option('_crb_show_menu_monev_indi_renstra_settings') == true){
+			if(get_option('_crb_show_menu_monev_indi_renstra_settings') != true){
 				Container::make( 'theme_options', __( 'Indikator RENSTRA' ) )
 					->set_page_parent( $monev )
 					->add_fields( $this->get_ajax_field(array('type' => 'monev_renstra')) );
 			}
 
-			if(get_option('_crb_show_menu_monev_indi_renja_settings') == true){
+			if(get_option('_crb_show_menu_monev_indi_renja_settings') != true){
 				Container::make( 'theme_options', __( 'Indikator RENJA' ) )
 					->set_page_parent( $monev )
 					->add_fields( $this->get_ajax_field(array('type' => 'monev_renja')) );
 			}
 
-			if(get_option('_crb_show_menu_monev_lab_komponen_settings') == true){
+			if(get_option('_crb_show_menu_monev_lab_komponen_settings') != true){
 				Container::make( 'theme_options', __( 'Label Komponen' ) )
 					->set_page_parent( $monev )
 					->add_fields( $this->generate_label_komponen() );
 			}
 
-			if(get_option('_crb_show_menu_monev_sumber_dana_settings') == true){
+			if(get_option('_crb_show_menu_monev_sumber_dana_settings') != true){
 				Container::make( 'theme_options', __( 'Sumber Dana' ) )
 					->set_page_parent( $monev )
 					->add_fields( $this->generate_sumber_dana() );
 			}
 
-			if(get_option('_crb_show_menu_monev_monev_rak_settings') == true){
+			if(get_option('_crb_show_menu_monev_monev_rak_settings') != true){
 				Container::make( 'theme_options', __( 'Monev RAK' ) )
 					->set_page_parent( $monev )
 					->add_fields( $this->get_ajax_field(array('type' => 'monev_rak')) );
 			}
 
-			if(get_option('_crb_show_menu_monev_json_rka_settings') == true){
+			if(get_option('_crb_show_menu_monev_json_rka_settings') != true){
 				Container::make( 'theme_options', __( 'Data JSON RKA' ) )
 					->set_page_parent( $monev )
 					->add_fields( $this->get_ajax_field(array('type' => 'monev_json_rka')) );
@@ -320,36 +320,36 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes {
 		}
 		$show_laporan_sipd_menu = get_option('_crb_show_menu_laporan_sipd_settings');
 
-		if($show_laporan_sipd_menu == true){
+		if($show_laporan_sipd_menu != true){
 			$laporan = Container::make( 'theme_options', __( 'LAPORAN SIPD' ) )
 				->set_page_menu_position( 4 )
 				->add_fields( $this->generate_tag_sipd() );
 
-			if(get_option('_crb_show_menu_laporan_label_subkeg_settings') == true){
+			if(get_option('_crb_show_menu_laporan_label_subkeg_settings') != true){
 				Container::make( 'theme_options', __( 'Tag/Label Sub Kegiatan' ) )
 					->set_page_parent( $laporan )
 					->add_fields( $this->generate_tag_sipd() );
 			}
 
-			if(get_option('_crb_show_menu_laporan_rkpd_settings') == true){
+			if(get_option('_crb_show_menu_laporan_rkpd_settings') != true){
 				Container::make( 'theme_options', __( 'RKPD & RENJA' ) )
 					->set_page_parent( $laporan )
 					->add_fields( $this->get_ajax_field(array('type' => 'rkpd_renja')) );
 			}
 
-			if(get_option('_crb_show_menu_laporan_apbd_penjabaran_settings') == true){
+			if(get_option('_crb_show_menu_laporan_apbd_penjabaran_settings') != true){
 				Container::make( 'theme_options', __( 'APBD Penjabaran' ) )
 					->set_page_parent( $laporan )
 					->add_fields( $this->get_ajax_field(array('type' => 'apbdpenjabaran')) );
 			}
 
-			if(get_option('_crb_show_menu_laporan_apbd_perda_settings') == true){
+			if(get_option('_crb_show_menu_laporan_apbd_perda_settings') != true){
 				Container::make( 'theme_options', __( 'APBD Perda' ) )
 					->set_page_parent( $laporan )
 					->add_fields( $this->get_ajax_field(array('type' => 'apbdperda')) );
 			}
 
-			if(get_option('_crb_show_menu_laporan_rpjm_renstra_settings') == true){
+			if(get_option('_crb_show_menu_laporan_rpjm_renstra_settings') != true){
 				Container::make( 'theme_options', __( 'RPJM & RENSTRA' ) )
 					->set_page_parent( $laporan );
 			}	
@@ -357,24 +357,24 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes {
 
 		$show_input_perencanaan_sipd_menu = get_option('_crb_show_menu_input_sipd_settings');
 
-		if($show_input_perencanaan_sipd_menu == true){
+		if($show_input_perencanaan_sipd_menu != true){
 			$input_perencanaan = Container::make( 'theme_options', __( 'Input Perencanaan' ) )
 				->set_page_menu_position( 4 )
 				->add_fields( $this->generate_jadwal_perencanaan() );
 
-			if(get_option('_crb_show_menu_input_jadwal_settings') == true){
+			if(get_option('_crb_show_menu_input_jadwal_settings') != true){
 				Container::make( 'theme_options', __( 'Jadwal & Input Perencanaan' ) )
 					->set_page_parent( $input_perencanaan )
 					->add_fields( $this->generate_jadwal_perencanaan() );
 			}
 
-			if(get_option('_crb_show_menu_input_input_renstra_settings') == true){
+			if(get_option('_crb_show_menu_input_input_renstra_settings') != true){
 				Container::make( 'theme_options', __( 'Input RENSTRA' ) )
 					->set_page_parent( $input_perencanaan )
 					->add_fields( $this->generate_input_renstra() );
 			}
 
-			if(get_option('_crb_show_menu_input_input_renja_settings') == true){
+			if(get_option('_crb_show_menu_input_input_renja_settings') != true){
 				Container::make( 'theme_options', __( 'Input RENJA' ) )
 					->set_page_parent( $input_perencanaan )
 					->add_fields( $this->generate_input_renja() );
@@ -383,24 +383,24 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes {
 
 		$show_standar_harga_sipd_menu = get_option('_crb_show_menu_standar_standar_harga_settings');
 
-		if($show_standar_harga_sipd_menu == true){
+		if($show_standar_harga_sipd_menu != true){
 			$satuan_harga = Container::make( 'theme_options', __( 'Standar Harga' ) )
 				->set_page_menu_position( 5 )
 				->add_fields( $this->get_ajax_field(array('type' => 'rekap_satuan_harga')) );
 
-			if(get_option('_crb_show_menu_standar_usulan_standar_harga_settings') == true){
+			if(get_option('_crb_show_menu_standar_usulan_standar_harga_settings') != true){
 				Container::make( 'theme_options', __( 'Usulan Standar Harga' ) )
 					->set_page_parent( $satuan_harga )
 					->add_fields( $this->get_ajax_field(array('type' => 'monev_satuan_harga')) );
 			}
 
-			if(get_option('_crb_show_menu_standar_rekap_usulan_settings') == true){
+			if(get_option('_crb_show_menu_standar_rekap_usulan_settings') != true){
 				Container::make( 'theme_options', __( 'Rekap Usulan dan Standar Harga SIPD' ) )
 					->set_page_parent( $satuan_harga )
 					->add_fields( $this->get_ajax_field(array('type' => 'satuan_harga_sipd')) );
 			}
 
-			if(get_option('_crb_show_menu_standar_tidak_terpakai_settings') == true){
+			if(get_option('_crb_show_menu_standar_tidak_terpakai_settings') != true){
 				Container::make( 'theme_options', __( 'Tidak Terpakai di SIPD' ) )
 					->set_page_parent( $satuan_harga )
 					->add_fields( $this->get_ajax_field(array('type' => 'tidak_terpakai_satuan_harga')) );
@@ -409,7 +409,7 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes {
 
 		$show_monev_fmis_sipd_menu = get_option('_crb_show_menu_monev_fmis_check_settings');
 
-		if($show_monev_fmis_sipd_menu == true){
+		if($show_monev_fmis_sipd_menu != true){
 			$monev_fmis = Container::make( 'theme_options', __( 'MONEV FMIS' ) )
 				->set_page_menu_position( 5 )
 				->add_fields( $this->get_ajax_field(array('type' => 'register_sp2d_fmis')) );
@@ -417,7 +417,7 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes {
 
 		$show_keuangan_pemdes_menu = get_option('_crb_show_menu_keuangan_keuangan_pemdes_settings');
 
-		if($show_keuangan_pemdes_menu == true){
+		if($show_keuangan_pemdes_menu != true){
 			$keu_pemdes = Container::make( 'theme_options', __( 'Keuangan PEMDES' ) )
 				->set_page_menu_position( 5 )
 				->add_fields( $this->get_setting_keu_pemdes() );
@@ -434,7 +434,7 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes {
 			$url_bkk_pilkades = $this->generatePage('Laporan Keuangan Pemerintah Desa Bantuan Keuangan Khusus (BKK) Pilkades '.$tahun_anggaran, false, '[keu_pemdes_bkk_pilkades tahun_anggaran="'.$tahun_anggaran.'"]');
 			$url_bkk_inf = $this->generatePage('Laporan Keuangan Pemerintah Desa Bantuan Keuangan Khusus (BKK) Infrastruktur '.$tahun_anggaran, false, '[keu_pemdes_bkk_inf tahun_anggaran="'.$tahun_anggaran.'"]');
 			
-			if(get_option('_crb_show_menu_keuangan_beranda_settings') == true){
+			if(get_option('_crb_show_menu_keuangan_beranda_settings') != true){
 				Container::make( 'theme_options', __( 'Tampilan Beranda' ) )
 					->set_page_parent( $keu_pemdes )
 					->add_tab( __( 'Logo' ), array(
@@ -536,7 +536,7 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes {
 			$input_pencairan_bku_dd = $this->generatePage('Halaman Input Pencairan BKU DD', false, '[input_pencairan_bku_dd]');
 			$input_pencairan_bku_add = $this->generatePage('Halaman Input Pencairan BKU ADD', false, '[input_pencairan_bku_add]');
 			
-			if(get_option('_crb_show_menu_keuangan_import_bkk_infra_settings') == true){
+			if(get_option('_crb_show_menu_keuangan_import_bkk_infra_settings') != true){
 				Container::make( 'theme_options', __( 'Import BKK Infrastruktur' ) )
 					->set_page_parent( $keu_pemdes )
 					->add_fields( array(
@@ -566,7 +566,7 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes {
 					) );
 			}
 
-			if(get_option('_crb_show_menu_keuangan_import_bkk_pilkades_settings') == true){
+			if(get_option('_crb_show_menu_keuangan_import_bkk_pilkades_settings') != true){
 				Container::make( 'theme_options', __( 'Import BKK Pilkades' ) )
 					->set_page_parent( $keu_pemdes )
 					->add_fields( array(
@@ -596,7 +596,7 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes {
 					) );
 			}
 
-			if(get_option('_crb_show_menu_keuangan_import_bhpd_settings') == true){
+			if(get_option('_crb_show_menu_keuangan_import_bhpd_settings') != true){
 				Container::make( 'theme_options', __( 'Import BHPD' ) )
 					->set_page_parent( $keu_pemdes )
 					->add_fields( array(
@@ -626,7 +626,7 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes {
 					) );
 			}
 
-			if(get_option('_crb_show_menu_keuangan_import_bhrd_settings') == true){
+			if(get_option('_crb_show_menu_keuangan_import_bhrd_settings') != true){
 				Container::make( 'theme_options', __( 'Import BHRD' ) )
 					->set_page_parent( $keu_pemdes )
 					->add_fields( array(
@@ -671,7 +671,7 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes {
 				$pilih_akun .= "<option value='$akun[kode_akun]'>$akun[kode_akun] $akun[nama_akun]</option>";
 			}
 
-			if(get_option('_crb_show_menu_keuangan_import_bku_dd_settings') == true){
+			if(get_option('_crb_show_menu_keuangan_import_bku_dd_settings') != true){
 				Container::make( 'theme_options', __( 'Import BKU DD' ) )
 					->set_page_parent( $keu_pemdes )
 					->add_fields( array(
@@ -713,7 +713,7 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes {
 					) );
 			}
 			
-			if(get_option('_crb_show_menu_keuangan_import_bku_add_settings') == true){
+			if(get_option('_crb_show_menu_keuangan_import_bku_add_settings') != true){
 				Container::make( 'theme_options', __( 'Import BKU ADD' ) )
 					->set_page_parent( $keu_pemdes )
 					->add_fields( array(
@@ -757,7 +757,7 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes {
 		
 		$show_verifikasi_rka_sipd_menu = get_option('_crb_show_menu_verifikasi_rka_check_settings');
 
-		if($show_verifikasi_rka_sipd_menu == true){
+		if($show_verifikasi_rka_sipd_menu != true){
 			$url_user_verifikator =$this->generatePage('User Verifikasi RKA', false, '[user_verikasi_rka]');
 			$url_user_pptk =$this->generatePage('User PPTK', false, '[user_pptk]');
 			$user_verifikator = array(
@@ -1728,7 +1728,25 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes {
 	public function get_wpsipd_menu_setting(){
 		$field = '';
 		$field = array(
-			Field::make( 'separator', 'crb_show_menu_wpsipd_settings', 'WP-SIPD Settings' ),
+			Field::make( 'separator', 'crb_show_menu_dashboard_user_settings', 'Menu Dashboard User' ),
+				Field::make( 'multiselect', 'crb_daftar_tombol_user_dashboard', 'Daftar tombol di halaman dashboard user' )
+				->add_options( array(
+					'1' => __( 'MONEV RFK' ),
+					'2' => __( 'MONEV SUMBER DANA' ),
+					'3' => __( 'MONEV LABEL KOMPONEN' ),
+					'4' => __( 'MONEV INDIKATOR RENJA' ),
+					'5' => __( 'MONEV INDIKATOR RENSTRA' ),
+					'6' => __( 'MONEV INDIKATOR RPJM' ),
+					'7' => __( 'MENU SSH' ),
+					'8' => __( 'INPUT RENSTRA' ),
+					'9' => __( 'INPUT RENJA' ),
+					'10' => __( 'INPUT REALISASI KEU PEMDES' ),
+					'11' => __( 'USER PPTK' )
+				) )
+				->set_default_value(array('1','2','3','4','5'))
+				->set_help_text('Daftar fitur ini akan ditampilkan dalam bentuk tombol di halaman dasboard user setelah berhasil login.'),
+
+			Field::make( 'separator', 'crb_show_menu_wpsipd_settings', 'Non Aktifkan Menu ( WP-SIPD Settings )' ),
 				Field::make( 'checkbox', 'crb_show_menu_wpsipd_api_settings', 'API Settings' )
 					->set_option_value( 'true' ),
 				Field::make( 'checkbox', 'crb_show_menu_wpsipd_skpd_settings', 'SKPD Settings' )
@@ -1742,7 +1760,7 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes {
 				Field::make( 'checkbox', 'crb_show_menu_wpsipd_sirup_settings', 'SIRUP Settings' )
 					->set_option_value( 'true' ),
 
-			Field::make( 'separator', 'crb_show_menu_monev_settings', 'MONEV SIPD' ),
+			Field::make( 'separator', 'crb_show_menu_monev_settings', 'Non Aktifkan Menu ( MONEV SIPD )' ),
 				Field::make( 'checkbox', 'crb_show_menu_monev_monev_sipd_settings', 'Monev SIPD' )
 					->set_option_value( 'true' ),
 				Field::make( 'checkbox', 'crb_show_menu_monev_rfk_settings', 'RFK' )
@@ -1762,7 +1780,7 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes {
 				Field::make( 'checkbox', 'crb_show_menu_monev_json_rka_settings', 'Data JSON RKA' )
 					->set_option_value( 'true' ),
 
-			Field::make( 'separator', 'crb_show_menu_laporan_settings', 'LAPORAN SIPD' ),
+			Field::make( 'separator', 'crb_show_menu_laporan_settings', 'Non Aktifkan Menu ( LAPORAN SIPD )' ),
 				Field::make( 'checkbox', 'crb_show_menu_laporan_sipd_settings', 'Laporan SIPD' )
 					->set_option_value( 'true' ),
 				Field::make( 'checkbox', 'crb_show_menu_laporan_label_subkeg_settings', 'Tag/Label Sub Kegiatan' )
@@ -1776,7 +1794,7 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes {
 				Field::make( 'checkbox', 'crb_show_menu_laporan_rpjm_renstra_settings', 'RPJM & RENSTRA' )
 					->set_option_value( 'true' ),
 
-			Field::make( 'separator', 'crb_show_menu_input_perencanaan_settings', 'Input Perencanaan' ),
+			Field::make( 'separator', 'crb_show_menu_input_perencanaan_settings', 'Non Aktifkan Menu ( Input Perencanaan )' ),
 				Field::make( 'checkbox', 'crb_show_menu_input_sipd_settings', 'Input Perencanaan' )
 					->set_option_value( 'true' ),
 				Field::make( 'checkbox', 'crb_show_menu_input_jadwal_settings', 'Jadwal & Input Perencanaan' )
@@ -1786,7 +1804,7 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes {
 				Field::make( 'checkbox', 'crb_show_menu_input_input_renja_settings', 'Input RENJA' )
 					->set_option_value( 'true' ),
 
-			Field::make( 'separator', 'crb_show_menu_keuangan_pemdes_settings', 'Keuangan Pemdes' ),
+			Field::make( 'separator', 'crb_show_menu_keuangan_pemdes_settings', 'Non Aktifkan Menu ( Keuangan Pemdes )' ),
 				Field::make( 'checkbox', 'crb_show_menu_keuangan_keuangan_pemdes_settings', 'Keuangan Pemdes' )
 					->set_option_value( 'true' ),
 				Field::make( 'checkbox', 'crb_show_menu_keuangan_beranda_settings', 'Tampilan Beranda' )
@@ -1804,7 +1822,7 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes {
 				Field::make( 'checkbox', 'crb_show_menu_keuangan_import_bku_add_settings', 'Import BKU ADD' )
 					->set_option_value( 'true' ),
 
-			Field::make( 'separator', 'crb_show_menu_standar_harga_settings', 'Standar Harga' ),
+			Field::make( 'separator', 'crb_show_menu_standar_harga_settings', 'Non Aktifkan Menu ( Standar Harga )' ),
 				Field::make( 'checkbox', 'crb_show_menu_standar_standar_harga_settings', 'Standar Harga' )
 					->set_option_value( 'true' ),
 				Field::make( 'checkbox', 'crb_show_menu_standar_usulan_standar_harga_settings', 'Usulan Standar Harga' )
@@ -1814,31 +1832,13 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes {
 				Field::make( 'checkbox', 'crb_show_menu_standar_tidak_terpakai_settings', 'Tidak Terpakai di SIPD' )
 					->set_option_value( 'true' ),
 
-			Field::make( 'separator', 'crb_show_menu_verifikasi_rka_settings', 'Verifikasi RKA' ),
+			Field::make( 'separator', 'crb_show_menu_verifikasi_rka_settings', 'Non Aktifkan Menu ( Verifikasi RKA )' ),
 				Field::make( 'checkbox', 'crb_show_menu_verifikasi_rka_check_settings', 'Verifikasi RKA' )
 					->set_option_value( 'true' ),
 
-			Field::make( 'separator', 'crb_show_menu_monev_fmis_settings', 'MONEV FMIS' ),
+			Field::make( 'separator', 'crb_show_menu_monev_fmis_settings', 'Non Aktifkan Menu ( MONEV FMIS )' ),
 				Field::make( 'checkbox', 'crb_show_menu_monev_fmis_check_settings', 'MONEV FMIS' )
 					->set_option_value( 'true' ),
-
-			Field::make( 'separator', 'crb_show_menu_dashboard_user_settings', 'Mernu Dashboard User' ),
-				Field::make( 'multiselect', 'crb_daftar_tombol_user_dashboard', 'Daftar tombol di halaman dashboard user' )
-				->add_options( array(
-					'1' => __( 'MONEV RFK' ),
-					'2' => __( 'MONEV SUMBER DANA' ),
-					'3' => __( 'MONEV LABEL KOMPONEN' ),
-					'4' => __( 'MONEV INDIKATOR RENJA' ),
-					'5' => __( 'MONEV INDIKATOR RENSTRA' ),
-					'6' => __( 'MONEV INDIKATOR RPJM' ),
-					'7' => __( 'MENU SSH' ),
-					'8' => __( 'INPUT RENSTRA' ),
-					'9' => __( 'INPUT RENJA' ),
-					'10' => __( 'INPUT REALISASI KEU PEMDES' ),
-					'11' => __( 'USER PPTK' )
-				) )
-				->set_default_value(array('1','2','3','4','5'))
-				->set_help_text('Daftar fitur ini akan ditampilkan dalam bentuk tombol di halaman dasboard user setelah berhasil login.'),
 		);
 		return $field;
 	}
