@@ -581,8 +581,11 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 								FROM `data_ssh_usulan` 
 								WHERE kode_kel_standar_harga = %s
 							)",$data_old_ssh[0]['kode_kel_standar_harga']), ARRAY_A);
-						$last_kode_standar_harga = (empty($last_kode_standar_harga[0]['kode_standar_harga'])) ? "0" : explode(".",$last_kode_standar_harga[0]['kode_standar_harga']);
-						$last_kode_standar_harga = (int) end($last_kode_standar_harga);
+						$last_kode_standar_harga = 0;
+						if(!empty($last_kode_standar_harga[0]['kode_standar_harga'])){
+							$last_kode_standar_harga = explode(".",$last_kode_standar_harga[0]['kode_standar_harga']);
+							$last_kode_standar_harga = (int) end($last_kode_standar_harga);
+						}
 						$last_kode_standar_harga = $last_kode_standar_harga+1;
 						$last_kode_standar_harga = sprintf("%05d",$last_kode_standar_harga);
 						$last_kode_standar_harga = $data_old_ssh[0]['kode_kel_standar_harga'].'.'.$last_kode_standar_harga;
@@ -3235,6 +3238,7 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 				){
 					$tahun_anggaran = trim(htmlspecialchars($_POST['tahun_anggaran']));
 					$new_akun = $_POST['new_akun'];
+					$keterangan = $_POST['keterangan'];
 					$id	= trim(htmlspecialchars($_POST['id']));
 
 					$data_this_id_ssh = $wpdb->get_results($wpdb->prepare('
@@ -3247,6 +3251,11 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 						FROM data_ssh_usulan 
 						WHERE id = %d
 					',$id), ARRAY_A);
+					if(empty($data_this_id_ssh)){
+						$return['status'] = 'error';
+						$return['message'] = 'Data usulan tidak ditemukan!';
+						die($return);
+					}
 	
 					if(
 						$data_this_id_ssh[0]['status'] == 'waiting' 
@@ -3256,6 +3265,10 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 						|| in_array("PLT", $user_meta->roles)
 					){
 						if($data_this_id_ssh[0]['status_upload_sipd'] != 1){
+							$wpdb->update('data_ssh_usulan', array('keterangan_lampiran' => $keterangan), array(
+								'id' => $id
+							));
+
 							// get all data usulan akun existing
 							$akun_exist = $wpdb->get_results($wpdb->prepare("
 								SELECT
