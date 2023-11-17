@@ -1818,6 +1818,7 @@ echo $this->menu_ssh($input);
 		var id_standar_harga = jQuery('#tambah_akun_komp_nama_komponent').val();
 		var id_sub_skpd = jQuery('#tambah_akun_id_sub_unit').val();
 		var new_akun = jQuery('#tambah_new_akun_komp').val();
+		var keterangan_lampiran = jQuery('#tambah_akun_komp_keterangan_lampiran').val();
 		if(new_akun == ''){
 			alert('Rekening akun tidak boleh kosong!');
 			return false;
@@ -1838,7 +1839,8 @@ echo $this->menu_ssh($input);
 					'tahun_anggaran' : tahun,
 					'id_standar_harga' : id_standar_harga,
 					'new_akun' : new_akun,
-					'id_sub_skpd' : id_sub_skpd
+					'id_sub_skpd' : id_sub_skpd,
+					'keterangan_lampiran' : keterangan_lampiran
 				},
 				dataType: 'json',
 				beforeSend: function () {

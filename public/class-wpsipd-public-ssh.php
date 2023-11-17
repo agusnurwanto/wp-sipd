@@ -524,6 +524,7 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 				if(!empty($_POST['id_standar_harga']) && !empty($_POST['new_akun'])){
 					$id_standar_harga = trim(htmlspecialchars($_POST['id_standar_harga']));
 					$tahun_anggaran = trim(htmlspecialchars($_POST['tahun_anggaran']));
+					$keterangan_lampiran = trim(htmlspecialchars($_POST['keterangan_lampiran']));
 					$new_akun = $_POST['new_akun'];
 					$id_sub_skpd = $_POST['id_sub_skpd'];
 					
@@ -612,7 +613,7 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 							'nama_kel_standar_harga' => $data_old_ssh[0]['nama_kel_standar_harga'],
 							'tahun_anggaran' => $tahun_anggaran,
 							'status' => 'draft',
-							'keterangan_lampiran' => NULL,
+							'keterangan_lampiran' => $keterangan_lampiran,
 							'kode_standar_harga_sipd' => $kode_standar_harga_sipd,
 							'status_jenis_usulan' => 'tambah_akun',
 							'jenis_produk'	=> $data_old_ssh[0]['jenis_produk'],
@@ -631,6 +632,7 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 							'nama_akun' => $v_akun[0]['kode_akun'].' '.$v_akun[0]['nama_akun'],
 							'id_standar_harga' => $id_standar_harga,
 							'tahun_anggaran' => $tahun_anggaran,
+							'keterangan_lampiran' => $keterangan_lampiran,
 						);
 		
 						$wpdb->insert('data_ssh_rek_belanja_usulan',$opsi_akun[$k_akun]);
