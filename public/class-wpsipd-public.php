@@ -5252,7 +5252,11 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 
 		// RINCIAN APBD MENURUT URUSAN PEMERINTAHAN DAERAH, ORGANISASI, PENDAPATAN, BELANJA DAN PEMBIAYAAN
 		if($input['lampiran'] == 2){
-			require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/wpsipd-public-apbdpenjabaran-2.php';
+			if(empty($input['id_skpd'])){
+				require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/wpsipd-public-apbdpenjabaran-2-pemda.php';
+			}else{
+				require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/wpsipd-public-apbdpenjabaran-2.php';
+			}
 		}
 
 		// DAFTAR NAMA CALON PENERIMA, ALAMAT DAN BESARAN ALOKASI HIBAH BERUPA UANG & BARANG YANG DITERIMA SERTA SKPD PEMBERI HIBAH
@@ -7173,7 +7177,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		global $wpdb;
 		if(!empty($user)){
 			$username = $user['loginname'];
-			if(empty($user['emailteks'])){
+			if(!empty($user['emailteks'])){
 				$email = $user['emailteks'];
 			}else{
 				$email = $username.'@sipdlocal.com';
@@ -7197,6 +7201,11 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 					'role' => $user['jabatan']
 				);
 				$insert_user = wp_insert_user($option);
+
+				if (is_wp_error( $insert_user ) ) {
+					//print_r($option);die();
+				    return $insert_user;
+				}
 			}
 
 			if(!empty($update_pass)){
@@ -7246,8 +7255,8 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						$user['nip'] = $user['nipkepala'];
 						$this->gen_user_sipd_merah($user, $update_pass);
 					}
-
-					$users = $wpdb->get_results("SELECT * from data_dewan where active=1", ARRAY_A);
+					// 20 = kades, 21 = lembaga, 22 = individu, 16 = dewan
+					$users = $wpdb->get_results("SELECT * from data_dewan where active=1 AND idlevel NOT IN (16, 20, 21, 22)", ARRAY_A);
 					if(!empty($users)){
 						foreach ($users as $k => $user) {
 							$user['pass'] = $_POST['pass'];
@@ -7261,7 +7270,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 							}else if($user['jabatan'] == 'TAPD KEUANGAN'){
 								$user['jabatan'] = 'tapd_keu';
 							}
-							$this->gen_user_sipd_merah($user, $update_pass);
+							$this->gen_user_sipd_merah($user, $update_pass); 
 						}
 					}else{
 						$ret['status'] = 'error';

@@ -424,12 +424,14 @@ foreach ($units as $k => $unit) :
 					and tahun_anggaran=%d
 					and kode_sbl=%s
 			", $sub['tahun_anggaran'], $sub['kode_sbl']));
-			$cek_pptk = 'badge-primary';
 			if (!empty($data_pptk)) {
 				$cek_pptk = 'badge-success';
 			}
+			$cek_verifikasi = 'badge-primary';
+			$url_verifikasi = $this->generatePage('Verifikasi Sub Kegiatan', $sub['tahun_anggaran'], '[verifikasi_rka]');
+			$url_verifikasi .= '&tahun='.$sub['tahun_anggaran'].'&kode_sbl='.$sub['kode_sbl'];
 			$data_all['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']]['data'][$sub['kode_giat']]['data'][$sub['kode_sub_giat']] = array(
-				'nama'	=> implode(' ', $nama) . $debug_pagu . '<span class="detail_simda hide-excel">' . json_encode($detail_simda) . '</span><span class="badge badge-danger simpan-per-sub-keg hide-excel">SIMPAN</span><span class="badge ' . $cek_pptk . ' set-pptk-per-sub-keg hide-excel">SET PPTK</span>',
+				'nama'	=> implode(' ', $nama) . $debug_pagu . '<span class="detail_simda hide-excel">' . json_encode($detail_simda) . '</span><span class="badge badge-danger simpan-per-sub-keg hide-excel">SIMPAN</span><span class="badge ' . $cek_pptk . ' set-pptk-per-sub-keg hide-excel">SET PPTK</span><a href="'.$url_verifikasi.'" target="_blank" class="badge ' . $cek_verifikasi . ' verifikasi-rka-per-sub-keg hide-excel">VERIFIKASI RKA</a>',
 				'total' => 0,
 				'total_simda' => 0,
 				'total_fmis' => 0,
@@ -729,8 +731,8 @@ foreach ($units as $k => $unit) :
 					            <td class="kanan bawah realisasi-fisik text_tengah" ' . $edit_fisik . '>' . $realisasi_fisik . '</td>
 					            <td class="kanan bawah nilai-realisasi-fisik text_kanan"></td>
 					            <td class="kanan bawah">' . implode(',<br>', $sd_sub) . '</td>
-								'. $role_specific_column_permasalahan .'
-								'. $role_specific_column_catatan .'
+								' . $role_specific_column_permasalahan . '
+								' . $role_specific_column_catatan . '
 					        </tr>
 						';
 					}
@@ -778,7 +780,8 @@ foreach ($units as $k => $unit) :
 	<style>
 		.nama_sub_giat .detail_simda, 
 		.nama_sub_giat .simpan-per-sub-keg, 
-		.nama_sub_giat .set-pptk-per-sub-keg { 
+		.nama_sub_giat .set-pptk-per-sub-keg, 
+		.nama_sub_giat .verifikasi-rka-per-sub-keg { 
 			display: none; 
 		}
 		.simpan-per-sub-keg {
@@ -789,8 +792,12 @@ foreach ($units as $k => $unit) :
 		.tr-belum-save {
 			background: #ffbc0073;
 		}
-		.set-pptk-per-sub-keg {
+		.set-pptk-per-sub-keg,
+		.verifikasi-rka-per-sub-keg {
 		    margin-left: 5px;
+		}
+		#cetak a {
+			text-decoration: none !important;
 		}
 	</style>
 	<input type="hidden" value="' . get_option('_crb_api_key_extension') . '" id="api_key">
@@ -891,6 +898,15 @@ if (
 	$simpan_rfk = '';
 } else if (!current_user_can('administrator')) {
 	$reset_rfk = '<button style="margin-left: 20px;" class="components-button button button-default" id="reset-rfk">Reset RFK Bulan Sebelumnya</button>';
+}
+
+if (
+	current_user_can('administrator') ||
+	current_user_can('PA') ||
+	current_user_can('KPA') ||
+	current_user_can('PLT')
+) {
+	$cekbox_set_pptk .= '<label style="margin-left: 20px;"><input type="checkbox" onclick="tampil_set_pptk(this);"> Tampilkan Tombol Set PPTK dan Verifikasi</label>';
 }
 ?>
 
@@ -1138,8 +1154,10 @@ if (
 	function tampil_set_pptk(that) {
 		if (jQuery(that).is(':checked')) {
 			jQuery('.set-pptk-per-sub-keg').show();
+			jQuery('.verifikasi-rka-per-sub-keg').show();
 		} else {
 			jQuery('.set-pptk-per-sub-keg').hide();
+			jQuery('.verifikasi-rka-per-sub-keg').hide();
 		}
 	}
 
@@ -1192,7 +1210,7 @@ if (
 		'<option value="fmis">APBD FMIS</option>' +
 		'</select>' +
 		'</label>' +
-		'<?php echo $extend_action; ?>' +
+		'<?php echo $cekbox_set_pptk; ?>' +
 		'</div>';
 	jQuery(document).ready(function() {
 		jQuery('#action-sipd').append(extend_action);

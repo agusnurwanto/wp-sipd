@@ -580,6 +580,7 @@ class Wpsipd
 		$this->loader->add_action('wp_ajax_get_data_chart_ssh_skpd',  $plugin_public, 'get_data_chart_ssh_skpd');
 		$this->loader->add_action('wp_ajax_submit_edit_usulan_ssh',  $plugin_public, 'submit_edit_usulan_ssh');
 		$this->loader->add_action('wp_ajax_submit_delete_usulan_ssh',  $plugin_public, 'submit_delete_usulan_ssh');
+		$this->loader->add_action('wp_ajax_submit_ssh_usulan_by_id',  $plugin_public, 'submit_ssh_usulan_by_id');
 		$this->loader->add_action('wp_ajax_submit_delete_akun_usulan_ssh',  $plugin_public, 'submit_delete_akun_usulan_ssh');
 		$this->loader->add_action('wp_ajax_submit_delete_check_usulan_ssh',  $plugin_public, 'submit_delete_check_usulan_ssh');
 		$this->loader->add_action('wp_ajax_submit_approve_check_usulan_ssh',  $plugin_public, 'submit_approve_check_usulan_ssh');
