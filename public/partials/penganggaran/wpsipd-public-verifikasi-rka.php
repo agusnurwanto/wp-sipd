@@ -122,6 +122,19 @@ if (!empty($pptk_sub_keg)) {
 	$nama = get_userdata($pptk_sub_keg['id_user']);
 	$user_pptk = $nama->display_name;
 }
+
+$nama_page = $tahun_anggaran . ' | ' . $kode_sub_skpd . ' | ' . $kode_kegiatan . ' | ' . $nama_kegiatan;
+$custom_post = get_page_by_title($nama_page, OBJECT, 'post');
+$link_kegiatan = $this->get_link_post($custom_post);
+
+$sumber_pagu_dpa = get_option('_crb_default_sumber_pagu_dpa');
+$url_nilai_dpa = '&pagu_dpa=simda';
+if($sumber_pagu_dpa == 2){
+	$url_nilai_dpa = '&pagu_dpa=fmis';
+}
+$nama_page = 'RFK '.$nama_sub_skpd.' '.$kode_sub_skpd.' | '.$tahun_anggaran;
+$custom_post = $this->get_page_by_title($nama_page, OBJECT, 'page');
+$url_rfk = $this->get_link_post($custom_post).$url_nilai_dpa;
 ?>
 <style>
 	#tabel_detail_sub,
@@ -198,6 +211,12 @@ if (!empty($pptk_sub_keg)) {
 		}
 		?>
 		<button class="btn btn-sm btn-info" onclick="jQuery('.aksi').hide(); window.print(); setTimeout(function(){ jQuery('.aksi').show(); }, 10000);"><i class="dashicons dashicons-printer"></i> Print Lembar Verifikasi</button>
+		<a href="<?php echo $url_rfk; ?>" target="_blank" class="btn btn-sm btn-secondary">
+			<span class="dashicons dashicons-media-default"></span>Kembali Ke Halaman RFK
+		</a>
+		<a class="btn btn-sm btn-secondary" href="<?php echo $link_kegiatan; ?>" target="_blank">
+			<span class="dashicons dashicons-media-document"></span> Kembali Ke Halaman RKA
+		</a>
 	</div>
 
 	<table id="tabel_verifikasi">
@@ -443,7 +462,7 @@ if (!empty($pptk_sub_keg)) {
 		if (userPptkStatus === 'User PPTK belum disetting!') {
 			return alert('Harap set user PPTK pada halaman set user PPTK');
 		}
-		
+
 		jQuery('#wrap-loading').show();
 		jQuery.ajax({
 			type: 'POST',
