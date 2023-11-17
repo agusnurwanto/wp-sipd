@@ -521,7 +521,15 @@ function generate_body($rek_pendapatan, $nama_table, $type='murni', $skpd){
 }
 
 global $wpdb;
-$skpd = $wpdb->get_row('SELECT * FROM `data_unit` where id_skpd='.$input['id_skpd'].' and tahun_anggaran='.$input['tahun_anggaran'].' and active=1', ARRAY_A);
+$skpd = $wpdb->get_row($wpdb->prepare('
+    SELECT 
+        * 
+    FROM `data_unit` 
+    where id_skpd=%d 
+        and tahun_anggaran=%d 
+        and active=1
+', $input['id_skpd'], $input['tahun_anggaran']), ARRAY_A);
+
 $kode = explode('.', $skpd['kode_skpd']);
 $type = 'murni';
 if(!empty($_GET) && !empty($_GET['type'])){
@@ -529,17 +537,17 @@ if(!empty($_GET) && !empty($_GET['type'])){
 }
 $id_skpd_all = array();
 if($skpd['is_skpd'] == 1){
-    $skpd_induk = $wpdb->get_results('
+    $skpd_induk = $wpdb->get_results($wpdb->prepare('
         SELECT 
             id_skpd 
         FROM `data_unit` 
         where (
-                idinduk='.$input['id_skpd'].' 
-                or id_unit='.$input['id_skpd'].' 
+                idinduk=%d 
+                or id_unit=%d 
             )
-            and tahun_anggaran='.$input['tahun_anggaran'].' 
+            and tahun_anggaran=%d 
             and active=1
-    ', ARRAY_A);
+    ', $input['id_skpd'], $input['id_skpd'], $input['tahun_anggaran']), ARRAY_A);
     foreach ($skpd_induk as $k => $v) {
         $id_skpd_all[] = $v['id_skpd'];
     }
