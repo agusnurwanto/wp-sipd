@@ -1081,9 +1081,9 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes {
 							$this->generatePage('Sumber Dana '.$vv['nama_skpd'].' '.$vv['kode_skpd'].' | '.$v['tahun_anggaran'], $v['tahun_anggaran'], '[monitor_daftar_sumber_dana tahun_anggaran="'.$v['tahun_anggaran'].'" id_skpd="'.$vv['id_skpd'].'"]');
 						}else if($_POST['type'] == 'label_komponen'){
 							$this->generatePage('Label Komponen '.$vv['nama_skpd'].' '.$vv['kode_skpd'].' | '.$v['tahun_anggaran'], $v['tahun_anggaran'], '[monitor_daftar_label_komponen tahun_anggaran="'.$v['tahun_anggaran'].'" id_skpd="'.$vv['id_skpd'].'"]');
-						// }else if($_POST['type'] == 'apbdpenjabaran'){
-						// 	$url_skpd = $this->generatePage($v['tahun_anggaran'] .' | '.$vv['kode_skpd'].' | '.$vv['nama_skpd'].' | '. ' | APBD PENJABARAN Lampiran 2', $v['tahun_anggaran'], '[apbdpenjabaran tahun_anggaran="'.$v['tahun_anggaran'].'" lampiran="2" id_skpd="'.$vv['id_skpd'].'"]');
-		            	// 	$body_pemda .= '<li><a target="_blank" href="'.$url_skpd.'">Halaman APBD PENJABARAN Lampiran 2 '.$vv['kode_skpd'].' '.$vv['nama_skpd'].' '.$v['tahun_anggaran'].'</a> (NIP: '.$vv['nipkepala'].')';
+						}else if($_POST['type'] == 'apbdpenjabaran'){
+							$url_skpd = $this->generatePage($v['tahun_anggaran'] .' | '.$vv['kode_skpd'].' | '.$vv['nama_skpd'].' | '. ' | APBD PENJABARAN Lampiran 2', $v['tahun_anggaran'], '[apbdpenjabaran tahun_anggaran="'.$v['tahun_anggaran'].'" lampiran="2" id_skpd="'.$vv['id_skpd'].'"]');
+		            		$body_pemda .= '<li><a target="_blank" href="'.$url_skpd.'">Halaman APBD PENJABARAN Lampiran 2 '.$vv['kode_skpd'].' '.$vv['nama_skpd'].' '.$v['tahun_anggaran'].'</a> (NIP: '.$vv['nipkepala'].')';
 						}else if($_POST['type'] == 'rekap_satuan_harga'){
 							$url_skpd = $this->generatePage('Rekapitulasi Rincian Belanja '.$vv['nama_skpd'].' '.$vv['kode_skpd'].' | '.$v['tahun_anggaran'], $v['tahun_anggaran'], '[monitor_satuan_harga tahun_anggaran="'.$v['tahun_anggaran'].'" id_skpd="'.$vv['id_skpd'].'"]');
 		            		$body_pemda .= '<li><a target="_blank" href="'.$url_skpd.'">Halaman Chart dan Rekapitulasi Rincian Belanja '.$vv['kode_skpd'].' '.$vv['nama_skpd'].' '.$v['tahun_anggaran'].'</a> (NIP: '.$vv['nipkepala'].')';
@@ -1124,9 +1124,9 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes {
 		            			$this->generatePage('Sumber Dana '.$vvv['nama_skpd'].' '.$vvv['kode_skpd'].' | '.$v['tahun_anggaran'], $v['tahun_anggaran'], '[monitor_daftar_sumber_dana tahun_anggaran="'.$v['tahun_anggaran'].'" id_skpd="'.$vvv['id_skpd'].'"]');
 							}else if($_POST['type'] == 'label_komponen'){
 								$this->generatePage('Label Komponen '.$vvv['nama_skpd'].' '.$vvv['kode_skpd'].' | '.$v['tahun_anggaran'], $v['tahun_anggaran'], '[monitor_daftar_label_komponen tahun_anggaran="'.$v['tahun_anggaran'].'" id_skpd="'.$vvv['id_skpd'].'"]');
-							// }else if($_POST['type'] == 'apbdpenjabaran'){
-							// 	$url_skpd = $this->generatePage($v['tahun_anggaran'] .' | '.$vvv['kode_skpd'].' | '.$vvv['nama_skpd'].' | '. ' | APBD PENJABARAN Lampiran 2', $v['tahun_anggaran'], '[apbdpenjabaran tahun_anggaran="'.$v['tahun_anggaran'].'" lampiran="2" id_skpd="'.$vvv['id_skpd'].'"]');
-			            	// 	$body_pemda .= '<li><a target="_blank" href="'.$url_skpd.'">Halaman APBD PENJABARAN Lampiran 2 '.$vv['kode_skpd'].' '.$vvv['nama_skpd'].' '.$v['tahun_anggaran'].'</a> (NIP: '.$vvv['nipkepala'].')';
+							}else if($_POST['type'] == 'apbdpenjabaran'){
+								$url_skpd = $this->generatePage($v['tahun_anggaran'] .' | '.$vvv['kode_skpd'].' | '.$vvv['nama_skpd'].' | '. ' | APBD PENJABARAN Lampiran 2', $v['tahun_anggaran'], '[apbdpenjabaran tahun_anggaran="'.$v['tahun_anggaran'].'" lampiran="2" id_skpd="'.$vvv['id_skpd'].'"]');
+			            		$body_pemda .= '<li><a target="_blank" href="'.$url_skpd.'">Halaman APBD PENJABARAN Lampiran 2 '.$vv['kode_skpd'].' '.$vvv['nama_skpd'].' '.$v['tahun_anggaran'].'</a> (NIP: '.$vvv['nipkepala'].')';
 							}else if($_POST['type'] == 'rekap_satuan_harga'){
 								$url_skpd = $this->generatePage('Rekapitulasi Rincian Belanja '.$vvv['nama_skpd'].' '.$vvv['kode_skpd'].' | '.$v['tahun_anggaran'], $v['tahun_anggaran'], '[monitor_satuan_harga tahun_anggaran="'.$v['tahun_anggaran'].'" id_skpd="'.$vvv['id_skpd'].'"]');
 								$body_pemda .= '<li><a target="_blank" href="'.$url_skpd.'">Halaman Chart dan Rekapitulasi Rincian Belanja '.$vvv['kode_skpd'].' '.$vvv['nama_skpd'].' '.$v['tahun_anggaran'].'</a> (NIP: '.$vvv['nipkepala'].')';

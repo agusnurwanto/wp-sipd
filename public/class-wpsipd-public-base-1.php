@@ -3135,19 +3135,27 @@ class Wpsipd_Public_Base_1 extends Wpsipd_Public_Base_2{
                         $id_skpd = $_POST['id_skpd'];
                         if(!empty($id_skpd)){
                             $per_skpd = ' AND id_sub_skpd='.$id_skpd;
+                            $sql_sub_keg_bl = $wpdb->prepare('
+                                SELECT 
+                                    *
+                                FROM data_sub_keg_bl
+                                WHERE active=1
+                                AND tahun_anggaran=%d
+                                AND id_sub_skpd='.$id_skpd.'
+                            ', $tahun_anggaran);
                         }else{
                             $per_skpd = '';
+                            $sql_sub_keg_bl = $wpdb->prepare('
+                                SELECT 
+                                    *
+                                FROM data_sub_keg_bl
+                                WHERE active=1
+                                AND tahun_anggaran=%d
+                                AND id_sub_skpd='.$id_skpd.'
+                            ', $tahun_anggaran);
                         }
 
-                        $sql_sub_keg_bl = "
-                            SELECT 
-                                * 
-                            FROM data_sub_keg_bl
-                            WHERE active=1
-                            AND tahun_anggaran=".$tahun_anggaran."
-                            ".$per_skpd;
-
-                        $query_sub_keg_bl = $wpdb->query($sql_sub_keg_bl);
+                        $query_sub_keg_bl = $wpdb->get_results($sql_sub_keg_bl, ARRAY_A);
 
                         if(!empty($query_sub_keg_bl)){
                             /** copy data sub keg */
@@ -3283,6 +3291,32 @@ class Wpsipd_Public_Base_1 extends Wpsipd_Public_Base_2{
 
                                 $queryCapaianProg = $wpdb->query($sql_copy_data_capaian_prog_sub_keg);
                                 
+                                /** copy data output giat */
+                                $wpdb->update('data_output_giat_sub_keg_lokal', array('active'=>0), array('active' => 1, 'tahun_anggaran' => $tahun_anggaran, 'kode_sbl' => $v_sub_keg_bl['kode_sbl']));
+                                
+                                $oclumns_output_giat = array(
+                                    'outputteks',
+                                    'satuanoutput',
+                                    'targetoutput',
+                                    'targetoutputteks',
+                                    'kode_sbl',
+                                    'idsubbl',
+                                    'active',
+                                    'update_at',
+                                    'tahun_anggaran'
+                                );
+
+                                $sql_copy_data_output_giat_sub_keg =  "
+                                    INSERT INTO data_output_giat_sub_keg_lokal (".implode(', ', $oclumns_output_giat).")
+                                    SELECT 
+                                        ".implode(', ', $oclumns_output_giat)."
+                                    FROM data_output_giat_sub_keg
+                                    WHERE active=1
+                                    AND tahun_anggaran='".$tahun_anggaran."'
+                                    AND kode_sbl='".$v_sub_keg_bl['kode_sbl']."'";
+
+                                $queryOutputGiat = $wpdb->query($sql_copy_data_output_giat_sub_keg);
+                                
                                 /** copy data sumber dana */
                                 $wpdb->update('data_dana_sub_keg_lokal', array('active'=>0), array('active' => 1, 'tahun_anggaran' => $tahun_anggaran, 'kode_sbl' => $v_sub_keg_bl['kode_sbl']));
 
@@ -3339,32 +3373,7 @@ class Wpsipd_Public_Base_1 extends Wpsipd_Public_Base_2{
 
                                 $queryLokasi = $wpdb->query($sql_copy_data_lokasi_sub_keg);
                             }
-
                         }
-
-                        /** copy data output giat */
-                        
-                        $oclumns_7 = array(
-                            'outputteks',
-                            'satuanoutput',
-                            'targetoutput',
-                            'targetoutputteks',
-                            'kode_sbl',
-                            'idsubbl',
-                            'active',
-                            'update_at',
-                            'tahun_anggaran'
-                        );
-
-                        $sql_backup_data_output_giat_sub_keg =  "
-                            INSERT INTO data_output_giat_sub_keg_lokal (".implode(', ', $oclumns_7).")
-                            SELECT 
-                                ".implode(', ', $oclumns_7)."
-                            FROM data_output_giat_sub_keg
-                            WHERE tahun_anggaran='".$tahun_anggaran."'
-                        ";
-
-                        $queryRecords7 = $wpdb->query($sql_backup_data_output_giat_sub_keg);
                     }else{
                         $ret = array(
                             'status' => 'error',
