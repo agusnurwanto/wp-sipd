@@ -3054,4 +3054,29 @@ echo $this->menu_ssh($input);
 		var url = '<?php echo $url_cetak_usulan; ?>'+'&tahun='+tahun+'&status='+status+'&id_skpd='+id_skpd+'&no_surat='+no_surat+'&nota_dinas='+nota_dinas+'&tipe_laporan='+tipe_laporan;
 		window.open(url, '_blank').focus();
 	}
+
+	function submit_ssh_usulan(id,tahun){
+	    if(confirm('Apakah anda yakin mengirim data ini ?')){
+			jQuery('#wrap-loading').show();
+			jQuery.ajax({
+				url: "<?php echo admin_url('admin-ajax.php'); ?>",
+				type:'post',
+				data:{
+					'action': 'submit_ssh_usulan_by_id',
+					'api_key': jQuery("#api_key").val(),
+					'id': id,
+					'tahun_anggaran': tahun
+				},
+				dataType: 'json',
+	            success: function(res){
+	                jQuery('#wrap-loading').hide();
+	                alert(res.message);
+	                if(res.status == 'success'){
+	                    usulanSSHTable.ajax.reload();
+	                }
+	            }
+			});
+		}
+	}
 </script> 
+

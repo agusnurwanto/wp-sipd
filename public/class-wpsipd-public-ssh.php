@@ -1826,10 +1826,12 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 				foreach($queryRecords as $recKey => $recVal){
 					$iconX		= '<i class="dashicons dashicons-trash"></i>';
 					$iconEdit 	= '<i class="dashicons dashicons-edit"></i>';
+					$iconSubmit 	= '<i class="dashicons dashicons-migrate"></i>';
 					$detilUsulanSSH = '<a class="btn btn-sm btn-primary" onclick="edit_ssh_usulan(\''.$recVal['status_jenis_usulan'].'\',\''.$recVal['id'].'\', \'detil\'); return false;" href="#" title="Detail komponen usulan SSH" style="text-decoration:none"><i class="dashicons dashicons-search" style="text-decoration:none"></i></a>&nbsp;';
 					$jenis = ($recVal['status_upload_sipd'] == 1) ? 'upload' : 'usulan';
 					$can_edit = false;
 					$can_delete = false;
+					$can_submit = false;
 					$deleteUsulanSSH = '';
 					$editUsulanSSH = '';
 
@@ -1860,6 +1862,7 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 							&& $recVal['status'] == 'rejected'
 						){
 							$can_edit = true;
+							$can_submit = true;
 						}
 					}
 					
@@ -1869,6 +1872,10 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 
 					if($can_delete){
 						$deleteUsulanSSH = '<a class="btn btn-sm btn-danger" onclick="delete_ssh_usulan(\''.$recVal['id'].'\'); return false;" href="#" title="Delete komponen usulan SSH" style="text-decoration:none">'.$iconX.'</a>&nbsp;';
+					}
+					
+					if($can_submit){
+						$submitUsulanSSH = '<a class="btn btn-sm btn-info" onclick="submit_ssh_usulan(\''.$recVal['id'].'\'); return false;" href="#" title="Submit usulan SSH" style="text-decoration:none">'.$iconSubmit.'</a>&nbsp;';
 					}
 
 					$created_user = "";
@@ -2035,7 +2042,7 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 					if($recVal['status_upload_sipd'] == 1){
 						$tombol_aksi = '<a class="btn btn-sm btn-success" onclick="alert(\'Usulan SSH sudah diupload ke SIPD\'); return false;" href="#" title="Usulan SSH sudah diupload ke SIPD"><span class="dashicons dashicons-lock"></span></a>';
 					}else{
-						$tombol_aksi = $verify.$detilUsulanSSH.$editUsulanSSH.$deleteUsulanSSH;
+						$tombol_aksi = $verify.$detilUsulanSSH.$editUsulanSSH.$deleteUsulanSSH.$submitUsulanSSH;
 					}
 
 					$lampiran = '';
@@ -2892,7 +2899,6 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 								'keterangan_lampiran' => $keterangan_lampiran,
 								'jenis_produk'	=> $jenis_produk,
 								'tkdn'	=> $tkdn,
-								'status'	=> 'waiting',
 								'id_sub_skpd'	=> $id_sub_skpd,
 							);
 
@@ -3258,7 +3264,7 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 					}
 	
 					if(
-						$data_this_id_ssh[0]['status'] == 'waiting' 
+						$data_this_id_ssh[0]['status'] == 'draft' 
 						|| in_array("administrator", $user_meta->roles)
 						|| in_array("PA", $user_meta->roles)
 						|| in_array("KPA", $user_meta->roles)
@@ -4604,5 +4610,46 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 			</script>
 		';
 		return $ret;
+	}
+	function submit_ssh_usulan_by_id($no_return=false){
+		global $wpdb;
+		$return = array(
+			'status' => 'success',
+			'message' => 'Berhasil Submit Data'
+		);
+		if(!empty($_POST)){
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+				$status = $wpdb->get_var($wpdb->prepare('
+					select 
+						status 
+					from data_ssh_usulan 
+					where id=%d
+				', $_POST['id']));
+				$opsi_db = array(
+					'status' => 'waiting'
+				);
+				// rubah status usulan jadi waiting jika status rejected
+				if($status == 'rejected'){
+					$opsi_db['status'] = 'waiting';
+					$wpdb->update('data_ssh_usulan', $opsi_db, array(
+						'id' => $_POST['id']
+					));
+				}else{
+					$return['status'] = 'error';
+					$return['message'] = 'Status = '.$status.' tidak bisa dirubah menjadi waiting!';
+				}
+			}else{
+				$return = array(
+					'status' => 'error',
+					'message'	=> 'Api Key tidak sesuai!'
+				);
+			}
+		}else{
+			$return = array(
+				'status' => 'error',
+				'message'	=> 'Format tidak sesuai!'
+			);
+		}
+		die(json_encode($return));
 	}
 }
