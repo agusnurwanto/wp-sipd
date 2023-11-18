@@ -293,7 +293,7 @@ $url_rfk = $this->get_link_post($custom_post).$url_nilai_dpa;
 			<div class="modal-footer">
 				<button type="button" class="btn btn-secondary" data-dismiss="modal">Tutup</button>
 				<button type="button" class="btn btn-primary" id="submit_data" onclick="submit_data(this)">Simpan</button>
-				<button type="button" class="btn btn-primary" id="submit_tanggapan" onclick="submit_tanggapan(this)" <?php echo ($user_pptk == 'User PPTK belum disetting!') ? 'disabled' : ''; ?>>Simpan Tanggapan</button>
+				<button type="button" class="btn btn-primary" id="submit_data_tanggapan" onclick="submit_tanggapan(this)" <?php echo ($user_pptk == 'User PPTK belum disetting!') ? 'disabled' : ''; ?>>Simpan Tanggapan</button>
 			</div>
 		</div>
 	</div>
