@@ -143,6 +143,10 @@ $title = 'Rekap Sumber Dana Per Rekening Belanja | '.$input['tahun_anggaran'];
 $shortcode = '[rekap_sumber_dana_per_rekening tahun_anggaran="'.$input['tahun_anggaran'].'"]';
 $url_rekap_sumber_dana_per_rekening = $this->generatePage($title, $input['tahun_anggaran'], $shortcode, false);
 
+$title = 'Rekap Longlist Per Jenis Belanja | '.$input['tahun_anggaran'];
+$shortcode = '[rekap_longlist_per_jenis_belanja tahun_anggaran="'.$input['tahun_anggaran'].'"]';
+$rekap_longlist_per_jenis_belanja = $this->generatePage($title, $input['tahun_anggaran'], $shortcode, false);
+
 $body = '';
 ?>
 <style>
@@ -681,6 +685,7 @@ $body = '';
 									<option value="rekap_sumber_dana_per_kegiatan">Rekap Sumber Dana Per Kegiatan</option>
 									<option value="rekap_sumber_dana_per_sub_kegiatan">Rekap Sumber Dana Per Sub Kegiatan</option>
 									<option value="rekap_sumber_dana_per_rekening">Rekap Sumber Dana Per Rekening</option>
+									<option value="rekap_longlist_per_jenis_belanja">Rekap Longlist Per Jenis Belanja</option>
 				      			</select>
 					    	</div>
 					    </div></br>
@@ -769,6 +774,9 @@ $body = '';
 				break;
 			case 'rekap_sumber_dana_per_rekening':
 				window.open('<?php echo $url_rekap_sumber_dana_per_rekening; ?>'+'&id_unit='+id_unit+'&id_jadwal_lokal='+id_jadwal_lokal,'_blank');
+				break;
+			case 'rekap_longlist_per_jenis_belanja':
+				window.open('<?php echo $rekap_longlist_per_jenis_belanja; ?>'+'&id_unit='+id_unit+'&id_jadwal_lokal='+id_jadwal_lokal,'_blank');
 				break;
 
 			case '-':
