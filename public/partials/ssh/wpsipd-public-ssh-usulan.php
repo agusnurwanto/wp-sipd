@@ -2672,6 +2672,7 @@ echo $this->menu_ssh($input);
 		var ubah = jQuery("#tambahSuratUsulan input[name='ubah_id']").val();
 		var lapiran_surat = jQuery('#u_surat_usulan_ssh')[0].files[0];
 		let tempData = new FormData();
+		jQuery('#wrap-loading').show();
 		tempData.append('action', 'simpan_surat_usulan_ssh');
 		tempData.append('api_key', jQuery("#api_key").val());
 		tempData.append('tahun_anggaran', tahun);
@@ -2689,7 +2690,6 @@ echo $this->menu_ssh($input);
 			tempData.append('catatan_verifikator', catatan_verifikator);
 		}
 
-		jQuery('#wrap-loading').show();
 		jQuery.ajax({
 			url: ajax.url,
 		    type: "post",
