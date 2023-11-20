@@ -1836,6 +1836,7 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 					$can_submit = false;
 					$deleteUsulanSSH = '';
 					$editUsulanSSH = '';
+					$submitUsulanSSH = '';
 
 					// jika status usulan masih berstatus draft maka siapa saja bisa mengedit dan menghapus usulan
 					if($recVal['status'] == 'draft'){
@@ -2005,10 +2006,10 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 						in_array("tapd_keu", $user_meta->roles)
 					){
 						$iconFilter = '<i class="dashicons dashicons-yes"></i>';
-						$verify = '<a class="btn btn-sm btn-success" onclick="verify_ssh_usulan(\''.$recVal['id'].'\'); return false;" href="#" title="Verifikasi Item Usulan SSH" style="text-decoration:none">'.$iconFilter.'</a>&nbsp';
-					}else{
 						$verify = '';
+						$verify = '<a class="btn btn-sm btn-success" onclick="verify_ssh_usulan(\''.$recVal['id'].'\'); return false;" href="#" title="Verifikasi Item Usulan SSH" style="text-decoration:none">'.$iconFilter.'</a>&nbsp';
 					}
+					
 					$deleteCheck = '<input type="checkbox" class="delete_check" id="delcheck_'.$recVal['id'].'" onclick="checkcheckbox(); return true;" value="'.$recVal['id'].'" no-surat="'.$recVal['no_surat_usulan'].'">';
 
 					$kode_komponen = '
