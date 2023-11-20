@@ -126,7 +126,7 @@ if(!empty($jadwal_lokal)){
         if($now >= $awal && $now <= $akhir){
             if($is_admin){
                 $add_renja .='<a style="margin-left: 10px;" onclick="copy_usulan_all(); return false;" href="#" class="btn btn-danger">Copy Data Usulan ke Penetapan</a>';
-                $add_renja .='<a style="margin-left: 10px;" onclick="copy_renja_sipd_to_lokal(); return false;" href="#" class="btn btn-danger">Copy Data Renja SIPD ke Lokal</a>';
+                $add_renja .='<a style="margin-left: 10px;" data-toggle="modal" data-target="#modal-copy-renja-sipd" return false;" href="#" class="btn btn-danger">Copy Data Renja SIPD ke Lokal</a>';
             }
             $add_renja .= '<a style="margin-left: 10px;" id="tambah-data" onclick="return false;" href="#" class="btn btn-success">Tambah Data RENJA</a>';
             if(!empty($jadwal_lokal[0]['relasi_perencanaan'])){
@@ -151,7 +151,7 @@ if(!empty($jadwal_lokal)){
         if($now >= $awal && $now <= $akhir){
             if($is_admin){
                 $add_renja .='<a style="margin-left: 10px;" onclick="copy_usulan_all(); return false;" href="#" class="btn btn-danger">Copy Data Usulan ke Penetapan</a>';
-                $add_renja .='<a style="margin-left: 10px;" onclick="copy_renja_sipd_to_lokal(); return false;" href="#" class="btn btn-danger">Copy Data Renja SIPD ke Lokal</a>';
+                $add_renja .='<a style="margin-left: 10px;" data-toggle="modal" data-target="#modal-copy-renja-sipd" return false;" href="#" class="btn btn-danger">Copy Data Renja SIPD ke Lokal</a>';
             }
             $add_renja .= '<a style="margin-left: 10px;" id="tambah-data" onclick="return false;" href="#" class="btn btn-success">Tambah Data RENJA</a>';
             if(!empty($jadwal_lokal[0]['relasi_perencanaan'])){
@@ -1211,6 +1211,30 @@ echo '
             </div>
             <div class="modal-footer">
                 <button class="btn btn-primary submitBtn" onclick="submitIndikatorProgram()">Simpan</button>
+                <button type="submit" class="components-button btn btn-secondary" data-dismiss="modal">Tutup</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Copy data renja -->
+<div class="modal fade" id="modal-copy-renja-sipd" data-backdrop="static" role="dialog" aria-labelledby="modal-copy-renja-sipd-label" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Pilihan Saat Copy Data RENJA</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <input type="checkbox" id="vehicle1" name="vehicle1" value="Bike">
+                <label for="vehicle1">Copy Data Rincian RKA</label><br>
+                <input type="checkbox" id="vehicle1" name="vehicle1" value="Bike">
+                <label for="vehicle1">Copy Sumber Dana</label><br>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary submitBtn" onclick="copy_renja_sipd_to_lokal()">Simpan</button>
                 <button type="submit" class="components-button btn btn-secondary" data-dismiss="modal">Tutup</button>
             </div>
         </div>

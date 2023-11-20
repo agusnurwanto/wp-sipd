@@ -416,22 +416,39 @@ foreach ($units as $k => $unit) :
 				'id_prog' => $id_prog,
 				'kd_keg' => $kd_keg
 			);
+
+			//cek data set pptk
 			$data_pptk = $wpdb->get_var($wpdb->prepare("
 				SELECT
-					id
+					id_user
 				FROM data_pptk_sub_keg
 				WHERE active=1
 					and tahun_anggaran=%d
 					and kode_sbl=%s
 			", $sub['tahun_anggaran'], $sub['kode_sbl']));
+			//warna default belum di set
+			$cek_pptk = 'badge-primary';
 			if (!empty($data_pptk)) {
 				$cek_pptk = 'badge-success';
 			}
+
+			//cek data verifikasi rka
+			$data_verifikasi = $wpdb->get_var($wpdb->prepare("
+				SELECT
+					id_user
+				FROM data_validasi_verifikasi_rka
+				WHERE kode_sbl=%s
+				  and tahun_anggaran=%d
+			", $sub['tahun_anggaran'], $sub['kode_sbl']));
+			//warna default belum di set
 			$cek_verifikasi = 'badge-primary';
+			if (!empty($data_pptk)) {
+				$cek_verifikasi = 'badge-success';
+			}
 			$url_verifikasi = $this->generatePage('Verifikasi Sub Kegiatan', $sub['tahun_anggaran'], '[verifikasi_rka]');
-			$url_verifikasi .= '&tahun='.$sub['tahun_anggaran'].'&kode_sbl='.$sub['kode_sbl'];
+			$url_verifikasi .= '&tahun=' . $sub['tahun_anggaran'] . '&kode_sbl=' . $sub['kode_sbl'];
 			$data_all['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['kode_program']]['data'][$sub['kode_giat']]['data'][$sub['kode_sub_giat']] = array(
-				'nama'	=> implode(' ', $nama) . $debug_pagu . '<span class="detail_simda hide-excel">' . json_encode($detail_simda) . '</span><span class="badge badge-danger simpan-per-sub-keg hide-excel">SIMPAN</span><span class="badge ' . $cek_pptk . ' set-pptk-per-sub-keg hide-excel">SET PPTK</span><a href="'.$url_verifikasi.'" target="_blank" class="badge ' . $cek_verifikasi . ' verifikasi-rka-per-sub-keg hide-excel">VERIFIKASI RKA</a>',
+				'nama'	=> implode(' ', $nama) . $debug_pagu . '<span class="detail_simda hide-excel">' . json_encode($detail_simda) . '</span><span class="badge badge-danger simpan-per-sub-keg hide-excel">SIMPAN</span><span class="badge ' . $cek_pptk . ' set-pptk-per-sub-keg hide-excel">SET PPTK</span><a href="' . $url_verifikasi . '" target="_blank" class="badge ' . $cek_verifikasi . ' verifikasi-rka-per-sub-keg hide-excel">VERIFIKASI RKA</a>',
 				'total' => 0,
 				'total_simda' => 0,
 				'total_fmis' => 0,

@@ -22,6 +22,7 @@ function generate_body($rek_pendapatan, $baris_kosong=false, $type='murni', $nam
     global $pembiayaan_penerimaan_pergeseran;
     global $pembiayaan_pengeluaran_murni;
     global $pembiayaan_pengeluaran_pergeseran;
+
     $data_pendapatan = array(
         'data' => array(),
         'realisasi' => 0,

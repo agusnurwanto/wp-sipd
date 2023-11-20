@@ -7177,7 +7177,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		global $wpdb;
 		if(!empty($user)){
 			$username = $user['loginname'];
-			if(empty($user['emailteks'])){
+			if(!empty($user['emailteks'])){
 				$email = $user['emailteks'];
 			}else{
 				$email = $username.'@sipdlocal.com';
@@ -7201,6 +7201,11 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 					'role' => $user['jabatan']
 				);
 				$insert_user = wp_insert_user($option);
+
+				if (is_wp_error( $insert_user ) ) {
+					//print_r($option);die();
+				    return $insert_user;
+				}
 			}
 
 			if(!empty($update_pass)){
@@ -7250,8 +7255,8 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						$user['nip'] = $user['nipkepala'];
 						$this->gen_user_sipd_merah($user, $update_pass);
 					}
-
-					$users = $wpdb->get_results("SELECT * from data_dewan where active=1", ARRAY_A);
+					// 20 = kades, 21 = lembaga, 22 = individu, 16 = dewan
+					$users = $wpdb->get_results("SELECT * from data_dewan where active=1 AND idlevel NOT IN (16, 20, 21, 22)", ARRAY_A);
 					if(!empty($users)){
 						foreach ($users as $k => $user) {
 							$user['pass'] = $_POST['pass'];
@@ -7265,7 +7270,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 							}else if($user['jabatan'] == 'TAPD KEUANGAN'){
 								$user['jabatan'] = 'tapd_keu';
 							}
-							$this->gen_user_sipd_merah($user, $update_pass);
+							$this->gen_user_sipd_merah($user, $update_pass); 
 						}
 					}else{
 						$ret['status'] = 'error';
