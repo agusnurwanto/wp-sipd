@@ -5106,6 +5106,15 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/wpsipd-public-monitor-json-rka.php';
 	}
 
+	public function dokumentasi_api_wpsipd($atts)
+	{
+		// untuk disable render shortcode di halaman edit page/post
+		if(!empty($_GET) && !empty($_GET['post'])){
+			return '';
+		}
+		require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/dokumentasi/wpsipd-public-dokumentasi-api.php';
+	}
+
 	public function monitoring_spd_rinci($atts)
 	{
 		// untuk disable render shortcode di halaman edit page/post
@@ -11938,6 +11947,68 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						}else{
 							$rka[$k]['sumber_dana'] = $sumber_dana_default;
 						}
+					}
+				}
+				$ret['data'] = $rka;
+			} else {
+				$ret['status'] = 'error';
+				$ret['message'] = 'APIKEY tidak sesuai!';
+			}
+		}
+		die(json_encode($ret));
+	}
+
+	public function get_sub_keg_rka_sipd(){
+		global $wpdb;
+		$ret = array(
+			'action'	=> $_POST['action'],
+			'status'	=> 'success',
+			'message'	=> 'Berhasil RKA get sub kegiatan!'
+		);
+		if (!empty($_POST)) {
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+				$tahun_anggaran = $_POST['tahun_anggaran'];
+				$kode_sbl = $_POST['kode_sbl'];
+				$rka = $wpdb->get_results($wpdb->prepare("
+					SELECT 
+						*
+					FROM data_rka
+					WHERE tahun_anggaran=%d
+						AND active=1
+						AND kode_sbl=%s
+						AND kode_akun!=''
+				", $tahun_anggaran, $kode_sbl), ARRAY_A);
+				$id_sumber_dana_default = get_option('_crb_default_sumber_dana' );
+				$sumber_dana_default = $wpdb->get_results($wpdb->prepare('
+					SELECT 
+						id_dana as id_sumber_dana,
+						kode_dana,
+						nama_dana
+					FROM data_sumber_dana
+					WHERE tahun_anggaran=%d
+						AND id_dana=%d
+				', $tahun_anggaran, $id_sumber_dana_default), ARRAY_A);
+				foreach ($rka as $k => $v) {
+					$sumber_dana = $wpdb->get_results($wpdb->prepare('
+						SELECT 
+							m.id_sumber_dana,
+							s.kode_dana,
+							s.nama_dana
+						FROM data_mapping_sumberdana m
+						INNER JOIN data_sumber_dana s on s.id_dana=m.id_sumber_dana
+							and s.tahun_anggaran=m.tahun_anggaran
+						WHERE m.tahun_anggaran=%d
+							AND m.active=1
+							AND m.id_rinci_sub_bl=%d
+					', $tahun_anggaran, $v['id_rinci_sub_bl']), ARRAY_A);
+					if(
+						!empty($sumber_dana) 
+						&& !empty($sumber_dana[0])
+						&& !empty($sumber_dana[0]['nama_dana'])
+					){
+						$rka[$k]['sumber_dana'] = $sumber_dana;
+					}else{
+						$rka[$k]['sumber_dana'] = $sumber_dana_default;
 					}
 				}
 				$ret['data'] = $rka;

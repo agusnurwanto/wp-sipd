@@ -438,6 +438,9 @@ class Wpsipd
 		$this->loader->add_action('wp_ajax_get_sub_keg_sipd',  $plugin_public, 'get_sub_keg_sipd');
 		$this->loader->add_action('wp_ajax_nopriv_get_sub_keg_sipd',  $plugin_public, 'get_sub_keg_sipd');
 
+		$this->loader->add_action('wp_ajax_get_sub_keg_rka_sipd',  $plugin_public, 'get_sub_keg_rka_sipd');
+		$this->loader->add_action('wp_ajax_nopriv_get_sub_keg_rka_sipd',  $plugin_public, 'get_sub_keg_rka_sipd');
+
 		$this->loader->add_action('wp_ajax_get_sub_keg_rka',  $plugin_public, 'get_sub_keg_rka');
 		$this->loader->add_action('wp_ajax_nopriv_get_sub_keg_rka',  $plugin_public, 'get_sub_keg_rka');
 
@@ -1015,6 +1018,7 @@ class Wpsipd
 		add_shortcode('verifikasi_rka', array($plugin_public, 'verifikasi_rka'));
 		add_shortcode('user_verikasi_rka', array($plugin_public, 'user_verikasi_rka'));
 		add_shortcode('user_pptk', array($plugin_public, 'user_pptk'));
+		add_shortcode('dokumentasi_api_wpsipd', array($plugin_public, 'dokumentasi_api_wpsipd'));
 
 		//shortcode SIPKD
 		add_shortcode('data_akun',array($plugin_public,'sipkd_akun'));
