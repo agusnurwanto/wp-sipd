@@ -1836,6 +1836,8 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 					$can_submit = false;
 					$deleteUsulanSSH = '';
 					$editUsulanSSH = '';
+					$submitUsulanSSH = '';
+					$submitUsulanSSH = '';
 
 					// jika status usulan masih berstatus draft maka siapa saja bisa mengedit dan menghapus usulan
 					if($recVal['status'] == 'draft'){
@@ -1867,6 +1869,18 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 							$can_submit = true;
 						}
 					}
+
+					if(
+						in_array("administrator", $user_meta->roles) || 
+						in_array("tapd_keu", $user_meta->roles)
+					){
+						$iconFilter = '<i class="dashicons dashicons-yes"></i>';
+						if($can_verify){
+						$verify = '<a class="btn btn-sm btn-success" onclick="verify_ssh_usulan(\''.$recVal['id'].'\'); return false;" href="#" title="Verifikasi Item Usulan SSH" style="text-decoration:none">'.$iconFilter.'</a>&nbsp';
+						}
+					}
+
+					$deleteCheck = '<input type="checkbox" class="delete_check" id="delcheck_'.$recVal['id'].'" onclick="checkcheckbox(); return true;" value="'.$recVal['id'].'" no-surat="'.$recVal['no_surat_usulan'].'">';
 					
 					if($can_edit){
 						$editUsulanSSH = '<a class="btn btn-sm btn-warning" onclick="edit_ssh_usulan(\''.$recVal['status_jenis_usulan'].'\',\''.$recVal['id'].'\'); return false;" href="#" title="Edit komponen usulan SSH" style="text-decoration:none">'.$iconEdit.'</a>&nbsp;';
@@ -1999,17 +2013,6 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 							</tr>';
 					}
 					$status_verif_tapdkeu .= '</tbody></table>';
-
-					if(
-						in_array("administrator", $user_meta->roles) || 
-						in_array("tapd_keu", $user_meta->roles)
-					){
-						$iconFilter = '<i class="dashicons dashicons-yes"></i>';
-						$verify = '<a class="btn btn-sm btn-success" onclick="verify_ssh_usulan(\''.$recVal['id'].'\'); return false;" href="#" title="Verifikasi Item Usulan SSH" style="text-decoration:none">'.$iconFilter.'</a>&nbsp';
-					}else{
-						$verify = '';
-					}
-					$deleteCheck = '<input type="checkbox" class="delete_check" id="delcheck_'.$recVal['id'].'" onclick="checkcheckbox(); return true;" value="'.$recVal['id'].'" no-surat="'.$recVal['no_surat_usulan'].'">';
 
 					$kode_komponen = '
 						<table style="margin: 0;">

@@ -11,6 +11,14 @@ class Wpsipd_Public_RKA
         require_once WPSIPD_PLUGIN_PATH . 'public/partials/penganggaran/wpsipd-public-verifikasi-rka.php';
     }
 
+    public function rekap_longlist_per_jenis_belanja($atts)
+    {
+        if (!empty($_GET) && !empty($_GET['post'])) {
+            return '';
+        }
+        require_once WPSIPD_PLUGIN_PATH . 'public/partials/penganggaran/wpsipd-public-longlist-per-jenis-belanja.php';
+    }
+
     public function user_verikasi_rka()
     {
         if (!empty($_GET) && !empty($_GET['post'])) {

@@ -1653,13 +1653,26 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes {
 		}
 
 		$disabled = 'onclick="get_sinkron_modul_migrasi_data(); return false;"';
-		if(get_option('_crb_url_server_modul_migrasi_data') == admin_url('admin-ajax.php' || empty(get_option('_crb_url_server_modul_migrasi_data')))){
+		if(
+			get_option('_crb_url_server_modul_migrasi_data') == admin_url('admin-ajax.php' 
+				|| empty(get_option('_crb_url_server_modul_migrasi_data'))
+			)
+		){
 			$disabled = 'disabled';
 		}
 
+		$title = 'Dokumentasi API WP-SIPD';
+		$shortcode = '[dokumentasi_api_wpsipd]';
+		$url_api = $this->generatePage($title, false, $shortcode);
 		$mapping_unit = array(
 			Field::make('html', 'crb_url_tahun_anggaran_moduld_migrasi_data')
-				->set_html('<h3>Tahun Anggaran: '.$tahun_anggaran.'</h3>'),
+				->set_html('
+					<h3>Tahun Anggaran: '.$tahun_anggaran.'</h3>
+					<h4>Halaman Terkait:</h4>
+					<ol>
+						<li><a href="'.$url_api.'" target="_blank">'.$title.'</a></li>
+					</ol>
+				'),
             Field::make( 'text', 'crb_url_server_modul_migrasi_data', 'URL Server Modul Migrasi Data' )
 				->set_default_value(admin_url('admin-ajax.php')),
             Field::make( 'text', 'crb_apikey_server_modul_migrasi_data', 'APIKEY Server Modul Migrasi Data' )
@@ -2766,7 +2779,11 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes {
 					        'ID'    =>  $wp_query->queried_object->ID,
 					        'post_status'   =>  'publish'
 				        ));
-				        die('<script>window.location =  window.location.href+"&private=1";</script>');
+				        if(!empty($_GET['private'])){
+				        	die('<script>window.location =  window.location.href;</script>');
+				        }else{
+				        	die('<script>window.location =  window.location.href+"&private=1";</script>');
+				        }
 					}else if(!empty($_GET['private'])){
 						wp_update_post(array(
 					        'ID'    =>  $wp_query->queried_object->ID,
