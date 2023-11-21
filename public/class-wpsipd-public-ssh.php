@@ -1839,6 +1839,7 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 					$deleteUsulanSSH = '';
 					$editUsulanSSH = '';
 					$submitUsulanSSH = '';
+					$verify = '';
 
 					// jika status usulan masih berstatus draft maka siapa saja bisa mengedit dan menghapus usulan
 					if($recVal['status'] == 'draft'){
