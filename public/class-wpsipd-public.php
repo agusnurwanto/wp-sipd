@@ -13926,11 +13926,22 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						$jenis_jadwal = in_array($jenis_jadwal,$arr_jadwal) ? $jenis_jadwal : 'usulan';
 
 						$id_tipe = 0;
-						$sqlTipe = $wpdb->get_results("SELECT * FROM `data_tipe_perencanaan` WHERE nama_tipe='".$tipe_perencanaan."'", ARRAY_A);
+						$sqlTipe = $wpdb->get_results($wpdb->prepare("
+							SELECT 
+								* 
+							FROM `data_tipe_perencanaan` 
+							WHERE nama_tipe=%s
+						", $tipe_perencanaan), ARRAY_A);
 						if(!empty($sqlTipe)){
 							$id_tipe = $sqlTipe[0]['id'];
-							$where_renja = ($id_tipe == 5 || $id_tipe == 6) ? ' AND tahun_anggaran='.$tahun_anggaran : '';
-							$sqlSameTipe = $wpdb->get_results("SELECT * FROM `data_jadwal_lokal` WHERE id_tipe='".$id_tipe."'".$where_renja, ARRAY_A);
+							$where_renja = ($id_tipe == 5 || $id_tipe == 6) ? $wpdb->prepare(' AND tahun_anggaran=%d', $tahun_anggaran) : '';
+							$sqlSameTipe = $wpdb->get_results($wpdb->prepare("
+								SELECT 
+									* 
+								FROM `data_jadwal_lokal` 
+								WHERE id_tipe=%s
+								$where_renja
+							", $id_tipe), ARRAY_A);
 							foreach($sqlSameTipe as $valTipe){
 								if($valTipe['status'] != 1){
 									$return = array(
