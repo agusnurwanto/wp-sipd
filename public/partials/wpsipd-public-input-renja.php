@@ -17,6 +17,7 @@ if($id_lokasi_prov == 0 || empty($id_lokasi_prov)){
 }
 
 $nilai_pergeseran_renja = get_option('_nilai_pergeseran_renja');
+$tombol_copy_data_renja_sipd = get_option('_crb_show_copy_data_renja_settings');
 
 $tahun_anggaran = '2022';
 $namaJadwal = '-';
@@ -126,7 +127,9 @@ if(!empty($jadwal_lokal)){
         if($now >= $awal && $now <= $akhir){
             if($is_admin){
                 $add_renja .='<a style="margin-left: 10px;" onclick="copy_usulan_all(); return false;" href="#" class="btn btn-danger">Copy Data Usulan ke Penetapan</a>';
-                $add_renja .='<a style="margin-left: 10px;" data-toggle="modal" data-target="#modal-copy-renja-sipd" return false;" href="#" class="btn btn-danger">Copy Data Renja SIPD ke Lokal</a>';
+                if($tombol_copy_data_renja_sipd == true){
+                    $add_renja .='<a style="margin-left: 10px;" data-toggle="modal" data-target="#modal-copy-renja-sipd" return false;" href="#" class="btn btn-danger">Copy Data Renja SIPD ke Lokal</a>';
+                }
             }
             $add_renja .= '<a style="margin-left: 10px;" id="tambah-data" onclick="return false;" href="#" class="btn btn-success">Tambah Data RENJA</a>';
             if(!empty($jadwal_lokal[0]['relasi_perencanaan'])){
@@ -151,7 +154,9 @@ if(!empty($jadwal_lokal)){
         if($now >= $awal && $now <= $akhir){
             if($is_admin){
                 $add_renja .='<a style="margin-left: 10px;" onclick="copy_usulan_all(); return false;" href="#" class="btn btn-danger">Copy Data Usulan ke Penetapan</a>';
-                $add_renja .='<a style="margin-left: 10px;" data-toggle="modal" data-target="#modal-copy-renja-sipd" return false;" href="#" class="btn btn-danger">Copy Data Renja SIPD ke Lokal</a>';
+                if($tombol_copy_data_renja_sipd == true){
+                    $add_renja .='<a style="margin-left: 10px;" data-toggle="modal" data-target="#modal-copy-renja-sipd" return false;" href="#" class="btn btn-danger">Copy Data Renja SIPD ke Lokal</a>';
+                }
             }
             $add_renja .= '<a style="margin-left: 10px;" id="tambah-data" onclick="return false;" href="#" class="btn btn-success">Tambah Data RENJA</a>';
             if(!empty($jadwal_lokal[0]['relasi_perencanaan'])){
@@ -1222,16 +1227,16 @@ echo '
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">Pilihan Saat Copy Data RENJA</h5>
+                <h5 class="modal-title">Tipe Copy Data RENJA ke Lokal</h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
             <div class="modal-body">
-                <input type="checkbox" id="vehicle1" name="vehicle1" value="Bike">
-                <label for="vehicle1">Copy Data Rincian RKA</label><br>
-                <input type="checkbox" id="vehicle1" name="vehicle1" value="Bike">
-                <label for="vehicle1">Copy Sumber Dana</label><br>
+                <input type="checkbox" id="copyDataRka" name="copyDataSipd" value="rincian_rka">
+                <label for="copyDataRka">Copy Data Rincian RKA</label><br>
+                <input type="checkbox" id="copySumberDana" name="copyDataSipd" value="sumber_dana">
+                <label for="copySumberDana">Copy Sumber Dana</label><br>
             </div>
             <div class="modal-footer">
                 <button class="btn btn-primary submitBtn" onclick="copy_renja_sipd_to_lokal()">Simpan</button>
@@ -3939,6 +3944,11 @@ echo '
 
     function copy_renja_sipd_to_lokal(){
 		if(confirm('Apakah anda yakin untuk melakukan ini? data RENJA lokal akan diupdate sama dengan data RENJA SIPD.')){
+            var copy_data_option = ['check'];
+            jQuery('input[name=copyDataSipd]:checked').each(function() {
+                copy_data_option.push(jQuery(this).val());
+            });
+
             let id_skpd = "<?php echo $input['id_skpd']; ?>";
             if(id_skpd == ''){
                 alert('Id SKPD Kosong')
@@ -3952,7 +3962,8 @@ echo '
                     "action": "copy_renja_sipd_to_lokal",
                     "api_key": jQuery('#api_key').val(),
                     "id_skpd": id_skpd,
-                    "tahun_anggaran": tahun_anggaran
+                    "tahun_anggaran": tahun_anggaran,
+                    "copy_data_option": copy_data_option
                     },
                     success: function(res){
                         jQuery('#wrap-loading').hide();

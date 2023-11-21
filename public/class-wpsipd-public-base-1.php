@@ -3133,6 +3133,8 @@ class Wpsipd_Public_Base_1 extends Wpsipd_Public_Base_2{
                     if(in_array('administrator', $this->role())){
                         $tahun_anggaran = $_POST['tahun_anggaran'];
                         $id_skpd = $_POST['id_skpd'];
+                        $copy_data_sipd = $_POST['copy_data_option'];
+
                         if(!empty($id_skpd)){
                             $per_skpd = ' AND id_sub_skpd='.$id_skpd;
                             $sql_sub_keg_bl = $wpdb->prepare('
@@ -3318,31 +3320,33 @@ class Wpsipd_Public_Base_1 extends Wpsipd_Public_Base_2{
                                 $queryOutputGiat = $wpdb->query($sql_copy_data_output_giat_sub_keg);
                                 
                                 /** copy data sumber dana */
-                                $wpdb->update('data_dana_sub_keg_lokal', array('active'=>0), array('active' => 1, 'tahun_anggaran' => $tahun_anggaran, 'kode_sbl' => $v_sub_keg_bl['kode_sbl']));
-
-                                $columns_dana = array(
-									'namadana',
-									'kodedana',
-									'iddana',
-									'iddanasubbl',
-									'pagudana',
-									'kode_sbl',
-									'idsubbl',
-									'active',
-									'update_at',
-									'tahun_anggaran'
-                                );
-
-                                $sql_copy_data_dana_sub_keg =  "
-                                    INSERT INTO data_dana_sub_keg_lokal (".implode(', ', $columns_dana).")
-                                    SELECT 
-                                        ".implode(', ', $columns_dana)."
-                                    FROM data_dana_sub_keg
-                                    WHERE active=1
-                                    AND tahun_anggaran='".$tahun_anggaran."'
-                                    AND kode_sbl='".$v_sub_keg_bl['kode_sbl']."'";
-
-                                $queryDana = $wpdb->query($sql_copy_data_dana_sub_keg);
+                                if(in_array("sumber_dana",$copy_data_sipd, TRUE)){
+                                    $wpdb->update('data_dana_sub_keg_lokal', array('active'=>0), array('active' => 1, 'tahun_anggaran' => $tahun_anggaran, 'kode_sbl' => $v_sub_keg_bl['kode_sbl']));
+                                    
+                                    $columns_dana = array(
+                                        'namadana',
+                                        'kodedana',
+                                        'iddana',
+                                        'iddanasubbl',
+                                        'pagudana',
+                                        'kode_sbl',
+                                        'idsubbl',
+                                        'active',
+                                        'update_at',
+                                        'tahun_anggaran'
+                                    );
+    
+                                    $sql_copy_data_dana_sub_keg =  "
+                                        INSERT INTO data_dana_sub_keg_lokal (".implode(', ', $columns_dana).")
+                                        SELECT 
+                                            ".implode(', ', $columns_dana)."
+                                        FROM data_dana_sub_keg
+                                        WHERE active=1
+                                        AND tahun_anggaran='".$tahun_anggaran."'
+                                        AND kode_sbl='".$v_sub_keg_bl['kode_sbl']."'";
+    
+                                    $queryDana = $wpdb->query($sql_copy_data_dana_sub_keg);
+                                }
 
                                 /** copy data lokasi */
                                 $wpdb->update('data_lokasi_sub_keg_lokal', array('active'=>0), array('active' => 1, 'tahun_anggaran' => $tahun_anggaran, 'kode_sbl' => $v_sub_keg_bl['kode_sbl']));
@@ -3372,6 +3376,132 @@ class Wpsipd_Public_Base_1 extends Wpsipd_Public_Base_2{
                                     AND kode_sbl='".$v_sub_keg_bl['kode_sbl']."'";
 
                                 $queryLokasi = $wpdb->query($sql_copy_data_lokasi_sub_keg);
+
+                                /** copy rincian RKA */
+                                if(in_array("rincian_rka",$copy_data_sipd, TRUE)){
+                                    $wpdb->update('data_rka_lokal', array('active'=>0), array('active' => 1, 'tahun_anggaran' => $tahun_anggaran, 'kode_sbl' => $v_sub_keg_bl['kode_sbl']));
+
+                                    $columns_rka = array(
+                                        'created_user',
+                                        'createddate',
+                                        'createdtime',
+                                        'harga_satuan',
+                                        'harga_satuan_murni',
+                                        'id_daerah',
+                                        'id_rinci_sub_bl',
+                                        'id_standar_nfs',
+                                        'is_locked',
+                                        'jenis_bl',
+                                        'ket_bl_teks',
+                                        'kode_akun',
+                                        'koefisien',
+                                        'koefisien_murni',
+                                        'lokus_akun_teks',
+                                        'nama_akun',
+                                        'nama_komponen',
+                                        'spek_komponen',
+                                        'satuan',
+                                        'spek',
+                                        'sat1',
+                                        'sat2',
+                                        'sat3',
+                                        'sat4',
+                                        'volum1',
+                                        'volum2',
+                                        'volum3',
+                                        'volum4',
+                                        'volume',
+                                        'volume_murni',
+                                        'subs_bl_teks',
+                                        'subtitle_teks',
+                                        'kode_dana',
+                                        'is_paket',
+                                        'nama_dana',
+                                        'id_dana',
+                                        'substeks',
+                                        'total_harga',
+                                        'rincian',
+                                        'rincian_murni',
+                                        'totalpajak',
+                                        'pajak',
+                                        'pajak_murni',
+                                        'updated_user',
+                                        'updateddate',
+                                        'updatedtime',
+                                        'user1',
+                                        'user2',
+                                        'active',
+                                        'update_at',
+                                        'tahun_anggaran',
+                                        'idbl',
+                                        'idsubbl',
+                                        'kode_bl',
+                                        'kode_sbl',
+                                        'id_prop_penerima',
+                                        'id_camat_penerima',
+                                        'id_kokab_penerima',
+                                        'id_lurah_penerima',
+                                        'id_penerima',
+                                        'idkomponen',
+                                        'idketerangan',
+                                        'idsubtitle'
+                                    );
+        
+                                    $sql_backup_data_rka =  "
+                                        INSERT INTO data_rka_lokal (".implode(', ', $columns_rka).")
+                                        SELECT 
+                                            ".implode(', ', $columns_rka)."
+                                        FROM data_rka 
+                                        WHERE
+                                            kode_sbl='".$v_sub_keg_bl['kode_sbl']."' 
+                                            AND tahun_anggaran='".$tahun_anggaran."' 
+                                            AND active=1
+                                    ";
+        
+                                    $query_backup = $wpdb->query($sql_backup_data_rka);
+    
+                                    /** copy data dari sumber dana 
+                                     * mencari id_rinci_sub_bl
+                                    */
+                                    $sql_sumber_dana = $wpdb->prepare("
+                                        SELECT 
+                                            * 
+                                        FROM data_rka 
+                                        WHERE 
+                                            kode_sbl='%s'
+                                            AND tahun_anggaran=%d
+                                            AND active=1 
+                                    ", $v_sub_keg_bl['kode_sbl'], $tahun_anggaran);
+    
+                                    $data_copy_rka = $wpdb->get_results($sql_sumber_dana, ARRAY_A);
+    
+                                    $columns_sumber_dana = array(
+                                        'id_rinci_sub_bl',
+                                        'id_sumber_dana',
+                                        'user',
+                                        'active',
+                                        'update_at',
+                                        'tahun_anggaran',
+                                    );
+    
+                                    if(!empty($data_copy_rka)){
+                                        foreach ($data_copy_rka as $key_rka => $value_rka) {
+                                            $wpdb->update('data_mapping_sumberdana_lokal', array('active'=>0), array('id_rinci_sub_bl' => $value_rka['id_rinci_sub_bl'], 'active' => 1, 'tahun_anggaran' => $tahun_anggaran));
+                                            $sql_backup_data_sumber_dana =  "
+                                                INSERT INTO data_mapping_sumberdana_lokal (".implode(', ', $columns_sumber_dana).")
+                                                SELECT 
+                                                    ".implode(', ', $columns_sumber_dana)."
+                                                FROM data_mapping_sumberdana 
+                                                WHERE
+                                                    id_rinci_sub_bl='".$value_rka['id_rinci_sub_bl']."' 
+                                                    AND tahun_anggaran='".$tahun_anggaran."' 
+                                                    AND active=1
+                                            ";
+                
+                                            $query_backup = $wpdb->query($sql_backup_data_sumber_dana);
+                                        }
+                                    }
+                                }
                             }
                         }
                     }else{

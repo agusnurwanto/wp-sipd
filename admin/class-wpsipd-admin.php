@@ -377,6 +377,15 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes {
 			if(get_option('_crb_show_menu_input_input_renja_settings') != true){
 				Container::make( 'theme_options', __( 'Input RENJA' ) )
 					->set_page_parent( $input_perencanaan )
+					->add_fields(array(
+						Field::make( 'separator', 'crb_show_copy_sipd_button_settings', 'Aktifkan Tombol Copy Data SIPD ke Lokal ( WP-SIPD Settings )' ),
+						Field::make( 'checkbox', 'crb_show_copy_data_renja_settings', 'Tombol Copy Data Renja SIPD' )
+							->set_option_value( 'true' )
+							->set_help_text('Untuk menampilkan tombol copy data RENJA SIPD ke tabel LOKAL.'),
+						Field::make( 'checkbox', 'crb_show_copy_data_rincian_rka_settings', 'Tombol Copy Data Rincin RKA SIPD' )
+							->set_option_value( 'true' )
+							->set_help_text('Untuk menampilkan tombol copy data Rincian RKA SIPD ke tabel LOKAL'),
+					))
 					->add_fields( $this->generate_input_renja() );
 			}
 		}
@@ -1000,10 +1009,6 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes {
 		$ret = array();
 		$hide_sidebar = Field::make( 'html', 'crb_hide_sidebar' )
         	->set_html( '
-        		<style>
-        			.postbox-container { display: none; }
-        			#poststuff #post-body.columns-2 { margin: 0 !important; }
-        		</style>
         		<div id="load_ajax_carbon" data-type="'.$options['type'].'"></div>
         	' );
 		$ret[] = $hide_sidebar;
