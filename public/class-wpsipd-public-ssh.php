@@ -1829,14 +1829,15 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 					$iconX		= '<i class="dashicons dashicons-trash"></i>';
 					$iconEdit 	= '<i class="dashicons dashicons-edit"></i>';
 					$iconSubmit 	= '<i class="dashicons dashicons-migrate"></i>';
+					$iconFilter = '<i class="dashicons dashicons-yes"></i>';
 					$detilUsulanSSH = '<a class="btn btn-sm btn-primary" onclick="edit_ssh_usulan(\''.$recVal['status_jenis_usulan'].'\',\''.$recVal['id'].'\', \'detil\'); return false;" href="#" title="Detail komponen usulan SSH" style="text-decoration:none"><i class="dashicons dashicons-search" style="text-decoration:none"></i></a>&nbsp;';
 					$jenis = ($recVal['status_upload_sipd'] == 1) ? 'upload' : 'usulan';
 					$can_edit = false;
 					$can_delete = false;
 					$can_submit = false;
+					$can_verify = false;
 					$deleteUsulanSSH = '';
 					$editUsulanSSH = '';
-					$submitUsulanSSH = '';
 					$submitUsulanSSH = '';
 
 					// jika status usulan masih berstatus draft maka siapa saja bisa mengedit dan menghapus usulan
@@ -1853,6 +1854,7 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 							|| in_array("tapd_keu", $user_meta->roles)
 						){
 							$can_edit = true;
+							$can_verify = true;
 							// jika nomor surat belum ada maka boleh dihapus
 							if(empty($recVal['no_surat_usulan'])){
 								$can_delete = true;
@@ -1870,15 +1872,9 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 						}
 					}
 
-					if(
-						in_array("administrator", $user_meta->roles) || 
-						in_array("tapd_keu", $user_meta->roles)
-					){
-						$iconFilter = '<i class="dashicons dashicons-yes"></i>';
-						if($can_verify){
+					if($can_verify){
 						$verify = '<a class="btn btn-sm btn-success" onclick="verify_ssh_usulan(\''.$recVal['id'].'\'); return false;" href="#" title="Verifikasi Item Usulan SSH" style="text-decoration:none">'.$iconFilter.'</a>&nbsp';
 						}
-					}
 
 					$deleteCheck = '<input type="checkbox" class="delete_check" id="delcheck_'.$recVal['id'].'" onclick="checkcheckbox(); return true;" value="'.$recVal['id'].'" no-surat="'.$recVal['no_surat_usulan'].'">';
 					
