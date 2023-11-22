@@ -3803,9 +3803,11 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes {
 					);
 					
 					if (empty($cek)) {
-						$cek_insert_skpd = $wpdb->insert('data_skpd_sirup', $opsi);
+						$wpdb->insert('data_skpd_sirup', $opsi);
+						$cek_insert_skpd = $wpdb->insert_id;
 					}else{
-						$cek_insert_skpd = $wpdb->update('data_skpd_sirup',$opsi,array(
+						$cek_insert_skpd = $cek; 
+						$wpdb->update('data_skpd_sirup',$opsi,array(
 							'id_satuan_kerja' => $cek
 						));
 					}

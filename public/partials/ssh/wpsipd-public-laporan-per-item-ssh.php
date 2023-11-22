@@ -4,7 +4,7 @@ if ( ! defined( 'WPINC' ) ) {
 	die;
 }
 $input = shortcode_atts( array(
-	'tahun_anggaran' => '2022'
+	'tahun_anggaran' => get_option('_crb_tahun_anggaran_sipd')
 ), $atts );
 
 global $wpdb;
@@ -141,6 +141,7 @@ foreach($data_sub_komponen['data'] as $kd_skpd => $val_komponen){
 <style type="text/css">
 	#data_header th {
 		vertical-align: top;
+		display: none-important;
 	}
 </style>
 <div class="cetak">

@@ -538,6 +538,7 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 							WHERE id = %d
 						",$id_standar_harga), ARRAY_A);
 						$kode_standar_harga_sipd = NULL;
+						$id_usulan = $data_old_ssh[0]['id'];
 					// get data dari tabel data_ssh sipd
 					}else{
 						$data_old_ssh = $wpdb->get_results($wpdb->prepare("
@@ -622,6 +623,7 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 						);
 		
 						$wpdb->insert('data_ssh_usulan',$opsi_ssh);
+						$id_usulan = $wpdb->insert_id;
 					}
 
 					/** Insert usulan rek akun */
@@ -630,11 +632,9 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 							'id_akun' => $v_akun[0]['id_akun'],
 							'kode_akun' => $v_akun[0]['kode_akun'],
 							'nama_akun' => $v_akun[0]['kode_akun'].' '.$v_akun[0]['nama_akun'],
-							'id_standar_harga' => $id_standar_harga,
-							'tahun_anggaran' => $tahun_anggaran,
-							'keterangan_lampiran' => $keterangan_lampiran,
+							'id_standar_harga' => $id_usulan,
+							'tahun_anggaran' => $tahun_anggaran
 						);
-		
 						$wpdb->insert('data_ssh_rek_belanja_usulan',$opsi_akun[$k_akun]);
 					}
 	
@@ -866,6 +866,7 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 						WHERE id = %d
 					',$id), ARRAY_A);
 
+					// kalau  usulan lokal, id_standa_harga berelasi dengan kolom id di data_ssh_usulan
 					$data_akun_ssh_usulan = $wpdb->get_results($wpdb->prepare('
 						SELECT 
 							id,
@@ -873,7 +874,7 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 							nama_akun 
 						FROM data_ssh_rek_belanja_usulan 
 						WHERE id_standar_harga = %d
-					',$data_id_ssh_usulan[0]['id_standar_harga']), ARRAY_A);
+					',$data_id_ssh_usulan[0]['id']), ARRAY_A);
 
 					$data_kel_standar_harga_by_id = $wpdb->get_results($wpdb->prepare('
 						SELECT 
@@ -892,6 +893,8 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 							FROM data_ssh 
 							WHERE kode_standar_harga = %s
 						', $data_id_ssh_usulan[0]['kode_standar_harga_sipd']), ARRAY_A);
+
+						// kalau hasil backup sipd, id_standa_harga berelasi dengan kolom id_standar_harga di data_ssh
 						$data_akun_ssh_existing_sipd = $wpdb->get_results($wpdb->prepare('
 							SELECT 
 								id,
@@ -2484,6 +2487,7 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 						}
 						
 						$wpdb->insert('data_ssh_usulan',$opsi_ssh);
+						$id_usulan = $wpdb->insert_id;
 						
 						$opsi_akun=[];
 						foreach(explode(",", $akun) as $v_akun){
@@ -2491,7 +2495,7 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 								'id_akun' => $data_akun[$v_akun][0]['id_akun'],
 								'kode_akun' => $data_akun[$v_akun][0]['kode_akun'],
 								'nama_akun' => $data_akun[$v_akun][0]['kode_akun'].' '.$data_akun[$v_akun][0]['nama_akun'],
-								'id_standar_harga' => $id_standar_harga,
+								'id_standar_harga' => $id_usulan,
 								'tahun_anggaran' => $tahun_anggaran,
 							);
 							$wpdb->insert('data_ssh_rek_belanja_usulan',$opsi_akun[$v_akun]);
@@ -2964,9 +2968,9 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 								$cek_akun[$v_akun['id_akun']] = $v_akun;
 							}
 	
-							// get data detail akun
 							$data_akun = array();
 							if(!empty($akun)){
+								// get data detail akun
 								$akun_all = explode(",", $akun);
 								foreach($akun_all as $v_akun){
 									$data_akun[$v_akun] = $wpdb->get_results($wpdb->prepare("
@@ -2977,6 +2981,7 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 										FROM data_akun 
 										WHERE id_akun = %d
 											AND tahun_anggaran=%d
+											AND active=1
 									",$v_akun, $tahun_anggaran), ARRAY_A);
 								}
 
@@ -3251,6 +3256,7 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 
 					$data_this_id_ssh = $wpdb->get_results($wpdb->prepare('
 						SELECT 
+							id,
 							id_standar_harga,
 							kode_kel_standar_harga,
 							kode_standar_harga,
@@ -3285,7 +3291,7 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 								FROM data_ssh_rek_belanja_usulan 
 								WHERE id_standar_harga = %s
 									AND tahun_anggaran = %s",
-								$data_this_id_ssh[0]['id_standar_harga'],
+								$data_this_id_ssh[0]['id'],
 								$tahun_anggaran
 							), ARRAY_A);
 					
@@ -3314,7 +3320,7 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 									'id_akun' => $data_akun[$id_akun][0]['id_akun'],
 									'kode_akun' => $data_akun[$id_akun][0]['kode_akun'],
 									'nama_akun' => $data_akun[$id_akun][0]['kode_akun'].' '.$data_akun[$id_akun][0]['nama_akun'],
-									'id_standar_harga' => $data_this_id_ssh[0]['id_standar_harga'],
+									'id_standar_harga' => $data_this_id_ssh[0]['id'],
 									'tahun_anggaran' => $tahun_anggaran,
 								);
 								if(empty($cek_akun[$id_akun])){

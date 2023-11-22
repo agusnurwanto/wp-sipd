@@ -666,7 +666,7 @@ echo $this->menu_ssh($input);
 					<div class="row form-group">
 						<label for='u_tkdn' class="col-md-12">Tingkat Komponen Dalam Negeri (TKDN) <span class="required">*</span></label>
 						<div class="col-md-12">
-							<input type='number' id='u_tkdn' style='width:22%;' placeholder='0'>
+							<input type='number' id='u_tkdn' style='width:22%;'>
 							<label style='font-size: 1.2rem;margin-left: 0.5rem;'>%</label>
 						</div>
 					</div>
@@ -1333,7 +1333,7 @@ echo $this->menu_ssh($input);
 		jQuery('#u_tkdn').prop('disabled', false);
 		jQuery('#u_akun').prop('disabled', false);
 
-		jQuery("#u_tkdn").val(null);
+		jQuery("#u_tkdn").val('0');
 		jQuery("#u_lapiran_usulan_ssh_1").val(null);
 		jQuery("#u_lapiran_usulan_ssh_2").val(null);
 		jQuery("#u_lapiran_usulan_ssh_3").val(null);
