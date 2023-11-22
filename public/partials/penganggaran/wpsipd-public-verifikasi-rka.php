@@ -88,7 +88,7 @@ $result_verifikasi = $wpdb->get_results($wpdb->prepare("
 	FROM data_validasi_verifikasi_rka 
 	WHERE tahun_anggaran =%d
 		AND kode_sbl =%s
-", $tahun_anggaran, $kode_sbl), ARRAY_A);
+", $tahun_anggaran, $kode_sbl), ARRAY_A); 	
 
 $html_ver = '';
 foreach ($result_verifikasi as $ver) {
