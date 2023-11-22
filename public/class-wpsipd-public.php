@@ -159,7 +159,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 							'harga_2' => $v['harga_2'],
 							'harga_3' => $v['harga_3'],
 							'kode_kel_standar_harga' => $v['kode_kel_standar_harga'],
-							'nama_kel_standar_harga' => $kelompok[1],
+							'nama_kel_standar_harga' => $v['nama_kel_standar_harga'],
 							'tkdn' => $nilai[0],
 							'jenis_produk' => $v['is_pdn'],
 							'update_at'	=> current_time('mysql'),
