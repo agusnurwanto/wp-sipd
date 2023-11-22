@@ -140,6 +140,10 @@ if(empty($alamat)){
 		text-align: center;
 		font-size: 19px;
 	}
+	.body-surat p {
+		text-align: justify;
+		text-indent: 50px;
+	}
 </style>
 <div class="cetak">
 	<div style="padding: 10px;">
