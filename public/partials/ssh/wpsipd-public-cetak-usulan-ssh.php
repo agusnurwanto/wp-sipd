@@ -61,6 +61,7 @@ $ssh = $wpdb->get_results($wpdb->prepare("
 		h.*
 	FROM data_ssh_usulan as h
 	WHERE h.tahun_anggaran=%d
+		and status_jenis_usulan != 'tambah_akun'
 		$where
 ", $tahun_anggaran), ARRAY_A);
 
@@ -86,13 +87,24 @@ if(empty($ssh)){
 foreach($ssh as $k => $val){
 	$no = $k+1;
 	$akun_belanja = "";
-	$akun_db = $wpdb->get_results("
-		SELECT
-			kode_akun,
-			nama_akun
-		FROM data_ssh_rek_belanja_usulan
-		WHERE id_standar_harga=$val[id]
-	", ARRAY_A);
+	if(!empty($val['kode_standar_harga_sipd'])){
+		$akun_db = $wpdb->get_results("
+			SELECT
+				r.kode_akun,
+				r.nama_akun
+			FROM data_ssh_rek_belanja r
+			inner join data_ssh s on s.id_standar_harga=r.id_standar_harga 
+			WHERE s.kode_standar_harga='$val[kode_standar_harga_sipd]'
+		", ARRAY_A);
+	}else{
+		$akun_db = $wpdb->get_results("
+			SELECT
+				kode_akun,
+				nama_akun
+			FROM data_ssh_rek_belanja_usulan
+			WHERE id_standar_harga=$val[id]
+		", ARRAY_A);
+	}
 	if($tipe_laporan == 1){
 		for($i=0; $i<10; $i++){
 			if(!empty($akun_db[$i])){
@@ -118,6 +130,15 @@ foreach($ssh as $k => $val){
 			$akun_belanja .= "<li>$akun[nama_akun]</li>";
 		}
 		$akun_belanja .="</ul>";
+		$nama_skpd = $wpdb->get_row("
+			SELECT
+				kode_skpd,
+				nama_skpd
+			FROM data_unit
+			WHERE id_skpd=$val[id_sub_skpd]
+		", ARRAY_A);
+		$nama_skpd = $nama_skpd['kode_skpd'].' '.$nama_skpd['nama_skpd'];
+		$harga = $this->_number_format($val['harga']);
 		$body_html .= "
 		<tr>
 			<td>$no</td>
@@ -126,9 +147,9 @@ foreach($ssh as $k => $val){
 			<td>$val[nama_standar_harga]</td>
 			<td>$val[spek]</td>
 			<td>$val[satuan]</td>
-			<td>$val[harga]</td>
-			<td>$akun_belanja</td>
+			<td class='text-right'>$harga</td>
 			<td>$val[keterangan_lampiran]</td>
+			<td>$nama_skpd</td>
 		</tr>
 		";
 	}
@@ -192,8 +213,8 @@ foreach($ssh as $k => $val){
 					<th class="text-center">SPESIFIKASI</th>
 					<th class="text-center">SATUAN</th>
 					<th class="text-center">HARGA SATUAN</th>
-					<th class="text-center">AKUN BELANJA</th>
 					<th class="text-center">KETERANGAN</th>
+					<th class="text-center">SKPD Pengusul</th>
 				</tr>
 				<tr>
 					<th class="text-center">1</th>

@@ -39,7 +39,8 @@ class Wpsipd_Public_Base_1 extends Wpsipd_Public_Base_2{
                     if(!empty($id_cek_visi)){
                         $wpdb->update($table, $data, array('id' => $id_cek_visi));
                     }else{
-                        $id_cek_visi = $wpdb->insert($table, $data);
+                        $wpdb->insert($table, $data);
+                        $id_cek_visi = $wpdb->insert_id;
                     }
 
                     $table = 'data_rpjpd_misi';
@@ -57,7 +58,8 @@ class Wpsipd_Public_Base_1 extends Wpsipd_Public_Base_2{
                     if(!empty($id_cek_misi)){
                         $wpdb->update($table, $data, array('id' => $id_cek_misi));
                     }else{
-                        $id_cek_misi = $wpdb->insert($table, $data);
+                        $wpdb->insert($table, $data);
+                        $id_cek_misi = $wpdb->insert_id;
                     }
 
                     $table = 'data_rpjpd_sasaran';
@@ -75,7 +77,8 @@ class Wpsipd_Public_Base_1 extends Wpsipd_Public_Base_2{
                     if(!empty($id_cek_sasaran)){
                         $wpdb->update($table, $data, array('id' => $id_cek_sasaran));
                     }else{
-                        $id_cek_sasaran = $wpdb->insert($table, $data);
+                        $wpdb->insert($table, $data);
+                        $id_cek_sasaran = $wpdb->insert_id;
                     }
 
                     $table = 'data_rpjpd_kebijakan';
@@ -92,7 +95,8 @@ class Wpsipd_Public_Base_1 extends Wpsipd_Public_Base_2{
                     if(!empty($id_cek_kebijakan)){
                         $wpdb->update($table, $data, array('id' => $id_cek_kebijakan));
                     }else{
-                        $id_cek_kebijakan = $wpdb->insert($table, $data);
+                        $wpdb->insert($table, $data);
+                        $id_cek_kebijakan = $wpdb->insert_id;
                     }
 
                     $table = 'data_rpjpd_isu';
@@ -109,7 +113,8 @@ class Wpsipd_Public_Base_1 extends Wpsipd_Public_Base_2{
                     if(!empty($id_cek_isu)){
                         $wpdb->update($table, $data, array('id' => $id_cek_isu));
                     }else{
-                        $id_cek_isu = $wpdb->insert($table, $data);
+                        $wpdb->insert($table, $data);
+                        $id_cek_isu = $wpdb->insert_id;
                     }
                 }
             }else{

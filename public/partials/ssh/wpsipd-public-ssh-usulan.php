@@ -324,7 +324,7 @@ echo $this->menu_ssh($input);
 				<div class="row form-group">
 					<label class="col-md-2" for="nomor_surat">Nomor Surat</label>
 					<div class="col-md-10">
-						<input type="text" id="nomor_surat" class="form-control" placeholder="kode_surat/no_urut/kode_opd/tahun" value="kode_surat/no_urut/kode_opd/<?php echo $input['tahun_anggaran']; ?>">
+						<input type="text" id="nomor_surat" class="form-control" placeholder="kode_surat/no_urut/kode_opd/<?php echo $input['tahun_anggaran']; ?>" value="kode_surat/no_urut/kode_opd/<?php echo $input['tahun_anggaran']; ?>">
 						<input type="hidden" id="ids_surat_usulan">
 						<input type="hidden" name="ubah_id" value="">
 					</div>
@@ -657,7 +657,7 @@ echo $this->menu_ssh($input);
 					<div class="row form-group">
 						<label for='u_jenis_produk' class="col-md-12">Jenis Produk <span class="required">*</span></label>
 						<div class="col-md-12">
-							<input type='radio' id='u_jenis_produk_dalam_negeri' name='u_jenis_produk' value='1'>
+							<input type='radio' id='u_jenis_produk_dalam_negeri' name='u_jenis_produk' value='1' checked>
 							<label class='mr-4' for='u_jenis_produk_dalam_negeri'>Produk Dalam Negeri</label>
 							<input type='radio' id='u_jenis_produk_luar_negeri' name='u_jenis_produk' value='0'>
 							<label for='u_jenis_produk_luar_negeri'>Produk Luar Negeri</label>
@@ -666,7 +666,7 @@ echo $this->menu_ssh($input);
 					<div class="row form-group">
 						<label for='u_tkdn' class="col-md-12">Tingkat Komponen Dalam Negeri (TKDN) <span class="required">*</span></label>
 						<div class="col-md-12">
-							<input type='number' id='u_tkdn' style='width:22%;' placeholder='Presentase TKDN'>
+							<input type='number' id='u_tkdn' style='width:22%;'>
 							<label style='font-size: 1.2rem;margin-left: 0.5rem;'>%</label>
 						</div>
 					</div>
@@ -725,6 +725,8 @@ echo $this->menu_ssh($input);
 					jQuery("#usulan_ssh_table_wrapper div:first").addClass("h-100 align-items-center");
 					let html_filter = ""
 					+"<ul id='toolbar_ssh_usulan'>"
+						<?php if(in_array("administrator", $user_meta->roles)
+						|| in_array("tapd_keu", $user_meta->roles)): ?>
 						+"<li>"
 							+"<select name='filter_action' class='ml-3 bulk-action' id='multi_select_action'>"
 								+"<option value='0'>Tindakan Massal</option>"
@@ -734,6 +736,7 @@ echo $this->menu_ssh($input);
 							+"</select>"
 							+"<button style='margin-left: 10px;' type='submit' class='ml-1 btn btn-secondary' onclick='action_check_data_usulan_ssh()'>Terapkan</button>"
 						+"</li>"
+						<?php endif; ?>
 						+"<li>"
 							+"<select name='filter_status' class='ml-3 bulk-action' id='search_filter_action' onchange='action_filter_data_usulan_ssh()'>"
 								+"<option value=''>Pilih Status</option>"
@@ -748,10 +751,13 @@ echo $this->menu_ssh($input);
 								+"<option value='belum_upload_sipd'>Belum upload SIPD</option>"
 							+"</select>"
 						+"</li>"
+						<?php if(in_array("administrator", $user_meta->roles)
+						|| in_array("tapd_keu", $user_meta->roles)): ?>
 						+"<li>"
 							+"<select name='filter_opd' class='ml-3 bulk-action' id='search_filter_action_opd' style='margin-left: 10px;' onchange='action_filter_data_usulan_ssh()'>"
 							+"</select>"
 						+"</li>"
+						<?php endif; ?>
 						+"<li>"
 							+"<select name='filter_surat' class='ml-3 bulk-action' id='search_filter_surat' style='margin-left: 10px; width:300px;' onchange='action_filter_data_usulan_ssh()'>"
 								+"<option value=''>Pilih Surat</option>"
@@ -1327,7 +1333,7 @@ echo $this->menu_ssh($input);
 		jQuery('#u_tkdn').prop('disabled', false);
 		jQuery('#u_akun').prop('disabled', false);
 
-		jQuery("#u_tkdn").val(null);
+		jQuery("#u_tkdn").val('0');
 		jQuery("#u_lapiran_usulan_ssh_1").val(null);
 		jQuery("#u_lapiran_usulan_ssh_2").val(null);
 		jQuery("#u_lapiran_usulan_ssh_3").val(null);

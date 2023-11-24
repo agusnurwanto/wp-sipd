@@ -1630,7 +1630,8 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes {
 		$settings = array(
 			Field::make( 'select', 'crb_skpd_admin_ssh', 'Pilih unit kerja penyusun Standar Harga (SSH / SBU / HSPK / ASB)' )
             	->add_options( $pilih_skpd )
-            	->set_help_text('Nama unit kerja ini untuk ditampilkan di surat usulan Standar Harga.')
+            	->set_help_text('Nama unit kerja ini untuk ditampilkan di surat usulan Standar Harga.'),
+			Field::make( 'text', 'crb_lokasi', 'Nama daerah atau lokasi tanda tangan surat' )
         );
 		return array_merge($settings, $sub_unit);
 	}
@@ -3809,9 +3810,11 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes {
 					);
 					
 					if (empty($cek)) {
-						$cek_insert_skpd = $wpdb->insert('data_skpd_sirup', $opsi);
+						$wpdb->insert('data_skpd_sirup', $opsi);
+						$cek_insert_skpd = $wpdb->insert_id;
 					}else{
-						$cek_insert_skpd = $wpdb->update('data_skpd_sirup',$opsi,array(
+						$cek_insert_skpd = $cek; 
+						$wpdb->update('data_skpd_sirup',$opsi,array(
 							'id_satuan_kerja' => $cek
 						));
 					}

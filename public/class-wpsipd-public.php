@@ -159,7 +159,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 							'harga_2' => $v['harga_2'],
 							'harga_3' => $v['harga_3'],
 							'kode_kel_standar_harga' => $v['kode_kel_standar_harga'],
-							'nama_kel_standar_harga' => $kelompok[1],
+							'nama_kel_standar_harga' => $v['nama_kel_standar_harga'],
 							'tkdn' => $nilai[0],
 							'jenis_produk' => $v['is_pdn'],
 							'update_at'	=> current_time('mysql'),
@@ -11363,6 +11363,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 			update_post_meta($custom_post->ID, 'site-post-title', 'disabled');
 			update_post_meta($custom_post->ID, 'site-sidebar-layout', 'no-sidebar');
 			update_post_meta($custom_post->ID, 'theme-transparent-header-meta', 'disabled');
+			update_post_meta($custom_post->ID, 'ast-global-header-display', 'disabled');
 		}else if($update){
 			$_post['ID'] = $custom_post->ID;
 			wp_update_post( $_post );
@@ -19045,7 +19046,8 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 				'tahun_anggaran' => $tahun_anggaran
 			);
 			if(empty($cek_id)){
-				$cek_id = $wpdb->insert('data_sp2d_fmis', $opsi);
+				$wpdb->insert('data_sp2d_fmis', $opsi);
+				$cek_id = $wpdb->insert_id;
 			}else{
 				$wpdb->update('data_sp2d_fmis', $opsi, array(
 					'id' => $cek_id
