@@ -128,7 +128,7 @@ if(!empty($jadwal_lokal)){
             if($is_admin){
                 $add_renja .='<a style="margin-left: 10px;" onclick="copy_usulan_all(); return false;" href="#" class="btn btn-danger">Copy Data Usulan ke Penetapan</a>';
                 if($tombol_copy_data_renja_sipd == true){
-                    $add_renja .='<a style="margin-left: 10px;" data-toggle="modal" data-target="#modal-copy-renja-sipd" return false;" href="#" class="btn btn-danger">Copy Data Renja SIPD ke Lokal</a>';
+                    $add_renja .='<a style="margin-left: 10px;" data-toggle="modal" data-target="#modal-copy-renja-sipd" href="#" class="btn btn-danger">Copy Data Renja SIPD ke Lokal</a>';
                 }
             }
             $add_renja .= '<a style="margin-left: 10px;" id="tambah-data" onclick="return false;" href="#" class="btn btn-success">Tambah Data RENJA</a>';
@@ -155,7 +155,7 @@ if(!empty($jadwal_lokal)){
             if($is_admin){
                 $add_renja .='<a style="margin-left: 10px;" onclick="copy_usulan_all(); return false;" href="#" class="btn btn-danger">Copy Data Usulan ke Penetapan</a>';
                 if($tombol_copy_data_renja_sipd == true){
-                    $add_renja .='<a style="margin-left: 10px;" data-toggle="modal" data-target="#modal-copy-renja-sipd" return false;" href="#" class="btn btn-danger">Copy Data Renja SIPD ke Lokal</a>';
+                    $add_renja .='<a style="margin-left: 10px;" data-toggle="modal" data-target="#modal-copy-renja-sipd" href="#" class="btn btn-danger">Copy Data Renja SIPD ke Lokal</a>';
                 }
             }
             $add_renja .= '<a style="margin-left: 10px;" id="tambah-data" onclick="return false;" href="#" class="btn btn-success">Tambah Data RENJA</a>';
@@ -195,6 +195,7 @@ $data_all = array(
     'total_pergeseran' => 0,
     'total_usulan_pergeseran' => 0
 );
+$data_rekap_sumber_dana = array();
 $status_pergeseran_renja = '';
 $thead_pergeseran = '';
 $thead_pergeseran1 = 6;
@@ -251,6 +252,10 @@ foreach ($subkeg as $kk => $sub) {
             and kode_sbl=%s
         order by id ASC
     ", $input['tahun_anggaran'], $sub['kode_sbl']), ARRAY_A);
+
+    if(empty($data_rekap_sumber_dana['data'][$sub['id_sub_skpd']][$sub['kode_sub_giat']])){
+        $data_rekap_sumber_dana['data'][$sub['id_sub_skpd']][$sub['kode_sub_giat']] = $dana_sub_giat;
+    }
     
     $status_pergeseran_renja = $jadwal_lokal[0]['status_jadwal_pergeseran'];
     $pagu_pergeseran = 0;
@@ -801,6 +806,15 @@ if($total_sumber_dana >= 1){
 }
 
 $tfoot_pergeseran = $status_pergeseran_renja == 'tampil' ? '<td class="kanan bawah text_kanan text_blok"><span class="nilai_penetapan">'.number_format($data_all['total_pergeseran'],0,",",".").'</span><span class="nilai_usulan">'.number_format($data_all['total_usulan_pergeseran'],0,",",".").'</span></td>' : '';
+
+$data_per_sumber_dana = array();
+$tBodySumberDana = '';
+$tBodySumberDana .= '
+        <tr>
+            <td style="font-weight:bold;" class="text-center"></td>
+            <td style="font-weight:bold;" class="text-center"></td>
+            <td style="font-weight:bold;" class="text-center"></td>
+        </tr>';
 echo '
     <div id="cetak" title="'.$nama_excel.'" style="padding: 5px;">
         <input type="hidden" value="'. get_option( "_crb_api_key_extension" ) .'" id="api_key">
@@ -827,6 +841,19 @@ echo '
                     <td style="font-weight:bold;" class="text-center '.$warning_total_sumber_dana.'">'.$total_sumber_dana.'</td>
                     <td style="font-weight:bold;" class="text-center '.$warning_total_sumber_dana.'">'.$total_sumber_dana.'</td>
                 </tr>
+            </tbody>
+        </table>
+        <h4 class="text-center">Informasi Rekap Sumber Dana</h4>
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th class="text-center">Sumber Dana</th>
+                    <th class="text-center">Total Usulan</th>
+                    <th class="text-center">Total Penetapan</th>
+                </tr>
+            </thead>
+            <tbody>
+                '.$tBodySumberDana.'
             </tbody>
         </table>
         <h4 style="text-align: center; margin: 10px auto; min-width: 450px; max-width: 570px; font-weight: bold;">'.$nama_laporan.'</h4>
@@ -3944,7 +3971,7 @@ echo '
 
     function copy_renja_sipd_to_lokal(){
 		if(confirm('Apakah anda yakin untuk melakukan ini? data RENJA lokal akan diupdate sama dengan data RENJA SIPD.')){
-            var copy_data_option = ['check'];
+            var copy_data_option = [];
             jQuery('input[name=copyDataSipd]:checked').each(function() {
                 copy_data_option.push(jQuery(this).val());
             });
@@ -3959,11 +3986,11 @@ echo '
                     url: '<?php echo admin_url('admin-ajax.php'); ?>',
                     dataType: "json",
                     data: {
-                    "action": "copy_renja_sipd_to_lokal",
-                    "api_key": jQuery('#api_key').val(),
-                    "id_skpd": id_skpd,
-                    "tahun_anggaran": tahun_anggaran,
-                    "copy_data_option": copy_data_option
+                        "action": "copy_renja_sipd_to_lokal",
+                        "api_key": jQuery('#api_key').val(),
+                        "id_skpd": id_skpd,
+                        "tahun_anggaran": tahun_anggaran,
+                        "copy_data_option": copy_data_option
                     },
                     success: function(res){
                         jQuery('#wrap-loading').hide();

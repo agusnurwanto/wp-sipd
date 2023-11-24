@@ -2462,6 +2462,13 @@ class Wpsipd_Admin extends Wpsipd_Admin_Keu_Pemdes {
 			$page_url = $this->generatePage($title, $v['tahun_anggaran'], $shortcode, $update);
 			$list_data .= '<li><a href="'.$page_url.'" target="_blank">'.$title.'</a></li>';
 		}
+		foreach ($tahun as $k => $v) {
+			$title = 'Input Batasan Pagu per-Sumber Dana | '.$v['tahun_anggaran'];
+			$shortcode = '[input_batasan_pagu_per_sumber_dana tahun_anggaran="'.$v['tahun_anggaran'].'"]';
+			$update = false;
+			$page_url = $this->generatePage($title, $v['tahun_anggaran'], $shortcode, $update);
+			$list_data .= '<li><a href="'.$page_url.'" target="_blank">'.$title.'</a></li>';
+		}
 		$label = array(
 			Field::make( 'html', 'crb_jadwal_perencanaan' )
             	->set_html( '

@@ -2,6 +2,15 @@
 
 require_once WPSIPD_PLUGIN_PATH."/public/class-wpsipd-public-base-2.php";
 class Wpsipd_Public_Base_1 extends Wpsipd_Public_Base_2{
+
+    public function input_batasan_pagu_per_sumber_dana($atts){
+		// untuk disable render shortcode di halaman edit page/post
+        if (!empty($_GET) && !empty($_GET['post'])) {
+            return '';
+        }
+        require_once WPSIPD_PLUGIN_PATH . 'public/partials/wpsipd-public-input-batasan-pagu-per-sumber-dana.php';
+	}
+
     public function singkron_rpjpd_sipd_lokal(){
         global $wpdb;
         $ret = array(
@@ -3132,8 +3141,8 @@ class Wpsipd_Public_Base_1 extends Wpsipd_Public_Base_2{
                 if(!empty($_POST['tahun_anggaran'])){
                     if(in_array('administrator', $this->role())){
                         $tahun_anggaran = $_POST['tahun_anggaran'];
-                        $id_skpd = $_POST['id_skpd'];
-                        $copy_data_sipd = $_POST['copy_data_option'];
+                        $id_skpd = (!empty($_POST['id_skpd'])) ? $_POST['id_skpd'] : '';
+                        $copy_data_sipd = (!empty($_POST['copy_data_option'])) ? $_POST['copy_data_option'] : array();
 
                         if(!empty($id_skpd)){
                             $per_skpd = ' AND id_sub_skpd='.$id_skpd;
@@ -3153,7 +3162,6 @@ class Wpsipd_Public_Base_1 extends Wpsipd_Public_Base_2{
                                 FROM data_sub_keg_bl
                                 WHERE active=1
                                 AND tahun_anggaran=%d
-                                AND id_sub_skpd='.$id_skpd.'
                             ', $tahun_anggaran);
                         }
 
@@ -3229,9 +3237,9 @@ class Wpsipd_Public_Base_1 extends Wpsipd_Public_Base_2{
                             );
     
                             $sql_copy_data_sub_keg_bl =  "
-                                INSERT INTO data_sub_keg_bl_lokal (".implode(', ', $columns_sub_keg).")
+                                INSERT INTO data_sub_keg_bl_lokal (".implode(', ', $columns_sub_keg).", pagu_usulan, pagu_n_depan_usulan, waktu_awal_usulan, waktu_akhir_usulan, sasaran_usulan)
                                 SELECT 
-                                    ".implode(', ', $columns_sub_keg)."
+                                    ".implode(', ', $columns_sub_keg).", pagu, pagu_n_depan, waktu_awal, waktu_akhir, sasaran
                                 FROM data_sub_keg_bl
                                 WHERE active=1
                                 AND tahun_anggaran='".$tahun_anggaran."' ".$per_skpd;
@@ -3257,9 +3265,9 @@ class Wpsipd_Public_Base_1 extends Wpsipd_Public_Base_2{
                                 );
 
                                 $sql_copy_data_sub_keg_indikator =  "
-                                    INSERT INTO data_sub_keg_indikator_lokal (".implode(', ', $columns_indi_lokal).")
+                                    INSERT INTO data_sub_keg_indikator_lokal (".implode(', ', $columns_indi_lokal).", outputteks_usulan, targetoutput_usulan, satuanoutput_usulan, targetoutputteks_usulan)
                                     SELECT 
-                                        ".implode(', ', $columns_indi_lokal)."
+                                        ".implode(', ', $columns_indi_lokal).", outputteks, targetoutput, satuanoutput, targetoutputteks
                                     FROM data_sub_keg_indikator 
                                     WHERE active=1
                                     AND tahun_anggaran='".$tahun_anggaran."'
@@ -3283,9 +3291,9 @@ class Wpsipd_Public_Base_1 extends Wpsipd_Public_Base_2{
                                 );
 
                                 $sql_copy_data_capaian_prog_sub_keg =  "
-                                    INSERT INTO data_capaian_prog_sub_keg_lokal (".implode(', ', $columns_capaian_prog).")
+                                    INSERT INTO data_capaian_prog_sub_keg_lokal (".implode(', ', $columns_capaian_prog).",satuancapaian_usulan, targetcapaianteks_usulan, capaianteks_usulan, targetcapaian_usulan)
                                     SELECT 
-                                        ".implode(', ', $columns_capaian_prog)."
+                                        ".implode(', ', $columns_capaian_prog).", satuancapaian, targetcapaianteks, capaianteks, targetcapaian
                                     FROM data_capaian_prog_sub_keg
                                     WHERE active=1
                                     AND tahun_anggaran='".$tahun_anggaran."'
@@ -3309,9 +3317,9 @@ class Wpsipd_Public_Base_1 extends Wpsipd_Public_Base_2{
                                 );
 
                                 $sql_copy_data_output_giat_sub_keg =  "
-                                    INSERT INTO data_output_giat_sub_keg_lokal (".implode(', ', $oclumns_output_giat).")
+                                    INSERT INTO data_output_giat_sub_keg_lokal (".implode(', ', $oclumns_output_giat).", outputteks_usulan, satuanoutput_usulan, targetoutput_usulan, targetoutputteks_usulan)
                                     SELECT 
-                                        ".implode(', ', $oclumns_output_giat)."
+                                        ".implode(', ', $oclumns_output_giat).", outputteks, satuanoutput, targetoutput, targetoutputteks
                                     FROM data_output_giat_sub_keg
                                     WHERE active=1
                                     AND tahun_anggaran='".$tahun_anggaran."'
@@ -3337,9 +3345,9 @@ class Wpsipd_Public_Base_1 extends Wpsipd_Public_Base_2{
                                     );
     
                                     $sql_copy_data_dana_sub_keg =  "
-                                        INSERT INTO data_dana_sub_keg_lokal (".implode(', ', $columns_dana).")
+                                        INSERT INTO data_dana_sub_keg_lokal (".implode(', ', $columns_dana).", nama_dana_usulan, kode_dana_usulan, id_dana_usulan, pagu_dana_usulan)
                                         SELECT 
-                                            ".implode(', ', $columns_dana)."
+                                            ".implode(', ', $columns_dana).", namadana, kodedana, iddana, pagudana
                                         FROM data_dana_sub_keg
                                         WHERE active=1
                                         AND tahun_anggaran='".$tahun_anggaran."'
@@ -3367,9 +3375,9 @@ class Wpsipd_Public_Base_1 extends Wpsipd_Public_Base_2{
                                 );
 
                                 $sql_copy_data_lokasi_sub_keg =  "
-                                    INSERT INTO data_lokasi_sub_keg_lokal (".implode(', ', $columns_lokasi).")
+                                    INSERT INTO data_lokasi_sub_keg_lokal (".implode(', ', $columns_lokasi).", camatteks_usulan, daerahteks_usulan, idcamat_usulan, iddetillokasi_usulan, idkabkota_usulan, idlurah_usulan, lurahteks_usulan)
                                     SELECT 
-                                        ".implode(', ', $columns_lokasi)."
+                                        ".implode(', ', $columns_lokasi).", camatteks, daerahteks, idcamat, iddetillokasi, idkabkota, idlurah, lurahteks
                                     FROM data_lokasi_sub_keg
                                     WHERE active=1
                                     AND tahun_anggaran='".$tahun_anggaran."'

@@ -229,6 +229,30 @@ $body = '';
 	</div>
 </div>
 
+<!-- Modal Copy data renja -->
+<div class="modal fade" id="modal-copy-renja-sipd" data-backdrop="static" role="dialog" aria-labelledby="modal-copy-renja-sipd-label" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Tipe Copy Data RENJA ke Lokal</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <input type="checkbox" id="copyDataRka" name="copyDataSipd" value="rincian_rka">
+                <label for="copyDataRka">Copy Data Rincian RKA</label><br>
+                <input type="checkbox" id="copySumberDana" name="copyDataSipd" value="sumber_dana">
+                <label for="copySumberDana">Copy Sumber Dana</label><br>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary submitBtn" onclick="copy_renja_sipd_to_lokal_all()">Simpan</button>
+                <button type="submit" class="components-button btn btn-secondary" data-dismiss="modal">Tutup</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <div class="report"></div>
 <script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
 <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
@@ -957,6 +981,32 @@ $body = '';
 			jQuery(".class_renja_pergeseran").show();
 		}else{
 			jQuery(".class_renja_pergeseran").hide();
+		}
+	}
+
+	function copy_renja_sipd_to_lokal_all(){
+		if(confirm('Apakah anda yakin untuk melakukan ini? data RENJA lokal akan diupdate sama dengan data RENJA SIPD.')){
+            var copy_data_option = [];
+            jQuery('input[name=copyDataSipd]:checked').each(function() {
+                copy_data_option.push(jQuery(this).val());
+            });
+
+			jQuery('#wrap-loading').show();
+			jQuery.ajax({
+				url: ajax.url,
+				type: 'post',
+				dataType: "json",
+				data: {
+					"action": "copy_renja_sipd_to_lokal",
+					"api_key": jQuery('#api_key').val(),
+					"tahun_anggaran": tahun_anggaran,
+					"copy_data_option": copy_data_option
+				},
+				success: function(res){
+					alert(res.message);
+					jQuery('#wrap-loading').hide();
+				}
+			});
 		}
 	}
 
