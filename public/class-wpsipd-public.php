@@ -150,7 +150,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 								id_standar_harga 
 							from data_ssh 
 							where tahun_anggaran=%d 
-								AND id_standar_harga=$d
+								AND id_standar_harga=%d
 						", $_POST['tahun_anggaran'], $v['id_standar_harga']));
 						if(!empty($_POST['type']) && $_POST['type'] == 'ri'){
 							$kelompok = $v['nama_kel_standar_harga'];
@@ -223,7 +223,13 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						}
 
 						foreach ($v['detail_ssh'] as $keys => $values) {							
-							$cek = $wpdb->get_var("SELECT id_standar_harga from data_ssh where tahun_anggaran=".$_POST['tahun_anggaran']." AND id_standar_harga=" . $values['id_standar_harga']);
+							$cek = $wpdb->get_var($wpdb->get_prepare("
+								SELECT 
+									id_standar_harga 
+								from data_ssh 
+								where tahun_anggaran=%d 
+									AND id_standar_harga=%d
+								", $_POST['tahun_anggaran'], $values['id_standar_harga']));
 							$opsi = array(
 								'created_at'	=> $values['created_at'],
 								'created_user'	=> $values['created_user'],
