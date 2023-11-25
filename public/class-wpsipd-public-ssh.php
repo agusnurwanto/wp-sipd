@@ -1405,6 +1405,14 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 						'nomor_surat' => $_POST['nomor_surat'],
 						'tahun_anggaran' => $_POST['tahun_anggaran']
 					), array('%d', '%s', '%d'));
+
+					// kosongkan nomor nota dinas untuk usulan yang belum diapprove
+					$wpdb->update('data_ssh_usulan', array(
+						'no_nota_dinas' => ''
+					), array(
+						'no_nota_dinas' => $_POST['nomor_surat'], 
+						'tahun_anggaran' => $_POST['tahun_anggaran']
+					));
 				}
 			}else{
 				$return = array(
@@ -4121,6 +4129,7 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 						$cek_surat = $wpdb->get_row($wpdb->prepare("
 							SELECT
 								id,
+								nomor_surat,
 								nama_file
 							FROM data_surat_usulan_ssh
 							WHERE id=%d
@@ -4212,23 +4221,33 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 							'id' => $cek_surat_id
 						));
 					}
-					foreach($ids as $id){
-						$status = $wpdb->get_var($wpdb->prepare('
-							select 
-								status 
-							from data_ssh_usulan 
-							where id=%d
-						', $id));
-						$opsi_db = array(
-							'no_surat_usulan' => $nomor_surat
-						);
-						// rubah status usulan jadi waiting jika masih draft atau biarkan saja jika statusnya sudah waiting, approved atau rejected
-						if($status == 'draft'){
-							$opsi_db['status'] = 'waiting';
-						}
-						$wpdb->update('data_ssh_usulan', $opsi_db, array(
-							'id' => $id
+					if(
+						!empty($_POST['ubah'])
+						&& $nomor_surat != $cek_surat['nomor_surat']
+					){
+						$wpdb->update('data_ssh_usulan', array('no_surat_usulan' => $nomor_surat), array(
+							'no_surat_usulan' => $cek_surat['nomor_surat'],
+							'tahun_anggaran' => $tahun_anggaran
 						));
+					}else{
+						foreach($ids as $id){
+							$status = $wpdb->get_var($wpdb->prepare('
+								select 
+									status 
+								from data_ssh_usulan 
+								where id=%d
+							', $id));
+							$opsi_db = array(
+								'no_surat_usulan' => $nomor_surat
+							);
+							// rubah status usulan jadi waiting jika masih draft atau biarkan saja jika statusnya sudah waiting, approved atau rejected
+							if($status == 'draft'){
+								$opsi_db['status'] = 'waiting';
+							}
+							$wpdb->update('data_ssh_usulan', $opsi_db, array(
+								'id' => $id
+							));
+						}
 					}
 				}
 			}else{

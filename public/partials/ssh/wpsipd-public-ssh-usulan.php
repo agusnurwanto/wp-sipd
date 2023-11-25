@@ -1462,7 +1462,9 @@ echo $this->menu_ssh($input);
 				alert(response.message);
 				if(response.status == 'success'){
 					jQuery('#tambahNotaDinasModal').modal('hide');
-					suratNotaDinasUsulanSSHTable.ajax.reload();
+					suratNotaDinasUsulanSSHTable.ajax.reload(function(){
+						usulanSSHTable.ajax.reload();
+					});
 				}
 				jQuery("#wrap-loading").hide();
 			}
@@ -2708,7 +2710,9 @@ echo $this->menu_ssh($input);
 		    	alert(res.message);
 				jQuery("#wrap-loading").hide();
 		    	if(res.status == 'success'){
-					suratUsulanSSHTable.ajax.reload();
+					suratUsulanSSHTable.ajax.reload(function(){
+						usulanSSHTable.ajax.reload();
+					});
     				jQuery('#tambahSuratUsulan').modal('hide');
 				}
 		    }
@@ -2964,7 +2968,9 @@ echo $this->menu_ssh($input);
 									jQuery('#wrap-loading').hide();
 									alert(res.message);
 									if(res.status != 'error'){
-										suratNotaDinasUsulanSSHTable.ajax.reload();
+										suratNotaDinasUsulanSSHTable.ajax.reload(function(){
+											usulanSSHTable.ajax.reload();
+										});
 									}
 								}
 							});
@@ -3021,7 +3027,9 @@ echo $this->menu_ssh($input);
 									jQuery('#wrap-loading').hide();
 									alert(res.message);
 									if(res.status != 'error'){
-										suratUsulanSSHTable.ajax.reload();
+										suratUsulanSSHTable.ajax.reload(function(){
+											usulanSSHTable.ajax.reload();
+										});
 									}
 								}
 							});
