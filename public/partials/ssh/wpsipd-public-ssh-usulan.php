@@ -427,7 +427,6 @@ echo $this->menu_ssh($input);
 					<label for="tambah_harga_komp_nama_komponent" class="col-md-12">Nama Komponen</label>
 					<div class="col-md-12">
 						<select id="tambah_harga_komp_nama_komponent" class="js-example-basic-single" class="form-control" placeholder="Nama Komponen"></select>
-						<input type="text" id="tambah_harga_show_komp_nama" class="hide form-control" placeholder="Nama Komponen" disabled>
 					</div>
 				</div>
 				<div class="row form-group">
@@ -827,7 +826,6 @@ echo $this->menu_ssh($input);
 			jQuery("#tambah_harga_komp_kategori").val("");
 			jQuery("#tambah_harga_komp_nama_komponent").val("").trigger('change');
 			jQuery("#tambah_harga_komp_nama_komponent").next(".select2-container").removeClass("hide");
-			jQuery("#tambah_harga_show_komp_nama").addClass("hide");
 			jQuery("#tambah_harga_komp_spesifikasi").val("");
 			jQuery("#tambah_harga_komp_satuan").val("");
 			jQuery("#tambah_harga_komp_harga_satuan").val("");
@@ -1491,6 +1489,7 @@ echo $this->menu_ssh($input);
 
 	/** Ambil data detail ssh sesuai komponen */
 	function get_data_usulan_ssh_by_komponen(jenis, id_standar_harga){
+		jQuery('#wrap-loading').show();
 		jQuery.ajax({
 			url: "<?php echo admin_url('admin-ajax.php'); ?>",
 			type:'post',
@@ -1501,6 +1500,7 @@ echo $this->menu_ssh($input);
 			},
 			dataType: 'json',
 			success:function(response){
+				jQuery('#wrap-loading').hide();
 				if(jenis === 'harga'){
 					jQuery("#tambah_harga_id_sub_unit").val(response.data_ssh_usulan_by_id.id_sub_skpd);
 					jQuery("#tambah_harga_komp_kategori").val(response.data_ssh_usulan_by_id.kode_kel_standar_harga+" "+response.data_ssh_usulan_by_id.nama_kel_standar_harga);
