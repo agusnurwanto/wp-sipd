@@ -3981,6 +3981,8 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 						!empty($ssh)
 						&& !empty($ssh[0])
 						&& !empty($ssh[0]['kelompok'])
+						&& !empty($_POST['page'])
+						&& $_POST['page'] == 1
 					){
 						$wpdb->update('data_ssh', array('active' => 0), array(
 							'tahun_anggaran' => $_POST['tahun_anggaran'],
