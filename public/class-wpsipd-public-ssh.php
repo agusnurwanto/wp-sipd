@@ -3977,12 +3977,16 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 					}else{
 						$ssh = $_POST['ssh'];
 					}
-					$wpdb->update('data_ssh', array('active' => 0), array(
-						'tahun_anggaran'	=> $_POST['tahun_anggaran']
-					));
-					$wpdb->update('data_ssh_rek_belanja', array('active' => 0), array(
-						'tahun_anggaran'	=> $_POST['tahun_anggaran']
-					));
+					if(
+						!empty($ssh)
+						&& !empty($ssh[0])
+						&& !empty($ssh[0]['kelompok'])
+					){
+						$wpdb->update('data_ssh', array('active' => 0), array(
+							'tahun_anggaran' => $_POST['tahun_anggaran'],
+							'kelompok' => $ssh[0]['kelompok']
+						));
+					}
 					foreach ($ssh as $k => $v) {
 						$cek = $wpdb->get_var($wpdb->prepare("
 							SELECT 
@@ -4032,6 +4036,10 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 							$wpdb->insert('data_ssh', $opsi);
 						}
 
+						$wpdb->update('data_ssh_rek_belanja', array('active' => 0), array(
+							'tahun_anggaran' => $_POST['tahun_anggaran'],
+							'id_standar_harga' => $v['id_standar_harga']
+						));
 						foreach ($v['kd_belanja'] as $key => $value) {
 							$cek = $wpdb->get_var($wpdb->prepare("
 								SELECT 
@@ -4086,9 +4094,7 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 									'id_standar_harga' => $values['id_standar_harga'],									
 									"tahun_anggaran"	=> $_POST['tahun_anggaran']
 								));
-							}
-							else
-							{
+							}else{
 								//print_r('TIDAK DAPAT UPDATE SSH');
 								print_r($opsi);exit;
 							}
