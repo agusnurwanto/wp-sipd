@@ -19747,9 +19747,16 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
     function current_url($url = false){
     	if(empty($url)){
 			$url = (empty($_SERVER['HTTPS']) ? 'http' : 'https') . "://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]";
+			$query = $_GET;
+    	}else{
+			$parts = parse_url($url, PHP_URL_QUERY);
+			parse_str($parts, $query);
     	}
 		$current_url = explode('?', $url);
 		$current_url = $current_url[0];
+		if(!empty($query) && !empty($query['page_id'])){
+			$current_url .= '?page_id='.$query['page_id'];
+		}
 		return $current_url;
     }
 }
