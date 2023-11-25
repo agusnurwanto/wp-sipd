@@ -138,9 +138,27 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 					}else{
 						$ssh = $_POST['ssh'];
 					}
+					$wpdb->update('data_ssh', array('active' => 0), array(
+						'tahun_anggaran'	=> $_POST['tahun_anggaran']
+					));
+					$wpdb->update('data_ssh_rek_belanja', array('active' => 0), array(
+						'tahun_anggaran'	=> $_POST['tahun_anggaran']
+					));
 					foreach ($ssh as $k => $v) {
-						$cek = $wpdb->get_var("SELECT id_standar_harga from data_ssh where tahun_anggaran=".$_POST['tahun_anggaran']." AND id_standar_harga=" . $v['id_standar_harga']);
-						$kelompok = explode(' ', $v['nama_kel_standar_harga']);
+						$cek = $wpdb->get_var($wpdb->prepare("
+							SELECT 
+								id_standar_harga 
+							from data_ssh 
+							where tahun_anggaran=%d 
+								AND id_standar_harga=$d
+						", $_POST['tahun_anggaran'], $v['id_standar_harga']));
+						if(!empty($_POST['type']) && $_POST['type'] == 'ri'){
+							$kelompok = $v['nama_kel_standar_harga'];
+						}else{
+							$kelompok = explode(' ', $v['nama_kel_standar_harga']);
+							unset($kelompok[0]);
+							$kelompok = implode(' ', $kelompok);
+						}
 						$nilai = explode(' ', $v['nilai_tkdn']);
 						$opsi = array(
 							'id_standar_harga' => $v['id_standar_harga'],
@@ -159,9 +177,10 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 							'harga_2' => $v['harga_2'],
 							'harga_3' => $v['harga_3'],
 							'kode_kel_standar_harga' => $v['kode_kel_standar_harga'],
-							'nama_kel_standar_harga' => $v['nama_kel_standar_harga'],
+							'nama_kel_standar_harga' => $kelompok,
 							'tkdn' => $nilai[0],
 							'jenis_produk' => $v['is_pdn'],
+							'active'	=> 1,
 							'update_at'	=> current_time('mysql'),
 							'tahun_anggaran'	=> $_POST['tahun_anggaran']
 						);
@@ -175,20 +194,22 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						}
 
 						foreach ($v['kd_belanja'] as $key => $value) {
-							$cek = $wpdb->get_var("
+							$cek = $wpdb->get_var($wpdb->prepare("
 								SELECT 
 									id_standar_harga 
 								from data_ssh_rek_belanja 
-								where tahun_anggaran=".$_POST['tahun_anggaran']." 
-									and id_akun=" . $value['id_akun'] . ' 
-									and id_standar_harga=' . $v['id_standar_harga']
-							);
+								where tahun_anggaran=%d 
+									and id_akun=%d 
+									and id_standar_harga=%d
+							", $_POST['tahun_anggaran'], $value['id_akun'], $v['id_standar_harga']);
 							$opsi = array(
 								"id_akun"	=> $value['id_akun'],
 								"kode_akun" => $value['kode_akun'],
 								"nama_akun"	=> $value['nama_akun'],
 								"id_standar_harga"	=> $v['id_standar_harga'],
-								"tahun_anggaran"	=> $_POST['tahun_anggaran']
+								"tahun_anggaran"	=> $_POST['tahun_anggaran'],
+								"update_at"	=> current_time('mysql'),
+								"active"	=> 1
 							);
 							if (!empty($cek)) {
 								$wpdb->update('data_ssh_rek_belanja', $opsi, array(

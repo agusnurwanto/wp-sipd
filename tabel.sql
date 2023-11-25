@@ -326,6 +326,7 @@ CREATE TABLE `data_ssh` (
   `tahun_anggaran` year(4) NOT NULL DEFAULT '2020',
   `jenis_produk` varchar(32) DEFAULT NULL,
   `tkdn` int(11) DEFAULT NULL,
+  `active` tinyint(4) DEFAULT 1,
   PRIMARY KEY  (id),
   KEY `id_standar_harga` (`id_standar_harga`)
 );
@@ -336,6 +337,8 @@ CREATE TABLE `data_ssh_rek_belanja` (
   `kode_akun` varchar(50) NOT NULL,
   `nama_akun` text NOT NULL,
   `id_standar_harga` int(11) NOT NULL,
+  `active` tinyint(4) DEFAULT 1,
+  `update_at` datetime DEFAULT NULL,
   `tahun_anggaran` year(4) NOT NULL DEFAULT '2021',
   PRIMARY KEY  (id),
   KEY `id_standar_harga` (`id_standar_harga`),
