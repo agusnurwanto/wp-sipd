@@ -167,15 +167,15 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 							'satuan' => $v['satuan'],
 							'spek' => $v['spek'],
 							'ket_teks' => $v['ket_teks'],
-							'created_at' => $v['created_at'],
-							'created_user' => $v['created_user'],
+							'created_at' => $v['detail_ssh'][0]['created_at'],
+							'created_user' => $v['detail_ssh'][0]['created_user'],
 							'updated_user' => $v['updated_user'],
-							'is_deleted' => $v['is_deleted'],
-							'is_locked' => $v['is_locked'],
+							'is_deleted' => $v['detail_ssh'][0]['is_deleted'],
+							'is_locked' => $v['detail_ssh'][0]['is_locked'],
 							'kelompok' => $v['kelompok'],
 							'harga' => $v['harga'],
-							'harga_2' => $v['harga_2'],
-							'harga_3' => $v['harga_3'],
+							'harga_2' => $v['detail_ssh'][0]['harga_2'],
+							'harga_3' => $v['detail_ssh'][0]['harga_3'],
 							'kode_kel_standar_harga' => $v['kode_kel_standar_harga'],
 							'nama_kel_standar_harga' => $kelompok,
 							'tkdn' => $nilai[0],
@@ -219,6 +219,33 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 								));
 							} else {
 								$wpdb->insert('data_ssh_rek_belanja', $opsi);
+							}
+						}
+
+						foreach ($v['detail_ssh'] as $keys => $values) {							
+							$cek = $wpdb->get_var("SELECT id_standar_harga from data_ssh where tahun_anggaran=".$_POST['tahun_anggaran']." AND id_standar_harga=" . $values['id_standar_harga']);
+							$opsi = array(
+								'created_at'	=> $values['created_at'],
+								'created_user'	=> $values['created_user'],
+								'is_deleted' => $values['is_deleted'],
+								'is_locked'	=> $values['is_locked'],
+								'is_pdn'	=> $values['is_pdn'],
+								'tkdn'	=> $values['nilai_tkdn'],
+								'harga_2'	=> $values['harga_2'],
+								'harga_3'	=> $values['harga_3'],
+								'tahun_anggaran'	=> $_POST['tahun_anggaran']
+							);
+							
+							if (!empty($cek)) {
+								$wpdb->update('data_ssh', $opsi, array(
+									'id_standar_harga' => $values['id_standar_harga'],									
+									"tahun_anggaran"	=> $_POST['tahun_anggaran']
+								));
+							}
+							else
+							{
+								//print_r('TIDAK DAPAT UPDATE SSH');
+								print_r($opsi);exit;
 							}
 						}
 					}
