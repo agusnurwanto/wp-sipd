@@ -82,14 +82,14 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 						FROM data_ssh r
 						INNER JOIN (
 							SELECT DISTINCT
-								r.tahun_anggaran,
-								r.nama_komponen,
-								r.harga_satuan,
-								r.satuan
-							FROM data_rka r
-							WHERE r.tahun_anggaran=%d
-								AND r.active=1
-								AND r.jenis_bl NOT IN (
+								rka.tahun_anggaran,
+								rka.nama_komponen,
+								rka.harga_satuan,
+								rka.satuan
+							FROM data_rka rka
+							WHERE rka.tahun_anggaran=%d
+								AND rka.active=1
+								AND rka.jenis_bl NOT IN (
 									'btl-gaji', 
 									'blud', 
 									'hibah', 
@@ -107,6 +107,7 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 						) AS s ON s.nama_komponen=r.nama_standar_harga
 							AND s.harga_satuan=r.harga
 							AND s.satuan=r.satuan
+							AND r.active=1
 							AND r.tahun_anggaran=s.tahun_anggaran
 					", $params['tahun_anggaran']), ARRAY_A);
 					if(!empty($id_ssh_all)){
@@ -146,7 +147,7 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 				if(!empty($_POST['kelompok'])){
 					$where_first .= $wpdb->prepare(" AND kelompok=%d", $_POST['kelompok']);
 				}
-				$where_first .= " AND s.id_standar_harga IS NOT NULL AND s.tahun_anggaran=".$wpdb->prepare('%d', $params['tahun_anggaran']).$tidak_terpakai_where;
+				$where_first .= " AND s.active=1 AND s.id_standar_harga IS NOT NULL AND s.tahun_anggaran=".$wpdb->prepare('%d', $params['tahun_anggaran']).$tidak_terpakai_where;
 				$sqlTot .= $sql_tot.$where_first;
 				$sqlRec .= $sql.$where_first;
 				if(isset($where) && $where != '') {
@@ -229,6 +230,7 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 							nama_standar_harga 
 						FROM data_ssh 
 						WHERE tahun_anggaran = %d
+							AND active=1
 							$where
 						LIMIT %d, 20",
 						$tahun_anggaran,
@@ -329,12 +331,14 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 								* 
 							FROM data_ssh 
 							WHERE id_standar_harga = %d
+								AND active=1
 						",$id_standar_harga), ARRAY_A);
 						$data_old_ssh_akun = $wpdb->get_results($wpdb->prepare("
 							SELECT 
 								* 
 							FROM data_ssh_rek_belanja 
 							WHERE id_standar_harga = %d
+								AND active=1
 						",$id_standar_harga), ARRAY_A);
 						$kode_standar_harga_sipd = $data_old_ssh[0]['kode_standar_harga'];
 					}
@@ -368,6 +372,7 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 						FROM data_ssh
 						WHERE 
 							nama_standar_harga = %s AND
+							active=1 AND
 							satuan = %s AND
 							spek = %s AND
 							harga = %s AND
@@ -536,7 +541,8 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 								* 
 							FROM data_ssh_usulan 
 							WHERE id = %d
-						",$id_standar_harga), ARRAY_A);
+								tahun_anggaran=%d
+						",$id_standar_harga, $tahun_anggaran), ARRAY_A);
 						$kode_standar_harga_sipd = NULL;
 						$id_usulan = $data_old_ssh[0]['id'];
 					// get data dari tabel data_ssh sipd
@@ -546,7 +552,9 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 								* 
 							FROM data_ssh 
 							WHERE id_standar_harga = %d
-						",$id_standar_harga), ARRAY_A);
+								AND active=1
+								AND tahun_anggaran=%d
+						",$id_standar_harga, $tahun_anggaran), ARRAY_A);
 						$kode_standar_harga_sipd = $data_old_ssh[0]['kode_standar_harga'];
 					}
 
@@ -582,7 +590,8 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 									MAX(kode_standar_harga) 
 								FROM `data_ssh_usulan` 
 								WHERE kode_kel_standar_harga = %s
-							)",$data_old_ssh[0]['kode_kel_standar_harga']), ARRAY_A);
+									AND tahun_anggaran=%d
+							)", $data_old_ssh[0]['kode_kel_standar_harga'], $tahun_anggaran), ARRAY_A);
 						$last_kode_standar_harga = 0;
 						if(!empty($last_kode_standar_harga[0]['kode_standar_harga'])){
 							$last_kode_standar_harga = explode(".",$last_kode_standar_harga[0]['kode_standar_harga']);
@@ -815,6 +824,7 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 							* 
 						FROM data_ssh 
 						WHERE id_standar_harga = %d
+							AND active=1
 					',$id_standar_harga), ARRAY_A);
 
 					$data_akun_ssh = $wpdb->get_results($wpdb->prepare('
@@ -823,6 +833,7 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 							nama_akun 
 						FROM data_ssh_rek_belanja 
 						WHERE id_standar_harga = %d
+							AND active=1
 					',$id_standar_harga), ARRAY_A);
 
 				    ksort($data_id_ssh);
@@ -892,7 +903,9 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 								id_standar_harga 
 							FROM data_ssh 
 							WHERE kode_standar_harga = %s
-						', $data_id_ssh_usulan[0]['kode_standar_harga_sipd']), ARRAY_A);
+								AND active=1
+								AND tahun_anggaran=%d
+						', $data_id_ssh_usulan[0]['kode_standar_harga_sipd'], $tahun_anggaran), ARRAY_A);
 
 						// kalau hasil backup sipd, id_standa_harga berelasi dengan kolom id_standar_harga di data_ssh
 						$data_akun_ssh_existing_sipd = $wpdb->get_results($wpdb->prepare('
@@ -902,7 +915,9 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 								nama_akun 
 							FROM data_ssh_rek_belanja 
 							WHERE id_standar_harga = %d
-						',$data_id_ssh_existing[0]['id_standar_harga']), ARRAY_A);
+								AND active=1
+								AND tahun_anggaran=%d
+						',$data_id_ssh_existing[0]['id_standar_harga'], $tahun_anggaran), ARRAY_A);
 						foreach($data_akun_ssh_existing_sipd as $data_akun){
 							$table_content_akun .= $data_akun['nama_akun']."&#13;&#10;";
 						}
@@ -2257,7 +2272,9 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 									id_standar_harga 
 								FROM data_ssh 
 								WHERE kode_standar_harga = %s
-							', $data_id_ssh_usulan[0]['kode_standar_harga_sipd']), ARRAY_A);
+									AND active=1
+									AND tahun_anggaran=%d
+							', $data_id_ssh_usulan[0]['kode_standar_harga_sipd'], $tahun_anggaran), ARRAY_A);
 							$data_akun_ssh_existing_sipd = $wpdb->get_results($wpdb->prepare('
 								SELECT 
 									id,
@@ -2265,7 +2282,9 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 									nama_akun 
 								FROM data_ssh_rek_belanja 
 								WHERE id_standar_harga = %d
-							',$data_id_ssh_existing[0]['id_standar_harga']), ARRAY_A);
+									AND active=1
+									AND tahun_anggaran=%d
+							',$data_id_ssh_existing[0]['id_standar_harga'], $tahun_anggaran), ARRAY_A);
 						}
 						$filter_all = array_merge($data_akun_ssh_usulan, $data_akun_ssh_existing_sipd);
 						foreach($filter_all as $akun){
@@ -2392,17 +2411,20 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 							SELECT 
 								id 
 							FROM data_ssh
-							WHERE 
-								nama_standar_harga = %s AND
+							WHERE nama_standar_harga = %s AND
+								active=1 AND
 								satuan = %s AND
 								spek = %s AND
 								harga = %s AND
-								kode_kel_standar_harga = %s",
+								kode_kel_standar_harga = %s AND
+								tahun_anggaran=%d
+							",
 							$nama_standar_harga,
 							$satuan,
 							$spek,
 							$harga,
-							$data_kategori[0]['kode_kategori']
+							$data_kategori[0]['kode_kategori'],
+							$tahun_anggaran
 						), ARRAY_A);
 
 						//avoid double data ssh usulan
@@ -2608,6 +2630,7 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 								* 
 							FROM data_ssh 
 							WHERE id_standar_harga = %d
+								AND active=1
 						',$id_standar_harga), ARRAY_A);
 
 						$data_ssh_akun_by_id = $wpdb->get_results($wpdb->prepare('
@@ -2615,6 +2638,7 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 								* 
 							FROM data_ssh_rek_belanja 
 							WHERE id_standar_harga = %d
+								AND active=1
 						',$id_standar_harga), ARRAY_A);
 					}
 
@@ -2831,19 +2855,23 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 									id 
 								FROM data_ssh
 								WHERE tahun_anggaran=%d AND
+									active=1 AND
 									nama_standar_harga = %s AND
 									satuan = %s AND
 									spek = %s AND
 									harga = %s AND
 									kode_kel_standar_harga = %s AND
-									NOT id_standar_harga = %d",
+									NOT id_standar_harga = %d AND
+									tahun_anggaran=%d
+								",
 								$tahun_anggaran,
 								$nama_standar_harga,
 								$satuan,
 								$spek,
 								$harga,
 								$data_kategori[0]['kode_kategori'],
-								$data_this_id_ssh[0]['id_standar_harga']
+								$data_this_id_ssh[0]['id_standar_harga'],
+								$tahun_anggaran
 							), ARRAY_A);
 	
 							//avoid double data ssh usulan
@@ -3110,6 +3138,7 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 									id 
 								FROM data_ssh
 								WHERE tahun_anggaran=%d AND
+									active=1 AND
 									nama_standar_harga = %s AND
 									satuan = %s AND
 									spek = %s AND
@@ -4350,6 +4379,7 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 							kelompok 
 						FROM `data_ssh` 
 						WHERE tahun_anggaran=%d
+							AND active=1
 						group by kelompok
 					", $_POST['tahun_anggaran']), ARRAY_A);
 					foreach($data as $ssh){
