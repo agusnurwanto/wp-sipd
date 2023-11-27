@@ -541,7 +541,7 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 								* 
 							FROM data_ssh_usulan 
 							WHERE id = %d
-								tahun_anggaran=%d
+								AND tahun_anggaran=%d
 						",$id_standar_harga, $tahun_anggaran), ARRAY_A);
 						$kode_standar_harga_sipd = NULL;
 						$id_usulan = $data_old_ssh[0]['id'];
@@ -557,7 +557,6 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 						",$id_standar_harga, $tahun_anggaran), ARRAY_A);
 						$kode_standar_harga_sipd = $data_old_ssh[0]['kode_standar_harga'];
 					}
-
 					if(empty($data_old_ssh)){
 						$return['status'] = 'error';
 						$return['message'] = 'Data standar harga sebelumnya tidak ditemukan!';

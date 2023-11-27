@@ -267,7 +267,7 @@ echo $this->menu_ssh($input);
 				<div class="row form-group">
 					<label class="col-md-2" for="nomor_surat_nota_dinas">Nomor Surat</label>
 					<div class="col-md-10">
-						<input type="text" id="nomor_surat_nota_dinas" class="form-control" placeholder="kode_surat/no_urut/kode_opd/tahun" value="kode_surat/no_urut/kode_opd/<?php echo $input['tahun_anggaran']; ?>">
+						<input type="text" id="nomor_surat_nota_dinas" class="form-control" placeholder="kode_surat/no_urut/kode_opd/<?php echo $input['tahun_anggaran']; ?>" value="kode_surat/no_urut/kode_opd/<?php echo $input['tahun_anggaran']; ?>">
 						<input type="hidden" id="ids_nota_dinas">
 						<input type="hidden" name="ubah_id" value="">
 					</div>
@@ -1502,7 +1502,7 @@ echo $this->menu_ssh($input);
 			success:function(response){
 				jQuery('#wrap-loading').hide();
 				if(jenis === 'harga'){
-					jQuery("#tambah_harga_id_sub_unit").val(response.data_ssh_usulan_by_id.id_sub_skpd);
+					// jQuery("#tambah_harga_id_sub_unit").val(response.data_ssh_usulan_by_id.id_sub_skpd);
 					jQuery("#tambah_harga_komp_kategori").val(response.data_ssh_usulan_by_id.kode_kel_standar_harga+" "+response.data_ssh_usulan_by_id.nama_kel_standar_harga);
 					jQuery("#tambah_harga_komp_spesifikasi").val(response.data_ssh_usulan_by_id.spek);
 					jQuery("#tambah_harga_komp_satuan").val(response.data_ssh_usulan_by_id.satuan);
@@ -1510,7 +1510,8 @@ echo $this->menu_ssh($input);
 					jQuery(`#tambah_harga_komp_jenis_produk_${response.data_ssh_usulan_by_id.jenis_produk}`).prop('checked',true);
 					jQuery("#tambah_harga_komp_tkdn").val(response.data_ssh_usulan_by_id.tkdn);
 				}else if(jenis === 'akun'){
-					jQuery("#tambah_akun_id_sub_unit").val(response.data_ssh_usulan_by_id.id_sub_skpd);
+					// sub unit dinonaktifkan agar jika usulan dari skpd lain, tidak merubah user skpd yang sedang login
+					// jQuery("#tambah_akun_id_sub_unit").val(response.data_ssh_usulan_by_id.id_sub_skpd);
 					jQuery("#tambah_akun_komp_kategori").val(response.data_ssh_usulan_by_id.kode_kel_standar_harga+" "+response.data_ssh_usulan_by_id.nama_kel_standar_harga);
 					jQuery("#tambah_akun_komp_spesifikasi").val(response.data_ssh_usulan_by_id.spek);
 					jQuery("#tambah_akun_komp_satuan").val(response.data_ssh_usulan_by_id.satuan);
