@@ -4212,7 +4212,12 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 
 		if(!empty($_POST)){
 			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
-				foreach($_POST['data_id'] as $id_standar_harga){
+				if(!empty($_POST['type']) && $_POST['type'] == 'ri'){
+					$data_id = json_decode(stripslashes(html_entity_decode($_POST['data_id'])), true);
+				}else{
+					$data_id = $_POST['data_id'];
+				}
+				foreach($data_id as $id_standar_harga){
 					$wpdb->update('data_ssh_usulan', array(
 						'status_upload_sipd' => 1
 					), array(
