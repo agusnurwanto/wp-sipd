@@ -217,46 +217,51 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 						$_POST['search'] = '%'.$_POST['search'].'%';
 						$where = $wpdb->prepare('
 							AND (
-								kode_standar_harga LIKE %s
-								OR nama_standar_harga LIKE %s
+								s.kode_standar_harga LIKE %s
+								OR s.nama_standar_harga LIKE %s
 							)
 						', $_POST['search'], $_POST['search']);
 					}
 
 					$data_nama_ssh = $wpdb->get_results($wpdb->prepare("
 						SELECT 
-							id_standar_harga,
-							kode_standar_harga, 
-							nama_standar_harga 
-						FROM data_ssh 
-						WHERE tahun_anggaran = %d
-							AND active=1
+							s.id_standar_harga,
+							s.kode_standar_harga, 
+							s.nama_standar_harga 
+						FROM data_ssh s 
+						WHERE s.tahun_anggaran = %d
+							AND s.active=1
 							$where
 						LIMIT %d, 20",
 						$tahun_anggaran,
-						$_POST['page']
+						$_POST['page'] * 20
 					), ARRAY_A);
 			    	$return['sql'] = $wpdb->last_query;
 
 					$data_nama_ssh_usulan = $wpdb->get_results($wpdb->prepare("
 						SELECT 
-							id,
-							id_standar_harga,
-							kode_standar_harga, 
-							nama_standar_harga 
-						FROM data_ssh_usulan 
-						WHERE tahun_anggaran = %d
+							s.id,
+							s.id_standar_harga,
+							s.kode_standar_harga, 
+							s.nama_standar_harga,
+							s.status_jenis_usulan,
+							u.nama_skpd
+						FROM data_ssh_usulan s
+						LEFT JOIN data_unit u on s.id_sub_skpd=u.id_skpd
+							AND u.active=1
+							AND u.tahun_anggaran=s.tahun_anggaran
+						WHERE s.tahun_anggaran = %d
 							$where
 						LIMIT %d, 20",
 						$tahun_anggaran,
-						$_POST['page']
+						$_POST['page'] * 20
 					), ARRAY_A);
 			    	$return['sql_usulan'] = $wpdb->last_query;
 
 			    	foreach ($data_nama_ssh_usulan as $key => $value) {
 			    		$return['results'][] = array(
-			    			'id' => 'usulan-'.$value['id'],
-			    			'text' => 'Usulan '.$value['kode_standar_harga'].' '.$value['nama_standar_harga']
+			    			'id' => 'usulan-'.$value['status_jenis_usulan'].'-'.$value['nama_skpd'].' | '.$value['id'],
+			    			'text' => 'Usulan ('.$value['status_jenis_usulan'].') '.$value['nama_skpd'].' | '.$value['kode_standar_harga'].' '.$value['nama_standar_harga']
 			    		);
 			    	}
 			    	foreach ($data_nama_ssh as $key => $value) {
@@ -310,7 +315,7 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 					
 					// get data dari tabel data_ssh_usulan
 					if(strpos($id_standar_harga, 'usulan-') !== false){
-						$id_standar_harga = str_replace('usulan-', '', $id_standar_harga);
+						$id_standar_harga = $this->get_id_usulan($id_standar_harga);
 						$data_old_ssh = $wpdb->get_results($wpdb->prepare("
 							SELECT 
 								* 
@@ -515,6 +520,15 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 		die(json_encode($return));
 	}
 
+	public function get_id_usulan($text){
+		$id = explode(' | ', $text);
+		if(!empty($id[1])){
+			return $id[1];
+		}else{
+			return $id[0];
+		}
+	}
+
 	/** Tombol tambah usulan rekening */
 	public function submit_tambah_akun_ssh(){
 		global $wpdb;
@@ -535,7 +549,7 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 					
 					// get data dari tabel data_ssh_usulan
 					if(strpos($id_standar_harga, 'usulan-') !== false){
-						$id_standar_harga = str_replace('usulan-', '', $id_standar_harga);
+						$id_standar_harga = $this->get_id_usulan($id_standar_harga);
 						$data_old_ssh = $wpdb->get_results($wpdb->prepare("
 							SELECT 
 								* 
@@ -577,8 +591,12 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 	
 					$date_now = current_datetime()->format('Y-m-d H:i:s');
 
-					//insert data ke usulan ssh jika komponen berasal dari data existing SIPD
-					if(!empty($kode_standar_harga_sipd)){
+					//insert data ke usulan ssh jika komponen berasal dari data existing SIPD atau jika id skpd existing tidak sama dengan id skpd pengusul
+					if(
+						!empty($kode_standar_harga_sipd)
+						|| $data_old_ssh[0]['id_sub_skpd'] != $id_sub_skpd
+						|| $data_old_ssh[0]['status_jenis_usulan'] != 'tambah_akun'
+					){
 						$last_kode_standar_harga = $wpdb->get_results($wpdb->prepare("
 							SELECT 
 								id_standar_harga,
@@ -632,6 +650,10 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 		
 						$wpdb->insert('data_ssh_usulan',$opsi_ssh);
 						$id_usulan = $wpdb->insert_id;
+					}else{
+						$wpdb->update('data_ssh_usulan', array('update_at' => $date_now), array(
+							'id' => $id_usulan
+						));
 					}
 
 					/** Insert usulan rek akun */
@@ -2266,6 +2288,7 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 							FROM data_ssh_rek_belanja_usulan 
 							WHERE id_standar_harga = %d
 						',$data_id_ssh_usulan[0]['id_standar_harga']), ARRAY_A);
+						$data_akun_ssh_existing_sipd = array();
 						if(!empty($data_id_ssh_usulan[0]['kode_standar_harga_sipd'])){
 							$data_id_ssh_existing = $wpdb->get_results($wpdb->prepare('
 								SELECT 
@@ -2319,7 +2342,7 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 							AND kode_akun LIKE '5.%'
 							$where
 						LIMIT %d, 20
-					", 1, $tahun_anggaran, $_POST['page']), ARRAY_A);
+					", 1, $tahun_anggaran, $_POST['page'] * 20), ARRAY_A);
 					$return['sql'] = $wpdb->last_query;
 
 					foreach ($data_akun as $key => $value) {
@@ -2610,7 +2633,7 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
 				$id_standar_harga = $_POST['id_standar_harga'];
 				if(str_contains($id_standar_harga, 'usulan-')){
-					$id_standar_harga = str_replace('usulan-', '', $id_standar_harga);
+					$id_standar_harga = $this->get_id_usulan($id_standar_harga);
 					// jika data_ssh_usulan yang menjadi keynya adalah id bukan id_standar_harga
 					$data_ssh_by_id = $wpdb->get_results($wpdb->prepare('
 						SELECT 
