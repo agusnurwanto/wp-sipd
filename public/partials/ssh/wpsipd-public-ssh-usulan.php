@@ -267,7 +267,7 @@ echo $this->menu_ssh($input);
 				<div class="row form-group">
 					<label class="col-md-2" for="nomor_surat_nota_dinas">Nomor Surat</label>
 					<div class="col-md-10">
-						<input type="text" id="nomor_surat_nota_dinas" class="form-control" placeholder="kode_surat/no_urut/kode_opd/tahun" value="kode_surat/no_urut/kode_opd/<?php echo $input['tahun_anggaran']; ?>">
+						<input type="text" id="nomor_surat_nota_dinas" class="form-control" placeholder="kode_surat/no_urut/kode_opd/<?php echo $input['tahun_anggaran']; ?>" value="kode_surat/no_urut/kode_opd/<?php echo $input['tahun_anggaran']; ?>">
 						<input type="hidden" id="ids_nota_dinas">
 						<input type="hidden" name="ubah_id" value="">
 					</div>
