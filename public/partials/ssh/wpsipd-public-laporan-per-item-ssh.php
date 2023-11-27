@@ -6,6 +6,9 @@ if ( ! defined( 'WPINC' ) ) {
 $input = shortcode_atts( array(
 	'tahun_anggaran' => get_option('_crb_tahun_anggaran_sipd')
 ), $atts );
+if(!empty($_GET) && !empty($_GET['tahun'])){
+	$input['tahun_anggaran'] = $_GET['tahun'];
+}
 
 global $wpdb;
 

@@ -1028,7 +1028,8 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 					3 => 'satuan',
 					4 => 'SUM(volume) as volume',
 					5 => 'SUM(total_harga) as total',
-					6 => 'kode_bl'
+					6 => 'kode_bl',
+					7 => 'tahun_anggaran'
 				);
 				$where = $sqlTot = $sqlRec = "";
 
@@ -1089,7 +1090,7 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 				$url_skpd = $this->generatePage($title, $params['tahun_anggaran'], $shortcode, $update);
 
 				foreach($queryRecords as $key => $val){
-					$queryRecords[$key]['link'] = '<a href="'.$url_skpd.'&nama_komponen='.$val['nama_komponen'].'&spek_komponen='.$val['spek_komponen'].'&harga_satuan='.$val['harga_satuan'].'&satuan='.$val['satuan'].'" target="_blank" style="text-decoration: none;">'.$val['nama_komponen'].'</a>';
+					$queryRecords[$key]['link'] = '<a href="'.$url_skpd.'&nama_komponen='.$val['nama_komponen'].'&spek_komponen='.$val['spek_komponen'].'&harga_satuan='.$val['harga_satuan'].'&satuan='.$val['satuan'].'&tahun='.$val['tahun_anggaran'].'" target="_blank" style="text-decoration: none;">'.$val['nama_komponen'].'</a>';
 				}
 
 				$json_data = array(
@@ -4552,7 +4553,8 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 					2 => 'harga_satuan',
 					3 => 'satuan',
 					4 => 'SUM(volume) as volume',
-					5 => 'SUM(total_harga) as total'
+					5 => 'SUM(total_harga) as total',
+					6 => 'tahun_anggaran'
 				);
 				$where = $sqlTot = $sqlRec = "";
 
@@ -4601,7 +4603,7 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 				$url_skpd = $this->generatePage($title, $params['tahun_anggaran'], $shortcode, $update);
 
 				foreach($queryRecords as $key => $val){
-					$queryRecords[$key]['nama_komponen'] = '<a href="'.$url_skpd.'&nama_komponen='.$val['nama_komponen'].'&spek_komponen='.$val['spek_komponen'].'&harga_satuan='.$val['harga_satuan'].'&satuan='.$val['satuan'].'&id_skpd='.$_POST['id_skpd'].'" target="_blank" style="text-decoration: none;">'.$val['nama_komponen'].'</a>';
+					$queryRecords[$key]['nama_komponen'] = '<a href="'.$url_skpd.'&nama_komponen='.$val['nama_komponen'].'&spek_komponen='.$val['spek_komponen'].'&harga_satuan='.$val['harga_satuan'].'&satuan='.$val['satuan'].'&id_skpd='.$_POST['id_skpd'].'&tahun='.$val['tahun_anggaran'].'" target="_blank" style="text-decoration: none;">'.$val['nama_komponen'].'</a>';
 				}
 
 				$json_data = array(
