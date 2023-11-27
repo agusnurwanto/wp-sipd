@@ -577,8 +577,12 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 	
 					$date_now = current_datetime()->format('Y-m-d H:i:s');
 
-					//insert data ke usulan ssh jika komponen berasal dari data existing SIPD
-					if(!empty($kode_standar_harga_sipd)){
+					//insert data ke usulan ssh jika komponen berasal dari data existing SIPD atau jika id skpd existing tidak sama dengan id skpd pengusul
+					if(
+						!empty($kode_standar_harga_sipd)
+						|| $data_old_ssh[0]['id_sub_skpd'] != $id_sub_skpd
+						|| $data_old_ssh[0]['status_jenis_usulan'] != 'tambah_akun'
+					){
 						$last_kode_standar_harga = $wpdb->get_results($wpdb->prepare("
 							SELECT 
 								id_standar_harga,
@@ -632,6 +636,10 @@ class Wpsipd_Public_Ssh extends Wpsipd_Public_FMIS
 		
 						$wpdb->insert('data_ssh_usulan',$opsi_ssh);
 						$id_usulan = $wpdb->insert_id;
+					}else{
+						$wpdb->update('data_ssh_usulan', array('update_at' => $date_now), array(
+							'id' => $id_usulan
+						));
 					}
 
 					/** Insert usulan rek akun */
