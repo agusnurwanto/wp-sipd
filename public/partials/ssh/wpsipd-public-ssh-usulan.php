@@ -643,7 +643,7 @@ echo $this->menu_ssh($input);
 					<div class="row form-group">
 						<label for='u_harga_satuan' class="col-md-12">Harga Satuan <span class="required">*</span></label>
 						<div class="col-md-12">
-							<input type='number' id='u_harga_satuan' class="form-control" placeholder='Harga Satuan'>
+							<input type='text' id='u_harga_satuan' class="form-control harga_ssh" placeholder='Harga Satuan'>
 						</div>
 					</div>
 					<div class="row form-group">
@@ -1526,7 +1526,7 @@ echo $this->menu_ssh($input);
 					jQuery("#tambah_akun_komp_kategori").val(response.data_ssh_usulan_by_id.kode_kel_standar_harga+" "+response.data_ssh_usulan_by_id.nama_kel_standar_harga);
 					jQuery("#tambah_akun_komp_spesifikasi").val(response.data_ssh_usulan_by_id.spek);
 					jQuery("#tambah_akun_komp_satuan").val(response.data_ssh_usulan_by_id.satuan);
-					jQuery("#tambah_akun_komp_harga_satuan").val(response.data_ssh_usulan_by_id.harga).trigger('change');
+					jQuery("#tambah_akun_komp_harga_satuan").val(response.data_ssh_usulan_by_id.harga).trigger('input');
 					jQuery("#tambah_akun_komp_keterangan_lampiran").val(response.data_ssh_usulan_by_id.keterangan_lampiran);
 					jQuery("#tambah_akun_komp_akun").html(response.table_content);
 					jQuery(`#tambah_akun_komp_jenis_produk_${response.data_ssh_usulan_by_id.jenis_produk}`).prop('checked',true);
@@ -1906,7 +1906,7 @@ echo $this->menu_ssh($input);
 					jQuery("#tambah_akun_komp_nama_komponent").val('usulan-'+response.data.id).trigger('change');
 					jQuery("#tambah_akun_komp_spesifikasi").val(response.data.spek);
 					jQuery("#tambah_akun_komp_satuan").val(response.data.satuan);
-					jQuery("#tambah_akun_komp_harga_satuan").val(response.data.harga).trigger('change');
+					jQuery("#tambah_akun_komp_harga_satuan").val(response.data.harga).trigger('input');
 					jQuery('input[name="tambah_harga_komp_jenis_produk"][value="'+response.data.jenis_produk+'"]').prop('checked', true);
 					jQuery("#tambah_akun_komp_tkdn").val(response.data.tkdn);
 					jQuery("#tambah_akun_komp_keterangan_lampiran").val(response.data.keterangan_lampiran);
@@ -1961,7 +1961,7 @@ echo $this->menu_ssh($input);
 					jQuery("#tambah_harga_komp_nama_komponent").val('usulan-'+response.data.id).trigger('change');
 					jQuery("#tambah_harga_komp_spesifikasi").val(response.data.spek);
 					jQuery("#tambah_harga_komp_satuan").val(response.data.satuan);
-					jQuery("#tambah_harga_komp_harga_satuan").val(response.data.harga).trigger('change');
+					jQuery("#tambah_harga_komp_harga_satuan").val(response.data.harga).trigger('input');
 					jQuery(`#tambah_harga_komp_jenis_produk_${response.data.jenis_produk}`).prop('checked',true);
 					jQuery("#tambah_harga_komp_tkdn").val(response.data.tkdn);
 					jQuery("#tambah_harga_komp_keterangan_lampiran").val(response.data.keterangan_lampiran);
@@ -2034,7 +2034,7 @@ echo $this->menu_ssh($input);
 					jQuery('#u_satuan').val(response.data.satuan).trigger('change');
 					jQuery("#u_nama_komponen").val(response.data.nama_standar_harga);
 					jQuery("#u_spesifikasi").val(response.data.spek);
-					jQuery("#u_harga_satuan").val(response.data.harga).trigger('change');
+					jQuery("#u_harga_satuan").val(response.data.harga).trigger('input');
 					jQuery(`input[name=u_jenis_produk][value=${response.data.jenis_produk}]`).prop('checked',true);
 					jQuery("#u_tkdn").val(response.data.tkdn);
 					jQuery("#u_keterangan_lampiran").val(response.data.keterangan_lampiran);
