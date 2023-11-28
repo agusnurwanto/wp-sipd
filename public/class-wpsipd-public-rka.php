@@ -27,6 +27,14 @@ class Wpsipd_Public_RKA
         require_once WPSIPD_PLUGIN_PATH . 'public/partials/penganggaran/wpsipd-public-apbdperda-4.php';
     }
 
+    public function rekap_longlist_per_jenis_belanja_all_skpd($atts)
+    {
+        if (!empty($_GET) && !empty($_GET['post'])) {
+            return '';
+        }
+        require_once WPSIPD_PLUGIN_PATH . 'public/partials/penganggaran/wpsipd-public-longlist-per-jenis-belanja-all-skpd.php';
+    }
+
     public function user_verikasi_rka()
     {
         if (!empty($_GET) && !empty($_GET['post'])) {

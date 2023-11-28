@@ -1021,6 +1021,7 @@ class Wpsipd
 		add_shortcode('dokumentasi_api_wpsipd', array($plugin_public, 'dokumentasi_api_wpsipd'));
 		add_shortcode('rekap_longlist_per_jenis_belanja', array($plugin_public, 'rekap_longlist_per_jenis_belanja'));
 		add_shortcode('apbd_perda_lampiran_4', array($plugin_public, 'apbd_perda_lampiran_4'));
+		add_shortcode('rekap_longlist_per_jenis_belanja_all_skpd', array($plugin_public, 'rekap_longlist_per_jenis_belanja_all_skpd'));
 		add_shortcode('input_batasan_pagu_per_sumber_dana', array($plugin_public, 'input_batasan_pagu_per_sumber_dana'));
 
 		//shortcode SIPKD

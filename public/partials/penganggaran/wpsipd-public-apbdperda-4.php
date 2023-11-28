@@ -257,82 +257,87 @@ foreach ($data_skpd as $skpd) {
             }
         }
     }
-
+    $counter = 1;
     foreach ($data_all as $skpd) {
         if ($jadwal_lokal->status_jadwal_pergeseran == 'tidak_tampil') {
             $body .= '
                 <tr data-id="' . $skpd['id'] . '" style="font-weight: bold;">
-                    <td>' . $skpd['kode'] . '</td>
-                    <td>' . $skpd['nama'] . '</td>
-                    <td class="text-right">' . $this->_number_format($skpd['operasi']) . '</td>
-                    <td class="text-right">' . $this->_number_format($skpd['modal']) . '</td>
-                    <td class="text-right">' . $this->_number_format($skpd['tak_terduga']) . '</td>
-                    <td class="text-right">' . $this->_number_format($skpd['transfer']) . '</td>
-                    <td class="text-right">' . $this->_number_format($skpd['total']) . '</td>
+                    <td>' . '</td>
+                    <td>' . '</td>
+                    <td colspan="8">' . $skpd['nama'] . '</td>
+                    <td class="text-right">' . '</td>
+                    <td class="text-right">' . '</td>
                 </tr>';
         } else {
             $body .= '
-                <tr data-id="' . $skpd['id'] . '" style="font-weight: bold;">
-                    <td>' . $skpd['kode'] . '</td>
-                    <td>' . $skpd['nama'] . '</td>
-                    <td class="text-right">' . $this->_number_format($skpd['operasi_murni']) . '</td>
-                    <td class="text-right">' . $this->_number_format($skpd['modal_murni']) . '</td>
-                    <td class="text-right">' . $this->_number_format($skpd['tak_terduga_murni']) . '</td>
-                    <td class="text-right">' . $this->_number_format($skpd['transfer_murni']) . '</td>
-                    <td class="text-right">' . $this->_number_format($skpd['total_murni']) . '</td>
-                    <td class="text-right">' . $this->_number_format($skpd['operasi']) . '</td>
-                    <td class="text-right">' . $this->_number_format($skpd['modal']) . '</td>
-                    <td class="text-right">' . $this->_number_format($skpd['tak_terduga']) . '</td>
-                    <td class="text-right">' . $this->_number_format($skpd['transfer']) . '</td>
-                    <td class="text-right">' . $this->_number_format($skpd['total']) . '</td>
-                </tr>';
+                    <tr data-id="' . $skpd['id'] . '" style="font-weight: bold;">
+                    <td>' . '</td>
+                    <td>' . '</td>
+                    <td colspan="8">' . $skpd['nama'] . '</td>
+                    <td class="text-right">' . '</td>
+                    <td class="text-right">' . '</td>
+            </tr>';
         }
         foreach ($skpd['data'] as $program) {
             if ($jadwal_lokal->status_jadwal_pergeseran == 'tidak_tampil') {
                 $body .= '
                     <tr data-id="' . $program['id'] . '" style="font-weight: bold;">
+                        <td>' . '</td>
                         <td>' . $program['kode'] . '</td>
                         <td>' . $program['nama'] . '</td>
-                        <td class="text-right">' . $this->_number_format($program['operasi']) . '</td>
-                        <td class="text-right">' . $this->_number_format($program['modal']) . '</td>
-                        <td class="text-right">' . $this->_number_format($program['tak_terduga']) . '</td>
-                        <td class="text-right">' . $this->_number_format($program['transfer']) . '</td>
-                        <td class="text-right">' . $this->_number_format($program['total']) . '</td>
+                        <td>' . '</td>
+                        <td>' . '</td>
+                        <td>' . '</td>
+                        <td>' . '</td>
+                        <td>' . '</td>
+                        <td>' . '</td>
+                        <td>' . '</td>
+                        <td>' . '</td>
+                        <td>' . '</td>
                     </tr>';
             } else {
                 $body .= '
                     <tr data-id="' . $program['id'] . '" style="font-weight: bold;">
+                        <td>' . '</td>
                         <td>' . $program['kode'] . '</td>
                         <td>' . $program['nama'] . '</td>
-                        <td class="text-right">' . $this->_number_format($program['operasi_murni']) . '</td>
-                        <td class="text-right">' . $this->_number_format($program['modal_murni']) . '</td>
-                        <td class="text-right">' . $this->_number_format($program['tak_terduga_murni']) . '</td>
-                        <td class="text-right">' . $this->_number_format($program['transfer_murni']) . '</td>
-                        <td class="text-right">' . $this->_number_format($program['total_murni']) . '</td>
-                        <td class="text-right">' . $this->_number_format($program['operasi']) . '</td>
-                        <td class="text-right">' . $this->_number_format($program['modal']) . '</td>
-                        <td class="text-right">' . $this->_number_format($program['tak_terduga']) . '</td>
-                        <td class="text-right">' . $this->_number_format($program['transfer']) . '</td>
-                        <td class="text-right">' . $this->_number_format($program['total']) . '</td>
+                        <td>' . '</td>
+                        <td>' . '</td>
+                        <td>' . '</td>
+                        <td>' . '</td>
+                        <td>' . '</td>
+                        <td>' . '</td>
+                        <td>' . '</td>
+                        <td>' . '</td>
+                        <td>' . '</td>
                     </tr>';
             }
             foreach ($program['data'] as $kegiatan) {
                 if ($jadwal_lokal->status_jadwal_pergeseran == 'tidak_tampil') {
                     $body .= '
                         <tr data-id="' . $kegiatan['id'] . '" style="font-weight: bold;">
+                            <td class="text-center">' . $counter . '</td>
                             <td>' . $kegiatan['kode'] . '</td>
                             <td>' . $kegiatan['nama'] . '</td>
+                            <td>' . '</td>
+                            <td>' . '</td>
                             <td class="text-right">' . $this->_number_format($kegiatan['operasi']) . '</td>
                             <td class="text-right">' . $this->_number_format($kegiatan['modal']) . '</td>
                             <td class="text-right">' . $this->_number_format($kegiatan['tak_terduga']) . '</td>
                             <td class="text-right">' . $this->_number_format($kegiatan['transfer']) . '</td>
                             <td class="text-right">' . $this->_number_format($kegiatan['total']) . '</td>
+                            <td>' . '</td>
+                            <td>' . '</td>
                         </tr>';
+                    $counter++;
                 } else {
                     $body .= '
                         <tr data-id="' . $kegiatan['id'] . '" style="font-weight: bold;">
+                            <td>' . $counter . '</td>
                             <td>' . $kegiatan['kode'] . '</td>
                             <td>' . $kegiatan['nama'] . '</td>
+                            <td>' . '</td>
+                            <td>' . '</td>
                             <td class="text-right">' . $this->_number_format($kegiatan['operasi_murni']) . '</td>
                             <td class="text-right">' . $this->_number_format($kegiatan['modal_murni']) . '</td>
                             <td class="text-right">' . $this->_number_format($kegiatan['tak_terduga_murni']) . '</td>
@@ -343,7 +348,10 @@ foreach ($data_skpd as $skpd) {
                             <td class="text-right">' . $this->_number_format($kegiatan['tak_terduga']) . '</td>
                             <td class="text-right">' . $this->_number_format($kegiatan['transfer']) . '</td>
                             <td class="text-right">' . $this->_number_format($kegiatan['total']) . '</td>
+                            <td>' . '</td>
+                            <td>' . '</td>
                         </tr>';
+                    $counter++;
                 }
                 foreach ($kegiatan['data'] as $kode => $data) {
                     $total_all += $data['total'];
@@ -361,20 +369,28 @@ foreach ($data_skpd as $skpd) {
                     if ($jadwal_lokal->status_jadwal_pergeseran == 'tidak_tampil') {
                         $body .= '
                             <tr data-kode="' . $kode . '">
+                                <td>' . '</td>
                                 <td>' . $data['sub']['kode_sub_giat'] . '</td>
                                 <td>' . $nama_sub_giat . '</td>
+                                <td>' . '</td>
+                                <td>' . '</td>
                                 <td class="text-right">' . $this->_number_format($data['operasi']) . '</td>
                                 <td class="text-right">' . $this->_number_format($data['modal']) . '</td>
                                 <td class="text-right">' . $this->_number_format($data['tak_terduga']) . '</td>
                                 <td class="text-right">' . $this->_number_format($data['transfer']) . '</td>
                                 <td class="text-right">' . $this->_number_format($data['total']) . '</td>
+                                <td>' . '</td>
+                                <td>' . '</td>
                             </tr>
                         ';
                     } else {
                         $body .= '
                             <tr data-kode="' . $kode . '">
+                                <td>' . '</td>
                                 <td>' . $data['sub']['kode_sub_giat'] . '</td>
                                 <td>' . $nama_sub_giat . '</td>
+                                <td>' . '</td>
+                                <td>' . '</td>
                                 <td class="text-right">' . $this->_number_format($data['operasi_murni']) . '</td>
                                 <td class="text-right">' . $this->_number_format($data['modal_murni']) . '</td>
                                 <td class="text-right">' . $this->_number_format($data['tak_terduga_murni']) . '</td>
@@ -385,6 +401,8 @@ foreach ($data_skpd as $skpd) {
                                 <td class="text-right">' . $this->_number_format($data['tak_terduga']) . '</td>
                                 <td class="text-right">' . $this->_number_format($data['transfer']) . '</td>
                                 <td class="text-right">' . $this->_number_format($data['total']) . '</td>
+                                <td>' . '</td>
+                                <td>' . '</td>
                             </tr>
                         ';
                     }
@@ -413,7 +431,7 @@ foreach ($data_skpd as $skpd) {
                     <th class="text-center align-middle" rowspan="3">Target 2024</th>
                 </tr>
                 <tr>
-                    <th class="text-center align-middle" colspan="5">Pagu Indikatif Belanja</th>
+                    <th class="text-center align-middle" colspan="5">Pagu Indikatif Belanja(Rp)</th>
                     <th class="text-center align-middle" rowspan="2">Lokasi</th>
                     <th class="text-center align-middle" rowspan="2">Sumber Dana</th>
                 </tr>
@@ -425,23 +443,40 @@ foreach ($data_skpd as $skpd) {
                     <th class="text-center align-middle">Total</th>
                 </tr>
                 <tr>
-                    <th class="text-center align-middle">1</th>
-                    <th class="text-center align-middle">2</th>
-                    <th class="text-center align-middle">3</th>
-                    <th class="text-center align-middle">4</th>
-                    <th class="text-center align-middle">5</th>
-                    <th class="text-center align-middle">6</th>
-                    <th class="text-center align-middle">7</th>
-                    <th class="text-center align-middle">8</th>
-                    <th class="text-center align-middle">9</th>
-                    <th class="text-center align-middle">10</th>
-                    <th class="text-center align-middle">11</th>
-                    <th class="text-center align-middle">12</th>
+                    <th class="text-center" style="font-size:small;line-height:0pt">1</th>
+                    <th class="text-center" style="font-size:small;line-height:0pt">2</th>
+                    <th class="text-center" style="font-size:small;line-height:0pt">3</th>
+                    <th class="text-center" style="font-size:small;line-height:0pt">4</th>
+                    <th class="text-center" style="font-size:small;line-height:0pt">5</th>
+                    <th class="text-center" style="font-size:small;line-height:0pt">6</th>
+                    <th class="text-center" style="font-size:small;line-height:0pt">7</th>
+                    <th class="text-center" style="font-size:small;line-height:0pt">8</th>
+                    <th class="text-center" style="font-size:small;line-height:0pt">9</th>
+                    <th class="text-center" style="font-size:small;line-height:0pt">10</th>
+                    <th class="text-center" style="font-size:small;line-height:0pt">11</th>
+                    <th class="text-center" style="font-size:small;line-height:0pt">12</th>
                 </tr>
             </thead>
             <tbody>
                 <?php echo $body; ?>
             </tbody>
+            <tfoot>
+                <tr>
+                    <th colspan="5" class="text-center">Total</th>
+                    <?php if ($jadwal_lokal->status_jadwal_pergeseran != 'tidak_tampil') : ?>
+                        <th class="text-right"><?php echo $this->_number_format($total_operasi_murni); ?></th>
+                        <th class="text-right"><?php echo $this->_number_format($total_modal_murni); ?></th>
+                        <th class="text-right"><?php echo $this->_number_format($total_tak_terduga_murni); ?></th>
+                        <th class="text-right"><?php echo $this->_number_format($total_transfer_murni); ?></th>
+                        <th class="text-right"><?php echo $this->_number_format($total_all_murni); ?></th>
+                    <?php endif; ?>
+                    <th class="text-right"><?php echo $this->_number_format($total_operasi); ?></th>
+                    <th class="text-right"><?php echo $this->_number_format($total_modal); ?></th>
+                    <th class="text-right"><?php echo $this->_number_format($total_tak_terduga); ?></th>
+                    <th class="text-right"><?php echo $this->_number_format($total_transfer); ?></th>
+                    <th class="text-right"><?php echo $this->_number_format($total_all); ?></th>
+                </tr>
+            </tfoot>
         </table>
 </body>
 <script type="text/javascript">

@@ -7422,6 +7422,9 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		global $wpdb;
 		$user_id = um_user( 'ID' );
 		$user_meta = get_userdata($user_id);
+		if(!empty($_GET) && !empty($_GET['tahun'])){
+			echo '<h1 class="text-center">TAHUN ANGGARAN TERPILIH<br>'.$_GET['tahun'].'</h1>';
+		}
 		if(empty($user_meta->roles)){
 			echo 'User ini tidak dapat akses sama sekali :)';
 		}else if(in_array("mitra_bappeda", $user_meta->roles)){
