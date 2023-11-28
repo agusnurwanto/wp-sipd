@@ -253,8 +253,21 @@ foreach ($subkeg as $kk => $sub) {
         order by id ASC
     ", $input['tahun_anggaran'], $sub['kode_sbl']), ARRAY_A);
 
-    if(empty($data_rekap_sumber_dana['data'][$sub['id_sub_skpd']][$sub['kode_sub_giat']])){
-        $data_rekap_sumber_dana['data'][$sub['id_sub_skpd']][$sub['kode_sub_giat']] = $dana_sub_giat;
+    if(!empty($dana_sub_giat)){
+        foreach ($dana_sub_giat as $v_dana) {
+            if(empty($data_rekap_sumber_dana['data'][$sub['id_sub_skpd']][$v_dana['iddana']])){
+                $data_rekap_sumber_dana['data'][$sub['id_sub_skpd']][$v_dana['iddana']] = array(
+                    'nama' => $v_dana['namadana'],
+                    'iddana' => $v_dana['iddana'],
+                    'total' => 0,
+                    'total_usulan' => 0,
+                    'data' => $v_dana
+                );
+            }
+        
+            $data_rekap_sumber_dana['data'][$sub['id_sub_skpd']][$v_dana['iddana']]['total'] += $v_dana['pagudana'];
+            $data_rekap_sumber_dana['data'][$sub['id_sub_skpd']][$v_dana['iddana']]['total_usulan'] += $v_dana['pagu_dana_usulan'];
+        }
     }
     
     $status_pergeseran_renja = $jadwal_lokal[0]['status_jadwal_pergeseran'];
@@ -806,15 +819,22 @@ if($total_sumber_dana >= 1){
 }
 
 $tfoot_pergeseran = $status_pergeseran_renja == 'tampil' ? '<td class="kanan bawah text_kanan text_blok"><span class="nilai_penetapan">'.number_format($data_all['total_pergeseran'],0,",",".").'</span><span class="nilai_usulan">'.number_format($data_all['total_usulan_pergeseran'],0,",",".").'</span></td>' : '';
-
 $data_per_sumber_dana = array();
 $tBodySumberDana = '';
-$tBodySumberDana .= '
-        <tr>
-            <td style="font-weight:bold;" class="text-center"></td>
-            <td style="font-weight:bold;" class="text-center"></td>
-            <td style="font-weight:bold;" class="text-center"></td>
-        </tr>';
+if(!empty($data_rekap_sumber_dana)){
+    foreach ($data_rekap_sumber_dana as $v_sumber_dana) {
+        foreach ($v_sumber_dana as $v_dana) {
+            foreach ($v_dana as $key => $v_sumber) {
+                $tBodySumberDana .= '
+                        <tr>
+                            <td class="text-kiri">'.$v_sumber['nama'].'</td>
+                            <td class="text-center">'.$v_sumber['total_usulan'].'</td>
+                            <td class="text-center">'.$v_sumber['total'].'</td>
+                        </tr>';
+            }
+        }
+    }
+}
 echo '
     <div id="cetak" title="'.$nama_excel.'" style="padding: 5px;">
         <input type="hidden" value="'. get_option( "_crb_api_key_extension" ) .'" id="api_key">
