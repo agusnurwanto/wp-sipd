@@ -444,7 +444,7 @@ echo $this->menu_ssh($input);
 				<div class="row form-group">
 					<div class="col-md-12">
 					<label for="tambah_harga_komp_harga_satuan" class="col-md-12">Harga Satuan</label>
-						<input type="text" id="tambah_harga_komp_harga_satuan" class="form-control" placeholder="Harga Satuan">
+						<input type="text" id="tambah_harga_komp_harga_satuan" class="form-control harga_ssh" placeholder="Harga Satuan">
 					</div>
 				</div>
 				<div class="row form-group">
@@ -535,7 +535,6 @@ echo $this->menu_ssh($input);
 					<label for="tambah_akun_komp_nama_komponent" class="col-md-12">Nama Komponen</label>
 					<div class="col-md-12">
 						<select id="tambah_akun_komp_nama_komponent" class="form-control" placeholder="Nama Komponen"></select>
-						<input type="text" id="tambah_akun_show_komp_nama" class="hide form-control" placeholder="Nama Komponen" disabled>
 					</div>
 				</div>
 				<div class="row form-group">
@@ -553,7 +552,7 @@ echo $this->menu_ssh($input);
 				<div class="row form-group">
 					<label for="tambah_akun_komp_harga_satuan" class="col-md-12">Harga Satuan</label>
 					<div class="col-md-12">
-						<input type="text" id="tambah_akun_komp_harga_satuan" class="form-control" placeholder="Harga Satuan" disabled>
+						<input type="text" id="tambah_akun_komp_harga_satuan" class="form-control harga_ssh" placeholder="Harga Satuan" disabled>
 					</div>
 				</div>
 				<div class="row form-group">
@@ -710,6 +709,12 @@ echo $this->menu_ssh($input);
 
 <script>
 	jQuery(document).ready(function(){
+	    jQuery('.harga_ssh').on('input', function() {
+	        var sanitized = jQuery(this).val().replace(/[^0-9]/g, '');
+	        var formatted = formatRupiah(sanitized);
+	        jQuery(this).val(formatted);
+	    });
+
 		jQuery('#wrap-loading').show();
 		window.tahun = <?php echo $input['tahun_anggaran']; ?>;
 		window.all_skpd = <?php echo json_encode($all_skpd); ?>;
@@ -841,7 +846,6 @@ echo $this->menu_ssh($input);
 			jQuery("#tambah_akun_komp_kategori").val("");
 			jQuery("#tambah_akun_komp_nama_komponent").val("").trigger('change');
 			jQuery("#tambah_akun_komp_nama_komponent").next(".select2-container").removeClass("hide");
-			jQuery("#tambah_akun_show_komp_nama").addClass("hide");
 			jQuery("#tambah_akun_komp_spesifikasi").val("");
 			jQuery("#tambah_akun_komp_satuan").val("");
 			jQuery("#tambah_akun_komp_harga_satuan").val("");
@@ -861,8 +865,15 @@ echo $this->menu_ssh($input);
 			}else{
 				jQuery('.delete_check').prop('checked', false);
 			}
-		})
+		});
 	});
+
+	function formatRupiah(angka) {
+	    var reverse = angka.toString().split('').reverse().join('');
+	    var thousands = reverse.match(/\d{1,3}/g);
+	    var formatted = thousands.join('.').split('').reverse().join('');
+	    return formatted;
+	}
 
 	function get_data_ssh(tahun){
 		return new Promise(function(resolve, reject){
@@ -1515,7 +1526,7 @@ echo $this->menu_ssh($input);
 					jQuery("#tambah_akun_komp_kategori").val(response.data_ssh_usulan_by_id.kode_kel_standar_harga+" "+response.data_ssh_usulan_by_id.nama_kel_standar_harga);
 					jQuery("#tambah_akun_komp_spesifikasi").val(response.data_ssh_usulan_by_id.spek);
 					jQuery("#tambah_akun_komp_satuan").val(response.data_ssh_usulan_by_id.satuan);
-					jQuery("#tambah_akun_komp_harga_satuan").val(response.data_ssh_usulan_by_id.harga);
+					jQuery("#tambah_akun_komp_harga_satuan").val(response.data_ssh_usulan_by_id.harga).trigger('change');
 					jQuery("#tambah_akun_komp_keterangan_lampiran").val(response.data_ssh_usulan_by_id.keterangan_lampiran);
 					jQuery("#tambah_akun_komp_akun").html(response.table_content);
 					jQuery(`#tambah_akun_komp_jenis_produk_${response.data_ssh_usulan_by_id.jenis_produk}`).prop('checked',true);
@@ -1533,7 +1544,7 @@ echo $this->menu_ssh($input);
 		var nama_komponen = jQuery('#u_nama_komponen').val();
 		var spesifikasi = jQuery('#u_spesifikasi').val();
 		var satuan = jQuery('#u_satuan').val();
-		var harga_satuan = jQuery('#u_harga_satuan').val();
+		var harga_satuan = jQuery('#u_harga_satuan').val().replace(/\./g, '');
 		var akun = jQuery('#u_akun').val();
 		var keterangan_lampiran = jQuery('#u_keterangan_lampiran').val();
 		var jenis_produk = jQuery('input[name=u_jenis_produk]:checked').val();
@@ -1756,7 +1767,7 @@ echo $this->menu_ssh($input);
 	/** submit tambah usulan harga ssh */
 	function submitUsulanTambahHargaSshForm(tahun){
 		var id_standar_harga = jQuery('#tambah_harga_komp_nama_komponent').val();
-		var harga_satuan = jQuery('#tambah_harga_komp_harga_satuan').val();
+		var harga_satuan = jQuery('#tambah_harga_komp_harga_satuan').val().replace(/\./g, '');
 		var keterangan_lampiran = jQuery('#tambah_harga_komp_keterangan_lampiran').val();
 		var lapiran_usulan_ssh_1 = jQuery('#u_lapiran_usulan_harga_ssh_1')[0].files[0];
 		var lapiran_usulan_ssh_2 = jQuery('#u_lapiran_usulan_harga_ssh_2')[0].files[0];
@@ -1895,7 +1906,7 @@ echo $this->menu_ssh($input);
 					jQuery("#tambah_akun_komp_nama_komponent").val('usulan-'+response.data.id).trigger('change');
 					jQuery("#tambah_akun_komp_spesifikasi").val(response.data.spek);
 					jQuery("#tambah_akun_komp_satuan").val(response.data.satuan);
-					jQuery("#tambah_akun_komp_harga_satuan").val(response.data.harga);
+					jQuery("#tambah_akun_komp_harga_satuan").val(response.data.harga).trigger('change');
 					jQuery('input[name="tambah_harga_komp_jenis_produk"][value="'+response.data.jenis_produk+'"]').prop('checked', true);
 					jQuery("#tambah_akun_komp_tkdn").val(response.data.tkdn);
 					jQuery("#tambah_akun_komp_keterangan_lampiran").val(response.data.keterangan_lampiran);
@@ -1950,7 +1961,7 @@ echo $this->menu_ssh($input);
 					jQuery("#tambah_harga_komp_nama_komponent").val('usulan-'+response.data.id).trigger('change');
 					jQuery("#tambah_harga_komp_spesifikasi").val(response.data.spek);
 					jQuery("#tambah_harga_komp_satuan").val(response.data.satuan);
-					jQuery("#tambah_harga_komp_harga_satuan").val(response.data.harga);
+					jQuery("#tambah_harga_komp_harga_satuan").val(response.data.harga).trigger('change');
 					jQuery(`#tambah_harga_komp_jenis_produk_${response.data.jenis_produk}`).prop('checked',true);
 					jQuery("#tambah_harga_komp_tkdn").val(response.data.tkdn);
 					jQuery("#tambah_harga_komp_keterangan_lampiran").val(response.data.keterangan_lampiran);
@@ -2023,7 +2034,7 @@ echo $this->menu_ssh($input);
 					jQuery('#u_satuan').val(response.data.satuan).trigger('change');
 					jQuery("#u_nama_komponen").val(response.data.nama_standar_harga);
 					jQuery("#u_spesifikasi").val(response.data.spek);
-					jQuery("#u_harga_satuan").val(response.data.harga);
+					jQuery("#u_harga_satuan").val(response.data.harga).trigger('change');
 					jQuery(`input[name=u_jenis_produk][value=${response.data.jenis_produk}]`).prop('checked',true);
 					jQuery("#u_tkdn").val(response.data.tkdn);
 					jQuery("#u_keterangan_lampiran").val(response.data.keterangan_lampiran);
@@ -2119,7 +2130,7 @@ echo $this->menu_ssh($input);
 		var nama_komponen = jQuery('#u_nama_komponen').val();
 		var spesifikasi = jQuery('#u_spesifikasi').val();
 		var satuan = jQuery('#u_satuan').val();
-		var harga_satuan = jQuery('#u_harga_satuan').val();
+		var harga_satuan = jQuery('#u_harga_satuan').val().replace(/\./g, '');
 		var keterangan_lampiran = jQuery('#u_keterangan_lampiran').val();
 		var akun = jQuery('#u_akun').val();
 		var jenis_produk = jQuery('input[name=u_jenis_produk]:checked').val();
@@ -2200,7 +2211,7 @@ echo $this->menu_ssh($input);
 
 	/** submit edit tambah usulan harga ssh */
 	function submitEditTambahHargaUsulanSshForm(id,tahun){
-		var harga_satuan = jQuery('#tambah_harga_komp_harga_satuan').val();
+		var harga_satuan = jQuery('#tambah_harga_komp_harga_satuan').val().replace(/\./g, '');
 		var keterangan_lampiran = jQuery('#tambah_harga_komp_keterangan_lampiran').val();
 		var lapiran_usulan_ssh_1 = jQuery('#u_lapiran_usulan_harga_ssh_1')[0].files[0];
 		var lapiran_usulan_ssh_2 = jQuery('#u_lapiran_usulan_harga_ssh_2')[0].files[0];

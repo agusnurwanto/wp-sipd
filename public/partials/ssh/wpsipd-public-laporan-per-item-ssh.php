@@ -22,6 +22,30 @@ if(!empty($_GET['id_skpd'])){
 	$where_skpd = $wpdb->prepare("AND dskb.id_sub_skpd=%d", $_GET['id_skpd']);
 }
 
+if(!empty($spek_komponen)){
+	$where_skpd .= $wpdb->prepare(" AND dr.spek_komponen=%s", $spek_komponen);
+}else{
+	$where_skpd .= " AND ( dr.spek_komponen IS NULL OR dr.spek_komponen='' )";
+}
+
+if(!empty($nama_komponen)){
+	$where_skpd .= $wpdb->prepare(" AND dr.nama_komponen=%s", $nama_komponen);
+}else{
+	$where_skpd .= " AND ( dr.nama_komponen IS NULL OR dr.nama_komponen='' )";
+}
+
+if(!empty($harga_satuan)){
+	$where_skpd .= $wpdb->prepare(" AND dr.harga_satuan=%d", $harga_satuan);
+}else{
+	$where_skpd .= " AND ( dr.harga_satuan IS NULL OR dr.harga_satuan='' )";
+}
+
+if(!empty($satuan)){
+	$where_skpd .= $wpdb->prepare(" AND dr.satuan=%s", $satuan);
+}else{
+	$where_skpd .= " AND ( dr.satuan IS NULL OR dr.satuan='' )";
+}
+
 $sql = $wpdb->prepare("
 	SELECT 
 		du.kode_skpd,
@@ -46,19 +70,11 @@ $sql = $wpdb->prepare("
 			and du.active = dr.active
 			and du.tahun_anggaran = dr.tahun_anggaran
 		WHERE dr.active=1 
-			and dr.tahun_anggaran=%d 
-			AND dr.nama_komponen=%s 
-			AND dr.spek_komponen=%s 
-			AND dr.harga_satuan=%d 
-			AND dr.satuan=%s
+			and dr.tahun_anggaran=%d
 			$where_skpd
 		GROUP by dr.kode_sbl
 		ORDER BY total DESC, dr.nama_komponen asc",
-		$input['tahun_anggaran'],
-		$nama_komponen,
-		$spek_komponen,
-		$harga_satuan,
-		$satuan
+		$input['tahun_anggaran']
 	);
 $queryRecords = $wpdb->get_results($sql, ARRAY_A);
 
