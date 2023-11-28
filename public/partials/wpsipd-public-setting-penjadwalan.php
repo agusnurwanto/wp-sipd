@@ -664,7 +664,7 @@ $body = '';
 					    <div class="row">
 					    	<div class="col-md-2">Jenis Laporan</div>
 					    	<div class="col-md-6">
-					      		<select class="form-control jenis" id="jenis">
+					      		<select class="form-control jenis" id="jenis" onchange="jenis_laporan(this)">
 					      			<option value="-">Pilih Jenis</option>
 									<option value="laporan_konsistensi_rpjm">Laporan Konsistensi RPJM</option>
 					      			<option value="pagu_total">Format Pagu Total Per Unit Kerja</option>
@@ -681,6 +681,18 @@ $body = '';
 									<option value="rekap_sumber_dana_per_kegiatan">Rekap Sumber Dana Per Kegiatan</option>
 									<option value="rekap_sumber_dana_per_sub_kegiatan">Rekap Sumber Dana Per Sub Kegiatan</option>
 									<option value="rekap_sumber_dana_per_rekening">Rekap Sumber Dana Per Rekening</option>
+				      			</select>
+					    	</div>
+					    </div></br>
+					    <div class="row" style="display:none" id="opt_jenis_jadwal_div">
+					    	<div class="col-md-2">Jenis Jadwal</div>
+					    	<div class="col-md-6">
+					      		<select class="form-control jenis" id="opt_jenis_jadwal">
+					      			<option value="-">Pilih Jenis Jadwal</option>
+									<option value="jadwal_sipd_active">Jadwal SIPD Active</option>
+									<option value="jadwal_sipd_terkunci">Jadwal SIPD Terkunci</option>
+									<option value="jadwal_lokal_active">Jadwal Lokal Active</option>
+									<option value="jadwal_lokal_terkunci">Jadwal Lokal Terkunci</option>
 				      			</select>
 					    	</div>
 					    </div></br>
@@ -721,7 +733,8 @@ $body = '';
 
 		switch(jenis){
 			case 'laporan_konsistensi_rpjm':
-				window.open('<?php echo $url_laporan_konsistensi_rpjm; ?>'+'&id_unit='+id_unit+'&id_jadwal_lokal='+id_jadwal_lokal,'_blank');
+				let jenis_jadwal=jQuery("#opt_jenis_jadwal").val() ?? '';
+				window.open('<?php echo $url_laporan_konsistensi_rpjm; ?>'+'&id_unit='+id_unit+'&id_jadwal_lokal='+id_jadwal_lokal+'&jenis_jadwal='+jenis_jadwal,'_blank');
 				break;
 			case 'pagu_total':
 				generate(id_unit, id_jadwal_lokal, 'view_pagu_total_renja', 'Laporan Pagu Akumulasi Per Unit Kerja');
@@ -949,6 +962,18 @@ $body = '';
 			jQuery(".class_renja_pergeseran").show();
 		}else{
 			jQuery(".class_renja_pergeseran").hide();
+		}
+	}
+
+	function jenis_laporan(that){
+		switch (jQuery(that).val()){
+			case 'laporan_konsistensi_rpjm':
+				jQuery("#opt_jenis_jadwal_div").show();
+				break;
+
+			default:
+				jQuery("#opt_jenis_jadwal_div").hide();
+				break;
 		}
 	}
 

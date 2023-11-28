@@ -15,21 +15,26 @@ if(!empty($_GET) && !empty($_GET['id_jadwal_lokal'])){
     $id_jadwal_lokal = $_GET['id_jadwal_lokal'];
 }
 
+$jenis_jadwal = '';
+if(!empty($_GET) && !empty($_GET['jenis_jadwal'])){
+    $jenis_jadwal = $_GET['jenis_jadwal'];
+}
+
 $input = shortcode_atts( array(
 	'id_skpd' => $id_unit,
     'id_jadwal_lokal' => $id_jadwal_lokal,
 	'tahun_anggaran' => '2023'
 ), $atts );
 
-$skpd = $wpdb->get_results($wpdb->prepare("
-    select 
-        * 
-    from data_unit 
-    where tahun_anggaran=%d
-        and active=1
-        and id_skpd=%d
-    order by id_skpd ASC
-", $input['tahun_anggaran']), ARRAY_A);
+// $skpd = $wpdb->get_results($wpdb->prepare("
+//     select 
+//         * 
+//     from data_unit 
+//     where tahun_anggaran=%d
+//         and active=1
+//         and id_skpd=%d
+//     order by id_skpd ASC
+// ", $input['tahun_anggaran']), ARRAY_A);
 
 $jadwal_lokal = $wpdb->get_row($wpdb->prepare("
     SELECT 
@@ -181,8 +186,80 @@ foreach($data_skpd as $skpd){
                 'total_pkua_ppas' => 0,
                 'jml_sub_keg_papbd' => 0,
                 'total_papbd' => 0,
-                'data'  => array()
+                'data'  => array(),
+                'data_rpjm' => array()
             );
+
+            // $dataRpjm = $wpdb->get_row($wpdb->prepare("
+            //         SELECT 
+            //             id_unik,
+            //             id_unik_indikator,
+            //             id_program, 
+            //             nama_program, 
+            //             target_1, 
+            //             target_2, 
+            //             target_3, 
+            //             target_4, 
+            //             target_5,
+            //             pagu_1, 
+            //             pagu_2, 
+            //             pagu_3, 
+            //             pagu_4, 
+            //             pagu_5 
+            //         FROM 
+            //             data_rpjmd_program".$_suffix_sipd."".$_suffix." 
+            //             WHERE 
+            //                 id_program=(
+            //                         SELECT 
+            //                             id_program 
+            //                         FROM 
+            //                             data_prog_keg 
+            //                         WHERE 
+            //                             id_program=%d AND 
+            //                             tahun_anggaran=%d AND
+            //                             active=%d
+            //                         LIMIT 1
+            //                 ) AND
+            //                 status=%d AND
+            //                 active=%d
+            //         ", $sub['id_program'], $input['tahun_anggaran'], 1, 1, 1));
+
+            $dataRpjm = $wpdb->get_results($wpdb->prepare("SELECT 
+                        id_unik,
+                        id_unik_indikator, 
+                        id_program, 
+                        nama_program, 
+                        target_1, 
+                        target_2, 
+                        target_3, 
+                        target_4, 
+                        target_5, 
+                        target_awal, 
+                        target_akhir, 
+                        pagu_1, 
+                        pagu_2, 
+                        pagu_3, 
+                        pagu_4, 
+                        pagu_5,
+                        status,
+                        active
+                    FROM 
+                        data_rpjmd_program_lokal 
+                        WHERE 
+                            id_program=%d", 436), ARRAY_A);
+
+            echo '<pre>';print_r($dataRpjm);echo '</pre>';die();
+
+            if(!empty($dataRpjm)){
+                foreach ($dataRpjm as $key => $rpjm) {
+                    if(empty($data_all['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['id_skpd']]['data'][$sub['id_sub_skpd']]['data'][$sub['kode_program']]['data_rpjm'][$rpjm['id_unik']])){
+
+                        $data_all['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['id_skpd']]['data'][$sub['id_sub_skpd']]['data'][$sub['kode_program']]['data_rpjm'][$rpjm['id_unik']] = [
+                            'nama' => $rpjm['nama_program'],
+                        ];
+                    }
+                }
+            }
         }
         if(empty($data_all['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['id_skpd']]['data'][$sub['id_sub_skpd']]['data'][$sub['kode_program']]['data'][$sub['kode_giat']])){
             $data_all['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['id_skpd']]['data'][$sub['id_sub_skpd']]['data'][$sub['kode_program']]['data'][$sub['kode_giat']] = array(
@@ -241,7 +318,7 @@ foreach($data_all['data'] as $urusan){
     $body .= '
         <tr>
             <td class="text-left kiri kanan bawah atas" colspan="10"><medium><b>'.$urusan['nama'].'</b></medium></td>
-            <td class="text-left kiri kanan bawah atas" colspan="10"></td>
+            <!-- <td class="text-left kiri kanan bawah atas" colspan="10"></td> -->
         </tr>
     ';
 
@@ -258,7 +335,7 @@ foreach($data_all['data'] as $urusan){
                 <td class="text-left kanan bawah">&nbsp</td>
                 <td class="text-left kanan bawah">&nbsp</td>
                 <td class="text-left kanan bawah">&nbsp</td>
-                <td class="text-left kanan bawah"></td>
+                <!-- <td class="text-left kanan bawah"></td>
                 <td class="text-left kanan bawah">&nbsp</td>
                 <td class="text-left kanan bawah">&nbsp</td>
                 <td class="text-left kanan bawah">&nbsp</td>
@@ -267,7 +344,7 @@ foreach($data_all['data'] as $urusan){
                 <td class="text-left kanan bawah">&nbsp</td>
                 <td class="text-left kanan bawah">&nbsp</td>
                 <td class="text-left kanan bawah">&nbsp</td>
-                <td class="text-left kanan bawah">&nbsp</td>
+                <td class="text-left kanan bawah">&nbsp</td> -->
             </tr>
         ';
 
@@ -283,6 +360,8 @@ foreach($data_all['data'] as $urusan){
                     <td class="text-right kanan bawah">'.number_format($skpd['total_rkpd'],0,",",".").'</td>
                     <td class="text-left kanan bawah">&nbsp</td>
                     <td class="text-left kanan bawah">&nbsp</td>
+                    <td class="text-left kiri kanan bawah">&nbsp</td>
+                    <!-- <td class="text-left kanan bawah">&nbsp</td>
                     <td class="text-left kanan bawah">&nbsp</td>
                     <td class="text-left kanan bawah">&nbsp</td>
                     <td class="text-left kanan bawah">&nbsp</td>
@@ -291,9 +370,7 @@ foreach($data_all['data'] as $urusan){
                     <td class="text-left kanan bawah">&nbsp</td>
                     <td class="text-left kanan bawah">&nbsp</td>
                     <td class="text-left kanan bawah">&nbsp</td>
-                    <td class="text-left kanan bawah">&nbsp</td>
-                    <td class="text-left kanan bawah">&nbsp</td>
-                    <td class="text-left kanan bawah">&nbsp</td>
+                    <td class="text-left kanan bawah">&nbsp</td> -->
                 </tr>
             ';
 
@@ -308,6 +385,9 @@ foreach($data_all['data'] as $urusan){
                         <td class="text-left kanan bawah atas"><b>'.$sub_skpd['nama'].'</b></td>
                         <td class="text-right kanan bawah">'.number_format($sub_skpd['total_rkpd'],0,",",".").'</td>
                         <td class="text-left kanan bawah">&nbsp</td>
+                        <td class="text-left kanan bawah atas">&nbsp</td>
+                        <td class="text-left kanan bawah">&nbsp</td>
+                        <!-- <td class="text-left kanan bawah">&nbsp</td>
                         <td class="text-left kanan bawah">&nbsp</td>
                         <td class="text-left kanan bawah">&nbsp</td>
                         <td class="text-left kanan bawah">&nbsp</td>
@@ -316,10 +396,7 @@ foreach($data_all['data'] as $urusan){
                         <td class="text-left kanan bawah">&nbsp</td>
                         <td class="text-left kanan bawah">&nbsp</td>
                         <td class="text-left kanan bawah">&nbsp</td>
-                        <td class="text-left kanan bawah">&nbsp</td>
-                        <td class="text-left kanan bawah">&nbsp</td>
-                        <td class="text-left kanan bawah">&nbsp</td>
-                        <td class="text-left kanan bawah">&nbsp</td>
+                        <td class="text-left kanan bawah">&nbsp</td> -->
                     </tr>
                 ';
 
@@ -337,17 +414,17 @@ foreach($data_all['data'] as $urusan){
                             <td class="text-right kanan bawah">'.number_format($program['total_rkpd'],0,",",".").'</td>
                             <td class="kanan bawah">'.$indikator_program.'</td>
                             <td class="text-left kanan bawah">&nbsp</td>
+                            <td class="text-left kanan bawah atas">&nbsp</td>
+                            <!-- <td class="kanan bawah"></td>
+                            <td class="text-left kanan bawah">&nbsp</td>
+                            <td class="text-left kanan bawah">&nbsp</td>
+                            <td class="text-left kanan bawah">&nbsp</td>
                             <td class="text-left kanan bawah">&nbsp</td>
                             <td class="kanan bawah"></td>
                             <td class="text-left kanan bawah">&nbsp</td>
                             <td class="text-left kanan bawah">&nbsp</td>
                             <td class="text-left kanan bawah">&nbsp</td>
-                            <td class="text-left kanan bawah">&nbsp</td>
-                            <td class="kanan bawah"></td>
-                            <td class="text-left kanan bawah">&nbsp</td>
-                            <td class="text-left kanan bawah">&nbsp</td>
-                            <td class="text-left kanan bawah">&nbsp</td>
-                            <td class="text-left kanan bawah">&nbsp</td>
+                            <td class="text-left kanan bawah">&nbsp</td> -->
                         </tr>
                     ';
 
@@ -364,6 +441,7 @@ foreach($data_all['data'] as $urusan){
                                 <td class="text-left kanan bawah">&nbsp</td>
                                 <td class="text-left kanan bawah">&nbsp</td>
                                 <td class="text-left kanan bawah">&nbsp</td>
+                                <!-- <td class="text-left kanan bawah">&nbsp</td>
                                 <td class="text-left kanan bawah">&nbsp</td>
                                 <td class="text-left kanan bawah">&nbsp</td>
                                 <td class="text-left kanan bawah">&nbsp</td>
@@ -372,8 +450,7 @@ foreach($data_all['data'] as $urusan){
                                 <td class="text-left kanan bawah">&nbsp</td>
                                 <td class="text-left kanan bawah">&nbsp</td>
                                 <td class="text-left kanan bawah">&nbsp</td>
-                                <td class="text-left kanan bawah">&nbsp</td>
-                                <td class="text-left kanan bawah">&nbsp</td>
+                                <td class="text-left kanan bawah">&nbsp</td> -->
                             </tr>
                         ';
                         foreach($kegiatan['data'] as $sub_giat){
@@ -390,6 +467,7 @@ foreach($data_all['data'] as $urusan){
                                     <td class="text-left kanan bawah atas">'.$indikator_sub.'</td>
                                     <td class="text-left kanan bawah">&nbsp</td>
                                     <td class="text-left kanan bawah">&nbsp</td>
+                                    <!-- <td class="text-left kanan bawah">&nbsp</td>
                                     <td class="text-left kanan bawah">&nbsp</td>
                                     <td class="text-left kanan bawah">&nbsp</td>
                                     <td class="text-left kanan bawah">&nbsp</td>
@@ -398,8 +476,7 @@ foreach($data_all['data'] as $urusan){
                                     <td class="text-left kanan bawah">&nbsp</td>
                                     <td class="text-left kanan bawah">&nbsp</td>
                                     <td class="text-left kanan bawah">&nbsp</td>
-                                    <td class="text-left kanan bawah">&nbsp</td>
-                                    <td class="text-left kanan bawah">&nbsp</td>
+                                    <td class="text-left kanan bawah">&nbsp</td> -->
                                 </tr>
                             ';
                         }
@@ -417,8 +494,8 @@ foreach($data_all['data'] as $urusan){
                 <th class="text-center kiri kanan bawah atas" rowspan="2">No</th>
                 <th class="text-center kanan bawah atas" colspan="4">RPJMD</th>
                 <th class="text-center kanan bawah atas" colspan="5">RKPD</th>
-                <th class="text-center kanan bawah atas" colspan="5">PERUBAHAN KUA PPAS TA. 2022</th>
-                <th class="text-center kanan bawah atas" colspan="5">RAPERDA P-APBD TA. 2022</th>
+                <!-- <th class="text-center kanan bawah atas" colspan="5">PERUBAHAN KUA PPAS TA. 2022</th>
+                <th class="text-center kanan bawah atas" colspan="5">RAPERDA P-APBD TA. 2022</th> -->
             </tr>
             <tr>
                 <th class="text-center kanan bawah">Urusan</th>
@@ -430,7 +507,7 @@ foreach($data_all['data'] as $urusan){
                 <th class="text-center kanan bawah">Indikator</th>
                 <th class="text-center kanan bawah">Target</th>
                 <th class="text-center kanan bawah">Lokasi</th>
-                <th class="text-center kanan bawah">Urusan</th>
+                <!-- <th class="text-center kanan bawah">Urusan</th>
                 <th class="text-center kanan bawah">Pagu</th>
                 <th class="text-center kanan bawah">Indikator</th>
                 <th class="text-center kanan bawah">Target</th>
@@ -439,7 +516,7 @@ foreach($data_all['data'] as $urusan){
                 <th class="text-center kanan bawah">Pagu</th>
                 <th class="text-center kanan bawah">Indikator</th>
                 <th class="text-center kanan bawah">Target</th>
-                <th class="text-center kanan bawah">Lokasi</th>
+                <th class="text-center kanan bawah">Lokasi</th> -->
             </tr>
             <tr>
                 <th class="text-center kiri kanan bawah">1</th>
@@ -452,7 +529,7 @@ foreach($data_all['data'] as $urusan){
                 <th class="text-center kanan bawah">8</th>
                 <th class="text-center kanan bawah">9</th>
                 <th class="text-center kanan bawah">10</th>
-                <th class="text-center kanan bawah">11</th>
+                <!-- <th class="text-center kanan bawah">11</th>
                 <th class="text-center kanan bawah">12</th>
                 <th class="text-center kanan bawah">13</th>
                 <th class="text-center kanan bawah">14</th>
@@ -461,7 +538,7 @@ foreach($data_all['data'] as $urusan){
                 <th class="text-center kanan bawah">17</th>
                 <th class="text-center kanan bawah">18</th>
                 <th class="text-center kanan bawah">19</th>
-                <th class="text-center kanan bawah">20</th>
+                <th class="text-center kanan bawah">20</th> -->
             </tr>
             <tr>
             </tr>
