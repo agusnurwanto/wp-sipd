@@ -311,7 +311,7 @@ CREATE TABLE `data_ssh` (
   `satuan` text DEFAULT NULL,
   `spek` text DEFAULT NULL,
   `ket_teks` text DEFAULT NULL,
-  `created_at` VARCHAR(25) DEFAULT NULL,
+  `created_at` VARCHAR(225) DEFAULT NULL,
   `created_user` int(11) DEFAULT NULL,
   `updated_user` int(11) DEFAULT NULL,
   `is_deleted` tinyint(4) DEFAULT NULL,
@@ -325,7 +325,8 @@ CREATE TABLE `data_ssh` (
   `update_at` datetime DEFAULT NULL,
   `tahun_anggaran` year(4) NOT NULL DEFAULT '2020',
   `jenis_produk` varchar(32) DEFAULT NULL,
-  `tkdn` int(11) DEFAULT NULL,
+  `active` tinyint(4) DEFAULT 1,
+  `tkdn` double(20, 0) DEFAULT NULL,
   PRIMARY KEY  (id),
   KEY `id_standar_harga` (`id_standar_harga`)
 );
@@ -336,6 +337,8 @@ CREATE TABLE `data_ssh_rek_belanja` (
   `kode_akun` varchar(50) NOT NULL,
   `nama_akun` text NOT NULL,
   `id_standar_harga` int(11) NOT NULL,
+  `active` tinyint(4) DEFAULT 1,
+  `update_at` datetime DEFAULT NULL,
   `tahun_anggaran` year(4) NOT NULL DEFAULT '2021',
   PRIMARY KEY  (id),
   KEY `id_standar_harga` (`id_standar_harga`),
@@ -5762,7 +5765,7 @@ CREATE TABLE `data_spp_sipd_detail` (
 );
 
 CREATE TABLE `data_verifikasi_rka` (
-  `id` int(11) NOT NULL,
+  `id` int(11) NOT NULL auto_increment,
   `kode_sbl` text NOT NULL,
   `tahun_anggaran` year(4) NOT NULL,
   `id_user` int(11) NOT NULL,
@@ -5770,6 +5773,29 @@ CREATE TABLE `data_verifikasi_rka` (
   `fokus_uraian` text NOT NULL,
   `catatan_verifikasi` text NOT NULL,
   `tanggapan_opd` text NOT NULL,
+  `update_at_tanggapan` datetime DEFAULT current_timestamp(),
   `create_at` datetime NOT NULL DEFAULT current_timestamp(),
-  `update_at` datetime DEFAULT current_timestamp()
+  `update_at` datetime DEFAULT current_timestamp(),
+  `active` tinyint(4) NOT NULL,
+  PRIMARY KEY  (id)
+);
+
+CREATE TABLE `data_pptk_sub_keg` (
+  `id` int(11) NOT NULL auto_increment,
+  `id_user` int(11) NOT NULL,
+  `kode_sbl` text NOT NULL,
+  `tahun_anggaran` year(4) NOT NULL,
+  `update_at` datetime DEFAULT current_timestamp(),
+  `active` tinyint(4) NOT NULL,
+  PRIMARY KEY  (id)
+);
+
+CREATE TABLE `data_validasi_verifikasi_rka` (
+  `id` int(11) NOT NULL auto_increment,
+  `id_user` int(11) NOT NULL,
+  `kode_sbl` text NOT NULL,
+  `nama_bidang` text NOT NULL,
+  `tahun_anggaran` year(4) NOT NULL,
+  `update_at` datetime DEFAULT current_timestamp(),
+  PRIMARY KEY  (id)
 );

@@ -73,6 +73,8 @@ foreach ($kode_rek as $rek) {
 				where '.$where
 			, ARRAY_A);
 
+			$query_rinci = $wpdb->last_query;
+
 			$update_at = $wpdb->get_row('
 				select 
 					update_at
@@ -95,6 +97,9 @@ foreach ($kode_rek as $rek) {
 				from '.$table_tanpa_rinci.' 
 				where '.$where
 			, ARRAY_A);
+
+			$query_tanpa_rinci = $wpdb->last_query;
+			
 			$update_at_tanpa_rinci = $wpdb->get_row('
 				select 
 					update_at
@@ -116,7 +121,7 @@ foreach ($kode_rek as $rek) {
 					'warning' => $warning,
 					'warning_fmis' => $warning_fmis,
 					'rek' => $rek.'-tanpa-rinci',
-					'type_belanja' => $type_belanja.' Tanpa Rincian <span class="debug hide">'.$wpdb->last_query.'</span>',
+					'type_belanja' => $type_belanja.' Tanpa Rincian <span class="debug hide">'.$query_rinci.' | '.$query_tanpa_rinci.'</span>',
 					'skpd' => $opd['nama_skpd'],
 					'id_skpd' => $opd['id_skpd'],
 					'kode_skpd' => $opd['kode_skpd'],
@@ -139,6 +144,9 @@ foreach ($kode_rek as $rek) {
 				from '.$table_pagu_unit.' 
 				where '.$where
 			, ARRAY_A);
+
+			$query_pagu = $wpdb->last_query;
+			
 			$update_at_pagu_unit = $wpdb->get_row('
 				select 
 					update_at
@@ -150,7 +158,7 @@ foreach ($kode_rek as $rek) {
 			if($data_pagu_unit['jml']>=1){
 				$data_body[strtotime($update_at_pagu_unit['update_at']).$opd['id_skpd'].$rek.'-pagu-skpd'] = array(
 					'rek' => $rek.'-pagu-skpd',
-					'type_belanja' => $type_belanja.' Pagu SKPD <span class="debug hide">'.$wpdb->last_query.'</span>',
+					'type_belanja' => $type_belanja.' Pagu SKPD <span class="debug hide">'.$query_pagu.'</span>',
 					'skpd' => $opd['nama_skpd'],
 					'id_skpd' => $opd['id_skpd'],
 					'kode_skpd' => $opd['kode_skpd'],
@@ -181,6 +189,8 @@ foreach ($kode_rek as $rek) {
 				where '.$where
 			, ARRAY_A);
 
+			$query_tanpa_rinci = $wpdb->last_query;
+
 			$rek_all = explode('.', $rek);
 			$rek_1 = $rek_all[0];
 			if(!empty($rek_all[1])){
@@ -195,6 +205,8 @@ foreach ($kode_rek as $rek) {
 					and kdrek1='.$rek_1.'
 					and id_sub_skpd='.$opd['id_skpd']
 			, ARRAY_A);
+
+			$query_rinci = $wpdb->last_query;
 
 			$data['total_fmis'] = $data_fmis['total_fmis_rinci'];
 			$update_at = $wpdb->get_row('
@@ -215,7 +227,7 @@ foreach ($kode_rek as $rek) {
 			}
 			$data_body[strtotime($update_at['update_at']).$opd['id_skpd'].$rek] = array(
 				'rek' => $rek,
-				'type_belanja' => $type_belanja.' <span class="debug hide">'.$wpdb->last_query.'</span>',
+				'type_belanja' => $type_belanja.' <span class="debug hide">'.$query_rinci.' | '.$query_tanpa_rinci.'</span>',
 				'skpd' => $opd['nama_skpd'],
 				'id_skpd' => $opd['id_skpd'],
 				'kode_skpd' => $opd['kode_skpd'],

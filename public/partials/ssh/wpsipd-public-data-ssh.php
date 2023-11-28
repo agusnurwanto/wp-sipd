@@ -42,10 +42,11 @@ $body = '';
 			<table>
 				<thead>
 					<tr>
-						<th class="text-center" style="width: 25%;">Total Usulan</th>
-						<th class="text-center" style="width: 25%;">Menunggu</th>
-						<th class="text-center" style="width: 25%;">Disetujui</th>
-						<th class="text-center" style="width: 25%;">Ditolak</th>
+						<th class="text-center" style="width: 20%;">Total Usulan</th>
+						<th class="text-center" style="width: 20%;">Draft</th>
+						<th class="text-center" style="width: 20%;">Menunggu</th>
+						<th class="text-center" style="width: 20%;">Disetujui</th>
+						<th class="text-center" style="width: 20%;">Ditolak</th>
 					</tr>
 				</thead>
 				<tbody id="summary_ssh_body" style="text-align:center;"></tbody>
@@ -269,6 +270,7 @@ $body = '';
 						jQuery("#summary_ssh_body").html(`
 							<tr>
 								<td class="text-center summary_ssh bg-info text-white">${formatRupiah(response.data.total)}</td>
+								<td class="text-center summary_ssh bg-secondary text-white">${formatRupiah(response.data.draft)}</td>
 								<td class="text-center summary_ssh bg-warning text-white">${formatRupiah(response.data.waiting)}</td>
 								<td class="text-center summary_ssh bg-success text-white">${formatRupiah(response.data.approved)}</td>
 								<td class="text-center summary_ssh bg-danger text-white">${formatRupiah(response.data.rejected)}</td>

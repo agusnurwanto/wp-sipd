@@ -22,6 +22,7 @@ $type = '';
 
 $current_user = wp_get_current_user();
 $api_key = get_option( '_crb_api_key_extension' );
+$tombol_copy_data_rincian_rka_sipd = get_option('_crb_show_copy_data_rincian_rka_settings');
 
 $sql = "
 SELECT 
@@ -448,7 +449,11 @@ jQuery(document).ready(function(){
 	run_download_excel();
 	var aksi = ''
 		+'<a style="margin-left: 10px;" id="tambah-data" onclick="return false;" href="#" class="btn btn-success">Tambah Data RKA</a>'
-		+'</br></br><a style="margin-left: 10px;" id="copy-data" onclick="return false;" href="#" class="btn btn-danger">Copy Data RKA SIPD ke Lokal</a>';
+		<?php
+		if($tombol_copy_data_rincian_rka_sipd == true){
+			echo '+\'</br></br><a style="margin-left: 10px;" id="copy-data" onclick="return false;" href="#" class="btn btn-danger">Copy Data RKA SIPD ke Lokal</a>\';';
+		}
+		?>
 	jQuery("#action-sipd").append(aksi);
 	jQuery("#tambah-data").on('click', function(){
 		let rincian = ''

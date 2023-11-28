@@ -140,6 +140,10 @@ if(empty($alamat)){
 		text-align: center;
 		font-size: 19px;
 	}
+	.body-surat p {
+		text-align: justify;
+		text-indent: 50px;
+	}
 </style>
 <div class="cetak">
 	<div style="padding: 10px;">
@@ -154,7 +158,7 @@ if(empty($alamat)){
 						}
 					 ?>" width="70%">
 				</div>
-				<div class="col-md-9">
+				<div class="col-sm-9">
 					<h4 class="tengah" style="text-transform: uppercase;">Pemerintah <?php echo get_option('_crb_daerah') ?></h4>
 					<h2 class="tengah jarak-atas"><?php echo $skpd->namaunit ?></h2>
 					<div class="tengah jarak-atas" contenteditable="true">
@@ -163,22 +167,22 @@ if(empty($alamat)){
 				</div>
 			</div>
 			<div class="no-surat text-center row">
-				<div class="col-md-12">
+				<div class="col-sm-12">
 					<hr style="border: 1px solid;">
 					<b>SURAT PERNYATAAN TANGGUNG JAWAB MUTLAK</b>
 					<p>Nomor: <?php echo $ssh[0]['no_surat_usulan']; ?></p>
 				</div>
 			</div>
 			<div class="body-surat row">
-				<div class="col-md-12">
+				<div class="col-sm-12">
 					<p>Yang bertanda tangan di bawah ini saya selaku Kepala <?php echo $skpd->namaunit ?> <?php echo get_option('_crb_daerah') ?> menyatakan dengan sesungguhnya bertanggung jawab penuh atas usulan Standar Harga Satuan yang terlampir pada surat kami kepada Kepala <?php echo $skpd_penyusun; ?> <?php echo get_option('_crb_daerah') ?> tanggal <?php echo $waktu_surat; ?>, nomor: <?php echo $ssh[0]['no_surat_usulan']; ?>, <?php echo $type; ?>.</p>
 					<p>Kami siap menyajikan data referensi harga barang/jasa atas Standar Harga Satuan yang kami usulkan jika sewaktu-waktu dibutuhkan.</p>
 					<p>Demikian Surat Pernyataan ini dibuat dengan sebenar-benarnya.</p>
 				</div>
 			</div>
 			<div class="ttd-surat row">
-				<div class="col-md-6"></div>
-				<div class="col-md-6 text-center">
+				<div class="col-sm-6"></div>
+				<div class="col-sm-6 text-center">
 					<p><?php echo get_option('_crb_lokasi'); ?>, <?php echo $waktu_surat; ?><br>Kepala <?php echo $skpd->namaunit ?><br><?php echo get_option('_crb_daerah') ?></p><br><br><br><br><p><?php echo $skpd->namakepala ?><br><?php echo $skpd->pangkatkepala ?><br>NIP : <?php echo $skpd->nipkepala ?></p>
 				</div>
 			</div>
@@ -215,8 +219,8 @@ if(empty($alamat)){
 		</table>
 		<div contenteditable="true">
 			<div class="ttd-surat row">
-				<div class="col-md-8"></div>
-				<div class="col-md-4 text-center">
+				<div class="col-sm-8"></div>
+				<div class="col-sm-4 text-center">
 					<p><?php echo get_option('_crb_lokasi'); ?>, <?php echo $waktu_surat; ?><br>Kepala <?php echo $skpd->namaunit ?><br><?php echo get_option('_crb_daerah') ?></p><br><br><br><br><p><?php echo $skpd->namakepala ?><br><?php echo $skpd->pangkatkepala ?><br>NIP : <?php echo $skpd->nipkepala ?></p>
 				</div>
 			</div>

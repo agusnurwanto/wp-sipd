@@ -56,6 +56,7 @@ if(
 			}
 		}
 	}
+	$input['id_skpd'] = $skpd_db[0]['id_skpd'];
 }else if(
 	in_array("administrator", $user_meta->roles)
 	|| in_array("tapd_keu", $user_meta->roles)
@@ -85,7 +86,7 @@ if(
 }
 
 $nama_skpd .= "<br>".get_option('_crb_daerah');
-
+echo $this->menu_ssh($input);
 ?>
 
 <style type="text/css">
@@ -266,7 +267,7 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
 				<div class="row form-group">
 					<label class="col-md-2" for="nomor_surat_nota_dinas">Nomor Surat</label>
 					<div class="col-md-10">
-						<input type="text" id="nomor_surat_nota_dinas" class="form-control" placeholder="kode_surat/no_urut/kode_opd/tahun" value="kode_surat/no_urut/kode_opd/<?php echo $input['tahun_anggaran']; ?>">
+						<input type="text" id="nomor_surat_nota_dinas" class="form-control" placeholder="kode_surat/no_urut/kode_opd/<?php echo  date('Y'); ?>" value="kode_surat/no_urut/kode_opd/<?php echo date('Y'); ?>">
 						<input type="hidden" id="ids_nota_dinas">
 						<input type="hidden" name="ubah_id" value="">
 					</div>
@@ -323,7 +324,7 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
 				<div class="row form-group">
 					<label class="col-md-2" for="nomor_surat">Nomor Surat</label>
 					<div class="col-md-10">
-						<input type="text" id="nomor_surat" class="form-control" placeholder="kode_surat/no_urut/kode_opd/tahun" value="kode_surat/no_urut/kode_opd/<?php echo $input['tahun_anggaran']; ?>">
+						<input type="text" id="nomor_surat" class="form-control" placeholder="kode_surat/no_urut/kode_opd/<?php echo $input['tahun_anggaran']; ?>" value="kode_surat/no_urut/kode_opd/<?php echo $input['tahun_anggaran']; ?>">
 						<input type="hidden" id="ids_surat_usulan">
 						<input type="hidden" name="ubah_id" value="">
 					</div>
@@ -343,8 +344,8 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
 				<div class="row form-group">
 					<label class="col-md-2" for="Acuan penyusunan SSH">Acuan Penyusunan SSH</label>
 					<div class="col-md-10">
-						<input class="type-sumber-ssh" id="jenis_survey" name="jenis[]" value="1" type="checkbox" >&nbsp;<label for="verify-ssh-yes">Survey harga pasar yang telah kami lakukan secara mandiri.</label></br>
-						<input class="type-sumber-ssh" id="jenis_juknis" name="jenis[]" value="2" type="checkbox">&nbsp;<label for="verify-ssh-no">Petunjuk Teknis yang kami terima dari kementrian/provinsi.</label></br>
+						<input class="type-sumber-ssh" id="jenis_survey" name="jenis[]" value="1" type="checkbox" >&nbsp;<label for="jenis_survey">Survey harga pasar yang telah kami lakukan secara mandiri.</label></br>
+						<input class="type-sumber-ssh" id="jenis_juknis" name="jenis[]" value="2" type="checkbox">&nbsp;<label for="jenis_juknis">Petunjuk Teknis yang kami terima dari kementrian/provinsi.</label></br>
 						<small style='color:red'>* Pilih salah satu atau keduanya. </small>
 					</div>
 				</div>
@@ -375,7 +376,7 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
 				</div>
 			</div> 
 			<div class="modal-footer">
-				<button class="btn btn-primary submitBtn" onclick="submitSuratUsulan(<?php echo $input['tahun_anggaran']; ?>)">Simpan</button>
+				<button class="btn btn-primary submitBtn" id="submitSuratUsulan" onclick="submitSuratUsulan(<?php echo $input['tahun_anggaran']; ?>)">Simpan</button>
 				<button type="button" class="components-button btn btn-secondary" data-dismiss="modal">Tutup</button>
 			</div>
 		</div>
@@ -409,51 +410,64 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
 					<span aria-hidden="true">&times;</span>
 				</button>
 			</div>
-			<div class="modal-body">
+			<div class="modal-body" style="overflow:hidden;">
 				<div class="row form-group">
 					<label for='tambah_harga_id_sub_unit' class="col-md-12">Sub Unit <span class="required">*</span></label>
 					<div class="col-md-12">
 						<select id='tambah_harga_id_sub_unit' name="id_sub_skpd" class="form-control"><?php echo $list_skpd_options; ?></select>
 					</div>
 				</div>
-				<div>
-					<label for="tambah_harga_komp_kategori" style="display:inline-block">Kategori</label>
-					<input type="text" id="tambah_harga_komp_kategori" style="display:block;width:100%;" placeholder="Kategori" disabled>
+				<div class="row form-group">
+					<label for="tambah_harga_komp_kategori" class="col-md-12">Kategori</label>
+					<div class="col-md-12">
+						<input type="text" id="tambah_harga_komp_kategori" class="form-control" placeholder="Kategori" disabled>
+					</div>
 				</div>
-				<div>
-					<label for="tambah_harga_komp_nama_komponent" style="display:inline-block">Nama Komponen</label>
-					<select id="tambah_harga_komp_nama_komponent" class="js-example-basic-single" style="display:block;width:100%;" placeholder="Nama Komponen"></select>
-					<input type="text" id="tambah_harga_show_komp_nama" class="hide" style="width:100%;" placeholder="Nama Komponen" disabled>
+				<div class="row form-group">
+					<label for="tambah_harga_komp_nama_komponent" class="col-md-12">Nama Komponen</label>
+					<div class="col-md-12">
+						<select id="tambah_harga_komp_nama_komponent" class="js-example-basic-single" class="form-control" placeholder="Nama Komponen"></select>
+					</div>
 				</div>
-				<div>
-					<label for="tambah_harga_komp_spesifikasi" style="display:inline-block">Spesifikasi</label>
-					<input type="text" id="tambah_harga_komp_spesifikasi" style="display:block;width:100%;" placeholder="Spesifikasi" disabled>
+				<div class="row form-group">
+					<label for="tambah_harga_komp_spesifikasi" class="col-md-12">Spesifikasi</label>
+					<div class="col-md-12">
+						<input type="text" id="tambah_harga_komp_spesifikasi" class="form-control" placeholder="Spesifikasi" disabled>
+					</div>
 				</div>
-				<div>
-					<label for="tambah_harga_komp_satuan" style="display:inline-block">Satuan</label>
-					<input type="text" id="tambah_harga_komp_satuan" style="display:block;width:100%;" placeholder="Satuan" disabled>
+				<div class="row form-group">
+					<label for="tambah_harga_komp_satuan" class="col-md-12">Satuan</label>
+					<div class="col-md-12">
+						<input type="text" id="tambah_harga_komp_satuan" class="form-control" placeholder="Satuan" disabled>
+					</div>
 				</div>
-				<div>
-					<label for="tambah_harga_komp_harga_satuan" style="display:inline-block">Harga Satuan</label>
-					<input type="text" id="tambah_harga_komp_harga_satuan" style="display:block;width:100%;" placeholder="Harga Satuan">
+				<div class="row form-group">
+					<div class="col-md-12">
+					<label for="tambah_harga_komp_harga_satuan" class="col-md-12">Harga Satuan</label>
+						<input type="text" id="tambah_harga_komp_harga_satuan" class="form-control harga_ssh" placeholder="Harga Satuan">
+					</div>
 				</div>
-				<div>
-					<label for='tambah_harga_komp_jenis_produk' style='display:inline-block'>Jenis Produk</label>
-					<div>
+				<div class="row form-group">
+					<label for="tambah_harga_komp_akun" class="col-md-12">Rekening Akun</label>
+					<div class="col-md-12">
+						<textarea type="text" id="tambah_harga_komp_akun" class="form-control" placeholder="Rekening Akun" disabled></textarea>
+					</div>
+				</div>
+				<div class="row form-group">
+					<label for='tambah_harga_komp_jenis_produk' class="col-md-12">Jenis Produk</label>
+					<div class="col-md-12">
 						<input type='radio' id='tambah_harga_komp_jenis_produk_dalam_negeri' name='tambah_harga_komp_jenis_produk' value='1' disabled>
 						<label class='mr-4' for='tambah_harga_komp_jenis_produk_dalam_negeri'>Produk Dalam Negeri</label>
 						<input type='radio' id='tambah_harga_komp_jenis_produk_luar_negeri' name='tambah_harga_komp_jenis_produk' value='0' disabled>
 						<label for='tambah_harga_komp_jenis_produk_luar_negeri'>Produk Luar Negeri</label>
 					</div>
 				</div>
-				<div>
-					<label for='tambah_harga_komp_tkdn' style='display: block;'>Tingkat Komponen Dalam Negeri (TKDN)</label>
-					<input type='number' min="0" max="100" id='tambah_harga_komp_tkdn' style='width:22%;' placeholder='Presentase TKDN 0-100' disabled>
-					<label style='font-size: 1.2rem;margin-left: 0.5rem;'>%</label>
-				</div>
-				<div>
-					<label for="tambah_harga_komp_akun" style="display:inline-block">Rekening Akun</label>
-					<textarea type="text" id="tambah_harga_komp_akun" style="display:block;width:100%;" placeholder="Rekening Akun" disabled></textarea>
+				<div class="row form-group">
+					<label for='tambah_harga_komp_tkdn' class="col-md-12">Tingkat Komponen Dalam Negeri (TKDN)</label>
+					<div class="col-md-12">
+						<input type='number' min="0" max="100" id='tambah_harga_komp_tkdn' style='width:22%;' placeholder='Presentase TKDN 0-100' disabled>
+						<label style='font-size: 1.2rem;margin-left: 0.5rem;'>%</label>
+					</div>
 				</div>
 				<div class="row form-group">
 					<label class="col-md-12">Lampiran Usulan SSH 1 <span class="required">*</span></label>
@@ -479,9 +493,11 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
 						<div style="padding-top: 10px; padding-bottom: 10px;"><a id="file_lapiran_usulan_harga_ssh_3"></a></div>
 					</div>
 				</div>
-				<div>
-					<label for="tambah_harga_komp_keterangan_lampiran" style="display:inline-block">Keterangan</label>
-					<input type="text" id="tambah_harga_komp_keterangan_lampiran" style="display:block;width:100%;" placeholder="Keterangan">
+				<div class="row form-group">
+					<label for="tambah_harga_komp_keterangan_lampiran" class="col-md-12">Keterangan</label>
+					<div class="col-md-12">
+						<input type="text" id="tambah_harga_komp_keterangan_lampiran" class="form-control" placeholder="Keterangan">
+					</div>
 				</div>
 			</div> 
 			<div class="modal-footer">
@@ -502,52 +518,76 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
 					<span aria-hidden="true">&times;</span>
 				</button>
 			</div>
-			<div class="modal-body">
+			<div class="modal-body" style="overflow:hidden;">
 				<div class="row form-group">
 					<label for='tambah_akun_id_sub_unit' class="col-md-12">Sub Unit <span class="required">*</span></label>
 					<div class="col-md-12">
 						<select id='tambah_akun_id_sub_unit' name="id_sub_skpd" class="form-control"><?php echo $list_skpd_options; ?></select>
 					</div>
 				</div>
-				<div>
-					<label for="tambah_akun_komp_kategori" style="display:inline-block">Kategori</label>
-					<input type="text" id="tambah_akun_komp_kategori" style="display:block;width:100%;" placeholder="Kategori" disabled>
+				<div class="row form-group">
+					<label for="tambah_akun_komp_kategori" class="col-md-12">Kategori</label>
+					<div class="col-md-12">
+						<input type="text" id="tambah_akun_komp_kategori" style="display:block;width:100%;" placeholder="Kategori" disabled>
+					</div>
 				</div>
-				<div><label for="tambah_akun_komp_nama_komponent" style="display:inline-block">Nama Komponen</label>
-					<select id="tambah_akun_komp_nama_komponent" class="js-example-basic-single" style="display:block;width:100%;" placeholder="Nama Komponen"></select>
-					<input type="text" id="tambah_akun_show_komp_nama" class="hide" style="width:100%;" placeholder="Nama Komponen" disabled>
+				<div class="row form-group">
+					<label for="tambah_akun_komp_nama_komponent" class="col-md-12">Nama Komponen</label>
+					<div class="col-md-12">
+						<select id="tambah_akun_komp_nama_komponent" class="form-control" placeholder="Nama Komponen"></select>
+					</div>
 				</div>
-				<div><label for="tambah_akun_komp_spesifikasi" style="display:inline-block">Spesifikasi</label>
-					<input type="text" id="tambah_akun_komp_spesifikasi" style="display:block;width:100%;" placeholder="Spesifikasi" disabled>
+				<div class="row form-group">
+					<label for="tambah_akun_komp_spesifikasi" class="col-md-12">Spesifikasi</label>
+					<div class="col-md-12">
+						<input type="text" id="tambah_akun_komp_spesifikasi" class="form-control" placeholder="Spesifikasi" disabled>
+					</div>
 				</div>
-				<div><label for="tambah_akun_komp_satuan" style="display:inline-block">Satuan</label>
-					<input type="text" id="tambah_akun_komp_satuan" style="display:block;width:100%;" placeholder="Satuan" disabled>
+				<div class="row form-group">
+					<label for="tambah_akun_komp_satuan" class="col-md-12">Satuan</label>
+					<div class="col-md-12">
+						<input type="text" id="tambah_akun_komp_satuan" class="form-control" placeholder="Satuan" disabled>
+					</div>
 				</div>
-				<div><label for="tambah_akun_komp_harga_satuan" style="display:inline-block">Harga Satuan</label>
-					<input type="text" id="tambah_akun_komp_harga_satuan" style="display:block;width:100%;" placeholder="Harga Satuan" disabled>
+				<div class="row form-group">
+					<label for="tambah_akun_komp_harga_satuan" class="col-md-12">Harga Satuan</label>
+					<div class="col-md-12">
+						<input type="text" id="tambah_akun_komp_harga_satuan" class="form-control harga_ssh" placeholder="Harga Satuan" disabled>
+					</div>
 				</div>
-				<div>
-					<label for='tambah_akun_komp_jenis_produk' style='display:inline-block'>Jenis Produk</label>
-					<div>
+				<div class="row form-group">
+					<label for="tambah_akun_komp_akun" class="col-md-12">Rekening Akun SIPD</label>
+					<div class="col-md-12">
+						<textarea type="text" id="tambah_akun_komp_akun" class="form-control" placeholder="Rekening Akun" disabled></textarea>
+					</div>
+				</div>
+				<div class="row form-group">
+					<label for="tambah_new_akun_komp" id_standar_harga="" class="col-md-12">Rekening Akun Usulan</label>
+					<div class="col-md-12">
+						<select id="tambah_new_akun_komp" multiple class="form-control"></select>
+					</div>
+				</div>
+				<div class="row form-group">
+					<label for='tambah_akun_komp_jenis_produk' class="col-md-12">Jenis Produk</label>
+					<div class="col-md-12">
 						<input type='radio' id='tambah_akun_komp_jenis_produk_dalam_negeri' name='tambah_akun_komp_jenis_produk' value='1' disabled>
 						<label class='mr-4' for='tambah_akun_komp_jenis_produk_dalam_negeri'>Produk Dalam Negeri</label>
 						<input type='radio' id='tambah_akun_komp_jenis_produk_luar_negeri' name='tambah_akun_komp_jenis_produk' value='0' disabled>
 						<label for='tambah_akun_komp_jenis_produk_luar_negeri'>Produk Luar Negeri</label>
 					</div>
 				</div>
-				<div>
-					<label for='tambah_akun_komp_tkdn' style='display: block;'>Tingkat Komponen Dalam Negeri (TKDN)</label>
-					<input type='number' id='tambah_akun_komp_tkdn' style='width:22%;' placeholder='Presentase TKDN' disabled>
-					<label style='font-size: 1.2rem;margin-left: 0.5rem;'>%</label>
+				<div class="row form-group">
+					<label for='tambah_akun_komp_tkdn' class="col-md-12">Tingkat Komponen Dalam Negeri (TKDN)</label>
+					<div class="col-md-12">
+						<input type='number' id='tambah_akun_komp_tkdn' style='width:22%;' placeholder='Presentase TKDN' disabled>
+						<label style='font-size: 1.2rem;margin-left: 0.5rem;'>%</label>
+					</div>
 				</div>
-				<div><label for="tambah_akun_komp_akun" style="display:inline-block">Rekening Akun SIPD</label>
-					<textarea type="text" id="tambah_akun_komp_akun" style="display:block;width:100%;" placeholder="Rekening Akun" disabled></textarea>
-				</div>
-				<div><label for="tambah_new_akun_komp" id_standar_harga="" style="display:inline-block">Rekening Akun Usulan</label>
-					<select id="tambah_new_akun_komp" name="states[]" multiple="multiple" style="display:block;width:100%;"></select>
-				</div>
-				<div id="tambah_akun_lampiran"><label for="tambah_akun_komp_keterangan_lampiran" style="display:inline-block">Keterangan</label>
-					<input type="text" id="tambah_akun_komp_keterangan_lampiran" style="display:block;width:100%;" placeholder="Keterangan" disabled>
+				<div class="row form-group" id="tambah_akun_lampiran">
+					<label for="tambah_akun_komp_keterangan_lampiran" class="col-md-12">Keterangan</label>
+					<div class="col-md-12">
+						<input type="text" id="tambah_akun_komp_keterangan_lampiran" style="display:block;width:100%;" placeholder="Keterangan" disabled>
+					</div>
 				</div>
 			</div> 
 			<div class="modal-footer">
@@ -560,7 +600,7 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
 
 <!-- Modal tambah usulan ssh -->
 <div class="modal fade" id="tambahUsulanSshModal" role="dialog" data-backdrop="static" aria-hidden="true">
-	<div class="modal-dialog modal-lg" role="document">
+	<div class="modal-dialog modal-xl" role="document">
 		<div class="modal-content">
 			<div class="modal-header">
 				<h5 class="modal-title">Tambah usulan SSH</h5>
@@ -568,7 +608,7 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
 					<span aria-hidden="true">&times;</span>
 				</button>
 			</div>
-			<div class="modal-body">
+			<div class="modal-body" style="overflow:hidden;">
 				<form id="form-usulan-ssh" onsubmit="return false;">
 					<div class="row form-group">
 						<label for='id_u_sub_skpd' class="col-md-12">Sub Unit <span class="required">*</span></label>
@@ -603,13 +643,19 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
 					<div class="row form-group">
 						<label for='u_harga_satuan' class="col-md-12">Harga Satuan <span class="required">*</span></label>
 						<div class="col-md-12">
-							<input type='number' id='u_harga_satuan' class="form-control" placeholder='Harga Satuan'>
+							<input type='text' id='u_harga_satuan' class="form-control harga_ssh" placeholder='Harga Satuan'>
+						</div>
+					</div>
+					<div class="row form-group">
+						<label for='u_akun' class="col-md-12">Rekening Akun <span class="required">*</span></label>
+						<div class="col-md-12">
+							<select id='u_akun' multiple class="form-control"></select>
 						</div>
 					</div>
 					<div class="row form-group">
 						<label for='u_jenis_produk' class="col-md-12">Jenis Produk <span class="required">*</span></label>
 						<div class="col-md-12">
-							<input type='radio' id='u_jenis_produk_dalam_negeri' name='u_jenis_produk' value='1'>
+							<input type='radio' id='u_jenis_produk_dalam_negeri' name='u_jenis_produk' value='1' checked>
 							<label class='mr-4' for='u_jenis_produk_dalam_negeri'>Produk Dalam Negeri</label>
 							<input type='radio' id='u_jenis_produk_luar_negeri' name='u_jenis_produk' value='0'>
 							<label for='u_jenis_produk_luar_negeri'>Produk Luar Negeri</label>
@@ -618,14 +664,8 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
 					<div class="row form-group">
 						<label for='u_tkdn' class="col-md-12">Tingkat Komponen Dalam Negeri (TKDN) <span class="required">*</span></label>
 						<div class="col-md-12">
-							<input type='number' id='u_tkdn' style='width:22%;' placeholder='Presentase TKDN'>
+							<input type='number' id='u_tkdn' style='width:22%;'>
 							<label style='font-size: 1.2rem;margin-left: 0.5rem;'>%</label>
-						</div>
-					</div>
-					<div class="row form-group">
-						<label for='u_akun' class="col-md-12">Rekening Akun <span class="required">*</span></label>
-						<div class="col-md-12">
-							<select id='u_akun' name='states[]' multiple='multiple'></select>
 						</div>
 					</div>
 					<div class="row form-group">
@@ -669,6 +709,12 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
 
 <script>
 	jQuery(document).ready(function(){
+	    jQuery('.harga_ssh').on('input', function() {
+	        var sanitized = jQuery(this).val().replace(/[^0-9]/g, '');
+	        var formatted = formatRupiah(sanitized);
+	        jQuery(this).val(formatted);
+	    });
+
 		jQuery('#wrap-loading').show();
 		window.tahun = <?php echo $input['tahun_anggaran']; ?>;
 		window.all_skpd = <?php echo json_encode($all_skpd); ?>;
@@ -683,6 +729,8 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
 					jQuery("#usulan_ssh_table_wrapper div:first").addClass("h-100 align-items-center");
 					let html_filter = ""
 					+"<ul id='toolbar_ssh_usulan'>"
+						<?php if(in_array("administrator", $user_meta->roles)
+						|| in_array("tapd_keu", $user_meta->roles)): ?>
 						+"<li>"
 							+"<select name='filter_action' class='ml-3 bulk-action' id='multi_select_action'>"
 								+"<option value='0'>Tindakan Massal</option>"
@@ -692,6 +740,7 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
 							+"</select>"
 							+"<button style='margin-left: 10px;' type='submit' class='ml-1 btn btn-secondary' onclick='action_check_data_usulan_ssh()'>Terapkan</button>"
 						+"</li>"
+						<?php endif; ?>
 						+"<li>"
 							+"<select name='filter_status' class='ml-3 bulk-action' id='search_filter_action' onchange='action_filter_data_usulan_ssh()'>"
 								+"<option value=''>Pilih Status</option>"
@@ -706,10 +755,13 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
 								+"<option value='belum_upload_sipd'>Belum upload SIPD</option>"
 							+"</select>"
 						+"</li>"
+						<?php if(in_array("administrator", $user_meta->roles)
+						|| in_array("tapd_keu", $user_meta->roles)): ?>
 						+"<li>"
 							+"<select name='filter_opd' class='ml-3 bulk-action' id='search_filter_action_opd' style='margin-left: 10px;' onchange='action_filter_data_usulan_ssh()'>"
 							+"</select>"
 						+"</li>"
+						<?php endif; ?>
 						+"<li>"
 							+"<select name='filter_surat' class='ml-3 bulk-action' id='search_filter_surat' style='margin-left: 10px; width:300px;' onchange='action_filter_data_usulan_ssh()'>"
 								+"<option value=''>Pilih Surat</option>"
@@ -779,7 +831,6 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
 			jQuery("#tambah_harga_komp_kategori").val("");
 			jQuery("#tambah_harga_komp_nama_komponent").val("").trigger('change');
 			jQuery("#tambah_harga_komp_nama_komponent").next(".select2-container").removeClass("hide");
-			jQuery("#tambah_harga_show_komp_nama").addClass("hide");
 			jQuery("#tambah_harga_komp_spesifikasi").val("");
 			jQuery("#tambah_harga_komp_satuan").val("");
 			jQuery("#tambah_harga_komp_harga_satuan").val("");
@@ -795,7 +846,6 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
 			jQuery("#tambah_akun_komp_kategori").val("");
 			jQuery("#tambah_akun_komp_nama_komponent").val("").trigger('change');
 			jQuery("#tambah_akun_komp_nama_komponent").next(".select2-container").removeClass("hide");
-			jQuery("#tambah_akun_show_komp_nama").addClass("hide");
 			jQuery("#tambah_akun_komp_spesifikasi").val("");
 			jQuery("#tambah_akun_komp_satuan").val("");
 			jQuery("#tambah_akun_komp_harga_satuan").val("");
@@ -815,8 +865,15 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
 			}else{
 				jQuery('.delete_check').prop('checked', false);
 			}
-		})
+		});
 	});
+
+	function formatRupiah(angka) {
+	    var reverse = angka.toString().split('').reverse().join('');
+	    var thousands = reverse.match(/\d{1,3}/g);
+	    var formatted = thousands.join('.').split('').reverse().join('');
+	    return formatted;
+	}
 
 	function get_data_ssh(tahun){
 		return new Promise(function(resolve, reject){
@@ -1139,9 +1196,6 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
 		if(
 			typeof dataSatuanSsh != 'undefined'
 		){
-			
-			jQuery("#u_satuan").html(dataSatuanSsh.table_content);
-			jQuery('#u_satuan').select2({width: '100%'});
 			var ajax_nama_komponen = {
 			  	ajax: {
 				    url: "<?php echo admin_url('admin-ajax.php'); ?>",
@@ -1230,11 +1284,29 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
 			    minimumInputLength: 6,
 			    width: '100%'
 			};
-			jQuery('#tambah_harga_komp_nama_komponent').select2(ajax_nama_komponen);
-			jQuery('#tambah_akun_komp_nama_komponent').select2(ajax_nama_komponen);
-			jQuery('#u_kategori').select2(ajax_kategori);
-			jQuery("#u_akun").select2(ajax_akun);
+
+			var ajax_akun2 = { ...ajax_akun };
+			ajax_akun2.dropdownParent = jQuery('#tambahUsulanSshModal .modal-content');
+			jQuery("#u_akun").select2(ajax_akun2);
+
+			ajax_akun.dropdownParent = jQuery('#tambahUsulanAkunByKompSSH .modal-content');
 			jQuery("#tambah_new_akun_komp").select2(ajax_akun);
+
+			var ajax_nama_komponen2 = { ...ajax_nama_komponen };
+			ajax_nama_komponen2.dropdownParent = jQuery('#tambahUsulanHargaByKompSSH .modal-content');
+			jQuery('#tambah_harga_komp_nama_komponent').select2(ajax_nama_komponen2);
+
+			ajax_nama_komponen.dropdownParent = jQuery('#tambahUsulanAkunByKompSSH .modal-content');
+			jQuery('#tambah_akun_komp_nama_komponent').select2(ajax_nama_komponen);
+
+			ajax_kategori.dropdownParent = jQuery('#tambahUsulanSshModal .modal-content');
+			jQuery('#u_kategori').select2(ajax_kategori);
+			
+			jQuery("#u_satuan").html(dataSatuanSsh.table_content);
+			jQuery('#u_satuan').select2({
+				width: '100%', 
+				dropdownParent: jQuery('#tambahUsulanSshModal .modal-content')
+			});
 
 			jQuery('.tambah_ssh').attr('disabled', false);
 			jQuery('.tambah_new_ssh').attr('disabled', false);
@@ -1260,13 +1332,24 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
 
 <?php if(false == $is_admin): ?>
 	function tambah_new_ssh(tahun){
-		jQuery("#u_tkdn").val(null);
+		jQuery('#id_sub_skpd').prop('disabled', false);
+		jQuery('#u_kategori').prop('disabled', false);
+		jQuery('#u_nama_komponen').prop('disabled', false);
+		jQuery('#u_spesifikasi').prop('disabled', false);
+		jQuery('#u_satuan').prop('disabled', false);
+		jQuery('#u_harga_satuan').prop('disabled', false);
+		jQuery('input[name="u_jenis_produk"]').prop('disabled', false);
+		jQuery('#u_tkdn').prop('disabled', false);
+		jQuery('#u_akun').prop('disabled', false);
+
+		jQuery("#u_tkdn").val('0');
 		jQuery("#u_lapiran_usulan_ssh_1").val(null);
 		jQuery("#u_lapiran_usulan_ssh_2").val(null);
 		jQuery("#u_lapiran_usulan_ssh_3").val(null);
 		jQuery("#file_lapiran_usulan_ssh_1").html('');
 		jQuery("#file_lapiran_usulan_ssh_2").html('');
 		jQuery("#file_lapiran_usulan_ssh_3").html('');
+
 		jQuery("#tambahUsulanSshModal .modal-title").html("Tambah usulan SSH");
 		jQuery("#tambahUsulanSshModal .modal-footer").find('.submitBtn').remove();
 		jQuery("#tambahUsulanSshModal .modal-footer").prepend('<button class=\'btn btn-primary submitBtn\' onclick=\'return false;\'>Simpan</button>');
@@ -1275,7 +1358,7 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
 			.attr("disabled", false)
 			.text("Simpan");
 		jQuery('#tambahUsulanSshModal').modal('show');
-		jQuery("#id_sub_skpd").select2({width:'100%'});
+		jQuery("#id_sub_skpd").select2({width:'100%', dropdownParent: jQuery('#tambahUsulanSshModal .modal-content')});
 		jQuery("#id_sub_skpd").val('').trigger('change');
 	}
 
@@ -1288,12 +1371,34 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
 					get_data_usulan_ssh_by_komponen('harga',id_standar_harga)
 				}
 			});
-			jQuery('#tambahUsulanHargaByKompSSH').modal('show');
+			jQuery('#tambah_harga_id_sub_unit').prop('disabled', false);
+			jQuery('#tambah_harga_komp_kategori').prop('disabled', true);
+			jQuery('#tambah_harga_komp_nama_komponent').prop('disabled', false);
+			jQuery('#tambah_harga_komp_spesifikasi').prop('disabled', true);
+			jQuery('#tambah_harga_komp_satuan').prop('disabled', true);
+			jQuery('input[name="tambah_harga_komp_jenis_produk"]').prop('disabled', true);
+			jQuery('#tambah_harga_komp_tkdn').prop('disabled', true);
+			jQuery('#tambah_harga_komp_akun').prop('disabled', true);
+			jQuery('#tambah_harga_komp_harga_satuan').prop('disabled', false);
+			jQuery('#file_lapiran_usulan_harga_ssh_1').html('');
+			jQuery('#file_lapiran_usulan_harga_ssh_2').html('');
+			jQuery('#file_lapiran_usulan_harga_ssh_3').html('');
+			jQuery('#u_lapiran_usulan_harga_ssh_1').show();
+			jQuery('#u_lapiran_usulan_harga_ssh_1').parent().find('small').show();
+			jQuery('#u_lapiran_usulan_harga_ssh_2').show();
+			jQuery('#u_lapiran_usulan_harga_ssh_2').parent().find('small').show();
+			jQuery('#u_lapiran_usulan_harga_ssh_3').show();
+			jQuery('#u_lapiran_usulan_harga_ssh_3').parent().find('small').show();
+			jQuery('#tambah_harga_komp_keterangan_lampiran').prop('disabled', false);
+
+			jQuery("#tambahUsulanHargaByKompSSH .modal-footer").find('.submitBtn').remove();
 			jQuery("#tambahUsulanHargaByKompSSH .modal-title").html('Tambah Harga usulan SSH');
+			jQuery("#tambahUsulanHargaByKompSSH .modal-footer").prepend('<button class=\'btn btn-primary submitBtn\' onclick=\'return false;\'>Simpan</button>');
 			jQuery("#tambahUsulanHargaByKompSSH .submitBtn")
 				.attr("onclick", 'submitUsulanTambahHargaSshForm('+tahun+')')
 				.attr("disabled", false)
 				.text("Simpan");
+			jQuery('#tambahUsulanHargaByKompSSH').modal('show');
 		}else if(jenis === 'akun'){
 			jQuery("#tambah_akun_komp_nama_komponent").on("change", function(){
 				var id_standar_harga = jQuery(this).val();
@@ -1301,12 +1406,26 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
 					get_data_usulan_ssh_by_komponen('akun',id_standar_harga)
 				}
 			});
-			jQuery('#tambahUsulanAkunByKompSSH').modal('show');
+			jQuery('#tambah_akun_id_sub_unit').prop('disabled', false);
+			jQuery('#tambah_akun_komp_kategori').prop('disabled', true);
+			jQuery('#tambah_akun_komp_nama_komponent').prop('disabled', false);
+			jQuery('#tambah_akun_komp_spesifikasi').prop('disabled', true);
+			jQuery('#tambah_akun_komp_satuan').prop('disabled', true);
+			jQuery('#tambah_akun_komp_harga_satuan').prop('disabled', true);
+			jQuery('input[name="tambah_akun_komp_jenis_produk"]').prop('disabled', true);
+			jQuery('#tambah_akun_komp_tkdn').prop('disabled', true);
+			jQuery('#tambah_akun_komp_akun').prop('disabled', true);
+			jQuery('#tambah_new_akun_komp').prop('disabled', false);
+			jQuery('#tambah_akun_komp_keterangan_lampiran').prop('disabled', false);
+
+			jQuery("#tambahUsulanAkunByKompSSH .modal-footer").find('.submitBtn').remove();
 			jQuery("#tambahUsulanAkunByKompSSH .modal-title").html('Tambah Rekening Akun usulan SSH');
+			jQuery("#tambahUsulanAkunByKompSSH .modal-footer").prepend('<button class=\'btn btn-primary submitBtn\' onclick=\'return false;\'>Simpan</button>');
 			jQuery("#tambahUsulanAkunByKompSSH .submitBtn")
 				.attr("onclick", 'submitUsulanTambahAkunSshForm('+tahun+')')
 				.attr("disabled", false)
 				.text("Simpan");
+			jQuery('#tambahUsulanAkunByKompSSH').modal('show');
 		}
 	}
 <?php else: ?>
@@ -1352,7 +1471,9 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
 				alert(response.message);
 				if(response.status == 'success'){
 					jQuery('#tambahNotaDinasModal').modal('hide');
-					suratNotaDinasUsulanSSHTable.ajax.reload();
+					suratNotaDinasUsulanSSHTable.ajax.reload(function(){
+						usulanSSHTable.ajax.reload();
+					});
 				}
 				jQuery("#wrap-loading").hide();
 			}
@@ -1379,6 +1500,7 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
 
 	/** Ambil data detail ssh sesuai komponen */
 	function get_data_usulan_ssh_by_komponen(jenis, id_standar_harga){
+		jQuery('#wrap-loading').show();
 		jQuery.ajax({
 			url: "<?php echo admin_url('admin-ajax.php'); ?>",
 			type:'post',
@@ -1389,8 +1511,9 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
 			},
 			dataType: 'json',
 			success:function(response){
+				jQuery('#wrap-loading').hide();
 				if(jenis === 'harga'){
-					jQuery("#tambah_harga_id_sub_unit").val(response.data_ssh_usulan_by_id.id_sub_skpd);
+					// jQuery("#tambah_harga_id_sub_unit").val(response.data_ssh_usulan_by_id.id_sub_skpd);
 					jQuery("#tambah_harga_komp_kategori").val(response.data_ssh_usulan_by_id.kode_kel_standar_harga+" "+response.data_ssh_usulan_by_id.nama_kel_standar_harga);
 					jQuery("#tambah_harga_komp_spesifikasi").val(response.data_ssh_usulan_by_id.spek);
 					jQuery("#tambah_harga_komp_satuan").val(response.data_ssh_usulan_by_id.satuan);
@@ -1398,11 +1521,12 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
 					jQuery(`#tambah_harga_komp_jenis_produk_${response.data_ssh_usulan_by_id.jenis_produk}`).prop('checked',true);
 					jQuery("#tambah_harga_komp_tkdn").val(response.data_ssh_usulan_by_id.tkdn);
 				}else if(jenis === 'akun'){
-					jQuery("#tambah_akun_id_sub_unit").val(response.data_ssh_usulan_by_id.id_sub_skpd);
+					// sub unit dinonaktifkan agar jika usulan dari skpd lain, tidak merubah user skpd yang sedang login
+					// jQuery("#tambah_akun_id_sub_unit").val(response.data_ssh_usulan_by_id.id_sub_skpd);
 					jQuery("#tambah_akun_komp_kategori").val(response.data_ssh_usulan_by_id.kode_kel_standar_harga+" "+response.data_ssh_usulan_by_id.nama_kel_standar_harga);
 					jQuery("#tambah_akun_komp_spesifikasi").val(response.data_ssh_usulan_by_id.spek);
 					jQuery("#tambah_akun_komp_satuan").val(response.data_ssh_usulan_by_id.satuan);
-					jQuery("#tambah_akun_komp_harga_satuan").val(response.data_ssh_usulan_by_id.harga);
+					jQuery("#tambah_akun_komp_harga_satuan").val(response.data_ssh_usulan_by_id.harga).trigger('input');
 					jQuery("#tambah_akun_komp_keterangan_lampiran").val(response.data_ssh_usulan_by_id.keterangan_lampiran);
 					jQuery("#tambah_akun_komp_akun").html(response.table_content);
 					jQuery(`#tambah_akun_komp_jenis_produk_${response.data_ssh_usulan_by_id.jenis_produk}`).prop('checked',true);
@@ -1420,7 +1544,7 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
 		var nama_komponen = jQuery('#u_nama_komponen').val();
 		var spesifikasi = jQuery('#u_spesifikasi').val();
 		var satuan = jQuery('#u_satuan').val();
-		var harga_satuan = jQuery('#u_harga_satuan').val();
+		var harga_satuan = jQuery('#u_harga_satuan').val().replace(/\./g, '');
 		var akun = jQuery('#u_akun').val();
 		var keterangan_lampiran = jQuery('#u_keterangan_lampiran').val();
 		var jenis_produk = jQuery('input[name=u_jenis_produk]:checked').val();
@@ -1494,6 +1618,7 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
 					}else{
 						alert(response.message);
 					}
+					jQuery('.submitBtn').removeAttr("disabled");
 					jQuery("#wrap-loading").hide();
 				}
 			});
@@ -1642,7 +1767,7 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
 	/** submit tambah usulan harga ssh */
 	function submitUsulanTambahHargaSshForm(tahun){
 		var id_standar_harga = jQuery('#tambah_harga_komp_nama_komponent').val();
-		var harga_satuan = jQuery('#tambah_harga_komp_harga_satuan').val();
+		var harga_satuan = jQuery('#tambah_harga_komp_harga_satuan').val().replace(/\./g, '');
 		var keterangan_lampiran = jQuery('#tambah_harga_komp_keterangan_lampiran').val();
 		var lapiran_usulan_ssh_1 = jQuery('#u_lapiran_usulan_harga_ssh_1')[0].files[0];
 		var lapiran_usulan_ssh_2 = jQuery('#u_lapiran_usulan_harga_ssh_2')[0].files[0];
@@ -1713,6 +1838,7 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
 		var id_standar_harga = jQuery('#tambah_akun_komp_nama_komponent').val();
 		var id_sub_skpd = jQuery('#tambah_akun_id_sub_unit').val();
 		var new_akun = jQuery('#tambah_new_akun_komp').val();
+		var keterangan_lampiran = jQuery('#tambah_akun_komp_keterangan_lampiran').val();
 		if(new_akun == ''){
 			alert('Rekening akun tidak boleh kosong!');
 			return false;
@@ -1733,7 +1859,8 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
 					'tahun_anggaran' : tahun,
 					'id_standar_harga' : id_standar_harga,
 					'new_akun' : new_akun,
-					'id_sub_skpd' : id_sub_skpd
+					'id_sub_skpd' : id_sub_skpd,
+					'keterangan_lampiran' : keterangan_lampiran
 				},
 				dataType: 'json',
 				beforeSend: function () {
@@ -1779,7 +1906,7 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
 					jQuery("#tambah_akun_komp_nama_komponent").val('usulan-'+response.data.id).trigger('change');
 					jQuery("#tambah_akun_komp_spesifikasi").val(response.data.spek);
 					jQuery("#tambah_akun_komp_satuan").val(response.data.satuan);
-					jQuery("#tambah_akun_komp_harga_satuan").val(response.data.harga);
+					jQuery("#tambah_akun_komp_harga_satuan").val(response.data.harga).trigger('input');
 					jQuery('input[name="tambah_harga_komp_jenis_produk"][value="'+response.data.jenis_produk+'"]').prop('checked', true);
 					jQuery("#tambah_akun_komp_tkdn").val(response.data.tkdn);
 					jQuery("#tambah_akun_komp_keterangan_lampiran").val(response.data.keterangan_lampiran);
@@ -1798,40 +1925,32 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
 					});
 
 					jQuery("#tambahUsulanAkunByKompSSH .modal-footer").find('.submitBtn').remove();
+					jQuery('#tambah_akun_id_sub_unit').prop('disabled', true);
+					jQuery('#tambah_akun_komp_kategori').prop('disabled', true);
+					jQuery('#tambah_akun_komp_nama_komponent').prop('disabled', true);
+					jQuery('#tambah_akun_komp_spesifikasi').prop('disabled', true);
+					jQuery('#tambah_akun_komp_satuan').prop('disabled', true);
+					jQuery('#tambah_akun_komp_harga_satuan').prop('disabled', true);
+					jQuery('input[name="tambah_akun_komp_jenis_produk"][value="'+response.data.jenis_produk+'"]').prop('disabled', true);
+					jQuery('#tambah_akun_komp_tkdn').prop('disabled', true);
+					jQuery('#tambah_akun_komp_akun').prop('disabled', true);
 					if(mod==='edit'){
-						jQuery('#tambah_akun_id_sub_unit').prop('disabled', false);
-						jQuery('#tambah_akun_komp_kategori').prop('disabled', false);
-						jQuery('#tambah_akun_komp_nama_komponent').prop('disabled', false);
-						jQuery('#tambah_akun_komp_spesifikasi').prop('disabled', false);
-						jQuery('#tambah_akun_komp_satuan').prop('disabled', false);
-						jQuery('#tambah_akun_komp_harga_satuan').prop('disabled', false);
-						jQuery('input[name="tambah_harga_komp_jenis_produk"][value="'+response.data.jenis_produk+'"]').prop('disabled', false);
-						jQuery('#tambah_akun_komp_tkdn').prop('disabled', false);
-						jQuery('#tambah_akun_komp_akun').prop('disabled', false);
+						jQuery('#tambah_new_akun_komp').prop('disabled', false);
 						jQuery('#tambah_akun_komp_keterangan_lampiran').prop('disabled', false);
 
 						jQuery("#tambahUsulanAkunByKompSSH .modal-footer").prepend('<button class=\'btn btn-primary submitBtn\' onclick=\'return false;\'>Simpan</button>');
 						jQuery("#tambahUsulanAkunByKompSSH .submitBtn")
-							.attr('onclick', 'submitEditUsulanSshForm('+id+', '+tahun+')')
+							.attr('onclick', 'submitEditTambahAkunUsulanSshForm('+id+', '+tahun+')')
 							.attr('disabled', false)
 							.text('Simpan');
-						jQuery('#tambahUsulanAkunByKompSSH').modal('show');
 						jQuery("#tambahUsulanAkunByKompSSH .modal-title").html('Edit Tambah Akun Usulan SSH');
 					}else if(mod==='detil'){
-						jQuery('#tambah_akun_id_sub_unit').prop('disabled', true);
-						jQuery('#tambah_akun_komp_kategori').prop('disabled', true);
-						jQuery('#tambah_akun_komp_nama_komponent').prop('disabled', true);
-						jQuery('#tambah_akun_komp_spesifikasi').prop('disabled', true);
-						jQuery('#tambah_akun_komp_satuan').prop('disabled', true);
-						jQuery('#tambah_akun_komp_harga_satuan').prop('disabled', true);
-						jQuery('input[name="tambah_harga_komp_jenis_produk"][value="'+response.data.jenis_produk+'"]').prop('disabled', true);
-						jQuery('#tambah_akun_komp_tkdn').prop('disabled', true);
-						jQuery('#tambah_akun_komp_akun').prop('disabled', true);
+						jQuery('#tambah_new_akun_komp').prop('disabled', true);
 						jQuery('#tambah_akun_komp_keterangan_lampiran').prop('disabled', true);
 						
-						jQuery('#tambahUsulanAkunByKompSSH').modal('show');
 						jQuery("#tambahUsulanAkunByKompSSH .modal-title").html('Detail Tambah Akun Usulan SSH');
 					}
+					jQuery('#tambahUsulanAkunByKompSSH').modal('show');
 				}else if(status_jenis_usulan === 'tambah_harga'){
 					jQuery("#tambah_harga_id_sub_unit").val(response.data.id_sub_skpd).trigger('change');
 					jQuery("#tambah_harga_komp_kategori").val(response.data.kode_kel_standar_harga+" "+response.data.nama_kel_standar_harga);
@@ -1842,7 +1961,7 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
 					jQuery("#tambah_harga_komp_nama_komponent").val('usulan-'+response.data.id).trigger('change');
 					jQuery("#tambah_harga_komp_spesifikasi").val(response.data.spek);
 					jQuery("#tambah_harga_komp_satuan").val(response.data.satuan);
-					jQuery("#tambah_harga_komp_harga_satuan").val(response.data.harga);
+					jQuery("#tambah_harga_komp_harga_satuan").val(response.data.harga).trigger('input');
 					jQuery(`#tambah_harga_komp_jenis_produk_${response.data.jenis_produk}`).prop('checked',true);
 					jQuery("#tambah_harga_komp_tkdn").val(response.data.tkdn);
 					jQuery("#tambah_harga_komp_keterangan_lampiran").val(response.data.keterangan_lampiran);
@@ -1865,16 +1984,16 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
 					jQuery("#file_lapiran_usulan_harga_ssh_3").attr('href', '<?php echo esc_url(plugin_dir_url(__DIR__).'media/ssh/') ?>' + response.data.lampiran_3);
 
 					jQuery("#tambahUsulanHargaByKompSSH .modal-footer").find('.submitBtn').remove();
+					jQuery('#tambah_harga_id_sub_unit').prop('disabled', true);
+					jQuery('#tambah_harga_komp_kategori').prop('disabled', true);
+					jQuery('#tambah_harga_komp_nama_komponent').prop('disabled', true);
+					jQuery('#tambah_harga_komp_spesifikasi').prop('disabled', true);
+					jQuery('#tambah_harga_komp_satuan').prop('disabled', true);
+					jQuery(`#tambah_harga_komp_jenis_produk_${response.data.jenis_produk}`).prop('disabled', true);
+					jQuery('#tambah_harga_komp_tkdn').prop('disabled', true);
+					jQuery('#tambah_harga_komp_akun').prop('disabled', true);
 					if(mod==='edit'){
-						jQuery('#tambah_harga_id_sub_unit').prop('disabled', false);
-						jQuery('#tambah_harga_komp_kategori').prop('disabled', false);
-						jQuery('#tambah_harga_komp_nama_komponent').prop('disabled', false);
-						jQuery('#tambah_harga_komp_spesifikasi').prop('disabled', false);
-						jQuery('#tambah_harga_komp_satuan').prop('disabled', false);
 						jQuery('#tambah_harga_komp_harga_satuan').prop('disabled', false);
-						jQuery(`#tambah_harga_komp_jenis_produk_${response.data.jenis_produk}`).prop('disabled', false);
-						jQuery('#tambah_harga_komp_tkdn').prop('disabled', false);
-						jQuery('#tambah_harga_komp_akun').prop('disabled', false);
 						jQuery('#u_lapiran_usulan_harga_ssh_1').show();
 						jQuery('#u_lapiran_usulan_harga_ssh_1').parent().find('small').show();
 						jQuery('#u_lapiran_usulan_harga_ssh_2').show();
@@ -1885,21 +2004,12 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
 
 						jQuery("#tambahUsulanHargaByKompSSH .modal-footer").prepend('<button class=\'btn btn-primary submitBtn\' onclick=\'return false;\'>Simpan</button>');
 						jQuery("#tambahUsulanHargaByKompSSH .submitBtn")
-							.attr('onclick', 'submitEditUsulanSshForm('+id+', '+tahun+')')
+							.attr('onclick', 'submitEditTambahHargaUsulanSshForm('+id+', '+tahun+')')
 							.attr('disabled', false)
 							.text('Simpan');
-						jQuery('#tambahUsulanHargaByKompSSH').modal('show');
 						jQuery("#tambahUsulanHargaByKompSSH .modal-title").html('Edit Tambah Harga Usulan SSH');
 					}else if(mod==='detil'){
-						jQuery('#tambah_harga_id_sub_unit').prop('disabled', true);
-						jQuery('#tambah_harga_komp_kategori').prop('disabled', true);
-						jQuery('#tambah_harga_komp_nama_komponent').prop('disabled', true);
-						jQuery('#tambah_harga_komp_spesifikasi').prop('disabled', true);
-						jQuery('#tambah_harga_komp_satuan').prop('disabled', true);
 						jQuery('#tambah_harga_komp_harga_satuan').prop('disabled', true);
-						jQuery(`#tambah_harga_komp_jenis_produk_${response.data.jenis_produk}`).prop('disabled', true);
-						jQuery('#tambah_harga_komp_tkdn').prop('disabled', true);
-						jQuery('#tambah_harga_komp_akun').prop('disabled', true);
 						jQuery('#u_lapiran_usulan_harga_ssh_1').hide();
 						jQuery('#u_lapiran_usulan_harga_ssh_1').parent().find('small').hide();
 						jQuery('#u_lapiran_usulan_harga_ssh_2').hide();
@@ -1908,9 +2018,9 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
 						jQuery('#u_lapiran_usulan_harga_ssh_3').parent().find('small').hide();
 						jQuery('#tambah_harga_komp_keterangan_lampiran').prop('disabled', true);
 						
-						jQuery('#tambahUsulanHargaByKompSSH').modal('show');
 						jQuery("#tambahUsulanHargaByKompSSH .modal-title").html('Detail Tambah Harga Usulan SSH');
 					}
+					jQuery('#tambahUsulanHargaByKompSSH').modal('show');
 				}else if(status_jenis_usulan == 'tambah_baru'){
 					var myText = response.data_kel_standar_harga_by_id.tipe_kelompok+" "+response.data_kel_standar_harga_by_id.kode_kategori+" "+response.data_kel_standar_harga_by_id.uraian_kategori;
 					var option = new Option(myText,response.data_kel_standar_harga_by_id.id_kategori, true, true);	
@@ -1924,7 +2034,7 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
 					jQuery('#u_satuan').val(response.data.satuan).trigger('change');
 					jQuery("#u_nama_komponen").val(response.data.nama_standar_harga);
 					jQuery("#u_spesifikasi").val(response.data.spek);
-					jQuery("#u_harga_satuan").val(response.data.harga);
+					jQuery("#u_harga_satuan").val(response.data.harga).trigger('input');
 					jQuery(`input[name=u_jenis_produk][value=${response.data.jenis_produk}]`).prop('checked',true);
 					jQuery("#u_tkdn").val(response.data.tkdn);
 					jQuery("#u_keterangan_lampiran").val(response.data.keterangan_lampiran);
@@ -1958,14 +2068,14 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
 
 					jQuery("#id_sub_skpd").val(response.data.id_sub_skpd).trigger('change');
 					jQuery("#tambahUsulanSshModal .modal-footer").find('.submitBtn').remove();
+					jQuery('#id_sub_skpd').prop('disabled', true);
 					if(mod==='edit'){
-						jQuery('#id_u_sub_skpd').prop('disabled', false);
 						jQuery('#u_kategori').prop('disabled', false);
 						jQuery('#u_nama_komponen').prop('disabled', false);
 						jQuery('#u_spesifikasi').prop('disabled', false);
 						jQuery('#u_satuan').prop('disabled', false);
 						jQuery('#u_harga_satuan').prop('disabled', false);
-						jQuery('#u_jenis_produk').prop('disabled', false);
+						jQuery('input[name="u_jenis_produk"]').prop('disabled', false);
 						jQuery('#u_tkdn').prop('disabled', false);
 						jQuery('#u_akun').prop('disabled', false);
 						jQuery('#u_lapiran_usulan_ssh_1').show();
@@ -1981,16 +2091,14 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
 							.attr('onclick', 'submitEditUsulanSshForm('+id+', '+tahun+')')
 							.attr('disabled', false)
 							.text('Simpan');
-						jQuery('#tambahUsulanSshModal').modal('show');
 						jQuery("#tambahUsulanSshModal .modal-title").html('Edit Tambah Usulan SSH');
 					}else if(mod==='detil'){
-						jQuery('#id_u_sub_skpd').prop('disabled', true);
 						jQuery('#u_kategori').prop('disabled', true);
 						jQuery('#u_nama_komponen').prop('disabled', true);
 						jQuery('#u_spesifikasi').prop('disabled', true);
 						jQuery('#u_satuan').prop('disabled', true);
 						jQuery('#u_harga_satuan').prop('disabled', true);
-						jQuery('#u_jenis_produk').prop('disabled', true);
+						jQuery('input[name="u_jenis_produk"]').prop('disabled', true);
 						jQuery('#u_tkdn').prop('disabled', true);
 						jQuery('#u_akun').prop('disabled', true);
 						jQuery('#u_lapiran_usulan_ssh_1').hide();
@@ -2001,9 +2109,9 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
 						jQuery('#u_lapiran_usulan_ssh_3').parent().find('small').hide();
 						jQuery('#u_keterangan_lampiran').prop('disabled', true);
 						
-						jQuery('#tambahUsulanSshModal').modal('show');
 						jQuery("#tambahUsulanSshModal .modal-title").html('Detail Tambah Usulan SSH');
 					}
+					jQuery('#tambahUsulanSshModal').modal('show');
 				}
 			}
 		})
@@ -2022,7 +2130,7 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
 		var nama_komponen = jQuery('#u_nama_komponen').val();
 		var spesifikasi = jQuery('#u_spesifikasi').val();
 		var satuan = jQuery('#u_satuan').val();
-		var harga_satuan = jQuery('#u_harga_satuan').val();
+		var harga_satuan = jQuery('#u_harga_satuan').val().replace(/\./g, '');
 		var keterangan_lampiran = jQuery('#u_keterangan_lampiran').val();
 		var akun = jQuery('#u_akun').val();
 		var jenis_produk = jQuery('input[name=u_jenis_produk]:checked').val();
@@ -2103,7 +2211,7 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
 
 	/** submit edit tambah usulan harga ssh */
 	function submitEditTambahHargaUsulanSshForm(id,tahun){
-		var harga_satuan = jQuery('#tambah_harga_komp_harga_satuan').val();
+		var harga_satuan = jQuery('#tambah_harga_komp_harga_satuan').val().replace(/\./g, '');
 		var keterangan_lampiran = jQuery('#tambah_harga_komp_keterangan_lampiran').val();
 		var lapiran_usulan_ssh_1 = jQuery('#u_lapiran_usulan_harga_ssh_1')[0].files[0];
 		var lapiran_usulan_ssh_2 = jQuery('#u_lapiran_usulan_harga_ssh_2')[0].files[0];
@@ -2170,6 +2278,7 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
 	/** submit edit tambah akun ssh */
 	function submitEditTambahAkunUsulanSshForm(id, tahun){
 		var new_akun = jQuery('#tambah_new_akun_komp').val();
+		var keterangan = jQuery('#tambah_akun_komp_keterangan_lampiran').val();
 		jQuery("#wrap-loading").show();
 		if(new_akun == ''){
 			jQuery("#wrap-loading").hide();
@@ -2184,7 +2293,8 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
 					'api_key' : jQuery("#api_key").val(),
 					'tahun_anggaran' : tahun,
 					'id' : id,
-					'new_akun' : new_akun
+					'new_akun' : new_akun,
+					'keterangan' : keterangan
 				},
 				dataType: 'json',
 				beforeSend: function () {
@@ -2540,6 +2650,7 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
 	        	jQuery('#ids_surat_usulan').val(data_ids);
 	        	jQuery('#tbody_data_usulan').html(data);
 	        	jQuery('#tambahSuratUsulan').modal('show');
+				jQuery('#jenis_survey').prop('checked', true);
         	<?php 
         		if(
 					in_array("administrator", $user_meta->roles)
@@ -2554,7 +2665,9 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
         	?>
 	        	jQuery('#wrap-loading').hide();
 	        }
-        }
+        }else{
+			alert('Usulan standar harga tidak ditemukan! Pastikan ada data usulan yang akan dibuat surat usulan.');
+		}
 
 	}
 
@@ -2579,6 +2692,7 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
 		var ubah = jQuery("#tambahSuratUsulan input[name='ubah_id']").val();
 		var lapiran_surat = jQuery('#u_surat_usulan_ssh')[0].files[0];
 		let tempData = new FormData();
+		jQuery('#wrap-loading').show();
 		tempData.append('action', 'simpan_surat_usulan_ssh');
 		tempData.append('api_key', jQuery("#api_key").val());
 		tempData.append('tahun_anggaran', tahun);
@@ -2596,7 +2710,6 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
 			tempData.append('catatan_verifikator', catatan_verifikator);
 		}
 
-		jQuery('#wrap-loading').show();
 		jQuery.ajax({
 			url: ajax.url,
 		    type: "post",
@@ -2609,7 +2722,9 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
 		    	alert(res.message);
 				jQuery("#wrap-loading").hide();
 		    	if(res.status == 'success'){
-					suratUsulanSSHTable.ajax.reload();
+					suratUsulanSSHTable.ajax.reload(function(){
+						usulanSSHTable.ajax.reload();
+					});
     				jQuery('#tambahSuratUsulan').modal('hide');
 				}
 		    }
@@ -2865,7 +2980,9 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
 									jQuery('#wrap-loading').hide();
 									alert(res.message);
 									if(res.status != 'error'){
-										suratNotaDinasUsulanSSHTable.ajax.reload();
+										suratNotaDinasUsulanSSHTable.ajax.reload(function(){
+											usulanSSHTable.ajax.reload();
+										});
 									}
 								}
 							});
@@ -2922,7 +3039,9 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
 									jQuery('#wrap-loading').hide();
 									alert(res.message);
 									if(res.status != 'error'){
-										suratUsulanSSHTable.ajax.reload();
+										suratUsulanSSHTable.ajax.reload(function(){
+											usulanSSHTable.ajax.reload();
+										});
 									}
 								}
 							});
@@ -2963,4 +3082,29 @@ $nama_skpd .= "<br>".get_option('_crb_daerah');
 		var url = '<?php echo $url_cetak_usulan; ?>'+'&tahun='+tahun+'&status='+status+'&id_skpd='+id_skpd+'&no_surat='+no_surat+'&nota_dinas='+nota_dinas+'&tipe_laporan='+tipe_laporan;
 		window.open(url, '_blank').focus();
 	}
+
+	function submit_ssh_usulan(id,tahun){
+	    if(confirm('Apakah anda yakin mengirim data ini ?')){
+			jQuery('#wrap-loading').show();
+			jQuery.ajax({
+				url: "<?php echo admin_url('admin-ajax.php'); ?>",
+				type:'post',
+				data:{
+					'action': 'submit_ssh_usulan_by_id',
+					'api_key': jQuery("#api_key").val(),
+					'id': id,
+					'tahun_anggaran': tahun
+				},
+				dataType: 'json',
+	            success: function(res){
+	                jQuery('#wrap-loading').hide();
+	                alert(res.message);
+	                if(res.status == 'success'){
+	                    usulanSSHTable.ajax.reload();
+	                }
+	            }
+			});
+		}
+	}
 </script> 
+

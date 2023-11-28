@@ -13,12 +13,14 @@ $total_belanja = 0;
 $total_pendapatan_murni = 0;
 $total_pendapatan = 0;
 
-function generate_body($rek_pendapatan, $nama_table, $type='murni', $skpd){
+// function generate_body($rek_pendapatan, $nama_table, $type='murni', $skpd){
+function generate_body($rek_pendapatan, $nama_table, $type='murni'){
     global $wpdb;
     global $total_belanja_murni;
     global $total_belanja;
     global $total_pendapatan_murni;
     global $total_pendapatan;
+
     $data_pendapatan = array(
         'data' => array(),
         'total' => 0,
@@ -163,6 +165,8 @@ function generate_body($rek_pendapatan, $nama_table, $type='murni', $skpd){
         // }
     }
     // print_r($data_pendapatan); die();
+
+    $body_urusan = '';
 
     $kode_skpd = explode('.', $skpd['kode_skpd']);
     $body_pendapatan = '';
@@ -518,18 +522,14 @@ function generate_body($rek_pendapatan, $nama_table, $type='murni', $skpd){
         $total_belanja_murni = $data_pendapatan['totalmurni'];
     }
     return $body_pendapatan;
+
+    
+
 }
 
 global $wpdb;
-$skpd = $wpdb->get_row($wpdb->prepare('
-    SELECT 
-        * 
-    FROM `data_unit` 
-    where id_skpd=%d 
-        and tahun_anggaran=%d 
-        and active=1
-', $input['id_skpd'], $input['tahun_anggaran']), ARRAY_A);
-
+// $skpd = $wpdb->get_row('SELECT * FROM `data_unit` where id_skpd='.$input['id_skpd'].' and tahun_anggaran='.$input['tahun_anggaran'].' and active=1', ARRAY_A);
+$skpd = $wpdb->get_row('SELECT * FROM `data_unit` where tahun_anggaran='.$input['tahun_anggaran'].' and active=1', ARRAY_A);
 $kode = explode('.', $skpd['kode_skpd']);
 $type = 'murni';
 if(!empty($_GET) && !empty($_GET['type'])){
@@ -537,23 +537,50 @@ if(!empty($_GET) && !empty($_GET['type'])){
 }
 $id_skpd_all = array();
 if($skpd['is_skpd'] == 1){
-    $skpd_induk = $wpdb->get_results($wpdb->prepare('
+    $skpd_induk = $wpdb->get_results('
         SELECT 
             id_skpd 
         FROM `data_unit` 
         where (
-                idinduk=%d 
-                or id_unit=%d 
+                idinduk='.$input['id_skpd'].' 
+                or id_unit='.$input['id_skpd'].' 
             )
-            and tahun_anggaran=%d 
+            and tahun_anggaran='.$input['tahun_anggaran'].' 
             and active=1
-    ', $input['id_skpd'], $input['id_skpd'], $input['tahun_anggaran']), ARRAY_A);
+    ', ARRAY_A);
     foreach ($skpd_induk as $k => $v) {
         $id_skpd_all[] = $v['id_skpd'];
     }
 }else{
     $id_skpd_all[0] = $input['id_skpd'];
 }
+
+$sql = $wpdb->prepare("
+    select 
+        tahun_anggaran,
+        id_skpd,
+        '' as nama_bidang_urusan,
+        '' as nama_program,
+        '' as nama_giat,
+        '' as nama_sub_giat,
+        '".$kode[0].".".$kode[1]."' as kode_bidang_urusan,
+        '00' as no_program,
+        '0.00' as no_giat,
+        '00' as no_sub_giat,
+        kode_akun,
+        nama_akun,
+        sum(total) as total,
+        sum(nilaimurni) as totalmurni
+    from data_pendapatan
+    where tahun_anggaran=%d
+        and id_skpd IN (".implode(',', $id_skpd_all).")
+        and active=1
+    group by id_skpd, kode_akun
+    order by id_skpd ASC, kode_akun ASC
+", $input['tahun_anggaran']);
+$kode_urusan = $wpdb->get_results($sql, ARRAY_A);
+
+$body_urusan = generate_body($kode_urusan, 'Urusan', $type, $skpd);
 
 $sql = $wpdb->prepare("
     select 
@@ -662,8 +689,8 @@ $urusan = $wpdb->get_row('SELECT nama_bidang_urusan FROM `data_prog_keg` where k
             <td class="text_kiri" contenteditable="true">&nbsp;xx Desember xxx</td>
         </tr>
     </table>
-    <h4 class="table-header" style="text-align: center; font-size: 13px; margin: 10px auto; font-weight: bold; text-transform: uppercase;"><?php echo get_option('_crb_daerah'); ?> <br>PENJABARAN PERUBAHAN APBD MENURUT URUSAN PEMERINTAHAN DAERAH, ORGANISASI, PROGRAM, KEGIATAN, SUB KEGIATAN, KELOMPOK, JENIS, OBJEK, RINCIAN OBJEK, SUB RINCIAN OBJEK PENDAPATAN, BELANJA, DAN PEMBIAYAAN<br>TAHUN ANGGARAN <?php echo $input['tahun_anggaran']; ?></h4>
-    <table cellspacing="2" cellpadding="0" class="apbd-penjabaran no-border no-padding">
+    <h4 class="table-header" style="text-align: center; font-size: 13px; margin: 10px auto; font-weight: bold; text-transform: uppercase;"><?php echo get_option('_crb_daerah'); ?> <br>RINGKASAN APBD YANG DIKLASIFIKASIKAN MENURUT URUSAN PEMERINTAHAN DAERAH DAN ORGANISASI<br>TAHUN ANGGARAN <?php echo $input['tahun_anggaran']; ?></h4>
+    <!-- <table cellspacing="2" cellpadding="0" class="apbd-penjabaran no-border no-padding">
         <tbody>
             <tr>
                 <td width="150">Urusan Pemerintahan</td>
@@ -676,25 +703,37 @@ $urusan = $wpdb->get_row('SELECT nama_bidang_urusan FROM `data_prog_keg` where k
                 <td><?php echo $skpd['kode_skpd'].'&nbsp;'.$skpd['nama_skpd']; ?></td>
             </tr>
         </tbody>
-    </table>
+    </table> -->
     <table cellpadding="3" cellspacing="0" class="apbd-penjabaran" width="100%">
         <thead>
             <tr>
-                <td class="atas kanan bawah kiri text_tengah text_blok colspan_kurang" colspan="12">Kode Rekening</td>
-                <td class="atas kanan bawah text_tengah text_blok">Uraian</td>
+                <td class="atas kanan bawah kiri text_tengah text_blok colspan_kurang" colspan="3" rowspan="2">Kode</td>
+                <td class="atas kanan bawah text_tengah text_blok" rowspan="2">Urusan Pemerintah Daerah</td>
+                <td class="atas kanan bawah text_tengah text_blok" rowspan="2">Pendapatan</td>
+                <td class="atas kanan bawah text_tengah text_blok" colspan="5">Belanja</td>
                 <?php if($type == 'murni'): ?>
-                    <td class="atas kanan bawah text_tengah text_blok" width="150px">Jumlah</td>
+                    <!-- <td class="atas kanan bawah text_tengah text_blok" width="150px">Jumlah</td> -->
                 <?php else: ?>
-                    <td class="atas kanan bawah text_tengah text_blok" width="150px">Sebelum Perubahan</td>
+                    <!-- <td class="atas kanan bawah text_tengah text_blok" width="150px">Sebelum Perubahan</td>
                     <td class="atas kanan bawah text_tengah text_blok" width="150px">Sesudah Perubahan</td>
-                    <td class="atas kanan bawah text_tengah text_blok" width="150px">Bertambah/(Berkurang)</td>
+                    <td class="atas kanan bawah text_tengah text_blok" width="150px">Bertambah/(Berkurang)</td> -->
                 <?php endif; ?>
-                <td class="atas kanan bawah text_tengah text_blok" width="180px">Penjelasan</td>
-                <td class="atas kanan bawah text_tengah text_blok" width="180px">Keterangan</td>
+                <!-- <td class="atas kanan bawah text_tengah text_blok" width="180px">Penjelasan</td>
+                <td class="atas kanan bawah text_tengah text_blok" width="180px">Keterangan</td> -->
+            </tr>
+            <tr>
+                <td class="atas kanan bawah text_tengah text_blok">Operasi</td>
+                <td class="atas kanan bawah text_tengah text_blok">Modal</td>                
+                <td class="atas kanan bawah text_tengah text_blok">Tidak Terduga</td>
+                <td class="atas kanan bawah text_tengah text_blok">Transfer</td>
+                <td class="atas kanan bawah text_tengah text_blok">Jumlah Belanja</td>
             </tr>
         </thead>
         <tbody>
             <?php 
+                //echo $body_urusan; 
+            ?>
+            <!-- <?php 
                 echo $body_pendapatan; 
                 echo $body_belanja;
                 $selisih_belanja = $total_pendapatan-$total_belanja;
@@ -733,7 +772,7 @@ $urusan = $wpdb->get_row('SELECT nama_bidang_urusan FROM `data_prog_keg` where k
                     </tr>
                 ';
                 echo $body_pembiayaan; 
-            ?>
+            ?> -->
         </tbody>
     </table>
     <table width="25%" class="table-ttd no-border no-padding" align="right" cellpadding="2" cellspacing="0" style="width:280px; font-size: 12px;">

@@ -123,97 +123,6 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		));
 	}
 
-	public function singkron_ssh($value = '')
-	{
-		global $wpdb;
-		$ret = array(
-			'status'	=> 'success',
-			'message'	=> 'Berhasil export SSH!'
-		);
-		if (!empty($_POST)) {
-			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
-				if (!empty($_POST['ssh'])) {
-					if(!empty($_POST['type']) && $_POST['type'] == 'ri'){
-						$ssh = json_decode(stripslashes(html_entity_decode($_POST['ssh'])), true);						
-					}else{
-						$ssh = $_POST['ssh'];
-					}
-					foreach ($ssh as $k => $v) {
-						$cek = $wpdb->get_var("SELECT id_standar_harga from data_ssh where tahun_anggaran=".$_POST['tahun_anggaran']." AND id_standar_harga=" . $v['id_standar_harga']);
-						$kelompok = explode(' ', $v['nama_kel_standar_harga']);
-						$nilai = explode(' ', $v['nilai_tkdn']);
-						$opsi = array(
-							'id_standar_harga' => $v['id_standar_harga'],
-							'kode_standar_harga' => $v['kode_standar_harga'],
-							'nama_standar_harga' => $v['nama_standar_harga'],
-							'satuan' => $v['satuan'],
-							'spek' => $v['spek'],
-							'ket_teks' => $v['ket_teks'],
-							'created_at' => $v['created_at'],
-							'created_user' => $v['created_user'],
-							'updated_user' => $v['updated_user'],
-							'is_deleted' => $v['is_deleted'],
-							'is_locked' => $v['is_locked'],
-							'kelompok' => $v['kelompok'],
-							'harga' => $v['harga'],
-							'harga_2' => $v['harga_2'],
-							'harga_3' => $v['harga_3'],
-							'kode_kel_standar_harga' => $v['kode_kel_standar_harga'],
-							'nama_kel_standar_harga' => $kelompok[1],
-							'tkdn' => $nilai[0],
-							'jenis_produk' => $v['is_pdn'],
-							'update_at'	=> current_time('mysql'),
-							'tahun_anggaran'	=> $_POST['tahun_anggaran']
-						);
-						if (!empty($cek)) {
-							$wpdb->update('data_ssh', $opsi, array(
-								'tahun_anggaran'	=> $_POST['tahun_anggaran'],
-								'id_standar_harga' => $v['id_standar_harga']
-							));
-						} else {
-							$wpdb->insert('data_ssh', $opsi);
-						}
-
-						foreach ($v['kd_belanja'] as $key => $value) {
-							$cek = $wpdb->get_var("
-								SELECT 
-									id_standar_harga 
-								from data_ssh_rek_belanja 
-								where tahun_anggaran=".$_POST['tahun_anggaran']." 
-									and id_akun=" . $value['id_akun'] . ' 
-									and id_standar_harga=' . $v['id_standar_harga']
-							);
-							$opsi = array(
-								"id_akun"	=> $value['id_akun'],
-								"kode_akun" => $value['kode_akun'],
-								"nama_akun"	=> $value['nama_akun'],
-								"id_standar_harga"	=> $v['id_standar_harga'],
-								"tahun_anggaran"	=> $_POST['tahun_anggaran']
-							);
-							if (!empty($cek)) {
-								$wpdb->update('data_ssh_rek_belanja', $opsi, array(
-									'id_standar_harga' => $v['id_standar_harga'],
-									'id_akun' => $value['id_akun'],
-									"tahun_anggaran"	=> $_POST['tahun_anggaran']
-								));
-							} else {
-								$wpdb->insert('data_ssh_rek_belanja', $opsi);
-							}
-						}
-					}
-					// print_r($ssh); die();
-				} else {
-					$ret['status'] = 'error';
-					$ret['message'] = 'Format SSH Salah!';
-				}
-			} else {
-				$ret['status'] = 'error';
-				$ret['message'] = 'APIKEY tidak sesuai!';
-			}
-		}
-		die(json_encode($ret));
-	}
-
 	public function get_skpd(){
 		global $wpdb;
 		$ret = array(
@@ -2063,18 +1972,24 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		if (!empty($_POST)) {
 			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
 				if (!empty($_POST['data'])) {
-					$data = $_POST['data'];
-					$cek = $wpdb->get_var("SELECT kepala_daerah from data_pengaturan_sipd where tahun_anggaran=".$_POST['tahun_anggaran']." AND id_daerah='".$data['id_daerah']."'");
+					if(!empty($_POST['type']) && $_POST['type'] == 'ri'){
+						$data = json_decode(stripslashes(html_entity_decode($_POST['data'])), true);
+					}else{
+						$data = $_POST['data'];
+					}
+					$cek = $wpdb->get_var($wpdb->prepare("
+						SELECT 
+							kepala_daerah 
+						from data_pengaturan_sipd 
+						where tahun_anggaran=%d 
+							AND id_daerah=%d
+					", $_POST['tahun_anggaran'], $data['id_daerah']));
 					$opsi = array(
 						'id_daerah' => $data['id_daerah'],
-						'daerah' => $data['daerah'],
 						'kepala_daerah' => $data['kepala_daerah'],
 						'wakil_kepala_daerah' => $data['wakil_kepala_daerah'],
 						'awal_rpjmd' => $data['awal_rpjmd'],
 						'akhir_rpjmd' => $data['akhir_rpjmd'],
-						'pelaksana_rkpd' => $data['pelaksana_rkpd'],
-						'pelaksana_kua' => $data['pelaksana_kua'],
-						'pelaksana_apbd' => $data['pelaksana_apbd'],
 						'set_kpa_sekda' => $data['set_kpa_sekda'],
 						'set_kpa_sub_sekda'  => $data['set_kpa_sub_sekda'],
 						'id_setup_anggaran'  => $data['id_setup_anggaran'],
@@ -2094,7 +2009,32 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						'update_at' => current_time('mysql'),
 						'tahun_anggaran' => $_POST['tahun_anggaran']
 					);
-					update_option( '_crb_daerah', $data['daerah'] );
+					// sipd merah
+					if(!empty($data['daerah'])){
+						$opsi['daerah'] = $data['daerah'];
+						update_option( '_crb_daerah', $data['daerah'] );
+					}
+					// sipd ri
+					if(!empty($data['id_prop'])){
+						update_option( '_crb_id_lokasi_prov', $data['id_prop'] );
+					}
+					// sipd ri
+					if(
+						!empty($data['id_kab']) 
+						&& empty($data['is_prop'])
+					){
+						update_option( '_crb_id_lokasi_kokab', $data['id_kab'] );
+					}
+
+					if(!empty($data['pelaksana_rkpd'])){
+						$opsi['pelaksana_rkpd'] = $data['pelaksana_rkpd'];
+					}
+					if(!empty($data['pelaksana_kua'])){
+						$opsi['pelaksana_kua'] = $data['pelaksana_kua'];
+					}
+					if(!empty($data['pelaksana_apbd'])){
+						$opsi['pelaksana_apbd'] = $data['pelaksana_apbd'];
+					}
 					update_option( '_crb_kepala_daerah', $data['kepala_daerah'] );
 					update_option( '_crb_wakil_daerah', $data['wakil_kepala_daerah'] );
 					if (!empty($cek)) {
@@ -5075,6 +5015,15 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/wpsipd-public-monitor-json-rka.php';
 	}
 
+	public function dokumentasi_api_wpsipd($atts)
+	{
+		// untuk disable render shortcode di halaman edit page/post
+		if(!empty($_GET) && !empty($_GET['post'])){
+			return '';
+		}
+		require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/dokumentasi/wpsipd-public-dokumentasi-api.php';
+	}
+
 	public function monitoring_spd_rinci($atts)
 	{
 		// untuk disable render shortcode di halaman edit page/post
@@ -5221,27 +5170,52 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 
 		// RINCIAN APBD MENURUT URUSAN PEMERINTAHAN DAERAH, ORGANISASI, PENDAPATAN, BELANJA DAN PEMBIAYAAN
 		if($input['lampiran'] == 2){
-			require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/wpsipd-public-apbdpenjabaran-2.php';
+			if(empty($input['id_skpd'])){
+				require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/wpsipd-public-apbdpenjabaran-2-pemda.php';
+			}else{
+				require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/wpsipd-public-apbdpenjabaran-2.php';
+			}
 		}
 
 		// DAFTAR NAMA CALON PENERIMA, ALAMAT DAN BESARAN ALOKASI HIBAH BERUPA UANG & BARANG YANG DITERIMA SERTA SKPD PEMBERI HIBAH
-		if($input['lampiran'] == 3){
-			require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/wpsipd-public-apbdpenjabaran-3.php';
+		if($input['lampiran'] == '3a'){
+			require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/wpsipd-public-apbdpenjabaran-3a.php';
+		}
+
+		// DAFTAR NAMA CALON PENERIMA, ALAMAT DAN BESARAN ALOKASI HIBAH BERUPA UANG & BARANG YANG DITERIMA SERTA SKPD PEMBERI HIBAH
+		if($input['lampiran'] == '3b'){
+			require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/wpsipd-public-apbdpenjabaran-3b.php';
+		}
+
+		if($input['lampiran'] == '4a'){
+			require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/wpsipd-public-apbdpenjabaran-4a.php';
 		}
 
 		// DAFTAR NAMA CALON PENERIMA, ALAMAT DAN BESARAN ALOKASI BANTUAN SOSIAL BERUPA UANG YANG DITERIMA SERTA SKPD PEMBERI BANTUAN SOSIAL
-		if($input['lampiran'] == 4){
-			require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/wpsipd-public-apbdpenjabaran-4.php';
+		if($input['lampiran'] == '4b'){
+			require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/wpsipd-public-apbdpenjabaran-4b.php';
 		}
 
 		// DAFTAR NAMA CALON PENERIMA, ALAMAT DAN BESARAN ALOKASI BANTUAN KEUANGAN BERSIFAT UMUM/KHUSUS YANG DITERIMA SERTA SKPD PEMBERI BANTUAN KEUANGAN
-		if($input['lampiran'] == 5){
-			require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/wpsipd-public-apbdpenjabaran-5.php';
+		if($input['lampiran'] == '5a'){
+			require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/wpsipd-public-apbdpenjabaran-5a.php';
+		}
+
+		if($input['lampiran'] == '5b'){
+			require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/wpsipd-public-apbdpenjabaran-5b.php';
 		}
 
 		// DAFTAR NAMA CALON PENERIMA, ALAMAT DAN BESARAN PERUBAHAN ALOKASI BELANJA BAGI HASIL PAJAK DAERAH KEPADA PEMERINTAH KABUPATEN, KOTA DAN DESA
-		if($input['lampiran'] == 6){
-			require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/wpsipd-public-apbdpenjabaran-6.php';
+		if($input['lampiran'] == '6a'){
+			require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/wpsipd-public-apbdpenjabaran-6a.php';
+		}
+
+		if($input['lampiran'] == '6b'){
+			require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/wpsipd-public-apbdpenjabaran-6b.php';
+		}
+
+		if($input['lampiran'] == '6c'){
+			require_once plugin_dir_path(dirname(__FILE__)) . 'public/partials/wpsipd-public-apbdpenjabaran-6c.php';
 		}
 
 		// APBD dikelompokan berdasarkan mandatory spending atau tag label yang dipilih user ketika membuat sub kegiatan
@@ -6804,10 +6778,16 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 					if(
 						(
 							$_POST['jenis'] == '1'
-							|| $_POST['jenis'] == '3'
-							|| $_POST['jenis'] == '4'
-							|| $_POST['jenis'] == '5'
-							|| $_POST['jenis'] == '6'
+							|| $_POST['jenis'] == '2'							
+							|| $_POST['jenis'] == '3a'
+							|| $_POST['jenis'] == '3b'
+							|| $_POST['jenis'] == '4a'
+							|| $_POST['jenis'] == '4b'
+							|| $_POST['jenis'] == '5a'
+							|| $_POST['jenis'] == '5b'	
+							|| $_POST['jenis'] == '6a'
+							|| $_POST['jenis'] == '6b'
+							|| $_POST['jenis'] == '6c'
 						)
 						&& $_POST['model'] == 'perkada'
 						&& $_POST['cetak'] == 'apbd'
@@ -6818,33 +6798,33 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						$ret['text_link'] = 'Print APBD PENJABARAN Lampiran '.$_POST['jenis'];
 						$custom_post = $this->save_update_post($nama_page, $cat_name, $post_content);
 						$ret['link'] = $this->get_link_post($custom_post);
-					}else if(
-						$_POST['jenis'] == '2'
-						&& $_POST['model'] == 'perkada'
-						&& $_POST['cetak'] == 'apbd'
-					){
-						$sql = $wpdb->prepare("
-						    select 
-						        id_skpd,
-						        kode_skpd,
-						        nama_skpd
-						    from data_unit
-						    where tahun_anggaran=%d
-						        and active=1
-						", $_POST['tahun_anggaran']);
-						$unit = $wpdb->get_results($sql, ARRAY_A);
-						$ret['link'] = array();
-						foreach ($unit as $k => $v) {
-							$nama_page = $_POST['tahun_anggaran'] .' | '.$v['kode_skpd'].' | '.$v['nama_skpd'].' | '. ' | APBD PENJABARAN Lampiran 2';
-							$cat_name = $_POST['tahun_anggaran'] . ' APBD';
-							$post_content = '[apbdpenjabaran tahun_anggaran="'.$_POST['tahun_anggaran'].'" lampiran="'.$_POST['jenis'].'" id_skpd="'.$v['id_skpd'].'"]';
-							$custom_post = $this->save_update_post($nama_page, $cat_name, $post_content);
-							$ret['link'][$v['id_skpd']] = array(
-								'id_skpd' => $v['id_skpd'],
-								'text_link' => 'Print APBD PENJABARAN Lampiran 2',
-								'link' => $this->get_link_post($custom_post)
-							);
-						}
+					// }else if(
+					// 	$_POST['jenis'] == '2'
+					// 	&& $_POST['model'] == 'perkada'
+					// 	&& $_POST['cetak'] == 'apbd'
+					// ){
+					// 	$sql = $wpdb->prepare("
+					// 	    select 
+					// 	        id_skpd,
+					// 	        kode_skpd,
+					// 	        nama_skpd
+					// 	    from data_unit
+					// 	    where tahun_anggaran=%d
+					// 	        and active=1
+					// 	", $_POST['tahun_anggaran']);
+					// 	$unit = $wpdb->get_results($sql, ARRAY_A);
+					// 	$ret['link'] = array();
+					// 	foreach ($unit as $k => $v) {
+					// 		$nama_page = $_POST['tahun_anggaran'] .' | '.$v['kode_skpd'].' | '.$v['nama_skpd'].' | '. ' | APBD PENJABARAN Lampiran 2';
+					// 		$cat_name = $_POST['tahun_anggaran'] . ' APBD';
+					// 		$post_content = '[apbdpenjabaran tahun_anggaran="'.$_POST['tahun_anggaran'].'" lampiran="'.$_POST['jenis'].'" id_skpd="'.$v['id_skpd'].'"]';
+					// 		$custom_post = $this->save_update_post($nama_page, $cat_name, $post_content);
+					// 		$ret['link'][$v['id_skpd']] = array(
+					// 			'id_skpd' => $v['id_skpd'],
+					// 			'text_link' => 'Print APBD PENJABARAN Lampiran 2',
+					// 			'link' => $this->get_link_post($custom_post)
+					// 		);
+					// 	}
 					}else if(
 						$_POST['jenis'] == '1'
 							|| $_POST['jenis'] == '2'
@@ -7115,7 +7095,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		global $wpdb;
 		if(!empty($user)){
 			$username = $user['loginname'];
-			if(empty($user['emailteks'])){
+			if(!empty($user['emailteks'])){
 				$email = $user['emailteks'];
 			}else{
 				$email = $username.'@sipdlocal.com';
@@ -7139,6 +7119,11 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 					'role' => $user['jabatan']
 				);
 				$insert_user = wp_insert_user($option);
+
+				if (is_wp_error( $insert_user ) ) {
+					//print_r($option);die();
+				    return $insert_user;
+				}
 			}
 
 			if(!empty($update_pass)){
@@ -7188,8 +7173,8 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						$user['nip'] = $user['nipkepala'];
 						$this->gen_user_sipd_merah($user, $update_pass);
 					}
-
-					$users = $wpdb->get_results("SELECT * from data_dewan where active=1", ARRAY_A);
+					// 20 = kades, 21 = lembaga, 22 = individu, 16 = dewan
+					$users = $wpdb->get_results("SELECT * from data_dewan where active=1 AND idlevel NOT IN (16, 20, 21, 22)", ARRAY_A);
 					if(!empty($users)){
 						foreach ($users as $k => $user) {
 							$user['pass'] = $_POST['pass'];
@@ -7203,7 +7188,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 							}else if($user['jabatan'] == 'TAPD KEUANGAN'){
 								$user['jabatan'] = 'tapd_keu';
 							}
-							$this->gen_user_sipd_merah($user, $update_pass);
+							$this->gen_user_sipd_merah($user, $update_pass); 
 						}
 					}else{
 						$ret['status'] = 'error';
@@ -7317,9 +7302,9 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 				$url_nilai_dpa = '&pagu_dpa=fmis';
 			}
 			echo '<ul class="aksi-monev text_tengah">';
+			$user_id = um_user( 'ID' );
+			$user_meta = get_userdata($user_id);
             foreach ($unit as $kk => $vv) {
-				$user_id = um_user( 'ID' );
-				$user_meta = get_userdata($user_id);
 				if(
 					in_array("administrator", $user_meta->roles) 
 					|| in_array("PLT", $user_meta->roles) 
@@ -7330,32 +7315,31 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 					|| in_array("mitra_bappeda", $user_meta->roles)
 					|| !empty($options['menu'])
 				){
-					$nama_page = 'RFK '.$vv['nama_skpd'].' '.$vv['kode_skpd'].' | '.$tahun;
-					$custom_post = $this->get_page_by_title($nama_page, OBJECT, 'page');
-					$url_rfk = $this->get_link_post($custom_post);
-
 					if(!empty($daftar_tombol_list[1])){
+						$nama_page = 'RFK '.$vv['nama_skpd'].' '.$vv['kode_skpd'].' | '.$tahun;
+						$custom_post = $this->get_page_by_title($nama_page, OBJECT, 'page');
+						$url_rfk = $this->get_link_post($custom_post);
 						echo '<li><a href="'.$url_rfk.$url_nilai_dpa.'" target="_blank" class="btn btn-info">MONEV RFK</a></li>';
 					}
 
-					$nama_page_sd = 'Sumber Dana '.$vv['nama_skpd'].' '.$vv['kode_skpd'].' | '.$tahun;
-					$custom_post = $this->get_page_by_title($nama_page_sd, OBJECT, 'page');
-					$url_sd = $this->get_link_post($custom_post);
 					if(!empty($daftar_tombol_list[2])){
+						$nama_page_sd = 'Sumber Dana '.$vv['nama_skpd'].' '.$vv['kode_skpd'].' | '.$tahun;
+						$custom_post = $this->get_page_by_title($nama_page_sd, OBJECT, 'page');
+						$url_sd = $this->get_link_post($custom_post);
 						echo '<li><a href="'.$url_sd.'" target="_blank" class="btn btn-info">MONEV SUMBER DANA</a></li>';
 					}
 
-					$nama_page_label = 'Label Komponen '.$vv['nama_skpd'].' '.$vv['kode_skpd'].' | '.$tahun;
-					$custom_post = $this->get_page_by_title($nama_page_label, OBJECT, 'page');
-					$url_label = $this->get_link_post($custom_post);
 					if(!empty($daftar_tombol_list[3])){
+						$nama_page_label = 'Label Komponen '.$vv['nama_skpd'].' '.$vv['kode_skpd'].' | '.$tahun;
+						$custom_post = $this->get_page_by_title($nama_page_label, OBJECT, 'page');
+						$url_label = $this->get_link_post($custom_post);
 						echo '<li><a href="'.$url_label.'" target="_blank" class="btn btn-info">MONEV LABEL KOMPONEN</a></li>';
 					}
 
-					$nama_page_monev_renja = 'MONEV '.$vv['nama_skpd'].' '.$vv['kode_skpd'].' | '.$tahun;
-					$custom_post = $this->get_page_by_title($nama_page_monev_renja, OBJECT, 'page');
-					$url_monev_renja = $this->get_link_post($custom_post);
 					if(!empty($daftar_tombol_list[4])){
+						$nama_page_monev_renja = 'MONEV '.$vv['nama_skpd'].' '.$vv['kode_skpd'].' | '.$tahun;
+						$custom_post = $this->get_page_by_title($nama_page_monev_renja, OBJECT, 'page');
+						$url_monev_renja = $this->get_link_post($custom_post);
 						echo '<li><a href="'.$url_monev_renja.'" target="_blank" class="btn btn-info">MONEV INDIKATOR RENJA</a></li>';
 					}
 
@@ -7368,26 +7352,26 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						}
 					}
 
-					$nama_page_menu_ssh = 'Rekapitulasi Rincian Belanja '.$vv['nama_skpd'].' '.$vv['kode_skpd'].' | '.$tahun;
-					$custom_post = $this->get_page_by_title($nama_page_menu_ssh, OBJECT, 'page');
-					$url_menu_ssh = $this->get_link_post($custom_post);
 					if(!empty($daftar_tombol_list[7])){
+						$nama_page_menu_ssh = 'Rekapitulasi Rincian Belanja '.$vv['nama_skpd'].' '.$vv['kode_skpd'].' | '.$tahun;
+						$custom_post = $this->get_page_by_title($nama_page_menu_ssh, OBJECT, 'page');
+						$url_menu_ssh = $this->get_link_post($custom_post);
 						echo '<li><a href="'.$url_menu_ssh.'" target="_blank" class="btn btn-info">MANAJEMEN STANDAR HARGA</a></li>';
 					}
 
 					if($vv['is_skpd'] == 1){
-						$nama_page = 'Input RENSTRA '.$vv['nama_skpd'].' '.$vv['kode_skpd'];
-						$custom_post = $this->get_page_by_title($nama_page, OBJECT, 'page');
-						$url_menu = $this->get_link_post($custom_post);
 						if(!empty($daftar_tombol_list[8])){
+							$nama_page = 'Input RENSTRA '.$vv['nama_skpd'].' '.$vv['kode_skpd'];
+							$custom_post = $this->get_page_by_title($nama_page, OBJECT, 'page');
+							$url_menu = $this->get_link_post($custom_post);
 							echo '<li><a href="'.$url_menu.'" target="_blank" class="btn btn-info">INPUT RENSTRA</a></li>';
 						}
 					}
 
-					$nama_page = 'Input RENJA '.$vv['nama_skpd'].' '.$vv['kode_skpd'].' | '.$tahun;
-					$custom_post = $this->get_page_by_title($nama_page, OBJECT, 'page');
-					$url_menu = $this->get_link_post($custom_post);
 					if(!empty($daftar_tombol_list[9])){
+						$nama_page = 'Input RENJA '.$vv['nama_skpd'].' '.$vv['kode_skpd'].' | '.$tahun;
+						$custom_post = $this->get_page_by_title($nama_page, OBJECT, 'page');
+						$url_menu = $this->get_link_post($custom_post);
 						echo '<li><a href="'.$url_menu.'" target="_blank" class="btn btn-info">INPUT RENJA</a></li>';
 					}
 
@@ -7419,6 +7403,10 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 							echo '<li><a target="_blank" href="'.$input_pencairan_bku_add.'&tahun_anggaran='.$tahun.'&id_skpd='.$vv['id_skpd'].'" class="btn btn-info">Pencairan BKU ADD</a></li>';
 						}
 					}
+					if(!empty($daftar_tombol_list[11])){
+						$url_menu = $this->generatePage('User PPTK', false, '[user_pptk]');
+						echo '<li><a href="'.$url_menu.'&id_skpd='.$vv['id_skpd'].'" target="_blank" class="btn btn-info">User PPTK</a></li>';
+					}
 				}
 			}
 			echo '</ul>';
@@ -7434,6 +7422,9 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		global $wpdb;
 		$user_id = um_user( 'ID' );
 		$user_meta = get_userdata($user_id);
+		if(!empty($_GET) && !empty($_GET['tahun'])){
+			echo '<h1 class="text-center">TAHUN ANGGARAN TERPILIH<br>'.$_GET['tahun'].'</h1>';
+		}
 		if(empty($user_meta->roles)){
 			echo 'User ini tidak dapat akses sama sekali :)';
 		}else if(in_array("mitra_bappeda", $user_meta->roles)){
@@ -7584,6 +7575,38 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 					'id_skpd' => $v['id_skpd'],
 					'nama_skpd' => $v['nama_skpd'],
 					'kode_skpd' => $v['kode_skpd']
+				));
+			}
+		}else if(in_array("pptk", $user_meta->roles)){
+			$this->pilih_tahun_anggaran();
+			if(empty($_GET) || empty($_GET['tahun'])){ return; }
+
+			$skpd_ids = get_user_meta($user_id, 'skpd');
+			$ids = array();
+			foreach ($skpd_ids[0] as $tahun => $id_skpd) {
+				// filter hanya yang tahunnya sesuai saja
+				if($tahun == $_GET['tahun']){
+					$ids[] = $id_skpd;
+				}
+			}
+			$skpd_mitra = $wpdb->get_results($wpdb->prepare("
+				SELECT 
+					nama_skpd, 
+					id_skpd, 
+					kode_skpd 
+				from data_unit 
+				where active=1 
+					and tahun_anggaran=%d
+					and id_skpd IN (".implode(',', $ids).")
+				group by id_skpd", $_GET['tahun']), ARRAY_A);
+			foreach ($skpd_mitra as $k => $v) {
+				$this->menu_monev_skpd(array(
+					'id_skpd' => $v['id_skpd'],
+					'nama_skpd' => $v['nama_skpd'],
+					'kode_skpd' => $v['kode_skpd'],
+					'menu' => array(
+						array('value'=> 1) // menu 1 adalah halaman RFK saja
+					)
 				));
 			}
 		}else{
@@ -11252,12 +11275,139 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 			update_post_meta($custom_post->ID, 'site-post-title', 'disabled');
 			update_post_meta($custom_post->ID, 'site-sidebar-layout', 'no-sidebar');
 			update_post_meta($custom_post->ID, 'theme-transparent-header-meta', 'disabled');
+			update_post_meta($custom_post->ID, 'ast-global-header-display', 'disabled');
 		}else if($update){
 			$_post['ID'] = $custom_post->ID;
 			wp_update_post( $_post );
 			$_post['update'] = 1;
 		}
 		return $this->get_link_post($custom_post);
+	}
+
+	public function get_sub_keg_sipd(){
+		global $wpdb;
+		$ret = array(
+			'action'	=> $_POST['action'],
+			'status'	=> 'success',
+			'message'	=> 'Berhasil get sub kegiatan!'
+		);
+		if (!empty($_POST)) {
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+				$tahun_anggaran = $_POST['tahun_anggaran'];
+				$id_skpd = $_POST['id_skpd'];
+				$idsumber = $_POST['idsumber'];
+				$column = 's.*, u.nama_skpd as nama_skpd_data_unit, uu.nama_skpd as nama_skpd_data_unit_utama';
+				$tipe = false;
+				if(!empty($_POST['tipe'])){
+					if($_POST['tipe'] == 'pt_tati'){
+						$tipe = $_POST['tipe'];
+						$column = "
+							s.id_skpd,
+							uu.kode_skpd,
+							uu.nama_skpd,
+							s.id_sub_skpd,
+							u.kode_skpd as kode_sub_skpd,
+							u.nama_skpd as nama_sub_skpd,
+							s.kode_bidang_urusan,
+							s.nama_bidang_urusan,
+							s.kode_program,
+							s.nama_program,
+							s.kode_giat as kode_kegiatan,
+							s.nama_giat as nama_kegiatan,
+							s.kode_sub_giat as kode_sub_kegiatan,
+							s.nama_sub_giat as nama_sub_kegiatan,
+							s.pagu as pagu_anggaran,
+							s.tahun_anggaran,
+							s.kode_sbl
+						";
+					}
+				}
+				$data_sub_keg = $wpdb->get_results($wpdb->prepare("
+					SELECT 
+						$column
+					from data_sub_keg_bl s 
+					inner join data_unit u on s.id_sub_skpd = u.id_skpd
+						and u.tahun_anggaran = s.tahun_anggaran
+						and u.active = s.active
+					inner join data_unit uu on s.id_skpd = uu.id_skpd
+						and uu.tahun_anggaran = s.tahun_anggaran
+						and uu.active = s.active
+					where s.tahun_anggaran=%d
+						and u.id_skpd=%d
+						and s.active=1", 
+				$tahun_anggaran, $id_skpd), ARRAY_A);
+				foreach ($data_sub_keg as $k => $v) {
+					if(empty($tipe)){
+						$data_sub_keg[$k]['sub_keg_indikator'] = $wpdb->get_results("
+							select 
+								* 
+							from data_sub_keg_indikator 
+							where tahun_anggaran=".$v['tahun_anggaran']."
+								and kode_sbl='".$v['kode_sbl']."'
+								and active=1", ARRAY_A);
+						$data_sub_keg[$k]['sub_keg_indikator_hasil'] = $wpdb->get_results("
+							select 
+								* 
+							from data_keg_indikator_hasil 
+							where tahun_anggaran=".$v['tahun_anggaran']."
+								and kode_sbl='".$v['kode_sbl']."'
+								and active=1", ARRAY_A);
+						$data_sub_keg[$k]['tag_sub_keg'] = $wpdb->get_results("
+							select 
+								* 
+							from data_tag_sub_keg 
+							where tahun_anggaran=".$v['tahun_anggaran']."
+								and kode_sbl='".$v['kode_sbl']."'
+								and active=1", ARRAY_A);
+						$data_sub_keg[$k]['capaian_prog_sub_keg'] = $wpdb->get_results("
+							select 
+								* 
+							from data_capaian_prog_sub_keg 
+							where tahun_anggaran=".$v['tahun_anggaran']."
+								and kode_sbl='".$v['kode_sbl']."'
+								and active=1", ARRAY_A);
+						$data_sub_keg[$k]['output_giat'] = $wpdb->get_results("
+							select 
+								* 
+							from data_output_giat_sub_keg 
+							where tahun_anggaran=".$v['tahun_anggaran']."
+								and kode_sbl='".$v['kode_sbl']."'
+								and active=1", ARRAY_A);
+						$data_sub_keg[$k]['lokasi_sub_keg'] = $wpdb->get_results("
+							select 
+								* 
+							from data_lokasi_sub_keg 
+							where tahun_anggaran=".$v['tahun_anggaran']."
+								and kode_sbl='".$v['kode_sbl']."'
+								and active=1", ARRAY_A);
+					}else if($tipe == 'pt_tati'){
+						$data_sub_keg[$k]['nama_sub_kegiatan'] = $this->remove_kode($v['nama_sub_kegiatan']);
+						unset($data_sub_keg[$k]['kode_sbl']);
+					}
+					$data_sub_keg[$k]['sumber_dana'] = $wpdb->get_results($wpdb->prepare('
+						SELECT 
+							m.id_sumber_dana,
+							s.kode_dana,
+							s.nama_dana
+						FROM data_mapping_sumberdana m
+						INNER JOIN data_sumber_dana s on s.id_dana=m.id_sumber_dana
+							and s.tahun_anggaran=m.tahun_anggaran
+						INNER JOIN data_rka r on r.tahun_anggaran=m.tahun_anggaran
+							and r.active=m.active
+							and m.id_rinci_sub_bl=r.id_rinci_sub_bl
+						WHERE m.tahun_anggaran=%d
+							AND m.active=1
+							and r.kode_sbl=%s
+						GROUP BY m.id_sumber_dana
+					', $v['tahun_anggaran'], $v['kode_sbl']), ARRAY_A);
+				}
+				$ret['data'] = $data_sub_keg;
+			} else {
+				$ret['status'] = 'error';
+				$ret['message'] = 'APIKEY tidak sesuai!';
+			}
+		}
+		die(json_encode($ret));
 	}
 
 	public function get_sub_keg(){
@@ -11710,6 +11860,68 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						}else{
 							$rka[$k]['sumber_dana'] = $sumber_dana_default;
 						}
+					}
+				}
+				$ret['data'] = $rka;
+			} else {
+				$ret['status'] = 'error';
+				$ret['message'] = 'APIKEY tidak sesuai!';
+			}
+		}
+		die(json_encode($ret));
+	}
+
+	public function get_sub_keg_rka_sipd(){
+		global $wpdb;
+		$ret = array(
+			'action'	=> $_POST['action'],
+			'status'	=> 'success',
+			'message'	=> 'Berhasil RKA get sub kegiatan!'
+		);
+		if (!empty($_POST)) {
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+				$tahun_anggaran = $_POST['tahun_anggaran'];
+				$kode_sbl = $_POST['kode_sbl'];
+				$rka = $wpdb->get_results($wpdb->prepare("
+					SELECT 
+						*
+					FROM data_rka
+					WHERE tahun_anggaran=%d
+						AND active=1
+						AND kode_sbl=%s
+						AND kode_akun!=''
+				", $tahun_anggaran, $kode_sbl), ARRAY_A);
+				$id_sumber_dana_default = get_option('_crb_default_sumber_dana' );
+				$sumber_dana_default = $wpdb->get_results($wpdb->prepare('
+					SELECT 
+						id_dana as id_sumber_dana,
+						kode_dana,
+						nama_dana
+					FROM data_sumber_dana
+					WHERE tahun_anggaran=%d
+						AND id_dana=%d
+				', $tahun_anggaran, $id_sumber_dana_default), ARRAY_A);
+				foreach ($rka as $k => $v) {
+					$sumber_dana = $wpdb->get_results($wpdb->prepare('
+						SELECT 
+							m.id_sumber_dana,
+							s.kode_dana,
+							s.nama_dana
+						FROM data_mapping_sumberdana m
+						INNER JOIN data_sumber_dana s on s.id_dana=m.id_sumber_dana
+							and s.tahun_anggaran=m.tahun_anggaran
+						WHERE m.tahun_anggaran=%d
+							AND m.active=1
+							AND m.id_rinci_sub_bl=%d
+					', $tahun_anggaran, $v['id_rinci_sub_bl']), ARRAY_A);
+					if(
+						!empty($sumber_dana) 
+						&& !empty($sumber_dana[0])
+						&& !empty($sumber_dana[0]['nama_dana'])
+					){
+						$rka[$k]['sumber_dana'] = $sumber_dana;
+					}else{
+						$rka[$k]['sumber_dana'] = $sumber_dana_default;
 					}
 				}
 				$ret['data'] = $rka;
@@ -12184,6 +12396,12 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		die(json_encode($ret));
 	}
 
+	function remove_kode($teks){
+		$t = explode(' ', $teks);
+		unset($t[0]);
+		return implode(' ', $t);
+	}
+
 	function singkronisasi_total_sub_keg_fmis(){
 		global $wpdb;
 		$ret = array(
@@ -12197,6 +12415,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 					$tahun_anggaran = $_POST['tahun_anggaran'];
 					$sub_keg_fmis = json_decode(stripslashes($_POST['data']));
 					$ret['message_rinci'] = array();
+					$ret['sql'] = array();
 					// cek jika sub kegiatan di mapping
 					$subkeg_mapping = $this->get_fmis_mapping(array(
 						'name' => '_crb_custom_mapping_subkeg_fmis'
@@ -12210,42 +12429,118 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 					$rek_mapping = $this->get_fmis_mapping(array(
 						'name' => '_crb_custom_mapping_rekening_fmis'
 					));
+
+					$pindah_subkeg_mapping = $this->get_fmis_mapping(array(
+						'name' => '_crb_custom_mapping_pindah_subkeg_fmis'
+					));
+					$new_pindah_subkeg_mapping = array();
+					foreach($pindah_subkeg_mapping as $kode_sub => $val){
+						$key = $this->replace_text($this->remove_kode($val['nama_sub_giat']).' | '.$val['nama_giat'].' | '.$val['nama_program']);
+						$new_pindah_subkeg_mapping[$key] = array(
+							'kode_sub_asli' => $kode_sub,
+							'data_fmis' => $val
+						);
+					}
+
+					$total_fmis = 0;
 					$cek_sub_unit_fmis = array();
+					$cek_sub_keg_fmis_id_sub_asli = array();
 					foreach($sub_keg_fmis as $fmis){
 						$data_fmis = (array) $fmis;
+
 						$new_rincian = array();
 						foreach($data_fmis['rincian'] as $rincian){
 							$new_rincian[] = (array) $rincian;
 						}
 						$data_fmis['rincian'] = $new_rincian;
-						$data_fmis['sub_kegiatan_asli'] = $data_fmis['sub_kegiatan'];
-						foreach($subkeg_mapping as $nama_sub_sipd => $nama_sub_fmis){
-							if($this->removeNewline($data_fmis['sub_kegiatan']) == $this->removeNewline($nama_sub_fmis)){
-								$data_fmis['sub_kegiatan'] = $nama_sub_sipd;
-							}
-						}
-						$data_fmis['kegiatan_asli'] = $data_fmis['kegiatan'];
-						foreach($keg_mapping as $nama_giat_sipd => $nama_giat_fmis){
-							if($this->removeNewline($data_fmis['kegiatan']) == $this->removeNewline($nama_giat_fmis)){
-								$data_fmis['kegiatan'] = $nama_giat_sipd;
-							}
-						}
-						$data_fmis['program_asli'] = $data_fmis['program'];
-						foreach($program_mapping as $nama_program_sipd => $nama_program_fmis){
-							if($this->removeNewline($data_fmis['program']) == $this->removeNewline($nama_program_fmis)){
-								$data_fmis['program'] = $nama_program_sipd;
-							}
-						}
+
 						$id_mapping = $data_fmis['idsubunit'];
 						// cek mapping di id_mapping sub unit
-						$get_id = $this->get_id_skpd_fmis($id_mapping, $tahun_anggaran, true);
-						if(empty($get_id['id_skpd_sipd'])){
-							$id_mapping = $data_fmis['idunit'];
-							// cek mapping di id_mapping unit
-							$get_id = $this->get_id_skpd_fmis($id_mapping, $tahun_anggaran, false);
+						$get_id_asli = $this->get_id_skpd_fmis($id_mapping, $tahun_anggaran, true);
+						if(empty($get_id_asli['id_skpd_sipd'])){
+							$get_id_by_nama_sub = false;
+							if(
+								!empty($data_fmis['rincian'][0])
+								&& !empty($data_fmis['rincian'][0]['aktivitas'])
+							){
+								$nama_sub_skpd = explode(' | ', $data_fmis['rincian'][0]['aktivitas']);
+								if(count($nama_sub_skpd) >= 2){
+									$get_id_by_nama_sub = $wpdb->get_row($wpdb->prepare("
+										SELECT
+											kode_skpd,
+											nama_skpd,
+											id_skpd
+										FROM data_unit
+										where active=1
+											AND tahun_anggaran=%d
+											AND nama_skpd=%s
+									", $tahun_anggaran, $nama_sub_skpd[1]), ARRAY_A);
+									$ret['sql'][] = $wpdb->last_query;
+								}
+							}
+							if(empty($get_id_by_nama_sub)){
+								// cek jika id_sub_skpd asli belum ketemu
+								if(empty($cek_sub_keg_fmis_id_sub_asli[$data_fmis['sub_kegiatan']])){
+									$id_mapping = $data_fmis['idunit'];
+									// cek mapping di id_mapping unit
+									$get_id = $this->get_id_skpd_fmis($id_mapping, $tahun_anggaran, false);
+								}else{
+									$get_id = array('id_skpd_sipd' => false);
+								}
+							}else{
+								// get id skpd dari nama skpd di aktivitas
+								$get_id = array('id_skpd_sipd' => array($get_id_by_nama_sub['id_skpd']));
+							}
+						}else{
+							// get id skpd dari mapping id sub unit
+							$get_id = $get_id_asli;
+							if(empty($cek_sub_keg_fmis_id_sub_asli[$data_fmis['sub_kegiatan']])){
+								$cek_sub_keg_fmis_id_sub_asli[$data_fmis['sub_kegiatan']] = true;
+							}
 						}
 						$id_skpd_sipd = $get_id['id_skpd_sipd'];
+
 						if(!empty($id_skpd_sipd)){
+
+							$data_fmis['sub_kegiatan_asli'] = $data_fmis['sub_kegiatan'];
+							$data_fmis['kegiatan_asli'] = $data_fmis['kegiatan'];
+							$data_fmis['program_asli'] = $data_fmis['program'];
+							$key_fmis = $this->replace_text($data_fmis['sub_kegiatan'].' | '.$data_fmis['kegiatan'].' | '.$data_fmis['program']);
+							// cek apakah sub kegiatan fmis hasil dari mapping pindah kegiatan
+							if(!empty($new_pindah_subkeg_mapping[$key_fmis])){
+								$bl = $wpdb->get_row($wpdb->prepare("
+									SELECT
+										nama_program,
+										nama_giat,
+										nama_sub_giat
+									FROM data_prog_keg
+									where kode_sub_giat=%s
+										and active=1
+										and tahun_anggaran=%d
+									order by id_sub_giat desc
+								", $new_pindah_subkeg_mapping[$key_fmis]['kode_sub_asli'], $_POST['tahun_anggaran']), ARRAY_A);
+								$data_fmis['sub_kegiatan'] = $this->remove_kode($bl['nama_sub_giat']);
+								$data_fmis['kegiatan'] = $this->remove_kode($bl['nama_giat']);
+								$data_fmis['program'] = $this->remove_kode($bl['nama_program']);
+							// cek jika sub kegiatan adalah hasil mapping
+							}else{
+								foreach($subkeg_mapping as $nama_sub_sipd => $nama_sub_fmis){
+									if($this->removeNewline($data_fmis['sub_kegiatan']) == $this->removeNewline($nama_sub_fmis)){
+										$data_fmis['sub_kegiatan'] = $nama_sub_sipd;
+									}
+								}
+								foreach($keg_mapping as $nama_giat_sipd => $nama_giat_fmis){
+									if($this->removeNewline($data_fmis['kegiatan']) == $this->removeNewline($nama_giat_fmis)){
+										$data_fmis['kegiatan'] = $nama_giat_sipd;
+									}
+								}
+								foreach($program_mapping as $nama_program_sipd => $nama_program_fmis){
+									if($this->removeNewline($data_fmis['program']) == $this->removeNewline($nama_program_fmis)){
+										$data_fmis['program'] = $nama_program_sipd;
+									}
+								}
+							}
+
 							$singkron_rincian_fmis = get_option( '_crb_backup_rincian_fmis' );
 							if(
 								$singkron_rincian_fmis == 1
@@ -12254,8 +12549,6 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 							){
 								// perlu dicek agar data sebelumnya tidak dirubah active jadi 0
 								if(empty($cek_sub_unit_fmis[$id_skpd_sipd[0]])){
-									$cek_sub_unit_fmis[$id_skpd_sipd[0]] = true;
-
 									// untuk membedakan pembiyaan pengeluaran dan penerimaa maka perlu ditambahkan param kdrek1 dan kdrek2
 									$wpdb->update('data_rincian_fmis', array(
 										'active' => 0
@@ -12354,6 +12647,14 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 								}
 							}
 
+							// jika sub kegiatan dengan id sub unit sudah ada sebelumnya maka total fmis ditambahkan
+							if(empty($cek_sub_unit_fmis[$id_skpd_sipd[0]])){
+								$cek_sub_unit_fmis[$id_skpd_sipd[0]] = true;
+								$total_fmis = $data_fmis['total'];
+							}else{
+								$total_fmis += $data_fmis['total'];
+							}
+
 							// belanja
 							if(
 								$data_fmis['rincian'][0]['kdrek1'] == 5
@@ -12373,7 +12674,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 										AND s.active = 1
 										AND s.id_sub_skpd = %d
 								", $_POST['tahun_anggaran'], $id_skpd_sipd[0]), ARRAY_A);
-								$ret['sql'] = $wpdb->last_query;
+								$ret['sql'][] = $wpdb->last_query;
 								$sub = array();
 								foreach($sub_sipd as $v){
 									// pengecekan karena sub kegiatan belum dimutakhirkan sedangkan master program kegiatan sudah dimutakhirkan
@@ -12394,6 +12695,12 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 											foreach($bl as $vv){
 												$nm_sub_x = explode(' ', $vv['nama_sub_giat']);
 												unset($nm_sub_x[0]);
+
+												if(!empty($_POST['debug'])){
+													echo $this->replace_text(implode(' ', $nm_sub_x)).' == '.$this->replace_text($data_fmis['sub_kegiatan'])."\n";
+													echo $this->replace_text(implode(' ', $nm_sub_x)).' == '.$this->replace_text($data_fmis['sub_kegiatan_asli'])."\n";
+												}
+
 												if(
 													$this->replace_text(implode(' ', $nm_sub_x)) == $this->replace_text($data_fmis['sub_kegiatan'])
 													|| $this->replace_text(implode(' ', $nm_sub_x)) == $this->replace_text($data_fmis['sub_kegiatan_asli'])
@@ -12414,6 +12721,16 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 									unset($nm_giat[0]);
 									$nm_prog = explode(' ', $v['nama_program']);
 									unset($nm_prog[0]);
+
+									if(!empty($_POST['debug'])){
+										echo $this->replace_text(implode(' ', $nm_sub)).' == '.$this->replace_text($data_fmis['sub_kegiatan'])."\n";
+										echo $this->replace_text(implode(' ', $nm_sub)).' == '.$this->replace_text($data_fmis['sub_kegiatan_asli'])."\n";
+										echo $this->replace_text(implode(' ', $nm_giat)).' == '.$this->replace_text($data_fmis['kegiatan'])."\n";
+										echo $this->replace_text(implode(' ', $nm_giat)).' == '.$this->replace_text($data_fmis['kegiatan_asli'])."\n";
+										echo $this->replace_text(implode(' ', $nm_prog)).' == '.$this->replace_text($data_fmis['program'])."\n";
+										echo $this->replace_text(implode(' ', $nm_prog)).' == '.$this->replace_text($data_fmis['program_asli'])."\n\n";
+									}
+
 									if(
 										(
 											$this->replace_text(implode(' ', $nm_sub)) == $this->replace_text($data_fmis['sub_kegiatan'])
@@ -12433,13 +12750,13 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 								}
 								if(!empty($sub)){
 									$wpdb->update('data_sub_keg_bl', array(
-										'pagu_fmis' => $data_fmis['total']
+										'pagu_fmis' => $total_fmis
 									), array(
 										'id' => $sub['id']
 									));
 								}else{
 									$ret['status'] = 'error';
-									$ret['message'] = 'Sub Kegiatan SIPD dari id_sub_skpd='.$id_skpd_sipd[0].' dan sub kegiatan="'.$data_fmis['sub_kegiatan'].'" tidak ditemukan';
+									$ret['message_rinci'][] = 'Sub Kegiatan SIPD dari id_sub_skpd='.$id_skpd_sipd[0].' dan sub kegiatan="'.$data_fmis['sub_kegiatan'].'" tidak ditemukan | '.$wpdb->last_query;
 								}
 							// pendapatan
 							}else if($data_fmis['rincian'][0]['kdrek1'] == 4){
@@ -13379,6 +13696,7 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 									$delete	.= '<a class="btn btn-sm btn-danger mr-2" style="text-decoration: none;" onclick="copy_usulan(); return false;" href="#" title="Copy Data Usulan ke Penetapan">Copy Data Usulan</a>';
 									if($tipe_perencanaan == 'renja'){
 										$delete	.= '<a class="btn btn-sm btn-danger mr-2" style="text-decoration: none;" onclick="copy_penetapan(); return false;" href="#" title="Copy Data Penetapan ke Usulan">Copy Data Penetapan</a>';
+										$delete	.= '<a class="btn btn-sm btn-danger mr-2" style="text-decoration: none;" data-toggle="modal" data-target="#modal-copy-renja-sipd" href="#" title="Copy Data RENJA SIPD ke Lokal">Copy Data RENJA SIPD ke Lokal</a>';
 									}
 									if($tipe_perencanaan == 'renja' && !empty($recVal['relasi_perencanaan'])){
 										$delete	.= '<a class="btn btn-sm btn-danger" style="text-decoration: none;" onclick="copy_data_renstra(\''.$recVal['id_jadwal_lokal'].'\'); return false;" href="#" title="Copy Data RENSTRA ke RENJA">Copy Data RENSTRA</a>';
@@ -13522,11 +13840,22 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 						$jenis_jadwal = in_array($jenis_jadwal,$arr_jadwal) ? $jenis_jadwal : 'usulan';
 
 						$id_tipe = 0;
-						$sqlTipe = $wpdb->get_results("SELECT * FROM `data_tipe_perencanaan` WHERE nama_tipe='".$tipe_perencanaan."'", ARRAY_A);
+						$sqlTipe = $wpdb->get_results($wpdb->prepare("
+							SELECT 
+								* 
+							FROM `data_tipe_perencanaan` 
+							WHERE nama_tipe=%s
+						", $tipe_perencanaan), ARRAY_A);
 						if(!empty($sqlTipe)){
 							$id_tipe = $sqlTipe[0]['id'];
-							$where_renja = ($id_tipe == 5 || $id_tipe == 6) ? ' AND tahun_anggaran='.$tahun_anggaran : '';
-							$sqlSameTipe = $wpdb->get_results("SELECT * FROM `data_jadwal_lokal` WHERE id_tipe='".$id_tipe."'".$where_renja, ARRAY_A);
+							$where_renja = ($id_tipe == 5 || $id_tipe == 6) ? $wpdb->prepare(' AND tahun_anggaran=%d', $tahun_anggaran) : '';
+							$sqlSameTipe = $wpdb->get_results($wpdb->prepare("
+								SELECT 
+									* 
+								FROM `data_jadwal_lokal` 
+								WHERE id_tipe=%s
+								$where_renja
+							", $id_tipe), ARRAY_A);
 							foreach($sqlSameTipe as $valTipe){
 								if($valTipe['status'] != 1){
 									$return = array(
@@ -18629,7 +18958,8 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 				'tahun_anggaran' => $tahun_anggaran
 			);
 			if(empty($cek_id)){
-				$cek_id = $wpdb->insert('data_sp2d_fmis', $opsi);
+				$wpdb->insert('data_sp2d_fmis', $opsi);
+				$cek_id = $wpdb->insert_id;
 			}else{
 				$wpdb->update('data_sp2d_fmis', $opsi, array(
 					'id' => $cek_id
@@ -19276,5 +19606,21 @@ class Wpsipd_Public extends Wpsipd_Public_Base_1
 		    }
         }
         return $res;
+    }
+
+    function current_url($url = false){
+    	if(empty($url)){
+			$url = (empty($_SERVER['HTTPS']) ? 'http' : 'https') . "://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]";
+			$query = $_GET;
+    	}else{
+			$parts = parse_url($url, PHP_URL_QUERY);
+			parse_str($parts, $query);
+    	}
+		$current_url = explode('?', $url);
+		$current_url = $current_url[0];
+		if(!empty($query) && !empty($query['page_id'])){
+			$current_url .= '?page_id='.$query['page_id'];
+		}
+		return $current_url;
     }
 }
