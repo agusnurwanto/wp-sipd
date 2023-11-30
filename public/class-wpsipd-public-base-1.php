@@ -3268,11 +3268,30 @@ class Wpsipd_Public_Base_1 extends Wpsipd_Public_Base_2{
                                     'update_at',
                                     'tahun_anggaran'
                                 );
+                                
+                                /** mencari id_sub_giat untuk mengisi column id_indikator_sub_giat */
+                                $id_indikator_sub_giat = '';
+                                $set_id_indikator_sub_giat = '';
+                                $data_master_indikator_sub_giat = $wpdb->get_results($wpdb->prepare('
+                                    SELECT 
+                                        i.*
+                                    FROM data_master_indikator_subgiat i
+                                    LEFT join data_prog_keg p on i.id_sub_keg=p.id_sub_giat
+                                    WHERE p.kode_sub_giat=%s
+                                        AND i.tahun_anggaran=%d
+                                        AND i.active=1
+                                    GROUP BY p.kode_sub_giat
+                                    ', $v_sub_keg_bl['kode_sub_giat'], $tahun_anggaran), ARRAY_A);
+
+                                if(!empty($data_master_indikator_sub_giat)){
+                                    $id_indikator_sub_giat = ", ".$data_master_indikator_sub_giat[0]['id_sub_keg'];
+                                    $set_id_indikator_sub_giat = ', id_indikator_sub_giat';
+                                }
 
                                 $sql_copy_data_sub_keg_indikator =  "
-                                    INSERT INTO data_sub_keg_indikator_lokal (".implode(', ', $columns_indi_lokal).", outputteks_usulan, targetoutput_usulan, satuanoutput_usulan, targetoutputteks_usulan)
+                                    INSERT INTO data_sub_keg_indikator_lokal (".implode(', ', $columns_indi_lokal).", outputteks_usulan, targetoutput_usulan, satuanoutput_usulan, targetoutputteks_usulan".$set_id_indikator_sub_giat.")
                                     SELECT 
-                                        ".implode(', ', $columns_indi_lokal).", outputteks, targetoutput, satuanoutput, targetoutputteks
+                                        ".implode(', ', $columns_indi_lokal).", outputteks, targetoutput, satuanoutput, targetoutputteks".$id_indikator_sub_giat."
                                     FROM data_sub_keg_indikator 
                                     WHERE active=1
                                     AND tahun_anggaran='".$tahun_anggaran."'
@@ -3543,4 +3562,99 @@ class Wpsipd_Public_Base_1 extends Wpsipd_Public_Base_2{
         }
         die(json_encode($ret));
     }
+
+    /** Ambil data sumber dana */
+	public function get_data_sumberdana(){
+		global $wpdb;
+		$return = array(
+			'status' => 'success',
+			'data'	=> array()
+		);
+
+		if(!empty($_POST)){
+			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+				if(!empty($_POST['tahun_anggaran'])){
+					$params = $columns = $totalRecords = $data = array();
+					$params = $_REQUEST;
+					$columns = array(
+						0 => 'id',
+						1 => 'id_dana',
+						3 => 'nama_dana',
+						4 => 'tahun_anggaran'
+					);
+					$where = $sqlTot = $sqlRec = "";
+
+                    $where .=$wpdb->prepare(" WHERE s_dana.tahun_anggaran = %d", $_POST['tahun_anggaran']);
+
+					// check search value exist
+					if( !empty($params['search']['value']) ) {
+						$where .=" AND ( s_dana.nama_dana LIKE ".$wpdb->prepare('%s', "%".$params['search']['value']."%").")";
+					}
+
+
+					// getting total number records without any search
+					$sqlTot = "SELECT count(*) as jml FROM `data_sumber_dana` as s_dana";
+					$sqlRec = "SELECT ".implode(', ', $columns)." FROM `data_sumber_dana` as s_dana";
+					if(isset($where) && $where != '') {
+						$sqlTot .= $where;
+						$sqlRec .= $where;
+					}
+
+					$sqlRec .=  $wpdb->prepare(" ORDER BY s_dana.". $columns[$params['order'][0]['column']]."   ".$params['order'][0]['dir']."  LIMIT %d ,%d ", $params['start'], $params['length']);
+
+					$queryTot = $wpdb->get_results($sqlTot, ARRAY_A);
+					$totalRecords = $queryTot[0]['jml'];
+					$queryRecords = $wpdb->get_results($sqlRec, ARRAY_A);
+                    $ssst = $wpdb->last_query;
+
+					$user_id = um_user( 'ID' );
+					$user_meta = get_userdata($user_id);
+					$js_check_admin = 0;
+					if(!empty($queryRecords)){
+						foreach($queryRecords as $recKey => $recVal){
+							$edit	= '';
+							$delete	= '';
+
+                            $edit	= '<a class="btn btn-sm btn-warning mr-2" style="text-decoration: none;" onclick="edit_batasan_pagu(\''.$recVal['id_dana'].'\'); return false;" href="#" title="Edit Batasan Pagu"><i class="dashicons dashicons-edit"></i></a>';
+                            // $delete	= '<a class="btn btn-sm btn-danger" style="text-decoration: none;" onclick="hapus_batasan_pagu(\''.$recVal['id_jadwal_lokal'].'\'); return false;" href="#" title="Hapus data penjadwalan"><i class="dashicons dashicons-trash"></i></a>';
+
+							$queryRecords[$recKey]['aksi'] = $edit.$delete;
+							$queryRecords[$recKey]['nama'] = ucfirst($recVal['nama_dana']);
+						}
+	
+						$json_data = array(
+							"draw"            => intval( $params['draw'] ),  
+							"recordsTotal"    => intval( $totalRecords ), 
+							"recordsFiltered" => intval( $totalRecords ),
+							"data"            => $queryRecords,
+                            "sssss"           => $ssst
+						);
+	
+						die(json_encode($json_data));
+					}else{
+						$return = array(
+							'status' => 'error',
+							'message'	=> 'Data tidak ditemukan!'
+						);
+					}
+				}else{
+					$return = array(
+						'status' => 'error',
+						'message'	=> 'Harap diisi semua,tidak boleh ada yang kosong!'
+					);
+				}
+			}else{
+				$return = array(
+					'status' => 'error',
+					'message'	=> 'Api Key tidak sesuai!'
+				);
+			}
+		}else{
+			$return = array(
+				'status' => 'error',
+				'message'	=> 'Format tidak sesuai!'
+			);
+		}
+		die(json_encode($return));
+	}
 }
