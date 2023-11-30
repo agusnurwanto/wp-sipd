@@ -10345,4 +10345,30 @@ class Wpsipd_Public_Base_3 extends Wpsipd_Public_Ssh
     		]);exit();
     	}
     }
+
+    public function list_jadwal_rpjmd(){
+    	global $wpdb;
+    	try {
+    		if (!empty($_POST)) {
+				if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+					
+					$data = $wpdb->get_results($wpdb->prepare("SELECT id_jadwal_lokal, nama, tahun_anggaran, status FROM data_jadwal_lokal WHERE id_tipe=%d ORDER BY status", $_POST['tipe']), ARRAY_A);
+
+					echo json_encode([
+		    			'status' => true,
+		    			'data' => $data
+		    		]);exit();
+				}else{
+					throw new Exception("API tidak ditemukan!", 1);
+				}
+			}else{
+				throw new Exception("Format tidak sesuai!", 1);
+			}
+		} catch (Exception $e) {
+    		echo json_encode([
+    			'status' => false,
+    			'message' => $e->getMessage()
+    		]);exit();
+    	}
+    }
 }

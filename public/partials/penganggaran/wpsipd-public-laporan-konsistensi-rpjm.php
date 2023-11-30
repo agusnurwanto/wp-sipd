@@ -15,9 +15,9 @@ if(!empty($_GET) && !empty($_GET['id_jadwal_lokal'])){
     $id_jadwal_lokal = $_GET['id_jadwal_lokal'];
 }
 
-$jenis_jadwal = '';
-if(!empty($_GET) && !empty($_GET['jenis_jadwal'])){
-    $jenis_jadwal = $_GET['jenis_jadwal'];
+$id_jadwal_rpjm = '';
+if(!empty($_GET) && !empty($_GET['id_jadwal_rpjm'])){
+    $id_jadwal_rpjm = $_GET['id_jadwal_rpjm'];
 }
 
 $input = shortcode_atts( array(
@@ -46,6 +46,17 @@ $jadwal_lokal = $wpdb->get_row($wpdb->prepare("
     INNER JOIN `data_tipe_perencanaan` t on t.id=j.id_tipe 
     WHERE j.id_jadwal_lokal=%d", $id_jadwal_lokal));
 
+$jadwal_rpjm = $wpdb->get_row($wpdb->prepare("
+    SELECT 
+        j.nama AS nama_jadwal,
+        j.tahun_anggaran,
+        j.status,
+        j.lama_pelaksanaan,
+        t.nama_tipe 
+    FROM `data_jadwal_lokal` j
+    INNER JOIN `data_tipe_perencanaan` t on t.id=j.id_tipe 
+    WHERE j.id_jadwal_lokal=%d", $id_jadwal_rpjm));
+
 $_suffix='';
 $where_jadwal='';
 if($jadwal_lokal->status == 1){
@@ -57,6 +68,37 @@ $input['tahun_anggaran'] = $jadwal_lokal->tahun_anggaran;
 $_suffix_sipd='';
 if(strpos($jadwal_lokal->nama_tipe, '_sipd') == false){
     $_suffix_sipd = '_lokal';
+}
+
+$_suffix_rpjmd='';
+$where_jadwal_rpjm='';
+if($jadwal_rpjm->status == 1){
+    $_suffix_rpjmd='_history';
+    $where_jadwal_rpjm=' AND id_jadwal='.$wpdb->prepare("%d", $id_jadwal_rpjm);
+}
+$input['tahun_anggaran_rpjm'] = $jadwal_rpjm->tahun_anggaran;
+
+$_suffix_sipd_rpjm='';
+$where_tahun_anggaran_rpjm='';
+if(strpos($jadwal_rpjm->nama_tipe, '_sipd') == false){
+    $_suffix_sipd_rpjm = '_lokal';
+}else{
+    $where_tahun_anggaran_rpjm = 'a.tahun_anggaran='.$input['tahun_anggaran_rpjm'].'  AND';
+}
+
+$tahun_rpjm_start = $jadwal_rpjm->tahun_anggaran;
+$tahun_rpjm_end = $jadwal_rpjm->tahun_anggaran + $jadwal_rpjm->lama_pelaksanaan;
+
+if($jadwal_lokal->tahun_anggaran < $tahun_rpjm_start || $jadwal_lokal->tahun_anggaran > $tahun_rpjm_end){
+    die('Jadwal APBD tidak berada di rentang tahun RPJM!');
+}
+
+$tahun_berjalan = 1;
+for ($i=$tahun_rpjm_start; $i <= $tahun_rpjm_end; $i++) { 
+    if($jadwal_lokal->tahun_anggaran==$i){
+        break;
+    }
+    $tahun_berjalan++;
 }
 
 $nama_skpd = '';
@@ -187,76 +229,48 @@ foreach($data_skpd as $skpd){
                 'jml_sub_keg_papbd' => 0,
                 'total_papbd' => 0,
                 'data'  => array(),
-                'data_rpjm' => array()
+                'data_program_rpjm' => array()
             );
 
-            // $dataRpjm = $wpdb->get_row($wpdb->prepare("
-            //         SELECT 
-            //             id_unik,
-            //             id_unik_indikator,
-            //             id_program, 
-            //             nama_program, 
-            //             target_1, 
-            //             target_2, 
-            //             target_3, 
-            //             target_4, 
-            //             target_5,
-            //             pagu_1, 
-            //             pagu_2, 
-            //             pagu_3, 
-            //             pagu_4, 
-            //             pagu_5 
-            //         FROM 
-            //             data_rpjmd_program".$_suffix_sipd."".$_suffix." 
-            //             WHERE 
-            //                 id_program=(
-            //                         SELECT 
-            //                             id_program 
-            //                         FROM 
-            //                             data_prog_keg 
-            //                         WHERE 
-            //                             id_program=%d AND 
-            //                             tahun_anggaran=%d AND
-            //                             active=%d
-            //                         LIMIT 1
-            //                 ) AND
-            //                 status=%d AND
-            //                 active=%d
-            //         ", $sub['id_program'], $input['tahun_anggaran'], 1, 1, 1));
-
-            $dataRpjm = $wpdb->get_results($wpdb->prepare("SELECT 
-                        id_unik,
-                        id_unik_indikator, 
-                        id_program, 
-                        nama_program, 
-                        target_1, 
-                        target_2, 
-                        target_3, 
-                        target_4, 
-                        target_5, 
-                        target_awal, 
-                        target_akhir, 
-                        pagu_1, 
-                        pagu_2, 
-                        pagu_3, 
-                        pagu_4, 
-                        pagu_5,
-                        status,
-                        active
+            $dataRpjm = $wpdb->get_results($wpdb->prepare("
+                    SELECT 
+                        a.id_unik,
+                        a.id_unik_indikator,
+                        a.id_program, 
+                        a.nama_program, 
+                        a.indikator,
+                        a.satuan,
+                        a.target_".$tahun_berjalan.",
+                        a.pagu_".$tahun_berjalan." 
                     FROM 
-                        data_rpjmd_program_lokal 
+                        data_rpjmd_program".$_suffix_sipd."".$_suffix." a INNER JOIN data_prog_keg b
+                            ON a.id_program=b.id_program AND b.tahun_anggaran=%d 
                         WHERE 
-                            id_program=%d", 436), ARRAY_A);
-
-            echo '<pre>';print_r($dataRpjm);echo '</pre>';die();
+                            a.id_program=%d AND
+                            ".$where_tahun_anggaran_rpjm."
+                            a.active=%d AND
+                            a.id_unik_indikator IS NOT NULL
+                            ".$where_jadwal_rpjm."
+                    ", $input['tahun_anggaran_rpjm'], $sub['id_program'], 1), ARRAY_A);
 
             if(!empty($dataRpjm)){
                 foreach ($dataRpjm as $key => $rpjm) {
-                    if(empty($data_all['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['id_skpd']]['data'][$sub['id_sub_skpd']]['data'][$sub['kode_program']]['data_rpjm'][$rpjm['id_unik']])){
-
-                        $data_all['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['id_skpd']]['data'][$sub['id_sub_skpd']]['data'][$sub['kode_program']]['data_rpjm'][$rpjm['id_unik']] = [
-                            'nama' => $rpjm['nama_program'],
+                    if(empty($data_all['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['id_skpd']]['data'][$sub['id_sub_skpd']]['data'][$sub['kode_program']]['data_program_rpjm'][$rpjm['kode_program']])){
+                        $data_all['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['id_skpd']]['data'][$sub['id_sub_skpd']]['data'][$sub['kode_program']]['data_program_rpjm'][$rpjm['kode_program']] = [
+                            'kode_program' => $rpjm['kode_program'],
+                            'nama_program' => $rpjm['nama_program'],
+                            'data_indikator_program_rpjm' => array(),
                         ];
+
+                        if(empty($data_all['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['id_skpd']]['data'][$sub['id_sub_skpd']]['data'][$sub['kode_program']]['data_program_rpjm'][$rpjm['kode_program']]['data_indikator_program_rpjm'][$rpjm['id_unik_indikator']])){
+
+                            $data_all['data'][$sub['kode_urusan']]['data'][$sub['kode_bidang_urusan']]['data'][$sub['id_skpd']]['data'][$sub['id_sub_skpd']]['data'][$sub['kode_program']]['data_program_rpjm'][$rpjm['kode_program']]['data_indikator_program_rpjm'][$rpjm['id_unik_indikator']] = [
+                                'indikator' => $rpjm['indikator'],
+                                'target_'.$tahun_berjalan => $rpjm['target_'.$tahun_berjalan],
+                                'satuan' => $rpjm['satuan'],
+                                'pagu_'.$tahun_berjalan => $rpjm['pagu_'.$tahun_berjalan],
+                            ];
+                        }
                     }
                 }
             }
@@ -403,13 +417,32 @@ foreach($data_all['data'] as $urusan){
                 foreach($sub_skpd['data'] as $program){
                     $no_program++;
                     $indikator_program = '';
+                    $text_program_rpjm=[];
+                    $text_indikator_program_rpjm=[];
+                    $target_indikator_program_rpjm=[];
+                    $pagu_indikator_program_rpjm=0;
+                    if(!empty($program['data_program_rpjm'])){
+                        foreach ($program['data_program_rpjm'] as $program_rpjm) {
+                            $text_program_rpjm[]='<div class="indikator_program">'.$program_rpjm['nama_program'].'</div>';
+                            foreach ($program_rpjm['data_indikator_program_rpjm'] as $indikator_rpjm) {
+                                $text_indikator_program_rpjm[]='<div class="indikator_program">'.$indikator_rpjm['indikator'].'</div>';
+                                $target_indikator_program_rpjm[]='<div class="indikator_program">'.$indikator_rpjm['target_'.$tahun_berjalan].'</div>';
+                                $pagu_indikator_program_rpjm+=$indikator_rpjm['pagu_'.$tahun_berjalan];
+                            }
+                        }
+                    }
+
+                    $text_program_rpjm = implode('', $text_program_rpjm);
+                    $text_indikator_program_rpjm = implode('', $text_indikator_program_rpjm);
+                    $target_indikator_program_rpjm = implode('', $target_indikator_program_rpjm);
+
                     $body .= '
                         <tr>
                             <td class="text-center kiri kanan bawah">'.$no_program.'</td>
-                            <td class="kanan bawah"></td>
-                            <td class="text-left kanan bawah">&nbsp</td>
-                            <td class="text-left kanan bawah">&nbsp</td>
-                            <td class="text-left kanan bawah">&nbsp</td>
+                            <td class="kanan bawah">'.$text_program_rpjm.'</td>
+                            <td class="text-left kanan bawah">'.$pagu_indikator_program_rpjm.'</td>
+                            <td class="text-left kanan bawah">'.$text_indikator_program_rpjm.'</td>
+                            <td class="text-left kanan bawah">'.$target_indikator_program_rpjm.'</td>
                             <td class="kanan bawah"><b>'.$program['nama'].'</b></td>
                             <td class="text-right kanan bawah">'.number_format($program['total_rkpd'],0,",",".").'</td>
                             <td class="kanan bawah">'.$indikator_program.'</td>

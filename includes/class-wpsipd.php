@@ -931,6 +931,8 @@ class Wpsipd
 		$this->loader->add_action('wp_ajax_mutakhirkan_program_rpjm',  $plugin_public, 'mutakhirkan_program_rpjm');
 
 		$this->loader->add_action('wp_ajax_mutakhirkan_program_rpd',  $plugin_public, 'mutakhirkan_program_rpd');
+
+		$this->loader->add_action('wp_ajax_list_jadwal_rpjmd',  $plugin_public, 'list_jadwal_rpjmd');
 		
 		add_shortcode('menu_monev',  array($plugin_public, 'menu_monev'));
 		add_shortcode('datassh', array($plugin_public, 'datassh'));

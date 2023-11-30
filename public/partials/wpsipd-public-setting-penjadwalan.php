@@ -727,13 +727,7 @@ $body = '';
 					    <div class="row" style="display:none" id="opt_jenis_jadwal_div">
 					    	<div class="col-md-2">Jenis Jadwal</div>
 					    	<div class="col-md-6">
-					      		<select class="form-control jenis" id="opt_jenis_jadwal">
-					      			<option value="-">Pilih Jenis Jadwal</option>
-									<option value="jadwal_sipd_active">Jadwal SIPD Active</option>
-									<option value="jadwal_sipd_terkunci">Jadwal SIPD Terkunci</option>
-									<option value="jadwal_lokal_active">Jadwal Lokal Active</option>
-									<option value="jadwal_lokal_terkunci">Jadwal Lokal Terkunci</option>
-				      			</select>
+					      		<select class="form-control jenis" id="opt_jenis_jadwal"></select>
 					    	</div>
 					    </div></br>
 					    <div class="row">
@@ -775,8 +769,8 @@ $body = '';
 
 		switch (jenis) {
 			case 'laporan_konsistensi_rpjm':
-				let jenis_jadwal=jQuery("#opt_jenis_jadwal").val() ?? '';
-				window.open('<?php echo $url_laporan_konsistensi_rpjm; ?>'+'&id_unit='+id_unit+'&id_jadwal_lokal='+id_jadwal_lokal+'&jenis_jadwal='+jenis_jadwal,'_blank');
+				let id_jadwal_rpjm=jQuery("#opt_jenis_jadwal").val() ?? '';
+				window.open('<?php echo $url_laporan_konsistensi_rpjm; ?>'+'&id_unit='+id_unit+'&id_jadwal_lokal='+id_jadwal_lokal+'&id_jadwal_rpjm='+id_jadwal_rpjm,'_blank');
 				break;
 			case 'pagu_total':
 				generate(id_unit, id_jadwal_lokal, 'view_pagu_total_renja', 'Laporan Pagu Akumulasi Per Unit Kerja');
@@ -1020,21 +1014,40 @@ $body = '';
 		}
 	}
 
-<<<<<<< HEAD
 	function jenis_laporan(that){
 		switch (jQuery(that).val()){
 			case 'laporan_konsistensi_rpjm':
-				jQuery("#opt_jenis_jadwal_div").show();
+				jQuery('#wrap-loading').show();
+				let option = '<option value="-">Pilih Jenis Jadwal</option>';
+				jQuery.ajax({
+					url: ajax.url,
+					type: 'post',
+					dataType: "json",
+					data: {
+						"action": "list_jadwal_rpjmd",
+						"api_key": jQuery('#api_key').val(),
+						"tipe": 8 // id_tipe rpjm sipd
+					},
+					success: function(response) {
+						jQuery('#wrap-loading').hide();
+						if(response.status){
+							response.data.map(function(value, index){
+								option += `<option value="${value.id_jadwal_lokal}">${value.nama}</option>`;
+							});
+						}
+						jQuery("#opt_jenis_jadwal").html(option);
+						jQuery("#opt_jenis_jadwal_div").show();
+					}
+				});
 				break;
 
 			default:
+				jQuery("#opt_jenis_jadwal").html(null);
 				jQuery("#opt_jenis_jadwal_div").hide();
 				break;
 		}
 	}
 
-</script> 
-=======
 	function copy_renja_sipd_to_lokal_all() {
 		if (confirm('Apakah anda yakin untuk melakukan ini? data RENJA lokal akan diupdate sama dengan data RENJA SIPD.')) {
 			var copy_data_option = [];
@@ -1061,4 +1074,3 @@ $body = '';
 		}
 	}
 </script>
->>>>>>> 45437c9af1c047dcbff338a5019ccb4a3d5f900f
