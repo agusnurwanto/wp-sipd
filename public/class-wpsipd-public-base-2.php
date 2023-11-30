@@ -2922,6 +2922,15 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 							$ret['data']['data_master_desa'][$v_lokasi->id] = $data_master_desa;
 						}
 						
+						// get kode sub kegiatan dulu
+						$get_data_prog_keg = $wpdb->get_row($wpdb->prepare('
+							SELECT 
+								kode_sub_giat
+							FROM data_prog_keg p
+							WHERE p.id_sub_giat=%s
+								AND p.tahun_anggaran=%d
+						', $data_sub_giat['id_sub_giat'], $tahun_anggaran), ARRAY_A);
+
 						$data_master_sub_keg_indikator = $wpdb->get_results($wpdb->prepare('
 							SELECT 
 								i.*
@@ -2931,7 +2940,7 @@ class Wpsipd_Public_Base_2 extends Wpsipd_Public_Base_3
 								AND i.tahun_anggaran=%d
 								AND i.active=p.active
 							GROUP BY p.kode_sub_giat
-						', $data_sub_giat['kode_sub_giat'], $tahun_anggaran),ARRAY_A);
+						', $get_data_prog_keg['kode_sub_giat'], $tahun_anggaran),ARRAY_A);
 						$ret['data']['master_sub_keg_indikator'] = array();
 						$ret['data']['master_sub_keg_indikator_sql'] = $wpdb->last_query;
 						if(!empty($data_master_sub_keg_indikator)){
