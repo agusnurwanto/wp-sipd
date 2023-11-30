@@ -726,6 +726,8 @@ class Wpsipd
 		$this->loader->add_action('wp_ajax_get_label_sub_keg',  $plugin_public, 'get_label_sub_keg');
 		$this->loader->add_action('wp_ajax_copy_penetapan_renja',  $plugin_public, 'copy_penetapan_renja');
 		$this->loader->add_action('wp_ajax_copy_renja_sipd_to_lokal',  $plugin_public, 'copy_renja_sipd_to_lokal');
+
+		$this->loader->add_action('wp_ajax_get_data_sumberdana',  $plugin_public, 'get_data_sumberdana');
 		
 		$this->loader->add_action('wp_ajax_view_rekap_rpd',  $plugin_public, 'view_rekap_rpd');
 		$this->loader->add_action('wp_ajax_view_pagu_akumulasi_rpd',  $plugin_public, 'view_pagu_akumulasi_rpd');
