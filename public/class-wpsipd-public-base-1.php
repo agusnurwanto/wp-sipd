@@ -3563,8 +3563,152 @@ class Wpsipd_Public_Base_1 extends Wpsipd_Public_Base_2{
         die(json_encode($ret));
     }
 
-    /** Ambil data sumber dana */
-	public function get_data_sumberdana(){
+
+public function get_data_batasan_pagu_sumberdana_by_id(){
+        global $wpdb;
+        $ret = array(
+            'status' => 'success',
+            'message' => 'Berhasil get data!',
+            'data' => array()
+        );
+        if(!empty($_POST)){
+            if(!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+                $ret['data'] = $wpdb->get_row($wpdb->prepare('
+                   SELECT
+                        *
+                    FROM data_batasan_pagu_sd
+                    WHERE id=%d
+                ', $_POST['id']), ARRAY_A);
+            }else{
+                $ret['status']  = 'error';
+                $ret['message'] = 'Api key tidak ditemukan!';
+            }
+        }else{
+            $ret['status']  = 'error';
+            $ret['message'] = 'Format Salah!';
+        }
+
+        die(json_encode($ret));
+    }
+
+    public function hapus_data_batasan_pagu_by_id(){
+        global $wpdb;
+        $ret = array(
+            'status' => 'success',
+            'message' => 'Berhasil hapus data!',
+            'data' => array()
+        );
+        if(!empty($_POST)){
+            if(!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+                $wpdb->update('data_batasan_pagu_sd', array('active' => 0), array(
+                    'id' => $_POST['id']
+                ));
+            }else{
+                $ret['status']  = 'error';
+                $ret['message'] = 'Api key tidak ditemukan!';
+            }
+        }else{
+            $ret['status']  = 'error';
+            $ret['message'] = 'Format Salah!';
+        }
+
+        die(json_encode($ret));
+    }
+
+    public function tambah_data_batasan_pagu_by_id(){
+        global $wpdb;
+        $ret = array(
+            'status' => 'success',
+            'message' => 'Berhasil simpan data!',
+            'data' => array()
+        );
+        if(!empty($_POST)){
+            if(!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
+                if($ret['status'] != 'error' && empty($_POST['id_dana'])){
+                     $ret['status'] = 'error';
+                     $ret['message'] = 'ID Dana tidak boleh kosong!';
+                }
+                if($ret['status'] != 'error' && empty($_POST['kode_dana'])){
+                     $ret['status'] = 'error';
+                     $ret['message'] = 'Kode Dana tidak boleh kosong!';
+                }
+                if($ret['status'] != 'error' && empty($_POST['nama_dana'])){
+                     $ret['status'] = 'error';
+                     $ret['message'] = 'Data nama_dana tidak boleh kosong!';
+                }
+                if($ret['status'] != 'error' && empty($_POST['nilai_batasan'])){
+                     $ret['status'] = 'error';
+                     $ret['message'] = 'Data nilai_batasan tidak boleh kosong!';
+                }
+                if($ret['status'] != 'error' && empty($_POST['tahun_anggaran'])){
+                     $ret['status'] = 'error';
+                     $ret['message'] = 'Data tahun_anggaran tidak boleh kosong!';
+                }
+                if($ret['status'] != 'error'){
+                    $nilai_batasan = $_POST['nilai_batasan'];
+                    $id_dana = $_POST['id_dana'];
+                    $nama_dana = $_POST['nama_dana'];
+                    $kode_dana = $_POST['kode_dana'];
+                    $keterangan = $_POST['keterangan'];
+                    $tahun_anggaran = $_POST['tahun_anggaran'];
+                    $data = array(
+                        'id_dana' => $id_dana,
+                        'kode_dana' => $kode_dana,
+                        'nama_dana' => $nama_dana,
+                        'nilai_batasan' => $nilai_batasan,
+                        'keterangan' => $keterangan,
+                        'active' => 1,
+                        'tahun_anggaran' => $tahun_anggaran
+                    );
+                    if(!empty($_POST['id_data'])){
+                        $data['update_at'] = current_time('mysql');
+                        $wpdb->update('data_batasan_pagu_sd', $data, array(
+                            'id' => $_POST['id_data']
+                        ));
+                        $ret['message'] = 'Berhasil update data!';
+                    }else{
+                        $cek_id = $wpdb->get_row($wpdb->prepare('
+                            SELECT
+                                id,
+                                active
+                            FROM data_batasan_pagu_sd
+                            WHERE kode_dana=%s
+                        ', $kode_dana), ARRAY_A);
+                        if(empty($cek_id)){
+                            $data['created_at'] = current_time('mysql');
+                            $wpdb->insert('data_batasan_pagu_sd', $data);
+                        }else{
+                            if($cek_id['active'] == 0){
+                                $data['update_at'] = current_time('mysql');
+                                $wpdb->update('data_batasan_pagu_sd', $data, array(
+                                    'id' => $cek_id['id']
+                                ));
+                            }else{
+                                $ret['status'] = 'error';
+                                $ret['message'] = 'Gagal disimpan. Data Sumber Dana dengan kode_dana="'.$kode_dana.'" sudah ada!';
+                            }
+                        }
+                    }
+                }
+                if(!empty($wpdb->last_error)){
+                    $ret['status'] = 'error';
+                    $ret['message'] = $wpdb->last_error;
+                    $ret['sql'] = $wpdb->last_query;
+                }
+            }else{
+                $ret['status']  = 'error';
+                $ret['message'] = 'Api key tidak ditemukan!';
+            }
+        }else{
+            $ret['status']  = 'error';
+            $ret['message'] = 'Format Salah!';
+        }
+
+        die(json_encode($ret));
+    }
+
+
+	public function get_batasan_pagu_sumberdana(){
 		global $wpdb;
 		$return = array(
 			'status' => 'success',
@@ -3573,18 +3717,18 @@ class Wpsipd_Public_Base_1 extends Wpsipd_Public_Base_2{
 
 		if(!empty($_POST)){
 			if (!empty($_POST['api_key']) && $_POST['api_key'] == get_option( '_crb_api_key_extension' )) {
-				if(!empty($_POST['tahun_anggaran'])){
+				// if(!empty($_POST['tahun_anggaran'])){
 					$params = $columns = $totalRecords = $data = array();
 					$params = $_REQUEST;
 					$columns = array(
-						0 => 'id',
-						1 => 'id_dana',
-						3 => 'nama_dana',
-						4 => 'tahun_anggaran'
+                        0   => 'kode_dana',
+                        1   => 'nama_dana',
+                        2   => 'nilai_batasan',
+                        3   => 'keterangan',
+                        4   => 'id'  
 					);
 					$where = $sqlTot = $sqlRec = "";
-
-                    $where .=$wpdb->prepare(" WHERE s_dana.tahun_anggaran = %d", $_POST['tahun_anggaran']);
+                    $where .= ' WHERE active=1 AND tahun_anggaran='.$wpdb->prepare('%d', $params['tahun_anggaran']);
 
 					// check search value exist
 					if( !empty($params['search']['value']) ) {
@@ -3593,8 +3737,8 @@ class Wpsipd_Public_Base_1 extends Wpsipd_Public_Base_2{
 
 
 					// getting total number records without any search
-					$sqlTot = "SELECT count(*) as jml FROM `data_sumber_dana` as s_dana";
-					$sqlRec = "SELECT ".implode(', ', $columns)." FROM `data_sumber_dana` as s_dana";
+					$sqlTot = "SELECT count(*) as jml FROM `data_batasan_pagu_sd` as s_dana";
+					$sqlRec = "SELECT ".implode(', ', $columns)." FROM `data_batasan_pagu_sd` as s_dana";
 					if(isset($where) && $where != '') {
 						$sqlTot .= $where;
 						$sqlRec .= $where;
@@ -3610,39 +3754,27 @@ class Wpsipd_Public_Base_1 extends Wpsipd_Public_Base_2{
 					$user_id = um_user( 'ID' );
 					$user_meta = get_userdata($user_id);
 					$js_check_admin = 0;
-					if(!empty($queryRecords)){
-						foreach($queryRecords as $recKey => $recVal){
-							$edit	= '';
-							$delete	= '';
+					foreach($queryRecords as $recKey => $recVal){
+						$edit	= '';
+						$delete	= '';
 
-                            $edit	= '<a class="btn btn-sm btn-warning mr-2" style="text-decoration: none;" onclick="edit_batasan_pagu(\''.$recVal['id_dana'].'\'); return false;" href="#" title="Edit Batasan Pagu"><i class="dashicons dashicons-edit"></i></a>';
-                            // $delete	= '<a class="btn btn-sm btn-danger" style="text-decoration: none;" onclick="hapus_batasan_pagu(\''.$recVal['id_jadwal_lokal'].'\'); return false;" href="#" title="Hapus data penjadwalan"><i class="dashicons dashicons-trash"></i></a>';
+                        $edit	= '<a class="btn btn-sm btn-warning mr-2" style="text-decoration: none;" onclick="edit_batasan_pagu(\''.$recVal['id'].'\'); return false;" href="#" title="Edit Batasan Pagu"><i class="dashicons dashicons-edit"></i></a>';
+                        $delete	= '<a class="btn btn-sm btn-danger" style="text-decoration: none;" onclick="hapus_batasan_pagu(\''.$recVal['id'].'\'); return false;" href="#" title="Hapus Batasan Pagu"><i class="dashicons dashicons-trash"></i></a>';
 
-							$queryRecords[$recKey]['aksi'] = $edit.$delete;
-							$queryRecords[$recKey]['nama'] = ucfirst($recVal['nama_dana']);
-						}
-	
-						$json_data = array(
-							"draw"            => intval( $params['draw'] ),  
-							"recordsTotal"    => intval( $totalRecords ), 
-							"recordsFiltered" => intval( $totalRecords ),
-							"data"            => $queryRecords,
-                            "sssss"           => $ssst
-						);
-	
-						die(json_encode($json_data));
-					}else{
-						$return = array(
-							'status' => 'error',
-							'message'	=> 'Data tidak ditemukan!'
-						);
+						$queryRecords[$recKey]['aksi'] = $edit.$delete;
+						$queryRecords[$recKey]['pagu_terpakai'] = 0;
+                        $queryRecords[$recKey]['nilai_batasan'] = $this->_number_format($recVal['nilai_batasan']);
 					}
-				}else{
-					$return = array(
-						'status' => 'error',
-						'message'	=> 'Harap diisi semua,tidak boleh ada yang kosong!'
+
+					$json_data = array(
+						"draw"            => intval( $params['draw'] ),  
+						"recordsTotal"    => intval( $totalRecords ), 
+						"recordsFiltered" => intval( $totalRecords ),
+						"data"            => $queryRecords,
+                        "sql"           => $ssst
 					);
-				}
+
+					die(json_encode($json_data));
 			}else{
 				$return = array(
 					'status' => 'error',

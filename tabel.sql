@@ -5799,3 +5799,17 @@ CREATE TABLE `data_validasi_verifikasi_rka` (
   `update_at` datetime DEFAULT current_timestamp(),
   PRIMARY KEY  (id)
 );
+
+CREATE TABLE `data_batasan_pagu_sd`(
+  `id` int not null auto_increment,
+  `id_dana` int(11) NOT NULL,
+  `kode_dana` varchar(50) NOT NULL,
+  `nama_dana` text NOT NULL,
+  `nilai_batasan` double(20,0) NOT NULL,
+  `keterangan` text DEFAULT NULL,
+  `active` tinyint(4) NOT NULL,
+  `created_at` datetime DEFAULT current_timestamp(),
+  `update_at` datetime DEFAULT current_timestamp(),
+  `tahun_anggaran` year(4) NOT NULL,
+  PRIMARY KEY (id)
+);
