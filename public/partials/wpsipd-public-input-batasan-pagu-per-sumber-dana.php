@@ -64,7 +64,7 @@ foreach($sd as $val){
                 </div>
                 <div class="form-group">
                     <label for='nilai_batasan'>Batasan Pagu</label>
-                    <input type="number" id='nilai_batasan' name="nilai_batasan" class="form-control" placeholder=''/>
+                    <input type="text" id='nilai_batasan' name="nilai_batasan" class="form-control niai_pagu" placeholder=''/>
                 </div>
                 <div class="form-group">
                     <label for='keterangan'>Keterangan</label>
@@ -85,8 +85,12 @@ jQuery(document).ready(function(){
     	width: '100%',
     	dropdownParent: jQuery('#modalTambahDataBatasanPagu .modal-content')
     });
+	    jQuery('.niai_pagu').on('input', function() {
+	        var sanitized = jQuery(this).val().replace(/[^0-9]/g, '');
+	        var formatted = formatRupiah(sanitized);
+	        jQuery(this).val(formatted);
+	    });
 });
-
 function get_data_batasan_pagu_sumberdana (){
     if(typeof databatasanpagu == 'undefined'){
         window.databatasanpagu = jQuery('#data_sumberdana_table').on('preXhr.dt', function(e, settings, data){
@@ -170,7 +174,12 @@ function hapus_batasan_pagu(id){
             });
         }
     }
-
+function formatRupiah(angka) {
+    var reverse = angka.toString().split('').reverse().join('');
+    var thousands = reverse.match(/\d{1,3}/g);
+    var formatted = thousands.join('.').split('').reverse().join('');
+    return formatted;
+}
 function edit_batasan_pagu(_id){
     jQuery('#wrap-loading').show();
     jQuery.ajax({
@@ -186,7 +195,7 @@ function edit_batasan_pagu(_id){
             if(res.status == 'success'){
                 jQuery('#id_data').val(res.data.id);
                 jQuery('#sumber_dana').val(res.data.id_dana).trigger('change');
-                jQuery('#nilai_batasan').val(res.data.nilai_batasan);
+                jQuery('#nilai_batasan').val(res.data.nilai_batasan).trigger('input');
                 jQuery('#keterangan').val(res.data.keterangan);
                 jQuery('#modalTambahDataBatasanPagu').modal('show');
             }else{
@@ -202,7 +211,7 @@ function tambah_data_batasan_pagu(){
     jQuery('#id_data').val('');
     jQuery('#kode_dana').val('');
     jQuery('#nama_dana').val('');
-    jQuery('#nilai_batasan').val('');
+    jQuery('#nilai_batasan').val('').trigger('change');
     jQuery('#pagu_terpakai').val('');
     jQuery('#keterangan').val('');
     jQuery('#modalTambahDataBatasanPagu').modal('show');
@@ -216,7 +225,7 @@ function submitTambahDataBatasanPagu(){
     }
     var kode_dana = jQuery('#sumber_dana option:selected').attr('kode_dana');
     var nama_dana = jQuery('#sumber_dana option:selected').attr('nama_dana');
-    var nilai_batasan = jQuery('#nilai_batasan').val();
+    var nilai_batasan = jQuery('#nilai_batasan').val().replace(/\./g, '');
     if(nilai_batasan == ''){
         return alert('Batasan Pagu tidak boleh kosong!');
     }
