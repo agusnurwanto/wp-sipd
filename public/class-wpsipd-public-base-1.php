@@ -3768,7 +3768,6 @@ public function get_data_batasan_pagu_sumberdana_by_id(){
                     $sd_unset = array();
                     $dana_lokal = $wpdb->get_results("
                         SELECT 
-                            s_dana.id, 
                             s_dana.id_dana, 
                             s_dana.kode_dana,
                             s_dana.nama_dana, 
@@ -3809,7 +3808,7 @@ public function get_data_batasan_pagu_sumberdana_by_id(){
                                 <td>$sd[kode_dana]</td>
                                 <td>$sd[nama_dana]</td>
                                 <td class='text-right'>".$this->_number_format($sd[total])."</td>
-                                <td class='text-center'><a class='btn btn-sm btn-info mr-2' style='text-decoration: none;' onclick=\"tambah_data_batasan_pagu('$sd[id]', $sd[total]); return false;\" href='#' title='Tambah Batasan Pagu'><i class='dashicons dashicons-plus'></i></a></td>
+                                <td class='text-center'><a class='btn btn-sm btn-info mr-2' style='text-decoration: none;' onclick=\"tambah_data_batasan_pagu('$sd[id_dana]', $sd[total]); return false;\" href='#' title='Tambah Batasan Pagu'><i class='dashicons dashicons-plus'></i></a></td>
                             </tr>
                         ";
                     }
